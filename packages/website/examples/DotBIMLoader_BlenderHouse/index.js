@@ -2,19 +2,11 @@
 
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
-// Create a helper that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
+const demoHelper = new xeokit.demo.DemoHelper({});
 
-import {DemoHelper} from "../../js/DemoHelper.js";
+demoHelper.init().then(() => {
 
-const demoHelper = new DemoHelper({});
-
-demoHelper.init().then(({
-                          scene,
-                          data,
-                          viewer,
-                          view,
-                          renderer
-                        }) => {
+  const {view, scene, data} = demoHelper;
 
   // Create a DotBIMLoader to load .BIM files
 

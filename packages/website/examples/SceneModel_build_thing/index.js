@@ -2,26 +2,20 @@
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
 // Create a helper that sets up the Scene, Viewer, and WebGLRenderer used by this demo.
-import { DemoHelper } from "../../js/DemoHelper.js";
 
-const demoHelper = new DemoHelper({});
+const demoHelper = new xeokit.demo.DemoHelper({});
 
-demoHelper.init({ logging: false }).then(({
-                                            scene,
-                                            viewer,
-                                            view,
-                                            renderer
-                                          }) => {
+demoHelper.init().then(() => {
+
+  const {view, scene} = demoHelper;
 
   // Position the View's camera.
-  view.camera.eye  = [15, -25, 15];
+  view.camera.eye = [15, -25, 15];
   view.camera.look = [0, 0, 0];
-  view.camera.up   = [0, 0, 1];
-
-  view.camera.perspectiveProjection.far = 100000;
+  view.camera.up = [0, 0, 1];
 
   // Create a SceneModel to hold our geometries, meshes, and objects.
-  const sceneModelRes = scene.createModel({ id: "simpleShapes" });
+  const sceneModelRes = scene.createModel({id: "simpleShapes"});
   if (!sceneModelRes.ok) {
     throw new Error(sceneModelRes.error);
   }
@@ -36,16 +30,16 @@ demoHelper.init({ logging: false }).then(({
     id: "boxGeometry",
     primitive: xeokit.constants.TrianglesPrimitive,
     positions: [
-      1,  1,  1,  -1,  1,  1,  -1, -1,  1,   1, -1,  1,
-      1,  1, -1,  -1,  1, -1,  -1, -1, -1,   1, -1, -1
+      1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1,
+      1, 1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1
     ],
     indices: [
-      0, 1, 2,  0, 2, 3,     // +Z
-      4, 7, 6,  4, 6, 5,     // -Z
-      4, 5, 1,  4, 1, 0,     // +Y
-      3, 2, 6,  3, 6, 7,     // -Y
-      0, 3, 7,  0, 7, 4,     // +X
-      1, 5, 6,  1, 6, 2      // -X
+      0, 1, 2, 0, 2, 3,     // +Z
+      4, 7, 6, 4, 6, 5,     // -Z
+      4, 5, 1, 4, 1, 0,     // +Y
+      3, 2, 6, 3, 6, 7,     // -Y
+      0, 3, 7, 0, 7, 4,     // +X
+      1, 5, 6, 1, 6, 2      // -X
     ]
   });
   if (!boxGeomRes.ok) {
@@ -59,12 +53,12 @@ demoHelper.init({ logging: false }).then(({
     positions: [
       -1, -1, 0,
       1, -1, 0,
-      1,  1, 0,
-      -1,  1, 0,
-      0,  0, 1.5
+      1, 1, 0,
+      -1, 1, 0,
+      0, 0, 1.5
     ],
     indices: [
-      0, 1, 2,  0, 2, 3,  // base
+      0, 1, 2, 0, 2, 3,  // base
       0, 1, 4,
       1, 2, 4,
       2, 3, 4,
@@ -95,7 +89,7 @@ demoHelper.init({ logging: false }).then(({
       const y = Math.sin(theta) * radius;
 
       positions.push(x, y, -halfH); // bottom ring
-      positions.push(x, y,  halfH); // top ring
+      positions.push(x, y, halfH); // top ring
     }
 
     const bottomCenterIndex = positions.length / 3;
@@ -170,7 +164,7 @@ demoHelper.init({ logging: false }).then(({
     const meshRes = sceneModel.createMesh({
       id: meshId,
       geometryId,
-      matrix: xeokit.scene.buildMat4({ position, scale }),
+      matrix: xeokit.scene.buildMat4({position, scale}),
       color
     });
 

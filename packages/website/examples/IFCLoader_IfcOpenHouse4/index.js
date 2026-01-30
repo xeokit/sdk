@@ -4,18 +4,13 @@ import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
 // Create a helper that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
 
-import {DemoHelper} from "../../js/DemoHelper.js";
 import {DataGraphOverlay} from "../../js/DataGraphOverlay.js";
 
-const demoHelper = new DemoHelper({});
+const demoHelper = new xeokit.demo.DemoHelper({});
 
-demoHelper.init().then(({
-                          scene,
-                          data,
-                          viewer,
-                          view,
-                          renderer
-                        }) => {
+demoHelper.init().then(() => {
+
+  const {view, scene, data} = demoHelper;
 
 // Create an IFCLoader to load IFC files
 
@@ -26,7 +21,6 @@ demoHelper.init().then(({
   view.camera.eye = [-6.01, 4.85, 9.11];
   view.camera.look = [3.93, -2.65, -12.51];
   view.camera.up = [0.12, 0.95, -0.27];
-
 
 
 // Create a SceneModel to hold our model's geometry and materials

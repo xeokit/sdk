@@ -4,17 +4,13 @@ import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
 // Create a helper that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
 
-import {DemoHelper} from "../../js/DemoHelper.js";
+const demoHelper = new xeokit.demo.DemoHelper({});
 
-const demoHelper = new DemoHelper({});
+demoHelper
+  .init()
+  .then(() => {
 
-demoHelper.init().then(({
-                          scene,
-                          data,
-                          viewer,
-                          view,
-                          renderer
-                        }) => {
+    const {view, scene} = demoHelper;
 
     // Position the View's Camera
 
@@ -62,7 +58,7 @@ demoHelper.init().then(({
     // ID as the SceneObject. Through the ViewObject, we can now update the
     // appearance of the box in that View.
 
-  //  view.objects["triangleObject"].highlighted = true;
+    //  view.objects["triangleObject"].highlighted = true;
 
     demoHelper.finished();
 

@@ -4,27 +4,17 @@ import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
 // Create a helper that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
 
-import {DemoHelper} from "../../js/DemoHelper.js";
+const demoHelper = new xeokit.demo.DemoHelper({});
 
-const demoHelper = new DemoHelper({});
+demoHelper.init().then(() => {
 
-demoHelper.init().then(({
-                          scene,
-                          data,
-                          viewer,
-                          view,
-                          renderer
-                        }) => {
+  const {view, scene} = demoHelper;
 
   // Position the View's Camera to look at the origin of the World coordinate system
 
   view.camera.eye = [2, 2, 10]; // Default is [0,0,10]
   view.camera.look = [0, 0, 0]; // Default
   view.camera.up = [0, 1, 0]; // Default
-
-  // Add a CameraControl to control the Camera
-
-  new xeokit.cameracontrol.CameraControl(view);
 
   // Create a SceneModel containing a SceneObject, a SceneMesh and a box-shaped SceneGeometry
 
@@ -74,7 +64,6 @@ demoHelper.init().then(({
     meshIds: ["boxMesh"]
   });
 
-
   // At this point, the View will contain a single ViewObject that has the same ID as the SceneModel. Through
   // the ViewObject, we can update the appearance of the box in that View.
 
@@ -85,10 +74,5 @@ demoHelper.init().then(({
 
   demoHelper.finished();
 
-  // let y = 0;
-  // setInterval(() => {
-  //     view.camera.orbitYaw(.2);
-  //     view.camera.orbitPitch(.2);
-  //    // view.camera.clean();
-  // }, 20);
+  demoHelper.orbit();
 });

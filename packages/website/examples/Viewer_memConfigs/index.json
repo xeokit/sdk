@@ -1,5 +1,5 @@
 {
-  "id": "Viewer_viewDotBIM",
+  "id": "Viewer_memConfigs",
   "title": "Viewing a .BIM model and hiding IfcSpaces",
   "description": "",
   "isTutorial": false,

@@ -2,27 +2,19 @@
 
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
-// Create a helper that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
+const demoHelper = new xeokit.demo.DemoHelper({});
 
-import {DemoHelper} from "../../js/DemoHelper.js";
+demoHelper.init().then(() => {
 
-const demoHelper = new DemoHelper({});
+  const {view, scene, data} = demoHelper;
 
-demoHelper.init().then(({
-                          scene,
-                          data,
-                          viewer,
-                          view,
-                          renderer
-                        }) => {
-
-// Arrange the View's Camera within our +Z "up" coordinate system
+  // Arrange the View's Camera within our +Z "up" coordinate system
 
   view.camera.eye = [1841982.9384371885, 10.031355126263318, -5173286.744630201];
   view.camera.look = [1842009.4968455553, 9.685518291306686, -5173295.851503017];
   view.camera.up = [0.011650847910481935, 0.9999241456889114, -0.003995073374452514];
 
-// Create a SceneModel to hold our model's geometry and materials
+  // Create a SceneModel to hold our model's geometry and materials
 
   const sceneModelResult = scene.createModel({
     id: "demoModel"
@@ -39,7 +31,7 @@ demoHelper.init().then(({
   });
 
   if (dataModelResult.ok === false) {
-    throw new Error(`Error creating SceneModel: ${dataModelResult.message}`);
+    throw new Error(`Error creating SceneModel: ${dataModelResult.error}`);
   }
 
   const sceneModel = sceneModelResult.value;
@@ -66,6 +58,10 @@ demoHelper.init().then(({
           // will have a corresponding DataObject with the same ID, to attach semantic meaning.
           // The View will contain a ViewObject corresponding to each SceneObject, through which the
           // appearance of the object can be controlled in the View.
+
+          demoHelper.viewFit();
+
+          demoHelper.orbit();
 
           demoHelper.finished();
 

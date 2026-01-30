@@ -43,15 +43,15 @@ if (!viewResult.ok) throw new Error("Failed to create View");
 const view = viewResult.value;
 
 // Set up the camera position to see the whole matrix
-view.camera.eye  = [numCols * boxSpacing / 2, numRows * boxSpacing / 2, Math.max(numRows, numCols) * 3];
+view.camera.eye = [numCols * boxSpacing / 2, numRows * boxSpacing / 2, Math.max(numRows, numCols) * 3];
 view.camera.look = [numCols * boxSpacing / 2, numRows * boxSpacing / 2, 0];
-view.camera.up   = [0, 1, 0];
+view.camera.up = [0, 1, 0];
 
 // Enable interactive camera controls
 new xeokit.cameracontrol.CameraControl(view);
 
 // Create a SceneModel to hold geometry and meshes
-const sceneModelResult = scene.createModel({ id: "benchmarkModel" });
+const sceneModelResult = scene.createModel({id: "benchmarkModel"});
 if (!sceneModelResult.ok) throw new Error("Failed to create SceneModel");
 const sceneModel = sceneModelResult.value;
 
@@ -60,8 +60,8 @@ sceneModel.createGeometry({
   id: "boxGeometry",
   primitive: xeokit.constants.TrianglesPrimitive,
   positions: [
-    -1, -1, -1,  1, -1, -1,  1,  1, -1, -1,  1, -1,
-    -1, -1,  1,  1, -1,  1,  1,  1,  1, -1,  1,  1
+    -1, -1, -1, 1, -1, -1, 1, 1, -1, -1, 1, -1,
+    -1, -1, 1, 1, -1, 1, 1, 1, 1, -1, 1, 1
   ],
   indices: [
     0, 1, 2, 0, 2, 3,    // Bottom
@@ -87,17 +87,29 @@ function hsvToRgb(hsv) {
   let r = 0, g = 0, b = 0;
 
   if (h < 60) {
-    r = c; g = x; b = 0;
+    r = c;
+    g = x;
+    b = 0;
   } else if (h < 120) {
-    r = x; g = c; b = 0;
+    r = x;
+    g = c;
+    b = 0;
   } else if (h < 180) {
-    r = 0; g = c; b = x;
+    r = 0;
+    g = c;
+    b = x;
   } else if (h < 240) {
-    r = 0; g = x; b = c;
+    r = 0;
+    g = x;
+    b = c;
   } else if (h < 300) {
-    r = x; g = 0; b = c;
+    r = x;
+    g = 0;
+    b = c;
   } else {
-    r = c; g = 0; b = x;
+    r = c;
+    g = 0;
+    b = x;
   }
 
   return [
@@ -127,7 +139,7 @@ for (let row = 0; row < numRows; row++) {
     const meshResult = sceneModel.createMesh({
       id: meshId,
       geometryId: "boxGeometry",
-      matrix: xeokit.scene.buildMat4({ position: [x, y, z], scale: [0.9, 0.9, 0.9] }),
+      matrix: xeokit.scene.buildMat4({position: [x, y, z], scale: [0.9, 0.9, 0.9]}),
       color: color
     });
     if (meshResult.ok) {
@@ -168,7 +180,11 @@ new xeokit.core.SDKTask({
           const objectIndex = Math.floor((row * numCols + col) / Math.ceil((numRows * numCols) / numObjects));
           mesh.matrix = xeokit.math.rotationMat4v(r + objectIndex * 0.2, [0, 1, 0]);
 
-          mesh.matrix = xeokit.scene.buildMat4({ position: [x, y, z], scale: [0.9, 0.9, 0.9], rotation: [-r/5, r, r/3] });
+          mesh.matrix = xeokit.scene.buildMat4({
+            position: [x, y, z],
+            scale: [0.9, 0.9, 0.9],
+            rotation: [-r / 5, r, r / 3]
+          });
         }
       }
     }

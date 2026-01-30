@@ -2,22 +2,15 @@
 
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
+import {ModelConverterStatsReportHTMLView} from "../../js/ModelConverterStatsReportHTMLView.js";
 
 // Create a helper that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
 
-import {DemoHelper} from "../../js/DemoHelper.js";
+const demoHelper = new xeokit.demo.DemoHelper({});
 
-import {ModelConverterStatsReportHTMLView} from "../../js/ModelCOnverterStatsReportHTMLView.js";
+demoHelper.init().then(() => {
 
-const demoHelper = new DemoHelper({});
-
-demoHelper.init().then(({
-                          scene,
-                          data,
-                          viewer,
-                          view,
-                          renderer
-                        }) => {
+  const {view, scene, data} = demoHelper;
 
   // Create a ModelConverter instance configured to convert our .BIM file into SceneModelParams and DataModelParams JSON.
   // We configure the ModelConverter with a DotBIMLoader to load BIM files, a SceneModelParamsExporter, and a DataModelParamsExporter. We'll also

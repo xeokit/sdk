@@ -228,6 +228,36 @@
     "topic": "modeling.scene.geometry",
     "template": "basicPage"
   },
+  "SceneModel_fromParams_table": {
+    "id": "SceneModel_fromParams_table",
+    "title": "Creating a 3D Model from JSON",
+    "description": "In this example, we'll use the xeokit SDK to build and view a table-shaped SceneModel, from JSON",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "_Featured"
+    ],
+    "categories": [
+      "Modeling",
+      "Scene"
+    ],
+    "topic": "modeling.scene.object",
+    "template": "basicPage"
+  },
+  "SceneModel_fromParams_triangle": {
+    "id": "SceneModel_fromParams_triangle",
+    "title": "Building and viewing a simple SceneModel, from JSON",
+    "description": "In this example, we'll use the xeokit SDK to build and view a simple model, from JSON",
+    "isTutorial": false,
+    "isVisualTest": true,
+    "tags": [],
+    "categories": [
+      "Modeling",
+      "Scene"
+    ],
+    "topic": "modeling.scene.geometry",
+    "template": "basicPage"
+  },
   "SceneModel_stressTest": {
     "id": "SceneModel_stressTest",
     "title": "Creating a 3D Model",
@@ -259,6 +289,76 @@
       "Scene"
     ],
     "topic": "modeling.scene.geometry",
+    "template": "basicPage"
+  },
+  "ViewLayer_auto": {
+    "id": "ViewLayer_auto",
+    "title": "Creating a Viewer with automatic ViewLayers",
+    "description": "",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "tags": [],
+    "categories": [
+      "Viewer",
+      "Views",
+      "ViewLayers"
+    ],
+    "topic": "viewer.view.viewlayer",
+    "template": "basicPage"
+  },
+  "ViewLayer_manual": {
+    "id": "ViewLayer_manual",
+    "title": "Creating a Viewer with manual ViewLayers",
+    "description": "",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "tags": [],
+    "categories": [],
+    "topic": "viewer.view.viewlayer",
+    "template": "basicPage"
+  },
+  "Viewer_fromParams": {
+    "id": "Viewer_fromParams",
+    "title": "Loading a Viewer Configuration",
+    "description": "This example demonstrates how to load a JSON snapshot of a xeokit Viewer's current runtime configuration.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "Viewer"
+    ],
+    "categories": [
+      "Viewer",
+      "Configuration"
+    ],
+    "topic": "viewer.configuration",
+    "template": "basicPage"
+  },
+  "Viewer_memConfigs": {
+    "id": "Viewer_memConfigs",
+    "title": "Viewing a .BIM model and hiding IfcSpaces",
+    "description": "",
+    "isTutorial": false,
+    "isVisualTest": true,
+    "tags": [],
+    "categories": [
+      "Importing",
+      "DotBIM"
+    ],
+    "topic": "import.dotbim",
+    "template": "basicPage"
+  },
+  "WebGLRenderer_createGPUMemoryConfigs": {
+    "id": "WebGLRenderer_createGPUMemoryConfigs",
+    "title": "Configuring WebGLRenderer GPU Memory Limits",
+    "description": "",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [],
+    "categories": [
+      "Renderer",
+      "DotBIM"
+    ],
+    "topic": "renderer.configs",
     "template": "basicPage"
   }
 }

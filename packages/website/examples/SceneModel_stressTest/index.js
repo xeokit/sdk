@@ -4,20 +4,15 @@ import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
 // Create a helper that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
 
-import { DemoHelper } from "../../js/DemoHelper.js";
+const demoHelper = new xeokit.demo.DemoHelper({});
 
-const demoHelper = new DemoHelper({});
+demoHelper
+  .init()
+  .then(() => {
 
-demoHelper.init({
-  logging: false
-}).then(({
-                          scene,
-                          data,
-                          viewer,
-                          view,
-                          renderer
-                        }) => {
-// Position the View's Camera.
+    const {view, scene} = demoHelper;
+
+    // Position the View's Camera.
 
     const OFFSET = 150;
 
@@ -35,7 +30,7 @@ demoHelper.init({
 
     // Create a box-shaped SceneGeometry, which we'll reuse for the tabletop and legs.
 
-   const sceneModel = sceneModelRes.value;
+    const sceneModel = sceneModelRes.value;
 
     // const geometryResult = sceneModel.createGeometry({
     //   id: "demoBoxGeometry",
@@ -66,7 +61,7 @@ demoHelper.init({
     function createObject() {
 
       sceneModel.createGeometry({
-        id: "demoBoxGeometry"+i,
+        id: "demoBoxGeometry" + i,
         primitive: xeokit.constants.TrianglesPrimitive,
         positions: [
           1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, 1, 1, 1, 1, -1, -1, 1,
@@ -82,9 +77,9 @@ demoHelper.init({
           20, 21, 22, 20, 22, 23
         ]
       });
-     const meshResult = sceneModel.createMesh({
+      const meshResult = sceneModel.createMesh({
         id: "redLegMesh" + i,
-        geometryId: "demoBoxGeometry"+i,
+        geometryId: "demoBoxGeometry" + i,
         matrix: xeokit.scene.buildMat4({
           position: [OFFSET + Math.random() * 200 - 100, Math.random() * 200 - 100, Math.random() * 200 - 100],
           scale: [2, 2, 2],
@@ -93,10 +88,10 @@ demoHelper.init({
         color: [Math.random(), Math.random(), Math.random()]
       });
 
-     if (!meshResult.ok) {
-       console.error(meshResult.error);
-       return;
-     }
+      if (!meshResult.ok) {
+        console.error(meshResult.error);
+        return;
+      }
 
       const objectRes = sceneModel.createObject({
         id: "redLeg" + i,

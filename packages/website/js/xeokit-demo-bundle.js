@@ -125718,6 +125718,10 @@ var DataTexture = class {
    */
   itemSizeInBytes;
   /**
+   * Size in bytes of a single texel in the data texture.
+   */
+  bytesPerTexel;
+  /**
    * Number of texels occupied by a single logical item in the data texture.
    */
   texelsPerItem;
@@ -125801,13 +125805,28 @@ var DataTexture = class {
         this.bufferClass = Float32Array;
         break;
     }
+    switch (this.format) {
+      case this.gl.RGBA:
+        this.bytesPerTexel = 4 * (this.type === this.gl.FLOAT ? 4 : this.type === this.gl.UNSIGNED_INT ? 4 : this.type === this.gl.UNSIGNED_SHORT ? 2 : 1);
+        break;
+      case this.gl.RGB:
+        this.bytesPerTexel = 3 * (this.type === this.gl.FLOAT ? 4 : this.type === this.gl.UNSIGNED_INT ? 4 : this.type === this.gl.UNSIGNED_SHORT ? 2 : 1);
+        break;
+      case this.gl.RED:
+      case this.gl.RED_INTEGER:
+        this.bytesPerTexel = 1 * (this.type === this.gl.FLOAT ? 4 : this.type === this.gl.UNSIGNED_INT ? 4 : this.type === this.gl.UNSIGNED_SHORT ? 2 : 1);
+        break;
+      default:
+        this.bytesPerTexel = 4 * (this.type === this.gl.FLOAT ? 4 : this.type === this.gl.UNSIGNED_INT ? 4 : this.type === this.gl.UNSIGNED_SHORT ? 2 : 1);
+        break;
+    }
   }
   /**
    * Allocates the CPU-side buffer and the GPU texture.
    * @internal
    */
   allocate() {
-    this.buffer = new this.bufferClass(this.width * this.height * this.elementsPerTexel);
+    this.buffer = new this.bufferClass(this.width * this.height * this.bytesPerTexel);
     return this._allocateTexture(false);
   }
   _allocateTexture(uploadBuffer) {
@@ -127299,7 +127318,7 @@ var GPUMemoryBatch = class {
     ];
     this._meshMatrixTexture = new MatrixTexture({
       gl,
-      maxItems: memoryConfigs.maxBatchMeshes,
+      maxItems: memoryConfigs.maxBatchMeshes + 10,
       getNumItems: () => this._numMeshes,
       description: `[Batch ${this.index}] - meshIndex -> modelMatrix`
     });
@@ -127650,7 +127669,7 @@ var GPUMemoryBatch = class {
       pickable: true,
       clippable: true
     });
-    this._meshMatrixTexture.setItem(meshIndex, sceneMesh.matrix);
+    this._meshMatrixTexture.setItem(meshIndex, new Float32Array(sceneMesh.matrix));
     const primitiveCount = sceneGeometry.primitive === PointsPrimitive ? sceneGeometry.positionsCompressed.length / 3 : sceneGeometry.primitive === LinesPrimitive ? sceneGeometry.indices.length / 2 : sceneGeometry.indices.length / 3;
     const primitiveMeshIndexTextureHandles = [
       // one per view
@@ -129992,6 +130011,14 @@ vec4 packUintToRGBA8(uint v) {
      float(((v >> 24u) & 0xFFu))
    ) / 255.0;
 }
+
+// Get the eye position in world space from the view matrix
+vec3 getEyePosition(mat4 viewMatrix) {
+    // Invert the view matrix to get the world matrix
+    mat4 invView = inverse(viewMatrix);
+    // The translation part (last column) is the eye position in world space
+    return invView[3].xyz;
+}
 `
     );
   }
@@ -130233,15 +130260,15 @@ vec4 packUintToRGBA8(uint v) {
       "    vec3 pc = vec4(viewMatrix * (modelMatrix * vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ic))), 1.0))).xyz;",
       // Ensure clockwise winding order: if normal faces away from +view Z, swap pb and pc
       "    vec3 normal = normalize(cross(pc - pa, pb - pa));",
-      "    // Reference direction: +Z in view space (outward)",
-      "    float winding = dot(normal, vec3(0.0, 0.0, 1.0));",
-      "    if (winding < 0.0) {",
-      "        // Swap pb and pc to enforce clockwise winding",
-      "        vec3 tmp = pb;",
-      "        pb = pc;",
-      "        pc = tmp;",
-      "        normal = normalize(cross(pc - pa, pb - pa));",
-      "    }",
+      // "    // Reference direction: +Z in view space (outward)",
+      //  "    float winding = dot(normal, vec3(0.0, 0.0, -1.0));",
+      //  "    if (winding < 0.0) {",
+      //  //"        // Swap pb and pc to enforce clockwise winding",
+      //  "        vec3 tmp = pb;",
+      //  "        pb = pc;",
+      //  "        pc = tmp;",
+      //  "        normal = normalize(cross(pc - pa, pb - pa));",
+      //  "    }",
       "    float lambertian = 1.0;",
       "    vec3 reflectedColor = vec3(0.0, 0.0, 0.0);",
       "    vec4 lightAmbient = vec4(0.3, 0.3, 0.3, 1.0);",
@@ -130251,7 +130278,7 @@ vec4 packUintToRGBA8(uint v) {
       "    vec4 lightColor2 = vec4(1.0, 1.0, 1.0, 0.5);",
       "    vec3 lightDir3 = normalize(vec3(-1.0, 1.0, 1.0));",
       "    vec4 lightColor3 = vec4(1.0, 1.0, 1.0, 0.2);",
-      "    lambertian = max( dot(normal, normalize(lightDir2)), 0.0);",
+      "    lambertian =  dot(normal, normalize(lightDir2));",
       "    if (lambertian < 0.0) lambertian = lambertian * -1.0;",
       "    reflectedColor += lambertian * (lightColor2.rgb * lightColor2.a);",
       "    vec4 color = vec4(meshViewAttributes.color) /255.0;",
@@ -130264,8 +130291,8 @@ vec4 packUintToRGBA8(uint v) {
    */
   vsSilhouetteLogic() {
     this._vertSrcBuf.push(
-      //  "    vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, 0.5);"
-      "    vColor = vec4(1.0, 1.0, 0.0, 1.0);"
+      "    vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, 0.5);"
+      //"    vColor = vec4(1.0, 1.0, 0.0, 1.0);"
     );
   }
   /**
@@ -140432,6 +140459,251 @@ function convertIfc2gltfManifest(ifc2gltfManifestParams) {
 function stripPathFromFilename(fullPath) {
   return fullPath.split(/[/\\]/).pop();
 }
+
+// ../sdk/src/demo/index.ts
+var demo_exports = {};
+__export(demo_exports, {
+  DemoHelper: () => DemoHelper
+});
+
+// ../sdk/src/demo/DemoHelper.ts
+var DemoHelper = class {
+  /**
+   * The Scene created by the DemoHelper. Holds all 3D objects.
+   */
+  scene;
+  /**
+   * Dynamically tracks the 3D boundaries of the objects in the Scene.
+   */
+  aabb3Index;
+  /**
+   * The Data created by the DemoHelper. Holds all data models.
+   */
+  data;
+  /**
+   * The Viewer created by the DemoHelper.
+   */
+  viewer;
+  /**
+   * The WebGLRenderer created by the DemoHelper.
+   */
+  renderer;
+  /**
+   * The View created by the DemoHelper.
+   */
+  view;
+  /**
+   * The CameraFlightAnimation for the View.
+   */
+  cameraFlight;
+  makeComponents;
+  showOverlayButton;
+  overlayButton = null;
+  overlayDiv = null;
+  overlayVisible = false;
+  /**
+   * Statistics about the demo, available after calling `finished()`.
+   */
+  stats;
+  /**
+   * Creates a DemoHelper instance.
+   * @param cfg
+   */
+  constructor(cfg = {}) {
+    this.makeComponents = cfg.makeComponents !== false;
+    this.showOverlayButton = cfg.showOverlayButton !== false;
+    this.stats = {
+      startTime: 0,
+      endTime: 0,
+      elapsedTime: 0,
+      aabb: null,
+      scene: null,
+      data: null
+    };
+  }
+  /**
+   * Initializes the DemoHelper by creating the Scene, Data, Viewer, WebGLRenderer, and View.
+   *
+   * @param cfg Configuration options for initialization.
+   * @returns A promise that resolves when initialization is complete.
+   */
+  init(cfg = {}) {
+    return new Promise((resolve2, reject) => {
+      this.stats.startTime = performance.now();
+      if (this.makeComponents) {
+        this.scene = new Scene();
+        this.data = new Data2();
+        this.viewer = new Viewer();
+        this.renderer = new WebGLRenderer3();
+        if (cfg.logging) {
+          new EventsLogger(this.scene.events, { prefix: "[Scene        ]" });
+          new EventsLogger(this.data.events, { prefix: "[Data         ]" });
+          new EventsLogger(this.viewer.events, { prefix: "[Viewer       ]" });
+          new EventsLogger(this.renderer.events, { prefix: "[WebGLRenderer]" });
+        }
+        this.aabb3Index = new SceneAABB3Index(this.scene);
+        this.viewer.attachScene(this.scene);
+        this.renderer.attachViewer(this.viewer);
+        const viewResult = this.viewer.createView({
+          id: "mainView",
+          elementId: "demoCanvas"
+        });
+        if (viewResult.ok === false) {
+          reject(viewResult.error);
+          return;
+        }
+        this.view = viewResult.value;
+        this.cameraFlight = new CameraFlightAnimation(this.view);
+        window.demoHelper = this;
+        if (this.showOverlayButton || cfg.showOverlayButton) {
+          this._createOverlayButton();
+        }
+        resolve2({});
+      } else {
+        resolve2({});
+      }
+    });
+  }
+  /**
+   * Moves the camera to fit the entire scene within the view.
+   */
+  viewFit() {
+    if (this.cameraFlight) {
+      this.cameraFlight.jumpTo({
+        aabb: this.aabb3Index.getSceneAABB()
+      });
+    }
+  }
+  /**
+   * Orbits the camera around the scene.
+   */
+  orbit() {
+    new SDKTask({
+      name: "Orbit Camera",
+      repeat: true,
+      stage: SDKTask.CollectInputStage,
+      task: () => {
+        if (this.view) {
+          this.view.camera.orbitYaw(-0.5);
+        }
+      }
+    });
+  }
+  finished() {
+    const stats = this.stats;
+    stats.scene = this._getCombinedSceneModelStats();
+    stats.data = this._getCombinedDataModelStats();
+    stats.aabb = this.aabb3Index.getSceneAABB();
+    stats.endTime = performance.now();
+    stats.elapsedTime = stats.endTime - (stats.startTime ?? stats.endTime);
+    this.signalFinished();
+  }
+  signalFinished() {
+    const div = document.createElement("div");
+    div.id = "ExampleLoaded";
+    document.body.appendChild(div);
+  }
+  _getCombinedSceneModelStats() {
+    const combinedStats = {
+      numTransforms: 0,
+      numObjects: 0,
+      numMeshes: 0,
+      numGeometries: 0,
+      numTextures: 0,
+      numTextureSets: 0,
+      numTriangles: 0,
+      numLines: 0,
+      numPoints: 0,
+      numVertices: 0,
+      textureBytes: 0
+    };
+    for (const modelId in this.scene.models) {
+      const model = this.scene.models[modelId];
+      const stats = model.stats;
+      combinedStats.numObjects += stats.numObjects;
+      combinedStats.numGeometries += stats.numGeometries;
+      combinedStats.numTextures += stats.numTextures;
+      combinedStats.numTriangles += stats.numTriangles;
+      combinedStats.numPoints += stats.numPoints;
+      combinedStats.numLines += stats.numLines;
+      combinedStats.numVertices += stats.numVertices;
+      combinedStats.numMeshes += stats.numMeshes;
+      combinedStats.numTextureSets += stats.numTextureSets;
+      combinedStats.textureBytes += stats.textureBytes;
+    }
+    return combinedStats;
+  }
+  _getCombinedDataModelStats() {
+    const combinedStats = {
+      numObjects: 0,
+      numRelationships: 0,
+      numPropertySets: 0
+    };
+    for (const modelId in this.data.models) {
+      const model = this.data.models[modelId];
+      const stats = model.stats;
+      combinedStats.numObjects += stats.numObjects;
+      combinedStats.numRelationships += stats.numRelationships;
+      combinedStats.numPropertySets += stats.numPropertySets;
+    }
+    return combinedStats;
+  }
+  _createOverlayButton() {
+    if (typeof document === "undefined")
+      return;
+    if (this.overlayButton)
+      return;
+    const button = document.createElement("button");
+    button.innerText = "\u2630 Debug";
+    button.style.position = "fixed";
+    button.style.top = "16px";
+    button.style.right = "16px";
+    button.style.zIndex = "100001";
+    button.style.padding = "8px 16px";
+    button.style.background = "#222";
+    button.style.color = "#fff";
+    button.style.border = "none";
+    button.style.borderRadius = "4px";
+    button.style.cursor = "pointer";
+    button.style.fontSize = "16px";
+    button.style.boxShadow = "0 2px 8px rgba(0,0,0,0.2)";
+    button.style.opacity = "0.85";
+    button.style.transition = "background 0.2s, opacity 0.2s";
+    button.onmouseenter = () => {
+      button.style.background = "#444";
+      button.style.opacity = "1";
+    };
+    button.onmouseleave = () => {
+      button.style.background = "#222";
+      button.style.opacity = "0.85";
+    };
+    const overlay = document.createElement("div");
+    overlay.style.position = "fixed";
+    overlay.style.paddingTop = "48px";
+    overlay.style.top = "0";
+    overlay.style.right = "0";
+    overlay.style.width = "400px";
+    overlay.style.height = "100%";
+    overlay.style.background = "rgba(30, 30, 40, 0.97)";
+    overlay.style.zIndex = "100000";
+    overlay.style.display = "none";
+    overlay.style.boxShadow = "2px 0 12px rgba(0,0,0,0.25)";
+    overlay.style.overflowY = "auto";
+    overlay.style.transition = "transform 0.2s";
+    overlay.style.color = "#fff";
+    overlay.style.fontFamily = "sans-serif";
+    overlay.innerHTML = `<div style="padding:24px 16px 16px 24px;font-size:18px;font-weight:bold;">Overlay Panel</div>
+        <div style="padding:0 16px 16px 24px;font-size:14px;">You can put any content here.</div>`;
+    button.onclick = () => {
+      this.overlayVisible = !this.overlayVisible;
+      overlay.style.display = this.overlayVisible ? "block" : "none";
+    };
+    document.body.appendChild(button);
+    document.body.appendChild(overlay);
+    this.overlayButton = button;
+    this.overlayDiv = overlay;
+  }
+};
 export {
   bcf_exports as bcf,
   cameracontrol_exports as cameracontrol,
@@ -140441,6 +140713,7 @@ export {
   contextmenu_exports as contextmenu,
   core_exports as core,
   data_exports as data,
+  demo_exports as demo,
   formats_exports as formats,
   ifc2gltf2xgf_exports as ifc2gltf2xgf,
   io_exports as io,

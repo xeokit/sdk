@@ -1,4 +1,4 @@
-import {DrawOps} from "../viewManager/drawOps/DrawOps";
+import {DrawOps} from "./drawOps/DrawOps";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../../constants";
 
 /**

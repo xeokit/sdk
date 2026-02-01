@@ -1,7 +1,7 @@
 import {EventEmitter, SDKErrorType, SDKInternalException, type SDKResult} from "../core";
 import type {Viewer} from "../viewer";
 import {View} from "../viewer";
-import {ViewManager} from "./viewManager/ViewManager";
+import {ViewManager} from "./internal/ViewManager";
 import {EventDispatcher} from "strongly-typed-events";
 import {getWebGLExtension} from "../webglutils";
 import {type Capabilities} from "./Capabilities";
@@ -10,7 +10,7 @@ import {type MemoryConfigs} from "./MemoryConfigs";
 import {createMemoryConfigs} from "./createMemoryConfigs";
 import {type MemoryUsage} from "./MemoryUsage";
 import {type MemoryView} from "./internal/MemoryView";
-import {type DataTextures} from "./viewManager/gpuMemoryManager/DataTextures";
+import {type DataTextures} from "./internal/gpuMemoryManager/DataTextures";
 import {SceneGeometry, SceneMesh} from "../scene";
 import {ShaderView} from "./internal";
 import {type PickParams, type PickResult} from "../viewer";

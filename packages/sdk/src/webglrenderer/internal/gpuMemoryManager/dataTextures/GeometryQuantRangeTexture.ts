@@ -3,6 +3,8 @@ import {ItemDataTexture} from "./ItemDataTexture";
 
 /**
  * Stores per-geometry quantization range data (offset and scale).
+ *
+ * @internal
  */
 export class GeometryQuantRangeTexture extends ItemDataTexture {
   static readonly itemSizeInBytes = 32; // 8 × float per item

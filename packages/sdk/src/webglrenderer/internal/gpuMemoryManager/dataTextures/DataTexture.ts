@@ -16,7 +16,7 @@ import { EventDispatcher } from "strongly-typed-events";
  * - The meaning of an “item” depends on the subclass’ layout; items may span multiple
  *   texels and may not map 1:1 to texels.
  *
- * @debugging
+ * @internal
  */
 export abstract class DataTexture {
 

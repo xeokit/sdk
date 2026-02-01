@@ -1,10 +1,10 @@
 // MemoryDebugger.ts (extended with GPU memory usage panel)
-import { DataTexture } from "../viewManager/gpuMemoryManager/dataTextures/DataTexture";
-import type { DataTextures } from "../viewManager/gpuMemoryManager/DataTextures";
+import { DataTexture } from "./gpuMemoryManager/dataTextures/DataTexture";
+import type { DataTextures } from "./gpuMemoryManager/DataTextures";
 import type { MemoryUsage } from "../MemoryUsage";
 import { WebGLRenderer } from "../WebGLRenderer";
-import type { PrimRange } from "../viewManager/gpuMemoryManager/dataTextures/PrimRange";
-import { RENDER_PASSES } from "../viewManager/RENDER_PASSES";
+import type { PrimRange } from "./gpuMemoryManager/dataTextures/PrimRange";
+import { RENDER_PASSES } from "./RENDER_PASSES";
 
 
 /**

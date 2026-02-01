@@ -1,5 +1,5 @@
 import {type MemoryConfigs} from "./MemoryConfigs";
-import {GPUMemoryManager} from "./viewManager/gpuMemoryManager/GPUMemoryManager";
+import {GPUMemoryManager} from "./internal/gpuMemoryManager/GPUMemoryManager";
 
 /**
  *  Generates a set of GPU memory configuration values for 3D rendering,

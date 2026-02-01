@@ -14,6 +14,74 @@
  * structured, extensible representation of 3D content that is designed to work
  * consistently in both browsers and Node.js.
  *
+ * <br>
+ *
+ * ```mermaid
+ * classDiagram
+ *     Scene "1" *-- "*" SceneModel : models
+ *     Scene "1" *-- "1" CoordinateSystem : coordinateSystem
+ *     Scene "1" *-- "1" SceneEvents : emits
+ *     SceneModel "1" o-- "*" SceneObject : objects
+ *     SceneModel "1" *-- "1" CoordinateSystem : coordinateSystem
+ *     SceneObject "1" o-- "*" SceneMesh : meshes
+ *     SceneMesh "1" o-- "1" SceneGeometry : geometry
+ *     SceneMesh "1" o-- "1" SceneTextureSet : textureSet
+ *     SceneMesh "1" o-- "1" SceneTransform : parentTransform
+ *     SceneTransform "1" o-- "1" SceneTransform : parentTransform
+ *     SceneTextureSet "1" o-- "1" SceneTexture : colorTexture
+ *     SceneTextureSet "1" o-- "1" SceneTexture : metallicRoughnessTexture
+ *     SceneTextureSet "1" o-- "1" SceneTexture : occlusionTexture
+ *     SceneTextureSet "1" o-- "1" SceneTexture : emissiveTexture
+ *     Scene:createModel()
+ *     SceneModel:createObject()
+ *     SceneModel:createGeometry()
+ *     SceneModel:createTexture()
+ *     SceneModel:createTextureSet()
+ *     SceneModel:createMesh()
+ *     SceneModel:createTransform()
+ *     SceneModel:fromParams()
+ *     SceneModel:toParams()
+ *     SceneModel:destroy()
+ *     SceneObject:destroy()
+ *     SceneMesh:destroy()
+ *     SceneEvents:onError
+ *     SceneEvents:onSceneDestroyed
+ *     SceneEvents  : onSceneModelCreated
+ *     SceneEvents  : onSceneModelDestroyed
+ *     SceneEvents  : onSceneObjectCreated
+ *     SceneEvents  : onSceneObjectDestroyed
+ *     SceneEvents : etc.
+ *     SceneGeometry:primitiveType
+ *     SceneGeometry:positions
+ *     SceneGeometry:indices
+ *     SceneGeometry:uvs
+ *     Scene:models
+ *     Scene:objects
+ *     SceneModel:objects
+ *     SceneModel:meshes
+ *     SceneModel:geometries
+ *     SceneModel:textures
+ *     SceneModel:textureSets
+ *     SceneMesh:geometry
+ *     SceneMesh:textureSet
+ *     SceneObject:meshes
+ *     SceneMesh:color
+ *     SceneMesh:opacity
+ *     SceneMesh:matrix
+ *     SceneMesh:transform
+ *     SceneTransform:matrix
+ *     SceneTransform:parentTransform
+ *     CoordinateSystem:basis
+ *     CoordinateSystem:units
+ *     CoordinateSystem:origin
+ *     CoordinateSystem:scaleToMeters
+ *     Scene "1" *-- "*" SceneObject : objects
+ *     SceneModel "1" *-- "*" SceneGeometry : geometries
+ *     SceneModel "1" *-- "*" SceneTexture : textures
+ *     SceneModel "1" *-- "*" SceneTextureSet : textureSets
+ *     SceneModel "1" *-- "*" SceneMesh : meshes
+ * ```
+ *
  * At its core:
  *
  * - A {@link Scene} is the top-level container and lifecycle manager.
@@ -35,6 +103,11 @@
  *
  * The {@link SceneEvents} system exposes lifecycle and error events, allowing applications
  * to observe and react to changes as models, objects, and resources are created or destroyed.
+ *
+ * A Scene uses a {@link CoordinateSystem} to specify its basis, units, origin, and scale. Each
+ * {@link SceneModel} can also have its own CoordinateSystem, enabling models from various sources
+ * to be combined without prior conversion. The SDK manages coordinate system transformations
+ * automatically during rendering and interaction, preserving each model’s original data.
  *
  * <br>
  *
@@ -485,9 +558,6 @@
  *
  * @module scene
  */
-
-
-
 export * from "./SceneParams";
 export * from "./Scene";
 export * from "./SceneEvents";

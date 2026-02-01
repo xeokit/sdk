@@ -19,6 +19,65 @@
  * - query and traverse semantic structures (eg. hierarchies and classifications), and
  * - keep semantic information alongside renderable content (eg. a {@link scene!SceneModel | SceneModel} shown in the Viewer).
  *
+ * The class diagram below summarizes the main classes in this module and their relationships:
+ *
+ * <br>
+ *
+ * ```mermaid
+ * classDiagram
+ * direction LR
+ *    Data "1" *--> "*" DataModel
+ *    Data:models
+ *    Data:objects
+ *    Data:propertySets
+ *    Data:events
+ *    Data:createModel()
+ *    Data:destroy()
+ *    DataModel "1" *--> "*" DataObject
+ *    DataModel:schema
+ *    DataModel:objects
+ *    DataModel "1" *--> "*" PropertySet
+ *    DataModel:propertySets
+ *    DataModel "1" *--> "*" Property
+ *    DataModel "1" *--> "*" Relationship
+ *    DataModel:relationships
+ *    DataModel:createObject()
+ *    DataModel:createPropertySet()
+ *    DataModel:createRelationship()
+ *    DataModel:toParams()
+ *    DataModel:fromParams()
+ *    DataModel:destroy()
+ *    DataObject:name
+ *    DataObject:type
+ *    DataObject:schema
+ *    DataObject "1" o-- "*" PropertySet : has
+ *    DataObject "1" <-- "*" Relationship : relating
+ *    DataObject "1" <-- "*" Relationship : related
+ *    DataObject:destroy()
+ *    PropertySet "1" o-- "*" Property : has
+ *    PropertySet:properties
+ *    PropertySet:schema
+ *    Relationship:relatingObject
+ *    Relationship:relatedObject
+ *    Relationship:type
+ *    Relationship:schema
+ *    Relationship:destroy()
+ *    Property:name
+ *    Property:value
+ *    Property:type
+ *    DataEvents <-- Data : emits
+ *    DataEvents:onDataModelCreated
+ *    DataEvents:onDataModelDestroyed
+ *    DataEvents:onDataObjectCreated
+ *    DataEvents:onDataObjectDestroyed
+ *    DataEvents:onPropertySetCreated
+ *    DataEvents:onPropertySetDestroyed
+ *    DataEvents:onRelationshipCreated
+ *    DataEvents:onRelationshipDestroyed
+ *    DataEvents:onError
+ *    DataEvents:onDataDestroyed
+ * ```
+ *
  * At the top level is {@link Data}, which owns one or more {@link DataModel | DataModels}. Each {@link DataModel} contains:
  *
  * - {@link DataObject | DataObjects} (entities),
@@ -386,7 +445,6 @@
  *
  * @module data
  */
-
 
 export * from "./Data";
 export * from "./DataEvents";

@@ -157,7 +157,6 @@
  */
 export * from "./WebGLRenderer";
 export * from "./WebGLRendererEvents";
-
 export * from "./MemoryConfigs";
 export * from "./createMemoryConfigs";
 export * from "./MemoryUsage";

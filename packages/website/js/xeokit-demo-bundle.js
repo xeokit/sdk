@@ -125374,7 +125374,124 @@ __export(webglrenderer_exports, {
   internal: () => internal_exports
 });
 
-// ../sdk/src/webglrenderer/viewManager/RenderContext.ts
+// ../sdk/src/webglrenderer/internal/drawOps/DrawLogger.ts
+var nowMs = () => {
+  const p = globalThis?.performance;
+  return p?.now ? p.now() : Date.now();
+};
+var DrawLogger = class {
+  enabled = false;
+  _currentFrame = null;
+  _currentPass = null;
+  _currentDraw = null;
+  _onFrameLogged;
+  constructor(opts) {
+    this.enabled = opts?.enabled ?? false;
+    this._onFrameLogged = opts?.onFrameLogged;
+  }
+  clear() {
+    this._currentFrame = null;
+    this._currentPass = null;
+    this._currentDraw = null;
+  }
+  get currentFrame() {
+    return this._currentFrame;
+  }
+  endDraw() {
+    if (!this._currentDraw)
+      return;
+    const t = nowMs();
+    this._currentDraw.endTimeMs = t;
+    this._currentDraw.durationMs = t - this._currentDraw.startTimeMs;
+    this._currentDraw = null;
+  }
+  endPass() {
+    if (!this._currentPass)
+      return;
+    this.endDraw();
+    const t = nowMs();
+    this._currentPass.endTimeMs = t;
+    this._currentPass.durationMs = t - this._currentPass.startTimeMs;
+    const frame = this._currentFrame;
+    if (frame && this._currentPass.drawCalls.length === 0) {
+      const i = frame.renderPasses.lastIndexOf(this._currentPass);
+      if (i !== -1)
+        frame.renderPasses.splice(i, 1);
+    }
+    this._currentPass = null;
+  }
+  frameStarted(view) {
+    if (!this.enabled)
+      return;
+    this.endPass();
+    const t = nowMs();
+    this._currentFrame = {
+      view,
+      canvasSize: [0, 0],
+      // TODO
+      renderPasses: [],
+      startTimeMs: t,
+      endTimeMs: t,
+      durationMs: 0,
+      numDrawCalls: 0
+    };
+  }
+  startRenderPass(renderPassName) {
+    if (!this.enabled || !this._currentFrame)
+      return;
+    this.endPass();
+    const t = nowMs();
+    const pass = {
+      name: renderPassName,
+      drawCalls: [],
+      startTimeMs: t,
+      endTimeMs: t,
+      durationMs: 0
+    };
+    this._currentPass = pass;
+    this._currentFrame.renderPasses.push(pass);
+  }
+  /**
+   * Logs a draw call. Duration is measured until the next draw
+   * (or end of pass / frame).
+   */
+  drawMeshBatch(meshBatch, renderPass, primRange) {
+    if (!this.enabled || !this._currentFrame)
+      return;
+    if (!this._currentPass)
+      this.startRenderPass("UnnamedPass");
+    if (!this._currentPass)
+      return;
+    this.endDraw();
+    const t = nowMs();
+    const draw = {
+      meshBatch,
+      renderPass,
+      primRange,
+      startTimeMs: t,
+      endTimeMs: t,
+      durationMs: 0
+    };
+    this._currentPass.drawCalls.push(draw);
+    this._currentDraw = draw;
+    this._currentFrame.numDrawCalls++;
+  }
+  frameEnded() {
+    if (!this.enabled || !this._currentFrame)
+      return;
+    this.endPass();
+    const t = nowMs();
+    this._currentFrame.endTimeMs = t;
+    this._currentFrame.durationMs = t - this._currentFrame.startTimeMs;
+    const finished = this._currentFrame;
+    this._onFrameLogged?.(finished);
+    this._currentFrame = null;
+    this._currentPass = null;
+    this._currentDraw = null;
+  }
+};
+
+// ../sdk/src/webglrenderer/internal/RenderContext.ts
 var RenderContext = class {
   /**
    * The Viewer.
@@ -125388,6 +125505,10 @@ var RenderContext = class {
    * Whether debugging is enabled.
    */
   debugging;
+  /**
+   * The DrawLogger for logging draw calls.
+   */
+  drawLogger;
   /**
    * The WebGL rendering context.
    */
@@ -125491,6 +125612,7 @@ var RenderContext = class {
     const { canvas: webglCanvasElement, gl } = result.value;
     this.gl = gl;
     this.webglCanvasElement = webglCanvasElement;
+    this.drawLogger = null;
     this.debugging = false;
     this.initialized = true;
     this.reset();
@@ -125581,7 +125703,7 @@ var RenderContext = class {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/RenderBuffers.ts
+// ../sdk/src/webglrenderer/internal/RenderBuffers.ts
 var RenderBuffers = class {
   _renderContext;
   _renderBuffersBasic;
@@ -125649,10 +125771,10 @@ var RenderBuffers = class {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/DataTextures.ts
+// ../sdk/src/webglrenderer/internal/gpuMemoryManager/DataTextures.ts
 var DataTextures_exports = {};
 
-// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/dataTextures/DataTexture.ts
+// ../sdk/src/webglrenderer/internal/gpuMemoryManager/dataTextures/DataTexture.ts
 var import_strongly_typed_events10 = __toESM(require_dist8());
 var DataTexture = class {
   /**
@@ -125894,7 +126016,7 @@ var DataTexture = class {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/dataTextures/PrimitiveMeshIndexTexture.ts
+// ../sdk/src/webglrenderer/internal/gpuMemoryManager/dataTextures/PrimitiveMeshIndexTexture.ts
 var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTexture {
   portions = /* @__PURE__ */ new Map();
   renderPassIds;
@@ -126173,7 +126295,7 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/dataTextures/ItemDataTexture.ts
+// ../sdk/src/webglrenderer/internal/gpuMemoryManager/dataTextures/ItemDataTexture.ts
 var ItemDataTexture = class extends DataTexture {
   dirtyItemIndices = /* @__PURE__ */ new Set();
   /**
@@ -126227,7 +126349,7 @@ var ItemDataTexture = class extends DataTexture {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/dataTextures/MeshAttributeTexture.ts
+// ../sdk/src/webglrenderer/internal/gpuMemoryManager/dataTextures/MeshAttributeTexture.ts
 var MeshAttributeTexture = class _MeshAttributeTexture extends ItemDataTexture {
   static itemSizeInBytes = 16;
   // 4 × uint32 per uvec4
@@ -126266,7 +126388,7 @@ var MeshAttributeTexture = class _MeshAttributeTexture extends ItemDataTexture {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/dataTextures/MatrixTexture.ts
+// ../sdk/src/webglrenderer/internal/gpuMemoryManager/dataTextures/MatrixTexture.ts
 var MatrixTexture = class _MatrixTexture extends ItemDataTexture {
   static itemSizeInBytes = 64;
   // 16 × float per mat4
@@ -126310,7 +126432,7 @@ var MatrixTexture = class _MatrixTexture extends ItemDataTexture {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/dataTextures/GeometryAttributeTexture.ts
+// ../sdk/src/webglrenderer/internal/gpuMemoryManager/dataTextures/GeometryAttributeTexture.ts
 var GeometryAttributeTexture = class _GeometryAttributeTexture extends ItemDataTexture {
   static itemSizeInBytes = 16;
   // 4 × uint32 per uvec4
@@ -126365,7 +126487,7 @@ var GeometryAttributeTexture = class _GeometryAttributeTexture extends ItemDataT
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/dataTextures/GeometryQuantRangeTexture.ts
+// ../sdk/src/webglrenderer/internal/gpuMemoryManager/dataTextures/GeometryQuantRangeTexture.ts
 var GeometryQuantRangeTexture = class _GeometryQuantRangeTexture extends ItemDataTexture {
   static itemSizeInBytes = 32;
   // 8 × float per item
@@ -126417,7 +126539,7 @@ var GeometryQuantRangeTexture = class _GeometryQuantRangeTexture extends ItemDat
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/dataTextures/PortionDataTexture.ts
+// ../sdk/src/webglrenderer/internal/gpuMemoryManager/dataTextures/PortionDataTexture.ts
 var PortionDataTexture = class extends DataTexture {
   freePortions = [];
   usedPortions = /* @__PURE__ */ new Map();
@@ -126720,7 +126842,7 @@ var PortionDataTexture = class extends DataTexture {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/dataTextures/VertexPositionTexture.ts
+// ../sdk/src/webglrenderer/internal/gpuMemoryManager/dataTextures/VertexPositionTexture.ts
 var VertexPositionTexture = class _VertexPositionTexture extends PortionDataTexture {
   /**
    * The size of each item in bytes.
@@ -126763,7 +126885,7 @@ var VertexPositionTexture = class _VertexPositionTexture extends PortionDataText
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/dataTextures/VertexColorTexture.ts
+// ../sdk/src/webglrenderer/internal/gpuMemoryManager/dataTextures/VertexColorTexture.ts
 var VertexColorTexture = class _VertexColorTexture extends PortionDataTexture {
   /**
    * The size of each item in bytes.
@@ -126798,7 +126920,7 @@ var VertexColorTexture = class _VertexColorTexture extends PortionDataTexture {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/dataTextures/MeshViewAttributeTexture.ts
+// ../sdk/src/webglrenderer/internal/gpuMemoryManager/dataTextures/MeshViewAttributeTexture.ts
 var MeshViewAttributeTexture = class _MeshViewAttributeTexture extends ItemDataTexture {
   static itemSizeInBytes = 16;
   // 4 × uint32 per uvec4
@@ -126845,7 +126967,7 @@ var MeshViewAttributeTexture = class _MeshViewAttributeTexture extends ItemDataT
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/dataTextures/IndexTexture.ts
+// ../sdk/src/webglrenderer/internal/gpuMemoryManager/dataTextures/IndexTexture.ts
 var IndexTexture = class _IndexTexture extends PortionDataTexture {
   static itemSizeInBytes = 4;
   // 1 × uint32 per item
@@ -126877,7 +126999,7 @@ var IndexTexture = class _IndexTexture extends PortionDataTexture {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/meshManager/RendererObject.ts
+// ../sdk/src/webglrenderer/internal/meshManager/RendererObject.ts
 var tempIntRGB = new Uint16Array([0, 0, 0]);
 var RendererObject = class {
   /**
@@ -127028,7 +127150,7 @@ var RendererObject = class {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/GPUTileManager.ts
+// ../sdk/src/webglrenderer/internal/gpuMemoryManager/GPUTileManager.ts
 var NUM_VIEWS = 4;
 var NUM_TILES = 2e3;
 var tempVec3a8 = createVec3Float64();
@@ -127178,7 +127300,7 @@ var GPUTileManager = class {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/RENDER_PASSES.ts
+// ../sdk/src/webglrenderer/internal/RENDER_PASSES.ts
 var RENDER_PASSES = {
   /**
    * Skipped - suppress rendering.
@@ -127215,7 +127337,7 @@ var RENDER_PASSES = {
   PICK: 6
 };
 
-// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/GPUMemoryBatch.ts
+// ../sdk/src/webglrenderer/internal/gpuMemoryManager/GPUMemoryBatch.ts
 var MAX_MESHES = 5e5;
 var MAX_GEOMETRIES = 5e5;
 var GPUMemoryBatch = class {
@@ -127318,7 +127440,7 @@ var GPUMemoryBatch = class {
     ];
     this._meshMatrixTexture = new MatrixTexture({
       gl,
-      maxItems: memoryConfigs.maxBatchMeshes + 10,
+      maxItems: memoryConfigs.maxBatchMeshes,
       getNumItems: () => this._numMeshes,
       description: `[Batch ${this.index}] - meshIndex -> modelMatrix`
     });
@@ -128030,7 +128152,7 @@ var GPUMemoryBatch = class {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/GPUMemoryManager.ts
+// ../sdk/src/webglrenderer/internal/gpuMemoryManager/GPUMemoryManager.ts
 var import_strongly_typed_events11 = __toESM(require_dist8());
 var GPUMemoryManager = class {
   /**
@@ -128523,7 +128645,7 @@ var GPUMemoryManager = class {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/meshManager/RendererMesh.ts
+// ../sdk/src/webglrenderer/internal/meshManager/RendererMesh.ts
 var tempIdentityMat4 = identityMat4(createMat4Float64());
 var identityVec4 = createVec4Float64([0, 0, 0, 1]);
 var tempVec4a6 = createVec4Float64();
@@ -128561,20 +128683,15 @@ var RendererMesh = class {
     this._gpuMemoryManager = gpuMemoryManager;
     this._meshHandle = meshHandle;
     this.gpuTile = null;
-    const rgb = sceneMesh.color ?? [1, 1, 1];
-    const r = Math.floor(rgb[0] * 255);
-    const g = Math.floor(rgb[1] * 255);
-    const b4 = Math.floor(rgb[2] * 255);
-    const a2 = sceneMesh.opacity != null ? Math.floor(sceneMesh.opacity * 255) : 255;
-    const transparent = a2 < 255;
     this._viewStates = Array.from({ length: NUM_VIEWS2 }, () => ({
       colorizing: false,
       coloringOpacity: false,
-      transparent,
+      transparent: null,
       objectVisible: true,
       meshVisible: true
     }));
     this.setMatrix(sceneMesh.globalMatrix);
+    this.setOpacity(sceneMesh.opacity);
   }
   /**
    * Sets the transformation matrix for the mesh.
@@ -128615,6 +128732,11 @@ var RendererMesh = class {
       const viewState = this._viewStates[viewIndex];
       if (!viewState.coloringOpacity) {
         this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
+      }
+      const transparent = opacity < 1;
+      if (viewState.transparent !== transparent) {
+        viewState.transparent = transparent;
+        this._meshBatch.setMeshTransparent(viewIndex, this._meshHandle, viewState.transparent);
       }
     }
   }
@@ -128672,13 +128794,6 @@ var RendererMesh = class {
       this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, this._sceneMesh.opacity);
       viewStates.coloringOpacity = false;
     }
-  }
-  /**
-   * Sets the transparency of the mesh for a specific view.
-   * Called by Called by {@link RendererObject.setTransparent}.
-   */
-  setTransparent(viewIndex, transparent) {
-    this._meshBatch.setMeshTransparent(viewIndex, this._meshHandle, transparent);
   }
   /**
    * Sets the highlight state of the mesh for a specific view.
@@ -128742,7 +128857,7 @@ var RendererMesh = class {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/meshManager/MeshBatchImpl.ts
+// ../sdk/src/webglrenderer/internal/meshManager/MeshBatchImpl.ts
 var MeshBatchImpl = class {
   /**
    * The render context associated with this batch.
@@ -128969,7 +129084,8 @@ var MeshBatchImpl = class {
   }
   setMeshOpacityInView(viewIndex, meshHandle, opacity) {
     this._gpuMemoryManager.setMeshViewAttribs(meshHandle, viewIndex, {
-      opacity
+      opacity: Math.floor(opacity * 255)
+      // Quantize to [0..255]
     });
   }
   /**
@@ -128995,7 +129111,7 @@ var MeshBatchImpl = class {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/index.ts
+// ../sdk/src/webglrenderer/internal/gpuMemoryManager/index.ts
 var gpuMemoryManager_exports = {};
 __export(gpuMemoryManager_exports, {
   GPUMemoryBatch: () => GPUMemoryBatch,
@@ -129004,7 +129120,7 @@ __export(gpuMemoryManager_exports, {
   dataTextures: () => DataTextures_exports
 });
 
-// ../sdk/src/webglrenderer/viewManager/meshManager/MeshManager.ts
+// ../sdk/src/webglrenderer/internal/meshManager/MeshManager.ts
 var MeshManager = class {
   /**
    * Renderer objects keyed by {@link SceneObject.id}.
@@ -129582,7 +129698,7 @@ var MeshManager = class {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/drawOps/DrawTechnique.ts
+// ../sdk/src/webglrenderer/internal/drawOps/DrawTechnique.ts
 var defaultColor = new Float32Array([1, 1, 1, 1]);
 var DrawTechnique = class {
   _renderContext;
@@ -129753,89 +129869,86 @@ var DrawTechnique = class {
         error: "[DrawTechnique._draw] Shader program is not initialized."
       };
     }
-    try {
-      if (!this._bind(renderPass)) {
-        return {
-          ok: false,
-          type: 1 /* InvalidOperation */,
-          error: "[DrawTechnique._draw] Failed to bind the shader program."
-        };
-      }
-      const renderContext = this._renderContext;
-      const view = renderContext.activeView;
-      const gl = this._renderContext.gl;
-      renderContext.textureUnit = 0;
-      const bindTexture = (sampler, dataTexture) => {
-        if (!sampler || !dataTexture) {
-          return;
-        }
-        gl.activeTexture(gl["TEXTURE" + renderContext.textureUnit]);
-        gl.bindTexture(gl.TEXTURE_2D, dataTexture.texture);
-        gl.uniform1i(sampler, renderContext.textureUnit);
-        renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
-      };
-      const samplers = this._samplers;
-      const dataTextures = this._gpuMemoryReader.dataTextures;
-      const batchDataTextures = dataTextures.batches[meshBatch.gpuMemoryBatchIndex];
-      const viewIndex = view.viewIndex;
-      bindTexture(
-        samplers.viewTileCameraMatrixTexture,
-        (this._renderContext.rayPicking ? dataTextures.viewTilePickMatrixTexture : dataTextures.viewTileCameraMatrixTexture)[view.viewIndex]
-      );
-      const batchViewDataTextures = batchDataTextures.views[viewIndex];
-      const primitiveMeshIndexTexture = batchViewDataTextures.primitiveMeshIndexTexture;
-      bindTexture(samplers.primitiveMeshIndex, primitiveMeshIndexTexture);
-      bindTexture(samplers.vertexPositionTexture, batchDataTextures.vertexPositionTexture);
-      bindTexture(samplers.vertexColorTexture, batchDataTextures.vertexColorTexture);
-      bindTexture(samplers.meshMatrixTexture, batchDataTextures.meshMatrixTexture);
-      bindTexture(samplers.meshAttributeTexture, batchDataTextures.meshAttributeTexture);
-      bindTexture(samplers.meshViewAttributeTexture, batchViewDataTextures.meshViewAttributeTexture);
-      bindTexture(samplers.geometryAttributes, batchDataTextures.geometryAttributeTexture);
-      bindTexture(samplers.geometryQuantRangeTexture, batchDataTextures.geometryQuantRangeTexture);
-      bindTexture(samplers.edgeIndexTexture, batchDataTextures.edgeIndexTexture);
-      bindTexture(samplers.indexTexture, batchDataTextures.indexTexture);
-      const drawRange = batchViewDataTextures.renderPassPrimitiveRanges.get(renderPass);
-      if (!drawRange || drawRange.numPrims === 0) {
-        return {
-          ok: true,
-          value: null
-          // Nothing to draw for this pass
-        };
-      }
-      gl.uniform1i(this._uniforms.primBaseIndex, drawRange.firstPrim);
-      gl.uniform1i(this._uniforms.primitiveType, meshBatch.primitive);
-      switch (meshBatch.primitive) {
-        case TrianglesPrimitive:
-          gl.drawArrays(gl.TRIANGLES, drawRange.firstPrim * 3, drawRange.numPrims * 3);
-          break;
-        case LinesPrimitive:
-          gl.drawArrays(gl.LINES, drawRange.firstPrim * 2, drawRange.numPrims * 2);
-          break;
-        case PointsPrimitive:
-          gl.drawArrays(gl.POINTS, drawRange.firstPrim, drawRange.numPrims);
-          break;
-        default:
-          return {
-            ok: false,
-            type: 2 /* InvalidInput */,
-            error: `[DrawTechnique._draw] Unsupported Batch primitive type: ${meshBatch.primitive}`
-          };
-      }
-      for (let i = 0; i < 12; i++) {
-        gl.activeTexture(gl["TEXTURE" + i]);
-        gl.bindTexture(gl.TEXTURE_2D, null);
-      }
+    const renderContext = this._renderContext;
+    const view = renderContext.activeView;
+    const gl = this._renderContext.gl;
+    const samplers = this._samplers;
+    const dataTextures = this._gpuMemoryReader.dataTextures;
+    const batchDataTextures = dataTextures.batches[meshBatch.gpuMemoryBatchIndex];
+    const viewIndex = view.viewIndex;
+    const batchViewDataTextures = batchDataTextures.views[viewIndex];
+    const drawRange = batchViewDataTextures.renderPassPrimitiveRanges.get(renderPass);
+    if (!drawRange || drawRange.numPrims === 0) {
       return {
         ok: true,
         value: null
+        // Nothing to draw for this pass
       };
-    } catch (error) {
+    }
+    const drawLogger = renderContext.drawLogger.enabled ? renderContext.drawLogger : null;
+    if (!this._bind(renderPass)) {
       return {
         ok: false,
         type: 1 /* InvalidOperation */,
-        error: error instanceof Error ? error.message : "[DrawTechnique._draw] An unknown error occurred during draw."
+        error: "[DrawTechnique._draw] Failed to bind the shader program."
       };
     }
+    const primitiveMeshIndexTexture = batchViewDataTextures.primitiveMeshIndexTexture;
+    renderContext.textureUnit = 0;
+    const bindTexture = (sampler, dataTexture) => {
+      if (!sampler || !dataTexture) {
+        return;
+      }
+      gl.activeTexture(gl["TEXTURE" + renderContext.textureUnit]);
+      gl.bindTexture(gl.TEXTURE_2D, dataTexture.texture);
+      gl.uniform1i(sampler, renderContext.textureUnit);
+      renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
+    };
+    bindTexture(
+      samplers.viewTileCameraMatrixTexture,
+      (this._renderContext.rayPicking ? dataTextures.viewTilePickMatrixTexture : dataTextures.viewTileCameraMatrixTexture)[view.viewIndex]
+    );
+    bindTexture(samplers.primitiveMeshIndex, primitiveMeshIndexTexture);
+    bindTexture(samplers.vertexPositionTexture, batchDataTextures.vertexPositionTexture);
+    bindTexture(samplers.vertexColorTexture, batchDataTextures.vertexColorTexture);
+    bindTexture(samplers.meshMatrixTexture, batchDataTextures.meshMatrixTexture);
+    bindTexture(samplers.meshAttributeTexture, batchDataTextures.meshAttributeTexture);
+    bindTexture(samplers.meshViewAttributeTexture, batchViewDataTextures.meshViewAttributeTexture);
+    bindTexture(samplers.geometryAttributes, batchDataTextures.geometryAttributeTexture);
+    bindTexture(samplers.geometryQuantRangeTexture, batchDataTextures.geometryQuantRangeTexture);
+    bindTexture(samplers.edgeIndexTexture, batchDataTextures.edgeIndexTexture);
+    bindTexture(samplers.indexTexture, batchDataTextures.indexTexture);
+    gl.uniform1i(this._uniforms.primBaseIndex, drawRange.firstPrim);
+    gl.uniform1i(this._uniforms.primitiveType, meshBatch.primitive);
+    switch (meshBatch.primitive) {
+      case TrianglesPrimitive:
+        gl.drawArrays(gl.TRIANGLES, drawRange.firstPrim * 3, drawRange.numPrims * 3);
+        break;
+      case LinesPrimitive:
+        gl.drawArrays(gl.LINES, drawRange.firstPrim * 2, drawRange.numPrims * 2);
+        break;
+      case PointsPrimitive:
+        gl.drawArrays(gl.POINTS, drawRange.firstPrim, drawRange.numPrims);
+        break;
+      default:
+        return {
+          ok: false,
+          type: 2 /* InvalidInput */,
+          error: `[DrawTechnique._draw] Unsupported Batch primitive type: ${meshBatch.primitive}`
+        };
+    }
+    drawLogger?.drawMeshBatch(meshBatch, renderPass, {
+      firstPrim: drawRange.firstPrim,
+      numPrims: drawRange.numPrims
+    });
+    for (let i = 0; i < 12; i++) {
+      gl.activeTexture(gl["TEXTURE" + i]);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+    }
+    return {
+      ok: true,
+      value: null
+    };
   }
   /**
    * Inserts a line of custom vertex shader code into the generated vertex shader source.
@@ -130244,7 +130357,7 @@ vec3 getEyePosition(mat4 viewMatrix) {
       // "    lambertian = max(dot(normal, normalize(lightDir3)), 0.0);",
       // "    reflectedColor += lambertian * (lightColor3.rgb * lightColor3.a);",
       "    vec4 color = vec4(meshViewAttributes.color) /255.0;",
-      "   vColor =  vec4((lightAmbient.rgb * lightAmbient.a * color.rgb) + (reflectedColor * color.rgb), 1.0);"
+      "   vColor =  vec4((lightAmbient.rgb * lightAmbient.a * color.rgb) + (reflectedColor * color.rgb),color.a);"
       //  "    vColor = vec4(color.rgb, 1.0);");
     );
   }
@@ -130282,7 +130395,7 @@ vec3 getEyePosition(mat4 viewMatrix) {
       "    if (lambertian < 0.0) lambertian = lambertian * -1.0;",
       "    reflectedColor += lambertian * (lightColor2.rgb * lightColor2.a);",
       "    vec4 color = vec4(meshViewAttributes.color) /255.0;",
-      "    vColor =  vec4((lightAmbient.rgb * lightAmbient.a * color.rgb) + (reflectedColor * color.rgb), 1.0);"
+      "    vColor =  vec4((lightAmbient.rgb * lightAmbient.a * color.rgb) + (reflectedColor * color.rgb), color.a);"
     );
   }
   /**
@@ -130748,7 +130861,7 @@ function joinSansComments(srcLines) {
   return src.join("\n");
 }
 
-// ../sdk/src/webglrenderer/viewManager/drawOps/techniques/triangles/TrianglesDrawColorTechnique.ts
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/triangles/TrianglesDrawColorTechnique.ts
 var TrianglesDrawColorTechnique = class extends DrawTechnique {
   buildVertexShader() {
     this.vsHeader();
@@ -130774,7 +130887,7 @@ var TrianglesDrawColorTechnique = class extends DrawTechnique {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/drawOps/techniques/generic/GenericDrawSilhouetteTechnique.ts
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/generic/GenericDrawSilhouetteTechnique.ts
 var GenericDrawSilhouetteTechnique = class extends DrawTechnique {
   buildVertexShader() {
     this.vsHeader();
@@ -130800,7 +130913,7 @@ var GenericDrawSilhouetteTechnique = class extends DrawTechnique {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/drawOps/techniques/points/PointsDrawColorTechnique.ts
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/points/PointsDrawColorTechnique.ts
 var PointsDrawColorTechnique = class extends DrawTechnique {
   buildVertexShader() {
     this.vsHeader();
@@ -130827,7 +130940,7 @@ var PointsDrawColorTechnique = class extends DrawTechnique {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/drawOps/techniques/lines/LinesDrawColorTechnique.ts
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/lines/LinesDrawColorTechnique.ts
 var LinesDrawColorTechnique = class extends DrawTechnique {
   buildVertexShader() {
     this.vsHeader();
@@ -130853,7 +130966,7 @@ var LinesDrawColorTechnique = class extends DrawTechnique {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/drawOps/DrawOp.ts
+// ../sdk/src/webglrenderer/internal/drawOps/DrawOp.ts
 var DrawOp = class {
   /**
    * The draw technique that performs the actual rendering.
@@ -130894,7 +131007,7 @@ var DrawOp = class {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/drawOps/techniques/triangles/TrianglesDrawEdgeSilhouetteTechnique.ts
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/triangles/TrianglesDrawEdgeSilhouetteTechnique.ts
 var TrianglesDrawEdgeSilhouetteTechnique = class extends DrawTechnique {
   constructor(renderContext, gpuMemoryReader) {
     super(renderContext, gpuMemoryReader, { edges: true });
@@ -130923,7 +131036,7 @@ var TrianglesDrawEdgeSilhouetteTechnique = class extends DrawTechnique {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/drawOps/techniques/generic/GenericPickMeshTechnique.ts
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/generic/GenericPickMeshTechnique.ts
 var GenericPickMeshTechnique = class extends DrawTechnique {
   buildVertexShader() {
     this.vsHeader();
@@ -130949,7 +131062,7 @@ var GenericPickMeshTechnique = class extends DrawTechnique {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/drawOps/techniques/generic/GenericPickDepthTechnique.ts
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/generic/GenericPickDepthTechnique.ts
 var GenericPickDepthTechnique = class extends DrawTechnique {
   buildVertexShader() {
     this.vsHeader();
@@ -130975,7 +131088,7 @@ var GenericPickDepthTechnique = class extends DrawTechnique {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/drawOps/techniques/triangles/TrianglesDrawEdgeColorTechnique.ts
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/triangles/TrianglesDrawEdgeColorTechnique.ts
 var TrianglesDrawEdgeColorTechnique = class extends DrawTechnique {
   constructor(renderContext, gpuMemoryReader) {
     super(renderContext, gpuMemoryReader, { edges: true });
@@ -131004,7 +131117,7 @@ var TrianglesDrawEdgeColorTechnique = class extends DrawTechnique {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/drawOps/DrawOps.ts
+// ../sdk/src/webglrenderer/internal/drawOps/DrawOps.ts
 var DrawOps = class {
   /**
    * Reference count used to share a single DrawOps instance across multiple users
@@ -131183,7 +131296,7 @@ function putDrawOps(drawOps) {
   }
 }
 
-// ../sdk/src/webglrenderer/viewManager/pickManager/PickManager.ts
+// ../sdk/src/webglrenderer/internal/pickManager/PickManager.ts
 var tempVec3a9 = createVec3Float64();
 var tempVec3b9 = createVec3Float64();
 var tempVec3c5 = createVec3Float64();
@@ -131394,7 +131507,7 @@ var PickManager = class {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/renderManager/RenderManager.ts
+// ../sdk/src/webglrenderer/internal/renderManager/RenderManager.ts
 var RenderManager = class {
   /**
    * Active drawing operations (shader programs + draw routines).
@@ -131506,6 +131619,8 @@ var RenderManager = class {
     const xrayMaterial = view.xrayMaterial;
     const meshBatches = this._meshManager.sortedBatches;
     const drawOps = this.drawOps.prims;
+    const drawLogger = renderContext.drawLogger.enabled ? renderContext.drawLogger : null;
+    drawLogger?.frameStarted(view);
     const bins = {
       normalDrawSAO: [],
       edgesColorOpaque: [],
@@ -131541,6 +131656,7 @@ var RenderManager = class {
     if (clear !== false) {
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     }
+    drawLogger?.startRenderPass("opaque");
     for (const meshBatch of meshBatches) {
       const opaque = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.OPAQUE);
       const transparent = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.TRANSPARENT);
@@ -131582,12 +131698,15 @@ var RenderManager = class {
     }
     for (let i = 0; i < bins.normalDrawSAO.length; i++) {
     }
+    drawLogger?.startRenderPass("edgesColorOpaque");
     bins.edgesColorOpaque.forEach((meshBatch) => {
       drawOps[meshBatch.primitive].opaqueEdges?.drawBatch(meshBatch);
     });
+    drawLogger?.startRenderPass("xrayedSilhouetteOpaque");
     bins.xrayedSilhouetteOpaque.forEach((meshBatch) => {
       drawOps[meshBatch.primitive].xrayed?.drawBatch(meshBatch);
     });
+    drawLogger?.startRenderPass("xrayEdgesOpaque");
     bins.xrayEdgesOpaque.forEach((meshBatch) => {
       drawOps[meshBatch.primitive].xrayedEdges?.drawBatch(meshBatch);
     });
@@ -131604,18 +131723,22 @@ var RenderManager = class {
       if (!this._alphaDepthMask) {
         gl.depthMask(false);
       }
+      drawLogger?.startRenderPass("xrayEdgesTransparent");
       bins.xrayEdgesTransparent.forEach((meshBatch) => {
         drawOps[meshBatch.primitive].xrayedEdges?.drawBatch(meshBatch);
       });
+      drawLogger?.startRenderPass("xrayedSilhouetteTransparent");
       bins.xrayedSilhouetteTransparent.forEach((meshBatch) => {
         drawOps[meshBatch.primitive].xrayed?.drawBatch(meshBatch);
       });
       if (bins.edgesColorTransparent.length || bins.normalFillTransparent.length) {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       }
+      drawLogger?.startRenderPass("edgesColorTransparent");
       bins.edgesColorTransparent.forEach((meshBatch) => {
         drawOps[meshBatch.primitive].transparentEdges?.drawBatch(meshBatch);
       });
+      drawLogger?.startRenderPass("normalFillTransparent");
       bins.normalFillTransparent.forEach((meshBatch) => {
         drawOps[meshBatch.primitive].transparent?.drawBatch(meshBatch);
       });
@@ -131634,24 +131757,28 @@ var RenderManager = class {
           drawSil(silBin[i]);
       }
     };
+    drawLogger?.startRenderPass("highlightedSilhouetteOpaque");
     drawSilAndEdges(
       bins.highlightedSilhouetteOpaque,
       bins.highlightedEdgesOpaque,
       (b4) => drawOps[b4.primitive].highlighted?.drawBatch(b4),
       (b4) => drawOps[b4.primitive].highlightedEdges?.drawBatch(b4)
     );
+    drawLogger?.startRenderPass("selectedSilhouetteOpaque");
     drawSilAndEdges(
       bins.selectedSilhouetteOpaque,
       bins.selectedEdgesOpaque,
       (b4) => drawOps[b4.primitive].selected?.drawBatch(b4),
       (b4) => drawOps[b4.primitive].selectedEdges?.drawBatch(b4)
     );
+    drawLogger?.startRenderPass("highlightedSilhouetteTransparent");
     drawSilAndEdges(
       bins.highlightedSilhouetteTransparent,
       bins.highlightedEdgesTransparent,
       (b4) => drawOps[b4.primitive].highlighted?.drawBatch(b4),
       (b4) => drawOps[b4.primitive].highlightedEdges?.drawBatch(b4)
     );
+    drawLogger?.startRenderPass("selectedSilhouetteTransparent");
     drawSilAndEdges(
       bins.selectedSilhouetteTransparent,
       bins.selectedEdgesTransparent,
@@ -131666,6 +131793,7 @@ var RenderManager = class {
     for (let i = 0, attribs = WEBGL_INFO.MAX_VERTEX_ATTRIBS; i < attribs; i++) {
       gl.disableVertexAttribArray(i);
     }
+    drawLogger?.frameEnded();
     return {
       ok: true,
       value: void 0
@@ -131685,7 +131813,7 @@ var RenderManager = class {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/ViewRenderState.ts
+// ../sdk/src/webglrenderer/internal/ViewRenderState.ts
 var ViewRenderState2 = class {
   /**
    * The logical view this renderer view represents.
@@ -131766,19 +131894,19 @@ var ViewRenderState2 = class {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/renderManager/index.ts
+// ../sdk/src/webglrenderer/internal/renderManager/index.ts
 var renderManager_exports = {};
 __export(renderManager_exports, {
   RenderManager: () => RenderManager
 });
 
-// ../sdk/src/webglrenderer/viewManager/pickManager/index.ts
+// ../sdk/src/webglrenderer/internal/pickManager/index.ts
 var pickManager_exports = {};
 __export(pickManager_exports, {
   PickManager: () => PickManager
 });
 
-// ../sdk/src/webglrenderer/viewManager/meshManager/index.ts
+// ../sdk/src/webglrenderer/internal/meshManager/index.ts
 var meshManager_exports = {};
 __export(meshManager_exports, {
   MeshBatchImpl: () => MeshBatchImpl,
@@ -131790,7 +131918,7 @@ __export(meshManager_exports, {
   RendererTextureSet: () => RendererTextureSet
 });
 
-// ../sdk/src/webglrenderer/viewManager/meshManager/RendererGeometry.ts
+// ../sdk/src/webglrenderer/internal/meshManager/RendererGeometry.ts
 var RendererGeometry = class {
   /**
    * The number of times this geometry is used by a mesh
@@ -131801,7 +131929,7 @@ var RendererGeometry = class {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/meshManager/RendererTexture.ts
+// ../sdk/src/webglrenderer/internal/meshManager/RendererTexture.ts
 var RendererTexture = class {
   texture;
   texture2D;
@@ -131816,7 +131944,7 @@ var RendererTexture = class {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/meshManager/RendererTextureSet.ts
+// ../sdk/src/webglrenderer/internal/meshManager/RendererTextureSet.ts
 var RendererTextureSet = class {
   id;
   // public readonly colorRendererTexture: SceneTextureRendererProxy;
@@ -131831,73 +131959,12 @@ var RendererTextureSet = class {
 // ../sdk/src/webglrenderer/internal/index.ts
 var internal_exports = {};
 __export(internal_exports, {
-  AmbientLight: () => AmbientLight,
-  Camera: () => Camera2,
-  CustomProjection: () => CustomProjection,
-  DataTexture: () => DataTexture,
-  DirLight: () => DirLight,
-  DrawOp: () => DrawOp,
-  DrawOps: () => DrawOps,
-  DrawTechnique: () => DrawTechnique,
-  Edges: () => Edges,
-  EmphasisMaterial: () => EmphasisMaterial,
-  FrustumProjection: () => FrustumProjection,
-  GPUMemoryBatch: () => GPUMemoryBatch,
-  GPUMemoryManager: () => GPUMemoryManager,
-  GPUTileManager: () => GPUTileManager,
-  GeometryAttributeTexture: () => GeometryAttributeTexture,
-  GeometryQuantRangeTexture: () => GeometryQuantRangeTexture,
-  ItemDataTexture: () => ItemDataTexture,
-  LinesMaterial: () => LinesMaterial,
-  MatrixTexture: () => MatrixTexture,
   MemoryDebugger: () => MemoryDebugger,
-  MeshAttributeTexture: () => MeshAttributeTexture,
-  MeshBatchImpl: () => MeshBatchImpl,
-  MeshManager: () => MeshManager,
-  MeshViewAttributeTexture: () => MeshViewAttributeTexture,
-  OrthoProjection: () => OrthoProjection,
-  PerspectiveProjection: () => PerspectiveProjection,
-  PickManager: () => PickManager,
-  PickResult: () => PickResult,
-  PointLight: () => PointLight,
-  PointsMaterial: () => PointsMaterial,
-  PortionDataTexture: () => PortionDataTexture,
-  PrimitiveMeshIndexTexture: () => PrimitiveMeshIndexTexture,
-  RenderManager: () => RenderManager,
-  RendererGeometry: () => RendererGeometry,
-  RendererMesh: () => RendererMesh,
-  RendererObject: () => RendererObject,
-  RendererTexture: () => RendererTexture,
-  RendererTextureSet: () => RendererTextureSet,
-  ResolutionScale: () => ResolutionScale,
-  SAO: () => SAO,
-  SectionPlane: () => SectionPlane,
-  ShaderDebugger: () => ShaderDebugger,
-  ShaderView: () => ShaderView,
-  SnapshotResult: () => SnapshotResult,
-  Texturing: () => Texturing,
-  VertexColorTexture: () => VertexColorTexture,
-  VertexPositionTexture: () => VertexPositionTexture,
-  View: () => View,
-  ViewLayer: () => ViewLayer,
-  ViewManager: () => ViewManager2,
-  ViewObject: () => ViewObject,
-  ViewRenderState: () => ViewRenderState2,
-  Viewer: () => Viewer,
-  ViewerEvents: () => ViewerEvents,
-  dataTextures: () => DataTextures_exports,
-  getDrawOps: () => getDrawOps,
-  putDrawOps: () => putDrawOps,
-  techniques: () => techniques_exports,
-  viewManager: () => viewManager_exports
-});
-
-// ../sdk/src/webglrenderer/viewManager/index.ts
-var viewManager_exports = {};
-__export(viewManager_exports, {
   RENDER_PASSES: () => RENDER_PASSES,
   RenderBuffers: () => RenderBuffers,
   RenderContext: () => RenderContext,
+  ShaderDebugger: () => ShaderDebugger,
+  ShaderView: () => ShaderView,
   ViewManager: () => ViewManager2,
   ViewRenderState: () => ViewRenderState2,
   drawOps: () => drawOps_exports,
@@ -131907,9 +131974,10 @@ __export(viewManager_exports, {
   renderManager: () => renderManager_exports
 });
 
-// ../sdk/src/webglrenderer/viewManager/drawOps/index.ts
+// ../sdk/src/webglrenderer/internal/drawOps/index.ts
 var drawOps_exports = {};
 __export(drawOps_exports, {
+  DrawLogger: () => DrawLogger,
   DrawOp: () => DrawOp,
   DrawOps: () => DrawOps,
   DrawTechnique: () => DrawTechnique,
@@ -131918,7 +131986,7 @@ __export(drawOps_exports, {
   techniques: () => techniques_exports
 });
 
-// ../sdk/src/webglrenderer/viewManager/drawOps/techniques/index.ts
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/index.ts
 var techniques_exports = {};
 __export(techniques_exports, {
   generic: () => generic_exports,
@@ -131927,7 +131995,7 @@ __export(techniques_exports, {
   triangles: () => triangles_exports
 });
 
-// ../sdk/src/webglrenderer/viewManager/drawOps/techniques/generic/index.ts
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/generic/index.ts
 var generic_exports = {};
 __export(generic_exports, {
   GenericDrawSilhouetteTechnique: () => GenericDrawSilhouetteTechnique,
@@ -131935,13 +132003,13 @@ __export(generic_exports, {
   GenericPickMeshTechnique: () => GenericPickMeshTechnique
 });
 
-// ../sdk/src/webglrenderer/viewManager/drawOps/techniques/lines/index.ts
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/lines/index.ts
 var lines_exports = {};
 __export(lines_exports, {
   LinesDrawColorTechnique: () => LinesDrawColorTechnique
 });
 
-// ../sdk/src/webglrenderer/viewManager/drawOps/techniques/points/index.ts
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/points/index.ts
 var points_exports = {};
 __export(points_exports, {
   PointsDrawColorTechnique: () => PointsDrawColorTechnique,
@@ -131950,7 +132018,7 @@ __export(points_exports, {
   TrianglesPickMeshDrawTechnique: () => TrianglesPickMeshDrawTechnique
 });
 
-// ../sdk/src/webglrenderer/viewManager/drawOps/techniques/points/PointsDrawSilhouetteTechnique.ts
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/points/PointsDrawSilhouetteTechnique.ts
 var PointsDrawSilhouetteTechnique = class extends DrawTechnique {
   buildVertexShader() {
     this.vsHeader();
@@ -131976,7 +132044,7 @@ var PointsDrawSilhouetteTechnique = class extends DrawTechnique {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/drawOps/techniques/points/PointsPickDepthTechnique.ts
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/points/PointsPickDepthTechnique.ts
 var PointsPickDepth = class extends DrawTechnique {
   buildVertexShader() {
     this.vsHeader();
@@ -132002,7 +132070,7 @@ var PointsPickDepth = class extends DrawTechnique {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/drawOps/techniques/points/PointsPickMeshDrawTechnique.ts
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/points/PointsPickMeshDrawTechnique.ts
 var TrianglesPickMeshDrawTechnique = class extends DrawTechnique {
   buildVertexShader() {
     this.vsHeader();
@@ -132028,7 +132096,7 @@ var TrianglesPickMeshDrawTechnique = class extends DrawTechnique {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/drawOps/techniques/triangles/index.ts
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/triangles/index.ts
 var triangles_exports = {};
 __export(triangles_exports, {
   TrianglesDrawColorTechnique: () => TrianglesDrawColorTechnique,
@@ -133230,7 +133298,7 @@ var ShaderDebugger = class {
   }
 };
 
-// ../sdk/src/webglrenderer/viewManager/ViewManager.ts
+// ../sdk/src/webglrenderer/internal/ViewManager.ts
 var ViewManager2 = class {
   /**
    * GPU-backed textures created/owned by {@link GPUMemoryManager}.
@@ -133410,6 +133478,20 @@ var ViewManager2 = class {
       throw new SDKInternalException("[ViewManager.getMemoryUsage] ViewManager is not initialized");
     }
     return this._gpuMemoryManager.getMemoryUsage();
+  }
+  /**
+   * Sets the {@link DrawLogger} used to log draw calls.
+   * @param drawLogger
+   */
+  setDrawLogger(drawLogger) {
+    if (!this._renderContext) {
+      throw new SDKInternalException("[ViewManager.setDrawLogger] ViewManager is not initialized");
+    }
+    this._renderContext.drawLogger = drawLogger;
+    return {
+      ok: true,
+      value: void 0
+    };
   }
   /**
    * Returns the {@link View} at a given index in the internal view list.
@@ -134136,6 +134218,25 @@ var WebGLRenderer3 = class {
     return {
       ok: true,
       value: this._shaderView
+    };
+  }
+  /**
+   * Sets a {@link DrawLogger} to log draw calls during rendering.
+   * @param drawLogger
+   * @internal
+   */
+  setDrawLogger(drawLogger) {
+    if (!this._viewManager) {
+      return this.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[WebGLRenderer.setDrawLogger] Failed to set DrawLogger - no Viewer with Scene is currently attached."
+      });
+    }
+    this._viewManager.setDrawLogger(drawLogger);
+    return {
+      ok: true,
+      value: void 0
     };
   }
   /**

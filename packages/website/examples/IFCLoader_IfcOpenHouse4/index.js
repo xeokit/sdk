@@ -10,8 +10,19 @@ const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper.init().then(() => {
 
-  const {view, scene, data} = demoHelper;
+  const {view, scene, data, renderer} = demoHelper;
 
+  renderer.setDrawLogger(new xeokit.webglrenderer.internal.drawOps.DrawLogger({
+    enabled: true,
+    maxLoggedOps: 100,
+    includeRenderPasses:[
+      "normalFillTransparent",
+      "edgesTransparent"
+    ],
+    onFrameLogged: (frameLog) => {
+      console.log("[WebGLRenderer] Frame rendered:", frameLog);
+    }
+  }))
 // Create an IFCLoader to load IFC files
 
   const ifcLoader = new xeokit.formats.ifc.IFCLoader();
@@ -84,16 +95,16 @@ demoHelper.init().then(() => {
               return;
             }
 
-            const er = new DataGraphOverlay(data, {
-              width: 2000,
-              height: 1200,
-              maxObjectsPerModel: 80,
-              maxPropertySetsPerModel: 80,
-              maxPropertiesPerSet: 12,
-              maxRelationshipEdges: 150,
-              showPropertyNodes: false, // big win for readability
-            });
-            er.start();
+            // const er = new DataGraphOverlay(data, {
+            //   width: 2000,
+            //   height: 1200,
+            //   maxObjectsPerModel: 80,
+            //   maxPropertySetsPerModel: 80,
+            //   maxPropertiesPerSet: 12,
+            //   maxRelationshipEdges: 150,
+            //   showPropertyNodes: false, // big win for readability
+            // });
+            // er.start();
 
             // If the query succeeded, go ahead and mark whatever
             // objects we found as selected. In this case, it will set the window

@@ -51,3 +51,4 @@ export * as contextmenu from "../../sdk/src/contextmenu";
 export * as modelconverter from "../../sdk/src/modelconverter";
 export * as ifc2gltf2xgf from "../../sdk/src/ifc2gltf2xgf";
 
+export * as demo from "../../sdk/src/demo";

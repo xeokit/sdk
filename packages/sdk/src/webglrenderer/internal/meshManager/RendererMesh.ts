@@ -81,31 +81,22 @@ export class RendererMesh {
     gpuMemoryManager: GPUMemoryManager;
     meshHandle: MeshBatchMeshHandle;
   }) {
-
     this._renderContext = renderContext;
     this._sceneMesh = sceneMesh;
     this._meshBatch = meshBatch;
     this._gpuMemoryManager = gpuMemoryManager;
     this._meshHandle = meshHandle;
     this.gpuTile = null;
-
-    // Color / opacity -> 0..255
-    const rgb = sceneMesh.color ?? [1, 1, 1];
-    const r = Math.floor(rgb[0] * 255);
-    const g = Math.floor(rgb[1] * 255);
-    const b = Math.floor(rgb[2] * 255);
-    const a = sceneMesh.opacity != null ? Math.floor(sceneMesh.opacity * 255) : 255;
-    const transparent = a < 255;
-
     this._viewStates = Array.from({length: NUM_VIEWS}, () => ({
       colorizing: false,
       coloringOpacity: false,
-      transparent,
+      transparent:null,
       objectVisible: true,
       meshVisible: true
     }));
 
     this.setMatrix(sceneMesh.globalMatrix);
+    this.setOpacity(sceneMesh.opacity);
   }
 
   /**
@@ -125,12 +116,8 @@ export class RendererMesh {
     }
     const tileCenter = this.gpuTile.center;
     const relativeMatrix = createMat4Float64(matrix);
-    // const worldOrigin = matrix.slice(12, 15); // translation xyz
-    // const origin = [];
-    //worldToRTCPositions(worldOrigin, worldOrigin, origin);
     // @ts-ignore
     relativeMatrix.set(subVec3(center, tileCenter), 12);
-    //relativeMatrix.set(worldOrigin, 12);
     this._meshBatch.setMeshMatrix(this._meshHandle, relativeMatrix);
   }
 
@@ -156,6 +143,11 @@ export class RendererMesh {
       const viewState = this._viewStates[viewIndex];
       if (!viewState.coloringOpacity) {
         this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
+      }
+      const transparent = opacity < 1.0;
+      if (viewState.transparent !== transparent) {
+        viewState.transparent = transparent;
+        this._meshBatch.setMeshTransparent(viewIndex, this._meshHandle, viewState.transparent);
       }
     }
   }
@@ -217,14 +209,6 @@ export class RendererMesh {
       this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, this._sceneMesh.opacity);
       viewStates.coloringOpacity = false;
     }
-  }
-
-  /**
-   * Sets the transparency of the mesh for a specific view.
-   * Called by Called by {@link RendererObject.setTransparent}.
-   */
-  setTransparent(viewIndex: number, transparent: boolean) {
-    this._meshBatch.setMeshTransparent(viewIndex, this._meshHandle, transparent);
   }
 
   /**

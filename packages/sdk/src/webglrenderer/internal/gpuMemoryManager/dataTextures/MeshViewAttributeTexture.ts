@@ -30,6 +30,7 @@ export class MeshViewAttributeTexture extends ItemDataTexture {
 
   setItem(itemIndex: number, item: {
     color?: Vec3;
+    /** Opacity in range [0..255] */
     opacity?: number;
     pickable?: boolean;
     clippable?: boolean;

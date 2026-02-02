@@ -281,7 +281,7 @@ export class MeshBatchImpl implements MeshBatch {
 
     public setMeshOpacityInView(viewIndex: number, meshHandle: MeshBatchMeshHandle, opacity: number): void {
         this._gpuMemoryManager.setMeshViewAttribs(meshHandle as GPUMemoryMeshHandle, viewIndex, {
-            opacity
+            opacity: Math.floor(opacity * 255) // Quantize to [0..255]
         });
     }
     /**

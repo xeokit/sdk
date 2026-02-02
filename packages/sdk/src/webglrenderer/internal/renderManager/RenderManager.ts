@@ -177,6 +177,10 @@ export class RenderManager {
         const meshBatches = this._meshManager.sortedBatches;
         const drawOps = this.drawOps.prims;
 
+        const drawLogger =(renderContext.drawLogger.enabled) ? renderContext.drawLogger : null;
+
+        drawLogger?.frameStarted(view);
+
         const bins = {
             normalDrawSAO: [] as MeshBatch[],
             edgesColorOpaque: [] as MeshBatch[],
@@ -218,6 +222,8 @@ export class RenderManager {
         if (clear !== false) {
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         }
+
+    drawLogger?.startRenderPass("opaque"); // Opaque fill is always first pass
 
       for (const meshBatch of meshBatches) {
 
@@ -274,13 +280,19 @@ export class RenderManager {
             //  renderers?.colorSAOOpaqueRenderer.bins.normalDrawSAO[i].drawColorSAOOpaque();
         }
 
+        drawLogger?.startRenderPass("edgesColorOpaque");
+
         bins.edgesColorOpaque.forEach(meshBatch => {
             drawOps[meshBatch.primitive].opaqueEdges?.drawBatch(meshBatch);
         });
 
+        drawLogger?.startRenderPass("xrayedSilhouetteOpaque");
+
         bins.xrayedSilhouetteOpaque.forEach(meshBatch => {
             drawOps[meshBatch.primitive].xrayed?.drawBatch(meshBatch);
         });
+
+        drawLogger?.startRenderPass("xrayEdgesOpaque");
 
         bins.xrayEdgesOpaque.forEach(meshBatch => {
             drawOps[meshBatch.primitive].xrayedEdges?.drawBatch(meshBatch);
@@ -310,9 +322,13 @@ export class RenderManager {
                 gl.depthMask(false);
             }
 
+            drawLogger?.startRenderPass("xrayEdgesTransparent");
+
             bins.xrayEdgesTransparent.forEach(meshBatch => {
                 drawOps[meshBatch.primitive].xrayedEdges?.drawBatch(meshBatch);
             });
+
+            drawLogger?.startRenderPass("xrayedSilhouetteTransparent");
 
             bins.xrayedSilhouetteTransparent.forEach(meshBatch => {
                 drawOps[meshBatch.primitive].xrayed?.drawBatch(meshBatch);
@@ -322,9 +338,13 @@ export class RenderManager {
                 gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
             }
 
+            drawLogger?.startRenderPass("edgesColorTransparent");
+
             bins.edgesColorTransparent.forEach(meshBatch => {
                 drawOps[meshBatch.primitive].transparentEdges?.drawBatch(meshBatch);
             });
+
+            drawLogger?.startRenderPass("normalFillTransparent");
 
             bins.normalFillTransparent.forEach(meshBatch => {
                 drawOps[meshBatch.primitive].transparent?.drawBatch(meshBatch);
@@ -351,9 +371,13 @@ export class RenderManager {
             }
         };
 
+        drawLogger?.startRenderPass("highlightedSilhouetteOpaque");
+
         drawSilAndEdges(bins.highlightedSilhouetteOpaque, bins.highlightedEdgesOpaque,
             b => drawOps[b.primitive].highlighted?.drawBatch(b),
             b => drawOps[b.primitive].highlightedEdges?.drawBatch(b));
+
+        drawLogger?.startRenderPass("selectedSilhouetteOpaque");
 
         drawSilAndEdges(bins.selectedSilhouetteOpaque, bins.selectedEdgesOpaque,
             b => drawOps[b.primitive].selected?.drawBatch(b),
@@ -361,9 +385,13 @@ export class RenderManager {
 
         // TODO: Switch on blending if needed
 
+        drawLogger?.startRenderPass("highlightedSilhouetteTransparent");
+
         drawSilAndEdges(bins.highlightedSilhouetteTransparent, bins.highlightedEdgesTransparent,
             b => drawOps[b.primitive].highlighted?.drawBatch(b),
             b => drawOps[b.primitive].highlightedEdges?.drawBatch(b));
+
+        drawLogger?.startRenderPass("selectedSilhouetteTransparent");
 
         drawSilAndEdges(bins.selectedSilhouetteTransparent, bins.selectedEdgesTransparent,
             b => drawOps[b.primitive].selected?.drawBatch(b),
@@ -379,6 +407,8 @@ export class RenderManager {
         for (let i = 0, attribs = WEBGL_INFO.MAX_VERTEX_ATTRIBS; i < attribs; i++) {
             gl.disableVertexAttribArray(i);
         }
+
+        drawLogger?.frameEnded();
 
         return {
             ok: true,

@@ -14,6 +14,7 @@ import {type DataTextures} from "./internal/gpuMemoryManager/DataTextures";
 import {SceneGeometry, SceneMesh} from "../scene";
 import {ShaderView} from "./internal";
 import {type PickParams, type PickResult} from "../viewer";
+import {DrawLogger} from "./internal/drawOps/DrawLogger";
 
 
 /**
@@ -301,6 +302,26 @@ export class WebGLRenderer {
     return {
       ok: true,
       value: this._shaderView
+    };
+  }
+
+  /**
+   * Sets a {@link DrawLogger} to log draw calls during rendering.
+   * @param drawLogger
+   * @internal
+   */
+  public setDrawLogger(drawLogger: DrawLogger): SDKResult<any> {
+    if (!this._viewManager) {
+      return this.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[WebGLRenderer.setDrawLogger] Failed to set DrawLogger - no Viewer with Scene is currently attached."
+      });
+    }
+    this._viewManager.setDrawLogger(drawLogger);
+    return {
+      ok: true,
+      value: undefined
     };
   }
 

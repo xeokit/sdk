@@ -3,6 +3,8 @@
  * Primitive ranges are used with `gl.drawArrays` to efficiently render specific passes.
  * The `primitiveMeshIndexTexture` contains all primitives for a View within a render batch, partitioned
  * by render pass.
+ *
+ * @internal
  */
 export interface PrimRange {
 

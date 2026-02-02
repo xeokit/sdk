@@ -4,6 +4,7 @@ import type {FloatArrayParam} from "../../math";
 import {SDKInternalException, SDKErrorType, type SDKResult} from "../../core";
 import type {WebGLContextProvider} from "../../webglutils/WebGLContextProvider";
 import type {MemoryConfigs} from "../MemoryConfigs";
+import {DrawLogger} from "./drawOps/DrawLogger";
 
 
 /**
@@ -27,6 +28,11 @@ export class RenderContext implements WebGLContextProvider {
    * Whether debugging is enabled.
    */
   public debugging: boolean;
+
+  /**
+   * The DrawLogger for logging draw calls.
+   */
+  public drawLogger: DrawLogger;
 
   /**
    * The WebGL rendering context.
@@ -152,6 +158,7 @@ export class RenderContext implements WebGLContextProvider {
     const {canvas: webglCanvasElement, gl} = result.value;
     this.gl = gl;
     this.webglCanvasElement = webglCanvasElement;
+    this.drawLogger = null;
     this.debugging = false;
     this.initialized = true;
     this.reset();

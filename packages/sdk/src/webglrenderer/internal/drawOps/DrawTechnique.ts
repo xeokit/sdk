@@ -311,102 +311,110 @@ export abstract class DrawTechnique {
       };
     }
 
-    try {
-      if (!this._bind(renderPass)) {
-        return {
-          ok: false,
-          type: SDKErrorType.InvalidOperation,
-          error: "[DrawTechnique._draw] Failed to bind the shader program."
-        };
-      }
+    //  try {
+    const renderContext = this._renderContext;
+    const view = renderContext.activeView;
+    const gl = this._renderContext.gl;
+    const samplers = this._samplers;
+    const dataTextures = this._gpuMemoryReader.dataTextures;
+    const batchDataTextures = dataTextures.batches[meshBatch.gpuMemoryBatchIndex];
+    const viewIndex = view.viewIndex;
+    const batchViewDataTextures = batchDataTextures.views[viewIndex];
+    const drawRange = batchViewDataTextures.renderPassPrimitiveRanges.get(renderPass);
 
-      const renderContext = this._renderContext;
-      const view = renderContext.activeView;
-      const gl = this._renderContext.gl;
-
-      renderContext.textureUnit = 0;
-
-      const bindTexture = (sampler, dataTexture) => {
-        if (!sampler || !dataTexture) {
-          return;
-        }
-        gl.activeTexture(gl["TEXTURE" + renderContext.textureUnit]);
-        gl.bindTexture(gl.TEXTURE_2D, dataTexture.texture);
-        gl.uniform1i(sampler, renderContext.textureUnit);
-        renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
-      };
-
-      const samplers = this._samplers;
-      const dataTextures = this._gpuMemoryReader.dataTextures;
-      const batchDataTextures = dataTextures.batches[meshBatch.gpuMemoryBatchIndex];
-      const viewIndex = view.viewIndex;
-
-      bindTexture(samplers.viewTileCameraMatrixTexture,
-        (this._renderContext.rayPicking
-          ? dataTextures.viewTilePickMatrixTexture
-          : dataTextures.viewTileCameraMatrixTexture)
-          [view.viewIndex]);
-
-      const batchViewDataTextures = batchDataTextures.views[viewIndex];
-      const primitiveMeshIndexTexture = batchViewDataTextures.primitiveMeshIndexTexture;
-
-      bindTexture(samplers.primitiveMeshIndex, primitiveMeshIndexTexture);
-      bindTexture(samplers.vertexPositionTexture, batchDataTextures.vertexPositionTexture);
-      bindTexture(samplers.vertexColorTexture, batchDataTextures.vertexColorTexture);
-      bindTexture(samplers.meshMatrixTexture, batchDataTextures.meshMatrixTexture);
-      bindTexture(samplers.meshAttributeTexture, batchDataTextures.meshAttributeTexture);
-      bindTexture(samplers.meshViewAttributeTexture, batchViewDataTextures.meshViewAttributeTexture);
-      bindTexture(samplers.geometryAttributes, batchDataTextures.geometryAttributeTexture);
-      bindTexture(samplers.geometryQuantRangeTexture, batchDataTextures.geometryQuantRangeTexture);
-      bindTexture(samplers.edgeIndexTexture, batchDataTextures.edgeIndexTexture);
-      bindTexture(samplers.indexTexture, batchDataTextures.indexTexture);
-
-      const drawRange = batchViewDataTextures.renderPassPrimitiveRanges.get(renderPass);
-      if (!drawRange || drawRange.numPrims === 0) {
-        return {
-          ok: true,
-          value: null // Nothing to draw for this pass
-        };
-      }
-
-      gl.uniform1i(this._uniforms.primBaseIndex, drawRange.firstPrim);
-      gl.uniform1i(this._uniforms.primitiveType, meshBatch.primitive);
-
-      switch (meshBatch.primitive) {
-        case TrianglesPrimitive:
-          gl.drawArrays(gl.TRIANGLES, drawRange.firstPrim * 3, drawRange.numPrims * 3);
-          break;
-        case LinesPrimitive:
-          gl.drawArrays(gl.LINES, drawRange.firstPrim * 2, drawRange.numPrims * 2);
-          break;
-        case PointsPrimitive:
-          gl.drawArrays(gl.POINTS, drawRange.firstPrim, drawRange.numPrims);
-          break;
-        default:
-          return {
-            ok: false,
-            type: SDKErrorType.InvalidInput,
-            error: `[DrawTechnique._draw] Unsupported Batch primitive type: ${meshBatch.primitive}`
-          };
-      }
-
-      for (let i = 0; i < 12; i++) {
-        gl.activeTexture(gl["TEXTURE" + i]);
-        gl.bindTexture(gl.TEXTURE_2D, null);
-      }
-
+    if (!drawRange || drawRange.numPrims === 0) {
       return {
         ok: true,
-        value: null
+        value: null // Nothing to draw for this pass
       };
+    }
 
-    } catch (error) {
+    const drawLogger = (renderContext.drawLogger.enabled) ? renderContext.drawLogger : null;
+
+    if (!this._bind(renderPass)) {
       return {
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: error instanceof Error ? error.message : "[DrawTechnique._draw] An unknown error occurred during draw."
+        error: "[DrawTechnique._draw] Failed to bind the shader program."
       };
     }
+
+    const primitiveMeshIndexTexture = batchViewDataTextures.primitiveMeshIndexTexture;
+
+    renderContext.textureUnit = 0;
+
+    // TODO: Avoid re-binding this set of textures if already bound for this batch.
+
+    const bindTexture = (sampler, dataTexture) => {
+      if (!sampler || !dataTexture) {
+        return;
+      }
+      gl.activeTexture(gl["TEXTURE" + renderContext.textureUnit]);
+      gl.bindTexture(gl.TEXTURE_2D, dataTexture.texture);
+      gl.uniform1i(sampler, renderContext.textureUnit);
+      renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
+    };
+
+    bindTexture(samplers.viewTileCameraMatrixTexture,
+      (this._renderContext.rayPicking
+        ? dataTextures.viewTilePickMatrixTexture
+        : dataTextures.viewTileCameraMatrixTexture)
+        [view.viewIndex]);
+
+    bindTexture(samplers.primitiveMeshIndex, primitiveMeshIndexTexture);
+    bindTexture(samplers.vertexPositionTexture, batchDataTextures.vertexPositionTexture);
+    bindTexture(samplers.vertexColorTexture, batchDataTextures.vertexColorTexture);
+    bindTexture(samplers.meshMatrixTexture, batchDataTextures.meshMatrixTexture);
+    bindTexture(samplers.meshAttributeTexture, batchDataTextures.meshAttributeTexture);
+    bindTexture(samplers.meshViewAttributeTexture, batchViewDataTextures.meshViewAttributeTexture);
+    bindTexture(samplers.geometryAttributes, batchDataTextures.geometryAttributeTexture);
+    bindTexture(samplers.geometryQuantRangeTexture, batchDataTextures.geometryQuantRangeTexture);
+    bindTexture(samplers.edgeIndexTexture, batchDataTextures.edgeIndexTexture);
+    bindTexture(samplers.indexTexture, batchDataTextures.indexTexture);
+
+    gl.uniform1i(this._uniforms.primBaseIndex, drawRange.firstPrim);
+    gl.uniform1i(this._uniforms.primitiveType, meshBatch.primitive);
+
+    switch (meshBatch.primitive) {
+      case TrianglesPrimitive:
+        gl.drawArrays(gl.TRIANGLES, drawRange.firstPrim * 3, drawRange.numPrims * 3);
+        break;
+      case LinesPrimitive:
+        gl.drawArrays(gl.LINES, drawRange.firstPrim * 2, drawRange.numPrims * 2);
+        break;
+      case PointsPrimitive:
+        gl.drawArrays(gl.POINTS, drawRange.firstPrim, drawRange.numPrims);
+        break;
+      default:
+        return {
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: `[DrawTechnique._draw] Unsupported Batch primitive type: ${meshBatch.primitive}`
+        };
+    }
+
+    drawLogger?.drawMeshBatch(meshBatch, renderPass, {
+      firstPrim: drawRange.firstPrim,
+      numPrims: drawRange.numPrims
+    });
+
+    for (let i = 0; i < 12; i++) {
+      gl.activeTexture(gl["TEXTURE" + i]);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+    }
+
+    return {
+      ok: true,
+      value: null
+    };
+
+    // } catch (error) {
+    //   return {
+    //     ok: false,
+    //     type: SDKErrorType.InvalidOperation,
+    //     error: error instanceof Error ? error.message : "[DrawTechnique._draw] An unknown error occurred during draw."
+    //   };
+    // }
   }
 
   /**
@@ -829,7 +837,6 @@ vec3 getEyePosition(mat4 viewMatrix) {
    */
   protected vsLambertShadingLogicOLD() {
     this._vertSrcBuf.push(
-
       // For triangles, get the three vertex positions for the triangle
 
       "    uint triIndex = geometryAttributes.indicesBase + primOffset * numVertsPerPrim;",
@@ -857,7 +864,6 @@ vec3 getEyePosition(mat4 viewMatrix) {
       "    vec3 normal = normalize(cross(pc - pa, pb - pa));",
 
 
-
       "    float lambertian = 1.0;",
       "    vec3 reflectedColor = vec3(0.0, 0.0, 0.0);",
 
@@ -881,19 +887,19 @@ vec3 getEyePosition(mat4 viewMatrix) {
 
       "    vec4 color = vec4(meshViewAttributes.color) /255.0;",
 
-     "   vColor =  vec4((lightAmbient.rgb * lightAmbient.a * color.rgb) + (reflectedColor * color.rgb), 1.0);",
+      "   vColor =  vec4((lightAmbient.rgb * lightAmbient.a * color.rgb) + (reflectedColor * color.rgb),color.a);",
 
-    //  "    vColor = vec4(color.rgb, 1.0);");
-     );
+      //  "    vColor = vec4(color.rgb, 1.0);");
+    );
   }
 
   protected vsLambertShadingLogic() {
     this._vertSrcBuf.push(
       // Compute triangle vertex positions in view space
 
-        "    uint triIndex = geometryAttributes.indicesBase + primOffset * numVertsPerPrim;",
+      "    uint triIndex = geometryAttributes.indicesBase + primOffset * numVertsPerPrim;",
 
-        "    uint ia = getVertexIndex(triIndex + 0u);",
+      "    uint ia = getVertexIndex(triIndex + 0u);",
       "    uint ib = getVertexIndex(triIndex + 1u);",
       "    uint ic = getVertexIndex(triIndex + 2u);",
 
@@ -903,15 +909,15 @@ vec3 getEyePosition(mat4 viewMatrix) {
 
       // Ensure clockwise winding order: if normal faces away from +view Z, swap pb and pc
       "    vec3 normal = normalize(cross(pc - pa, pb - pa));",
-     // "    // Reference direction: +Z in view space (outward)",
-     //  "    float winding = dot(normal, vec3(0.0, 0.0, -1.0));",
-     //  "    if (winding < 0.0) {",
-     //  //"        // Swap pb and pc to enforce clockwise winding",
-     //  "        vec3 tmp = pb;",
-     //  "        pb = pc;",
-     //  "        pc = tmp;",
-     //  "        normal = normalize(cross(pc - pa, pb - pa));",
-     //  "    }",
+      // "    // Reference direction: +Z in view space (outward)",
+      //  "    float winding = dot(normal, vec3(0.0, 0.0, -1.0));",
+      //  "    if (winding < 0.0) {",
+      //  //"        // Swap pb and pc to enforce clockwise winding",
+      //  "        vec3 tmp = pb;",
+      //  "        pb = pc;",
+      //  "        pc = tmp;",
+      //  "        normal = normalize(cross(pc - pa, pb - pa));",
+      //  "    }",
 
       "    float lambertian = 1.0;",
       "    vec3 reflectedColor = vec3(0.0, 0.0, 0.0);",
@@ -925,13 +931,13 @@ vec3 getEyePosition(mat4 viewMatrix) {
 
       "    lambertian =  dot(normal, normalize(lightDir2));",
 
-        "    if (lambertian < 0.0) lambertian = lambertian * -1.0;",
+      "    if (lambertian < 0.0) lambertian = lambertian * -1.0;",
 
-        "    reflectedColor += lambertian * (lightColor2.rgb * lightColor2.a);",
+      "    reflectedColor += lambertian * (lightColor2.rgb * lightColor2.a);",
 
-        "    vec4 color = vec4(meshViewAttributes.color) /255.0;",
+      "    vec4 color = vec4(meshViewAttributes.color) /255.0;",
 
-        "    vColor =  vec4((lightAmbient.rgb * lightAmbient.a * color.rgb) + (reflectedColor * color.rgb), 1.0);"
+      "    vColor =  vec4((lightAmbient.rgb * lightAmbient.a * color.rgb) + (reflectedColor * color.rgb), color.a);"
     );
   }
 
@@ -941,7 +947,7 @@ vec3 getEyePosition(mat4 viewMatrix) {
    */
   protected vsSilhouetteLogic() {
     this._vertSrcBuf.push(
-        "    vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, 0.5);"
+      "    vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, 0.5);"
       //"    vColor = vec4(1.0, 1.0, 0.0, 1.0);"
     );
   }
@@ -1060,12 +1066,12 @@ void main() {
    */
   protected fsDrawMock() {
     this._fragSrcBuf.push("#version 300 es",
-"precision highp float;",
-"in vec4 vColor;",
-"out vec4 outColor;",
-"void main() {",
-"    outColor = vColor;",
-"}");
+      "precision highp float;",
+      "in vec4 vColor;",
+      "out vec4 outColor;",
+      "void main() {",
+      "    outColor = vColor;",
+      "}");
   }
 
   /**

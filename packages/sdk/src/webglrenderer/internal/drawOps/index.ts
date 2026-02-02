@@ -8,3 +8,4 @@ export * from "./DrawOp";
 export * from "./DrawOps";
 export * from "./RenderPassDrawOps";
 export * as techniques from "./techniques";
+export * from "./DrawLogger";

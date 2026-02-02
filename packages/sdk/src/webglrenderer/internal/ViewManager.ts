@@ -13,6 +13,7 @@ import {SceneTransform} from "../../scene/SceneTransform";
 import {type MemoryConfigs} from "../MemoryConfigs";
 import type {DataTextures} from "./gpuMemoryManager/DataTextures";
 import {ShaderView} from "../internal";
+import {DrawLogger} from "./drawOps/DrawLogger";
 
 /**
  * Top-level, internal rendering and pipeline manager within a {@link WebGLRenderer}.
@@ -262,6 +263,21 @@ export class ViewManager {
       throw new SDKInternalException("[ViewManager.getMemoryUsage] ViewManager is not initialized");
     }
     return this._gpuMemoryManager.getMemoryUsage();
+  }
+
+  /**
+   * Sets the {@link DrawLogger} used to log draw calls.
+   * @param drawLogger
+   */
+  setDrawLogger(drawLogger: DrawLogger): SDKResult<void> {
+    if (!this._renderContext) {
+      throw new SDKInternalException("[ViewManager.setDrawLogger] ViewManager is not initialized");
+    }
+    this._renderContext.drawLogger = drawLogger;
+    return {
+      ok: true,
+      value: undefined
+    };
   }
 
   /**

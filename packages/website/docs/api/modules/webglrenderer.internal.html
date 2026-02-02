@@ -1,0 +1,483 @@
+<!DOCTYPE html><html class="default" lang="en" data-base=".."><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>internal | @xeokit/sdk - v0.1.0</title><meta name="description" content="Documentation for @xeokit/sdk"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script>
+<style>
+:root.mermaid-enabled .mermaid-block > pre {
+  display: none;
+}
+:root:not(.mermaid-enabled) .mermaid-block > .mermaid {
+  display: none !important;
+}
+
+.mermaid-block > .mermaid[data-inserted].dark {
+  display: var(--mermaid-dark-display);
+}
+.mermaid-block > .mermaid[data-inserted].light {
+  display: var(--mermaid-light-display);
+}
+
+:root {
+  --mermaid-dark-display: none;
+  --mermaid-light-display: block;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --mermaid-dark-display: none;
+    --mermaid-light-display: block;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mermaid-dark-display: block;
+    --mermaid-light-display: none;
+  }
+}
+body.light, :root[data-theme="light"] {
+  --mermaid-dark-display: none;
+  --mermaid-light-display: block;
+}
+body.dark, :root[data-theme="dark"] {
+  --mermaid-dark-display: block;
+  --mermaid-light-display: none;
+}
+</style>
+</head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search"><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="https://xeokit.io" class="title">@xeokit/sdk - v0.1.0</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb"><li><a href="../modules.html">@xeokit/sdk</a></li><li><a href="webglrenderer.html">webglrenderer</a></li><li><a href="webglrenderer.internal.html">internal</a></li></ul><h1>Namespace internal</h1></div><section class="tsd-panel tsd-comment"><div class="tsd-comment tsd-typography"><p><img
+  style="padding-top:20px; padding-bottom:30px; height:100px;"
+  src="https://xeokit.github.io/sdk/docs/assets/xeokit_webgl_logo.svg"
+/></p>
+<a id="webglrenderer-internals" class="tsd-anchor"></a><h1 class="tsd-anchor-link">WebGLRenderer Internals<a href="#webglrenderer-internals" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><hr>
+<p><strong>Internal documentation for xeokit developers</strong></p>
+<hr>
+<br>
+<a id="overview" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Overview<a href="#overview" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>This module documents the <strong>internal architecture</strong> of xeokit’s WebGL2 rendering backend.
+It is intended for contributors and maintainers of the renderer, not for public API usage.</p>
+<p>The <a href="../classes/webglrenderer.WebGLRenderer.html" class="tsd-kind-class">WebGLRenderer</a> follows <strong>SOLID principles</strong> and is structured as a hierarchy
+of specialized managers, each responsible for a clearly defined aspect of the rendering
+pipeline.</p>
+<br>
+<a id="internal-structure" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Internal Structure<a href="#internal-structure" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>The public <a href="../classes/webglrenderer.WebGLRenderer.html" class="tsd-kind-class">WebGLRenderer</a> owns a set of high-level facilities and a single internal
+<a href="../classes/webglrenderer.internal.ViewManager.html" class="tsd-kind-class">ViewManager</a>, which coordinates all rendering work.</p>
+<pre><code class="md">WebGLRenderer
+├── Capabilities -- Read-only, describes WebGL2 capabilities
+├── MemoryUsage -- Memory usage info
+├── MemoryView -- GPU memory and shader diagnostics
+├── MemoryConfigs -- GPU memory budgeting configs
+├── WebGLRendererEvents -- Renderer lifecycle and error events
+└── internal
+    ├── ViewManager -- Internal coordinator for per-View rendering
+    ├── MeshManager -- Manages mesh batching and renderer-side representations
+    ├── GPUMemoryManager -- Manages GPU-resident memory
+    ├── RenderManager -- Executes the render pipeline
+    ├── PickManager -- Manages GPU picking
+    └── DrawOps -- Low-level WebGL draw infrastructure
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="architectural-relationships" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Architectural Relationships<a href="#architectural-relationships" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>The following class diagram shows the main internal components and how they interact.
+Ownership relationships are shown as compositions, while data flow and notifications
+are shown as directed associations.</p>
+<div class="mermaid-block"><div class="mermaid dark">%%{init:{"theme":"dark"}}%%
+classDiagram
+    Scene *--&gt; SceneEvents : emits
+    Viewer --&gt; SceneEvents : subscribes
+    Viewer *--&gt; ViewerEvents : emits
+    WebGLRenderer --&gt; ViewerEvents : subscribes
+    WebGLRenderer:memoryUsage
+    WebGLRenderer:memoryView
+    WebGLRenderer:memoryConfigs
+    WebGLRenderer:events
+    WebGLRenderer --&gt; SceneEvents : subscribes
+    WebGLRenderer *--&gt; ViewManager : delegates
+    ViewManager *--&gt; MeshManager : scene &amp; view changes
+    MeshManager *--&gt; GPUMemoryManager : write
+    ViewManager *--&gt; RenderManager : repaint
+    ViewManager *--&gt; PickManager : pick
+    MeshManager *--&gt; &quot;*&quot; MeshBatchImpl
+    MeshBatchImpl *--&gt; &quot;*&quot; RendererObject
+    MeshBatchImpl *--&gt; &quot;*&quot; RendererMesh
+    MeshBatchImpl *--&gt; &quot;*&quot; RendererGeometry
+    RendererGeometry --&gt; GPUMemoryManager : write
+    RendererObject --&gt; GPUMemoryManager : write
+    GPUMemoryManager *--&gt; DataTextures
+    RenderManager --&gt; DrawOps : draw
+    PickManager --&gt; DrawOps : pick
+    DrawOps *--&gt; &quot;*&quot; RenderPassDrawOps
+    RenderPassDrawOps *--&gt; &quot;*&quot; DrawOp
+    DrawOp *--&gt; DrawTechnique
+    DrawOp --&gt; MeshBatchImpl : draw
+    DrawOp:drawBatch()
+    RendererMesh --&gt; GPUMemoryManager : write
+    DrawTechnique --&gt; DataTextures : bind/read
+    WebGLRendererEvents &lt;--* WebGLRenderer : emits
+    WebGLRendererEvents:onError()
+    WebGLRendererEvents:onWebGLContextLost()
+    WebGLRendererEvents:onWebGLContextRestored()
+    WebGLRendererEvents:onViewerAttached()
+    WebGLRendererEvents:onViewerDetached()
+    WebGLRendererEvents:onRendererStarted()
+    WebGLRendererEvents:onRendererStopped()
+    WebGLRendererEvents:onRendererDestroyed()</div><div class="mermaid light">%%{init:{"theme":"default"}}%%
+classDiagram
+    Scene *--&gt; SceneEvents : emits
+    Viewer --&gt; SceneEvents : subscribes
+    Viewer *--&gt; ViewerEvents : emits
+    WebGLRenderer --&gt; ViewerEvents : subscribes
+    WebGLRenderer:memoryUsage
+    WebGLRenderer:memoryView
+    WebGLRenderer:memoryConfigs
+    WebGLRenderer:events
+    WebGLRenderer --&gt; SceneEvents : subscribes
+    WebGLRenderer *--&gt; ViewManager : delegates
+    ViewManager *--&gt; MeshManager : scene &amp; view changes
+    MeshManager *--&gt; GPUMemoryManager : write
+    ViewManager *--&gt; RenderManager : repaint
+    ViewManager *--&gt; PickManager : pick
+    MeshManager *--&gt; &quot;*&quot; MeshBatchImpl
+    MeshBatchImpl *--&gt; &quot;*&quot; RendererObject
+    MeshBatchImpl *--&gt; &quot;*&quot; RendererMesh
+    MeshBatchImpl *--&gt; &quot;*&quot; RendererGeometry
+    RendererGeometry --&gt; GPUMemoryManager : write
+    RendererObject --&gt; GPUMemoryManager : write
+    GPUMemoryManager *--&gt; DataTextures
+    RenderManager --&gt; DrawOps : draw
+    PickManager --&gt; DrawOps : pick
+    DrawOps *--&gt; &quot;*&quot; RenderPassDrawOps
+    RenderPassDrawOps *--&gt; &quot;*&quot; DrawOp
+    DrawOp *--&gt; DrawTechnique
+    DrawOp --&gt; MeshBatchImpl : draw
+    DrawOp:drawBatch()
+    RendererMesh --&gt; GPUMemoryManager : write
+    DrawTechnique --&gt; DataTextures : bind/read
+    WebGLRendererEvents &lt;--* WebGLRenderer : emits
+    WebGLRendererEvents:onError()
+    WebGLRendererEvents:onWebGLContextLost()
+    WebGLRendererEvents:onWebGLContextRestored()
+    WebGLRendererEvents:onViewerAttached()
+    WebGLRendererEvents:onViewerDetached()
+    WebGLRendererEvents:onRendererStarted()
+    WebGLRendererEvents:onRendererStopped()
+    WebGLRendererEvents:onRendererDestroyed()</div><pre><code class="language-mermaid">classDiagram
+    Scene *--&gt; SceneEvents : emits
+    Viewer --&gt; SceneEvents : subscribes
+    Viewer *--&gt; ViewerEvents : emits
+    WebGLRenderer --&gt; ViewerEvents : subscribes
+    WebGLRenderer:memoryUsage
+    WebGLRenderer:memoryView
+    WebGLRenderer:memoryConfigs
+    WebGLRenderer:events
+    WebGLRenderer --&gt; SceneEvents : subscribes
+    WebGLRenderer *--&gt; ViewManager : delegates
+    ViewManager *--&gt; MeshManager : scene &amp; view changes
+    MeshManager *--&gt; GPUMemoryManager : write
+    ViewManager *--&gt; RenderManager : repaint
+    ViewManager *--&gt; PickManager : pick
+    MeshManager *--&gt; &quot;*&quot; MeshBatchImpl
+    MeshBatchImpl *--&gt; &quot;*&quot; RendererObject
+    MeshBatchImpl *--&gt; &quot;*&quot; RendererMesh
+    MeshBatchImpl *--&gt; &quot;*&quot; RendererGeometry
+    RendererGeometry --&gt; GPUMemoryManager : write
+    RendererObject --&gt; GPUMemoryManager : write
+    GPUMemoryManager *--&gt; DataTextures
+    RenderManager --&gt; DrawOps : draw
+    PickManager --&gt; DrawOps : pick
+    DrawOps *--&gt; &quot;*&quot; RenderPassDrawOps
+    RenderPassDrawOps *--&gt; &quot;*&quot; DrawOp
+    DrawOp *--&gt; DrawTechnique
+    DrawOp --&gt; MeshBatchImpl : draw
+    DrawOp:drawBatch()
+    RendererMesh --&gt; GPUMemoryManager : write
+    DrawTechnique --&gt; DataTextures : bind/read
+    WebGLRendererEvents &lt;--* WebGLRenderer : emits
+    WebGLRendererEvents:onError()
+    WebGLRendererEvents:onWebGLContextLost()
+    WebGLRendererEvents:onWebGLContextRestored()
+    WebGLRendererEvents:onViewerAttached()
+    WebGLRendererEvents:onViewerDetached()
+    WebGLRendererEvents:onRendererStarted()
+    WebGLRendererEvents:onRendererStopped()
+    WebGLRendererEvents:onRendererDestroyed()</code></pre></div>
+<br>
+<a id="core-components" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Core Components<a href="#core-components" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><a id="webglrenderer-public" class="tsd-anchor"></a><h3 class="tsd-anchor-link">WebGLRenderer (public)<a href="#webglrenderer-public" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><a href="../classes/webglrenderer.WebGLRenderer.html" class="tsd-kind-class">WebGLRenderer</a></li>
+<li>Public root entry point for WebGL2 rendering in xeokit.</li>
+<li>Owns the complete rendering pipeline for a <a href="../classes/viewer.Viewer.html" class="tsd-kind-class">Viewer</a>.</li>
+<li>Observes <a href="../classes/scene.Scene.html" class="tsd-kind-class">Scene</a> and <a href="../classes/viewer.Viewer.html" class="tsd-kind-class">Viewer</a> lifecycle events.</li>
+<li>Exposes diagnostics and memory inspection APIs:
+<ul>
+<li><a href="../interfaces/webglrenderer.MemoryUsage.html" class="tsd-kind-interface">MemoryUsage</a> -- high-level GPU memory statistics</li>
+<li><a href="../interfaces/webglrenderer.internal.MemoryView.html" class="tsd-kind-interface">MemoryView</a> -- inspects contents of DataTextures</li>
+<li><a href="../classes/webglrenderer.internal.ShaderView.html" class="tsd-kind-class">ShaderView</a> -- inspects shaders, source code etc.</li>
+</ul>
+</li>
+<li>Emits lifecycle events via <a href="../interfaces/webglrenderer.WebGLRendererEvents.html" class="tsd-kind-interface">WebGLRendererEvents</a>.</li>
+<li>Owns exactly one internal <a href="../classes/webglrenderer.internal.ViewManager.html" class="tsd-kind-class">ViewManager</a>.</li>
+</ul>
+<hr>
+<a id="viewmanager-internal" class="tsd-anchor"></a><h3 class="tsd-anchor-link">ViewManager (internal)<a href="#viewmanager-internal" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><a href="../classes/webglrenderer.internal.ViewManager.html" class="tsd-kind-class">ViewManager</a></li>
+<li>Central coordinator for all per-<a href="../classes/viewer.View.html" class="tsd-kind-class">View</a> rendering.</li>
+<li>Manages the lifecycle of <a href="../classes/viewer.View.html" class="tsd-kind-class">View</a> instances owned by a <a href="../classes/viewer.Viewer.html" class="tsd-kind-class">Viewer</a>.</li>
+<li>Owns and wires together the core subsystems:
+<ul>
+<li><a href="../classes/webglrenderer.internal.meshManager.MeshManager.html" class="tsd-kind-class">MeshManager</a></li>
+<li><a href="../classes/webglrenderer.internal.gpuMemoryManager.GPUMemoryManager.html" class="tsd-kind-class">GPUMemoryManager</a></li>
+<li><a href="../classes/webglrenderer.internal.renderManager.RenderManager.html" class="tsd-kind-class">RenderManager</a></li>
+<li><a href="../classes/webglrenderer.internal.pickManager.PickManager.html" class="tsd-kind-class">PickManager</a></li>
+</ul>
+</li>
+<li>Ensures scene and view state changes are reflected in GPU state.</li>
+</ul>
+<hr>
+<a id="meshmanager-internal" class="tsd-anchor"></a><h3 class="tsd-anchor-link">MeshManager (internal)<a href="#meshmanager-internal" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><a href="../classes/webglrenderer.internal.meshManager.MeshManager.html" class="tsd-kind-class">MeshManager</a></li>
+<li>Translates scene and view changes into GPU-ready render state.</li>
+<li>Owns renderer-side representations:
+<ul>
+<li><a href="../classes/webglrenderer.internal.meshManager.RendererObject.html" class="tsd-kind-class">RendererObject</a> — per scene object</li>
+<li><a href="../classes/webglrenderer.internal.meshManager.RendererMesh.html" class="tsd-kind-class">RendererMesh</a> — per mesh</li>
+<li><a href="../classes/webglrenderer.internal.meshManager.MeshBatchImpl.html" class="tsd-kind-class">MeshBatchImpl</a> — batches of compatible meshes</li>
+<li>MeshBatch - drawable interface for a MeshBatchImpl</li>
+</ul>
+</li>
+<li>Maintains mesh batches for efficient draw submission.</li>
+<li>Coordinates GPU updates with <a href="../classes/webglrenderer.internal.gpuMemoryManager.GPUMemoryManager.html" class="tsd-kind-class">GPUMemoryManager</a>.</li>
+</ul>
+<hr>
+<a id="gpumemorymanager-internal" class="tsd-anchor"></a><h3 class="tsd-anchor-link">GPUMemoryManager (internal)<a href="#gpumemorymanager-internal" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><a href="../classes/webglrenderer.internal.gpuMemoryManager.GPUMemoryManager.html" class="tsd-kind-class">GPUMemoryManager</a></li>
+<li>Allocates, updates, and releases all GPU-resident memory.</li>
+<li>Manages geometry buffers, attributes, and DataTextures.</li>
+<li>Implements the tiled RTC (Relative To Center) coordinate system
+for high-precision rendering.</li>
+<li>Provides diagnostics and inspection APIs.</li>
+</ul>
+<hr>
+<a id="rendermanager-internal" class="tsd-anchor"></a><h3 class="tsd-anchor-link">RenderManager (internal)<a href="#rendermanager-internal" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><a href="../classes/webglrenderer.internal.renderManager.RenderManager.html" class="tsd-kind-class">RenderManager</a></li>
+<li>Executes the render pipeline for the active <a href="../classes/viewer.View.html" class="tsd-kind-class">View</a>.</li>
+<li>Manages render passes, frame state, and draw submission.</li>
+<li>Integrates mesh batches and GPU memory into per-frame rendering.</li>
+<li>Handles WebGL context restoration.</li>
+</ul>
+<hr>
+<a id="pickmanager-internal" class="tsd-anchor"></a><h3 class="tsd-anchor-link">PickManager (internal)<a href="#pickmanager-internal" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><a href="../classes/webglrenderer.internal.pickManager.PickManager.html" class="tsd-kind-class">PickManager</a></li>
+<li>Manages GPU-backed picking resources.</li>
+<li>Performs object hit-testing via screen-space or ray-based picking.</li>
+<li>Shares mesh batches and GPU memory infrastructure with rendering.</li>
+</ul>
+<hr>
+<a id="drawops-internal" class="tsd-anchor"></a><h3 class="tsd-anchor-link">DrawOps (internal)<a href="#drawops-internal" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Low-level WebGL2 draw infrastructure used by both rendering and picking.</p>
+<ul>
+<li>
+<p><a href="../classes/webglrenderer.internal.drawOps.DrawTechnique.html" class="tsd-kind-class">DrawTechnique</a></p>
+<ul>
+<li>Abstract rendering technique.</li>
+<li>Defines shader generation, program setup, uniform loading, and draw calls.</li>
+<li>Subclasses implement specific techniques (color, highlight, x-ray, etc.)
+for specific primitive types.</li>
+</ul>
+</li>
+<li>
+<p><a href="../classes/webglrenderer.internal.drawOps.DrawOp.html" class="tsd-kind-class">DrawOp</a></p>
+<ul>
+<li>Applies a <a href="../classes/webglrenderer.internal.drawOps.DrawTechnique.html" class="tsd-kind-class">DrawTechnique</a> for a specific render pass.</li>
+</ul>
+</li>
+<li>
+<p><a href="../interfaces/webglrenderer.internal.drawOps.RenderPassDrawOps.html" class="tsd-kind-interface">RenderPassDrawOps</a></p>
+<ul>
+<li>Collection of <a href="../classes/webglrenderer.internal.drawOps.DrawOp.html" class="tsd-kind-class">DrawOp</a> instances for all render passes
+of a single primitive type.</li>
+</ul>
+</li>
+<li>
+<p><a href="../classes/webglrenderer.internal.drawOps.DrawOps.html" class="tsd-kind-class">DrawOps</a></p>
+<ul>
+<li>Complete set of draw operations for all primitive types.</li>
+</ul>
+</li>
+<li>
+<p><a href="../functions/webglrenderer.internal.drawOps.getDrawOps.html" class="tsd-kind-function">getDrawOps</a> / <a href="../functions/webglrenderer.internal.drawOps.putDrawOps.html" class="tsd-kind-function">putDrawOps</a></p>
+<ul>
+<li>Internal pooling APIs for caching and reusing DrawOps instances.</li>
+</ul>
+</li>
+</ul>
+<br>
+<hr>
+<a id="execution-workflows" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Execution Workflows<a href="#execution-workflows" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>The following selected workflows illustrate how the core components interact
+during key operations.</p>
+<a id="viewer-attached-to-webglrenderer" class="tsd-anchor"></a><h4 class="tsd-anchor-link">Viewer Attached to WebGLRenderer<a href="#viewer-attached-to-webglrenderer" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>This is when the WebGLRenderer gets initialized, ready for action.</p>
+<ol>
+<li><strong>Viewer</strong> is created.</li>
+<li><strong>WebGLRenderer.attach(viewer)</strong></li>
+<li><strong>WebGLRenderer</strong> initializes rendering state for the Viewer.</li>
+<li><strong>WebGLRenderer</strong> creates a <strong>ViewManager</strong> for the Viewer.</li>
+<li><strong>ViewManager</strong> initializes:
+<ul>
+<li><strong>MeshManager</strong></li>
+<li><strong>GPUMemoryManager</strong></li>
+<li><strong>RenderManager</strong></li>
+<li><strong>PickManager</strong></li>
+</ul>
+</li>
+<li><strong>WebGLRenderer</strong> subscribes to Viewer and Scene events.</li>
+<li>Viewer is now ready for rendering.</li>
+</ol>
+<hr>
+<a id="scenegeometry-creation" class="tsd-anchor"></a><h4 class="tsd-anchor-link">SceneGeometry Creation<a href="#scenegeometry-creation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>Whenever geometries are created, they get pre-loaded into the renderer.</p>
+<ol>
+<li><strong>SceneGeometry</strong> is created in <strong>SceneMesh</strong>.</li>
+<li><strong>WebGLRenderer</strong> is notified via <strong>SceneEvents.onGeometryCreated</strong>.</li>
+<li><strong>ViewManager.sceneGeometryCreated(sceneGeometry)</strong></li>
+<li><strong>MeshManager.sceneGeometryCreated(sceneGeometry)</strong></li>
+<li><strong>MeshManager</strong> prepares to create <strong>RendererGeometry</strong> when needed.</li>
+<li><strong>RendererGeometry</strong> is created when first used by a <strong>SceneMesh</strong>.</li>
+<li><strong>RendererGeometry</strong> requests GPU memory allocation: <strong>GPUMemoryManager.createGeometryBuffers()</strong></li>
+<li><strong>GPUMemoryManager</strong> allocates buffers and uploads geometry data.</li>
+<li><strong>RendererGeometry</strong> is ready for inclusion in a <strong>RendererMesh</strong>.</li>
+</ol>
+<hr>
+<a id="scenemesh-creation" class="tsd-anchor"></a><h4 class="tsd-anchor-link">SceneMesh Creation<a href="#scenemesh-creation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>Whenever meshes are created, they get loaded into the renderer, and are attached
+to <strong>RendererMesh</strong> instances.</p>
+<ol>
+<li><strong>SceneMesh</strong> is created in <strong>SceneObject</strong>.</li>
+<li><strong>WebGLRenderer</strong> is notified via <strong>SceneEvents.onSceneMeshCreated</strong>.</li>
+<li><strong>ViewManager.sceneMeshCreated(sceneMesh)</strong></li>
+<li><strong>MeshManager.sceneMeshCreated(sceneMesh)</strong></li>
+<li><strong>MeshManager</strong> requests GPU memory allocation: <strong>GPUMemoryManager.createBatch()</strong></li>
+<li><strong>GPUMemoryManager</strong> allocates buffers and uploads geometry data.</li>
+<li><strong>MeshManager</strong> adds <strong>RendererMesh</strong> to <strong>MeshBatchImpl</strong>.</li>
+<li><strong>RendererMesh</strong> is ready for inclusion in a <strong>RendererObject</strong>.</li>
+</ol>
+<hr>
+<a id="sceneobject-creation" class="tsd-anchor"></a><h4 class="tsd-anchor-link">SceneObject Creation<a href="#sceneobject-creation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>Whenever objects are created, they get loaded into the renderer, and are attached
+to <strong>RendererObject</strong> instances. No re-render yet, wait for View update.</p>
+<ol>
+<li><strong>SceneObject</strong> is created in <strong>Scene</strong>.</li>
+<li><strong>Viewer</strong> is notified via <strong>SceneEvents.onObjectCreated</strong>.</li>
+<li><strong>ViewObject</strong> is created in <strong>View</strong> for the <strong>SceneObject</strong>.</li>
+<li><strong>WebGLRenderer</strong> is notified of new <strong>SceneObject</strong>.</li>
+<li><strong>ViewManager.sceneObjectCreated(sceneObject)</strong></li>
+<li><strong>MeshManager.sceneObjectCreated(sceneObject)</strong></li>
+<li><strong>MeshManager</strong> finds pre-created <strong>RendererMesh</strong> instances for each mesh (see SceneMesh Creation).</li>
+<li><strong>MeshManager</strong> creates <strong>RendererObject</strong> and links <strong>RendererMesh</strong> instances.</li>
+<li><strong>RendererObject</strong> and its <strong>RendererMesh</strong> instances are ready for rendering.</li>
+</ol>
+<hr>
+<a id="sceneobject-deletion" class="tsd-anchor"></a><h4 class="tsd-anchor-link">SceneObject Deletion<a href="#sceneobject-deletion" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>Whenever objects are deleted, they get unloaded from the renderer. The <strong>RendererMesh</strong> and
+<strong>RendererObject</strong> instances are not unloaded immediately, but are instead kept in memory
+for potential reuse. No re-render yet, wait for View update.</p>
+<ol>
+<li><strong>SceneObject</strong> is deleted in <strong>Scene</strong>.</li>
+<li><strong>Viewer</strong> is notified via <strong>SceneEvents.onObjectDestroyed</strong>.</li>
+<li><strong>ViewObject</strong> is deleted in <strong>View</strong>.</li>
+<li><strong>WebGLRenderer</strong> is notified of deletion.</li>
+<li><strong>ViewManager.sceneObjectDestroyed(sceneObject)</strong></li>
+<li><strong>MeshManager.sceneObjectDestroyed(sceneObject)</strong></li>
+<li><strong>MeshManager</strong> removes <strong>RendererMesh</strong> instances from <strong>MeshBatchImpl</strong>.</li>
+<li><strong>MeshManager</strong> notifies <strong>GPUMemoryManager</strong> to release GPU memory.</li>
+<li><strong>GPUMemoryManager</strong> releases buffers and data textures.</li>
+<li><strong>RendererObject</strong> and <strong>RendererMesh</strong> instances are destroyed.</li>
+</ol>
+<hr>
+<a id="viewobject-visibility-change" class="tsd-anchor"></a><h4 class="tsd-anchor-link">ViewObject Visibility Change<a href="#viewobject-visibility-change" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>Whenever a ViewObject's visibility is changed, the renderer updates
+the visibility state in GPU memory, so that only visible objects
+are rendered. No re-render yet, wait for View update.</p>
+<ol>
+<li><strong>ViewObject</strong> visibility is changed in <strong>View</strong>.</li>
+<li><strong>WebGLRenderer</strong> is notified via <strong>ViewEvents.onViewObjectVisibilityChanged</strong>.</li>
+<li><strong>ViewManager.viewObjectVisibilityChanged(viewObject)</strong></li>
+<li><strong>MeshManager.viewObjectVisibilityChanged(viewObject)</strong></li>
+<li><strong>MeshManager</strong> marks the <strong>RendererObject</strong> as visible/invisible.</li>
+<li><strong>MeshManager</strong> uploads visibility state to <strong>GPUMemoryManager</strong>.</li>
+<li>On next render, <strong>RenderManager</strong> queries visible <strong>RendererObjects</strong> from <strong>MeshManager</strong>.</li>
+<li><strong>RenderManager</strong> issues draw calls only for visible <strong>RendererObjects</strong>.</li>
+</ol>
+<hr>
+<a id="scenemesh-matrix-update" class="tsd-anchor"></a><h4 class="tsd-anchor-link">SceneMesh Matrix Update<a href="#scenemesh-matrix-update" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>Whenever a SceneMesh's matrix is updated, the renderer updates
+the matrix data in GPU memory. No re-render yet, wait for View update.</p>
+<ol>
+<li><strong>SceneMesh</strong> matrix is updated in <strong>Scene</strong>.</li>
+<li><strong>WebGLRenderer</strong> is notified via <strong>SceneEvents.onMeshMatrixUpdated</strong>.</li>
+<li><strong>ViewManager.sceneMeshMatrixChanged(sceneMesh)</strong></li>
+<li><strong>MeshManager.sceneMeshMatrixChanged(sceneMesh)</strong></li>
+<li><strong>MeshManager</strong> updates matrix data in <strong>GPUMemoryManager</strong>.</li>
+<li><strong>GPUMemoryManager</strong> uploads updated matrix to GPU.</li>
+<li>On next render, <strong>RenderManager</strong> uses updated matrix for rendering.</li>
+</ol>
+<hr>
+<a id="scenemesh-color-update" class="tsd-anchor"></a><h4 class="tsd-anchor-link">SceneMesh Color Update<a href="#scenemesh-color-update" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>Whenever a SceneMesh's color is updated, the renderer updates
+the color data in GPU memory. No re-render yet, wait for View update.</p>
+<ol>
+<li><strong>SceneMesh</strong> color is updated in <strong>Scene</strong>.</li>
+<li><strong>WebGLRenderer</strong> is notified via <strong>SceneEvents.onMeshColorUpdated</strong>.</li>
+<li><strong>ViewManager.sceneMeshColorChanged(sceneMesh)</strong></li>
+<li><strong>MeshManager.sceneMeshColorChanged(sceneMesh)</strong></li>
+<li><strong>MeshManager</strong> updates color data in <strong>GPUMemoryManager</strong>.</li>
+<li><strong>GPUMemoryManager</strong> uploads updated color to GPU.</li>
+<li>On next render, <strong>RenderManager</strong> uses updated color for rendering.</li>
+</ol>
+<hr>
+<a id="view-updated-view-ready-to-re-render" class="tsd-anchor"></a><h4 class="tsd-anchor-link">View Updated (View ready to re-render)<a href="#view-updated-view-ready-to-re-render" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>Whenever a View is ready to be re-rendered, the renderer
+executes the render pipeline.</p>
+<ol>
+<li><strong>Viewer</strong> requests a frame render.</li>
+<li><strong>WebGLRenderer</strong> is notified via <strong>ViewerEvents.onViewUpdated</strong>.</li>
+<li><strong>ViewManager</strong> initiates render via <strong>RenderManager</strong>.</li>
+<li><strong>RenderManager</strong> retrieves visible <strong>RendererObjects</strong> from <strong>MeshManager</strong>.</li>
+<li><strong>RenderManager</strong> sets up render passes and state.</li>
+<li><strong>RenderManager</strong> issues draw calls using <strong>DrawOps</strong> for each visible <strong>RendererObject</strong>.</li>
+<li>Frame is rendered to the canvas.</li>
+</ol>
+<hr>
+<a id="picking-operation" class="tsd-anchor"></a><h4 class="tsd-anchor-link">Picking Operation<a href="#picking-operation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><ol>
+<li>User initiates picking on a <strong>View</strong> canvas.</li>
+<li><strong>WebGLRenderer.pick(...)</strong> is called.</li>
+<li><strong>ViewManager</strong> delegates to <strong>PickManager</strong>.</li>
+<li><strong>PickManager</strong> sets up picking render targets and state.</li>
+<li><strong>PickManager</strong> issues draw calls using <strong>DrawOps</strong> to render to picking buffer.</li>
+<li><strong>PickManager</strong> reads picking results from GPU.</li>
+<li><strong>PickManager</strong> identifies picked <strong>ViewObject</strong> and notifies <strong>WebGLRenderer</strong>.</li>
+<li><strong>WebGLRenderer.pick</strong> returns result to caller.</li>
+<li>Caller can find picked <strong>SceneObject</strong> via <strong>ViewObject</strong>.</li>
+</ol>
+<hr>
+<a id="gpu-memory-inspection-diagnostics" class="tsd-anchor"></a><h2 class="tsd-anchor-link">GPU Memory Inspection (Diagnostics)<a href="#gpu-memory-inspection-diagnostics" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>The WebGLRenderer exposes <strong>read-only diagnostics APIs</strong> for inspecting
+GPU-resident renderer state. These APIs are intended for debugging,
+profiling, and validation only.</p>
+<p>Primary entry points:</p>
+<ul>
+<li><a href="../interfaces/webglrenderer.MemoryUsage.html" class="tsd-kind-interface">MemoryUsage</a> via <a href="../classes/webglrenderer.WebGLRenderer.html#getmemoryusage" class="tsd-kind-method">WebGLRenderer.getMemoryUsage</a>
+— high-level GPU memory statistics.</li>
+<li><a href="../interfaces/webglrenderer.internal.MemoryView.html" class="tsd-kind-interface">MemoryView</a> via <a href="../classes/webglrenderer.WebGLRenderer.html#getmemoryview" class="tsd-kind-method">WebGLRenderer.getMemoryView</a>
+— structured, read-only access to DataTextures.</li>
+</ul>
+<br>
+<a id="shader-inspection-diagnostics" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Shader Inspection (Diagnostics)<a href="#shader-inspection-diagnostics" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Read-only APIs for inspecting generated WebGL shader programs.</p>
+<ul>
+<li><a href="../classes/webglrenderer.internal.ShaderView.html" class="tsd-kind-class">ShaderView</a> via <a href="../classes/webglrenderer.WebGLRenderer.html#getshaderview" class="tsd-kind-method">WebGLRenderer.getShaderView</a>
+— structured access to shader source code.</li>
+</ul>
+</div><div class="tsd-comment tsd-typography"></div></section><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Namespaces"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Namespaces</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="drawops" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Namespace"><use href="../assets/icons.svg#icon-4"></use></svg><a href="webglrenderer.internal.drawOps.html">drawOps</a><a href="#drawops" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="gpumemorymanager" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Namespace"><use href="../assets/icons.svg#icon-4"></use></svg><a href="webglrenderer.internal.gpuMemoryManager.html">gpuMemoryManager</a><a href="#gpumemorymanager" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="meshmanager" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Namespace"><use href="../assets/icons.svg#icon-4"></use></svg><a href="webglrenderer.internal.meshManager.html">meshManager</a><a href="#meshmanager" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="pickmanager" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Namespace"><use href="../assets/icons.svg#icon-4"></use></svg><a href="webglrenderer.internal.pickManager.html">pickManager</a><a href="#pickmanager" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="rendermanager" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Namespace"><use href="../assets/icons.svg#icon-4"></use></svg><a href="webglrenderer.internal.renderManager.html">renderManager</a><a href="#rendermanager" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Classes"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Classes</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="memorydebugger" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><a href="../classes/webglrenderer.internal.MemoryDebugger.html">MemoryDebugger</a><a href="#memorydebugger" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="renderbuffers" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><a href="../classes/webglrenderer.internal.RenderBuffers.html">RenderBuffers</a><a href="#renderbuffers" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="rendercontext" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><a href="../classes/webglrenderer.internal.RenderContext.html">RenderContext</a><a href="#rendercontext" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="shaderdebugger" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><a href="../classes/webglrenderer.internal.ShaderDebugger.html">ShaderDebugger</a><a href="#shaderdebugger" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="shaderview" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><a href="../classes/webglrenderer.internal.ShaderView.html">ShaderView</a><a href="#shaderview" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="viewmanager" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><a href="../classes/webglrenderer.internal.ViewManager.html">ViewManager</a><a href="#viewmanager" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="viewrenderstate" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><a href="../classes/webglrenderer.internal.ViewRenderState.html">ViewRenderState</a><a href="#viewrenderstate" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Interfaces"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Interfaces</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="memoryview" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/webglrenderer.internal.MemoryView.html">MemoryView</a><a href="#memoryview" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Type Aliases"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Type Aliases</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="renderpassvalue" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Type Alias"><use href="../assets/icons.svg#icon-2097152"></use></svg><a href="../types/webglrenderer.internal.RenderPassValue.html">RenderPassValue</a><a href="#renderpassvalue" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Variables"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Variables</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="render_passes" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><a href="../variables/webglrenderer.internal.RENDER_PASSES.html">RENDER_PASSES</a><a href="#render_passes" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#webglrenderer-internals"><span>WebGLRenderer <wbr/>Internals</span></a><ul><li><a href="#overview"><span>Overview</span></a></li><li><a href="#internal-structure"><span>Internal <wbr/>Structure</span></a></li><li><a href="#architectural-relationships"><span>Architectural <wbr/>Relationships</span></a></li><li><a href="#core-components"><span>Core <wbr/>Components</span></a></li><li><ul><li><a href="#webglrenderer-public"><span>WebGLRenderer (public)</span></a></li><li><a href="#viewmanager-internal"><span>View<wbr/>Manager (internal)</span></a></li><li><a href="#meshmanager-internal"><span>Mesh<wbr/>Manager (internal)</span></a></li><li><a href="#gpumemorymanager-internal"><span>GPUMemory<wbr/>Manager (internal)</span></a></li><li><a href="#rendermanager-internal"><span>Render<wbr/>Manager (internal)</span></a></li><li><a href="#pickmanager-internal"><span>Pick<wbr/>Manager (internal)</span></a></li><li><a href="#drawops-internal"><span>Draw<wbr/>Ops (internal)</span></a></li><li><a href="#execution-workflows"><span>Execution <wbr/>Workflows</span></a></li><li><ul><li><a href="#viewer-attached-to-webglrenderer"><span>Viewer <wbr/>Attached to <wbr/>WebGLRenderer</span></a></li><li><a href="#scenegeometry-creation"><span>Scene<wbr/>Geometry <wbr/>Creation</span></a></li><li><a href="#scenemesh-creation"><span>Scene<wbr/>Mesh <wbr/>Creation</span></a></li><li><a href="#sceneobject-creation"><span>Scene<wbr/>Object <wbr/>Creation</span></a></li><li><a href="#sceneobject-deletion"><span>Scene<wbr/>Object <wbr/>Deletion</span></a></li><li><a href="#viewobject-visibility-change"><span>View<wbr/>Object <wbr/>Visibility <wbr/>Change</span></a></li><li><a href="#scenemesh-matrix-update"><span>Scene<wbr/>Mesh <wbr/>Matrix <wbr/>Update</span></a></li><li><a href="#scenemesh-color-update"><span>Scene<wbr/>Mesh <wbr/>Color <wbr/>Update</span></a></li><li><a href="#view-updated-view-ready-to-re-render"><span>View <wbr/>Updated (<wbr/>View ready to re-<wbr/>render)</span></a></li><li><a href="#picking-operation"><span>Picking <wbr/>Operation</span></a></li></ul></li></ul></li><li><a href="#gpu-memory-inspection-diagnostics"><span>GPU <wbr/>Memory <wbr/>Inspection (<wbr/>Diagnostics)</span></a></li><li><a href="#shader-inspection-diagnostics"><span>Shader <wbr/>Inspection (<wbr/>Diagnostics)</span></a></li></ul><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Namespaces"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Namespaces</summary><div><a href="#drawops" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Namespace"><use href="../assets/icons.svg#icon-4"></use></svg><span>draw<wbr/>Ops</span></a><a href="#gpumemorymanager" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Namespace"><use href="../assets/icons.svg#icon-4"></use></svg><span>gpu<wbr/>Memory<wbr/>Manager</span></a><a href="#meshmanager" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Namespace"><use href="../assets/icons.svg#icon-4"></use></svg><span>mesh<wbr/>Manager</span></a><a href="#pickmanager" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Namespace"><use href="../assets/icons.svg#icon-4"></use></svg><span>pick<wbr/>Manager</span></a><a href="#rendermanager" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Namespace"><use href="../assets/icons.svg#icon-4"></use></svg><span>render<wbr/>Manager</span></a></div></details><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Classes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Classes</summary><div><a href="#memorydebugger" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><span>Memory<wbr/>Debugger</span></a><a href="#renderbuffers" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><span>Render<wbr/>Buffers</span></a><a href="#rendercontext" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><span>Render<wbr/>Context</span></a><a href="#shaderdebugger" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><span>Shader<wbr/>Debugger</span></a><a href="#shaderview" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><span>Shader<wbr/>View</span></a><a href="#viewmanager" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><span>View<wbr/>Manager</span></a><a href="#viewrenderstate" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><span>View<wbr/>Render<wbr/>State</span></a></div></details><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Interfaces"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Interfaces</summary><div><a href="#memoryview" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Memory<wbr/>View</span></a></div></details><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Type Aliases"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Type Aliases</summary><div><a href="#renderpassvalue" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Type Alias"><use href="../assets/icons.svg#icon-2097152"></use></svg><span>Render<wbr/>Pass<wbr/>Value</span></a></div></details><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Variables"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Variables</summary><div><a href="#render_passes" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><span>RENDER_<wbr/>PASSES</span></a></div></details></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="../modules.html">@xeokit/sdk - v0.1.0</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div>
+<script type="module">
+import mermaid from "https://unpkg.com/mermaid@latest/dist/mermaid.esm.min.mjs";
+
+document.documentElement.classList.add("mermaid-enabled");
+
+mermaid.initialize({startOnLoad:true});
+
+requestAnimationFrame(function check() {
+  let some = false;
+  document.querySelectorAll("div.mermaid:not([data-inserted])").forEach(div => {
+    some = true;
+    if (div.querySelector("svg")) {
+      div.dataset.inserted = true;
+    }
+  });
+
+  if (some) {
+    requestAnimationFrame(check);
+  }
+});
+</script>
+</body></html>

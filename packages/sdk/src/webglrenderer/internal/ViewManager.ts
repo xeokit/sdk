@@ -12,7 +12,7 @@ import {SceneGeometry, SceneMesh, SceneModel, SceneObject} from "../../scene";
 import {SceneTransform} from "../../scene/SceneTransform";
 import {type MemoryConfigs} from "../MemoryConfigs";
 import type {DataTextures} from "./gpuMemoryManager/DataTextures";
-import {DrawInspector, ShaderInspector} from "./inspectors";
+import {RenderInspector, ShaderInspector} from "./inspectors";
 
 /**
  * Top-level, internal rendering and pipeline manager within a {@link WebGLRenderer}.
@@ -265,11 +265,11 @@ export class ViewManager {
   }
 
   /**
-   * Returns the {@link DrawInspector} used to inspect draw calls.
+   * Returns the {@link RenderInspector} used to inspect draw calls.
    */
-  public getDrawInspector(): DrawInspector {
+  public getRenderInspector(): RenderInspector {
     if (!this._renderContext) {
-      throw new SDKInternalException("[ViewManager.getDrawInspector] ViewManager is not initialized");
+      throw new SDKInternalException("[ViewManager.getRenderInspector] ViewManager is not initialized");
     }
     return this._renderContext.drawInspector;
   }

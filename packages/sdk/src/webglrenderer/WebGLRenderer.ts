@@ -11,7 +11,7 @@ import {createMemoryConfigs} from "./createMemoryConfigs";
 import {type MemoryUsage} from "./MemoryUsage";
 import {type DataTextures} from "./internal/gpuMemoryManager";
 import {SceneGeometry, SceneMesh} from "../scene";
-import {ShaderInspector, DrawInspector, type MemoryInspector} from "./internal/inspectors";
+import {ShaderInspector, RenderInspector, type MemoryInspector} from "./internal/inspectors";
 import {type PickParams, type PickResult} from "../viewer";
 
 
@@ -131,7 +131,7 @@ export class WebGLRenderer {
   private readonly _memoryConfigs: MemoryConfigs;
   private readonly _memoryInspector: MemoryInspector;
   private _shaderInspector: ShaderInspector;
-  private _drawInspector: DrawInspector | null;
+  private _drawInspector: RenderInspector | null;
 
   /**
    * Constructs a new {@link WebGLRenderer}.
@@ -166,7 +166,7 @@ export class WebGLRenderer {
       Object.assign(this._memoryConfigs, params.memoryConfigs);
     } else {
       this._memoryConfigs = createMemoryConfigs({
-        grossMemoryMB: 2024, // 2GB
+        grossMemoryMB: 10024, // 10GB
         device: "medium", // Assume mid-range device
         utilization: 0.7, // Use 70% of available memory
         user: { // No overrides
@@ -306,21 +306,21 @@ export class WebGLRenderer {
   }
 
   /**
-   * Sets a {@link DrawInspector} to inspect draw calls during rendering.
+   * Sets a {@link RenderInspector} to inspect draw calls during rendering.
    * @param drawInspector
    * @internal
    */
-  public getDrawInspector(): SDKResult<DrawInspector> {
+  public getRenderInspector(): SDKResult<RenderInspector> {
     if (!this._viewManager) {
       return this.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[WebGLRenderer.setDrawLogger] Failed to set DrawInspector - no Viewer with Scene is currently attached."
+        error: "[WebGLRenderer.setDrawLogger] Failed to set RenderInspector - no Viewer with Scene is currently attached."
       });
     }
     return {
       ok: true,
-      value:this._viewManager.getDrawInspector()
+      value:this._viewManager.getRenderInspector()
     };
   }
 

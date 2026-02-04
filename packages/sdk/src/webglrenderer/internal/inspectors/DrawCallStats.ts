@@ -5,7 +5,7 @@ import {type TimeMs} from "./TimeMs";
 /**
  * Log entry for a single draw call.
  */
-export interface DrawCallLog {
+export interface DrawCallStats {
 
   /**
    * The render pass for this draw call.

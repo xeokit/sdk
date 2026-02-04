@@ -262,18 +262,18 @@
  *
  * The WebGLRenderer includes a **Draw List Inspector** for logging and analyzing all draw calls issued during rendering.
  *
- * - {@link DrawInspector} via {@link WebGLRenderer.getDrawInspector}
+ * - {@link RenderInspector} via {@link WebGLRenderer.getRenderInspector}
  *   - Captures detailed information about each rendered frame, including draw calls, primitive types, shader techniques, batch and pass details, and timing.
  *   - Provides per-frame logs and frame rate statistics for each view.
  *   - Example:
  *     ```ts
- *     const drawInspector = webglRenderer.getDrawInspector();
+ *     const drawInspector = webglRenderer.getRenderInspector();
  *     drawInspector.enabled = true;
  *     // After rendering:
  *     const frameLog = drawInspector.frameLogs[viewIndex];
  *     console.log(JSON.stringify(frameLog, null, 2));
  *     ```
- *   - See {@link inspectors/DrawInspector} and related types for log structure.
+ *   - See {@link inspectors/RenderInspector} and related types for log structure.
  *
  * ---
  *
@@ -470,7 +470,7 @@ import type {Scene, SceneObject, SceneMesh, SceneGeometry} from "../../scene";
 import {type GPUMemoryManager} from "./gpuMemoryManager";
 import {type RenderManager} from "./renderManager";
 import {type PickManager} from "./pickManager";
-import type {MemoryInspector, DrawInspector, ShaderInspector} from "./inspectors";
+import type {MemoryInspector, RenderInspector, ShaderInspector} from "./inspectors";
 
 export * as drawOps from "./drawOps";
 export * as gpuMemoryManager from "./gpuMemoryManager";

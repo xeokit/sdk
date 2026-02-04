@@ -4,10 +4,11 @@ import { RENDER_PASSES } from "../RENDER_PASSES";
 import type { PrimRange } from "../gpuMemoryManager/dataTextures/PrimRange";
 import type { View } from "../../../viewer";
 import { LinesPrimitive, PointsPrimitive, TrianglesPrimitive } from "../../../constants";
-import { type FrameLog } from "./FrameLog";
-import { type RenderBinLog } from "./RenderBinLog";
-import { type DrawCallLog } from "./DrawCallLog";
+import { type ViewRenderStats } from "./ViewRenderStats";
+import { type RenderBinStats } from "./RenderBinStats";
+import { type DrawCallStats } from "./DrawCallStats";
 import {RENDER_BINS} from "../RENDER_BINS";
+import {RenderStats} from "./RenderStats";
 
 const nowMs = (): number => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -16,9 +17,9 @@ const nowMs = (): number => {
 };
 
 type ActiveState = {
-  currentFrame: FrameLog | null;
-  currentPass: RenderBinLog | null;
-  currentDraw: DrawCallLog | null;
+  currentFrame: ViewRenderStats | null;
+  currentPass: RenderBinStats | null;
+  currentDraw: DrawCallStats | null;
   lastFrameEndMs: number | null;
 };
 
@@ -26,10 +27,10 @@ type ActiveState = {
  * Logs draw calls and their timings for performance analysis.
  *
  * Public:
- * - frameLogs[i] = last completed FrameLog for viewIndex i
+ * - frameLogs[i] = last completed ViewRenderStats for viewIndex i
  * - frameRates[i] = last computed fps for viewIndex i
  */
-export class DrawInspector {
+export class RenderInspector {
 
   /**
    * Whether the inspector is enabled.
@@ -37,9 +38,9 @@ export class DrawInspector {
   public enabled = false;
 
   /**
-   * Last completed frame per viewIndex.
+   * Aggregate render stats.
    */
-  public frameLogs: Array<FrameLog | null> = [];
+  public renderStats: RenderStats;
 
   /**
    * Last computed fps per viewIndex (null until at least 2 frames end).
@@ -57,7 +58,7 @@ export class DrawInspector {
   private _excludedRenderBins: Set<string>;
 
   /**
-   * Creates a DrawInspector.
+   * Creates a RenderInspector.
    * @param opts
    */
   constructor(opts?: {
@@ -68,6 +69,9 @@ export class DrawInspector {
     this.enabled = opts?.enabled ?? false;
     this._includedRenderBins = new Set<string>(opts?.includeRenderBins ?? []);
     this._excludedRenderBins = new Set<string>(opts?.excludeRenderBins ?? []);
+    this.renderStats = {
+      views: []
+    };
   }
 
   /**
@@ -84,7 +88,7 @@ export class DrawInspector {
    * Gets the list of all render bin IDs.
    */
   public get renderBinIds(): string[] {
-    return Object.values(DrawInspector.renderBins);
+    return Object.values(RenderInspector.renderBins);
   }
 
   /**
@@ -128,6 +132,7 @@ export class DrawInspector {
       renderBins: [],
       timeMs: { start: t, end: t, duration: 0 },
       numDrawCalls: 0,
+      numPrims: 0
     };
   }
 
@@ -152,7 +157,7 @@ export class DrawInspector {
     this.endPassFor(s);
 
     const t = nowMs();
-    const pass: RenderBinLog = {
+    const pass: RenderBinStats = {
       name: renderBinName,
       drawCalls: [],
       timeMs: { start: t, end: t, duration: 0 },
@@ -222,7 +227,7 @@ export class DrawInspector {
     }
 
     const t = nowMs();
-    const draw: DrawCallLog = {
+    const draw: DrawCallStats = {
       batchIndex: meshBatch.gpuMemoryBatchIndex,
       renderPass: renderBinName,
       primitive: primitiveName,
@@ -233,6 +238,7 @@ export class DrawInspector {
     s.currentPass.drawCalls.push(draw);
     s.currentDraw = draw;
     s.currentFrame.numDrawCalls++;
+    s.currentFrame.numPrims += primRange.numPrims;
   }
 
   /**
@@ -253,7 +259,7 @@ export class DrawInspector {
     s.currentFrame.timeMs.duration = t - s.currentFrame.timeMs.start;
 
     // Replace per-view frame log reference
-    this.frameLogs[viewIndex] = s.currentFrame;
+    this.renderStats.views[viewIndex] = s.currentFrame;
 
     // Update fps (end-to-end delta between frame ends)
     if (s.lastFrameEndMs != null) {
@@ -285,7 +291,7 @@ export class DrawInspector {
         lastFrameEndMs: null,
       });
     }
-    while (this.frameLogs.length <= viewIndex) this.frameLogs.push(null);
+    while (this.renderStats.views.length <= viewIndex) this.renderStats.views.push(null);
     while (this.frameRates.length <= viewIndex) this.frameRates.push(null);
     return this._states[viewIndex];
   }

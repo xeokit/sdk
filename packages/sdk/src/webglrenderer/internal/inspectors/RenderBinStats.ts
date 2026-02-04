@@ -1,10 +1,10 @@
-import {type DrawCallLog} from "./DrawCallLog";
+import {type DrawCallStats} from "./DrawCallStats";
 import {type TimeMs} from "./TimeMs";
 
 /**
  * Log entry for a single render bin, made up of multiple draw calls.
  */
-export interface RenderBinLog {
+export interface RenderBinStats {
 
   /**
    * Name of the render bin.
@@ -14,7 +14,7 @@ export interface RenderBinLog {
   /**
    * Draw calls made within this render bin.
    */
-  drawCalls: DrawCallLog[];
+  drawCalls: DrawCallStats[];
 
   /**
    * Time range for this render bin.

@@ -1,10 +1,10 @@
-import {type RenderBinLog} from "./RenderBinLog";
+import {type RenderBinStats} from "./RenderBinStats";
 import {type TimeMs} from "./TimeMs";
 
 /**
  * Log entry for a single render frame, made up of multiple render passes.
  */
-export interface FrameLog {
+export interface ViewRenderStats {
 
   /**
    * The View being rendered.
@@ -19,7 +19,7 @@ export interface FrameLog {
   /**
    * Render passes made during this frame.
    */
-  renderBins: RenderBinLog[];
+  renderBins: RenderBinStats[];
 
   /**
    * Time range for this frame.
@@ -30,4 +30,9 @@ export interface FrameLog {
    * Total number of draw calls made during this frame.
    */
   numDrawCalls: number;
+
+  /**
+   * Total number of primitives rendered during this frame.
+   */
+  numPrims: number;
 }

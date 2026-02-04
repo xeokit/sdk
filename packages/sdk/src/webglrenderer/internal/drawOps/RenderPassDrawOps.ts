@@ -9,6 +9,7 @@ import {DrawOp} from "./DrawOp";
  * @internal
  */
 export interface RenderPassDrawOps {
+
   /**
    * Draw operation for rendering opaque objects.
    */

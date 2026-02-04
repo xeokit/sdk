@@ -1,6 +1,6 @@
-import type { DataTextures } from "./gpuMemoryManager/DataTextures";
-import type { SceneGeometry, SceneMesh } from "../../scene";
-import type { View } from "../../viewer";
+import type { DataTextures } from "../gpuMemoryManager/DataTextures";
+import type { SceneGeometry, SceneMesh } from "../../../scene";
+import type { View } from "../../../viewer";
 
 /**
  * Read-only view of GPU-related memory owned by a {@link WebGLRenderer}.
@@ -20,7 +20,7 @@ import type { View } from "../../viewer";
  * The example below demonstrates how to:
  *
  * - query a GPU memory usage summary,
- * - access GPU-resident data textures through {@link MemoryView},
+ * - access GPU-resident data textures through {@link MemoryInspector},
  * - walk batches → views → render passes → primitive ranges,
  * - map GPU indices back to {@link SceneMesh} and geometry instances for correlation,
  * - sanity-check vertex data and simulate parts of the vertex transform path.
@@ -35,13 +35,13 @@ import type { View } from "../../viewer";
  * console.log(`GPU Memory Usage: ${memoryUsage.usedMB} MB used of ${memoryUsage.totalMB} MB total`);
  *
  * // Get read-only internal view of GPU-resident data
- * const memoryView: MemoryView = webglRenderer.getMemoryView();
+ * const memoryInspector: MemoryInspector = webglRenderer.getMemoryInspector();
  *
  * // Example: select a render pass (e.g. OPAQUE)
  * const renderPass: number = 0;
  *
  * // Access the top-level data textures collection from the renderer
- * const dataTextures = memoryView.dataTextures;
+ * const dataTextures = memoryInspector.dataTextures;
  *
  * // Iterate over all views (e.g. camera, picking, etc.)
  * for (let viewIndex = 0; viewIndex < 4; viewIndex++) {
@@ -73,7 +73,7 @@ import type { View } from "../../viewer";
  *         const { meshIndex, offset } = batchViewDataTextures.primitiveMeshIndexTexture.getItem(primIndex);
  *
  *         // Lookup the SceneMesh using batchIndex and meshIndex
- *         const sceneMesh = memoryView.getMeshAtIndex(batchIndex, meshIndex);
+ *         const sceneMesh = memoryInspector.getMeshAtIndex(batchIndex, meshIndex);
  *
  *         if (!sceneMesh) {
  *           console.error("Error: scene mesh not found for mesh index:", meshIndex);
@@ -101,7 +101,7 @@ import type { View } from "../../viewer";
  *         // Lookup vertex position using vertexPositions texture
  *         const vertexPosition = batchDataTextures.vertexPositionTexture.getItem(verticesBase + index);
  *
- *         const sceneGeometry = memoryView.getGeometryAtIndex(batchIndex, geometryIndex);
+ *         const sceneGeometry = memoryInspector.getGeometryAtIndex(batchIndex, geometryIndex);
  *
  *         if (!sceneGeometry) {
  *           console.error("Error: scene geometry not found for geometry index:", geometryIndex);
@@ -169,7 +169,7 @@ import type { View } from "../../viewer";
  * }
  * ```
  */
-export interface MemoryView {
+export interface MemoryInspector {
 
   /** GPU data textures used by the renderer (read-only).
    */

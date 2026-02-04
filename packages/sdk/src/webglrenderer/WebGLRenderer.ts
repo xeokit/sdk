@@ -9,12 +9,10 @@ import {type WebGLRendererEvents} from "./WebGLRendererEvents";
 import {type MemoryConfigs} from "./MemoryConfigs";
 import {createMemoryConfigs} from "./createMemoryConfigs";
 import {type MemoryUsage} from "./MemoryUsage";
-import {type MemoryView} from "./internal/MemoryView";
-import {type DataTextures} from "./internal/gpuMemoryManager/DataTextures";
+import {type DataTextures} from "./internal/gpuMemoryManager";
 import {SceneGeometry, SceneMesh} from "../scene";
-import {ShaderView} from "./internal";
+import {ShaderInspector, DrawInspector, type MemoryInspector} from "./internal/inspectors";
 import {type PickParams, type PickResult} from "../viewer";
-import {DrawLogger} from "./internal/drawOps/DrawLogger";
 
 
 /**
@@ -131,8 +129,9 @@ export class WebGLRenderer {
   };
 
   private readonly _memoryConfigs: MemoryConfigs;
-  private readonly _memoryView: MemoryView;
-  private _shaderView: ShaderView;
+  private readonly _memoryInspector: MemoryInspector;
+  private _shaderInspector: ShaderInspector;
+  private _drawInspector: DrawInspector | null;
 
   /**
    * Constructs a new {@link WebGLRenderer}.
@@ -148,7 +147,7 @@ export class WebGLRenderer {
     memoryConfigs?: Partial<MemoryConfigs>,
     debugging?: boolean
   } = {}) {
-    this._memoryView = {
+    this._memoryInspector = {
       dataTextures: null, // Populated when rendering starts
       getViewAtIndex: (viewIndex: number): View|null => {
         return this._viewManager ? this._viewManager.getViewAtIndex(viewIndex) : null;
@@ -160,7 +159,8 @@ export class WebGLRenderer {
         return this._viewManager ? this._viewManager.getMeshAtIndex(batchIndex, meshIndex) : null;
       }
     };
-    this._shaderView = null;
+    this._shaderInspector = null;
+    this._drawInspector = null;
     if (params.memoryConfigs) {
       this._memoryConfigs=<MemoryConfigs>{};
       Object.assign(this._memoryConfigs, params.memoryConfigs);
@@ -268,22 +268,22 @@ export class WebGLRenderer {
    * @returns `{ ok: true, value }` when a Viewer with an attached Scene is present;
    * otherwise `{ ok: false }` with {@link SDKErrorType.InvalidOperation}.
    */
-  public getMemoryView(): SDKResult<MemoryView>  {
+  public getMemoryInspector(): SDKResult<MemoryInspector>  {
     if (!this._viewManager) {
       return this.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[WebGLRenderer.getMemoryView] Failed to get MemoryView - no Viewer with Scene is currently attached."
+        error: "[WebGLRenderer.getMemoryInspector] Failed to get MemoryInspector - no Viewer with Scene is currently attached."
       });
     }
     return {
       ok: true,
-      value: this._memoryView
+      value: this._memoryInspector
     };
   }
 
   /**
-   * Returns a debug view of program shaders used by the renderer.
+   * Returns a inspectors view of program shaders used by the renderer.
    *
    * This API is intended for diagnostics, debugging tools, and monitoring UIs.
    *
@@ -291,37 +291,36 @@ export class WebGLRenderer {
    * @returns `{ ok: true, value }` when a Viewer with an attached Scene is present;
    * otherwise `{ ok: false }` with {@link SDKErrorType.InvalidOperation}.
    */
-  public getShaderView(): SDKResult<ShaderView>  {
+  public getShaderInspector(): SDKResult<ShaderInspector>  {
     if (!this._viewManager) {
       return this.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[WebGLRenderer.getShaderView] Failed to get ShaderView - no Viewer with Scene is currently attached."
+        error: "[WebGLRenderer.getShaderInspector] Failed to get ShaderInspector - no Viewer with Scene is currently attached."
       });
     }
     return {
       ok: true,
-      value: this._shaderView
+      value: this._shaderInspector
     };
   }
 
   /**
-   * Sets a {@link DrawLogger} to log draw calls during rendering.
-   * @param drawLogger
+   * Sets a {@link DrawInspector} to inspect draw calls during rendering.
+   * @param drawInspector
    * @internal
    */
-  public setDrawLogger(drawLogger: DrawLogger): SDKResult<any> {
+  public getDrawInspector(): SDKResult<DrawInspector> {
     if (!this._viewManager) {
       return this.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[WebGLRenderer.setDrawLogger] Failed to set DrawLogger - no Viewer with Scene is currently attached."
+        error: "[WebGLRenderer.setDrawLogger] Failed to set DrawInspector - no Viewer with Scene is currently attached."
       });
     }
-    this._viewManager.setDrawLogger(drawLogger);
     return {
       ok: true,
-      value: undefined
+      value:this._viewManager.getDrawInspector()
     };
   }
 
@@ -432,7 +431,7 @@ export class WebGLRenderer {
     if (result.ok === false) {
       this._viewManager.destroy();
       this._viewManager = undefined as unknown as ViewManager;
-      this._memoryView.dataTextures= null;
+      this._memoryInspector.dataTextures= null;
       return result;
     }
 
@@ -492,9 +491,9 @@ export class WebGLRenderer {
       viewerEvents.onCameraViewMatrixUpdated.subscribe((_, camera) => viewManager.cameraViewMatrixUpdated(camera))
     ];
 
-    this._memoryView.dataTextures= this._viewManager.dataTextures;
+    this._memoryInspector.dataTextures= this._viewManager.dataTextures;
 
-    this._shaderView = this._viewManager.shaderView;
+    this._shaderInspector = this._viewManager.shaderInspector;
 
     this._viewManager.getWebGLCanvasElement().addEventListener("webglcontextlost", (event) => {
       event.preventDefault();

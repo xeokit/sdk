@@ -1,10 +1,10 @@
-import {DrawOps} from "./drawOps/DrawOps";
-import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../../constants";
+import {DrawOps} from "../drawOps/DrawOps";
+import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../../../constants";
 
 /**
  * Read-only view of the shader programs used by a {@link WebGLRenderer}.
  */
-export class ShaderView {
+export class ShaderInspector {
 
   public readonly techniques: {
     triangles: {

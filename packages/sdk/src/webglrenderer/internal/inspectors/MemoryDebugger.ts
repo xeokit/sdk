@@ -1,10 +1,10 @@
 // MemoryDebugger.ts (extended with GPU memory usage panel)
-import { DataTexture } from "./gpuMemoryManager/dataTextures/DataTexture";
-import type { DataTextures } from "./gpuMemoryManager/DataTextures";
-import type { MemoryUsage } from "../MemoryUsage";
-import { WebGLRenderer } from "../WebGLRenderer";
-import type { PrimRange } from "./gpuMemoryManager/dataTextures/PrimRange";
-import { RENDER_PASSES } from "./RENDER_PASSES";
+import { DataTexture } from "../gpuMemoryManager/dataTextures/DataTexture";
+import type { DataTextures } from "../gpuMemoryManager/DataTextures";
+import type { MemoryUsage } from "../../MemoryUsage";
+import { WebGLRenderer } from "../../WebGLRenderer";
+import type { PrimRange } from "../gpuMemoryManager/dataTextures/PrimRange";
+import { RENDER_PASSES } from "../RENDER_PASSES";
 
 
 /**
@@ -290,11 +290,11 @@ export class MemoryDebugger {
       out.push({ tex, path });
     };
 
-    const memoryViewRes = this.renderer.getMemoryView();
-    if (memoryViewRes.ok === false) {
-      throw new Error(`MemoryDebugger: renderer.getMemoryView() error: ${memoryViewRes.error}`);
+    const memoryInspectorRes = this.renderer.getMemoryInspector();
+    if (memoryInspectorRes.ok === false) {
+      throw new Error(`MemoryDebugger: renderer.getMemoryInspector() error: ${memoryInspectorRes.error}`);
     }
-    const dataTextures = memoryViewRes.value.dataTextures as DataTextures;
+    const dataTextures = memoryInspectorRes.value.dataTextures as DataTextures;
     if (!dataTextures) throw new Error("MemoryDebugger: renderer is rendering and should have dataTextures");
 
     dataTextures.viewTileCameraMatrixTexture?.forEach((t, i) => push(t, `viewTileCameraMatrixTexture[${i}]`));
@@ -466,9 +466,9 @@ export class MemoryDebugger {
     }
 
     // NEW: subscribe to primitiveMeshIndexTexture updates for each batch view
-    const memoryViewRes = this.renderer.getMemoryView();
-    if (memoryViewRes.ok === false) return;
-    const dataTextures = memoryViewRes.value.dataTextures as DataTextures;
+    const memoryInspectorRes = this.renderer.getMemoryInspector();
+    if (memoryInspectorRes.ok === false) return;
+    const dataTextures = memoryInspectorRes.value.dataTextures as DataTextures;
     if (!dataTextures) return;
 
     dataTextures.batches?.forEach((batch: any, bi: number) => {

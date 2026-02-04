@@ -2,6 +2,7 @@
  * Data textures for GPU memory management in WebGL rendering.
  *
  * @module dataTextures
+ * @internal
  */
 export * from "./DataTexture";
 export * from "./MatrixTexture";

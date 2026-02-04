@@ -2,6 +2,7 @@
  * GPU memory management for WebGL rendering.
  *
  * @module gpuMemoryManager
+ * @internal
  */
 export * from "./GPUMemoryManager";
 export * from "./DataTextures";

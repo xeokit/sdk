@@ -1,6 +1,6 @@
 import {RenderContext} from "./RenderContext";
 import {Camera, View, Viewer, ViewObject} from "../../viewer";
-import { type PickParams, type PickResult} from "../../viewer";
+import {type PickParams, type PickResult} from "../../viewer";
 import {SDKInternalException, SDKErrorType, type SDKResult} from "../../core";
 import {ViewRenderState} from "./ViewRenderState";
 import {RenderManager} from "./renderManager";
@@ -12,8 +12,7 @@ import {SceneGeometry, SceneMesh, SceneModel, SceneObject} from "../../scene";
 import {SceneTransform} from "../../scene/SceneTransform";
 import {type MemoryConfigs} from "../MemoryConfigs";
 import type {DataTextures} from "./gpuMemoryManager/DataTextures";
-import {ShaderView} from "../internal";
-import {DrawLogger} from "./drawOps/DrawLogger";
+import {DrawInspector, ShaderInspector} from "./inspectors";
 
 /**
  * Top-level, internal rendering and pipeline manager within a {@link WebGLRenderer}.
@@ -61,7 +60,7 @@ export class ViewManager {
    * Exposed for diagnostics.
    * Available after {@link init} succeeds; `undefined` after {@link destroy}.
    */
-  public shaderView: ShaderView;
+  public shaderInspector: ShaderInspector;
 
   /** The owning {@link Viewer} instance. Set during {@link init}. */
   private _viewer: Viewer;
@@ -72,7 +71,7 @@ export class ViewManager {
   /** Map of view id -> renderer view wrapper.
    * @internal
    */
-   _rendererViews: Record<string, ViewRenderState> = {};
+  _rendererViews: Record<string, ViewRenderState> = {};
 
   /** Ordered list of renderer views, aligned with {@link View.viewIndex}. */
   private _rendererViewsList: ViewRenderState[] = [];
@@ -185,7 +184,7 @@ export class ViewManager {
       return resultRender;
     }
 
-    this.shaderView = new ShaderView(this._renderManager.drawOps);
+    this.shaderInspector = new ShaderInspector(this._renderManager.drawOps);
 
     this._pickManager = new PickManager({
       renderContext: this._renderContext,
@@ -266,18 +265,13 @@ export class ViewManager {
   }
 
   /**
-   * Sets the {@link DrawLogger} used to log draw calls.
-   * @param drawLogger
+   * Returns the {@link DrawInspector} used to inspect draw calls.
    */
-  setDrawLogger(drawLogger: DrawLogger): SDKResult<void> {
+  public getDrawInspector(): DrawInspector {
     if (!this._renderContext) {
-      throw new SDKInternalException("[ViewManager.setDrawLogger] ViewManager is not initialized");
+      throw new SDKInternalException("[ViewManager.getDrawInspector] ViewManager is not initialized");
     }
-    this._renderContext.drawLogger = drawLogger;
-    return {
-      ok: true,
-      value: undefined
-    };
+    return this._renderContext.drawInspector;
   }
 
   /**
@@ -482,7 +476,7 @@ export class ViewManager {
    * Notifies the renderer that a {@link SceneGeometry} was created.
    * @param sceneGeometry
    */
-  sceneGeometryCreated(sceneGeometry: SceneGeometry) : SDKResult<any> {
+  sceneGeometryCreated(sceneGeometry: SceneGeometry): SDKResult<any> {
     return this._meshManager.sceneGeometryCreated(sceneGeometry);
   }
 
@@ -490,7 +484,7 @@ export class ViewManager {
    * Notifies the renderer that a {@link SceneGeometry} was destroyed.
    * @param sceneGeometry
    */
-  sceneGeometryDestroyed(sceneGeometry: SceneGeometry) : SDKResult<any> {
+  sceneGeometryDestroyed(sceneGeometry: SceneGeometry): SDKResult<any> {
     return this._meshManager.sceneGeometryDestroyed(sceneGeometry);
   }
 
@@ -499,7 +493,7 @@ export class ViewManager {
    *
    * Forwards to {@link MeshManager} to allocate and upload required GPU structures.
    */
-  sceneMeshCreated(sceneMesh: SceneMesh) : SDKResult<any> {
+  sceneMeshCreated(sceneMesh: SceneMesh): SDKResult<any> {
     return this._meshManager.sceneMeshCreated(sceneMesh);
   }
 
@@ -508,7 +502,7 @@ export class ViewManager {
    *
    * Forwards to {@link MeshManager} to release associated GPU structures.
    */
-  sceneMeshDestroyed(sceneMesh: SceneMesh) : SDKResult<any> {
+  sceneMeshDestroyed(sceneMesh: SceneMesh): SDKResult<any> {
     return this._meshManager.sceneMeshDestroyed(sceneMesh);
   }
 
@@ -647,7 +641,7 @@ export class ViewManager {
    * @param view
    * @param pickParams
    */
-  pick(view: View, pickParams: PickParams) : SDKResult<PickResult>{
+  pick(view: View, pickParams: PickParams): SDKResult<PickResult> {
     const rendererView = this._rendererViews[view.id];
     if (!rendererView) { // This is handled at a higher level, but just in case
       return {
@@ -685,7 +679,7 @@ export class ViewManager {
     this._renderContext.destroy();
     this._viewer = undefined as unknown as Viewer;
     this.dataTextures = undefined as unknown as DataTextures;
-    this.shaderView = undefined as unknown as ShaderView;
+    this.shaderInspector = undefined as unknown as ShaderInspector;
   }
 
 

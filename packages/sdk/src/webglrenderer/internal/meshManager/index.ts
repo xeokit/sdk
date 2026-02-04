@@ -18,6 +18,7 @@
  * - {@link RendererMesh}, {@link RendererGeometry}, {@link RendererTexture}, {@link RendererTextureSet}: Internal representations of mesh, geometry, and texture data.
  *
  * @module meshManager
+ * @internal
  */
 export * from "./MeshManager";
 export * from "./MeshBatch";

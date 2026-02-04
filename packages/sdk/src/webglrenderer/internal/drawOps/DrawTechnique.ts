@@ -329,7 +329,7 @@ export abstract class DrawTechnique {
       };
     }
 
-    const drawLogger = (renderContext.drawLogger.enabled) ? renderContext.drawLogger : null;
+    const drawInspector = (renderContext.drawInspector && renderContext.drawInspector.enabled) ? renderContext.drawInspector : null;
 
     if (!this._bind(renderPass)) {
       return {
@@ -393,7 +393,7 @@ export abstract class DrawTechnique {
         };
     }
 
-    drawLogger?.drawMeshBatch(meshBatch, renderPass, {
+    drawInspector?.drawMeshBatch(meshBatch, renderPass, {
       firstPrim: drawRange.firstPrim,
       numPrims: drawRange.numPrims
     });

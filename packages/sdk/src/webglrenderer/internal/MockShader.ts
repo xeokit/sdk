@@ -8,13 +8,13 @@
  * This is mainly for verifying the integration and flow of data through the rendering pipeline.
  * Once that's verified, we then know that any remaining problems are likely due to GPU-specific issues.
  */
-import {type MemoryView} from "./MemoryView";
+import {type MemoryInspector} from "./inspectors/MemoryInspector";
 import {createVec3Int16, createVec4Float32} from "../../math/vector";
 import {transformVec4} from "../../math/matrix";
 
 export class MockShader {
 
-  constructor(public readonly memoryView: MemoryView) {
+  constructor(public readonly memoryInspector: MemoryInspector) {
   }
 
   /**
@@ -32,7 +32,7 @@ export class MockShader {
     const renderPass:number = 0;
 
     // Access the top-level data textures collection from the renderer
-    const dataTextures = this.memoryView.dataTextures;
+    const dataTextures = this.memoryInspector.dataTextures;
 
     // Iterate over all views (e.g. camera, picking, etc.)
     for (let viewIndex = 0; viewIndex < 4; viewIndex++) {
@@ -68,7 +68,7 @@ export class MockShader {
             // TODO: How is offset used?
 
             // Lookup the SceneMesh using batchIndex and meshIndex
-            const sceneMesh = this.memoryView.getMeshAtIndex(batchIndex, meshIndex);
+            const sceneMesh = this.memoryInspector.getMeshAtIndex(batchIndex, meshIndex);
 
             if (!sceneMesh) {
               console.error("Error: scene mesh not found for mesh index:", meshIndex);
@@ -115,7 +115,7 @@ export class MockShader {
             const vertexPosition = batchDataTextures.vertexPositionTexture.getItem(verticesBase + index);
 
             const geometryPosition = createVec3Int16();
-            const sceneGeometry = this.memoryView.getGeometryAtIndex(batchIndex, geometryIndex);
+            const sceneGeometry = this.memoryInspector.getGeometryAtIndex(batchIndex, geometryIndex);
 
             if (!sceneGeometry) {
               console.error("Error: scene geometry not found for geometry index:", geometryIndex);

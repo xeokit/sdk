@@ -125374,120 +125374,354 @@ __export(webglrenderer_exports, {
   internal: () => internal_exports
 });
 
-// ../sdk/src/webglrenderer/internal/drawOps/DrawLogger.ts
+// ../sdk/src/webglrenderer/internal/RENDER_PASSES.ts
+var RENDER_PASSES = {
+  /**
+   * Skipped - suppress rendering.
+   * Objects with this pass are not rendered.
+   */
+  NOT_RENDERED: 0,
+  /**
+   * Render opaque objects in their normal colors.
+   */
+  OPAQUE: 1,
+  /**
+   * Render transparent objects in their normal colors
+   */
+  TRANSPARENT: 2,
+  /**
+   * Render highlighted silhouettes.
+   * Used to accentuate objects that are highlighted.
+   */
+  HIGHLIGHTED: 3,
+  /**
+   * Render selected silhouettes.
+   * Used to accentuate objects that are selected.
+   */
+  SELECTED: 4,
+  /**
+   * Render x-rayed silhouettes.
+   * Used to render objects with an x-ray effect.
+   */
+  XRAYED: 5,
+  /**
+   * Picking pass.
+   * Used for object picking to determine which object is under the cursor or selected.
+   */
+  PICK: 6
+};
+
+// ../sdk/src/webglrenderer/internal/RENDER_BINS.ts
+var RENDER_BINS = {
+  /**
+   * Meshes rendered as opaque, normal color.
+   */
+  OPAQUE: "opaque",
+  /**
+   * Edges of opaque meshes rendered in normal color mode.
+   */
+  EDGES_OPAQUE: "edgesColorOpaque",
+  /**
+   * Meshes rendered in X-rayed state as transparent, monochrome silhouettes.
+   */
+  XRAYED_SILHOUETTE_OPAQUE: "xrayedSilhouetteOpaque",
+  /**
+   * Meshes rendered in X-rayed state as opaque, monochrome silhouettes (unusual).
+   */
+  XRAYED_EDGES_OPAQUE: "xrayedEdgesOpaque",
+  /**
+   * Triangle mesh edges in X-rayed state rendered as transparent.
+   */
+  XRAYED_EDGES_TRANSPARENT: "xrayedEdgesTransparent",
+  /**
+   * Meshes in X-rayed state rendered as transparent, monochrome silhouettes.
+   */
+  XRAYED_SILHOUETTE_TRANSPARENT: "xrayedSilhouetteTransparent",
+  /**
+   * Triangle mesh edges rendered as transparent, normal color.
+   */
+  EDGES_TRANSPARENT: "edgesColorTransparent",
+  /**
+   * Meshes rendered as transparent, normal color.
+   */
+  TRANSPARENT: "normalFillTransparent",
+  /**
+   * Meshes rendered in highlighted state as opaque, monochrome silhouettes.
+   */
+  HIGHLIGHTED_SILHOUETTE_OPAQUE: "highlightedSilhouetteOpaque",
+  /**
+   * Meshes rendered in selected state as opaque, monochrome silhouettes.
+   */
+  SELECTED_SILHOUETTE_OPAQUE: "selectedSilhouetteOpaque",
+  /**
+   * Meshes rendered in highlighted state as transparent, monochrome silhouettes.
+   */
+  HIGHLIGHTED_SILHOUETTE_TRANSPARENT: "highlightedSilhouetteTransparent",
+  /**
+   * Meshes rendered in selected state as transparent, monochrome silhouettes.
+   */
+  SELECTED_SILHOUETTE_TRANSPARENT: "selectedSilhouetteTransparent",
+  /**
+   * Meshes rendered for picking (renders mesh IDs to pick buffer).
+   */
+  PICK: "pick"
+};
+
+// ../sdk/src/webglrenderer/internal/inspectors/DrawInspector.ts
 var nowMs = () => {
   const p = globalThis?.performance;
   return p?.now ? p.now() : Date.now();
 };
-var DrawLogger = class {
+var DrawInspector = class _DrawInspector {
+  /**
+   * Whether the inspector is enabled.
+   */
   enabled = false;
-  _currentFrame = null;
-  _currentPass = null;
-  _currentDraw = null;
-  _onFrameLogged;
+  /**
+   * Last completed frame per viewIndex.
+   */
+  frameLogs = [];
+  /**
+   * Last computed fps per viewIndex (null until at least 2 frames end).
+   */
+  frameRates = [];
+  /**
+   * IDs of the render bins used internally by the `WebGLRenderer`.
+   */
+  static renderBins = RENDER_BINS;
+  _states = [];
+  _activeViewIndex = null;
+  _includedRenderBins;
+  _excludedRenderBins;
+  /**
+   * Creates a DrawInspector.
+   * @param opts
+   */
   constructor(opts) {
     this.enabled = opts?.enabled ?? false;
-    this._onFrameLogged = opts?.onFrameLogged;
+    this._includedRenderBins = new Set(opts?.includeRenderBins ?? []);
+    this._excludedRenderBins = new Set(opts?.excludeRenderBins ?? []);
   }
-  clear() {
-    this._currentFrame = null;
-    this._currentPass = null;
-    this._currentDraw = null;
+  /**
+   * Determines if logging is enabled for the given render bin.
+   * @private
+   */
+  getRenderBinEnabled(renderBinName) {
+    if (this._includedRenderBins.size > 0 && !this._includedRenderBins.has(renderBinName))
+      return false;
+    if (this._excludedRenderBins.size > 0 && this._excludedRenderBins.has(renderBinName))
+      return false;
+    return true;
   }
-  get currentFrame() {
-    return this._currentFrame;
+  /**
+   * Gets the list of all render bin IDs.
+   */
+  get renderBinIds() {
+    return Object.values(_DrawInspector.renderBins);
   }
-  endDraw() {
-    if (!this._currentDraw)
-      return;
-    const t = nowMs();
-    this._currentDraw.endTimeMs = t;
-    this._currentDraw.durationMs = t - this._currentDraw.startTimeMs;
-    this._currentDraw = null;
+  /**
+   * Sets the list of render bins to include in rendering.
+   * When this list is non-empty, only render bins in this list will be rendered.
+   * @param renderBinIds
+   */
+  setIncludedRenderBins(renderBinIds) {
+    this._includedRenderBins = new Set(renderBinIds);
   }
-  endPass() {
-    if (!this._currentPass)
-      return;
-    this.endDraw();
-    const t = nowMs();
-    this._currentPass.endTimeMs = t;
-    this._currentPass.durationMs = t - this._currentPass.startTimeMs;
-    const frame = this._currentFrame;
-    if (frame && this._currentPass.drawCalls.length === 0) {
-      const i = frame.renderPasses.lastIndexOf(this._currentPass);
-      if (i !== -1)
-        frame.renderPasses.splice(i, 1);
-    }
-    this._currentPass = null;
+  /**
+   * Sets the list of render bins to exclude from rendering.
+   * When a render bin is in this list, it will not be rendered.
+   * @param renderBinIds
+   */
+  setExcludedRenderBins(renderBinIds) {
+    this._excludedRenderBins = new Set(renderBinIds);
   }
+  /**
+   * Marks the start of a new frame for the given View.
+   * Also activates the internal state for view.viewIndex, used by subsequent calls.
+   * @private
+   */
   frameStarted(view) {
-    if (!this.enabled)
+    if (!this.enabled) {
       return;
-    this.endPass();
+    }
+    const viewIndex = view.viewIndex;
+    this._activeViewIndex = viewIndex;
+    const s = this.ensureState(viewIndex);
+    this.endPassFor(s);
     const t = nowMs();
-    this._currentFrame = {
-      view,
+    s.currentFrame = {
+      viewId: view.id ?? String(viewIndex),
       canvasSize: [0, 0],
       // TODO
-      renderPasses: [],
-      startTimeMs: t,
-      endTimeMs: t,
-      durationMs: 0,
+      renderBins: [],
+      timeMs: { start: t, end: t, duration: 0 },
       numDrawCalls: 0
     };
   }
-  startRenderPass(renderPassName) {
-    if (!this.enabled || !this._currentFrame)
+  /**
+   * Marks the start of a new render bin for the currently active view.
+   * @param renderBinName
+   * @private
+   */
+  renderBinStarted(renderBinName) {
+    const s = this.getActiveState();
+    if (!this.enabled || !s || !s.currentFrame) {
       return;
-    this.endPass();
+    }
+    if (!this.getRenderBinEnabled(renderBinName)) {
+      this.endPassFor(s);
+      return;
+    }
+    this.endPassFor(s);
     const t = nowMs();
     const pass = {
-      name: renderPassName,
+      name: renderBinName,
       drawCalls: [],
-      startTimeMs: t,
-      endTimeMs: t,
-      durationMs: 0
+      timeMs: { start: t, end: t, duration: 0 }
     };
-    this._currentPass = pass;
-    this._currentFrame.renderPasses.push(pass);
+    s.currentPass = pass;
+    s.currentFrame.renderBins.push(pass);
   }
   /**
-   * Logs a draw call. Duration is measured until the next draw
-   * (or end of pass / frame).
+   * Logs a draw call for the currently active view.
+   * Duration measured until the next draw (or end of pass / frame).
+   * @private
    */
   drawMeshBatch(meshBatch, renderPass, primRange) {
-    if (!this.enabled || !this._currentFrame)
+    const s = this.getActiveState();
+    if (!this.enabled || !s || !s.currentFrame) {
       return;
-    if (!this._currentPass)
-      this.startRenderPass("UnnamedPass");
-    if (!this._currentPass)
+    }
+    if (!s.currentPass) {
+      if (!this.getRenderBinEnabled("UnnamedPass"))
+        return;
+      this.renderBinStarted("UnnamedPass");
+    }
+    if (!s.currentPass)
       return;
-    this.endDraw();
+    this.endDrawFor(s);
+    let renderBinName;
+    switch (renderPass) {
+      case RENDER_PASSES.OPAQUE:
+        renderBinName = "OPAQUE";
+        break;
+      case RENDER_PASSES.TRANSPARENT:
+        renderBinName = "TRANSPARENT";
+        break;
+      case RENDER_PASSES.HIGHLIGHTED:
+        renderBinName = "HIGHLIGHTED";
+        break;
+      case RENDER_PASSES.SELECTED:
+        renderBinName = "SELECTED";
+        break;
+      case RENDER_PASSES.XRAYED:
+        renderBinName = "XRAYED";
+        break;
+      case RENDER_PASSES.PICK:
+        renderBinName = "PICK";
+        break;
+      default:
+        renderBinName = "Unknown";
+    }
+    let primitiveName;
+    switch (meshBatch.primitive) {
+      case TrianglesPrimitive:
+        primitiveName = "TRIANGLES";
+        break;
+      case LinesPrimitive:
+        primitiveName = "LINES";
+        break;
+      case PointsPrimitive:
+        primitiveName = "POINTS";
+        break;
+      default:
+        primitiveName = "Unknown";
+    }
     const t = nowMs();
     const draw = {
-      meshBatch,
-      renderPass,
+      batchIndex: meshBatch.gpuMemoryBatchIndex,
+      renderPass: renderBinName,
+      primitive: primitiveName,
       primRange,
-      startTimeMs: t,
-      endTimeMs: t,
-      durationMs: 0
+      timeMs: { start: t, end: t, duration: 0 }
     };
-    this._currentPass.drawCalls.push(draw);
-    this._currentDraw = draw;
-    this._currentFrame.numDrawCalls++;
+    s.currentPass.drawCalls.push(draw);
+    s.currentDraw = draw;
+    s.currentFrame.numDrawCalls++;
   }
+  /**
+   * Marks the end of the current frame for the currently active view.
+   * Replaces `frameLogs[viewIndex]` each time.
+   */
   frameEnded() {
-    if (!this.enabled || !this._currentFrame)
+    const viewIndex = this._activeViewIndex;
+    if (!this.enabled || viewIndex == null)
       return;
-    this.endPass();
+    const s = this.ensureState(viewIndex);
+    if (!s.currentFrame)
+      return;
+    this.endPassFor(s);
     const t = nowMs();
-    this._currentFrame.endTimeMs = t;
-    this._currentFrame.durationMs = t - this._currentFrame.startTimeMs;
-    const finished = this._currentFrame;
-    this._onFrameLogged?.(finished);
-    this._currentFrame = null;
-    this._currentPass = null;
-    this._currentDraw = null;
+    s.currentFrame.timeMs.end = t;
+    s.currentFrame.timeMs.duration = t - s.currentFrame.timeMs.start;
+    this.frameLogs[viewIndex] = s.currentFrame;
+    if (s.lastFrameEndMs != null) {
+      const dt = t - s.lastFrameEndMs;
+      this.frameRates[viewIndex] = dt > 0 ? 1e3 / dt : null;
+    } else {
+      this.frameRates[viewIndex] = null;
+    }
+    s.lastFrameEndMs = t;
+    s.currentFrame = null;
+    s.currentPass = null;
+    s.currentDraw = null;
+  }
+  // ----------------- internals -----------------
+  getActiveState() {
+    if (this._activeViewIndex == null)
+      return null;
+    return this.ensureState(this._activeViewIndex);
+  }
+  ensureState(viewIndex) {
+    while (this._states.length <= viewIndex) {
+      this._states.push({
+        currentFrame: null,
+        currentPass: null,
+        currentDraw: null,
+        lastFrameEndMs: null
+      });
+    }
+    while (this.frameLogs.length <= viewIndex)
+      this.frameLogs.push(null);
+    while (this.frameRates.length <= viewIndex)
+      this.frameRates.push(null);
+    return this._states[viewIndex];
+  }
+  endDrawFor(s) {
+    if (!s.currentDraw)
+      return;
+    const t = nowMs();
+    if (!s.currentDraw.timeMs) {
+      s.currentDraw.timeMs = { start: 0, end: 0, duration: 0 };
+    }
+    s.currentDraw.timeMs.end = t;
+    s.currentDraw.timeMs.duration = t - s.currentDraw.timeMs.start;
+    s.currentDraw = null;
+  }
+  endPassFor(s) {
+    if (!s.currentPass)
+      return;
+    this.endDrawFor(s);
+    const t = nowMs();
+    s.currentPass.timeMs.end = t;
+    s.currentPass.timeMs.duration = t - s.currentPass.timeMs.start;
+    const frame = s.currentFrame;
+    if (frame && s.currentPass.drawCalls.length === 0) {
+      const i = frame.renderBins.lastIndexOf(s.currentPass);
+      if (i !== -1)
+        frame.renderBins.splice(i, 1);
+    }
+    s.currentPass = null;
   }
 };
 
@@ -125506,9 +125740,9 @@ var RenderContext = class {
    */
   debugging;
   /**
-   * The DrawLogger for logging draw calls.
+   * The DrawInspector for logging draw calls.
    */
-  drawLogger;
+  drawInspector;
   /**
    * The WebGL rendering context.
    */
@@ -125612,7 +125846,7 @@ var RenderContext = class {
     const { canvas: webglCanvasElement, gl } = result.value;
     this.gl = gl;
     this.webglCanvasElement = webglCanvasElement;
-    this.drawLogger = null;
+    this.drawInspector = new DrawInspector();
     this.debugging = false;
     this.initialized = true;
     this.reset();
@@ -127298,43 +127532,6 @@ var GPUTileManager = class {
       this._numTiles--;
     }
   }
-};
-
-// ../sdk/src/webglrenderer/internal/RENDER_PASSES.ts
-var RENDER_PASSES = {
-  /**
-   * Skipped - suppress rendering.
-   * Objects with this pass are not rendered.
-   */
-  NOT_RENDERED: 0,
-  /**
-   * Render opaque objects in their normal colors.
-   */
-  OPAQUE: 1,
-  /**
-   * Render transparent objects in their normal colors
-   */
-  TRANSPARENT: 2,
-  /**
-   * Render highlighted silhouettes.
-   * Used to accentuate objects that are highlighted.
-   */
-  HIGHLIGHTED: 3,
-  /**
-   * Render selected silhouettes.
-   * Used to accentuate objects that are selected.
-   */
-  SELECTED: 4,
-  /**
-   * Render x-rayed silhouettes.
-   * Used to render objects with an x-ray effect.
-   */
-  XRAYED: 5,
-  /**
-   * Picking pass.
-   * Used for object picking to determine which object is under the cursor or selected.
-   */
-  PICK: 6
 };
 
 // ../sdk/src/webglrenderer/internal/gpuMemoryManager/GPUMemoryBatch.ts
@@ -129885,7 +130082,7 @@ var DrawTechnique = class {
         // Nothing to draw for this pass
       };
     }
-    const drawLogger = renderContext.drawLogger.enabled ? renderContext.drawLogger : null;
+    const drawInspector = renderContext.drawInspector && renderContext.drawInspector.enabled ? renderContext.drawInspector : null;
     if (!this._bind(renderPass)) {
       return {
         ok: false,
@@ -129937,7 +130134,7 @@ var DrawTechnique = class {
           error: `[DrawTechnique._draw] Unsupported Batch primitive type: ${meshBatch.primitive}`
         };
     }
-    drawLogger?.drawMeshBatch(meshBatch, renderPass, {
+    drawInspector?.drawMeshBatch(meshBatch, renderPass, {
       firstPrim: drawRange.firstPrim,
       numPrims: drawRange.numPrims
     });
@@ -131619,8 +131816,8 @@ var RenderManager = class {
     const xrayMaterial = view.xrayMaterial;
     const meshBatches = this._meshManager.sortedBatches;
     const drawOps = this.drawOps.prims;
-    const drawLogger = renderContext.drawLogger.enabled ? renderContext.drawLogger : null;
-    drawLogger?.frameStarted(view);
+    const drawInspector = renderContext.drawInspector && renderContext.drawInspector.enabled ? renderContext.drawInspector : null;
+    drawInspector?.frameStarted(view);
     const bins = {
       normalDrawSAO: [],
       edgesColorOpaque: [],
@@ -131656,7 +131853,10 @@ var RenderManager = class {
     if (clear !== false) {
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     }
-    drawLogger?.startRenderPass("opaque");
+    const enableOpaqueBin = !drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.OPAQUE);
+    if (enableOpaqueBin) {
+      drawInspector?.renderBinStarted(RENDER_BINS.OPAQUE);
+    }
     for (const meshBatch of meshBatches) {
       const opaque = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.OPAQUE);
       const transparent = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.TRANSPARENT);
@@ -131667,7 +131867,9 @@ var RenderManager = class {
         if (drawWithSAO && meshBatch.saoSupported) {
           bins.normalDrawSAO.push(meshBatch);
         } else {
-          drawOps[meshBatch.primitive]?.opaque?.drawBatch(meshBatch);
+          if (enableOpaqueBin) {
+            drawOps[meshBatch.primitive]?.opaque?.drawBatch(meshBatch);
+          }
         }
       }
       if (transparent) {
@@ -131698,18 +131900,24 @@ var RenderManager = class {
     }
     for (let i = 0; i < bins.normalDrawSAO.length; i++) {
     }
-    drawLogger?.startRenderPass("edgesColorOpaque");
-    bins.edgesColorOpaque.forEach((meshBatch) => {
-      drawOps[meshBatch.primitive].opaqueEdges?.drawBatch(meshBatch);
-    });
-    drawLogger?.startRenderPass("xrayedSilhouetteOpaque");
-    bins.xrayedSilhouetteOpaque.forEach((meshBatch) => {
-      drawOps[meshBatch.primitive].xrayed?.drawBatch(meshBatch);
-    });
-    drawLogger?.startRenderPass("xrayEdgesOpaque");
-    bins.xrayEdgesOpaque.forEach((meshBatch) => {
-      drawOps[meshBatch.primitive].xrayedEdges?.drawBatch(meshBatch);
-    });
+    if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.EDGES_OPAQUE)) {
+      drawInspector?.renderBinStarted(RENDER_BINS.EDGES_OPAQUE);
+      bins.edgesColorOpaque.forEach((meshBatch) => {
+        drawOps[meshBatch.primitive].opaqueEdges?.drawBatch(meshBatch);
+      });
+    }
+    if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.XRAYED_SILHOUETTE_OPAQUE)) {
+      drawInspector?.renderBinStarted(RENDER_BINS.XRAYED_SILHOUETTE_OPAQUE);
+      bins.xrayedSilhouetteOpaque.forEach((meshBatch) => {
+        drawOps[meshBatch.primitive].xrayed?.drawBatch(meshBatch);
+      });
+    }
+    if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.XRAYED_EDGES_OPAQUE)) {
+      drawInspector?.renderBinStarted(RENDER_BINS.XRAYED_EDGES_OPAQUE);
+      bins.xrayEdgesOpaque.forEach((meshBatch) => {
+        drawOps[meshBatch.primitive].xrayedEdges?.drawBatch(meshBatch);
+      });
+    }
     if (bins.normalFillTransparent.length || bins.edgesColorTransparent.length || bins.xrayedSilhouetteTransparent.length || bins.xrayEdgesTransparent.length) {
       gl.enable(gl.CULL_FACE);
       gl.enable(gl.BLEND);
@@ -131723,25 +131931,33 @@ var RenderManager = class {
       if (!this._alphaDepthMask) {
         gl.depthMask(false);
       }
-      drawLogger?.startRenderPass("xrayEdgesTransparent");
-      bins.xrayEdgesTransparent.forEach((meshBatch) => {
-        drawOps[meshBatch.primitive].xrayedEdges?.drawBatch(meshBatch);
-      });
-      drawLogger?.startRenderPass("xrayedSilhouetteTransparent");
-      bins.xrayedSilhouetteTransparent.forEach((meshBatch) => {
-        drawOps[meshBatch.primitive].xrayed?.drawBatch(meshBatch);
-      });
+      if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.XRAYED_EDGES_TRANSPARENT)) {
+        drawInspector?.renderBinStarted(RENDER_BINS.XRAYED_EDGES_TRANSPARENT);
+        bins.xrayEdgesTransparent.forEach((meshBatch) => {
+          drawOps[meshBatch.primitive].xrayedEdges?.drawBatch(meshBatch);
+        });
+      }
+      if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.XRAYED_SILHOUETTE_TRANSPARENT)) {
+        drawInspector?.renderBinStarted(RENDER_BINS.XRAYED_SILHOUETTE_TRANSPARENT);
+        bins.xrayedSilhouetteTransparent.forEach((meshBatch) => {
+          drawOps[meshBatch.primitive].xrayed?.drawBatch(meshBatch);
+        });
+      }
       if (bins.edgesColorTransparent.length || bins.normalFillTransparent.length) {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       }
-      drawLogger?.startRenderPass("edgesColorTransparent");
-      bins.edgesColorTransparent.forEach((meshBatch) => {
-        drawOps[meshBatch.primitive].transparentEdges?.drawBatch(meshBatch);
-      });
-      drawLogger?.startRenderPass("normalFillTransparent");
-      bins.normalFillTransparent.forEach((meshBatch) => {
-        drawOps[meshBatch.primitive].transparent?.drawBatch(meshBatch);
-      });
+      if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.EDGES_TRANSPARENT)) {
+        drawInspector?.renderBinStarted(RENDER_BINS.EDGES_TRANSPARENT);
+        bins.edgesColorTransparent.forEach((meshBatch) => {
+          drawOps[meshBatch.primitive].transparentEdges?.drawBatch(meshBatch);
+        });
+      }
+      if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.TRANSPARENT)) {
+        drawInspector?.renderBinStarted(RENDER_BINS.TRANSPARENT);
+        bins.normalFillTransparent.forEach((meshBatch) => {
+          drawOps[meshBatch.primitive].transparent?.drawBatch(meshBatch);
+        });
+      }
       gl.disable(gl.BLEND);
       if (!this._alphaDepthMask) {
         gl.depthMask(true);
@@ -131757,34 +131973,42 @@ var RenderManager = class {
           drawSil(silBin[i]);
       }
     };
-    drawLogger?.startRenderPass("highlightedSilhouetteOpaque");
-    drawSilAndEdges(
-      bins.highlightedSilhouetteOpaque,
-      bins.highlightedEdgesOpaque,
-      (b4) => drawOps[b4.primitive].highlighted?.drawBatch(b4),
-      (b4) => drawOps[b4.primitive].highlightedEdges?.drawBatch(b4)
-    );
-    drawLogger?.startRenderPass("selectedSilhouetteOpaque");
-    drawSilAndEdges(
-      bins.selectedSilhouetteOpaque,
-      bins.selectedEdgesOpaque,
-      (b4) => drawOps[b4.primitive].selected?.drawBatch(b4),
-      (b4) => drawOps[b4.primitive].selectedEdges?.drawBatch(b4)
-    );
-    drawLogger?.startRenderPass("highlightedSilhouetteTransparent");
-    drawSilAndEdges(
-      bins.highlightedSilhouetteTransparent,
-      bins.highlightedEdgesTransparent,
-      (b4) => drawOps[b4.primitive].highlighted?.drawBatch(b4),
-      (b4) => drawOps[b4.primitive].highlightedEdges?.drawBatch(b4)
-    );
-    drawLogger?.startRenderPass("selectedSilhouetteTransparent");
-    drawSilAndEdges(
-      bins.selectedSilhouetteTransparent,
-      bins.selectedEdgesTransparent,
-      (b4) => drawOps[b4.primitive].selected?.drawBatch(b4),
-      (b4) => drawOps[b4.primitive].selectedEdges?.drawBatch(b4)
-    );
+    if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.HIGHLIGHTED_SILHOUETTE_OPAQUE)) {
+      drawInspector?.renderBinStarted(RENDER_BINS.HIGHLIGHTED_SILHOUETTE_OPAQUE);
+      drawSilAndEdges(
+        bins.highlightedSilhouetteOpaque,
+        bins.highlightedEdgesOpaque,
+        (b4) => drawOps[b4.primitive].highlighted?.drawBatch(b4),
+        (b4) => drawOps[b4.primitive].highlightedEdges?.drawBatch(b4)
+      );
+    }
+    if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.SELECTED_SILHOUETTE_OPAQUE)) {
+      drawInspector?.renderBinStarted(RENDER_BINS.SELECTED_SILHOUETTE_OPAQUE);
+      drawSilAndEdges(
+        bins.selectedSilhouetteOpaque,
+        bins.selectedEdgesOpaque,
+        (b4) => drawOps[b4.primitive].selected?.drawBatch(b4),
+        (b4) => drawOps[b4.primitive].selectedEdges?.drawBatch(b4)
+      );
+    }
+    if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.HIGHLIGHTED_SILHOUETTE_TRANSPARENT)) {
+      drawInspector?.renderBinStarted(RENDER_BINS.HIGHLIGHTED_SILHOUETTE_TRANSPARENT);
+      drawSilAndEdges(
+        bins.highlightedSilhouetteTransparent,
+        bins.highlightedEdgesTransparent,
+        (b4) => drawOps[b4.primitive].highlighted?.drawBatch(b4),
+        (b4) => drawOps[b4.primitive].highlightedEdges?.drawBatch(b4)
+      );
+    }
+    if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.SELECTED_SILHOUETTE_TRANSPARENT)) {
+      drawInspector?.renderBinStarted(RENDER_BINS.SELECTED_SILHOUETTE_TRANSPARENT);
+      drawSilAndEdges(
+        bins.selectedSilhouetteTransparent,
+        bins.selectedEdgesTransparent,
+        (b4) => drawOps[b4.primitive].selected?.drawBatch(b4),
+        (b4) => drawOps[b4.primitive].selectedEdges?.drawBatch(b4)
+      );
+    }
     for (let i = 0, texUnits = WEBGL_INFO.MAX_TEXTURE_UNITS; i < texUnits; i++) {
       gl.activeTexture(gl.TEXTURE0 + i);
     }
@@ -131793,7 +132017,7 @@ var RenderManager = class {
     for (let i = 0, attribs = WEBGL_INFO.MAX_VERTEX_ATTRIBS; i < attribs; i++) {
       gl.disableVertexAttribArray(i);
     }
-    drawLogger?.frameEnded();
+    drawInspector?.frameEnded();
     return {
       ok: true,
       value: void 0
@@ -131956,242 +132180,15 @@ var RendererTextureSet = class {
   }
 };
 
-// ../sdk/src/webglrenderer/internal/index.ts
-var internal_exports = {};
-__export(internal_exports, {
+// ../sdk/src/webglrenderer/internal/inspectors/index.ts
+var inspectors_exports = {};
+__export(inspectors_exports, {
+  DrawInspector: () => DrawInspector,
   MemoryDebugger: () => MemoryDebugger,
-  RENDER_PASSES: () => RENDER_PASSES,
-  RenderBuffers: () => RenderBuffers,
-  RenderContext: () => RenderContext,
-  ShaderDebugger: () => ShaderDebugger,
-  ShaderView: () => ShaderView,
-  ViewManager: () => ViewManager2,
-  ViewRenderState: () => ViewRenderState2,
-  drawOps: () => drawOps_exports,
-  gpuMemoryManager: () => gpuMemoryManager_exports,
-  meshManager: () => meshManager_exports,
-  pickManager: () => pickManager_exports,
-  renderManager: () => renderManager_exports
+  ShaderInspector: () => ShaderInspector
 });
 
-// ../sdk/src/webglrenderer/internal/drawOps/index.ts
-var drawOps_exports = {};
-__export(drawOps_exports, {
-  DrawLogger: () => DrawLogger,
-  DrawOp: () => DrawOp,
-  DrawOps: () => DrawOps,
-  DrawTechnique: () => DrawTechnique,
-  getDrawOps: () => getDrawOps,
-  putDrawOps: () => putDrawOps,
-  techniques: () => techniques_exports
-});
-
-// ../sdk/src/webglrenderer/internal/drawOps/techniques/index.ts
-var techniques_exports = {};
-__export(techniques_exports, {
-  generic: () => generic_exports,
-  lines: () => lines_exports,
-  points: () => points_exports,
-  triangles: () => triangles_exports
-});
-
-// ../sdk/src/webglrenderer/internal/drawOps/techniques/generic/index.ts
-var generic_exports = {};
-__export(generic_exports, {
-  GenericDrawSilhouetteTechnique: () => GenericDrawSilhouetteTechnique,
-  GenericPickDepthTechnique: () => GenericPickDepthTechnique,
-  GenericPickMeshTechnique: () => GenericPickMeshTechnique
-});
-
-// ../sdk/src/webglrenderer/internal/drawOps/techniques/lines/index.ts
-var lines_exports = {};
-__export(lines_exports, {
-  LinesDrawColorTechnique: () => LinesDrawColorTechnique
-});
-
-// ../sdk/src/webglrenderer/internal/drawOps/techniques/points/index.ts
-var points_exports = {};
-__export(points_exports, {
-  PointsDrawColorTechnique: () => PointsDrawColorTechnique,
-  PointsDrawSilhouetteTechnique: () => PointsDrawSilhouetteTechnique,
-  PointsPickDepth: () => PointsPickDepth,
-  TrianglesPickMeshDrawTechnique: () => TrianglesPickMeshDrawTechnique
-});
-
-// ../sdk/src/webglrenderer/internal/drawOps/techniques/points/PointsDrawSilhouetteTechnique.ts
-var PointsDrawSilhouetteTechnique = class extends DrawTechnique {
-  buildVertexShader() {
-    this.vsHeader();
-    this.vsCommonDefines();
-    this.vsSlicingDefines();
-    this.vsSilhouetteDefines();
-    this.vsMainOpen();
-    this.vsSilhouetteLogic();
-    this.vsSlicingLogic();
-    this.vsMainClose();
-  }
-  buildFragmentShader() {
-    this.fsHeader();
-    this.fsPrecisionDefines();
-    this.fsCommonDefines();
-    this.fsSlicingDefines();
-    this.fsSilhouetteDefines();
-    this.fsMainOpen();
-    this.fsSlicingLogic();
-    this.fsSilhouetteLogic();
-    this.fsCommonOutput();
-    this.fsMainClose();
-  }
-};
-
-// ../sdk/src/webglrenderer/internal/drawOps/techniques/points/PointsPickDepthTechnique.ts
-var PointsPickDepth = class extends DrawTechnique {
-  buildVertexShader() {
-    this.vsHeader();
-    this.vsCommonDefines();
-    this.vsSlicingDefines();
-    this.vsDrawDepthDefines();
-    this.vsPickMainOpen();
-    this.vsDrawDepthLogic();
-    this.vsSlicingLogic();
-    this.vsMainClose();
-  }
-  buildFragmentShader() {
-    this.fsHeader();
-    this.fsPrecisionDefines();
-    this.fsCommonDefines();
-    this.fsSlicingDefines();
-    this.fsDrawDepthDefines();
-    this.fsMainOpen();
-    this.fsSlicingLogic();
-    this.fsDrawDepthLogic();
-    this.fsCommonOutput();
-    this.fsMainClose();
-  }
-};
-
-// ../sdk/src/webglrenderer/internal/drawOps/techniques/points/PointsPickMeshDrawTechnique.ts
-var TrianglesPickMeshDrawTechnique = class extends DrawTechnique {
-  buildVertexShader() {
-    this.vsHeader();
-    this.vsCommonDefines();
-    this.vsSlicingDefines();
-    this.vsPickMeshDefines();
-    this.vsPickMainOpen();
-    this.vsPickMeshLogic();
-    this.vsSlicingLogic();
-    this.vsMainClose();
-  }
-  buildFragmentShader() {
-    this.fsHeader();
-    this.fsPrecisionDefines();
-    this.fsCommonDefines();
-    this.fsSlicingDefines();
-    this.fsPickMeshDefines();
-    this.fsMainOpen();
-    this.fsSlicingLogic();
-    this.fsPickMeshLogic();
-    this.fsCommonOutput();
-    this.fsMainClose();
-  }
-};
-
-// ../sdk/src/webglrenderer/internal/drawOps/techniques/triangles/index.ts
-var triangles_exports = {};
-__export(triangles_exports, {
-  TrianglesDrawColorTechnique: () => TrianglesDrawColorTechnique,
-  TrianglesDrawEdgeColorTechnique: () => TrianglesDrawEdgeColorTechnique,
-  TrianglesDrawEdgeSilhouetteTechnique: () => TrianglesDrawEdgeSilhouetteTechnique
-});
-
-// ../sdk/src/webglrenderer/internal/ShaderView.ts
-var ShaderView = class {
-  techniques;
-  constructor(drawOps) {
-    this.techniques = {
-      triangles: {
-        opaque: {
-          vertexSrc: drawOps.prims[TrianglesPrimitive].opaque.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[TrianglesPrimitive].opaque.technique.fragmentShaderSrc
-        },
-        transparent: {
-          vertexSrc: drawOps.prims[TrianglesPrimitive].transparent.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[TrianglesPrimitive].transparent.technique.fragmentShaderSrc
-        },
-        highlighted: {
-          vertexSrc: drawOps.prims[TrianglesPrimitive].highlighted.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[TrianglesPrimitive].highlighted.technique.fragmentShaderSrc
-        },
-        selected: {
-          vertexSrc: drawOps.prims[TrianglesPrimitive].selected.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[TrianglesPrimitive].selected.technique.fragmentShaderSrc
-        },
-        xrayed: {
-          vertexSrc: drawOps.prims[TrianglesPrimitive].xrayed.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[TrianglesPrimitive].xrayed.technique.fragmentShaderSrc
-        },
-        pick: {
-          vertexSrc: drawOps.prims[TrianglesPrimitive].pick.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[TrianglesPrimitive].pick.technique.fragmentShaderSrc
-        }
-      },
-      lines: {
-        opaque: {
-          vertexSrc: drawOps.prims[LinesPrimitive].opaque.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[LinesPrimitive].opaque.technique.fragmentShaderSrc
-        },
-        transparent: {
-          vertexSrc: drawOps.prims[LinesPrimitive].transparent.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[LinesPrimitive].transparent.technique.fragmentShaderSrc
-        },
-        highlighted: {
-          vertexSrc: drawOps.prims[LinesPrimitive].highlighted.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[LinesPrimitive].highlighted.technique.fragmentShaderSrc
-        },
-        selected: {
-          vertexSrc: drawOps.prims[LinesPrimitive].selected.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[LinesPrimitive].selected.technique.fragmentShaderSrc
-        },
-        xrayed: {
-          vertexSrc: drawOps.prims[LinesPrimitive].xrayed.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[LinesPrimitive].xrayed.technique.fragmentShaderSrc
-        },
-        pick: {
-          vertexSrc: drawOps.prims[LinesPrimitive].pick.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[LinesPrimitive].pick.technique.fragmentShaderSrc
-        }
-      },
-      points: {
-        opaque: {
-          vertexSrc: drawOps.prims[PointsPrimitive].opaque.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[PointsPrimitive].opaque.technique.fragmentShaderSrc
-        },
-        transparent: {
-          vertexSrc: drawOps.prims[PointsPrimitive].transparent.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[PointsPrimitive].transparent.technique.fragmentShaderSrc
-        }
-        // highlighted: {
-        //   vertexSrc: drawOps.prims[PointsPrimitive].highlighted.technique.vertexShaderSrc,
-        //   fragmentSrc: drawOps.prims[PointsPrimitive].highlighted.technique.fragmentShaderSrc
-        // },
-        //  selected: {
-        //   vertexSrc: drawOps.prims[PointsPrimitive].selected.technique.vertexShaderSrc,
-        //   fragmentSrc: drawOps.prims[PointsPrimitive].selected.technique.fragmentShaderSrc
-        // },
-        // xrayed: {
-        //   vertexSrc: drawOps.prims[PointsPrimitive].xrayed.technique.vertexShaderSrc,
-        //   fragmentSrc: drawOps.prims[PointsPrimitive].xrayed.technique.fragmentShaderSrc
-        // },
-        // pick: {
-        //   vertexSrc: drawOps.prims[PointsPrimitive].pick.technique.vertexShaderSrc,
-        //   fragmentSrc: drawOps.prims[PointsPrimitive].pick.technique.fragmentShaderSrc
-        // }
-      }
-    };
-  }
-};
-
-// ../sdk/src/webglrenderer/internal/MemoryDebugger.ts
+// ../sdk/src/webglrenderer/internal/inspectors/MemoryDebugger.ts
 var DEBUG_VIEW_ITEMS = 128;
 var MemoryDebugger = class {
   constructor(renderer, host) {
@@ -132416,11 +132413,11 @@ var MemoryDebugger = class {
         return;
       out.push({ tex, path });
     };
-    const memoryViewRes = this.renderer.getMemoryView();
-    if (memoryViewRes.ok === false) {
-      throw new Error(`MemoryDebugger: renderer.getMemoryView() error: ${memoryViewRes.error}`);
+    const memoryInspectorRes = this.renderer.getMemoryInspector();
+    if (memoryInspectorRes.ok === false) {
+      throw new Error(`MemoryDebugger: renderer.getMemoryInspector() error: ${memoryInspectorRes.error}`);
     }
-    const dataTextures = memoryViewRes.value.dataTextures;
+    const dataTextures = memoryInspectorRes.value.dataTextures;
     if (!dataTextures)
       throw new Error("MemoryDebugger: renderer is rendering and should have dataTextures");
     dataTextures.viewTileCameraMatrixTexture?.forEach((t, i) => push(t, `viewTileCameraMatrixTexture[${i}]`));
@@ -132549,10 +132546,10 @@ var MemoryDebugger = class {
       });
       this.unsubs.push(unsub);
     }
-    const memoryViewRes = this.renderer.getMemoryView();
-    if (memoryViewRes.ok === false)
+    const memoryInspectorRes = this.renderer.getMemoryInspector();
+    if (memoryInspectorRes.ok === false)
       return;
-    const dataTextures = memoryViewRes.value.dataTextures;
+    const dataTextures = memoryInspectorRes.value.dataTextures;
     if (!dataTextures)
       return;
     dataTextures.batches?.forEach((batch, bi) => {
@@ -132822,479 +132819,90 @@ var MemoryDebugger = class {
   }
 };
 
-// ../sdk/src/webglrenderer/internal/ShaderDebugger.ts
-var ShaderDebugger = class {
-  shaderView;
-  container;
-  rootEl;
-  primTabsEl;
-  passTabsEl;
-  contentEl;
-  activePrim = null;
-  activePass = null;
-  styleEl;
-  constructor(shaderView, container) {
-    this.shaderView = shaderView;
-    this.container = container;
-    this.styleEl = document.createElement("style");
-    this.styleEl.textContent = this.getCss();
-    this.container.appendChild(this.styleEl);
-    this.buildUI();
-  }
-  /** Remove UI + styles from container. */
-  destroy() {
-    this.rootEl?.remove();
-    this.styleEl?.remove();
-    this.activePrim = null;
-    this.activePass = null;
-  }
-  /** Re-render from current ShaderView data (if shader sources changed). */
-  refresh() {
-    if (!this.rootEl)
-      return;
-    const prim = this.activePrim ?? Object.keys(this.shaderView.techniques)[0];
-    const pass = this.activePass ?? this.getPassKeys(prim)[0] ?? null;
-    this.render(prim, pass);
-  }
-  // ---------------------------
-  // UI building
-  // ---------------------------
-  buildUI() {
-    this.rootEl = document.createElement("div");
-    this.rootEl.className = "sd-root";
-    const header = document.createElement("div");
-    header.className = "sd-header";
-    const title = document.createElement("div");
-    title.className = "sd-title";
-    title.textContent = "Shader Debugger";
-    const actions = document.createElement("div");
-    actions.className = "sd-actions";
-    const refreshBtn = this.makeButton("Refresh", () => this.refresh());
-    actions.appendChild(refreshBtn);
-    header.appendChild(title);
-    header.appendChild(actions);
-    this.primTabsEl = document.createElement("div");
-    this.primTabsEl.className = "sd-tabs sd-tabs--primary";
-    this.passTabsEl = document.createElement("div");
-    this.passTabsEl.className = "sd-tabs sd-tabs--secondary";
-    this.contentEl = document.createElement("div");
-    this.contentEl.className = "sd-content";
-    this.rootEl.appendChild(header);
-    this.rootEl.appendChild(this.primTabsEl);
-    this.rootEl.appendChild(this.passTabsEl);
-    this.rootEl.appendChild(this.contentEl);
-    this.container.appendChild(this.rootEl);
-    const defaultPrim = Object.keys(this.shaderView.techniques)[0] ?? "triangles";
-    const defaultPass = this.getPassKeys(defaultPrim)[0] ?? null;
-    this.render(defaultPrim, defaultPass);
-  }
-  render(prim, pass) {
-    this.activePrim = prim;
-    this.primTabsEl.innerHTML = "";
-    const primKeys = Object.keys(this.shaderView.techniques);
-    for (const k of primKeys) {
-      const btn = this.makeTabButton(k, k === prim, () => {
-        const firstPass = this.getPassKeys(k)[0] ?? null;
-        this.render(k, firstPass);
-      });
-      this.primTabsEl.appendChild(btn);
-    }
-    this.passTabsEl.innerHTML = "";
-    const passKeys = this.getPassKeys(prim);
-    const safePass = pass && passKeys.includes(pass) ? pass : passKeys[0] ?? null;
-    this.activePass = safePass;
-    for (const p of passKeys) {
-      const btn = this.makeTabButton(p, p === safePass, () => this.render(prim, p));
-      this.passTabsEl.appendChild(btn);
-    }
-    this.contentEl.innerHTML = "";
-    if (!safePass) {
-      const empty = document.createElement("div");
-      empty.className = "sd-empty";
-      empty.textContent = `No render passes found for "${prim}".`;
-      this.contentEl.appendChild(empty);
-      return;
-    }
-    const passMap = this.getPassMap(prim);
-    const shader = passMap[safePass];
-    if (!shader) {
-      const empty = document.createElement("div");
-      empty.className = "sd-empty";
-      empty.textContent = `No shader sources found for "${prim} / ${safePass}".`;
-      this.contentEl.appendChild(empty);
-      return;
-    }
-    const subtitle = document.createElement("div");
-    subtitle.className = "sd-subtitle";
-    subtitle.textContent = `${prim} / ${safePass}`;
-    this.contentEl.appendChild(subtitle);
-    const grid = document.createElement("div");
-    grid.className = "sd-grid";
-    grid.appendChild(this.makeCodePanel("Vertex Shader", shader.vertexSrc, "glsl"));
-    grid.appendChild(this.makeCodePanel("Fragment Shader", shader.fragmentSrc, "glsl"));
-    this.contentEl.appendChild(grid);
-  }
-  // ---------------------------
-  // Helpers
-  // ---------------------------
-  getPassMap(prim) {
-    return this.shaderView.techniques[prim];
-  }
-  getPassKeys(prim) {
-    const map = this.getPassMap(prim);
-    return Object.keys(map).sort((a2, b4) => a2.localeCompare(b4));
-  }
-  makeButton(label, onClick) {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "sd-btn";
-    btn.textContent = label;
-    btn.addEventListener("click", onClick);
-    return btn;
-  }
-  makeTabButton(label, active, onClick) {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = `sd-tab ${active ? "is-active" : ""}`.trim();
-    btn.textContent = label;
-    btn.addEventListener("click", onClick);
-    return btn;
-  }
-  makeCodePanel(title, code, lang) {
-    const panel = document.createElement("div");
-    panel.className = "sd-panel";
-    const header = document.createElement("div");
-    header.className = "sd-panel-header";
-    const h = document.createElement("div");
-    h.className = "sd-panel-title";
-    h.textContent = title;
-    const actions = document.createElement("div");
-    actions.className = "sd-panel-actions";
-    const copyBtn = this.makeButton("Copy", async () => {
-      try {
-        await navigator.clipboard.writeText(code);
-        copyBtn.textContent = "Copied";
-        window.setTimeout(() => copyBtn.textContent = "Copy", 900);
-      } catch {
-        textarea.value = code;
-        textarea.focus();
-        textarea.select();
-        document.execCommand?.("copy");
+// ../sdk/src/webglrenderer/internal/inspectors/ShaderInspector.ts
+var ShaderInspector = class {
+  techniques;
+  constructor(drawOps) {
+    this.techniques = {
+      triangles: {
+        opaque: {
+          vertexSrc: drawOps.prims[TrianglesPrimitive].opaque.technique.vertexShaderSrc,
+          fragmentSrc: drawOps.prims[TrianglesPrimitive].opaque.technique.fragmentShaderSrc
+        },
+        transparent: {
+          vertexSrc: drawOps.prims[TrianglesPrimitive].transparent.technique.vertexShaderSrc,
+          fragmentSrc: drawOps.prims[TrianglesPrimitive].transparent.technique.fragmentShaderSrc
+        },
+        highlighted: {
+          vertexSrc: drawOps.prims[TrianglesPrimitive].highlighted.technique.vertexShaderSrc,
+          fragmentSrc: drawOps.prims[TrianglesPrimitive].highlighted.technique.fragmentShaderSrc
+        },
+        selected: {
+          vertexSrc: drawOps.prims[TrianglesPrimitive].selected.technique.vertexShaderSrc,
+          fragmentSrc: drawOps.prims[TrianglesPrimitive].selected.technique.fragmentShaderSrc
+        },
+        xrayed: {
+          vertexSrc: drawOps.prims[TrianglesPrimitive].xrayed.technique.vertexShaderSrc,
+          fragmentSrc: drawOps.prims[TrianglesPrimitive].xrayed.technique.fragmentShaderSrc
+        },
+        pick: {
+          vertexSrc: drawOps.prims[TrianglesPrimitive].pick.technique.vertexShaderSrc,
+          fragmentSrc: drawOps.prims[TrianglesPrimitive].pick.technique.fragmentShaderSrc
+        }
+      },
+      lines: {
+        opaque: {
+          vertexSrc: drawOps.prims[LinesPrimitive].opaque.technique.vertexShaderSrc,
+          fragmentSrc: drawOps.prims[LinesPrimitive].opaque.technique.fragmentShaderSrc
+        },
+        transparent: {
+          vertexSrc: drawOps.prims[LinesPrimitive].transparent.technique.vertexShaderSrc,
+          fragmentSrc: drawOps.prims[LinesPrimitive].transparent.technique.fragmentShaderSrc
+        },
+        highlighted: {
+          vertexSrc: drawOps.prims[LinesPrimitive].highlighted.technique.vertexShaderSrc,
+          fragmentSrc: drawOps.prims[LinesPrimitive].highlighted.technique.fragmentShaderSrc
+        },
+        selected: {
+          vertexSrc: drawOps.prims[LinesPrimitive].selected.technique.vertexShaderSrc,
+          fragmentSrc: drawOps.prims[LinesPrimitive].selected.technique.fragmentShaderSrc
+        },
+        xrayed: {
+          vertexSrc: drawOps.prims[LinesPrimitive].xrayed.technique.vertexShaderSrc,
+          fragmentSrc: drawOps.prims[LinesPrimitive].xrayed.technique.fragmentShaderSrc
+        },
+        pick: {
+          vertexSrc: drawOps.prims[LinesPrimitive].pick.technique.vertexShaderSrc,
+          fragmentSrc: drawOps.prims[LinesPrimitive].pick.technique.fragmentShaderSrc
+        }
+      },
+      points: {
+        opaque: {
+          vertexSrc: drawOps.prims[PointsPrimitive].opaque.technique.vertexShaderSrc,
+          fragmentSrc: drawOps.prims[PointsPrimitive].opaque.technique.fragmentShaderSrc
+        },
+        transparent: {
+          vertexSrc: drawOps.prims[PointsPrimitive].transparent.technique.vertexShaderSrc,
+          fragmentSrc: drawOps.prims[PointsPrimitive].transparent.technique.fragmentShaderSrc
+        }
+        // highlighted: {
+        //   vertexSrc: drawOps.prims[PointsPrimitive].highlighted.technique.vertexShaderSrc,
+        //   fragmentSrc: drawOps.prims[PointsPrimitive].highlighted.technique.fragmentShaderSrc
+        // },
+        //  selected: {
+        //   vertexSrc: drawOps.prims[PointsPrimitive].selected.technique.vertexShaderSrc,
+        //   fragmentSrc: drawOps.prims[PointsPrimitive].selected.technique.fragmentShaderSrc
+        // },
+        // xrayed: {
+        //   vertexSrc: drawOps.prims[PointsPrimitive].xrayed.technique.vertexShaderSrc,
+        //   fragmentSrc: drawOps.prims[PointsPrimitive].xrayed.technique.fragmentShaderSrc
+        // },
+        // pick: {
+        //   vertexSrc: drawOps.prims[PointsPrimitive].pick.technique.vertexShaderSrc,
+        //   fragmentSrc: drawOps.prims[PointsPrimitive].pick.technique.fragmentShaderSrc
+        // }
       }
-    });
-    actions.appendChild(copyBtn);
-    header.appendChild(h);
-    header.appendChild(actions);
-    const pre = document.createElement("pre");
-    pre.className = "sd-pre";
-    const codeEl = document.createElement("code");
-    codeEl.className = `sd-code lang-${lang}`;
-    codeEl.innerHTML = this.highlight(code, lang);
-    pre.appendChild(codeEl);
-    const textarea = document.createElement("textarea");
-    textarea.className = "sd-hidden-ta";
-    textarea.setAttribute("aria-hidden", "true");
-    textarea.tabIndex = -1;
-    panel.appendChild(header);
-    panel.appendChild(pre);
-    panel.appendChild(textarea);
-    return panel;
-  }
-  // ---------------------------
-  // Syntax highlighting (simple GLSL lexer)
-  // ---------------------------
-  highlight(src, lang) {
-    const escaped = this.escapeHtml(src);
-    if (lang !== "glsl") {
-      return escaped;
-    }
-    const holds = [];
-    let s = escaped;
-    const hold = (html) => {
-      const key = `@@HL${holds.length}@@`;
-      holds.push({ key, html });
-      return key;
     };
-    s = s.replace(/\/\*[\s\S]*?\*\//g, (m) => hold(`<span class="tok tok-comment">${m}</span>`));
-    s = s.replace(/\/\/[^\n]*/g, (m) => hold(`<span class="tok tok-comment">${m}</span>`));
-    s = s.replace(/"(?:\\.|[^"\\])*"/g, (m) => hold(`<span class="tok tok-string">${m}</span>`));
-    s = s.replace(/'(?:\\.|[^'\\])*'/g, (m) => hold(`<span class="tok tok-string">${m}</span>`));
-    s = s.replace(/^[ \t]*#[^\n]*/gm, (m) => hold(`<span class="tok tok-preproc">${m}</span>`));
-    s = s.replace(
-      /\b(?:0x[0-9a-fA-F]+|\d+\.\d*|\.\d+|\d+)(?:[eE][+-]?\d+)?\b/g,
-      (m) => `<span class="tok tok-number">${m}</span>`
-    );
-    const keywords = [
-      "if",
-      "else",
-      "for",
-      "while",
-      "do",
-      "break",
-      "continue",
-      "return",
-      "discard",
-      "struct",
-      "in",
-      "out",
-      "inout",
-      "uniform",
-      "const",
-      "attribute",
-      "varying",
-      "layout",
-      "precision",
-      "highp",
-      "mediump",
-      "lowp",
-      "invariant",
-      "flat",
-      "smooth",
-      "noperspective",
-      "centroid",
-      "sampler",
-      "sampler2D",
-      "samplerCube",
-      "sampler3D",
-      "sampler2DShadow",
-      "samplerCubeShadow",
-      "sampler2DArray",
-      "sampler2DArrayShadow",
-      "isampler2D",
-      "usampler2D",
-      "isamplerCube",
-      "usamplerCube",
-      "void"
-    ];
-    const types = [
-      "bool",
-      "int",
-      "uint",
-      "float",
-      "double",
-      "vec2",
-      "vec3",
-      "vec4",
-      "bvec2",
-      "bvec3",
-      "bvec4",
-      "ivec2",
-      "ivec3",
-      "ivec4",
-      "uvec2",
-      "uvec3",
-      "uvec4",
-      "mat2",
-      "mat3",
-      "mat4",
-      "mat2x2",
-      "mat2x3",
-      "mat2x4",
-      "mat3x2",
-      "mat3x3",
-      "mat3x4",
-      "mat4x2",
-      "mat4x3",
-      "mat4x4"
-    ];
-    const builtins = [
-      "radians",
-      "degrees",
-      "sin",
-      "cos",
-      "tan",
-      "asin",
-      "acos",
-      "atan",
-      "pow",
-      "exp",
-      "log",
-      "exp2",
-      "log2",
-      "sqrt",
-      "inversesqrt",
-      "abs",
-      "sign",
-      "floor",
-      "ceil",
-      "fract",
-      "mod",
-      "min",
-      "max",
-      "clamp",
-      "mix",
-      "step",
-      "smoothstep",
-      "length",
-      "distance",
-      "dot",
-      "cross",
-      "normalize",
-      "faceforward",
-      "reflect",
-      "refract",
-      "matrixCompMult",
-      "lessThan",
-      "lessThanEqual",
-      "greaterThan",
-      "greaterThanEqual",
-      "equal",
-      "notEqual",
-      "any",
-      "all",
-      "not",
-      "texture",
-      "texture2D",
-      "textureCube"
-    ];
-    s = s.replace(/\bgl_[A-Za-z_0-9]+\b/g, (m) => `<span class="tok tok-gl">${m}</span>`);
-    const wordRE = (words) => new RegExp(`\\b(?:${words.map((w) => this.escapeRegExp(w)).join("|")})\\b`, "g");
-    s = s.replace(wordRE(types), (m) => `<span class="tok tok-type">${m}</span>`);
-    s = s.replace(wordRE(keywords), (m) => `<span class="tok tok-kw">${m}</span>`);
-    s = s.replace(wordRE(builtins), (m) => `<span class="tok tok-fn">${m}</span>`);
-    for (const h of holds) {
-      s = s.replaceAll(h.key, h.html);
-    }
-    return s;
-  }
-  escapeHtml(s) {
-    return s.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
-  }
-  escapeRegExp(s) {
-    return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  }
-  getCss() {
-    return `
-.sd-root{
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
-  border: 1px solid rgba(0,0,0,.12);
-  border-radius: 10px;
-  overflow: hidden;
-  background: #fff;
-}
-.sd-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding: 10px 12px;
-  border-bottom: 1px solid rgba(0,0,0,.08);
-  background: rgba(0,0,0,.02);
-}
-.sd-title{ font-weight: 700; }
-.sd-actions{ display:flex; gap:8px; }
-
-.sd-tabs{
-  display:flex;
-  gap:6px;
-  padding: 10px 12px;
-  overflow:auto;
-  border-bottom: 1px solid rgba(0,0,0,.08);
-}
-.sd-tabs--secondary{
-  background: rgba(0,0,0,.01);
-}
-
-.sd-tab{
-  appearance:none;
-  border: 1px solid rgba(0,0,0,.14);
-  background:#fff;
-  border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 12px;
-  cursor:pointer;
-  user-select:none;
-  white-space: nowrap;
-}
-.sd-tab.is-active{
-  border-color: rgba(0,0,0,.35);
-  background: rgba(0,0,0,.06);
-  font-weight: 600;
-}
-
-.sd-btn{
-  appearance:none;
-  border: 1px solid rgba(0,0,0,.14);
-  background:#fff;
-  border-radius: 8px;
-  padding: 6px 10px;
-  font-size: 12px;
-  cursor:pointer;
-}
-.sd-btn:hover{ background: rgba(0,0,0,.04); }
-
-.sd-content{
-  padding: 12px;
-}
-.sd-subtitle{
-  font-size: 12px;
-  opacity: .7;
-  margin-bottom: 10px;
-}
-.sd-grid{
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-@media (max-width: 900px){
-  .sd-grid{ grid-template-columns: 1fr; }
-}
-.sd-panel{
-  border: 1px solid rgba(0,0,0,.12);
-  border-radius: 10px;
-  overflow: hidden;
-  background: #fff;
-  min-width: 0;
-}
-.sd-panel-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding: 10px 10px;
-  border-bottom: 1px solid rgba(0,0,0,.08);
-  background: rgba(0,0,0,.02);
-}
-.sd-panel-title{ font-weight: 700; font-size: 12px; }
-.sd-panel-actions{ display:flex; gap:8px; }
-
-.sd-pre{
-  margin:0;
-  padding: 10px;
-  overflow:auto;
-  max-height: 80vh;
-  background: #0b0f19;
-  color: #e6edf3;
-  font-size: 12px;
-  line-height: 1.45;
-}
-.sd-code{
-  white-space: pre;
-  tab-size: 2;
-}
-
-/* --- Syntax highlighting tokens --- */
-.sd-code .tok{ }
-.sd-code .tok-comment{ color: rgba(230,237,243,.55); font-style: italic; }
-.sd-code .tok-string{ color: #a5d6ff; }
-.sd-code .tok-number{ color: #ffd29d; }
-.sd-code .tok-preproc{ color: #c3b1ff; }
-.sd-code .tok-kw{ color: #ff7fd0; font-weight: 600; }
-.sd-code .tok-type{ color: #7ee787; font-weight: 600; }
-.sd-code .tok-fn{ color: #79c0ff; }
-.sd-code .tok-gl{ color: #f0883e; font-weight: 600; }
-
-.sd-empty{
-  padding: 16px;
-  opacity: .7;
-}
-.sd-hidden-ta{
-  position:absolute;
-  left:-9999px;
-  top:-9999px;
-  width:1px;
-  height:1px;
-  opacity:0;
-}
-`;
   }
 };
 
@@ -133311,7 +132919,7 @@ var ViewManager2 = class {
    * Exposed for diagnostics.
    * Available after {@link init} succeeds; `undefined` after {@link destroy}.
    */
-  shaderView;
+  shaderInspector;
   /** The owning {@link Viewer} instance. Set during {@link init}. */
   _viewer;
   /** Shared WebGL context wrapper and resources. */
@@ -133407,7 +133015,7 @@ var ViewManager2 = class {
     if (resultRender.ok === false) {
       return resultRender;
     }
-    this.shaderView = new ShaderView(this._renderManager.drawOps);
+    this.shaderInspector = new ShaderInspector(this._renderManager.drawOps);
     this._pickManager = new PickManager({
       renderContext: this._renderContext,
       meshManager: this._meshManager,
@@ -133480,18 +133088,13 @@ var ViewManager2 = class {
     return this._gpuMemoryManager.getMemoryUsage();
   }
   /**
-   * Sets the {@link DrawLogger} used to log draw calls.
-   * @param drawLogger
+   * Returns the {@link DrawInspector} used to inspect draw calls.
    */
-  setDrawLogger(drawLogger) {
+  getDrawInspector() {
     if (!this._renderContext) {
-      throw new SDKInternalException("[ViewManager.setDrawLogger] ViewManager is not initialized");
+      throw new SDKInternalException("[ViewManager.getDrawInspector] ViewManager is not initialized");
     }
-    this._renderContext.drawLogger = drawLogger;
-    return {
-      ok: true,
-      value: void 0
-    };
+    return this._renderContext.drawInspector;
   }
   /**
    * Returns the {@link View} at a given index in the internal view list.
@@ -133866,7 +133469,7 @@ var ViewManager2 = class {
     this._renderContext.destroy();
     this._viewer = void 0;
     this.dataTextures = void 0;
-    this.shaderView = void 0;
+    this.shaderInspector = void 0;
   }
 };
 
@@ -134058,8 +133661,9 @@ var WebGLRenderer3 = class {
     )
   };
   _memoryConfigs;
-  _memoryView;
-  _shaderView;
+  _memoryInspector;
+  _shaderInspector;
+  _drawInspector;
   /**
    * Constructs a new {@link WebGLRenderer}.
    *
@@ -134070,7 +133674,7 @@ var WebGLRenderer3 = class {
    * @param params.memoryConfigs Optional overrides for GPU memory budgeting and allocation behavior.
    */
   constructor(params = {}) {
-    this._memoryView = {
+    this._memoryInspector = {
       dataTextures: null,
       // Populated when rendering starts
       getViewAtIndex: (viewIndex) => {
@@ -134083,7 +133687,8 @@ var WebGLRenderer3 = class {
         return this._viewManager ? this._viewManager.getMeshAtIndex(batchIndex, meshIndex) : null;
       }
     };
-    this._shaderView = null;
+    this._shaderInspector = null;
+    this._drawInspector = null;
     if (params.memoryConfigs) {
       this._memoryConfigs = {};
       Object.assign(this._memoryConfigs, params.memoryConfigs);
@@ -134185,21 +133790,21 @@ var WebGLRenderer3 = class {
    * @returns `{ ok: true, value }` when a Viewer with an attached Scene is present;
    * otherwise `{ ok: false }` with {@link SDKErrorType.InvalidOperation}.
    */
-  getMemoryView() {
+  getMemoryInspector() {
     if (!this._viewManager) {
       return this.logError({
         ok: false,
         type: 1 /* InvalidOperation */,
-        error: "[WebGLRenderer.getMemoryView] Failed to get MemoryView - no Viewer with Scene is currently attached."
+        error: "[WebGLRenderer.getMemoryInspector] Failed to get MemoryInspector - no Viewer with Scene is currently attached."
       });
     }
     return {
       ok: true,
-      value: this._memoryView
+      value: this._memoryInspector
     };
   }
   /**
-   * Returns a debug view of program shaders used by the renderer.
+   * Returns a inspectors view of program shaders used by the renderer.
    *
    * This API is intended for diagnostics, debugging tools, and monitoring UIs.
    *
@@ -134207,36 +133812,35 @@ var WebGLRenderer3 = class {
    * @returns `{ ok: true, value }` when a Viewer with an attached Scene is present;
    * otherwise `{ ok: false }` with {@link SDKErrorType.InvalidOperation}.
    */
-  getShaderView() {
+  getShaderInspector() {
     if (!this._viewManager) {
       return this.logError({
         ok: false,
         type: 1 /* InvalidOperation */,
-        error: "[WebGLRenderer.getShaderView] Failed to get ShaderView - no Viewer with Scene is currently attached."
+        error: "[WebGLRenderer.getShaderInspector] Failed to get ShaderInspector - no Viewer with Scene is currently attached."
       });
     }
     return {
       ok: true,
-      value: this._shaderView
+      value: this._shaderInspector
     };
   }
   /**
-   * Sets a {@link DrawLogger} to log draw calls during rendering.
-   * @param drawLogger
+   * Sets a {@link DrawInspector} to inspect draw calls during rendering.
+   * @param drawInspector
    * @internal
    */
-  setDrawLogger(drawLogger) {
+  getDrawInspector() {
     if (!this._viewManager) {
       return this.logError({
         ok: false,
         type: 1 /* InvalidOperation */,
-        error: "[WebGLRenderer.setDrawLogger] Failed to set DrawLogger - no Viewer with Scene is currently attached."
+        error: "[WebGLRenderer.setDrawLogger] Failed to set DrawInspector - no Viewer with Scene is currently attached."
       });
     }
-    this._viewManager.setDrawLogger(drawLogger);
     return {
       ok: true,
-      value: void 0
+      value: this._viewManager.getDrawInspector()
     };
   }
   /**
@@ -134333,7 +133937,7 @@ var WebGLRenderer3 = class {
     if (result.ok === false) {
       this._viewManager.destroy();
       this._viewManager = void 0;
-      this._memoryView.dataTextures = null;
+      this._memoryInspector.dataTextures = null;
       return result;
     }
     const viewManager = this._viewManager;
@@ -134375,8 +133979,8 @@ var WebGLRenderer3 = class {
       // Camera updates
       viewerEvents.onCameraViewMatrixUpdated.subscribe((_, camera) => viewManager.cameraViewMatrixUpdated(camera))
     ];
-    this._memoryView.dataTextures = this._viewManager.dataTextures;
-    this._shaderView = this._viewManager.shaderView;
+    this._memoryInspector.dataTextures = this._viewManager.dataTextures;
+    this._shaderInspector = this._viewManager.shaderInspector;
     this._viewManager.getWebGLCanvasElement().addEventListener("webglcontextlost", (event) => {
       event.preventDefault();
       this.events.webglContextLost.dispatch(this, event);
@@ -134497,6 +134101,152 @@ var WebGLRenderer3 = class {
     this.events.onRendererDestroyed.dispatch(this, true);
   }
 };
+
+// ../sdk/src/webglrenderer/internal/index.ts
+var internal_exports = {};
+__export(internal_exports, {
+  RENDER_BINS: () => RENDER_BINS,
+  RENDER_PASSES: () => RENDER_PASSES,
+  RenderBuffers: () => RenderBuffers,
+  RenderContext: () => RenderContext,
+  ViewManager: () => ViewManager2,
+  ViewRenderState: () => ViewRenderState2,
+  drawOps: () => drawOps_exports,
+  gpuMemoryManager: () => gpuMemoryManager_exports,
+  inspectors: () => inspectors_exports,
+  meshManager: () => meshManager_exports,
+  pickManager: () => pickManager_exports,
+  renderManager: () => renderManager_exports
+});
+
+// ../sdk/src/webglrenderer/internal/drawOps/index.ts
+var drawOps_exports = {};
+__export(drawOps_exports, {
+  DrawOp: () => DrawOp,
+  DrawOps: () => DrawOps,
+  DrawTechnique: () => DrawTechnique,
+  getDrawOps: () => getDrawOps,
+  putDrawOps: () => putDrawOps,
+  techniques: () => techniques_exports
+});
+
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/index.ts
+var techniques_exports = {};
+__export(techniques_exports, {
+  generic: () => generic_exports,
+  lines: () => lines_exports,
+  points: () => points_exports,
+  triangles: () => triangles_exports
+});
+
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/generic/index.ts
+var generic_exports = {};
+__export(generic_exports, {
+  GenericDrawSilhouetteTechnique: () => GenericDrawSilhouetteTechnique,
+  GenericPickDepthTechnique: () => GenericPickDepthTechnique,
+  GenericPickMeshTechnique: () => GenericPickMeshTechnique
+});
+
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/lines/index.ts
+var lines_exports = {};
+__export(lines_exports, {
+  LinesDrawColorTechnique: () => LinesDrawColorTechnique
+});
+
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/points/index.ts
+var points_exports = {};
+__export(points_exports, {
+  PointsDrawColorTechnique: () => PointsDrawColorTechnique,
+  PointsDrawSilhouetteTechnique: () => PointsDrawSilhouetteTechnique,
+  PointsPickDepth: () => PointsPickDepth,
+  TrianglesPickMeshDrawTechnique: () => TrianglesPickMeshDrawTechnique
+});
+
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/points/PointsDrawSilhouetteTechnique.ts
+var PointsDrawSilhouetteTechnique = class extends DrawTechnique {
+  buildVertexShader() {
+    this.vsHeader();
+    this.vsCommonDefines();
+    this.vsSlicingDefines();
+    this.vsSilhouetteDefines();
+    this.vsMainOpen();
+    this.vsSilhouetteLogic();
+    this.vsSlicingLogic();
+    this.vsMainClose();
+  }
+  buildFragmentShader() {
+    this.fsHeader();
+    this.fsPrecisionDefines();
+    this.fsCommonDefines();
+    this.fsSlicingDefines();
+    this.fsSilhouetteDefines();
+    this.fsMainOpen();
+    this.fsSlicingLogic();
+    this.fsSilhouetteLogic();
+    this.fsCommonOutput();
+    this.fsMainClose();
+  }
+};
+
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/points/PointsPickDepthTechnique.ts
+var PointsPickDepth = class extends DrawTechnique {
+  buildVertexShader() {
+    this.vsHeader();
+    this.vsCommonDefines();
+    this.vsSlicingDefines();
+    this.vsDrawDepthDefines();
+    this.vsPickMainOpen();
+    this.vsDrawDepthLogic();
+    this.vsSlicingLogic();
+    this.vsMainClose();
+  }
+  buildFragmentShader() {
+    this.fsHeader();
+    this.fsPrecisionDefines();
+    this.fsCommonDefines();
+    this.fsSlicingDefines();
+    this.fsDrawDepthDefines();
+    this.fsMainOpen();
+    this.fsSlicingLogic();
+    this.fsDrawDepthLogic();
+    this.fsCommonOutput();
+    this.fsMainClose();
+  }
+};
+
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/points/PointsPickMeshDrawTechnique.ts
+var TrianglesPickMeshDrawTechnique = class extends DrawTechnique {
+  buildVertexShader() {
+    this.vsHeader();
+    this.vsCommonDefines();
+    this.vsSlicingDefines();
+    this.vsPickMeshDefines();
+    this.vsPickMainOpen();
+    this.vsPickMeshLogic();
+    this.vsSlicingLogic();
+    this.vsMainClose();
+  }
+  buildFragmentShader() {
+    this.fsHeader();
+    this.fsPrecisionDefines();
+    this.fsCommonDefines();
+    this.fsSlicingDefines();
+    this.fsPickMeshDefines();
+    this.fsMainOpen();
+    this.fsSlicingLogic();
+    this.fsPickMeshLogic();
+    this.fsCommonOutput();
+    this.fsMainClose();
+  }
+};
+
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/triangles/index.ts
+var triangles_exports = {};
+__export(triangles_exports, {
+  TrianglesDrawColorTechnique: () => TrianglesDrawColorTechnique,
+  TrianglesDrawEdgeColorTechnique: () => TrianglesDrawEdgeColorTechnique,
+  TrianglesDrawEdgeSilhouetteTechnique: () => TrianglesDrawEdgeSilhouetteTechnique
+});
 
 // ../sdk/src/cameracontrol/index.ts
 var cameracontrol_exports = {};

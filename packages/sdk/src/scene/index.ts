@@ -1,7 +1,7 @@
 /**
  * <img style="padding:20px" src="https://xeokit.github.io/sdk/docs/assets/xeokit_docmodel_greyscale_icon.png"/>
  *
- * # xeokit Scene (Buildable 3D Scene Representation)
+ * # xeokit Scene Graph
  *
  * ---
  *

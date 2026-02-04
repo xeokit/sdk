@@ -1,7 +1,7 @@
 /**
  * <img style="padding:50px" src="https://xeokit.github.io/sdk/docs/assets/xeokit_datamodel_icon.png"/>
  *
- * # xeokit Semantic Data Model
+ * # xeokit Semantic Data Graph
  *
  * ---
  *

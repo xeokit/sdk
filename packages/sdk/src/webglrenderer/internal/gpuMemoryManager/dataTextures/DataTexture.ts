@@ -189,7 +189,7 @@ export abstract class DataTexture {
     this.type = params.type;
     this.internalFormat = params.internalFormat;
     this.width = params.width;
-    this.height = Math.max(1, Math.ceil(this.maxItems / this.width));
+    this.height = Math.max(1, Math.ceil((this.maxItems * this.texelsPerItem) / this.width));
     switch (this.type) {
         case this.gl.UNSIGNED_BYTE:
         this.bufferClass = Uint8Array;
@@ -230,7 +230,15 @@ export abstract class DataTexture {
    * @internal
    */
   public allocate(): SDKResult<void> {
-      this.buffer = new this.bufferClass(this.width * this.height * this.bytesPerTexel);
+    try {
+      this.buffer = new this.bufferClass(this.width * this.height * this.elementsPerTexel);
+    } catch (e) {
+      return {
+        ok: false,
+        type:SDKErrorType.InitializationFailed,
+        error: `[${this.constructor.name}.allocate]: Buffer allocation failed: ${e}`,
+      };
+    }
       return this._allocateTexture(false);
   }
 

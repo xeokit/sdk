@@ -1,4 +1,3 @@
-
 import {SceneGeometry, SceneMesh} from "../../../scene";
 import {RenderContext} from "../RenderContext";
 import {MeshViewAttributeTexture} from "./dataTextures/MeshViewAttributeTexture";
@@ -15,7 +14,7 @@ import {PrimitiveMeshIndexTexture} from "./dataTextures/PrimitiveMeshIndexTextur
 import {RENDER_PASSES, type RenderPassValue} from "../RENDER_PASSES";
 import {SDKErrorType, SDKInternalException, type SDKResult} from "../../../core";
 import {type MemoryConfigs} from "../../MemoryConfigs";
-import type { Mat4} from "../../../math/matrix";
+import type {Mat4} from "../../../math/matrix";
 import type {Vec3, Vec4} from "../../../math/vector";
 
 const MAX_MESHES = 500000;
@@ -323,10 +322,10 @@ export class GPUMemoryBatch {
     const vertCount = (geometry.positionsCompressed?.length ?? 0) / 3;
     const geometryExists = !!this._geometryHandles[geometry.id];
     if (!geometryExists) {
-    if (this._numGeometries >= this._maxGeometries) {
-      return false;
-    }
-    // Vertex count (assumes 3 components per vertex)
+      if (this._numGeometries >= this._maxGeometries) {
+        return false;
+      }
+      // Vertex count (assumes 3 components per vertex)
       if (vertCount <= 0 || this._vertexPositionTexture.canGetPortion(vertCount) === false) {
         return false;
       }
@@ -349,7 +348,9 @@ export class GPUMemoryBatch {
         if (geometry.indices && this._indexTexture.canGetPortion(indexCount) === false) {
           return false;
         }
-        if (geometry.edgeIndices && this._edgeIndexTexture.canGetPortion(geometry.edgeIndices.length) === false) {
+        if (geometry.edgeIndices &&
+          geometry.edgeIndices.length > 0 &&
+          this._edgeIndexTexture.canGetPortion(geometry.edgeIndices.length) === false) {
           return false;
         }
       }
@@ -452,9 +453,9 @@ export class GPUMemoryBatch {
       const [xmin, ymin, zmin, xmax, ymax, zmax] = sceneGeometry.aabb;
 
       this._geometryQuantRangeTexture.setItem(geometryIndex, {
-          offset: [xmin, ymin, zmin],
-          scale: [(xmax - xmin) / 65536, (ymax - ymin) / 65536, (zmax - zmin) / 65536]
-        });
+        offset: [xmin, ymin, zmin],
+        scale: [(xmax - xmin) / 65536, (ymax - ymin) / 65536, (zmax - zmin) / 65536]
+      });
 
       if (sceneGeometry.colorsCompressed) {
         vertexColorsPortion = this._vertexColorTexture.getPortion(sceneGeometry.colorsCompressed); // RGB (0..255, 0..255, 0..255)
@@ -487,7 +488,9 @@ export class GPUMemoryBatch {
           }
         }
 
-        if (sceneGeometry.primitive === TrianglesPrimitive && sceneGeometry.edgeIndices) {
+        if (sceneGeometry.primitive === TrianglesPrimitive
+          && sceneGeometry.edgeIndices
+          && sceneGeometry.edgeIndices.length > 0) {
           edgeIndicesHandle = this._edgeIndexTexture.getPortion(
             sceneGeometry.edgeIndices,
             (newBase: number) => {
@@ -920,7 +923,7 @@ export class GPUMemoryBatch {
   }
 
   webglContextRestored(): SDKResult<void> {
-    for (const dataTexture in  [
+    for (const dataTexture in [
       ...this._primitiveMeshIndexTexture,
       this._meshAttributeTexture,
       ...this._meshViewAttributeTexture,

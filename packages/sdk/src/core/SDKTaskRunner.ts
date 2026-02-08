@@ -37,6 +37,7 @@ export class SDKTaskRunner {
     this.tasksByStage.set(2, new Set<SDKTask>());
     this.tasksByStage.set(3, new Set<SDKTask>());
     this.tasksByStage.set(4, new Set<SDKTask>());
+    this.tasksByStage.set(5, new Set<SDKTask>());
     this.running = false;
   }
 
@@ -51,7 +52,7 @@ export class SDKTaskRunner {
    * @param task The task to register.
    */
   addTask(task: SDKTask): void {
-    const stage = Math.max(0, Math.min(4, task.stage || 0));
+    const stage = Math.max(0, Math.min(5, task.stage || 0));
     this.tasksByStage.get(stage)!.add(task);
 
     // Start animation-frame loop if not already running.
@@ -73,7 +74,7 @@ export class SDKTaskRunner {
    */
   private runTasks(): void {
     let tasksRemain = false;
-    for (let stage = 0; stage <= 4; stage++) {
+    for (let stage = 0; stage <= 5; stage++) {
       const tasks = this.tasksByStage.get(stage)!;
 
       for (const task of Array.from(tasks)) {
@@ -103,6 +104,7 @@ export class SDKTaskRunner {
       SDKTask.CollectInputStage,
       SDKTask.AnimateStage,
       SDKTask.ComputeStage,
+      SDKTask.ComputeStage2,
       SDKTask.RenderStage,
       SDKTask.PostRenderStage
     ].some(stage => this.tasksByStage.get(stage)!.size > 0);

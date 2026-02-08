@@ -88,6 +88,7 @@
  * - A {@link Scene} owns one or more {@link SceneModel | SceneModels}.
  * - Each {@link SceneModel} groups renderable and logical content, including:
  *   - {@link SceneObject | SceneObjects} (logical entities),
+ *   - {@link SceneTransform | SceneTransforms} (hierarchical transforms),
  *   - {@link SceneMesh | SceneMeshes} (renderable instances),
  *   - {@link SceneGeometry | SceneGeometries} (shared vertex/index buffers),
  *   - {@link SceneTexture | SceneTextures} and {@link SceneTextureSet | SceneTextureSets}.
@@ -578,6 +579,8 @@ export * from "./SceneMeshParams";
 export * from "./SceneObjectParams";
 export * from "./SceneTextureParams";
 export * from "./SceneTextureSetParams";
+export * from "./SceneTransform";
+export * from "./SceneTransformParams";
 export * from "./SceneGeometryCompressedParams";
 export * from "./SceneGeometryParams";
 export * from "./SceneModelParams";

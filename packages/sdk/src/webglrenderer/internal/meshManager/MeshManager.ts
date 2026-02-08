@@ -546,7 +546,7 @@ export class MeshManager {
    * Forwards to the corresponding {@link RendererMesh} (if registered).
    */
   public sceneMeshMatrixChanged(sceneMesh: SceneMesh): void {
-    this._rendererModels[sceneMesh.model.id]?.rendererMeshes[sceneMesh.id]?.setMatrix(sceneMesh.matrix);
+    this._rendererModels[sceneMesh.model.id]?.rendererMeshes[sceneMesh.id]?.setMatrix(sceneMesh.globalMatrix);
   }
 
   /**

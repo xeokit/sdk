@@ -11,7 +11,7 @@ import type {Quat} from "../math/quat";
  *
  * See {@link scene | @xeokit/sdk/scene} for usage.
  */
-export class SceneTransformParams {
+export interface SceneTransformParams {
 
     /**
      * Unique ID of this SceneTransform.

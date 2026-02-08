@@ -21,7 +21,7 @@ const taskRunner = getGlobalTaskRunner();
  * // input collection stage of the SDK's update cycle. The task
  * // will run automatically every update cycle.
  *
- * const myTask = new SDKTask({
+ * const repeatingTask = new SDKTask({
  *   name: "MyTask",
  *   stage: SDKTask.CollectInputStage,
  *   task: () => {
@@ -70,16 +70,23 @@ export class SDKTask {
   public static readonly ComputeStage = 2;
 
   /**
+   * Stage (2) at which tasks perform compute or simulation work.
+   * @readonly
+   */
+  public static readonly ComputeStage2 = 3;
+
+
+  /**
    * Stage at which tasks perform rendering-related updates.
    * @readonly
    */
-  public static readonly RenderStage = 3;
+  public static readonly RenderStage = 5;
 
   /**
    * Stage at which tasks run after rendering is complete.
    * @readonly
    */
-  public static readonly PostRenderStage = 4;
+  public static readonly PostRenderStage = 6;
 
   /**
    * The function invoked when this task is executed.

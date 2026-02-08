@@ -5,7 +5,7 @@
 export interface SceneModelStats {
 
   /**
-   * The number of {@link ViewTransform | SceneTransforms} in the {@link SceneModel | SceneModel}.
+   * The number of {@link SceneTransform | SceneTransforms} in the {@link SceneModel | SceneModel}.
    */
   numTransforms: number;
 

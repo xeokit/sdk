@@ -275,7 +275,7 @@ export class SceneModel {
    * - Optionally attaches it under a parent transform using {@link SceneTransform.setParentTransform}.
    * - The final transform matrix can be supplied directly via `matrix` or composed from
    *   `position`, `scale` and `rotation` (Euler) or `quaternion`.
-   * - Fires {@link Scene.events.onSceneTransformCreated | Scene.events.onSceneTransformCreated} event.
+   * - Fires {@link SceneEvents.onSceneTransformCreated | SceneEvents.onSceneTransformCreated} event.
    *
    * @example
    * ```javascript
@@ -296,6 +296,10 @@ export class SceneModel {
    *   parentTransformId: "root",
    *   rotation: [0, Math.PI * 0.5, 0]
    * });
+   *
+   * const childTransform = sceneModel.transforms["child"];
+   * childTransform.position = [0, 5, 0];
+   * childTransform.rotation =[0, 0, 45];
    * ```
    *
    * @param transformParams Parameters describing the transform to create.
@@ -344,36 +348,10 @@ export class SceneModel {
       }
     }
 
-    // Build or clone the matrix
-    let matrix = transformParams.matrix;
-    if (!matrix) {
-      const position = transformParams.position;
-      const scale = transformParams.scale;
-      const rotation = transformParams.rotation;
-      const quaternion = transformParams.quaternion;
-
-      if (position || scale || rotation || quaternion) {
-        matrix = identityMat4();
-        composeMat4(
-          position || [0, 0, 0],
-          quaternion || eulerToQuat(rotation || [0, 0, 0], "XYZ", identityQuat()),
-          scale || [1, 1, 1],
-          matrix
-        );
-      } else {
-        matrix = identityMat4();
-      }
-    } else {
-      matrix = createMat4Float64(matrix); // defensive copy
-    }
-
-    const sceneTransform = new SceneTransform(this, {
-      id: transformParams.id,
-      matrix
-    });
+    const sceneTransform = new SceneTransform(this, transformParams);
 
     if (parentTransform) {
-      sceneTransform.setParentTransform(parentTransform);
+      sceneTransform.setParentTransform(parentTransform.id);
     }
 
     this.transforms[transformParams.id] = sceneTransform;
@@ -407,7 +385,7 @@ export class SceneModel {
    * Creates a new {@link SceneTexture} within this SceneModel.
    *
    * - Stores the new {@link SceneTexture} in {@link SceneModel.textures | SceneModel.textures}.
-   * - Fires {@link Scene.events.onSceneTextureCreated | Scene.events.onSceneTextureCreated} event.
+   * - Fires {@link SceneEvents.onSceneTextureCreated | SceneEvents.onSceneTextureCreated} event.
    *
    * ### Usage
    *
@@ -527,7 +505,7 @@ export class SceneModel {
    * Creates a new {@link SceneTextureSet} within this SceneModel.
    *
    * - Stores the new {@link SceneTextureSet} in {@link SceneModel.textureSets | SceneModel.textureSets}.
-   * - Fires {@link Scene.events.onSceneTextureSetCreated | Scene.events.onSceneTextureSetCreated} event.
+   * - Fires {@link SceneEvents.onSceneTextureSetCreated | SceneEvents.onSceneTextureSetCreated} event.
    *
    * ### Usage
    *
@@ -691,7 +669,7 @@ export class SceneModel {
    * Creates a new {@link SceneGeometry} within this SceneModel, from non-compressed geometry parameters.
    *
    * - Stores the new {@link SceneGeometry} in {@link SceneModel.geometries | SceneModel.geometries}.
-   * - Fires {@link Scene.events.onSceneGeometryCreated | Scene.events.onSceneGeometryCreated} event.
+   * - Fires {@link SceneEvents.onSceneGeometryCreated | SceneEvents.onSceneGeometryCreated} event.
    *
    * ### Usage
    *
@@ -874,7 +852,7 @@ export class SceneModel {
    * - Stores the new {@link SceneGeometry} in {@link SceneModel.geometries | SceneModel.geometries}.
    * - Use {@link compressGeometryParams | compressGeometryParams} to pre-compress {@link SceneGeometryParams | SceneGeometryParams}
    *   into {@link SceneGeometryCompressedParams | SceneGeometryCompressedParams}.
-   * - Fires {@link Scene.events.onSceneGeometryCreated | Scene.events.onSceneGeometryCreated} event.
+   * - Fires {@link SceneEvents.onSceneGeometryCreated | SceneEvents.onSceneGeometryCreated} event.
    *
    * ### Usage
    *
@@ -908,17 +886,17 @@ export class SceneModel {
    * @param geometryCompressedParams Pre-compressed geometry parameters.
    *
    * @returns SDKResult with:
-   * * - On success, the created {@link SceneGeometry}.
-   * * - On failure, an error message. Reasons for failure include:
-   * *    - If this SceneModel has already been destroyed.
-   * *    - Invalid SceneGeometryParams were given.
-   * *    - SceneGeometry of given ID already exists in this SceneModel.
-   * *    - Unsupported primitive type given.
-   * *    - Mandatory vertex positions were not given. Vertex positions are mandatory for all primitive types.
-   * *    - Mandatory indices were not given for primitive type that is not {@link constants!PointsPrimitive}. Indices are mandatory for all primitive types except PointsPrimitive.
-   * *    - Indices out of range of vertex positions.
-   * *    - Indices out of range of vertex UVs.
-   * *    - Mismatch between given quantities of vertex positions and UVs.
+   * * On success, the created {@link SceneGeometry}.
+   * * On failure, an error message. Reasons for failure include:
+   *   - If this SceneModel has already been destroyed.
+   *   - Invalid SceneGeometryParams were given.
+   *   - SceneGeometry of given ID already exists in this SceneModel.
+   *   - Unsupported primitive type given.
+   *   - Mandatory vertex positions were not given. Vertex positions are mandatory for all primitive types.
+   *   - Mandatory indices were not given for primitive type that is not {@link constants!PointsPrimitive}. Indices are mandatory for all primitive types except PointsPrimitive.
+   *   - Indices out of range of vertex positions.
+   *   - Indices out of range of vertex UVs.
+   *   - Mismatch between given quantities of vertex positions and UVs.
    */
   createGeometryCompressed(
     geometryCompressedParams: SceneGeometryCompressedParams
@@ -1104,13 +1082,12 @@ export class SceneModel {
    * @returns SDKResult with:
    * * On success, the created {@link SceneMesh}.
    * * On failure, an error message. Reasons for failure include:
-   *  - If this SceneModel has already been destroyed.
-   *  - Invalid {@link SceneMeshParams} were given.
-   *  - A {@link SceneMesh} with the given ID already exists in this SceneModel.
-   *  - The specified parent {@link SceneTransform} was not found.
-   *  - The specified {@link SceneGeometry} was not found.
-   *  - The specified {@link SceneTextureSet} was not found.
-   *
+   *   - If this SceneModel has already been destroyed.
+   *   - Invalid {@link SceneMeshParams} were given.
+   *   - A {@link SceneMesh} with the given ID already exists in this SceneModel.
+   *   - The specified parent {@link SceneTransform} was not found.
+   *   - The specified {@link SceneGeometry} was not found.
+   *   - The specified {@link SceneTextureSet} was not found.
    */
   createMesh(meshParams: SceneMeshParams): SDKResult<SceneMesh> {
 
@@ -1252,7 +1229,7 @@ export class SceneModel {
     });
 
     if (transform) {
-      sceneMesh.setParentTransform(transform);
+      sceneMesh.setParentTransform(transform.id);
     }
 
     geometry.numMeshes++;
@@ -1330,11 +1307,11 @@ export class SceneModel {
    * @returns SDKResult with:
    * * On success, the created {@link SceneObject}.
    * * On failure, an error message. Reasons for failure include:
-   *  - If this SceneModel has already been destroyed.
-   *  - No {@link SceneMesh} IDs were specified.
-   *  - A {@link SceneObject} with the given ID already exists in this SceneModel's {@link Scene | Scene}.
-   *  - A specified {@link SceneMesh} was not found.
-   *  - A specified {@link SceneMesh} already belongs to an existing {@link SceneObject}.
+   *   - If this SceneModel has already been destroyed.
+   *   - No {@link SceneMesh} IDs were specified.
+   *   - A {@link SceneObject} with the given ID already exists in this SceneModel's {@link Scene | Scene}.
+   *   - A specified {@link SceneMesh} was not found.
+   *   - A specified {@link SceneMesh} already belongs to an existing {@link SceneObject}.
    */
   createObject(objectParams: SceneObjectParams): SDKResult<SceneObject> {
 

@@ -34,9 +34,10 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
 
   public readonly passRanges: Map<number, PrimRange> = new Map();
 
+  public readonly primRange: PrimRange = { firstPrim: 0, numPrims: 0 };
+
   private nextPortionId: number = 1;
   private numAllocatedItems: number = 0;
-  private numDrawablePrims: number = 0;
   private needUpload: boolean = true;
 
   public static readonly itemSizeInBytes = 8; // 2 × uint32 per item (meshIndex, offset)
@@ -76,9 +77,10 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
 
   /**
    * Number of primitives currently drawable (post-uploadChanges).
+   * This is also the number of pickable primitives, since picking considers all primitives regardless of render pass.
    */
   public get numPrimitives(): number {
-    return this.numDrawablePrims;
+    return this.primRange.numPrims;
   }
 
   /**
@@ -96,10 +98,11 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
    * @param renderPass Render pass bin.
    */
   public createPortion(size: number, meshIndex: number, renderPass: RenderPassValue): PrimitiveMeshIndexTexturePortionHandle {
-    size |= 0;
-    if (size <= 0) throw new SDKInternalException("PrimitiveMeshIndexTexture: size must be > 0");
+    if (size <= 0) {
+      throw new SDKInternalException("[PrimitiveMeshIndexTexture.createPortion]: size must be > 0");
+    }
     if (this.numAllocatedItems + size > this.maxItems) {
-      throw new SDKInternalException("PrimitiveMeshIndexTexture: Not enough capacity");
+      throw new SDKInternalException("[PrimitiveMeshIndexTexture.createPortion]: Not enough capacity");
     }
     const id = this.nextPortionId++;
     const handle: PrimitiveMeshIndexTexturePortionHandle = {
@@ -124,7 +127,7 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
   public deletePortion(handle: PrimitiveMeshIndexTexturePortionHandle): void {
     const removed = this.portions.get(handle.id);
     if (!removed) {
-      throw new SDKInternalException("PrimitiveMeshIndexTexture: Unknown portion handle");
+      throw new SDKInternalException("[PrimitiveMeshIndexTexture.deletePortion]: Unknown portion handle");
     }
     this.portions.delete(handle.id);
     this.numAllocatedItems -= removed.size;
@@ -139,7 +142,7 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
   public setRenderPass(handle: PrimitiveMeshIndexTexturePortionHandle, renderPass: RenderPassValue): void {
     const portion = this.portions.get(handle.id);
     if (!portion) {
-      throw new SDKInternalException("PrimitiveMeshIndexTexture: Unknown portion handle");
+      throw new SDKInternalException("[PrimitiveMeshIndexTexture.setRenderPass]: Unknown portion handle");
     }
     if (portion.renderPass === renderPass) {
       return;
@@ -157,7 +160,7 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
   public setObjectVisible(handle: PrimitiveMeshIndexTexturePortionHandle, objectVisible: boolean): void {
     const portion = this.portions.get(handle.id);
     if (!portion) {
-      throw new SDKInternalException("PrimitiveMeshIndexTexture: Unknown portion handle");
+      throw new SDKInternalException("[PrimitiveMeshIndexTexture.setObjectVisible]: Unknown portion handle");
     }
     portion.objectVisible = !!objectVisible;
     handle.objectVisible = portion.objectVisible;
@@ -172,7 +175,7 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
   public setMeshVisible(handle: PrimitiveMeshIndexTexturePortionHandle, meshVisible: boolean): void {
     const portion = this.portions.get(handle.id);
     if (!portion) {
-      throw new SDKInternalException("PrimitiveMeshIndexTexture: Unknown portion handle");
+      throw new SDKInternalException("[PrimitiveMeshIndexTexture.setMeshVisible]: Unknown portion handle");
     }
     portion.meshVisible = !!meshVisible;
     handle.meshVisible = portion.meshVisible;
@@ -194,6 +197,14 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
    */
   public getPassRange(renderPass: RenderPassValue): PrimRange {
     return this.passRanges.get(renderPass) ?? { firstPrim: 0, numPrims: 0 };
+  }
+
+  /**
+   * Gets the full range of drawable primitives, for picking.
+   * This can be used for picking passes that want to consider all primitives regardless of render pass.
+   */
+  public getPrimRange(): PrimRange {
+    return this.primRange;
   }
 
   /**
@@ -239,7 +250,6 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
     }
     if (this.numAllocatedItems === 0) {
       this.buffer.fill(0);
-      this.numDrawablePrims = 0;
       this.passRanges.clear();
       this.needUpload = false;
       return false;
@@ -312,7 +322,7 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
         firstPrim: base - (bucket.reduce((sum, p) => sum + p.size, 0)),
         numPrims: bucket.reduce((sum, p) => sum + p.size, 0) });
     }
-    this.numDrawablePrims = base;
+    this.primRange.numPrims = base;
     // Optionally zero out remainder for debugging
     // if (base < this.buffer.length) this.buffer.fill(0, base * 2);
   }

@@ -271,7 +271,7 @@ export class ViewManager {
     if (!this._renderContext) {
       throw new SDKInternalException("[ViewManager.getRenderInspector] ViewManager is not initialized");
     }
-    return this._renderContext.drawInspector;
+    return this._renderContext.renderInspector;
   }
 
   /**

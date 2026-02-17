@@ -28,12 +28,15 @@ import {SDKErrorType} from "../core";
  */
 export class CoordinateSystem  {
 
-  /** @private */
-    _notifyUpdatedScheduled: boolean;
-
+    private _notifyUpdatedScheduled: boolean;
+    private _updated: () => void;
     private _scene: Scene;
     private _model: SceneModel;
-    private _basis: Vec9;
+    private _basis: Vec9 = createVec9Float64([
+        1, 0, 0, // Right
+        0, 0, 1, // Up
+        0, 1, 0 // Forward
+    ]);
     private _origin: Vec3;
     private _units: 'meters' | 'millimeters' | 'inches' | 'feet';
     private _scaleToMeters?: number;
@@ -46,15 +49,20 @@ export class CoordinateSystem  {
      */
     public destroyed: boolean = false;
 
+
     /**
      * @private
      */
-    constructor(parent: Scene | SceneModel, params?: CoordinateSystemParams) {
+    constructor(
+      parent: Scene | SceneModel,
+      updated?: () => void,
+      params?: CoordinateSystemParams) {
         if (parent instanceof Scene) {
             this._scene = parent;
         } else {
             this._model = parent;
         }
+        this._updated = updated;
         this._origin = createVec3Float64(<any>params?.origin || [0, 0, 0]);
         this._units = params?.units || "meters";
         this._scaleToMeters = params?.scaleToMeters || 1;
@@ -71,9 +79,12 @@ export class CoordinateSystem  {
             this._notifyUpdatedScheduled = true;
             setTimeout(() => {
                 this._notifyUpdatedScheduled = false;
+                if (this._updated) {
+                    this._updated();
+                }
                 (this._model)
                     ? this._model.scene.events.onSceneModelCoordSystemUpdated.dispatch(this._model, this)
-                    :  this._scene.events.onSceneCoordSystemUpdated.dispatch(this._scene, this);
+                    : this._scene.events.onSceneCoordSystemUpdated.dispatch(this._scene, this);
             }, 100)
         }
     }

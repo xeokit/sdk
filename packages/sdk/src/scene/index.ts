@@ -93,22 +93,56 @@
  *   - {@link SceneGeometry | SceneGeometries} (shared vertex/index buffers),
  *   - {@link SceneTexture | SceneTextures} and {@link SceneTextureSet | SceneTextureSets}.
  *
+ * ### Building, Importing and Exporting
+ *
  * The scene graph is deliberately **buildable** and **serializable**:
  *
  * - Content can be created programmatically using builder-style APIs.
  * - Models can be imported from and exported to multiple industry formats
  *   (eg. {@link gltf}, {@link las}, {@link cityjson}, {@link xgf}, {@link dotbim}, {@link ifc}).
  * - SceneModels can be serialized to JSON and reconstructed later.
- * - A {@link Scene} can be attached to a {@link viewer!Viewer | Viewer} for interactive
+ * - A Scene can be attached to a {@link viewer!Viewer | Viewer} and {@link WebGLRenderer} for interactive
  *   rendering, or used headlessly in Node.js for conversion and processing workflows.
+ * - Using the builder APIs, you can create and modify content at runtime, with changes automatically reflected in the attached Viewer and WebGLRenderer.
+ *
+ * ### Scene Events
  *
  * The {@link SceneEvents} system exposes lifecycle and error events, allowing applications
- * to observe and react to changes as models, objects, and resources are created or destroyed.
+ * to observe and react to changes as models, objects, and resources are created or destroyed. These events
+ * are consumed by components such as {@link Viewer} and {@link WebGLRenderer} to manage rendering and interaction,
+ * without the scene needing to be aware of those components.
+ *
+ * ### Federated Models and Coordinate Systems
  *
  * A Scene uses a {@link CoordinateSystem} to specify its basis, units, origin, and scale. Each
  * {@link SceneModel} can also have its own CoordinateSystem, enabling models from various sources
  * to be combined without prior conversion. The SDK manages coordinate system transformations
  * automatically during rendering and interaction, preserving each model’s original data.
+ *
+ * ### Geometry Compression
+ *
+ * The SceneModel supports on-the-fly geometry compression (quantization) when creating geometries from raw vertex/index data. For
+ * faster creation, you can pre-compress geometry parameters using {@link compressGeometryParams} and create geometry
+ * from those compressed parameters using {@link SceneModel.createGeometryCompressed}.
+ *
+ * ### Seamless Double-Precision Coordinate and Transform Support
+ *
+ * The xeokit {@link Scene} and {@link SceneModel} APIs natively support double-precision (64-bit float) coordinates and transforms
+ * throughout the scene graph. All transformation matrices are stored as double-precision
+ * arrays, allowing accurate placement of models at any scale or distance. Transformations can be nested hierarchically,
+ * and dynamically updated at runtime.
+ *
+ * For rendering, the {@link Viewer} and {@link WebGLRenderer}
+ * evaluate all transforms in double-precision on the CPU. To maintain visual accuracy on the GPU (which uses single-precision),
+ * the renderer uses camera-relative modeling matrices and a tile-based system: scene objects are grouped into tiles,
+ * each with a center and a modified view matrix. Data textures store these per-tile view matrices, which shaders
+ * fetch to render multi-tile batches in a single draw call. This approach keeps all GPU positions close to the origin,
+ * minimizing floating-point error and supporting massive, real-world scale models.
+ *
+ * Limitations:
+ *
+ * - Geometry vertex positions must be single-precision (32-bit) floats.
+ * - Avoid double-precision scale transforms - these have potential to cause inaccuracies when very large.
  *
  * <br>
  *
@@ -458,10 +492,42 @@
  *
  * <br>
  *
+ * ## Using Dynamic Transforms
+ *
+ * The SceneModel supports dynamic transforms via {@link SceneTransform}. Each {@link SceneMesh} can reference a parent
+ * transform, and each {@link SceneTransform} can reference a parent transform, allowing you to build hierarchical
+ * transform structures. Transforms support double-precision values, and can be updated at runtime to
+ * achieve dynamic animation effects. The Viewer and WebGLRenderer automatically ensure that double-precion transforms
+ * are rendered accurately on the GPU, even for huge transforms, as shown in the example below.
+ *
+ * In this example, we create a mesh, attached to a transform with a large position to demonstrate double-precision support, then we
+ * update its rotation over time to make it spin.
+ *
+ * ```javascript
+ * sceneModel.createTransform({
+ *   id: "myTransform",
+ *   position: [100000000, 0, 0], // Large position to demonstrate double-precision support
+ *   scale: [1, 1, 1],
+ *   rotation: [0, 0, 0] // X,Y,Z Euler angles in degrees
+ * });
+ *
+ * sceneModel.addMesh({
+ *   id: "meshWithTransform",
+ *   geometryId: "boxGeometry",
+ *   parentTransformId: "myTransform",
+ *   color: [1, 0, 0]
+ * });
+ *
+ * const transform = sceneModel.transforms["myTransform"];
+ * transform.rotation = [0, performance.now() / 40, 0]; // Rotate around Y axis over time
+ * ```
+ *
+ * <br>
+ *
  * ## Exporting a SceneModel to a file
  *
  * SceneModels can be exported to several formats. For example, export to DotBIM with
- * `DotBIMExporter` :
+ * {@link DotBIMExporter} :
  *
  * ```javascript
  * import { DotBIMExporter } from "@xeokit/sdk/formats/dotbim";
@@ -484,7 +550,7 @@
  * ## Importing a SceneModel from a file
  *
  * Import SceneModels from several formats. For example, load DotBIM using
- * `DotBIMLoader`:
+ * {@link DotBIMLoader}:
  *
  * ```javascript
  * import { DotBIMLoader } from "@xeokit/sdk/formats/dotbim";
@@ -589,4 +655,7 @@ export * from "./compressGeometryParams";
 
 export * from "./buildMat4"
 
+import type {Viewer} from "../viewer";
+import type {WebGLRenderer} from "../webglrenderer";
+import type {DotBIMLoader, DotBIMExporter} from "../formats/dotbim";
 

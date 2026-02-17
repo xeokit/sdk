@@ -22,6 +22,7 @@ import {
   quatToEuler,
   type Quat
 } from "../math/quat";
+import {createCoordinateSystemTransform} from "./createCoordinateSystemTransform";
 
 /**
  * Represents a spatial transform within a {@link SceneModel}.
@@ -60,10 +61,10 @@ import {
  * });
  *
  * // Create geometry
- * const geometry = sceneModel.createGeometry({
+ * sceneModel.createGeometry({
  *  id: "demoGeometry",
  *  //...
- *  }).result; // Assume this succeeds for brevity
+ *  });
  *
  * // Attach a mesh to the transform
  * sceneModel.createMesh({
@@ -130,7 +131,7 @@ export class SceneTransform {
    *
    * @private
    */
-   _globalMatrix: Mat4;
+  _globalMatrix: Mat4;
 
   /** True when {@link _localMatrix} needs rebuilding from TRS. */
   private _localMatrixDirty = false;
@@ -181,7 +182,7 @@ export class SceneTransform {
     this._markTreeDirtyTask = new SDKTask({
       name: "SceneTransform._markTreeDirtyTask",
       stage: SDKTask.ComputeStage,
-      task: () => this._markTransformDirty()
+      task: () => this.setGlobalMatrixDirty()
     });
 
     if (transformParams.matrix) {
@@ -331,8 +332,7 @@ export class SceneTransform {
       if (this._parentTransform) {
         mulMat4(this._parentTransform.globalMatrix, this.matrix, this._globalMatrix);
       } else {
-        // @ts-ignore
-        this._globalMatrix.set(this.matrix);
+        mulMat4(this.model.coordinateSystemMatrix, this.matrix, this._globalMatrix);
       }
       this._globalMatrixDirty = false;
     }
@@ -358,14 +358,17 @@ export class SceneTransform {
     return this._childMeshes;
   }
 
-  /** Marks this transform globally dirty and propagates that state to all descendants. */
-  private _markTransformDirty(): void {
+  /**
+   * Marks this transform globally dirty and propagates that state to all descendants.
+   * @internal
+   */
+  public setGlobalMatrixDirty(): void {
     this._globalMatrixDirty = true;
     for (const child of this._childTransforms) {
-      child._markTransformDirty();
+      child.setGlobalMatrixDirty();
     }
     for (const childMesh of this._childMeshes) {
-      childMesh._updateGlobal();
+      childMesh.setGlobalMatrixDirty();
     }
   }
 
@@ -616,7 +619,7 @@ export class SceneTransform {
     if (this._parentTransform) {
       transformParams.parentTransformId = this._parentTransform.id;
     }
-    return { ok: true, value: transformParams };
+    return {ok: true, value: transformParams};
   }
 
   /**

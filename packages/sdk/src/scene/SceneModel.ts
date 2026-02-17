@@ -133,12 +133,8 @@ export class SceneModel {
    */
   public readonly coordinateSystem: CoordinateSystem;
 
-  /**
-   * Caches a matrix used to transform positions between SceneModel and Scene CoordinateSystems.
-   * Each SceneMesh's matrix is pre-multiplied by this matrix to effectively move the vertex
-   * positions from the SceneModel CoordinateSystem to the Scene CoordinateSystem within.
-   */
-  public readonly coordinateSystemMatrix: Mat4;
+  private _coordinateSystemMatrix: Mat4;
+  private _coordinateSystemMatrixDirty: boolean = true;
 
   /**
    * Whether IDs of {@link SceneObject | SceneObjects} are globalized.
@@ -242,8 +238,15 @@ export class SceneModel {
   constructor(scene: Scene, sceneModelParams: SceneModelParams) {
     this.id = sceneModelParams.id;
     this.scene = scene;
-    this.coordinateSystem = new CoordinateSystem(this, sceneModelParams?.coordinateSystem);
-    this.coordinateSystemMatrix = createCoordinateSystemTransform(this.coordinateSystem, this.scene.coordinateSystem, createMat4Float64());
+    this.coordinateSystem = new CoordinateSystem(
+      this,
+      () => { // Updated
+        this._coordinateSystemMatrixDirty = true;
+        this.setGlobalMatrixDirty();
+      },
+      sceneModelParams?.coordinateSystem);
+    this._coordinateSystemMatrix = createMat4Float64();
+    this._coordinateSystemMatrixDirty = true;
     this.globalizedIds = (!!sceneModelParams.globalizedIds);
     this.layerId = sceneModelParams.layerId;
     this.transforms = {};
@@ -266,6 +269,19 @@ export class SceneModel {
       numVertices: 0,
       textureBytes: 0
     };
+  }
+
+  /**
+   * Caches a matrix used to transform positions between SceneModel and Scene CoordinateSystems.
+   * Each SceneMesh's matrix is pre-multiplied by this matrix to effectively move the vertex
+   * positions from the SceneModel CoordinateSystem to the Scene CoordinateSystem within.
+   */
+  get coordinateSystemMatrix(): Mat4 {
+    if (this._coordinateSystemMatrixDirty) {
+      this._coordinateSystemMatrix = createCoordinateSystemTransform(this.coordinateSystem, this.scene.coordinateSystem, this._coordinateSystemMatrix);
+      this._coordinateSystemMatrixDirty = false;
+    }
+    return this._coordinateSystemMatrix;
   }
 
   /**
@@ -1389,6 +1405,19 @@ export class SceneModel {
       ok: true,
       value: sceneObject
     };
+  }
+
+  /**
+   * Marks this transform globally dirty and propagates that state to all descendants.
+   * @internal
+   */
+  public setGlobalMatrixDirty(): void {
+    for (const id in this.transforms) {
+      this.transforms[id].setGlobalMatrixDirty();
+    }
+    for (const id in this.meshes) {
+      this.meshes[id].setGlobalMatrixDirty();
+    }
   }
 
   /**

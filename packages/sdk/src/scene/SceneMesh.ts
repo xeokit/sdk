@@ -229,7 +229,7 @@ export class SceneMesh {
     } else {
       identityMat4(this._localMatrix);
     }
-    this._updateGlobal();
+    this.setGlobalMatrixDirty();
 
   }
 
@@ -250,15 +250,8 @@ export class SceneMesh {
       if (this._parentTransform) {
         mulMat4( this._parentTransform.globalMatrix, this._localMatrix, this._globalMatrix);
       } else {
-        // @ts-ignore
-        this._globalMatrix.set(this._localMatrix);
+        mulMat4(this.model.coordinateSystemMatrix, this.matrix, this._globalMatrix);
       }
-      const scene = this.model.scene;
-      // TODO: recompute AABBs using coordinateSystemMatrix
-      // Transforms are in the coordinate system of the model
-      // const coordSystemAndModelingMatrix = mulMat4(this.model.coordinateSystemMatrix, this._globalMatrix, tempMat4);
-      // scene.events.meshMatrix.dispatch(scene, this);
-      // scene.events.meshMoved.dispatch(scene, this);
       this._globalMatrixDirty = false;
     }
     return this._globalMatrix;
@@ -305,9 +298,9 @@ export class SceneMesh {
 
   /**
    * Updates the global transform matrix.
-   * @private
+   * @internal
    */
-  _updateGlobal(): void {
+  setGlobalMatrixDirty(): void {
     // if (this._globalMatrixDirty) {
     //   return;
     // }
@@ -333,7 +326,7 @@ export class SceneMesh {
     if (parent) {
       parent._childMeshes.push(this);
     }
-    this._updateGlobal();
+    this.setGlobalMatrixDirty();
   }
 
   /**
@@ -369,7 +362,7 @@ export class SceneMesh {
     }
     const preserve = !!opts?.preserveWorld;
     if (preserve) {
-      this._updateGlobal();
+      this.setGlobalMatrixDirty();
       const currentWorld = createMat4Float64(this._globalMatrix);
       this._attachParentTransform(parentTransform);
       if (this._parentTransform) {
@@ -379,7 +372,7 @@ export class SceneMesh {
         // @ts-ignore
         this._localMatrix.set(currentWorld);
       }
-      this._updateGlobal();
+      this.setGlobalMatrixDirty();
     } else {
       this._attachParentTransform(parentTransform);
     }

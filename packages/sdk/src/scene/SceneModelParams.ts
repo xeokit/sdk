@@ -25,7 +25,7 @@ export interface SceneModelParams {
    *
    * The SceneModel is stored with this ID in {@link Scene.models | Scene.models}
    */
-  id: string;
+  id?: string;
 
   /**
    * Configures the SceneModel's local coordinate system.

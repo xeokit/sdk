@@ -89,11 +89,20 @@ export class Scene {
   constructor(params?: SceneParams) {
     this.id = params?.id || createUUID();
     this.events = new SceneEvents();
-    this.coordinateSystem = new CoordinateSystem(this, params?.coordinateSystem);
+    this.coordinateSystem = new CoordinateSystem(
+      this,
+      () => { // Updated
+        for (const modelId in this.models) {
+          const model = this.models[modelId];
+          model.setGlobalMatrixDirty();
+        }
+      },
+      params?.coordinateSystem);
     this.models = {};
     this.objects = {};
     this.logging = params?.logging ?? false;
   }
+
 
   /**
    * Creates and registers a new {@link SceneModel} in this Scene.
@@ -127,7 +136,7 @@ export class Scene {
       });
     }
 
-    const paramsWithId: SceneModelParams = { ...sceneModelParams, id };
+    const paramsWithId: SceneModelParams = {...sceneModelParams, id};
     const sceneModel = new SceneModel(this, paramsWithId);
 
     this.models[id] = sceneModel;
@@ -135,12 +144,12 @@ export class Scene {
 
     const populated = sceneModel.fromParams(paramsWithId);
 
-    if (populated.ok===false) {
+    if (populated.ok === false) {
       sceneModel.destroy();
       return this.logError(populated);
     }
 
-    return { ok: true, value: sceneModel };
+    return {ok: true, value: sceneModel};
   }
 
   /**
@@ -196,7 +205,7 @@ export class Scene {
       this.models[id].destroy();
     }
 
-    return { ok: true, value: undefined };
+    return {ok: true, value: undefined};
   }
 
   /**

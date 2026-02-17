@@ -125,8 +125,8 @@ export class SceneAABB3Index {
     if (this.#meshDirty.has(mesh.id)) {
       getPositionsWorldAABB3(
         mesh.geometry.positionsCompressed,
-        mesh.geometry.aabb,
-        mesh.matrix,
+        mesh.geometry.aabb, // Dequantization AABB
+        mesh.globalMatrix,
         aabb
       );
       this.#meshDirty.delete(mesh.id);

@@ -3,7 +3,7 @@ import {createVec3Float64} from "../math/vector";
 import {createMat4Float64, type Mat4} from "../math/matrix";
 import {CoordinateSystem} from "./CoordinateSystem";
 
-const tempMat3a = createMat4Float64(); // e.g., transposed viewer basis
+const tempMat3a = createMat4Float64(); // e.g., transposed coordSys2 basis
 const tempMat3b = createMat4Float64();// result of matrix multiplication
 const tempVec3a = createVec3Float64(); // delta origin
 const tempVec3b = createVec3Float64(); // transformed delta origin
@@ -12,23 +12,23 @@ const tempVec3b = createVec3Float64(); // transformed delta origin
  * Computes a 4x4 transformation matrix to convert coordinates from one CoordinateSystem to another.
  */
 export function createCoordinateSystemTransform(
-  model: CoordinateSystem,
-  viewer: CoordinateSystem,
+  coordSys1: CoordinateSystem,
+  coordSys2: CoordinateSystem,
   outMat4: Mat4,
 ): Mat4 {
 
-  const modelBasis = model.basis;
-  const viewerBasis = viewer.basis;
+  const modelBasis = coordSys1.basis;
+  const viewerBasis = coordSys2.basis;
 
   transpose3(viewerBasis, tempMat3a);
   multiply3x3(tempMat3a, modelBasis, tempMat3b);
 
-  const scale = (model.scaleToMeters ?? unitScale(model.units)) /
-    (viewer.scaleToMeters ?? unitScale(viewer.units));
+  const scale = (coordSys1.scaleToMeters ?? unitScale(coordSys1.units)) /
+    (coordSys2.scaleToMeters ?? unitScale(coordSys2.units));
 
-  tempVec3a[0] = (model.origin[0] - viewer.origin[0]) * scale;
-  tempVec3a[1] = (model.origin[1] - viewer.origin[1]) * scale;
-  tempVec3a[2] = (model.origin[2] - viewer.origin[2]) * scale;
+  tempVec3a[0] = (coordSys1.origin[0] - coordSys2.origin[0]) * scale;
+  tempVec3a[1] = (coordSys1.origin[1] - coordSys2.origin[1]) * scale;
+  tempVec3a[2] = (coordSys1.origin[2] - coordSys2.origin[2]) * scale;
 
   apply3x3(tempMat3a, tempVec3a, tempVec3b);
 

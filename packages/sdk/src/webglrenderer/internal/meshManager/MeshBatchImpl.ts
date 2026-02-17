@@ -99,9 +99,31 @@ export class MeshBatchImpl implements MeshBatch {
      * @returns True if there are meshes to render in the specified pass, false otherwise.
      */
     public hasMeshesInRenderPass(viewIndex: number, renderPass: RenderPassValue): boolean {
+      const batchDataTextures = (<GPUMemoryManager>this._gpuMemoryManager).dataTextures.batches[this.gpuMemoryBatchIndex];
+      if (!batchDataTextures) {
+        return false;
+      }
+      const batchViewDataTextures = batchDataTextures.views[viewIndex];
+      if (!batchViewDataTextures) {
+        return false;
+      }
+      if (renderPass === RENDER_PASSES.PICK) {
+        return batchViewDataTextures.pickPrimitiveRange.numPrims > 0;
+      }
+      return batchViewDataTextures.renderPassPrimitiveRanges.get(<number>renderPass)?.numPrims! > 0;
+    }
+
+  /**
+   * Checks if there are any meshes in this batch that should be rendered in the edge render pass for the given view.
+   *
+   * @param viewIndex - The index of the view to check.
+   * @param renderPass - The render pass to check for edge rendering.
+   * @return True if there are meshes to render in the edge render pass, false otherwise.
+   */
+  public hasMeshesInEdgeRenderPass(viewIndex: number, renderPass: RenderPassValue): boolean {
         return (<GPUMemoryManager>this._gpuMemoryManager).dataTextures.batches[this.gpuMemoryBatchIndex]
             ?.views[viewIndex]
-            ?.renderPassPrimitiveRanges.get(<number>renderPass)
+            ?.renderPassEdgePrimitiveRanges.get(<number>renderPass)
             ?.numPrims! > 0; // Single point-of-truth for mesh counts
     }
 

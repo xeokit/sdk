@@ -1,10 +1,11 @@
 
 import {type SceneMesh} from "../../../scene";
 import {type RenderPassValue} from "../RENDER_PASSES";
+import type {DrawTechnique} from "../drawOps/DrawTechnique";
 
 /**
  * A MeshBatch represents a collection of meshes that share the same rendering properties and can be rendered together
- * in a single draw call using a `DrawTechnique`.
+ * in a single draw call using a {@link DrawTechnique}.
  *
  * @internal
  */

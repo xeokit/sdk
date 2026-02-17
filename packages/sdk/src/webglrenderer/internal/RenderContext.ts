@@ -32,7 +32,7 @@ export class RenderContext implements WebGLContextProvider {
   /**
    * The RenderInspector for logging draw calls.
    */
-  public drawInspector: RenderInspector;
+  public renderInspector: RenderInspector;
 
   /**
    * The WebGL rendering context.
@@ -158,7 +158,7 @@ export class RenderContext implements WebGLContextProvider {
     const {canvas: webglCanvasElement, gl} = result.value;
     this.gl = gl;
     this.webglCanvasElement = webglCanvasElement;
-    this.drawInspector = new RenderInspector();
+    this.renderInspector = new RenderInspector();
     this.debugging = false;
     this.initialized = true;
     this.reset();

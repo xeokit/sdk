@@ -8,7 +8,8 @@ import { type ViewRenderStats } from "./ViewRenderStats";
 import { type RenderBinStats } from "./RenderBinStats";
 import { type DrawCallStats } from "./DrawCallStats";
 import {RENDER_BINS} from "../RENDER_BINS";
-import {RenderStats} from "./RenderStats";
+import {type RenderStats} from "./RenderStats";
+import type {GPUTile} from "../gpuMemoryManager";
 
 const nowMs = (): number => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -70,6 +71,7 @@ export class RenderInspector {
     this._includedRenderBins = new Set<string>(opts?.includeRenderBins ?? []);
     this._excludedRenderBins = new Set<string>(opts?.excludeRenderBins ?? []);
     this.renderStats = {
+      tiles: {},
       views: []
     };
   }
@@ -107,6 +109,43 @@ export class RenderInspector {
    */
   public setExcludedRenderBins(renderBinIds: string[]): void {
     this._excludedRenderBins = new Set<string>(renderBinIds);
+  }
+
+  /**
+   * Logs the creation of a new tile.
+   * @param tile
+   * @private
+   */
+  public tileAcquired(tile: GPUTile): void {
+    if (tile.useCount === 1) {
+      this.renderStats.tiles[tile.id] = {
+        id: tile.id,
+        rtcCenter: <[number, number, number]>Array.from(tile.center),
+        tileIndex: tile.tileIndex,
+        numMeshes: tile.useCount
+      };
+    } else {
+      const existing = this.renderStats.tiles[tile.id];
+      if (existing) {
+        existing.numMeshes = tile.useCount;
+      }
+    }
+  }
+
+  /**
+   * Logs the disposal of a tile.
+   * @param tile
+   * @private
+   */
+  public tileReleased(tile: GPUTile): void {
+    if (tile.useCount === 0) {
+      delete this.renderStats.tiles[tile.id];
+    } else {
+      const existing = this.renderStats.tiles[tile.id];
+      if (existing) {
+        existing.numMeshes = tile.useCount;
+      }
+    }
   }
 
   /**
@@ -172,7 +211,7 @@ export class RenderInspector {
    * Duration measured until the next draw (or end of pass / frame).
    * @private
    */
-  public drawMeshBatch(meshBatch: MeshBatch, renderPass: RenderPassValue, primRange: PrimRange): void {
+  public drawMeshBatch(meshBatch: MeshBatch, renderPass: RenderPassValue, primRange: PrimRange, edges? : boolean): void {
     const s = this.getActiveState();
     if (!this.enabled || !s || !s.currentFrame) {
       return;
@@ -211,6 +250,10 @@ export class RenderInspector {
         renderBinName = "Unknown";
     }
 
+    if (edges) {
+      renderBinName = "EDGES_" + renderBinName;
+    }
+
     let primitiveName: string;
     switch (meshBatch.primitive) {
       case TrianglesPrimitive:
@@ -234,7 +277,6 @@ export class RenderInspector {
       primRange,
       timeMs: { start: t, end: t, duration: 0 },
     };
-
     s.currentPass.drawCalls.push(draw);
     s.currentDraw = draw;
     s.currentFrame.numDrawCalls++;

@@ -12,8 +12,15 @@ export class ShaderInspector {
         vertexSrc: string,
         fragmentSrc: string
       },
-
+      opaqueEdges: {
+        vertexSrc: string,
+        fragmentSrc: string
+      },
       transparent: {
+        vertexSrc: string,
+        fragmentSrc: string
+      },
+      transparentEdges: {
         vertexSrc: string,
         fragmentSrc: string
       },
@@ -95,9 +102,17 @@ export class ShaderInspector {
           vertexSrc: drawOps.prims[TrianglesPrimitive].opaque.technique.vertexShaderSrc,
           fragmentSrc: drawOps.prims[TrianglesPrimitive].opaque.technique.fragmentShaderSrc
         },
+        opaqueEdges: {
+          vertexSrc: drawOps.prims[TrianglesPrimitive].opaqueEdges.technique.vertexShaderSrc,
+          fragmentSrc: drawOps.prims[TrianglesPrimitive].opaqueEdges.technique.fragmentShaderSrc
+        },
         transparent: {
           vertexSrc: drawOps.prims[TrianglesPrimitive].transparent.technique.vertexShaderSrc,
           fragmentSrc: drawOps.prims[TrianglesPrimitive].transparent.technique.fragmentShaderSrc
+        },
+        transparentEdges: {
+          vertexSrc: drawOps.prims[TrianglesPrimitive].transparentEdges.technique.vertexShaderSrc,
+          fragmentSrc: drawOps.prims[TrianglesPrimitive].transparentEdges.technique.fragmentShaderSrc
         },
         highlighted: {
           vertexSrc: drawOps.prims[TrianglesPrimitive].highlighted.technique.vertexShaderSrc,

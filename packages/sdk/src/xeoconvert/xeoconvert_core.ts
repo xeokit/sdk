@@ -26,7 +26,11 @@ export const CoordinateSystems = {
   // AEC convention - Revit, FreeCAD, OpenCascade, Blender etc
 
   ZUp_RightHanded_Meters: {
-    basis: [1, 0, 0, 0, 1, 0, 0, 0, 1], // X+, Y+, Z+
+    basis: [
+      1, 0, 0, // Right
+      0, 0, 1, // Up
+      0, 1, 0 // Forward
+    ],
     origin: [0, 0, 0],
     units: 'meters',
     scaleToMeters: 1
@@ -35,7 +39,11 @@ export const CoordinateSystems = {
   // OpenGL, glTF etc
 
   YUp_RightHanded_Meters: {
-    basis: [1, 0, 0, 0, 0, -1, 0, 1, 0], // X+, Z-, Y+
+    basis: [
+      1, 0, 0, // Right
+      0, 1, 0, // Up
+      0, 0, 1 // Forward
+    ],
     origin: [0, 0, 0],
     units: 'meters',
     scaleToMeters: 1

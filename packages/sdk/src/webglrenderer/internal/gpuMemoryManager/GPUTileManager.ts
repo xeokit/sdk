@@ -61,6 +61,9 @@ export class GPUTileManager {
     const id = this._makeTileId(rtcCenter);
     let tile = this._tiles.get(id) ?? this._createTile(id, rtcCenter);
     tile.useCount++;
+    if (this._renderContext.renderInspector.enabled) {
+      this._renderContext.renderInspector.tileAcquired(tile);
+    }
     return tile;
   }
 
@@ -69,7 +72,11 @@ export class GPUTileManager {
    * The GPUTile is destroyed as soon as it is released as many times as it was retrieved.
    */
   putTile(tile: GPUTile) {
-    if (--tile.useCount === 0) {
+    tile.useCount--;
+    if (this._renderContext.renderInspector.enabled) {
+      this._renderContext.renderInspector.tileReleased(tile);
+    }
+    if (tile.useCount === 0) {
       this._tiles.delete(tile.id);
       this._putFreeTileIndex(tile.tileIndex);
     }

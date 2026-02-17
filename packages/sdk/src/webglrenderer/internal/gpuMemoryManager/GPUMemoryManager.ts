@@ -16,6 +16,7 @@ import type {Mat4} from "../../../math/matrix";
 import {EventDispatcher} from "strongly-typed-events";
 import type {MemoryUsage} from "../../MemoryUsage";
 
+
 /**
  * Owns GPU-resident, dynamically editable storage for tiles, geometry, and mesh attributes.
  *
@@ -55,7 +56,7 @@ import type {MemoryUsage} from "../../MemoryUsage";
  *
  * - {@link MatrixTexture}:
  *   - Stores RTC matrices for all tiles and views in a GPU-friendly format.
- *   - Updated by the {@link TileManager} whenever camera/view state changes.
+ *   - Updated by the {@link GPUTileManager} whenever camera/view state changes.
  *
  * - {@link DataTextures.viewTileCameraMatrixTexture}:
  *   - An array of {@link MatrixTexture} objects, one per view.
@@ -196,6 +197,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
     );
 
     this.dataTextures = {
+      numTiles: 0,
       viewTileCameraMatrixTexture: this._viewTileCameraMatrixTexture.map((t) => t),
       viewTilePickMatrixTexture: this._viewTilePickMatrixTexture.map((t) => t),
       batches: [],
@@ -375,6 +377,13 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    */
   public putTile(tile: GPUTile): void {
     this._tileManager.putTile(tile);
+  }
+
+  /**
+   * Returns the current number of allocated tiles.
+   */
+  public getNumTiles(): number {
+    return this._tileManager.numTiles;
   }
 
   /**

@@ -18,10 +18,15 @@ import {MatrixTexture} from "./dataTextures/MatrixTexture";
 export interface DataTextures {
 
   /**
+   * Total number of RTC rendering tiles that currently exist.
+   */
+  numTiles: number;
+
+  /**
    * Per-view tile camera matrix tables.
    *
    * For each View, this array contains a {@link DataTexture} holding the
-   * RTC camera view matrices for all tiles in that View.
+   * RTC camera view matrices for that View in all tiles.
    *
    * These textures are global and shared across all render batches.
    */
@@ -31,7 +36,7 @@ export interface DataTextures {
    * Per-view tile ray-picking matrix tables.
    *
    * For each View, this array contains a {@link DataTexture} holding the
-   * RTC matrices used for ray picking against tiles in that View.
+   * RTC matrices used for ray picking against tiles that View in all tiles.
    *
    * These textures are global and shared across all render batches.
    */

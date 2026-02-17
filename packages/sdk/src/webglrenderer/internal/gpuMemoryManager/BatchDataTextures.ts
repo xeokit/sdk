@@ -60,6 +60,15 @@ export interface BatchDataTextures {
     primitiveMeshIndexTexture: PrimitiveMeshIndexTexture;
 
     /**
+     * Edge primitive-to-mesh index table for this View.
+     *
+     * Similar to {@link primitiveMeshIndexTexture}, but contains indices for edge rendering.
+     *
+     * Only exists if the batch is for meshes with triangle primitives.
+     */
+    edgeMeshIndexTexture: PrimitiveMeshIndexTexture;
+
+    /**
      * Per-view mesh attribute table.
      *
      * Contains mesh attributes that may vary by View, such as visibility flags,
@@ -79,6 +88,20 @@ export interface BatchDataTextures {
      * to issue one draw call per pass.
      */
     renderPassPrimitiveRanges: Map<number, PrimRange>;
+
+    /**
+     * Edge primitive ranges to draw for each render pass.
+     *
+     * Similar to {@link renderPassPrimitiveRanges}, but contains ranges for edge rendering.
+     *
+     * Only exists if the batch is for meshes with triangle primitives.
+     */
+    renderPassEdgePrimitiveRanges: Map<number, PrimRange>;
+
+    /**
+     * Primitive range to draw when drawing this View for GPU-based picking.
+     */
+    pickPrimitiveRange: PrimRange;
   }>;
 
   /**
@@ -131,6 +154,8 @@ export interface BatchDataTextures {
    * Edge primitive index buffer.
    *
    * Similar to {@link indexTexture}, but contains indices for edge rendering.
+   *
+   * Only exists if the batch is for meshes with triangle primitives.
    */
   edgeIndexTexture: IndexTexture;
 

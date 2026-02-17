@@ -1,10 +1,16 @@
 import {DrawTechnique} from "../../DrawTechnique";
+import {RenderContext} from "../../../RenderContext";
+import type {GPUMemoryReader} from "../../../gpuMemoryManager";
 
 /**
- * Draw technique for rendering generic triangle meshes for picking.
+ * Draw technique for rendering meshes for picking, generic for all primitive types.
  * @internal
  */
 export class GenericPickMeshTechnique extends DrawTechnique {
+
+  constructor(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader) {
+    super(renderContext, gpuMemoryReader, { picking: true });
+  }
 
   protected buildVertexShader(): void {
     this.vsHeader();

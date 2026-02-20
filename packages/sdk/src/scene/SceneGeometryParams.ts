@@ -36,12 +36,16 @@ export interface SceneGeometryParams {
   uvs?: FloatArrayParam;
 
   /**
-   * Flat array of uncompressed floating-point vertex colors.
+   * Flat array of uncompressed RGBA floating-point vertex colors.
+   * Each color is represented as four consecutive floats in the order RGBA,
+   * where each component is in the range [0.0, 1.0].
    */
   colors?: FloatArrayParam;
 
   /**
-   * Flat array of compressed intger vertex colors. This overrides the `colors` parameter.
+   * Flat array of compressed integer RGBA vertex colors. This overrides the `colors` parameter.
+   * Each color is represented as four consecutive 8-bit unsigned integers in the order RGBA,
+   * where each component is in the range [0, 255].
    */
   colorsCompressed?: IntArrayParam;
 

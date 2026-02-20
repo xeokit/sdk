@@ -64,7 +64,7 @@ export class SceneGeometry {
     uvsCompressed?: IntArrayParam;
 
     /**
-     * Vertex RGB colors, quantized as 8-bit integers.
+     * Vertex RGBA colors, quantized as 8-bit integers.
      */
     colorsCompressed?: IntArrayParam;
 

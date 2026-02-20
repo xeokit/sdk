@@ -751,7 +751,7 @@ export class SceneModel {
       });
     }
 
-    const {id, positions, indices, primitive, uvs} = geometryParams;
+    const {id, positions, indices, primitive, uvs, colors} = geometryParams;
 
     if (id === null || id === undefined) {
       return this.scene.logError({
@@ -799,6 +799,16 @@ export class SceneModel {
           `[SceneModel.createGeometry] Unsupported value for geometryParams.primitive: '${primitive}' - ` +
           "supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive"
       });
+    }
+
+    if (colors) {
+      if (colors.length / 4 !== positions.length / 3) {
+        return this.scene.logError({
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: "[SceneModel.createGeometry] Mismatch between given quantities of vertex positions and colors"
+        });
+      }
     }
 
     if (uvs) {
@@ -1023,6 +1033,18 @@ export class SceneModel {
     const sceneGeometry = new SceneGeometry(this, geometryCompressedParams);
     this.geometries[geometryId] = sceneGeometry;
     this.stats.numGeometries++;
+
+
+    if (indices) {
+      if (sceneGeometry.primitive === TrianglesPrimitive) {
+        this.stats.numTriangles += indices.length / 3;
+      } else if (sceneGeometry.primitive === LinesPrimitive) {
+        this.stats.numLines += indices.length / 2;
+      }
+    } else if (sceneGeometry.primitive === PointsPrimitive) {
+      this.stats.numPoints += positionsCompressed.length / 3;
+    }
+    this.stats.numVertices += positionsCompressed.length / 3;
 
     this.scene.events.onSceneGeometryCreated.dispatch(this.scene, sceneGeometry);
 

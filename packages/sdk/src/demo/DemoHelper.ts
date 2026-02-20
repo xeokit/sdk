@@ -1,13 +1,28 @@
 import {Scene, type SceneModelStats} from "../scene";
 import {Data, type DataModelStats} from "../data";
 import {View, Viewer} from "../viewer";
-import {MemoryUsage, WebGLRenderer} from "../webglrenderer";
-import {EventsLogger, SDKTask} from "../core";
+import {type MemoryUsage, WebGLRenderer} from "../webglrenderer";
+import {EventsLogger, getGlobalTaskRunner, type SDKResult, SDKTask} from "../core";
 import {SceneAABB3Index} from "../collision/aabb";
 import {CameraFlightAnimation} from "../cameraflight";
 import {type AABB3Float} from "../math/boundaries";
-import {RenderStats, type ViewRenderStats} from "../webglrenderer/internal/inspectors";
+import {type RenderStats, type ViewRenderStats} from "../webglrenderer/internal/inspectors";
+import {CameraControl} from "../cameracontrol";
+import {GPUMemoryConfigsPanel} from "./GPUMemoryConfigsPanel";
+import {GPUMemoryUsagePanel} from "./GPUMemoryUsagePanel";
+import {ScenePanel} from "./ScenePanel";
+import {DataPanel} from "./DataPanel";
+import {ModelConverterStatsReportPanel} from "./ModelConverterStatsReportPanel";
+import {ModelConverterStatsReport} from "../modelconverter/reporters/stats";
+import {ShadersPanel} from "./ShadersPanel";
+import {RendererPanel} from "./RendererPanel";
+import {FloatingPanelFlowHost} from "./FloatingPanelFlowHost";
+import {TaskPanel} from "./TaskPanel";
+import {BoundariesPanel} from "./BoundariesPanel";
+import {DataTexturesPanel} from "./DataTexturesPanel";
+import {TilesPanel} from "./TilesPanel";
 
+const taskRunner = getGlobalTaskRunner();
 
 export interface DemoHelperConfig {
   makeComponents?: boolean;
@@ -57,11 +72,19 @@ export class DemoHelper {
    */
   public cameraFlight: CameraFlightAnimation;
 
+  /**
+   * The CameraControl for the View, allowing user interaction with the camera.
+   */
+  public cameraControl: CameraControl;
+
   private makeComponents: boolean;
   private showOverlayButton: boolean;
   private overlayButton: HTMLButtonElement | null = null;
   private overlayDiv: HTMLDivElement | null = null;
   private overlayVisible: boolean = false;
+  private overlayFlowHost: HTMLDivElement;
+
+  private eventsLog: any[];
 
   /**
    * Statistics about the demo, available after calling `finished()`.
@@ -72,7 +95,7 @@ export class DemoHelper {
      * 3D axis-aligned bounding box (AABB) that
      * encloses all objects in the Scene.
      */
-    aabb: AABB3Float;
+    aabb: number[];
 
     /**
      * The time at which the demo initialization started.
@@ -110,6 +133,7 @@ export class DemoHelper {
     renderer: RenderStats;
   };
 
+
   /**
    * Creates a DemoHelper instance.
    * @param cfg
@@ -127,6 +151,7 @@ export class DemoHelper {
       memory: null,
       renderer: null
     };
+    this.eventsLog = [];
   }
 
   /**
@@ -147,12 +172,38 @@ export class DemoHelper {
         this.viewer = new Viewer();
         this.renderer = new WebGLRenderer();
 
+        const log = (eventName: string, sender: any, args: any) => {
+          //     this.eventsLog.push(`[${eventName}]`, { sender, args });
+          // console.log(`%c[${eventName}]`, "color: green;", { sender, args });
+          // console.log(`%c[${eventName}]`, "color: grey;", { sender, args });
+          // console.log(`%c[${eventName}]`, "color: red;", { sender, args });
+          // console.error(`%c[${eventName}]`, "color: red;", { sender, args });
+          // console.warn(`%c[${eventName}]`, "color: orange;", { sender, args });
+        };
+
         if (cfg.logging) {
-          new EventsLogger(this.scene.events, {prefix: "[Scene        ]"});
-          new EventsLogger(this.data.events, {prefix: "[Data         ]"});
-          new EventsLogger(this.viewer.events, {prefix: "[Viewer       ]"});
-          new EventsLogger(this.renderer.events, {prefix: "[WebGLRenderer]"});
+          new EventsLogger(this.scene.events, {prefix: "[Scene        ]", log});
+          new EventsLogger(this.data.events, {prefix: "[Data         ]", log});
+          new EventsLogger(this.viewer.events, {prefix: "[Viewer       ]", log});
+          new EventsLogger(this.renderer.events, {prefix: "[WebGLRenderer]", log});
         }
+
+        const onError = (_, result: SDKResult<any>) => {
+          setInterval(() => {
+            window.postMessage({
+              type: "xeokit.Error",
+              payload: result
+            }, "*");
+          }, 1000);
+          const div = document.createElement("div");
+          div.id = "Error";
+          document.body.appendChild(div);
+        };
+
+        this.scene.events.onError.subscribe(onError);
+        this.data.events.onError.subscribe(onError);
+        this.viewer.events.onError.subscribe(onError);
+        this.renderer.events.onError.subscribe(onError);
 
         this.aabb3Index = new SceneAABB3Index(this.scene);
 
@@ -161,7 +212,8 @@ export class DemoHelper {
 
         const viewResult = this.viewer.createView({
           id: "mainView",
-          elementId: "demoCanvas"
+          elementId: "demoCanvas",
+          backgroundColor: [0, 0, 0]
         });
 
         if (viewResult.ok === false) {
@@ -181,12 +233,10 @@ export class DemoHelper {
 
         this.cameraFlight = new CameraFlightAnimation(this.view);
 
+        this.cameraControl = new CameraControl(this.view);
+
         // @ts-ignore
         window.demoHelper = this;
-
-        if (this.showOverlayButton || cfg.showOverlayButton) {
-          this._createOverlayButton();
-        }
 
         resolve({});
       } else {
@@ -202,6 +252,63 @@ export class DemoHelper {
    */
   public getOverlayHostDiv(): HTMLDivElement | null {
     return this.overlayDiv;
+  }
+
+  /**
+   *
+   */
+  public toggleInspector(): void {
+
+    console.log(this.eventsLog);
+
+    if (this.overlayVisible) {
+      this.overlayFlowHost.style.display = "none";
+      this.overlayVisible = false;
+      this.view.htmlElement.style.pointerEvents = "all";
+
+      taskRunner.unsuspend();
+
+      return;
+    } else {
+      if (!this.overlayFlowHost) {
+        this.overlayFlowHost = FloatingPanelFlowHost.getOrCreate({
+          corner: "top-right",
+          marginTopPx: 65,
+          zIndex: 100000,
+          maxWidth: 2000,        // max width for the whole overlay area
+          tileMinWidth: 800,    // per-panel min width
+        });
+        GPUMemoryConfigsPanel.show(this.overlayFlowHost, this.renderer.getMemoryConfigs());
+        GPUMemoryUsagePanel.show(this.overlayFlowHost, this.renderer.getMemoryUsage());
+        ScenePanel.attach(this.overlayFlowHost, this.scene, {});
+        DataPanel.attach(this.overlayFlowHost, this.data, {});
+        const shaderInspectorResult = this.renderer.getShaderInspector();
+        if (shaderInspectorResult.ok) {
+          ShadersPanel.show(this.overlayFlowHost, shaderInspectorResult.value);
+        }
+        const renderInspectorResult = this.renderer.getRenderInspector();
+        if (renderInspectorResult.ok) {
+          RendererPanel.show(this.overlayFlowHost, this.renderer);
+          const renderInspector = renderInspectorResult.value;
+          const renderStats = renderInspector.renderStats;
+          TilesPanel.show(this.overlayFlowHost, renderStats);
+        }
+        TaskPanel.show(this.overlayFlowHost, taskRunner, {});
+        BoundariesPanel.show(this.overlayFlowHost, this.view, this.aabb3Index, {});
+        const memoryInspectorResult = this.renderer.getMemoryInspector();
+        if (memoryInspectorResult.ok) {
+          const memoryInspector = memoryInspectorResult.value;
+          const dataTextures = memoryInspector.dataTextures;
+          DataTexturesPanel.show(this.overlayFlowHost, dataTextures);
+        }
+      }
+      this.overlayFlowHost.style.display = "flex";
+      this.view.htmlElement.style.pointerEvents = "none";
+      this.overlayVisible = true;
+
+      taskRunner.suspend();
+
+    }
   }
 
   /**
@@ -235,6 +342,7 @@ export class DemoHelper {
    * Finalizes the demo setup, gathering statistics and signaling completion.
    */
   public finished(): void {
+    this._createOverlayButton();
     const stats = this.stats;
     stats.scene = this._getCombinedSceneModelStats();
     stats.data = this._getCombinedDataModelStats();
@@ -242,7 +350,10 @@ export class DemoHelper {
     stats.endTime = performance.now();
     stats.elapsedTime = stats.endTime - (stats.startTime ?? stats.endTime);
     if (this.renderer) {
-     stats.renderer = {};
+      stats.renderer = {
+        tiles: {},
+        views: []
+      };
       stats.memory = this.renderer.getMemoryUsage();
       const result = this.renderer.getRenderInspector();
       if (result.ok) {
@@ -251,7 +362,7 @@ export class DemoHelper {
       }
     }
 
-   // if (window.location.search.includes("visualTest=true") || (window as any).xeokitVisualTest) {
+    // if (window.location.search.includes("visualTest=true") || (window as any).xeokitVisualTest) {
     setInterval(() => {
       window.postMessage({
         type: "xeokit.visualTestJson",
@@ -262,7 +373,7 @@ export class DemoHelper {
     }, 1000);
 
     this.signalFinished();
-   // }
+    // }
   }
 
   private signalFinished(): void {
@@ -323,60 +434,66 @@ export class DemoHelper {
     return combinedStats;
   }
 
+
   private _createOverlayButton(): void {
     if (typeof document === "undefined") return;
     if (this.overlayButton) return; // Already created
 
     // Create button
     const button = document.createElement("button");
-    button.innerText = "☰ Debug";
+    button.innerHTML = `<span style="vertical-align: middle;">Open Inspectors</span>`;
     button.style.position = "fixed";
     button.style.top = "16px";
-    button.style.left = "16px";
+    button.style.right = "16px";
     button.style.zIndex = "100001";
     button.style.padding = "8px 16px";
-    button.style.background = "#222";
-    button.style.color = "#fff";
+    button.style.background = "#dedede";
+    button.style.color = "black";
     button.style.border = "none";
     button.style.borderRadius = "4px";
     button.style.cursor = "pointer";
     button.style.fontSize = "16px";
     button.style.boxShadow = "0 2px 8px rgba(0,0,0,0.2)";
-    button.style.opacity = "0.85";
-    button.style.transition = "background 0.2s, opacity 0.2s";
+    //  button.style.opacity = "0.85";
+    // button.style.transition = "background 0.2s, opacity 0.2s";
     button.onmouseenter = () => {
-      button.style.background = "#444";
-      button.style.opacity = "1";
+      button.style.background = "#ffff";
+      //    button.style.opacity = "1";
     };
     button.onmouseleave = () => {
-      button.style.background = "#222";
-      button.style.opacity = "0.85";
+      button.style.background = "#dedede";
+      //   button.style.opacity = "0.85";
     };
 
     // Create overlay
     const overlay = document.createElement("div");
     overlay.style.position = "fixed";
-    overlay.style.paddingLeft = "16px";
+    overlay.style.paddingRight = "16px";
     overlay.style.paddingTop = "48px";
     overlay.style.top = "0";
     overlay.style.right = "0";
     overlay.style.width = "100%";
     overlay.style.height = "100%";
     overlay.style.background = "rgba(30, 30, 40, 0.97)";
-    overlay.style.zIndex = "100000";
+    overlay.style.zIndex = "200000";
     overlay.style.display = "none";
     overlay.style.boxShadow = "2px 0 12px rgba(0,0,0,0.25)";
     overlay.style.overflowY = "auto";
     overlay.style.transition = "transform 0.2s";
     overlay.style.color = "#fff";
     overlay.style.fontFamily = "sans-serif";
-    overlay.innerHTML = `<div style="padding:24px 16px 16px 24px;font-size:18px;font-weight:bold;">Overlay Panel</div>
-        <div style="padding:0 16px 16px 24px;font-size:14px;">You can put any content here.</div>`;
+    overlay.style.backdropFilter = "blur(4px)";
 
-    // Button click toggles overlay
+    // Button click toggles overlay and caret
     button.onclick = () => {
-      this.overlayVisible = !this.overlayVisible;
-      overlay.style.display = this.overlayVisible ? "block" : "none";
+      this.toggleInspector();
+      if (this.overlayVisible) {
+        button.innerHTML = `<span style="vertical-align: middle;">Close Inspectors</span>`;
+        button.classList.add("demohelper-open");
+      } else {
+        button.innerHTML = `<span style="vertical-align: middle;">Open Inspectors</span>`;
+        button.classList.remove("demohelper-open");
+      }
     };
 
     // Add to DOM

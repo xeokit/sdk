@@ -20,5 +20,6 @@
  */
 
 export * from "./DemoHelper";
+export * from "./buildDemoModelTable";
 
 

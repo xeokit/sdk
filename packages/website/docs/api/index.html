@@ -1,0 +1,274 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="."><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>@xeokit/sdk - v0.1.0</title><meta name="description" content="Documentation for @xeokit/sdk"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script defer src="assets/main.js"></script><script async src="assets/icons.js" id="tsd-icons-script"></script><script async src="assets/search.js" id="tsd-search-script"></script><script async src="assets/navigation.js" id="tsd-nav-script"></script><script async src="assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search"><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="https://xeokit.io" class="title">@xeokit/sdk - v0.1.0</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><h1>@xeokit/sdk - v0.1.0</h1></div><div class="tsd-panel tsd-typography"><a id="xeokit-sdk-v3" class="tsd-anchor"></a><h1 class="tsd-anchor-link">@xeokit SDK (V3)<a href="#xeokit-sdk-v3" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1><blockquote>
+<p><strong>High‑performance AECO visualization for the web and Node.js</strong></p>
+</blockquote>
+<p>Welcome to <strong>xeokit</strong>, a flexible, production‑grade SDK for creating fast, interactive visualizations of AECO (Architecture, Engineering, Construction &amp; Operations) models directly in the browser or in Node.js.</p>
+<p>Built with <strong>TypeScript</strong>, xeokit is designed for <strong>extreme performance</strong>: it streams, loads, and renders very large models with minimal memory and CPU usage. The SDK cleanly separates <strong>data</strong>, <strong>scene representation</strong>, and <strong>rendering</strong>, making it suitable for everything from lightweight viewers to complex BIM pipelines.</p>
+<hr>
+<a id="key-features" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Key Features<a href="#key-features" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li><strong>Lightning‑fast rendering</strong> of massive AECO models using innovative</li>
+<li><strong>Browser &amp; Node.js support</strong> for viewing, conversion, and preprocessing</li>
+<li><strong>Scene graph + data graph</strong> architecture</li>
+<li><strong>Multi‑canvas, multi‑view viewers</strong></li>
+<li><strong>Full precision (64-bit) coordinate system</strong></li>
+<li><strong>Pluggable renderer backends</strong> (WebGL today, WebGPU ready)</li>
+<li><strong>Import, export &amp; convert</strong> industry‑standard AECO formats</li>
+<li><strong>BIM collaboration</strong> via BCF Viewpoints</li>
+<li><strong>Fully documented utility libraries</strong></li>
+<li><strong>Open‑source</strong> with a permissive AGPL‑3.0 license**</li>
+</ul>
+<hr>
+<a id="table-of-contents" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Table of Contents<a href="#table-of-contents" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><a id="modules" class="tsd-anchor"></a><h4 class="tsd-anchor-link"><a href="#modules">Modules</a><a href="#modules" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h4><ul>
+<li><a href="#scene-graph">Scene Graph</a></li>
+<li><a href="#data-graph">Data Graph</a></li>
+<li><a href="#model-viewer--renderer-backend">Model Viewer &amp; Renderer</a></li>
+<li><a href="#model-importers-and-exporters">Importers &amp; Exporters</a></li>
+<li><a href="#model-conversion">Model Conversion</a></li>
+<li><a href="#bim-interoperability-via-bcf-viewpoints">BIM Interoperability (BCF)</a></li>
+</ul>
+<a id="examples" class="tsd-anchor"></a><h4 class="tsd-anchor-link"><a href="#examples">Examples</a><a href="#examples" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h4><ul>
+<li><a href="#spinning-3d-box">Spinning 3D Box</a></li>
+<li><a href="#ifc-model-viewer">IFC Model Viewer</a></li>
+<li><a href="#converting-an-ifc-file-to-dotbim-via-cli">IFC to DotBIM Conversion via CLI</a></li>
+</ul>
+<a id="project-development" class="tsd-anchor"></a><h4 class="tsd-anchor-link"><a href="#project-development">Project Development</a><a href="#project-development" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h4><ul>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#build-sdk">Building the SDK</a></li>
+<li><a href="#build-typedocs">Generating Docs</a></li>
+</ul>
+<a id="license" class="tsd-anchor"></a><h4 class="tsd-anchor-link"><a href="#license">License</a><a href="#license" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h4><a id="credits" class="tsd-anchor"></a><h4 class="tsd-anchor-link"><a href="#credits">Credits</a><a href="#credits" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h4><hr>
+<a id="modules-1" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Modules<a href="#modules-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><a id="scene-graph" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Scene Graph<a href="#scene-graph" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>The <strong>scene graph</strong> represents 3D model geometry, materials, and objects. It is renderer‑agnostic and works identically in the browser and Node.js. You can use it to:</p>
+<ul>
+<li>Build models programmatically</li>
+<li>Convert between file formats</li>
+<li>Drive one or more viewers</li>
+</ul>
+<p>The scene graph emits events for every structural or visual change.</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html"><code>@xeokit/sdk/scene</code></a></td>
+<td>Scene graph containing geometries, materials, and objects</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<a id="data-graph" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Data Graph<a href="#data-graph" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>The <strong>data graph</strong> manages model semantics using an entity‑relationship structure. It stores:</p>
+<ul>
+<li>Entities</li>
+<li>Properties</li>
+<li>Relationships</li>
+</ul>
+<p>Like the scene graph, it runs in both browser and Node.js environments and emits change events independently of rendering.</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html"><code>@xeokit/sdk/data</code></a></td>
+<td>Semantic entity‑relationship graph</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<a id="model-viewer--renderer-backend" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Model Viewer &amp; Renderer Backend<a href="#model-viewer--renderer-backend" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>xeokit includes a high‑performance <strong>browser viewer</strong> that attaches to a scene graph and reacts to its events in real time.</p>
+<p>Rendering is handled by <strong>pluggable backends</strong>, allowing support for multiple graphics APIs.</p>
+<p>Key capabilities:</p>
+<ul>
+<li>Multiple simultaneous models</li>
+<li>Multiple canvases and views</li>
+<li>Cameras, lights, section planes, annotations</li>
+<li>UI widgets and localization</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html"><code>@xeokit/sdk/viewer</code></a></td>
+<td>Browser‑based model viewer</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_webglrenderer.html"><code>@xeokit/sdk/webglrenderer</code></a></td>
+<td>WebGL rendering backend</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/docs/modules/cameracontrol.html"><code>@xeokit/sdk/cameracontrol</code></a></td>
+<td>Interactive camera controls</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_treeview.html"><code>@xeokit/sdk/treeview</code></a></td>
+<td>HTML tree view widget</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_locale.html"><code>@xeokit/sdk/locale</code></a></td>
+<td>Localization service</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<a id="model-importers-and-exporters" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Model Importers and Exporters<a href="#model-importers-and-exporters" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>xeokit supports several industry‑standard AECO formats. These modules can be used in:</p>
+<ul>
+<li>Node.js (offline conversion pipelines)</li>
+<li>Browsers (runtime loading)</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_dotbim.html"><code>@xeokit/sdk/formats/dotbim</code></a></td>
+<td>Import/export DotBIM</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_xgf.html"><code>@xeokit/sdk/formats/xgf</code></a></td>
+<td>Import/export XGF</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_gltf.html"><code>@xeokit/sdk/formats/gltf</code></a></td>
+<td>Import glTF / GLB</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_las.html"><code>@xeokit/sdk/formats/las</code></a></td>
+<td>Import LAS point clouds</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_cityjson.html"><code>@xeokit/sdk/formats/cityjson</code></a></td>
+<td>Import CityJSON</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_webifc.html"><code>@xeokit/sdk/formats/ifc</code></a></td>
+<td>Import IFC</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_xkt.html"><code>@xeokit/sdk/formats/xkt</code></a></td>
+<td>Import XKT</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_datamodel.html"><code>@xeokit/sdk/formats/datamodel</code></a></td>
+<td>Native data models</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_scenedata.html"><code>@xeokit/sdk/formats/scenedata</code></a></td>
+<td>Native scene models</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<a id="model-conversion" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Model Conversion<a href="#model-conversion" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Convert between multiple AECO formats using a unified API or CLI.</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_modelconverter.html"><code>@xeokit/sdk/modelconverter</code></a></td>
+<td>Multi‑format converter</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/docs/modules/_xeokit_xeoconvert.html"><code>@xeokit/sdk/xeoconvert</code></a></td>
+<td>CLI wrapper</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<a id="bim-interoperability-via-bcf-viewpoints" class="tsd-anchor"></a><h3 class="tsd-anchor-link">BIM Interoperability via BCF Viewpoints<a href="#bim-interoperability-via-bcf-viewpoints" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Share viewer state and issues with other BIM tools using <strong>BCF Viewpoints</strong>, enabling collaborative workflows across platforms.</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://www.npmjs.com/package/@xeokit/sdk/bcf"><code>@xeokit/sdk/bcf</code></a></td>
+<td>Load and save BCF Viewpoints</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<a id="examples-1" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Examples<a href="#examples-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Some minimal examples to get you started. Find more examples
+at <a href="https://xeokit.github.io/sdk/examples/">xeokit.github.io/sdk/examples</a>.</p>
+<a id="spinning-3d-box" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Spinning 3D Box<a href="#spinning-3d-box" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>In the example below, we create a simple 3D box model and set up a viewer to display it in a canvas
+element with the ID <code>myCanvas</code>. The camera orbits around the box to create a spinning effect.</p>
+<p>In xeokit, everything starts with a <strong>Scene</strong> that holds all 3D content. We then create
+a <strong>Viewer</strong> to visualize the scene, and a <strong>WebGLRenderer</strong> to handle rendering.</p>
+<p>Instead of using exceptions, errors are handled gracefully using result monads. Any method in the SDK that can
+fail returns an <code>SDKResult</code> that indicates success or failure.</p>
+<p>Scene content is fully dynamic and can be modified at runtime. We can create and destroy
+geometries, meshes, and objects in the Scene and the Viewer will update automatically.</p>
+<p>Everything is coupled via events. The Scene emits events when content changes; the Viewer
+emits events when viewing parameters change, and the WebGLRenderer reacts to all these events
+to update the display accordingly.</p>
+<pre><code class="bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">install</span><span class="hl-1"> </span><span class="hl-2">@xeokit/sdk</span>
+</code><button type="button">Copy</button></pre>
+
+<pre><code class="javascript"><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-4">Scene</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@xeokit/sdk/scene&quot;</span><span class="hl-1">;</span><br/><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-4">Viewer</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@xeokit/sdk/viewer&quot;</span><span class="hl-1">;</span><br/><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-4">WebGLRenderer</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@xeokit/sdk/webglrenderer&quot;</span><span class="hl-1">;</span><br/><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-4">SDKTask</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@xeokit/sdk/core&quot;</span><span class="hl-1">;</span><br/><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-4">TrianglesPrimitive</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@xeokit/sdk/constants&quot;</span><span class="hl-1">;</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">scene</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">Scene</span><span class="hl-1">();</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">viewer</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">Viewer</span><span class="hl-1">({ </span><span class="hl-4">scene</span><span class="hl-1"> });</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">renderer</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">WebGLRenderer</span><span class="hl-1">({ </span><span class="hl-4">viewer</span><span class="hl-1"> });</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">viewResult</span><span class="hl-1"> = </span><span class="hl-4">viewer</span><span class="hl-1">.</span><span class="hl-0">createView</span><span class="hl-1">({ </span><br/><span class="hl-1">  </span><span class="hl-4">id:</span><span class="hl-1"> </span><span class="hl-2">&quot;view&quot;</span><span class="hl-1">, </span><br/><span class="hl-1">  </span><span class="hl-4">elementId:</span><span class="hl-1"> </span><span class="hl-2">&quot;myCanvas&quot;</span><span class="hl-1"> </span><br/><span class="hl-1">});</span><br/><br/><span class="hl-3">if</span><span class="hl-1"> (!</span><span class="hl-4">viewResult</span><span class="hl-1">.</span><span class="hl-4">ok</span><span class="hl-1">) {</span><br/><span class="hl-1">  </span><span class="hl-3">throw</span><span class="hl-1"> </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">Error</span><span class="hl-1">(</span><span class="hl-4">viewResult</span><span class="hl-1">.</span><span class="hl-4">error</span><span class="hl-1">);</span><br/><span class="hl-1">}</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">view</span><span class="hl-1"> = </span><span class="hl-4">viewResult</span><span class="hl-1">.</span><span class="hl-4">value</span><br/><br/><span class="hl-4">view</span><span class="hl-1">.</span><span class="hl-4">camera</span><span class="hl-1">.</span><span class="hl-4">eye</span><span class="hl-1"> = [</span><span class="hl-7">0</span><span class="hl-1">, </span><span class="hl-7">0</span><span class="hl-1">, </span><span class="hl-7">10</span><span class="hl-1">];</span><br/><span class="hl-4">view</span><span class="hl-1">.</span><span class="hl-4">camera</span><span class="hl-1">.</span><span class="hl-4">look</span><span class="hl-1"> = [</span><span class="hl-7">0</span><span class="hl-1">, </span><span class="hl-7">0</span><span class="hl-1">, </span><span class="hl-7">0</span><span class="hl-1">];</span><br/><span class="hl-4">view</span><span class="hl-1">.</span><span class="hl-4">camera</span><span class="hl-1">.</span><span class="hl-4">up</span><span class="hl-1"> = [</span><span class="hl-7">0</span><span class="hl-1">, </span><span class="hl-7">1</span><span class="hl-1">, </span><span class="hl-7">0</span><span class="hl-1">];</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">modelResult</span><span class="hl-1"> = </span><span class="hl-4">scene</span><span class="hl-1">.</span><span class="hl-0">createModel</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">id:</span><span class="hl-1"> </span><span class="hl-2">&quot;boxModel&quot;</span><br/><span class="hl-1">});</span><br/><br/><span class="hl-3">if</span><span class="hl-1"> (!</span><span class="hl-4">modelResult</span><span class="hl-1">.</span><span class="hl-4">ok</span><span class="hl-1">) {</span><br/><span class="hl-1">  </span><span class="hl-3">throw</span><span class="hl-1"> </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">Error</span><span class="hl-1">(</span><span class="hl-4">modelResult</span><span class="hl-1">.</span><span class="hl-4">error</span><span class="hl-1">);</span><br/><span class="hl-1">}</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">model</span><span class="hl-1"> = </span><span class="hl-4">modelResult</span><span class="hl-1">.</span><span class="hl-4">value</span><span class="hl-1">;</span><br/><br/><span class="hl-4">model</span><span class="hl-1">.</span><span class="hl-0">createGeometry</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">id:</span><span class="hl-1"> </span><span class="hl-2">&quot;boxGeometry&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">primitive:</span><span class="hl-1"> </span><span class="hl-4">TrianglesPrimitive</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">positions:</span><span class="hl-1"> [-</span><span class="hl-7">1</span><span class="hl-1">, -</span><span class="hl-7">1</span><span class="hl-1">, -</span><span class="hl-7">1</span><span class="hl-1">, </span><span class="hl-7">1</span><span class="hl-1">, -</span><span class="hl-7">1</span><span class="hl-1">, -</span><span class="hl-7">1</span><span class="hl-1">, </span><span class="hl-7">1</span><span class="hl-1">, </span><span class="hl-7">1</span><span class="hl-1">, -</span><span class="hl-7">1</span><span class="hl-1">, -</span><span class="hl-7">1</span><span class="hl-1">, </span><span class="hl-7">1</span><span class="hl-1">, -</span><span class="hl-7">1</span><span class="hl-1">],</span><br/><span class="hl-1">  </span><span class="hl-4">indices:</span><span class="hl-1"> [</span><span class="hl-7">0</span><span class="hl-1">, </span><span class="hl-7">1</span><span class="hl-1">, </span><span class="hl-7">2</span><span class="hl-1">, </span><span class="hl-7">0</span><span class="hl-1">, </span><span class="hl-7">2</span><span class="hl-1">, </span><span class="hl-7">3</span><span class="hl-1">]</span><br/><span class="hl-1">});</span><br/><br/><span class="hl-4">model</span><span class="hl-1">.</span><span class="hl-0">addMesh</span><span class="hl-1">({ </span><br/><span class="hl-1">  </span><span class="hl-4">id:</span><span class="hl-1"> </span><span class="hl-2">&quot;boxMesh&quot;</span><span class="hl-1">, </span><br/><span class="hl-1">  </span><span class="hl-4">geometryId:</span><span class="hl-1"> </span><span class="hl-2">&quot;boxGeometry&quot;</span><span class="hl-1">, </span><br/><span class="hl-1">  </span><span class="hl-4">color:</span><span class="hl-1"> [</span><span class="hl-7">1</span><span class="hl-1">, </span><span class="hl-7">0</span><span class="hl-1">, </span><span class="hl-7">0</span><span class="hl-1">] </span><br/><span class="hl-1">});</span><br/><br/><span class="hl-4">model</span><span class="hl-1">.</span><span class="hl-0">createObject</span><span class="hl-1">({ </span><br/><span class="hl-1">  </span><span class="hl-4">id:</span><span class="hl-1"> </span><span class="hl-2">&quot;box&quot;</span><span class="hl-1">, </span><br/><span class="hl-1">  </span><span class="hl-4">meshIds:</span><span class="hl-1"> [</span><span class="hl-2">&quot;boxMesh&quot;</span><span class="hl-1">] </span><br/><span class="hl-1">});</span><br/><br/><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">SDKTask</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">repeat:</span><span class="hl-1"> </span><span class="hl-5">true</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-0">task</span><span class="hl-4">:</span><span class="hl-1"> () </span><span class="hl-5">=&gt;</span><span class="hl-1"> </span><span class="hl-4">view</span><span class="hl-1">.</span><span class="hl-4">camera</span><span class="hl-1">.</span><span class="hl-0">orbitYaw</span><span class="hl-1">(</span><span class="hl-7">1</span><span class="hl-1">)</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<hr>
+<a id="ifc-model-viewer" class="tsd-anchor"></a><h3 class="tsd-anchor-link">IFC Model Viewer<a href="#ifc-model-viewer" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Load and display a IFC model in the browser, including semantic structure via the data graph.</p>
+<pre><code class="javascript"><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-4">Scene</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@xeokit/sdk/scene&quot;</span><span class="hl-1">;</span><br/><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-4">Data</span><span class="hl-1">, </span><span class="hl-4">searchObjects</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@xeokit/sdk/data&quot;</span><span class="hl-1">;</span><br/><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-4">Viewer</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@xeokit/sdk/viewer&quot;</span><span class="hl-1">;</span><br/><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-4">WebGLRenderer</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@xeokit/sdk/webglrenderer&quot;</span><span class="hl-1">;</span><br/><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-4">CameraControl</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@xeokit/sdk/cameracontrol&quot;</span><span class="hl-1">;</span><br/><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-4">IFCLoader</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@xeokit/sdk/formats/dotbim&quot;</span><span class="hl-1">;</span><br/><br/><span class="hl-8">// Create containers for geometry and optional structural data</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">scene</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">Scene</span><span class="hl-1">();</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">data</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">Data</span><span class="hl-1">();</span><br/><br/><span class="hl-8">// Create a Viewer and WebGL renderer</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">viewer</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">Viewer</span><span class="hl-1">({ </span><span class="hl-4">scene</span><span class="hl-1"> });</span><br/><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">WebGLRenderer</span><span class="hl-1">({ </span><span class="hl-4">viewer</span><span class="hl-1"> });</span><br/><br/><span class="hl-8">// Create a View bound to an existing canvas element</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">view</span><span class="hl-1"> = </span><span class="hl-4">viewer</span><span class="hl-1">.</span><span class="hl-0">createView</span><span class="hl-1">({</span><br/><span class="hl-1">    </span><span class="hl-4">id:</span><span class="hl-1"> </span><span class="hl-2">&quot;myView&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-4">elementId:</span><span class="hl-1"> </span><span class="hl-2">&quot;myCanvas&quot;</span><span class="hl-1"> </span><span class="hl-8">// Ensure this element exists</span><br/><span class="hl-1">}).</span><span class="hl-4">value</span><span class="hl-1">;</span><br/><br/><span class="hl-8">// Position the camera</span><br/><br/><span class="hl-4">view</span><span class="hl-1">.</span><span class="hl-4">camera</span><span class="hl-1">.</span><span class="hl-4">eye</span><span class="hl-1"> = [-</span><span class="hl-7">6.01</span><span class="hl-1">, </span><span class="hl-7">4.85</span><span class="hl-1">, </span><span class="hl-7">9.11</span><span class="hl-1">];</span><br/><span class="hl-4">view</span><span class="hl-1">.</span><span class="hl-4">camera</span><span class="hl-1">.</span><span class="hl-4">look</span><span class="hl-1"> = [</span><span class="hl-7">3.93</span><span class="hl-1">, -</span><span class="hl-7">2.65</span><span class="hl-1">, -</span><span class="hl-7">12.51</span><span class="hl-1">];</span><br/><span class="hl-4">view</span><span class="hl-1">.</span><span class="hl-4">camera</span><span class="hl-1">.</span><span class="hl-4">up</span><span class="hl-1"> = [</span><span class="hl-7">0.12</span><span class="hl-1">, </span><span class="hl-7">0.95</span><span class="hl-1">, -</span><span class="hl-7">0.27</span><span class="hl-1">];</span><br/><br/><span class="hl-8">// Enable mouse / touch camera interaction</span><br/><br/><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">CameraControl</span><span class="hl-1">(</span><span class="hl-4">view</span><span class="hl-1">, {});</span><br/><br/><span class="hl-8">// Create target models for the loader</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">sceneModel</span><span class="hl-1"> = </span><span class="hl-4">scene</span><span class="hl-1">.</span><span class="hl-0">createModel</span><span class="hl-1">({ </span><span class="hl-4">id:</span><span class="hl-1"> </span><span class="hl-2">&quot;myModel&quot;</span><span class="hl-1"> }).</span><span class="hl-4">value</span><span class="hl-1">;</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">dataModel</span><span class="hl-1"> = </span><span class="hl-4">data</span><span class="hl-1">.</span><span class="hl-0">createModel</span><span class="hl-1">({ </span><span class="hl-4">id:</span><span class="hl-1"> </span><span class="hl-2">&quot;myModel&quot;</span><span class="hl-1"> }).</span><span class="hl-4">value</span><span class="hl-1">;</span><br/><br/><span class="hl-8">// Create the IFC loader</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">ifcLoader</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">IFCLoader</span><span class="hl-1">();</span><br/><br/><span class="hl-8">// Fetch and decode the IFC file</span><br/><br/><span class="hl-0">fetch</span><span class="hl-1">(</span><span class="hl-2">&quot;model.ifc&quot;</span><span class="hl-1">)</span><br/><span class="hl-1">    .</span><span class="hl-0">then</span><span class="hl-1">((</span><span class="hl-4">r</span><span class="hl-1">) </span><span class="hl-5">=&gt;</span><span class="hl-1"> </span><span class="hl-4">r</span><span class="hl-1">.</span><span class="hl-0">arrayBuffer</span><span class="hl-1">())</span><br/><span class="hl-1">    .</span><span class="hl-0">then</span><span class="hl-1">((</span><span class="hl-4">fileData</span><span class="hl-1">) </span><span class="hl-5">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1"> </span><br/><span class="hl-1">        </span><span class="hl-8">// Load geometry (and optional node hierarchy) into the models</span><br/><span class="hl-1"> </span><br/><span class="hl-1">        </span><span class="hl-3">return</span><span class="hl-1"> </span><span class="hl-4">ifcLoader</span><span class="hl-1">.</span><span class="hl-0">load</span><span class="hl-1">({</span><br/><span class="hl-1">            </span><span class="hl-4">fileData</span><span class="hl-1">,</span><br/><span class="hl-1">            </span><span class="hl-4">sceneModel</span><span class="hl-1">,</span><br/><span class="hl-1">            </span><span class="hl-4">dataModel</span><br/><span class="hl-1">        });</span><br/><span class="hl-1">    })</span><br/><span class="hl-1">    .</span><span class="hl-0">then</span><span class="hl-1">(() </span><span class="hl-5">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1">        </span><br/><span class="hl-1">        </span><span class="hl-8">// Model successfully loaded and visible.</span><br/><br/><span class="hl-1">        </span><span class="hl-8">// Search the data graph for IfcWall objects, starting at the </span><br/><span class="hl-1">        </span><span class="hl-8">// IfcProject root node, including any children via IfcRelAggregates relationships.</span><br/><span class="hl-1">      </span><br/><span class="hl-1">      </span><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">resultObjectIds</span><span class="hl-1"> = [];</span><br/><br/><span class="hl-1">      </span><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">result</span><span class="hl-1"> = </span><span class="hl-0">searchObjects</span><span class="hl-1">(</span><span class="hl-4">data</span><span class="hl-1">, {</span><br/><span class="hl-1">        </span><span class="hl-4">startObjectId:</span><span class="hl-1"> </span><span class="hl-2">&quot;38aOKO8_DDkBd1FHm_lVXz&quot;</span><span class="hl-1">, </span><span class="hl-8">// Root IfcProject ID</span><br/><span class="hl-1">        </span><span class="hl-4">includeObjects:</span><span class="hl-1"> [</span><span class="hl-2">&quot;IfcWall&quot;</span><span class="hl-1">],</span><br/><span class="hl-1">        </span><span class="hl-4">includeRelated:</span><span class="hl-1"> [</span><span class="hl-2">&quot;IfcRelAggregates&quot;</span><span class="hl-1">],</span><br/><span class="hl-1">        </span><span class="hl-4">resultObjectIds</span><br/><span class="hl-1">      });</span><br/><br/><span class="hl-1">      </span><span class="hl-8">// Check if the query succeeded.</span><br/><br/><span class="hl-1">      </span><span class="hl-3">if</span><span class="hl-1"> (!</span><span class="hl-4">result</span><span class="hl-1">.</span><span class="hl-4">ok</span><span class="hl-1">) {</span><br/><span class="hl-1">        </span><span class="hl-4">console</span><span class="hl-1">.</span><span class="hl-0">error</span><span class="hl-1">(</span><span class="hl-2">&quot;Error querying IFC data: &quot;</span><span class="hl-1"> + </span><span class="hl-4">result</span><span class="hl-1">.</span><span class="hl-4">error</span><span class="hl-1">);</span><br/><span class="hl-1">        </span><span class="hl-3">return</span><span class="hl-1">;</span><br/><span class="hl-1">      }</span><br/><br/><span class="hl-1">      </span><span class="hl-8">// If the query succeeded, go ahead and mark whatever</span><br/><span class="hl-1">      </span><span class="hl-8">// objects we found as selected. Now all the IfcWall objects</span><br/><span class="hl-1">      </span><span class="hl-8">// in the Viewer will appear selected and glowing.</span><br/><br/><span class="hl-1">      </span><span class="hl-4">view</span><span class="hl-1">.</span><span class="hl-0">setObjectsSelected</span><span class="hl-1">(</span><span class="hl-4">resultObjectIds</span><span class="hl-1">, </span><span class="hl-5">true</span><span class="hl-1">);</span><br/><span class="hl-1">    })</span><br/><span class="hl-1">    .</span><span class="hl-0">catch</span><span class="hl-1">((</span><span class="hl-4">err</span><span class="hl-1">) </span><span class="hl-5">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1">        </span><span class="hl-8">// Clean up on failure</span><br/><span class="hl-1">        </span><span class="hl-4">sceneModel</span><span class="hl-1">.</span><span class="hl-0">destroy</span><span class="hl-1">();</span><br/><span class="hl-1">        </span><span class="hl-4">dataModel</span><span class="hl-1">.</span><span class="hl-0">destroy</span><span class="hl-1">();</span><br/><span class="hl-1">        </span><span class="hl-4">console</span><span class="hl-1">.</span><span class="hl-0">error</span><span class="hl-1">(</span><span class="hl-2">&quot;Error loading IFC:&quot;</span><span class="hl-1">, </span><span class="hl-4">err</span><span class="hl-1">);</span><br/><span class="hl-1">    });</span>
+</code><button type="button">Copy</button></pre>
+
+<hr>
+<a id="converting-an-ifc-file-to-dotbim-via-cli" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Converting an IFC file to DotBIM via CLI<a href="#converting-an-ifc-file-to-dotbim-via-cli" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Convert an IFC file to DotBIM format using the <code>xeoconvert</code> command-line tool.</p>
+<pre><code class="bash"><span class="hl-0">node</span><span class="hl-1"> </span><span class="hl-2">./node_modules/@xeokit/sdk/dist/xeoconvert.js</span><span class="hl-1"> </span><span class="hl-9">\</span><br/><span class="hl-1">  </span><span class="hl-5">--pipeline</span><span class="hl-1"> </span><span class="hl-2">ifc2dotbim</span><span class="hl-1"> </span><span class="hl-9">\</span><br/><span class="hl-1">  </span><span class="hl-5">--ifc</span><span class="hl-1"> </span><span class="hl-2">model.ifc</span><span class="hl-1"> </span><span class="hl-9">\</span><br/><span class="hl-1">  </span><span class="hl-5">--dotbim</span><span class="hl-1"> </span><span class="hl-2">model.bim</span><span class="hl-1"> </span><span class="hl-9">\</span><br/><span class="hl-1">  </span><span class="hl-5">--log</span><span class="hl-1"> </span><span class="hl-9">\</span><br/><span class="hl-1">  </span><span class="hl-5">--stats</span><span class="hl-1"> </span><span class="hl-2">conversion_stats.json</span>
+</code><button type="button">Copy</button></pre>
+
+<hr>
+<a id="project-development-1" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Project Development<a href="#project-development-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><a id="installation" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Installation<a href="#installation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Install the package manager (recommended globally):</p>
+<pre><code><br/><span class="hl-4">Clone</span><span class="hl-1"> </span><span class="hl-4">the</span><span class="hl-1"> </span><span class="hl-10">repository</span><span class="hl-1">:</span><br/><br/><span class="hl-2">```bash</span><br/><span class="hl-2">git clone https://github.com/xeokit/sdk</span><br/><span class="hl-2">cd sdk</span>
+</code><button>Copy</button></pre>
+
+<p>Install dependencies:</p>
+<pre><code class="bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">install</span>
+</code><button type="button">Copy</button></pre>
+
+<hr>
+<a id="build-sdk" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Build SDK<a href="#build-sdk" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Build the xeokit SDK:</p>
+<pre><code class="bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">sdk-dist</span>
+</code><button type="button">Copy</button></pre>
+
+<p>Output:</p>
+<pre><code><span class="hl-1">./</span><span class="hl-4">packages</span><span class="hl-1">/</span><span class="hl-4">sdk</span><span class="hl-1">/</span><span class="hl-4">dist</span>
+</code><button>Copy</button></pre>
+
+<p>This directory contains the compiled JavaScript bundles and dependencies.</p>
+<hr>
+<a id="build-typedocs" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Build TypeDocs<a href="#build-typedocs" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Generate API documentation:</p>
+<pre><code class="bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">website-sdk-docs</span>
+</code><button type="button">Copy</button></pre>
+
+<p>Output:</p>
+<pre><code><span class="hl-1">./</span><span class="hl-4">packages</span><span class="hl-1">/</span><span class="hl-4">website</span><span class="hl-1">/</span><span class="hl-4">docs</span>
+</code><button>Copy</button></pre>
+
+<p>The <code>website</code> package is configured as the root for GitHub Pages hosting.</p>
+<hr>
+<a id="license-1" class="tsd-anchor"></a><h2 class="tsd-anchor-link">License<a href="#license-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Copyright © 2026</p>
+<p>Licensed under the <strong>AGPL‑3.0</strong>.</p>
+<hr>
+<a id="credits-1" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Credits<a href="#credits-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>See <a href="/credits.html">Credits</a>.</p>
+</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#xeokit-sdk-v3"><span>@xeokit SDK (<wbr/>V3)</span></a><ul><li><a href="#key-features"><span>Key <wbr/>Features</span></a></li><li><a href="#table-of-contents"><span>Table of <wbr/>Contents</span></a></li><li><ul><li><ul><li><a href="#modules"><span>Modules</span></a></li><li><a href="#examples"><span>Examples</span></a></li><li><a href="#project-development"><span>Project <wbr/>Development</span></a></li><li><a href="#license"><span>License</span></a></li><li><a href="#credits"><span>Credits</span></a></li></ul></li></ul></li><li><a href="#modules-1"><span>Modules</span></a></li><li><ul><li><a href="#scene-graph"><span>Scene <wbr/>Graph</span></a></li><li><a href="#data-graph"><span>Data <wbr/>Graph</span></a></li><li><a href="#model-viewer--renderer-backend"><span>Model <wbr/>Viewer &amp; <wbr/>Renderer <wbr/>Backend</span></a></li><li><a href="#model-importers-and-exporters"><span>Model <wbr/>Importers and <wbr/>Exporters</span></a></li><li><a href="#model-conversion"><span>Model <wbr/>Conversion</span></a></li><li><a href="#bim-interoperability-via-bcf-viewpoints"><span>BIM <wbr/>Interoperability via BCF <wbr/>Viewpoints</span></a></li></ul></li><li><a href="#examples-1"><span>Examples</span></a></li><li><ul><li><a href="#spinning-3d-box"><span>Spinning 3<wbr/>D <wbr/>Box</span></a></li><li><a href="#ifc-model-viewer"><span>IFC <wbr/>Model <wbr/>Viewer</span></a></li><li><a href="#converting-an-ifc-file-to-dotbim-via-cli"><span>Converting an IFC file to <wbr/>DotBIM via CLI</span></a></li></ul></li><li><a href="#project-development-1"><span>Project <wbr/>Development</span></a></li><li><ul><li><a href="#installation"><span>Installation</span></a></li><li><a href="#build-sdk"><span>Build SDK</span></a></li><li><a href="#build-typedocs"><span>Build <wbr/>Type<wbr/>Docs</span></a></li></ul></li><li><a href="#license-1"><span>License</span></a></li><li><a href="#credits-1"><span>Credits</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="modules.html">@xeokit/sdk - v0.1.0</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>

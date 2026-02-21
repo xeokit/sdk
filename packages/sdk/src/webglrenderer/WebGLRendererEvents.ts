@@ -1,6 +1,6 @@
 import {EventEmitter, SDKErrorType} from "../core";
 import {WebGLRenderer} from "./WebGLRenderer";
-import {Viewer} from "../viewer";
+import {View, Viewer} from "../viewer";
 
 /**
  * Events for WebGLRenderer.
@@ -21,6 +21,11 @@ export interface WebGLRendererEvents {
    * Emits an event when the `WebGLRenderer` is started.
    */
   readonly onRendererStarted: EventEmitter<WebGLRenderer, void>;
+
+  /**
+   * Emits an event when the `WebGLRenderer` has rendered a new frame for a `View` belonging to the attached `Viewer`.
+   */
+  readonly onViewRendered: EventEmitter<WebGLRenderer, View>;
 
   /**
    * Emits an event when the `WebGLRenderer` is stopped.

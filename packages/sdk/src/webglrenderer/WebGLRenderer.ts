@@ -45,7 +45,7 @@ export class WebGLRenderer {
    *
    * @internal
    */
-   _viewManager: ViewManager;
+  _viewManager: ViewManager;
 
   private _viewerSubs: (() => void)[];
   private _viewManagerSubs: (() => void)[];
@@ -83,6 +83,11 @@ export class WebGLRenderer {
     onRendererStarted: new EventEmitter(new EventDispatcher<WebGLRenderer, void>()),
 
     /**
+     * Emitted when the renderer has rendered a new frame for a {@link View} belonging to the attached {@link Viewer}.
+     */
+    onViewRendered: new EventEmitter(new EventDispatcher<WebGLRenderer, View>()),
+
+    /**
      * Emitted when the renderer stops rendering.
      *
      * Rendering stops when the Scene is detached or when the renderer’s internal
@@ -117,14 +122,12 @@ export class WebGLRenderer {
      * Errors are also logged to the console when {@link logging} is enabled.
      */
     onError: new EventEmitter(
-      new EventDispatcher<
-        WebGLRenderer,
+      new EventDispatcher<WebGLRenderer,
         {
           ok: false;
           type: SDKErrorType;
           error: string;
-        }
-        >()
+        }>()
     ),
   };
 
@@ -149,29 +152,39 @@ export class WebGLRenderer {
   } = {}) {
     this._memoryInspector = {
       dataTextures: null, // Populated when rendering starts
-      getViewAtIndex: (viewIndex: number): View|null => {
+      getViewAtIndex: (viewIndex: number): View | null => {
         return this._viewManager ? this._viewManager.getViewAtIndex(viewIndex) : null;
       },
-      getGeometryAtIndex: (batchIndex: number, geometryIndex: number): SceneGeometry|null => {
+      getGeometryAtIndex: (batchIndex: number, geometryIndex: number): SceneGeometry | null => {
         return this._viewManager ? this._viewManager.getGeometryAtIndex(batchIndex, geometryIndex) : null;
       },
-      getMeshAtIndex: (batchIndex: number, meshIndex: number): SceneMesh|null => {
+      getMeshAtIndex: (batchIndex: number, meshIndex: number): SceneMesh | null => {
         return this._viewManager ? this._viewManager.getMeshAtIndex(batchIndex, meshIndex) : null;
       }
     };
     this._shaderInspector = null;
     this._drawInspector = null;
     if (params.memoryConfigs) {
-      this._memoryConfigs=<MemoryConfigs>{};
+      this._memoryConfigs = <MemoryConfigs>{};
       Object.assign(this._memoryConfigs, params.memoryConfigs);
     } else {
-      this._memoryConfigs = createMemoryConfigs({
-        grossMemoryMB: 10024, // 10GB
-        device: "medium", // Assume mid-range device
-        utilization: 0.7, // Use 70% of available memory
-        user: { // No overrides
-        }
-      });
+      this._memoryConfigs = {
+        tileSize: 200,
+        maxTiles: 1000,
+        maxBatches: 300,
+        maxBatchVertices: 20000,
+        maxBatchIndices: 60000,
+        maxBatchGeometries: 10000,
+        maxBatchMeshes: 20000,
+        maxBatchPrims: 20000
+      };
+      // this._memoryConfigs = createMemoryConfigs({
+      //   grossMemoryMB: 100024,
+      //   device: "medium", // Assume mid-range device
+      //   utilization: 0.7, // Use 70% of available memory
+      //   user: { // No overrides
+      //   }
+      // });
     }
     this._debugging = !!params.debugging;
     if (params.viewer) {
@@ -204,7 +217,7 @@ export class WebGLRenderer {
   public set debugging(value: boolean) {
     this._debugging = value;
     if (this._viewManager) {
- //     this._viewManager.debugging = value;
+      //     this._viewManager.debugging = value;
     }
   }
 
@@ -268,7 +281,7 @@ export class WebGLRenderer {
    * @returns `{ ok: true, value }` when a Viewer with an attached Scene is present;
    * otherwise `{ ok: false }` with {@link SDKErrorType.InvalidOperation}.
    */
-  public getMemoryInspector(): SDKResult<MemoryInspector>  {
+  public getMemoryInspector(): SDKResult<MemoryInspector> {
     if (!this._viewManager) {
       return this.logError({
         ok: false,
@@ -291,7 +304,7 @@ export class WebGLRenderer {
    * @returns `{ ok: true, value }` when a Viewer with an attached Scene is present;
    * otherwise `{ ok: false }` with {@link SDKErrorType.InvalidOperation}.
    */
-  public getShaderInspector(): SDKResult<ShaderInspector>  {
+  public getShaderInspector(): SDKResult<ShaderInspector> {
     if (!this._viewManager) {
       return this.logError({
         ok: false,
@@ -320,7 +333,7 @@ export class WebGLRenderer {
     }
     return {
       ok: true,
-      value:this._viewManager.getRenderInspector()
+      value: this._viewManager.getRenderInspector()
     };
   }
 
@@ -431,7 +444,7 @@ export class WebGLRenderer {
     if (result.ok === false) {
       this._viewManager.destroy();
       this._viewManager = undefined as unknown as ViewManager;
-      this._memoryInspector.dataTextures= null;
+      this._memoryInspector.dataTextures = null;
       return result;
     }
 
@@ -440,6 +453,7 @@ export class WebGLRenderer {
     const viewManager = this._viewManager;
     const sceneEvents = this._viewer.scene.events;
     const viewerEvents = this._viewer.events;
+    const rendererEvents = this.events;
 
     this._viewManagerSubs = [
 
@@ -462,13 +476,17 @@ export class WebGLRenderer {
       // Log errors from these calls
 
       viewerEvents.onViewCreated.subscribe((_, view) => this.logError(viewManager.viewCreated(view))),
-      viewerEvents.onViewUpdated.subscribe((_, view) => this.logError(viewManager.viewUpdated(view))), // View ready to re-render
+      viewerEvents.onViewUpdated.subscribe((_, view) => {  // View ready to re-render
+        if (this.logError(viewManager.viewUpdated(view)).ok !== false) { // Re-render the View
+          rendererEvents.onViewRendered.dispatch(this, view); // Emit event after successful render
+        }
+      }),
       viewerEvents.onViewDestroyed.subscribe((_, view) => this.logError(viewManager.viewDestroyed(view))),
 
       // SceneMesh and SceneTransform state changes
 
       sceneEvents.onSceneMeshGeometryChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshGeometryChanged(sceneMesh)),
-    //  sceneEvents.onSceneMeshVisibilityChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshVisibilityChanged(sceneMesh)),
+      //  sceneEvents.onSceneMeshVisibilityChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshVisibilityChanged(sceneMesh)),
       sceneEvents.onSceneMeshMatrixChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshMatrixChanged(sceneMesh)),
       sceneEvents.onSceneMeshColorChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshColorChanged(sceneMesh)),
       sceneEvents.onSceneMeshOpacityChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshOpacityChanged(sceneMesh)),
@@ -491,7 +509,7 @@ export class WebGLRenderer {
       viewerEvents.onCameraViewMatrixUpdated.subscribe((_, camera) => viewManager.cameraViewMatrixUpdated(camera))
     ];
 
-    this._memoryInspector.dataTextures= this._viewManager.dataTextures;
+    this._memoryInspector.dataTextures = this._viewManager.dataTextures;
 
     this._shaderInspector = this._viewManager.shaderInspector;
 
@@ -553,10 +571,6 @@ export class WebGLRenderer {
    *   Do not modify or retain the result.
    */
   pick(view: View, pickParams: PickParams): SDKResult<PickResult> {
-
-    // TODO: Define abstract picking interface, ie. new MyControlThatNeedsPicking(view, renderer as <PickProvider>)
-    // Or just configure te likes of MyControlThatNeedsPicking with the renderer.pick.bind(renderer) method, as callback?
-
     if (!this._viewManager) {
       return this.logError({
         ok: false,

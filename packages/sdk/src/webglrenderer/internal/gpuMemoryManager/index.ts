@@ -13,6 +13,7 @@ export * from "./GPUMemoryReader";
 export * from "./GPUMemoryEditor";
 export * from "./GPUTile";
 export * from "./GPUTileManager";
+export * from "./GPUMemoryCheckResult";
 
 
 export * as dataTextures from "./dataTextures/";

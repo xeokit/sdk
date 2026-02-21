@@ -66,7 +66,7 @@
  *     WebGLRenderer:memoryUsage
  *     WebGLRenderer:memoryInspector
  *     WebGLRenderer:shaderInspector
- *     WebGLRenderer:drawInspector
+ *     WebGLRenderer:renderInspector
  *     WebGLRenderer:events
  *     WebGLRenderer:viewer
  *     Viewer:scene
@@ -267,10 +267,10 @@
  *   - Provides per-frame logs and frame rate statistics for each view.
  *   - Example:
  *     ```ts
- *     const drawInspector = webglRenderer.getRenderInspector();
- *     drawInspector.enabled = true;
+ *     const renderInspector = webglRenderer.getRenderInspector();
+ *     renderInspector.enabled = true;
  *     // After rendering:
- *     const frameLog = drawInspector.frameLogs[viewIndex];
+ *     const frameLog = renderInspector.frameLogs[viewIndex];
  *     console.log(JSON.stringify(frameLog, null, 2));
  *     ```
  *   - See {@link inspectors/RenderInspector} and related types for log structure.
@@ -323,6 +323,8 @@
  *
  * Whenever meshes are created, they get loaded into the renderer, and are attached
  * to **RendererMesh** instances.
+ *
+ * TODO: Describe the role of RTC tiles here.
  *
  * 1. A **SceneMesh** is created in the **Scene**.
  * 2. **WebGLRenderer** is notified via **SceneEvents.onSceneMeshCreated**.
@@ -392,6 +394,8 @@
  *
  * Whenever a SceneMesh's matrix is updated, the renderer updates
  * the matrix data in GPU memory.
+ *
+ * TODO: Describe the role of RTC tiles here, and how matrix updates interact with RTC tile assignments.
  *
  * 1. The matrix of a **SceneMesh** is updated in the **Scene**.
  * 2. **WebGLRenderer** is notified via **SceneEvents.onSceneMeshMatrixUpdated**.

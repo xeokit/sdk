@@ -15,6 +15,7 @@ import type {Vec3} from "../../../math/vector";
 import type {Mat4} from "../../../math/matrix";
 import {EventDispatcher} from "strongly-typed-events";
 import type {MemoryUsage} from "../../MemoryUsage";
+import {GPUMemoryCheckResult} from "./GPUMemoryCheckResult";
 
 
 /**
@@ -431,9 +432,9 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * @param batchIndex - Target batch index.
    * @param sceneMesh - Mesh to test.
    */
-  public hasMemoryForMesh(batchIndex: number, sceneMesh: SceneMesh): boolean {
+  public hasMemoryForMesh(batchIndex: number, sceneMesh: SceneMesh): GPUMemoryCheckResult {
     const gpuMemoryBatch = this._batches[batchIndex];
-    return gpuMemoryBatch ? gpuMemoryBatch.hasMemoryForMesh(sceneMesh) : false;
+    return gpuMemoryBatch ? gpuMemoryBatch.hasMemoryForMesh(sceneMesh) : GPUMemoryCheckResult.NoGeometry;
   }
 
   /**

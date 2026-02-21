@@ -90,6 +90,12 @@ export interface GPUTile {
   center: Vec3;
 
   /**
+   * The size of this tile in world units on each side.
+   * The tile is a cube, so this is the same for all dimensions.
+   */
+  size: number;
+
+  /**
    * A relative-to-center (RTC) view matrix for each existing View. This is stored in DataTexturesLayer.viewTileCameraMatrixTexture
    * and automatically updates on all Tiles whenever the View's Camera moves.
    */

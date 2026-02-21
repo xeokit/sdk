@@ -262,8 +262,8 @@ export class PickManager {
     });
 
     // Bind and clear pick buffer
-    pickBuffer.bind();
-    pickBuffer.clear();
+     pickBuffer.bind();
+     pickBuffer.clear();
 
     // Set up render context for picking
     renderContext.reset();
@@ -281,23 +281,35 @@ export class PickManager {
 
     // Set WebGL state for picking
     gl.viewport(0, 0, 1, 1);
-    gl.depthMask(true);
+
+   // gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+    const bg = rendererView.view.transparent ? [0, 0, 0, 0] : [...view.backgroundColor, 1];
+    gl.clearColor(bg[0], bg[1], bg[2], bg[3]);
     gl.enable(gl.DEPTH_TEST);
+    gl.frontFace(gl.CCW);
     gl.disable(gl.CULL_FACE);
+    gl.depthMask(true);
     gl.disable(gl.BLEND);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.lineWidth(1);
+    renderContext.lineWidth = 1;
 
     // Draw all mesh batches that are pickable in this view
     const meshBatches = this._meshBatchManager.sortedBatches;
     for (let i = 0, len = meshBatches.length; i < len; i++) {
       const meshBatch = meshBatches[i];
       if (meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.PICK)) {
-        this._drawOps[meshBatch.primitive]?.pick?.drawBatch(meshBatch);
+        this._drawOps.prims[meshBatch.primitive]?.pick?.drawBatch(meshBatch);
       }
     }
 
     // Read pick result
     const pix = pickBuffer.read(0, 0);
+
+ //   const pix = [0,0,0,255]; // HACK: Temporary hardcoded pick result for testing pick result parsing logic without needing to set up actual GPU picking rendering
+
+    console.log("Pick pixel data:", pix);
+
     pickBuffer.unbind();
 
     if (!pix || pix.length < 4) {

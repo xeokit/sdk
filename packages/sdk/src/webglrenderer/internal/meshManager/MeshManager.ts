@@ -7,7 +7,7 @@ import {MeshBatchImpl} from "./MeshBatchImpl";
 import {type MeshBatch} from "./MeshBatch";
 import type {Camera, ViewObject} from "../../../viewer";
 import type {SceneTransform} from "../../../scene/SceneTransform";
-import {GPUMemoryManager} from "../gpuMemoryManager";
+import {GPUMemoryCheckResult, GPUMemoryManager} from "../gpuMemoryManager";
 import {SceneGeometry} from "../../../scene";
 
 /**
@@ -337,9 +337,12 @@ export class MeshManager {
    */
   private _getMeshBatch(sceneMesh: SceneMesh): SDKResult<MeshBatchImpl> {
     const primitive = sceneMesh.geometry.primitive;
-
     for (const meshBatch of Object.values(this._sortedBatches)) {
-      if (meshBatch.primitive === primitive && meshBatch.canAddMesh(sceneMesh)) {
+      if (meshBatch.primitive === primitive) {
+        const canAddResult = meshBatch.canAddMesh(sceneMesh);
+        if (canAddResult !== GPUMemoryCheckResult.OK) {
+          continue;
+        }
         return { ok: true, value: meshBatch };
       }
     }

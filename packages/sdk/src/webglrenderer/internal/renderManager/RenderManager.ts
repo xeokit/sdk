@@ -178,7 +178,7 @@ export class RenderManager {
     const meshBatches = this._meshManager.sortedBatches;
     const drawOps = this.drawOps.prims;
 
-    const drawInspector = (renderContext.drawInspector && renderContext.drawInspector.enabled) ? renderContext.drawInspector : null;
+    const drawInspector = (renderContext.renderInspector && renderContext.renderInspector.enabled) ? renderContext.renderInspector : null;
 
     drawInspector?.frameStarted(view);
 

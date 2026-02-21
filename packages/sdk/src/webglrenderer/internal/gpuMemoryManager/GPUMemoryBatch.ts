@@ -16,6 +16,7 @@ import {SDKErrorType, SDKInternalException, type SDKResult} from "../../../core"
 import {type MemoryConfigs} from "../../MemoryConfigs";
 import type {Mat4} from "../../../math/matrix";
 import type {Vec3, Vec4} from "../../../math/vector";
+import {GPUMemoryCheckResult} from "./GPUMemoryCheckResult";
 
 const MAX_MESHES = 500000;
 const MAX_GEOMETRIES = 500000;
@@ -44,6 +45,7 @@ export class GPUMemoryBatch {
   private _geometryAttributeTexture: GeometryAttributeTexture;
   private _edgeIndexTexture: IndexTexture;
   private _primitiveMeshIndexTexture: PrimitiveMeshIndexTexture[];
+  private _edgeMeshIndexTexture: PrimitiveMeshIndexTexture[];
   private _vertexPositionTexture: VertexPositionTexture;
   private _vertexColorTexture: VertexColorTexture;
   private _meshMatrixTexture: MatrixTexture;
@@ -115,6 +117,18 @@ export class GPUMemoryBatch {
         maxItems: memoryConfigs.maxBatchPrims,
         bins,
         description: `[Batch ${this.index}, View 0] - primIndex -> meshIndex`
+      }),
+      // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins}),
+      // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins}),
+      // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins})
+    ];
+
+    this._edgeMeshIndexTexture = [
+      new PrimitiveMeshIndexTexture({
+        gl,
+        maxItems: memoryConfigs.maxBatchPrims,
+        bins,
+        description: `[Batch ${this.index}, View 0] - edgeIndex -> meshIndex`
       }),
       // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins}),
       // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins}),
@@ -217,8 +231,11 @@ export class GPUMemoryBatch {
         {
           numDrawablePrims: 0,
           primitiveMeshIndexTexture: this._primitiveMeshIndexTexture[0],
+          edgeMeshIndexTexture: this._edgeMeshIndexTexture[0],
           meshViewAttributeTexture: this._meshViewAttributeTexture[0],
-          renderPassPrimitiveRanges: this._primitiveMeshIndexTexture[0].passRanges //  FIXME:
+          renderPassPrimitiveRanges: this._primitiveMeshIndexTexture[0].passRanges, //  FIXME:
+          renderPassEdgePrimitiveRanges: this._edgeMeshIndexTexture[0].passRanges, // FIXME:
+          pickPrimitiveRange: this._primitiveMeshIndexTexture[0].primRange
         },
         //     {
         //       numDrawablePrims: 0,
@@ -267,7 +284,8 @@ export class GPUMemoryBatch {
       geometry: GeometryAttributeTexture.itemSizeInBytes + GeometryQuantRangeTexture.itemSizeInBytes,
       vertex: VertexPositionTexture.itemSizeInBytes + VertexColorTexture.itemSizeInBytes,
       index: IndexTexture.itemSizeInBytes,
-      prim: PrimitiveMeshIndexTexture.itemSizeInBytes
+      prim: PrimitiveMeshIndexTexture.itemSizeInBytes,
+      edge: PrimitiveMeshIndexTexture.itemSizeInBytes
     }
   }
 
@@ -309,58 +327,55 @@ export class GPUMemoryBatch {
   /**
    * Check if there is enough memory for a SceneMesh.
    * @param sceneMesh
+   * @returns GPUMemoryCheckResult indicating if the mesh can be added, or if not, what resource limit would be exceeded.
    */
-  hasMemoryForMesh(sceneMesh: SceneMesh): boolean {
-    // Mesh capacity
+  hasMemoryForMesh(sceneMesh: SceneMesh): GPUMemoryCheckResult {
     if (this._numMeshes >= this._renderContext.memoryConfigs.maxBatchMeshes) {
-      return false;
+      return GPUMemoryCheckResult.TooManyMeshes;
     }
     const geometry = sceneMesh.geometry;
     if (!geometry) {
-      return false;
+      return GPUMemoryCheckResult.NoGeometry;
     }
     const vertCount = (geometry.positionsCompressed?.length ?? 0) / 3;
     const geometryExists = !!this._geometryHandles[geometry.id];
     if (!geometryExists) {
       if (this._numGeometries >= this._maxGeometries) {
-        return false;
+        return GPUMemoryCheckResult.TooManyGeometries;
       }
-      // Vertex count (assumes 3 components per vertex)
       if (vertCount <= 0 || this._vertexPositionTexture.canGetPortion(vertCount) === false) {
-        return false;
+        return GPUMemoryCheckResult.NotEnoughVertexSpace;
+      }
+      if (geometry.indices && this._indexTexture.canGetPortion(geometry.indices.length) === false) {
+        return GPUMemoryCheckResult.NotEnoughIndexSpace;
+      }
+      if (geometry.edgeIndices && this._edgeIndexTexture.canGetPortion(geometry.edgeIndices.length) === false) {
+        return GPUMemoryCheckResult.NotEnoughEdgeIndexSpace;
       }
     }
     const isPoints = geometry.primitive === PointsPrimitive;
     if (isPoints) {
-      // For points, prim→mesh lookup is sized by vertex count
-      if (this._primitiveMeshIndexTexture[0].canGetPortion(vertCount) === false) {
-        // Only need to check one view, as they are sized the same
-        return false;
+      if (!geometryExists) {
+        if (geometry.colorsCompressed && this._vertexColorTexture.canGetPortion(geometry.colorsCompressed.length) === false) {
+          return GPUMemoryCheckResult.NotEnoughColorSpace;
+        }
       }
     } else {
-      // For triangles, prim→mesh lookup is sized by triangle count
-      const indexCount = geometry.indices?.length ?? 0;
-      const triCount = indexCount / 3;
-      if (this._primitiveMeshIndexTexture[0].canGetPortion(triCount) === false) {
-        return false;
-      }
       if (!geometryExists) {
-        if (geometry.indices && this._indexTexture.canGetPortion(indexCount) === false) {
-          return false;
-        }
-        if (geometry.edgeIndices &&
-          geometry.edgeIndices.length > 0 &&
-          this._edgeIndexTexture.canGetPortion(geometry.edgeIndices.length) === false) {
-          return false;
+        if (geometry.colorsCompressed && this._vertexColorTexture.canGetPortion(geometry.colorsCompressed.length) === false) {
+          return GPUMemoryCheckResult.NotEnoughColorSpace;
         }
       }
     }
-    if (!geometryExists) {
-      if (geometry.colorsCompressed && this._vertexColorTexture.canGetPortion(geometry.colorsCompressed.length) === false) {
-        return false;
-      }
+    const primCount = isPoints
+      ? vertCount
+      : geometry.primitive === LinesPrimitive
+        ? geometry.indices.length / 2
+        : geometry.indices.length / 3;
+    if (this._primitiveMeshIndexTexture[0].canGetPortion(primCount) === false) { // FIXME: Only defined for View 0
+      return GPUMemoryCheckResult.NotEnoughPrimSpace;
     }
-    return true;
+    return GPUMemoryCheckResult.OK;
   }
 
   /**
@@ -564,9 +579,22 @@ export class GPUMemoryBatch {
       // this._primitiveMeshIndexTexture[3].createPortion(primitiveCount, meshIndex, 0)
     ];
 
+    let edgeMeshIndexTextureHandles;
+
+    if (sceneGeometry.primitive === TrianglesPrimitive) {
+     const edgeCount = sceneGeometry.edgeIndices ? sceneGeometry.edgeIndices.length / 2 : 0;
+      edgeMeshIndexTextureHandles = [ // one per view
+        this._edgeMeshIndexTexture[0].createPortion(edgeCount, meshIndex, RENDER_PASSES.OPAQUE), // FIXME: Only defined for View 0
+        // this._edgeMeshIndexTexture[1].createPortion(edgeCount, meshIndex, 0),
+        // this._edgeMeshIndexTexture[2].createPortion(edgeCount, meshIndex, 0),
+        // this._edgeMeshIndexTexture[3].createPortion(edgeCount, meshIndex, 0)
+      ];
+    }
+
     this._meshHandles[sceneMesh.id] = {
       meshIndex,
-      primitiveMeshIndexTextureHandles
+      primitiveMeshIndexTextureHandles,
+      edgeMeshIndexTextureHandles
     };
 
     this._sceneGeometries[geometryHandle.geometryIndex] = sceneGeometry;
@@ -660,32 +688,13 @@ export class GPUMemoryBatch {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no primitiveMeshIndexTextureHandle`);
     }
     this._primitiveMeshIndexTexture[viewIndex].setRenderPass(primitiveMeshIndexTextureHandle, renderPass);
-  }
-
-  /**
-   * TODO
-   *
-   * @param meshIndex
-   * @param viewIndex
-   * @param visible
-   */
-  setMeshObjectVisible(
-    meshIndex: number,
-    viewIndex: number,
-    visible: boolean) {
-    const sceneMesh = this._sceneMeshes[meshIndex];
-    if (!sceneMesh) {
-      throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: No SceneMesh at index ${meshIndex}`);
+    if (meshHandle.edgeMeshIndexTextureHandles) {
+      const edgeMeshIndexTextureHandle = meshHandle.edgeMeshIndexTextureHandles[viewIndex];
+      if (!edgeMeshIndexTextureHandle) {
+        throw new SDKInternalException(`GPUMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no edgeMeshIndexTextureHandle`);
+      }
+      this._edgeMeshIndexTexture[viewIndex].setRenderPass(edgeMeshIndexTextureHandle, renderPass);
     }
-    const meshHandle = this._meshHandles[sceneMesh.id];
-    if (!meshHandle) {
-      throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no meshHandle`);
-    }
-    const primitiveMeshIndexTextureHandle = meshHandle.primitiveMeshIndexTextureHandles[viewIndex];
-    if (!primitiveMeshIndexTextureHandle) {
-      throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no primitiveMeshIndexTextureHandle`);
-    }
-    this._primitiveMeshIndexTexture[viewIndex].setObjectVisible(primitiveMeshIndexTextureHandle, visible);
   }
 
   /**
@@ -712,6 +721,13 @@ export class GPUMemoryBatch {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no primitiveMeshIndexTextureHandle`);
     }
     this._primitiveMeshIndexTexture[viewIndex].setMeshVisible(primitiveMeshIndexTextureHandle, visible);
+    if (meshHandle.edgeMeshIndexTextureHandles) {
+      const edgeMeshIndexTextureHandle = meshHandle.edgeMeshIndexTextureHandles[viewIndex];
+      if (!edgeMeshIndexTextureHandle) {
+        throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no edgeMeshIndexTextureHandle`);
+      }
+      this._edgeMeshIndexTexture[viewIndex].setObjectVisible(edgeMeshIndexTextureHandle, visible);
+    }
   }
 
   // setGeometryPositions(geometryIndex: number, positionsCompressed: FloatArrayParam): SDKResult<void> {
@@ -787,6 +803,12 @@ export class GPUMemoryBatch {
       // this._primitiveMeshIndexTexture[1].deletePortion(meshHandle.primitiveMeshIndexTextureHandles[1]);
       // this._primitiveMeshIndexTexture[2].deletePortion(meshHandle.primitiveMeshIndexTextureHandles[2]);
       // this._primitiveMeshIndexTexture[3].deletePortion(meshHandle.primitiveMeshIndexTextureHandles[3]);
+    }
+    if (meshHandle.edgeMeshIndexTextureHandles) {
+      this._edgeMeshIndexTexture[0].deletePortion(meshHandle.edgeMeshIndexTextureHandles[0]); // FIXME: Only defined for View 0
+      // this._edgeMeshIndexTexture[1].deletePortion(meshHandle.edgeMeshIndexTextureHandles[1]);
+      // this._edgeMeshIndexTexture[2].deletePortion(meshHandle.edgeMeshIndexTextureHandles[2]);
+      // this._edgeMeshIndexTexture[3].deletePortion(meshHandle.edgeMeshIndexTextureHandles[3]);
     }
     if (meshHandle.indicesHandle) {
       this._indexTexture.putPortion(meshHandle.indicesHandle);

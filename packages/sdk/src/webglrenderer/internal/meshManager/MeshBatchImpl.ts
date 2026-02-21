@@ -8,6 +8,7 @@ import type {GPUMemoryManager} from "../gpuMemoryManager/GPUMemoryManager";
 import type {SDKResult} from "../../../core";
 import type {Mat4} from "../../../math/matrix";
 import type { Vec3} from "../../../math/vector";
+import {GPUMemoryCheckResult} from "../gpuMemoryManager";
 
 /**
  * A MeshBatchImpl manages a batch of SceneMeshes that use the same primitive type.
@@ -131,9 +132,9 @@ export class MeshBatchImpl implements MeshBatch {
      * Determines if a mesh can be added to this batch based on available GPU memory.
      *
      * @param sceneMesh - The SceneMesh to check.
-     * @returns True if the mesh can be added, false otherwise.
+     * @returns A GPUMemoryCheckResult indicating whether the mesh can be added and any relevant details about memory usage.
      */
-    public canAddMesh(sceneMesh: SceneMesh): boolean {
+    public canAddMesh(sceneMesh: SceneMesh): GPUMemoryCheckResult {
         return this._gpuMemoryManager.hasMemoryForMesh(this.gpuMemoryBatchIndex, sceneMesh);
     }
 

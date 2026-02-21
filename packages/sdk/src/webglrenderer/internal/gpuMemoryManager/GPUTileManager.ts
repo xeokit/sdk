@@ -162,6 +162,7 @@ export class GPUTileManager {
       tileIndex,
       useCount: 0,              // callers will increment once per acquisition
       center,
+      size: this._renderContext.memoryConfigs.tileSize,
       rtcViewMatrix,
       rtcRayPickMatrix: rtcPickMatrix
     };

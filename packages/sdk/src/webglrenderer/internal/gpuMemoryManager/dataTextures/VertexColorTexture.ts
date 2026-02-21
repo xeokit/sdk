@@ -2,7 +2,7 @@ import {PortionDataTexture} from "./PortionDataTexture";
 import type {Vec3} from "../../../../math/vector";
 
 /**
- * Data texture that stores vertex colors as RGB uint8 values.
+ * Data texture that stores vertex colors as RGBA uint8 values.
  */
 export class VertexColorTexture extends PortionDataTexture {
 
@@ -23,15 +23,15 @@ export class VertexColorTexture extends PortionDataTexture {
     super({
       gl: options.gl,
       description: options.description,
-      format: options.gl.RGB_INTEGER,
+      format: options.gl.RGBA_INTEGER,
       type: options.gl.UNSIGNED_BYTE,
-      internalFormat: options.gl.RGB8UI,
+      internalFormat: options.gl.RGBA8UI,
       maxItems: options.maxItems,
       getNumItems: () => this.numItems,
       width: 4096,
-      itemSizeInBytes: VertexColorTexture.itemSizeInBytes, // 3 × uint8 per item (RGB)
-      texelsPerItem: 1,    // 1 RGB8UI texel per item
-      elementsPerTexel: 3, // RGB8UI
+      itemSizeInBytes: VertexColorTexture.itemSizeInBytes, // 4 × uint8 per item (RGBA)
+      texelsPerItem: 1,    // 1 RGBA8UI texel per item
+      elementsPerTexel: 4, // RGBA8UI
     });
   }
 

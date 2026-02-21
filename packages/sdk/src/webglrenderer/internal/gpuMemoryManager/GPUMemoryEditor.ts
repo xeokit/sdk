@@ -6,6 +6,7 @@ import type {GPUMemoryMeshHandle} from "./GPUMemoryMeshHandle";
 import type {RenderPassValue} from "../RENDER_PASSES";
 import type {Camera} from "../../../viewer";
 import type {SDKResult} from "../../../core";
+import {GPUMemoryCheckResult} from "./GPUMemoryCheckResult";
 
 /**
  * Interface for creating and updating GPU memory resources.
@@ -48,7 +49,7 @@ export interface GPUMemoryEditor {
    * @param batchIndex
    * @param sceneMesh
    */
-  hasMemoryForMesh( batchIndex: number, sceneMesh: SceneMesh ): boolean;
+  hasMemoryForMesh( batchIndex: number, sceneMesh: SceneMesh ): GPUMemoryCheckResult;
 
   /**
    * Adds a SceneMesh to a specific GPU memory batch.

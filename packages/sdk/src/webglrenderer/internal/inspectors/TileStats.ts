@@ -14,6 +14,11 @@ export interface TileStats {
   rtcCenter : [number, number, number];
 
   /**
+   * The size of the tile in world units.
+   */
+  size: number;
+
+  /**
    * The index of the tile within the renderer.
    */
   tileIndex: number;

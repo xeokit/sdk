@@ -1,5 +1,30 @@
 import {DrawOps} from "../drawOps/DrawOps";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../../../constants";
+import {DrawTechnique} from "../drawOps";
+
+
+export interface ShaderSource {
+
+  /**
+   * The original shader source code, with comments removed.
+   */
+  vertexSrc: string;
+
+  /**
+   * The original shader source code, with comments included. This may be more readable for debugging purposes, but may not be valid GLSL source that can be compiled by WebGL.
+   */
+  vertexCommentedSrc: string;
+
+  /**
+   * The original shader source code, with comments removed.
+   */
+  fragmentSrc: string;
+
+  /**
+   * The original shader source code, with comments included. This may be more readable for debugging purposes, but may not be valid GLSL source that can be compiled by WebGL.
+   */
+  fragmentCommentedSrc: string;
+}
 
 /**
  * Read-only view of the shader programs used by a {@link WebGLRenderer}.
@@ -8,74 +33,26 @@ export class ShaderInspector {
 
   public readonly techniques: {
     triangles: {
-      opaque: {
-        vertexSrc: string,
-        fragmentSrc: string
-      },
-      opaqueEdges: {
-        vertexSrc: string,
-        fragmentSrc: string
-      },
-      transparent: {
-        vertexSrc: string,
-        fragmentSrc: string
-      },
-      transparentEdges: {
-        vertexSrc: string,
-        fragmentSrc: string
-      },
-      selected: {
-        vertexSrc: string,
-        fragmentSrc: string
-      },
-      highlighted: {
-        vertexSrc: string,
-        fragmentSrc: string
-      },
-      xrayed: {
-        vertexSrc: string,
-        fragmentSrc: string
-      },
-      pick: {
-        vertexSrc: string,
-        fragmentSrc: string
-      }
+      opaque: ShaderSource,
+      opaqueEdges: ShaderSource,
+      transparent: ShaderSource,
+      transparentEdges:ShaderSource,
+      selected: ShaderSource,
+      highlighted: ShaderSource,
+      xrayed: ShaderSource,
+      pick: ShaderSource
     },
     lines: {
-      opaque: {
-        vertexSrc: string,
-        fragmentSrc: string
-      },
-      transparent: {
-        vertexSrc: string,
-        fragmentSrc: string
-      },
-      selected: {
-        vertexSrc: string,
-        fragmentSrc: string
-      },
-      highlighted: {
-        vertexSrc: string,
-        fragmentSrc: string
-      },
-      xrayed: {
-        vertexSrc: string,
-        fragmentSrc: string
-      },
-      pick: {
-        vertexSrc: string,
-        fragmentSrc: string
-      }
+      opaque:ShaderSource,
+      transparent: ShaderSource,
+      selected: ShaderSource,
+      highlighted:ShaderSource,
+      xrayed: ShaderSource,
+      pick: ShaderSource
     },
     points: {
-      opaque: {
-        vertexSrc: string,
-        fragmentSrc: string
-      },
-      transparent: {
-        vertexSrc: string,
-        fragmentSrc: string
-      },
+      opaque: ShaderSource,
+      transparent: ShaderSource,
       // selected: {
       //   vertexSrc: string,
       //   fragmentSrc: string
@@ -96,91 +73,51 @@ export class ShaderInspector {
   };
 
   constructor(drawOps: DrawOps) {
+
+    const getShaderSource = (tech: DrawTechnique): ShaderSource => ({
+      vertexSrc: tech.vertexShaderSrc,
+      vertexCommentedSrc: tech.vertexShaderCommentedSrc,
+      fragmentSrc: tech.fragmentShaderSrc,
+      fragmentCommentedSrc: tech.fragmentShaderCommentedSrc
+    });
+
     this.techniques = {
       triangles: {
-        opaque: {
-          vertexSrc: drawOps.prims[TrianglesPrimitive].opaque.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[TrianglesPrimitive].opaque.technique.fragmentShaderSrc
-        },
-        opaqueEdges: {
-          vertexSrc: drawOps.prims[TrianglesPrimitive].opaqueEdges.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[TrianglesPrimitive].opaqueEdges.technique.fragmentShaderSrc
-        },
-        transparent: {
-          vertexSrc: drawOps.prims[TrianglesPrimitive].transparent.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[TrianglesPrimitive].transparent.technique.fragmentShaderSrc
-        },
-        transparentEdges: {
-          vertexSrc: drawOps.prims[TrianglesPrimitive].transparentEdges.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[TrianglesPrimitive].transparentEdges.technique.fragmentShaderSrc
-        },
-        highlighted: {
-          vertexSrc: drawOps.prims[TrianglesPrimitive].highlighted.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[TrianglesPrimitive].highlighted.technique.fragmentShaderSrc
-        },
-        selected: {
-          vertexSrc: drawOps.prims[TrianglesPrimitive].selected.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[TrianglesPrimitive].selected.technique.fragmentShaderSrc
-        },
-        xrayed: {
-          vertexSrc: drawOps.prims[TrianglesPrimitive].xrayed.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[TrianglesPrimitive].xrayed.technique.fragmentShaderSrc
-        },
-        pick: {
-          vertexSrc: drawOps.prims[TrianglesPrimitive].pick.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[TrianglesPrimitive].pick.technique.fragmentShaderSrc
-        }
+        opaque: getShaderSource(drawOps.prims[TrianglesPrimitive].opaque.technique),
+        opaqueEdges: getShaderSource(drawOps.prims[TrianglesPrimitive].opaqueEdges.technique),
+        transparent: getShaderSource(drawOps.prims[TrianglesPrimitive].transparent.technique),
+        transparentEdges: getShaderSource(drawOps.prims[TrianglesPrimitive].transparentEdges.technique),
+        highlighted: getShaderSource(drawOps.prims[TrianglesPrimitive].highlighted.technique),
+        selected: getShaderSource(drawOps.prims[TrianglesPrimitive].selected.technique),
+        xrayed: getShaderSource(drawOps.prims[TrianglesPrimitive].xrayed.technique),
+        pick: getShaderSource(drawOps.prims[TrianglesPrimitive].pick.technique)
       },
       lines: {
-        opaque: {
-          vertexSrc: drawOps.prims[LinesPrimitive].opaque.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[LinesPrimitive].opaque.technique.fragmentShaderSrc
-        },
-        transparent: {
-          vertexSrc: drawOps.prims[LinesPrimitive].transparent.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[LinesPrimitive].transparent.technique.fragmentShaderSrc
-        },
-        highlighted: {
-          vertexSrc: drawOps.prims[LinesPrimitive].highlighted.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[LinesPrimitive].highlighted.technique.fragmentShaderSrc
-        },
-        selected: {
-          vertexSrc: drawOps.prims[LinesPrimitive].selected.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[LinesPrimitive].selected.technique.fragmentShaderSrc
-        },
-        xrayed: {
-          vertexSrc: drawOps.prims[LinesPrimitive].xrayed.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[LinesPrimitive].xrayed.technique.fragmentShaderSrc
-        },
-        pick: {
-          vertexSrc: drawOps.prims[LinesPrimitive].pick.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[LinesPrimitive].pick.technique.fragmentShaderSrc
-        }
+        opaque: getShaderSource(drawOps.prims[LinesPrimitive].opaque.technique),
+        transparent: getShaderSource(drawOps.prims[LinesPrimitive].transparent.technique),
+        highlighted: getShaderSource(drawOps.prims[LinesPrimitive].highlighted.technique),
+        selected: getShaderSource( drawOps.prims[LinesPrimitive].selected.technique),
+        xrayed: getShaderSource(drawOps.prims[LinesPrimitive].xrayed.technique),
+        pick: getShaderSource( drawOps.prims[LinesPrimitive].pick.technique)
       },
       points: {
-        opaque: {
-          vertexSrc: drawOps.prims[PointsPrimitive].opaque.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[PointsPrimitive].opaque.technique.fragmentShaderSrc
-        },
-        transparent: {
-          vertexSrc: drawOps.prims[PointsPrimitive].transparent.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[PointsPrimitive].transparent.technique.fragmentShaderSrc
-        },
+        opaque: getShaderSource(drawOps.prims[PointsPrimitive].opaque.technique),
+        transparent: getShaderSource(drawOps.prims[PointsPrimitive].transparent.technique),
         // highlighted: {
-        //   vertexSrc: drawOps.prims[PointsPrimitive].highlighted.technique.vertexShaderSrc,
-        //   fragmentSrc: drawOps.prims[PointsPrimitive].highlighted.technique.fragmentShaderSrc
+        //   vertexSrc: drawOps.prims[PointsPrimitive].highlighted.technique.vertexShaderCommentedSrc,
+        //   fragmentSrc: drawOps.prims[PointsPrimitive].highlighted.technique.fragmentShaderCommentedSrc
         // },
       //  selected: {
-        //   vertexSrc: drawOps.prims[PointsPrimitive].selected.technique.vertexShaderSrc,
-        //   fragmentSrc: drawOps.prims[PointsPrimitive].selected.technique.fragmentShaderSrc
+        //   vertexSrc: drawOps.prims[PointsPrimitive].selected.technique.vertexShaderCommentedSrc,
+        //   fragmentSrc: drawOps.prims[PointsPrimitive].selected.technique.fragmentShaderCommentedSrc
         // },
         // xrayed: {
-        //   vertexSrc: drawOps.prims[PointsPrimitive].xrayed.technique.vertexShaderSrc,
-        //   fragmentSrc: drawOps.prims[PointsPrimitive].xrayed.technique.fragmentShaderSrc
+        //   vertexSrc: drawOps.prims[PointsPrimitive].xrayed.technique.vertexShaderCommentedSrc,
+        //   fragmentSrc: drawOps.prims[PointsPrimitive].xrayed.technique.fragmentShaderCommentedSrc
         // },
         // pick: {
-        //   vertexSrc: drawOps.prims[PointsPrimitive].pick.technique.vertexShaderSrc,
-        //   fragmentSrc: drawOps.prims[PointsPrimitive].pick.technique.fragmentShaderSrc
+        //   vertexSrc: drawOps.prims[PointsPrimitive].pick.technique.vertexShaderCommentedSrc,
+        //   fragmentSrc: drawOps.prims[PointsPrimitive].pick.technique.fragmentShaderCommentedSrc
         // }
       }
     };

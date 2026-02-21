@@ -121,6 +121,7 @@ export class RenderInspector {
       this.renderStats.tiles[tile.id] = {
         id: tile.id,
         rtcCenter: <[number, number, number]>Array.from(tile.center),
+        size: tile.size,
         tileIndex: tile.tileIndex,
         numMeshes: tile.useCount
       };

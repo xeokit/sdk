@@ -69,14 +69,42 @@ export abstract class DrawTechnique {
   public edges: boolean;
 
   /**
+   * When true, the technique binds uniforms for picking rendering (e.g., pickZNear/pickZFar)
+   * and uses picking-specific draw ranges from the batch's view data textures.
+   *
+   * Used by the pick rendering pass to render meshes with unique pick colors and output depth for picking.
+   */
+  public picking: boolean;
+
+  /**
    * Vertex shader source code. Available after `init()` is called.
    */
   public vertexShaderSrc: string;
 
   /**
+   * Vertex shader source code with comments included.
+   *
+   * Note that comments are not supported in WebGL shader compilation,
+   * so this is for debugging/inspection purposes only.
+   *
+   * Available after `init()` is called.
+   */
+  public vertexShaderCommentedSrc: string;
+
+  /**
    * Fragment shader source code. Available after `init()` is called.
    */
   public fragmentShaderSrc: string;
+
+  /**
+   * Fragment shader source code with comments included.
+   *
+   * Note that comments are not supported in WebGL shader compilation,
+   * so this is for debugging/inspection purposes only.
+   *
+   * Available after `init()` is called.
+   */
+  public fragmentShaderCommentedSrc: string;
 
   /**
    * Uniforms and attributes for the shader program.
@@ -94,9 +122,9 @@ export abstract class DrawTechnique {
     snapCameraEyeRTC: WebGLUniformLocation; // Snapped camera eye position in RTC space
     pointSize: WebGLUniformLocation; // Size of points for point rendering
     intensityRange: WebGLUniformLocation; // Intensity range for point rendering
-    pickZFar: WebGLUniformLocation;
-    pickClipPos: WebGLUniformLocation;
-    drawingBufferSize: WebGLUniformLocation;
+    pickZFar: WebGLUniformLocation; // Far plane for rendering pick depth
+    pickClipPos: WebGLUniformLocation; // Clip-space position for pick rendering (used to reconstruct view ray)
+    drawingBufferSize: WebGLUniformLocation; // Size of the drawing buffer (canvas) in pixels, used for pick ray calculations
     sectionPlanes: any[];
     projMatrix: WebGLUniformLocation;
     lightPos: WebGLUniformLocation[];
@@ -140,6 +168,7 @@ export abstract class DrawTechnique {
    */
   private _fragSrcBuf: string[];
 
+
   /**
    * Creates a new DrawTechnique.
    *
@@ -147,15 +176,25 @@ export abstract class DrawTechnique {
    * @param gpuMemoryReader
    * @param cfg
    */
-  constructor(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader, cfg: { edges: boolean } = {edges: false}) {
+  constructor(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader, cfg: { edges?: boolean, picking?: boolean } = {
+    edges: false,
+    picking: false
+  }) {
+    if (cfg.picking && cfg.edges) { // Edges are an un-pickable visual effect
+      throw new Error("Invalid DrawTechnique configuration: cannot have both picking and edges enabled.");
+    }
     this._renderContext = renderContext;
     this._gpuMemoryReader = gpuMemoryReader;
-    this.edges = cfg.edges;
+    this.edges = cfg.edges === true;
+    this.picking = cfg.picking === true;
     this._program = null;
   }
 
   /**
    * Initializes this draw technique by building and compiling the shader program.
+   *
+   * Calls the abstract methods {@link buildVertexShader} and {@link buildFragmentShader} to generate the shader sources,
+   * then compiles the program and retrieves uniform/sampler locations.
    */
   public init(): SDKResult<any> {
 
@@ -165,8 +204,20 @@ export abstract class DrawTechnique {
     this.buildVertexShader();
     this.buildFragmentShader();
 
-    this.vertexShaderSrc = joinSansComments(this._vertSrcBuf);
-    this.fragmentShaderSrc = joinSansComments(this._fragSrcBuf);
+    const vertSrc = [];
+    const vertCommentedSrc = [];
+
+    const fragSrc = [];
+    const fragCommentedSrc = [];
+
+    joinSrc(this._vertSrcBuf, vertSrc, vertCommentedSrc);
+    joinSrc(this._fragSrcBuf, fragSrc, fragCommentedSrc);
+
+    this.vertexShaderSrc = vertSrc.join("\n");
+    this.fragmentShaderSrc = fragSrc.join("\n");
+
+    this.vertexShaderCommentedSrc = vertCommentedSrc.join("\n");
+    this.fragmentShaderCommentedSrc = fragCommentedSrc.join("\n");
 
     this._program = new WebGLProgram(this._renderContext as WebGLContextProvider, {
       vertex: this.vertexShaderSrc,
@@ -197,6 +248,10 @@ export abstract class DrawTechnique {
     return this._initProgram();
   }
 
+  /**
+   * Initializes the shader program by compiling/linking and retrieving uniform/sampler locations.
+   * @private
+   */
   private _initProgram(): SDKResult<any> {
 
     const result = this._program.init();
@@ -271,7 +326,7 @@ export abstract class DrawTechnique {
       vertexPositionTexture: program.getSampler("uVertexPositionTexture"),
       vertexColorTexture: program.getSampler("uVertexColorTexture"),
       indexTexture: program.getSampler("uIndexTexture"),
-      edgeIndexTexture: program.getSampler("uEdgeIndextexture"),
+      edgeIndexTexture: program.getSampler("uEdgeIndexTexture"),
       saoOcclusionTexture: program.getSampler("saoOcclusionTexture")
     };
 
@@ -311,7 +366,6 @@ export abstract class DrawTechnique {
       };
     }
 
-    //  try {
     const renderContext = this._renderContext;
     const view = renderContext.activeView;
     const gl = this._renderContext.gl;
@@ -320,7 +374,13 @@ export abstract class DrawTechnique {
     const batchDataTextures = dataTextures.batches[meshBatch.gpuMemoryBatchIndex];
     const viewIndex = view.viewIndex;
     const batchViewDataTextures = batchDataTextures.views[viewIndex];
-    const drawRange = batchViewDataTextures.renderPassPrimitiveRanges.get(renderPass);
+
+    const drawRange =
+      this.edges
+        ? batchViewDataTextures.renderPassEdgePrimitiveRanges.get(renderPass)
+        : (this.picking
+          ? batchViewDataTextures.pickPrimitiveRange // Draw all bins for picking
+          : batchViewDataTextures.renderPassPrimitiveRanges.get(renderPass));
 
     if (!drawRange || drawRange.numPrims === 0) {
       return {
@@ -329,7 +389,10 @@ export abstract class DrawTechnique {
       };
     }
 
-    const drawInspector = (renderContext.drawInspector && renderContext.drawInspector.enabled) ? renderContext.drawInspector : null;
+    const drawInspector
+      = (renderContext.renderInspector && renderContext.renderInspector.enabled)
+      ? renderContext.renderInspector
+      : null;
 
     if (!this._bind(renderPass)) {
       return {
@@ -339,7 +402,10 @@ export abstract class DrawTechnique {
       };
     }
 
-    const primitiveMeshIndexTexture = batchViewDataTextures.primitiveMeshIndexTexture;
+    const primitiveMeshIndexTexture
+      = this.edges
+      ? batchViewDataTextures.edgeMeshIndexTexture
+      : batchViewDataTextures.primitiveMeshIndexTexture;
 
     renderContext.textureUnit = 0;
 
@@ -373,11 +439,21 @@ export abstract class DrawTechnique {
     bindTexture(samplers.indexTexture, batchDataTextures.indexTexture);
 
     gl.uniform1i(this._uniforms.primBaseIndex, drawRange.firstPrim);
-    gl.uniform1i(this._uniforms.primitiveType, meshBatch.primitive);
+
+    const drawPrimitiveType // Draw LINES for batches in edge rendering pass, even if the mesh primitive is TRIANGLES
+      = this.edges
+      ? LinesPrimitive
+      : meshBatch.primitive;
+
+    gl.uniform1i(this._uniforms.primitiveType, drawPrimitiveType);
 
     switch (meshBatch.primitive) {
       case TrianglesPrimitive:
-        gl.drawArrays(gl.TRIANGLES, drawRange.firstPrim * 3, drawRange.numPrims * 3);
+        if (this.edges) {
+          gl.drawArrays(gl.LINES, drawRange.firstPrim * 2, drawRange.numPrims * 2); // Edges draw range
+        } else {
+          gl.drawArrays(gl.TRIANGLES, drawRange.firstPrim * 3, drawRange.numPrims * 3); // Triangles draw range
+        }
         break;
       case LinesPrimitive:
         gl.drawArrays(gl.LINES, drawRange.firstPrim * 2, drawRange.numPrims * 2);
@@ -421,6 +497,7 @@ export abstract class DrawTechnique {
    * Abstract method to build the vertex shader source code.
    * Subclasses must implement this method to define the fragment shader logic
    * based on their specific rendering requirements.
+   * Called during `init()`.
    */
   protected abstract buildVertexShader();
 
@@ -428,6 +505,7 @@ export abstract class DrawTechnique {
    * Abstract method to build the fragment shader source code.
    * Subclasses must implement this method to define the fragment shader logic
    * based on their specific rendering requirements.
+   * Called during `init()`.
    */
   protected abstract buildFragmentShader();
 
@@ -443,9 +521,14 @@ export abstract class DrawTechnique {
    */
   protected vsHeader() {
     this._vertSrcBuf
-      .push(
-        '#version 300 es',
-        `// ${this.constructor.name} vertex shader`);
+      .push(`#version 300 es
+
+// ${this.constructor.name} vertex shader
+
+// This shader renders primitives by fetching all geometry,
+// transform, and attribute data from GPU data textures.
+// The pipeline is:
+//   gl_VertexID → primitive → mesh → geometry → vertex → model → world → view → clip`);
   }
 
   /**
@@ -468,24 +551,37 @@ export abstract class DrawTechnique {
    * Generates vertex shader precision definitions and common definitions.
    */
   protected vsCommonDefines() {
-    this._vertSrcBuf.push(
-      `uniform int uRenderPass;
+    this._vertSrcBuf.push(`
+
+// ─────────────────────────────────────────────────────────────
+// Global draw configuration
+// ─────────────────────────────────────────────────────────────
+
+uniform int uRenderPass;
 uniform int uPrimBaseIndex;
 uniform int uPrimitiveType;
 
 uniform mat4 uProjMatrix;
 
+// ─────────────────────────────────────────────────────────────
+// GPU data textures (structured storage via texelFetch)
+// ─────────────────────────────────────────────────────────────
+
 uniform highp usampler2D uPrimitiveMeshIndexTexture;
 uniform highp usampler2D uVertexPositionTexture;
 uniform highp usampler2D uVertexColorTexture;
 uniform highp usampler2D uIndexTexture;
-uniform highp usampler2D uEdgeIndextexture;
+uniform highp usampler2D uEdgeIndexTexture;
 uniform highp sampler2D  uViewTileCameraMatrixTexture;
 uniform highp sampler2D  uMeshMatrixTexture;
 uniform highp usampler2D uMeshAttributeTexture;
 uniform highp usampler2D uMeshViewAttributeTexture;
 uniform highp usampler2D uGeometryAttributeTexture;
 uniform highp sampler2D  uGeometryQuantRangeTexture;
+
+// ─────────────────────────────────────────────────────────────
+// Data structures stored inside textures
+// ─────────────────────────────────────────────────────────────
 
 struct QuantRange {
   vec3 offset;
@@ -508,9 +604,17 @@ struct GeometryAttributes {
   uint edgeIndicesBase;
 };
 
+// ─────────────────────────────────────────────────────────────
+// Utility: Convert linear index → 2D texture coordinate
+// ─────────────────────────────────────────────────────────────
+
 ivec2 texCoord(uint index, uint texWidth) {
   return ivec2(int(index % texWidth), int(index / texWidth));
 }
+
+// ─────────────────────────────────────────────────────────────
+// Primitive lookups
+// ─────────────────────────────────────────────────────────────
 
 uint getPrimitiveMeshIndex(uint primIndex) {
   const uint texWidth = 4096u;
@@ -522,6 +626,10 @@ uint getPrimitiveOffsetWithinGeometry(uint primIndex) {
   return texelFetch(uPrimitiveMeshIndexTexture, texCoord((primIndex * 2u) + 1u, texWidth), 0).r;
 }
 
+// ─────────────────────────────────────────────────────────────
+// Vertex + index fetch
+// ─────────────────────────────────────────────────────────────
+
 uint getVertexIndex(uint vertexIndexNum) {
   const uint texWidth = 4096u;
   return texelFetch(uIndexTexture, texCoord(vertexIndexNum, texWidth), 0).r;
@@ -532,10 +640,14 @@ uvec3 getVertexPosition(uint vertexIndexWithinGeometry) {
   return texelFetch(uVertexPositionTexture, texCoord(vertexIndexWithinGeometry, texWidth), 0).rgb;
 }
 
-uvec3 getVertexColor(uint vertexIndexWithinGeometry) {
+uvec4 getVertexColor(uint vertexIndexWithinGeometry) {
   const uint texWidth = 4096u;
-  return texelFetch(uVertexColorTexture, texCoord(vertexIndexWithinGeometry, texWidth), 0).rgb;
+  return texelFetch(uVertexColorTexture, texCoord(vertexIndexWithinGeometry, texWidth), 0).rgba;
 }
+
+// ─────────────────────────────────────────────────────────────
+// Geometry + mesh metadata fetch
+// ─────────────────────────────────────────────────────────────
 
 QuantRange getGeometryQuantRange(uint geometryIndex) {
   const uint texWidth = 2048u;
@@ -577,6 +689,10 @@ MeshViewAttributes getMeshViewAttributes(uint meshIndex) {
   return s;
 }
 
+// ─────────────────────────────────────────────────────────────
+// Matrix fetch (stored as 4 consecutive texels per matrix)
+// ─────────────────────────────────────────────────────────────
+
 mat4 getTileViewMatrix(uint tileIndex) {
   const uint texWidth = 4096u;
   uint base = tileIndex * 4u;
@@ -597,8 +713,11 @@ mat4 getMeshMatrix(uint meshIndex) {
   return mat4(m0, m1, m2, m3);
 }
 
+// ─────────────────────────────────────────────────────────────
 // Packs a uint into an RGBA color (each channel stores one byte).
 // Little-endian byte order: R = least significant byte
+// ─────────────────────────────────────────────────────────────
+
 vec4 packUintToRGBA8(uint v) {
    return vec4(
      float( ( v        & 0xFFu)),
@@ -608,13 +727,37 @@ vec4 packUintToRGBA8(uint v) {
    ) / 255.0;
 }
 
+// ─────────────────────────────────────────────────────────────
 // Get the eye position in world space from the view matrix
+// ─────────────────────────────────────────────────────────────
+
 vec3 getEyePosition(mat4 viewMatrix) {
     // Invert the view matrix to get the world matrix
     mat4 invView = inverse(viewMatrix);
     // The translation part (last column) is the eye position in world space
     return invView[3].xyz;
 }
+
+// ─────────────────────────────────────────────────────────────
+// Returns true if the triangle (a,b,c) in VIEW SPACE is facing the eye.
+// Assumes a right-handed view space with the camera at (0,0,0).
+// For conventional OpenGL view space (camera looks down -Z), this works as expected.
+// ─────────────────────────────────────────────────────────────
+
+bool triangleFacesEyeVS(vec3 aVS, vec3 bVS, vec3 cVS) {
+    // Triangle normal from winding (right-hand rule)
+    vec3 n = normalize(cross(bVS - aVS, cVS - aVS));
+
+    // Eye position in view space is the origin
+    vec3 eyeVS = vec3(0.0);
+
+    // Vector from triangle toward the eye (use centroid for stability)
+    vec3 toEye = normalize(eyeVS - (aVS + bVS + cVS) * (1.0 / 3.0));
+
+    // Facing the eye if normal points (at least partially) toward the eye
+    return dot(n, toEye) > 0.0;
+}
+
 `);
   }
 
@@ -623,7 +766,11 @@ vec3 getEyePosition(mat4 viewMatrix) {
    * @protected
    */
   protected vsLambertShadingDefines() {
-    this._vertSrcBuf.push(
+    this._vertSrcBuf.push(`
+// ─────────────────────────────────────────────────────────────
+// Lambertian directional lighting configuration
+// ─────────────────────────────────────────────────────────────
+`,
       "uniform vec4 uLightAmbient;",
       "uniform vec3 uLightDir1;",
       "uniform vec4 uLightColor1;",
@@ -640,9 +787,13 @@ vec3 getEyePosition(mat4 viewMatrix) {
    * @protected
    */
   protected vsSilhouetteDefines() {
-    this._vertSrcBuf.push(
-      "uniform vec4 uSilhouetteColor;",
-      "out vec4 vColor;");
+    this._vertSrcBuf.push(`
+// ─────────────────────────────────────────────────────────────
+// Silhouette rendering configuration
+// ─────────────────────────────────────────────────────────────
+
+uniform vec4 uSilhouetteColor;
+out vec4 vColor;`);
   }
 
   /**
@@ -650,7 +801,12 @@ vec3 getEyePosition(mat4 viewMatrix) {
    * @protected
    */
   protected vsDrawFlatColorDefs() {
-    this._vertSrcBuf.push("out vec4 vColor;");
+    this._vertSrcBuf.push(`
+// ─────────────────────────────────────────────────────────────
+// Flat color rendering configuration
+// ─────────────────────────────────────────────────────────────
+
+out vec4 vColor;`);
   }
 
   /**
@@ -658,7 +814,12 @@ vec3 getEyePosition(mat4 viewMatrix) {
    * @protected
    */
   protected vsDrawVertexColorDefs() {
-    this._vertSrcBuf.push("out vec4 vColor;");
+    this._vertSrcBuf.push(`
+// ─────────────────────────────────────────────────────────────
+// Vertex color rendering configuration
+// ─────────────────────────────────────────────────────────────
+
+out vec4 vColor;`);
   }
 
   /**
@@ -666,14 +827,27 @@ vec3 getEyePosition(mat4 viewMatrix) {
    * @protected
    */
   protected vsDrawDepthDefines() {
-    this._vertSrcBuf.push("out highp vec2 vHighPrecisionZW;");
+    this._vertSrcBuf.push(`
+// ─────────────────────────────────────────────────────────────
+// Vertex color rendering configuration
+// ─────────────────────────────────────────────────────────────
+
+out highp vec2 vHighPrecisionZW;`);
   }
 
+  /**
+   * Generates vertex shader definitions for point rendering.
+   * @protected
+   */
   protected vsPointsDefines(): void {
-    this._vertSrcBuf.push(
-      "uniform float nearPlaneHeight;",
-      "uniform vec2 intensityRange;",
-      "uniform float pointSize;");
+    this._vertSrcBuf.push(`
+// ─────────────────────────────────────────────────────────────
+// Point rendering configuration
+// ─────────────────────────────────────────────────────────────
+
+uniform float nearPlaneHeight;
+uniform vec2 intensityRange;
+uniform float pointSize;`);
   }
 
   /**
@@ -681,20 +855,27 @@ vec3 getEyePosition(mat4 viewMatrix) {
    * @protected
    */
   protected vsPickMeshDefines() {
-    this._vertSrcBuf.push(
-      "out     vec4 vPickColor;",
-      "uniform vec2 drawingBufferSize;",
-      "uniform vec2 pickClipPos;",
-      "vec4 remapPickClipPos(vec4 clipPos) {",
-      "    clipPos.xy /= clipPos.w;",
-      //if (viewportSize === 1) {
-      "    clipPos.xy = (clipPos.xy - pickClipPos) * drawingBufferSize;",
-      // } else {
-      //     src.push(`    clipPos.xy = (clipPos.xy - pickClipPos) * (drawingBufferSize / float(${viewportSize}));`);
-      // }
-      "    clipPos.xy *= clipPos.w;",
-      "    return clipPos;",
-      "}");
+    this._vertSrcBuf.push(`
+// ─────────────────────────────────────────────────────────────
+// Pick rendering configuration
+// ─────────────────────────────────────────────────────────────
+
+out     vec4 vPickColor;
+uniform vec2 drawingBufferSize;
+uniform vec2 pickClipPos;
+
+// In pick rendering, we render meshes in their pick-space positions, which are derived from the clip-space
+// positions but with XY remapped to [0,1] based on the viewport and with Z remapped to [0,1] based on the view's
+// near/far planes. This allows us to encode the pick ID in the RGB channels of the rendered color,
+// and reconstruct the view-space position from the depth (Z) channel. The function below performs the inverse
+// of this remapping to get back to clip space for rendering.
+
+vec4 remapPickClipPos(vec4 clipPos) {
+    clipPos.xy /= clipPos.w;
+    clipPos.xy = (clipPos.xy - pickClipPos) * drawingBufferSize;
+    clipPos.xy *= clipPos.w;
+    return clipPos;
+}`);
   }
 
   /**
@@ -714,7 +895,12 @@ vec3 getEyePosition(mat4 viewMatrix) {
    * @protected
    */
   protected vsMainOpen() { // default
-    this._vertSrcBuf.push("void main(void) {");
+   this._vertSrcBuf.push(`
+// ─────────────────────────────────────────────────────────────
+// Vertex shader main function
+// ─────────────────────────────────────────────────────────────
+
+void main(void) {`);
     this._vsMeshLogic();
     this._vsMeshLogic2();
   }
@@ -724,7 +910,12 @@ vec3 getEyePosition(mat4 viewMatrix) {
    * @protected
    */
   protected vsDrawMainOpen() { // default
-    this._vertSrcBuf.push("void main(void) {");
+    this._vertSrcBuf.push(`
+// ─────────────────────────────────────────────────────────────
+// Vertex shader main function for draw rendering
+// ─────────────────────────────────────────────────────────────
+
+void main(void) {`);
     this._vsMeshLogic();
     this._vsMeshLogic2();
   }
@@ -734,13 +925,18 @@ vec3 getEyePosition(mat4 viewMatrix) {
    * @protected
    */
   protected vsPickMainOpen() { // pick
-    this._vertSrcBuf.push("void main(void) {");
+    this._vertSrcBuf.push(`
+// ─────────────────────────────────────────────────────────────
+// Vertex shader main function for pick rendering
+// ─────────────────────────────────────────────────────────────
+
+void main(void) {`);
     this._vsMeshLogic();
     this._vertSrcBuf.push(
       `    int pickFlag = int(meshViewAttributes.renderFlags.b >> 8u & 0xFu);`,
       `    if (pickFlag != uRenderPass) {`,
-      "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
-      "        return;",
+      // "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
+      // "        return;",
       "    }");
     this._vsMeshLogic2();
   }
@@ -750,7 +946,7 @@ vec3 getEyePosition(mat4 viewMatrix) {
    * @protected
    */
   protected vsMainClose() { // default, silhouette, pick
-    this._vertSrcBuf.push(
+   this._vertSrcBuf.push(
       "}");
   }
 
@@ -771,29 +967,43 @@ vec3 getEyePosition(mat4 viewMatrix) {
    * @private
    */
   private _vsMeshLogic() { // before renderPass check
-    this._vertSrcBuf.push(
-      "    uint drawVertexIndex  = uint(gl_VertexID);",
-      "    uint numVertsPerPrim  = uint(uPrimitiveType == " + TrianglesPrimitive + " ? 3u : (uPrimitiveType == " + LinesPrimitive + " ? 2u : 1u));",
+    this._vertSrcBuf.push(`
+     // Identify which "draw vertex" we are processing
+    uint drawVertexIndex  = uint(gl_VertexID);
 
-      // We are drawing a portion of the primitive array, so adjust the primIndex accordingly
+    // Determine topology: how many vertices per primitive?
+    //   triangles: 3
+    //   lines:     2
+    //   points:    1
+    uint numVertsPerPrim =
+        uint(uPrimitiveType == ${TrianglesPrimitive} ? 3u :   // triangles
+            (uPrimitiveType == ${LinesPrimitive} ? 2u : 1u)); // lines or points
 
-      "    uint drawPrimIndex   = drawVertexIndex / numVertsPerPrim;",
-      "    uint primIndex       = uint(uPrimBaseIndex) + drawPrimIndex;",
+    // Map draw vertex → draw primitive
+    // Example (triangles): vertices 0,1,2 -> prim 0; 3,4,5 -> prim 1; etc.
+    uint drawPrimIndex = drawVertexIndex / numVertsPerPrim;
 
-      // Lookup the mesh and primitive offset for this primitive
-      // The primitive offset is the index of the primitive within the mesh's geometry
+    // Convert draw primitive → global primitive index
+    // uPrimBaseIndex allows batching multiple draws into a big primitive table.
+    uint primIndex = uint(uPrimBaseIndex) + drawPrimIndex;
 
-      "    uint meshIndex       = getPrimitiveMeshIndex( primIndex );",
+    // Primitive → mesh resolution
+    // Each primitive belongs to a mesh; meshIndex selects transforms + attributes.
+    uint meshIndex = getPrimitiveMeshIndex( primIndex );
 
-      "    MeshViewAttributes meshViewAttributes = getMeshViewAttributes( meshIndex );",
+    // Fetch mesh view properties (color + flags)
+    MeshViewAttributes meshViewAttributes = getMeshViewAttributes( meshIndex );
 
-      `    if (meshViewAttributes.color.a == 3u) {`,
-      // "              gl_Position = vec4(3.0, 3.0, 3.0, 1.0);", // Cull vertex
-      // "              return;",
-      "    };",
+    // Cull fully-transparent meshes
+    if (meshViewAttributes.color.a == 3u) {
+      // gl_Position = vec4(3.0, 3.0, 3.0, 1.0); // Cull vertex
+     //  return;
+    }
 
-      "    uint primOffset      = getPrimitiveOffsetWithinGeometry( primIndex );"
-    );
+    // Primitive → offset inside the geometry’s primitive list
+    // This tells us which triangle/line/point we are within the geometry.
+    uint primOffset = getPrimitiveOffsetWithinGeometry( primIndex );
+    `);
   }
 
   /**
@@ -801,143 +1011,133 @@ vec3 getEyePosition(mat4 viewMatrix) {
    * @private
    */
   private _vsMeshLogic2() { // after renderPass check
-    this._vertSrcBuf.push(
-      "    MeshAttribTable  meshAttributeTexture       = getMeshAttribTable( meshIndex );",
+    this._vertSrcBuf.push(`
+    // Mesh → tile + geometry resolution
+    // tileIndex selects the view matrix; geometryIndex selects vertex/index ranges.
+    MeshAttribTable meshAttributeTexture = getMeshAttribTable( meshIndex );
+    uint tileIndex = meshAttributeTexture.tileIndex;
+    uint geometryIndex = meshAttributeTexture.geometryIndex;
 
-      "    uint             tileIndex         = meshAttributeTexture.tileIndex;",
-      "    uint             geometryIndex     = meshAttributeTexture.geometryIndex;",
+    // Geometry → base offsets resolution
+    // These bases are added to local offsets to index into the big packed buffers.
+    GeometryAttributes  geometryAttributes = getGeometryAttributeTexture( geometryIndex );
 
-      "    GeometryAttributes  geometryAttributes   = getGeometryAttributeTexture( geometryIndex );",
+    // Determine local vertex number within this primitive
+    // Triangles: localVert ∈ {0,1,2}
+    // Lines:     localVert ∈ {0,1}
+    // Points:    localVert = 0
+    uint localVert = drawVertexIndex % numVertsPerPrim; // 0, 1, 2 for triangle; 0, 1 for line; 0 for point
 
-      "    uint localVert = drawVertexIndex % numVertsPerPrim;", // 0, 1, 2 for triangle; 0, 1 for line; 0 for point
-      "    uint vertexOffsetWithinGeometry = (primOffset * numVertsPerPrim) + localVert;",
+    // Convert (primitive offset, localVert) → vertex offset within geometry
+    // For triangles: vertexOffsetWithinGeometry = primOffset*3 + localVert
+    uint vertexOffsetWithinGeometry = (primOffset * numVertsPerPrim) + localVert;
 
-      "    uint vertexIndexWithinGeometry = (uPrimitiveType == 20000)", // Points
-      "       ? vertexOffsetWithinGeometry",
-      "       : getVertexIndex(geometryAttributes.indicesBase + vertexOffsetWithinGeometry);",
+    // Resolve final vertex index within geometry
+    // - For non-indexed points (uPrimitiveType == 20000), we treat vertexOffsetWithinGeometry as direct.
+    // - Otherwise, we fetch an index from the index buffer, using geometryAttributes.indicesBase.
+    uint vertexIndexWithinGeometry =
+        (uPrimitiveType == 20000)
+        ? vertexOffsetWithinGeometry
+        : getVertexIndex(geometryAttributes.indicesBase + vertexOffsetWithinGeometry);
 
-      "    QuantRange       quantRange        = getGeometryQuantRange( geometryIndex );",
+    // Dequantization parameters for this geometry
+    // Vertex positions are stored quantized; quantRange turns uvec3 into float vec3.
+    QuantRange quantRange = getGeometryQuantRange(geometryIndex);
 
-      "    mat4             modelMatrix       = getMeshMatrix( meshIndex );",
-      "    mat4             viewMatrix        = getTileViewMatrix( tileIndex );",
+    // Fetch quantized vertex position, then dequantize into model space
+    // quantPos: integer-like packed value
+    // modelPos.xyz = offset + scale * quantPos
+    uvec3 quantPos = getVertexPosition(geometryAttributes.verticesBase + vertexIndexWithinGeometry);
+    vec4 modelPos  = vec4(quantRange.offset + (quantRange.scale * vec3(quantPos)), 1.0);
 
-      "    uvec3            quantPos          = getVertexPosition( geometryAttributes.verticesBase + vertexIndexWithinGeometry );",
-      "    vec4             modelPos          = vec4( quantRange.offset + ( quantRange.scale * vec3( quantPos )), 1.0); ",
-      "    vec4             worldPos          = modelMatrix * modelPos; ",
-      "    vec4             viewPos           = viewMatrix * worldPos; ",
-      "    vec4             clipPos           = uProjMatrix * viewPos; ",
+    // Fetch transforms
+    // modelMatrix: mesh-local → world
+    // viewMatrix:  world → view (tile camera)
+    mat4 modelMatrix = getMeshMatrix(meshIndex);
+    mat4 viewMatrix  = getTileViewMatrix(tileIndex);
 
-      "    gl_Position = clipPos;"
-    );
-  }
+    // Apply transforms through the standard pipeline
+    vec4 worldPos = modelMatrix * modelPos;      // model → world
+    vec4 viewPos  = viewMatrix  * worldPos;      // world → view
+    vec4 clipPos  = uProjMatrix * viewPos;       // view  → clip
 
-  /**
-   * Generates vertex shader logic for Lambert shading.
-   * @protected
-   */
-  protected vsLambertShadingLogicOLD() {
-    this._vertSrcBuf.push(
-      // For triangles, get the three vertex positions for the triangle
-
-      "    uint triIndex = geometryAttributes.indicesBase + primOffset * numVertsPerPrim;",
-
-      "    uint ia = getVertexIndex(triIndex + 0u);",
-      "    uint ib = getVertexIndex(triIndex + 1u);",
-      "    uint ic = getVertexIndex(triIndex + 2u);",
-
-      // Dequantized positions in OBJECT space
-
-      // "    vec3 a_obj = quantRange.offset + quantRange.scale * vec3(getVertexPosition(ia));",
-      // "    vec3 b_obj = quantRange.offset + quantRange.scale * vec3(getVertexPosition(ib));",
-      // "    vec3 c_obj = quantRange.offset + quantRange.scale * vec3(getVertexPosition(ic));",
-
-      // Transform to WORLD space
-
-      // "    vec3 pa_w = (modelMatrix * vec4(a_obj, 1.0)).xyz;",
-      // "    vec3 pb_w = (modelMatrix * vec4(b_obj, 1.0)).xyz;",
-      // "    vec3 pc_w = (modelMatrix * vec4(c_obj, 1.0)).xyz;",
-
-      "    vec3 pa = vec4(viewMatrix * (modelMatrix * vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ia))), 1.0))).xyz;",
-      "    vec3 pb = vec4(viewMatrix * (modelMatrix * vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ib))), 1.0))).xyz;",
-      "    vec3 pc = vec4(viewMatrix * (modelMatrix * vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ic))), 1.0))).xyz;",
-
-      "    vec3 normal = normalize(cross(pc - pa, pb - pa));",
-
-
-      "    float lambertian = 1.0;",
-      "    vec3 reflectedColor = vec3(0.0, 0.0, 0.0);",
-
-      " vec4 lightAmbient = vec4(0.3, 0.3, 0.3, 1.0);",
-      " vec3 lightDir1 = normalize(vec3(0.0, 0.0, -1.0));",
-      " vec4 lightColor1 = vec4(0.7, 0.7, 0.7, 1.0);",
-      " vec3 lightDir2 = normalize(vec3(-1.0, -1.0, -1.0));",
-      " vec4 lightColor2 = vec4(1.0, 1.0, 1.0, 0.5);",
-      " vec3 lightDir3 = normalize(vec3(-1.0, 1.0, 1.0));",
-      " vec4 lightColor3 = vec4(1.0, 1.0, 1.0, 0.2);",
-
-      // "    lambertian = max(dot(normal, normalize(lightDir1)), 0.0);",
-      // "    reflectedColor += lambertian * (lightColor1.rgb * lightColor1.a);",
-
-      "    lambertian = max( dot(normal, normalize(lightDir2)), 0.0);",
-      "   if (lambertian < 0.0) lambertian = lambertian * -1.0;",
-      "    reflectedColor += lambertian * (lightColor2.rgb * lightColor2.a);",
-      //
-      // "    lambertian = max(dot(normal, normalize(lightDir3)), 0.0);",
-      // "    reflectedColor += lambertian * (lightColor3.rgb * lightColor3.a);",
-
-      "    vec4 color = vec4(meshViewAttributes.color) /255.0;",
-
-      "   vColor =  vec4((lightAmbient.rgb * lightAmbient.a * color.rgb) + (reflectedColor * color.rgb),color.a);",
-
-      //  "    vColor = vec4(color.rgb, 1.0);");
+    // Write final clip-space position for rasterization
+    gl_Position = clipPos;`
     );
   }
 
   protected vsLambertShadingLogic() {
-    this._vertSrcBuf.push(
-      // Compute triangle vertex positions in view space
+    this._vertSrcBuf.push(`
+    // ─────────────────────────────────────────────────────────
+    // Lighting section: compute a face normal from the full triangle
+    // ─────────────────────────────────────────────────────────
+    // Even though we are in a per-vertex shader, we reconstruct the entire
+    // triangle (3 indices + 3 positions) to compute a consistent face normal.
+    // This yields flat shading: all 3 vertices get the same normal-derived light.
 
-      "    uint triIndex = geometryAttributes.indicesBase + primOffset * numVertsPerPrim;",
+    // Compute the starting index of the triangle in the index buffer
+    // triIndex points at the first of the three indices for this triangle.
+    uint triIndex = geometryAttributes.indicesBase + primOffset * numVertsPerPrim;
 
-      "    uint ia = getVertexIndex(triIndex + 0u);",
-      "    uint ib = getVertexIndex(triIndex + 1u);",
-      "    uint ic = getVertexIndex(triIndex + 2u);",
+    // Fetch triangle vertex indices (within geometry)
+    uint ia = getVertexIndex(triIndex + 0u);
+    uint ib = getVertexIndex(triIndex + 1u);
+    uint ic = getVertexIndex(triIndex + 2u);
 
-      "    vec3 pa = vec4(viewMatrix * (modelMatrix * vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ia))), 1.0))).xyz;",
-      "    vec3 pb = vec4(viewMatrix * (modelMatrix * vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ib))), 1.0))).xyz;",
-      "    vec3 pc = vec4(viewMatrix * (modelMatrix * vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ic))), 1.0))).xyz;",
+    // Fetch quantized positions for all three triangle vertices
+    uvec3 qa = getVertexPosition(geometryAttributes.verticesBase + ia);
+    uvec3 qb = getVertexPosition(geometryAttributes.verticesBase + ib);
+    uvec3 qc = getVertexPosition(geometryAttributes.verticesBase + ic);
 
-      // Ensure clockwise winding order: if normal faces away from +view Z, swap pb and pc
-      "    vec3 normal = normalize(cross(pc - pa, pb - pa));",
-      // "    // Reference direction: +Z in view space (outward)",
-      //  "    float winding = dot(normal, vec3(0.0, 0.0, -1.0));",
-      //  "    if (winding < 0.0) {",
-      //  //"        // Swap pb and pc to enforce clockwise winding",
-      //  "        vec3 tmp = pb;",
-      //  "        pb = pc;",
-      //  "        pc = tmp;",
-      //  "        normal = normalize(cross(pc - pa, pb - pa));",
-      //  "    }",
+    // Dequantize + transform those triangle vertices into view space
+    vec3 pa = (viewMatrix * (modelMatrix * vec4(quantRange.offset + quantRange.scale * vec3(qa), 1.0))).xyz;
+    vec3 pb = (viewMatrix * (modelMatrix * vec4(quantRange.offset + quantRange.scale * vec3(qb), 1.0))).xyz;
+    vec3 pc = (viewMatrix * (modelMatrix * vec4(quantRange.offset + quantRange.scale * vec3(qc), 1.0))).xyz;
 
-      "    float lambertian = 1.0;",
-      "    vec3 reflectedColor = vec3(0.0, 0.0, 0.0);",
-      "    vec4 lightAmbient = vec4(0.3, 0.3, 0.3, 1.0);",
-      "    vec3 lightDir1 = normalize(vec3(0.0, 0.0, -1.0));",
-      "    vec4 lightColor1 = vec4(0.7, 0.7, 0.7, 1.0);",
-      "    vec3 lightDir2 = normalize(vec3(-1.0, -1.0, -1.0));",
-      "    vec4 lightColor2 = vec4(1.0, 1.0, 1.0, 0.5);",
-      "    vec3 lightDir3 = normalize(vec3(-1.0, 1.0, 1.0));",
-      "    vec4 lightColor3 = vec4(1.0, 1.0, 1.0, 0.2);",
+    // Ensure a consistent winding relative to the camera
+    // If the triangle is not facing the eye with the current vertex order,
+    // we swap two vertices to flip the winding. This makes the computed
+    // normal consistently oriented (reduces “inside-out” lighting).
+    if (!triangleFacesEyeVS(pa, pb, pc)) {
+        vec3 tmp = pb;
+        pb = pc;
+        pc = tmp;
+    }
 
-      "    lambertian =  dot(normal, normalize(lightDir2));",
+    // Compute face normal in view space
+    vec3 normal = -normalize(cross(pc - pa, pb - pa));
 
-      "    if (lambertian < 0.0) lambertian = lambertian * -1.0;",
+    // Set up Lambert lighting accumulation
+    float lambertian = 1.0;
+    vec3 reflectedColor = vec3(0.0);
 
-      "    reflectedColor += lambertian * (lightColor2.rgb * lightColor2.a);",
+    vec4 lightAmbient = vec4(0.3, 0.3, 0.3, 1.0);
+    vec3 lightDir1    = normalize(vec3(0.0, 0.0, -1.0));
+    vec4 lightColor1  = vec4(0.7, 0.7, 0.7, 1.0);
+    vec3 lightDir2    = normalize(vec3(-1.0, 1.0, 1.0));
+    vec4 lightColor2  = vec4(1.0, 1.0, 1.0, 0.5);
+    vec3 lightDir3    = normalize(vec3(-1.0, 1.0, 1.0));
+    vec4 lightColor3  = vec4(1.0, 1.0, 1.0, 0.2);
 
-      "    vec4 color = vec4(meshViewAttributes.color) /255.0;",
+    // Lambert diffuse term (N·L), clamped to [0,1]
+    // Currently using lightDir2 only.
+    lambertian = max(dot(normal, normalize(lightDir2)), 0.0);
 
-      "    vColor =  vec4((lightAmbient.rgb * lightAmbient.a * color.rgb) + (reflectedColor * color.rgb), color.a);"
+    // Fetch mesh base color
+    // Stored as RGBA8 in uvec4, convert to float 0..1.
+    vec4 color = vec4(meshViewAttributes.color) / 255.0;
+
+    // Accumulate reflected/diffuse light contribution
+    // lightColor2.rgb * lightColor2.a acts like (color * intensity).
+    reflectedColor += lambertian * (lightColor2.rgb * lightColor2.a);
+
+    // Combine ambient + diffuse lighting
+    // Ambient is applied to base color, diffuse multiplies base color as well.
+    vec3 lit = (lightAmbient.rgb * lightAmbient.a * color.rgb) + (color.rgb * reflectedColor);
+
+    // Output to fragment shader
+    // Alpha is preserved from mesh color.
+    vColor = vec4(lit, color.a);`
     );
   }
 
@@ -946,23 +1146,21 @@ vec3 getEyePosition(mat4 viewMatrix) {
    * @protected
    */
   protected vsSilhouetteLogic() {
-    this._vertSrcBuf.push(
-      "    vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, 0.5);"
-      //"    vColor = vec4(1.0, 1.0, 0.0, 1.0);"
-    );
+    this._vertSrcBuf.push(`
+    // Output constant silhouette color
+    vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, 0.5);`);
   }
 
   /**
    * Generates vertex shader logic for flat color rendering.
    * @protected
    */
-  protected vsDrawFlatColorLogic() {
-    this._vertSrcBuf.push(
-      // "    vec4 color = vec4(meshViewAttributes.color) / 255.0;",
-      // "    vColor = vec4(color.rgb, 1.0);"
 
-      "    vColor = vec4(1.0, 1.0, 0.0, 1.0);"
-    );
+  protected vsDrawFlatColorLogic() {
+    this._vertSrcBuf.push(`
+    // Output flat color from mesh view attributes
+    vec4 color = vec4(meshViewAttributes.color) / 255.0;
+    vColor = vec4(color.rgb, 1.0);`);
   }
 
   /**
@@ -970,10 +1168,10 @@ vec3 getEyePosition(mat4 viewMatrix) {
    * @protected
    */
   protected vsDrawVertexColorLogic() {
-    this._vertSrcBuf.push(
-      "    uvec3 color = getVertexColor(vertexIndexWithinGeometry);",
-      "    vColor = vec4( float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, 1.0);"
-    );
+    this._vertSrcBuf.push(`
+    // Output vertex color
+    uvec4 color = getVertexColor(vertexIndexWithinGeometry);
+    vColor = vec4( float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, 1.0);`);
   }
 
   /**
@@ -984,94 +1182,6 @@ vec3 getEyePosition(mat4 viewMatrix) {
     this._vertSrcBuf.push(
       "    vHighPrecisionZW = gl_Position.zw;"
     );
-  }
-
-  /**
-   * Generates a mock vertex shader for testing.
-   * @protected
-   */
-  protected vsDrawMock() {
-    this._vertSrcBuf.push(`#version 300 es
-precision highp float;
-out vec4 vColor;
-void main() {
-    vec2 p = (gl_VertexID == 0) ? vec2(-1.0, -1.0)
-           : (gl_VertexID == 1) ? vec2( 3.0, -1.0)
-                                : vec2(-1.0,  3.0);
-    gl_Position = vec4(p, 0.0, 1.0);
-    vColor = vec4(1.0, 0.0, 1.0, 1.0);
-}`);
-  }
-
-  /**
-   * Generates a second mock vertex shader for testing.
-   * This time, the uProjMatrix is used.
-   * @protected
-   */
-  protected vsDrawMock2() {
-    this._vertSrcBuf.push(`#version 300 es
-precision highp float;
-uniform mat4 uProjMatrix;
-out vec4 vColor;
-
-vec3 mockModelPos(int vid) {
-    int i = vid % 3;
-    if (i == 0) return vec3(-0.5, -0.5, -0.95);
-    if (i == 1) return vec3( 0.5, -0.5, -0.95);
-    return        vec3( 0.0,  0.5, -0.95);
-}
-
-void main() {
-    vec4 viewPos = vec4(mockModelPos(gl_VertexID), 1.0);
-    gl_Position = uProjMatrix * viewPos;
-    vColor = vec4(0.0, 1.0, 1.0, 1.0);
-}
-`);
-  }
-
-  /**
-   * Generates a third mock vertex shader for testing.
-   * This time, the uVertexPositionTexture is tested.
-   * @protected
-   */
-  protected vsDrawMock3() {
-    this._vertSrcBuf.push(`#version 300 es
-precision highp float;
-precision highp usampler2D;
-
-uniform highp usampler2D uVertexPositionTexture;
-out vec4 vColor;
-
-ivec2 texCoord(uint index, uint texWidth) {
-    return ivec2(int(index % texWidth), int(index / texWidth));
-}
-
-uvec3 getVertexPosition(uint vertexIndexWithinGeometry) {
-    const uint texWidth = 4096u;
-    return texelFetch(uVertexPositionTexture, texCoord(vertexIndexWithinGeometry, texWidth), 0).rgb;
-}
-
-void main() {
-    uvec3 q = getVertexPosition(uint(gl_VertexID));
-   vec3 p = (vec3(q) / 1024.0) * 2.0 - 1.0;
-    gl_Position = vec4(p.xy, 0.0, 1.0);
-    vColor = vec4(fract(vec3(q) / 255.0), 1.0);
-}
-`);
-  }
-
-  /**
-   * Generates a mock fragment shader for testing.
-   * @protected
-   */
-  protected fsDrawMock() {
-    this._fragSrcBuf.push("#version 300 es",
-      "precision highp float;",
-      "in vec4 vColor;",
-      "out vec4 outColor;",
-      "void main() {",
-      "    outColor = vColor;",
-      "}");
   }
 
   /**
@@ -1412,7 +1522,10 @@ void main() {
     }
 
     if (uniforms.nearPlaneHeight) {
-      gl.uniform1f(uniforms.nearPlaneHeight, (view.camera.projectionType === OrthoProjectionType) ? 1.0 : (gl.drawingBufferHeight / (2 * Math.tan(0.5 * view.camera.perspectiveProjection.fov * Math.PI / 180.0))));
+      gl.uniform1f(uniforms.nearPlaneHeight,
+        (view.camera.projectionType === OrthoProjectionType)
+          ? 1.0
+          : (gl.drawingBufferHeight / (2 * Math.tan(0.5 * view.camera.perspectiveProjection.fov * Math.PI / 180.0))));
     }
 
     if (uniforms.pickZNear) {
@@ -1512,19 +1625,21 @@ void main() {
 }
 
 
-function joinSansComments(srcLines) {
-  const src = [];
-  let line;
-  let n;
+function joinSrc(srcLines: string[], srcLinesWithoutComments: string[], srcLinesWithComments: string[]) {
   for (let i = 0, len = srcLines.length; i < len; i++) {
-    line = srcLines[i];
-    n = line.indexOf("/");
-    if (n > 0) {
-      if (line.charAt(n + 1) === "/") {
-        line = line.substring(0, n);
-      }
+    // Split each element into lines if it contains newlines
+    const lines = srcLines[i].split(/\r\n|\r|\n/);
+    for (let n = 0; n < lines.length; n++) {
+      let line = lines[n];
+      srcLinesWithComments.push(line);
+      // Remove line comments (//)
+      const idx = line.indexOf("//");
+      if (idx >= 0) line = line.slice(0, idx);
+      // Remove inline block comments (/* ... */) -- only if on a single line
+      line = line.replace(/\/\*.*?\*\//g, "");
+      // Preserve leading spaces (do not trim)
+      // Only skip lines that are completely empty or whitespace
+      if (line.match(/\S/)) srcLinesWithoutComments.push(line);
     }
-    src.push(line);
   }
-  return src.join("\n");
 }

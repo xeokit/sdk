@@ -1485,6 +1485,10 @@ export class SceneModel {
       });
     }
 
+    if (sceneModelParams.coordinateSystem) {
+      this.coordinateSystem.fromParams(sceneModelParams.coordinateSystem);
+    }
+
     if (sceneModelParams.transforms) {
       for (let i = 0, len = sceneModelParams.transforms.length; i < len; i++) {
         const res = this.createTransform(sceneModelParams.transforms[i]);
@@ -1559,6 +1563,7 @@ export class SceneModel {
     }
     const sceneModelParams: SceneModelParams = {
       id: this.id,
+      coordinateSystem: this.coordinateSystem.toParams(),
       geometriesCompressed: [],
       textures: [],
       textureSets: [],

@@ -15,6 +15,7 @@ export class EventsLogger {
     private readonly opts?: {
       /** Prefix for each log line (e.g. `[Scene foo]`) */
       prefix?: string;
+      log?: (eventName: string, sender: any, args: any) => void;
     }
   ) {
     this.bindAll();
@@ -39,6 +40,9 @@ export class EventsLogger {
     const prefix = this.opts?.prefix ? `${this.opts.prefix} ` : "";
 
     const log = ((eventName, sender, args) => {
+      if (this.opts?.log) {
+          this.opts.log(eventName, sender, args);
+      }
         // eslint-disable-next-line no-console
         //console.log(`${prefix}${eventName}`, { sender, args });
       console.log(`%c${prefix}%c${eventName}`, `color: grey;`, "color:green;", { sender, args });

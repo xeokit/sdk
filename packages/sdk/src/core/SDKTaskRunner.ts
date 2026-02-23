@@ -30,6 +30,9 @@ export class SDKTaskRunner {
    */
   private running: boolean;
 
+  private suspended: boolean = false;
+  private pendingTasks: SDKTask[] = [];
+
   constructor() {
     this.tasksByStage = new Map<number, Set<SDKTask>>();
     this.tasksByStage.set(0, new Set<SDKTask>());
@@ -39,6 +42,31 @@ export class SDKTaskRunner {
     this.tasksByStage.set(4, new Set<SDKTask>());
     this.tasksByStage.set(5, new Set<SDKTask>());
     this.running = false;
+    this.suspended = false;
+  }
+
+  /**
+   * Suspends the runner. Tasks added while suspended are queued and not executed until unsuspend() is called.
+   */
+  public suspend(): void {
+    this.suspended = true;
+    this.running = false;
+  }
+
+  /**
+   * Unsuspends the runner. All tasks added while suspended are registered and the runner resumes.
+   */
+  public unsuspend(): void {
+    this.suspended = false;
+    for (const task of this.pendingTasks) {
+      this._addTaskInternal(task);
+    }
+    this.pendingTasks = [];
+    // Start loop if needed
+    if (!this.running && this.hasTasks()) {
+      this.running = true;
+      requestAnimationFrame(() => this.runTasks());
+    }
   }
 
   /**
@@ -51,11 +79,17 @@ export class SDKTaskRunner {
    *
    * @param task The task to register.
    */
-  addTask(task: SDKTask): void {
+  public addTask(task: SDKTask): void {
+    if (this.suspended) {
+      this.pendingTasks.push(task);
+      return;
+    }
+    this._addTaskInternal(task);
+  }
+
+  private _addTaskInternal(task: SDKTask): void {
     const stage = Math.max(0, Math.min(5, task.stage || 0));
     this.tasksByStage.get(stage)!.add(task);
-
-    // Start animation-frame loop if not already running.
     if (!this.running) {
       this.running = true;
       requestAnimationFrame(() => this.runTasks());
@@ -73,22 +107,14 @@ export class SDKTaskRunner {
    * Continues running on subsequent animation frames until no tasks remain.
    */
   private runTasks(): void {
+    if (this.suspended) {
+      return;
+    }
     let tasksRemain = false;
     for (let stage = 0; stage <= 5; stage++) {
       const tasks = this.tasksByStage.get(stage)!;
-
       for (const task of Array.from(tasks)) {
         if (!task.destroyed) {
-         if (!task.repeating) {
-   //        console.log(`[SDKTaskRunner] Running non-repeating task '${task.name}' at stage ${stage}:`, task);
-         // @ts-ignore
-         } else
-           // @ts-ignore
-           if (!task.logged) {
-           // @ts-ignore
-           task.logged = true;
-      //     console.log(`[SDKTaskRunner] Running repeating task '${task.name}' at stage ${stage}:`, task);
-          }
           task.runIfScheduled();
           if (!task.repeating) {
             tasks.delete(task);
@@ -115,7 +141,16 @@ export class SDKTaskRunner {
       this.running = false;
     }
   }
+
+  private hasTasks(): boolean {
+    for (let stage = 0; stage <= 5; stage++) {
+      if (this.tasksByStage.get(stage)!.size > 0) return true;
+    }
+    return false;
+  }
 }
+
+
 
 const globalTaskRunner = new SDKTaskRunner();
 

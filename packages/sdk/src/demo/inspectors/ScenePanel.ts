@@ -1,5 +1,5 @@
 
-import {Scene, SceneEvents, SceneModel, SceneModelStats} from "../scene";
+import {Scene, SceneEvents, SceneModel, type SceneModelStats} from "../../scene";
 import {FloatingPanelFlowHost} from "./FloatingPanelFlowHost";
 
 function fileIconSvg() {
@@ -23,13 +23,13 @@ function fileIconSvg() {
  * Floating, dependency-free HTML view that shows a list of SceneModelStats panels,
  * one per SceneModel, and keeps them in sync with SceneEvents.
  *
- * - Immediately populates itself from existing Scene#models on attach().
+ * - Immediately populates itself from existing Scene#models on show().
  * - Creates/destroys per-model panels when SceneModels are created/destroyed.
  * - Collapsible master panel + each model row collapsible.
  * - Absolutely-positioned floating host (like your other views).
  *
  * Usage:
- *   const view = SceneModelStats.attach(scene, scene.events, { corner: "top-right" });
+ *   const view = SceneModelStats.show(scene, scene.events, { corner: "top-right" });
  *   // later:
  *   view.destroy();
  */
@@ -81,7 +81,7 @@ export class ScenePanel {
    * Attaches to a Scene + SceneEvents and shows the floating panel.
    * Stats are read from SceneModel#stats.
    */
-  static attach(
+  static show(
     flowHost: HTMLDivElement,
     scene: Scene,
     opts: {
@@ -260,6 +260,13 @@ export class ScenePanel {
   renderBody() {
     const body = el("div", { className: "smsm-body" });
 
+    // --- CoordinateSystem panel ---
+    const cs = this.#scene.coordinateSystem;
+    if (cs) {
+      body.appendChild(renderCoordSysPanel(cs, { collapsed: true, title: "Coordinate System", jsonTitle: "CoordinateSystem JSON" }));
+    }
+
+    // --- SceneModels stats ---
     body.appendChild(
       el("div", { className: "smsm-toolbar" }, [
         el("div", { className: "smsm-toolbar-left" }, [
@@ -269,24 +276,6 @@ export class ScenePanel {
             textContent: String(this.#modelPanels.size),
           }),
         ]),
-        // el("div", { className: "smsm-toolbar-right" }, [
-        //   el("button", {
-        //     className: "smsm-btn smsm-btn--sub",
-        //     textContent: "Refresh all",
-        //     title: "Re-read model.stats for all panels",
-        //     ["data-smsm-refresh-all" as any]: "",
-        //   }),
-        //   el("button", {
-        //     className: "smsm-btn smsm-btn--sub",
-        //     textContent: "Collapse all",
-        //     ["data-smsm-collapse-all" as any]: "",
-        //   }),
-        //   el("button", {
-        //     className: "smsm-btn smsm-btn--sub",
-        //     textContent: "Expand all",
-        //     ["data-smsm-expand-all" as any]: "",
-        //   }),
-        // ]),
       ])
     );
 
@@ -297,16 +286,6 @@ export class ScenePanel {
     const list = el("div", { className: "smsm-list" });
     body.appendChild(list);
     this.#listEl = list;
-
-    body
-      .querySelector<HTMLButtonElement>("[data-smsm-collapse-all]")
-      ?.addEventListener("click", () => this.#setAllModelsCollapsed(true));
-    body
-      .querySelector<HTMLButtonElement>("[data-smsm-expand-all]")
-      ?.addEventListener("click", () => this.#setAllModelsCollapsed(false));
-    body
-      .querySelector<HTMLButtonElement>("[data-smsm-refresh-all]")
-      ?.addEventListener("click", () => this.refreshAll());
 
     return body;
   }
@@ -322,6 +301,7 @@ export class ScenePanel {
   // ---------------------------------------------------------------------------
 
   #wireEvents() {
+    // @ts-ignore
     const sub = <A, B>(emitter: any, handler: (a: A, b: B) => void): (() => void) => {
       if (emitter?.subscribe) {
         const token = emitter.subscribe(handler);
@@ -364,6 +344,7 @@ export class ScenePanel {
   // Model panel management
   // ---------------------------------------------------------------------------
 
+  // In #addModel, always start collapsed:
   #addModel(model: SceneModel) {
     const id = this.#getModelId(model);
     if (this.#modelPanels.has(id)) return;
@@ -371,7 +352,8 @@ export class ScenePanel {
     const list = this.#listEl;
     if (!list) return;
 
-    const startCollapsed = !!this.#opts.startModelsCollapsed;
+    // Always start collapsed
+    const startCollapsed = true;
 
     const panel = this.#renderModelPanel(model, startCollapsed);
     list.appendChild(panel.root);
@@ -423,7 +405,6 @@ export class ScenePanel {
     title.appendChild(caret);
     title.appendChild(name);
 
-
     header.appendChild(title);
 
     const viewJsonBtn = el("button", {
@@ -434,19 +415,22 @@ export class ScenePanel {
         e.stopPropagation();
         const result = model.toParams();
         if (result && result.ok !== false) {
-          try {
-            openJsonInNewTab(result.value, model.id ? `SceneModel: ${model.id}` : "SceneModel JSON");
-          } catch (err) {
-            alert("Failed to export SceneModel as JSON: " + (err && (err as any).message || err));
-          }
+          openJsonInNewTab(result.value, "SceneModel JSON");
         }
       }
     });
 
+    header.appendChild(viewJsonBtn);
 
-   header.appendChild(viewJsonBtn);
 
     const body = el("div", { className: "smsm-model-body" });
+
+    const cs = model.coordinateSystem;
+    if (cs) {
+      body.appendChild(renderCoordSysPanel(cs, { collapsed: true, title: "Coordinate System", jsonTitle: "SceneModel CoordinateSystem JSON" }));
+    }
+
+    // --- Stats ---
     body.appendChild(this.#renderStatsBody((model as any)?.stats));
 
     root.appendChild(header);
@@ -461,20 +445,6 @@ export class ScenePanel {
       setCollapsed(root, body, caret, nowCollapsed);
     });
 
-    header
-      .querySelector<HTMLButtonElement>("[data-smsm-model-refresh]")
-      ?.addEventListener("click", (e) => {
-        e.stopPropagation();
-        this.#refreshModel(model);
-      });
-
-    header
-      .querySelector<HTMLButtonElement>("[data-smsm-model-close]")
-      ?.addEventListener("click", (e) => {
-        e.stopPropagation();
-        this.#removeModel(model);
-      });
-
     return { root, body, collapsed: startCollapsed };
 
     function setCollapsed(rootEl: HTMLElement, bodyEl: HTMLElement, caretEl: HTMLElement, collapsed: boolean) {
@@ -483,6 +453,7 @@ export class ScenePanel {
       caretEl.textContent = collapsed ? "▸" : "▾";
     }
   }
+
 
   #renderStatsBody(stats: SceneModelStats | null | undefined) {
     const wrap = el("div", { className: "smsm-stats" });
@@ -568,6 +539,72 @@ export class ScenePanel {
     return name && String(name) !== id ? `${name} (${id})` : id;
   }
 }
+
+// Helper to render a collapsible CoordinateSystem panel (without JSON button)
+function renderCoordSysPanel(cs: any, opts: { collapsed?: boolean; title?: string; jsonTitle?: string } = {}) {
+  let collapsed = !!opts.collapsed;
+
+  const root = el("div", { className: "smsm-coordsys-panel" });
+
+  // Caret
+  const caret = el("span", {
+    className: "smsm-coordsys-caret",
+    textContent: collapsed ? "▸" : "▾",
+    style: "font-size:16px;width:18px;display:inline-block;text-align:center;color:#444;user-select:none;",
+  });
+
+  // Header row: caret + icon + title (no JSON button)
+  const header = el("div", {
+    className: "smsm-coordsys-header",
+    style: "display:flex;align-items:center;gap:10px;cursor:pointer;",
+  }, [
+    caret,
+    el("img", {
+      className: "smsm-coordsys-icon",
+      width: 32,
+      height: 32,
+      alt: "Coordinate System",
+      src: coordsysIconSvgDataUri(),
+      draggable: false,
+    }),
+    el("div", { className: "smsm-coordsys-title", textContent: opts.title ?? "Coordinate System" }),
+    el("div", { style: "flex:1;" }),
+    // (No JSON button)
+  ]);
+
+  // Panel body (chips + table)
+  const body = el("div", {}, [
+    el("div", { className: "smsm-coordsys-chips", style: "display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;" }, [
+      chip("Origin", cs.origin ? cs.origin.map((v: number) => v.toFixed(3)).join(", ") : "—"),
+      chip("Units", cs.units ?? "—"),
+      chip("Scale to meters", cs.scaleToMeters ?? "—"),
+      chip("xUp", cs.xUp ? "true" : "false"),
+      chip("yUp", cs.yUp ? "true" : "false"),
+      chip("zUp", cs.zUp ? "true" : "false"),
+    ]),
+    el("table", { className: "smsm-coordsys-table" }, [
+      tr("Basis", cs.basis ? cs.basis.map((v: number) => v.toFixed(3)).join(", ") : "—"),
+      tr("World Up", cs.worldUp ? cs.worldUp.map((v: number) => v.toFixed(3)).join(", ") : "—"),
+      tr("World Right", cs.worldRight ? cs.worldRight.map((v: number) => v.toFixed(3)).join(", ") : "—"),
+      tr("World Forward", cs.worldForward ? cs.worldForward.map((v: number) => v.toFixed(3)).join(", ") : "—"),
+    ])
+  ]);
+
+  // Initial collapsed state
+  body.style.display = collapsed ? "none" : "block";
+
+  // Toggle logic
+  header.addEventListener("click", (e) => {
+    collapsed = !collapsed;
+    body.style.display = collapsed ? "none" : "block";
+    caret.textContent = collapsed ? "▸" : "▾";
+  });
+
+  root.appendChild(header);
+  root.appendChild(body);
+  return root;
+}
+
 
 // -----------------------------------------------------------------------------
 // Small DOM utilities (no framework)
@@ -737,6 +774,79 @@ const DEFAULT_CSS = `
   background: #e6f0fa;
   border-color: #b3c6e0;
 }
+
+.smsm-coordsys-panel {
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  background: #f9fafb;
+  margin-bottom: 10px;
+  padding: 7px 10px;
+}
+
+.smsm-coordsys-header {
+  margin-bottom: 4px;
+  padding: 0;
+}
+
+.smsm-coordsys-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+}
+
+.smsm-coordsys-icon {
+  margin-right: 6px;
+  width: 24px;
+  height: 24px;
+}
+
+.smsm-coordsys-chips {
+padding-top:6px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  gap: 6px;
+}
+
+.smsm-chip {
+  background: #eef2f6;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.smsm-chip-label {
+  color: #888;
+  margin-right: 4px;
+  font-weight: 500;
+}
+
+.smsm-chip-value {
+  color: #333;
+  font-weight: 600;
+}
+
+.smsm-coordsys-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.smsm-coordsys-table th {
+  text-align: left;
+  color: #666;
+  font-weight: 500;
+  width: 90px;
+  padding: 3px 6px;
+  vertical-align: top;
+}
+
+.smsm-coordsys-table td {
+  padding: 3px 6px;
+  word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
 `;
 
 
@@ -862,4 +972,43 @@ function escapeHtml(s: string) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+function chip(label: string, value: string) {
+  return el("div", { className: "smsm-chip" }, [
+    el("span", { className: "smsm-chip-label", textContent: label }),
+    el("span", { className: "smsm-chip-value", textContent: value }),
+  ]);
+}
+
+function tr(label: string, value: string) {
+  return el("tr", {}, [
+    el("th", { textContent: label }),
+    el("td", { textContent: value }),
+  ]);
+}
+
+function coordsysIconSvgDataUri() {
+  // Axis gnomon: X (red), Y (green), Z (blue)
+  const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
+  <g>
+    <!-- X axis (red) -->
+    <line x1="14" y1="14" x2="24" y2="14" stroke="#e74c3c" stroke-width="2.2" />
+    <polygon points="24,14 21.5,12.7 21.5,15.3" fill="#e74c3c"/>
+    <text x="25.5" y="15.5" font-size="7" font-family="sans-serif" fill="#e74c3c" font-weight="bold">X</text>
+    <!-- Y axis (green) -->
+    <line x1="14" y1="14" x2="14" y2="4" stroke="#27ae60" stroke-width="2.2" />
+    <polygon points="14,4 12.7,6.5 15.3,6.5" fill="#27ae60"/>
+    <text x="12" y="3.5" font-size="7" font-family="sans-serif" fill="#27ae60" font-weight="bold">Y</text>
+    <!-- Z axis (blue, up-right) -->
+    <line x1="14" y1="14" x2="6" y2="22" stroke="#2980d9" stroke-width="2.2" />
+    <polygon points="6,22 8,21.5 7.5,19.5" fill="#2980d9"/>
+    <text x="2.5" y="24" font-size="7" font-family="sans-serif" fill="#2980d9" font-weight="bold">Z</text>
+    <!-- Origin dot -->
+    <circle cx="14" cy="14" r="2.2" fill="#888" stroke="#fff" stroke-width="1"/>
+  </g>
+</svg>
+  `.trim();
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }

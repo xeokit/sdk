@@ -1,23 +1,50 @@
-import { SDKTaskRunner } from "../core/SDKTaskRunner";
-import { SDKTask } from "../core/SDKTask";
+import { SDKTaskRunner } from "../../core/SDKTaskRunner";
+import { SDKTask } from "../../core/SDKTask";
 
 
 function taskPanelIconDataUri(): string {
-  // 60x60 SVG: bold green play button (circle with right-pointing triangle), no text
+  // 60x60 SVG: task pipeline / scheduler icon (stages + running indicator)
   const svg = `
 <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60">
-  <!-- Shadow -->
-  <ellipse cx="30" cy="48" rx="16" ry="5" fill="#222" opacity="0.13"/>
-  <!-- Green play button -->
-  <circle cx="30" cy="30" r="18" fill="#27ae60" stroke="#219150" stroke-width="2"/>
-  <!-- Play triangle -->
-  <polygon points="26,21 26,39 41,30" fill="#fff" stroke="#fff" stroke-width="1"/>
-  <!-- Frame border -->
-  <rect x="4" y="4" width="52" height="52" rx="12" fill="none" stroke="#e6e6e6" stroke-width="1.5"/>
+  <defs>
+    <linearGradient id="taskGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7db3e6"/>
+      <stop offset="100%" stop-color="#2d5e8c"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Soft shadow -->
+  <ellipse cx="30" cy="52" rx="18" ry="6" fill="#000" opacity="0.10"/>
+
+  <!-- Outer rounded frame -->
+  <rect x="4" y="4" width="52" height="52" rx="12"
+        fill="#ffffff"
+        stroke="#e6e6e6"
+        stroke-width="1.5"/>
+
+  <!-- Stage nodes -->
+  <g>
+    <rect x="14" y="18" width="10" height="10" rx="3" fill="url(#taskGrad)" opacity="0.95"/>
+    <rect x="26" y="18" width="10" height="10" rx="3" fill="url(#taskGrad)" opacity="0.65"/>
+    <rect x="38" y="18" width="10" height="10" rx="3" fill="url(#taskGrad)" opacity="0.40"/>
+  </g>
+
+  <!-- Connector line (pipeline) -->
+  <line x1="19" y1="33" x2="41" y2="33" stroke="#2d5e8c" stroke-width="2" opacity="0.35" stroke-linecap="round"/>
+  <circle cx="19" cy="33" r="2" fill="#2d5e8c" opacity="0.55"/>
+  <circle cx="30" cy="33" r="2" fill="#2d5e8c" opacity="0.55"/>
+  <circle cx="41" cy="33" r="2" fill="#2d5e8c" opacity="0.55"/>
+
+  <!-- "Running" indicator (spinner-ish) -->
+  <g transform="translate(30 43)">
+    <circle cx="0" cy="0" r="7" fill="none" stroke="#2d5e8c" stroke-width="2" opacity="0.25"/>
+    <path d="M0 -7 A7 7 0 0 1 6 3" fill="none" stroke="#4fd1c5" stroke-width="2.6" stroke-linecap="round"/>
+    <circle cx="6" cy="3" r="1.6" fill="#4fd1c5"/>
+  </g>
 </svg>`.trim();
+
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
-
 export class TaskPanel {
   static #TILE_ID = "__taskpanel_tile__";
   static #STYLE_ID = "__taskpanel_style__";

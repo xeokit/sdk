@@ -5,25 +5,26 @@ import {type MemoryUsage, WebGLRenderer} from "../webglrenderer";
 import {EventsLogger, getGlobalTaskRunner, type SDKResult, SDKTask} from "../core";
 import {SceneAABB3Index} from "../collision/aabb";
 import {CameraFlightAnimation} from "../cameraflight";
-import {type AABB3Float} from "../math/boundaries";
-import {type RenderStats, type ViewRenderStats} from "../webglrenderer/internal/inspectors";
+import {type RenderStats} from "../webglrenderer/internal/inspectors";
 import {CameraControl} from "../cameracontrol";
-import {GPUMemoryConfigsPanel} from "./GPUMemoryConfigsPanel";
-import {GPUMemoryUsagePanel} from "./GPUMemoryUsagePanel";
-import {ScenePanel} from "./ScenePanel";
-import {DataPanel} from "./DataPanel";
-import {ModelConverterStatsReportPanel} from "./ModelConverterStatsReportPanel";
-import {ModelConverterStatsReport} from "../modelconverter/reporters/stats";
-import {ShadersPanel} from "./ShadersPanel";
-import {RendererPanel} from "./RendererPanel";
-import {FloatingPanelFlowHost} from "./FloatingPanelFlowHost";
-import {TaskPanel} from "./TaskPanel";
-import {BoundariesPanel} from "./BoundariesPanel";
-import {DataTexturesPanel} from "./DataTexturesPanel";
-import {TilesPanel} from "./TilesPanel";
+import {GPUMemoryConfigsPanel} from "./inspectors/GPUMemoryConfigsPanel";
+import {GPUMemoryUsagePanel} from "./inspectors/GPUMemoryUsagePanel";
+import {ScenePanel} from "./inspectors/ScenePanel";
+import {DataPanel} from "./inspectors/DataPanel";
+import {ShadersPanel} from "./inspectors/ShadersPanel";
+import {RendererPanel} from "./inspectors/RendererPanel";
+import {FloatingPanelFlowHost} from "./inspectors/FloatingPanelFlowHost";
+import {TaskPanel} from "./inspectors/TaskPanel";
+import {BoundariesPanel} from "./inspectors/BoundariesPanel";
+import {DataTexturesPanel} from "./inspectors/DataTexturesPanel";
+import {TilesPanel} from "./inspectors/TilesPanel";
+import {ViewerPanel} from "./inspectors/ViewerPanel";
 
 const taskRunner = getGlobalTaskRunner();
 
+/**
+ * Configuration options for the DemoHelper.
+ */
 export interface DemoHelperConfig {
   makeComponents?: boolean;
   logging?: boolean;
@@ -77,12 +78,17 @@ export class DemoHelper {
    */
   public cameraControl: CameraControl;
 
+  // /**
+  //  * A inspectors for building demo models with a fluent API. You can use this in your demo code to create models in the scene and data.
+  //  */
+  // public builder: DemoBuilder;
+
   private makeComponents: boolean;
   private showOverlayButton: boolean;
   private overlayButton: HTMLButtonElement | null = null;
-  private overlayDiv: HTMLDivElement | null = null;
-  private overlayVisible: boolean = false;
-  private overlayFlowHost: HTMLDivElement;
+ // private overlayDiv: HTMLDivElement | null = null;
+  private inspectorVisible: boolean = false;
+  private inspectorFlowHost: HTMLDivElement;
 
   private eventsLog: any[];
 
@@ -235,6 +241,8 @@ export class DemoHelper {
 
         this.cameraControl = new CameraControl(this.view);
 
+      //  this.builder = new DemoBuilder(this.scene, this.data);
+
         // @ts-ignore
         window.demoHelper = this;
 
@@ -247,67 +255,86 @@ export class DemoHelper {
 
   /**
    * Gets the overlay host div element.
-   * Attach your examples' helper panels to this div.
+   * Attach your examples' inspectors panels to this div.
    * @returns The HTMLDivElement for the overlay, or null if not created.
    */
-  public getOverlayHostDiv(): HTMLDivElement | null {
-    return this.overlayDiv;
-  }
+  // public getOverlayHostDiv(): HTMLDivElement | null {
+  //   return this.overlayDiv;
+  // }
 
   /**
    *
    */
   public toggleInspector(): void {
 
-    console.log(this.eventsLog);
+   // console.log(this.eventsLog);
 
-    if (this.overlayVisible) {
-      this.overlayFlowHost.style.display = "none";
-      this.overlayVisible = false;
+    if (this.inspectorVisible) {
+
+      this.inspectorFlowHost.style.display = "none";
+      this.inspectorVisible = false;
       this.view.htmlElement.style.pointerEvents = "all";
 
       taskRunner.unsuspend();
 
       return;
+
     } else {
-      if (!this.overlayFlowHost) {
-        this.overlayFlowHost = FloatingPanelFlowHost.getOrCreate({
+
+      if (!this.inspectorFlowHost) {
+
+        this.inspectorFlowHost = FloatingPanelFlowHost.getOrCreate({
           corner: "top-right",
           marginTopPx: 65,
           zIndex: 100000,
-          maxWidth: 2000,        // max width for the whole overlay area
+          maxWidth: 2000,       // max width for the whole overlay area
           tileMinWidth: 800,    // per-panel min width
         });
-        GPUMemoryConfigsPanel.show(this.overlayFlowHost, this.renderer.getMemoryConfigs());
-        GPUMemoryUsagePanel.show(this.overlayFlowHost, this.renderer.getMemoryUsage());
-        ScenePanel.attach(this.overlayFlowHost, this.scene, {});
-        DataPanel.attach(this.overlayFlowHost, this.data, {});
+
+        GPUMemoryConfigsPanel.show(this.inspectorFlowHost, this.renderer.getMemoryConfigs());
+
+        GPUMemoryUsagePanel.show(this.inspectorFlowHost, this.renderer.getMemoryUsage());
+
+        ScenePanel.show(this.inspectorFlowHost, this.scene, {});
+
+        DataPanel.show(this.inspectorFlowHost, this.data, {});
+
         const shaderInspectorResult = this.renderer.getShaderInspector();
         if (shaderInspectorResult.ok) {
-          ShadersPanel.show(this.overlayFlowHost, shaderInspectorResult.value);
+          ShadersPanel.show(this.inspectorFlowHost, shaderInspectorResult.value);
         }
+
         const renderInspectorResult = this.renderer.getRenderInspector();
         if (renderInspectorResult.ok) {
-          RendererPanel.show(this.overlayFlowHost, this.renderer);
+          RendererPanel.show(this.inspectorFlowHost, this.renderer);
           const renderInspector = renderInspectorResult.value;
           const renderStats = renderInspector.renderStats;
-          TilesPanel.show(this.overlayFlowHost, renderStats);
+          TilesPanel.show(this.inspectorFlowHost, renderStats);
         }
-        TaskPanel.show(this.overlayFlowHost, taskRunner, {});
-        BoundariesPanel.show(this.overlayFlowHost, this.view, this.aabb3Index, {});
+
+        TaskPanel.show(this.inspectorFlowHost, taskRunner, {});
+
+        BoundariesPanel.show(this.inspectorFlowHost, this.view, this.aabb3Index, {});
+
         const memoryInspectorResult = this.renderer.getMemoryInspector();
         if (memoryInspectorResult.ok) {
           const memoryInspector = memoryInspectorResult.value;
           const dataTextures = memoryInspector.dataTextures;
-          DataTexturesPanel.show(this.overlayFlowHost, dataTextures);
+          DataTexturesPanel.show(this.inspectorFlowHost, dataTextures);
+        }
+
+        const viewerParamsResult = this.viewer.toParams();
+        if (viewerParamsResult.ok) {
+          const viewerParams = viewerParamsResult.value;
+         ViewerPanel.show(this.inspectorFlowHost, viewerParams);
         }
       }
-      this.overlayFlowHost.style.display = "flex";
+
+      this.inspectorFlowHost.style.display = "flex";
       this.view.htmlElement.style.pointerEvents = "none";
-      this.overlayVisible = true;
+      this.inspectorVisible = true;
 
       taskRunner.suspend();
-
     }
   }
 
@@ -436,10 +463,15 @@ export class DemoHelper {
 
 
   private _createOverlayButton(): void {
-    if (typeof document === "undefined") return;
-    if (this.overlayButton) return; // Already created
 
-    // Create button
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    if (this.overlayButton) {
+      return;
+    }
+
     const button = document.createElement("button");
     button.innerHTML = `<span style="vertical-align: middle;">Open Inspectors</span>`;
     button.style.position = "fixed";
@@ -465,29 +497,28 @@ export class DemoHelper {
       //   button.style.opacity = "0.85";
     };
 
-    // Create overlay
-    const overlay = document.createElement("div");
-    overlay.style.position = "fixed";
-    overlay.style.paddingRight = "16px";
-    overlay.style.paddingTop = "48px";
-    overlay.style.top = "0";
-    overlay.style.right = "0";
-    overlay.style.width = "100%";
-    overlay.style.height = "100%";
-    overlay.style.background = "rgba(30, 30, 40, 0.97)";
-    overlay.style.zIndex = "200000";
-    overlay.style.display = "none";
-    overlay.style.boxShadow = "2px 0 12px rgba(0,0,0,0.25)";
-    overlay.style.overflowY = "auto";
-    overlay.style.transition = "transform 0.2s";
-    overlay.style.color = "#fff";
-    overlay.style.fontFamily = "sans-serif";
-    overlay.style.backdropFilter = "blur(4px)";
+    // const overlay = document.createElement("div");
+    // overlay.style.position = "fixed";
+    // overlay.style.paddingRight = "16px";
+    // overlay.style.paddingTop = "48px";
+    // overlay.style.top = "0";
+    // overlay.style.right = "0";
+    // overlay.style.width = "100%";
+    // overlay.style.height = "100%";
+    // overlay.style.background = "rgba(30, 30, 40, 0.97)";
+    // overlay.style.zIndex = "200000";
+    // overlay.style.display = "none";
+    // overlay.style.boxShadow = "2px 0 12px rgba(0,0,0,0.25)";
+    // overlay.style.overflowY = "auto";
+    // overlay.style.transition = "transform 0.2s";
+    // overlay.style.color = "#fff";
+    // overlay.style.fontFamily = "sans-serif";
+    // overlay.style.backdropFilter = "blur(4px)";
 
     // Button click toggles overlay and caret
     button.onclick = () => {
       this.toggleInspector();
-      if (this.overlayVisible) {
+      if (this.inspectorVisible) {
         button.innerHTML = `<span style="vertical-align: middle;">Close Inspectors</span>`;
         button.classList.add("demohelper-open");
       } else {
@@ -496,11 +527,10 @@ export class DemoHelper {
       }
     };
 
-    // Add to DOM
     document.body.appendChild(button);
-    document.body.appendChild(overlay);
+   // document.body.appendChild(overlay);
 
     this.overlayButton = button;
-    this.overlayDiv = overlay;
+   // this.overlayDiv = overlay;
   }
 }

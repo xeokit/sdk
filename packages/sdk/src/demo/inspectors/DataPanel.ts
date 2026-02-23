@@ -1,4 +1,4 @@
-import { Data, DataEvents, DataModel, DataModelStats } from "../data";
+import { Data, DataEvents, DataModel, type DataModelStats } from "../../data";
 import {FloatingPanelFlowHost} from "./FloatingPanelFlowHost";
 
 function erDiagramIconDataUri(): string {
@@ -26,13 +26,13 @@ function erDiagramIconDataUri(): string {
  * Floating, dependency-free HTML view that shows a list of DataModelStats panels,
  * one per DataModel, and keeps them in sync with DataEvents.
  *
- * - Immediately populates itself from existing Data#models on attach().
+ * - Immediately populates itself from existing Data#models on show().
  * - Creates/destroys per-model panels when DataModels are created/destroyed.
  * - Collapsible master panel + each model row collapsible.
  * - Absolutely-positioned floating host.
  *
  * Usage:
- *   const view = DataPanel.attach(data, { corner: "top-right" });
+ *   const view = DataPanel.show(data, { corner: "top-right" });
  *   // later:
  *   view.destroy();
  */
@@ -78,7 +78,7 @@ export class DataPanel {
     this.#wireEvents();
   }
 
-  static attach(
+  static show(
     flowHost: HTMLDivElement,
     data: Data,
     opts: {
@@ -296,6 +296,7 @@ export class DataPanel {
   // Model panel management
   // ---------------------------------------------------------------------------
 
+// In #addModel, always start collapsed:
   #addModel(model: DataModel) {
     const id = this.#getModelId(model);
     if (this.#modelPanels.has(id)) return;
@@ -303,7 +304,8 @@ export class DataPanel {
     const list = this.#listEl;
     if (!list) return;
 
-    const startCollapsed = !!this.#opts.startModelsCollapsed;
+    // Always start collapsed
+    const startCollapsed = true;
 
     const panel = this.#renderModelPanel(model, startCollapsed);
     list.appendChild(panel.root);

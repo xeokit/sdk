@@ -1,7 +1,9 @@
 
-import type { SceneAABB3Index } from "../collision/aabb";
+import type { SceneAABB3Index } from "../../collision/aabb";
 import { FloatingPanelFlowHost } from "./FloatingPanelFlowHost";
-import {View} from "../viewer";
+import {View} from "../../viewer";
+import type {Vec3} from "../../math/vector";
+import type {AABB3} from "../../math/boundaries";
 
 function boundariesPanelIconDataUri(): string {
   // 60x60 SVG: 3D cube (scene AABB) with inner colored cubes (object AABBs)
@@ -44,13 +46,9 @@ export class BoundariesPanel {
   static #STYLE_ID = "__sceneaabb3index_style__";
 
   static show(flowHost: HTMLDivElement, view: View, index: SceneAABB3Index, opts: any = {}) {
-
     this.#ensureGlobalStyle();
-
     let tile = document.getElementById(this.#TILE_ID) as HTMLDivElement | null;
-
     const root = this.render(view, index, opts);
-
     if (!tile) {
       tile = FloatingPanelFlowHost.mountTile(root, {
         tileMinWidth: opts.tileMinWidth ?? opts.maxWidth ?? 760,
@@ -61,7 +59,6 @@ export class BoundariesPanel {
     } else {
       tile.replaceChildren(root);
     }
-
     return tile;
   }
 
@@ -89,8 +86,6 @@ export class BoundariesPanel {
     ]);
   }
 
-  // In packages/sdk/src/demo/BoundariesPanel.ts
-
   static renderBody(view: View, index: SceneAABB3Index) {
     const scene = index.scene;
     const cs = scene.coordinateSystem;
@@ -101,7 +96,6 @@ export class BoundariesPanel {
         aabbs.push({ id: object.id, aabb: index.getObjectAABB(object.id) });
       }
     }
-
     const sceneAABB = index.getSceneAABB();
 
     // Scene AABB label
@@ -122,7 +116,7 @@ export class BoundariesPanel {
     const camLook = cam.look;
 
     // Coordinate system axes
-    function axisIndex(vec: number[]) {
+    function axisIndex(vec: Vec3) {
       for (let i = 0; i < 3; ++i) if (Math.abs(vec[i]) > 0.5) return i;
       return 1;
     }
@@ -137,31 +131,40 @@ export class BoundariesPanel {
       { label: "Side",  ax0: forwardAxis, ax1: upAxis }
     ];
 
-    const svgs = views.map(view =>
-      el("div", { className: "sceneaabb3index-svgwrap" }, [
-        el("div", { className: "sceneaabb3index-viewlabel" }, view.label),
-        BoundariesPanel.renderSVGView(
-          aabbs,
-          sceneAABB,
-          view.ax0,
-          view.ax1,
-          camEye,
-          camLook
-        )
-      ])
-    );
-    body.append(...svgs);
+    // Collapsible sections for each view
+    const sections = views.map(viewInfo => {
+      const svg = BoundariesPanel.renderSVGView(
+        aabbs, sceneAABB, viewInfo.ax0, viewInfo.ax1, camEye, camLook
+      );
+      const details: any = el("details", { className: "sceneaabb3index-section" }, [
+        el("summary", { className: "sceneaabb3index-section-summary" }, [
+          el("span", { className: "sceneaabb3index-caret" }, ["▸"]),
+          `${viewInfo.label} view`
+        ]),
+        el("div", { className: "sceneaabb3index-svgwrap" }, [svg])
+      ]);
+      details.open = false;
+      details.addEventListener("toggle", () => {
+        const caret = details.querySelector(".sceneaabb3index-caret");
+        if (caret) {
+          if (details.open) caret.classList.add("sceneaabb3index-caret--open");
+          else caret.classList.remove("sceneaabb3index-caret--open");
+        }
+      });
+      return details;
+    });
+
+    body.append(...sections);
     return body;
   }
 
-
   static renderSVGView(
-    aabbs: { id: string, aabb: number[] }[],
-    sceneAABB: number[],
+    aabbs: { id: string, aabb: AABB3 }[],
+    sceneAABB: AABB3,
     ax0: number,
     ax1: number,
-    camEye: number[],
-    camLook: number[]
+    camEye: Vec3,
+    camLook: Vec3
   ) {
     // Make SVG 1.5x larger
     const W = 720, H = 720, PAD = 54;
@@ -300,7 +303,7 @@ export class BoundariesPanel {
     const style = document.createElement("style");
     style.id = this.#STYLE_ID;
     style.textContent = `
-    .sceneaabb3index-root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: #111; padding: 16px; background: rgba(255,255,255,0.96); border: 1px solid #e6e6e6; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,0.14); backdrop-filter: blur(2px); }
+.sceneaabb3index-root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: #111; padding: 16px; background: rgba(255,255,255,0.96); border: 1px solid #e6e6e6; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,0.14); backdrop-filter: blur(2px); }
 .sceneaabb3index-header {
   display: flex;
   flex-direction: row;
@@ -328,25 +331,56 @@ export class BoundariesPanel {
   background: #fafafa;
   padding: 6px;
 }
- .sceneaabb3index-extentslabel {
-    font-size: 22px;
-    fill: #2d5e8c;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    opacity: 0.85;
-    paint-order: stroke fill;
-    stroke: #fff;
-    stroke-width: 4px;
-    stroke-linejoin: round;
-  }
 .sceneaabb3index-h1 {  padding-top:10px;  font-size: 24px; color: #666666; font-weight: 650;  }
 .sceneaabb3index-subtitle { font-size: 12px; color: #444; line-height: 1.35; }
 .sceneaabb3index-body {
   margin-top: 12px;
   display: flex;
-  flex-direction: column; /* Stack vertically */
-  gap: 18px;
+  flex-direction: column;
+  gap: 8px; /* reduced from 18px */
 }
-.sceneaabb3index-svgwrap { display: flex; flex-direction: column; align-items: center; }
+.sceneaabb3index-section {
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  background: #fff;
+  margin-bottom: 0; /* reduced from 12px */
+  overflow: hidden;
+}
+.sceneaabb3index-section-summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #2d5e8c;
+  background: #f7fafc;
+  border-radius: 12px 12px 0 0;
+  padding: 12px 18px 10px 18px;
+  user-select: none;
+  letter-spacing: 0.01em;
+  transition: background 0.13s;
+  outline: none;
+}
+.sceneaabb3index-section-summary:hover {
+  background: #e6f0fa;
+}
+.sceneaabb3index-caret {
+  display: inline-block;
+  width: 18px;
+  text-align: center;
+  font-size: 15px;
+  color: #888;
+  transition: transform 0.18s cubic-bezier(.4,0,.2,1), color 0.13s;
+  user-select: none;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+.sceneaabb3index-caret--open {
+  transform: rotate(90deg);
+  color: #4a90e2;
+}
+.sceneaabb3index-svgwrap { display: flex; flex-direction: column; align-items: center; padding: 18px; }
 .sceneaabb3index-viewlabel {
   font-size: 14px;
   color: #444;
@@ -383,7 +417,7 @@ function el<K extends keyof HTMLElementTagNameMap>(
     if (k === "className") e.className = props[k];
     else if (k === "textContent") e.textContent = props[k];
     else if (k === "htmlFor") (e as any).htmlFor = props[k];
-    else if (k.startsWith("on") && typeof props[k] === "function") e.addEventListener(k.slice(2).toLowerCase(), props[k]);
+    else if (k.startsWith("on") && typeof props[k] === "function") e.addEventListener(<any>(k.slice(2)).toLowerCase(), props[k]);
     else e.setAttribute(k, props[k]);
   }
   if (children) for (const c of children) e.appendChild(typeof c === "string" ? document.createTextNode(c) : c);

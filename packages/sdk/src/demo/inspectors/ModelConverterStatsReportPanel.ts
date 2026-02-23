@@ -408,7 +408,7 @@ export class ModelConverterStatsReportPanel {
     return details;
   }
 
-  static renderKeyValueTable(rows: Array<[any, any]>) {
+  static renderKeyValueTable(rows: any) {
     const table = el("table", { className: "mcsr-table" });
 
     for (const [k, v] of rows) {

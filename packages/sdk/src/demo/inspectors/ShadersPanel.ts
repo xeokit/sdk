@@ -1,6 +1,6 @@
 import {FloatingPanelFlowHost} from "./FloatingPanelFlowHost";
-import {ShaderInspector} from "../webglrenderer/internal/inspectors";
-import {DrawTechnique} from "../webglrenderer/internal/drawOps";
+import {ShaderInspector} from "../../webglrenderer/internal/inspectors";
+import {DrawTechnique} from "../../webglrenderer/internal/drawOps";
 
 // In file: packages/sdk/src/demo/ShadersPanel.ts
 
@@ -167,37 +167,46 @@ export class ShadersPanel {
     return body;
   }
 
+// --- In ShadersPanel class ---
+
   static #renderTechniquesTree(techniques: any, state: Record<string, boolean>) {
     const root = el("div", {className: "shins-tree", ["data-shins-tree-root" as any]: ""});
-   const titles = {
+    const titles = {
       triangles: "Triangles",
       lines: "Lines",
       points: "Points"
-   };
+    };
     for (const groupName of Object.keys(techniques)) {
       const groupObj = techniques[groupName];
+      const groupPath = `techniques.${groupName}`;
+      // Ensure group is collapsed by default
+      if (!(groupPath in state)) state[groupPath] = false;
       root.appendChild(
-        this.#treeNode(
+        this.#treeGroup(
           titles[groupName] || groupName,
-          `techniques.${groupName}`,
+          groupPath,
           state,
           () => {
-            const groupWrap = el("div");
+            const groupWrap = el("div", {className: "shins-tree-techniques"});
             for (const techName of Object.keys(groupObj || {})) {
               const tech = groupObj[techName];
+              const techPath = `${groupPath}.${techName}`;
+              // Ensure technique is collapsed by default
+              if (!(techPath in state)) state[techPath] = false;
               groupWrap.appendChild(
-                this.#treeNode(
+                this.#treeTechnique(
                   techName,
-                  `techniques.${groupName}.${techName}`,
+                  techPath,
                   state,
                   () => {
-                    const leafWrap = el("div");
-                    for (const kind of ["vertex", "fragment"] as const) {
-                      if (tech[`${kind}Src`] || tech[`${kind}ShaderCommentedSrc`]) {
-                        leafWrap.appendChild(this.#shaderLeaf(kind, `${groupName}.${techName}.${kind}`, tech));
-                      }
+                    const leafs = [];
+                    if (tech.vertexSrc) {
+                      leafs.push(this.#shaderLeaf("vertex", techName, tech));
                     }
-                    return leafWrap;
+                    if (tech.fragmentSrc) {
+                      leafs.push(this.#shaderLeaf("fragment", techName, tech));
+                    }
+                    return el("div", {className: "shins-technique-leafs"}, leafs);
                   }
                 )
               );
@@ -210,15 +219,15 @@ export class ShadersPanel {
     return root;
   }
 
-  static #treeNode(label: string, path: string, state: Record<string, boolean>, renderChildren: () => HTMLElement) {
+  static #treeGroup(label: string, path: string, state: Record<string, boolean>, renderChildren: () => HTMLElement) {
     const expanded = !!state[path];
-    const node = el("div", {className: "shins-tree-node"});
+    const node = el("div", {className: "shins-tree-group"});
     const caret = el("span", {
       className: "shins-caret" + (expanded ? " shins-caret--open" : ""),
       textContent: "▸",
       "aria-hidden": "true"
     });
-    const summary = el("div", {className: "shins-summary"}, [
+    const summary = el("div", {className: "shins-summary shins-tree-title"}, [
       caret,
       el("span", {textContent: label})
     ]);
@@ -227,7 +236,6 @@ export class ShadersPanel {
 
     summary.addEventListener("click", (e) => {
       e.preventDefault();
-      const now = !content.style || content.style.display !== "none";
       if (content.style.display === "none") {
         content.style.display = "";
         caret.classList.add("shins-caret--open");
@@ -246,6 +254,42 @@ export class ShadersPanel {
     return node;
   }
 
+  static #treeTechnique(label: string, path: string, state: Record<string, boolean>, renderChildren: () => HTMLElement) {
+    const expanded = !!state[path];
+    const node = el("div", {className: "shins-tree-technique"});
+    const caret = el("span", {
+      className: "shins-caret" + (expanded ? " shins-caret--open" : ""),
+      textContent: "▸",
+      "aria-hidden": "true"
+    });
+    const summary = el("div", {className: "shins-summary shins-tree-technique-title"}, [
+      caret,
+      el("span", {textContent: label})
+    ]);
+    const content = el("div", {className: "shins-node-content", style: expanded ? "" : "display:none;"});
+    if (expanded) content.appendChild(renderChildren());
+
+    summary.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (content.style.display === "none") {
+        content.style.display = "";
+        caret.classList.add("shins-caret--open");
+        if (!content.hasChildNodes()) content.appendChild(renderChildren());
+        state[path] = true;
+      } else {
+        content.style.display = "none";
+        caret.classList.remove("shins-caret--open");
+        state[path] = false;
+      }
+      writeJson(ShadersPanel.#TREE_KEY, state);
+    });
+
+    node.appendChild(summary);
+    node.appendChild(content);
+    return node;
+  }
+
+
   static #shaderLeaf(kind: "vertex" | "fragment", path: string, technique: DrawTechnique) {
     const wrap = el("div", {className: "shins-leaf", ["data-shins-leaf" as any]: ""});
     const head = el("div", {className: "shins-leaf-head"}, [
@@ -257,7 +301,7 @@ export class ShadersPanel {
             textContent: "GLSL",
             onclick: () => {
               ShadersPanel.openShaderSourceInTab(kind, path,
-                kind === "vertex" ? technique.vertexSrc : technique.fragmentSrc);
+                kind === "vertex" ? technique.vertexShaderSrc : technique.fragmentShaderSrc);
             },
           }),
           el("button", {
@@ -265,7 +309,7 @@ export class ShadersPanel {
             textContent: "GLSL + Comments",
             onclick: () => {
               ShadersPanel.openShaderSourceInTab(kind, path,
-                kind === "vertex" ? technique.vertexCommentedSrc : technique.fragmentCommentedSrc);
+                kind === "vertex" ? technique.vertexShaderCommentedSrc : technique.fragmentShaderCommentedSrc);
             },
           })
         ])
@@ -650,7 +694,7 @@ const DEFAULT_CSS = `
 .shins-caret { font-size: 14px; color: #444; width: 18px; text-align: center; }
 
 .shins-btn {
-font-size: 13px;
+  font-size: 13px;
   padding: 4px 12px;
   border-radius: 7px;
   border: 1px solid #e6e6e6;
@@ -660,7 +704,7 @@ font-size: 13px;
   cursor: pointer;
   margin-left: 12px;
   transition: background 0.13s;
- }
+}
 .shins-btn:hover {
   background: #e6f0fa;
   border-color: #b3c6e0;
@@ -673,16 +717,83 @@ font-size: 13px;
 .shins-status-value { font-size: 12px; font-weight: 600; }
 
 .shins-body { margin-top: 12px; }
-.shins-tree { display: grid; gap: 10px; }
 
-.shins-details { border: 1px solid #e6e6e6; border-radius: 12px; background: #fff; overflow: hidden; }
+/* --- Techniques tree --- */
+.shins-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.shins-tree-group {
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(74,144,226,0.04);
+  margin-bottom: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.shins-tree-title {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #2d5e8c;
+  background: #f7fafc;
+  border-radius: 12px 12px 0 0;
+  padding: 12px 18px 10px 18px;
+  user-select: none;
+  letter-spacing: 0.01em;
+  transition: background 0.13s;
+}
+.shins-tree-title:hover {
+  background: #e6f0fa;
+}
+
+.shins-tree-techniques {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+}
+
+.shins-tree-technique {
+  border-top: 1px solid #f0f0f0;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.shins-tree-technique-title {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  background: none;
+  padding: 10px 22px 8px 32px;
+  user-select: none;
+  transition: background 0.13s;
+}
+.shins-tree-technique-title:hover {
+  background: #f7fafc;
+}
+
 .shins-caret {
   display: inline-block;
   width: 18px;
   text-align: center;
   font-size: 15px;
   color: #888;
-  transition: transform 0.18s cubic-bezier(.4,0,.2,1);
+  transition: transform 0.18s cubic-bezier(.4,0,.2,1), color 0.13s;
   user-select: none;
   margin-right: 4px;
   vertical-align: middle;
@@ -691,21 +802,36 @@ font-size: 13px;
   transform: rotate(90deg);
   color: #4a90e2;
 }
-.shins-summary {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 14px;
-  font-weight: 600;
-  padding: 2px 0;
-  user-select: none;
-}
-.shins-node-label { font-size: 12px; font-weight: 650; }
-.shins-node-path { font-size: 11px; color: #777; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.shins-node-content { padding: 10px 12px 12px; border-top: 1px solid #f0f0f0; display: grid; gap: 10px; }
 
-.shins-leaf { border: 1px solid #e6e6e6; border-radius: 12px; background: #fff; overflow: hidden; }
+.shins-summary {
+  /* base for all summary rows */
+  user-select: none;
+  outline: none;
+}
+
+.shins-node-content {
+  padding: 0 0 0 0;
+  border-top: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.shins-technique-leafs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 32px 14px 48px;
+  background: #f7fafc;
+}
+
+.shins-leaf {
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+  margin-bottom: 0;
+}
 .shins-leaf-head {
   display: flex;
   flex-direction: row;
@@ -746,5 +872,4 @@ font-size: 13px;
 .glsl-builtin { color: #7ee787; font-weight: 600; }
 .glsl-num { color: #ffab70; }
 .glsl-pp { color: #ffd57a; font-weight: 600; }
-
 `;

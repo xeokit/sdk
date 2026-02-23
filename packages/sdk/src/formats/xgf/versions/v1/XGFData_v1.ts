@@ -4,6 +4,8 @@
  *
  *  This interface represents the structure of the XGF v1.0 file format. Although this interface is used
  *  internally, we include it in the API documentation so that it can also serve as a reference to the file format.
+ *
+ *  @internal
  */
 export interface XGFData_v1 {
 
@@ -46,6 +48,9 @@ export interface XGFData_v1 {
    * pDouble[1] = (pUint[1] * (maxY - minY) / 65535) + minY
    * pDouble[2] = (pUint[2] * (maxZ - minZ) / 65535) + minZ
    * ````
+   *
+   * Multiple geometries can share the same AABB, in which case they will have the same pointer to the start
+   * of their portion in `XGFData_v1.aabbs`.
    */
   aabbs: null | Float32Array<any>;
 
@@ -89,6 +94,9 @@ export interface XGFData_v1 {
    *
    * Each AABB is the boundary of the geometry's unquantized, double-precision vertex positions, which is used
    * in the Viewer to decompress them from 16-bit integers to double-precision floats.
+   *
+   * Multiple geometries can share the same AABB, in which case they will have the same pointer to the start of
+   * their portion in `XGFData_v1.aabbs`.
    */
   eachGeometryAABBBase: Uint32Array<any>;
 
@@ -97,6 +105,9 @@ export interface XGFData_v1 {
    *
    * Each matrix has sixteen elements. These are 64-bit precision, and may contain huge full-precision translations that are
    * absolute and relative to the World-space origin.
+   *
+   * Multiple meshes can share the same matrix, in which case they will have the same pointer to the start of their
+   * portion in `XGFData_v1.matrices`.
    */
   matrices: Float64Array<any>;
 
@@ -104,6 +115,9 @@ export interface XGFData_v1 {
    * For each mesh, a pointer to the start of its portion in {@link XGFData_v1.eachGeometryPositionsBase},
    * {@link XGFData_v1.eachGeometryColorsBase}, {@link XGFData_v1.eachGeometryIndicesBase} and
    * {@link XGFData_v1.eachGeometryEdgeIndicesBase}.
+   *
+   * Multiple meshes can share the same geometry, in which case they will have the same pointer to the start of their
+   * portion in the eachGeometry* arrays.
    */
   eachMeshGeometriesBase: Uint32Array<any>;
 
@@ -111,6 +125,9 @@ export interface XGFData_v1 {
    * For each mesh, a pointer to its matrix in {@link XGFData_v1.matrices}.
    *
    * Each portion is sixteen elements, comprising a 4x4 matrix.
+   *
+   * Multiple meshes can share the same matrix, in which case they will have the same pointer to the start of their
+   * portion in `XGFData_v1.matrices`.
    */
   eachMeshMatricesBase: Uint32Array<any>;
 
@@ -123,6 +140,8 @@ export interface XGFData_v1 {
    * * Color G [0..255]
    * * Color B [0..255]
    * * Opacity [0..255]
+   *
+   * Each set of attributes belongs exclusively to a single mesh, and is not shared between meshes.
    */
   eachMeshMaterialAttributes: Uint8Array<any>;
 
@@ -134,6 +153,10 @@ export interface XGFData_v1 {
   /**
    * For each object, a pointer to its first mesh in {@link XGFData_v1.eachMeshGeometriesBase},
    * {@link XGFData_v1.eachMeshMatricesBase} and {@link XGFData_v1.eachMeshMaterialAttributes}.
+   *
+   * Each mesh belongs to exactly one object. Meshes that belong to the same object are stored in contiguous runs
+   * in the eachMesh* arrays, and the start of each run is indicated by this array. The end of each run is indicated
+   * by the next element in this array, or the end of the eachMesh* arrays for the last object.
    */
   eachObjectMeshesBase: Uint32Array<any>;
 }

@@ -40,7 +40,7 @@ export class ViewTransformParams {
 
     /**
      * ID of the parent {@link ViewTransform} that was created previously
-     * with {@link SceneModel.createTransform | SceneModel.createTransform}.
+     * with {@link View.createTransform | View.createTransform}.
      */
     parentTransformId?: string;
 }

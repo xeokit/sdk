@@ -107,7 +107,7 @@ export class Viewer {
    * * Creates {@link ViewObject | ViewObjects} in each existing {@link View} for all {@link SceneObject | SceneObjects} in the attached {@link Scene}.
    * * Subscribes to {@link Scene.events.onSceneObjectCreated | Scene.events.onSceneObjectCreated} and {@link Scene.events.onSceneObjectDestroyed | Scene.events.onSceneObjectDestroyed} events to create and destroy {@link ViewObject | ViewObjects} in each existing {@link View} as {@link SceneObject | SceneObjects} are created and destroyed in the attached {@link Scene}.
    *
-   * @param scene - The Scene to attach.
+   * @param scene - The Scene to show.
    * @param scene
    */
   public attachScene(scene: Scene): SDKResult<Viewer> {

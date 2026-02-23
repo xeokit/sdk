@@ -40,7 +40,7 @@ const defaultColor = new Float32Array([1, 1, 1, 1]);
  * - {@link buildFragmentShader}
  *
  * These methods are called during {@link init} to generate the GLSL source code,
- * and would typically use helper methods like {@link vsCode}, {@link vsHeader},
+ * and would typically use inspectors methods like {@link vsCode}, {@link vsHeader},
  * and {@link vsCommonDefines}, provided by the base class, to construct the shader source
  * (i.e. Template Method / Template Base Class pattern).
  *

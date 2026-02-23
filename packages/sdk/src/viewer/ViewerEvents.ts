@@ -12,6 +12,7 @@ import type { Camera } from "./Camera";
 import { EventDispatcher } from "strongly-typed-events";
 import type { Spinner } from "./Spinner";
 import type { Scene } from "../scene";
+import {ViewTransform} from "./ViewTransform";
 
 /**
  * Events emitted by a {@link viewer!Viewer | Viewer}.
@@ -51,15 +52,7 @@ export class ViewerEvents {
    */
   readonly log: EventEmitter<Viewer, string>;
 
-  /**
-   * Emits an event each time the number of active processes tracked by the {@link Viewer}'s {@link Spinner} changes.
-   */
-  readonly processes: EventEmitter<Spinner, number>;
 
-  /**
-   * Emits an event each time the number of active processes tracked by the {@link Viewer}'s {@link Spinner} reaches zero.
-   */
-  readonly zeroProcesses: EventEmitter<Spinner, number>;
 
   //---------------------------- View Events ----------------------------//
 
@@ -204,7 +197,26 @@ export class ViewerEvents {
   /**
    * Emits an event each time {@link SectionPlane.active} changes on a {@link SectionPlane}.
    */
-  readonly onSectionPlaneActive: EventEmitter<SectionPlane, boolean>;
+  readonly onSectionPlaneActive: EventEmitter<SectionPlane, boolean>
+
+  //---------------------------- View Transform Events ----------------------------//
+
+  /**
+   * Emits an event each time a {@link ViewTransform} is created within a {@link View}.
+   */
+  readonly onViewTransformCreated: EventEmitter<View, ViewTransform>;
+
+  /**
+   * Emits an event each time a {@link ViewTransform} is destroyed within a {@link View}.
+   */
+  readonly onViewTransformDestroyed: EventEmitter<View, ViewTransform>;
+
+    /**
+    * Emits an event each time a {@link ViewTransform} updates within a {@link View}.
+    */
+  readonly onViewTransformUpdated: EventEmitter<ViewTransform, ViewTransform>;
+
+
 
   //---------------------------- Snapshot Events ----------------------------//
 
@@ -235,8 +247,6 @@ export class ViewerEvents {
     this.onSceneDetached = new EventEmitter(new EventDispatcher<Viewer, Scene>());
     this.onViewerDestroyed = new EventEmitter(new EventDispatcher<Viewer, boolean>());
     this.onTick = new EventEmitter(new EventDispatcher<Viewer, TickParams>());
-    this.processes = new EventEmitter(new EventDispatcher<Spinner, number>());
-    this.zeroProcesses = new EventEmitter(new EventDispatcher<Spinner, number>());
     this.log = new EventEmitter(new EventDispatcher<Viewer, string>());
     this.onViewCreated = new EventEmitter(new EventDispatcher<Viewer, View>());
     this.onViewUpdated = new EventEmitter(new EventDispatcher<View, View>());

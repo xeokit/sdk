@@ -30,6 +30,8 @@ import type {EdgesParams} from "./EdgesParams";
 import type {EmphasisMaterialParams} from "./EmphasisMaterialParams";
 import type {PointsMaterialParams} from "./PointsMaterialParams";
 import type {ResolutionScaleParams} from "./ResolutionScaleParams";
+import {ViewTransformParams} from "./ViewTransformParams";
+import {ViewTransform} from "./ViewTransform";
 
 /**
  * Event that signifies the beginning of a canvas snapshot captured with
@@ -219,6 +221,11 @@ class View {
   readonly lightsList: (AmbientLight | PointLight | DirLight)[] = [];
 
   gammaOutput: boolean;
+
+  /**
+   * Set of {@link ViewTransform}s in this View.
+   */
+  readonly transforms: Set<ViewTransform> = new Set<ViewTransform>();
 
   /**
    * Map of the all {@link ViewLayer}s in this View.
@@ -1593,6 +1600,40 @@ class View {
     };
   }
 
+  /**
+   * Creates a {@link ViewTransform} in this View.
+   * @param viewTransformParams
+   */
+  createTransform(viewTransformParams: ViewTransformParams): SDKResult<ViewTransform> {
+    if (!viewTransformParams.id) {
+      return this.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: "[View.createTransform] Missing transform ID."
+      });
+    }
+
+    let viewTransform = this.transforms[viewTransformParams.id];
+    if (viewTransform) {
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[View.createTransform] ViewTransform with ID "${viewTransformParams.id}" already exists.`
+      };
+    }
+    viewTransform = new ViewTransform(this, viewTransformParams);
+    this.transforms[viewTransformParams.id] = viewTransform;
+    this.viewer.events.onViewTransformCreated.dispatch(this, viewTransform);
+    return {
+      ok: true,
+      value: viewTransform
+    };
+  }
+
+  _destroyTransform(viewTransform: ViewTransform) {
+    delete this.transforms[viewTransform.id];
+    this.viewer.events.onViewTransformDestroyed.dispatch(this, viewTransform);
+  }
 
   /**
    * @private

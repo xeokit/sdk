@@ -1,235 +1,438 @@
+import {
+  composeMat4,
+  createMat4Float64,
+  decomposeMat4,
+  identityMat4,
+  inverseMat4,
+  mulMat4,
+  type Mat4
+} from "../math/matrix";
 
-import { createMat4Float64, identityMat4, inverseMat4, mulMat4 } from "../math/matrix";
-import type { Mat4 } from "../math/matrix";
-import type { ViewTransformParams } from "./ViewTransformParams";
-import {ViewObject} from "./ViewObject";
-import {SceneMesh, SceneModel} from "../scene";
-import type {SDKResult} from "../core";
+import { SDKErrorType, type SDKResult, SDKTask } from "../core";
 
+import { createVec3Float64, type Vec3 } from "../math/vector";
+import {
+  createQuatFloat64,
+  eulerToQuat,
+  identityQuat,
+  quatToEuler,
+  type Quat
+} from "../math/quat";
+
+import type { View } from "./View";
+import type { ViewLayer } from "./ViewLayer";
+import type { ViewObject } from "./ViewObject";
+
+import type {SceneObject, SceneMesh} from "../scene";
 
 /**
- * Represents a transformation in a scene graph, managing local and global matrices,
- * parent-child relationships, and updates to the transformation hierarchy.
+ * Represents a per-View transform that can be applied at render time without modifying the Scene.
+ *
+ * View transforms live in a {@link View} or {@link ViewLayer} and can be composed into a hierarchy.
+ * A {@link ViewTransform} is typically associated with one or more {@link ViewObject}s, enabling
+ * per-view object manipulation while leaving the underlying {@link SceneObject}/{@link SceneMesh} transforms intact.
+ *
+ * @remarks
+ * The renderer combines the Scene transform product with the View transform product in the shader.
+ * This class assumes the View product post-multiplies the Scene product:
+ *
+ * `modelMatrix = sceneMatrix * globalMatrix`
  */
 export class ViewTransform {
-  /** Unique identifier for the ViewTransform */
+  /** Unique identifier for this transform within its owning {@link View} or {@link ViewLayer}. */
   readonly id: string;
 
-  /** Reference to the SceneModel this transform belongs to */
-  readonly model: SceneModel;
+  /** Owning {@link View}. */
+  readonly view: View;
 
-  /**  ViewObjects associated with this transform */
-  object: ViewObject[];
+  /** Owning {@link ViewLayer}, when the transform is layer-scoped. */
+  readonly layer: ViewLayer | null;
 
-  /** Local transformation matrix */
-  private _localMatrix: Mat4;
+  private _scale: Vec3 = createVec3Float64([1, 1, 1]);
+  private _rotation: Vec3 = createVec3Float64([0, 0, 0]);
+  private _position: Vec3 = createVec3Float64([0, 0, 0]);
+  private _quaternion: Quat = createQuatFloat64();
 
-  /** Global transformation matrix */
-  _globalMatrix: Mat4;
+  private _localMatrix: Mat4 = identityMat4();
+  private _globalMatrix: Mat4;
 
-  /** Flag indicating if the transform is dirty and needs updating */
-  private _dirty: boolean = true;
+  private _localMatrixDirty = false;
+  private _globalMatrixDirty = true;
 
-  /** List of child SceneMesh objects */
-  _childMeshes: ViewObject[] = [];
-
-  /** List of child ViewTransform objects */
   private _childTransforms: ViewTransform[] = [];
-
-  /** Reference to the parent ViewTransform, if any */
   private _parentTransform: ViewTransform | null = null;
 
-  /**
-   * Indicates whether this ViewTransform has been destroyed.
-   */
-  public destroyed: boolean = false;
+  /** ViewObject IDs associated with this transform. */
+  private _viewObjectIds: Set<string> = new Set();
+
+  /** True once {@link destroy} has been called. */
+  public destroyed = false;
+
+  private _markTreeDirtyTask: SDKTask;
 
   /**
-   * Creates a new ViewTransform instance.
-   * @param model - The SceneModel this transform belongs to.
-   * @param transformParams - Parameters for initializing the transform.
+   * @private
    */
-  constructor(model: SceneModel, transformParams: ViewTransformParams) {
-    this.id = transformParams.id;
-    this.model = model;
-    this._localMatrix = transformParams.matrix ? createMat4Float64(transformParams.matrix) : identityMat4();
+  constructor(
+    view: View,
+    params: {
+      id: string;
+      layer?: ViewLayer | null;
+
+      matrix?: Mat4;
+      position?: Vec3;
+      rotation?: Vec3;
+      quaternion?: Quat;
+      scale?: Vec3;
+
+      parentTransformId?: string | null;
+
+      /** Optional initial associations. */
+      viewObjectIds?: string[];
+    }
+  ) {
+    this.id = params.id;
+    this.view = view;
+    this.layer = params.layer ?? null;
+
+    this._localMatrix = params.matrix ? createMat4Float64(params.matrix) : identityMat4();
     this._globalMatrix = createMat4Float64();
+
+    this._markTreeDirtyTask = new SDKTask({
+      name: "ViewTransform._markTreeDirtyTask",
+      stage: SDKTask.ComputeStage,
+      task: () => this._markTransformDirty()
+    });
+
+    if (params.matrix) {
+      this.matrix = params.matrix;
+    } else {
+      this.scale = params.scale;
+      this.position = params.position;
+
+      if (params.quaternion) {
+        this.quaternion = params.quaternion;
+      } else {
+        this.rotation = params.rotation;
+      }
+    }
+
+    if (params.parentTransformId) {
+      this.setParentTransform(params.parentTransformId, { preserveWorld: false });
+    }
+
+    if (params.viewObjectIds?.length) {
+      for (const id of params.viewObjectIds) {
+        this._viewObjectIds.add(id);
+      }
+    }
   }
 
-  /**
-   * Sets the local transformation matrix.
-   * @param matrix - The new local matrix.
-   */
-  set matrix(matrix: Mat4) {
+  // ---------------------------------------------------------------------------------------------
+  // Local TRS
+  // ---------------------------------------------------------------------------------------------
+
+  set scale(scale: Vec3) {
     if (this.destroyed) {
+      this._logDestroyed("[ViewTransform.scale] Cannot set scale on destroyed ViewTransform");
       return;
     }
+    // @ts-ignore
+    this._scale.set(scale ?? [1, 1, 1]);
+    this._setLocalDirty();
+  }
+
+  get scale(): Vec3 {
+    return this._scale;
+  }
+
+  set rotation(rotation: Vec3) {
+    if (this.destroyed) {
+      this._logDestroyed("[ViewTransform.rotation] Cannot set rotation on destroyed ViewTransform");
+      return;
+    }
+    // @ts-ignore
+    this._rotation.set(rotation ?? [0, 0, 0]);
+    eulerToQuat(this._rotation, "XYZ", this._quaternion);
+    this._setLocalDirty();
+  }
+
+  get rotation(): Vec3 {
+    return this._rotation;
+  }
+
+  set quaternion(quaternion: Quat) {
+    if (this.destroyed) {
+      this._logDestroyed("[ViewTransform.quaternion] Cannot set quaternion on destroyed ViewTransform");
+      return;
+    }
+    // @ts-ignore
+    this._quaternion.set(quaternion);
+    quatToEuler(this._quaternion, "XYZ", this._rotation);
+    this._setLocalDirty();
+  }
+
+  get quaternion(): Quat {
+    return this._quaternion;
+  }
+
+  set position(position: Vec3) {
+    if (this.destroyed) {
+      this._logDestroyed("[ViewTransform.position] Cannot set position on destroyed ViewTransform");
+      return;
+    }
+    // @ts-ignore
+    this._position.set(position ?? [0, 0, 0]);
+    this._setLocalDirty();
+  }
+
+  get position(): Vec3 {
+    return this._position;
+  }
+
+  // ---------------------------------------------------------------------------------------------
+  // Matrices
+  // ---------------------------------------------------------------------------------------------
+
+  set matrix(matrix: Mat4) {
+    if (this.destroyed) {
+      this._logDestroyed("[ViewTransform.matrix] Cannot set matrix on destroyed ViewTransform");
+      return;
+    }
+
     if (matrix) {
       // @ts-ignore
       this._localMatrix.set(matrix);
     } else {
       identityMat4(this._localMatrix);
     }
-    this._markTransformDirty();
+
+    decomposeMat4(this._localMatrix, this._position, this._quaternion, this._scale);
+    quatToEuler(this._quaternion, "XYZ", this._rotation);
+
+    this._localMatrixDirty = false;
+    this._markTreeDirtyTask.schedule();
   }
 
-  /**
-   * Gets the local transformation matrix.
-   * @returns The local matrix.
-   */
   get matrix(): Mat4 {
+    if (this._localMatrixDirty) {
+      composeMat4(
+        this._position,
+        eulerToQuat(this._rotation, "XYZ", identityQuat()),
+        this._scale,
+        this._localMatrix
+      );
+      this._localMatrixDirty = false;
+    }
     return this._localMatrix;
   }
 
   /**
-   * Gets the global transformation matrix.
-   * Updates the global matrix if necessary.
-   * @returns The global matrix.
+   * Returns the composed transform matrix for this node within the ViewTransform hierarchy.
+   * Intended for renderer use when building the per-object view transform product.
    */
   get globalMatrix(): Mat4 {
-    this._updateGlobal();
+    if (this._globalMatrixDirty) {
+      if (this._parentTransform) {
+        mulMat4(this._parentTransform.globalMatrix, this.matrix, this._globalMatrix);
+      } else {
+        // @ts-ignore
+        this._globalMatrix.set(this.matrix);
+      }
+      this._globalMatrixDirty = false;
+    }
     return this._globalMatrix;
   }
 
-  /**
-   * Gets the parent ViewTransform.
-   * @returns The parent transform or null if none exists.
-   */
+  // ---------------------------------------------------------------------------------------------
+  // Hierarchy
+  // ---------------------------------------------------------------------------------------------
+
   get parentTransform(): ViewTransform | null {
     return this._parentTransform;
   }
 
-  /**
-   * Gets the list of child ViewTransform objects.
-   * @returns A readonly array of child transforms.
-   */
   get childTransforms(): ReadonlyArray<ViewTransform> {
     return this._childTransforms;
   }
-  //
-  // /**
-  //  * Gets the list of child SceneMesh objects.
-  //  * @returns A readonly array of child meshes.
-  //  */
-  // get childMeshes(): ReadonlyArray<SceneMesh> {
-  //   return this._childMeshes;
-  // }
 
-  /**
-   * Marks the transform and its children as dirty, requiring updates.
-   */
   private _markTransformDirty(): void {
-    //if (!this._dirty) {
-      this._dirty = true;
-      for (const child of this._childTransforms) {
-        child._markTransformDirty();
-      }
-      for (const child of this._childMeshes) {
-        //child._updateGlobal(); // Immediately uploads mesh matrix to renderer
-      }
-   // }
+    this._globalMatrixDirty = true;
+    for (const child of this._childTransforms) {
+      child._markTransformDirty();
+    }
   }
 
-  /**
-   * Attaches a parent transform to this transform.
-   * @param parent - The new parent transform or null to detach.
-   */
   private _attachParentTransform(parent: ViewTransform | null): void {
-    if (this._parentTransform === parent) {
-      return;
-    }
+    if (this._parentTransform === parent) return;
+
     if (this._parentTransform) {
-      const idx = this._parentTransform._childTransforms.indexOf(this);
-      if (idx !== -1) {
-        this._parentTransform._childTransforms.splice(idx, 1);
-      }
+      const i = this._parentTransform._childTransforms.indexOf(this);
+      if (i !== -1) this._parentTransform._childTransforms.splice(i, 1);
     }
+
     this._parentTransform = parent;
-    if (parent) {
-      parent._childTransforms.push(this);
-    }
-    this._markTransformDirty();
+    if (parent) parent._childTransforms.push(this);
+
+    this._markTreeDirtyTask.schedule();
   }
 
-  /**
-   * Sets the parent transform for this transform.
-   * @param next - The new parent transform or null to detach.
-   * @param opts - Options to preserve world transformation.
-   */
-  public setParentTransform(next: ViewTransform | null, opts?: { preserveWorld?: boolean }): void {
-    if (next === this) {
-      throw new Error("Cannot parent to self");
+  public setParentTransform(
+    parentTransformId: string | null,
+    opts?: { preserveWorld?: boolean }
+  ): SDKResult<any> {
+    if (this.destroyed) {
+      return this._logErrorResult(
+        "[ViewTransform.setParentTransform] Cannot set parent transform on destroyed ViewTransform"
+      );
     }
+
+    let parent: ViewTransform | null = null;
+
+    if (parentTransformId) {
+      if (parentTransformId === this.id) {
+        return this._logErrorResult(
+          `[ViewTransform.setParentTransform] Cannot set parent transform to self on ViewTransform ${this.id}`
+        );
+      }
+
+      parent = this._resolveTransform(parentTransformId);
+      if (!parent) {
+        return this._logErrorResult(
+          `[ViewTransform.setParentTransform] ViewTransform "${parentTransformId}" not found in owning scope`
+        );
+      }
+    }
+
     const preserve = !!opts?.preserveWorld;
+
     if (preserve) {
       this._updateGlobal();
       const currentWorld = createMat4Float64(this._globalMatrix);
-      this._attachParentTransform(next);
+
+      this._attachParentTransform(parent);
+
       if (this._parentTransform) {
         const invParent = inverseMat4(this._parentTransform._globalMatrix, createMat4Float64());
-        mulMat4(this._localMatrix, invParent, currentWorld);
+        mulMat4(invParent, currentWorld, this._localMatrix);
       } else {
         // @ts-ignore
         this._localMatrix.set(currentWorld);
       }
-      this._markTransformDirty();
+
+      this._markTreeDirtyTask.schedule();
     } else {
-      this._attachParentTransform(next);
+      this._attachParentTransform(parent);
     }
+
+    return { ok: true, value: undefined };
   }
 
-  /**
-   * Adds a child transform to this transform.
-   * @param child - The child transform to add.
-   * @param opts - Options to preserve world transformation.
-   */
-  addChildTransform(child: ViewTransform, opts?: { preserveWorld?: boolean }): void {
-    child.setParentTransform(this, opts);
+  public addChildTransform(childTransformId: string, opts?: { preserveWorld?: boolean }): SDKResult<any> {
+    if (this.destroyed) {
+      return this._logErrorResult(
+        `[ViewTransform.addChildTransform] Cannot add child transform to destroyed ViewTransform ${this.id}`
+      );
+    }
+
+    const child = this._resolveTransform(childTransformId);
+    if (!child) {
+      return this._logErrorResult(
+        `[ViewTransform.addChildTransform] ViewTransform "${childTransformId}" not found in owning scope`
+      );
+    }
+
+    return child.setParentTransform(this.id, opts);
   }
 
-  /**
-   * Removes a child transform from this transform.
-   * @param child - The child transform to remove.
-   */
-  removeChildTransform(child: ViewTransform): void {
+  public removeChildTransform(childTransformId: string): SDKResult<any> {
+    if (this.destroyed) {
+      return this._logErrorResult(
+        `[ViewTransform.removeChildTransform] Cannot remove child transform from destroyed ViewTransform ${this.id}`
+      );
+    }
+
+    const child = this._resolveTransform(childTransformId);
+    if (!child) {
+      return this._logErrorResult(
+        `[ViewTransform.removeChildTransform] ViewTransform "${childTransformId}" not found in owning scope`
+      );
+    }
+
     if (child._parentTransform === this) {
       child.setParentTransform(null, { preserveWorld: false });
     }
+
+    return { ok: true, value: undefined };
   }
 
-  /**
-   * Adds a child mesh to this transform.
-   * @param child - The child mesh to add.
-   */
-  addChildMesh(child: SceneMesh): void {
-    //child.setParentTransform(this);
-  }
+  // ---------------------------------------------------------------------------------------------
+  // ViewObject association
+  // ---------------------------------------------------------------------------------------------
 
   /**
-   * Removes a child mesh from this transform.
-   * @param child - The child mesh to remove.
+   * Associates a {@link ViewObject} (by ID) with this transform.
+   *
+   * The owning {@link View}/{@link ViewLayer} is expected to use this association to apply
+   * the transform product to the ViewObject at render time.
    */
-  removeChildMesh(child: SceneMesh): void {
-    // if (child._parentTransform === this) {
-    //   child.setParentTransform(null);
-    // }
-  }
-
-  /**
-   * Updates the global transformation matrix.
-   * @param force - Whether to force the update.
-   */
-   _updateGlobal(force:boolean = false): void {
-    if (force || this._dirty) {
-      if (this._parentTransform) {
-        this._parentTransform._updateGlobal(force);
-        mulMat4( this._parentTransform._globalMatrix, this._localMatrix, this._globalMatrix);
-      } else {
-        // @ts-ignore
-        this._globalMatrix.set(this._localMatrix);
-      }
-      this._dirty = false;
+  public attachViewObject(viewObjectId: string): SDKResult<any> {
+    if (this.destroyed) {
+      return this._logErrorResult(
+        `[ViewTransform.attachViewObject] Cannot attach ViewObject to destroyed ViewTransform ${this.id}`
+      );
     }
+    if (!viewObjectId) {
+      return this._logErrorResult("[ViewTransform.attachViewObject] viewObjectId is required");
+    }
+
+    const vo = this._resolveViewObject(viewObjectId);
+    if (!vo) {
+      return this._logErrorResult(
+        `[ViewTransform.attachViewObject] ViewObject "${viewObjectId}" not found in owning scope`
+      );
+    }
+
+    this._viewObjectIds.add(viewObjectId);
+    return { ok: true, value: undefined };
+  }
+
+  /**
+   * Removes an association created by {@link attachViewObject}.
+   */
+  public detachViewObject(viewObjectId: string): SDKResult<any> {
+    if (this.destroyed) {
+      return this._logErrorResult(
+        `[ViewTransform.detachViewObject] Cannot detach ViewObject from destroyed ViewTransform ${this.id}`
+      );
+    }
+    this._viewObjectIds.delete(viewObjectId);
+    return { ok: true, value: undefined };
+  }
+
+  /**
+   * Gets associated {@link ViewObject} IDs.
+   * Intended for renderer integration.
+   */
+  get viewObjectIds(): ReadonlySet<string> {
+    return this._viewObjectIds;
+  }
+
+  // ---------------------------------------------------------------------------------------------
+  // Internal / renderer integration
+  // ---------------------------------------------------------------------------------------------
+
+  /** @private */
+  _updateGlobal(force: boolean = false): void {
+    if (this._parentTransform) {
+      this._parentTransform._updateGlobal(force);
+      mulMat4(this._parentTransform._globalMatrix, this._localMatrix, this._globalMatrix);
+    } else {
+      // @ts-ignore
+      this._globalMatrix.set(this._localMatrix);
+    }
+
+    this._globalMatrixDirty = false;
 
     for (const child of this._childTransforms) {
       child._updateGlobal(force);
@@ -237,36 +440,86 @@ export class ViewTransform {
   }
 
   /**
-   * Converts the transform to its parameter representation.
-   * @returns The transform parameters.
+   * Destroys this transform, detaching it from the hierarchy.
+   * Owning View/ViewLayer should remove it from registries and unlink ViewObjects.
    */
-  toParams(): SDKResult<ViewTransformParams> {
-    const transformParams: ViewTransformParams = {
-      id: this.id,
-      matrix: <Mat4>Array.from(this._localMatrix),
-    };
-    if (this._parentTransform) {
-      transformParams.parentTransformId = this._parentTransform.id;
+  destroy(): SDKResult<any> {
+    if (this.destroyed) {
+      return this._logErrorResult(`[ViewTransform.destroy] ViewTransform ${this.id} already destroyed`);
     }
-    return {
-      ok: true,
-      value: transformParams
-    };
-  }
 
-  /**
-   * Destroys the transform, detaching it from its parent and children.
-   */
-  destroy(): void {
     if (this._parentTransform) {
-      this._parentTransform.removeChildTransform(this);
+      this._parentTransform.removeChildTransform(this.id);
     }
+
     this._parentTransform = null;
+
     for (const child of [...this._childTransforms]) {
       child.setParentTransform(null, { preserveWorld: false });
     }
 
+    this._markTreeDirtyTask.destroy();
     this._childTransforms = [];
-   // this.model._destroyTransform(this);
+    this._viewObjectIds.clear();
+
+    this.destroyed = true;
+    return { ok: true, value: undefined };
+  }
+
+  // ---------------------------------------------------------------------------------------------
+  // Helpers
+  // ---------------------------------------------------------------------------------------------
+
+  private _setLocalDirty(): void {
+    this._localMatrixDirty = true;
+    this._markTreeDirtyTask.schedule();
+  }
+
+  private _resolveTransform(id: string): ViewTransform | null {
+    // Expected registry lookup on owning scope.
+    const layerAny = this.layer as any;
+    const viewAny = this.view as any;
+
+    if (layerAny?.transforms?.[id]) return layerAny.transforms[id];
+    if (viewAny?.transforms?.[id]) return viewAny.transforms[id];
+
+    return null;
+  }
+
+  private _resolveViewObject(id: string): ViewObject | null {
+    // Expected registry lookup on owning scope.
+    const layerAny = this.layer as any;
+    const viewAny = this.view as any;
+
+    if (layerAny?.objects?.[id]) return layerAny.objects[id];
+    if (viewAny?.objects?.[id]) return viewAny.objects[id];
+
+    return null;
+  }
+
+  private _logDestroyed(msg: string): void {
+    const viewAny = this.view as any;
+    if (viewAny?.logError) {
+      viewAny.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `${msg} ${this.id}`
+      });
+      return;
+    }
+    // eslint-disable-next-line no-console
+    console.error(msg, this.id);
+  }
+
+  private _logErrorResult(error: string): SDKResult<any> {
+    const viewAny = this.view as any;
+    if (viewAny?.logError) {
+      return viewAny.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error
+      });
+    }
+    return { ok: false, error } as any;
   }
 }

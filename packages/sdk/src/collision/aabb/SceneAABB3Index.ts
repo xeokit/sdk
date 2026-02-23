@@ -46,7 +46,11 @@ function getPositionsWorldAABB3(
  */
 export class SceneAABB3Index {
 
-  #scene: Scene;
+  /**
+   * The Scene for which this index computes AABBs.
+   */
+  public readonly scene: Scene;
+
   #meshAABBs = new Map<string, AABB3Float>();
   #objectAABBs = new Map<string, AABB3Float>();
   #meshDirty = new Set<string>();
@@ -61,7 +65,7 @@ export class SceneAABB3Index {
    * @param scene The scene to tileIndex.
    */
   constructor(scene: Scene) {
-    this.#scene = scene;
+    this.scene = scene;
 
     this.#sceneAABB = createAABB3Float64();
     this.#sceneCenter = createVec3Float64();
@@ -136,7 +140,7 @@ export class SceneAABB3Index {
   }
 
   #getObjectAABB(objectId: string): AABB3Float | null {
-    const object = this.#scene.objects[objectId];
+    const object = this.scene.objects[objectId];
     if (!object) return null;
 
     let aabb = this.#objectAABBs.get(objectId);
@@ -170,7 +174,7 @@ export class SceneAABB3Index {
     if (this.#objectDirty.size > 0) {
       collapseAABB3(this.#sceneAABB);
       // @ts-ignore
-      for (const object of Object.values(this.#scene.objects)) {
+      for (const object of Object.values(this.scene.objects)) {
         const aabb = this.#getObjectAABB(object.id);
         if (aabb) {
           expandAABB3(this.#sceneAABB, aabb);

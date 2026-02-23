@@ -494,6 +494,8 @@ export * from "./ViewParams";
 export * from "./ViewLayer";
 export * from "./ViewLayerParams";
 export * from "./ViewObject";
+export * from "./ViewTransform";
+export * from "./ViewTransformParams";
 export * from "./SectionPlane";
 export * from "./SectionPlaneParams";
 export * from "./SAO";

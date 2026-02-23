@@ -38,7 +38,7 @@
  *
  * ## Usage
  *
- * Below is an example of loading and displaying a XGF model in a {@link viewer!Viewer | Viewer}:
+ * Below is an example of loading and displaying an XGF (xeokit Geometry Format) model in a {@link viewer!Viewer | Viewer}:
  *
  * ```ts
  * import { Scene } from "@xeokit/sdk/scene";
@@ -80,7 +80,7 @@
  *
  * const xgfLoader = new XGFLoader();
  *
- * fetch("model.bim")
+ * fetch("model.xgf")
  *     .then(response => response.json())
  *     .then(fileData => {
  *         xgfLoader.load({ fileData, sceneModel, dataModel })
@@ -118,3 +118,4 @@
  */
 export * from "./XGFLoader";
 export * from "./XGFExporter";
+export * from "./versions/v1/XGFData_v1";

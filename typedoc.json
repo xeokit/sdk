@@ -9,6 +9,6 @@
     "includeVersion": true,
     "titleLink": "https://xeokit.io",
   "ignoredHighlightLanguages": ["mermaid"],
-  "plugin": ["@boneskull/typedoc-plugin-mermaid"],
+  "plugin": ["typedoc-plugin-mermaid"],
   "useTsLinkResolution": true
 }

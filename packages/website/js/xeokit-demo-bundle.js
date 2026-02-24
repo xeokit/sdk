@@ -1801,6 +1801,8 @@ var SDKTaskRunner = class {
    * Used to avoid starting multiple animation-frame loops.
    */
   running;
+  suspended = false;
+  pendingTasks = [];
   constructor() {
     this.tasksByStage = /* @__PURE__ */ new Map();
     this.tasksByStage.set(0, /* @__PURE__ */ new Set());
@@ -1808,7 +1810,30 @@ var SDKTaskRunner = class {
     this.tasksByStage.set(2, /* @__PURE__ */ new Set());
     this.tasksByStage.set(3, /* @__PURE__ */ new Set());
     this.tasksByStage.set(4, /* @__PURE__ */ new Set());
+    this.tasksByStage.set(5, /* @__PURE__ */ new Set());
     this.running = false;
+    this.suspended = false;
+  }
+  /**
+   * Suspends the runner. Tasks added while suspended are queued and not executed until unsuspend() is called.
+   */
+  suspend() {
+    this.suspended = true;
+    this.running = false;
+  }
+  /**
+   * Unsuspends the runner. All tasks added while suspended are registered and the runner resumes.
+   */
+  unsuspend() {
+    this.suspended = false;
+    for (const task of this.pendingTasks) {
+      this._addTaskInternal(task);
+    }
+    this.pendingTasks = [];
+    if (!this.running && this.hasTasks()) {
+      this.running = true;
+      requestAnimationFrame(() => this.runTasks());
+    }
   }
   /**
    * Registers a task with the runner so it can be executed during updates.
@@ -1821,7 +1846,14 @@ var SDKTaskRunner = class {
    * @param task The task to register.
    */
   addTask(task) {
-    const stage = Math.max(0, Math.min(4, task.stage || 0));
+    if (this.suspended) {
+      this.pendingTasks.push(task);
+      return;
+    }
+    this._addTaskInternal(task);
+  }
+  _addTaskInternal(task) {
+    const stage = Math.max(0, Math.min(5, task.stage || 0));
     this.tasksByStage.get(stage).add(task);
     if (!this.running) {
       this.running = true;
@@ -1839,15 +1871,14 @@ var SDKTaskRunner = class {
    * Continues running on subsequent animation frames until no tasks remain.
    */
   runTasks() {
+    if (this.suspended) {
+      return;
+    }
     let tasksRemain = false;
-    for (let stage = 0; stage <= 4; stage++) {
+    for (let stage = 0; stage <= 5; stage++) {
       const tasks = this.tasksByStage.get(stage);
       for (const task of Array.from(tasks)) {
         if (!task.destroyed) {
-          if (!task.repeating) {
-          } else if (!task.logged) {
-            task.logged = true;
-          }
           task.runIfScheduled();
           if (!task.repeating) {
             tasks.delete(task);
@@ -1861,6 +1892,7 @@ var SDKTaskRunner = class {
       SDKTask.CollectInputStage,
       SDKTask.AnimateStage,
       SDKTask.ComputeStage,
+      SDKTask.ComputeStage2,
       SDKTask.RenderStage,
       SDKTask.PostRenderStage
     ].some((stage) => this.tasksByStage.get(stage).size > 0);
@@ -1869,6 +1901,13 @@ var SDKTaskRunner = class {
     } else {
       this.running = false;
     }
+  }
+  hasTasks() {
+    for (let stage = 0; stage <= 5; stage++) {
+      if (this.tasksByStage.get(stage).size > 0)
+        return true;
+    }
+    return false;
   }
 };
 var globalTaskRunner = new SDKTaskRunner();
@@ -1895,15 +1934,20 @@ var SDKTask = class {
    */
   static ComputeStage = 2;
   /**
+   * Stage (2) at which tasks perform compute or simulation work.
+   * @readonly
+   */
+  static ComputeStage2 = 3;
+  /**
    * Stage at which tasks perform rendering-related updates.
    * @readonly
    */
-  static RenderStage = 3;
+  static RenderStage = 5;
   /**
    * Stage at which tasks run after rendering is complete.
    * @readonly
    */
-  static PostRenderStage = 4;
+  static PostRenderStage = 6;
   /**
    * The function invoked when this task is executed.
    * Implementations should be side-effecting and synchronous.
@@ -2144,6 +2188,9 @@ var EventsLogger = class {
   bindAll() {
     const prefix = this.opts?.prefix ? `${this.opts.prefix} ` : "";
     const log2 = (eventName, sender, args) => {
+      if (this.opts?.log) {
+        this.opts.log(eventName, sender, args);
+      }
       console.log(`%c${prefix}%c${eventName}`, `color: grey;`, "color:green;", { sender, args });
     };
     const error = (eventName, sender, args) => {
@@ -11152,6 +11199,7 @@ __export(scene_exports, {
   SceneObject: () => SceneObject,
   SceneTexture: () => SceneTexture,
   SceneTextureSet: () => SceneTextureSet,
+  SceneTransform: () => SceneTransform,
   buildMat4: () => buildMat4,
   compressGeometryParams: () => compressGeometryParams,
   createCoordinateSystemTransform: () => createCoordinateSystemTransform
@@ -11386,7 +11434,7 @@ var SceneGeometry = class {
    */
   uvsCompressed;
   /**
-   * Vertex RGB colors, quantized as 8-bit integers.
+   * Vertex RGBA colors, quantized as 8-bit integers.
    */
   colorsCompressed;
   /**
@@ -11488,104 +11536,608 @@ var SceneGeometry = class {
   }
 };
 
-// ../sdk/src/scene/SceneTransform.ts
-var SceneTransform = class {
-  /** Unique identifier for the SceneTransform */
-  id;
-  /** Reference to the SceneModel this transform belongs to */
-  model;
-  /** Local transformation matrix */
-  _localMatrix;
-  /** Global transformation matrix */
-  _globalMatrix;
-  /** Flag indicating if the transform is dirty and needs updating */
-  _dirty = true;
-  /** List of child SceneMesh objects */
-  _childMeshes = [];
-  /** List of child SceneTransform objects */
-  _childTransforms = [];
-  /** Reference to the parent SceneTransform, if any */
-  _parentTransform = null;
+// ../sdk/src/scene/CoordinateSystem.ts
+var CoordinateSystem = class {
+  _notifyUpdatedScheduled;
+  _updated;
+  _scene;
+  _model;
+  _basis = createVec9Float64([
+    1,
+    0,
+    0,
+    // Right
+    0,
+    0,
+    1,
+    // Up
+    0,
+    1,
+    0
+    // Forward
+  ]);
+  _origin;
+  _units;
+  _scaleToMeters;
+  _worldUp;
+  _worldRight;
+  _worldForward;
   /**
-   * True if this SceneTransform has been destroyed.
+   * True if this CoordinateSystem has been destroyed.
    */
   destroyed = false;
   /**
-   * Creates a new SceneTransform instance.
-   * @param model - The SceneModel this transform belongs to.
-   * @param transformParams - Parameters for initializing the transform.
+   * @private
+   */
+  constructor(parent, updated, params) {
+    if (parent instanceof Scene) {
+      this._scene = parent;
+    } else {
+      this._model = parent;
+    }
+    this._updated = updated;
+    this._origin = createVec3Float64(params?.origin || [0, 0, 0]);
+    this._units = params?.units || "meters";
+    this._scaleToMeters = params?.scaleToMeters || 1;
+    this._worldUp = createVec3Float32();
+    this._worldRight = createVec3Float32();
+    this._worldForward = createVec3Float32();
+    this.basis = params?.basis;
+  }
+  /** @private */
+  _notifyUpdated() {
+    if (!this._notifyUpdatedScheduled) {
+      this._notifyUpdatedScheduled = true;
+      setTimeout(() => {
+        this._notifyUpdatedScheduled = false;
+        if (this._updated) {
+          this._updated();
+        }
+        this._model ? this._model.scene.events.onSceneModelCoordSystemUpdated.dispatch(this._model, this) : this._scene.events.onSceneCoordSystemUpdated.dispatch(this._scene, this);
+      }, 100);
+    }
+  }
+  /** Gets the flat 9-element coordinate system basis (column-major). */
+  get basis() {
+    return this._basis;
+  }
+  /**
+   * Sets the flat 9-element coordinate system basis (column-major).
+   * Emits event on change, via `Scene.events.coordSystemBasis` or `SceneModel.events.modelCoordSystemBasis`.
+   */
+  set basis(value) {
+    if (this.destroyed) {
+      (this._scene || this._model.scene).logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[CoordinateSystem.basis] CoordinateSystem already destroyed - cannot set basis"
+      });
+      return;
+    }
+    if (value) {
+      if (value.length !== 9) {
+        (this._scene || this._model.scene).logError({
+          ok: false,
+          type: 2 /* InvalidInput */,
+          error: "[CoordinateSystem.basis] Invalid basis array - must have 9 elements"
+        });
+        return;
+      }
+      if (!testOrthogonalAxis(value)) {
+        (this._scene || this._model.scene).logError({
+          ok: false,
+          type: 2 /* InvalidInput */,
+          error: "[CoordinateSystem.basis] Invalid basis array - axes are not orthogonal"
+        });
+        return;
+      }
+    }
+    this._basis = createVec9Float64(value || [
+      1,
+      0,
+      0,
+      // Right
+      0,
+      0,
+      1,
+      // Up
+      0,
+      1,
+      0
+      // Forward
+    ]);
+    this._worldRight[0] = this._basis[0];
+    this._worldRight[1] = this._basis[1];
+    this._worldRight[2] = this._basis[2];
+    this._worldUp[0] = this._basis[3];
+    this._worldUp[1] = this._basis[4];
+    this._worldUp[2] = this._basis[5];
+    this._worldForward[0] = this._basis[6];
+    this._worldForward[1] = this._basis[7];
+    this._worldForward[2] = this._basis[8];
+    this._model ? this._model.scene.events.onSceneModelCoordSystemBasisChanged.dispatch(this._model, this) : this._scene.events.onSceneCoordSystemBasisChanged.dispatch(this._scene, this);
+    this._notifyUpdated();
+  }
+  /** Gets the origin of the coordinate system in global space. */
+  get origin() {
+    return this._origin;
+  }
+  /**
+   * Sets the origin of the coordinate system in global space.
+   * Emits event on change, via `Scene.events.coordSystemOrigin` or `SceneModel.events.modelCoordSystemOrigin`.
+   */
+  set origin(value) {
+    if (this.destroyed) {
+      (this._scene || this._model.scene).logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[CoordinateSystem.origin] CoordinateSystem already destroyed - cannot set origin"
+      });
+      return;
+    }
+    this._origin = createVec3Float32(value);
+    this._model ? this._model.scene.events.onSceneModelCoordSystemOriginChanged.dispatch(this._model, this) : this._scene.events.onSceneCoordSystemOriginChanged.dispatch(this._scene, this);
+    this._notifyUpdated();
+  }
+  /** Gets the unit system used. */
+  get units() {
+    return this._units;
+  }
+  /**
+   * Sets the unit system used.
+   * Emits event on change, via `Scene.events.coordSystemUnits` or `SceneModel.events.modelCoordSystemUnits`.
+   */
+  set units(value) {
+    if (this.destroyed) {
+      (this._scene || this._model.scene).logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[CoordinateSystem.units] CoordinateSystem already destroyed - cannot set units"
+      });
+      return;
+    }
+    if (value !== "meters" && value !== "millimeters" && value !== "inches" && value !== "feet") {
+      (this._scene || this._model.scene).logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: "[CoordinateSystem.units] Invalid units - must be 'meters', 'millimeters', 'inches', or 'feet'"
+      });
+      return;
+    }
+    this._units = value;
+    this._model ? this._model.scene.events.onSceneModelCoordSystemUnitsChanged.dispatch(this._model, this) : this._scene.events.onSceneCoordSystemUnitsChanged.dispatch(this._scene, this);
+    this._notifyUpdated();
+  }
+  /** Gets the optional scale-to-meters multiplier. */
+  get scaleToMeters() {
+    return this._scaleToMeters;
+  }
+  /**
+   * Sets the optional scale-to-meters multiplier.
+   * Emits event on change, via `Scene.events.coordSystemMeters` or `SceneModel.events.modelCoordSystemMeters`.
+   */
+  set scaleToMeters(value) {
+    if (this.destroyed) {
+      (this._scene || this._model.scene).logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[CoordinateSystem.scaleToMeters] CoordinateSystem already destroyed - cannot set scaleToMeters"
+      });
+      return;
+    }
+    if (value !== void 0 && (typeof value !== "number" || isNaN(value) || value <= 0)) {
+      (this._scene || this._model.scene).logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: "[CoordinateSystem.scaleToMeters] Invalid scaleToMeters - must be a positive number"
+      });
+      return;
+    }
+    this._scaleToMeters = value;
+    this._model ? this._model.scene.events.onSceneModelCoordSystemScaleToMetersChanged.dispatch(this._model, this) : this._scene.events.onSceneCoordSystemScaleToMetersChanged.dispatch(this._scene, this);
+    this._notifyUpdated();
+  }
+  /**
+   * Gets the direction of World-space "up".
+   *
+   * This is set by {@link CoordinateSystem.basis}.
+   *
+   * Default value is ````[0,0,1]````.
+   *
+   * @returns {Number[]} The "up" vector.
+   */
+  get worldUp() {
+    return this._worldUp;
+  }
+  /**
+   * Gets the direction of World-space "right".
+   *
+   * This is set by {@link CoordinateSystem.basis}.
+   *
+   * Default value is ````[1,0,0]````.
+   *
+   * @returns {Number[]} The "right" vector.
+   */
+  get worldRight() {
+    return this._worldRight;
+  }
+  /**
+   * Gets the direction of World-space "forwards".
+   *
+   * This is set by {@link CoordinateSystem.basis}.
+   *
+   * Default value is ````[0,0,-1]````.
+   *
+   * @returns {Number[]} The "forwards" vector.
+   */
+  get worldForward() {
+    return this._worldForward;
+  }
+  /**
+   * Gets if the World-space X-axis is "up".
+   * @returns {boolean}
+   */
+  get xUp() {
+    return this._worldUp[0] > this._worldUp[1] && this._worldUp[0] > this._worldUp[2];
+  }
+  /**
+   * Gets if the World-space Y-axis is "up".
+   * @returns {boolean}
+   */
+  get yUp() {
+    return this._worldUp[1] > this._worldUp[0] && this._worldUp[1] > this._worldUp[2];
+  }
+  /**
+   * Gets if the World-space Z-axis is "up".
+   * @returns {boolean}
+   */
+  get zUp() {
+    return this._worldUp[2] > this._worldUp[0] && this._worldUp[2] > this._worldUp[1];
+  }
+  /**
+   * Returns a copy of the current state as a CoordinateSystemParams object.
+   */
+  toParams() {
+    return {
+      basis: Array.from(this._basis),
+      origin: Array.from(this._origin),
+      units: this._units,
+      scaleToMeters: this._scaleToMeters
+    };
+  }
+  /**
+   * Updates this instance's state from a CoordinateSystemParams object.
+   */
+  fromParams(params) {
+    if (this.destroyed) {
+      (this._scene || this._model.scene).logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[CoordinateSystem.fromParams] CoordinateSystem already destroyed - cannot call fromParams"
+      });
+      return;
+    }
+    this._basis = createVec9Float64(params.basis);
+    this._origin = createVec3Float32(params.origin);
+    this._units = params.units;
+    this._scaleToMeters = params.scaleToMeters;
+    this._notifyUpdated();
+  }
+  /**
+   * Destroys this CoordinateSystem.
+   * @private
+   */
+  destroy() {
+    if (this.destroyed) {
+      return;
+    }
+    this.destroyed = true;
+  }
+};
+
+// ../sdk/src/scene/createCoordinateSystemTransform.ts
+var tempMat3a = createMat4Float64();
+var tempMat3b = createMat4Float64();
+var tempVec3a3 = createVec3Float64();
+var tempVec3b3 = createVec3Float64();
+function createCoordinateSystemTransform(coordSys1, coordSys2, outMat4) {
+  const modelBasis = coordSys1.basis;
+  const viewerBasis = coordSys2.basis;
+  transpose3(viewerBasis, tempMat3a);
+  multiply3x3(tempMat3a, modelBasis, tempMat3b);
+  const scale3 = (coordSys1.scaleToMeters ?? unitScale(coordSys1.units)) / (coordSys2.scaleToMeters ?? unitScale(coordSys2.units));
+  tempVec3a3[0] = (coordSys1.origin[0] - coordSys2.origin[0]) * scale3;
+  tempVec3a3[1] = (coordSys1.origin[1] - coordSys2.origin[1]) * scale3;
+  tempVec3a3[2] = (coordSys1.origin[2] - coordSys2.origin[2]) * scale3;
+  apply3x3(tempMat3a, tempVec3a3, tempVec3b3);
+  outMat4[0] = tempMat3b[0] * scale3;
+  outMat4[1] = tempMat3b[1] * scale3;
+  outMat4[2] = tempMat3b[2] * scale3;
+  outMat4[3] = 0;
+  outMat4[4] = tempMat3b[3] * scale3;
+  outMat4[5] = tempMat3b[4] * scale3;
+  outMat4[6] = tempMat3b[5] * scale3;
+  outMat4[7] = 0;
+  outMat4[8] = tempMat3b[6] * scale3;
+  outMat4[9] = tempMat3b[7] * scale3;
+  outMat4[10] = tempMat3b[8] * scale3;
+  outMat4[11] = 0;
+  outMat4[12] = tempVec3b3[0];
+  outMat4[13] = tempVec3b3[1];
+  outMat4[14] = tempVec3b3[2];
+  outMat4[15] = 1;
+  return outMat4;
+}
+function transpose3(m, out) {
+  out[0] = m[0];
+  out[1] = m[3];
+  out[2] = m[6];
+  out[3] = m[1];
+  out[4] = m[4];
+  out[5] = m[7];
+  out[6] = m[2];
+  out[7] = m[5];
+  out[8] = m[8];
+}
+function multiply3x3(a2, b4, out) {
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 3; col++) {
+      out[col * 3 + row] = a2[0 * 3 + row] * b4[col * 3 + 0] + a2[1 * 3 + row] * b4[col * 3 + 1] + a2[2 * 3 + row] * b4[col * 3 + 2];
+    }
+  }
+}
+function apply3x3(m, v, out) {
+  out[0] = m[0] * v[0] + m[3] * v[1] + m[6] * v[2];
+  out[1] = m[1] * v[0] + m[4] * v[1] + m[7] * v[2];
+  out[2] = m[2] * v[0] + m[5] * v[1] + m[8] * v[2];
+}
+function unitScale(unit) {
+  switch (unit) {
+    case "meters":
+      return 1;
+    case "millimeters":
+      return 1e-3;
+    case "inches":
+      return 0.0254;
+    case "feet":
+      return 0.3048;
+  }
+}
+
+// ../sdk/src/scene/SceneTransform.ts
+var SceneTransform = class {
+  /** Unique identifier for this transform within the {@link SceneModel}. */
+  id;
+  /** The {@link SceneModel} this transform belongs to. */
+  model;
+  /** Local scale vector (XYZ). Defaults to `[1, 1, 1]`. */
+  _scale = createVec3Float64([1, 1, 1]);
+  /** Local Euler rotation in degrees (XYZ order). Kept in sync with {@link _quaternion}. */
+  _rotation = createVec3Float64([0, 0, 0]);
+  /** Local position (XYZ). Defaults to `[0, 0, 0]`. */
+  _position = createVec3Float64([0, 0, 0]);
+  /** Local orientation quaternion. Kept in sync with {@link _rotation}. */
+  _quaternion = createQuatFloat64();
+  /**
+   * Local transformation matrix (TRS) relative to {@link parentTransform}.
+   *
+   * - If {@link _localMatrixDirty} is `true`, this matrix is rebuilt from TRS.
+   * - You can also set this directly via {@link matrix}, which decomposes into TRS.
+   */
+  _localMatrix = identityMat4();
+  /**
+   * Global transformation matrix in model/world space.
+   *
+   * Computed as:
+   * - `parent.globalMatrix * localMatrix` when a parent exists
+   * - `localMatrix` when no parent exists
+   *
+   * @private
+   */
+  _globalMatrix;
+  /** True when {@link _localMatrix} needs rebuilding from TRS. */
+  _localMatrixDirty = false;
+  /** True when {@link _globalMatrix} needs rebuilding. */
+  _globalMatrixDirty = true;
+  /**
+   * Child meshes directly parented to this transform.
+   * @private
+   */
+  _childMeshes = [];
+  /** Child transforms directly parented to this transform. */
+  _childTransforms = [];
+  /** Parent transform, or `null` when this transform is a root. */
+  _parentTransform = null;
+  /**
+   * True once {@link destroy} has been called.
+   */
+  destroyed = false;
+  /**
+   * Batched task that propagates dirtiness through the transform tree after local changes.
+   * Scheduled in {@link SDKTask.ComputeStage} so local updates happen before global updates.
+   */
+  _markTreeDirtyTask;
+  /**
+   * Creates a new {@link SceneTransform}.
+   *
+   * If `transformParams.matrix` is provided, it is used as the local matrix and decomposed
+   * into TRS (keeping Euler/quaternion consistent). Otherwise, TRS components are applied.
+   * @private
    */
   constructor(model, transformParams) {
     this.id = transformParams.id;
     this.model = model;
     this._localMatrix = transformParams.matrix ? createMat4Float64(transformParams.matrix) : identityMat4();
     this._globalMatrix = createMat4Float64();
+    this._markTreeDirtyTask = new SDKTask({
+      name: "SceneTransform._markTreeDirtyTask",
+      stage: SDKTask.ComputeStage,
+      task: () => this.setGlobalMatrixDirty()
+    });
+    if (transformParams.matrix) {
+      this.matrix = transformParams.matrix;
+      return;
+    }
+    this.scale = transformParams.scale;
+    this.position = transformParams.position;
+    if (transformParams.quaternion) {
+      this.quaternion = transformParams.quaternion;
+    } else {
+      this.rotation = transformParams.rotation;
+    }
+  }
+  // ------------------------------------------------------------------------------------------------
+  // Local TRS
+  // ------------------------------------------------------------------------------------------------
+  /** Sets the local scale (XYZ). */
+  set scale(scale3) {
+    if (this.destroyed) {
+      this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.scale] Cannot set scale on destroyed SceneTransform ${this.id}`
+      });
+      return;
+    }
+    this._scale.set(scale3 ?? [1, 1, 1]);
+    this._setLocalDirty();
+  }
+  /** Gets the local scale (XYZ). */
+  get scale() {
+    return this._scale;
+  }
+  /** Sets the local rotation as Euler angles in degrees (XYZ order). */
+  set rotation(rotation) {
+    if (this.destroyed) {
+      this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.rotation] Cannot set rotation on destroyed SceneTransform ${this.id}`
+      });
+      return;
+    }
+    this._rotation.set(rotation ?? [0, 0, 0]);
+    eulerToQuat(this._rotation, "XYZ", this._quaternion);
+    this._setLocalDirty();
+  }
+  /** Gets the local rotation as Euler angles in degrees (XYZ order). */
+  get rotation() {
+    return this._rotation;
+  }
+  /** Sets the local rotation as a quaternion. */
+  set quaternion(quaternion) {
+    if (this.destroyed) {
+      this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.quaternion] Cannot set quaternion on destroyed SceneTransform ${this.id}`
+      });
+      return;
+    }
+    this._quaternion.set(quaternion);
+    quatToEuler(this._quaternion, "XYZ", this._rotation);
+    this._setLocalDirty();
+  }
+  /** Gets the local rotation quaternion. */
+  get quaternion() {
+    return this._quaternion;
+  }
+  /** Sets the local position (XYZ). */
+  set position(position) {
+    if (this.destroyed) {
+      this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.position] Cannot set position on destroyed SceneTransform ${this.id}`
+      });
+      return;
+    }
+    this._position.set(position ?? [0, 0, 0]);
+    this._setLocalDirty();
+  }
+  /** Gets the local position (XYZ). */
+  get position() {
+    return this._position;
   }
   /**
    * Sets the local transformation matrix.
-   * @param matrix - The new local matrix.
+   *
+   * Updates the local matrix directly and decomposes it into TRS (keeping Euler/quaternion consistent).
    */
   set matrix(matrix) {
+    if (this.destroyed) {
+      this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.matrix] Cannot set matrix on destroyed SceneTransform ${this.id}`
+      });
+      return;
+    }
     if (matrix) {
       this._localMatrix.set(matrix);
     } else {
       identityMat4(this._localMatrix);
     }
-    this._markTransformDirty();
-    this.model.scene.events.onSceneTransformMatrixChanged.dispatch(this.model.scene, this);
+    decomposeMat4(this._localMatrix, this._position, this._quaternion, this._scale);
+    quatToEuler(this._quaternion, "XYZ", this._rotation);
+    this._localMatrixDirty = false;
+    this._markTreeDirtyTask.schedule();
   }
-  /**
-   * Gets the local transformation matrix.
-   * @returns The local matrix.
-   */
+  /** Gets the local transformation matrix. */
   get matrix() {
+    if (this._localMatrixDirty) {
+      composeMat4(
+        this._position,
+        eulerToQuat(this._rotation, "XYZ", identityQuat()),
+        this._scale,
+        this._localMatrix
+      );
+      this._localMatrixDirty = false;
+    }
     return this._localMatrix;
   }
-  /**
-   * Gets the global transformation matrix.
-   * Updates the global matrix if necessary.
-   * @returns The global matrix.
-   */
+  /** Gets the global transformation matrix. */
   get globalMatrix() {
-    this._updateGlobal();
+    if (this._globalMatrixDirty) {
+      if (this._parentTransform) {
+        mulMat4(this._parentTransform.globalMatrix, this.matrix, this._globalMatrix);
+      } else {
+        mulMat4(this.model.coordinateSystemMatrix, this.matrix, this._globalMatrix);
+      }
+      this._globalMatrixDirty = false;
+    }
     return this._globalMatrix;
   }
-  /**
-   * Gets the parent SceneTransform.
-   * @returns The parent transform or null if none exists.
-   */
+  // ------------------------------------------------------------------------------------------------
+  // Hierarchy
+  // ------------------------------------------------------------------------------------------------
+  /** Gets the parent transform, or `null` when this transform is a root. */
   get parentTransform() {
     return this._parentTransform;
   }
-  /**
-   * Gets the list of child SceneTransform objects.
-   * @returns A readonly array of child transforms.
-   */
+  /** Gets direct child transforms of this transform. */
   get childTransforms() {
     return this._childTransforms;
   }
-  /**
-   * Gets the list of child SceneMesh objects.
-   * @returns A readonly array of child meshes.
-   */
+  /** Gets direct child meshes of this transform. */
   get childMeshes() {
     return this._childMeshes;
   }
   /**
-   * Marks the transform and its children as dirty, requiring updates.
+   * Marks this transform globally dirty and propagates that state to all descendants.
+   * @internal
    */
-  _markTransformDirty() {
-    this._dirty = true;
+  setGlobalMatrixDirty() {
+    this._globalMatrixDirty = true;
     for (const child of this._childTransforms) {
-      child._markTransformDirty();
+      child.setGlobalMatrixDirty();
     }
-    for (const child of this._childMeshes) {
-      child._updateGlobal();
+    for (const childMesh of this._childMeshes) {
+      childMesh.setGlobalMatrixDirty();
     }
   }
   /**
-   * Attaches a parent transform to this transform.
-   * @param parent - The new parent transform or null to detach.
+   * Attaches/detaches this transform to/from a new parent.
    */
   _attachParentTransform(parent) {
     if (this._parentTransform === parent) {
@@ -11601,111 +12153,256 @@ var SceneTransform = class {
     if (parent) {
       parent._childTransforms.push(this);
     }
-    this._markTransformDirty();
+    this._markTreeDirtyTask.schedule();
   }
   /**
    * Sets the parent transform for this transform.
-   * @param next - The new parent transform or null to detach.
-   * @param opts - Options to preserve world transformation.
+   *
+   * @param parentTransformId - ID of the new parent transform, or `null`/`undefined` to unparent.
+   * @param opts - Options.
+   * @param opts.preserveWorld - When `true`, keeps the world transform unchanged.
    */
-  setParentTransform(next, opts) {
-    if (next === this) {
-      throw new Error("Cannot parent to self");
+  setParentTransform(parentTransformId, opts) {
+    if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.setParentTransform] Cannot set parent transform on destroyed SceneTransform ${this.id}`
+      });
+    }
+    let parentTransform = null;
+    if (parentTransformId) {
+      if (parentTransformId === this.id) {
+        return this.model.scene.logError({
+          ok: false,
+          type: 1 /* InvalidOperation */,
+          error: `[SceneTransform.setParentTransform] Cannot set parent transform to self on SceneTransform ${this.id}`
+        });
+      }
+      parentTransform = this.model.transforms[parentTransformId];
+      if (!parentTransform) {
+        return this.model.scene.logError({
+          ok: false,
+          type: 1 /* InvalidOperation */,
+          error: `[SceneTransform.setParentTransform] SceneTransform "${parentTransformId}" not found in SceneModel`
+        });
+      }
+      if (parentTransform.model.id !== this.model.id) {
+        return this.model.scene.logError({
+          ok: false,
+          type: 1 /* InvalidOperation */,
+          error: `[SceneTransform.setParentTransform] Cannot set parent transform to a transform in a different SceneModel on SceneTransform ${this.id}`
+        });
+      }
     }
     const preserve = !!opts?.preserveWorld;
     if (preserve) {
       this._updateGlobal();
       const currentWorld = createMat4Float64(this._globalMatrix);
-      this._attachParentTransform(next);
+      this._attachParentTransform(parentTransform);
       if (this._parentTransform) {
         const invParent = inverseMat4(this._parentTransform._globalMatrix, createMat4Float64());
-        mulMat4(this._localMatrix, invParent, currentWorld);
+        mulMat4(invParent, currentWorld, this._localMatrix);
       } else {
         this._localMatrix.set(currentWorld);
       }
-      this._markTransformDirty();
+      this._markTreeDirtyTask.schedule();
     } else {
-      this._attachParentTransform(next);
+      this._attachParentTransform(parentTransform);
     }
+    return { ok: true, value: void 0 };
   }
   /**
-   * Adds a child transform to this transform.
-   * @param child - The child transform to add.
-   * @param opts - Options to preserve world transformation.
+   * Adds a child transform to this transform by ID.
+   *
+   * This resolves the transform from the owning {@link SceneModel} and then parents it under this
+   * transform (equivalent to `child.setParentTransform(this, opts)`).
+   *
+   * @param childTransformId - ID of the child transform to add.
+   * @param opts - Options forwarded to {@link setParentTransform}.
    */
-  addChildTransform(child, opts) {
-    child.setParentTransform(this, opts);
+  addChildTransform(childTransformId, opts) {
+    if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.addChildTransform] Cannot add child transform to destroyed SceneTransform ${this.id}`
+      });
+    }
+    const child = this.model.transforms[childTransformId];
+    if (!child) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.addChildTransform] Transform "${childTransformId}" not found in SceneModel`
+      });
+    }
+    return child.setParentTransform(this.id, opts);
   }
   /**
-   * Removes a child transform from this transform.
-   * @param child - The child transform to remove.
+   * Removes a child transform from this transform by ID (if it is currently parented here).
+   *
+   * When destroyed, logs an error and returns a failed result.
+   *
+   * @param childTransformId - ID of the child transform to remove.
    */
-  removeChildTransform(child) {
+  removeChildTransform(childTransformId) {
+    if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.removeChildTransform] Cannot remove child transform from destroyed SceneTransform ${this.id}`
+      });
+    }
+    const child = this.model.transforms[childTransformId];
+    if (!child) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.removeChildTransform] Transform "${childTransformId}" not found in SceneModel`
+      });
+    }
     if (child._parentTransform === this) {
       child.setParentTransform(null, { preserveWorld: false });
     }
+    return { ok: true, value: void 0 };
   }
   /**
-   * Adds a child mesh to this transform.
-   * @param child - The child mesh to add.
+   * Adds a child mesh to this transform by ID.
+   *
+   * This resolves the mesh from the owning {@link SceneModel} and then parents it under this transform.
+   *
+   * When destroyed, logs an error and returns a failed result.
+   *
+   * @param childMeshId - ID of the mesh to add.
    */
-  addChildMesh(child) {
-    child.setParentTransform(this);
+  addChildMesh(childMeshId) {
+    if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.addChildMesh] Cannot add child mesh to destroyed SceneTransform ${this.id}`
+      });
+    }
+    const child = this.model.meshes[childMeshId];
+    if (!child) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.addChildMesh] Mesh "${childMeshId}" not found in SceneModel`
+      });
+    }
+    child.setParentTransform(this.id);
+    return { ok: true, value: void 0 };
   }
   /**
-   * Removes a child mesh from this transform.
-   * @param child - The child mesh to remove.
+   * Removes a child mesh from this transform by ID.
+   *
+   * @param childMeshId - ID of the mesh to remove.
    */
-  removeChildMesh(child) {
+  removeChildMesh(childMeshId) {
+    if (this.destroyed) {
+      this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.removeChildMesh] Cannot remove child mesh from destroyed SceneTransform ${this.id}`
+      });
+      return;
+    }
+    const child = this.model.meshes[childMeshId];
+    if (!child) {
+      this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.removeChildMesh] Mesh "${childMeshId}" not found in SceneModel`
+      });
+      return;
+    }
+    if (child.parentTransform && child.parentTransform.id === this.id) {
+      child.setParentTransform(null);
+    }
   }
   /**
-   * Updates the global transformation matrix.
-   * @param force - Whether to force the update.
+   * Updates the cached global matrices for this transform (and recursively for descendants).
+   *
+   * @private
    */
   _updateGlobal(force = false) {
-    if (force || this._dirty) {
-      if (this._parentTransform) {
-        this._parentTransform._updateGlobal(force);
-        mulMat4(this._parentTransform._globalMatrix, this._localMatrix, this._globalMatrix);
-      } else {
-        this._globalMatrix.set(this._localMatrix);
-      }
-      this._dirty = false;
+    if (this._parentTransform) {
+      this._parentTransform._updateGlobal(force);
+      mulMat4(this._parentTransform._globalMatrix, this._localMatrix, this._globalMatrix);
+    } else {
+      this._globalMatrix.set(this._localMatrix);
     }
+    this._globalMatrixDirty = false;
     for (const child of this._childTransforms) {
       child._updateGlobal(force);
     }
   }
   /**
-   * Converts the transform to its parameter representation.
-   * @returns The transform parameters.
+   * Serializes this transform to {@link SceneTransformParams}.
+   *
+   * Only writes non-default fields (scale/rotation/position/quaternion/parentTransformId).
    */
   toParams() {
-    const transformParams = {
-      id: this.id,
-      matrix: Array.from(this._localMatrix)
-    };
+    if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.toParams] Cannot serialize destroyed SceneTransform ${this.id}`
+      });
+    }
+    const transformParams = { id: this.id };
+    if (this._scale.some((s) => s !== 1)) {
+      transformParams.scale = Array.from(this._scale);
+    }
+    if (this._rotation.some((r) => r !== 0)) {
+      transformParams.rotation = Array.from(this._rotation);
+    }
+    if (this._position.some((p) => p !== 0)) {
+      transformParams.position = Array.from(this._position);
+    }
+    if (this._quaternion[0] !== 0 || this._quaternion[1] !== 0 || this._quaternion[2] !== 0 || this._quaternion[3] !== 1) {
+      transformParams.quaternion = Array.from(this._quaternion);
+    }
     if (this._parentTransform) {
       transformParams.parentTransformId = this._parentTransform.id;
     }
-    return transformParams;
+    return { ok: true, value: transformParams };
   }
   /**
-   * Destroys the transform, detaching it from its parent and children.
+   * Destroys this transform.
+   *
+   * - Detaches from parent
+   * - Detaches all child transforms
+   * - Removes itself from the owning {@link SceneModel}
    */
   destroy() {
     if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTransform.destroy] SceneTransform ${this.id} already destroyed`
+      });
     }
     if (this._parentTransform) {
-      this._parentTransform.removeChildTransform(this);
+      this._parentTransform.removeChildTransform(this.id);
     }
     this._parentTransform = null;
     for (const child of [...this._childTransforms]) {
       child.setParentTransform(null, { preserveWorld: false });
     }
+    this._markTreeDirtyTask.destroy();
     this._childTransforms = [];
     this.model._destroyTransform(this);
     this.destroyed = true;
+  }
+  /**
+   * Marks the local matrix dirty and schedules dirtiness propagation through the transform tree.
+   */
+  _setLocalDirty() {
+    this._localMatrixDirty = true;
+    this._markTreeDirtyTask.schedule();
   }
 };
 
@@ -11738,7 +12435,9 @@ var SceneMesh = class {
   _localMatrix;
   _globalMatrix;
   _parentTransform = null;
+  _globalMatrixDirty = true;
   destroyed = false;
+  _emitMatrixChangedEventTask;
   /**
    * @private
    */
@@ -11747,11 +12446,20 @@ var SceneMesh = class {
     this.model = meshParams.model;
     this._localMatrix = meshParams.matrix ? createMat4Float64(meshParams.matrix) : identityMat4();
     this._globalMatrix = createMat4Float64();
+    this._globalMatrixDirty = true;
     this.geometry = meshParams.geometry;
     this.textureSet = meshParams.textureSet;
     this._color = createVec3Float32(meshParams.color || [1, 1, 1]);
     this._opacity = meshParams.opacity !== void 0 && meshParams.opacity !== null ? meshParams.opacity : 1;
     this.object = null;
+    this._emitMatrixChangedEventTask = new SDKTask({
+      name: "SceneMesh._emitMatrixChangedEventTask",
+      task: () => {
+        this.model.scene.events.onSceneMeshMatrixChanged.dispatch(this.model.scene, this);
+      },
+      stage: SDKTask.ComputeStage2
+      // Emit after transforms have been updated but before rendering
+    });
   }
   /**
    * Sets the {@link SceneGeometry} used by this SceneMesh.
@@ -11875,8 +12583,7 @@ var SceneMesh = class {
     } else {
       identityMat4(this._localMatrix);
     }
-    this._updateGlobal();
-    this.model.scene.events.onSceneMeshMatrixChanged.dispatch(this.model.scene, this);
+    this.setGlobalMatrixDirty();
   }
   /**
    * Gets this SceneMesh's local modeling transform matrix.
@@ -11890,7 +12597,14 @@ var SceneMesh = class {
    * Gets the global transform matrix for this SceneMesh.
    */
   get globalMatrix() {
-    this._updateGlobal();
+    if (this._globalMatrixDirty) {
+      if (this._parentTransform) {
+        mulMat4(this._parentTransform.globalMatrix, this._localMatrix, this._globalMatrix);
+      } else {
+        mulMat4(this.model.coordinateSystemMatrix, this.matrix, this._globalMatrix);
+      }
+      this._globalMatrixDirty = false;
+    }
     return this._globalMatrix;
   }
   /**
@@ -11931,33 +12645,12 @@ var SceneMesh = class {
   }
   /**
    * Updates the global transform matrix.
-   * @private
+   * @internal
    */
-  _updateGlobal() {
-    if (this._parentTransform) {
-      mulMat4(this._parentTransform.globalMatrix, this._localMatrix, this._globalMatrix);
-    } else {
-      this._globalMatrix.set(this._localMatrix);
-    }
-    const scene = this.model.scene;
+  setGlobalMatrixDirty() {
+    this._globalMatrixDirty = true;
+    this._emitMatrixChangedEventTask.schedule();
   }
-  // /**
-  //  * Sets the {@link SceneTransform} that is the parent of this SceneMesh.
-  //  * @param parent
-  //  */
-  // setParentTransformOLD(parent: SceneTransform | null): void {
-  //   if (this._parentTransform === parent) {
-  //     return;
-  //   }
-  //   if (this._parentTransform) {
-  //     this._parentTransform.removeChildMesh(this);
-  //   }
-  //   this._parentTransform = parent;
-  //   if (parent) {
-  //     parent.addChildMesh(this);
-  //   }
-  //   this._updateGlobal();
-  // }
   /**
    * Attaches a parent transform to this transform.
    * @param parent - The new parent transform or null to detach.
@@ -11976,31 +12669,53 @@ var SceneMesh = class {
     if (parent) {
       parent._childMeshes.push(this);
     }
-    this._updateGlobal();
+    this.setGlobalMatrixDirty();
   }
   /**
    * Sets the parent transform for this mesh.
-   * @param next - The new parent transform or null to detach.
+   * @param parentTransformId - The ID of the new parent transform, or null to detach.
    * @param opts - Options to preserve world transformation.
    */
-  setParentTransform(next, opts) {
+  setParentTransform(parentTransformId, opts) {
     if (this.destroyed) {
-      return;
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneMesh.setParentTransform] Cannot set parent transform on destroyed SceneMesh ${this.id}`
+      });
+    }
+    let parentTransform = null;
+    if (parentTransformId) {
+      parentTransform = this.model.transforms[parentTransformId];
+      if (!parentTransform) {
+        return this.model.scene.logError({
+          ok: false,
+          type: 1 /* InvalidOperation */,
+          error: `[SceneMesh.setParentTransform] SceneTransform "${parentTransformId}" not found in SceneModel`
+        });
+      }
+      if (parentTransform.model.id !== this.model.id) {
+        return this.model.scene.logError({
+          ok: false,
+          type: 1 /* InvalidOperation */,
+          error: `[SceneMesh.setParentTransform] Cannot set parent transform to a SceneMesh in a different SceneModel: ${this.id}`
+        });
+      }
     }
     const preserve = !!opts?.preserveWorld;
     if (preserve) {
-      this._updateGlobal();
+      this.setGlobalMatrixDirty();
       const currentWorld = createMat4Float64(this._globalMatrix);
-      this._attachParentTransform(next);
+      this._attachParentTransform(parentTransform);
       if (this._parentTransform) {
         const invParent = inverseMat4(this._parentTransform._globalMatrix, createMat4Float64());
         mulMat4(this._localMatrix, invParent, currentWorld);
       } else {
         this._localMatrix.set(currentWorld);
       }
-      this._updateGlobal();
+      this.setGlobalMatrixDirty();
     } else {
-      this._attachParentTransform(next);
+      this._attachParentTransform(parentTransform);
     }
   }
   /**
@@ -12056,7 +12771,7 @@ var SceneMesh = class {
       });
     }
     if (this._parentTransform) {
-      this._parentTransform.removeChildMesh(this);
+      this._parentTransform.removeChildMesh(this.id);
     }
     this._parentTransform = null;
     this.model._destroyMesh(this);
@@ -12458,357 +13173,6 @@ var SceneTextureSet = class {
   }
 };
 
-// ../sdk/src/scene/CoordinateSystem.ts
-var CoordinateSystem = class {
-  /** @private */
-  _notifyUpdatedScheduled;
-  _scene;
-  _model;
-  _basis;
-  _origin;
-  _units;
-  _scaleToMeters;
-  _worldUp;
-  _worldRight;
-  _worldForward;
-  /**
-   * True if this CoordinateSystem has been destroyed.
-   */
-  destroyed = false;
-  /**
-   * @private
-   */
-  constructor(parent, params) {
-    if (parent instanceof Scene) {
-      this._scene = parent;
-    } else {
-      this._model = parent;
-    }
-    this._origin = createVec3Float64(params?.origin || [0, 0, 0]);
-    this._units = params?.units || "meters";
-    this._scaleToMeters = params?.scaleToMeters || 1;
-    this._worldUp = createVec3Float32();
-    this._worldRight = createVec3Float32();
-    this._worldForward = createVec3Float32();
-    this.basis = params?.basis;
-  }
-  /** @private */
-  _notifyUpdated() {
-    if (!this._notifyUpdatedScheduled) {
-      this._notifyUpdatedScheduled = true;
-      setTimeout(() => {
-        this._notifyUpdatedScheduled = false;
-        this._model ? this._model.scene.events.onSceneModelCoordSystemUpdated.dispatch(this._model, this) : this._scene.events.onSceneCoordSystemUpdated.dispatch(this._scene, this);
-      }, 100);
-    }
-  }
-  /** Gets the flat 9-element coordinate system basis (column-major). */
-  get basis() {
-    return this._basis;
-  }
-  /**
-   * Sets the flat 9-element coordinate system basis (column-major).
-   * Emits event on change, via `Scene.events.coordSystemBasis` or `SceneModel.events.modelCoordSystemBasis`.
-   */
-  set basis(value) {
-    if (this.destroyed) {
-      (this._scene || this._model.scene).logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[CoordinateSystem.basis] CoordinateSystem already destroyed - cannot set basis"
-      });
-      return;
-    }
-    if (value) {
-      if (value.length !== 9) {
-        (this._scene || this._model.scene).logError({
-          ok: false,
-          type: 2 /* InvalidInput */,
-          error: "[CoordinateSystem.basis] Invalid basis array - must have 9 elements"
-        });
-        return;
-      }
-      if (!testOrthogonalAxis(value)) {
-        (this._scene || this._model.scene).logError({
-          ok: false,
-          type: 2 /* InvalidInput */,
-          error: "[CoordinateSystem.basis] Invalid basis array - axes are not orthogonal"
-        });
-        return;
-      }
-    }
-    this._basis = createVec9Float64(value || [
-      1,
-      0,
-      0,
-      // Right
-      0,
-      0,
-      1,
-      // Up
-      0,
-      1,
-      0
-      // Forward
-    ]);
-    this._worldRight[0] = this._basis[0];
-    this._worldRight[1] = this._basis[1];
-    this._worldRight[2] = this._basis[2];
-    this._worldUp[0] = this._basis[3];
-    this._worldUp[1] = this._basis[4];
-    this._worldUp[2] = this._basis[5];
-    this._worldForward[0] = this._basis[6];
-    this._worldForward[1] = this._basis[7];
-    this._worldForward[2] = this._basis[8];
-    this._model ? this._model.scene.events.onSceneModelCoordSystemBasisChanged.dispatch(this._model, this) : this._scene.events.onSceneCoordSystemBasisChanged.dispatch(this._scene, this);
-    this._notifyUpdated();
-  }
-  /** Gets the origin of the coordinate system in global space. */
-  get origin() {
-    return this._origin;
-  }
-  /**
-   * Sets the origin of the coordinate system in global space.
-   * Emits event on change, via `Scene.events.coordSystemOrigin` or `SceneModel.events.modelCoordSystemOrigin`.
-   */
-  set origin(value) {
-    if (this.destroyed) {
-      (this._scene || this._model.scene).logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[CoordinateSystem.origin] CoordinateSystem already destroyed - cannot set origin"
-      });
-      return;
-    }
-    this._origin = createVec3Float32(value);
-    this._model ? this._model.scene.events.onSceneModelCoordSystemOriginChanged.dispatch(this._model, this) : this._scene.events.onSceneCoordSystemOriginChanged.dispatch(this._scene, this);
-    this._notifyUpdated();
-  }
-  /** Gets the unit system used. */
-  get units() {
-    return this._units;
-  }
-  /**
-   * Sets the unit system used.
-   * Emits event on change, via `Scene.events.coordSystemUnits` or `SceneModel.events.modelCoordSystemUnits`.
-   */
-  set units(value) {
-    if (this.destroyed) {
-      (this._scene || this._model.scene).logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[CoordinateSystem.units] CoordinateSystem already destroyed - cannot set units"
-      });
-      return;
-    }
-    if (value !== "meters" && value !== "millimeters" && value !== "inches" && value !== "feet") {
-      (this._scene || this._model.scene).logError({
-        ok: false,
-        type: 2 /* InvalidInput */,
-        error: "[CoordinateSystem.units] Invalid units - must be 'meters', 'millimeters', 'inches', or 'feet'"
-      });
-      return;
-    }
-    this._units = value;
-    this._model ? this._model.scene.events.onSceneModelCoordSystemUnitsChanged.dispatch(this._model, this) : this._scene.events.onSceneCoordSystemUnitsChanged.dispatch(this._scene, this);
-    this._notifyUpdated();
-  }
-  /** Gets the optional scale-to-meters multiplier. */
-  get scaleToMeters() {
-    return this._scaleToMeters;
-  }
-  /**
-   * Sets the optional scale-to-meters multiplier.
-   * Emits event on change, via `Scene.events.coordSystemMeters` or `SceneModel.events.modelCoordSystemMeters`.
-   */
-  set scaleToMeters(value) {
-    if (this.destroyed) {
-      (this._scene || this._model.scene).logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[CoordinateSystem.scaleToMeters] CoordinateSystem already destroyed - cannot set scaleToMeters"
-      });
-      return;
-    }
-    if (value !== void 0 && (typeof value !== "number" || isNaN(value) || value <= 0)) {
-      (this._scene || this._model.scene).logError({
-        ok: false,
-        type: 2 /* InvalidInput */,
-        error: "[CoordinateSystem.scaleToMeters] Invalid scaleToMeters - must be a positive number"
-      });
-      return;
-    }
-    this._scaleToMeters = value;
-    this._model ? this._model.scene.events.onSceneModelCoordSystemScaleToMetersChanged.dispatch(this._model, this) : this._scene.events.onSceneCoordSystemScaleToMetersChanged.dispatch(this._scene, this);
-    this._notifyUpdated();
-  }
-  /**
-   * Gets the direction of World-space "up".
-   *
-   * This is set by {@link CoordinateSystem.basis}.
-   *
-   * Default value is ````[0,0,1]````.
-   *
-   * @returns {Number[]} The "up" vector.
-   */
-  get worldUp() {
-    return this._worldUp;
-  }
-  /**
-   * Gets the direction of World-space "right".
-   *
-   * This is set by {@link CoordinateSystem.basis}.
-   *
-   * Default value is ````[1,0,0]````.
-   *
-   * @returns {Number[]} The "right" vector.
-   */
-  get worldRight() {
-    return this._worldRight;
-  }
-  /**
-   * Gets the direction of World-space "forwards".
-   *
-   * This is set by {@link CoordinateSystem.basis}.
-   *
-   * Default value is ````[0,0,-1]````.
-   *
-   * @returns {Number[]} The "forwards" vector.
-   */
-  get worldForward() {
-    return this._worldForward;
-  }
-  /**
-   * Gets if the World-space X-axis is "up".
-   * @returns {boolean}
-   */
-  get xUp() {
-    return this._worldUp[0] > this._worldUp[1] && this._worldUp[0] > this._worldUp[2];
-  }
-  /**
-   * Gets if the World-space Y-axis is "up".
-   * @returns {boolean}
-   */
-  get yUp() {
-    return this._worldUp[1] > this._worldUp[0] && this._worldUp[1] > this._worldUp[2];
-  }
-  /**
-   * Gets if the World-space Z-axis is "up".
-   * @returns {boolean}
-   */
-  get zUp() {
-    return this._worldUp[2] > this._worldUp[0] && this._worldUp[2] > this._worldUp[1];
-  }
-  /**
-   * Returns a copy of the current state as a CoordinateSystemParams object.
-   */
-  toParams() {
-    return {
-      basis: Array.from(this._basis),
-      origin: Array.from(this._origin),
-      units: this._units,
-      scaleToMeters: this._scaleToMeters
-    };
-  }
-  /**
-   * Updates this instance's state from a CoordinateSystemParams object.
-   */
-  fromParams(params) {
-    if (this.destroyed) {
-      (this._scene || this._model.scene).logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[CoordinateSystem.fromParams] CoordinateSystem already destroyed - cannot call fromParams"
-      });
-      return;
-    }
-    this._basis = createVec9Float64(params.basis);
-    this._origin = createVec3Float32(params.origin);
-    this._units = params.units;
-    this._scaleToMeters = params.scaleToMeters;
-    this._notifyUpdated();
-  }
-  /**
-   * Destroys this CoordinateSystem.
-   * @private
-   */
-  destroy() {
-    if (this.destroyed) {
-      return;
-    }
-    this.destroyed = true;
-  }
-};
-
-// ../sdk/src/scene/createCoordinateSystemTransform.ts
-var tempMat3a = createMat4Float64();
-var tempMat3b = createMat4Float64();
-var tempVec3a3 = createVec3Float64();
-var tempVec3b3 = createVec3Float64();
-function createCoordinateSystemTransform(model, viewer, outMat4) {
-  const modelBasis = model.basis;
-  const viewerBasis = viewer.basis;
-  transpose3(viewerBasis, tempMat3a);
-  multiply3x3(tempMat3a, modelBasis, tempMat3b);
-  const scale3 = (model.scaleToMeters ?? unitScale(model.units)) / (viewer.scaleToMeters ?? unitScale(viewer.units));
-  tempVec3a3[0] = (model.origin[0] - viewer.origin[0]) * scale3;
-  tempVec3a3[1] = (model.origin[1] - viewer.origin[1]) * scale3;
-  tempVec3a3[2] = (model.origin[2] - viewer.origin[2]) * scale3;
-  apply3x3(tempMat3a, tempVec3a3, tempVec3b3);
-  outMat4[0] = tempMat3b[0] * scale3;
-  outMat4[1] = tempMat3b[1] * scale3;
-  outMat4[2] = tempMat3b[2] * scale3;
-  outMat4[3] = 0;
-  outMat4[4] = tempMat3b[3] * scale3;
-  outMat4[5] = tempMat3b[4] * scale3;
-  outMat4[6] = tempMat3b[5] * scale3;
-  outMat4[7] = 0;
-  outMat4[8] = tempMat3b[6] * scale3;
-  outMat4[9] = tempMat3b[7] * scale3;
-  outMat4[10] = tempMat3b[8] * scale3;
-  outMat4[11] = 0;
-  outMat4[12] = tempVec3b3[0];
-  outMat4[13] = tempVec3b3[1];
-  outMat4[14] = tempVec3b3[2];
-  outMat4[15] = 1;
-  return outMat4;
-}
-function transpose3(m, out) {
-  out[0] = m[0];
-  out[1] = m[3];
-  out[2] = m[6];
-  out[3] = m[1];
-  out[4] = m[4];
-  out[5] = m[7];
-  out[6] = m[2];
-  out[7] = m[5];
-  out[8] = m[8];
-}
-function multiply3x3(a2, b4, out) {
-  for (let row = 0; row < 3; row++) {
-    for (let col = 0; col < 3; col++) {
-      out[col * 3 + row] = a2[0 * 3 + row] * b4[col * 3 + 0] + a2[1 * 3 + row] * b4[col * 3 + 1] + a2[2 * 3 + row] * b4[col * 3 + 2];
-    }
-  }
-}
-function apply3x3(m, v, out) {
-  out[0] = m[0] * v[0] + m[3] * v[1] + m[6] * v[2];
-  out[1] = m[1] * v[0] + m[4] * v[1] + m[7] * v[2];
-  out[2] = m[2] * v[0] + m[5] * v[1] + m[8] * v[2];
-}
-function unitScale(unit) {
-  switch (unit) {
-    case "meters":
-      return 1;
-    case "millimeters":
-      return 1e-3;
-    case "inches":
-      return 0.0254;
-    case "feet":
-      return 0.3048;
-  }
-}
-
 // ../sdk/src/scene/SceneModel.ts
 var COLOR_TEXTURE = 0;
 var METALLIC_ROUGHNESS_TEXTURE = 1;
@@ -12860,12 +13224,8 @@ var SceneModel2 = class {
    * matrix, effectively transforming the SceneModel into the global coordinate system.
    */
   coordinateSystem;
-  /**
-   * Caches a matrix used to transform positions between SceneModel and Scene CoordinateSystems.
-   * Each SceneMesh's matrix is pre-multiplied by this matrix to effectively move the vertex
-   * positions from the SceneModel CoordinateSystem to the Scene CoordinateSystem within.
-   */
-  coordinateSystemMatrix;
+  _coordinateSystemMatrix;
+  _coordinateSystemMatrixDirty = true;
   /**
    * Whether IDs of {@link SceneObject | SceneObjects} are globalized.
    *
@@ -12957,8 +13317,16 @@ var SceneModel2 = class {
   constructor(scene, sceneModelParams) {
     this.id = sceneModelParams.id;
     this.scene = scene;
-    this.coordinateSystem = new CoordinateSystem(this, sceneModelParams?.coordinateSystem);
-    this.coordinateSystemMatrix = createCoordinateSystemTransform(this.coordinateSystem, this.scene.coordinateSystem, createMat4Float64());
+    this.coordinateSystem = new CoordinateSystem(
+      this,
+      () => {
+        this._coordinateSystemMatrixDirty = true;
+        this.setGlobalMatrixDirty();
+      },
+      sceneModelParams?.coordinateSystem
+    );
+    this._coordinateSystemMatrix = createMat4Float64();
+    this._coordinateSystemMatrixDirty = true;
     this.globalizedIds = !!sceneModelParams.globalizedIds;
     this.layerId = sceneModelParams.layerId;
     this.transforms = {};
@@ -12982,13 +13350,25 @@ var SceneModel2 = class {
     };
   }
   /**
+   * Caches a matrix used to transform positions between SceneModel and Scene CoordinateSystems.
+   * Each SceneMesh's matrix is pre-multiplied by this matrix to effectively move the vertex
+   * positions from the SceneModel CoordinateSystem to the Scene CoordinateSystem within.
+   */
+  get coordinateSystemMatrix() {
+    if (this._coordinateSystemMatrixDirty) {
+      this._coordinateSystemMatrix = createCoordinateSystemTransform(this.coordinateSystem, this.scene.coordinateSystem, this._coordinateSystemMatrix);
+      this._coordinateSystemMatrixDirty = false;
+    }
+    return this._coordinateSystemMatrix;
+  }
+  /**
    * Creates a new {@link SceneTransform} within this SceneModel.
    *
    * - Stores the transform in {@link SceneModel.transforms}.
    * - Optionally attaches it under a parent transform using {@link SceneTransform.setParentTransform}.
    * - The final transform matrix can be supplied directly via `matrix` or composed from
    *   `position`, `scale` and `rotation` (Euler) or `quaternion`.
-   * - Fires {@link Scene.events.onSceneTransformCreated | Scene.events.onSceneTransformCreated} event.
+   * - Fires {@link SceneEvents.onSceneTransformCreated | SceneEvents.onSceneTransformCreated} event.
    *
    * @example
    * ```javascript
@@ -13009,6 +13389,10 @@ var SceneModel2 = class {
    *   parentTransformId: "root",
    *   rotation: [0, Math.PI * 0.5, 0]
    * });
+   *
+   * const childTransform = sceneModel.transforms["child"];
+   * childTransform.position = [0, 5, 0];
+   * childTransform.rotation =[0, 0, 45];
    * ```
    *
    * @param transformParams Parameters describing the transform to create.
@@ -13052,32 +13436,9 @@ var SceneModel2 = class {
         });
       }
     }
-    let matrix = transformParams.matrix;
-    if (!matrix) {
-      const position = transformParams.position;
-      const scale3 = transformParams.scale;
-      const rotation = transformParams.rotation;
-      const quaternion = transformParams.quaternion;
-      if (position || scale3 || rotation || quaternion) {
-        matrix = identityMat4();
-        composeMat4(
-          position || [0, 0, 0],
-          quaternion || eulerToQuat(rotation || [0, 0, 0], "XYZ", identityQuat()),
-          scale3 || [1, 1, 1],
-          matrix
-        );
-      } else {
-        matrix = identityMat4();
-      }
-    } else {
-      matrix = createMat4Float64(matrix);
-    }
-    const sceneTransform = new SceneTransform(this, {
-      id: transformParams.id,
-      matrix
-    });
+    const sceneTransform = new SceneTransform(this, transformParams);
     if (parentTransform) {
-      sceneTransform.setParentTransform(parentTransform);
+      sceneTransform.setParentTransform(parentTransform.id);
     }
     this.transforms[transformParams.id] = sceneTransform;
     this.stats.numTransforms++;
@@ -13107,7 +13468,7 @@ var SceneModel2 = class {
    * Creates a new {@link SceneTexture} within this SceneModel.
    *
    * - Stores the new {@link SceneTexture} in {@link SceneModel.textures | SceneModel.textures}.
-   * - Fires {@link Scene.events.onSceneTextureCreated | Scene.events.onSceneTextureCreated} event.
+   * - Fires {@link SceneEvents.onSceneTextureCreated | SceneEvents.onSceneTextureCreated} event.
    *
    * ### Usage
    *
@@ -13214,7 +13575,7 @@ var SceneModel2 = class {
    * Creates a new {@link SceneTextureSet} within this SceneModel.
    *
    * - Stores the new {@link SceneTextureSet} in {@link SceneModel.textureSets | SceneModel.textureSets}.
-   * - Fires {@link Scene.events.onSceneTextureSetCreated | Scene.events.onSceneTextureSetCreated} event.
+   * - Fires {@link SceneEvents.onSceneTextureSetCreated | SceneEvents.onSceneTextureSetCreated} event.
    *
    * ### Usage
    *
@@ -13355,7 +13716,7 @@ var SceneModel2 = class {
    * Creates a new {@link SceneGeometry} within this SceneModel, from non-compressed geometry parameters.
    *
    * - Stores the new {@link SceneGeometry} in {@link SceneModel.geometries | SceneModel.geometries}.
-   * - Fires {@link Scene.events.onSceneGeometryCreated | Scene.events.onSceneGeometryCreated} event.
+   * - Fires {@link SceneEvents.onSceneGeometryCreated | SceneEvents.onSceneGeometryCreated} event.
    *
    * ### Usage
    *
@@ -13418,7 +13779,7 @@ var SceneModel2 = class {
         error: "[SceneModel.createGeometry] Missing required 'geometryParams'."
       });
     }
-    const { id, positions, indices, primitive, uvs } = geometryParams;
+    const { id, positions, indices, primitive, uvs, colors } = geometryParams;
     if (id === null || id === void 0) {
       return this.scene.logError({
         ok: false,
@@ -13453,6 +13814,15 @@ var SceneModel2 = class {
         type: 2 /* InvalidInput */,
         error: `[SceneModel.createGeometry] Unsupported value for geometryParams.primitive: '${primitive}' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive`
       });
+    }
+    if (colors) {
+      if (colors.length / 4 !== positions.length / 3) {
+        return this.scene.logError({
+          ok: false,
+          type: 2 /* InvalidInput */,
+          error: "[SceneModel.createGeometry] Mismatch between given quantities of vertex positions and colors"
+        });
+      }
     }
     if (uvs) {
       if (uvs.length / 2 !== positions.length / 3) {
@@ -13514,7 +13884,7 @@ var SceneModel2 = class {
    * - Stores the new {@link SceneGeometry} in {@link SceneModel.geometries | SceneModel.geometries}.
    * - Use {@link compressGeometryParams | compressGeometryParams} to pre-compress {@link SceneGeometryParams | SceneGeometryParams}
    *   into {@link SceneGeometryCompressedParams | SceneGeometryCompressedParams}.
-   * - Fires {@link Scene.events.onSceneGeometryCreated | Scene.events.onSceneGeometryCreated} event.
+   * - Fires {@link SceneEvents.onSceneGeometryCreated | SceneEvents.onSceneGeometryCreated} event.
    *
    * ### Usage
    *
@@ -13548,17 +13918,17 @@ var SceneModel2 = class {
    * @param geometryCompressedParams Pre-compressed geometry parameters.
    *
    * @returns SDKResult with:
-   * * - On success, the created {@link SceneGeometry}.
-   * * - On failure, an error message. Reasons for failure include:
-   * *    - If this SceneModel has already been destroyed.
-   * *    - Invalid SceneGeometryParams were given.
-   * *    - SceneGeometry of given ID already exists in this SceneModel.
-   * *    - Unsupported primitive type given.
-   * *    - Mandatory vertex positions were not given. Vertex positions are mandatory for all primitive types.
-   * *    - Mandatory indices were not given for primitive type that is not {@link constants!PointsPrimitive}. Indices are mandatory for all primitive types except PointsPrimitive.
-   * *    - Indices out of range of vertex positions.
-   * *    - Indices out of range of vertex UVs.
-   * *    - Mismatch between given quantities of vertex positions and UVs.
+   * * On success, the created {@link SceneGeometry}.
+   * * On failure, an error message. Reasons for failure include:
+   *   - If this SceneModel has already been destroyed.
+   *   - Invalid SceneGeometryParams were given.
+   *   - SceneGeometry of given ID already exists in this SceneModel.
+   *   - Unsupported primitive type given.
+   *   - Mandatory vertex positions were not given. Vertex positions are mandatory for all primitive types.
+   *   - Mandatory indices were not given for primitive type that is not {@link constants!PointsPrimitive}. Indices are mandatory for all primitive types except PointsPrimitive.
+   *   - Indices out of range of vertex positions.
+   *   - Indices out of range of vertex UVs.
+   *   - Mismatch between given quantities of vertex positions and UVs.
    */
   createGeometryCompressed(geometryCompressedParams) {
     if (this.destroyed) {
@@ -13647,6 +14017,16 @@ var SceneModel2 = class {
     const sceneGeometry = new SceneGeometry(this, geometryCompressedParams);
     this.geometries[geometryId] = sceneGeometry;
     this.stats.numGeometries++;
+    if (indices) {
+      if (sceneGeometry.primitive === TrianglesPrimitive) {
+        this.stats.numTriangles += indices.length / 3;
+      } else if (sceneGeometry.primitive === LinesPrimitive) {
+        this.stats.numLines += indices.length / 2;
+      }
+    } else if (sceneGeometry.primitive === PointsPrimitive) {
+      this.stats.numPoints += positionsCompressed.length / 3;
+    }
+    this.stats.numVertices += positionsCompressed.length / 3;
     this.scene.events.onSceneGeometryCreated.dispatch(this.scene, sceneGeometry);
     return {
       ok: true,
@@ -13717,13 +14097,12 @@ var SceneModel2 = class {
    * @returns SDKResult with:
    * * On success, the created {@link SceneMesh}.
    * * On failure, an error message. Reasons for failure include:
-   *  - If this SceneModel has already been destroyed.
-   *  - Invalid {@link SceneMeshParams} were given.
-   *  - A {@link SceneMesh} with the given ID already exists in this SceneModel.
-   *  - The specified parent {@link SceneTransform} was not found.
-   *  - The specified {@link SceneGeometry} was not found.
-   *  - The specified {@link SceneTextureSet} was not found.
-   *
+   *   - If this SceneModel has already been destroyed.
+   *   - Invalid {@link SceneMeshParams} were given.
+   *   - A {@link SceneMesh} with the given ID already exists in this SceneModel.
+   *   - The specified parent {@link SceneTransform} was not found.
+   *   - The specified {@link SceneGeometry} was not found.
+   *   - The specified {@link SceneTextureSet} was not found.
    */
   createMesh(meshParams) {
     let {
@@ -13847,7 +14226,7 @@ var SceneModel2 = class {
       opacity
     });
     if (transform) {
-      sceneMesh.setParentTransform(transform);
+      sceneMesh.setParentTransform(transform.id);
     }
     geometry.numMeshes++;
     this.meshes[id] = sceneMesh;
@@ -13919,11 +14298,11 @@ var SceneModel2 = class {
    * @returns SDKResult with:
    * * On success, the created {@link SceneObject}.
    * * On failure, an error message. Reasons for failure include:
-   *  - If this SceneModel has already been destroyed.
-   *  - No {@link SceneMesh} IDs were specified.
-   *  - A {@link SceneObject} with the given ID already exists in this SceneModel's {@link Scene | Scene}.
-   *  - A specified {@link SceneMesh} was not found.
-   *  - A specified {@link SceneMesh} already belongs to an existing {@link SceneObject}.
+   *   - If this SceneModel has already been destroyed.
+   *   - No {@link SceneMesh} IDs were specified.
+   *   - A {@link SceneObject} with the given ID already exists in this SceneModel's {@link Scene | Scene}.
+   *   - A specified {@link SceneMesh} was not found.
+   *   - A specified {@link SceneMesh} already belongs to an existing {@link SceneObject}.
    */
   createObject(objectParams) {
     const {
@@ -13994,6 +14373,18 @@ var SceneModel2 = class {
     };
   }
   /**
+   * Marks this transform globally dirty and propagates that state to all descendants.
+   * @internal
+   */
+  setGlobalMatrixDirty() {
+    for (const id in this.transforms) {
+      this.transforms[id].setGlobalMatrixDirty();
+    }
+    for (const id in this.meshes) {
+      this.meshes[id].setGlobalMatrixDirty();
+    }
+  }
+  /**
    * @private
    * Destroys a {@link SceneObject} previously created in this model.
    * Called by a {@link SceneObject} when it is destroyed.
@@ -14032,6 +14423,9 @@ var SceneModel2 = class {
         type: 1 /* InvalidOperation */,
         error: "[SceneModel.fromParams] SceneModel already destroyed"
       });
+    }
+    if (sceneModelParams.coordinateSystem) {
+      this.coordinateSystem.fromParams(sceneModelParams.coordinateSystem);
     }
     if (sceneModelParams.transforms) {
       for (let i = 0, len = sceneModelParams.transforms.length; i < len; i++) {
@@ -14106,6 +14500,7 @@ var SceneModel2 = class {
     }
     const sceneModelParams = {
       id: this.id,
+      coordinateSystem: this.coordinateSystem.toParams(),
       geometriesCompressed: [],
       textures: [],
       textureSets: [],
@@ -14459,7 +14854,16 @@ var Scene = class {
   constructor(params) {
     this.id = params?.id || createUUID();
     this.events = new SceneEvents();
-    this.coordinateSystem = new CoordinateSystem(this, params?.coordinateSystem);
+    this.coordinateSystem = new CoordinateSystem(
+      this,
+      () => {
+        for (const modelId in this.models) {
+          const model = this.models[modelId];
+          model.setGlobalMatrixDirty();
+        }
+      },
+      params?.coordinateSystem
+    );
     this.models = {};
     this.objects = {};
     this.logging = params?.logging ?? false;
@@ -14649,7 +15053,10 @@ function getPositionsWorldAABB3(positionsCompressed, aabb, matrix, worldAABB) {
   return worldAABB;
 }
 var SceneAABB3Index = class {
-  #scene;
+  /**
+   * The Scene for which this index computes AABBs.
+   */
+  scene;
   #meshAABBs = /* @__PURE__ */ new Map();
   #objectAABBs = /* @__PURE__ */ new Map();
   #meshDirty = /* @__PURE__ */ new Set();
@@ -14663,7 +15070,7 @@ var SceneAABB3Index = class {
    * @param scene The scene to tileIndex.
    */
   constructor(scene) {
-    this.#scene = scene;
+    this.scene = scene;
     this.#sceneAABB = createAABB3Float64();
     this.#sceneCenter = createVec3Float64();
     this.#sceneAABBDirty = true;
@@ -14716,7 +15123,8 @@ var SceneAABB3Index = class {
       getPositionsWorldAABB3(
         mesh.geometry.positionsCompressed,
         mesh.geometry.aabb,
-        mesh.matrix,
+        // Dequantization AABB
+        mesh.globalMatrix,
         aabb
       );
       this.#meshDirty.delete(mesh.id);
@@ -14724,7 +15132,7 @@ var SceneAABB3Index = class {
     return aabb;
   }
   #getObjectAABB(objectId) {
-    const object = this.#scene.objects[objectId];
+    const object = this.scene.objects[objectId];
     if (!object)
       return null;
     let aabb = this.#objectAABBs.get(objectId);
@@ -14754,7 +15162,7 @@ var SceneAABB3Index = class {
   getSceneAABB() {
     if (this.#objectDirty.size > 0) {
       collapseAABB3(this.#sceneAABB);
-      for (const object of Object.values(this.#scene.objects)) {
+      for (const object of Object.values(this.scene.objects)) {
         const aabb = this.#getObjectAABB(object.id);
         if (aabb) {
           expandAABB3(this.#sceneAABB, aabb);
@@ -29825,16 +30233,16 @@ var GLTFWriter = class {
         context.accessorIndexMap.set(accessor, json.accessors.length - 1);
         const indices = [];
         const values = [];
-        const el = [];
+        const el12 = [];
         const base = new Array(accessor.getElementSize()).fill(0);
         for (let i = 0, il = accessor.getCount(); i < il; i++) {
-          accessor.getElement(i, el);
-          if (MathUtils.eq(el, base, 0))
+          accessor.getElement(i, el12);
+          if (MathUtils.eq(el12, base, 0))
             continue;
           maxIndex = Math.max(i, maxIndex);
           indices.push(i);
-          for (let j = 0; j < el.length; j++)
-            values.push(el[j]);
+          for (let j = 0; j < el12.length; j++)
+            values.push(el12[j]);
         }
         const count = indices.length;
         const data = {
@@ -31372,11 +31780,11 @@ function parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces, meshIds)
         pv.unshift(tempVec2a[0]);
         pv.unshift(tempVec2a[1]);
       }
-      const tr = earcut(pv, holes, 2);
-      for (let k = 0; k < tr.length; k += 3) {
-        geometryCfg.indices.unshift(face[tr[k]]);
-        geometryCfg.indices.unshift(face[tr[k + 1]]);
-        geometryCfg.indices.unshift(face[tr[k + 2]]);
+      const tr2 = earcut(pv, holes, 2);
+      for (let k = 0; k < tr2.length; k += 3) {
+        geometryCfg.indices.unshift(face[tr2[k]]);
+        geometryCfg.indices.unshift(face[tr2[k + 1]]);
+        geometryCfg.indices.unshift(face[tr2[k + 2]]);
       }
     }
     const geometryId = "" + ctx.nextId++;
@@ -31508,11 +31916,11 @@ function parseSurfacesWithSharedMaterial(ctx, surfaces, sharedIndices, primitive
         pv.unshift(tempVec2a[0]);
         pv.unshift(tempVec2a[1]);
       }
-      const tr = earcut(pv, holes, 2);
-      for (let k = 0; k < tr.length; k += 3) {
-        primitiveCfg.indices.unshift(boundary[tr[k]]);
-        primitiveCfg.indices.unshift(boundary[tr[k + 1]]);
-        primitiveCfg.indices.unshift(boundary[tr[k + 2]]);
+      const tr2 = earcut(pv, holes, 2);
+      for (let k = 0; k < tr2.length; k += 3) {
+        primitiveCfg.indices.unshift(boundary[tr2[k]]);
+        primitiveCfg.indices.unshift(boundary[tr2[k + 1]]);
+        primitiveCfg.indices.unshift(boundary[tr2[k + 2]]);
       }
     }
   }
@@ -97116,33 +97524,50 @@ function xgfToModel(params) {
       type: "BasicEntity"
     });
   }
-  const numGeometries = xgfData.eachGeometryPositionsBase.length;
-  const numMeshes = xgfData.eachMeshGeometriesBase.length;
-  const numObjects = xgfData.eachObjectMeshesBase.length;
+  const {
+    eachGeometryPositionsBase,
+    eachGeometryIndicesBase,
+    eachGeometryEdgeIndicesBase,
+    eachGeometryAABBBase,
+    eachGeometryPrimitiveType,
+    eachMeshGeometriesBase,
+    eachMeshMaterialAttributes,
+    eachMeshMatricesBase,
+    eachObjectMeshesBase,
+    eachObjectId,
+    positions,
+    indices,
+    edgeIndices,
+    aabbs,
+    matrices
+  } = xgfData;
+  const numGeometries = eachGeometryPositionsBase.length;
+  const numMeshes = eachMeshGeometriesBase.length;
+  const numObjects = eachObjectMeshesBase.length;
   let nextMeshId = 0;
-  const geometryCreated = {};
+  const floatColor = createVec3Float32();
   for (let objectIdx = 0; objectIdx < numObjects; objectIdx++) {
-    const objectId = xgfData.eachObjectId[objectIdx];
+    const objectId = eachObjectId[objectIdx];
     const lastObjectIdx = numObjects - 1;
     const atLastObject = objectIdx === lastObjectIdx;
-    const firstMeshIdx = xgfData.eachObjectMeshesBase[objectIdx];
-    const lastMeshIdx = atLastObject ? numMeshes - 1 : xgfData.eachObjectMeshesBase[objectIdx + 1] - 1;
+    const firstMeshIdx = eachObjectMeshesBase[objectIdx];
+    const lastMeshIdx = atLastObject ? numMeshes - 1 : eachObjectMeshesBase[objectIdx + 1] - 1;
     const meshIds = [];
     for (let meshIdx = firstMeshIdx; meshIdx <= lastMeshIdx; meshIdx++) {
       const meshId = `${nextMeshId++}`;
       if (sceneModel) {
-        const geometryIdx = xgfData.eachMeshGeometriesBase[meshIdx];
-        const color2 = decompressColor(xgfData.eachMeshMaterialAttributes.subarray(meshIdx * 4, meshIdx * 4 + 3));
-        const opacity = xgfData.eachMeshMaterialAttributes[meshIdx * 4 + 3] / 255;
-        const matricesBase = xgfData.eachMeshMatricesBase[meshIdx];
-        const matrix = xgfData.matrices.subarray(matricesBase, matricesBase + 16);
+        const geometryIdx = eachMeshGeometriesBase[meshIdx];
+        const colorBase = meshIdx * 4;
+        floatColor[0] = eachMeshMaterialAttributes[colorBase] / 255;
+        floatColor[1] = eachMeshMaterialAttributes[colorBase + 1] / 255;
+        floatColor[2] = eachMeshMaterialAttributes[colorBase + 2] / 255;
+        const opacity = eachMeshMaterialAttributes[colorBase + 3] / 255;
+        const matricesBase = eachMeshMatricesBase[meshIdx];
+        const matrix = matrices.subarray(matricesBase, matricesBase + 16);
         const geometryId = `${geometryIdx}`;
-        if (!geometryCreated[geometryId]) {
-          const geometryCompressedParams = {
-            id: geometryId
-          };
-          const primitiveType = xgfData.eachGeometryPrimitiveType[geometryIdx];
-          switch (primitiveType) {
+        if (!sceneModel.geometries[geometryId]) {
+          const geometryCompressedParams = { id: geometryId };
+          switch (eachGeometryPrimitiveType[geometryIdx]) {
             case 0:
               geometryCompressedParams.primitive = TrianglesPrimitive;
               break;
@@ -97159,26 +97584,37 @@ function xgfToModel(params) {
               geometryCompressedParams.primitive = PointsPrimitive;
               break;
           }
-          const aabbsBase = xgfData.eachGeometryAABBBase[geometryIdx];
-          geometryCompressedParams.aabb = xgfData.aabbs.subarray(aabbsBase, aabbsBase + 6);
+          const aabbsBase = eachGeometryAABBBase[geometryIdx];
+          geometryCompressedParams.aabb = aabbs.subarray(aabbsBase, aabbsBase + 6);
           let geometryValid = false;
           const atLastGeometry = geometryIdx === numGeometries - 1;
+          const posStart = eachGeometryPositionsBase[geometryIdx];
+          const posEnd = atLastGeometry ? positions.length : eachGeometryPositionsBase[geometryIdx + 1];
+          const indStart = eachGeometryIndicesBase[geometryIdx];
+          const indEnd = atLastGeometry ? indices.length : eachGeometryIndicesBase[geometryIdx + 1];
+          const edgeStart = eachGeometryEdgeIndicesBase[geometryIdx];
+          const edgeEnd = atLastGeometry ? edgeIndices.length : eachGeometryEdgeIndicesBase[geometryIdx + 1];
           switch (geometryCompressedParams.primitive) {
             case TrianglesPrimitive:
             case SurfacePrimitive:
             case SolidPrimitive:
-              geometryCompressedParams.positionsCompressed = xgfData.positions.subarray(xgfData.eachGeometryPositionsBase[geometryIdx], atLastGeometry ? xgfData.positions.length : xgfData.eachGeometryPositionsBase[geometryIdx + 1]);
-              geometryCompressedParams.indices = xgfData.indices.subarray(xgfData.eachGeometryIndicesBase[geometryIdx], atLastGeometry ? xgfData.indices.length : xgfData.eachGeometryIndicesBase[geometryIdx + 1]);
-              geometryCompressedParams.edgeIndices = xgfData.edgeIndices.subarray(xgfData.eachGeometryEdgeIndicesBase[geometryIdx], atLastGeometry ? xgfData.edgeIndices.length : xgfData.eachGeometryEdgeIndicesBase[geometryIdx + 1]);
-              geometryValid = geometryCompressedParams.positionsCompressed.length > 0 && geometryCompressedParams.indices.length > 0;
+              geometryCompressedParams.positionsCompressed = positions.subarray(posStart, posEnd);
+              geometryCompressedParams.indices = indices.subarray(indStart, indEnd);
+              const edgeIndicesSubArray = edgeIndices.subarray(edgeStart, edgeEnd);
+              if (edgeIndicesSubArray.length > 0) {
+                geometryCompressedParams.edgeIndices = edgeIndicesSubArray;
+                geometryValid = geometryCompressedParams.positionsCompressed.length > 0 && geometryCompressedParams.indices.length > 0;
+              } else {
+                geometryValid = false;
+              }
               break;
             case PointsPrimitive:
-              geometryCompressedParams.positionsCompressed = xgfData.positions.subarray(xgfData.eachGeometryPositionsBase[geometryIdx], atLastGeometry ? xgfData.positions.length : xgfData.eachGeometryPositionsBase[geometryIdx + 1]);
+              geometryCompressedParams.positionsCompressed = positions.subarray(posStart, posEnd);
               geometryValid = geometryCompressedParams.positionsCompressed.length > 0;
               break;
             case LinesPrimitive:
-              geometryCompressedParams.positionsCompressed = xgfData.positions.subarray(xgfData.eachGeometryPositionsBase[geometryIdx], atLastGeometry ? xgfData.positions.length : xgfData.eachGeometryPositionsBase[geometryIdx + 1]);
-              geometryCompressedParams.indices = xgfData.indices.subarray(xgfData.eachGeometryIndicesBase[geometryIdx], atLastGeometry ? xgfData.indices.length : xgfData.eachGeometryIndicesBase[geometryIdx + 1]);
+              geometryCompressedParams.positionsCompressed = positions.subarray(posStart, posEnd);
+              geometryCompressedParams.indices = indices.subarray(indStart, indEnd);
               geometryValid = geometryCompressedParams.positionsCompressed.length > 0 && geometryCompressedParams.indices.length > 0;
               break;
             default:
@@ -97186,14 +97622,14 @@ function xgfToModel(params) {
           }
           if (geometryValid) {
             sceneModel.createGeometryCompressed(geometryCompressedParams);
-            geometryCreated[geometryId] = true;
           }
         }
         sceneModel.createMesh({
           id: meshId,
           geometryId,
           matrix,
-          color: color2,
+          color: floatColor.slice(0, 3),
+          // Copy to avoid mutation
           opacity
         });
       }
@@ -97221,15 +97657,6 @@ function xgfToModel(params) {
     }
   }
 }
-var decompressColor = function() {
-  const floatColor = createVec3Float32();
-  return function(intColor) {
-    floatColor[0] = intColor[0] / 255;
-    floatColor[1] = intColor[1] / 255;
-    floatColor[2] = intColor[2] / 255;
-    return floatColor;
-  };
-}();
 
 // ../sdk/src/formats/xgf/versions/v1/parse.ts
 function parse7(params, options) {
@@ -97303,13 +97730,13 @@ function modelToXGF(params) {
     edgeIndices: new Uint32Array(sizeEdgeIndices),
     aabbs: null,
     eachGeometryPositionsBase: new Uint32Array(numGeometries),
-    // For each geometry, an tileIndex to its first element in xgfData.positions. Every primitive type has positions.
+    // For each geometry, the index of its first element in xgfData.positions. Every primitive type has positions.
     eachGeometryColorsBase: new Uint32Array(numGeometries),
-    // For each geometry, an tileIndex to its first element in xgfData.colors. If the next geometry has the same tileIndex, then this geometry has no colors.
+    // For each geometry, the index of its first element in xgfData.colors. If the next geometry has the same index, then this geometry has no colors.
     eachGeometryIndicesBase: new Uint32Array(numGeometries),
-    // For each geometry, an tileIndex to its first element in xgfData.indices. If the next geometry has the same tileIndex, then this geometry has no indices.
+    // For each geometry, the index of its first element in xgfData.indices. If the next geometry has the same index, then this geometry has no indices.
     eachGeometryEdgeIndicesBase: new Uint32Array(numGeometries),
-    // For each geometry, an tileIndex to its first element in xgfData.edgeIndices. If the next geometry has the same tileIndex, then this geometry has no edge indices.
+    // For each geometry, the index of its first element in xgfData.edgeIndices. If the next geometry has the same index, then this geometry has no edge indices.
     eachGeometryPrimitiveType: new Uint8Array(numGeometries),
     // Primitive type for each geometry (0=solid triangles, 1=surface triangles, 2=lines, 3=points)
     eachGeometryAABBBase: new Uint32Array(numGeometries),
@@ -97317,15 +97744,15 @@ function modelToXGF(params) {
     matrices: null,
     // Modeling matrices
     eachMeshGeometriesBase: new Uint32Array(numMeshes),
-    // For each mesh, an tileIndex into the eachGeometry* arrays
+    // For each mesh, an index into the eachGeometry* arrays
     eachMeshMatricesBase: new Uint32Array(numMeshes),
-    // For each mesh that shares its geometry, an tileIndex to its first element in xgfData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
+    // For each mesh that shares its geometry, the index of its first element in xgfData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
     eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES),
     // For each mesh, an RGBA integer color of format [0..255, 0..255, 0..255, 0..255], and PBR metallic and roughness factors, of format [0..255, 0..255]
     eachObjectId: [],
     // For each object, an ID string
     eachObjectMeshesBase: new Uint32Array(numObjects)
-    // For each object, the tileIndex of the first element of meshes used by the object
+    // For each object, the index of the first element of meshes used by the object
   };
   let positionsBase = 0;
   let colorsBase = 0;
@@ -97639,7 +98066,7 @@ function lineStripToLines(positions, indices) {
   }
   return linesIndices;
 }
-var decompressColor2 = function() {
+var decompressColor = function() {
   const floatColor = createVec3Float32();
   return function(intColor) {
     floatColor[0] = intColor[0] / 255;
@@ -97799,7 +98226,7 @@ function xktToModel(params) {
         const atLastGeometry = geometryIndex === numGeometries - 1;
         const textureSetIndex = eachMeshTextureSet[meshIndex];
         const textureSetId = textureSetIndex >= 0 ? `${modelPartId}-textureSet-${textureSetIndex}` : null;
-        const meshColor = decompressColor2(eachMeshMaterialAttributes.subarray(meshIndex * 6, meshIndex * 6 + 3));
+        const meshColor = decompressColor(eachMeshMaterialAttributes.subarray(meshIndex * 6, meshIndex * 6 + 3));
         const meshOpacity = eachMeshMaterialAttributes[meshIndex * 6 + 3] / 255;
         const meshMetallic = eachMeshMaterialAttributes[meshIndex * 6 + 4] / 255;
         const meshRoughness = eachMeshMaterialAttributes[meshIndex * 6 + 5] / 255;
@@ -109482,7 +109909,7 @@ function getModule() {
         c3[e2 >> 2] = c3[b5 >> 2];
         c3[e2 + 4 >> 2] = h2;
         h2 = Ak() | 0;
-        g2 = el(f2) | 0;
+        g2 = el12(f2) | 0;
         f2 = fl(f2) | 0;
         b5 = jl() | 0;
         F(h2 | 0, a3 | 0, g2 | 0, f2 | 0, b5 | 0, 7, gl(e2) | 0, 0);
@@ -109504,7 +109931,7 @@ function getModule() {
         da[b5 & 15](a3, f2);
         return;
       }
-      function el(a3) {
+      function el12(a3) {
         a3 = a3 | 0;
         return 3;
       }
@@ -110693,7 +111120,7 @@ function getModule() {
         a3 = a3 | 0;
         b5 = b5 | 0;
         var c4 = 0;
-        c4 = tr(a3 | 0) | 0;
+        c4 = tr2(a3 | 0) | 0;
         return ((b5 | 0) == 0 ? a3 : c4) | 0;
       }
       function no(b5, d2, e2) {
@@ -115866,7 +116293,7 @@ function getModule() {
       function sr() {
         return 22176;
       }
-      function tr(a3) {
+      function tr2(a3) {
         a3 = a3 | 0;
         return (a3 & 255) << 24 | (a3 >> 8 & 255) << 16 | (a3 >> 16 & 255) << 8 | a3 >>> 24 | 0;
       }
@@ -116504,7 +116931,7 @@ function getModule() {
         _free: er,
         _i64Add: lr,
         _i64Subtract: mr,
-        _llvm_bswap_i32: tr,
+        _llvm_bswap_i32: tr2,
         _malloc: dr,
         _memcpy: ur,
         _memmove: vr,
@@ -118190,6 +118617,8 @@ __export(viewer_exports, {
   View: () => View,
   ViewLayer: () => ViewLayer,
   ViewObject: () => ViewObject,
+  ViewTransform: () => ViewTransform,
+  ViewTransformParams: () => ViewTransformParams,
   Viewer: () => Viewer,
   ViewerEvents: () => ViewerEvents
 });
@@ -122587,6 +123016,421 @@ var ViewLayer = class {
 
 // ../sdk/src/viewer/View.ts
 var import_strongly_typed_events8 = __toESM(require_dist8());
+
+// ../sdk/src/viewer/ViewTransformParams.ts
+var ViewTransformParams = class {
+  /**
+   * Unique ID of this SceneTransform.
+   */
+  id;
+  /**
+   * A flat 4x4 matrix that defines the local transform.
+   */
+  matrix;
+  /**
+   * Optional local 3D translation vector.
+   */
+  position;
+  /**
+   * Optional local 3D scale vector.
+   */
+  scale;
+  /**
+   * Optional local 3D rotation quaternion.
+   */
+  quaternion;
+  /**
+   * Optional local 3D rotation as Euler angles in degrees for X, Y and Z axis.
+   */
+  rotation;
+  /**
+   * ID of the parent {@link ViewTransform} that was created previously
+   * with {@link View.createTransform | View.createTransform}.
+   */
+  parentTransformId;
+};
+
+// ../sdk/src/viewer/ViewTransform.ts
+var ViewTransform = class {
+  /** Unique identifier for this transform within its owning {@link View} or {@link ViewLayer}. */
+  id;
+  /** Owning {@link View}. */
+  view;
+  /** Owning {@link ViewLayer}, when the transform is layer-scoped. */
+  layer;
+  _scale = createVec3Float64([1, 1, 1]);
+  _rotation = createVec3Float64([0, 0, 0]);
+  _position = createVec3Float64([0, 0, 0]);
+  _quaternion = createQuatFloat64();
+  _localMatrix = identityMat4();
+  _globalMatrix;
+  _localMatrixDirty = false;
+  _globalMatrixDirty = true;
+  _childTransforms = [];
+  _parentTransform = null;
+  /** ViewObject IDs associated with this transform. */
+  _viewObjectIds = /* @__PURE__ */ new Set();
+  /** True once {@link destroy} has been called. */
+  destroyed = false;
+  _markTreeDirtyTask;
+  /**
+   * @private
+   */
+  constructor(view, params) {
+    this.id = params.id;
+    this.view = view;
+    this.layer = params.layer ?? null;
+    this._localMatrix = params.matrix ? createMat4Float64(params.matrix) : identityMat4();
+    this._globalMatrix = createMat4Float64();
+    this._markTreeDirtyTask = new SDKTask({
+      name: "ViewTransform._markTreeDirtyTask",
+      stage: SDKTask.ComputeStage,
+      task: () => this._markTransformDirty()
+    });
+    if (params.matrix) {
+      this.matrix = params.matrix;
+    } else {
+      this.scale = params.scale;
+      this.position = params.position;
+      if (params.quaternion) {
+        this.quaternion = params.quaternion;
+      } else {
+        this.rotation = params.rotation;
+      }
+    }
+    if (params.parentTransformId) {
+      this.setParentTransform(params.parentTransformId, { preserveWorld: false });
+    }
+    if (params.viewObjectIds?.length) {
+      for (const id of params.viewObjectIds) {
+        this._viewObjectIds.add(id);
+      }
+    }
+  }
+  // ---------------------------------------------------------------------------------------------
+  // Local TRS
+  // ---------------------------------------------------------------------------------------------
+  set scale(scale3) {
+    if (this.destroyed) {
+      this._logDestroyed("[ViewTransform.scale] Cannot set scale on destroyed ViewTransform");
+      return;
+    }
+    this._scale.set(scale3 ?? [1, 1, 1]);
+    this._setLocalDirty();
+  }
+  get scale() {
+    return this._scale;
+  }
+  set rotation(rotation) {
+    if (this.destroyed) {
+      this._logDestroyed("[ViewTransform.rotation] Cannot set rotation on destroyed ViewTransform");
+      return;
+    }
+    this._rotation.set(rotation ?? [0, 0, 0]);
+    eulerToQuat(this._rotation, "XYZ", this._quaternion);
+    this._setLocalDirty();
+  }
+  get rotation() {
+    return this._rotation;
+  }
+  set quaternion(quaternion) {
+    if (this.destroyed) {
+      this._logDestroyed("[ViewTransform.quaternion] Cannot set quaternion on destroyed ViewTransform");
+      return;
+    }
+    this._quaternion.set(quaternion);
+    quatToEuler(this._quaternion, "XYZ", this._rotation);
+    this._setLocalDirty();
+  }
+  get quaternion() {
+    return this._quaternion;
+  }
+  set position(position) {
+    if (this.destroyed) {
+      this._logDestroyed("[ViewTransform.position] Cannot set position on destroyed ViewTransform");
+      return;
+    }
+    this._position.set(position ?? [0, 0, 0]);
+    this._setLocalDirty();
+  }
+  get position() {
+    return this._position;
+  }
+  // ---------------------------------------------------------------------------------------------
+  // Matrices
+  // ---------------------------------------------------------------------------------------------
+  set matrix(matrix) {
+    if (this.destroyed) {
+      this._logDestroyed("[ViewTransform.matrix] Cannot set matrix on destroyed ViewTransform");
+      return;
+    }
+    if (matrix) {
+      this._localMatrix.set(matrix);
+    } else {
+      identityMat4(this._localMatrix);
+    }
+    decomposeMat4(this._localMatrix, this._position, this._quaternion, this._scale);
+    quatToEuler(this._quaternion, "XYZ", this._rotation);
+    this._localMatrixDirty = false;
+    this._markTreeDirtyTask.schedule();
+  }
+  get matrix() {
+    if (this._localMatrixDirty) {
+      composeMat4(
+        this._position,
+        eulerToQuat(this._rotation, "XYZ", identityQuat()),
+        this._scale,
+        this._localMatrix
+      );
+      this._localMatrixDirty = false;
+    }
+    return this._localMatrix;
+  }
+  /**
+   * Returns the composed transform matrix for this node within the ViewTransform hierarchy.
+   * Intended for renderer use when building the per-object view transform product.
+   */
+  get globalMatrix() {
+    if (this._globalMatrixDirty) {
+      if (this._parentTransform) {
+        mulMat4(this._parentTransform.globalMatrix, this.matrix, this._globalMatrix);
+      } else {
+        this._globalMatrix.set(this.matrix);
+      }
+      this._globalMatrixDirty = false;
+    }
+    return this._globalMatrix;
+  }
+  // ---------------------------------------------------------------------------------------------
+  // Hierarchy
+  // ---------------------------------------------------------------------------------------------
+  get parentTransform() {
+    return this._parentTransform;
+  }
+  get childTransforms() {
+    return this._childTransforms;
+  }
+  _markTransformDirty() {
+    this._globalMatrixDirty = true;
+    for (const child of this._childTransforms) {
+      child._markTransformDirty();
+    }
+  }
+  _attachParentTransform(parent) {
+    if (this._parentTransform === parent)
+      return;
+    if (this._parentTransform) {
+      const i = this._parentTransform._childTransforms.indexOf(this);
+      if (i !== -1)
+        this._parentTransform._childTransforms.splice(i, 1);
+    }
+    this._parentTransform = parent;
+    if (parent)
+      parent._childTransforms.push(this);
+    this._markTreeDirtyTask.schedule();
+  }
+  setParentTransform(parentTransformId, opts) {
+    if (this.destroyed) {
+      return this._logErrorResult(
+        "[ViewTransform.setParentTransform] Cannot set parent transform on destroyed ViewTransform"
+      );
+    }
+    let parent = null;
+    if (parentTransformId) {
+      if (parentTransformId === this.id) {
+        return this._logErrorResult(
+          `[ViewTransform.setParentTransform] Cannot set parent transform to self on ViewTransform ${this.id}`
+        );
+      }
+      parent = this._resolveTransform(parentTransformId);
+      if (!parent) {
+        return this._logErrorResult(
+          `[ViewTransform.setParentTransform] ViewTransform "${parentTransformId}" not found in owning scope`
+        );
+      }
+    }
+    const preserve = !!opts?.preserveWorld;
+    if (preserve) {
+      this._updateGlobal();
+      const currentWorld = createMat4Float64(this._globalMatrix);
+      this._attachParentTransform(parent);
+      if (this._parentTransform) {
+        const invParent = inverseMat4(this._parentTransform._globalMatrix, createMat4Float64());
+        mulMat4(invParent, currentWorld, this._localMatrix);
+      } else {
+        this._localMatrix.set(currentWorld);
+      }
+      this._markTreeDirtyTask.schedule();
+    } else {
+      this._attachParentTransform(parent);
+    }
+    return { ok: true, value: void 0 };
+  }
+  addChildTransform(childTransformId, opts) {
+    if (this.destroyed) {
+      return this._logErrorResult(
+        `[ViewTransform.addChildTransform] Cannot add child transform to destroyed ViewTransform ${this.id}`
+      );
+    }
+    const child = this._resolveTransform(childTransformId);
+    if (!child) {
+      return this._logErrorResult(
+        `[ViewTransform.addChildTransform] ViewTransform "${childTransformId}" not found in owning scope`
+      );
+    }
+    return child.setParentTransform(this.id, opts);
+  }
+  removeChildTransform(childTransformId) {
+    if (this.destroyed) {
+      return this._logErrorResult(
+        `[ViewTransform.removeChildTransform] Cannot remove child transform from destroyed ViewTransform ${this.id}`
+      );
+    }
+    const child = this._resolveTransform(childTransformId);
+    if (!child) {
+      return this._logErrorResult(
+        `[ViewTransform.removeChildTransform] ViewTransform "${childTransformId}" not found in owning scope`
+      );
+    }
+    if (child._parentTransform === this) {
+      child.setParentTransform(null, { preserveWorld: false });
+    }
+    return { ok: true, value: void 0 };
+  }
+  // ---------------------------------------------------------------------------------------------
+  // ViewObject association
+  // ---------------------------------------------------------------------------------------------
+  /**
+   * Associates a {@link ViewObject} (by ID) with this transform.
+   *
+   * The owning {@link View}/{@link ViewLayer} is expected to use this association to apply
+   * the transform product to the ViewObject at render time.
+   */
+  attachViewObject(viewObjectId) {
+    if (this.destroyed) {
+      return this._logErrorResult(
+        `[ViewTransform.attachViewObject] Cannot attach ViewObject to destroyed ViewTransform ${this.id}`
+      );
+    }
+    if (!viewObjectId) {
+      return this._logErrorResult("[ViewTransform.attachViewObject] viewObjectId is required");
+    }
+    const vo = this._resolveViewObject(viewObjectId);
+    if (!vo) {
+      return this._logErrorResult(
+        `[ViewTransform.attachViewObject] ViewObject "${viewObjectId}" not found in owning scope`
+      );
+    }
+    this._viewObjectIds.add(viewObjectId);
+    return { ok: true, value: void 0 };
+  }
+  /**
+   * Removes an association created by {@link attachViewObject}.
+   */
+  detachViewObject(viewObjectId) {
+    if (this.destroyed) {
+      return this._logErrorResult(
+        `[ViewTransform.detachViewObject] Cannot detach ViewObject from destroyed ViewTransform ${this.id}`
+      );
+    }
+    this._viewObjectIds.delete(viewObjectId);
+    return { ok: true, value: void 0 };
+  }
+  /**
+   * Gets associated {@link ViewObject} IDs.
+   * Intended for renderer integration.
+   */
+  get viewObjectIds() {
+    return this._viewObjectIds;
+  }
+  // ---------------------------------------------------------------------------------------------
+  // Internal / renderer integration
+  // ---------------------------------------------------------------------------------------------
+  /** @private */
+  _updateGlobal(force = false) {
+    if (this._parentTransform) {
+      this._parentTransform._updateGlobal(force);
+      mulMat4(this._parentTransform._globalMatrix, this._localMatrix, this._globalMatrix);
+    } else {
+      this._globalMatrix.set(this._localMatrix);
+    }
+    this._globalMatrixDirty = false;
+    for (const child of this._childTransforms) {
+      child._updateGlobal(force);
+    }
+  }
+  /**
+   * Destroys this transform, detaching it from the hierarchy.
+   * Owning View/ViewLayer should remove it from registries and unlink ViewObjects.
+   */
+  destroy() {
+    if (this.destroyed) {
+      return this._logErrorResult(`[ViewTransform.destroy] ViewTransform ${this.id} already destroyed`);
+    }
+    if (this._parentTransform) {
+      this._parentTransform.removeChildTransform(this.id);
+    }
+    this._parentTransform = null;
+    for (const child of [...this._childTransforms]) {
+      child.setParentTransform(null, { preserveWorld: false });
+    }
+    this._markTreeDirtyTask.destroy();
+    this._childTransforms = [];
+    this._viewObjectIds.clear();
+    this.destroyed = true;
+    return { ok: true, value: void 0 };
+  }
+  // ---------------------------------------------------------------------------------------------
+  // Helpers
+  // ---------------------------------------------------------------------------------------------
+  _setLocalDirty() {
+    this._localMatrixDirty = true;
+    this._markTreeDirtyTask.schedule();
+  }
+  _resolveTransform(id) {
+    const layerAny = this.layer;
+    const viewAny = this.view;
+    if (layerAny?.transforms?.[id])
+      return layerAny.transforms[id];
+    if (viewAny?.transforms?.[id])
+      return viewAny.transforms[id];
+    return null;
+  }
+  _resolveViewObject(id) {
+    const layerAny = this.layer;
+    const viewAny = this.view;
+    if (layerAny?.objects?.[id])
+      return layerAny.objects[id];
+    if (viewAny?.objects?.[id])
+      return viewAny.objects[id];
+    return null;
+  }
+  _logDestroyed(msg) {
+    const viewAny = this.view;
+    if (viewAny?.logError) {
+      viewAny.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `${msg} ${this.id}`
+      });
+      return;
+    }
+    console.error(msg, this.id);
+  }
+  _logErrorResult(error) {
+    const viewAny = this.view;
+    if (viewAny?.logError) {
+      return viewAny.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error
+      });
+    }
+    return { ok: false, error };
+  }
+};
+
+// ../sdk/src/viewer/View.ts
 var View = class {
   /**
    ID of this View, unique within the {@link Viewer | Viewer}.
@@ -122726,6 +123570,10 @@ var View = class {
    */
   lightsList = [];
   gammaOutput;
+  /**
+   * Set of {@link ViewTransform}s in this View.
+   */
+  transforms = /* @__PURE__ */ new Set();
   /**
    * Map of the all {@link ViewLayer}s in this View.
    *
@@ -123934,6 +124782,38 @@ var View = class {
     };
   }
   /**
+   * Creates a {@link ViewTransform} in this View.
+   * @param viewTransformParams
+   */
+  createTransform(viewTransformParams) {
+    if (!viewTransformParams.id) {
+      return this.viewer.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: "[View.createTransform] Missing transform ID."
+      });
+    }
+    let viewTransform = this.transforms[viewTransformParams.id];
+    if (viewTransform) {
+      return {
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[View.createTransform] ViewTransform with ID "${viewTransformParams.id}" already exists.`
+      };
+    }
+    viewTransform = new ViewTransform(this, viewTransformParams);
+    this.transforms[viewTransformParams.id] = viewTransform;
+    this.viewer.events.onViewTransformCreated.dispatch(this, viewTransform);
+    return {
+      ok: true,
+      value: viewTransform
+    };
+  }
+  _destroyTransform(viewTransform) {
+    delete this.transforms[viewTransform.id];
+    this.viewer.events.onViewTransformDestroyed.dispatch(this, viewTransform);
+  }
+  /**
    * @private
    * @param viewLayer
    */
@@ -124138,14 +125018,6 @@ var ViewerEvents = class {
    * Emits an event each time a message is logged by the {@link Viewer}.
    */
   log;
-  /**
-   * Emits an event each time the number of active processes tracked by the {@link Viewer}'s {@link Spinner} changes.
-   */
-  processes;
-  /**
-   * Emits an event each time the number of active processes tracked by the {@link Viewer}'s {@link Spinner} reaches zero.
-   */
-  zeroProcesses;
   //---------------------------- View Events ----------------------------//
   /**
    * Emits an event each time a {@link View} is created within the {@link Viewer}.
@@ -124264,6 +125136,19 @@ var ViewerEvents = class {
    * Emits an event each time {@link SectionPlane.active} changes on a {@link SectionPlane}.
    */
   onSectionPlaneActive;
+  //---------------------------- View Transform Events ----------------------------//
+  /**
+   * Emits an event each time a {@link ViewTransform} is created within a {@link View}.
+   */
+  onViewTransformCreated;
+  /**
+   * Emits an event each time a {@link ViewTransform} is destroyed within a {@link View}.
+   */
+  onViewTransformDestroyed;
+  /**
+  * Emits an event each time a {@link ViewTransform} updates within a {@link View}.
+  */
+  onViewTransformUpdated;
   //---------------------------- Snapshot Events ----------------------------//
   /**
    * Emits an event each time a snapshot is initiated within a {@link View} via {@link View.getSnapshot}.
@@ -124287,8 +125172,6 @@ var ViewerEvents = class {
     this.onSceneDetached = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
     this.onViewerDestroyed = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
     this.onTick = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.processes = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.zeroProcesses = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
     this.log = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
     this.onViewCreated = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
     this.onViewUpdated = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
@@ -124426,7 +125309,7 @@ var Viewer = class {
    * * Creates {@link ViewObject | ViewObjects} in each existing {@link View} for all {@link SceneObject | SceneObjects} in the attached {@link Scene}.
    * * Subscribes to {@link Scene.events.onSceneObjectCreated | Scene.events.onSceneObjectCreated} and {@link Scene.events.onSceneObjectDestroyed | Scene.events.onSceneObjectDestroyed} events to create and destroy {@link ViewObject | ViewObjects} in each existing {@link View} as {@link SceneObject | SceneObjects} are created and destroyed in the attached {@link Scene}.
    *
-   * @param scene - The Scene to attach.
+   * @param scene - The Scene to show.
    * @param scene
    */
   attachScene(scene) {
@@ -124751,7 +125634,7 @@ var Viewer = class {
     const params = {
       views: []
     };
-    this.viewList.map((el) => el.toParams());
+    this.viewList.map((el12) => el12.toParams());
     for (let i = 0; i < this.numViews; i++) {
       const view = this.viewList[i];
       if (view) {
@@ -125467,20 +126350,20 @@ var RENDER_BINS = {
   PICK: "pick"
 };
 
-// ../sdk/src/webglrenderer/internal/inspectors/DrawInspector.ts
+// ../sdk/src/webglrenderer/internal/inspectors/RenderInspector.ts
 var nowMs = () => {
   const p = globalThis?.performance;
   return p?.now ? p.now() : Date.now();
 };
-var DrawInspector = class _DrawInspector {
+var RenderInspector = class _RenderInspector {
   /**
    * Whether the inspector is enabled.
    */
   enabled = false;
   /**
-   * Last completed frame per viewIndex.
+   * Aggregate render stats.
    */
-  frameLogs = [];
+  renderStats;
   /**
    * Last computed fps per viewIndex (null until at least 2 frames end).
    */
@@ -125494,13 +126377,17 @@ var DrawInspector = class _DrawInspector {
   _includedRenderBins;
   _excludedRenderBins;
   /**
-   * Creates a DrawInspector.
+   * Creates a RenderInspector.
    * @param opts
    */
   constructor(opts) {
     this.enabled = opts?.enabled ?? false;
     this._includedRenderBins = new Set(opts?.includeRenderBins ?? []);
     this._excludedRenderBins = new Set(opts?.excludeRenderBins ?? []);
+    this.renderStats = {
+      tiles: {},
+      views: []
+    };
   }
   /**
    * Determines if logging is enabled for the given render bin.
@@ -125517,7 +126404,7 @@ var DrawInspector = class _DrawInspector {
    * Gets the list of all render bin IDs.
    */
   get renderBinIds() {
-    return Object.values(_DrawInspector.renderBins);
+    return Object.values(_RenderInspector.renderBins);
   }
   /**
    * Sets the list of render bins to include in rendering.
@@ -125534,6 +126421,42 @@ var DrawInspector = class _DrawInspector {
    */
   setExcludedRenderBins(renderBinIds) {
     this._excludedRenderBins = new Set(renderBinIds);
+  }
+  /**
+   * Logs the creation of a new tile.
+   * @param tile
+   * @private
+   */
+  tileAcquired(tile) {
+    if (tile.useCount === 1) {
+      this.renderStats.tiles[tile.id] = {
+        id: tile.id,
+        rtcCenter: Array.from(tile.center),
+        size: tile.size,
+        tileIndex: tile.tileIndex,
+        numMeshes: tile.useCount
+      };
+    } else {
+      const existing = this.renderStats.tiles[tile.id];
+      if (existing) {
+        existing.numMeshes = tile.useCount;
+      }
+    }
+  }
+  /**
+   * Logs the disposal of a tile.
+   * @param tile
+   * @private
+   */
+  tileReleased(tile) {
+    if (tile.useCount === 0) {
+      delete this.renderStats.tiles[tile.id];
+    } else {
+      const existing = this.renderStats.tiles[tile.id];
+      if (existing) {
+        existing.numMeshes = tile.useCount;
+      }
+    }
   }
   /**
    * Marks the start of a new frame for the given View.
@@ -125555,7 +126478,8 @@ var DrawInspector = class _DrawInspector {
       // TODO
       renderBins: [],
       timeMs: { start: t, end: t, duration: 0 },
-      numDrawCalls: 0
+      numDrawCalls: 0,
+      numPrims: 0
     };
   }
   /**
@@ -125587,7 +126511,7 @@ var DrawInspector = class _DrawInspector {
    * Duration measured until the next draw (or end of pass / frame).
    * @private
    */
-  drawMeshBatch(meshBatch, renderPass, primRange) {
+  drawMeshBatch(meshBatch, renderPass, primRange, edges) {
     const s = this.getActiveState();
     if (!this.enabled || !s || !s.currentFrame) {
       return;
@@ -125623,6 +126547,9 @@ var DrawInspector = class _DrawInspector {
       default:
         renderBinName = "Unknown";
     }
+    if (edges) {
+      renderBinName = "EDGES_" + renderBinName;
+    }
     let primitiveName;
     switch (meshBatch.primitive) {
       case TrianglesPrimitive:
@@ -125648,6 +126575,7 @@ var DrawInspector = class _DrawInspector {
     s.currentPass.drawCalls.push(draw);
     s.currentDraw = draw;
     s.currentFrame.numDrawCalls++;
+    s.currentFrame.numPrims += primRange.numPrims;
   }
   /**
    * Marks the end of the current frame for the currently active view.
@@ -125664,7 +126592,7 @@ var DrawInspector = class _DrawInspector {
     const t = nowMs();
     s.currentFrame.timeMs.end = t;
     s.currentFrame.timeMs.duration = t - s.currentFrame.timeMs.start;
-    this.frameLogs[viewIndex] = s.currentFrame;
+    this.renderStats.views[viewIndex] = s.currentFrame;
     if (s.lastFrameEndMs != null) {
       const dt = t - s.lastFrameEndMs;
       this.frameRates[viewIndex] = dt > 0 ? 1e3 / dt : null;
@@ -125691,8 +126619,8 @@ var DrawInspector = class _DrawInspector {
         lastFrameEndMs: null
       });
     }
-    while (this.frameLogs.length <= viewIndex)
-      this.frameLogs.push(null);
+    while (this.renderStats.views.length <= viewIndex)
+      this.renderStats.views.push(null);
     while (this.frameRates.length <= viewIndex)
       this.frameRates.push(null);
     return this._states[viewIndex];
@@ -125740,9 +126668,9 @@ var RenderContext = class {
    */
   debugging;
   /**
-   * The DrawInspector for logging draw calls.
+   * The RenderInspector for logging draw calls.
    */
-  drawInspector;
+  renderInspector;
   /**
    * The WebGL rendering context.
    */
@@ -125846,7 +126774,7 @@ var RenderContext = class {
     const { canvas: webglCanvasElement, gl } = result.value;
     this.gl = gl;
     this.webglCanvasElement = webglCanvasElement;
-    this.drawInspector = new DrawInspector();
+    this.renderInspector = new RenderInspector();
     this.debugging = false;
     this.initialized = true;
     this.reset();
@@ -126145,7 +127073,7 @@ var DataTexture = class {
     this.type = params.type;
     this.internalFormat = params.internalFormat;
     this.width = params.width;
-    this.height = Math.max(1, Math.ceil(this.maxItems / this.width));
+    this.height = Math.max(1, Math.ceil(this.maxItems * this.texelsPerItem / this.width));
     switch (this.type) {
       case this.gl.UNSIGNED_BYTE:
         this.bufferClass = Uint8Array;
@@ -126182,7 +127110,15 @@ var DataTexture = class {
    * @internal
    */
   allocate() {
-    this.buffer = new this.bufferClass(this.width * this.height * this.bytesPerTexel);
+    try {
+      this.buffer = new this.bufferClass(this.width * this.height * this.elementsPerTexel);
+    } catch (e) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[${this.constructor.name}.allocate]: Buffer allocation failed: ${e}`
+      };
+    }
     return this._allocateTexture(false);
   }
   _allocateTexture(uploadBuffer) {
@@ -126255,9 +127191,9 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
   portions = /* @__PURE__ */ new Map();
   renderPassIds;
   passRanges = /* @__PURE__ */ new Map();
+  primRange = { firstPrim: 0, numPrims: 0 };
   nextPortionId = 1;
   numAllocatedItems = 0;
-  numDrawablePrims = 0;
   needUpload = true;
   static itemSizeInBytes = 8;
   // 2 × uint32 per item (meshIndex, offset)
@@ -126289,9 +127225,10 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
   }
   /**
    * Number of primitives currently drawable (post-uploadChanges).
+   * This is also the number of pickable primitives, since picking considers all primitives regardless of render pass.
    */
   get numPrimitives() {
-    return this.numDrawablePrims;
+    return this.primRange.numPrims;
   }
   /**
    * Checks if a new portion of the given size fits (ignores culling).
@@ -126307,11 +127244,11 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
    * @param renderPass Render pass bin.
    */
   createPortion(size, meshIndex, renderPass) {
-    size |= 0;
-    if (size <= 0)
-      throw new SDKInternalException("PrimitiveMeshIndexTexture: size must be > 0");
+    if (size <= 0) {
+      throw new SDKInternalException("[PrimitiveMeshIndexTexture.createPortion]: size must be > 0");
+    }
     if (this.numAllocatedItems + size > this.maxItems) {
-      throw new SDKInternalException("PrimitiveMeshIndexTexture: Not enough capacity");
+      throw new SDKInternalException("[PrimitiveMeshIndexTexture.createPortion]: Not enough capacity");
     }
     const id = this.nextPortionId++;
     const handle = {
@@ -126335,7 +127272,7 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
   deletePortion(handle) {
     const removed = this.portions.get(handle.id);
     if (!removed) {
-      throw new SDKInternalException("PrimitiveMeshIndexTexture: Unknown portion handle");
+      throw new SDKInternalException("[PrimitiveMeshIndexTexture.deletePortion]: Unknown portion handle");
     }
     this.portions.delete(handle.id);
     this.numAllocatedItems -= removed.size;
@@ -126349,7 +127286,7 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
   setRenderPass(handle, renderPass) {
     const portion = this.portions.get(handle.id);
     if (!portion) {
-      throw new SDKInternalException("PrimitiveMeshIndexTexture: Unknown portion handle");
+      throw new SDKInternalException("[PrimitiveMeshIndexTexture.setRenderPass]: Unknown portion handle");
     }
     if (portion.renderPass === renderPass) {
       return;
@@ -126366,7 +127303,7 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
   setObjectVisible(handle, objectVisible) {
     const portion = this.portions.get(handle.id);
     if (!portion) {
-      throw new SDKInternalException("PrimitiveMeshIndexTexture: Unknown portion handle");
+      throw new SDKInternalException("[PrimitiveMeshIndexTexture.setObjectVisible]: Unknown portion handle");
     }
     portion.objectVisible = !!objectVisible;
     handle.objectVisible = portion.objectVisible;
@@ -126380,7 +127317,7 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
   setMeshVisible(handle, meshVisible) {
     const portion = this.portions.get(handle.id);
     if (!portion) {
-      throw new SDKInternalException("PrimitiveMeshIndexTexture: Unknown portion handle");
+      throw new SDKInternalException("[PrimitiveMeshIndexTexture.setMeshVisible]: Unknown portion handle");
     }
     portion.meshVisible = !!meshVisible;
     handle.meshVisible = portion.meshVisible;
@@ -126400,6 +127337,13 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
    */
   getPassRange(renderPass) {
     return this.passRanges.get(renderPass) ?? { firstPrim: 0, numPrims: 0 };
+  }
+  /**
+   * Gets the full range of drawable primitives, for picking.
+   * This can be used for picking passes that want to consider all primitives regardless of render pass.
+   */
+  getPrimRange() {
+    return this.primRange;
   }
   /**
    * Gets the meshIndex and offset for a primitive index.
@@ -126442,7 +127386,6 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
     }
     if (this.numAllocatedItems === 0) {
       this.buffer.fill(0);
-      this.numDrawablePrims = 0;
       this.passRanges.clear();
       this.needUpload = false;
       return false;
@@ -126511,7 +127454,7 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
         numPrims: bucket.reduce((sum, p) => sum + p.size, 0)
       });
     }
-    this.numDrawablePrims = base;
+    this.primRange.numPrims = base;
   }
   /**
    * Encode (x, y) → linear address for a 2D table with known width.
@@ -127134,18 +128077,18 @@ var VertexColorTexture = class _VertexColorTexture extends PortionDataTexture {
     super({
       gl: options.gl,
       description: options.description,
-      format: options.gl.RGB_INTEGER,
+      format: options.gl.RGBA_INTEGER,
       type: options.gl.UNSIGNED_BYTE,
-      internalFormat: options.gl.RGB8UI,
+      internalFormat: options.gl.RGBA8UI,
       maxItems: options.maxItems,
       getNumItems: () => this.numItems,
       width: 4096,
       itemSizeInBytes: _VertexColorTexture.itemSizeInBytes,
-      // 3 × uint8 per item (RGB)
+      // 4 × uint8 per item (RGBA)
       texelsPerItem: 1,
-      // 1 RGB8UI texel per item
-      elementsPerTexel: 3
-      // RGB8UI
+      // 1 RGBA8UI texel per item
+      elementsPerTexel: 4
+      // RGBA8UI
     });
   }
   getItem(itemIndex) {
@@ -127420,6 +128363,9 @@ var GPUTileManager = class {
     const id = this._makeTileId(rtcCenter2);
     let tile = this._tiles.get(id) ?? this._createTile(id, rtcCenter2);
     tile.useCount++;
+    if (this._renderContext.renderInspector.enabled) {
+      this._renderContext.renderInspector.tileAcquired(tile);
+    }
     return tile;
   }
   /**
@@ -127427,7 +128373,11 @@ var GPUTileManager = class {
    * The GPUTile is destroyed as soon as it is released as many times as it was retrieved.
    */
   putTile(tile) {
-    if (--tile.useCount === 0) {
+    tile.useCount--;
+    if (this._renderContext.renderInspector.enabled) {
+      this._renderContext.renderInspector.tileReleased(tile);
+    }
+    if (tile.useCount === 0) {
       this._tiles.delete(tile.id);
       this._putFreeTileIndex(tile.tileIndex);
     }
@@ -127505,6 +128455,7 @@ var GPUTileManager = class {
       useCount: 0,
       // callers will increment once per acquisition
       center: center2,
+      size: this._renderContext.memoryConfigs.tileSize,
       rtcViewMatrix,
       rtcRayPickMatrix: rtcPickMatrix
     };
@@ -127534,6 +128485,20 @@ var GPUTileManager = class {
   }
 };
 
+// ../sdk/src/webglrenderer/internal/gpuMemoryManager/GPUMemoryCheckResult.ts
+var GPUMemoryCheckResult = /* @__PURE__ */ ((GPUMemoryCheckResult4) => {
+  GPUMemoryCheckResult4[GPUMemoryCheckResult4["OK"] = 0] = "OK";
+  GPUMemoryCheckResult4[GPUMemoryCheckResult4["TooManyMeshes"] = 1] = "TooManyMeshes";
+  GPUMemoryCheckResult4[GPUMemoryCheckResult4["NoGeometry"] = 2] = "NoGeometry";
+  GPUMemoryCheckResult4[GPUMemoryCheckResult4["TooManyGeometries"] = 3] = "TooManyGeometries";
+  GPUMemoryCheckResult4[GPUMemoryCheckResult4["NotEnoughVertexSpace"] = 4] = "NotEnoughVertexSpace";
+  GPUMemoryCheckResult4[GPUMemoryCheckResult4["NotEnoughColorSpace"] = 5] = "NotEnoughColorSpace";
+  GPUMemoryCheckResult4[GPUMemoryCheckResult4["NotEnoughIndexSpace"] = 6] = "NotEnoughIndexSpace";
+  GPUMemoryCheckResult4[GPUMemoryCheckResult4["NotEnoughEdgeIndexSpace"] = 7] = "NotEnoughEdgeIndexSpace";
+  GPUMemoryCheckResult4[GPUMemoryCheckResult4["NotEnoughPrimSpace"] = 8] = "NotEnoughPrimSpace";
+  return GPUMemoryCheckResult4;
+})(GPUMemoryCheckResult || {});
+
 // ../sdk/src/webglrenderer/internal/gpuMemoryManager/GPUMemoryBatch.ts
 var MAX_MESHES = 5e5;
 var MAX_GEOMETRIES = 5e5;
@@ -127553,6 +128518,7 @@ var GPUMemoryBatch = class {
   _geometryAttributeTexture;
   _edgeIndexTexture;
   _primitiveMeshIndexTexture;
+  _edgeMeshIndexTexture;
   _vertexPositionTexture;
   _vertexColorTexture;
   _meshMatrixTexture;
@@ -127612,6 +128578,17 @@ var GPUMemoryBatch = class {
         maxItems: memoryConfigs.maxBatchPrims,
         bins,
         description: `[Batch ${this.index}, View 0] - primIndex -> meshIndex`
+      })
+      // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins}),
+      // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins}),
+      // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins})
+    ];
+    this._edgeMeshIndexTexture = [
+      new PrimitiveMeshIndexTexture({
+        gl,
+        maxItems: memoryConfigs.maxBatchPrims,
+        bins,
+        description: `[Batch ${this.index}, View 0] - edgeIndex -> meshIndex`
       })
       // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins}),
       // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins}),
@@ -127699,9 +128676,13 @@ var GPUMemoryBatch = class {
         {
           numDrawablePrims: 0,
           primitiveMeshIndexTexture: this._primitiveMeshIndexTexture[0],
+          edgeMeshIndexTexture: this._edgeMeshIndexTexture[0],
           meshViewAttributeTexture: this._meshViewAttributeTexture[0],
-          renderPassPrimitiveRanges: this._primitiveMeshIndexTexture[0].passRanges
+          renderPassPrimitiveRanges: this._primitiveMeshIndexTexture[0].passRanges,
           //  FIXME:
+          renderPassEdgePrimitiveRanges: this._edgeMeshIndexTexture[0].passRanges,
+          // FIXME:
+          pickPrimitiveRange: this._primitiveMeshIndexTexture[0].primRange
         }
         //     {
         //       numDrawablePrims: 0,
@@ -127742,7 +128723,8 @@ var GPUMemoryBatch = class {
       geometry: GeometryAttributeTexture.itemSizeInBytes + GeometryQuantRangeTexture.itemSizeInBytes,
       vertex: VertexPositionTexture.itemSizeInBytes + VertexColorTexture.itemSizeInBytes,
       index: IndexTexture.itemSizeInBytes,
-      prim: PrimitiveMeshIndexTexture.itemSizeInBytes
+      prim: PrimitiveMeshIndexTexture.itemSizeInBytes,
+      edge: PrimitiveMeshIndexTexture.itemSizeInBytes
     };
   }
   getAllocatedBytes() {
@@ -127781,51 +128763,51 @@ var GPUMemoryBatch = class {
   /**
    * Check if there is enough memory for a SceneMesh.
    * @param sceneMesh
+   * @returns GPUMemoryCheckResult indicating if the mesh can be added, or if not, what resource limit would be exceeded.
    */
   hasMemoryForMesh(sceneMesh) {
     if (this._numMeshes >= this._renderContext.memoryConfigs.maxBatchMeshes) {
-      return false;
+      return 1 /* TooManyMeshes */;
     }
     const geometry = sceneMesh.geometry;
     if (!geometry) {
-      return false;
+      return 2 /* NoGeometry */;
     }
     const vertCount = (geometry.positionsCompressed?.length ?? 0) / 3;
     const geometryExists = !!this._geometryHandles[geometry.id];
     if (!geometryExists) {
       if (this._numGeometries >= this._maxGeometries) {
-        return false;
+        return 3 /* TooManyGeometries */;
       }
       if (vertCount <= 0 || this._vertexPositionTexture.canGetPortion(vertCount) === false) {
-        return false;
+        return 4 /* NotEnoughVertexSpace */;
+      }
+      if (geometry.indices && this._indexTexture.canGetPortion(geometry.indices.length) === false) {
+        return 6 /* NotEnoughIndexSpace */;
+      }
+      if (geometry.edgeIndices && this._edgeIndexTexture.canGetPortion(geometry.edgeIndices.length) === false) {
+        return 7 /* NotEnoughEdgeIndexSpace */;
       }
     }
     const isPoints = geometry.primitive === PointsPrimitive;
     if (isPoints) {
-      if (this._primitiveMeshIndexTexture[0].canGetPortion(vertCount) === false) {
-        return false;
+      if (!geometryExists) {
+        if (geometry.colorsCompressed && this._vertexColorTexture.canGetPortion(geometry.colorsCompressed.length) === false) {
+          return 5 /* NotEnoughColorSpace */;
+        }
       }
     } else {
-      const indexCount = geometry.indices?.length ?? 0;
-      const triCount = indexCount / 3;
-      if (this._primitiveMeshIndexTexture[0].canGetPortion(triCount) === false) {
-        return false;
-      }
       if (!geometryExists) {
-        if (geometry.indices && this._indexTexture.canGetPortion(indexCount) === false) {
-          return false;
-        }
-        if (geometry.edgeIndices && this._edgeIndexTexture.canGetPortion(geometry.edgeIndices.length) === false) {
-          return false;
+        if (geometry.colorsCompressed && this._vertexColorTexture.canGetPortion(geometry.colorsCompressed.length) === false) {
+          return 5 /* NotEnoughColorSpace */;
         }
       }
     }
-    if (!geometryExists) {
-      if (geometry.colorsCompressed && this._vertexColorTexture.canGetPortion(geometry.colorsCompressed.length) === false) {
-        return false;
-      }
+    const primCount = isPoints ? vertCount : geometry.primitive === LinesPrimitive ? geometry.indices.length / 2 : geometry.indices.length / 3;
+    if (this._primitiveMeshIndexTexture[0].canGetPortion(primCount) === false) {
+      return 8 /* NotEnoughPrimSpace */;
     }
-    return true;
+    return 0 /* OK */;
   }
   /**
    * Adds a SceneMesh to this GPUMemoryBatch.
@@ -127935,7 +128917,7 @@ var GPUMemoryBatch = class {
             error: `GPUMemoryBatch.addMesh: Unable to allocate indices portion for geometry ${sceneGeometry.id}`
           };
         }
-        if (sceneGeometry.primitive === TrianglesPrimitive && sceneGeometry.edgeIndices) {
+        if (sceneGeometry.primitive === TrianglesPrimitive && sceneGeometry.edgeIndices && sceneGeometry.edgeIndices.length > 0) {
           edgeIndicesHandle = this._edgeIndexTexture.getPortion(
             sceneGeometry.edgeIndices,
             (newBase) => {
@@ -127998,9 +128980,22 @@ var GPUMemoryBatch = class {
       // this._primitiveMeshIndexTexture[2].createPortion(primitiveCount, meshIndex, 0),
       // this._primitiveMeshIndexTexture[3].createPortion(primitiveCount, meshIndex, 0)
     ];
+    let edgeMeshIndexTextureHandles;
+    if (sceneGeometry.primitive === TrianglesPrimitive) {
+      const edgeCount = sceneGeometry.edgeIndices ? sceneGeometry.edgeIndices.length / 2 : 0;
+      edgeMeshIndexTextureHandles = [
+        // one per view
+        this._edgeMeshIndexTexture[0].createPortion(edgeCount, meshIndex, RENDER_PASSES.OPAQUE)
+        // FIXME: Only defined for View 0
+        // this._edgeMeshIndexTexture[1].createPortion(edgeCount, meshIndex, 0),
+        // this._edgeMeshIndexTexture[2].createPortion(edgeCount, meshIndex, 0),
+        // this._edgeMeshIndexTexture[3].createPortion(edgeCount, meshIndex, 0)
+      ];
+    }
     this._meshHandles[sceneMesh.id] = {
       meshIndex,
-      primitiveMeshIndexTextureHandles
+      primitiveMeshIndexTextureHandles,
+      edgeMeshIndexTextureHandles
     };
     this._sceneGeometries[geometryHandle.geometryIndex] = sceneGeometry;
     this._sceneMeshes[meshIndex] = sceneMesh;
@@ -128070,28 +129065,13 @@ var GPUMemoryBatch = class {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no primitiveMeshIndexTextureHandle`);
     }
     this._primitiveMeshIndexTexture[viewIndex].setRenderPass(primitiveMeshIndexTextureHandle, renderPass);
-  }
-  /**
-   * TODO
-   *
-   * @param meshIndex
-   * @param viewIndex
-   * @param visible
-   */
-  setMeshObjectVisible(meshIndex, viewIndex, visible) {
-    const sceneMesh = this._sceneMeshes[meshIndex];
-    if (!sceneMesh) {
-      throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: No SceneMesh at index ${meshIndex}`);
+    if (meshHandle.edgeMeshIndexTextureHandles) {
+      const edgeMeshIndexTextureHandle = meshHandle.edgeMeshIndexTextureHandles[viewIndex];
+      if (!edgeMeshIndexTextureHandle) {
+        throw new SDKInternalException(`GPUMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no edgeMeshIndexTextureHandle`);
+      }
+      this._edgeMeshIndexTexture[viewIndex].setRenderPass(edgeMeshIndexTextureHandle, renderPass);
     }
-    const meshHandle = this._meshHandles[sceneMesh.id];
-    if (!meshHandle) {
-      throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no meshHandle`);
-    }
-    const primitiveMeshIndexTextureHandle = meshHandle.primitiveMeshIndexTextureHandles[viewIndex];
-    if (!primitiveMeshIndexTextureHandle) {
-      throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no primitiveMeshIndexTextureHandle`);
-    }
-    this._primitiveMeshIndexTexture[viewIndex].setObjectVisible(primitiveMeshIndexTextureHandle, visible);
   }
   /**
    * TODO
@@ -128114,6 +129094,13 @@ var GPUMemoryBatch = class {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no primitiveMeshIndexTextureHandle`);
     }
     this._primitiveMeshIndexTexture[viewIndex].setMeshVisible(primitiveMeshIndexTextureHandle, visible);
+    if (meshHandle.edgeMeshIndexTextureHandles) {
+      const edgeMeshIndexTextureHandle = meshHandle.edgeMeshIndexTextureHandles[viewIndex];
+      if (!edgeMeshIndexTextureHandle) {
+        throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no edgeMeshIndexTextureHandle`);
+      }
+      this._edgeMeshIndexTexture[viewIndex].setObjectVisible(edgeMeshIndexTextureHandle, visible);
+    }
   }
   // setGeometryPositions(geometryIndex: number, positionsCompressed: FloatArrayParam): SDKResult<void> {
   //   const geometryHandle = this._geometryHandles[geometryIndex];
@@ -128183,6 +129170,9 @@ var GPUMemoryBatch = class {
     }
     if (meshHandle.primitiveMeshIndexTextureHandles) {
       this._primitiveMeshIndexTexture[0].deletePortion(meshHandle.primitiveMeshIndexTextureHandles[0]);
+    }
+    if (meshHandle.edgeMeshIndexTextureHandles) {
+      this._edgeMeshIndexTexture[0].deletePortion(meshHandle.edgeMeshIndexTextureHandles[0]);
     }
     if (meshHandle.indicesHandle) {
       this._indexTexture.putPortion(meshHandle.indicesHandle);
@@ -128434,6 +129424,7 @@ var GPUMemoryManager = class {
       this._viewTilePickMatrixTexture
     );
     this.dataTextures = {
+      numTiles: 0,
       viewTileCameraMatrixTexture: this._viewTileCameraMatrixTexture.map((t) => t),
       viewTilePickMatrixTexture: this._viewTilePickMatrixTexture.map((t) => t),
       batches: [],
@@ -128596,6 +129587,12 @@ var GPUMemoryManager = class {
     this._tileManager.putTile(tile);
   }
   /**
+   * Returns the current number of allocated tiles.
+   */
+  getNumTiles() {
+    return this._tileManager.numTiles;
+  }
+  /**
    * Creates and allocates a new GPU memory batch.
    *
    * The created {@link GPUMemoryBatch} is appended to {@link dataTextures.batches} and
@@ -128635,7 +129632,7 @@ var GPUMemoryManager = class {
    */
   hasMemoryForMesh(batchIndex, sceneMesh) {
     const gpuMemoryBatch = this._batches[batchIndex];
-    return gpuMemoryBatch ? gpuMemoryBatch.hasMemoryForMesh(sceneMesh) : false;
+    return gpuMemoryBatch ? gpuMemoryBatch.hasMemoryForMesh(sceneMesh) : 2 /* NoGeometry */;
   }
   /**
    * Adds a {@link SceneMesh} to a batch and returns a {@link GPUMemoryMeshHandle} used for updates.
@@ -129054,6 +130051,16 @@ var RendererMesh = class {
   }
 };
 
+// ../sdk/src/webglrenderer/internal/gpuMemoryManager/index.ts
+var gpuMemoryManager_exports = {};
+__export(gpuMemoryManager_exports, {
+  GPUMemoryBatch: () => GPUMemoryBatch,
+  GPUMemoryCheckResult: () => GPUMemoryCheckResult,
+  GPUMemoryManager: () => GPUMemoryManager,
+  GPUTileManager: () => GPUTileManager,
+  dataTextures: () => DataTextures_exports
+});
+
 // ../sdk/src/webglrenderer/internal/meshManager/MeshBatchImpl.ts
 var MeshBatchImpl = class {
   /**
@@ -129123,13 +130130,34 @@ var MeshBatchImpl = class {
    * @returns True if there are meshes to render in the specified pass, false otherwise.
    */
   hasMeshesInRenderPass(viewIndex, renderPass) {
-    return this._gpuMemoryManager.dataTextures.batches[this.gpuMemoryBatchIndex]?.views[viewIndex]?.renderPassPrimitiveRanges.get(renderPass)?.numPrims > 0;
+    const batchDataTextures = this._gpuMemoryManager.dataTextures.batches[this.gpuMemoryBatchIndex];
+    if (!batchDataTextures) {
+      return false;
+    }
+    const batchViewDataTextures = batchDataTextures.views[viewIndex];
+    if (!batchViewDataTextures) {
+      return false;
+    }
+    if (renderPass === RENDER_PASSES.PICK) {
+      return batchViewDataTextures.pickPrimitiveRange.numPrims > 0;
+    }
+    return batchViewDataTextures.renderPassPrimitiveRanges.get(renderPass)?.numPrims > 0;
+  }
+  /**
+   * Checks if there are any meshes in this batch that should be rendered in the edge render pass for the given view.
+   *
+   * @param viewIndex - The index of the view to check.
+   * @param renderPass - The render pass to check for edge rendering.
+   * @return True if there are meshes to render in the edge render pass, false otherwise.
+   */
+  hasMeshesInEdgeRenderPass(viewIndex, renderPass) {
+    return this._gpuMemoryManager.dataTextures.batches[this.gpuMemoryBatchIndex]?.views[viewIndex]?.renderPassEdgePrimitiveRanges.get(renderPass)?.numPrims > 0;
   }
   /**
    * Determines if a mesh can be added to this batch based on available GPU memory.
    *
    * @param sceneMesh - The SceneMesh to check.
-   * @returns True if the mesh can be added, false otherwise.
+   * @returns A GPUMemoryCheckResult indicating whether the mesh can be added and any relevant details about memory usage.
    */
   canAddMesh(sceneMesh) {
     return this._gpuMemoryManager.hasMemoryForMesh(this.gpuMemoryBatchIndex, sceneMesh);
@@ -129307,15 +130335,6 @@ var MeshBatchImpl = class {
     this._gpuMemoryManager = null;
   }
 };
-
-// ../sdk/src/webglrenderer/internal/gpuMemoryManager/index.ts
-var gpuMemoryManager_exports = {};
-__export(gpuMemoryManager_exports, {
-  GPUMemoryBatch: () => GPUMemoryBatch,
-  GPUMemoryManager: () => GPUMemoryManager,
-  GPUTileManager: () => GPUTileManager,
-  dataTextures: () => DataTextures_exports
-});
 
 // ../sdk/src/webglrenderer/internal/meshManager/MeshManager.ts
 var MeshManager = class {
@@ -129574,7 +130593,11 @@ var MeshManager = class {
   _getMeshBatch(sceneMesh) {
     const primitive = sceneMesh.geometry.primitive;
     for (const meshBatch of Object.values(this._sortedBatches)) {
-      if (meshBatch.primitive === primitive && meshBatch.canAddMesh(sceneMesh)) {
+      if (meshBatch.primitive === primitive) {
+        const canAddResult = meshBatch.canAddMesh(sceneMesh);
+        if (canAddResult !== 0 /* OK */) {
+          continue;
+        }
         return { ok: true, value: meshBatch };
       }
     }
@@ -129752,7 +130775,7 @@ var MeshManager = class {
    * Forwards to the corresponding {@link RendererMesh} (if registered).
    */
   sceneMeshMatrixChanged(sceneMesh) {
-    this._rendererModels[sceneMesh.model.id]?.rendererMeshes[sceneMesh.id]?.setMatrix(sceneMesh.matrix);
+    this._rendererModels[sceneMesh.model.id]?.rendererMeshes[sceneMesh.id]?.setMatrix(sceneMesh.globalMatrix);
   }
   /**
    * Handles changes to a {@link SceneMesh}'s color.
@@ -129915,13 +130938,38 @@ var DrawTechnique = class {
    */
   edges;
   /**
+   * When true, the technique binds uniforms for picking rendering (e.g., pickZNear/pickZFar)
+   * and uses picking-specific draw ranges from the batch's view data textures.
+   *
+   * Used by the pick rendering pass to render meshes with unique pick colors and output depth for picking.
+   */
+  picking;
+  /**
    * Vertex shader source code. Available after `init()` is called.
    */
   vertexShaderSrc;
   /**
+   * Vertex shader source code with comments included.
+   *
+   * Note that comments are not supported in WebGL shader compilation,
+   * so this is for debugging/inspection purposes only.
+   *
+   * Available after `init()` is called.
+   */
+  vertexShaderCommentedSrc;
+  /**
    * Fragment shader source code. Available after `init()` is called.
    */
   fragmentShaderSrc;
+  /**
+   * Fragment shader source code with comments included.
+   *
+   * Note that comments are not supported in WebGL shader compilation,
+   * so this is for debugging/inspection purposes only.
+   *
+   * Available after `init()` is called.
+   */
+  fragmentShaderCommentedSrc;
   /**
    * Uniforms and attributes for the shader program.
    * Populated during the `build()` method based on what's included in the shader source.
@@ -129950,22 +130998,40 @@ var DrawTechnique = class {
    * @param gpuMemoryReader
    * @param cfg
    */
-  constructor(renderContext, gpuMemoryReader, cfg = { edges: false }) {
+  constructor(renderContext, gpuMemoryReader, cfg = {
+    edges: false,
+    picking: false
+  }) {
+    if (cfg.picking && cfg.edges) {
+      throw new Error("Invalid DrawTechnique configuration: cannot have both picking and edges enabled.");
+    }
     this._renderContext = renderContext;
     this._gpuMemoryReader = gpuMemoryReader;
-    this.edges = cfg.edges;
+    this.edges = cfg.edges === true;
+    this.picking = cfg.picking === true;
     this._program = null;
   }
   /**
    * Initializes this draw technique by building and compiling the shader program.
+   *
+   * Calls the abstract methods {@link buildVertexShader} and {@link buildFragmentShader} to generate the shader sources,
+   * then compiles the program and retrieves uniform/sampler locations.
    */
   init() {
     this._vertSrcBuf = [];
     this._fragSrcBuf = [];
     this.buildVertexShader();
     this.buildFragmentShader();
-    this.vertexShaderSrc = joinSansComments(this._vertSrcBuf);
-    this.fragmentShaderSrc = joinSansComments(this._fragSrcBuf);
+    const vertSrc = [];
+    const vertCommentedSrc = [];
+    const fragSrc = [];
+    const fragCommentedSrc = [];
+    joinSrc(this._vertSrcBuf, vertSrc, vertCommentedSrc);
+    joinSrc(this._fragSrcBuf, fragSrc, fragCommentedSrc);
+    this.vertexShaderSrc = vertSrc.join("\n");
+    this.fragmentShaderSrc = fragSrc.join("\n");
+    this.vertexShaderCommentedSrc = vertCommentedSrc.join("\n");
+    this.fragmentShaderCommentedSrc = fragCommentedSrc.join("\n");
     this._program = new WebGLProgram(this._renderContext, {
       vertex: this.vertexShaderSrc,
       fragment: this.fragmentShaderSrc
@@ -129991,6 +131057,10 @@ var DrawTechnique = class {
     }
     return this._initProgram();
   }
+  /**
+   * Initializes the shader program by compiling/linking and retrieving uniform/sampler locations.
+   * @private
+   */
   _initProgram() {
     const result = this._program.init();
     if (result.ok === false) {
@@ -130033,7 +131103,7 @@ var DrawTechnique = class {
       vertexPositionTexture: program.getSampler("uVertexPositionTexture"),
       vertexColorTexture: program.getSampler("uVertexColorTexture"),
       indexTexture: program.getSampler("uIndexTexture"),
-      edgeIndexTexture: program.getSampler("uEdgeIndextexture"),
+      edgeIndexTexture: program.getSampler("uEdgeIndexTexture"),
       saoOcclusionTexture: program.getSampler("saoOcclusionTexture")
     };
     return {
@@ -130074,7 +131144,7 @@ var DrawTechnique = class {
     const batchDataTextures = dataTextures.batches[meshBatch.gpuMemoryBatchIndex];
     const viewIndex = view.viewIndex;
     const batchViewDataTextures = batchDataTextures.views[viewIndex];
-    const drawRange = batchViewDataTextures.renderPassPrimitiveRanges.get(renderPass);
+    const drawRange = this.edges ? batchViewDataTextures.renderPassEdgePrimitiveRanges.get(renderPass) : this.picking ? batchViewDataTextures.pickPrimitiveRange : batchViewDataTextures.renderPassPrimitiveRanges.get(renderPass);
     if (!drawRange || drawRange.numPrims === 0) {
       return {
         ok: true,
@@ -130082,7 +131152,7 @@ var DrawTechnique = class {
         // Nothing to draw for this pass
       };
     }
-    const drawInspector = renderContext.drawInspector && renderContext.drawInspector.enabled ? renderContext.drawInspector : null;
+    const drawInspector = renderContext.renderInspector && renderContext.renderInspector.enabled ? renderContext.renderInspector : null;
     if (!this._bind(renderPass)) {
       return {
         ok: false,
@@ -130090,7 +131160,7 @@ var DrawTechnique = class {
         error: "[DrawTechnique._draw] Failed to bind the shader program."
       };
     }
-    const primitiveMeshIndexTexture = batchViewDataTextures.primitiveMeshIndexTexture;
+    const primitiveMeshIndexTexture = this.edges ? batchViewDataTextures.edgeMeshIndexTexture : batchViewDataTextures.primitiveMeshIndexTexture;
     renderContext.textureUnit = 0;
     const bindTexture = (sampler, dataTexture) => {
       if (!sampler || !dataTexture) {
@@ -130116,10 +131186,15 @@ var DrawTechnique = class {
     bindTexture(samplers.edgeIndexTexture, batchDataTextures.edgeIndexTexture);
     bindTexture(samplers.indexTexture, batchDataTextures.indexTexture);
     gl.uniform1i(this._uniforms.primBaseIndex, drawRange.firstPrim);
-    gl.uniform1i(this._uniforms.primitiveType, meshBatch.primitive);
+    const drawPrimitiveType = this.edges ? LinesPrimitive : meshBatch.primitive;
+    gl.uniform1i(this._uniforms.primitiveType, drawPrimitiveType);
     switch (meshBatch.primitive) {
       case TrianglesPrimitive:
-        gl.drawArrays(gl.TRIANGLES, drawRange.firstPrim * 3, drawRange.numPrims * 3);
+        if (this.edges) {
+          gl.drawArrays(gl.LINES, drawRange.firstPrim * 2, drawRange.numPrims * 2);
+        } else {
+          gl.drawArrays(gl.TRIANGLES, drawRange.firstPrim * 3, drawRange.numPrims * 3);
+        }
         break;
       case LinesPrimitive:
         gl.drawArrays(gl.LINES, drawRange.firstPrim * 2, drawRange.numPrims * 2);
@@ -130157,10 +131232,14 @@ var DrawTechnique = class {
    * Generates the vertex shader header.
    */
   vsHeader() {
-    this._vertSrcBuf.push(
-      "#version 300 es",
-      `// ${this.constructor.name} vertex shader`
-    );
+    this._vertSrcBuf.push(`#version 300 es
+
+// ${this.constructor.name} vertex shader
+
+// This shader renders primitives by fetching all geometry,
+// transform, and attribute data from GPU data textures.
+// The pipeline is:
+//   gl_VertexID \u2192 primitive \u2192 mesh \u2192 geometry \u2192 vertex \u2192 model \u2192 world \u2192 view \u2192 clip`);
   }
   /**
    * Generates a simple internal vertex shader main function.
@@ -130182,24 +131261,37 @@ var DrawTechnique = class {
    * Generates vertex shader precision definitions and common definitions.
    */
   vsCommonDefines() {
-    this._vertSrcBuf.push(
-      `uniform int uRenderPass;
+    this._vertSrcBuf.push(`
+
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Global draw configuration
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+
+uniform int uRenderPass;
 uniform int uPrimBaseIndex;
 uniform int uPrimitiveType;
 
 uniform mat4 uProjMatrix;
 
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// GPU data textures (structured storage via texelFetch)
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+
 uniform highp usampler2D uPrimitiveMeshIndexTexture;
 uniform highp usampler2D uVertexPositionTexture;
 uniform highp usampler2D uVertexColorTexture;
 uniform highp usampler2D uIndexTexture;
-uniform highp usampler2D uEdgeIndextexture;
+uniform highp usampler2D uEdgeIndexTexture;
 uniform highp sampler2D  uViewTileCameraMatrixTexture;
 uniform highp sampler2D  uMeshMatrixTexture;
 uniform highp usampler2D uMeshAttributeTexture;
 uniform highp usampler2D uMeshViewAttributeTexture;
 uniform highp usampler2D uGeometryAttributeTexture;
 uniform highp sampler2D  uGeometryQuantRangeTexture;
+
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Data structures stored inside textures
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 
 struct QuantRange {
   vec3 offset;
@@ -130222,9 +131314,17 @@ struct GeometryAttributes {
   uint edgeIndicesBase;
 };
 
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Utility: Convert linear index \u2192 2D texture coordinate
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+
 ivec2 texCoord(uint index, uint texWidth) {
   return ivec2(int(index % texWidth), int(index / texWidth));
 }
+
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Primitive lookups
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 
 uint getPrimitiveMeshIndex(uint primIndex) {
   const uint texWidth = 4096u;
@@ -130236,6 +131336,10 @@ uint getPrimitiveOffsetWithinGeometry(uint primIndex) {
   return texelFetch(uPrimitiveMeshIndexTexture, texCoord((primIndex * 2u) + 1u, texWidth), 0).r;
 }
 
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Vertex + index fetch
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+
 uint getVertexIndex(uint vertexIndexNum) {
   const uint texWidth = 4096u;
   return texelFetch(uIndexTexture, texCoord(vertexIndexNum, texWidth), 0).r;
@@ -130246,10 +131350,14 @@ uvec3 getVertexPosition(uint vertexIndexWithinGeometry) {
   return texelFetch(uVertexPositionTexture, texCoord(vertexIndexWithinGeometry, texWidth), 0).rgb;
 }
 
-uvec3 getVertexColor(uint vertexIndexWithinGeometry) {
+uvec4 getVertexColor(uint vertexIndexWithinGeometry) {
   const uint texWidth = 4096u;
-  return texelFetch(uVertexColorTexture, texCoord(vertexIndexWithinGeometry, texWidth), 0).rgb;
+  return texelFetch(uVertexColorTexture, texCoord(vertexIndexWithinGeometry, texWidth), 0).rgba;
 }
+
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Geometry + mesh metadata fetch
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 
 QuantRange getGeometryQuantRange(uint geometryIndex) {
   const uint texWidth = 2048u;
@@ -130291,6 +131399,10 @@ MeshViewAttributes getMeshViewAttributes(uint meshIndex) {
   return s;
 }
 
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Matrix fetch (stored as 4 consecutive texels per matrix)
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+
 mat4 getTileViewMatrix(uint tileIndex) {
   const uint texWidth = 4096u;
   uint base = tileIndex * 4u;
@@ -130311,8 +131423,11 @@ mat4 getMeshMatrix(uint meshIndex) {
   return mat4(m0, m1, m2, m3);
 }
 
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 // Packs a uint into an RGBA color (each channel stores one byte).
 // Little-endian byte order: R = least significant byte
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+
 vec4 packUintToRGBA8(uint v) {
    return vec4(
      float( ( v        & 0xFFu)),
@@ -130322,15 +131437,38 @@ vec4 packUintToRGBA8(uint v) {
    ) / 255.0;
 }
 
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 // Get the eye position in world space from the view matrix
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+
 vec3 getEyePosition(mat4 viewMatrix) {
     // Invert the view matrix to get the world matrix
     mat4 invView = inverse(viewMatrix);
     // The translation part (last column) is the eye position in world space
     return invView[3].xyz;
 }
-`
-    );
+
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Returns true if the triangle (a,b,c) in VIEW SPACE is facing the eye.
+// Assumes a right-handed view space with the camera at (0,0,0).
+// For conventional OpenGL view space (camera looks down -Z), this works as expected.
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+
+bool triangleFacesEyeVS(vec3 aVS, vec3 bVS, vec3 cVS) {
+    // Triangle normal from winding (right-hand rule)
+    vec3 n = normalize(cross(bVS - aVS, cVS - aVS));
+
+    // Eye position in view space is the origin
+    vec3 eyeVS = vec3(0.0);
+
+    // Vector from triangle toward the eye (use centroid for stability)
+    vec3 toEye = normalize(eyeVS - (aVS + bVS + cVS) * (1.0 / 3.0));
+
+    // Facing the eye if normal points (at least partially) toward the eye
+    return dot(n, toEye) > 0.0;
+}
+
+`);
   }
   /**
    * Generates vertex shader definitions for Lambert shading.
@@ -130338,6 +131476,11 @@ vec3 getEyePosition(mat4 viewMatrix) {
    */
   vsLambertShadingDefines() {
     this._vertSrcBuf.push(
+      `
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Lambertian directional lighting configuration
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+`,
       "uniform vec4 uLightAmbient;",
       "uniform vec3 uLightDir1;",
       "uniform vec4 uLightColor1;",
@@ -130354,59 +131497,90 @@ vec3 getEyePosition(mat4 viewMatrix) {
    * @protected
    */
   vsSilhouetteDefines() {
-    this._vertSrcBuf.push(
-      "uniform vec4 uSilhouetteColor;",
-      "out vec4 vColor;"
-    );
+    this._vertSrcBuf.push(`
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Silhouette rendering configuration
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+
+uniform vec4 uSilhouetteColor;
+out vec4 vColor;`);
   }
   /**
    * Generates vertex shader definitions for flat color rendering.
    * @protected
    */
   vsDrawFlatColorDefs() {
-    this._vertSrcBuf.push("out vec4 vColor;");
+    this._vertSrcBuf.push(`
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Flat color rendering configuration
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+
+out vec4 vColor;`);
   }
   /**
    * Generates vertex shader definitions for vertex color rendering.
    * @protected
    */
   vsDrawVertexColorDefs() {
-    this._vertSrcBuf.push("out vec4 vColor;");
+    this._vertSrcBuf.push(`
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Vertex color rendering configuration
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+
+out vec4 vColor;`);
   }
   /**
    * Generates vertex shader definitions for depth rendering.
    * @protected
    */
   vsDrawDepthDefines() {
-    this._vertSrcBuf.push("out highp vec2 vHighPrecisionZW;");
+    this._vertSrcBuf.push(`
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Vertex color rendering configuration
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+
+out highp vec2 vHighPrecisionZW;`);
   }
+  /**
+   * Generates vertex shader definitions for point rendering.
+   * @protected
+   */
   vsPointsDefines() {
-    this._vertSrcBuf.push(
-      "uniform float nearPlaneHeight;",
-      "uniform vec2 intensityRange;",
-      "uniform float pointSize;"
-    );
+    this._vertSrcBuf.push(`
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Point rendering configuration
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+
+uniform float nearPlaneHeight;
+uniform vec2 intensityRange;
+uniform float pointSize;`);
   }
   /**
    * Generates vertex shader definitions for pick rendering.
    * @protected
    */
   vsPickMeshDefines() {
-    this._vertSrcBuf.push(
-      "out     vec4 vPickColor;",
-      "uniform vec2 drawingBufferSize;",
-      "uniform vec2 pickClipPos;",
-      "vec4 remapPickClipPos(vec4 clipPos) {",
-      "    clipPos.xy /= clipPos.w;",
-      //if (viewportSize === 1) {
-      "    clipPos.xy = (clipPos.xy - pickClipPos) * drawingBufferSize;",
-      // } else {
-      //     src.push(`    clipPos.xy = (clipPos.xy - pickClipPos) * (drawingBufferSize / float(${viewportSize}));`);
-      // }
-      "    clipPos.xy *= clipPos.w;",
-      "    return clipPos;",
-      "}"
-    );
+    this._vertSrcBuf.push(`
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Pick rendering configuration
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+
+out     vec4 vPickColor;
+uniform vec2 drawingBufferSize;
+uniform vec2 pickClipPos;
+
+// In pick rendering, we render meshes in their pick-space positions, which are derived from the clip-space
+// positions but with XY remapped to [0,1] based on the viewport and with Z remapped to [0,1] based on the view's
+// near/far planes. This allows us to encode the pick ID in the RGB channels of the rendered color,
+// and reconstruct the view-space position from the depth (Z) channel. The function below performs the inverse
+// of this remapping to get back to clip space for rendering.
+
+vec4 remapPickClipPos(vec4 clipPos) {
+    clipPos.xy /= clipPos.w;
+    clipPos.xy = (clipPos.xy - pickClipPos) * drawingBufferSize;
+    clipPos.xy *= clipPos.w;
+    return clipPos;
+}`);
   }
   /**
    * Generates vertex shader definitions for slicing (section planes).
@@ -130419,7 +131593,12 @@ vec3 getEyePosition(mat4 viewMatrix) {
    * @protected
    */
   vsMainOpen() {
-    this._vertSrcBuf.push("void main(void) {");
+    this._vertSrcBuf.push(`
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Vertex shader main function
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+
+void main(void) {`);
     this._vsMeshLogic();
     this._vsMeshLogic2();
   }
@@ -130428,7 +131607,12 @@ vec3 getEyePosition(mat4 viewMatrix) {
    * @protected
    */
   vsDrawMainOpen() {
-    this._vertSrcBuf.push("void main(void) {");
+    this._vertSrcBuf.push(`
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Vertex shader main function for draw rendering
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+
+void main(void) {`);
     this._vsMeshLogic();
     this._vsMeshLogic2();
   }
@@ -130437,13 +131621,18 @@ vec3 getEyePosition(mat4 viewMatrix) {
    * @protected
    */
   vsPickMainOpen() {
-    this._vertSrcBuf.push("void main(void) {");
+    this._vertSrcBuf.push(`
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Vertex shader main function for pick rendering
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+
+void main(void) {`);
     this._vsMeshLogic();
     this._vertSrcBuf.push(
       `    int pickFlag = int(meshViewAttributes.renderFlags.b >> 8u & 0xFu);`,
       `    if (pickFlag != uRenderPass) {`,
-      "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
-      "        return;",
+      // "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
+      // "        return;",
       "    }"
     );
     this._vsMeshLogic2();
@@ -130468,22 +131657,43 @@ vec3 getEyePosition(mat4 viewMatrix) {
    * @private
    */
   _vsMeshLogic() {
-    this._vertSrcBuf.push(
-      "    uint drawVertexIndex  = uint(gl_VertexID);",
-      "    uint numVertsPerPrim  = uint(uPrimitiveType == " + TrianglesPrimitive + " ? 3u : (uPrimitiveType == " + LinesPrimitive + " ? 2u : 1u));",
-      // We are drawing a portion of the primitive array, so adjust the primIndex accordingly
-      "    uint drawPrimIndex   = drawVertexIndex / numVertsPerPrim;",
-      "    uint primIndex       = uint(uPrimBaseIndex) + drawPrimIndex;",
-      // Lookup the mesh and primitive offset for this primitive
-      // The primitive offset is the index of the primitive within the mesh's geometry
-      "    uint meshIndex       = getPrimitiveMeshIndex( primIndex );",
-      "    MeshViewAttributes meshViewAttributes = getMeshViewAttributes( meshIndex );",
-      `    if (meshViewAttributes.color.a == 3u) {`,
-      // "              gl_Position = vec4(3.0, 3.0, 3.0, 1.0);", // Cull vertex
-      // "              return;",
-      "    };",
-      "    uint primOffset      = getPrimitiveOffsetWithinGeometry( primIndex );"
-    );
+    this._vertSrcBuf.push(`
+     // Identify which "draw vertex" we are processing
+    uint drawVertexIndex  = uint(gl_VertexID);
+
+    // Determine topology: how many vertices per primitive?
+    //   triangles: 3
+    //   lines:     2
+    //   points:    1
+    uint numVertsPerPrim =
+        uint(uPrimitiveType == ${TrianglesPrimitive} ? 3u :   // triangles
+            (uPrimitiveType == ${LinesPrimitive} ? 2u : 1u)); // lines or points
+
+    // Map draw vertex \u2192 draw primitive
+    // Example (triangles): vertices 0,1,2 -> prim 0; 3,4,5 -> prim 1; etc.
+    uint drawPrimIndex = drawVertexIndex / numVertsPerPrim;
+
+    // Convert draw primitive \u2192 global primitive index
+    // uPrimBaseIndex allows batching multiple draws into a big primitive table.
+    uint primIndex = uint(uPrimBaseIndex) + drawPrimIndex;
+
+    // Primitive \u2192 mesh resolution
+    // Each primitive belongs to a mesh; meshIndex selects transforms + attributes.
+    uint meshIndex = getPrimitiveMeshIndex( primIndex );
+
+    // Fetch mesh view properties (color + flags)
+    MeshViewAttributes meshViewAttributes = getMeshViewAttributes( meshIndex );
+
+    // Cull fully-transparent meshes
+    if (meshViewAttributes.color.a == 3u) {
+      // gl_Position = vec4(3.0, 3.0, 3.0, 1.0); // Cull vertex
+     //  return;
+    }
+
+    // Primitive \u2192 offset inside the geometry\u2019s primitive list
+    // This tells us which triangle/line/point we are within the geometry.
+    uint primOffset = getPrimitiveOffsetWithinGeometry( primIndex );
+    `);
   }
   /**
    * Generates vertex shader logic for mesh processing (part 2).
@@ -130491,108 +131701,133 @@ vec3 getEyePosition(mat4 viewMatrix) {
    */
   _vsMeshLogic2() {
     this._vertSrcBuf.push(
-      "    MeshAttribTable  meshAttributeTexture       = getMeshAttribTable( meshIndex );",
-      "    uint             tileIndex         = meshAttributeTexture.tileIndex;",
-      "    uint             geometryIndex     = meshAttributeTexture.geometryIndex;",
-      "    GeometryAttributes  geometryAttributes   = getGeometryAttributeTexture( geometryIndex );",
-      "    uint localVert = drawVertexIndex % numVertsPerPrim;",
-      // 0, 1, 2 for triangle; 0, 1 for line; 0 for point
-      "    uint vertexOffsetWithinGeometry = (primOffset * numVertsPerPrim) + localVert;",
-      "    uint vertexIndexWithinGeometry = (uPrimitiveType == 20000)",
-      // Points
-      "       ? vertexOffsetWithinGeometry",
-      "       : getVertexIndex(geometryAttributes.indicesBase + vertexOffsetWithinGeometry);",
-      "    QuantRange       quantRange        = getGeometryQuantRange( geometryIndex );",
-      "    mat4             modelMatrix       = getMeshMatrix( meshIndex );",
-      "    mat4             viewMatrix        = getTileViewMatrix( tileIndex );",
-      "    uvec3            quantPos          = getVertexPosition( geometryAttributes.verticesBase + vertexIndexWithinGeometry );",
-      "    vec4             modelPos          = vec4( quantRange.offset + ( quantRange.scale * vec3( quantPos )), 1.0); ",
-      "    vec4             worldPos          = modelMatrix * modelPos; ",
-      "    vec4             viewPos           = viewMatrix * worldPos; ",
-      "    vec4             clipPos           = uProjMatrix * viewPos; ",
-      "    gl_Position = clipPos;"
-    );
-  }
-  /**
-   * Generates vertex shader logic for Lambert shading.
-   * @protected
-   */
-  vsLambertShadingLogicOLD() {
-    this._vertSrcBuf.push(
-      // For triangles, get the three vertex positions for the triangle
-      "    uint triIndex = geometryAttributes.indicesBase + primOffset * numVertsPerPrim;",
-      "    uint ia = getVertexIndex(triIndex + 0u);",
-      "    uint ib = getVertexIndex(triIndex + 1u);",
-      "    uint ic = getVertexIndex(triIndex + 2u);",
-      // Dequantized positions in OBJECT space
-      // "    vec3 a_obj = quantRange.offset + quantRange.scale * vec3(getVertexPosition(ia));",
-      // "    vec3 b_obj = quantRange.offset + quantRange.scale * vec3(getVertexPosition(ib));",
-      // "    vec3 c_obj = quantRange.offset + quantRange.scale * vec3(getVertexPosition(ic));",
-      // Transform to WORLD space
-      // "    vec3 pa_w = (modelMatrix * vec4(a_obj, 1.0)).xyz;",
-      // "    vec3 pb_w = (modelMatrix * vec4(b_obj, 1.0)).xyz;",
-      // "    vec3 pc_w = (modelMatrix * vec4(c_obj, 1.0)).xyz;",
-      "    vec3 pa = vec4(viewMatrix * (modelMatrix * vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ia))), 1.0))).xyz;",
-      "    vec3 pb = vec4(viewMatrix * (modelMatrix * vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ib))), 1.0))).xyz;",
-      "    vec3 pc = vec4(viewMatrix * (modelMatrix * vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ic))), 1.0))).xyz;",
-      "    vec3 normal = normalize(cross(pc - pa, pb - pa));",
-      "    float lambertian = 1.0;",
-      "    vec3 reflectedColor = vec3(0.0, 0.0, 0.0);",
-      " vec4 lightAmbient = vec4(0.3, 0.3, 0.3, 1.0);",
-      " vec3 lightDir1 = normalize(vec3(0.0, 0.0, -1.0));",
-      " vec4 lightColor1 = vec4(0.7, 0.7, 0.7, 1.0);",
-      " vec3 lightDir2 = normalize(vec3(-1.0, -1.0, -1.0));",
-      " vec4 lightColor2 = vec4(1.0, 1.0, 1.0, 0.5);",
-      " vec3 lightDir3 = normalize(vec3(-1.0, 1.0, 1.0));",
-      " vec4 lightColor3 = vec4(1.0, 1.0, 1.0, 0.2);",
-      // "    lambertian = max(dot(normal, normalize(lightDir1)), 0.0);",
-      // "    reflectedColor += lambertian * (lightColor1.rgb * lightColor1.a);",
-      "    lambertian = max( dot(normal, normalize(lightDir2)), 0.0);",
-      "   if (lambertian < 0.0) lambertian = lambertian * -1.0;",
-      "    reflectedColor += lambertian * (lightColor2.rgb * lightColor2.a);",
-      //
-      // "    lambertian = max(dot(normal, normalize(lightDir3)), 0.0);",
-      // "    reflectedColor += lambertian * (lightColor3.rgb * lightColor3.a);",
-      "    vec4 color = vec4(meshViewAttributes.color) /255.0;",
-      "   vColor =  vec4((lightAmbient.rgb * lightAmbient.a * color.rgb) + (reflectedColor * color.rgb),color.a);"
-      //  "    vColor = vec4(color.rgb, 1.0);");
+      `
+    // Mesh \u2192 tile + geometry resolution
+    // tileIndex selects the view matrix; geometryIndex selects vertex/index ranges.
+    MeshAttribTable meshAttributeTexture = getMeshAttribTable( meshIndex );
+    uint tileIndex = meshAttributeTexture.tileIndex;
+    uint geometryIndex = meshAttributeTexture.geometryIndex;
+
+    // Geometry \u2192 base offsets resolution
+    // These bases are added to local offsets to index into the big packed buffers.
+    GeometryAttributes  geometryAttributes = getGeometryAttributeTexture( geometryIndex );
+
+    // Determine local vertex number within this primitive
+    // Triangles: localVert \u2208 {0,1,2}
+    // Lines:     localVert \u2208 {0,1}
+    // Points:    localVert = 0
+    uint localVert = drawVertexIndex % numVertsPerPrim; // 0, 1, 2 for triangle; 0, 1 for line; 0 for point
+
+    // Convert (primitive offset, localVert) \u2192 vertex offset within geometry
+    // For triangles: vertexOffsetWithinGeometry = primOffset*3 + localVert
+    uint vertexOffsetWithinGeometry = (primOffset * numVertsPerPrim) + localVert;
+
+    // Resolve final vertex index within geometry
+    // - For non-indexed points (uPrimitiveType == 20000), we treat vertexOffsetWithinGeometry as direct.
+    // - Otherwise, we fetch an index from the index buffer, using geometryAttributes.indicesBase.
+    uint vertexIndexWithinGeometry =
+        (uPrimitiveType == 20000)
+        ? vertexOffsetWithinGeometry
+        : getVertexIndex(geometryAttributes.indicesBase + vertexOffsetWithinGeometry);
+
+    // Dequantization parameters for this geometry
+    // Vertex positions are stored quantized; quantRange turns uvec3 into float vec3.
+    QuantRange quantRange = getGeometryQuantRange(geometryIndex);
+
+    // Fetch quantized vertex position, then dequantize into model space
+    // quantPos: integer-like packed value
+    // modelPos.xyz = offset + scale * quantPos
+    uvec3 quantPos = getVertexPosition(geometryAttributes.verticesBase + vertexIndexWithinGeometry);
+    vec4 modelPos  = vec4(quantRange.offset + (quantRange.scale * vec3(quantPos)), 1.0);
+
+    // Fetch transforms
+    // modelMatrix: mesh-local \u2192 world
+    // viewMatrix:  world \u2192 view (tile camera)
+    mat4 modelMatrix = getMeshMatrix(meshIndex);
+    mat4 viewMatrix  = getTileViewMatrix(tileIndex);
+
+    // Apply transforms through the standard pipeline
+    vec4 worldPos = modelMatrix * modelPos;      // model \u2192 world
+    vec4 viewPos  = viewMatrix  * worldPos;      // world \u2192 view
+    vec4 clipPos  = uProjMatrix * viewPos;       // view  \u2192 clip
+
+    // Write final clip-space position for rasterization
+    gl_Position = clipPos;`
     );
   }
   vsLambertShadingLogic() {
     this._vertSrcBuf.push(
-      // Compute triangle vertex positions in view space
-      "    uint triIndex = geometryAttributes.indicesBase + primOffset * numVertsPerPrim;",
-      "    uint ia = getVertexIndex(triIndex + 0u);",
-      "    uint ib = getVertexIndex(triIndex + 1u);",
-      "    uint ic = getVertexIndex(triIndex + 2u);",
-      "    vec3 pa = vec4(viewMatrix * (modelMatrix * vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ia))), 1.0))).xyz;",
-      "    vec3 pb = vec4(viewMatrix * (modelMatrix * vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ib))), 1.0))).xyz;",
-      "    vec3 pc = vec4(viewMatrix * (modelMatrix * vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ic))), 1.0))).xyz;",
-      // Ensure clockwise winding order: if normal faces away from +view Z, swap pb and pc
-      "    vec3 normal = normalize(cross(pc - pa, pb - pa));",
-      // "    // Reference direction: +Z in view space (outward)",
-      //  "    float winding = dot(normal, vec3(0.0, 0.0, -1.0));",
-      //  "    if (winding < 0.0) {",
-      //  //"        // Swap pb and pc to enforce clockwise winding",
-      //  "        vec3 tmp = pb;",
-      //  "        pb = pc;",
-      //  "        pc = tmp;",
-      //  "        normal = normalize(cross(pc - pa, pb - pa));",
-      //  "    }",
-      "    float lambertian = 1.0;",
-      "    vec3 reflectedColor = vec3(0.0, 0.0, 0.0);",
-      "    vec4 lightAmbient = vec4(0.3, 0.3, 0.3, 1.0);",
-      "    vec3 lightDir1 = normalize(vec3(0.0, 0.0, -1.0));",
-      "    vec4 lightColor1 = vec4(0.7, 0.7, 0.7, 1.0);",
-      "    vec3 lightDir2 = normalize(vec3(-1.0, -1.0, -1.0));",
-      "    vec4 lightColor2 = vec4(1.0, 1.0, 1.0, 0.5);",
-      "    vec3 lightDir3 = normalize(vec3(-1.0, 1.0, 1.0));",
-      "    vec4 lightColor3 = vec4(1.0, 1.0, 1.0, 0.2);",
-      "    lambertian =  dot(normal, normalize(lightDir2));",
-      "    if (lambertian < 0.0) lambertian = lambertian * -1.0;",
-      "    reflectedColor += lambertian * (lightColor2.rgb * lightColor2.a);",
-      "    vec4 color = vec4(meshViewAttributes.color) /255.0;",
-      "    vColor =  vec4((lightAmbient.rgb * lightAmbient.a * color.rgb) + (reflectedColor * color.rgb), color.a);"
+      `
+    // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+    // Lighting section: compute a face normal from the full triangle
+    // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+    // Even though we are in a per-vertex shader, we reconstruct the entire
+    // triangle (3 indices + 3 positions) to compute a consistent face normal.
+    // This yields flat shading: all 3 vertices get the same normal-derived light.
+
+    // Compute the starting index of the triangle in the index buffer
+    // triIndex points at the first of the three indices for this triangle.
+    uint triIndex = geometryAttributes.indicesBase + primOffset * numVertsPerPrim;
+
+    // Fetch triangle vertex indices (within geometry)
+    uint ia = getVertexIndex(triIndex + 0u);
+    uint ib = getVertexIndex(triIndex + 1u);
+    uint ic = getVertexIndex(triIndex + 2u);
+
+    // Fetch quantized positions for all three triangle vertices
+    uvec3 qa = getVertexPosition(geometryAttributes.verticesBase + ia);
+    uvec3 qb = getVertexPosition(geometryAttributes.verticesBase + ib);
+    uvec3 qc = getVertexPosition(geometryAttributes.verticesBase + ic);
+
+    // Dequantize + transform those triangle vertices into view space
+    vec3 pa = (viewMatrix * (modelMatrix * vec4(quantRange.offset + quantRange.scale * vec3(qa), 1.0))).xyz;
+    vec3 pb = (viewMatrix * (modelMatrix * vec4(quantRange.offset + quantRange.scale * vec3(qb), 1.0))).xyz;
+    vec3 pc = (viewMatrix * (modelMatrix * vec4(quantRange.offset + quantRange.scale * vec3(qc), 1.0))).xyz;
+
+    // Ensure a consistent winding relative to the camera
+    // If the triangle is not facing the eye with the current vertex order,
+    // we swap two vertices to flip the winding. This makes the computed
+    // normal consistently oriented (reduces \u201Cinside-out\u201D lighting).
+    if (!triangleFacesEyeVS(pa, pb, pc)) {
+        vec3 tmp = pb;
+        pb = pc;
+        pc = tmp;
+    }
+
+    // Compute face normal in view space
+    vec3 normal = -normalize(cross(pc - pa, pb - pa));
+
+    // Set up Lambert lighting accumulation
+    float lambertian = 1.0;
+    vec3 reflectedColor = vec3(0.0);
+
+    vec4 lightAmbient = vec4(0.3, 0.3, 0.3, 1.0);
+    vec3 lightDir1    = normalize(vec3(0.0, 0.0, -1.0));
+    vec4 lightColor1  = vec4(0.7, 0.7, 0.7, 1.0);
+    vec3 lightDir2    = normalize(vec3(-1.0, 1.0, 1.0));
+    vec4 lightColor2  = vec4(1.0, 1.0, 1.0, 0.5);
+    vec3 lightDir3    = normalize(vec3(-1.0, 1.0, 1.0));
+    vec4 lightColor3  = vec4(1.0, 1.0, 1.0, 0.2);
+
+    // Lambert diffuse term (N\xB7L), clamped to [0,1]
+    // Currently using lightDir2 only.
+    lambertian = max(dot(normal, normalize(lightDir2)), 0.0);
+
+    // Fetch mesh base color
+    // Stored as RGBA8 in uvec4, convert to float 0..1.
+    vec4 color = vec4(meshViewAttributes.color) / 255.0;
+
+    // Accumulate reflected/diffuse light contribution
+    // lightColor2.rgb * lightColor2.a acts like (color * intensity).
+    reflectedColor += lambertian * (lightColor2.rgb * lightColor2.a);
+
+    // Combine ambient + diffuse lighting
+    // Ambient is applied to base color, diffuse multiplies base color as well.
+    vec3 lit = (lightAmbient.rgb * lightAmbient.a * color.rgb) + (color.rgb * reflectedColor);
+
+    // Output to fragment shader
+    // Alpha is preserved from mesh color.
+    vColor = vec4(lit, color.a);`
     );
   }
   /**
@@ -130600,31 +131835,29 @@ vec3 getEyePosition(mat4 viewMatrix) {
    * @protected
    */
   vsSilhouetteLogic() {
-    this._vertSrcBuf.push(
-      "    vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, 0.5);"
-      //"    vColor = vec4(1.0, 1.0, 0.0, 1.0);"
-    );
+    this._vertSrcBuf.push(`
+    // Output constant silhouette color
+    vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, 0.5);`);
   }
   /**
    * Generates vertex shader logic for flat color rendering.
    * @protected
    */
   vsDrawFlatColorLogic() {
-    this._vertSrcBuf.push(
-      // "    vec4 color = vec4(meshViewAttributes.color) / 255.0;",
-      // "    vColor = vec4(color.rgb, 1.0);"
-      "    vColor = vec4(1.0, 1.0, 0.0, 1.0);"
-    );
+    this._vertSrcBuf.push(`
+    // Output flat color from mesh view attributes
+    vec4 color = vec4(meshViewAttributes.color) / 255.0;
+    vColor = vec4(color.rgb, 1.0);`);
   }
   /**
    * Generates vertex shader logic for vertex color rendering.
    * @protected
    */
   vsDrawVertexColorLogic() {
-    this._vertSrcBuf.push(
-      "    uvec3 color = getVertexColor(vertexIndexWithinGeometry);",
-      "    vColor = vec4( float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, 1.0);"
-    );
+    this._vertSrcBuf.push(`
+    // Output vertex color
+    uvec4 color = getVertexColor(vertexIndexWithinGeometry);
+    vColor = vec4( float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, 1.0);`);
   }
   /**
    * Generates vertex shader logic for depth rendering.
@@ -130633,92 +131866,6 @@ vec3 getEyePosition(mat4 viewMatrix) {
   vsDrawDepthLogic() {
     this._vertSrcBuf.push(
       "    vHighPrecisionZW = gl_Position.zw;"
-    );
-  }
-  /**
-   * Generates a mock vertex shader for testing.
-   * @protected
-   */
-  vsDrawMock() {
-    this._vertSrcBuf.push(`#version 300 es
-precision highp float;
-out vec4 vColor;
-void main() {
-    vec2 p = (gl_VertexID == 0) ? vec2(-1.0, -1.0)
-           : (gl_VertexID == 1) ? vec2( 3.0, -1.0)
-                                : vec2(-1.0,  3.0);
-    gl_Position = vec4(p, 0.0, 1.0);
-    vColor = vec4(1.0, 0.0, 1.0, 1.0);
-}`);
-  }
-  /**
-   * Generates a second mock vertex shader for testing.
-   * This time, the uProjMatrix is used.
-   * @protected
-   */
-  vsDrawMock2() {
-    this._vertSrcBuf.push(`#version 300 es
-precision highp float;
-uniform mat4 uProjMatrix;
-out vec4 vColor;
-
-vec3 mockModelPos(int vid) {
-    int i = vid % 3;
-    if (i == 0) return vec3(-0.5, -0.5, -0.95);
-    if (i == 1) return vec3( 0.5, -0.5, -0.95);
-    return        vec3( 0.0,  0.5, -0.95);
-}
-
-void main() {
-    vec4 viewPos = vec4(mockModelPos(gl_VertexID), 1.0);
-    gl_Position = uProjMatrix * viewPos;
-    vColor = vec4(0.0, 1.0, 1.0, 1.0);
-}
-`);
-  }
-  /**
-   * Generates a third mock vertex shader for testing.
-   * This time, the uVertexPositionTexture is tested.
-   * @protected
-   */
-  vsDrawMock3() {
-    this._vertSrcBuf.push(`#version 300 es
-precision highp float;
-precision highp usampler2D;
-
-uniform highp usampler2D uVertexPositionTexture;
-out vec4 vColor;
-
-ivec2 texCoord(uint index, uint texWidth) {
-    return ivec2(int(index % texWidth), int(index / texWidth));
-}
-
-uvec3 getVertexPosition(uint vertexIndexWithinGeometry) {
-    const uint texWidth = 4096u;
-    return texelFetch(uVertexPositionTexture, texCoord(vertexIndexWithinGeometry, texWidth), 0).rgb;
-}
-
-void main() {
-    uvec3 q = getVertexPosition(uint(gl_VertexID));
-   vec3 p = (vec3(q) / 1024.0) * 2.0 - 1.0;
-    gl_Position = vec4(p.xy, 0.0, 1.0);
-    vColor = vec4(fract(vec3(q) / 255.0), 1.0);
-}
-`);
-  }
-  /**
-   * Generates a mock fragment shader for testing.
-   * @protected
-   */
-  fsDrawMock() {
-    this._fragSrcBuf.push(
-      "#version 300 es",
-      "precision highp float;",
-      "in vec4 vColor;",
-      "out vec4 outColor;",
-      "void main() {",
-      "    outColor = vColor;",
-      "}"
     );
   }
   /**
@@ -130975,7 +132122,10 @@ void main() {
       gl.uniform1f(uniforms.pointSize, view.pointsMaterial.pointSize);
     }
     if (uniforms.nearPlaneHeight) {
-      gl.uniform1f(uniforms.nearPlaneHeight, view.camera.projectionType === OrthoProjectionType ? 1 : gl.drawingBufferHeight / (2 * Math.tan(0.5 * view.camera.perspectiveProjection.fov * Math.PI / 180)));
+      gl.uniform1f(
+        uniforms.nearPlaneHeight,
+        view.camera.projectionType === OrthoProjectionType ? 1 : gl.drawingBufferHeight / (2 * Math.tan(0.5 * view.camera.perspectiveProjection.fov * Math.PI / 180))
+      );
     }
     if (uniforms.pickZNear) {
       gl.uniform1f(uniforms.pickZNear, renderContext.pickZNear);
@@ -131041,21 +132191,20 @@ void main() {
     this._program = null;
   }
 };
-function joinSansComments(srcLines) {
-  const src = [];
-  let line;
-  let n;
+function joinSrc(srcLines, srcLinesWithoutComments, srcLinesWithComments) {
   for (let i = 0, len = srcLines.length; i < len; i++) {
-    line = srcLines[i];
-    n = line.indexOf("/");
-    if (n > 0) {
-      if (line.charAt(n + 1) === "/") {
-        line = line.substring(0, n);
-      }
+    const lines = srcLines[i].split(/\r\n|\r|\n/);
+    for (let n = 0; n < lines.length; n++) {
+      let line = lines[n];
+      srcLinesWithComments.push(line);
+      const idx = line.indexOf("//");
+      if (idx >= 0)
+        line = line.slice(0, idx);
+      line = line.replace(/\/\*.*?\*\//g, "");
+      if (line.match(/\S/))
+        srcLinesWithoutComments.push(line);
     }
-    src.push(line);
   }
-  return src.join("\n");
 }
 
 // ../sdk/src/webglrenderer/internal/drawOps/techniques/triangles/TrianglesDrawColorTechnique.ts
@@ -131235,6 +132384,9 @@ var TrianglesDrawEdgeSilhouetteTechnique = class extends DrawTechnique {
 
 // ../sdk/src/webglrenderer/internal/drawOps/techniques/generic/GenericPickMeshTechnique.ts
 var GenericPickMeshTechnique = class extends DrawTechnique {
+  constructor(renderContext, gpuMemoryReader) {
+    super(renderContext, gpuMemoryReader, { picking: true });
+  }
   buildVertexShader() {
     this.vsHeader();
     this.vsCommonDefines();
@@ -131645,19 +132797,25 @@ var PickManager = class {
       this._getClipPosY(pickCanvasPos[1] * resolutionScale.resolutionScale, gl.drawingBufferHeight)
     ];
     gl.viewport(0, 0, 1, 1);
-    gl.depthMask(true);
+    const bg = rendererView.view.transparent ? [0, 0, 0, 0] : [...view.backgroundColor, 1];
+    gl.clearColor(bg[0], bg[1], bg[2], bg[3]);
     gl.enable(gl.DEPTH_TEST);
+    gl.frontFace(gl.CCW);
     gl.disable(gl.CULL_FACE);
+    gl.depthMask(true);
     gl.disable(gl.BLEND);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.lineWidth(1);
+    renderContext.lineWidth = 1;
     const meshBatches = this._meshBatchManager.sortedBatches;
     for (let i = 0, len = meshBatches.length; i < len; i++) {
       const meshBatch = meshBatches[i];
       if (meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.PICK)) {
-        this._drawOps[meshBatch.primitive]?.pick?.drawBatch(meshBatch);
+        this._drawOps.prims[meshBatch.primitive]?.pick?.drawBatch(meshBatch);
       }
     }
     const pix = pickBuffer.read(0, 0);
+    console.log("Pick pixel data:", pix);
     pickBuffer.unbind();
     if (!pix || pix.length < 4) {
       return null;
@@ -131816,7 +132974,7 @@ var RenderManager = class {
     const xrayMaterial = view.xrayMaterial;
     const meshBatches = this._meshManager.sortedBatches;
     const drawOps = this.drawOps.prims;
-    const drawInspector = renderContext.drawInspector && renderContext.drawInspector.enabled ? renderContext.drawInspector : null;
+    const drawInspector = renderContext.renderInspector && renderContext.renderInspector.enabled ? renderContext.renderInspector : null;
     drawInspector?.frameStarted(view);
     const bins = {
       normalDrawSAO: [],
@@ -132183,8 +133341,8 @@ var RendererTextureSet = class {
 // ../sdk/src/webglrenderer/internal/inspectors/index.ts
 var inspectors_exports = {};
 __export(inspectors_exports, {
-  DrawInspector: () => DrawInspector,
   MemoryDebugger: () => MemoryDebugger,
+  RenderInspector: () => RenderInspector,
   ShaderInspector: () => ShaderInspector
 });
 
@@ -132819,87 +133977,182 @@ var MemoryDebugger = class {
   }
 };
 
+// ../sdk/src/webglrenderer/internal/drawOps/index.ts
+var drawOps_exports = {};
+__export(drawOps_exports, {
+  DrawOp: () => DrawOp,
+  DrawOps: () => DrawOps,
+  DrawTechnique: () => DrawTechnique,
+  getDrawOps: () => getDrawOps,
+  putDrawOps: () => putDrawOps,
+  techniques: () => techniques_exports
+});
+
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/index.ts
+var techniques_exports = {};
+__export(techniques_exports, {
+  generic: () => generic_exports,
+  lines: () => lines_exports,
+  points: () => points_exports,
+  triangles: () => triangles_exports
+});
+
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/generic/index.ts
+var generic_exports = {};
+__export(generic_exports, {
+  GenericDrawSilhouetteTechnique: () => GenericDrawSilhouetteTechnique,
+  GenericPickDepthTechnique: () => GenericPickDepthTechnique,
+  GenericPickMeshTechnique: () => GenericPickMeshTechnique
+});
+
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/lines/index.ts
+var lines_exports = {};
+__export(lines_exports, {
+  LinesDrawColorTechnique: () => LinesDrawColorTechnique
+});
+
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/points/index.ts
+var points_exports = {};
+__export(points_exports, {
+  PointsDrawColorTechnique: () => PointsDrawColorTechnique,
+  PointsDrawSilhouetteTechnique: () => PointsDrawSilhouetteTechnique,
+  PointsPickDepth: () => PointsPickDepth,
+  TrianglesPickMeshDrawTechnique: () => TrianglesPickMeshDrawTechnique
+});
+
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/points/PointsDrawSilhouetteTechnique.ts
+var PointsDrawSilhouetteTechnique = class extends DrawTechnique {
+  buildVertexShader() {
+    this.vsHeader();
+    this.vsCommonDefines();
+    this.vsSlicingDefines();
+    this.vsSilhouetteDefines();
+    this.vsMainOpen();
+    this.vsSilhouetteLogic();
+    this.vsSlicingLogic();
+    this.vsMainClose();
+  }
+  buildFragmentShader() {
+    this.fsHeader();
+    this.fsPrecisionDefines();
+    this.fsCommonDefines();
+    this.fsSlicingDefines();
+    this.fsSilhouetteDefines();
+    this.fsMainOpen();
+    this.fsSlicingLogic();
+    this.fsSilhouetteLogic();
+    this.fsCommonOutput();
+    this.fsMainClose();
+  }
+};
+
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/points/PointsPickDepthTechnique.ts
+var PointsPickDepth = class extends DrawTechnique {
+  buildVertexShader() {
+    this.vsHeader();
+    this.vsCommonDefines();
+    this.vsSlicingDefines();
+    this.vsDrawDepthDefines();
+    this.vsPickMainOpen();
+    this.vsDrawDepthLogic();
+    this.vsSlicingLogic();
+    this.vsMainClose();
+  }
+  buildFragmentShader() {
+    this.fsHeader();
+    this.fsPrecisionDefines();
+    this.fsCommonDefines();
+    this.fsSlicingDefines();
+    this.fsDrawDepthDefines();
+    this.fsMainOpen();
+    this.fsSlicingLogic();
+    this.fsDrawDepthLogic();
+    this.fsCommonOutput();
+    this.fsMainClose();
+  }
+};
+
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/points/PointsPickMeshDrawTechnique.ts
+var TrianglesPickMeshDrawTechnique = class extends DrawTechnique {
+  buildVertexShader() {
+    this.vsHeader();
+    this.vsCommonDefines();
+    this.vsSlicingDefines();
+    this.vsPickMeshDefines();
+    this.vsPickMainOpen();
+    this.vsPickMeshLogic();
+    this.vsSlicingLogic();
+    this.vsMainClose();
+  }
+  buildFragmentShader() {
+    this.fsHeader();
+    this.fsPrecisionDefines();
+    this.fsCommonDefines();
+    this.fsSlicingDefines();
+    this.fsPickMeshDefines();
+    this.fsMainOpen();
+    this.fsSlicingLogic();
+    this.fsPickMeshLogic();
+    this.fsCommonOutput();
+    this.fsMainClose();
+  }
+};
+
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/triangles/index.ts
+var triangles_exports = {};
+__export(triangles_exports, {
+  TrianglesDrawColorTechnique: () => TrianglesDrawColorTechnique,
+  TrianglesDrawEdgeColorTechnique: () => TrianglesDrawEdgeColorTechnique,
+  TrianglesDrawEdgeSilhouetteTechnique: () => TrianglesDrawEdgeSilhouetteTechnique
+});
+
 // ../sdk/src/webglrenderer/internal/inspectors/ShaderInspector.ts
 var ShaderInspector = class {
   techniques;
   constructor(drawOps) {
+    const getShaderSource = (tech) => ({
+      vertexShaderSrc: tech.vertexShaderSrc,
+      vertexShaderCommentedSrc: tech.vertexShaderCommentedSrc,
+      fragmentShaderSrc: tech.fragmentShaderSrc,
+      fragmentShaderCommentedSrc: tech.fragmentShaderCommentedSrc
+    });
     this.techniques = {
       triangles: {
-        opaque: {
-          vertexSrc: drawOps.prims[TrianglesPrimitive].opaque.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[TrianglesPrimitive].opaque.technique.fragmentShaderSrc
-        },
-        transparent: {
-          vertexSrc: drawOps.prims[TrianglesPrimitive].transparent.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[TrianglesPrimitive].transparent.technique.fragmentShaderSrc
-        },
-        highlighted: {
-          vertexSrc: drawOps.prims[TrianglesPrimitive].highlighted.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[TrianglesPrimitive].highlighted.technique.fragmentShaderSrc
-        },
-        selected: {
-          vertexSrc: drawOps.prims[TrianglesPrimitive].selected.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[TrianglesPrimitive].selected.technique.fragmentShaderSrc
-        },
-        xrayed: {
-          vertexSrc: drawOps.prims[TrianglesPrimitive].xrayed.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[TrianglesPrimitive].xrayed.technique.fragmentShaderSrc
-        },
-        pick: {
-          vertexSrc: drawOps.prims[TrianglesPrimitive].pick.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[TrianglesPrimitive].pick.technique.fragmentShaderSrc
-        }
+        opaque: getShaderSource(drawOps.prims[TrianglesPrimitive].opaque.technique),
+        opaqueEdges: getShaderSource(drawOps.prims[TrianglesPrimitive].opaqueEdges.technique),
+        transparent: getShaderSource(drawOps.prims[TrianglesPrimitive].transparent.technique),
+        transparentEdges: getShaderSource(drawOps.prims[TrianglesPrimitive].transparentEdges.technique),
+        highlighted: getShaderSource(drawOps.prims[TrianglesPrimitive].highlighted.technique),
+        selected: getShaderSource(drawOps.prims[TrianglesPrimitive].selected.technique),
+        xrayed: getShaderSource(drawOps.prims[TrianglesPrimitive].xrayed.technique),
+        pick: getShaderSource(drawOps.prims[TrianglesPrimitive].pick.technique)
       },
       lines: {
-        opaque: {
-          vertexSrc: drawOps.prims[LinesPrimitive].opaque.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[LinesPrimitive].opaque.technique.fragmentShaderSrc
-        },
-        transparent: {
-          vertexSrc: drawOps.prims[LinesPrimitive].transparent.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[LinesPrimitive].transparent.technique.fragmentShaderSrc
-        },
-        highlighted: {
-          vertexSrc: drawOps.prims[LinesPrimitive].highlighted.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[LinesPrimitive].highlighted.technique.fragmentShaderSrc
-        },
-        selected: {
-          vertexSrc: drawOps.prims[LinesPrimitive].selected.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[LinesPrimitive].selected.technique.fragmentShaderSrc
-        },
-        xrayed: {
-          vertexSrc: drawOps.prims[LinesPrimitive].xrayed.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[LinesPrimitive].xrayed.technique.fragmentShaderSrc
-        },
-        pick: {
-          vertexSrc: drawOps.prims[LinesPrimitive].pick.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[LinesPrimitive].pick.technique.fragmentShaderSrc
-        }
+        opaque: getShaderSource(drawOps.prims[LinesPrimitive].opaque.technique),
+        transparent: getShaderSource(drawOps.prims[LinesPrimitive].transparent.technique),
+        highlighted: getShaderSource(drawOps.prims[LinesPrimitive].highlighted.technique),
+        selected: getShaderSource(drawOps.prims[LinesPrimitive].selected.technique),
+        xrayed: getShaderSource(drawOps.prims[LinesPrimitive].xrayed.technique),
+        pick: getShaderSource(drawOps.prims[LinesPrimitive].pick.technique)
       },
       points: {
-        opaque: {
-          vertexSrc: drawOps.prims[PointsPrimitive].opaque.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[PointsPrimitive].opaque.technique.fragmentShaderSrc
-        },
-        transparent: {
-          vertexSrc: drawOps.prims[PointsPrimitive].transparent.technique.vertexShaderSrc,
-          fragmentSrc: drawOps.prims[PointsPrimitive].transparent.technique.fragmentShaderSrc
-        }
+        opaque: getShaderSource(drawOps.prims[PointsPrimitive].opaque.technique),
+        transparent: getShaderSource(drawOps.prims[PointsPrimitive].transparent.technique)
         // highlighted: {
-        //   vertexSrc: drawOps.prims[PointsPrimitive].highlighted.technique.vertexShaderSrc,
-        //   fragmentSrc: drawOps.prims[PointsPrimitive].highlighted.technique.fragmentShaderSrc
+        //   vertexShaderSrc: drawOps.prims[PointsPrimitive].highlighted.technique.vertexShaderCommentedSrc,
+        //   fragmentShaderSrc: drawOps.prims[PointsPrimitive].highlighted.technique.fragmentShaderCommentedSrc
         // },
         //  selected: {
-        //   vertexSrc: drawOps.prims[PointsPrimitive].selected.technique.vertexShaderSrc,
-        //   fragmentSrc: drawOps.prims[PointsPrimitive].selected.technique.fragmentShaderSrc
+        //   vertexShaderSrc: drawOps.prims[PointsPrimitive].selected.technique.vertexShaderCommentedSrc,
+        //   fragmentShaderSrc: drawOps.prims[PointsPrimitive].selected.technique.fragmentShaderCommentedSrc
         // },
         // xrayed: {
-        //   vertexSrc: drawOps.prims[PointsPrimitive].xrayed.technique.vertexShaderSrc,
-        //   fragmentSrc: drawOps.prims[PointsPrimitive].xrayed.technique.fragmentShaderSrc
+        //   vertexShaderSrc: drawOps.prims[PointsPrimitive].xrayed.technique.vertexShaderCommentedSrc,
+        //   fragmentShaderSrc: drawOps.prims[PointsPrimitive].xrayed.technique.fragmentShaderCommentedSrc
         // },
         // pick: {
-        //   vertexSrc: drawOps.prims[PointsPrimitive].pick.technique.vertexShaderSrc,
-        //   fragmentSrc: drawOps.prims[PointsPrimitive].pick.technique.fragmentShaderSrc
+        //   vertexShaderSrc: drawOps.prims[PointsPrimitive].pick.technique.vertexShaderCommentedSrc,
+        //   fragmentShaderSrc: drawOps.prims[PointsPrimitive].pick.technique.fragmentShaderCommentedSrc
         // }
       }
     };
@@ -133088,13 +134341,13 @@ var ViewManager2 = class {
     return this._gpuMemoryManager.getMemoryUsage();
   }
   /**
-   * Returns the {@link DrawInspector} used to inspect draw calls.
+   * Returns the {@link RenderInspector} used to inspect draw calls.
    */
-  getDrawInspector() {
+  getRenderInspector() {
     if (!this._renderContext) {
-      throw new SDKInternalException("[ViewManager.getDrawInspector] ViewManager is not initialized");
+      throw new SDKInternalException("[ViewManager.getRenderInspector] ViewManager is not initialized");
     }
-    return this._renderContext.drawInspector;
+    return this._renderContext.renderInspector;
   }
   /**
    * Returns the {@link View} at a given index in the internal view list.
@@ -133495,7 +134748,7 @@ function createMemoryConfigs(params) {
   const AVG_VERTICES_PER_GEOMETRY = 200;
   const AVG_INDICES_PER_GEOMETRY = 400;
   const AVG_PRIMS_PER_GEOMETRY = 200;
-  const clamp2 = (v, min, max) => Math.max(min, Math.min(v, max));
+  const clamp3 = (v, min, max) => Math.max(min, Math.min(v, max));
   const MB_TO_BYTES = 1024 * 1024;
   const grossBytes = params.grossMemoryMB * MB_TO_BYTES;
   const usableBytes = grossBytes * params.utilization;
@@ -133504,20 +134757,20 @@ function createMemoryConfigs(params) {
   const tileBudgetBytes = usableBytes * 0.1;
   const maxBatchesBase = user.maxBatches ?? perf.meshBatches;
   const maxTilesBase = user.maxTiles ?? perf.tiles;
-  const derivedMaxTiles = clamp2(
+  const derivedMaxTiles = clamp3(
     Math.floor(tileBudgetBytes / BYTES_PER_TILE),
     64,
     4096
   );
-  const maxTiles = clamp2(
+  const maxTiles = clamp3(
     Math.min(maxTilesBase, derivedMaxTiles),
     64,
     4096
   );
-  const maxBatches = clamp2(maxBatchesBase, 8, 1024);
+  const maxBatches = clamp3(maxBatchesBase, 8, 1024);
   const totalMeshCapacity = Math.floor(meshBudgetBytes / BYTES_PER_MESH);
   const meshesPerBatchFromBudget = Math.floor(totalMeshCapacity / Math.max(1, maxBatches));
-  const maxBatchMeshes = clamp2(
+  const maxBatchMeshes = clamp3(
     user.maxBatchMeshes ?? meshesPerBatchFromBudget,
     100,
     16384
@@ -133526,17 +134779,17 @@ function createMemoryConfigs(params) {
   const bytesPerBatch = maxBatches > 0 ? geometryBudgetBytes / maxBatches : geometryBudgetBytes;
   const costPerVertex = BYTES_PER_VERTEX + INDICES_PER_VERTEX * BYTES_PER_INDEX + PRIMS_PER_VERTEX * BYTES_PER_PRIM;
   const maxBatchVerticesRaw = Math.floor(bytesPerBatch / costPerVertex);
-  const maxBatchVertices = user.maxBatchVertices ?? clamp2(
+  const maxBatchVertices = user.maxBatchVertices ?? clamp3(
     maxBatchVerticesRaw,
     1e5,
     16e6
   );
-  const maxBatchIndices = user.maxBatchIndices ?? clamp2(
+  const maxBatchIndices = user.maxBatchIndices ?? clamp3(
     Math.floor(maxBatchVertices * INDICES_PER_VERTEX),
     1e5,
     16e6
   );
-  const maxBatchPrims = user.maxBatchPrims ?? clamp2(
+  const maxBatchPrims = user.maxBatchPrims ?? clamp3(
     Math.floor(maxBatchVertices * PRIMS_PER_VERTEX),
     1e5,
     16e6
@@ -133554,12 +134807,12 @@ function createMemoryConfigs(params) {
     1,
     Math.min(maxGeometriesByVerts, maxGeometriesByIdx, maxGeometriesByPrims)
   );
-  maxBatchGeometries = clamp2(
+  maxBatchGeometries = clamp3(
     Math.min(maxBatchGeometries, geomCap),
     1,
     maxBatchGeometries
   );
-  const finalMaxBatchMeshes = clamp2(
+  const finalMaxBatchMeshes = clamp3(
     Math.min(maxBatchMeshes, maxBatchGeometries),
     100,
     16384
@@ -133627,6 +134880,10 @@ var WebGLRenderer3 = class {
      */
     onRendererStarted: new EventEmitter(new import_strongly_typed_events12.EventDispatcher()),
     /**
+     * Emitted when the renderer has rendered a new frame for a {@link View} belonging to the attached {@link Viewer}.
+     */
+    onViewRendered: new EventEmitter(new import_strongly_typed_events12.EventDispatcher()),
+    /**
      * Emitted when the renderer stops rendering.
      *
      * Rendering stops when the Scene is detached or when the renderer’s internal
@@ -133693,17 +134950,16 @@ var WebGLRenderer3 = class {
       this._memoryConfigs = {};
       Object.assign(this._memoryConfigs, params.memoryConfigs);
     } else {
-      this._memoryConfigs = createMemoryConfigs({
-        grossMemoryMB: 2024,
-        // 2GB
-        device: "medium",
-        // Assume mid-range device
-        utilization: 0.7,
-        // Use 70% of available memory
-        user: {
-          // No overrides
-        }
-      });
+      this._memoryConfigs = {
+        tileSize: 200,
+        maxTiles: 1e3,
+        maxBatches: 300,
+        maxBatchVertices: 2e4,
+        maxBatchIndices: 6e4,
+        maxBatchGeometries: 1e4,
+        maxBatchMeshes: 1e4,
+        maxBatchPrims: 4e4
+      };
     }
     this._debugging = !!params.debugging;
     if (params.viewer) {
@@ -133826,21 +135082,21 @@ var WebGLRenderer3 = class {
     };
   }
   /**
-   * Sets a {@link DrawInspector} to inspect draw calls during rendering.
+   * Sets a {@link RenderInspector} to inspect draw calls during rendering.
    * @param drawInspector
    * @internal
    */
-  getDrawInspector() {
+  getRenderInspector() {
     if (!this._viewManager) {
       return this.logError({
         ok: false,
         type: 1 /* InvalidOperation */,
-        error: "[WebGLRenderer.setDrawLogger] Failed to set DrawInspector - no Viewer with Scene is currently attached."
+        error: "[WebGLRenderer.setDrawLogger] Failed to set RenderInspector - no Viewer with Scene is currently attached."
       });
     }
     return {
       ok: true,
-      value: this._viewManager.getDrawInspector()
+      value: this._viewManager.getRenderInspector()
     };
   }
   /**
@@ -133943,6 +135199,7 @@ var WebGLRenderer3 = class {
     const viewManager = this._viewManager;
     const sceneEvents = this._viewer.scene.events;
     const viewerEvents = this._viewer.events;
+    const rendererEvents = this.events;
     this._viewManagerSubs = [
       // Scene components creation/destruction
       // Log errors from these calls
@@ -133957,8 +135214,11 @@ var WebGLRenderer3 = class {
       // View and ViewObject creation/destruction
       // Log errors from these calls
       viewerEvents.onViewCreated.subscribe((_, view) => this.logError(viewManager.viewCreated(view))),
-      viewerEvents.onViewUpdated.subscribe((_, view) => this.logError(viewManager.viewUpdated(view))),
-      // View ready to re-render
+      viewerEvents.onViewUpdated.subscribe((_, view) => {
+        if (this.logError(viewManager.viewUpdated(view)).ok !== false) {
+          rendererEvents.onViewRendered.dispatch(this, view);
+        }
+      }),
       viewerEvents.onViewDestroyed.subscribe((_, view) => this.logError(viewManager.viewDestroyed(view))),
       // SceneMesh and SceneTransform state changes
       sceneEvents.onSceneMeshGeometryChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshGeometryChanged(sceneMesh)),
@@ -134117,135 +135377,6 @@ __export(internal_exports, {
   meshManager: () => meshManager_exports,
   pickManager: () => pickManager_exports,
   renderManager: () => renderManager_exports
-});
-
-// ../sdk/src/webglrenderer/internal/drawOps/index.ts
-var drawOps_exports = {};
-__export(drawOps_exports, {
-  DrawOp: () => DrawOp,
-  DrawOps: () => DrawOps,
-  DrawTechnique: () => DrawTechnique,
-  getDrawOps: () => getDrawOps,
-  putDrawOps: () => putDrawOps,
-  techniques: () => techniques_exports
-});
-
-// ../sdk/src/webglrenderer/internal/drawOps/techniques/index.ts
-var techniques_exports = {};
-__export(techniques_exports, {
-  generic: () => generic_exports,
-  lines: () => lines_exports,
-  points: () => points_exports,
-  triangles: () => triangles_exports
-});
-
-// ../sdk/src/webglrenderer/internal/drawOps/techniques/generic/index.ts
-var generic_exports = {};
-__export(generic_exports, {
-  GenericDrawSilhouetteTechnique: () => GenericDrawSilhouetteTechnique,
-  GenericPickDepthTechnique: () => GenericPickDepthTechnique,
-  GenericPickMeshTechnique: () => GenericPickMeshTechnique
-});
-
-// ../sdk/src/webglrenderer/internal/drawOps/techniques/lines/index.ts
-var lines_exports = {};
-__export(lines_exports, {
-  LinesDrawColorTechnique: () => LinesDrawColorTechnique
-});
-
-// ../sdk/src/webglrenderer/internal/drawOps/techniques/points/index.ts
-var points_exports = {};
-__export(points_exports, {
-  PointsDrawColorTechnique: () => PointsDrawColorTechnique,
-  PointsDrawSilhouetteTechnique: () => PointsDrawSilhouetteTechnique,
-  PointsPickDepth: () => PointsPickDepth,
-  TrianglesPickMeshDrawTechnique: () => TrianglesPickMeshDrawTechnique
-});
-
-// ../sdk/src/webglrenderer/internal/drawOps/techniques/points/PointsDrawSilhouetteTechnique.ts
-var PointsDrawSilhouetteTechnique = class extends DrawTechnique {
-  buildVertexShader() {
-    this.vsHeader();
-    this.vsCommonDefines();
-    this.vsSlicingDefines();
-    this.vsSilhouetteDefines();
-    this.vsMainOpen();
-    this.vsSilhouetteLogic();
-    this.vsSlicingLogic();
-    this.vsMainClose();
-  }
-  buildFragmentShader() {
-    this.fsHeader();
-    this.fsPrecisionDefines();
-    this.fsCommonDefines();
-    this.fsSlicingDefines();
-    this.fsSilhouetteDefines();
-    this.fsMainOpen();
-    this.fsSlicingLogic();
-    this.fsSilhouetteLogic();
-    this.fsCommonOutput();
-    this.fsMainClose();
-  }
-};
-
-// ../sdk/src/webglrenderer/internal/drawOps/techniques/points/PointsPickDepthTechnique.ts
-var PointsPickDepth = class extends DrawTechnique {
-  buildVertexShader() {
-    this.vsHeader();
-    this.vsCommonDefines();
-    this.vsSlicingDefines();
-    this.vsDrawDepthDefines();
-    this.vsPickMainOpen();
-    this.vsDrawDepthLogic();
-    this.vsSlicingLogic();
-    this.vsMainClose();
-  }
-  buildFragmentShader() {
-    this.fsHeader();
-    this.fsPrecisionDefines();
-    this.fsCommonDefines();
-    this.fsSlicingDefines();
-    this.fsDrawDepthDefines();
-    this.fsMainOpen();
-    this.fsSlicingLogic();
-    this.fsDrawDepthLogic();
-    this.fsCommonOutput();
-    this.fsMainClose();
-  }
-};
-
-// ../sdk/src/webglrenderer/internal/drawOps/techniques/points/PointsPickMeshDrawTechnique.ts
-var TrianglesPickMeshDrawTechnique = class extends DrawTechnique {
-  buildVertexShader() {
-    this.vsHeader();
-    this.vsCommonDefines();
-    this.vsSlicingDefines();
-    this.vsPickMeshDefines();
-    this.vsPickMainOpen();
-    this.vsPickMeshLogic();
-    this.vsSlicingLogic();
-    this.vsMainClose();
-  }
-  buildFragmentShader() {
-    this.fsHeader();
-    this.fsPrecisionDefines();
-    this.fsCommonDefines();
-    this.fsSlicingDefines();
-    this.fsPickMeshDefines();
-    this.fsMainOpen();
-    this.fsSlicingLogic();
-    this.fsPickMeshLogic();
-    this.fsCommonOutput();
-    this.fsMainClose();
-  }
-};
-
-// ../sdk/src/webglrenderer/internal/drawOps/techniques/triangles/index.ts
-var triangles_exports = {};
-__export(triangles_exports, {
-  TrianglesDrawColorTechnique: () => TrianglesDrawColorTechnique,
-  TrianglesDrawEdgeColorTechnique: () => TrianglesDrawEdgeColorTechnique,
-  TrianglesDrawEdgeSilhouetteTechnique: () => TrianglesDrawEdgeSilhouetteTechnique
 });
 
 // ../sdk/src/cameracontrol/index.ts
@@ -140314,10 +141445,5777 @@ function stripPathFromFilename(fullPath) {
 // ../sdk/src/demo/index.ts
 var demo_exports = {};
 __export(demo_exports, {
-  DemoHelper: () => DemoHelper
+  DemoHelper: () => DemoHelper,
+  buildDemoModelTable: () => buildDemoModelTable
 });
 
+// ../sdk/src/demo/inspectors/FloatingPanelFlowHost.ts
+var FloatingPanelFlowHost = class {
+  static #HOST_ID = "__floating_panel_flow_host__";
+  static #STYLE_ID = "__floating_panel_flow_style__";
+  static getOrCreate(opts = {}) {
+    this.#ensureStyle(opts);
+    const {
+      corner = "top-right",
+      zIndex = 2147483647,
+      maxWidth = 2e3,
+      gapPx = 12,
+      marginTopPx = 12,
+      marginBottomPx = 12,
+      marginLeftPx = 12,
+      marginRightPx = 12,
+      maxHeightVh = 90
+    } = opts;
+    let host = document.getElementById(this.#HOST_ID);
+    if (!host) {
+      host = document.createElement("div");
+      host.id = this.#HOST_ID;
+      host.className = "fpfh-host";
+      host.style.backgroundColor = "rgba(0, 0, 0, 0)";
+      host.style.position = "absolute";
+      host.style.zIndex = String(zIndex);
+      host.style.paddingRight = "10px";
+      host.style.display = "flex";
+      host.style.justifyContent = "flex-start";
+      host.style.flexWrap = "wrap";
+      host.style.gap = `${gapPx}px`;
+      host.style.alignItems = "flex-start";
+      host.style.pointerEvents = "all";
+      host.style.maxHeight = `${maxHeightVh}vh`;
+      host.style.overflow = "auto";
+      host.style.width = `min(${maxWidth}px, calc(100vw - ${marginLeftPx + marginRightPx + 10}px))`;
+      document.body.appendChild(host);
+    }
+    host.style.top = "";
+    host.style.right = "";
+    host.style.bottom = "";
+    host.style.left = "";
+    switch (corner) {
+      case "top-left":
+        host.style.top = `${marginTopPx}px`;
+        host.style.left = `${marginLeftPx}px`;
+        break;
+      case "bottom-right":
+        host.style.bottom = `${marginBottomPx}px`;
+        host.style.right = `${marginRightPx}px`;
+        break;
+      case "bottom-left":
+        host.style.bottom = `${marginBottomPx}px`;
+        host.style.left = `${marginLeftPx}px`;
+        break;
+      case "top-right":
+      default:
+        host.style.top = `${marginTopPx}px`;
+        host.style.right = `${marginRightPx}px`;
+        break;
+    }
+    return host;
+  }
+  /**
+   * Wraps a panel root in a "tile" that participates in flow layout.
+   * The tile enables pointer events (host disables them).
+   */
+  static mountTile(panelRoot, opts = {}) {
+    const { tileMinWidth = 420, tileMaxWidth = 560 } = opts;
+    const tile = document.createElement("div");
+    tile.className = "fpfh-tile";
+    tile.style.minWidth = `${tileMinWidth}px`;
+    tile.style.maxWidth = `${tileMaxWidth}px`;
+    tile.style.flex = `1 1 ${tileMinWidth}px`;
+    tile.style.pointerEvents = "auto";
+    tile.appendChild(panelRoot);
+    return tile;
+  }
+  static #ensureStyle(opts) {
+    if (document.getElementById(this.#STYLE_ID))
+      return;
+    const s = document.createElement("style");
+    s.id = this.#STYLE_ID;
+    s.textContent = `
+      .fpfh-host { box-sizing: border-box; }
+      .fpfh-tile { box-sizing: border-box; }
+    `;
+    document.head.appendChild(s);
+  }
+};
+
+// ../sdk/src/demo/inspectors/GPUMemoryConfigsPanel.ts
+var GPUMemoryConfigsPanel = class {
+  static #TILE_ID = "__memcfg_tile__";
+  static #STYLE_ID = "__memcfg_style__";
+  static #STATE_KEY = "__memcfg_collapsed__";
+  /**
+   * Creates (or updates) the panel and renders the configs into it.
+   * Mounts into the shared flow host.
+   */
+  static show(flowHost, configs, opts = {}) {
+    this.#ensureGlobalStyle();
+    let tile = document.getElementById(this.#TILE_ID);
+    if (!tile) {
+      const root = this.render(configs, opts);
+      tile = FloatingPanelFlowHost.mountTile(root, {
+        tileMinWidth: opts.tileMinWidth ?? opts.maxWidth ?? 420,
+        tileMaxWidth: opts.tileMaxWidth ?? opts.maxWidth ?? 440
+      });
+      tile.id = this.#TILE_ID;
+      flowHost.appendChild(tile);
+    } else {
+      const root = this.render(configs, opts);
+      tile.replaceChildren(root);
+    }
+    return tile;
+  }
+  //
+  // static hide() {
+  //   const tile = document.getElementById(this.#TILE_ID);
+  //   if (tile) tile.remove();
+  // }
+  //
+  // static toggle(configs: MemoryConfigs, opts?: any) {
+  //   const tile = document.getElementById(this.#TILE_ID);
+  //   if (tile) this.hide();
+  //   else this.show(configs, opts);
+  // }
+  /**
+   * Renders configs content as a DOM subtree.
+   */
+  static render(configs, opts = {}) {
+    const root = el("div", { className: "memcfg-root" });
+    const collapsed = readBool(this.#STATE_KEY, !!opts.startCollapsed);
+    const header = this.renderHeader({ collapsed });
+    const body = this.renderBody(configs);
+    root.appendChild(header);
+    root.appendChild(body);
+    this.#setCollapsed(root, collapsed);
+    const toggleBtn = header.querySelector("[data-memcfg-toggle]");
+    toggleBtn?.addEventListener("click", () => {
+      const nowCollapsed = !root.classList.contains("memcfg-collapsed");
+      this.#setCollapsed(root, nowCollapsed);
+      writeBool(this.#STATE_KEY, nowCollapsed);
+    });
+    return root;
+  }
+  static toHtmlString(configs, opts = {}) {
+    return this.render(configs, opts).outerHTML;
+  }
+  // ---------------------------------------------------------------------------
+  // Global style + collapse state
+  // ---------------------------------------------------------------------------
+  static #ensureGlobalStyle() {
+    if (document.getElementById(this.#STYLE_ID))
+      return;
+    const s = document.createElement("style");
+    s.id = this.#STYLE_ID;
+    s.textContent = DEFAULT_CSS;
+    document.head.appendChild(s);
+  }
+  static #setCollapsed(root, collapsed) {
+    root.classList.toggle("memcfg-collapsed", collapsed);
+    const body = root.querySelector(".memcfg-body");
+    if (body)
+      body.style.display = collapsed ? "none" : "block";
+    const caret = root.querySelector("[data-memcfg-caret]");
+    if (caret)
+      caret.textContent = collapsed ? "\u25B8" : "\u25BE";
+    const state = root.querySelector("[data-memcfg-state]");
+    if (state)
+      state.textContent = collapsed ? "Collapsed" : "Expanded";
+  }
+  // ---------------------------------------------------------------------------
+  // Header / body
+  // ---------------------------------------------------------------------------
+  static renderHeader({ collapsed }) {
+    const header = el("div", { className: "memcfg-header" });
+    const left = el("div", { className: "memcfg-title" }, [
+      el("div", { className: "memcfg-h1", textContent: "GPU Memory Configs" }),
+      el("div", {
+        className: "memcfg-subtitle",
+        textContent: "Limits for tiles, batches, vertices, indices, geometries, meshes, and primitives."
+      })
+    ]);
+    const right = el("div", { className: "memcfg-actions" }, [
+      el("span", {
+        className: "memcfg-caret",
+        textContent: collapsed ? "\u25B8" : "\u25BE",
+        ["data-memcfg-caret"]: ""
+      }),
+      el("button", {
+        className: "memcfg-btn",
+        textContent: "Toggle",
+        title: "Collapse/expand",
+        ["data-memcfg-toggle"]: ""
+      })
+    ]);
+    header.appendChild(left);
+    return header;
+  }
+  static renderBody(configs) {
+    const body = el("div", { className: "memcfg-body" });
+    body.appendChild(
+      this.renderSection("RTC tiling", [
+        row("tileSize", configs?.tileSize, "Size of each RTC tile (world units)"),
+        row("maxTiles", configs?.maxTiles, "Max RTC tiles in GPU memory")
+      ])
+    );
+    body.appendChild(
+      this.renderSection("Batching", [
+        row("maxBatches", configs?.maxBatches, "Max render batches in GPU memory"),
+        row("maxBatchVertices", configs?.maxBatchVertices, "Max vertices per batch"),
+        row("maxBatchIndices", configs?.maxBatchIndices, "Max indices per batch"),
+        row("maxBatchGeometries", configs?.maxBatchGeometries, "Max geometries per batch"),
+        row("maxBatchMeshes", configs?.maxBatchMeshes, "Max meshes per batch"),
+        row("maxBatchPrims", configs?.maxBatchPrims, "Max primitives per batch")
+      ])
+    );
+    body.appendChild(this.renderHints(configs));
+    return body;
+    function row(key, value, help) {
+      return [String(key), formatNumber(value), help || ""];
+    }
+  }
+  static renderSection(title, rows) {
+    const section = el("section", { className: "memcfg-section" });
+    section.appendChild(
+      el("div", { className: "memcfg-section-header" }, [
+        el("h2", { className: "memcfg-h2", textContent: title }),
+        el("div", { className: "memcfg-count", textContent: String(rows.length) })
+      ])
+    );
+    const table = el("table", { className: "memcfg-table" });
+    for (const [k, v, help] of rows) {
+      const tr2 = el("tr");
+      tr2.appendChild(el("th", { textContent: k }));
+      const td = el("td", { className: "memcfg-td" });
+      td.appendChild(el("div", { className: "memcfg-val", textContent: v }));
+      if (help)
+        td.appendChild(el("div", { className: "memcfg-help", textContent: help }));
+      tr2.appendChild(td);
+      table.appendChild(tr2);
+    }
+    section.appendChild(table);
+    return section;
+  }
+  static renderHints(configs) {
+    const hints = el("div", { className: "memcfg-hints" });
+    const problems = [];
+    const c3 = configs || {};
+    if (!(Number(c3.tileSize) > 0))
+      problems.push("tileSize should be > 0.");
+    if (!(Number(c3.maxTiles) > 0))
+      problems.push("maxTiles should be > 0.");
+    if (!(Number(c3.maxBatches) > 0))
+      problems.push("maxBatches should be > 0.");
+    if (!(Number(c3.maxBatchVertices) > 0))
+      problems.push("maxBatchVertices should be > 0.");
+    if (!(Number(c3.maxBatchIndices) >= 0))
+      problems.push("maxBatchIndices should be \u2265 0.");
+    if (!(Number(c3.maxBatchGeometries) > 0))
+      problems.push("maxBatchGeometries should be > 0.");
+    if (!(Number(c3.maxBatchMeshes) > 0))
+      problems.push("maxBatchMeshes should be > 0.");
+    if (!(Number(c3.maxBatchPrims) > 0))
+      problems.push("maxBatchPrims should be > 0.");
+    if (!problems.length) {
+      hints.appendChild(el("div", { className: "memcfg-ok", textContent: "No obvious config issues detected." }));
+      return hints;
+    }
+    hints.appendChild(el("div", { className: "memcfg-warn-title", textContent: `Notes (${problems.length})` }));
+    const ul = el("ul", { className: "memcfg-list" });
+    for (const p of problems)
+      ul.appendChild(el("li", { textContent: p }));
+    hints.appendChild(ul);
+    return hints;
+  }
+};
+function el(tag, props = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(props))
+    node[key] = value;
+  for (const child of children)
+    node.appendChild(child);
+  return node;
+}
+function formatNumber(v) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n.toLocaleString() : String(v ?? "\u2014");
+}
+function readBool(key, fallback) {
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (raw === null)
+      return fallback;
+    return raw === "1";
+  } catch {
+    return fallback;
+  }
+}
+function writeBool(key, value) {
+  try {
+    sessionStorage.setItem(key, value ? "1" : "0");
+  } catch {
+  }
+}
+var DEFAULT_CSS = `
+.memcfg-root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: #111; padding: 16px; background: rgba(255,255,255,0.96); border: 1px solid #e6e6e6; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,0.14); backdrop-filter: blur(2px); }
+
+.memcfg-header { display: grid; gap: 10px; padding: 14px; border: 1px solid #e6e6e6; border-radius: 12px; background: #fff; }
+.memcfg-title { display: grid; gap: 4px; }
+.memcfg-h1 { padding-top:10px;  font-size: 24px; color: #666666; font-weight: 650; }
+.memcfg-subtitle { font-size: 12px; color: #444; line-height: 1.35; }
+
+.memcfg-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.memcfg-caret { font-size: 14px; color: #444; width: 18px; text-align: center; }
+.memcfg-btn { font-size: 12px; border-radius: 10px; padding: 6px 10px; border: 1px solid #e6e6e6; background: #fff; cursor: pointer; }
+.memcfg-btn:hover { background: #fafafa; }
+
+.memcfg-status { display: flex; gap: 8px; align-items: baseline; }
+.memcfg-status-label { font-size: 12px; color: #666; }
+.memcfg-status-value { font-size: 12px; font-weight: 600; }
+
+.memcfg-body { margin-top: 12px; }
+.memcfg-section { margin-top: 14px; }
+.memcfg-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.memcfg-h2 { font-size: 13px; margin: 0; font-weight: 650; }
+.memcfg-count { font-size: 12px; color: #666; }
+
+.memcfg-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.memcfg-table th { text-align: left; color: #666; font-weight: 600; width: 170px; padding: 6px 8px; vertical-align: top; }
+.memcfg-td { padding: 6px 8px; }
+.memcfg-val { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+.memcfg-help { margin-top: 2px; font-size: 11px; color: #777; line-height: 1.35; }
+.memcfg-table tr + tr td, .memcfg-table tr + tr th { border-top: 1px solid #f0f0f0; }
+
+.memcfg-hints { margin-top: 14px; }
+.memcfg-ok { font-size: 12px; color: #2e7d32; }
+.memcfg-warn-title { font-size: 12px; font-weight: 650; color: #7a5a00; margin-bottom: 6px; }
+.memcfg-list { margin: 8px 0 0; padding-left: 18px; color: #222; font-size: 12px; }
+`;
+
+// ../sdk/src/demo/inspectors/GPUMemoryUsagePanel.ts
+function gpuMemoryIconDataUri() {
+  const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60">
+  <!-- Shadow -->
+  <rect x="8" y="18" width="44" height="24" rx="7" fill="#222" opacity="0.18"/>
+  <!-- RAM body -->
+  <rect x="6" y="14" width="48" height="28" rx="7" fill="#4a90e2" stroke="#1c4e6e" stroke-width="2.5"/>
+  <!-- Memory chips -->
+  <rect x="13" y="20" width="8" height="12" rx="2" fill="#222" stroke="#b3c6e0" stroke-width="1.5"/>
+  <rect x="25" y="20" width="8" height="12" rx="2" fill="#222" stroke="#b3c6e0" stroke-width="1.5"/>
+  <rect x="37" y="20" width="8" height="12" rx="2" fill="#222" stroke="#b3c6e0" stroke-width="1.5"/>
+  <!-- Gold contacts -->
+  <rect x="10" y="40" width="4" height="7" rx="1" fill="#ffd57a" stroke="#bfa14a" stroke-width="1"/>
+  <rect x="18" y="40" width="4" height="7" rx="1" fill="#ffd57a" stroke="#bfa14a" stroke-width="1"/>
+  <rect x="26" y="40" width="4" height="7" rx="1" fill="#ffd57a" stroke="#bfa14a" stroke-width="1"/>
+  <rect x="34" y="40" width="4" height="7" rx="1" fill="#ffd57a" stroke="#bfa14a" stroke-width="1"/>
+  <rect x="42" y="40" width="4" height="7" rx="1" fill="#ffd57a" stroke="#bfa14a" stroke-width="1"/>
+  <!-- Frame border -->
+  <rect x="4" y="4" width="52" height="52" rx="12" fill="none" stroke="#e6e6e6" stroke-width="1.5"/>
+</svg>`.trim();
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+var GPUMemoryUsagePanel = class {
+  static #TILE_ID = "__memusage_tile__";
+  static #STYLE_ID = "__memusage_style__";
+  static #STATE_KEY = "__memusage_collapsed__";
+  /**
+   * Creates (or updates) the panel and renders the usage into it.
+   * Mounts into the shared flow host.
+   */
+  static show(flowHost, usage, opts = {}) {
+    this.#ensureGlobalStyle();
+    let tile = document.getElementById(this.#TILE_ID);
+    if (!tile) {
+      const root = this.render(usage, opts);
+      tile = FloatingPanelFlowHost.mountTile(root, {
+        tileMinWidth: opts.tileMinWidth ?? opts.maxWidth ?? 420,
+        tileMaxWidth: opts.tileMaxWidth ?? opts.maxWidth ?? 440
+      });
+      tile.id = this.#TILE_ID;
+      flowHost.appendChild(tile);
+    } else {
+      const root = this.render(usage, opts);
+      tile.replaceChildren(root);
+    }
+    return tile;
+  }
+  // static hide() {
+  //   const tile = document.getElementById(this.#TILE_ID);
+  //   if (tile) tile.remove();
+  // }
+  //
+  // static toggle(usage: MemoryUsage, opts?: any) {
+  //   const tile = document.getElementById(this.#TILE_ID);
+  //   if (tile) this.hide();
+  //   else this.show(usage, opts);
+  // }
+  static render(usage, opts = {}) {
+    const root = el2("div", { className: "memusage-root" });
+    const collapsed = readBool2(this.#STATE_KEY, !!opts.startCollapsed);
+    const header = this.renderHeader({ collapsed });
+    const body = this.renderBody(usage);
+    root.appendChild(header);
+    root.appendChild(body);
+    this.#setCollapsed(root, collapsed);
+    const toggleBtn = header.querySelector("[data-memusage-toggle]");
+    toggleBtn?.addEventListener("click", () => {
+      const nowCollapsed = !root.classList.contains("memusage-collapsed");
+      this.#setCollapsed(root, nowCollapsed);
+      writeBool2(this.#STATE_KEY, nowCollapsed);
+    });
+    return root;
+  }
+  static toHtmlString(usage, opts = {}) {
+    return this.render(usage, opts).outerHTML;
+  }
+  // ---------------------------------------------------------------------------
+  // Styles + collapse
+  // ---------------------------------------------------------------------------
+  static #ensureGlobalStyle() {
+    if (document.getElementById(this.#STYLE_ID))
+      return;
+    const s = document.createElement("style");
+    s.id = this.#STYLE_ID;
+    s.textContent = DEFAULT_CSS2;
+    document.head.appendChild(s);
+  }
+  static #setCollapsed(root, collapsed) {
+    root.classList.toggle("memusage-collapsed", collapsed);
+    const body = root.querySelector(".memusage-body");
+    if (body)
+      body.style.display = collapsed ? "none" : "block";
+    const caret = root.querySelector("[data-memusage-caret]");
+    if (caret)
+      caret.textContent = collapsed ? "\u25B8" : "\u25BE";
+    const state = root.querySelector("[data-memusage-state]");
+    if (state)
+      state.textContent = collapsed ? "Collapsed" : "Expanded";
+  }
+  // ---------------------------------------------------------------------------
+  // Header / body
+  // ---------------------------------------------------------------------------
+  static renderHeader({ collapsed }) {
+    const header = el2("div", { className: "memusage-header" });
+    const icon = el2("img", {
+      className: "memusage-title-icon",
+      width: 60,
+      height: 60,
+      alt: "GPU memory",
+      src: gpuMemoryIconDataUri(),
+      draggable: false
+    });
+    const textCol = el2("div", { className: "memusage-title-col" }, [
+      el2("div", { className: "memusage-h1", textContent: "GPU Memory Usage" }),
+      el2("div", {
+        className: "memusage-subtitle",
+        textContent: "Allocated vs actively used GPU memory (MB)."
+      })
+    ]);
+    header.appendChild(icon);
+    header.appendChild(textCol);
+    return header;
+  }
+  static renderBody(usage) {
+    const body = el2("div", { className: "memusage-body" });
+    const allocated = Number(usage?.allocatedMB) || 0;
+    const used = Number(usage?.usedMB) || 0;
+    const pct = allocated > 0 ? clamp2(used / allocated * 100, 0, 100) : 0;
+    body.appendChild(
+      this.renderTable([
+        ["allocatedMB", formatMB(allocated), "Total GPU memory allocated"],
+        ["usedMB", formatMB(used), "GPU memory actively used"],
+        ["usage", `${pct.toFixed(1)}%`, "usedMB / allocatedMB"]
+      ])
+    );
+    body.appendChild(this.renderBar(pct));
+    return body;
+  }
+  static renderTable(rows) {
+    const table = el2("table", { className: "memusage-table" });
+    for (const [k, v, help] of rows) {
+      const tr2 = el2("tr");
+      tr2.appendChild(el2("th", { textContent: k }));
+      const td = el2("td", { className: "memusage-td" });
+      td.appendChild(el2("div", { className: "memusage-val", textContent: v }));
+      if (help)
+        td.appendChild(el2("div", { className: "memusage-help", textContent: help }));
+      tr2.appendChild(td);
+      table.appendChild(tr2);
+    }
+    return table;
+  }
+  static renderBar(pct) {
+    const wrap = el2("div", { className: "memusage-barwrap" });
+    wrap.appendChild(el2("div", { className: "memusage-barlabel", textContent: "Utilization" }));
+    const track = el2("div", { className: "memusage-track" });
+    const fill = el2("div", { className: "memusage-fill" });
+    fill.style.width = `${pct}%`;
+    track.appendChild(fill);
+    wrap.appendChild(track);
+    wrap.appendChild(el2("div", { className: "memusage-barhint", textContent: `${pct.toFixed(1)}%` }));
+    return wrap;
+  }
+};
+function el2(tag, props = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(props))
+    node[key] = value;
+  for (const child of children)
+    node.appendChild(child);
+  return node;
+}
+function clamp2(v, lo, hi) {
+  return Math.max(lo, Math.min(hi, v));
+}
+function formatMB(v) {
+  const n = Number(v);
+  return Number.isFinite(n) ? `${n.toLocaleString()} MB` : "\u2014";
+}
+function readBool2(key, fallback) {
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (raw === null)
+      return fallback;
+    return raw === "1";
+  } catch {
+    return fallback;
+  }
+}
+function writeBool2(key, value) {
+  try {
+    sessionStorage.setItem(key, value ? "1" : "0");
+  } catch {
+  }
+}
+var DEFAULT_CSS2 = `
+.memusage-root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: #111; padding: 16px; background: rgba(255,255,255,0.96); border: 1px solid #e6e6e6; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,0.14); backdrop-filter: blur(2px); }
+.memusage-header {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  background: #fff;
+}
+.memusage-title-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 4px;
+}
+.memusage-title-icon {
+  width: 60px;
+  height: 60px;
+  flex: 0 0 60px;
+  border-radius: 14px;
+  border: 1.5px solid #e6e6e6;
+  background: #fafafa;
+  padding: 6px;
+}
+.memusage-title { display: grid; gap: 4px; }
+.memusage-h1 { padding-top:10px;  font-size: 24px; color: #666666; font-weight: 650; }
+.memusage-subtitle { font-size: 12px; color: #444; line-height: 1.35; }
+
+.memusage-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.memusage-caret { font-size: 14px; color: #444; width: 18px; text-align: center; }
+.memusage-btn { font-size: 12px; border-radius: 10px; padding: 6px 10px; border: 1px solid #e6e6e6; background: #fff; cursor: pointer; }
+.memusage-btn:hover { background: #fafafa; }
+
+.memusage-status { display: flex; gap: 8px; align-items: baseline; }
+.memusage-status-label { font-size: 12px; color: #666; }
+.memusage-status-value { font-size: 12px; font-weight: 600; }
+
+.memusage-body { margin-top: 12px; }
+.memusage-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.memusage-table th { text-align: left; color: #666; font-weight: 600; width: 120px; padding: 6px 8px; vertical-align: top; }
+.memusage-td { padding: 6px 8px; }
+.memusage-val { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+.memusage-help { margin-top: 2px; font-size: 11px; color: #777; line-height: 1.35; }
+.memusage-table tr + tr td, .memusage-table tr + tr th { border-top: 1px solid #f0f0f0; }
+
+.memusage-barwrap { margin-top: 12px; border-top: 1px solid #f0f0f0; padding-top: 10px; display: grid; gap: 6px; }
+.memusage-barlabel { font-size: 12px; font-weight: 650; color: #333; }
+.memusage-track { height: 10px; border-radius: 999px; background: #f0f0f0; overflow: hidden; border: 1px solid #e6e6e6; }
+.memusage-fill { height: 100%; border-radius: 999px; background: #cfe5ff; }
+.memusage-barhint { font-size: 11px; color: #666; }
+`;
+
+// ../sdk/src/demo/inspectors/ScenePanel.ts
+var ScenePanel = class _ScenePanel {
+  static #HOST_ID = "__sms_multi_floating_host__";
+  static #STYLE_ID = "__sms_multi_style__";
+  static #MASTER_STATE_KEY = "__sms_multi_collapsed__";
+  #scene;
+  #events;
+  #opts;
+  // modelId -> DOM + collapsed state
+  #modelPanels = /* @__PURE__ */ new Map();
+  // unsubscribe fns for events
+  #unsubs = [];
+  #listEl = null;
+  #countEl = null;
+  #tileEl = null;
+  constructor(flowHost, scene, opts = {}) {
+    this.#scene = scene;
+    this.#events = scene.events;
+    this.#opts = opts;
+    _ScenePanel.#ensureGlobalStyle();
+    const root = this.render();
+    const tile = FloatingPanelFlowHost.mountTile(root, {
+      tileMinWidth: opts.tileMinWidth ?? opts.maxWidth ?? 420,
+      tileMaxWidth: opts.tileMaxWidth ?? opts.maxWidth ?? 440
+    });
+    flowHost.appendChild(tile);
+    this.#tileEl = tile;
+    this.#populateFromSceneModels();
+    this.#wireEvents();
+  }
+  /**
+   * Attaches to a Scene + SceneEvents and shows the floating panel.
+   * Stats are read from SceneModel#stats.
+   */
+  static show(flowHost, scene, opts = {}) {
+    return new _ScenePanel(flowHost, scene, opts);
+  }
+  /**
+   * Removes UI and unsubscribes from SceneEvents.
+   */
+  destroy() {
+    for (const u of this.#unsubs) {
+      try {
+        u();
+      } catch {
+      }
+    }
+    this.#unsubs.length = 0;
+    this.#modelPanels.clear();
+    const host = document.getElementById(_ScenePanel.#HOST_ID);
+    if (host)
+      host.remove();
+  }
+  // ---------------------------------------------------------------------------
+  // Initial population
+  // ---------------------------------------------------------------------------
+  #populateFromSceneModels() {
+    const models = Object.values(this.#scene.models);
+    for (const m of models)
+      this.#addModel(m);
+  }
+  // ---------------------------------------------------------------------------
+  // Host + global style management (singleton host)
+  // ---------------------------------------------------------------------------
+  static #getOrCreateHost(opts) {
+    const {
+      corner = "top-right",
+      maxWidth = 540,
+      zIndex = 2147483647,
+      maxHeightVh = 90
+    } = opts;
+    let host = document.getElementById(this.#HOST_ID);
+    if (!host) {
+      host = document.createElement("div");
+      host.id = this.#HOST_ID;
+      host.style.position = "absolute";
+      host.style.maxHeight = `${maxHeightVh}vh`;
+      host.style.overflow = "auto";
+      host.style.background = "rgba(255,255,255,0.96)";
+      host.style.border = "1px solid #e6e6e6";
+      host.style.borderRadius = "12px";
+      host.style.boxShadow = "0 6px 24px rgba(0,0,0,0.14)";
+      host.style.backdropFilter = "blur(2px)";
+      host.style.padding = "0";
+      host.style.display = "block";
+      host.style.zIndex = String(zIndex);
+      host.style.pointerEvents = "auto";
+      document.body.appendChild(host);
+    }
+    host.style.width = `min(${maxWidth}px, calc(100vw - 24px))`;
+    host.style.top = "";
+    host.style.right = "";
+    host.style.bottom = "";
+    host.style.left = "";
+    switch (corner) {
+      case "top-left":
+        host.style.top = "12px";
+        host.style.left = "12px";
+        break;
+      case "bottom-right":
+        host.style.bottom = "12px";
+        host.style.right = "12px";
+        break;
+      case "bottom-left":
+        host.style.bottom = "12px";
+        host.style.left = "12px";
+        break;
+      case "top-right":
+      default:
+        host.style.top = "12px";
+        host.style.right = "12px";
+        break;
+    }
+    return host;
+  }
+  static #ensureGlobalStyle() {
+    if (document.getElementById(this.#STYLE_ID))
+      return;
+    const s = document.createElement("style");
+    s.id = this.#STYLE_ID;
+    s.textContent = DEFAULT_CSS3;
+    document.head.appendChild(s);
+  }
+  // ---------------------------------------------------------------------------
+  // Rendering
+  // ---------------------------------------------------------------------------
+  render() {
+    const root = el3("div", { className: "smsm-root" });
+    const collapsed = readBool3(
+      _ScenePanel.#MASTER_STATE_KEY,
+      !!this.#opts.startCollapsed
+    );
+    const header = this.renderHeader({ collapsed });
+    const body = this.renderBody();
+    root.appendChild(header);
+    root.appendChild(body);
+    this.#setMasterCollapsed(root, collapsed);
+    const toggleBtn = header.querySelector("[data-smsm-toggle]");
+    toggleBtn?.addEventListener("click", () => {
+      const nowCollapsed = !root.classList.contains("smsm-collapsed");
+      this.#setMasterCollapsed(root, nowCollapsed);
+      writeBool3(_ScenePanel.#MASTER_STATE_KEY, nowCollapsed);
+    });
+    return root;
+  }
+  renderHeader({ collapsed }) {
+    const title = this.#opts.title ?? "Scene";
+    const subtitle = this.#opts.subtitle ?? "Scene graph statistics";
+    const header = el3("div", { className: "smsm-header" });
+    const icon = el3("img", {
+      className: "smsm-title-icon",
+      width: 40,
+      height: 40,
+      alt: "Scene models",
+      src: sceneGraphIconDataUri(),
+      draggable: false
+    });
+    const textCol = el3("div", { className: "smsm-title-col" }, [
+      el3("div", { className: "smsm-h1", textContent: title }),
+      el3("div", { className: "smsm-subtitle", textContent: subtitle })
+    ]);
+    header.appendChild(icon);
+    header.appendChild(textCol);
+    return header;
+  }
+  renderBody() {
+    const body = el3("div", { className: "smsm-body" });
+    const cs = this.#scene.coordinateSystem;
+    if (cs) {
+      body.appendChild(renderCoordSysPanel(cs, { collapsed: true, title: "Coordinate System", jsonTitle: "CoordinateSystem JSON" }));
+    }
+    body.appendChild(
+      el3("div", { className: "smsm-toolbar" }, [
+        el3("div", { className: "smsm-toolbar-left" }, [
+          el3("span", { className: "smsm-k", textContent: "SceneModels:" }),
+          el3("span", {
+            className: "smsm-v",
+            textContent: String(this.#modelPanels.size)
+          })
+        ])
+      ])
+    );
+    this.#countEl = body.querySelector(".smsm-v");
+    const list = el3("div", { className: "smsm-list" });
+    body.appendChild(list);
+    this.#listEl = list;
+    return body;
+  }
+  refreshAll() {
+    const models = Object.values(this.#scene.models);
+    for (const m of models)
+      this.#refreshModel(m);
+  }
+  // ---------------------------------------------------------------------------
+  // Event wiring
+  // ---------------------------------------------------------------------------
+  #wireEvents() {
+    const sub = (emitter, handler) => {
+      if (emitter?.subscribe) {
+        const token = emitter.subscribe(handler);
+        if (typeof token === "function")
+          return token;
+        if (token?.unsubscribe)
+          return () => token.unsubscribe();
+        if (token?.dispose)
+          return () => token.dispose();
+      }
+      if (emitter?.on) {
+        emitter.on(handler);
+        return () => emitter.off?.(handler);
+      }
+      if (emitter?.addListener) {
+        emitter.addListener(handler);
+        return () => emitter.removeListener?.(handler);
+      }
+      emitter?.add?.(handler);
+      return () => emitter?.remove?.(handler);
+    };
+    this.#unsubs.push(
+      sub(this.#events.onSceneModelCreated, (_scene, model) => {
+        this.#addModel(model);
+      })
+    );
+    this.#unsubs.push(
+      sub(this.#events.onSceneModelDestroyed, (_scene, model) => {
+        this.#removeModel(model);
+      })
+    );
+    this.#unsubs.push(
+      sub(this.#events.onSceneDestroyed, () => {
+        this.destroy();
+      })
+    );
+  }
+  // ---------------------------------------------------------------------------
+  // Model panel management
+  // ---------------------------------------------------------------------------
+  // In #addModel, always start collapsed:
+  #addModel(model) {
+    const id = this.#getModelId(model);
+    if (this.#modelPanels.has(id))
+      return;
+    const list = this.#listEl;
+    if (!list)
+      return;
+    const startCollapsed = true;
+    const panel = this.#renderModelPanel(model, startCollapsed);
+    list.appendChild(panel.root);
+    this.#modelPanels.set(id, panel);
+    this.#updateModelCount();
+  }
+  #removeModel(model) {
+    const id = this.#getModelId(model);
+    const panel = this.#modelPanels.get(id);
+    if (!panel)
+      return;
+    panel.root.remove();
+    this.#modelPanels.delete(id);
+    this.#updateModelCount();
+  }
+  #refreshModel(model) {
+    const id = this.#getModelId(model);
+    const panel = this.#modelPanels.get(id);
+    if (!panel)
+      return;
+    const stats = model?.stats;
+    const newBody = this.#renderStatsBody(stats);
+    panel.body.replaceChildren(...Array.from(newBody.childNodes));
+  }
+  #renderModelPanel(model, startCollapsed) {
+    const root = el3("div", { className: "smsm-model" });
+    const header = el3("div", { className: "smsm-model-head" });
+    const title = el3("div", { className: "smsm-model-title" });
+    const caret = el3("span", {
+      className: "smsm-model-caret",
+      textContent: startCollapsed ? "\u25B8" : "\u25BE",
+      ["data-smsm-model-caret"]: ""
+    });
+    const name12 = el3("span", {
+      className: "smsm-model-name",
+      textContent: this.#getModelLabel(model),
+      title: "SceneModel"
+    });
+    title.appendChild(caret);
+    title.appendChild(name12);
+    header.appendChild(title);
+    const viewJsonBtn = el3("button", {
+      className: "scenepanel-viewjson-btn",
+      type: "button",
+      textContent: "JSON",
+      onclick: (e) => {
+        e.stopPropagation();
+        const result = model.toParams();
+        if (result && result.ok !== false) {
+          openJsonInNewTab(result.value, "SceneModel JSON");
+        }
+      }
+    });
+    header.appendChild(viewJsonBtn);
+    const body = el3("div", { className: "smsm-model-body" });
+    const cs = model.coordinateSystem;
+    if (cs) {
+      body.appendChild(renderCoordSysPanel(cs, { collapsed: true, title: "Coordinate System", jsonTitle: "SceneModel CoordinateSystem JSON" }));
+    }
+    body.appendChild(this.#renderStatsBody(model?.stats));
+    root.appendChild(header);
+    root.appendChild(body);
+    setCollapsed(root, body, caret, startCollapsed);
+    header.addEventListener("click", (e) => {
+      const t = e.target;
+      if (t.closest("button"))
+        return;
+      const nowCollapsed = !root.classList.contains("smsm-model-collapsed");
+      setCollapsed(root, body, caret, nowCollapsed);
+    });
+    return { root, body, collapsed: startCollapsed };
+    function setCollapsed(rootEl, bodyEl, caretEl, collapsed) {
+      rootEl.classList.toggle("smsm-model-collapsed", collapsed);
+      bodyEl.style.display = collapsed ? "none" : "block";
+      caretEl.textContent = collapsed ? "\u25B8" : "\u25BE";
+    }
+  }
+  #renderStatsBody(stats) {
+    const wrap = el3("div", { className: "smsm-stats" });
+    if (!stats) {
+      wrap.appendChild(
+        el3("div", {
+          className: "smsm-empty",
+          textContent: "No stats available (model.stats is null/undefined)."
+        })
+      );
+      return wrap;
+    }
+    const rows = [
+      ["SceneObjects", formatNumber2(stats.numObjects)],
+      ["SceneMeshes", formatNumber2(stats.numMeshes)],
+      ["SceneGeometries", formatNumber2(stats.numGeometries)],
+      ["SceneTransforms", formatNumber2(stats.numTransforms)],
+      ["SceneTextures", formatNumber2(stats.numTextures)],
+      ["SceneTextureSets", formatNumber2(stats.numTextureSets)],
+      ["Triangles", formatNumber2(stats.numTriangles)],
+      ["Lines", formatNumber2(stats.numLines)],
+      ["Points", formatNumber2(stats.numPoints)],
+      ["Vertices", formatNumber2(stats.numVertices)],
+      ["Texture Bytes", formatBytes(stats.textureBytes)]
+    ];
+    const table = el3("table", { className: "smsm-table" });
+    for (const [k, v] of rows) {
+      const tr2 = el3("tr");
+      tr2.appendChild(el3("th", { textContent: k }));
+      tr2.appendChild(el3("td", { textContent: v }));
+      table.appendChild(tr2);
+    }
+    wrap.appendChild(table);
+    return wrap;
+    function chip2(label, value) {
+      const c3 = el3("div", { className: "smsm-chip" });
+      c3.appendChild(el3("div", { className: "smsm-chip-label", textContent: label }));
+      c3.appendChild(el3("div", { className: "smsm-chip-value", textContent: value }));
+      return c3;
+    }
+  }
+  #setMasterCollapsed(root, collapsed) {
+    root.classList.toggle("smsm-collapsed", collapsed);
+    const body = root.querySelector(".smsm-body");
+    if (body)
+      body.style.display = collapsed ? "none" : "block";
+    const caret = root.querySelector("[data-smsm-caret]");
+    if (caret)
+      caret.textContent = collapsed ? "\u25B8" : "\u25BE";
+    const state = root.querySelector("[data-smsm-state]");
+    if (state)
+      state.textContent = collapsed ? "Collapsed" : "Expanded";
+  }
+  #setAllModelsCollapsed(collapsed) {
+    for (const entry of this.#modelPanels.values()) {
+      const caret = entry.root.querySelector("[data-smsm-model-caret]");
+      entry.root.classList.toggle("smsm-model-collapsed", collapsed);
+      entry.body.style.display = collapsed ? "none" : "block";
+      if (caret)
+        caret.textContent = collapsed ? "\u25B8" : "\u25BE";
+      entry.collapsed = collapsed;
+    }
+  }
+  #updateModelCount() {
+    if (this.#countEl)
+      this.#countEl.textContent = String(this.#modelPanels.size);
+  }
+  #getModelId(model) {
+    return String(model?.id ?? model?.uuid ?? model?._id ?? model?.name ?? "SceneModel");
+  }
+  #getModelLabel(model) {
+    const id = this.#getModelId(model);
+    const name12 = model?.name;
+    return name12 && String(name12) !== id ? `${name12} (${id})` : id;
+  }
+};
+function renderCoordSysPanel(cs, opts = {}) {
+  let collapsed = !!opts.collapsed;
+  const root = el3("div", { className: "smsm-coordsys-panel" });
+  const caret = el3("span", {
+    className: "smsm-coordsys-caret",
+    textContent: collapsed ? "\u25B8" : "\u25BE",
+    style: "font-size:16px;width:18px;display:inline-block;text-align:center;color:#444;user-select:none;"
+  });
+  const header = el3("div", {
+    className: "smsm-coordsys-header",
+    style: "display:flex;align-items:center;gap:10px;cursor:pointer;"
+  }, [
+    caret,
+    el3("img", {
+      className: "smsm-coordsys-icon",
+      width: 32,
+      height: 32,
+      alt: "Coordinate System",
+      src: coordsysIconSvgDataUri(),
+      draggable: false
+    }),
+    el3("div", { className: "smsm-coordsys-title", textContent: opts.title ?? "Coordinate System" }),
+    el3("div", { style: "flex:1;" })
+    // (No JSON button)
+  ]);
+  const body = el3("div", {}, [
+    el3("div", { className: "smsm-coordsys-chips", style: "display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;" }, [
+      chip("Origin", cs.origin ? cs.origin.map((v) => v.toFixed(3)).join(", ") : "\u2014"),
+      chip("Units", cs.units ?? "\u2014"),
+      chip("Scale to meters", cs.scaleToMeters ?? "\u2014"),
+      chip("xUp", cs.xUp ? "true" : "false"),
+      chip("yUp", cs.yUp ? "true" : "false"),
+      chip("zUp", cs.zUp ? "true" : "false")
+    ]),
+    el3("table", { className: "smsm-coordsys-table" }, [
+      tr("Basis", cs.basis ? cs.basis.map((v) => v.toFixed(3)).join(", ") : "\u2014"),
+      tr("World Up", cs.worldUp ? cs.worldUp.map((v) => v.toFixed(3)).join(", ") : "\u2014"),
+      tr("World Right", cs.worldRight ? cs.worldRight.map((v) => v.toFixed(3)).join(", ") : "\u2014"),
+      tr("World Forward", cs.worldForward ? cs.worldForward.map((v) => v.toFixed(3)).join(", ") : "\u2014")
+    ])
+  ]);
+  body.style.display = collapsed ? "none" : "block";
+  header.addEventListener("click", (e) => {
+    collapsed = !collapsed;
+    body.style.display = collapsed ? "none" : "block";
+    caret.textContent = collapsed ? "\u25B8" : "\u25BE";
+  });
+  root.appendChild(header);
+  root.appendChild(body);
+  return root;
+}
+function el3(tag, props = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(props)) {
+    if (key.startsWith("data-")) {
+      node.setAttribute(key, String(value ?? ""));
+      continue;
+    }
+    if (key === "style" && value && typeof value === "object") {
+      Object.assign(node.style, value);
+      continue;
+    }
+    node[key] = value;
+  }
+  for (const child of children)
+    node.appendChild(child);
+  return node;
+}
+function formatNumber2(v) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n.toLocaleString() : String(v ?? "\u2014");
+}
+function formatBytes(bytes) {
+  const n = Number(bytes) || 0;
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let v = n;
+  let i = 0;
+  while (v >= 1024 && i < units.length - 1) {
+    v /= 1024;
+    i++;
+  }
+  const dp = i === 0 ? 0 : i === 1 ? 1 : 2;
+  return `${v.toFixed(dp)} ${units[i]}`;
+}
+function readBool3(key, fallback) {
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (raw === null)
+      return fallback;
+    return raw === "1";
+  } catch {
+    return fallback;
+  }
+}
+function writeBool3(key, value) {
+  try {
+    sessionStorage.setItem(key, value ? "1" : "0");
+  } catch {
+  }
+}
+var DEFAULT_CSS3 = `
+.smsm-root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: #111; padding: 16px; background: rgba(255,255,255,0.96); border: 1px solid #e6e6e6; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,0.14); backdrop-filter: blur(2px); }
+.smsm-header {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  background: #fff;
+}
+.smsm-title-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 4px;
+}
+.smsm-h1 {
+  padding-top:10px;  font-size: 24px; color: #666666; font-weight: 650;
+}
+.smsm-subtitle {
+  font-size: 12px;
+  color: #444;
+  line-height: 1.35;
+}
+.smsm-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.smsm-caret { font-size: 14px; color: #444; width: 18px; text-align: center; }
+.smsm-btn { font-size: 12px; border-radius: 10px; padding: 6px 10px; border: 1px solid #e6e6e6; background: #fff; cursor: pointer; }
+.smsm-btn:hover { background: #fafafa; }
+.smsm-btn--sub { padding: 5px 8px; border-radius: 10px; font-size: 11px; }
+
+.smsm-status { display: flex; gap: 8px; align-items: baseline; }
+.smsm-status-label { font-size: 12px; color: #666; }
+.smsm-status-value { font-size: 12px; font-weight: 400; }
+
+.smsm-body { margin-top: 12px; }
+.smsm-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+.smsm-toolbar-left { display: flex; gap: 8px; align-items: baseline; }
+.smsm-k { font-size: 12px; color: #666; }
+.smsm-v { font-size: 12px; font-weight: 650; }
+
+.smsm-list { display: grid; gap: 10px; }
+
+.smsm-model { border: 1px solid #e6e6e6; border-radius: 12px; background: #fff; }
+.smsm-model-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 12px; cursor: pointer; }
+.smsm-model-title { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.smsm-model-caret { width: 18px; text-align: center; color: #444; }
+.smsm-model-name { font-size: 12px; font-weight: 650; word-break: break-word; }
+.smsm-model-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+.smsm-model-body { padding: 10px 12px 12px; border-top: 1px solid #f0f0f0; }
+.smsm-empty { font-size: 12px; color: #777; }
+
+.smsm-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.smsm-chip { border: 1px solid #e6e6e6; border-radius: 999px; padding: 7px 9px; display: flex; gap: 8px; align-items: baseline; }
+.smsm-chip-label { font-size: 11px; color: #666; }
+.smsm-chip-value { font-size: 11px; font-weight: 650; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+.smsm-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.smsm-table th { text-align: left; color: #666; font-weight: 600; width: 160px; padding: 6px 8px; vertical-align: top; }
+.smsm-table td { padding: 6px 8px; word-break: break-word; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+.smsm-table tr + tr td, .smsm-table tr + tr th { border-top: 1px solid #f0f0f0; }
+
+.smsm-titleRow { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.smsm-titleRow .smsm-h1 { flex: 1; min-width: 0; }
+
+.smsm-title-icon {
+  width: 60px;
+  height: 60px;
+  flex: 0 0 60px;
+  border-radius: 14px;
+  border: 1.5px solid #e6e6e6;
+  background: #fafafa;body { background: #f7fafc; color: #222; margin: 0; padding: 0; }
+    .json-pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 15px; margin: 0; padding: 18px; background: #fff; border-radius: 10px; }
+    .json-key { color: #2d5e8c; }
+    .json-string { color: #008000; }
+    .json-number { color: #b75501; }
+    .json-boolean { color: #b75501; font-weight: bold; }
+    .json-null { color: #b75501; font-style: italic; }
+  padding: 6px;
+}
+
+.scenepanel-viewjson-btn {
+  font-size: 13px;
+  padding: 4px 12px;
+  border-radius: 7px;
+  border: 1px solid #e6e6e6;
+  background: #f7fafc;
+  color: #2d5e8c;
+  font-weight: 650;
+  cursor: pointer;
+  margin-left: 12px;
+  transition: background 0.13s;
+}
+.scenepanel-viewjson-btn:hover {
+  background: #e6f0fa;
+  border-color: #b3c6e0;
+}
+
+.smsm-coordsys-panel {
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  background: #f9fafb;
+  margin-bottom: 10px;
+  padding: 7px 10px;
+}
+
+.smsm-coordsys-header {
+  margin-bottom: 4px;
+  padding: 0;
+}
+
+.smsm-coordsys-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+}
+
+.smsm-coordsys-icon {
+  margin-right: 6px;
+  width: 24px;
+  height: 24px;
+}
+
+.smsm-coordsys-chips {
+padding-top:6px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  gap: 6px;
+}
+
+.smsm-chip {
+  background: #eef2f6;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.smsm-chip-label {
+  color: #888;
+  margin-right: 4px;
+  font-weight: 500;
+}
+
+.smsm-chip-value {
+  color: #333;
+  font-weight: 600;
+}
+
+.smsm-coordsys-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.smsm-coordsys-table th {
+  text-align: left;
+  color: #666;
+  font-weight: 500;
+  width: 90px;
+  padding: 3px 6px;
+  vertical-align: top;
+}
+
+.smsm-coordsys-table td {
+  padding: 3px 6px;
+  word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+`;
+function sceneGraphIconDataUri() {
+  const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60">
+  <defs>
+    <linearGradient id="cubeGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e0e7ef"/>
+      <stop offset="1" stop-color="#b3c6e0"/>
+    </linearGradient>
+    <radialGradient id="sphereGrad" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset="1" stop-color="#7ec7e6"/>
+    </radialGradient>
+    <linearGradient id="triGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffe7b3"/>
+      <stop offset="1" stop-color="#ffd580"/>
+    </linearGradient>
+  </defs>
+  <!-- Cube (geometry) -->
+  <rect x="8" y="28" width="18" height="18" rx="3" fill="url(#cubeGrad)" stroke="#7a8ca3" stroke-width="2"/>
+  <!-- Sphere (geometry) -->
+  <ellipse cx="40" cy="20" rx="10" ry="10" fill="url(#sphereGrad)" stroke="#5ba6c7" stroke-width="2"/>
+  <!-- Triangle (geometry) -->
+  <polygon points="32,44 52,54 42,34" fill="url(#triGrad)" stroke="#bfa14a" stroke-width="2"/>
+  <!-- Mesh grid (wireframe) -->
+  <g stroke="#888" stroke-width="1" opacity="0.7">
+    <line x1="8" y1="37" x2="26" y2="37"/>
+    <line x1="8" y1="46" x2="26" y2="46"/>
+    <line x1="13" y1="28" x2="13" y2="46"/>
+    <line x1="21" y1="28" x2="21" y2="46"/>
+  </g>
+  <!-- Material swatch (color palette) -->
+  <rect x="48" y="6" width="8" height="8" rx="2" fill="#e67e22" stroke="#b35c1e" stroke-width="1.2"/>
+  <rect x="48" y="16" width="8" height="8" rx="2" fill="#27ae60" stroke="#1e7a43" stroke-width="1.2"/>
+  <rect x="48" y="26" width="8" height="8" rx="2" fill="#2980b9" stroke="#1c4e6e" stroke-width="1.2"/>
+</svg>`.trim();
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+function syntaxHighlightJson(json) {
+  json = json.replace(/[&<>]/g, (c3) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;"
+  })[c3]);
+  return json.replace(
+    /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+    (match) => {
+      let cls = "json-number";
+      if (/^"/.test(match)) {
+        if (/:$/.test(match))
+          cls = "json-key";
+        else
+          cls = "json-string";
+      } else if (/true|false/.test(match))
+        cls = "json-boolean";
+      else if (/null/.test(match))
+        cls = "json-null";
+      return `<span class="${cls}">${match}</span>`;
+    }
+  );
+}
+function compactNumericArraysReplacer(key, value) {
+  if (Array.isArray(value) && value.length > 0 && value.every((v) => typeof v === "number" && Number.isFinite(v))) {
+    return `[${value.join(",")}]`;
+  }
+  return value;
+}
+function openJsonInNewTab(obj, title = "SceneModel JSON") {
+  let json = JSON.stringify(obj, compactNumericArraysReplacer, 2);
+  json = json.replace(/"\[(.*?)\]"/g, "[$1]");
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>${title}</title>
+  <meta charset="utf-8"/>
+  <style>
+    body { background: #0f1116; color: #e7e7e7; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; margin: 0; padding: 0; }
+    .json-pre {
+      background: #0f1116;
+      border-radius: 10px;
+      margin: 24px 0 24px 24px;
+      padding: 24px 32px;
+      max-width: 900px;
+      font-size: 15px;
+      box-shadow: 0 4px 24px #0001;
+      color: #e7e7e7;
+      text-align: left;
+    }
+    .json-key { color: #7ec7e6; font-weight: 600; }
+    .json-string { color: #ffe7b3; }
+    .json-number { color: #b3e6c7; }
+    .json-boolean { color: #ffd57a; }
+    .json-null { color: #888; }
+     h1 { color: #fff; font-size: 20px; font-weight: 650; margin: 0 0 12px 0; }
+    .meta { color: #aaa; font-size: 13px; margin-bottom: 18px; }
+  </style>
+</head>
+<body>
+      <h1>${escapeHtml(title)}</h1>
+            <div class="meta">Serialized to JSON</div>
+  <pre class="json-pre">${syntaxHighlightJson(json)}</pre>
+</body>
+</html>
+  `.trim();
+  const win = window.open();
+  if (win) {
+    win.document.write(html);
+    win.document.close();
+  }
+}
+function escapeHtml(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+function chip(label, value) {
+  return el3("div", { className: "smsm-chip" }, [
+    el3("span", { className: "smsm-chip-label", textContent: label }),
+    el3("span", { className: "smsm-chip-value", textContent: value })
+  ]);
+}
+function tr(label, value) {
+  return el3("tr", {}, [
+    el3("th", { textContent: label }),
+    el3("td", { textContent: value })
+  ]);
+}
+function coordsysIconSvgDataUri() {
+  const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
+  <g>
+    <!-- X axis (red) -->
+    <line x1="14" y1="14" x2="24" y2="14" stroke="#e74c3c" stroke-width="2.2" />
+    <polygon points="24,14 21.5,12.7 21.5,15.3" fill="#e74c3c"/>
+    <text x="25.5" y="15.5" font-size="7" font-family="sans-serif" fill="#e74c3c" font-weight="bold">X</text>
+    <!-- Y axis (green) -->
+    <line x1="14" y1="14" x2="14" y2="4" stroke="#27ae60" stroke-width="2.2" />
+    <polygon points="14,4 12.7,6.5 15.3,6.5" fill="#27ae60"/>
+    <text x="12" y="3.5" font-size="7" font-family="sans-serif" fill="#27ae60" font-weight="bold">Y</text>
+    <!-- Z axis (blue, up-right) -->
+    <line x1="14" y1="14" x2="6" y2="22" stroke="#2980d9" stroke-width="2.2" />
+    <polygon points="6,22 8,21.5 7.5,19.5" fill="#2980d9"/>
+    <text x="2.5" y="24" font-size="7" font-family="sans-serif" fill="#2980d9" font-weight="bold">Z</text>
+    <!-- Origin dot -->
+    <circle cx="14" cy="14" r="2.2" fill="#888" stroke="#fff" stroke-width="1"/>
+  </g>
+</svg>
+  `.trim();
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+// ../sdk/src/demo/inspectors/DataPanel.ts
+function erDiagramIconDataUri() {
+  const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60">
+  <rect x="7" y="10" width="18" height="13" rx="3" fill="#fff" stroke="#888" stroke-width="2"/>
+  <rect x="35" y="10" width="18" height="13" rx="3" fill="#fff" stroke="#888" stroke-width="2"/>
+  <rect x="21" y="37" width="18" height="13" rx="3" fill="#fff" stroke="#888" stroke-width="2"/>
+  <!-- One-to-many relationship (crow's foot) -->
+  <line x1="16" y1="23" x2="30" y2="37" stroke="#4a90e2" stroke-width="2"/>
+  <polyline points="30,37 27,40 30,43" fill="none" stroke="#4a90e2" stroke-width="2"/>
+  <polyline points="30,37 33,40 30,43" fill="none" stroke="#4a90e2" stroke-width="2"/>
+  <!-- One-to-one relationship -->
+  <line x1="44" y1="23" x2="30" y2="37" stroke="#4a90e2" stroke-width="2"/>
+  <!-- Entity labels -->
+  <text x="16" y="19" font-size="7" text-anchor="middle" fill="#444" font-family="sans-serif">A</text>
+  <text x="44" y="19" font-size="7" text-anchor="middle" fill="#444" font-family="sans-serif">B</text>
+  <text x="30" y="47" font-size="7" text-anchor="middle" fill="#444" font-family="sans-serif">C</text>
+</svg>`.trim();
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+var DataPanel = class _DataPanel {
+  static #HOST_ID = "__dms_multi_floating_host__";
+  static #STYLE_ID = "__dms_multi_style__";
+  static #MASTER_STATE_KEY = "__dms_multi_collapsed__";
+  #data;
+  #events;
+  #opts;
+  #modelPanels = /* @__PURE__ */ new Map();
+  #unsubs = [];
+  // cached DOM refs (avoid brittle querySelector for data-* attrs)
+  #listEl = null;
+  #countEl = null;
+  #tileEl = null;
+  constructor(flowHost, data, opts = {}) {
+    this.#data = data;
+    this.#events = data.events;
+    this.#opts = opts;
+    _DataPanel.#ensureGlobalStyle();
+    const root = this.render();
+    const tile = FloatingPanelFlowHost.mountTile(root, {
+      tileMinWidth: opts.tileMinWidth ?? opts.maxWidth ?? 420,
+      tileMaxWidth: opts.tileMaxWidth ?? opts.maxWidth ?? 440
+    });
+    flowHost.appendChild(tile);
+    this.#tileEl = tile;
+    this.#populateFromDataModels();
+    this.#wireEvents();
+  }
+  static show(flowHost, data, opts = {}) {
+    return new _DataPanel(flowHost, data, opts);
+  }
+  destroy() {
+    for (const u of this.#unsubs) {
+      try {
+        u();
+      } catch {
+      }
+    }
+    this.#unsubs.length = 0;
+    this.#modelPanels.clear();
+    const host = document.getElementById(_DataPanel.#HOST_ID);
+    if (host)
+      host.remove();
+  }
+  // ---------------------------------------------------------------------------
+  // Initial population
+  // ---------------------------------------------------------------------------
+  #populateFromDataModels() {
+    const models = Object.values(this.#data.models);
+    for (const m of models) {
+      this.#addModel(m);
+    }
+  }
+  static #ensureGlobalStyle() {
+    if (document.getElementById(this.#STYLE_ID))
+      return;
+    const s = document.createElement("style");
+    s.id = this.#STYLE_ID;
+    s.textContent = DEFAULT_CSS4;
+    document.head.appendChild(s);
+  }
+  // ---------------------------------------------------------------------------
+  // Rendering
+  // ---------------------------------------------------------------------------
+  render() {
+    const root = el4("div", { className: "dmsm-root" });
+    const collapsed = readBool4(
+      _DataPanel.#MASTER_STATE_KEY,
+      !!this.#opts.startCollapsed
+    );
+    const header = this.renderHeader({ collapsed });
+    const body = this.renderBody();
+    root.appendChild(header);
+    root.appendChild(body);
+    this.#setMasterCollapsed(root, collapsed);
+    const toggleBtn = header.querySelector("[data-dmsm-toggle]");
+    toggleBtn?.addEventListener("click", () => {
+      const nowCollapsed = !root.classList.contains("dmsm-collapsed");
+      this.#setMasterCollapsed(root, nowCollapsed);
+      writeBool4(_DataPanel.#MASTER_STATE_KEY, nowCollapsed);
+    });
+    return root;
+  }
+  renderHeader({ collapsed }) {
+    const title = this.#opts.title ?? "Data";
+    const subtitle = this.#opts.subtitle ?? "Data model statistics";
+    const header = el4("div", { className: "dmsm-header" });
+    const icon = el4("img", {
+      className: "dmsm-title-icon",
+      width: 40,
+      height: 40,
+      alt: "ER diagram",
+      src: erDiagramIconDataUri(),
+      draggable: false
+    });
+    const textCol = el4("div", { className: "dmsm-title-col" }, [
+      el4("div", { className: "dmsm-h1", textContent: title }),
+      el4("div", { className: "dmsm-subtitle", textContent: subtitle })
+    ]);
+    header.appendChild(icon);
+    header.appendChild(textCol);
+    return header;
+  }
+  renderBody() {
+    const body = el4("div", { className: "dmsm-body" });
+    body.appendChild(
+      el4("div", { className: "dmsm-toolbar" }, [
+        el4("div", { className: "dmsm-toolbar-left" }, [
+          el4("span", { className: "dmsm-k", textContent: "DataModels:" }),
+          el4("span", { className: "dmsm-v", textContent: String(this.#modelPanels.size) })
+        ])
+        // el("div", { className: "dmsm-toolbar-right" }, [
+        //   el("button", {
+        //     className: "dmsm-btn dmsm-btn--sub",
+        //     textContent: "Refresh all",
+        //     title: "Re-read model.stats for all panels",
+        //     ["data-dmsm-refresh-all" as any]: "",
+        //   }),
+        //   el("button", {
+        //     className: "dmsm-btn dmsm-btn--sub",
+        //     textContent: "Collapse all",
+        //     ["data-dmsm-collapse-all" as any]: "",
+        //   }),
+        //   el("button", {
+        //     className: "dmsm-btn dmsm-btn--sub",
+        //     textContent: "Expand all",
+        //     ["data-dmsm-expand-all" as any]: "",
+        //   }),
+        // ]),
+      ])
+    );
+    this.#countEl = body.querySelector(".dmsm-v");
+    const list = el4("div", { className: "dmsm-list" });
+    body.appendChild(list);
+    this.#listEl = list;
+    body.querySelector("[data-dmsm-collapse-all]")?.addEventListener("click", () => this.#setAllModelsCollapsed(true));
+    body.querySelector("[data-dmsm-expand-all]")?.addEventListener("click", () => this.#setAllModelsCollapsed(false));
+    body.querySelector("[data-dmsm-refresh-all]")?.addEventListener("click", () => this.refreshAll());
+    return body;
+  }
+  refreshAll() {
+    const models = Object.values(this.#data.models);
+    for (const m of models)
+      this.#refreshModel(m);
+  }
+  // ---------------------------------------------------------------------------
+  // Event wiring
+  // ---------------------------------------------------------------------------
+  #wireEvents() {
+    const sub = (emitter, handler) => {
+      if (emitter?.subscribe) {
+        const token = emitter.subscribe(handler);
+        if (typeof token === "function")
+          return token;
+        if (token?.unsubscribe)
+          return () => token.unsubscribe();
+        if (token?.dispose)
+          return () => token.dispose();
+      }
+      if (emitter?.on) {
+        emitter.on(handler);
+        return () => emitter.off?.(handler);
+      }
+      if (emitter?.addListener) {
+        emitter.addListener(handler);
+        return () => emitter.removeListener?.(handler);
+      }
+      emitter?.add?.(handler);
+      return () => emitter?.remove?.(handler);
+    };
+    this.#unsubs.push(
+      sub(this.#events.onDataModelCreated, (_data, model) => {
+        this.#addModel(model);
+      })
+    );
+    this.#unsubs.push(
+      sub(this.#events.onDataModelDestroyed, (_data, model) => {
+        this.#removeModel(model);
+      })
+    );
+    this.#unsubs.push(
+      sub(this.#events.onDataDestroyed, () => {
+        this.destroy();
+      })
+    );
+  }
+  // ---------------------------------------------------------------------------
+  // Model panel management
+  // ---------------------------------------------------------------------------
+  // In #addModel, always start collapsed:
+  #addModel(model) {
+    const id = this.#getModelId(model);
+    if (this.#modelPanels.has(id))
+      return;
+    const list = this.#listEl;
+    if (!list)
+      return;
+    const startCollapsed = true;
+    const panel = this.#renderModelPanel(model, startCollapsed);
+    list.appendChild(panel.root);
+    this.#modelPanels.set(id, panel);
+    this.#updateModelCount();
+  }
+  #removeModel(model) {
+    const id = this.#getModelId(model);
+    const panel = this.#modelPanels.get(id);
+    if (!panel)
+      return;
+    panel.root.remove();
+    this.#modelPanels.delete(id);
+    this.#updateModelCount();
+  }
+  #refreshModel(model) {
+    const id = this.#getModelId(model);
+    const panel = this.#modelPanels.get(id);
+    if (!panel)
+      return;
+    const stats = model?.stats;
+    const newBody = this.#renderStatsBody(stats);
+    panel.body.replaceChildren(...Array.from(newBody.childNodes));
+  }
+  #renderModelPanel(model, startCollapsed) {
+    const root = el4("div", { className: "dmsm-model" });
+    const header = el4("div", { className: "dmsm-model-head" });
+    const title = el4("div", { className: "dmsm-model-title" });
+    const caret = el4("span", {
+      className: "dmsm-model-caret",
+      textContent: startCollapsed ? "\u25B8" : "\u25BE"
+    });
+    const name12 = el4("span", {
+      className: "dmsm-model-name",
+      textContent: this.#getModelLabel(model),
+      title: "DataModel"
+    });
+    title.appendChild(caret);
+    title.appendChild(name12);
+    header.appendChild(title);
+    const viewJsonBtn = el4("button", {
+      className: "datapanel-viewjson-btn",
+      type: "button",
+      textContent: "JSON",
+      onclick: (e) => {
+        e.stopPropagation();
+        const result = model.toParams();
+        if (result.ok !== false) {
+          try {
+            openJsonInNewTab2(result.value, model.id ? `DataModel: ${model.id}` : "DataModel JSON");
+          } catch (err) {
+            alert("Failed to export DataModel as JSON: " + (err && err.message || err));
+          }
+        }
+      }
+    });
+    header.appendChild(viewJsonBtn);
+    const body = el4("div", { className: "dmsm-model-body" });
+    body.appendChild(this.#renderStatsBody(model?.stats));
+    root.appendChild(header);
+    root.appendChild(body);
+    setCollapsed(root, body, caret, startCollapsed);
+    header.addEventListener("click", (e) => {
+      const t = e.target;
+      if (t.closest("button"))
+        return;
+      const nowCollapsed = !root.classList.contains("dmsm-model-collapsed");
+      setCollapsed(root, body, caret, nowCollapsed);
+    });
+    return { root, body, collapsed: startCollapsed };
+    function setCollapsed(rootEl, bodyEl, caretEl, collapsed) {
+      rootEl.classList.toggle("dmsm-model-collapsed", collapsed);
+      bodyEl.style.display = collapsed ? "none" : "block";
+      caretEl.textContent = collapsed ? "\u25B8" : "\u25BE";
+    }
+  }
+  #renderStatsBody(stats) {
+    const wrap = el4("div", { className: "dmsm-stats" });
+    if (!stats) {
+      wrap.appendChild(
+        el4("div", {
+          className: "dmsm-empty",
+          textContent: "No stats available (model.stats is null/undefined)."
+        })
+      );
+      return wrap;
+    }
+    const rows = [
+      ["DataObjects", formatNumber3(stats.numObjects)],
+      ["Relationships", formatNumber3(stats.numRelationships)],
+      ["PropertySets", formatNumber3(stats.numPropertySets)]
+    ];
+    const table = el4("table", { className: "dmsm-table" });
+    for (const [k, v] of rows) {
+      const tr2 = el4("tr");
+      tr2.appendChild(el4("th", { textContent: k }));
+      tr2.appendChild(el4("td", { textContent: v }));
+      table.appendChild(tr2);
+    }
+    wrap.appendChild(table);
+    return wrap;
+    function chip2(label, value) {
+      const c3 = el4("div", { className: "dmsm-chip" });
+      c3.appendChild(el4("div", { className: "dmsm-chip-label", textContent: label }));
+      c3.appendChild(el4("div", { className: "dmsm-chip-value", textContent: value }));
+      return c3;
+    }
+  }
+  #setMasterCollapsed(root, collapsed) {
+    root.classList.toggle("dmsm-collapsed", collapsed);
+    const body = root.querySelector(".dmsm-body");
+    if (body)
+      body.style.display = collapsed ? "none" : "block";
+    const caret = root.querySelector("[data-dmsm-caret]");
+    if (caret)
+      caret.textContent = collapsed ? "\u25B8" : "\u25BE";
+    const state = root.querySelector("[data-dmsm-state]");
+    if (state)
+      state.textContent = collapsed ? "Collapsed" : "Expanded";
+  }
+  #setAllModelsCollapsed(collapsed) {
+    for (const entry of this.#modelPanels.values()) {
+      const caret = entry.root.querySelector(".dmsm-model-caret");
+      entry.root.classList.toggle("dmsm-model-collapsed", collapsed);
+      entry.body.style.display = collapsed ? "none" : "block";
+      if (caret)
+        caret.textContent = collapsed ? "\u25B8" : "\u25BE";
+      entry.collapsed = collapsed;
+    }
+  }
+  #updateModelCount() {
+    if (this.#countEl)
+      this.#countEl.textContent = String(this.#modelPanels.size);
+  }
+  #getModelId(model) {
+    return String(model?.id ?? model?.uuid ?? model?._id ?? model?.name ?? "DataModel");
+  }
+  #getModelLabel(model) {
+    const id = this.#getModelId(model);
+    const name12 = model?.name;
+    return name12 && String(name12) !== id ? `${name12} (${id})` : id;
+  }
+};
+function el4(tag, props = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(props))
+    node[key] = value;
+  for (const child of children)
+    node.appendChild(child);
+  return node;
+}
+function formatNumber3(v) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n.toLocaleString() : String(v ?? "\u2014");
+}
+function readBool4(key, fallback) {
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (raw === null)
+      return fallback;
+    return raw === "1";
+  } catch {
+    return fallback;
+  }
+}
+function writeBool4(key, value) {
+  try {
+    sessionStorage.setItem(key, value ? "1" : "0");
+  } catch {
+  }
+}
+var DEFAULT_CSS4 = `
+.dmsm-root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: #111; padding: 16px; background: rgba(255,255,255,0.96); border: 1px solid #e6e6e6; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,0.14); backdrop-filter: blur(2px); }
+.dmsm-header {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  background: #fff;
+}
+.dmsm-title-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 4px;
+}
+.dmsm-title-icon {
+  width: 60px;
+  height: 60px;
+  flex: 0 0 60px;
+  border-radius: 14px;
+  border: 1.5px solid #e6e6e6;
+  background: #fafafa;
+  padding: 6px;
+}
+.dmsm-title { display: grid; gap: 4px; }
+.dmsm-h1 {   padding-top:10px;  font-size: 24px; color: #666666; font-weight: 650; }
+.dmsm-subtitle { font-size: 12px; color: #444; line-height: 1.35; }
+
+.dmsm-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.dmsm-caret { font-size: 14px; color: #444; width: 18px; text-align: center; }
+.dmsm-btn { font-size: 12px; border-radius: 10px; padding: 6px 10px; border: 1px solid #e6e6e6; background: #fff; cursor: pointer; }
+.dmsm-btn:hover { background: #fafafa; }
+.dmsm-btn--sub { padding: 5px 8px; border-radius: 10px; font-size: 11px; }
+
+.dmsm-status { display: flex; gap: 8px; align-items: baseline; }
+.dmsm-status-label { font-size: 12px; color: #666; }
+.dmsm-status-value { font-size: 12px; font-weight: 600; }
+
+.dmsm-body { margin-top: 12px; }
+.dmsm-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+.dmsm-toolbar-left { display: flex; gap: 8px; align-items: baseline; }
+.dmsm-k { font-size: 12px; color: #666; }
+.dmsm-v { font-size: 12px; font-weight: 650; }
+
+.dmsm-list { display: grid; gap: 10px; }
+
+.dmsm-model { border: 1px solid #e6e6e6; border-radius: 12px; background: #fff; }
+.dmsm-model-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 12px; cursor: pointer; }
+.dmsm-model-title { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.dmsm-model-caret { width: 18px; text-align: center; color: #444; }
+.dmsm-model-name { font-size: 12px; font-weight: 650; word-break: break-word; }
+.dmsm-model-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+.dmsm-model-body { padding: 10px 12px 12px; border-top: 1px solid #f0f0f0; }
+.dmsm-empty { font-size: 12px; color: #777; }
+
+.dmsm-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.dmsm-chip { border: 1px solid #e6e6e6; border-radius: 999px; padding: 7px 9px; display: flex; gap: 8px; align-items: baseline; }
+.dmsm-chip-label { font-size: 11px; color: #666; }
+.dmsm-chip-value { font-size: 11px; font-weight: 650; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+.dmsm-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.dmsm-table th { text-align: left; color: #666; font-weight: 600; width: 160px; padding: 6px 8px; vertical-align: top; }
+.dmsm-table td { padding: 6px 8px; word-break: break-word; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+.dmsm-table tr + tr td, .dmsm-table tr + tr th { border-top: 1px solid #f0f0f0; }
+
+.datapanel-viewjson-btn {
+  font-size: 13px;
+  padding: 4px 12px;
+  border-radius: 7px;
+  border: 1px solid #e6e6e6;
+  background: #f7fafc;
+  color: #2d5e8c;
+  font-weight: 650;
+  cursor: pointer;
+  margin-left: 12px;
+  transition: background 0.13s;
+}
+.datapanel-viewjson-btn:hover {
+  background: #e6f0fa;
+  border-color: #b3c6e0;
+}
+`;
+function syntaxHighlightJson2(json) {
+  json = json.replace(/[&<>]/g, (c3) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;"
+  })[c3] || c3);
+  return json.replace(
+    /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(\.\d+)?([eE][+-]?\d+)?)/g,
+    (match) => {
+      let cls = "json-number";
+      if (/^"/.test(match)) {
+        if (/:$/.test(match))
+          cls = "json-key";
+        else
+          cls = "json-string";
+      } else if (/true|false/.test(match)) {
+        cls = "json-boolean";
+      } else if (/null/.test(match)) {
+        cls = "json-null";
+      }
+      return `<span class="${cls}">${match}</span>`;
+    }
+  );
+}
+function openJsonInNewTab2(obj, title = "DataModel JSON") {
+  const json = JSON.stringify(obj, null, 2);
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>${title}</title>
+  <meta charset="utf-8"/>
+  <style>
+    body { background: #0f1116; color: #e7e7e7; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; margin: 0; padding: 0; }
+    .json-pre {
+      background: #0f1116;
+      border-radius: 10px;
+      margin: 24px 0 24px 24px;
+      padding: 24px 32px;
+      max-width: 900px;
+      font-size: 15px;
+      box-shadow: 0 4px 24px #0001;
+      color: #e7e7e7;
+      text-align: left;
+    }
+    .json-key { color: #7ec7e6; font-weight: 600; }
+    .json-string { color: #ffe7b3; }
+    .json-number { color: #b3e6c7; }
+    .json-boolean { color: #ffd57a; }
+    .json-null { color: #888; }
+    h1 { color: #fff; font-size: 20px; font-weight: 650; margin: 0 0 12px 0; }
+    .meta { color: #aaa; font-size: 13px; margin-bottom: 18px; }
+  </style>
+</head>
+<body>
+     <h1>${escapeHtml2(title)}</h1>
+           <div class="meta">Serialized to JSON</div>
+  <pre class="json-pre">${syntaxHighlightJson2(json)}</pre>
+</body>
+</html>
+  `.trim();
+  const win = window.open();
+  if (win) {
+    win.document.write(html);
+    win.document.close();
+  }
+}
+function escapeHtml2(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
+// ../sdk/src/demo/inspectors/ShadersPanel.ts
+function shaderIconDataUri() {
+  const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60">
+  <!-- Shadow -->
+  <ellipse cx="30" cy="48" rx="16" ry="5" fill="#222" opacity="0.13"/>
+  <!-- Cube faces -->
+  <polygon points="30,14 48,24 48,42 30,52 12,42 12,24" fill="#4a90e2" stroke="#2d5e8c" stroke-width="2"/>
+  <polygon points="30,14 48,24 30,34 12,24" fill="#7ec7e6" stroke="#2d5e8c" stroke-width="2"/>
+  <polygon points="48,24 48,42 30,52 30,34" fill="#c9a7ff" stroke="#2d5e8c" stroke-width="2"/>
+  <polygon points="12,24 12,42 30,52 30,34" fill="#27ae60" stroke="#2d5e8c" stroke-width="2"/>
+  <!-- Border -->
+  <rect x="4" y="4" width="52" height="52" rx="12" fill="none" stroke="#e6e6e6" stroke-width="1.5"/>
+</svg>`.trim();
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+var ShadersPanel = class _ShadersPanel {
+  static #TILE_ID = "__shaderinsp_tile__";
+  static #STYLE_ID = "__shaderinsp_style__";
+  static #STATE_KEY = "__shaderinsp_collapsed__";
+  static #TREE_KEY = "__shaderinsp_tree__";
+  static show(flowHost, inspector, opts = {}) {
+    this.#ensureGlobalStyle();
+    let tile = document.getElementById(this.#TILE_ID);
+    const root = this.render(inspector, opts);
+    if (!tile) {
+      tile = FloatingPanelFlowHost.mountTile(root, {
+        tileMinWidth: opts.tileMinWidth ?? opts.maxWidth ?? 460,
+        tileMaxWidth: opts.tileMaxWidth ?? opts.maxWidth ?? 540
+      });
+      tile.id = this.#TILE_ID;
+      flowHost.appendChild(tile);
+    } else {
+      tile.replaceChildren(root);
+    }
+    return tile;
+  }
+  // static hide() {
+  //   const tile = document.getElementById(this.#TILE_ID);
+  //   if (tile) tile.remove();
+  // }
+  //
+  // static toggle(inspector: ShaderInspector, opts?: any) {
+  //   const tile = document.getElementById(this.#TILE_ID);
+  //   if (tile) this.hide();
+  //   else this.show(inspector, opts);
+  // }
+  static render(inspector, opts = {}) {
+    const root = el5("div", { className: "shins-root" });
+    const collapsed = readBool5(this.#STATE_KEY, !!opts.startCollapsed);
+    const header = this.renderHeader({ collapsed }, opts);
+    const body = this.renderBody(inspector, opts);
+    root.appendChild(header);
+    root.appendChild(body);
+    this.#setCollapsed(root, collapsed);
+    header.querySelector("[data-shins-toggle]")?.addEventListener("click", () => {
+      const nowCollapsed = !root.classList.contains("shins-collapsed");
+      this.#setCollapsed(root, nowCollapsed);
+      writeBool5(this.#STATE_KEY, nowCollapsed);
+    });
+    header.querySelector("[data-shins-expandall]")?.addEventListener("click", () => this.#setAllTreeOpen(root, true));
+    header.querySelector("[data-shins-collapseall]")?.addEventListener("click", () => this.#setAllTreeOpen(root, false));
+    header.querySelector("[data-shins-filter]")?.addEventListener("input", (e) => {
+      const q = String(e.target.value || "");
+      this.#applyFilter(root, q);
+    });
+    return root;
+  }
+  // ---------------------------------------------------------------------------
+  // Header / body
+  // ---------------------------------------------------------------------------
+  static renderHeader({ collapsed }, opts = {}) {
+    const header = el5("div", { className: "shins-header" });
+    const title = opts.title ?? "Shaders";
+    const subtitle = opts.subtitle ?? "Inspect WebGL shader sources (GLSL).";
+    const icon = el5("img", {
+      className: "shins-title-icon",
+      width: 60,
+      height: 60,
+      alt: "Shader icon",
+      src: shaderIconDataUri(),
+      draggable: false
+    });
+    const textCol = el5("div", { className: "shins-title-col" }, [
+      el5("div", { className: "shins-h1", textContent: title }),
+      el5("div", { className: "shins-subtitle", textContent: subtitle })
+    ]);
+    header.appendChild(icon);
+    header.appendChild(textCol);
+    return header;
+  }
+  // In ShadersPanel class:
+  static renderBody(inspector, _opts = {}) {
+    const body = el5("div", { className: "shins-body" });
+    const treeState = readJson(this.#TREE_KEY, {});
+    const techniques = inspector?.techniques || {};
+    const tree = this.#renderTechniquesTree(techniques, treeState);
+    body.appendChild(tree);
+    return body;
+  }
+  // --- In ShadersPanel class ---
+  static #renderTechniquesTree(techniques, state) {
+    const root = el5("div", { className: "shins-tree", ["data-shins-tree-root"]: "" });
+    const titles = {
+      triangles: "Triangles",
+      lines: "Lines",
+      points: "Points"
+    };
+    for (const groupName of Object.keys(techniques)) {
+      const groupObj = techniques[groupName];
+      const groupPath = `techniques.${groupName}`;
+      if (!(groupPath in state))
+        state[groupPath] = false;
+      root.appendChild(
+        this.#treeGroup(
+          titles[groupName] || groupName,
+          groupPath,
+          state,
+          () => {
+            const groupWrap = el5("div", { className: "shins-tree-techniques" });
+            for (const techName of Object.keys(groupObj || {})) {
+              const tech = groupObj[techName];
+              const techPath = `${groupPath}.${techName}`;
+              if (!(techPath in state))
+                state[techPath] = false;
+              groupWrap.appendChild(
+                this.#treeTechnique(
+                  techName,
+                  techPath,
+                  state,
+                  () => {
+                    const leafs = [];
+                    if (tech.vertexShaderSrc) {
+                      leafs.push(this.#shaderLeaf("vertex", techName, tech));
+                    }
+                    if (tech.fragmentShaderSrc) {
+                      leafs.push(this.#shaderLeaf("fragment", techName, tech));
+                    }
+                    return el5("div", { className: "shins-technique-leafs" }, leafs);
+                  }
+                )
+              );
+            }
+            return groupWrap;
+          }
+        )
+      );
+    }
+    return root;
+  }
+  static #treeGroup(label, path, state, renderChildren) {
+    const expanded = !!state[path];
+    const node = el5("div", { className: "shins-tree-group" });
+    const caret = el5("span", {
+      className: "shins-caret" + (expanded ? " shins-caret--open" : ""),
+      textContent: "\u25B8",
+      "aria-hidden": "true"
+    });
+    const summary = el5("div", { className: "shins-summary shins-tree-title" }, [
+      caret,
+      el5("span", { textContent: label })
+    ]);
+    const content = el5("div", { className: "shins-node-content", style: expanded ? "" : "display:none;" });
+    if (expanded)
+      content.appendChild(renderChildren());
+    summary.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (content.style.display === "none") {
+        content.style.display = "";
+        caret.classList.add("shins-caret--open");
+        if (!content.hasChildNodes())
+          content.appendChild(renderChildren());
+        state[path] = true;
+      } else {
+        content.style.display = "none";
+        caret.classList.remove("shins-caret--open");
+        state[path] = false;
+      }
+      writeJson(_ShadersPanel.#TREE_KEY, state);
+    });
+    node.appendChild(summary);
+    node.appendChild(content);
+    return node;
+  }
+  static #treeTechnique(label, path, state, renderChildren) {
+    const expanded = !!state[path];
+    const node = el5("div", { className: "shins-tree-technique" });
+    const caret = el5("span", {
+      className: "shins-caret" + (expanded ? " shins-caret--open" : ""),
+      textContent: "\u25B8",
+      "aria-hidden": "true"
+    });
+    const summary = el5("div", { className: "shins-summary shins-tree-technique-title" }, [
+      caret,
+      el5("span", { textContent: label })
+    ]);
+    const content = el5("div", { className: "shins-node-content", style: expanded ? "" : "display:none;" });
+    if (expanded)
+      content.appendChild(renderChildren());
+    summary.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (content.style.display === "none") {
+        content.style.display = "";
+        caret.classList.add("shins-caret--open");
+        if (!content.hasChildNodes())
+          content.appendChild(renderChildren());
+        state[path] = true;
+      } else {
+        content.style.display = "none";
+        caret.classList.remove("shins-caret--open");
+        state[path] = false;
+      }
+      writeJson(_ShadersPanel.#TREE_KEY, state);
+    });
+    node.appendChild(summary);
+    node.appendChild(content);
+    return node;
+  }
+  static #shaderLeaf(kind, path, technique) {
+    const wrap = el5("div", { className: "shins-leaf", ["data-shins-leaf"]: "" });
+    const head = el5("div", { className: "shins-leaf-head" }, [
+      el5("div", { className: "shins-leaf-title" }, [
+        el5("span", { textContent: kind === "vertex" ? "Vertex shader" : "Fragment shader" }),
+        el5("div", { className: "shins-leaf-actions" }, [
+          el5("button", {
+            className: "shins-btn shins-btn--sub",
+            textContent: "GLSL",
+            onclick: () => {
+              _ShadersPanel.openShaderSourceInTab(
+                kind,
+                path,
+                kind === "vertex" ? technique.vertexShaderSrc : technique.fragmentShaderSrc
+              );
+            }
+          }),
+          el5("button", {
+            className: "shins-btn shins-btn--sub",
+            textContent: "GLSL + Comments",
+            onclick: () => {
+              _ShadersPanel.openShaderSourceInTab(
+                kind,
+                path,
+                kind === "vertex" ? technique.vertexShaderCommentedSrc : technique.fragmentShaderCommentedSrc
+              );
+            }
+          })
+        ])
+      ])
+    ]);
+    wrap.appendChild(head);
+    return wrap;
+  }
+  // ---------------------------------------------------------------------------
+  // Panel state helpers
+  // ---------------------------------------------------------------------------
+  static #setCollapsed(root, collapsed) {
+    root.classList.toggle("shins-collapsed", collapsed);
+    const body = root.querySelector(".shins-body");
+    if (body)
+      body.style.display = collapsed ? "none" : "block";
+    const caret = root.querySelector("[data-shins-caret]");
+    if (caret)
+      caret.textContent = collapsed ? "\u25B8" : "\u25BE";
+    const state = root.querySelector("[data-shins-state]");
+    if (state)
+      state.textContent = collapsed ? "Collapsed" : "Expanded";
+  }
+  static #setAllTreeOpen(root, open) {
+    const state = readJson(this.#TREE_KEY, {});
+    const nodes = root.querySelectorAll(".shins-details[data-shins-path]");
+    nodes.forEach((d) => {
+      const path = d.getAttribute("data-shins-path") || "";
+      d.open = open;
+      if (path)
+        state[path] = open;
+    });
+    writeJson(this.#TREE_KEY, state);
+  }
+  static #applyFilter(root, query) {
+    const q = query.trim().toLowerCase();
+    const nodes = Array.from(root.querySelectorAll("[data-shins-node], [data-shins-leaf]"));
+    if (!q) {
+      nodes.forEach((n) => n.style.display = "");
+      return;
+    }
+    nodes.forEach((n) => n.style.display = "none");
+    const matchNodes = [];
+    const allDetails = Array.from(root.querySelectorAll("[data-shins-node]"));
+    for (const d of allDetails) {
+      const summary = d.querySelector(".shins-summary");
+      const text = (summary?.textContent || "").toLowerCase();
+      if (text.includes(q))
+        matchNodes.push(d);
+    }
+    const pres = Array.from(root.querySelectorAll("[data-shins-src]"));
+    for (const pre of pres) {
+      const plain = pre.dataset?.shinsPlain ?? "";
+      const path = (pre.getAttribute("data-shins-src") || "").toLowerCase();
+      if (path.includes(q) || plain.toLowerCase().includes(q)) {
+        const leaf = pre.closest("[data-shins-leaf]");
+        if (leaf)
+          matchNodes.push(leaf);
+        const details = pre.closest("[data-shins-node]");
+        if (details)
+          matchNodes.push(details);
+      }
+    }
+    for (const n of matchNodes) {
+      let cur = n;
+      while (cur) {
+        if (cur.matches("[data-shins-node], [data-shins-leaf], [data-shins-tree-root]"))
+          cur.style.display = "";
+        cur = cur.parentElement;
+      }
+      n.style.display = "";
+    }
+  }
+  // ---------------------------------------------------------------------------
+  // Styles
+  // ---------------------------------------------------------------------------
+  static #ensureGlobalStyle() {
+    if (document.getElementById(this.#STYLE_ID))
+      return;
+    const s = document.createElement("style");
+    s.id = this.#STYLE_ID;
+    s.textContent = DEFAULT_CSS5;
+    document.head.appendChild(s);
+  }
+  static openShaderSourceInTab(kind, name12, src) {
+    const highlighted = highlightGLSL(src);
+    const title = `${name12} (${kind} shader)`;
+    const css = `
+    body { background: #0f1116; color: #e7e7e7; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; margin: 0; padding: 0; }
+    .glsl-kw { color: #7ec7e6; font-weight: 600; }
+    .glsl-builtin { color: #ffd57a; }
+    .glsl-num { color: #b3e6c7; }
+    .glsl-comment { color: #888; font-style: italic; }
+    .glsl-str { color: #ffe7b3; }
+    .glsl-pp { color: #ffd57a; font-weight: 600; }
+    pre { margin: 0; padding: 24px; font-size: 15px; line-height: 1.6; background: #0f1116; border: none; }
+    h1 { color: #fff; font-size: 20px; font-weight: 650; margin: 0 0 12px 0; }
+    .meta { color: #aaa; font-size: 13px; margin-bottom: 18px; }
+  `;
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>${escapeHtml3(title)}</title>
+      <meta charset="utf-8">
+      <style>${css}</style>
+    </head>
+    <body>
+      <h1>${escapeHtml3(name12)}</h1>
+      <div class="meta">${escapeHtml3(kind)} shader</div>
+      <pre><code>${highlighted}</code></pre>
+    </body>
+    </html>
+  `;
+    const win = window.open("", "_blank");
+    if (win) {
+      win.document.open();
+      win.document.write(html);
+      win.document.close();
+    } else {
+      alert("Unable to open new tab. Please allow popups for this site.");
+    }
+  }
+};
+function el5(tag, props = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(props))
+    node[key] = value;
+  for (const child of children)
+    node.appendChild(child);
+  return node;
+}
+function readBool5(key, fallback) {
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (raw === null)
+      return fallback;
+    return raw === "1";
+  } catch {
+    return fallback;
+  }
+}
+function writeBool5(key, value) {
+  try {
+    sessionStorage.setItem(key, value ? "1" : "0");
+  } catch {
+  }
+}
+function readJson(key, fallback) {
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (!raw)
+      return fallback;
+    return JSON.parse(raw);
+  } catch {
+    return fallback;
+  }
+}
+function writeJson(key, value) {
+  try {
+    sessionStorage.setItem(key, JSON.stringify(value));
+  } catch {
+  }
+}
+function escapeHtml3(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+function highlightGLSL(src) {
+  const parts = [];
+  const s = src;
+  let i = 0;
+  while (i < s.length) {
+    const ch = s[i];
+    const next = s[i + 1];
+    if (ch === "/" && next === "/") {
+      const start2 = i;
+      i += 2;
+      while (i < s.length && s[i] !== "\n")
+        i++;
+      parts.push({ t: "comment", v: s.slice(start2, i) });
+      continue;
+    }
+    if (ch === "/" && next === "*") {
+      const start2 = i;
+      i += 2;
+      while (i < s.length && !(s[i] === "*" && s[i + 1] === "/"))
+        i++;
+      i = Math.min(s.length, i + 2);
+      parts.push({ t: "comment", v: s.slice(start2, i) });
+      continue;
+    }
+    if (ch === '"') {
+      const start2 = i;
+      i++;
+      while (i < s.length) {
+        if (s[i] === "\\" && i + 1 < s.length) {
+          i += 2;
+          continue;
+        }
+        if (s[i] === '"') {
+          i++;
+          break;
+        }
+        i++;
+      }
+      parts.push({ t: "string", v: s.slice(start2, i) });
+      continue;
+    }
+    const start = i;
+    i++;
+    while (i < s.length) {
+      const c3 = s[i];
+      const n = s[i + 1];
+      if (c3 === "/" && (n === "/" || n === "*") || c3 === '"')
+        break;
+      i++;
+    }
+    parts.push({ t: "raw", v: s.slice(start, i) });
+  }
+  const kw = [
+    // storage / qualifiers / control
+    "attribute",
+    "uniform",
+    "varying",
+    "const",
+    "in",
+    "out",
+    "inout",
+    "precision",
+    "highp",
+    "mediump",
+    "lowp",
+    "layout",
+    "centroid",
+    "flat",
+    "smooth",
+    "noperspective",
+    "if",
+    "else",
+    "for",
+    "while",
+    "do",
+    "break",
+    "continue",
+    "return",
+    "discard",
+    "struct",
+    "void",
+    // types
+    "bool",
+    "int",
+    "uint",
+    "float",
+    "double",
+    "vec2",
+    "vec3",
+    "vec4",
+    "bvec2",
+    "bvec3",
+    "bvec4",
+    "ivec2",
+    "ivec3",
+    "ivec4",
+    "uvec2",
+    "uvec3",
+    "uvec4",
+    "mat2",
+    "mat3",
+    "mat4",
+    "mat2x2",
+    "mat2x3",
+    "mat2x4",
+    "mat3x2",
+    "mat3x3",
+    "mat3x4",
+    "mat4x2",
+    "mat4x3",
+    "mat4x4",
+    "sampler2D",
+    "samplerCube",
+    "sampler2DShadow",
+    "samplerCubeShadow",
+    "sampler3D",
+    "sampler2DArray"
+  ];
+  const kwRe = new RegExp(`\\b(${kw.join("|")})\\b`, "g");
+  const builtins = [
+    "gl_Position",
+    "gl_FragColor",
+    "gl_FragCoord",
+    "gl_PointSize",
+    "gl_PointCoord",
+    "gl_FrontFacing",
+    "gl_FragDepth"
+  ];
+  const builtinRe = new RegExp(`\\b(${builtins.join("|")})\\b`, "g");
+  const numRe = /\b(?:0x[0-9a-fA-F]+|\d+\.\d+|\d+\.|\.\d+|\d+)(?:[eE][+-]?\d+)?\b/g;
+  function highlightRaw(raw) {
+    const escaped = escapeHtml3(raw);
+    const withPP = escaped.replace(
+      /(^|\n)(\s*#.*?)(?=\n|$)/g,
+      (_m, p1, p2) => `${p1}<span class="glsl-pp">${p2}</span>`
+    );
+    return withPP.replace(builtinRe, `<span class="glsl-builtin">$1</span>`).replace(kwRe, `<span class="glsl-kw">$1</span>`).replace(numRe, `<span class="glsl-num">$&</span>`);
+  }
+  let out = "";
+  for (const p of parts) {
+    if (p.t === "comment")
+      out += `<span class="glsl-comment">${escapeHtml3(p.v)}</span>`;
+    else if (p.t === "string")
+      out += `<span class="glsl-str">${escapeHtml3(p.v)}</span>`;
+    else
+      out += highlightRaw(p.v);
+  }
+  return out;
+}
+var DEFAULT_CSS5 = `
+.shins-root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: #111; padding: 16px;
+  background: rgba(255,255,255,0.96); border: 1px solid #e6e6e6; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,0.14);
+  backdrop-filter: blur(2px);
+}
+
+.shins-header {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  background: #fff;
+}
+.shins-title-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 4px;
+}
+.shins-title-icon {
+  width: 60px;
+  height: 60px;
+  flex: 0 0 60px;
+  border-radius: 14px;
+  border: 1.5px solid #e6e6e6;
+  background: #fafafa;
+  padding: 6px;
+}
+.shins-title { display: grid; gap: 4px; }
+.shins-h1 { padding-top:10px;  font-size: 24px; color: #666666; font-weight: 650; }
+.shins-subtitle { font-size: 12px; color: #444; line-height: 1.35; }
+
+.shins-filter { width: 100%; border-radius: 10px; border: 1px solid #e6e6e6; padding: 8px 10px; font-size: 12px; }
+.shins-filter:focus { outline: none; border-color: #cfe5ff; box-shadow: 0 0 0 3px rgba(207,229,255,0.7); }
+
+.shins-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+.shins-caret { font-size: 14px; color: #444; width: 18px; text-align: center; }
+
+.shins-btn {
+  font-size: 13px;
+  padding: 4px 12px;
+  border-radius: 7px;
+  border: 1px solid #e6e6e6;
+  background: #f7fafc;
+  color: #2d5e8c;
+  font-weight: 650;
+  cursor: pointer;
+  margin-left: 12px;
+  transition: background 0.13s;
+}
+.shins-btn:hover {
+  background: #e6f0fa;
+  border-color: #b3c6e0;
+}
+.shins-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.shins-btn--sub { }
+
+.shins-status { display: flex; gap: 8px; align-items: baseline; }
+.shins-status-label { font-size: 12px; color: #666; }
+.shins-status-value { font-size: 12px; font-weight: 600; }
+
+.shins-body { margin-top: 12px; }
+
+/* --- Techniques tree --- */
+.shins-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.shins-tree-group {
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(74,144,226,0.04);
+  margin-bottom: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.shins-tree-title {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #2d5e8c;
+  background: #f7fafc;
+  border-radius: 12px 12px 0 0;
+  padding: 12px 18px 10px 18px;
+  user-select: none;
+  letter-spacing: 0.01em;
+  transition: background 0.13s;
+}
+.shins-tree-title:hover {
+  background: #e6f0fa;
+}
+
+.shins-tree-techniques {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+}
+
+.shins-tree-technique {
+  border-top: 1px solid #f0f0f0;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.shins-tree-technique-title {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  background: none;
+  padding: 10px 22px 8px 32px;
+  user-select: none;
+  transition: background 0.13s;
+}
+.shins-tree-technique-title:hover {
+  background: #f7fafc;
+}
+
+.shins-caret {
+  display: inline-block;
+  width: 18px;
+  text-align: center;
+  font-size: 15px;
+  color: #888;
+  transition: transform 0.18s cubic-bezier(.4,0,.2,1), color 0.13s;
+  user-select: none;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+.shins-caret--open {
+  transform: rotate(90deg);
+  color: #4a90e2;
+}
+
+.shins-summary {
+  /* base for all summary rows */
+  user-select: none;
+  outline: none;
+}
+
+.shins-node-content {
+  padding: 0 0 0 0;
+  border-top: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.shins-technique-leafs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 32px 14px 48px;
+  background: #f7fafc;
+}
+
+.shins-leaf {
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+  margin-bottom: 0;
+}
+.shins-leaf-head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 8px;
+}
+.shins-leaf-title {
+  font-size: 12px;
+  font-weight: 650;
+  flex: 1;
+  min-width: 0;
+}
+.shins-leaf-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+.shins-leaf-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.shins-pill { font-size: 11px; border-radius: 999px; padding: 3px 8px; border: 1px solid #e6e6e6; background: #fafafa; color: #333; }
+.shins-pill--mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; color: #444; background: #fff; }
+
+.shins-pre { margin: 0; padding: 10px 12px; background: #0f1116; color: #e7e7e7; overflow: auto;
+  font-size: 11px; line-height: 1.35; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  max-height: 220px;
+}
+.shins-code { white-space: pre; }
+.shins-pre--expanded { max-height: 70vh; }
+
+.shins-collapsed .shins-body { display: none; }
+
+/* --- GLSL token colors (no external deps) --- */
+.glsl-comment { color: #8b949e; font-style: italic; }
+.glsl-str { color: #a5d6ff; }
+.glsl-kw { color: #c9a7ff; font-weight: 600; }
+.glsl-builtin { color: #7ee787; font-weight: 600; }
+.glsl-num { color: #ffab70; }
+.glsl-pp { color: #ffd57a; font-weight: 600; }
+`;
+
+// ../sdk/src/demo/inspectors/RendererPanel.ts
+function rendererLogIconDataUri() {
+  const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60">
+  <defs>
+    <linearGradient id="traceGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7db3e6"/>
+      <stop offset="100%" stop-color="#2d5e8c"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Soft shadow -->
+  <ellipse cx="30" cy="52" rx="18" ry="6" fill="#000" opacity="0.10"/>
+
+  <!-- Outer rounded frame -->
+  <rect x="4" y="4" width="52" height="52" rx="12"
+        fill="#ffffff"
+        stroke="#e6e6e6"
+        stroke-width="1.5"/>
+
+  <!-- Scope screen -->
+  <rect x="10" y="10" width="40" height="40" rx="10"
+        fill="#fbfdff"
+        stroke="#dbe7f3"
+        stroke-width="1.5"/>
+
+  <!-- Grid -->
+  <g opacity="0.55" stroke="#e8eef6" stroke-width="1">
+    <line x1="14" y1="18" x2="46" y2="18"/>
+    <line x1="14" y1="26" x2="46" y2="26"/>
+    <line x1="14" y1="34" x2="46" y2="34"/>
+    <line x1="14" y1="42" x2="46" y2="42"/>
+    <line x1="18" y1="14" x2="18" y2="46"/>
+    <line x1="26" y1="14" x2="26" y2="46"/>
+    <line x1="34" y1="14" x2="34" y2="46"/>
+    <line x1="42" y1="14" x2="42" y2="46"/>
+  </g>
+
+  <!-- Trace waveform -->
+  <path d="M14 34
+           L18 34
+           L20 28
+           L23 40
+           L26 22
+           L29 34
+           L32 30
+           L35 38
+           L38 26
+           L41 34
+           L46 34"
+        fill="none"
+        stroke="url(#traceGrad)"
+        stroke-width="2.6"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+
+  <!-- Span markers (like GPU debug markers) -->
+  <g>
+    <line x1="22" y1="16" x2="22" y2="46" stroke="#2d5e8c" stroke-width="1.5" opacity="0.25"/>
+    <line x1="34" y1="16" x2="34" y2="46" stroke="#2d5e8c" stroke-width="1.5" opacity="0.25"/>
+    <circle cx="22" cy="16" r="2" fill="#ffffff" stroke="#2d5e8c" stroke-width="1.3"/>
+    <circle cx="34" cy="16" r="2" fill="#ffffff" stroke="#2d5e8c" stroke-width="1.3"/>
+  </g>
+
+  <!-- Little "cursor" dot on the trace -->
+  <circle cx="29" cy="34" r="2.2" fill="#ffffff" stroke="#2d5e8c" stroke-width="1.2"/>
+
+  <!-- GPU chip badge (bottom-right) -->
+  <g transform="translate(36 36)">
+    <rect x="0" y="0" width="14" height="14" rx="4" fill="#ffffff" stroke="#b7d7f2" stroke-width="1.6"/>
+    <rect x="4.4" y="4.4" width="5.2" height="5.2" rx="1.4" fill="url(#traceGrad)" opacity="0.9"/>
+
+    <!-- Pins -->
+    <rect x="6" y="-2.2" width="2" height="3.2" rx="1" fill="#c7d6e6"/>
+    <rect x="6" y="13" width="2" height="3.2" rx="1" fill="#c7d6e6"/>
+    <rect x="-2.2" y="6" width="3.2" height="2" rx="1" fill="#c7d6e6"/>
+    <rect x="13" y="6" width="3.2" height="2" rx="1" fill="#c7d6e6"/>
+  </g>
+</svg>`.trim();
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+var RendererPanel = class _RendererPanel {
+  static #TILE_ID = "__renderinsp_tile__";
+  static #STYLE_ID = "__renderinsp_style__";
+  static #STATE_KEY = "__renderinsp_collapsed__";
+  static #VIEWSEL_KEY = "__renderinsp_viewsel__";
+  static show(flowHost, renderer, opts = {}) {
+    this.#ensureGlobalStyle();
+    let tile = document.getElementById(this.#TILE_ID);
+    const inspectorResult = renderer.getRenderInspector();
+    const inspector = inspectorResult.ok ? inspectorResult.value : null;
+    const root = this.render(inspector, opts);
+    if (!tile) {
+      tile = FloatingPanelFlowHost.mountTile(root, {
+        tileMinWidth: opts.tileMinWidth ?? 720,
+        tileMaxWidth: opts.tileMaxWidth ?? 1200
+      });
+      tile.id = this.#TILE_ID;
+      flowHost.appendChild(tile);
+    } else {
+      tile.replaceChildren(root);
+    }
+    renderer.events.onViewRendered.subscribe(() => {
+      const tile2 = document.getElementById(this.#TILE_ID);
+      if (!tile2)
+        return;
+      const inspectorResult2 = renderer.getRenderInspector();
+      const inspector2 = inspectorResult2.ok ? inspectorResult2.value : null;
+      tile2.replaceChildren(this.render(inspector2, {}));
+    });
+    return tile;
+  }
+  static hide() {
+    const tile = document.getElementById(this.#TILE_ID);
+    if (tile)
+      tile.remove();
+  }
+  static autoRefresh(inspector, opts = {}) {
+    const intervalMs = Math.max(50, Number(opts.intervalMs ?? 250));
+    const t = window.setInterval(() => {
+      const tile = document.getElementById(this.#TILE_ID);
+      if (!tile)
+        return;
+      tile.replaceChildren(this.render(inspector, {}));
+    }, intervalMs);
+    return () => window.clearInterval(t);
+  }
+  static render(inspector, opts = {}) {
+    const root = el6("div", { className: "rins-root" });
+    const collapsed = readBool6(this.#STATE_KEY, !!opts.startCollapsed);
+    const header = this.renderHeader({ collapsed }, inspector, opts);
+    const body = this.renderBody(inspector, opts);
+    root.appendChild(header);
+    root.appendChild(body);
+    this.#setCollapsed(root, collapsed);
+    header.querySelector("[data-rins-toggle]")?.addEventListener("click", () => {
+      const nowCollapsed = !root.classList.contains("rins-collapsed");
+      this.#setCollapsed(root, nowCollapsed);
+      writeBool6(this.#STATE_KEY, nowCollapsed);
+      const btn = header.querySelector("[data-rins-toggle]");
+      if (btn)
+        btn.textContent = nowCollapsed ? "Expand" : "Collapse";
+    });
+    header.querySelector("[data-rins-refresh]")?.addEventListener("click", () => {
+      const newRoot = this.render(inspector, opts);
+      root.replaceWith(newRoot);
+    });
+    header.querySelector("[data-rins-copyview]")?.addEventListener("click", async () => {
+      const sel = readNumber(this.#VIEWSEL_KEY, 0);
+      const renderStats = inspector?.renderStats;
+      const frameRates = inspector?.frameRates;
+      const frame = renderStats?.views?.[sel] ?? null;
+      const fps = frameRates?.[sel] ?? null;
+      const payload = safeJson({ selectedViewIndex: sel, fps, frame });
+      await tryCopy(payload);
+      const btn = header.querySelector("[data-rins-copyview]");
+      if (btn) {
+        const old = btn.textContent;
+        btn.textContent = "Copied";
+        setTimeout(() => btn.textContent = old || "Copy view", 700);
+      }
+    });
+    body.addEventListener("click", (e) => {
+      const t = e.target;
+      const row = t.closest("[data-rins-viewrow]");
+      if (!row)
+        return;
+      const idx = Number(row.getAttribute("data-rins-viewrow"));
+      if (!Number.isFinite(idx))
+        return;
+      writeNumber(this.#VIEWSEL_KEY, idx);
+      const tile = document.getElementById(this.#TILE_ID);
+      if (!tile)
+        return;
+      tile.replaceChildren(this.render(inspector, {}));
+    });
+    return root;
+  }
+  // ---------------------------------------------------------------------------
+  // Header / Body
+  // ---------------------------------------------------------------------------
+  static renderHeader({ collapsed }, inspector, opts = {}) {
+    const title = opts.title ?? "Renderer";
+    const subtitle = opts.subtitle ?? "WebGLRenderer execution log for the last frame.";
+    const renderStats = inspector?.renderStats;
+    const views = renderStats?.views ?? [];
+    const completed = views.filter((v) => !!v).length;
+    const sel = readNumber(this.#VIEWSEL_KEY, 0);
+    const selectedIndex = clampInt(sel, 0, Math.max(0, views.length - 1));
+    const selected = views?.[selectedIndex] ?? null;
+    const header = el6("div", { className: "rins-header" });
+    const icon = el6("img", {
+      className: "rins-title-icon",
+      width: 60,
+      height: 60,
+      alt: "Renderer log",
+      src: rendererLogIconDataUri(),
+      draggable: false
+    });
+    const textCol = el6("div", { className: "rins-title-col" }, [
+      el6("div", { className: "rins-h1", textContent: title }),
+      el6("div", { className: "rins-subtitle", textContent: subtitle })
+    ]);
+    const stats = el6("div", { className: "rins-headstats" }, [
+      this.#pill(`${completed}/${views.length} frames`, "neutral"),
+      this.#pill(`drawCalls: ${selected?.numDrawCalls ?? "\u2014"}`, typeof selected?.numDrawCalls === "number" ? "info" : "muted"),
+      this.#pill(`prims: ${selected?.numPrims ?? "\u2014"}`, typeof selected?.numPrims === "number" ? "info" : "muted"),
+      this.#pill(`time: ${formatTimeMs(selected?.timeMs)}`, selected?.timeMs ? "info" : "muted")
+    ]);
+    const actions = el6("div", { className: "rins-actions" }, [
+      el6("button", {
+        className: "rins-btn rins-btn--sub",
+        ["data-rins-toggle"]: "",
+        textContent: collapsed ? "Expand" : "Collapse",
+        title: "Toggle collapse"
+      }),
+      el6("button", {
+        className: "rins-btn rins-btn--sub",
+        ["data-rins-refresh"]: "",
+        textContent: "Refresh",
+        title: "Re-render from inspector"
+      }),
+      el6("button", {
+        className: "rins-btn rins-btn--sub",
+        ["data-rins-copyview"]: "",
+        textContent: "Copy view",
+        title: "Copy selected view JSON to clipboard"
+      })
+    ]);
+    const mid = el6("div", { className: "rins-headmid" }, [textCol, stats]);
+    header.appendChild(icon);
+    header.appendChild(mid);
+    header.appendChild(actions);
+    return header;
+  }
+  static renderBody(inspector, _opts = {}) {
+    const body = el6("div", { className: "rins-body" });
+    const renderStats = inspector?.renderStats;
+    const frameRates = inspector?.frameRates;
+    if (!renderStats) {
+      body.appendChild(el6("div", { className: "rins-empty", textContent: "No renderStats available on inspector." }));
+      return body;
+    }
+    const tree = el6("div", { className: "rins-tree" });
+    tree.appendChild(this.#renderViewsTable(inspector, renderStats, frameRates));
+    body.appendChild(tree);
+    return body;
+  }
+  // ---------------------------------------------------------------------------
+  // Views (TABULAR)
+  // ---------------------------------------------------------------------------
+  static #renderViewsTable(inspector, renderStats, frameRates) {
+    const wrap = el6("section", { className: "rins-views" });
+    const views = renderStats.views ?? [];
+    const completed = views.filter((v) => !!v).length;
+    wrap.appendChild(
+      el6("div", { className: "rins-section-head" }, [
+        el6("div", { className: "rins-section-title", textContent: "Views" }),
+        el6("div", { className: "rins-section-meta", textContent: `${completed}/${views.length} frames \xB7 click row for details` })
+      ])
+    );
+    if (!views.length) {
+      wrap.appendChild(el6("div", { className: "rins-empty", textContent: "No view slots yet." }));
+      return wrap;
+    }
+    const sel = readNumber(this.#VIEWSEL_KEY, 0);
+    const selectedIndex = clampInt(sel, 0, views.length - 1);
+    const table = el6("table", { className: "rins-viewtable" });
+    const colgroup = el6("colgroup");
+    colgroup.appendChild(el6("col", { className: "rins-col-idx" }));
+    colgroup.appendChild(el6("col", { className: "rins-col-id" }));
+    colgroup.appendChild(el6("col", { className: "rins-col-canvas" }));
+    colgroup.appendChild(el6("col", { className: "rins-col-fps" }));
+    colgroup.appendChild(el6("col", { className: "rins-col-dc" }));
+    colgroup.appendChild(el6("col", { className: "rins-col-pr" }));
+    colgroup.appendChild(el6("col", { className: "rins-col-time" }));
+    table.appendChild(colgroup);
+    table.appendChild(
+      el6("thead", {}, [
+        el6("tr", {}, [
+          el6("th", { className: "rins-th rins-th--num", textContent: "#" }),
+          el6("th", { className: "rins-th", textContent: "viewId" }),
+          el6("th", { className: "rins-th", textContent: "canvas" }),
+          el6("th", { className: "rins-th rins-th--num", textContent: "fps" }),
+          el6("th", { className: "rins-th rins-th--num", textContent: "drawCalls" }),
+          el6("th", { className: "rins-th rins-th--num", textContent: "prims" }),
+          el6("th", { className: "rins-th", textContent: "time" })
+        ])
+      ])
+    );
+    const tbody = el6("tbody");
+    table.appendChild(tbody);
+    for (let viewIndex = 0; viewIndex < views.length; viewIndex++) {
+      const frame = views[viewIndex];
+      const fps = frameRates?.[viewIndex] ?? null;
+      const tr2 = el6("tr", {
+        className: `rins-viewrow ${viewIndex === selectedIndex ? "is-selected" : ""} ${frame ? "is-ready" : "is-empty"}`,
+        ["data-rins-viewrow"]: String(viewIndex),
+        ["data-rins-plain"]: `views:${viewIndex}`,
+        title: frame ? "Select this view" : "No completed frame for this viewIndex yet"
+      });
+      tr2.dataset.rinsPlain = safeJson({
+        viewIndex,
+        viewId: frame?.viewId ?? null,
+        canvasSize: frame?.canvasSize ?? null,
+        numDrawCalls: frame?.numDrawCalls ?? null,
+        numPrims: frame?.numPrims ?? null,
+        fps,
+        timeMs: frame?.timeMs ?? null
+      });
+      tr2.appendChild(el6("td", { className: "rins-td rins-td--num", textContent: String(viewIndex) }));
+      tr2.appendChild(el6("td", { className: "rins-td rins-td--mono", textContent: frame?.viewId ?? "\u2014" }));
+      tr2.appendChild(
+        el6("td", {
+          className: "rins-td rins-td--mono",
+          textContent: frame ? `${frame.canvasSize?.[0] ?? "\u2014"} \xD7 ${frame.canvasSize?.[1] ?? "\u2014"}` : "\u2014"
+        })
+      );
+      tr2.appendChild(el6("td", { className: "rins-td rins-td--num", textContent: fps == null ? "\u2014" : fps.toFixed(2) }));
+      tr2.appendChild(el6("td", { className: "rins-td rins-td--num", textContent: frame ? String(frame.numDrawCalls ?? "\u2014") : "\u2014" }));
+      tr2.appendChild(el6("td", { className: "rins-td rins-td--num", textContent: frame ? String(frame.numPrims ?? "\u2014") : "\u2014" }));
+      tr2.appendChild(el6("td", { className: "rins-td rins-td--mono", textContent: frame ? formatTimeMs(frame.timeMs) : "\u2014" }));
+      tbody.appendChild(tr2);
+    }
+    wrap.appendChild(table);
+    wrap.appendChild(this.#renderViewDetails(selectedIndex, views[selectedIndex], frameRates?.[selectedIndex] ?? null));
+    return wrap;
+  }
+  static #renderViewDetails(viewIndex, frame, fps) {
+    const box = el6("div", { className: "rins-viewdetail" });
+    box.appendChild(
+      el6("div", { className: "rins-viewdetail-title" }, [
+        el6("div", { className: "rins-viewdetail-h", textContent: `View ${viewIndex}` }),
+        el6("div", { className: "rins-viewdetail-sub", textContent: frame?.viewId ?? "\u2014" })
+      ])
+    );
+    if (!frame) {
+      box.appendChild(el6("div", { className: "rins-empty", textContent: "No completed frame for this viewIndex." }));
+      return box;
+    }
+    box.appendChild(
+      el6("div", { className: "rins-metrics" }, [
+        _RendererPanel.#metric("Canvas", `${frame.canvasSize?.[0] ?? "\u2014"} \xD7 ${frame.canvasSize?.[1] ?? "\u2014"}`),
+        _RendererPanel.#metric("FPS", fps == null ? "\u2014" : fps.toFixed(2)),
+        _RendererPanel.#metric("Draw calls", String(frame.numDrawCalls ?? "\u2014")),
+        _RendererPanel.#metric("Prims", String(frame.numPrims ?? "\u2014")),
+        _RendererPanel.#metric("Time", formatTimeMs(frame.timeMs))
+      ])
+    );
+    box.appendChild(
+      this.#kvTable(
+        [
+          ["viewId", frame.viewId],
+          ["canvasSize", `${frame.canvasSize?.[0] ?? "\u2014"} \xD7 ${frame.canvasSize?.[1] ?? "\u2014"}`],
+          ["numDrawCalls", String(frame.numDrawCalls ?? "\u2014")],
+          ["numPrims", String(frame.numPrims ?? "\u2014")],
+          ["timeMs", formatTimeMs(frame.timeMs)],
+          ["fps", fps == null ? "\u2014" : fps.toFixed(2)]
+        ],
+        `view:${viewIndex}`
+      )
+    );
+    const bins = frame.renderBins ?? [];
+    box.appendChild(this.#renderBinsTable(viewIndex, bins));
+    box.appendChild(this.#renderDrawCallsDetails(viewIndex, bins));
+    return box;
+  }
+  static #renderBinsTable(viewIndex, bins) {
+    const wrap = el6("div", { className: "rins-bins" });
+    wrap.appendChild(
+      el6("div", { className: "rins-subhead" }, [
+        el6("div", { className: "rins-subtitle2", textContent: `Render bins executed (${bins.length})` })
+      ])
+    );
+    if (!bins.length) {
+      wrap.appendChild(el6("div", { className: "rins-empty", textContent: "No render bins executed." }));
+      return wrap;
+    }
+    const binsSorted = bins.slice().sort((a2, b4) => Number(b4?.timeMs?.duration ?? 0) - Number(a2?.timeMs?.duration ?? 0));
+    const table = el6("table", { className: "rins-bintable" });
+    const colgroup = el6("colgroup");
+    colgroup.appendChild(el6("col", { className: "rins-col-bin-name" }));
+    colgroup.appendChild(el6("col", { className: "rins-col-bin-dc" }));
+    colgroup.appendChild(el6("col", { className: "rins-col-bin-time" }));
+    table.appendChild(colgroup);
+    table.appendChild(
+      el6("thead", {}, [
+        el6("tr", {}, [
+          el6("th", { className: "rins-th", textContent: "name" }),
+          el6("th", { className: "rins-th rins-th--num", textContent: "drawCalls" }),
+          el6("th", { className: "rins-th", textContent: "time" })
+        ])
+      ])
+    );
+    const tbody = el6("tbody");
+    table.appendChild(tbody);
+    for (let i = 0; i < binsSorted.length; i++) {
+      const b4 = binsSorted[i];
+      const calls = b4.drawCalls ?? [];
+      const tr2 = el6("tr", { ["data-rins-plain"]: `view:${viewIndex}:bin:${i}` });
+      tr2.dataset.rinsPlain = safeJson({
+        name: b4.name,
+        timeMs: b4.timeMs,
+        drawCalls: calls.length
+      });
+      tr2.appendChild(el6("td", { className: "rins-td rins-td--mono", textContent: b4.name }));
+      tr2.appendChild(el6("td", { className: "rins-td rins-td--num", textContent: String(calls.length) }));
+      tr2.appendChild(el6("td", { className: "rins-td rins-td--mono", textContent: formatTimeMs(b4.timeMs) }));
+      tbody.appendChild(tr2);
+    }
+    wrap.appendChild(table);
+    return wrap;
+  }
+  static #renderDrawCallsDetails(viewIndex, bins) {
+    const details = el6("details", { className: "rins-dcdetails", open: false });
+    details.appendChild(el6("summary", { className: "rins-dcsum", textContent: "Draw calls executed" }));
+    const all = [];
+    for (const b4 of bins) {
+      for (const dc of b4.drawCalls ?? [])
+        all.push({ binName: b4.name, dc });
+    }
+    if (!all.length) {
+      details.appendChild(el6("div", { className: "rins-empty", textContent: "No draw calls." }));
+      return details;
+    }
+    all.sort((a2, b4) => Number(b4.dc?.timeMs?.duration ?? 0) - Number(a2.dc?.timeMs?.duration ?? 0));
+    const table = el6("table", {
+      className: "rins-dctable",
+      ["data-rins-plain"]: `view:${viewIndex}:drawcalls`
+    });
+    table.dataset.rinsPlain = safeJson(all.map((x) => ({ bin: x.binName, ...x.dc })));
+    const colgroup = el6("colgroup");
+    colgroup.appendChild(el6("col", { className: "rins-col-dc-bin" }));
+    colgroup.appendChild(el6("col", { className: "rins-col-dc-pass" }));
+    colgroup.appendChild(el6("col", { className: "rins-col-dc-prim" }));
+    colgroup.appendChild(el6("col", { className: "rins-col-dc-batch" }));
+    colgroup.appendChild(el6("col", { className: "rins-col-dc-range" }));
+    colgroup.appendChild(el6("col", { className: "rins-col-dc-time" }));
+    table.appendChild(colgroup);
+    table.appendChild(
+      el6("thead", {}, [
+        el6("tr", {}, [
+          el6("th", { className: "rins-th", textContent: "bin" }),
+          el6("th", { className: "rins-th", textContent: "renderPass" }),
+          el6("th", { className: "rins-th", textContent: "primitive" }),
+          el6("th", { className: "rins-th rins-th--num", textContent: "batch" }),
+          el6("th", { className: "rins-th", textContent: "primRange" }),
+          el6("th", { className: "rins-th", textContent: "time" })
+        ])
+      ])
+    );
+    const tbody = el6("tbody");
+    table.appendChild(tbody);
+    const MAX = 200;
+    const slice = all.slice(0, MAX);
+    for (const { binName, dc } of slice) {
+      const pr0 = dc.primRange?.firstPrim ?? "\u2014";
+      const prn = dc.primRange?.numPrims ?? "\u2014";
+      const tr2 = el6("tr");
+      tr2.appendChild(el6("td", { className: "rins-td rins-td--mono", textContent: binName }));
+      tr2.appendChild(el6("td", { className: "rins-td rins-td--mono", textContent: dc.renderPass }));
+      tr2.appendChild(el6("td", { className: "rins-td rins-td--mono", textContent: dc.primitive }));
+      tr2.appendChild(el6("td", { className: "rins-td rins-td--num", textContent: String(dc.batchIndex) }));
+      tr2.appendChild(el6("td", { className: "rins-td rins-td--mono", textContent: `${pr0} / ${prn}` }));
+      tr2.appendChild(el6("td", { className: "rins-td rins-td--mono", textContent: formatTimeMs(dc.timeMs) }));
+      tbody.appendChild(tr2);
+    }
+    if (all.length > MAX) {
+      details.appendChild(
+        el6("div", {
+          className: "rins-empty",
+          textContent: `Showing first ${MAX.toLocaleString()} draw calls (of ${all.length.toLocaleString()}).`
+        })
+      );
+    }
+    details.appendChild(table);
+    return details;
+  }
+  // ---------------------------------------------------------------------------
+  // UI helpers
+  // ---------------------------------------------------------------------------
+  static #pill(text, tone) {
+    return el6("span", { className: `rins-pill rins-pill--${tone}`, textContent: text });
+  }
+  static #metric(label, value) {
+    return el6("div", { className: "rins-metric" }, [
+      el6("div", { className: "rins-metric-k", textContent: label }),
+      el6("div", { className: "rins-metric-v", textContent: value })
+    ]);
+  }
+  static #kvTable(rows, pathForCopy) {
+    const wrap = el6("div", { className: "rins-kvwrap" });
+    const head = el6("div", { className: "rins-kvhead" }, [
+      el6("div", { className: "rins-kvtitle", textContent: "Details" }),
+      el6("div", { className: "rins-kvmeta", textContent: pathForCopy })
+    ]);
+    const table = el6("table", { className: "rins-table", ["data-rins-plain"]: pathForCopy });
+    table.dataset.rinsPlain = safeJson(Object.fromEntries(rows));
+    for (const [k, v] of rows) {
+      const tr2 = el6("tr");
+      tr2.appendChild(el6("th", { textContent: k }));
+      tr2.appendChild(el6("td", { textContent: v }));
+      table.appendChild(tr2);
+    }
+    wrap.appendChild(head);
+    wrap.appendChild(table);
+    return wrap;
+  }
+  static #setCollapsed(root, collapsed) {
+    root.classList.toggle("rins-collapsed", collapsed);
+    const body = root.querySelector(".rins-body");
+    if (body)
+      body.style.display = collapsed ? "none" : "block";
+  }
+  static #ensureGlobalStyle() {
+    if (document.getElementById(this.#STYLE_ID))
+      return;
+    const s = document.createElement("style");
+    s.id = this.#STYLE_ID;
+    s.textContent = DEFAULT_CSS6;
+    document.head.appendChild(s);
+  }
+};
+function el6(tag, props = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(props)) {
+    if (key.startsWith("data-")) {
+      node.setAttribute(key, String(value ?? ""));
+      continue;
+    }
+    if (key === "style" && value && typeof value === "object") {
+      Object.assign(node.style, value);
+      continue;
+    }
+    node[key] = value;
+  }
+  for (const child of children)
+    node.appendChild(child);
+  return node;
+}
+function safeJson(value) {
+  try {
+    return JSON.stringify(value, null, 2);
+  } catch {
+    return String(value);
+  }
+}
+function formatTimeMs(timeMs) {
+  if (!timeMs)
+    return "\u2014";
+  const d = Number(timeMs.duration);
+  const dur = Number.isFinite(d) ? `${d.toFixed(2)} ms` : "\u2014";
+  return `${dur}`;
+}
+async function tryCopy(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand("copy");
+    } catch {
+    }
+    ta.remove();
+  }
+}
+function readBool6(key, fallback) {
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (raw === null)
+      return fallback;
+    return raw === "1";
+  } catch {
+    return fallback;
+  }
+}
+function writeBool6(key, value) {
+  try {
+    sessionStorage.setItem(key, value ? "1" : "0");
+  } catch {
+  }
+}
+function readNumber(key, fallback) {
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (raw == null)
+      return fallback;
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : fallback;
+  } catch {
+    return fallback;
+  }
+}
+function writeNumber(key, value) {
+  try {
+    sessionStorage.setItem(key, String(value));
+  } catch {
+  }
+}
+function clampInt(v, lo, hi) {
+  return Math.max(lo, Math.min(hi, Math.trunc(v)));
+}
+var DEFAULT_CSS6 = `
+.rins-root {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  color: #111;
+  padding: 16px;
+  background: rgba(255,255,255,0.96);
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.14);
+  backdrop-filter: blur(2px);
+}
+
+/* Header */
+.rins-header {
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  background: #fff;
+  align-items: start;
+}
+
+.rins-title-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
+  border: 1.5px solid #e6e6e6;
+  background: #fafafa;
+  padding: 6px;
+}
+
+.rins-headmid { display: grid; gap: 10px; min-width: 0; }
+.rins-title-col { display: grid; gap: 4px; }
+.rins-h1 { padding-top: 6px; font-size: 24px; color: #666666; font-weight: 650; }
+.rins-subtitle { font-size: 12px; color: #444; line-height: 1.35; }
+
+.rins-headstats { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+.rins-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 750;
+  border: 1px solid #e6e6e6;
+  background: #fff;
+  color: #2d5e8c;
+  letter-spacing: 0.02em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+.rins-pill--neutral { background: #f7fafc; color: #2d5e8c; }
+.rins-pill--info { background: #f4f9ff; border-color: rgba(45,94,140,0.20); color: #2d5e8c; }
+.rins-pill--muted { background: #fafafa; color: #7a7f87; }
+
+.rins-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+
+.rins-btn {
+  font-size: 12px;
+  border-radius: 10px;
+  padding: 6px 10px;
+  border: 1px solid #e6e6e6;
+  background: #fff;
+  cursor: pointer;
+}
+.rins-btn:hover { background: #fafafa; }
+.rins-btn--sub { padding: 5px 8px; border-radius: 10px; font-size: 11px; }
+
+.rins-body { margin-top: 12px; }
+.rins-tree { display: grid; gap: 12px; }
+
+.rins-empty { font-size: 12px; color: #777; padding: 6px 0; }
+
+/* Section header */
+.rins-section-head { display: flex; justify-content: space-between; align-items: baseline; margin: 2px 0 10px; }
+.rins-section-title { font-size: 13px; font-weight: 650; }
+.rins-section-meta { font-size: 12px; color: #666; }
+
+/* Tables */
+.rins-viewtable, .rins-bintable, .rins-dctable {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* key for alignment */
+  font-size: 12px;
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.rins-viewtable th, .rins-bintable th, .rins-dctable th {
+  text-align: left;
+  color: #666;
+  font-weight: 650;
+  padding: 8px 10px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #f7fafc;
+}
+
+.rins-viewtable td, .rins-bintable td, .rins-dctable td {
+  padding: 8px 10px;
+  border-top: 1px solid #f7f7f7;
+  vertical-align: top;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; /* keeps column widths stable */
+  word-break: normal;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.rins-th--num, .rins-td--num { text-align: left; font-variant-numeric: tabular-nums; }
+.rins-td--mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+/* Fixed column widths via colgroup classes */
+.rins-col-idx { width: 44px; }
+.rins-col-fps { width: 76px; }
+.rins-col-dc  { width: 96px; }
+.rins-col-pr  { width: 84px; }
+.rins-col-time { width: 120px; }
+
+/* Bin columns */
+.rins-col-bin-dc { width: 110px; }
+.rins-col-bin-time { width: 140px; }
+
+/* Draw call columns */
+.rins-col-dc-bin { width: 180px; }
+.rins-col-dc-batch { width: 90px; }
+.rins-col-dc-time { width: 130px; }
+.rins-col-dc-range { width: 130px; }
+
+.rins-viewrow { cursor: pointer; }
+.rins-viewrow:hover { background: #fafafa; }
+.rins-viewrow.is-selected { background: #f4f9ff; }
+.rins-viewrow.is-empty { color: #8a8f98; }
+
+/* Details blocks */
+.rins-viewdetail { margin-top: 12px; display: grid; gap: 10px; }
+.rins-viewdetail-title { display: grid; gap: 2px; }
+.rins-viewdetail-h { font-size: 13px; font-weight: 650; }
+.rins-viewdetail-sub { font-size: 12px; color: #666; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+.rins-metrics {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(140px, 1fr));
+  gap: 10px;
+}
+.rins-metric {
+  border: 1px solid #e6e6e6;
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.rins-metric-k { font-size: 11px; color: #666; font-weight: 650; margin-bottom: 2px; }
+.rins-metric-v { font-size: 12px; font-weight: 750; color: #2d5e8c; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+@media (max-width: 980px) {
+  .rins-metrics { grid-template-columns: repeat(2, minmax(140px, 1fr)); }
+}
+
+/* KV */
+.rins-kvwrap { border: 1px solid #e6e6e6; border-radius: 12px; background: #fff; overflow: hidden; }
+.rins-kvhead { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: baseline; gap: 10px; background: #fbfdff; }
+.rins-kvtitle { font-size: 12px; font-weight: 750; color: #2d5e8c; }
+.rins-kvmeta { font-size: 11px; color: #777; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+.rins-table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+.rins-table th {
+  text-align: left;
+  color: #666;
+  font-weight: 650;
+  width: 180px;
+  padding: 7px 10px;
+  vertical-align: top;
+  background: #fbfdff;
+  border-right: 1px solid #eef2f5;
+}
+.rins-table td {
+  padding: 7px 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+.rins-table tr + tr td, .rins-table tr + tr th { border-top: 1px solid #f0f0f0; }
+
+/* Draw calls details */
+.rins-dcdetails { border: 1px solid #e6e6e6; border-radius: 12px; background: #fff; padding: 10px 12px; }
+.rins-dcsum { cursor: pointer; font-size: 12px; font-weight: 750; color: #2d5e8c; list-style: none; }
+.rins-dcsum::-webkit-details-marker { display: none; }
+`;
+
+// ../sdk/src/demo/inspectors/TaskPanel.ts
+function taskPanelIconDataUri() {
+  const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60">
+  <defs>
+    <linearGradient id="taskGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7db3e6"/>
+      <stop offset="100%" stop-color="#2d5e8c"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Soft shadow -->
+  <ellipse cx="30" cy="52" rx="18" ry="6" fill="#000" opacity="0.10"/>
+
+  <!-- Outer rounded frame -->
+  <rect x="4" y="4" width="52" height="52" rx="12"
+        fill="#ffffff"
+        stroke="#e6e6e6"
+        stroke-width="1.5"/>
+
+  <!-- Stage nodes -->
+  <g>
+    <rect x="14" y="18" width="10" height="10" rx="3" fill="url(#taskGrad)" opacity="0.95"/>
+    <rect x="26" y="18" width="10" height="10" rx="3" fill="url(#taskGrad)" opacity="0.65"/>
+    <rect x="38" y="18" width="10" height="10" rx="3" fill="url(#taskGrad)" opacity="0.40"/>
+  </g>
+
+  <!-- Connector line (pipeline) -->
+  <line x1="19" y1="33" x2="41" y2="33" stroke="#2d5e8c" stroke-width="2" opacity="0.35" stroke-linecap="round"/>
+  <circle cx="19" cy="33" r="2" fill="#2d5e8c" opacity="0.55"/>
+  <circle cx="30" cy="33" r="2" fill="#2d5e8c" opacity="0.55"/>
+  <circle cx="41" cy="33" r="2" fill="#2d5e8c" opacity="0.55"/>
+
+  <!-- "Running" indicator (spinner-ish) -->
+  <g transform="translate(30 43)">
+    <circle cx="0" cy="0" r="7" fill="none" stroke="#2d5e8c" stroke-width="2" opacity="0.25"/>
+    <path d="M0 -7 A7 7 0 0 1 6 3" fill="none" stroke="#4fd1c5" stroke-width="2.6" stroke-linecap="round"/>
+    <circle cx="6" cy="3" r="1.6" fill="#4fd1c5"/>
+  </g>
+</svg>`.trim();
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+var TaskPanel = class {
+  static #TILE_ID = "__taskpanel_tile__";
+  static #STYLE_ID = "__taskpanel_style__";
+  static show(flowHost, runner, opts = {}) {
+    this.#ensureGlobalStyle();
+    let tile = document.getElementById(this.#TILE_ID);
+    if (!tile) {
+      tile = document.createElement("div");
+      tile.id = this.#TILE_ID;
+      tile.className = "taskpanel-root";
+      flowHost.appendChild(tile);
+    }
+    tile.innerHTML = "";
+    tile.appendChild(this.render(runner, opts));
+  }
+  static render(runner, opts = {}) {
+    const root = el7("div", { className: "taskpanel-root" });
+    root.appendChild(this.renderHeader(runner, opts));
+    root.appendChild(this.renderBody(runner, opts));
+    return root;
+  }
+  static renderHeader(runner, opts = {}) {
+    return el7("div", { className: "taskpanel-header" }, [
+      el7("img", {
+        className: "shins-title-icon",
+        width: 60,
+        height: 60,
+        alt: "Shader icon",
+        src: taskPanelIconDataUri(),
+        draggable: false
+      }),
+      el7("div", { className: "taskpanel-title-col" }, [
+        el7("div", { className: "taskpanel-h1", textContent: "Tasks" }),
+        el7("div", { className: "taskpanel-subtitle", textContent: "All SDKTask instances currently running in the SDKTaskRunner. These are frozen while this inspector is open." })
+      ])
+    ]);
+  }
+  static renderBody(runner, opts = {}) {
+    const body = el7("div", { className: "taskpanel-body" });
+    const tasks = [];
+    for (let stage = 0; stage <= 5; stage++) {
+      const set = runner.tasksByStage?.get(stage);
+      if (set && set.size) {
+        for (const task of set) {
+          tasks.push({ stage, task });
+        }
+      }
+    }
+    const table = el7("table", { className: "taskpanel-table" });
+    const thead = el7("thead", {}, [
+      el7("tr", {}, [
+        el7("th", { textContent: "Stage" }),
+        el7("th", { textContent: "Task Name" }),
+        el7("th", { textContent: "Status" })
+        // el("th", { textContent: "" }), // Optionally: Remove button
+      ])
+    ]);
+    table.appendChild(thead);
+    const tbody = el7("tbody", {});
+    if (tasks.length === 0) {
+      tbody.appendChild(
+        el7("tr", {}, [
+          el7("td", { className: "taskpanel-empty", colSpan: 3, textContent: "No tasks." })
+        ])
+      );
+    } else {
+      for (const { stage, task } of tasks) {
+        tbody.appendChild(
+          el7("tr", {}, [
+            el7("td", { textContent: String(stage) }),
+            el7("td", { textContent: task.name || task.constructor?.name || "SDKTask" }),
+            el7("td", { textContent: task.destroyed ? "destroyed" : task.repeating ? "repeating" : "scheduled" })
+            // Optionally, add a remove button:
+            // el("td", {}, [
+            //   el("button", {
+            //     className: "taskpanel-btn taskpanel-btn--sub",
+            //     type: "button",
+            //     onclick: () => { task.destroyed = true; this.show(flowHost, runner, opts); }
+            //   }, ["Remove"])
+            // ])
+          ])
+        );
+      }
+    }
+    table.appendChild(tbody);
+    body.appendChild(table);
+    return body;
+  }
+  static #ensureGlobalStyle() {
+    if (document.getElementById(this.#STYLE_ID))
+      return;
+    const style = document.createElement("style");
+    style.id = this.#STYLE_ID;
+    style.textContent = `
+.taskpanel-root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: #111; padding: 16px; background: rgba(255,255,255,0.96); border: 1px solid #e6e6e6; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,0.14); backdrop-filter: blur(2px); }
+.taskpanel-header {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  background: #fff;
+  margin-bottom: 12px;
+}
+.taskpanel-title-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 4px;
+}
+.taskpanel-title-icon {
+  width: 60px;
+  height: 60px;
+  flex: 0 0 60px;
+  border-radius: 14px;
+  border: 1.5px solid #e6e6e6;
+  background: #fafafa;
+  padding: 6px;
+}
+.taskpanel-h1 { padding-top:10px;  font-size: 24px; color: #666666; font-weight: 650; }
+.taskpanel-subtitle { font-size: 12px; color: #444; line-height: 1.35; }
+.taskpanel-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.taskpanel-btn { font-size: 12px; border-radius: 10px; padding: 6px 10px; border: 1px solid #e6e6e6; background: #fff; cursor: pointer; }
+.taskpanel-btn:hover { background: #fafafa; }
+.taskpanel-btn--sub { padding: 5px 8px; border-radius: 10px; font-size: 11px; }
+.taskpanel-body { margin-top: 12px; }
+.taskpanel-table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; border: 1px solid #e6e6e6; border-radius: 12px; overflow: hidden; }
+.taskpanel-table th { text-align: left; color: #666; font-weight: 650; padding: 8px 10px; border-bottom: 1px solid #f0f0f0; }
+.taskpanel-table td { padding: 8px 10px; border-top: 1px solid #f7f7f7; vertical-align: top; word-break: break-word; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+.taskpanel-empty { color: #888; font-size: 13px; text-align: center; }
+    `;
+    document.head.appendChild(style);
+  }
+};
+function el7(tag, props, children) {
+  const e = document.createElement(tag);
+  if (props)
+    for (const k in props) {
+      if (k === "className")
+        e.className = props[k];
+      else if (k === "textContent")
+        e.textContent = props[k];
+      else if (k === "htmlFor")
+        e.htmlFor = props[k];
+      else if (k.startsWith("on") && typeof props[k] === "function")
+        e.addEventListener(k.slice(2).toLowerCase(), props[k]);
+      else
+        e.setAttribute(k, props[k]);
+    }
+  if (children)
+    for (const c3 of children)
+      e.appendChild(typeof c3 === "string" ? document.createTextNode(c3) : c3);
+  return e;
+}
+
+// ../sdk/src/demo/inspectors/BoundariesPanel.ts
+function boundariesPanelIconDataUri() {
+  const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60">
+  <!-- Shadow -->
+  <ellipse cx="30" cy="52" rx="18" ry="6" fill="#222" opacity="0.13"/>
+  <!-- Main cube (scene AABB) -->
+  <g>
+    <polygon points="15,40 30,50 45,40 30,30" fill="#eaf6ff" stroke="#4a90e2" stroke-width="2"/>
+    <polygon points="15,40 30,30 30,10 15,20" fill="#eaf6ff" stroke="#4a90e2" stroke-width="2"/>
+    <polygon points="30,10 45,20 45,40 30,30" fill="#eaf6ff" stroke="#4a90e2" stroke-width="2"/>
+    <polygon points="15,20 30,10 45,20 30,30" fill="#eaf6ff" stroke="#4a90e2" stroke-width="2"/>
+  </g>
+  <!-- Inner cubes (object AABBs) -->
+  <g>
+    <polygon points="22,36 30,41 38,36 30,31" fill="#c9a7ff" stroke="#a07be0" stroke-width="1.2"/>
+    <polygon points="22,36 30,31 30,21 22,26" fill="#c9a7ff" stroke="#a07be0" stroke-width="1.2"/>
+    <polygon points="30,21 38,26 38,36 30,31" fill="#c9a7ff" stroke="#a07be0" stroke-width="1.2"/>
+    <polygon points="22,26 30,21 38,26 30,31" fill="#c9a7ff" stroke="#a07be0" stroke-width="1.2"/>
+  </g>
+  <g>
+    <polygon points="35,28 39,30 43,28 39,26" fill="#27ae60" stroke="#219150" stroke-width="1.2"/>
+    <polygon points="35,28 39,26 39,22 35,24" fill="#27ae60" stroke="#219150" stroke-width="1.2"/>
+    <polygon points="39,22 43,24 43,28 39,26" fill="#27ae60" stroke="#219150" stroke-width="1.2"/>
+    <polygon points="35,24 39,22 43,24 39,26" fill="#27ae60" stroke="#219150" stroke-width="1.2"/>
+  </g>
+  <!-- Frame border -->
+  <rect x="4" y="4" width="52" height="52" rx="12" fill="none" stroke="#e6e6e6" stroke-width="1.5"/>
+</svg>`.trim();
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+var BoundariesPanel = class _BoundariesPanel {
+  static #TILE_ID = "__sceneaabb3index_tile__";
+  static #STYLE_ID = "__sceneaabb3index_style__";
+  static show(flowHost, view, index, opts = {}) {
+    this.#ensureGlobalStyle();
+    let tile = document.getElementById(this.#TILE_ID);
+    const root = this.render(view, index, opts);
+    if (!tile) {
+      tile = FloatingPanelFlowHost.mountTile(root, {
+        tileMinWidth: opts.tileMinWidth ?? opts.maxWidth ?? 760,
+        tileMaxWidth: opts.tileMaxWidth ?? opts.maxWidth ?? 760
+      });
+      tile.id = this.#TILE_ID;
+      flowHost.appendChild(tile);
+    } else {
+      tile.replaceChildren(root);
+    }
+    return tile;
+  }
+  static render(view, index, opts = {}) {
+    const root = el8("div", { className: "sceneaabb3index-root" });
+    root.appendChild(this.renderHeader());
+    root.appendChild(this.renderBody(view, index));
+    return root;
+  }
+  static renderHeader() {
+    return el8("div", { className: "sceneaabb3index-header" }, [
+      el8("img", {
+        className: "sceneaabb3index-title-icon",
+        width: 60,
+        height: 60,
+        alt: "Boundaries",
+        src: boundariesPanelIconDataUri(),
+        draggable: false
+      }),
+      el8("div", { className: "sceneaabb3index-title-col" }, [
+        el8("div", { className: "sceneaabb3index-h1", textContent: "Boundaries" }),
+        el8("div", { className: "sceneaabb3index-subtitle", textContent: "Snapshot of SceneObject axis-aligned bounding boxes (AABBs) from three axes." })
+      ])
+    ]);
+  }
+  static renderBody(view, index) {
+    const scene = index.scene;
+    const cs = scene.coordinateSystem;
+    const body = el8("div", { className: "sceneaabb3index-body" });
+    const aabbs = [];
+    for (const object of Object.values(scene.objects)) {
+      if (object.meshes.length > 0) {
+        aabbs.push({ id: object.id, aabb: index.getObjectAABB(object.id) });
+      }
+    }
+    const sceneAABB = index.getSceneAABB();
+    const extentsLabel = el8("div", { className: "sceneaabb3index-extentspin" }, [
+      "Scene AABB: ",
+      sceneAABB[0].toFixed(3),
+      ", ",
+      sceneAABB[1].toFixed(3),
+      ", ",
+      sceneAABB[2].toFixed(3),
+      ", ",
+      sceneAABB[3].toFixed(3),
+      ", ",
+      sceneAABB[4].toFixed(3),
+      ", ",
+      sceneAABB[5].toFixed(3)
+    ]);
+    body.appendChild(extentsLabel);
+    const cam = view.camera;
+    const camEye = cam.eye;
+    const camLook = cam.look;
+    function axisIndex(vec) {
+      for (let i = 0; i < 3; ++i)
+        if (Math.abs(vec[i]) > 0.5)
+          return i;
+      return 1;
+    }
+    const upAxis = axisIndex(cs.worldUp);
+    const rightAxis = axisIndex(cs.worldRight);
+    const forwardAxis = axisIndex(cs.worldForward);
+    const views = [
+      { label: "Top", ax0: rightAxis, ax1: forwardAxis },
+      { label: "Front", ax0: rightAxis, ax1: upAxis },
+      { label: "Side", ax0: forwardAxis, ax1: upAxis }
+    ];
+    const sections = views.map((viewInfo) => {
+      const svg = _BoundariesPanel.renderSVGView(
+        aabbs,
+        sceneAABB,
+        viewInfo.ax0,
+        viewInfo.ax1,
+        camEye,
+        camLook
+      );
+      const details = el8("details", { className: "sceneaabb3index-section" }, [
+        el8("summary", { className: "sceneaabb3index-section-summary" }, [
+          el8("span", { className: "sceneaabb3index-caret" }, ["\u25B8"]),
+          `${viewInfo.label} view`
+        ]),
+        el8("div", { className: "sceneaabb3index-svgwrap" }, [svg])
+      ]);
+      details.open = false;
+      details.addEventListener("toggle", () => {
+        const caret = details.querySelector(".sceneaabb3index-caret");
+        if (caret) {
+          if (details.open)
+            caret.classList.add("sceneaabb3index-caret--open");
+          else
+            caret.classList.remove("sceneaabb3index-caret--open");
+        }
+      });
+      return details;
+    });
+    body.append(...sections);
+    return body;
+  }
+  static renderSVGView(aabbs, sceneAABB, ax0, ax1, camEye, camLook) {
+    const W = 720, H = 720, PAD = 54;
+    const minX = sceneAABB[0], maxX = sceneAABB[3];
+    const minY = sceneAABB[1], maxY = sceneAABB[4];
+    const minZ = sceneAABB[2], maxZ = sceneAABB[5];
+    const spanX = maxX - minX || 1;
+    const spanY = maxY - minY || 1;
+    const spanZ = maxZ - minZ || 1;
+    const maxSpan = Math.max(spanX, spanY, spanZ);
+    let min0 = sceneAABB[ax0], max0 = sceneAABB[ax0 + 3];
+    let min1 = sceneAABB[ax1], max1 = sceneAABB[ax1 + 3];
+    let span0 = max0 - min0 || 1;
+    let span1 = max1 - min1 || 1;
+    if (span0 < maxSpan) {
+      const mid0 = (min0 + max0) / 2;
+      min0 = mid0 - maxSpan / 2;
+      max0 = mid0 + maxSpan / 2;
+      span0 = maxSpan;
+    }
+    if (span1 < maxSpan) {
+      const mid1 = (min1 + max1) / 2;
+      min1 = mid1 - maxSpan / 2;
+      max1 = mid1 + maxSpan / 2;
+      span1 = maxSpan;
+    }
+    const toSvg = (v0, v1) => [
+      PAD + (v0 - min0) / span0 * (W - 2 * PAD),
+      PAD + (v1 - min1) / span1 * (H - 2 * PAD)
+    ];
+    const palette = [
+      "#4a90e2",
+      "#27ae60",
+      "#c9a7ff",
+      "#e67e22",
+      "#e74c3c",
+      "#7ec7e6",
+      "#b3c6e0",
+      "#f7fafc"
+    ];
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNS, "svg");
+    svg.setAttribute("width", String(W));
+    svg.setAttribute("height", String(H));
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    svg.classList.add("sceneaabb3index-svg");
+    const [sx, sy] = toSvg(min0, min1);
+    const [ex, ey] = toSvg(max0, max1);
+    const rect = document.createElementNS(svgNS, "rect");
+    rect.setAttribute("x", String(Math.min(sx, ex)));
+    rect.setAttribute("y", String(Math.min(sy, ey)));
+    rect.setAttribute("width", String(Math.abs(ex - sx)));
+    rect.setAttribute("height", String(Math.abs(ey - sy)));
+    rect.setAttribute("fill", "#fff");
+    rect.setAttribute("stroke", "#b3c6e0");
+    rect.setAttribute("stroke-width", "2");
+    svg.appendChild(rect);
+    aabbs.forEach(({ aabb }, i) => {
+      const minA0 = aabb[ax0], maxA0 = aabb[ax0 + 3];
+      const minA1 = aabb[ax1], maxA1 = aabb[ax1 + 3];
+      const [ax, ay] = toSvg(minA0, minA1);
+      const [bx, by] = toSvg(maxA0, maxA1);
+      const objRect = document.createElementNS(svgNS, "rect");
+      objRect.setAttribute("x", String(Math.min(ax, bx)));
+      objRect.setAttribute("y", String(Math.min(ay, by)));
+      objRect.setAttribute("width", String(Math.abs(bx - ax)));
+      objRect.setAttribute("height", String(Math.abs(by - ay)));
+      objRect.setAttribute("fill", palette[i % palette.length]);
+      objRect.setAttribute("fill-opacity", "0.18");
+      objRect.setAttribute("stroke", palette[i % palette.length]);
+      objRect.setAttribute("stroke-width", "2");
+      svg.appendChild(objRect);
+    });
+    const [eye0, eye1] = [camEye[ax0], camEye[ax1]];
+    const [look0, look1] = [camLook[ax0], camLook[ax1]];
+    const [svgEyeX, svgEyeY] = toSvg(eye0, eye1);
+    let dir0 = look0 - eye0, dir1 = look1 - eye1;
+    let dirLen = Math.sqrt(dir0 * dir0 + dir1 * dir1) || 1;
+    dir0 /= dirLen;
+    dir1 /= dirLen;
+    const arrowLen = 36 * 1.5;
+    const arrowWidth = 18 * 1.5;
+    const tipX = svgEyeX + dir0 * arrowLen;
+    const tipY = svgEyeY + dir1 * arrowLen;
+    const baseX = svgEyeX;
+    const baseY = svgEyeY;
+    const perp0 = -dir1, perp1 = dir0;
+    const leftX = baseX + perp0 * (arrowWidth / 2);
+    const leftY = baseY + perp1 * (arrowWidth / 2);
+    const rightX = baseX - perp0 * (arrowWidth / 2);
+    const rightY = baseY - perp1 * (arrowWidth / 2);
+    const pointer = document.createElementNS(svgNS, "polygon");
+    pointer.setAttribute(
+      "points",
+      `${tipX},${tipY} ${leftX},${leftY} ${rightX},${rightY}`
+    );
+    pointer.setAttribute("fill", "#e74c3c");
+    pointer.setAttribute("stroke", "#b30000");
+    pointer.setAttribute("stroke-width", "2");
+    pointer.setAttribute("opacity", "0.95");
+    pointer.setAttribute("filter", "drop-shadow(0 2px 6px #e74c3c44)");
+    svg.appendChild(pointer);
+    const minLabel = document.createElementNS(svgNS, "text");
+    minLabel.setAttribute("x", String(PAD + 6));
+    minLabel.setAttribute("y", String(H - PAD - 8));
+    minLabel.setAttribute("class", "sceneaabb3index-extentslabel");
+    minLabel.textContent = `min: ${min0.toFixed(3)}, ${min1.toFixed(3)}`;
+    svg.appendChild(minLabel);
+    const maxLabel = document.createElementNS(svgNS, "text");
+    maxLabel.setAttribute("x", String(W - PAD - 6));
+    maxLabel.setAttribute("y", String(PAD + 22));
+    maxLabel.setAttribute("class", "sceneaabb3index-extentslabel");
+    maxLabel.setAttribute("text-anchor", "end");
+    maxLabel.textContent = `max: ${max0.toFixed(3)}, ${max1.toFixed(3)}`;
+    svg.appendChild(maxLabel);
+    return svg;
+  }
+  static #ensureGlobalStyle() {
+    if (document.getElementById(this.#STYLE_ID))
+      return;
+    const style = document.createElement("style");
+    style.id = this.#STYLE_ID;
+    style.textContent = `
+.sceneaabb3index-root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: #111; padding: 16px; background: rgba(255,255,255,0.96); border: 1px solid #e6e6e6; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,0.14); backdrop-filter: blur(2px); }
+.sceneaabb3index-header {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  background: #fff;
+  margin-bottom: 12px;
+}
+.sceneaabb3index-title-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 4px;
+}
+.sceneaabb3index-title-icon {
+  width: 60px;
+  height: 60px;
+  flex: 0 0 60px;
+  border-radius: 14px;
+  border: 1.5px solid #e6e6e6;
+  background: #fafafa;
+  padding: 6px;
+}
+.sceneaabb3index-h1 {  padding-top:10px;  font-size: 24px; color: #666666; font-weight: 650;  }
+.sceneaabb3index-subtitle { font-size: 12px; color: #444; line-height: 1.35; }
+.sceneaabb3index-body {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* reduced from 18px */
+}
+.sceneaabb3index-section {
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  background: #fff;
+  margin-bottom: 0; /* reduced from 12px */
+  overflow: hidden;
+}
+.sceneaabb3index-section-summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #2d5e8c;
+  background: #f7fafc;
+  border-radius: 12px 12px 0 0;
+  padding: 12px 18px 10px 18px;
+  user-select: none;
+  letter-spacing: 0.01em;
+  transition: background 0.13s;
+  outline: none;
+}
+.sceneaabb3index-section-summary:hover {
+  background: #e6f0fa;
+}
+.sceneaabb3index-caret {
+  display: inline-block;
+  width: 18px;
+  text-align: center;
+  font-size: 15px;
+  color: #888;
+  transition: transform 0.18s cubic-bezier(.4,0,.2,1), color 0.13s;
+  user-select: none;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+.sceneaabb3index-caret--open {
+  transform: rotate(90deg);
+  color: #4a90e2;
+}
+.sceneaabb3index-svgwrap { display: flex; flex-direction: column; align-items: center; padding: 18px; }
+.sceneaabb3index-viewlabel {
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  text-align: left;
+}
+.sceneaabb3index-extentspin {
+  font-size: 13px;
+  color: #2d5e8c;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background: #f7fafc;
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  padding: 6px 14px;
+  margin-bottom: 16px;
+  display: inline-block;
+  box-shadow: 0 2px 8px rgba(74,144,226,0.06);
+}
+.sceneaabb3index-svg { border-radius: 10px; border: 1.5px solid #e6e6e6; background: #fff; }
+`;
+    document.head.appendChild(style);
+  }
+};
+function el8(tag, props, children) {
+  const e = document.createElement(tag);
+  if (props)
+    for (const k in props) {
+      if (k === "className")
+        e.className = props[k];
+      else if (k === "textContent")
+        e.textContent = props[k];
+      else if (k === "htmlFor")
+        e.htmlFor = props[k];
+      else if (k.startsWith("on") && typeof props[k] === "function")
+        e.addEventListener(k.slice(2).toLowerCase(), props[k]);
+      else
+        e.setAttribute(k, props[k]);
+    }
+  if (children)
+    for (const c3 of children)
+      e.appendChild(typeof c3 === "string" ? document.createTextNode(c3) : c3);
+  return e;
+}
+
+// ../sdk/src/demo/inspectors/DataTexturesPanel.ts
+function el9(tag, props, children) {
+  const e = document.createElement(tag);
+  if (props) {
+    for (const k in props) {
+      if (k.startsWith("data-")) {
+        e.setAttribute(k, String(props[k] ?? ""));
+        continue;
+      }
+      if (k === "style" && props[k] && typeof props[k] === "object") {
+        Object.assign(e.style, props[k]);
+        continue;
+      }
+      e[k] = props[k];
+    }
+  }
+  if (children)
+    for (const c3 of children)
+      e.append(c3);
+  return e;
+}
+var DataTexturesPanel = class {
+  static #TILE_ID = "__dtxpanel_tile__";
+  static #STYLE_ID = "__dtxpanel_style__";
+  static #STATE_KEY = "__dtxpanel_collapsed__";
+  static show(flowHost, dataTextures) {
+    this.#ensureStyle();
+    let tile = document.getElementById(this.#TILE_ID);
+    if (!tile) {
+      tile = document.createElement("div");
+      tile.id = this.#TILE_ID;
+      tile.className = "taskpanel-root";
+      flowHost.appendChild(tile);
+    }
+    tile.innerHTML = "";
+    tile.appendChild(this.render(dataTextures));
+  }
+  static render(dataTextures, opts = {}) {
+    const root = el9("div", { className: "taskpanel-root dtxp-root", ["data-dtxp-root"]: "" });
+    const collapsed = this.#readBool(this.#STATE_KEY, !!opts.startCollapsed);
+    const header = this.renderHeader(dataTextures, opts, collapsed);
+    const body = this.renderBody(dataTextures);
+    root.appendChild(header);
+    root.appendChild(body);
+    this.#setCollapsed(root, collapsed);
+    header.querySelector("[data-dtxp-toggle]")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const nowCollapsed = !root.classList.contains("dtxp-collapsed");
+      this.#setCollapsed(root, nowCollapsed);
+      this.#writeBool(this.#STATE_KEY, nowCollapsed);
+      const btn = header.querySelector("[data-dtxp-toggle]");
+      if (btn)
+        btn.textContent = nowCollapsed ? "Expand" : "Collapse";
+    });
+    return root;
+  }
+  static renderHeader(dataTextures, _opts = {}, collapsed = false) {
+    return el9("div", { className: "taskpanel-header dtxp-header" }, [
+      el9("img", {
+        className: "shins-title-icon dtxp-title-icon",
+        width: 60,
+        height: 60,
+        alt: "Data textures icon",
+        src: this.icon(),
+        draggable: false
+      }),
+      el9("div", { className: "taskpanel-title-col dtxp-title-col" }, [
+        el9("div", { className: "taskpanel-h1 dtxp-h1", textContent: "GPU Data Textures" }),
+        el9("div", {
+          className: "taskpanel-subtitle dtxp-subtitle",
+          textContent: "Performance diagnostics for data textures, which store model and viewer state in GPU memory."
+        })
+      ]),
+      // Right side actions (kept fully visible even when collapsed)
+      el9("div", { className: "dtxp-actions" }, [
+        el9("button", {
+          className: "dtxp-btn dtxp-btn--sub",
+          ["data-dtxp-toggle"]: "",
+          textContent: collapsed ? "Expand" : "Collapse",
+          title: collapsed ? "Show panel contents" : "Hide panel contents"
+        })
+      ])
+    ]);
+  }
+  static renderBody(dataTextures) {
+    const root = el9("div", { className: "datatextures-root dtxp-body", ["data-dtxp-body"]: "" });
+    root.append(
+      el9("div", { className: "datatextures-summary" }, [
+        el9("div", { className: "datatextures-summary-row" }, [
+          el9("span", { className: "datatextures-summary-label" }, ["Tiles: "]),
+          String(dataTextures.numTiles)
+        ]),
+        el9("div", { className: "datatextures-summary-row" }, [
+          el9("span", { className: "datatextures-summary-label" }, ["Batches: "]),
+          String(dataTextures.batches.length)
+        ]),
+        el9("div", { className: "datatextures-summary-row" }, [
+          el9("span", { className: "datatextures-summary-label" }, ["Views: "]),
+          String(dataTextures.viewTileCameraMatrixTexture.length)
+        ])
+      ])
+    );
+    root.append(
+      el9("div", { className: "datatextures-section" }, [
+        el9("div", { className: "datatextures-section-title" }, ["Global Per-View Textures"]),
+        this.renderTextureTable([
+          {
+            name: "viewTileCameraMatrixTexture",
+            arr: dataTextures.viewTileCameraMatrixTexture
+          },
+          {
+            name: "viewTilePickMatrixTexture",
+            arr: dataTextures.viewTilePickMatrixTexture
+          }
+        ])
+      ])
+    );
+    dataTextures.batches.forEach((batch, batchIdx) => {
+      const details = document.createElement("details");
+      details.open = false;
+      details.className = "datatextures-batch-section";
+      const summary = document.createElement("summary");
+      summary.className = "datatextures-batch-summary";
+      const stress = this.#batchStressInfo(batch);
+      summary.append(el9("span", { className: "datatextures-caret" }, ["\u25B8"]), ` Batch ${batchIdx}`);
+      if (stress.stressed) {
+        summary.append(
+          el9("span", { className: "datatextures-chip datatextures-chip-stress" }, [
+            `MEM STRESS (${stress.stressedCount})`
+          ])
+        );
+      }
+      details.appendChild(summary);
+      details.appendChild(
+        el9("div", { className: "datatextures-batch-tablewrap" }, [
+          this.renderTextureTable(
+            Object.entries(batch).filter(
+              ([, v]) => Array.isArray(v) === false && typeof v === "object" && v && typeof v.getItem === "function"
+            ).map(([k, v]) => ({ name: k, arr: [v] }))
+          )
+        ])
+      );
+      if (Array.isArray(batch.views)) {
+        batch.views.forEach((view, viewIdx) => {
+          const vdetails = document.createElement("details");
+          vdetails.open = false;
+          vdetails.className = "datatextures-view-section";
+          const vsummary = document.createElement("summary");
+          vsummary.className = "datatextures-view-summary";
+          const vstress = this.#viewStressInfo(view);
+          if (vstress.stressed)
+            vsummary.classList.add("datatextures-view-stressed");
+          vsummary.append(
+            el9("span", { className: "datatextures-caret" }, ["\u25B8"]),
+            el9("span", { className: "datatextures-summary-title", textContent: `View ${viewIdx}` }),
+            el9("span", { className: "datatextures-summary-spacer" })
+          );
+          if (vstress.stressed) {
+            vsummary.append(
+              el9("span", { className: "datatextures-chip datatextures-chip-stress" }, [
+                `MEM STRESS (${vstress.stressedCount})`
+              ]),
+              el9("span", { className: "datatextures-chip datatextures-chip-stress-lite" }, [
+                `max ${(vstress.maxFullness * 100).toFixed(0)}%`
+              ])
+            );
+          }
+          vdetails.appendChild(vsummary);
+          vdetails.appendChild(
+            el9("div", { className: "datatextures-view-tablewrap" }, [
+              this.renderTextureTable(
+                Object.entries(view).filter(([, v]) => v && typeof v.getItem === "function").map(([k, v]) => ({ name: k, arr: [v] }))
+              )
+            ])
+          );
+          details.appendChild(vdetails);
+        });
+      }
+      root.appendChild(details);
+    });
+    return root;
+  }
+  static renderTextureTable(items) {
+    const table = el9("table", {
+      className: "datatextures-table datatextures-table-hybrid"
+    });
+    const thead = el9("thead", null, [
+      el9("tr", null, [el9("th", null, ["Name"]), el9("th", null, ["Type"]), el9("th", null, ["Capacity"]), el9("th", null, ["Used"])])
+    ]);
+    table.appendChild(thead);
+    const tbody = el9("tbody");
+    const clamp01 = (x) => Math.max(0, Math.min(1, x));
+    const heatColor = (t) => {
+      const c3 = clamp01(t);
+      const hue = 120 * (1 - c3);
+      return `hsl(${hue} 80% 45%)`;
+    };
+    const safeCall = (obj, fn, fallback) => {
+      try {
+        if (obj && typeof obj[fn] === "function")
+          return obj[fn]();
+      } catch {
+      }
+      return fallback;
+    };
+    const toNumber = (v, fallback = 0) => Number.isFinite(Number(v)) ? Number(v) : fallback;
+    const fmtBytes = (b4) => {
+      if (!Number.isFinite(b4))
+        return String(b4);
+      const abs = Math.abs(b4);
+      if (abs >= 1024 ** 3)
+        return `${(b4 / 1024 ** 3).toFixed(2)} GiB`;
+      if (abs >= 1024 ** 2)
+        return `${(b4 / 1024 ** 2).toFixed(2)} MiB`;
+      if (abs >= 1024)
+        return `${(b4 / 1024).toFixed(2)} KiB`;
+      return `${b4} B`;
+    };
+    const makePropGrid = (pairs) => {
+      const dl = el9("dl", { className: "dtx-props" });
+      for (const [k, v] of pairs) {
+        dl.append(
+          el9("div", { className: "dtx-prop" }, [
+            el9("dt", { className: "dtx-prop-k", textContent: k }),
+            el9("dd", { className: "dtx-prop-v", textContent: v })
+          ])
+        );
+      }
+      return dl;
+    };
+    const toggle = (summaryTr, detailTr) => {
+      const open = summaryTr.getAttribute("data-open") === "1";
+      if (open) {
+        summaryTr.setAttribute("data-open", "0");
+        detailTr.style.display = "none";
+      } else {
+        summaryTr.setAttribute("data-open", "1");
+        detailTr.style.display = "";
+      }
+    };
+    for (const { name: name12, arr } of items) {
+      arr.forEach((tex, idx) => {
+        const type = tex.description || tex.constructor?.name || "Texture";
+        const usedCount = tex.numItems;
+        const capacityCount = tex.maxItems;
+        const fullness = capacityCount > 0 ? usedCount / capacityCount : 0;
+        const pct = Math.round(clamp01(fullness) * 100);
+        const title = arr.length > 1 ? `${name12} #${idx}` : name12;
+        const summaryTr = el9(
+          "tr",
+          {
+            className: "dtx-row",
+            "data-open": "0"
+          },
+          [
+            el9("td", { className: "dtx-namecell" }, [
+              el9("span", { className: "dtx-caret", textContent: "\u25B8" }),
+              el9("span", { className: "dtx-title", textContent: title }),
+              el9("span", { className: "dtx-pct", textContent: `${pct}%` })
+            ]),
+            el9("td", null, [type]),
+            el9("td", {
+              className: "dtx-capacity",
+              textContent: capacityCount.toLocaleString()
+            }),
+            el9(
+              "td",
+              {
+                className: "dtx-usedcell",
+                style: `--dtx-color:${heatColor(fullness)}; --dtx-fill:${pct}%;`,
+                title: `${usedCount.toLocaleString()} / ${capacityCount.toLocaleString()} items`
+              },
+              [
+                el9("span", {
+                  className: "dtx-usedtext",
+                  textContent: usedCount.toLocaleString()
+                }),
+                el9("span", { className: "dtx-usedbar" })
+              ]
+            )
+          ]
+        );
+        const allocatedBytes = toNumber(safeCall(tex, "getAllocatedBytes", 0), 0);
+        const usedBytes = toNumber(safeCall(tex, "getUsedBytes", 0), 0);
+        const usedItems = toNumber(tex?.numItems, 0);
+        const maxItems = toNumber(tex?.maxItems, 0);
+        const width = toNumber(tex?.width, 0);
+        const height = toNumber(tex?.height, 0);
+        const texelsPerItem = toNumber(tex?.texelsPerItem, 0);
+        const elementsPerTexel = toNumber(tex?.elementsPerTexel, 0);
+        const elementsPerItem = toNumber(tex?.elementsPerItem, 0);
+        const bytesPerTexel = toNumber(tex?.bytesPerTexel, 0);
+        const itemSizeInBytes = toNumber(tex?.itemSizeInBytes, 0);
+        const totalTexels = Math.max(0, width * height);
+        const usedTexels = Math.max(0, Math.min(totalTexels, usedItems * Math.max(1, texelsPerItem)));
+        const bufferLen = toNumber(tex?.buffer?.length, 0);
+        const bufferClassName = tex?.bufferClass?.name || tex?.buffer?.constructor?.name || "";
+        const gl = tex?.gl;
+        const fmtEnum = (v) => {
+          const n = toNumber(v, NaN);
+          if (!Number.isFinite(n))
+            return String(v);
+          const hex = `0x${n.toString(16)}`;
+          return `${n} (${hex})`;
+        };
+        const glName = (v) => {
+          if (!gl || !Number.isFinite(v))
+            return "";
+          const common = {
+            [gl.RGBA]: "RGBA",
+            [gl.RGB]: "RGB",
+            [gl.RED]: "RED",
+            [gl.RED_INTEGER]: "RED_INTEGER",
+            [gl.RGBA_INTEGER]: "RGBA_INTEGER",
+            [gl.UNSIGNED_BYTE]: "UNSIGNED_BYTE",
+            [gl.UNSIGNED_SHORT]: "UNSIGNED_SHORT",
+            [gl.UNSIGNED_INT]: "UNSIGNED_INT",
+            [gl.FLOAT]: "FLOAT",
+            // @ts-ignore
+            [gl.HALF_FLOAT ?? -1]: "HALF_FLOAT",
+            // @ts-ignore
+            [gl.RGBA8 ?? -1]: "RGBA8",
+            // @ts-ignore
+            [gl.RGBA16F ?? -1]: "RGBA16F",
+            // @ts-ignore
+            [gl.RGBA32F ?? -1]: "RGBA32F",
+            // @ts-ignore
+            [gl.RGBA32UI ?? -1]: "RGBA32UI",
+            // @ts-ignore
+            [gl.RGBA16UI ?? -1]: "RGBA16UI",
+            // @ts-ignore
+            [gl.R32F ?? -1]: "R32F",
+            // @ts-ignore
+            [gl.RG32F ?? -1]: "RG32F"
+          };
+          return common[v] || "";
+        };
+        const fmtGl = (v) => {
+          const n = toNumber(v, NaN);
+          if (!Number.isFinite(n))
+            return String(v);
+          const name13 = glName(n);
+          return name13 ? `${name13} (${fmtEnum(n)})` : fmtEnum(n);
+        };
+        const fmtBool = (b4) => b4 ? "true" : "false";
+        const capacityPairs = [
+          ["Capacity (items)", maxItems.toLocaleString()],
+          ["Used (items)", usedItems.toLocaleString()],
+          ["Free (items)", Math.max(0, maxItems - usedItems).toLocaleString()],
+          ["Utilization", `${pct}%`],
+          ["Used texels", usedTexels.toLocaleString()],
+          ["Total texels", totalTexels.toLocaleString()]
+        ];
+        if (allocatedBytes)
+          capacityPairs.push(["Allocated (memory)", fmtBytes(allocatedBytes)]);
+        if (usedBytes)
+          capacityPairs.push(["Used (memory)", fmtBytes(usedBytes)]);
+        const layoutPairs = [
+          ["Description", String(tex?.description || "")],
+          ["Width \xD7 Height", `${width.toLocaleString()} \xD7 ${height.toLocaleString()}`],
+          ["Texels / item", texelsPerItem.toLocaleString()],
+          ["Elements / texel", elementsPerTexel.toLocaleString()],
+          ["Elements / item", elementsPerItem.toLocaleString()],
+          ["Bytes / texel", bytesPerTexel ? bytesPerTexel.toLocaleString() : String(bytesPerTexel)],
+          ["Bytes / item", itemSizeInBytes ? itemSizeInBytes.toLocaleString() : String(itemSizeInBytes)]
+        ];
+        const webglPairs = [
+          ["Format", fmtGl(tex?.format)],
+          ["Type", fmtGl(tex?.type)],
+          ["Internal format", fmtGl(tex?.internalFormat)],
+          ["Filtering", "NEAREST / NEAREST"],
+          ["Wrap", "CLAMP_TO_EDGE"]
+        ];
+        const bufferPairs = [
+          ["Buffer class", bufferClassName || "(unknown)"],
+          ["Buffer length", bufferLen ? bufferLen.toLocaleString() : String(bufferLen)],
+          ["Expected length", (width * height * Math.max(1, elementsPerTexel)).toLocaleString()]
+        ];
+        const runtimePairs = [
+          ["Last upload (ms)", toNumber(tex?.lastUploadTimeMS, 0).toFixed(3)],
+          ["Debugging", fmtBool(tex?.debugging)],
+          ["Has WebGL texture", tex?.texture ? "true" : "false"],
+          ["Has GL context", tex?.gl ? "true" : "false"]
+        ];
+        const section = (title2, pairs) => el9("div", { className: "dtx-detailsection" }, [
+          el9("div", { className: "dtx-subhdr", textContent: title2 }),
+          makePropGrid(pairs)
+        ]);
+        const detailContent = el9("div", { className: "dtx-detailwrap" }, [
+          el9("div", { className: "dtx-detailhdr", textContent: "DataTexture Details" }),
+          el9("div", { className: "dtx-detailpreviewrow" }, [this.#makePreviewCanvas(tex, 600, "large")]),
+          el9("div", { className: "dtx-detailpreviewhint" }, [
+            "Preview shows occupancy of CPU buffer mapped to texels; unused capacity is dimmed."
+          ]),
+          section("Capacity", capacityPairs),
+          section("Layout", layoutPairs),
+          section("WebGL", webglPairs),
+          section("Buffer", bufferPairs),
+          section("Runtime", runtimePairs)
+        ]);
+        const detailTr = el9(
+          "tr",
+          {
+            className: "dtx-detailrow"
+          },
+          [
+            el9(
+              "td",
+              {
+                colSpan: 4,
+                className: "dtx-detailcell"
+              },
+              [detailContent]
+            )
+          ]
+        );
+        detailTr.style.display = "none";
+        summaryTr.addEventListener("click", () => toggle(summaryTr, detailTr));
+        summaryTr.tabIndex = 0;
+        summaryTr.addEventListener("keydown", (ev) => {
+          if (ev.key === "Enter" || ev.key === " ") {
+            ev.preventDefault();
+            toggle(summaryTr, detailTr);
+          }
+        });
+        tbody.appendChild(summaryTr);
+        tbody.appendChild(detailTr);
+      });
+    }
+    table.appendChild(tbody);
+    return table;
+  }
+  static #previewCache = /* @__PURE__ */ new WeakMap();
+  static #clamp01(x) {
+    return Math.max(0, Math.min(1, x));
+  }
+  static #renderTexturePreview(tex, canvas2, targetW) {
+    const w = Math.max(1, this.#toNumber(tex?.width, 0));
+    const h = Math.max(1, this.#toNumber(tex?.height, 0));
+    const ept = Math.max(1, this.#toNumber(tex?.elementsPerTexel, 1));
+    const buffer = tex?.buffer;
+    const aspect = h / w;
+    const targetH = 10 * Math.max(1, Math.round(targetW * aspect));
+    const ctx = canvas2.getContext("2d");
+    canvas2.width = targetW;
+    canvas2.height = targetH;
+    if (!ctx || !buffer || typeof buffer.length !== "number" || w <= 0 || h <= 0) {
+      if (ctx) {
+        ctx.clearRect(0, 0, targetW, targetH);
+        ctx.fillStyle = "rgba(0,0,0,0.05)";
+        ctx.fillRect(0, 0, targetW, targetH);
+        ctx.fillStyle = "rgba(0,0,0,0.35)";
+        ctx.font = "10px system-ui";
+        ctx.fillText("n/a", 6, 14);
+        ctx.strokeStyle = "rgba(0,0,0,0.12)";
+        ctx.strokeRect(0.5, 0.5, targetW - 1, targetH - 1);
+      }
+      return;
+    }
+    const totalTexels = w * h;
+    const usedTexels = Math.max(
+      0,
+      Math.min(totalTexels, this.#toNumber(tex?.numItems, 0) * this.#toNumber(tex?.texelsPerItem, 1))
+    );
+    const img = ctx.createImageData(targetW, targetH);
+    const data = img.data;
+    const abs = Math.abs;
+    const eps = 1e-12;
+    const occupied = (texelIndex) => {
+      const base = texelIndex * ept;
+      for (let c3 = 0; c3 < ept; c3++) {
+        const v = Number(buffer[base + c3] ?? 0);
+        if (!Number.isFinite(v))
+          continue;
+        if (abs(v) > eps)
+          return 1;
+      }
+      return 0;
+    };
+    for (let py = 0; py < targetH; py++) {
+      const yy = Math.floor(py / targetH * h);
+      for (let px = 0; px < targetW; px++) {
+        const xx = Math.floor(px / targetW * w);
+        const texelIndex = yy * w + xx;
+        const occ = occupied(texelIndex) === 1;
+        let r = 0, g = 0, b4 = 0, a2 = 255;
+        if (occ) {
+          r = 0;
+          g = 220;
+          b4 = 255;
+          a2 = 255;
+        } else {
+          r = 6;
+          g = 6;
+          b4 = 8;
+          a2 = 255;
+        }
+        if (texelIndex >= usedTexels) {
+          r = Math.round(r * 0.18 + 10);
+          g = Math.round(g * 0.18 + 10);
+          b4 = Math.round(b4 * 0.18 + 12);
+          a2 = 120;
+        }
+        const i = (py * targetW + px) * 4;
+        data[i + 0] = r;
+        data[i + 1] = g;
+        data[i + 2] = b4;
+        data[i + 3] = a2;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    ctx.strokeStyle = "rgba(0,0,0,0.12)";
+    ctx.strokeRect(0.5, 0.5, targetW - 1, targetH - 1);
+    ctx.globalCompositeOperation = "destination-over";
+    const s = 8;
+    for (let y = 0; y < targetH; y += s) {
+      for (let x = 0; x < targetW; x += s) {
+        ctx.fillStyle = (x / s + y / s) % 2 === 0 ? "rgba(0,0,0,0.05)" : "rgba(0,0,0,0.10)";
+        ctx.fillRect(x, y, s, s);
+      }
+    }
+    ctx.globalCompositeOperation = "source-over";
+    ctx.strokeStyle = "rgba(0,0,0,0.22)";
+    ctx.strokeRect(0.5, 0.5, targetW - 1, targetH - 1);
+  }
+  static #makePreviewCanvas(tex, size, kind) {
+    let rec = this.#previewCache.get(tex);
+    if (!rec) {
+      rec = {};
+      this.#previewCache.set(tex, rec);
+    }
+    const existing = kind === "thumb" ? rec.thumb : rec.large;
+    if (existing)
+      return existing;
+    const canvas2 = document.createElement("canvas");
+    canvas2.className = kind === "thumb" ? "dtx-preview" : "dtx-preview-large";
+    if (kind === "thumb") {
+      canvas2.width = size;
+      canvas2.height = size;
+      requestAnimationFrame(() => this.#renderTexturePreview(tex, canvas2, size));
+    } else {
+      canvas2.width = size;
+      canvas2.height = 10 * Math.max(1, Math.round(size * ((tex?.height ?? 1) / (tex?.width ?? 1))));
+      requestAnimationFrame(() => this.#renderTexturePreview(tex, canvas2, size));
+    }
+    if (kind === "thumb")
+      rec.thumb = canvas2;
+    else
+      rec.large = canvas2;
+    return canvas2;
+  }
+  static #STRESS_THRESHOLD = 0.9;
+  // >= 90% full => "red"/stress
+  static #isTextureLike(v) {
+    return !!(v && typeof v === "object" && typeof v.getItem === "function");
+  }
+  static #toNumber(v, fallback = 0) {
+    return Number.isFinite(Number(v)) ? Number(v) : fallback;
+  }
+  static #textureFullness(tex) {
+    const used = this.#toNumber(tex?.numItems, 0);
+    const cap = this.#toNumber(tex?.maxItems, 0);
+    if (cap <= 0)
+      return 0;
+    return used / cap;
+  }
+  static #batchStressInfo(batch) {
+    let stressedCount = 0;
+    let maxFullness = 0;
+    const consider = (tex) => {
+      const f = this.#textureFullness(tex);
+      if (f > maxFullness)
+        maxFullness = f;
+      if (f >= this.#STRESS_THRESHOLD)
+        stressedCount++;
+    };
+    for (const [, v] of Object.entries(batch)) {
+      if (Array.isArray(v))
+        continue;
+      if (!this.#isTextureLike(v))
+        continue;
+      consider(v);
+    }
+    if (Array.isArray(batch.views)) {
+      for (const view of batch.views) {
+        if (!view || typeof view !== "object")
+          continue;
+        for (const [, v] of Object.entries(view)) {
+          if (!this.#isTextureLike(v))
+            continue;
+          consider(v);
+        }
+      }
+    }
+    return { stressed: stressedCount > 0, stressedCount, maxFullness };
+  }
+  static #viewStressInfo(view) {
+    let stressedCount = 0;
+    let maxFullness = 0;
+    const consider = (tex) => {
+      const f = this.#textureFullness(tex);
+      if (f > maxFullness)
+        maxFullness = f;
+      if (f >= this.#STRESS_THRESHOLD)
+        stressedCount++;
+    };
+    if (view && typeof view === "object") {
+      for (const [, v] of Object.entries(view)) {
+        if (!this.#isTextureLike(v))
+          continue;
+        consider(v);
+      }
+    }
+    return { stressed: stressedCount > 0, stressedCount, maxFullness };
+  }
+  static icon() {
+    const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60">
+  <rect x="4" y="4" width="52" height="52" rx="12"
+        fill="#fff" stroke="#e6e6e6" stroke-width="1.5"/>
+
+  <path d="M15 38 A15 15 0 0 1 45 38"
+        fill="none"
+        stroke="url(#grad)"
+        stroke-width="6"
+        stroke-linecap="round"/>
+
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#4fd1c5"/>
+      <stop offset="60%" stop-color="#f6ad55"/>
+      <stop offset="100%" stop-color="#e53e3e"/>
+    </linearGradient>
+  </defs>
+
+  <line x1="30" y1="38" x2="42" y2="28"
+        stroke="#2d5e8c"
+        stroke-width="2"
+        stroke-linecap="round"/>
+  <circle cx="30" cy="38" r="3" fill="#2d5e8c"/>
+</svg>`.trim();
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  }
+  static #setCollapsed(root, collapsed) {
+    root.classList.toggle("dtxp-collapsed", collapsed);
+    const body = root.querySelector("[data-dtxp-body]");
+    if (body)
+      body.style.display = collapsed ? "none" : "block";
+  }
+  static #readBool(key, fallback) {
+    try {
+      const raw = sessionStorage.getItem(key);
+      if (raw == null)
+        return fallback;
+      return raw === "1";
+    } catch {
+      return fallback;
+    }
+  }
+  static #writeBool(key, value) {
+    try {
+      sessionStorage.setItem(key, value ? "1" : "0");
+    } catch {
+    }
+  }
+  static #ensureStyle() {
+    if (window.__datatextures_panel_style)
+      return;
+    const style = document.createElement("style");
+    style.textContent = `
+/* Panel container */
+.datatextures-root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: #111; padding: 16px; background: rgba(255,255,255,0.96); border: 1px solid #e6e6e6; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,0.14); backdrop-filter: blur(2px); }
+
+/* Header layout: keep fully visible even when collapsed */
+.dtxp-header {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  background: #fff;
+  margin-bottom: 12px;
+}
+.dtxp-title-icon { width: 60px; height: 60px; flex: 0 0 60px; border-radius: 14px; border: 1.5px solid #e6e6e6; background: #fafafa; padding: 6px; }
+.dtxp-title-col { display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 4px; }
+.dtxp-h1 { padding-top: 10px; font-size: 24px; color: #666666; font-weight: 650; }
+.dtxp-subtitle { font-size: 12px; color: #444; line-height: 1.35; }
+.dtxp-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; padding-top: 2px; }
+
+.dtxp-btn { font-size: 12px; border-radius: 10px; padding: 6px 10px; border: 1px solid #e6e6e6; background: #fff; cursor: pointer; }
+.dtxp-btn:hover { background: #fafafa; }
+.dtxp-btn--sub { padding: 5px 8px; border-radius: 10px; font-size: 11px; }
+
+/* Summary */
+.datatextures-summary { display: flex; gap: 32px; margin-bottom: 18px; }
+.datatextures-summary-row { font-size: 15px; }
+.datatextures-summary-label { color: #2d5e8c; font-weight: 650; }
+
+/* Sections */
+.datatextures-section { margin-bottom: 18px; }
+.datatextures-section-title { font-size: 16px; font-weight: 650; color: #2d5e8c; margin-bottom: 8px; }
+
+/* Tables */
+.datatextures-table { border-collapse: collapse; width: 100%; font-size: 14px; margin-bottom: 8px; }
+.datatextures-table th, .datatextures-table td { border: 1px solid #e6e6e6; padding: 4px 10px; }
+.datatextures-table th { background: #f7fafc; color: #2d5e8c; font-weight: 650; }
+
+.datatextures-batch-section, .datatextures-view-section { border: 1px solid #e6e6e6; border-radius: 10px; background: #fff; margin-bottom: 12px; margin-left: 15px; margin-right: 15px; }
+.datatextures-batch-summary, .datatextures-view-summary { cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 650; color: #2d5e8c; padding: 10px 14px 8px 14px; user-select: none; outline: none; }
+.datatextures-caret { font-size: 16px; color: #888; transition: transform 0.18s cubic-bezier(.4,0,.2,1); display: inline-block; width: 18px; text-align: center; }
+.datatextures-batch-section[open] > .datatextures-batch-summary > .datatextures-caret,
+.datatextures-view-section[open] > .datatextures-view-summary > .datatextures-caret { transform: rotate(90deg); }
+.datatextures-batch-tablewrap, .datatextures-view-tablewrap { padding: 0 14px 10px 14px; }
+.datatextures-table-hybrid .dtx-row { cursor: pointer; }
+.datatextures-table-hybrid .dtx-row:focus { outline: 2px solid rgba(45,94,140,0.25); outline-offset: -2px; }
+
+.dtx-namecell { display: flex; align-items: center; gap: 8px; }
+.dtx-caret { width: 18px; text-align: center; color: #888; transition: transform 0.18s cubic-bezier(.4,0,.2,1); flex: 0 0 auto; }
+.dtx-row[data-open="1"] .dtx-caret { transform: rotate(90deg); }
+
+.dtx-title { color: #2d5e8c; font-weight: 650; }
+.dtx-pct { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 750; color: #111; }
+
+.dtx-usedcell { position: relative; }
+.dtx-usedtext { font-variant-numeric: tabular-nums; font-weight: 650; }
+.dtx-usedbar {
+  display: block;
+  margin-top: 4px;
+  height: 8px;
+  border-radius: 999px;
+  background: #f0f3f6;
+  border: 1px solid #e6e6e6;
+  overflow: hidden;
+  position: relative;
+}
+.dtx-usedbar::before { content: ""; position: absolute; inset: 0; width: var(--dtx-fill); background: var(--dtx-color); }
+
+.dtx-detailrow td { background: #fbfdff; }
+.dtx-detailcell { padding: 10px 12px; }
+.dtx-detailwrap { border: 1px solid #eef2f5; border-radius: 10px; background: #fff; padding: 10px; }
+
+.dtx-detailhdr { font-size: 13px; font-weight: 750; color: #2d5e8c; margin-bottom: 8px; }
+
+.dtx-props { margin: 0; display: grid; grid-template-columns: 1fr; gap: 6px; }
+.dtx-prop { display: grid; grid-template-columns: 180px 1fr; gap: 10px; align-items: baseline; }
+.dtx-prop-k { margin: 0; color: #667; font-size: 12.5px; font-weight: 650; }
+.dtx-prop-v { margin: 0; color: #111; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.datatextures-table-hybrid .dtx-row[data-open="1"] { background: #fbfdff; }
+
+.datatextures-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  border: 1px solid #e6e6e6;
+  background: #f7fafc;
+  color: #2d5e8c;
+}
+.datatextures-chip-stress {
+  border-color: rgba(210, 35, 35, 0.35);
+  background: rgba(210, 35, 35, 0.10);
+  color: rgb(170, 20, 20);
+  box-shadow: 0 0 0 1px rgba(210, 35, 35, 0.06) inset;
+}
+.datatextures-chip-stress-lite {
+  border-color: rgba(210, 35, 35, 0.22);
+  background: rgba(210, 35, 35, 0.06);
+  color: rgb(170, 20, 20);
+  opacity: 0.9;
+}
+.datatextures-summary-spacer { margin-left: auto; }
+.datatextures-summary-title { display: inline-flex; align-items: center; }
+
+.dtx-preview { width: 22px; height: 22px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.12); background: rgba(0,0,0,0.03); flex: 0 0 auto; }
+
+.dtx-preview-large {
+  width: 600px;
+  height: auto;
+  border-radius: 3px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: rgba(0,0,0,0.03);
+  flex: 0 0 auto;
+  display: block;
+}
+
+.dtx-detailpreviewrow { display: flex; align-items: center; gap: 12px; margin: 8px 0 10px 0; }
+.dtx-detailpreviewhint { font-size: 12px; color: #667; line-height: 1.25; text-style: italic; margin-bottom: 12px; }
+
+.dtx-detailsection { margin-top: 10px; }
+
+.dtx-subhdr {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #2d5e8c;
+  margin: 10px 0 6px 0;
+  padding-top: 6px;
+  border-top: 1px solid #eef2f5;
+}
+.dtx-prop { grid-template-columns: 200px 1fr; }
+    `;
+    document.head.appendChild(style);
+    window.__datatextures_panel_style = true;
+  }
+};
+
+// ../sdk/src/demo/inspectors/TilesPanel.ts
+function el10(tag, props, children) {
+  const elem = document.createElement(tag);
+  if (props) {
+    for (const k in props) {
+      if (k === "className")
+        elem.className = props[k];
+      else if (k === "textContent")
+        elem.textContent = props[k];
+      else if (k === "onclick")
+        elem.onclick = props[k];
+      else
+        elem.setAttribute(k, props[k]);
+    }
+  }
+  if (children) {
+    for (const c3 of children)
+      elem.append(c3);
+  }
+  return elem;
+}
+function tilesPanelIconDataUri() {
+  const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60">
+  <!-- Shadow -->
+  <ellipse cx="30" cy="52" rx="18" ry="6" fill="#222" opacity="0.13"/>
+  <!-- Main cube (scene AABB) -->
+  <g>
+    <polygon points="15,40 30,50 45,40 30,30" fill="#eaf6ff" stroke="#4a90e2" stroke-width="2"/>
+    <polygon points="15,40 30,30 30,10 15,20" fill="#eaf6ff" stroke="#4a90e2" stroke-width="2"/>
+    <polygon points="30,10 45,20 45,40 30,30" fill="#eaf6ff" stroke="#4a90e2" stroke-width="2"/>
+    <polygon points="15,20 30,10 45,20 30,30" fill="#eaf6ff" stroke="#4a90e2" stroke-width="2"/>
+  </g>
+  <!-- Inner cubes (object AABBs) -->
+  <g>
+    <polygon points="22,36 30,41 38,36 30,31" fill="#c9a7ff" stroke="#a07be0" stroke-width="1.2"/>
+    <polygon points="22,36 30,31 30,21 22,26" fill="#c9a7ff" stroke="#a07be0" stroke-width="1.2"/>
+    <polygon points="30,21 38,26 38,36 30,31" fill="#c9a7ff" stroke="#a07be0" stroke-width="1.2"/>
+    <polygon points="22,26 30,21 38,26 30,31" fill="#c9a7ff" stroke="#a07be0" stroke-width="1.2"/>
+  </g>
+  <g>
+    <polygon points="35,28 39,30 43,28 39,26" fill="#27ae60" stroke="#219150" stroke-width="1.2"/>
+    <polygon points="35,28 39,26 39,22 35,24" fill="#27ae60" stroke="#219150" stroke-width="1.2"/>
+    <polygon points="39,22 43,24 43,28 39,26" fill="#27ae60" stroke="#219150" stroke-width="1.2"/>
+    <polygon points="35,24 39,22 43,24 39,26" fill="#27ae60" stroke="#219150" stroke-width="1.2"/>
+  </g>
+  <!-- Frame border -->
+  <rect x="4" y="4" width="52" height="52" rx="12" fill="none" stroke="#e6e6e6" stroke-width="1.5"/>
+</svg>`.trim();
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+var TilesPanel = class {
+  static #TILE_ID = "__tilesinsp_tile__";
+  static #STYLE_ID = "__tilesinsp_style__";
+  static show(flowHost, renderStats, opts = {}) {
+    this.#ensureGlobalStyle();
+    let tile = document.getElementById(this.#TILE_ID);
+    const root = this.render(renderStats, opts);
+    if (!tile) {
+      tile = FloatingPanelFlowHost.mountTile(root, {
+        tileMinWidth: opts.tileMinWidth ?? opts.maxWidth ?? 760,
+        tileMaxWidth: opts.tileMaxWidth ?? opts.maxWidth ?? 760
+      });
+      tile.id = this.#TILE_ID;
+      flowHost.appendChild(tile);
+    } else {
+      tile.replaceChildren(root);
+    }
+    return tile;
+  }
+  static render(renderStats, opts = {}) {
+    const tiles = Object.values(renderStats.tiles || {});
+    const root = el10("div", { className: "tilespanel-root" });
+    root.appendChild(this.renderHeader(tiles));
+    root.appendChild(this.renderStatsRow(tiles.length));
+    root.appendChild(this.renderBody(renderStats));
+    return root;
+  }
+  static renderHeader(tiles) {
+    return el10("div", { className: "tilespanel-header", style: "display:flex;align-items:flex-start;" }, [
+      el10("img", {
+        className: "tilespanel-title-icon",
+        width: 60,
+        height: 60,
+        alt: "Tiles",
+        src: tilesPanelIconDataUri(),
+        draggable: false
+      }),
+      el10("div", { className: "tilespanel-title-col" }, [
+        el10("div", { className: "tilespanel-h1", textContent: "Tiles" }),
+        el10("div", { className: "tilespanel-subtitle", textContent: "Visualize GPUTile boundaries." })
+      ]),
+      el10("div", { style: "flex:1;" }),
+      // Spacer to push actions to the right
+      el10("div", {
+        className: "tilespanel-actions",
+        style: "display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;"
+      }, [
+        el10("button", {
+          className: "datapanel-viewjson-btn",
+          textContent: "JSON",
+          title: "View all GPUTiles as JSON",
+          onclick: (e) => {
+            e.stopPropagation();
+            openTilesJsonInNewTab(tiles, "GPUTiles JSON");
+          }
+        })
+      ])
+    ]);
+  }
+  static renderStatsRow(tileCount) {
+    return el10("div", { className: "tilespanel-status-row" }, [
+      el10("span", { className: "tilespanel-status-label", textContent: "GPUTiles:" }),
+      el10("span", { className: "tilespanel-status-value", textContent: String(tileCount) })
+    ]);
+  }
+  static renderBody(renderStats) {
+    const tiles = Object.values(renderStats.tiles || {});
+    if (!tiles.length)
+      return el10("div", { textContent: "No tile stats available." });
+    const tileSize = tiles[0]?.size ?? 200;
+    let min = [Infinity, Infinity, Infinity], max = [-Infinity, -Infinity, -Infinity];
+    for (const t of tiles) {
+      for (let i = 0; i < 3; i++) {
+        min[i] = Math.min(min[i], t.rtcCenter[i] - tileSize / 2);
+        max[i] = Math.max(max[i], t.rtcCenter[i] + tileSize / 2);
+      }
+    }
+    const views = [
+      { label: "Top view", ax0: 0, ax1: 2, axes: "X,Z" },
+      { label: "Front view", ax0: 0, ax1: 1, axes: "X,Y" },
+      { label: "Side view", ax0: 1, ax1: 2, axes: "Y,Z" }
+    ];
+    const sections = views.map((view) => {
+      const svg = this.renderSVGView(tiles, tileSize, min, max, view.ax0, view.ax1);
+      const details = el10("details", { className: "tilespanel-section" }, [
+        el10("summary", { className: "tilespanel-section-summary" }, [
+          el10("span", { className: "tilespanel-caret" }, ["\u25B8"]),
+          `${view.label} [${view.axes}]`
+        ]),
+        el10("div", { className: "tilespanel-svgwrap" }, [svg])
+      ]);
+      details.open = false;
+      details.addEventListener("toggle", () => {
+        const caret = details.querySelector(".tilespanel-caret");
+        if (caret) {
+          if (details.open)
+            caret.classList.add("tilespanel-caret--open");
+          else
+            caret.classList.remove("tilespanel-caret--open");
+        }
+      });
+      return details;
+    });
+    return el10("div", { className: "tilespanel-body" }, sections);
+  }
+  static renderSVGView(tiles, tileSize, min, max, ax0, ax1) {
+    let min0 = Infinity, min1 = Infinity, max0 = -Infinity, max1 = -Infinity;
+    for (const t of tiles) {
+      const c0 = t.rtcCenter[ax0], c1 = t.rtcCenter[ax1];
+      const half = tileSize / 2;
+      min0 = Math.min(min0, c0 - half);
+      max0 = Math.max(max0, c0 + half);
+      min1 = Math.min(min1, c1 - half);
+      max1 = Math.max(max1, c1 + half);
+    }
+    const pad = tileSize * 1.5;
+    min0 -= pad;
+    min1 -= pad;
+    max0 += pad;
+    max1 += pad;
+    const W = 720, H = 720;
+    const palette = ["#6ab04c", "#22a6b3", "#f0932b", "#eb4d4b", "#be2edd", "#4834d4", "#f6e58d", "#7ed6df"];
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNS, "svg");
+    svg.setAttribute("width", String(W));
+    svg.setAttribute("height", String(H));
+    svg.setAttribute("viewBox", `${min0} ${min1} ${max0 - min0} ${max1 - min1}`);
+    svg.classList.add("tilespanel-svg");
+    const rect = document.createElementNS(svgNS, "rect");
+    rect.setAttribute("x", String(min0));
+    rect.setAttribute("y", String(min1));
+    rect.setAttribute("width", String(max0 - min0));
+    rect.setAttribute("height", String(max1 - min1));
+    rect.setAttribute("fill", "#fff");
+    rect.setAttribute("stroke", "#b3c6e0");
+    rect.setAttribute("stroke-width", "2");
+    rect.setAttribute("vector-effect", "non-scaling-stroke");
+    svg.appendChild(rect);
+    tiles.forEach((tile, i) => {
+      const tileSize2 = tile.size;
+      const c0 = tile.rtcCenter[ax0], c1 = tile.rtcCenter[ax1];
+      const half = tileSize2 / 2;
+      const x = c0 - half;
+      const y = c1 - half;
+      const tileRect = document.createElementNS(svgNS, "rect");
+      tileRect.setAttribute("x", String(x));
+      tileRect.setAttribute("y", String(y));
+      tileRect.setAttribute("width", String(tileSize2));
+      tileRect.setAttribute("height", String(tileSize2));
+      tileRect.setAttribute("fill", palette[i % palette.length]);
+      tileRect.setAttribute("fill-opacity", "0.18");
+      tileRect.setAttribute("stroke", palette[i % palette.length]);
+      tileRect.setAttribute("stroke-width", "2.5");
+      tileRect.setAttribute("vector-effect", "non-scaling-stroke");
+      svg.appendChild(tileRect);
+    });
+    return svg;
+  }
+  static #ensureGlobalStyle() {
+    if (document.getElementById(this.#STYLE_ID))
+      return;
+    const style = document.createElement("style");
+    style.id = this.#STYLE_ID;
+    style.textContent = `
+.tilespanel-root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: #111; padding: 16px; background: rgba(255,255,255,0.96); border: 1px solid #e6e6e6; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,0.14); backdrop-filter: blur(2px); }
+.tilespanel-header {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  background: #fff;
+  margin-bottom: 12px;
+}
+.tilespanel-title-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 4px;
+}
+.tilespanel-title-icon {
+  width: 60px;
+  height: 60px;
+  flex: 0 0 60px;
+  border-radius: 14px;
+  border: 1.5px solid #e6e6e6;
+  background: #fafafa;
+  padding: 6px;
+}
+.tilespanel-h1 { padding-top:10px;  font-size: 24px; color: #666666; font-weight: 650; }
+.tilespanel-subtitle { font-size: 12px; color: #444; line-height: 1.35; }
+.tilespanel-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.tilespanel-btn { font-size: 12px; border-radius: 10px; padding: 6px 10px; border: 1px solid #e6e6e6; background: #fff; cursor: pointer; }
+.tilespanel-btn:hover { background: #fafafa; }
+.tilespanel-btn--sub { padding: 5px 8px; border-radius: 10px; font-size: 11px; }
+.tilespanel-body {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* reduced from 12px or more */
+}
+.tilespanel-table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; border: 1px solid #e6e6e6; border-radius: 12px; overflow: hidden; }
+.tilespanel-table th { text-align: left; color: #666; font-weight: 650; padding: 8px 10px; border-bottom: 1px solid #f0f0f0; }
+.tilespanel-table td { padding: 8px 10px; border-top: 1px solid #f7f7f7; vertical-align: top; word-break: break-word; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+.tilespanel-empty { color: #888; font-size: 13px; text-align: center; }
+
+.tilespanel-section {
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  background: #fff;
+  margin-bottom: 0; /* reduced from 12px */
+  overflow: hidden;
+}
+.tilespanel-section-summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #2d5e8c;
+  background: #f7fafc;
+  border-radius: 12px 12px 0 0;
+  padding: 12px 18px 10px 18px;
+  user-select: none;
+  letter-spacing: 0.01em;
+  transition: background 0.13s;
+  outline: none;
+}
+.tilespanel-section-summary:hover {
+  background: #e6f0fa;
+}
+.tilespanel-caret {
+  display: inline-block;
+  width: 18px;
+  text-align: center;
+  font-size: 15px;
+  color: #888;
+  transition: transform 0.18s cubic-bezier(.4,0,.2,1), color 0.13s;
+  user-select: none;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+.tilespanel-caret--open {
+  transform: rotate(90deg);
+  color: #4a90e2;
+}
+.tilespanel-status-row {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  font-size: 12px;
+  color: #2d5e8c;
+  font-weight: 650;
+  margin: 10px 0 8px 0;
+  padding-left: 0;
+}
+.tilespanel-status-label {
+  font-size: 12px;
+  color: #666;
+  font-weight:normal;
+}
+.tilespanel-status-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: #444;
+}
+.tilespanel-svgwrap { padding: 18px; }
+.tilespanel-svg { width: 100%; height: auto; display: block; background: #f7fafc; border-radius: 10px; }
+.tilespanel-tilelabel { font-size: 12px; fill: #222; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+.tilespanel-extentslabel { font-size: 11px; fill: #888; }
+.json-key { color: #8ec07c; }
+.json-string { color: #b8bb26; }
+.json-number { color: #fabd2f; }
+.json-boolean { color: #83a598; }
+.json-null { color: #fe8019; }
+`;
+    document.head.appendChild(style);
+  }
+};
+function syntaxHighlightJson3(json) {
+  json = json.replace(/[&<>]/g, (c3) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;"
+  })[c3]);
+  return json.replace(
+    /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+    (match) => {
+      let cls = "json-number";
+      if (/^"/.test(match)) {
+        if (/:$/.test(match))
+          cls = "json-key";
+        else
+          cls = "json-string";
+      } else if (/true|false/.test(match))
+        cls = "json-boolean";
+      else if (/null/.test(match))
+        cls = "json-null";
+      return `<span class="${cls}">${match}</span>`;
+    }
+  );
+}
+function openTilesJsonInNewTab(tiles, title = "GPUTiles JSON") {
+  let json = JSON.stringify(tiles, null, 2);
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>${title}</title>
+  <meta charset="utf-8"/>
+  <style>
+    body { background: #0f1116; color: #e7e7e7; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; margin: 0; padding: 0; }
+    .json-pre { background: #0f1116; border-radius: 10px; margin: 24px 0 24px 24px; padding: 24px 32px; max-width: 900px; font-size: 15px; box-shadow: 0 4px 24px #0001; color: #e7e7e7; text-align: left; }
+    h1 { color: #fff; font-size: 20px; font-weight: 650; margin: 0 0 12px 0; }
+    .meta { color: #aaa; font-size: 13px; margin-bottom: 18px; }
+    .json-key { color: #8ec07c; }
+    .json-string { color: #b8bb26; }
+    .json-number { color: #fabd2f; }
+    .json-boolean { color: #83a598; }
+    .json-null { color: #fe8019; }
+  </style>
+</head>
+<body>
+  <h1>${title}</h1>
+  <div class="meta">Serialized to JSON</div>
+  <pre class="json-pre">${syntaxHighlightJson3(json)}</pre>
+</body>
+</html>
+  `.trim();
+  const win = window.open();
+  if (win) {
+    win.document.write(html);
+    win.document.close();
+  }
+}
+
+// ../sdk/src/demo/inspectors/ViewerPanel.ts
+function el11(tag, props = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(props)) {
+    if (key.startsWith("data-")) {
+      node.setAttribute(key, String(value ?? ""));
+      continue;
+    }
+    if (key === "style" && value && typeof value === "object") {
+      Object.assign(node.style, value);
+      continue;
+    }
+    node[key] = value;
+  }
+  for (const child of children)
+    node.appendChild(child);
+  return node;
+}
+function isPlainObject2(v) {
+  return !!v && typeof v === "object" && !Array.isArray(v);
+}
+function formatNumber4(n) {
+  if (!Number.isFinite(n))
+    return "\u2014";
+  const t = Math.trunc(n * 100) / 100;
+  if (Math.abs(t - Math.trunc(t)) < 1e-12)
+    return String(Math.trunc(t));
+  return t.toFixed(2);
+}
+function formatValueInline(val) {
+  if (val == null)
+    return "\u2014";
+  if (typeof val === "number")
+    return formatNumber4(val);
+  if (typeof val === "boolean")
+    return val ? "true" : "false";
+  if (typeof val === "string")
+    return val;
+  if (Array.isArray(val))
+    return `[${val.map((x) => formatValueInline(x)).join(", ")}]`;
+  if (isPlainObject2(val)) {
+    try {
+      return JSON.stringify(val);
+    } catch {
+      return String(val);
+    }
+  }
+  return String(val);
+}
+function renderValueNode(val) {
+  if (val == null || typeof val === "string" || typeof val === "number" || typeof val === "boolean") {
+    const cls = typeof val === "string" ? "vp-val vp-val--str" : typeof val === "number" ? "vp-val vp-val--num" : typeof val === "boolean" ? "vp-val vp-val--bool" : "vp-val vp-val--null";
+    return el11("span", { className: cls, textContent: formatValueInline(val) });
+  }
+  if (Array.isArray(val)) {
+    return el11("span", { className: "vp-val vp-val--arr", textContent: formatValueInline(val) });
+  }
+  if (isPlainObject2(val)) {
+    return renderObjectInlineTable(val);
+  }
+  return el11("span", { className: "vp-val", textContent: String(val) });
+}
+function applyKeyColumnWidth(table, keys) {
+  const maxLen = keys.reduce((m, k) => Math.max(m, (k ?? "").length), 0);
+  const minCh = 10;
+  const maxCh = 28;
+  const keyCh = Math.max(minCh, Math.min(maxCh, maxLen + 2));
+  table.style.setProperty("--vp-keyw", `${keyCh}ch`);
+}
+function renderObjectInlineTable(obj) {
+  const table = el11("table", { className: "vp-table vp-table--kv vp-table--nested" });
+  const entries = Object.entries(obj || {});
+  entries.sort((a2, b4) => a2[0].localeCompare(b4[0]));
+  applyKeyColumnWidth(table, entries.map((e) => e[0]));
+  for (const [k, v] of entries) {
+    const tr2 = el11("tr", { className: "vp-row" });
+    const th = el11("th", {}, [
+      el11("div", { className: "vp-key" }, [el11("span", { className: "vp-keytext", textContent: k })])
+    ]);
+    const td = el11("td", { className: "vp-cell" });
+    td.appendChild(renderValueNode(v));
+    tr2.appendChild(th);
+    tr2.appendChild(td);
+    table.appendChild(tr2);
+  }
+  return table;
+}
+function viewerIconDataUri() {
+  const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60">
+<ellipse cx="30" cy="30" rx="24" ry="14" fill="#e0e7ef" stroke="#b3c6e0" stroke-width="2"/>
+<ellipse cx="30" cy="30" rx="10" ry="10" fill="#7ec7e6" stroke="#2d5e8c" stroke-width="2"/>
+<ellipse cx="30" cy="30" rx="4" ry="4" fill="#fff" stroke="#2d5e8c" stroke-width="1"/>
+<ellipse cx="30" cy="30" rx="2" ry="2" fill="#2d5e8c"/>
+</svg>`.trim();
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+function openJsonInNewTab3(obj, title = "ViewerParams JSON") {
+  let json = JSON.stringify(obj, null, 2);
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>${title}</title>
+  <meta charset="utf-8"/>
+  <style>
+    body { background: #0f1116; color: #e7e7e7; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; margin: 0; padding: 0; }
+    .json-pre { background: #0f1116; border-radius: 10px; margin: 24px 0 24px 24px; padding: 24px 32px; max-width: 900px; font-size: 15px; box-shadow: 0 4px 24px #0001; color: #e7e7e7; text-align: left; }
+    h1 { color: #fff; font-size: 20px; font-weight: 650; margin: 0 0 12px 0; padding: 24px 0 0 24px; }
+    .meta { color: #aaa; font-size: 13px; margin: 0 0 18px 24px; }
+  </style>
+</head>
+<body>
+  <h1>${title}</h1>
+  <div class="meta">Serialized to JSON</div>
+  <pre class="json-pre">${json.replace(/[&<>]/g, (c3) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c3])}</pre>
+</body>
+</html>
+  `.trim();
+  const win = window.open();
+  if (win) {
+    win.document.write(html);
+    win.document.close();
+  }
+}
+var ViewerPanel = class _ViewerPanel {
+  static #STYLE_ID = "__viewerpanel_style__";
+  #params;
+  #opts;
+  #tileEl = null;
+  constructor(flowHost, params, opts = {}) {
+    this.#params = params;
+    this.#opts = opts;
+    _ViewerPanel.#ensureGlobalStyle();
+    const root = this.render();
+    const tile = FloatingPanelFlowHost.mountTile(root, {
+      tileMinWidth: opts.tileMinWidth ?? 880,
+      tileMaxWidth: opts.tileMaxWidth ?? 880
+    });
+    flowHost.appendChild(tile);
+    this.#tileEl = tile;
+  }
+  static show(flowHost, params, opts = {}) {
+    return new _ViewerPanel(flowHost, params, opts);
+  }
+  destroy() {
+    if (this.#tileEl)
+      this.#tileEl.remove();
+  }
+  render() {
+    const root = el11("div", { className: "vp-root" });
+    root.appendChild(this.renderHeader());
+    root.appendChild(this.renderBody());
+    return root;
+  }
+  renderHeader() {
+    const title = this.#opts.title ?? "Viewer";
+    const subtitle = this.#opts.subtitle ?? "Viewer configuration";
+    const header = el11("div", { className: "vp-header" });
+    const icon = el11("img", {
+      className: "vp-title-icon",
+      width: 60,
+      height: 60,
+      alt: "Viewer",
+      src: viewerIconDataUri(),
+      draggable: false
+    });
+    const textCol = el11("div", { className: "vp-title-col" }, [
+      el11("div", { className: "vp-h1", textContent: title }),
+      el11("div", { className: "vp-subtitle", textContent: subtitle })
+    ]);
+    const jsonBtn = el11("button", {
+      className: "vp-btn vp-btn--sub",
+      textContent: "JSON",
+      onclick: (e) => {
+        e.stopPropagation();
+        openJsonInNewTab3(this.#params, "ViewerParams JSON");
+      }
+    });
+    const actions = el11("div", { className: "vp-actions" }, [jsonBtn]);
+    header.appendChild(icon);
+    header.appendChild(textCol);
+    header.appendChild(actions);
+    return header;
+  }
+  renderBody() {
+    const body = el11("div", { className: "vp-body" });
+    const summary = el11("div", { className: "vp-summary" }, [
+      el11("div", { className: "vp-k", textContent: "ID:" }),
+      el11("div", { className: "vp-v", textContent: this.#params.id ?? "\u2014" }),
+      el11("div", { className: "vp-k", textContent: "Views:" }),
+      el11("div", { className: "vp-v", textContent: String(this.#params.views?.length ?? 0) })
+    ]);
+    body.appendChild(summary);
+    if (this.#params.views && this.#params.views.length) {
+      for (const view of this.#params.views)
+        body.appendChild(this.renderViewSection(view));
+    } else {
+      body.appendChild(el11("div", { className: "vp-empty", textContent: "No views defined." }));
+    }
+    return body;
+  }
+  renderViewSection(view) {
+    const id = view.id ?? "View";
+    const section = el11("div", { className: "vp-section" });
+    const summary = el11("div", { className: "vp-section-summary" });
+    const caret = el11("span", { className: "vp-caret", textContent: "\u25B8" });
+    const label = el11("span", { className: "vp-section-label", textContent: id });
+    summary.appendChild(caret);
+    summary.appendChild(label);
+    const body = el11("div", { className: "vp-section-body" });
+    body.appendChild(this.renderViewTable(view));
+    body.style.display = "none";
+    summary.addEventListener("click", () => {
+      const collapsed = body.style.display !== "block";
+      body.style.display = collapsed ? "block" : "none";
+      caret.textContent = collapsed ? "\u25BE" : "\u25B8";
+    });
+    section.appendChild(summary);
+    section.appendChild(body);
+    return section;
+  }
+  renderViewTable(view) {
+    const table = el11("table", { className: "vp-table vp-table--kv" });
+    const entries = Object.entries(view);
+    const score = (k, v) => {
+      if (k === "layers")
+        return 3;
+      if (Array.isArray(v) || isPlainObject2(v))
+        return 2;
+      return 1;
+    };
+    entries.sort((a2, b4) => score(a2[0], a2[1]) - score(b4[0], b4[1]) || a2[0].localeCompare(b4[0]));
+    applyKeyColumnWidth(table, entries.map((e) => e[0]));
+    for (const [k, v] of entries) {
+      const tr2 = el11("tr", { className: "vp-row" });
+      const th = el11("th", {}, [
+        el11("div", { className: "vp-key" }, [el11("span", { className: "vp-keytext", textContent: k })])
+      ]);
+      const td = el11("td", { className: "vp-cell" });
+      if (k === "layers" && Array.isArray(v)) {
+        const head = el11("div", { className: "vp-subhead" }, [
+          el11("span", { className: "vp-subhead-title", textContent: "layers" }),
+          el11("span", { className: "vp-pill", textContent: `${v.length} layer${v.length === 1 ? "" : "s"}` })
+        ]);
+        td.appendChild(head);
+        td.appendChild(this.renderLayersTable(v));
+      } else if (typeof v === "object" && v !== null && !Array.isArray(v)) {
+        td.appendChild(this.renderObjectTable(v));
+      } else {
+        td.appendChild(renderValueNode(v));
+      }
+      tr2.appendChild(th);
+      tr2.appendChild(td);
+      table.appendChild(tr2);
+    }
+    return table;
+  }
+  renderLayersTable(layers) {
+    if (!layers.length)
+      return el11("div", { className: "vp-empty", textContent: "No layers" });
+    const table = el11("table", { className: "vp-table vp-table--layers" });
+    const thead = el11("thead");
+    const head = el11("tr");
+    head.appendChild(el11("th", { textContent: "id" }));
+    head.appendChild(el11("th", { textContent: "visible" }));
+    head.appendChild(el11("th", { textContent: "autoDestroy" }));
+    thead.appendChild(head);
+    table.appendChild(thead);
+    const tbody = el11("tbody");
+    for (const l of layers) {
+      const tr2 = el11("tr");
+      tr2.appendChild(el11("td", { textContent: l.id }));
+      const vis = l.visible === void 0 ? null : !!l.visible;
+      const ad = l.autoDestroy === void 0 ? null : !!l.autoDestroy;
+      tr2.appendChild(
+        el11("td", {}, [
+          vis == null ? el11("span", { className: "vp-val vp-val--null", textContent: "\u2014" }) : el11("span", { className: `vp-flag ${vis ? "is-on" : "is-off"}`, textContent: vis ? "true" : "false" })
+        ])
+      );
+      tr2.appendChild(
+        el11("td", {}, [
+          ad == null ? el11("span", { className: "vp-val vp-val--null", textContent: "\u2014" }) : el11("span", { className: `vp-flag ${ad ? "is-on" : "is-off"}`, textContent: ad ? "true" : "false" })
+        ])
+      );
+      tbody.appendChild(tr2);
+    }
+    table.appendChild(tbody);
+    return table;
+  }
+  renderObjectTable(obj) {
+    return renderObjectInlineTable(obj);
+  }
+  static #ensureGlobalStyle() {
+    if (document.getElementById(this.#STYLE_ID))
+      return;
+    const style = document.createElement("style");
+    style.id = this.#STYLE_ID;
+    style.textContent = `
+.vp-root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: #111; padding: 16px; background: rgba(255,255,255,0.96); border: 1px solid #e6e6e6; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,0.14); backdrop-filter: blur(2px); }
+.vp-header { display: flex; flex-direction: row; align-items: flex-start; gap: 14px; padding: 14px; border: 1px solid #e6e6e6; border-radius: 12px; background: #fff; margin-bottom: 12px; }
+.vp-title-col { display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 4px; }
+.vp-title-icon { width: 60px; height: 60px; flex: 0 0 60px; border-radius: 14px; border: 1.5px solid #e6e6e6; background: #fafafa; padding: 6px; }
+.vp-h1 { padding-top:10px;  font-size: 24px; color: #666666; font-weight: 650; }
+.vp-subtitle { font-size: 12px; color: #444; line-height: 1.35; }
+.vp-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.vp-btn { font-size: 12px; border-radius: 10px; padding: 6px 10px; border: 1px solid #e6e6e6; background: #fff; cursor: pointer; }
+.vp-btn:hover { background: #fafafa; }
+.vp-btn--sub { padding: 5px 8px; border-radius: 10px; font-size: 11px; }
+.vp-body { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.vp-summary { display: flex; gap: 8px; align-items: baseline; font-size: 13px; color: #2d5e8c; font-weight: 650; margin: 10px 0 8px 0; padding-left: 0; }
+.vp-k { font-size: 12px; color: #666; font-weight:normal; }
+.vp-v { font-size: 12px; font-weight: 600; color: #444; }
+.vp-empty { color: #888; font-size: 13px; text-align: center; }
+.vp-section { border: 1px solid #e6e6e6; border-radius: 12px; background: #fff; margin-bottom: 0; overflow: hidden; }
+.vp-section-summary { cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; color: #2d5e8c; background: #f7fafc; border-radius: 12px 12px 0 0; padding: 12px 18px 10px 18px; user-select: none; letter-spacing: 0.01em; transition: background 0.13s; outline: none; }
+.vp-section-summary:hover { background: #e6f0fa; }
+.vp-caret { display: inline-block; width: 18px; text-align: center; font-size: 15px; color: #888; transition: transform 0.18s cubic-bezier(.4,0,.2,1), color 0.13s; user-select: none; margin-right: 4px; vertical-align: middle; }
+.vp-section-label { font-size: 13px; color: #222; font-weight: 650; }
+.vp-section-body { padding: 12px 18px 16px 18px; }
+
+/* Base table */
+.vp-table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; border: 1px solid #e6e6e6; border-radius: 12px; overflow: hidden; margin-bottom: 8px; }
+
+/* KV tables: snug label col but aligned via --vp-keyw (set per table in JS) */
+.vp-table--kv { table-layout: fixed; }
+
+/* Reduced padding just for the view KV table cells */
+.vp-table--kv th {
+  width: var(--vp-keyw, 16ch);
+  white-space: nowrap;
+  padding: 6px 10px;           /* reduced */
+  vertical-align: top;
+  background: #fbfdff;
+  border-right: 1px solid #eef2f5;
+  border-bottom: none;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.vp-table--kv td {
+  width: auto;
+  padding: 6px 10px;           /* reduced */
+  vertical-align: top;
+  border-top: 1px solid #f0f0f0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  word-break: break-word;
+}
+.vp-row:first-child td { border-top: none; }
+
+.vp-key { display: flex; align-items: center; justify-content: flex-start; gap: 10px; min-width: 0; }
+.vp-keytext { font-size: 12px; font-weight: 750; color: #2d5e8c; letter-spacing: 0.01em; }
+.vp-cell { color: #111; min-width: 0; }
+
+/* Scalars */
+.vp-val {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.35;
+  color: #111;
+  word-break: break-word;
+}
+.vp-val--str { color: #1f4d77; }
+.vp-val--num { color: #2b6cb0; font-weight: 650; font-variant-numeric: tabular-nums; }
+.vp-val--bool { color: #2e7d32; font-weight: 650; }
+.vp-val--null { color: #8a8f98; }
+.vp-val--arr { color: #111; }
+
+/* Layers table */
+.vp-table--layers { font-size: 12px; table-layout: auto; }
+.vp-table--layers thead th {
+  text-align: left;
+  color: #666;
+  font-weight: 650;
+  padding: 8px 10px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #f7fafc;
+}
+.vp-table--layers td {
+  padding: 8px 10px;
+  border-top: 1px solid #f7f7f7;
+  vertical-align: top;
+  word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.vp-flag {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  border: 1px solid #e6e6e6;
+  background: #fff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+.vp-flag.is-on { border-color: rgba(46,125,50,0.25); background: rgba(46,125,50,0.08); color: #1f6b2b; }
+.vp-flag.is-off { border-color: rgba(210,35,35,0.25); background: rgba(210,35,35,0.08); color: rgb(170, 20, 20); }
+
+/* Section subhead (layers) */
+.vp-subhead { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+.vp-subhead-title { font-size: 12px; font-weight: 750; color: #2d5e8c; }
+.vp-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 750;
+  border: 1px solid #e6e6e6;
+  background: #f7fafc;
+  color: #2d5e8c;
+}
+
+/* Nested object KV tables inherit the same alignment behavior (keep their own padding) */
+.vp-table--nested { table-layout: fixed; width: 100%; }
+.vp-table--nested th { padding: 8px 10px; }
+.vp-table--nested td { padding: 8px 10px; }
+    `;
+    document.head.appendChild(style);
+  }
+};
+
 // ../sdk/src/demo/DemoHelper.ts
+var taskRunner2 = getGlobalTaskRunner();
 var DemoHelper = class {
   /**
    * The Scene created by the DemoHelper. Holds all 3D objects.
@@ -140347,11 +147245,21 @@ var DemoHelper = class {
    * The CameraFlightAnimation for the View.
    */
   cameraFlight;
+  /**
+   * The CameraControl for the View, allowing user interaction with the camera.
+   */
+  cameraControl;
+  // /**
+  //  * A inspectors for building demo models with a fluent API. You can use this in your demo code to create models in the scene and data.
+  //  */
+  // public builder: DemoBuilder;
   makeComponents;
   showOverlayButton;
   overlayButton = null;
-  overlayDiv = null;
-  overlayVisible = false;
+  // private overlayDiv: HTMLDivElement | null = null;
+  inspectorVisible = false;
+  inspectorFlowHost;
+  eventsLog;
   /**
    * Statistics about the demo, available after calling `finished()`.
    */
@@ -140369,8 +147277,11 @@ var DemoHelper = class {
       elapsedTime: 0,
       aabb: null,
       scene: null,
-      data: null
+      data: null,
+      memory: null,
+      renderer: null
     };
+    this.eventsLog = [];
   }
   /**
    * Initializes the DemoHelper by creating the Scene, Data, Viewer, WebGLRenderer, and View.
@@ -140386,34 +147297,121 @@ var DemoHelper = class {
         this.data = new Data2();
         this.viewer = new Viewer();
         this.renderer = new WebGLRenderer3();
+        const log2 = (eventName, sender, args) => {
+        };
         if (cfg.logging) {
-          new EventsLogger(this.scene.events, { prefix: "[Scene        ]" });
-          new EventsLogger(this.data.events, { prefix: "[Data         ]" });
-          new EventsLogger(this.viewer.events, { prefix: "[Viewer       ]" });
-          new EventsLogger(this.renderer.events, { prefix: "[WebGLRenderer]" });
+          new EventsLogger(this.scene.events, { prefix: "[Scene        ]", log: log2 });
+          new EventsLogger(this.data.events, { prefix: "[Data         ]", log: log2 });
+          new EventsLogger(this.viewer.events, { prefix: "[Viewer       ]", log: log2 });
+          new EventsLogger(this.renderer.events, { prefix: "[WebGLRenderer]", log: log2 });
         }
+        const onError = (_, result) => {
+          setInterval(() => {
+            window.postMessage({
+              type: "xeokit.Error",
+              payload: result
+            }, "*");
+          }, 1e3);
+          const div = document.createElement("div");
+          div.id = "Error";
+          document.body.appendChild(div);
+        };
+        this.scene.events.onError.subscribe(onError);
+        this.data.events.onError.subscribe(onError);
+        this.viewer.events.onError.subscribe(onError);
+        this.renderer.events.onError.subscribe(onError);
         this.aabb3Index = new SceneAABB3Index(this.scene);
         this.viewer.attachScene(this.scene);
         this.renderer.attachViewer(this.viewer);
         const viewResult = this.viewer.createView({
           id: "mainView",
-          elementId: "demoCanvas"
+          elementId: "demoCanvas",
+          backgroundColor: [0, 0, 0]
         });
         if (viewResult.ok === false) {
           reject(viewResult.error);
           return;
         }
+        const renderInspectorResult = this.renderer.getRenderInspector();
+        if (renderInspectorResult.ok !== true) {
+          reject(renderInspectorResult.error);
+          return;
+        }
+        const renderInspector = renderInspectorResult.value;
+        renderInspector.enabled = true;
         this.view = viewResult.value;
         this.cameraFlight = new CameraFlightAnimation(this.view);
+        this.cameraControl = new CameraControl(this.view);
         window.demoHelper = this;
-        if (this.showOverlayButton || cfg.showOverlayButton) {
-          this._createOverlayButton();
-        }
         resolve2({});
       } else {
         resolve2({});
       }
     });
+  }
+  /**
+   * Gets the overlay host div element.
+   * Attach your examples' inspectors panels to this div.
+   * @returns The HTMLDivElement for the overlay, or null if not created.
+   */
+  // public getOverlayHostDiv(): HTMLDivElement | null {
+  //   return this.overlayDiv;
+  // }
+  /**
+   *
+   */
+  toggleInspector() {
+    if (this.inspectorVisible) {
+      this.inspectorFlowHost.style.display = "none";
+      this.inspectorVisible = false;
+      this.view.htmlElement.style.pointerEvents = "all";
+      taskRunner2.unsuspend();
+      return;
+    } else {
+      if (!this.inspectorFlowHost) {
+        this.inspectorFlowHost = FloatingPanelFlowHost.getOrCreate({
+          corner: "top-right",
+          marginTopPx: 65,
+          zIndex: 1e5,
+          maxWidth: 2e3,
+          // max width for the whole overlay area
+          tileMinWidth: 800
+          // per-panel min width
+        });
+        GPUMemoryConfigsPanel.show(this.inspectorFlowHost, this.renderer.getMemoryConfigs());
+        GPUMemoryUsagePanel.show(this.inspectorFlowHost, this.renderer.getMemoryUsage());
+        ScenePanel.show(this.inspectorFlowHost, this.scene, {});
+        DataPanel.show(this.inspectorFlowHost, this.data, {});
+        const shaderInspectorResult = this.renderer.getShaderInspector();
+        if (shaderInspectorResult.ok) {
+          ShadersPanel.show(this.inspectorFlowHost, shaderInspectorResult.value);
+        }
+        const renderInspectorResult = this.renderer.getRenderInspector();
+        if (renderInspectorResult.ok) {
+          RendererPanel.show(this.inspectorFlowHost, this.renderer);
+          const renderInspector = renderInspectorResult.value;
+          const renderStats = renderInspector.renderStats;
+          TilesPanel.show(this.inspectorFlowHost, renderStats);
+        }
+        TaskPanel.show(this.inspectorFlowHost, taskRunner2, {});
+        BoundariesPanel.show(this.inspectorFlowHost, this.view, this.aabb3Index, {});
+        const memoryInspectorResult = this.renderer.getMemoryInspector();
+        if (memoryInspectorResult.ok) {
+          const memoryInspector = memoryInspectorResult.value;
+          const dataTextures = memoryInspector.dataTextures;
+          DataTexturesPanel.show(this.inspectorFlowHost, dataTextures);
+        }
+        const viewerParamsResult = this.viewer.toParams();
+        if (viewerParamsResult.ok) {
+          const viewerParams = viewerParamsResult.value;
+          ViewerPanel.show(this.inspectorFlowHost, viewerParams);
+        }
+      }
+      this.inspectorFlowHost.style.display = "flex";
+      this.view.htmlElement.style.pointerEvents = "none";
+      this.inspectorVisible = true;
+      taskRunner2.suspend();
+    }
   }
   /**
    * Moves the camera to fit the entire scene within the view.
@@ -140440,13 +147438,37 @@ var DemoHelper = class {
       }
     });
   }
+  /**
+   * Finalizes the demo setup, gathering statistics and signaling completion.
+   */
   finished() {
+    this._createOverlayButton();
     const stats = this.stats;
     stats.scene = this._getCombinedSceneModelStats();
     stats.data = this._getCombinedDataModelStats();
-    stats.aabb = this.aabb3Index.getSceneAABB();
+    stats.aabb = Array.from(this.aabb3Index.getSceneAABB());
     stats.endTime = performance.now();
     stats.elapsedTime = stats.endTime - (stats.startTime ?? stats.endTime);
+    if (this.renderer) {
+      stats.renderer = {
+        tiles: {},
+        views: []
+      };
+      stats.memory = this.renderer.getMemoryUsage();
+      const result = this.renderer.getRenderInspector();
+      if (result.ok) {
+        const renderInspector = result.value;
+        stats.renderer = renderInspector.renderStats;
+      }
+    }
+    setInterval(() => {
+      window.postMessage({
+        type: "xeokit.visualTestJson",
+        payload: {
+          stats: this.stats
+        }
+      }, "*");
+    }, 1e3);
     this.signalFinished();
   }
   signalFinished() {
@@ -140500,61 +147522,334 @@ var DemoHelper = class {
     return combinedStats;
   }
   _createOverlayButton() {
-    if (typeof document === "undefined")
+    if (typeof document === "undefined") {
       return;
-    if (this.overlayButton)
+    }
+    if (this.overlayButton) {
       return;
+    }
     const button = document.createElement("button");
-    button.innerText = "\u2630 Debug";
+    button.innerHTML = `<span style="vertical-align: middle;">Open Inspectors</span>`;
     button.style.position = "fixed";
     button.style.top = "16px";
     button.style.right = "16px";
     button.style.zIndex = "100001";
     button.style.padding = "8px 16px";
-    button.style.background = "#222";
-    button.style.color = "#fff";
+    button.style.background = "#dedede";
+    button.style.color = "black";
     button.style.border = "none";
     button.style.borderRadius = "4px";
     button.style.cursor = "pointer";
     button.style.fontSize = "16px";
     button.style.boxShadow = "0 2px 8px rgba(0,0,0,0.2)";
-    button.style.opacity = "0.85";
-    button.style.transition = "background 0.2s, opacity 0.2s";
     button.onmouseenter = () => {
-      button.style.background = "#444";
-      button.style.opacity = "1";
+      button.style.background = "#ffff";
     };
     button.onmouseleave = () => {
-      button.style.background = "#222";
-      button.style.opacity = "0.85";
+      button.style.background = "#dedede";
     };
-    const overlay = document.createElement("div");
-    overlay.style.position = "fixed";
-    overlay.style.paddingTop = "48px";
-    overlay.style.top = "0";
-    overlay.style.right = "0";
-    overlay.style.width = "400px";
-    overlay.style.height = "100%";
-    overlay.style.background = "rgba(30, 30, 40, 0.97)";
-    overlay.style.zIndex = "100000";
-    overlay.style.display = "none";
-    overlay.style.boxShadow = "2px 0 12px rgba(0,0,0,0.25)";
-    overlay.style.overflowY = "auto";
-    overlay.style.transition = "transform 0.2s";
-    overlay.style.color = "#fff";
-    overlay.style.fontFamily = "sans-serif";
-    overlay.innerHTML = `<div style="padding:24px 16px 16px 24px;font-size:18px;font-weight:bold;">Overlay Panel</div>
-        <div style="padding:0 16px 16px 24px;font-size:14px;">You can put any content here.</div>`;
     button.onclick = () => {
-      this.overlayVisible = !this.overlayVisible;
-      overlay.style.display = this.overlayVisible ? "block" : "none";
+      this.toggleInspector();
+      if (this.inspectorVisible) {
+        button.innerHTML = `<span style="vertical-align: middle;">Close Inspectors</span>`;
+        button.classList.add("demohelper-open");
+      } else {
+        button.innerHTML = `<span style="vertical-align: middle;">Open Inspectors</span>`;
+        button.classList.remove("demohelper-open");
+      }
     };
     document.body.appendChild(button);
-    document.body.appendChild(overlay);
     this.overlayButton = button;
-    this.overlayDiv = overlay;
   }
 };
+
+// ../sdk/src/demo/buildDemoModelTable.ts
+function buildDemoModelTable(cfg) {
+  const { sceneModel, dataModel, position } = cfg;
+  if (position && position.length !== 3) {
+    return {
+      ok: false,
+      type: 2 /* InvalidInput */,
+      error: "[buildDemoModelTable] position must be a 3D point [x, y, z]"
+    };
+  }
+  const uuid3 = createUUID();
+  const sceneTransformResult = sceneModel.createTransform({
+    id: `${uuid3}-transform}`,
+    position: position || [0, 0, 0],
+    rotation: [0, 0, 0],
+    scale: [1, 1, 1]
+  });
+  if (sceneTransformResult.ok === false) {
+    return {
+      ok: false,
+      type: 2 /* InvalidInput */,
+      error: `[buildDemoModelTable] Failed to create transform for model: ${sceneTransformResult.error}`
+    };
+  }
+  const sceneTransform = sceneTransformResult.value;
+  const fromParamsResult = sceneModel.fromParams({
+    geometries: [
+      {
+        id: `${uuid3}-geometry`,
+        primitive: TrianglesPrimitive,
+        positions: [
+          1,
+          1,
+          1,
+          -1,
+          1,
+          1,
+          -1,
+          -1,
+          1,
+          1,
+          -1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          -1,
+          1,
+          1,
+          -1,
+          -1,
+          1,
+          1,
+          -1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          -1,
+          -1,
+          1,
+          -1,
+          -1,
+          1,
+          1,
+          -1,
+          1,
+          1,
+          -1,
+          1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          1,
+          -1,
+          -1,
+          -1,
+          1,
+          -1,
+          -1,
+          1,
+          -1,
+          1,
+          -1,
+          -1,
+          1,
+          1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          1,
+          -1,
+          1,
+          1,
+          -1
+        ],
+        uvs: [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          // v0-v1-v2-v3 front
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          1,
+          0,
+          // v0-v3-v4-v1 right
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          // v0-v1-v6-v1 top
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          // v1-v6-v7-v2 left
+          0,
+          1,
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          // v7-v4-v3-v2 bottom
+          0,
+          1,
+          1,
+          1,
+          1,
+          0,
+          0,
+          0
+          // v4-v7-v6-v1 back
+        ],
+        indices: [
+          0,
+          1,
+          2,
+          0,
+          2,
+          3,
+          // front
+          4,
+          5,
+          6,
+          4,
+          6,
+          7,
+          // right
+          8,
+          9,
+          10,
+          8,
+          10,
+          11,
+          // top
+          12,
+          13,
+          14,
+          12,
+          14,
+          15,
+          // left
+          16,
+          17,
+          18,
+          16,
+          18,
+          19,
+          // bottom
+          20,
+          21,
+          22,
+          20,
+          22,
+          23
+        ]
+      }
+    ],
+    meshes: [
+      {
+        id: `${uuid3}-redLeg-mesh`,
+        geometryId: `${uuid3}-geometry`,
+        position: [-4, -4, -6],
+        scale: [1, 1, 3],
+        rotation: [0, 0, 0],
+        color: [1, 0.3, 0.3],
+        parentTransformId: sceneTransform.id
+      },
+      {
+        id: `${uuid3}-greenLeg-mesh`,
+        geometryId: `${uuid3}-geometry`,
+        position: [4, -4, -6],
+        scale: [1, 1, 3],
+        rotation: [0, 0, 0],
+        color: [0.3, 1, 0.3],
+        parentTransformId: sceneTransform.id
+      },
+      {
+        id: `${uuid3}-blueLeg-mesh`,
+        geometryId: `${uuid3}-geometry`,
+        position: [4, 4, -6],
+        scale: [1, 1, 3],
+        rotation: [0, 0, 0],
+        color: [0.3, 0.3, 1],
+        parentTransformId: sceneTransform.id
+      },
+      {
+        id: `${uuid3}-yellowLeg-mesh`,
+        geometryId: `${uuid3}-geometry`,
+        position: [-4, 4, -6],
+        scale: [1, 1, 3],
+        rotation: [0, 0, 0],
+        color: [1, 1, 0],
+        parentTransformId: sceneTransform.id
+      },
+      {
+        id: `${uuid3}-tableTop-mesh`,
+        geometryId: `${uuid3}-geometry`,
+        position: [0, 0, -3],
+        scale: [6, 6, 0.5],
+        rotation: [0, 0, 0],
+        color: [1, 0.3, 1],
+        parentTransformId: sceneTransform.id
+      }
+    ],
+    objects: [
+      {
+        id: `${uuid3}-redLeg`,
+        meshIds: [`${uuid3}-redLeg-mesh`]
+      },
+      {
+        id: `${uuid3}-greenLeg`,
+        meshIds: [`${uuid3}-greenLeg-mesh`]
+      },
+      {
+        id: `${uuid3}-blueLeg`,
+        meshIds: [`${uuid3}-blueLeg-mesh`]
+      },
+      {
+        id: `${uuid3}-yellowLeg`,
+        meshIds: [`${uuid3}-yellowLeg-mesh`]
+      },
+      {
+        id: `${uuid3}-purpleTableTop`,
+        meshIds: [`${uuid3}-tableTop-mesh`]
+      }
+    ]
+  });
+  if (fromParamsResult.ok === false) {
+    return {
+      ok: false,
+      type: 2 /* InvalidInput */,
+      error: `[buildDemoModelTable] Failed to build model from params: ${fromParamsResult.error}`
+    };
+  }
+  return {
+    ok: true,
+    value: void 0
+  };
+}
 export {
   bcf_exports as bcf,
   cameracontrol_exports as cameracontrol,

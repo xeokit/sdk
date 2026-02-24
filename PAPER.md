@@ -1,6 +1,7 @@
-# xeokit V3 Features Overview
+# xeokit V2 -> V3 Features Overview
 
-Features overview
+* Features overview
+* All features are driven by use real cases defined by users of xeokit 2
 
 ## RTC coordinate system
 
@@ -58,6 +59,13 @@ Features overview
 * The important design principle is that we preserve the source data. As long as we have metadata (explicit or inferred)
   describing the coordinate system a model was authored in, xeokit can reconcile multiple coordinate systems
   transparently and render them together in a single, coherent scene.
+
+## Dynamically Editable Scene Models
+
+* In xeokit V3, the scene is designed to be fully dynamic and editable at runtime. You can create, modify, and delete
+  objects, meshes, geometries, materials, and transforms on the fly. As we do this, the viewer automatically reacts to
+ these changes and updates the rendered view accordingly. In conjunction to pre-allocated data textures, this allows for
+ streaming since the allocation overhead is minimized.
 
 ## Handle Error Conditions Explicitly Using Monads
 

@@ -3,6 +3,7 @@
         {
             "filePath": "model.bim",
             "fileFormat": "DotBIM",
+            "fileFormatVersion": null,
             "fileDataType": "json",
             "options": {
                 "coordinateSystem": {
@@ -11,11 +12,11 @@
                         0,
                         0,
                         0,
+                        0,
                         1,
                         0,
-                        0,
-                        0,
-                        1
+                        1,
+                        0
                     ],
                     "origin": [
                         0,

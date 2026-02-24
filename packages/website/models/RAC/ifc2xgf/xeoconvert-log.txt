@@ -1,0 +1,11 @@
+[xeoconvert] Running conversion pipeline 'ifc2xgf'
+[xeoconvert] Reading inputs
+[xeoconvert] Reading input --ifc ./models/RAC/ifc/model.ifc
+[xeoconvert] Converting
+[xeoconvert] Conversion complete
+[xeoconvert] Writing outputs
+[xeoconvert] Writing output --xgf ./models/RAC/ifc2xgf/sceneModel.xgf
+[xeoconvert] Writing output --datamodel ./models/RAC/ifc2xgf/dataModel.json
+[xeoconvert] Reporter 'stats-report' writing report to ./models/RAC/ifc2xgf/xeoconvert-stats-report.json
+[xeoconvert] Reporter 'manifest-report' writing report to ./models/RAC/ifc2xgf/xeoconvert-manifest-report.json
+[xeoconvert] Done.

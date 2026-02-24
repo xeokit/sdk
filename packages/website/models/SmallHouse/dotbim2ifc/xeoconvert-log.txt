@@ -1,0 +1,4 @@
+[xeoconvert] Running conversion pipeline 'dotbim2ifc'
+[xeoconvert] Reading inputs
+[xeoconvert] Reading input --dotbim ./models/SmallHouse/dotbim/model.bim
+[xeoconvert] Converting

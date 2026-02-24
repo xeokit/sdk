@@ -3,6 +3,7 @@
         {
             "filePath": "model.ifc",
             "fileFormat": "IFC",
+            "fileFormatVersion": null,
             "fileDataType": "arraybuffer",
             "options": {
                 "coordinateSystem": {
@@ -11,11 +12,11 @@
                         0,
                         0,
                         0,
+                        0,
                         1,
                         0,
-                        0,
-                        0,
-                        1
+                        1,
+                        0
                     ],
                     "origin": [
                         0,

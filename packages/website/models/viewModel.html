@@ -13,7 +13,6 @@
 <script type="module">
 
   import * as xeokit from "../js/xeokit-demo-bundle.js";
-  import {DemoHelper} from "../js/DemoHelper.js";
 
   const reqParams = getRequestParams();
   const modelId = reqParams.modelId;
@@ -34,21 +33,21 @@
 
   const formatLoaders = {};
 
-  const demoHelper = new DemoHelper();
+  let demoHelper = new xeokit.demo.DemoHelper();
 
   demoHelper
     .init({
       logging: false
     })
-    .then(({
-             viewer,
-             view,
-             scene,
-             data,
-             renderer
-           }) => {
+    .then(() => {
 
-      const cameraFlight = new xeokit.cameraflight.CameraFlightAnimation(view);
+      const {
+        viewer,
+        view,
+        scene,
+        data,
+        renderer
+      } = demoHelper;
 
       fetch(`${baseDir}/xeoconvert-manifest-report.json`).then(response => {
         response.json()
@@ -134,9 +133,8 @@
 
               await Promise.all(fetchEntries);
 
-              // cameraFlight.jumpTo({
-              //   aabb: scene.aabb
-              // });
+
+              demoHelper.viewFit();
 
               demoHelper.finished();
             }

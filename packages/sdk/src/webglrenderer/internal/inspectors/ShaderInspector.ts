@@ -8,22 +8,22 @@ export interface ShaderSource {
   /**
    * The original shader source code, with comments removed.
    */
-  vertexSrc: string;
+  vertexShaderSrc: string;
 
   /**
    * The original shader source code, with comments included. This may be more readable for debugging purposes, but may not be valid GLSL source that can be compiled by WebGL.
    */
-  vertexCommentedSrc: string;
+  vertexShaderCommentedSrc: string;
 
   /**
    * The original shader source code, with comments removed.
    */
-  fragmentSrc: string;
+  fragmentShaderSrc: string;
 
   /**
    * The original shader source code, with comments included. This may be more readable for debugging purposes, but may not be valid GLSL source that can be compiled by WebGL.
    */
-  fragmentCommentedSrc: string;
+  fragmentShaderCommentedSrc: string;
 }
 
 /**
@@ -54,20 +54,20 @@ export class ShaderInspector {
       opaque: ShaderSource,
       transparent: ShaderSource,
       // selected: {
-      //   vertexSrc: string,
-      //   fragmentSrc: string
+      //   vertexShaderSrc: string,
+      //   fragmentShaderSrc: string
       // },
       // highlighted: {
-      //   vertexSrc: string,
-      //   fragmentSrc: string
+      //   vertexShaderSrc: string,
+      //   fragmentShaderSrc: string
       // },
       // xrayed: {
-      //   vertexSrc: string,
-      //   fragmentSrc: string
+      //   vertexShaderSrc: string,
+      //   fragmentShaderSrc: string
       // },
       // pick: {
-      //   vertexSrc: string,
-      //   fragmentSrc: string
+      //   vertexShaderSrc: string,
+      //   fragmentShaderSrc: string
       // }
     }
   };
@@ -75,10 +75,10 @@ export class ShaderInspector {
   constructor(drawOps: DrawOps) {
 
     const getShaderSource = (tech: DrawTechnique): ShaderSource => ({
-      vertexSrc: tech.vertexShaderSrc,
-      vertexCommentedSrc: tech.vertexShaderCommentedSrc,
-      fragmentSrc: tech.fragmentShaderSrc,
-      fragmentCommentedSrc: tech.fragmentShaderCommentedSrc
+      vertexShaderSrc: tech.vertexShaderSrc,
+      vertexShaderCommentedSrc: tech.vertexShaderCommentedSrc,
+      fragmentShaderSrc: tech.fragmentShaderSrc,
+      fragmentShaderCommentedSrc: tech.fragmentShaderCommentedSrc
     });
 
     this.techniques = {
@@ -104,20 +104,20 @@ export class ShaderInspector {
         opaque: getShaderSource(drawOps.prims[PointsPrimitive].opaque.technique),
         transparent: getShaderSource(drawOps.prims[PointsPrimitive].transparent.technique),
         // highlighted: {
-        //   vertexSrc: drawOps.prims[PointsPrimitive].highlighted.technique.vertexShaderCommentedSrc,
-        //   fragmentSrc: drawOps.prims[PointsPrimitive].highlighted.technique.fragmentShaderCommentedSrc
+        //   vertexShaderSrc: drawOps.prims[PointsPrimitive].highlighted.technique.vertexShaderCommentedSrc,
+        //   fragmentShaderSrc: drawOps.prims[PointsPrimitive].highlighted.technique.fragmentShaderCommentedSrc
         // },
       //  selected: {
-        //   vertexSrc: drawOps.prims[PointsPrimitive].selected.technique.vertexShaderCommentedSrc,
-        //   fragmentSrc: drawOps.prims[PointsPrimitive].selected.technique.fragmentShaderCommentedSrc
+        //   vertexShaderSrc: drawOps.prims[PointsPrimitive].selected.technique.vertexShaderCommentedSrc,
+        //   fragmentShaderSrc: drawOps.prims[PointsPrimitive].selected.technique.fragmentShaderCommentedSrc
         // },
         // xrayed: {
-        //   vertexSrc: drawOps.prims[PointsPrimitive].xrayed.technique.vertexShaderCommentedSrc,
-        //   fragmentSrc: drawOps.prims[PointsPrimitive].xrayed.technique.fragmentShaderCommentedSrc
+        //   vertexShaderSrc: drawOps.prims[PointsPrimitive].xrayed.technique.vertexShaderCommentedSrc,
+        //   fragmentShaderSrc: drawOps.prims[PointsPrimitive].xrayed.technique.fragmentShaderCommentedSrc
         // },
         // pick: {
-        //   vertexSrc: drawOps.prims[PointsPrimitive].pick.technique.vertexShaderCommentedSrc,
-        //   fragmentSrc: drawOps.prims[PointsPrimitive].pick.technique.fragmentShaderCommentedSrc
+        //   vertexShaderSrc: drawOps.prims[PointsPrimitive].pick.technique.vertexShaderCommentedSrc,
+        //   fragmentShaderSrc: drawOps.prims[PointsPrimitive].pick.technique.fragmentShaderCommentedSrc
         // }
       }
     };

@@ -172,9 +172,9 @@ export class WebGLRenderer {
         tileSize: 200,
         maxTiles: 1000,
         maxBatches: 300,
-        maxBatchVertices: 200000,
+        maxBatchVertices: 20000,
         maxBatchIndices: 60000,
-        maxBatchGeometries: 1000,
+        maxBatchGeometries: 10000,
         maxBatchMeshes: 10000,
         maxBatchPrims: 40000
       };

@@ -251,7 +251,7 @@
  *   - Example:
  *     ```ts
  *     const shaderInspector = webglRenderer.getShaderInspector();
- *     const src = shaderInspector.techniques.triangles.opaque.vertexSrc;
+ *     const src = shaderInspector.techniques.triangles.opaque.vertexShaderSrc;
  *     console.log("Opaque triangles vertex shader:", src);
  *     ```
  *   - See {@link inspectors/ShaderInspector} for details.

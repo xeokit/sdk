@@ -1,0 +1,105 @@
+{
+  "stats": {
+    "startTime": 261.5,
+    "endTime": 398.10000002384186,
+    "elapsedTime": 136.60000002384186,
+    "aabb": [
+      -26253.59176960545,
+      -29993.59176960545,
+      -21016.95504009293,
+      26896.465574290574,
+      29987.183539210906,
+      28117.183539210906
+    ],
+    "scene": {
+      "numTransforms": 0,
+      "numObjects": 35,
+      "numMeshes": 35,
+      "numGeometries": 35,
+      "numTextures": 0,
+      "numTextureSets": 0,
+      "numTriangles": 1098,
+      "numLines": 0,
+      "numPoints": 0,
+      "numVertices": 3294,
+      "textureBytes": 0
+    },
+    "data": {
+      "numObjects": 35,
+      "numRelationships": 0,
+      "numPropertySets": 0
+    },
+    "memory": {
+      "allocatedMB": 10.149002075195312,
+      "usedMB": 0.050785064697265625
+    },
+    "renderer": {
+      "views": [
+        {
+          "viewId": "mainView",
+          "canvasSize": [
+            0,
+            0
+          ],
+          "renderBins": [
+            {
+              "name": "edgesColorTransparent",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "TRANSPARENT",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 1098
+                  },
+                  "timeMs": {
+                    "start": 409.89999997615814,
+                    "end": 409.89999997615814,
+                    "duration": 0
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 409.7000000476837,
+                "end": 409.89999997615814,
+                "duration": 0.19999992847442627
+              }
+            },
+            {
+              "name": "normalFillTransparent",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "TRANSPARENT",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 1098
+                  },
+                  "timeMs": {
+                    "start": 409.89999997615814,
+                    "end": 409.89999997615814,
+                    "duration": 0
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 409.89999997615814,
+                "end": 409.89999997615814,
+                "duration": 0
+              }
+            }
+          ],
+          "timeMs": {
+            "start": 409.60000002384186,
+            "end": 409.89999997615814,
+            "duration": 0.2999999523162842
+          },
+          "numDrawCalls": 2,
+          "numPrims": 2196
+        }
+      ]
+    }
+  }
+}

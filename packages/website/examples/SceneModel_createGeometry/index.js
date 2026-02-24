@@ -1,7 +1,7 @@
 // Import the SDK from a bundle built for these examples.
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
-// Create a helper that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
+// Create a inspectors that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
 
 const demoHelper = new xeokit.demo.DemoHelper({});
 
@@ -73,7 +73,7 @@ demoHelper
       throw new Error(pyramidGeomRes.error);
     }
 
-    // NEW: Cylinder geometry (simple round column, aligned to +Z)
+    // Cylinder geometry (simple round column, aligned to +Z)
     // - Uses a triangle fan for top/bottom caps and triangles for the side.
     const createCylinderGeometry = ({
                                       id,
@@ -226,12 +226,8 @@ demoHelper
       color: [0.3, 0.9, 0.5]
     });
 
-    // Enable orbit controls.
-    new xeokit.cameracontrol.CameraControl(view);
+    //demoHelper.viewFit();
 
     // Signal that the demo is ready.
     demoHelper.finished();
-
-    // Expose viewer for debugging.
-    window.viewer = viewer;
   });

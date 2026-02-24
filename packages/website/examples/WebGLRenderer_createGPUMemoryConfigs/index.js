@@ -1,7 +1,6 @@
 // Import the pre-built demo bundle
 
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
-import {DemoHelper} from "../../js/DemoHelper.js";
 
 // Create a Scene to hold geometry and materials
 
@@ -35,7 +34,7 @@ renderer.attachViewer(viewer);
 
 const data = new xeokit.data.Data();
 
-const demoHelper = new DemoHelper({
+const demoHelper = new xeokit.demo.DemoHelper({
   makeComponents: false // Don't use boilerplate demo xeokit components
 });
 

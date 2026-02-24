@@ -1,4 +1,20 @@
 {
+  "Builder_build_test1": {
+    "id": "Builder_build_test1",
+    "title": "Creating a Cube",
+    "description": "This example demonstrates how to use the xeokit SDK to create and display a 3D box in the browser.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "SDK"
+    ],
+    "categories": [
+      "Modeling",
+      "Scene"
+    ],
+    "topic": "modeling.scene.geometry",
+    "template": "basicPage"
+  },
   "CityJSONLoader_Railway": {
     "id": "CityJSONLoader_Railway",
     "title": "Viewing CityJSON using CityJSONLoader",
@@ -31,6 +47,23 @@
       "DotBIM"
     ],
     "topic": "import.dotbim",
+    "template": "basicPage"
+  },
+  "GLTFLoader_2CylinderEngine": {
+    "id": "GLTFLoader_2CylinderEngine",
+    "title": "Viewing glTF using GLTFLoader",
+    "description": "How to load an IFC model from glTF (.glb) format directly into a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "glTF",
+      "_Featured"
+    ],
+    "categories": [
+      "Importing",
+      "glTF"
+    ],
+    "topic": "import.gltf",
     "template": "basicPage"
   },
   "GLTFLoader_MAP": {
@@ -88,6 +121,23 @@
     "topic": "import.ifc",
     "template": "basicPage"
   },
+  "LASLoader_Pumpkin": {
+    "id": "LASLoader_Pumpkin",
+    "title": "Viewing a LAZ-encoded LiDAR scan using LASLoader",
+    "description": "How to load a LiDAR scan from LAS (.laz) format directly into a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "LAS",
+      "_Featured"
+    ],
+    "categories": [
+      "Importing",
+      "LAS"
+    ],
+    "topic": "import.las",
+    "template": "basicPage"
+  },
   "ModelConverter_dotbim2json": {
     "id": "ModelConverter_dotbim2json",
     "title": "Viewing .BIM using ModelConverter and IFCLoader",
@@ -120,6 +170,22 @@
       "DotBIM"
     ],
     "topic": "import.dotbim",
+    "template": "basicPage"
+  },
+  "SceneModel_DataModel_build_office": {
+    "id": "SceneModel_DataModel_build_office",
+    "title": "Creating a 3D Model with Semantic Data",
+    "description": "In this example, we'll use the xeokit SDK to create a 3D model with semantic data attached.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "_Featured"
+    ],
+    "categories": [
+      "Modeling",
+      "Data"
+    ],
+    "topic": "modeling.data",
     "template": "basicPage"
   },
   "SceneModel_DataModel_build_table": {
@@ -173,7 +239,7 @@
     "title": "Creating a Cube",
     "description": "This example demonstrates how to use the xeokit SDK to create and display a 3D box in the browser.",
     "isTutorial": true,
-    "isVisualTest": true,
+    "isVisualTest": false,
     "tags": [
       "SDK"
     ],
@@ -184,8 +250,8 @@
     "topic": "modeling.scene.geometry",
     "template": "basicPage"
   },
-  "SceneModel_build_thing": {
-    "id": "SceneModel_build_thing",
+  "SceneModel_build_tables": {
+    "id": "SceneModel_build_tables",
     "title": "Creating a Cube",
     "description": "This example demonstrates how to use the xeokit SDK to create and display a 3D box in the browser.",
     "isTutorial": true,
@@ -205,8 +271,24 @@
     "title": "Creating a 3D Triangle",
     "description": "Using xeokit SDK to create and view a single 3D triangle in the browser.",
     "isTutorial": true,
-    "isVisualTest": true,
+    "isVisualTest": false,
     "tags": [],
+    "categories": [
+      "Modeling",
+      "Scene"
+    ],
+    "topic": "modeling.scene.geometry",
+    "template": "basicPage"
+  },
+  "SceneModel_createGeometry": {
+    "id": "SceneModel_createGeometry",
+    "title": "Creating Geometry in a Scene",
+    "description": "This example demonstrates how to use the xeokit SDK to create and display various geometries.",
+    "isTutorial": false,
+    "isVisualTest": true,
+    "tags": [
+      "SDK"
+    ],
     "categories": [
       "Modeling",
       "Scene"
@@ -226,6 +308,22 @@
       "Scene"
     ],
     "topic": "modeling.scene.geometry",
+    "template": "basicPage"
+  },
+  "SceneModel_fromParams_staircase": {
+    "id": "SceneModel_fromParams_staircase",
+    "title": "Creating a 3D Model from JSON",
+    "description": "In this example, we'll use the xeokit SDK to build and view a table-shaped SceneModel, from JSON",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "_Featured"
+    ],
+    "categories": [
+      "Modeling",
+      "Scene"
+    ],
+    "topic": "modeling.scene.object",
     "template": "basicPage"
   },
   "SceneModel_fromParams_table": {
@@ -275,20 +373,71 @@
     "topic": "modeling.scene.object",
     "template": "basicPage"
   },
-  "SceneModel_test1": {
-    "id": "SceneModel_test1",
-    "title": "Creating a Cube",
-    "description": "This example demonstrates how to use the xeokit SDK to create and display a 3D box in the browser.",
+  "SceneTransform_AnimatedHistogram": {
+    "id": "SceneTransform_AnimatedHistogram",
+    "title": "Creating a 3D Model with Dynamic Transforms",
+    "description": "In this example, we'll use the xeokit SDK to create a 3D model with a transform hierarchy.",
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [
-      "SDK"
+      "_Featured"
     ],
     "categories": [
       "Modeling",
-      "Scene"
+      "Data"
     ],
-    "topic": "modeling.scene.geometry",
+    "topic": "modeling.data",
+    "template": "basicPage"
+  },
+  "SceneTransform_AnimatedSlidingPluzzle": {
+    "id": "SceneTransform_AnimatedSlidingPluzzle",
+    "title": "Creating a 3D Model with Dynamic Transforms",
+    "description": "In this example, we'll use the xeokit SDK to create a 3D model with a transform hierarchy.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "_Featured"
+    ],
+    "categories": [
+      "Modeling",
+      "Data"
+    ],
+    "topic": "modeling.data",
+    "template": "basicPage"
+  },
+  "SceneTransform_SeparateBuildingStoreys": {
+    "id": "SceneTransform_SeparateBuildingStoreys",
+    "title": "Viewing IFC using IFCLoader",
+    "description": "How to use IFCLoader to view an IFC model in the browser with a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "IFC",
+      "XGF",
+      "webifc2xgf",
+      "_Featured"
+    ],
+    "categories": [
+      "Importing",
+      "IFC"
+    ],
+    "topic": "import.ifc",
+    "template": "basicPage"
+  },
+  "SceneTransform_build_table": {
+    "id": "SceneTransform_build_table",
+    "title": "Creating a 3D Model with Dynamic Transforms",
+    "description": "In this example, we'll use the xeokit SDK to create a 3D model with a transform hierarchy.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "_Featured"
+    ],
+    "categories": [
+      "Modeling",
+      "Data"
+    ],
+    "topic": "modeling.data",
     "template": "basicPage"
   },
   "ViewLayer_auto": {
@@ -359,6 +508,58 @@
       "DotBIM"
     ],
     "topic": "renderer.configs",
+    "template": "basicPage"
+  },
+  "WebGLRenderer_picking_table": {
+    "id": "WebGLRenderer_picking_table",
+    "title": "Picking objects in a simple table-shaped SceneModel",
+    "description": "In this example, we'll use the xeokit SDK to build and view a table-shaped SceneModel, from JSON, and then we'll use the WebGLRenderer's picking API to pick objects in the SceneModel.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "_Featured"
+    ],
+    "categories": [
+      "Picking",
+      "Scene"
+    ],
+    "topic": "interaction.picking",
+    "template": "basicPage"
+  },
+  "XGFLoader_MAP": {
+    "id": "XGFLoader_MAP",
+    "title": "Viewing XGF using XGFLoader",
+    "description": "How to load an IFC model from XGF format directly into a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "XGF",
+      "_Featured"
+    ],
+    "categories": [
+      "Importing",
+      "XGF"
+    ],
+    "topic": "import.xgf",
+    "template": "basicPage"
+  },
+  "ifc2gltf2xgf_Karhumaki": {
+    "id": "ifc2gltf2xgf_Karhumaki",
+    "title": "Importing IFC Converted by ifc2gltf2xgf",
+    "description": "In this example, we'll use the xeokit SDK to view a glTF model in the browser.",
+    "isTutorial": false,
+    "isVisualTest": true,
+    "tags": [
+      "IFC",
+      "XGF",
+      "ifc2gltf2xgf",
+      "_Featured"
+    ],
+    "categories": [
+      "Importing",
+      "IFC"
+    ],
+    "topic": "import.ifc",
     "template": "basicPage"
   }
 }

@@ -2,7 +2,7 @@
 
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
-// Create a helper that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
+// Create a inspectors that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
 
 const demoHelper = new xeokit.demo.DemoHelper({});
 
@@ -100,20 +100,34 @@ demoHelper.init().then(() => {
     ]
   });
 
+  const transformResult = sceneModel.createTransform({
+    id: "yellowLegTransform",
+    //    parentId: "rootTransform",
+    matrix: xeokit.scene.buildMat4({
+      position: [0,0,0],
+      rotation: [0, 0, 0],
+      scale: [1, 1, 1],
+   }),
+  });
+
+
+
   // Create a red SceneMesh that instances our SceneGeometry
 
-  sceneModel.createMesh({
+  const mesh =sceneModel.createMesh({
     id: "boxMesh",
     geometryId: "boxGeometry",
-    matrix: xeokit.scene.buildMat4({
-      position: [0, 0, 0], // Default
-      scale: [1, 1, 1], // Default
-      rotation: [20, .1, 0], // Default
-    }),
+    parentTransformId: "yellowLegTransform",
+    // matrix: xeokit.scene.buildMat4({
+    //   position: [0, 0, 0], // Default
+    //   scale: [1, 1, 1], // Default
+    //   rotation: [20, .1, 0], // Default
+    // }),
 
 
     color: [1.0, 0.0, 0.5] // Default is [1,1,1]
-  });
+  }).result;
+
 
   // Create a SceneObject that aggregates our SceneMesh
 
@@ -122,14 +136,17 @@ demoHelper.init().then(() => {
     meshIds: ["boxMesh"]
   });
 
+
+  transformResult.value.rotation = [0, 0, 0];
+
   demoHelper.finished();
 
-  // let y = 0;
-  // setInterval(() => {
-  //    view.camera.orbitYaw(.2);
-  //    view.camera.orbitPitch(.2);
-  // }, 20);
-  //
+  let y = 0;
+  setInterval(() => {
+     view.camera.orbitYaw(1);
+   //  view.camera.orbitPitch(.2);
+  }, 20);
+
 });
 
 

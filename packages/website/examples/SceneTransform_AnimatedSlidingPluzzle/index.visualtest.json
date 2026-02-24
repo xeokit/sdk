@@ -1,0 +1,94 @@
+{
+  "stats": {
+    "startTime": 300.2999999523163,
+    "endTime": 326.7000000476837,
+    "elapsedTime": 26.40000009536743,
+    "aabb": [
+      99995.6,
+      -0.8,
+      -4.4,
+      100004.39963378347,
+      0.7997558556496529,
+      4.39963378347448
+    ],
+    "scene": {
+      "numTransforms": 0,
+      "numObjects": 8,
+      "numMeshes": 8,
+      "numGeometries": 1,
+      "numTextures": 0,
+      "numTextureSets": 0,
+      "numTriangles": 12,
+      "numLines": 0,
+      "numPoints": 0,
+      "numVertices": 24,
+      "textureBytes": 0
+    },
+    "data": {
+      "numObjects": 0,
+      "numRelationships": 0,
+      "numPropertySets": 0
+    },
+    "memory": {
+      "allocatedMB": 3.77655029296875,
+      "usedMB": 0.0022430419921875
+    },
+    "renderer": {
+      "tiles": {
+        "100000-0-0": {
+          "id": "100000-0-0",
+          "rtcCenter": [
+            100000,
+            0,
+            0
+          ],
+          "size": 200,
+          "tileIndex": 0,
+          "numMeshes": 8
+        }
+      },
+      "views": [
+        {
+          "viewId": "mainView",
+          "canvasSize": [
+            0,
+            0
+          ],
+          "renderBins": [
+            {
+              "name": "opaque",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 96
+                  },
+                  "timeMs": {
+                    "start": 1326.7000000476837,
+                    "end": 1326.7000000476837,
+                    "duration": 0
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 1326.7000000476837,
+                "end": 1326.7000000476837,
+                "duration": 0
+              }
+            }
+          ],
+          "timeMs": {
+            "start": 1326.5999999046326,
+            "end": 1326.7000000476837,
+            "duration": 0.10000014305114746
+          },
+          "numDrawCalls": 1,
+          "numPrims": 96
+        }
+      ]
+    }
+  }
+}

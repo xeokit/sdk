@@ -2,7 +2,7 @@
 
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
-// Create a helper that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
+// Create a inspectors that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
 
 const demoHelper = new xeokit.demo.DemoHelper({});
 

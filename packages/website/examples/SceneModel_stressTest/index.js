@@ -2,7 +2,7 @@
 
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
-// Create a helper that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
+// Create a inspectors that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
 
 const demoHelper = new xeokit.demo.DemoHelper({});
 
@@ -14,7 +14,7 @@ demoHelper
 
     // Position the View's Camera.
 
-    const OFFSET = 150;
+    const OFFSET = 250;
 
     view.camera.eye = [OFFSET, -450, 300];
     view.camera.look = [OFFSET, 0, 0];
@@ -105,7 +105,7 @@ demoHelper
 
       dequeue.push(objectRes.value);
 
-      if (dequeue.length > 1000) {
+      if (dequeue.length > 5000) {
         const oldObject = dequeue.shift();
         oldObject.destroy();
         oldObject.meshes.forEach((mesh) => {

@@ -16,7 +16,7 @@ const viewer = new xeokit.viewer.Viewer({
 
 const result = viewer.attachScene(scene);
 if (!result.ok) {
-  throw new Error("Unable to attach Scene to Viewer: " + result.error);
+  throw new Error("Unable to show Scene to Viewer: " + result.error);
 }
 
 // Create a WebGLRenderer to use the browser's WebGL API for 3D graphics
@@ -27,7 +27,7 @@ const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 
 const attachResult = renderer.attachViewer(viewer);
 if (!attachResult.ok) {
-  throw new Error("Unable to attach WebGLRenderer to Viewer: " + attachResult.error);
+  throw new Error("Unable to show WebGLRenderer to Viewer: " + attachResult.error);
 }
 
 // Log any errors to the console.

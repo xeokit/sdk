@@ -29,7 +29,17 @@ demoHelper.init().then(() => {
 // Create a SceneModel to hold our model's geometry and materials
 
   const sceneModelRes = scene.createModel({
-    id: "demoModel"
+    id: "demoModel",
+    coordinateSystem: {
+      basis: [
+        1,0,0,
+        0,1,0,
+        0,0,1
+      ],
+      origin: [0,0,0],
+      units: "meters",
+      scaleToMeters: 1
+    }
   });
 
   if (sceneModelRes.ok === false) {
@@ -44,7 +54,6 @@ demoHelper.init().then(() => {
     id: "demoModel"
   });
 
-
   if (dataModelRes.ok === false) {
     console.error(`Error creating DataModel: ${dataModelRes.error}`);
 
@@ -56,6 +65,7 @@ demoHelper.init().then(() => {
 
     fetch("../../models/BlenderHouse/dotbim/model.bim")
       .then(response => {
+
 
         response
           .json()
@@ -69,7 +79,7 @@ demoHelper.init().then(() => {
 
               // The Scene and SceneModel will now contain a SceneObject for each displayable object in our model.
               // The Data and DataModel will contain a DataObject for each IFC element in the model. Each SceneObject
-              // will have a corresponding DataObject with the same ID, to attach semantic meaning.
+              // will have a corresponding DataObject with the same ID, to show semantic meaning.
               // The View will contain a ViewObject corresponding to each SceneObject, through which the
               // appearance of the object can be controlled in the View.
 

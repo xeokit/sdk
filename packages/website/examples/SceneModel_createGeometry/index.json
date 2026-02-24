@@ -1,0 +1,16 @@
+{
+  "id": "SceneModel_createGeometry",
+  "title": "Creating Geometry in a Scene",
+  "description": "This example demonstrates how to use the xeokit SDK to create and display various geometries.",
+  "isTutorial": false,
+  "isVisualTest": true,
+  "tags": [
+    "SDK"
+  ],
+  "categories": [
+    "Modeling",
+    "Scene"
+  ],
+  "topic": "modeling.scene.geometry",
+  "template": "basicPage"
+}

@@ -2,7 +2,7 @@
 
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
-// Create a helper that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
+// Create a inspectors that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
 
 const demoHelper = new xeokit.demo.DemoHelper({});
 
@@ -19,10 +19,6 @@ demoHelper
     view.camera.eye = [-10, 20, 10];
     view.camera.look = [0, 0, 0];
     view.camera.up = [0, 0, 1];
-
-    // Attach a CameraControl to the View
-
-    new xeokit.cameracontrol.CameraControl(view);
 
     // Create a SceneModel to hold model geometry and materials
 
@@ -61,6 +57,8 @@ demoHelper
           }).then(() => {
 
             // All done, model loaded.
+
+            demoHelper.viewFit();
 
             demoHelper.finished();
           });

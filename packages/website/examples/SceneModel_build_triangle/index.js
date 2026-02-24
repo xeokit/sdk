@@ -98,6 +98,6 @@ setTimeout(() => {
   const shaderViewResult = renderer.getShaderView();
   if (!shaderViewResult.ok) return;
   const shaderView = shaderViewResult.value;
-  // new xeokit.webglrenderer.internal.ShaderDebugger(shaderView, document.getElementById("data-textures-debugger"));
+  // new xeokit.webglrenderer.internal.ShaderInspector(shaderView, document.getElementById("data-textures-debugger"));
   // new xeokit.webglrenderer.internal.MemoryDebugger(renderer, document.getElementById("data-textures-debugger"));
 }, 2000);

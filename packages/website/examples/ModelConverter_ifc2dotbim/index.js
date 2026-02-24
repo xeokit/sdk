@@ -2,9 +2,7 @@
 
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
-// Create a helper that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
-
-import {ModelConverterStatsReportHTMLView} from "../../js/ModelConverterStatsReportHTMLView.js";
+// Create a inspectors that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
 
 const demoHelper = new xeokit.demo.DemoHelper({});
 
@@ -41,9 +39,9 @@ demoHelper.init().then(() => {
 
   // Position the Camera in the scene with eye, look, and up vectors
 
-  view.camera.eye = [-6.01, 4.85, 9.11];
-  view.camera.look = [3.93, -2.65, -12.51];
-  view.camera.up = [0.12, 0.95, -0.27];
+  view.camera.eye = [0,10,0];
+  view.camera.look = [0, 0, 0];
+  view.camera.up = [0,0,1];
 
   // Create a SceneModel to store the geometry and material data for the model
 
@@ -102,17 +100,17 @@ demoHelper.init().then(() => {
 
               // The Scene and SceneModel will then contain a SceneObject for each displayable object in our model.
               // The Data and DataModel will contain a DataObject for each IFC element in the model. Each SceneObject
-              // will have a corresponding DataObject with the same ID, to attach semantic meaning.
+              // will have a corresponding DataObject with the same ID, to show semantic meaning.
               // The View will contain a ViewObject corresponding to each SceneObject, through which the
               // appearance of the object can be controlled in the View.
 
-              const modelConverterStatsReport = xeokit.modelconverter.reporters.stats.createStatsReport(result);
+              // const modelConverterStatsReport = xeokit.modelconverter.reporters.stats.createStatsReport(result);
+              //
+              // demoHelper.showModelConverterStatsReport(modelConverterStatsReport);
 
-              ModelConverterStatsReportHTMLView.show(modelConverterStatsReport, {
-                corner: "top-right", // "top-left" | "bottom-right" | "bottom-left"
-                maxWidth: 520,
-                zIndex: 2147483647,
-              });
+              demoHelper.viewFit();
+
+              demoHelper.showAllStats();
 
               demoHelper.finished();
 

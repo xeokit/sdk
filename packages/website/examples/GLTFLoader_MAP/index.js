@@ -17,7 +17,16 @@ demoHelper.init().then(() => {
   // Create a SceneModel to hold our model's geometry and materials
 
   const sceneModelResult = scene.createModel({
-    id: "demoModel"
+    id: "demoModel",
+    coordinateSystem: { // Model's local Y-up coordinate system
+      basis: [
+        1, 0, 0, // Right +X
+        0, 1, 0, // Up +Y
+        0, 0, -1  // Forward -Z
+      ],
+      origin: [0, 0, 0],
+      units: "meters"
+    }
   });
 
   if (!sceneModelResult.ok) {
@@ -55,13 +64,13 @@ demoHelper.init().then(() => {
 
           // The Scene and SceneModel will now contain a SceneObject for each displayable object in our model.
           // The Data and DataModel will contain a DataObject for each IFC element in the model. Each SceneObject
-          // will have a corresponding DataObject with the same ID, to attach semantic meaning.
+          // will have a corresponding DataObject with the same ID, to show semantic meaning.
           // The View will contain a ViewObject corresponding to each SceneObject, through which the
           // appearance of the object can be controlled in the View.
 
           demoHelper.viewFit();
 
-          demoHelper.orbit();
+       //   demoHelper.orbit();
 
           demoHelper.finished();
 

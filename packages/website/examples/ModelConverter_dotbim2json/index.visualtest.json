@@ -1,0 +1,118 @@
+{
+  "stats": {
+    "startTime": 276.89999985694885,
+    "endTime": 408.89999985694885,
+    "elapsedTime": 132,
+    "aabb": [
+      -1.5,
+      -0.010000228881835938,
+      0,
+      7.038919623114383,
+      10.199565880757188,
+      9.358618142903692
+    ],
+    "scene": {
+      "numTransforms": 0,
+      "numObjects": 73,
+      "numMeshes": 73,
+      "numGeometries": 73,
+      "numTextures": 0,
+      "numTextureSets": 0,
+      "numTriangles": 13088,
+      "numLines": 0,
+      "numPoints": 0,
+      "numVertices": 7150,
+      "textureBytes": 0
+    },
+    "data": {
+      "numObjects": 73,
+      "numRelationships": 0,
+      "numPropertySets": 0
+    },
+    "memory": {
+      "allocatedMB": 3.77655029296875,
+      "usedMB": 0.3893928527832031
+    },
+    "renderer": {
+      "tiles": {
+        "0-0-0": {
+          "id": "0-0-0",
+          "rtcCenter": [
+            0,
+            0,
+            0
+          ],
+          "size": 200,
+          "tileIndex": 0,
+          "numMeshes": 73
+        }
+      },
+      "views": [
+        {
+          "viewId": "mainView",
+          "canvasSize": [
+            0,
+            0
+          ],
+          "renderBins": [
+            {
+              "name": "opaque",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 11900
+                  },
+                  "timeMs": {
+                    "start": 533.3999998569489,
+                    "end": 533.3999998569489,
+                    "duration": 0
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 533.2999999523163,
+                "end": 533.3999998569489,
+                "duration": 0.09999990463256836
+              }
+            },
+            {
+              "name": "normalFillTransparent",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "TRANSPARENT",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 11900,
+                    "numPrims": 1188
+                  },
+                  "timeMs": {
+                    "start": 533.5,
+                    "end": 533.5,
+                    "duration": 0
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 533.5,
+                "end": 533.5,
+                "duration": 0
+              }
+            }
+          ],
+          "timeMs": {
+            "start": 533.2999999523163,
+            "end": 533.5,
+            "duration": 0.20000004768371582
+          },
+          "numDrawCalls": 2,
+          "numPrims": 13088
+        }
+      ]
+    }
+  }
+}

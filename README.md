@@ -10,14 +10,16 @@ Built with **TypeScript**, xeokit is designed for **extreme performance**: it st
 
 ## Key Features
 
-* **Lightning‑fast rendering** of massive AECO models
+* **Lightning‑fast rendering** of massive AECO models using innovative 
 * **Browser & Node.js support** for viewing, conversion, and preprocessing
 * **Scene graph + data graph** architecture
 * **Multi‑canvas, multi‑view viewers**
+* **Full precision (64-bit) coordinate system**
 * **Pluggable renderer backends** (WebGL today, WebGPU ready)
 * **Import, export & convert** industry‑standard AECO formats
 * **BIM collaboration** via BCF Viewpoints
 * **Fully documented utility libraries**
+* **Open‑source** with a permissive AGPL‑3.0 license**
 
 ---
 
@@ -33,7 +35,7 @@ Built with **TypeScript**, xeokit is designed for **extreme performance**: it st
 
 #### [Examples](#examples)
   - [Spinning 3D Box](#spinning-3d-box)
-  - [DotBIM Model Viewer](#dotbim-model-viewer)
+  - [IFC Model Viewer](#ifc-model-viewer)
   - [IFC to DotBIM Conversion via CLI](#converting-an-ifc-file-to-dotbim-via-cli)
 
 #### [Project Development](#project-development)
@@ -61,7 +63,7 @@ The scene graph emits events for every structural or visual change.
 
 | Module                                                                              | Description                                               |
 | ----------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| [`@xeokit/sdk/scene`](https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html) | Scene graph containing geometries, materials, and objects |
+| [`@xeokit/sdk/scene`](https://xeokit.github.io/sdk/docs/api/modules/scene.html) | Scene graph containing geometries, materials, and objects |
 
 ---
 
@@ -75,9 +77,9 @@ The **data graph** manages model semantics using an entity‑relationship struct
 
 Like the scene graph, it runs in both browser and Node.js environments and emits change events independently of rendering.
 
-| Module                                                                            | Description                        |
-| --------------------------------------------------------------------------------- | ---------------------------------- |
-| [`@xeokit/sdk/data`](https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html) | Semantic entity‑relationship graph |
+| Module                                                                                | Description                        |
+|---------------------------------------------------------------------------------------| ---------------------------------- |
+| [`@xeokit/sdk/data`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_data.html) | Semantic entity‑relationship graph |
 
 ---
 
@@ -96,11 +98,11 @@ Key capabilities:
 
 | Module                                                                                              | Description                 |
 | --------------------------------------------------------------------------------------------------- | --------------------------- |
-| [`@xeokit/sdk/viewer`](https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html)               | Browser‑based model viewer  |
-| [`@xeokit/sdk/webglrenderer`](https://xeokit.github.io/sdk/docs/modules/_xeokit_webglrenderer.html) | WebGL rendering backend     |
-| [`@xeokit/sdk/cameracontrol`](https://xeokit.github.io/sdk/docs/modules/cameracontrol.html)         | Interactive camera controls |
-| [`@xeokit/sdk/treeview`](https://xeokit.github.io/sdk/docs/modules/_xeokit_treeview.html)           | HTML tree view widget       |
-| [`@xeokit/sdk/locale`](https://xeokit.github.io/sdk/docs/modules/_xeokit_locale.html)               | Localization service        |
+| [`@xeokit/sdk/viewer`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_viewer.html)               | Browser‑based model viewer  |
+| [`@xeokit/sdk/webglrenderer`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_webglrenderer.html) | WebGL rendering backend     |
+| [`@xeokit/sdk/cameracontrol`](https://xeokit.github.io/sdk/docs/api/modules/cameracontrol.html)         | Interactive camera controls |
+| [`@xeokit/sdk/treeview`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_treeview.html)           | HTML tree view widget       |
+| [`@xeokit/sdk/locale`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_locale.html)               | Localization service        |
 
 ---
 
@@ -113,15 +115,15 @@ xeokit supports several industry‑standard AECO formats. These modules can be u
 
 | Module                                                                                              | Description             |
 | --------------------------------------------------------------------------------------------------- | ----------------------- |
-| [`@xeokit/sdk/formats/dotbim`](https://xeokit.github.io/sdk/docs/modules/_xeokit_dotbim.html)       | Import/export DotBIM    |
-| [`@xeokit/sdk/formats/xgf`](https://xeokit.github.io/sdk/docs/modules/_xeokit_xgf.html)             | Import/export XGF       |
-| [`@xeokit/sdk/formats/gltf`](https://xeokit.github.io/sdk/docs/modules/_xeokit_gltf.html)           | Import glTF / GLB       |
-| [`@xeokit/sdk/formats/las`](https://xeokit.github.io/sdk/docs/modules/_xeokit_las.html)             | Import LAS point clouds |
-| [`@xeokit/sdk/formats/cityjson`](https://xeokit.github.io/sdk/docs/modules/_xeokit_cityjson.html)   | Import CityJSON         |
-| [`@xeokit/sdk/formats/ifc`](https://xeokit.github.io/sdk/docs/modules/_xeokit_webifc.html)          | Import IFC              |
-| [`@xeokit/sdk/formats/xkt`](https://xeokit.github.io/sdk/docs/modules/_xeokit_xkt.html)             | Import XKT              |
-| [`@xeokit/sdk/formats/datamodel`](https://xeokit.github.io/sdk/docs/modules/_xeokit_datamodel.html) | Native data models      |
-| [`@xeokit/sdk/formats/scenedata`](https://xeokit.github.io/sdk/docs/modules/_xeokit_scenedata.html) | Native scene models     |
+| [`@xeokit/sdk/formats/dotbim`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_dotbim.html)       | Import/export DotBIM    |
+| [`@xeokit/sdk/formats/xgf`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_xgf.html)             | Import/export XGF       |
+| [`@xeokit/sdk/formats/gltf`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_gltf.html)           | Import glTF / GLB       |
+| [`@xeokit/sdk/formats/las`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_las.html)             | Import LAS point clouds |
+| [`@xeokit/sdk/formats/cityjson`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_cityjson.html)   | Import CityJSON         |
+| [`@xeokit/sdk/formats/ifc`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_webifc.html)          | Import IFC              |
+| [`@xeokit/sdk/formats/xkt`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_xkt.html)             | Import XKT              |
+| [`@xeokit/sdk/formats/datamodel`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_datamodel.html) | Native data models      |
+| [`@xeokit/sdk/formats/scenedata`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_scenedata.html) | Native scene models     |
 
 ---
 
@@ -131,8 +133,8 @@ Convert between multiple AECO formats using a unified API or CLI.
 
 | Module                                                                                                | Description            |
 | ----------------------------------------------------------------------------------------------------- | ---------------------- |
-| [`@xeokit/sdk/modelconverter`](https://xeokit.github.io/sdk/docs/modules/_xeokit_modelconverter.html) | Multi‑format converter |
-| [`@xeokit/sdk/xeoconvert`](https://xeokit.github.io/sdk/docs/modules/_xeokit_xeoconvert.html)         | CLI wrapper            |
+| [`@xeokit/sdk/modelconverter`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_modelconverter.html) | Multi‑format converter |
+| [`@xeokit/sdk/xeoconvert`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_xeoconvert.html)         | CLI wrapper            |
 
 ---
 
@@ -153,7 +155,21 @@ at [xeokit.github.io/sdk/examples](https://xeokit.github.io/sdk/examples/).
 
 ### Spinning 3D Box
 
-A minimal example showing how to create a scene, viewer, and animated object.
+In the example below, we create a simple 3D box model and set up a viewer to display it in a canvas
+element with the ID `myCanvas`. The camera orbits around the box to create a spinning effect.
+
+In xeokit, everything starts with a **Scene** that holds all 3D content. We then create
+a **Viewer** to visualize the scene, and a **WebGLRenderer** to handle rendering.
+
+Instead of using exceptions, errors are handled gracefully using result monads. Any method in the SDK that can
+fail returns an `SDKResult` that indicates success or failure.
+
+Scene content is fully dynamic and can be modified at runtime. We can create and destroy 
+geometries, meshes, and objects in the Scene and the Viewer will update automatically.
+
+Everything is coupled via events. The Scene emits events when content changes; the Viewer 
+emits events when viewing parameters change, and the WebGLRenderer reacts to all these events
+to update the display accordingly.
 
 ```bash
 npm install @xeokit/sdk
@@ -170,13 +186,30 @@ const scene = new Scene();
 const viewer = new Viewer({ scene });
 const renderer = new WebGLRenderer({ viewer });
 
-const view = viewer.createView({ id: "view", elementId: "myCanvas" }).value;
+const viewResult = viewer.createView({ 
+  id: "view", 
+  elementId: "myCanvas" 
+});
+
+if (!viewResult.ok) {
+  throw new Error(viewResult.error);
+}
+
+const view = viewResult.value
 
 view.camera.eye = [0, 0, 10];
 view.camera.look = [0, 0, 0];
 view.camera.up = [0, 1, 0];
 
-const model = scene.createModel().value;
+const modelResult = scene.createModel({
+  id: "boxModel"
+});
+
+if (!modelResult.ok) {
+  throw new Error(modelResult.error);
+}
+
+const model = modelResult.value;
 
 model.createGeometry({
   id: "boxGeometry",
@@ -185,8 +218,16 @@ model.createGeometry({
   indices: [0, 1, 2, 0, 2, 3]
 });
 
-model.addMesh({ id: "boxMesh", geometryId: "boxGeometry", color: [1, 0, 0] });
-model.createObject({ id: "box", meshIds: ["boxMesh"] });
+model.addMesh({ 
+  id: "boxMesh", 
+  geometryId: "boxGeometry", 
+  color: [1, 0, 0] 
+});
+
+model.createObject({ 
+  id: "box", 
+  meshIds: ["boxMesh"] 
+});
 
 new SDKTask({
   repeat: true,
@@ -196,66 +237,102 @@ new SDKTask({
 
 ---
 
-### DotBIM Model Viewer
+### IFC Model Viewer
 
-Load and display a DotBIM model in the browser, including semantic structure via the data graph.
+Load and display a IFC model in the browser, including semantic structure via the data graph.
 
 ```javascript
 import { Scene } from "@xeokit/sdk/scene";
-import { Data } from "@xeokit/sdk/data";
+import { Data, searchObjects } from "@xeokit/sdk/data";
 import { Viewer } from "@xeokit/sdk/viewer";
 import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
 import { CameraControl } from "@xeokit/sdk/cameracontrol";
-import { DotBIMLoader } from "@xeokit/sdk/formats/dotbim";
+import { IFCLoader } from "@xeokit/sdk/formats/dotbim";
 
-// 1) Create containers for geometry and optional structural data
+// Create containers for geometry and optional structural data
+
 const scene = new Scene();
 const data = new Data();
 
-// 2) Create a Viewer and WebGL renderer
+// Create a Viewer and WebGL renderer
+
 const viewer = new Viewer({ scene });
 new WebGLRenderer({ viewer });
 
-// 3) Create a View bound to an existing canvas element
+// Create a View bound to an existing canvas element
+
 const view = viewer.createView({
     id: "myView",
     elementId: "myCanvas" // Ensure this element exists
 }).value;
 
-// 4) Position the camera
+// Position the camera
+
 view.camera.eye = [-6.01, 4.85, 9.11];
 view.camera.look = [3.93, -2.65, -12.51];
 view.camera.up = [0.12, 0.95, -0.27];
 
-// 5) Enable mouse / touch camera interaction
+// Enable mouse / touch camera interaction
+
 new CameraControl(view, {});
 
-// 6) Create target models for the loader
+// Create target models for the loader
+
 const sceneModel = scene.createModel({ id: "myModel" }).value;
 const dataModel = data.createModel({ id: "myModel" }).value;
 
-// 7) Create the DotBIM loader
-const dotBIMLoader = new DotBIMLoader();
+// Create the IFC loader
 
-// 8) Fetch and decode the DotBIM file
-fetch("model.bim")
+const ifcLoader = new IFCLoader();
+
+// Fetch and decode the IFC file
+
+fetch("model.ifc")
     .then((r) => r.arrayBuffer())
     .then((fileData) => {
-        // 9) Load geometry (and optional node hierarchy) into the models
-        return dotBIMLoader.load({
+ 
+        // Load geometry (and optional node hierarchy) into the models
+ 
+        return ifcLoader.load({
             fileData,
             sceneModel,
             dataModel
         });
     })
     .then(() => {
-        // Model successfully loaded and visible
+        
+        // Model successfully loaded and visible.
+
+        // Search the data graph for IfcWall objects, starting at the 
+        // IfcProject root node, including any children via IfcRelAggregates relationships.
+      
+      const resultObjectIds = [];
+
+      const result = searchObjects(data, {
+        startObjectId: "38aOKO8_DDkBd1FHm_lVXz", // Root IfcProject ID
+        includeObjects: ["IfcWall"],
+        includeRelated: ["IfcRelAggregates"],
+        resultObjectIds
+      });
+
+      // Check if the query succeeded.
+
+      if (!result.ok) {
+        console.error("Error querying IFC data: " + result.error);
+        return;
+      }
+
+      // If the query succeeded, go ahead and mark whatever
+      // objects we found as selected. Now all the IfcWall objects
+      // in the Viewer will appear selected and glowing.
+
+      view.setObjectsSelected(resultObjectIds, true);
     })
     .catch((err) => {
         // Clean up on failure
         sceneModel.destroy();
         dataModel.destroy();
-        console.error("Error loading DotBIM:", err);
+        console.error("Error loading IFC:", err);
     });
 ```
 

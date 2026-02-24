@@ -175294,7 +175294,7 @@
 							},
 							{
 								"kind": "code",
-								"text": "```ts\n    const shaderInspector = webglRenderer.getShaderInspector();\n    const src = shaderInspector.techniques.triangles.opaque.vertexSrc;\n    console.log(\"Opaque triangles vertex shader:\", src);\n    ```"
+								"text": "```ts\n    const shaderInspector = webglRenderer.getShaderInspector();\n    const src = shaderInspector.techniques.triangles.opaque.vertexShaderSrc;\n    console.log(\"Opaque triangles vertex shader:\", src);\n    ```"
 							},
 							{
 								"kind": "text",
@@ -259208,7 +259208,7 @@
 									"children": [
 										{
 											"id": 9305,
-											"name": "fragmentCommentedSrc",
+											"name": "fragmentShaderCommentedSrc",
 											"variant": "declaration",
 											"kind": 1024,
 											"flags": {},
@@ -259235,7 +259235,7 @@
 										},
 										{
 											"id": 9304,
-											"name": "fragmentSrc",
+											"name": "fragmentShaderSrc",
 											"variant": "declaration",
 											"kind": 1024,
 											"flags": {},
@@ -259262,7 +259262,7 @@
 										},
 										{
 											"id": 9303,
-											"name": "vertexCommentedSrc",
+											"name": "vertexShaderCommentedSrc",
 											"variant": "declaration",
 											"kind": 1024,
 											"flags": {},
@@ -259289,7 +259289,7 @@
 										},
 										{
 											"id": 9302,
-											"name": "vertexSrc",
+											"name": "vertexShaderSrc",
 											"variant": "declaration",
 											"kind": 1024,
 											"flags": {},
@@ -318755,19 +318755,19 @@
 		},
 		"9302": {
 			"sourceFileName": "src/webglrenderer/internal/inspectors/ShaderInspector.ts",
-			"qualifiedName": "ShaderSource.vertexSrc"
+			"qualifiedName": "ShaderSource.vertexShaderSrc"
 		},
 		"9303": {
 			"sourceFileName": "src/webglrenderer/internal/inspectors/ShaderInspector.ts",
-			"qualifiedName": "ShaderSource.vertexCommentedSrc"
+			"qualifiedName": "ShaderSource.vertexShaderCommentedSrc"
 		},
 		"9304": {
 			"sourceFileName": "src/webglrenderer/internal/inspectors/ShaderInspector.ts",
-			"qualifiedName": "ShaderSource.fragmentSrc"
+			"qualifiedName": "ShaderSource.fragmentShaderSrc"
 		},
 		"9305": {
 			"sourceFileName": "src/webglrenderer/internal/inspectors/ShaderInspector.ts",
-			"qualifiedName": "ShaderSource.fragmentCommentedSrc"
+			"qualifiedName": "ShaderSource.fragmentShaderCommentedSrc"
 		},
 		"9306": {
 			"sourceFileName": "src/webglrenderer/internal/inspectors/ShaderInspector.ts",

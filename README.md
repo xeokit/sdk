@@ -115,15 +115,15 @@ xeokit supports several industry‑standard AECO formats. These modules can be u
 
 | Module                                                                                              | Description             |
 | --------------------------------------------------------------------------------------------------- | ----------------------- |
-| [`@xeokit/sdk/formats/dotbim`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_dotbim.html)       | Import/export DotBIM    |
-| [`@xeokit/sdk/formats/xgf`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_xgf.html)             | Import/export XGF       |
-| [`@xeokit/sdk/formats/gltf`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_gltf.html)           | Import glTF / GLB       |
-| [`@xeokit/sdk/formats/las`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_las.html)             | Import LAS point clouds |
-| [`@xeokit/sdk/formats/cityjson`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_cityjson.html)   | Import CityJSON         |
-| [`@xeokit/sdk/formats/ifc`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_webifc.html)          | Import IFC              |
-| [`@xeokit/sdk/formats/xkt`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_xkt.html)             | Import XKT              |
-| [`@xeokit/sdk/formats/datamodel`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_datamodel.html) | Native data models      |
-| [`@xeokit/sdk/formats/scenedata`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_scenedata.html) | Native scene models     |
+| [`@xeokit/sdk/formats/dotbim`](https://xeokit.github.io/sdk/docs/api/modules/formats.dotbim.html)       | Import/export DotBIM    |
+| [`@xeokit/sdk/formats/xgf`](https://xeokit.github.io/sdk/docs/api/modules/formats.xgf.html)             | Import/export XGF       |
+| [`@xeokit/sdk/formats/gltf`](https://xeokit.github.io/sdk/docs/api/modules/formats.gltf.html)           | Import glTF / GLB       |
+| [`@xeokit/sdk/formats/las`](https://xeokit.github.io/sdk/docs/api/modules/formats.las.html)             | Import LAS point clouds |
+| [`@xeokit/sdk/formats/cityjson`](https://xeokit.github.io/sdk/docs/api/modules/formats.cityjson.html)   | Import CityJSON         |
+| [`@xeokit/sdk/formats/ifc`](https://xeokit.github.io/sdk/docs/api/modules/formats.ifc.html)          | Import IFC              |
+| [`@xeokit/sdk/formats/xkt`](https://xeokit.github.io/sdk/docs/api/modules/formats.xkt.html)             | Import XKT              |
+| [`@xeokit/sdk/formats/datamodel`](https://xeokit.github.io/sdk/docs/api/modules/formats.datamodel.html) | Native data models      |
+| [`@xeokit/sdk/formats/scenedata`](https://xeokit.github.io/sdk/docs/api/modules/formats.scenemodel.html) | Native scene models     |
 
 ---
 
@@ -133,8 +133,8 @@ Convert between multiple AECO formats using a unified API or CLI.
 
 | Module                                                                                                | Description            |
 | ----------------------------------------------------------------------------------------------------- | ---------------------- |
-| [`@xeokit/sdk/modelconverter`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_modelconverter.html) | Multi‑format converter |
-| [`@xeokit/sdk/xeoconvert`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_xeoconvert.html)         | CLI wrapper            |
+| [`@xeokit/sdk/modelconverter`](https://xeokit.github.io/sdk/docs/api/modules/modelconverter.html) | Multi‑format converter |
+| [`@xeokit/sdk/xeoconvert`](https://xeokit.github.io/sdk/docs/api/modules/xeoconvert.html)         | CLI wrapper            |
 
 ---
 
@@ -144,7 +144,7 @@ Share viewer state and issues with other BIM tools using **BCF Viewpoints**, ena
 
 | Module                                                             | Description                  |
 | ------------------------------------------------------------------ | ---------------------------- |
-| [`@xeokit/sdk/bcf`](https://www.npmjs.com/package/@xeokit/sdk/bcf) | Load and save BCF Viewpoints |
+| [`@xeokit/sdk/bcf`](https://xeokit.github.io/sdk/docs/api/modules/bcf.html) | Load and save BCF Viewpoints |
 
 ---
 

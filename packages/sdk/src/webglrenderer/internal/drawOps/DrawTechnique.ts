@@ -326,7 +326,7 @@ export abstract class DrawTechnique {
       vertexPositionTexture: program.getSampler("uVertexPositionTexture"),
       vertexColorTexture: program.getSampler("uVertexColorTexture"),
       indexTexture: program.getSampler("uIndexTexture"),
-      edgeIndexTexture: program.getSampler("uEdgeIndexTexture"),
+      edgeIndexTexture: program.getSampler("uEdgeIndexTexture"), // TODO: Maybe redundant
       saoOcclusionTexture: program.getSampler("saoOcclusionTexture")
     };
 
@@ -435,10 +435,13 @@ export abstract class DrawTechnique {
     bindTexture(samplers.meshViewAttributeTexture, batchViewDataTextures.meshViewAttributeTexture);
     bindTexture(samplers.geometryAttributes, batchDataTextures.geometryAttributeTexture);
     bindTexture(samplers.geometryQuantRangeTexture, batchDataTextures.geometryQuantRangeTexture);
-    bindTexture(samplers.edgeIndexTexture, batchDataTextures.edgeIndexTexture);
-    bindTexture(samplers.indexTexture, batchDataTextures.indexTexture);
+ //   bindTexture(samplers.edgeIndexTexture, batchDataTextures.edgeIndexTexture); // TODO: Redundant?
+    bindTexture(samplers.indexTexture,
+      this.edges
+        ? batchDataTextures.edgeIndexTexture
+        : batchDataTextures.indexTexture);
 
-    gl.uniform1i(this._uniforms.primBaseIndex, drawRange.firstPrim);
+    gl.uniform1i(this._uniforms.primBaseIndex, 0);
 
     const drawPrimitiveType // Draw LINES for batches in edge rendering pass, even if the mesh primitive is TRIANGLES
       = this.edges
@@ -571,7 +574,7 @@ uniform highp usampler2D uPrimitiveMeshIndexTexture;
 uniform highp usampler2D uVertexPositionTexture;
 uniform highp usampler2D uVertexColorTexture;
 uniform highp usampler2D uIndexTexture;
-uniform highp usampler2D uEdgeIndexTexture;
+// uniform highp usampler2D uEdgeIndexTexture;
 uniform highp sampler2D  uViewTileCameraMatrixTexture;
 uniform highp sampler2D  uMeshMatrixTexture;
 uniform highp usampler2D uMeshAttributeTexture;
@@ -1034,11 +1037,11 @@ void main(void) {`);
 
     // Resolve final vertex index within geometry
     // - For non-indexed points (uPrimitiveType == 20000), we treat vertexOffsetWithinGeometry as direct.
-    // - Otherwise, we fetch an index from the index buffer, using geometryAttributes.indicesBase.
+    // - Otherwise, we fetch an index from the index buffer, using geometryAttributes.indicesBase / edgeIndicesBase.
     uint vertexIndexWithinGeometry =
         (uPrimitiveType == 20000)
         ? vertexOffsetWithinGeometry
-        : getVertexIndex(geometryAttributes.indicesBase + vertexOffsetWithinGeometry);
+        : getVertexIndex(geometryAttributes.${this.edges ? "edgeIndicesBase" : "indicesBase"} + vertexOffsetWithinGeometry);
 
     // Dequantization parameters for this geometry
     // Vertex positions are stored quantized; quantRange turns uvec3 into float vec3.
@@ -1148,7 +1151,7 @@ void main(void) {`);
   protected vsSilhouetteLogic() {
     this._vertSrcBuf.push(`
     // Output constant silhouette color
-    vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, 0.5);`);
+    vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, uSilhouetteColor.a);`);
   }
 
   /**
@@ -1160,7 +1163,7 @@ void main(void) {`);
     this._vertSrcBuf.push(`
     // Output flat color from mesh view attributes
     vec4 color = vec4(meshViewAttributes.color) / 255.0;
-    vColor = vec4(color.rgb, 1.0);`);
+    vColor = color;`);
   }
 
   /**
@@ -1171,7 +1174,7 @@ void main(void) {`);
     this._vertSrcBuf.push(`
     // Output vertex color
     uvec4 color = getVertexColor(vertexIndexWithinGeometry);
-    vColor = vec4( float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, 1.0);`);
+    vColor = vec4( float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, float(color.a) / 255.0);`);
   }
 
   /**
@@ -1575,7 +1578,9 @@ void main(void) {`);
           const color = material.edgeColor;
           gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.edgeAlpha);
         } else {
-          gl.uniform4fv(uniforms.silhouetteColor, defaultColor);
+          const material = view.edges;
+          const color = material.edgeColor;
+          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.edgeAlpha);
         }
       } else {
         if (renderPass === RENDER_PASSES.XRAYED) {

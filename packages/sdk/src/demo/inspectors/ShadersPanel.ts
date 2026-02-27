@@ -1,6 +1,5 @@
 import {FloatingPanelFlowHost} from "./FloatingPanelFlowHost";
-import {ShaderInspector} from "../../webglrenderer/internal/inspectors";
-import {DrawTechnique} from "../../webglrenderer/internal/drawOps";
+import {ShaderInspector, type ShaderSource} from "../../webglrenderer/internal/inspectors";
 
 // In file: packages/sdk/src/demo/ShadersPanel.ts
 
@@ -200,10 +199,10 @@ export class ShadersPanel {
                   state,
                   () => {
                     const leafs = [];
-                    if (tech.vertexSrc) {
+                    if (tech.vertexShaderSrc) {
                       leafs.push(this.#shaderLeaf("vertex", techName, tech));
                     }
-                    if (tech.fragmentSrc) {
+                    if (tech.fragmentShaderSrc) {
                       leafs.push(this.#shaderLeaf("fragment", techName, tech));
                     }
                     return el("div", {className: "shins-technique-leafs"}, leafs);
@@ -290,7 +289,7 @@ export class ShadersPanel {
   }
 
 
-  static #shaderLeaf(kind: "vertex" | "fragment", path: string, technique: DrawTechnique) {
+  static #shaderLeaf(kind: "vertex" | "fragment", path: string, technique: ShaderSource) {
     const wrap = el("div", {className: "shins-leaf", ["data-shins-leaf" as any]: ""});
     const head = el("div", {className: "shins-leaf-head"}, [
       el("div", {className: "shins-leaf-title"}, [

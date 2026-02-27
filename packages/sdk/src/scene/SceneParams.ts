@@ -14,6 +14,8 @@ export interface SceneParams {
 
   /**
    * Configures the Scene's global coordinate system.
+   *
+   * By default, itis a right-handed Z-up coordinate system.
    */
   coordinateSystem: CoordinateSystemParams;
 

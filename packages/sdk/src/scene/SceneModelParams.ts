@@ -29,6 +29,8 @@ export interface SceneModelParams {
 
   /**
    * Configures the SceneModel's local coordinate system.
+   *
+   * By default, itis a right-handed Z-up coordinate system.
    */
   coordinateSystem?: CoordinateSystemParams;
 

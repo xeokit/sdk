@@ -777,11 +777,27 @@ export class SceneModel {
       });
     }
 
-    if (!indices && primitive !== PointsPrimitive) {
+    if (positions.length === 0 ) {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: "[SceneModel.createGeometry] Missing required 'indices' for the specified primitive type."
+        error: "[SceneModel.createGeometry] 'positions' in geometryParams cannot be empty."
+      });
+    }
+
+    if (positions.length % 3 !== 0) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: "[SceneModel.createGeometry] The length of 'positions' in geometryParams must be a multiple of 3."
+      });
+    }
+
+    if (primitive !== PointsPrimitive && (!indices || indices.length===0)) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: "[SceneModel.createGeometry] Missing/empty required 'indices' for the specified primitive type."
       });
     }
 
@@ -801,7 +817,7 @@ export class SceneModel {
       });
     }
 
-    if (colors) {
+    if (colors && colors.length > 0) {
       if (colors.length / 4 !== positions.length / 3) {
         return this.scene.logError({
           ok: false,
@@ -811,7 +827,7 @@ export class SceneModel {
       }
     }
 
-    if (uvs) {
+    if (uvs && uvs.length > 0) {
       if (uvs.length / 2 !== positions.length / 3) {
         return this.scene.logError({
           ok: false,

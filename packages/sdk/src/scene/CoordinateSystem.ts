@@ -96,6 +96,9 @@ export class CoordinateSystem  {
 
     /**
      * Sets the flat 9-element coordinate system basis (column-major).
+     *
+     * By default, this is a right-handed Z-up basis: ````[1,0,0, 0,0,1, 0,1,0]````.
+     *
      * Emits event on change, via `Scene.events.coordSystemBasis` or `SceneModel.events.modelCoordSystemBasis`.
      */
     set basis(value: Vec9) {

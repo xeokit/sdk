@@ -137,18 +137,15 @@ export function createRTCViewMat(
 //   };
 // })();
 
-export const createRTCModelMat = (() => {
-
-  const zeroVec4 = createVec4Float64([0, 0, 0, 1]);
-  const tempVec4a = createVec4Float64();
-
-  return (matrix: Mat4, rtcCenter: Vec3, rtcModelMatrix?: Mat4): Mat4 => {
+export const createRTCModelMat =  (matrix: Mat4, rtcCenter: Vec3, rtcModelMatrix?: Mat4): Mat4 => {
 
     const matCenter = matrix.slice(12, 15);
 
-    rtcCenter[0] = Math.round(matCenter[0] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
-    rtcCenter[1] = Math.round(matCenter[1] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
-    rtcCenter[2] = Math.round(matCenter[2] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
+    const tileSize = getRTCTileSize(matCenter);
+
+    rtcCenter[0] = Math.round(matCenter[0] / tileSize) * tileSize;
+    rtcCenter[1] = Math.round(matCenter[1] / tileSize) * tileSize;
+    rtcCenter[2] = Math.round(matCenter[2] / tileSize) * tileSize;
 
     rtcModelMatrix = rtcModelMatrix || createMat4Float64(matrix);
 
@@ -157,7 +154,6 @@ export const createRTCModelMat = (() => {
 
     return rtcModelMatrix;
   };
-})();
 
 /**
  * Converts a 3D World-space position to RTC coordinates.
@@ -196,15 +192,67 @@ export function worldToRTCPos(worldPos: Vec3, rtcCenter: Vec3, rtcPos: Vec3)  {
  *
  * @param  worldCenter - The World-space position to convert.
  * @param  rtcCenter - The resulting RTC center position.
- * @param {number} [cellSize=200] - The size of each coordinate cell within the RTC coordinate system (default is 200).
+ * @param  tileSize - The size of the RTC tile, which determines the grid spacing for the RTC centers.
  * @returns  The RTC center position.
  */
-export function worldToRTCCenter(worldCenter: Vec3, rtcCenter: Vec3, cellSize = RTC_CELL_SIZE): Vec3 {
-  rtcCenter[0] = Math.round(worldCenter[0] / cellSize) * cellSize;
-  rtcCenter[1] = Math.round(worldCenter[1] / cellSize) * cellSize;
-  rtcCenter[2] = Math.round(worldCenter[2] / cellSize) * cellSize;
+export function worldToRTCCenter(worldCenter: Vec3, rtcCenter: Vec3, tileSize: number): Vec3 {
+  rtcCenter[0] = Math.round(worldCenter[0] / tileSize) * tileSize;
+  rtcCenter[1] = Math.round(worldCenter[1] / tileSize) * tileSize;
+  rtcCenter[2] = Math.round(worldCenter[2] / tileSize) * tileSize;
+
   return rtcCenter;
 }
+
+/**
+ * RTC tile size in meters:
+ *  - decreases with world magnitude (inverse-ish)
+ *  - snaps to a small set of values (1–2–5 per bucket)
+ *  - changes only every `bucketDecades` decades (avoids fragmentation)
+ *  - capped to maintain sub-millimeter jitter in float32 offsets
+ */
+export function getRTCTileSize(worldPos: Vec3): number {
+  const mag = Math.max(
+    Math.abs(worldPos[0]),
+    Math.abs(worldPos[1]),
+    Math.abs(worldPos[2])
+  );
+
+  // Your existing default near origin
+  if (mag === 0) return 1000;
+
+  // --- knobs (pick once, keep stable) ---
+  const baseTile = 200;        // tile size around mag ~ 1m
+  const bucketDecades = 4;     // 3 => size changes every 1000x magnitude
+  const allowedError = 0.0005; // 0.5mm target worst-case at half tile (sub-mm)
+  const maxTile = allowedError * 16777216; // allowedError * 2^24 ≈ 8388.608m
+
+  // Bucket magnitude by decades (coarse)
+  const exp10 = Math.floor(Math.log10(mag));
+  const bucketedExp10 = exp10 - ((exp10 % bucketDecades) + bucketDecades) % bucketDecades;
+
+  const decadeBase = Math.pow(10, bucketedExp10);
+  const m = mag / decadeBase; // typically in [1, 10)
+
+  // Snap to 1–2–5 steps (only 3 sizes per bucket)
+  // (thresholds chosen to reduce twitch near boundaries)
+  let step: 1 | 2 | 5;
+  if (m < 2.5) step = 1;
+  else if (m < 7.5) step = 2;
+  else step = 5;
+
+  // Slow inverse scaling: only shrink per *bucket*, not per decade
+  let tileSize = baseTile / decadeBase / step;
+
+  // Cap so offsets stay sub-mm-safe (and avoid absurdly huge tiles)
+  if (tileSize > maxTile) tileSize = maxTile;
+
+  // Optional: avoid absurdly tiny tiles (can help scene rep)
+  const minTile = 20; // 0.05mm (tweak if needed)
+  if (tileSize < minTile) tileSize = minTile;
+
+  return tileSize;
+}
+
 
 /**
  * Converts a flat array of World-space positions to RTC positions.
@@ -215,16 +263,17 @@ export function worldToRTCCenter(worldCenter: Vec3, rtcCenter: Vec3, cellSize = 
  * @param  worldPositions - A flat array of World-space 3D positions.
  * @param  rtcPositions - The resulting flat array of RTC positions.
  * @param  rtcCenter - The computed RTC center position.
- * @param {number} [cellSize=200] - The size of each coordinate cell within the RTC system.
- * @returns {boolean} Returns `true` if conversion to RTC was needed, otherwise `false`.
+  * @returns {boolean} Returns `true` if conversion to RTC was needed, otherwise `false`.
  */
-export function worldToRTCPositions(worldPositions: FloatArrayParam, rtcPositions: FloatArrayParam, rtcCenter: Vec3, cellSize = RTC_CELL_SIZE): boolean {
+export function worldToRTCPositions(worldPositions: FloatArrayParam, rtcPositions: FloatArrayParam, rtcCenter: Vec3): boolean {
 
   const center = getPositions3Center(worldPositions, tempVec3a);
 
-  const rtcCenterX = Math.round(center[0] / cellSize) * cellSize;
-  const rtcCenterY = Math.round(center[1] / cellSize) * cellSize;
-  const rtcCenterZ = Math.round(center[2] / cellSize) * cellSize;
+  const tileSize = getRTCTileSize(center);
+
+  const rtcCenterX = Math.round(center[0] / tileSize) * tileSize;
+  const rtcCenterY = Math.round(center[1] / tileSize) * tileSize;
+  const rtcCenterZ = Math.round(center[2] / tileSize) * tileSize;
 
   for (let i = 0, len = worldPositions.length; i < len; i += 3) {
     rtcPositions[i + 0] = worldPositions[i + 0] - rtcCenterX;

@@ -287,6 +287,18 @@ export abstract class DataTexture {
   public abstract getItem(itemIndex: number): any;
 
   /**
+   * Retrieves all logical items currently stored in this texture.
+   * @returns An array of decoded items.
+   */
+  public getItems(): any[] {
+    const items = [];
+    for (let i = 0; i < this.numItems; i++) {
+      items.push(this.getItem(i));
+    }
+    return items;
+  }
+
+  /**
    * Cancels any pending uploads to the GPU.
    * @internal
    */

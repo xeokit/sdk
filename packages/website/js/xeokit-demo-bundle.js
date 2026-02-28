@@ -778,7 +778,7 @@ var require_EventDispatcher = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.EventDispatcher = void 0;
     var ste_core_1 = require_dist();
-    var EventDispatcher18 = class extends ste_core_1.DispatcherBase {
+    var EventDispatcher19 = class extends ste_core_1.DispatcherBase {
       /**
        * Creates an instance of EventDispatcher.
        *
@@ -826,7 +826,7 @@ var require_EventDispatcher = __commonJS({
         return super.asEvent();
       }
     };
-    exports.EventDispatcher = EventDispatcher18;
+    exports.EventDispatcher = EventDispatcher19;
   }
 });
 
@@ -1783,10 +1783,12 @@ __export(core_exports, {
   EventsLogger: () => EventsLogger,
   SDKErrorType: () => SDKErrorType,
   SDKInternalException: () => SDKInternalException,
+  SDKProgress: () => SDKProgress,
   SDKResultOK: () => SDKResultOK,
   SDKTask: () => SDKTask,
   SDKTaskRunner: () => SDKTaskRunner,
-  getGlobalTaskRunner: () => getGlobalTaskRunner
+  getGlobalTaskRunner: () => getGlobalTaskRunner,
+  sdkProgress: () => sdkProgress
 });
 
 // ../sdk/src/core/SDKTaskRunner.ts
@@ -2227,6 +2229,36 @@ var EventsLogger = class {
   }
 };
 
+// ../sdk/src/core/SDKProgress.ts
+var import_strongly_typed_events = __toESM(require_dist8());
+var SDKProgress = class {
+  onTasksAdded;
+  onTaskCompleted;
+  numTasks = 0;
+  constructor() {
+    this.onTasksAdded = new EventEmitter(new import_strongly_typed_events.EventDispatcher());
+    this.onTaskCompleted = new EventEmitter(new import_strongly_typed_events.EventDispatcher());
+    this.numTasks = 0;
+  }
+  addTask() {
+    this.numTasks++;
+    this.onTasksAdded.dispatch(this, 1);
+  }
+  addTasks(count) {
+    if (count > 0) {
+      this.numTasks += count;
+      this.onTasksAdded.dispatch(this, count);
+    }
+  }
+  completeTask() {
+    if (this.numTasks > 0) {
+      this.numTasks--;
+      this.onTaskCompleted.dispatch(this, this.numTasks);
+    }
+  }
+};
+var sdkProgress = new SDKProgress();
+
 // ../sdk/src/constants/index.ts
 var constants_exports = {};
 __export(constants_exports, {
@@ -2501,50 +2533,50 @@ __export(vector_exports, {
   triangleNormal: () => triangleNormal,
   vecToArray: () => vecToArray
 });
-function createVec2Float64(values) {
-  return new Float64Array(values || 2);
+function createVec2Float64(values2) {
+  return new Float64Array(values2 || 2);
 }
-function createVec2Float32(values) {
-  return new Float32Array(values || 2);
+function createVec2Float32(values2) {
+  return new Float32Array(values2 || 2);
 }
-function createVec2Int32(values) {
-  return new Int32Array(values || 2);
+function createVec2Int32(values2) {
+  return new Int32Array(values2 || 2);
 }
-function createVec3Float64(values) {
-  return new Float64Array(values || 3);
+function createVec3Float64(values2) {
+  return new Float64Array(values2 || 3);
 }
-function createVec3Float32(values) {
-  return new Float32Array(values || 3);
+function createVec3Float32(values2) {
+  return new Float32Array(values2 || 3);
 }
-function createVec3Int32(values) {
-  return new Int32Array(values || 3);
+function createVec3Int32(values2) {
+  return new Int32Array(values2 || 3);
 }
-function createVec3Int16(values) {
-  return new Int16Array(values || 3);
+function createVec3Int16(values2) {
+  return new Int16Array(values2 || 3);
 }
-function createVec2Int16(values) {
-  return new Int16Array(values || 2);
+function createVec2Int16(values2) {
+  return new Int16Array(values2 || 2);
 }
-function createVec2Uint16(values) {
-  return new Uint16Array(values || 2);
+function createVec2Uint16(values2) {
+  return new Uint16Array(values2 || 2);
 }
-function createVec4Float64(values) {
-  return new Float64Array(values || 4);
+function createVec4Float64(values2) {
+  return new Float64Array(values2 || 4);
 }
-function createVec4Float32(values) {
-  return new Float32Array(values || 4);
+function createVec4Float32(values2) {
+  return new Float32Array(values2 || 4);
 }
-function createVec4Int32(values) {
-  return new Int32Array(values || 4);
+function createVec4Int32(values2) {
+  return new Int32Array(values2 || 4);
 }
-function createVec4Int16(values) {
-  return new Int16Array(values || 4);
+function createVec4Int16(values2) {
+  return new Int16Array(values2 || 4);
 }
-function createVec9Float64(values) {
-  return new Float64Array(values || 9);
+function createVec9Float64(values2) {
+  return new Float64Array(values2 || 9);
 }
-function createVec9Float32(values) {
-  return new Float32Array(values || 9);
+function createVec9Float32(values2) {
+  return new Float32Array(values2 || 9);
 }
 function dotVec3(u, v) {
   return u[0] * v[0] + u[1] * v[1] + u[2] * v[2];
@@ -2960,11 +2992,11 @@ __export(quat_exports, {
 });
 var tempMat4a = createMat4Float64();
 var tempQuat = createQuatFloat64();
-function createQuatFloat64(values) {
-  return new Float64Array(values || [0, 0, 0, 1]);
+function createQuatFloat64(values2) {
+  return new Float64Array(values2 || [0, 0, 0, 1]);
 }
-function createQuatFloat32(values) {
-  return new Float32Array(values || [0, 0, 0, 1]);
+function createQuatFloat32(values2) {
+  return new Float32Array(values2 || [0, 0, 0, 1]);
 }
 function identityQuat(dest = createVec4Float64()) {
   dest[0] = 0;
@@ -3215,18 +3247,18 @@ function perspectiveMat4(fovyrad, aspectratio, znear, zfar, m) {
   pmin[0] = -pmax[0];
   return frustumMat4v(pmin, pmax, m);
 }
-function createMat4Float32(values) {
-  return new Float32Array(values || 16);
+function createMat4Float32(values2) {
+  return new Float32Array(values2 || 16);
 }
 var tempMat4a2 = createMat4Float64();
 var tempMat4b = createVec3Float64();
 var tempVec4a = createVec4Float64();
 var tempVec4b = createVec4Float64();
-function createMat3(values) {
-  return new newFloatArray(values || 9);
+function createMat3(values2) {
+  return new newFloatArray(values2 || 9);
 }
-function createMat4Float64(values) {
-  return new Float64Array(values || 16);
+function createMat4Float64(values2) {
+  return new Float64Array(values2 || 16);
 }
 function mat3ToMat4(mat3, mat4) {
   if (!mat4) {
@@ -4509,26 +4541,26 @@ var tempVec3a = createVec3Float64();
 var tempVec3b2 = createVec3Float64();
 var tempVec3c2 = createVec3Float64();
 var tempMat4a3 = createMat4Float64();
-function createAABB3Float64(values) {
-  return new Float64Array(values || 6);
+function createAABB3Float64(values2) {
+  return new Float64Array(values2 || 6);
 }
-function createAABB3Float32(values) {
-  return new Float32Array(values || 6);
+function createAABB3Float32(values2) {
+  return new Float32Array(values2 || 6);
 }
-function createAABB3Int16(values) {
-  return new Int16Array(values || 6);
+function createAABB3Int16(values2) {
+  return new Int16Array(values2 || 6);
 }
-function createAABB2Float64(values) {
-  return new Float64Array(values || 4);
+function createAABB2Float64(values2) {
+  return new Float64Array(values2 || 4);
 }
-function createAABB2Float32(values) {
-  return new Float32Array(values || 4);
+function createAABB2Float32(values2) {
+  return new Float32Array(values2 || 4);
 }
-function createOBB3(values) {
-  return newFloatArray2(values || 32);
+function createOBB3(values2) {
+  return newFloatArray2(values2 || 32);
 }
-function createOBB2(values) {
-  return newFloatArray2(values || 16);
+function createOBB2(values2) {
+  return newFloatArray2(values2 || 16);
 }
 function createSphere3(x, y, z, r) {
   return newFloatArray2([x, y, z, r]);
@@ -4872,6 +4904,7 @@ __export(rtc_exports, {
   createRTCModelMat: () => createRTCModelMat,
   createRTCViewMat: () => createRTCViewMat,
   getPlaneRTCPos: () => getPlaneRTCPos,
+  getRTCTileSize: () => getRTCTileSize,
   rtcToWorldPos: () => rtcToWorldPos,
   worldToRTCCenter: () => worldToRTCCenter,
   worldToRTCPos: () => worldToRTCPos,
@@ -4896,19 +4929,16 @@ function createRTCViewMat(viewMat, rtcCenter2, rtcViewMat = tempMat) {
   setMat4Translation(viewMat, tempVec3a2, rtcViewMat);
   return rtcViewMat;
 }
-var createRTCModelMat = (() => {
-  const zeroVec4 = createVec4Float64([0, 0, 0, 1]);
-  const tempVec4a8 = createVec4Float64();
-  return (matrix, rtcCenter2, rtcModelMatrix) => {
-    const matCenter = matrix.slice(12, 15);
-    rtcCenter2[0] = Math.round(matCenter[0] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
-    rtcCenter2[1] = Math.round(matCenter[1] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
-    rtcCenter2[2] = Math.round(matCenter[2] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
-    rtcModelMatrix = rtcModelMatrix || createMat4Float64(matrix);
-    rtcModelMatrix.set(subVec3(matCenter, rtcCenter2, createVec3Float64()), 12);
-    return rtcModelMatrix;
-  };
-})();
+var createRTCModelMat = (matrix, rtcCenter2, rtcModelMatrix) => {
+  const matCenter = matrix.slice(12, 15);
+  const tileSize = getRTCTileSize(matCenter);
+  rtcCenter2[0] = Math.round(matCenter[0] / tileSize) * tileSize;
+  rtcCenter2[1] = Math.round(matCenter[1] / tileSize) * tileSize;
+  rtcCenter2[2] = Math.round(matCenter[2] / tileSize) * tileSize;
+  rtcModelMatrix = rtcModelMatrix || createMat4Float64(matrix);
+  rtcModelMatrix.set(subVec3(matCenter, rtcCenter2, createVec3Float64()), 12);
+  return rtcModelMatrix;
+};
 function worldToRTCPos(worldPos, rtcCenter2, rtcPos) {
   const xHigh = Float32Array.from([worldPos[0]])[0];
   const xLow = worldPos[0] - xHigh;
@@ -4923,17 +4953,49 @@ function worldToRTCPos(worldPos, rtcCenter2, rtcPos) {
   rtcPos[1] = yLow;
   rtcPos[2] = zLow;
 }
-function worldToRTCCenter(worldCenter, rtcCenter2, cellSize = RTC_CELL_SIZE) {
-  rtcCenter2[0] = Math.round(worldCenter[0] / cellSize) * cellSize;
-  rtcCenter2[1] = Math.round(worldCenter[1] / cellSize) * cellSize;
-  rtcCenter2[2] = Math.round(worldCenter[2] / cellSize) * cellSize;
+function worldToRTCCenter(worldCenter, rtcCenter2, tileSize) {
+  rtcCenter2[0] = Math.round(worldCenter[0] / tileSize) * tileSize;
+  rtcCenter2[1] = Math.round(worldCenter[1] / tileSize) * tileSize;
+  rtcCenter2[2] = Math.round(worldCenter[2] / tileSize) * tileSize;
   return rtcCenter2;
 }
-function worldToRTCPositions(worldPositions, rtcPositions, rtcCenter2, cellSize = RTC_CELL_SIZE) {
+function getRTCTileSize(worldPos) {
+  const mag = Math.max(
+    Math.abs(worldPos[0]),
+    Math.abs(worldPos[1]),
+    Math.abs(worldPos[2])
+  );
+  if (mag === 0)
+    return 1e3;
+  const baseTile = 200;
+  const bucketDecades = 4;
+  const allowedError = 5e-4;
+  const maxTile = allowedError * 16777216;
+  const exp10 = Math.floor(Math.log10(mag));
+  const bucketedExp10 = exp10 - (exp10 % bucketDecades + bucketDecades) % bucketDecades;
+  const decadeBase = Math.pow(10, bucketedExp10);
+  const m = mag / decadeBase;
+  let step;
+  if (m < 2.5)
+    step = 1;
+  else if (m < 7.5)
+    step = 2;
+  else
+    step = 5;
+  let tileSize = baseTile / decadeBase / step;
+  if (tileSize > maxTile)
+    tileSize = maxTile;
+  const minTile = 20;
+  if (tileSize < minTile)
+    tileSize = minTile;
+  return tileSize;
+}
+function worldToRTCPositions(worldPositions, rtcPositions, rtcCenter2) {
   const center2 = getPositions3Center(worldPositions, tempVec3a2);
-  const rtcCenterX = Math.round(center2[0] / cellSize) * cellSize;
-  const rtcCenterY = Math.round(center2[1] / cellSize) * cellSize;
-  const rtcCenterZ = Math.round(center2[2] / cellSize) * cellSize;
+  const tileSize = getRTCTileSize(center2);
+  const rtcCenterX = Math.round(center2[0] / tileSize) * tileSize;
+  const rtcCenterY = Math.round(center2[1] / tileSize) * tileSize;
+  const rtcCenterZ = Math.round(center2[2] / tileSize) * tileSize;
   for (let i = 0, len = worldPositions.length; i < len; i += 3) {
     rtcPositions[i + 0] = worldPositions[i + 0] - rtcCenterX;
     rtcPositions[i + 1] = worldPositions[i + 1] - rtcCenterY;
@@ -5034,8 +5096,8 @@ var RADTODEG = 57.295779513;
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
-function newFloatArray2(values) {
-  return new Float64Array(values);
+function newFloatArray2(values2) {
+  return new Float64Array(values2);
 }
 var MAX_INT = 1e7;
 function safeInv(x) {
@@ -7318,194 +7380,197 @@ function buildBoxGeometry(cfg = {
   const xmax = xSize + centerX;
   const ymax = ySize + centerY;
   const zmax = zSize + centerZ;
-  return apply(cfg, {
-    primitive: TrianglesPrimitive,
-    // The vertices - eight for our cube, each
-    // one spanning three array elements for X, Y, and Z
-    positions: [
-      // v0-v1-v2-v3 front
-      xmax,
-      ymax,
-      zmax,
-      xmin,
-      ymax,
-      zmax,
-      xmin,
-      ymin,
-      zmax,
-      xmax,
-      ymin,
-      zmax,
-      // v0-v3-v4-v1 right
-      xmax,
-      ymax,
-      zmax,
-      xmax,
-      ymin,
-      zmax,
-      xmax,
-      ymin,
-      zmin,
-      xmax,
-      ymax,
-      zmin,
-      // v0-v1-v6-v1 top
-      xmax,
-      ymax,
-      zmax,
-      xmax,
-      ymax,
-      zmin,
-      xmin,
-      ymax,
-      zmin,
-      xmin,
-      ymax,
-      zmax,
-      // v1-v6-v7-v2 left
-      xmin,
-      ymax,
-      zmax,
-      xmin,
-      ymax,
-      zmin,
-      xmin,
-      ymin,
-      zmin,
-      xmin,
-      ymin,
-      zmax,
-      // v7-v4-v3-v2 bottom
-      xmin,
-      ymin,
-      zmin,
-      xmax,
-      ymin,
-      zmin,
-      xmax,
-      ymin,
-      zmax,
-      xmin,
-      ymin,
-      zmax,
-      // v4-v7-v6-v1 back
-      xmax,
-      ymin,
-      zmin,
-      xmin,
-      ymin,
-      zmin,
-      xmin,
-      ymax,
-      zmin,
-      xmax,
-      ymax,
-      zmin
-    ],
-    // UV coordinates for each vertex
-    uv: [
-      // v0-v1-v2-v3 front
-      1,
-      0,
-      0,
-      0,
-      0,
-      1,
-      1,
-      1,
-      // v0-v3-v4-v1 right
-      0,
-      0,
-      0,
-      1,
-      1,
-      1,
-      1,
-      0,
-      // v0-v1-v6-v1 top
-      1,
-      1,
-      1,
-      0,
-      0,
-      0,
-      0,
-      1,
-      // v1-v6-v7-v2 left
-      1,
-      0,
-      0,
-      0,
-      0,
-      1,
-      1,
-      1,
-      // v7-v4-v3-v2 bottom
-      0,
-      1,
-      1,
-      1,
-      1,
-      0,
-      0,
-      0,
-      // v4-v7-v6-v1 back
-      0,
-      1,
-      1,
-      1,
-      1,
-      0,
-      0,
-      0
-    ],
-    // Indices that organize vertices into geometric primitives (triangles)
-    // The triangles are specified in counter-clockwise winding order
-    indices: [
-      0,
-      1,
-      2,
-      0,
-      2,
-      3,
-      // front
-      4,
-      5,
-      6,
-      4,
-      6,
-      7,
-      // right
-      8,
-      9,
-      10,
-      8,
-      10,
-      11,
-      // top
-      12,
-      13,
-      14,
-      12,
-      14,
-      15,
-      // left
-      16,
-      17,
-      18,
-      16,
-      18,
-      19,
-      // bottom
-      20,
-      21,
-      22,
-      20,
-      22,
-      23
-      // back
-    ]
-  });
+  return {
+    ok: true,
+    value: apply(cfg, {
+      primitive: TrianglesPrimitive,
+      // The vertices - eight for our cube, each
+      // one spanning three array elements for X, Y, and Z
+      positions: [
+        // v0-v1-v2-v3 front
+        xmax,
+        ymax,
+        zmax,
+        xmin,
+        ymax,
+        zmax,
+        xmin,
+        ymin,
+        zmax,
+        xmax,
+        ymin,
+        zmax,
+        // v0-v3-v4-v1 right
+        xmax,
+        ymax,
+        zmax,
+        xmax,
+        ymin,
+        zmax,
+        xmax,
+        ymin,
+        zmin,
+        xmax,
+        ymax,
+        zmin,
+        // v0-v1-v6-v1 top
+        xmax,
+        ymax,
+        zmax,
+        xmax,
+        ymax,
+        zmin,
+        xmin,
+        ymax,
+        zmin,
+        xmin,
+        ymax,
+        zmax,
+        // v1-v6-v7-v2 left
+        xmin,
+        ymax,
+        zmax,
+        xmin,
+        ymax,
+        zmin,
+        xmin,
+        ymin,
+        zmin,
+        xmin,
+        ymin,
+        zmax,
+        // v7-v4-v3-v2 bottom
+        xmin,
+        ymin,
+        zmin,
+        xmax,
+        ymin,
+        zmin,
+        xmax,
+        ymin,
+        zmax,
+        xmin,
+        ymin,
+        zmax,
+        // v4-v7-v6-v1 back
+        xmax,
+        ymin,
+        zmin,
+        xmin,
+        ymin,
+        zmin,
+        xmin,
+        ymax,
+        zmin,
+        xmax,
+        ymax,
+        zmin
+      ],
+      // UV coordinates for each vertex
+      uv: [
+        // v0-v1-v2-v3 front
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        // v0-v3-v4-v1 right
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        // v0-v1-v6-v1 top
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        // v1-v6-v7-v2 left
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        // v7-v4-v3-v2 bottom
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        // v4-v7-v6-v1 back
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      // Indices that organize vertices into geometric primitives (triangles)
+      // The triangles are specified in counter-clockwise winding order
+      indices: [
+        0,
+        1,
+        2,
+        0,
+        2,
+        3,
+        // front
+        4,
+        5,
+        6,
+        4,
+        6,
+        7,
+        // right
+        8,
+        9,
+        10,
+        8,
+        10,
+        11,
+        // top
+        12,
+        13,
+        14,
+        12,
+        14,
+        15,
+        // left
+        16,
+        17,
+        18,
+        16,
+        18,
+        19,
+        // bottom
+        20,
+        21,
+        22,
+        20,
+        22,
+        23
+        // back
+      ]
+    })
+  };
 }
 
 // ../sdk/src/procgen/buildGridGeometry.ts
@@ -9872,7 +9937,7 @@ __export(locale_exports, {
 });
 
 // ../sdk/src/locale/LocaleService.ts
-var import_strongly_typed_events = __toESM(require_dist8());
+var import_strongly_typed_events2 = __toESM(require_dist8());
 var LocaleService = class {
   /**
    * Emits an event each time the locale translations have updated.
@@ -9894,7 +9959,7 @@ var LocaleService = class {
     messages: {},
     locale: ""
   }) {
-    this.onUpdated = new EventEmitter(new import_strongly_typed_events.EventDispatcher());
+    this.onUpdated = new EventEmitter(new import_strongly_typed_events2.EventDispatcher());
     this.messages = cfg.messages;
     this.locale = cfg.locale;
   }
@@ -10825,7 +10890,7 @@ var DataModel = class {
 };
 
 // ../sdk/src/data/DataEvents.ts
-var import_strongly_typed_events2 = __toESM(require_dist8());
+var import_strongly_typed_events3 = __toESM(require_dist8());
 var DataEvents = class {
   /**
    * Emits an event when an error occurs within the {@link Data} or any of its child components.
@@ -10868,22 +10933,22 @@ var DataEvents = class {
    * Emits an event when the {@link Data} is destroyed.
    */
   onDataDestroyed = new EventEmitter(
-    new import_strongly_typed_events2.EventDispatcher()
+    new import_strongly_typed_events3.EventDispatcher()
   );
   /**
    * @private
    */
   constructor() {
-    this.onError = new EventEmitter(new import_strongly_typed_events2.EventDispatcher());
-    this.onDataDestroyed = new EventEmitter(new import_strongly_typed_events2.EventDispatcher());
-    this.onDataModelCreated = new EventEmitter(new import_strongly_typed_events2.EventDispatcher());
-    this.onDataModelDestroyed = new EventEmitter(new import_strongly_typed_events2.EventDispatcher());
-    this.onDataObjectCreated = new EventEmitter(new import_strongly_typed_events2.EventDispatcher());
-    this.onDataObjectDestroyed = new EventEmitter(new import_strongly_typed_events2.EventDispatcher());
-    this.onRelationshipCreated = new EventEmitter(new import_strongly_typed_events2.EventDispatcher());
-    this.onRelationshipDestroyed = new EventEmitter(new import_strongly_typed_events2.EventDispatcher());
-    this.onPropertySetCreated = new EventEmitter(new import_strongly_typed_events2.EventDispatcher());
-    this.onPropertySetDestroyed = new EventEmitter(new import_strongly_typed_events2.EventDispatcher());
+    this.onError = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
+    this.onDataDestroyed = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
+    this.onDataModelCreated = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
+    this.onDataModelDestroyed = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
+    this.onDataObjectCreated = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
+    this.onDataObjectDestroyed = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
+    this.onRelationshipCreated = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
+    this.onRelationshipDestroyed = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
+    this.onPropertySetCreated = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
+    this.onPropertySetDestroyed = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
   }
   /**
    * @private
@@ -11603,6 +11668,9 @@ var CoordinateSystem = class {
   }
   /**
    * Sets the flat 9-element coordinate system basis (column-major).
+   *
+   * By default, this is a right-handed Z-up basis: ````[1,0,0, 0,0,1, 0,1,0]````.
+   *
    * Emits event on change, via `Scene.events.coordSystemBasis` or `SceneModel.events.modelCoordSystemBasis`.
    */
   set basis(value) {
@@ -13801,11 +13869,25 @@ var SceneModel2 = class {
         error: "[SceneModel.createGeometry] Missing required 'positions' in geometryParams."
       });
     }
-    if (!indices && primitive !== PointsPrimitive) {
+    if (positions.length === 0) {
       return this.scene.logError({
         ok: false,
         type: 2 /* InvalidInput */,
-        error: "[SceneModel.createGeometry] Missing required 'indices' for the specified primitive type."
+        error: "[SceneModel.createGeometry] 'positions' in geometryParams cannot be empty."
+      });
+    }
+    if (positions.length % 3 !== 0) {
+      return this.scene.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: "[SceneModel.createGeometry] The length of 'positions' in geometryParams must be a multiple of 3."
+      });
+    }
+    if (primitive !== PointsPrimitive && (!indices || indices.length === 0)) {
+      return this.scene.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: "[SceneModel.createGeometry] Missing/empty required 'indices' for the specified primitive type."
       });
     }
     if (primitive !== PointsPrimitive && primitive !== LinesPrimitive && primitive !== TrianglesPrimitive && primitive !== SolidPrimitive && primitive !== SurfacePrimitive) {
@@ -13815,7 +13897,7 @@ var SceneModel2 = class {
         error: `[SceneModel.createGeometry] Unsupported value for geometryParams.primitive: '${primitive}' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive`
       });
     }
-    if (colors) {
+    if (colors && colors.length > 0) {
       if (colors.length / 4 !== positions.length / 3) {
         return this.scene.logError({
           ok: false,
@@ -13824,7 +13906,7 @@ var SceneModel2 = class {
         });
       }
     }
-    if (uvs) {
+    if (uvs && uvs.length > 0) {
       if (uvs.length / 2 !== positions.length / 3) {
         return this.scene.logError({
           ok: false,
@@ -14571,7 +14653,7 @@ var SceneModel2 = class {
 };
 
 // ../sdk/src/scene/SceneEvents.ts
-var import_strongly_typed_events3 = __toESM(require_dist8());
+var import_strongly_typed_events4 = __toESM(require_dist8());
 var SceneEvents = class {
   /**
    * Emits an event when an error occurs within the {@link Scene} or any of its child components.
@@ -14723,41 +14805,41 @@ var SceneEvents = class {
    * @private
    */
   constructor() {
-    this.onError = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneDestroyed = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneCoordSystemBasisChanged = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneCoordSystemOriginChanged = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneCoordSystemUnitsChanged = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneCoordSystemScaleToMetersChanged = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneCoordSystemUpdated = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneModelCreated = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneModelDestroyed = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneModelCoordSystemBasisChanged = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneModelCoordSystemOriginChanged = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneModelCoordSystemUnitsChanged = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneModelCoordSystemScaleToMetersChanged = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneModelCoordSystemUpdated = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneObjectCreated = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneObjectMeshAdded = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneObjectMeshRemoved = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneObjectDestroyed = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneMeshCreated = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneMeshDestroyed = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneMeshMatrixChanged = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneMeshMoved = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneMeshGeometryChanged = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneMeshColorChanged = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneMeshOpacityChanged = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneTextureCreated = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneTextureDestroyed = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneTextureSetCreated = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneTextureSetDestroyed = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneGeometryCreated = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneGeometryDestroyed = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneGeometryUpdated = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneTransformCreated = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneTransformDestroyed = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
-    this.onSceneTransformMatrixChanged = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
+    this.onError = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneCoordSystemBasisChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneCoordSystemOriginChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneCoordSystemUnitsChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneCoordSystemScaleToMetersChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneCoordSystemUpdated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneModelCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneModelDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneModelCoordSystemBasisChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneModelCoordSystemOriginChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneModelCoordSystemUnitsChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneModelCoordSystemScaleToMetersChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneModelCoordSystemUpdated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneObjectCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneObjectMeshAdded = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneObjectMeshRemoved = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneObjectDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMeshCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMeshDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMeshMatrixChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMeshMoved = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMeshGeometryChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMeshColorChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMeshOpacityChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneTextureCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneTextureDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneTextureSetCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneTextureSetDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneGeometryCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneGeometryDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneGeometryUpdated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneTransformCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneTransformDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneTransformMatrixChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
   }
   /**
    * @private
@@ -18367,8 +18449,8 @@ function getTypedArrayForAccessor(json, buffers, accessor) {
   }
   const result = new ArrayType(length2);
   for (let i = 0; i < gltfAccessor.count; i++) {
-    const values = new ArrayType(arrayBuffer, byteOffset + i * elementAddressScale, numberOfComponentsInElement);
-    result.set(values, i * numberOfComponentsInElement);
+    const values2 = new ArrayType(arrayBuffer, byteOffset + i * elementAddressScale, numberOfComponentsInElement);
+    result.set(values2, i * numberOfComponentsInElement);
   }
   return result;
 }
@@ -19591,14 +19673,14 @@ function createPropertyTable(propertyAttributes, classId, schema) {
   table.count = count;
   return table;
 }
-function createPropertyTableProperty(values, classProperty, scenegraph) {
+function createPropertyTableProperty(values2, classProperty, scenegraph) {
   const prop = { values: 0 };
   if (classProperty.type === "STRING") {
-    const { stringData, stringOffsets } = createPropertyDataString(values);
+    const { stringData, stringOffsets } = createPropertyDataString(values2);
     prop.stringOffsets = createBufferView(stringOffsets, scenegraph);
     prop.values = createBufferView(stringData, scenegraph);
   } else if (classProperty.type === "SCALAR" && classProperty.componentType) {
-    const data = createPropertyDataScalar(values, classProperty.componentType);
+    const data = createPropertyDataScalar(values2, classProperty.componentType);
     prop.values = createBufferView(data, scenegraph);
   }
   return prop;
@@ -21056,9 +21138,9 @@ var DracoParser = class {
     for (const loaderAttribute of Object.values(loaderData.attributes)) {
       const attributeName = this._deduceAttributeName(loaderAttribute, options);
       loaderAttribute.name = attributeName;
-      const values = this._getAttributeValues(dracoGeometry, loaderAttribute);
-      if (values) {
-        const { value, size } = values;
+      const values2 = this._getAttributeValues(dracoGeometry, loaderAttribute);
+      if (values2) {
+        const { value, size } = values2;
         attributes[attributeName] = {
           value,
           size,
@@ -23041,18 +23123,18 @@ function resolveTechniques(techniquesExtension, gltfScenegraph) {
   return techniques;
 }
 function resolveValues(technique, gltfScenegraph) {
-  const values = Object.assign({}, technique.values);
+  const values2 = Object.assign({}, technique.values);
   Object.keys(technique.uniforms || {}).forEach((uniform) => {
-    if (technique.uniforms[uniform].value && !(uniform in values)) {
-      values[uniform] = technique.uniforms[uniform].value;
+    if (technique.uniforms[uniform].value && !(uniform in values2)) {
+      values2[uniform] = technique.uniforms[uniform].value;
     }
   });
-  Object.keys(values).forEach((uniform) => {
-    if (typeof values[uniform] === "object" && values[uniform].index !== void 0) {
-      values[uniform].texture = gltfScenegraph.getTexture(values[uniform].index);
+  Object.keys(values2).forEach((uniform) => {
+    if (typeof values2[uniform] === "object" && values2[uniform].index !== void 0) {
+      values2[uniform].texture = gltfScenegraph.getTexture(values2[uniform].index);
     }
   });
-  return values;
+  return values2;
 }
 
 // ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/api/gltf-extensions.js
@@ -25128,21 +25210,21 @@ function parseMaterialAttributes(ctx, material) {
     const common = extensions["KHR_materials_common"];
     if (common) {
       const technique = common.technique;
-      const values = common.values || {};
+      const values2 = common.values || {};
       const blinn = technique === "BLINN";
       const phong = technique === "PHONG";
       const lambert = technique === "LAMBERT";
-      const diffuse = values.diffuse;
+      const diffuse = values2.diffuse;
       if (diffuse && (blinn || phong || lambert)) {
         if (!isString(diffuse)) {
           materialAttributes.color.set(diffuse);
         }
       }
-      const transparency = values.transparency;
+      const transparency = values2.transparency;
       if (transparency !== null && transparency !== void 0) {
         materialAttributes.opacity = transparency;
       }
-      const transparent = values.transparent;
+      const transparent = values2.transparent;
       if (transparent !== null && transparent !== void 0) {
         materialAttributes.opacity = transparent;
       }
@@ -25538,7 +25620,7 @@ var ModelExporter = class {
 };
 
 // ../../node_modules/.pnpm/property-graph@3.0.0/node_modules/property-graph/dist/property-graph.modern.js
-var EventDispatcher4 = class {
+var EventDispatcher5 = class {
   constructor() {
     this._listeners = {};
   }
@@ -25633,7 +25715,7 @@ var GraphEdge = class {
     return this._disposed;
   }
 };
-var Graph = class extends EventDispatcher4 {
+var Graph = class extends EventDispatcher5 {
   constructor(...args) {
     super(...args);
     this._emptySet = /* @__PURE__ */ new Set();
@@ -25829,7 +25911,7 @@ var RefMap = class {
 };
 var $attributes = Symbol("attributes");
 var $immutableKeys = Symbol("immutableKeys");
-var GraphNode = class _GraphNode extends EventDispatcher4 {
+var GraphNode = class _GraphNode extends EventDispatcher5 {
   /**
    * Internal graph used to search and maintain references.
    * @hidden
@@ -29873,10 +29955,10 @@ function getSparseArray(accessorDef, context) {
     count
   });
   const indices = getAccessorArray(indicesDef, context);
-  const values = getAccessorArray(valuesDef, context);
+  const values2 = getAccessorArray(valuesDef, context);
   for (let i = 0; i < indicesDef.count; i++) {
     for (let j = 0; j < elementSize; j++) {
-      array[indices[i] * elementSize + j] = values[i * elementSize + j];
+      array[indices[i] * elementSize + j] = values2[i * elementSize + j];
     }
   }
   return array;
@@ -30232,7 +30314,7 @@ var GLTFWriter = class {
         json.accessors.push(accessorDef);
         context.accessorIndexMap.set(accessor, json.accessors.length - 1);
         const indices = [];
-        const values = [];
+        const values2 = [];
         const el12 = [];
         const base = new Array(accessor.getElementSize()).fill(0);
         for (let i = 0, il = accessor.getCount(); i < il; i++) {
@@ -30242,7 +30324,7 @@ var GLTFWriter = class {
           maxIndex = Math.max(i, maxIndex);
           indices.push(i);
           for (let j = 0; j < el12.length; j++)
-            values.push(el12[j]);
+            values2.push(el12[j]);
         }
         const count = indices.length;
         const data = {
@@ -30257,7 +30339,7 @@ var GLTFWriter = class {
         }
         const ValueArray = ComponentTypeToTypedArray[accessor.getComponentType()];
         data.indices = indices;
-        data.values = new ValueArray(values);
+        data.values = new ValueArray(values2);
       }
       if (!Number.isFinite(maxIndex)) {
         return {
@@ -31580,6 +31662,8 @@ var parse4 = async (params, options) => {
         nextId: 0,
         options: options || {}
       };
+      const numSceneObjects = fileData.CityObjects ? Object.keys(fileData.CityObjects).length : 0;
+      sdkProgress.addTasks(numSceneObjects);
       if (!parseCityJSON(ctx)) {
         return reject(
           ctx.errors.length > 0 ? `[CityJSONLoader] Failed to parse CityJSON file:${ctx.errors[0]}` : `[CityJSONLoader] Failed to parse CityJSON file: Unknown error`
@@ -31655,11 +31739,11 @@ function parseCityObject(ctx, cityObject, objectId) {
               if (theme.value !== void 0) {
                 objectMaterial = materials[theme.value];
               } else {
-                const values = theme.values;
-                if (values) {
+                const values2 = theme.values;
+                if (values2) {
                   surfaceMaterials = [];
-                  for (let j = 0, lenj = values.length; j < lenj; j++) {
-                    const value = values[i];
+                  for (let j = 0, lenj = values2.length; j < lenj; j++) {
+                    const value = values2[i];
                     const surfaceMaterial = materials[value];
                     surfaceMaterials.push(surfaceMaterial);
                   }
@@ -31685,6 +31769,7 @@ function parseCityObject(ctx, cityObject, objectId) {
         schema: SCHEMA,
         meshIds
       });
+      sdkProgress.completeTask();
       if (!result.ok) {
         ctx.errors.push(`[CityJSONLoader] Failed to create scene object for CityJSON object ${objectId} -> ${result.error}`);
         return false;
@@ -97202,7 +97287,9 @@ function parseSceneModel(ctx) {
         positions[l + 2] = vertexData[k * 6 + 2];
       }
       const matrix = identityMat4();
-      matrix.set(placedGeometry.flatTransformation);
+      if (!isNaN(placedGeometry.flatTransformation[0])) {
+        matrix.set(placedGeometry.flatTransformation);
+      }
       const geometryId = `${ctx.nextId++}`;
       const meshId = `${ctx.nextId++}`;
       const geometryResult = ctx.sceneModel.createGeometry({
@@ -97302,127 +97389,408 @@ async function parse6(params, options) {
 }
 
 // ../sdk/src/formats/ifc/versions/IFC4/encode.ts
-function encode7(ifcAPI, params, options) {
-  return new Promise(function(resolve2, reject) {
-    const { sceneModel, dataModel } = params;
-    const coordinateSystemMatrix = options.coordinateSystem ? createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4Float64()) : null;
-    const modelId = ifcAPI.CreateModel({
-      schema: Schemas.IFC4,
-      name: "Model",
-      description: ["Demo"],
-      authors: ["xeokit-sdk"],
-      organizations: []
-    });
-    const org = new IFC4.IfcOrganization(null, new IFC4.IfcLabel("xeokit"), null, null, null);
-    ifcAPI.WriteLine(modelId, org);
-    const app = new IFC4.IfcApplication(
-      org,
-      new IFC4.IfcLabel("0.0.1"),
-      new IFC4.IfcIdentifier("my app"),
-      new IFC4.IfcIdentifier("app")
-    );
-    ifcAPI.WriteLine(modelId, app);
-    const unit_1 = new IFC4.IfcSIUnit(
-      IFC4.IfcUnitEnum.VOLUMEUNIT,
-      IFC4.IfcSIPrefix.MILLI,
-      IFC4.IfcSIUnitName.CUBIC_METRE
-    );
-    const unitAssign = new IFC4.IfcUnitAssignment([unit_1]);
-    ifcAPI.WriteLine(modelId, unitAssign);
-    const origin2 = [
-      new IFC4.IfcLengthMeasure(0),
-      new IFC4.IfcLengthMeasure(0),
-      new IFC4.IfcLengthMeasure(0)
-    ];
-    const cartPoint = new IFC4.IfcCartesianPoint(origin2);
-    ifcAPI.WriteLine(modelId, cartPoint);
-    origin2[2].value = 1;
-    const dir = new IFC4.IfcDirection(origin2);
-    ifcAPI.WriteLine(modelId, dir);
-    const axis = new IFC4.IfcAxis2Placement2D(cartPoint, dir);
-    ifcAPI.WriteLine(modelId, axis);
-    const geomContext = new IFC4.IfcGeometricRepresentationContext(
-      new IFC4.IfcLabel("30 context"),
-      new IFC4.IfcLabel("model"),
-      new IFC4.IfcDimensionCount("30 context"),
-      null,
-      axis,
-      dir
-    );
-    ifcAPI.WriteLine(modelId, geomContext);
-    const projectDataObjects = dataModel.objectsByType["IfcProject"];
-    const projectDataObject = projectDataObjects ? Object.values(projectDataObjects)[0] : null;
-    const projectId = projectDataObject ? projectDataObject.id : createUUID();
-    const proj = new IFC4.IfcProject(
-      projectId,
-      null,
-      new IFC4.IfcLabel("project"),
-      new IFC4.IfcText("project desc"),
-      null,
-      null,
-      null,
-      [geomContext],
-      unitAssign
-    );
-    ifcAPI.WriteLine(modelId, proj);
-    const ifcElementMap = {};
-    for (let objectId in dataModel.objects) {
-      const dataObject = dataModel.objects[objectId];
-      const dataObjectType = dataObject.type !== void 0 && dataObject.type !== null ? dataObject.type : "IfcBuildingElementProxy";
-      const dataObjectTypeName = dataObjectType || "IfcBuildingElementProxy";
-      const ifcElementClass = IFC4[dataObjectTypeName];
-      if (ifcElementClass) {
-        const ifcElement = new ifcElementClass(
-          dataObject.id,
-          null,
-          new IFC4.IfcLabel(dataObjectTypeName),
-          new IFC4.IfcText(dataObjectTypeName + " description"),
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null
-        );
-        ifcAPI.WriteLine(modelId, ifcElement);
-        ifcElementMap[objectId] = ifcElement;
-      }
-      const sceneObject = sceneModel.objects[objectId];
-      if (sceneObject) {
-        const triFaceSet = new IFC4.IfcTriangulatedFaceSet(void 0, void 0, void 0, [], void 0);
-      }
+function values(obj) {
+  if (!obj || typeof obj !== "object")
+    return [];
+  if (obj instanceof Map)
+    return Array.from(obj.values());
+  return Object.values(obj);
+}
+function toNumberArray(a2) {
+  if (!a2)
+    return [];
+  if (Array.isArray(a2))
+    return a2.map(Number);
+  if (typeof a2.length === "number")
+    return Array.from(a2, Number);
+  return [];
+}
+function clamp01(x) {
+  return Math.max(0, Math.min(1, x));
+}
+var StepWriter = class {
+  nextId = 1;
+  lines = [];
+  add(entity) {
+    const id = this.nextId++;
+    this.lines.push(`#${id}=${entity};`);
+    return id;
+  }
+  ref(id) {
+    return id ? `#${id}` : `$`;
+  }
+  str(s) {
+    if (s === void 0 || s === null)
+      return `$`;
+    return `'${String(s).replace(/'/g, "''")}'`;
+  }
+  num(n) {
+    if (n === void 0 || n === null || Number.isNaN(n))
+      return `$`;
+    return Number(n).toString();
+  }
+  list(items) {
+    return `(${items.join(",")})`;
+  }
+  toStep() {
+    return this.lines.join("\n");
+  }
+};
+var IFC_B64 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_$";
+function ifcGuidFromBytes(bytes) {
+  let out = "";
+  let acc = 0;
+  let accBits = 0;
+  for (let i = 0; i < 16; i++) {
+    acc = acc << 8 | (bytes[i] ?? 0);
+    accBits += 8;
+    while (accBits >= 6) {
+      const shift = accBits - 6;
+      const idx = acc >> shift & 63;
+      out += IFC_B64[idx];
+      accBits -= 6;
+      acc &= (1 << accBits) - 1;
     }
-    for (let relationshipId in dataModel.relationships) {
-      const relationship = dataModel.relationships[relationshipId];
-      const relatingDataObject = relationship.relatingObject;
-      const relatedDataObject = relationship.relatedObject;
-      const relatingIfcElement = ifcElementMap[relatingDataObject.id];
-      const relatedIfcElement = ifcElementMap[relatedDataObject.id];
-      if (!relatingIfcElement || !relatedIfcElement) {
+  }
+  if (accBits > 0)
+    out += IFC_B64[acc << 6 - accBits & 63];
+  if (out.length < 22)
+    out = out.padEnd(22, "0");
+  if (out.length > 22)
+    out = out.slice(0, 22);
+  return out;
+}
+function randomIfcGuid() {
+  const bytes = new Uint8Array(16);
+  const cryptoObj = globalThis.crypto;
+  if (cryptoObj?.getRandomValues)
+    cryptoObj.getRandomValues(bytes);
+  else
+    for (let i = 0; i < 16; i++)
+      bytes[i] = Math.floor(Math.random() * 256);
+  return ifcGuidFromBytes(bytes);
+}
+function normalize3(v) {
+  const l = Math.hypot(v[0], v[1], v[2]) || 1;
+  return [v[0] / l, v[1] / l, v[2] / l];
+}
+function decomposeMat4TRS(m) {
+  const t = [m[12] ?? 0, m[13] ?? 0, m[14] ?? 0];
+  const xCol = [m[0] ?? 1, m[1] ?? 0, m[2] ?? 0];
+  const yCol = [m[4] ?? 0, m[5] ?? 1, m[6] ?? 0];
+  const zCol = [m[8] ?? 0, m[9] ?? 0, m[10] ?? 1];
+  const sx = Math.hypot(xCol[0], xCol[1], xCol[2]) || 1;
+  const sy = Math.hypot(yCol[0], yCol[1], yCol[2]) || 1;
+  const sz = Math.hypot(zCol[0], zCol[1], zCol[2]) || 1;
+  const xAxis = normalize3([xCol[0] / sx, xCol[1] / sx, xCol[2] / sx]);
+  const yAxis = normalize3([yCol[0] / sy, yCol[1] / sy, yCol[2] / sy]);
+  const zAxis = normalize3([zCol[0] / sz, zCol[1] / sz, zCol[2] / sz]);
+  return { t, xAxis, yAxis, zAxis, s: [sx, sy, sz] };
+}
+function makeLocalPlacement(sw, relativeToPlacementId, location, axis, refDirection) {
+  const p = sw.add(`IFCCARTESIANPOINT((${sw.num(location[0])},${sw.num(location[1])},${sw.num(location[2])}))`);
+  const a2 = sw.add(`IFCDIRECTION((${sw.num(axis[0])},${sw.num(axis[1])},${sw.num(axis[2])}))`);
+  const r = sw.add(`IFCDIRECTION((${sw.num(refDirection[0])},${sw.num(refDirection[1])},${sw.num(refDirection[2])}))`);
+  const ax = sw.add(`IFCAXIS2PLACEMENT3D(${sw.ref(p)},${sw.ref(a2)},${sw.ref(r)})`);
+  return sw.add(`IFCLOCALPLACEMENT(${sw.ref(relativeToPlacementId)},${sw.ref(ax)})`);
+}
+function makeCartesianTransformationOperator3D_FromMat4(sw, m) {
+  const { t, xAxis, yAxis, zAxis, s } = decomposeMat4TRS(m);
+  const axis1 = sw.add(`IFCDIRECTION((${sw.num(xAxis[0])},${sw.num(xAxis[1])},${sw.num(xAxis[2])}))`);
+  const axis2 = sw.add(`IFCDIRECTION((${sw.num(yAxis[0])},${sw.num(yAxis[1])},${sw.num(yAxis[2])}))`);
+  const axis3 = sw.add(`IFCDIRECTION((${sw.num(zAxis[0])},${sw.num(zAxis[1])},${sw.num(zAxis[2])}))`);
+  const origin2 = sw.add(`IFCCARTESIANPOINT((${sw.num(t[0])},${sw.num(t[1])},${sw.num(t[2])}))`);
+  return sw.add(
+    `IFCCARTESIANTRANSFORMATIONOPERATOR3D(${sw.ref(axis1)},${sw.ref(axis2)},${sw.ref(origin2)},${sw.num(
+      s[0]
+    )},${sw.ref(axis3)},${sw.num(s[1])},${sw.num(s[2])})`
+  );
+}
+function applyColorStyle(sw, itemId, rgb) {
+  const [r, g, b4] = rgb;
+  const color2 = sw.add(`IFCCOLOURRGB($,${sw.num(r)},${sw.num(g)},${sw.num(b4)})`);
+  const rendering = sw.add(`IFCSURFACESTYLERENDERING(${sw.ref(color2)},0.,$,$,$,$,$,.PHONG.,$)`);
+  const surfStyle = sw.add(`IFCSURFACESTYLE(${sw.str("Style")},.BOTH.,(${sw.ref(rendering)}))`);
+  const presStyle = sw.add(`IFCPRESENTATIONSTYLEASSIGNMENT((${sw.ref(surfStyle)}))`);
+  sw.add(`IFCSTYLEDITEM(${sw.ref(itemId)},(${sw.ref(presStyle)}),$)`);
+}
+function toIfcValueLiteral(sw, v) {
+  if (typeof v === "number")
+    return `IFCREAL(${sw.num(v)})`;
+  if (typeof v === "boolean")
+    return `IFCBOOLEAN(${v ? ".T." : ".F."})`;
+  if (typeof v === "string")
+    return `IFCTEXT(${sw.str(v)})`;
+  if (v === null || v === void 0)
+    return `$`;
+  return `IFCTEXT(${sw.str(JSON.stringify(v))})`;
+}
+function dequantizePositions(geom) {
+  const q = toNumberArray(geom.positionsCompressed);
+  const aabb = geom.aabb ? Array.from(geom.aabb) : void 0;
+  if (!q.length || !aabb || aabb.length < 6)
+    return [];
+  const xmin = aabb[0], ymin = aabb[1], zmin = aabb[2];
+  const xmax = aabb[3], ymax = aabb[4], zmax = aabb[5];
+  const dx = xmax - xmin;
+  const dy = ymax - ymin;
+  const dz = zmax - zmin;
+  const out = new Array(q.length);
+  for (let i = 0; i < q.length; i += 3) {
+    const qx = q[i] ?? 0;
+    const qy = q[i + 1] ?? 0;
+    const qz = q[i + 2] ?? 0;
+    out[i] = xmin + qx / 65535 * dx;
+    out[i + 1] = ymin + qy / 65535 * dy;
+    out[i + 2] = zmin + qz / 65535 * dz;
+  }
+  return out;
+}
+function wrapLongStepLines(step, maxLen = 4e3) {
+  const lines = step.split("\n");
+  const out = [];
+  for (const line of lines) {
+    if (!line.startsWith("#") || line.length <= maxLen) {
+      out.push(line);
+      continue;
+    }
+    const hasSemi = line.endsWith(";");
+    const body = hasSemi ? line.slice(0, -1) : line;
+    const parts = [];
+    let buf = "";
+    let inString = false;
+    for (let i = 0; i < body.length; i++) {
+      const ch = body[i];
+      if (ch === "'") {
+        if (inString && body[i + 1] === "'") {
+          buf += "''";
+          i++;
+          continue;
+        }
+        inString = !inString;
+        buf += ch;
         continue;
       }
-      const relationshipType = relationship.type !== void 0 && relationship.type !== null ? relationship.type : "IfcRelAggregates";
-      const relatonshipTypeName = relationshipType;
-      const ifcRelationshipClass = IFC4[relatonshipTypeName];
-      if (ifcRelationshipClass) {
-        const ifcRelationship = new ifcRelationshipClass(
-          relationshipId,
-          null,
-          new IFC4.IfcLabel(relatonshipTypeName),
-          new IFC4.IfcText(relatonshipTypeName + " description"),
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null
-        );
-        ifcAPI.WriteLine(modelId, ifcRelationship);
+      if (!inString && ch === ",") {
+        buf += ch;
+        parts.push(buf);
+        buf = "";
+        continue;
+      }
+      buf += ch;
+    }
+    if (buf)
+      parts.push(buf);
+    let current = "";
+    for (const piece of parts) {
+      if (current.length === 0) {
+        current = piece;
+        continue;
+      }
+      if (current.length + piece.length <= maxLen) {
+        current += piece;
+      } else {
+        out.push(current);
+        current = "  " + piece;
       }
     }
-    resolve2(ifcAPI.SaveModel(modelId));
+    out.push(current + (hasSemi ? ";" : ""));
+  }
+  return out.join("\n");
+}
+function encode7(ifcAPI, params, options) {
+  return new Promise((resolve2, reject) => {
+    try {
+      const { sceneModel, dataModel } = params;
+      const dataObjects = values(dataModel?.objects);
+      const dataPropertySets = values(dataModel?.propertySets);
+      const dataRelationships = values(dataModel?.relationships);
+      const dataObjById = new Map(dataObjects.map((o) => [o.id, o]));
+      const sceneGeometries = values(sceneModel?.geometries);
+      const sceneObjects = values(sceneModel?.objects);
+      const sceneMeshesById = new Map(values(sceneModel?.meshes).map((m) => [m.id, m]));
+      const sw = new StepWriter();
+      const person = sw.add(`IFCPERSON($,${sw.str("Exporter")},$,$,$,$,$,$)`);
+      const org = sw.add(`IFCORGANIZATION($,${sw.str("Creoox")},$,$,$)`);
+      const pAndO = sw.add(`IFCPERSONANDORGANIZATION(${sw.ref(person)},${sw.ref(org)},$)`);
+      const app = sw.add(
+        `IFCAPPLICATION(${sw.ref(org)},${sw.str("1.0")},${sw.str("SceneModel->IFC4")},${sw.str("SM2IFC")})`
+      );
+      const ownerHist = sw.add(`IFCOWNERHISTORY(${sw.ref(pAndO)},${sw.ref(app)},$,.ADDED.,$,$,$,0)`);
+      const unitLength = sw.add(`IFCSIUNIT($,.LENGTHUNIT.,.METRE.)`);
+      const unitAngle = sw.add(`IFCSIUNIT($,.PLANEANGLEUNIT.,.RADIAN.)`);
+      const unitAssign = sw.add(`IFCUNITASSIGNMENT(${sw.list([sw.ref(unitLength), sw.ref(unitAngle)])})`);
+      const origin2 = sw.add(`IFCCARTESIANPOINT((0.,0.,0.))`);
+      const axisZ = sw.add(`IFCDIRECTION((0.,0.,1.))`);
+      const axisX = sw.add(`IFCDIRECTION((1.,0.,0.))`);
+      const wcs = sw.add(`IFCAXIS2PLACEMENT3D(${sw.ref(origin2)},${sw.ref(axisZ)},${sw.ref(axisX)})`);
+      const geomCtx = sw.add(
+        `IFCGEOMETRICREPRESENTATIONCONTEXT(${sw.str("Model")},${sw.str("3D")},3,1.0E-05,${sw.ref(wcs)},$)`
+      );
+      const modelId = String(sceneModel?.id ?? dataModel?.id ?? "Model");
+      const project = sw.add(
+        `IFCPROJECT(${sw.str(randomIfcGuid())},${sw.ref(ownerHist)},${sw.str(modelId)},$,$,$,$,(${sw.ref(
+          geomCtx
+        )}),${sw.ref(unitAssign)})`
+      );
+      const sitePlace = makeLocalPlacement(sw, null, [0, 0, 0], [0, 0, 1], [1, 0, 0]);
+      const site = sw.add(
+        `IFCSITE(${sw.str(randomIfcGuid())},${sw.ref(ownerHist)},${sw.str("Site")},$,$,${sw.ref(
+          sitePlace
+        )},$,$,.ELEMENT.,$,$,$,$,$)`
+      );
+      const bldgPlace = makeLocalPlacement(sw, sitePlace, [0, 0, 0], [0, 0, 1], [1, 0, 0]);
+      const building = sw.add(
+        `IFCBUILDING(${sw.str(randomIfcGuid())},${sw.ref(ownerHist)},${sw.str("Building")},$,$,${sw.ref(
+          bldgPlace
+        )},$,$,.ELEMENT.,$,$,$)`
+      );
+      const storeyPlace = makeLocalPlacement(sw, bldgPlace, [0, 0, 0], [0, 0, 1], [1, 0, 0]);
+      const storey = sw.add(
+        `IFCBUILDINGSTOREY(${sw.str(randomIfcGuid())},${sw.ref(ownerHist)},${sw.str("Storey")},$,$,${sw.ref(
+          storeyPlace
+        )},$,$,.ELEMENT.,0.)`
+      );
+      sw.add(`IFCRELAGGREGATES(${sw.str(randomIfcGuid())},${sw.ref(ownerHist)},$,$,${sw.ref(project)},(${sw.ref(site)}))`);
+      sw.add(`IFCRELAGGREGATES(${sw.str(randomIfcGuid())},${sw.ref(ownerHist)},$,$,${sw.ref(site)},(${sw.ref(building)}))`);
+      sw.add(`IFCRELAGGREGATES(${sw.str(randomIfcGuid())},${sw.ref(ownerHist)},$,$,${sw.ref(building)},(${sw.ref(storey)}))`);
+      const repMapByGeomId = /* @__PURE__ */ new Map();
+      for (const g of sceneGeometries) {
+        const geomId = g.id;
+        const positions = dequantizePositions(g);
+        const transformed = positions;
+        const indices = toNumberArray(g.indices);
+        const pts = [];
+        for (let i = 0; i + 2 < transformed.length; i += 3) {
+          const x = transformed[i], y = transformed[i + 1], z = transformed[i + 2];
+          if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z))
+            continue;
+          pts.push(`(${sw.num(x)},${sw.num(y)},${sw.num(z)})`);
+        }
+        const pointList = sw.add(`IFCCARTESIANPOINTLIST3D(${sw.list(pts)})`);
+        const faces2 = [];
+        for (let i = 0; i < indices.length; i += 3) {
+          faces2.push(`(${(indices[i] ?? 0) + 1},${(indices[i + 1] ?? 0) + 1},${(indices[i + 2] ?? 0) + 1})`);
+        }
+        const closed = ".F.";
+        const triSet = sw.add(
+          `IFCTRIANGULATEDFACESET(${sw.ref(pointList)},$,${closed},${sw.list(faces2)},$)`
+        );
+        const shapeRep = sw.add(
+          `IFCSHAPEREPRESENTATION(${sw.ref(geomCtx)},${sw.str("Body")},${sw.str("Tessellation")},(${sw.ref(triSet)}))`
+        );
+        const repOrigin = sw.add(`IFCAXIS2PLACEMENT3D(${sw.ref(origin2)},${sw.ref(axisZ)},${sw.ref(axisX)})`);
+        const repMap = sw.add(`IFCREPRESENTATIONMAP(${sw.ref(repOrigin)},${sw.ref(shapeRep)})`);
+        repMapByGeomId.set(geomId, repMap);
+      }
+      const ifcProductByObjectId = /* @__PURE__ */ new Map();
+      const containedProducts = [];
+      for (const obj of sceneObjects) {
+        const objId = obj.id;
+        const semantic = dataObjById.get(objId);
+        const name12 = semantic?.name ?? objId;
+        let meshList = Array.isArray(obj.meshes) ? obj.meshes : [];
+        if (!meshList.length && Array.isArray(obj.meshIds)) {
+          meshList = obj.meshIds.map((id) => sceneMeshesById.get(id)).filter(Boolean);
+        }
+        const mappedItems = [];
+        for (const mesh of meshList) {
+          const geomId = mesh.geometry?.id ?? mesh.geometryId;
+          const repMap = repMapByGeomId.get(geomId);
+          if (!repMap)
+            continue;
+          const mat = mesh.globalMatrix;
+          const op = makeCartesianTransformationOperator3D_FromMat4(sw, mat);
+          const mappedItem = sw.add(`IFCMAPPEDITEM(${sw.ref(repMap)},${sw.ref(op)})`);
+          if (mesh.color && Array.isArray(mesh.color) && mesh.color.length >= 3) {
+            applyColorStyle(sw, mappedItem, [
+              clamp01(mesh.color[0]),
+              clamp01(mesh.color[1]),
+              clamp01(mesh.color[2])
+            ]);
+          }
+          mappedItems.push(mappedItem);
+        }
+        const objShapeRep = sw.add(
+          `IFCSHAPEREPRESENTATION(${sw.ref(geomCtx)},${sw.str("Body")},${sw.str("MappedRepresentation")},${sw.list(
+            mappedItems.map((id) => sw.ref(id))
+          )})`
+        );
+        const pdefShape = sw.add(`IFCPRODUCTDEFINITIONSHAPE($,$,(${sw.ref(objShapeRep)}))`);
+        const objPlacement = makeLocalPlacement(sw, storeyPlace, [0, 0, 0], [0, 0, 1], [1, 0, 0]);
+        const product = sw.add(
+          `IFCBUILDINGELEMENTPROXY(${sw.str(randomIfcGuid())},${sw.ref(ownerHist)},${sw.str(
+            name12
+          )},$,$,${sw.ref(objPlacement)},${sw.ref(pdefShape)},$,.NOTDEFINED.)`
+        );
+        ifcProductByObjectId.set(objId, product);
+        containedProducts.push(product);
+      }
+      if (containedProducts.length) {
+        sw.add(
+          `IFCRELCONTAINEDINSPATIALSTRUCTURE(${sw.str(randomIfcGuid())},${sw.ref(
+            ownerHist
+          )},$,$,(${containedProducts.map((id) => sw.ref(id)).join(",")}),${sw.ref(storey)})`
+        );
+      }
+      const ifcPsetById = /* @__PURE__ */ new Map();
+      for (const pset of dataPropertySets) {
+        const props = [];
+        for (const p of pset.properties ?? []) {
+          const ifcValue = toIfcValueLiteral(sw, p.value);
+          props.push(sw.add(`IFCPROPERTYSINGLEVALUE(${sw.str(p.name)},${sw.str(p.description ?? "")},${ifcValue},$)`));
+        }
+        const ifcPset = sw.add(
+          `IFCPROPERTYSET(${sw.str(randomIfcGuid())},${sw.ref(ownerHist)},${sw.str(pset.name)},$,(${props.map((id) => sw.ref(id)).join(",")}))`
+        );
+        ifcPsetById.set(pset.id, ifcPset);
+      }
+      for (const dobj of dataObjects) {
+        const prodId = ifcProductByObjectId.get(dobj.id);
+        if (!prodId)
+          continue;
+        for (const psetId of dobj.propertySetIds ?? []) {
+          const ifcPset = ifcPsetById.get(psetId);
+          if (!ifcPset)
+            continue;
+          sw.add(
+            `IFCRELDEFINESBYPROPERTIES(${sw.str(randomIfcGuid())},${sw.ref(
+              ownerHist
+            )},$,$,(${sw.ref(prodId)}),${sw.ref(ifcPset)})`
+          );
+        }
+      }
+      for (const rel of dataRelationships) {
+        if (rel.type !== 1001)
+          continue;
+        const a2 = ifcProductByObjectId.get(rel.relatingObjectId);
+        const b4 = ifcProductByObjectId.get(rel.relatedObjectId);
+        if (!a2 || !b4)
+          continue;
+        sw.add(`IFCRELAGGREGATES(${sw.str(randomIfcGuid())},${sw.ref(ownerHist)},$,$,${sw.ref(a2)},(${sw.ref(b4)}))`);
+      }
+      const now = (/* @__PURE__ */ new Date()).toISOString();
+      const fileName = `${modelId}-${createUUID?.() ?? "export"}.ifc`;
+      const header = `ISO-10303-21;
+HEADER;
+FILE_DESCRIPTION(('ViewDefinition [CoordinationView_V2.0]'),'2;1');
+FILE_NAME(${sw.str(fileName)},${sw.str(now)},(${sw.str("SceneModel->IFC4")}),(${sw.str(
+        "SceneModel->IFC4"
+      )}),${sw.str("SM2IFC")},${sw.str("SM2IFC")},${sw.str("")});
+FILE_SCHEMA(('IFC4'));
+ENDSEC;
+DATA;
+`;
+      const footer = `
+ENDSEC;
+END-ISO-10303-21;
+`;
+      let ifcText = header + sw.toStep() + footer;
+      ifcText = wrapLongStepLines(ifcText, 4e3);
+      resolve2(new TextEncoder().encode(ifcText).buffer);
+    } catch (e) {
+      reject(e);
+    }
   });
 }
 
@@ -117655,7 +118023,7 @@ var LASLoader3 = {
 };
 
 // ../sdk/src/formats/las/LASLoader.ts
-var MAX_VERTICES = 5e5;
+var MAX_VERTICES = 2e4;
 var LASLoader4 = class extends ModelLoader {
   constructor() {
     super({
@@ -118012,9 +118380,11 @@ var parse10 = async (params, options) => {
             id: meshId,
             geometryId,
             color: color2 ? [color2.r / 255, color2.g / 255, color2.b / 255] : void 0,
-            opacity: color2 ? color2.a / 255 : 1,
-            quaternion: rotation ? [rotation.qx, rotation.qy, rotation.qz, rotation.qw] : void 0,
-            position: [vector.x, vector.y, vector.z]
+            opacity: color2 ? color2.a / 255 : 1
+            // quaternion: rotation
+            //     ? [rotation.qx, rotation.qy, rotation.qz, rotation.qw]
+            //     : undefined,
+            // position: [vector.x, vector.y, vector.z],
           });
           if (meshRes.ok === false) {
             continue;
@@ -118163,9 +118533,9 @@ function encode10(params, options) {
         mesh_id: dbMesh.mesh_id,
         type: info.type,
         color: {
-          r: color2[0],
-          g: color2[1],
-          b: color2[2],
+          r: color2[0] * 255,
+          g: color2[1] * 255,
+          b: color2[2] * 255,
           a: firstMesh.opacity
         },
         vector: {
@@ -118288,10 +118658,10 @@ function encode11(params, options) {
         mesh_id: dbMesh.mesh_id,
         type: info.type,
         color: {
-          r: color2[0],
-          g: color2[1],
-          b: color2[2],
-          a: firstMesh.opacity
+          r: color2[0] * 255,
+          g: color2[1] * 255,
+          b: color2[2] * 255,
+          a: firstMesh.opacity * 255
         },
         vector: {
           x: position[0],
@@ -118718,7 +119088,7 @@ var AmbientLight = class {
 };
 
 // ../sdk/src/viewer/CustomProjection.ts
-var import_strongly_typed_events4 = __toESM(require_dist8());
+var import_strongly_typed_events5 = __toESM(require_dist8());
 var CustomProjection = class {
   /**
    * The Camera this CustomProjection belongs to.
@@ -118748,7 +119118,7 @@ var CustomProjection = class {
     this._projMatrix = cfg.projMatrix ? createMat4Float32(cfg.projMatrix) : identityMat4(createMat4Float32());
     this._inverseProjMatrix = createMat4Float32();
     this._transposedProjMatrix = createMat4Float32();
-    this.onProjMatrix = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onProjMatrix = new EventEmitter(new import_strongly_typed_events5.EventDispatcher());
     this._inverseProjMatrixDirty = true;
     this._transposedProjMatrixDirty = false;
   }
@@ -118859,7 +119229,7 @@ var CustomProjection = class {
 };
 
 // ../sdk/src/viewer/FrustumProjection.ts
-var import_strongly_typed_events5 = __toESM(require_dist8());
+var import_strongly_typed_events6 = __toESM(require_dist8());
 var FrustumProjection = class {
   /**
    * The task that updates the projection matrix.
@@ -118906,7 +119276,7 @@ var FrustumProjection = class {
     this._right = cfg.right !== void 0 && cfg.right !== null ? cfg.right : 1;
     this._bottom = cfg.bottom !== void 0 && cfg.bottom !== null ? cfg.bottom : -1;
     this._top = cfg.top !== void 0 && cfg.top !== null ? cfg.top : 1;
-    this.onProjMatrix = new EventEmitter(new import_strongly_typed_events5.EventDispatcher());
+    this.onProjMatrix = new EventEmitter(new import_strongly_typed_events6.EventDispatcher());
     this._inverseMatrixDirty = true;
     this._transposedProjMatrixDirty = true;
     this._buildMatricesTask = new SDKTask({
@@ -119156,7 +119526,7 @@ var FrustumProjection = class {
 };
 
 // ../sdk/src/viewer/OrthoProjection.ts
-var import_strongly_typed_events6 = __toESM(require_dist8());
+var import_strongly_typed_events7 = __toESM(require_dist8());
 var OrthoProjection = class {
   /**
    * The task that updates the projection matrix.
@@ -119195,7 +119565,7 @@ var OrthoProjection = class {
     this._projMatrix = createMat4Float64();
     this._inverseProjMatrix = createMat4Float64();
     this._transposedProjMatrix = createMat4Float64();
-    this.onProjMatrix = new EventEmitter(new import_strongly_typed_events6.EventDispatcher());
+    this.onProjMatrix = new EventEmitter(new import_strongly_typed_events7.EventDispatcher());
     this._inverseMatrixDirty = true;
     this._transposedProjMatrixDirty = true;
     this._onViewBoundary = this.camera.view.viewer.events.onViewCanvasBoundaryChanged.subscribe((view, _) => {
@@ -119427,7 +119797,7 @@ var OrthoProjection = class {
 };
 
 // ../sdk/src/viewer/PerspectiveProjection.ts
-var import_strongly_typed_events7 = __toESM(require_dist8());
+var import_strongly_typed_events8 = __toESM(require_dist8());
 var PerspectiveProjection = class {
   /**
    * The Camera this PerspectiveProjection belongs to.
@@ -119472,7 +119842,7 @@ var PerspectiveProjection = class {
         this._buildMatricesTask.schedule();
       }
     });
-    this.onProjMatrix = new EventEmitter(new import_strongly_typed_events7.EventDispatcher());
+    this.onProjMatrix = new EventEmitter(new import_strongly_typed_events8.EventDispatcher());
     this._buildMatricesTask = new SDKTask({
       name: "PerspectiveProjection._buildMatricesTask",
       task: () => {
@@ -123015,7 +123385,7 @@ var ViewLayer = class {
 };
 
 // ../sdk/src/viewer/View.ts
-var import_strongly_typed_events8 = __toESM(require_dist8());
+var import_strongly_typed_events9 = __toESM(require_dist8());
 
 // ../sdk/src/viewer/ViewTransformParams.ts
 var ViewTransformParams = class {
@@ -123764,7 +124134,7 @@ var View = class {
       intensity: 1,
       space: "world"
     });
-    this.onBoundary = new EventEmitter(new import_strongly_typed_events8.EventDispatcher());
+    this.onBoundary = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
     let lastWindowWidth = 0;
     let lastWindowHeight = 0;
     let lastViewWidth = 0;
@@ -124990,7 +125360,7 @@ var View = class {
 };
 
 // ../sdk/src/viewer/ViewerEvents.ts
-var import_strongly_typed_events9 = __toESM(require_dist8());
+var import_strongly_typed_events10 = __toESM(require_dist8());
 var ViewerEvents = class {
   //---------------------------- Viewer Events ----------------------------//
   /**
@@ -125167,37 +125537,37 @@ var ViewerEvents = class {
    * @private
    */
   constructor() {
-    this.onError = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onSceneAttached = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onSceneDetached = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onViewerDestroyed = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onTick = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.log = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onViewCreated = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onViewUpdated = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onViewDestroyed = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onViewCanvasBoundaryChanged = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onViewObjectCreated = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onViewObjectDestroyed = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onViewObjectVisibleChanged = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onViewObjectSelectedChanged = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onViewObjectHighlightedChanged = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onViewObjectXRayedChanged = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onViewObjectColorizeChanged = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onViewObjectOpacityChanged = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onViewLayerCreated = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onViewLayerDestroyed = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onCameraProjectionTypeChanged = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onCameraViewMatrixUpdated = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onCameraProjMatrixUpdated = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onCameraFrustumUpdated = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onSectionPlaneCreated = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onSectionPlaneDestroyed = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onSectionPlanePosChanged = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onSectionPlaneDirChanged = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onSectionPlaneActive = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onSnapshotStarted = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    this.onSnapshotFinished = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
+    this.onError = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onSceneAttached = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onSceneDetached = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onViewerDestroyed = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onTick = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.log = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onViewCreated = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onViewUpdated = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onViewDestroyed = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onViewCanvasBoundaryChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onViewObjectCreated = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onViewObjectDestroyed = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onViewObjectVisibleChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onViewObjectSelectedChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onViewObjectHighlightedChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onViewObjectXRayedChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onViewObjectColorizeChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onViewObjectOpacityChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onViewLayerCreated = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onViewLayerDestroyed = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onCameraProjectionTypeChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onCameraViewMatrixUpdated = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onCameraProjMatrixUpdated = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onCameraFrustumUpdated = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onSectionPlaneCreated = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onSectionPlaneDestroyed = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onSectionPlanePosChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onSectionPlaneDirChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onSectionPlaneActive = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onSnapshotStarted = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onSnapshotFinished = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
   }
   /**
    * @private
@@ -126937,7 +127307,7 @@ var RenderBuffers = class {
 var DataTextures_exports = {};
 
 // ../sdk/src/webglrenderer/internal/gpuMemoryManager/dataTextures/DataTexture.ts
-var import_strongly_typed_events10 = __toESM(require_dist8());
+var import_strongly_typed_events11 = __toESM(require_dist8());
 var DataTexture = class {
   /**
    * The WebGL2 rendering context.
@@ -127056,7 +127426,7 @@ var DataTexture = class {
    * This event is intended for debugging tools and monitoring UIs; it is only
    * emitted when {@link debugging} is enabled.
    */
-  onUpdated = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+  onUpdated = new EventEmitter(new import_strongly_typed_events11.EventDispatcher());
   /**
    * @private
    */
@@ -127156,6 +127526,17 @@ var DataTexture = class {
         error: `[${this.constructor.name}._allocateTexture]: Exception during texture allocation: ${e}`
       };
     }
+  }
+  /**
+   * Retrieves all logical items currently stored in this texture.
+   * @returns An array of decoded items.
+   */
+  getItems() {
+    const items = [];
+    for (let i = 0; i < this.numItems; i++) {
+      items.push(this.getItem(i));
+    }
+    return items;
   }
   /**
    * Handles WebGL context restoration by reallocating the texture.
@@ -127287,9 +127668,6 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
     const portion = this.portions.get(handle.id);
     if (!portion) {
       throw new SDKInternalException("[PrimitiveMeshIndexTexture.setRenderPass]: Unknown portion handle");
-    }
-    if (portion.renderPass === renderPass) {
-      return;
     }
     portion.renderPass = renderPass;
     handle.renderPass = renderPass;
@@ -127433,6 +127811,8 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
       buckets.get(portion.renderPass).push(portion);
     }
     let base = 0;
+    let firstPrim = 0;
+    let numPrims = 0;
     this.passRanges.clear();
     for (const renderPass of this.renderPassIds) {
       const bucket = buckets.get(renderPass);
@@ -127440,6 +127820,7 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
         this.passRanges.set(renderPass, { firstPrim: base, numPrims: 0 });
         continue;
       }
+      firstPrim = base;
       for (const portion of bucket) {
         portion.offset = base;
         for (let i = 0; i < portion.size; i++) {
@@ -127450,8 +127831,8 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
         base += portion.size;
       }
       this.passRanges.set(renderPass, {
-        firstPrim: base - bucket.reduce((sum, p) => sum + p.size, 0),
-        numPrims: bucket.reduce((sum, p) => sum + p.size, 0)
+        firstPrim,
+        numPrims: base - firstPrim
       });
     }
     this.primRange.numPrims = base;
@@ -128328,8 +128709,6 @@ var RendererObject = class {
 };
 
 // ../sdk/src/webglrenderer/internal/gpuMemoryManager/GPUTileManager.ts
-var NUM_VIEWS = 4;
-var NUM_TILES = 2e3;
 var tempVec3a8 = createVec3Float64();
 var GPUTileManager = class {
   _renderContext;
@@ -128352,16 +128731,19 @@ var GPUTileManager = class {
    * Synchronizes all tile RTC view matrices to the given Camera's view matrix.
    */
   cameraViewMatrixUpdated(camera) {
+    if (camera.view.viewIndex >= this._renderContext.memoryConfigs.maxViews) {
+      return;
+    }
     this._synchTilesToViewMatrix(camera);
   }
   /**
    * Get a GPUTile that contains the given 3D World-space position.
    */
   getTile(worldPos) {
-    const tileSize = this._renderContext.memoryConfigs.tileSize;
+    const tileSize = getRTCTileSize(worldPos);
     const rtcCenter2 = worldToRTCCenter(worldPos, tempVec3a8, tileSize);
     const id = this._makeTileId(rtcCenter2);
-    let tile = this._tiles.get(id) ?? this._createTile(id, rtcCenter2);
+    let tile = this._tiles.get(id) ?? this._createTile(id, rtcCenter2, tileSize);
     tile.useCount++;
     if (this._renderContext.renderInspector.enabled) {
       this._renderContext.renderInspector.tileAcquired(tile);
@@ -128386,13 +128768,14 @@ var GPUTileManager = class {
    * Move a GPUTile, if necessary, so that it contains the given World-space 3D position.
    */
   moveTile(tile, worldPos) {
-    const newRTCCenter = worldToRTCCenter(worldPos, tempVec3a8);
+    const tileSize = getRTCTileSize(worldPos);
+    const newRTCCenter = worldToRTCCenter(worldPos, tempVec3a8, tileSize);
     const newId = this._makeTileId(newRTCCenter);
     if (newId === tile.id) {
       return tile;
     }
     this.putTile(tile);
-    let newTile = this._tiles.get(newId) ?? this._createTile(newId, newRTCCenter);
+    let newTile = this._tiles.get(newId) ?? this._createTile(newId, newRTCCenter, tileSize);
     newTile.useCount++;
     return newTile;
   }
@@ -128407,6 +128790,9 @@ var GPUTileManager = class {
    */
   setViewPickMatrix(view, pickMatrix) {
     const viewIndex = view.viewIndex;
+    if (viewIndex >= this._renderContext.memoryConfigs.maxViews) {
+      return;
+    }
     const viewTilePickMatrixTexture = this._viewTilePickMatrixTexture[viewIndex];
     for (const [_, tile] of this._tiles) {
       const rtcPickMatrix = tile.rtcRayPickMatrix[viewIndex];
@@ -128428,6 +128814,10 @@ var GPUTileManager = class {
     const viewMatrix = camera.viewMatrix;
     const viewIndex = view.viewIndex;
     const matrixTexture = this._viewTileCameraMatrixTexture[viewIndex];
+    if (!matrixTexture) {
+      console.warn(`[GPUTileManager] No camera matrix texture for view index ${viewIndex}`);
+      return;
+    }
     for (const [_, tile] of this._tiles) {
       const rtcViewMatrix = tile.rtcViewMatrix[viewIndex];
       createRTCViewMat(viewMatrix, tile.center, rtcViewMatrix);
@@ -128437,15 +128827,16 @@ var GPUTileManager = class {
   _makeTileId(rtcCenter2) {
     return rtcCenter2.join("-");
   }
-  _createTile(id, rtcCenter2) {
-    const { viewList, numViews } = this._renderContext.viewer;
+  _createTile(id, rtcCenter2, tileSize) {
+    const { viewList } = this._renderContext.viewer;
     const center2 = createVec3Float64(rtcCenter2);
+    const numViews = this._renderContext.memoryConfigs.maxViews;
     const rtcViewMatrix = Array.from(
-      { length: NUM_VIEWS },
+      { length: numViews },
       (_, i) => i < numViews ? createRTCViewMat(viewList[i].camera.viewMatrix, center2, createMat4Float64()) : createMat4Float64()
     );
     const rtcPickMatrix = Array.from(
-      { length: NUM_VIEWS },
+      { length: numViews },
       (_, i) => i < numViews ? createRTCViewMat(viewList[i].camera.viewMatrix, center2, createMat4Float64()) : createMat4Float64()
     );
     const tileIndex = this._getFreeTileIndex();
@@ -128455,11 +128846,11 @@ var GPUTileManager = class {
       useCount: 0,
       // callers will increment once per acquisition
       center: center2,
-      size: this._renderContext.memoryConfigs.tileSize,
+      size: tileSize,
       rtcViewMatrix,
       rtcRayPickMatrix: rtcPickMatrix
     };
-    for (let viewIndex = 0; viewIndex < NUM_VIEWS; viewIndex++) {
+    for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
       this._viewTileCameraMatrixTexture[viewIndex].setItem(tileIndex, rtcViewMatrix[viewIndex]);
       this._viewTilePickMatrixTexture[viewIndex].setItem(tileIndex, rtcPickMatrix[viewIndex]);
     }
@@ -128468,7 +128859,8 @@ var GPUTileManager = class {
     return tile;
   }
   _getFreeTileIndex() {
-    for (let i = this._lastFreeTileIndex; ; i = (i + 1) % NUM_TILES) {
+    const numTiles = this._renderContext.memoryConfigs.maxTiles;
+    for (let i = this._lastFreeTileIndex; ; i = (i + 1) % numTiles) {
       if (!this._tileIndexesUsed[i]) {
         this._tileIndexesUsed[i] = true;
         this._lastFreeTileIndex = i;
@@ -128572,46 +128964,42 @@ var GPUMemoryBatch = class {
       RENDER_PASSES.SELECTED,
       RENDER_PASSES.XRAYED
     ];
-    this._primitiveMeshIndexTexture = [
-      new PrimitiveMeshIndexTexture({
-        gl,
-        maxItems: memoryConfigs.maxBatchPrims,
-        bins,
-        description: `[Batch ${this.index}, View 0] - primIndex -> meshIndex`
-      })
-      // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins}),
-      // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins}),
-      // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins})
-    ];
-    this._edgeMeshIndexTexture = [
-      new PrimitiveMeshIndexTexture({
-        gl,
-        maxItems: memoryConfigs.maxBatchPrims,
-        bins,
-        description: `[Batch ${this.index}, View 0] - edgeIndex -> meshIndex`
-      })
-      // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins}),
-      // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins}),
-      // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins})
-    ];
+    const numViews = memoryConfigs.maxViews;
+    this._primitiveMeshIndexTexture = [];
+    this._edgeMeshIndexTexture = [];
+    this._meshViewAttributeTexture = [];
+    for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+      this._primitiveMeshIndexTexture.push(
+        new PrimitiveMeshIndexTexture({
+          gl,
+          maxItems: memoryConfigs.maxBatchPrims,
+          bins,
+          description: `[Batch ${this.index}, View ${viewIndex}] - primIndex -> meshIndex`
+        })
+      );
+      this._edgeMeshIndexTexture.push(
+        new PrimitiveMeshIndexTexture({
+          gl,
+          maxItems: memoryConfigs.maxBatchPrims,
+          bins,
+          description: `[Batch ${this.index}, View ${viewIndex}] - edgeIndex -> meshIndex`
+        })
+      );
+      this._meshViewAttributeTexture.push(
+        new MeshViewAttributeTexture({
+          gl,
+          maxItems: memoryConfigs.maxBatchMeshes,
+          getNumItems: () => this._numMeshes,
+          description: `[Batch ${this.index}, View ${viewIndex}] - meshIndex -> color, opacity, flags`
+        })
+      );
+    }
     this._meshAttributeTexture = new MeshAttributeTexture({
       gl,
       maxItems: memoryConfigs.maxBatchMeshes,
       description: `[Batch ${this.index}] - meshIndex -> geometryIndex, tileIndex`,
       getNumItems: () => this._numMeshes
     });
-    this._meshViewAttributeTexture = [
-      new MeshViewAttributeTexture({
-        gl,
-        maxItems: memoryConfigs.maxBatchMeshes,
-        getNumItems: () => this._numMeshes,
-        description: `[Batch ${this.index}, View 0] - meshIndex -> color, opacity, flags`
-      })
-      // FIXME: Only defined for View 0
-      // new DTXMeshViewAttribs({gl, maxItems: this._maxMeshes}),
-      // new DTXMeshViewAttribs({gl, maxItems: this._maxMeshes}),
-      // new DTXMeshViewAttribs({gl, maxItems: this._maxMeshes})
-    ];
     this._meshMatrixTexture = new MatrixTexture({
       gl,
       maxItems: memoryConfigs.maxBatchMeshes,
@@ -128652,6 +129040,7 @@ var GPUMemoryBatch = class {
     });
     const textures = [
       ...this._primitiveMeshIndexTexture,
+      ...this._edgeMeshIndexTexture,
       this._meshAttributeTexture,
       ...this._meshViewAttributeTexture,
       this._meshMatrixTexture,
@@ -128671,38 +129060,20 @@ var GPUMemoryBatch = class {
         return result;
       }
     }
+    const views = [];
+    for (let i = 0; i < numViews; i++) {
+      views.push({
+        numDrawablePrims: 0,
+        primitiveMeshIndexTexture: this._primitiveMeshIndexTexture[i],
+        edgeMeshIndexTexture: this._edgeMeshIndexTexture[i],
+        meshViewAttributeTexture: this._meshViewAttributeTexture[i],
+        renderPassPrimitiveRanges: this._primitiveMeshIndexTexture[i].passRanges,
+        renderPassEdgePrimitiveRanges: this._edgeMeshIndexTexture[i].passRanges,
+        pickPrimitiveRange: this._primitiveMeshIndexTexture[i].primRange
+      });
+    }
     this.dataTextures = {
-      views: [
-        {
-          numDrawablePrims: 0,
-          primitiveMeshIndexTexture: this._primitiveMeshIndexTexture[0],
-          edgeMeshIndexTexture: this._edgeMeshIndexTexture[0],
-          meshViewAttributeTexture: this._meshViewAttributeTexture[0],
-          renderPassPrimitiveRanges: this._primitiveMeshIndexTexture[0].passRanges,
-          //  FIXME:
-          renderPassEdgePrimitiveRanges: this._edgeMeshIndexTexture[0].passRanges,
-          // FIXME:
-          pickPrimitiveRange: this._primitiveMeshIndexTexture[0].primRange
-        }
-        //     {
-        //       numDrawablePrims: 0,
-        //       primitiveMeshIndexTexture: this._primitiveMeshIndexTexture[1],
-        //         meshViewAttribs: this._meshViewAttributeTexture[1],
-        //       passRanges: this._primitiveMeshIndexTexture[1].passRanges
-        //     },
-        //     {
-        //       numDrawablePrims: 0,
-        //       primitiveMeshIndexTexture: this._primitiveMeshIndexTexture[2],
-        //         meshViewAttribs: this._meshViewAttributeTexture[2],
-        //       passRanges: this._primitiveMeshIndexTexture[2].passRanges
-        //     },
-        //     {
-        //       numDrawablePrims: 0,
-        //       primitiveMeshIndexTexture: this._primitiveMeshIndexTexture[3],
-        //         meshViewAttribs: this._meshViewAttributeTexture[3],
-        //       passRanges: this._primitiveMeshIndexTexture[3].passRanges
-        // }
-      ],
+      views,
       indexTexture: this._indexTexture,
       edgeIndexTexture: this._edgeIndexTexture,
       meshMatrixTexture: this._meshMatrixTexture,
@@ -128740,6 +129111,9 @@ var GPUMemoryBatch = class {
     for (let i = 0; i < this._primitiveMeshIndexTexture.length; i++) {
       total += this._primitiveMeshIndexTexture[i].getAllocatedBytes();
     }
+    for (let i = 0; i < this._edgeMeshIndexTexture.length; i++) {
+      total += this._edgeMeshIndexTexture[i].getAllocatedBytes();
+    }
     return total;
   }
   /**
@@ -128757,6 +129131,9 @@ var GPUMemoryBatch = class {
     total += this._meshMatrixTexture.getUsedBytes();
     for (let i = 0; i < this._primitiveMeshIndexTexture.length; i++) {
       total += this._primitiveMeshIndexTexture[i].getUsedBytes();
+    }
+    for (let i = 0; i < this._edgeMeshIndexTexture.length; i++) {
+      total += this._edgeMeshIndexTexture[i].getUsedBytes();
     }
     return total;
   }
@@ -128804,6 +129181,12 @@ var GPUMemoryBatch = class {
       }
     }
     const primCount = isPoints ? vertCount : geometry.primitive === LinesPrimitive ? geometry.indices.length / 2 : geometry.indices.length / 3;
+    if (geometry.primitive === TrianglesPrimitive && geometry.edgeIndices) {
+      const edgePrimCount = geometry.edgeIndices.length / 2;
+      if (edgePrimCount > 0 && this._edgeMeshIndexTexture[0].canGetPortion(edgePrimCount) === false) {
+        return 7 /* NotEnoughEdgeIndexSpace */;
+      }
+    }
     if (this._primitiveMeshIndexTexture[0].canGetPortion(primCount) === false) {
       return 8 /* NotEnoughPrimSpace */;
     }
@@ -128959,38 +129342,38 @@ var GPUMemoryBatch = class {
       // Set by setMeshAttribs()
       geometryIndex: geometryHandle.geometryIndex
     });
-    this._meshViewAttributeTexture[0].setItem(meshIndex, {
-      // FIXME: Only defined for View 0
-      color: [
-        Math.floor(sceneMesh.color[0] * 255),
-        Math.floor(sceneMesh.color[1] * 255),
-        Math.floor(sceneMesh.color[2] * 255)
-      ],
-      opacity: Math.floor(sceneMesh.opacity * 255),
-      pickable: true,
-      clippable: true
-    });
+    const numViews = this._renderContext.memoryConfigs.maxViews;
+    const color2 = [
+      Math.floor(sceneMesh.color[0] * 255),
+      Math.floor(sceneMesh.color[1] * 255),
+      Math.floor(sceneMesh.color[2] * 255)
+    ];
+    const opacity = Math.floor(sceneMesh.opacity * 255);
+    for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+      this._meshViewAttributeTexture[viewIndex].setItem(meshIndex, {
+        color: color2,
+        opacity,
+        pickable: true,
+        clippable: true
+      });
+    }
     this._meshMatrixTexture.setItem(meshIndex, new Float32Array(sceneMesh.matrix));
     const primitiveCount = sceneGeometry.primitive === PointsPrimitive ? sceneGeometry.positionsCompressed.length / 3 : sceneGeometry.primitive === LinesPrimitive ? sceneGeometry.indices.length / 2 : sceneGeometry.indices.length / 3;
-    const primitiveMeshIndexTextureHandles = [
-      // one per view
-      this._primitiveMeshIndexTexture[0].createPortion(primitiveCount, meshIndex, RENDER_PASSES.OPAQUE)
-      // FIXME: Only defined for View 0
-      // this._primitiveMeshIndexTexture[1].createPortion(primitiveCount, meshIndex, 0),
-      // this._primitiveMeshIndexTexture[2].createPortion(primitiveCount, meshIndex, 0),
-      // this._primitiveMeshIndexTexture[3].createPortion(primitiveCount, meshIndex, 0)
-    ];
+    const primitiveMeshIndexTextureHandles = [];
+    for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+      primitiveMeshIndexTextureHandles.push(
+        this._primitiveMeshIndexTexture[viewIndex].createPortion(primitiveCount, meshIndex, RENDER_PASSES.OPAQUE)
+      );
+    }
     let edgeMeshIndexTextureHandles;
     if (sceneGeometry.primitive === TrianglesPrimitive) {
       const edgeCount = sceneGeometry.edgeIndices ? sceneGeometry.edgeIndices.length / 2 : 0;
-      edgeMeshIndexTextureHandles = [
-        // one per view
-        this._edgeMeshIndexTexture[0].createPortion(edgeCount, meshIndex, RENDER_PASSES.OPAQUE)
-        // FIXME: Only defined for View 0
-        // this._edgeMeshIndexTexture[1].createPortion(edgeCount, meshIndex, 0),
-        // this._edgeMeshIndexTexture[2].createPortion(edgeCount, meshIndex, 0),
-        // this._edgeMeshIndexTexture[3].createPortion(edgeCount, meshIndex, 0)
-      ];
+      edgeMeshIndexTextureHandles = [];
+      for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+        edgeMeshIndexTextureHandles.push(
+          this._edgeMeshIndexTexture[viewIndex].createPortion(edgeCount, meshIndex, RENDER_PASSES.OPAQUE)
+        );
+      }
     }
     this._meshHandles[sceneMesh.id] = {
       meshIndex,
@@ -129168,11 +129551,16 @@ var GPUMemoryBatch = class {
       this._putFreeGeometryIndex(geometryHandle.geometryIndex);
       this._numGeometries--;
     }
+    const numViews = this._renderContext.memoryConfigs.maxViews;
     if (meshHandle.primitiveMeshIndexTextureHandles) {
-      this._primitiveMeshIndexTexture[0].deletePortion(meshHandle.primitiveMeshIndexTextureHandles[0]);
+      for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+        this._primitiveMeshIndexTexture[viewIndex].deletePortion(meshHandle.primitiveMeshIndexTextureHandles[viewIndex]);
+      }
     }
     if (meshHandle.edgeMeshIndexTextureHandles) {
-      this._edgeMeshIndexTexture[0].deletePortion(meshHandle.edgeMeshIndexTextureHandles[0]);
+      for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+        this._edgeMeshIndexTexture[viewIndex].deletePortion(meshHandle.edgeMeshIndexTextureHandles[viewIndex]);
+      }
     }
     if (meshHandle.indicesHandle) {
       this._indexTexture.putPortion(meshHandle.indicesHandle);
@@ -129287,10 +129675,14 @@ var GPUMemoryBatch = class {
       const primitiveMeshIndexTexture = this._primitiveMeshIndexTexture[i];
       if (primitiveMeshIndexTexture) {
         const primitiveMeshIndexTextureFlushed = primitiveMeshIndexTexture.uploadChanges();
-        didFlush = primitiveMeshIndexTextureFlushed;
+        didFlush = primitiveMeshIndexTextureFlushed || didFlush;
         if (primitiveMeshIndexTextureFlushed) {
           this.dataTextures.views[i].numDrawablePrims = primitiveMeshIndexTexture.numPrimitives;
         }
+      }
+      const edgeMeshIndexTexture = this._edgeMeshIndexTexture[i];
+      if (edgeMeshIndexTexture) {
+        didFlush = edgeMeshIndexTexture.uploadChanges() || didFlush;
       }
     }
     return didFlush;
@@ -129298,6 +129690,7 @@ var GPUMemoryBatch = class {
   webglContextRestored() {
     for (const dataTexture in [
       ...this._primitiveMeshIndexTexture,
+      ...this._edgeMeshIndexTexture,
       this._meshAttributeTexture,
       ...this._meshViewAttributeTexture,
       this._meshMatrixTexture,
@@ -129327,7 +129720,11 @@ var GPUMemoryBatch = class {
     for (let i = 0; i < this._primitiveMeshIndexTexture.length; i++) {
       this._primitiveMeshIndexTexture[i].destroy();
     }
+    for (let i = 0; i < this._edgeMeshIndexTexture.length; i++) {
+      this._edgeMeshIndexTexture[i].destroy();
+    }
     this._primitiveMeshIndexTexture = [];
+    this._edgeMeshIndexTexture = [];
     this._meshAttributeTexture = clear(this._meshAttributeTexture);
     this._meshViewAttributeTexture = this._meshViewAttributeTexture.map(clear);
     this._geometryAttributeTexture = clear(this._geometryAttributeTexture);
@@ -129340,7 +129737,7 @@ var GPUMemoryBatch = class {
 };
 
 // ../sdk/src/webglrenderer/internal/gpuMemoryManager/GPUMemoryManager.ts
-var import_strongly_typed_events11 = __toESM(require_dist8());
+var import_strongly_typed_events12 = __toESM(require_dist8());
 var GPUMemoryManager = class {
   /**
    * Data texture bundle exposed for internal consumers (eg. render passes/shaders).
@@ -129389,18 +129786,17 @@ var GPUMemoryManager = class {
     const gl = renderContext.gl;
     const maxTiles = renderContext.memoryConfigs.maxTiles;
     const getNumItems = () => this._tileManager ? this._tileManager.numTiles : 0;
-    this._viewTileCameraMatrixTexture = [
-      new MatrixTexture({ gl, maxItems: maxTiles, getNumItems, description: "[View 0] tileIndex \u2192 view matrix" }),
-      new MatrixTexture({ gl, maxItems: maxTiles, getNumItems, description: "[View 1] tileIndex \u2192 view matrix" }),
-      new MatrixTexture({ gl, maxItems: maxTiles, getNumItems, description: "[View 2] tileIndex \u2192 view matrix" }),
-      new MatrixTexture({ gl, maxItems: maxTiles, getNumItems, description: "[View 3] tileIndex \u2192 view matrix" })
-    ];
-    this._viewTilePickMatrixTexture = [
-      new MatrixTexture({ gl, maxItems: maxTiles, getNumItems, description: "[View 0] tileIndex \u2192 pick matrix" }),
-      new MatrixTexture({ gl, maxItems: maxTiles, getNumItems, description: "[View 1] tileIndex \u2192 pick matrix" }),
-      new MatrixTexture({ gl, maxItems: maxTiles, getNumItems, description: "[View 2] tileIndex \u2192 pick matrix" }),
-      new MatrixTexture({ gl, maxItems: maxTiles, getNumItems, description: "[View 3] tileIndex \u2192 pick matrix" })
-    ];
+    const numViews = this._renderContext.memoryConfigs.maxViews;
+    this._viewTileCameraMatrixTexture = [];
+    this._viewTilePickMatrixTexture = [];
+    for (let i = 0; i < numViews; i++) {
+      this._viewTileCameraMatrixTexture.push(
+        new MatrixTexture({ gl, maxItems: maxTiles, getNumItems, description: `[View ${i}}] tileIndex \u2192 view matrix` })
+      );
+      this._viewTilePickMatrixTexture.push(
+        new MatrixTexture({ gl, maxItems: maxTiles, getNumItems, description: `[View ${i}] tileIndex \u2192 pick matrix` })
+      );
+    }
     const textures = [
       ...this._viewTileCameraMatrixTexture,
       ...this._viewTilePickMatrixTexture
@@ -129414,7 +129810,7 @@ var GPUMemoryManager = class {
         return {
           ok: false,
           type: 4 /* MemoryExceeded */,
-          error: "[GPUMemoryManager.init] Out of GPU memory. Try increasing the maximum number of tiles."
+          error: "[GPUMemoryManager.init] Failed to allocate GPU memory."
         };
       }
     }
@@ -129428,7 +129824,7 @@ var GPUMemoryManager = class {
       viewTileCameraMatrixTexture: this._viewTileCameraMatrixTexture.map((t) => t),
       viewTilePickMatrixTexture: this._viewTilePickMatrixTexture.map((t) => t),
       batches: [],
-      onBatchCreated: new EventEmitter(new import_strongly_typed_events11.EventDispatcher())
+      onBatchCreated: new EventEmitter(new import_strongly_typed_events12.EventDispatcher())
     };
     return { ok: true, value: void 0 };
   }
@@ -129512,10 +129908,11 @@ var GPUMemoryManager = class {
    * Useful for debugging/telemetry and rough capacity planning.
    */
   static get itemSizesInBytes() {
+    const numViews = 4;
     return Object.assign(
       {
-        tile: MatrixTexture.itemSizeInBytes * 4 + // view matrices for 4 views
-        MatrixTexture.itemSizeInBytes * 4
+        tile: MatrixTexture.itemSizeInBytes * numViews + // view matrices for 4 views
+        MatrixTexture.itemSizeInBytes * numViews
         // pick matrices for 4 views
       },
       GPUMemoryBatch.itemSizesInBytes
@@ -129528,7 +129925,8 @@ var GPUMemoryManager = class {
    * been queued by higher-level managers.
    */
   uploadChanges() {
-    for (let i = 0; i < 4; i++) {
+    const numViews = this._renderContext.memoryConfigs.maxViews;
+    for (let i = 0; i < numViews; i++) {
       this._viewTileCameraMatrixTexture[i].uploadChanges();
       this._viewTilePickMatrixTexture[i].uploadChanges();
     }
@@ -129843,7 +130241,6 @@ var GPUMemoryManager = class {
 var tempIdentityMat4 = identityMat4(createMat4Float64());
 var identityVec4 = createVec4Float64([0, 0, 0, 1]);
 var tempVec4a6 = createVec4Float64();
-var NUM_VIEWS2 = 4;
 var RendererMesh = class {
   /**
    * The GPU tile currently assigned to this mesh.
@@ -129877,7 +130274,8 @@ var RendererMesh = class {
     this._gpuMemoryManager = gpuMemoryManager;
     this._meshHandle = meshHandle;
     this.gpuTile = null;
-    this._viewStates = Array.from({ length: NUM_VIEWS2 }, () => ({
+    const numViews = renderContext.memoryConfigs.maxViews;
+    this._viewStates = Array.from({ length: numViews }, () => ({
       colorizing: false,
       coloringOpacity: false,
       transparent: null,
@@ -129910,7 +130308,7 @@ var RendererMesh = class {
    * Called by {@link RendererObject.setColor}.
    */
   setColor(color2) {
-    for (let viewIndex = 0, len = this._renderContext.viewer.viewList.length; viewIndex < len; viewIndex++) {
+    for (let viewIndex = 0, len = this._viewStates.length; viewIndex < len; viewIndex++) {
       const viewState = this._viewStates[viewIndex];
       if (!viewState.colorizing) {
         this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, color2);
@@ -129922,7 +130320,7 @@ var RendererMesh = class {
    * Called by {@link RendererObject.setOpacity}.
    */
   setOpacity(opacity) {
-    for (let viewIndex = 0, len = this._renderContext.viewer.viewList.length; viewIndex < len; viewIndex++) {
+    for (let viewIndex = 0, len = this._viewStates.length; viewIndex < len; viewIndex++) {
       const viewState = this._viewStates[viewIndex];
       if (!viewState.coloringOpacity) {
         this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
@@ -129941,6 +130339,9 @@ var RendererMesh = class {
    */
   setObjectVisible(viewIndex, objectVisible) {
     const viewState = this._viewStates[viewIndex];
+    if (!viewState) {
+      throw new SDKInternalException(`[RendererMesh.setObjectVisible] No view state for view index ${viewIndex}`);
+    }
     if (viewState.objectVisible === objectVisible) {
       return;
     }
@@ -129952,7 +130353,7 @@ var RendererMesh = class {
    * Called by {@link RendererObject.setVisible}.
    */
   setVisible(meshVisible) {
-    for (let viewIndex = 0, len = NUM_VIEWS2; viewIndex < len; viewIndex++) {
+    for (let viewIndex = 0, len = this._viewStates.length; viewIndex < len; viewIndex++) {
       const viewState = this._viewStates[viewIndex];
       if (viewState.meshVisible === meshVisible) {
         continue;
@@ -129967,6 +130368,9 @@ var RendererMesh = class {
    */
   setColorInView(viewIndex, colorize) {
     const viewStates = this._viewStates[viewIndex];
+    if (!viewStates) {
+      throw new SDKInternalException(`[RendererMesh.setColorInView] No view state for view index ${viewIndex}`);
+    }
     if (colorize !== null) {
       this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, colorize);
       viewStates.colorizing = true;
@@ -129981,6 +130385,9 @@ var RendererMesh = class {
    */
   setOpacityInView(viewIndex, opacity) {
     const viewStates = this._viewStates[viewIndex];
+    if (!viewStates) {
+      throw new SDKInternalException(`[RendererMesh.setOpacityInView] No view state for view index ${viewIndex}`);
+    }
     if (opacity !== null) {
       this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
       viewStates.coloringOpacity = true;
@@ -129994,7 +130401,11 @@ var RendererMesh = class {
    * Called by {@link RendererObject.setHighlighted}.
    */
   setHighlighted(viewIndex, highlighted) {
-    const transparent = this._viewStates[viewIndex].transparent;
+    const viewStates = this._viewStates[viewIndex];
+    if (!viewStates) {
+      throw new SDKInternalException(`[RendererMesh.setHighlighted] No view state for view index ${viewIndex}`);
+    }
+    const transparent = viewStates.transparent;
     this._meshBatch.setMeshHighlighted(viewIndex, this._meshHandle, highlighted, transparent);
   }
   /**
@@ -130002,7 +130413,11 @@ var RendererMesh = class {
    * Called by {@link RendererObject.setXRayed}.
    */
   setXRayed(viewIndex, xrayed) {
-    const transparent = this._viewStates[viewIndex].transparent;
+    const viewStates = this._viewStates[viewIndex];
+    if (!viewStates) {
+      throw new SDKInternalException(`[RendererMesh.setXRayed] No view state for view index ${viewIndex}`);
+    }
+    const transparent = viewStates.transparent;
     this._meshBatch.setMeshXRayed(viewIndex, this._meshHandle, xrayed, transparent);
   }
   /**
@@ -130010,7 +130425,11 @@ var RendererMesh = class {
    * Called by {@link RendererObject.setSelected}.
    */
   setSelected(viewIndex, selected) {
-    const transparent = this._viewStates[viewIndex].transparent;
+    const viewStates = this._viewStates[viewIndex];
+    if (!viewStates) {
+      throw new SDKInternalException(`[RendererMesh.setSelected] No view state for view index ${viewIndex}`);
+    }
+    const transparent = viewStates.transparent;
     this._meshBatch.setMeshSelected(viewIndex, this._meshHandle, selected, transparent);
   }
   /**
@@ -130018,6 +130437,10 @@ var RendererMesh = class {
    * Called by {@link RendererObject.setClippable}.
    */
   setClippable(viewIndex, clippable) {
+    const viewStates = this._viewStates[viewIndex];
+    if (!viewStates) {
+      throw new SDKInternalException(`[RendererMesh.setClippable] No view state for view index ${viewIndex}`);
+    }
     this._meshBatch.setMeshClippable(viewIndex, this._meshHandle, clippable);
   }
   /**
@@ -131104,6 +131527,7 @@ var DrawTechnique = class {
       vertexColorTexture: program.getSampler("uVertexColorTexture"),
       indexTexture: program.getSampler("uIndexTexture"),
       edgeIndexTexture: program.getSampler("uEdgeIndexTexture"),
+      // TODO: Maybe redundant
       saoOcclusionTexture: program.getSampler("saoOcclusionTexture")
     };
     return {
@@ -131183,9 +131607,11 @@ var DrawTechnique = class {
     bindTexture(samplers.meshViewAttributeTexture, batchViewDataTextures.meshViewAttributeTexture);
     bindTexture(samplers.geometryAttributes, batchDataTextures.geometryAttributeTexture);
     bindTexture(samplers.geometryQuantRangeTexture, batchDataTextures.geometryQuantRangeTexture);
-    bindTexture(samplers.edgeIndexTexture, batchDataTextures.edgeIndexTexture);
-    bindTexture(samplers.indexTexture, batchDataTextures.indexTexture);
-    gl.uniform1i(this._uniforms.primBaseIndex, drawRange.firstPrim);
+    bindTexture(
+      samplers.indexTexture,
+      this.edges ? batchDataTextures.edgeIndexTexture : batchDataTextures.indexTexture
+    );
+    gl.uniform1i(this._uniforms.primBaseIndex, 0);
     const drawPrimitiveType = this.edges ? LinesPrimitive : meshBatch.primitive;
     gl.uniform1i(this._uniforms.primitiveType, drawPrimitiveType);
     switch (meshBatch.primitive) {
@@ -131281,7 +131707,7 @@ uniform highp usampler2D uPrimitiveMeshIndexTexture;
 uniform highp usampler2D uVertexPositionTexture;
 uniform highp usampler2D uVertexColorTexture;
 uniform highp usampler2D uIndexTexture;
-uniform highp usampler2D uEdgeIndexTexture;
+// uniform highp usampler2D uEdgeIndexTexture;
 uniform highp sampler2D  uViewTileCameraMatrixTexture;
 uniform highp sampler2D  uMeshMatrixTexture;
 uniform highp usampler2D uMeshAttributeTexture;
@@ -131724,11 +132150,11 @@ void main(void) {`);
 
     // Resolve final vertex index within geometry
     // - For non-indexed points (uPrimitiveType == 20000), we treat vertexOffsetWithinGeometry as direct.
-    // - Otherwise, we fetch an index from the index buffer, using geometryAttributes.indicesBase.
+    // - Otherwise, we fetch an index from the index buffer, using geometryAttributes.indicesBase / edgeIndicesBase.
     uint vertexIndexWithinGeometry =
         (uPrimitiveType == 20000)
         ? vertexOffsetWithinGeometry
-        : getVertexIndex(geometryAttributes.indicesBase + vertexOffsetWithinGeometry);
+        : getVertexIndex(geometryAttributes.${this.edges ? "edgeIndicesBase" : "indicesBase"} + vertexOffsetWithinGeometry);
 
     // Dequantization parameters for this geometry
     // Vertex positions are stored quantized; quantRange turns uvec3 into float vec3.
@@ -131801,7 +132227,7 @@ void main(void) {`);
     float lambertian = 1.0;
     vec3 reflectedColor = vec3(0.0);
 
-    vec4 lightAmbient = vec4(0.3, 0.3, 0.3, 1.0);
+    vec4 lightAmbient = vec4(0.5, 0.5, 0.5, 1.0);
     vec3 lightDir1    = normalize(vec3(0.0, 0.0, -1.0));
     vec4 lightColor1  = vec4(0.7, 0.7, 0.7, 1.0);
     vec3 lightDir2    = normalize(vec3(-1.0, 1.0, 1.0));
@@ -131837,7 +132263,7 @@ void main(void) {`);
   vsSilhouetteLogic() {
     this._vertSrcBuf.push(`
     // Output constant silhouette color
-    vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, 0.5);`);
+    vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, uSilhouetteColor.a);`);
   }
   /**
    * Generates vertex shader logic for flat color rendering.
@@ -131847,7 +132273,7 @@ void main(void) {`);
     this._vertSrcBuf.push(`
     // Output flat color from mesh view attributes
     vec4 color = vec4(meshViewAttributes.color) / 255.0;
-    vColor = vec4(color.rgb, 1.0);`);
+    vColor = color;`);
   }
   /**
    * Generates vertex shader logic for vertex color rendering.
@@ -131857,7 +132283,7 @@ void main(void) {`);
     this._vertSrcBuf.push(`
     // Output vertex color
     uvec4 color = getVertexColor(vertexIndexWithinGeometry);
-    vColor = vec4( float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, 1.0);`);
+    vColor = vec4( float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, float(color.a) / 255.0);`);
   }
   /**
    * Generates vertex shader logic for depth rendering.
@@ -132155,7 +132581,9 @@ void main(void) {`);
           const color2 = material.edgeColor;
           gl.uniform4f(uniforms.silhouetteColor, color2[0], color2[1], color2[2], material.edgeAlpha);
         } else {
-          gl.uniform4fv(uniforms.silhouetteColor, defaultColor);
+          const material = view.edges;
+          const color2 = material.edgeColor;
+          gl.uniform4f(uniforms.silhouetteColor, color2[0], color2[1], color2[2], material.edgeAlpha);
         }
       } else {
         if (renderPass === RENDER_PASSES.XRAYED) {
@@ -134391,6 +134819,10 @@ var ViewManager2 = class {
    *
    * Creates a {@link ViewRenderState} wrapper and assigns {@link View.viewIndex}.
    *
+   * If there are already the maximum allowed number of views, returns an error result without
+   * adding the view. Any other operations on ViewManager for a view that was not successfully
+   * added will be quietly ignored, to reduce logging noise.
+   *
    * @param view - The view to add.
    * @returns {@link SDKResult} indicating success or failure.
    *
@@ -134400,11 +134832,12 @@ var ViewManager2 = class {
     if (this._rendererViews[view.id]) {
       throw new SDKInternalException("[ViewManager.viewCreated] Can't add additional View to WebGLRenderer - View already added");
     }
-    if (this._rendererViewsList.length >= 4) {
+    const maxViews = this._renderContext.memoryConfigs.maxViews;
+    if (this._rendererViewsList.length >= maxViews) {
       return {
         ok: false,
         type: 1 /* InvalidOperation */,
-        error: `[ViewManager.viewCreated] Maximum number of Views exceeded - max allowed is 4`
+        error: `[ViewManager.viewCreated] Maximum view count reached (MemoryConfigs.maxViews = ${maxViews}). Additional operations for View '${view.id}' will be ignored and canvas will not be rendered.`
       };
     }
     const rendererView = new ViewRenderState2(
@@ -134437,21 +134870,19 @@ var ViewManager2 = class {
    * This will activate the view if it is not currently active, upload any queued GPU changes,
    * and issue a render.
    *
+   * If the View is not registered with the manager, this method will return `ok:true` with no value,
+   * and will not throw an error, since it's possible for the viewer to update views that have not been added
+   * to the renderer (eg. if they were filtered out due to max view limits).
+   *
    * @param view - The view to update and render.
-   * @returns {@link SDKResult} from the render call, or `ok:false` if the view is not registered.
+   * @returns {@link SDKResult} from the render call, or `ok:true` if the view is not registered, which is OK.
    */
   viewUpdated(view) {
     const rendererView = this._rendererViews[view.id];
     if (!rendererView) {
-      return {
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[ViewManager.viewUpdated] View not found with id ${view.id}`
-      };
+      return { ok: true, value: void 0 };
     }
-    if (this._activeView !== rendererView) {
-      this._activateView(rendererView);
-    }
+    this._activateView(rendererView);
     this._gpuMemoryManager.uploadChanges();
     return this._renderManager.render(rendererView, { clear: true });
   }
@@ -134469,6 +134900,9 @@ var ViewManager2 = class {
   _activateView(rendererView) {
     const activeRendererView = this._activeView;
     if (activeRendererView) {
+      if (activeRendererView === rendererView) {
+        return;
+      }
       const activeCanvasBoundingRect = activeRendererView.view.htmlElement.getBoundingClientRect();
       const primarySnapshotBuffer = activeRendererView.renderBuffers.getRenderBuffer("snapshot", {
         depthTexture: false,
@@ -134476,7 +134910,7 @@ var ViewManager2 = class {
       });
       primarySnapshotBuffer.bind();
       primarySnapshotBuffer.clear();
-      this._renderManager.render(rendererView, { clear: true });
+      this._renderManager.render(activeRendererView, { clear: true });
       const image = primarySnapshotBuffer.readImage({
         format: "png",
         height: activeCanvasBoundingRect.height,
@@ -134501,17 +134935,17 @@ var ViewManager2 = class {
   /**
    * Unregisters a {@link View} and releases its associated rendering resources.
    *
+   * If the View is not registered with the manager, this method will return `ok:true` with no value,
+   * and will not throw an error, since it's possible for the viewer to update views that have not been added
+   * to the renderer (eg. if they were filtered out due to max view limits).
+   *
    * @param view - The view to remove.
-   * @returns {@link SDKResult} indicating success, or `ok:false` if the view was not registered.
+   * @returns {@link SDKResult} indicating success.
    */
   viewDestroyed(view) {
     const rendererView = this._rendererViews[view.id];
     if (!rendererView) {
-      return {
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[ViewManager.viewDestroyed] View not found with id ${view.id}`
-      };
+      return { ok: true, value: void 0 };
     }
     rendererView.destroy();
     delete this._rendererViews[view.id];
@@ -134635,6 +135069,9 @@ var ViewManager2 = class {
    * Forwards to {@link MeshManager} to queue GPU updates.
    */
   viewObjectVisibilityChanged(viewObject) {
+    if (!this._rendererViewsList[viewObject.layer.view.viewIndex]) {
+      return;
+    }
     this._meshManager.viewObjectVisibilityChanged(viewObject);
   }
   /**
@@ -134642,6 +135079,9 @@ var ViewManager2 = class {
    * Forwards to {@link MeshManager} to queue GPU updates.
    */
   viewObjectXRayedChanged(viewObject) {
+    if (!this._rendererViewsList[viewObject.layer.view.viewIndex]) {
+      return;
+    }
     this._meshManager.viewObjectXRayedChanged(viewObject);
   }
   /**
@@ -134649,6 +135089,9 @@ var ViewManager2 = class {
    * Forwards to {@link MeshManager} to queue GPU updates.
    */
   viewObjectHighlightedChanged(viewObject) {
+    if (!this._rendererViewsList[viewObject.layer.view.viewIndex]) {
+      return;
+    }
     this._meshManager.viewObjectHighlightedChanged(viewObject);
   }
   /**
@@ -134656,6 +135099,9 @@ var ViewManager2 = class {
    * Forwards to {@link MeshManager} to queue GPU updates.
    */
   viewObjectSelectedChanged(viewObject) {
+    if (!this._rendererViewsList[viewObject.layer.view.viewIndex]) {
+      return;
+    }
     this._meshManager.viewObjectSelectedChanged(viewObject);
   }
   /**
@@ -134663,6 +135109,9 @@ var ViewManager2 = class {
    * Forwards to {@link MeshManager} to queue GPU updates.
    */
   viewObjectColorizeChanged(viewObject) {
+    if (!this._rendererViewsList[viewObject.layer.view.viewIndex]) {
+      return;
+    }
     this._meshManager.viewObjectColorizeChanged(viewObject);
   }
   /**
@@ -134670,6 +135119,9 @@ var ViewManager2 = class {
    * Forwards to {@link MeshManager} to queue GPU updates.
    */
   viewObjectOpacityChanged(viewObject) {
+    if (viewObject.layer.view.viewIndex >= this._rendererViewsList.length) {
+      return;
+    }
     this._meshManager.viewObjectOpacityChanged(viewObject);
   }
   /**
@@ -134677,6 +135129,9 @@ var ViewManager2 = class {
    * Forwards to {@link MeshManager} to update camera-dependent GPU state.
    */
   cameraViewMatrixUpdated(camera) {
+    if (!this._rendererViewsList[camera.view.viewIndex]) {
+      return;
+    }
     this._meshManager.cameraViewMatrixUpdated(camera);
   }
   /**
@@ -134727,7 +135182,7 @@ var ViewManager2 = class {
 };
 
 // ../sdk/src/webglrenderer/WebGLRenderer.ts
-var import_strongly_typed_events12 = __toESM(require_dist8());
+var import_strongly_typed_events13 = __toESM(require_dist8());
 
 // ../sdk/src/webglrenderer/createMemoryConfigs.ts
 function createMemoryConfigs(params) {
@@ -134867,54 +135322,54 @@ var WebGLRenderer3 = class {
     /**
      * Emitted after a {@link Viewer} has been attached via {@link attachViewer}.
      */
-    onViewerAttached: new EventEmitter(new import_strongly_typed_events12.EventDispatcher()),
+    onViewerAttached: new EventEmitter(new import_strongly_typed_events13.EventDispatcher()),
     /**
      * Emitted after the currently attached {@link Viewer} has been detached.
      */
-    onViewerDetached: new EventEmitter(new import_strongly_typed_events12.EventDispatcher()),
+    onViewerDetached: new EventEmitter(new import_strongly_typed_events13.EventDispatcher()),
     /**
      * Emitted when the renderer begins rendering.
      *
      * Rendering starts when a Viewer is attached and has an active Scene,
      * and the renderer’s internal rendering state has been successfully initialized.
      */
-    onRendererStarted: new EventEmitter(new import_strongly_typed_events12.EventDispatcher()),
+    onRendererStarted: new EventEmitter(new import_strongly_typed_events13.EventDispatcher()),
     /**
      * Emitted when the renderer has rendered a new frame for a {@link View} belonging to the attached {@link Viewer}.
      */
-    onViewRendered: new EventEmitter(new import_strongly_typed_events12.EventDispatcher()),
+    onViewRendered: new EventEmitter(new import_strongly_typed_events13.EventDispatcher()),
     /**
      * Emitted when the renderer stops rendering.
      *
      * Rendering stops when the Scene is detached or when the renderer’s internal
      * rendering state is torn down.
      */
-    onRendererStopped: new EventEmitter(new import_strongly_typed_events12.EventDispatcher()),
+    onRendererStopped: new EventEmitter(new import_strongly_typed_events13.EventDispatcher()),
     /**
      * Emitted when {@link destroy} is called and the renderer transitions to
      * the destroyed state.
      */
-    onRendererDestroyed: new EventEmitter(new import_strongly_typed_events12.EventDispatcher()),
+    onRendererDestroyed: new EventEmitter(new import_strongly_typed_events13.EventDispatcher()),
     /**
      * Emitted when the underlying WebGL context is lost.
      *
      * At this point, the renderer’s internal state is not valid.
      */
-    webglContextLost: new EventEmitter(new import_strongly_typed_events12.EventDispatcher()),
+    webglContextLost: new EventEmitter(new import_strongly_typed_events13.EventDispatcher()),
     /**
      * Emitted when the underlying WebGL context is restored.
      *
      * At this point, the renderer will have automatically reinitialized its internal state and
      * resumed rendering.
      */
-    webglContextRestored: new EventEmitter(new import_strongly_typed_events12.EventDispatcher()),
+    webglContextRestored: new EventEmitter(new import_strongly_typed_events13.EventDispatcher()),
     /**
      * Emitted when an error occurs within the renderer.
      *
      * Errors are also logged to the console when {@link logging} is enabled.
      */
     onError: new EventEmitter(
-      new import_strongly_typed_events12.EventDispatcher()
+      new import_strongly_typed_events13.EventDispatcher()
     )
   };
   _memoryConfigs;
@@ -134946,20 +135401,20 @@ var WebGLRenderer3 = class {
     };
     this._shaderInspector = null;
     this._drawInspector = null;
+    this._memoryConfigs = {
+      tileSize: 200,
+      maxTiles: 2e3,
+      maxViews: 1,
+      maxBatches: 300,
+      maxBatchVertices: 1e6,
+      maxBatchIndices: 2e6,
+      maxBatchGeometries: 2e3,
+      maxBatchMeshes: 2e3,
+      maxBatchPrims: 4e4
+    };
     if (params.memoryConfigs) {
       this._memoryConfigs = {};
       Object.assign(this._memoryConfigs, params.memoryConfigs);
-    } else {
-      this._memoryConfigs = {
-        tileSize: 200,
-        maxTiles: 1e3,
-        maxBatches: 300,
-        maxBatchVertices: 2e4,
-        maxBatchIndices: 6e4,
-        maxBatchGeometries: 1e4,
-        maxBatchMeshes: 1e4,
-        maxBatchPrims: 4e4
-      };
     }
     this._debugging = !!params.debugging;
     if (params.viewer) {
@@ -135593,7 +136048,7 @@ __export(cameraflight_exports, {
 });
 
 // ../sdk/src/cameraflight/CameraFlightAnimation.ts
-var import_strongly_typed_events13 = __toESM(require_dist8());
+var import_strongly_typed_events14 = __toESM(require_dist8());
 var tempVec33 = createVec3Float64();
 var newLook = createVec3Float64();
 var newEye = createVec3Float64();
@@ -135682,9 +136137,9 @@ var CameraFlightAnimation = class _CameraFlightAnimation {
     this._fit = true;
     this._duration = 500;
     this._fitFOV = 60;
-    this.onStarted = new EventEmitter(new import_strongly_typed_events13.EventDispatcher());
-    this.onStopped = new EventEmitter(new import_strongly_typed_events13.EventDispatcher());
-    this.onCancelled = new EventEmitter(new import_strongly_typed_events13.EventDispatcher());
+    this.onStarted = new EventEmitter(new import_strongly_typed_events14.EventDispatcher());
+    this.onStopped = new EventEmitter(new import_strongly_typed_events14.EventDispatcher());
+    this.onCancelled = new EventEmitter(new import_strongly_typed_events14.EventDispatcher());
     this._animationTask = new SDKTask({
       name: "CameraFlightAnimation._update",
       task: () => {
@@ -136276,7 +136731,7 @@ var CameraUpdater = class {
 };
 
 // ../sdk/src/cameracontrol/CameraControl.ts
-var import_strongly_typed_events14 = __toESM(require_dist8());
+var import_strongly_typed_events15 = __toESM(require_dist8());
 
 // ../sdk/src/cameracontrol/KeyboardAxisViewHandler.ts
 var center = createVec3Float64();
@@ -137989,21 +138444,21 @@ var CameraControl = class _CameraControl {
       new KeyboardPanRotateDollyHandler(this.view, this._controllers, this._configs, this._states, this._updates)
     ];
     this._cameraUpdater = new CameraUpdater(this.view, this._controllers, this._configs, this._states, this._updates);
-    this.onHover = new EventEmitter(new import_strongly_typed_events14.EventDispatcher());
-    this.onHoverOff = new EventEmitter(new import_strongly_typed_events14.EventDispatcher());
-    this.onHoverEnter = new EventEmitter(new import_strongly_typed_events14.EventDispatcher());
-    this.onHoverOut = new EventEmitter(new import_strongly_typed_events14.EventDispatcher());
-    this.onRightClick = new EventEmitter(new import_strongly_typed_events14.EventDispatcher());
-    this.onHoverSurface = new EventEmitter(new import_strongly_typed_events14.EventDispatcher());
-    this.onPicked = new EventEmitter(new import_strongly_typed_events14.EventDispatcher());
-    this.onPickedSurface = new EventEmitter(new import_strongly_typed_events14.EventDispatcher());
-    this.onPickedNothing = new EventEmitter(new import_strongly_typed_events14.EventDispatcher());
-    this.onDoublePicked = new EventEmitter(new import_strongly_typed_events14.EventDispatcher());
-    this.onDoublePickedSurface = new EventEmitter(new import_strongly_typed_events14.EventDispatcher());
-    this.onDoublePickedNothing = new EventEmitter(new import_strongly_typed_events14.EventDispatcher());
-    this.onHoverSnapOrSurfaceOff = new EventEmitter(new import_strongly_typed_events14.EventDispatcher());
-    this.onHoverSnapOrSurface = new EventEmitter(new import_strongly_typed_events14.EventDispatcher());
-    this.onRayMove = new EventEmitter(new import_strongly_typed_events14.EventDispatcher());
+    this.onHover = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onHoverOff = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onHoverEnter = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onHoverOut = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onRightClick = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onHoverSurface = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onPicked = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onPickedSurface = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onPickedNothing = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onDoublePicked = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onDoublePickedSurface = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onDoublePickedNothing = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onHoverSnapOrSurfaceOff = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onHoverSnapOrSurface = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onRayMove = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
     this.navMode = cfg.navMode;
     this.constrainVertical = cfg.constrainVertical;
     this.keyMap = cfg.keyMap;
@@ -139297,7 +139752,7 @@ __export(treeview_exports, {
 });
 
 // ../sdk/src/treeview/TreeViewEvents.ts
-var import_strongly_typed_events15 = __toESM(require_dist8());
+var import_strongly_typed_events16 = __toESM(require_dist8());
 var TreeViewEvents = class {
   /**
    * Emits an event when an error occurs within the `TreeView` or its components. This non-fatal event
@@ -139318,11 +139773,11 @@ var TreeViewEvents = class {
      * @private
      */
   constructor() {
-    this.onError = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
-    this.onTreeViewDestroyed = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
-    this.log = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
-    this.onNodeTitleClicked = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
-    this.onContextMenu = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onError = new EventEmitter(new import_strongly_typed_events16.EventDispatcher());
+    this.onTreeViewDestroyed = new EventEmitter(new import_strongly_typed_events16.EventDispatcher());
+    this.log = new EventEmitter(new import_strongly_typed_events16.EventDispatcher());
+    this.onNodeTitleClicked = new EventEmitter(new import_strongly_typed_events16.EventDispatcher());
+    this.onContextMenu = new EventEmitter(new import_strongly_typed_events16.EventDispatcher());
   }
   /**
    * @private
@@ -140335,7 +140790,7 @@ __export(contextmenu_exports, {
 });
 
 // ../sdk/src/contextmenu/ContextMenu.ts
-var import_strongly_typed_events16 = __toESM(require_dist8());
+var import_strongly_typed_events17 = __toESM(require_dist8());
 var idMap = new Map2();
 var Menu = class {
   id;
@@ -140427,8 +140882,8 @@ var ContextMenu = class {
     this.#itemMap = {};
     this.#shown = false;
     this.#nextId = 0;
-    this.onShown = new EventEmitter(new import_strongly_typed_events16.EventDispatcher());
-    this.onHidden = new EventEmitter(new import_strongly_typed_events16.EventDispatcher());
+    this.onShown = new EventEmitter(new import_strongly_typed_events17.EventDispatcher());
+    this.onHidden = new EventEmitter(new import_strongly_typed_events17.EventDispatcher());
     if (cfg.hideOnMouseDown !== false) {
       document.addEventListener("mousedown", (event) => {
         if (!event.target.classList.contains("xeokit-context-menu-item")) {
@@ -145605,10 +146060,13 @@ function el9(tag, props, children) {
       e.append(c3);
   return e;
 }
-var DataTexturesPanel = class {
+var DataTexturesPanel = class _DataTexturesPanel {
   static #TILE_ID = "__dtxpanel_tile__";
   static #STYLE_ID = "__dtxpanel_style__";
   static #STATE_KEY = "__dtxpanel_collapsed__";
+  // JSON overlay ids
+  static #JSON_MODAL_ID = "__dtxpanel_json_modal__";
+  static #JSON_BACKDROP_ID = "__dtxpanel_json_backdrop__";
   static show(flowHost, dataTextures) {
     this.#ensureStyle();
     let tile = document.getElementById(this.#TILE_ID);
@@ -145766,18 +146224,122 @@ var DataTexturesPanel = class {
     });
     return root;
   }
+  // -----------------------------
+  // JSON overlay (floating DIV)
+  // -----------------------------
+  static #closeJsonOverlay() {
+    try {
+      document.getElementById(this.#JSON_MODAL_ID)?.remove();
+      document.getElementById(this.#JSON_BACKDROP_ID)?.remove();
+    } catch {
+    }
+  }
+  static #ensureJsonOverlay(title, jsonText) {
+    this.#closeJsonOverlay();
+    const backdrop = el9("div", {
+      id: this.#JSON_BACKDROP_ID,
+      className: "dtx-json-backdrop",
+      onclick: (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        this.#closeJsonOverlay();
+      }
+    });
+    const modal = el9("div", { id: this.#JSON_MODAL_ID, className: "dtx-json-modal" });
+    const header = el9("div", { className: "dtx-json-header" }, [
+      el9("div", { className: "dtx-json-title", textContent: title }),
+      el9("div", { className: "dtx-json-actions" }, [
+        el9("button", {
+          className: "dtxp-btn dtxp-btn--sub",
+          type: "button",
+          textContent: "Copy",
+          title: "Copy JSON to clipboard",
+          onclick: async (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            try {
+              await navigator.clipboard.writeText(jsonText);
+            } catch {
+            }
+          }
+        }),
+        el9("button", {
+          className: "dtxp-btn dtxp-btn--sub",
+          type: "button",
+          textContent: "Close",
+          title: "Close JSON viewer",
+          onclick: (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            this.#closeJsonOverlay();
+          }
+        })
+      ])
+    ]);
+    const pre = el9("pre", { className: "dtx-json-pre", textContent: jsonText });
+    modal.appendChild(header);
+    modal.appendChild(pre);
+    document.body.appendChild(backdrop);
+    document.body.appendChild(modal);
+    const onKeyDown = (ev) => {
+      if (ev.key === "Escape") {
+        ev.preventDefault();
+        this.#closeJsonOverlay();
+      }
+      if (!document.getElementById(this.#JSON_MODAL_ID)) {
+        window.removeEventListener("keydown", onKeyDown, true);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown, true);
+  }
+  static #showTextureJson(tex, title) {
+    let payload;
+    try {
+      if (!tex || typeof tex.getItems !== "function") {
+        payload = { error: "getItems() not available on this texture" };
+      } else {
+        payload = tex.getItems();
+      }
+    } catch (err) {
+      payload = {
+        error: "getItems() threw",
+        message: String(err?.message ?? err),
+        stack: String(err?.stack ?? "")
+      };
+    }
+    let jsonText = "";
+    try {
+      jsonText = JSON.stringify(payload, null, 2);
+    } catch (err) {
+      jsonText = JSON.stringify(
+        {
+          error: "JSON.stringify failed",
+          message: String(err?.message ?? err)
+        },
+        null,
+        2
+      );
+    }
+    this.#ensureJsonOverlay(title, jsonText);
+  }
   static renderTextureTable(items) {
     const table = el9("table", {
       className: "datatextures-table datatextures-table-hybrid"
     });
     const thead = el9("thead", null, [
-      el9("tr", null, [el9("th", null, ["Name"]), el9("th", null, ["Type"]), el9("th", null, ["Capacity"]), el9("th", null, ["Used"])])
+      el9("tr", null, [
+        el9("th", null, ["Name"]),
+        el9("th", null, ["Type"]),
+        el9("th", null, ["JSON"]),
+        el9("th", null, ["Capacity"]),
+        el9("th", null, ["Used"])
+      ])
     ]);
     table.appendChild(thead);
     const tbody = el9("tbody");
-    const clamp01 = (x) => Math.max(0, Math.min(1, x));
+    const clamp012 = (x) => Math.max(0, Math.min(1, x));
     const heatColor = (t) => {
-      const c3 = clamp01(t);
+      const c3 = clamp012(t);
       const hue = 120 * (1 - c3);
       return `hsl(${hue} 80% 45%)`;
     };
@@ -145830,8 +146392,19 @@ var DataTexturesPanel = class {
         const usedCount = tex.numItems;
         const capacityCount = tex.maxItems;
         const fullness = capacityCount > 0 ? usedCount / capacityCount : 0;
-        const pct = Math.round(clamp01(fullness) * 100);
+        const pct = Math.round(clamp012(fullness) * 100);
         const title = arr.length > 1 ? `${name12} #${idx}` : name12;
+        const jsonBtn = el9("button", {
+          className: "dtxp-btn dtxp-btn--sub",
+          type: "button",
+          textContent: "JSON",
+          title: "Show tex.getItems() in a floating viewer",
+          onclick: (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            _DataTexturesPanel.#showTextureJson(tex, `${title} \u2014 getItems()`);
+          }
+        });
         const summaryTr = el9(
           "tr",
           {
@@ -145845,6 +146418,7 @@ var DataTexturesPanel = class {
               el9("span", { className: "dtx-pct", textContent: `${pct}%` })
             ]),
             el9("td", null, [type]),
+            el9("td", { className: "dtx-jsoncell" }, [jsonBtn]),
             el9("td", {
               className: "dtx-capacity",
               textContent: capacityCount.toLocaleString()
@@ -145993,7 +146567,7 @@ var DataTexturesPanel = class {
             el9(
               "td",
               {
-                colSpan: 4,
+                colSpan: 5,
                 className: "dtx-detailcell"
               },
               [detailContent]
@@ -146391,6 +146965,64 @@ var DataTexturesPanel = class {
   border-top: 1px solid #eef2f5;
 }
 .dtx-prop { grid-template-columns: 200px 1fr; }
+
+.dtx-jsoncell { width: 1%; white-space: nowrap; }
+
+/* JSON floating overlay */
+.dtx-json-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 9998;
+}
+.dtx-json-modal {
+  position: fixed;
+  top: 6vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1100px, 92vw);
+  height: min(78vh, 900px);
+  background: black;
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.30);
+  z-index: 200000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.dtx-json-header {
+font-size: 16px; font-weight: 750; color: #2d5e8c;
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #eef2f5;
+  background: #fbfdff;
+}
+.dtx-json-title {
+  font-weight: 750;
+  color: #2d5e8c;
+  font-size: 12.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 16px; font-weight: 750; color: #2d5e8c;
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+.dtx-json-actions { margin-left: auto; display: inline-flex; gap: 8px; align-items: center; }
+.dtx-json-pre {
+  margin: 0;
+  padding: 12px;
+  overflow: auto;
+  flex: 1 1 auto;
+  font-size: 13px;
+  line-height: 1.35;
+  color: #eee;
+  background: #111;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
     `;
     document.head.appendChild(style);
     window.__datatextures_panel_style = true;
@@ -147249,10 +147881,19 @@ var DemoHelper = class {
    * The CameraControl for the View, allowing user interaction with the camera.
    */
   cameraControl;
+  /**
+   * The maximum number of views to create.
+   */
+  maxViews;
+  /**
+   * A progress bar for loading operations, which you can use in your demo code to show loading progress.
+   */
+  //public loadingProgressBar = new LoadingProgressBar();
   // /**
   //  * A inspectors for building demo models with a fluent API. You can use this in your demo code to create models in the scene and data.
   //  */
   // public builder: DemoBuilder;
+  makeView;
   makeComponents;
   showOverlayButton;
   overlayButton = null;
@@ -147269,8 +147910,10 @@ var DemoHelper = class {
    * @param cfg
    */
   constructor(cfg = {}) {
+    this.makeView = cfg.makeView !== false;
     this.makeComponents = cfg.makeComponents !== false;
     this.showOverlayButton = cfg.showOverlayButton !== false;
+    this.maxViews = cfg.maxViews ?? 1;
     this.stats = {
       startTime: 0,
       endTime: 0,
@@ -147296,15 +147939,25 @@ var DemoHelper = class {
         this.scene = new Scene();
         this.data = new Data2();
         this.viewer = new Viewer();
-        this.renderer = new WebGLRenderer3();
+        this.renderer = new WebGLRenderer3({
+          memoryConfigs: {
+            maxViews: this.maxViews ?? (cfg.maxViews ?? 1),
+            tileSize: 200,
+            maxTiles: 2e3,
+            maxBatches: 300,
+            maxBatchVertices: 1e5,
+            maxBatchIndices: 3e5,
+            maxBatchGeometries: 1e3,
+            maxBatchMeshes: 1e3,
+            maxBatchPrims: 2e5
+          }
+        });
         const log2 = (eventName, sender, args) => {
         };
-        if (cfg.logging) {
-          new EventsLogger(this.scene.events, { prefix: "[Scene        ]", log: log2 });
-          new EventsLogger(this.data.events, { prefix: "[Data         ]", log: log2 });
-          new EventsLogger(this.viewer.events, { prefix: "[Viewer       ]", log: log2 });
-          new EventsLogger(this.renderer.events, { prefix: "[WebGLRenderer]", log: log2 });
-        }
+        new EventsLogger(this.scene.events, { prefix: "[Scene        ]", log: log2 });
+        new EventsLogger(this.data.events, { prefix: "[Data         ]", log: log2 });
+        new EventsLogger(this.viewer.events, { prefix: "[Viewer       ]", log: log2 });
+        new EventsLogger(this.renderer.events, { prefix: "[WebGLRenderer]", log: log2 });
         const onError = (_, result) => {
           setInterval(() => {
             window.postMessage({
@@ -147323,14 +147976,19 @@ var DemoHelper = class {
         this.aabb3Index = new SceneAABB3Index(this.scene);
         this.viewer.attachScene(this.scene);
         this.renderer.attachViewer(this.viewer);
-        const viewResult = this.viewer.createView({
-          id: "mainView",
-          elementId: "demoCanvas",
-          backgroundColor: [0, 0, 0]
-        });
-        if (viewResult.ok === false) {
-          reject(viewResult.error);
-          return;
+        if (this.makeView) {
+          const viewResult = this.viewer.createView({
+            id: "mainView",
+            elementId: "demoCanvas",
+            backgroundColor: [0, 0, 0]
+          });
+          if (viewResult.ok === false) {
+            reject(viewResult.error);
+            return;
+          }
+          this.view = viewResult.value;
+          this.cameraFlight = new CameraFlightAnimation(this.view);
+          this.cameraControl = new CameraControl(this.view);
         }
         const renderInspectorResult = this.renderer.getRenderInspector();
         if (renderInspectorResult.ok !== true) {
@@ -147339,9 +147997,6 @@ var DemoHelper = class {
         }
         const renderInspector = renderInspectorResult.value;
         renderInspector.enabled = true;
-        this.view = viewResult.value;
-        this.cameraFlight = new CameraFlightAnimation(this.view);
-        this.cameraControl = new CameraControl(this.view);
         window.demoHelper = this;
         resolve2({});
       } else {

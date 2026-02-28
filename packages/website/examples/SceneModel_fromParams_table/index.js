@@ -18,10 +18,8 @@ demoHelper
     view.camera.look = [0, -6, 0];
     view.camera.up = [0, 1, 0];
 
-    // Add a CameraControl to interactively control the Camera with keyboard,
-    // mouse and touch input
 
-    new xeokit.cameracontrol.CameraControl(view);
+
 
     // Within the Scene, create a SceneModel to hold geometry and materials for our model. We'll create
     // an empty SceneModel, then populate it with JSON that conforms to the schema defined by type SceneModelParams.
@@ -71,7 +69,8 @@ demoHelper
           position: [-4, -6, -4],
           scale: [1, 3, 1],
           rotation: [0, 0, 0],
-          color: [1, 0.3, 0.3]
+          color: [1, 0.3, 0.3],
+        //  opacity: 0.5
         },
         {
           id: "greenLeg-mesh",
@@ -138,7 +137,10 @@ demoHelper
     // // appearance of our model elements in that View. We'll make the yellow leg
     // // translucent, highlight the red leg and make the tabletop green.
     //
-    // view.objects["yellowLeg"].opacity = 0.5;
+
+    view.setObjectsSelected(["redLeg"], true);
+   //  view.objects["yellowLeg"].opacity = 0.5;
+
     // view.objects["redLeg"].highlighted = true;
     // view.objects["purpleTableTop"].colorize = [0, 1, 0];
     //

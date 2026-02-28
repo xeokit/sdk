@@ -1,5 +1,5 @@
 {
-  "id": "XGFLoader_MAP",
+  "id": "XGFLoader_ME-Demo-Sample-Single-Building",
   "title": "Viewing XGF using XGFLoader",
   "description": "How to load an IFC model from XGF format directly into a xeokit web viewer.",
   "isTutorial": true,

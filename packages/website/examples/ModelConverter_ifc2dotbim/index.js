@@ -110,8 +110,6 @@ demoHelper.init().then(() => {
 
               demoHelper.viewFit();
 
-              demoHelper.showAllStats();
-
               demoHelper.finished();
 
             }).catch(message => {

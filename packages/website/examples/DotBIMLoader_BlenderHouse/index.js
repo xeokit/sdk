@@ -30,11 +30,16 @@ demoHelper.init().then(() => {
 
   const sceneModelRes = scene.createModel({
     id: "demoModel",
+
+    // Specify that the model's coordinates are in a right-handed system with +Z "up", and that units are in
+    // meters. This will ensure that the model is oriented correctly in the View, and that any real-world
+    // sizes in the model are correct. We actually don't need to specify this here since these are the
+    // default settings for the coordinate system, but we'll specify it here for demonstration purposes.
     coordinateSystem: {
       basis: [
-        1,0,0,
-        0,1,0,
-        0,0,1
+        1, 0, 0, // Right
+        0, 0, 1, // Up
+        0, 1, 0  // Forward
       ],
       origin: [0,0,0],
       units: "meters",

@@ -10,9 +10,9 @@ demoHelper.init().then(() => {
 
   // Arrange the View's Camera within our +Z "up" coordinate system
 
-  view.camera.eye = [1841982.9384371885, 10.031355126263318, -5173286.744630201];
-  view.camera.look = [1842009.4968455553, 9.685518291306686, -5173295.851503017];
-  view.camera.up = [0.011650847910481935, 0.9999241456889114, -0.003995073374452514];
+  // view.camera.eye = [1841982.9384371885, 10.031355126263318, -5173286.744630201];
+  // view.camera.look = [1842009.4968455553, 9.685518291306686, -5173295.851503017];
+  // view.camera.up = [0.011650847910481935, 0.9999241456889114, -0.003995073374452514];
 
   // Create a SceneModel to hold our model's geometry and materials
 
@@ -68,9 +68,39 @@ demoHelper.init().then(() => {
           // The View will contain a ViewObject corresponding to each SceneObject, through which the
           // appearance of the object can be controlled in the View.
 
-          demoHelper.viewFit();
 
-       //   demoHelper.orbit();
+       //
+       //
+       //
+       //    for (const objectId in sceneModel.objects) {
+       //      const object = sceneModel.objects[objectId];
+       //
+       //      const transformResult = sceneModel.createTransform({
+       //
+       //        position: [0, 0, 0],
+       //        //  rotation: [0, 90, 0],
+       //      });
+       //
+       //      if (transformResult.ok === false) {
+       //        throw new Error(`Error creating transform: ${transformResult.error}`);
+       //      }
+       //      for (const meshId in object.meshes) {
+       //
+       //
+       //
+       //
+       //        const transform = transformResult.value;
+       //        const transformId = transform.id;
+       //
+       //        const mesh = object.meshes[meshId];
+       // //       mesh.setParentTransform( transformId);
+       //      }
+       //    }
+       //
+
+
+          demoHelper.viewFit();
+          demoHelper.orbit();
 
           demoHelper.finished();
 

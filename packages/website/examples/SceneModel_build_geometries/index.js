@@ -1,69 +1,42 @@
-// Import the SDK from a bundle built for these examples
-
+// Import the SDK from a bundle built for these examples.
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
-// Ignore the DemoHelper
+const demoHelper = new xeokit.demo.DemoHelper({});
 
-import {DemoHelper} from "../../js/DemoHelper.js";
+demoHelper.init().then(() => {
 
-// Create a Scene to hold geometry and materials
+  const {view, scene} = demoHelper;
 
-const scene = new xeokit.scene.Scene();
-
-// Create a WebGLRenderer to use the browser's WebGL API for 3D graphics
-
-const renderer = new xeokit.webglrenderer.WebGLRenderer({});
-
-// Create a Viewer that viewManager our Scene using the WebGLRenderer. Note that the
-// Scene and WebGLRenderer can only be attached to one Viewer at a time.
-
-const viewer = new xeokit.viewer.Viewer({
-  id: "demoViewer",
-  scene,
-  renderer
-});
-
-// Ignore the DemoHelper
-
-const demoHelper = new DemoHelper({
-  viewer
-});
-
-demoHelper
-  .init()
-  .then(() => {
-
-    // Create a single View that renders to a canvas
-
-    const view = viewer.createView({
-      id: "demoView",
-      elementId: "demoCanvas",
-      transparent: true,
-      backgroundColor: [0,0,0]
-    });
 
     // Position the View's Camera
 
-    view.camera.eye = [10, 5, 20];
-    view.camera.look = [10, 5, 0];
-    view.camera.up = [0, 1, 0];
+    // view.camera.eye = [10, 5, 20];
+    // view.camera.look = [10, 5, 0];
+    // view.camera.up = [0, 1, 0];
 
     view.camera.orbitPitch(20);
 
-    // Add a CameraControl to interactively control the Camera with keyboard,
-    // mouse and touch input
-
-    new xeokit.cameracontrol.CameraControl(view);
-
     // Within the Scene, create a SceneModel to hold geometry and materials for our model
 
-    const sceneModel = scene.createModel({
-      id: "demoModel"
+    const sceneModelResult = scene.createModel({
+      id: "demoModel",
+      coordinateSystem: {
+        basis: [
+          1, 0, 0, // Right
+          0, 1, 0, // Up
+          0, 0, -1  // Forward
+        ],
+        origin: [0, 0, 0],
+        units: "meters",
+        scaleToMeters: 1
+      }
     });
 
-    if (sceneModel instanceof xeokit.core.SDKError) {
-      demoHelper.logError(`Error creating SceneModel: ${sceneModel.message}`);
-    } else {
+    if (!sceneModelResult.ok) {
+      throw new Error(sceneModelResult.error);
+    }
+
+    const sceneModel = sceneModelResult.value;
 
       // Create a SceneMesh that represents a red box. The SceneMesh gets a
       // box-shaped SceneGeometry, for which we use buildBoxGeometry to
@@ -73,11 +46,17 @@ demoHelper
       // to the SceneGeometry vertex positions to position them within the
       // World coordinate system.
 
-      const box = xeokit.procgen.buildBoxGeometry({
+      const boxResult = xeokit.procgen.buildBoxGeometry({
         xSize: 1,
         ySize: 1,
         zSize: 1
       });
+
+      if (!boxResult.ok) {
+        throw new Error(boxResult.error);
+      }
+
+      const box = boxResult.value;
 
       sceneModel.createGeometry({
         id: "boxGeometry",
@@ -86,8 +65,14 @@ demoHelper
         indices: box.indices
       });
 
+      sceneModel.createTransform({
+        id: "rootTransform",
+        position:[0,0,0]
+      });
+
       sceneModel.createMesh({
         id: "boxMesh",
+        parentTransformId: "rootTransform",
         geometryId: "boxGeometry",
         matrix: xeokit.scene.buildMat4({
           position: [0, 0, 0],
@@ -99,11 +84,17 @@ demoHelper
       // SceneMesh gets a box-shaped wireframe SceneGeometry, for which we
       // use buildBoxLinesGeometry to generate the wire mesh positions and indices.
 
-      const boxLines = xeokit.procgen.buildBoxLinesGeometry({
+      const boxLinesResult = xeokit.procgen.buildBoxLinesGeometry({
         xSize: 1,
         ySize: 1,
         zSize: 1
       });
+
+      if (!boxLinesResult.ok) {
+        throw new Error(boxLinesResult.error);
+      }
+
+      const boxLines = boxLinesResult.value;
 
       sceneModel.createGeometry({
         id: "boxLinesGeometry",
@@ -114,6 +105,7 @@ demoHelper
 
       sceneModel.createMesh({
         id: "boxLinesMesh",
+        parentTransformId: "rootTransform",
         geometryId: "boxLinesGeometry",
         matrix: xeokit.scene.buildMat4({
           position: [3, 0, 0]
@@ -125,12 +117,18 @@ demoHelper
       // SceneMesh gets a sphere-shaped wireframe SceneGeometry, for which we
       // use buildSphereGeometry to generate the triangle mesh positions and indices.
 
-      const sphere = xeokit.procgen.buildSphereGeometry({
+      const sphereResult = xeokit.procgen.buildSphereGeometry({
         center: [0, 0, 0],
         radius: 1.5,
         heightSegments: 60,
         widthSegments: 60
       });
+
+      if (!sphereResult.ok) {
+        throw new Error(sphereResult.error);
+      }
+
+      const sphere = sphereResult.value;
 
       sceneModel.createGeometry({
         id: "sphereGeometry",
@@ -142,6 +140,7 @@ demoHelper
 
       sceneModel.createMesh({
         id: "sphereMesh",
+        parentTransformId: "rootTransform",
         geometryId: "sphereGeometry",
         matrix: xeokit.scene.buildMat4({
           position: [7, 0, 0]
@@ -153,7 +152,7 @@ demoHelper
       // SceneMesh gets a torus-shaped wireframe SceneGeometry, for which we
       // use buildTorusGeometry to generate the triangle mesh positions and indices.
 
-      const torus = xeokit.procgen.buildTorusGeometry({
+      const torusResult = xeokit.procgen.buildTorusGeometry({
         center: [0, 0, 0],
         radius: 1.5,
         tube: 0.5,
@@ -161,6 +160,12 @@ demoHelper
         tubeSegments: 24,
         arc: Math.PI * 2.0
       });
+
+      if (!torusResult.ok) {
+        throw new Error(torusResult.error);
+      }
+
+      const torus = torusResult.value;
 
       sceneModel.createGeometry({
         id: "torusGeometry",
@@ -172,6 +177,7 @@ demoHelper
 
       sceneModel.createMesh({
         id: "torusMesh",
+        parentTransformId: "rootTransform",
         geometryId: "torusGeometry",
         matrix: xeokit.scene.buildMat4({
           position: [11, 0, 0]
@@ -183,7 +189,7 @@ demoHelper
       // SceneMesh gets a cylinder-shaped triangle mesh SceneGeometry, for which we
       // use buildCylinderGeometry to generate the triangle mesh positions and indices.
 
-      const cylinder = xeokit.procgen.buildCylinderGeometry({
+      const cylinderResult = xeokit.procgen.buildCylinderGeometry({
         center: [0, 0, 0],
         radiusTop: 1.0,
         radiusBottom: 2.0,
@@ -192,6 +198,12 @@ demoHelper
         heightSegments: 1,
         openEnded: false
       });
+
+      if (!cylinderResult.ok) {
+        throw new Error(cylinderResult.error);
+      }
+
+      const cylinder = cylinderResult.value;
 
       sceneModel.createGeometry({
         id: "cylinderGeometry",
@@ -203,6 +215,7 @@ demoHelper
 
       sceneModel.createMesh({
         id: "cylinderMesh",
+        parentTransformId: "rootTransform",
         geometryId: "cylinderGeometry",
         matrix: xeokit.scene.buildMat4({
           position: [16, 0, 0]
@@ -214,10 +227,16 @@ demoHelper
       // SceneMesh gets a grid-shaped wireframe SceneGeometry, for which we
       // use buildGridGeometry to generate the wireframe mesh positions and indices.
 
-      const grid = xeokit.procgen.buildGridGeometry({
+      const gridResult = xeokit.procgen.buildGridGeometry({
         size: 10,
         divisions: 10
       });
+
+      if (!gridResult.ok) {
+        throw new Error(gridResult.error);
+      }
+
+      const grid = gridResult.value;
 
       sceneModel.createGeometry({
         id: "gridGeometry",
@@ -228,6 +247,7 @@ demoHelper
 
       sceneModel.createMesh({
         id: "gridMesh",
+        parentTransformId: "rootTransform",
         geometryId: "gridGeometry",
         matrix: xeokit.scene.buildMat4({
           position: [25, 0, 0]
@@ -240,9 +260,15 @@ demoHelper
       // use buildVectorTextGeometry to generate the wireframe mesh positions
       // and indices.
 
-      const text = xeokit.procgen.buildVectorTextGeometry({
+      const textResult = xeokit.procgen.buildVectorTextGeometry({
         text: "An assortment of geometry\nprogrammatically generated\nwithin a SceneModel\nusing instanced geometry",
       });
+
+      if (!textResult.ok) {
+        throw new Error(textResult.error);
+      }
+
+      const text = textResult.value;
 
       sceneModel.createGeometry({
         id: "textGeometry",
@@ -253,9 +279,10 @@ demoHelper
 
       sceneModel.createMesh({
         id: "textMesh",
+        parentTransformId: "rootTransform",
         geometryId: "textGeometry",
         matrix: xeokit.scene.buildMat4({
-          position: [0, 0.0, -7.5]
+          position: [0, 10.0, 0]
         }),
         color: [0, 1, 1]
       });
@@ -289,7 +316,7 @@ demoHelper
         colors.push(Math.random());
         colors.push(Math.random());
         colors.push(Math.random());
-    //    colors.push(Math.random());
+        colors.push(Math.random());
 
         i++;
       }
@@ -303,6 +330,7 @@ demoHelper
 
       sceneModel.createMesh({
         id: "pointsMesh",
+        parentTransformId: "rootTransform",
         geometryId: "pointsGeometry",
         matrix: xeokit.scene.buildMat4({
           position: [-7, 0, 0],
@@ -321,7 +349,6 @@ demoHelper
           "textMesh", "pointsMesh"
         ]
       });
-    }
 
     // At this point, the View will contain a single ViewObject that has the same ID as the SceneObject. Through
     // the ViewObject, we can update the appearance of our geometries in that View.
@@ -329,5 +356,9 @@ demoHelper
     // view.objects["geometriesObject"].highlighted = true;
     // view.setObjectsHighlighted(view.highlightedObjectIds, false);
 
-    demoHelper.finished();
+  demoHelper.viewFit();
+
+  demoHelper.orbit();
+
+  demoHelper.finished();
   });

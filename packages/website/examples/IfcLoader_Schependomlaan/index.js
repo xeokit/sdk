@@ -55,7 +55,7 @@ demoHelper.init().then(() => {
 
   // Load our IFC data into the SceneModel and DataModel
 
-  fetch(`../../models/Duplex/ifc/model.ifc`)
+  fetch(`../../models/Schependomlaan/ifc/model.ifc`)
     .then(response => {
       response
         .arrayBuffer()
@@ -69,35 +69,6 @@ demoHelper.init().then(() => {
           }).then(() => { // IFC file loaded
 
             demoHelper.viewFit();
-
-            // The IFC model now appears in our Viewer.  The DataModel and the Data will then contain DataObject,
-            // Relationship and PropertySet components that represent the IFC data as an
-            // entity-relationship graph.
-
-            // Using the searchObjects function, query the Data for all the
-            // IfcMember elements within the IfcSite.
-
-            const resultObjectIds = [];
-
-            const result = xeokit.data.searchObjects(data, {
-              startObjectId: "1xS3BCk291UvhgP2a6eflN",
-              includeObjects: ["IfcMember"],
-              includeRelated: ["IfcRelAggregates"],
-              resultObjectIds
-            });
-
-            // Check if the query was valid.
-
-            if (!result.ok) {
-              console.error(result);
-              return;
-            }
-
-            // If the query succeeded, go ahead and mark whatever
-            // objects we found as selected. In this case, it will set the window
-            // frames as selected in the View.
-
-            view.setObjectsSelected(resultObjectIds, true);
 
             demoHelper.orbit();
 

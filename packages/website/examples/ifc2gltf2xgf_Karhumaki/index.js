@@ -16,25 +16,6 @@ demoHelper.init().then(() => {
     throw new Error("Failed to get RenderInspector: " + drawInspectorResult.error);
   }
 
-  window.renderInspector = drawInspectorResult.value;
-
-  renderInspector.enabled = true;
-
-// Arrange the View's Camera
-
-  view.camera.eye = [-31.63254701136148, 63.84407843065014, -97.64896735426231];
-  view.camera.look = [-69.51194533142663, 31.241318427077932, -62.52887630516256];
-  view.camera.up = [-0.3913972432760181, 0.8456487936816226, 0.3628860919086728];
-
-  const repeatingTask = new xeokit.core.SDKTask({
-    name: "MyTask",
-    stage: xeokit.core.SDKTask.CollectInputStage,
-    task: () => {
-  //  view.camera.orbitYaw(1.1);
-    },
-    repeat: true
-  });
-
 // Create a SceneModel to hold our model's geometry and materials
 
   const sceneModelResult = scene.createModel({
@@ -88,6 +69,8 @@ demoHelper.init().then(() => {
           }).then(() => { // XGF and JSON files loaded
 
             // The Karhumaki Bridge model now appears in our Viewer.
+
+            demoHelper.viewFit();
 
             demoHelper.finished();
 

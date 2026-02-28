@@ -94,7 +94,8 @@ demoHelper
       id: "redLegMesh",
       geometryId: "demoBoxGeometry",
       parentTransformId: "redLegTransform",
-      color: [1, 0, 0]
+      color: [1, 0, 0],
+      opacity: 0.2
     });
 
     if (!m1Result.ok) {
@@ -216,23 +217,25 @@ demoHelper
       throw new Error(m5Result.error);
     }
 
-    sceneModel.createObject({
-      id: "purpleTableTop",
-      meshIds: ["purpleTableTopMesh"],
-    });
+    // sceneModel.createObject({
+    //   id: "purpleTableTop",
+    //   meshIds: ["purpleTableTopMesh"],
+    // });
 
     // Signal that the demo is ready once all setup is complete.
 
+    //view.objects["redLeg"].highlighted = true;
+
     demoHelper.finished();
 
-    new xeokit.core.SDKTask({
-      name: "Animate Table",
-      task: () => {
-        rootTransform.rotation = [0, performance.now() / 40, performance.now() / 100];
-        blueLegTransform.position = [4, (3 * Math.sin(performance.now() / 1000)) - 9, 4];
-        blueLegTransform.rotation = [0, performance.now() / 100, 0];
-      },
-      stage: xeokit.core.SDKTask.AnimateStage,
-      repeat: true
-    }).schedule();
+    // new xeokit.core.SDKTask({
+    //   name: "Animate Table",
+    //   task: () => {
+    //     rootTransform.rotation = [0, performance.now() / 40, performance.now() / 100];
+    //     blueLegTransform.position = [4, (3 * Math.sin(performance.now() / 1000)) - 9, 4];
+    //     blueLegTransform.rotation = [0, performance.now() / 100, 0];
+    //   },
+    //   stage: xeokit.core.SDKTask.AnimateStage,
+    //   repeat: true
+    // }).schedule();
   });

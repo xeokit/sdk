@@ -30,6 +30,10 @@ export class DataTexturesPanel {
   static #STYLE_ID = "__dtxpanel_style__";
   static #STATE_KEY = "__dtxpanel_collapsed__";
 
+  // JSON overlay ids
+  static #JSON_MODAL_ID = "__dtxpanel_json_modal__";
+  static #JSON_BACKDROP_ID = "__dtxpanel_json_backdrop__";
+
   static show(flowHost: HTMLElement, dataTextures: DataTextures) {
     this.#ensureStyle();
     let tile = document.getElementById(this.#TILE_ID) as HTMLDivElement | null;
@@ -165,7 +169,11 @@ export class DataTexturesPanel {
             Object.entries(batch)
               // @ts-ignore
               .filter(
-                ([, v]) => Array.isArray(v) === false && typeof v === "object" && v && typeof (v as any).getItem === "function"
+                ([, v]) =>
+                  Array.isArray(v) === false &&
+                  typeof v === "object" &&
+                  v &&
+                  typeof (v as any).getItem === "function"
               )
               .map(([k, v]) => ({ name: k, arr: [v] }))
           ),
@@ -223,6 +231,119 @@ export class DataTexturesPanel {
     return root;
   }
 
+  // -----------------------------
+  // JSON overlay (floating DIV)
+  // -----------------------------
+  static #closeJsonOverlay() {
+    try {
+      document.getElementById(this.#JSON_MODAL_ID)?.remove();
+      document.getElementById(this.#JSON_BACKDROP_ID)?.remove();
+    } catch {}
+  }
+
+  static #ensureJsonOverlay(title: string, jsonText: string) {
+    // Remove any existing overlay first
+    this.#closeJsonOverlay();
+
+    const backdrop = el("div", {
+      id: this.#JSON_BACKDROP_ID,
+      className: "dtx-json-backdrop",
+      onclick: (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        this.#closeJsonOverlay();
+      },
+    } as any) as HTMLDivElement;
+
+    const modal = el("div", { id: this.#JSON_MODAL_ID, className: "dtx-json-modal" } as any) as HTMLDivElement;
+
+    const header = el("div", { className: "dtx-json-header" }, [
+      el("div", { className: "dtx-json-title", textContent: title }),
+      el("div", { className: "dtx-json-actions" }, [
+        el("button", {
+          className: "dtxp-btn dtxp-btn--sub",
+          type: "button",
+          textContent: "Copy",
+          title: "Copy JSON to clipboard",
+          onclick: async (ev: MouseEvent) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            try {
+              await navigator.clipboard.writeText(jsonText);
+            } catch {
+              // ignore (clipboard may be blocked)
+            }
+          },
+        }),
+        el("button", {
+          className: "dtxp-btn dtxp-btn--sub",
+          type: "button",
+          textContent: "Close",
+          title: "Close JSON viewer",
+          onclick: (ev: MouseEvent) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            this.#closeJsonOverlay();
+          },
+        }),
+      ]),
+    ]);
+
+    const pre = el("pre", { className: "dtx-json-pre", textContent: jsonText });
+
+    modal.appendChild(header);
+    modal.appendChild(pre);
+
+    document.body.appendChild(backdrop);
+    document.body.appendChild(modal);
+
+    // Escape closes
+    const onKeyDown = (ev: KeyboardEvent) => {
+      if (ev.key === "Escape") {
+        ev.preventDefault();
+        this.#closeJsonOverlay();
+      }
+      // stop if overlay removed
+      if (!document.getElementById(this.#JSON_MODAL_ID)) {
+        window.removeEventListener("keydown", onKeyDown, true);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown, true);
+  }
+
+  static #showTextureJson(tex: any, title: string) {
+    let payload: any;
+    try {
+      if (!tex || typeof tex.getItems !== "function") {
+        payload = { error: "getItems() not available on this texture" };
+      } else {
+        payload = tex.getItems();
+      }
+    } catch (err: any) {
+      payload = {
+        error: "getItems() threw",
+        message: String(err?.message ?? err),
+        stack: String(err?.stack ?? ""),
+      };
+    }
+
+    let jsonText = "";
+    try {
+      jsonText = JSON.stringify(payload, null, 2);
+    } catch (err: any) {
+      jsonText = JSON.stringify(
+        {
+          error: "JSON.stringify failed",
+          message: String(err?.message ?? err),
+        },
+        null,
+        2
+      );
+    }
+
+    this.#ensureJsonOverlay(title, jsonText);
+  }
+
   static renderTextureTable(items: { name: string; arr: any[] }[]) {
     const table = el("table", {
       className: "datatextures-table datatextures-table-hybrid",
@@ -233,7 +354,13 @@ export class DataTexturesPanel {
     // ------------------------------------------------------------
 
     const thead = el("thead", null, [
-      el("tr", null, [el("th", null, ["Name"]), el("th", null, ["Type"]), el("th", null, ["Capacity"]), el("th", null, ["Used"])]),
+      el("tr", null, [
+        el("th", null, ["Name"]),
+        el("th", null, ["Type"]),
+        el("th", null, ["JSON"]),
+        el("th", null, ["Capacity"]),
+        el("th", null, ["Used"]),
+      ]),
     ]);
 
     table.appendChild(thead);
@@ -308,6 +435,19 @@ export class DataTexturesPanel {
 
         const title = arr.length > 1 ? `${name} #${idx}` : name;
 
+        // JSON button cell (opens floating overlay)
+        const jsonBtn = el("button", {
+          className: "dtxp-btn dtxp-btn--sub",
+          type: "button",
+          textContent: "JSON",
+          title: "Show tex.getItems() in a floating viewer",
+          onclick: (ev: MouseEvent) => {
+            ev.preventDefault();
+            ev.stopPropagation(); // don't toggle expand/collapse
+            DataTexturesPanel.#showTextureJson(tex, `${title} — getItems()`);
+          },
+        });
+
         // --------------------------
         // SUMMARY ROW
         // --------------------------
@@ -325,6 +465,7 @@ export class DataTexturesPanel {
               el("span", { className: "dtx-pct", textContent: `${pct}%` }),
             ]),
             el("td", null, [type]),
+            el("td", { className: "dtx-jsoncell" }, [jsonBtn]),
             el("td", {
               className: "dtx-capacity",
               textContent: capacityCount.toLocaleString(),
@@ -498,7 +639,7 @@ export class DataTexturesPanel {
             el(
               "td",
               {
-                colSpan: 4,
+                colSpan: 5,
                 className: "dtx-detailcell",
               } as any,
               [detailContent]
@@ -935,6 +1076,64 @@ export class DataTexturesPanel {
   border-top: 1px solid #eef2f5;
 }
 .dtx-prop { grid-template-columns: 200px 1fr; }
+
+.dtx-jsoncell { width: 1%; white-space: nowrap; }
+
+/* JSON floating overlay */
+.dtx-json-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 9998;
+}
+.dtx-json-modal {
+  position: fixed;
+  top: 6vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1100px, 92vw);
+  height: min(78vh, 900px);
+  background: black;
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.30);
+  z-index: 200000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.dtx-json-header {
+font-size: 16px; font-weight: 750; color: #2d5e8c;
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #eef2f5;
+  background: #fbfdff;
+}
+.dtx-json-title {
+  font-weight: 750;
+  color: #2d5e8c;
+  font-size: 12.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 16px; font-weight: 750; color: #2d5e8c;
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+.dtx-json-actions { margin-left: auto; display: inline-flex; gap: 8px; align-items: center; }
+.dtx-json-pre {
+  margin: 0;
+  padding: 12px;
+  overflow: auto;
+  flex: 1 1 auto;
+  font-size: 13px;
+  line-height: 1.35;
+  color: #eee;
+  background: #111;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
     `;
     document.head.appendChild(style);
     (window as any).__datatextures_panel_style = true;

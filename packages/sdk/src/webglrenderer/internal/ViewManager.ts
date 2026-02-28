@@ -320,6 +320,10 @@ export class ViewManager {
    *
    * Creates a {@link ViewRenderState} wrapper and assigns {@link View.viewIndex}.
    *
+   * If there are already the maximum allowed number of views, returns an error result without
+   * adding the view. Any other operations on ViewManager for a view that was not successfully
+   * added will be quietly ignored, to reduce logging noise.
+   *
    * @param view - The view to add.
    * @returns {@link SDKResult} indicating success or failure.
    *
@@ -329,11 +333,12 @@ export class ViewManager {
     if (this._rendererViews[view.id]) {
       throw new SDKInternalException("[ViewManager.viewCreated] Can't add additional View to WebGLRenderer - View already added");
     }
-    if (this._rendererViewsList.length >= 4) { // TODO: Capabilities.maxViews
+    const maxViews = this._renderContext.memoryConfigs.maxViews;
+    if (this._rendererViewsList.length >= maxViews) { // TODO: Capabilities.maxViews
       return {
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: `[ViewManager.viewCreated] Maximum number of Views exceeded - max allowed is 4`
+        error: `[ViewManager.viewCreated] Maximum view count reached (MemoryConfigs.maxViews = ${maxViews}). Additional operations for View '${view.id}' will be ignored and canvas will not be rendered.`
       };
     }
     const rendererView = new ViewRenderState(
@@ -367,21 +372,19 @@ export class ViewManager {
    * This will activate the view if it is not currently active, upload any queued GPU changes,
    * and issue a render.
    *
+   * If the View is not registered with the manager, this method will return `ok:true` with no value,
+   * and will not throw an error, since it's possible for the viewer to update views that have not been added
+   * to the renderer (eg. if they were filtered out due to max view limits).
+   *
    * @param view - The view to update and render.
-   * @returns {@link SDKResult} from the render call, or `ok:false` if the view is not registered.
+   * @returns {@link SDKResult} from the render call, or `ok:true` if the view is not registered, which is OK.
    */
   public viewUpdated(view: View): SDKResult<any> {
     const rendererView = this._rendererViews[view.id];
-    if (!rendererView) {
-      return {
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: `[ViewManager.viewUpdated] View not found with id ${view.id}`
-      };
+    if (!rendererView) { // Ignore
+      return { ok: true, value: undefined };
     }
-    if (this._activeView !== rendererView) {
-      this._activateView(rendererView);
-    }
+    this._activateView(rendererView);
     this._gpuMemoryManager.uploadChanges();
     return this._renderManager.render(rendererView, {clear: true});
   }
@@ -400,6 +403,9 @@ export class ViewManager {
   private _activateView(rendererView: ViewRenderState): void {
     const activeRendererView = this._activeView;
     if (activeRendererView) {
+      if (activeRendererView === rendererView) {
+        return;
+      }
       const activeCanvasBoundingRect = activeRendererView.view.htmlElement.getBoundingClientRect();
       const primarySnapshotBuffer = activeRendererView.renderBuffers.getRenderBuffer("snapshot", {
         depthTexture: false,
@@ -407,7 +413,7 @@ export class ViewManager {
       });
       primarySnapshotBuffer.bind();
       primarySnapshotBuffer.clear();
-      this._renderManager.render(rendererView, {clear: true});
+      this._renderManager.render(activeRendererView, {clear: true});
       const image = primarySnapshotBuffer.readImage({
         format: "png",
         height: activeCanvasBoundingRect.height,
@@ -433,17 +439,17 @@ export class ViewManager {
   /**
    * Unregisters a {@link View} and releases its associated rendering resources.
    *
+   * If the View is not registered with the manager, this method will return `ok:true` with no value,
+   * and will not throw an error, since it's possible for the viewer to update views that have not been added
+   * to the renderer (eg. if they were filtered out due to max view limits).
+   *
    * @param view - The view to remove.
-   * @returns {@link SDKResult} indicating success, or `ok:false` if the view was not registered.
+   * @returns {@link SDKResult} indicating success.
    */
   public viewDestroyed(view: View): SDKResult<any> {
     const rendererView = this._rendererViews[view.id];
-    if (!rendererView) {
-      return {
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: `[ViewManager.viewDestroyed] View not found with id ${view.id}`
-      };
+    if (!rendererView) { // Ignore
+      return { ok: true, value: undefined };
     }
     rendererView.destroy();
     delete this._rendererViews[view.id];
@@ -584,6 +590,9 @@ export class ViewManager {
    * Forwards to {@link MeshManager} to queue GPU updates.
    */
   public viewObjectVisibilityChanged(viewObject: ViewObject): void {
+    if (!this._rendererViewsList[viewObject.layer.view.viewIndex]) {
+      return;
+    }
     this._meshManager.viewObjectVisibilityChanged(viewObject);
   }
 
@@ -592,6 +601,9 @@ export class ViewManager {
    * Forwards to {@link MeshManager} to queue GPU updates.
    */
   public viewObjectXRayedChanged(viewObject: ViewObject): void {
+    if (!this._rendererViewsList[viewObject.layer.view.viewIndex]) {
+      return;
+    }
     this._meshManager.viewObjectXRayedChanged(viewObject);
   }
 
@@ -600,6 +612,9 @@ export class ViewManager {
    * Forwards to {@link MeshManager} to queue GPU updates.
    */
   public viewObjectHighlightedChanged(viewObject: ViewObject): void {
+    if (!this._rendererViewsList[viewObject.layer.view.viewIndex]) {
+      return;
+    }
     this._meshManager.viewObjectHighlightedChanged(viewObject);
   }
 
@@ -608,6 +623,9 @@ export class ViewManager {
    * Forwards to {@link MeshManager} to queue GPU updates.
    */
   public viewObjectSelectedChanged(viewObject: ViewObject): void {
+    if (!this._rendererViewsList[viewObject.layer.view.viewIndex]) {
+      return;
+    }
     this._meshManager.viewObjectSelectedChanged(viewObject);
   }
 
@@ -616,6 +634,9 @@ export class ViewManager {
    * Forwards to {@link MeshManager} to queue GPU updates.
    */
   public viewObjectColorizeChanged(viewObject: ViewObject): void {
+    if (!this._rendererViewsList[viewObject.layer.view.viewIndex]) {
+      return;
+    }
     this._meshManager.viewObjectColorizeChanged(viewObject);
   }
 
@@ -624,6 +645,9 @@ export class ViewManager {
    * Forwards to {@link MeshManager} to queue GPU updates.
    */
   public viewObjectOpacityChanged(viewObject: ViewObject): void {
+    if (viewObject.layer.view.viewIndex >= this._rendererViewsList.length) {
+      return;
+    }
     this._meshManager.viewObjectOpacityChanged(viewObject);
   }
 
@@ -632,6 +656,9 @@ export class ViewManager {
    * Forwards to {@link MeshManager} to update camera-dependent GPU state.
    */
   public cameraViewMatrixUpdated(camera: Camera): void {
+    if (!this._rendererViewsList[camera.view.viewIndex]) {
+      return;
+    }
     this._meshManager.cameraViewMatrixUpdated(camera);
   }
 

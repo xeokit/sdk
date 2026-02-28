@@ -39,6 +39,13 @@ export interface MemoryConfigs {
   tileSize: number;
 
   /**
+   * Maximum number of views in GPU memory.
+   * Memory for these views is pre-allocated - only allocate as many as you need, as each view consumes extra GPU memory.
+   * This number is `1` by default.
+   */
+  maxViews: number;
+
+  /**
    * Maximum number of RTC (Relative To Center) tiles in GPU memory.
    * @remarks
    * Tiles partition world space into regions, enabling high-precision vertex positions relative to each tile origin.

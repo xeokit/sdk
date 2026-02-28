@@ -15,6 +15,7 @@ import {type SceneMesh} from "../../../scene";
 import {type GPUTile} from "../gpuMemoryManager/GPUTile";
 import {type GPUMemoryManager} from "../gpuMemoryManager/GPUMemoryManager";
 import {type MeshBatchMeshHandle} from "./MeshBatchMeshHandle";
+import {SDKInternalException} from "../../../core";
 
 const tempIdentityMat4 = identityMat4(createMat4Float64());
 const identityVec4 = createVec4Float64([0, 0, 0, 1]);
@@ -87,7 +88,8 @@ export class RendererMesh {
     this._gpuMemoryManager = gpuMemoryManager;
     this._meshHandle = meshHandle;
     this.gpuTile = null;
-    this._viewStates = Array.from({length: NUM_VIEWS}, () => ({
+    const numViews = renderContext.memoryConfigs.maxViews;
+    this._viewStates = Array.from({length: numViews}, () => ({
       colorizing: false,
       coloringOpacity: false,
       transparent:null,
@@ -126,7 +128,7 @@ export class RendererMesh {
    * Called by {@link RendererObject.setColor}.
    */
   setColor(color: Vec3) {
-    for (let viewIndex = 0, len = this._renderContext.viewer.viewList.length; viewIndex < len; viewIndex++) {
+    for (let viewIndex = 0, len = this._viewStates.length; viewIndex < len; viewIndex++) {
       const viewState = this._viewStates[viewIndex];
       if (!viewState.colorizing) {
         this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, color);
@@ -139,7 +141,7 @@ export class RendererMesh {
    * Called by {@link RendererObject.setOpacity}.
    */
   setOpacity(opacity: number) {
-    for (let viewIndex = 0, len = this._renderContext.viewer.viewList.length; viewIndex < len; viewIndex++) {
+    for (let viewIndex = 0, len = this._viewStates.length; viewIndex < len; viewIndex++) {
       const viewState = this._viewStates[viewIndex];
       if (!viewState.coloringOpacity) {
         this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
@@ -159,6 +161,9 @@ export class RendererMesh {
    */
   setObjectVisible(viewIndex: number, objectVisible: boolean) {
     const viewState = this._viewStates[viewIndex];
+    if (!viewState) {
+      throw new SDKInternalException(`[RendererMesh.setObjectVisible] No view state for view index ${viewIndex}`);
+    }
     if (viewState.objectVisible === objectVisible) {
       return;
     }
@@ -171,7 +176,7 @@ export class RendererMesh {
    * Called by {@link RendererObject.setVisible}.
    */
   setVisible( meshVisible: boolean) {
-    for (let viewIndex = 0, len = NUM_VIEWS; viewIndex < len; viewIndex++) {
+    for (let viewIndex = 0, len = this._viewStates.length; viewIndex < len; viewIndex++) {
       const viewState = this._viewStates[viewIndex];
       if (viewState.meshVisible === meshVisible) {
         continue;
@@ -187,6 +192,9 @@ export class RendererMesh {
    */
   setColorInView(viewIndex: number, colorize: Vec3 | null) {
     const viewStates = this._viewStates[viewIndex];
+    if (!viewStates) {
+      throw new SDKInternalException(`[RendererMesh.setColorInView] No view state for view index ${viewIndex}`);
+    }
     if (colorize !== null) { // Apply color override
       this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, colorize);
       viewStates.colorizing = true;
@@ -202,6 +210,9 @@ export class RendererMesh {
    */
   setOpacityInView(viewIndex: number, opacity: number | null) {
     const viewStates = this._viewStates[viewIndex];
+    if (!viewStates) {
+      throw new SDKInternalException(`[RendererMesh.setOpacityInView] No view state for view index ${viewIndex}`);
+    }
     if (opacity !== null) { // Apply opacity override
       this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
       viewStates.coloringOpacity = true;
@@ -216,7 +227,11 @@ export class RendererMesh {
    * Called by {@link RendererObject.setHighlighted}.
    */
   setHighlighted(viewIndex: number, highlighted: boolean) {
-    const transparent = this._viewStates[viewIndex].transparent; // For restore to opaque vs transparent bin, when un-highlighting
+    const viewStates = this._viewStates[viewIndex];
+    if (!viewStates) {
+      throw new SDKInternalException(`[RendererMesh.setHighlighted] No view state for view index ${viewIndex}`);
+    }
+    const transparent = viewStates.transparent; // For restore to opaque vs transparent bin, when un-highlighting
     this._meshBatch.setMeshHighlighted(viewIndex, this._meshHandle, highlighted, transparent);
   }
 
@@ -225,7 +240,11 @@ export class RendererMesh {
    * Called by {@link RendererObject.setXRayed}.
    */
   setXRayed(viewIndex: number, xrayed: boolean) {
-    const transparent = this._viewStates[viewIndex].transparent; // For restore to opaque vs transparent bin, when un-x-raying
+    const viewStates = this._viewStates[viewIndex];
+    if (!viewStates) {
+      throw new SDKInternalException(`[RendererMesh.setXRayed] No view state for view index ${viewIndex}`);
+    }
+    const transparent = viewStates.transparent; // For restore to opaque vs transparent bin, when un-x-raying
     this._meshBatch.setMeshXRayed(viewIndex, this._meshHandle, xrayed, transparent);
   }
 
@@ -234,7 +253,11 @@ export class RendererMesh {
    * Called by {@link RendererObject.setSelected}.
    */
   setSelected(viewIndex: number, selected: boolean) {
-    const transparent = this._viewStates[viewIndex].transparent; // For restore to opaque vs transparent bin, when de-selecting
+    const viewStates = this._viewStates[viewIndex];
+    if (!viewStates) {
+      throw new SDKInternalException(`[RendererMesh.setSelected] No view state for view index ${viewIndex}`);
+    }
+    const transparent = viewStates.transparent; // For restore to opaque vs transparent bin, when de-selecting
     this._meshBatch.setMeshSelected(viewIndex, this._meshHandle, selected, transparent);
   }
 
@@ -243,6 +266,10 @@ export class RendererMesh {
    * Called by {@link RendererObject.setClippable}.
    */
   setClippable(viewIndex: number, clippable: boolean) {
+    const viewStates = this._viewStates[viewIndex];
+    if (!viewStates) {
+      throw new SDKInternalException(`[RendererMesh.setClippable] No view state for view index ${viewIndex}`);
+    }
     this._meshBatch.setMeshClippable(viewIndex, this._meshHandle, clippable);
   }
 

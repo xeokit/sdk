@@ -94,7 +94,6 @@ import {GPUMemoryCheckResult} from "./GPUMemoryCheckResult";
  */
 
 
-
 export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
 
   /**
@@ -157,19 +156,17 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
     // Only GPUTileManager knows the current tile count, but MatrixTexture needs a dynamic count callback.
     const getNumItems = () => this._tileManager ? this._tileManager.numTiles : 0;
 
-    this._viewTileCameraMatrixTexture = [
-      new MatrixTexture({gl, maxItems: maxTiles, getNumItems, description: "[View 0] tileIndex → view matrix"}),
-      new MatrixTexture({gl, maxItems: maxTiles, getNumItems, description: "[View 1] tileIndex → view matrix"}),
-      new MatrixTexture({gl, maxItems: maxTiles, getNumItems, description: "[View 2] tileIndex → view matrix"}),
-      new MatrixTexture({gl, maxItems: maxTiles, getNumItems, description: "[View 3] tileIndex → view matrix"})
-    ];
+    const numViews = this._renderContext.memoryConfigs.maxViews;
 
-    this._viewTilePickMatrixTexture = [
-      new MatrixTexture({gl, maxItems: maxTiles, getNumItems, description: "[View 0] tileIndex → pick matrix"}),
-      new MatrixTexture({gl, maxItems: maxTiles, getNumItems, description: "[View 1] tileIndex → pick matrix"}),
-      new MatrixTexture({gl, maxItems: maxTiles, getNumItems, description: "[View 2] tileIndex → pick matrix"}),
-      new MatrixTexture({gl, maxItems: maxTiles, getNumItems, description: "[View 3] tileIndex → pick matrix"})
-    ];
+    this._viewTileCameraMatrixTexture = [];
+    this._viewTilePickMatrixTexture = [];
+
+    for (let i = 0; i < numViews; i++) {
+      this._viewTileCameraMatrixTexture.push(
+        new MatrixTexture({gl, maxItems: maxTiles, getNumItems, description: `[View ${i}}] tileIndex → view matrix`}));
+      this._viewTilePickMatrixTexture.push(
+        new MatrixTexture({gl, maxItems: maxTiles, getNumItems, description: `[View ${i}] tileIndex → pick matrix`}));
+    }
 
     const textures: { allocate(): SDKResult<void>; destroy(): void }[] = [
       ...this._viewTileCameraMatrixTexture,
@@ -186,7 +183,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
         return {
           ok: false,
           type: SDKErrorType.MemoryExceeded,
-          error: "[GPUMemoryManager.init] Out of GPU memory. Try increasing the maximum number of tiles."
+          error: "[GPUMemoryManager.init] Failed to allocate GPU memory."
         };
       }
     }
@@ -205,7 +202,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
       onBatchCreated: new EventEmitter(new EventDispatcher<DataTextures, undefined>())
     };
 
-    return { ok: true, value: undefined };
+    return {ok: true, value: undefined};
   }
 
   /**
@@ -234,7 +231,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
       }
     }
 
-    return { ok: true, value: undefined };
+    return {ok: true, value: undefined};
   }
 
   /**
@@ -299,11 +296,13 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * Useful for debugging/telemetry and rough capacity planning.
    */
   static get itemSizesInBytes(): { [key: string]: number } {
+    //const numViews = this._renderContext.memoryConfigs.maxViews;
+    const numViews = 4; // TODO - remove hardcoded 4 views assumption; currently baked into shader logic and tile manager behavior, but should be decoupled for flexibility.
     return Object.assign(
       {
         tile:
-          (MatrixTexture.itemSizeInBytes * 4) + // view matrices for 4 views
-          (MatrixTexture.itemSizeInBytes * 4),  // pick matrices for 4 views
+          (MatrixTexture.itemSizeInBytes * numViews) + // view matrices for 4 views
+          (MatrixTexture.itemSizeInBytes * numViews),  // pick matrices for 4 views
       },
       GPUMemoryBatch.itemSizesInBytes
     );
@@ -316,7 +315,8 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * been queued by higher-level managers.
    */
   public uploadChanges(): void {
-    for (let i = 0; i < 4; i++) {
+    const numViews = this._renderContext.memoryConfigs.maxViews;
+    for (let i = 0; i < numViews; i++) {
       this._viewTileCameraMatrixTexture[i].uploadChanges();
       this._viewTilePickMatrixTexture[i].uploadChanges();
     }
@@ -423,7 +423,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
     this.dataTextures!.batches.push(gpuMemoryBatch.dataTextures);
     this.dataTextures!.onBatchCreated.dispatch(this.dataTextures!, undefined);
 
-    return { ok: true, value: index };
+    return {ok: true, value: index};
   }
 
   /**

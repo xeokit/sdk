@@ -1,15 +1,13 @@
 import {createMat4Float64} from "../../../math/matrix";
 import {createVec3Float64} from "../../../math/vector";
-import {createRTCViewMat, worldToRTCCenter} from "../../../math/rtc";
+import {createRTCViewMat, getRTCTileSize, worldToRTCCenter} from "../../../math/rtc";
 import type { Mat4} from "../../../math/matrix";
 import type {Vec3} from "../../../math/vector";
-import {Camera, View, Viewer} from "../../../viewer";
+import {Camera, View} from "../../../viewer";
 import {type GPUTile} from "./GPUTile";
 import {MatrixTexture} from "./dataTextures/MatrixTexture";
 import {RenderContext} from "./../RenderContext";
 
-const NUM_VIEWS = 4;
-const NUM_TILES = 2000;
 const tempVec3a = createVec3Float64();
 
 /**
@@ -49,6 +47,9 @@ export class GPUTileManager {
    * Synchronizes all tile RTC view matrices to the given Camera's view matrix.
    */
   public cameraViewMatrixUpdated(camera: Camera) {
+    if (camera.view.viewIndex >= this._renderContext.memoryConfigs.maxViews) {
+      return;
+    }
     this._synchTilesToViewMatrix(camera);
   }
 
@@ -56,10 +57,10 @@ export class GPUTileManager {
    * Get a GPUTile that contains the given 3D World-space position.
    */
   getTile(worldPos: Vec3): GPUTile {
-    const tileSize = this._renderContext.memoryConfigs.tileSize;
+    const tileSize = getRTCTileSize(worldPos);
     const rtcCenter = worldToRTCCenter(worldPos, tempVec3a, tileSize);
     const id = this._makeTileId(rtcCenter);
-    let tile = this._tiles.get(id) ?? this._createTile(id, rtcCenter);
+    let tile = this._tiles.get(id) ?? this._createTile(id, rtcCenter, tileSize);
     tile.useCount++;
     if (this._renderContext.renderInspector.enabled) {
       this._renderContext.renderInspector.tileAcquired(tile);
@@ -86,13 +87,14 @@ export class GPUTileManager {
    * Move a GPUTile, if necessary, so that it contains the given World-space 3D position.
    */
   moveTile(tile: GPUTile, worldPos: Vec3): GPUTile {
-    const newRTCCenter = worldToRTCCenter(worldPos, tempVec3a);
+    const tileSize = getRTCTileSize(worldPos);
+    const newRTCCenter = worldToRTCCenter(worldPos, tempVec3a, tileSize);
     const newId = this._makeTileId(newRTCCenter);
     if (newId === tile.id) {
       return tile;
     }
     this.putTile(tile);
-    let newTile = this._tiles.get(newId) ?? this._createTile(newId, newRTCCenter);
+    let newTile = this._tiles.get(newId) ?? this._createTile(newId, newRTCCenter, tileSize);
     newTile.useCount++;
     return newTile;
   }
@@ -109,6 +111,9 @@ export class GPUTileManager {
    */
   public setViewPickMatrix(view: View, pickMatrix: Mat4) {
     const viewIndex = view.viewIndex;
+    if (viewIndex >= this._renderContext.memoryConfigs.maxViews) {
+      return;
+    }
     const viewTilePickMatrixTexture = this._viewTilePickMatrixTexture[viewIndex];
     for (const [_, tile] of this._tiles) {
       const rtcPickMatrix = tile.rtcRayPickMatrix[viewIndex];
@@ -132,6 +137,10 @@ export class GPUTileManager {
     const viewMatrix = camera.viewMatrix;
     const viewIndex = view.viewIndex;
     const matrixTexture = this._viewTileCameraMatrixTexture[viewIndex];
+    if (!matrixTexture) {
+      console.warn(`[GPUTileManager] No camera matrix texture for view index ${viewIndex}`);
+      return;
+    }
     for (const [_, tile] of this._tiles) {
       const rtcViewMatrix = tile.rtcViewMatrix[viewIndex];
       createRTCViewMat(viewMatrix, tile.center, rtcViewMatrix);
@@ -143,15 +152,16 @@ export class GPUTileManager {
     return rtcCenter.join("-");
   }
 
-  private _createTile(id: string, rtcCenter: Vec3): GPUTile {
-    const {viewList, numViews} = this._renderContext.viewer;
+  private _createTile(id: string, rtcCenter: Vec3, tileSize: number): GPUTile {
+    const {viewList} = this._renderContext.viewer;
     const center = createVec3Float64(rtcCenter);
-    const rtcViewMatrix = Array.from({length: NUM_VIEWS}, (_, i) =>
+    const numViews = this._renderContext.memoryConfigs.maxViews;
+    const rtcViewMatrix = Array.from({length: numViews}, (_, i) =>
       i < numViews
         ? createRTCViewMat(viewList[i].camera.viewMatrix, center, createMat4Float64())
         : createMat4Float64()
     );
-    const rtcPickMatrix = Array.from({length: NUM_VIEWS}, (_, i) =>
+    const rtcPickMatrix = Array.from({length: numViews}, (_, i) =>
       i < numViews
         ? createRTCViewMat(viewList[i].camera.viewMatrix, center, createMat4Float64())
         : createMat4Float64()
@@ -162,11 +172,11 @@ export class GPUTileManager {
       tileIndex,
       useCount: 0,              // callers will increment once per acquisition
       center,
-      size: this._renderContext.memoryConfigs.tileSize,
+      size: tileSize,
       rtcViewMatrix,
       rtcRayPickMatrix: rtcPickMatrix
     };
-    for (let viewIndex = 0; viewIndex < NUM_VIEWS; viewIndex++) {
+    for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
       this._viewTileCameraMatrixTexture[viewIndex].setItem(tileIndex, rtcViewMatrix[viewIndex] as unknown as Mat4);
       this._viewTilePickMatrixTexture[viewIndex].setItem(tileIndex, rtcPickMatrix[viewIndex] as unknown as Mat4);
     }
@@ -176,7 +186,8 @@ export class GPUTileManager {
   }
 
   private _getFreeTileIndex(): number {
-    for (let i = this._lastFreeTileIndex; ; i = (i + 1) % NUM_TILES) {
+    const numTiles = this._renderContext.memoryConfigs.maxTiles;
+    for (let i = this._lastFreeTileIndex; ; i = (i + 1) % numTiles) {
       if (!this._tileIndexesUsed[i]) {
         this._tileIndexesUsed[i] = true;
         this._lastFreeTileIndex = i;

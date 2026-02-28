@@ -111,29 +111,37 @@ export class GPUMemoryBatch {
       RENDER_PASSES.XRAYED
     ];
 
-    this._primitiveMeshIndexTexture = [
-      new PrimitiveMeshIndexTexture({
-        gl,
-        maxItems: memoryConfigs.maxBatchPrims,
-        bins,
-        description: `[Batch ${this.index}, View 0] - primIndex -> meshIndex`
-      }),
-      // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins}),
-      // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins}),
-      // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins})
-    ];
+    const numViews = memoryConfigs.maxViews;
 
-    this._edgeMeshIndexTexture = [
-      new PrimitiveMeshIndexTexture({
+    this._primitiveMeshIndexTexture = [];
+    this._edgeMeshIndexTexture = [];
+    this._meshViewAttributeTexture = [];
+
+    for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+      this._primitiveMeshIndexTexture.push(
+        new PrimitiveMeshIndexTexture({
+          gl,
+          maxItems: memoryConfigs.maxBatchPrims,
+          bins,
+          description: `[Batch ${this.index}, View ${viewIndex}] - primIndex -> meshIndex`
+        }));
+
+      this._edgeMeshIndexTexture.push(
+        new PrimitiveMeshIndexTexture({
         gl,
         maxItems: memoryConfigs.maxBatchPrims,
         bins,
-        description: `[Batch ${this.index}, View 0] - edgeIndex -> meshIndex`
-      }),
-      // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins}),
-      // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins}),
-      // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins})
-    ];
+        description: `[Batch ${this.index}, View ${viewIndex}] - edgeIndex -> meshIndex`
+      }));
+
+      this._meshViewAttributeTexture.push(
+        new MeshViewAttributeTexture({
+          gl,
+          maxItems: memoryConfigs.maxBatchMeshes,
+          getNumItems: () => this._numMeshes,
+          description: `[Batch ${this.index}, View ${viewIndex}] - meshIndex -> color, opacity, flags`
+        }));
+    }
 
     this._meshAttributeTexture = new MeshAttributeTexture({
       gl,
@@ -142,18 +150,6 @@ export class GPUMemoryBatch {
       getNumItems: () => this._numMeshes
     });
 
-    this._meshViewAttributeTexture = [
-      new MeshViewAttributeTexture({
-        gl,
-        maxItems: memoryConfigs.maxBatchMeshes,
-        getNumItems: () => this._numMeshes,
-        description: `[Batch ${this.index}, View 0] - meshIndex -> color, opacity, flags`
-      }), // FIXME: Only defined for View 0
-      // new DTXMeshViewAttribs({gl, maxItems: this._maxMeshes}),
-      // new DTXMeshViewAttribs({gl, maxItems: this._maxMeshes}),
-      // new DTXMeshViewAttribs({gl, maxItems: this._maxMeshes})
-
-    ];
 
     this._meshMatrixTexture = new MatrixTexture({
       gl,
@@ -205,6 +201,7 @@ export class GPUMemoryBatch {
       destroy(): void;
     }[] = [
       ...this._primitiveMeshIndexTexture,
+      ...this._edgeMeshIndexTexture,
       this._meshAttributeTexture,
       ...this._meshViewAttributeTexture,
       this._meshMatrixTexture,
@@ -226,36 +223,20 @@ export class GPUMemoryBatch {
       }
     }
 
+    const views = [];
+    for (let i = 0; i < numViews; i++) {
+      views.push({
+        numDrawablePrims: 0,
+        primitiveMeshIndexTexture: this._primitiveMeshIndexTexture[i],
+        edgeMeshIndexTexture: this._edgeMeshIndexTexture[i],
+        meshViewAttributeTexture: this._meshViewAttributeTexture[i],
+        renderPassPrimitiveRanges: this._primitiveMeshIndexTexture[i].passRanges,
+        renderPassEdgePrimitiveRanges: this._edgeMeshIndexTexture[i].passRanges,
+        pickPrimitiveRange: this._primitiveMeshIndexTexture[i].primRange
+      });
+    }
     this.dataTextures = {
-      views: [
-        {
-          numDrawablePrims: 0,
-          primitiveMeshIndexTexture: this._primitiveMeshIndexTexture[0],
-          edgeMeshIndexTexture: this._edgeMeshIndexTexture[0],
-          meshViewAttributeTexture: this._meshViewAttributeTexture[0],
-          renderPassPrimitiveRanges: this._primitiveMeshIndexTexture[0].passRanges, //  FIXME:
-          renderPassEdgePrimitiveRanges: this._edgeMeshIndexTexture[0].passRanges, // FIXME:
-          pickPrimitiveRange: this._primitiveMeshIndexTexture[0].primRange
-        },
-        //     {
-        //       numDrawablePrims: 0,
-        //       primitiveMeshIndexTexture: this._primitiveMeshIndexTexture[1],
-        //         meshViewAttribs: this._meshViewAttributeTexture[1],
-        //       passRanges: this._primitiveMeshIndexTexture[1].passRanges
-        //     },
-        //     {
-        //       numDrawablePrims: 0,
-        //       primitiveMeshIndexTexture: this._primitiveMeshIndexTexture[2],
-        //         meshViewAttribs: this._meshViewAttributeTexture[2],
-        //       passRanges: this._primitiveMeshIndexTexture[2].passRanges
-        //     },
-        //     {
-        //       numDrawablePrims: 0,
-        //       primitiveMeshIndexTexture: this._primitiveMeshIndexTexture[3],
-        //         meshViewAttribs: this._meshViewAttributeTexture[3],
-        //       passRanges: this._primitiveMeshIndexTexture[3].passRanges
-        // }
-      ],
+      views,
       indexTexture: this._indexTexture,
       edgeIndexTexture: this._edgeIndexTexture,
       meshMatrixTexture: this._meshMatrixTexture,
@@ -302,6 +283,9 @@ export class GPUMemoryBatch {
     for (let i = 0; i < this._primitiveMeshIndexTexture.length; i++) {
       total += this._primitiveMeshIndexTexture[i].getAllocatedBytes();
     }
+    for (let i = 0; i < this._edgeMeshIndexTexture.length; i++) {
+      total += this._edgeMeshIndexTexture[i].getAllocatedBytes();
+    }
     return total;
   }
 
@@ -320,6 +304,9 @@ export class GPUMemoryBatch {
     total += this._meshMatrixTexture.getUsedBytes();
     for (let i = 0; i < this._primitiveMeshIndexTexture.length; i++) {
       total += this._primitiveMeshIndexTexture[i].getUsedBytes();
+    }
+    for (let i = 0; i < this._edgeMeshIndexTexture.length; i++) {
+      total += this._edgeMeshIndexTexture[i].getUsedBytes();
     }
     return total;
   }
@@ -372,6 +359,12 @@ export class GPUMemoryBatch {
       : geometry.primitive === LinesPrimitive
         ? geometry.indices.length / 2
         : geometry.indices.length / 3;
+    if (geometry.primitive === TrianglesPrimitive && geometry.edgeIndices) {
+      const edgePrimCount = geometry.edgeIndices.length / 2;
+      if (edgePrimCount > 0 && this._edgeMeshIndexTexture[0].canGetPortion(edgePrimCount) === false) { // FIXME: Only defined for View 0
+        return GPUMemoryCheckResult.NotEnoughEdgeIndexSpace;
+      }
+    }
     if (this._primitiveMeshIndexTexture[0].canGetPortion(primCount) === false) { // FIXME: Only defined for View 0
       return GPUMemoryCheckResult.NotEnoughPrimSpace;
     }
@@ -553,16 +546,24 @@ export class GPUMemoryBatch {
       geometryIndex: geometryHandle.geometryIndex
     });
 
-    this._meshViewAttributeTexture[0].setItem(meshIndex, { // FIXME: Only defined for View 0
-      color: [
-        Math.floor(sceneMesh.color[0] * 255.0),
-        Math.floor(sceneMesh.color[1] * 255.0),
-        Math.floor(sceneMesh.color[2] * 255.0)
-      ],
-      opacity: Math.floor(sceneMesh.opacity * 255.0),
-      pickable: true,
-      clippable: true
-    });
+    const numViews = this._renderContext.memoryConfigs.maxViews;
+
+    const color =  [
+      Math.floor(sceneMesh.color[0] * 255.0),
+      Math.floor(sceneMesh.color[1] * 255.0),
+      Math.floor(sceneMesh.color[2] * 255.0)
+    ] as Vec3;
+
+    const opacity = Math.floor(sceneMesh.opacity * 255.0);
+
+    for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+      this._meshViewAttributeTexture[viewIndex].setItem(meshIndex, {
+        color,
+        opacity,
+        pickable: true,
+        clippable: true
+      });
+    }
 
     this._meshMatrixTexture.setItem(meshIndex, new Float32Array(sceneMesh.matrix));
 
@@ -572,23 +573,22 @@ export class GPUMemoryBatch {
         ? sceneGeometry.indices.length / 2
         : sceneGeometry.indices.length / 3;
 
-    const primitiveMeshIndexTextureHandles = [ // one per view
-      this._primitiveMeshIndexTexture[0].createPortion(primitiveCount, meshIndex, RENDER_PASSES.OPAQUE), // FIXME: Only defined for View 0
-      // this._primitiveMeshIndexTexture[1].createPortion(primitiveCount, meshIndex, 0),
-      // this._primitiveMeshIndexTexture[2].createPortion(primitiveCount, meshIndex, 0),
-      // this._primitiveMeshIndexTexture[3].createPortion(primitiveCount, meshIndex, 0)
-    ];
+    const primitiveMeshIndexTextureHandles = [];
+
+    for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+      primitiveMeshIndexTextureHandles.push(
+        this._primitiveMeshIndexTexture[viewIndex].createPortion(primitiveCount, meshIndex, RENDER_PASSES.OPAQUE));
+    }
 
     let edgeMeshIndexTextureHandles;
 
     if (sceneGeometry.primitive === TrianglesPrimitive) {
-     const edgeCount = sceneGeometry.edgeIndices ? sceneGeometry.edgeIndices.length / 2 : 0;
-      edgeMeshIndexTextureHandles = [ // one per view
-        this._edgeMeshIndexTexture[0].createPortion(edgeCount, meshIndex, RENDER_PASSES.OPAQUE), // FIXME: Only defined for View 0
-        // this._edgeMeshIndexTexture[1].createPortion(edgeCount, meshIndex, 0),
-        // this._edgeMeshIndexTexture[2].createPortion(edgeCount, meshIndex, 0),
-        // this._edgeMeshIndexTexture[3].createPortion(edgeCount, meshIndex, 0)
-      ];
+      const edgeCount = sceneGeometry.edgeIndices ? sceneGeometry.edgeIndices.length / 2 : 0;
+      edgeMeshIndexTextureHandles = [];
+      for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+        edgeMeshIndexTextureHandles.push(
+          this._edgeMeshIndexTexture[viewIndex].createPortion(edgeCount, meshIndex, RENDER_PASSES.OPAQUE));
+      }
     }
 
     this._meshHandles[sceneMesh.id] = {
@@ -798,17 +798,17 @@ export class GPUMemoryBatch {
       this._numGeometries--;
     }
 
+    const numViews = this._renderContext.memoryConfigs.maxViews;
+
     if (meshHandle.primitiveMeshIndexTextureHandles) {
-      this._primitiveMeshIndexTexture[0].deletePortion(meshHandle.primitiveMeshIndexTextureHandles[0]); // FIXME: Only defined for View 0
-      // this._primitiveMeshIndexTexture[1].deletePortion(meshHandle.primitiveMeshIndexTextureHandles[1]);
-      // this._primitiveMeshIndexTexture[2].deletePortion(meshHandle.primitiveMeshIndexTextureHandles[2]);
-      // this._primitiveMeshIndexTexture[3].deletePortion(meshHandle.primitiveMeshIndexTextureHandles[3]);
+      for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+        this._primitiveMeshIndexTexture[viewIndex].deletePortion(meshHandle.primitiveMeshIndexTextureHandles[viewIndex]);
+      }
     }
     if (meshHandle.edgeMeshIndexTextureHandles) {
-      this._edgeMeshIndexTexture[0].deletePortion(meshHandle.edgeMeshIndexTextureHandles[0]); // FIXME: Only defined for View 0
-      // this._edgeMeshIndexTexture[1].deletePortion(meshHandle.edgeMeshIndexTextureHandles[1]);
-      // this._edgeMeshIndexTexture[2].deletePortion(meshHandle.edgeMeshIndexTextureHandles[2]);
-      // this._edgeMeshIndexTexture[3].deletePortion(meshHandle.edgeMeshIndexTextureHandles[3]);
+      for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+        this._edgeMeshIndexTexture[viewIndex].deletePortion(meshHandle.edgeMeshIndexTextureHandles[viewIndex]);
+      }
     }
     if (meshHandle.indicesHandle) {
       this._indexTexture.putPortion(meshHandle.indicesHandle);
@@ -934,11 +934,15 @@ export class GPUMemoryBatch {
     for (let i = 0; i < 4; i++) {
       const primitiveMeshIndexTexture = this._primitiveMeshIndexTexture[i];
       if (primitiveMeshIndexTexture) {
-        const primitiveMeshIndexTextureFlushed = primitiveMeshIndexTexture.uploadChanges()
-        didFlush = primitiveMeshIndexTextureFlushed;
+        const primitiveMeshIndexTextureFlushed = primitiveMeshIndexTexture.uploadChanges();
+        didFlush = primitiveMeshIndexTextureFlushed || didFlush;
         if (primitiveMeshIndexTextureFlushed) {
           this.dataTextures.views[i].numDrawablePrims = primitiveMeshIndexTexture.numPrimitives;
         }
+      }
+      const edgeMeshIndexTexture = this._edgeMeshIndexTexture[i];
+      if (edgeMeshIndexTexture) {
+        didFlush = edgeMeshIndexTexture.uploadChanges() || didFlush;
       }
     }
     return didFlush;
@@ -947,6 +951,7 @@ export class GPUMemoryBatch {
   webglContextRestored(): SDKResult<void> {
     for (const dataTexture in [
       ...this._primitiveMeshIndexTexture,
+      ...this._edgeMeshIndexTexture,
       this._meshAttributeTexture,
       ...this._meshViewAttributeTexture,
       this._meshMatrixTexture,
@@ -977,7 +982,11 @@ export class GPUMemoryBatch {
     for (let i = 0; i < this._primitiveMeshIndexTexture.length; i++) {
       this._primitiveMeshIndexTexture[i].destroy();
     }
+    for (let i = 0; i < this._edgeMeshIndexTexture.length; i++) {
+      this._edgeMeshIndexTexture[i].destroy();
+    }
     this._primitiveMeshIndexTexture = [];
+    this._edgeMeshIndexTexture = [];
     this._meshAttributeTexture = clear(this._meshAttributeTexture);
     this._meshViewAttributeTexture = this._meshViewAttributeTexture.map(clear);
     this._geometryAttributeTexture = clear(this._geometryAttributeTexture);

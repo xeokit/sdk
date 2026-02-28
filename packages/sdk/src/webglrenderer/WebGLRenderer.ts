@@ -164,27 +164,20 @@ export class WebGLRenderer {
     };
     this._shaderInspector = null;
     this._drawInspector = null;
+    this._memoryConfigs = {
+      tileSize: 200,
+      maxTiles: 2000,
+      maxViews: 1,
+      maxBatches: 300,
+      maxBatchVertices: 1000000,
+      maxBatchIndices: 2000000,
+      maxBatchGeometries: 2000,
+      maxBatchMeshes: 2000,
+      maxBatchPrims: 40000
+    };
     if (params.memoryConfigs) {
       this._memoryConfigs = <MemoryConfigs>{};
       Object.assign(this._memoryConfigs, params.memoryConfigs);
-    } else {
-      this._memoryConfigs = {
-        tileSize: 200,
-        maxTiles: 1000,
-        maxBatches: 300,
-        maxBatchVertices: 20000,
-        maxBatchIndices: 60000,
-        maxBatchGeometries: 10000,
-        maxBatchMeshes: 10000,
-        maxBatchPrims: 40000
-      };
-      // this._memoryConfigs = createMemoryConfigs({
-      //   grossMemoryMB: 100024,
-      //   device: "medium", // Assume mid-range device
-      //   utilization: 0.7, // Use 70% of available memory
-      //   user: { // No overrides
-      //   }
-      // });
     }
     this._debugging = !!params.debugging;
     if (params.viewer) {

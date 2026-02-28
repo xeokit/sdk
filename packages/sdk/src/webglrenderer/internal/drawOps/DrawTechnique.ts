@@ -1114,7 +1114,7 @@ void main(void) {`);
     float lambertian = 1.0;
     vec3 reflectedColor = vec3(0.0);
 
-    vec4 lightAmbient = vec4(0.3, 0.3, 0.3, 1.0);
+    vec4 lightAmbient = vec4(0.5, 0.5, 0.5, 1.0);
     vec3 lightDir1    = normalize(vec3(0.0, 0.0, -1.0));
     vec4 lightColor1  = vec4(0.7, 0.7, 0.7, 1.0);
     vec3 lightDir2    = normalize(vec3(-1.0, 1.0, 1.0));

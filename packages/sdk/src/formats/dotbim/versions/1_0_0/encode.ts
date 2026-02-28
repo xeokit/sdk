@@ -122,9 +122,9 @@ export function encode(params: ModelEncodeParams, options?: any): Promise<any> {
         mesh_id: dbMesh.mesh_id,
         type: info.type,
         color: {
-          r: color[0],
-          g: color[1],
-          b: color[2],
+          r: color[0] * 255,
+          g: color[1] * 255,
+          b: color[2] * 255,
           a: firstMesh.opacity
         },
         vector: {

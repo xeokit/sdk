@@ -58,7 +58,7 @@ export const parse: ModelParser = async (params, options) => {
             quaternion: rotation
                 ? [rotation.qx, rotation.qy, rotation.qz, rotation.qw]
                 : undefined,
-            position: [vector.x, vector.y, vector.z],
+            position: [vector.x, vector.y, vector.z]
           });
 
           if (meshRes.ok===false) {

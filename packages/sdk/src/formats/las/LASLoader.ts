@@ -10,7 +10,7 @@ import {PointsPrimitive} from "../../constants";
 import type {ModelLoadParams} from "../ModelLoadParams";
 import type {ModelParseParams} from "../ModelParseParams";
 
-const MAX_VERTICES = 500000; // TODO: Rough estimate
+const MAX_VERTICES = 20000; // TODO: Rough estimate
 
 /**
  * Loads a LAS/LAZ file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.

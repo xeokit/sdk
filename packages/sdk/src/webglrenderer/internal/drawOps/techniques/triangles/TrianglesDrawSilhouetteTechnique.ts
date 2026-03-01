@@ -1,21 +1,19 @@
 import {DrawTechnique} from "../../DrawTechnique";
 
 /**
- * Draw technique for rendering colored points.
+ * Draw technique for rendering generic silhouettes.
  * @internal
  */
-export class PointsDrawColorTechnique extends DrawTechnique {
+export class TrianglesDrawSilhouetteTechnique extends DrawTechnique {
 
   protected buildVertexShader(): void {
     this.vsHeader();
     this.vsCommonDefines();
-    this.vsDrawVertexColorDefs(); // Flat color definitions
     this.vsSlicingDefines();
-    this.vsPointsDefines();
+    this.vsLambertShadingDefines(true /** Silhouette */);
     this.vsMainOpen();
-    this.vsDrawVertexColorLogic(); // Vertex colors for points
+    this.vsLambertShadingLogic(true /** Silhouette */);
     this.vsSlicingLogic();
-    this.vsPointsGeometryLogic();
     this.vsMainClose();
   }
 
@@ -24,12 +22,10 @@ export class PointsDrawColorTechnique extends DrawTechnique {
     this.fsPrecisionDefines();
     this.fsCommonDefines();
     this.fsSlicingDefines();
-    this.fsPointsDefines();
-    this.fsDrawFlatColorDefines(); // Flat color definitions
+    this.fsSilhouetteDefines();
     this.fsMainOpen();
     this.fsSlicingLogic();
-    this.fsPointsGeometryLogic();
-    this.fsDrawFlatColorLogic(); // Flat color logic
+    this.fsSilhouetteLogic();
     this.fsCommonOutput();
     this.fsMainClose();
   }

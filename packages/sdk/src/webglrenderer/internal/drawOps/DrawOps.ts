@@ -15,6 +15,7 @@ import {GenericPickMeshTechnique} from "./techniques/generic/GenericPickMeshTech
 import {GenericPickDepthTechnique} from "./techniques/generic/GenericPickDepthTechnique";
 import {TrianglesDrawEdgeColorTechnique} from "./techniques/triangles/TrianglesDrawEdgeColorTechnique";
 import {SDKInternalException} from "../../../core";
+import {TrianglesDrawSilhouetteTechnique} from "./techniques/triangles/TrianglesDrawSilhouetteTechnique";
 
 /**
  * Owns and manages all {@link DrawTechnique} instances
@@ -146,6 +147,7 @@ export class DrawOps {
     // E.g. the silhouetteTechnique draw technique is used for highlighted, selected and xrayed triangles.
 
     const silhouette = saveForCleanup(new GenericDrawSilhouetteTechnique(renderContext, gpuMemoryReader));
+    const trianglesSilhouette = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader));
     const trianglesDrawColor = saveForCleanup(new TrianglesDrawColorTechnique(renderContext, gpuMemoryReader));
     const trianglesDrawEdgeSilhouette = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader));
     const trianglesDrawEdgeColor = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader));
@@ -176,11 +178,11 @@ export class DrawOps {
         opaqueEdges: new DrawOp(trianglesDrawEdgeColor, OPAQUE),
         transparent: new DrawOp(trianglesDrawColor, TRANSPARENT),
         transparentEdges: new DrawOp(trianglesDrawEdgeColor, TRANSPARENT),
-        highlighted: new DrawOp(silhouette, HIGHLIGHTED),
+        highlighted: new DrawOp(trianglesSilhouette, HIGHLIGHTED),
         highlightedEdges: new DrawOp(trianglesDrawEdgeSilhouette, HIGHLIGHTED),
-        selected: new DrawOp(silhouette, SELECTED),
+        selected: new DrawOp(trianglesSilhouette, SELECTED),
         selectedEdges: new DrawOp(trianglesDrawEdgeSilhouette, SELECTED),
-        xrayed: new DrawOp(silhouette, XRAYED),
+        xrayed: new DrawOp(trianglesSilhouette, XRAYED),
         xrayedEdges: new DrawOp(trianglesDrawEdgeSilhouette, XRAYED),
         pick: new DrawOp(pickMesh, PICK),
         pickDepth: new DrawOp(pickDepth, PICK)

@@ -120,6 +120,9 @@ export abstract class DrawTechnique {
     gammaFactor: WebGLUniformLocation; // Gamma correction factor
     pickZNear: WebGLUniformLocation; // Near plane for pick rendering
     snapCameraEyeRTC: WebGLUniformLocation; // Snapped camera eye position in RTC space
+    perspectivePoints: WebGLUniformLocation; // Whether to use perspective point size
+    perspectivePointsMinMax: WebGLUniformLocation; // Min/max point size for perspective points
+    roundPoints: WebGLUniformLocation; // Whether to render round points (vs. square)
     pointSize: WebGLUniformLocation; // Size of points for point rendering
     intensityRange: WebGLUniformLocation; // Intensity range for point rendering
     pickZFar: WebGLUniformLocation; // Far plane for rendering pick depth
@@ -269,9 +272,12 @@ export abstract class DrawTechnique {
       gammaFactor: program.getLocation("uGammaFactor"),
       projMatrix: program.getLocation("uProjMatrix"),
       snapCameraEyeRTC: program.getLocation("snapCameraEyeRTC"),
+      perspectivePoints: program.getLocation("uPerspectivePoints"),
+      perspectivePointsMinMax: program.getLocation("uPerspectivePointsMinMax"),
+      roundPoints: program.getLocation("uRoundPoints"),
       pointSize: program.getLocation("pointSize"),
       intensityRange: program.getLocation("intensityRange"),
-      nearPlaneHeight: program.getLocation("nearPlaneHeight"),
+      nearPlaneHeight: program.getLocation("uNearPlaneHeight"),
       pointCloudIntensityRange: program.getLocation("pointCloudIntensityRange"),
       pickZNear: program.getLocation("pickZNear"),
       pickZFar: program.getLocation("pickZFar"),
@@ -486,14 +492,6 @@ export abstract class DrawTechnique {
       ok: true,
       value: null
     };
-
-    // } catch (error) {
-    //   return {
-    //     ok: false,
-    //     type: SDKErrorType.InvalidOperation,
-    //     error: error instanceof Error ? error.message : "[DrawTechnique._draw] An unknown error occurred during draw."
-    //   };
-    // }
   }
 
   /**
@@ -768,7 +766,7 @@ bool triangleFacesEyeVS(vec3 aVS, vec3 bVS, vec3 cVS) {
    * Generates vertex shader definitions for Lambert shading.
    * @protected
    */
-  protected vsLambertShadingDefines() {
+  protected vsLambertShadingDefines(silhouette?:boolean) {
     this._vertSrcBuf.push(`
 // ─────────────────────────────────────────────────────────────
 // Lambertian directional lighting configuration
@@ -782,7 +780,8 @@ bool triangleFacesEyeVS(vec3 aVS, vec3 bVS, vec3 cVS) {
       "uniform vec3 uLightDir3;",
       "uniform vec4 uLightColor3;",
       "out vec4 vColor;",
-      "out vec4 vViewPos;");
+      "out vec4 vViewPos;",
+      silhouette ? "uniform vec4 uSilhouetteColor;" : "");
   }
 
   /**
@@ -848,8 +847,10 @@ out highp vec2 vHighPrecisionZW;`);
 // Point rendering configuration
 // ─────────────────────────────────────────────────────────────
 
-uniform float nearPlaneHeight;
+uniform float uNearPlaneHeight;
 uniform vec2 intensityRange;
+uniform int uPerspectivePoints;
+uniform vec2 uPerspectivePointsMinMax;
 uniform float pointSize;`);
   }
 
@@ -1069,7 +1070,7 @@ void main(void) {`);
     );
   }
 
-  protected vsLambertShadingLogic() {
+  protected vsLambertShadingLogic(silhouette?:boolean) {
     this._vertSrcBuf.push(`
     // ─────────────────────────────────────────────────────────
     // Lighting section: compute a face normal from the full triangle
@@ -1126,9 +1127,11 @@ void main(void) {`);
     // Currently using lightDir2 only.
     lambertian = max(dot(normal, normalize(lightDir2)), 0.0);
 
-    // Fetch mesh base color
-    // Stored as RGBA8 in uvec4, convert to float 0..1.
-    vec4 color = vec4(meshViewAttributes.color) / 255.0;
+    // Fetch mesh base color or silhouette color
+
+    vec4 color = ${silhouette
+      ? "vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, uSilhouetteColor.a);"
+      : "vec4(meshViewAttributes.color) / 255.0; // Stored as RGBA8 in uvec4, convert to float 0..1."}
 
     // Accumulate reflected/diffuse light contribution
     // lightColor2.rgb * lightColor2.a acts like (color * intensity).
@@ -1139,7 +1142,7 @@ void main(void) {`);
     vec3 lit = (lightAmbient.rgb * lightAmbient.a * color.rgb) + (color.rgb * reflectedColor);
 
     // Output to fragment shader
-    // Alpha is preserved from mesh color.
+    // Alpha is preserved from original color.
     vColor = vec4(lit, color.a);`
     );
   }
@@ -1174,7 +1177,7 @@ void main(void) {`);
     this._vertSrcBuf.push(`
     // Output vertex color
     uvec4 color = getVertexColor(vertexIndexWithinGeometry);
-    vColor = vec4( float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, float(color.a) / 255.0);`);
+    vColor = vec4( float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, 1.0);`);
   }
 
   /**
@@ -1227,15 +1230,14 @@ void main(void) {`);
    * @protected
    */
   protected vsPointsGeometryLogic() {
-    const src = this._vertSrcBuf;
-    const pointsMaterial = this._renderContext.activeView.pointsMaterial;
-    // if (pointsMaterial.perspectivePoints) {
-    //     src.push("gl_PointSize = (nearPlaneHeight * pointSize) / clipPos.w;");
-    //     src.push("gl_PointSize = max(gl_PointSize, " + Math.floor(pointsMaterial.minPerspectivePointSize) + ".0);");
-    //     src.push("gl_PointSize = min(gl_PointSize, " + Math.floor(pointsMaterial.maxPerspectivePointSize) + ".0);");
-    // } else {
-    src.push("gl_PointSize = pointSize;");
-    //       }
+    this._vertSrcBuf.push(
+`  if (uPerspectivePoints == 1) {
+     gl_PointSize = (uNearPlaneHeight * pointSize) / clipPos.w;
+     gl_PointSize = max(gl_PointSize, uPerspectivePointsMinMax[0]);
+     gl_PointSize = min(gl_PointSize, uPerspectivePointsMinMax[1]);
+   } else {
+      gl_PointSize = pointSize;
+   }`);
   }
 
   /**
@@ -1444,6 +1446,14 @@ void main(void) {`);
   }
 
   /**
+   * Generates fragment shader defines for point rendering.
+   * @protected
+   */
+  protected fsPointsDefines(): void {
+    this._fragSrcBuf.push(`uniform int uRoundPoints;`);
+  }
+
+  /**
    * Generates the opening of the fragment shader main function.
    * @protected
    */
@@ -1465,14 +1475,16 @@ void main(void) {`);
    * @protected
    */
   protected fsPointsGeometryLogic(): void {
-    //if (this._renderContext.view.pointsMaterial.roundPoints) {
-    // const src = this._fragSrcBuf;
-    // src.push("  vec2 cxy = 2.0 * gl_PointCoord - 1.0;");
-    // src.push("  float r = dot(cxy, cxy);");
-    // src.push("  if (r > 1.0) {");
-    // src.push("       discard;");
-    // src.push("  }");
-    //   }
+    this._fragSrcBuf.push(`
+  // For points, we have the option of rendering them as circles instead of squares.
+  // If roundPoints is enabled, we discard fragments outside a unit circle inscribed within the square point sprite.
+  if (uRoundPoints == 1) {
+    vec2 cxy = 2.0 * gl_PointCoord - 1.0;
+    float r = dot(cxy, cxy);
+    if (r > 1.0) {
+      discard;
+    }
+  }`);
   }
 
   /**
@@ -1520,8 +1532,20 @@ void main(void) {`);
         : view.camera.projMatrix));
     }
 
+    if (uniforms.perspectivePoints) {
+      gl.uniform1i(uniforms.perspectivePoints, view.pointsMaterial.perspectivePoints ? 1 : 0);
+    }
+
+    if (uniforms.perspectivePointsMinMax) {
+      gl.uniform2f(uniforms.perspectivePointsMinMax, view.pointsMaterial.minPerspectivePointSize, view.pointsMaterial.maxPerspectivePointSize);
+    }
+
     if (uniforms.pointSize) {
       gl.uniform1f(uniforms.pointSize, view.pointsMaterial.pointSize);
+    }
+
+    if (uniforms.roundPoints) {
+      gl.uniform1i(uniforms.roundPoints, view.pointsMaterial.roundPoints ? 1 : 0);
     }
 
     if (uniforms.nearPlaneHeight) {

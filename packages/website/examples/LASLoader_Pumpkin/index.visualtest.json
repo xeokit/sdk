@@ -1,0 +1,57 @@
+{
+  "stats": {
+    "startTime": 341.19999980926514,
+    "endTime": 5700.699999809265,
+    "elapsedTime": 5359.5,
+    "aabb": [
+      -14.109100341796875,
+      5.703499794006348,
+      -0.4851999878883362,
+      19.019478387324043,
+      35.98059483954005,
+      3.9062299054038423
+    ],
+    "scene": {
+      "numTransforms": 0,
+      "numObjects": 1,
+      "numMeshes": 4,
+      "numGeometries": 4,
+      "numTextures": 0,
+      "numTextureSets": 0,
+      "numTriangles": 0,
+      "numLines": 0,
+      "numPoints": 1692332,
+      "numVertices": 1692332,
+      "textureBytes": 0
+    },
+    "data": {
+      "numObjects": 2,
+      "numRelationships": 1,
+      "numPropertySets": 0
+    },
+    "memory": {
+      "allocatedMB": 13.641357421875,
+      "usedMB": 0
+    },
+    "renderer": {
+      "tiles": {},
+      "views": [
+        {
+          "viewId": "mainView",
+          "canvasSize": [
+            0,
+            0
+          ],
+          "renderBins": [],
+          "timeMs": {
+            "start": 5703.099999904633,
+            "end": 5703.299999952316,
+            "duration": 0.20000004768371582
+          },
+          "numDrawCalls": 0,
+          "numPrims": 0
+        }
+      ]
+    }
+  }
+}

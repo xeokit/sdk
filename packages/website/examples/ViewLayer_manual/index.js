@@ -12,11 +12,15 @@ demoHelper
 
     const {view, scene} = demoHelper;
 
-    view.camera.projectionType = xeokit.constants.PerspectiveProjectionType;
-    view.camera.eye = [-20, -5, 20];
-    view.camera.look = [0, -5, 0];
-    view.camera.up = [0, 1, 0];
-    view.camera.orbitPitch(20);
+    view.camera.eye = [ -19.198880324645085,
+      20.644412394213887,
+      10.270684931402508];
+    view.camera.look = [   33.02005278082366,
+      -35.52204955036619,
+      -18.843578603143392];
+    view.camera.up = [0.2416633264296839,
+      -0.25993204262564124,
+      0.9348979462355245];
 
     // Manually create two ViewLayers in our View
 
@@ -49,8 +53,18 @@ demoHelper
     // configured the View with autoLayers: false (true is the default).
 
     const result3 = scene.createModel({
-      id: "demoModel",
-      layerId: "modelLayer"
+      id: "houseModel",
+      layerId: "modelLayer",
+      coordinateSystem: {
+        basis: [
+          1, 0, 0, // Right
+          0, 1, 0, // Up
+          0, 0, 1  // Forward
+        ],
+        origin: [0,0,0],
+        units: "meters",
+        scaleToMeters: 1
+      }
     });
 
     if (!result3.ok) {
@@ -59,27 +73,25 @@ demoHelper
 
     const sceneModel = result3.value;
 
-    // Use GLTFLoader to load a glTF model into our SceneModel
+    const ifcLoader = new xeokit.formats.ifc.IFCLoader();
 
-    const gltfLoader = new xeokit.formats.gltf.GLTFLoader();
+    // Load our IFC data into the SceneModel
 
-    fetch("../../models/IfcOpenHouse2x3/ifc2gltf/model.glb")
+    fetch(`../../models/IfcOpenHouse2x3/ifc/model.ifc`)
       .then(response => {
-
         response
           .arrayBuffer()
           .then(fileData => {
 
-            gltfLoader.load({
+            ifcLoader.load({
               fileData,
-              sceneModel,
-              //  dataModel
-            }).then(() => {
+              sceneModel
+
+            }).then(() => { // IFC file loaded
 
               // The Scene and SceneModel will now contain a SceneObject for each displayable object in our model.
               // The View will contain a ViewObject corresponding to each SceneObject, through which the
               // appearance of the object can be controlled in the View.
-
 
               // Create another SceneModel and programmatically
               // construct a wireframe ground plane grid.
@@ -90,15 +102,37 @@ demoHelper
               // The "gridLayer" ViewLayer is expected to already exist in our View, because we
               // configured the View with autoLayers: false (true is the default).
 
-              const gridSceneModel = scene.createModel({
-                id: "demoHelperSceneModel",
-                layerId: "gridLayer"
+              const gridSceneModelResult = scene.createModel({
+                id: "gridGroundPlane",
+                layerId: "gridLayer",
+                coordinateSystem: {
+                  basis: [
+                    1, 0, 0, // Right
+                    0, 1, 0, // Up
+                    0, 0, 1  // Forward
+                  ],
+                  origin: [0,0,0],
+                  units: "meters",
+                  scaleToMeters: 1.0
+                }
               });
 
-              const grid = xeokit.procgen.buildGridGeometry({
+              if (!gridSceneModelResult.ok) {
+                throw new Error(`Error creating SceneModel: ${gridSceneModelResult.error}`);
+              }
+
+              const gridSceneModel = gridSceneModelResult.value;
+
+              const gridResult = xeokit.procgen.buildGridGeometry({
                 size: 100,
                 divisions: 100
               });
+
+              if (!gridResult.ok) {
+                throw new Error(`Error creating grid geometry: ${gridResult.error}`);
+              }
+
+              const grid = gridResult.value;
 
               gridSceneModel.createGeometry({
                 id: "gridGeometry",
@@ -111,7 +145,7 @@ demoHelper
                 id: "gridMesh",
                 geometryId: "gridGeometry",
                 position: [0, -5, 0],
-                color: [.7, .7, .7]
+                color: [.4, .4, .4]
               });
 
               gridSceneModel.createObject({
@@ -121,7 +155,7 @@ demoHelper
 
               // Highlight the ViewObjects in ViewLayer "gridLayer"
 
-              view.layers["gridLayer"].setObjectsHighlighted(["grid"], true);
+           //   view.layers["gridLayer"].setObjectsHighlighted(["grid"], true);
 
               demoHelper.finished();
 

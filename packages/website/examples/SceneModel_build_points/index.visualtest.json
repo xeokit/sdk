@@ -1,15 +1,15 @@
 {
   "stats": {
-    "startTime": 293.7000000476837,
-    "endTime": 314.90000009536743,
-    "elapsedTime": 21.200000047683716,
+    "startTime": 351.10000014305115,
+    "endTime": 396,
+    "elapsedTime": 44.89999985694885,
     "aabb": [
-      -50,
-      -5,
-      -50,
-      49.984740978103304,
-      -5,
-      49.984740978103304
+      -4.999140739440918,
+      -4.99997615814209,
+      -4.999997615814209,
+      4.998305918832587,
+      4.997189221397056,
+      4.99830958906351
     ],
     "scene": {
       "numTransforms": 0,
@@ -19,9 +19,9 @@
       "numTextures": 0,
       "numTextureSets": 0,
       "numTriangles": 0,
-      "numLines": 202,
-      "numPoints": 0,
-      "numVertices": 404,
+      "numLines": 0,
+      "numPoints": 20000,
+      "numVertices": 20000,
       "textureBytes": 0
     },
     "data": {
@@ -31,7 +31,7 @@
     },
     "memory": {
       "allocatedMB": 6.565093994140625,
-      "usedMB": 0.00563812255859375
+      "usedMB": 0.324493408203125
     },
     "renderer": {
       "tiles": {
@@ -42,7 +42,7 @@
             0,
             0
           ],
-          "size": 100,
+          "size": 1000,
           "tileIndex": 0,
           "numMeshes": 1
         }
@@ -56,37 +56,37 @@
           ],
           "renderBins": [
             {
-              "name": "highlightedSilhouetteTransparent",
+              "name": "opaque",
               "drawCalls": [
                 {
                   "batchIndex": 0,
-                  "renderPass": "HIGHLIGHTED",
-                  "primitive": "LINES",
+                  "renderPass": "OPAQUE",
+                  "primitive": "POINTS",
                   "primRange": {
                     "firstPrim": 0,
-                    "numPrims": 202
+                    "numPrims": 20000
                   },
                   "timeMs": {
-                    "start": 430.2000000476837,
-                    "end": 430.2000000476837,
+                    "start": 1369.2999999523163,
+                    "end": 1369.2999999523163,
                     "duration": 0
                   }
                 }
               ],
               "timeMs": {
-                "start": 430.2000000476837,
-                "end": 430.2000000476837,
+                "start": 1369.2999999523163,
+                "end": 1369.2999999523163,
                 "duration": 0
               }
             }
           ],
           "timeMs": {
-            "start": 430.09999990463257,
-            "end": 430.2000000476837,
-            "duration": 0.10000014305114746
+            "start": 1369.2999999523163,
+            "end": 1369.2999999523163,
+            "duration": 0
           },
           "numDrawCalls": 1,
-          "numPrims": 202
+          "numPrims": 20000
         }
       ]
     }

@@ -1,7 +1,6 @@
 // Import xeokit SDK via the JavaScript bundle that we've built for these examples
 
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
-import {DemoHelper} from "../../js/DemoHelper.js";
 
 // Create a Scene to hold geometry and materials for our model
 
@@ -34,8 +33,8 @@ if (!attachResult.ok) {
 
 new xeokit.core.EventsLogger(scene.events, {prefix: `[Scene    ]`});
 new xeokit.core.EventsLogger(viewer.events, {prefix: `[Viewer   ]`});
-new xeokit.core.EventsLogger(renderer.events, {prefix: `[Renderer ]`});
-3
+new xeokit.core.EventsLogger(renderer.events, {prefix: `[WebGLRenderer ]`});
+
 // Configure the Viewer using the given ViewerParams object. This will
 // create and configure a single View within the Viewer.
 
@@ -48,7 +47,6 @@ const viewerParams = {
         "eye": [0, 0, 10],
         "look": [0, 0, 0],
         "up": [0, 1, 0],
-        "worldAxis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
         "gimbalLock": true,
         "constrainPitch": false,
         "projectionType": 500000,
@@ -178,58 +176,48 @@ if (!fromParamsResult.ok) {
 
 new xeokit.cameracontrol.CameraControl(viewer.viewList[0]);
 
-const demoHelper = new DemoHelper({
-  makeComponents: false // Don't use boilerplate demo xeokit components
+// Within the Scene, create a SceneModel to hold geometry and materials for
+// our model
+
+const sceneModelResult = scene.createModel({
+  id: "demoModel",
+  geometries: [
+    {
+      id: "boxGeometry",
+      primitive: 20002, // TrianglesPrimitive (defined in @xeokit/constants)
+      positions: [ // 64-bit floats
+        1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0,
+        1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0,
+        -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0,
+        -1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0,
+        1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0
+      ],
+      indices: [
+        0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7,
+        8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15,
+        16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23
+      ]
+    }
+  ],
+  meshes: [
+    {
+      id: "boxMesh",
+      geometryId: "boxGeometry",
+      color: [1, 1, 0],
+      opacity: 1
+    }
+  ],
+  objects: [
+    {
+      id: "boxObject",
+      meshIds: ["boxMesh"]
+    }
+  ]
 });
 
-demoHelper.init()
-  .then(() => {
+if (!sceneModelResult.ok) {
+  throw new Error("Unable to create SceneModel: " + sceneModelResult.error);
+}
 
-    // Within the Scene, create a SceneModel to hold geometry and materials for
-    // our model
 
-    const sceneModelResult = scene.createModel({
-      id: "demoModel",
-      geometries: [
-        {
-          id: "boxGeometry",
-          primitive: 20002, // TrianglesPrimitive (defined in @xeokit/constants)
-          positions: [ // 64-bit floats
-            1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0,
-            1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0,
-            1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0,
-            -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0,
-            -1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0,
-            1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0
-          ],
-          indices: [
-            0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7,
-            8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15,
-            16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23
-          ]
-        }
-      ],
-      meshes: [
-        {
-          id: "boxMesh",
-          geometryId: "boxGeometry",
-          color: [1, 1, 0],
-          opacity: 1
-        }
-      ],
-      objects: [
-        {
-          id: "boxObject",
-          meshIds: ["boxMesh"]
-        }
-      ]
-    });
-
-    if (!sceneModelResult.ok) {
-      throw new Error("Unable to create SceneModel: " + sceneModelResult.error);
-    }
-
-    // The model now appears in the View's canvas.
-
-    demoHelper.finished();
-  });

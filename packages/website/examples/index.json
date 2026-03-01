@@ -431,6 +431,19 @@
     "topic": "import.dotbim",
     "template": "basicPage"
   },
+  "Viewer_multiView_Duplex": {
+    "id": "Viewer_multiView_Duplex",
+    "title": "Viewing an IFC model in multiple Views",
+    "description": "In this example, we'll use the xeokit SDK to load an IFC model and view it within multiple canvases in the browser",
+    "isTutorial": false,
+    "isVisualTest": true,
+    "tags": [],
+    "categories": [
+      "Viewer",
+      "Views"
+    ],
+    "topic": "general"
+  },
   "Viewer_multiView_IfcOpenHouse4": {
     "id": "Viewer_multiView_IfcOpenHouse4",
     "title": "Viewing an IFC model in multiple Views",

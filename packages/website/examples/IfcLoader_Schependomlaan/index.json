@@ -1,5 +1,5 @@
 {
-  "id": "IFCLoader_Duplex",
+  "id": "IfcLoader_Schependomlaan",
   "title": "Viewing IFC using IFCLoader",
   "description": "How to use IFCLoader to view an IFC model in the browser with a xeokit web viewer.",
   "isTutorial": true,

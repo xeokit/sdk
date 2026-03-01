@@ -25,10 +25,10 @@ demoHelper.init().then(() => {
 // Configure the View's PointsMaterial, which controls the appearance of our LAZ model
 
   view.pointsMaterial.pointSize = 2;
-  view.pointsMaterial.roundPoints = false;
+  view.pointsMaterial.roundPoints = true;
   view.pointsMaterial.perspectivePoints = true;
-  view.pointsMaterial.minPerspectivePointSize = 2;
-  view.pointsMaterial.maxPerspectivePointSize = 4;
+  view.pointsMaterial.minPerspectivePointSize = 1;
+  view.pointsMaterial.maxPerspectivePointSize = 5;
   view.pointsMaterial.filterIntensity = false;
   view.pointsMaterial.minIntensity = 0;
   view.pointsMaterial.maxIntensity = 100;
@@ -76,7 +76,7 @@ demoHelper.init().then(() => {
 
        //   demoHelper.viewFit();
 
-          demoHelper.orbit();
+       //   demoHelper.orbit();
 
           // The Scene and SceneModel will now contain a SceneObject to represent the LAS/LAZ point cloud,
           // and the Data and DataModel will contain a corresponding DataObject.

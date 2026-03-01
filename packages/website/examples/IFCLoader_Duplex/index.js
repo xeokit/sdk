@@ -16,9 +16,12 @@ demoHelper.init().then(() => {
 
   // Arrange the View's Camera
 
-  // view.camera.eye = [14.915582703146043, 14.396781491179095, 5.431098754133695];
-  // view.camera.look = [6.599999999999998, 8.34099990051474, -4.159999575600315];
-  // view.camera.up = [-0.2820584034861215, 0.9025563895259413, -0.3253229483893775];
+  view.camera.eye = [14.915582703146043, 14.396781491179095, 5.431098754133695];
+  view.camera.look = [6.599999999999998, 8.34099990051474, -4.159999575600315];
+  view.camera.up = [-0.2820584034861215, -0.3253229483893775, 0.9025563895259413];
+
+  view.selectedMaterial.fillAlpha = 0.5;
+  view.selectedMaterial.edges = true;
 
   // Create a SceneModel to hold our model's geometry and materials
 
@@ -75,13 +78,13 @@ demoHelper.init().then(() => {
             // entity-relationship graph.
 
             // Using the searchObjects function, query the Data for all the
-            // IfcMember elements within the IfcSite.
+            // IfcFurnishingElement elements within the IfcBuilding.
 
             const resultObjectIds = [];
 
             const result = xeokit.data.searchObjects(data, {
-              startObjectId: "1xS3BCk291UvhgP2a6eflN",
-              includeObjects: ["IfcMember"],
+              startObjectId: "1xS3BCk291UvhgP2a6eflK", // IfcBuilding
+              includeObjects: ["IfcFurnishingElement"],
               includeRelated: ["IfcRelAggregates"],
               resultObjectIds
             });
@@ -94,14 +97,14 @@ demoHelper.init().then(() => {
             }
 
             // If the query succeeded, go ahead and mark whatever
-            // objects we found as selected. In this case, it will set the window
-            // frames as selected in the View.
+            // objects we found as selected. In this case, it will set the furniture
+            // objects as selected in the View.
 
             view.setObjectsSelected(resultObjectIds, true);
 
-            demoHelper.orbit();
-
             demoHelper.finished();
+
+            // demoHelper.orbit();
 
           }).catch(e => {
             console.error(e);

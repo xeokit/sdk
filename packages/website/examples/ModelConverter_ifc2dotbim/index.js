@@ -92,6 +92,7 @@ demoHelper.init().then(() => {
 
             // Load the .BIM into the SceneModel and DataModel using our DotBIMLoader
 
+            console.log(JSON.stringify(result.outputs.dotbim, null, 2));
             dotBIMLoader.load({
               fileData: result.outputs.dotbim.fileData,
               sceneModel,

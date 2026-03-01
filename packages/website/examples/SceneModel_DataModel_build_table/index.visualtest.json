@@ -1,8 +1,8 @@
 {
   "stats": {
-    "startTime": 283.40000009536743,
-    "endTime": 305,
-    "elapsedTime": 21.59999990463257,
+    "startTime": 266.7999999523163,
+    "endTime": 288.5,
+    "elapsedTime": 21.700000047683716,
     "aabb": [
       -6,
       -9,
@@ -30,8 +30,8 @@
       "numPropertySets": 3
     },
     "memory": {
-      "allocatedMB": 3.77655029296875,
-      "usedMB": 0.001739501953125
+      "allocatedMB": 6.565093994140625,
+      "usedMB": 0.0018310546875
     },
     "renderer": {
       "tiles": {
@@ -42,7 +42,7 @@
             0,
             0
           ],
-          "size": 200,
+          "size": 100,
           "tileIndex": 0,
           "numMeshes": 5
         }
@@ -67,26 +67,50 @@
                     "numPrims": 60
                   },
                   "timeMs": {
-                    "start": 433.5,
-                    "end": 433.59999990463257,
-                    "duration": 0.09999990463256836
+                    "start": 451.2999999523163,
+                    "end": 451.2999999523163,
+                    "duration": 0
                   }
                 }
               ],
               "timeMs": {
-                "start": 433.40000009536743,
-                "end": 433.59999990463257,
-                "duration": 0.19999980926513672
+                "start": 451.2999999523163,
+                "end": 451.2999999523163,
+                "duration": 0
+              }
+            },
+            {
+              "name": "edgesColorOpaque",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 60
+                  },
+                  "timeMs": {
+                    "start": 451.39999985694885,
+                    "end": 451.39999985694885,
+                    "duration": 0
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 451.2999999523163,
+                "end": 451.39999985694885,
+                "duration": 0.09999990463256836
               }
             }
           ],
           "timeMs": {
-            "start": 433.40000009536743,
-            "end": 433.59999990463257,
+            "start": 451.2000000476837,
+            "end": 451.39999985694885,
             "duration": 0.19999980926513672
           },
-          "numDrawCalls": 1,
-          "numPrims": 60
+          "numDrawCalls": 2,
+          "numPrims": 120
         }
       ]
     }

@@ -50,25 +50,6 @@
     "topic": "import.gltf",
     "template": "basicPage"
   },
-  "IFCExporter_IfcOpenHouse4": {
-    "id": "IFCExporter_IfcOpenHouse4",
-    "title": "Viewing IFC using IFCLoader",
-    "description": "How to use IFCLoader to view an IFC model in the browser with a xeokit web viewer.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "tags": [
-      "IFC",
-      "XGF",
-      "webifc2xgf",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "IFC"
-    ],
-    "topic": "import.ifc",
-    "template": "basicPage"
-  },
   "IFCLoader_Duplex": {
     "id": "IFCLoader_Duplex",
     "title": "Viewing IFC using IFCLoader",
@@ -105,6 +86,42 @@
       "IFC"
     ],
     "topic": "import.ifc",
+    "template": "basicPage"
+  },
+  "IfcLoader_Schependomlaan": {
+    "id": "IfcLoader_Schependomlaan",
+    "title": "Viewing IFC using IFCLoader",
+    "description": "How to use IFCLoader to view an IFC model in the browser with a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "IFC",
+      "XGF",
+      "webifc2xgf",
+      "_Featured"
+    ],
+    "categories": [
+      "Importing",
+      "IFC"
+    ],
+    "topic": "import.ifc",
+    "template": "basicPage"
+  },
+  "LASLoader_Pumpkin": {
+    "id": "LASLoader_Pumpkin",
+    "title": "Viewing a LAZ-encoded LiDAR scan using LASLoader",
+    "description": "How to load a LiDAR scan from LAS (.laz) format directly into a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "LAS",
+      "_Featured"
+    ],
+    "categories": [
+      "Importing",
+      "LAS"
+    ],
+    "topic": "import.las",
     "template": "basicPage"
   },
   "ModelConverter_dotbim2json": {
@@ -179,6 +196,35 @@
     "description": "In this example, we'll use the xeokit SDK to build and display a 3D cube in the browser, defined using compressed geometry data.",
     "isTutorial": true,
     "isVisualTest": true,
+    "tags": [],
+    "categories": [
+      "Modeling",
+      "Scene"
+    ],
+    "topic": "modeling.scene.geometry",
+    "template": "basicPage"
+  },
+  "SceneModel_build_geometries": {
+    "id": "SceneModel_build_geometries",
+    "title": "Creating Various Geometries",
+    "description": "In this example, we'll use the xeokit SDK to create and view a model containing objects with various shapes, using the SDK's geometry genorator functions.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "tags": [],
+    "categories": [
+      "Modeling",
+      "Scene",
+      "Geometry"
+    ],
+    "topic": "modeling.scene.geometry",
+    "template": "basicPage"
+  },
+  "SceneModel_build_points": {
+    "id": "SceneModel_build_points",
+    "title": "Creating a 3D Triangle",
+    "description": "Using xeokit SDK to create and view a single 3D triangle in the browser.",
+    "isTutorial": true,
+    "isVisualTest": false,
     "tags": [],
     "categories": [
       "Modeling",
@@ -385,6 +431,19 @@
     "topic": "import.dotbim",
     "template": "basicPage"
   },
+  "Viewer_multiView_IfcOpenHouse4": {
+    "id": "Viewer_multiView_IfcOpenHouse4",
+    "title": "Viewing an IFC model in multiple Views",
+    "description": "In this example, we'll use the xeokit SDK to load an IFC model and view it within multiple canvases in the browser",
+    "isTutorial": false,
+    "isVisualTest": true,
+    "tags": [],
+    "categories": [
+      "Viewer",
+      "Views"
+    ],
+    "topic": "general"
+  },
   "WebGLRenderer_createGPUMemoryConfigs": {
     "id": "WebGLRenderer_createGPUMemoryConfigs",
     "title": "Configuring WebGLRenderer GPU Memory Limits",
@@ -413,6 +472,23 @@
       "Scene"
     ],
     "topic": "interaction.picking",
+    "template": "basicPage"
+  },
+  "XGFLoader_MAP": {
+    "id": "XGFLoader_MAP",
+    "title": "Viewing XGF using XGFLoader",
+    "description": "How to load an IFC model from XGF format directly into a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "XGF",
+      "_Featured"
+    ],
+    "categories": [
+      "Importing",
+      "XGF"
+    ],
+    "topic": "import.xgf",
     "template": "basicPage"
   },
   "XGFLoader_ME-Demo-Sample-Single-Building": {

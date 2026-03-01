@@ -261,7 +261,7 @@ demoHelper.init().then(() => {
       // and indices.
 
       const textResult = xeokit.procgen.buildVectorTextGeometry({
-        text: "An assortment of geometry\nprogrammatically generated\nwithin a SceneModel\nusing instanced geometry",
+        text: "An assortment of programmatically\ngenerated geometries\nwithin a SceneModel",
       });
 
       if (!textResult.ok) {

@@ -1,8 +1,8 @@
 {
   "stats": {
-    "startTime": 264.2000000476837,
-    "endTime": 374.5,
-    "elapsedTime": 110.29999995231628,
+    "startTime": 263,
+    "endTime": 372.7999999523163,
+    "elapsedTime": 109.79999995231628,
     "aabb": [
       -10,
       -8.13,
@@ -30,8 +30,8 @@
       "numPropertySets": 0
     },
     "memory": {
-      "allocatedMB": 3.77655029296875,
-      "usedMB": 0.050266265869140625
+      "allocatedMB": 6.565093994140625,
+      "usedMB": 0.055248260498046875
     },
     "renderer": {
       "tiles": {
@@ -42,7 +42,7 @@
             0,
             0
           ],
-          "size": 200,
+          "size": 100,
           "tileIndex": 0,
           "numMeshes": 38
         }
@@ -67,16 +67,64 @@
                     "numPrims": 1038
                   },
                   "timeMs": {
-                    "start": 536.7000000476837,
-                    "end": 536.7000000476837,
+                    "start": 588.5,
+                    "end": 588.5999999046326,
+                    "duration": 0.09999990463256836
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 588.5,
+                "end": 588.5999999046326,
+                "duration": 0.09999990463256836
+              }
+            },
+            {
+              "name": "edgesColorOpaque",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 641
+                  },
+                  "timeMs": {
+                    "start": 588.5999999046326,
+                    "end": 588.6999998092651,
+                    "duration": 0.09999990463256836
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 588.5999999046326,
+                "end": 588.6999998092651,
+                "duration": 0.09999990463256836
+              }
+            },
+            {
+              "name": "edgesColorTransparent",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "TRANSPARENT",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 641,
+                    "numPrims": 60
+                  },
+                  "timeMs": {
+                    "start": 588.6999998092651,
+                    "end": 588.6999998092651,
                     "duration": 0
                   }
                 }
               ],
               "timeMs": {
-                "start": 536.5999999046326,
-                "end": 536.7000000476837,
-                "duration": 0.10000014305114746
+                "start": 588.6999998092651,
+                "end": 588.6999998092651,
+                "duration": 0
               }
             },
             {
@@ -91,26 +139,26 @@
                     "numPrims": 60
                   },
                   "timeMs": {
-                    "start": 536.7000000476837,
-                    "end": 536.7000000476837,
+                    "start": 588.6999998092651,
+                    "end": 588.6999998092651,
                     "duration": 0
                   }
                 }
               ],
               "timeMs": {
-                "start": 536.7000000476837,
-                "end": 536.7000000476837,
+                "start": 588.6999998092651,
+                "end": 588.6999998092651,
                 "duration": 0
               }
             }
           ],
           "timeMs": {
-            "start": 536.5,
-            "end": 536.7000000476837,
-            "duration": 0.20000004768371582
+            "start": 588.5,
+            "end": 588.6999998092651,
+            "duration": 0.19999980926513672
           },
-          "numDrawCalls": 2,
-          "numPrims": 1098
+          "numDrawCalls": 4,
+          "numPrims": 1799
         }
       ]
     }

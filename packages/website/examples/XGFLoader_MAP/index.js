@@ -22,9 +22,9 @@ demoHelper.init().then(() => {
 
 // // Arrange the View's Camera within our +Z "up" coordinate system
 //
-   view.camera.eye = [  67.74194658396226, -4.121982515645583, 20.110348414033115];
-   view.camera.look = [ 26.98026216623765, 26.288490354227463, 4.19249791964835];
-   view.camera.up = [  -0.23942012120238962, 0.17862066842709445, 0.9543441006126097];
+   view.camera.eye = [  1841990.2778388674, 5173295.7011186555, 16.25441882894172];
+   view.camera.look = [ 1842022.2883483584, 5173301.846981712, 10.494716146446603];
+   view.camera.up = [  0.1708873388776124, 0.032809545530215846, 0.9847441551659135];
 
 // Create a SceneModel to hold our model's geometry and materials
 
@@ -63,7 +63,7 @@ demoHelper.init().then(() => {
 
     // Use the XGFLoader to load an IFC model from a .XGF file into our SceneModel and DataModel
 
-    fetch("../../models/ME-Demo_Sample_Single_Building_01/ifc2xgf/model.xgf").then(response => {
+    fetch("../../models/MAP/ifc2xgf/model.xgf").then(response => {
 
       response
         .arrayBuffer()
@@ -83,7 +83,7 @@ demoHelper.init().then(() => {
 
               demoHelper.finished();
 
-              demoHelper.viewFit();
+            //  demoHelper.viewFit();
 
             }).catch(message => {
               console.error(`Error loading .XGF: ${message}`);

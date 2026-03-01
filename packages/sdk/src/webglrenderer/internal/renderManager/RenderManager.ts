@@ -247,11 +247,9 @@ export class RenderManager {
           }
         }
       }
-
       if (transparent) {
         bins.normalFillTransparent.push(meshBatch);
       }
-
       if (xray && xrayMaterial.fill) {
         (xrayMaterial.fillAlpha < 1.0
           ? bins.xrayedSilhouetteTransparent
@@ -275,11 +273,15 @@ export class RenderManager {
         if (transparent) {
           bins.edgesColorTransparent.push(meshBatch);
         }
-        (selectedMaterial.edgeAlpha < 1.0 ? bins.selectedEdgesTransparent : bins.selectedEdgesOpaque).push(meshBatch);
         if (xray) {
           (xrayMaterial.edgeAlpha < 1.0 ? bins.xrayEdgesTransparent : bins.xrayEdgesOpaque).push(meshBatch);
         }
-        (highlightMaterial.edgeAlpha < 1.0 ? bins.highlightedEdgesTransparent : bins.highlightedEdgesOpaque).push(meshBatch);
+        if (highlight) {
+          (highlightMaterial.edgeAlpha < 1.0 ? bins.highlightedEdgesTransparent : bins.highlightedEdgesOpaque).push(meshBatch);
+        }
+        if (select) {
+          (selectedMaterial.edgeAlpha < 1.0 ? bins.selectedEdgesTransparent : bins.selectedEdgesOpaque).push(meshBatch);
+        }
       }
     }
 
@@ -370,49 +372,65 @@ export class RenderManager {
       }
     }
 
-    // Helper to clear depth and draw silhouette + edges
-    const drawSilAndEdges = (
-      silBin: MeshBatch[],
-      edgesBin: MeshBatch[],
-      drawSil: (l: MeshBatch) => void,
-      drawEdges: (l: MeshBatch) => void
-    ) => {
-      if (silBin.length || edgesBin.length) {
-        renderContext.lastProgramId = -1;
-        gl.clear(gl.DEPTH_BUFFER_BIT);
-        for (let i = 0; i < edgesBin.length; i++) drawEdges(edgesBin[i]);
-        for (let i = 0; i < silBin.length; i++) drawSil(silBin[i]);
-      }
-    };
+    gl.disable(gl.CULL_FACE);
+    gl.clear(gl.DEPTH_BUFFER_BIT);
 
-    if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.HIGHLIGHTED_SILHOUETTE_OPAQUE)) {
+    if (bins.highlightedSilhouetteOpaque.length) {
       drawInspector?.renderBinStarted(RENDER_BINS.HIGHLIGHTED_SILHOUETTE_OPAQUE);
-      drawSilAndEdges(bins.highlightedSilhouetteOpaque, bins.highlightedEdgesOpaque,
-        b => drawOps[b.primitive].highlighted?.drawBatch(b),
-        b => drawOps[b.primitive].highlightedEdges?.drawBatch(b));
+      bins.highlightedSilhouetteOpaque.forEach(meshBatch => {
+        drawOps[meshBatch.primitive].highlighted?.drawBatch(meshBatch);
+      });
     }
 
-    if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.SELECTED_SILHOUETTE_OPAQUE)) {
-      drawInspector?.renderBinStarted(RENDER_BINS.SELECTED_SILHOUETTE_OPAQUE);
-      drawSilAndEdges(bins.selectedSilhouetteOpaque, bins.selectedEdgesOpaque,
-        b => drawOps[b.primitive].selected?.drawBatch(b),
-        b => drawOps[b.primitive].selectedEdges?.drawBatch(b));
+    if (bins.highlightedEdgesOpaque.length) {
+      //drawInspector?.renderBinStarted(RENDER_BINS.HIGHLIGHTED_EDGES_OPAQUE);
+      gl.clear(gl.DEPTH_BUFFER_BIT);
+      bins.highlightedEdgesOpaque.forEach(meshBatch => {
+        drawOps[meshBatch.primitive].highlightedEdges?.drawBatch(meshBatch);
+      });
     }
 
-    // TODO: Switch on blending if needed
+    if (bins.selectedSilhouetteOpaque.length) {
+      bins.selectedSilhouetteOpaque.forEach(meshBatch => {
+        drawOps[meshBatch.primitive].selected?.drawBatch(meshBatch);
+      });
+    }
 
-    if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.HIGHLIGHTED_SILHOUETTE_TRANSPARENT)) {
+    if (bins.selectedEdgesOpaque.length) {
+      gl.clear(gl.DEPTH_BUFFER_BIT);
+      bins.selectedEdgesOpaque.forEach(meshBatch => {
+        drawOps[meshBatch.primitive].selectedEdges?.drawBatch(meshBatch);
+      });
+    }
+
+    gl.enable(gl.BLEND);
+
+    if (bins.highlightedSilhouetteTransparent.length) {
       drawInspector?.renderBinStarted(RENDER_BINS.HIGHLIGHTED_SILHOUETTE_TRANSPARENT);
-      drawSilAndEdges(bins.highlightedSilhouetteTransparent, bins.highlightedEdgesTransparent,
-        b => drawOps[b.primitive].highlighted?.drawBatch(b),
-        b => drawOps[b.primitive].highlightedEdges?.drawBatch(b));
+      bins.highlightedSilhouetteTransparent.forEach(meshBatch => {
+        drawOps[meshBatch.primitive].highlighted?.drawBatch(meshBatch);
+      });
     }
 
-    if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.SELECTED_SILHOUETTE_TRANSPARENT)){
-      drawInspector?.renderBinStarted(RENDER_BINS.SELECTED_SILHOUETTE_TRANSPARENT);
-      drawSilAndEdges(bins.selectedSilhouetteTransparent, bins.selectedEdgesTransparent,
-        b => drawOps[b.primitive].selected?.drawBatch(b),
-        b => drawOps[b.primitive].selectedEdges?.drawBatch(b));
+    if (bins.highlightedEdgesTransparent.length) {
+      gl.clear(gl.DEPTH_BUFFER_BIT);
+      bins.highlightedEdgesTransparent.forEach(meshBatch => {
+        drawOps[meshBatch.primitive].highlightedEdges?.drawBatch(meshBatch);
+      });
+    }
+
+    if (bins.selectedSilhouetteTransparent.length) {
+      drawInspector?.renderBinStarted(RENDER_BINS.HIGHLIGHTED_SILHOUETTE_TRANSPARENT);
+      bins.selectedSilhouetteTransparent.forEach(meshBatch => {
+        drawOps[meshBatch.primitive].selected?.drawBatch(meshBatch);
+      });
+    }
+
+    if (bins.selectedEdgesTransparent.length) {
+      gl.clear(gl.DEPTH_BUFFER_BIT);
+      bins.selectedEdgesTransparent.forEach(meshBatch => {
+        drawOps[meshBatch.primitive].selectedEdges?.drawBatch(meshBatch);
+      });
     }
 
     // Cleanup GPU state

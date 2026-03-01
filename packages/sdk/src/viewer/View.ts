@@ -380,11 +380,11 @@ class View {
 
     this.xrayMaterial = new EmphasisMaterial(this, viewParams.xrayMaterial || {
       fill: true,
-      fillColor: [0.9, 0.7, 0.6],
-      fillAlpha: 0.4,
+      fillColor: [0.7, 0.7, 0.7],
+      fillAlpha: 0.1,
       edges: true,
-      edgeColor: [0.5, 0.4, 0.4],
-      edgeAlpha: 1.0,
+      edgeColor: [0.4, 0.4, 0.4],
+      edgeAlpha: 0.2,
       edgeWidth: 1,
     });
 

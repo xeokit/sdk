@@ -135207,8 +135207,8 @@ var WebGLRenderer3 = class {
       maxTiles: 2e3,
       maxViews: 1,
       maxBatches: 300,
-      maxBatchVertices: 1e6,
-      maxBatchIndices: 2e6,
+      maxBatchVertices: 1e5,
+      maxBatchIndices: 2e5,
       maxBatchGeometries: 2e3,
       maxBatchMeshes: 2e3,
       maxBatchPrims: 4e4
@@ -136735,10 +136735,12 @@ var MousePanRotateDollyHandler = class {
           }
           break;
         case 2:
+          return;
           mouseDownMiddle = true;
           setMousedownState();
           break;
         case 3:
+          return;
           mouseDownRight = true;
           if (configs.panRightClick) {
             setMousedownState();
@@ -136829,6 +136831,7 @@ var MousePanRotateDollyHandler = class {
       }
       switch (e.which) {
         case 3:
+          return;
           getCanvasPosFromEvent2(e, canvasPos);
           const x = canvasPos[0];
           const y = canvasPos[1];
@@ -136857,6 +136860,7 @@ var MousePanRotateDollyHandler = class {
     const minElapsed = 1 / 60;
     let secsNowLast = null;
     htmlElement.addEventListener("wheel", this.#mouseWheelHandler = (e) => {
+      return;
       if (!(configs.active && configs.pointerEnabled)) {
         return;
       }
@@ -147318,8 +147322,9 @@ function viewerIconDataUri() {
 </svg>`.trim();
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
-function openJsonInNewTab3(obj, title = "ViewerParams JSON") {
-  let json = JSON.stringify(obj, null, 2);
+function openJsonInNewTab3(obj, title = "SceneModel JSON") {
+  let json = JSON.stringify(obj, compactNumericArraysReplacer2, 2);
+  json = json.replace(/"\[(.*?)\]"/g, "[$1]");
   const html = `
 <!DOCTYPE html>
 <html>
@@ -147328,15 +147333,30 @@ function openJsonInNewTab3(obj, title = "ViewerParams JSON") {
   <meta charset="utf-8"/>
   <style>
     body { background: #0f1116; color: #e7e7e7; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; margin: 0; padding: 0; }
-    .json-pre { background: #0f1116; border-radius: 10px; margin: 24px 0 24px 24px; padding: 24px 32px; max-width: 900px; font-size: 15px; box-shadow: 0 4px 24px #0001; color: #e7e7e7; text-align: left; }
-    h1 { color: #fff; font-size: 20px; font-weight: 650; margin: 0 0 12px 0; padding: 24px 0 0 24px; }
-    .meta { color: #aaa; font-size: 13px; margin: 0 0 18px 24px; }
+    .json-pre {
+      background: #0f1116;
+      border-radius: 10px;
+      margin: 24px 0 24px 24px;
+      padding: 24px 32px;
+      max-width: 900px;
+      font-size: 15px;
+      box-shadow: 0 4px 24px #0001;
+      color: #e7e7e7;
+      text-align: left;
+    }
+    .json-key { color: #7ec7e6; font-weight: 600; }
+    .json-string { color: #ffe7b3; }
+    .json-number { color: #b3e6c7; }
+    .json-boolean { color: #ffd57a; }
+    .json-null { color: #888; }
+     h1 { color: #fff; font-size: 20px; font-weight: 650; margin: 0 0 12px 0; }
+    .meta { color: #aaa; font-size: 13px; margin-bottom: 18px; }
   </style>
 </head>
 <body>
-  <h1>${title}</h1>
-  <div class="meta">Serialized to JSON</div>
-  <pre class="json-pre">${json.replace(/[&<>]/g, (c3) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c3])}</pre>
+      <h1>${escapeHtml4(title)}</h1>
+            <div class="meta">Serialized to JSON</div>
+  <pre class="json-pre">${syntaxHighlightJson4(json)}</pre>
 </body>
 </html>
   `.trim();
@@ -147345,6 +147365,38 @@ function openJsonInNewTab3(obj, title = "ViewerParams JSON") {
     win.document.write(html);
     win.document.close();
   }
+}
+function compactNumericArraysReplacer2(key, value) {
+  if (Array.isArray(value) && value.length > 0 && value.every((v) => typeof v === "number" && Number.isFinite(v))) {
+    return `[${value.join(",")}]`;
+  }
+  return value;
+}
+function escapeHtml4(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+function syntaxHighlightJson4(json) {
+  json = json.replace(/[&<>]/g, (c3) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;"
+  })[c3]);
+  return json.replace(
+    /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+    (match) => {
+      let cls = "json-number";
+      if (/^"/.test(match)) {
+        if (/:$/.test(match))
+          cls = "json-key";
+        else
+          cls = "json-string";
+      } else if (/true|false/.test(match))
+        cls = "json-boolean";
+      else if (/null/.test(match))
+        cls = "json-null";
+      return `<span class="${cls}">${match}</span>`;
+    }
+  );
 }
 var ViewerPanel = class _ViewerPanel {
   static #STYLE_ID = "__viewerpanel_style__";
@@ -147741,16 +147793,27 @@ var DemoHelper = class {
         this.data = new Data2();
         this.viewer = new Viewer();
         this.renderer = new WebGLRenderer3({
+          // memoryConfigs: {
+          //   maxViews: this.maxViews ?? (cfg.maxViews ?? 1),
+          //   tileSize: 200,
+          //   maxTiles: 2000,
+          //   maxBatches: 300,
+          //   maxBatchVertices: 25000,
+          //   maxBatchIndices:  70000,
+          //   maxBatchGeometries: 10000,
+          //   maxBatchMeshes: 10000,
+          //   maxBatchPrims:   50000
+          // }
           memoryConfigs: {
             maxViews: this.maxViews ?? (cfg.maxViews ?? 1),
             tileSize: 200,
             maxTiles: 2e3,
             maxBatches: 300,
-            maxBatchVertices: 1e5,
-            maxBatchIndices: 3e5,
-            maxBatchGeometries: 1e3,
-            maxBatchMeshes: 1e3,
-            maxBatchPrims: 2e5
+            maxBatchVertices: 5e6,
+            maxBatchIndices: 4e6,
+            maxBatchGeometries: 1e4,
+            maxBatchMeshes: 1e4,
+            maxBatchPrims: 1e6
           }
         });
         const log2 = (eventName, sender, args) => {

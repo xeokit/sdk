@@ -41,15 +41,6 @@ export interface CameraParams {
   up?: Vec3;
 
   /**
-   * The up, right and forward axis of the {@link Camera | Camera's} World coordinate system.
-   *
-   * Has format: ````[rightX, rightY, rightZ, upX, upY, upZ, forwardX, forwardY, forwardZ]````.
-   *
-   * Default value is ````[1, 0, 0, 0, 1, 0, 0, 0, 1]````.
-   */
-  worldAxis?: Vec9;
-
-  /**
    * Whether to lock the {@link Camera | Camera's} yaw rotation to pivot about the World-space "up" axis.
    *
    * Default value is `true`.

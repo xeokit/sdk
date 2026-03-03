@@ -141,7 +141,6 @@ export class RenderManager {
     }
   }
 
-
   /**
    * Renders a single {@link ViewRenderState}.
    *
@@ -432,6 +431,8 @@ export class RenderManager {
         drawOps[meshBatch.primitive].selectedEdges?.drawBatch(meshBatch);
       });
     }
+
+  //  gl.disable(gl.BLEND);
 
     // Cleanup GPU state
     for (let i = 0, texUnits = WEBGL_INFO.MAX_TEXTURE_UNITS; i < texUnits; i++) {

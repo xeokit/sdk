@@ -195,38 +195,6 @@ const offsetEye = createVec3Float64();
  * camera.onProjMatrix((camera, matrix) => { ... });
  * ````
  *
- * ## Configuring World up direction
- *
- * We can dynamically configure the directions of the World-space coordinate system.
- *
- * Setting the +Y axis as World "up", +X as right and -Z as forwards (convention in some modeling software):
- *
- * ````javascript
- * camera.worldAxis = [
- *     1, 0, 0,    // Right
- *     0, 1, 0,    // Up
- *     0, 0,-1     // Forward
- * ];
- * ````
- *
- * Setting the +Z axis as World "up", +X as right and -Y as "up" (convention in most CAD and BIM viewers):
- *
- * ````javascript
- * camera.worldAxis = [
- *     1, 0, 0, // Right
- *     0, 0, 1, // Up
- *     0,-1, 0  // Forward
- * ];
- * ````
- *
- * The Camera has read-only convenience properties that provide each axis individually:
- *
- * ````javascript
- * var worldRight = camera.worldRight;
- * var worldForward = camera.worldForward;
- * var worldUp = camera.worldUp;
- * ````
- *
  * ## Gimbal locking
  *
  * By default, the Camera locks yaw rotation to pivot about the World-space "up" axis. We can dynamically lock and unlock that at any time:

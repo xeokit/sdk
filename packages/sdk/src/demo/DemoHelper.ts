@@ -19,6 +19,8 @@ import {BoundariesPanel} from "./inspectors/BoundariesPanel";
 import {DataTexturesPanel} from "./inspectors/DataTexturesPanel";
 import {TilesPanel} from "./inspectors/TilesPanel";
 import {ViewerPanel} from "./inspectors/ViewerPanel";
+import {LoadingProgressBar} from "./LoadingProgressBar";
+import {DownloadPanel} from "./inspectors/DownloadPanel";
 
 const taskRunner = getGlobalTaskRunner();
 
@@ -26,6 +28,8 @@ const taskRunner = getGlobalTaskRunner();
  * Configuration options for the DemoHelper.
  */
 export interface DemoHelperConfig {
+  makeView?: boolean;
+  maxViews?: number;
   makeComponents?: boolean;
   logging?: boolean;
   showOverlayButton?: boolean;
@@ -78,11 +82,22 @@ export class DemoHelper {
    */
   public cameraControl: CameraControl;
 
+  /**
+   * The maximum number of views to create.
+   */
+  public maxViews: number;
+
+  /**
+   * A progress bar for loading operations, which you can use in your demo code to show loading progress.
+   */
+  //public loadingProgressBar = new LoadingProgressBar();
+
   // /**
   //  * A inspectors for building demo models with a fluent API. You can use this in your demo code to create models in the scene and data.
   //  */
   // public builder: DemoBuilder;
 
+  private makeView: boolean;
   private makeComponents: boolean;
   private showOverlayButton: boolean;
   private overlayButton: HTMLButtonElement | null = null;
@@ -140,13 +155,16 @@ export class DemoHelper {
   };
 
 
+
   /**
    * Creates a DemoHelper instance.
    * @param cfg
    */
   constructor(cfg: DemoHelperConfig = {}) {
+    this.makeView = cfg.makeView !== false;
     this.makeComponents = cfg.makeComponents !== false;
     this.showOverlayButton = cfg.showOverlayButton !== false;
+    this.maxViews = cfg.maxViews ?? 1;
     this.stats = {
       startTime: 0,
       endTime: 0,
@@ -176,7 +194,32 @@ export class DemoHelper {
         this.scene = new Scene();
         this.data = new Data();
         this.viewer = new Viewer();
-        this.renderer = new WebGLRenderer();
+        this.renderer = new WebGLRenderer({
+          // memoryConfigs: {
+          //   maxViews: this.maxViews ?? (cfg.maxViews ?? 1),
+          //   tileSize: 200,
+          //   maxTiles: 2000,
+          //   maxBatches: 300,
+          //   maxBatchVertices: 25000,
+          //   maxBatchIndices:  70000,
+          //   maxBatchGeometries: 10000,
+          //   maxBatchMeshes: 10000,
+          //   maxBatchPrims:   50000
+          // }
+
+          memoryConfigs: {
+            maxViews: this.maxViews ?? (cfg.maxViews ?? 1),
+            tileSize: 200,
+            maxTiles: 2000,
+            maxBatches: 300,
+            // Allow enough vertices and indices for large terrain meshes
+            maxBatchVertices: 50000,
+            maxBatchIndices:  70000,
+            maxBatchGeometries: 10000,
+            maxBatchMeshes: 10000,
+            maxBatchPrims:  100000
+          }
+        });
 
         const log = (eventName: string, sender: any, args: any) => {
           //     this.eventsLog.push(`[${eventName}]`, { sender, args });
@@ -216,15 +259,20 @@ export class DemoHelper {
         this.viewer.attachScene(this.scene);
         this.renderer.attachViewer(this.viewer);
 
-        const viewResult = this.viewer.createView({
-          id: "mainView",
-          elementId: "demoCanvas",
-          backgroundColor: [0, 0, 0]
-        });
+        if (this.makeView) {
+          const viewResult = this.viewer.createView({
+            id: "mainView",
+            elementId: "demoCanvas",
+            backgroundColor: [0, 0, 0]
+          });
 
-        if (viewResult.ok === false) {
-          reject(viewResult.error);
-          return;
+          if (viewResult.ok === false) {
+            reject(viewResult.error);
+            return;
+          }
+          this.view = viewResult.value;
+          this.cameraFlight = new CameraFlightAnimation(this.view);
+          this.cameraControl = new CameraControl(this.view);
         }
 
         const renderInspectorResult = this.renderer.getRenderInspector();
@@ -235,11 +283,6 @@ export class DemoHelper {
         const renderInspector = renderInspectorResult.value;
         renderInspector.enabled = true;
 
-        this.view = viewResult.value;
-
-        this.cameraFlight = new CameraFlightAnimation(this.view);
-
-        this.cameraControl = new CameraControl(this.view);
 
       //  this.builder = new DemoBuilder(this.scene, this.data);
 
@@ -281,7 +324,10 @@ export class DemoHelper {
 
     } else {
 
+      const view = this.viewer.viewList[0];
+
       if (!this.inspectorFlowHost) {
+
 
         this.inspectorFlowHost = FloatingPanelFlowHost.getOrCreate({
           corner: "top-right",
@@ -290,6 +336,8 @@ export class DemoHelper {
           maxWidth: 2000,       // max width for the whole overlay area
           tileMinWidth: 800,    // per-panel min width
         });
+
+        DownloadPanel.show(this.inspectorFlowHost, this.scene, this.data);
 
         GPUMemoryConfigsPanel.show(this.inspectorFlowHost, this.renderer.getMemoryConfigs());
 
@@ -314,7 +362,9 @@ export class DemoHelper {
 
         TaskPanel.show(this.inspectorFlowHost, taskRunner, {});
 
-        BoundariesPanel.show(this.inspectorFlowHost, this.view, this.aabb3Index, {});
+        if (view) {
+          BoundariesPanel.show(this.inspectorFlowHost, view, this.aabb3Index, {});
+        }
 
         const memoryInspectorResult = this.renderer.getMemoryInspector();
         if (memoryInspectorResult.ok) {
@@ -331,7 +381,9 @@ export class DemoHelper {
       }
 
       this.inspectorFlowHost.style.display = "flex";
-      this.view.htmlElement.style.pointerEvents = "none";
+      if (view) {
+        view.htmlElement.style.pointerEvents = "none";
+      }
       this.inspectorVisible = true;
 
       taskRunner.suspend();

@@ -155,6 +155,8 @@ export class MousePanRotateDollyHandler {
 
         case 2: // Middle/both buttons
 
+          return;
+
           mouseDownMiddle = true;
 
           setMousedownState();
@@ -162,6 +164,8 @@ export class MousePanRotateDollyHandler {
           break;
 
         case 3: // Right button
+
+          return;
 
           mouseDownRight = true;
 
@@ -286,6 +290,7 @@ export class MousePanRotateDollyHandler {
       }
       switch (e.which) {
         case 3: // Right button
+          return;
           getCanvasPosFromEvent(e, canvasPos);
           const x = canvasPos[0];
           const y = canvasPos[1];
@@ -317,6 +322,10 @@ export class MousePanRotateDollyHandler {
     let secsNowLast = null;
 
     htmlElement.addEventListener("wheel", this.#mouseWheelHandler = (e) => {
+
+
+      return;
+
       if (!(configs.active && configs.pointerEnabled)) {
         return;
       }

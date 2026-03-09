@@ -139,8 +139,58 @@ function viewerIconDataUri(): string {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
-function openJsonInNewTab(obj: any, title = "ViewerParams JSON") {
-  let json = JSON.stringify(obj, null, 2);
+function formatJSON(value, indent = 0) {
+  const space = 2;
+  const pad = ' '.repeat(indent);
+  if (Array.isArray(value)) {
+    return `[${value.map(v => formatJSON(v)).join(', ')}]`;
+  }
+  if (value && typeof value === 'object') {
+    const entries = Object.entries(value);
+    const inner = entries.map(([k, v]) =>
+      `${' '.repeat(indent + space)}"${k}": ${formatJSON(v, indent + space)}`
+    ).join(',\n');
+    return `{\n${inner}\n${pad}}`;
+  }
+  return JSON.stringify(value);
+}
+
+
+// function openJsonInNewTab(obj: any, title = "ViewerParams JSON") {
+//  // let json = JSON.stringify(obj, null, 2);
+//   let json = formatJSON(obj, 0);
+//   const html = `
+// <!DOCTYPE html>
+// <html>
+// <head>
+//   <title>${title}</title>
+//   <meta charset="utf-8"/>
+//   <style>
+//     body { background: #0f1116; color: #e7e7e7; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; margin: 0; padding: 0; }
+//     .json-pre { background: #0f1116; border-radius: 10px; margin: 24px 0 24px 24px; padding: 24px 32px; max-width: 900px; font-size: 15px; box-shadow: 0 4px 24px #0001; color: #e7e7e7; text-align: left; }
+//     h1 { color: #fff; font-size: 20px; font-weight: 650; margin: 0 0 12px 0; padding: 24px 0 0 24px; }
+//     .meta { color: #aaa; font-size: 13px; margin: 0 0 18px 24px; }
+//   </style>
+// </head>
+// <body>
+//   <h1>${title}</h1>
+//   <div class="meta">Serialized to JSON</div>
+//   <pre class="json-pre">${json.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c] as string))}</pre>
+// </body>
+// </html>
+//   `.trim();
+//   const win = window.open();
+//   if (win) {
+//     win.document.write(html);
+//     win.document.close();
+//   }
+// }
+
+function openJsonInNewTab(obj: any, title = "SceneModel JSON") {
+  // Use custom replacer, then post-process to restore array syntax
+  let json = JSON.stringify(obj, compactNumericArraysReplacer, 2);
+  // Remove extra quotes around compact arrays
+  json = json.replace(/"\[(.*?)\]"/g, "[$1]");
   const html = `
 <!DOCTYPE html>
 <html>
@@ -149,15 +199,30 @@ function openJsonInNewTab(obj: any, title = "ViewerParams JSON") {
   <meta charset="utf-8"/>
   <style>
     body { background: #0f1116; color: #e7e7e7; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; margin: 0; padding: 0; }
-    .json-pre { background: #0f1116; border-radius: 10px; margin: 24px 0 24px 24px; padding: 24px 32px; max-width: 900px; font-size: 15px; box-shadow: 0 4px 24px #0001; color: #e7e7e7; text-align: left; }
-    h1 { color: #fff; font-size: 20px; font-weight: 650; margin: 0 0 12px 0; padding: 24px 0 0 24px; }
-    .meta { color: #aaa; font-size: 13px; margin: 0 0 18px 24px; }
+    .json-pre {
+      background: #0f1116;
+      border-radius: 10px;
+      margin: 24px 0 24px 24px;
+      padding: 24px 32px;
+      max-width: 900px;
+      font-size: 15px;
+      box-shadow: 0 4px 24px #0001;
+      color: #e7e7e7;
+      text-align: left;
+    }
+    .json-key { color: #7ec7e6; font-weight: 600; }
+    .json-string { color: #ffe7b3; }
+    .json-number { color: #b3e6c7; }
+    .json-boolean { color: #ffd57a; }
+    .json-null { color: #888; }
+     h1 { color: #fff; font-size: 20px; font-weight: 650; margin: 0 0 12px 0; }
+    .meta { color: #aaa; font-size: 13px; margin-bottom: 18px; }
   </style>
 </head>
 <body>
-  <h1>${title}</h1>
-  <div class="meta">Serialized to JSON</div>
-  <pre class="json-pre">${json.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c] as string))}</pre>
+      <h1>${escapeHtml(title)}</h1>
+            <div class="meta">Serialized to JSON</div>
+  <pre class="json-pre">${syntaxHighlightJson(json)}</pre>
 </body>
 </html>
   `.trim();
@@ -166,6 +231,44 @@ function openJsonInNewTab(obj: any, title = "ViewerParams JSON") {
     win.document.write(html);
     win.document.close();
   }
+}
+
+function compactNumericArraysReplacer(key: string, value: any) {
+  if (
+    Array.isArray(value) &&
+    value.length > 0 &&
+    value.every(v => typeof v === "number" && Number.isFinite(v))
+  ) {
+    return `[${value.join(",")}]`;
+  }
+  return value;
+}
+
+function escapeHtml(s: string) {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function syntaxHighlightJson(json: string): string {
+  json = json.replace(/[&<>]/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;'
+  }[c] as string));
+  return json.replace(
+    /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+    (match) => {
+      let cls = "json-number";
+      if (/^"/.test(match)) {
+        if (/:$/.test(match)) cls = "json-key";
+        else cls = "json-string";
+      } else if (/true|false/.test(match)) cls = "json-boolean";
+      else if (/null/.test(match)) cls = "json-null";
+      return `<span class="${cls}">${match}</span>`;
+    }
+  );
 }
 
 export class ViewerPanel {

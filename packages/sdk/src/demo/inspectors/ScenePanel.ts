@@ -19,6 +19,7 @@ function fileIconSvg() {
   return svg;
 }
 
+
 /**
  * Floating, dependency-free HTML view that shows a list of SceneModelStats panels,
  * one per SceneModel, and keeps them in sync with SceneEvents.

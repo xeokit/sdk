@@ -5,10 +5,10 @@ import type {SceneObjectParams} from "./SceneObjectParams";
 import type {SceneTextureParams} from "./SceneTextureParams";
 import type {SceneTextureSetParams} from "./SceneTextureSetParams";
 import type {CoordinateSystemParams} from "./CoordinateSystemParams";
-import {SceneTransform} from "./SceneTransform";
 import type  {  Vec3} from "../math/vector";
 import type  {Mat4} from "../math/matrix";
 import type {Quat} from "../math/quat";
+import type {SceneTransformParams} from "./SceneTransformParams";
 
 /**
  * Parameters for a {@link SceneModel}.
@@ -73,7 +73,7 @@ export interface SceneModelParams {
   /**
    * Parameters for {@link SceneTransform  | SceneTransforms} in the {@link SceneModel | SceneModel}.
    */
-  transforms?: SceneTransform[];
+  transforms?: SceneTransformParams[];
 
   /**
    * Parameters for {@link SceneGeometry  | SceneGeometries} in the {@link SceneModel | SceneModel}.

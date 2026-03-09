@@ -1611,6 +1611,14 @@ export class SceneModel {
       }
       sceneModelParams.objects.push(res.value);
     }
+    for (const key in this.transforms) {
+      const res = this.transforms[key].toParams();
+      if (!res.ok) {
+        return res;
+      }
+      sceneModelParams.transforms.push(res.value);
+    }
+
     // for (const key in this.textures) {
     //         sceneModelParams.textures.push(this.textures[key].toParams());
     // }

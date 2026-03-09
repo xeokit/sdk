@@ -598,24 +598,8 @@ export class SceneTransform {
         error: `[SceneTransform.toParams] Cannot serialize destroyed SceneTransform ${this.id}`
       });
     }
-    const transformParams: SceneTransformParams = {id: this.id};
-    if (this._scale.some((s) => s !== 1)) {
-      transformParams.scale = <Vec3>Array.from(this._scale);
-    }
-    if (this._rotation.some((r) => r !== 0)) {
-      transformParams.rotation = <Vec3>Array.from(this._rotation);
-    }
-    if (this._position.some((p) => p !== 0)) {
-      transformParams.position = <Vec3>Array.from(this._position);
-    }
-    if (
-      this._quaternion[0] !== 0 ||
-      this._quaternion[1] !== 0 ||
-      this._quaternion[2] !== 0 ||
-      this._quaternion[3] !== 1
-    ) {
-      transformParams.quaternion = <Quat>Array.from(this._quaternion);
-    }
+     const transformParams: SceneTransformParams = {id: this.id};
+    transformParams.matrix = <Mat4>Array.from(this.matrix);
     if (this._parentTransform) {
       transformParams.parentTransformId = this._parentTransform.id;
     }

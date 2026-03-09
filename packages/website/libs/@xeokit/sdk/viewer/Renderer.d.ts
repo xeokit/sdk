@@ -57,7 +57,7 @@ export interface Renderer {
     /**
      * Attaches a {@link Viewer | Viewer} to this Renderer.
      *
-     * @param viewer The Viewer instance to attach.
+     * @param viewer The Viewer instance to show.
      * @returns `void` if successful.
      * @returns {@link core!SDKError | SDKError} if:
      * - A Viewer is already attached.
@@ -80,7 +80,7 @@ export interface Renderer {
      * {@link scene!SceneModel | SceneModels} for the new View.
      *
      * @internal
-     * @param view The View to attach.
+     * @param view The View to show.
      * @returns `void` if successful.
      * @returns {@link core!SDKError | SDKError} if:
      * - No Viewer is attached.
@@ -108,7 +108,7 @@ export interface Renderer {
      * allowing real-time state updates.
      *
      * @internal
-     * @param sceneModel The SceneModel to attach.
+     * @param sceneModel The SceneModel to show.
      * @returns `void` if successful.
      * @returns {@link core!SDKError | SDKError} if:
      * - No View is attached.

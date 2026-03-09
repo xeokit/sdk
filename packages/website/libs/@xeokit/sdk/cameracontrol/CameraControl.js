@@ -123,7 +123,7 @@ class HoverEvent {
  * }
  * ````
  *
- * Then we'll attach our pivot indicator's HTML element to the ````CameraControl````:
+ * Then we'll show our pivot indicator's HTML element to the ````CameraControl````:
  *
  * ````javascript
  * const pivotElement = document.createRange().createContextualFragment("<div class='camera-pivot-marker'></div>").firstChild;

@@ -34,9 +34,9 @@
  * * **Data Models** - A Viewer can optionally integrate with semantic {@link data!Data | Data}. The Data is an
  * entity-relationship graph that provides an API through users can programmatically construct and search data models. A Data is a container
  * for {@link data!DataModel | DataModels}, {@link data!DataObject | DataObjects}, {@link data!PropertySet | PropertySets}
- * and {@link data!Relationship | Relationships}. Typically, when we want to attach semantic data to a
+ * and {@link data!Relationship | Relationships}. Typically, when we want to show semantic data to a
  * {@link scene!SceneModel | SceneModel}, we would shadow it with a DataModel that has the same ID. For each of the DataModel's SceneObjects that
- we want to attach data to, we would likewise shadow it in the DataModel with a DataObject that has the same ID.
+ we want to show data to, we would likewise shadow it in the DataModel with a DataObject that has the same ID.
  *
  * <br>
  *
@@ -86,7 +86,7 @@
  *
  * Create a {@link scene!Scene | Scene} to hold our model geometry.
  *
- * > *See [@xeokit/scene](/docs/modules/_xeokit_scene.html)*
+ * > *See [@xeokit/scene](/docs/api/modules/_xeokit_scene.html)*
  *
  * ````javascript
  * const scene = new Scene();
@@ -141,7 +141,7 @@
  *
  * Add a {@link cameracontrol!CameraControl | CameraControl} to the View, to control the View's Camera with mouse and touch input:
  *
- * > *See [@xeokit/cameracontrol](/docs/modules/_xeokit_cameracontrol.html)*
+ * > *See [@xeokit/cameracontrol](/docs/api/modules/_xeokit_cameracontrol.html)*
  *
  * ````javascript
  * const myCameraControl = new CameraControl({
@@ -159,7 +159,7 @@
  * of textured {@link scene!SceneModel | SceneObjects}. As soon as we've called {@link scene!SceneModel.build | SceneModel.build}, two
  * new 3D objects appear in the View's canvas.
  *
- * > *See [@xeokit/scene](/docs/modules/_xeokit_scene.html)*
+ * > *See [@xeokit/scene](/docs/api/modules/_xeokit_scene.html)*
  *
  * ````javascript
  * const sceneModel = scene.createModel();

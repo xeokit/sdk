@@ -63,43 +63,9 @@ demoHelper.init().then(() => {
         }).then(() => {
 
           // The Scene and SceneModel will now contain a SceneObject for each displayable object in our model.
-          // The Data and DataModel will contain a DataObject for each IFC element in the model. Each SceneObject
-          // will have a corresponding DataObject with the same ID, to show semantic meaning.
-          // The View will contain a ViewObject corresponding to each SceneObject, through which the
-          // appearance of the object can be controlled in the View.
-
-
-       //
-       //
-       //
-       //    for (const objectId in sceneModel.objects) {
-       //      const object = sceneModel.objects[objectId];
-       //
-       //      const transformResult = sceneModel.createTransform({
-       //
-       //        position: [0, 0, 0],
-       //        //  rotation: [0, 90, 0],
-       //      });
-       //
-       //      if (transformResult.ok === false) {
-       //        throw new Error(`Error creating transform: ${transformResult.error}`);
-       //      }
-       //      for (const meshId in object.meshes) {
-       //
-       //
-       //
-       //
-       //        const transform = transformResult.value;
-       //        const transformId = transform.id;
-       //
-       //        const mesh = object.meshes[meshId];
-       // //       mesh.setParentTransform( transformId);
-       //      }
-       //    }
-       //
-
 
           demoHelper.viewFit();
+
           demoHelper.orbit();
 
           demoHelper.finished();

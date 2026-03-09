@@ -62,7 +62,7 @@ demoHelper.init().then(() => {
 
   // Load our IFC data into the SceneModel and DataModel
 
-  fetch(`../../models/IfcOpenHouse2x3/ifc/model.ifc`)
+  fetch(`../../models/AlignedPointCloud/ifc/model.ifc`)
     .then(response => {
       response
         .arrayBuffer()

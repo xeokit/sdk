@@ -42,7 +42,7 @@
  * and materials.
  *
  * On our Viewer, we will create a single {@link viewer!View | View} to draw it to a canvas element on the page. We will
- * also attach a {@link cameracontrol!CameraControl | CameraControl} to our View, allowing us to control its camera with mouse and touch input.
+ * also show a {@link cameracontrol!CameraControl | CameraControl} to our View, allowing us to control its camera with mouse and touch input.
  *
  * Within the Scene, we will create a {@link scene!SceneModel | SceneModel} to hold model geometry and materials.
  *

@@ -1,5 +1,12 @@
 function buildExamplesIndex(params) {
 
+  const sectionDivs = {};
+  const divs = {};
+  const fileDescriptions = {};
+  let selected = null;
+  let index = 1;
+  var indexStr;
+
     const pages = params.index ? (params.index || {}) : {};
 
     const list = document.getElementById('index');
@@ -11,7 +18,7 @@ function buildExamplesIndex(params) {
 
     const viewSourceButton = document.getElementById('viewSourceButton');
     viewSourceButton.addEventListener('click', function (event) {
-        window.open('https://github.com/xeokit/sdk/blob/develop/packages/demos/galleries/viewer/' + selected );
+        window.open('https://github.com/xeokit/sdk/blob/develop/packages/website/examples/' + selected );
     }, false);
 
     const indexToggle = document.getElementById("index_toggle");
@@ -25,12 +32,7 @@ function buildExamplesIndex(params) {
 //     iframe.src="default.html";
 // }, false);
 
-    const sectionDivs = {};
-    const divs = {};
-    const fileDescriptions = {};
-    let selected = null;
-    let index = 1;
-    var indexStr;
+
 
 // Index
 
@@ -129,7 +131,7 @@ function buildExamplesIndex(params) {
         for (let i = 0; i < categoryPages.length; i++) {
             const page = categoryPages[i];
             const pageId = page.id;
-            const iframePage = `${pageId}/index.html`;
+            const iframePage = pageId;
             const fileNameDiv = document.createElement('div');
             fileNameDiv.className = 'link';
             fileNameDiv.textContent = pageId.replace(/_/g, " / ");
@@ -191,7 +193,7 @@ function buildExamplesIndex(params) {
         if (selected !== null) divs[selected].className = 'link';
         divs[file].className = 'link selected';
         window.location.hash = file;
-        iframe.src = file;
+        iframe.src = file + "/index.html";
         iframe.focus();
         viewSourceButton.style.display = '';
         selected = file;

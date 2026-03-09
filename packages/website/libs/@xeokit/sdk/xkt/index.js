@@ -38,7 +38,7 @@
  * a {@link @xeokit/webglrenderer!WebGLRenderer | WebGLRenderer}  and a {@link @xeokit/scene!Scene | Scene}, which holds model geometry and materials.
  *
  * On our Viewer, we will create a single {@link @xeokit/viewer!View | View} to draw it to a canvas element on the page. We will
- * also attach a {@link @xeokit/cameracontrol!CameraControl | CameraControl} to our View, allowing us to control its camera with mouse and touch input.
+ * also show a {@link @xeokit/cameracontrol!CameraControl | CameraControl} to our View, allowing us to control its camera with mouse and touch input.
  *
  * Within the Scene, we will create a {@link @xeokit/scene!SceneModel | SceneModel} to hold a model. We will then use
  * {@link @xeokit/xkt!loadXKT | loadXKT} to load

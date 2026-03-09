@@ -232,7 +232,7 @@ iframe {
 .viewSourceButton {
     position: absolute;
     left: 20px;
-    bottom: 15px;
+    bottom: 70px;
     z-index: 200;
     transition: all 300ms ease-in-out;
 }

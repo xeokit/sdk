@@ -62,13 +62,13 @@ export class VBORenderer {
     build() {
         const view = this.renderContext.view;
         const gl = this.renderContext.gl;
-        const vertexSrc = [];
-        this.buildVertexShader(vertexSrc);
-        const fragmentSrc = [];
-        this.buildFragmentShader(fragmentSrc);
+        const vertexShaderSrc = [];
+        this.buildVertexShader(vertexShaderSrc);
+        const fragmentShaderSrc = [];
+        this.buildFragmentShader(fragmentShaderSrc);
         this.program = new WebGLProgram(gl, {
-            vertex: joinSansComments(vertexSrc),
-            fragment: joinSansComments(fragmentSrc)
+            vertex: joinSansComments(vertexShaderSrc),
+            fragment: joinSansComments(fragmentShaderSrc)
         });
         if (this.program.errors) {
             this.errors = this.program.errors;

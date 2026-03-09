@@ -223,7 +223,7 @@ export class WebGLRenderer {
      * Initializes this WebGLRenderer by attaching a {@link viewer!Viewer | Viewer}.
      *
      * @internal
-     * @param viewer Viewer to attach.
+     * @param viewer Viewer to show.
      * @returns *void*
      * * Viewer successfully attached.
      * @returns *{@link core!SDKError | SDKError}*
@@ -232,10 +232,10 @@ export class WebGLRenderer {
      */
     attachViewer(viewer) {
         if (this.#viewer) {
-            throw new SDKError("Can't attach Viewer to WebGLRenderer - a Viewer is already attached");
+            throw new SDKError("Can't show Viewer to WebGLRenderer - a Viewer is already attached");
         }
         if (viewer.renderer) {
-            throw new SDKError("Can't attach Viewer to WebGLRenderer - given Viewer is already attached to another Renderer");
+            throw new SDKError("Can't show Viewer to WebGLRenderer - given Viewer is already attached to another Renderer");
         }
         this.#viewer = viewer;
         this.#textureTranscoder.init(this.#viewer.capabilities);
@@ -281,26 +281,26 @@ export class WebGLRenderer {
      * The WebGLRenderer will then begin rendering each {@link scene!SceneModel | SceneModel} previously or subsequently
      * created with {@link scene!Scene.createModel | Scene.createModel}, for the new View.
      *
-     * You can only attach as many Views as indicated in {@link  @xeokit/core!Capabilities.maxViews | Capabilities.maxViews}, as returned by
+     * You can only show as many Views as indicated in {@link  @xeokit/core!Capabilities.maxViews | Capabilities.maxViews}, as returned by
      * {@link webglrenderer!WebGLRenderer.getCapabilities | Renderer.getCapabilities}.
      *
-     * You must attach a View before you can attach a SceneModel.
+     * You must show a View before you can show a SceneModel.
      *
      * @internal
-     * @param view The View to attach.
+     * @param view The View to show.
      * @returns *void*
      * * View successfully attached.
      * @returns *{@link core!SDKError | SDKError}*
      * * No Viewer is attached to this WebGLRenderer.
-     * * Caller attempted to attach too many Views.
+     * * Caller attempted to show too many Views.
      * * The WebGLRenderer failed to get a WebGL2 context on the View's canvas.
      */
     attachView(view) {
         if (!this.#viewer) {
-            throw new SDKError("Can't attach View to WebGLRenderer - no Viewer is attached");
+            throw new SDKError("Can't show View to WebGLRenderer - no Viewer is attached");
         }
         if (this.#rendererViews[view.id]) {
-            return new SDKError("Can't attach additional View to WebGLRenderer - View already attached (see WebViewerCapabilities.maxViews)");
+            return new SDKError("Can't show additional View to WebGLRenderer - View already attached (see WebViewerCapabilities.maxViews)");
         }
         view.camera.onViewMatrix.subscribe(this.#onViewCameraMatrix = () => {
             this.#viewMatrixDirty = true;
@@ -372,7 +372,7 @@ export class WebGLRenderer {
      *
      * Then, when we make any state updates to those components, they will upload the updates into the Renderer.
      *
-     * You must first attach a View with {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView} before you can attach a SceneModel.
+     * You must first show a View with {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView} before you can show a SceneModel.
      *
      * @param sceneModel
      * @internal
@@ -384,10 +384,10 @@ export class WebGLRenderer {
      */
     attachSceneModel(sceneModel) {
         if (!this.#viewer) {
-            throw new SDKError("Can't attach SceneModel to WebGLRenderer - no Viewer is attached");
+            throw new SDKError("Can't show SceneModel to WebGLRenderer - no Viewer is attached");
         }
         if (this.#rendererViewsList.length === 0) {
-            throw new SDKError("Can't attach SceneModel to WebGLRenderer - no View is attached");
+            throw new SDKError("Can't show SceneModel to WebGLRenderer - no View is attached");
         }
         const rendererModel = new WebGLRendererModel({
             id: sceneModel.id,

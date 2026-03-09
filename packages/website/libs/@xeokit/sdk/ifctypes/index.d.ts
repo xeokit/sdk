@@ -2376,7 +2376,7 @@ export declare const IfcSeamCurve = 1583;
  */
 export declare const IfcSectionedSpine = 1584;
 /**
- * IfcSectionProperties defines the cross section properties for a single longitudinal piece of a cross section. It is a special-purpose helper class for IfcSectionReinforcementProperties.
+ * IfcSectionProperties defines the cross section properties for a single longitudinal piece of a cross section. It is a special-purpose inspectors class for IfcSectionReinforcementProperties.
  */
 export declare const IfcSectionProperties = 1585;
 /**

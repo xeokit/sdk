@@ -33,7 +33,7 @@
  *
  * This example sets up a {@link viewer!Viewer | Viewer} using a {@link webglrenderer!WebGLRenderer | WebGLRenderer} and a {@link scene!Scene | Scene} to hold the model's geometry and materials. We also create a {@link data!Data | Data} instance to store the model's semantic data.
  *
- * In the Viewer, we create a {@link viewer!View | View} to draw the model to an HTML canvas, and attach a {@link cameracontrol!CameraControl | CameraControl} to allow mouse and touch input for camera control.
+ * In the Viewer, we create a {@link viewer!View | View} to draw the model to an HTML canvas, and show a {@link cameracontrol!CameraControl | CameraControl} to allow mouse and touch input for camera control.
  *
  * The Scene will include a {@link scene!SceneModel | SceneModel} for geometry and materials, and the Data will include a {@link data!DataModel | DataModel} to hold the IFC elements and property sets.
  *

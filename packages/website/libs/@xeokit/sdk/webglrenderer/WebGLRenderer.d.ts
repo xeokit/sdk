@@ -76,7 +76,7 @@ export declare class WebGLRenderer implements Renderer {
      * Initializes this WebGLRenderer by attaching a {@link viewer!Viewer | Viewer}.
      *
      * @internal
-     * @param viewer Viewer to attach.
+     * @param viewer Viewer to show.
      * @returns *void*
      * * Viewer successfully attached.
      * @returns *{@link core!SDKError | SDKError}*
@@ -100,16 +100,16 @@ export declare class WebGLRenderer implements Renderer {
      * The WebGLRenderer will then begin rendering each {@link scene!SceneModel | SceneModel} previously or subsequently
      * created with {@link scene!Scene.createModel | Scene.createModel}, for the new View.
      *
-     * You can only attach as many Views as indicated in {@link  core!Capabilities.maxViews | Capabilities.maxViews}, as returned by
+     * You can only show as many Views as indicated in {@link  core!Capabilities.maxViews | Capabilities.maxViews}, as returned by
      * {@link WebGLRenderer.getCapabilities | WebGLRenderer.getCapabilities}.
      *
      * @internal
-     * @param view The View to attach.
+     * @param view The View to show.
      * @returns *void*
      * * View successfully attached.
      * @returns *{@link core!SDKError | SDKError}*
      * * No Viewer is attached to this WebGLRenderer.
-     * * Caller attempted to attach too many Views.
+     * * Caller attempted to show too many Views.
      * * The WebGLRenderer failed to get a WebGL2 context on the View's canvas.
      */
     attachView(view: View): void | SDKError;
@@ -141,7 +141,7 @@ export declare class WebGLRenderer implements Renderer {
      *
      * Then, when we make any state updates to those components, they will upload the updates into the Renderer.
      *
-     * You must first attach a View with {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView} before you can attach a SceneModel.
+     * You must first show a View with {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView} before you can show a SceneModel.
      *
      * @param sceneModel
      * @internal

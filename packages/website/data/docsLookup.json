@@ -89,6 +89,12 @@
     "kind": "module",
     "namespace": "dataTextures"
   },
+  "@xeokit/sdk/demo": {
+    "summary": "SDK Module",
+    "path": "/api-docs#./docs/api/modules/demo.html",
+    "kind": "module",
+    "namespace": "demo"
+  },
   "@xeokit/sdk/dotbim": {
     "summary": "SDK Module",
     "path": "/api-docs#./docs/api/modules/dotbim.html",
@@ -136,6 +142,12 @@
     "path": "/api-docs#./docs/api/modules/ifc2gltf2xgf.html",
     "kind": "module",
     "namespace": "ifc2gltf2xgf"
+  },
+  "@xeokit/sdk/inspectors": {
+    "summary": "SDK Module",
+    "path": "/api-docs#./docs/api/modules/inspectors.html",
+    "kind": "module",
+    "namespace": "inspectors"
   },
   "@xeokit/sdk/internal": {
     "summary": "SDK Module",
@@ -323,12 +335,6 @@
     "kind": "module",
     "namespace": "viewer"
   },
-  "@xeokit/sdk/viewManager": {
-    "summary": "SDK Module",
-    "path": "/api-docs#./docs/api/modules/viewManager.html",
-    "kind": "module",
-    "namespace": "viewManager"
-  },
   "@xeokit/sdk/webglrenderer": {
     "summary": "SDK Module",
     "path": "/api-docs#./docs/api/modules/webglrenderer.html",
@@ -456,16 +462,16 @@
     "namespace": "constants"
   },
   "AmbientLight": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "An ambient light source within a View.",
+    "path": "/api-docs#./docs/api/classes/viewer.AmbientLight.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "AmbientLightParams": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Parameters for an AmbientLight.",
+    "path": "/api-docs#./docs/api/interfaces/viewer.AmbientLightParams.html",
+    "kind": "interface",
+    "namespace": "viewer"
   },
   "angleAxisToQuaternion": {
     "summary": "Converts an angle-axis rotation representation into a quaternion.",
@@ -564,10 +570,10 @@
     "namespace": "utils"
   },
   "BatchDataTextures": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "GPU data textures for a single sorted render batch.",
+    "path": "/api-docs#./docs/api/interfaces/dataTextures.BatchDataTextures.html",
+    "kind": "interface",
+    "namespace": "dataTextures"
   },
   "BCFBitmap": {
     "summary": "BCF bitmap.",
@@ -683,6 +689,12 @@
     "kind": "function",
     "namespace": "procgen"
   },
+  "buildDemoModelTable": {
+    "summary": "Builds a simple table model with a top and four legs, using box geometries.",
+    "path": "/api-docs#./docs/api/functions/demo.buildDemoModelTable.html",
+    "kind": "function",
+    "namespace": "demo"
+  },
   "buildGridGeometry": {
     "summary": "Creates a grid-shaped geometry.",
     "path": "/api-docs#./docs/api/functions/procgen.buildGridGeometry.html",
@@ -732,10 +744,10 @@
     "namespace": "io"
   },
   "Camera": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Controls the viewpoint and projection for a View.",
+    "path": "/api-docs#./docs/api/classes/viewer.Camera.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "CameraControl": {
     "summary": "Mouse and touch controller for a Viewer's Camera.",
@@ -749,6 +761,12 @@
     "kind": "interface",
     "namespace": "cameracontrol"
   },
+  "CameraControlPickFn": {
+    "summary": "Signature for custom pick functions for CameraControl.",
+    "path": "/api-docs#./docs/api/types/cameracontrol.CameraControlPickFn.html",
+    "kind": "type",
+    "namespace": "cameracontrol"
+  },
   "CameraFlightAnimation": {
     "summary": "Animates a View's Camera\nto smoothly transition to a specified target, such as a component, bounding box, or viewpoint.",
     "path": "/api-docs#./docs/api/classes/cameraflight.CameraFlightAnimation.html",
@@ -756,10 +774,10 @@
     "namespace": "cameraflight"
   },
   "CameraParams": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Parameters for a Camera.",
+    "path": "/api-docs#./docs/api/interfaces/viewer.CameraParams.html",
+    "kind": "interface",
+    "namespace": "viewer"
   },
   "Canvas2Image": {
     "summary": "Canvas2Image v0.",
@@ -1218,16 +1236,16 @@
     "namespace": "io"
   },
   "CustomProjection": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Configures a custom projection for a Camera.",
+    "path": "/api-docs#./docs/api/classes/viewer.CustomProjection.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "CustomProjectionParams": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Parameters for a CustomProjection.",
+    "path": "/api-docs#./docs/api/interfaces/viewer.CustomProjectionParams.html",
+    "kind": "interface",
+    "namespace": "viewer"
   },
   "CustomProjectionType": {
     "summary": "Custom projection type.",
@@ -1296,22 +1314,16 @@
     "namespace": "data"
   },
   "DataTexture": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
-  },
-  "dataTextures": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Base class for GPU-backed “data textures” owned by the WebGL renderer.",
+    "path": "/api-docs#./docs/api/classes/dataTextures.DataTexture.html",
+    "kind": "class",
+    "namespace": "dataTextures"
   },
   "DataTextures": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Collection of GPU data textures used by a WebGLRenderer.",
+    "path": "/api-docs#./docs/api/interfaces/dataTextures.DataTextures.html",
+    "kind": "interface",
+    "namespace": "dataTextures"
   },
   "decomposeMat4": {
     "summary": "",
@@ -1391,6 +1403,18 @@
     "kind": "variable",
     "namespace": "vector"
   },
+  "DemoHelper": {
+    "summary": "Helper class to set up a basic 3D demo with a Scene, Data, Viewer, WebGLRenderer, and View.",
+    "path": "/api-docs#./docs/api/classes/demo.DemoHelper.html",
+    "kind": "class",
+    "namespace": "demo"
+  },
+  "DemoHelperConfig": {
+    "summary": "Configuration options for the DemoHelper.",
+    "path": "/api-docs#./docs/api/interfaces/demo.DemoHelperConfig.html",
+    "kind": "interface",
+    "namespace": "demo"
+  },
   "DepthFormat": {
     "summary": "Texture sampling mode that reads each element as a single depth value, converts it to a float and clamps to ````[0,1]````.",
     "path": "/api-docs#./docs/api/variables/constants.DepthFormat.html",
@@ -1410,16 +1434,16 @@
     "namespace": "matrix"
   },
   "DirLight": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "A directional light source within a View.",
+    "path": "/api-docs#./docs/api/classes/viewer.DirLight.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "DirLightParams": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Parameters for a DirLight.",
+    "path": "/api-docs#./docs/api/interfaces/viewer.DirLightParams.html",
+    "kind": "interface",
+    "namespace": "viewer"
   },
   "distVec2": {
     "summary": "",
@@ -1499,23 +1523,29 @@
     "kind": "function",
     "namespace": "vector"
   },
+  "DrawCallStats": {
+    "summary": "Log entry for a single draw call.",
+    "path": "/api-docs#./docs/api/interfaces/inspectors.DrawCallStats.html",
+    "kind": "interface",
+    "namespace": "inspectors"
+  },
   "DrawOp": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "A draw operation (DrawOp) binds a DrawTechnique to a specific render pass.",
+    "path": "/api-docs#./docs/api/classes/techniques.DrawOp.html",
+    "kind": "class",
+    "namespace": "techniques"
   },
   "DrawOps": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Owns and manages all DrawTechnique instances\nrequired to render every supported primitive type across all render passes.",
+    "path": "/api-docs#./docs/api/classes/techniques.DrawOps.html",
+    "kind": "class",
+    "namespace": "techniques"
   },
   "DrawTechnique": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Base class for GPU draw techniques.",
+    "path": "/api-docs#./docs/api/classes/techniques.DrawTechnique.html",
+    "kind": "class",
+    "namespace": "techniques"
   },
   "DynamicDraw": {
     "summary": "Indicates scene content that changes frequently.",
@@ -1524,28 +1554,28 @@
     "namespace": "constants"
   },
   "Edges": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Configures edge enhancement effect for a View.",
+    "path": "/api-docs#./docs/api/classes/viewer.Edges.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "EdgesParams": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Parameters for a View's edge enhancement effect, Edges.",
+    "path": "/api-docs#./docs/api/interfaces/viewer.EdgesParams.html",
+    "kind": "interface",
+    "namespace": "viewer"
   },
   "EmphasisMaterial": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Configures the appearance of ViewObjects when they are xrayed, highlighted or selected.",
+    "path": "/api-docs#./docs/api/classes/viewer.EmphasisMaterial.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "EmphasisMaterialParams": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Parameters for a View's selected, highlighted and x-ray effects.",
+    "path": "/api-docs#./docs/api/interfaces/viewer.EmphasisMaterialParams.html",
+    "kind": "interface",
+    "namespace": "viewer"
   },
   "eulerToQuat": {
     "summary": "Initializes a quaternion from Euler angles.",
@@ -1686,16 +1716,16 @@
     "namespace": "boundaries"
   },
   "FrustumProjection": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "FrustumProjection-based perspective projection configuration for a Camera.",
+    "path": "/api-docs#./docs/api/classes/viewer.FrustumProjection.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "FrustumProjectionParams": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Parameters for a FrustumProjection.",
+    "path": "/api-docs#./docs/api/interfaces/viewer.FrustumProjectionParams.html",
+    "kind": "interface",
+    "namespace": "viewer"
   },
   "FrustumProjectionType": {
     "summary": "Frustum3 projection type.",
@@ -1716,7 +1746,7 @@
     "namespace": "generic"
   },
   "GenericPickMeshTechnique": {
-    "summary": "Draw technique for rendering generic triangle meshes for picking.",
+    "summary": "Draw technique for rendering meshes for picking, generic for all primitive types.",
     "path": "/api-docs#./docs/api/classes/generic.GenericPickMeshTechnique.html",
     "kind": "class",
     "namespace": "generic"
@@ -1734,10 +1764,10 @@
     "namespace": "procgen"
   },
   "GeometryAttributeTexture": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Stores per-geometry attributes such as base addresses for vertex, index, and edge index data.",
+    "path": "/api-docs#./docs/api/classes/dataTextures.GeometryAttributeTexture.html",
+    "kind": "class",
+    "namespace": "dataTextures"
   },
   "GeometryHit": {
     "summary": "Represents an intersecting SceneGeometry within a RayPickResult.",
@@ -1746,10 +1776,10 @@
     "namespace": "pick"
   },
   "GeometryQuantRangeTexture": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Stores per-geometry quantization range data (offset and scale).",
+    "path": "/api-docs#./docs/api/classes/dataTextures.GeometryQuantRangeTexture.html",
+    "kind": "class",
+    "namespace": "dataTextures"
   },
   "getAABB3Area": {
     "summary": "Gets the area of an AABB.",
@@ -1776,10 +1806,10 @@
     "namespace": "boundaries"
   },
   "getDrawOps": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Gets or creates a set of draw operations for the given RenderContext.",
+    "path": "/api-docs#./docs/api/functions/techniques.getDrawOps.html",
+    "kind": "function",
+    "namespace": "techniques"
   },
   "getGlobalTaskRunner": {
     "summary": "Returns the global, shared SDKTaskRunner instance used\nby default for all SDKTask objects.",
@@ -1804,6 +1834,12 @@
     "path": "/api-docs#./docs/api/functions/compression.getPositions3MinMax.html",
     "kind": "function",
     "namespace": "compression"
+  },
+  "getRTCTileSize": {
+    "summary": "RTC tile size in meters:\n - decreases with world magnitude (inverse-ish)\n - snaps to a small set of values (1–2–5 per bucket)\n - changes only every `bucketDecades` decades (avoids fragmentation)\n - capped to maintain sub-millimeter jitter in float32 offsets.",
+    "path": "/api-docs#./docs/api/functions/rtc.getRTCTileSize.html",
+    "kind": "function",
+    "namespace": "rtc"
   },
   "getSceneAABB3Index": {
     "summary": "",
@@ -1842,46 +1878,52 @@
     "namespace": "gltf"
   },
   "GPUMemoryBatch": {
-    "summary": "",
+    "summary": "Manages GPU-resident, dynamically-editable data storage for model geometry and attributes.",
+    "path": "/api-docs#./docs/api/classes/dataTextures.GPUMemoryBatch.html",
+    "kind": "class",
+    "namespace": "dataTextures"
+  },
+  "GPUMemoryCheckResult": {
+    "summary": "Enumeration representing the result of a free memory check for storing a mesh in GPU memory.",
     "path": null,
     "kind": null,
-    "namespace": "viewManager"
+    "namespace": "dataTextures"
   },
   "GPUMemoryEditor": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Interface for creating and updating GPU memory resources.",
+    "path": "/api-docs#./docs/api/interfaces/dataTextures.GPUMemoryEditor.html",
+    "kind": "interface",
+    "namespace": "dataTextures"
   },
   "GPUMemoryManager": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Owns GPU-resident, dynamically editable storage for tiles, geometry, and mesh attributes.",
+    "path": "/api-docs#./docs/api/classes/dataTextures.GPUMemoryManager.html",
+    "kind": "class",
+    "namespace": "dataTextures"
   },
   "GPUMemoryMeshHandle": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "A handle to a mesh stored in GPU memory.",
+    "path": "/api-docs#./docs/api/interfaces/dataTextures.GPUMemoryMeshHandle.html",
+    "kind": "interface",
+    "namespace": "dataTextures"
   },
   "GPUMemoryReader": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Interface that provides the data textures that implement the GPU-side memory.",
+    "path": "/api-docs#./docs/api/interfaces/dataTextures.GPUMemoryReader.html",
+    "kind": "interface",
+    "namespace": "dataTextures"
   },
   "GPUTile": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Represents a single tile in a tiled coordinate system.",
+    "path": "/api-docs#./docs/api/interfaces/dataTextures.GPUTile.html",
+    "kind": "interface",
+    "namespace": "dataTextures"
   },
   "GPUTileManager": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Manages a tiled coordinate system for efficient WebGL rendering.",
+    "path": "/api-docs#./docs/api/classes/dataTextures.GPUTileManager.html",
+    "kind": "class",
+    "namespace": "dataTextures"
   },
   "HalfFloatType": {
     "summary": "Signed 16-bit half-precision floating-point type.",
@@ -2106,10 +2148,10 @@
     "namespace": "utils"
   },
   "ItemDataTexture": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "DataTexture subclass that tracks dirty items for efficient GPU updates.",
+    "path": "/api-docs#./docs/api/classes/dataTextures.ItemDataTexture.html",
+    "kind": "class",
+    "namespace": "dataTextures"
   },
   "JPEGMediaType": {
     "summary": "Media type for JPEG images.",
@@ -2874,10 +2916,10 @@
     "namespace": "lines"
   },
   "LinesMaterial": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Configures the appearance of \"lines\" geometry primitives.",
+    "path": "/api-docs#./docs/api/classes/viewer.LinesMaterial.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "LinesPrimitive": {
     "summary": "Line segments primitive type.",
@@ -3018,10 +3060,10 @@
     "namespace": "quat"
   },
   "MatrixTexture": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Stores per-item 4x4 matrices.",
+    "path": "/api-docs#./docs/api/classes/dataTextures.MatrixTexture.html",
+    "kind": "class",
+    "namespace": "dataTextures"
   },
   "MAX_DOUBLE": {
     "summary": "Maximum safe double-precision value.",
@@ -3043,9 +3085,15 @@
   },
   "MemoryDebugger": {
     "summary": "Displays:\n 1) GPU memory usage (allocated/used)\n 2) Batch-level renderPassPrimitiveRanges for each DataTextures batch\n 3) First N items for each DataTexture using getItem(index)\n 4) DataTexture.",
-    "path": "/api-docs#./docs/api/classes/viewManager.MemoryDebugger.html",
+    "path": "/api-docs#./docs/api/classes/inspectors.MemoryDebugger.html",
     "kind": "class",
-    "namespace": "viewManager"
+    "namespace": "inspectors"
+  },
+  "MemoryInspector": {
+    "summary": "Read-only view of GPU-related memory owned by a WebGLRenderer.",
+    "path": "/api-docs#./docs/api/interfaces/inspectors.MemoryInspector.html",
+    "kind": "interface",
+    "namespace": "inspectors"
   },
   "MemoryUsage": {
     "summary": "Represents GPU memory usage statistics for a WebGLRenderer.",
@@ -3053,35 +3101,29 @@
     "kind": "interface",
     "namespace": "internal"
   },
-  "MemoryView": {
-    "summary": "Read-only view of GPU-related memory owned by a WebGLRenderer.",
-    "path": "/api-docs#./docs/api/interfaces/viewManager.MemoryView.html",
-    "kind": "interface",
-    "namespace": "viewManager"
-  },
   "MeshAttributeTexture": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Stores per-mesh attributes like tile index and geometry index.",
+    "path": "/api-docs#./docs/api/classes/dataTextures.MeshAttributeTexture.html",
+    "kind": "class",
+    "namespace": "dataTextures"
   },
   "MeshBatch": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "A MeshBatch represents a collection of meshes that share the same rendering properties and can be rendered together\nin a single draw call using a DrawTechnique.",
+    "path": "/api-docs#./docs/api/interfaces/meshManager.MeshBatch.html",
+    "kind": "interface",
+    "namespace": "meshManager"
   },
   "MeshBatchImpl": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "A MeshBatchImpl manages a batch of SceneMeshes that use the same primitive type.",
+    "path": "/api-docs#./docs/api/classes/meshManager.MeshBatchImpl.html",
+    "kind": "class",
+    "namespace": "meshManager"
   },
   "MeshBatchMeshHandle": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "A handle to a mesh in a `MeshBatch`.",
+    "path": "/api-docs#./docs/api/types/meshManager.MeshBatchMeshHandle.html",
+    "kind": "type",
+    "namespace": "meshManager"
   },
   "MeshHit": {
     "summary": "Represents an intersecting SceneMesh within a RayPickResult.",
@@ -3090,16 +3132,16 @@
     "namespace": "pick"
   },
   "MeshManager": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Bridges scene/view state changes into GPU-ready render state for the renderer.",
+    "path": "/api-docs#./docs/api/classes/meshManager.MeshManager.html",
+    "kind": "class",
+    "namespace": "meshManager"
   },
   "MeshViewAttributeTexture": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Stores per-view-mesh attributes: color, opacity, pickability, clippability.",
+    "path": "/api-docs#./docs/api/classes/dataTextures.MeshViewAttributeTexture.html",
+    "kind": "class",
+    "namespace": "dataTextures"
   },
   "MetaModelLoader": {
     "summary": "Loads MetaModelParams into a DataModel.",
@@ -3474,16 +3516,16 @@
     "namespace": "matrix"
   },
   "OrthoProjection": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Orthographic projection configuration for a Camera.",
+    "path": "/api-docs#./docs/api/classes/viewer.OrthoProjection.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "OrthoProjectionParams": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Parameters for an OrthoProjection.",
+    "path": "/api-docs#./docs/api/interfaces/viewer.OrthoProjectionParams.html",
+    "kind": "interface",
+    "namespace": "viewer"
   },
   "OrthoProjectionType": {
     "summary": "Orthographic projection type.",
@@ -3504,16 +3546,16 @@
     "namespace": "matrix"
   },
   "PerspectiveProjection": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "PerspectiveProjection projection configuration for a Camera.",
+    "path": "/api-docs#./docs/api/classes/viewer.PerspectiveProjection.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "PerspectiveProjectionParams": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Parameters for a PerspectiveProjection.",
+    "path": "/api-docs#./docs/api/interfaces/viewer.PerspectiveProjectionParams.html",
+    "kind": "interface",
+    "namespace": "viewer"
   },
   "PerspectiveProjectionType": {
     "summary": "Perspective projection type.",
@@ -3528,22 +3570,22 @@
     "namespace": "pick"
   },
   "PickManager": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Manages picking of objects within a WebGLRenderer.",
+    "path": "/api-docs#./docs/api/classes/pickManager.PickManager.html",
+    "kind": "class",
+    "namespace": "pickManager"
   },
   "PickParams": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "TODO.",
+    "path": "/api-docs#./docs/api/interfaces/viewer.PickParams.html",
+    "kind": "interface",
+    "namespace": "viewer"
   },
   "PickResult": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Results of a pick attempted with View.",
+    "path": "/api-docs#./docs/api/classes/viewer.PickResult.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "PlanViewNavigationMode": {
     "summary": "Plan view navigation mode.",
@@ -3558,16 +3600,16 @@
     "namespace": "constants"
   },
   "PointLight": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "A positional light source within a View.",
+    "path": "/api-docs#./docs/api/classes/viewer.PointLight.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "PointLightParams": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Parameters for a PointLight.",
+    "path": "/api-docs#./docs/api/interfaces/viewer.PointLightParams.html",
+    "kind": "interface",
+    "namespace": "viewer"
   },
   "points3ToAABB3": {
     "summary": "Computes the axis-aligned bounding box (AABB) enclosing a set of 3D points.",
@@ -3588,16 +3630,16 @@
     "namespace": "points"
   },
   "PointsMaterial": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Configures the size and shape of ViewObjects that represent clouds of points.",
+    "path": "/api-docs#./docs/api/classes/viewer.PointsMaterial.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "PointsMaterialParams": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Parameters for a PointsMaterial.",
+    "path": "/api-docs#./docs/api/interfaces/viewer.PointsMaterialParams.html",
+    "kind": "interface",
+    "namespace": "viewer"
   },
   "PointsPickDepth": {
     "summary": "Draw technique for rendering point depth for picking.",
@@ -3612,16 +3654,16 @@
     "namespace": "constants"
   },
   "PortionDataTexture": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "DataTexture subclass that manages allocation and efficient updates of variable-sized portions.",
+    "path": "/api-docs#./docs/api/classes/dataTextures.PortionDataTexture.html",
+    "kind": "class",
+    "namespace": "dataTextures"
   },
   "PortionHandle": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Handle representing an allocated portion in the PortionDataTexture.",
+    "path": "/api-docs#./docs/api/interfaces/dataTextures.PortionHandle.html",
+    "kind": "interface",
+    "namespace": "dataTextures"
   },
   "positions3ToAABB3": {
     "summary": "",
@@ -3636,22 +3678,22 @@
     "namespace": "pick"
   },
   "PrimitiveMeshIndexTexture": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "GPU data texture mapping each primitive to its owning mesh for a given render pass.",
+    "path": "/api-docs#./docs/api/classes/dataTextures.PrimitiveMeshIndexTexture.html",
+    "kind": "class",
+    "namespace": "dataTextures"
   },
   "PrimitiveMeshIndexTexturePortionHandle": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Handle to an allocated portion in PrimitiveMeshIndexTexture.",
+    "path": "/api-docs#./docs/api/interfaces/dataTextures.PrimitiveMeshIndexTexturePortionHandle.html",
+    "kind": "interface",
+    "namespace": "dataTextures"
   },
   "PrimRange": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Describes a range of primitives in a `PrimitiveMeshIndexTexture`.",
+    "path": "/api-docs#./docs/api/interfaces/dataTextures.PrimRange.html",
+    "kind": "interface",
+    "namespace": "dataTextures"
   },
   "PrimsKdTree3": {
     "summary": "k-d tree built by createPrimsKdTree3 that contains KdTrianglePrim, KdLinePrim and KdPointPrim item types.",
@@ -3660,10 +3702,10 @@
     "namespace": "kdtree3"
   },
   "Projection": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Defines a projection for a Camera.",
+    "path": "/api-docs#./docs/api/interfaces/viewer.Projection.html",
+    "kind": "interface",
+    "namespace": "viewer"
   },
   "Property": {
     "summary": "Represents a property in a PropertySet.",
@@ -3690,10 +3732,10 @@
     "namespace": "data"
   },
   "putDrawOps": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Releases a DrawOps, destroying it if no longer in use.",
+    "path": "/api-docs#./docs/api/functions/techniques.putDrawOps.html",
+    "kind": "function",
+    "namespace": "techniques"
   },
   "QualityRender": {
     "summary": "Quality rendering mode.",
@@ -3815,11 +3857,23 @@
     "kind": "interface",
     "namespace": "data"
   },
+  "RENDER_BINS": {
+    "summary": "IDs of the render bins used internally the `WebGLRenderer`.",
+    "path": "/api-docs#./docs/api/variables/renderManager.RENDER_BINS.html",
+    "kind": "variable",
+    "namespace": "renderManager"
+  },
   "RENDER_PASSES": {
     "summary": "Defines the rendering passes used by the `WebGLRenderer`.",
     "path": "/api-docs#./docs/api/variables/renderManager.RENDER_PASSES.html",
     "kind": "variable",
     "namespace": "renderManager"
+  },
+  "RenderBinStats": {
+    "summary": "Log entry for a single render bin, made up of multiple draw calls.",
+    "path": "/api-docs#./docs/api/interfaces/inspectors.RenderBinStats.html",
+    "kind": "interface",
+    "namespace": "inspectors"
   },
   "RenderBuffers": {
     "summary": "Manages WebGL render buffers for a view.",
@@ -3834,52 +3888,64 @@
     "namespace": "renderManager"
   },
   "RendererGeometry": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Represents a geometry in the WebGL renderer.",
+    "path": "/api-docs#./docs/api/classes/meshManager.RendererGeometry.html",
+    "kind": "class",
+    "namespace": "meshManager"
   },
   "RendererMesh": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Represents a single mesh within the WebGL renderer, managing its GPU tile assignment,\ntransformation matrix, color, opacity, and various rendering states across multiple views.",
+    "path": "/api-docs#./docs/api/classes/meshManager.RendererMesh.html",
+    "kind": "class",
+    "namespace": "meshManager"
   },
   "RendererObject": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Represents a logical renderable object within the WebGL renderer, grouping one or more RendererMesh instances.",
+    "path": "/api-docs#./docs/api/classes/meshManager.RendererObject.html",
+    "kind": "class",
+    "namespace": "meshManager"
   },
   "RendererTexture": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Represents a texture used in the WebGL renderer.",
+    "path": "/api-docs#./docs/api/classes/meshManager.RendererTexture.html",
+    "kind": "class",
+    "namespace": "meshManager"
   },
   "RendererTextureSet": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Represents a set of renderer textures for a mesh.",
+    "path": "/api-docs#./docs/api/classes/meshManager.RendererTextureSet.html",
+    "kind": "class",
+    "namespace": "meshManager"
+  },
+  "RenderInspector": {
+    "summary": "Logs draw calls and their timings for performance analysis.",
+    "path": "/api-docs#./docs/api/classes/inspectors.RenderInspector.html",
+    "kind": "class",
+    "namespace": "inspectors"
   },
   "RenderManager": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Renders mesh batches.",
+    "path": "/api-docs#./docs/api/classes/renderManager.RenderManager.html",
+    "kind": "class",
+    "namespace": "renderManager"
   },
   "RenderPassDrawOps": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Collection of draw operations for all render passes, for a specific primitive type.",
+    "path": "/api-docs#./docs/api/interfaces/techniques.RenderPassDrawOps.html",
+    "kind": "interface",
+    "namespace": "techniques"
   },
   "RenderPassValue": {
     "summary": "Type representing the possible values of rendering passes.",
     "path": "/api-docs#./docs/api/types/renderManager.RenderPassValue.html",
     "kind": "type",
     "namespace": "renderManager"
+  },
+  "RenderStats": {
+    "summary": "A log of rendering statistics for a single frame.",
+    "path": "/api-docs#./docs/api/interfaces/inspectors.RenderStats.html",
+    "kind": "interface",
+    "namespace": "inspectors"
   },
   "RepeatWrapping": {
     "summary": "Texture wrapping mode in which the texture repeats to infinity.",
@@ -3888,16 +3954,16 @@
     "namespace": "constants"
   },
   "ResolutionScale": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Configures canvas resolution scaling for a View.",
+    "path": "/api-docs#./docs/api/classes/viewer.ResolutionScale.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "ResolutionScaleParams": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Parameters for a ResolutionScale.",
+    "path": "/api-docs#./docs/api/interfaces/viewer.ResolutionScaleParams.html",
+    "kind": "interface",
+    "namespace": "viewer"
   },
   "RGB_ETC1_Format": {
     "summary": "Texture format mode in which the texture is formatted as an <a href=\"https://registry.",
@@ -4110,16 +4176,16 @@
     "namespace": "vector"
   },
   "SAO": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Configures Scalable Ambient Obscurance (SAO) for a View.",
+    "path": "/api-docs#./docs/api/classes/viewer.SAO.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "SAOParams": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Parameters for an SAO.",
+    "path": "/api-docs#./docs/api/interfaces/viewer.SAOParams.html",
+    "kind": "interface",
+    "namespace": "viewer"
   },
   "saveArrayBuffer": {
     "summary": "Downloads an ArrayBuffer to a file.",
@@ -4319,6 +4385,18 @@
     "kind": "interface",
     "namespace": "scene"
   },
+  "SceneTransform": {
+    "summary": "Represents a spatial transform within a SceneModel.",
+    "path": "/api-docs#./docs/api/classes/scene.SceneTransform.html",
+    "kind": "class",
+    "namespace": "scene"
+  },
+  "SceneTransformParams": {
+    "summary": "Parameters for a SceneTransform.",
+    "path": "/api-docs#./docs/api/interfaces/scene.SceneTransformParams.html",
+    "kind": "interface",
+    "namespace": "scene"
+  },
   "SDKErrorType": {
     "summary": "Enumeration of SDK error types.",
     "path": null,
@@ -4328,6 +4406,18 @@
   "SDKInternalException": {
     "summary": "Represents an unexpected internal SDK error condition.",
     "path": "/api-docs#./docs/api/classes/core.SDKInternalException.html",
+    "kind": "class",
+    "namespace": "core"
+  },
+  "sdkProgress": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/variables/core.sdkProgress.html",
+    "kind": "variable",
+    "namespace": "core"
+  },
+  "SDKProgress": {
+    "summary": "Class for tracking progress of asynchronous tasks in the SDK.",
+    "path": "/api-docs#./docs/api/classes/core.SDKProgress.html",
     "kind": "class",
     "namespace": "core"
   },
@@ -4392,16 +4482,16 @@
     "namespace": "data"
   },
   "SectionPlane": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "An arbitrarily-aligned World-space clipping plane.",
+    "path": "/api-docs#./docs/api/classes/viewer.SectionPlane.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "SectionPlaneParams": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Parameters for a SectionPlane.",
+    "path": "/api-docs#./docs/api/interfaces/viewer.SectionPlaneParams.html",
+    "kind": "interface",
+    "namespace": "viewer"
   },
   "setFrustum3": {
     "summary": "Sets the extents of a frustum to the world-space volume defined by view and projection matrices.",
@@ -4415,17 +4505,17 @@
     "kind": "function",
     "namespace": "matrix"
   },
-  "ShaderDebugger": {
-    "summary": "",
-    "path": "/api-docs#./docs/api/classes/viewManager.ShaderDebugger.html",
-    "kind": "class",
-    "namespace": "viewManager"
-  },
-  "ShaderView": {
+  "ShaderInspector": {
     "summary": "Read-only view of the shader programs used by a WebGLRenderer.",
-    "path": "/api-docs#./docs/api/classes/viewManager.ShaderView.html",
+    "path": "/api-docs#./docs/api/classes/inspectors.ShaderInspector.html",
     "kind": "class",
-    "namespace": "viewManager"
+    "namespace": "inspectors"
+  },
+  "ShaderSource": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/interfaces/inspectors.ShaderSource.html",
+    "kind": "interface",
+    "namespace": "inspectors"
   },
   "ShortType": {
     "summary": "Signed 16-bit integer type.",
@@ -4435,27 +4525,27 @@
   },
   "SnapshotFinishedEvent": {
     "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "path": "/api-docs#./docs/api/interfaces/viewer.SnapshotFinishedEvent.html",
+    "kind": "interface",
+    "namespace": "viewer"
   },
   "SnapshotParams": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Parameters for View.",
+    "path": "/api-docs#./docs/api/interfaces/viewer.SnapshotParams.html",
+    "kind": "interface",
+    "namespace": "viewer"
   },
   "SnapshotResult": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Results of a snapshot attempted with View.",
+    "path": "/api-docs#./docs/api/classes/viewer.SnapshotResult.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "SnapshotStartedEvent": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Event that signifies the beginning of a canvas snapshot captured with.",
+    "path": "/api-docs#./docs/api/interfaces/viewer.SnapshotStartedEvent.html",
+    "kind": "interface",
+    "namespace": "viewer"
   },
   "SolidPrimitive": {
     "summary": "Closed triangle mesh primitive type.",
@@ -4553,12 +4643,6 @@
     "kind": "function",
     "namespace": "curves"
   },
-  "techniques": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
-  },
   "testOrthogonalAxis": {
     "summary": "Validates that three 3D axes are mutually orthogonal.",
     "path": "/api-docs#./docs/api/functions/vector.testOrthogonalAxis.html",
@@ -4578,16 +4662,22 @@
     "namespace": "core"
   },
   "Texturing": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Configures whether a View shows textures on its ViewObjects.",
+    "path": "/api-docs#./docs/api/classes/viewer.Texturing.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "TickParams": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Parameters that accompany events fired by Viewer.",
+    "path": "/api-docs#./docs/api/interfaces/viewer.TickParams.html",
+    "kind": "interface",
+    "namespace": "viewer"
+  },
+  "TimeMs": {
+    "summary": "Time measurement in milliseconds.",
+    "path": "/api-docs#./docs/api/interfaces/inspectors.TimeMs.html",
+    "kind": "interface",
+    "namespace": "inspectors"
   },
   "timeout": {
     "summary": "",
@@ -4938,76 +5028,94 @@
     "namespace": "vector"
   },
   "VertexColorTexture": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Data texture that stores vertex colors as RGBA uint8 values.",
+    "path": "/api-docs#./docs/api/classes/dataTextures.VertexColorTexture.html",
+    "kind": "class",
+    "namespace": "dataTextures"
   },
   "VertexPositionTexture": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Data texture that stores vertex positions as RGB uint16 values.",
+    "path": "/api-docs#./docs/api/classes/dataTextures.VertexPositionTexture.html",
+    "kind": "class",
+    "namespace": "dataTextures"
   },
   "View": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "An independent view within a Viewer, with its own canvas, Camera and object visual states.",
+    "path": "/api-docs#./docs/api/classes/viewer.View.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "Viewer": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "3D model viewer.",
+    "path": "/api-docs#./docs/api/classes/viewer.Viewer.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "ViewerEvents": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Events emitted by a Viewer.",
+    "path": "/api-docs#./docs/api/classes/viewer.ViewerEvents.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "ViewerParams": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Parameters for a Viewer.",
+    "path": "/api-docs#./docs/api/interfaces/viewer.ViewerParams.html",
+    "kind": "interface",
+    "namespace": "viewer"
   },
   "ViewLayer": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "A _layer of ViewObjects within a View.",
+    "path": "/api-docs#./docs/api/classes/viewer.ViewLayer.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "ViewLayerParams": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Parameters for a ViewLayer.",
+    "path": "/api-docs#./docs/api/interfaces/viewer.ViewLayerParams.html",
+    "kind": "interface",
+    "namespace": "viewer"
   },
   "ViewManager": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Top-level, internal rendering and pipeline manager within a WebGLRenderer.",
+    "path": "/api-docs#./docs/api/classes/renderManager.ViewManager.html",
+    "kind": "class",
+    "namespace": "renderManager"
   },
   "ViewObject": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "An object within a View.",
+    "path": "/api-docs#./docs/api/classes/viewer.ViewObject.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "ViewParams": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Parameters for a View.",
+    "path": "/api-docs#./docs/api/interfaces/viewer.ViewParams.html",
+    "kind": "interface",
+    "namespace": "viewer"
   },
   "ViewRenderState": {
-    "summary": "",
-    "path": null,
-    "kind": null,
-    "namespace": "viewManager"
+    "summary": "Renderer-side wrapper for a View.",
+    "path": "/api-docs#./docs/api/classes/renderManager.ViewRenderState.html",
+    "kind": "class",
+    "namespace": "renderManager"
+  },
+  "ViewRenderStats": {
+    "summary": "Log entry for a single render frame, made up of multiple render passes.",
+    "path": "/api-docs#./docs/api/interfaces/inspectors.ViewRenderStats.html",
+    "kind": "interface",
+    "namespace": "inspectors"
+  },
+  "ViewTransform": {
+    "summary": "Represents a per-View transform that can be applied at render time without modifying the Scene.",
+    "path": "/api-docs#./docs/api/classes/viewer.ViewTransform.html",
+    "kind": "class",
+    "namespace": "viewer"
+  },
+  "ViewTransformParams": {
+    "summary": "Parameters for ViewTransform.",
+    "path": "/api-docs#./docs/api/classes/viewer.ViewTransformParams.html",
+    "kind": "class",
+    "namespace": "viewer"
   },
   "WEBGL_INFO": {
     "summary": "Information about WebGL2 support on the client machine.",
@@ -5092,6 +5200,12 @@
     "path": "/api-docs#./docs/api/functions/rtc.worldToRTCPositions.html",
     "kind": "function",
     "namespace": "rtc"
+  },
+  "XGFData_v1": {
+    "summary": "The elements of a [XGF](https://xeokit.",
+    "path": "/api-docs#./docs/api/interfaces/xgf.XGFData_v1.html",
+    "kind": "interface",
+    "namespace": "xgf"
   },
   "XGFExporter": {
     "summary": "Exports a SceneModel to an XGF file.",

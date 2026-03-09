@@ -19,7 +19,7 @@
     <script src="https://xeokit.github.io/sdk//libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <title></title>
-    <link href='https://xeokit.github.io/sdk//css/index.css' rel='stylesheet' type='text/css'>
+    <link href='../css/index.css' rel='stylesheet' type='text/css'>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top ">
@@ -77,14 +77,14 @@
                &lt;&lt; Index
               </label>
               <div class="page-title" id="page-title"></div>
-                <div class="viewSourceButton" id="viewSourceButton"><i class="fas fa-2x fa-code"></i></div>
-                <div class="content-overlay" id="viewer-overlay"></div>
-                <div class="embed-responsive embed-responsive-16by9" style="max-width:100%; height:100vh">
+              <div class="viewSourceButton" id="viewSourceButton"><label class=" btn btn-light">Code</label></div>
+              <div class="content-overlay" id="viewer-overlay"></div>
+              <div class="embed-responsive embed-responsive-16by9" style="max-width:100%; height:100vh">
                 <iframe class="embed-responsive-item " style=" height:100vh" id="viewer" src="https://xeokit.github.io/sdk//examples/default.html"></iframe>
-                </div>
-                <div class="slideout-sidebar">
-                    <div id="index"><h1>Run a xeokit example</h1></div>
-                </div>
+              </div>
+              <div class="slideout-sidebar">
+                <div id="index"><h1>Run a xeokit example</h1></div>
+              </div>
             </div>
         </div>
     </div>
@@ -158,7 +158,7 @@
 
 <script type="module">
 
-    import {buildExamplesIndex} from "https://xeokit.github.io/sdk//js/buildExamplesIndex.js";
+    import {buildExamplesIndex} from "../js/buildExamplesIndex.js";
 
     fetch("./index.json").then(response => {
         response.json().then(index => {

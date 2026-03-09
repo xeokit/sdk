@@ -39,7 +39,7 @@
  *
  * Additionally, we create a {@link data!Data | Data}, which holds the semantic data for our model.
  *
- * We set up a {@link viewer!View | View} to draw the model on a canvas element on the page and attach a {@link cameracontrol!CameraControl | CameraControl}
+ * We set up a {@link viewer!View | View} to draw the model on a canvas element on the page and show a {@link cameracontrol!CameraControl | CameraControl}
  * to manage the camera using mouse and touch input.
  *
  * The Scene contains a {@link scene!SceneModel | SceneModel} for model geometry and materials, while the Data holds a {@link data!DataModel | DataModel}

@@ -12421,18 +12421,7 @@ var SceneTransform = class {
       });
     }
     const transformParams = { id: this.id };
-    if (this._scale.some((s) => s !== 1)) {
-      transformParams.scale = Array.from(this._scale);
-    }
-    if (this._rotation.some((r) => r !== 0)) {
-      transformParams.rotation = Array.from(this._rotation);
-    }
-    if (this._position.some((p) => p !== 0)) {
-      transformParams.position = Array.from(this._position);
-    }
-    if (this._quaternion[0] !== 0 || this._quaternion[1] !== 0 || this._quaternion[2] !== 0 || this._quaternion[3] !== 1) {
-      transformParams.quaternion = Array.from(this._quaternion);
-    }
+    transformParams.matrix = Array.from(this.matrix);
     if (this._parentTransform) {
       transformParams.parentTransformId = this._parentTransform.id;
     }
@@ -14610,6 +14599,13 @@ var SceneModel2 = class {
         return res;
       }
       sceneModelParams.objects.push(res.value);
+    }
+    for (const key in this.transforms) {
+      const res = this.transforms[key].toParams();
+      if (!res.ok) {
+        return res;
+      }
+      sceneModelParams.transforms.push(res.value);
     }
     return {
       ok: true,
@@ -30315,16 +30311,16 @@ var GLTFWriter = class {
         context.accessorIndexMap.set(accessor, json.accessors.length - 1);
         const indices = [];
         const values = [];
-        const el12 = [];
+        const el13 = [];
         const base = new Array(accessor.getElementSize()).fill(0);
         for (let i = 0, il = accessor.getCount(); i < il; i++) {
-          accessor.getElement(i, el12);
-          if (MathUtils.eq(el12, base, 0))
+          accessor.getElement(i, el13);
+          if (MathUtils.eq(el13, base, 0))
             continue;
           maxIndex = Math.max(i, maxIndex);
           indices.push(i);
-          for (let j = 0; j < el12.length; j++)
-            values.push(el12[j]);
+          for (let j = 0; j < el13.length; j++)
+            values.push(el13[j]);
         }
         const count = indices.length;
         const data = {
@@ -109994,7 +109990,7 @@ function getModule() {
         c3[e2 >> 2] = c3[b5 >> 2];
         c3[e2 + 4 >> 2] = h2;
         h2 = Ak() | 0;
-        g2 = el12(f2) | 0;
+        g2 = el13(f2) | 0;
         f2 = fl(f2) | 0;
         b5 = jl() | 0;
         F(h2 | 0, a3 | 0, g2 | 0, f2 | 0, b5 | 0, 7, gl(e2) | 0, 0);
@@ -110016,7 +110012,7 @@ function getModule() {
         da[b5 & 15](a3, f2);
         return;
       }
-      function el12(a3) {
+      function el13(a3) {
         a3 = a3 | 0;
         return 3;
       }
@@ -121309,7 +121305,6 @@ var ResolutionScale = class {
   view;
   _resolutionScale;
   _renderModes;
-  _destroyed = false;
   /**
    * @private
    */
@@ -123713,7 +123708,7 @@ var View = class {
       canvas2 = // Canvas is actually a generic HTMLElement, but we think of it as a canvas
       viewParams.htmlElement || document.getElementById(viewParams.elementId);
       if (!(canvas2 instanceof HTMLElement)) {
-        console.error("Mandatory View config expected: valid HTMLElement");
+        throw new SDKInternalException("[View.constructor] Mandatory View config expected: valid HTMLElement");
       }
       this._autoCanvas = false;
     }
@@ -125721,7 +125716,7 @@ var Viewer = class {
     const params = {
       views: []
     };
-    this.viewList.map((el12) => el12.toParams());
+    this.viewList.map((el13) => el13.toParams());
     for (let i = 0; i < this.numViews; i++) {
       const view = this.viewList[i];
       if (view) {
@@ -128981,7 +128976,7 @@ var GPUMemoryBatch = class {
         return {
           ok: false,
           type: 8 /* MemoryAllocationFailed */,
-          error: `GPUMemoryBatch.addMesh: Unable to allocate positions portion for geometry ${sceneGeometry.id}`
+          error: `GPUMemoryBatch.addMesh: Unable to allocate positions portion (of length ${sceneGeometry.positionsCompressed.length}) for geometry ${sceneGeometry.id} - limit is ${this._renderContext.memoryConfigs.maxBatchVertices * 3} position components`
         };
       }
       const [xmin, ymin, zmin, xmax, ymax, zmax] = sceneGeometry.aabb;
@@ -128996,7 +128991,7 @@ var GPUMemoryBatch = class {
           return {
             ok: false,
             type: 8 /* MemoryAllocationFailed */,
-            error: `GPUMemoryBatch.addMesh: Unable to allocate vertex colors portion for geometry ${sceneGeometry.id}`
+            error: `GPUMemoryBatch.addMesh: Unable to allocate vertex colors portion (of length ${sceneGeometry.colorsCompressed.length}) geometry ${sceneGeometry.id} - limit is ${this._renderContext.memoryConfigs.maxBatchVertices * 4} color components`
           };
         }
       }
@@ -129014,7 +129009,7 @@ var GPUMemoryBatch = class {
           return {
             ok: false,
             type: 8 /* MemoryAllocationFailed */,
-            error: `GPUMemoryBatch.addMesh: Unable to allocate indices portion for geometry ${sceneGeometry.id}`
+            error: `GPUMemoryBatch.addMesh: Unable to allocate indices portion (of length ${sceneGeometry.indices.length}) for geometry ${sceneGeometry.id} - limit is ${this._renderContext.memoryConfigs.maxBatchIndices} indices`
           };
         }
         if (sceneGeometry.primitive === TrianglesPrimitive && sceneGeometry.edgeIndices && sceneGeometry.edgeIndices.length > 0) {
@@ -129031,7 +129026,7 @@ var GPUMemoryBatch = class {
             return {
               ok: false,
               type: 8 /* MemoryAllocationFailed */,
-              error: `GPUMemoryBatch.addMesh: Unable to allocate edge indices portion for geometry ${sceneGeometry.id}`
+              error: `GPUMemoryBatch.addMesh: Unable to allocate edge indices portion (of length ${sceneGeometry.edgeIndices.length}) for geometry ${sceneGeometry.id} - limit is ${this._renderContext.memoryConfigs.maxBatchIndices} indices`
             };
           }
         }
@@ -133213,6 +133208,9 @@ var RenderManager = class {
       selectedSilhouetteTransparent: [],
       selectedEdgesTransparent: []
     };
+    const resolutionScale = view.resolutionScale.applied ? view.resolutionScale.resolutionScale : 1;
+    renderContext.webglCanvasElement.width = Math.floor(gl.drawingBufferWidth * resolutionScale);
+    renderContext.webglCanvasElement.height = Math.floor(gl.drawingBufferHeight * resolutionScale);
     renderContext.reset();
     renderContext.activeView = view;
     renderContext.pbrEnabled = false;
@@ -134435,6 +134433,18 @@ var ViewManager2 = class {
    * @internal
    */
   _meshManager;
+  /** Schedules at most one alignment pass per animation frame. */
+  _alignCanvasRAF = null;
+  /** Observes size changes on the active view's HTML element. */
+  _activeViewResizeObserver = null;
+  /** True when canvas backing size changed outside the normal render loop. */
+  _activeViewNeedsRenderAfterAlignment = false;
+  /** Last canvas layout applied to the DOM, used to avoid redundant writes. */
+  _lastCanvasLayout = null;
+  /** Stable listener reference for resize / scroll callbacks. */
+  _boundScheduleCanvasAlignment = () => {
+    this._scheduleActiveViewCanvasAlignment();
+  };
   /**
    * Constructs a {@link ViewManager}.
    *
@@ -134475,6 +134485,13 @@ var ViewManager2 = class {
     if (resultCtx.ok === false) {
       return resultCtx;
     }
+    const webglCanvasElement = this._renderContext.webglCanvasElement;
+    webglCanvasElement.style.position = "fixed";
+    webglCanvasElement.style.left = "0px";
+    webglCanvasElement.style.top = "0px";
+    webglCanvasElement.style.width = "0px";
+    webglCanvasElement.style.height = "0px";
+    webglCanvasElement.style.zIndex = "100000";
     this._gpuMemoryManager = new GPUMemoryManager(this._renderContext);
     const resultGPU = this._gpuMemoryManager.init();
     if (resultGPU.ok === false) {
@@ -134510,6 +134527,12 @@ var ViewManager2 = class {
       if (!result.ok) {
         return result;
       }
+    }
+    this._installCanvasAlignmentListeners();
+    if (this._rendererViewsList.length > 0) {
+      this._activeView = this._rendererViewsList[0];
+      this._observeActiveViewElement(this._activeView);
+      this._alignCanvasToView(this._activeView);
     }
     return {
       ok: true,
@@ -134550,6 +134573,10 @@ var ViewManager2 = class {
     const resultPick = this._pickManager.webglContextRestored();
     if (resultPick.ok === false) {
       return resultPick;
+    }
+    if (this._activeView) {
+      this._lastCanvasLayout = null;
+      this._alignCanvasToView(this._activeView);
     }
     return {
       ok: true,
@@ -134648,6 +134675,12 @@ var ViewManager2 = class {
     this._rendererViews[view.id] = rendererView;
     view.viewIndex = this._rendererViewsList.length;
     this._rendererViewsList.push(rendererView);
+    if (!this._activeView) {
+      this._activeView = rendererView;
+      this._observeActiveViewElement(rendererView);
+      this._lastCanvasLayout = null;
+      this._alignCanvasToView(rendererView);
+    }
     return {
       ok: true,
       value: void 0
@@ -134682,6 +134715,10 @@ var ViewManager2 = class {
       return { ok: true, value: void 0 };
     }
     this._activateView(rendererView);
+    const changed = this._alignCanvasToView(rendererView);
+    if (changed.sizeChanged || changed.resolutionScaleChanged) {
+      this._activeViewNeedsRenderAfterAlignment = false;
+    }
     this._gpuMemoryManager.uploadChanges();
     return this._renderManager.render(rendererView, { clear: true });
   }
@@ -134703,33 +134740,133 @@ var ViewManager2 = class {
         return;
       }
       const activeCanvasBoundingRect = activeRendererView.view.htmlElement.getBoundingClientRect();
+      const activeCanvasWidth = Math.round(activeCanvasBoundingRect.width);
+      const activeCanvasHeight = Math.round(activeCanvasBoundingRect.height);
       const primarySnapshotBuffer = activeRendererView.renderBuffers.getRenderBuffer("snapshot", {
         depthTexture: false,
-        size: [activeCanvasBoundingRect.width, activeCanvasBoundingRect.height]
+        size: [activeCanvasWidth, activeCanvasHeight]
       });
       primarySnapshotBuffer.bind();
       primarySnapshotBuffer.clear();
       this._renderManager.render(activeRendererView, { clear: true });
       const image = primarySnapshotBuffer.readImage({
         format: "png",
-        height: activeCanvasBoundingRect.height,
-        width: activeCanvasBoundingRect.width
+        height: activeCanvasHeight,
+        width: activeCanvasWidth
       });
       primarySnapshotBuffer.unbind();
       activeRendererView.view.htmlElement.src = image;
     }
+    this._activeView = rendererView;
+    this._observeActiveViewElement(rendererView);
+    this._lastCanvasLayout = null;
+    this._scheduleActiveViewCanvasAlignment();
+  }
+  _installCanvasAlignmentListeners() {
+    window.addEventListener("resize", this._boundScheduleCanvasAlignment, { passive: true });
+    window.addEventListener("scroll", this._boundScheduleCanvasAlignment, {
+      passive: true,
+      capture: true
+    });
+  }
+  _removeCanvasAlignmentListeners() {
+    window.removeEventListener("resize", this._boundScheduleCanvasAlignment);
+    window.removeEventListener("scroll", this._boundScheduleCanvasAlignment, true);
+    if (this._alignCanvasRAF !== null) {
+      cancelAnimationFrame(this._alignCanvasRAF);
+      this._alignCanvasRAF = null;
+    }
+    this._disconnectActiveViewResizeObserver();
+  }
+  _observeActiveViewElement(rendererView) {
+    this._disconnectActiveViewResizeObserver();
+    const htmlElement = rendererView.view.htmlElement;
+    if (!htmlElement || typeof ResizeObserver === "undefined") {
+      return;
+    }
+    this._activeViewResizeObserver = new ResizeObserver(() => {
+      this._scheduleActiveViewCanvasAlignment();
+    });
+    this._activeViewResizeObserver.observe(htmlElement);
+  }
+  _disconnectActiveViewResizeObserver() {
+    if (this._activeViewResizeObserver) {
+      this._activeViewResizeObserver.disconnect();
+      this._activeViewResizeObserver = null;
+    }
+  }
+  _scheduleActiveViewCanvasAlignment() {
+    if (!this._activeView || !this._renderContext) {
+      return;
+    }
+    if (this._alignCanvasRAF !== null) {
+      return;
+    }
+    this._alignCanvasRAF = requestAnimationFrame(() => {
+      this._alignCanvasRAF = null;
+      const activeView = this._activeView;
+      if (!activeView) {
+        return;
+      }
+      const changed = this._alignCanvasToView(activeView);
+      if (changed.sizeChanged || changed.resolutionScaleChanged) {
+        this._activeViewNeedsRenderAfterAlignment = true;
+        this._renderActiveViewIfNeeded();
+      }
+    });
+  }
+  _renderActiveViewIfNeeded() {
+    const activeView = this._activeView;
+    if (!activeView || !this._activeViewNeedsRenderAfterAlignment) {
+      return;
+    }
+    this._activeViewNeedsRenderAfterAlignment = false;
+    this._gpuMemoryManager.uploadChanges();
+    this._renderManager.render(activeView, { clear: true });
+  }
+  _getCanvasMetricsForView(rendererView) {
     const view = rendererView.view;
     const htmlElement = view.htmlElement;
-    const boundingRect = htmlElement.getBoundingClientRect();
+    const rect = htmlElement.getBoundingClientRect();
+    const cssWidth = Math.max(1, Math.round(rect.width));
+    const cssHeight = Math.max(1, Math.round(rect.height));
+    const left = Math.round(rect.left);
+    const top = Math.round(rect.top);
+    const resolutionScale = view.resolutionScale.applied ? Math.max(0.05, view.resolutionScale.resolutionScale) : 1;
+    const pixelWidth = Math.max(1, Math.round(cssWidth * resolutionScale));
+    const pixelHeight = Math.max(1, Math.round(cssHeight * resolutionScale));
+    return {
+      left,
+      top,
+      cssWidth,
+      cssHeight,
+      pixelWidth,
+      pixelHeight,
+      resolutionScale
+    };
+  }
+  _alignCanvasToView(rendererView) {
     const webglCanvasElement = this._renderContext.webglCanvasElement;
-    webglCanvasElement.style["left"] = `${boundingRect.left}px`;
-    webglCanvasElement.style["top"] = `${boundingRect.top}px`;
-    webglCanvasElement.style["width"] = `${boundingRect.width}px`;
-    webglCanvasElement.style["height"] = `${boundingRect.height}px`;
-    webglCanvasElement.width = boundingRect.width;
-    webglCanvasElement.height = boundingRect.height;
-    webglCanvasElement.style["z-tileIndex"] = 1e5;
-    this._activeView = rendererView;
+    const metrics = this._getCanvasMetricsForView(rendererView);
+    const prev = this._lastCanvasLayout;
+    const moved = !prev || prev.left !== metrics.left || prev.top !== metrics.top || prev.cssWidth !== metrics.cssWidth || prev.cssHeight !== metrics.cssHeight;
+    const sizeChanged = !prev || prev.pixelWidth !== metrics.pixelWidth || prev.pixelHeight !== metrics.pixelHeight;
+    const resolutionScaleChanged = !prev || prev.resolutionScale !== metrics.resolutionScale;
+    if (moved) {
+      webglCanvasElement.style.left = `${metrics.left}px`;
+      webglCanvasElement.style.top = `${metrics.top}px`;
+      webglCanvasElement.style.width = `${metrics.cssWidth}px`;
+      webglCanvasElement.style.height = `${metrics.cssHeight}px`;
+      webglCanvasElement.style.zIndex = "100000";
+    }
+    webglCanvasElement.width = metrics.pixelWidth;
+    webglCanvasElement.height = metrics.pixelHeight;
+    this._lastCanvasLayout = metrics;
+    return {
+      moved,
+      sizeChanged,
+      resolutionScaleChanged
+    };
   }
   /**
    * Unregisters a {@link View} and releases its associated rendering resources.
@@ -134746,9 +134883,30 @@ var ViewManager2 = class {
     if (!rendererView) {
       return { ok: true, value: void 0 };
     }
+    const wasActive = this._activeView === rendererView;
     rendererView.destroy();
     delete this._rendererViews[view.id];
     this._rendererViewsList = this._rendererViewsList.filter((rv) => rv !== rendererView);
+    for (let i = 0; i < this._rendererViewsList.length; i++) {
+      this._rendererViewsList[i].view.viewIndex = i;
+    }
+    if (wasActive) {
+      this._disconnectActiveViewResizeObserver();
+      this._lastCanvasLayout = null;
+      this._activeView = void 0;
+      const nextActiveView = this._rendererViewsList[0];
+      if (nextActiveView) {
+        this._activeView = nextActiveView;
+        this._observeActiveViewElement(nextActiveView);
+        this._scheduleActiveViewCanvasAlignment();
+      } else if (this._renderContext) {
+        const webglCanvasElement = this._renderContext.webglCanvasElement;
+        webglCanvasElement.style.width = "0px";
+        webglCanvasElement.style.height = "0px";
+        webglCanvasElement.width = 1;
+        webglCanvasElement.height = 1;
+      }
+    }
     return {
       ok: true,
       value: void 0
@@ -134960,11 +135118,15 @@ var ViewManager2 = class {
    * - Sets internal references to `undefined` to help catch use-after-destroy in development.
    */
   destroy() {
+    this._removeCanvasAlignmentListeners();
+    this._lastCanvasLayout = null;
     const viewer = this._renderContext.viewer;
     for (let viewIndex = 0; viewIndex < viewer.numViews; viewIndex++) {
       this.viewDestroyed(viewer.viewList[viewIndex]);
     }
     this._rendererViews = {};
+    this._rendererViewsList = [];
+    this._activeView = void 0;
     this._pickManager?.destroy();
     this._renderManager?.destroy();
     this._meshManager?.destroy();
@@ -147699,6 +147861,427 @@ var ViewerPanel = class _ViewerPanel {
   }
 };
 
+// ../sdk/src/demo/inspectors/DownloadPanel.ts
+function downloadIconDataUri() {
+  const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60">
+  <rect x="10" y="8" width="40" height="44" rx="8" fill="#fff" stroke="#888" stroke-width="2"/>
+  <path d="M30 18v16" stroke="#4a90e2" stroke-width="3" stroke-linecap="round"/>
+  <path d="M23 28l7 7 7-7" fill="none" stroke="#4a90e2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="19" y="39" width="22" height="4" rx="2" fill="#4a90e2"/>
+</svg>`.trim();
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+var DownloadPanel = class _DownloadPanel {
+  static #HOST_ID = "__download_panel_host__";
+  static #STYLE_ID = "__download_panel_style__";
+  static #MASTER_STATE_KEY = "__download_panel_collapsed__";
+  #scene;
+  #data;
+  #events;
+  #opts;
+  #unsubs = [];
+  #tileEl = null;
+  #countEl = null;
+  constructor(flowHost, scene, data, opts = {}) {
+    this.#scene = scene;
+    this.#data = data;
+    this.#events = data.events;
+    this.#opts = opts;
+    _DownloadPanel.#ensureGlobalStyle();
+    const root = this.render();
+    const tile = FloatingPanelFlowHost.mountTile(root, {
+      tileMinWidth: opts.tileMinWidth ?? opts.maxWidth ?? 360,
+      tileMaxWidth: opts.tileMaxWidth ?? opts.maxWidth ?? 420
+    });
+    flowHost.appendChild(tile);
+    this.#tileEl = tile;
+    this.#refreshModelCount();
+  }
+  static show(flowHost, scene, data, opts = {}) {
+    return new _DownloadPanel(flowHost, scene, data, opts);
+  }
+  destroy() {
+    for (const u of this.#unsubs) {
+      try {
+        u();
+      } catch {
+      }
+    }
+    this.#unsubs.length = 0;
+    this.#tileEl?.remove();
+    this.#tileEl = null;
+    const host = document.getElementById(_DownloadPanel.#HOST_ID);
+    if (host)
+      host.remove();
+  }
+  static #ensureGlobalStyle() {
+    if (document.getElementById(this.#STYLE_ID))
+      return;
+    const s = document.createElement("style");
+    s.id = this.#STYLE_ID;
+    s.textContent = DEFAULT_CSS7;
+    document.head.appendChild(s);
+  }
+  render() {
+    const root = el12("div", { className: "dlp-root" });
+    const collapsed = readBool7(
+      _DownloadPanel.#MASTER_STATE_KEY,
+      !!this.#opts.startCollapsed
+    );
+    const header = this.renderHeader();
+    const body = this.renderBody();
+    root.appendChild(header);
+    root.appendChild(body);
+    this.#setMasterCollapsed(root, collapsed);
+    header.addEventListener("click", () => {
+      const nowCollapsed = !root.classList.contains("dlp-collapsed");
+      this.#setMasterCollapsed(root, nowCollapsed);
+      writeBool7(_DownloadPanel.#MASTER_STATE_KEY, nowCollapsed);
+    });
+    return root;
+  }
+  renderHeader() {
+    const title = this.#opts.title ?? "Downloads";
+    const subtitle = this.#opts.subtitle ?? "Export the currently loaded model in multiple formats";
+    const header = el12("div", { className: "dlp-header" });
+    const icon = el12("img", {
+      className: "dlp-title-icon",
+      width: 40,
+      height: 40,
+      alt: "Download",
+      src: downloadIconDataUri(),
+      draggable: false
+    });
+    const textCol = el12("div", { className: "dlp-title-col" }, [
+      el12("div", { className: "dlp-h1", textContent: title }),
+      el12("div", { className: "dlp-subtitle", textContent: subtitle })
+    ]);
+    header.appendChild(icon);
+    header.appendChild(textCol);
+    return header;
+  }
+  renderBody() {
+    const body = el12("div", { className: "dlp-body" });
+    body.appendChild(
+      el12("div", { className: "dlp-toolbar" }, [
+        el12("div", { className: "dlp-toolbar-left" }, [
+          el12("span", { className: "dlp-k", textContent: "DataModels:" }),
+          el12("span", { className: "dlp-v", textContent: "0" })
+        ])
+      ])
+    );
+    this.#countEl = body.querySelector(".dlp-v");
+    const buttonGrid = el12("div", { className: "dlp-grid" }, [
+      this.#renderDownloadButton({
+        label: "Download XGF",
+        hint: ".xgf",
+        onClick: () => this.#downloadXGF()
+      }),
+      this.#renderDownloadButton({
+        label: "Download DotBIM",
+        hint: ".bim",
+        onClick: () => this.#downloadDotBIM()
+      }),
+      this.#renderDownloadButton({
+        label: "Download SceneModel JSON",
+        hint: ".json",
+        onClick: () => this.#downloadSceneModelJson()
+      }),
+      this.#renderDownloadButton({
+        label: "Download DataModel JSON",
+        hint: ".json",
+        onClick: () => this.#downloadDataModelJson()
+      })
+    ]);
+    body.appendChild(buttonGrid);
+    return body;
+  }
+  #renderDownloadButton(args) {
+    const btn = el12("button", {
+      className: "dlp-download-btn",
+      type: "button",
+      onclick: (e) => {
+        e.stopPropagation();
+        try {
+          args.onClick();
+        } catch (err) {
+          console.error(err);
+          alert("Download failed: " + (err?.message ?? String(err)));
+        }
+      }
+    });
+    btn.appendChild(el12("div", { className: "dlp-download-btn-label", textContent: args.label }));
+    btn.appendChild(el12("div", { className: "dlp-download-btn-hint", textContent: args.hint }));
+    return btn;
+  }
+  #refreshModelCount() {
+    if (this.#countEl) {
+      this.#countEl.textContent = String(Object.keys(this.#data.models ?? {}).length);
+    }
+  }
+  #setMasterCollapsed(root, collapsed) {
+    root.classList.toggle("dlp-collapsed", collapsed);
+    const body = root.querySelector(".dlp-body");
+    if (body)
+      body.style.display = collapsed ? "none" : "block";
+  }
+  #getPrimaryDataModel() {
+    const models = Object.values(this.#data.models ?? {});
+    return models[0] ?? null;
+  }
+  // ----------------------------------------------------------------------------
+  // Download actions
+  // ----------------------------------------------------------------------------
+  #downloadXGF() {
+    new XGFExporter().write({
+      sceneModel: Object.values(this.#scene.models)[0],
+      dataModel: Object.values(this.#data.models)[0]
+    }).then((fileData) => {
+      downloadBlob(fileData, "model.xgf", "application/octet-stream");
+    }).catch((e) => {
+      console.error(e);
+    });
+  }
+  #downloadDotBIM() {
+    new DotBIMExporter().write({
+      sceneModel: Object.values(this.#scene.models)[0],
+      dataModel: Object.values(this.#data.models)[0]
+    }).then((fileData) => {
+      downloadText(JSON.stringify(fileData, null, 2), "model.bim", "application/json");
+    }).catch((e) => {
+      console.error(e);
+    });
+  }
+  #downloadSceneModelJson() {
+    const json = this.#buildSceneModelJsonData();
+    if (!json) {
+      return;
+    }
+    downloadText(JSON.stringify(json, null, 2), "scene-model.json", "application/json");
+  }
+  #downloadDataModelJson() {
+    const json = this.#buildDataModelJsonData();
+    if (!json) {
+      return;
+    }
+    downloadText(JSON.stringify(json, null, 2), "data-model.json", "application/json");
+  }
+  // ----------------------------------------------------------------------------
+  // Stub serializers/exporters
+  // Replace these with real implementations later.
+  // ----------------------------------------------------------------------------
+  #buildXKTData() {
+    return new TextEncoder().encode("dummy xkt data");
+  }
+  #buildXGFData() {
+    return new TextEncoder().encode("dummy xgf data");
+  }
+  #buildDotBIMData() {
+    return {
+      schema: "dotbim",
+      version: "1.0.0-dummy",
+      note: "Replace with real DotBIM export",
+      meshes: [],
+      elements: []
+    };
+  }
+  #buildSceneModelJsonData() {
+    const model = Object.values(this.#scene.models)[0];
+    if (!model) {
+      return null;
+    }
+    const result = model.toParams();
+    if (result.ok !== true) {
+      console.error("Failed to serialize SceneModel: " + result.error);
+      return null;
+    } else {
+      return result.value;
+    }
+  }
+  #buildDataModelJsonData() {
+    const model = Object.values(this.#data.models)[0];
+    if (!model) {
+      return null;
+    }
+    const result = model.toParams();
+    if (result.ok !== true) {
+      console.error("Failed to serialize DataModel: " + result.error);
+      return null;
+    } else {
+      return result.value;
+    }
+  }
+};
+function el12(tag, props = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(props)) {
+    node[key] = value;
+  }
+  for (const child of children) {
+    node.appendChild(child);
+  }
+  return node;
+}
+function readBool7(key, fallback) {
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (raw === null)
+      return fallback;
+    return raw === "1";
+  } catch {
+    return fallback;
+  }
+}
+function writeBool7(key, value) {
+  try {
+    sessionStorage.setItem(key, value ? "1" : "0");
+  } catch {
+  }
+}
+function downloadBlob(data, fileName, mimeType) {
+  const blob = new Blob([data], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  triggerDownload(url, fileName);
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+function downloadText(text, fileName, mimeType = "text/plain;charset=utf-8") {
+  downloadBlob(text, fileName, mimeType);
+}
+function triggerDownload(url, fileName) {
+  const a2 = document.createElement("a");
+  a2.href = url;
+  a2.download = fileName;
+  a2.style.display = "none";
+  document.body.appendChild(a2);
+  a2.click();
+  a2.remove();
+}
+var DEFAULT_CSS7 = `
+.dlp-root {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  color: #111;
+  padding: 16px;
+  background: rgba(255,255,255,0.96);
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.14);
+  backdrop-filter: blur(2px);
+}
+
+.dlp-header {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.dlp-title-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.dlp-title-icon {
+  width: 60px;
+  height: 60px;
+  flex: 0 0 60px;
+  border-radius: 14px;
+  border: 1.5px solid #e6e6e6;
+  background: #fafafa;
+  padding: 6px;
+}
+
+.dlp-h1 {
+  padding-top: 10px;
+  font-size: 24px;
+  color: #666666;
+  font-weight: 650;
+}
+
+.dlp-subtitle {
+  font-size: 12px;
+  color: #444;
+  line-height: 1.35;
+}
+
+.dlp-body {
+  margin-top: 12px;
+}
+
+.dlp-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.dlp-toolbar-left {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.dlp-k {
+  font-size: 12px;
+  color: #666;
+}
+
+.dlp-v {
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.dlp-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.dlp-download-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #e6e6e6;
+  background: #fff;
+  cursor: pointer;
+  transition: background 0.13s, border-color 0.13s, transform 0.13s;
+}
+
+.dlp-download-btn:hover {
+  background: #f7fafc;
+  border-color: #b3c6e0;
+}
+
+.dlp-download-btn:active {
+  transform: translateY(1px);
+}
+
+.dlp-download-btn-label {
+  font-size: 13px;
+  color: #2d5e8c;
+  font-weight: 650;
+}
+
+.dlp-download-btn-hint {
+  font-size: 11px;
+  color: #666;
+}
+`;
+
 // ../sdk/src/demo/DemoHelper.ts
 var taskRunner2 = getGlobalTaskRunner();
 var DemoHelper = class {
@@ -147809,11 +148392,12 @@ var DemoHelper = class {
             tileSize: 200,
             maxTiles: 2e3,
             maxBatches: 300,
-            maxBatchVertices: 5e6,
-            maxBatchIndices: 4e6,
+            // Allow enough vertices and indices for large terrain meshes
+            maxBatchVertices: 5e4,
+            maxBatchIndices: 7e4,
             maxBatchGeometries: 1e4,
             maxBatchMeshes: 1e4,
-            maxBatchPrims: 1e6
+            maxBatchPrims: 1e5
           }
         });
         const log2 = (eventName, sender, args) => {
@@ -147900,6 +148484,7 @@ var DemoHelper = class {
           tileMinWidth: 800
           // per-panel min width
         });
+        DownloadPanel.show(this.inspectorFlowHost, this.scene, this.data);
         GPUMemoryConfigsPanel.show(this.inspectorFlowHost, this.renderer.getMemoryConfigs());
         GPUMemoryUsagePanel.show(this.inspectorFlowHost, this.renderer.getMemoryUsage());
         ScenePanel.show(this.inspectorFlowHost, this.scene, {});

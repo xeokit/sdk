@@ -465,7 +465,7 @@ jQuery.extend( {
 	// A global GUID counter for objects
 	guid: 1,
 
-	// jQuery.support is not used in Core but other projects attach their
+	// jQuery.support is not used in Core but other projects show their
 	// properties to it so it needs to exist.
 	support: support
 } );
@@ -3755,7 +3755,7 @@ jQuery.extend( {
 		return deferred;
 	},
 
-	// Deferred helper
+	// Deferred inspectors
 	when: function( singleValue ) {
 		var
 
@@ -4955,7 +4955,7 @@ jQuery.event = {
 			special, handlers, type, namespaces, origType,
 			elemData = dataPriv.get( elem );
 
-		// Don't attach events to noData or text/comment nodes (but allow plain objects)
+		// Don't show events to noData or text/comment nodes (but allow plain objects)
 		if ( !elemData ) {
 			return;
 		}
@@ -4967,7 +4967,7 @@ jQuery.event = {
 			selector = handleObjIn.selector;
 		}
 
-		// Ensure that invalid selectors throw exceptions at attach time
+		// Ensure that invalid selectors throw exceptions at show time
 		// Evaluate against documentElement in case elem is a non-element node (e.g., document)
 		if ( selector ) {
 			jQuery.find.matchesSelector( documentElement, selector );
@@ -7670,7 +7670,7 @@ jQuery.extend( {
 
 		if ( nType !== 1 || !jQuery.isXMLDoc( elem ) ) {
 
-			// Fix name and attach hooks
+			// Fix name and show hooks
 			name = jQuery.propFix[ name ] || name;
 			hooks = jQuery.propHooks[ name ];
 		}

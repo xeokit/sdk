@@ -106,6 +106,31 @@ export class ViewManager {
    */
   public _meshManager: MeshManager;
 
+  /** Schedules at most one alignment pass per animation frame. */
+  private _alignCanvasRAF: number | null = null;
+
+  /** Observes size changes on the active view's HTML element. */
+  private _activeViewResizeObserver: ResizeObserver | null = null;
+
+  /** True when canvas backing size changed outside the normal render loop. */
+  private _activeViewNeedsRenderAfterAlignment = false;
+
+  /** Last canvas layout applied to the DOM, used to avoid redundant writes. */
+  private _lastCanvasLayout: {
+    left: number;
+    top: number;
+    cssWidth: number;
+    cssHeight: number;
+    pixelWidth: number;
+    pixelHeight: number;
+    resolutionScale: number;
+  } | null = null;
+
+  /** Stable listener reference for resize / scroll callbacks. */
+  private readonly _boundScheduleCanvasAlignment = () => {
+    this._scheduleActiveViewCanvasAlignment();
+  };
+
   /**
    * Constructs a {@link ViewManager}.
    *
@@ -157,6 +182,14 @@ export class ViewManager {
       return resultCtx;
     }
 
+    const webglCanvasElement = this._renderContext.webglCanvasElement;
+    webglCanvasElement.style.position = "fixed";
+    webglCanvasElement.style.left = "0px";
+    webglCanvasElement.style.top = "0px";
+    webglCanvasElement.style.width = "0px";
+    webglCanvasElement.style.height = "0px";
+    webglCanvasElement.style.zIndex = "100000";
+
     this._gpuMemoryManager = new GPUMemoryManager(this._renderContext);
 
     const resultGPU = this._gpuMemoryManager.init();
@@ -204,6 +237,14 @@ export class ViewManager {
       }
     }
 
+    this._installCanvasAlignmentListeners();
+
+    if (this._rendererViewsList.length > 0) {
+      this._activeView = this._rendererViewsList[0];
+      this._observeActiveViewElement(this._activeView);
+      this._alignCanvasToView(this._activeView);
+    }
+
     return {
       ok: true,
       value: undefined
@@ -246,6 +287,12 @@ export class ViewManager {
     if (resultPick.ok === false) {
       return resultPick;
     }
+
+    if (this._activeView) {
+      this._lastCanvasLayout = null;
+      this._alignCanvasToView(this._activeView);
+    }
+
     return {
       ok: true,
       value: undefined
@@ -349,6 +396,14 @@ export class ViewManager {
     this._rendererViews[view.id] = rendererView;
     view.viewIndex = this._rendererViewsList.length;
     this._rendererViewsList.push(rendererView);
+
+    if (!this._activeView) {
+      this._activeView = rendererView;
+      this._observeActiveViewElement(rendererView);
+      this._lastCanvasLayout = null;
+      this._alignCanvasToView(rendererView);
+    }
+
     return {
       ok: true,
       value: undefined
@@ -381,10 +436,17 @@ export class ViewManager {
    */
   public viewUpdated(view: View): SDKResult<any> {
     const rendererView = this._rendererViews[view.id];
-    if (!rendererView) { // Ignore
+    if (!rendererView) {
       return { ok: true, value: undefined };
     }
+
     this._activateView(rendererView);
+
+    const changed = this._alignCanvasToView(rendererView);
+    if (changed.sizeChanged || changed.resolutionScaleChanged) {
+      this._activeViewNeedsRenderAfterAlignment = false;
+    }
+
     this._gpuMemoryManager.uploadChanges();
     return this._renderManager.render(rendererView, {clear: true});
   }
@@ -406,34 +468,194 @@ export class ViewManager {
       if (activeRendererView === rendererView) {
         return;
       }
+
       const activeCanvasBoundingRect = activeRendererView.view.htmlElement.getBoundingClientRect();
+      const activeCanvasWidth = Math.round(activeCanvasBoundingRect.width);
+      const activeCanvasHeight = Math.round(activeCanvasBoundingRect.height);
+
       const primarySnapshotBuffer = activeRendererView.renderBuffers.getRenderBuffer("snapshot", {
         depthTexture: false,
-        size: [activeCanvasBoundingRect.width, activeCanvasBoundingRect.height]
+        size: [activeCanvasWidth, activeCanvasHeight]
       });
+
       primarySnapshotBuffer.bind();
       primarySnapshotBuffer.clear();
       this._renderManager.render(activeRendererView, {clear: true});
       const image = primarySnapshotBuffer.readImage({
         format: "png",
-        height: activeCanvasBoundingRect.height,
-        width: activeCanvasBoundingRect.width
+        height: activeCanvasHeight,
+        width:  activeCanvasWidth
       });
       primarySnapshotBuffer.unbind();
       (<HTMLImageElement>activeRendererView.view.htmlElement).src = image;
     }
+
+    this._activeView = rendererView;
+    this._observeActiveViewElement(rendererView);
+    this._lastCanvasLayout = null;
+    this._scheduleActiveViewCanvasAlignment();
+  }
+
+  private _installCanvasAlignmentListeners(): void {
+    window.addEventListener("resize", this._boundScheduleCanvasAlignment, {passive: true});
+    window.addEventListener("scroll", this._boundScheduleCanvasAlignment, {
+      passive: true,
+      capture: true
+    });
+  }
+
+  private _removeCanvasAlignmentListeners(): void {
+    window.removeEventListener("resize", this._boundScheduleCanvasAlignment);
+    window.removeEventListener("scroll", this._boundScheduleCanvasAlignment, true);
+
+    if (this._alignCanvasRAF !== null) {
+      cancelAnimationFrame(this._alignCanvasRAF);
+      this._alignCanvasRAF = null;
+    }
+
+    this._disconnectActiveViewResizeObserver();
+  }
+
+  private _observeActiveViewElement(rendererView: ViewRenderState): void {
+    this._disconnectActiveViewResizeObserver();
+
+    const htmlElement = rendererView.view.htmlElement;
+    if (!htmlElement || typeof ResizeObserver === "undefined") {
+      return;
+    }
+
+    this._activeViewResizeObserver = new ResizeObserver(() => {
+      this._scheduleActiveViewCanvasAlignment();
+    });
+
+    this._activeViewResizeObserver.observe(htmlElement);
+  }
+
+  private _disconnectActiveViewResizeObserver(): void {
+    if (this._activeViewResizeObserver) {
+      this._activeViewResizeObserver.disconnect();
+      this._activeViewResizeObserver = null;
+    }
+  }
+
+  private _scheduleActiveViewCanvasAlignment(): void {
+    if (!this._activeView || !this._renderContext) {
+      return;
+    }
+    if (this._alignCanvasRAF !== null) {
+      return;
+    }
+
+    this._alignCanvasRAF = requestAnimationFrame(() => {
+      this._alignCanvasRAF = null;
+
+      const activeView = this._activeView;
+      if (!activeView) {
+        return;
+      }
+
+      const changed = this._alignCanvasToView(activeView);
+
+      if (changed.sizeChanged || changed.resolutionScaleChanged) {
+        this._activeViewNeedsRenderAfterAlignment = true;
+        this._renderActiveViewIfNeeded();
+      }
+    });
+  }
+
+  private _renderActiveViewIfNeeded(): void {
+    const activeView = this._activeView;
+    if (!activeView || !this._activeViewNeedsRenderAfterAlignment) {
+      return;
+    }
+
+    this._activeViewNeedsRenderAfterAlignment = false;
+    this._gpuMemoryManager.uploadChanges();
+    this._renderManager.render(activeView, {clear: true});
+  }
+
+  private _getCanvasMetricsForView(rendererView: ViewRenderState): {
+    left: number;
+    top: number;
+    cssWidth: number;
+    cssHeight: number;
+    pixelWidth: number;
+    pixelHeight: number;
+    resolutionScale: number;
+  } {
     const view = rendererView.view;
     const htmlElement = view.htmlElement;
-    const boundingRect = htmlElement.getBoundingClientRect();
+    const rect = htmlElement.getBoundingClientRect();
+
+    // Layout size must always come directly from the view HTMLElement.
+    const cssWidth = Math.max(1, Math.round(rect.width));
+    const cssHeight = Math.max(1, Math.round(rect.height));
+    const left = Math.round(rect.left);
+    const top = Math.round(rect.top);
+
+    // Resolution scaling affects only the backing buffer size.
+    const resolutionScale = view.resolutionScale.applied
+      ? Math.max(0.05, view.resolutionScale.resolutionScale)
+      : 1.0;
+
+    const pixelWidth = Math.max(1, Math.round(cssWidth * resolutionScale));
+    const pixelHeight = Math.max(1, Math.round(cssHeight * resolutionScale));
+
+    return {
+      left,
+      top,
+      cssWidth,
+      cssHeight,
+      pixelWidth,
+      pixelHeight,
+      resolutionScale
+    };
+  }
+
+  private _alignCanvasToView(rendererView: ViewRenderState): {
+    moved: boolean;
+    sizeChanged: boolean;
+    resolutionScaleChanged: boolean;
+  } {
     const webglCanvasElement = this._renderContext.webglCanvasElement;
-    webglCanvasElement.style["left"] = `${boundingRect.left}px`;
-    webglCanvasElement.style["top"] = `${boundingRect.top}px`;
-    webglCanvasElement.style["width"] = `${boundingRect.width}px`;
-    webglCanvasElement.style["height"] = `${boundingRect.height}px`;
-    webglCanvasElement.width = boundingRect.width;
-    webglCanvasElement.height = boundingRect.height;
-    webglCanvasElement.style["z-tileIndex"] = 100000;
-    this._activeView = rendererView;
+    const metrics = this._getCanvasMetricsForView(rendererView);
+    const prev = this._lastCanvasLayout;
+
+    const moved = !prev ||
+      prev.left !== metrics.left ||
+      prev.top !== metrics.top ||
+      prev.cssWidth !== metrics.cssWidth ||
+      prev.cssHeight !== metrics.cssHeight;
+
+    const sizeChanged = !prev ||
+      prev.pixelWidth !== metrics.pixelWidth ||
+      prev.pixelHeight !== metrics.pixelHeight;
+
+    const resolutionScaleChanged = !prev ||
+      prev.resolutionScale !== metrics.resolutionScale;
+
+    // CSS position and size always match the underlying view element exactly.
+    if (moved) {
+      webglCanvasElement.style.left = `${metrics.left}px`;
+      webglCanvasElement.style.top = `${metrics.top}px`;
+      webglCanvasElement.style.width = `${metrics.cssWidth}px`;
+      webglCanvasElement.style.height = `${metrics.cssHeight}px`;
+      webglCanvasElement.style.zIndex = "100000";
+    }
+
+    // Backing buffer size is independently resolution-scaled.
+   // if (sizeChanged) {
+      webglCanvasElement.width = metrics.pixelWidth;
+      webglCanvasElement.height = metrics.pixelHeight;
+   // }
+
+    this._lastCanvasLayout = metrics;
+
+    return {
+      moved,
+      sizeChanged,
+      resolutionScaleChanged
+    };
   }
 
   /**
@@ -451,9 +673,36 @@ export class ViewManager {
     if (!rendererView) { // Ignore
       return { ok: true, value: undefined };
     }
+
+    const wasActive = this._activeView === rendererView;
+
     rendererView.destroy();
     delete this._rendererViews[view.id];
     this._rendererViewsList = this._rendererViewsList.filter(rv => rv !== rendererView);
+
+    for (let i = 0; i < this._rendererViewsList.length; i++) {
+      this._rendererViewsList[i].view.viewIndex = i;
+    }
+
+    if (wasActive) {
+      this._disconnectActiveViewResizeObserver();
+      this._lastCanvasLayout = null;
+      this._activeView = undefined as unknown as ViewRenderState;
+
+      const nextActiveView = this._rendererViewsList[0];
+      if (nextActiveView) {
+        this._activeView = nextActiveView;
+        this._observeActiveViewElement(nextActiveView);
+        this._scheduleActiveViewCanvasAlignment();
+      } else if (this._renderContext) {
+        const webglCanvasElement = this._renderContext.webglCanvasElement;
+        webglCanvasElement.style.width = "0px";
+        webglCanvasElement.style.height = "0px";
+        webglCanvasElement.width = 1;
+        webglCanvasElement.height = 1;
+      }
+    }
+
     return {
       ok: true,
       value: undefined
@@ -690,24 +939,31 @@ export class ViewManager {
    * - Sets internal references to `undefined` to help catch use-after-destroy in development.
    */
   public destroy(): void {
+    this._removeCanvasAlignmentListeners();
+    this._lastCanvasLayout = null;
+
     const viewer = this._renderContext.viewer;
     for (let viewIndex = 0; viewIndex < viewer.numViews; viewIndex++) {
       this.viewDestroyed(viewer.viewList[viewIndex]);
     }
+
     this._rendererViews = {};
+    this._rendererViewsList = [];
+    this._activeView = undefined as unknown as ViewRenderState;
+
     this._pickManager?.destroy();
     this._renderManager?.destroy();
     this._meshManager?.destroy();
     this._gpuMemoryManager?.destroy();
+
     this._pickManager = undefined as unknown as PickManager;
     this._renderManager = undefined as unknown as RenderManager;
     this._meshManager = undefined as unknown as MeshManager;
     this._gpuMemoryManager = undefined as unknown as GPUMemoryManager;
+
     this._renderContext.destroy();
     this._viewer = undefined as unknown as Viewer;
     this.dataTextures = undefined as unknown as DataTextures;
     this.shaderInspector = undefined as unknown as ShaderInspector;
   }
-
-
 }

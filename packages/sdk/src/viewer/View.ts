@@ -1,4 +1,4 @@
-import {EventEmitter, SDKErrorType, type SDKResult, SDKTask,} from "../core";
+import {EventEmitter, SDKErrorType, SDKInternalException, type SDKResult, SDKTask,} from "../core";
 import {FastRender, QualityRender} from "../constants";
 import type {FloatArrayParam} from "../math";
 import type { Vec3} from "../math/vector";
@@ -286,7 +286,7 @@ class View {
       canvas = // Canvas is actually a generic HTMLElement, but we think of it as a canvas
         viewParams.htmlElement || document.getElementById(<string>viewParams.elementId);
       if (!(canvas instanceof HTMLElement)) {
-        console.error("Mandatory View config expected: valid HTMLElement");
+        throw new SDKInternalException("[View.constructor] Mandatory View config expected: valid HTMLElement");
       }
       this._autoCanvas = false;
     }

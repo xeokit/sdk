@@ -23,7 +23,6 @@ export class ResolutionScale {
 
     private _resolutionScale: number;
     private _renderModes: number[];
-    private _destroyed: boolean = false;
 
     /**
      * @private

@@ -200,6 +200,10 @@ export class RenderManager {
       selectedEdgesTransparent: [] as MeshBatch[]
     };
 
+    const resolutionScale = view.resolutionScale.applied ? view.resolutionScale.resolutionScale : 1.0;
+    renderContext.webglCanvasElement.width = Math.floor(gl.drawingBufferWidth * resolutionScale);
+    renderContext.webglCanvasElement.height = Math.floor(gl.drawingBufferHeight * resolutionScale);
+
     renderContext.reset();
     renderContext.activeView = view;
     renderContext.pbrEnabled = false; // rendererView.view.pbrEnabled;

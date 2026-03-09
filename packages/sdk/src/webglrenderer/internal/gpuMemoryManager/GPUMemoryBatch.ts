@@ -150,7 +150,6 @@ export class GPUMemoryBatch {
       getNumItems: () => this._numMeshes
     });
 
-
     this._meshMatrixTexture = new MatrixTexture({
       gl,
       maxItems: memoryConfigs.maxBatchMeshes,
@@ -235,6 +234,7 @@ export class GPUMemoryBatch {
         pickPrimitiveRange: this._primitiveMeshIndexTexture[i].primRange
       });
     }
+
     this.dataTextures = {
       views,
       indexTexture: this._indexTexture,
@@ -454,7 +454,7 @@ export class GPUMemoryBatch {
         return {
           ok: false,
           type: SDKErrorType.MemoryAllocationFailed,
-          error: `GPUMemoryBatch.addMesh: Unable to allocate positions portion for geometry ${sceneGeometry.id}`
+          error: `GPUMemoryBatch.addMesh: Unable to allocate positions portion (of length ${sceneGeometry.positionsCompressed.length}) for geometry ${sceneGeometry.id} - limit is ${this._renderContext.memoryConfigs.maxBatchVertices * 3} position components`
         }
       }
 
@@ -466,13 +466,13 @@ export class GPUMemoryBatch {
       });
 
       if (sceneGeometry.colorsCompressed) {
-        vertexColorsPortion = this._vertexColorTexture.getPortion(sceneGeometry.colorsCompressed); // RGB (0..255, 0..255, 0..255)
+        vertexColorsPortion = this._vertexColorTexture.getPortion(sceneGeometry.colorsCompressed); // RGBA (0..255, 0..255, 0..255, 0..255)
         if (vertexColorsPortion === null) {
           cleanup();
           return {
             ok: false,
             type: SDKErrorType.MemoryAllocationFailed,
-            error: `GPUMemoryBatch.addMesh: Unable to allocate vertex colors portion for geometry ${sceneGeometry.id}`
+            error: `GPUMemoryBatch.addMesh: Unable to allocate vertex colors portion (of length ${sceneGeometry.colorsCompressed.length}) geometry ${sceneGeometry.id} - limit is ${this._renderContext.memoryConfigs.maxBatchVertices * 4} color components`
           }
         }
       }
@@ -492,7 +492,7 @@ export class GPUMemoryBatch {
           return {
             ok: false,
             type: SDKErrorType.MemoryAllocationFailed,
-            error: `GPUMemoryBatch.addMesh: Unable to allocate indices portion for geometry ${sceneGeometry.id}`
+            error: `GPUMemoryBatch.addMesh: Unable to allocate indices portion (of length ${sceneGeometry.indices.length}) for geometry ${sceneGeometry.id} - limit is ${this._renderContext.memoryConfigs.maxBatchIndices} indices`
           }
         }
 
@@ -513,7 +513,7 @@ export class GPUMemoryBatch {
             return {
               ok: false,
               type: SDKErrorType.MemoryAllocationFailed,
-              error: `GPUMemoryBatch.addMesh: Unable to allocate edge indices portion for geometry ${sceneGeometry.id}`
+              error: `GPUMemoryBatch.addMesh: Unable to allocate edge indices portion (of length ${sceneGeometry.edgeIndices.length}) for geometry ${sceneGeometry.id} - limit is ${this._renderContext.memoryConfigs.maxBatchIndices} indices`
             }
           }
         }
@@ -797,7 +797,6 @@ export class GPUMemoryBatch {
       this._putFreeGeometryIndex(geometryHandle.geometryIndex);
       this._numGeometries--;
     }
-
     const numViews = this._renderContext.memoryConfigs.maxViews;
 
     if (meshHandle.primitiveMeshIndexTextureHandles) {
@@ -995,6 +994,5 @@ export class GPUMemoryBatch {
     this._vertexPositionTexture = clear(this._vertexPositionTexture);
     this._vertexColorTexture = clear(this._vertexColorTexture);
     this._meshMatrixTexture = clear(this._meshMatrixTexture);
-
   }
 }

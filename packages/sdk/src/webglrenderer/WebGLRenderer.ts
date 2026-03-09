@@ -164,16 +164,16 @@ export class WebGLRenderer {
     };
     this._shaderInspector = null;
     this._drawInspector = null;
-    this._memoryConfigs = {
+    this._memoryConfigs = { // Best guess defaults
+      maxViews: 1,
       tileSize: 200,
       maxTiles: 2000,
-      maxViews: 1,
       maxBatches: 300,
-      maxBatchVertices: 1000000,
-      maxBatchIndices: 2000000,
-      maxBatchGeometries: 2000,
-      maxBatchMeshes: 2000,
-      maxBatchPrims: 40000
+      maxBatchVertices: 50000, // Allow enough vertices and indices for large terrain meshes
+      maxBatchIndices:  70000,
+      maxBatchGeometries: 10000,
+      maxBatchMeshes: 10000,
+      maxBatchPrims:  100000
     };
     if (params.memoryConfigs) {
       this._memoryConfigs = <MemoryConfigs>{};

@@ -99,7 +99,7 @@ export interface BatchDataTextures {
     renderPassEdgePrimitiveRanges: Map<number, PrimRange>;
 
     /**
-     * Primitive range to draw when drawing this View for GPU-based picking.
+     * Overall primitive range to draw for this View when picking.
      */
     pickPrimitiveRange: PrimRange;
   }>;

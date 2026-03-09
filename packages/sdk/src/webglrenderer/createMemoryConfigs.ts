@@ -21,6 +21,8 @@ export function createMemoryConfigs(params:{
 
     const user = params.user || {};
 
+    const maxViews = user.maxViews ?? 1;
+
     // Device presets (shape)
     const perf = {
         low:    { meshBatches: 64,  tiles: 256 },
@@ -148,6 +150,7 @@ export function createMemoryConfigs(params:{
     const tileSize = user.tileSize ?? 1000;
 
     return {
+        maxViews,
         tileSize,
         maxTiles,
         maxBatches,

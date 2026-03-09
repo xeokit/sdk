@@ -118093,11 +118093,9 @@ var parse10 = async (params, options) => {
             id: meshId,
             geometryId,
             color: color2 ? [color2.r / 255, color2.g / 255, color2.b / 255] : void 0,
-            opacity: color2 ? color2.a / 255 : 1
-            // quaternion: rotation
-            //     ? [rotation.qx, rotation.qy, rotation.qz, rotation.qw]
-            //     : undefined,
-            // position: [vector.x, vector.y, vector.z],
+            opacity: color2 ? color2.a / 255 : 1,
+            quaternion: rotation ? [rotation.qx, rotation.qy, rotation.qz, rotation.qw] : void 0,
+            position: [vector.x, vector.y, vector.z]
           });
           if (meshRes.ok === false) {
             continue;
@@ -118371,25 +118369,25 @@ function encode11(params, options) {
         mesh_id: dbMesh.mesh_id,
         type: info.type,
         color: {
-          r: color2[0] * 255,
-          g: color2[1] * 255,
-          b: color2[2] * 255,
-          a: firstMesh.opacity * 255
-        }
-        // vector: {
-        //   x: position[0],
-        //   y: position[1],
-        //   z: position[2]
-        // },
-        // rotation: {
-        //   qx: quaternion[0],
-        //   qy: quaternion[0],
-        //   qz: quaternion[0],
-        //   qw: quaternion[0]
-        // },
-        // qy: quaternion[1],
-        // qz: quaternion[2],
-        // qw: quaternion[3]
+          r: color2[0],
+          g: color2[1],
+          b: color2[2],
+          a: firstMesh.opacity
+        },
+        vector: {
+          x: position[0],
+          y: position[1],
+          z: position[2]
+        },
+        rotation: {
+          qx: quaternion[0],
+          qy: quaternion[0],
+          qz: quaternion[0],
+          qw: quaternion[0]
+        },
+        qy: quaternion[1],
+        qz: quaternion[2],
+        qw: quaternion[3]
       });
     }
     return resolve2(dotBim);
@@ -127381,6 +127379,9 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
     if (!portion) {
       throw new SDKInternalException("[PrimitiveMeshIndexTexture.setRenderPass]: Unknown portion handle");
     }
+    if (portion.renderPass === renderPass) {
+      return;
+    }
     portion.renderPass = renderPass;
     handle.renderPass = renderPass;
     this.needUpload = true;
@@ -135365,15 +135366,17 @@ var WebGLRenderer3 = class {
     this._shaderInspector = null;
     this._drawInspector = null;
     this._memoryConfigs = {
+      // Best guess defaults
+      maxViews: 1,
       tileSize: 200,
       maxTiles: 2e3,
-      maxViews: 1,
       maxBatches: 300,
-      maxBatchVertices: 1e5,
-      maxBatchIndices: 2e5,
-      maxBatchGeometries: 2e3,
-      maxBatchMeshes: 2e3,
-      maxBatchPrims: 4e4
+      maxBatchVertices: 5e4,
+      // Allow enough vertices and indices for large terrain meshes
+      maxBatchIndices: 7e4,
+      maxBatchGeometries: 1e4,
+      maxBatchMeshes: 1e4,
+      maxBatchPrims: 1e5
     };
     if (params.memoryConfigs) {
       this._memoryConfigs = {};

@@ -302,6 +302,8 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
 
     // Pack contiguous runs per renderPass
     let base = 0;
+    let firstPrim = 0;
+    let numPrims = 0;
     this.passRanges.clear();
     for (const renderPass of this.renderPassIds) {
       const bucket = buckets.get(renderPass);
@@ -309,6 +311,7 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
         this.passRanges.set(renderPass, { firstPrim: base, numPrims: 0 });
         continue;
       }
+      firstPrim = base;
       for (const portion of bucket) {
         portion.offset = base;
         for (let i = 0; i < portion.size; i++) {
@@ -319,8 +322,9 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
         base += portion.size;
       }
       this.passRanges.set(renderPass, {
-        firstPrim: base - (bucket.reduce((sum, p) => sum + p.size, 0)),
-        numPrims: bucket.reduce((sum, p) => sum + p.size, 0) });
+        firstPrim: firstPrim,
+        numPrims: base - firstPrim
+      });
     }
     this.primRange.numPrims = base;
     // Optionally zero out remainder for debugging

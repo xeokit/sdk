@@ -141,7 +141,7 @@ export const createRTCModelMat =  (matrix: Mat4, rtcCenter: Vec3, rtcModelMatrix
 
     const matCenter = matrix.slice(12, 15);
 
-    const tileSize = getRTCTileSize(matCenter);
+    const tileSize = getRTCTileSize(matCenter as Vec3);
 
     rtcCenter[0] = Math.round(matCenter[0] / tileSize) * tileSize;
     rtcCenter[1] = Math.round(matCenter[1] / tileSize) * tileSize;

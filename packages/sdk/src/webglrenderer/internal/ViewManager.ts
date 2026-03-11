@@ -463,32 +463,30 @@ export class ViewManager {
    * @param rendererView - The renderer view to activate.
    */
   private _activateView(rendererView: ViewRenderState): void {
+
     const activeRendererView = this._activeView;
-    if (activeRendererView) {
-      if (activeRendererView === rendererView) {
-        return;
+
+    if (activeRendererView && activeRendererView !== rendererView) {
+
+        const activeCanvasBoundingRect = activeRendererView.view.htmlElement.getBoundingClientRect();
+        const width = Math.round(activeCanvasBoundingRect.width);
+        const height = Math.round(activeCanvasBoundingRect.height);
+        const snapshotBuffer = activeRendererView.renderBuffers.getRenderBuffer("snapshot", {
+          depthTexture: false,
+          size: [width, height]
+        });
+
+        snapshotBuffer.bind();
+        snapshotBuffer.clear();
+
+        this._renderManager.render(activeRendererView, {clear: true});
+
+        const image = snapshotBuffer.readImage({format: "png", height, width});
+
+        snapshotBuffer.unbind();
+
+        (<HTMLImageElement>activeRendererView.view.htmlElement).src = image;
       }
-
-      const activeCanvasBoundingRect = activeRendererView.view.htmlElement.getBoundingClientRect();
-      const activeCanvasWidth = Math.round(activeCanvasBoundingRect.width);
-      const activeCanvasHeight = Math.round(activeCanvasBoundingRect.height);
-
-      const primarySnapshotBuffer = activeRendererView.renderBuffers.getRenderBuffer("snapshot", {
-        depthTexture: false,
-        size: [activeCanvasWidth, activeCanvasHeight]
-      });
-
-      primarySnapshotBuffer.bind();
-      primarySnapshotBuffer.clear();
-      this._renderManager.render(activeRendererView, {clear: true});
-      const image = primarySnapshotBuffer.readImage({
-        format: "png",
-        height: activeCanvasHeight,
-        width:  activeCanvasWidth
-      });
-      primarySnapshotBuffer.unbind();
-      (<HTMLImageElement>activeRendererView.view.htmlElement).src = image;
-    }
 
     this._activeView = rendererView;
     this._observeActiveViewElement(rendererView);

@@ -16,6 +16,7 @@ export class GenericPickMeshTechnique extends DrawTechnique {
     this.vsHeader();
     this.vsCommonDefines();
     this.vsSlicingDefines();
+    this.vsPickDefines();
     this.vsPickMeshDefines();
     this.vsPickMainOpen();
     this.vsPickMeshLogic();
@@ -26,13 +27,12 @@ export class GenericPickMeshTechnique extends DrawTechnique {
   protected buildFragmentShader(): void {
     this.fsHeader();
     this.fsPrecisionDefines();
-    this.fsCommonDefines();
+    //this.fsCommonDefines();
     this.fsSlicingDefines();
     this.fsPickMeshDefines();
     this.fsMainOpen();
     this.fsSlicingLogic();
     this.fsPickMeshLogic();
-    this.fsCommonOutput();
     this.fsMainClose();
   }
 }

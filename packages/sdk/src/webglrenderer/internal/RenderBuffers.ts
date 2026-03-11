@@ -55,7 +55,7 @@ export class RenderBuffers {
     }
 
     const newBuffer = new WebGLRenderBuffer(
-        this._view.htmlElement as HTMLCanvasElement, // TODO: View.htmlElement should be HTMLCanvasElement?
+        this._view.htmlElement as HTMLCanvasElement,
         this._renderContext.gl,
         {
           depthTexture: options?.depthTexture ?? false,

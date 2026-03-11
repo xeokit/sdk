@@ -11,11 +11,10 @@ import {DrawOp} from "./DrawOp";
 import {RENDER_PASSES} from "../RENDER_PASSES";
 import {TrianglesDrawEdgeSilhouetteTechnique} from "./techniques/triangles/TrianglesDrawEdgeSilhouetteTechnique";
 import {DrawTechnique} from "./DrawTechnique";
-import {GenericPickMeshTechnique} from "./techniques/generic/GenericPickMeshTechnique";
-import {GenericPickDepthTechnique} from "./techniques/generic/GenericPickDepthTechnique";
 import {TrianglesDrawEdgeColorTechnique} from "./techniques/triangles/TrianglesDrawEdgeColorTechnique";
 import {SDKInternalException} from "../../../core";
 import {TrianglesDrawSilhouetteTechnique} from "./techniques/triangles/TrianglesDrawSilhouetteTechnique";
+import {GenericPickMeshTechnique} from "./techniques/generic";
 
 /**
  * Owns and manages all {@link DrawTechnique} instances
@@ -151,8 +150,7 @@ export class DrawOps {
     const trianglesDrawColor = saveForCleanup(new TrianglesDrawColorTechnique(renderContext, gpuMemoryReader));
     const trianglesDrawEdgeSilhouette = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader));
     const trianglesDrawEdgeColor = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader));
-    const pickMesh = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader));
-    const pickDepth = saveForCleanup(new GenericPickDepthTechnique(renderContext, gpuMemoryReader));
+     const pickMesh = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader));
     const linesDrawColor = saveForCleanup(new LinesDrawColorTechnique(renderContext, gpuMemoryReader));
     const pointsDrawColor = saveForCleanup(new PointsDrawColorTechnique(renderContext, gpuMemoryReader));
 
@@ -184,8 +182,7 @@ export class DrawOps {
         selectedEdges: new DrawOp(trianglesDrawEdgeSilhouette, SELECTED),
         xrayed: new DrawOp(trianglesSilhouette, XRAYED),
         xrayedEdges: new DrawOp(trianglesDrawEdgeSilhouette, XRAYED),
-        pick: new DrawOp(pickMesh, PICK),
-        pickDepth: new DrawOp(pickDepth, PICK)
+        pick: new DrawOp(pickMesh, PICK)
       },
 
       [LinesPrimitive]: {
@@ -194,8 +191,7 @@ export class DrawOps {
         highlighted: new DrawOp(silhouette, HIGHLIGHTED),
         selected: new DrawOp(silhouette, SELECTED),
         xrayed: new DrawOp(silhouette, XRAYED),
-        pick: new DrawOp(pickMesh, PICK),
-        pickDepth: new DrawOp(pickDepth, PICK)
+        pick: new DrawOp(pickMesh, PICK)
       },
 
       [PointsPrimitive]: {
@@ -204,8 +200,7 @@ export class DrawOps {
         // highlighted: new DrawOp(pointsSilhouette, HIGHLIGHTED),
         // selected: new DrawOp(pointsSilhouette, SELECTED),
         // xrayed: new DrawOp(pointsSilhouette, XRAYED),
-        pick: new DrawOp(pickMesh, PICK),
-        pickDepth: new DrawOp(pickDepth, PICK)
+        pick: new DrawOp(pickMesh, PICK)
       }
     };
     return {

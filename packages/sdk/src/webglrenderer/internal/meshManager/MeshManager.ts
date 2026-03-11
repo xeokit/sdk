@@ -7,7 +7,7 @@ import {MeshBatchImpl} from "./MeshBatchImpl";
 import {type MeshBatch} from "./MeshBatch";
 import type {Camera, ViewObject} from "../../../viewer";
 import type {SceneTransform} from "../../../scene/SceneTransform";
-import {GPUMemoryCheckResult, GPUMemoryManager} from "../gpuMemoryManager";
+import {GPUMemoryCheckResult, GPUMemoryManager, GPUTile} from "../gpuMemoryManager";
 import {SceneGeometry} from "../../../scene";
 
 /**
@@ -652,11 +652,6 @@ export class MeshManager {
    *
    * @param batchIndex - Batch index.
    * @returns The batch if found, otherwise `null`.
-   *
-   * @remarks
-   * The current implementation indexes into {@link _sortedBatches} (a record keyed by internal ids),
-   * so this method may not behave as expected unless {@link _sortedBatches} is keyed by numeric indices.
-   * Consider switching to {@link sortedBatches}[batchIndex] if you want a stable positional lookup.
    */
   public getBatch(batchIndex: number): MeshBatch | null {
     // NOTE: this looks suspicious because _sortedBatches is keyed by string ids, not indices.
@@ -673,6 +668,22 @@ export class MeshManager {
    */
   public getMeshAtIndex(batchIndex: number, meshIndex: number): SceneMesh | null {
     return this._gpuMemoryManager.getMeshAtIndex(batchIndex, meshIndex);
+  }
+
+  /**
+   * Retrieves the {@link GPUTile} associated with a given {@link SceneMesh}.
+   * @param sceneMesh
+   */
+  public getMeshTile(sceneMesh: SceneMesh) : GPUTile | null {
+    const rendererModel = this._rendererModels[sceneMesh.model.id];
+    if (!rendererModel) {
+      return null;
+    }
+    const rendererMesh = rendererModel.rendererMeshes[sceneMesh.id];
+    if (!rendererMesh) {
+      return null;
+    }
+    return rendererMesh.gpuTile;
   }
 
   /**

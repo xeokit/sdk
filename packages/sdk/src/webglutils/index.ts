@@ -25,6 +25,7 @@ export * from "./WebGLArrayBuf";
 export * from "./WebGLAttribute";
 export * from "./WebGLProgram";
 export * from "./WebGLRenderBuffer";
+export * from "./WebGLPickBuffer";
 export * from "./WebGLSampler";
 export * from "./WebGLShader";
 export * from "./WebGLAbstractTexture";

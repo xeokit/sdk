@@ -119,6 +119,7 @@ export abstract class DrawTechnique {
     silhouetteColor: WebGLUniformLocation; // Color used for silhouette rendering
     gammaFactor: WebGLUniformLocation; // Gamma correction factor
     pickZNear: WebGLUniformLocation; // Near plane for pick rendering
+    batchIndex: WebGLUniformLocation; // Batch index for pick rendering
     snapCameraEyeRTC: WebGLUniformLocation; // Snapped camera eye position in RTC space
     perspectivePoints: WebGLUniformLocation; // Whether to use perspective point size
     perspectivePointsMinMax: WebGLUniformLocation; // Min/max point size for perspective points
@@ -282,6 +283,7 @@ export abstract class DrawTechnique {
       pickZNear: program.getLocation("pickZNear"),
       pickZFar: program.getLocation("pickZFar"),
       pickClipPos: program.getLocation("pickClipPos"),
+      batchIndex: program.getLocation("batchIndex"),
       drawingBufferSize: program.getLocation("drawingBufferSize"),
       silhouetteColor: program.getLocation("uSilhouetteColor"),
       sectionPlanes: [],
@@ -441,11 +443,15 @@ export abstract class DrawTechnique {
     bindTexture(samplers.meshViewAttributeTexture, batchViewDataTextures.meshViewAttributeTexture);
     bindTexture(samplers.geometryAttributes, batchDataTextures.geometryAttributeTexture);
     bindTexture(samplers.geometryQuantRangeTexture, batchDataTextures.geometryQuantRangeTexture);
- //   bindTexture(samplers.edgeIndexTexture, batchDataTextures.edgeIndexTexture); // TODO: Redundant?
+    //   bindTexture(samplers.edgeIndexTexture, batchDataTextures.edgeIndexTexture); // TODO: Redundant?
     bindTexture(samplers.indexTexture,
       this.edges
         ? batchDataTextures.edgeIndexTexture
         : batchDataTextures.indexTexture);
+
+    if (this._uniforms.batchIndex) {
+      gl.uniform1ui(this._uniforms.batchIndex, meshBatch.gpuMemoryBatchIndex);
+    }
 
     gl.uniform1i(this._uniforms.primBaseIndex, 0);
 
@@ -779,7 +785,7 @@ bool triangleFacesEyeVS(vec3 aVS, vec3 bVS, vec3 cVS) {
       "uniform vec4 uLightColor2;",
       "uniform vec3 uLightDir3;",
       "uniform vec4 uLightColor3;",
-      "out vec4 vColor;",
+      "flat out vec4 vColor;",
       "out vec4 vViewPos;",
       silhouette ? "uniform vec4 uSilhouetteColor;" : "");
   }
@@ -795,7 +801,7 @@ bool triangleFacesEyeVS(vec3 aVS, vec3 bVS, vec3 cVS) {
 // ─────────────────────────────────────────────────────────────
 
 uniform vec4 uSilhouetteColor;
-out vec4 vColor;`);
+flat out vec4 vColor;`);
   }
 
   /**
@@ -808,7 +814,7 @@ out vec4 vColor;`);
 // Flat color rendering configuration
 // ─────────────────────────────────────────────────────────────
 
-out vec4 vColor;`);
+flat out vec4 vColor;`);
   }
 
   /**
@@ -821,7 +827,7 @@ out vec4 vColor;`);
 // Vertex color rendering configuration
 // ─────────────────────────────────────────────────────────────
 
-out vec4 vColor;`);
+flat out vec4 vColor;`);
   }
 
   /**
@@ -858,15 +864,19 @@ uniform float pointSize;`);
    * Generates vertex shader definitions for pick rendering.
    * @protected
    */
-  protected vsPickMeshDefines() {
+  protected vsPickDefines() {
     this._vertSrcBuf.push(`
 // ─────────────────────────────────────────────────────────────
-// Pick rendering configuration
+// Pick common rendering configuration
 // ─────────────────────────────────────────────────────────────
 
-out     vec4 vPickColor;
 uniform vec2 drawingBufferSize;
 uniform vec2 pickClipPos;
+uniform vec2 pickZRange;
+uniform uint batchIndex;
+
+flat out uint vBatchIndex;
+flat out uint vMeshIndex;
 
 // In pick rendering, we render meshes in their pick-space positions, which are derived from the clip-space
 // positions but with XY remapped to [0,1] based on the viewport and with Z remapped to [0,1] based on the view's
@@ -880,6 +890,20 @@ vec4 remapPickClipPos(vec4 clipPos) {
     clipPos.xy *= clipPos.w;
     return clipPos;
 }`);
+  }
+
+  /**
+   * Generates vertex shader definitions for pick rendering.
+   * @protected
+   */
+  protected vsPickMeshDefines() {
+//     this._vertSrcBuf.push(`
+// // ─────────────────────────────────────────────────────────────
+// // Pick mesh rendering configuration
+// // ─────────────────────────────────────────────────────────────
+//
+// flat out vec4 vPickColor;
+// `);
   }
 
   /**
@@ -899,7 +923,7 @@ vec4 remapPickClipPos(vec4 clipPos) {
    * @protected
    */
   protected vsMainOpen() { // default
-   this._vertSrcBuf.push(`
+    this._vertSrcBuf.push(`
 // ─────────────────────────────────────────────────────────────
 // Vertex shader main function
 // ─────────────────────────────────────────────────────────────
@@ -936,12 +960,12 @@ void main(void) {`);
 
 void main(void) {`);
     this._vsMeshLogic();
-    this._vertSrcBuf.push(
-      `    int pickFlag = int(meshViewAttributes.renderFlags.b >> 8u & 0xFu);`,
-      `    if (pickFlag != uRenderPass) {`,
-      // "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
-      // "        return;",
-      "    }");
+    // this._vertSrcBuf.push(
+    //   `    int pickFlag = int(meshViewAttributes.renderFlags.b >> 8u & 0xFu);`,
+    //   `    if (pickFlag != uRenderPass) {`,
+    //   // "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
+    //   // "        return;",
+    //   "    }");
     this._vsMeshLogic2();
   }
 
@@ -950,7 +974,7 @@ void main(void) {`);
    * @protected
    */
   protected vsMainClose() { // default, silhouette, pick
-   this._vertSrcBuf.push(
+    this._vertSrcBuf.push(
       "}");
   }
 
@@ -1195,7 +1219,20 @@ void main(void) {`);
    * @protected
    */
   protected vsPickMeshLogic() {
-    this._vertSrcBuf.push("    vPickColor = packUintToRGBA8(meshIndex);");
+    this._vertSrcBuf.push(
+      "    vBatchIndex = batchIndex;",
+      "    vMeshIndex = meshIndex;",
+      "    gl_Position = remapPickClipPos(gl_Position);");
+  }
+
+  /**
+   * Generates vertex shader logic for depth pick rendering.
+   * @protected
+   */
+  protected vsPickDepthLogic() {
+    this._vertSrcBuf.push(
+      "    vHighPrecisionZW = remapPickClipPos(gl_Position).zw;"
+    );
   }
 
 
@@ -1231,7 +1268,7 @@ void main(void) {`);
    */
   protected vsPointsGeometryLogic() {
     this._vertSrcBuf.push(
-`  if (uPerspectivePoints == 1) {
+      `  if (uPerspectivePoints == 1) {
      gl_PointSize = (uNearPlaneHeight * pointSize) / clipPos.w;
      gl_PointSize = max(gl_PointSize, uPerspectivePointsMinMax[0]);
      gl_PointSize = min(gl_PointSize, uPerspectivePointsMinMax[1]);
@@ -1293,7 +1330,7 @@ void main(void) {`);
    * @protected
    */
   protected fsSilhouetteDefines() {
-    this._fragSrcBuf.push("in vec4 vColor;");
+    this._fragSrcBuf.push("flat in vec4 vColor;");
   }
 
   /**
@@ -1309,7 +1346,7 @@ void main(void) {`);
    * @protected
    */
   protected fsDrawFlatColorDefines() {
-    this._fragSrcBuf.push("in vec4 vColor;");
+    this._fragSrcBuf.push("flat in vec4 vColor;");
   }
 
   /**
@@ -1326,10 +1363,9 @@ void main(void) {`);
    */
   protected fsLambertShadingDefines() {
     const src = this._fragSrcBuf;
-    const view = this._renderContext.activeView;
     src.push(
-      "in vec4 vColor;",
-      "in vec4 vViewPos;");
+      "flat in vec4 vColor;",
+      "flat in vec4 vViewPos;");
   }
 
   /**
@@ -1394,16 +1430,65 @@ void main(void) {`);
    * @protected
    */
   protected fsPickMeshDefines() {
-    this._fragSrcBuf.push("in vec4 vPickColor;");
+    this._fragSrcBuf.push(
+      `flat in uint vMeshIndex;
+       flat in uint vBatchIndex;
+
+      layout(location = 0) out vec4 outBatchIndex;
+      layout(location = 1) out vec4 outMeshIndex;
+      layout(location = 2) out vec4 outDepth;
+
+      // Packs a 32-bit uint into 4 normalized 8-bit color channels.
+      // R = least-significant byte, A = most-significant byte.
+      vec4 packUintToRGBA8(uint v) {
+        return vec4(
+          float( v         & 0xFFu),
+          float((v >> 8u)  & 0xFFu),
+          float((v >> 16u) & 0xFFu),
+          float((v >> 24u) & 0xFFu)
+        ) / 255.0;
+      }
+
+      // Packs a normalized float in [0,1] into RGBA8.
+      // Useful for storing depth in an RGBA8 render target.
+      vec4 packFloat01ToRGBA8(float v) {
+         v = clamp(v, 0.0, 1.0);
+
+         vec4 enc = fract(v * vec4(
+             1.0,
+             255.0,
+             65025.0,
+             16581375.0
+         ));
+
+         enc -= enc.yzww * vec4(
+             1.0 / 255.0,
+             1.0 / 255.0,
+             1.0 / 255.0,
+             0.0
+         );
+
+         return enc;
+      }`
+    );
   }
 
   /**
    * Generates fragment shader logic for pick rendering.
    * @protected
    */
+  // protected fsPickMeshLogic() {
+  //   this._fragSrcBuf.push("color = vPickColor;");
+  // }
+
   protected fsPickMeshLogic() {
-    this._fragSrcBuf.push("color = vPickColor;");
+    this._fragSrcBuf.push(`
+    outBatchIndex   = packUintToRGBA8(vBatchIndex);
+    outMeshIndex   = packUintToRGBA8(vMeshIndex);
+    outDepth = packFloat01ToRGBA8(gl_FragCoord.z);
+    `);
   }
+
 
   /**
    * Generates fragment shader defines for slicing (section planes).

@@ -1,5 +1,9 @@
 import {SDKErrorType, SDKInternalException, SDKResult} from "../core";
 
+/**
+ * A utility class for managing a WebGL framebuffer used for picking. This framebuffer has 3 color attachments, and is
+ * designed to be used for rendering a single pixel for picking purposes.
+ */
 class WebGLPickBuffer {
   #gl: WebGL2RenderingContext;
   #framebuffer: WebGLFramebuffer | null = null;
@@ -7,10 +11,19 @@ class WebGLPickBuffer {
   #depthBuffer: WebGLRenderbuffer | null = null;
   bound = false;
 
+  /**
+   * Creates a new WebGLPickBuffer instance. Note that this does not allocate the framebuffer or its attachments;
+   * you must call {@link WebGLPickBuffer.init} to do so.
+   * @param gl
+   */
   constructor(gl: WebGL2RenderingContext) {
     this.#gl = gl;
   }
 
+  /**
+   * Initializes the framebuffer and its attachments. This must be called before using the pick buffer.
+   * If initialization fails, an error result is returned.
+   */
   init() : SDKResult<void>{
     const gl = this.#gl;
 
@@ -111,47 +124,65 @@ class WebGLPickBuffer {
     this.#depthBuffer = depthBuffer;
     this.bound = false;
 
-
     return {
       ok: true,
       value: undefined
     };
   }
 
+  /**
+   * Returns true if the pick buffer has been successfully allocated and initialized, false otherwise.
+   */
   get allocated(): boolean {
     return !!this.#framebuffer;
   }
 
-  webglContextRestored(gl: WebGL2RenderingContext) {
+  /**
+   * Handles WebGL context restoration by reinitializing the framebuffer and its attachments. This should be
+   * called when a WebGL context is restored after being lost.
+   * @param gl
+   */
+  webglContextRestored(gl: WebGL2RenderingContext) : SDKResult<void>{
     this.#gl = gl;
-    this.destroy();
-    this.init();
+    return this.init();
   }
 
+  /**
+   * Binds the pick buffer's framebuffer for rendering.
+   */
   bind() {
     if (!this.#framebuffer) {
-      this.init();
+      throw new SDKInternalException("Pick buffer not allocated");
     }
-    if (this.bound || !this.#framebuffer) {
+    if (this.bound) {
       return;
     }
-
     const gl = this.#gl;
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.#framebuffer);
     gl.viewport(0, 0, 1, 1);
     this.bound = true;
   }
 
+  /**
+   * Unbinds the pick buffer's framebuffer, restoring rendering to the default framebuffer. After calling this, the pick
+   * buffer will no longer be bound and cannot be read from until {@link WebGLPickBuffer.bind} is called again.
+   */
   unbind() {
+    if (!this.bound) {
+      throw new SDKInternalException("Pick buffer not bound");
+    }
     this.#gl.bindFramebuffer(this.#gl.FRAMEBUFFER, null);
     this.bound = false;
   }
 
+  /**
+   * Clears the pick buffer's framebuffer. This should be called after {@link WebGLPickBuffer.bind} and before rendering to the
+   * pick buffer. After calling this, the color attachments will be cleared to (0, 0, 0, 0).
+   */
   clear() {
     if (!this.bound) {
       throw new SDKInternalException("Pick buffer not bound");
     }
-
     const gl = this.#gl;
     gl.disable(gl.BLEND);
     gl.disable(gl.DITHER);
@@ -160,9 +191,20 @@ class WebGLPickBuffer {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   }
 
-  read() {
+  /**
+   * Reads the pixel data from the pick buffer's color attachments. This should be called after rendering to the pick
+   * buffer and before unbinding it.
+   */
+  read() : {
+    target0: Uint8Array<any>,
+    target1: Uint8Array<any>,
+    target2: Uint8Array<any>
+  } {
     if (!this.#framebuffer) {
       throw new SDKInternalException("Pick buffer not allocated");
+    }
+    if (!this.bound) {
+      throw new SDKInternalException("Pick buffer not bound");
     }
 
     const gl = this.#gl;
@@ -174,7 +216,9 @@ class WebGLPickBuffer {
 
     const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
     if (status !== gl.FRAMEBUFFER_COMPLETE) {
-      console.error("Framebuffer is incomplete:", status);
+      if (!this.bound) {
+        throw new SDKInternalException("Pick buffer not complete - did not initialize OK: status = " + status);
+      }
     }
 
     gl.readBuffer(gl.COLOR_ATTACHMENT0);

@@ -98,7 +98,9 @@ class WebGLRenderBuffer {
     let depthRbo: WebGLRenderbuffer | null = null;
 
     const framebuf = gl.createFramebuffer();
-    if (!framebuf) throw new Error("Failed to create framebuffer");
+    if (!framebuf) {
+      throw new Error("Failed to create framebuffer");
+    }
     gl.bindFramebuffer(gl.FRAMEBUFFER, framebuf);
 
     // Attach colors
@@ -118,7 +120,9 @@ class WebGLRenderBuffer {
 
     if (this.#hasDepthTexture) {
       depthTex = gl.createTexture();
-      if (!depthTex) throw new Error("Failed to create depth texture");
+      if (!depthTex) {
+        throw new Error("Failed to create depth texture");
+      }
       gl.bindTexture(gl.TEXTURE_2D, depthTex);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
@@ -145,7 +149,9 @@ class WebGLRenderBuffer {
       );
     } else {
       depthRbo = gl.createRenderbuffer();
-      if (!depthRbo) throw new Error("Failed to create renderbuffer");
+      if (!depthRbo) {
+        throw new Error("Failed to create renderbuffer");
+      }
       gl.bindRenderbuffer(gl.RENDERBUFFER, depthRbo);
       gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, width, height);
       gl.framebufferRenderbuffer(

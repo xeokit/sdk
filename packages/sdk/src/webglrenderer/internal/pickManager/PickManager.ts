@@ -6,7 +6,7 @@ import {
 } from "../../../math/matrix";
 import {
   addVec3, createVec2Float64, createVec3Float64, createVec4Float64,
-  cross3Vec3, dotVec4, mulVec3Scalar, mulVec4Scalar, normalizeVec3, subVec3, Vec3
+  cross3Vec3, dotVec4, mulVec3Scalar, mulVec4Scalar, normalizeVec3, subVec3, Vec2, Vec3
 } from "../../../math/vector";
 import {ViewRenderState} from "../ViewRenderState";
 import {type FloatArrayParam} from "../../../math";
@@ -36,11 +36,11 @@ const tempMat4b = createMat4Float64();
 const tempMat4c = createMat4Float64();
 
 const pickTemps = {
-  pickCanvasPos: createVec2Float64(),
-  pickWorldRayDir: createVec3Float64(),
-  pickWorldRayOrigin: createVec3Float64(),
-  pickViewMatrix: createMat4Float64(),
-  pickProjMatrix: createMat4Float64()
+  pickCanvasPos: createVec2Float64() as Vec2,
+  pickWorldRayDir: createVec3Float64() as Vec3,
+  pickWorldRayOrigin: createVec3Float64() as Vec3,
+  pickViewMatrix: createMat4Float64() as Mat4,
+  pickProjMatrix: createMat4Float64() as Mat4
 };
 
 /**
@@ -59,7 +59,6 @@ export class PickManager {
   private _meshBatchManager: MeshManager;
   private _drawOps: DrawOps = null;
 
-
   constructor(cfg: {
     renderContext: RenderContext;
     gpuMemoryManager: GPUMemoryManager;
@@ -72,7 +71,7 @@ export class PickManager {
   }
 
   /**
-   *
+   * Initializes this PickManager, allocating necessary resources. If initialization fails, an error result is returned.
    */
   init(): SDKResult<void> {
     const drawOpsResult = getDrawOps(this._renderContext, this._gpuMemoryManager as GPUMemoryReader);
@@ -92,7 +91,18 @@ export class PickManager {
   }
 
   webglContextRestored(): SDKResult<void> {
-    return this._drawOps ? this._drawOps.webglContextRestored() : {ok: true, value: undefined};
+    if (!this._drawOps) {
+      return {ok: true, value: undefined};
+    }
+    const result1 = this._drawOps.webglContextRestored();
+    if (result1.ok === false) {
+      return result1;
+    }
+    const result2 = this._pickBuffer.webglContextRestored(this._renderContext.gl);
+    if (result2.ok === false) {
+      return result2;
+    }
+    return {ok: true, value: undefined};
   }
 
   /**
@@ -213,7 +223,7 @@ export class PickManager {
     params: {
       rendererView: ViewRenderState,
       rayPick: boolean,
-      pickCanvasPos?: Mat4,
+      pickCanvasPos?: Vec2,
       pickViewMatrix?: Mat4,
       pickProjMatrix: Mat4,
       pickInvisible: boolean
@@ -292,7 +302,8 @@ export class PickManager {
 
     const batchIndex = unpackRGBA8ToUint(target0);
     const meshIndex = unpackRGBA8ToUint(target1);
-    const depth = unpackRGBA8ToFloat01(target2);
+    //const depth = unpackRGBA8ToFloat01(target2);
+    const depth = this._unpackDepth(target2);
 
     const sceneMesh = this._meshBatchManager.getMeshAtIndex(batchIndex, meshIndex);
     if (!sceneMesh) {
@@ -335,7 +346,7 @@ export class PickManager {
 
     const dir = subVec3(world2 as Vec3, world1 as Vec3, tempVec3c as Vec3);
     const offset = mulVec3Scalar(dir as Vec3, depth, tempVec3a);
-    const worldPos = addVec3(world1 as Vec3, offset, tempVec3b);
+    const worldPos = subVec3(world2 as Vec3, offset, tempVec3b);
 
     if (gotOrigin) {
       addVec3(worldPos, tileOrigin, worldPos);

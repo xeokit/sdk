@@ -27,16 +27,6 @@ export interface PickParams {
   rayPick?: boolean;
 
   /**
-   * Set this ````true```` to pick a {@link ViewObject | ViewObjects}.
-   */
-  pickViewObject?: boolean;
-
-  /**
-   * Set this ````true```` to pick a 3D position on a surface.
-   */
-  pickSurface?: boolean;
-
-  /**
    * Set this ````false```` to not pick invisible {@link ViewObject | ViewObjects}. Default is ````true````.
    */
   pickInvisible?: boolean;

@@ -1,8 +1,8 @@
 {
   "stats": {
-    "startTime": 291.59999990463257,
-    "endTime": 495,
-    "elapsedTime": 203.40000009536743,
+    "startTime": 323.8999996185303,
+    "endTime": 572.5,
+    "elapsedTime": 248.60000038146973,
     "aabb": [
       -26253.59176960545,
       -29993.59176960545,
@@ -30,7 +30,7 @@
       "numPropertySets": 0
     },
     "memory": {
-      "allocatedMB": 6.565093994140625,
+      "allocatedMB": 26.355743408203125,
       "usedMB": 0.054698944091796875
     },
     "renderer": {
@@ -56,54 +56,6 @@
           ],
           "renderBins": [
             {
-              "name": "opaque",
-              "drawCalls": [
-                {
-                  "batchIndex": 0,
-                  "renderPass": "OPAQUE",
-                  "primitive": "TRIANGLES",
-                  "primRange": {
-                    "firstPrim": 0,
-                    "numPrims": 1038
-                  },
-                  "timeMs": {
-                    "start": 666.5,
-                    "end": 666.5,
-                    "duration": 0
-                  }
-                }
-              ],
-              "timeMs": {
-                "start": 666.3999998569489,
-                "end": 666.5,
-                "duration": 0.10000014305114746
-              }
-            },
-            {
-              "name": "edgesColorOpaque",
-              "drawCalls": [
-                {
-                  "batchIndex": 0,
-                  "renderPass": "OPAQUE",
-                  "primitive": "TRIANGLES",
-                  "primRange": {
-                    "firstPrim": 0,
-                    "numPrims": 629
-                  },
-                  "timeMs": {
-                    "start": 666.5999999046326,
-                    "end": 666.5999999046326,
-                    "duration": 0
-                  }
-                }
-              ],
-              "timeMs": {
-                "start": 666.5,
-                "end": 666.5999999046326,
-                "duration": 0.09999990463256836
-              }
-            },
-            {
               "name": "edgesColorTransparent",
               "drawCalls": [
                 {
@@ -111,19 +63,19 @@
                   "renderPass": "TRANSPARENT",
                   "primitive": "TRIANGLES",
                   "primRange": {
-                    "firstPrim": 629,
-                    "numPrims": 60
+                    "firstPrim": 0,
+                    "numPrims": 689
                   },
                   "timeMs": {
-                    "start": 666.7000000476837,
-                    "end": 666.7000000476837,
+                    "start": 773.3999996185303,
+                    "end": 773.3999996185303,
                     "duration": 0
                   }
                 }
               ],
               "timeMs": {
-                "start": 666.7000000476837,
-                "end": 666.7000000476837,
+                "start": 773.3999996185303,
+                "end": 773.3999996185303,
                 "duration": 0
               }
             },
@@ -135,29 +87,29 @@
                   "renderPass": "TRANSPARENT",
                   "primitive": "TRIANGLES",
                   "primRange": {
-                    "firstPrim": 1038,
-                    "numPrims": 60
+                    "firstPrim": 0,
+                    "numPrims": 1098
                   },
                   "timeMs": {
-                    "start": 666.7000000476837,
-                    "end": 666.7000000476837,
+                    "start": 773.5,
+                    "end": 773.5,
                     "duration": 0
                   }
                 }
               ],
               "timeMs": {
-                "start": 666.7000000476837,
-                "end": 666.7000000476837,
-                "duration": 0
+                "start": 773.3999996185303,
+                "end": 773.5,
+                "duration": 0.10000038146972656
               }
             }
           ],
           "timeMs": {
-            "start": 666.3999998569489,
-            "end": 666.7000000476837,
-            "duration": 0.3000001907348633
+            "start": 773.2999997138977,
+            "end": 773.5,
+            "duration": 0.20000028610229492
           },
-          "numDrawCalls": 4,
+          "numDrawCalls": 2,
           "numPrims": 1787
         }
       ]

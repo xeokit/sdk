@@ -50,7 +50,7 @@ demoHelper.init().then(() => {
 
   const gltfLoader = new xeokit.formats.gltf.GLTFLoader();
 
-  fetch("../../models/OTCConferenceCenter/gltf/model.gltf").then(response => {
+  fetch("../../models/MAP/gltf/model.glb").then(response => {
 
     response
       .arrayBuffer()

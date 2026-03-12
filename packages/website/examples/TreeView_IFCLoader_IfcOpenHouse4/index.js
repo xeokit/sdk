@@ -285,7 +285,7 @@ demoHelper.init().then(() => {
 
           const objectId = event.treeViewNode.objectId;
 
-          treeView.showNode(objectId);
+       //   treeView.showNode(objectId);
 
            const resultObjectIds = [];
 

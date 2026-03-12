@@ -1,3 +1,21 @@
+![APHS Model](https://xeokit.github.io/sdk/images/holterTower.png "BIM Model Viewed with xeokit SDK")
+
+# Abstract
+
+This whitepaper presents the architectural and functional advancements introduced in **xeokit V3**, a major evolution of the xeokit WebGL-based 3D engine driven by real-world requirements from xeokit V2 users. The new version introduces a redesigned rendering and data architecture that improves precision, scalability, interoperability, and developer ergonomics for large-scale 3D and AEC applications.
+
+A central innovation is the decoupling of **RTC (relative-to-center) precision management from geometry batching**, enabling stable rendering across large coordinate spaces while allowing objects to move freely throughout the scene. Combined with a double-precision world model and GPU-friendly data textures, this approach preserves numerical stability without restricting object mobility or scene complexity. xeokit V3 also introduces **automatic reconciliation of multiple coordinate systems**, allowing models authored with different axis conventions, units, and spatial definitions to coexist seamlessly in a single scene without altering their source geometry.
+
+The engine architecture has been significantly refactored to support **fully dynamic scenes**, where objects, meshes, materials, and transforms can be created, modified, or removed at runtime. This capability is complemented by a **strongly typed event system** and an explicit **monadic error model**, enabling predictable control flow, improved debugging, and compile-time guarantees in TypeScript environments.
+
+Beyond rendering improvements, xeokit V3 introduces a flexible **Entity–Relationship semantic data model** capable of representing complex graph-based relationships across multiple AEC schemas such as IFC and CityGML. A unified **loader, exporter, and conversion API** further supports cross-platform workflows in both browser and Node.js environments, enabling composable pipelines for model ingestion and transformation.
+
+Architecturally, xeokit V3 emphasizes **separation of concerns**, clearly distinguishing the roles of scene data structures, viewers, and renderers within an event-driven pipeline. This modular design enables features such as multi-canvas synchronized views, extensible rendering implementations, and advanced inspection tooling. The renderer itself is intentionally exposed as a **transparent, inspectable system**, allowing developers to analyze performance, debug rendering behavior, and build custom diagnostic interfaces.
+
+Together, these improvements establish xeokit V3 as a more modular, precise, and extensible platform for building high-performance 3D visualization applications, particularly in domains requiring large-scale spatial data, heterogeneous model integration, and robust runtime interaction.
+
+
+
 # xeokit V2 -> V3 Features Overview
 
 * Features overview

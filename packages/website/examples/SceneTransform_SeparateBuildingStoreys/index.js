@@ -100,7 +100,7 @@ demoHelper.init().then(() => {
           if (!sceneObject || !sceneObject.meshes) continue;
 
           for (const sceneMesh of sceneObject.meshes) {
-            sceneMesh.setParentTransform(transformId);
+            sceneMesh.setParentTransformId(transformId);
           }
         }
 

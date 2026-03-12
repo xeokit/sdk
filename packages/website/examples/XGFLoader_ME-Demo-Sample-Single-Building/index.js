@@ -6,7 +6,7 @@ const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper.init().then(() => {
 
-  const {view, scene, data} = demoHelper;
+  const {view, scene, data, renderer} = demoHelper;
 
   // Create a XGFLoader to load .XGF files
 
@@ -75,7 +75,37 @@ demoHelper.init().then(() => {
             dataModel
           }).then(() => {
 
-              // The Scene and SceneModel will now contain a SceneObject for each displayable object in our model.
+            view.htmlElement.addEventListener("click", (e) => {
+              const result = renderer.pick(view, {
+                canvasPos: [e.offsetX, e.offsetY],
+                pickViewObject: true
+              });
+              if (result) {
+                if (result.ok) {
+                  const pickResult = result.value;
+                  if (pickResult) {
+                    const sceneMesh = pickResult.sceneMesh;
+                    if (sceneMesh) {
+                      const sceneObject = sceneMesh.object;
+                      console.log("Picked object: " + sceneObject.id);
+                      const viewObject = view.objects[sceneObject.id];
+                      if (viewObject) {
+                        viewObject.highlighted = !viewObject.highlighted;
+                      }
+                    }
+                  } else {
+                    console.log("Nothing picked");
+                  }
+                } else {
+                  console.error("Picking error: " + result.error);
+                }
+              } else {
+                console.log("Nothing picked");
+              }
+            });
+
+
+            // The Scene and SceneModel will now contain a SceneObject for each displayable object in our model.
               // The Data and DataModel will contain a DataObject for each IFC element in the model. Each SceneObject
               // will have a corresponding DataObject with the same ID, to show semantic meaning.
               // The View will contain a ViewObject corresponding to each SceneObject, through which the

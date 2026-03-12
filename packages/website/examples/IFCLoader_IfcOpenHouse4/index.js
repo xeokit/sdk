@@ -62,7 +62,7 @@ demoHelper.init().then(() => {
 
   // Load our IFC data into the SceneModel and DataModel
 
-  fetch(`../../models/AlignedPointCloud/ifc/model.ifc`)
+  fetch(`../../models/Duplex/ifc/model.ifc`)
     .then(response => {
       response
         .arrayBuffer()
@@ -75,10 +75,10 @@ demoHelper.init().then(() => {
 
           }).then(() => { // IFC file loaded
 
-            // // The IFC model now appears in our Viewer.  The DataModel and the Data will then contain DataObject,
-            // // Relationship and PropertySet components that represent the IFC data as an
-            // // entity-relationship graph.
-            //
+            // The IFC model now appears in our Viewer.  The DataModel and the Data will then contain DataObject,
+            // Relationship and PropertySet components that represent the IFC data as an
+            // entity-relationship graph.
+
             // // Using the searchObjects function, query the Data for all the
             // // IfcMember elements within a given IfcBuildingStorey.
             //

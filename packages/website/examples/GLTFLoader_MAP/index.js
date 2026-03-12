@@ -6,7 +6,7 @@ const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper.init().then(() => {
 
-  const {view, scene, data} = demoHelper;
+  const {view, scene, data, renderer} = demoHelper;
 
   // Arrange the View's Camera within our +Z "up" coordinate system
 
@@ -50,7 +50,7 @@ demoHelper.init().then(() => {
 
   const gltfLoader = new xeokit.formats.gltf.GLTFLoader();
 
-  fetch("../../models/MAP/gltf/model.glb").then(response => {
+  fetch("../../models/OTCConferenceCenter/gltf/model.gltf").then(response => {
 
     response
       .arrayBuffer()
@@ -62,13 +62,58 @@ demoHelper.init().then(() => {
           dataModel
         }).then(() => {
 
+          //
+          // const transform = sceneModel.createTransform({
+          //   id: "modelTransform",
+          //   parent: null,
+          //   position: [-1842009.4968455553, -9.685518291306686, 5173295.851503017]
+          // }).value;
+          //
+          // // iterate over objects in sceneModel
+          //
+          // for (const sceneMeshId in sceneModel.meshes) {
+          //   const sceneMesh = sceneModel.meshes[sceneMeshId];
+          //   sceneMesh.setParentTransformId(transform.id);
+          // }
+
           // The Scene and SceneModel will now contain a SceneObject for each displayable object in our model.
 
           demoHelper.viewFit();
 
-          demoHelper.orbit();
+         // demoHelper.orbit();
 
           demoHelper.finished();
+
+
+          // Attach a mouse click listener to the View's canvas, and log any object that is picked when the user clicks.
+
+          view.htmlElement.addEventListener("click", (e) => {
+            const result = renderer.pick(view, {
+              canvasPos: [e.offsetX, e.offsetY]
+            });
+            if (result) {
+              if (result.ok && result.value) {
+                const pickResult = result.value;
+                const sceneMesh = pickResult.sceneMesh;
+                if (sceneMesh) {
+                  const sceneObject = sceneMesh.object;
+                  console.log("Picked SceneObject: " + sceneObject.id);
+                  console.log("Picked SceneMesh: " + sceneMesh.id);
+                  console.log("Picked ViewObject: " + pickResult.viewObject.id);
+                  console.log("Picked world position: " + pickResult.worldPos);
+                  const viewObject = view.objects[sceneObject.id];
+                  if (viewObject) {
+                    viewObject.highlighted = !viewObject.highlighted;
+                  }
+                }
+              } else {
+                console.error("Picking failed: " + result.error);
+              }
+            } else {
+              console.log("Nothing picked");
+            }
+          });
+
 
         }).catch(message => {
           console.error(`Error loading glTF: ${message}`);

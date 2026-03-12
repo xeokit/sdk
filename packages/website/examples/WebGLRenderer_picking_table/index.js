@@ -132,13 +132,29 @@ demoHelper
 
     view.htmlElement.addEventListener("click", (e) => {
 
-      const pickResult = renderer.pick(view, {
+      const result = renderer.pick(view, {
         canvasPos: [e.offsetX, e.offsetY],
         pickViewObject: true
       });
 
-      if (pickResult) {
-        console.log("Picked object ID: " + pickResult);
+      if (result) {
+        if (result.ok && result.value) {
+          const pickResult = result.value;
+
+          const {sceneMesh, sceneObject, viewObject, worldPos, canvasPos} = pickResult;
+
+          if (sceneMesh) {
+            console.log("Picked object: " + sceneObject.id);
+            console.log("Picked mesh: " + sceneMesh.id);
+            console.log("Picked world position: " + worldPos);
+            view.camera.look = pickResult.worldPos;
+          if (viewObject) {
+              viewObject.highlighted = !viewObject.highlighted;
+            }
+          }
+        } else {
+          console.error("Picking failed: " + result.error);
+        }
       } else {
         console.log("Nothing picked");
       }

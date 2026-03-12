@@ -773,11 +773,41 @@
     "kind": "class",
     "namespace": "cameraflight"
   },
+  "CameraLike": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/types/cameraflight.CameraLike.html",
+    "kind": "type",
+    "namespace": "cameraflight"
+  },
   "CameraParams": {
     "summary": "Parameters for a Camera.",
     "path": "/api-docs#./docs/api/interfaces/viewer.CameraParams.html",
     "kind": "interface",
     "namespace": "viewer"
+  },
+  "CameraPath": {
+    "summary": "Sequence of camera frames that can be sampled or played back over time.",
+    "path": "/api-docs#./docs/api/classes/cameraflight.CameraPath.html",
+    "kind": "class",
+    "namespace": "cameraflight"
+  },
+  "CameraPathAnimation": {
+    "summary": "Animates a camera along a CameraPath.",
+    "path": "/api-docs#./docs/api/classes/cameraflight.CameraPathAnimation.html",
+    "kind": "class",
+    "namespace": "cameraflight"
+  },
+  "CameraPathAnimationState": {
+    "summary": "",
+    "path": null,
+    "kind": null,
+    "namespace": "cameraflight"
+  },
+  "CameraPathFrame": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/types/cameraflight.CameraPathFrame.html",
+    "kind": "type",
+    "namespace": "cameraflight"
   },
   "Canvas2Image": {
     "summary": "Canvas2Image v0.",
@@ -1234,6 +1264,18 @@
     "path": "/api-docs#./docs/api/types/io.CrossPlatformBlob.html",
     "kind": "type",
     "namespace": "io"
+  },
+  "CubicBezierCurve": {
+    "summary": "A Curve along which a 3D position can be animated.",
+    "path": "/api-docs#./docs/api/classes/curves.CubicBezierCurve.html",
+    "kind": "class",
+    "namespace": "curves"
+  },
+  "Curve": {
+    "summary": "Base class for parametric 3D curves.",
+    "path": "/api-docs#./docs/api/classes/curves.Curve.html",
+    "kind": "class",
+    "namespace": "curves"
   },
   "CustomProjection": {
     "summary": "Configures a custom projection for a Camera.",
@@ -1736,12 +1778,6 @@
   "GenericDrawSilhouetteTechnique": {
     "summary": "Draw technique for rendering generic silhouettes.",
     "path": "/api-docs#./docs/api/classes/generic.GenericDrawSilhouetteTechnique.html",
-    "kind": "class",
-    "namespace": "generic"
-  },
-  "GenericPickDepthTechnique": {
-    "summary": "Draw technique for rendering generic pick depth.",
-    "path": "/api-docs#./docs/api/classes/generic.GenericPickDepthTechnique.html",
     "kind": "class",
     "namespace": "generic"
   },
@@ -3737,6 +3773,12 @@
     "kind": "function",
     "namespace": "techniques"
   },
+  "QuadraticBezierCurve": {
+    "summary": "A QuadraticBezierCurve is a Curve along which a 3D position can be animated.",
+    "path": "/api-docs#./docs/api/classes/curves.QuadraticBezierCurve.html",
+    "kind": "class",
+    "namespace": "curves"
+  },
   "QualityRender": {
     "summary": "Quality rendering mode.",
     "path": "/api-docs#./docs/api/variables/constants.QualityRender.html",
@@ -4283,6 +4325,12 @@
     "kind": "interface",
     "namespace": "scene"
   },
+  "SceneLike": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/types/cameraflight.SceneLike.html",
+    "kind": "type",
+    "namespace": "cameraflight"
+  },
   "SceneMesh": {
     "summary": "A mesh in a SceneModel.",
     "path": "/api-docs#./docs/api/classes/scene.SceneMesh.html",
@@ -4396,6 +4444,12 @@
     "path": "/api-docs#./docs/api/interfaces/scene.SceneTransformParams.html",
     "kind": "interface",
     "namespace": "scene"
+  },
+  "SceneWithEvents": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/types/cameraflight.SceneWithEvents.html",
+    "kind": "type",
+    "namespace": "cameraflight"
   },
   "SDKErrorType": {
     "summary": "Enumeration of SDK error types.",
@@ -4553,6 +4607,12 @@
     "kind": "variable",
     "namespace": "constants"
   },
+  "SplineCurve": {
+    "summary": "A Curve along which a 3D position can be animated.",
+    "path": "/api-docs#./docs/api/classes/curves.SplineCurve.html",
+    "kind": "class",
+    "namespace": "curves"
+  },
   "sqLenVec2": {
     "summary": "Returns the squared length of a two-element vector.",
     "path": "/api-docs#./docs/api/functions/vector.sqLenVec2.html",
@@ -4666,6 +4726,18 @@
     "path": "/api-docs#./docs/api/classes/viewer.Texturing.html",
     "kind": "class",
     "namespace": "viewer"
+  },
+  "TickEvent": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/types/cameraflight.TickEvent.html",
+    "kind": "type",
+    "namespace": "cameraflight"
+  },
+  "TickListener": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/types/cameraflight.TickListener.html",
+    "kind": "type",
+    "namespace": "cameraflight"
   },
   "TickParams": {
     "summary": "Parameters that accompany events fired by Viewer.",
@@ -5138,6 +5210,12 @@
   "WebGLAttribute": {
     "summary": "Represents a WebGL vertex attribute.",
     "path": "/api-docs#./docs/api/classes/webglutils.WebGLAttribute.html",
+    "kind": "class",
+    "namespace": "webglutils"
+  },
+  "WebGLPickBuffer": {
+    "summary": "A utility class for managing a WebGL framebuffer used for picking.",
+    "path": "/api-docs#./docs/api/classes/webglutils.WebGLPickBuffer.html",
     "kind": "class",
     "namespace": "webglutils"
   },

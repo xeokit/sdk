@@ -5019,9 +5019,13 @@ function getPlaneRTCPos(dist, dir, rtcCenter2, rtcPlanePos) {
   return rtcPlanePos;
 }
 
-// ../sdk/src/math/curves.ts
+// ../sdk/src/math/curves/index.ts
 var curves_exports = {};
 __export(curves_exports, {
+  CubicBezierCurve: () => CubicBezierCurve,
+  Curve: () => Curve,
+  QuadraticBezierCurve: () => QuadraticBezierCurve,
+  SplineCurve: () => SplineCurve,
   b2: () => b2,
   b2p0: () => b2p0,
   b2p1: () => b2p1,
@@ -5036,6 +5040,437 @@ __export(curves_exports, {
   tangentQuadraticBezier3: () => tangentQuadraticBezier3,
   tangentSpline: () => tangentSpline
 });
+
+// ../sdk/src/math/curves/Curve.ts
+var Curve = class {
+  _t = 0;
+  __arcLengthDivisions;
+  cacheArcLengths;
+  needsUpdate;
+  /**
+   * Creates a curve.
+   *
+   * @param cfg Configuration options
+   * @param cfg.t Initial curve parameter in the range `[0..1]`
+   */
+  constructor(cfg = {}) {
+    this.t = cfg.t ?? 0;
+  }
+  /**
+   * Current curve parameter.
+   *
+   * Clamped to the range `[0..1]`.
+   */
+  set t(value) {
+    value = value || 0;
+    this._t = value < 0 ? 0 : value > 1 ? 1 : value;
+  }
+  get t() {
+    return this._t;
+  }
+  /**
+   * Normalized tangent at the current {@link t}.
+   */
+  get tangent() {
+    return this.getTangent(this._t);
+  }
+  /**
+   * Approximate arc length of the curve.
+   *
+   * Computed from cached sampled lengths.
+   */
+  get length() {
+    const lengths = this._getLengths();
+    return lengths[lengths.length - 1];
+  }
+  /**
+   * Returns the normalized tangent at parameter `t`.
+   *
+   * Uses a small finite difference around `t`.
+   *
+   * @param t Curve parameter in the range `[0..1]`. Defaults to the current {@link t}.
+   * @returns Normalized tangent vector
+   */
+  getTangent(t) {
+    const delta = 1e-4;
+    if (t === void 0) {
+      t = this._t;
+    }
+    let t1 = t - delta;
+    let t2 = t + delta;
+    if (t1 < 0) {
+      t1 = 0;
+    }
+    if (t2 > 1) {
+      t2 = 1;
+    }
+    const pt1 = this.getPoint(t1);
+    const pt2 = this.getPoint(t2);
+    const vec = subVec3(pt2, pt1, createVec3Float64());
+    return normalizeVec3(vec, createVec3Float64());
+  }
+  /**
+   * Returns a point using normalized arc-length parameterization.
+   *
+   * Unlike {@link getPoint}, `u` maps to distance along the curve rather than
+   * directly to the curve parameter.
+   *
+   * @param u Normalized distance along the curve in the range `[0..1]`
+   * @returns Point on the curve
+   */
+  getPointAt(u) {
+    const t = this.getUToTMapping(u);
+    return this.getPoint(t);
+  }
+  /**
+   * Samples points at evenly spaced parameter intervals.
+   *
+   * @param divisions Number of intervals to divide `[0..1]` into
+   * @returns Sampled points, including both endpoints
+   */
+  getPoints(divisions = 5) {
+    const pts = [];
+    for (let d = 0; d <= divisions; d++) {
+      pts.push(this.getPoint(d / divisions));
+    }
+    return pts;
+  }
+  /**
+   * Returns cumulative sampled arc lengths for the curve.
+   *
+   * The returned array starts at `0` and ends at the total sampled length.
+   * Results are cached until invalidated.
+   *
+   * @param divisions Number of sampling divisions used to approximate arc length
+   * @returns Cumulative arc lengths
+   */
+  _getLengths(divisions) {
+    if (!divisions) {
+      divisions = this.__arcLengthDivisions ? this.__arcLengthDivisions : 200;
+    }
+    if (this.cacheArcLengths && this.cacheArcLengths.length === divisions + 1 && !this.needsUpdate) {
+      return this.cacheArcLengths;
+    }
+    this.needsUpdate = false;
+    const cache2 = [];
+    let current;
+    let last = this.getPoint(0);
+    let sum = 0;
+    cache2.push(0);
+    for (let p = 1; p <= divisions; p++) {
+      current = this.getPoint(p / divisions);
+      sum += lenVec3(subVec3(current, last, createVec3Float64()));
+      cache2.push(sum);
+      last = current;
+    }
+    this.cacheArcLengths = cache2;
+    return cache2;
+  }
+  /**
+   * Invalidates cached arc-length data and rebuilds it.
+   */
+  _updateArcLengths() {
+    this.needsUpdate = true;
+    this._getLengths();
+  }
+  /**
+   * Maps normalized arc-length parameter `u` to curve parameter `t`.
+   *
+   * This is useful when you want points spaced by distance along the curve
+   * instead of by raw parameter value.
+   *
+   * @param u Normalized distance along the curve in the range `[0..1]`
+   * @param distance Absolute distance along the curve. When provided, overrides `u`.
+   * @returns Curve parameter in the range `[0..1]`
+   */
+  getUToTMapping(u, distance) {
+    const arcLengths = this._getLengths();
+    let i = 0;
+    const il = arcLengths.length;
+    let t;
+    let targetArcLength;
+    if (distance) {
+      targetArcLength = distance;
+    } else {
+      targetArcLength = u * arcLengths[il - 1];
+    }
+    let low = 0;
+    let high = il - 1;
+    let comparison;
+    while (low <= high) {
+      i = Math.floor(low + (high - low) / 2);
+      comparison = arcLengths[i] - targetArcLength;
+      if (comparison < 0) {
+        low = i + 1;
+      } else if (comparison > 0) {
+        high = i - 1;
+      } else {
+        high = i;
+        break;
+      }
+    }
+    i = high;
+    if (arcLengths[i] === targetArcLength) {
+      t = i / (il - 1);
+      return t;
+    }
+    const lengthBefore = arcLengths[i];
+    const lengthAfter = arcLengths[i + 1];
+    const segmentLength = lengthAfter - lengthBefore;
+    const segmentFraction = (targetArcLength - lengthBefore) / segmentLength;
+    t = (i + segmentFraction) / (il - 1);
+    return t;
+  }
+};
+
+// ../sdk/src/math/curves/QuadraticBezierCurve.ts
+var QuadraticBezierCurve = class extends Curve {
+  _v0 = createVec3Float64();
+  _v1 = createVec3Float64();
+  _v2 = createVec3Float64();
+  /**
+   * @param cfg Configuration
+   * @param cfg.v0 The starting point.
+   * @param cfg.v1 The middle control point.
+   * @param cfg.v2 The end point.
+   * @param cfg.t Current position on this QuadraticBezierCurve, in range between 0..1.
+   */
+  constructor(cfg = {}) {
+    super(cfg);
+    this.v0 = cfg.v0 ?? createVec3Float64();
+    this.v1 = cfg.v1 ?? createVec3Float64();
+    this.v2 = cfg.v2 ?? createVec3Float64();
+    this.t = cfg.t ?? 0;
+  }
+  /**
+   * Sets the starting point on this QuadraticBezierCurve.
+   *
+   * Default value is [0, 0, 0].
+   */
+  set v0(value) {
+    this._v0 = value || createVec3Float64();
+    this._updateArcLengths();
+  }
+  /**
+   * Gets the starting point on this QuadraticBezierCurve.
+   */
+  get v0() {
+    return this._v0;
+  }
+  /**
+   * Sets the middle control point on this QuadraticBezierCurve.
+   *
+   * Default value is [0, 0, 0].
+   */
+  set v1(value) {
+    this._v1 = value || createVec3Float64();
+    this._updateArcLengths();
+  }
+  /**
+   * Gets the middle control point on this QuadraticBezierCurve.
+   */
+  get v1() {
+    return this._v1;
+  }
+  /**
+   * Sets the end point on this QuadraticBezierCurve.
+   *
+   * Default value is [0, 0, 0].
+   */
+  set v2(value) {
+    this._v2 = value || createVec3Float64();
+    this._updateArcLengths();
+  }
+  /**
+   * Gets the end point on this QuadraticBezierCurve.
+   */
+  get v2() {
+    return this._v2;
+  }
+  /**
+   * Point on this QuadraticBezierCurve at position t.
+   */
+  get point() {
+    return this.getPoint(this._t);
+  }
+  /**
+   * Returns the point on this QuadraticBezierCurve at the given position.
+   */
+  getPoint(t) {
+    const vector = createVec3Float64();
+    vector[0] = b2(t, this._v0[0], this._v1[0], this._v2[0]);
+    vector[1] = b2(t, this._v0[1], this._v1[1], this._v2[1]);
+    vector[2] = b2(t, this._v0[2], this._v1[2], this._v2[2]);
+    return vector;
+  }
+  getJSON() {
+    return {
+      v0: this._v0,
+      v1: this._v1,
+      v2: this._v2,
+      t: this._t
+    };
+  }
+};
+
+// ../sdk/src/math/curves/CubicBezierCurve.ts
+var CubicBezierCurve = class extends Curve {
+  _v0 = createVec3Float64();
+  _v1 = createVec3Float64();
+  _v2 = createVec3Float64();
+  _v3 = createVec3Float64();
+  /**
+   * @param cfg Configs
+   * @param cfg.v0 The starting point.
+   * @param cfg.v1 The first control point.
+   * @param cfg.v2 The second control point.
+   * @param cfg.v3 The ending point.
+   * @param cfg.t Current position on this CubicBezierCurve, in range between 0..1.
+   */
+  constructor(cfg = {}) {
+    super(cfg);
+    this.v0 = cfg.v0 ?? createVec3Float64();
+    this.v1 = cfg.v1 ?? createVec3Float64();
+    this.v2 = cfg.v2 ?? createVec3Float64();
+    this.v3 = cfg.v3 ?? createVec3Float64();
+    this.t = cfg.t ?? 0;
+  }
+  /**
+   * Starting point.
+   */
+  set v0(value) {
+    this._v0 = value || createVec3Float64();
+    this._updateArcLengths();
+  }
+  get v0() {
+    return this._v0;
+  }
+  /**
+   * First control point.
+   */
+  set v1(value) {
+    this._v1 = value || createVec3Float64();
+    this._updateArcLengths();
+  }
+  get v1() {
+    return this._v1;
+  }
+  /**
+   * Second control point.
+   */
+  set v2(value) {
+    this._v2 = value || createVec3Float64();
+    this._updateArcLengths();
+  }
+  get v2() {
+    return this._v2;
+  }
+  /**
+   * End point.
+   */
+  set v3(value) {
+    this._v3 = value || createVec3Float64();
+    this._updateArcLengths();
+  }
+  get v3() {
+    return this._v3;
+  }
+  /**
+   * Point on the curve at the current t.
+   */
+  get point() {
+    return this.getPoint(this._t);
+  }
+  /**
+   * Returns point on this CubicBezierCurve at the given position.
+   */
+  getPoint(t) {
+    const vector = createVec3Float64();
+    vector[0] = b3(t, this._v0[0], this._v1[0], this._v2[0], this._v3[0]);
+    vector[1] = b3(t, this._v0[1], this._v1[1], this._v2[1], this._v3[1]);
+    vector[2] = b3(t, this._v0[2], this._v1[2], this._v2[2], this._v3[2]);
+    return vector;
+  }
+  /**
+   *
+   */
+  getJSON() {
+    return {
+      v0: this._v0,
+      v1: this._v1,
+      v2: this._v2,
+      v3: this._v3,
+      t: this._t
+    };
+  }
+};
+
+// ../sdk/src/math/curves/SplineCurve.ts
+var SplineCurve = class extends Curve {
+  _points = [];
+  /**
+   * @param cfg Configs
+   * @param cfg.points Control points on this SplineCurve.
+   * @param cfg.t Current position on this SplineCurve, in range between 0..1.
+   */
+  constructor(cfg = {}) {
+    super(cfg);
+    this.points = cfg.points ?? [];
+    this.t = cfg.t ?? 0;
+  }
+  /**
+   * Sets the control points on this SplineCurve.
+   *
+   * Default value is [].
+   */
+  set points(value) {
+    this._points = value || [];
+    this._updateArcLengths();
+  }
+  /**
+   * Gets the control points on this SplineCurve.
+   *
+   * Default value is [].
+   */
+  get points() {
+    return this._points;
+  }
+  /**
+   * Gets the point on this SplineCurve at position t.
+   */
+  get point() {
+    return this.getPoint(this._t);
+  }
+  /**
+   * Returns point on this SplineCurve at the given position.
+   */
+  getPoint(t) {
+    const points = this.points;
+    if (points.length < 3) {
+      return createVec3Float64();
+    }
+    const point = (points.length - 1) * t;
+    const intPoint = Math.floor(point);
+    const weight = point - intPoint;
+    const point0 = points[intPoint === 0 ? intPoint : intPoint - 1];
+    const point1 = points[intPoint];
+    const point2 = points[intPoint > points.length - 2 ? points.length - 1 : intPoint + 1];
+    const point3 = points[intPoint > points.length - 3 ? points.length - 1 : intPoint + 2];
+    const vector = createVec3Float64();
+    vector[0] = catmullRomInterpolate(point0[0], point1[0], point2[0], point3[0], weight);
+    vector[1] = catmullRomInterpolate(point0[1], point1[1], point2[1], point3[1], weight);
+    vector[2] = catmullRomInterpolate(point0[2], point1[2], point2[2], point3[2], weight);
+    return vector;
+  }
+  getJSON() {
+    return {
+      points: this._points,
+      t: this._t
+    };
+  }
+};
+
+// ../sdk/src/math/curves/index.ts
 function tangentQuadraticBezier(t, p0, p1, p2) {
   return 2 * (1 - t) * (p1 - p0) + 2 * t * (p2 - p1);
 }
@@ -5484,6 +5919,7 @@ __export(webglutils_exports, {
   WEBGL_INFO: () => WEBGL_INFO,
   WebGLArrayBuf: () => WebGLArrayBuf,
   WebGLAttribute: () => WebGLAttribute,
+  WebGLPickBuffer: () => WebGLPickBuffer,
   WebGLProgram: () => WebGLProgram,
   WebGLRenderBuffer: () => WebGLRenderBuffer,
   WebGLSampler: () => WebGLSampler,
@@ -6162,8 +6598,9 @@ var WebGLRenderBuffer = class {
     let depthTex = null;
     let depthRbo = null;
     const framebuf = gl.createFramebuffer();
-    if (!framebuf)
+    if (!framebuf) {
       throw new Error("Failed to create framebuffer");
+    }
     gl.bindFramebuffer(gl.FRAMEBUFFER, framebuf);
     for (let i = 0; i < colorTextures.length; i++) {
       gl.framebufferTexture2D(
@@ -6179,8 +6616,9 @@ var WebGLRenderBuffer = class {
     }
     if (this.#hasDepthTexture) {
       depthTex = gl.createTexture();
-      if (!depthTex)
+      if (!depthTex) {
         throw new Error("Failed to create depth texture");
+      }
       gl.bindTexture(gl.TEXTURE_2D, depthTex);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
@@ -6206,8 +6644,9 @@ var WebGLRenderBuffer = class {
       );
     } else {
       depthRbo = gl.createRenderbuffer();
-      if (!depthRbo)
+      if (!depthRbo) {
         throw new Error("Failed to create renderbuffer");
+      }
       gl.bindRenderbuffer(gl.RENDERBUFFER, depthRbo);
       gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, width, height);
       gl.framebufferRenderbuffer(
@@ -6470,6 +6909,238 @@ function framebufferStatusToString(gl, status) {
       return "FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
     case gl.FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
       return "FRAMEBUFFER_INCOMPLETE_DIMENSIONS";
+    case gl.FRAMEBUFFER_UNSUPPORTED:
+      return "FRAMEBUFFER_UNSUPPORTED";
+    default:
+      return String(status);
+  }
+}
+
+// ../sdk/src/webglutils/WebGLPickBuffer.ts
+var WebGLPickBuffer = class {
+  #gl;
+  #framebuffer = null;
+  #colorTextures = [];
+  #depthBuffer = null;
+  bound = false;
+  /**
+   * Creates a new WebGLPickBuffer instance. Note that this does not allocate the framebuffer or its attachments;
+   * you must call {@link WebGLPickBuffer.init} to do so.
+   * @param gl
+   */
+  constructor(gl) {
+    this.#gl = gl;
+  }
+  /**
+   * Initializes the framebuffer and its attachments. This must be called before using the pick buffer.
+   * If initialization fails, an error result is returned.
+   */
+  init() {
+    const gl = this.#gl;
+    const framebuffer = gl.createFramebuffer();
+    if (!framebuffer) {
+      return {
+        ok: false,
+        error: "[WebGLPickBuffer] Failed to create framebuffer",
+        type: 0 /* InitializationFailed */
+      };
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+    const colorTextures = [];
+    for (let i = 0; i < 3; i++) {
+      const tex = gl.createTexture();
+      if (!tex) {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.deleteFramebuffer(framebuffer);
+        return {
+          ok: false,
+          error: "[WebGLPickBuffer] Failed to create color texture",
+          type: 0 /* InitializationFailed */
+        };
+      }
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, 1, 1);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.framebufferTexture2D(
+        gl.FRAMEBUFFER,
+        gl.COLOR_ATTACHMENT0 + i,
+        gl.TEXTURE_2D,
+        tex,
+        0
+      );
+      colorTextures.push(tex);
+      this.#framebuffer = framebuffer;
+    }
+    const depthBuffer = gl.createRenderbuffer();
+    if (!depthBuffer) {
+      for (const tex of colorTextures) {
+        gl.deleteTexture(tex);
+      }
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.deleteFramebuffer(framebuffer);
+      return {
+        ok: false,
+        error: "[WebGLPickBuffer] Failed to create depth renderbuffer",
+        type: 0 /* InitializationFailed */
+      };
+    }
+    gl.bindRenderbuffer(gl.RENDERBUFFER, depthBuffer);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, 1, 1);
+    gl.framebufferRenderbuffer(
+      gl.FRAMEBUFFER,
+      gl.DEPTH_ATTACHMENT,
+      gl.RENDERBUFFER,
+      depthBuffer
+    );
+    gl.drawBuffers([
+      gl.COLOR_ATTACHMENT0,
+      gl.COLOR_ATTACHMENT1,
+      gl.COLOR_ATTACHMENT2
+    ]);
+    const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    if (status !== gl.FRAMEBUFFER_COMPLETE) {
+      for (const tex of colorTextures) {
+        gl.deleteTexture(tex);
+      }
+      gl.deleteRenderbuffer(depthBuffer);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.deleteFramebuffer(framebuffer);
+      return {
+        ok: false,
+        error: `[WebGLPickBuffer] Incomplete framebuffer: ${framebufferStatusToString2(gl, status)}`,
+        type: 0 /* InitializationFailed */
+      };
+    }
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    this.#framebuffer = framebuffer;
+    this.#colorTextures = colorTextures;
+    this.#depthBuffer = depthBuffer;
+    this.bound = false;
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  /**
+   * Returns true if the pick buffer has been successfully allocated and initialized, false otherwise.
+   */
+  get allocated() {
+    return !!this.#framebuffer;
+  }
+  /**
+   * Handles WebGL context restoration by reinitializing the framebuffer and its attachments. This should be
+   * called when a WebGL context is restored after being lost.
+   * @param gl
+   */
+  webglContextRestored(gl) {
+    this.#gl = gl;
+    return this.init();
+  }
+  /**
+   * Binds the pick buffer's framebuffer for rendering.
+   */
+  bind() {
+    if (!this.#framebuffer) {
+      throw new SDKInternalException("Pick buffer not allocated");
+    }
+    if (this.bound) {
+      return;
+    }
+    const gl = this.#gl;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.#framebuffer);
+    gl.viewport(0, 0, 1, 1);
+    this.bound = true;
+  }
+  /**
+   * Unbinds the pick buffer's framebuffer, restoring rendering to the default framebuffer. After calling this, the pick
+   * buffer will no longer be bound and cannot be read from until {@link WebGLPickBuffer.bind} is called again.
+   */
+  unbind() {
+    if (!this.bound) {
+      throw new SDKInternalException("Pick buffer not bound");
+    }
+    this.#gl.bindFramebuffer(this.#gl.FRAMEBUFFER, null);
+    this.bound = false;
+  }
+  /**
+   * Clears the pick buffer's framebuffer. This should be called after {@link WebGLPickBuffer.bind} and before rendering to the
+   * pick buffer. After calling this, the color attachments will be cleared to (0, 0, 0, 0).
+   */
+  clear() {
+    if (!this.bound) {
+      throw new SDKInternalException("Pick buffer not bound");
+    }
+    const gl = this.#gl;
+    gl.disable(gl.BLEND);
+    gl.disable(gl.DITHER);
+    gl.clearColor(0, 0, 0, 0);
+    gl.clearDepth(1);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  }
+  /**
+   * Reads the pixel data from the pick buffer's color attachments. This should be called after rendering to the pick
+   * buffer and before unbinding it.
+   */
+  read() {
+    if (!this.#framebuffer) {
+      throw new SDKInternalException("Pick buffer not allocated");
+    }
+    if (!this.bound) {
+      throw new SDKInternalException("Pick buffer not bound");
+    }
+    const gl = this.#gl;
+    const target0 = new Uint8Array(4);
+    const target1 = new Uint8Array(4);
+    const target2 = new Uint8Array(4);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.#framebuffer);
+    const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    if (status !== gl.FRAMEBUFFER_COMPLETE) {
+      if (!this.bound) {
+        throw new SDKInternalException("Pick buffer not complete - did not initialize OK: status = " + status);
+      }
+    }
+    gl.readBuffer(gl.COLOR_ATTACHMENT0);
+    gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, target0);
+    gl.readBuffer(gl.COLOR_ATTACHMENT1);
+    gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, target1);
+    gl.readBuffer(gl.COLOR_ATTACHMENT2);
+    gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, target2);
+    return {
+      target0,
+      target1,
+      target2
+    };
+  }
+  destroy() {
+    const gl = this.#gl;
+    for (const tex of this.#colorTextures) {
+      gl.deleteTexture(tex);
+    }
+    this.#colorTextures = [];
+    if (this.#depthBuffer) {
+      gl.deleteRenderbuffer(this.#depthBuffer);
+      this.#depthBuffer = null;
+    }
+    if (this.#framebuffer) {
+      gl.deleteFramebuffer(this.#framebuffer);
+      this.#framebuffer = null;
+    }
+    this.bound = false;
+  }
+};
+function framebufferStatusToString2(gl, status) {
+  switch (status) {
+    case gl.FRAMEBUFFER_COMPLETE:
+      return "FRAMEBUFFER_COMPLETE";
+    case gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+      return "FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+    case gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+      return "FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
     case gl.FRAMEBUFFER_UNSUPPORTED:
       return "FRAMEBUFFER_UNSUPPORTED";
     default:
@@ -12230,12 +12901,12 @@ var SceneTransform = class {
    * @param opts - Options.
    * @param opts.preserveWorld - When `true`, keeps the world transform unchanged.
    */
-  setParentTransform(parentTransformId, opts) {
+  setParentTransformId(parentTransformId, opts) {
     if (this.destroyed) {
       return this.model.scene.logError({
         ok: false,
         type: 1 /* InvalidOperation */,
-        error: `[SceneTransform.setParentTransform] Cannot set parent transform on destroyed SceneTransform ${this.id}`
+        error: `[SceneTransform.setParentTransformId] Cannot set parent transform on destroyed SceneTransform ${this.id}`
       });
     }
     let parentTransform = null;
@@ -12244,7 +12915,7 @@ var SceneTransform = class {
         return this.model.scene.logError({
           ok: false,
           type: 1 /* InvalidOperation */,
-          error: `[SceneTransform.setParentTransform] Cannot set parent transform to self on SceneTransform ${this.id}`
+          error: `[SceneTransform.setParentTransformId] Cannot set parent transform to self on SceneTransform ${this.id}`
         });
       }
       parentTransform = this.model.transforms[parentTransformId];
@@ -12252,14 +12923,14 @@ var SceneTransform = class {
         return this.model.scene.logError({
           ok: false,
           type: 1 /* InvalidOperation */,
-          error: `[SceneTransform.setParentTransform] SceneTransform "${parentTransformId}" not found in SceneModel`
+          error: `[SceneTransform.setParentTransformId] SceneTransform "${parentTransformId}" not found in SceneModel`
         });
       }
       if (parentTransform.model.id !== this.model.id) {
         return this.model.scene.logError({
           ok: false,
           type: 1 /* InvalidOperation */,
-          error: `[SceneTransform.setParentTransform] Cannot set parent transform to a transform in a different SceneModel on SceneTransform ${this.id}`
+          error: `[SceneTransform.setParentTransformId] Cannot set parent transform to a transform in a different SceneModel on SceneTransform ${this.id}`
         });
       }
     }
@@ -12284,10 +12955,10 @@ var SceneTransform = class {
    * Adds a child transform to this transform by ID.
    *
    * This resolves the transform from the owning {@link SceneModel} and then parents it under this
-   * transform (equivalent to `child.setParentTransform(this, opts)`).
+   * transform (equivalent to `child.setParentTransformId(this, opts)`).
    *
    * @param childTransformId - ID of the child transform to add.
-   * @param opts - Options forwarded to {@link setParentTransform}.
+   * @param opts - Options forwarded to {@link setParentTransformId}.
    */
   addChildTransform(childTransformId, opts) {
     if (this.destroyed) {
@@ -12305,7 +12976,7 @@ var SceneTransform = class {
         error: `[SceneTransform.addChildTransform] Transform "${childTransformId}" not found in SceneModel`
       });
     }
-    return child.setParentTransform(this.id, opts);
+    return child.setParentTransformId(this.id, opts);
   }
   /**
    * Removes a child transform from this transform by ID (if it is currently parented here).
@@ -12331,7 +13002,7 @@ var SceneTransform = class {
       });
     }
     if (child._parentTransform === this) {
-      child.setParentTransform(null, { preserveWorld: false });
+      child.setParentTransformId(null, { preserveWorld: false });
     }
     return { ok: true, value: void 0 };
   }
@@ -12360,7 +13031,7 @@ var SceneTransform = class {
         error: `[SceneTransform.addChildMesh] Mesh "${childMeshId}" not found in SceneModel`
       });
     }
-    child.setParentTransform(this.id);
+    child.setParentTransformId(this.id);
     return { ok: true, value: void 0 };
   }
   /**
@@ -12387,7 +13058,7 @@ var SceneTransform = class {
       return;
     }
     if (child.parentTransform && child.parentTransform.id === this.id) {
-      child.setParentTransform(null);
+      child.setParentTransformId(null);
     }
   }
   /**
@@ -12447,7 +13118,7 @@ var SceneTransform = class {
     }
     this._parentTransform = null;
     for (const child of [...this._childTransforms]) {
-      child.setParentTransform(null, { preserveWorld: false });
+      child.setParentTransformId(null, { preserveWorld: false });
     }
     this._markTreeDirtyTask.destroy();
     this._childTransforms = [];
@@ -12733,12 +13404,12 @@ var SceneMesh = class {
    * @param parentTransformId - The ID of the new parent transform, or null to detach.
    * @param opts - Options to preserve world transformation.
    */
-  setParentTransform(parentTransformId, opts) {
+  setParentTransformId(parentTransformId, opts) {
     if (this.destroyed) {
       return this.model.scene.logError({
         ok: false,
         type: 1 /* InvalidOperation */,
-        error: `[SceneMesh.setParentTransform] Cannot set parent transform on destroyed SceneMesh ${this.id}`
+        error: `[SceneMesh.setParentTransformId] Cannot set parent transform on destroyed SceneMesh ${this.id}`
       });
     }
     let parentTransform = null;
@@ -12748,14 +13419,14 @@ var SceneMesh = class {
         return this.model.scene.logError({
           ok: false,
           type: 1 /* InvalidOperation */,
-          error: `[SceneMesh.setParentTransform] SceneTransform "${parentTransformId}" not found in SceneModel`
+          error: `[SceneMesh.setParentTransformId] SceneTransform "${parentTransformId}" not found in SceneModel`
         });
       }
       if (parentTransform.model.id !== this.model.id) {
         return this.model.scene.logError({
           ok: false,
           type: 1 /* InvalidOperation */,
-          error: `[SceneMesh.setParentTransform] Cannot set parent transform to a SceneMesh in a different SceneModel: ${this.id}`
+          error: `[SceneMesh.setParentTransformId] Cannot set parent transform to a SceneMesh in a different SceneModel: ${this.id}`
         });
       }
     }
@@ -13422,7 +14093,7 @@ var SceneModel2 = class {
    * Creates a new {@link SceneTransform} within this SceneModel.
    *
    * - Stores the transform in {@link SceneModel.transforms}.
-   * - Optionally attaches it under a parent transform using {@link SceneTransform.setParentTransform}.
+   * - Optionally attaches it under a parent transform using {@link SceneTransform.setParentTransformId}.
    * - The final transform matrix can be supplied directly via `matrix` or composed from
    *   `position`, `scale` and `rotation` (Euler) or `quaternion`.
    * - Fires {@link SceneEvents.onSceneTransformCreated | SceneEvents.onSceneTransformCreated} event.
@@ -13495,7 +14166,7 @@ var SceneModel2 = class {
     }
     const sceneTransform = new SceneTransform(this, transformParams);
     if (parentTransform) {
-      sceneTransform.setParentTransform(parentTransform.id);
+      sceneTransform.setParentTransformId(parentTransform.id);
     }
     this.transforms[transformParams.id] = sceneTransform;
     this.stats.numTransforms++;
@@ -14297,7 +14968,7 @@ var SceneModel2 = class {
       opacity
     });
     if (transform) {
-      sceneMesh.setParentTransform(transform.id);
+      sceneMesh.setParentTransformId(transform.id);
     }
     geometry.numMeshes++;
     this.meshes[id] = sceneMesh;
@@ -50404,11 +51075,11 @@ var IFC2X3;
   }
   IFC2X32.IfcArbitraryClosedProfileDef = IfcArbitraryClosedProfileDef;
   class IfcArbitraryOpenProfileDef extends IfcProfileDef {
-    constructor(ProfileType, ProfileName, Curve) {
+    constructor(ProfileType, ProfileName, Curve2) {
       super(ProfileType, ProfileName);
       this.ProfileType = ProfileType;
       this.ProfileName = ProfileName;
-      this.Curve = Curve;
+      this.Curve = Curve2;
       this.type = 1310608509;
     }
   }
@@ -50438,11 +51109,11 @@ var IFC2X3;
   }
   IFC2X32.IfcBlobTexture = IfcBlobTexture;
   class IfcCenterLineProfileDef extends IfcArbitraryOpenProfileDef {
-    constructor(ProfileType, ProfileName, Curve, Thickness) {
-      super(ProfileType, ProfileName, Curve);
+    constructor(ProfileType, ProfileName, Curve2, Thickness) {
+      super(ProfileType, ProfileName, Curve2);
       this.ProfileType = ProfileType;
       this.ProfileName = ProfileName;
-      this.Curve = Curve;
+      this.Curve = Curve2;
       this.Thickness = Thickness;
       this.type = 3150382593;
     }
@@ -66220,11 +66891,11 @@ var IFC4;
   }
   IFC42.IfcArbitraryClosedProfileDef = IfcArbitraryClosedProfileDef;
   class IfcArbitraryOpenProfileDef extends IfcProfileDef {
-    constructor(ProfileType, ProfileName, Curve) {
+    constructor(ProfileType, ProfileName, Curve2) {
       super(ProfileType, ProfileName);
       this.ProfileType = ProfileType;
       this.ProfileName = ProfileName;
-      this.Curve = Curve;
+      this.Curve = Curve2;
       this.type = 1310608509;
     }
   }
@@ -66255,11 +66926,11 @@ var IFC4;
   }
   IFC42.IfcBlobTexture = IfcBlobTexture;
   class IfcCenterLineProfileDef extends IfcArbitraryOpenProfileDef {
-    constructor(ProfileType, ProfileName, Curve, Thickness) {
-      super(ProfileType, ProfileName, Curve);
+    constructor(ProfileType, ProfileName, Curve2, Thickness) {
+      super(ProfileType, ProfileName, Curve2);
       this.ProfileType = ProfileType;
       this.ProfileName = ProfileName;
-      this.Curve = Curve;
+      this.Curve = Curve2;
       this.Thickness = Thickness;
       this.type = 3150382593;
     }
@@ -85693,11 +86364,11 @@ var IFC4X3;
   }
   IFC4X32.IfcArbitraryClosedProfileDef = IfcArbitraryClosedProfileDef;
   class IfcArbitraryOpenProfileDef extends IfcProfileDef {
-    constructor(ProfileType, ProfileName, Curve) {
+    constructor(ProfileType, ProfileName, Curve2) {
       super(ProfileType, ProfileName);
       this.ProfileType = ProfileType;
       this.ProfileName = ProfileName;
-      this.Curve = Curve;
+      this.Curve = Curve2;
       this.type = 1310608509;
     }
   }
@@ -85728,11 +86399,11 @@ var IFC4X3;
   }
   IFC4X32.IfcBlobTexture = IfcBlobTexture;
   class IfcCenterLineProfileDef extends IfcArbitraryOpenProfileDef {
-    constructor(ProfileType, ProfileName, Curve, Thickness) {
-      super(ProfileType, ProfileName, Curve);
+    constructor(ProfileType, ProfileName, Curve2, Thickness) {
+      super(ProfileType, ProfileName, Curve2);
       this.ProfileType = ProfileType;
       this.ProfileName = ProfileName;
-      this.Curve = Curve;
+      this.Curve = Curve2;
       this.Thickness = Thickness;
       this.type = 3150382593;
     }
@@ -123179,7 +123850,7 @@ var ViewTransform = class {
       }
     }
     if (params.parentTransformId) {
-      this.setParentTransform(params.parentTransformId, { preserveWorld: false });
+      this.setParentTransformId(params.parentTransformId, { preserveWorld: false });
     }
     if (params.viewObjectIds?.length) {
       for (const id of params.viewObjectIds) {
@@ -123309,23 +123980,23 @@ var ViewTransform = class {
       parent._childTransforms.push(this);
     this._markTreeDirtyTask.schedule();
   }
-  setParentTransform(parentTransformId, opts) {
+  setParentTransformId(parentTransformId, opts) {
     if (this.destroyed) {
       return this._logErrorResult(
-        "[ViewTransform.setParentTransform] Cannot set parent transform on destroyed ViewTransform"
+        "[ViewTransform.setParentTransformId] Cannot set parent transform on destroyed ViewTransform"
       );
     }
     let parent = null;
     if (parentTransformId) {
       if (parentTransformId === this.id) {
         return this._logErrorResult(
-          `[ViewTransform.setParentTransform] Cannot set parent transform to self on ViewTransform ${this.id}`
+          `[ViewTransform.setParentTransformId] Cannot set parent transform to self on ViewTransform ${this.id}`
         );
       }
       parent = this._resolveTransform(parentTransformId);
       if (!parent) {
         return this._logErrorResult(
-          `[ViewTransform.setParentTransform] ViewTransform "${parentTransformId}" not found in owning scope`
+          `[ViewTransform.setParentTransformId] ViewTransform "${parentTransformId}" not found in owning scope`
         );
       }
     }
@@ -123358,7 +124029,7 @@ var ViewTransform = class {
         `[ViewTransform.addChildTransform] ViewTransform "${childTransformId}" not found in owning scope`
       );
     }
-    return child.setParentTransform(this.id, opts);
+    return child.setParentTransformId(this.id, opts);
   }
   removeChildTransform(childTransformId) {
     if (this.destroyed) {
@@ -123373,7 +124044,7 @@ var ViewTransform = class {
       );
     }
     if (child._parentTransform === this) {
-      child.setParentTransform(null, { preserveWorld: false });
+      child.setParentTransformId(null, { preserveWorld: false });
     }
     return { ok: true, value: void 0 };
   }
@@ -123452,7 +124123,7 @@ var ViewTransform = class {
     }
     this._parentTransform = null;
     for (const child of [...this._childTransforms]) {
-      child.setParentTransform(null, { preserveWorld: false });
+      child.setParentTransformId(null, { preserveWorld: false });
     }
     this._markTreeDirtyTask.destroy();
     this._childTransforms = [];
@@ -126987,7 +127658,6 @@ var RenderBuffers = class {
     }
     const newBuffer = new WebGLRenderBuffer(
       this._view.htmlElement,
-      // TODO: View.htmlElement should be HTMLCanvasElement?
       this._renderContext.gl,
       {
         depthTexture: options?.depthTexture ?? false,
@@ -131002,11 +131672,6 @@ var MeshManager = class {
    *
    * @param batchIndex - Batch index.
    * @returns The batch if found, otherwise `null`.
-   *
-   * @remarks
-   * The current implementation indexes into {@link _sortedBatches} (a record keyed by internal ids),
-   * so this method may not behave as expected unless {@link _sortedBatches} is keyed by numeric indices.
-   * Consider switching to {@link sortedBatches}[batchIndex] if you want a stable positional lookup.
    */
   getBatch(batchIndex) {
     return this._sortedBatches[batchIndex] ?? null;
@@ -131019,6 +131684,21 @@ var MeshManager = class {
    */
   getMeshAtIndex(batchIndex, meshIndex) {
     return this._gpuMemoryManager.getMeshAtIndex(batchIndex, meshIndex);
+  }
+  /**
+   * Retrieves the {@link GPUTile} associated with a given {@link SceneMesh}.
+   * @param sceneMesh
+   */
+  getMeshTile(sceneMesh) {
+    const rendererModel = this._rendererModels[sceneMesh.model.id];
+    if (!rendererModel) {
+      return null;
+    }
+    const rendererMesh = rendererModel.rendererMeshes[sceneMesh.id];
+    if (!rendererMesh) {
+      return null;
+    }
+    return rendererMesh.gpuTile;
   }
   /**
    * Returns the parameters required for a WebGL `drawArrays` call for a mesh within a batch.
@@ -131220,6 +131900,7 @@ var DrawTechnique = class {
       pickZNear: program.getLocation("pickZNear"),
       pickZFar: program.getLocation("pickZFar"),
       pickClipPos: program.getLocation("pickClipPos"),
+      batchIndex: program.getLocation("batchIndex"),
       drawingBufferSize: program.getLocation("drawingBufferSize"),
       silhouetteColor: program.getLocation("uSilhouetteColor"),
       sectionPlanes: [],
@@ -131327,6 +132008,9 @@ var DrawTechnique = class {
       samplers.indexTexture,
       this.edges ? batchDataTextures.edgeIndexTexture : batchDataTextures.indexTexture
     );
+    if (this._uniforms.batchIndex) {
+      gl.uniform1ui(this._uniforms.batchIndex, meshBatch.gpuMemoryBatchIndex);
+    }
     gl.uniform1i(this._uniforms.primBaseIndex, 0);
     const drawPrimitiveType = this.edges ? LinesPrimitive : meshBatch.primitive;
     gl.uniform1i(this._uniforms.primitiveType, drawPrimitiveType);
@@ -131630,7 +132314,7 @@ bool triangleFacesEyeVS(vec3 aVS, vec3 bVS, vec3 cVS) {
       "uniform vec4 uLightColor2;",
       "uniform vec3 uLightDir3;",
       "uniform vec4 uLightColor3;",
-      "out vec4 vColor;",
+      "flat out vec4 vColor;",
       "out vec4 vViewPos;",
       silhouette ? "uniform vec4 uSilhouetteColor;" : ""
     );
@@ -131646,7 +132330,7 @@ bool triangleFacesEyeVS(vec3 aVS, vec3 bVS, vec3 cVS) {
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 
 uniform vec4 uSilhouetteColor;
-out vec4 vColor;`);
+flat out vec4 vColor;`);
   }
   /**
    * Generates vertex shader definitions for flat color rendering.
@@ -131658,7 +132342,7 @@ out vec4 vColor;`);
 // Flat color rendering configuration
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 
-out vec4 vColor;`);
+flat out vec4 vColor;`);
   }
   /**
    * Generates vertex shader definitions for vertex color rendering.
@@ -131670,7 +132354,7 @@ out vec4 vColor;`);
 // Vertex color rendering configuration
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 
-out vec4 vColor;`);
+flat out vec4 vColor;`);
   }
   /**
    * Generates vertex shader definitions for depth rendering.
@@ -131704,15 +132388,19 @@ uniform float pointSize;`);
    * Generates vertex shader definitions for pick rendering.
    * @protected
    */
-  vsPickMeshDefines() {
+  vsPickDefines() {
     this._vertSrcBuf.push(`
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-// Pick rendering configuration
+// Pick common rendering configuration
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 
-out     vec4 vPickColor;
 uniform vec2 drawingBufferSize;
 uniform vec2 pickClipPos;
+uniform vec2 pickZRange;
+uniform uint batchIndex;
+
+flat out uint vBatchIndex;
+flat out uint vMeshIndex;
 
 // In pick rendering, we render meshes in their pick-space positions, which are derived from the clip-space
 // positions but with XY remapped to [0,1] based on the viewport and with Z remapped to [0,1] based on the view's
@@ -131726,6 +132414,12 @@ vec4 remapPickClipPos(vec4 clipPos) {
     clipPos.xy *= clipPos.w;
     return clipPos;
 }`);
+  }
+  /**
+   * Generates vertex shader definitions for pick rendering.
+   * @protected
+   */
+  vsPickMeshDefines() {
   }
   /**
    * Generates vertex shader definitions for slicing (section planes).
@@ -131773,13 +132467,6 @@ void main(void) {`);
 
 void main(void) {`);
     this._vsMeshLogic();
-    this._vertSrcBuf.push(
-      `    int pickFlag = int(meshViewAttributes.renderFlags.b >> 8u & 0xFu);`,
-      `    if (pickFlag != uRenderPass) {`,
-      // "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
-      // "        return;",
-      "    }"
-    );
     this._vsMeshLogic2();
   }
   /**
@@ -132018,7 +132705,20 @@ void main(void) {`);
    * @protected
    */
   vsPickMeshLogic() {
-    this._vertSrcBuf.push("    vPickColor = packUintToRGBA8(meshIndex);");
+    this._vertSrcBuf.push(
+      "    vBatchIndex = batchIndex;",
+      "    vMeshIndex = meshIndex;",
+      "    gl_Position = remapPickClipPos(gl_Position);"
+    );
+  }
+  /**
+   * Generates vertex shader logic for depth pick rendering.
+   * @protected
+   */
+  vsPickDepthLogic() {
+    this._vertSrcBuf.push(
+      "    vHighPrecisionZW = remapPickClipPos(gl_Position).zw;"
+    );
   }
   /**
    * Generates vertex shader logic for point size and intensity filtering.
@@ -132099,7 +132799,7 @@ void main(void) {`);
    * @protected
    */
   fsSilhouetteDefines() {
-    this._fragSrcBuf.push("in vec4 vColor;");
+    this._fragSrcBuf.push("flat in vec4 vColor;");
   }
   /**
    * Generates fragment shader logic for silhouette rendering.
@@ -132113,7 +132813,7 @@ void main(void) {`);
    * @protected
    */
   fsDrawFlatColorDefines() {
-    this._fragSrcBuf.push("in vec4 vColor;");
+    this._fragSrcBuf.push("flat in vec4 vColor;");
   }
   /**
    * Generates fragment shader logic for flat-shaded color rendering.
@@ -132128,10 +132828,9 @@ void main(void) {`);
    */
   fsLambertShadingDefines() {
     const src = this._fragSrcBuf;
-    const view = this._renderContext.activeView;
     src.push(
-      "in vec4 vColor;",
-      "in vec4 vViewPos;"
+      "flat in vec4 vColor;",
+      "flat in vec4 vViewPos;"
     );
   }
   /**
@@ -132194,14 +132893,61 @@ void main(void) {`);
    * @protected
    */
   fsPickMeshDefines() {
-    this._fragSrcBuf.push("in vec4 vPickColor;");
+    this._fragSrcBuf.push(
+      `flat in uint vMeshIndex;
+       flat in uint vBatchIndex;
+
+      layout(location = 0) out vec4 outBatchIndex;
+      layout(location = 1) out vec4 outMeshIndex;
+      layout(location = 2) out vec4 outDepth;
+
+      // Packs a 32-bit uint into 4 normalized 8-bit color channels.
+      // R = least-significant byte, A = most-significant byte.
+      vec4 packUintToRGBA8(uint v) {
+        return vec4(
+          float( v         & 0xFFu),
+          float((v >> 8u)  & 0xFFu),
+          float((v >> 16u) & 0xFFu),
+          float((v >> 24u) & 0xFFu)
+        ) / 255.0;
+      }
+
+      // Packs a normalized float in [0,1] into RGBA8.
+      // Useful for storing depth in an RGBA8 render target.
+      vec4 packFloat01ToRGBA8(float v) {
+         v = clamp(v, 0.0, 1.0);
+
+         vec4 enc = fract(v * vec4(
+             1.0,
+             255.0,
+             65025.0,
+             16581375.0
+         ));
+
+         enc -= enc.yzww * vec4(
+             1.0 / 255.0,
+             1.0 / 255.0,
+             1.0 / 255.0,
+             0.0
+         );
+
+         return enc;
+      }`
+    );
   }
   /**
    * Generates fragment shader logic for pick rendering.
    * @protected
    */
+  // protected fsPickMeshLogic() {
+  //   this._fragSrcBuf.push("color = vPickColor;");
+  // }
   fsPickMeshLogic() {
-    this._fragSrcBuf.push("color = vPickColor;");
+    this._fragSrcBuf.push(`
+    outBatchIndex   = packUintToRGBA8(vBatchIndex);
+    outMeshIndex   = packUintToRGBA8(vMeshIndex);
+    outDepth = packFloat01ToRGBA8(gl_FragCoord.z);
+    `);
   }
   /**
    * Generates fragment shader defines for slicing (section planes).
@@ -132564,61 +133310,6 @@ var TrianglesDrawEdgeSilhouetteTechnique = class extends DrawTechnique {
   }
 };
 
-// ../sdk/src/webglrenderer/internal/drawOps/techniques/generic/GenericPickMeshTechnique.ts
-var GenericPickMeshTechnique = class extends DrawTechnique {
-  constructor(renderContext, gpuMemoryReader) {
-    super(renderContext, gpuMemoryReader, { picking: true });
-  }
-  buildVertexShader() {
-    this.vsHeader();
-    this.vsCommonDefines();
-    this.vsSlicingDefines();
-    this.vsPickMeshDefines();
-    this.vsPickMainOpen();
-    this.vsPickMeshLogic();
-    this.vsSlicingLogic();
-    this.vsMainClose();
-  }
-  buildFragmentShader() {
-    this.fsHeader();
-    this.fsPrecisionDefines();
-    this.fsCommonDefines();
-    this.fsSlicingDefines();
-    this.fsPickMeshDefines();
-    this.fsMainOpen();
-    this.fsSlicingLogic();
-    this.fsPickMeshLogic();
-    this.fsCommonOutput();
-    this.fsMainClose();
-  }
-};
-
-// ../sdk/src/webglrenderer/internal/drawOps/techniques/generic/GenericPickDepthTechnique.ts
-var GenericPickDepthTechnique = class extends DrawTechnique {
-  buildVertexShader() {
-    this.vsHeader();
-    this.vsCommonDefines();
-    this.vsSlicingDefines();
-    this.vsDrawDepthDefines();
-    this.vsPickMainOpen();
-    this.vsDrawDepthLogic();
-    this.vsSlicingLogic();
-    this.vsMainClose();
-  }
-  buildFragmentShader() {
-    this.fsHeader();
-    this.fsPrecisionDefines();
-    this.fsCommonDefines();
-    this.fsSlicingDefines();
-    this.fsDrawDepthDefines();
-    this.fsMainOpen();
-    this.fsSlicingLogic();
-    this.fsDrawDepthLogic();
-    this.fsCommonOutput();
-    this.fsMainClose();
-  }
-};
-
 // ../sdk/src/webglrenderer/internal/drawOps/techniques/triangles/TrianglesDrawEdgeColorTechnique.ts
 var TrianglesDrawEdgeColorTechnique = class extends DrawTechnique {
   constructor(renderContext, gpuMemoryReader) {
@@ -132676,6 +133367,41 @@ var TrianglesDrawSilhouetteTechnique = class extends DrawTechnique {
     this.fsSlicingLogic();
     this.fsSilhouetteLogic();
     this.fsCommonOutput();
+    this.fsMainClose();
+  }
+};
+
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/generic/index.ts
+var generic_exports = {};
+__export(generic_exports, {
+  GenericDrawSilhouetteTechnique: () => GenericDrawSilhouetteTechnique,
+  GenericPickMeshTechnique: () => GenericPickMeshTechnique
+});
+
+// ../sdk/src/webglrenderer/internal/drawOps/techniques/generic/GenericPickMeshTechnique.ts
+var GenericPickMeshTechnique = class extends DrawTechnique {
+  constructor(renderContext, gpuMemoryReader) {
+    super(renderContext, gpuMemoryReader, { picking: true });
+  }
+  buildVertexShader() {
+    this.vsHeader();
+    this.vsCommonDefines();
+    this.vsSlicingDefines();
+    this.vsPickDefines();
+    this.vsPickMeshDefines();
+    this.vsPickMainOpen();
+    this.vsPickMeshLogic();
+    this.vsSlicingLogic();
+    this.vsMainClose();
+  }
+  buildFragmentShader() {
+    this.fsHeader();
+    this.fsPrecisionDefines();
+    this.fsSlicingDefines();
+    this.fsPickMeshDefines();
+    this.fsMainOpen();
+    this.fsSlicingLogic();
+    this.fsPickMeshLogic();
     this.fsMainClose();
   }
 };
@@ -132753,7 +133479,6 @@ var DrawOps = class {
     const trianglesDrawEdgeSilhouette = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader));
     const trianglesDrawEdgeColor = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader));
     const pickMesh = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader));
-    const pickDepth = saveForCleanup(new GenericPickDepthTechnique(renderContext, gpuMemoryReader));
     const linesDrawColor = saveForCleanup(new LinesDrawColorTechnique(renderContext, gpuMemoryReader));
     const pointsDrawColor = saveForCleanup(new PointsDrawColorTechnique(renderContext, gpuMemoryReader));
     for (let i = 0, len = this._techniques.length; i < len; i++) {
@@ -132779,8 +133504,7 @@ var DrawOps = class {
         selectedEdges: new DrawOp(trianglesDrawEdgeSilhouette, SELECTED),
         xrayed: new DrawOp(trianglesSilhouette, XRAYED),
         xrayedEdges: new DrawOp(trianglesDrawEdgeSilhouette, XRAYED),
-        pick: new DrawOp(pickMesh, PICK),
-        pickDepth: new DrawOp(pickDepth, PICK)
+        pick: new DrawOp(pickMesh, PICK)
       },
       [LinesPrimitive]: {
         opaque: new DrawOp(linesDrawColor, OPAQUE),
@@ -132788,8 +133512,7 @@ var DrawOps = class {
         highlighted: new DrawOp(silhouette, HIGHLIGHTED),
         selected: new DrawOp(silhouette, SELECTED),
         xrayed: new DrawOp(silhouette, XRAYED),
-        pick: new DrawOp(pickMesh, PICK),
-        pickDepth: new DrawOp(pickDepth, PICK)
+        pick: new DrawOp(pickMesh, PICK)
       },
       [PointsPrimitive]: {
         opaque: new DrawOp(pointsDrawColor, OPAQUE),
@@ -132797,8 +133520,7 @@ var DrawOps = class {
         // highlighted: new DrawOp(pointsSilhouette, HIGHLIGHTED),
         // selected: new DrawOp(pointsSilhouette, SELECTED),
         // xrayed: new DrawOp(pointsSilhouette, XRAYED),
-        pick: new DrawOp(pickMesh, PICK),
-        pickDepth: new DrawOp(pickDepth, PICK)
+        pick: new DrawOp(pickMesh, PICK)
       }
     };
     return {
@@ -132880,7 +133602,7 @@ var pickTemps = {
   pickProjMatrix: createMat4Float64()
 };
 var PickManager = class {
-  _renderBufferManager;
+  _pickBuffer;
   _pickResult;
   _renderContext;
   _gpuMemoryManager;
@@ -132893,7 +133615,7 @@ var PickManager = class {
     this._pickResult = new PickResult();
   }
   /**
-   *
+   * Initializes this PickManager, allocating necessary resources. If initialization fails, an error result is returned.
    */
   init() {
     const drawOpsResult = getDrawOps(this._renderContext, this._gpuMemoryManager);
@@ -132901,10 +133623,29 @@ var PickManager = class {
       return drawOpsResult;
     }
     this._drawOps = drawOpsResult.value;
+    this._pickBuffer = new WebGLPickBuffer(this._renderContext.gl);
+    const pickBufferResult = this._pickBuffer.init();
+    if (pickBufferResult.ok === false) {
+      putDrawOps(this._drawOps);
+      this._drawOps = null;
+      this._pickBuffer = null;
+      return pickBufferResult;
+    }
     return { ok: true, value: void 0 };
   }
   webglContextRestored() {
-    return this._drawOps ? this._drawOps.webglContextRestored() : { ok: true, value: void 0 };
+    if (!this._drawOps) {
+      return { ok: true, value: void 0 };
+    }
+    const result1 = this._drawOps.webglContextRestored();
+    if (result1.ok === false) {
+      return result1;
+    }
+    const result2 = this._pickBuffer.webglContextRestored(this._renderContext.gl);
+    if (result2.ok === false) {
+      return result2;
+    }
+    return { ok: true, value: void 0 };
   }
   /**
    * Picks a {@link ViewObject} and/or a 3D position on its surface,
@@ -132957,20 +133698,22 @@ var PickManager = class {
         pickResult.direction = pickWorldRayDir;
       }
     }
-    if (pickParams.pickViewObject || pickParams.pickSurface) {
-      const pickMeshResult = this._pickMesh({
-        rendererView,
-        rayPick,
-        pickCanvasPos,
-        pickViewMatrix,
-        pickProjMatrix,
-        pickInvisible: !!pickParams.pickInvisible
-      });
-      if (!pickMeshResult) {
-        return { ok: true, value: null };
-      }
-      pickResult.sceneMesh = pickMeshResult.sceneMesh;
+    const pickMeshResult = this._pickMesh({
+      rendererView,
+      rayPick,
+      pickCanvasPos,
+      pickViewMatrix,
+      pickProjMatrix,
+      pickInvisible: !!pickParams.pickInvisible
+    });
+    if (!pickMeshResult) {
+      return { ok: true, value: null };
     }
+    const sceneObject = pickMeshResult.sceneMesh.object;
+    pickResult.sceneMesh = pickMeshResult.sceneMesh;
+    pickResult.worldPos = pickMeshResult.worldPos;
+    pickResult.sceneObject = sceneObject;
+    pickResult.viewObject = view.objects[sceneObject.id];
     return { ok: true, value: pickResult };
   }
   _pickMesh(params) {
@@ -132993,10 +133736,7 @@ var PickManager = class {
     const resolutionScale = view.resolutionScale;
     const renderContext = this._renderContext;
     const gl = renderContext.gl;
-    const pickBuffer = rendererView.renderBuffers.getRenderBuffer("pickMesh", {
-      depthTexture: false,
-      size: [1, 1]
-    });
+    const pickBuffer = this._pickBuffer;
     pickBuffer.bind();
     pickBuffer.clear();
     renderContext.reset();
@@ -133004,7 +133744,6 @@ var PickManager = class {
     renderContext.rayPicking = rayPick;
     renderContext.backfaces = true;
     renderContext.frontface = true;
-    renderContext.pickViewMatrix = pickViewMatrix;
     renderContext.pickProjMatrix = pickProjMatrix;
     renderContext.pickInvisible = !!pickInvisible;
     renderContext.pickClipPos = [
@@ -133029,27 +133768,46 @@ var PickManager = class {
         this._drawOps.prims[meshBatch.primitive]?.pick?.drawBatch(meshBatch);
       }
     }
-    const pix = pickBuffer.read(0, 0);
-    console.log("Pick pixel data:", pix);
+    const { target0, target1, target2 } = pickBuffer.read();
     pickBuffer.unbind();
-    if (!pix || pix.length < 4) {
-      return null;
-    }
-    const pickID = pix[0] + (pix[1] << 8) + (pix[2] << 16) + (pix[3] << 24);
-    if (pickID < 0) {
-      return null;
-    }
-    const unsignedPickId = pickID >>> 0;
-    const batchIndex = unsignedPickId >>> 16 & 65535;
-    const meshIndex = unsignedPickId & 65535;
+    const batchIndex = unpackRGBA8ToUint(target0);
+    const meshIndex = unpackRGBA8ToUint(target1);
+    const depth = this._unpackDepth(target2);
     const sceneMesh = this._meshBatchManager.getMeshAtIndex(batchIndex, meshIndex);
     if (!sceneMesh) {
       return null;
     }
-    return { sceneMesh, batchIndex, meshIndex };
-  }
-  _pickWorldPos(params) {
-    return null;
+    const gpuTile = this._meshBatchManager.getMeshTile(sceneMesh);
+    if (!gpuTile) {
+      return null;
+    }
+    const canvas2 = view.htmlElement;
+    const x = (pickCanvasPos[0] - canvas2.clientWidth / 2) / (canvas2.clientWidth / 2);
+    const y = -(pickCanvasPos[1] - canvas2.clientHeight / 2) / (canvas2.clientHeight / 2);
+    const tileOrigin = gpuTile.center;
+    const gotOrigin = tileOrigin[0] !== 0 && tileOrigin[1] !== 0 && tileOrigin[2] !== 0;
+    const viewMatrix = gotOrigin ? createRTCViewMat(pickViewMatrix, tileOrigin, tempMat4b2) : pickViewMatrix;
+    const pvMat = mulMat4(pickProjMatrix, viewMatrix, tempMat4c);
+    const pvMatInverse = inverseMat4(pvMat, tempMat4c);
+    tempVec4a7[0] = x;
+    tempVec4a7[1] = y;
+    tempVec4a7[2] = -1;
+    tempVec4a7[3] = 1;
+    let world1 = transformVec4(pvMatInverse, tempVec4a7);
+    mulVec4Scalar(world1, 1 / world1[3], world1);
+    tempVec4b6[0] = x;
+    tempVec4b6[1] = y;
+    tempVec4b6[2] = 1;
+    tempVec4b6[3] = 1;
+    let world2 = transformVec4(pvMatInverse, tempVec4b6);
+    mulVec4Scalar(world2, 1 / world2[3], world2);
+    const dir = subVec3(world2, world1, tempVec3c5);
+    const offset = mulVec3Scalar(dir, depth, tempVec3a9);
+    const worldPos = subVec3(world2, offset, tempVec3b9);
+    if (gotOrigin) {
+      addVec3(worldPos, tileOrigin, worldPos);
+    }
+    return { sceneMesh, batchIndex, meshIndex, worldPos };
   }
   _unpackDepth(depthZ) {
     const vec = createVec4Float64([depthZ[0] / 256, depthZ[1] / 256, depthZ[2] / 256, depthZ[3] / 256]);
@@ -133071,11 +133829,15 @@ var PickManager = class {
       this._gpuMemoryManager = null;
       this._meshBatchManager = null;
       this._renderContext = null;
-      this._renderBufferManager = null;
+      this._pickBuffer.destroy();
+      this._pickBuffer = null;
       this._drawOps = null;
     }
   }
 };
+function unpackRGBA8ToUint(bytes) {
+  return (bytes[0] >>> 0 | bytes[1] << 8 >>> 0 | bytes[2] << 16 >>> 0 | bytes[3] << 24 >>> 0) >>> 0;
+}
 
 // ../sdk/src/webglrenderer/internal/renderManager/RenderManager.ts
 var RenderManager = class {
@@ -134223,14 +134985,6 @@ __export(techniques_exports, {
   triangles: () => triangles_exports
 });
 
-// ../sdk/src/webglrenderer/internal/drawOps/techniques/generic/index.ts
-var generic_exports = {};
-__export(generic_exports, {
-  GenericDrawSilhouetteTechnique: () => GenericDrawSilhouetteTechnique,
-  GenericPickDepthTechnique: () => GenericPickDepthTechnique,
-  GenericPickMeshTechnique: () => GenericPickMeshTechnique
-});
-
 // ../sdk/src/webglrenderer/internal/drawOps/techniques/lines/index.ts
 var lines_exports = {};
 __export(lines_exports, {
@@ -134736,26 +135490,19 @@ var ViewManager2 = class {
    */
   _activateView(rendererView) {
     const activeRendererView = this._activeView;
-    if (activeRendererView) {
-      if (activeRendererView === rendererView) {
-        return;
-      }
+    if (activeRendererView && activeRendererView !== rendererView) {
       const activeCanvasBoundingRect = activeRendererView.view.htmlElement.getBoundingClientRect();
-      const activeCanvasWidth = Math.round(activeCanvasBoundingRect.width);
-      const activeCanvasHeight = Math.round(activeCanvasBoundingRect.height);
-      const primarySnapshotBuffer = activeRendererView.renderBuffers.getRenderBuffer("snapshot", {
+      const width = Math.round(activeCanvasBoundingRect.width);
+      const height = Math.round(activeCanvasBoundingRect.height);
+      const snapshotBuffer = activeRendererView.renderBuffers.getRenderBuffer("snapshot", {
         depthTexture: false,
-        size: [activeCanvasWidth, activeCanvasHeight]
+        size: [width, height]
       });
-      primarySnapshotBuffer.bind();
-      primarySnapshotBuffer.clear();
+      snapshotBuffer.bind();
+      snapshotBuffer.clear();
       this._renderManager.render(activeRendererView, { clear: true });
-      const image = primarySnapshotBuffer.readImage({
-        format: "png",
-        height: activeCanvasHeight,
-        width: activeCanvasWidth
-      });
-      primarySnapshotBuffer.unbind();
+      const image = snapshotBuffer.readImage({ format: "png", height, width });
+      snapshotBuffer.unbind();
       activeRendererView.view.htmlElement.src = image;
     }
     this._activeView = rendererView;
@@ -136010,7 +136757,10 @@ var KEY_SPACE = 32;
 // ../sdk/src/cameraflight/index.ts
 var cameraflight_exports = {};
 __export(cameraflight_exports, {
-  CameraFlightAnimation: () => CameraFlightAnimation
+  CameraFlightAnimation: () => CameraFlightAnimation,
+  CameraPath: () => CameraPath,
+  CameraPathAnimation: () => CameraPathAnimation,
+  CameraPathAnimationState: () => CameraPathAnimationState
 });
 
 // ../sdk/src/cameraflight/CameraFlightAnimation.ts
@@ -136472,6 +137222,417 @@ var CameraFlightAnimation = class _CameraFlightAnimation {
   }
 };
 
+// ../sdk/src/cameraflight/CameraPath.ts
+var tempVec3a10 = createVec3Float64();
+var CameraPath = class {
+  _frames = [];
+  _eyeCurve;
+  _lookCurve;
+  _upCurve;
+  /**
+   * The target camera.
+   */
+  camera;
+  /**
+   * Creates a camera path.
+   *
+   * @param camera The camera to control with this path. The camera's eye, look, and up will be sampled when saving frames and updated when loading frames.
+   * @param cfg Configuration options
+   * @param cfg.frames Initial frames to add to the path
+   */
+  constructor(camera, cfg = {}) {
+    this.camera = camera;
+    this._eyeCurve = new SplineCurve();
+    this._lookCurve = new SplineCurve();
+    this._upCurve = new SplineCurve();
+    if (cfg.frames) {
+      this.addFrames(cfg.frames);
+      this.smoothFrameTimes(1);
+    }
+  }
+  /**
+   * Frames in insertion order.
+   */
+  get frames() {
+    return this._frames;
+  }
+  /**
+   * Spline for camera eye positions.
+   */
+  get eyeCurve() {
+    return this._eyeCurve;
+  }
+  /**
+   * Spline for camera look positions.
+   */
+  get lookCurve() {
+    return this._lookCurve;
+  }
+  /**
+   * Spline for camera up vectors.
+   */
+  get upCurve() {
+    return this._upCurve;
+  }
+  /**
+   * Captures the current camera state as a new frame.
+   *
+   * @param t Time for the new frame
+   */
+  saveFrame(t) {
+    const camera = this.camera;
+    this.addFrame(t, camera.eye, camera.look, camera.up);
+  }
+  /**
+   * Adds a frame to the path.
+   *
+   * Vector values are copied before storage.
+   *
+   * @param t Time for the new frame
+   * @param eye Eye position
+   * @param look Look position
+   * @param up Up vector
+   */
+  addFrame(t, eye, look, up) {
+    const frame = {
+      t,
+      eye: eye.slice(0),
+      look: look.slice(0),
+      up: up.slice(0)
+    };
+    this._frames.push(frame);
+    this._eyeCurve.points.push(frame.eye);
+    this._lookCurve.points.push(frame.look);
+    this._upCurve.points.push(frame.up);
+  }
+  /**
+   * Adds multiple frames to the path.
+   *
+   * @param frames Frames to append
+   */
+  addFrames(frames) {
+    for (let i = 0, len = frames.length; i < len; i++) {
+      const frame = frames[i];
+      this.addFrame(frame.t || 0, frame.eye, frame.look, frame.up);
+    }
+  }
+  /**
+   * Loads the interpolated camera state at the given path time.
+   *
+   * Input time is normalized using the first and last frame times.
+   *
+   * @param t Time along the path
+   */
+  loadFrame(t) {
+    if (this._frames.length === 0) {
+      return;
+    }
+    const camera = this.camera;
+    const startTime = this._frames[0].t;
+    const endTime = this._frames[this._frames.length - 1].t;
+    const range = endTime - startTime;
+    t = range !== 0 ? t / range : 0;
+    t = t < 0 ? 0 : t > 1 ? 1 : t;
+    camera.eye = this._eyeCurve.getPoint(t);
+    camera.look = this._lookCurve.getPoint(t);
+    camera.up = this._upCurve.getPoint(t);
+  }
+  /**
+   * Samples the path at normalized parameter `t`.
+   *
+   * @param t Normalized parameter in the range `[0..1]`
+   * @param eye Target eye vector to write into
+   * @param look Target look vector to write into
+   * @param up Target up vector to write into
+   */
+  sampleFrame(t, eye, look, up) {
+    t = t < 0 ? 0 : t > 1 ? 1 : t;
+    const eyePoint = this._eyeCurve.getPoint(t);
+    const lookPoint = this._lookCurve.getPoint(t);
+    const upPoint = this._upCurve.getPoint(t);
+    eye[0] = eyePoint[0];
+    eye[1] = eyePoint[1];
+    eye[2] = eyePoint[2];
+    look[0] = lookPoint[0];
+    look[1] = lookPoint[1];
+    look[2] = lookPoint[2];
+    up[0] = upPoint[0];
+    up[1] = upPoint[1];
+    up[2] = upPoint[2];
+  }
+  /**
+   * Redistributes frame times so camera motion is closer to constant speed.
+   *
+   * Uses distance between consecutive eye positions.
+   *
+   * @param duration Total duration to distribute across all frames
+   */
+  smoothFrameTimes(duration) {
+    const numFrames = this._frames.length;
+    if (numFrames === 0) {
+      return;
+    }
+    const vec = createVec3Float64();
+    let totalLen = 0;
+    this._frames[0].t = 0;
+    const lens = [];
+    for (let i = 1, len = this._frames.length; i < len; i++) {
+      const lenVec = lenVec3(subVec3(this._frames[i].eye, this._frames[i - 1].eye, vec));
+      lens[i] = lenVec;
+      totalLen += lenVec;
+    }
+    for (let i = 1, len = this._frames.length; i < len; i++) {
+      const interFrameRate = totalLen !== 0 ? lens[i] / totalLen * duration : 0;
+      this._frames[i].t = this._frames[i - 1].t + interFrameRate;
+    }
+  }
+  /**
+   * Removes all frames and clears all spline control points.
+   */
+  clearFrames() {
+    this._frames = [];
+    this._eyeCurve.points = [];
+    this._lookCurve.points = [];
+    this._upCurve.points = [];
+  }
+};
+
+// ../sdk/src/cameraflight/CameraPathAnimation.ts
+var CameraPathAnimationState = /* @__PURE__ */ ((CameraPathAnimationState2) => {
+  CameraPathAnimationState2[CameraPathAnimationState2["STOPPED"] = 0] = "STOPPED";
+  CameraPathAnimationState2[CameraPathAnimationState2["SCRUBBING"] = 1] = "SCRUBBING";
+  CameraPathAnimationState2[CameraPathAnimationState2["PLAYING"] = 2] = "PLAYING";
+  CameraPathAnimationState2[CameraPathAnimationState2["PLAYING_TO"] = 3] = "PLAYING_TO";
+  return CameraPathAnimationState2;
+})(CameraPathAnimationState || {});
+var CameraPathAnimation = class {
+  _cameraFlightAnimation;
+  _cameraPath;
+  _t = 0;
+  _playingFromT = 0;
+  _playingToT = 0;
+  _playingRate = 1;
+  _playingDir = 1;
+  _lastTime = null;
+  _tick;
+  /**
+   * Current playback state.
+   */
+  state = 1 /* SCRUBBING */;
+  /**
+   * Scene containing the camera and tick event source.
+   */
+  scene;
+  /**
+   * Creates a camera path animation.
+   *
+   * @param scene Scene containing the target camera
+   * @param cfg Configuration options
+   * @param cfg.cameraPath Path to animate along
+   * @param cfg.playingRate Playback rate in time units per second
+   */
+  constructor(scene, cfg = {}) {
+    this.scene = scene;
+    this._cameraFlightAnimation = new CameraFlightAnimation(scene);
+    this._playingRate = cfg.playingRate ?? 1;
+    this.cameraPath = cfg.cameraPath;
+    this._tick = this.scene.on("tick", this._updateT);
+  }
+  /**
+   * Advances animation state on each scene tick.
+   */
+  _updateT = () => {
+    const cameraPath = this._cameraPath;
+    if (!cameraPath) {
+      return;
+    }
+    let numFrames;
+    let t;
+    const time = performance.now();
+    const elapsedSecs = this._lastTime !== null ? (time - this._lastTime) * 1e-3 : 0;
+    this._lastTime = time;
+    if (elapsedSecs === 0) {
+      return;
+    }
+    switch (this.state) {
+      case 1 /* SCRUBBING */:
+      case 0 /* STOPPED */:
+        return;
+      case 2 /* PLAYING */:
+        this._t += this._playingRate * elapsedSecs;
+        numFrames = cameraPath.frames.length;
+        if (numFrames === 0 || this._playingDir < 0 && this._t <= 0 || this._playingDir > 0 && this._t >= cameraPath.frames[numFrames - 1].t) {
+          this.state = 1 /* SCRUBBING */;
+          this._t = numFrames > 0 ? cameraPath.frames[numFrames - 1].t : 0;
+          this._onStopped();
+          return;
+        }
+        cameraPath.loadFrame(this._t);
+        break;
+      case 3 /* PLAYING_TO */:
+        t = this._t + this._playingRate * elapsedSecs * this._playingDir;
+        if (this._playingDir < 0 && t <= this._playingToT || this._playingDir > 0 && t >= this._playingToT) {
+          t = this._playingToT;
+          this.state = 1 /* SCRUBBING */;
+          this._onStopped();
+        }
+        this._t = t;
+        cameraPath.loadFrame(this._t);
+        break;
+    }
+  };
+  /**
+   * Simple quadratic ease-out helper.
+   *
+   * @param t Current time
+   * @param b Start value
+   * @param c Delta value
+   * @param d Duration
+   * @returns Interpolated value
+   */
+  _ease(t, b4, c3, d) {
+    t /= d;
+    return -c3 * t * (t - 2) + b4;
+  }
+  /**
+   * Path currently animated by this instance.
+   */
+  set cameraPath(value) {
+    this._cameraPath = value;
+  }
+  get cameraPath() {
+    return this._cameraPath;
+  }
+  /**
+   * Playback rate in time units per second.
+   */
+  set rate(value) {
+    this._playingRate = value;
+  }
+  get rate() {
+    return this._playingRate;
+  }
+  /**
+   * Starts playback from the current time.
+   */
+  play() {
+    if (!this._cameraPath) {
+      return;
+    }
+    this._lastTime = null;
+    this._playingDir = 1;
+    this.state = 2 /* PLAYING */;
+  }
+  /**
+   * Plays from the current time to the target time.
+   *
+   * @param t Target time on the path
+   */
+  playToT(t) {
+    const cameraPath = this._cameraPath;
+    if (!cameraPath) {
+      return;
+    }
+    this._playingFromT = this._t;
+    this._playingToT = t;
+    this._playingDir = this._playingToT - this._playingFromT < 0 ? -1 : 1;
+    this._lastTime = null;
+    this.state = 3 /* PLAYING_TO */;
+  }
+  /**
+   * Plays from the current time to the given frame.
+   *
+   * @param frameIdx Frame index
+   */
+  playToFrame(frameIdx) {
+    const cameraPath = this._cameraPath;
+    if (!cameraPath) {
+      return;
+    }
+    const frame = cameraPath.frames[frameIdx];
+    if (!frame) {
+      throw new Error(`playToFrame - frame index out of range: ${frameIdx}`);
+    }
+    this.playToT(frame.t);
+  }
+  /**
+   * Flies directly to a frame using {@link CameraFlightAnimation}.
+   *
+   * @param frameIdx Frame index
+   * @param ok Callback fired when the flight completes
+   */
+  flyToFrame(frameIdx, ok) {
+    const cameraPath = this._cameraPath;
+    if (!cameraPath) {
+      return;
+    }
+    const frame = cameraPath.frames[frameIdx];
+    if (!frame) {
+      throw new Error(`flyToFrame - frame index out of range: ${frameIdx}`);
+    }
+    this.state = 1 /* SCRUBBING */;
+    this._cameraFlightAnimation.flyTo(frame, ok);
+  }
+  /**
+   * Scrubs directly to a time on the path.
+   *
+   * @param t Time on the path
+   */
+  scrubToT(t) {
+    const cameraPath = this._cameraPath;
+    const camera = this.scene.camera;
+    if (!cameraPath || !camera) {
+      return;
+    }
+    this._t = t;
+    cameraPath.loadFrame(this._t);
+    this.state = 1 /* SCRUBBING */;
+  }
+  /**
+   * Scrubs directly to a recorded frame.
+   *
+   * @param frameIdx Frame index
+   */
+  scrubToFrame(frameIdx) {
+    const cameraPath = this._cameraPath;
+    const camera = this.scene.camera;
+    if (!cameraPath || !camera) {
+      return;
+    }
+    const frame = cameraPath.frames[frameIdx];
+    if (!frame) {
+      throw new Error(`scrubToFrame - frame index out of range: ${frameIdx}`);
+    }
+    this._t = frame.t;
+    cameraPath.loadFrame(this._t);
+    this.state = 1 /* SCRUBBING */;
+  }
+  /**
+   * Stops playback.
+   */
+  stop() {
+    this.state = 1 /* SCRUBBING */;
+    this._onStopped();
+  }
+  /**
+   * Releases scene event subscriptions.
+   */
+  destroy() {
+    this.scene.off(this._tick);
+  }
+  /**
+   * Internal stopped hook.
+   *
+   * Replace or extend if you add an event system.
+   */
+  _onStopped() {
+  }
+  static STOPPED = 0 /* STOPPED */;
+  static SCRUBBING = 1 /* SCRUBBING */;
+  static PLAYING = 2 /* PLAYING */;
+  static PLAYING_TO = 3 /* PLAYING_TO */;
+};
+
 // ../sdk/src/cameracontrol/CameraUpdater.ts
 var SCALE_DOLLY_EACH_FRAME = 1;
 var EPSILON2 = 1e-3;
@@ -136701,7 +137862,7 @@ var import_strongly_typed_events15 = __toESM(require_dist8());
 
 // ../sdk/src/cameracontrol/KeyboardAxisViewHandler.ts
 var center = createVec3Float64();
-var tempVec3a10 = createVec3Float64();
+var tempVec3a11 = createVec3Float64();
 var tempVec3b10 = createVec3Float64();
 var tempVec3c6 = createVec3Float64();
 var tempVec3d3 = createVec3Float64();
@@ -137067,7 +138228,7 @@ var MousePanRotateDollyHandler = class {
 };
 
 // ../sdk/src/cameracontrol/MousePickHandler.ts
-var tempVec3a11 = createVec3Float64();
+var tempVec3a12 = createVec3Float64();
 var MousePickHandler = class {
   #view;
   #clicks;
@@ -137098,7 +138259,7 @@ var MousePickHandler = class {
       const aabb = pickResult && pickResult.viewObject ? this.#aabbIndex.getObjectAABB(pickResult.viewObject.id) : this.#aabbIndex.getSceneAABB();
       if (pos) {
         const camera = view.camera;
-        const diff = subVec3(camera.eye, camera.look, tempVec3a11);
+        const diff = subVec3(camera.eye, camera.look, tempVec3a12);
         controllers.cameraFlight.flyTo({
           // look: pos,
           // eye: xeokit.addVec3(pos, diff, []),
@@ -137292,7 +138453,7 @@ var MousePickHandler = class {
 // ../sdk/src/cameracontrol/PanController.ts
 var screenPos = createVec3Float64();
 var viewPos = createVec3Float64();
-var tempVec3a12 = createVec3Float64();
+var tempVec3a13 = createVec3Float64();
 var tempVec3b11 = createVec3Float64();
 var tempVec3c7 = createVec3Float64();
 var tempVec3d4 = createVec3Float64();
@@ -137318,13 +138479,13 @@ var PanController = class {
     let dolliedThroughSurface = false;
     const camera = this.#view.camera;
     if (optionalTargetWorldPos) {
-      const eyeToWorldPosVec = subVec3(optionalTargetWorldPos, camera.eye, tempVec3a12);
+      const eyeToWorldPosVec = subVec3(optionalTargetWorldPos, camera.eye, tempVec3a13);
       const eyeWorldPosDist = lenVec3(eyeToWorldPosVec);
       dolliedThroughSurface = eyeWorldPosDist < dollyDelta;
     }
     if (camera.projectionType === PerspectiveProjectionType) {
       camera.orthoProjection.scale = camera.orthoProjection.scale - dollyDelta;
-      const unprojectedWorldPos = this._unproject(targetCanvasPos, tempVec3a12);
+      const unprojectedWorldPos = this._unproject(targetCanvasPos, tempVec3a13);
       const offset = subVec3(unprojectedWorldPos, camera.eye, tempVec3b11);
       const moveVec = mulVec3Scalar(normalizeVec3(offset), -dollyDelta, tempVec3c7);
       camera.eye = [camera.eye[0] - moveVec[0], camera.eye[1] - moveVec[1], camera.eye[2] - moveVec[2]];
@@ -137336,7 +138497,7 @@ var PanController = class {
         camera.look = [camera.eye[0] + eyeLookVec2[0], camera.eye[1] + eyeLookVec2[1], camera.eye[2] + eyeLookVec2[2]];
       }
     } else if (camera.projectionType === OrthoProjectionType) {
-      const worldPos1 = this._unproject(targetCanvasPos, tempVec3a12);
+      const worldPos1 = this._unproject(targetCanvasPos, tempVec3a13);
       camera.orthoProjection.scale = camera.orthoProjection.scale - dollyDelta;
       const worldPos2 = this._unproject(targetCanvasPos, tempVec3b11);
       const offset = subVec3(worldPos2, worldPos1, tempVec3c7);
@@ -137512,7 +138673,7 @@ var PickController = class {
 };
 
 // ../sdk/src/cameracontrol/PivotController.ts
-var tempVec3a13 = createVec3Float64();
+var tempVec3a14 = createVec3Float64();
 var tempVec3b12 = createVec3Float64();
 var tempVec3c8 = createVec3Float64();
 var tempVec3d5 = createVec3Float64();
@@ -137671,7 +138832,7 @@ var PivotController = class {
   }
   #cameraLookingDownwards() {
     const camera = this.#view.camera;
-    const forwardAxis = normalizeVec3(subVec3(camera.look, camera.eye, tempVec3a13));
+    const forwardAxis = normalizeVec3(subVec3(camera.look, camera.eye, tempVec3a14));
     const rightAxis = cross3Vec3(forwardAxis, camera.view.viewer.scene.coordinateSystem.worldUp, tempVec3b12);
     const rightAxisLen = sqLenVec3(rightAxis);
     return rightAxisLen <= 1e-4;
@@ -137708,7 +138869,7 @@ var PivotController = class {
     const Pt4 = transposedProjectMat.subarray(12);
     const D = createVec4Float64([0, 0, -1, 1]);
     const screenZ = dotVec4(D, Pt3) / dotVec4(D, Pt4);
-    const worldPos = tempVec3a13;
+    const worldPos = tempVec3a14;
     camera.projection.unproject(canvasPos2, screenZ, tempVec3b12, tempVec3c8, worldPos);
     const eyeWorldPosVec = normalizeVec3(subVec3(worldPos, camera.eye, tempVec3d5));
     const posOnSphere = addVec3(camera.eye, mulVec3Scalar(eyeWorldPosVec, pivotShereRadius, tempVec3e4), tempVec3f3);
@@ -139209,7 +140370,7 @@ __export(bcf_exports, {
 
 // ../sdk/src/bcf/loadBCFViewpoint.ts
 var tempVec35 = createVec3Float64();
-var tempVec3a14 = createVec3Float64();
+var tempVec3a15 = createVec3Float64();
 var tempVec3b13 = createVec3Float64();
 var tempVec3c9 = createVec3Float64();
 function loadBCFViewpoint(params) {
@@ -139227,7 +140388,7 @@ function loadBCFViewpoint(params) {
   view.clearSectionPlanes();
   if (bcfViewpoint.clipping_planes) {
     bcfViewpoint.clipping_planes.forEach((e) => {
-      let pos = xyzObjectToArray(e.location, tempVec3a14);
+      let pos = xyzObjectToArray(e.location, tempVec3a15);
       let dir = xyzObjectToArray(e.direction, tempVec3b13);
       if (reverseClippingPlanes) {
         negateVec3(dir);
@@ -139268,7 +140429,7 @@ function loadBCFViewpoint(params) {
     bcfViewpoint.bitmaps.forEach((e) => {
       const bitmap_type = e.bitmap_type || "jpg";
       const bitmap_data = e.bitmap_data;
-      let location = xyzObjectToArray(e.location, tempVec3a14);
+      let location = xyzObjectToArray(e.location, tempVec3a15);
       let normal2 = xyzObjectToArray(e.normal, tempVec3b13);
       let up = xyzObjectToArray(e.up, tempVec3c9);
       const height = e.height || 1;
@@ -139504,13 +140665,13 @@ function loadBCFViewpoint(params) {
     let up;
     let projection;
     if (bcfViewpoint.perspective_camera) {
-      eye = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_view_point, tempVec3a14);
+      eye = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_view_point, tempVec3a15);
       look = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_direction, tempVec3b13);
       up = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_up_vector, tempVec3c9);
       camera.perspectiveProjection.fov = bcfViewpoint.perspective_camera.field_of_view;
       projection = PerspectiveProjectionType;
     } else {
-      eye = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_view_point, tempVec3a14);
+      eye = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_view_point, tempVec3a15);
       look = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_direction, tempVec3b13);
       up = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_up_vector, tempVec3c9);
       camera.orthoProjection.scale = bcfViewpoint.orthogonal_camera.view_to_world_scale;
@@ -139791,8 +140952,8 @@ var TreeView = class _TreeView {
    * This mode creates a multi-level grouped hierarchy, following the order given
    * in {@link TreeViewParams.groupTypes | TreeViewParams.groupTypes}. The TreeViewNodes at level 0 are all the same
    * type as ````TreeViewParams.groupTypes[0]````, TreeViewNodes at level 1 are all the same type
-   * as ````TreeViewParams.groupTypes[2]````, and so on. Once descended beyond the length of ````TreeViewParams.groupTypes````,
-   * the TreeViewNodes are just grouped by type.
+   * as ````TreeViewParams.groupTypes[1]````, and so on. Once descended beyond the length of
+   * ````TreeViewParams.groupTypes````, the TreeViewNodes are grouped by type.
    */
   static GroupsHierarchy = 2;
   /**
@@ -139834,9 +140995,13 @@ var TreeView = class _TreeView {
   _onSceneModelDestroyed;
   _onViewObjectVisibility;
   _onViewObjectXRayed;
+  _onDataObjectCreated;
+  _onDataObjectDestroyed;
   _dataObjectSceneObjectCounts;
+  _groupNodeIndex;
+  _typeRootNodeIndex;
+  _groupsTypeNodeIndex;
   /**
-   *
    * @param params
    */
   constructor(params) {
@@ -139853,10 +141018,11 @@ var TreeView = class _TreeView {
     this.view = params.view;
     this._viewer = params.view.viewer;
     this._linkType = params.linkType;
-    this._groupTypes = params.groupTypes;
+    this._groupTypes = params.groupTypes || [];
     this._hierarchy = _TreeView.AggregationHierarchy;
     this._containerElement = params.containerElement;
     this._dataModels = {};
+    this._autoAddModels = true;
     this._autoExpandDepth = params.autoExpandDepth || 0;
     this._sortNodes = params.sortNodes !== false;
     this._pruneEmptyNodes = params.pruneEmptyNodes !== false;
@@ -139866,10 +141032,13 @@ var TreeView = class _TreeView {
     this._rootNodes = [];
     this._objectNodes = {};
     this._rootName = params.rootName;
-    this._sortNodes = params.sortNodes;
-    this._pruneEmptyNodes = params.pruneEmptyNodes;
     this._showListItemElementId = null;
     this._destroyed = false;
+    this._spatialSortFunc = null;
+    this._dataObjectSceneObjectCounts = {};
+    this._groupNodeIndex = {};
+    this._typeRootNodeIndex = {};
+    this._groupsTypeNodeIndex = {};
     this._containerElement.oncontextmenu = (e) => {
       e.preventDefault();
     };
@@ -139883,35 +141052,30 @@ var TreeView = class _TreeView {
         return;
       }
       const visible = viewObject.visible;
-      const updated = visible !== node.checked;
-      if (!updated) {
+      if (visible === node.checked && (visible && node.numVisibleViewObjects > 0 || !visible && node.numVisibleViewObjects === 0)) {
         return;
       }
       this._muteTreeEvents = true;
       node.checked = visible;
-      if (visible) {
-        node.numVisibleViewObjects++;
-      } else {
-        node.numVisibleViewObjects--;
-      }
+      node.numVisibleViewObjects = visible ? node.numViewObjects : 0;
       const checkbox = document.getElementById(node.nodeId);
       if (checkbox) {
         checkbox.checked = visible;
       }
       let parentNode = node.parentNode;
       while (parentNode) {
-        parentNode.checked = visible;
         if (visible) {
           parentNode.numVisibleViewObjects++;
         } else {
           parentNode.numVisibleViewObjects--;
+          if (parentNode.numVisibleViewObjects < 0) {
+            parentNode.numVisibleViewObjects = 0;
+          }
         }
+        parentNode.checked = parentNode.numVisibleViewObjects > 0;
         const parentCheckbox = document.getElementById(parentNode.nodeId);
         if (parentCheckbox) {
-          const newChecked = parentNode.numVisibleViewObjects > 0;
-          if (newChecked !== parentCheckbox.checked) {
-            parentCheckbox.checked = newChecked;
-          }
+          parentCheckbox.checked = parentNode.checked;
         }
         parentNode = parentNode.parentNode;
       }
@@ -139926,16 +141090,15 @@ var TreeView = class _TreeView {
       if (!node) {
         return;
       }
-      this._muteTreeEvents = true;
       const xrayed = viewObject.xrayed;
-      const updated = xrayed !== node.xrayed;
-      if (!updated) {
+      if (xrayed === node.xrayed) {
         return;
       }
+      this._muteTreeEvents = true;
       node.xrayed = xrayed;
       const listItemElementId = "node-" + node.nodeId;
       const listItemElement = document.getElementById(listItemElementId);
-      if (listItemElement !== null) {
+      if (listItemElement) {
         if (xrayed) {
           listItemElement.classList.add("xrayed-node");
         } else {
@@ -139964,21 +141127,23 @@ var TreeView = class _TreeView {
       const checkbox = event.target;
       const visible = checkbox.checked;
       const nodeId = checkbox.id;
-      const checkedObjectId = nodeId;
-      const checkedNode = this._objectNodes[checkedObjectId];
+      const checkedNode = this._objectNodes[nodeId];
+      if (!checkedNode) {
+        this._muteSceneEvents = false;
+        return;
+      }
       const objects = this.view.objects;
-      let numUpdated = 0;
+      let numUpdatedLeaves = 0;
       this._withNodeTree(checkedNode, (node) => {
         const objectId = node.objectId;
-        const checkBoxId = node.nodeId;
         const viewObject = objects[objectId];
         const isLeaf = node.childNodes.length === 0;
         node.numVisibleViewObjects = visible ? node.numViewObjects : 0;
-        if (isLeaf && visible !== node.checked) {
-          numUpdated++;
+        if (isLeaf && viewObject && visible !== node.checked) {
+          numUpdatedLeaves++;
         }
         node.checked = visible;
-        const checkbox2 = document.getElementById(checkBoxId);
+        const checkbox2 = document.getElementById(node.nodeId);
         if (checkbox2) {
           checkbox2.checked = visible;
         }
@@ -139988,16 +141153,18 @@ var TreeView = class _TreeView {
       });
       let parentNode = checkedNode.parentNode;
       while (parentNode) {
-        parentNode.checked = visible;
-        const checkbox2 = document.getElementById(parentNode.nodeId);
         if (visible) {
-          parentNode.numVisibleViewObjects += numUpdated;
+          parentNode.numVisibleViewObjects += numUpdatedLeaves;
         } else {
-          parentNode.numVisibleViewObjects -= numUpdated;
+          parentNode.numVisibleViewObjects -= numUpdatedLeaves;
+          if (parentNode.numVisibleViewObjects < 0) {
+            parentNode.numVisibleViewObjects = 0;
+          }
         }
-        const newChecked = parentNode.numVisibleViewObjects > 0;
-        if (newChecked !== checkbox2.checked) {
-          checkbox2.checked = newChecked;
+        parentNode.checked = parentNode.numVisibleViewObjects > 0;
+        const checkbox2 = document.getElementById(parentNode.nodeId);
+        if (checkbox2) {
+          checkbox2.checked = parentNode.checked;
         }
         parentNode = parentNode.parentNode;
       }
@@ -140006,8 +141173,7 @@ var TreeView = class _TreeView {
     this.hierarchy = params.hierarchy;
     const modelIds = Object.keys(this.data.models);
     for (let i = 0, len = modelIds.length; i < len; i++) {
-      const modelId = modelIds[i];
-      this._addModel(modelId);
+      this._addModel(modelIds[i]);
     }
     this._onSceneModelCreated = this._viewer.scene.events.onSceneModelCreated.subscribe((scene, sceneModel) => {
       if (this.data.models[sceneModel.id]) {
@@ -140019,27 +141185,27 @@ var TreeView = class _TreeView {
         this._removeModel(sceneModel.id);
       }
     });
+    this._onDataObjectCreated = this.data.events.onDataObjectCreated.subscribe((data, dataObject) => {
+      if (this._destroyed || !dataObject) {
+        return;
+      }
+      this._handleDataObjectCreated(dataObject);
+    });
+    this._onDataObjectDestroyed = this.data.events.onDataObjectDestroyed.subscribe((data, dataObject) => {
+      if (this._destroyed || !dataObject) {
+        return;
+      }
+      this._handleDataObjectDestroyed(dataObject);
+    });
   }
   /**
    * Gets how the nodes are organized within this tree view.
-   *
-   * Accepted values are:
-   *
-   * * {@link TreeView.AggregationHierarchy} (default)
-   * * {@link TreeView.TypesHierarchy}
-   * * {@link TreeView.GroupsHierarchy}
    */
   get hierarchy() {
     return this._hierarchy;
   }
   /**
    * Sets how the nodes are organized within this tree view.
-   *
-   * Accepted values are:
-   *
-   * * {@link TreeView.AggregationHierarchy} (default)
-   * * {@link TreeView.TypesHierarchy}
-   * * {@link TreeView.GroupsHierarchy}
    */
   set hierarchy(hierarchy) {
     hierarchy = hierarchy !== null && hierarchy !== void 0 ? hierarchy : _TreeView.AggregationHierarchy;
@@ -140076,54 +141242,25 @@ var TreeView = class _TreeView {
     this._rebuildNodes();
   }
   /**
-   * When traversing the {@link data!Data | Data} to build the tree UI nodes for
-   * a {@link TreeView.GroupsHierarchy}, these are the values
-   * of {@link data!DataObject.type | DataObject.type} that the
-   * TreeView groups and subgroups the {@link data!DataObject | DataObjects} on.
-   *
-   * The grouping for {@link TreeView.GroupsHierarchy} has two levels. The major grouping type is given
-   * in ````groupTypes[0]```` and the minor grouping type is given in ````storeyGroups[1]````.
-   *
-   * Example: ````[IfcBuilding, IfcBuildingStorey]````.
+   * Grouping types for {@link TreeView.GroupsHierarchy}.
    */
   get groupTypes() {
     return this._groupTypes;
   }
   /**
-   * When traversing the {@link data!Data | Data} to build the tree UI nodes for
-   * a {@link TreeView.GroupsHierarchy}, these are the values
-   * of {@link data!DataObject.type | DataObject.type} that the
-   * TreeView groups and subgroups the {@link data!DataObject | DataObjects} on.
-   *
-   * The grouping for the {@link treeview!TreeView.GroupsHierarchy | GroupsHierarchy} hierarchy has two levels. The major grouping type is given
-   * in ````groupTypes[0]```` and the minor grouping type is given in ````storeyGroups[1]````.
-   *
-   * Example: ````[IfcBuilding, IfcBuildingStorey]````.
+   * Grouping types for {@link TreeView.GroupsHierarchy}.
    */
   set groupTypes(groupTypes) {
     if (this._groupTypes === groupTypes) {
       return;
     }
-    this._groupTypes = groupTypes;
+    this._groupTypes = groupTypes || [];
     if (this._hierarchy === _TreeView.GroupsHierarchy) {
       this._rebuildNodes();
     }
   }
   /**
    * Highlights the tree view node that represents the given object {@link view!ViewObject | ViewObject}.
-   *
-   * This causes the tree view to collapse, then expand to reveal the node, then highlight the node.
-   *
-   * If a node is previously highlighted, de-highlights that node and collapses the tree first.
-   *
-   * Note that if the TreeView was configured with ````pruneEmptyNodes: true```` (default configuration), then the
-   * node won't exist in the tree if it has no viewObjects in the {@link scene!Scene | Scene}. in that case, nothing will happen.
-   *
-   * Within the DOM, the node is represented by an ````<li>```` element. This method will add a ````.highlighted-node```` class to
-   * the element to make it appear highlighted, removing that class when de-highlighting it again. See the CSS rules
-   * in the TreeView ifcviewer for an example of that class.
-   *
-   * @param {String} objectId ID of the {@link viewer!ViewObject | ViewObject}.
    */
   showNode(objectId) {
     if (this._showListItemElementId) {
@@ -140149,26 +141286,25 @@ var TreeView = class _TreeView {
       parentNode = parentNode.parentNode;
     }
     for (let i = 0, len = path.length; i < len; i++) {
-      const node2 = path[i];
-      const nodeId2 = node2.nodeId;
-      const switchElementId2 = "switch-" + nodeId2;
-      const switchElement2 = document.getElementById(switchElementId2);
-      if (switchElement2) {
-        this._expandSwitchElement(switchElement2);
+      const pathNode = path[i];
+      const pathNodeId = pathNode.nodeId;
+      const pathSwitchElementId = "switch-" + pathNodeId;
+      const pathSwitchElement = document.getElementById(pathSwitchElementId);
+      if (pathSwitchElement) {
+        this._expandSwitchElement(pathSwitchElement);
       }
     }
     const listItemElementId = "node-" + nodeId;
     const listItemElement = document.getElementById(listItemElementId);
+    if (!listItemElement) {
+      return;
+    }
     listItemElement.scrollIntoView({ block: "center" });
     listItemElement.classList.add("highlighted-node");
     this._showListItemElementId = listItemElementId;
   }
   /**
    * De-highlights the node previously shown with {@link TreeView_showNode}.
-   *
-   * Does nothing if no node is currently shown.
-   *
-   * If the node is currently scrolled into view, keeps the node in view.
    */
   unShowNode() {
     if (!this._showListItemElementId) {
@@ -140184,10 +141320,6 @@ var TreeView = class _TreeView {
   }
   /**
    * Expands the tree to the given depth.
-   *
-   * Collapses the tree first.
-   *
-   * @param depth Depth to expand to.
    */
   expandToDepth(depth) {
     this.collapse();
@@ -140202,14 +141334,12 @@ var TreeView = class _TreeView {
         this._expandSwitchElement(switchElement);
         const childNodes = node.childNodes;
         for (let i = 0, len = childNodes.length; i < len; i++) {
-          const childNode = childNodes[i];
-          expand(childNode, countDepth + 1);
+          expand(childNodes[i], countDepth + 1);
         }
       }
     };
     for (let i = 0, len = this._rootNodes.length; i < len; i++) {
-      const rootNode = this._rootNodes[i];
-      expand(rootNode, 0);
+      expand(this._rootNodes[i], 0);
     }
   }
   /**
@@ -140217,39 +141347,34 @@ var TreeView = class _TreeView {
    */
   collapse() {
     for (let i = 0, len = this._rootNodes.length; i < len; i++) {
-      const rootNode = this._rootNodes[i];
-      const objectId = rootNode.objectId;
-      this._collapseNode(objectId);
+      this._collapseNode(this._rootNodes[i].objectId);
     }
   }
   /**
    * Destroys this TreeView.
    */
   destroy() {
-    if (!this._containerElement) {
+    if (!this._containerElement || this._destroyed) {
       return;
     }
     this._dataModels = {};
-    if (this._rootElement && !this._destroyed) {
+    if (this._rootElement && this._rootElement.parentNode) {
       this._rootElement.parentNode.removeChild(this._rootElement);
-      const sceneEvents = this.view.viewer.scene.events;
-      sceneEvents.onSceneModelCreated.unsubscribe(this._onSceneModelCreated);
-      const viewerEvents = this.view.viewer.events;
-      viewerEvents.onViewObjectVisibleChanged.unsubscribe(this._onViewObjectVisibility);
-      viewerEvents.onViewObjectXRayedChanged.unsubscribe(this._onViewObjectXRayed);
-      this._destroyed = true;
     }
+    this._rootElement = null;
+    const sceneEvents = this.view.viewer.scene.events;
+    sceneEvents.onSceneModelCreated.unsubscribe(this._onSceneModelCreated);
+    sceneEvents.onSceneModelDestroyed.unsubscribe(this._onSceneModelDestroyed);
+    const viewerEvents = this.view.viewer.events;
+    viewerEvents.onViewObjectVisibleChanged.unsubscribe(this._onViewObjectVisibility);
+    viewerEvents.onViewObjectXRayedChanged.unsubscribe(this._onViewObjectXRayed);
+    this.data.events.onDataObjectCreated.unsubscribe(this._onDataObjectCreated);
+    this.data.events.onDataObjectDestroyed.unsubscribe(this._onDataObjectDestroyed);
+    this._destroyed = true;
     this.events.destroy();
   }
   /**
    * Adds a model to this tree view.
-   *
-   * @private
-   * @param {String} modelId ID of a model {@link viewObject} in {@link scene!Scene_models}.
-   * @param {Object} [options] Options for model in the tree view.
-   * @param {String} [options.rootName] Optional display name for the root node. Ordinary, for "containment"
-   * and {@link treeview!TreeView.GroupsHierarchy | GroupsHierarchy} hierarchy types, the tree would derive the root node name from the model's "IfcProject" element
-   * name. This option allows to override that name when it is not suitable as a display name.
    */
   _addModel(modelId, options = {}) {
     if (!this._containerElement) {
@@ -140271,9 +141396,6 @@ var TreeView = class _TreeView {
   }
   /**
    * Removes a model from this tree view.
-   *
-   * @private
-   * @param {String} modelId ID of a model {@link viewObject} in {@link scene!Scene_models}.
    */
   _removeModel(modelId) {
     if (!this._containerElement) {
@@ -140287,29 +141409,66 @@ var TreeView = class _TreeView {
     this._rebuildNodes();
   }
   _rebuildNodes() {
-    if (this._rootElement) {
+    if (this._rootElement && this._rootElement.parentNode) {
       this._rootElement.parentNode.removeChild(this._rootElement);
       this._rootElement = null;
     }
     this._rootNodes = [];
     this._objectNodes = {};
+    this._dataObjectSceneObjectCounts = {};
+    this._groupNodeIndex = {};
+    this._typeRootNodeIndex = {};
+    this._groupsTypeNodeIndex = {};
     this._createEnabledNodes();
   }
-  _validate() {
-    let valid = true;
+  _handleDataObjectCreated(dataObject) {
+    if (!this._containerElement || this._objectNodes[dataObject.id]) {
+      return;
+    }
+    if (this._pruneEmptyNodes) {
+      this._recomputePruneCounts();
+    }
     switch (this._hierarchy) {
-      case _TreeView.GroupsHierarchy:
-        valid = this._rootNodes.length > 0;
-        break;
       case _TreeView.TypesHierarchy:
-        valid = this._rootNodes.length > 0;
+        this._insertTypesNode(dataObject);
+        break;
+      case _TreeView.GroupsHierarchy:
+        this._insertGroupsNode(dataObject);
         break;
       case _TreeView.AggregationHierarchy:
       default:
-        valid = this._rootNodes.length > 0;
+        this._insertAggregationNode(dataObject);
         break;
     }
-    return valid;
+  }
+  _handleDataObjectDestroyed(dataObject) {
+    if (!this._containerElement) {
+      return;
+    }
+    switch (this._hierarchy) {
+      case _TreeView.TypesHierarchy:
+        this._removeTypesNode(dataObject.id);
+        break;
+      case _TreeView.GroupsHierarchy:
+        this._removeGroupsNode(dataObject.id);
+        break;
+      case _TreeView.AggregationHierarchy:
+      default:
+        this._removeAggregationNode(dataObject.id);
+        break;
+    }
+    if (this._pruneEmptyNodes) {
+      this._recomputePruneCounts();
+    }
+  }
+  _validate() {
+    switch (this._hierarchy) {
+      case _TreeView.GroupsHierarchy:
+      case _TreeView.TypesHierarchy:
+      case _TreeView.AggregationHierarchy:
+      default:
+        return this._rootNodes.length > 0;
+    }
   }
   _validateMetaModelForStoreysHierarchy(level = 0, ctx, buildingNode) {
     return true;
@@ -140321,9 +141480,6 @@ var TreeView = class _TreeView {
     switch (this._hierarchy) {
       case _TreeView.GroupsHierarchy:
         this._buildGroupsNodes();
-        if (this._rootNodes.length === 0) {
-          throw new SDKInternalException("Cannot build hierarchy TreeView.GroupsHierarchy");
-        }
         break;
       case _TreeView.TypesHierarchy:
         this._buildTypesNodes();
@@ -140331,6 +141487,7 @@ var TreeView = class _TreeView {
       case _TreeView.AggregationHierarchy:
       default:
         this._buildAggregationNodes();
+        break;
     }
     if (this._sortNodes) {
       this._doSortNodes();
@@ -140343,7 +141500,7 @@ var TreeView = class _TreeView {
     const objects = this.data.objects;
     for (const objectId in objects) {
       const dataObject = objects[objectId];
-      if (Object.keys(dataObject.relating).length === 0) {
+      if (!this._getAggregationParentDataObject(dataObject)) {
         const dataObjectType = dataObject.type;
         const name12 = dataObject.name;
         const rootName = name12 && name12 !== "" && name12 !== "Undefined" && name12 !== "Default" ? name12 : `${dataObjectType}`;
@@ -140364,19 +141521,24 @@ var TreeView = class _TreeView {
       }
     }
   }
+  _recomputePruneCounts() {
+    this._dataObjectSceneObjectCounts = {};
+    this._findEmptyNodes();
+  }
   _findEmptyNodes() {
+    this._dataObjectSceneObjectCounts = {};
     const objects = this.data.objects;
     for (const objectId in objects) {
       const dataObject = objects[objectId];
-      if (Object.keys(dataObject.relating).length === 0) {
+      const parent = this._getAggregationParentDataObject(dataObject);
+      if (!parent) {
         this._findEmptyNodes2(dataObject);
       }
     }
   }
   _findEmptyNodes2(dataObject) {
-    const viewer = this._viewer;
-    const scene = viewer.scene;
-    const aggregations = dataObject.related[this._linkType];
+    const scene = this._viewer.scene;
+    const aggregations = dataObject.related ? dataObject.related[this._linkType] : null;
     const objectId = dataObject.id;
     const viewObject = scene.objects[objectId];
     let sceneObjectCounts = 0;
@@ -140385,8 +141547,7 @@ var TreeView = class _TreeView {
     }
     if (aggregations) {
       for (let i = 0, len = aggregations.length; i < len; i++) {
-        const aggregation = aggregations[i];
-        const aggregatedDataObject = aggregation.relatedObject;
+        const aggregatedDataObject = aggregations[i].relatedObject;
         const aggregatedCount = this._findEmptyNodes2(aggregatedDataObject);
         this._dataObjectSceneObjectCounts[aggregatedDataObject.id] = aggregatedCount;
         sceneObjectCounts += aggregatedCount;
@@ -140399,156 +141560,87 @@ var TreeView = class _TreeView {
     const objects = this.data.objects;
     for (const objectId in objects) {
       const dataObject = objects[objectId];
-      if (Object.keys(dataObject.relating).length === 0) {
-        this._buildGroupsNodes2(dataObject, [], null, null, null);
+      const parent = this._getAggregationParentDataObject(dataObject);
+      if (!parent) {
+        this._buildGroupsNodes2(dataObject);
       }
     }
   }
-  _buildGroupsNodes2(dataObject, pathNodes, buildingNode, storeyNode, typeNodes) {
-    if (this._pruneEmptyNodes && !this._dataObjectSceneObjectCounts[dataObject.id]) {
+  _buildGroupsNodes2(dataObject) {
+    if (!this._shouldIncludeDataObject(dataObject)) {
       return;
     }
-    const objectId = dataObject.id;
-    const type = dataObject.type;
-    const name12 = dataObject.name;
-    const aggregations = dataObject.related[this._linkType];
-    if (pathNodes.length < this._groupTypes.length) {
-      const groupType = this._groupTypes[pathNodes.length];
-      if (pathNodes.length === 0) {
-        if (type === groupType) {
-          const node = {
-            nodeId: objectId,
-            objectId,
-            title: this._rootName || (name12 && name12 !== "" && name12 !== "Undefined" && name12 !== "Default" ? name12 : type),
-            type,
-            parentNode: null,
-            numViewObjects: 0,
-            numVisibleViewObjects: 0,
-            checked: false,
-            xrayed: false,
-            childNodes: []
-          };
-          pathNodes.push(node);
-          this._rootNodes.push(node);
-          this._objectNodes[node.objectId] = node;
-        }
-      } else {
-        if (type === groupType) {
-          const parentNode = pathNodes[pathNodes.length - 1];
-          const node = {
-            nodeId: objectId,
-            objectId,
-            title: name12 && name12 !== "" && name12 !== "Undefined" && name12 !== "Default" ? name12 : `${type}`,
-            type,
-            parentNode,
-            numViewObjects: 0,
-            numVisibleViewObjects: 0,
-            checked: false,
-            xrayed: false,
-            childNodes: []
-          };
-          parentNode.childNodes.push(node);
-          pathNodes.push(node);
-          this._objectNodes[node.objectId] = node;
-        }
-      }
-    } else {
-      const parentNode = pathNodes[pathNodes.length - 1];
-      const viewObjects = this.view.objects;
-      const viewObject = viewObjects[objectId];
-      if (viewObject) {
-        typeNodes = typeNodes || {};
-        let typeNode = typeNodes[type];
-        if (!typeNode) {
-          const typeNodeObjectId = parentNode.objectId + "." + type;
-          const typeNodeNodeId = typeNodeObjectId;
-          typeNode = {
-            nodeId: typeNodeNodeId,
-            objectId: typeNodeObjectId,
-            title: `${type}`,
-            type,
-            parentNode,
-            numViewObjects: 0,
-            numVisibleViewObjects: 0,
-            checked: false,
-            xrayed: false,
-            childNodes: []
-          };
-          parentNode.childNodes.push(typeNode);
-          this._objectNodes[typeNodeObjectId] = typeNode;
-          typeNodes[type] = typeNode;
-        }
-        const leafNode = {
-          nodeId: objectId,
-          objectId,
-          title: name12 && name12 !== "" && name12 !== "Undefined" && name12 !== "Default" ? name12 : "" + type,
-          type,
-          parentNode: typeNode,
-          numViewObjects: 0,
-          numVisibleViewObjects: 0,
-          checked: false,
-          xrayed: false,
-          childNodes: []
-        };
-        typeNode.childNodes.push(leafNode);
-        this._objectNodes[leafNode.objectId] = leafNode;
-      }
-    }
+    this._insertGroupsNode(dataObject, true);
+    const aggregations = dataObject.related ? dataObject.related[this._linkType] : null;
     if (aggregations) {
       for (let i = 0, len = aggregations.length; i < len; i++) {
-        const aggregation = aggregations[i];
-        const aggregatedDataObject = aggregation.relatedObject;
-        this._buildGroupsNodes2(aggregatedDataObject, pathNodes, buildingNode, storeyNode, typeNodes);
+        this._buildGroupsNodes2(aggregations[i].relatedObject);
       }
     }
   }
   _buildTypesNodes() {
     const objects = this.data.objects;
     for (const objectId in objects) {
-      const dataObject = objects[objectId];
-      if (Object.keys(dataObject.relating).length === 0) {
-        this._buildTypesNodes2(dataObject, null, null);
-      }
+      this._buildTypesNodes2(objects[objectId]);
     }
   }
-  _buildTypesNodes2(dataObject, rootNode, typeNodes) {
-    if (this._pruneEmptyNodes && !this._dataObjectSceneObjectCounts[dataObject.id]) {
+  _buildTypesNodes2(dataObject) {
+    if (!this._shouldIncludeDataObject(dataObject)) {
       return;
     }
-    const objectId = dataObject.id;
     const type = dataObject.type;
-    const name12 = dataObject.name;
-    const aggregations = dataObject.related[this._linkType];
-    if (aggregations) {
-      for (let i = 0, len = aggregations.length; i < len; i++) {
-        const aggregation = aggregations[i];
-        const aggregatedDataObject = aggregation.relatedObject;
-        this._buildTypesNodes2(aggregatedDataObject, rootNode, typeNodes);
-      }
+    let typeNode = this._typeRootNodeIndex[type];
+    if (!typeNode) {
+      typeNode = {
+        nodeId: `type:${type}`,
+        objectId: `type:${type}`,
+        title: type,
+        type,
+        parentNode: null,
+        numViewObjects: 0,
+        numVisibleViewObjects: 0,
+        checked: false,
+        xrayed: false,
+        childNodes: []
+      };
+      this._typeRootNodeIndex[type] = typeNode;
+      this._rootNodes.push(typeNode);
+      this._objectNodes[typeNode.objectId] = typeNode;
     }
+    const node = {
+      nodeId: dataObject.id,
+      objectId: dataObject.id,
+      title: this._getDisplayTitle(dataObject, false),
+      type: dataObject.type,
+      parentNode: typeNode,
+      numViewObjects: 0,
+      numVisibleViewObjects: 0,
+      checked: false,
+      xrayed: false,
+      childNodes: []
+    };
+    typeNode.childNodes.push(node);
+    this._objectNodes[node.objectId] = node;
   }
   _buildAggregationNodes() {
     const objects = this.data.objects;
     for (const objectId in objects) {
       const dataObject = objects[objectId];
-      if (Object.keys(dataObject.relating).length === 0) {
+      const parent = this._getAggregationParentDataObject(dataObject);
+      if (!parent) {
         this._buildAggregationNodes2(dataObject, null);
       }
     }
   }
   _buildAggregationNodes2(dataObject, parentNode) {
-    if (this._pruneEmptyNodes && !this._dataObjectSceneObjectCounts[dataObject.id]) {
+    if (!this._shouldIncludeDataObject(dataObject)) {
       return;
     }
-    const objectId = dataObject.id;
-    const type = dataObject.type;
-    const name12 = dataObject.name || type;
-    const aggregations = dataObject.related[this._linkType];
     const node = {
-      nodeId: objectId,
-      objectId,
-      title: !parentNode ? this._rootName || name12 : name12 && name12 !== "" && name12 !== "Undefined" && name12 !== "Default" ? name12 : type,
-      type,
+      nodeId: dataObject.id,
+      objectId: dataObject.id,
+      title: this._getDisplayTitle(dataObject, !parentNode),
+      type: dataObject.type,
       parentNode,
       numViewObjects: 0,
       numVisibleViewObjects: 0,
@@ -140562,23 +141654,366 @@ var TreeView = class _TreeView {
       this._rootNodes.push(node);
     }
     this._objectNodes[node.objectId] = node;
+    const aggregations = dataObject.related ? dataObject.related[this._linkType] : null;
     if (aggregations) {
       for (let i = 0, len = aggregations.length; i < len; i++) {
-        const aggregation = aggregations[i];
-        const aggregatedDataObject = aggregation.relatedObject;
-        this._buildAggregationNodes2(aggregatedDataObject, node);
+        this._buildAggregationNodes2(aggregations[i].relatedObject, node);
       }
     }
   }
+  _insertAggregationNode(dataObject) {
+    if (!this._shouldIncludeDataObject(dataObject)) {
+      return;
+    }
+    if (this._objectNodes[dataObject.id]) {
+      return;
+    }
+    const parentDataObject = this._getAggregationParentDataObject(dataObject);
+    let parentNode = null;
+    if (parentDataObject) {
+      parentNode = this._objectNodes[parentDataObject.id] || null;
+      if (!parentNode && this._shouldIncludeDataObject(parentDataObject)) {
+        this._insertAggregationNode(parentDataObject);
+        parentNode = this._objectNodes[parentDataObject.id] || null;
+      }
+    }
+    const node = {
+      nodeId: dataObject.id,
+      objectId: dataObject.id,
+      title: this._getDisplayTitle(dataObject, !parentNode),
+      type: dataObject.type,
+      parentNode,
+      numViewObjects: 0,
+      numVisibleViewObjects: 0,
+      checked: false,
+      xrayed: false,
+      childNodes: []
+    };
+    if (parentNode) {
+      parentNode.childNodes.push(node);
+      if (this._sortNodes) {
+        parentNode.childNodes.sort(this._alphaSortFunc.bind(this));
+      }
+    } else {
+      this._rootNodes.push(node);
+      if (this._sortNodes) {
+        this._rootNodes.sort(this._alphaSortFunc.bind(this));
+      }
+    }
+    this._objectNodes[node.objectId] = node;
+    this._syncSingleNodeToEntity(node);
+    this._bubbleNodeCountsToParents(node);
+    this._insertNodeIntoDOM(node);
+    const aggregations = dataObject.related ? dataObject.related[this._linkType] : null;
+    if (aggregations) {
+      for (let i = 0, len = aggregations.length; i < len; i++) {
+        const child = aggregations[i].relatedObject;
+        if (!this._objectNodes[child.id] && this._shouldIncludeDataObject(child)) {
+          this._insertAggregationNode(child);
+        }
+      }
+    }
+  }
+  _removeAggregationNode(objectId) {
+    const node = this._objectNodes[objectId];
+    if (!node) {
+      return;
+    }
+    const childIds = node.childNodes.map((child) => child.objectId);
+    for (let i = 0, len = childIds.length; i < len; i++) {
+      this._removeAggregationNode(childIds[i]);
+    }
+    this._subtractNodeCountsFromParents(node);
+    if (node.parentNode) {
+      const idx = node.parentNode.childNodes.indexOf(node);
+      if (idx !== -1) {
+        node.parentNode.childNodes.splice(idx, 1);
+      }
+    } else {
+      const idx = this._rootNodes.indexOf(node);
+      if (idx !== -1) {
+        this._rootNodes.splice(idx, 1);
+      }
+    }
+    this._removeNodeElement(node);
+    delete this._objectNodes[objectId];
+    if (node.parentNode) {
+      this._removeSwitchElementIfLeaf(node.parentNode);
+      if (this._pruneEmptyNodes) {
+        this._cleanupEmptyStructuralAncestors(node.parentNode);
+      }
+    }
+  }
+  _insertTypesNode(dataObject) {
+    if (!this._shouldIncludeDataObject(dataObject)) {
+      return;
+    }
+    if (this._objectNodes[dataObject.id]) {
+      return;
+    }
+    const type = dataObject.type;
+    let typeNode = this._typeRootNodeIndex[type];
+    if (!typeNode) {
+      typeNode = {
+        nodeId: `type:${type}`,
+        objectId: `type:${type}`,
+        title: type,
+        type,
+        parentNode: null,
+        numViewObjects: 0,
+        numVisibleViewObjects: 0,
+        checked: false,
+        xrayed: false,
+        childNodes: []
+      };
+      this._typeRootNodeIndex[type] = typeNode;
+      this._rootNodes.push(typeNode);
+      if (this._sortNodes) {
+        this._rootNodes.sort(this._alphaSortFunc.bind(this));
+      }
+      this._objectNodes[typeNode.objectId] = typeNode;
+      this._insertNodeIntoDOM(typeNode);
+    }
+    const node = {
+      nodeId: dataObject.id,
+      objectId: dataObject.id,
+      title: this._getDisplayTitle(dataObject, false),
+      type: dataObject.type,
+      parentNode: typeNode,
+      numViewObjects: 0,
+      numVisibleViewObjects: 0,
+      checked: false,
+      xrayed: false,
+      childNodes: []
+    };
+    typeNode.childNodes.push(node);
+    if (this._sortNodes) {
+      typeNode.childNodes.sort(this._alphaSortFunc.bind(this));
+    }
+    this._objectNodes[node.objectId] = node;
+    this._syncSingleNodeToEntity(node);
+    this._bubbleNodeCountsToParents(node);
+    this._insertNodeIntoDOM(node);
+  }
+  _removeTypesNode(objectId) {
+    const node = this._objectNodes[objectId];
+    if (!node) {
+      return;
+    }
+    this._subtractNodeCountsFromParents(node);
+    const parentNode = node.parentNode;
+    if (parentNode) {
+      const idx = parentNode.childNodes.indexOf(node);
+      if (idx !== -1) {
+        parentNode.childNodes.splice(idx, 1);
+      }
+    }
+    this._removeNodeElement(node);
+    delete this._objectNodes[objectId];
+    if (parentNode) {
+      this._removeSwitchElementIfLeaf(parentNode);
+      if (parentNode.childNodes.length === 0) {
+        const rootIdx = this._rootNodes.indexOf(parentNode);
+        if (rootIdx !== -1) {
+          this._rootNodes.splice(rootIdx, 1);
+        }
+        this._removeNodeElement(parentNode);
+        delete this._objectNodes[parentNode.objectId];
+        delete this._typeRootNodeIndex[parentNode.type];
+      }
+    }
+  }
+  _getGroupPathNodesForObject(dataObject) {
+    const chain = [];
+    let current = dataObject;
+    while (current) {
+      chain.unshift(current);
+      current = this._getAggregationParentDataObject(current);
+    }
+    const result = [];
+    let searchFrom = 0;
+    for (let i = 0; i < this._groupTypes.length; i++) {
+      const wantedType = this._groupTypes[i];
+      let found = null;
+      for (let j = searchFrom; j < chain.length; j++) {
+        if (chain[j].type === wantedType) {
+          found = chain[j];
+          searchFrom = j + 1;
+          break;
+        }
+      }
+      if (!found) {
+        break;
+      }
+      result.push(found);
+    }
+    return result;
+  }
+  _getGroupNodeKey(pathObjects, index) {
+    return `group:${pathObjects.slice(0, index + 1).map((o) => o.id).join("/")}`;
+  }
+  _getGroupsTypeNodeKey(parentNode, type) {
+    return `grouptype:${parentNode.objectId}:${type}`;
+  }
+  _insertGroupsNode(dataObject, building = false) {
+    if (!this._shouldIncludeDataObject(dataObject)) {
+      return;
+    }
+    if (this._objectNodes[dataObject.id]) {
+      return;
+    }
+    const pathObjects = this._getGroupPathNodesForObject(dataObject);
+    let parentNode = null;
+    for (let i = 0, len = pathObjects.length; i < len; i++) {
+      const groupObject = pathObjects[i];
+      const key = this._getGroupNodeKey(pathObjects, i);
+      let groupNode = this._groupNodeIndex[key];
+      if (!groupNode) {
+        groupNode = {
+          nodeId: key,
+          objectId: key,
+          title: i === 0 ? this._rootName || this._getDisplayTitle(groupObject, true) : this._getDisplayTitle(groupObject, false),
+          type: groupObject.type,
+          parentNode,
+          numViewObjects: 0,
+          numVisibleViewObjects: 0,
+          checked: false,
+          xrayed: false,
+          childNodes: []
+        };
+        this._groupNodeIndex[key] = groupNode;
+        this._objectNodes[groupNode.objectId] = groupNode;
+        if (parentNode) {
+          parentNode.childNodes.push(groupNode);
+          if (this._sortNodes) {
+            parentNode.childNodes.sort(this._alphaSortFunc.bind(this));
+          }
+        } else {
+          this._rootNodes.push(groupNode);
+          if (this._sortNodes) {
+            this._rootNodes.sort(this._alphaSortFunc.bind(this));
+          }
+        }
+        if (!building) {
+          this._insertNodeIntoDOM(groupNode);
+        }
+      }
+      parentNode = groupNode;
+    }
+    if (!parentNode) {
+      const topKey = `groupfallback:${dataObject.type}`;
+      let typeRoot = this._groupNodeIndex[topKey];
+      if (!typeRoot) {
+        typeRoot = {
+          nodeId: topKey,
+          objectId: topKey,
+          title: dataObject.type,
+          type: dataObject.type,
+          parentNode: null,
+          numViewObjects: 0,
+          numVisibleViewObjects: 0,
+          checked: false,
+          xrayed: false,
+          childNodes: []
+        };
+        this._groupNodeIndex[topKey] = typeRoot;
+        this._objectNodes[typeRoot.objectId] = typeRoot;
+        this._rootNodes.push(typeRoot);
+        if (this._sortNodes) {
+          this._rootNodes.sort(this._alphaSortFunc.bind(this));
+        }
+        if (!building) {
+          this._insertNodeIntoDOM(typeRoot);
+        }
+      }
+      parentNode = typeRoot;
+    }
+    const typeKey = this._getGroupsTypeNodeKey(parentNode, dataObject.type);
+    let typeNode = this._groupsTypeNodeIndex[typeKey];
+    if (!typeNode) {
+      typeNode = {
+        nodeId: typeKey,
+        objectId: typeKey,
+        title: dataObject.type,
+        type: dataObject.type,
+        parentNode,
+        numViewObjects: 0,
+        numVisibleViewObjects: 0,
+        checked: false,
+        xrayed: false,
+        childNodes: []
+      };
+      this._groupsTypeNodeIndex[typeKey] = typeNode;
+      this._objectNodes[typeNode.objectId] = typeNode;
+      parentNode.childNodes.push(typeNode);
+      if (this._sortNodes) {
+        parentNode.childNodes.sort(this._alphaSortFunc.bind(this));
+      }
+      if (!building) {
+        this._insertNodeIntoDOM(typeNode);
+      }
+    }
+    const leafNode = {
+      nodeId: dataObject.id,
+      objectId: dataObject.id,
+      title: this._getDisplayTitle(dataObject, false),
+      type: dataObject.type,
+      parentNode: typeNode,
+      numViewObjects: 0,
+      numVisibleViewObjects: 0,
+      checked: false,
+      xrayed: false,
+      childNodes: []
+    };
+    typeNode.childNodes.push(leafNode);
+    if (this._sortNodes) {
+      typeNode.childNodes.sort(this._alphaSortFunc.bind(this));
+    }
+    this._objectNodes[leafNode.objectId] = leafNode;
+    this._syncSingleNodeToEntity(leafNode);
+    this._bubbleNodeCountsToParents(leafNode);
+    if (!building) {
+      this._insertNodeIntoDOM(leafNode);
+    }
+  }
+  _removeGroupsNode(objectId) {
+    const node = this._objectNodes[objectId];
+    if (!node) {
+      return;
+    }
+    this._subtractNodeCountsFromParents(node);
+    const parentNode = node.parentNode;
+    if (parentNode) {
+      const idx = parentNode.childNodes.indexOf(node);
+      if (idx !== -1) {
+        parentNode.childNodes.splice(idx, 1);
+      }
+    }
+    this._removeNodeElement(node);
+    delete this._objectNodes[objectId];
+    if (parentNode) {
+      this._removeSwitchElementIfLeaf(parentNode);
+      this._cleanupEmptyStructuralAncestors(parentNode);
+    }
+  }
   _doSortNodes() {
+    this._rootNodes.sort(this._alphaSortFunc.bind(this));
     for (let i = 0, len = this._rootNodes.length; i < len; i++) {
-      const rootNode = this._rootNodes[i];
-      this._sortChildNodes(rootNode);
+      this._sortChildNodes(this._rootNodes[i]);
     }
   }
   _sortChildNodes(node) {
+    const childNodes = node.childNodes;
+    if (!childNodes || childNodes.length === 0) {
+      return;
+    }
+    childNodes.sort(this._alphaSortFunc.bind(this));
+    for (let i = 0, len = childNodes.length; i < len; i++) {
+      this._sortChildNodes(childNodes[i]);
+    }
   }
   _getSpatialSortFunc() {
+    return this._spatialSortFunc;
   }
   _alphaSortFunc(node1, node2) {
     const title1 = node1.title.toUpperCase();
@@ -140593,37 +142028,35 @@ var TreeView = class _TreeView {
   }
   _synchNodesToEntities() {
     const objectIds = Object.keys(this.data.objects);
-    const dataObjects = this.data.objects;
     const viewObjects = this.view.objects;
     for (let i = 0, len = objectIds.length; i < len; i++) {
       const objectId = objectIds[i];
-      const dataObject = dataObjects[objectId];
-      if (dataObject) {
-        const node = this._objectNodes[objectId];
-        if (node) {
-          const viewObject = viewObjects[objectId];
-          if (viewObject) {
-            const visible = viewObject.visible;
-            node.numViewObjects = 1;
-            node.xrayed = viewObject.xrayed;
-            if (visible) {
-              node.numVisibleViewObjects = 1;
-              node.checked = true;
-            } else {
-              node.numVisibleViewObjects = 0;
-              node.checked = false;
-            }
-            let parentNode = node.parentNode;
-            while (parentNode) {
-              parentNode.numViewObjects++;
-              if (visible) {
-                parentNode.numVisibleViewObjects++;
-                parentNode.checked = true;
-              }
-              parentNode = parentNode.parentNode;
-            }
-          }
+      const node = this._objectNodes[objectId];
+      if (!node) {
+        continue;
+      }
+      const viewObject = viewObjects[objectId];
+      if (!viewObject) {
+        continue;
+      }
+      const visible = viewObject.visible;
+      node.numViewObjects = 1;
+      node.xrayed = viewObject.xrayed;
+      if (visible) {
+        node.numVisibleViewObjects = 1;
+        node.checked = true;
+      } else {
+        node.numVisibleViewObjects = 0;
+        node.checked = false;
+      }
+      let parentNode = node.parentNode;
+      while (parentNode) {
+        parentNode.numViewObjects++;
+        if (visible) {
+          parentNode.numVisibleViewObjects++;
+          parentNode.checked = true;
         }
+        parentNode = parentNode.parentNode;
       }
     }
   }
@@ -140641,9 +142074,7 @@ var TreeView = class _TreeView {
     if (this._rootNodes.length === 0) {
       return;
     }
-    const rootNodeElements = this._rootNodes.map((rootNode) => {
-      return this._createNodeElement(rootNode);
-    });
+    const rootNodeElements = this._rootNodes.map((rootNode) => this._createNodeElement(rootNode));
     const ul = document.createElement("ul");
     rootNodeElements.forEach((nodeElement) => {
       ul.appendChild(nodeElement);
@@ -140701,17 +142132,17 @@ var TreeView = class _TreeView {
     if (!parentElement) {
       return;
     }
-    const expanded = parentElement.getElementsByTagName("li")[0];
+    const expanded = this._getDirectChildUL(parentElement);
     if (expanded) {
       return;
     }
     const nodeId = parentElement.id.replace("node-", "");
-    const objectId = nodeId;
-    const switchNode = this._objectNodes[objectId];
+    const switchNode = this._objectNodes[nodeId];
+    if (!switchNode) {
+      return;
+    }
     const childNodes = switchNode.childNodes;
-    const nodeElements = childNodes.map((node) => {
-      return this._createNodeElement(node);
-    });
+    const nodeElements = childNodes.map((node) => this._createNodeElement(node));
     const ul = document.createElement("ul");
     nodeElements.forEach((nodeElement) => {
       ul.appendChild(nodeElement);
@@ -140724,8 +142155,7 @@ var TreeView = class _TreeView {
     switchElement.addEventListener("click", this._switchCollapseHandler);
   }
   _collapseNode(objectId) {
-    const nodeId = objectId;
-    const switchElementId = `switch-${nodeId}`;
+    const switchElementId = `switch-${objectId}`;
     const switchElement = document.getElementById(switchElementId);
     if (!switchElement) {
       return;
@@ -140733,14 +142163,11 @@ var TreeView = class _TreeView {
     this._collapseSwitchElement(switchElement);
   }
   _collapseSwitchElement(switchElement) {
-    if (!switchElement) {
-      return;
-    }
     const parent = switchElement.parentElement;
     if (!parent) {
       return;
     }
-    const ul = parent.querySelector("ul");
+    const ul = this._getDirectChildUL(parent);
     if (!ul) {
       return;
     }
@@ -140750,6 +142177,210 @@ var TreeView = class _TreeView {
     switchElement.textContent = "+";
     switchElement.removeEventListener("click", this._switchCollapseHandler);
     switchElement.addEventListener("click", this._switchExpandHandler);
+  }
+  _isDefaultishName(name12) {
+    return !name12 || name12 === "" || name12 === "Undefined" || name12 === "Default";
+  }
+  _getDisplayTitle(dataObject, isRoot = false) {
+    const type = dataObject.type;
+    const name12 = dataObject.name;
+    if (isRoot) {
+      return this._rootName || (this._isDefaultishName(name12) ? type : name12);
+    }
+    return this._isDefaultishName(name12) ? type : name12;
+  }
+  _getAggregationParentDataObject(dataObject) {
+    const rels = dataObject.relating ? dataObject.relating[this._linkType] : null;
+    if (!rels || rels.length === 0) {
+      return null;
+    }
+    const rel = rels[0];
+    return rel.relatingObject || null;
+  }
+  _shouldIncludeDataObject(dataObject) {
+    if (!this._pruneEmptyNodes) {
+      return true;
+    }
+    return !!this._dataObjectSceneObjectCounts[dataObject.id];
+  }
+  _syncSingleNodeToEntity(node) {
+    const viewObject = this.view.objects[node.objectId];
+    if (!viewObject) {
+      node.numViewObjects = 0;
+      node.numVisibleViewObjects = 0;
+      node.checked = false;
+      node.xrayed = false;
+      return;
+    }
+    node.numViewObjects = 1;
+    node.xrayed = viewObject.xrayed;
+    node.checked = !!viewObject.visible;
+    node.numVisibleViewObjects = viewObject.visible ? 1 : 0;
+  }
+  _bubbleNodeCountsToParents(node) {
+    let parentNode = node.parentNode;
+    while (parentNode) {
+      parentNode.numViewObjects += node.numViewObjects;
+      parentNode.numVisibleViewObjects += node.numVisibleViewObjects;
+      parentNode.checked = parentNode.numVisibleViewObjects > 0;
+      const checkbox = document.getElementById(parentNode.nodeId);
+      if (checkbox) {
+        checkbox.checked = parentNode.checked;
+      }
+      parentNode = parentNode.parentNode;
+    }
+  }
+  _subtractNodeCountsFromParents(node) {
+    let parentNode = node.parentNode;
+    while (parentNode) {
+      parentNode.numViewObjects -= node.numViewObjects;
+      parentNode.numVisibleViewObjects -= node.numVisibleViewObjects;
+      if (parentNode.numViewObjects < 0) {
+        parentNode.numViewObjects = 0;
+      }
+      if (parentNode.numVisibleViewObjects < 0) {
+        parentNode.numVisibleViewObjects = 0;
+      }
+      parentNode.checked = parentNode.numVisibleViewObjects > 0;
+      const checkbox = document.getElementById(parentNode.nodeId);
+      if (checkbox) {
+        checkbox.checked = parentNode.checked;
+      }
+      parentNode = parentNode.parentNode;
+    }
+  }
+  _ensureRootElement() {
+    if (!this._rootElement) {
+      this._rootElement = document.createElement("ul");
+      this._containerElement.appendChild(this._rootElement);
+    }
+    return this._rootElement;
+  }
+  _getDirectChildUL(parentElement) {
+    const children = parentElement.children;
+    for (let i = 0, len = children.length; i < len; i++) {
+      const child = children[i];
+      if (child.tagName === "UL") {
+        return child;
+      }
+    }
+    return null;
+  }
+  _ensureExpandedChildrenContainer(parentElement) {
+    return this._getDirectChildUL(parentElement);
+  }
+  _ensureSwitchElement(node) {
+    const li = document.getElementById(`node-${node.nodeId}`);
+    if (!li) {
+      return;
+    }
+    let switchElement = document.getElementById(`switch-${node.nodeId}`);
+    if (switchElement) {
+      return;
+    }
+    switchElement = document.createElement("a");
+    switchElement.href = "_";
+    switchElement.id = `switch-${node.nodeId}`;
+    switchElement.textContent = "+";
+    switchElement.classList.add("plus");
+    switchElement.addEventListener("click", this._switchExpandHandler);
+    li.insertBefore(switchElement, li.firstChild);
+  }
+  _removeSwitchElementIfLeaf(node) {
+    if (node.childNodes.length > 0) {
+      return;
+    }
+    const switchElement = document.getElementById(`switch-${node.nodeId}`);
+    if (!switchElement || !switchElement.parentElement) {
+      return;
+    }
+    switchElement.removeEventListener("click", this._switchExpandHandler);
+    switchElement.removeEventListener("click", this._switchCollapseHandler);
+    switchElement.parentElement.removeChild(switchElement);
+  }
+  _insertNodeIntoDOM(node) {
+    const nodeElement = this._createNodeElement(node);
+    if (!node.parentNode) {
+      const rootUL = this._ensureRootElement();
+      this._insertElementAtSortedIndex(rootUL, nodeElement, this._rootNodes, node);
+      return;
+    }
+    const parentLI = document.getElementById(`node-${node.parentNode.nodeId}`);
+    if (!parentLI) {
+      return;
+    }
+    if (node.parentNode.childNodes.length === 1) {
+      this._ensureSwitchElement(node.parentNode);
+    }
+    const parentUL = this._ensureExpandedChildrenContainer(parentLI);
+    if (!parentUL) {
+      return;
+    }
+    this._insertElementAtSortedIndex(parentUL, nodeElement, node.parentNode.childNodes, node);
+  }
+  _insertElementAtSortedIndex(container, nodeElement, siblings, node) {
+    if (!this._sortNodes) {
+      container.appendChild(nodeElement);
+      return;
+    }
+    const idx = siblings.indexOf(node);
+    if (idx >= 0 && idx < container.children.length) {
+      container.insertBefore(nodeElement, container.children[idx]);
+    } else {
+      container.appendChild(nodeElement);
+    }
+  }
+  _removeNodeElement(node) {
+    const li = document.getElementById(`node-${node.nodeId}`);
+    if (li && li.parentNode) {
+      li.parentNode.removeChild(li);
+    }
+    if (this._showListItemElementId === `node-${node.nodeId}`) {
+      this._showListItemElementId = null;
+    }
+  }
+  _removeStructuralNodeFromIndexes(node) {
+    if (node.objectId.indexOf("group:") === 0 || node.objectId.indexOf("groupfallback:") === 0) {
+      delete this._groupNodeIndex[node.objectId];
+      return;
+    }
+    if (node.objectId.indexOf("grouptype:") === 0) {
+      delete this._groupsTypeNodeIndex[node.objectId];
+      return;
+    }
+    if (node.objectId.indexOf("type:") === 0) {
+      if (this._typeRootNodeIndex[node.type] === node) {
+        delete this._typeRootNodeIndex[node.type];
+      }
+    }
+  }
+  _cleanupEmptyStructuralAncestors(node) {
+    let current = node;
+    while (current) {
+      const isStructural = !!(current.objectId.indexOf("group:") === 0 || current.objectId.indexOf("groupfallback:") === 0 || current.objectId.indexOf("grouptype:") === 0 || current.objectId.indexOf("type:") === 0);
+      const shouldRemove = isStructural && current.childNodes.length === 0 && current.numViewObjects === 0 && !this.view.objects[current.objectId];
+      if (!shouldRemove) {
+        this._removeSwitchElementIfLeaf(current);
+        current = current.parentNode;
+        continue;
+      }
+      const parent = current.parentNode;
+      if (parent) {
+        const idx = parent.childNodes.indexOf(current);
+        if (idx !== -1) {
+          parent.childNodes.splice(idx, 1);
+        }
+      } else {
+        const idx = this._rootNodes.indexOf(current);
+        if (idx !== -1) {
+          this._rootNodes.splice(idx, 1);
+        }
+      }
+      this._removeNodeElement(current);
+      delete this._objectNodes[current.objectId];
+      this._removeStructuralNodeFromIndexes(current);
+      current = parent;
+    }
   }
 };
 
@@ -148295,7 +149926,7 @@ var DemoHelper = class {
   /**
    * Dynamically tracks the 3D boundaries of the objects in the Scene.
    */
-  aabb3Index;
+  _aabb3Index;
   /**
    * The Data created by the DemoHelper. Holds all data models.
    */
@@ -148396,21 +150027,15 @@ var DemoHelper = class {
             maxTiles: 2e3,
             maxBatches: 300,
             // Allow enough vertices and indices for large terrain meshes
-            maxBatchVertices: 5e4,
-            maxBatchIndices: 7e4,
+            maxBatchVertices: 5e5,
+            maxBatchIndices: 7e5,
             maxBatchGeometries: 1e4,
             maxBatchMeshes: 1e4,
-            maxBatchPrims: 1e5
+            maxBatchPrims: 1e6
           }
         });
         const log2 = (eventName, sender, args) => {
         };
-        if (cfg.logging) {
-          new EventsLogger(this.scene.events, { prefix: "[Scene        ]", log: log2 });
-          new EventsLogger(this.data.events, { prefix: "[Data         ]", log: log2 });
-          new EventsLogger(this.viewer.events, { prefix: "[Viewer       ]", log: log2 });
-          new EventsLogger(this.renderer.events, { prefix: "[WebGLRenderer]", log: log2 });
-        }
         const onError = (_, result) => {
           setInterval(() => {
             window.postMessage({
@@ -148426,7 +150051,6 @@ var DemoHelper = class {
         this.data.events.onError.subscribe(onError);
         this.viewer.events.onError.subscribe(onError);
         this.renderer.events.onError.subscribe(onError);
-        this.aabb3Index = new SceneAABB3Index(this.scene);
         this.viewer.attachScene(this.scene);
         this.renderer.attachViewer(this.viewer);
         if (this.makeView) {
@@ -148456,6 +150080,15 @@ var DemoHelper = class {
         resolve2({});
       }
     });
+  }
+  /**
+   * Gets the SceneAABB3Index for the Scene, which dynamically tracks the 3D boundaries of the objects in the Scene.
+   */
+  get aabb3Index() {
+    if (!this._aabb3Index) {
+      this._aabb3Index = new SceneAABB3Index(this.scene);
+    }
+    return this._aabb3Index;
   }
   /**
    * Gets the overlay host div element.
@@ -148560,7 +150193,7 @@ var DemoHelper = class {
     const stats = this.stats;
     stats.scene = this._getCombinedSceneModelStats();
     stats.data = this._getCombinedDataModelStats();
-    stats.aabb = Array.from(this.aabb3Index.getSceneAABB());
+    stats.aabb = Array.from(this._aabb3Index.getSceneAABB());
     stats.endTime = performance.now();
     stats.elapsedTime = stats.endTime - (stats.startTime ?? stats.endTime);
     if (this.renderer) {

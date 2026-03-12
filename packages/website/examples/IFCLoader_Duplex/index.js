@@ -8,7 +8,7 @@ const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper.init().then(() => {
 
-  const {view, scene, data} = demoHelper;
+  const {view, scene, data, renderer} = demoHelper;
 
   // Create an IFCLoader to load IFC files
 
@@ -71,6 +71,20 @@ demoHelper.init().then(() => {
 
           }).then(() => { // IFC file loaded
 
+            // const transform = sceneModel.createTransform({
+            //   id: "modelTransform",
+            //   parent: null,
+            //   position: [-1842009.4968455553, -9.685518291306686, 5173295.851503017]
+            // }).value;
+            //
+            // // iterate over objects in sceneModel
+            //
+            // for (const sceneMeshId in sceneModel.meshes) {
+            //   const sceneMesh = sceneModel.meshes[sceneMeshId];
+            //   sceneMesh.setParentTransformId(transform.id);
+            // }
+
+
             demoHelper.viewFit();
 
             // The IFC model now appears in our Viewer.  The DataModel and the Data will then contain DataObject,
@@ -104,7 +118,37 @@ demoHelper.init().then(() => {
 
             demoHelper.finished();
 
-            // demoHelper.orbit();
+            // Attach a mouse click listener to the View's canvas, and log any object that is picked when the user clicks.
+
+            view.htmlElement.addEventListener("click", (e) => {
+              const result = renderer.pick(view, {
+                canvasPos: [e.offsetX, e.offsetY],
+                pickViewObject: true
+              });
+              if (result) {
+                if (result.ok) {
+                  const pickResult = result.value;
+                  if (pickResult) {
+                    const sceneMesh = pickResult.sceneMesh;
+                    if (sceneMesh) {
+                      const sceneObject = sceneMesh.object;
+                      console.log("Picked object: " + sceneObject.id);
+                      const viewObject = view.objects[sceneObject.id];
+                      if (viewObject) {
+                        viewObject.highlighted = !viewObject.highlighted;
+                      }
+                    }
+                  } else {
+                    console.log("Nothing picked");
+                  }
+                } else {
+                  console.error("Picking error: " + result.error);
+                }
+              } else {
+                console.log("Nothing picked");
+              }
+            });
+
 
           }).catch(e => {
             console.error(e);

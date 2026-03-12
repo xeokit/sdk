@@ -63,7 +63,7 @@ demoHelper.init().then(() => {
 
     // Use the XGFLoader to load an IFC model from a .XGF file into our SceneModel and DataModel
 
-    fetch("../../models/ME-MAP/ifc2xgf/model.xgf").then(response => {
+    fetch("../../models/MAP/ifc2xgf/model.xgf").then(response => {
 
       response
         .arrayBuffer()
@@ -83,7 +83,7 @@ demoHelper.init().then(() => {
 
               demoHelper.finished();
 
-            //  demoHelper.viewFit();
+             // demoHelper.viewFit();
 
             }).catch(message => {
               console.error(`Error loading .XGF: ${message}`);

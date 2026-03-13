@@ -586,6 +586,7 @@ class View {
     viewLayer._attachViewObject(viewObject);
     this._attachViewObject(viewObject);
     this.viewer.events.onViewObjectCreated.dispatch(this, viewObject);
+    this.needsRender();
   }
 
   /**
@@ -613,6 +614,7 @@ class View {
         }
       }
       this.viewer.events.onViewObjectDestroyed.dispatch(this, viewObject);
+      this.needsRender();
     }
   }
 

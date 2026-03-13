@@ -916,6 +916,7 @@ export class ViewManager {
    * @param pickParams
    */
   pick(view: View, pickParams: PickParams): SDKResult<PickResult> {
+
     const rendererView = this._rendererViews[view.id];
     if (!rendererView) { // This is handled at a higher level, but just in case
       return {
@@ -924,6 +925,22 @@ export class ViewManager {
         error: `[ViewManager.pick] View not found with id ${view.id}`
       };
     }
+
+    const changingActiveView = this._activeView !== rendererView;
+
+    this._activateView(rendererView);
+
+    const changed = this._alignCanvasToView(rendererView);
+    if (changed.sizeChanged || changed.resolutionScaleChanged) {
+      this._activeViewNeedsRenderAfterAlignment = false;
+    }
+
+    this._gpuMemoryManager.uploadChanges();
+
+    if (changingActiveView) {
+      this._renderManager.render(rendererView, {clear: true});
+    }
+
     return this._pickManager.pick(rendererView, pickParams);
   }
 

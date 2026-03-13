@@ -2,6 +2,7 @@ import type {Vec3} from "../math/vector";
 import type {SceneObject} from "../scene";
 import type {ViewLayer} from "./ViewLayer";
 import {SDKErrorType} from "../core";
+import {View} from "./View";
 
 /**
  * An object within a {@link View | View}.
@@ -32,6 +33,11 @@ export class ViewObject {
      * ID of this ViewObject within the originating system.
      */
     public readonly originalSystemId: string;
+
+  /**
+   * The View to which this ViewObject belongs.
+   */
+  public readonly view: View;
 
     /**
      * The ViewLayer to which this ViewObject belongs.
@@ -67,6 +73,7 @@ export class ViewObject {
 
         this.id = sceneObject.id;
         this.originalSystemId = sceneObject.originalSystemId;
+        this.view = layer.view;
         this.layer = layer;
         this.sceneObject = sceneObject;
 

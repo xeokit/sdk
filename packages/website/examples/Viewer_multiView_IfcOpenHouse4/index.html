@@ -74,14 +74,14 @@
 
     /* Specific heights */
     #demoCanvas1 {
-      height: 600px;
-      width:600px;
+      height: 885px;
+      width:800px;
     }
 
     #demoCanvas2,
     #demoCanvas3 {
-      height: 295px;
-      width:500px
+      height: 380px;
+      width:600px
     }
 
     @media (max-width: 1000px) {
@@ -89,6 +89,67 @@
         grid-template-columns: 1fr;
       }
     }
+
+    .xeokit-context-menu {
+      font-family: 'Roboto', sans-serif;
+      font-size: 15px;
+      display: none;
+      z-index: 300000;
+      background: rgba(255, 255, 255, 0.46);
+      border: 1px solid black;
+      border-radius: 6px;
+      padding: 0;
+      width: 180px;
+    }
+
+    .xeokit-context-menu ul {
+      list-style: none;
+      margin-left: 0;
+      padding: 0;
+    }
+
+    .xeokit-context-menu-item {
+      list-style-type: none;
+      padding-left: 10px;
+      padding-right: 20px;
+      padding-top: 8px;
+      padding-bottom: 8px;
+      color: black;
+      background: rgba(255, 255, 255, 0.46);
+      cursor: pointer;
+      width: calc(100% - 30px);
+    }
+
+    .xeokit-context-menu-item:hover {
+      background: black;
+      color: white;
+      font-weight: normal;
+    }
+
+    .xeokit-context-menu-item span {
+      display: inline-block;
+    }
+
+    .xeokit-context-menu .disabled {
+      display: inline-block;
+      color: gray;
+      cursor: default;
+      font-weight: normal;
+    }
+
+    .xeokit-context-menu .disabled:hover {
+      color: gray;
+      cursor: default;
+      background: #eeeeee;
+      font-weight: normal;
+    }
+
+    .xeokit-context-menu-item-separator {
+      background: rgba(0, 0, 0, 1);
+      height: 1px;
+      width: 100%;
+    }
+
 
   </style>
 </head>

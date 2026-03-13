@@ -10,6 +10,11 @@ demoHelper.init().then(() => {
 
   const {view, scene, data, renderer} = demoHelper;
 
+  const aabb3Index = new xeokit.collision.aabb.SceneAABB3Index(scene);
+  const cameraFlight = new xeokit.cameraflight.CameraFlightAnimation(view, {
+    duration: 1.0
+  });
+
   // Create a styled container for the TreeView
   const treePanel = document.createElement("div");
   treePanel.id = "treeViewPanel";
@@ -212,6 +217,72 @@ demoHelper.init().then(() => {
       opacity: 0.62;
       font-style: italic;
     }
+
+
+      /* ----------------------------------------------------------------------------------------------------------*/
+        /* ContextMenu */
+        /* ----------------------------------------------------------------------------------------------------------*/
+
+        .xeokit-context-menu {
+            font-family: 'Roboto', sans-serif;
+            font-size: 15px;
+            display: none;
+            z-index: 300000;
+            background: rgba(255, 255, 255, 0.46);
+            border: 1px solid black;
+            border-radius: 6px;
+            padding: 0;
+            width: 200px;
+        }
+
+        .xeokit-context-menu ul {
+            list-style: none;
+            margin-left: 0;
+            padding: 0;
+        }
+
+        .xeokit-context-menu-item {
+            list-style-type: none;
+            padding-left: 10px;
+            padding-right: 20px;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            color: black;
+            background: rgba(255, 255, 255, 0.46);
+            cursor: pointer;
+            width: calc(100% - 30px);
+        }
+
+        .xeokit-context-menu-item:hover {
+            background: black;
+            color: white;
+            font-weight: normal;
+        }
+
+        .xeokit-context-menu-item span {
+            display: inline-block;
+        }
+
+        .xeokit-context-menu .disabled {
+            display: inline-block;
+            color: gray;
+            cursor: default;
+            font-weight: normal;
+        }
+
+        .xeokit-context-menu .disabled:hover {
+            color: gray;
+            cursor: default;
+            background: #eeeeee;
+            font-weight: normal;
+        }
+
+        .xeokit-context-menu-item-separator {
+            background: rgba(0, 0, 0, 1);
+            height: 1px;
+            width: 100%;
+        }
+
   `;
   document.head.appendChild(style);
 
@@ -219,9 +290,9 @@ demoHelper.init().then(() => {
   const ifcLoader = new xeokit.formats.ifc.IFCLoader();
 
   // Arrange the View's Camera
-  view.camera.eye = [-10,10,10];
+  view.camera.eye = [-10, 10, 10];
   view.camera.look = [0, 0, 0];
-  view.camera.up = [0,0,1];
+  view.camera.up = [0, 0, 1];
 
   view.camera.perspectiveProjection.far = 1000000;
 
@@ -269,11 +340,14 @@ demoHelper.init().then(() => {
 
         demoHelper.viewFit();
 
-        const treeView = new xeokit.treeview.TreeView({
+        // Create a TreeView to show the model hierarchy. We'll use the "IfcRelAggregates" relationship to
+        // determine the hierarchy, and we'll set it to auto-expand to a depth of 4 levels.
+
+        const treeView = new xeokit.ui.treeview.TreeView({
           containerElement: treeContainer,
           data,
           view,
-          hierarchy: xeokit.treeview.TreeView.AggregationHierarchy,
+          hierarchy: xeokit.ui.treeview.TreeView.AggregationHierarchy,
           linkType: "IfcRelAggregates",
           autoExpandDepth: 4,
           sortNodes: true,
@@ -285,34 +359,450 @@ demoHelper.init().then(() => {
 
           const objectId = event.treeViewNode.objectId;
 
-       //   treeView.showNode(objectId);
+          //   treeView.showNode(objectId);
 
-           const resultObjectIds = [];
+          const resultObjectIds = [];
 
-           const result = xeokit.data.searchObjects(data, {
-             startObjectId: objectId,
-             resultObjectIds
-           });
+          const result = xeokit.data.searchObjects(data, {
+            startObjectId: objectId,
+            resultObjectIds
+          });
 
-           // Check if the query was valid.
+          // Check if the query was valid.
 
-           if (!result.ok) {
-             console.error("Error querying IFC data: " + result.error);
-             return;
-           }
+          if (!result.ok) {
+            console.error("Error querying IFC data: " + result.error);
+            return;
+          }
 
-           // If the query succeeded, go ahead and mark whatever
-           // objects we found as selected. In this case, it will set the window
-           // frames as selected in the View.
+          // If the query succeeded, go ahead and mark whatever
+          // objects we found as selected. In this case, it will set the window
+          // frames as selected in the View.
 
           view.setObjectsSelected(view.selectedObjectIds, false);
-           view.setObjectsSelected(resultObjectIds, true);
+          view.setObjectsSelected(resultObjectIds, true);
 
           console.log("Tree node clicked:", event.treeViewNode);
         });
 
         treeView.events.onContextMenu.subscribe((treeViewInstance, event) => {
           console.log("Tree node context menu:", event.treeViewNode);
+        });
+
+        // Create a ContextMenu that will show when the user right-clicks on the View's canvas, but not on any object
+        // in the View. This ContextMenu will have options to hide and show all objects in the View, as well as an
+        // option to view fit the whole model.
+
+        const canvasContextMenu = new xeokit.ui.contextmenu.ContextMenu({
+          enabled: true,
+          context: {
+            view
+          },
+          items: [
+            [
+              {
+                title: "Hide All",
+                getEnabled: function (context) {
+                  return (context.view.numVisibleObjects > 0);
+                },
+                doAction: function (context) {
+                  context.view.setObjectsVisible(context.view.visibleObjectIds, false);
+                }
+              },
+              {
+                title: "Show All",
+                getEnabled: function (context) {
+                  return (context.view.numVisibleObjects < context.view.numObjects);
+                },
+                doAction: function (context) {
+                  const view = context.view;
+                  view.setObjectsVisible(view.objectIds, true);
+                  view.setObjectsXRayed(view.xrayedObjectIds, false);
+                  view.setObjectsSelected(view.selectedObjectIds, false);
+                }
+              }
+            ],
+            [
+              {
+                title: "View Fit All",
+                doAction: function (context) {
+                  cameraFlight.flyTo({
+                    aabb: aabb3Index.getSceneAABB(),
+                    duration: 0.5
+                  });
+                }
+              }
+            ]
+          ]
+        });
+
+        // Create a ContextMenu that will show when the user right-clicks on an object in a View. This ContextMenu
+        // will have options to view fit, hide, x-ray, and select the clicked object, as well as options to perform
+        // those actions on all other objects in the same subtree of the model hierarchy.
+
+        const objectContextMenu2 = new xeokit.ui.contextmenu.ContextMenu({
+
+          context: {
+            pickResult: null
+          },
+
+          items: [
+            [
+              {
+                title: "View Fit",
+                doAction: function (context) {
+                  const sceneObject = context.pickResult.sceneObject;
+                    cameraFlight.flyTo({
+                      aabb: aabb3Index.getObjectAABB(sceneObject.id),
+                      duration: 0.5
+                    });
+                }
+              },
+              {
+                title: "View Fit All",
+                doAction: function (context) {
+                  cameraFlight.flyTo({
+                    aabb: aabb3Index.getSceneAABB(),
+                    duration: 0.5
+                  });
+                }
+              },
+              {
+                title: "Show in Tree",
+                doAction: function (context) {
+                  // const objectId = context.entity.id;
+                  // context.treeViewPlugin.showNode(objectId);
+                }
+              }
+            ],
+            [
+              {
+                title: "Hide",
+                getEnabled: function (context) {
+                  return context.pickResult.viewObject.visible;
+                },
+                doAction: function (context) {
+                  context.pickResult.viewObject.visible = false;
+                }
+              },
+              {
+                title: "Hide Others",
+                doAction: function (context) {
+                  // const viewer = context.viewer;
+                  // const scene = viewer.scene;
+                  // const entity = context.entity;
+                  // const metaObject = viewer.metaScene.metaObjects[entity.id];
+                  // if (!metaObject) {
+                  //   return;
+                  // }
+                  // scene.setObjectsVisible(scene.visibleObjectIds, false);
+                  // scene.setObjectsXRayed(scene.xrayedObjectIds, false);
+                  // scene.setObjectsSelected(scene.selectedObjectIds, false);
+                  // scene.setObjectsHighlighted(scene.highlightedObjectIds, false);
+                  // metaObject.withMetaObjectsInSubtree((metaObject) => {
+                  //   const entity = scene.objects[metaObject.id];
+                  //   if (entity) {
+                  //     entity.visible = true;
+                  //   }
+                  // });
+                }
+              },
+              {
+                title: "Hide All",
+                getEnabled: function (context) {
+                  return (context.pickResult.viewObject.view.numVisibleObjects > 0);
+                },
+                doAction: function (context) {
+                  context.pickResult.viewObject.view.setObjectsVisible(
+                    context.pickResult.viewObject.view.visibleObjectIds, false);
+                }
+              },
+              {
+                title: "Show All",
+                getEnabled: function (context) {
+                  const view = context.pickResult.viewObject.view;
+                  return (view.numVisibleObjects < view.numObjects);
+                },
+                doAction: function (context) {
+                  const view = context.pickResult.viewObject.view;
+                  view.setObjectsVisible(view.objectIds, true);
+                }
+              }
+            ],
+            [
+              {
+                title: "X-Ray",
+                getEnabled: function (context) {
+                  return (!context.pickResult.viewObject.xrayed);
+                },
+                doAction: function (context) {
+                  context.pickResult.viewObject.xrayed = true;
+                }
+              },
+              {
+                title: "Undo X-Ray",
+                getEnabled: function (context) {
+                  return context.pickResult.viewObject.xrayed;
+                },
+                doAction: function (context) {
+                  context.pickResult.viewObject.xrayed = false;
+                }
+              },
+              {
+                title: "X-Ray Others",
+                doAction: function (context) {
+                  // const viewer = context.viewer;
+                  // const scene = viewer.scene;
+                  // const entity = context.entity;
+                  // const metaObject = viewer.metaScene.metaObjects[entity.id];
+                  // if (!metaObject) {
+                  //   return;
+                  // }
+                  // scene.setObjectsVisible(scene.objectIds, true);
+                  // scene.setObjectsXRayed(scene.objectIds, true);
+                  // scene.setObjectsSelected(scene.selectedObjectIds, false);
+                  // scene.setObjectsHighlighted(scene.highlightedObjectIds, false);
+                  // metaObject.withMetaObjectsInSubtree((metaObject) => {
+                  //   const entity = scene.objects[metaObject.id];
+                  //   if (entity) {
+                  //     entity.xrayed = false;
+                  //   }
+                  // });
+                }
+              },
+              {
+                title: "Reset X-Ray",
+                getEnabled: function (context) {
+                  return (context.pickResult.viewObject.view.numXRayedObjects > 0);
+                },
+                doAction: function (context) {
+                  context.pickResult.viewObject.view.setObjectsXRayed(context.pickResult.viewObject.view.xrayedObjectIds, false);
+                }
+              }
+            ],
+            [
+              {
+                title: "Select",
+                getEnabled: function (context) {
+                  return (!context.pickResult.viewObject.selected);
+                },
+                doAction: function (context) {
+                  context.pickResult.viewObject.selected = true;
+                }
+              },
+              {
+                title: "Undo Select",
+                getEnabled: function (context) {
+                  return context.pickResult.viewObject.selected;
+                },
+                doAction: function (context) {
+                  context.pickResult.viewObject.selected = false;
+                }
+              },
+              {
+                title: "Clear Selection",
+                getEnabled: function (context) {
+                  return (context.pickResult.viewObject.view.numSelectedObjects > 0);
+                },
+                doAction: function (context) {
+                  context.pickResult.viewObject.view.setObjectsSelected(context.pickResult.viewObject.view.selectedObjectIds, false);
+                }
+              }
+            ]
+
+          ],
+          enabled: true
+        });
+
+
+        const objectContextMenu = new xeokit.ui.contextmenu.ContextMenu({
+
+          items: [
+
+            [ // Group
+
+              // Per-object emphasis effects
+
+              { // Item
+
+                getTitle: (context) => {
+                  return "Effects..";
+                },
+
+                doAction: function (context) {
+                  // Does nothing
+                },
+
+                items: [ // Sub-menu
+
+                  [ // Group
+
+                    // Show/hide object
+
+                    {
+                      getTitle: (context) => {
+                        return context.pickResult.viewObject.visible ? "Hide Object" : "Show Object";
+                      },
+
+                      doAction: function (context) {
+                        context.pickResult.viewObject.visible = !context.pickResult.viewObject.visible;
+                      }
+                    },
+
+                    //Select/deselect object
+
+                    {
+                      getTitle: (context) => {
+                        return context.pickResult.viewObject.selected ? "Undo Select Object" : "Select Object";
+                      },
+
+                      doAction: function (context) {
+                        context.pickResult.viewObject.selected = !context.pickResult.viewObject.selected;
+                      }
+                    },
+
+                    // Highlight/unhighlight object
+
+                    {
+                      getTitle: (context) => {
+                        return context.pickResult.viewObject.highlighted ? "Undo Highlight Object" : "Highlight Object";
+                      },
+
+                      doAction: function (context) {
+                        context.pickResult.viewObject.highlighted = !context.pickResult.viewObject.highlighted;
+                      }
+                    },
+
+                    // X-ray / un-X-ray object
+
+                    {
+                      getTitle: (context) => {
+                        return context.pickResult.viewObject.xrayed ? "Undo X-Ray Object" : "X-Ray Object";
+                      },
+
+                      doAction: function (context) {
+                        context.pickResult.viewObject.xrayed = !context.pickResult.viewObject.xrayed;
+                      }
+                    }
+                  ]
+                ]
+              },
+
+              { // Item
+
+                getTitle: (context) => {
+                  return "Edit";
+                },
+
+                doAction: function (context) {
+                  // Does nothing
+                },
+
+                items: [ // Sub-menu
+
+                  [ // Group
+
+                    // Show/hide object
+
+                    {
+                      getTitle: (context) => {
+                        return "Destroy Object";
+                      },
+
+                      doAction: function (context) {
+                        context.pickResult.viewObject.sceneObject.destroy();
+                      }
+                    }
+                  ]
+                ]
+              },
+
+              // Camera navigation
+
+              {
+                getTitle: (context) => {
+                  return "Camera";
+                },
+
+                doAction: function (context) {
+
+                },
+
+                items: [ // Submenu
+                  [ // Group
+                    {
+                      title: "View Fit",
+                      doAction: function (context) {
+                        const sceneObject = context.pickResult.sceneObject;
+                        cameraFlight.flyTo({
+                          aabb: aabb3Index.getObjectAABB(sceneObject.id),
+                          duration: 0.5
+                        });
+                      }
+                    },
+                    {
+                      title: "View Fit All",
+                      doAction: function (context) {
+                        cameraFlight.flyTo({
+                          aabb: aabb3Index.getSceneAABB(),
+                          duration: 0.5
+                        });
+                      }
+                    }
+                  ]
+                ]
+              }
+            ]
+          ],
+
+          enabled: true
+        });
+
+
+        // Attach a mouse click listener to the View's canvas, and show our ContextMenu
+        // when the user right-clicks on an object in the View.
+
+        view.htmlElement.addEventListener("contextmenu", (e) => {
+
+          const result = renderer.pick(view, {
+            canvasPos: [e.offsetX, e.offsetY]
+          });
+
+          if (result) {
+            if (result.ok) {
+
+              const pickResult = result.value;
+
+              if (pickResult && pickResult.viewObject) {
+
+                objectContextMenu.context = {
+                  pickResult
+                };
+
+                const dataObject = data.objects[pickResult.viewObject.id];
+                if (dataObject) {
+                  objectContextMenu.setTitle(dataObject.name || dataObject.id);
+                }
+
+                objectContextMenu.show(e.clientX, e.clientY);
+
+              } else {
+
+                canvasContextMenu.context = {
+                  view
+                };
+
+                canvasContextMenu.show(e.clientX, e.clientY);
+              }
+            } else {
+              console.error("Picking failed: " + result.error);
+            }
+          } else {
+
+            // TODO: Open empty canmvas menu
+
+            console.log("Nothing picked");
+          }
         });
 
         demoHelper.finished();

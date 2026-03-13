@@ -778,7 +778,7 @@ var require_EventDispatcher = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.EventDispatcher = void 0;
     var ste_core_1 = require_dist();
-    var EventDispatcher19 = class extends ste_core_1.DispatcherBase {
+    var EventDispatcher18 = class extends ste_core_1.DispatcherBase {
       /**
        * Creates an instance of EventDispatcher.
        *
@@ -826,7 +826,7 @@ var require_EventDispatcher = __commonJS({
         return super.asEvent();
       }
     };
-    exports.EventDispatcher = EventDispatcher19;
+    exports.EventDispatcher = EventDispatcher18;
   }
 });
 
@@ -119366,7 +119366,7 @@ __export(viewer_exports, {
   SectionPlane: () => SectionPlane,
   SnapshotResult: () => SnapshotResult,
   Texturing: () => Texturing,
-  View: () => View,
+  View: () => View2,
   ViewLayer: () => ViewLayer,
   ViewObject: () => ViewObject,
   ViewTransform: () => ViewTransform,
@@ -119943,7 +119943,7 @@ var OrthoProjection = class {
     this.camera = camera;
     this._near = cfg.near || 0.1;
     this._far = cfg.far || 2e3;
-    this._scale = cfg.scale || 1;
+    this._scale = cfg.scale || 20;
     this._projMatrix = createMat4Float64();
     this._inverseProjMatrix = createMat4Float64();
     this._transposedProjMatrix = createMat4Float64();
@@ -120821,7 +120821,6 @@ var Camera2 = class {
       this._activeProjection = this.perspectiveProjection;
       value = PerspectiveProjectionType;
     }
-    this._activeProjection.clean();
     this._projectionType = value;
     this._buildViewMatrixTask.schedule();
     const events = this.view.viewer.events;
@@ -122707,6 +122706,10 @@ var ViewObject = class {
    */
   originalSystemId;
   /**
+   * The View to which this ViewObject belongs.
+   */
+  view;
+  /**
    * The ViewLayer to which this ViewObject belongs.
    */
   layer;
@@ -122735,6 +122738,7 @@ var ViewObject = class {
   constructor(layer, sceneObject) {
     this.id = sceneObject.id;
     this.originalSystemId = sceneObject.originalSystemId;
+    this.view = layer.view;
     this.layer = layer;
     this.sceneObject = sceneObject;
     this._visible = true;
@@ -124182,7 +124186,7 @@ var ViewTransform = class {
 };
 
 // ../sdk/src/viewer/View.ts
-var View = class {
+var View2 = class {
   /**
    ID of this View, unique within the {@link Viewer | Viewer}.
    */
@@ -124602,6 +124606,7 @@ var View = class {
     viewLayer._attachViewObject(viewObject);
     this._attachViewObject(viewObject);
     this.viewer.events.onViewObjectCreated.dispatch(this, viewObject);
+    this.needsRender();
   }
   /**
    * @private
@@ -124627,6 +124632,7 @@ var View = class {
         }
       }
       this.viewer.events.onViewObjectDestroyed.dispatch(this, viewObject);
+      this.needsRender();
     }
   }
   /**
@@ -126254,7 +126260,7 @@ var Viewer = class {
         }
       }
     }
-    const view = new View(this, apply({ id: viewId }, viewParams));
+    const view = new View2(this, apply({ id: viewId }, viewParams));
     this._attachView(view);
     if (this.scene) {
       for (const sceneObjectId in this.scene.objects) {
@@ -127547,7 +127553,7 @@ var RenderContext = class {
     s.zIndex = "100000";
     document.body.appendChild(canvas2);
     const contextAttr = {
-      alpha: true,
+      alpha: false,
       preserveDrawingBuffer: true,
       stencil: false,
       premultipliedAlpha: false,
@@ -135854,6 +135860,16 @@ var ViewManager2 = class {
         error: `[ViewManager.pick] View not found with id ${view.id}`
       };
     }
+    const changingActiveView = this._activeView !== rendererView;
+    this._activateView(rendererView);
+    const changed = this._alignCanvasToView(rendererView);
+    if (changed.sizeChanged || changed.resolutionScaleChanged) {
+      this._activeViewNeedsRenderAfterAlignment = false;
+    }
+    this._gpuMemoryManager.uploadChanges();
+    if (changingActiveView) {
+      this._renderManager.render(rendererView, { clear: true });
+    }
     return this._pickManager.pick(rendererView, pickParams);
   }
   /**
@@ -136826,7 +136842,7 @@ var CameraFlightAnimation = class _CameraFlightAnimation {
    * @param cfg.duration Default animation duration in seconds for {@link CameraFlightAnimation.flyTo}.
    */
   constructor(view, cfg) {
-    if (!(view instanceof View)) {
+    if (!(view instanceof View2)) {
       throw "[CameraFlightAnimation] Expected instance of View";
     }
     this.view = view;
@@ -140876,13 +140892,607 @@ function colorizeToRGB(color2) {
   return rgb;
 }
 
-// ../sdk/src/treeview/index.ts
+// ../sdk/src/ui/index.ts
+var ui_exports = {};
+__export(ui_exports, {
+  contextmenu: () => contextmenu_exports,
+  treeview: () => treeview_exports
+});
+
+// ../sdk/src/ui/contextmenu/index.ts
+var contextmenu_exports = {};
+__export(contextmenu_exports, {
+  ContextMenu: () => ContextMenu
+});
+
+// ../sdk/src/ui/contextmenu/ContextMenu.ts
+var idMap = new Map2();
+var Menu = class {
+  id;
+  parentItem;
+  groups;
+  menuElement;
+  titleElement;
+  shown;
+  mouseOver;
+  constructor(id) {
+    this.id = id;
+    this.parentItem = null;
+    this.groups = [];
+    this.menuElement = null;
+    this.titleElement = null;
+    this.shown = false;
+    this.mouseOver = 0;
+  }
+};
+var Group = class {
+  items;
+  constructor() {
+    this.items = [];
+  }
+};
+var Item = class {
+  id;
+  getTitle;
+  doAction;
+  doHover;
+  getEnabled;
+  getShown;
+  itemElement;
+  subMenu;
+  enabled;
+  shown;
+  parentMenu;
+  constructor(id, getTitle, doAction, getEnabled, getShown) {
+    this.id = id;
+    this.getTitle = getTitle;
+    this.doAction = doAction;
+    this.getEnabled = getEnabled;
+    this.getShown = getShown;
+    this.itemElement = null;
+    this.subMenu = null;
+    this.enabled = true;
+    this.shown = true;
+    this.parentMenu = null;
+  }
+};
+var ContextMenu = class {
+  _id;
+  _context;
+  _enabled;
+  _itemsCfg;
+  _rootMenu;
+  _menuList;
+  _menuMap;
+  _itemList;
+  _itemMap;
+  _shown;
+  _nextId;
+  _parentNode;
+  _offsetParent;
+  _eventSubs;
+  _hideOnAction;
+  _canvasTouchStartHandler;
+  _title;
+  _getTitle;
+  constructor(cfg = {}) {
+    this._id = idMap.addItem();
+    this._context = null;
+    this._enabled = false;
+    this._itemsCfg = [];
+    this._rootMenu = null;
+    this._menuList = [];
+    this._menuMap = {};
+    this._itemList = [];
+    this._itemMap = {};
+    this._shown = false;
+    this._nextId = 0;
+    this._parentNode = cfg.parentNode || document.body;
+    this._offsetParent = this._parentNode instanceof ShadowRoot ? this._parentNode.host : this._parentNode;
+    this._eventSubs = {};
+    this._title = cfg.title || "";
+    this._getTitle = () => this._title;
+    if (cfg.hideOnMouseDown !== false) {
+      this._parentNode.addEventListener("mousedown", (event) => {
+        const target = event.target;
+        if (!target?.classList?.contains("xeokit-context-menu-item")) {
+          this.hide();
+        }
+      });
+      this._canvasTouchStartHandler = (event) => {
+        const target = event.target;
+        if (!target?.classList?.contains("xeokit-context-menu-item")) {
+          this.hide();
+        }
+      };
+      this._parentNode.addEventListener("touchstart", this._canvasTouchStartHandler);
+    }
+    if (cfg.items) {
+      this.items = cfg.items;
+    }
+    this._hideOnAction = cfg.hideOnAction !== false;
+    this.context = cfg.context ?? null;
+    this.enabled = cfg.enabled !== false;
+    this.hide();
+  }
+  on(event, callback) {
+    let subs = this._eventSubs[event];
+    if (!subs) {
+      subs = [];
+      this._eventSubs[event] = subs;
+    }
+    subs.push(callback);
+  }
+  fire(event, value) {
+    const subs = this._eventSubs[event];
+    if (subs) {
+      for (let i = 0, len = subs.length; i < len; i++) {
+        subs[i](value);
+      }
+    }
+  }
+  set items(itemsCfg) {
+    this._clear();
+    this._itemsCfg = itemsCfg || [];
+    this._parseItems(itemsCfg);
+    this._createUI();
+  }
+  get items() {
+    return this._itemsCfg;
+  }
+  set enabled(enabled2) {
+    enabled2 = !!enabled2;
+    if (enabled2 === this._enabled) {
+      return;
+    }
+    this._enabled = enabled2;
+    if (!this._enabled) {
+      this.hide();
+    }
+  }
+  get enabled() {
+    return this._enabled;
+  }
+  set context(context) {
+    this._context = context;
+  }
+  get context() {
+    return this._context;
+  }
+  setTitle(title) {
+    this._title = title || "";
+    this._updateMenuTitle();
+  }
+  show(pageX, pageY) {
+    if (!this._context) {
+      console.error("ContextMenu cannot be shown without a context - set context first");
+      return;
+    }
+    if (!this._enabled || this._shown || !this._rootMenu) {
+      return;
+    }
+    this._hideAllMenus();
+    this._updateMenuTitle();
+    this._updateItemsTitles();
+    this._updateItemsEnabledStatus();
+    this._showMenu(this._rootMenu.id, pageX, pageY);
+    this._updateSubMenuInfo();
+    this._shown = true;
+    this.fire("shown", {});
+  }
+  get shown() {
+    return this._shown;
+  }
+  hide() {
+    if (!this._enabled || !this._shown) {
+      return;
+    }
+    this._hideAllMenus();
+    this._shown = false;
+    this.fire("hidden", {});
+  }
+  destroy() {
+    this._context = null;
+    this._clear();
+    if (this._id !== null) {
+      idMap.removeItem(this._id);
+      this._id = null;
+    }
+  }
+  _clear() {
+    for (let i = 0, len = this._menuList.length; i < len; i++) {
+      const menu = this._menuList[i];
+      menu.menuElement?.remove();
+    }
+    this._itemsCfg = [];
+    this._rootMenu = null;
+    this._menuList = [];
+    this._menuMap = {};
+    this._itemList = [];
+    this._itemMap = {};
+  }
+  _parseItems(itemsCfg) {
+    const visitItems = (itemsCfgToVisit) => {
+      const menuId = this._getNextId();
+      const menu = new Menu(menuId);
+      for (let i = 0, len = itemsCfgToVisit.length; i < len; i++) {
+        const itemsGroupCfg = itemsCfgToVisit[i];
+        const group = new Group();
+        menu.groups.push(group);
+        for (let j = 0, lenj = itemsGroupCfg.length; j < lenj; j++) {
+          const itemCfg = itemsGroupCfg[j];
+          const subItemsCfg = itemCfg.items;
+          const hasSubItems = !!(subItemsCfg && subItemsCfg.length > 0);
+          const itemId = this._getNextId();
+          const getTitle = itemCfg.getTitle || (() => itemCfg.title || "");
+          const doAction = itemCfg.doAction || itemCfg.callback || (() => {
+          });
+          const getEnabled = itemCfg.getEnabled || (() => true);
+          const getShown = itemCfg.getShown || (() => true);
+          const item = new Item(
+            itemId,
+            getTitle,
+            doAction,
+            getEnabled,
+            getShown
+          );
+          item.doHover = itemCfg.doHover;
+          item.parentMenu = menu;
+          group.items.push(item);
+          if (hasSubItems && subItemsCfg) {
+            const subMenu = visitItems(subItemsCfg);
+            item.subMenu = subMenu;
+            subMenu.parentItem = item;
+          }
+          this._itemList.push(item);
+          this._itemMap[item.id] = item;
+        }
+      }
+      this._menuList.push(menu);
+      this._menuMap[menu.id] = menu;
+      return menu;
+    };
+    this._rootMenu = visitItems(itemsCfg);
+  }
+  _getNextId() {
+    return `ContextMenu_${this._id}_${this._nextId++}`;
+  }
+  _createUI() {
+    if (!this._rootMenu) {
+      return;
+    }
+    const visitMenu = (menu) => {
+      this._createMenuUI(menu);
+      const groups = menu.groups;
+      for (let i = 0, len = groups.length; i < len; i++) {
+        const group = groups[i];
+        const groupItems = group.items;
+        for (let j = 0, lenj = groupItems.length; j < lenj; j++) {
+          const item = groupItems[j];
+          const subMenu = item.subMenu;
+          if (subMenu) {
+            visitMenu(subMenu);
+          }
+        }
+      }
+    };
+    visitMenu(this._rootMenu);
+  }
+  _createMenuUI(menu) {
+    const groups = menu.groups;
+    const html = [];
+    const menuElement = document.createElement("div");
+    menuElement.classList.add("xeokit-context-menu", menu.id);
+    menuElement.style.zIndex = "300000";
+    menuElement.style.position = "absolute";
+    const isRootMenu = menu === this._rootMenu;
+    if (isRootMenu) {
+      html.push(`<div class="xeokit-context-menu-title"></div>`);
+    }
+    html.push("<ul>");
+    for (let i = 0, len = groups.length; i < len; i++) {
+      const group = groups[i];
+      const groupIdx = i;
+      const groupLen = len;
+      const groupItems = group.items;
+      for (let j = 0, lenj = groupItems.length; j < lenj; j++) {
+        const item = groupItems[j];
+        const itemSubMenu = item.subMenu;
+        const actionTitle = "";
+        if (itemSubMenu) {
+          html.push(
+            `<li id="${item.id}" class="xeokit-context-menu-item xeokit-context-menu-submenu">${actionTitle}</li>`
+          );
+        } else {
+          html.push(
+            `<li id="${item.id}" class="xeokit-context-menu-item">${actionTitle}</li>`
+          );
+        }
+        if (!(groupIdx === groupLen - 1 || j < lenj - 1)) {
+          html.push(
+            `<li id="${item.id}" class="xeokit-context-menu-item-separator"></li>`
+          );
+        }
+      }
+    }
+    html.push("</ul>");
+    menuElement.innerHTML = html.join("");
+    this._parentNode.appendChild(menuElement);
+    menu.menuElement = menuElement;
+    menu.titleElement = menuElement.querySelector(
+      ".xeokit-context-menu-title"
+    );
+    menuElement.style.borderRadius = "4px";
+    menuElement.style.display = "none";
+    menuElement.style.zIndex = "300000";
+    menuElement.style.background = "white";
+    menuElement.style.border = "1px solid black";
+    menuElement.style.boxShadow = "0 4px 5px 0 gray";
+    menuElement.oncontextmenu = (e) => {
+      e.preventDefault();
+    };
+    if (menu.titleElement) {
+      menu.titleElement.style.padding = "8px 12px";
+      menu.titleElement.style.fontWeight = "600";
+      menu.titleElement.style.borderBottom = "1px solid #d9d9d9";
+      menu.titleElement.style.whiteSpace = "nowrap";
+      this._updateMenuTitle();
+    }
+    const self2 = this;
+    let lastSubMenu = null;
+    for (let i = 0, len = groups.length; i < len; i++) {
+      const group = groups[i];
+      const groupItems = group.items;
+      for (let j = 0, lenj = groupItems.length; j < lenj; j++) {
+        const item = groupItems[j];
+        const itemSubMenu = item.subMenu;
+        item.itemElement = menuElement.querySelector(`#${item.id}`);
+        if (!item.itemElement) {
+          console.error(`ContextMenu item element not found: ${item.id}`);
+          continue;
+        }
+        item.itemElement.addEventListener("mouseenter", (event) => {
+          event.preventDefault();
+          const subMenu = item.subMenu;
+          if (!subMenu) {
+            if (lastSubMenu) {
+              self2._hideMenu(lastSubMenu.id);
+              lastSubMenu = null;
+            }
+            return;
+          }
+          if (lastSubMenu && lastSubMenu.id !== subMenu.id) {
+            self2._hideMenu(lastSubMenu.id);
+            lastSubMenu = null;
+          }
+          if (item.enabled === false) {
+            return;
+          }
+          const itemElement = item.itemElement;
+          const subMenuElement = subMenu.menuElement;
+          const itemRect = itemElement.getBoundingClientRect();
+          subMenuElement.getBoundingClientRect();
+          const offsetRect = self2._offsetParent.getBoundingClientRect();
+          const subMenuWidth = 200;
+          const showOnRight = itemRect.right + subMenuWidth < offsetRect.right;
+          const showOnLeft = itemRect.left - subMenuWidth > offsetRect.left;
+          if (showOnRight) {
+            self2._showMenu(
+              subMenu.id,
+              itemRect.right + window.scrollX - 5,
+              itemRect.top + window.scrollY - 16
+            );
+          } else if (showOnLeft) {
+            self2._showMenu(
+              subMenu.id,
+              itemRect.left - subMenuWidth + window.scrollX,
+              itemRect.top + window.scrollY - 16
+            );
+          } else {
+            const spaceOnLeft = itemRect.left - offsetRect.left;
+            const spaceOnRight = offsetRect.right - itemRect.right;
+            if (spaceOnRight > spaceOnLeft) {
+              self2._showMenu(
+                subMenu.id,
+                itemRect.right - 5 - (subMenuWidth - spaceOnRight),
+                itemRect.top + window.scrollY - 16
+              );
+            } else {
+              self2._showMenu(
+                subMenu.id,
+                itemRect.left - spaceOnLeft,
+                itemRect.top + window.scrollY - 16
+              );
+            }
+          }
+          lastSubMenu = subMenu;
+        });
+        if (!itemSubMenu) {
+          item.itemElement.addEventListener("click", (event) => {
+            event.preventDefault();
+            if (!self2._context || item.enabled === false) {
+              return;
+            }
+            item.doAction?.(self2._context);
+            if (this._hideOnAction) {
+              self2.hide();
+            } else {
+              self2._updateMenuTitle();
+              self2._updateItemsTitles();
+              self2._updateItemsEnabledStatus();
+            }
+          });
+          item.itemElement.addEventListener("mouseup", (event) => {
+            if (event.which !== 3) {
+              return;
+            }
+            event.preventDefault();
+            if (!self2._context || item.enabled === false) {
+              return;
+            }
+            item.doAction?.(self2._context);
+            if (this._hideOnAction) {
+              self2.hide();
+            } else {
+              self2._updateMenuTitle();
+              self2._updateItemsTitles();
+              self2._updateItemsEnabledStatus();
+            }
+          });
+          item.itemElement.addEventListener("mouseenter", (event) => {
+            event.preventDefault();
+            if (!self2._context || item.enabled === false) {
+              return;
+            }
+            item.doHover?.(self2._context);
+          });
+        }
+      }
+    }
+  }
+  _updateMenuTitle() {
+    if (!this._rootMenu?.titleElement) {
+      return;
+    }
+    const title = this._context ? this._getTitle(this._context) : this._title;
+    this._rootMenu.titleElement.innerText = title || "";
+    this._rootMenu.titleElement.style.display = title ? "" : "none";
+  }
+  _updateItemsTitles() {
+    if (!this._context) {
+      return;
+    }
+    for (let i = 0, len = this._itemList.length; i < len; i++) {
+      const item = this._itemList[i];
+      const itemElement = item.itemElement;
+      if (!itemElement) {
+        continue;
+      }
+      const getShown = item.getShown;
+      if (!getShown || !getShown(this._context)) {
+        continue;
+      }
+      const title = item.getTitle(this._context);
+      itemElement.innerText = title;
+    }
+  }
+  _updateItemsEnabledStatus() {
+    if (!this._context) {
+      return;
+    }
+    for (let i = 0, len = this._itemList.length; i < len; i++) {
+      const item = this._itemList[i];
+      const itemElement = item.itemElement;
+      if (!itemElement) {
+        continue;
+      }
+      const shown = item.getShown(this._context);
+      item.shown = shown;
+      if (!shown) {
+        itemElement.style.display = "none";
+        continue;
+      } else {
+        itemElement.style.display = "";
+      }
+      const enabled2 = item.getEnabled(this._context);
+      item.enabled = enabled2;
+      if (!enabled2) {
+        itemElement.classList.add("disabled");
+      } else {
+        itemElement.classList.remove("disabled");
+      }
+    }
+  }
+  _updateSubMenuInfo() {
+    if (!this._context) {
+      return;
+    }
+    this._itemList.forEach((item) => {
+      if (item.subMenu && item.itemElement && item.subMenu.menuElement) {
+        const itemElement = item.itemElement;
+        const itemRect = itemElement.getBoundingClientRect();
+        const subMenuElement = item.subMenu.menuElement;
+        const initialStyles = {
+          visibility: subMenuElement.style.visibility,
+          display: subMenuElement.style.display
+        };
+        subMenuElement.style.display = "block";
+        subMenuElement.style.visibility = "hidden";
+        const subMenuWidth = subMenuElement.getBoundingClientRect().width;
+        subMenuElement.style.visibility = initialStyles.visibility;
+        subMenuElement.style.display = initialStyles.display;
+        const showOnLeft = itemRect.right + subMenuWidth > window.innerWidth;
+        itemElement.setAttribute(
+          "data-submenuposition",
+          showOnLeft ? "left" : "right"
+        );
+      }
+    });
+  }
+  _showMenu(menuId, pageX, pageY) {
+    const menu = this._menuMap[menuId];
+    if (!menu) {
+      console.error(`Menu not found: ${menuId}`);
+      return;
+    }
+    if (menu.shown) {
+      return;
+    }
+    const menuElement = menu.menuElement;
+    if (menuElement) {
+      this._showMenuElement(menuElement, pageX, pageY);
+      menu.shown = true;
+    }
+  }
+  _hideMenu(menuId) {
+    const menu = this._menuMap[menuId];
+    if (!menu) {
+      console.error(`Menu not found: ${menuId}`);
+      return;
+    }
+    if (!menu.shown) {
+      return;
+    }
+    const menuElement = menu.menuElement;
+    if (menuElement) {
+      this._hideMenuElement(menuElement);
+      menu.shown = false;
+    }
+  }
+  _hideAllMenus() {
+    for (let i = 0, len = this._menuList.length; i < len; i++) {
+      const menu = this._menuList[i];
+      this._hideMenu(menu.id);
+    }
+  }
+  _showMenuElement(menuElement, pageX, pageY) {
+    menuElement.style.display = "block";
+    const menuHeight = menuElement.offsetHeight;
+    const menuWidth = menuElement.offsetWidth;
+    const offsetRect = this._offsetParent.getBoundingClientRect();
+    const bottomContainerBorder = this._offsetParent === window.document.body && offsetRect.bottom === 0 ? window.innerHeight : offsetRect.bottom + window.scrollY;
+    const rightContainerBorder = offsetRect.right + window.scrollX;
+    if (pageY + menuHeight > bottomContainerBorder) {
+      pageY = bottomContainerBorder - menuHeight;
+    }
+    if (pageX + menuWidth > rightContainerBorder) {
+      pageX = rightContainerBorder - menuWidth;
+    }
+    menuElement.style.left = `${pageX - offsetRect.left - window.scrollX}px`;
+    menuElement.style.top = `${pageY - offsetRect.top - window.scrollY}px`;
+  }
+  _hideMenuElement(menuElement) {
+    menuElement.style.display = "none";
+  }
+};
+
+// ../sdk/src/ui/treeview/index.ts
 var treeview_exports = {};
 __export(treeview_exports, {
   TreeView: () => TreeView
 });
 
-// ../sdk/src/treeview/TreeViewEvents.ts
+// ../sdk/src/ui/treeview/TreeViewEvents.ts
 var import_strongly_typed_events16 = __toESM(require_dist8());
 var TreeViewEvents = class {
   /**
@@ -140922,7 +141532,7 @@ var TreeViewEvents = class {
   }
 };
 
-// ../sdk/src/treeview/TreeView.ts
+// ../sdk/src/ui/treeview/TreeView.ts
 var TreeView = class _TreeView {
   /**
    * Hierarchy mode that arranges the {@link TreeViewNode | TreeViewNodes} as an aggregation hierarchy.
@@ -142384,598 +142994,6 @@ var TreeView = class _TreeView {
   }
 };
 
-// ../sdk/src/contextmenu/index.ts
-var contextmenu_exports = {};
-__export(contextmenu_exports, {
-  ContextMenu: () => ContextMenu
-});
-
-// ../sdk/src/contextmenu/ContextMenu.ts
-var import_strongly_typed_events17 = __toESM(require_dist8());
-var idMap = new Map2();
-var Menu = class {
-  id;
-  parentItem;
-  groups;
-  menuElement;
-  shown;
-  mouseOver;
-  constructor(id) {
-    this.id = id;
-    this.parentItem = null;
-    this.groups = [];
-    this.menuElement = null;
-    this.shown = false;
-    this.mouseOver = 0;
-  }
-};
-var Group = class {
-  items;
-  constructor() {
-    this.items = [];
-  }
-};
-var Item = class {
-  id;
-  getTitle;
-  doAction;
-  getEnabled;
-  getShown;
-  itemElement;
-  subMenu;
-  enabled;
-  parentMenu;
-  shown;
-  constructor(id, getTitle, doAction, getEnabled, getShown) {
-    this.id = id;
-    this.getTitle = getTitle;
-    this.doAction = doAction;
-    this.getEnabled = getEnabled;
-    this.getShown = getShown;
-    this.itemElement = null;
-    this.subMenu = null;
-    this.enabled = true;
-  }
-};
-var ContextMenu = class {
-  #id;
-  #itemList;
-  #rootMenu;
-  #menuList;
-  #nextId;
-  #shown;
-  #itemMap;
-  #menuMap;
-  #itemsCfg;
-  #enabled;
-  #context;
-  #hideOnAction;
-  #canvasTouchStartHander;
-  /**
-   * Emits an event each time this ContextMenu is shown.
-   */
-  onShown;
-  /**
-   * Emits an event each time this ContextMenu is hidden.
-   */
-  onHidden;
-  /**
-   * Creates a ````ContextMenu````.
-   *
-   * The ````ContextMenu```` will be initially hidden.
-   *
-   * @param {Object} [cfg] ````ContextMenu```` configuration.
-   * @param {Object} [cfg.items] The context menu items. These can also be dynamically set on {@link ContextMenu#items}. See the class documentation for an example.
-   * @param {Object} [cfg.context] The context, which is passed into the item callbacks. This can also be dynamically set on {@link ContextMenu#context}. This must be set before calling {@link ContextMenu#show}.
-   * @param {Boolean} [cfg.enabled=true] Whether this ````ContextMenu```` is initially enabled. {@link ContextMenu#show} does nothing while this is ````false````.
-   * @param {Boolean} [cfg.hideOnMouseDown=true] Whether this ````ContextMenu```` automatically hides whenever we mouse-down or tap anywhere in the page.
-   * @param {Boolean} [cfg.hideOnAction=true] Whether this ````ContextMenu```` automatically hides after we select a menu item. Se false if we want the menu to remain shown and show any updates to its item titles, after we've selected an item.
-   */
-  constructor(cfg) {
-    this.#id = idMap.addItem();
-    this.#context = null;
-    this.#enabled = false;
-    this.#itemsCfg = [];
-    this.#rootMenu = null;
-    this.#menuList = [];
-    this.#menuMap = {};
-    this.#itemList = [];
-    this.#itemMap = {};
-    this.#shown = false;
-    this.#nextId = 0;
-    this.onShown = new EventEmitter(new import_strongly_typed_events17.EventDispatcher());
-    this.onHidden = new EventEmitter(new import_strongly_typed_events17.EventDispatcher());
-    if (cfg.hideOnMouseDown !== false) {
-      document.addEventListener("mousedown", (event) => {
-        if (!event.target.classList.contains("xeokit-context-menu-item")) {
-          this.hide();
-        }
-      });
-      document.addEventListener("touchstart", this.#canvasTouchStartHander = (event) => {
-        if (!event.target.classList.contains("xeokit-context-menu-item")) {
-          this.hide();
-        }
-      });
-    }
-    if (cfg.items) {
-      this.items = cfg.items;
-    }
-    this.#hideOnAction = cfg.hideOnAction !== false;
-    this.context = cfg.context;
-    this.enabled = cfg.enabled !== false;
-    this.hide();
-  }
-  /**
-   * Sets the ````ContextMenu```` items.
-   *
-   * These can be updated dynamically at any time.
-   *
-   * See class documentation for an example.
-   *
-   * @type {Object[]}
-   */
-  set items(itemsCfg) {
-    this.#clear();
-    this.#itemsCfg = itemsCfg || [];
-    this.#parseItems(itemsCfg);
-    this.#createUI();
-  }
-  /**
-   * Gets the ````ContextMenu```` items.
-   *
-   * @type {Object[]}
-   */
-  get items() {
-    return this.#itemsCfg;
-  }
-  /**
-   * Sets whether this ````ContextMenu```` is enabled.
-   *
-   * Hides the menu when disabling.
-   *
-   * @type {Boolean}
-   */
-  set enabled(enabled2) {
-    enabled2 = !!enabled2;
-    if (enabled2 === this.#enabled) {
-      return;
-    }
-    this.#enabled = enabled2;
-    if (!this.#enabled) {
-      this.hide();
-    }
-  }
-  /**
-   * Gets whether this ````ContextMenu```` is enabled.
-   *
-   * {@link ContextMenu#show} does nothing while this is ````false````.
-   *
-   * @type {Boolean}
-   */
-  get enabled() {
-    return this.#enabled;
-  }
-  /**
-   * Sets the ````ContextMenu```` context.
-   *
-   * The context can be any object that you need to be provides to the callbacks configured on {@link ContextMenu#items}.
-   *
-   * This must be set before calling {@link ContextMenu#show}.
-   *
-   * @type {Object}
-   */
-  set context(context) {
-    this.#context = context;
-  }
-  /**
-   * Gets the ````ContextMenu```` context.
-   *
-   * @type {Object}
-   */
-  get context() {
-    return this.#context;
-  }
-  /**
-   * Shows this ````ContextMenu```` at the given page coordinates.
-   *
-   * Does nothing when {@link ContextMenu#enabled} is ````false````.
-   *
-   * Logs error to console and does nothing if {@link ContextMenu#context} has not been set.
-   *
-   * Fires a "shown" event when shown.
-   *
-   * @param {Number} pageX Page X-coordinate.
-   * @param {Number} pageY Page Y-coordinate.
-   */
-  show(pageX, pageY) {
-    if (!this.#context) {
-      console.error("[ContextMenu] ContextMenu cannot be shown without a context - set context first");
-      return;
-    }
-    if (!this.#enabled) {
-      return;
-    }
-    if (this.#shown) {
-      return;
-    }
-    this.#hideAllMenus();
-    this.#updateItemsTitles();
-    this.#updateItemsEnabledStatus();
-    this.#showMenu(this.#rootMenu.id, pageX, pageY);
-    this.#shown = true;
-    this.onShown.dispatch(this, null);
-  }
-  /**
-   * Gets whether this ````ContextMenu```` is currently shown or not.
-   *
-   * @returns {Boolean} Whether this ````ContextMenu```` is shown.
-   */
-  get shown() {
-    return this.#shown;
-  }
-  /**
-   * Hides this ````ContextMenu````.
-   *
-   * Fires a "hidden" event when hidden.
-   */
-  hide() {
-    if (!this.#enabled) {
-      return;
-    }
-    if (!this.#shown) {
-      return;
-    }
-    this.#hideAllMenus();
-    this.#shown = false;
-    this.onHidden.dispatch(this, null);
-  }
-  /**
-   * Destroys this ````ContextMenu````.
-   */
-  destroy() {
-    this.#context = null;
-    this.#clear();
-    if (this.#id !== null) {
-      idMap.removeItem(this.#id);
-      this.#id = null;
-    }
-  }
-  #clear() {
-    for (let i = 0, len = this.#menuList.length; i < len; i++) {
-      const menu = this.#menuList[i];
-      const menuElement = menu.menuElement;
-      menuElement.parentElement.removeChild(menuElement);
-    }
-    this.#itemsCfg = [];
-    this.#rootMenu = null;
-    this.#menuList = [];
-    this.#menuMap = {};
-    this.#itemList = [];
-    this.#itemMap = {};
-  }
-  #parseItems(itemsCfg) {
-    const visitItems = (itemsCfg2) => {
-      const menuId = this.#getNextId();
-      const menu = new Menu(menuId);
-      for (let i = 0, len = itemsCfg2.length; i < len; i++) {
-        const itemsGroupCfg = itemsCfg2[i];
-        const group = new Group();
-        menu.groups.push(group);
-        for (let j = 0, lenj = itemsGroupCfg.length; j < lenj; j++) {
-          const itemCfg = itemsGroupCfg[j];
-          const subItemsCfg = itemCfg.items;
-          const hasSubItems = subItemsCfg && subItemsCfg.length > 0;
-          const itemId = this.#getNextId();
-          const getTitle = itemCfg.getTitle || (() => {
-            return itemCfg.title || "";
-          });
-          const doAction = itemCfg.doAction || itemCfg.callback || (() => {
-          });
-          const getEnabled = itemCfg.getEnabled || (() => {
-            return true;
-          });
-          const getShown = itemCfg.getShown || (() => {
-            return true;
-          });
-          const item = new Item(itemId, getTitle, doAction, getEnabled, getShown);
-          item.parentMenu = menu;
-          group.items.push(item);
-          if (hasSubItems) {
-            const subMenu = visitItems(subItemsCfg);
-            item.subMenu = subMenu;
-            subMenu.parentItem = item;
-          }
-          this.#itemList.push(item);
-          this.#itemMap[item.id] = item;
-        }
-      }
-      this.#menuList.push(menu);
-      this.#menuMap[menu.id] = menu;
-      return menu;
-    };
-    this.#rootMenu = visitItems(itemsCfg);
-  }
-  #getNextId() {
-    return "ContextMenu_" + this.#id + "_" + this.#nextId++;
-  }
-  #createUI() {
-    const visitMenu = (menu) => {
-      this.#createMenuUI(menu);
-      const groups = menu.groups;
-      for (let i = 0, len = groups.length; i < len; i++) {
-        const group = groups[i];
-        const groupItems = group.items;
-        for (let j = 0, lenj = groupItems.length; j < lenj; j++) {
-          const item = groupItems[j];
-          const subMenu = item.subMenu;
-          if (subMenu) {
-            visitMenu(subMenu);
-          }
-        }
-      }
-    };
-    visitMenu(this.#rootMenu);
-  }
-  #createMenuUI(menu) {
-    const groups = menu.groups;
-    const html = [];
-    html.push('<div class="xeokit-context-menu ' + menu.id + '" style="z-tileIndex:300000; position: absolute;">');
-    html.push("<ul>");
-    if (groups) {
-      for (let i = 0, len = groups.length; i < len; i++) {
-        const group = groups[i];
-        const groupIdx = i;
-        const groupLen = len;
-        const groupItems = group.items;
-        if (groupItems) {
-          for (let j = 0, lenj = groupItems.length; j < lenj; j++) {
-            const item = groupItems[j];
-            const itemSubMenu = item.subMenu;
-            const actionTitle = item.title || "";
-            if (itemSubMenu) {
-              html.push(
-                `<li id="${item.id}" class="xeokit-context-menu-item"
-                                style="${groupIdx === groupLen - 1 || j < lenj - 1 ? "border-bottom: 0" : "border-bottom: 1px solid black"}">
-                                ${actionTitle} [MORE]</li>`
-              );
-            } else {
-              html.push(
-                '<li id="' + item.id + '" class="xeokit-context-menu-item" style="' + (groupIdx === groupLen - 1 || j < lenj - 1 ? "border-bottom: 0" : "border-bottom: 1px solid black") + '">' + actionTitle + "</li>"
-              );
-            }
-          }
-        }
-      }
-    }
-    html.push("</ul>");
-    html.push("</div>");
-    const htmlString = html.join("");
-    document.body.insertAdjacentHTML("beforeend", htmlString);
-    const menuElement = document.querySelector("." + menu.id);
-    menu.menuElement = menuElement;
-    menuElement.style["border-radius"] = "4px";
-    menuElement.style.display = "none";
-    menuElement.style["z-tileIndex"] = 3e5;
-    menuElement.style.background = "white";
-    menuElement.style.border = "1px solid black";
-    menuElement.style["box-shadow"] = "0 4px 5px 0 gray";
-    menuElement.oncontextmenu = (e) => {
-      e.preventDefault();
-    };
-    let lastSubMenu = null;
-    if (groups) {
-      for (let i = 0, len = groups.length; i < len; i++) {
-        const group = groups[i];
-        const groupItems = group.items;
-        if (groupItems) {
-          for (let j = 0, lenj = groupItems.length; j < lenj; j++) {
-            const item = groupItems[j];
-            const itemSubMenu = item.subMenu;
-            item.itemElement = document.getElementById(item.id);
-            if (!item.itemElement) {
-              console.error("[ContextMenu] ContextMenu item element not found: " + item.id);
-              continue;
-            }
-            item.itemElement.addEventListener("mouseenter", (event) => {
-              event.preventDefault();
-              const subMenu = item.subMenu;
-              if (!subMenu) {
-                if (lastSubMenu) {
-                  this.#hideMenu(lastSubMenu.id);
-                  lastSubMenu = null;
-                }
-                return;
-              }
-              if (lastSubMenu && lastSubMenu.id !== subMenu.id) {
-                this.#hideMenu(lastSubMenu.id);
-                lastSubMenu = null;
-              }
-              if (item.enabled === false) {
-                return;
-              }
-              const itemElement = item.itemElement;
-              const subMenuElement = subMenu.menuElement;
-              const itemRect = itemElement.getBoundingClientRect();
-              const menuRect = subMenuElement.getBoundingClientRect();
-              const subMenuWidth = 200;
-              const showOnLeft = itemRect.right + subMenuWidth > window.innerWidth;
-              if (showOnLeft) {
-                this.#showMenu(subMenu.id, itemRect.left - subMenuWidth, itemRect.top - 1);
-              } else {
-                this.#showMenu(subMenu.id, itemRect.right - 5, itemRect.top - 1);
-              }
-              lastSubMenu = subMenu;
-            });
-            if (!itemSubMenu) {
-              item.itemElement.addEventListener("click", (event) => {
-                event.preventDefault();
-                if (!this.#context) {
-                  return;
-                }
-                if (item.enabled === false) {
-                  return;
-                }
-                if (item.doAction) {
-                  item.doAction(this.#context);
-                }
-                if (this.#hideOnAction) {
-                  this.hide();
-                } else {
-                  this.#updateItemsTitles();
-                  this.#updateItemsEnabledStatus();
-                }
-              });
-              item.itemElement.addEventListener("mouseup", (event) => {
-                if (event.which !== 3) {
-                  return;
-                }
-                event.preventDefault();
-                if (!this.#context) {
-                  return;
-                }
-                if (item.enabled === false) {
-                  return;
-                }
-                if (item.doAction) {
-                  item.doAction(this.#context);
-                }
-                if (this.#hideOnAction) {
-                  this.hide();
-                } else {
-                  this.#updateItemsTitles();
-                  this.#updateItemsEnabledStatus();
-                }
-              });
-              item.itemElement.addEventListener("mouseenter", (event) => {
-                event.preventDefault();
-                if (item.enabled === false) {
-                  return;
-                }
-                if (item.doHover) {
-                  item.doHover(this.#context);
-                }
-              });
-            }
-          }
-        }
-      }
-    }
-  }
-  #updateItemsTitles() {
-    if (!this.#context) {
-      return;
-    }
-    for (let i = 0, len = this.#itemList.length; i < len; i++) {
-      const item = this.#itemList[i];
-      const itemElement = item.itemElement;
-      if (!itemElement) {
-        continue;
-      }
-      const getShown = item.getShown;
-      if (!getShown || !getShown(this.#context)) {
-        continue;
-      }
-      const title = item.getTitle(this.#context);
-      if (item.subMenu) {
-        itemElement.innerText = title;
-      } else {
-        itemElement.innerText = title;
-      }
-    }
-  }
-  #updateItemsEnabledStatus() {
-    if (!this.#context) {
-      return;
-    }
-    for (let i = 0, len = this.#itemList.length; i < len; i++) {
-      const item = this.#itemList[i];
-      const itemElement = item.itemElement;
-      if (!itemElement) {
-        continue;
-      }
-      const getEnabled = item.getEnabled;
-      if (!getEnabled) {
-        continue;
-      }
-      const getShown = item.getShown;
-      if (!getShown) {
-        continue;
-      }
-      const shown = getShown(this.#context);
-      item.shown = shown;
-      if (!shown) {
-        itemElement.style.visibility = "hidden";
-        itemElement.style.height = "0";
-        itemElement.style.padding = "0";
-        continue;
-      } else {
-        itemElement.style.visibility = "visible";
-        itemElement.style.height = "auto";
-        itemElement.style.padding = null;
-      }
-      const enabled2 = getEnabled(this.#context);
-      item.enabled = enabled2;
-      if (!enabled2) {
-        itemElement.classList.add("disabled");
-      } else {
-        itemElement.classList.remove("disabled");
-      }
-    }
-  }
-  #showMenu(menuId, pageX, pageY) {
-    const menu = this.#menuMap[menuId];
-    if (!menu) {
-      console.error("[ContextMenu] Menu not found: " + menuId);
-      return;
-    }
-    if (menu.shown) {
-      return;
-    }
-    const menuElement = menu.menuElement;
-    if (menuElement) {
-      this.#showMenuElement(menuElement, pageX, pageY);
-      menu.shown = true;
-    }
-  }
-  #hideMenu(menuId) {
-    const menu = this.#menuMap[menuId];
-    if (!menu) {
-      console.error("[ContextMenu] Menu not found: " + menuId);
-      return;
-    }
-    if (!menu.shown) {
-      return;
-    }
-    const menuElement = menu.menuElement;
-    if (menuElement) {
-      this.#hideMenuElement(menuElement);
-      menu.shown = false;
-    }
-  }
-  #hideAllMenus() {
-    for (let i = 0, len = this.#menuList.length; i < len; i++) {
-      const menu = this.#menuList[i];
-      this.#hideMenu(menu.id);
-    }
-  }
-  #showMenuElement(menuElement, pageX, pageY) {
-    menuElement.style.display = "block";
-    const menuHeight = menuElement.offsetHeight;
-    const menuWidth = menuElement.offsetWidth;
-    if (pageY + menuHeight > window.innerHeight) {
-      pageY = window.innerHeight - menuHeight;
-    }
-    if (pageX + menuWidth > window.innerWidth) {
-      pageX = window.innerWidth - menuWidth;
-    }
-    menuElement.style.left = pageX + "px";
-    menuElement.style.top = pageY + "px";
-  }
-  #hideMenuElement(menuElement) {
-    menuElement.style.display = "none";
-  }
-};
-
 // ../sdk/src/modelconverter/index.ts
 var modelconverter_exports = {};
 __export(modelconverter_exports, {
@@ -143502,6 +143520,7 @@ function stripPathFromFilename(fullPath) {
 var demo_exports = {};
 __export(demo_exports, {
   DemoHelper: () => DemoHelper,
+  ViewObjectContextMenu: () => ViewObjectContextMenu,
   buildDemoModelTable: () => buildDemoModelTable
 });
 
@@ -150193,7 +150212,7 @@ var DemoHelper = class {
     const stats = this.stats;
     stats.scene = this._getCombinedSceneModelStats();
     stats.data = this._getCombinedDataModelStats();
-    stats.aabb = Array.from(this._aabb3Index.getSceneAABB());
+    stats.aabb = Array.from(this.aabb3Index.getSceneAABB());
     stats.endTime = performance.now();
     stats.elapsedTime = stats.endTime - (stats.startTime ?? stats.endTime);
     if (this.renderer) {
@@ -150597,13 +150616,127 @@ function buildDemoModelTable(cfg) {
     value: void 0
   };
 }
+
+// ../sdk/src/demo/ViewObjectContextMenu.ts
+var ViewObjectContextMenu = class extends ContextMenu {
+  set context(context) {
+    super.context = context;
+  }
+  constructor() {
+    super({
+      items: [
+        [
+          {
+            getTitle: (context) => {
+              return "Effects";
+            },
+            items: [
+              [
+                {
+                  getTitle: (context) => {
+                    return context.viewObject.visible ? "Hide" : "Show";
+                  },
+                  doAction: function(context) {
+                    context.viewObject.visible = !context.viewObject.visible;
+                  }
+                },
+                {
+                  getTitle: (context) => {
+                    return context.viewObject.selected ? "Undo Select" : "Select";
+                  },
+                  doAction: function(context) {
+                    context.viewObject.selected = !context.viewObject.selected;
+                  }
+                },
+                {
+                  getTitle: (context) => {
+                    return context.viewObject.highlighted ? "Undo Highlight" : "Highlight";
+                  },
+                  doAction: function(context) {
+                    context.viewObject.highlighted = !context.viewObject.highlighted;
+                  }
+                },
+                {
+                  getTitle: (context) => {
+                    return context.viewObject.xrayed ? "Undo X-Ray" : "X-Ray";
+                  },
+                  doAction: function(context) {
+                    context.viewObject.xrayed = !context.viewObject.xrayed;
+                  }
+                }
+              ]
+            ]
+          },
+          {
+            getTitle: (context) => {
+              return "Inspect";
+            },
+            items: [
+              [
+                {
+                  getTitle: (context) => {
+                    return "SceneObject";
+                  },
+                  doAction: function(context) {
+                    const json = {
+                      objects: [],
+                      meshes: [],
+                      geometries: []
+                    };
+                    const sceneObject = context.viewObject.sceneObject;
+                    const sceneObjectResult = sceneObject.toParams();
+                    if (!sceneObjectResult.ok) {
+                      return;
+                    }
+                    json.objects.push(sceneObjectResult.value);
+                    const meshes = sceneObject.meshes;
+                    for (const mesh of meshes) {
+                      const meshResult = mesh.toParams();
+                      if (!meshResult.ok) {
+                        return;
+                      }
+                      json.meshes.push(meshResult.value);
+                      const geometry = mesh.geometry;
+                      const geometryResult = geometry.toParams();
+                      if (!geometryResult.ok) {
+                        return;
+                      }
+                      json.geometries.push(geometryResult.value);
+                    }
+                    console.log(JSON.stringify(json, null, 2));
+                  }
+                }
+              ]
+            ]
+          },
+          {
+            getTitle: (context) => {
+              return "Edit";
+            },
+            items: [
+              [
+                {
+                  getTitle: (context) => {
+                    return "Unload Object";
+                  },
+                  doAction: function(context) {
+                    context.viewObject.sceneObject.destroy();
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      ]
+    });
+  }
+};
 export {
   bcf_exports as bcf,
   cameracontrol_exports as cameracontrol,
   cameraflight_exports as cameraflight,
   collision_exports as collision,
   constants_exports as constants,
-  contextmenu_exports as contextmenu,
   core_exports as core,
   data_exports as data,
   demo_exports as demo,
@@ -150617,7 +150750,7 @@ export {
   pick_exports as pick,
   procgen_exports as procgen,
   scene_exports as scene,
-  treeview_exports as treeview,
+  ui_exports as ui,
   utils_exports as utils,
   viewer_exports as viewer,
   webglrenderer_exports as webglrenderer,

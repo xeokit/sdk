@@ -181,7 +181,7 @@ export class RenderContext implements WebGLContextProvider {
     s.zIndex = "100000"; // HACK
     document.body.appendChild(canvas);
     const contextAttr: WebGLContextAttributes = {
-      alpha: true,
+      alpha: false,
       preserveDrawingBuffer: true,
       stencil: false,
       premultipliedAlpha: false,

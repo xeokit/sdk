@@ -603,7 +603,7 @@ class Camera {
       value = PerspectiveProjectionType;
     }
     // @ts-ignore
-    this._activeProjection.clean();
+    //this._activeProjection.clean();
     this._projectionType = value;
     this._buildViewMatrixTask.schedule();
     const events = this.view.viewer.events;

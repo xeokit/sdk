@@ -1,11 +1,12 @@
-import type {ViewObject} from "./ViewObject";
+import type {ViewObject} from "../viewer/ViewObject";
 import {SceneMesh, SceneObject} from "../scene";
-import {View} from "./View";
+import {View} from "../viewer/View";
 import {createVec2Int32, createVec2Float64, createVec3Float64, type Vec2, type Vec3} from "../math/vector";
 
 
 /**
- * Results of a pick attempted with {@link View.pick}.
+ * Result of a pick operation performed by {@link WebGLRenderer.pick}, containing information about
+ * the picked object and the picked position on its surface.
  */
 class PickResult {
 
@@ -36,6 +37,9 @@ class PickResult {
   #worldNormal: Vec3;
   #uv: Vec2;
 
+  /**
+   * @private
+   */
   constructor() {
 
     this.#sceneMesh = null as any;
@@ -66,7 +70,6 @@ class PickResult {
 
     this.reset();
   }
-
 
   /**
    * The picked {@link View}.

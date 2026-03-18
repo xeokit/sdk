@@ -1,5 +1,5 @@
-import type {Data} from "../data";
-import type {View} from "../viewer";
+import type {Data} from "../../data";
+import type {View} from "../../viewer";
 
 /**
  * Parameters to create a {@link treeview!TreeView | TreeView}.

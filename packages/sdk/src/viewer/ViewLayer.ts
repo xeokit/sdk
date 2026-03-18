@@ -779,6 +779,14 @@ class ViewLayer {
   }
 
   /**
+   * Called by ViewObject.pickable setter.
+   * @private
+   */
+  objectPickableUpdated(viewObject: ViewObject, pickable: boolean) {
+    this.view.objectPickableUpdated(viewObject, pickable);
+  }
+
+  /**
    * Updates the visibility of the given {@link ViewObject | ViewObjects} in this ViewLayer.
    *
    * - Updates {@link ViewObject.visible} on the Objects with the given IDs.

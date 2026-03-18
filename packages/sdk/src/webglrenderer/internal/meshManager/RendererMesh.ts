@@ -21,8 +21,6 @@ const tempIdentityMat4 = identityMat4(createMat4Float64());
 const identityVec4 = createVec4Float64([0, 0, 0, 1]);
 const tempVec4a = createVec4Float64();
 
-const NUM_VIEWS = 4;
-
 
 /**
  * Represents a single mesh within the WebGL renderer, managing its GPU tile assignment,

@@ -5,7 +5,7 @@ export * as constants from "./constants";
 
 // Utilities
 
-export * as math from "./math";
+//export * as math from "./math";
 export * as utils from "./utils";
 export * as webglutils from "./webglutils";
 export * as io from "./io";
@@ -41,12 +41,12 @@ export * as webglrenderer from "./webglrenderer";
 export * as cameracontrol from "./cameracontrol";
 export * as cameraflight from "./cameraflight";
 export * as bcf from "./bcf";
-export * as treeview from "./treeview";
-export * as contextmenu from "./contextmenu";
-
 export * as ifc2gltf2xgf from "./ifc2gltf2xgf";
-
 export * as xeoconvert from "./xeoconvert";
+
+// UI
+
+export * as ui from "./ui";
 
 // Demo helpers
 

@@ -97,7 +97,7 @@
  *
  * @module treeview
  */
-export * from "./TreeView";
+export {TreeView} from "./TreeView";
 export type {TreeViewParams} from "./TreeViewParams";
 export type {TreeViewNode} from "./TreeViewNode";
 export type {TreeViewNodeContextMenuEvent} from "./TreeViewNodeContextMenuEvent";

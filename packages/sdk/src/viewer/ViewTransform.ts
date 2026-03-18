@@ -118,7 +118,7 @@ export class ViewTransform {
     }
 
     if (params.parentTransformId) {
-      this.setParentTransform(params.parentTransformId, { preserveWorld: false });
+      this.setParentTransformId(params.parentTransformId, { preserveWorld: false });
     }
 
     if (params.viewObjectIds?.length) {
@@ -277,13 +277,13 @@ export class ViewTransform {
     this._markTreeDirtyTask.schedule();
   }
 
-  public setParentTransform(
+  public setParentTransformId(
     parentTransformId: string | null,
     opts?: { preserveWorld?: boolean }
   ): SDKResult<any> {
     if (this.destroyed) {
       return this._logErrorResult(
-        "[ViewTransform.setParentTransform] Cannot set parent transform on destroyed ViewTransform"
+        "[ViewTransform.setParentTransformId] Cannot set parent transform on destroyed ViewTransform"
       );
     }
 
@@ -292,14 +292,14 @@ export class ViewTransform {
     if (parentTransformId) {
       if (parentTransformId === this.id) {
         return this._logErrorResult(
-          `[ViewTransform.setParentTransform] Cannot set parent transform to self on ViewTransform ${this.id}`
+          `[ViewTransform.setParentTransformId] Cannot set parent transform to self on ViewTransform ${this.id}`
         );
       }
 
       parent = this._resolveTransform(parentTransformId);
       if (!parent) {
         return this._logErrorResult(
-          `[ViewTransform.setParentTransform] ViewTransform "${parentTransformId}" not found in owning scope`
+          `[ViewTransform.setParentTransformId] ViewTransform "${parentTransformId}" not found in owning scope`
         );
       }
     }
@@ -342,7 +342,7 @@ export class ViewTransform {
       );
     }
 
-    return child.setParentTransform(this.id, opts);
+    return child.setParentTransformId(this.id, opts);
   }
 
   public removeChildTransform(childTransformId: string): SDKResult<any> {
@@ -360,7 +360,7 @@ export class ViewTransform {
     }
 
     if (child._parentTransform === this) {
-      child.setParentTransform(null, { preserveWorld: false });
+      child.setParentTransformId(null, { preserveWorld: false });
     }
 
     return { ok: true, value: undefined };
@@ -455,7 +455,7 @@ export class ViewTransform {
     this._parentTransform = null;
 
     for (const child of [...this._childTransforms]) {
-      child.setParentTransform(null, { preserveWorld: false });
+      child.setParentTransformId(null, { preserveWorld: false });
     }
 
     this._markTreeDirtyTask.destroy();

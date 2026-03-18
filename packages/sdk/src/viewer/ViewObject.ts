@@ -365,8 +365,7 @@ export class ViewObject {
         }
         //
         this._pickable = pickable;
-        // No need to trigger a render;
-        // state is only used when picking
+        this.layer.objectPickableUpdated(this, pickable);
     }
 
     /**

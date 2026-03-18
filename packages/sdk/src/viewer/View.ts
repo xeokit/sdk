@@ -1020,7 +1020,7 @@ class View {
   }
 
   /**
-   * Called by ViewObject.colorized setter.
+   * Called by ViewObject.colorize setter.
    * @private
    */
   objectColorizeUpdated(viewObject: ViewObject, colorized: boolean) {
@@ -1032,6 +1032,7 @@ class View {
       this._numColorizedObjects--;
     }
     this._colorizedObjectIds = null; // Lazy regenerate
+    this.viewer.events.onViewObjectColorizeChanged.dispatch(this, viewObject);
     this.needsRender();
   }
 
@@ -1048,6 +1049,17 @@ class View {
       this._numOpacityObjects--;
     }
     this._opacityObjectIds = null; // Lazy regenerate
+    this.viewer.events.onViewObjectOpacityChanged.dispatch(this, viewObject);
+    this.needsRender();
+  }
+
+  /**
+   * Called by ViewObject.pickable setter.
+   * @param viewObject
+   * @param pickable
+   */
+  objectPickableUpdated(viewObject: ViewObject, pickable: boolean) {
+    this.viewer.events.onViewObjectPickableChanged.dispatch(this, viewObject);
     this.needsRender();
   }
 

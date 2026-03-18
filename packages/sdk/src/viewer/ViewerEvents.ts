@@ -131,6 +131,14 @@ export class ViewerEvents {
    */
   readonly onViewObjectOpacityChanged: EventEmitter<View, ViewObject>;
 
+  /**
+   * Emits an event each time the pickable state of a {@link ViewObject} changes within a {@link View}.
+   *
+   * ViewObjects have their pickable state changed with {@link View.setObjectsPickable},
+   * {@link ViewLayer.setObjectsPickable} or {@link ViewObject.pickable}.
+   */
+  readonly onViewObjectPickableChanged: EventEmitter<View, ViewObject>;
+
   //---------------------------- ViewLayer Events ----------------------------//
 
   /**
@@ -260,6 +268,7 @@ export class ViewerEvents {
     this.onViewObjectXRayedChanged = new EventEmitter(new EventDispatcher<View, ViewObject>());
     this.onViewObjectColorizeChanged = new EventEmitter(new EventDispatcher<View, ViewObject>());
     this.onViewObjectOpacityChanged = new EventEmitter(new EventDispatcher<View, ViewObject>());
+    this.onViewObjectPickableChanged = new EventEmitter(new EventDispatcher<View, ViewObject>());
     this.onViewLayerCreated = new EventEmitter(new EventDispatcher<View, ViewLayer>());
     this.onViewLayerDestroyed = new EventEmitter(new EventDispatcher<View, ViewLayer>());
     this.onCameraProjectionTypeChanged = new EventEmitter(new EventDispatcher<View, Camera>());
@@ -297,6 +306,7 @@ export class ViewerEvents {
     this.onViewObjectHighlightedChanged.clear();
     this.onViewObjectColorizeChanged.clear();
     this.onViewObjectOpacityChanged.clear();
+    this.onViewObjectPickableChanged.clear();
     this.onViewLayerCreated.clear();
     this.onViewLayerDestroyed.clear();
     this.onCameraProjectionTypeChanged.clear();

@@ -772,7 +772,7 @@ bool triangleFacesEyeVS(vec3 aVS, vec3 bVS, vec3 cVS) {
    * Generates vertex shader definitions for Lambert shading.
    * @protected
    */
-  protected vsLambertShadingDefines(silhouette?:boolean) {
+  protected vsLambertShadingDefines(silhouette?: boolean) {
     this._vertSrcBuf.push(`
 // ─────────────────────────────────────────────────────────────
 // Lambertian directional lighting configuration
@@ -877,6 +877,7 @@ uniform uint batchIndex;
 
 flat out uint vBatchIndex;
 flat out uint vMeshIndex;
+     out vec4 vViewPosition;
 
 // In pick rendering, we render meshes in their pick-space positions, which are derived from the clip-space
 // positions but with XY remapped to [0,1] based on the viewport and with Z remapped to [0,1] based on the view's
@@ -960,12 +961,12 @@ void main(void) {`);
 
 void main(void) {`);
     this._vsMeshLogic();
-    // this._vertSrcBuf.push(
-    //   `    int pickFlag = int(meshViewAttributes.renderFlags.b >> 8u & 0xFu);`,
-    //   `    if (pickFlag != uRenderPass) {`,
-    //   // "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
-    //   // "        return;",
-    //   "    }");
+    this._vertSrcBuf.push(
+      `    uint pickable = meshViewAttributes.renderFlags.g;`,
+      `    if (pickable == 255u) {`,
+      //  "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
+      // "        return;",
+      "    }");
     this._vsMeshLogic2();
   }
 
@@ -1094,7 +1095,7 @@ void main(void) {`);
     );
   }
 
-  protected vsLambertShadingLogic(silhouette?:boolean) {
+  protected vsLambertShadingLogic(silhouette?: boolean) {
     this._vertSrcBuf.push(`
     // ─────────────────────────────────────────────────────────
     // Lighting section: compute a face normal from the full triangle
@@ -1222,6 +1223,7 @@ void main(void) {`);
     this._vertSrcBuf.push(
       "    vBatchIndex = batchIndex;",
       "    vMeshIndex = meshIndex;",
+      "    vViewPosition = viewPos;",
       "    gl_Position = remapPickClipPos(gl_Position);");
   }
 
@@ -1434,43 +1436,34 @@ void main(void) {`);
       `flat in uint vMeshIndex;
        flat in uint vBatchIndex;
 
-      layout(location = 0) out vec4 outBatchIndex;
-      layout(location = 1) out vec4 outMeshIndex;
-      layout(location = 2) out vec4 outDepth;
+       in vec4 vViewPosition; // view-space position, used for reconstructing depth in fragment shader
 
-      // Packs a 32-bit uint into 4 normalized 8-bit color channels.
-      // R = least-significant byte, A = most-significant byte.
-      vec4 packUintToRGBA8(uint v) {
-        return vec4(
-          float( v         & 0xFFu),
-          float((v >> 8u)  & 0xFFu),
-          float((v >> 16u) & 0xFFu),
-          float((v >> 24u) & 0xFFu)
-        ) / 255.0;
+       uniform float pickZNear;
+       uniform float pickZFar;
+
+       layout(location = 0) out vec4 outBatchIndex;
+       layout(location = 1) out vec4 outMeshIndex;
+       layout(location = 2) out vec4 outDepth;
+
+       // Packs a 32-bit uint into 4 normalized 8-bit color channels.
+       // R = least-significant byte, A = most-significant byte.
+       vec4 packUintToRGBA8(uint v) {
+         return vec4(
+           float( v         & 0xFFu),
+           float((v >> 8u)  & 0xFFu),
+           float((v >> 16u) & 0xFFu),
+           float((v >> 24u) & 0xFFu)
+         ) / 255.0;
       }
 
       // Packs a normalized float in [0,1] into RGBA8.
-      // Useful for storing depth in an RGBA8 render target.
-      vec4 packFloat01ToRGBA8(float v) {
-         v = clamp(v, 0.0, 1.0);
-
-         vec4 enc = fract(v * vec4(
-             1.0,
-             255.0,
-             65025.0,
-             16581375.0
-         ));
-
-         enc -= enc.yzww * vec4(
-             1.0 / 255.0,
-             1.0 / 255.0,
-             1.0 / 255.0,
-             0.0
-         );
-
-         return enc;
-      }`
-    );
+      vec4 packDepth(const in float depth) {
+        const vec4 bitShift = vec4(256.0*256.0*256.0, 256.0*256.0, 256.0, 1.0);
+        const vec4 bitMask  = vec4(0.0, 1.0/256.0, 1.0/256.0, 1.0/256.0);
+        vec4 res = fract(depth * bitShift);
+        res -= res.xxyz * bitMask;
+        return res;
+      }`);
   }
 
   /**
@@ -1483,9 +1476,10 @@ void main(void) {`);
 
   protected fsPickMeshLogic() {
     this._fragSrcBuf.push(`
-    outBatchIndex   = packUintToRGBA8(vBatchIndex);
-    outMeshIndex   = packUintToRGBA8(vMeshIndex);
-    outDepth = packFloat01ToRGBA8(gl_FragCoord.z);
+    outBatchIndex = packUintToRGBA8(vBatchIndex);
+    outMeshIndex  = packUintToRGBA8(vMeshIndex);
+    float zNormalizedDepth = abs((pickZNear + vViewPosition.z) / (pickZFar - pickZNear));
+    outDepth      = packDepth(zNormalizedDepth);
     `);
   }
 

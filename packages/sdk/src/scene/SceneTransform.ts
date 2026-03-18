@@ -399,12 +399,12 @@ export class SceneTransform {
    * @param opts - Options.
    * @param opts.preserveWorld - When `true`, keeps the world transform unchanged.
    */
-  public setParentTransform(parentTransformId: string, opts?: { preserveWorld?: boolean }): SDKResult<any> {
+  public setParentTransformId(parentTransformId: string, opts?: { preserveWorld?: boolean }): SDKResult<any> {
     if (this.destroyed) {
       return this.model.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: `[SceneTransform.setParentTransform] Cannot set parent transform on destroyed SceneTransform ${this.id}`
+        error: `[SceneTransform.setParentTransformId] Cannot set parent transform on destroyed SceneTransform ${this.id}`
       });
     }
     let parentTransform: SceneTransform | null = null;
@@ -413,7 +413,7 @@ export class SceneTransform {
         return this.model.scene.logError({
           ok: false,
           type: SDKErrorType.InvalidOperation,
-          error: `[SceneTransform.setParentTransform] Cannot set parent transform to self on SceneTransform ${this.id}`
+          error: `[SceneTransform.setParentTransformId] Cannot set parent transform to self on SceneTransform ${this.id}`
         });
       }
       parentTransform = this.model.transforms[parentTransformId];
@@ -421,14 +421,14 @@ export class SceneTransform {
         return this.model.scene.logError({
           ok: false,
           type: SDKErrorType.InvalidOperation,
-          error: `[SceneTransform.setParentTransform] SceneTransform "${parentTransformId}" not found in SceneModel`
+          error: `[SceneTransform.setParentTransformId] SceneTransform "${parentTransformId}" not found in SceneModel`
         });
       }
       if (parentTransform.model.id !== this.model.id) {
         return this.model.scene.logError({
           ok: false,
           type: SDKErrorType.InvalidOperation,
-          error: `[SceneTransform.setParentTransform] Cannot set parent transform to a transform in a different SceneModel on SceneTransform ${this.id}`
+          error: `[SceneTransform.setParentTransformId] Cannot set parent transform to a transform in a different SceneModel on SceneTransform ${this.id}`
         });
       }
     }
@@ -455,10 +455,10 @@ export class SceneTransform {
    * Adds a child transform to this transform by ID.
    *
    * This resolves the transform from the owning {@link SceneModel} and then parents it under this
-   * transform (equivalent to `child.setParentTransform(this, opts)`).
+   * transform (equivalent to `child.setParentTransformId(this, opts)`).
    *
    * @param childTransformId - ID of the child transform to add.
-   * @param opts - Options forwarded to {@link setParentTransform}.
+   * @param opts - Options forwarded to {@link setParentTransformId}.
    */
   addChildTransform(childTransformId: string, opts?: { preserveWorld?: boolean }): SDKResult<any> {
     if (this.destroyed) {
@@ -476,7 +476,7 @@ export class SceneTransform {
         error: `[SceneTransform.addChildTransform] Transform "${childTransformId}" not found in SceneModel`
       });
     }
-    return child.setParentTransform(this.id, opts);
+    return child.setParentTransformId(this.id, opts);
   }
 
   /**
@@ -503,7 +503,7 @@ export class SceneTransform {
       });
     }
     if (child._parentTransform === this) {
-      child.setParentTransform(null, {preserveWorld: false});
+      child.setParentTransformId(null, {preserveWorld: false});
     }
     return {ok: true, value: undefined};
   }
@@ -533,7 +533,7 @@ export class SceneTransform {
         error: `[SceneTransform.addChildMesh] Mesh "${childMeshId}" not found in SceneModel`
       });
     }
-    child.setParentTransform(this.id);
+    child.setParentTransformId(this.id);
     return {ok: true, value: undefined};
   }
 
@@ -561,7 +561,7 @@ export class SceneTransform {
       return;
     }
     if (child.parentTransform && child.parentTransform.id === this.id) {
-      child.setParentTransform(null);
+      child.setParentTransformId(null);
     }
   }
 
@@ -626,7 +626,7 @@ export class SceneTransform {
     }
     this._parentTransform = null;
     for (const child of [...this._childTransforms]) {
-      child.setParentTransform(null, {preserveWorld: false});
+      child.setParentTransformId(null, {preserveWorld: false});
     }
     this._markTreeDirtyTask.destroy();
     this._childTransforms = [];

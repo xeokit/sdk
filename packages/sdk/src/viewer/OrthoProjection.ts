@@ -69,7 +69,7 @@ export class OrthoProjection implements Projection {
     this.camera = camera;
     this._near = cfg.near || 0.1;
     this._far = cfg.far || 2000.0;
-    this._scale = cfg.scale || 1.0;
+    this._scale = cfg.scale || 20.0;
     this._projMatrix = createMat4Float64();
     this._inverseProjMatrix = createMat4Float64();
     this._transposedProjMatrix = createMat4Float64();

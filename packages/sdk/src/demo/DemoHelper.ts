@@ -50,7 +50,7 @@ export class DemoHelper {
   /**
    * Dynamically tracks the 3D boundaries of the objects in the Scene.
    */
-  public aabb3Index: SceneAABB3Index;
+  private _aabb3Index: SceneAABB3Index;
 
   /**
    * The Data created by the DemoHelper. Holds all data models.
@@ -213,11 +213,11 @@ export class DemoHelper {
             maxTiles: 2000,
             maxBatches: 300,
             // Allow enough vertices and indices for large terrain meshes
-            maxBatchVertices: 50000,
-            maxBatchIndices:  70000,
+            maxBatchVertices: 500000,
+            maxBatchIndices:  700000,
             maxBatchGeometries: 10000,
             maxBatchMeshes: 10000,
-            maxBatchPrims:  100000
+            maxBatchPrims:  1000000
           }
         });
 
@@ -230,12 +230,12 @@ export class DemoHelper {
           // console.warn(`%c[${eventName}]`, "color: orange;", { sender, args });
         };
 
-        if (cfg.logging) {
-          new EventsLogger(this.scene.events, {prefix: "[Scene        ]", log});
-          new EventsLogger(this.data.events, {prefix: "[Data         ]", log});
-          new EventsLogger(this.viewer.events, {prefix: "[Viewer       ]", log});
-          new EventsLogger(this.renderer.events, {prefix: "[WebGLRenderer]", log});
-        }
+        // if (cfg.logging) {
+        //   new EventsLogger(this.scene.events, {prefix: "[Scene        ]", log});
+        //   new EventsLogger(this.data.events, {prefix: "[Data         ]", log});
+        //   new EventsLogger(this.viewer.events, {prefix: "[Viewer       ]", log});
+        //   new EventsLogger(this.renderer.events, {prefix: "[WebGLRenderer]", log});
+        // }
 
         const onError = (_, result: SDKResult<any>) => {
           setInterval(() => {
@@ -253,8 +253,6 @@ export class DemoHelper {
         this.data.events.onError.subscribe(onError);
         this.viewer.events.onError.subscribe(onError);
         this.renderer.events.onError.subscribe(onError);
-
-        this.aabb3Index = new SceneAABB3Index(this.scene);
 
         this.viewer.attachScene(this.scene);
         this.renderer.attachViewer(this.viewer);
@@ -294,6 +292,16 @@ export class DemoHelper {
         resolve({});
       }
     });
+  }
+
+  /**
+   * Gets the SceneAABB3Index for the Scene, which dynamically tracks the 3D boundaries of the objects in the Scene.
+   */
+  get aabb3Index(): SceneAABB3Index {
+    if (!this._aabb3Index) {
+      this._aabb3Index = new SceneAABB3Index(this.scene);
+    }
+    return this._aabb3Index;
   }
 
   /**
@@ -396,7 +404,8 @@ export class DemoHelper {
   public viewFit(): void {
     if (this.cameraFlight) {
       this.cameraFlight.jumpTo({
-        aabb: this.aabb3Index.getSceneAABB()
+        aabb: this.aabb3Index.getSceneAABB(),
+         fitFOV: 40
       });
     }
   }

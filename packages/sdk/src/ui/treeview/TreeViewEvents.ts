@@ -1,5 +1,5 @@
 import type {TreeView} from "./TreeView";
-import {EventEmitter, type SDKResult} from "../core";
+import {EventEmitter, type SDKResult} from "../../core";
 import {EventDispatcher} from "strongly-typed-events";
 import type {TreeViewNodeTitleClickedEvent} from "./TreeViewNodeTitleClickedEvent";
 import type {TreeViewNodeContextMenuEvent} from "./TreeViewNodeContextMenuEvent";

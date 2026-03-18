@@ -224,6 +224,8 @@
  *      ]
  * });
  * ````
+ *
+ * @module contextmenu
  */
 
 export * from "./ContextMenu";

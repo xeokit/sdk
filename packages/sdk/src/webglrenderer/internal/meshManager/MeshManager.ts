@@ -7,7 +7,7 @@ import {MeshBatchImpl} from "./MeshBatchImpl";
 import {type MeshBatch} from "./MeshBatch";
 import type {Camera, ViewObject} from "../../../viewer";
 import type {SceneTransform} from "../../../scene/SceneTransform";
-import {GPUMemoryCheckResult, GPUMemoryManager, GPUTile} from "../gpuMemoryManager";
+import {GPUMemoryCheckResult, GPUMemoryManager, type GPUTile} from "../gpuMemoryManager";
 import {SceneGeometry} from "../../../scene";
 
 /**
@@ -493,6 +493,7 @@ export class MeshManager {
     rendererMesh.setXRayed(viewIndex, viewObject.xrayed);
     rendererMesh.setHighlighted(viewIndex, viewObject.highlighted);
     rendererMesh.setSelected(viewIndex, viewObject.selected);
+    rendererMesh.setPickable(viewIndex, viewObject.pickable);
     // rendererMesh.setColorize(viewIndex, viewObject.colorize);
     // rendererMesh.setOpacity(viewIndex, viewObject.opacity);
   }
@@ -622,6 +623,15 @@ export class MeshManager {
    */
   public viewObjectOpacityChanged(viewObject: ViewObject): void {
     this._rendererObjects[viewObject.id]?.setOpacity(viewObject.layer.view.viewIndex, viewObject.opacity);
+  }
+
+  /**
+   * Handles changes to a {@link ViewObject}'s pickable state.
+   *
+   * Updates the per-view pickable value on the owning {@link RendererObject}.
+   */
+  public viewObjectPickableChanged(viewObject: ViewObject): void {
+    this._rendererObjects[viewObject.id]?.setPickable(viewObject.layer.view.viewIndex, viewObject.pickable);
   }
 
   /**

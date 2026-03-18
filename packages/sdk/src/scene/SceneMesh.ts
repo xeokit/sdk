@@ -334,12 +334,12 @@ export class SceneMesh {
    * @param parentTransformId - The ID of the new parent transform, or null to detach.
    * @param opts - Options to preserve world transformation.
    */
-  public setParentTransform(parentTransformId: string, opts?: { preserveWorld?: boolean }): SDKResult<any> {
+  public setParentTransformId(parentTransformId: string, opts?: { preserveWorld?: boolean }): SDKResult<any> {
     if (this.destroyed) {
       return this.model.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: `[SceneMesh.setParentTransform] Cannot set parent transform on destroyed SceneMesh ${this.id}`
+        error: `[SceneMesh.setParentTransformId] Cannot set parent transform on destroyed SceneMesh ${this.id}`
       });
     }
     let parentTransform: SceneTransform | null = null;
@@ -349,14 +349,14 @@ export class SceneMesh {
         return this.model.scene.logError({
           ok: false,
           type: SDKErrorType.InvalidOperation,
-          error: `[SceneMesh.setParentTransform] SceneTransform "${parentTransformId}" not found in SceneModel`
+          error: `[SceneMesh.setParentTransformId] SceneTransform "${parentTransformId}" not found in SceneModel`
         });
       }
       if (parentTransform.model.id !== this.model.id) {
         return this.model.scene.logError({
           ok: false,
           type: SDKErrorType.InvalidOperation,
-          error: `[SceneMesh.setParentTransform] Cannot set parent transform to a SceneMesh in a different SceneModel: ${this.id}`
+          error: `[SceneMesh.setParentTransformId] Cannot set parent transform to a SceneMesh in a different SceneModel: ${this.id}`
         });
       }
     }

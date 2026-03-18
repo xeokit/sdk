@@ -288,7 +288,7 @@ export class SceneModel {
    * Creates a new {@link SceneTransform} within this SceneModel.
    *
    * - Stores the transform in {@link SceneModel.transforms}.
-   * - Optionally attaches it under a parent transform using {@link SceneTransform.setParentTransform}.
+   * - Optionally attaches it under a parent transform using {@link SceneTransform.setParentTransformId}.
    * - The final transform matrix can be supplied directly via `matrix` or composed from
    *   `position`, `scale` and `rotation` (Euler) or `quaternion`.
    * - Fires {@link SceneEvents.onSceneTransformCreated | SceneEvents.onSceneTransformCreated} event.
@@ -367,7 +367,7 @@ export class SceneModel {
     const sceneTransform = new SceneTransform(this, transformParams);
 
     if (parentTransform) {
-      sceneTransform.setParentTransform(parentTransform.id);
+      sceneTransform.setParentTransformId(parentTransform.id);
     }
 
     this.transforms[transformParams.id] = sceneTransform;
@@ -1283,7 +1283,7 @@ export class SceneModel {
     });
 
     if (transform) {
-      sceneMesh.setParentTransform(transform.id);
+      sceneMesh.setParentTransformId(transform.id);
     }
 
     geometry.numMeshes++;

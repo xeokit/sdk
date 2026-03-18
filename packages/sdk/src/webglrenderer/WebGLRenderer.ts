@@ -496,6 +496,7 @@ export class WebGLRenderer {
       viewerEvents.onViewObjectSelectedChanged.subscribe((view, viewObject) => viewManager.viewObjectSelectedChanged(viewObject)),
       viewerEvents.onViewObjectColorizeChanged.subscribe((view, viewObject) => viewManager.viewObjectColorizeChanged(viewObject)),
       viewerEvents.onViewObjectOpacityChanged.subscribe((view, viewObject) => viewManager.viewObjectOpacityChanged(viewObject)),
+      viewerEvents.onViewObjectPickableChanged.subscribe((view, viewObject) => viewManager.viewObjectPickableChanged(viewObject)),
 
       // Camera updates
 
@@ -550,7 +551,7 @@ export class WebGLRenderer {
   /**
    * Performs a GPU-accelerated pick operation in the specified {@link View}.
    *
-   * This method queries the renderer to identify the {@link ViewObject} (and optionally the 3D surface position)
+   * This method queries the renderer to identify the {@link ViewObject} and the 3D surface position
    * at a given canvas coordinate or along a specified world-space ray. Picking is performed using the renderer's
    * internal GPU resources and shaders.
    *
@@ -561,7 +562,7 @@ export class WebGLRenderer {
    * @remarks
    * - Returns an error if no Viewer with an attached Scene is present, or if the View does not belong to the attached Viewer.
    * - The returned {@link PickResult} is a transient, renderer-owned instance. Its contents are valid only until the next pick operation.
-   *   Do not modify or retain the result.
+   *  - Do not modify or retain the result.
    */
   pick(view: View, pickParams: PickParams): SDKResult<PickResult> {
     if (!this._viewManager) {

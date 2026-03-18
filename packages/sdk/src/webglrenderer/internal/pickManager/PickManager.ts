@@ -2,14 +2,13 @@ import {type PickParams, PickResult} from "../../../viewer";
 import {SDKInternalException, type SDKResult} from "../../../core";
 import {
   createMat4Float64, inverseMat4,
-  lookAtMat4v, Mat4, mulMat4, transformVec4
+  lookAtMat4v, type Mat4, mulMat4, transformVec4
 } from "../../../math/matrix";
 import {
   addVec3, createVec2Float64, createVec3Float64, createVec4Float64,
-  cross3Vec3, dotVec4, mulVec3Scalar, mulVec4Scalar, normalizeVec3, subVec3, Vec2, Vec3
+  cross3Vec3, dotVec4, mulVec3Scalar, mulVec4Scalar, normalizeVec3, subVec3, type Vec2, type Vec3
 } from "../../../math/vector";
 import {ViewRenderState} from "../ViewRenderState";
-import {type FloatArrayParam} from "../../../math";
 import {RenderContext} from "../RenderContext";
 import {WebGLPickBuffer} from "../../../webglutils/WebGLPickBuffer";
 import {type GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
@@ -34,6 +33,7 @@ const tempVec4e = createVec4Float64();
 const tempMat4a = createMat4Float64();
 const tempMat4b = createMat4Float64();
 const tempMat4c = createMat4Float64();
+const tempMat4d = createMat4Float64();
 
 const pickTemps = {
   pickCanvasPos: createVec2Float64() as Vec2,
@@ -264,6 +264,11 @@ export class PickManager {
     pickBuffer.clear();
 
     renderContext.reset();
+
+    // TODO: Hardwired to perspective projection for now - need to support picking with orthographic projection as well
+    renderContext.pickZNear = view.camera.perspectiveProjection.near;
+    renderContext.pickZFar = view.camera.perspectiveProjection.far;
+
     renderContext.activeView = view;
     renderContext.rayPicking = rayPick;
     renderContext.backfaces = true;
@@ -302,7 +307,6 @@ export class PickManager {
 
     const batchIndex = unpackRGBA8ToUint(target0);
     const meshIndex = unpackRGBA8ToUint(target1);
-    //const depth = unpackRGBA8ToFloat01(target2);
     const depth = this._unpackDepth(target2);
 
     const sceneMesh = this._meshBatchManager.getMeshAtIndex(batchIndex, meshIndex);
@@ -317,36 +321,55 @@ export class PickManager {
     }
 
     const canvas = view.htmlElement;
+
+    // Convert the picked canvas position to
+    // normalized device coordinates (NDC) for WebGL:
+
+    // Calculate clip space coordinates, which will be in range of x=[-1..1] and y=[-1..1], with y=(+1) at top
+    // and z in range of [-1..1] with -1 at near plane and +1 at far plane.
     const x = (pickCanvasPos[0] - canvas.clientWidth / 2) / (canvas.clientWidth / 2);
     const y = -(pickCanvasPos[1] - canvas.clientHeight / 2) / (canvas.clientHeight / 2);
 
-    // Ensure that unprojection matrix is in RTC space if needed
+    // Compose the projection-view matrix (pvMat) and its inverse (pvMatInverse).
 
     const tileOrigin = gpuTile.center;
     const gotOrigin = (tileOrigin[0] !== 0 && tileOrigin[1] !== 0 && tileOrigin[2] !== 0);
-    const viewMatrix = gotOrigin ? createRTCViewMat(pickViewMatrix , tileOrigin, tempMat4b) : pickViewMatrix;
-    const pvMat = mulMat4(pickProjMatrix , viewMatrix, tempMat4c);
-    const pvMatInverse = inverseMat4(pvMat, tempMat4c);
+    const viewMatrix = gotOrigin ? createRTCViewMat(pickViewMatrix , tileOrigin, tempMat4a) : pickViewMatrix;
+    const coordSysMatrix = sceneMesh.model.coordinateSystemMatrix;
+
+    const pvmMat = mulMat4(mulMat4(pickProjMatrix, viewMatrix, tempMat4b), coordSysMatrix, tempMat4d);
+    const pvMatInverse = inverseMat4(pvmMat, tempMat4c);
+
+    // Unproject two points from NDC to world space:
+    //   - One at near plane (z = -1)
+    //   - One at far plane (z = 1)
 
     tempVec4a[0] = x;
     tempVec4a[1] = y;
     tempVec4a[2] = -1;
     tempVec4a[3] = 1;
 
-    let world1 = transformVec4(pvMatInverse, tempVec4a);
-    mulVec4Scalar(world1, 1 / world1[3], world1);
+    let world1 = transformVec4(pvMatInverse, tempVec4a); // Unproject from NDC to world space
+    mulVec4Scalar(world1, 1 / world1[3], world1); // Homogeneous divide to get world coordinates
 
     tempVec4b[0] = x;
     tempVec4b[1] = y;
     tempVec4b[2] = 1;
     tempVec4b[3] = 1;
 
-    let world2 = transformVec4(pvMatInverse, tempVec4b);
-    mulVec4Scalar(world2, 1 / world2[3], world2);
+    let world2 = transformVec4(pvMatInverse, tempVec4b); // Unproject from NDC to world space
+    mulVec4Scalar(world2, 1 / world2[3], world2); // Homogeneous divide to get world coordinates
 
-    const dir = subVec3(world2 as Vec3, world1 as Vec3, tempVec3c as Vec3);
-    const offset = mulVec3Scalar(dir as Vec3, depth, tempVec3a);
-    const worldPos = subVec3(world2 as Vec3, offset, tempVec3b);
+    // Compute the ray direction from near to far.
+    // Use the depth value from the pick buffer to
+    // interpolate the world position along the ray.
+
+    const dir = subVec3(world2 as Vec3, world1 as Vec3, tempVec3a);
+    const offset = mulVec3Scalar(dir as Vec3, depth, tempVec3b);
+    const worldPos = addVec3(world1 as Vec3, offset, tempVec3c);
+
+    // If the mesh is in a relative-to-center (RTC) tile,
+    // adjust the world position by the tile origin.
 
     if (gotOrigin) {
       addVec3(worldPos, tileOrigin, worldPos);
@@ -358,7 +381,7 @@ export class PickManager {
   _unpackDepth(depthZ) {
     const vec = createVec4Float64([depthZ[0] / 256.0, depthZ[1] / 256.0, depthZ[2] / 256.0, depthZ[3] / 256.0]);
     const bitShift = createVec4Float64([1.0 / (256.0 * 256.0 * 256.0), 1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0]);
-    return 1.0 - dotVec4(vec, bitShift);
+    return dotVec4(vec, bitShift);
   }
 
   _getClipPosX(pos: number, size: number) {
@@ -384,8 +407,6 @@ export class PickManager {
 
     }
   }
-
-
 }
 
 function unpackRGBA8ToUint(bytes: Uint8Array<any>): number {
@@ -395,13 +416,4 @@ function unpackRGBA8ToUint(bytes: Uint8Array<any>): number {
     ((bytes[2] << 16) >>> 0) |
     ((bytes[3] << 24) >>> 0)
   ) >>> 0;
-}
-
-function unpackRGBA8ToFloat01(bytes: Uint8Array<any>): number {
-  return (
-    bytes[0] / 255 +
-    bytes[1] / 65025 +
-    bytes[2] / 16581375 +
-    bytes[3] / 4228250625
-  );
 }

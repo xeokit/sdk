@@ -899,6 +899,18 @@ export class ViewManager {
   }
 
   /**
+   * Notifies that a {@link ViewObject}'s pickable flag changed.
+   * Forwards to {@link MeshManager} to queue GPU updates.
+   * @param viewObject
+   */
+  public viewObjectPickableChanged(viewObject: ViewObject): void {
+    if (viewObject.layer.view.viewIndex >= this._rendererViewsList.length) {
+      return;
+    }
+    this._meshManager.viewObjectPickableChanged(viewObject);
+  }
+
+  /**
    * Notifies that the camera view matrix was updated.
    * Forwards to {@link MeshManager} to update camera-dependent GPU state.
    */

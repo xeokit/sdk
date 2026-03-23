@@ -60,7 +60,7 @@ export class KeyboardPanRotateDollyHandler {
     //         return;
     //     }
     //
-    //     const cameraControl = controllers.cameraControl;
+    //     const viewController = controllers.viewController;
     //     const elapsedSecs = (e.deltaTime / 1000.0);
     //
     //     //-------------------------------------------------------------------------------------------------
@@ -69,10 +69,10 @@ export class KeyboardPanRotateDollyHandler {
     //
     //     if (!configs.planView) {
     //
-    //         const rotateYPos = cameraControl._isKeyDownForAction(cameraControl.ROTATE_Y_POS, keyDownMap);
-    //         const rotateYNeg = cameraControl._isKeyDownForAction(cameraControl.ROTATE_Y_NEG, keyDownMap);
-    //         const rotateXPos = cameraControl._isKeyDownForAction(cameraControl.ROTATE_X_POS, keyDownMap);
-    //         const rotateXNeg = cameraControl._isKeyDownForAction(cameraControl.ROTATE_X_NEG, keyDownMap);
+    //         const rotateYPos = viewController._isKeyDownForAction(viewController.ROTATE_Y_POS, keyDownMap);
+    //         const rotateYNeg = viewController._isKeyDownForAction(viewController.ROTATE_Y_NEG, keyDownMap);
+    //         const rotateXPos = viewController._isKeyDownForAction(viewController.ROTATE_X_POS, keyDownMap);
+    //         const rotateXNeg = viewController._isKeyDownForAction(viewController.ROTATE_X_NEG, keyDownMap);
     //
     //         const orbitDelta = elapsedSecs * configs.keyboardRotationRate;
     //
@@ -108,8 +108,8 @@ export class KeyboardPanRotateDollyHandler {
     //
     //     if (!keyDownMap[input.KEY_CTRL] && !keyDownMap[input.KEY_ALT]) {
     //
-    //         const dollyBackwards = cameraControl._isKeyDownForAction(cameraControl.DOLLY_BACKWARDS, keyDownMap);
-    //         const dollyForwards = cameraControl._isKeyDownForAction(cameraControl.DOLLY_FORWARDS, keyDownMap);
+    //         const dollyBackwards = viewController._isKeyDownForAction(viewController.DOLLY_BACKWARDS, keyDownMap);
+    //         const dollyForwards = viewController._isKeyDownForAction(viewController.DOLLY_FORWARDS, keyDownMap);
     //
     //         if (dollyBackwards || dollyForwards) {
     //
@@ -131,12 +131,12 @@ export class KeyboardPanRotateDollyHandler {
     //         }
     //     }
     //
-    //     const panForwards = cameraControl._isKeyDownForAction(cameraControl.PAN_FORWARDS, keyDownMap);
-    //     const panBackwards = cameraControl._isKeyDownForAction(cameraControl.PAN_BACKWARDS, keyDownMap);
-    //     const panLeft = cameraControl._isKeyDownForAction(cameraControl.PAN_LEFT, keyDownMap);
-    //     const panRight = cameraControl._isKeyDownForAction(cameraControl.PAN_RIGHT, keyDownMap);
-    //     const panUp = cameraControl._isKeyDownForAction(cameraControl.PAN_UP, keyDownMap);
-    //     const panDown = cameraControl._isKeyDownForAction(cameraControl.PAN_DOWN, keyDownMap);
+    //     const panForwards = viewController._isKeyDownForAction(viewController.PAN_FORWARDS, keyDownMap);
+    //     const panBackwards = viewController._isKeyDownForAction(viewController.PAN_BACKWARDS, keyDownMap);
+    //     const panLeft = viewController._isKeyDownForAction(viewController.PAN_LEFT, keyDownMap);
+    //     const panRight = viewController._isKeyDownForAction(viewController.PAN_RIGHT, keyDownMap);
+    //     const panUp = viewController._isKeyDownForAction(viewController.PAN_UP, keyDownMap);
+    //     const panDown = viewController._isKeyDownForAction(viewController.PAN_DOWN, keyDownMap);
     //
     //     const panDelta = (keyDownMap[input.KEY_ALT] ? 0.3 : 1.0) * elapsedSecs * configs.keyboardPanRate; // ALT for slower pan rate
     //

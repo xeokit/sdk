@@ -30,9 +30,9 @@ export interface SceneModelStats {
   numTextures: number;
 
   /**
-   * The number of {@link SceneTextureSet | TextureSets} in the {@link SceneModel | SceneModel}.
+   * The number of {@link SceneMaterial | Materials} in the {@link SceneModel | SceneModel}.
    */
-  numTextureSets: number;
+  numMaterials: number;
 
   /**
    * The number of triangles in the {@link SceneModel | SceneModel}.

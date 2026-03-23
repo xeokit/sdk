@@ -30,7 +30,7 @@ export class CameraUpdater {
     let followPointerWorldPos = null; // Holds the pointer's World position when configs.followPointer is true
 
     this._updateTask = new SDKTask({
-      name: "CameraControl->CameraUpdater._updateTask",
+      name: "ViewController->CameraUpdater._updateTask",
       stage: SDKTask.CollectInputStage,
       repeat: true, // TODO: make this event-driven instead of repeating every frame?
       task: () => {
@@ -88,7 +88,7 @@ export class CameraUpdater {
                 if (configs.followPointer && states.followPointerDirty) {
 
                   pickController.pickCursorPos = states.pointerCanvasPos;
-                  pickController.schedulePickSurface = true;
+                  pickController.schedulePick = true;
                   pickController.update();
 
                   if (pickController.pickResult && pickController.pickResult.worldPos) {

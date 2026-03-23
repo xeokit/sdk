@@ -3,7 +3,7 @@ import { createVec3Float64, createVec4Float64} from "../../../../math/vector";
 
 import {decompressPoint3WithAABB3} from "../../../../math/compression";
 import type {ModelEncodeParams} from "../../../ModelEncodeParams";
-import {createCoordinateSystemTransform} from "../../../../scene";
+import {getMeshWorldMatrix} from "../../../../scene";
 
 const tempVec3a = createVec3Float64();
 const tempVec3b = createVec3Float64();
@@ -18,10 +18,6 @@ export function encode(params: ModelEncodeParams, options?: any): Promise<any> {
   return new Promise<any>(function (resolve, reject) {
 
     const {sceneModel, dataModel} = params;
-
-    const coordinateSystemMatrix = options.coordinateSystem
-      ? createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4Float64())
-      : null;
 
     const dotBim = {
       meshes: [],
@@ -91,13 +87,11 @@ export function encode(params: ModelEncodeParams, options?: any): Promise<any> {
         meshId = sceneObject.id;
       }
       const firstMesh = meshes[0];
-      const color = firstMesh.color;
+      const color = firstMesh.globalColor;
       const position = createVec3Float64();
       const quaternion = createVec4Float64();
       const scale = createVec3Float64();
-      const matrix = coordinateSystemMatrix
-        ? mulMat4(firstMesh.matrix, coordinateSystemMatrix, tempMat4a)
-        : firstMesh.matrix;
+      const matrix = getMeshWorldMatrix(firstMesh, options.coordinateSystem);
       decomposeMat4(matrix, position, quaternion, scale);
       const info: any = {
         id: sceneObject.id,
@@ -125,7 +119,7 @@ export function encode(params: ModelEncodeParams, options?: any): Promise<any> {
           r: color[0] * 255,
           g: color[1] * 255,
           b: color[2] * 255,
-          a: firstMesh.opacity
+          a: firstMesh.globalOpacity
         },
         vector: {
           x: position[0],
@@ -146,3 +140,5 @@ export function encode(params: ModelEncodeParams, options?: any): Promise<any> {
     return resolve(dotBim);
   });
 }
+
+

@@ -3,7 +3,7 @@ import type {SceneGeometryParams} from "./SceneGeometryParams";
 import type {SceneMeshParams} from "./SceneMeshParams";
 import type {SceneObjectParams} from "./SceneObjectParams";
 import type {SceneTextureParams} from "./SceneTextureParams";
-import type {SceneTextureSetParams} from "./SceneTextureSetParams";
+import type {SceneMaterialParams} from "./SceneMaterialParams";
 import type {CoordinateSystemParams} from "./CoordinateSystemParams";
 import type  {  Vec3} from "../math/vector";
 import type  {Mat4} from "../math/matrix";
@@ -91,9 +91,9 @@ export interface SceneModelParams {
   textures?: SceneTextureParams[];
 
   /**
-   * Parameters for {@link SceneTextureSet  | SceneTextureSets} in the {@link SceneModel | SceneModel}.
+   * Parameters for {@link SceneMaterial  | SceneMaterials} in the {@link SceneModel | SceneModel}.
    */
-  textureSets?: SceneTextureSetParams[];
+  materials?: SceneMaterialParams[];
 
   /**
    * Parameters for {@link SceneMesh  | SceneMeshes} in the {@link SceneModel | SceneModel}.

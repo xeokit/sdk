@@ -8,7 +8,7 @@ import {
 import {createMat4Float64, isIdentityMat4, mulMat4} from "../../../../math/matrix";
 import type {SceneModel} from "../../../../scene";
 import type {XGFData_v1} from "./XGFData_v1";
-import {createCoordinateSystemTransform} from "../../../../scene";
+import {createCoordinateSystemTransform, getMeshWorldMatrix} from "../../../../scene";
 
 const NUM_MATERIAL_ATTRIBUTES = 4;
 
@@ -159,9 +159,7 @@ export function modelToXGF(params: {
     for (let objectMeshIdx = 0; objectMeshIdx < object.meshes.length; objectMeshIdx++) {
       const mesh = object.meshes[objectMeshIdx];
       xgfData.eachMeshGeometriesBase [meshesBase] = geometryIndices[mesh.geometry.id];
-      const matrix = coordinateSystemMatrix
-        ? mulMat4(mesh.matrix, coordinateSystemMatrix, createMat4Float64())
-        : mesh.matrix;
+      const matrix = getMeshWorldMatrix(mesh, options.coordinateSystem);
       if (isIdentityMat4(matrix)) {
         if (!identityMatrixAdded) {
           matrices.push(...matrix);
@@ -177,10 +175,10 @@ export function modelToXGF(params: {
         xgfData.eachMeshMatricesBase [meshesBase] = matricesBase;
         matricesBase += 16;
       }
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = (mesh.color[0] * 255); // Color RGB
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = (mesh.color[1] * 255);
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = (mesh.color[2] * 255);
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = (mesh.opacity * 255); // Opacity
+      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = (mesh.globalColor[0] * 255); // Color RGB
+      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = (mesh.globalColor[1] * 255);
+      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = (mesh.globalColor[2] * 255);
+      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = (mesh.globalOpacity * 255); // Opacity
       meshesBase++;
     }
   }

@@ -224,8 +224,6 @@ export class ViewerEvents {
     */
   readonly onViewTransformUpdated: EventEmitter<ViewTransform, ViewTransform>;
 
-
-
   //---------------------------- Snapshot Events ----------------------------//
 
   /**

@@ -56,7 +56,7 @@
  * import { Data } from "@xeokit/sdk/data";
  * import { Viewer } from "@xeokit/sdk/viewer";
  * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
- * import { CameraControl } from "@xeokit/sdk/cameracontrol";
+ * import { ViewController } from "@xeokit/sdk/viewcontroller";
  * import { CityJSONLoader } from "@xeokit/sdk/formats/cityjson";
  *
  * const handleError = (error: string) => {
@@ -90,7 +90,7 @@
  * view.camera.up   = [0, 1, 0];
  *
  * // 5) Enable interactive camera control
- * new CameraControl(view, {});
+ * new ViewController(view, {});
  *
  * // 6) Create target models for the loader
  * const sceneModelResult = scene.createModel({ id: "myModel" });

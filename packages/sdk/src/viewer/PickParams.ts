@@ -2,7 +2,7 @@ import type {Mat4} from "../math/matrix";
 import type { Vec3, Vec2} from "../math/vector";
 
 /**
- * Parameters for {@link WebGLRenderer.pick}.
+ * Parameters for picking.
  */
 export interface PickParams {
 

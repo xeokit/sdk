@@ -96,7 +96,7 @@ export class RendererMesh {
     }));
 
     this.setMatrix(sceneMesh.globalMatrix);
-    this.setOpacity(sceneMesh.opacity);
+    this.setOpacity(sceneMesh.globalOpacity);
   }
 
   /**
@@ -197,7 +197,7 @@ export class RendererMesh {
       this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, colorize);
       viewStates.colorizing = true;
     } else { // Restore original color
-      this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, this._sceneMesh.color);
+      this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, this._sceneMesh.globalColor);
       viewStates.colorizing = false;
     }
   }
@@ -215,7 +215,7 @@ export class RendererMesh {
       this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
       viewStates.coloringOpacity = true;
     } else { // Restore original opacity
-      this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, this._sceneMesh.opacity);
+      this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, this._sceneMesh.globalOpacity);
       viewStates.coloringOpacity = false;
     }
   }

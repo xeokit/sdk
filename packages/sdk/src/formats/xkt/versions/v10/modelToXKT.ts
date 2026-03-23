@@ -28,11 +28,11 @@
 //     const geometriesList = Object.values(sceneModel.geometries);
 //     const meshesList = Object.values(sceneModel.meshes);
 //     const objectsList = Object.values(sceneModel.objects);
-//     const textureSetLists = Object.values(sceneModel.textureSets);
+//     const materialLists = Object.values(sceneModel.materials);
 //     const tilesList = Object.values(sceneModel.tiles);
 //
 //     const numTextures = 0;
-//     const numTextureSets = 0;
+//     const numMaterials = 0;
 //     const numGeometries = geometriesList.length;
 //     const numMeshes = meshesList.length;
 //     const numObjects = objectsList.length;
@@ -81,7 +81,7 @@
 //         uvs: new Float32Array(sizeUVs),
 //         indices: new Uint32Array(sizeIndices),
 //         edgeIndices: new Uint32Array(sizeEdgeIndices),
-//         eachTextureSetTextures: new Int32Array(numTextureSets * 5), // For each texture set, a set of five Texture indices [color, metal/roughness,normals,emissive,occlusion]; each tileIndex has value -1 if no texture
+//         eachMaterialTextures: new Int32Array(numMaterials * 5), // For each texture set, a set of five Texture indices [color, metal/roughness,normals,emissive,occlusion]; each tileIndex has value -1 if no texture
 //         matrices: new Float32Array(lenMatrices), // Modeling matrices for entities that share geometries. Each entity either shares all it's geometries, or owns all its geometries exclusively. Exclusively-owned geometries are pre-transformed into World-space, and so their entities don't have modeling matrices in this array.
 //         reusedGeometriesDecodeMatrix: new Float32Array(xktModel.reusedGeometriesDecodeMatrix), // A single, global vertex position de-quantization matrix for all reused geometries. Reused geometries are quantized to their collective Local-space AABB, and this matrix is derived from that AABB.
 //         eachGeometryPrimitiveType: new Uint8Array(numGeometries), // Primitive type for each geometry (0=solid triangles, 1=surface triangles, 2=lines, 3=points, 4=line-strip)
@@ -93,7 +93,7 @@
 //         eachGeometryEdgeIndicesPortion: new Uint32Array(numGeometries), // For each geometry, an tileIndex to its first element in xktData.edgeIndices. If the next geometry has the same tileIndex, then this geometry has no edge indices.
 //         eachMeshGeometriesPortion: new Uint32Array(numMeshes), // For each mesh, an tileIndex into the eachGeometry* arrays
 //         eachMeshMatricesPortion: new Uint32Array(numMeshes), // For each mesh that shares its geometry, an tileIndex to its first element in xktData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
-//         eachMeshTextureSet: new Int32Array(numMeshes), // For each mesh, the tileIndex of its texture set in xktData.eachTextureSetTextures; this array contains signed integers so that we can use -1 to indicate when a mesh has no texture set
+//         eachMeshMaterial: new Int32Array(numMeshes), // For each mesh, the tileIndex of its texture set in xktData.eachMaterialTextures; this array contains signed integers so that we can use -1 to indicate when a mesh has no texture set
 //         eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES), // For each mesh, an RGBA integer color of format [0..255, 0..255, 0..255, 0..255], and PBR metallic and roughness factors, of format [0..255, 0..255]
 //         eachEntityId: [], // For each entity, an ID string
 //         eachEntityMeshesPortion: new Uint32Array(numObjects), // For each entity, the tileIndex of the first element of meshes used by the entity
@@ -205,7 +205,7 @@
 //                     matricesIndex += 16;
 //                 }
 //
-//                 xktData.eachMeshTextureSet[_meshIndex] = mesh.textureSet ? mesh.textureSet.textureSetIndex : -1;
+//                 xktData.eachMeshMaterial[_meshIndex] = mesh.material ? mesh.material.materialIndex : -1;
 //
 //                 xktData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.color[0] * 255); // Color RGB
 //                 xktData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.color[1] * 255);

@@ -12,7 +12,7 @@ export interface XKTDataDeflated {
   uvs: any;
   indices: any;
   edgeIndices: any;
-  eachTextureSetTextures: any;
+  eachMaterialTextures: any;
   matrices: any;
   reusedGeometriesDecodeMatrix: any;
   eachGeometryPrimitiveType: any;
@@ -24,7 +24,7 @@ export interface XKTDataDeflated {
   eachGeometryEdgeIndicesPortion: any;
   eachMeshGeometriesPortion: any;
   eachMeshMatricesPortion: any;
-  eachMeshTextureSet: any;
+  eachMeshMaterial: any;
   eachMeshMaterialAttributes: any;
   eachEntityId: any;
   eachEntityMeshesPortion: any;

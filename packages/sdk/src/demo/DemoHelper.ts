@@ -1,12 +1,12 @@
 import {Scene, type SceneModelStats} from "../scene";
 import {Data, type DataModelStats} from "../data";
-import {View, Viewer} from "../viewer";
+import {type PickParams, type PickResult, View, Viewer} from "../viewer";
 import {type MemoryUsage, WebGLRenderer} from "../webglrenderer";
 import {EventsLogger, getGlobalTaskRunner, type SDKResult, SDKTask} from "../core";
 import {SceneAABB3Index} from "../collision/aabb";
 import {CameraFlightAnimation} from "../cameraflight";
 import {type RenderStats} from "../webglrenderer/internal/inspectors";
-import {CameraControl} from "../cameracontrol";
+import {ViewController} from "../viewcontroller";
 import {GPUMemoryConfigsPanel} from "./inspectors/GPUMemoryConfigsPanel";
 import {GPUMemoryUsagePanel} from "./inspectors/GPUMemoryUsagePanel";
 import {ScenePanel} from "./inspectors/ScenePanel";
@@ -19,7 +19,6 @@ import {BoundariesPanel} from "./inspectors/BoundariesPanel";
 import {DataTexturesPanel} from "./inspectors/DataTexturesPanel";
 import {TilesPanel} from "./inspectors/TilesPanel";
 import {ViewerPanel} from "./inspectors/ViewerPanel";
-import {LoadingProgressBar} from "./LoadingProgressBar";
 import {DownloadPanel} from "./inspectors/DownloadPanel";
 
 const taskRunner = getGlobalTaskRunner();
@@ -78,9 +77,9 @@ export class DemoHelper {
   public cameraFlight: CameraFlightAnimation;
 
   /**
-   * The CameraControl for the View, allowing user interaction with the camera.
+   * The ViewController for the View, allowing user interaction with the camera.
    */
-  public cameraControl: CameraControl;
+  public viewController: ViewController;
 
   /**
    * The maximum number of views to create.
@@ -154,8 +153,6 @@ export class DemoHelper {
     renderer: RenderStats;
   };
 
-
-
   /**
    * Creates a DemoHelper instance.
    * @param cfg
@@ -192,21 +189,12 @@ export class DemoHelper {
       if (this.makeComponents) {
 
         this.scene = new Scene();
-        this.data = new Data();
-        this.viewer = new Viewer();
-        this.renderer = new WebGLRenderer({
-          // memoryConfigs: {
-          //   maxViews: this.maxViews ?? (cfg.maxViews ?? 1),
-          //   tileSize: 200,
-          //   maxTiles: 2000,
-          //   maxBatches: 300,
-          //   maxBatchVertices: 25000,
-          //   maxBatchIndices:  70000,
-          //   maxBatchGeometries: 10000,
-          //   maxBatchMeshes: 10000,
-          //   maxBatchPrims:   50000
-          // }
 
+        this.data = new Data();
+
+        this.viewer = new Viewer();
+
+        this.renderer = new WebGLRenderer({
           memoryConfigs: {
             maxViews: this.maxViews ?? (cfg.maxViews ?? 1),
             tileSize: 200,
@@ -268,9 +256,17 @@ export class DemoHelper {
             reject(viewResult.error);
             return;
           }
+
           this.view = viewResult.value;
+
           this.cameraFlight = new CameraFlightAnimation(this.view);
-          this.cameraControl = new CameraControl(this.view);
+
+          this.viewController = new ViewController(this.view, {
+            pick: (view:View, pickParams:PickParams):SDKResult<PickResult> => {
+              // ViewController performs GPU-accelerated picking via the renderer
+              return this.renderer.pick(this.view, pickParams);
+            }
+          });
         }
 
         const renderInspectorResult = this.renderer.getRenderInspector();
@@ -478,7 +474,7 @@ export class DemoHelper {
       numMeshes: 0,
       numGeometries: 0,
       numTextures: 0,
-      numTextureSets: 0,
+      numMaterials: 0,
       numTriangles: 0,
       numLines: 0,
       numPoints: 0,
@@ -497,7 +493,7 @@ export class DemoHelper {
       combinedStats.numLines += stats.numLines;
       combinedStats.numVertices += stats.numVertices;
       combinedStats.numMeshes += stats.numMeshes;
-      combinedStats.numTextureSets += stats.numTextureSets;
+      combinedStats.numMaterials += stats.numMaterials;
       combinedStats.textureBytes += stats.textureBytes;
     }
 

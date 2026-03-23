@@ -24,7 +24,7 @@ export function inflateXKT(xktDataDeflated: XKTDataDeflated): XKTData {
     uvs: new Float32Array((xktDataDeflated.uvs)),
     indices: new Uint32Array((xktDataDeflated.indices)),
     edgeIndices: new Uint32Array((xktDataDeflated.edgeIndices)),
-    eachTextureSetTextures: new Int32Array((xktDataDeflated.eachTextureSetTextures)),
+    eachMaterialTextures: new Int32Array((xktDataDeflated.eachMaterialTextures)),
     matrices: new Float32Array((xktDataDeflated.matrices)),
     reusedGeometriesDecodeMatrix: new Float32Array((xktDataDeflated.reusedGeometriesDecodeMatrix)),
     eachGeometryPrimitiveType: new Uint8Array((xktDataDeflated.eachGeometryPrimitiveType)),
@@ -36,7 +36,7 @@ export function inflateXKT(xktDataDeflated: XKTDataDeflated): XKTData {
     eachGeometryEdgeIndicesPortion: new Uint32Array((xktDataDeflated.eachGeometryEdgeIndicesPortion)),
     eachMeshGeometriesPortion: new Uint32Array((xktDataDeflated.eachMeshGeometriesPortion)),
     eachMeshMatricesPortion: new Uint32Array((xktDataDeflated.eachMeshMatricesPortion)),
-    eachMeshTextureSet: new Int32Array((xktDataDeflated.eachMeshTextureSet)), // Can be -1
+    eachMeshMaterial: new Int32Array((xktDataDeflated.eachMeshMaterial)), // Can be -1
     eachMeshMaterialAttributes: new Uint8Array((xktDataDeflated.eachMeshMaterialAttributes)),
     eachEntityId: JSON.parse(xktDataDeflated.eachEntityId),
     eachEntityMeshesPortion: new Uint32Array((xktDataDeflated.eachEntityMeshesPortion)),

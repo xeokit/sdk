@@ -22,9 +22,9 @@ export interface SceneMeshParams {
   parentTransformId?: string;
 
   /**
-   * ID of a {@link SceneTextureSet} that was created previously with {@link SceneModel.createTextureSet | SceneModel.createTextureSet}.
+   * ID of a {@link SceneMaterial} that was created previously with {@link SceneModel.createMaterial | SceneModel.createMaterial}.
    */
-  textureSetId?: string;
+  materialId?: string;
 
   /**
    * ID of a {@link SceneGeometry} that was created previously with {@link SceneModel.createGeometry | SceneModel.createGeometry} or {@link SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}.

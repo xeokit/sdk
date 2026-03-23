@@ -23,7 +23,7 @@ import {
   KEY_Z
 } from "./keycodes";
 import type {View} from "../viewer";
-import type {CameraControlParams} from "./CameraControlParams";
+import type {CameraControlPickFn, ViewControllerParams} from "./ViewControllerParams";
 import {CameraFlightAnimation} from "../cameraflight";
 import {CameraUpdater} from "./CameraUpdater";
 import {createVec2Float64, type Vec3} from "../math/vector";
@@ -40,6 +40,7 @@ import {PivotController} from "./PivotController";
 import {TouchPanRotateAndDollyHandler} from "./TouchPanRotateAndDollyHandler";
 import {TouchPickHandler} from "./TouchPickHandler";
 import {PickResult} from "../viewer";
+import {ViewControllerEvents} from "./ViewControllerEvents";
 
 
 const DEFAULT_SNAP_PICK_RADIUS = 30;
@@ -55,9 +56,9 @@ export class HoverEvent {
 /**
  * Mouse and touch controller for a {@link viewer!Viewer | Viewer's} {@link viewer!Camera | Camera}.
  *
- * See {@link cameracontrol | @xeokit/sdk/cameracontrol} for usage.
+ * See {@link viewcontroller | @xeokit/sdk/viewcontroller} for usage.
  */
-export class CameraControl {
+export class ViewController {
 
   /**
    * Represents a leftward panning action.
@@ -156,84 +157,14 @@ export class CameraControl {
   static AXIS_VIEW_BOTTOM = 17;
 
   /**
-   * The {@link viewer!View | View} to which this CameraControl belongs.
+   * The {@link viewer!View | View} to which this ViewController belongs.
    */
   view: View;
 
   /**
-   * Event fired when we right-click.
+   * Events fired by this ViewController.
    */
-  readonly onRightClick: EventEmitter<CameraControl, any>;
-
-  /**
-   * Event fired when the pointer moves while over a {@link viewer!ViewObject | ViewObject}.
-   */
-  readonly onHover: EventEmitter<CameraControl, HoverEvent>;
-
-  /**
-   * Event fired when the pointer moves while over a {@link viewer!ViewObject | ViewObject}.
-   */
-  readonly onHoverSurface: EventEmitter<CameraControl, HoverEvent>;
-
-  /**
-   * Event fired when the pointer moves while over empty space.
-   */
-  readonly onHoverOff: EventEmitter<CameraControl, HoverEvent>;
-
-  /**
-   * Event fired when the pointer moves onto a {@link viewer!ViewObject | ViewObject}.
-   */
-  readonly onHoverEnter: EventEmitter<CameraControl, HoverEvent>;
-
-  /**
-   * Event fired when the pointer moves off a {@link viewer!ViewObject | ViewObject}.
-   */
-  readonly onHoverOut: EventEmitter<CameraControl, HoverEvent>;
-
-  /**
-   * Event fired when a {@link viewer!ViewObject | ViewObject} is picked.
-   */
-  readonly onPicked: EventEmitter<CameraControl, PickResult>;
-
-  /**
-   * Event fired when empty space is picked.
-   */
-  readonly onPickedSurface: EventEmitter<CameraControl, PickResult>;
-
-  /**
-   * Event fired when empty space is picked.
-   */
-  readonly onPickedNothing: EventEmitter<CameraControl, null>;
-
-  /**
-   * Event fired when a ViewObject is double-picked.
-   */
-  readonly onDoublePicked: EventEmitter<CameraControl, PickResult>;
-
-  /**
-   * Event fired when a surface is double-picked.
-   */
-  readonly onDoublePickedSurface: EventEmitter<CameraControl, PickResult>;
-
-  /**
-   * Event fired when empty space is double-picked.
-   */
-  readonly onDoublePickedNothing: EventEmitter<CameraControl, PickResult>;
-
-  /**
-   * Event fired when snapping off a surface, vertex, or edge.
-   */
-  readonly onHoverSnapOrSurfaceOff: EventEmitter<CameraControl, any>;
-
-  /**
-   * Event fired when snapping onto a surface, vertex, or edge.
-   */
-  readonly onHoverSnapOrSurface: EventEmitter<CameraControl, any>;
-
-  /**
-   * Event fired when ray moves.
-   */
-  readonly onRayMove: EventEmitter<CameraControl, any>;
+  events: ViewControllerEvents;
 
   _configs: {
     rotationInertia: number;
@@ -295,7 +226,7 @@ export class CameraControl {
 
   _controllers: {
     pickController: any;
-    cameraControl: any;
+    viewController: any;
     pivotController: any;
     cameraFlight: any;
     panController: any;
@@ -306,22 +237,29 @@ export class CameraControl {
 
   _keyMap: any;
 
+  /**
+   * @private
+   */
+  pick: CameraControlPickFn;
+
 
   /**
    * @private
    *
    */
-  constructor(view: View, cfg: CameraControlParams = {}) {
+  constructor(view: View, cfg: ViewControllerParams = {}) {
 
     this._keyMap = {}; // Maps key codes to the above actions
 
     this.view = view;
 
+    this.pick = cfg.pick;
+
     this.view.htmlElement.oncontextmenu = (e) => {
       e.preventDefault();
     };
 
-    // User-settable CameraControl configurations
+    // User-settable ViewController configurations
 
     this._configs = {
 
@@ -373,7 +311,7 @@ export class CameraControl {
       dollyMinSpeed: 0.04
     };
 
-    // Current runtime state of the CameraControl
+    // Current runtime state of the ViewController
 
     this._states = {
       pointerCanvasPos: createVec2Float64(),
@@ -405,7 +343,7 @@ export class CameraControl {
     // Controllers to assist input event handlers with controlling the Camera
 
     this._controllers = {
-      cameraControl: this,
+      viewController: this,
       pickController: new PickController(this, this._configs),
       pivotController: new PivotController(view, this._configs),
       panController: new PanController(view),
@@ -430,22 +368,7 @@ export class CameraControl {
 
     this._cameraUpdater = new CameraUpdater(this.view, this._controllers, this._configs, this._states, this._updates);
 
-    this.onHover = new EventEmitter(new EventDispatcher<CameraControl, HoverEvent>());
-    this.onHoverOff = new EventEmitter(new EventDispatcher<CameraControl, HoverEvent>());
-    this.onHoverEnter = new EventEmitter(new EventDispatcher<CameraControl, HoverEvent>());
-    this.onHoverOut = new EventEmitter(new EventDispatcher<CameraControl, HoverEvent>());
-
-    this.onRightClick = new EventEmitter(new EventDispatcher<CameraControl, any>());
-    this.onHoverSurface = new EventEmitter(new EventDispatcher<CameraControl, HoverEvent>());
-    this.onPicked = new EventEmitter(new EventDispatcher<CameraControl, PickResult>());
-    this.onPickedSurface = new EventEmitter(new EventDispatcher<CameraControl, PickResult>());
-    this.onPickedNothing = new EventEmitter(new EventDispatcher<CameraControl, any>());
-    this.onDoublePicked = new EventEmitter(new EventDispatcher<CameraControl, PickResult>());
-    this.onDoublePickedSurface = new EventEmitter(new EventDispatcher<CameraControl, PickResult>());
-    this.onDoublePickedNothing = new EventEmitter(new EventDispatcher<CameraControl, PickResult>());
-    this.onHoverSnapOrSurfaceOff = new EventEmitter(new EventDispatcher<CameraControl, any>());
-    this.onHoverSnapOrSurface = new EventEmitter(new EventDispatcher<CameraControl, any>());
-    this.onRayMove = new EventEmitter(new EventDispatcher<CameraControl, any>());
+    this.events = new ViewControllerEvents();
 
     // Set initial user configurations
 
@@ -472,12 +395,12 @@ export class CameraControl {
   }
 
   /**
-   * Sets custom mappings of keys to ````CameraControl```` actions.
+   * Sets custom mappings of keys to ````ViewController```` actions.
    *
    * See class docs for usage.
    *
    * @param {{Number:Number}|String} value Either a set of new key mappings, or a string to select a keyboard layout,
-   * which causes ````CameraControl```` to use the default key mappings for that layout.
+   * which causes ````ViewController```` to use the default key mappings for that layout.
    */
   set keyMap(value: { Number: number } | number) {
     value = value || QWERTYLayout;
@@ -490,45 +413,45 @@ export class CameraControl {
           console.error("Unsupported value for 'keyMap': " + value + " defaulting to 'qwerty'");
         // Intentional fall-through to QWERTYLayout
         case QWERTYLayout:
-          keyMap[CameraControl.PAN_LEFT] = [KEY_A];
-          keyMap[CameraControl.PAN_RIGHT] = [KEY_D];
-          keyMap[CameraControl.PAN_UP] = [KEY_Z];
-          keyMap[CameraControl.PAN_DOWN] = [KEY_X];
-          keyMap[CameraControl.PAN_BACKWARDS] = [];
-          keyMap[CameraControl.PAN_FORWARDS] = [];
-          keyMap[CameraControl.DOLLY_FORWARDS] = [KEY_W, KEY_ADD];
-          keyMap[CameraControl.DOLLY_BACKWARDS] = [KEY_S, KEY_SUBTRACT];
-          keyMap[CameraControl.ROTATE_X_POS] = [KEY_DOWN_ARROW];
-          keyMap[CameraControl.ROTATE_X_NEG] = [KEY_UP_ARROW];
-          keyMap[CameraControl.ROTATE_Y_POS] = [KEY_Q, KEY_LEFT_ARROW];
-          keyMap[CameraControl.ROTATE_Y_NEG] = [KEY_E, KEY_RIGHT_ARROW];
-          keyMap[CameraControl.AXIS_VIEW_RIGHT] = [KEY_NUM_1];
-          keyMap[CameraControl.AXIS_VIEW_BACK] = [KEY_NUM_2];
-          keyMap[CameraControl.AXIS_VIEW_LEFT] = [KEY_NUM_3];
-          keyMap[CameraControl.AXIS_VIEW_FRONT] = [KEY_NUM_4];
-          keyMap[CameraControl.AXIS_VIEW_TOP] = [KEY_NUM_5];
-          keyMap[CameraControl.AXIS_VIEW_BOTTOM] = [KEY_NUM_6];
+          keyMap[ViewController.PAN_LEFT] = [KEY_A];
+          keyMap[ViewController.PAN_RIGHT] = [KEY_D];
+          keyMap[ViewController.PAN_UP] = [KEY_Z];
+          keyMap[ViewController.PAN_DOWN] = [KEY_X];
+          keyMap[ViewController.PAN_BACKWARDS] = [];
+          keyMap[ViewController.PAN_FORWARDS] = [];
+          keyMap[ViewController.DOLLY_FORWARDS] = [KEY_W, KEY_ADD];
+          keyMap[ViewController.DOLLY_BACKWARDS] = [KEY_S, KEY_SUBTRACT];
+          keyMap[ViewController.ROTATE_X_POS] = [KEY_DOWN_ARROW];
+          keyMap[ViewController.ROTATE_X_NEG] = [KEY_UP_ARROW];
+          keyMap[ViewController.ROTATE_Y_POS] = [KEY_Q, KEY_LEFT_ARROW];
+          keyMap[ViewController.ROTATE_Y_NEG] = [KEY_E, KEY_RIGHT_ARROW];
+          keyMap[ViewController.AXIS_VIEW_RIGHT] = [KEY_NUM_1];
+          keyMap[ViewController.AXIS_VIEW_BACK] = [KEY_NUM_2];
+          keyMap[ViewController.AXIS_VIEW_LEFT] = [KEY_NUM_3];
+          keyMap[ViewController.AXIS_VIEW_FRONT] = [KEY_NUM_4];
+          keyMap[ViewController.AXIS_VIEW_TOP] = [KEY_NUM_5];
+          keyMap[ViewController.AXIS_VIEW_BOTTOM] = [KEY_NUM_6];
           break;
 
         case "azerty":
-          keyMap[CameraControl.PAN_LEFT] = [KEY_Q];
-          keyMap[CameraControl.PAN_RIGHT] = [KEY_D];
-          keyMap[CameraControl.PAN_UP] = [KEY_W];
-          keyMap[CameraControl.PAN_DOWN] = [KEY_X];
-          keyMap[CameraControl.PAN_BACKWARDS] = [];
-          keyMap[CameraControl.PAN_FORWARDS] = [];
-          keyMap[CameraControl.DOLLY_FORWARDS] = [KEY_Z, KEY_ADD];
-          keyMap[CameraControl.DOLLY_BACKWARDS] = [KEY_S, KEY_SUBTRACT];
-          keyMap[CameraControl.ROTATE_X_POS] = [KEY_DOWN_ARROW];
-          keyMap[CameraControl.ROTATE_X_NEG] = [KEY_UP_ARROW];
-          keyMap[CameraControl.ROTATE_Y_POS] = [KEY_A, KEY_LEFT_ARROW];
-          keyMap[CameraControl.ROTATE_Y_NEG] = [KEY_E, KEY_RIGHT_ARROW];
-          keyMap[CameraControl.AXIS_VIEW_RIGHT] = [KEY_NUM_1];
-          keyMap[CameraControl.AXIS_VIEW_BACK] = [KEY_NUM_2];
-          keyMap[CameraControl.AXIS_VIEW_LEFT] = [KEY_NUM_3];
-          keyMap[CameraControl.AXIS_VIEW_FRONT] = [KEY_NUM_4];
-          keyMap[CameraControl.AXIS_VIEW_TOP] = [KEY_NUM_5];
-          keyMap[CameraControl.AXIS_VIEW_BOTTOM] = [KEY_NUM_6];
+          keyMap[ViewController.PAN_LEFT] = [KEY_Q];
+          keyMap[ViewController.PAN_RIGHT] = [KEY_D];
+          keyMap[ViewController.PAN_UP] = [KEY_W];
+          keyMap[ViewController.PAN_DOWN] = [KEY_X];
+          keyMap[ViewController.PAN_BACKWARDS] = [];
+          keyMap[ViewController.PAN_FORWARDS] = [];
+          keyMap[ViewController.DOLLY_FORWARDS] = [KEY_Z, KEY_ADD];
+          keyMap[ViewController.DOLLY_BACKWARDS] = [KEY_S, KEY_SUBTRACT];
+          keyMap[ViewController.ROTATE_X_POS] = [KEY_DOWN_ARROW];
+          keyMap[ViewController.ROTATE_X_NEG] = [KEY_UP_ARROW];
+          keyMap[ViewController.ROTATE_Y_POS] = [KEY_A, KEY_LEFT_ARROW];
+          keyMap[ViewController.ROTATE_Y_NEG] = [KEY_E, KEY_RIGHT_ARROW];
+          keyMap[ViewController.AXIS_VIEW_RIGHT] = [KEY_NUM_1];
+          keyMap[ViewController.AXIS_VIEW_BACK] = [KEY_NUM_2];
+          keyMap[ViewController.AXIS_VIEW_LEFT] = [KEY_NUM_3];
+          keyMap[ViewController.AXIS_VIEW_FRONT] = [KEY_NUM_4];
+          keyMap[ViewController.AXIS_VIEW_TOP] = [KEY_NUM_5];
+          keyMap[ViewController.AXIS_VIEW_BOTTOM] = [KEY_NUM_6];
           break;
       }
 
@@ -540,7 +463,7 @@ export class CameraControl {
   }
 
   /**
-   * Gets custom mappings of keys to {@link CameraControl} actions.
+   * Gets custom mappings of keys to {@link ViewController} actions.
    */
   get keyMap() {
     return this._keyMap;
@@ -570,7 +493,7 @@ export class CameraControl {
   }
 
   /**
-   * Sets the HTMl element to represent the pivot point when {@link CameraControl.followPointer} is true.
+   * Sets the HTMl element to represent the pivot point when {@link ViewController.followPointer} is true.
    *
    * See class comments for an example.
    */
@@ -579,9 +502,9 @@ export class CameraControl {
   }
 
   /**
-   *  Sets if this ````CameraControl```` is active or not.
+   *  Sets if this ````ViewController```` is active or not.
    *
-   * When inactive, the ````CameraControl```` will not react to input.
+   * When inactive, the ````ViewController```` will not react to input.
    *
    * Default is ````true````.
    */
@@ -593,13 +516,13 @@ export class CameraControl {
   }
 
   /**
-   * Gets if this ````CameraControl```` is active or not.
+   * Gets if this ````ViewController```` is active or not.
    *
-   * When inactive, the ````CameraControl```` will not react to input.
+   * When inactive, the ````ViewController```` will not react to input.
    *
    * Default is ````true````.
    *
-   * @returns Returns ````true```` if this ````CameraControl```` is active.
+   * @returns Returns ````true```` if this ````ViewController```` is active.
    */
   get active(): boolean {
     return this._configs.active;
@@ -713,7 +636,7 @@ export class CameraControl {
    *
    * Default is ````true````.
    *
-   * Disabling mouse and touch input on ````CameraControl```` is useful when we want to temporarily use mouse or
+   * Disabling mouse and touch input on ````ViewController```` is useful when we want to temporarily use mouse or
    * touch input to interact with some other 3D control, without disturbing the {@link viewer!Camera}.
    *
    * @param value Set ````true```` to enable mouse and touch input.
@@ -742,7 +665,7 @@ export class CameraControl {
    *
    * Default is ````true````.
    *
-   * Disabling mouse and touch input on ````CameraControl```` is desirable when we want to temporarily use mouse or
+   * Disabling mouse and touch input on ````ViewController```` is desirable when we want to temporarily use mouse or
    * touch input to interact with some other 3D control, without interfering with the {@link viewer!Camera}.
    *
    * @returns Returns ````true```` if mouse and touch input is enabled.
@@ -792,7 +715,7 @@ export class CameraControl {
   /**
    * Sets the current World-space 3D target position.
    *
-   * Only applies when {@link CameraControl.followPointer} is ````true````.
+   * Only applies when {@link ViewController.followPointer} is ````true````.
    *
    * @param worldPos The new World-space 3D target position.
    */
@@ -803,7 +726,7 @@ export class CameraControl {
   /**
    * Gets the current World-space 3D pivot position.
    *
-   * Only applies when {@link CameraControl.followPointer} is ````true````.
+   * Only applies when {@link ViewController.followPointer} is ````true````.
    *
    * @return  worldPos The current World-space 3D pivot position.
    */
@@ -816,7 +739,7 @@ export class CameraControl {
    *
    * When set ````true````, this constrains {@link viewer!Camera_eye} to its current vertical position.
    *
-   * Only applies when {@link CameraControl.navMode} is ````"firstPerson"````.
+   * Only applies when {@link ViewController.navMode} is ````"firstPerson"````.
    *
    * Default is ````false````.
    *
@@ -831,7 +754,7 @@ export class CameraControl {
    *
    * When set ````true````, this constrains {@link viewer!Camera_eye} to its current vertical position.
    *
-   * Only applies when {@link CameraControl.navMode} is ````"firstPerson"````.
+   * Only applies when {@link ViewController.navMode} is ````"firstPerson"````.
    *
    * Default is ````false````.
    *
@@ -897,7 +820,7 @@ export class CameraControl {
    *
    * Default is ````0.0````.
    *
-   * Does not apply when {@link CameraControl.navMode} is ````"planView"````, which disallows rotation.
+   * Does not apply when {@link ViewController.navMode} is ````"planView"````, which disallows rotation.
    *
    * @param rotationInertia New inertial factor.
    */
@@ -910,7 +833,7 @@ export class CameraControl {
    *
    * Default is ````0.0````.
    *
-   * Does not apply when {@link CameraControl.navMode} is ````"planView"````, which disallows rotation.
+   * Does not apply when {@link ViewController.navMode} is ````"planView"````, which disallows rotation.
    *
    * @returns The inertia factor.
    */
@@ -922,7 +845,7 @@ export class CameraControl {
    * Sets how much the {@link viewer!Camera} pans each second with keyboard input.
    *
    * Default is ````5.0````, to pan the Camera ````5.0```` World-space units every second that
-   * a panning key is depressed. See the ````CameraControl```` class documentation for which keys control
+   * a panning key is depressed. See the ````ViewController```` class documentation for which keys control
    * panning.
    *
    * Panning direction is aligned to our Camera's orientation. When we pan horizontally, we pan
@@ -973,7 +896,7 @@ export class CameraControl {
    * Sets how many degrees per second the {@link viewer!Camera} rotates/orbits with keyboard input.
    *
    * Default is ````90.0````, to rotate/orbit the Camera ````90.0```` degrees every second that
-   * a rotation key is depressed. See the ````CameraControl```` class documentation for which keys control
+   * a rotation key is depressed. See the ````ViewController```` class documentation for which keys control
    * rotation/orbit.
    *
    * @param keyboardRotationRate The new keyboard rotation rate.
@@ -1001,7 +924,7 @@ export class CameraControl {
    * For example, a value of ````360.0```` indicates that the ````Camera```` rotates/orbits ````360.0```` degrees horizontally
    * when we sweep the entire width of the canvas.
    *
-   * ````CameraControl```` makes vertical rotation half as sensitive as horizontal rotation, so that we don't tend to
+   * ````ViewController```` makes vertical rotation half as sensitive as horizontal rotation, so that we don't tend to
    * flip upside-down. Therefore, a value of ````360.0```` rotates/orbits the ````Camera```` through ````180.0```` degrees
    * vertically when we sweep the entire height of the canvas.
    *
@@ -1273,13 +1196,14 @@ export class CameraControl {
   }
 
   /**
-   * Destroys this ````CameraControl````.
+   * Destroys this ````ViewController````.
    * @private
    */
   destroy() {
     this._destroyHandlers();
     this._destroyControllers();
     this._cameraUpdater.destroy();
+    this.events.clear();
   }
 
   _destroyHandlers() {

@@ -14,7 +14,7 @@ import type {FloatArrayParam} from "../math";
 import type {SceneGeometry} from "./SceneGeometry";
 import type {SceneMeshParams} from "./SceneMeshParams";
 import type {SceneObject} from "./SceneObject";
-import type {SceneTextureSet} from "./SceneTextureSet";
+import type {SceneMaterial} from "./SceneMaterial";
 import type {SceneModel} from "./SceneModel";
 import {SceneTransform} from "./SceneTransform";
 import {SDKErrorType, type SDKResult, SDKTask} from "../core";
@@ -53,9 +53,9 @@ export class SceneMesh {
   readonly geometry: SceneGeometry;
 
   /**
-   * {@link SceneTextureSet} used by this SceneMesh.
+   * {@link SceneMaterial} used by this SceneMesh.
    */
-  readonly textureSet?: SceneTextureSet;
+  readonly material?: SceneMaterial;
 
   private _color: Vec3;
   private _opacity: number;
@@ -75,7 +75,7 @@ export class SceneMesh {
     id: string;
     model: SceneModel;
     geometry: SceneGeometry;
-    textureSet?: SceneTextureSet;
+    material?: SceneMaterial;
     matrix?: Mat4;
     color?: Vec3;
     opacity?: number;
@@ -86,7 +86,7 @@ export class SceneMesh {
     this._globalMatrix = createMat4Float64();
     this._globalMatrixDirty = true;
     this.geometry = meshParams.geometry;
-    this.textureSet = meshParams.textureSet;
+    this.material = meshParams.material;
     this._color = createVec3Float32(meshParams.color || [1, 1, 1]);
     this._opacity = (meshParams.opacity !== undefined && meshParams.opacity !== null) ? meshParams.opacity : 1.0;
     this.object = null;
@@ -153,6 +153,59 @@ export class SceneMesh {
     return this.geometry.id;
   }
 
+
+  /**
+   * Sets the {@link SceneMaterial} used by this SceneMesh.
+   *
+   * The SceneMesh will already have the SceneMaterial it was created with,
+   * and then you can change it to a different SceneMaterial using this setter.
+   *
+   * This mechanism allows you to dynamically switch the geometric representation
+   * of a SceneMesh at runtime.
+   *
+   * When the switch succeeds, {@link SceneMesh.material | SceneMesh.material} will reference
+   * the new SceneMaterial and an {@link SceneEvents.onSceneMeshMaterialChanged | SceneEvents.onSceneMeshMaterialChanged}
+   * event is dispatched on the Scene.
+   *
+   * If the given materialId is invalid, such as when the SceneMaterial does not
+   * exist in the SceneModel, an error will be logged and the SceneMaterial will not be changed.
+   *
+   * Note that you cannot destroy a SceneMaterial that is currently in use by a SceneMesh.
+   *
+   * @param value - The ID of the new SceneMaterial to use. Must exist in the SceneModel.
+   */
+  set materialId(value: string) {
+    if (this.destroyed) {
+      this.model.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneMesh.materialId] Cannot set materialId on destroyed SceneMesh ${this.id}`
+      });
+      return;
+    }
+    const material = this.model.materials[value];
+    if (!material) {
+      this.model.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[SceneMesh.materialId] Invalid materialId '${value}' for SceneMesh ${this.id}`
+      });
+      return;
+    }
+    if (this.material === material) {
+      return;
+    }
+    this.model.scene.events.onSceneMeshMaterialChanged.dispatch(this.model.scene, this);
+  }
+
+  /**
+   * Gets the ID of the {@link SceneMaterial} used by this SceneMesh.
+   */
+  get materialId(): string {
+    return this.material?.id;
+  }
+
+
   /**
    * Gets the RGB color for this SceneMesh.
    *
@@ -196,6 +249,17 @@ export class SceneMesh {
       color[2] = 1;
     }
     this.model.scene.events.onSceneMeshColorChanged.dispatch(this.model.scene, this);
+  }
+
+  /**
+   * Gets the global RGB color for this SceneMesh, which is the color of the material if it has one,
+   * or the local color otherwise.
+   */
+  get globalColor(): Vec3 {
+    if (this.material) {
+      return this.material.color;
+    }
+    return this._color;
   }
 
   /**
@@ -287,6 +351,14 @@ export class SceneMesh {
     }
     this._opacity = opacity;
     this.model.scene.events.onSceneMeshOpacityChanged.dispatch(this.model.scene, this);
+  }
+
+  /**
+   * Gets the global opacity factor for this SceneMesh, which is the opacity of the material if it has one,
+   * or the local opacity otherwise. This is a factor in range ````[0..1]````.
+   */
+  get globalOpacity(): number {
+    return this.material ? this.material.opacity : this._opacity;
   }
 
   /**
@@ -398,8 +470,8 @@ export class SceneMesh {
     if (!isIdentityMat4(this._localMatrix)) {
       meshParams.matrix = <Mat4>Array.from(this._localMatrix);
     }
-    if (this.textureSet !== null && this.textureSet !== undefined) {
-      meshParams.textureSetId = this.textureSet.id;
+    if (this.material !== null && this.material !== undefined) {
+      meshParams.materialId = this.material.id;
     }
     if (this._parentTransform !== null && this._parentTransform !== undefined) {
       meshParams.parentTransformId = this.parentTransform.id;

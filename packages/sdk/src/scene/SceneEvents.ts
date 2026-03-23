@@ -8,7 +8,7 @@ import { SceneTransform } from "./SceneTransform";
 import { EventDispatcher } from "strongly-typed-events";
 import { CoordinateSystem } from "./CoordinateSystem";
 import { SceneTexture } from "./SceneTexture";
-import { SceneTextureSet } from "./SceneTextureSet";
+import { SceneMaterial } from "./SceneMaterial";
 
 /**
  * Represents the events emitted by a {@link Scene}.
@@ -139,6 +139,12 @@ export class SceneEvents {
   public readonly onSceneMeshGeometryChanged: EventEmitter<Scene, SceneMesh>;
 
   /**
+   * Emits an event each time a {@link SceneMesh} switches to a different {@link SceneMaterial}
+   * within the {@link Scene}.
+   */
+  public readonly onSceneMeshMaterialChanged: EventEmitter<Scene, SceneMesh>;
+
+  /**
    * Emits an event each time the color of a {@link SceneMesh} is updated within the {@link Scene}.
    */
   public readonly onSceneMeshColorChanged: EventEmitter<Scene, SceneMesh>;
@@ -191,14 +197,25 @@ export class SceneEvents {
   public readonly onSceneTextureDestroyed: EventEmitter<Scene, SceneTexture>;
 
   /**
-   * Emits an event each time a {@link SceneTextureSet} is created within the {@link Scene}.
+   * Emits an event each time a {@link SceneMaterial} is created within the {@link Scene}.
    */
-  public readonly onSceneTextureSetCreated: EventEmitter<Scene, SceneTextureSet>;
+  public readonly onSceneMaterialCreated: EventEmitter<Scene, SceneMaterial>;
 
   /**
-   * Emits an event each time a {@link SceneTextureSet} is destroyed within the {@link Scene}.
+   * Emits an event each time the color of a {@link SceneMaterial} is updated within the {@link Scene}.
    */
-  public readonly onSceneTextureSetDestroyed: EventEmitter<Scene, SceneTextureSet>;
+  public readonly onSceneMaterialColorChanged: EventEmitter<Scene, SceneMaterial>;
+
+  /**
+   * Emits an event each time the opacity of a {@link SceneMaterial} is updated within the {@link Scene}.
+   */
+  public readonly onSceneMaterialOpacityChanged: EventEmitter<Scene, SceneMaterial>;
+
+  /**
+   * Emits an event each time a {@link SceneMaterial} is destroyed within the {@link Scene}.
+   */
+  public readonly onSceneMaterialDestroyed: EventEmitter<Scene, SceneMaterial>;
+
 
   /**
    * @private
@@ -227,12 +244,15 @@ export class SceneEvents {
     this.onSceneMeshMatrixChanged = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
     this.onSceneMeshMoved = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
     this.onSceneMeshGeometryChanged = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
+    this.onSceneMeshMaterialChanged = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
     this.onSceneMeshColorChanged = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
     this.onSceneMeshOpacityChanged = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
     this.onSceneTextureCreated = new EventEmitter(new EventDispatcher<Scene, SceneTexture>());
     this.onSceneTextureDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneTexture>());
-    this.onSceneTextureSetCreated = new EventEmitter(new EventDispatcher<Scene, SceneTextureSet>());
-    this.onSceneTextureSetDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneTextureSet>());
+    this.onSceneMaterialCreated = new EventEmitter(new EventDispatcher<Scene, SceneMaterial>());
+    this.onSceneMaterialColorChanged = new EventEmitter(new EventDispatcher<Scene, SceneMaterial>());
+    this.onSceneMaterialOpacityChanged = new EventEmitter(new EventDispatcher<Scene, SceneMaterial>());
+    this.onSceneMaterialDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneMaterial>());
     this.onSceneGeometryCreated = new EventEmitter(new EventDispatcher<Scene, SceneGeometry>());
     this.onSceneGeometryDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneGeometry>());
     this.onSceneGeometryUpdated = new EventEmitter(new EventDispatcher<Scene, SceneGeometry>());
@@ -264,13 +284,16 @@ export class SceneEvents {
     this.onSceneObjectMeshRemoved.clear();
     this.onSceneMeshMoved.clear();
     this.onSceneMeshGeometryChanged.clear();
+    this.onSceneMeshMaterialChanged.clear();
     this.onSceneMeshColorChanged.clear();
     this.onSceneMeshMatrixChanged.clear();
     this.onSceneMeshOpacityChanged.clear();
     this.onSceneTextureCreated.clear();
     this.onSceneTextureDestroyed.clear();
-    this.onSceneTextureSetCreated.clear();
-    this.onSceneTextureSetDestroyed.clear();
+    this.onSceneMaterialCreated.clear();
+    this.onSceneMaterialColorChanged.clear();
+    this.onSceneMaterialOpacityChanged.clear();
+    this.onSceneMaterialDestroyed.clear();
     this.onSceneGeometryUpdated.clear();
     this.onSceneObjectDestroyed.clear();
     this.onSceneGeometryCreated.clear();

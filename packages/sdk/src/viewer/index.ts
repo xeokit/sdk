@@ -41,7 +41,7 @@
  * import { Scene } from "@xeokit/sdk/scene";
  * import { Viewer } from "@xeokit/sdk/viewer";
  * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
- * import { CameraControl } from "@xeokit/sdk/cameracontrol";
+ * import { ViewController } from "@xeokit/sdk/viewcontroller";
  *
  * import {
  *   OrthoProjectionType,
@@ -106,7 +106,7 @@
  *
  * const view1 = view1Result.value;
  *
- * const cameraControl = new CameraControl({
+ * const viewController = new ViewController({
  *   view: view1
  * });
  * ````
@@ -137,7 +137,7 @@
  *
  * ## 6) Align navigation to a world axis convention
  *
- * Configure {@link Camera.worldAxis | worldAxis} to match your domain’s coordinate system. This affects navigation behavior when using {@link cameracontrol!CameraControl | CameraControl}.
+ * Configure {@link Camera.worldAxis | worldAxis} to match your domain’s coordinate system. This affects navigation behavior when using {@link viewcontroller!ViewController | ViewController}.
  *
  * +Y up (+X right, -Z forward):
  *
@@ -193,27 +193,27 @@
  *   minFilter: LinearFilter
  * });
  *
- * sceneModel.createTextureSet({
- *   id: "myTextureSet",
+ * sceneModel.createMaterial({
+ *   id: "myMaterial",
  *   colorTextureId: "myColorTexture"
  * });
  *
  * sceneModel.createLayerMesh({
  *   id: "myMesh1",
  *   geometryId: "myGeometry",
- *   textureSetId: "myTextureSet"
+ *   materialId: "myMaterial"
  * });
  *
  * sceneModel.createLayerMesh({
  *   id: "myMesh2",
  *   geometryId: "myGeometry",
- *   textureSetId: "myTextureSet"
+ *   materialId: "myMaterial"
  * });
  *
  * sceneModel.createLayerMesh({
  *   id: "myMesh3",
  *   geometryId: "myGeometry",
- *   textureSetId: "myTextureSet"
+ *   materialId: "myMaterial"
  * });
  *
  * sceneModel.createObject({
@@ -351,7 +351,7 @@
  * view2.camera.look = [4.400, 3.724, 8.899];
  * view2.camera.up = [-0.018, 0.999, 0.039];
  *
- * const cameraControl2 = new CameraControl({
+ * const cameraControl2 = new ViewController({
  *   view: view2
  * });
  *
@@ -507,4 +507,5 @@ export * from "./Texturing";
 export * from "./TickParams";
 export * from "./SnapshotParams";
 export * from "./SnapshotResult";
-
+export * from "./PickResult";
+export * from "./PickParams";

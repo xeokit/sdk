@@ -21,12 +21,12 @@ export class SceneGeometry {
     /**
      * ID for the geometry.
      */
-    id: string;
+    readonly id: string;
 
     /**
      * The SceneModel that contains this SceneGeometry.
      */
-    model: SceneModel;
+    readonly model: SceneModel;
 
     /**
      * Primitive type.
@@ -35,17 +35,17 @@ export class SceneGeometry {
      * {@link constants!LinesPrimitive}, {@link constants!PointsPrimitive}
      * and {@link constants!TrianglesPrimitive}.
      */
-    primitive: number;
+    readonly primitive: number;
 
     /**
      * Axis-aligned, non-quantized 3D boundary of the geometry's vertex positions.
      */
-    aabb?: AABB3Float32;
+    readonly aabb?: AABB3Float32;
 
     /**
      * 4x4 matrix to de-quantize the geometry's UV coordinates, when UVs are provided.
      */
-    uvsDecompressMatrix?: Mat4;
+    readonly uvsDecompressMatrix?: Mat4;
 
     /**
      * 3D vertex positions, quantized as 16-bit integers.
@@ -54,33 +54,33 @@ export class SceneGeometry {
      *
      * Vertex positions are required for all primitive types.
      */
-    positionsCompressed: IntArrayParam;
+    readonly positionsCompressed: IntArrayParam;
 
     /**
      * UV coordinates, quantized as 16-bit integers.
      *
      * Internally, the Viewer de-quantizes these with {@link SceneGeometry.uvsDecompressMatrix | SceneGeometry.uvsDecompressMatrix}.
      */
-    uvsCompressed?: IntArrayParam;
+    readonly uvsCompressed?: IntArrayParam;
 
     /**
      * Vertex RGBA colors, quantized as 8-bit integers.
      */
-    colorsCompressed?: IntArrayParam;
+    readonly colorsCompressed?: IntArrayParam;
 
     /**
      * primitive indices.
      *
      * This is either an array of 8-bit, 16-bit or 32-bit values.
      */
-    indices?: IntArrayParam;
+    readonly indices?: IntArrayParam;
 
     /**
      * Edge indices.
      *
      * This is either an array of 8-bit, 16-bit or 32-bit values.
      */
-    edgeIndices?: IntArrayParam;
+    readonly edgeIndices?: IntArrayParam;
 
     /**
      * The count of {@link SceneMesh | SceneMeshes} that reference this SceneGeometry.

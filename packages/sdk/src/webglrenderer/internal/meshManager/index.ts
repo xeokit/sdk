@@ -15,7 +15,7 @@
  * - {@link MeshManager}: Main batching and management class for meshes.
  * - {@link MeshBatch}: Interface for a batch of meshes with the same primitive type.
  * - {@link MeshBatchMeshHandle}: Handle for referencing a mesh within a batch.
- * - {@link RendererMesh}, {@link RendererGeometry}, {@link RendererTexture}, {@link RendererTextureSet}: Internal representations of mesh, geometry, and texture data.
+ * - {@link RendererMesh}, {@link RendererGeometry}, {@link RendererTexture}, {@link RendererMaterial}: Internal representations of mesh, geometry, and texture data.
  *
  * @module meshManager
  * @internal
@@ -28,4 +28,4 @@ export * from "./RendererObject"
 export * from "./RendererMesh";
 export * from "./RendererGeometry";
 export * from "./RendererTexture";
-export * from "./RendererTextureSet";
+export * from "./RendererMaterial";

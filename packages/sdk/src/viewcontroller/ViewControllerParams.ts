@@ -16,10 +16,10 @@ export type CameraControlPickFn = (
 /**
  * Configuration options for {@link CameraControl}.
  */
-export interface CameraControlParams {
+export interface ViewControllerParams {
 
   /**
-   * Custom pick function for {@link cameracontrol!CameraControl} to use when determining
+   * Custom pick function for {@link viewcontroller!ViewController} to use when determining
    * what the {@link viewer!Camera | Camera} should dolly toward or orbit around. When this
    * isn't specified, then dolly and orbit will not be "pointer smart" and will be less user-friendly.
    */
@@ -107,7 +107,7 @@ export interface CameraControlParams {
   followPointer?: boolean;
 
   /**
-   * Enables or disables {@link cameracontrol!CameraControl}.
+   * Enables or disables {@link viewcontroller!ViewController}.
    *
    * Default: `true`
    */
@@ -121,7 +121,7 @@ export interface CameraControlParams {
   panRightClick?: boolean;
 
   /**
-   * Custom key mappings for {@link cameracontrol!CameraControl} actions.
+   * Custom key mappings for {@link viewcontroller!ViewController} actions.
    *
    * This can be a set of custom key mappings or a predefined keyboard layout name, which applies default mappings for that layout.
    */
@@ -132,7 +132,7 @@ export interface CameraControlParams {
    *
    * When `true`, the {@link viewer!Camera.eye | Camera.eye} remains fixed at its current vertical position.
    *
-   * Applies only when {@link CameraControl.navMode | CameraControl.navMode} is set to {@link constants!FirstPersonNavigationMode | FirstPersonNavigationMode}.
+   * Applies only when {@link CameraControl.navMode | ViewController.navMode} is set to {@link constants!FirstPersonNavigationMode | FirstPersonNavigationMode}.
    *
    * Default: `false`
    */

@@ -475,7 +475,7 @@ export class ScenePanel {
       ["SceneGeometries", formatNumber(stats.numGeometries)],
       ["SceneTransforms", formatNumber(stats.numTransforms)],
       ["SceneTextures", formatNumber(stats.numTextures)],
-      ["SceneTextureSets", formatNumber(stats.numTextureSets)],
+      ["SceneMaterials", formatNumber(stats.numMaterials)],
       ["Triangles", formatNumber(stats.numTriangles)],
       ["Lines", formatNumber(stats.numLines)],
       ["Points", formatNumber(stats.numPoints)],

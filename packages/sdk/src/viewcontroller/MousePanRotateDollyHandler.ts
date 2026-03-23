@@ -116,10 +116,10 @@ export class MousePanRotateDollyHandler {
 
     function setMousedownPick() {
       pickController.pickCursorPos = states.pointerCanvasPos;
-      pickController.schedulePickSurface = true;
+      pickController.schedulePick = true;
       pickController.update();
 
-      if (pickController.picked && pickController.pickedSurface && pickController.pickResult && pickController.pickResult.worldPos) {
+      if (pickController.picked && pickController.pickResult && pickController.pickResult.worldPos) {
         mouseDownPicked = true;
         // @ts-ignore
         pickedWorldPos.set(pickController.pickResult.worldPos);
@@ -295,7 +295,7 @@ export class MousePanRotateDollyHandler {
           const x = canvasPos[0];
           const y = canvasPos[1];
           if (Math.abs(x - lastXDown) < 3 && Math.abs(y - lastYDown) < 3) {
-            controllers.cameraControl.fire("rightClick", { // For context menus
+            controllers.viewController.fire("rightClick", { // For context menus
               pagePos: [Math.round(e.pageX), Math.round(e.pageY)],
               canvasPos: canvasPos,
               event: e
@@ -322,10 +322,6 @@ export class MousePanRotateDollyHandler {
     let secsNowLast = null;
 
     htmlElement.addEventListener("wheel", this.#mouseWheelHandler = (e) => {
-
-
-      return;
-
       if (!(configs.active && configs.pointerEnabled)) {
         return;
       }

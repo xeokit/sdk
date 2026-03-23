@@ -84,7 +84,7 @@ class TouchPanRotateAndDollyHandler {
         if (configs.followPointer) {
 
           pickController.pickCursorPos = tapStartCanvasPos;
-          pickController.schedulePickSurface = true;
+          pickController.schedulePick = true;
           pickController.update();
 
           if (!configs.planView) {

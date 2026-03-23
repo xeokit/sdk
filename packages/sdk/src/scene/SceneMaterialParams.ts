@@ -1,12 +1,24 @@
 /**
- * {@link SceneTextureSet} creation parameters for {@link SceneModel.createTextureSet | SceneModel.createTextureSet}.
+ * {@link SceneMaterial} creation parameters for {@link SceneModel.createMaterial | SceneModel.createMaterial}.
  */
-export interface SceneTextureSetParams {
+import {type Vec3} from "../math/vector";
+
+export interface SceneMaterialParams {
 
   /**
    * ID for the texture set.
    */
   id: string;
+
+  /**
+   * Color of the material, as *RGB* components in the range 0.0 to 1.0.
+   */
+  color?: Vec3;
+
+  /**
+   * Opacity of the material, in the range 0.0 to 1.0.
+   */
+  opacity?: number;
 
   /**
    * ID of a color texture created previously with {@link SceneModel.createTexture}.

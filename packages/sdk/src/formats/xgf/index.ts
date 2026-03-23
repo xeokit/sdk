@@ -45,7 +45,7 @@
  * import { Data } from "@xeokit/sdk/data";
  * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
  * import { Viewer } from "@xeokit/sdk/viewer";
- * import { CameraControl } from "@xeokit/sdk/cameracontrol";
+ * import { ViewController } from "@xeokit/sdk/viewcontroller";
  * import { XGFLoader, XGFExporter } from "@xeokit/sdk/formats/xgf";
  *
  * const scene = new Scene();
@@ -70,7 +70,7 @@
  * view.camera.look = [1842009.49, 9.68, -5173295.85];
  * view.camera.up = [0.0, 1.0, 0.0];
  *
- * new CameraControl(view, {});
+ * new ViewController(view, {});
  *
  * const sceneModelResult = scene.createModel({ id: "myModel" });
  * const sceneModel = sceneModelResult.model;

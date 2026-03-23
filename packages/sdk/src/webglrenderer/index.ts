@@ -160,7 +160,5 @@ export * from "./WebGLRendererEvents";
 export * from "./MemoryConfigs";
 export * from "./createMemoryConfigs";
 export * from "./MemoryUsage";
-export * from "./PickResult";
-export * from "./PickParams";
 
 export * as internal from "./internal";

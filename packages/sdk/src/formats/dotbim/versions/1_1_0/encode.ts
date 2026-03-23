@@ -96,8 +96,8 @@ export function encode(params: ModelEncodeParams, options?: any): Promise<any> {
       const quaternion = createVec4Float64();
       const scale = createVec3Float64();
       const matrix = coordinateSystemMatrix
-        ? mulMat4(firstMesh.matrix, coordinateSystemMatrix, tempMat4a)
-        : firstMesh.matrix;
+        ? mulMat4(firstMesh.globalMatrix, coordinateSystemMatrix, tempMat4a)
+        : firstMesh.globalMatrix;
       decomposeMat4(matrix, position, quaternion, scale);
       const info: any = {
         id: sceneObject.id,
@@ -125,7 +125,7 @@ export function encode(params: ModelEncodeParams, options?: any): Promise<any> {
           r: color[0],
           g: color[1],
           b: color[2],
-          a: firstMesh.opacity
+          a: firstMesh.globalOpacity
         },
         vector: {
           x: position[0],

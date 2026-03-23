@@ -24,9 +24,9 @@ import type {SceneModel} from "./SceneModel";
  *
  * * Stored in {@link SceneModel.textures | SceneModel.textures}
  * * Created with {@link SceneModel.createTexture | SceneModel.createTexture}
- * * Referenced by {@link SceneTextureSet.colorTexture | SceneTextureSet.colorTexture},
- * {@link SceneTextureSet.metallicRoughnessTexture | SceneTextureSet.metallicRoughnessTexture},
- * {@link SceneTextureSet.occlusionTexture | SceneTextureSet.occlusionTexture} and {@link SceneTextureSet.emissiveTexture | SceneTextureSet.emissiveTexture}
+ * * Referenced by {@link SceneMaterial.colorTexture | SceneMaterial.colorTexture},
+ * {@link SceneMaterial.metallicRoughnessTexture | SceneMaterial.metallicRoughnessTexture},
+ * {@link SceneMaterial.occlusionTexture | SceneMaterial.occlusionTexture} and {@link SceneMaterial.emissiveTexture | SceneMaterial.emissiveTexture}
  *
  * See {@link scene | @xeokit/sdk/scene}   for usage.
  */
@@ -183,7 +183,7 @@ export class SceneTexture {
     if (this.destroyed) {
         return;
     }
-    //  TODO: Null any TextureSet references to this texture
+    //  TODO: Null any Material references to this texture
     this.image = undefined;
     this.imageData = undefined;
     this.buffers = undefined;

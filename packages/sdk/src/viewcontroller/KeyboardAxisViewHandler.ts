@@ -22,7 +22,7 @@ export class KeyboardAxisViewHandler {
   constructor(view: View, controllers: any, configs: any, states: any, updates: any) {
 
     this.#view = view;
-    // const cameraControl = controllers.cameraControl;
+    // const viewController = controllers.viewController;
     // const camera = view.camera;
     //
     // this._onSceneKeyDown = view.input.on("keydown", () => {
@@ -35,12 +35,12 @@ export class KeyboardAxisViewHandler {
     //         return;
     //     }
     //
-    //     const axisViewRight = cameraControl._isKeyDownForAction(cameraControl.AXIS_VIEW_RIGHT);
-    //     const axisViewBack = cameraControl._isKeyDownForAction(cameraControl.AXIS_VIEW_BACK);
-    //     const axisViewLeft = cameraControl._isKeyDownForAction(cameraControl.AXIS_VIEW_LEFT);
-    //     const axisViewFront = cameraControl._isKeyDownForAction(cameraControl.AXIS_VIEW_FRONT);
-    //     const axisViewTop = cameraControl._isKeyDownForAction(cameraControl.AXIS_VIEW_TOP);
-    //     const axisViewBottom = cameraControl._isKeyDownForAction(cameraControl.AXIS_VIEW_BOTTOM);
+    //     const axisViewRight = viewController._isKeyDownForAction(viewController.AXIS_VIEW_RIGHT);
+    //     const axisViewBack = viewController._isKeyDownForAction(viewController.AXIS_VIEW_BACK);
+    //     const axisViewLeft = viewController._isKeyDownForAction(viewController.AXIS_VIEW_LEFT);
+    //     const axisViewFront = viewController._isKeyDownForAction(viewController.AXIS_VIEW_FRONT);
+    //     const axisViewTop = viewController._isKeyDownForAction(viewController.AXIS_VIEW_TOP);
+    //     const axisViewBottom = viewController._isKeyDownForAction(viewController.AXIS_VIEW_BOTTOM);
     //
     //     if ((!axisViewRight) && (!axisViewBack) && (!axisViewLeft) && (!axisViewFront) && (!axisViewTop) && (!axisViewBottom)) {
     //         return;

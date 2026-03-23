@@ -4,7 +4,7 @@
  *
  * @internal
  */
-export class RendererTextureSet  {
+export class RendererMaterial  {
 
   public readonly id: string;
   // public readonly colorRendererTexture: SceneTextureRendererProxy;

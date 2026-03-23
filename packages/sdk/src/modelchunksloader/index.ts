@@ -62,7 +62,7 @@
  * import {SDKInternalException} from "@xeokit/sdk/core";
  * import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";
  * import {Viewer} from "@xeokit/sdk/viewer";
- * import {CameraControl} from "@xeokit/sdk/cameracontrol";
+ * import {ViewController} from "@xeokit/sdk/viewcontroller";
  *
  * // Initialize scene, data, and viewer
  * const scene = new Scene();
@@ -84,7 +84,7 @@
  * view.camera.eye = [0, 0, -100];
  * view.camera.look = [0, 0, 0];
  * view.camera.up = [0, 1, 0];
- * new CameraControl(view, {});
+ * new ViewController(view, {});
  *
  * // Create SceneModel and DataModel
  * const sceneModelResult = scene.createModel({ id: "myModel" });

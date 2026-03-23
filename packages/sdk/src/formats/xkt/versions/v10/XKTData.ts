@@ -16,7 +16,7 @@ export interface XKTData {
   uvs: Float32Array<any>;
   indices: Uint32Array<any>;
   edgeIndices: Uint32Array<any>;
-  eachTextureSetTextures: Int32Array<any>;
+  eachMaterialTextures: Int32Array<any>;
   matrices: Float32Array<any>;
   reusedGeometriesDecodeMatrix: Float32Array<any>;
   eachGeometryPrimitiveType: Uint8Array<any>;
@@ -28,7 +28,7 @@ export interface XKTData {
   eachGeometryEdgeIndicesPortion: Uint32Array<any>;
   eachMeshGeometriesPortion: Uint32Array<any>;
   eachMeshMatricesPortion: Uint32Array<any>;
-  eachMeshTextureSet: Int32Array<any>;
+  eachMeshMaterial: Int32Array<any>;
   eachMeshMaterialAttributes: Uint8Array<any>;
   eachEntityId: string[];
   eachEntityMeshesPortion: Uint32Array<any>;

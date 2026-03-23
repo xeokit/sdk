@@ -25,18 +25,18 @@
  *     SceneModel "1" *-- "1" CoordinateSystem : coordinateSystem
  *     SceneObject "1" o-- "*" SceneMesh : meshes
  *     SceneMesh "1" o-- "1" SceneGeometry : geometry
- *     SceneMesh "1" o-- "1" SceneTextureSet : textureSet
+ *     SceneMesh "1" o-- "1" SceneMaterial : material
  *     SceneMesh "1" o-- "1" SceneTransform : parentTransform
  *     SceneTransform "1" o-- "1" SceneTransform : parentTransform
- *     SceneTextureSet "1" o-- "1" SceneTexture : colorTexture
- *     SceneTextureSet "1" o-- "1" SceneTexture : metallicRoughnessTexture
- *     SceneTextureSet "1" o-- "1" SceneTexture : occlusionTexture
- *     SceneTextureSet "1" o-- "1" SceneTexture : emissiveTexture
+ *     SceneMaterial "1" o-- "1" SceneTexture : colorTexture
+ *     SceneMaterial "1" o-- "1" SceneTexture : metallicRoughnessTexture
+ *     SceneMaterial "1" o-- "1" SceneTexture : occlusionTexture
+ *     SceneMaterial "1" o-- "1" SceneTexture : emissiveTexture
  *     Scene:createModel()
  *     SceneModel:createObject()
  *     SceneModel:createGeometry()
  *     SceneModel:createTexture()
- *     SceneModel:createTextureSet()
+ *     SceneModel:createMaterial()
  *     SceneModel:createMesh()
  *     SceneModel:createTransform()
  *     SceneModel:fromParams()
@@ -61,9 +61,9 @@
  *     SceneModel:meshes
  *     SceneModel:geometries
  *     SceneModel:textures
- *     SceneModel:textureSets
+ *     SceneModel:materials
  *     SceneMesh:geometry
- *     SceneMesh:textureSet
+ *     SceneMesh:material
  *     SceneObject:meshes
  *     SceneMesh:color
  *     SceneMesh:opacity
@@ -78,7 +78,7 @@
  *     Scene "1" *-- "*" SceneObject : objects
  *     SceneModel "1" *-- "*" SceneGeometry : geometries
  *     SceneModel "1" *-- "*" SceneTexture : textures
- *     SceneModel "1" *-- "*" SceneTextureSet : textureSets
+ *     SceneModel "1" *-- "*" SceneMaterial : materials
  *     SceneModel "1" *-- "*" SceneMesh : meshes
  * ```
  *
@@ -91,7 +91,7 @@
  *   - {@link SceneTransform | SceneTransforms} (hierarchical transforms),
  *   - {@link SceneMesh | SceneMeshes} (renderable instances),
  *   - {@link SceneGeometry | SceneGeometries} (shared vertex/index buffers),
- *   - {@link SceneTexture | SceneTextures} and {@link SceneTextureSet | SceneTextureSets}.
+ *   - {@link SceneTexture | SceneTextures} and {@link SceneMaterial | SceneMaterials}.
  *
  * ### Building, Importing and Exporting
  *
@@ -173,7 +173,7 @@
  *
  * import { Viewer } from "@xeokit/sdk/viewer";
  * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
- * import { CameraControl } from "@xeokit/sdk/cameracontrol";
+ * import { ViewController } from "@xeokit/sdk/viewcontroller";
  * ```
  *
  * <br>
@@ -239,7 +239,7 @@
  *
  * - {@link webglrenderer!WebGLRenderer | WebGLRenderer} (WebGL rendering)
  * - {@link viewer!View | View} (a canvas target)
- * - {@link cameracontrol!CameraControl | CameraControl} (mouse/touch navigation)
+ * - {@link viewcontroller!ViewController | ViewController} (mouse/touch navigation)
  *
  * ```javascript
  * const viewer = new Viewer({ scene });
@@ -262,7 +262,7 @@
  * view.camera.look = [0, 0, 0];
  * view.camera.up   = [0, 1, 0];
  *
- * const cameraControl = new CameraControl(view);
+ * const viewController = new ViewController(view);
  * ```
  *
  * <br>
@@ -272,7 +272,7 @@
  * Next we create a {@link SceneModel} and populate it with:
  *
  * - one {@link SceneGeometry} (a box),
- * - one {@link SceneTexture} + {@link SceneTextureSet},
+ * - one {@link SceneTexture} + {@link SceneMaterial},
  * - five {@link SceneMesh | SceneMeshes} (legs + tabletop),
  * - five {@link SceneObject | SceneObjects} (logical parts referencing meshes).
  *
@@ -346,13 +346,13 @@
  *   // ..handle error
  * }
  *
- * const textureSetResult = sceneModel.createTextureSet({
- *   id: "theTextureSet",
+ * const materialResult = sceneModel.createMaterial({
+ *   id: "theMaterial",
  *   colorTextureId: "colorTexture"
  * });
  *
- * if (!textureSetResult.ok) {
- *   console.error(textureSetResult.error);
+ * if (!materialResult.ok) {
+ *   console.error(materialResult.error);
  *   // ..handle error
  * }
  *
@@ -364,7 +364,7 @@
  *   scale: [1, 3, 1],
  *   rotation: [0, 0, 0],
  *   color: [1, 0.3, 0.3],
- *   textureSetId: "theTextureSet"
+ *   materialId: "theMaterial"
  * });
  *
  * sceneModel.addMesh({
@@ -374,7 +374,7 @@
  *   scale: [1, 3, 1],
  *   rotation: [0, 0, 0],
  *   color: [0.3, 1.0, 0.3],
- *   textureSetId: "theTextureSet"
+ *   materialId: "theMaterial"
  * });
  *
  * sceneModel.addMesh({
@@ -384,7 +384,7 @@
  *   scale: [1, 3, 1],
  *   rotation: [0, 0, 0],
  *   color: [0.3, 0.3, 1.0],
- *   textureSetId: "theTextureSet"
+ *   materialId: "theMaterial"
  * });
  *
  * sceneModel.addMesh({
@@ -394,7 +394,7 @@
  *   scale: [1, 3, 1],
  *   rotation: [0, 0, 0],
  *   color: [1.0, 1.0, 0.0],
- *   textureSetId: "theTextureSet"
+ *   materialId: "theMaterial"
  * });
  *
  * sceneModel.addMesh({
@@ -404,7 +404,7 @@
  *   scale: [6, 0.5, 6],
  *   rotation: [0, 0, 0],
  *   color: [1.0, 0.3, 1.0],
- *   textureSetId: "theTextureSet"
+ *   materialId: "theMaterial"
  * });
  *
  * // 4) Create objects (logical entities). Each SceneObject references one or more meshes.
@@ -428,7 +428,7 @@
  * const theSceneModel = scene.models["theModel"];
  *
  * const colorTexture  = theSceneModel.textures["colorTexture"];
- * const textureSet    = theSceneModel.textureSets["theTextureSet"];
+ * const material    = theSceneModel.materials["theMaterial"];
  * const boxGeometry   = theSceneModel.geometries["boxGeometry"];
  *
  * const tableTopMesh  = theSceneModel.meshes["tableTopMesh"];
@@ -633,18 +633,19 @@ export * from "./SceneModelParams";
 export * from "./SceneModelStats";
 export * from "./SceneObject";
 export * from "./SceneTexture";
-export * from "./SceneTextureSet";
+export * from "./SceneMaterial";
 export * from "./SceneGeometry";
 export * from "./SceneMesh";
 
 export * from "./CoordinateSystem";
 export * from "./CoordinateSystemParams";
 export * from "./createCoordinateSystemTransform";
+export * from "./getMeshWorldMatrix";
 
 export * from "./SceneMeshParams";
 export * from "./SceneObjectParams";
 export * from "./SceneTextureParams";
-export * from "./SceneTextureSetParams";
+export * from "./SceneMaterialParams";
 export * from "./SceneTransform";
 export * from "./SceneTransformParams";
 export * from "./SceneGeometryCompressedParams";

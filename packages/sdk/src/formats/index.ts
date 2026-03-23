@@ -74,6 +74,8 @@ export * as dotbim from "./dotbim";
 export * as scenemodel from "./scenemodel";
 export * as datamodel from "./datamodel";
 export * as metamodel from "./metamodel";
+export * as obj from "./obj";
+export * as mtl from "./mtl";
 
 export * from "./ModelEncodeParams";
 export * from "./ModelEncoder";
@@ -86,3 +88,4 @@ export * from "./ModelLoadOptions";
 export * from "./ModelLoadParams";
 export * from "./ModelParseParams";
 export * from "./ModelParser";
+export {ModelExportOptions} from "./ModelExportOptions";

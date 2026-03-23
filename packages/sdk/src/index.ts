@@ -38,7 +38,7 @@ export * as modelchunksloader from "./modelchunksloader";
 
 export * as viewer from "./viewer";
 export * as webglrenderer from "./webglrenderer";
-export * as cameracontrol from "./cameracontrol";
+export * as viewcontroller from "./viewcontroller";
 export * as cameraflight from "./cameraflight";
 export * as bcf from "./bcf";
 export * as ifc2gltf2xgf from "./ifc2gltf2xgf";

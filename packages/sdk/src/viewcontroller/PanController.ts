@@ -105,7 +105,7 @@ class PanController {
     return dolliedThroughSurface;
   }
 
-  _unproject(canvasPos: Vec2, worldPos: Vec3) {
+  _unproject(canvasPos: Vec2, worldPos: Vec3):Vec3 {
 
     const camera = this.#view.camera;
     const transposedProjectMat = camera.projection.transposedProjMatrix;

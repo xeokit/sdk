@@ -97,7 +97,7 @@ class PivotController {
     });
 
     this._updateTask = new SDKTask({
-      name: "CameraControl->PivotController._updateTask",
+      name: "ViewController->PivotController._updateTask",
       stage: SDKTask.CollectInputStage,
       repeat: true, // TODO: make this event-driven instead of repeating every frame?
       task: () => {

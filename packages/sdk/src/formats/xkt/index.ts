@@ -34,7 +34,7 @@
  * a {@link webglrenderer!WebGLRenderer | WebGLRenderer}  and a {@link scene!Scene | Scene}, which holds model geometry and materials.
  *
  * On our Viewer, we will create a single {@link viewer!View | View} to render it to a canvas element on the page. We will
- * also show a {@link cameracontrol!CameraControl | CameraControl} to our View, allowing us to control its camera with mouse and touch input.
+ * also show a {@link viewcontroller!ViewController | ViewController} to our View, allowing us to control its camera with mouse and touch input.
  *
  * Within the Scene, we will create a {@link scene!SceneModel | SceneModel} to hold a model. We will then use
  * {@link xkt!XKTLoader | XKTLoader} to load
@@ -49,7 +49,7 @@
  * import {Scene} from "@xeokit/scene";
  * import {WebGLRenderer} from "@xeokit/webglrenderer";
  * import {Viewer} from "@xeokit/viewer";
- * import {CameraControl} from "@xeokit/cameracontrol";
+ * import {ViewController} from "@xeokit/viewcontroller";
  * import {XKTLoader} from "@xeokit/xkt";
  *
  * const scene = new Scene();
@@ -80,7 +80,7 @@
  *     view.camera.look = [1842009.49, 9.68, -5173295.85];
  *     view.camera.up = [0.0, 1.0, 0.0];
  *
- *     new CameraControl(view, {});
+ *     new ViewController(view, {});
  *
  *     const sceneModelResult = scene.createModel({
  *         id: "myModel"

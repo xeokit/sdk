@@ -3,6 +3,8 @@ import {FloatingPanelFlowHost} from "./FloatingPanelFlowHost";
 import {Scene, type SceneModelParams} from "../../scene";
 import {XGFExporter} from "../../formats/xgf";
 import {DotBIMExporter} from "../../formats/dotbim";
+import {OBJExporter} from "../../formats/obj";
+import {MTLExporter} from "../../formats/mtl";
 
 function downloadIconDataUri(): string {
   const svg = `
@@ -183,6 +185,11 @@ export class DownloadPanel {
         onClick: () => this.#downloadDotBIM(),
       }),
       this.#renderDownloadButton({
+        label: "Download OBJ + MTL",
+        hint: ".obj + .mtl",
+        onClick: () => this.#downloadOBJ(),
+      }),
+      this.#renderDownloadButton({
         label: "Download SceneModel JSON",
         hint: ".json",
         onClick: () => this.#downloadSceneModelJson(),
@@ -252,6 +259,16 @@ export class DownloadPanel {
     (new XGFExporter()).write({
       sceneModel: Object.values(this.#scene.models)[0],
       dataModel: Object.values(this.#data.models)[0]
+    },{
+      coordinateSystem: {
+        basis: [
+          1, 0, 0, // Right
+          0, 0, 1, // Up
+          0, 1, 0 // Forward
+        ],
+        origin: [0, 0, 0],
+        units: "meters"
+      }
     }).then(fileData => {
       downloadBlob(fileData, "model.xgf", "application/octet-stream");
     })
@@ -264,8 +281,48 @@ export class DownloadPanel {
     (new DotBIMExporter()).write({
       sceneModel: Object.values(this.#scene.models)[0],
       dataModel: Object.values(this.#data.models)[0]
+    }, {
+      coordinateSystem: {
+        basis: [
+          1, 0, 0, // Right
+          0, 0, 1, // Up
+          0, 1, 0 // Forward
+        ],
+        origin: [0, 0, 0],
+        units: "meters"
+      }
     }).then(fileData => {
       downloadText(JSON.stringify(fileData, null, 2), "model.bim", "application/json");
+    })
+      .catch(e => {
+        console.error(e);
+      });
+  }
+
+  #downloadOBJ() {
+    (new OBJExporter()).write({
+      sceneModel: Object.values(this.#scene.models)[0]
+    }, {
+      coordinateSystem: {
+        basis: [
+          1, 0, 0, // Right
+          0, 0, 1, // Up
+          0, 1, 0 // Forward
+        ],
+        origin: [0, 0, 0],
+        units: "meters"
+      }
+    }).then(fileData => {
+      downloadText(fileData, "model.obj", "application/text");
+    })
+      .catch(e => {
+        console.error(e);
+      });
+
+    (new MTLExporter()).write({
+      sceneModel: Object.values(this.#scene.models)[0]
+    }).then(fileData => {
+      downloadText(fileData, "model.mtl", "application/text");
     })
       .catch(e => {
         console.error(e);

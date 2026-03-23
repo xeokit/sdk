@@ -72,7 +72,7 @@ export function xktToModel(params: {
   const uvs = xktData.uvs;
   const indices = xktData.indices;
   const edgeIndices = xktData.edgeIndices;
-  const eachTextureSetTextures = xktData.eachTextureSetTextures;
+  const eachMaterialTextures = xktData.eachMaterialTextures;
   const matrices = xktData.matrices;
   const reusedGeometriesDecodeMatrix = xktData.reusedGeometriesDecodeMatrix;
   const eachGeometryPrimitiveType = xktData.eachGeometryPrimitiveType;
@@ -84,7 +84,7 @@ export function xktToModel(params: {
   const eachGeometryEdgeIndicesPortion = xktData.eachGeometryEdgeIndicesPortion;
   const eachMeshGeometriesPortion = xktData.eachMeshGeometriesPortion;
   const eachMeshMatricesPortion = xktData.eachMeshMatricesPortion;
-  const eachMeshTextureSet = xktData.eachMeshTextureSet;
+  const eachMeshMaterial = xktData.eachMeshMaterial;
   const eachMeshMaterialAttributes = xktData.eachMeshMaterialAttributes;
   const eachEntityId = xktData.eachEntityId;
   const eachEntityMeshesPortion = xktData.eachEntityMeshesPortion;
@@ -92,7 +92,7 @@ export function xktToModel(params: {
   const eachTileEntitiesPortion = xktData.eachTileEntitiesPortion;
 
   const numTextures = eachTextureDataPortion.length;
-  const numTextureSets = eachTextureSetTextures.length / 5;
+  const numMaterials = eachMaterialTextures.length / 5;
   const numGeometries = eachGeometryPositionsPortion.length;
   const numMeshes = eachMeshGeometriesPortion.length;
   const numEntities = eachEntityMeshesPortion.length;
@@ -171,16 +171,16 @@ export function xktToModel(params: {
 
   // Create texture sets
 
-  for (let textureSetIndex = 0; textureSetIndex < numTextureSets; textureSetIndex++) {
-    const eachTextureSetTexturesIndex = textureSetIndex * 5;
-    const textureSetId = `${modelPartId}-textureSet-${textureSetIndex}`;
-    const colorTextureIndex = eachTextureSetTextures[eachTextureSetTexturesIndex + 0];
-    const metallicRoughnessTextureIndex = eachTextureSetTextures[eachTextureSetTexturesIndex + 1];
-    const normalsTextureIndex = eachTextureSetTextures[eachTextureSetTexturesIndex + 2];
-    const emissiveTextureIndex = eachTextureSetTextures[eachTextureSetTexturesIndex + 3];
-    const occlusionTextureIndex = eachTextureSetTextures[eachTextureSetTexturesIndex + 4];
-    sceneModel.createTextureSet({
-      id: textureSetId,
+  for (let materialIndex = 0; materialIndex < numMaterials; materialIndex++) {
+    const eachMaterialTexturesIndex = materialIndex * 5;
+    const materialId = `${modelPartId}-material-${materialIndex}`;
+    const colorTextureIndex = eachMaterialTextures[eachMaterialTexturesIndex + 0];
+    const metallicRoughnessTextureIndex = eachMaterialTextures[eachMaterialTexturesIndex + 1];
+    const normalsTextureIndex = eachMaterialTextures[eachMaterialTexturesIndex + 2];
+    const emissiveTextureIndex = eachMaterialTextures[eachMaterialTexturesIndex + 3];
+    const occlusionTextureIndex = eachMaterialTextures[eachMaterialTexturesIndex + 4];
+    sceneModel.createMaterial({
+      id: materialId,
       colorTextureId: colorTextureIndex >= 0 ? `${modelPartId}-texture-${colorTextureIndex}` : null,
       normalsTextureId: normalsTextureIndex >= 0 ? `${modelPartId}-texture-${normalsTextureIndex}` : null,
       metallicRoughnessTextureId: metallicRoughnessTextureIndex >= 0 ? `${modelPartId}-texture-${metallicRoughnessTextureIndex}` : null,
@@ -258,9 +258,9 @@ export function xktToModel(params: {
 
         const atLastGeometry = (geometryIndex === (numGeometries - 1));
 
-        const textureSetIndex = eachMeshTextureSet[meshIndex];
+        const materialIndex = eachMeshMaterial[meshIndex];
 
-        const textureSetId = (textureSetIndex >= 0) ? `${modelPartId}-textureSet-${textureSetIndex}` : null;
+        const materialId = (materialIndex >= 0) ? `${modelPartId}-material-${materialIndex}` : null;
 
         const meshColor = <Vec3>decompressColor(eachMeshMaterialAttributes.subarray((meshIndex * 6), (meshIndex * 6) + 3));
         const meshOpacity = eachMeshMaterialAttributes[(meshIndex * 6) + 3] / 255.0;
@@ -357,7 +357,7 @@ export function xktToModel(params: {
             sceneModel.createMesh({
               id: meshId,
               geometryId,
-              textureSetId,
+              materialId,
               matrix: meshMatrix,
               color: meshColor,
               opacity: meshOpacity,
@@ -447,7 +447,7 @@ export function xktToModel(params: {
             sceneModel.createMesh({
               id: meshId,
               geometryId,
-              textureSetId,
+              materialId,
               //   origin: tileCenter,
               origin: [tileCenter[0], tileCenter[1] + i++ * 10, tileCenter[2]],
               color: meshColor,

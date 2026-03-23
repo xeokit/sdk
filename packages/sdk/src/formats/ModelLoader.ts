@@ -78,6 +78,9 @@ export class ModelLoader {
         return reject(`[${className}.load] Argument expected: params`);
       }
       const {filePath, fileData, sceneModel, dataModel} = params;
+      if (!sceneModel && !dataModel) {
+        return reject(`[${className}.load] Argument expected: sceneModel or dataModel`);
+      }
       if (sceneModel) {
         if (sceneModel.destroyed) {
           return reject(`[${className}.load] SceneModel already destroyed`);

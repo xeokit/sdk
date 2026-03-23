@@ -33,7 +33,7 @@
  *
  * This example demonstrates how to:
  * - Set up a {@link viewer!Viewer | Viewer}, {@link scene!Scene | Scene}, and {@link webglrenderer!WebGLRenderer | WebGLRenderer}
- * - Attach a {@link cameracontrol!CameraControl | CameraControl} for interaction
+ * - Attach a {@link viewcontroller!ViewController | ViewController} for interaction
  * - Load a LAS model using {@link LASLoader}
  * - Handle loading and error scenarios
  *
@@ -43,7 +43,7 @@
  * import { Data } from "@xeokit/sdk/data";
  * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
  * import { Viewer } from "@xeokit/sdk/viewer";
- * import { CameraControl } from "@xeokit/sdk/cameracontrol";
+ * import { ViewController } from "@xeokit/sdk/viewcontroller";
  * import { LASLoader } from "@xeokit/sdk/formats/las";
  *
  * const scene = new Scene();
@@ -68,7 +68,7 @@
  * view.camera.look = [1842009.49, 9.68, -5173295.85];
  * view.camera.up = [0.0, 1.0, 0.0];
  *
- * new CameraControl(view, {});
+ * new ViewController(view, {});
  *
  * const sceneModelResult = scene.createModel({ id: "myModel" });
  * const sceneModel = sceneModelResult.value;

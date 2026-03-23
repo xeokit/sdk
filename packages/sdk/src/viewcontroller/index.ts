@@ -9,7 +9,7 @@
  *
  * # Overview
  *
- * The {@link cameracontrol!CameraControl | CameraControl} class provides an interactive way to navigate a
+ * The {@link viewcontroller!ViewController | ViewController} class provides an interactive way to navigate a
  * {@link viewer!View | View's} {@link viewer!Camera | Camera} through various input methods, including mouse, touch, and keyboard.
  *
  * This controller supports multiple navigation modes: orbit, first-person, and plan-view. These modes allow
@@ -35,7 +35,7 @@
  * # Usage
  *
  * This example demonstrates how to set up a {@link viewer!Viewer | Viewer} with a {@link webglrenderer!WebGLRenderer | WebGLRenderer},
- * a {@link scene!Scene | Scene} to manage geometry and materials, and an interactive camera controlled via CameraControl.
+ * a {@link scene!Scene | Scene} to manage geometry and materials, and an interactive camera controlled via ViewController.
  *
  * ```javascript
  * import {SDKInternalException} from "@xeokit/sdk/core";
@@ -43,7 +43,7 @@
  * import {OrbitNavigationMode, FirstPersonNavigationMode, PlanViewNavigationMode, QWERTYLayout} from "@xeokit/sdk/constants";
  * import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";
  * import {Viewer} from "@xeokit/sdk/viewer";
- * import {CameraControl, KEY_A, KEY_D, KEY_W, KEY_S} from "@xeokit/sdk/cameracontrol";
+ * import {ViewController, KEY_A, KEY_D, KEY_W, KEY_S} from "@xeokit/sdk/viewcontroller";
  * import {CityJSONLoader} from "@xeokit/sdk/formats/cityjson";
  *
  * // Create a Scene to manage geometry and materials
@@ -72,8 +72,8 @@
  * view.camera.look = [1842009.49, 9.68, -5173295.85];
  * view.camera.up = [0.0, 1.0, 0.0];
  *
- * // Attach CameraControl for interactive navigation
- * new CameraControl(view, {});
+ * // Attach ViewController for interactive navigation
+ * new ViewController(view, {});
  *
  * // Load a CityJSON model into the Scene
  * const sceneModelResult = scene.createModel({ id: "myModel" });
@@ -91,7 +91,7 @@
  *
  * # Navigation Modes
  *
- * CameraControl provides three main navigation modes:
+ * ViewController provides three main navigation modes:
  *
  * - **Orbit Mode**: Enables the camera to orbit around a target point.
  * - **First-Person Mode**: Allows free movement as if walking through the scene.
@@ -103,7 +103,7 @@
  * To activate orbit mode:
  *
  * ```javascript
- * cameraControl.navMode = OrbitNavigationMode;
+ * viewController.navMode = OrbitNavigationMode;
  * ```
  *
  * - **Orbit**: Left-drag the mouse, tap-drag on a touchpad, or use arrow keys.
@@ -116,7 +116,7 @@
  * Enables camera movement similar to a first-person video game.
  *
  * ```javascript
- * cameraControl.navMode = FirstPersonNavigationMode;
+ * viewController.navMode = FirstPersonNavigationMode;
  * ```
  *
  * - **Rotate**: Left-drag the mouse or use arrow keys.
@@ -129,7 +129,7 @@
  * Keeps the camera locked to a top-down perspective.
  *
  * ```javascript
- * cameraControl.navMode = PlanViewNavigationMode;
+ * viewController.navMode = PlanViewNavigationMode;
  * ```
  *
  * - **Pan**: Drag the mouse or use keyboard keys (`W`, `A`, `S`, `D`).
@@ -137,9 +137,9 @@
  *
  * <br>
  *
- * # CameraControl Events
+ * # ViewController Events
  *
- * `CameraControl` triggers events when interacting with {@link viewer!ViewObject | ViewObjects} using a mouse or touch input.
+ * `ViewController` triggers events when interacting with {@link viewer!ViewObject | ViewObjects} using a mouse or touch input.
  *
  * <br>
  *
@@ -148,7 +148,7 @@
  * To subscribe to an event:
  *
  * ```javascript
- * const onHoverSub = cameraControl.onHover.sub(e => {
+ * const onHoverSub = viewController.onHover.sub(e => {
  *     console.log(e.viewObject, e.canvasPos);
  * });
  * ```
@@ -156,7 +156,7 @@
  * To unsubscribe:
  *
  * ```javascript
- * cameraControl.onHover.unsub(onHoverSub);
+ * viewController.onHover.unsub(onHoverSub);
  * ```
  *
  * <br>
@@ -171,7 +171,7 @@
  * - **`"hoverOut"`** – Fired when the pointer leaves an entity.
  *
  * ```javascript
- * cameraControl.onHoverEnter.sub(e => console.log(e.viewObject, e.canvasPos));
+ * viewController.onHoverEnter.sub(e => console.log(e.viewObject, e.canvasPos));
  * ```
  *
  * ### **Click & Tap Events**
@@ -181,7 +181,7 @@
  * - **`"pickedNothing"`** – Fired on left-click/tap on empty space.
  *
  * ```javascript
- * cameraControl.onPicked.sub(e => console.log(e.entity, e.canvasPos));
+ * viewController.onPicked.sub(e => console.log(e.entity, e.canvasPos));
  * ```
  *
  * ### **Double Click & Tap Events**
@@ -191,7 +191,7 @@
  * - **`"doublePickedNothing"`** – Fired on double-click/tap on empty space.
  *
  * ```javascript
- * cameraControl.onDoublePicked.sub(e => console.log(e.entity, e.canvasPos));
+ * viewController.onDoublePicked.sub(e => console.log(e.entity, e.canvasPos));
  * ```
  *
  * ### **Right Click Event**
@@ -199,7 +199,7 @@
  * - **`"rightClick"`** – Fired on right-click anywhere on the canvas.
  *
  * ```javascript
- * cameraControl.onRightClick.sub(e => console.log(e.event, e.canvasPos));
+ * viewController.onRightClick.sub(e => console.log(e.event, e.canvasPos));
  * ```
  *
  * <br>
@@ -209,7 +209,7 @@
  * The default key mappings can be overridden to fit specific layouts.
  *
  * ```javascript
- * cameraControl.keyMap = QWERTYLayout; // Or set to AZERTYLayout if needed.
+ * viewController.keyMap = QWERTYLayout; // Or set to AZERTYLayout if needed.
  * ```
  *
  * Alternatively, define custom mappings:
@@ -217,30 +217,30 @@
  * ```javascript
  * const keyMap = {};
  *
- * keyMap[cameraControl.PAN_LEFT] = [KEY_A];
- * keyMap[cameraControl.PAN_RIGHT] = [KEY_D];
- * keyMap[cameraControl.PAN_UP] = [KEY_Z];
- * keyMap[cameraControl.PAN_DOWN] = [KEY_X];
- * keyMap[cameraControl.DOLLY_FORWARDS] = [KEY_W, KEY_ADD];
- * keyMap[cameraControl.DOLLY_BACKWARDS] = [KEY_S, KEY_SUBTRACT];
- * keyMap[cameraControl.ROTATE_X_POS] = [KEY_DOWN_ARROW];
- * keyMap[cameraControl.ROTATE_X_NEG] = [KEY_UP_ARROW];
- * keyMap[cameraControl.ROTATE_Y_POS] = [KEY_LEFT_ARROW];
- * keyMap[cameraControl.ROTATE_Y_NEG] = [KEY_RIGHT_ARROW];
- * keyMap[cameraControl.AXIS_VIEW_RIGHT] = [KEY_NUM_1];
- * keyMap[cameraControl.AXIS_VIEW_BACK] = [KEY_NUM_2];
- * keyMap[cameraControl.AXIS_VIEW_LEFT] = [KEY_NUM_3];
- * keyMap[cameraControl.AXIS_VIEW_FRONT] = [KEY_NUM_4];
- * keyMap[cameraControl.AXIS_VIEW_TOP] = [KEY_NUM_5];
- * keyMap[cameraControl.AXIS_VIEW_BOTTOM] = [KEY_NUM_6];
+ * keyMap[viewController.PAN_LEFT] = [KEY_A];
+ * keyMap[viewController.PAN_RIGHT] = [KEY_D];
+ * keyMap[viewController.PAN_UP] = [KEY_Z];
+ * keyMap[viewController.PAN_DOWN] = [KEY_X];
+ * keyMap[viewController.DOLLY_FORWARDS] = [KEY_W, KEY_ADD];
+ * keyMap[viewController.DOLLY_BACKWARDS] = [KEY_S, KEY_SUBTRACT];
+ * keyMap[viewController.ROTATE_X_POS] = [KEY_DOWN_ARROW];
+ * keyMap[viewController.ROTATE_X_NEG] = [KEY_UP_ARROW];
+ * keyMap[viewController.ROTATE_Y_POS] = [KEY_LEFT_ARROW];
+ * keyMap[viewController.ROTATE_Y_NEG] = [KEY_RIGHT_ARROW];
+ * keyMap[viewController.AXIS_VIEW_RIGHT] = [KEY_NUM_1];
+ * keyMap[viewController.AXIS_VIEW_BACK] = [KEY_NUM_2];
+ * keyMap[viewController.AXIS_VIEW_LEFT] = [KEY_NUM_3];
+ * keyMap[viewController.AXIS_VIEW_FRONT] = [KEY_NUM_4];
+ * keyMap[viewController.AXIS_VIEW_TOP] = [KEY_NUM_5];
+ * keyMap[viewController.AXIS_VIEW_BOTTOM] = [KEY_NUM_6];
  *
- * cameraControl.keyMap = keyMap;
+ * viewController.keyMap = keyMap;
  * ```
  *
  * <br>
  *
  * @module cameracontrol
  */
-export * from "./CameraControl";
-export type {CameraControlParams, CameraControlPickFn} from "./CameraControlParams";
+export * from "./ViewController";
+export type {ViewControllerParams, CameraControlPickFn} from "./ViewControllerParams";
 export * from "./keycodes";

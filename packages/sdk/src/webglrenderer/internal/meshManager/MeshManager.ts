@@ -559,7 +559,7 @@ export class MeshManager {
    * Forwards to the corresponding {@link RendererMesh} (if registered).
    */
   public sceneMeshColorChanged(sceneMesh: SceneMesh): void {
-    this._rendererModels[sceneMesh.model.id]?.rendererMeshes[sceneMesh.id]?.setColor(sceneMesh.color);
+    this._rendererModels[sceneMesh.model.id]?.rendererMeshes[sceneMesh.id]?.setColor(sceneMesh.globalColor);
   }
 
   /**
@@ -568,7 +568,7 @@ export class MeshManager {
    * Forwards to the corresponding {@link RendererMesh} (if registered).
    */
   public sceneMeshOpacityChanged(sceneMesh: SceneMesh): void {
-    this._rendererModels[sceneMesh.model.id]?.rendererMeshes[sceneMesh.id]?.setOpacity(sceneMesh.opacity);
+    this._rendererModels[sceneMesh.model.id]?.rendererMeshes[sceneMesh.id]?.setOpacity(sceneMesh.globalOpacity);
   }
 
   /**

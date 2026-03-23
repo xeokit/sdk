@@ -549,12 +549,12 @@ export class GPUMemoryBatch {
     const numViews = this._renderContext.memoryConfigs.maxViews;
 
     const color =  [
-      Math.floor(sceneMesh.color[0] * 255.0),
-      Math.floor(sceneMesh.color[1] * 255.0),
-      Math.floor(sceneMesh.color[2] * 255.0)
+      Math.floor(sceneMesh.globalColor[0] * 255.0),
+      Math.floor(sceneMesh.globalColor[1] * 255.0),
+      Math.floor(sceneMesh.globalColor[2] * 255.0)
     ] as Vec3;
 
-    const opacity = Math.floor(sceneMesh.opacity * 255.0);
+    const opacity = Math.floor(sceneMesh.globalOpacity * 255.0);
 
     for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
       this._meshViewAttributeTexture[viewIndex].setItem(meshIndex, {

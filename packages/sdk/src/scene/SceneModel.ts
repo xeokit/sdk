@@ -15,8 +15,8 @@ import {SceneObject} from "./SceneObject";
 import type {SceneObjectParams} from "./SceneObjectParams";
 import {SceneTexture} from "./SceneTexture";
 import type {SceneTextureParams} from "./SceneTextureParams";
-import {SceneTextureSet} from "./SceneTextureSet";
-import type {SceneTextureSetParams} from "./SceneTextureSetParams";
+import {SceneMaterial} from "./SceneMaterial";
+import type {SceneMaterialParams} from "./SceneMaterialParams";
 import {CoordinateSystem} from "./CoordinateSystem";
 import {createCoordinateSystemTransform} from "./createCoordinateSystemTransform";
 import {SceneTransform} from "./SceneTransform";
@@ -180,11 +180,11 @@ export class SceneModel {
   public readonly textures: { [key: string]: SceneTexture };
 
   /**
-   * {@link SceneTextureSet | TextureSets} within this SceneModel, each mapped to {@link SceneTextureSet.id | SceneTextureSet.id}.
+   * {@link SceneMaterial | Materials} within this SceneModel, each mapped to {@link SceneMaterial.id | SceneMaterial.id}.
    *
-   * - Created by {@link SceneModel.createTextureSet | SceneModel.createTextureSet}.
+   * - Created by {@link SceneModel.createMaterial | SceneModel.createMaterial}.
    */
-  public readonly textureSets: { [key: string]: SceneTextureSet };
+  public readonly materials: { [key: string]: SceneMaterial };
 
   /**
    * {@link SceneMesh | SceneMeshes} within this SceneModel, each mapped to {@link SceneMesh.id | SceneMesh.id}.
@@ -207,7 +207,7 @@ export class SceneModel {
    * Values are updated as content is created/destroyed:
    * - `numTransforms`, `numGeometries`, `numMeshes`, `numObjects`
    * - `numVertices`, `numTriangles`, `numLines`, `numPoints`
-   * - `numTextures`, `numTextureSets`, `textureBytes`
+   * - `numTextures`, `numMaterials`, `textureBytes`
    */
   public readonly stats: SceneModelStats;
 
@@ -252,7 +252,7 @@ export class SceneModel {
     this.transforms = {};
     this.geometries = {};
     this.textures = {};
-    this.textureSets = {};
+    this.materials = {};
     this.meshes = {};
     this.objects = {};
 
@@ -263,7 +263,7 @@ export class SceneModel {
       numMeshes: 0,
       numObjects: 0,
       numPoints: 0,
-      numTextureSets: 0,
+      numMaterials: 0,
       numTextures: 0,
       numTriangles: 0,
       numVertices: 0,
@@ -518,67 +518,67 @@ export class SceneModel {
   }
 
   /**
-   * Creates a new {@link SceneTextureSet} within this SceneModel.
+   * Creates a new {@link SceneMaterial} within this SceneModel.
    *
-   * - Stores the new {@link SceneTextureSet} in {@link SceneModel.textureSets | SceneModel.textureSets}.
-   * - Fires {@link SceneEvents.onSceneTextureSetCreated | SceneEvents.onSceneTextureSetCreated} event.
+   * - Stores the new {@link SceneMaterial} in {@link SceneModel.materials | SceneModel.materials}.
+   * - Fires {@link SceneEvents.onSceneMaterialCreated | SceneEvents.onSceneMaterialCreated} event.
    *
    * ### Usage
    *
    * ````javascript
-   * const textureSetResult = sceneModel.createTextureSet({
-   *      id: "myTextureSet",
+   * const materialResult = sceneModel.createMaterial({
+   *      id: "myMaterial",
    *      colorTextureId: "myColorTexture"
    * });
    *
-   * if (!textureSetResult.ok) {
-   *   console.error(textureSetResult.error);
+   * if (!materialResult.ok) {
+   *   console.error(materialResult.error);
    *   return;
    * } else {
-   * const textureSet = textureSetResult.value;
+   * const material = materialResult.value;
    * }
    *
-   * const textureSetAgain = sceneModel.textureSets["myTextureSet"];
+   * const materialAgain = sceneModel.materials["myMaterial"];
    * ````
    *
    * See {@link scene | @xeokit/sdk/scene}   for more usage info.
    *
-   * @param textureSetParams SceneTextureSet creation parameters.
+   * @param materialParams SceneMaterial creation parameters.
    *
    * @returns SDKResult with:
-   * - On success, the created {@link SceneTextureSet}.
+   * - On success, the created {@link SceneMaterial}.
    * - On failure, an error message. Reasons for failure include:
    *  - SceneModel already destroyed.
-   *  - TextureSet already exists with the given ID.
+   *  - Material already exists with the given ID.
    *  - Referenced texture not found in SceneModel.
    */
-  createTextureSet(textureSetParams: SceneTextureSetParams): SDKResult<SceneTextureSet> {
+  createMaterial(materialParams: SceneMaterialParams): SDKResult<SceneMaterial> {
 
     if (this.destroyed) {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[SceneModel.createTextureSet] Cannot create SceneTextureSet - SceneModel already destroyed"
+        error: "[SceneModel.createMaterial] Cannot create SceneMaterial - SceneModel already destroyed"
       });
     }
 
-    if (this.textureSets[textureSetParams.id]) {
+    if (this.materials[materialParams.id]) {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `[SceneModel.createTextureSet] TextureSet already exists with this ID: '${textureSetParams.id}'`
+        error: `[SceneModel.createMaterial] Material already exists with this ID: '${materialParams.id}'`
       });
     }
 
     let colorTexture: SceneTexture | undefined;
-    if (textureSetParams.colorTextureId !== undefined && textureSetParams.colorTextureId !== null) {
-      colorTexture = this.textures[textureSetParams.colorTextureId];
+    if (materialParams.colorTextureId !== undefined && materialParams.colorTextureId !== null) {
+      colorTexture = this.textures[materialParams.colorTextureId];
       if (!colorTexture) {
         return this.scene.logError({
           ok: false,
           type: SDKErrorType.InvalidInput,
           error:
-            `[SceneModel.createTextureSet] Texture not found: '${textureSetParams.colorTextureId}' - ` +
+            `[SceneModel.createMaterial] Texture not found: '${materialParams.colorTextureId}' - ` +
             "ensure that you create it first with createTexture()"
         });
       }
@@ -586,14 +586,14 @@ export class SceneModel {
     }
 
     let metallicRoughnessTexture: SceneTexture | undefined;
-    if (textureSetParams.metallicRoughnessTextureId !== undefined && textureSetParams.metallicRoughnessTextureId !== null) {
-      metallicRoughnessTexture = this.textures[textureSetParams.metallicRoughnessTextureId];
+    if (materialParams.metallicRoughnessTextureId !== undefined && materialParams.metallicRoughnessTextureId !== null) {
+      metallicRoughnessTexture = this.textures[materialParams.metallicRoughnessTextureId];
       if (!metallicRoughnessTexture) {
         return this.scene.logError({
           ok: false,
           type: SDKErrorType.InvalidInput,
           error:
-            `[SceneModel.createTextureSet] Texture not found: '${textureSetParams.metallicRoughnessTextureId}' - ` +
+            `[SceneModel.createMaterial] Texture not found: '${materialParams.metallicRoughnessTextureId}' - ` +
             "ensure that you create it first with createTexture()"
         });
       }
@@ -601,14 +601,14 @@ export class SceneModel {
     }
 
     let normalsTexture: SceneTexture | undefined;
-    if (textureSetParams.normalsTextureId !== undefined && textureSetParams.normalsTextureId !== null) {
-      normalsTexture = this.textures[textureSetParams.normalsTextureId];
+    if (materialParams.normalsTextureId !== undefined && materialParams.normalsTextureId !== null) {
+      normalsTexture = this.textures[materialParams.normalsTextureId];
       if (!normalsTexture) {
         return this.scene.logError({
           ok: false,
           type: SDKErrorType.InvalidInput,
           error:
-            `[SceneModel.createTextureSet] Texture not found: '${textureSetParams.normalsTextureId}' - ` +
+            `[SceneModel.createMaterial] Texture not found: '${materialParams.normalsTextureId}' - ` +
             "ensure that you create it first with createTexture()"
         });
       }
@@ -616,14 +616,14 @@ export class SceneModel {
     }
 
     let emissiveTexture: SceneTexture | undefined;
-    if (textureSetParams.emissiveTextureId !== undefined && textureSetParams.emissiveTextureId !== null) {
-      emissiveTexture = this.textures[textureSetParams.emissiveTextureId];
+    if (materialParams.emissiveTextureId !== undefined && materialParams.emissiveTextureId !== null) {
+      emissiveTexture = this.textures[materialParams.emissiveTextureId];
       if (!emissiveTexture) {
         return this.scene.logError({
           ok: false,
           type: SDKErrorType.InvalidInput,
           error:
-            `[SceneModel.createTextureSet] Texture not found: '${textureSetParams.emissiveTextureId}' - ` +
+            `[SceneModel.createMaterial] Texture not found: '${materialParams.emissiveTextureId}' - ` +
             "ensure that you create it first with createTexture()"
         });
       }
@@ -631,54 +631,54 @@ export class SceneModel {
     }
 
     let occlusionTexture: SceneTexture | undefined;
-    if (textureSetParams.occlusionTextureId !== undefined && textureSetParams.occlusionTextureId !== null) {
-      occlusionTexture = this.textures[textureSetParams.occlusionTextureId];
+    if (materialParams.occlusionTextureId !== undefined && materialParams.occlusionTextureId !== null) {
+      occlusionTexture = this.textures[materialParams.occlusionTextureId];
       if (!occlusionTexture) {
         return this.scene.logError({
           ok: false,
           type: SDKErrorType.InvalidInput,
           error:
-            `[SceneModel.createTextureSet] Texture not found: '${textureSetParams.occlusionTextureId}' - ` +
+            `[SceneModel.createMaterial] Texture not found: '${materialParams.occlusionTextureId}' - ` +
             "ensure that you create it first with createTexture()"
         });
       }
       occlusionTexture.channel = OCCLUSION_TEXTURE;
     }
 
-    const textureSet = new SceneTextureSet(this, textureSetParams, {
+    const material = new SceneMaterial(this, materialParams, {
       emissiveTexture,
       occlusionTexture,
       metallicRoughnessTexture,
       colorTexture
     });
 
-    this.textureSets[textureSetParams.id] = textureSet;
-    this.stats.numTextureSets++;
-    this.scene.events.onSceneTextureSetCreated.dispatch(this.scene, textureSet);
+    this.materials[materialParams.id] = material;
+    this.stats.numMaterials++;
+    this.scene.events.onSceneMaterialCreated.dispatch(this.scene, material);
 
     return {
       ok: true,
-      value: textureSet
+      value: material
     };
   }
 
 
   /**
-   * Called by a {@link SceneTextureSet} when it is destroyed.
+   * Called by a {@link SceneMaterial} when it is destroyed.
    * @private
-   * @param sceneTextureSet
+   * @param sceneMaterial
    */
-  _destroyTextureSet(sceneTextureSet: SceneTextureSet) {
-    const textureSetId = sceneTextureSet.id;
+  _destroyMaterial(sceneMaterial: SceneMaterial) {
+    const materialId = sceneMaterial.id;
     if (this.destroyed) {
-      throw new SDKInternalException(`Cannot destroy SceneTextureSet '${textureSetId}' - SceneModel already destroyed`);
+      throw new SDKInternalException(`Cannot destroy SceneMaterial '${materialId}' - SceneModel already destroyed`);
     }
-    if (!this.textureSets[textureSetId]) {
-      throw new SDKInternalException(`Cannot destroy SceneTextureSet '${textureSetId}' - SceneTextureSet not found in SceneModel`);
+    if (!this.materials[materialId]) {
+      throw new SDKInternalException(`Cannot destroy SceneMaterial '${materialId}' - SceneMaterial not found in SceneModel`);
     }
-    delete this.textureSets[textureSetId];
-    this.stats.numTextureSets--;
-    this.scene.events.onSceneTextureSetDestroyed.dispatch(this.scene, sceneTextureSet);
+    delete this.materials[materialId];
+    this.stats.numMaterials--;
+    this.scene.events.onSceneMaterialDestroyed.dispatch(this.scene, sceneMaterial);
   }
 
   /**
@@ -1115,7 +1115,7 @@ export class SceneModel {
    * const redBoxMeshResult = sceneModel.createLayerMesh({
    *      id: "redBoxMesh",
    *      geometryId: "boxGeometry",
-   *      textureSetId: "myTextureSet",
+   *      materialId: "myMaterial",
    *      position: [-4, -6, -4],
    *      scale: [1, 3, 1],
    *      rotation: [0, 0, 0],
@@ -1141,7 +1141,7 @@ export class SceneModel {
    *   - A {@link SceneMesh} with the given ID already exists in this SceneModel.
    *   - The specified parent {@link SceneTransform} was not found.
    *   - The specified {@link SceneGeometry} was not found.
-   *   - The specified {@link SceneTextureSet} was not found.
+   *   - The specified {@link SceneMaterial} was not found.
    */
   createMesh(meshParams: SceneMeshParams): SDKResult<SceneMesh> {
 
@@ -1149,7 +1149,7 @@ export class SceneModel {
       id,
       geometryId,
       parentTransformId,
-      textureSetId,
+      materialId,
       matrix,
       position,
       scale,
@@ -1196,12 +1196,12 @@ export class SceneModel {
       });
     }
 
-    const textureSet = textureSetId ? this.textureSets[textureSetId] : undefined;
-    if (textureSetId && !textureSet) {
+    const material = materialId ? this.materials[materialId] : undefined;
+    if (materialId && !material) {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `[SceneModel.createMesh] TextureSet not found: '${textureSetId}'`
+        error: `[SceneModel.createMesh] Material not found: '${materialId}'`
       });
     }
 
@@ -1276,7 +1276,7 @@ export class SceneModel {
       id,
       model: this,
       geometry,
-      textureSet,
+      material,
       matrix,
       color,
       opacity
@@ -1533,9 +1533,9 @@ export class SceneModel {
       }
     }
 
-    if (sceneModelParams.textureSets) {
-      for (let i = 0, len = sceneModelParams.textureSets.length; i < len; i++) {
-        const res = this.createTextureSet(sceneModelParams.textureSets[i]);
+    if (sceneModelParams.materials) {
+      for (let i = 0, len = sceneModelParams.materials.length; i < len; i++) {
+        const res = this.createMaterial(sceneModelParams.materials[i]);
         if (!res.ok) return res;
       }
     }
@@ -1565,7 +1565,7 @@ export class SceneModel {
    *
    * @remarks
    * Currently serializes: `transforms`, `geometriesCompressed`, `meshes`, and `objects`.
-   * (Textures and textureSets are intentionally omitted/commented.)
+   * (Textures and materials are intentionally omitted/commented.)
    *
    * See {@link scene | @xeokit/sdk/scene} for usage.
    */
@@ -1582,7 +1582,7 @@ export class SceneModel {
       coordinateSystem: this.coordinateSystem.toParams(),
       geometriesCompressed: [],
       textures: [],
-      textureSets: [],
+      materials: [],
       transforms: [],
       meshes: [],
       objects: []
@@ -1618,13 +1618,20 @@ export class SceneModel {
       }
       sceneModelParams.transforms.push(res.value);
     }
-
     // for (const key in this.textures) {
-    //         sceneModelParams.textures.push(this.textures[key].toParams());
+    //        const res =  this.textures[key].toParams();
+    //        if (!res.ok) {
+    //          return res;
+    //        }
+    //          sceneModelParams.textures.push(res.value);
     // }
-    // for (const key in this.textureSets) {
-    //         sceneModelParams.textureSets.push(this.textureSets[key].toParams());
-    // }
+    for (const key in this.materials) {
+      const res =  this.materials[key].toParams();
+      if (!res.ok) {
+        return res;
+      }
+      sceneModelParams.materials.push(res.value);
+    }
     return {
       ok: true,
       value: sceneModelParams
@@ -1658,12 +1665,12 @@ export class SceneModel {
     for (const key in this.geometries) {
       this.geometries[key].destroy();
     }
-    // for (const key in this.textures) {
-    //         this.textures[key].destroy();
-    // }
-    // for (const key in this.textureSets) {
-    //    this.textureSets[key].destroy();
-    // }
+    for (const key in this.textures) {
+      this.textures[key].destroy();
+    }
+    for (const key in this.materials) {
+       this.materials[key].destroy();
+    }
     this.scene._destroyModel(this);
     this.destroyed = true;
     return {

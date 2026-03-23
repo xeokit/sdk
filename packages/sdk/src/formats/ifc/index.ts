@@ -43,7 +43,7 @@
  * import { Data } from "@xeokit/sdk/data";
  * import { Viewer } from "@xeokit/sdk/viewer";
  * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
- * import { CameraControl } from "@xeokit/sdk/cameracontrol";
+ * import { ViewController } from "@xeokit/sdk/viewcontroller";
  * import { IFCLoader } from "@xeokit/sdk/formats/ifc";
  *
  * // 1) Create containers for geometry and IFC semantics
@@ -71,7 +71,7 @@
  * view.camera.look = [1842009.49, 9.68, -5173295.85];
  * view.camera.up   = [0, 1, 0];
  *
- * new CameraControl(view, {});
+ * new ViewController(view, {});
  *
  * // 5) Create target models
  * const sceneModelResult = scene.createModel({ id: "myModel" });

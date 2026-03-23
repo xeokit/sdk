@@ -17,7 +17,7 @@ import {createUUID, isString} from "../../utils";
 import {GLTFLoader as glGLTFLoader, postProcessGLTF} from '@loaders.gl/gltf';
 import type {ModelLoadParams} from "../ModelLoadParams";
 import {ModelLoader} from "../ModelLoader";
-import type {SceneGeometryParams, SceneMeshParams, SceneModel, SceneTextureSetParams} from "../../scene";
+import type {SceneGeometryParams, SceneMeshParams, SceneModel, SceneMaterialParams} from "../../scene";
 import type {DataModel} from "../../data/DataModel";
 import {parse} from '@loaders.gl/core';
 import {quatToMat4} from "../../math/quat";
@@ -205,15 +205,15 @@ function parseMaterials(ctx: ParsingContext): boolean {
   if (materials) {
     for (let i = 0, len = materials.length; i < len; i++) {
       const material = materials[i];
-      const textureSetCfg = parseTextureSet(ctx, material);
-      if (textureSetCfg) {
-        const textureSetResult = ctx.sceneModel.createTextureSet(textureSetCfg);
-        if (textureSetResult.ok === false) {
-          ctx.errors.push(`Failed to create texture set -> ${textureSetResult.error}`);
+      const materialCfg = parseMaterial(ctx, material);
+      if (materialCfg) {
+        const materialResult = ctx.sceneModel.createMaterial(materialCfg);
+        if (materialResult.ok === false) {
+          ctx.errors.push(`Failed to create SceneMaterial set -> ${materialResult.error}`);
           return false;
         }
-        const textureSet = textureSetResult.value;
-        material._textureSetId = textureSet.id;
+        const sceneMaterial = materialResult.value;
+        material._materialId = sceneMaterial.id;
       }
       material._attributes = parseMaterialAttributes(ctx, material);
     }
@@ -221,8 +221,8 @@ function parseMaterials(ctx: ParsingContext): boolean {
   return true;
 }
 
-function parseTextureSet(ctx: ParsingContext, material: any): null | SceneTextureSetParams {
-  const textureSetCfg: SceneTextureSetParams = {
+function parseMaterial(ctx: ParsingContext, material: any): null | SceneMaterialParams {
+  const materialCfg: SceneMaterialParams = {
     id: null,
     occlusionTextureId: undefined,
     emissiveTextureId: undefined,
@@ -230,10 +230,10 @@ function parseTextureSet(ctx: ParsingContext, material: any): null | SceneTextur
     metallicRoughnessTextureId: undefined
   };
   if (material.occlusionTexture) {
-    textureSetCfg.occlusionTextureId = material.occlusionTexture.texture._textureId;
+    materialCfg.occlusionTextureId = material.occlusionTexture.texture._textureId;
   }
   if (material.emissiveTexture) {
-    textureSetCfg.emissiveTextureId = material.emissiveTexture.texture._textureId;
+    materialCfg.emissiveTextureId = material.emissiveTexture.texture._textureId;
   }
   // const alphaMode = material.alphaMode;
   // switch (alphaMode) {
@@ -258,13 +258,13 @@ function parseTextureSet(ctx: ParsingContext, material: any): null | SceneTextur
     const baseColorTexture = pbrMetallicRoughness.baseColorTexture || pbrMetallicRoughness.colorTexture;
     if (baseColorTexture) {
       if (baseColorTexture.texture) {
-        textureSetCfg.colorTextureId = baseColorTexture.texture._textureId;
+        materialCfg.colorTextureId = baseColorTexture.texture._textureId;
       } else {
-        textureSetCfg.colorTextureId = ctx.gltfData.textures[baseColorTexture.index]._textureId;
+        materialCfg.colorTextureId = ctx.gltfData.textures[baseColorTexture.index]._textureId;
       }
     }
     if (metallicPBR.metallicRoughnessTexture) {
-      textureSetCfg.metallicRoughnessTextureId = metallicPBR.metallicRoughnessTexture.texture._textureId;
+      materialCfg.metallicRoughnessTextureId = metallicPBR.metallicRoughnessTexture.texture._textureId;
     }
   }
   const extensions = material.extensions;
@@ -273,20 +273,20 @@ function parseTextureSet(ctx: ParsingContext, material: any): null | SceneTextur
     if (specularPBR) {
       const specularTexture = specularPBR.specularTexture;
       if (specularTexture !== null && specularTexture !== undefined) {
-        //  textureSetCfg.colorTextureId = ctx.gltfData.textures[specularColorTexture.tileIndex]._textureId;
+        //  materialCfg.colorTextureId = ctx.gltfData.textures[specularColorTexture.tileIndex]._textureId;
       }
       const specularColorTexture = specularPBR.specularColorTexture;
       if (specularColorTexture !== null && specularColorTexture !== undefined) {
-        textureSetCfg.colorTextureId = ctx.gltfData.textures[specularColorTexture.index]._textureId;
+        materialCfg.colorTextureId = ctx.gltfData.textures[specularColorTexture.index]._textureId;
       }
     }
   }
-  if (textureSetCfg.occlusionTextureId !== undefined ||
-    textureSetCfg.emissiveTextureId !== undefined ||
-    textureSetCfg.colorTextureId !== undefined ||
-    textureSetCfg.metallicRoughnessTextureId !== undefined) {
-    textureSetCfg.id = `textureSet-${ctx.nextId++};`
-    return textureSetCfg;
+  if (materialCfg.occlusionTextureId !== undefined ||
+    materialCfg.emissiveTextureId !== undefined ||
+    materialCfg.colorTextureId !== undefined ||
+    materialCfg.metallicRoughnessTextureId !== undefined) {
+    materialCfg.id = `material-${ctx.nextId++};`
+    return materialCfg;
   }
   return null;
 }
@@ -651,11 +651,11 @@ function parseMesh(node: any, ctx: ParsingContext, matrix: Mat4, meshIds: string
         id: meshId,
         geometryId,
         matrix: matrix ? createMat4Float64(matrix) : identityMat4(createMat4Float64()),
-        textureSetId: undefined
+        materialId: undefined
       };
       const material = primitive.material;
       if (material) {
-        //     meshParams.textureSetId = material._textureSetId;
+        //     meshParams.materialId = material._materialId;
         meshParams.color = material._attributes.color.slice(0, 3);
         meshParams.opacity = material._attributes.opacity;
         // meshParams.metallic = material._attributes.metallic;

@@ -778,7 +778,7 @@ var require_EventDispatcher = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.EventDispatcher = void 0;
     var ste_core_1 = require_dist();
-    var EventDispatcher18 = class extends ste_core_1.DispatcherBase {
+    var EventDispatcher19 = class extends ste_core_1.DispatcherBase {
       /**
        * Creates an instance of EventDispatcher.
        *
@@ -826,7 +826,7 @@ var require_EventDispatcher = __commonJS({
         return super.asEvent();
       }
     };
-    exports.EventDispatcher = EventDispatcher18;
+    exports.EventDispatcher = EventDispatcher19;
   }
 });
 
@@ -1944,12 +1944,12 @@ var SDKTask = class {
    * Stage at which tasks perform rendering-related updates.
    * @readonly
    */
-  static RenderStage = 5;
+  static RenderStage = 4;
   /**
    * Stage at which tasks run after rendering is complete.
    * @readonly
    */
-  static PostRenderStage = 6;
+  static PostRenderStage = 5;
   /**
    * The function invoked when this task is executed.
    * Implementations should be side-effecting and synchronous.
@@ -11887,15 +11887,15 @@ function searchObjects(data, searchParams) {
   }
   const depth = 0;
   if (searchParams.startObjectId) {
-    const startObject = data.objects[searchParams.startObjectId];
-    if (!startObject) {
+    const startObject2 = data.objects[searchParams.startObjectId];
+    if (!startObject2) {
       return {
         ok: false,
         type: 2 /* InvalidInput */,
         error: `[searchObjects] Cannot search DataObjects - starting DataObject not found in Data: "${searchParams.startObjectId}"`
       };
     }
-    visit(startObject, depth);
+    visit(startObject2, depth);
   } else if (searchParams.startObject) {
     if (searchParams.startObject.data != data) {
       return {
@@ -11930,15 +11930,16 @@ __export(scene_exports, {
   Scene: () => Scene,
   SceneEvents: () => SceneEvents,
   SceneGeometry: () => SceneGeometry,
+  SceneMaterial: () => SceneMaterial,
   SceneMesh: () => SceneMesh,
   SceneModel: () => SceneModel2,
   SceneObject: () => SceneObject,
   SceneTexture: () => SceneTexture,
-  SceneTextureSet: () => SceneTextureSet,
   SceneTransform: () => SceneTransform,
   buildMat4: () => buildMat4,
   compressGeometryParams: () => compressGeometryParams,
-  createCoordinateSystemTransform: () => createCoordinateSystemTransform
+  createCoordinateSystemTransform: () => createCoordinateSystemTransform,
+  getMeshWorldMatrix: () => getMeshWorldMatrix
 });
 
 // ../sdk/src/scene/buildEdgeIndices.ts
@@ -13155,9 +13156,9 @@ var SceneMesh = class {
    */
   geometry;
   /**
-   * {@link SceneTextureSet} used by this SceneMesh.
+   * {@link SceneMaterial} used by this SceneMesh.
    */
-  textureSet;
+  material;
   _color;
   _opacity;
   _localMatrix;
@@ -13176,7 +13177,7 @@ var SceneMesh = class {
     this._globalMatrix = createMat4Float64();
     this._globalMatrixDirty = true;
     this.geometry = meshParams.geometry;
-    this.textureSet = meshParams.textureSet;
+    this.material = meshParams.material;
     this._color = createVec3Float32(meshParams.color || [1, 1, 1]);
     this._opacity = meshParams.opacity !== void 0 && meshParams.opacity !== null ? meshParams.opacity : 1;
     this.object = null;
@@ -13239,6 +13240,55 @@ var SceneMesh = class {
     return this.geometry.id;
   }
   /**
+   * Sets the {@link SceneMaterial} used by this SceneMesh.
+   *
+   * The SceneMesh will already have the SceneMaterial it was created with,
+   * and then you can change it to a different SceneMaterial using this setter.
+   *
+   * This mechanism allows you to dynamically switch the geometric representation
+   * of a SceneMesh at runtime.
+   *
+   * When the switch succeeds, {@link SceneMesh.material | SceneMesh.material} will reference
+   * the new SceneMaterial and an {@link SceneEvents.onSceneMeshMaterialChanged | SceneEvents.onSceneMeshMaterialChanged}
+   * event is dispatched on the Scene.
+   *
+   * If the given materialId is invalid, such as when the SceneMaterial does not
+   * exist in the SceneModel, an error will be logged and the SceneMaterial will not be changed.
+   *
+   * Note that you cannot destroy a SceneMaterial that is currently in use by a SceneMesh.
+   *
+   * @param value - The ID of the new SceneMaterial to use. Must exist in the SceneModel.
+   */
+  set materialId(value) {
+    if (this.destroyed) {
+      this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneMesh.materialId] Cannot set materialId on destroyed SceneMesh ${this.id}`
+      });
+      return;
+    }
+    const material = this.model.materials[value];
+    if (!material) {
+      this.model.scene.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[SceneMesh.materialId] Invalid materialId '${value}' for SceneMesh ${this.id}`
+      });
+      return;
+    }
+    if (this.material === material) {
+      return;
+    }
+    this.model.scene.events.onSceneMeshMaterialChanged.dispatch(this.model.scene, this);
+  }
+  /**
+   * Gets the ID of the {@link SceneMaterial} used by this SceneMesh.
+   */
+  get materialId() {
+    return this.material?.id;
+  }
+  /**
    * Gets the RGB color for this SceneMesh.
    *
    * Each element of the color is in range ````[0..1]````.
@@ -13280,6 +13330,16 @@ var SceneMesh = class {
       color2[2] = 1;
     }
     this.model.scene.events.onSceneMeshColorChanged.dispatch(this.model.scene, this);
+  }
+  /**
+   * Gets the global RGB color for this SceneMesh, which is the color of the material if it has one,
+   * or the local color otherwise.
+   */
+  get globalColor() {
+    if (this.material) {
+      return this.material.color;
+    }
+    return this._color;
   }
   /**
    * Updates this SceneMesh's local modeling transform matrix.
@@ -13364,6 +13424,13 @@ var SceneMesh = class {
     }
     this._opacity = opacity;
     this.model.scene.events.onSceneMeshOpacityChanged.dispatch(this.model.scene, this);
+  }
+  /**
+   * Gets the global opacity factor for this SceneMesh, which is the opacity of the material if it has one,
+   * or the local opacity otherwise. This is a factor in range ````[0..1]````.
+   */
+  get globalOpacity() {
+    return this.material ? this.material.opacity : this._opacity;
   }
   /**
    * Gets the parent {@link SceneTransform} of this SceneMesh, or ````null```` if this SceneMesh is not parented.
@@ -13466,8 +13533,8 @@ var SceneMesh = class {
     if (!isIdentityMat4(this._localMatrix)) {
       meshParams.matrix = Array.from(this._localMatrix);
     }
-    if (this.textureSet !== null && this.textureSet !== void 0) {
-      meshParams.textureSetId = this.textureSet.id;
+    if (this.material !== null && this.material !== void 0) {
+      meshParams.materialId = this.material.id;
     }
     if (this._parentTransform !== null && this._parentTransform !== void 0) {
       meshParams.parentTransformId = this.parentTransform.id;
@@ -13847,12 +13914,19 @@ var SceneTexture = class {
   }
 };
 
-// ../sdk/src/scene/SceneTextureSet.ts
-var SceneTextureSet = class {
+// ../sdk/src/scene/SceneMaterial.ts
+var SceneMaterial = class {
   /**
-   * The ID of this SceneTextureSet.
+   * The {@link SceneModel} that owns this SceneMaterial.
+   * @private
+   */
+  model;
+  /**
+   * The ID of this SceneMaterial.
    */
   id;
+  _color;
+  _opacity;
   /**
    * The color {@link SceneTexture} in this set.
    */
@@ -13870,33 +13944,124 @@ var SceneTextureSet = class {
    */
   emissiveTexture;
   /**
-   * The {@link SceneModel} that owns this SceneTextureSet.
-   * @private
-   */
-  model;
-  /**
-   * True if this SceneTextureSet has been destroyed.
+   * True if this SceneMaterial has been destroyed.
    */
   destroyed = false;
   /**
    * @private
    */
-  constructor(model, textureSetParams, textures) {
+  constructor(model, materialParams, textures) {
     this.model = model;
-    this.id = textureSetParams.id;
+    this.id = materialParams.id;
+    this._color = createVec3Float32(materialParams.color || [1, 1, 1]);
+    this._opacity = materialParams.opacity !== void 0 && materialParams.opacity !== null ? materialParams.opacity : 1;
     this.colorTexture = textures.colorTexture;
     this.metallicRoughnessTexture = textures.metallicRoughnessTexture;
     this.occlusionTexture = textures.occlusionTexture;
     this.emissiveTexture = textures.emissiveTexture;
   }
   /**
-   * Destroys this SceneTextureSet.
+   * Gets the RGB color for this SceneMaterial.
+   *
+   * Each element of the color is in range ````[0..1]````.
+   */
+  get color() {
+    return this._color;
+  }
+  /**
+   * Sets the RGB color for this SceneMaterial.
+   *
+   * - Fires an {@link SceneEvents.onSceneMaterialColorChanged | SceneEvents.onSceneMaterialColorChanged} event on the Scene.
+   * - Each element of the color is in range ````[0..1]````.
+   */
+  set color(value) {
+    if (this.destroyed) {
+      this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneMaterial.color] Cannot set color on destroyed SceneMaterial ${this.id}`
+      });
+      return;
+    }
+    if (!value || value.length !== 3) {
+      this.model.scene.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[SceneMaterial.color] Invalid color for SceneMaterial ${this.id}`
+      });
+      return;
+    }
+    let color2 = this._color;
+    if (value) {
+      color2[0] = value[0];
+      color2[1] = value[1];
+      color2[2] = value[2];
+    } else {
+      color2[0] = 1;
+      color2[1] = 1;
+      color2[2] = 1;
+    }
+    this.model.scene.events.onSceneMaterialColorChanged.dispatch(this.model.scene, this);
+  }
+  /**
+   * Gets the opacity factor for this SceneMaterial.
+   *
+   * This is a factor in range ````[0..1]````.
+   */
+  get opacity() {
+    return this._opacity;
+  }
+  /**
+   * Sets the opacity factor for this SceneMaterial.
+   *
+   * - This is a factor in range ````[0..1]````.
+   * - Fires an {@link SceneEvents.onSceneMaterialOpacityChanged | SceneEvents.onSceneMaterialOpacityChanged} event on the Scene.
+   */
+  set opacity(opacity) {
+    if (this.destroyed) {
+      this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneMaterial.opacity] Cannot set opacity on destroyed SceneMaterial ${this.id}`
+      });
+      return;
+    }
+    opacity = opacity !== void 0 && opacity !== null ? opacity : 1;
+    if (this._opacity === opacity) {
+      return;
+    }
+    this._opacity = opacity;
+    this.model.scene.events.onSceneMaterialOpacityChanged.dispatch(this.model.scene, this);
+  }
+  /**
+   * Gets this SceneMaterial as SceneMaterialParams.
+   */
+  toParams() {
+    if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneMaterial.toParams] Cannot get params of destroyed SceneMaterial ${this.id}`
+      });
+    }
+    const materialParams = {
+      id: this.id,
+      color: Array.from(this._color),
+      opacity: this._opacity
+    };
+    return {
+      ok: true,
+      value: materialParams
+    };
+  }
+  /**
+   * Destroys this SceneMaterial.
    */
   destroy() {
     if (this.destroyed) {
       return;
     }
-    this.model._destroyTextureSet(this);
+    this.model._destroyMaterial(this);
     this.destroyed = true;
   }
 };
@@ -13992,11 +14157,11 @@ var SceneModel2 = class {
    */
   textures;
   /**
-   * {@link SceneTextureSet | TextureSets} within this SceneModel, each mapped to {@link SceneTextureSet.id | SceneTextureSet.id}.
+   * {@link SceneMaterial | Materials} within this SceneModel, each mapped to {@link SceneMaterial.id | SceneMaterial.id}.
    *
-   * - Created by {@link SceneModel.createTextureSet | SceneModel.createTextureSet}.
+   * - Created by {@link SceneModel.createMaterial | SceneModel.createMaterial}.
    */
-  textureSets;
+  materials;
   /**
    * {@link SceneMesh | SceneMeshes} within this SceneModel, each mapped to {@link SceneMesh.id | SceneMesh.id}.
    *
@@ -14016,7 +14181,7 @@ var SceneModel2 = class {
    * Values are updated as content is created/destroyed:
    * - `numTransforms`, `numGeometries`, `numMeshes`, `numObjects`
    * - `numVertices`, `numTriangles`, `numLines`, `numPoints`
-   * - `numTextures`, `numTextureSets`, `textureBytes`
+   * - `numTextures`, `numMaterials`, `textureBytes`
    */
   stats;
   /**
@@ -14060,7 +14225,7 @@ var SceneModel2 = class {
     this.transforms = {};
     this.geometries = {};
     this.textures = {};
-    this.textureSets = {};
+    this.materials = {};
     this.meshes = {};
     this.objects = {};
     this.stats = {
@@ -14070,7 +14235,7 @@ var SceneModel2 = class {
       numMeshes: 0,
       numObjects: 0,
       numPoints: 0,
-      numTextureSets: 0,
+      numMaterials: 0,
       numTextures: 0,
       numTriangles: 0,
       numVertices: 0,
@@ -14300,145 +14465,145 @@ var SceneModel2 = class {
     this.scene.events.onSceneTextureDestroyed.dispatch(this.scene, sceneTexture);
   }
   /**
-   * Creates a new {@link SceneTextureSet} within this SceneModel.
+   * Creates a new {@link SceneMaterial} within this SceneModel.
    *
-   * - Stores the new {@link SceneTextureSet} in {@link SceneModel.textureSets | SceneModel.textureSets}.
-   * - Fires {@link SceneEvents.onSceneTextureSetCreated | SceneEvents.onSceneTextureSetCreated} event.
+   * - Stores the new {@link SceneMaterial} in {@link SceneModel.materials | SceneModel.materials}.
+   * - Fires {@link SceneEvents.onSceneMaterialCreated | SceneEvents.onSceneMaterialCreated} event.
    *
    * ### Usage
    *
    * ````javascript
-   * const textureSetResult = sceneModel.createTextureSet({
-   *      id: "myTextureSet",
+   * const materialResult = sceneModel.createMaterial({
+   *      id: "myMaterial",
    *      colorTextureId: "myColorTexture"
    * });
    *
-   * if (!textureSetResult.ok) {
-   *   console.error(textureSetResult.error);
+   * if (!materialResult.ok) {
+   *   console.error(materialResult.error);
    *   return;
    * } else {
-   * const textureSet = textureSetResult.value;
+   * const material = materialResult.value;
    * }
    *
-   * const textureSetAgain = sceneModel.textureSets["myTextureSet"];
+   * const materialAgain = sceneModel.materials["myMaterial"];
    * ````
    *
    * See {@link scene | @xeokit/sdk/scene}   for more usage info.
    *
-   * @param textureSetParams SceneTextureSet creation parameters.
+   * @param materialParams SceneMaterial creation parameters.
    *
    * @returns SDKResult with:
-   * - On success, the created {@link SceneTextureSet}.
+   * - On success, the created {@link SceneMaterial}.
    * - On failure, an error message. Reasons for failure include:
    *  - SceneModel already destroyed.
-   *  - TextureSet already exists with the given ID.
+   *  - Material already exists with the given ID.
    *  - Referenced texture not found in SceneModel.
    */
-  createTextureSet(textureSetParams) {
+  createMaterial(materialParams) {
     if (this.destroyed) {
       return this.scene.logError({
         ok: false,
         type: 1 /* InvalidOperation */,
-        error: "[SceneModel.createTextureSet] Cannot create SceneTextureSet - SceneModel already destroyed"
+        error: "[SceneModel.createMaterial] Cannot create SceneMaterial - SceneModel already destroyed"
       });
     }
-    if (this.textureSets[textureSetParams.id]) {
+    if (this.materials[materialParams.id]) {
       return this.scene.logError({
         ok: false,
         type: 2 /* InvalidInput */,
-        error: `[SceneModel.createTextureSet] TextureSet already exists with this ID: '${textureSetParams.id}'`
+        error: `[SceneModel.createMaterial] Material already exists with this ID: '${materialParams.id}'`
       });
     }
     let colorTexture;
-    if (textureSetParams.colorTextureId !== void 0 && textureSetParams.colorTextureId !== null) {
-      colorTexture = this.textures[textureSetParams.colorTextureId];
+    if (materialParams.colorTextureId !== void 0 && materialParams.colorTextureId !== null) {
+      colorTexture = this.textures[materialParams.colorTextureId];
       if (!colorTexture) {
         return this.scene.logError({
           ok: false,
           type: 2 /* InvalidInput */,
-          error: `[SceneModel.createTextureSet] Texture not found: '${textureSetParams.colorTextureId}' - ensure that you create it first with createTexture()`
+          error: `[SceneModel.createMaterial] Texture not found: '${materialParams.colorTextureId}' - ensure that you create it first with createTexture()`
         });
       }
       colorTexture.channel = COLOR_TEXTURE;
     }
     let metallicRoughnessTexture;
-    if (textureSetParams.metallicRoughnessTextureId !== void 0 && textureSetParams.metallicRoughnessTextureId !== null) {
-      metallicRoughnessTexture = this.textures[textureSetParams.metallicRoughnessTextureId];
+    if (materialParams.metallicRoughnessTextureId !== void 0 && materialParams.metallicRoughnessTextureId !== null) {
+      metallicRoughnessTexture = this.textures[materialParams.metallicRoughnessTextureId];
       if (!metallicRoughnessTexture) {
         return this.scene.logError({
           ok: false,
           type: 2 /* InvalidInput */,
-          error: `[SceneModel.createTextureSet] Texture not found: '${textureSetParams.metallicRoughnessTextureId}' - ensure that you create it first with createTexture()`
+          error: `[SceneModel.createMaterial] Texture not found: '${materialParams.metallicRoughnessTextureId}' - ensure that you create it first with createTexture()`
         });
       }
       metallicRoughnessTexture.channel = METALLIC_ROUGHNESS_TEXTURE;
     }
     let normalsTexture;
-    if (textureSetParams.normalsTextureId !== void 0 && textureSetParams.normalsTextureId !== null) {
-      normalsTexture = this.textures[textureSetParams.normalsTextureId];
+    if (materialParams.normalsTextureId !== void 0 && materialParams.normalsTextureId !== null) {
+      normalsTexture = this.textures[materialParams.normalsTextureId];
       if (!normalsTexture) {
         return this.scene.logError({
           ok: false,
           type: 2 /* InvalidInput */,
-          error: `[SceneModel.createTextureSet] Texture not found: '${textureSetParams.normalsTextureId}' - ensure that you create it first with createTexture()`
+          error: `[SceneModel.createMaterial] Texture not found: '${materialParams.normalsTextureId}' - ensure that you create it first with createTexture()`
         });
       }
       normalsTexture.channel = NORMALS_TEXTURE;
     }
     let emissiveTexture;
-    if (textureSetParams.emissiveTextureId !== void 0 && textureSetParams.emissiveTextureId !== null) {
-      emissiveTexture = this.textures[textureSetParams.emissiveTextureId];
+    if (materialParams.emissiveTextureId !== void 0 && materialParams.emissiveTextureId !== null) {
+      emissiveTexture = this.textures[materialParams.emissiveTextureId];
       if (!emissiveTexture) {
         return this.scene.logError({
           ok: false,
           type: 2 /* InvalidInput */,
-          error: `[SceneModel.createTextureSet] Texture not found: '${textureSetParams.emissiveTextureId}' - ensure that you create it first with createTexture()`
+          error: `[SceneModel.createMaterial] Texture not found: '${materialParams.emissiveTextureId}' - ensure that you create it first with createTexture()`
         });
       }
       emissiveTexture.channel = EMISSIVE_TEXTURE;
     }
     let occlusionTexture;
-    if (textureSetParams.occlusionTextureId !== void 0 && textureSetParams.occlusionTextureId !== null) {
-      occlusionTexture = this.textures[textureSetParams.occlusionTextureId];
+    if (materialParams.occlusionTextureId !== void 0 && materialParams.occlusionTextureId !== null) {
+      occlusionTexture = this.textures[materialParams.occlusionTextureId];
       if (!occlusionTexture) {
         return this.scene.logError({
           ok: false,
           type: 2 /* InvalidInput */,
-          error: `[SceneModel.createTextureSet] Texture not found: '${textureSetParams.occlusionTextureId}' - ensure that you create it first with createTexture()`
+          error: `[SceneModel.createMaterial] Texture not found: '${materialParams.occlusionTextureId}' - ensure that you create it first with createTexture()`
         });
       }
       occlusionTexture.channel = OCCLUSION_TEXTURE;
     }
-    const textureSet = new SceneTextureSet(this, textureSetParams, {
+    const material = new SceneMaterial(this, materialParams, {
       emissiveTexture,
       occlusionTexture,
       metallicRoughnessTexture,
       colorTexture
     });
-    this.textureSets[textureSetParams.id] = textureSet;
-    this.stats.numTextureSets++;
-    this.scene.events.onSceneTextureSetCreated.dispatch(this.scene, textureSet);
+    this.materials[materialParams.id] = material;
+    this.stats.numMaterials++;
+    this.scene.events.onSceneMaterialCreated.dispatch(this.scene, material);
     return {
       ok: true,
-      value: textureSet
+      value: material
     };
   }
   /**
-   * Called by a {@link SceneTextureSet} when it is destroyed.
+   * Called by a {@link SceneMaterial} when it is destroyed.
    * @private
-   * @param sceneTextureSet
+   * @param sceneMaterial
    */
-  _destroyTextureSet(sceneTextureSet) {
-    const textureSetId = sceneTextureSet.id;
+  _destroyMaterial(sceneMaterial) {
+    const materialId = sceneMaterial.id;
     if (this.destroyed) {
-      throw new SDKInternalException(`Cannot destroy SceneTextureSet '${textureSetId}' - SceneModel already destroyed`);
+      throw new SDKInternalException(`Cannot destroy SceneMaterial '${materialId}' - SceneModel already destroyed`);
     }
-    if (!this.textureSets[textureSetId]) {
-      throw new SDKInternalException(`Cannot destroy SceneTextureSet '${textureSetId}' - SceneTextureSet not found in SceneModel`);
+    if (!this.materials[materialId]) {
+      throw new SDKInternalException(`Cannot destroy SceneMaterial '${materialId}' - SceneMaterial not found in SceneModel`);
     }
-    delete this.textureSets[textureSetId];
-    this.stats.numTextureSets--;
-    this.scene.events.onSceneTextureSetDestroyed.dispatch(this.scene, sceneTextureSet);
+    delete this.materials[materialId];
+    this.stats.numMaterials--;
+    this.scene.events.onSceneMaterialDestroyed.dispatch(this.scene, sceneMaterial);
   }
   /**
    * Creates a new {@link SceneGeometry} within this SceneModel, from non-compressed geometry parameters.
@@ -14818,7 +14983,7 @@ var SceneModel2 = class {
    * const redBoxMeshResult = sceneModel.createLayerMesh({
    *      id: "redBoxMesh",
    *      geometryId: "boxGeometry",
-   *      textureSetId: "myTextureSet",
+   *      materialId: "myMaterial",
    *      position: [-4, -6, -4],
    *      scale: [1, 3, 1],
    *      rotation: [0, 0, 0],
@@ -14844,14 +15009,14 @@ var SceneModel2 = class {
    *   - A {@link SceneMesh} with the given ID already exists in this SceneModel.
    *   - The specified parent {@link SceneTransform} was not found.
    *   - The specified {@link SceneGeometry} was not found.
-   *   - The specified {@link SceneTextureSet} was not found.
+   *   - The specified {@link SceneMaterial} was not found.
    */
   createMesh(meshParams) {
     let {
       id,
       geometryId,
       parentTransformId,
-      textureSetId,
+      materialId,
       matrix,
       position,
       scale: scale3,
@@ -14893,12 +15058,12 @@ var SceneModel2 = class {
         error: `[SceneModel.createMesh] SceneGeometry not found: '${geometryId}'`
       });
     }
-    const textureSet = textureSetId ? this.textureSets[textureSetId] : void 0;
-    if (textureSetId && !textureSet) {
+    const material = materialId ? this.materials[materialId] : void 0;
+    if (materialId && !material) {
       return this.scene.logError({
         ok: false,
         type: 2 /* InvalidInput */,
-        error: `[SceneModel.createMesh] TextureSet not found: '${textureSetId}'`
+        error: `[SceneModel.createMesh] Material not found: '${materialId}'`
       });
     }
     if (!matrix) {
@@ -14962,7 +15127,7 @@ var SceneModel2 = class {
       id,
       model: this,
       geometry,
-      textureSet,
+      material,
       matrix,
       color: color2,
       opacity
@@ -15197,9 +15362,9 @@ var SceneModel2 = class {
           return res;
       }
     }
-    if (sceneModelParams.textureSets) {
-      for (let i = 0, len = sceneModelParams.textureSets.length; i < len; i++) {
-        const res = this.createTextureSet(sceneModelParams.textureSets[i]);
+    if (sceneModelParams.materials) {
+      for (let i = 0, len = sceneModelParams.materials.length; i < len; i++) {
+        const res = this.createMaterial(sceneModelParams.materials[i]);
         if (!res.ok)
           return res;
       }
@@ -15228,7 +15393,7 @@ var SceneModel2 = class {
    *
    * @remarks
    * Currently serializes: `transforms`, `geometriesCompressed`, `meshes`, and `objects`.
-   * (Textures and textureSets are intentionally omitted/commented.)
+   * (Textures and materials are intentionally omitted/commented.)
    *
    * See {@link scene | @xeokit/sdk/scene} for usage.
    */
@@ -15245,7 +15410,7 @@ var SceneModel2 = class {
       coordinateSystem: this.coordinateSystem.toParams(),
       geometriesCompressed: [],
       textures: [],
-      textureSets: [],
+      materials: [],
       transforms: [],
       meshes: [],
       objects: []
@@ -15278,6 +15443,13 @@ var SceneModel2 = class {
       }
       sceneModelParams.transforms.push(res.value);
     }
+    for (const key in this.materials) {
+      const res = this.materials[key].toParams();
+      if (!res.ok) {
+        return res;
+      }
+      sceneModelParams.materials.push(res.value);
+    }
     return {
       ok: true,
       value: sceneModelParams
@@ -15309,6 +15481,12 @@ var SceneModel2 = class {
     }
     for (const key in this.geometries) {
       this.geometries[key].destroy();
+    }
+    for (const key in this.textures) {
+      this.textures[key].destroy();
+    }
+    for (const key in this.materials) {
+      this.materials[key].destroy();
     }
     this.scene._destroyModel(this);
     this.destroyed = true;
@@ -15419,6 +15597,11 @@ var SceneEvents = class {
    */
   onSceneMeshGeometryChanged;
   /**
+   * Emits an event each time a {@link SceneMesh} switches to a different {@link SceneMaterial}
+   * within the {@link Scene}.
+   */
+  onSceneMeshMaterialChanged;
+  /**
    * Emits an event each time the color of a {@link SceneMesh} is updated within the {@link Scene}.
    */
   onSceneMeshColorChanged;
@@ -15461,13 +15644,21 @@ var SceneEvents = class {
    */
   onSceneTextureDestroyed;
   /**
-   * Emits an event each time a {@link SceneTextureSet} is created within the {@link Scene}.
+   * Emits an event each time a {@link SceneMaterial} is created within the {@link Scene}.
    */
-  onSceneTextureSetCreated;
+  onSceneMaterialCreated;
   /**
-   * Emits an event each time a {@link SceneTextureSet} is destroyed within the {@link Scene}.
+   * Emits an event each time the color of a {@link SceneMaterial} is updated within the {@link Scene}.
    */
-  onSceneTextureSetDestroyed;
+  onSceneMaterialColorChanged;
+  /**
+   * Emits an event each time the opacity of a {@link SceneMaterial} is updated within the {@link Scene}.
+   */
+  onSceneMaterialOpacityChanged;
+  /**
+   * Emits an event each time a {@link SceneMaterial} is destroyed within the {@link Scene}.
+   */
+  onSceneMaterialDestroyed;
   /**
    * @private
    */
@@ -15495,12 +15686,15 @@ var SceneEvents = class {
     this.onSceneMeshMatrixChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneMeshMoved = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneMeshGeometryChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMeshMaterialChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneMeshColorChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneMeshOpacityChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneTextureCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneTextureDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneTextureSetCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
-    this.onSceneTextureSetDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMaterialCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMaterialColorChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMaterialOpacityChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneMaterialDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneGeometryCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneGeometryDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneGeometryUpdated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
@@ -15531,13 +15725,16 @@ var SceneEvents = class {
     this.onSceneObjectMeshRemoved.clear();
     this.onSceneMeshMoved.clear();
     this.onSceneMeshGeometryChanged.clear();
+    this.onSceneMeshMaterialChanged.clear();
     this.onSceneMeshColorChanged.clear();
     this.onSceneMeshMatrixChanged.clear();
     this.onSceneMeshOpacityChanged.clear();
     this.onSceneTextureCreated.clear();
     this.onSceneTextureDestroyed.clear();
-    this.onSceneTextureSetCreated.clear();
-    this.onSceneTextureSetDestroyed.clear();
+    this.onSceneMaterialCreated.clear();
+    this.onSceneMaterialColorChanged.clear();
+    this.onSceneMaterialOpacityChanged.clear();
+    this.onSceneMaterialDestroyed.clear();
     this.onSceneGeometryUpdated.clear();
     this.onSceneObjectDestroyed.clear();
     this.onSceneGeometryCreated.clear();
@@ -15745,6 +15942,36 @@ var Scene = class {
   }
 };
 
+// ../sdk/src/scene/getMeshWorldMatrix.ts
+function getMeshWorldMatrix(sceneMesh, targetCoordinateSystem) {
+  const matrices = [];
+  matrices.push(sceneMesh.matrix);
+  let parentTransform = sceneMesh.parentTransform || null;
+  while (parentTransform) {
+    matrices.push(parentTransform.matrix);
+    parentTransform = parentTransform.parentTransform || null;
+  }
+  let result;
+  if (matrices.length === 1) {
+    result = sceneMesh.matrix;
+  } else {
+    result = createMat4Float64(matrices[matrices.length - 1]);
+    for (let i = matrices.length - 2; i >= 0; i--) {
+      result = mulMat4(result, matrices[i], createMat4Float64());
+    }
+  }
+  if (!targetCoordinateSystem) {
+    return result;
+  }
+  const sourceCoordinateSystem = sceneMesh.model.coordinateSystem;
+  const coordTransform = createCoordinateSystemTransform(
+    sourceCoordinateSystem,
+    targetCoordinateSystem,
+    createMat4Float64()
+  );
+  return mulMat4(coordTransform, result, createMat4Float64());
+}
+
 // ../sdk/src/scene/buildMat4.ts
 var identityQuaternion = identityQuat();
 function buildMat4(params) {
@@ -15862,7 +16089,7 @@ var SceneAABB3Index = class {
       })
     );
   }
-  #getMeshAABB(mesh) {
+  getMeshAABB(mesh) {
     let aabb = this.#meshAABBs.get(mesh.id);
     if (!aabb) {
       aabb = createAABB3Float64();
@@ -15880,7 +16107,13 @@ var SceneAABB3Index = class {
     }
     return aabb;
   }
-  #getObjectAABB(objectId) {
+  /**
+   * Gets the cached or computed AABB of a single {@link SceneObject}, if available.
+   *
+   * @param objectId The SceneObject ID.
+   * @returns AABB or `null` if the object does not exist or has no meshes.
+   */
+  getObjectAABB(objectId) {
     const object = this.scene.objects[objectId];
     if (!object)
       return null;
@@ -15893,7 +16126,7 @@ var SceneAABB3Index = class {
       collapseAABB3(aabb);
       let found = false;
       for (const mesh of object.meshes) {
-        const meshAABB = this.#getMeshAABB(mesh);
+        const meshAABB = this.getMeshAABB(mesh);
         expandAABB3(aabb, meshAABB);
         found = true;
       }
@@ -15912,7 +16145,7 @@ var SceneAABB3Index = class {
     if (this.#objectDirty.size > 0) {
       collapseAABB3(this.#sceneAABB);
       for (const object of Object.values(this.scene.objects)) {
-        const aabb = this.#getObjectAABB(object.id);
+        const aabb = this.getObjectAABB(object.id);
         if (aabb) {
           expandAABB3(this.#sceneAABB, aabb);
         }
@@ -15946,22 +16179,13 @@ var SceneAABB3Index = class {
     collapseAABB3(result);
     let foundAny = false;
     for (const objectId of objectIds) {
-      const aabb = this.#getObjectAABB(objectId);
+      const aabb = this.getObjectAABB(objectId);
       if (aabb) {
         expandAABB3(result, aabb);
         foundAny = true;
       }
     }
     return foundAny ? result : null;
-  }
-  /**
-   * Gets the cached or computed AABB of a single {@link SceneObject}, if available.
-   *
-   * @param objectId The SceneObject ID.
-   * @returns AABB or `null` if the object does not exist or has no meshes.
-   */
-  getObjectAABB(objectId) {
-    return this.#getObjectAABB(objectId);
   }
   /**
    * Destroys this tileIndex and releases internal resources.
@@ -17053,6 +17277,8 @@ __export(formats_exports, {
   ifc: () => ifc_exports,
   las: () => las_exports,
   metamodel: () => metamodel_exports,
+  mtl: () => mtl_exports,
+  obj: () => obj_exports,
   scenemodel: () => scenemodel_exports,
   xgf: () => xgf_exports,
   xkt: () => xkt_exports
@@ -24698,6 +24924,9 @@ var ModelLoader = class {
         return reject(`[${className}.load] Argument expected: params`);
       }
       const { filePath, fileData, sceneModel, dataModel } = params;
+      if (!sceneModel && !dataModel) {
+        return reject(`[${className}.load] Argument expected: sceneModel or dataModel`);
+      }
       if (sceneModel) {
         if (sceneModel.destroyed) {
           return reject(`[${className}.load] SceneModel already destroyed`);
@@ -25795,23 +26024,23 @@ function parseMaterials(ctx) {
   if (materials) {
     for (let i = 0, len = materials.length; i < len; i++) {
       const material = materials[i];
-      const textureSetCfg = parseTextureSet(ctx, material);
-      if (textureSetCfg) {
-        const textureSetResult = ctx.sceneModel.createTextureSet(textureSetCfg);
-        if (textureSetResult.ok === false) {
-          ctx.errors.push(`Failed to create texture set -> ${textureSetResult.error}`);
+      const materialCfg = parseMaterial(ctx, material);
+      if (materialCfg) {
+        const materialResult = ctx.sceneModel.createMaterial(materialCfg);
+        if (materialResult.ok === false) {
+          ctx.errors.push(`Failed to create SceneMaterial set -> ${materialResult.error}`);
           return false;
         }
-        const textureSet = textureSetResult.value;
-        material._textureSetId = textureSet.id;
+        const sceneMaterial = materialResult.value;
+        material._materialId = sceneMaterial.id;
       }
       material._attributes = parseMaterialAttributes(ctx, material);
     }
   }
   return true;
 }
-function parseTextureSet(ctx, material) {
-  const textureSetCfg = {
+function parseMaterial(ctx, material) {
+  const materialCfg = {
     id: null,
     occlusionTextureId: void 0,
     emissiveTextureId: void 0,
@@ -25819,10 +26048,10 @@ function parseTextureSet(ctx, material) {
     metallicRoughnessTextureId: void 0
   };
   if (material.occlusionTexture) {
-    textureSetCfg.occlusionTextureId = material.occlusionTexture.texture._textureId;
+    materialCfg.occlusionTextureId = material.occlusionTexture.texture._textureId;
   }
   if (material.emissiveTexture) {
-    textureSetCfg.emissiveTextureId = material.emissiveTexture.texture._textureId;
+    materialCfg.emissiveTextureId = material.emissiveTexture.texture._textureId;
   }
   const metallicPBR = material.pbrMetallicRoughness;
   if (material.pbrMetallicRoughness) {
@@ -25830,13 +26059,13 @@ function parseTextureSet(ctx, material) {
     const baseColorTexture = pbrMetallicRoughness.baseColorTexture || pbrMetallicRoughness.colorTexture;
     if (baseColorTexture) {
       if (baseColorTexture.texture) {
-        textureSetCfg.colorTextureId = baseColorTexture.texture._textureId;
+        materialCfg.colorTextureId = baseColorTexture.texture._textureId;
       } else {
-        textureSetCfg.colorTextureId = ctx.gltfData.textures[baseColorTexture.index]._textureId;
+        materialCfg.colorTextureId = ctx.gltfData.textures[baseColorTexture.index]._textureId;
       }
     }
     if (metallicPBR.metallicRoughnessTexture) {
-      textureSetCfg.metallicRoughnessTextureId = metallicPBR.metallicRoughnessTexture.texture._textureId;
+      materialCfg.metallicRoughnessTextureId = metallicPBR.metallicRoughnessTexture.texture._textureId;
     }
   }
   const extensions = material.extensions;
@@ -25848,13 +26077,13 @@ function parseTextureSet(ctx, material) {
       }
       const specularColorTexture = specularPBR.specularColorTexture;
       if (specularColorTexture !== null && specularColorTexture !== void 0) {
-        textureSetCfg.colorTextureId = ctx.gltfData.textures[specularColorTexture.index]._textureId;
+        materialCfg.colorTextureId = ctx.gltfData.textures[specularColorTexture.index]._textureId;
       }
     }
   }
-  if (textureSetCfg.occlusionTextureId !== void 0 || textureSetCfg.emissiveTextureId !== void 0 || textureSetCfg.colorTextureId !== void 0 || textureSetCfg.metallicRoughnessTextureId !== void 0) {
-    textureSetCfg.id = `textureSet-${ctx.nextId++};`;
-    return textureSetCfg;
+  if (materialCfg.occlusionTextureId !== void 0 || materialCfg.emissiveTextureId !== void 0 || materialCfg.colorTextureId !== void 0 || materialCfg.metallicRoughnessTextureId !== void 0) {
+    materialCfg.id = `material-${ctx.nextId++};`;
+    return materialCfg;
   }
   return null;
 }
@@ -26184,7 +26413,7 @@ function parseMesh(node, ctx, matrix, meshIds) {
         id: meshId,
         geometryId,
         matrix: matrix ? createMat4Float64(matrix) : identityMat4(createMat4Float64()),
-        textureSetId: void 0
+        materialId: void 0
       };
       const material = primitive.material;
       if (material) {
@@ -26241,11 +26470,12 @@ var ModelExporter = class {
   }
   /**
    * Exports a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel} to file data.
-    *
+   *
    * @param params - The parameters used for writing the file data.
    * @param params.sceneModel - The {@link scene!SceneModel | SceneModel} to write.
    * @param params.dataModel - The {@link data!DataModel | DataModel} to write.
-   * @param options - Options for customizing the loading process. These are specific to the Exporter subclass.
+   * @param options - Options for customizing the export process.
+   * @param options.coordinateSystem - Optional target CoordinateSystem for export.
    * @returns {Promise} Resolves when the SceneModel and/or DataModel has been successfully written.
    *
    * @throws
@@ -29855,7 +30085,7 @@ var Root = class extends ExtensibleProperty {
     return this.listRefs("buffers");
   }
 };
-var Document = class _Document {
+var Document2 = class _Document {
   /**
    * Returns the Document associated with a given Graph, if any.
    * @hidden
@@ -30031,7 +30261,7 @@ var Document = class _Document {
     return new Buffer$1(this._graph, name12);
   }
 };
-Document._GRAPH_DOCUMENTS = /* @__PURE__ */ new WeakMap();
+Document2._GRAPH_DOCUMENTS = /* @__PURE__ */ new WeakMap();
 var Extension = class {
   /** @hidden */
   constructor(document2) {
@@ -30200,7 +30430,7 @@ var GLTFReader = class {
     const {
       json
     } = jsonDoc;
-    const document2 = new Document().setLogger(options.logger);
+    const document2 = new Document2().setLogger(options.logger);
     this.validate(jsonDoc, options);
     const context = new ReaderContext(jsonDoc);
     const assetDef = json.asset;
@@ -31737,7 +31967,7 @@ function encode22(params, options) {
     const { sceneModel } = params;
     const coordinateSystemMatrix = options.coordinateSystem ? createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4Float64()) : null;
     const io = new WebIO({ credentials: "include" });
-    const document2 = new Document();
+    const document2 = new Document2();
     const gltfScene = document2.createScene();
     const buffer = document2.createBuffer();
     let primitivesCreated = {};
@@ -32329,8 +32559,6 @@ var parse4 = async (params, options) => {
         nextId: 0,
         options: options || {}
       };
-      const numSceneObjects = fileData.CityObjects ? Object.keys(fileData.CityObjects).length : 0;
-      sdkProgress.addTasks(numSceneObjects);
       if (!parseCityJSON(ctx)) {
         return reject(
           ctx.errors.length > 0 ? `[CityJSONLoader] Failed to parse CityJSON file:${ctx.errors[0]}` : `[CityJSONLoader] Failed to parse CityJSON file: Unknown error`
@@ -32436,7 +32664,6 @@ function parseCityObject(ctx, cityObject, objectId) {
         schema: SCHEMA,
         meshIds
       });
-      sdkProgress.completeTask();
       if (!result.ok) {
         ctx.errors.push(`[CityJSONLoader] Failed to create scene object for CityJSON object ${objectId} -> ${result.error}`);
         return false;
@@ -98576,7 +98803,7 @@ function modelToXGF(params) {
     for (let objectMeshIdx = 0; objectMeshIdx < object.meshes.length; objectMeshIdx++) {
       const mesh = object.meshes[objectMeshIdx];
       xgfData.eachMeshGeometriesBase[meshesBase] = geometryIndices[mesh.geometry.id];
-      const matrix = coordinateSystemMatrix ? mulMat4(mesh.matrix, coordinateSystemMatrix, createMat4Float64()) : mesh.matrix;
+      const matrix = getMeshWorldMatrix(mesh, options.coordinateSystem);
       if (isIdentityMat4(matrix)) {
         if (!identityMatrixAdded) {
           matrices.push(...matrix);
@@ -98592,10 +98819,10 @@ function modelToXGF(params) {
         xgfData.eachMeshMatricesBase[meshesBase] = matricesBase;
         matricesBase += 16;
       }
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.color[0] * 255;
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.color[1] * 255;
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.color[2] * 255;
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.opacity * 255;
+      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.globalColor[0] * 255;
+      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.globalColor[1] * 255;
+      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.globalColor[2] * 255;
+      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.globalOpacity * 255;
       meshesBase++;
     }
   }
@@ -98730,7 +98957,7 @@ function inflateXKT(xktDataDeflated) {
     uvs: new Float32Array(xktDataDeflated.uvs),
     indices: new Uint32Array(xktDataDeflated.indices),
     edgeIndices: new Uint32Array(xktDataDeflated.edgeIndices),
-    eachTextureSetTextures: new Int32Array(xktDataDeflated.eachTextureSetTextures),
+    eachMaterialTextures: new Int32Array(xktDataDeflated.eachMaterialTextures),
     matrices: new Float32Array(xktDataDeflated.matrices),
     reusedGeometriesDecodeMatrix: new Float32Array(xktDataDeflated.reusedGeometriesDecodeMatrix),
     eachGeometryPrimitiveType: new Uint8Array(xktDataDeflated.eachGeometryPrimitiveType),
@@ -98742,7 +98969,7 @@ function inflateXKT(xktDataDeflated) {
     eachGeometryEdgeIndicesPortion: new Uint32Array(xktDataDeflated.eachGeometryEdgeIndicesPortion),
     eachMeshGeometriesPortion: new Uint32Array(xktDataDeflated.eachMeshGeometriesPortion),
     eachMeshMatricesPortion: new Uint32Array(xktDataDeflated.eachMeshMatricesPortion),
-    eachMeshTextureSet: new Int32Array(xktDataDeflated.eachMeshTextureSet),
+    eachMeshMaterial: new Int32Array(xktDataDeflated.eachMeshMaterial),
     // Can be -1
     eachMeshMaterialAttributes: new Uint8Array(xktDataDeflated.eachMeshMaterialAttributes),
     eachEntityId: JSON.parse(xktDataDeflated.eachEntityId),
@@ -98778,7 +99005,7 @@ function unpackXKT(arrayBuffer) {
     uvs: elements[i++],
     indices: elements[i++],
     edgeIndices: elements[i++],
-    eachTextureSetTextures: elements[i++],
+    eachMaterialTextures: elements[i++],
     matrices: elements[i++],
     reusedGeometriesDecodeMatrix: elements[i++],
     eachGeometryPrimitiveType: elements[i++],
@@ -98790,7 +99017,7 @@ function unpackXKT(arrayBuffer) {
     eachGeometryEdgeIndicesPortion: elements[i++],
     eachMeshGeometriesPortion: elements[i++],
     eachMeshMatricesPortion: elements[i++],
-    eachMeshTextureSet: elements[i++],
+    eachMeshMaterial: elements[i++],
     eachMeshMaterialAttributes: elements[i++],
     eachEntityId: elements[i++],
     eachEntityMeshesPortion: elements[i++],
@@ -98844,7 +99071,7 @@ function xktToModel(params) {
   const uvs = xktData.uvs;
   const indices = xktData.indices;
   const edgeIndices = xktData.edgeIndices;
-  const eachTextureSetTextures = xktData.eachTextureSetTextures;
+  const eachMaterialTextures = xktData.eachMaterialTextures;
   const matrices = xktData.matrices;
   const reusedGeometriesDecodeMatrix = xktData.reusedGeometriesDecodeMatrix;
   const eachGeometryPrimitiveType = xktData.eachGeometryPrimitiveType;
@@ -98856,14 +99083,14 @@ function xktToModel(params) {
   const eachGeometryEdgeIndicesPortion = xktData.eachGeometryEdgeIndicesPortion;
   const eachMeshGeometriesPortion = xktData.eachMeshGeometriesPortion;
   const eachMeshMatricesPortion = xktData.eachMeshMatricesPortion;
-  const eachMeshTextureSet = xktData.eachMeshTextureSet;
+  const eachMeshMaterial = xktData.eachMeshMaterial;
   const eachMeshMaterialAttributes = xktData.eachMeshMaterialAttributes;
   const eachEntityId = xktData.eachEntityId;
   const eachEntityMeshesPortion = xktData.eachEntityMeshesPortion;
   const eachTileAABB = xktData.eachTileAABB;
   const eachTileEntitiesPortion = xktData.eachTileEntitiesPortion;
   const numTextures = eachTextureDataPortion.length;
-  const numTextureSets = eachTextureSetTextures.length / 5;
+  const numMaterials = eachMaterialTextures.length / 5;
   const numGeometries = eachGeometryPositionsPortion.length;
   const numMeshes = eachMeshGeometriesPortion.length;
   const numEntities = eachEntityMeshesPortion.length;
@@ -98918,16 +99145,16 @@ function xktToModel(params) {
       }
     }
   }
-  for (let textureSetIndex = 0; textureSetIndex < numTextureSets; textureSetIndex++) {
-    const eachTextureSetTexturesIndex = textureSetIndex * 5;
-    const textureSetId = `${modelPartId}-textureSet-${textureSetIndex}`;
-    const colorTextureIndex = eachTextureSetTextures[eachTextureSetTexturesIndex + 0];
-    const metallicRoughnessTextureIndex = eachTextureSetTextures[eachTextureSetTexturesIndex + 1];
-    const normalsTextureIndex = eachTextureSetTextures[eachTextureSetTexturesIndex + 2];
-    const emissiveTextureIndex = eachTextureSetTextures[eachTextureSetTexturesIndex + 3];
-    const occlusionTextureIndex = eachTextureSetTextures[eachTextureSetTexturesIndex + 4];
-    sceneModel.createTextureSet({
-      id: textureSetId,
+  for (let materialIndex = 0; materialIndex < numMaterials; materialIndex++) {
+    const eachMaterialTexturesIndex = materialIndex * 5;
+    const materialId = `${modelPartId}-material-${materialIndex}`;
+    const colorTextureIndex = eachMaterialTextures[eachMaterialTexturesIndex + 0];
+    const metallicRoughnessTextureIndex = eachMaterialTextures[eachMaterialTexturesIndex + 1];
+    const normalsTextureIndex = eachMaterialTextures[eachMaterialTexturesIndex + 2];
+    const emissiveTextureIndex = eachMaterialTextures[eachMaterialTexturesIndex + 3];
+    const occlusionTextureIndex = eachMaterialTextures[eachMaterialTexturesIndex + 4];
+    sceneModel.createMaterial({
+      id: materialId,
       colorTextureId: colorTextureIndex >= 0 ? `${modelPartId}-texture-${colorTextureIndex}` : null,
       normalsTextureId: normalsTextureIndex >= 0 ? `${modelPartId}-texture-${normalsTextureIndex}` : null,
       metallicRoughnessTextureId: metallicRoughnessTextureIndex >= 0 ? `${modelPartId}-texture-${metallicRoughnessTextureIndex}` : null,
@@ -98976,8 +99203,8 @@ function xktToModel(params) {
         const geometryReuseCount = geometryReuseCounts[geometryIndex];
         const isReusedGeometry = geometryReuseCount > 1;
         const atLastGeometry = geometryIndex === numGeometries - 1;
-        const textureSetIndex = eachMeshTextureSet[meshIndex];
-        const textureSetId = textureSetIndex >= 0 ? `${modelPartId}-textureSet-${textureSetIndex}` : null;
+        const materialIndex = eachMeshMaterial[meshIndex];
+        const materialId = materialIndex >= 0 ? `${modelPartId}-material-${materialIndex}` : null;
         const meshColor = decompressColor(eachMeshMaterialAttributes.subarray(meshIndex * 6, meshIndex * 6 + 3));
         const meshOpacity = eachMeshMaterialAttributes[meshIndex * 6 + 3] / 255;
         const meshMetallic = eachMeshMaterialAttributes[meshIndex * 6 + 4] / 255;
@@ -99059,7 +99286,7 @@ function xktToModel(params) {
             sceneModel.createMesh({
               id: meshId,
               geometryId,
-              textureSetId,
+              materialId,
               matrix: meshMatrix,
               color: meshColor,
               opacity: meshOpacity,
@@ -99138,7 +99365,7 @@ function xktToModel(params) {
             sceneModel.createMesh({
               id: meshId,
               geometryId,
-              textureSetId,
+              materialId,
               //   origin: tileCenter,
               origin: [tileCenter[0], tileCenter[1] + i++ * 10, tileCenter[2]],
               color: meshColor,
@@ -118822,7 +119049,6 @@ var tempMat4a4 = createMat4Float64();
 function encode10(params, options) {
   return new Promise(function(resolve2, reject) {
     const { sceneModel, dataModel } = params;
-    const coordinateSystemMatrix = options.coordinateSystem ? createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4Float64()) : null;
     const dotBim = {
       meshes: [],
       elements: []
@@ -118886,11 +119112,11 @@ function encode10(params, options) {
         meshId = sceneObject.id;
       }
       const firstMesh = meshes[0];
-      const color2 = firstMesh.color;
+      const color2 = firstMesh.globalColor;
       const position = createVec3Float64();
       const quaternion = createVec4Float64();
       const scale3 = createVec3Float64();
-      const matrix = coordinateSystemMatrix ? mulMat4(firstMesh.matrix, coordinateSystemMatrix, tempMat4a4) : firstMesh.matrix;
+      const matrix = getMeshWorldMatrix(firstMesh, options.coordinateSystem);
       decomposeMat4(matrix, position, quaternion, scale3);
       const info = {
         id: sceneObject.id,
@@ -118918,7 +119144,7 @@ function encode10(params, options) {
           r: color2[0] * 255,
           g: color2[1] * 255,
           b: color2[2] * 255,
-          a: firstMesh.opacity
+          a: firstMesh.globalOpacity
         },
         vector: {
           x: position[0],
@@ -119015,7 +119241,7 @@ function encode11(params, options) {
       const position = createVec3Float64();
       const quaternion = createVec4Float64();
       const scale3 = createVec3Float64();
-      const matrix = coordinateSystemMatrix ? mulMat4(firstMesh.matrix, coordinateSystemMatrix, tempMat4a5) : firstMesh.matrix;
+      const matrix = coordinateSystemMatrix ? mulMat4(firstMesh.globalMatrix, coordinateSystemMatrix, tempMat4a5) : firstMesh.globalMatrix;
       decomposeMat4(matrix, position, quaternion, scale3);
       const info = {
         id: sceneObject.id,
@@ -119043,7 +119269,7 @@ function encode11(params, options) {
           r: color2[0],
           g: color2[1],
           b: color2[2],
-          a: firstMesh.opacity
+          a: firstMesh.globalOpacity
         },
         vector: {
           x: position[0],
@@ -119214,6 +119440,752 @@ var DataModelParamsExporter = class extends ModelExporter {
       fileDataType: "json",
       encoders: {
         "1.0": encode13
+      },
+      defaultVersion: "1.0"
+    });
+  }
+};
+
+// ../sdk/src/formats/obj/index.ts
+var obj_exports = {};
+__export(obj_exports, {
+  OBJExporter: () => OBJExporter,
+  OBJLoader: () => OBJLoader
+});
+
+// ../sdk/src/formats/obj/versions/v1_0/parse.ts
+var parse13 = async (params, options) => {
+  return new Promise((resolve2, reject) => {
+    const { fileData, sceneModel, dataModel } = params;
+    if (sceneModel || dataModel) {
+      const ctx = {
+        fileData,
+        errors: [],
+        warnings: [],
+        sceneModel,
+        dataModel,
+        nextId: 0,
+        options: options || {},
+        srcPositions: [],
+        srcNormals: [],
+        srcUVs: [],
+        materials: {},
+        currentObject: null
+      };
+      parseOBJDirect(ctx);
+      if (ctx.currentObject) {
+        flushCurrentObject(ctx);
+      }
+      if (ctx.errors.length > 0) {
+        return reject(`[OBJLoader] Failed to parse OBJ file: ${ctx.errors[0]}`);
+      }
+      if (ctx.warnings.length > 0) {
+        console.warn(`[OBJLoader] Warning while parsing OBJ file: ${ctx.warnings[0]}`);
+      }
+    }
+    resolve2();
+  });
+};
+var regexp = {
+  vertex_pattern: /^v\s+([\d.+\-eE]+)\s+([\d.+\-eE]+)\s+([\d.+\-eE]+)/,
+  normal_pattern: /^vn\s+([\d.+\-eE]+)\s+([\d.+\-eE]+)\s+([\d.+\-eE]+)/,
+  uv_pattern: /^vt\s+([\d.+\-eE]+)\s+([\d.+\-eE]+)/,
+  object_pattern: /^[og]\s*(.+)?/,
+  smoothing_pattern: /^s\s+(\d+|on|off)/,
+  material_library_pattern: /^mtllib /,
+  material_use_pattern: /^usemtl /
+};
+function parseOBJDirect(ctx) {
+  let fileData = ctx.fileData;
+  startObject(ctx, "", false);
+  if (fileData.indexOf("\r\n") !== -1) {
+    fileData = fileData.replace(/\r\n/g, "\n");
+  }
+  const lines = fileData.split("\n");
+  let result = null;
+  const trimLeft = typeof "".trimStart === "function";
+  for (let i = 0, l = lines.length; i < l; i++) {
+    let line = lines[i];
+    line = trimLeft ? line.trimStart() : line.trim();
+    if (line.length === 0) {
+      continue;
+    }
+    const lineFirstChar = line.charAt(0);
+    if (lineFirstChar === "#") {
+      continue;
+    }
+    if (lineFirstChar === "v") {
+      const lineSecondChar = line.charAt(1);
+      if (lineSecondChar === " " && (result = regexp.vertex_pattern.exec(line)) !== null) {
+        ctx.srcPositions.push(
+          parseFloat(result[1]),
+          parseFloat(result[2]),
+          parseFloat(result[3])
+        );
+      } else if (lineSecondChar === "n" && (result = regexp.normal_pattern.exec(line)) !== null) {
+        ctx.srcNormals.push(
+          parseFloat(result[1]),
+          parseFloat(result[2]),
+          parseFloat(result[3])
+        );
+      } else if (lineSecondChar === "t" && (result = regexp.uv_pattern.exec(line)) !== null) {
+        ctx.srcUVs.push(
+          parseFloat(result[1]),
+          parseFloat(result[2])
+        );
+      } else {
+        ctx.errors.push(`Unexpected vertex/normal/uv line: '${line}'`);
+        return;
+      }
+      continue;
+    }
+    if (lineFirstChar === "f") {
+      parseFaceLine(ctx, line);
+      if (ctx.errors.length > 0) {
+        return;
+      }
+      continue;
+    }
+    if (lineFirstChar === "l") {
+      addLineGeometry(ctx, line);
+      continue;
+    }
+    if ((result = regexp.object_pattern.exec(line)) !== null) {
+      const id = result[0].substring(1).trim();
+      if (ctx.currentObject && ctx.currentObject.geometry.indices.length > 0) {
+        flushCurrentObject(ctx);
+      }
+      startObject(ctx, id, true);
+      continue;
+    }
+    if (regexp.material_use_pattern.test(line)) {
+      if (ctx.currentObject) {
+        ctx.currentObject.material.id = line.substring(7).trim();
+      }
+      continue;
+    }
+    if (regexp.material_library_pattern.test(line)) {
+      continue;
+    }
+    if ((result = regexp.smoothing_pattern.exec(line)) !== null) {
+      if (ctx.currentObject) {
+        const value = result[1].trim().toLowerCase();
+        ctx.currentObject.material.smooth = value === "1" || value === "on";
+      }
+      continue;
+    }
+    if (line === "\0") {
+      continue;
+    }
+    ctx.errors.push(`Unexpected line: '${line}'`);
+    return;
+  }
+}
+function startObject(ctx, id, fromDeclaration) {
+  if (ctx.currentObject && ctx.currentObject.fromDeclaration === false) {
+    ctx.currentObject.id = id;
+    ctx.currentObject.fromDeclaration = fromDeclaration !== false;
+    return;
+  }
+  ctx.currentObject = {
+    id: id || "",
+    geometry: {
+      positions: [],
+      normals: [],
+      uv: [],
+      indices: []
+    },
+    material: {
+      id: "",
+      smooth: true
+    },
+    fromDeclaration: fromDeclaration !== false,
+    vertexMap: /* @__PURE__ */ new Map()
+  };
+}
+function flushCurrentObject(ctx) {
+  const object = ctx.currentObject;
+  if (!object) {
+    return;
+  }
+  const geometry = object.geometry;
+  if (geometry.indices.length === 0 || geometry.positions.length === 0) {
+    return;
+  }
+  if (geometry.type === "Line") {
+    ctx.warnings.push(`Skipping line geometry object '${object.id}'`);
+    return;
+  }
+  const geometryId = createUUID();
+  const geometryCfg = {
+    id: geometryId,
+    primitive: TrianglesPrimitive,
+    positions: geometry.positions.slice(),
+    indices: geometry.indices.slice()
+  };
+  if (geometry.uv.length > 0) {
+  }
+  const createGeometryResult = ctx.sceneModel.createGeometry(geometryCfg);
+  if (createGeometryResult.ok !== true) {
+    ctx.errors.push(`Failed to create geometry for object '${object.id}'`);
+    return;
+  }
+  const meshId = createUUID();
+  const materialId = object.material.id;
+  const mat = ctx.materials[materialId];
+  const color2 = mat?.color ?? [0.8, 0.8, 0.8];
+  const opacity = mat?.opacity ?? 1;
+  const createMeshResult = ctx.sceneModel.createMesh({
+    id: meshId,
+    geometryId,
+    materialId,
+    color: color2,
+    opacity
+  });
+  if (createMeshResult.ok !== true) {
+    ctx.errors.push(`Failed to create mesh for object '${object.id}'`);
+    return;
+  }
+  const objectId = createUUID();
+  const createObjectResult = ctx.sceneModel.createObject({
+    id: objectId,
+    meshIds: [meshId]
+  });
+  if (createObjectResult.ok !== true) {
+    ctx.errors.push(`Failed to create object for object '${object.id}'`);
+    return;
+  }
+  geometry.positions.length = 0;
+  geometry.normals.length = 0;
+  geometry.uv.length = 0;
+  geometry.indices.length = 0;
+  object.vertexMap.clear();
+}
+function parseVertexIndex(value, len) {
+  const index = parseInt(value, 10);
+  return (index >= 0 ? index - 1 : index + len / 3) * 3;
+}
+function parseNormalIndex(value, len) {
+  const index = parseInt(value, 10);
+  return (index >= 0 ? index - 1 : index + len / 3) * 3;
+}
+function parseUVIndex(value, len) {
+  const index = parseInt(value, 10);
+  return (index >= 0 ? index - 1 : index + len / 2) * 2;
+}
+function getOrCreateVertex(ctx, v, uv, n) {
+  const object = ctx.currentObject;
+  const geometry = object.geometry;
+  const vIndex = parseVertexIndex(v, ctx.srcPositions.length);
+  const uvIndex = uv !== void 0 ? parseUVIndex(uv, ctx.srcUVs.length) : -1;
+  const nIndex = n !== void 0 ? parseNormalIndex(n, ctx.srcNormals.length) : -1;
+  const key = `${vIndex}/${uvIndex}/${nIndex}`;
+  const existing = object.vertexMap.get(key);
+  if (existing !== void 0) {
+    return existing;
+  }
+  const dstIndex = geometry.positions.length / 3;
+  object.vertexMap.set(key, dstIndex);
+  geometry.positions.push(
+    ctx.srcPositions[vIndex],
+    ctx.srcPositions[vIndex + 1],
+    ctx.srcPositions[vIndex + 2]
+  );
+  if (uvIndex !== -1) {
+    geometry.uv.push(
+      ctx.srcUVs[uvIndex],
+      ctx.srcUVs[uvIndex + 1]
+    );
+  }
+  if (nIndex !== -1) {
+    geometry.normals.push(
+      ctx.srcNormals[nIndex],
+      ctx.srcNormals[nIndex + 1],
+      ctx.srcNormals[nIndex + 2]
+    );
+  }
+  return dstIndex;
+}
+function addFace(ctx, a2, b4, c3, d, ua, ub, uc, ud, na, nb, nc, nd) {
+  const geometry = ctx.currentObject.geometry;
+  const ia = getOrCreateVertex(ctx, a2, ua, na);
+  const ib = getOrCreateVertex(ctx, b4, ub, nb);
+  const ic = getOrCreateVertex(ctx, c3, uc, nc);
+  if (d === void 0) {
+    geometry.indices.push(ia, ib, ic);
+    return;
+  }
+  const id = getOrCreateVertex(ctx, d, ud, nd);
+  geometry.indices.push(ia, ib, id);
+  geometry.indices.push(ib, ic, id);
+}
+function parseFaceLine(ctx, line) {
+  const refs = [];
+  const body = line.substring(1).trim();
+  let tokenStart = 0;
+  for (let i = 0, len = body.length; i <= len; i++) {
+    const isEnd = i === len || body.charCodeAt(i) === 32;
+    if (!isEnd) {
+      continue;
+    }
+    if (i === tokenStart) {
+      tokenStart = i + 1;
+      continue;
+    }
+    const token = body.substring(tokenStart, i);
+    const ref = parseFaceToken(token);
+    if (!ref || ref.v === "") {
+      ctx.errors.push(`Unexpected face line: '${line}'`);
+      return;
+    }
+    refs.push(ref);
+    tokenStart = i + 1;
+  }
+  if (refs.length < 3) {
+    ctx.errors.push(`Unexpected face line: '${line}'`);
+    return;
+  }
+  if (refs.length === 3) {
+    const a3 = refs[0];
+    const b4 = refs[1];
+    const c3 = refs[2];
+    addFace(ctx, a3.v, b4.v, c3.v, void 0, a3.vt, b4.vt, c3.vt, void 0, a3.vn, b4.vn, c3.vn, void 0);
+    return;
+  }
+  if (refs.length === 4) {
+    const a3 = refs[0];
+    const b4 = refs[1];
+    const c3 = refs[2];
+    const d = refs[3];
+    addFace(ctx, a3.v, b4.v, c3.v, d.v, a3.vt, b4.vt, c3.vt, d.vt, a3.vn, b4.vn, c3.vn, d.vn);
+    return;
+  }
+  const a2 = refs[0];
+  for (let i = 1; i < refs.length - 1; i++) {
+    const b4 = refs[i];
+    const c3 = refs[i + 1];
+    addFace(ctx, a2.v, b4.v, c3.v, void 0, a2.vt, b4.vt, c3.vt, void 0, a2.vn, b4.vn, c3.vn, void 0);
+  }
+}
+function parseFaceToken(token) {
+  const slash0 = token.indexOf("/");
+  if (slash0 === -1) {
+    return { v: token };
+  }
+  const v = token.substring(0, slash0);
+  const after0 = token.substring(slash0 + 1);
+  const slash1 = after0.indexOf("/");
+  if (slash1 === -1) {
+    const vt2 = after0;
+    return {
+      v,
+      vt: vt2 !== "" ? vt2 : void 0
+    };
+  }
+  const vt = after0.substring(0, slash1);
+  const vn = after0.substring(slash1 + 1);
+  return {
+    v,
+    vt: vt !== "" ? vt : void 0,
+    vn: vn !== "" ? vn : void 0
+  };
+}
+function addVertexLine(ctx, a2) {
+  const dst = ctx.currentObject.geometry.positions;
+  const src = ctx.srcPositions;
+  dst.push(src[a2], src[a2 + 1], src[a2 + 2]);
+}
+function addUVLine(ctx, a2) {
+  const dst = ctx.currentObject.geometry.uv;
+  const src = ctx.srcUVs;
+  dst.push(src[a2], src[a2 + 1]);
+}
+function addLineGeometry(ctx, line) {
+  const object = ctx.currentObject;
+  object.geometry.type = "Line";
+  const vLen = ctx.srcPositions.length;
+  const uvLen = ctx.srcUVs.length;
+  const body = line.substring(1).trim();
+  let tokenStart = 0;
+  for (let i = 0, len = body.length; i <= len; i++) {
+    const isEnd = i === len || body.charCodeAt(i) === 32;
+    if (!isEnd) {
+      continue;
+    }
+    if (i === tokenStart) {
+      tokenStart = i + 1;
+      continue;
+    }
+    const token = body.substring(tokenStart, i);
+    const slash0 = token.indexOf("/");
+    if (slash0 === -1) {
+      addVertexLine(ctx, parseVertexIndex(token, vLen));
+    } else {
+      const v = token.substring(0, slash0);
+      const rest = token.substring(slash0 + 1);
+      const slash1 = rest.indexOf("/");
+      const uv = slash1 === -1 ? rest : rest.substring(0, slash1);
+      if (v) {
+        addVertexLine(ctx, parseVertexIndex(v, vLen));
+      }
+      if (uv) {
+        addUVLine(ctx, parseUVIndex(uv, uvLen));
+      }
+    }
+    tokenStart = i + 1;
+  }
+}
+
+// ../sdk/src/formats/obj/OBJLoader.ts
+var OBJLoader = class extends ModelLoader {
+  /**
+   * Constructs a OBJLoader.
+   */
+  constructor() {
+    super({
+      format: "OBJ",
+      fileDataType: "text",
+      parsers: {
+        "1.0": parse13
+      },
+      getVersion: (fileData) => {
+        return fileData.version || "1.0";
+      }
+    });
+  }
+};
+
+// ../sdk/src/formats/obj/versions/v1_0/encode.ts
+var tempVec3a8 = createVec3Float64();
+var tempVec3b8 = createVec3Float64();
+var tempVec3c4 = createVec3Float64();
+function encode14(params, options) {
+  return new Promise((resolve2, reject) => {
+    try {
+      const { sceneModel } = params;
+      const lines = [];
+      let vertexOffset = 0;
+      lines.push("# WaveFront OBJ");
+      lines.push(`# SceneModel: ${sceneModel.id}`);
+      if (options?.mtlFileName) {
+        lines.push(`mtllib ${options.mtlFileName}`);
+      }
+      lines.push("");
+      const sceneObjects = Object.values(sceneModel.objects);
+      for (let i = 0, len = sceneObjects.length; i < len; i++) {
+        const sceneObject = sceneObjects[i];
+        const meshes = sceneObject.meshes || [];
+        if (meshes.length === 0) {
+          continue;
+        }
+        lines.push(`o ${sanitizeOBJName(sceneObject.id)}`);
+        for (let j = 0, lenj = meshes.length; j < lenj; j++) {
+          const sceneMesh = meshes[j];
+          const geometry = sceneMesh.geometry;
+          if (!geometry) {
+            continue;
+          }
+          const objectName = meshes.length > 1 ? `${sceneObject.id}_${sceneMesh.id}` : sceneObject.id;
+          lines.push(`g ${sanitizeOBJName(objectName)}`);
+          lines.push(`usemtl ${sanitizeMTLName(getMaterialNameForMesh(sceneMesh))}`);
+          const positionsCompressed = geometry.positionsCompressed;
+          const indices = geometry.indices;
+          const aabb = geometry.aabb;
+          if (!positionsCompressed || positionsCompressed.length === 0) {
+            lines.push("");
+            continue;
+          }
+          const matrix = getMeshWorldMatrix(sceneMesh);
+          const numVerts = positionsCompressed.length / 3;
+          for (let k = 0, lenk = positionsCompressed.length; k < lenk; k += 3) {
+            tempVec3a8[0] = positionsCompressed[k];
+            tempVec3a8[1] = positionsCompressed[k + 1];
+            tempVec3a8[2] = positionsCompressed[k + 2];
+            decompressPoint3WithAABB3(tempVec3a8, aabb, tempVec3b8);
+            transformPoint3(matrix, tempVec3b8, tempVec3c4);
+            lines.push(`v ${formatNum(tempVec3c4[0])} ${formatNum(tempVec3c4[1])} ${formatNum(tempVec3c4[2])}`);
+          }
+          if (indices && indices.length > 0) {
+            for (let k = 0, lenk = indices.length; k < lenk; k += 3) {
+              const a2 = indices[k] + 1 + vertexOffset;
+              const b4 = indices[k + 1] + 1 + vertexOffset;
+              const c3 = indices[k + 2] + 1 + vertexOffset;
+              lines.push(`f ${a2} ${b4} ${c3}`);
+            }
+          } else {
+            for (let k = 0; k < numVerts; k += 3) {
+              const a2 = vertexOffset + k + 1;
+              const b4 = vertexOffset + k + 2;
+              const c3 = vertexOffset + k + 3;
+              lines.push(`f ${a2} ${b4} ${c3}`);
+            }
+          }
+          vertexOffset += numVerts;
+          lines.push("");
+        }
+      }
+      resolve2(lines.join("\n"));
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+function getMaterialNameForMesh(sceneMesh) {
+  return sceneMesh.material?.id || `mesh_${sceneMesh.id}`;
+}
+function sanitizeOBJName(name12) {
+  return String(name12 || "unnamed").replace(/\s+/g, "_");
+}
+function sanitizeMTLName(name12) {
+  return String(name12 || "unnamed").replace(/\s+/g, "_");
+}
+function formatNum(value) {
+  if (!isFinite(value)) {
+    return "0";
+  }
+  return Number(value.toFixed(9)).toString();
+}
+
+// ../sdk/src/formats/obj/OBJExporter.ts
+var OBJExporter = class extends ModelExporter {
+  constructor() {
+    super({
+      format: "OBJ",
+      fileDataType: "text",
+      encoders: {
+        "1.0": encode14
+      },
+      defaultVersion: "1.0"
+    });
+  }
+};
+
+// ../sdk/src/formats/mtl/index.ts
+var mtl_exports = {};
+__export(mtl_exports, {
+  MTLExporter: () => MTLExporter,
+  MTLLoader: () => MTLLoader
+});
+
+// ../sdk/src/formats/mtl/versions/v1_0/parse.ts
+var parse14 = async (params, options) => {
+  return new Promise((resolve2, reject) => {
+    const { fileData, sceneModel } = params;
+    if (sceneModel) {
+      const ctx = {
+        fileData,
+        errors: [],
+        warnings: [],
+        sceneModel,
+        options: options || {}
+      };
+      parseMTL(ctx, fileData || "");
+      if (ctx.errors.length > 0) {
+        return reject(`[MTLLoader] Failed to parse MTL file: ${ctx.errors[0]}`);
+      }
+      if (ctx.warnings.length > 0) {
+        console.warn(`[MTLLoader] Warning while parsing MTL file: ${ctx.warnings[0]}`);
+      }
+    }
+    resolve2();
+  });
+};
+function parseMTL(ctx, text) {
+  const lines = text.split("\n");
+  let current = null;
+  let currentId = "";
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line.length === 0 || line.charAt(0) === "#") {
+      continue;
+    }
+    const space = line.indexOf(" ");
+    const key = space !== -1 ? line.substring(0, space).toLowerCase() : line;
+    const value = space !== -1 ? line.substring(space + 1).trim() : "";
+    switch (key) {
+      case "newmtl":
+        if (current && currentId) {
+          ctx.sceneModel.createMaterial({
+            id: currentId,
+            color: current.color,
+            opacity: current.opacity
+          });
+        }
+        currentId = value;
+        current = {
+          color: [0.8, 0.8, 0.8],
+          // default
+          opacity: 1
+        };
+        break;
+      case "kd": {
+        if (!current) {
+          break;
+        }
+        const parts = value.split(/\s+/);
+        current.color = [
+          parseFloat(parts[0]),
+          parseFloat(parts[1]),
+          parseFloat(parts[2])
+        ];
+        break;
+      }
+      case "d": {
+        if (!current) {
+          break;
+        }
+        current.opacity = parseFloat(value);
+        break;
+      }
+      case "tr": {
+        if (!current) {
+          break;
+        }
+        current.opacity = 1 - parseFloat(value);
+        break;
+      }
+    }
+  }
+  if (current && currentId) {
+    ctx.sceneModel.createMaterial({
+      id: currentId,
+      color: current.color,
+      opacity: current.opacity
+    });
+  }
+}
+
+// ../sdk/src/formats/mtl/MTLLoader.ts
+var MTLLoader = class extends ModelLoader {
+  /**
+   * Constructs a MTLLoader.
+   */
+  constructor() {
+    super({
+      format: "MTL",
+      fileDataType: "text",
+      parsers: {
+        "1.0": parse14
+      },
+      getVersion: (fileData) => {
+        return fileData.version || "1.0";
+      }
+    });
+  }
+};
+
+// ../sdk/src/formats/mtl/versions/v1_0/encode.ts
+function encode15(params, options) {
+  return new Promise((resolve2, reject) => {
+    try {
+      const { sceneModel } = params;
+      const lines = [];
+      const writtenMaterialIds = /* @__PURE__ */ new Set();
+      lines.push("# WaveFront MTL");
+      lines.push(`# SceneModel: ${sceneModel.id}`);
+      lines.push("");
+      const sceneMaterials = Object.values(sceneModel.materials || {});
+      for (let i = 0, len = sceneMaterials.length; i < len; i++) {
+        const material = sceneMaterials[i];
+        if (!material || writtenMaterialIds.has(material.id)) {
+          continue;
+        }
+        const materialName = getMaterialNameForSceneMaterial(material);
+        writeSceneMaterial(lines, materialName, material);
+        writtenMaterialIds.add(materialName);
+      }
+      const sceneMeshes = Object.values(sceneModel.meshes || {});
+      for (let i = 0, len = sceneMeshes.length; i < len; i++) {
+        const mesh = sceneMeshes[i];
+        if (!mesh || mesh.material) {
+          continue;
+        }
+        const fallbackMaterialId = getMaterialNameForMesh2(mesh);
+        if (writtenMaterialIds.has(fallbackMaterialId)) {
+          continue;
+        }
+        const color2 = mesh.color || [1, 1, 1];
+        const opacity = mesh.opacity ?? 1;
+        const dissolve = clamp01(opacity);
+        lines.push(`newmtl ${sanitizeMTLName2(fallbackMaterialId)}`);
+        lines.push(`Kd ${formatNum2(color2[0])} ${formatNum2(color2[1])} ${formatNum2(color2[2])}`);
+        lines.push(`Ka 0.000000 0.000000 0.000000`);
+        lines.push(`Ks 0.000000 0.000000 0.000000`);
+        lines.push(`Ns 0.000000`);
+        lines.push(`d ${formatNum2(dissolve)}`);
+        lines.push(`Tr ${formatNum2(1 - dissolve)}`);
+        lines.push(`illum 2`);
+        lines.push("");
+        writtenMaterialIds.add(fallbackMaterialId);
+      }
+      resolve2(lines.join("\n"));
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+function writeSceneMaterial(lines, materialName, material) {
+  const color2 = material.color || [1, 1, 1];
+  const opacity = material.opacity ?? 1;
+  const dissolve = clamp01(opacity);
+  lines.push(`newmtl ${sanitizeMTLName2(materialName)}`);
+  lines.push(`Kd ${formatNum2(color2[0])} ${formatNum2(color2[1])} ${formatNum2(color2[2])}`);
+  lines.push(`Ka 0.000000 0.000000 0.000000`);
+  lines.push(`Ks 0.000000 0.000000 0.000000`);
+  lines.push(`Ns 0.000000`);
+  lines.push(`d ${formatNum2(dissolve)}`);
+  lines.push(`Tr ${formatNum2(1 - dissolve)}`);
+  lines.push(`illum 2`);
+  if (material.colorTexture?.src) {
+    lines.push(`map_Kd ${sanitizeTexturePath(material.colorTexture.src)}`);
+  }
+  if (material.occlusionTexture?.src) {
+    lines.push(`map_Ka ${sanitizeTexturePath(material.occlusionTexture.src)}`);
+  }
+  if (material.emissiveTexture?.src) {
+    lines.push(`map_Ke ${sanitizeTexturePath(material.emissiveTexture.src)}`);
+  }
+  lines.push("");
+}
+function getMaterialNameForSceneMaterial(material) {
+  return material.id;
+}
+function getMaterialNameForMesh2(mesh) {
+  return mesh.material?.id || `mesh_${mesh.id}`;
+}
+function sanitizeMTLName2(name12) {
+  return String(name12 || "unnamed").replace(/\s+/g, "_");
+}
+function sanitizeTexturePath(path) {
+  return String(path || "").trim();
+}
+function clamp01(value) {
+  if (!isFinite(value)) {
+    return 1;
+  }
+  if (value < 0) {
+    return 0;
+  }
+  if (value > 1) {
+    return 1;
+  }
+  return value;
+}
+function formatNum2(value) {
+  if (!isFinite(value)) {
+    return "0";
+  }
+  return Number(value.toFixed(9)).toString();
+}
+
+// ../sdk/src/formats/mtl/MTLExporter.ts
+var MTLExporter = class extends ModelExporter {
+  constructor() {
+    super({
+      format: "MTL",
+      fileDataType: "text",
+      encoders: {
+        "1.0": encode15
       },
       defaultVersion: "1.0"
     });
@@ -119671,6 +120643,7 @@ var FrustumProjection = class {
       },
       stage: SDKTask.ComputeStage
     });
+    this._buildMatricesTask.schedule();
   }
   /**
    * Gets the position of the FrustumProjection's left plane on the View-space X-axis.
@@ -119989,6 +120962,7 @@ var OrthoProjection = class {
       },
       stage: SDKTask.ComputeStage
     });
+    this._buildMatricesTask.schedule();
   }
   /**
    * Gets scale factor for this OrthoProjection's extents on X and Y axis.
@@ -120180,6 +121154,9 @@ var OrthoProjection = class {
 
 // ../sdk/src/viewer/PerspectiveProjection.ts
 var import_strongly_typed_events8 = __toESM(require_dist8());
+var tempVec4a6 = createVec4Float64();
+var tempVec4b6 = createVec4Float64();
+var tempVec4c = createVec4Float64();
 var PerspectiveProjection = class {
   /**
    * The Camera this PerspectiveProjection belongs to.
@@ -120245,6 +121222,7 @@ var PerspectiveProjection = class {
       },
       stage: SDKTask.ComputeStage
     });
+    this._buildMatricesTask.schedule();
   }
   /**
    * Gets the PerspectiveProjection's field-of-view angle (FOV).
@@ -120400,6 +121378,26 @@ var PerspectiveProjection = class {
    * @param worldPos Outputs un-projected 3D World-space coordinates.
    */
   unproject(canvasPos2, screenZ, screenPos2, viewPos2, worldPos) {
+    const htmlElement = this.camera.view.htmlElement;
+    const halfViewWidth = htmlElement.offsetWidth / 2;
+    const halfViewHeight = htmlElement.offsetHeight / 2;
+    screenPos2[0] = (canvasPos2[0] - halfViewWidth) / halfViewWidth;
+    screenPos2[1] = (canvasPos2[1] - halfViewHeight) / halfViewHeight;
+    screenPos2[2] = screenZ;
+    tempVec4a6[0] = screenPos2[0];
+    tempVec4a6[1] = screenPos2[1];
+    tempVec4a6[2] = screenPos2[2];
+    tempVec4a6[3] = 1;
+    transformPoint4(this.inverseProjMatrix, tempVec4a6, tempVec4b6);
+    mulVec3Scalar(tempVec4b6, 1 / tempVec4b6[3]);
+    viewPos2[0] = tempVec4b6[0];
+    viewPos2[1] = tempVec4b6[1];
+    viewPos2[2] = tempVec4b6[2];
+    tempVec4b6[1] *= -1;
+    transformPoint4(this.camera.inverseViewMatrix, tempVec4b6, tempVec4c);
+    worldPos[0] = tempVec4c[0];
+    worldPos[1] = tempVec4c[1];
+    worldPos[2] = tempVec4c[2];
     return worldPos;
   }
   /**
@@ -120464,8 +121462,8 @@ var PerspectiveProjection = class {
 
 // ../sdk/src/viewer/Camera.ts
 var tempVec32 = createVec3Float64();
-var tempVec3b8 = createVec3Float64();
-var tempVec3c4 = createVec3Float64();
+var tempVec3b9 = createVec3Float64();
+var tempVec3c5 = createVec3Float64();
 var tempVec3d2 = createVec3Float64();
 var tempVec3e2 = createVec3Float64();
 var tempVec3f = createVec3Float64();
@@ -120529,9 +121527,9 @@ var Camera2 = class {
    */
   constructor(view, cfg = {}) {
     this.view = view;
-    this.perspectiveProjection = new PerspectiveProjection(this);
-    this.orthoProjection = new OrthoProjection(this);
-    this.frustumProjection = new FrustumProjection(this);
+    this.perspectiveProjection = new PerspectiveProjection(this, cfg.perspectiveProjection);
+    this.orthoProjection = new OrthoProjection(this, cfg.orthoProjection);
+    this.frustumProjection = new FrustumProjection(this, cfg.frustumProjection);
     this.customProjection = new CustomProjection(this);
     this._eye = createVec3Float64(cfg.eye || [0, -10, 0]);
     this._look = createVec3Float64(cfg.look || [0, 0, 0]);
@@ -120599,6 +121597,7 @@ var Camera2 = class {
       },
       stage: SDKTask.ComputeStage
     });
+    this._buildViewMatrixTask.schedule();
   }
   /**
    * Gets the currently active projection for this Camera.
@@ -120835,8 +121834,8 @@ var Camera2 = class {
   orbitYaw(angleInc) {
     let lookEyeVec = subVec3(this._eye, this._look, tempVec32);
     rotationMat4v(angleInc * 0.0174532925, this._gimbalLock ? this.view.viewer.scene.coordinateSystem.worldUp : this._up, tempMat2);
-    lookEyeVec = transformPoint3(tempMat2, lookEyeVec, tempVec3b8);
-    this.eye = addVec3(this._look, lookEyeVec, tempVec3c4);
+    lookEyeVec = transformPoint3(tempMat2, lookEyeVec, tempVec3b9);
+    this.eye = addVec3(this._look, lookEyeVec, tempVec3c5);
     this.up = transformPoint3(tempMat2, this._up, tempVec3d2);
   }
   /**
@@ -120852,7 +121851,7 @@ var Camera2 = class {
       }
     }
     let eye2 = subVec3(this._eye, this._look, tempVec32);
-    const left = cross3Vec3(normalizeVec3(eye2, tempVec3b8), normalizeVec3(this._up, tempVec3c4));
+    const left = cross3Vec3(normalizeVec3(eye2, tempVec3b9), normalizeVec3(this._up, tempVec3c5));
     rotationMat4v(angleInc * 0.0174532925, left, tempMat2);
     eye2 = transformPoint3(tempMat2, eye2, tempVec3d2);
     this.up = transformPoint3(tempMat2, this._up, tempVec3e2);
@@ -120866,8 +121865,8 @@ var Camera2 = class {
   yaw(angleInc) {
     let look2 = subVec3(this._look, this._eye, tempVec32);
     rotationMat4v(angleInc * 0.0174532925, this._gimbalLock ? this.view.viewer.scene.coordinateSystem.worldUp : this._up, tempMat2);
-    look2 = transformPoint3(tempMat2, look2, tempVec3b8);
-    this.look = addVec3(look2, this._eye, tempVec3c4);
+    look2 = transformPoint3(tempMat2, look2, tempVec3b9);
+    this.look = addVec3(look2, this._eye, tempVec3c5);
     if (this._gimbalLock) {
       this.up = transformPoint3(tempMat2, this._up, tempVec3d2);
     }
@@ -120885,7 +121884,7 @@ var Camera2 = class {
       }
     }
     let look2 = subVec3(this._look, this._eye, tempVec32);
-    const left = cross3Vec3(normalizeVec3(look2, tempVec3b8), normalizeVec3(this._up, tempVec3c4));
+    const left = cross3Vec3(normalizeVec3(look2, tempVec3b9), normalizeVec3(this._up, tempVec3c5));
     rotationMat4v(angleInc * 0.0174532925, left, tempMat2);
     this.up = transformPoint3(tempMat2, this._up, tempVec3f);
     look2 = transformPoint3(tempMat2, look2, tempVec3d2);
@@ -120898,23 +121897,23 @@ var Camera2 = class {
    */
   pan(pan) {
     const eye2 = subVec3(this._eye, this._look, tempVec32);
-    const vec = tempVec3b8;
+    const vec = tempVec3b9;
     let v;
     if (pan[0] !== 0) {
-      const left = cross3Vec3(normalizeVec3(eye2, tempVec3c4), normalizeVec3(this._up, tempVec3d2));
+      const left = cross3Vec3(normalizeVec3(eye2, tempVec3c5), normalizeVec3(this._up, tempVec3d2));
       v = mulVec3Scalar(left, pan[0]);
       vec[0] += v[0];
       vec[1] += v[1];
       vec[2] += v[2];
     }
     if (pan[1] !== 0) {
-      v = mulVec3Scalar(normalizeVec3(this._up, tempVec3c4), pan[1]);
+      v = mulVec3Scalar(normalizeVec3(this._up, tempVec3c5), pan[1]);
       vec[0] += v[0];
       vec[1] += v[1];
       vec[2] += v[2];
     }
     if (pan[2] !== 0) {
-      v = mulVec3Scalar(normalizeVec3(eye2, tempVec3c4), pan[2]);
+      v = mulVec3Scalar(normalizeVec3(eye2, tempVec3c5), pan[2]);
       vec[0] += v[0];
       vec[1] += v[1];
       vec[2] += v[2];
@@ -120934,7 +121933,7 @@ var Camera2 = class {
     if (newLenLook < 0.5) {
       return;
     }
-    const dir = normalizeVec3(vec, tempVec3c4);
+    const dir = normalizeVec3(vec, tempVec3c5);
     this.eye = addVec3(this._look, mulVec3Scalar(dir, newLenLook), tempVec3d2);
   }
   /**
@@ -122695,1116 +123694,6 @@ var Texturing = class {
   }
 };
 
-// ../sdk/src/viewer/ViewObject.ts
-var ViewObject = class {
-  /**
-   * Unique ID of this ViewObject within {@link ViewLayer.objects}.
-   */
-  id;
-  /**
-   * ID of this ViewObject within the originating system.
-   */
-  originalSystemId;
-  /**
-   * The View to which this ViewObject belongs.
-   */
-  view;
-  /**
-   * The ViewLayer to which this ViewObject belongs.
-   */
-  layer;
-  /**
-   * The corresponding {@link scene!SceneObject}.
-   */
-  sceneObject;
-  _visible;
-  _culled;
-  _pickable;
-  _clippable;
-  _collidable;
-  _xrayed;
-  _selected;
-  _highlighted;
-  _colorize;
-  _colorized;
-  _opacityUpdated;
-  /**
-   * True if this ViewObject has been destroyed.
-   */
-  destroyed = false;
-  /**
-   * @private
-   */
-  constructor(layer, sceneObject) {
-    this.id = sceneObject.id;
-    this.originalSystemId = sceneObject.originalSystemId;
-    this.view = layer.view;
-    this.layer = layer;
-    this.sceneObject = sceneObject;
-    this._visible = true;
-    this._culled = false;
-    this._pickable = true;
-    this._clippable = true;
-    this._collidable = true;
-    this._xrayed = false;
-    this._selected = false;
-    this._highlighted = false;
-    this._colorize = new Float32Array(4);
-    this._colorized = false;
-    this._opacityUpdated = false;
-    this.layer.objectVisibilityUpdated(this, this._visible, false);
-  }
-  /**
-   * Gets if this ViewObject is visible.
-   *
-   * * When {@link ViewObject.visible} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.visibleObjects}.
-   * * Each ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
-   * * Use {@link ViewLayer.setObjectsVisible} to batch-update the visibility of ViewObjects, which fires a single event for the batch.
-   */
-  get visible() {
-    return this._visible;
-  }
-  /**
-   * Sets if this ViewObject is visible.
-   *
-   * * When {@link ViewObject.visible} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.visibleObjects}.
-   * * Each ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
-   * * Fires an "objectVisibility" event on  {@link ViewerEvents}.
-   * * Use {@link ViewLayer.setObjectsVisible} to batch-update the visibility of ViewObjects, which fires a single event for the batch.
-   */
-  set visible(visible) {
-    if (this.destroyed) {
-      this.layer.view.viewer.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[ViewObject.visible] ViewObject already destroyed"
-      });
-      return;
-    }
-    if (visible === this._visible) {
-      return;
-    }
-    this._visible = visible;
-    this.layer.objectVisibilityUpdated(this, visible, true);
-  }
-  // /**
-  //  * Sets the visibility of a specific mesh within this ViewObject.
-  //  * @param meshIndex
-  //  * @param visible
-  // */
-  // setMeshVisible(meshIndex: number, visible: boolean) {
-  //     if (this.destroyed) {
-  //         this.layer.view.viewer.logError({
-  //             ok: false,
-  //             type: SDKErrorType.InvalidOperation,
-  //             error: "[ViewObject.setMeshVisible] ViewObject already destroyed"
-  //         });
-  //         return;
-  //     }
-  //     this.layer.objectMeshVisibilityUpdated(this, meshIndex, visible);
-  // }
-  /**
-   * Gets if this ViewObject is X-rayed.
-   *
-   * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.xrayedObjects | ViewLayer.xrayedObjects}.
-   * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
-   */
-  get xrayed() {
-    return this._xrayed;
-  }
-  /**
-   * Sets if this ViewObject is X-rayed.
-   *
-   * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.xrayedObjects | ViewLayer.xrayedObjects}.
-   * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
-   */
-  set xrayed(xrayed) {
-    if (this.destroyed) {
-      this.layer.view.viewer.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[ViewObject.xrayed] ViewObject already destroyed"
-      });
-      return;
-    }
-    if (this._xrayed === xrayed) {
-      return;
-    }
-    this._xrayed = xrayed;
-    this.layer.objectXRayedUpdated(this, xrayed);
-  }
-  /**
-   * Gets if this ViewObject is highlighted.
-   *
-   * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.highlightedObjects | ViewLayer.highlightedObjects}.
-   * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
-   */
-  get highlighted() {
-    return this._highlighted;
-  }
-  /**
-   * Sets if this ViewObject is highlighted.
-   *
-   * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.highlightedObjects | ViewLayer.highlightedObjects}.
-   * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
-   */
-  set highlighted(highlighted) {
-    if (this.destroyed) {
-      this.layer.view.viewer.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[ViewObject.highlighted] ViewObject already destroyed"
-      });
-      return;
-    }
-    if (highlighted === this._highlighted) {
-      return;
-    }
-    this._highlighted = highlighted;
-    this.layer.objectHighlightedUpdated(this, highlighted);
-  }
-  /**
-   * Gets if this ViewObject is selected.
-   *
-   * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.selectedObjects | ViewLayer.selectedObjects}.
-   * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
-   */
-  get selected() {
-    return this._selected;
-  }
-  /**
-   * Sets if this ViewObject is selected.
-   *
-   * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.selectedObjects | ViewLayer.selectedObjects}.
-   * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
-   */
-  set selected(selected) {
-    if (this.destroyed) {
-      this.layer.view.viewer.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[ViewObject.selected] ViewObject already destroyed"
-      });
-      return;
-    }
-    if (selected === this._selected) {
-      return;
-    }
-    this._selected = selected;
-    this.layer.objectSelectedUpdated(this, selected);
-  }
-  /**
-   * Gets if this ViewObject is culled.
-   *
-   * * The ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
-   * * Use {@link ViewLayer.setObjectsCulled} to batch-update the culled state of ViewObjects.
-   */
-  get culled() {
-    return this._culled;
-  }
-  /**
-   * Sets if this ViewObject is culled.
-   *
-   * * The ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
-   * * Use {@link ViewLayer.setObjectsCulled} to batch-update the culled state of ViewObjects.
-   */
-  set culled(culled) {
-    if (this.destroyed) {
-      this.layer.view.viewer.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[ViewObject.culled] ViewObject already destroyed"
-      });
-      return;
-    }
-    if (culled === this._culled) {
-      return;
-    }
-    this._culled = culled;
-  }
-  /**
-   * Gets if this ViewObject is clippable.
-   *
-   * * Clipping is done by the {@link SectionPlane | SectionPlanes} in {@link View.sectionPlanes | View.sectionPlanes}.
-   * * Use {@link View.setObjectsClippable | View.setObjectsClippable} or {@link ViewLayer.setObjectsClippable | ViewLayer.setObjectsClippable} to batch-update the clippable state of multiple ViewObjects.
-   */
-  get clippable() {
-    return this._clippable;
-  }
-  /**
-   * Sets if this ViewObject is clippable.
-   *
-   * * Clipping is done by the {@link SectionPlane | SectionPlanes} in {@link View.sectionPlanes | View.sectionPlanes}.
-   * * Use {@link View.setObjectsClippable | View.setObjectsClippable} or {@link ViewLayer.setObjectsClippable | ViewLayer.setObjectsClippable} to batch-update the clippable state of multiple ViewObjects.
-   */
-  set clippable(clippable) {
-    if (this.destroyed) {
-      this.layer.view.viewer.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[ViewObject.clippable] ViewObject already destroyed"
-      });
-      return;
-    }
-    if (clippable === this._clippable) {
-      return;
-    }
-    this._clippable = clippable;
-  }
-  /**
-   * Gets if this ViewObject is included in boundary calculations.
-   */
-  get collidable() {
-    return this._collidable;
-  }
-  /**
-   * Sets if this ViewObject included in boundary calculations.
-   */
-  set collidable(collidable) {
-    if (this.destroyed) {
-      this.layer.view.viewer.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[ViewObject.collidable] ViewObject already destroyed"
-      });
-      return;
-    }
-    if (collidable === this._collidable) {
-      return;
-    }
-    this._collidable = collidable;
-  }
-  /**
-   * Gets if this ViewObject is pickable.
-   *
-   * * Picking is done with {@link View.pick}.
-   * * Use {@link ViewLayer.setObjectsPickable} to batch-update the pickable state of ViewObjects.
-   */
-  get pickable() {
-    return this._pickable;
-  }
-  /**
-   * Sets if this ViewObject is pickable.
-   *
-   * * Picking is done with {@link View.pick}.
-   * * Use {@link ViewLayer.setObjectsPickable} to batch-update the pickable state of ViewObjects.
-   */
-  set pickable(pickable) {
-    if (this.destroyed) {
-      this.layer.view.viewer.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[ViewObject.pickable] ViewObject already destroyed"
-      });
-      return;
-    }
-    if (this._pickable === pickable) {
-      return;
-    }
-    this._pickable = pickable;
-  }
-  /**
-   * Gets the RGB colorize color for this ViewObject, if set.
-   *
-   * * Multiplies by rendered fragment colors.
-   * * Each element of the color is in range ````[0..1]````.
-   * * Use {@link ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
-   */
-  get colorize() {
-    return this._colorized ? this._colorize : null;
-  }
-  /**
-   * Sets the RGB colorize color for this ViewObject.
-   *
-   * * Multiplies by rendered fragment colors.
-   * * Each element of the color is in range ````[0..1]````.
-   * * Set to ````null```` or ````undefined```` to reset the colorize color to its default value of ````[1,1,1]````.
-   * * Use {@link ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
-   */
-  set colorize(value) {
-    if (this.destroyed) {
-      this.layer.view.viewer.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[ViewObject.colorize] ViewObject already destroyed"
-      });
-      return;
-    }
-    const colorize = this._colorize;
-    if (value) {
-      colorize[0] = value[0];
-      colorize[1] = value[1];
-      colorize[2] = value[2];
-    } else {
-      colorize[0] = 1;
-      colorize[1] = 1;
-      colorize[2] = 1;
-    }
-    this._colorized = !!value;
-    this.layer.objectColorizeUpdated(this, this._colorized);
-  }
-  /**
-   * Gets the opacity factor for this ViewObject.
-   *
-   * * This is a factor in range ````[0..1]```` which multiplies by the rendered fragment alphas.
-   * * Use {@link ViewLayer.setObjectsOpacity} to batch-update the opacities of ViewObjects.
-   */
-  get opacity() {
-    return this._colorize[3];
-  }
-  /**
-   * Sets the opacity factor for this ViewObject.
-   *
-   * * This is a factor in range ````[0..1]```` which multiplies by the rendered fragment alphas.
-   * * Set to ````null```` or ````undefined```` to reset the opacity to its default value of ````1````.
-   * * Use {@link ViewLayer.setObjectsOpacity} to batch-update the opacities of ViewObjects.
-   */
-  set opacity(opacity) {
-    if (this.destroyed) {
-      this.layer.view.viewer.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[ViewObject.opacity] ViewObject already destroyed"
-      });
-      return;
-    }
-    const colorize = this._colorize;
-    this._opacityUpdated = opacity !== null && opacity !== void 0;
-    colorize[3] = this._opacityUpdated ? opacity : 1;
-    this.layer.objectOpacityUpdated(this, this._opacityUpdated);
-  }
-  /**
-   * @private
-   */
-  _destroy() {
-    if (this._visible) {
-      this.layer.objectVisibilityUpdated(this, false, false);
-    }
-    if (this._xrayed) {
-      this.layer.objectXRayedUpdated(this, false);
-    }
-    if (this._selected) {
-      this.layer.objectSelectedUpdated(this, false);
-    }
-    if (this._highlighted) {
-      this.layer.objectHighlightedUpdated(this, false);
-    }
-    if (this._colorized) {
-      this.layer.objectColorizeUpdated(this, false);
-    }
-    if (this._opacityUpdated) {
-      this.layer.objectOpacityUpdated(this, false);
-    }
-  }
-};
-
-// ../sdk/src/viewer/ViewLayer.ts
-var ViewLayer = class {
-  /**
-   * Map of the all {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * These are the ViewObjects for which {@link scene!SceneObject.layerId | SceneObject.layerId} has the same value as the {@link ViewLayer.id | ViewLayer.id}.
-   *
-   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-   *
-   * The ViewLayer automatically ensures that there is a {@link ViewObject} here for
-   * each {@link scene!SceneObjectRendererProxy} in the {@link Viewer | Viewer}
-   */
-  objects;
-  /**
-   * Map of the currently visible {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * A ViewObject is visible when {@link ViewObject.visible} is true.
-   *
-   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  visibleObjects;
-  /**
-   * Map of currently x-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * A ViewObject is x-rayed when {@link ViewObject.xrayed} is true.
-   *
-   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  xrayedObjects;
-  /**
-   * Map of currently highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * A ViewObject is highlighted when {@link ViewObject.highlighted} is true.
-   *
-   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  highlightedObjects;
-  /**
-   * Map of currently selected {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * A ViewObject is selected when {@link ViewObject.selected} is true.
-   *
-   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  selectedObjects;
-  /**
-   * Map of currently colorized {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  colorizedObjects;
-  /**
-   * Map of {@link ViewObject | ViewObjects} in this ViewLayer whose opacity has been updated.
-   *
-   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  opacityObjects;
-  /**
-   * When true, View destroys this ViewLayer as soon as there are no ViewObjects
-   * that need it. When false, View retains it.
-   * @private
-   */
-  autoDestroy;
-  _renderModes;
-  _numObjects;
-  _objectIds;
-  _numVisibleObjects;
-  _visibleObjectIds;
-  _numXRayedObjects;
-  _xrayedObjectIds;
-  _numHighlightedObjects;
-  _highlightedObjectIds;
-  _numSelectedObjects;
-  _selectedObjectIds;
-  _numColorizedObjects;
-  _colorizedObjectIds;
-  _numOpacityObjects;
-  _opacityObjectIds;
-  gammaOutput;
-  /**
-   * True if this ViewLayer has been destroyed.
-   */
-  destroyed = false;
-  constructor(options) {
-    this.id = options.id;
-    this.viewer = options.viewer;
-    this.view = options.view;
-    this.objects = {};
-    this.visibleObjects = {};
-    this.xrayedObjects = {};
-    this.highlightedObjects = {};
-    this.selectedObjects = {};
-    this.colorizedObjects = {};
-    this.opacityObjects = {};
-    this.autoDestroy = options.autoDestroy !== false;
-    this._numObjects = 0;
-    this._numVisibleObjects = 0;
-    this._numXRayedObjects = 0;
-    this._numHighlightedObjects = 0;
-    this._numSelectedObjects = 0;
-    this._numColorizedObjects = 0;
-    this._numOpacityObjects = 0;
-    this._renderModes = [];
-    this._initViewObjects();
-  }
-  /**
-   * @private
-   */
-  _initViewObjects() {
-    const models = this.viewer.scene.models;
-    for (const id in models) {
-      const model = models[id];
-      this._sceneModelCreated(model);
-    }
-    const sceneEvents = this.viewer.scene.events;
-    sceneEvents.onSceneObjectCreated.subscribe((scene, sceneObject) => {
-      this._sceneObjectCreated(sceneObject);
-    });
-    sceneEvents.onSceneObjectDestroyed.subscribe((scene, sceneObject) => {
-      this._sceneObjectDestroyed(sceneObject);
-    });
-  }
-  /**
-   * @private
-   */
-  _sceneModelCreated(model) {
-    const sceneObjects = model.objects;
-    for (const id in sceneObjects) {
-      const sceneObject = sceneObjects[id];
-      this._sceneObjectCreated(sceneObject);
-    }
-  }
-  /**
-   * @private
-   */
-  _sceneObjectCreated(sceneObject) {
-    if (sceneObject.layerId == this.id) {
-      if (!this.objects[sceneObject.id]) {
-        const viewObject = new ViewObject(this, sceneObject);
-        this.objects[viewObject.id] = viewObject;
-        this._numObjects++;
-        this._objectIds = null;
-        this.view.viewer.events.onViewObjectCreated.dispatch(this.view, viewObject);
-      }
-    }
-  }
-  /**
-   * @private
-   */
-  _sceneObjectDestroyed(sceneObject) {
-    const viewObject = this.objects[sceneObject.id];
-    if (viewObject) {
-      this._destroyViewObject(viewObject);
-    }
-  }
-  /**
-   * @private
-   */
-  _destroyViewObject(viewObject) {
-    delete this.objects[viewObject.id];
-    delete this.visibleObjects[viewObject.id];
-    delete this.xrayedObjects[viewObject.id];
-    delete this.highlightedObjects[viewObject.id];
-    delete this.selectedObjects[viewObject.id];
-    delete this.colorizedObjects[viewObject.id];
-    delete this.opacityObjects[viewObject.id];
-    this._numObjects--;
-    this._objectIds = null;
-    this.view.viewer.events.onViewObjectDestroyed.dispatch(this.view, viewObject);
-  }
-  _attachViewObject(viewObject) {
-    this.objects[viewObject.id] = viewObject;
-    this._numObjects++;
-    this._objectIds = null;
-  }
-  _deattachViewObject(viewObject) {
-    const objectId = viewObject.id;
-    delete this.objects[objectId];
-    delete this.visibleObjects[objectId];
-    delete this.xrayedObjects[objectId];
-    delete this.highlightedObjects[objectId];
-    delete this.selectedObjects[objectId];
-    delete this.colorizedObjects[objectId];
-    delete this.opacityObjects[objectId];
-    this._numObjects--;
-    this._objectIds = null;
-  }
-  /**
-   * Gets the gamma factor.
-   */
-  get gammaFactor() {
-    return 1;
-  }
-  /**
-   * Sets which rendering modes in which to render the {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * Default value is [].
-   */
-  set renderModes(value) {
-    if (this.destroyed) {
-      this.viewer.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[ViewLayer.renderModes] ViewLayer already destroyed"
-      });
-      return;
-    }
-    this._renderModes = value;
-    this.view.needsRender();
-  }
-  /**
-   * Gets which rendering modes in which to render the {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * Default value is [].
-   */
-  get renderModes() {
-    return this._renderModes;
-  }
-  /**
-   * Gets the number of {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get numObjects() {
-    return this._numObjects;
-  }
-  /**
-   * Gets the IDs of the {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get objectIds() {
-    if (!this._objectIds) {
-      this._objectIds = Object.keys(this.objects);
-    }
-    return this._objectIds;
-  }
-  /**
-   * Gets the number of visible {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get numVisibleObjects() {
-    return this._numVisibleObjects;
-  }
-  /**
-   * Gets the IDs of the visible {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get visibleObjectIds() {
-    if (!this._visibleObjectIds) {
-      this._visibleObjectIds = Object.keys(this.visibleObjects);
-    }
-    return this._visibleObjectIds;
-  }
-  /**
-   * Gets the number of X-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get numXRayedObjects() {
-    return this._numXRayedObjects;
-  }
-  /**
-   * Gets the IDs of the X-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get xrayedObjectIds() {
-    if (!this._xrayedObjectIds) {
-      this._xrayedObjectIds = Object.keys(this.xrayedObjects);
-    }
-    return this._xrayedObjectIds;
-  }
-  /**
-   * Gets the number of highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get numHighlightedObjects() {
-    return this._numHighlightedObjects;
-  }
-  /**
-   * Gets the IDs of the highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get highlightedObjectIds() {
-    if (!this._highlightedObjectIds) {
-      this._highlightedObjectIds = Object.keys(this.highlightedObjects);
-    }
-    return this._highlightedObjectIds;
-  }
-  /**
-   * Gets the number of selected {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get numSelectedObjects() {
-    return this._numSelectedObjects;
-  }
-  /**
-   * Gets the IDs of the selected {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get selectedObjectIds() {
-    if (!this._selectedObjectIds) {
-      this._selectedObjectIds = Object.keys(this.selectedObjects);
-    }
-    return this._selectedObjectIds;
-  }
-  /**
-   * Gets the number of colorized {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get numColorizedObjects() {
-    return this._numColorizedObjects;
-  }
-  /**
-   * Gets the IDs of the colorized {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get colorizedObjectIds() {
-    if (!this._colorizedObjectIds) {
-      this._colorizedObjectIds = Object.keys(this.colorizedObjects);
-    }
-    return this._colorizedObjectIds;
-  }
-  /**
-   * Gets the IDs of the {@link ViewObject | ViewObjects} in this ViewLayer that have updated opacities.
-   */
-  get opacityObjectIds() {
-    if (!this._opacityObjectIds) {
-      this._opacityObjectIds = Object.keys(this.opacityObjects);
-    }
-    return this._opacityObjectIds;
-  }
-  /**
-   * Gets the number of {@link ViewObject | ViewObjects} in this ViewLayer that have updated opacities.
-   */
-  get numOpacityObjects() {
-    return this._numOpacityObjects;
-  }
-  /**
-   * Called by ViewObject.visible setter.
-   * @private
-   */
-  objectVisibilityUpdated(viewObject, visible, notify = true) {
-    if (visible) {
-      this.visibleObjects[viewObject.id] = viewObject;
-      this._numVisibleObjects++;
-    } else {
-      delete this.visibleObjects[viewObject.id];
-      this._numVisibleObjects--;
-    }
-    this._visibleObjectIds = null;
-    this.view.objectVisibilityUpdated(viewObject, visible, notify);
-  }
-  /**
-   * Called by ViewObject.xrayed setter.
-   * @private
-   */
-  objectXRayedUpdated(viewObject, xrayed) {
-    if (xrayed) {
-      this.xrayedObjects[viewObject.id] = viewObject;
-      this._numXRayedObjects++;
-    } else {
-      delete this.xrayedObjects[viewObject.id];
-      this._numXRayedObjects--;
-    }
-    this._xrayedObjectIds = null;
-    this.view.objectXRayedUpdated(viewObject, xrayed);
-  }
-  /**
-   * Called by ViewObject.highlighted setter.
-   * @private
-   */
-  objectHighlightedUpdated(viewObject, highlighted) {
-    if (highlighted) {
-      this.highlightedObjects[viewObject.id] = viewObject;
-      this._numHighlightedObjects++;
-    } else {
-      delete this.highlightedObjects[viewObject.id];
-      this._numHighlightedObjects--;
-    }
-    this._highlightedObjectIds = null;
-    this.view.objectHighlightedUpdated(viewObject, highlighted);
-  }
-  /**
-   * Called by ViewObject.selected setter.
-   * @private
-   */
-  objectSelectedUpdated(viewObject, selected) {
-    if (selected) {
-      this.selectedObjects[viewObject.id] = viewObject;
-      this._numSelectedObjects++;
-    } else {
-      delete this.selectedObjects[viewObject.id];
-      this._numSelectedObjects--;
-    }
-    this._selectedObjectIds = null;
-    this.view.objectSelectedUpdated(viewObject, selected);
-  }
-  /**
-   * Called by ViewObject.colorized setter.
-   * @private
-   */
-  objectColorizeUpdated(viewObject, colorized) {
-    if (colorized) {
-      this.colorizedObjects[viewObject.id] = viewObject;
-      this._numColorizedObjects++;
-    } else {
-      delete this.colorizedObjects[viewObject.id];
-      this._numColorizedObjects--;
-    }
-    this._colorizedObjectIds = null;
-    this.view.objectColorizeUpdated(viewObject, colorized);
-  }
-  /**
-   * Called by ViewObject.opacity setter.
-   * @private
-   */
-  objectOpacityUpdated(viewObject, opacityUpdated) {
-    if (opacityUpdated) {
-      this.opacityObjects[viewObject.id] = viewObject;
-      this._numOpacityObjects++;
-    } else {
-      delete this.opacityObjects[viewObject.id];
-      this._numOpacityObjects--;
-    }
-    this._opacityObjectIds = null;
-    this.view.objectOpacityUpdated(viewObject, opacityUpdated);
-  }
-  /**
-   * Updates the visibility of the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * - Updates {@link ViewObject.visible} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.visibleObjects} and {@link ViewLayer.numVisibleObjects}.
-   *
-   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
-   * @param visible Whether or not to cull.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsVisible(objectIds, visible) {
-    if (this.destroyed) {
-      this.view.viewer.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[ViewLayer.setObjectsVisible] ViewLayer already destroyed"
-      });
-      return;
-    }
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.visible !== visible;
-      viewObject.visible = visible;
-      return changed;
-    });
-  }
-  /**
-   * Updates the collidability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * Updates {@link ViewObject.collidable} on the Objects with the given IDs.
-   *
-   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
-   * @param collidable Whether or not to cull.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsCollidable(objectIds, collidable) {
-    if (this.destroyed) {
-      this.view.viewer.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[ViewLayer.setObjectsCollidable] ViewLayer already destroyed"
-      });
-      return;
-    }
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.collidable !== collidable;
-      viewObject.collidable = collidable;
-      return changed;
-    });
-  }
-  /**
-   * Updates the culled status of the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * Updates {@link ViewObject.culled} on the Objects with the given IDs.
-   *
-   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
-   * @param culled Whether or not to cull.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsCulled(objectIds, culled) {
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.culled !== culled;
-      viewObject.culled = culled;
-      return changed;
-    });
-  }
-  /**
-   * Selects or deselects the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * - Updates {@link ViewObject.selected} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.selectedObjects} and {@link ViewLayer.numSelectedObjects}.
-   *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param selected Whether or not to select.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsSelected(objectIds, selected) {
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.selected !== selected;
-      viewObject.selected = selected;
-      return changed;
-    });
-  }
-  /**
-   * Highlights or un-highlights the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * - Updates {@link ViewObject.highlighted} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.highlightedObjects} and {@link ViewLayer.numHighlightedObjects}.
-   *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param highlighted Whether or not to highlight.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsHighlighted(objectIds, highlighted) {
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.highlighted !== highlighted;
-      viewObject.highlighted = highlighted;
-      return changed;
-    });
-  }
-  /**
-   * Applies or removes X-ray rendering for the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * - Updates {@link ViewObject.xrayed} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.xrayedObjects} and {@link ViewLayer.numXRayedObjects}.
-   *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param xrayed Whether or not to xray.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsXRayed(objectIds, xrayed) {
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.xrayed !== xrayed;
-      if (changed) {
-        viewObject.xrayed = xrayed;
-      }
-      return changed;
-    });
-  }
-  /**
-   * Colorizes the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * - Updates {@link ViewObject.colorize} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.colorizedObjects} and {@link ViewLayer.numColorizedObjects}.
-   *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param colorize - RGB colorize factors in range ````[0..1,0..1,0..1]````.
-   * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
-   */
-  setObjectsColorized(objectIds, colorize) {
-    return this.withObjects(objectIds, (viewObject) => {
-      viewObject.colorize = colorize;
-    });
-  }
-  /**
-   * Sets the opacity of the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * - Updates {@link ViewObject.opacity} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.opacityObjects} and {@link ViewLayer.numOpacityObjects}.
-   *
-   * @param  objectIds - One or more {@link ViewObject.id} values.
-   * @param opacity - Opacity factor in range ````[0..1]````.
-   * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
-   */
-  setObjectsOpacity(objectIds, opacity) {
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.opacity !== opacity;
-      if (changed) {
-        viewObject.opacity = opacity;
-      }
-      return changed;
-    });
-  }
-  /**
-   * Sets the pickability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * - Updates {@link ViewObject.pickable} on the Objects with the given IDs.
-   * - Enables or disables the ability to pick the given Objects with {@link View.pick}.
-   *
-   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
-   * @param pickable Whether or not to set pickable.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsPickable(objectIds, pickable) {
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.pickable !== pickable;
-      if (changed) {
-        viewObject.pickable = pickable;
-      }
-      return changed;
-    });
-  }
-  /**
-   * Sets the clippability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * - Updates {@link ViewObject.clippable} on the Objects with the given IDs.
-   * - Enables or disables the ability to pick the given Objects with {@link View.pick}.
-   *
-   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
-   * @param clippable Whether or not to set clippable.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsClippable(objectIds, clippable) {
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.clippable !== clippable;
-      if (changed) {
-        viewObject.clippable = clippable;
-      }
-      return changed;
-    });
-  }
-  /**
-   * Iterates with a callback over the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param callback Callback to execute on each {@link ViewObject}.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  withObjects(objectIds, callback) {
-    let changed = false;
-    for (let i = 0, len = objectIds.length; i < len; i++) {
-      const id = objectIds[i];
-      const viewObject = this.objects[id];
-      if (viewObject) {
-        changed = callback(viewObject) || changed;
-      }
-    }
-    return changed;
-  }
-  /**
-   * Configures this ViewLayer.
-   *
-   * @param viewLayerParams
-   */
-  fromParams(viewLayerParams) {
-    return {
-      ok: true,
-      value: void 0
-    };
-  }
-  /**
-   * Gets the current configuration of this ViewLayer.
-   */
-  toParams() {
-    return {
-      ok: true,
-      value: {
-        id: this.id,
-        autoDestroy: this.autoDestroy
-      }
-    };
-  }
-  /**
-   * Destroys this ViewLayer.
-   *
-   * Causes {@link Viewer | Viewer} to fire a "viewDestroyed" event.
-   */
-  destroy() {
-    if (this.destroyed) {
-      this.viewer.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[ViewLayer.destroy] ViewLayer already destroyed"
-      });
-      return;
-    }
-    this._destroyAllViewObjects();
-    this.view._destroyLayer(this);
-    this.destroyed = true;
-  }
-  _destroyAllViewObjects() {
-    const objects = this.objects;
-    for (const id in objects) {
-      const viewObject = objects[id];
-      this._destroyViewObject(viewObject);
-    }
-  }
-};
-
-// ../sdk/src/viewer/View.ts
-var import_strongly_typed_events9 = __toESM(require_dist8());
-
-// ../sdk/src/viewer/ViewTransformParams.ts
-var ViewTransformParams = class {
-  /**
-   * Unique ID of this SceneTransform.
-   */
-  id;
-  /**
-   * A flat 4x4 matrix that defines the local transform.
-   */
-  matrix;
-  /**
-   * Optional local 3D translation vector.
-   */
-  position;
-  /**
-   * Optional local 3D scale vector.
-   */
-  scale;
-  /**
-   * Optional local 3D rotation quaternion.
-   */
-  quaternion;
-  /**
-   * Optional local 3D rotation as Euler angles in degrees for X, Y and Z axis.
-   */
-  rotation;
-  /**
-   * ID of the parent {@link ViewTransform} that was created previously
-   * with {@link View.createTransform | View.createTransform}.
-   */
-  parentTransformId;
-};
-
 // ../sdk/src/viewer/ViewTransform.ts
 var ViewTransform = class {
   /** Unique identifier for this transform within its owning {@link View} or {@link ViewLayer}. */
@@ -124185,6 +124074,1150 @@ var ViewTransform = class {
   }
 };
 
+// ../sdk/src/viewer/ViewObject.ts
+var ViewObject = class {
+  /**
+   * Unique ID of this ViewObject within {@link ViewLayer.objects}.
+   */
+  id;
+  /**
+   * ID of this ViewObject within the originating system.
+   */
+  originalSystemId;
+  /**
+   * The View to which this ViewObject belongs.
+   */
+  view;
+  /**
+   * The ViewLayer to which this ViewObject belongs.
+   */
+  layer;
+  /**
+   * The corresponding {@link scene!SceneObject}.
+   */
+  sceneObject;
+  /**
+   * The {@link ViewTransform} that defines the local transform of this ViewObject, if any.
+   */
+  viewTransform;
+  _visible;
+  _culled;
+  _pickable;
+  _clippable;
+  _collidable;
+  _xrayed;
+  _selected;
+  _highlighted;
+  _colorize;
+  _colorized;
+  _opacityUpdated;
+  /**
+   * True if this ViewObject has been destroyed.
+   */
+  destroyed = false;
+  /**
+   * @private
+   */
+  constructor(layer, sceneObject) {
+    this.id = sceneObject.id;
+    this.originalSystemId = sceneObject.originalSystemId;
+    this.view = layer.view;
+    this.layer = layer;
+    this.sceneObject = sceneObject;
+    this.viewTransform = null;
+    this._visible = true;
+    this._culled = false;
+    this._pickable = true;
+    this._clippable = true;
+    this._collidable = true;
+    this._xrayed = false;
+    this._selected = false;
+    this._highlighted = false;
+    this._colorize = new Float32Array(4);
+    this._colorized = false;
+    this._opacityUpdated = false;
+    this.layer.objectVisibilityUpdated(this, this._visible, false);
+  }
+  // /**
+  //  * @private
+  //  * @param viewTransform
+  //  */
+  // set viewTransform(viewTransform: ViewTransform) {
+  //       if (this.destroyed) {
+  //           this.layer.view.viewer.logError({
+  //               ok: false,
+  //               type: SDKErrorType.InvalidOperation,
+  //               error: "[ViewObject.viewTransform] ViewObject already destroyed"
+  //           });
+  //           return;
+  //       }
+  //       this._viewTransform = viewTransform;
+  //   //this.view.objectViewTransformUpdated(this, visible, notify);
+  //   }
+  //
+  //   get viewTransform(): ViewTransform {
+  //       return this._viewTransform;
+  //   }
+  /**
+   * Gets if this ViewObject is visible.
+   *
+   * * When {@link ViewObject.visible} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.visibleObjects}.
+   * * Each ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
+   * * Use {@link ViewLayer.setObjectsVisible} to batch-update the visibility of ViewObjects, which fires a single event for the batch.
+   */
+  get visible() {
+    return this._visible;
+  }
+  /**
+   * Sets if this ViewObject is visible.
+   *
+   * * When {@link ViewObject.visible} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.visibleObjects}.
+   * * Each ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
+   * * Fires an "objectVisibility" event on  {@link ViewerEvents}.
+   * * Use {@link ViewLayer.setObjectsVisible} to batch-update the visibility of ViewObjects, which fires a single event for the batch.
+   */
+  set visible(visible) {
+    if (this.destroyed) {
+      this.layer.view.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[ViewObject.visible] ViewObject already destroyed"
+      });
+      return;
+    }
+    if (visible === this._visible) {
+      return;
+    }
+    this._visible = visible;
+    this.layer.objectVisibilityUpdated(this, visible, true);
+  }
+  // /**
+  //  * Sets the visibility of a specific mesh within this ViewObject.
+  //  * @param meshIndex
+  //  * @param visible
+  // */
+  // setMeshVisible(meshIndex: number, visible: boolean) {
+  //     if (this.destroyed) {
+  //         this.layer.view.viewer.logError({
+  //             ok: false,
+  //             type: SDKErrorType.InvalidOperation,
+  //             error: "[ViewObject.setMeshVisible] ViewObject already destroyed"
+  //         });
+  //         return;
+  //     }
+  //     this.layer.objectMeshVisibilityUpdated(this, meshIndex, visible);
+  // }
+  /**
+   * Gets if this ViewObject is X-rayed.
+   *
+   * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.xrayedObjects | ViewLayer.xrayedObjects}.
+   * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
+   */
+  get xrayed() {
+    return this._xrayed;
+  }
+  /**
+   * Sets if this ViewObject is X-rayed.
+   *
+   * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.xrayedObjects | ViewLayer.xrayedObjects}.
+   * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
+   */
+  set xrayed(xrayed) {
+    if (this.destroyed) {
+      this.layer.view.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[ViewObject.xrayed] ViewObject already destroyed"
+      });
+      return;
+    }
+    if (this._xrayed === xrayed) {
+      return;
+    }
+    this._xrayed = xrayed;
+    this.layer.objectXRayedUpdated(this, xrayed);
+  }
+  /**
+   * Gets if this ViewObject is highlighted.
+   *
+   * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.highlightedObjects | ViewLayer.highlightedObjects}.
+   * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
+   */
+  get highlighted() {
+    return this._highlighted;
+  }
+  /**
+   * Sets if this ViewObject is highlighted.
+   *
+   * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.highlightedObjects | ViewLayer.highlightedObjects}.
+   * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
+   */
+  set highlighted(highlighted) {
+    if (this.destroyed) {
+      this.layer.view.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[ViewObject.highlighted] ViewObject already destroyed"
+      });
+      return;
+    }
+    if (highlighted === this._highlighted) {
+      return;
+    }
+    this._highlighted = highlighted;
+    this.layer.objectHighlightedUpdated(this, highlighted);
+  }
+  /**
+   * Gets if this ViewObject is selected.
+   *
+   * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.selectedObjects | ViewLayer.selectedObjects}.
+   * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
+   */
+  get selected() {
+    return this._selected;
+  }
+  /**
+   * Sets if this ViewObject is selected.
+   *
+   * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.selectedObjects | ViewLayer.selectedObjects}.
+   * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
+   */
+  set selected(selected) {
+    if (this.destroyed) {
+      this.layer.view.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[ViewObject.selected] ViewObject already destroyed"
+      });
+      return;
+    }
+    if (selected === this._selected) {
+      return;
+    }
+    this._selected = selected;
+    this.layer.objectSelectedUpdated(this, selected);
+  }
+  /**
+   * Gets if this ViewObject is culled.
+   *
+   * * The ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
+   * * Use {@link ViewLayer.setObjectsCulled} to batch-update the culled state of ViewObjects.
+   */
+  get culled() {
+    return this._culled;
+  }
+  /**
+   * Sets if this ViewObject is culled.
+   *
+   * * The ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
+   * * Use {@link ViewLayer.setObjectsCulled} to batch-update the culled state of ViewObjects.
+   */
+  set culled(culled) {
+    if (this.destroyed) {
+      this.layer.view.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[ViewObject.culled] ViewObject already destroyed"
+      });
+      return;
+    }
+    if (culled === this._culled) {
+      return;
+    }
+    this._culled = culled;
+  }
+  /**
+   * Gets if this ViewObject is clippable.
+   *
+   * * Clipping is done by the {@link SectionPlane | SectionPlanes} in {@link View.sectionPlanes | View.sectionPlanes}.
+   * * Use {@link View.setObjectsClippable | View.setObjectsClippable} or {@link ViewLayer.setObjectsClippable | ViewLayer.setObjectsClippable} to batch-update the clippable state of multiple ViewObjects.
+   */
+  get clippable() {
+    return this._clippable;
+  }
+  /**
+   * Sets if this ViewObject is clippable.
+   *
+   * * Clipping is done by the {@link SectionPlane | SectionPlanes} in {@link View.sectionPlanes | View.sectionPlanes}.
+   * * Use {@link View.setObjectsClippable | View.setObjectsClippable} or {@link ViewLayer.setObjectsClippable | ViewLayer.setObjectsClippable} to batch-update the clippable state of multiple ViewObjects.
+   */
+  set clippable(clippable) {
+    if (this.destroyed) {
+      this.layer.view.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[ViewObject.clippable] ViewObject already destroyed"
+      });
+      return;
+    }
+    if (clippable === this._clippable) {
+      return;
+    }
+    this._clippable = clippable;
+  }
+  /**
+   * Gets if this ViewObject is included in boundary calculations.
+   */
+  get collidable() {
+    return this._collidable;
+  }
+  /**
+   * Sets if this ViewObject included in boundary calculations.
+   */
+  set collidable(collidable) {
+    if (this.destroyed) {
+      this.layer.view.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[ViewObject.collidable] ViewObject already destroyed"
+      });
+      return;
+    }
+    if (collidable === this._collidable) {
+      return;
+    }
+    this._collidable = collidable;
+  }
+  /**
+   * Gets if this ViewObject is pickable.
+   *
+   * * Picking is done with {@link View.pick}.
+   * * Use {@link ViewLayer.setObjectsPickable} to batch-update the pickable state of ViewObjects.
+   */
+  get pickable() {
+    return this._pickable;
+  }
+  /**
+   * Sets if this ViewObject is pickable.
+   *
+   * * Picking is done with {@link View.pick}.
+   * * Use {@link ViewLayer.setObjectsPickable} to batch-update the pickable state of ViewObjects.
+   */
+  set pickable(pickable) {
+    if (this.destroyed) {
+      this.layer.view.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[ViewObject.pickable] ViewObject already destroyed"
+      });
+      return;
+    }
+    if (this._pickable === pickable) {
+      return;
+    }
+    this._pickable = pickable;
+    this.layer.objectPickableUpdated(this, pickable);
+  }
+  /**
+   * Gets the RGB colorize color for this ViewObject, if set.
+   *
+   * * Multiplies by rendered fragment colors.
+   * * Each element of the color is in range ````[0..1]````.
+   * * Use {@link ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
+   */
+  get colorize() {
+    return this._colorized ? this._colorize : null;
+  }
+  /**
+   * Sets the RGB colorize color for this ViewObject.
+   *
+   * * Multiplies by rendered fragment colors.
+   * * Each element of the color is in range ````[0..1]````.
+   * * Set to ````null```` or ````undefined```` to reset the colorize color to its default value of ````[1,1,1]````.
+   * * Use {@link ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
+   */
+  set colorize(value) {
+    if (this.destroyed) {
+      this.layer.view.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[ViewObject.colorize] ViewObject already destroyed"
+      });
+      return;
+    }
+    const colorize = this._colorize;
+    if (value) {
+      colorize[0] = value[0];
+      colorize[1] = value[1];
+      colorize[2] = value[2];
+    } else {
+      colorize[0] = 1;
+      colorize[1] = 1;
+      colorize[2] = 1;
+    }
+    this._colorized = !!value;
+    this.layer.objectColorizeUpdated(this, this._colorized);
+  }
+  /**
+   * Gets the opacity factor for this ViewObject.
+   *
+   * * This is a factor in range ````[0..1]```` which multiplies by the rendered fragment alphas.
+   * * Use {@link ViewLayer.setObjectsOpacity} to batch-update the opacities of ViewObjects.
+   */
+  get opacity() {
+    return this._colorize[3];
+  }
+  /**
+   * Sets the opacity factor for this ViewObject.
+   *
+   * * This is a factor in range ````[0..1]```` which multiplies by the rendered fragment alphas.
+   * * Set to ````null```` or ````undefined```` to reset the opacity to its default value of ````1````.
+   * * Use {@link ViewLayer.setObjectsOpacity} to batch-update the opacities of ViewObjects.
+   */
+  set opacity(opacity) {
+    if (this.destroyed) {
+      this.layer.view.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[ViewObject.opacity] ViewObject already destroyed"
+      });
+      return;
+    }
+    const colorize = this._colorize;
+    this._opacityUpdated = opacity !== null && opacity !== void 0;
+    colorize[3] = this._opacityUpdated ? opacity : 1;
+    this.layer.objectOpacityUpdated(this, this._opacityUpdated);
+  }
+  /**
+   * @private
+   */
+  _destroy() {
+    if (this._visible) {
+      this.layer.objectVisibilityUpdated(this, false, false);
+    }
+    if (this._xrayed) {
+      this.layer.objectXRayedUpdated(this, false);
+    }
+    if (this._selected) {
+      this.layer.objectSelectedUpdated(this, false);
+    }
+    if (this._highlighted) {
+      this.layer.objectHighlightedUpdated(this, false);
+    }
+    if (this._colorized) {
+      this.layer.objectColorizeUpdated(this, false);
+    }
+    if (this._opacityUpdated) {
+      this.layer.objectOpacityUpdated(this, false);
+    }
+  }
+};
+
+// ../sdk/src/viewer/ViewLayer.ts
+var ViewLayer = class {
+  /**
+   * Map of the all {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * These are the ViewObjects for which {@link scene!SceneObject.layerId | SceneObject.layerId} has the same value as the {@link ViewLayer.id | ViewLayer.id}.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   *
+   * The ViewLayer automatically ensures that there is a {@link ViewObject} here for
+   * each {@link scene!SceneObjectRendererProxy} in the {@link Viewer | Viewer}
+   */
+  objects;
+  /**
+   * Map of the currently visible {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * A ViewObject is visible when {@link ViewObject.visible} is true.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
+  visibleObjects;
+  /**
+   * Map of currently x-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * A ViewObject is x-rayed when {@link ViewObject.xrayed} is true.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
+  xrayedObjects;
+  /**
+   * Map of currently highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * A ViewObject is highlighted when {@link ViewObject.highlighted} is true.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
+  highlightedObjects;
+  /**
+   * Map of currently selected {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * A ViewObject is selected when {@link ViewObject.selected} is true.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
+  selectedObjects;
+  /**
+   * Map of currently colorized {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
+  colorizedObjects;
+  /**
+   * Map of {@link ViewObject | ViewObjects} in this ViewLayer whose opacity has been updated.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
+  opacityObjects;
+  /**
+   * When true, View destroys this ViewLayer as soon as there are no ViewObjects
+   * that need it. When false, View retains it.
+   * @private
+   */
+  autoDestroy;
+  _renderModes;
+  _numObjects;
+  _objectIds;
+  _numVisibleObjects;
+  _visibleObjectIds;
+  _numXRayedObjects;
+  _xrayedObjectIds;
+  _numHighlightedObjects;
+  _highlightedObjectIds;
+  _numSelectedObjects;
+  _selectedObjectIds;
+  _numColorizedObjects;
+  _colorizedObjectIds;
+  _numOpacityObjects;
+  _opacityObjectIds;
+  gammaOutput;
+  /**
+   * True if this ViewLayer has been destroyed.
+   */
+  destroyed = false;
+  constructor(options) {
+    this.id = options.id;
+    this.viewer = options.viewer;
+    this.view = options.view;
+    this.objects = {};
+    this.visibleObjects = {};
+    this.xrayedObjects = {};
+    this.highlightedObjects = {};
+    this.selectedObjects = {};
+    this.colorizedObjects = {};
+    this.opacityObjects = {};
+    this.autoDestroy = options.autoDestroy !== false;
+    this._numObjects = 0;
+    this._numVisibleObjects = 0;
+    this._numXRayedObjects = 0;
+    this._numHighlightedObjects = 0;
+    this._numSelectedObjects = 0;
+    this._numColorizedObjects = 0;
+    this._numOpacityObjects = 0;
+    this._renderModes = [];
+    this._initViewObjects();
+  }
+  /**
+   * @private
+   */
+  _initViewObjects() {
+    const models = this.viewer.scene.models;
+    for (const id in models) {
+      const model = models[id];
+      this._sceneModelCreated(model);
+    }
+    const sceneEvents = this.viewer.scene.events;
+    sceneEvents.onSceneObjectCreated.subscribe((scene, sceneObject) => {
+      this._sceneObjectCreated(sceneObject);
+    });
+    sceneEvents.onSceneObjectDestroyed.subscribe((scene, sceneObject) => {
+      this._sceneObjectDestroyed(sceneObject);
+    });
+  }
+  /**
+   * @private
+   */
+  _sceneModelCreated(model) {
+    const sceneObjects = model.objects;
+    for (const id in sceneObjects) {
+      const sceneObject = sceneObjects[id];
+      this._sceneObjectCreated(sceneObject);
+    }
+  }
+  /**
+   * @private
+   */
+  _sceneObjectCreated(sceneObject) {
+    if (sceneObject.layerId == this.id) {
+      if (!this.objects[sceneObject.id]) {
+        const viewObject = new ViewObject(this, sceneObject);
+        this.objects[viewObject.id] = viewObject;
+        this._numObjects++;
+        this._objectIds = null;
+        this.view.viewer.events.onViewObjectCreated.dispatch(this.view, viewObject);
+        this.view.needsRender();
+      }
+    }
+  }
+  /**
+   * @private
+   */
+  _sceneObjectDestroyed(sceneObject) {
+    const viewObject = this.objects[sceneObject.id];
+    if (viewObject) {
+      this._destroyViewObject(viewObject);
+    }
+  }
+  /**
+   * @private
+   */
+  _destroyViewObject(viewObject) {
+    delete this.objects[viewObject.id];
+    delete this.visibleObjects[viewObject.id];
+    delete this.xrayedObjects[viewObject.id];
+    delete this.highlightedObjects[viewObject.id];
+    delete this.selectedObjects[viewObject.id];
+    delete this.colorizedObjects[viewObject.id];
+    delete this.opacityObjects[viewObject.id];
+    this._numObjects--;
+    this._objectIds = null;
+    this.view.viewer.events.onViewObjectDestroyed.dispatch(this.view, viewObject);
+  }
+  _attachViewObject(viewObject) {
+    this.objects[viewObject.id] = viewObject;
+    this._numObjects++;
+    this._objectIds = null;
+  }
+  _deattachViewObject(viewObject) {
+    const objectId = viewObject.id;
+    delete this.objects[objectId];
+    delete this.visibleObjects[objectId];
+    delete this.xrayedObjects[objectId];
+    delete this.highlightedObjects[objectId];
+    delete this.selectedObjects[objectId];
+    delete this.colorizedObjects[objectId];
+    delete this.opacityObjects[objectId];
+    this._numObjects--;
+    this._objectIds = null;
+  }
+  /**
+   * Gets the gamma factor.
+   */
+  get gammaFactor() {
+    return 1;
+  }
+  /**
+   * Sets which rendering modes in which to render the {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * Default value is [].
+   */
+  set renderModes(value) {
+    if (this.destroyed) {
+      this.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[ViewLayer.renderModes] ViewLayer already destroyed"
+      });
+      return;
+    }
+    this._renderModes = value;
+    this.view.needsRender();
+  }
+  /**
+   * Gets which rendering modes in which to render the {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * Default value is [].
+   */
+  get renderModes() {
+    return this._renderModes;
+  }
+  /**
+   * Gets the number of {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get numObjects() {
+    return this._numObjects;
+  }
+  /**
+   * Gets the IDs of the {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get objectIds() {
+    if (!this._objectIds) {
+      this._objectIds = Object.keys(this.objects);
+    }
+    return this._objectIds;
+  }
+  /**
+   * Gets the number of visible {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get numVisibleObjects() {
+    return this._numVisibleObjects;
+  }
+  /**
+   * Gets the IDs of the visible {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get visibleObjectIds() {
+    if (!this._visibleObjectIds) {
+      this._visibleObjectIds = Object.keys(this.visibleObjects);
+    }
+    return this._visibleObjectIds;
+  }
+  /**
+   * Gets the number of X-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get numXRayedObjects() {
+    return this._numXRayedObjects;
+  }
+  /**
+   * Gets the IDs of the X-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get xrayedObjectIds() {
+    if (!this._xrayedObjectIds) {
+      this._xrayedObjectIds = Object.keys(this.xrayedObjects);
+    }
+    return this._xrayedObjectIds;
+  }
+  /**
+   * Gets the number of highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get numHighlightedObjects() {
+    return this._numHighlightedObjects;
+  }
+  /**
+   * Gets the IDs of the highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get highlightedObjectIds() {
+    if (!this._highlightedObjectIds) {
+      this._highlightedObjectIds = Object.keys(this.highlightedObjects);
+    }
+    return this._highlightedObjectIds;
+  }
+  /**
+   * Gets the number of selected {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get numSelectedObjects() {
+    return this._numSelectedObjects;
+  }
+  /**
+   * Gets the IDs of the selected {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get selectedObjectIds() {
+    if (!this._selectedObjectIds) {
+      this._selectedObjectIds = Object.keys(this.selectedObjects);
+    }
+    return this._selectedObjectIds;
+  }
+  /**
+   * Gets the number of colorized {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get numColorizedObjects() {
+    return this._numColorizedObjects;
+  }
+  /**
+   * Gets the IDs of the colorized {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get colorizedObjectIds() {
+    if (!this._colorizedObjectIds) {
+      this._colorizedObjectIds = Object.keys(this.colorizedObjects);
+    }
+    return this._colorizedObjectIds;
+  }
+  /**
+   * Gets the IDs of the {@link ViewObject | ViewObjects} in this ViewLayer that have updated opacities.
+   */
+  get opacityObjectIds() {
+    if (!this._opacityObjectIds) {
+      this._opacityObjectIds = Object.keys(this.opacityObjects);
+    }
+    return this._opacityObjectIds;
+  }
+  /**
+   * Gets the number of {@link ViewObject | ViewObjects} in this ViewLayer that have updated opacities.
+   */
+  get numOpacityObjects() {
+    return this._numOpacityObjects;
+  }
+  /**
+   * Called by ViewObject.visible setter.
+   * @private
+   */
+  objectVisibilityUpdated(viewObject, visible, notify = true) {
+    if (visible) {
+      this.visibleObjects[viewObject.id] = viewObject;
+      this._numVisibleObjects++;
+    } else {
+      delete this.visibleObjects[viewObject.id];
+      this._numVisibleObjects--;
+    }
+    this._visibleObjectIds = null;
+    this.view.objectVisibilityUpdated(viewObject, visible, notify);
+  }
+  /**
+   * Called by ViewObject.xrayed setter.
+   * @private
+   */
+  objectXRayedUpdated(viewObject, xrayed) {
+    if (xrayed) {
+      this.xrayedObjects[viewObject.id] = viewObject;
+      this._numXRayedObjects++;
+    } else {
+      delete this.xrayedObjects[viewObject.id];
+      this._numXRayedObjects--;
+    }
+    this._xrayedObjectIds = null;
+    this.view.objectXRayedUpdated(viewObject, xrayed);
+  }
+  /**
+   * Called by ViewObject.highlighted setter.
+   * @private
+   */
+  objectHighlightedUpdated(viewObject, highlighted) {
+    if (highlighted) {
+      this.highlightedObjects[viewObject.id] = viewObject;
+      this._numHighlightedObjects++;
+    } else {
+      delete this.highlightedObjects[viewObject.id];
+      this._numHighlightedObjects--;
+    }
+    this._highlightedObjectIds = null;
+    this.view.objectHighlightedUpdated(viewObject, highlighted);
+  }
+  /**
+   * Called by ViewObject.selected setter.
+   * @private
+   */
+  objectSelectedUpdated(viewObject, selected) {
+    if (selected) {
+      this.selectedObjects[viewObject.id] = viewObject;
+      this._numSelectedObjects++;
+    } else {
+      delete this.selectedObjects[viewObject.id];
+      this._numSelectedObjects--;
+    }
+    this._selectedObjectIds = null;
+    this.view.objectSelectedUpdated(viewObject, selected);
+  }
+  /**
+   * Called by ViewObject.colorized setter.
+   * @private
+   */
+  objectColorizeUpdated(viewObject, colorized) {
+    if (colorized) {
+      this.colorizedObjects[viewObject.id] = viewObject;
+      this._numColorizedObjects++;
+    } else {
+      delete this.colorizedObjects[viewObject.id];
+      this._numColorizedObjects--;
+    }
+    this._colorizedObjectIds = null;
+    this.view.objectColorizeUpdated(viewObject, colorized);
+  }
+  /**
+   * Called by ViewObject.opacity setter.
+   * @private
+   */
+  objectOpacityUpdated(viewObject, opacityUpdated) {
+    if (opacityUpdated) {
+      this.opacityObjects[viewObject.id] = viewObject;
+      this._numOpacityObjects++;
+    } else {
+      delete this.opacityObjects[viewObject.id];
+      this._numOpacityObjects--;
+    }
+    this._opacityObjectIds = null;
+    this.view.objectOpacityUpdated(viewObject, opacityUpdated);
+  }
+  /**
+   * Called by ViewObject.pickable setter.
+   * @private
+   */
+  objectPickableUpdated(viewObject, pickable) {
+    this.view.objectPickableUpdated(viewObject, pickable);
+  }
+  /**
+   * Updates the visibility of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.visible} on the Objects with the given IDs.
+   * - Updates {@link ViewLayer.visibleObjects} and {@link ViewLayer.numVisibleObjects}.
+   *
+   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param visible Whether or not to cull.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
+  setObjectsVisible(objectIds, visible) {
+    if (this.destroyed) {
+      this.view.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[ViewLayer.setObjectsVisible] ViewLayer already destroyed"
+      });
+      return;
+    }
+    return this.withObjects(objectIds, (viewObject) => {
+      const changed = viewObject.visible !== visible;
+      viewObject.visible = visible;
+      return changed;
+    });
+  }
+  /**
+   * Updates the collidability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * Updates {@link ViewObject.collidable} on the Objects with the given IDs.
+   *
+   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param collidable Whether or not to cull.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
+  setObjectsCollidable(objectIds, collidable) {
+    if (this.destroyed) {
+      this.view.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[ViewLayer.setObjectsCollidable] ViewLayer already destroyed"
+      });
+      return;
+    }
+    return this.withObjects(objectIds, (viewObject) => {
+      const changed = viewObject.collidable !== collidable;
+      viewObject.collidable = collidable;
+      return changed;
+    });
+  }
+  /**
+   * Updates the culled status of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * Updates {@link ViewObject.culled} on the Objects with the given IDs.
+   *
+   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param culled Whether or not to cull.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
+  setObjectsCulled(objectIds, culled) {
+    return this.withObjects(objectIds, (viewObject) => {
+      const changed = viewObject.culled !== culled;
+      viewObject.culled = culled;
+      return changed;
+    });
+  }
+  /**
+   * Selects or deselects the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.selected} on the Objects with the given IDs.
+   * - Updates {@link ViewLayer.selectedObjects} and {@link ViewLayer.numSelectedObjects}.
+   *
+   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param selected Whether or not to select.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
+  setObjectsSelected(objectIds, selected) {
+    return this.withObjects(objectIds, (viewObject) => {
+      const changed = viewObject.selected !== selected;
+      viewObject.selected = selected;
+      return changed;
+    });
+  }
+  /**
+   * Highlights or un-highlights the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.highlighted} on the Objects with the given IDs.
+   * - Updates {@link ViewLayer.highlightedObjects} and {@link ViewLayer.numHighlightedObjects}.
+   *
+   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param highlighted Whether or not to highlight.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
+  setObjectsHighlighted(objectIds, highlighted) {
+    return this.withObjects(objectIds, (viewObject) => {
+      const changed = viewObject.highlighted !== highlighted;
+      viewObject.highlighted = highlighted;
+      return changed;
+    });
+  }
+  /**
+   * Applies or removes X-ray rendering for the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.xrayed} on the Objects with the given IDs.
+   * - Updates {@link ViewLayer.xrayedObjects} and {@link ViewLayer.numXRayedObjects}.
+   *
+   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param xrayed Whether or not to xray.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
+  setObjectsXRayed(objectIds, xrayed) {
+    return this.withObjects(objectIds, (viewObject) => {
+      const changed = viewObject.xrayed !== xrayed;
+      if (changed) {
+        viewObject.xrayed = xrayed;
+      }
+      return changed;
+    });
+  }
+  /**
+   * Colorizes the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.colorize} on the Objects with the given IDs.
+   * - Updates {@link ViewLayer.colorizedObjects} and {@link ViewLayer.numColorizedObjects}.
+   *
+   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param colorize - RGB colorize factors in range ````[0..1,0..1,0..1]````.
+   * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
+   */
+  setObjectsColorized(objectIds, colorize) {
+    return this.withObjects(objectIds, (viewObject) => {
+      viewObject.colorize = colorize;
+    });
+  }
+  /**
+   * Sets the opacity of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.opacity} on the Objects with the given IDs.
+   * - Updates {@link ViewLayer.opacityObjects} and {@link ViewLayer.numOpacityObjects}.
+   *
+   * @param  objectIds - One or more {@link ViewObject.id} values.
+   * @param opacity - Opacity factor in range ````[0..1]````.
+   * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
+   */
+  setObjectsOpacity(objectIds, opacity) {
+    return this.withObjects(objectIds, (viewObject) => {
+      const changed = viewObject.opacity !== opacity;
+      if (changed) {
+        viewObject.opacity = opacity;
+      }
+      return changed;
+    });
+  }
+  /**
+   * Sets the pickability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.pickable} on the Objects with the given IDs.
+   * - Enables or disables the ability to pick the given Objects with {@link View.pick}.
+   *
+   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param pickable Whether or not to set pickable.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
+  setObjectsPickable(objectIds, pickable) {
+    return this.withObjects(objectIds, (viewObject) => {
+      const changed = viewObject.pickable !== pickable;
+      if (changed) {
+        viewObject.pickable = pickable;
+      }
+      return changed;
+    });
+  }
+  /**
+   * Sets the clippability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.clippable} on the Objects with the given IDs.
+   * - Enables or disables the ability to pick the given Objects with {@link View.pick}.
+   *
+   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param clippable Whether or not to set clippable.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
+  setObjectsClippable(objectIds, clippable) {
+    return this.withObjects(objectIds, (viewObject) => {
+      const changed = viewObject.clippable !== clippable;
+      if (changed) {
+        viewObject.clippable = clippable;
+      }
+      return changed;
+    });
+  }
+  /**
+   * Iterates with a callback over the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param callback Callback to execute on each {@link ViewObject}.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
+  withObjects(objectIds, callback) {
+    let changed = false;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const id = objectIds[i];
+      const viewObject = this.objects[id];
+      if (viewObject) {
+        changed = callback(viewObject) || changed;
+      }
+    }
+    return changed;
+  }
+  /**
+   * Configures this ViewLayer.
+   *
+   * @param viewLayerParams
+   */
+  fromParams(viewLayerParams) {
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  /**
+   * Gets the current configuration of this ViewLayer.
+   */
+  toParams() {
+    return {
+      ok: true,
+      value: {
+        id: this.id,
+        autoDestroy: this.autoDestroy
+      }
+    };
+  }
+  /**
+   * Destroys this ViewLayer.
+   *
+   * Causes {@link Viewer | Viewer} to fire a "viewDestroyed" event.
+   */
+  destroy() {
+    if (this.destroyed) {
+      this.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[ViewLayer.destroy] ViewLayer already destroyed"
+      });
+      return;
+    }
+    this._destroyAllViewObjects();
+    this.view._destroyLayer(this);
+    this.destroyed = true;
+  }
+  _destroyAllViewObjects() {
+    const objects = this.objects;
+    for (const id in objects) {
+      const viewObject = objects[id];
+      this._destroyViewObject(viewObject);
+    }
+  }
+};
+
+// ../sdk/src/viewer/View.ts
+var import_strongly_typed_events9 = __toESM(require_dist8());
+
+// ../sdk/src/viewer/ViewTransformParams.ts
+var ViewTransformParams = class {
+  /**
+   * Unique ID of this SceneTransform.
+   */
+  id;
+  /**
+   * A flat 4x4 matrix that defines the local transform.
+   */
+  matrix;
+  /**
+   * Optional local 3D translation vector.
+   */
+  position;
+  /**
+   * Optional local 3D scale vector.
+   */
+  scale;
+  /**
+   * Optional local 3D rotation quaternion.
+   */
+  quaternion;
+  /**
+   * Optional local 3D rotation as Euler angles in degrees for X, Y and Z axis.
+   */
+  rotation;
+  /**
+   * ID of the parent {@link ViewTransform} that was created previously
+   * with {@link View.createTransform | View.createTransform}.
+   */
+  parentTransformId;
+};
+
 // ../sdk/src/viewer/View.ts
 var View2 = class {
   /**
@@ -124442,7 +125475,7 @@ var View2 = class {
       this.htmlElement.clientWidth,
       this.htmlElement.clientHeight
     ];
-    this.camera = new Camera2(this);
+    this.camera = new Camera2(this, viewParams.camera || {});
     this.sao = new SAO(this, viewParams.sao || {});
     this.texturing = new Texturing(this, {});
     this.xrayMaterial = new EmphasisMaterial(this, viewParams.xrayMaterial || {
@@ -124990,7 +126023,7 @@ var View2 = class {
     this.needsRender();
   }
   /**
-   * Called by ViewObject.colorized setter.
+   * Called by ViewObject.colorize setter.
    * @private
    */
   objectColorizeUpdated(viewObject, colorized) {
@@ -125002,6 +126035,7 @@ var View2 = class {
       this._numColorizedObjects--;
     }
     this._colorizedObjectIds = null;
+    this.viewer.events.onViewObjectColorizeChanged.dispatch(this, viewObject);
     this.needsRender();
   }
   /**
@@ -125017,6 +126051,16 @@ var View2 = class {
       this._numOpacityObjects--;
     }
     this._opacityObjectIds = null;
+    this.viewer.events.onViewObjectOpacityChanged.dispatch(this, viewObject);
+    this.needsRender();
+  }
+  /**
+   * Called by ViewObject.pickable setter.
+   * @param viewObject
+   * @param pickable
+   */
+  objectPickableUpdated(viewObject, pickable) {
+    this.viewer.events.onViewObjectPickableChanged.dispatch(this, viewObject);
     this.needsRender();
   }
   /**
@@ -125839,6 +126883,13 @@ var ViewerEvents = class {
    * {@link ViewLayer.setObjectsOpacity} or {@link ViewObject.opacity}.
    */
   onViewObjectOpacityChanged;
+  /**
+   * Emits an event each time the pickable state of a {@link ViewObject} changes within a {@link View}.
+   *
+   * ViewObjects have their pickable state changed with {@link View.setObjectsPickable},
+   * {@link ViewLayer.setObjectsPickable} or {@link ViewObject.pickable}.
+   */
+  onViewObjectPickableChanged;
   //---------------------------- ViewLayer Events ----------------------------//
   /**
    * Emits an event each time a {@link ViewLayer} is created within a {@link View}.
@@ -125942,6 +126993,7 @@ var ViewerEvents = class {
     this.onViewObjectXRayedChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.onViewObjectColorizeChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.onViewObjectOpacityChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onViewObjectPickableChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.onViewLayerCreated = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.onViewLayerDestroyed = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.onCameraProjectionTypeChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
@@ -125978,6 +127030,7 @@ var ViewerEvents = class {
     this.onViewObjectHighlightedChanged.clear();
     this.onViewObjectColorizeChanged.clear();
     this.onViewObjectOpacityChanged.clear();
+    this.onViewObjectPickableChanged.clear();
     this.onViewLayerCreated.clear();
     this.onViewLayerDestroyed.clear();
     this.onCameraProjectionTypeChanged.clear();
@@ -126690,6 +127743,9 @@ var PickResult = class {
   #viewPos;
   #worldNormal;
   #uv;
+  /**
+   * @private
+   */
   constructor() {
     this.#sceneMesh = null;
     this.#sceneObject = null;
@@ -127548,7 +128604,6 @@ var RenderContext = class {
     s.position = "absolute";
     s.top = "50px";
     s.left = "50px";
-    s.border = "1px solid black";
     s["pointer-events"] = "none";
     s.zIndex = "100000";
     document.body.appendChild(canvas2);
@@ -129098,7 +130153,7 @@ var RendererObject = class {
 };
 
 // ../sdk/src/webglrenderer/internal/gpuMemoryManager/GPUTileManager.ts
-var tempVec3a8 = createVec3Float64();
+var tempVec3a9 = createVec3Float64();
 var GPUTileManager = class {
   _renderContext;
   _viewTileCameraMatrixTexture = [];
@@ -129130,7 +130185,7 @@ var GPUTileManager = class {
    */
   getTile(worldPos) {
     const tileSize = getRTCTileSize(worldPos);
-    const rtcCenter2 = worldToRTCCenter(worldPos, tempVec3a8, tileSize);
+    const rtcCenter2 = worldToRTCCenter(worldPos, tempVec3a9, tileSize);
     const id = this._makeTileId(rtcCenter2);
     let tile = this._tiles.get(id) ?? this._createTile(id, rtcCenter2, tileSize);
     tile.useCount++;
@@ -129158,7 +130213,7 @@ var GPUTileManager = class {
    */
   moveTile(tile, worldPos) {
     const tileSize = getRTCTileSize(worldPos);
-    const newRTCCenter = worldToRTCCenter(worldPos, tempVec3a8, tileSize);
+    const newRTCCenter = worldToRTCCenter(worldPos, tempVec3a9, tileSize);
     const newId = this._makeTileId(newRTCCenter);
     if (newId === tile.id) {
       return tile;
@@ -129219,13 +130274,14 @@ var GPUTileManager = class {
   _createTile(id, rtcCenter2, tileSize) {
     const { viewList } = this._renderContext.viewer;
     const center2 = createVec3Float64(rtcCenter2);
-    const numViews = this._renderContext.memoryConfigs.maxViews;
+    const maxViews = this._renderContext.memoryConfigs.maxViews;
+    const numViews = Math.min(viewList.length, maxViews);
     const rtcViewMatrix = Array.from(
-      { length: numViews },
+      { length: maxViews },
       (_, i) => i < numViews ? createRTCViewMat(viewList[i].camera.viewMatrix, center2, createMat4Float64()) : createMat4Float64()
     );
     const rtcPickMatrix = Array.from(
-      { length: numViews },
+      { length: maxViews },
       (_, i) => i < numViews ? createRTCViewMat(viewList[i].camera.viewMatrix, center2, createMat4Float64()) : createMat4Float64()
     );
     const tileIndex = this._getFreeTileIndex();
@@ -129733,11 +130789,11 @@ var GPUMemoryBatch = class {
     });
     const numViews = this._renderContext.memoryConfigs.maxViews;
     const color2 = [
-      Math.floor(sceneMesh.color[0] * 255),
-      Math.floor(sceneMesh.color[1] * 255),
-      Math.floor(sceneMesh.color[2] * 255)
+      Math.floor(sceneMesh.globalColor[0] * 255),
+      Math.floor(sceneMesh.globalColor[1] * 255),
+      Math.floor(sceneMesh.globalColor[2] * 255)
     ];
-    const opacity = Math.floor(sceneMesh.opacity * 255);
+    const opacity = Math.floor(sceneMesh.globalOpacity * 255);
     for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
       this._meshViewAttributeTexture[viewIndex].setItem(meshIndex, {
         color: color2,
@@ -130629,7 +131685,7 @@ var GPUMemoryManager = class {
 // ../sdk/src/webglrenderer/internal/meshManager/RendererMesh.ts
 var tempIdentityMat4 = identityMat4(createMat4Float64());
 var identityVec4 = createVec4Float64([0, 0, 0, 1]);
-var tempVec4a6 = createVec4Float64();
+var tempVec4a7 = createVec4Float64();
 var RendererMesh = class {
   /**
    * The GPU tile currently assigned to this mesh.
@@ -130672,7 +131728,7 @@ var RendererMesh = class {
       meshVisible: true
     }));
     this.setMatrix(sceneMesh.globalMatrix);
-    this.setOpacity(sceneMesh.opacity);
+    this.setOpacity(sceneMesh.globalOpacity);
   }
   /**
    * Sets the transformation matrix for the mesh.
@@ -130680,7 +131736,7 @@ var RendererMesh = class {
    */
   setMatrix(matrix) {
     matrix = matrix || tempIdentityMat4;
-    const center2 = transformPoint4(matrix, identityVec4, tempVec4a6);
+    const center2 = transformPoint4(matrix, identityVec4, tempVec4a7);
     const oldTile = this.gpuTile;
     this.gpuTile = oldTile ? this._gpuMemoryManager.moveTile(oldTile, center2) : this._gpuMemoryManager.getTile(center2);
     const tileChanged = !oldTile || oldTile.id !== this.gpuTile.id;
@@ -130764,7 +131820,7 @@ var RendererMesh = class {
       this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, colorize);
       viewStates.colorizing = true;
     } else {
-      this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, this._sceneMesh.color);
+      this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, this._sceneMesh.globalColor);
       viewStates.colorizing = false;
     }
   }
@@ -130781,7 +131837,7 @@ var RendererMesh = class {
       this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
       viewStates.coloringOpacity = true;
     } else {
-      this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, this._sceneMesh.opacity);
+      this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, this._sceneMesh.globalOpacity);
       viewStates.coloringOpacity = false;
     }
   }
@@ -131110,6 +132166,9 @@ var MeshBatchImpl = class {
    * Sets per-view mesh pickable state.
    */
   setMeshPickable(viewIndex, meshHandle, pickable) {
+    this._gpuMemoryManager.setMeshViewAttribs(meshHandle, viewIndex, {
+      pickable
+    });
   }
   /**
    * Sets a custom color per view for a mesh.
@@ -131537,6 +132596,7 @@ var MeshManager = class {
     rendererMesh.setXRayed(viewIndex, viewObject.xrayed);
     rendererMesh.setHighlighted(viewIndex, viewObject.highlighted);
     rendererMesh.setSelected(viewIndex, viewObject.selected);
+    rendererMesh.setPickable(viewIndex, viewObject.pickable);
   }
   /**
    * Disconnects an existing {@link SceneMesh} from an existing {@link SceneObject}.
@@ -131595,7 +132655,7 @@ var MeshManager = class {
    * Forwards to the corresponding {@link RendererMesh} (if registered).
    */
   sceneMeshColorChanged(sceneMesh) {
-    this._rendererModels[sceneMesh.model.id]?.rendererMeshes[sceneMesh.id]?.setColor(sceneMesh.color);
+    this._rendererModels[sceneMesh.model.id]?.rendererMeshes[sceneMesh.id]?.setColor(sceneMesh.globalColor);
   }
   /**
    * Handles changes to a {@link SceneMesh}'s opacity.
@@ -131603,7 +132663,7 @@ var MeshManager = class {
    * Forwards to the corresponding {@link RendererMesh} (if registered).
    */
   sceneMeshOpacityChanged(sceneMesh) {
-    this._rendererModels[sceneMesh.model.id]?.rendererMeshes[sceneMesh.id]?.setOpacity(sceneMesh.opacity);
+    this._rendererModels[sceneMesh.model.id]?.rendererMeshes[sceneMesh.id]?.setOpacity(sceneMesh.globalOpacity);
   }
   /**
    * Handles changes to a {@link ViewObject}'s visibility.
@@ -131652,6 +132712,14 @@ var MeshManager = class {
    */
   viewObjectOpacityChanged(viewObject) {
     this._rendererObjects[viewObject.id]?.setOpacity(viewObject.layer.view.viewIndex, viewObject.opacity);
+  }
+  /**
+   * Handles changes to a {@link ViewObject}'s pickable state.
+   *
+   * Updates the per-view pickable value on the owning {@link RendererObject}.
+   */
+  viewObjectPickableChanged(viewObject) {
+    this._rendererObjects[viewObject.id]?.setPickable(viewObject.layer.view.viewIndex, viewObject.pickable);
   }
   /**
    * Handles updates to the camera's view matrix.
@@ -132407,6 +133475,7 @@ uniform uint batchIndex;
 
 flat out uint vBatchIndex;
 flat out uint vMeshIndex;
+     out vec4 vViewPosition;
 
 // In pick rendering, we render meshes in their pick-space positions, which are derived from the clip-space
 // positions but with XY remapped to [0,1] based on the viewport and with Z remapped to [0,1] based on the view's
@@ -132473,6 +133542,13 @@ void main(void) {`);
 
 void main(void) {`);
     this._vsMeshLogic();
+    this._vertSrcBuf.push(
+      `    uint pickable = meshViewAttributes.renderFlags.g;`,
+      `    if (pickable == 255u) {`,
+      //  "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
+      // "        return;",
+      "    }"
+    );
     this._vsMeshLogic2();
   }
   /**
@@ -132714,6 +133790,7 @@ void main(void) {`);
     this._vertSrcBuf.push(
       "    vBatchIndex = batchIndex;",
       "    vMeshIndex = meshIndex;",
+      "    vViewPosition = viewPos;",
       "    gl_Position = remapPickClipPos(gl_Position);"
     );
   }
@@ -132903,41 +133980,33 @@ void main(void) {`);
       `flat in uint vMeshIndex;
        flat in uint vBatchIndex;
 
-      layout(location = 0) out vec4 outBatchIndex;
-      layout(location = 1) out vec4 outMeshIndex;
-      layout(location = 2) out vec4 outDepth;
+       in vec4 vViewPosition; // view-space position, used for reconstructing depth in fragment shader
 
-      // Packs a 32-bit uint into 4 normalized 8-bit color channels.
-      // R = least-significant byte, A = most-significant byte.
-      vec4 packUintToRGBA8(uint v) {
-        return vec4(
-          float( v         & 0xFFu),
-          float((v >> 8u)  & 0xFFu),
-          float((v >> 16u) & 0xFFu),
-          float((v >> 24u) & 0xFFu)
-        ) / 255.0;
+       uniform float pickZNear;
+       uniform float pickZFar;
+
+       layout(location = 0) out vec4 outBatchIndex;
+       layout(location = 1) out vec4 outMeshIndex;
+       layout(location = 2) out vec4 outDepth;
+
+       // Packs a 32-bit uint into 4 normalized 8-bit color channels.
+       // R = least-significant byte, A = most-significant byte.
+       vec4 packUintToRGBA8(uint v) {
+         return vec4(
+           float( v         & 0xFFu),
+           float((v >> 8u)  & 0xFFu),
+           float((v >> 16u) & 0xFFu),
+           float((v >> 24u) & 0xFFu)
+         ) / 255.0;
       }
 
       // Packs a normalized float in [0,1] into RGBA8.
-      // Useful for storing depth in an RGBA8 render target.
-      vec4 packFloat01ToRGBA8(float v) {
-         v = clamp(v, 0.0, 1.0);
-
-         vec4 enc = fract(v * vec4(
-             1.0,
-             255.0,
-             65025.0,
-             16581375.0
-         ));
-
-         enc -= enc.yzww * vec4(
-             1.0 / 255.0,
-             1.0 / 255.0,
-             1.0 / 255.0,
-             0.0
-         );
-
-         return enc;
+      vec4 packDepth(const in float depth) {
+        const vec4 bitShift = vec4(256.0*256.0*256.0, 256.0*256.0, 256.0, 1.0);
+        const vec4 bitMask  = vec4(0.0, 1.0/256.0, 1.0/256.0, 1.0/256.0);
+        vec4 res = fract(depth * bitShift);
+        res -= res.xxyz * bitMask;
+        return res;
       }`
     );
   }
@@ -132950,9 +134019,10 @@ void main(void) {`);
   // }
   fsPickMeshLogic() {
     this._fragSrcBuf.push(`
-    outBatchIndex   = packUintToRGBA8(vBatchIndex);
-    outMeshIndex   = packUintToRGBA8(vMeshIndex);
-    outDepth = packFloat01ToRGBA8(gl_FragCoord.z);
+    outBatchIndex = packUintToRGBA8(vBatchIndex);
+    outMeshIndex  = packUintToRGBA8(vMeshIndex);
+    float zNormalizedDepth = abs((pickZNear + vViewPosition.z) / (pickZFar - pickZNear));
+    outDepth      = packDepth(zNormalizedDepth);
     `);
   }
   /**
@@ -133589,17 +134659,18 @@ function putDrawOps(drawOps) {
 }
 
 // ../sdk/src/webglrenderer/internal/pickManager/PickManager.ts
-var tempVec3a9 = createVec3Float64();
-var tempVec3b9 = createVec3Float64();
-var tempVec3c5 = createVec3Float64();
-var tempVec4a7 = createVec4Float64();
-var tempVec4b6 = createVec4Float64();
-var tempVec4c = createVec4Float64();
+var tempVec3a10 = createVec3Float64();
+var tempVec3b10 = createVec3Float64();
+var tempVec3c6 = createVec3Float64();
+var tempVec4a8 = createVec4Float64();
+var tempVec4b7 = createVec4Float64();
+var tempVec4c2 = createVec4Float64();
 var tempVec4d = createVec4Float64();
 var tempVec4e = createVec4Float64();
 var tempMat4a6 = createMat4Float64();
 var tempMat4b2 = createMat4Float64();
 var tempMat4c = createMat4Float64();
+var tempMat4d = createMat4Float64();
 var pickTemps = {
   pickCanvasPos: createVec2Float64(),
   pickWorldRayDir: createVec3Float64(),
@@ -133690,13 +134761,13 @@ var PickManager = class {
       } else {
         pickWorldRayOrigin.set(pickParams.rayOrigin || [0, 0, 0]);
         pickWorldRayDir.set(pickParams.rayDirection || [0, 1, 0]);
-        const look = addVec3(pickWorldRayOrigin, pickWorldRayDir, tempVec3a9);
-        tempVec3b9[0] = Math.random();
-        tempVec3b9[1] = Math.random();
-        tempVec3b9[2] = Math.random();
-        normalizeVec3(tempVec3b9);
-        cross3Vec3(pickWorldRayDir, tempVec3b9, tempVec3c5);
-        const rayMatrix = lookAtMat4v(pickWorldRayOrigin, look, tempVec3c5, tempMat4b2);
+        const look = addVec3(pickWorldRayOrigin, pickWorldRayDir, tempVec3a10);
+        tempVec3b10[0] = Math.random();
+        tempVec3b10[1] = Math.random();
+        tempVec3b10[2] = Math.random();
+        normalizeVec3(tempVec3b10);
+        cross3Vec3(pickWorldRayDir, tempVec3b10, tempVec3c6);
+        const rayMatrix = lookAtMat4v(pickWorldRayOrigin, look, tempVec3c6, tempMat4b2);
         this._gpuMemoryManager.setViewPickMatrix(view, rayMatrix);
         pickViewMatrix.set(rayMatrix);
         pickProjMatrix.set(camera.orthoProjection.projMatrix);
@@ -133716,6 +134787,9 @@ var PickManager = class {
       return { ok: true, value: null };
     }
     const sceneObject = pickMeshResult.sceneMesh.object;
+    if (!sceneObject) {
+      return { ok: true, value: null };
+    }
     pickResult.sceneMesh = pickMeshResult.sceneMesh;
     pickResult.worldPos = pickMeshResult.worldPos;
     pickResult.sceneObject = sceneObject;
@@ -133746,6 +134820,8 @@ var PickManager = class {
     pickBuffer.bind();
     pickBuffer.clear();
     renderContext.reset();
+    renderContext.pickZNear = view.camera.perspectiveProjection.near;
+    renderContext.pickZFar = view.camera.perspectiveProjection.far;
     renderContext.activeView = view;
     renderContext.rayPicking = rayPick;
     renderContext.backfaces = true;
@@ -133792,24 +134868,25 @@ var PickManager = class {
     const y = -(pickCanvasPos[1] - canvas2.clientHeight / 2) / (canvas2.clientHeight / 2);
     const tileOrigin = gpuTile.center;
     const gotOrigin = tileOrigin[0] !== 0 && tileOrigin[1] !== 0 && tileOrigin[2] !== 0;
-    const viewMatrix = gotOrigin ? createRTCViewMat(pickViewMatrix, tileOrigin, tempMat4b2) : pickViewMatrix;
-    const pvMat = mulMat4(pickProjMatrix, viewMatrix, tempMat4c);
-    const pvMatInverse = inverseMat4(pvMat, tempMat4c);
-    tempVec4a7[0] = x;
-    tempVec4a7[1] = y;
-    tempVec4a7[2] = -1;
-    tempVec4a7[3] = 1;
-    let world1 = transformVec4(pvMatInverse, tempVec4a7);
+    const viewMatrix = gotOrigin ? createRTCViewMat(pickViewMatrix, tileOrigin, tempMat4a6) : pickViewMatrix;
+    const coordSysMatrix = sceneMesh.model.coordinateSystemMatrix;
+    const pvmMat = mulMat4(mulMat4(pickProjMatrix, viewMatrix, tempMat4b2), coordSysMatrix, tempMat4d);
+    const pvMatInverse = inverseMat4(pvmMat, tempMat4c);
+    tempVec4a8[0] = x;
+    tempVec4a8[1] = y;
+    tempVec4a8[2] = -1;
+    tempVec4a8[3] = 1;
+    let world1 = transformVec4(pvMatInverse, tempVec4a8);
     mulVec4Scalar(world1, 1 / world1[3], world1);
-    tempVec4b6[0] = x;
-    tempVec4b6[1] = y;
-    tempVec4b6[2] = 1;
-    tempVec4b6[3] = 1;
-    let world2 = transformVec4(pvMatInverse, tempVec4b6);
+    tempVec4b7[0] = x;
+    tempVec4b7[1] = y;
+    tempVec4b7[2] = 1;
+    tempVec4b7[3] = 1;
+    let world2 = transformVec4(pvMatInverse, tempVec4b7);
     mulVec4Scalar(world2, 1 / world2[3], world2);
-    const dir = subVec3(world2, world1, tempVec3c5);
-    const offset = mulVec3Scalar(dir, depth, tempVec3a9);
-    const worldPos = subVec3(world2, offset, tempVec3b9);
+    const dir = subVec3(world2, world1, tempVec3a10);
+    const offset = mulVec3Scalar(dir, depth, tempVec3b10);
+    const worldPos = addVec3(world1, offset, tempVec3c6);
     if (gotOrigin) {
       addVec3(worldPos, tileOrigin, worldPos);
     }
@@ -133818,7 +134895,7 @@ var PickManager = class {
   _unpackDepth(depthZ) {
     const vec = createVec4Float64([depthZ[0] / 256, depthZ[1] / 256, depthZ[2] / 256, depthZ[3] / 256]);
     const bitShift = createVec4Float64([1 / (256 * 256 * 256), 1 / (256 * 256), 1 / 256, 1]);
-    return 1 - dotVec4(vec, bitShift);
+    return dotVec4(vec, bitShift);
   }
   _getClipPosX(pos, size) {
     return 2 * (pos / size) - 1;
@@ -134069,12 +135146,8 @@ var RenderManager = class {
     if (bins.normalFillTransparent.length || bins.edgesColorTransparent.length || bins.xrayedSilhouetteTransparent.length || bins.xrayEdgesTransparent.length) {
       gl.enable(gl.CULL_FACE);
       gl.enable(gl.BLEND);
-      if (rendererView.view.transparent) {
-        gl.blendEquation(gl.FUNC_ADD);
-        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-      } else {
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-      }
+      gl.blendEquation(gl.FUNC_ADD);
+      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
       renderContext.backfaces = false;
       if (!this._alphaDepthMask) {
         gl.depthMask(false);
@@ -134288,10 +135361,10 @@ __export(meshManager_exports, {
   MeshBatchImpl: () => MeshBatchImpl,
   MeshManager: () => MeshManager,
   RendererGeometry: () => RendererGeometry,
+  RendererMaterial: () => RendererMaterial,
   RendererMesh: () => RendererMesh,
   RendererObject: () => RendererObject,
-  RendererTexture: () => RendererTexture,
-  RendererTextureSet: () => RendererTextureSet
+  RendererTexture: () => RendererTexture
 });
 
 // ../sdk/src/webglrenderer/internal/meshManager/RendererGeometry.ts
@@ -134320,8 +135393,8 @@ var RendererTexture = class {
   }
 };
 
-// ../sdk/src/webglrenderer/internal/meshManager/RendererTextureSet.ts
-var RendererTextureSet = class {
+// ../sdk/src/webglrenderer/internal/meshManager/RendererMaterial.ts
+var RendererMaterial = class {
   id;
   // public readonly colorRendererTexture: SceneTextureRendererProxy;
   // public readonly metallicRoughnessRendererTexture: SceneTextureRendererProxy;
@@ -135475,13 +136548,46 @@ var ViewManager2 = class {
     if (!rendererView) {
       return { ok: true, value: void 0 };
     }
+    this._gpuMemoryManager.uploadChanges();
     this._activateView(rendererView);
     const changed = this._alignCanvasToView(rendererView);
     if (changed.sizeChanged || changed.resolutionScaleChanged) {
       this._activeViewNeedsRenderAfterAlignment = false;
     }
-    this._gpuMemoryManager.uploadChanges();
     return this._renderManager.render(rendererView, { clear: true });
+  }
+  /**
+   * Renders a snapshot of the given view and returns it as a data URL string.
+   * @param view
+   */
+  getSnapshot(view) {
+    const rendererView = this._rendererViews[view.id];
+    if (!rendererView) {
+      throw new SDKInternalException(`[ViewManager.getSnapshot] View with id '${view.id}' is not registered with the renderer`);
+    }
+    const boundingRect = rendererView.view.htmlElement.getBoundingClientRect();
+    const width = Math.round(boundingRect.width);
+    const height = Math.round(boundingRect.height);
+    const snapshotBuffer = rendererView.renderBuffers.getRenderBuffer("snapshot", {
+      depthTexture: false,
+      size: [width, height]
+    });
+    if (!snapshotBuffer) {
+      return {
+        ok: false,
+        type: 8 /* MemoryAllocationFailed */,
+        error: `[ViewManager.getSnapshot] Failed to create snapshot render buffer for view '${view.id}'`
+      };
+    }
+    snapshotBuffer.bind();
+    snapshotBuffer.clear();
+    this._renderManager.render(rendererView, { clear: true });
+    const image = snapshotBuffer.readImage({ format: "png", height, width });
+    snapshotBuffer.unbind();
+    return {
+      ok: true,
+      value: image
+    };
   }
   /**
    * Makes the given renderer view the active view.
@@ -135509,7 +136615,8 @@ var ViewManager2 = class {
       this._renderManager.render(activeRendererView, { clear: true });
       const image = snapshotBuffer.readImage({ format: "png", height, width });
       snapshotBuffer.unbind();
-      activeRendererView.view.htmlElement.src = image;
+      const htmlElement = activeRendererView.view.htmlElement;
+      htmlElement.src = image;
     }
     this._activeView = rendererView;
     this._observeActiveViewElement(rendererView);
@@ -135836,6 +136943,17 @@ var ViewManager2 = class {
     this._meshManager.viewObjectOpacityChanged(viewObject);
   }
   /**
+   * Notifies that a {@link ViewObject}'s pickable flag changed.
+   * Forwards to {@link MeshManager} to queue GPU updates.
+   * @param viewObject
+   */
+  viewObjectPickableChanged(viewObject) {
+    if (viewObject.layer.view.viewIndex >= this._rendererViewsList.length) {
+      return;
+    }
+    this._meshManager.viewObjectPickableChanged(viewObject);
+  }
+  /**
    * Notifies that the camera view matrix was updated.
    * Forwards to {@link MeshManager} to update camera-dependent GPU state.
    */
@@ -135861,12 +136979,12 @@ var ViewManager2 = class {
       };
     }
     const changingActiveView = this._activeView !== rendererView;
+    this._gpuMemoryManager.uploadChanges();
     this._activateView(rendererView);
     const changed = this._alignCanvasToView(rendererView);
     if (changed.sizeChanged || changed.resolutionScaleChanged) {
       this._activeViewNeedsRenderAfterAlignment = false;
     }
-    this._gpuMemoryManager.uploadChanges();
     if (changingActiveView) {
       this._renderManager.render(rendererView, { clear: true });
     }
@@ -136420,6 +137538,7 @@ var WebGLRenderer3 = class {
       viewerEvents.onViewObjectSelectedChanged.subscribe((view, viewObject) => viewManager.viewObjectSelectedChanged(viewObject)),
       viewerEvents.onViewObjectColorizeChanged.subscribe((view, viewObject) => viewManager.viewObjectColorizeChanged(viewObject)),
       viewerEvents.onViewObjectOpacityChanged.subscribe((view, viewObject) => viewManager.viewObjectOpacityChanged(viewObject)),
+      viewerEvents.onViewObjectPickableChanged.subscribe((view, viewObject) => viewManager.viewObjectPickableChanged(viewObject)),
       // Camera updates
       viewerEvents.onCameraViewMatrixUpdated.subscribe((_, camera) => viewManager.cameraViewMatrixUpdated(camera))
     ];
@@ -136464,7 +137583,7 @@ var WebGLRenderer3 = class {
   /**
    * Performs a GPU-accelerated pick operation in the specified {@link View}.
    *
-   * This method queries the renderer to identify the {@link ViewObject} (and optionally the 3D surface position)
+   * This method queries the renderer to identify the {@link ViewObject} and the 3D surface position
    * at a given canvas coordinate or along a specified world-space ray. Picking is performed using the renderer's
    * internal GPU resources and shaders.
    *
@@ -136475,7 +137594,7 @@ var WebGLRenderer3 = class {
    * @remarks
    * - Returns an error if no Viewer with an attached Scene is present, or if the View does not belong to the attached Viewer.
    * - The returned {@link PickResult} is a transient, renderer-owned instance. Its contents are valid only until the next pick operation.
-   *   Do not modify or retain the result.
+   *  - Do not modify or retain the result.
    */
   pick(view, pickParams) {
     if (!this._viewManager) {
@@ -136493,6 +137612,29 @@ var WebGLRenderer3 = class {
       });
     }
     return this._viewManager.pick(view, pickParams);
+  }
+  /**
+   * Gets a snapshot image of the current rendered output for a specified {@link View}.
+   *
+   * @param view The {@link View} for which to capture the snapshot. Must belong to the currently attached {@link Viewer}.
+   * @return An {@link SDKResult} containing a data URL string of the snapshot image on success, or an error result on failure.
+   */
+  getSnapshot(view) {
+    if (!this._viewManager) {
+      return this.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[WebGLRenderer.getSnapshot] Viewer with Scene is currently attached."
+      });
+    }
+    if (view.viewer !== this._viewer) {
+      return this.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[WebGLRenderer.getSnapshot] The specified View does not belong to the currently attached Viewer."
+      });
+    }
+    return this._viewManager.getSnapshot(view);
   }
   /**
    * Detaches the currently attached {@link Viewer}, if any.
@@ -136563,11 +137705,10 @@ __export(internal_exports, {
   renderManager: () => renderManager_exports
 });
 
-// ../sdk/src/cameracontrol/index.ts
-var cameracontrol_exports = {};
-__export(cameracontrol_exports, {
-  CameraControl: () => CameraControl,
-  HoverEvent: () => HoverEvent,
+// ../sdk/src/viewcontroller/index.ts
+var viewcontroller_exports = {};
+__export(viewcontroller_exports, {
+  HoverEvent: () => HoverEvent2,
   KEY_A: () => KEY_A,
   KEY_ADD: () => KEY_ADD,
   KEY_ALT: () => KEY_ALT,
@@ -136666,10 +137807,11 @@ __export(cameracontrol_exports, {
   KEY_W: () => KEY_W,
   KEY_X: () => KEY_X,
   KEY_Y: () => KEY_Y,
-  KEY_Z: () => KEY_Z
+  KEY_Z: () => KEY_Z,
+  ViewController: () => ViewController2
 });
 
-// ../sdk/src/cameracontrol/keycodes.ts
+// ../sdk/src/viewcontroller/keycodes.ts
 var KEY_BACKSPACE = 8;
 var KEY_TAB = 9;
 var KEY_ENTER = 13;
@@ -137239,7 +138381,7 @@ var CameraFlightAnimation = class _CameraFlightAnimation {
 };
 
 // ../sdk/src/cameraflight/CameraPath.ts
-var tempVec3a10 = createVec3Float64();
+var tempVec3a11 = createVec3Float64();
 var CameraPath = class {
   _frames = [];
   _eyeCurve;
@@ -137649,7 +138791,7 @@ var CameraPathAnimation = class {
   static PLAYING_TO = 3 /* PLAYING_TO */;
 };
 
-// ../sdk/src/cameracontrol/CameraUpdater.ts
+// ../sdk/src/viewcontroller/CameraUpdater.ts
 var SCALE_DOLLY_EACH_FRAME = 1;
 var EPSILON2 = 1e-3;
 var tempVec34 = createVec3Float64();
@@ -137667,7 +138809,7 @@ var CameraUpdater = class {
     let dollyDistFactor = 1;
     let followPointerWorldPos = null;
     this._updateTask = new SDKTask({
-      name: "CameraControl->CameraUpdater._updateTask",
+      name: "ViewController->CameraUpdater._updateTask",
       stage: SDKTask.CollectInputStage,
       repeat: true,
       // TODO: make this event-driven instead of repeating every frame?
@@ -137695,7 +138837,7 @@ var CameraUpdater = class {
               if (updates.rotateDeltaY === 0 && updates.rotateDeltaX === 0) {
                 if (configs.followPointer && states.followPointerDirty) {
                   pickController.pickCursorPos = states.pointerCanvasPos;
-                  pickController.schedulePickSurface = true;
+                  pickController.schedulePick = true;
                   pickController.update();
                   if (pickController.pickResult && pickController.pickResult.worldPos) {
                     followPointerWorldPos = pickController.pickResult.worldPos;
@@ -137873,14 +139015,14 @@ var CameraUpdater = class {
   }
 };
 
-// ../sdk/src/cameracontrol/CameraControl.ts
-var import_strongly_typed_events15 = __toESM(require_dist8());
+// ../sdk/src/viewcontroller/ViewController.ts
+var import_strongly_typed_events16 = __toESM(require_dist8());
 
-// ../sdk/src/cameracontrol/KeyboardAxisViewHandler.ts
+// ../sdk/src/viewcontroller/KeyboardAxisViewHandler.ts
 var center = createVec3Float64();
-var tempVec3a11 = createVec3Float64();
-var tempVec3b10 = createVec3Float64();
-var tempVec3c6 = createVec3Float64();
+var tempVec3a12 = createVec3Float64();
+var tempVec3b11 = createVec3Float64();
+var tempVec3c7 = createVec3Float64();
 var tempVec3d3 = createVec3Float64();
 var tempCameraTarget = {
   eye: createVec3Float64(),
@@ -137898,7 +139040,7 @@ var KeyboardAxisViewHandler = class {
   }
 };
 
-// ../sdk/src/cameracontrol/KeyboardPanRotateDollyHandler.ts
+// ../sdk/src/viewcontroller/KeyboardPanRotateDollyHandler.ts
 var KeyboardPanRotateDollyHandler = class {
   #view;
   constructor(view, controllers, configs, states, updates) {
@@ -137911,7 +139053,7 @@ var KeyboardPanRotateDollyHandler = class {
   }
 };
 
-// ../sdk/src/cameracontrol/MouseMiscHandler.ts
+// ../sdk/src/viewcontroller/MouseMiscHandler.ts
 var MouseMiscHandler = class {
   #view;
   #mouseEnterHandler;
@@ -137969,7 +139111,7 @@ function getCanvasPosFromEvent(event, htmlElement, canvasPos2) {
   return canvasPos2;
 }
 
-// ../sdk/src/cameracontrol/MousePanRotateDollyHandler.ts
+// ../sdk/src/viewcontroller/MousePanRotateDollyHandler.ts
 var canvasPos = createVec2Float64();
 var getCanvasPosFromEvent2 = function(event, canvasPos2) {
   if (!event) {
@@ -138053,9 +139195,9 @@ var MousePanRotateDollyHandler = class {
     }
     function setMousedownPick() {
       pickController.pickCursorPos = states.pointerCanvasPos;
-      pickController.schedulePickSurface = true;
+      pickController.schedulePick = true;
       pickController.update();
-      if (pickController.picked && pickController.pickedSurface && pickController.pickResult && pickController.pickResult.worldPos) {
+      if (pickController.picked && pickController.pickResult && pickController.pickResult.worldPos) {
         mouseDownPicked = true;
         pickedWorldPos.set(pickController.pickResult.worldPos);
       } else {
@@ -138178,7 +139320,7 @@ var MousePanRotateDollyHandler = class {
           const x = canvasPos[0];
           const y = canvasPos[1];
           if (Math.abs(x - lastXDown) < 3 && Math.abs(y - lastYDown) < 3) {
-            controllers.cameraControl.fire("rightClick", {
+            controllers.viewController.fire("rightClick", {
               // For context menus
               pagePos: [Math.round(e.pageX), Math.round(e.pageY)],
               canvasPos,
@@ -138202,7 +139344,6 @@ var MousePanRotateDollyHandler = class {
     const minElapsed = 1 / 60;
     let secsNowLast = null;
     htmlElement.addEventListener("wheel", this.#mouseWheelHandler = (e) => {
-      return;
       if (!(configs.active && configs.pointerEnabled)) {
         return;
       }
@@ -138243,24 +139384,51 @@ var MousePanRotateDollyHandler = class {
   }
 };
 
-// ../sdk/src/cameracontrol/MousePickHandler.ts
-var tempVec3a12 = createVec3Float64();
+// ../sdk/src/viewcontroller/MousePickHandler.ts
+var tempVec3a13 = createVec3Float64();
 var MousePickHandler = class {
+  /**
+   * Owning view. Needed for DOM binding, camera access, and teardown.
+   */
   #view;
+  /**
+   * Simple click state machine:
+   * - 0 => idle
+   * - 1 => first click seen, waiting to see if a second click arrives within
+   *        the double-click window
+   */
   #clicks;
+  /**
+   * Timer used to defer single-click dispatch until we know whether the click
+   * will become part of a double-click sequence.
+   */
   #timeout;
+  /**
+   * Last hovered/picked entity id for hover-transition bookkeeping.
+   *
+   * Currently only relevant to the commented-out mousemove hover path below.
+   */
   #lastPickedEntityId;
+  /**
+   * Stored listener references so destroy() can unregister reliably.
+   */
   #canvasMouseDownHandler;
   #canvasMouseMoveHandler;
   #canvasMouseUpHandler;
   #documentMouseUpHandler;
+  /**
+   * Scene/object bounds index used for fly-to framing and scene center lookup.
+   */
   #aabbIndex;
+  /**
+   * @private
+   */
   constructor(view, controllers, configs, states, updates) {
     this.#view = view;
     this.#aabbIndex = getSceneAABB3Index(view.viewer.scene);
     const pickController = controllers.pickController;
     const pivotController = controllers.pivotController;
-    const cameraControl = controllers.cameraControl;
+    const viewController = controllers.viewController;
     this.#clicks = 0;
     this.#timeout = null;
     this.#lastPickedEntityId = null;
@@ -138275,7 +139443,7 @@ var MousePickHandler = class {
       const aabb = pickResult && pickResult.viewObject ? this.#aabbIndex.getObjectAABB(pickResult.viewObject.id) : this.#aabbIndex.getSceneAABB();
       if (pos) {
         const camera = view.camera;
-        const diff = subVec3(camera.eye, camera.look, tempVec3a12);
+        const diff = subVec3(camera.eye, camera.look, tempVec3a13);
         controllers.cameraFlight.flyTo({
           // look: pos,
           // eye: xeokit.addVec3(pos, diff, []),
@@ -138308,7 +139476,7 @@ var MousePickHandler = class {
       states.mouseDownCursorY = states.pointerCanvasPos[1];
       if (!configs.firstPerson && configs.followPointer) {
         pickController.pickCursorPos = states.pointerCanvasPos;
-        pickController.schedulePickSurface = true;
+        pickController.schedulePick = true;
         pickController.update();
         if (e.which === 1) {
           const pickResult = pickController.pickResult;
@@ -138349,25 +139517,22 @@ var MousePickHandler = class {
       if (Math.abs(e.clientX - states.mouseDownClientX) > 3 || Math.abs(e.clientY - states.mouseDownClientY) > 3) {
         return;
       }
-      const pickedSubs = cameraControl.onPicked.count > 0;
-      const pickedNothingSubs = cameraControl.onPickedNothing.count > 0;
-      const pickedSurfaceSubs = cameraControl.onPickedSurface.count > 0;
-      const doublePickedSubs = cameraControl.onDoublePicked.count > 0;
-      const doublePickedSurfaceSubs = cameraControl.onDoublePickedSurface.count > 0;
-      const doublePickedNothingSubs = cameraControl.onDoublePickedNothing.count > 0;
-      if (!configs.doublePickFlyTo && !doublePickedSubs && !doublePickedSurfaceSubs && !doublePickedNothingSubs) {
-        if (pickedSubs || pickedNothingSubs || pickedSurfaceSubs) {
+      const pickedSubs = viewController.events.onPicked.count > 0;
+      const pickedNothingSubs = viewController.events.onPickedNothing.count > 0;
+      const doublePickedSubs = viewController.events.onDoublePicked.count > 0;
+      const doublePickedNothingSubs = viewController.events.onDoublePickedNothing.count > 0;
+      if (!configs.doublePickFlyTo && !doublePickedSubs && !doublePickedNothingSubs) {
+        if (pickedSubs || pickedNothingSubs) {
           pickController.pickCursorPos = states.pointerCanvasPos;
-          pickController.schedulePickEntity = true;
-          pickController.schedulePickSurface = pickedSurfaceSubs;
+          pickController.schedulePick = true;
           pickController.update();
           if (pickController.pickResult) {
-            cameraControl.onPicked.dispatch(cameraControl, pickController.pickResult);
+            viewController.events.onPicked.dispatch(viewController, pickController.pickResult);
             if (pickController.pickedSurface) {
-              cameraControl.onPickedSurface.dispatch(cameraControl, pickController.pickResult);
+              viewController.events.onPickedSurface.dispatch(viewController, pickController.pickResult);
             }
           } else {
-            cameraControl.onPickedNothing(cameraControl, {
+            viewController.events.onPickedNothing(viewController, {
               canvasPos: states.pointerCanvasPos
             });
           }
@@ -138378,25 +139543,21 @@ var MousePickHandler = class {
       this.#clicks++;
       if (this.#clicks === 1) {
         pickController.pickCursorPos = states.pointerCanvasPos;
-        pickController.schedulePickEntity = configs.doublePickFlyTo;
-        pickController.schedulePickSurface = pickedSurfaceSubs;
+        pickController.schedulePick = configs.doublePickFlyTo;
         pickController.update();
         const firstClickPickResult = pickController.pickResult;
         const firstClickPickSurface = pickController.pickedSurface;
         this.#timeout = setTimeout(() => {
           if (firstClickPickResult && firstClickPickResult.worldPos) {
-            cameraControl.onPicked.dispatch(cameraControl, firstClickPickResult);
-            if (firstClickPickSurface) {
-              cameraControl.onPickedSurface.dispatch(cameraControl, firstClickPickResult);
-              if (!configs.firstPerson && configs.followPointer) {
-                controllers.pivotController.setPivotPos(firstClickPickResult.worldPos);
-                if (controllers.pivotController.startPivot()) {
-                  controllers.pivotController.showPivot();
-                }
+            viewController.events.onPicked.dispatch(viewController, firstClickPickResult);
+            if (!configs.firstPerson && configs.followPointer) {
+              controllers.pivotController.setPivotPos(firstClickPickResult.worldPos);
+              if (controllers.pivotController.startPivot()) {
+                controllers.pivotController.showPivot();
               }
             }
           } else {
-            cameraControl.onPickedNothing.dispatch(cameraControl, {
+            viewController.events.onPickedNothing.dispatch(viewController, {
               canvasPos: states.pointerCanvasPos
             });
           }
@@ -138408,27 +139569,24 @@ var MousePickHandler = class {
           this.#timeout = null;
         }
         pickController.pickCursorPos = states.pointerCanvasPos;
-        pickController.schedulePickEntity = configs.doublePickFlyTo || doublePickedSubs || doublePickedSurfaceSubs;
-        pickController.schedulePickSurface = pickController.schedulePickEntity && doublePickedSurfaceSubs;
+        pickController.schedulePick = configs.doublePickFlyTo || doublePickedSubs;
         pickController.update();
         if (pickController.pickResult) {
-          cameraControl.onDoublePicked.dispatch(cameraControl, pickController.pickResult);
-          if (pickController.pickedSurface) {
-            cameraControl.onDoublePickedSurface.dispatch(cameraControl, pickController.pickResult);
-          }
+          viewController.events.onDoublePicked.dispatch(viewController, pickController.pickResult);
           if (configs.doublePickFlyTo) {
             flyCameraTo(pickController.pickResult);
             if (pickController.pickResult.viewObject && !configs.firstPerson && configs.followPointer) {
-              const pickedEntityAABB = pickController.pickResult.viewObject.aabb;
-              const pickedEntityCenterPos = getAABB3Center(pickedEntityAABB);
-              controllers.pivotController.setPivotPos(pickedEntityCenterPos);
+              const pickResult = pickController.pickResult;
+              const aabb = pickResult && pickResult.viewObject ? this.#aabbIndex.getObjectAABB(pickResult.viewObject.id) : this.#aabbIndex.getSceneAABB();
+              const center2 = getAABB3Center(aabb);
+              controllers.pivotController.setPivotPos(center2);
               if (controllers.pivotController.startPivot()) {
                 controllers.pivotController.showPivot();
               }
             }
           }
         } else {
-          cameraControl.onDoublePickedNothing.dispatch(cameraControl, {
+          viewController.events.onDoublePickedNothing.dispatch(viewController, {
             canvasPos: states.pointerCanvasPos
           });
           if (configs.doublePickFlyTo) {
@@ -138466,12 +139624,12 @@ var MousePickHandler = class {
   }
 };
 
-// ../sdk/src/cameracontrol/PanController.ts
+// ../sdk/src/viewcontroller/PanController.ts
 var screenPos = createVec3Float64();
 var viewPos = createVec3Float64();
-var tempVec3a13 = createVec3Float64();
-var tempVec3b11 = createVec3Float64();
-var tempVec3c7 = createVec3Float64();
+var tempVec3a14 = createVec3Float64();
+var tempVec3b12 = createVec3Float64();
+var tempVec3c8 = createVec3Float64();
 var tempVec3d4 = createVec3Float64();
 var tempVec3e3 = createVec3Float64();
 var tempVec3f2 = createVec3Float64();
@@ -138495,15 +139653,15 @@ var PanController = class {
     let dolliedThroughSurface = false;
     const camera = this.#view.camera;
     if (optionalTargetWorldPos) {
-      const eyeToWorldPosVec = subVec3(optionalTargetWorldPos, camera.eye, tempVec3a13);
+      const eyeToWorldPosVec = subVec3(optionalTargetWorldPos, camera.eye, tempVec3a14);
       const eyeWorldPosDist = lenVec3(eyeToWorldPosVec);
       dolliedThroughSurface = eyeWorldPosDist < dollyDelta;
     }
     if (camera.projectionType === PerspectiveProjectionType) {
       camera.orthoProjection.scale = camera.orthoProjection.scale - dollyDelta;
-      const unprojectedWorldPos = this._unproject(targetCanvasPos, tempVec3a13);
-      const offset = subVec3(unprojectedWorldPos, camera.eye, tempVec3b11);
-      const moveVec = mulVec3Scalar(normalizeVec3(offset), -dollyDelta, tempVec3c7);
+      const unprojectedWorldPos = this._unproject(targetCanvasPos, tempVec3a14);
+      const offset = subVec3(unprojectedWorldPos, camera.eye, tempVec3b12);
+      const moveVec = mulVec3Scalar(normalizeVec3(offset), -dollyDelta, tempVec3c8);
       camera.eye = [camera.eye[0] - moveVec[0], camera.eye[1] - moveVec[1], camera.eye[2] - moveVec[2]];
       camera.look = [camera.look[0] - moveVec[0], camera.look[1] - moveVec[1], camera.look[2] - moveVec[2]];
       if (optionalTargetWorldPos) {
@@ -138513,10 +139671,10 @@ var PanController = class {
         camera.look = [camera.eye[0] + eyeLookVec2[0], camera.eye[1] + eyeLookVec2[1], camera.eye[2] + eyeLookVec2[2]];
       }
     } else if (camera.projectionType === OrthoProjectionType) {
-      const worldPos1 = this._unproject(targetCanvasPos, tempVec3a13);
+      const worldPos1 = this._unproject(targetCanvasPos, tempVec3a14);
       camera.orthoProjection.scale = camera.orthoProjection.scale - dollyDelta;
-      const worldPos2 = this._unproject(targetCanvasPos, tempVec3b11);
-      const offset = subVec3(worldPos2, worldPos1, tempVec3c7);
+      const worldPos2 = this._unproject(targetCanvasPos, tempVec3b12);
+      const offset = subVec3(worldPos2, worldPos1, tempVec3c8);
       const eyeLookMoveVec = mulVec3Scalar(normalizeVec3(subVec3(camera.look, camera.eye, tempVec3d4)), -dollyDelta, tempVec3e3);
       const moveVec = addVec3(offset, eyeLookMoveVec, tempVec3f2);
       camera.eye = [camera.eye[0] - moveVec[0], camera.eye[1] - moveVec[1], camera.eye[2] - moveVec[2]];
@@ -138538,70 +139696,175 @@ var PanController = class {
   }
 };
 
-// ../sdk/src/cameracontrol/PickController.ts
+// ../sdk/src/viewcontroller/PickController.ts
 var PickController = class {
+  /**
+   * Owning view. Needed for object lookup during hover transition events.
+   */
   #view;
-  #cameraControl;
+  #viewController;
+  /**
+   * Shared runtime config owned by the top-level interaction system.
+   *
+   * Relevant values here include:
+   * - pointerEnabled
+   * - snapRadius
+   * - snapToVertex
+   * - snapToEdge
+   */
   #configs;
-  schedulePickEntity;
-  schedulePickSurface;
+  /**
+   * When true, a surface/entity pick should be performed on the next update().
+   *
+   * Despite the name, this is really "pick on next evaluation pass", not a persistent mode.
+   */
+  schedulePick;
+  /**
+   * When true, attempt snap-picking first, and fall back to regular picking if
+   * nothing snap-worthy is found.
+   *
+   * This is the right abstraction for measurement/precision tools, where a snapped
+   * edge/vertex is preferred over a generic surface hit.
+   */
   scheduleSnapOrPick;
+  /**
+   * Canvas-space cursor position for the next scheduled evaluation.
+   *
+   * This is mutated by input handlers before they call update().
+   */
   pickCursorPos;
+  /**
+   * Becomes true after update() if a regular pick hit is considered valid for event emission.
+   */
   picked;
-  pickedSurface;
+  /**
+   * Holds the most recent regular pick result.
+   *
+   * Important: in the code as shown, update() never actually assigns a new value to this.
+   * That strongly suggests either:
+   * - this snippet is incomplete, or
+   * - there is a regression/refactor bug.
+   *
+   * The surrounding logic clearly expects pickResult to hold the latest surface/entity hit.
+   */
   pickResult;
+  /**
+   * Last hovered entity id, used to synthesize hover enter/hover out transitions.
+   */
   #lastPickedEntityId;
+  /**
+   * Hash of the last evaluated request.
+   *
+   * Used to suppress duplicate evaluations when the pointer position and request
+   * type have not changed.
+   */
   #lastHash;
+  /**
+   * Small event budget/counter used to indicate that fireEvents() has meaningful work to do.
+   *
+   * This lets update() remain cheap when nothing changed and avoids redundant event churn.
+   */
   #needFireEvents;
+  /**
+   * True when either a snap result or a regular pick result should feed the
+   * "hoverSnapOrSurface" event stream.
+   */
   snappedOrPicked;
+  /**
+   * True when the previous hover state was snap-or-surface and the current evaluation
+   * indicates that state should be turned off.
+   *
+   * This is used to emit onHoverSnapOrSurfaceOff exactly when the system transitions
+   * out of that state.
+   */
   hoveredSnappedOrSurfaceOff;
+  /**
+   * Most recent snap-pick result, when snapping succeeded.
+   *
+   * Kept separate from pickResult because snap and regular pick can have slightly
+   * different semantics and payload shaping.
+   */
   snapPickResult;
-  constructor(cameraControl, configs) {
-    this.#view = cameraControl.view;
-    this.#cameraControl = cameraControl;
+  constructor(viewController, configs) {
+    this.#view = viewController.view;
+    this.#viewController = viewController;
     this.#view.htmlElement.oncontextmenu = function(e) {
       e.preventDefault();
     };
     this.#configs = configs;
-    this.schedulePickEntity = false;
-    this.schedulePickSurface = false;
+    this.schedulePick = false;
     this.scheduleSnapOrPick = false;
     this.pickCursorPos = createVec2Float64();
     this.picked = false;
-    this.pickedSurface = false;
     this.pickResult = null;
     this.#lastPickedEntityId = null;
     this.#lastHash = null;
     this.#needFireEvents = 0;
   }
   /**
-   * Immediately attempts a pick, if scheduled.
+   * Executes any scheduled pick work immediately.
+   *
+   * Key design points:
+   * - No-op if pointer interaction is disabled.
+   * - No-op if nothing has been scheduled.
+   * - Suppresses duplicate work using a simple request hash.
+   * - Supports snap-first / pick-second evaluation.
+   *
+   * This method is deliberately separated from fireEvents():
+   * update() computes state, fireEvents() publishes it.
+   *
+   * That separation is useful when the caller wants tight control over *when* event
+   * emission happens relative to the rest of the frame/update pipeline.
    */
   update() {
     if (!this.#configs.pointerEnabled) {
       return;
     }
-    if (!this.schedulePickEntity && !this.schedulePickSurface) {
+    if (!this.schedulePick) {
       return;
     }
-    const hash = `${~~this.pickCursorPos[0]}-${~~this.pickCursorPos[1]}-${this.scheduleSnapOrPick}-${this.schedulePickSurface}-${this.schedulePickEntity}`;
+    const hash = `${~~this.pickCursorPos[0]}-${~~this.pickCursorPos[1]}-${this.scheduleSnapOrPick}-${this.schedulePick}`;
     if (this.#lastHash === hash) {
       return;
     }
     this.picked = false;
-    this.pickedSurface = false;
     this.snappedOrPicked = false;
     this.hoveredSnappedOrSurfaceOff = false;
-    const hasHoverSurfaceSubs = this.#cameraControl.onHoverSurface.count > 0;
-    if (this.schedulePickSurface) {
+    const hasHoverSurfaceSubs = this.#viewController.events.onHover.count > 0;
+    if (this.scheduleSnapOrPick || this.schedulePick) {
+      const result = this.#viewController.pick(this.#viewController.view, {
+        canvasPos: this.pickCursorPos,
+        snapRadius: this.#configs.snapRadius,
+        snapToVertex: this.#configs.snapToVertex,
+        snapToEdge: this.#configs.snapToEdge
+      });
+      if (result.ok !== true) {
+        console.error("[PickController.update] Pick failed with error:", result.error);
+        this.schedulePick = true;
+        this.snapPickResult = null;
+        this.scheduleSnapOrPick = false;
+        return;
+      } else {
+        const snapPickResult = result.value;
+        if (snapPickResult) {
+          if (snapPickResult.snappedToEdge || snapPickResult.snappedToVertex) {
+            this.snapPickResult = snapPickResult;
+            this.snappedOrPicked = true;
+            this.#needFireEvents++;
+          } else {
+            this.schedulePick = true;
+            this.pickResult = snapPickResult;
+          }
+        }
+      }
+    }
+    if (this.schedulePick) {
       if (this.pickResult && this.pickResult.worldPos) {
         const pickResultCanvasPos = this.pickResult.canvasPos;
         if (pickResultCanvasPos[0] === this.pickCursorPos[0] && pickResultCanvasPos[1] === this.pickCursorPos[1]) {
           this.picked = true;
-          this.pickedSurface = true;
           this.#needFireEvents += hasHoverSurfaceSubs ? 1 : 0;
-          this.schedulePickEntity = false;
-          this.schedulePickSurface = false;
+          this.schedulePick = false;
           if (this.scheduleSnapOrPick) {
             this.snappedOrPicked = true;
           } else {
@@ -138611,29 +139874,31 @@ var PickController = class {
           return;
         }
       }
-    }
-    if (this.schedulePickEntity) {
-      if (this.pickResult && (this.pickResult.canvasPos || this.pickResult.snappedCanvasPos)) {
-        const pickResultCanvasPos = this.pickResult.canvasPos || this.pickResult.snappedCanvasPos;
-        if (pickResultCanvasPos[0] === this.pickCursorPos[0] && pickResultCanvasPos[1] === this.pickCursorPos[1]) {
-          this.picked = true;
-          this.pickedSurface = false;
-          this.schedulePickEntity = false;
-          this.schedulePickSurface = false;
-          return;
-        }
-      }
+      this.scheduleSnapOrPick = false;
+      this.schedulePick = false;
     }
     this.scheduleSnapOrPick = false;
-    this.schedulePickEntity = false;
-    this.schedulePickSurface = false;
+    this.schedulePick = false;
   }
+  /**
+   * Emits any semantic hover/snap events implied by the most recent update().
+   *
+   * Event families handled here:
+   * - hoverSnapOrSurfaceOff
+   * - hoverSnapOrSurface
+   * - hoverEnter / hoverOut
+   * - hover
+   * - hoverOff
+   *
+   * This function is effectively the publication phase of the controller's state machine.
+   */
   fireEvents() {
     if (this.#needFireEvents === 0) {
       return;
     }
+    const events = this.#viewController.events;
     if (this.hoveredSnappedOrSurfaceOff) {
-      this.#cameraControl.onHoverSnapOrSurfaceOff.dispatch(this.#cameraControl, {
+      this.#viewController.events.onHoverSnapOrSurfaceOff.dispatch(this.#viewController, {
         canvasPos: this.pickCursorPos,
         pointerPos: this.pickCursorPos
       });
@@ -138647,10 +139912,10 @@ var PickController = class {
         pickResult.worldPos = this.snapPickResult.worldPos;
         pickResult.canvasPos = this.pickCursorPos;
         pickResult.snappedCanvasPos = this.snapPickResult.snappedCanvasPos;
-        this.#cameraControl.onHoverSnapOrSurface.dispatch(this.#cameraControl, pickResult);
+        events.onHoverSnapOrSurface.dispatch(this.#viewController, pickResult);
         this.snapPickResult = null;
       } else {
-        this.#cameraControl.onHoverSnapOrSurface.dispatch(this.#cameraControl, this.pickResult);
+        events.onHoverSnapOrSurface.dispatch(this.#viewController, this.pickResult);
       }
     } else {
     }
@@ -138659,27 +139924,23 @@ var PickController = class {
         const pickedEntityId = this.pickResult.viewObject.id;
         if (this.#lastPickedEntityId !== pickedEntityId) {
           if (this.#lastPickedEntityId !== void 0) {
-            this.#cameraControl.onHoverOut.dispatch(this.#cameraControl, {
+            events.onHoverOut.dispatch(this.#viewController, {
               viewObject: this.#view.objects[this.#lastPickedEntityId]
             });
           }
-          this.#cameraControl.onHoverEnter.dispatch(this.#cameraControl, this.pickResult);
+          events.onHoverEnter.dispatch(this.#viewController, this.pickResult);
           this.#lastPickedEntityId = pickedEntityId;
         }
       }
-      this.#cameraControl.onHover.dispatch(this.#cameraControl, this.pickResult);
-      if (this.pickResult.worldPos) {
-        this.pickedSurface = true;
-        this.#cameraControl.onHoverSurface.dispatch(this.#cameraControl, this.pickResult);
-      }
+      events.onHover.dispatch(this.#viewController, this.pickResult);
     } else {
       if (this.#lastPickedEntityId !== void 0) {
-        this.#cameraControl.onHoverOut.dispatch(this.#cameraControl, {
+        events.onHoverOut.dispatch(this.#viewController, {
           viewObject: this.#view.objects[this.#lastPickedEntityId]
         });
         this.#lastPickedEntityId = void 0;
       }
-      this.#cameraControl.onHoverOff.dispatch(this.#cameraControl, {
+      events.onHoverOff.dispatch(this.#viewController, {
         canvasPos: this.pickCursorPos
       });
     }
@@ -138688,10 +139949,10 @@ var PickController = class {
   }
 };
 
-// ../sdk/src/cameracontrol/PivotController.ts
-var tempVec3a14 = createVec3Float64();
-var tempVec3b12 = createVec3Float64();
-var tempVec3c8 = createVec3Float64();
+// ../sdk/src/viewcontroller/PivotController.ts
+var tempVec3a15 = createVec3Float64();
+var tempVec3b13 = createVec3Float64();
+var tempVec3c9 = createVec3Float64();
 var tempVec3d5 = createVec3Float64();
 var tempVec3e4 = createVec3Float64();
 var tempVec3f3 = createVec3Float64();
@@ -138756,7 +140017,7 @@ var PivotController = class {
       this.#cameraDirty = true;
     });
     this._updateTask = new SDKTask({
-      name: "CameraControl->PivotController._updateTask",
+      name: "ViewController->PivotController._updateTask",
       stage: SDKTask.CollectInputStage,
       repeat: true,
       // TODO: make this event-driven instead of repeating every frame?
@@ -138848,8 +140109,8 @@ var PivotController = class {
   }
   #cameraLookingDownwards() {
     const camera = this.#view.camera;
-    const forwardAxis = normalizeVec3(subVec3(camera.look, camera.eye, tempVec3a14));
-    const rightAxis = cross3Vec3(forwardAxis, camera.view.viewer.scene.coordinateSystem.worldUp, tempVec3b12);
+    const forwardAxis = normalizeVec3(subVec3(camera.look, camera.eye, tempVec3a15));
+    const rightAxis = cross3Vec3(forwardAxis, camera.view.viewer.scene.coordinateSystem.worldUp, tempVec3b13);
     const rightAxisLen = sqLenVec3(rightAxis);
     return rightAxisLen <= 1e-4;
   }
@@ -138885,8 +140146,8 @@ var PivotController = class {
     const Pt4 = transposedProjectMat.subarray(12);
     const D = createVec4Float64([0, 0, -1, 1]);
     const screenZ = dotVec4(D, Pt3) / dotVec4(D, Pt4);
-    const worldPos = tempVec3a14;
-    camera.projection.unproject(canvasPos2, screenZ, tempVec3b12, tempVec3c8, worldPos);
+    const worldPos = tempVec3a15;
+    camera.projection.unproject(canvasPos2, screenZ, tempVec3b13, tempVec3c9, worldPos);
     const eyeWorldPosVec = normalizeVec3(subVec3(worldPos, camera.eye, tempVec3d5));
     const posOnSphere = addVec3(camera.eye, mulVec3Scalar(eyeWorldPosVec, pivotShereRadius, tempVec3e4), tempVec3f3);
     this.setPivotPos(posOnSphere);
@@ -138996,7 +140257,7 @@ var PivotController = class {
   }
 };
 
-// ../sdk/src/cameracontrol/TouchPanRotateAndDollyHandler.ts
+// ../sdk/src/viewcontroller/TouchPanRotateAndDollyHandler.ts
 var getCanvasPosFromEvent3 = function(event, canvasPos2) {
   if (!event) {
     event = window.event;
@@ -139053,7 +140314,7 @@ var TouchPanRotateAndDollyHandler = class {
         getCanvasPosFromEvent3(touches[0], tapStartCanvasPos);
         if (configs.followPointer) {
           pickController.pickCursorPos = tapStartCanvasPos;
-          pickController.schedulePickSurface = true;
+          pickController.schedulePick = true;
           pickController.update();
           if (!configs.planView) {
             if (pickController.picked && pickController.pickedSurface && pickController.pickResult && pickController.pickResult.worldPos) {
@@ -139180,7 +140441,7 @@ var TouchPanRotateAndDollyHandler = class {
   }
 };
 
-// ../sdk/src/cameracontrol/TouchPickHandler.ts
+// ../sdk/src/viewcontroller/TouchPickHandler.ts
 var TAP_INTERVAL = 150;
 var DBL_TAP_INTERVAL = 325;
 var TAP_DISTANCE_THRESHOLD = 4;
@@ -139204,15 +140465,26 @@ var getCanvasPosFromEvent4 = function(event, canvasPos2) {
   return canvasPos2;
 };
 var TouchPickHandler = class {
+  /**
+   * Owning view. Needed for DOM event binding and camera access.
+   */
   #view;
+  /**
+   * Stored listener references so destroy() can reliably unregister them.
+   */
   #canvasTouchStartHandler;
   #canvasTouchEndHandler;
+  /**
+   * Spatial index used to retrieve object or scene bounds for fly-to behavior.
+   *
+   * Important: this avoids reconstructing bounds from render data at gesture time.
+   */
   #aabbIndex;
   constructor(view, controllers, configs, states, updates) {
     this.#view = view;
     this.#aabbIndex = getSceneAABB3Index(view.viewer.scene);
     const pickController = controllers.pickController;
-    const cameraControl = controllers.cameraControl;
+    const viewController = controllers.viewController;
     let touchStartTime;
     const activeTouches = [];
     const tapStartPos = createVec2Float32();
@@ -139255,8 +140527,7 @@ var TouchPickHandler = class {
         const rightClickPageX = touches[0].pageX;
         const rightClickPageY = touches[0].pageY;
         states.longTouchTimeout = setTimeout(() => {
-          controllers.cameraControl.fire("rightClick", {
-            // For context menus
+          controllers.viewController.fire("rightClick", {
             pagePos: [Math.round(rightClickPageX), Math.round(rightClickPageY)],
             canvasPos: [Math.round(rightClickClientX), Math.round(rightClickClientY)],
             event: e
@@ -139281,7 +140552,7 @@ var TouchPickHandler = class {
       const currentTime = Date.now();
       const touches = e.touches;
       const changedTouches = e.changedTouches;
-      const pickedSurfaceSubs = cameraControl.hasSubs("pickedSurface");
+      const pickedSurfaceSubs = viewController.hasSubs("pickedSurface");
       if (states.longTouchTimeout !== null) {
         clearTimeout(states.longTouchTimeout);
         states.longTouchTimeout = null;
@@ -139290,20 +140561,19 @@ var TouchPickHandler = class {
         if (tapStartTime > -1 && currentTime - tapStartTime < TAP_INTERVAL) {
           if (lastTapTime > -1 && tapStartTime - lastTapTime < DBL_TAP_INTERVAL) {
             getCanvasPosFromEvent4(changedTouches[0], pickController.pickCursorPos);
-            pickController.schedulePickEntity = true;
-            pickController.schedulePickSurface = pickedSurfaceSubs;
+            pickController.schedulePick = true;
             pickController.update();
             if (pickController.pickResult) {
               pickController.pickResult.touchInput = true;
-              cameraControl.fire("doublePicked", pickController.pickResult);
+              viewController.fire("doublePicked", pickController.pickResult);
               if (pickController.pickedSurface) {
-                cameraControl.fire("doublePickedSurface", pickController.pickResult);
+                viewController.fire("doublePickedSurface", pickController.pickResult);
               }
               if (configs.doublePickFlyTo) {
                 flyCameraTo(pickController.pickResult);
               }
             } else {
-              cameraControl.fire("doublePickedNothing");
+              viewController.fire("doublePickedNothing");
               if (configs.doublePickFlyTo) {
                 flyCameraTo();
               }
@@ -139311,17 +140581,16 @@ var TouchPickHandler = class {
             lastTapTime = -1;
           } else if (distVec2(activeTouches[0], tapStartPos) < TAP_DISTANCE_THRESHOLD) {
             getCanvasPosFromEvent4(changedTouches[0], pickController.pickCursorPos);
-            pickController.schedulePickEntity = true;
-            pickController.schedulePickSurface = pickedSurfaceSubs;
+            pickController.schedulePick = true;
             pickController.update();
             if (pickController.pickResult) {
               pickController.pickResult.touchInput = true;
-              cameraControl.fire("picked", pickController.pickResult);
+              viewController.fire("picked", pickController.pickResult);
               if (pickController.pickedSurface) {
-                cameraControl.fire("pickedSurface", pickController.pickResult);
+                viewController.fire("pickedSurface", pickController.pickResult);
               }
             } else {
-              cameraControl.fire("pickedNothing");
+              viewController.fire("pickedNothing");
             }
             lastTapTime = currentTime;
           }
@@ -139344,13 +140613,100 @@ var TouchPickHandler = class {
   }
 };
 
-// ../sdk/src/cameracontrol/CameraControl.ts
+// ../sdk/src/viewcontroller/ViewControllerEvents.ts
+var import_strongly_typed_events15 = __toESM(require_dist8());
+var ViewControllerEvents = class {
+  /**
+   * Event fired when we right-click.
+   */
+  onRightClick;
+  /**
+   * Event fired when the pointer moves while over a {@link viewer!ViewObject | ViewObject}.
+   */
+  onHover;
+  /**
+   * Event fired when the pointer moves while over empty space.
+   */
+  onHoverOff;
+  /**
+   * Event fired when the pointer moves onto a {@link viewer!ViewObject | ViewObject}.
+   */
+  onHoverEnter;
+  /**
+   * Event fired when the pointer moves off a {@link viewer!ViewObject | ViewObject}.
+   */
+  onHoverOut;
+  /**
+   * Event fired when a {@link viewer!ViewObject | ViewObject} is picked.
+   */
+  onPicked;
+  /**
+   * Event fired when empty space is picked.
+   */
+  onPickedNothing;
+  /**
+   * Event fired when a ViewObject is double-picked.
+   */
+  onDoublePicked;
+  /**
+   * Event fired when empty space is double-picked.
+   */
+  onDoublePickedNothing;
+  /**
+   * Event fired when snapping off a surface, vertex, or edge.
+   */
+  onHoverSnapOrSurfaceOff;
+  /**
+   * Event fired when snapping onto a surface, vertex, or edge.
+   */
+  onHoverSnapOrSurface;
+  /**
+   * Event fired when ray moves.
+   */
+  onRayMove;
+  /**
+   * @private
+   */
+  constructor() {
+    this.onHover = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onHoverOff = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onHoverEnter = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onHoverOut = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onRightClick = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onPicked = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onPickedNothing = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onDoublePicked = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onDoublePickedNothing = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onHoverSnapOrSurfaceOff = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onHoverSnapOrSurface = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.onRayMove = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+  }
+  /**
+   * @private
+   */
+  clear() {
+    this.onHover.clear();
+    this.onHoverOff.clear();
+    this.onHoverEnter.clear();
+    this.onHoverOut.clear();
+    this.onRightClick.clear();
+    this.onPicked.clear();
+    this.onPickedNothing.clear();
+    this.onDoublePicked.clear();
+    this.onDoublePickedNothing.clear();
+    this.onHoverSnapOrSurfaceOff.clear();
+    this.onHoverSnapOrSurface.clear();
+    this.onRayMove.clear();
+  }
+};
+
+// ../sdk/src/viewcontroller/ViewController.ts
 var DEFAULT_SNAP_PICK_RADIUS = 30;
 var DEFAULT_SNAP_VERTEX = true;
 var DEFAULT_SNAP_EDGE = true;
-var HoverEvent = class {
+var HoverEvent2 = class {
 };
-var CameraControl = class _CameraControl {
+var ViewController2 = class _ViewController {
   /**
    * Represents a leftward panning action.
    */
@@ -139430,69 +140786,13 @@ var CameraControl = class _CameraControl {
    */
   static AXIS_VIEW_BOTTOM = 17;
   /**
-   * The {@link viewer!View | View} to which this CameraControl belongs.
+   * The {@link viewer!View | View} to which this ViewController belongs.
    */
   view;
   /**
-   * Event fired when we right-click.
+   * Events fired by this ViewController.
    */
-  onRightClick;
-  /**
-   * Event fired when the pointer moves while over a {@link viewer!ViewObject | ViewObject}.
-   */
-  onHover;
-  /**
-   * Event fired when the pointer moves while over a {@link viewer!ViewObject | ViewObject}.
-   */
-  onHoverSurface;
-  /**
-   * Event fired when the pointer moves while over empty space.
-   */
-  onHoverOff;
-  /**
-   * Event fired when the pointer moves onto a {@link viewer!ViewObject | ViewObject}.
-   */
-  onHoverEnter;
-  /**
-   * Event fired when the pointer moves off a {@link viewer!ViewObject | ViewObject}.
-   */
-  onHoverOut;
-  /**
-   * Event fired when a {@link viewer!ViewObject | ViewObject} is picked.
-   */
-  onPicked;
-  /**
-   * Event fired when empty space is picked.
-   */
-  onPickedSurface;
-  /**
-   * Event fired when empty space is picked.
-   */
-  onPickedNothing;
-  /**
-   * Event fired when a ViewObject is double-picked.
-   */
-  onDoublePicked;
-  /**
-   * Event fired when a surface is double-picked.
-   */
-  onDoublePickedSurface;
-  /**
-   * Event fired when empty space is double-picked.
-   */
-  onDoublePickedNothing;
-  /**
-   * Event fired when snapping off a surface, vertex, or edge.
-   */
-  onHoverSnapOrSurfaceOff;
-  /**
-   * Event fired when snapping onto a surface, vertex, or edge.
-   */
-  onHoverSnapOrSurface;
-  /**
-   * Event fired when ray moves.
-   */
-  onRayMove;
+  events;
   _configs;
   _states;
   _updates;
@@ -139502,11 +140802,16 @@ var CameraControl = class _CameraControl {
   _keyMap;
   /**
    * @private
+   */
+  pick;
+  /**
+   * @private
    *
    */
   constructor(view, cfg = {}) {
     this._keyMap = {};
     this.view = view;
+    this.pick = cfg.pick;
     this.view.htmlElement.oncontextmenu = (e) => {
       e.preventDefault();
     };
@@ -139573,7 +140878,7 @@ var CameraControl = class _CameraControl {
       dollyDelta: 0
     };
     this._controllers = {
-      cameraControl: this,
+      viewController: this,
       pickController: new PickController(this, this._configs),
       pivotController: new PivotController(view, this._configs),
       panController: new PanController(view),
@@ -139591,21 +140896,7 @@ var CameraControl = class _CameraControl {
       new KeyboardPanRotateDollyHandler(this.view, this._controllers, this._configs, this._states, this._updates)
     ];
     this._cameraUpdater = new CameraUpdater(this.view, this._controllers, this._configs, this._states, this._updates);
-    this.onHover = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
-    this.onHoverOff = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
-    this.onHoverEnter = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
-    this.onHoverOut = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
-    this.onRightClick = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
-    this.onHoverSurface = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
-    this.onPicked = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
-    this.onPickedSurface = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
-    this.onPickedNothing = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
-    this.onDoublePicked = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
-    this.onDoublePickedSurface = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
-    this.onDoublePickedNothing = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
-    this.onHoverSnapOrSurfaceOff = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
-    this.onHoverSnapOrSurface = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
-    this.onRayMove = new EventEmitter(new import_strongly_typed_events15.EventDispatcher());
+    this.events = new ViewControllerEvents();
     this.navMode = cfg.navMode;
     this.constrainVertical = cfg.constrainVertical;
     this.keyMap = cfg.keyMap;
@@ -139628,12 +140919,12 @@ var CameraControl = class _CameraControl {
     this.mouseWheelDollyRate = cfg.mouseWheelDollyRate;
   }
   /**
-   * Sets custom mappings of keys to ````CameraControl```` actions.
+   * Sets custom mappings of keys to ````ViewController```` actions.
    *
    * See class docs for usage.
    *
    * @param {{Number:Number}|String} value Either a set of new key mappings, or a string to select a keyboard layout,
-   * which causes ````CameraControl```` to use the default key mappings for that layout.
+   * which causes ````ViewController```` to use the default key mappings for that layout.
    */
   set keyMap(value) {
     value = value || QWERTYLayout;
@@ -139643,44 +140934,44 @@ var CameraControl = class _CameraControl {
         default:
           console.error("Unsupported value for 'keyMap': " + value + " defaulting to 'qwerty'");
         case QWERTYLayout:
-          keyMap[_CameraControl.PAN_LEFT] = [KEY_A];
-          keyMap[_CameraControl.PAN_RIGHT] = [KEY_D];
-          keyMap[_CameraControl.PAN_UP] = [KEY_Z];
-          keyMap[_CameraControl.PAN_DOWN] = [KEY_X];
-          keyMap[_CameraControl.PAN_BACKWARDS] = [];
-          keyMap[_CameraControl.PAN_FORWARDS] = [];
-          keyMap[_CameraControl.DOLLY_FORWARDS] = [KEY_W, KEY_ADD];
-          keyMap[_CameraControl.DOLLY_BACKWARDS] = [KEY_S, KEY_SUBTRACT];
-          keyMap[_CameraControl.ROTATE_X_POS] = [KEY_DOWN_ARROW];
-          keyMap[_CameraControl.ROTATE_X_NEG] = [KEY_UP_ARROW];
-          keyMap[_CameraControl.ROTATE_Y_POS] = [KEY_Q, KEY_LEFT_ARROW];
-          keyMap[_CameraControl.ROTATE_Y_NEG] = [KEY_E, KEY_RIGHT_ARROW];
-          keyMap[_CameraControl.AXIS_VIEW_RIGHT] = [KEY_NUM_1];
-          keyMap[_CameraControl.AXIS_VIEW_BACK] = [KEY_NUM_2];
-          keyMap[_CameraControl.AXIS_VIEW_LEFT] = [KEY_NUM_3];
-          keyMap[_CameraControl.AXIS_VIEW_FRONT] = [KEY_NUM_4];
-          keyMap[_CameraControl.AXIS_VIEW_TOP] = [KEY_NUM_5];
-          keyMap[_CameraControl.AXIS_VIEW_BOTTOM] = [KEY_NUM_6];
+          keyMap[_ViewController.PAN_LEFT] = [KEY_A];
+          keyMap[_ViewController.PAN_RIGHT] = [KEY_D];
+          keyMap[_ViewController.PAN_UP] = [KEY_Z];
+          keyMap[_ViewController.PAN_DOWN] = [KEY_X];
+          keyMap[_ViewController.PAN_BACKWARDS] = [];
+          keyMap[_ViewController.PAN_FORWARDS] = [];
+          keyMap[_ViewController.DOLLY_FORWARDS] = [KEY_W, KEY_ADD];
+          keyMap[_ViewController.DOLLY_BACKWARDS] = [KEY_S, KEY_SUBTRACT];
+          keyMap[_ViewController.ROTATE_X_POS] = [KEY_DOWN_ARROW];
+          keyMap[_ViewController.ROTATE_X_NEG] = [KEY_UP_ARROW];
+          keyMap[_ViewController.ROTATE_Y_POS] = [KEY_Q, KEY_LEFT_ARROW];
+          keyMap[_ViewController.ROTATE_Y_NEG] = [KEY_E, KEY_RIGHT_ARROW];
+          keyMap[_ViewController.AXIS_VIEW_RIGHT] = [KEY_NUM_1];
+          keyMap[_ViewController.AXIS_VIEW_BACK] = [KEY_NUM_2];
+          keyMap[_ViewController.AXIS_VIEW_LEFT] = [KEY_NUM_3];
+          keyMap[_ViewController.AXIS_VIEW_FRONT] = [KEY_NUM_4];
+          keyMap[_ViewController.AXIS_VIEW_TOP] = [KEY_NUM_5];
+          keyMap[_ViewController.AXIS_VIEW_BOTTOM] = [KEY_NUM_6];
           break;
         case "azerty":
-          keyMap[_CameraControl.PAN_LEFT] = [KEY_Q];
-          keyMap[_CameraControl.PAN_RIGHT] = [KEY_D];
-          keyMap[_CameraControl.PAN_UP] = [KEY_W];
-          keyMap[_CameraControl.PAN_DOWN] = [KEY_X];
-          keyMap[_CameraControl.PAN_BACKWARDS] = [];
-          keyMap[_CameraControl.PAN_FORWARDS] = [];
-          keyMap[_CameraControl.DOLLY_FORWARDS] = [KEY_Z, KEY_ADD];
-          keyMap[_CameraControl.DOLLY_BACKWARDS] = [KEY_S, KEY_SUBTRACT];
-          keyMap[_CameraControl.ROTATE_X_POS] = [KEY_DOWN_ARROW];
-          keyMap[_CameraControl.ROTATE_X_NEG] = [KEY_UP_ARROW];
-          keyMap[_CameraControl.ROTATE_Y_POS] = [KEY_A, KEY_LEFT_ARROW];
-          keyMap[_CameraControl.ROTATE_Y_NEG] = [KEY_E, KEY_RIGHT_ARROW];
-          keyMap[_CameraControl.AXIS_VIEW_RIGHT] = [KEY_NUM_1];
-          keyMap[_CameraControl.AXIS_VIEW_BACK] = [KEY_NUM_2];
-          keyMap[_CameraControl.AXIS_VIEW_LEFT] = [KEY_NUM_3];
-          keyMap[_CameraControl.AXIS_VIEW_FRONT] = [KEY_NUM_4];
-          keyMap[_CameraControl.AXIS_VIEW_TOP] = [KEY_NUM_5];
-          keyMap[_CameraControl.AXIS_VIEW_BOTTOM] = [KEY_NUM_6];
+          keyMap[_ViewController.PAN_LEFT] = [KEY_Q];
+          keyMap[_ViewController.PAN_RIGHT] = [KEY_D];
+          keyMap[_ViewController.PAN_UP] = [KEY_W];
+          keyMap[_ViewController.PAN_DOWN] = [KEY_X];
+          keyMap[_ViewController.PAN_BACKWARDS] = [];
+          keyMap[_ViewController.PAN_FORWARDS] = [];
+          keyMap[_ViewController.DOLLY_FORWARDS] = [KEY_Z, KEY_ADD];
+          keyMap[_ViewController.DOLLY_BACKWARDS] = [KEY_S, KEY_SUBTRACT];
+          keyMap[_ViewController.ROTATE_X_POS] = [KEY_DOWN_ARROW];
+          keyMap[_ViewController.ROTATE_X_NEG] = [KEY_UP_ARROW];
+          keyMap[_ViewController.ROTATE_Y_POS] = [KEY_A, KEY_LEFT_ARROW];
+          keyMap[_ViewController.ROTATE_Y_NEG] = [KEY_E, KEY_RIGHT_ARROW];
+          keyMap[_ViewController.AXIS_VIEW_RIGHT] = [KEY_NUM_1];
+          keyMap[_ViewController.AXIS_VIEW_BACK] = [KEY_NUM_2];
+          keyMap[_ViewController.AXIS_VIEW_LEFT] = [KEY_NUM_3];
+          keyMap[_ViewController.AXIS_VIEW_FRONT] = [KEY_NUM_4];
+          keyMap[_ViewController.AXIS_VIEW_TOP] = [KEY_NUM_5];
+          keyMap[_ViewController.AXIS_VIEW_BOTTOM] = [KEY_NUM_6];
           break;
       }
       this._keyMap = keyMap;
@@ -139690,7 +140981,7 @@ var CameraControl = class _CameraControl {
     }
   }
   /**
-   * Gets custom mappings of keys to {@link CameraControl} actions.
+   * Gets custom mappings of keys to {@link ViewController} actions.
    */
   get keyMap() {
     return this._keyMap;
@@ -139705,7 +140996,7 @@ var CameraControl = class _CameraControl {
     return false;
   }
   /**
-   * Sets the HTMl element to represent the pivot point when {@link CameraControl.followPointer} is true.
+   * Sets the HTMl element to represent the pivot point when {@link ViewController.followPointer} is true.
    *
    * See class comments for an example.
    */
@@ -139713,9 +141004,9 @@ var CameraControl = class _CameraControl {
     this._controllers.pivotController.setPivotElement(element);
   }
   /**
-   *  Sets if this ````CameraControl```` is active or not.
+   *  Sets if this ````ViewController```` is active or not.
    *
-   * When inactive, the ````CameraControl```` will not react to input.
+   * When inactive, the ````ViewController```` will not react to input.
    *
    * Default is ````true````.
    */
@@ -139726,13 +141017,13 @@ var CameraControl = class _CameraControl {
     this._handlers[5]._active = value;
   }
   /**
-   * Gets if this ````CameraControl```` is active or not.
+   * Gets if this ````ViewController```` is active or not.
    *
-   * When inactive, the ````CameraControl```` will not react to input.
+   * When inactive, the ````ViewController```` will not react to input.
    *
    * Default is ````true````.
    *
-   * @returns Returns ````true```` if this ````CameraControl```` is active.
+   * @returns Returns ````true```` if this ````ViewController```` is active.
    */
   get active() {
     return this._configs.active;
@@ -139835,7 +141126,7 @@ var CameraControl = class _CameraControl {
    *
    * Default is ````true````.
    *
-   * Disabling mouse and touch input on ````CameraControl```` is useful when we want to temporarily use mouse or
+   * Disabling mouse and touch input on ````ViewController```` is useful when we want to temporarily use mouse or
    * touch input to interact with some other 3D control, without disturbing the {@link viewer!Camera}.
    *
    * @param value Set ````true```` to enable mouse and touch input.
@@ -139862,7 +141153,7 @@ var CameraControl = class _CameraControl {
    *
    * Default is ````true````.
    *
-   * Disabling mouse and touch input on ````CameraControl```` is desirable when we want to temporarily use mouse or
+   * Disabling mouse and touch input on ````ViewController```` is desirable when we want to temporarily use mouse or
    * touch input to interact with some other 3D control, without interfering with the {@link viewer!Camera}.
    *
    * @returns Returns ````true```` if mouse and touch input is enabled.
@@ -139909,7 +141200,7 @@ var CameraControl = class _CameraControl {
   /**
    * Sets the current World-space 3D target position.
    *
-   * Only applies when {@link CameraControl.followPointer} is ````true````.
+   * Only applies when {@link ViewController.followPointer} is ````true````.
    *
    * @param worldPos The new World-space 3D target position.
    */
@@ -139919,7 +141210,7 @@ var CameraControl = class _CameraControl {
   /**
    * Gets the current World-space 3D pivot position.
    *
-   * Only applies when {@link CameraControl.followPointer} is ````true````.
+   * Only applies when {@link ViewController.followPointer} is ````true````.
    *
    * @return  worldPos The current World-space 3D pivot position.
    */
@@ -139931,7 +141222,7 @@ var CameraControl = class _CameraControl {
    *
    * When set ````true````, this constrains {@link viewer!Camera_eye} to its current vertical position.
    *
-   * Only applies when {@link CameraControl.navMode} is ````"firstPerson"````.
+   * Only applies when {@link ViewController.navMode} is ````"firstPerson"````.
    *
    * Default is ````false````.
    *
@@ -139945,7 +141236,7 @@ var CameraControl = class _CameraControl {
    *
    * When set ````true````, this constrains {@link viewer!Camera_eye} to its current vertical position.
    *
-   * Only applies when {@link CameraControl.navMode} is ````"firstPerson"````.
+   * Only applies when {@link ViewController.navMode} is ````"firstPerson"````.
    *
    * Default is ````false````.
    *
@@ -140006,7 +141297,7 @@ var CameraControl = class _CameraControl {
    *
    * Default is ````0.0````.
    *
-   * Does not apply when {@link CameraControl.navMode} is ````"planView"````, which disallows rotation.
+   * Does not apply when {@link ViewController.navMode} is ````"planView"````, which disallows rotation.
    *
    * @param rotationInertia New inertial factor.
    */
@@ -140018,7 +141309,7 @@ var CameraControl = class _CameraControl {
    *
    * Default is ````0.0````.
    *
-   * Does not apply when {@link CameraControl.navMode} is ````"planView"````, which disallows rotation.
+   * Does not apply when {@link ViewController.navMode} is ````"planView"````, which disallows rotation.
    *
    * @returns The inertia factor.
    */
@@ -140029,7 +141320,7 @@ var CameraControl = class _CameraControl {
    * Sets how much the {@link viewer!Camera} pans each second with keyboard input.
    *
    * Default is ````5.0````, to pan the Camera ````5.0```` World-space units every second that
-   * a panning key is depressed. See the ````CameraControl```` class documentation for which keys control
+   * a panning key is depressed. See the ````ViewController```` class documentation for which keys control
    * panning.
    *
    * Panning direction is aligned to our Camera's orientation. When we pan horizontally, we pan
@@ -140075,7 +141366,7 @@ var CameraControl = class _CameraControl {
    * Sets how many degrees per second the {@link viewer!Camera} rotates/orbits with keyboard input.
    *
    * Default is ````90.0````, to rotate/orbit the Camera ````90.0```` degrees every second that
-   * a rotation key is depressed. See the ````CameraControl```` class documentation for which keys control
+   * a rotation key is depressed. See the ````ViewController```` class documentation for which keys control
    * rotation/orbit.
    *
    * @param keyboardRotationRate The new keyboard rotation rate.
@@ -140101,7 +141392,7 @@ var CameraControl = class _CameraControl {
    * For example, a value of ````360.0```` indicates that the ````Camera```` rotates/orbits ````360.0```` degrees horizontally
    * when we sweep the entire width of the canvas.
    *
-   * ````CameraControl```` makes vertical rotation half as sensitive as horizontal rotation, so that we don't tend to
+   * ````ViewController```` makes vertical rotation half as sensitive as horizontal rotation, so that we don't tend to
    * flip upside-down. Therefore, a value of ````360.0```` rotates/orbits the ````Camera```` through ````180.0```` degrees
    * vertically when we sweep the entire height of the canvas.
    *
@@ -140351,13 +141642,14 @@ var CameraControl = class _CameraControl {
     return this._configs.doubleClickTimeFrame;
   }
   /**
-   * Destroys this ````CameraControl````.
+   * Destroys this ````ViewController````.
    * @private
    */
   destroy() {
     this._destroyHandlers();
     this._destroyControllers();
     this._cameraUpdater.destroy();
+    this.events.clear();
   }
   _destroyHandlers() {
     for (let i = 0, len = this._handlers.length; i < len; i++) {
@@ -140386,9 +141678,9 @@ __export(bcf_exports, {
 
 // ../sdk/src/bcf/loadBCFViewpoint.ts
 var tempVec35 = createVec3Float64();
-var tempVec3a15 = createVec3Float64();
-var tempVec3b13 = createVec3Float64();
-var tempVec3c9 = createVec3Float64();
+var tempVec3a16 = createVec3Float64();
+var tempVec3b14 = createVec3Float64();
+var tempVec3c10 = createVec3Float64();
 function loadBCFViewpoint(params) {
   const includeViewLayers = params.includeViewLayerIds ? new Set(params.includeViewLayerIds) : null;
   const excludeViewLayers = params.excludeViewLayerIds ? new Set(params.excludeViewLayerIds) : null;
@@ -140404,8 +141696,8 @@ function loadBCFViewpoint(params) {
   view.clearSectionPlanes();
   if (bcfViewpoint.clipping_planes) {
     bcfViewpoint.clipping_planes.forEach((e) => {
-      let pos = xyzObjectToArray(e.location, tempVec3a15);
-      let dir = xyzObjectToArray(e.direction, tempVec3b13);
+      let pos = xyzObjectToArray(e.location, tempVec3a16);
+      let dir = xyzObjectToArray(e.direction, tempVec3b14);
       if (reverseClippingPlanes) {
         negateVec3(dir);
       }
@@ -140445,9 +141737,9 @@ function loadBCFViewpoint(params) {
     bcfViewpoint.bitmaps.forEach((e) => {
       const bitmap_type = e.bitmap_type || "jpg";
       const bitmap_data = e.bitmap_data;
-      let location = xyzObjectToArray(e.location, tempVec3a15);
-      let normal2 = xyzObjectToArray(e.normal, tempVec3b13);
-      let up = xyzObjectToArray(e.up, tempVec3c9);
+      let location = xyzObjectToArray(e.location, tempVec3a16);
+      let normal2 = xyzObjectToArray(e.normal, tempVec3b14);
+      let up = xyzObjectToArray(e.up, tempVec3c10);
       const height = e.height || 1;
       if (!bitmap_type) {
         return;
@@ -140681,15 +141973,15 @@ function loadBCFViewpoint(params) {
     let up;
     let projection;
     if (bcfViewpoint.perspective_camera) {
-      eye = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_view_point, tempVec3a15);
-      look = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_direction, tempVec3b13);
-      up = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_up_vector, tempVec3c9);
+      eye = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_view_point, tempVec3a16);
+      look = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_direction, tempVec3b14);
+      up = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_up_vector, tempVec3c10);
       camera.perspectiveProjection.fov = bcfViewpoint.perspective_camera.field_of_view;
       projection = PerspectiveProjectionType;
     } else {
-      eye = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_view_point, tempVec3a15);
-      look = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_direction, tempVec3b13);
-      up = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_up_vector, tempVec3c9);
+      eye = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_view_point, tempVec3a16);
+      look = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_direction, tempVec3b14);
+      up = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_up_vector, tempVec3c10);
       camera.orthoProjection.scale = bcfViewpoint.orthogonal_camera.view_to_world_scale;
       projection = OrthoProjectionType;
     }
@@ -140907,14 +142199,112 @@ __export(contextmenu_exports, {
 
 // ../sdk/src/ui/contextmenu/ContextMenu.ts
 var idMap = new Map2();
+var CONTEXT_MENU_STYLE_ID = "xeokit-context-menu-styles";
+var CONTEXT_MENU_CSS = `
+.xeokit-context-menu {
+  position: absolute;
+  z-index: 300000;
+  display: none;
+  min-width: 180px;
+  background: #fff;
+  border: 1px solid #000;
+  border-radius: 4px;
+  box-shadow: 0 4px 5px 0 gray;
+  font-family: sans-serif;
+}
+
+.xeokit-context-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+}
+
+.xeokit-context-menu-title {
+  display: none;
+  padding: 8px 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  border-bottom: 1px solid #d9d9d9;
+}
+
+.xeokit-context-menu-item {
+  position: relative;
+  padding: 8px 12px;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.xeokit-context-menu-item:hover {
+  background: #f2f2f2;
+}
+
+.xeokit-context-menu-item.disabled {
+  color: #999;
+  cursor: default;
+}
+
+.xeokit-context-menu-item.disabled:hover {
+  background: transparent;
+}
+
+.xeokit-context-menu-item-separator {
+  height: 1px;
+  margin: 4px 0;
+  background: #d9d9d9;
+  pointer-events: none;
+}
+
+.xeokit-context-menu-submenu {
+  padding-right: 28px;
+}
+
+.xeokit-context-menu-submenu::after {
+  content: "\u25B6";
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 10px;
+  opacity: 0.8;
+}
+
+.xeokit-context-menu-submenu[data-submenuposition="left"]::after {
+  content: "\u25C0";
+}
+`;
 var Menu = class {
+  /**
+   * Unique menu ID.
+   */
   id;
+  /**
+   * Parent item when this menu is a submenu.
+   */
   parentItem;
+  /**
+   * Item groups contained by this menu.
+   */
   groups;
+  /**
+   * Root DOM element for this menu.
+   */
   menuElement;
+  /**
+   * Title DOM element for the root menu.
+   */
   titleElement;
+  /**
+   * Whether the menu is currently visible.
+   */
   shown;
+  /**
+   * Reserved hover state counter.
+   */
   mouseOver;
+  /**
+   * @param id Menu ID.
+   */
   constructor(id) {
     this.id = id;
     this.parentItem = null;
@@ -140926,23 +142316,66 @@ var Menu = class {
   }
 };
 var Group = class {
+  /**
+   * Items in this group.
+   */
   items;
   constructor() {
     this.items = [];
   }
 };
 var Item = class {
+  /**
+   * Unique item ID.
+   */
   id;
+  /**
+   * Resolves the display title.
+   */
   getTitle;
+  /**
+   * Activation handler.
+   */
   doAction;
+  /**
+   * Optional hover handler.
+   */
   doHover;
+  /**
+   * Resolves whether the item is enabled.
+   */
   getEnabled;
+  /**
+   * Resolves whether the item is visible.
+   */
   getShown;
+  /**
+   * DOM element for this item.
+   */
   itemElement;
+  /**
+   * Nested submenu, if any.
+   */
   subMenu;
+  /**
+   * Cached enabled state.
+   */
   enabled;
+  /**
+   * Cached shown state.
+   */
   shown;
+  /**
+   * Parent menu containing this item.
+   */
   parentMenu;
+  /**
+   * @param id Item ID.
+   * @param getTitle Title resolver.
+   * @param doAction Activation handler.
+   * @param getEnabled Enabled-state resolver.
+   * @param getShown Visibility resolver.
+   */
   constructor(id, getTitle, doAction, getEnabled, getShown) {
     this.id = id;
     this.getTitle = getTitle;
@@ -140975,6 +142408,12 @@ var ContextMenu = class {
   _canvasTouchStartHandler;
   _title;
   _getTitle;
+  _document;
+  /**
+   * Creates a context menu.
+   *
+   * @param cfg Menu configuration.
+   */
   constructor(cfg = {}) {
     this._id = idMap.addItem();
     this._context = null;
@@ -140989,6 +142428,8 @@ var ContextMenu = class {
     this._nextId = 0;
     this._parentNode = cfg.parentNode || document.body;
     this._offsetParent = this._parentNode instanceof ShadowRoot ? this._parentNode.host : this._parentNode;
+    this._document = this._parentNode instanceof Document ? this._parentNode : this._parentNode.ownerDocument || document;
+    this._ensureStylesInjected();
     this._eventSubs = {};
     this._title = cfg.title || "";
     this._getTitle = () => this._title;
@@ -141015,6 +142456,44 @@ var ContextMenu = class {
     this.enabled = cfg.enabled !== false;
     this.hide();
   }
+  /**
+   * Ensures required context-menu CSS exists in the current DOM root.
+   *
+   * Styles are injected once per document or shadow root.
+   */
+  _ensureStylesInjected() {
+    if (this._parentNode instanceof ShadowRoot) {
+      const existingStyle = this._parentNode.querySelector(
+        `style[data-xeokit-context-menu-style="${CONTEXT_MENU_STYLE_ID}"]`
+      );
+      if (existingStyle) {
+        return;
+      }
+      const styleElement2 = this._document.createElement("style");
+      styleElement2.setAttribute("data-xeokit-context-menu-style", CONTEXT_MENU_STYLE_ID);
+      styleElement2.textContent = CONTEXT_MENU_CSS;
+      this._parentNode.appendChild(styleElement2);
+      return;
+    }
+    if (this._document.getElementById(CONTEXT_MENU_STYLE_ID)) {
+      return;
+    }
+    const styleElement = this._document.createElement("style");
+    styleElement.id = CONTEXT_MENU_STYLE_ID;
+    styleElement.textContent = CONTEXT_MENU_CSS;
+    const target = this._document.head || this._document.body || this._document.documentElement;
+    target.appendChild(styleElement);
+  }
+  /**
+   * Subscribes to a menu event.
+   *
+   * Supported events currently include:
+   * - `"shown"`
+   * - `"hidden"`
+   *
+   * @param event Event name.
+   * @param callback Subscriber callback.
+   */
   on(event, callback) {
     let subs = this._eventSubs[event];
     if (!subs) {
@@ -141023,6 +142502,12 @@ var ContextMenu = class {
     }
     subs.push(callback);
   }
+  /**
+   * Emits an event to current subscribers.
+   *
+   * @param event Event name.
+   * @param value Event payload.
+   */
   fire(event, value) {
     const subs = this._eventSubs[event];
     if (subs) {
@@ -141181,10 +142666,8 @@ var ContextMenu = class {
   _createMenuUI(menu) {
     const groups = menu.groups;
     const html = [];
-    const menuElement = document.createElement("div");
+    const menuElement = this._document.createElement("div");
     menuElement.classList.add("xeokit-context-menu", menu.id);
-    menuElement.style.zIndex = "300000";
-    menuElement.style.position = "absolute";
     const isRootMenu = menu === this._rootMenu;
     if (isRootMenu) {
       html.push(`<div class="xeokit-context-menu-title"></div>`);
@@ -141210,7 +142693,7 @@ var ContextMenu = class {
         }
         if (!(groupIdx === groupLen - 1 || j < lenj - 1)) {
           html.push(
-            `<li id="${item.id}" class="xeokit-context-menu-item-separator"></li>`
+            `<li class="xeokit-context-menu-item-separator"></li>`
           );
         }
       }
@@ -141222,20 +142705,10 @@ var ContextMenu = class {
     menu.titleElement = menuElement.querySelector(
       ".xeokit-context-menu-title"
     );
-    menuElement.style.borderRadius = "4px";
-    menuElement.style.display = "none";
-    menuElement.style.zIndex = "300000";
-    menuElement.style.background = "white";
-    menuElement.style.border = "1px solid black";
-    menuElement.style.boxShadow = "0 4px 5px 0 gray";
     menuElement.oncontextmenu = (e) => {
       e.preventDefault();
     };
     if (menu.titleElement) {
-      menu.titleElement.style.padding = "8px 12px";
-      menu.titleElement.style.fontWeight = "600";
-      menu.titleElement.style.borderBottom = "1px solid #d9d9d9";
-      menu.titleElement.style.whiteSpace = "nowrap";
       this._updateMenuTitle();
     }
     const self2 = this;
@@ -141440,7 +142913,7 @@ var ContextMenu = class {
     }
     const menuElement = menu.menuElement;
     if (menuElement) {
-      this._showMenuElement(menuElement, pageX, pageY);
+      this._showMenuElement(menuElement, pageX, pageY + 13);
       menu.shown = true;
     }
   }
@@ -141493,7 +142966,7 @@ __export(treeview_exports, {
 });
 
 // ../sdk/src/ui/treeview/TreeViewEvents.ts
-var import_strongly_typed_events16 = __toESM(require_dist8());
+var import_strongly_typed_events17 = __toESM(require_dist8());
 var TreeViewEvents = class {
   /**
    * Emits an event when an error occurs within the `TreeView` or its components. This non-fatal event
@@ -141514,11 +142987,11 @@ var TreeViewEvents = class {
      * @private
      */
   constructor() {
-    this.onError = new EventEmitter(new import_strongly_typed_events16.EventDispatcher());
-    this.onTreeViewDestroyed = new EventEmitter(new import_strongly_typed_events16.EventDispatcher());
-    this.log = new EventEmitter(new import_strongly_typed_events16.EventDispatcher());
-    this.onNodeTitleClicked = new EventEmitter(new import_strongly_typed_events16.EventDispatcher());
-    this.onContextMenu = new EventEmitter(new import_strongly_typed_events16.EventDispatcher());
+    this.onError = new EventEmitter(new import_strongly_typed_events17.EventDispatcher());
+    this.onTreeViewDestroyed = new EventEmitter(new import_strongly_typed_events17.EventDispatcher());
+    this.log = new EventEmitter(new import_strongly_typed_events17.EventDispatcher());
+    this.onNodeTitleClicked = new EventEmitter(new import_strongly_typed_events17.EventDispatcher());
+    this.onContextMenu = new EventEmitter(new import_strongly_typed_events17.EventDispatcher());
   }
   /**
    * @private
@@ -143519,7 +144992,9 @@ function stripPathFromFilename(fullPath) {
 // ../sdk/src/demo/index.ts
 var demo_exports = {};
 __export(demo_exports, {
-  DemoHelper: () => DemoHelper,
+  CanvasContextMenu: () => CanvasContextMenu,
+  DemoHelper: () => DemoHelper2,
+  SceneModelExploder: () => SceneModelExploder,
   ViewObjectContextMenu: () => ViewObjectContextMenu,
   buildDemoModelTable: () => buildDemoModelTable
 });
@@ -144457,7 +145932,7 @@ var ScenePanel = class _ScenePanel {
       ["SceneGeometries", formatNumber2(stats.numGeometries)],
       ["SceneTransforms", formatNumber2(stats.numTransforms)],
       ["SceneTextures", formatNumber2(stats.numTextures)],
-      ["SceneTextureSets", formatNumber2(stats.numTextureSets)],
+      ["SceneMaterials", formatNumber2(stats.numMaterials)],
       ["Triangles", formatNumber2(stats.numTriangles)],
       ["Lines", formatNumber2(stats.numLines)],
       ["Points", formatNumber2(stats.numPoints)],
@@ -147957,9 +149432,9 @@ var DataTexturesPanel = class _DataTexturesPanel {
     ]);
     table.appendChild(thead);
     const tbody = el9("tbody");
-    const clamp01 = (x) => Math.max(0, Math.min(1, x));
+    const clamp012 = (x) => Math.max(0, Math.min(1, x));
     const heatColor = (t) => {
-      const c3 = clamp01(t);
+      const c3 = clamp012(t);
       const hue = 120 * (1 - c3);
       return `hsl(${hue} 80% 45%)`;
     };
@@ -148012,7 +149487,7 @@ var DataTexturesPanel = class _DataTexturesPanel {
         const usedCount = tex.numItems;
         const capacityCount = tex.maxItems;
         const fullness = capacityCount > 0 ? usedCount / capacityCount : 0;
-        const pct = Math.round(clamp01(fullness) * 100);
+        const pct = Math.round(clamp012(fullness) * 100);
         const title = arr.length > 1 ? `${name12} #${idx}` : name12;
         const jsonBtn = el9("button", {
           className: "dtxp-btn dtxp-btn--sub",
@@ -149637,6 +151112,11 @@ var DownloadPanel = class _DownloadPanel {
         onClick: () => this.#downloadDotBIM()
       }),
       this.#renderDownloadButton({
+        label: "Download OBJ + MTL",
+        hint: ".obj + .mtl",
+        onClick: () => this.#downloadOBJ()
+      }),
+      this.#renderDownloadButton({
         label: "Download SceneModel JSON",
         hint: ".json",
         onClick: () => this.#downloadSceneModelJson()
@@ -149690,6 +151170,25 @@ var DownloadPanel = class _DownloadPanel {
     new XGFExporter().write({
       sceneModel: Object.values(this.#scene.models)[0],
       dataModel: Object.values(this.#data.models)[0]
+    }, {
+      coordinateSystem: {
+        basis: [
+          1,
+          0,
+          0,
+          // Right
+          0,
+          0,
+          1,
+          // Up
+          0,
+          1,
+          0
+          // Forward
+        ],
+        origin: [0, 0, 0],
+        units: "meters"
+      }
     }).then((fileData) => {
       downloadBlob(fileData, "model.xgf", "application/octet-stream");
     }).catch((e) => {
@@ -149700,8 +151199,62 @@ var DownloadPanel = class _DownloadPanel {
     new DotBIMExporter().write({
       sceneModel: Object.values(this.#scene.models)[0],
       dataModel: Object.values(this.#data.models)[0]
+    }, {
+      coordinateSystem: {
+        basis: [
+          1,
+          0,
+          0,
+          // Right
+          0,
+          0,
+          1,
+          // Up
+          0,
+          1,
+          0
+          // Forward
+        ],
+        origin: [0, 0, 0],
+        units: "meters"
+      }
     }).then((fileData) => {
       downloadText(JSON.stringify(fileData, null, 2), "model.bim", "application/json");
+    }).catch((e) => {
+      console.error(e);
+    });
+  }
+  #downloadOBJ() {
+    new OBJExporter().write({
+      sceneModel: Object.values(this.#scene.models)[0]
+    }, {
+      coordinateSystem: {
+        basis: [
+          1,
+          0,
+          0,
+          // Right
+          0,
+          0,
+          1,
+          // Up
+          0,
+          1,
+          0
+          // Forward
+        ],
+        origin: [0, 0, 0],
+        units: "meters"
+      }
+    }).then((fileData) => {
+      downloadText(fileData, "model.obj", "application/text");
+    }).catch((e) => {
+      console.error(e);
+    });
+    new MTLExporter().write({
+      sceneModel: Object.values(this.#scene.models)[0]
+    }).then((fileData) => {
+      downloadText(fileData, "model.mtl", "application/text");
     }).catch((e) => {
       console.error(e);
     });
@@ -149935,9 +151488,837 @@ var DEFAULT_CSS7 = `
 }
 `;
 
+// ../sdk/src/demo/ViewObjectContextMenu.ts
+var ViewObjectContextMenu = class extends ContextMenu {
+  /**
+   * Sets the active context for this menu.
+   *
+   * @param context Current view-object menu context.
+   */
+  set context(context) {
+    super.context = context;
+  }
+  /**
+   * Creates a view-object context menu with predefined grouped actions.
+   *
+   * @param _params Constructor params placeholder.
+   */
+  constructor(_params) {
+    super({
+      items: [
+        [
+          {
+            getTitle: () => "Frame Object",
+            doAction: (context) => {
+              context.cameraFlight.jumpTo({
+                aabb: context.aabb3index.getObjectAABB(context.viewObject.id),
+                duration: 0.5,
+                fitFOV: 40
+              });
+            }
+          },
+          {
+            getTitle: () => "Frame Model",
+            doAction: (context) => {
+              context.cameraFlight.jumpTo({
+                aabb: getSceneModelAABB(context),
+                duration: 0.5,
+                fitFOV: 40
+              });
+            }
+          },
+          {
+            getTitle: () => "Frame Scene",
+            doAction: (context) => {
+              context.cameraFlight.jumpTo({
+                aabb: context.aabb3index.getSceneAABB(),
+                duration: 0.5,
+                fitFOV: 40
+              });
+            }
+          }
+        ],
+        createViewObjectNavigateGroup(),
+        createViewObjectDisplayGroup(),
+        createViewObjectInspectGroup(),
+        createViewObjectExportGroup(),
+        createViewObjectEditGroup()
+      ]
+    });
+  }
+};
+var CanvasContextMenu = class extends ContextMenu {
+  /**
+   * Sets the active context for this menu.
+   *
+   * @param context Current canvas menu context.
+   */
+  set context(context) {
+    super.context = context;
+  }
+  /**
+   * Creates a canvas context menu with view-level and scene-level actions.
+   *
+   * @param _params Constructor params placeholder.
+   */
+  constructor(_params) {
+    super({
+      items: [
+        [{
+          getTitle: () => "Frame Scene",
+          doAction: (context) => {
+            context.cameraFlight.jumpTo({
+              aabb: context.aabb3index.getSceneAABB(),
+              duration: 0.5,
+              fitFOV: 40
+            });
+          }
+        }],
+        createCanvasNavigateGroup(),
+        createCanvasDisplayGroup(),
+        createCanvasInspectGroup(),
+        createCanvasExportGroup()
+      ]
+    });
+  }
+};
+function createViewObjectNavigateGroup() {
+  return [
+    {
+      getTitle: () => "View Settings",
+      items: [
+        createCameraProjectionGroup(),
+        createWebGLContextGroup()
+      ]
+    },
+    {
+      getTitle: () => "Create View",
+      getEnabled: (context) => {
+        return context.view.viewer.viewList.length < 4;
+      },
+      doAction: (context) => {
+        const result = context.view.camera.toParams();
+        if (result.ok === false) {
+          console.error("Failed to get camera parameters:", result.error);
+          return;
+        }
+        context.demoHelper.createView({
+          camera: result.value
+        });
+      }
+    },
+    {
+      getTitle: () => "Close View",
+      doAction: (context) => {
+        context.demoHelper.destroyView(context.view);
+      }
+    }
+  ];
+}
+function createCanvasNavigateGroup() {
+  return [
+    {
+      getTitle: () => "View Settings",
+      items: [
+        createCameraProjectionGroup(),
+        createWebGLContextGroup()
+      ]
+    },
+    {
+      getTitle: () => "Create View",
+      getEnabled: (context) => {
+        return context.view.viewer.viewList.length < 4;
+      },
+      doAction: (context) => {
+        const result = context.view.camera.toParams();
+        if (result.ok === false) {
+          console.error("Failed to get camera parameters:", result.error);
+          return;
+        }
+        context.demoHelper.createView({
+          camera: result.value
+        });
+      }
+    },
+    {
+      getTitle: () => "Close View",
+      doAction: (context) => {
+        context.demoHelper.destroyView(context.view);
+      }
+    }
+  ];
+}
+function createWebGLContextGroup() {
+  return [
+    {
+      getTitle: () => "Lose WEBGL Context",
+      doAction: (context) => {
+        loseWebGLContext(context.renderer);
+      }
+    }
+  ];
+}
+function loseWebGLContext(renderer) {
+  const gl = renderer?.gl ?? renderer?._gl ?? renderer?.context;
+  const ext = gl?.getExtension?.("WEBGL_lose_context");
+  if (!ext) {
+    console.warn("WEBGL_lose_context extension is not available.");
+    return;
+  }
+  ext.loseContext();
+}
+function createCameraProjectionGroup() {
+  return [
+    {
+      getTitle: () => "Perspective Projection",
+      getEnabled: (context) => {
+        return context.view.camera.projectionType !== PerspectiveProjectionType;
+      },
+      doAction: (context) => {
+        context.view.camera.projectionType = PerspectiveProjectionType;
+      }
+    },
+    {
+      getTitle: () => "Orthographic Projection",
+      getEnabled: (context) => {
+        return context.view.camera.projectionType !== OrthoProjectionType;
+      },
+      doAction: (context) => {
+        context.view.camera.projectionType = OrthoProjectionType;
+      }
+    }
+  ];
+}
+function createViewObjectDisplayGroup() {
+  return [
+    {
+      getTitle: () => "Display",
+      items: [
+        createViewObjectVisibilityGroup(),
+        createViewObjectXRayGroup(),
+        createViewObjectSelectionGroup()
+      ]
+    }
+  ];
+}
+function createCanvasDisplayGroup() {
+  return [
+    {
+      getTitle: () => "Display",
+      items: [
+        createCanvasVisibilityGroup(),
+        createCanvasXRayGroup(),
+        createCanvasSelectionGroup()
+      ]
+    }
+  ];
+}
+function createViewObjectVisibilityGroup() {
+  return [
+    {
+      getTitle: () => "Hide Object",
+      getEnabled: (context) => {
+        return context.viewObject.visible;
+      },
+      doAction: (context) => {
+        context.viewObject.visible = false;
+      }
+    },
+    {
+      getTitle: () => "Isolate Object",
+      doAction: (context) => {
+        const { viewObject } = context;
+        const { view } = viewObject;
+        view.setObjectsVisible(view.visibleObjectIds, false);
+        viewObject.visible = true;
+      }
+    },
+    {
+      getTitle: () => "Hide All Objects",
+      getEnabled: (context) => {
+        return context.view.numVisibleObjects > 0;
+      },
+      doAction: (context) => {
+        context.view.setObjectsVisible(context.view.visibleObjectIds, false);
+      }
+    },
+    {
+      getTitle: () => "Show All Objects",
+      getEnabled: (context) => {
+        const { view } = context;
+        return view.numVisibleObjects < view.numObjects || view.numXRayedObjects > 0;
+      },
+      doAction: (context) => {
+        const { view } = context;
+        view.setObjectsVisible(view.objectIds, true);
+        view.setObjectsPickable(view.xrayedObjectIds, true);
+        view.setObjectsXRayed(view.xrayedObjectIds, false);
+      }
+    }
+  ];
+}
+function createCanvasVisibilityGroup() {
+  return [
+    {
+      getTitle: () => "Hide All Objects",
+      getEnabled: (context) => {
+        return context.view.numVisibleObjects > 0;
+      },
+      doAction: (context) => {
+        context.view.setObjectsVisible(context.view.visibleObjectIds, false);
+      }
+    },
+    {
+      getTitle: () => "Show All Objects",
+      getEnabled: (context) => {
+        const { view } = context;
+        return view.numVisibleObjects < view.numObjects || view.numXRayedObjects > 0;
+      },
+      doAction: (context) => {
+        const { view } = context;
+        view.setObjectsVisible(view.objectIds, true);
+        view.setObjectsPickable(view.xrayedObjectIds, true);
+        view.setObjectsXRayed(view.xrayedObjectIds, false);
+      }
+    }
+  ];
+}
+function createViewObjectXRayGroup() {
+  return [
+    {
+      getTitle: () => "X-Ray Object",
+      getEnabled: (context) => {
+        return !context.viewObject.xrayed;
+      },
+      doAction: (context) => {
+        context.viewObject.xrayed = true;
+      }
+    },
+    {
+      getTitle: () => "X-Ray Others",
+      doAction: (context) => {
+        const { viewObject } = context;
+        const { view } = viewObject;
+        view.setObjectsXRayed(view.objectIds, true);
+        viewObject.xrayed = false;
+      }
+    },
+    {
+      getTitle: () => "X-Ray All Objects",
+      getEnabled: (context) => {
+        return context.view.numXRayedObjects < context.view.numObjects;
+      },
+      doAction: (context) => {
+        const { view } = context;
+        view.setObjectsVisible(view.objectIds, true);
+        view.setObjectsXRayed(view.objectIds, true);
+      }
+    },
+    {
+      getTitle: () => "Clear X-Ray",
+      getEnabled: (context) => {
+        return context.view.numXRayedObjects > 0;
+      },
+      doAction: (context) => {
+        const { view } = context;
+        const { xrayedObjectIds } = view;
+        view.setObjectsPickable(xrayedObjectIds, true);
+        view.setObjectsXRayed(xrayedObjectIds, false);
+      }
+    }
+  ];
+}
+function createCanvasXRayGroup() {
+  return [
+    {
+      getTitle: () => "X-Ray All Objects",
+      getEnabled: (context) => {
+        return context.view.numXRayedObjects < context.view.numObjects;
+      },
+      doAction: (context) => {
+        const { view } = context;
+        view.setObjectsVisible(view.objectIds, true);
+        view.setObjectsXRayed(view.objectIds, true);
+      }
+    },
+    {
+      getTitle: () => "Clear X-Ray",
+      getEnabled: (context) => {
+        return context.view.numXRayedObjects > 0;
+      },
+      doAction: (context) => {
+        const { view } = context;
+        const { xrayedObjectIds } = view;
+        view.setObjectsPickable(xrayedObjectIds, true);
+        view.setObjectsXRayed(xrayedObjectIds, false);
+      }
+    }
+  ];
+}
+function createViewObjectSelectionGroup() {
+  return [
+    {
+      getTitle: () => "Select Object",
+      getEnabled: (context) => {
+        return !context.viewObject.selected;
+      },
+      doAction: (context) => {
+        context.viewObject.selected = true;
+      }
+    },
+    {
+      getTitle: () => "Deselect Object",
+      getEnabled: (context) => {
+        return context.viewObject.selected;
+      },
+      doAction: (context) => {
+        context.viewObject.selected = false;
+      }
+    },
+    {
+      getTitle: () => "Clear Selection",
+      getEnabled: (context) => {
+        return context.view.numSelectedObjects > 0;
+      },
+      doAction: (context) => {
+        context.view.setObjectsSelected(context.view.selectedObjectIds, false);
+      }
+    }
+  ];
+}
+function createCanvasSelectionGroup() {
+  return [
+    {
+      getTitle: () => "Clear Selection",
+      getEnabled: (context) => {
+        return context.view.numSelectedObjects > 0;
+      },
+      doAction: (context) => {
+        context.view.setObjectsSelected(context.view.selectedObjectIds, false);
+      }
+    }
+  ];
+}
+function createViewObjectInspectGroup() {
+  return [
+    {
+      getTitle: () => "Inspect",
+      items: [
+        [
+          {
+            title: "Open Inspectors",
+            doAction: (context) => {
+              context.demoHelper.toggleInspector();
+            }
+          }
+        ],
+        [
+          {
+            title: "View DataObject JSON",
+            getEnabled: (context) => {
+              return !!getCurrentDataObject(context);
+            },
+            doAction: (context) => {
+              const dataObject = getCurrentDataObject(context);
+              if (!dataObject) {
+                return;
+              }
+              openJsonInNewTab4(getDataObjectJSON(dataObject), `DataObject ${dataObject.id}`);
+            }
+          },
+          {
+            title: "View SceneObject JSON",
+            doAction: (context) => {
+              const sceneObject = getCurrentSceneObject(context);
+              openJsonInNewTab4(getSceneObjectJSON(sceneObject), `SceneObject ${sceneObject.id}`);
+            }
+          }
+        ]
+      ]
+    }
+  ];
+}
+function createCanvasInspectGroup() {
+  return [
+    {
+      getTitle: () => "Inspect",
+      items: [
+        [
+          {
+            title: "Open Inspectors",
+            doAction: (context) => {
+              context.demoHelper.toggleInspector();
+            }
+          }
+        ]
+      ]
+    }
+  ];
+}
+function createViewObjectExportGroup() {
+  return [
+    {
+      getTitle: () => "Export",
+      items: [
+        createSnapshotExportGroup(),
+        createFileExportGroup()
+      ]
+    }
+  ];
+}
+function createCanvasExportGroup() {
+  return [
+    {
+      getTitle: () => "Export",
+      items: [
+        createSnapshotExportGroup()
+      ]
+    }
+  ];
+}
+function createSnapshotExportGroup() {
+  return [
+    {
+      title: "Save Screenshot",
+      doAction: async (context) => {
+        await saveViewScreenshot(context);
+      }
+    },
+    {
+      title: "Export BCF Viewpoint",
+      doAction: (context) => {
+        const bcfViewpointResult = saveBCFViewpoint({
+          view: context.view,
+          includeViewLayerIds: ["default"]
+        });
+        if (bcfViewpointResult.ok) {
+          downloadText2(
+            JSON.stringify(bcfViewpointResult.value, null, 2),
+            "bcfViewpoint.json",
+            "application/json"
+          );
+        }
+      }
+    }
+  ];
+}
+function createFileExportGroup() {
+  return [
+    {
+      title: "Export as OBJ + MTL",
+      doAction: async (context) => {
+        const { sceneModel } = context;
+        try {
+          const objData = await new OBJExporter().write(
+            { sceneModel },
+            { coordinateSystem: createExportCoordinateSystem() }
+          );
+          downloadText2(objData, `${sceneModel.id}.obj`, "application/text");
+        } catch (error) {
+          console.error(error);
+        }
+        try {
+          const mtlData = await new MTLExporter().write({ sceneModel });
+          downloadText2(mtlData, `${sceneModel.id}.mtl`, "application/text");
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    },
+    {
+      title: "Export as XGF",
+      doAction: async (context) => {
+        try {
+          const fileData = await new XGFExporter().write(
+            {
+              sceneModel: context.sceneModel,
+              dataModel: context.dataModel
+            },
+            {
+              coordinateSystem: createExportCoordinateSystem()
+            }
+          );
+          downloadBlob2(fileData, `${context.sceneModel.id}.xgf`, "application/octet-stream");
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    },
+    {
+      title: "Export as DotBIM",
+      doAction: async (context) => {
+        try {
+          const fileData = await new DotBIMExporter().write(
+            {
+              sceneModel: context.sceneModel,
+              dataModel: context.dataModel
+            },
+            {
+              coordinateSystem: createExportCoordinateSystem()
+            }
+          );
+          downloadText2(
+            JSON.stringify(fileData, null, 2),
+            `${context.sceneModel.id}.bim`,
+            "application/json"
+          );
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    },
+    {
+      title: "Export as JSON",
+      doAction: (context) => {
+        downloadSceneAndDataJson(context);
+      }
+    }
+  ];
+}
+function createViewObjectEditGroup() {
+  return [
+    {
+      getTitle: () => "Delete Object",
+      doAction: (context) => {
+        context.viewObject.sceneObject.destroy();
+      }
+    },
+    {
+      getTitle: () => "Delete Model",
+      doAction: (context) => {
+        context.viewObject.sceneObject.model.destroy();
+      }
+    }
+  ];
+}
+function getSceneModelAABB(context) {
+  return context.aabb3index.getCombinedObjectAABB(Object.keys(context.sceneModel.objects));
+}
+function getCurrentSceneObject(context) {
+  return context.viewObject.sceneObject;
+}
+function getCurrentDataObject(context) {
+  if (!context.dataModel) {
+    return void 0;
+  }
+  return context.dataModel.objects[context.viewObject.sceneObject.id];
+}
+function createExportCoordinateSystem() {
+  return {
+    basis: [
+      1,
+      0,
+      0,
+      // Right
+      0,
+      0,
+      1,
+      // Up
+      0,
+      1,
+      0
+      // Forward
+    ],
+    origin: [0, 0, 0],
+    units: "meters"
+  };
+}
+async function saveViewScreenshot(context) {
+  const fileName = getScreenshotFileName(context);
+  const result = context.renderer.getSnapshot(context.view);
+  if (result.ok === false) {
+    console.error("Failed to capture screenshot:", result.error);
+    return;
+  }
+  downloadDataUrl(result.value, fileName);
+}
+function getScreenshotFileName(context) {
+  const viewId = context.view?.id;
+  const baseName = viewId ? `${context.sceneModel.id}-${String(viewId)}` : context.sceneModel.id;
+  return `${sanitizeFileName(baseName)}-screenshot.png`;
+}
+function downloadSceneAndDataJson(context) {
+  const { sceneModel, dataModel } = context;
+  const sceneParamsResult = sceneModel.toParams();
+  if (sceneParamsResult.ok) {
+    downloadText2(
+      JSON.stringify(sceneParamsResult.value, null, 2),
+      `${sceneModel.id}-scene.json`,
+      "application/json"
+    );
+  }
+  if (!dataModel) {
+    return;
+  }
+  const dataParamsResult = dataModel.toParams();
+  if (dataParamsResult.ok) {
+    downloadText2(
+      JSON.stringify(dataParamsResult.value, null, 2),
+      `${dataModel.id}-data.json`,
+      "application/json"
+    );
+  }
+}
+function downloadBlob2(data, fileName, mimeType) {
+  const blob = new Blob([data], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  triggerDownload2(url, fileName);
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+function downloadText2(text, fileName, mimeType = "text/plain;charset=utf-8") {
+  downloadBlob2(text, fileName, mimeType);
+}
+function downloadDataUrl(dataUrl, fileName) {
+  triggerDownload2(dataUrl, fileName);
+}
+function triggerDownload2(url, fileName) {
+  const a2 = document.createElement("a");
+  a2.href = url;
+  a2.download = fileName;
+  a2.style.display = "none";
+  document.body.appendChild(a2);
+  a2.click();
+  a2.remove();
+}
+function sanitizeFileName(value) {
+  return value.replace(/[<>:"/\\|?*\u0000-\u001F]/g, "_");
+}
+function getSceneObjectJSON(sceneObject) {
+  const params = {
+    materials: [],
+    geometriesCompressed: [],
+    meshes: [],
+    objects: []
+  };
+  for (const mesh of sceneObject.meshes) {
+    const meshParamsResult = mesh.toParams();
+    if (meshParamsResult.ok) {
+      params.meshes.push(meshParamsResult.value);
+    }
+    const geometry = mesh.geometry;
+    if (geometry) {
+      const geometryParamsResult = geometry.toParams();
+      if (geometryParamsResult.ok) {
+        params.geometriesCompressed.push(geometryParamsResult.value);
+      }
+    }
+    const material = mesh.material;
+    if (material) {
+      const materialParamsResult = material.toParams();
+      if (materialParamsResult.ok) {
+        params.materials.push(materialParamsResult.value);
+      }
+    }
+  }
+  const objectParamsResult = sceneObject.toParams();
+  if (objectParamsResult.ok) {
+    params.objects.push(objectParamsResult.value);
+  }
+  return params;
+}
+function getDataObjectJSON(dataObject) {
+  const params = {
+    objects: [],
+    propertySets: [],
+    relationships: []
+  };
+  for (const propertySet of dataObject.propertySets) {
+    params.propertySets.push({
+      id: propertySet.id,
+      name: propertySet.name,
+      type: propertySet.type,
+      schema: propertySet.schema,
+      properties: propertySet.properties.map((property) => ({
+        name: property.name,
+        description: property.description,
+        type: property.type,
+        value: property.value
+      }))
+    });
+  }
+  params.objects.push({
+    id: dataObject.id,
+    originalSystemId: dataObject.originalSystemId,
+    name: dataObject.name,
+    description: dataObject.description,
+    type: dataObject.type,
+    schema: dataObject.schema,
+    propertySetIds: dataObject.propertySets?.map((propertySet) => propertySet.id)
+  });
+  return params;
+}
+function syntaxHighlightJson5(json) {
+  json = json.replace(/[&<>]/g, (c3) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;"
+  })[c3] || c3);
+  return json.replace(
+    /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(\.\d+)?([eE][+-]?\d+)?)/g,
+    (match) => {
+      let cls = "json-number";
+      if (/^"/.test(match)) {
+        cls = /:$/.test(match) ? "json-key" : "json-string";
+      } else if (/true|false/.test(match)) {
+        cls = "json-boolean";
+      } else if (/null/.test(match)) {
+        cls = "json-null";
+      }
+      return `<span class="${cls}">${match}</span>`;
+    }
+  );
+}
+function openJsonInNewTab4(obj, title = "DataModel JSON") {
+  const json = JSON.stringify(obj, null, 2);
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>${escapeHtml5(title)}</title>
+  <meta charset="utf-8"/>
+  <style>
+    body { background: #0f1116; color: #e7e7e7; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; margin: 0; padding: 0; }
+    .json-pre {
+      background: #0f1116;
+      border-radius: 10px;
+      margin: 24px 0 24px 24px;
+      padding: 24px 32px;
+      max-width: 900px;
+      font-size: 15px;
+      box-shadow: 0 4px 24px #0001;
+      color: #e7e7e7;
+      text-align: left;
+    }
+    .json-key { color: #7ec7e6; font-weight: 600; }
+    .json-string { color: #ffe7b3; }
+    .json-number { color: #b3e6c7; }
+    .json-boolean { color: #ffd57a; }
+    .json-null { color: #888; }
+    h1 { color: #fff; font-size: 20px; font-weight: 650; margin: 24px 24px 12px 24px; }
+    .meta { color: #aaa; font-size: 13px; margin: 0 24px 18px 24px; }
+  </style>
+</head>
+<body>
+  <h1>${escapeHtml5(title)}</h1>
+  <div class="meta">Serialized to JSON</div>
+  <pre class="json-pre">${syntaxHighlightJson5(json)}</pre>
+</body>
+</html>
+  `.trim();
+  const win = window.open();
+  if (!win) {
+    return;
+  }
+  win.document.write(html);
+  win.document.close();
+}
+function escapeHtml5(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
 // ../sdk/src/demo/DemoHelper.ts
 var taskRunner2 = getGlobalTaskRunner();
-var DemoHelper = class {
+var DemoHelper2 = class {
   /**
    * The Scene created by the DemoHelper. Holds all 3D objects.
    */
@@ -149959,37 +152340,30 @@ var DemoHelper = class {
    */
   renderer;
   /**
-   * The View created by the DemoHelper.
+   * Tracks created Views by their IDs, along with their associated CameraFlightAnimation and ViewController.
    */
-  view;
-  /**
-   * The CameraFlightAnimation for the View.
-   */
-  cameraFlight;
-  /**
-   * The CameraControl for the View, allowing user interaction with the camera.
-   */
-  cameraControl;
+  views;
   /**
    * The maximum number of views to create.
    */
   maxViews;
-  /**
-   * A progress bar for loading operations, which you can use in your demo code to show loading progress.
-   */
-  //public loadingProgressBar = new LoadingProgressBar();
-  // /**
-  //  * A inspectors for building demo models with a fluent API. You can use this in your demo code to create models in the scene and data.
-  //  */
-  // public builder: DemoBuilder;
   makeView;
   makeComponents;
   showOverlayButton;
   overlayButton = null;
-  // private overlayDiv: HTMLDivElement | null = null;
   inspectorVisible = false;
   inspectorFlowHost;
   eventsLog;
+  /**
+   * Root layout container for auto-created canvases.
+   */
+  _viewLayoutContainer = null;
+  /**
+   * Tracks auto-created canvases by view ID.
+   */
+  _autoCanvasByViewId = {};
+  _viewObjectContextMenu;
+  _canvasContextMenu;
   /**
    * Statistics about the demo, available after calling `finished()`.
    */
@@ -150002,7 +152376,7 @@ var DemoHelper = class {
     this.makeView = cfg.makeView !== false;
     this.makeComponents = cfg.makeComponents !== false;
     this.showOverlayButton = cfg.showOverlayButton !== false;
-    this.maxViews = cfg.maxViews ?? 1;
+    this.maxViews = cfg.maxViews ?? 4;
     this.stats = {
       startTime: 0,
       endTime: 0,
@@ -150016,7 +152390,7 @@ var DemoHelper = class {
     this.eventsLog = [];
   }
   /**
-   * Initializes the DemoHelper by creating the Scene, Data, Viewer, WebGLRenderer, and View.
+   * Initializes the DemoHelper by creating the Scene, Data, Viewer, WebGLRenderer, and optional initial View.
    *
    * @param cfg Configuration options for initialization.
    * @returns A promise that resolves when initialization is complete.
@@ -150029,23 +152403,11 @@ var DemoHelper = class {
         this.data = new Data2();
         this.viewer = new Viewer();
         this.renderer = new WebGLRenderer3({
-          // memoryConfigs: {
-          //   maxViews: this.maxViews ?? (cfg.maxViews ?? 1),
-          //   tileSize: 200,
-          //   maxTiles: 2000,
-          //   maxBatches: 300,
-          //   maxBatchVertices: 25000,
-          //   maxBatchIndices:  70000,
-          //   maxBatchGeometries: 10000,
-          //   maxBatchMeshes: 10000,
-          //   maxBatchPrims:   50000
-          // }
           memoryConfigs: {
             maxViews: this.maxViews ?? (cfg.maxViews ?? 1),
             tileSize: 200,
             maxTiles: 2e3,
             maxBatches: 300,
-            // Allow enough vertices and indices for large terrain meshes
             maxBatchVertices: 5e5,
             maxBatchIndices: 7e5,
             maxBatchGeometries: 1e4,
@@ -150072,20 +152434,7 @@ var DemoHelper = class {
         this.renderer.events.onError.subscribe(onError);
         this.viewer.attachScene(this.scene);
         this.renderer.attachViewer(this.viewer);
-        if (this.makeView) {
-          const viewResult = this.viewer.createView({
-            id: "mainView",
-            elementId: "demoCanvas",
-            backgroundColor: [0, 0, 0]
-          });
-          if (viewResult.ok === false) {
-            reject(viewResult.error);
-            return;
-          }
-          this.view = viewResult.value;
-          this.cameraFlight = new CameraFlightAnimation(this.view);
-          this.cameraControl = new CameraControl(this.view);
-        }
+        this.views = {};
         const renderInspectorResult = this.renderer.getRenderInspector();
         if (renderInspectorResult.ok !== true) {
           reject(renderInspectorResult.error);
@@ -150093,12 +152442,159 @@ var DemoHelper = class {
         }
         const renderInspector = renderInspectorResult.value;
         renderInspector.enabled = true;
+        this._viewObjectContextMenu = new ViewObjectContextMenu({});
+        this._canvasContextMenu = new CanvasContextMenu({});
+        this._canvasContextMenu.on("hidden", () => {
+          taskRunner2.unsuspend();
+        });
+        this._viewObjectContextMenu.on("hidden", () => {
+          taskRunner2.unsuspend();
+        });
         window.demoHelper = this;
         resolve2({});
       } else {
         resolve2({});
       }
     });
+  }
+  /**
+   * Creates a new View in the Viewer.
+   *
+   * When `viewParams.elementId` and `viewParams.htmlElement` are omitted,
+   * this method auto-creates a canvas element, passes it to `viewer.createView`,
+   * and lays it out snugly with other auto-created canvases inside the window.
+   *
+   * Auto-created canvases are given `z-index: 100000`.
+   *
+   * The first View created becomes the DemoHelper's primary `view`, and gets
+   * a `CameraFlightAnimation` and `ViewController`.
+   *
+   * @param viewParams Parameters for the View.
+   * @returns The created View.
+   */
+  createView(viewParams = {}) {
+    if (!this.viewer) {
+      throw new Error("Viewer not initialized");
+    }
+    const resolvedViewParams = {
+      id: viewParams.id || createUUID(),
+      backgroundColor: [0, 0, 0],
+      transparent: false,
+      ...viewParams
+    };
+    const hasExplicitElement = !!(resolvedViewParams.elementId || resolvedViewParams.htmlElement);
+    let autoCreatedCanvas = null;
+    let viewId = resolvedViewParams.id;
+    if (!hasExplicitElement) {
+      this._ensureViewLayoutContainer();
+      autoCreatedCanvas = document.createElement("img");
+      autoCreatedCanvas.id = viewId ? `${viewId}-canvas` : `demohelper-canvas-${this.viewer.numViews}`;
+      autoCreatedCanvas.style.display = "block";
+      autoCreatedCanvas.style.width = "100%";
+      autoCreatedCanvas.style.height = "100%";
+      autoCreatedCanvas.style.minWidth = "0";
+      autoCreatedCanvas.style.minHeight = "0";
+      autoCreatedCanvas.style.margin = "0";
+      autoCreatedCanvas.style.padding = "0";
+      autoCreatedCanvas.style.border = "1px solid white";
+      autoCreatedCanvas.style.outline = "none";
+      autoCreatedCanvas.style.boxSizing = "border-box";
+      autoCreatedCanvas.style.background = "black";
+      autoCreatedCanvas.style.position = "relative";
+      autoCreatedCanvas.style.pointerEvents = "auto";
+      autoCreatedCanvas.style.userSelect = "none";
+      autoCreatedCanvas.draggable = false;
+      this._viewLayoutContainer.appendChild(autoCreatedCanvas);
+      resolvedViewParams.htmlElement = autoCreatedCanvas;
+      delete resolvedViewParams.elementId;
+    }
+    const result = this.viewer.createView(resolvedViewParams);
+    if (result.ok === false) {
+      if (autoCreatedCanvas?.parentElement) {
+        autoCreatedCanvas.parentElement.removeChild(autoCreatedCanvas);
+      }
+      throw new Error(result.error);
+    }
+    const view = result.value;
+    if (autoCreatedCanvas) {
+      this._autoCanvasByViewId[view.id] = autoCreatedCanvas;
+      autoCreatedCanvas.setAttribute("data-view-id", view.id);
+      autoCreatedCanvas.id = `${view.id}-canvas`;
+      this._updateAutoCanvasLayout();
+    }
+    const cameraFlight = new CameraFlightAnimation(view);
+    this.views[view.id] = {
+      view,
+      cameraFlight,
+      viewController: new ViewController2(view, {
+        pick: (view2, pickParams) => {
+          return this.renderer.pick(view2, pickParams);
+        }
+      })
+    };
+    const tryPick = (view2, e) => {
+      const result2 = this.renderer.pick(view2, {
+        canvasPos: [e.offsetX, e.offsetY]
+      });
+      if (result2) {
+        if (result2.ok) {
+          const pickResult = result2.value;
+          if (pickResult && pickResult.viewObject) {
+            const viewObject = pickResult.viewObject;
+            const sceneModel = viewObject.sceneObject.model;
+            const dataModel = sceneModel ? this.data.models[sceneModel.id] : null;
+            this._viewObjectContextMenu.context = {
+              view: view2,
+              demoHelper: this,
+              renderer: this.renderer,
+              cameraFlight,
+              viewObject,
+              sceneModel,
+              dataModel,
+              aabb3index: this.aabb3Index
+            };
+            this._viewObjectContextMenu.show(e.clientX, e.clientY);
+            taskRunner2.suspend();
+          } else {
+            this._canvasContextMenu.context = {
+              view: view2,
+              demoHelper: this,
+              renderer: this.renderer,
+              cameraFlight,
+              sceneModel: this._getDefaultSceneModel(),
+              dataModel: this._getDefaultDataModel(),
+              aabb3index: this.aabb3Index
+            };
+            this._canvasContextMenu.show(e.clientX, e.clientY);
+            taskRunner2.suspend();
+          }
+        }
+      } else {
+        console.log("Nothing picked");
+      }
+    };
+    view.htmlElement.addEventListener("contextmenu", (e) => tryPick(view, e));
+    return view;
+  }
+  /**
+   * Destroys a View created by `createView()`, removing its canvas if it was auto-created.
+   * @param view
+   */
+  destroyView(view) {
+    if (!this.viewer) {
+      throw new Error("Viewer not initialized");
+    }
+    const viewId = view.id;
+    if (this._autoCanvasByViewId[viewId]) {
+      const canvas2 = this._autoCanvasByViewId[viewId];
+      if (canvas2.parentElement) {
+        canvas2.parentElement.removeChild(canvas2);
+      }
+      delete this._autoCanvasByViewId[viewId];
+      this._updateAutoCanvasLayout();
+    }
+    view.destroy();
+    delete this.views[viewId];
   }
   /**
    * Gets the SceneAABB3Index for the Scene, which dynamically tracks the 3D boundaries of the objects in the Scene.
@@ -150110,99 +152606,124 @@ var DemoHelper = class {
     return this._aabb3Index;
   }
   /**
-   * Gets the overlay host div element.
-   * Attach your examples' inspectors panels to this div.
-   * @returns The HTMLDivElement for the overlay, or null if not created.
-   */
-  // public getOverlayHostDiv(): HTMLDivElement | null {
-  //   return this.overlayDiv;
-  // }
-  /**
+   * Shows or hides the inspectors and keeps related UI state in sync.
    *
+   * @param visible Whether inspectors should be visible.
+   * @param view Optional active view whose pointer-events should be updated.
+   */
+  _setInspectorVisible(visible, view) {
+    this.inspectorVisible = visible;
+    if (this.inspectorFlowHost) {
+      this.inspectorFlowHost.style.display = visible ? "flex" : "none";
+    }
+    if (view?.htmlElement) {
+      view.htmlElement.style.pointerEvents = visible ? "none" : "all";
+    }
+    if (visible) {
+      taskRunner2.suspend();
+    } else {
+      taskRunner2.unsuspend();
+    }
+    this._updateInspectorButton();
+  }
+  /**
+   * Updates the inspector toggle button label and visual state.
+   */
+  _updateInspectorButton() {
+    if (!this.overlayButton) {
+      return;
+    }
+    const isOpen = this.inspectorVisible;
+    this.overlayButton.innerHTML = `<span style="vertical-align: middle;">${isOpen ? "Close Inspectors" : "Open Inspectors"}</span>`;
+    this.overlayButton.classList.toggle("demohelper-open", isOpen);
+  }
+  /**
+   * Gets the primary view used by the inspector panels.
+   *
+   * @returns The first available view, or `undefined` when none exist.
+   */
+  _getInspectorView() {
+    return this.viewer?.viewList?.[0];
+  }
+  /**
+   * Gets a default scene model for canvas-level actions.
+   *
+   * @returns The first available scene model, or `undefined` when none exist.
+   */
+  _getDefaultSceneModel() {
+    for (const modelId in this.scene.models) {
+      return this.scene.models[modelId];
+    }
+    return void 0;
+  }
+  /**
+   * Gets a default data model for canvas-level actions.
+   *
+   * @returns The first available data model, or `undefined` when none exist.
+   */
+  _getDefaultDataModel() {
+    for (const modelId in this.data.models) {
+      return this.data.models[modelId];
+    }
+    return void 0;
+  }
+  /**
+   * Toggles the visibility of the floating inspector panels.
+   *
+   * Also keeps the Open/Close Inspectors button state synchronized no matter
+   * how this method is invoked.
    */
   toggleInspector() {
-    if (this.inspectorVisible) {
-      this.inspectorFlowHost.style.display = "none";
-      this.inspectorVisible = false;
-      this.view.htmlElement.style.pointerEvents = "all";
-      taskRunner2.unsuspend();
+    const view = this._getInspectorView();
+    if (!view) {
+      console.warn("No views available to inspect");
       return;
-    } else {
-      const view = this.viewer.viewList[0];
-      if (!this.inspectorFlowHost) {
-        this.inspectorFlowHost = FloatingPanelFlowHost.getOrCreate({
-          corner: "top-right",
-          marginTopPx: 65,
-          zIndex: 1e5,
-          maxWidth: 2e3,
-          // max width for the whole overlay area
-          tileMinWidth: 800
-          // per-panel min width
-        });
-        DownloadPanel.show(this.inspectorFlowHost, this.scene, this.data);
-        GPUMemoryConfigsPanel.show(this.inspectorFlowHost, this.renderer.getMemoryConfigs());
-        GPUMemoryUsagePanel.show(this.inspectorFlowHost, this.renderer.getMemoryUsage());
-        ScenePanel.show(this.inspectorFlowHost, this.scene, {});
-        DataPanel.show(this.inspectorFlowHost, this.data, {});
-        const shaderInspectorResult = this.renderer.getShaderInspector();
-        if (shaderInspectorResult.ok) {
-          ShadersPanel.show(this.inspectorFlowHost, shaderInspectorResult.value);
-        }
-        const renderInspectorResult = this.renderer.getRenderInspector();
-        if (renderInspectorResult.ok) {
-          RendererPanel.show(this.inspectorFlowHost, this.renderer);
-          const renderInspector = renderInspectorResult.value;
-          const renderStats = renderInspector.renderStats;
-          TilesPanel.show(this.inspectorFlowHost, renderStats);
-        }
-        TaskPanel.show(this.inspectorFlowHost, taskRunner2, {});
-        if (view) {
-          BoundariesPanel.show(this.inspectorFlowHost, view, this.aabb3Index, {});
-        }
-        const memoryInspectorResult = this.renderer.getMemoryInspector();
-        if (memoryInspectorResult.ok) {
-          const memoryInspector = memoryInspectorResult.value;
-          const dataTextures = memoryInspector.dataTextures;
-          DataTexturesPanel.show(this.inspectorFlowHost, dataTextures);
-        }
-        const viewerParamsResult = this.viewer.toParams();
-        if (viewerParamsResult.ok) {
-          const viewerParams = viewerParamsResult.value;
-          ViewerPanel.show(this.inspectorFlowHost, viewerParams);
-        }
-      }
-      this.inspectorFlowHost.style.display = "flex";
-      if (view) {
-        view.htmlElement.style.pointerEvents = "none";
-      }
-      this.inspectorVisible = true;
-      taskRunner2.suspend();
     }
-  }
-  /**
-   * Moves the camera to fit the entire scene within the view.
-   */
-  viewFit() {
-    if (this.cameraFlight) {
-      this.cameraFlight.jumpTo({
-        aabb: this.aabb3Index.getSceneAABB()
+    if (this.inspectorVisible) {
+      this._setInspectorVisible(false, view);
+      return;
+    }
+    if (!this.inspectorFlowHost) {
+      this.inspectorFlowHost = FloatingPanelFlowHost.getOrCreate({
+        corner: "top-right",
+        marginTopPx: 65,
+        zIndex: 1e5,
+        maxWidth: 2e3,
+        tileMinWidth: 800
       });
-    }
-  }
-  /**
-   * Orbits the camera around the scene.
-   */
-  orbit() {
-    new SDKTask({
-      name: "Orbit Camera",
-      repeat: true,
-      stage: SDKTask.CollectInputStage,
-      task: () => {
-        if (this.view) {
-          this.view.camera.orbitYaw(-0.5);
-        }
+      DownloadPanel.show(this.inspectorFlowHost, this.scene, this.data);
+      GPUMemoryConfigsPanel.show(this.inspectorFlowHost, this.renderer.getMemoryConfigs());
+      GPUMemoryUsagePanel.show(this.inspectorFlowHost, this.renderer.getMemoryUsage());
+      ScenePanel.show(this.inspectorFlowHost, this.scene, {});
+      DataPanel.show(this.inspectorFlowHost, this.data, {});
+      const shaderInspectorResult = this.renderer.getShaderInspector();
+      if (shaderInspectorResult.ok) {
+        ShadersPanel.show(this.inspectorFlowHost, shaderInspectorResult.value);
       }
-    });
+      const renderInspectorResult = this.renderer.getRenderInspector();
+      if (renderInspectorResult.ok) {
+        RendererPanel.show(this.inspectorFlowHost, this.renderer);
+        const renderInspector = renderInspectorResult.value;
+        const renderStats = renderInspector.renderStats;
+        TilesPanel.show(this.inspectorFlowHost, renderStats);
+      }
+      TaskPanel.show(this.inspectorFlowHost, taskRunner2, {});
+      if (view) {
+        BoundariesPanel.show(this.inspectorFlowHost, view, this.aabb3Index, {});
+      }
+      const memoryInspectorResult = this.renderer.getMemoryInspector();
+      if (memoryInspectorResult.ok) {
+        const memoryInspector = memoryInspectorResult.value;
+        const dataTextures = memoryInspector.dataTextures;
+        DataTexturesPanel.show(this.inspectorFlowHost, dataTextures);
+      }
+      const viewerParamsResult = this.viewer.toParams();
+      if (viewerParamsResult.ok) {
+        const viewerParams = viewerParamsResult.value;
+        ViewerPanel.show(this.inspectorFlowHost, viewerParams);
+      }
+    }
+    this._setInspectorVisible(true, view);
   }
   /**
    * Finalizes the demo setup, gathering statistics and signaling completion.
@@ -150242,6 +152763,59 @@ var DemoHelper = class {
     div.id = "ExampleLoaded";
     document.body.appendChild(div);
   }
+  _ensureViewLayoutContainer() {
+    if (typeof document === "undefined") {
+      throw new Error("Document is not available");
+    }
+    if (this._viewLayoutContainer) {
+      return this._viewLayoutContainer;
+    }
+    const container = document.createElement("div");
+    container.id = "xeokit-demohelper-view-layout";
+    container.style.position = "absolute";
+    container.style.left = "0";
+    container.style.top = "0";
+    container.style.width = "100vw";
+    container.style.height = "100vh";
+    container.style.display = "grid";
+    container.style.gridAutoFlow = "row";
+    container.style.margin = "0";
+    container.style.padding = "0";
+    container.style.gap = "0";
+    container.style.boxSizing = "border-box";
+    container.style.overflow = "hidden";
+    container.style.pointerEvents = "auto";
+    container.style.background = "transparent";
+    document.body.appendChild(container);
+    this._viewLayoutContainer = container;
+    const relayout = () => {
+      this._updateAutoCanvasLayout();
+    };
+    window.addEventListener("resize", relayout);
+    return container;
+  }
+  _updateAutoCanvasLayout() {
+    if (!this._viewLayoutContainer) {
+      return;
+    }
+    const numCanvases = Object.keys(this._autoCanvasByViewId).length;
+    if (numCanvases <= 0) {
+      this._viewLayoutContainer.style.gridTemplateColumns = "";
+      this._viewLayoutContainer.style.gridTemplateRows = "";
+      return;
+    }
+    const cols = Math.ceil(Math.sqrt(numCanvases));
+    const rows = Math.ceil(numCanvases / cols);
+    this._viewLayoutContainer.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+    this._viewLayoutContainer.style.gridTemplateRows = `repeat(${rows}, minmax(0, 1fr))`;
+    this._viewLayoutContainer.style.alignItems = "stretch";
+    this._viewLayoutContainer.style.justifyItems = "stretch";
+    for (const viewId in this._autoCanvasByViewId) {
+      const canvas2 = this._autoCanvasByViewId[viewId];
+      canvas2.style.width = "100%";
+      canvas2.style.height = "100%";
+    }
+  }
   _getCombinedSceneModelStats() {
     const combinedStats = {
       numTransforms: 0,
@@ -150249,7 +152823,7 @@ var DemoHelper = class {
       numMeshes: 0,
       numGeometries: 0,
       numTextures: 0,
-      numTextureSets: 0,
+      numMaterials: 0,
       numTriangles: 0,
       numLines: 0,
       numPoints: 0,
@@ -150267,7 +152841,7 @@ var DemoHelper = class {
       combinedStats.numLines += stats.numLines;
       combinedStats.numVertices += stats.numVertices;
       combinedStats.numMeshes += stats.numMeshes;
-      combinedStats.numTextureSets += stats.numTextureSets;
+      combinedStats.numMaterials += stats.numMaterials;
       combinedStats.textureBytes += stats.textureBytes;
     }
     return combinedStats;
@@ -150295,7 +152869,6 @@ var DemoHelper = class {
       return;
     }
     const button = document.createElement("button");
-    button.innerHTML = `<span style="vertical-align: middle;">Open Inspectors</span>`;
     button.style.position = "fixed";
     button.style.top = "16px";
     button.style.right = "16px";
@@ -150316,16 +152889,10 @@ var DemoHelper = class {
     };
     button.onclick = () => {
       this.toggleInspector();
-      if (this.inspectorVisible) {
-        button.innerHTML = `<span style="vertical-align: middle;">Close Inspectors</span>`;
-        button.classList.add("demohelper-open");
-      } else {
-        button.innerHTML = `<span style="vertical-align: middle;">Open Inspectors</span>`;
-        button.classList.remove("demohelper-open");
-      }
     };
     document.body.appendChild(button);
     this.overlayButton = button;
+    this._updateInspectorButton();
   }
 };
 
@@ -150617,123 +153184,228 @@ function buildDemoModelTable(cfg) {
   };
 }
 
-// ../sdk/src/demo/ViewObjectContextMenu.ts
-var ViewObjectContextMenu = class extends ContextMenu {
-  set context(context) {
-    super.context = context;
+// ../sdk/src/demo/SceneModelExploder.ts
+var SceneModelExploder = class {
+  scene;
+  sceneModel;
+  aabb3Index;
+  _factor;
+  _state;
+  _sliderContainer;
+  _sliderElement;
+  _minFactor;
+  _maxFactor;
+  _step;
+  constructor(params) {
+    this.scene = params.scene;
+    this.sceneModel = params.sceneModel;
+    this.aabb3Index = params.aabb3Index;
+    this._minFactor = params.minFactor ?? 0;
+    this._maxFactor = params.maxFactor ?? 2;
+    this._step = params.step ?? 0.05;
+    this._factor = params.initialFactor ?? 0;
+    this._state = null;
+    this._sliderContainer = null;
+    this._sliderElement = null;
+    this._createSliderControl();
+    if (this._factor !== 0) {
+      this.setFactor(this._factor);
+    }
   }
-  constructor() {
-    super({
-      items: [
-        [
-          {
-            getTitle: (context) => {
-              return "Effects";
-            },
-            items: [
-              [
-                {
-                  getTitle: (context) => {
-                    return context.viewObject.visible ? "Hide" : "Show";
-                  },
-                  doAction: function(context) {
-                    context.viewObject.visible = !context.viewObject.visible;
-                  }
-                },
-                {
-                  getTitle: (context) => {
-                    return context.viewObject.selected ? "Undo Select" : "Select";
-                  },
-                  doAction: function(context) {
-                    context.viewObject.selected = !context.viewObject.selected;
-                  }
-                },
-                {
-                  getTitle: (context) => {
-                    return context.viewObject.highlighted ? "Undo Highlight" : "Highlight";
-                  },
-                  doAction: function(context) {
-                    context.viewObject.highlighted = !context.viewObject.highlighted;
-                  }
-                },
-                {
-                  getTitle: (context) => {
-                    return context.viewObject.xrayed ? "Undo X-Ray" : "X-Ray";
-                  },
-                  doAction: function(context) {
-                    context.viewObject.xrayed = !context.viewObject.xrayed;
-                  }
-                }
-              ]
-            ]
-          },
-          {
-            getTitle: (context) => {
-              return "Inspect";
-            },
-            items: [
-              [
-                {
-                  getTitle: (context) => {
-                    return "SceneObject";
-                  },
-                  doAction: function(context) {
-                    const json = {
-                      objects: [],
-                      meshes: [],
-                      geometries: []
-                    };
-                    const sceneObject = context.viewObject.sceneObject;
-                    const sceneObjectResult = sceneObject.toParams();
-                    if (!sceneObjectResult.ok) {
-                      return;
-                    }
-                    json.objects.push(sceneObjectResult.value);
-                    const meshes = sceneObject.meshes;
-                    for (const mesh of meshes) {
-                      const meshResult = mesh.toParams();
-                      if (!meshResult.ok) {
-                        return;
-                      }
-                      json.meshes.push(meshResult.value);
-                      const geometry = mesh.geometry;
-                      const geometryResult = geometry.toParams();
-                      if (!geometryResult.ok) {
-                        return;
-                      }
-                      json.geometries.push(geometryResult.value);
-                    }
-                    console.log(JSON.stringify(json, null, 2));
-                  }
-                }
-              ]
-            ]
-          },
-          {
-            getTitle: (context) => {
-              return "Edit";
-            },
-            items: [
-              [
-                {
-                  getTitle: (context) => {
-                    return "Unload Object";
-                  },
-                  doAction: function(context) {
-                    context.viewObject.sceneObject.destroy();
-                  }
-                }
-              ]
-            ]
-          }
-        ]
-      ]
+  get factor() {
+    return this._factor;
+  }
+  set factor(value) {
+    this.setFactor(value);
+  }
+  /**
+   * Rebuilds cached explode state from the current SceneModel.
+   */
+  rebuild() {
+    const meshes = this.collectSceneMeshes(this.sceneModel);
+    let modelAABB = null;
+    for (const mesh of meshes) {
+      const meshAABB = this.aabb3Index.getMeshAABB(mesh);
+      if (meshAABB) {
+        modelAABB = this.expandAABB(modelAABB, meshAABB);
+      }
+    }
+    const modelCenterInScene = modelAABB ? this.getCenter(modelAABB) : [0, 0, 0];
+    this._state = {
+      modelCenterInScene,
+      meshes: meshes.map((mesh) => ({
+        mesh,
+        centerInScene: this.getCenter(this.aabb3Index.getMeshAABB(mesh)),
+        baseMatrix: this.cloneMat4(mesh.matrix)
+      }))
+    };
+    return this;
+  }
+  /**
+   * Applies explode offset away from the SceneModel center.
+   */
+  setFactor(factor) {
+    if (!this._state) {
+      this.rebuild();
+    }
+    this._factor = factor;
+    if (this._sliderElement && Number(this._sliderElement.value) !== factor) {
+      this._sliderElement.value = String(factor);
+    }
+    const state = this._state;
+    if (!state) {
+      return this;
+    }
+    const sceneCoordSystem = this.scene.coordinateSystem;
+    const modelCoordSystem = this.sceneModel.coordinateSystem;
+    for (const item of state.meshes) {
+      const { mesh, centerInScene, baseMatrix } = item;
+      const explodeVectorInScene = this.subVec3(centerInScene, state.modelCenterInScene);
+      const explodeVectorInModelLocal = this.sceneVectorToModelLocalVector(
+        explodeVectorInScene,
+        sceneCoordSystem,
+        modelCoordSystem
+      );
+      const nextMatrix = this.cloneMat4(baseMatrix);
+      nextMatrix[12] = baseMatrix[12] + explodeVectorInModelLocal[0] * factor;
+      nextMatrix[13] = baseMatrix[13] + explodeVectorInModelLocal[1] * factor;
+      nextMatrix[14] = baseMatrix[14] + explodeVectorInModelLocal[2] * factor;
+      mesh.matrix = nextMatrix;
+    }
+    return this;
+  }
+  reset() {
+    return this.setFactor(0);
+  }
+  destroy() {
+    this.reset();
+    this._state = null;
+    if (this._sliderContainer && this._sliderContainer.parentElement) {
+      this._sliderContainer.parentElement.removeChild(this._sliderContainer);
+    }
+    this._sliderContainer = null;
+    this._sliderElement = null;
+  }
+  _createSliderControl() {
+    const sliderContainer = document.createElement("div");
+    sliderContainer.style.position = "absolute";
+    sliderContainer.style.right = "12px";
+    sliderContainer.style.top = "65px";
+    sliderContainer.style.zIndex = "100000";
+    sliderContainer.style.padding = "10px 12px";
+    sliderContainer.style.background = "rgba(255,255,255,0.85)";
+    sliderContainer.style.fontFamily = "sans-serif";
+    sliderContainer.style.fontSize = "14px";
+    sliderContainer.style.borderRadius = "4px";
+    const title = document.createElement("div");
+    title.textContent = "Explode";
+    title.style.marginBottom = "8px";
+    title.style.fontWeight = "bold";
+    sliderContainer.appendChild(title);
+    const label = document.createElement("label");
+    label.textContent = "Explode factor";
+    const slider = document.createElement("input");
+    slider.type = "range";
+    slider.min = String(this._minFactor);
+    slider.max = String(this._maxFactor);
+    slider.step = String(this._step);
+    slider.value = String(this._factor);
+    slider.style.marginLeft = "8px";
+    slider.addEventListener("input", () => {
+      this.setFactor(Number(slider.value));
     });
+    label.appendChild(slider);
+    sliderContainer.appendChild(label);
+    document.body.appendChild(sliderContainer);
+    this._sliderContainer = sliderContainer;
+    this._sliderElement = slider;
+  }
+  getCenter(aabb) {
+    return [
+      (aabb[0] + aabb[3]) / 2,
+      (aabb[1] + aabb[4]) / 2,
+      (aabb[2] + aabb[5]) / 2
+    ];
+  }
+  cloneMat4(m) {
+    return [
+      m[0],
+      m[1],
+      m[2],
+      m[3],
+      m[4],
+      m[5],
+      m[6],
+      m[7],
+      m[8],
+      m[9],
+      m[10],
+      m[11],
+      m[12],
+      m[13],
+      m[14],
+      m[15]
+    ];
+  }
+  collectSceneMeshes(sceneModel) {
+    if (Array.isArray(sceneModel.meshes)) {
+      return sceneModel.meshes;
+    }
+    if (sceneModel.meshes instanceof Map) {
+      return Array.from(sceneModel.meshes.values());
+    }
+    if (sceneModel.meshes && typeof sceneModel.meshes === "object") {
+      return Object.values(sceneModel.meshes);
+    }
+    return [];
+  }
+  expandAABB(dest, src) {
+    if (!dest) {
+      return [src[0], src[1], src[2], src[3], src[4], src[5]];
+    }
+    dest[0] = Math.min(dest[0], src[0]);
+    dest[1] = Math.min(dest[1], src[1]);
+    dest[2] = Math.min(dest[2], src[2]);
+    dest[3] = Math.max(dest[3], src[3]);
+    dest[4] = Math.max(dest[4], src[4]);
+    dest[5] = Math.max(dest[5], src[5]);
+    return dest;
+  }
+  dotVec3(a2, b4) {
+    return a2[0] * b4[0] + a2[1] * b4[1] + a2[2] * b4[2];
+  }
+  subVec3(a2, b4) {
+    return [
+      a2[0] - b4[0],
+      a2[1] - b4[1],
+      a2[2] - b4[2]
+    ];
+  }
+  addScaledVec3(a2, b4, s) {
+    return [
+      a2[0] + b4[0] * s,
+      a2[1] + b4[1] * s,
+      a2[2] + b4[2] * s
+    ];
+  }
+  /**
+   * Converts a translation vector expressed in Scene coordinate axes/units
+   * into a translation vector suitable for SceneMesh.matrix, which is in
+   * SceneModel local coordinate axes/units.
+   */
+  sceneVectorToModelLocalVector(sceneVector, sceneCoordSystem, modelCoordSystem) {
+    const sceneRightComp = this.dotVec3(sceneVector, sceneCoordSystem.worldRight);
+    const sceneUpComp = this.dotVec3(sceneVector, sceneCoordSystem.worldUp);
+    const sceneForwardComp = this.dotVec3(sceneVector, sceneCoordSystem.worldForward);
+    let modelLocalVector = [0, 0, 0];
+    modelLocalVector = this.addScaledVec3(modelLocalVector, modelCoordSystem.worldRight, sceneRightComp);
+    modelLocalVector = this.addScaledVec3(modelLocalVector, modelCoordSystem.worldUp, sceneUpComp);
+    modelLocalVector = this.addScaledVec3(modelLocalVector, modelCoordSystem.worldForward, sceneForwardComp);
+    return modelLocalVector;
   }
 };
 export {
   bcf_exports as bcf,
-  cameracontrol_exports as cameracontrol,
   cameraflight_exports as cameraflight,
   collision_exports as collision,
   constants_exports as constants,
@@ -150752,6 +153424,7 @@ export {
   scene_exports as scene,
   ui_exports as ui,
   utils_exports as utils,
+  viewcontroller_exports as viewcontroller,
   viewer_exports as viewer,
   webglrenderer_exports as webglrenderer,
   webglutils_exports as webglutils

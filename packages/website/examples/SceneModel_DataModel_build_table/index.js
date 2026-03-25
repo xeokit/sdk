@@ -14,9 +14,13 @@ demoHelper
 
     // Position the View camera so the demo model will be in frame.
 
-    view.camera.eye = [10, -2, 15];
-    view.camera.look = [0, -6, 0];
-    view.camera.up = [0, 1, 0];
+    demoHelper.createView({
+      camera: {
+        "eye": [-0.000915541313801782, -21.65544666913458, -5.7500762951094835],
+        "look": [-0.000915541313801782, -0.000915541313801782, -5.7500762951094835],
+        "up": [0, 0, 1]
+      },
+    });
 
     // Create a DataModel to hold semantic objects, properties, and relationships.
 
@@ -163,6 +167,15 @@ demoHelper
 
     const sceneModelResult = scene.createModel({
       id: "demoModel",
+      coordinateSystem: {
+        basis: [
+          1, 0, 0,
+          0, 1, 0,
+          0, 0, 1
+        ],
+        origin: [0, 0, 0],
+        units: "meters"
+      }
     });
 
     if (!sceneModelResult.ok) {

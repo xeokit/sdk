@@ -8,13 +8,18 @@ const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper.init().then(() => {
 
-  const {view, scene} = demoHelper;
+  const {scene} = demoHelper;
 
   // Position the View's Camera to look at the origin of the World coordinate system
 
-  view.camera.eye = [2, 2, 10]; // Default is [0,0,10]
-  view.camera.look = [0, 0, 0]; // Default
-  view.camera.up = [0, 1, 0]; // Default
+  const view = demoHelper.createView({
+    id: "demoView",
+    camera: {
+      eye: [0, 5, 2],
+      look: [0, 0, 0],
+      up: [0, 0, 1]
+    }
+  });
 
   // Create a SceneModel containing a SceneObject, a SceneMesh and a box-shaped SceneGeometry
 
@@ -73,6 +78,4 @@ demoHelper.init().then(() => {
   // Ignore the DemoHelper
 
   demoHelper.finished();
-
-  demoHelper.orbit();
 });

@@ -8,7 +8,7 @@ const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper.init().then(() => {
 
-  const {view, scene, data} = demoHelper;
+  const { scene, data} = demoHelper;
 
   // Create a ModelConverter instance configured to convert our .BIM file into SceneModelParams and DataModelParams JSON.
   // We configure the ModelConverter with a DotBIMLoader to load BIM files, a SceneModelParamsExporter, and a DataModelParamsExporter. We'll also
@@ -43,9 +43,13 @@ demoHelper.init().then(() => {
 
   // Position the Camera in the scene with eye, look, and up vectors
 
-  view.camera.eye = [11.276311451067942, 16.914467176601914, 7.399026975905038];
-  view.camera.look = [0, 0, 0];
-  view.camera.up = [-0.18971864040782152, -0.28457796061173224, 0.9396926209223285];
+  demoHelper.createView({
+    camera: {
+      eye: [11.276311451067942, 16.914467176601914, 7.399026975905038],
+      look: [0, 0, 0],
+      up: [-0.18971864040782152, -0.28457796061173224, 0.9396926209223285]
+    }
+  });
 
   // Create a SceneModel to store the geometry and material data for the model
 

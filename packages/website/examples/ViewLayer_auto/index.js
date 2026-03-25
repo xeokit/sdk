@@ -10,16 +10,18 @@ demoHelper
   .init()
   .then(() => {
 
-    const {view, scene} = demoHelper;
+    const {scene} = demoHelper;
 
     // Set the View's Camera to look at a point five meters above the
     // center of the World coordinate system
 
-    view.camera.projectionType = xeokit.constants.PerspectiveProjectionType;
-    view.camera.eye = [-20, -5, 20];
-    view.camera.look = [0, -5, 0];
-    view.camera.up = [0, 1, 0];
-    view.camera.orbitPitch(20);
+   const view =  demoHelper.createView({
+      camera: {
+        eye: [-20, -5, 20],
+        look: [0, -5, 0],
+        up: [0, 1, 0]
+      }
+    });
 
     // Create a SceneModel and use GLTFLoader load a building model into it.
     //

@@ -6,25 +6,28 @@ const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper.init().then(() => {
 
-  const {view, scene, data, renderer} = demoHelper;
+  const { scene, data} = demoHelper;
 
   // Create a XGFLoader to load .XGF files
 
   const xgfLoader = new xeokit.formats.xgf.XGFLoader();
 
-  // Configure the View's World-space coordinate axis to make the +Z axis "up"
+  // Arrange the View's Camera to look at the origin of the World coordinate system
+
+  const view = demoHelper.createView({
+    id: "demoView",
+    camera: {
+     eye: [  67.74194658396226, -4.121982515645583, 20.110348414033115],
+      look: [ 26.98026216623765, 26.288490354227463, 4.19249791964835],
+      up: [  -0.23942012120238962, 0.17862066842709445, 0.9543441006126097]
+    }
+  });
 
   view.camera.worldAxis = [
     1, 0, 0, // Right +X
     0, 0, 1, // Up +Z
     0, -1, 0  // Forward -Y
   ];
-
-// // Arrange the View's Camera within our +Z "up" coordinate system
-//
-   view.camera.eye = [  67.74194658396226, -4.121982515645583, 20.110348414033115];
-   view.camera.look = [ 26.98026216623765, 26.288490354227463, 4.19249791964835];
-   view.camera.up = [  -0.23942012120238962, 0.17862066842709445, 0.9543441006126097];
 
 // Create a SceneModel to hold our model's geometry and materials
 
@@ -75,35 +78,6 @@ demoHelper.init().then(() => {
             dataModel
           }).then(() => {
 
-            view.htmlElement.addEventListener("click", (e) => {
-              const result = renderer.pick(view, {
-                canvasPos: [e.offsetX, e.offsetY],
-                pickViewObject: true
-              });
-              if (result) {
-                if (result.ok) {
-                  const pickResult = result.value;
-                  if (pickResult) {
-                    const sceneMesh = pickResult.sceneMesh;
-                    if (sceneMesh) {
-                      const sceneObject = sceneMesh.object;
-                      console.log("Picked object: " + sceneObject.id);
-                      const viewObject = view.objects[sceneObject.id];
-                      if (viewObject) {
-                        viewObject.highlighted = !viewObject.highlighted;
-                      }
-                    }
-                  } else {
-                    console.log("Nothing picked");
-                  }
-                } else {
-                  console.error("Picking error: " + result.error);
-                }
-              } else {
-                console.log("Nothing picked");
-              }
-            });
-
 
             // The Scene and SceneModel will now contain a SceneObject for each displayable object in our model.
               // The Data and DataModel will contain a DataObject for each IFC element in the model. Each SceneObject
@@ -111,9 +85,7 @@ demoHelper.init().then(() => {
               // The View will contain a ViewObject corresponding to each SceneObject, through which the
               // appearance of the object can be controlled in the View.
 
-              demoHelper.finished();
-
-              demoHelper.viewFit();
+            demoHelper.finished();
 
             }).catch(message => {
               console.error(`Error loading .XGF: ${message}`);

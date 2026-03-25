@@ -10,15 +10,19 @@ demoHelper
   .init()
   .then(() => {
 
-    const {view, scene} = demoHelper;
+    const {scene} = demoHelper;
 
     // Position the View's Camera.
 
     const OFFSET = 250;
 
-    view.camera.eye = [OFFSET, -450, 300];
-    view.camera.look = [OFFSET, 0, 0];
-    view.camera.up = [0, 0, 1];
+  const view =  demoHelper.createView({
+      camera: {
+        eye: [OFFSET, -450, 300],
+        look: [OFFSET, 0, 0],
+        up: [0, 0, 1]
+      }
+    });
 
     view.camera.perspectiveProjection.far = 100000;
 

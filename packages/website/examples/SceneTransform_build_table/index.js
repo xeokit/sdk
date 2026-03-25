@@ -12,18 +12,30 @@ demoHelper
   .init()
   .then(() => {
 
-    const {view, scene, data} = demoHelper;
+    const {scene, data} = demoHelper;
 
     // Position the View camera so the demo model will be in frame.
 
-    view.camera.eye = [OFFSET + 10, -2, 25];
-    view.camera.look = [OFFSET + 0, -6, 0];
-    view.camera.up = [0, 1, 0];
+    demoHelper.createView({
+      camera: {
+        eye: [OFFSET + 10, -2, 25],
+        look: [OFFSET + 0, -6, 0],
+        up: [0, 1, 0]
+      }
+    });
 
     // Create a SceneModel to hold geometry, meshes, and scene objects for rendering.
 
     const sceneModelResult = scene.createModel({
       id: "demoModel",
+      // coordinateSystem: {
+      //   basis: [
+      //     1, 0, 0, // Right
+      //     0, 1, 0, // Up
+      //     0, 0, 1  // Forward
+      //   ],
+      //   origin: [0, 0, 0]
+      // }
     });
 
     if (!sceneModelResult.ok) {
@@ -217,25 +229,6 @@ demoHelper
       throw new Error(m5Result.error);
     }
 
-    // sceneModel.createObject({
-    //   id: "purpleTableTop",
-    //   meshIds: ["purpleTableTopMesh"],
-    // });
-
-    // Signal that the demo is ready once all setup is complete.
-
-    //view.objects["redLeg"].highlighted = true;
-
     demoHelper.finished();
 
-    // new xeokit.core.SDKTask({
-    //   name: "Animate Table",
-    //   task: () => {
-    //     rootTransform.rotation = [0, performance.now() / 40, performance.now() / 100];
-    //     blueLegTransform.position = [4, (3 * Math.sin(performance.now() / 1000)) - 9, 4];
-    //     blueLegTransform.rotation = [0, performance.now() / 100, 0];
-    //   },
-    //   stage: xeokit.core.SDKTask.AnimateStage,
-    //   repeat: true
-    // }).schedule();
   });

@@ -39,9 +39,13 @@ demoHelper.init().then(() => {
 
   // Position the Camera in the scene with eye, look, and up vectors
 
-  view.camera.eye = [0,10,0];
-  view.camera.look = [0, 0, 0];
-  view.camera.up = [0,0,1];
+  demoHelper.createView({
+    camera: {
+      eye: [11.276311451067942, 16.914467176601914, 7.399026975905038],
+      look: [0, 0, 0],
+      up: [-0.18971864040782152, -0.28457796061173224, 0.9396926209223285]
+    }
+  });
 
   // Create a SceneModel to store the geometry and material data for the model
 
@@ -108,8 +112,6 @@ demoHelper.init().then(() => {
               // const modelConverterStatsReport = xeokit.modelconverter.reporters.stats.createStatsReport(result);
               //
               // demoHelper.showModelConverterStatsReport(modelConverterStatsReport);
-
-              demoHelper.viewFit();
 
               demoHelper.finished();
 

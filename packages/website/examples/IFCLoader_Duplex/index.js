@@ -8,7 +8,7 @@ const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper.init().then(() => {
 
-  const {view, scene, data, renderer} = demoHelper;
+  const {scene, data, renderer} = demoHelper;
 
   // Create an IFCLoader to load IFC files
 
@@ -16,12 +16,13 @@ demoHelper.init().then(() => {
 
   // Arrange the View's Camera
 
-  view.camera.eye = [14.915582703146043, 14.396781491179095, 5.431098754133695];
-  view.camera.look = [6.599999999999998, 8.34099990051474, -4.159999575600315];
-  view.camera.up = [-0.2820584034861215, -0.3253229483893775, 0.9025563895259413];
-
-  view.selectedMaterial.fillAlpha = 0.5;
-  view.selectedMaterial.edges = true;
+  const view = demoHelper.createView({
+    camera: {
+      "eye": [24.40,23.70,27.04],
+      "look": [4.39,8.90,2.54],
+      "up": [-0.56,-0.41,0.71]
+    }
+  });
 
   // Create a SceneModel to hold our model's geometry and materials
 
@@ -71,22 +72,6 @@ demoHelper.init().then(() => {
 
           }).then(() => { // IFC file loaded
 
-            // const transform = sceneModel.createTransform({
-            //   id: "modelTransform",
-            //   parent: null,
-            //   position: [-1842009.4968455553, -9.685518291306686, 5173295.851503017]
-            // }).value;
-            //
-            // // iterate over objects in sceneModel
-            //
-            // for (const sceneMeshId in sceneModel.meshes) {
-            //   const sceneMesh = sceneModel.meshes[sceneMeshId];
-            //   sceneMesh.setParentTransformId(transform.id);
-            // }
-
-
-            demoHelper.viewFit();
-
             // The IFC model now appears in our Viewer.  The DataModel and the Data will then contain DataObject,
             // Relationship and PropertySet components that represent the IFC data as an
             // entity-relationship graph.
@@ -118,36 +103,7 @@ demoHelper.init().then(() => {
 
             demoHelper.finished();
 
-            // Attach a mouse click listener to the View's canvas, and log any object that is picked when the user clicks.
 
-            view.htmlElement.addEventListener("click", (e) => {
-              const result = renderer.pick(view, {
-                canvasPos: [e.offsetX, e.offsetY],
-                pickViewObject: true
-              });
-              if (result) {
-                if (result.ok) {
-                  const pickResult = result.value;
-                  if (pickResult) {
-                    const sceneMesh = pickResult.sceneMesh;
-                    if (sceneMesh) {
-                      const sceneObject = sceneMesh.object;
-                      console.log("Picked object: " + sceneObject.id);
-                      const viewObject = view.objects[sceneObject.id];
-                      if (viewObject) {
-                        viewObject.highlighted = !viewObject.highlighted;
-                      }
-                    }
-                  } else {
-                    console.log("Nothing picked");
-                  }
-                } else {
-                  console.error("Picking error: " + result.error);
-                }
-              } else {
-                console.log("Nothing picked");
-              }
-            });
 
 
           }).catch(e => {

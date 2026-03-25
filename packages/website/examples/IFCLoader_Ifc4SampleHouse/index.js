@@ -8,19 +8,29 @@ const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper.init().then(() => {
 
-  const {view, scene, data} = demoHelper;
+  const { scene, data, renderer} = demoHelper;
 
-  // Create an IFCLoader to load IFC files
+ const drawInspectorResult = renderer.getRenderInspector();
+
+  if (!drawInspectorResult.ok) {
+    throw new Error("Failed to get RenderInspector: " + drawInspectorResult.error);
+  }
+
+// Create an IFCLoader to load IFC files
 
   const ifcLoader = new xeokit.formats.ifc.IFCLoader();
 
   // Arrange the View's Camera
 
-  // view.camera.eye = [14.915582703146043, 14.396781491179095, 5.431098754133695];
-  // view.camera.look = [6.599999999999998, 8.34099990051474, -4.159999575600315];
-  // view.camera.up = [-0.2820584034861215, 0.9025563895259413, -0.3253229483893775];
+  demoHelper.createView({
+    camera: {
+      eye: [24.40,23.70,27.04],
+      look: [4.39,8.90,2.54],
+      up: [-0.56,-0.41,0.71]
+    }
+  });
 
-  // Create a SceneModel to hold our model's geometry and materials
+// Create a SceneModel to hold our model's geometry and materials
 
   const sceneModelResult = scene.createModel({
     id: "demoModel",
@@ -55,7 +65,7 @@ demoHelper.init().then(() => {
 
   // Load our IFC data into the SceneModel and DataModel
 
-  fetch(`../../models/Schependomlaan/ifc/model.ifc`)
+  fetch(`../../models/Minimal_IFC4/ifc/model.ifc`)
     .then(response => {
       response
         .arrayBuffer()
@@ -67,10 +77,6 @@ demoHelper.init().then(() => {
             dataModel
 
           }).then(() => { // IFC file loaded
-
-            demoHelper.viewFit();
-
-            demoHelper.orbit();
 
             demoHelper.finished();
 

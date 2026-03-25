@@ -8,13 +8,18 @@ const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper.init().then(() => {
 
-  const {view, scene} = demoHelper;
+  const {scene} = demoHelper;
 
   // Position the View's Camera to look at the origin of the coordinate system
 
-  view.camera.eye = [0, 5, 2];
-  view.camera.look = [0, 0, 0];
-  view.camera.up = [0, 0, 1];
+  demoHelper.createView({
+    id: "demoView",
+    camera: {
+     eye: [0, 5, 2],
+      look: [0, 0, 0],
+      up: [0, 0, 1]
+    }
+  });
 
   // Within the Scene, create a SceneModel to hold geometry and materials for our model
 

@@ -64,10 +64,10 @@ demoHelper
     view.camera.look = [0, 0, 0]; // Default
     view.camera.up = [0, 1, 0]; // Default
 
-    // Add a CameraControl to interactively control the Camera with keyboard,
+    // Add a ViewController to interactively control the Camera with keyboard,
     // mouse and touch input
 
-    new xeokit.cameracontrol.CameraControl(view);
+    new xeokit.viewcontroller.ViewController(view);
 
     // Create a minimal SceneModel that contains a single triangle
 

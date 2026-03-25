@@ -8,15 +8,19 @@ const demoHelper = new xeokit.demo.DemoHelper({});
 const OFFSET = 100000;
 
 demoHelper.init().then(() => {
-  const { view, scene } = demoHelper;
+  const {  scene } = demoHelper;
 
   // ---------------------------------------------------------------------------
   // Camera: frame the sliding puzzle
   // ---------------------------------------------------------------------------
 
-  view.camera.eye = [OFFSET + 0, 18, 24];
-  view.camera.look = [OFFSET + 0, 0, 0];
-  view.camera.up = [0, 1, 0];
+  demoHelper.createView({
+    camera: {
+      eye: [OFFSET + 0, 18, 24],
+      look: [OFFSET + 0, 0, 0],
+      up: [0, 1, 0]
+    }
+  });
 
   // ---------------------------------------------------------------------------
   // SceneModel: holds geometry, meshes, transforms, objects

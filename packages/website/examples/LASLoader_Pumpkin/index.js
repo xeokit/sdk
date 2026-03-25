@@ -8,30 +8,30 @@ const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper.init().then(() => {
 
-  const {view, scene, data} = demoHelper;
+  const {scene, data} = demoHelper;
 
 // Arrange the View's Camera
 
-  view.camera.eye = [-11.88,39.43, 12.95];
-  view.camera.look = [2.34,20.84,1.71];
-  view.camera.up = [0.26,-0.34,0.90];
-
-// It's often a good idea to set a large distance from the eye to the far clipping plane of
-// the Camera's PerspectiveProjection, to ensure that we fit all the points in the view volume
-// instead of weirdly cutting them off in the distance.
-
-  view.camera.perspectiveProjection.far = 10000000;
-
-// Configure the View's PointsMaterial, which controls the appearance of our LAZ model
-
-  view.pointsMaterial.pointSize = 2;
-  view.pointsMaterial.roundPoints = true;
-  view.pointsMaterial.perspectivePoints = true;
-  view.pointsMaterial.minPerspectivePointSize = 1;
-  view.pointsMaterial.maxPerspectivePointSize = 5;
-  view.pointsMaterial.filterIntensity = false;
-  view.pointsMaterial.minIntensity = 0;
-  view.pointsMaterial.maxIntensity = 100;
+  const view = demoHelper.createView({
+    camera: {
+      eye: [-11.88,39.43, 12.95],
+      look: [2.34,20.84,1.71],
+      up: [0.26,-0.34,0.90],
+      perspectiveProjection: {
+        far: 10000000
+      }
+    },
+    pointsMaterial: {
+      pointSize: 2,
+      roundPoints: true,
+      perspectivePoints: true,
+      minPerspectivePointSize: 1,
+      maxPerspectivePointSize: 5,
+      filterIntensity: false,
+      minIntensity: 0,
+      maxIntensity: 100
+    }
+  });
 
 // Create a SceneModel to hold our model's geometry and materials
 
@@ -72,11 +72,6 @@ demoHelper.init().then(() => {
           sceneModel,
           dataModel
         }).then(() => {
-
-
-       //   demoHelper.viewFit();
-
-       //   demoHelper.orbit();
 
           // The Scene and SceneModel will now contain a SceneObject to represent the LAS/LAZ point cloud,
           // and the Data and DataModel will contain a corresponding DataObject.

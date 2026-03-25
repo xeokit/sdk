@@ -1,8 +1,4 @@
-// Import the SDK from a bundle built for these examples.
-
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
-
-// Create a inspectors that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
 
 const demoHelper = new xeokit.demo.DemoHelper({});
 
@@ -10,16 +6,17 @@ demoHelper
   .init()
   .then(() => {
 
-    const {view, scene} = demoHelper;
+    const { scene} = demoHelper;
 
-    // Position the View's Camera
-
-    view.camera.eye = [10, -2, 15];
-    view.camera.look = [0, -6, 0];
-    view.camera.up = [0, 1, 0];
-
-
-
+    demoHelper.createView({
+      camera: {
+        projection: "perspective",
+        far: 1000000,
+        eye: [10, -2, 15],
+        look: [0, -6, 0],
+        up: [0, 1, 0]
+      }
+    });
 
     // Within the Scene, create a SceneModel to hold geometry and materials for our model. We'll create
     // an empty SceneModel, then populate it with JSON that conforms to the schema defined by type SceneModelParams.
@@ -131,27 +128,6 @@ demoHelper
     if (!fromParamsResult.ok) {
       throw new Error("Unable to populate SceneModel from params: " + fromParamsResult.error);
     }
-    //
-    // // At this point, the View will contain five ViewObjects that have the same
-    // // IDs as our SceneObjects. Through these ViewObjects, we can update the
-    // // appearance of our model elements in that View. We'll make the yellow leg
-    // // translucent, highlight the red leg and make the tabletop green.
-    //
-
-    view.setObjectsSelected(["redLeg"], true);
-   //  view.objects["yellowLeg"].opacity = 0.5;
-
-    // view.objects["redLeg"].highlighted = true;
-    // view.objects["purpleTableTop"].colorize = [0, 1, 0];
-    //
-    // // We can also apply these sorts of updates in sortedBatches, to multiple
-    // // ViewObjects at a time. The View remembers the IDs of whetever
-    // // ViewObjects we update, so we can use such batch updates to restore the
-    // // ViewObjects to their original states.
-    //
-    // view.setObjectsOpacity(view.opacityObjectIds, 1.0);
-    // view.setObjectsHighlighted(view.highlightedObjectIds, false);
-    // view.setObjectsSelected(view.selectedObjectIds, false);
 
     demoHelper.finished();
   });

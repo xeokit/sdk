@@ -6,7 +6,7 @@ const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper.init().then(() => {
 
-  const {viewer, view, scene} = demoHelper;
+  const {viewer, scene} = demoHelper;
 
   // Create a XGFLoader to load .XGF files
 
@@ -14,9 +14,13 @@ demoHelper.init().then(() => {
 
   // Arrange the View's Camera within our +Z "up" coordinate system
 
-  view.camera.eye = [1841990.2778388674, 5173295.7011186555, 16.25441882894172];
-  view.camera.look = [1842022.2883483584, 5173301.846981712, 10.494716146446603];
-  view.camera.up = [0.1708873388776124, 0.032809545530215846, 0.9847441551659135];
+  const view = demoHelper.createView({
+    camera: {
+      eye: [1841990.2778388674, 5173295.7011186555, 16.25441882894172],
+      look: [1842022.2883483584, 5173301.846981712, 10.494716146446603],
+      up: [0.1708873388776124, 0.032809545530215846, 0.9847441551659135]
+    }
+  });
 
   view.resolutionScale.resolutionScale = 0.6; // Start in low quality for faster loading
 

@@ -1,8 +1,8 @@
 {
   "stats": {
-    "startTime": 315.90000009536743,
-    "endTime": 343.69999980926514,
-    "elapsedTime": 27.799999713897705,
+    "startTime": 268.59999990463257,
+    "endTime": 302.09999990463257,
+    "elapsedTime": 33.5,
     "aabb": [
       -50,
       -5,
@@ -17,7 +17,7 @@
       "numMeshes": 1,
       "numGeometries": 1,
       "numTextures": 0,
-      "numTextureSets": 0,
+      "numMaterials": 0,
       "numTriangles": 0,
       "numLines": 202,
       "numPoints": 0,
@@ -30,8 +30,8 @@
       "numPropertySets": 0
     },
     "memory": {
-      "allocatedMB": 3.9539337158203125,
-      "usedMB": 0.00563812255859375
+      "allocatedMB": 72.86453247070312,
+      "usedMB": 0.01062774658203125
     },
     "renderer": {
       "tiles": {
@@ -49,7 +49,7 @@
       },
       "views": [
         {
-          "viewId": "mainView",
+          "viewId": "f7ab3707-6aa0-4c88-8380-b2ae03360e27",
           "canvasSize": [
             0,
             0
@@ -67,22 +67,22 @@
                     "numPrims": 202
                   },
                   "timeMs": {
-                    "start": 488.90000009536743,
-                    "end": 488.90000009536743,
+                    "start": 467,
+                    "end": 467,
                     "duration": 0
                   }
                 }
               ],
               "timeMs": {
-                "start": 488.80000019073486,
-                "end": 488.90000009536743,
+                "start": 466.90000009536743,
+                "end": 467,
                 "duration": 0.09999990463256836
               }
             }
           ],
           "timeMs": {
-            "start": 488.69999980926514,
-            "end": 488.90000009536743,
+            "start": 466.7999997138977,
+            "end": 467,
             "duration": 0.20000028610229492
           },
           "numDrawCalls": 1,

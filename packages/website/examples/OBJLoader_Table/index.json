@@ -1,0 +1,17 @@
+{
+  "id": "OBJLoader_Table",
+  "title": "Viewing .BIM using DotBIMLoader",
+  "description": "How to load an IFC model from dotbim (.bim) format directly into a xeokit web viewer.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "tags": [
+    "Importing",
+    "DotBIM"
+  ],
+  "categories": [
+    "Importing",
+    "DotBIM"
+  ],
+  "topic": "import.dotbim",
+  "template": "basicPage"
+}

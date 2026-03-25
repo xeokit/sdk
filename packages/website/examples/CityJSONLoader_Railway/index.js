@@ -8,7 +8,7 @@ const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper.init().then(() => {
 
-  const {view, scene, data} = demoHelper;
+  const {scene, data} = demoHelper;
 
   // Create a CityJSONLoader to load CityJSON files
 
@@ -17,19 +17,15 @@ demoHelper.init().then(() => {
   // Configure the View's World-space coordinate axis to make the +Z axis "up.
   // This is actually the default, but we show it here for clarity
 
-  view.camera.worldAxis = [
-    1, 0, 0, // Right +X
-    0, 0, 1, // Up +Z
-    0, -1, 0  // Forward -Y
-  ];
-
-  // Arrange the View's Camera within our +Z "up" coordinate system
-
-  view.camera.eye = [11.50, 16.32, 15.12];
-  view.camera.look = [9.01, 9.65, 11.22];
-  view.camera.up = [-0.16, -0.45, 0.87];
-
-  view.camera.zoom(-15)
+  demoHelper.createView({
+    id: "demoView",
+    camera: {
+     // projection: "perspective",
+      eye: [11.50, 16.32, 15.12],
+      look: [9.01, 9.65, 11.22],
+      up: [-0.16, -0.45, 0.87]
+    }
+  });
 
   // Create a SceneModel to hold our model's geometry and materials
 

@@ -1,23 +1,23 @@
 {
   "stats": {
-    "startTime": 341.19999980926514,
-    "endTime": 5700.699999809265,
-    "elapsedTime": 5359.5,
+    "startTime": 278.30000019073486,
+    "endTime": 5639.700000286102,
+    "elapsedTime": 5361.400000095367,
     "aabb": [
       -14.109100341796875,
       5.703499794006348,
       -0.4851999878883362,
-      19.019478387324043,
-      35.98059483954005,
-      3.9062299054038423
+      19.020135105051853,
+      35.98175472353529,
+      3.906261354250539
     ],
     "scene": {
       "numTransforms": 0,
       "numObjects": 1,
-      "numMeshes": 4,
-      "numGeometries": 4,
+      "numMeshes": 85,
+      "numGeometries": 85,
       "numTextures": 0,
-      "numTextureSets": 0,
+      "numMaterials": 0,
       "numTriangles": 0,
       "numLines": 0,
       "numPoints": 1692332,
@@ -30,26 +30,105 @@
       "numPropertySets": 0
     },
     "memory": {
-      "allocatedMB": 13.641357421875,
-      "usedMB": 0
+      "allocatedMB": 288.5284423828125,
+      "usedMB": 66.2040786743164
     },
     "renderer": {
-      "tiles": {},
+      "tiles": {
+        "0-0-0": {
+          "id": "0-0-0",
+          "rtcCenter": [
+            0,
+            0,
+            0
+          ],
+          "size": 1000,
+          "tileIndex": 0,
+          "numMeshes": 85
+        }
+      },
       "views": [
         {
-          "viewId": "mainView",
+          "viewId": "d1224718-2880-4d7d-b975-85b9c04a5ea4",
           "canvasSize": [
             0,
             0
           ],
-          "renderBins": [],
+          "renderBins": [
+            {
+              "name": "opaque",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "POINTS",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 440000
+                  },
+                  "timeMs": {
+                    "start": 5874.400000095367,
+                    "end": 5874.5,
+                    "duration": 0.09999990463256836
+                  }
+                },
+                {
+                  "batchIndex": 1,
+                  "renderPass": "OPAQUE",
+                  "primitive": "POINTS",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 440000
+                  },
+                  "timeMs": {
+                    "start": 5874.5,
+                    "end": 5874.5,
+                    "duration": 0
+                  }
+                },
+                {
+                  "batchIndex": 2,
+                  "renderPass": "OPAQUE",
+                  "primitive": "POINTS",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 440000
+                  },
+                  "timeMs": {
+                    "start": 5874.5,
+                    "end": 5874.5,
+                    "duration": 0
+                  }
+                },
+                {
+                  "batchIndex": 3,
+                  "renderPass": "OPAQUE",
+                  "primitive": "POINTS",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 372332
+                  },
+                  "timeMs": {
+                    "start": 5874.5,
+                    "end": 5874.5,
+                    "duration": 0
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 5874.200000286102,
+                "end": 5874.5,
+                "duration": 0.2999997138977051
+              }
+            }
+          ],
           "timeMs": {
-            "start": 5703.099999904633,
-            "end": 5703.299999952316,
-            "duration": 0.20000004768371582
+            "start": 5874.10000038147,
+            "end": 5874.60000038147,
+            "duration": 0.5
           },
-          "numDrawCalls": 0,
-          "numPrims": 0
+          "numDrawCalls": 4,
+          "numPrims": 1692332
         }
       ]
     }

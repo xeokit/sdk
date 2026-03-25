@@ -69,8 +69,8 @@
     "topic": "import.ifc",
     "template": "basicPage"
   },
-  "IFCLoader_IfcOpenHouse4": {
-    "id": "IFCLoader_IfcOpenHouse4",
+  "IFCLoader_Ifc4SampleHouse": {
+    "id": "IFCLoader_Ifc4SampleHouse",
     "title": "Viewing IFC using IFCLoader",
     "description": "How to use IFCLoader to view an IFC model in the browser with a xeokit web viewer.",
     "isTutorial": true,
@@ -88,8 +88,8 @@
     "topic": "import.ifc",
     "template": "basicPage"
   },
-  "IfcLoader_Schependomlaan": {
-    "id": "IfcLoader_Schependomlaan",
+  "IFCLoader_IfcOpenHouse4": {
+    "id": "IFCLoader_IfcOpenHouse4",
     "title": "Viewing IFC using IFCLoader",
     "description": "How to use IFCLoader to view an IFC model in the browser with a xeokit web viewer.",
     "isTutorial": true,
@@ -145,6 +145,40 @@
     "id": "ModelConverter_ifc2dotbim",
     "title": "Viewing .BIM using ModelConverter and IFCLoader",
     "description": "Use the ModelConverter class to convert a model from dotbim (.bim) format to JSON SceneModelParams and DataModelParams, then use SceneModelParamsLoader and DataModelParamsLoader to view the model in a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "Importing",
+      "DotBIM"
+    ],
+    "categories": [
+      "Importing",
+      "DotBIM"
+    ],
+    "topic": "import.dotbim",
+    "template": "basicPage"
+  },
+  "OBJLoader_SportsCar": {
+    "id": "OBJLoader_SportsCar",
+    "title": "Viewing .BIM using DotBIMLoader",
+    "description": "How to load an IFC model from dotbim (.bim) format directly into a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "Importing",
+      "DotBIM"
+    ],
+    "categories": [
+      "Importing",
+      "DotBIM"
+    ],
+    "topic": "import.dotbim",
+    "template": "basicPage"
+  },
+  "OBJLoader_Table": {
+    "id": "OBJLoader_Table",
+    "title": "Viewing .BIM using DotBIMLoader",
+    "description": "How to load an IFC model from dotbim (.bim) format directly into a xeokit web viewer.",
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [
@@ -506,6 +540,19 @@
     ],
     "topic": "general"
   },
+  "Viewer_multiView_SportsCar": {
+    "id": "Viewer_multiView_SportsCar",
+    "title": "Viewing an IFC model in multiple Views",
+    "description": "In this example, we'll use the xeokit SDK to load an IFC model and view it within multiple canvases in the browser",
+    "isTutorial": false,
+    "isVisualTest": true,
+    "tags": [],
+    "categories": [
+      "Viewer",
+      "Views"
+    ],
+    "topic": "general"
+  },
   "WebGLRenderer_createGPUMemoryConfigs": {
     "id": "WebGLRenderer_createGPUMemoryConfigs",
     "title": "Configuring WebGLRenderer GPU Memory Limits",
@@ -518,6 +565,22 @@
       "DotBIM"
     ],
     "topic": "renderer.configs",
+    "template": "basicPage"
+  },
+  "WebGLRenderer_picking_box": {
+    "id": "WebGLRenderer_picking_box",
+    "title": "Picking objects in a simple table-shaped SceneModel",
+    "description": "In this example, we'll use the xeokit SDK to build and view a table-shaped SceneModel, from JSON, and then we'll use the WebGLRenderer's picking API to pick objects in the SceneModel.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "_Featured"
+    ],
+    "categories": [
+      "Picking",
+      "Scene"
+    ],
+    "topic": "interaction.picking",
     "template": "basicPage"
   },
   "WebGLRenderer_picking_table": {
@@ -534,6 +597,23 @@
       "Scene"
     ],
     "topic": "interaction.picking",
+    "template": "basicPage"
+  },
+  "XGFLoader_Geometries": {
+    "id": "XGFLoader_Geometries",
+    "title": "Viewing XGF using XGFLoader",
+    "description": "How to load an IFC model from XGF format directly into a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "XGF",
+      "_Featured"
+    ],
+    "categories": [
+      "Importing",
+      "XGF"
+    ],
+    "topic": "import.xgf",
     "template": "basicPage"
   },
   "XGFLoader_MAP": {
@@ -568,6 +648,23 @@
       "XGF"
     ],
     "topic": "import.xgf",
+    "template": "basicPage"
+  },
+  "XGFLoader_SportsCar": {
+    "id": "XGFLoader_SportsCar",
+    "title": "Viewing .BIM using DotBIMLoader",
+    "description": "How to load an IFC model from dotbim (.bim) format directly into a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "Importing",
+      "DotBIM"
+    ],
+    "categories": [
+      "Importing",
+      "DotBIM"
+    ],
+    "topic": "import.dotbim",
     "template": "basicPage"
   },
   "ifc2gltf2xgf_Karhumaki": {

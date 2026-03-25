@@ -171,10 +171,10 @@ if (!fromParamsResult.ok) {
   throw new Error("Unable to configure Viewer from ViewerParams: " + fromParamsResult.error);
 }
 
-// Add a CameraControl to interactively control the View's Camera with keyboard,
+// Add a ViewController to interactively control the View's Camera with keyboard,
 // mouse and touch input
 
-new xeokit.cameracontrol.CameraControl(viewer.viewList[0]);
+new xeokit.viewcontroller.ViewController(viewer.viewList[0]);
 
 // Within the Scene, create a SceneModel to hold geometry and materials for
 // our model

@@ -9,14 +9,16 @@ demoHelper
   .init()
   .then(() => {
 
-    const {view, scene} = demoHelper;
+    const {scene} = demoHelper;
 
-    // Position the View's camera.
-    view.camera.eye = [15, -25, 15];
-    view.camera.look = [0, 0, 0];
-    view.camera.up = [0, 0, 1];
-
-    view.camera.perspectiveProjection.far = 100000;
+    demoHelper.createView({
+      id: "demoView",
+        camera: {
+          "eye": [-0.00030518043793392735,21.339815917543017,8.535285488097546],
+          "look": [-0.00030518043793392735,-0.00030518043793392735,-0.0007629510948348184],
+          "up": [0,0,1]
+        }
+    });
 
     // Create a SceneModel to hold our geometries, meshes, and objects.
     const sceneModelRes = scene.createModel({id: "simpleShapes"});
@@ -225,9 +227,6 @@ demoHelper
       scale: [2.0, 2.0, 2.0],
       color: [0.3, 0.9, 0.5]
     });
-
-    //demoHelper.viewFit();
-
     // Signal that the demo is ready.
     demoHelper.finished();
   });

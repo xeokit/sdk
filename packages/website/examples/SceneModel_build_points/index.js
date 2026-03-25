@@ -5,12 +5,15 @@ const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper.init().then(() => {
 
-  const {view, scene} = demoHelper;
+  const { scene} = demoHelper;
 
-  // Camera setup
-  view.camera.eye = [0, 8, 6];
-  view.camera.look = [0, 0, 0];
-  view.camera.up = [0, 0, 1];
+  demoHelper.createView({
+      camera: {
+        eye: [0, 8, 6],
+        look: [0, 0, 0],
+        up: [0, 0, 1]
+      }
+  });
 
   const sceneModelResult = scene.createModel({
     id: "demoModel"

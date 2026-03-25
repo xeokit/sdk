@@ -10,15 +10,19 @@ demoHelper
   .init()
   .then(() => {
 
-    const {view, scene} = demoHelper;
+    const { scene, data} = demoHelper;
 
     const dotBIMLoader = new xeokit.formats.dotbim.DotBIMLoader();
 
     // Point the View's Camera at the center of the World coordinate system
 
-    view.camera.eye = [-10, 20, 10];
-    view.camera.look = [0, 0, 0];
-    view.camera.up = [0, 0, 1];
+    demoHelper.createView({
+      camera: {
+        "eye": [-8.130013786316548,21.480352408354243,8.619051667183644],
+        "look": [2.6191908493035694,5.746608740751704,5.027820082634694],
+        "up": [0.10447660354067913,-0.15292369873852732,0.9826998431244058]
+      }
+    });
 
     // Create a SceneModel to hold model geometry and materials
 
@@ -57,8 +61,6 @@ demoHelper
           }).then(() => {
 
             // All done, model loaded.
-
-            demoHelper.viewFit();
 
             demoHelper.finished();
           });

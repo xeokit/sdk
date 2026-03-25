@@ -63,9 +63,9 @@ demoHelper.init().then(() => {
   view3.camera.up = [0, 0, 1];
 
   // Attach CameraControls to each View
-  new xeokit.cameracontrol.CameraControl(view1, {});
-  new xeokit.cameracontrol.CameraControl(view2, {});
-  new xeokit.cameracontrol.CameraControl(view3, {});
+  new xeokit.viewcontroller.ViewController(view1, {});
+  new xeokit.viewcontroller.ViewController(view2, {});
+  new xeokit.viewcontroller.ViewController(view3, {});
 
 
   // Create a ContextMenu that will show when the user right-clicks on the View's canvas, but not on any object

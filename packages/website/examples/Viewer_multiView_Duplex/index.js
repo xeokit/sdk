@@ -23,7 +23,7 @@ demoHelper.init().then(() => {
   // ---------------------------------------------------------------------------
 
   // Create a View bound to <canvas id="demoCanvas1">.
-  // Each View has its own Camera, CameraControl, and per-View object states
+  // Each View has its own Camera, ViewController, and per-View object states
   // (visibility/xray/highlight/etc).
   const view1Result = viewer.createView({
     id: "demoView1",
@@ -101,9 +101,11 @@ demoHelper.init().then(() => {
   // (Each View gets its own controller instance.)
   // ---------------------------------------------------------------------------
 
-  new xeokit.cameracontrol.CameraControl(view1, {});
-  new xeokit.cameracontrol.CameraControl(view2, {});
-  new xeokit.cameracontrol.CameraControl(view3, {});
+  new xeokit.viewcontroller.ViewController(view1, {
+
+  });
+  new xeokit.viewcontroller.ViewController(view2, {});
+  new xeokit.viewcontroller.ViewController(view3, {});
 
   // ---------------------------------------------------------------------------
   // Create the SceneModel (renderable geometry)

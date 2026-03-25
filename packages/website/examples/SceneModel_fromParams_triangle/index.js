@@ -14,9 +14,13 @@ demoHelper
 
     // Position the View's Camera
 
-    view.camera.eye = [3, 3, 3];
-    view.camera.look = [0, 0, 0];
-    view.camera.up = [0, 1, 0];
+    demoHelper.createView({
+      camera: {
+        eye: [3, 3, 3],
+        look: [0, 0, 0],
+        up: [0, 1, 0]
+      }
+    });
 
     const sceneModelResult = scene.createModel({
       id: "demoModel",

@@ -8,13 +8,17 @@ const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper.init().then(() => {
 
-  const {view, scene} = demoHelper;
+  const { scene} = demoHelper;
 
   // Position the View's Camera
 
-  view.camera.eye = [3, 3, 3];
-  view.camera.look = [0, 0, 0];
-  view.camera.up = [0, 1, 0];
+  demoHelper.createView({
+    camera: {
+      eye: [3, 3, 3],
+      look: [0, 0, 0],
+      up: [0, 1, 0]
+    }
+  });
 
   // Create a SceneModel to hold geometry and materials. We'll
   // create the SceneModel from an argument of type SceneModelParams. In this example,

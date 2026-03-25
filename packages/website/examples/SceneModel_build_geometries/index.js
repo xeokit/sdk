@@ -5,18 +5,18 @@ const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper.init().then(() => {
 
-  const {view, scene} = demoHelper;
+  const {scene} = demoHelper;
+
+  demoHelper.createView({
+    camera: {
+     eye: [10, -30, 0],
+      look: [10, 0, 0],
+      up: [0, 0, 1]
+    }
+  });
 
 
-    // Position the View's Camera
-
-    // view.camera.eye = [10, 5, 20];
-    // view.camera.look = [10, 5, 0];
-    // view.camera.up = [0, 1, 0];
-
-    view.camera.orbitPitch(20);
-
-    // Within the Scene, create a SceneModel to hold geometry and materials for our model
+  // Within the Scene, create a SceneModel to hold geometry and materials for our model
 
     const sceneModelResult = scene.createModel({
       id: "demoModel",
@@ -356,9 +356,9 @@ demoHelper.init().then(() => {
     // view.objects["geometriesObject"].highlighted = true;
     // view.setObjectsHighlighted(view.highlightedObjectIds, false);
 
-  demoHelper.viewFit();
-
-  demoHelper.orbit();
+  // demoHelper.viewFit();
+  //
+  // demoHelper.orbit();
 
   demoHelper.finished();
   });

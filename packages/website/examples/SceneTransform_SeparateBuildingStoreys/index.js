@@ -12,12 +12,27 @@ demoHelper.init().then(() => {
   const ifcLoader = new xeokit.formats.ifc.IFCLoader();
 
   // Arrange the View's Camera
-  view.camera.eye  = [14.915582703146043, 14.396781491179095, 5.431098754133695];
-  view.camera.look = [6.599999999999998, 8.34099990051474, -4.159999575600315];
-  view.camera.up   = [-0.2820584034861215, 0.9025563895259413, -0.3253229483893775];
+  demoHelper.createView({
+    camera: {
+      "eye": [31.38663988418555,32.115413398051004,14.796097980600416],
+      "look": [0.6121272273206806,6.666971960818746,2.5235511335317735],
+      "up": [-0.2263867800274616,-0.18720656464184895,0.9558779880213767],
+    }
+  });
 
   // Create a SceneModel to hold our model's geometry and materials
-  const sceneModelResult = scene.createModel({ id: "demoModel" });
+  const sceneModelResult = scene.createModel({ id: "demoModel",
+    coordinateSystem: {
+      basis: [
+        1, 0, 0, // Right
+        0, 1, 0, // Up
+        0, 0, 1  // Forward
+      ],
+      origin: [0,0,0],
+      units: "meters",
+      scaleToMeters: 1
+    }
+  });
   if (!sceneModelResult.ok) {
     throw new Error("Failed to create SceneModel: " + sceneModelResult.error);
   }
@@ -44,9 +59,6 @@ demoHelper.init().then(() => {
 
     })
     .then(() => {
-
-      // IFC file loaded
-      demoHelper.viewFit();
 
       // Get all IfcBuildingStorey objects from the Data graph
       const ifcBuildingStoreys = data.objectsByType["IfcBuildingStorey"];
@@ -140,7 +152,7 @@ demoHelper.init().then(() => {
 
           for (const s of storeyTransforms) {
             const y = s.dirY * explodeDistancePerStorey * eased;
-            s.transform.position = [s.basePos[0], s.basePos[1] + y, s.basePos[2]];
+            s.transform.position = [s.basePos[0]+y*3, s.basePos[1], s.basePos[2]];
           }
 
           if (u >= 1) {

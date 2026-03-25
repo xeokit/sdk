@@ -1,0 +1,13 @@
+{
+  "id": "Viewer_multiView_SportsCar",
+  "title": "Viewing an IFC model in multiple Views",
+  "description": "In this example, we'll use the xeokit SDK to load an IFC model and view it within multiple canvases in the browser",
+  "isTutorial": false,
+  "isVisualTest": true,
+  "tags": [],
+  "categories": [
+    "Viewer",
+    "Views"
+  ],
+  "topic": "general"
+}

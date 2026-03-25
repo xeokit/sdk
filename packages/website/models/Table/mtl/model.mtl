@@ -1,0 +1,47 @@
+# WaveFront MTL
+# SceneModel: demoModel
+
+newmtl mesh_redLeg-mesh
+Kd 1 0.300000012 0.300000012
+Ka 0.000000 0.000000 0.000000
+Ks 0.000000 0.000000 0.000000
+Ns 0.000000
+d 1
+Tr 0
+illum 2
+
+newmtl mesh_greenLeg-mesh
+Kd 0.300000012 1 0.300000012
+Ka 0.000000 0.000000 0.000000
+Ks 0.000000 0.000000 0.000000
+Ns 0.000000
+d 1
+Tr 0
+illum 2
+
+newmtl mesh_blueLeg-mesh
+Kd 0.300000012 0.300000012 1
+Ka 0.000000 0.000000 0.000000
+Ks 0.000000 0.000000 0.000000
+Ns 0.000000
+d 1
+Tr 0
+illum 2
+
+newmtl mesh_yellowLeg-mesh
+Kd 1 1 0
+Ka 0.000000 0.000000 0.000000
+Ks 0.000000 0.000000 0.000000
+Ns 0.000000
+d 1
+Tr 0
+illum 2
+
+newmtl mesh_tableTop-mesh
+Kd 1 0.300000012 1
+Ka 0.000000 0.000000 0.000000
+Ks 0.000000 0.000000 0.000000
+Ns 0.000000
+d 1
+Tr 0
+illum 2

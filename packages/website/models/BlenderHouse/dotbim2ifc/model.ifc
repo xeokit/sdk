@@ -8,7 +8,7 @@ HEADER;
 * Issues: https://github.com/IFCjs/web-ifc/issues
 ******************************************************/
 FILE_DESCRIPTION(('Demo'),'2;1');
-FILE_NAME('Model','2026-02-23T11:51:18',('xeokit-sdk'),(),'ifcjs/web-ifc-api','ifcjs/web-ifc-api',$);
+FILE_NAME('Model','2026-03-25T19:28:43',('xeokit-sdk'),(),'ifcjs/web-ifc-api','ifcjs/web-ifc-api',$);
 FILE_SCHEMA(('IFC4'));
 ENDSEC;
 DATA;
@@ -20,6 +20,6 @@ DATA;
 #6=IFCDIRECTION((0.,0.,1.));
 #7=IFCAXIS2PLACEMENT2D(#5,#6);
 #8=IFCGEOMETRICREPRESENTATIONCONTEXT('30 context','model',30,$,#7,#6);
-#9=IFCPROJECT('3d6289a2-4ad5-4e3f-aed7-5c2a072b4296',$,'project','project desc',$,$,$,(#8),#4);
+#9=IFCPROJECT('436e2a59-9222-440e-8f4e-fa7f0d141676',$,'project','project desc',$,$,$,(#8),#4);
 ENDSEC;
 END-ISO-10303-21;

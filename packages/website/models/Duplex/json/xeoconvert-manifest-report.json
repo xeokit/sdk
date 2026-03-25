@@ -3,7 +3,6 @@
         {
             "filePath": "sceneModel.json",
             "fileFormat": "SceneModelParams",
-            "fileFormatVersion": null,
             "fileDataType": "json",
             "options": {
                 "coordinateSystem": {

@@ -88,6 +88,10 @@
  * @module curves
  */
 
+export {Curve} from "./Curve";
+export {QuadraticBezierCurve} from "./QuadraticBezierCurve";
+export {CubicBezierCurve} from "./CubicBezierCurve";
+export {SplineCurve} from "./SplineCurve";
 
 /**
  * Computes the tangent to a quadratic Bézier curve.

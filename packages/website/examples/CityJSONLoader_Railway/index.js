@@ -60,7 +60,7 @@ demoHelper.init().then(() => {
 
   const dataModel = dataModelResult.value;
 
-  // Use CityJSONLoader to load an IFC model from a dotbim file into our SceneModel and DataModel
+  // Use CityJSONLoader to load the file into our SceneModel and DataModel
 
   fetch("../../models/LoD3_Railway/cityjson/model.json").then(response => {
 

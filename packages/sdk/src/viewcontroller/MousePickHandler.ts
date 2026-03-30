@@ -173,11 +173,11 @@ class MousePickHandler {
     //       return;
     //     }
     //
-    //     if (viewController.onRayMove.count > 0) {
+    //     if (viewController.events.onRayMove.count > 0) {
     //       const origin = createVec3Float64();
     //       const direction = createVec3Float64();
     //       canvasPosToWorldRay(view.htmlElement, view.camera.viewMatrix, view.camera.projMatrix, view.camera.projection, states.pointerCanvasPos, origin, direction);
-    //       viewController.onRayMove.dispatch(viewController, {
+    //       viewController.events.onRayMove.dispatch(viewController, {
     //         canvasPos: states.pointerCanvasPos,
     //         ray: {
     //           origin: origin,
@@ -187,12 +187,12 @@ class MousePickHandler {
     //       });
     //     }
     //
-    //     const hoverSubs = viewController.onHover.count > 0;
-    //     const hoverEnterSubs = viewController.onHoverEnter.count > 0;
-    //     const hoverOutSubs = viewController.onHoverOut.count > 0;
-    //     const hoverOffSubs = viewController.onHoverOff.count > 0;
-    //     const hoverSurfaceSubs = viewController.onHoverSurface.count > 0;
-    //     const hoverSnapOrSurfaceSubs = viewController.onHoverSnapOrSurface.count > 0;
+    //     const hoverSubs = viewController.events.onHover.count > 0;
+    //     const hoverEnterSubs = viewController.events.onHoverEnter.count > 0;
+    //     const hoverOutSubs = viewController.events.onHoverOut.count > 0;
+    //     const hoverOffSubs = viewController.events.onHoverOff.count > 0;
+    //     const hoverSurfaceSubs = viewController.events.onHoverSurface.count > 0;
+    //     const hoverSnapOrSurfaceSubs = viewController.events.onHoverSnapOrSurface.count > 0;
     //
     //     if (hoverSubs || hoverEnterSubs || hoverOutSubs || hoverOffSubs || hoverSurfaceSubs || hoverSnapOrSurfaceSubs) {
     //
@@ -212,35 +212,35 @@ class MousePickHandler {
     //
     //             if (this.#lastPickedEntityId !== undefined) {
     //
-    //               viewController.onHoverOut.dispatch(viewController, { // Hovered off an entity
+    //               viewController.events.onHoverOut.dispatch(viewController, { // Hovered off an entity
     //                 viewObject: view.objects[this.#lastPickedEntityId]
     //               });
     //             }
     //
-    //             viewController.onHoverEnter.dispatch(viewController, pickController.pickResult); // Hovering over a new entity
+    //             viewController.events.onHoverEnter.dispatch(viewController, pickController.pickResult); // Hovering over a new entity
     //
     //             this.#lastPickedEntityId = pickedEntityId;
     //           }
     //         }
     //
-    //         viewController.onHover.dispatch(viewController, pickController.pickResult);
+    //         viewController.events.onHover.dispatch(viewController, pickController.pickResult);
     //
     //         if (pickController.pickResult.worldPos || pickController.pickResult.snappedWorldPos) { // Hovering the surface of an entity
-    //           viewController.onHoverSurface.dispatch(viewController, pickController.pickResult);
+    //           viewController.events.onHoverSurface.dispatch(viewController, pickController.pickResult);
     //         }
     //
     //       } else {
     //
     //         if (this.#lastPickedEntityId !== undefined) {
     //
-    //           viewController.onHoverOut.dispatch(viewController, { // Hovered off an entity
+    //           viewController.events.onHoverOut.dispatch(viewController, { // Hovered off an entity
     //             viewObject: view.objects[this.#lastPickedEntityId]
     //           });
     //
     //           this.#lastPickedEntityId = undefined;
     //         }
     //
-    //         viewController.onHoverOff.dispatch(viewController, { // Not hovering on any entity
+    //         viewController.events.onHoverOff.dispatch(viewController, { // Not hovering on any entity
     //           canvasPos: pickController.pickCursorPos
     //         });
     //       }
@@ -393,10 +393,10 @@ class MousePickHandler {
        * Probe event subscriptions so we can avoid unnecessary pick work and avoid
        * paying the single-vs-double-click timeout when double-click semantics are not needed.
        */
-      const pickedSubs = viewController.onPicked.count > 0;
-      const pickedNothingSubs = viewController.onPickedNothing.count > 0;
-      const doublePickedSubs = viewController.onDoublePicked.count > 0;
-      const doublePickedNothingSubs = viewController.onDoublePickedNothing.count > 0;
+      const pickedSubs = viewController.events.onPicked.count > 0;
+      const pickedNothingSubs = viewController.events.onPickedNothing.count > 0;
+      const doublePickedSubs = viewController.events.onDoublePicked.count > 0;
+      const doublePickedNothingSubs = viewController.events.onDoublePickedNothing.count > 0;
 
       /**
        * Fast path: if double-click semantics are irrelevant, dispatch a single pick immediately
@@ -422,13 +422,13 @@ class MousePickHandler {
 
           if (pickController.pickResult) {
 
-            viewController.onPicked.dispatch(viewController, pickController.pickResult);
+            viewController.events.onPicked.dispatch(viewController, pickController.pickResult);
 
             if (pickController.pickedSurface) {
-              viewController.onPickedSurface.dispatch(viewController, pickController.pickResult);
+              viewController.events.onPickedSurface.dispatch(viewController, pickController.pickResult);
             }
           } else {
-            viewController.onPickedNothing(viewController, {
+            viewController.events.onPickedNothing(viewController, {
               canvasPos: states.pointerCanvasPos
             });
           }
@@ -472,7 +472,7 @@ class MousePickHandler {
 
           if (firstClickPickResult && firstClickPickResult.worldPos) {
 
-            viewController.onPicked.dispatch(viewController, firstClickPickResult);
+            viewController.events.onPicked.dispatch(viewController, firstClickPickResult);
 
               /**
                * If the single click resolved on a surface and followPointer is enabled,
@@ -488,7 +488,7 @@ class MousePickHandler {
               }
 
           } else {
-            viewController.onPickedNothing.dispatch(viewController, {
+            viewController.events.onPickedNothing.dispatch(viewController, {
               canvasPos: states.pointerCanvasPos
             });
           }
@@ -520,7 +520,7 @@ class MousePickHandler {
 
         if (pickController.pickResult) {
 
-          viewController.onDoublePicked.dispatch(viewController, pickController.pickResult);
+          viewController.events.onDoublePicked.dispatch(viewController, pickController.pickResult);
 
           if (configs.doublePickFlyTo) {
 
@@ -538,11 +538,13 @@ class MousePickHandler {
              *   which typically produces more stable post-flight orbit behavior.
              */
             if (pickController.pickResult.viewObject && (!configs.firstPerson) && configs.followPointer) {
+              const pickResult = pickController.pickResult;
+              const aabb = pickResult && pickResult.viewObject
+                ? this.#aabbIndex.getObjectAABB(pickResult.viewObject.id)
+                : this.#aabbIndex.getSceneAABB();
+              const center = getAABB3Center(aabb);
 
-              const pickedEntityAABB = pickController.pickResult.viewObject.aabb;
-              const pickedEntityCenterPos = getAABB3Center(pickedEntityAABB);
-
-              controllers.pivotController.setPivotPos(pickedEntityCenterPos);
+              controllers.pivotController.setPivotPos(center);
 
               if (controllers.pivotController.startPivot()) {
                 controllers.pivotController.showPivot();
@@ -555,7 +557,7 @@ class MousePickHandler {
           /**
            * Double-click on empty space.
            */
-          viewController.onDoublePickedNothing.dispatch(viewController, {
+          viewController.events.onDoublePickedNothing.dispatch(viewController, {
             canvasPos: states.pointerCanvasPos
           });
 

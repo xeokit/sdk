@@ -11,7 +11,8 @@ export function parse(params: ModelParseParams, options?: any): Promise<void> {
     xgfToModel({
       xgfData: unpackXGF(fileData),
       sceneModel,
-      dataModel
+      dataModel,
+      options
     });
     resolve();
   });

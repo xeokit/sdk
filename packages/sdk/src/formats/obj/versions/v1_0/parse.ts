@@ -295,7 +295,8 @@ function flushCurrentObject(ctx: ParseContext): void {
 
   const createObjectResult = ctx.sceneModel.createObject({
     id: objectId,
-    meshIds: [meshId]
+    meshIds: [meshId],
+    layerId: ctx.options.layerId
   });
 
   if (createObjectResult.ok !== true) {

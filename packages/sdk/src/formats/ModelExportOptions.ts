@@ -1,4 +1,4 @@
-import {CoordinateSystemParams} from "../scene";
+import {type CoordinateSystemParams} from "../scene";
 
 /**
  * Options for customizing the export process when exporting a {@link scene!SceneModel | SceneModel}

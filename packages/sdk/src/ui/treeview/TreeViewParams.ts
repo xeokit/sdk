@@ -1,5 +1,6 @@
 import type {Data} from "../../data";
 import type {View} from "../../viewer";
+import {TreeViewEvents} from "./TreeViewEvents";
 
 /**
  * Parameters to create a {@link treeview!TreeView | TreeView}.
@@ -67,4 +68,10 @@ export interface TreeViewParams {
   pruneEmptyNodes?: boolean;
   sortNodes?: boolean;
   autoExpandDepth?: number;
+
+  /**
+   * External emitters for this {@link treeview!TreeView | TreeView}.
+   * Used when routing events from multiple TreeViews.
+   */
+  events? : TreeViewEvents;
 }

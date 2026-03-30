@@ -2,9 +2,7 @@ import type {SceneTexture} from "./SceneTexture";
 import type {SceneMaterialParams} from "./SceneMaterialParams";
 import type {SceneModel} from "./SceneModel";
 import {createVec3Float32, type Vec3} from "../math/vector";
-import {SDKErrorType, SDKResult} from "../core";
-import {SceneMaterialParams} from "./SceneMaterialParams";
-import {isIdentityMat4, Mat4} from "../math/matrix";
+import {SDKErrorType, type SDKResult} from "../core";
 
 /**
  * A set of {@link SceneTexture | Textures} in a {@link SceneModel | SceneModel}.

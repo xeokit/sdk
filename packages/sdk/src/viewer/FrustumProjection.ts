@@ -96,6 +96,8 @@ export class FrustumProjection implements Projection {
       },
       stage: SDKTask.ComputeStage
     });
+
+    this._buildMatricesTask.schedule();
   }
 
   /**

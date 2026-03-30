@@ -176,7 +176,6 @@ export class RenderContext implements WebGLContextProvider {
     s.position = "absolute";
     s.top = "50px";
     s.left = "50px";
-    s.border = "1px solid black";
     (s as any)["pointer-events"] = "none";
     s.zIndex = "100000"; // HACK
     document.body.appendChild(canvas);

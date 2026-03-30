@@ -135,6 +135,23 @@ export class MeshManager {
     return { ok: true, value: undefined };
   }
 
+  public sceneModelFinalized(sceneModel: SceneModel): SDKResult<any> {
+    for (const sceneMesh of Object.values(sceneModel.meshes)) {
+      const result = this.sceneMeshCreated(sceneMesh);
+      if (!result.ok) {
+        return result;
+      }
+    }
+
+    for (const sceneObject of Object.values(sceneModel.objects)) {
+      const result = this.sceneObjectCreated(sceneObject);
+      if (!result.ok) {
+        return result;
+      }
+    }
+    return { ok: true, value: undefined };
+  }
+
   /**
    * Unregisters a {@link SceneModel}.
    *
@@ -153,7 +170,6 @@ export class MeshManager {
         error: `[MeshManager.sceneModelDestroyed] SceneModel not attached with this ID: ${sceneModel.id}`
       };
     }
-
     delete this._rendererModels[sceneModel.id];
     return { ok: true, value: undefined };
   }
@@ -738,6 +754,7 @@ export class MeshManager {
     this._rendererModels = {};
     this._batchListDirty = true;
   }
+
 
 
 }

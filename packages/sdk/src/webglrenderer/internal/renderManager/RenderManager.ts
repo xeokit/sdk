@@ -324,12 +324,12 @@ export class RenderManager {
     ) {
       gl.enable(gl.CULL_FACE);
       gl.enable(gl.BLEND);
-      if (rendererView.view.transparent) {
+     // if (rendererView.view.transparent) {
         gl.blendEquation(gl.FUNC_ADD);
         gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-      } else {
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-      }
+      // } else {
+      //   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+      // }
 
       renderContext.backfaces = false;
 

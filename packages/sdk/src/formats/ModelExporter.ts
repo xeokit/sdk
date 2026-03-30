@@ -2,7 +2,7 @@ import {DataModel} from "../data";
 import type {ModelEncoder} from "./ModelEncoder";
 import type {ModelExporterParams} from "./ModelExporterParams";
 import type {ModelExportParams} from "./ModelExportParams";
-import {ModelExportOptions} from "./ModelExportOptions";
+import type {ModelExportOptions} from "./ModelExportOptions";
 
 /**
  * Exports a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel} to a file.

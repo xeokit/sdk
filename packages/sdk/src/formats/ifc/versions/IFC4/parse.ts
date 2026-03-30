@@ -11,10 +11,11 @@ const SCHEMA = "IFC4";
  * Parses an IFC model into scene and data models.
  */
 export async function parse(ifcAPI: WebIFC.IfcAPI, params: ModelParseParams, options: any): Promise<void> {
-  await parseWebIFC(ifcAPI, params);
+  await parseWebIFC(ifcAPI, params, options);
 }
 
 interface ParsingContext {
+  options: any;
   fileData: ArrayBuffer;
   ifcAPI: WebIFC.IfcAPI;
   sceneModel: SceneModel;
@@ -25,7 +26,7 @@ interface ParsingContext {
   ifcProjectId: number;
 }
 
-async function parseWebIFC(ifcAPI: WebIFC.IfcAPI, params: ModelParseParams): Promise<void> {
+async function parseWebIFC(ifcAPI: WebIFC.IfcAPI, params: ModelParseParams, options: any): Promise<void> {
   const { sceneModel, dataModel, fileData } = params;
   const dataArray = new Uint8Array(fileData);
   const modelId = ifcAPI.OpenModel(dataArray);
@@ -33,6 +34,7 @@ async function parseWebIFC(ifcAPI: WebIFC.IfcAPI, params: ModelParseParams): Pro
   const ifcProjectId = lines.get(0);
 
   const ctx: ParsingContext = {
+    options: options || {},
     fileData,
     modelId,
     lines,
@@ -218,6 +220,7 @@ function parseSceneModel(ctx: ParsingContext): void {
       ctx.sceneModel.createObject({
         id: objectId,
         meshIds,
+        layerId: ctx.options.layerId
       });
     }
   });

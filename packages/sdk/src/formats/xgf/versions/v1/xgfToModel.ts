@@ -18,10 +18,14 @@ import {createVec3Float32} from "../../../../math/vector";
 export function xgfToModel(params: {
   xgfData: XGFData_v1,
   sceneModel?: SceneModel,
-  dataModel?: DataModel
+  dataModel?: DataModel,
+  options: {
+    layerId?: string
+  }
 }): void {
 
-  const {xgfData, sceneModel, dataModel} = params;
+  const {xgfData, sceneModel, dataModel, options} = params;
+  const layerId = options?.layerId || "default";
   const defaultId = sceneModel ? sceneModel.id : createUUID();
 
   if (dataModel) {
@@ -145,7 +149,8 @@ export function xgfToModel(params: {
       if (sceneModel) {
         sceneModel.createObject({
           id: objectId,
-          meshIds
+          meshIds,
+          layerId
         });
       }
       if (dataModel) {

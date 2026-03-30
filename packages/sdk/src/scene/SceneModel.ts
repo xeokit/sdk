@@ -200,6 +200,10 @@ export class SceneModel {
    */
   public readonly objects: { [key: string]: SceneObject };
 
+  private _streamingEnabled: boolean;
+
+  private _finalized: boolean;
+
   /**
    * Statistics on this SceneModel.
    *
@@ -245,6 +249,9 @@ export class SceneModel {
         this.setGlobalMatrixDirty();
       },
       sceneModelParams?.coordinateSystem);
+   // this._streamingEnabled = sceneModelParams?.streamingEnabled !== false;
+    this._streamingEnabled = true;
+    this._finalized = false;
     this._coordinateSystemMatrix = createMat4Float64();
     this._coordinateSystemMatrixDirty = true;
     this.globalizedIds = (!!sceneModelParams.globalizedIds);
@@ -269,6 +276,20 @@ export class SceneModel {
       numVertices: 0,
       textureBytes: 0
     };
+  }
+
+  /**
+   * Indicates whether streaming is enabled for this SceneModel.
+   */
+  get streamingEnabled(): boolean {
+    return this._streamingEnabled;
+  }
+
+  /**
+   * Indicates whether this SceneModel has been finalized.
+   */
+  get finalized() : boolean {
+    return this._finalized;
   }
 
   /**
@@ -336,6 +357,14 @@ export class SceneModel {
       });
     }
 
+    if (this._finalized) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneModel.createTransform] SceneModel already _finalized`
+      });
+    }
+
     if (!transformParams.id) {
       return this.scene.logError({
         ok: false,
@@ -372,8 +401,9 @@ export class SceneModel {
 
     this.transforms[transformParams.id] = sceneTransform;
     this.stats.numTransforms++;
-    this.scene.events.onSceneTransformCreated.dispatch(this.scene, sceneTransform);
-
+    if (this._streamingEnabled) {
+      this.scene.events.onSceneTransformCreated.dispatch(this.scene, sceneTransform);
+    }
     return {
       ok: true,
       value: sceneTransform
@@ -394,7 +424,9 @@ export class SceneModel {
     }
     delete this.transforms[transformId];
     this.stats.numTransforms--;
-    this.scene.events.onSceneTransformDestroyed.dispatch(this.scene, sceneTransform);
+    if (this._streamingEnabled) {
+      this.scene.events.onSceneTransformDestroyed.dispatch(this.scene, sceneTransform);
+    }
   }
 
   /**
@@ -451,6 +483,13 @@ export class SceneModel {
         error: "[SceneModel.createTexture] SceneModel already destroyed"
       });
     }
+    if (this._finalized) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneModel.createTexture] SceneModel already _finalized`
+      });
+    }
     if (!textureParams.id) {
       return this.scene.logError({
         ok: false,
@@ -490,8 +529,9 @@ export class SceneModel {
     const texture = new SceneTexture(this, textureParams);
     this.textures[textureParams.id] = texture;
     this.stats.numTextures++;
-    this.scene.events.onSceneTextureCreated.dispatch(this.scene, texture);
-
+    if (this._streamingEnabled) {
+      this.scene.events.onSceneTextureCreated.dispatch(this.scene, texture);
+    }
     return {
       ok: true,
       value: texture
@@ -514,7 +554,9 @@ export class SceneModel {
     delete this.textures[textureId];
     this.stats.numTextures--;
     this.stats.textureBytes -= sceneTexture.imageData ? (sceneTexture.imageData.width * sceneTexture.imageData.height * 4) : 0;
-    this.scene.events.onSceneTextureDestroyed.dispatch(this.scene, sceneTexture);
+    if (this._streamingEnabled) {
+      this.scene.events.onSceneTextureDestroyed.dispatch(this.scene, sceneTexture);
+    }
   }
 
   /**
@@ -559,6 +601,14 @@ export class SceneModel {
         ok: false,
         type: SDKErrorType.InvalidOperation,
         error: "[SceneModel.createMaterial] Cannot create SceneMaterial - SceneModel already destroyed"
+      });
+    }
+
+    if (this._finalized) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneModel.createMaterial] SceneModel already _finalized`
       });
     }
 
@@ -654,8 +704,9 @@ export class SceneModel {
 
     this.materials[materialParams.id] = material;
     this.stats.numMaterials++;
-    this.scene.events.onSceneMaterialCreated.dispatch(this.scene, material);
-
+    if (this._streamingEnabled) {
+      this.scene.events.onSceneMaterialCreated.dispatch(this.scene, material);
+    }
     return {
       ok: true,
       value: material
@@ -678,7 +729,9 @@ export class SceneModel {
     }
     delete this.materials[materialId];
     this.stats.numMaterials--;
-    this.scene.events.onSceneMaterialDestroyed.dispatch(this.scene, sceneMaterial);
+    if (this._streamingEnabled) {
+      this.scene.events.onSceneMaterialDestroyed.dispatch(this.scene, sceneMaterial);
+    }
   }
 
   /**
@@ -740,6 +793,14 @@ export class SceneModel {
         ok: false,
         type: SDKErrorType.InvalidOperation,
         error: "[SceneModel.createGeometry] SceneModel already destroyed"
+      });
+    }
+
+    if (this._finalized) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneModel.createGeometry] SceneModel already _finalized`
       });
     }
 
@@ -880,7 +941,9 @@ export class SceneModel {
     }
     this.stats.numVertices += positions.length / 3;
 
-    this.scene.events.onSceneGeometryCreated.dispatch(this.scene, sceneGeometry);
+    if (this._streamingEnabled) {
+      this.scene.events.onSceneGeometryCreated.dispatch(this.scene, sceneGeometry);
+    }
 
     return {
       ok: true,
@@ -949,6 +1012,14 @@ export class SceneModel {
         ok: false,
         type: SDKErrorType.InvalidOperation,
         error: "[SceneModel.createGeometryCompressed] SceneModel already destroyed"
+      });
+    }
+
+    if (this._finalized) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneModel.createGeometryCompressed] SceneModel already _finalized`
       });
     }
 
@@ -1062,7 +1133,9 @@ export class SceneModel {
     }
     this.stats.numVertices += positionsCompressed.length / 3;
 
-    this.scene.events.onSceneGeometryCreated.dispatch(this.scene, sceneGeometry);
+    if (this._streamingEnabled) {
+      this.scene.events.onSceneGeometryCreated.dispatch(this.scene, sceneGeometry);
+    }
 
     return {
       ok: true,
@@ -1098,7 +1171,9 @@ export class SceneModel {
       this.stats.numPoints -= sceneGeometry.positionsCompressed.length / 3;
     }
     this.stats.numVertices -= sceneGeometry.positionsCompressed.length / 3;
-    this.scene.events.onSceneGeometryDestroyed.dispatch(this.scene, sceneGeometry);
+    if (this._streamingEnabled) {
+      this.scene.events.onSceneGeometryDestroyed.dispatch(this.scene, sceneGeometry);
+    }
   }
 
   /**
@@ -1164,6 +1239,14 @@ export class SceneModel {
         ok: false,
         type: SDKErrorType.InvalidOperation,
         error: "[SceneModel.addMesh] SceneModel already destroyed"
+      });
+    }
+
+    if (this._finalized) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneModel.createMesh] SceneModel already _finalized`
       });
     }
 
@@ -1289,7 +1372,9 @@ export class SceneModel {
     geometry.numMeshes++;
     this.meshes[id] = sceneMesh;
     this.stats.numMeshes++;
-    this.scene.events.onSceneMeshCreated.dispatch(this.scene, sceneMesh);
+    if (this._streamingEnabled) {
+      this.scene.events.onSceneMeshCreated.dispatch(this.scene, sceneMesh);
+    }
 
     return {
       ok: true,
@@ -1326,7 +1411,9 @@ export class SceneModel {
     }
     delete this.meshes[meshId];
     this.stats.numMeshes--;
-    this.scene.events.onSceneMeshDestroyed.dispatch(this.scene, existing);
+    if (this._streamingEnabled) {
+      this.scene.events.onSceneMeshDestroyed.dispatch(this.scene, existing);
+    }
   }
 
   /**
@@ -1381,6 +1468,14 @@ export class SceneModel {
         ok: false,
         type: SDKErrorType.InvalidOperation,
         error: "[SceneModel.createObject] SceneModel already destroyed"
+      });
+    }
+
+    if (this._finalized) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneModel.createObject] SceneModel already _finalized`
       });
     }
 
@@ -1498,6 +1593,14 @@ export class SceneModel {
         ok: false,
         type: SDKErrorType.InvalidOperation,
         error: "[SceneModel.fromParams] SceneModel already destroyed"
+      });
+    }
+
+    if (this._finalized) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneModel.fromParams] SceneModel already _finalized`
       });
     }
 
@@ -1635,6 +1738,41 @@ export class SceneModel {
     return {
       ok: true,
       value: sceneModelParams
+    };
+  }
+
+  /**
+   * When in deferred build mode, finalizes this SceneModel, preventing creation of new components within it.
+   * Only applies when {@link SceneModel._streamingEnabled | _streamingEnabled} is `false`.
+   */
+  finalize():SDKResult<any> {
+    if (this.destroyed) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[SceneModel.finalize] SceneModel already destroyed"
+      });
+    }
+    if (this._streamingEnabled) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[SceneModel.finalize] SceneModel is streaming-enabled, so cannot be finalized"
+      });
+    }
+    if (this._finalized) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneModel.finalize] SceneModel already finalized`
+      });
+    }
+    // @ts-ignore
+    this._finalized = true;
+    this.scene.events.onSceneModelFinalized.dispatch(this.scene, this);
+    return {
+      ok: true,
+      value: undefined
     };
   }
 

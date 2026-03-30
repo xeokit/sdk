@@ -274,6 +274,7 @@ export class DataModel  {
       }
       this.data.objectsByType[type][id] = dataObject;
       this.data.typeCounts[type] = (this.data.typeCounts[type] === undefined) ? 1 : this.data.typeCounts[type] + 1;
+      this.typeCounts[type] = (this.typeCounts[type] === undefined) ? 1 : this.typeCounts[type] + 1;
       dataObject.models.push(this);
       this.data.events.onDataObjectCreated.dispatch(this.data, dataObject);
     } else {
@@ -551,7 +552,7 @@ export class DataModel  {
   #removeObjectFromModels(dataObject: DataObject) {
     for (let i = 0, len = dataObject.models.length; i < len; i++) {
       if (dataObject.models[i] === this) {
-        dataObject.models = dataObject.models.splice(i, 1);
+         dataObject.models.splice(i, 1);
         break;
       }
     }

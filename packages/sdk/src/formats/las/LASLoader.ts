@@ -42,7 +42,9 @@ export class LASLoader extends ModelLoader {
    * - If the SceneModel has already been destroyed.
    * - If the DataModel has already been destroyed.
    */
-  load(params: ModelLoadParams, options: LASLoaderOptions = {}): Promise<any> {
+  load(params: ModelLoadParams, options: LASLoaderOptions = {
+    layerId: "default"
+  }): Promise<any> {
     return super.load(params, options);
   }
 }
@@ -133,7 +135,8 @@ function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}): Pro
         }
         sceneModel.createObject({
           id: entityId,
-          meshIds
+          meshIds,
+          layerId: options.layerId
         });
       }
       if (dataModel) {

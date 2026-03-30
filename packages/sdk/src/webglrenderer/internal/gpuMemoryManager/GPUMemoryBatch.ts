@@ -18,9 +18,6 @@ import type {Mat4} from "../../../math/matrix";
 import type {Vec3, Vec4} from "../../../math/vector";
 import {GPUMemoryCheckResult} from "./GPUMemoryCheckResult";
 
-const MAX_MESHES = 500000;
-const MAX_GEOMETRIES = 500000;
-
 /**
  * Manages GPU-resident, dynamically-editable data storage for model geometry and attributes.
  *
@@ -49,7 +46,6 @@ export class GPUMemoryBatch {
   private _vertexPositionTexture: VertexPositionTexture;
   private _vertexColorTexture: VertexColorTexture;
   private _meshMatrixTexture: MatrixTexture;
-
   private _meshIndicesUsed: boolean[];
   private _meshes: {};
   private _sceneMeshes: {};
@@ -57,18 +53,12 @@ export class GPUMemoryBatch {
   private _geometryIndicesUsed: boolean[];
   private _sceneGeometries: {};
   private _numGeometries: number;
-  private _maxGeometries: number;
   private _lastFreeMeshIndex: number;
   private _lastFreeGeometryIndex: number;
   private _geometryHandles: any;
   private _meshHandles: any;
   private _onTick: () => void;
-  private _maxSlices: number;
-  private _maxLights: number;
   private _renderContext: RenderContext;
-  private _maxIndices: number;
-  private _maxPositions: number;
-  private _maxPrims: number;
 
   /**
    * Creates a new GPUMemoryBatch.
@@ -286,6 +276,10 @@ export class GPUMemoryBatch {
     for (let i = 0; i < this._edgeMeshIndexTexture.length; i++) {
       total += this._edgeMeshIndexTexture[i].getAllocatedBytes();
     }
+    const numViews = this._meshViewAttributeTexture.length;
+    for (let i = 0; i < numViews; i++) {
+      total += this._meshViewAttributeTexture[i].getAllocatedBytes();
+    }
     return total;
   }
 
@@ -308,6 +302,10 @@ export class GPUMemoryBatch {
     for (let i = 0; i < this._edgeMeshIndexTexture.length; i++) {
       total += this._edgeMeshIndexTexture[i].getUsedBytes();
     }
+    const numViews = this._meshViewAttributeTexture.length;
+    for (let i = 0; i < numViews; i++) {
+      total += this._meshViewAttributeTexture[i].getUsedBytes();
+    }
     return total;
   }
 
@@ -327,7 +325,7 @@ export class GPUMemoryBatch {
     const vertCount = (geometry.positionsCompressed?.length ?? 0) / 3;
     const geometryExists = !!this._geometryHandles[geometry.id];
     if (!geometryExists) {
-      if (this._numGeometries >= this._maxGeometries) {
+      if (this._numGeometries >= this._renderContext.memoryConfigs.maxBatchGeometries) {
         return GPUMemoryCheckResult.TooManyGeometries;
       }
       if (vertCount <= 0 || this._vertexPositionTexture.canGetPortion(vertCount) === false) {
@@ -383,22 +381,31 @@ export class GPUMemoryBatch {
     const existingMeshHandle = this._meshHandles[sceneMesh.id];
 
     if (existingMeshHandle) {
-      return existingMeshHandle.meshIndex;
+      return {ok: true, value: existingMeshHandle.meshIndex };
     }
 
-    if (this._numMeshes >= MAX_MESHES) {
+    const maxBatchMeshes = this._renderContext.memoryConfigs.maxBatchMeshes;
+
+    if ((this._numMeshes+1) >= maxBatchMeshes) {
       return {
         ok: false,
         type: SDKErrorType.MemoryAllocationFailed,
-        error: `GPUMemoryBatch.addMesh: Exceeded maximum number of meshes (${MAX_MESHES})`
+        error: `GPUMemoryBatch.addMesh: Exceeded maximum number of meshes (${maxBatchMeshes})`
       }
     }
 
-    if (this._numGeometries >= MAX_GEOMETRIES) {
-      return {
-        ok: false,
-        type: SDKErrorType.MemoryAllocationFailed,
-        error: `GPUMemoryBatch.addMesh: Exceeded maximum number of geometries (${MAX_GEOMETRIES})`
+    const sceneGeometry = sceneMesh.geometry;
+
+    let geometryHandle = this._geometryHandles[sceneGeometry.id];
+
+    if (!geometryHandle) {
+      const maxGeometries = this._renderContext.memoryConfigs.maxBatchGeometries;
+      if ((this._numGeometries+1) >= maxGeometries) {
+        return {
+          ok: false,
+          type: SDKErrorType.MemoryAllocationFailed,
+          error: `GPUMemoryBatch.addMesh: Exceeded maximum number of geometries (${maxGeometries})`
+        }
       }
     }
 
@@ -431,10 +438,6 @@ export class GPUMemoryBatch {
     };
 
     meshIndex = this._getFreeMeshIndex();
-
-    const sceneGeometry = sceneMesh.geometry;
-
-    let geometryHandle = this._geometryHandles[sceneGeometry.id];
 
     if (!geometryHandle) {
 
@@ -793,6 +796,12 @@ export class GPUMemoryBatch {
       if (geometryHandle.vertexColorsPortion) {
         this._vertexColorTexture.putPortion(geometryHandle.vertexColorsPortion);
       }
+      if (geometryHandle.indicesHandle) {
+        this._indexTexture.putPortion(geometryHandle.indicesHandle);
+      }
+      if (geometryHandle.edgeIndicesHandle) {
+        this._edgeIndexTexture.putPortion(geometryHandle.edgeIndicesHandle);
+      }
       delete this._geometryHandles[sceneGeometry.id];
       this._putFreeGeometryIndex(geometryHandle.geometryIndex);
       this._numGeometries--;
@@ -820,7 +829,9 @@ export class GPUMemoryBatch {
 
     this._putFreeMeshIndex(meshIndex);
 
-    delete this._sceneGeometries[meshIndex];
+    if (geometryHandle) {
+      delete this._sceneGeometries[geometryHandle.geometryIndex];
+    }
     delete this._sceneMeshes[meshIndex];
 
     this._numMeshes--;
@@ -883,7 +894,8 @@ export class GPUMemoryBatch {
   }
 
   _getFreeMeshIndex(): number {
-    for (let i = this._lastFreeMeshIndex; ; i = (i + 1) % MAX_MESHES) {
+    const maxMeshes = this._renderContext.memoryConfigs.maxBatchMeshes;
+    for (let i = this._lastFreeMeshIndex; ; i = (i + 1) % maxMeshes) {
       if (!this._meshIndicesUsed[i]) {
         this._meshIndicesUsed[i] = true;
         return i;
@@ -899,7 +911,8 @@ export class GPUMemoryBatch {
   }
 
   _getFreeGeometryIndex(): number {
-    for (let i = this._lastFreeGeometryIndex; ; i = (i + 1) % MAX_GEOMETRIES) {
+    const maxGeometries = this._renderContext.memoryConfigs.maxBatchGeometries;
+    for (let i = this._lastFreeGeometryIndex; ; i = (i + 1) % maxGeometries) {
       if (!this._geometryIndicesUsed[i]) {
         this._geometryIndicesUsed[i] = true;
         return i;
@@ -930,7 +943,8 @@ export class GPUMemoryBatch {
     didFlush = this._vertexPositionTexture.uploadChanges() || didFlush;
     didFlush = this._vertexColorTexture.uploadChanges() || didFlush;
     didFlush = this._meshMatrixTexture.uploadChanges() || didFlush;
-    for (let i = 0; i < 4; i++) {
+    const numViews = this._renderContext.memoryConfigs.maxViews;
+    for (let i = 0; i < numViews; i++) {
       const primitiveMeshIndexTexture = this._primitiveMeshIndexTexture[i];
       if (primitiveMeshIndexTexture) {
         const primitiveMeshIndexTextureFlushed = primitiveMeshIndexTexture.uploadChanges();
@@ -989,6 +1003,7 @@ export class GPUMemoryBatch {
     this._meshAttributeTexture = clear(this._meshAttributeTexture);
     this._meshViewAttributeTexture = this._meshViewAttributeTexture.map(clear);
     this._geometryAttributeTexture = clear(this._geometryAttributeTexture);
+    this._geometryQuantRangeTexture = clear(this._geometryQuantRangeTexture);
     this._indexTexture = clear(this._indexTexture);
     this._edgeIndexTexture = clear(this._edgeIndexTexture);
     this._vertexPositionTexture = clear(this._vertexPositionTexture);

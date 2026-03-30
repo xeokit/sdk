@@ -53,9 +53,10 @@ interface ParsingContext {
   meshIds: any;
   meshIdsStack: string[];
   objectIdStack: string[];
+  options: any;
 }
 
-function parseGLTF(params: ModelLoadParams): Promise<any> {
+function parseGLTF(params: ModelLoadParams, options: any): Promise<any> {
   return new Promise<void>(function (resolve, reject) {
     const {fileData, sceneModel, dataModel} = params;
     if (!sceneModel && !dataModel) {
@@ -73,7 +74,8 @@ function parseGLTF(params: ModelLoadParams): Promise<any> {
         nextId: 0,
         errors: [],
         dataModel,
-        sceneModel
+        sceneModel,
+        options: options || {}
       };
       if (parseTextures(ctx)
         && parseMaterials(ctx)
@@ -455,7 +457,8 @@ const parseNodesWithoutNames = (function () {
       if (meshIds && meshIds.length > 0) {
         const result = ctx.sceneModel.createObject({
           id: objectId,
-          meshIds
+          meshIds,
+          layerId: ctx.options.layerId
         });
         if (result.ok === false) {
           ctx.errors.push(`[GLTFLoader.load] Failed to create SceneObject -> ${result.error}`);

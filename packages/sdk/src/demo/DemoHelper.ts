@@ -1,8 +1,8 @@
-import {Scene, type SceneModelStats} from "../scene";
-import {Data, type DataModelStats} from "../data";
-import {type PickParams, type PickResult, View, Viewer} from "../viewer";
+import {Scene, SceneModel, type SceneModelStats} from "../scene";
+import {Data, DataModel, type DataModelStats} from "../data";
+import {type PickParams, type PickResult, View, Viewer, ViewObject, type ViewParams} from "../viewer";
 import {type MemoryUsage, WebGLRenderer} from "../webglrenderer";
-import {EventsLogger, getGlobalTaskRunner, type SDKResult, SDKTask} from "../core";
+import {EventsLogger, getGlobalTaskRunner, sdkProgress, type SDKResult, SDKTask} from "../core";
 import {SceneAABB3Index} from "../collision/aabb";
 import {CameraFlightAnimation} from "../cameraflight";
 import {type RenderStats} from "../webglrenderer/internal/inspectors";
@@ -20,6 +20,24 @@ import {DataTexturesPanel} from "./inspectors/DataTexturesPanel";
 import {TilesPanel} from "./inspectors/TilesPanel";
 import {ViewerPanel} from "./inspectors/ViewerPanel";
 import {DownloadPanel} from "./inspectors/DownloadPanel";
+import {createUUID} from "../utils";
+import {
+  CanvasContextMenu,
+  type CanvasContextMenuContext,
+  ViewObjectContextMenu,
+  type ViewObjectContextMenuContext
+} from "./ViewObjectContextMenu";
+import {XGFLoader} from "../formats/xgf";
+import {IFCLoader} from "../formats/ifc";
+import {MetaModelLoader} from "../formats/metamodel";
+import {DataModelParamsLoader} from "../formats/datamodel";
+import {GLTFLoader} from "../formats/gltf";
+import {SceneModelParamsLoader} from "../formats/scenemodel";
+import {MTLLoader} from "../formats/mtl";
+import {DotBIMLoader} from "../formats/dotbim";
+import {OBJLoader} from "../formats/obj";
+import {CityJSONLoader} from "../formats/cityjson";
+import {LoadingSpinner} from "./LoadingSpinner";
 
 const taskRunner = getGlobalTaskRunner();
 
@@ -27,10 +45,29 @@ const taskRunner = getGlobalTaskRunner();
  * Configuration options for the DemoHelper.
  */
 export interface DemoHelperConfig {
-  makeView?: boolean;
+
+  /**
+   * Base directory for loading models, relative to the HTML page. Defaults to `"../../models"`.
+   */
+  modelsDir?: string;
+
+  /**
+   * The maximum number of views to create. This is used to configure the WebGLRenderer's memory management,
+   * and also limits the number of views that can be created via `createView()`. Defaults to `4`.
+   */
   maxViews?: number;
+
+
   makeComponents?: boolean;
+
+  /**
+   * Whether to set up event loggers for the Scene, Data, Viewer, and WebGLRenderer. Defaults to `false`.
+   * These loggers will log their output to the console, and do slow down the demo, so they should only
+   * be enabled when needed for debugging.
+   */
   logging?: boolean;
+
+
   showOverlayButton?: boolean;
 }
 
@@ -40,6 +77,11 @@ export interface DemoHelperConfig {
  * See {@link demo | @xeokit/sdk/demo} for usage.
  */
 export class DemoHelper {
+
+  /**
+   * Base directory for loading models, relative to the HTML page.
+   */
+  public modelsDir: string = "../../models";
 
   /**
    * The Scene created by the DemoHelper. Holds all 3D objects.
@@ -67,89 +109,56 @@ export class DemoHelper {
   public renderer: WebGLRenderer;
 
   /**
-   * The View created by the DemoHelper.
+   * Tracks created Views by their IDs, along with their associated CameraFlightAnimation and ViewController.
    */
-  public view: View;
-
-  /**
-   * The CameraFlightAnimation for the View.
-   */
-  public cameraFlight: CameraFlightAnimation;
-
-  /**
-   * The ViewController for the View, allowing user interaction with the camera.
-   */
-  public viewController: ViewController;
+  public views: {
+    [viewId: string]: {
+      view: View;
+      cameraFlight: CameraFlightAnimation;
+      viewController: ViewController;
+    };
+  };
 
   /**
    * The maximum number of views to create.
    */
   public maxViews: number;
 
-  /**
-   * A progress bar for loading operations, which you can use in your demo code to show loading progress.
-   */
-  //public loadingProgressBar = new LoadingProgressBar();
-
-  // /**
-  //  * A inspectors for building demo models with a fluent API. You can use this in your demo code to create models in the scene and data.
-  //  */
-  // public builder: DemoBuilder;
-
-  private makeView: boolean;
   private makeComponents: boolean;
   private showOverlayButton: boolean;
   private overlayButton: HTMLButtonElement | null = null;
- // private overlayDiv: HTMLDivElement | null = null;
   private inspectorVisible: boolean = false;
   private inspectorFlowHost: HTMLDivElement;
 
   private eventsLog: any[];
 
   /**
+   * Root layout container for auto-created canvases.
+   */
+  private _viewLayoutContainer: HTMLDivElement | null = null;
+
+  /**
+   * Tracks auto-created canvases by view ID.
+   */
+  private _autoCanvasByViewId: { [viewId: string]: HTMLImageElement } = {};
+
+  private _viewObjectContextMenu: ViewObjectContextMenu;
+
+  private _canvasContextMenu: CanvasContextMenu;
+
+  private _loadingSpinner: LoadingSpinner;
+
+  /**
    * Statistics about the demo, available after calling `finished()`.
    */
   public stats: {
-
-    /**
-     * 3D axis-aligned bounding box (AABB) that
-     * encloses all objects in the Scene.
-     */
     aabb: number[];
-
-    /**
-     * The time at which the demo initialization started.
-     */
     startTime: number;
-
-    /**
-     * The time at which the demo initialization ended.
-     */
     endTime: number;
-
-    /**
-     * The total time taken for demo initialization, in milliseconds.
-     */
     elapsedTime: number;
-
-    /**
-     * The combined statistics of all SceneModels in the Scene.
-     */
     scene: SceneModelStats;
-
-    /**
-     * Combined statistics of all DataModels in the Data.
-     */
     data: DataModelStats;
-
-    /**
-     * Memory usage statistics of the WebGLRenderer.
-     */
     memory: MemoryUsage;
-
-    /**
-     * Statistics about the most recently rendered frame.
-     */
     renderer: RenderStats;
   };
 
@@ -158,10 +167,12 @@ export class DemoHelper {
    * @param cfg
    */
   constructor(cfg: DemoHelperConfig = {}) {
-    this.makeView = cfg.makeView !== false;
+    if (cfg.modelsDir) {
+      this.modelsDir = cfg.modelsDir;
+    }
     this.makeComponents = cfg.makeComponents !== false;
     this.showOverlayButton = cfg.showOverlayButton !== false;
-    this.maxViews = cfg.maxViews ?? 1;
+    this.maxViews = cfg.maxViews ?? 4;
     this.stats = {
       startTime: 0,
       endTime: 0,
@@ -176,12 +187,13 @@ export class DemoHelper {
   }
 
   /**
-   * Initializes the DemoHelper by creating the Scene, Data, Viewer, WebGLRenderer, and View.
+   * Initializes the DemoHelper by creating the Scene, Data, Viewer, WebGLRenderer, and optional initial View.
    *
    * @param cfg Configuration options for initialization.
    * @returns A promise that resolves when initialization is complete.
    */
   public init(cfg: DemoHelperConfig = {}): Promise<any> {
+
     return new Promise((resolve, reject) => {
 
       this.stats.startTime = performance.now();
@@ -195,35 +207,40 @@ export class DemoHelper {
         this.viewer = new Viewer();
 
         this.renderer = new WebGLRenderer({
+          // memoryConfigs: {
+          //   maxViews: this.maxViews ?? (cfg.maxViews ?? 1),
+          //   tileSize: 200,
+          //   maxTiles: 2000,
+          //   maxBatches: 300,
+          //   maxBatchVertices: 70000,
+          //   maxBatchIndices: 170000,
+          //   maxBatchGeometries: 10000,
+          //   maxBatchMeshes: 20000,
+          //   maxBatchPrims: 1000000
+          // }
           memoryConfigs: {
             maxViews: this.maxViews ?? (cfg.maxViews ?? 1),
             tileSize: 200,
             maxTiles: 2000,
             maxBatches: 300,
-            // Allow enough vertices and indices for large terrain meshes
-            maxBatchVertices: 500000,
-            maxBatchIndices:  700000,
+            maxBatchVertices: 100000,
+            maxBatchIndices: 100000,
             maxBatchGeometries: 10000,
             maxBatchMeshes: 10000,
-            maxBatchPrims:  1000000
+            maxBatchPrims: 100000
           }
         });
 
         const log = (eventName: string, sender: any, args: any) => {
-          //     this.eventsLog.push(`[${eventName}]`, { sender, args });
-          // console.log(`%c[${eventName}]`, "color: green;", { sender, args });
-          // console.log(`%c[${eventName}]`, "color: grey;", { sender, args });
-          // console.log(`%c[${eventName}]`, "color: red;", { sender, args });
-          // console.error(`%c[${eventName}]`, "color: red;", { sender, args });
-          // console.warn(`%c[${eventName}]`, "color: orange;", { sender, args });
+          console.log(`[${sender.constructor.name.padEnd(14)}] ${eventName}`, args);
         };
 
-        // if (cfg.logging) {
-        //   new EventsLogger(this.scene.events, {prefix: "[Scene        ]", log});
-        //   new EventsLogger(this.data.events, {prefix: "[Data         ]", log});
-        //   new EventsLogger(this.viewer.events, {prefix: "[Viewer       ]", log});
-        //   new EventsLogger(this.renderer.events, {prefix: "[WebGLRenderer]", log});
-        // }
+        if (cfg.logging) {
+          new EventsLogger(this.scene.events, {prefix: "[Scene        ]", log});
+          new EventsLogger(this.data.events, {prefix: "[Data         ]", log});
+          new EventsLogger(this.viewer.events, {prefix: "[Viewer       ]", log});
+          new EventsLogger(this.renderer.events, {prefix: "[WebGLRenderer]", log});
+        }
 
         const onError = (_, result: SDKResult<any>) => {
           setInterval(() => {
@@ -245,29 +262,7 @@ export class DemoHelper {
         this.viewer.attachScene(this.scene);
         this.renderer.attachViewer(this.viewer);
 
-        if (this.makeView) {
-          const viewResult = this.viewer.createView({
-            id: "mainView",
-            elementId: "demoCanvas",
-            backgroundColor: [0, 0, 0]
-          });
-
-          if (viewResult.ok === false) {
-            reject(viewResult.error);
-            return;
-          }
-
-          this.view = viewResult.value;
-
-          this.cameraFlight = new CameraFlightAnimation(this.view);
-
-          this.viewController = new ViewController(this.view, {
-            pick: (view:View, pickParams:PickParams):SDKResult<PickResult> => {
-              // ViewController performs GPU-accelerated picking via the renderer
-              return this.renderer.pick(this.view, pickParams);
-            }
-          });
-        }
+        this.views = {};
 
         const renderInspectorResult = this.renderer.getRenderInspector();
         if (renderInspectorResult.ok !== true) {
@@ -277,8 +272,51 @@ export class DemoHelper {
         const renderInspector = renderInspectorResult.value;
         renderInspector.enabled = true;
 
+        this._viewObjectContextMenu = new ViewObjectContextMenu({
+        });
 
-      //  this.builder = new DemoBuilder(this.scene, this.data);
+        this._canvasContextMenu = new CanvasContextMenu({
+        });
+
+        this._canvasContextMenu.on("hidden", () => {
+          taskRunner.unsuspend();
+        });
+
+        this._viewObjectContextMenu.on("hidden", () => {
+          taskRunner.unsuspend();
+        });
+
+        this._loadingSpinner = new LoadingSpinner({
+          autoHide: true,
+          autoHideDelayMs: 500
+        });
+
+        sdkProgress.addTask(); // Init
+
+        // const dimensionsModelResult = this.scene.createModel({
+        //   id: "autoDimensionsModel"
+        // });
+        //
+        // if (dimensionsModelResult.ok === false) {
+        //   throw new Error(dimensionsModelResult.error);
+        // }
+        //
+        // const dimensionsModel = dimensionsModelResult.value;
+        //
+        // const autoDimensions = new AutoDimensions({
+        //   sceneModel: dimensionsModel,
+        //   scene: this.scene,
+        //   data: this.data,
+        //   aabb3index: this.aabb3Index,
+        //   color: [1.0, 1.0, 1.0],
+        //   offset: 1.55,
+        //   extensionOvershoot: 0.35,
+        //   includedDataObjectTypes: ["Wall", "Door", "Window", "IfcWall", "IfcDoor", "IfcWindow"],
+        //   tickSize: 0.12,
+        //   autoUpdate: true,
+        //   plane: "XY",
+        //   planeGap: 0
+        // });
 
         // @ts-ignore
         window.demoHelper = this;
@@ -288,6 +326,436 @@ export class DemoHelper {
         resolve({});
       }
     });
+  }
+
+  /**
+   * Loads a model into the Scene and/or Data layers using a format-specific loader.
+   *
+   * This method:
+   * - Resolves or creates {@link SceneModel} and {@link DataModel} instances when not provided
+   * - Fetches model data from `params.src` or a default path derived from `modelId`
+   * - Selects the appropriate loader based on `params.format`
+   * - Delegates parsing and population to the corresponding loader implementation
+   *
+   * Supported formats:
+   * - `"xgf"` → {@link XGFLoader} (binary)
+   * - `"ifc"` → {@link IFCLoader} (binary)
+   * - `"gltf"` → {@link GLTFLoader} (binary, `.glb`)
+   * - `"metamodel"` → {@link MetaModelLoader} (JSON, data-only)
+   * - `"datamodel"` → {@link DataModelParamsLoader} (JSON, data-only)
+   * - `"scenemodel"` → {@link SceneModelParamsLoader} (JSON, scene-only)
+   *
+   * Default source resolution:
+   * If `params.src` is not provided, the source path is inferred as:
+   * `../../models/{modelId}/{format}/model.{ext}`
+   *
+   * Model creation behavior:
+   * - If `sceneModel` is not provided, a new one is created via `this.scene.createModel()`
+   * - If `dataModel` is not provided, a new one is created via `this.data.createModel()`
+   * - Created model IDs are derived from `modelId` when available
+   *
+   * @param params - Configuration for loading the model
+   * @param params.src - Optional explicit source URL/path for the model file
+   * @param params.modelId - Optional identifier used for default paths and generated model IDs
+   * @param params.format - Model format determining which loader to use
+   * @param params.dataModel - Optional existing {@link DataModel} to populate
+   * @param params.sceneModel - Optional existing {@link SceneModel} to populate
+   *
+   * @param options - Loader-specific options passed through to the underlying loader
+   *
+   * @returns A promise resolving to an {@link SDKResult} containing the loader result
+   *
+   * @throws Error
+   * - If model creation fails
+   * - If the format is unsupported
+   * - If fetching or parsing the model data fails
+   */
+  async loadModel(
+    params: {
+      src?: string;
+      modelId?: string;
+      format: string;
+      dataModel?: DataModel;
+      sceneModel?: SceneModel;
+    },
+    options: any
+  ): Promise<SDKResult<any>> {
+    const getSceneModel = () => {
+      if (params.sceneModel) {
+        return params.sceneModel;
+      }
+      const result = this.scene.createModel({
+        id: params.modelId ? `${params.modelId}-scene` : undefined
+      });
+      if (result.ok === false) {
+        throw new Error(result.error);
+      }
+      return result.value;
+    };
+
+    const getDataModel = () => {
+      if (params.dataModel) {
+        return params.dataModel;
+      }
+      const result = this.data.createModel({
+        id: params.modelId ? `${params.modelId}-data` : undefined
+      });
+      if (result.ok===false) {
+        throw new Error(result.error);
+      }
+      return result.value;
+    };
+
+    const loadArrayBuffer = async (src: string) => {
+      const response = await fetch(src);
+      return response.arrayBuffer();
+    };
+
+    const loadJSON = async (src: string) => {
+      const response = await fetch(src);
+      return response.json();
+    };
+
+    const loadText = async (src: string) => {
+      const response = await fetch(src);
+      return response.text();
+    };
+
+    switch (params.format) {
+      case "xgf": {
+        const fileData = await loadArrayBuffer(
+          params.src || `../../models/${params.modelId}/xgf/model.xgf`
+        );
+        return new XGFLoader().load(
+          {
+            fileData,
+            sceneModel: getSceneModel()
+          },
+          options
+        );
+      }
+
+      case "ifc": {
+        const fileData = await loadArrayBuffer(
+          params.src || `../../models/${params.modelId}/ifc/model.ifc`
+        );
+
+        return new IFCLoader().load(
+          {
+            fileData,
+            sceneModel: getSceneModel(),
+            dataModel: getDataModel()
+          },
+          options
+        );
+      }
+
+      case "gltf": {
+        const fileData = await loadArrayBuffer(
+          params.src || `../../models/${params.modelId}/gltf/model.glb`
+        );
+
+        return new GLTFLoader().load(
+          {
+            fileData,
+            sceneModel: getSceneModel()
+          },
+          options
+        );
+      }
+
+      case "mtl": {
+          const fileData = await loadText(
+            params.src || `../../models/${params.modelId}/mtl/model.mtl`
+          );
+
+          return new MTLLoader().load(
+            {
+              fileData,
+              sceneModel: getSceneModel()
+            },
+            options
+          );
+      }
+
+      case "obj": {
+          const fileData = await loadText(
+            params.src || `../../models/${params.modelId}/obj/model.obj`
+          );
+
+          return new OBJLoader().load(
+            {
+              fileData,
+              sceneModel: getSceneModel()
+            },
+            options
+          );
+      }
+
+      case "dotbim": {
+          const fileData = await loadArrayBuffer(
+            params.src || `../../models/${params.modelId}/dotbim/model.bim`
+          );
+
+          return new DotBIMLoader().load(
+            {
+              fileData,
+              sceneModel: getSceneModel(),
+              dataModel: getDataModel()
+            },
+            options
+          );
+      }
+
+      case "cityjson": {
+        const fileData = await loadJSON(
+          params.src || `../../models/${params.modelId}/cityjson/model.json`
+        );
+
+        return new CityJSONLoader().load(
+          {
+            fileData,
+            sceneModel: getSceneModel(),
+            dataModel: getDataModel()
+          },
+          options
+        );
+      }
+
+      case "metamodel": {
+        const fileData = await loadJSON(
+          params.src || `../../models/${params.modelId}/metamodel/model.json`
+        );
+
+        return new MetaModelLoader().load(
+          {
+            fileData,
+            dataModel: getDataModel()
+          },
+          options
+        );
+      }
+
+      case "datamodel": {
+        const fileData = await loadJSON(
+          params.src || `../../models/${params.modelId}/datamodel/model.json`
+        );
+
+        return new DataModelParamsLoader().load(
+          {
+            fileData,
+            dataModel: getDataModel()
+          },
+          options
+        );
+      }
+
+      case "scenemodel": {
+        const fileData = await loadJSON(
+          params.src || `../../models/${params.modelId}/scenemodel/model.json`
+        );
+
+        return new SceneModelParamsLoader().load(
+          {
+            fileData,
+            sceneModel: getSceneModel()
+          },
+          options
+        );
+      }
+
+      default:
+        throw new Error(`Unsupported model format: ${params.format}`);
+    }
+  }
+  /**
+   * Creates a new View in the Viewer.
+   *
+   * When `viewParams.elementId` and `viewParams.htmlElement` are omitted,
+   * this method auto-creates a canvas element, passes it to `viewer.createView`,
+   * and lays it out snugly with other auto-created canvases inside the window.
+   *
+   * Auto-created canvases are given `z-index: 100000`.
+   *
+   * The first View created becomes the DemoHelper's primary `view`, and gets
+   * a `CameraFlightAnimation` and `ViewController`.
+   *
+   * @param viewParams Parameters for the View.
+   * @returns The created View.
+   */
+  createView(viewParams: ViewParams = {}): View {
+
+    if (!this.viewer) {
+      throw new Error("Viewer not initialized");
+    }
+
+    const resolvedViewParams: ViewParams = {
+      id: viewParams.id || createUUID(),
+      backgroundColor: [0,0,0],
+      transparent: false,
+      ...viewParams
+    };
+
+    const hasExplicitElement = !!(resolvedViewParams.elementId || resolvedViewParams.htmlElement);
+
+    let autoCreatedCanvas: HTMLImageElement | null = null;
+    let viewId = resolvedViewParams.id;
+
+    if (!hasExplicitElement) {
+      this._ensureViewLayoutContainer();
+
+      autoCreatedCanvas = document.createElement("img");
+      autoCreatedCanvas.id = viewId ? `${viewId}-canvas` : `demohelper-canvas-${this.viewer.numViews}`;
+      autoCreatedCanvas.style.display = "block";
+      autoCreatedCanvas.style.width = "100%";
+      autoCreatedCanvas.style.height = "100%";
+      autoCreatedCanvas.style.minWidth = "0";
+      autoCreatedCanvas.style.minHeight = "0";
+      autoCreatedCanvas.style.margin = "0";
+      autoCreatedCanvas.style.padding = "0";
+      autoCreatedCanvas.style.border = "1px solid white";
+      autoCreatedCanvas.style.outline = "none";
+      autoCreatedCanvas.style.boxSizing = "border-box";
+      autoCreatedCanvas.style.background = "black";
+      autoCreatedCanvas.style.position = "relative";
+      autoCreatedCanvas.style.pointerEvents = "auto";
+      autoCreatedCanvas.style.userSelect = "none";
+      autoCreatedCanvas.draggable = false;
+      //autoCreatedCanvas.style.zIndex = "1";
+
+      this._viewLayoutContainer!.appendChild(autoCreatedCanvas);
+
+      // @ts-ignore
+      resolvedViewParams.htmlElement = autoCreatedCanvas ;
+      delete (resolvedViewParams as any).elementId;
+    }
+
+    const result = this.viewer.createView(resolvedViewParams);
+
+    if (result.ok === false) {
+      if (autoCreatedCanvas?.parentElement) {
+        autoCreatedCanvas.parentElement.removeChild(autoCreatedCanvas);
+      }
+      throw new Error(result.error);
+    }
+
+    const view = result.value;
+
+    if (autoCreatedCanvas) {
+      this._autoCanvasByViewId[view.id] = autoCreatedCanvas;
+      autoCreatedCanvas.setAttribute("data-view-id", view.id);
+      autoCreatedCanvas.id = `${view.id}-canvas`;
+      this._updateAutoCanvasLayout();
+    }
+
+    const cameraFlight = new CameraFlightAnimation(view);
+
+    this.views[view.id] = {
+      view,
+      cameraFlight,
+      viewController: new ViewController(view, {
+        pick: (view: View, pickParams: PickParams): SDKResult<PickResult> => {
+          return this.renderer.pick(view, pickParams);
+        }
+      })
+    };
+
+    // Attach a mouse click listener to the View's canvas, and show our ContextMenu
+    // when the user right-clicks on an object in the View.
+
+    const tryPick = (view, e) => {
+
+      const result = this.renderer.pick(view, {
+        canvasPos: [e.offsetX, e.offsetY]
+      });
+
+      if (result) {
+        if (result.ok) {
+          const pickResult = result.value;
+          if (pickResult && pickResult.viewObject) {
+
+            const viewObject = pickResult.viewObject;
+            const sceneModel = viewObject.sceneObject.model;
+            const dataModel = sceneModel ? this.data.models[sceneModel.id] : null;
+
+            this._viewObjectContextMenu.context = <ViewObjectContextMenuContext>{
+              view,
+              demoHelper: this,
+              renderer: this.renderer,
+              cameraFlight,
+              viewObject,
+              sceneModel,
+              dataModel,
+              aabb3index:  this.aabb3Index
+            };
+            this._viewObjectContextMenu.show(e.clientX, e.clientY);
+              taskRunner.suspend();
+          } else {
+            this._canvasContextMenu.context = <CanvasContextMenuContext>{
+              view,
+              demoHelper: this,
+              renderer: this.renderer,
+              cameraFlight,
+              sceneModel: this._getDefaultSceneModel(),
+              dataModel: this._getDefaultDataModel(),
+              aabb3index:  this.aabb3Index
+            };
+            this._canvasContextMenu.show(e.clientX, e.clientY);
+            taskRunner.suspend();
+          }
+        }
+      } else {
+
+        // TODO: Open empty canmvas menu
+
+        console.log("Nothing picked");
+      }
+    };
+
+    view.htmlElement.addEventListener("contextmenu", e => tryPick(view, e));
+    //this._viewLayoutContainer.addEventListener("contextmenu", e => tryPick(view, e));
+
+    return view;
+  }
+
+  /**
+   * Fits the camera of the given View to the Scene's AABB.
+   * @param view
+   */
+  viewFit(view: View) {
+    const viewData = this.views[view.id];
+    if (!viewData) {
+      throw new Error(`View with ID ${view.id} not found`);
+    }
+    const {cameraFlight} = viewData;
+    const aabb = this.aabb3Index.getSceneAABB();
+    if (aabb) {
+      cameraFlight.jumpTo({
+        aabb,
+        fitFOV: 45
+      });
+    }
+  }
+
+  /**
+   * Destroys a View created by `createView()`, removing its canvas if it was auto-created.
+   * @param view
+   */
+  destroyView(view: View) {
+    if (!this.viewer) {
+      throw new Error("Viewer not initialized");
+    }
+    const viewId = view.id;
+    if (this._autoCanvasByViewId[viewId]) {
+      const canvas = this._autoCanvasByViewId[viewId];
+      if (canvas.parentElement) {
+        canvas.parentElement.removeChild(canvas);
+      }
+      delete this._autoCanvasByViewId[viewId];
+      this._updateAutoCanvasLayout();
+    }
+    view.destroy();
+    delete this.views[viewId];
   }
 
   /**
@@ -301,138 +769,166 @@ export class DemoHelper {
   }
 
   /**
-   * Gets the overlay host div element.
-   * Attach your examples' inspectors panels to this div.
-   * @returns The HTMLDivElement for the overlay, or null if not created.
+   * Shows or hides the inspectors and keeps related UI state in sync.
+   *
+   * @param visible Whether inspectors should be visible.
+   * @param view Optional active view whose pointer-events should be updated.
    */
-  // public getOverlayHostDiv(): HTMLDivElement | null {
-  //   return this.overlayDiv;
-  // }
+  private _setInspectorVisible(visible: boolean, view?: View | null): void {
+    this.inspectorVisible = visible;
+
+    if (this.inspectorFlowHost) {
+      this.inspectorFlowHost.style.display = visible ? "flex" : "none";
+    }
+
+    if (view?.htmlElement) {
+      view.htmlElement.style.pointerEvents = visible ? "none" : "all";
+    }
+
+    if (visible) {
+      taskRunner.suspend();
+    } else {
+      taskRunner.unsuspend();
+    }
+
+    this._updateInspectorButton();
+  }
 
   /**
+   * Updates the inspector toggle button label and visual state.
+   */
+  private _updateInspectorButton(): void {
+    if (!this.overlayButton) {
+      return;
+    }
+
+    const isOpen = this.inspectorVisible;
+    this.overlayButton.innerHTML =
+      `<span style="vertical-align: middle;">${isOpen ? "Close Inspectors" : "Open Inspectors"}</span>`;
+    this.overlayButton.classList.toggle("demohelper-open", isOpen);
+  }
+
+  /**
+   * Gets the primary view used by the inspector panels.
    *
+   * @returns The first available view, or `undefined` when none exist.
+   */
+  private _getInspectorView(): View | undefined {
+    return this.viewer?.viewList?.[0];
+  }
+
+  /**
+   * Gets a default scene model for canvas-level actions.
+   *
+   * @returns The first available scene model, or `undefined` when none exist.
+   */
+  private _getDefaultSceneModel(): SceneModel | undefined {
+    for (const modelId in this.scene.models) {
+      return this.scene.models[modelId];
+    }
+    return undefined;
+  }
+
+  /**
+   * Gets a default data model for canvas-level actions.
+   *
+   * @returns The first available data model, or `undefined` when none exist.
+   */
+  private _getDefaultDataModel(): DataModel | undefined {
+    for (const modelId in this.data.models) {
+      return this.data.models[modelId];
+    }
+    return undefined;
+  }
+
+  /**
+   * Toggles the visibility of the floating inspector panels.
    */
   public toggleInspector(): void {
 
-   // console.log(this.eventsLog);
+    const view = this._getInspectorView();
+
+    if (!view) {
+      console.warn("No views available to inspect");
+      return;
+    }
 
     if (this.inspectorVisible) {
-
-      this.inspectorFlowHost.style.display = "none";
-      this.inspectorVisible = false;
-      this.view.htmlElement.style.pointerEvents = "all";
-
-      taskRunner.unsuspend();
-
+      this._setInspectorVisible(false, view);
       return;
-
-    } else {
-
-      const view = this.viewer.viewList[0];
-
-      if (!this.inspectorFlowHost) {
-
-
-        this.inspectorFlowHost = FloatingPanelFlowHost.getOrCreate({
-          corner: "top-right",
-          marginTopPx: 65,
-          zIndex: 100000,
-          maxWidth: 2000,       // max width for the whole overlay area
-          tileMinWidth: 800,    // per-panel min width
-        });
-
-        DownloadPanel.show(this.inspectorFlowHost, this.scene, this.data);
-
-        GPUMemoryConfigsPanel.show(this.inspectorFlowHost, this.renderer.getMemoryConfigs());
-
-        GPUMemoryUsagePanel.show(this.inspectorFlowHost, this.renderer.getMemoryUsage());
-
-        ScenePanel.show(this.inspectorFlowHost, this.scene, {});
-
-        DataPanel.show(this.inspectorFlowHost, this.data, {});
-
-        const shaderInspectorResult = this.renderer.getShaderInspector();
-        if (shaderInspectorResult.ok) {
-          ShadersPanel.show(this.inspectorFlowHost, shaderInspectorResult.value);
-        }
-
-        const renderInspectorResult = this.renderer.getRenderInspector();
-        if (renderInspectorResult.ok) {
-          RendererPanel.show(this.inspectorFlowHost, this.renderer);
-          const renderInspector = renderInspectorResult.value;
-          const renderStats = renderInspector.renderStats;
-          TilesPanel.show(this.inspectorFlowHost, renderStats);
-        }
-
-        TaskPanel.show(this.inspectorFlowHost, taskRunner, {});
-
-        if (view) {
-          BoundariesPanel.show(this.inspectorFlowHost, view, this.aabb3Index, {});
-        }
-
-        const memoryInspectorResult = this.renderer.getMemoryInspector();
-        if (memoryInspectorResult.ok) {
-          const memoryInspector = memoryInspectorResult.value;
-          const dataTextures = memoryInspector.dataTextures;
-          DataTexturesPanel.show(this.inspectorFlowHost, dataTextures);
-        }
-
-        const viewerParamsResult = this.viewer.toParams();
-        if (viewerParamsResult.ok) {
-          const viewerParams = viewerParamsResult.value;
-         ViewerPanel.show(this.inspectorFlowHost, viewerParams);
-        }
-      }
-
-      this.inspectorFlowHost.style.display = "flex";
-      if (view) {
-        view.htmlElement.style.pointerEvents = "none";
-      }
-      this.inspectorVisible = true;
-
-      taskRunner.suspend();
     }
-  }
 
-  /**
-   * Moves the camera to fit the entire scene within the view.
-   */
-  public viewFit(): void {
-    if (this.cameraFlight) {
-      this.cameraFlight.jumpTo({
-        aabb: this.aabb3Index.getSceneAABB(),
-         fitFOV: 40
+    if (!this.inspectorFlowHost) {
+
+      this.inspectorFlowHost = FloatingPanelFlowHost.getOrCreate({
+        corner: "top-right",
+        marginTopPx: 65,
+        zIndex: 100000,
+        maxWidth: 2000,
+        tileMinWidth: 800,
       });
-    }
-  }
 
-  /**
-   * Orbits the camera around the scene.
-   */
-  public orbit(): void {
-    new SDKTask({
-      name: "Orbit Camera",
-      repeat: true,
-      stage: SDKTask.CollectInputStage,
-      task: () => {
-        if (this.view) {
-          this.view.camera.orbitYaw(-0.5);
-        }
+      DownloadPanel.show(this.inspectorFlowHost, this.scene, this.data);
+
+      GPUMemoryConfigsPanel.show(this.inspectorFlowHost, this.renderer.getMemoryConfigs());
+
+      GPUMemoryUsagePanel.show(this.inspectorFlowHost, this.renderer.getMemoryUsage());
+
+      ScenePanel.show(this.inspectorFlowHost, this.scene, {});
+
+      DataPanel.show(this.inspectorFlowHost, this.data, {});
+
+      const shaderInspectorResult = this.renderer.getShaderInspector();
+      if (shaderInspectorResult.ok) {
+        ShadersPanel.show(this.inspectorFlowHost, shaderInspectorResult.value);
       }
-    });
+
+      const renderInspectorResult = this.renderer.getRenderInspector();
+      if (renderInspectorResult.ok) {
+        RendererPanel.show(this.inspectorFlowHost, this.renderer);
+        const renderInspector = renderInspectorResult.value;
+        const renderStats = renderInspector.renderStats;
+        TilesPanel.show(this.inspectorFlowHost, renderStats);
+      }
+
+      TaskPanel.show(this.inspectorFlowHost, taskRunner, {});
+
+      if (view) {
+        BoundariesPanel.show(this.inspectorFlowHost, view, this.aabb3Index, {});
+      }
+
+      const memoryInspectorResult = this.renderer.getMemoryInspector();
+      if (memoryInspectorResult.ok) {
+        const memoryInspector = memoryInspectorResult.value;
+        const dataTextures = memoryInspector.dataTextures;
+        DataTexturesPanel.show(this.inspectorFlowHost, dataTextures);
+      }
+
+      const viewerParamsResult = this.viewer.toParams();
+      if (viewerParamsResult.ok) {
+        const viewerParams = viewerParamsResult.value;
+        ViewerPanel.show(this.inspectorFlowHost, viewerParams);
+      }
+    }
+
+    this._setInspectorVisible(true, view);
   }
 
   /**
    * Finalizes the demo setup, gathering statistics and signaling completion.
    */
   public finished(): void {
+
     this._createOverlayButton();
+
     const stats = this.stats;
+
     stats.scene = this._getCombinedSceneModelStats();
     stats.data = this._getCombinedDataModelStats();
     stats.aabb = Array.from(this.aabb3Index.getSceneAABB());
     stats.endTime = performance.now();
     stats.elapsedTime = stats.endTime - (stats.startTime ?? stats.endTime);
+
     if (this.renderer) {
       stats.renderer = {
         tiles: {},
@@ -446,7 +942,6 @@ export class DemoHelper {
       }
     }
 
-    // if (window.location.search.includes("visualTest=true") || (window as any).xeokitVisualTest) {
     setInterval(() => {
       window.postMessage({
         type: "xeokit.visualTestJson",
@@ -456,14 +951,82 @@ export class DemoHelper {
       }, "*");
     }, 1000);
 
+    sdkProgress.completeTask();
+
     this.signalFinished();
-    // }
   }
 
   private signalFinished(): void {
     const div = document.createElement("div");
     div.id = "ExampleLoaded";
     document.body.appendChild(div);
+  }
+
+  private _ensureViewLayoutContainer(): HTMLDivElement {
+    if (typeof document === "undefined") {
+      throw new Error("Document is not available");
+    }
+
+    if (this._viewLayoutContainer) {
+      return this._viewLayoutContainer;
+    }
+
+    const container = document.createElement("div");
+    container.id = "xeokit-demohelper-view-layout";
+    container.style.position = "absolute";
+    container.style.left = "0";
+    container.style.top = "0";
+    container.style.width = "100vw";
+    container.style.height = "100vh";
+    container.style.display = "grid";
+    container.style.gridAutoFlow = "row";
+    container.style.margin = "0";
+    container.style.padding = "0";
+    container.style.gap = "0";
+    container.style.boxSizing = "border-box";
+    container.style.overflow = "hidden";
+    //container.style.zIndex = "100000";
+    container.style.pointerEvents = "auto";
+    container.style.background = "transparent";
+
+    document.body.appendChild(container);
+    this._viewLayoutContainer = container;
+
+    const relayout = () => {
+      this._updateAutoCanvasLayout();
+    };
+
+    window.addEventListener("resize", relayout);
+
+    return container;
+  }
+
+  private _updateAutoCanvasLayout(): void {
+    if (!this._viewLayoutContainer) {
+      return;
+    }
+
+    const numCanvases = Object.keys(this._autoCanvasByViewId).length;
+
+    if (numCanvases <= 0) {
+      this._viewLayoutContainer.style.gridTemplateColumns = "";
+      this._viewLayoutContainer.style.gridTemplateRows = "";
+      return;
+    }
+
+    const cols = Math.ceil(Math.sqrt(numCanvases));
+    const rows = Math.ceil(numCanvases / cols);
+
+    this._viewLayoutContainer.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+    this._viewLayoutContainer.style.gridTemplateRows = `repeat(${rows}, minmax(0, 1fr))`;
+    this._viewLayoutContainer.style.alignItems = "stretch";
+    this._viewLayoutContainer.style.justifyItems = "stretch";
+
+    for (const viewId in this._autoCanvasByViewId) {
+      const canvas = this._autoCanvasByViewId[viewId];
+      canvas.style.width = "100%";
+      canvas.style.height = "100%";
+    }
   }
 
   private _getCombinedSceneModelStats(): SceneModelStats {
@@ -518,7 +1081,6 @@ export class DemoHelper {
     return combinedStats;
   }
 
-
   private _createOverlayButton(): void {
 
     if (typeof document === "undefined") {
@@ -530,7 +1092,6 @@ export class DemoHelper {
     }
 
     const button = document.createElement("button");
-    button.innerHTML = `<span style="vertical-align: middle;">Open Inspectors</span>`;
     button.style.position = "fixed";
     button.style.top = "16px";
     button.style.right = "16px";
@@ -543,51 +1104,21 @@ export class DemoHelper {
     button.style.cursor = "pointer";
     button.style.fontSize = "16px";
     button.style.boxShadow = "0 2px 8px rgba(0,0,0,0.2)";
-    //  button.style.opacity = "0.85";
-    // button.style.transition = "background 0.2s, opacity 0.2s";
+
     button.onmouseenter = () => {
       button.style.background = "#ffff";
-      //    button.style.opacity = "1";
     };
+
     button.onmouseleave = () => {
       button.style.background = "#dedede";
-      //   button.style.opacity = "0.85";
     };
 
-    // const overlay = document.createElement("div");
-    // overlay.style.position = "fixed";
-    // overlay.style.paddingRight = "16px";
-    // overlay.style.paddingTop = "48px";
-    // overlay.style.top = "0";
-    // overlay.style.right = "0";
-    // overlay.style.width = "100%";
-    // overlay.style.height = "100%";
-    // overlay.style.background = "rgba(30, 30, 40, 0.97)";
-    // overlay.style.zIndex = "200000";
-    // overlay.style.display = "none";
-    // overlay.style.boxShadow = "2px 0 12px rgba(0,0,0,0.25)";
-    // overlay.style.overflowY = "auto";
-    // overlay.style.transition = "transform 0.2s";
-    // overlay.style.color = "#fff";
-    // overlay.style.fontFamily = "sans-serif";
-    // overlay.style.backdropFilter = "blur(4px)";
-
-    // Button click toggles overlay and caret
     button.onclick = () => {
       this.toggleInspector();
-      if (this.inspectorVisible) {
-        button.innerHTML = `<span style="vertical-align: middle;">Close Inspectors</span>`;
-        button.classList.add("demohelper-open");
-      } else {
-        button.innerHTML = `<span style="vertical-align: middle;">Open Inspectors</span>`;
-        button.classList.remove("demohelper-open");
-      }
     };
 
     document.body.appendChild(button);
-   // document.body.appendChild(overlay);
-
     this.overlayButton = button;
-   // this.overlayDiv = overlay;
+    this._updateInspectorButton();
   }
 }

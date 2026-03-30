@@ -62,6 +62,13 @@ export class SceneEvents {
   public readonly onSceneModelCreated: EventEmitter<Scene, SceneModel>;
 
   /**
+   * For each {@link SceneModel} with  {@link SceneModel.streamingEnabled | SceneModel.streamingEnabled} is enabled, emits an
+   * event each time the SceneModel is finalized within the {@link Scene}, indicating that the model is
+   * fully populated and ready for use.
+   */
+  public readonly onSceneModelFinalized: EventEmitter<Scene, SceneModel>;
+
+  /**
    * Emits an event each time a {@link SceneModel} is destroyed within the {@link Scene}.
    */
   public readonly onSceneModelDestroyed: EventEmitter<Scene, SceneModel>;
@@ -229,6 +236,7 @@ export class SceneEvents {
     this.onSceneCoordSystemScaleToMetersChanged = new EventEmitter(new EventDispatcher<Scene, CoordinateSystem>());
     this.onSceneCoordSystemUpdated = new EventEmitter(new EventDispatcher<Scene, CoordinateSystem>());
     this.onSceneModelCreated = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
+    this.onSceneModelFinalized = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
     this.onSceneModelDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
     this.onSceneModelCoordSystemBasisChanged = new EventEmitter(new EventDispatcher<SceneModel, CoordinateSystem>());
     this.onSceneModelCoordSystemOriginChanged = new EventEmitter(new EventDispatcher<SceneModel, CoordinateSystem>());
@@ -273,6 +281,7 @@ export class SceneEvents {
     this.onSceneCoordSystemScaleToMetersChanged.clear();
     this.onSceneCoordSystemUpdated.clear();
     this.onSceneModelCreated.clear();
+    this.onSceneModelFinalized.clear();
     this.onSceneModelDestroyed.clear();
     this.onSceneModelCoordSystemBasisChanged.clear();
     this.onSceneModelCoordSystemOriginChanged.clear();

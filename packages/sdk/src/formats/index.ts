@@ -88,4 +88,4 @@ export * from "./ModelLoadOptions";
 export * from "./ModelLoadParams";
 export * from "./ModelParseParams";
 export * from "./ModelParser";
-export {ModelExportOptions} from "./ModelExportOptions";
+export * from "./ModelExportOptions";

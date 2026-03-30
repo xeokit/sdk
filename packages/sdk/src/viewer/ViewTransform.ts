@@ -437,6 +437,8 @@ export class ViewTransform {
     for (const child of this._childTransforms) {
       child._updateGlobal(force);
     }
+
+    // TODO: update ViewObjects associated with this transform, if any
   }
 
   /**

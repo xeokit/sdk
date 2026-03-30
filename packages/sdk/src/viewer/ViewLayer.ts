@@ -448,13 +448,13 @@ class ViewLayer {
       const model = models[id];
       this._sceneModelCreated(model);
     }
-    const sceneEvents = this.viewer.scene.events;
-    sceneEvents.onSceneObjectCreated.subscribe((scene: Scene, sceneObject: SceneObject) => {
-      this._sceneObjectCreated(sceneObject);
-    });
-    sceneEvents.onSceneObjectDestroyed.subscribe((scene: Scene, sceneObject: SceneObject) => {
-      this._sceneObjectDestroyed(sceneObject);
-    });
+    // const sceneEvents = this.viewer.scene.events;
+    // sceneEvents.onSceneObjectCreated.subscribe((scene: Scene, sceneObject: SceneObject) => {
+    //   this._sceneObjectCreated(sceneObject);
+    // });
+    // sceneEvents.onSceneObjectDestroyed.subscribe((scene: Scene, sceneObject: SceneObject) => {
+    //   this._sceneObjectDestroyed(sceneObject);
+    // });
   }
 
   /**
@@ -479,6 +479,7 @@ class ViewLayer {
         this._numObjects++;
         this._objectIds = null; // Lazy regenerate
         this.view.viewer.events.onViewObjectCreated.dispatch(this.view, viewObject);
+        this.view.needsRender();
       }
     }
   }

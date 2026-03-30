@@ -435,10 +435,13 @@ export class ViewManager {
    * @returns {@link SDKResult} from the render call, or `ok:true` if the view is not registered, which is OK.
    */
   public viewUpdated(view: View): SDKResult<any> {
+
     const rendererView = this._rendererViews[view.id];
     if (!rendererView) {
       return { ok: true, value: undefined };
     }
+
+    this._gpuMemoryManager.uploadChanges();
 
     this._activateView(rendererView);
 
@@ -447,8 +450,41 @@ export class ViewManager {
       this._activeViewNeedsRenderAfterAlignment = false;
     }
 
-    this._gpuMemoryManager.uploadChanges();
     return this._renderManager.render(rendererView, {clear: true});
+  }
+
+  /**
+   * Renders a snapshot of the given view and returns it as a data URL string.
+   * @param view
+   */
+  public getSnapshot(view: View): SDKResult<string> {
+    const rendererView = this._rendererViews[view.id];
+    if (!rendererView) {
+      throw new SDKInternalException(`[ViewManager.getSnapshot] View with id '${view.id}' is not registered with the renderer`);
+    }
+    const boundingRect = rendererView.view.htmlElement.getBoundingClientRect();
+    const width = Math.round(boundingRect.width);
+    const height = Math.round(boundingRect.height);
+    const snapshotBuffer = rendererView.renderBuffers.getRenderBuffer("snapshot", {
+      depthTexture: false,
+      size: [width, height]
+    });
+    if (!snapshotBuffer) {
+      return {
+        ok: false,
+        type: SDKErrorType.MemoryAllocationFailed,
+        error: `[ViewManager.getSnapshot] Failed to create snapshot render buffer for view '${view.id}'`
+      }
+    }
+    snapshotBuffer.bind();
+    snapshotBuffer.clear();
+    this._renderManager.render(rendererView, {clear: true});
+    const image = snapshotBuffer.readImage({format: "png", height, width});
+    snapshotBuffer.unbind();
+    return {
+      ok: true,
+      value: image
+    };
   }
 
   /**
@@ -485,7 +521,9 @@ export class ViewManager {
 
         snapshotBuffer.unbind();
 
-        (<HTMLImageElement>activeRendererView.view.htmlElement).src = image;
+        const htmlElement = activeRendererView.view.htmlElement;
+
+        (<HTMLImageElement>htmlElement).src = image;
       }
 
     this._activeView = rendererView;
@@ -717,6 +755,13 @@ export class ViewManager {
   }
 
   /**
+   * Notifies the renderer that a {@link SceneModel} was finalized.
+   */
+  public sceneModelFinalized(sceneModel: SceneModel): SDKResult<any> {
+    return this._meshManager.sceneModelFinalized(sceneModel);
+  }
+
+  /**
    * Notifies the renderer that a {@link SceneModel} was destroyed.
    *
    * Forwards to {@link MeshManager} to release associated GPU structures.
@@ -940,14 +985,14 @@ export class ViewManager {
 
     const changingActiveView = this._activeView !== rendererView;
 
+    this._gpuMemoryManager.uploadChanges();
+
     this._activateView(rendererView);
 
     const changed = this._alignCanvasToView(rendererView);
     if (changed.sizeChanged || changed.resolutionScaleChanged) {
       this._activeViewNeedsRenderAfterAlignment = false;
     }
-
-    this._gpuMemoryManager.uploadChanges();
 
     if (changingActiveView) {
       this._renderManager.render(rendererView, {clear: true});

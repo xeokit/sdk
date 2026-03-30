@@ -32,4 +32,12 @@ export interface LASLoaderOptions extends ModelLoadOptions  {
    * Color depth for the loaded point cloud (e.g., 8, 16 or "auto").
    */
   colorDepth?: string | number;
+
+    /**
+    * Optional layer ID to assign to all {@link SceneObject | SceneObjects} created by the loader.
+    *
+    * See {@link SceneObject.layerId | SceneObject.layerId} for details on how this layer ID
+    * is used when the Scene is attached to a {@link viewer!Viewer | Viewer}.
+    */
+  layerId?: string;
 }

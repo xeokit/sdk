@@ -211,6 +211,10 @@ export class PickManager {
 
     const sceneObject = pickMeshResult.sceneMesh.object;
 
+    if (!sceneObject) {
+      return {ok: true, value: null};
+    }
+
     pickResult.sceneMesh = pickMeshResult.sceneMesh;
     pickResult.worldPos = pickMeshResult.worldPos;
     pickResult.sceneObject = sceneObject;

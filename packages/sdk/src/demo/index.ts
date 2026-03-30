@@ -21,5 +21,9 @@
 
 export * from "./DemoHelper";
 export * from "./buildDemoModelTable";
+export * from "./ViewObjectContextMenu";
+export * from "./SceneModelExploder";
+export * from "./AutoDimensions";
+export * from "./LoadingSpinner";
 
 

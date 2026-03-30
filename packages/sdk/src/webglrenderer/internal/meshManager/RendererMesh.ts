@@ -91,8 +91,8 @@ export class RendererMesh {
       colorizing: false,
       coloringOpacity: false,
       transparent:null,
-      objectVisible: true,
-      meshVisible: true
+      objectVisible: false,
+      meshVisible: false
     }));
 
     this.setMatrix(sceneMesh.globalMatrix);

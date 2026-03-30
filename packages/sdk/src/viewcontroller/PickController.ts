@@ -212,6 +212,13 @@ class PickController {
       return;
     }
 
+    if (!this.#viewController.pick) {
+      console.warn("[PickController.update] No pick implementation found on ViewController.");
+      this.schedulePick = false;
+      this.scheduleSnapOrPick = false;
+      return;
+    }
+
     /**
      * Coarse request deduplication.
      *
@@ -255,16 +262,18 @@ class PickController {
 
         const snapPickResult = result.value;
 
-        if (snapPickResult.snappedToEdge || snapPickResult.snappedToVertex) {
+        if (snapPickResult) {
+          if (snapPickResult.snappedToEdge || snapPickResult.snappedToVertex) {
 
-          this.snapPickResult = snapPickResult;
-          this.snappedOrPicked = true;
-          this.#needFireEvents++;
+            this.snapPickResult = snapPickResult;
+            this.snappedOrPicked = true;
+            this.#needFireEvents++;
 
-        } else {
-          this.schedulePick = true;
-          this.pickResult = snapPickResult;
-       //   this.snapPickResult = snapPickResult;
+          } else {
+            this.schedulePick = true;
+            this.pickResult = snapPickResult;
+            //   this.snapPickResult = snapPickResult;
+          }
         }
       }
     }

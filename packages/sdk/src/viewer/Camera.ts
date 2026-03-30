@@ -267,9 +267,9 @@ class Camera {
   constructor(view: View, cfg: CameraParams = {}) {
 
     this.view = view;
-    this.perspectiveProjection = new PerspectiveProjection(this);
-    this.orthoProjection = new OrthoProjection(this);
-    this.frustumProjection = new FrustumProjection(this);
+    this.perspectiveProjection = new PerspectiveProjection(this, cfg.perspectiveProjection);
+    this.orthoProjection = new OrthoProjection(this, cfg.orthoProjection);
+    this.frustumProjection = new FrustumProjection(this, cfg.frustumProjection);
     this.customProjection = new CustomProjection(this);
 
     this._eye = createVec3Float64(cfg.eye || [0, -10, 0]);
@@ -355,6 +355,8 @@ class Camera {
       },
       stage: SDKTask.ComputeStage
     });
+
+    this._buildViewMatrixTask.schedule();
   }
 
   /**

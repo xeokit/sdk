@@ -7,6 +7,201 @@ import type {TreeViewNodeTitleClickedEvent} from "./TreeViewNodeTitleClickedEven
 import type {TreeViewParams} from "./TreeViewParams";
 import {TreeViewEvents} from "./TreeViewEvents";
 
+const TREE_VIEW_STYLE_ELEMENT_ID = "xeokit-treeview-styles";
+
+/**
+ * Default DOM styles for TreeView.
+ *
+ * These styles are injected once into <head> the first time a TreeView is constructed.
+ * The styles target a dedicated container class that TreeView adds to its container element,
+ * which makes this safe as a drop-in replacement without requiring consumers to remember to
+ * load a separate stylesheet.
+ */
+const TREE_VIEW_CSS = `
+  .xeokit-tree-view {
+    color: #1f2937;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  .xeokit-tree-view ul {
+    list-style: none;
+    margin: 0;
+    padding-left: 18px;
+  }
+
+  .xeokit-tree-view > ul {
+    padding-left: 0;
+  }
+
+  .xeokit-tree-view li {
+    position: relative;
+    display: block;
+    white-space: nowrap;
+    line-height: 1.45;
+    margin: 2px 0;
+    padding: 3px 0;
+    border-radius: 10px;
+  }
+
+  .xeokit-tree-view li::before {
+    content: "";
+    position: absolute;
+    left: -10px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: transparent;
+  }
+
+  .xeokit-tree-view a.plus,
+  .xeokit-tree-view a.minus {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    margin-right: 6px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    background: #f8fafc;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    vertical-align: middle;
+    transition: all 120ms ease;
+    box-sizing: border-box;
+  }
+
+  .xeokit-tree-view a.plus:hover,
+  .xeokit-tree-view a.minus:hover {
+    background: #eef2ff;
+    border-color: rgba(37, 99, 235, 0.28);
+    color: #2563eb;
+    transform: translateY(-1px);
+  }
+
+  .xeokit-tree-view input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    margin: 0 8px 0 0;
+    border-radius: 4px;
+    border: 1px solid rgba(100, 116, 139, 0.4);
+    background: white;
+    vertical-align: -2px;
+    position: relative;
+    cursor: pointer;
+    transition: all 120ms ease;
+  }
+
+  .xeokit-tree-view input[type="checkbox"]:checked {
+    background: #2563eb;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  }
+
+  .xeokit-tree-view input[type="checkbox"]:checked::after {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 1px;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  .xeokit-tree-view span {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #1f2937;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 120ms ease, color 120ms ease;
+  }
+
+  .xeokit-tree-view span:hover {
+    background: #f3f4f6;
+    color: #111827;
+  }
+
+  .xeokit-tree-view .highlighted-node > span {
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-weight: 600;
+  }
+
+  .xeokit-tree-view .xrayed-node > span {
+    opacity: 0.62;
+    font-style: italic;
+  }
+
+  .xeokit-context-menu {
+    font-family: 'Roboto', sans-serif;
+    font-size: 15px;
+    display: none;
+    z-index: 300000;
+    background: rgba(255, 255, 255, 0.46);
+    border: 1px solid black;
+    border-radius: 6px;
+    padding: 0;
+    width: 200px;
+  }
+
+  .xeokit-context-menu ul {
+    list-style: none;
+    margin-left: 0;
+    padding: 0;
+  }
+
+  .xeokit-context-menu-item {
+    list-style-type: none;
+    padding-left: 10px;
+    padding-right: 20px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    color: black;
+    background: rgba(255, 255, 255, 0.46);
+    cursor: pointer;
+    width: calc(100% - 30px);
+  }
+
+  .xeokit-context-menu-item:hover {
+    background: black;
+    color: white;
+    font-weight: normal;
+  }
+
+  .xeokit-context-menu-item span {
+    display: inline-block;
+  }
+
+  .xeokit-context-menu .disabled {
+    display: inline-block;
+    color: gray;
+    cursor: default;
+    font-weight: normal;
+  }
+
+  .xeokit-context-menu .disabled:hover {
+    color: gray;
+    cursor: default;
+    background: #eeeeee;
+    font-weight: normal;
+  }
+
+  .xeokit-context-menu-item-separator {
+    background: rgba(0, 0, 0, 1);
+    height: 1px;
+    width: 100%;
+  }
+`;
+
 /**
  * An HTMl tree view that navigates the {@link data!DataObject | DataObjects} in the given
  * {@link data!Data | Data}, while controlling the visibility of their corresponding
@@ -54,7 +249,7 @@ export class TreeView {
   /**
    * The events emitted by this TreeView.
    */
-  public readonly events: TreeViewEvents = new TreeViewEvents();
+  public readonly events: TreeViewEvents;
 
   /**
    * The semantic {@link data!Data | Data} model that determines the structure of this TreeView.
@@ -89,6 +284,7 @@ export class TreeView {
   _switchCollapseHandler: (event: MouseEvent) => void;
   _checkboxChangeHandler: (event: Event) => void;
   _destroyed: boolean;
+  _ownsContainerElement: boolean;
 
   private _onSceneModelCreated: () => void;
   private _onSceneModelDestroyed: () => void;
@@ -107,10 +303,6 @@ export class TreeView {
    */
   constructor(params: TreeViewParams) {
 
-    if (!params.containerElement) {
-      throw new Error("Config expected: containerElement");
-    }
-
     if (!params.data) {
       throw new Error("Config expected: data");
     }
@@ -119,6 +311,7 @@ export class TreeView {
       throw new Error("Config expected: view");
     }
 
+    this.events = params.events || new TreeViewEvents();
     this.data = params.data;
     this.view = params.view;
 
@@ -126,7 +319,7 @@ export class TreeView {
     this._linkType = params.linkType;
     this._groupTypes = params.groupTypes || [];
     this._hierarchy = TreeView.AggregationHierarchy;
-    this._containerElement = params.containerElement;
+    this._containerElement = params.containerElement || this._createDefaultContainerElement();
     this._dataModels = {};
     this._autoAddModels = true;
     this._autoExpandDepth = (params.autoExpandDepth || 0);
@@ -141,11 +334,15 @@ export class TreeView {
     this._showListItemElementId = null;
     this._destroyed = false;
     this._spatialSortFunc = null;
+    this._ownsContainerElement = !params.containerElement;
 
     this._dataObjectSceneObjectCounts = {};
     this._groupNodeIndex = {};
     this._typeRootNodeIndex = {};
     this._groupsTypeNodeIndex = {};
+
+    this._ensureStyles();
+    this._containerElement.classList.add("xeokit-tree-view");
 
     this._containerElement.oncontextmenu = (e) => {
       e.preventDefault();
@@ -529,6 +726,12 @@ export class TreeView {
 
     this.data.events.onDataObjectCreated.unsubscribe(this._onDataObjectCreated);
     this.data.events.onDataObjectDestroyed.unsubscribe(this._onDataObjectDestroyed);
+
+    this._containerElement.classList.remove("xeokit-tree-view");
+
+    if (this._ownsContainerElement && this._containerElement.parentNode) {
+      this._containerElement.parentNode.removeChild(this._containerElement);
+    }
 
     this._destroyed = true;
     this.events.destroy();
@@ -1719,5 +1922,37 @@ export class TreeView {
 
       current = parent;
     }
+  }
+
+  _ensureStyles(): void {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    const existing = document.getElementById(TREE_VIEW_STYLE_ELEMENT_ID) as HTMLStyleElement | null;
+    if (existing) {
+      return;
+    }
+
+    const styleElement = document.createElement("style");
+    styleElement.id = TREE_VIEW_STYLE_ELEMENT_ID;
+    styleElement.type = "text/css";
+    styleElement.textContent = TREE_VIEW_CSS;
+    document.head.appendChild(styleElement);
+  }
+
+  _createDefaultContainerElement(): HTMLElement {
+    if (typeof document === "undefined") {
+      throw new Error("Config expected: containerElement");
+    }
+
+    const containerElement = document.createElement("div");
+    containerElement.style.position = "absolute";
+    containerElement.style.left = "0";
+    containerElement.style.top = "0";
+    containerElement.style.zIndex = "100000";
+    document.body.appendChild(containerElement);
+
+    return containerElement;
   }
 }

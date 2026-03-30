@@ -3,6 +3,7 @@ import type {SceneObject} from "../scene";
 import type {ViewLayer} from "./ViewLayer";
 import {SDKErrorType} from "../core";
 import {View} from "./View";
+import {ViewTransform} from "./ViewTransform";
 
 /**
  * An object within a {@link View | View}.
@@ -49,6 +50,11 @@ export class ViewObject {
      */
     public readonly sceneObject: SceneObject;
 
+  /**
+   * The {@link ViewTransform} that defines the local transform of this ViewObject, if any.
+   */
+  public viewTransform: ViewTransform;
+
     private _visible: boolean;
     private _culled: boolean;
     private _pickable: boolean;
@@ -76,6 +82,7 @@ export class ViewObject {
         this.view = layer.view;
         this.layer = layer;
         this.sceneObject = sceneObject;
+        this.viewTransform = null;
 
         this._visible = true;
         this._culled = false;
@@ -91,6 +98,27 @@ export class ViewObject {
 
         this.layer.objectVisibilityUpdated(this, this._visible, false);
     }
+
+  // /**
+  //  * @private
+  //  * @param viewTransform
+  //  */
+  // set viewTransform(viewTransform: ViewTransform) {
+  //       if (this.destroyed) {
+  //           this.layer.view.viewer.logError({
+  //               ok: false,
+  //               type: SDKErrorType.InvalidOperation,
+  //               error: "[ViewObject.viewTransform] ViewObject already destroyed"
+  //           });
+  //           return;
+  //       }
+  //       this._viewTransform = viewTransform;
+  //   //this.view.objectViewTransformUpdated(this, visible, notify);
+  //   }
+  //
+  //   get viewTransform(): ViewTransform {
+  //       return this._viewTransform;
+  //   }
 
     /**
      * Gets if this ViewObject is visible.

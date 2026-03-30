@@ -170,10 +170,10 @@ export class WebGLRenderer {
       maxTiles: 2000,
       maxBatches: 300,
       maxBatchVertices: 50000, // Allow enough vertices and indices for large terrain meshes
-      maxBatchIndices:  70000,
+      maxBatchIndices: 70000,
       maxBatchGeometries: 10000,
       maxBatchMeshes: 10000,
-      maxBatchPrims:  100000
+      maxBatchPrims: 100000
     };
     if (params.memoryConfigs) {
       this._memoryConfigs = <MemoryConfigs>{};
@@ -454,6 +454,7 @@ export class WebGLRenderer {
       // Log errors from these calls
 
       sceneEvents.onSceneModelCreated.subscribe((_, sceneModel) => this.logError(viewManager.sceneModelCreated(sceneModel))),
+      sceneEvents.onSceneModelFinalized.subscribe((_, sceneModel) => this.logError(viewManager.sceneModelFinalized(sceneModel))),
       sceneEvents.onSceneModelDestroyed.subscribe((_, sceneModel) => this.logError(viewManager.sceneModelDestroyed(sceneModel))),
 
       sceneEvents.onSceneGeometryCreated.subscribe((_, sceneGeometry) => this.logError(viewManager.sceneGeometryCreated(sceneGeometry))),
@@ -479,7 +480,6 @@ export class WebGLRenderer {
       // SceneMesh and SceneTransform state changes
 
       sceneEvents.onSceneMeshGeometryChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshGeometryChanged(sceneMesh)),
-      //  sceneEvents.onSceneMeshVisibilityChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshVisibilityChanged(sceneMesh)),
       sceneEvents.onSceneMeshMatrixChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshMatrixChanged(sceneMesh)),
       sceneEvents.onSceneMeshColorChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshColorChanged(sceneMesh)),
       sceneEvents.onSceneMeshOpacityChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshOpacityChanged(sceneMesh)),
@@ -580,6 +580,30 @@ export class WebGLRenderer {
       });
     }
     return this._viewManager.pick(view, pickParams);
+  }
+
+  /**
+   * Gets a snapshot image of the current rendered output for a specified {@link View}.
+   *
+   * @param view The {@link View} for which to capture the snapshot. Must belong to the currently attached {@link Viewer}.
+   * @return An {@link SDKResult} containing a data URL string of the snapshot image on success, or an error result on failure.
+   */
+  getSnapshot(view: View): SDKResult<string> {
+    if (!this._viewManager) {
+      return this.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[WebGLRenderer.getSnapshot] Viewer with Scene is currently attached."
+      });
+    }
+    if (view.viewer !== this._viewer) {
+      return this.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[WebGLRenderer.getSnapshot] The specified View does not belong to the currently attached Viewer."
+      });
+    }
+    return this._viewManager.getSnapshot(view);
   }
 
   /**

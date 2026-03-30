@@ -174,13 +174,17 @@ export class Scene {
   /** @private */
   _deregisterObject(sceneObject: SceneObject) {
     delete this.objects[sceneObject.id];
-    this.events.onSceneObjectDestroyed.dispatch(this, sceneObject);
+    if (sceneObject.model.streamingEnabled) {
+      this.events.onSceneObjectDestroyed.dispatch(this, sceneObject);
+    }
   }
 
   /** @private */
   _registerObject(sceneObject: SceneObject) {
     this.objects[sceneObject.id] = sceneObject;
-    this.events.onSceneObjectCreated.dispatch(this, sceneObject);
+    if (sceneObject.model.streamingEnabled) {
+      this.events.onSceneObjectCreated.dispatch(this, sceneObject);
+    }
   }
 
   /**

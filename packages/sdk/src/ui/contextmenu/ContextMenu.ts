@@ -5,6 +5,82 @@ import { Map } from "../../utils/Map";
  */
 const idMap = new Map();
 
+const CONTEXT_MENU_STYLE_ID = "xeokit-context-menu-styles";
+
+const CONTEXT_MENU_CSS = `
+.xeokit-context-menu {
+  position: absolute;
+  z-index: 300000;
+  display: none;
+  min-width: 180px;
+  background: #fff;
+  border: 1px solid #000;
+  border-radius: 4px;
+  box-shadow: 0 4px 5px 0 gray;
+  font-family: sans-serif;
+}
+
+.xeokit-context-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+}
+
+.xeokit-context-menu-title {
+  display: none;
+  padding: 8px 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  border-bottom: 1px solid #d9d9d9;
+}
+
+.xeokit-context-menu-item {
+  position: relative;
+  padding: 8px 12px;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.xeokit-context-menu-item:hover {
+  background: #f2f2f2;
+}
+
+.xeokit-context-menu-item.disabled {
+  color: #999;
+  cursor: default;
+}
+
+.xeokit-context-menu-item.disabled:hover {
+  background: transparent;
+}
+
+.xeokit-context-menu-item-separator {
+  height: 1px;
+  margin: 4px 0;
+  background: #d9d9d9;
+  pointer-events: none;
+}
+
+.xeokit-context-menu-submenu {
+  padding-right: 28px;
+}
+
+.xeokit-context-menu-submenu::after {
+  content: "▶";
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 10px;
+  opacity: 0.8;
+}
+
+.xeokit-context-menu-submenu[data-submenuposition="left"]::after {
+  content: "◀";
+}
+`;
+
 /**
  * Callback invoked for a named menu event.
  *
@@ -329,6 +405,7 @@ class ContextMenu {
   private _canvasTouchStartHandler?: (event: TouchEvent) => void;
   private _title: string;
   private _getTitle: MenuTitleGetter;
+  private _document: Document;
 
   /**
    * Creates a context menu.
@@ -352,6 +429,13 @@ class ContextMenu {
       this._parentNode instanceof ShadowRoot
         ? (this._parentNode.host as HTMLElement)
         : (this._parentNode as HTMLElement);
+
+    this._document =
+      this._parentNode instanceof Document
+        ? this._parentNode
+        : this._parentNode.ownerDocument || document;
+
+    this._ensureStylesInjected();
 
     this._eventSubs = {};
     this._title = cfg.title || "";
@@ -388,6 +472,40 @@ class ContextMenu {
   }
 
   /**
+   * Ensures required context-menu CSS exists in the current DOM root.
+   *
+   * Styles are injected once per document or shadow root.
+   */
+  private _ensureStylesInjected(): void {
+    if (this._parentNode instanceof ShadowRoot) {
+      const existingStyle = this._parentNode.querySelector(
+        `style[data-xeokit-context-menu-style="${CONTEXT_MENU_STYLE_ID}"]`
+      );
+      if (existingStyle) {
+        return;
+      }
+
+      const styleElement = this._document.createElement("style");
+      styleElement.setAttribute("data-xeokit-context-menu-style", CONTEXT_MENU_STYLE_ID);
+      styleElement.textContent = CONTEXT_MENU_CSS;
+      this._parentNode.appendChild(styleElement);
+      return;
+    }
+
+    if (this._document.getElementById(CONTEXT_MENU_STYLE_ID)) {
+      return;
+    }
+
+    const styleElement = this._document.createElement("style");
+    styleElement.id = CONTEXT_MENU_STYLE_ID;
+    styleElement.textContent = CONTEXT_MENU_CSS;
+
+    const target =
+      this._document.head || this._document.body || this._document.documentElement;
+    target.appendChild(styleElement);
+  }
+
+  /**
    * Subscribes to a menu event.
    *
    * Supported events currently include:
@@ -421,9 +539,6 @@ class ContextMenu {
     }
   }
 
-  /**
-   * Replaces the root menu item configuration and rebuilds the menu UI.
-   */
   set items(itemsCfg: ContextMenuItemConfig[][]) {
     this._clear();
     this._itemsCfg = itemsCfg || [];
@@ -431,18 +546,10 @@ class ContextMenu {
     this._createUI();
   }
 
-  /**
-   * Gets the current root menu item configuration.
-   */
   get items(): ContextMenuItemConfig[][] {
     return this._itemsCfg;
   }
 
-  /**
-   * Enables or disables the menu.
-   *
-   * Disabling the menu also hides it.
-   */
   set enabled(enabled: boolean) {
     enabled = !!enabled;
     if (enabled === this._enabled) {
@@ -454,45 +561,23 @@ class ContextMenu {
     }
   }
 
-  /**
-   * Whether the menu is enabled.
-   */
   get enabled(): boolean {
     return this._enabled;
   }
 
-  /**
-   * Sets the context object used by item callbacks and state/title resolvers.
-   */
   set context(context: any | null) {
     this._context = context;
   }
 
-  /**
-   * Gets the current context object.
-   */
   get context(): any | null {
     return this._context;
   }
 
-  /**
-   * Sets the static root menu title and refreshes the visible title, if any.
-   *
-   * @param title New title.
-   */
   setTitle(title: string): void {
     this._title = title || "";
     this._updateMenuTitle();
   }
 
-  /**
-   * Shows the root menu at the given page coordinates.
-   *
-   * The menu must have a non-null {@link context} and must be enabled.
-   *
-   * @param pageX Horizontal page coordinate.
-   * @param pageY Vertical page coordinate.
-   */
   show(pageX: number, pageY: number): void {
     if (!this._context) {
       console.error("ContextMenu cannot be shown without a context - set context first");
@@ -512,16 +597,10 @@ class ContextMenu {
     this.fire("shown", {});
   }
 
-  /**
-   * Whether the menu is currently visible.
-   */
   get shown(): boolean {
     return this._shown;
   }
 
-  /**
-   * Hides the root menu and all submenus.
-   */
   hide(): void {
     if (!this._enabled || !this._shown) {
       return;
@@ -531,9 +610,6 @@ class ContextMenu {
     this.fire("hidden", {});
   }
 
-  /**
-   * Destroys the menu and removes all generated DOM state.
-   */
   destroy(): void {
     this._context = null;
     this._clear();
@@ -543,9 +619,6 @@ class ContextMenu {
     }
   }
 
-  /**
-   * Removes all menu UI and resets parsed menu state.
-   */
   private _clear(): void {
     for (let i = 0, len = this._menuList.length; i < len; i++) {
       const menu = this._menuList[i];
@@ -559,11 +632,6 @@ class ContextMenu {
     this._itemMap = {};
   }
 
-  /**
-   * Parses nested item configuration into internal menu, group, and item objects.
-   *
-   * @param itemsCfg Root item groups.
-   */
   private _parseItems(itemsCfg: ContextMenuItemConfig[][]): void {
     const visitItems = (itemsCfgToVisit: ContextMenuItemConfig[][]): Menu => {
       const menuId = this._getNextId();
@@ -624,18 +692,10 @@ class ContextMenu {
     this._rootMenu = visitItems(itemsCfg);
   }
 
-  /**
-   * Allocates the next internal menu or item ID.
-   *
-   * @returns Unique ID.
-   */
   private _getNextId(): string {
     return `ContextMenu_${this._id}_${this._nextId++}`;
   }
 
-  /**
-   * Creates DOM for the root menu and all nested submenus.
-   */
   private _createUI(): void {
     if (!this._rootMenu) {
       return;
@@ -661,19 +721,12 @@ class ContextMenu {
     visitMenu(this._rootMenu);
   }
 
-  /**
-   * Creates DOM and event handlers for a single menu.
-   *
-   * @param menu Menu to render.
-   */
   private _createMenuUI(menu: Menu): void {
     const groups = menu.groups as Group[];
     const html: string[] = [];
 
-    const menuElement = document.createElement("div");
+    const menuElement = this._document.createElement("div");
     menuElement.classList.add("xeokit-context-menu", menu.id);
-    menuElement.style.zIndex = "300000";
-    menuElement.style.position = "absolute";
 
     const isRootMenu = menu === this._rootMenu;
 
@@ -706,7 +759,7 @@ class ContextMenu {
 
         if (!((groupIdx === groupLen - 1) || (j < lenj - 1))) {
           html.push(
-            `<li id="${item.id}" class="xeokit-context-menu-item-separator"></li>`
+            `<li class="xeokit-context-menu-item-separator"></li>`
           );
         }
       }
@@ -722,21 +775,11 @@ class ContextMenu {
       ".xeokit-context-menu-title"
     ) as HTMLDivElement | null;
 
-    menuElement.style.borderRadius = "4px";
-    menuElement.style.display = "none";
-    menuElement.style.zIndex = "300000";
-    menuElement.style.background = "white";
-    menuElement.style.border = "1px solid black";
-    menuElement.style.boxShadow = "0 4px 5px 0 gray";
     menuElement.oncontextmenu = (e: MouseEvent) => {
       e.preventDefault();
     };
 
     if (menu.titleElement) {
-      menu.titleElement.style.padding = "8px 12px";
-      menu.titleElement.style.fontWeight = "600";
-      menu.titleElement.style.borderBottom = "1px solid #d9d9d9";
-      menu.titleElement.style.whiteSpace = "nowrap";
       this._updateMenuTitle();
     }
 
@@ -868,9 +911,6 @@ class ContextMenu {
     }
   }
 
-  /**
-   * Refreshes the root menu title from the current title source.
-   */
   private _updateMenuTitle(): void {
     if (!this._rootMenu?.titleElement) {
       return;
@@ -881,9 +921,6 @@ class ContextMenu {
     this._rootMenu.titleElement.style.display = title ? "" : "none";
   }
 
-  /**
-   * Refreshes visible item titles from the current context.
-   */
   private _updateItemsTitles(): void {
     if (!this._context) {
       return;
@@ -903,9 +940,6 @@ class ContextMenu {
     }
   }
 
-  /**
-   * Refreshes item visibility and enabled state from the current context.
-   */
   private _updateItemsEnabledStatus(): void {
     if (!this._context) {
       return;
@@ -938,9 +972,6 @@ class ContextMenu {
     }
   }
 
-  /**
-   * Updates submenu side metadata so CSS or UI logic can reflect placement.
-   */
   private _updateSubMenuInfo(): void {
     if (!this._context) {
       return;
@@ -974,13 +1005,6 @@ class ContextMenu {
     });
   }
 
-  /**
-   * Shows the specified menu at the given page coordinates.
-   *
-   * @param menuId Menu ID.
-   * @param pageX Horizontal page coordinate.
-   * @param pageY Vertical page coordinate.
-   */
   private _showMenu(menuId: string, pageX: number, pageY: number): void {
     const menu = this._menuMap[menuId];
     if (!menu) {
@@ -992,16 +1016,11 @@ class ContextMenu {
     }
     const menuElement = menu.menuElement;
     if (menuElement) {
-      this._showMenuElement(menuElement, pageX, pageY);
+      this._showMenuElement(menuElement, pageX, pageY+13);
       menu.shown = true;
     }
   }
 
-  /**
-   * Hides the specified menu.
-   *
-   * @param menuId Menu ID.
-   */
   private _hideMenu(menuId: string): void {
     const menu = this._menuMap[menuId];
     if (!menu) {
@@ -1018,9 +1037,6 @@ class ContextMenu {
     }
   }
 
-  /**
-   * Hides all menus and submenus managed by this instance.
-   */
   private _hideAllMenus(): void {
     for (let i = 0, len = this._menuList.length; i < len; i++) {
       const menu = this._menuList[i];
@@ -1028,13 +1044,6 @@ class ContextMenu {
     }
   }
 
-  /**
-   * Displays a menu element and constrains it within the offset parent bounds.
-   *
-   * @param menuElement Menu DOM element.
-   * @param pageX Horizontal page coordinate.
-   * @param pageY Vertical page coordinate.
-   */
   private _showMenuElement(menuElement: HTMLElement, pageX: number, pageY: number): void {
     menuElement.style.display = "block";
 
@@ -1060,11 +1069,6 @@ class ContextMenu {
     menuElement.style.top = `${pageY - offsetRect.top - window.scrollY}px`;
   }
 
-  /**
-   * Hides a menu element.
-   *
-   * @param menuElement Menu DOM element.
-   */
   private _hideMenuElement(menuElement: HTMLElement): void {
     menuElement.style.display = "none";
   }

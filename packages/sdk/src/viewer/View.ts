@@ -372,7 +372,7 @@ class View {
       this.htmlElement.clientHeight,
     ];
 
-    this.camera = new Camera(this);
+    this.camera = new Camera(this, viewParams.camera || {});
 
     this.sao = new SAO(this, viewParams.sao || {});
 
@@ -438,6 +438,15 @@ class View {
     this.lights = {};
 
     this._autoLayers = viewParams.autoLayers !== false;
+
+    if (viewParams.layers) {
+      for (const viewLayerParams of viewParams.layers) {
+        const existingViewLayer = this.layers[viewLayerParams.id];
+        if (!existingViewLayer) {
+          this.createLayer(viewLayerParams);
+          }
+      }
+    }
 
     new AmbientLight(this, {
       color: [1.0, 1.0, 1.0],

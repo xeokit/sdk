@@ -155,13 +155,14 @@ export class GPUTileManager {
   private _createTile(id: string, rtcCenter: Vec3, tileSize: number): GPUTile {
     const {viewList} = this._renderContext.viewer;
     const center = createVec3Float64(rtcCenter);
-    const numViews = this._renderContext.memoryConfigs.maxViews;
-    const rtcViewMatrix = Array.from({length: numViews}, (_, i) =>
+    const maxViews = this._renderContext.memoryConfigs.maxViews;
+    const numViews = Math.min(viewList.length, maxViews);
+    const rtcViewMatrix = Array.from({length: maxViews}, (_, i) =>
       i < numViews
         ? createRTCViewMat(viewList[i].camera.viewMatrix, center, createMat4Float64())
         : createMat4Float64()
     );
-    const rtcPickMatrix = Array.from({length: numViews}, (_, i) =>
+    const rtcPickMatrix = Array.from({length: maxViews}, (_, i) =>
       i < numViews
         ? createRTCViewMat(viewList[i].camera.viewMatrix, center, createMat4Float64())
         : createMat4Float64()

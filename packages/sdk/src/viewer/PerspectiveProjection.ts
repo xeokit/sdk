@@ -113,6 +113,8 @@ export class PerspectiveProjection implements Projection {
       },
       stage: SDKTask.ComputeStage
     });
+
+    this._buildMatricesTask.schedule();
   }
 
   /**

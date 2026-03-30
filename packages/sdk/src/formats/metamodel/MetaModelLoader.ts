@@ -37,11 +37,28 @@ function parseMetaModel(params: ModelLoadParams): Promise<void> {
       }
       const propertySet = dataModel.propertySets[propertySetData.id];
       if (!propertySet) {
+
+        const properties = [];
+        for (let j = 0, len2 = propertySetData.properties.length; j < len2; j++) {
+          const propertyItem = propertySetData.properties[j];
+          let propertyData: any = propertyItem;
+          if (propertyItem.id === undefined) {
+            const propertyId = propertyItem;
+            propertyData = fileData.properties ? fileData.properties[propertyId] : undefined;
+          }
+          if (propertyData) {
+            if (propertyItem.value === undefined) {
+              propertyData.value = null;
+            }
+            properties.push(propertyData);
+          }
+        }
+
         const result = dataModel.createPropertySet({
           id: propertySetData.id,
           type: propertySetData.type,
           name: propertySetData.name,
-          properties: propertySetData.properties
+          properties
         });
         if (result.ok ===false) {
           return Promise.reject(`[MetaModelLoader.load]: Could not create PropertySet -> ${result.error}`);
@@ -68,6 +85,14 @@ function parseMetaModel(params: ModelLoadParams): Promise<void> {
         if (result2.ok===false) {
           return Promise.reject(`[MetaModelLoader.load]: Could not create DataObject -> ${result2.error}`);
         }
+      }
+    }
+
+    for (let i = 0, len = fileData.metaObjects.length; i < len; i++) {
+      const metaObjectData = fileData.metaObjects[i];
+      const id = metaObjectData.id;
+      const dataObject = dataModel.objects[id];
+      if (dataObject) {
         if (metaObjectData.parent) {
           const result3 = dataModel.createRelationship({
             relatingObjectId: metaObjectData.parent,

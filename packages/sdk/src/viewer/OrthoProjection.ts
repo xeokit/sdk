@@ -128,6 +128,8 @@ export class OrthoProjection implements Projection {
       },
       stage: SDKTask.ComputeStage
     });
+
+    this._buildMatricesTask.schedule();
   }
 
   /**

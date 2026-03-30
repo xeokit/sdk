@@ -80,13 +80,13 @@ export class SDKTask {
    * Stage at which tasks perform rendering-related updates.
    * @readonly
    */
-  public static readonly RenderStage = 5;
+  public static readonly RenderStage = 4;
 
   /**
    * Stage at which tasks run after rendering is complete.
    * @readonly
    */
-  public static readonly PostRenderStage = 6;
+  public static readonly PostRenderStage = 5;
 
   /**
    * The function invoked when this task is executed.

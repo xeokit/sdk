@@ -40,11 +40,10 @@ export * as modelchunksloader from "../../sdk/src/modelchunksloader";
 
 export * as viewer from "../../sdk/src/viewer";
 export * as webglrenderer from "../../sdk/src/webglrenderer";
-export * as cameracontrol from "../../sdk/src/cameracontrol";
+export * as viewcontroller from "../../sdk/src/viewcontroller";
 export * as cameraflight from "../../sdk/src/cameraflight";
 export * as bcf from "../../sdk/src/bcf";
-export * as treeview from "../../sdk/src/treeview";
-export * as contextmenu from "../../sdk/src/contextmenu";
+export * as ui from "../../sdk/src/ui";
 
 // Converters
 

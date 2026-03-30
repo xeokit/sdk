@@ -13,20 +13,19 @@ demoHelper.init().then(() => {
   // - scene: holds geometry and renderable objects
   // - view: controls camera and rendering
   // - data: holds semantic/model metadata (eg. IFC structure)
-  const { scene, data} = demoHelper;
+  const {scene, data} = demoHelper;
 
   // Create a loader for .XGF files.
   // XGF is a compact xeokit-specific format (often converted from IFC).
   const xgfLoader = new xeokit.formats.xgf.XGFLoader();
 
-  demoHelper.createView({
+  const view = demoHelper.createView({
     camera: {
-eye : [1841990.2778388674, 5173295.7011186555, 16.25441882894172],
-look : [1842022.2883483584, 5173301.846981712, 10.494716146446603],
-up : [0.1708873388776124, 0.032809545530215846, 0.9847441551659135]
+      eye: [1841990.2778388674, 5173295.7011186555, 16.25441882894172],
+      look: [1842022.2883483584, 5173301.846981712, 10.494716146446603],
+      up: [0.1708873388776124, 0.032809545530215846, 0.9847441551659135]
     }
   });
-
 
   // Create a SceneModel to store geometry and materials.
   // This represents the visual side of the model.
@@ -50,39 +49,38 @@ up : [0.1708873388776124, 0.032809545530215846, 0.9847441551659135]
 
   const sceneModel = sceneModelRes.value;
 
-    // Load a .XGF file (converted from IFC) using fetch.
-    // The file is loaded as binary data (ArrayBuffer).
-    fetch("../../models/MAP/ifc2xgf/model.xgf").then(response => {
+  // Load a .XGF file (converted from IFC) using fetch.
+  // The file is loaded as binary data (ArrayBuffer).
+  fetch("../../models/MAP/ifc2xgf/model.xgf").then(response => {
 
-      response.arrayBuffer().then(fileData => {
+    response.arrayBuffer().then(fileData => {
 
-        // Parse the XGF file and populate the SceneModel
-        xgfLoader.load({
-          fileData,
-          sceneModel
-        }).then(() => {
+      // Parse the XGF file and populate the SceneModel
+      xgfLoader.load({
+        fileData,
+        sceneModel
+      }).then(() => {
 
-          // After loading, the SceneModel contains SceneObjects (visual elements)
-          //
-          // The View automatically creates ViewObjects for rendering,
-          // which you can use to control visibility, color, selection, etc.
+        // After loading, the SceneModel contains SceneObjects (visual elements)
+        //
+        // The View automatically creates ViewObjects for rendering,
+        // which you can use to control visibility, color, selection, etc.
 
-          const exploder = new xeokit.demo.SceneModelExploder({
-            scene,
-            sceneModel,
-            aabb3Index: demoHelper.aabb3Index
-          });
-
-          exploder.rebuild();
-
-          demoHelper.finished();
-
-          // Optionally fit the camera to the loaded model:
-          // demoHelper.viewFit();
-
-        }).catch(message => {
-          console.error(`Error loading .XGF: ${message}`);
+        const exploder = new xeokit.demo.SceneModelExploder({
+          scene,
+          sceneModel,
+          aabb3Index: demoHelper.aabb3Index
         });
+
+        exploder.rebuild();
+
+        demoHelper.viewFit(view);
+
+        demoHelper.finished();
+
+      }).catch(message => {
+        console.error(`Error loading .XGF: ${message}`);
       });
     });
+  });
 });

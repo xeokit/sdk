@@ -26,20 +26,16 @@ demoHelper.init().then(() => {
 
   const view2 = demoHelper.createView({
     camera: {
-      projectionType: xeokit.constants.OrthoProjectionType,
+   //   projectionType: xeokit.constants.OrthoProjectionType,
       eye: [3.27, 3.91, 2.39],
       look: [0, 0, 0],
-      up: [-0.18, -0.28, 0.93],
-      orthoProjection:{
-        scale:100.0
-      }
+      up: [-0.18, -0.28, 0.93]
+      // orthoProjection:{
+      //   scale:1.0
+      // }
     }
   });
 
-  //
-  // view.camera.eye = [3.27, 3.91, 2.39];
-  // view.camera.look = [0, 0, 0];
-  // view.camera.up = [-0.18, -0.28, 0.93];
 
   // Create a SceneModel to hold our model's geometry and materials
 
@@ -86,7 +82,7 @@ demoHelper.init().then(() => {
       }
       return response.text();
     }),
-    fetch("../../models/SportsCar/obj/model.mtl").then((response) => {
+    fetch("../../models/SportsCar/mtl/model.mtl").then((response) => {
       if (!response.ok) {
         throw new Error(`Failed to fetch MTL: ${response.status} ${response.statusText}`);
       }

@@ -11282,6 +11282,7 @@ var DataModel = class {
       }
       this.data.objectsByType[type][id] = dataObject;
       this.data.typeCounts[type] = this.data.typeCounts[type] === void 0 ? 1 : this.data.typeCounts[type] + 1;
+      this.typeCounts[type] = this.typeCounts[type] === void 0 ? 1 : this.typeCounts[type] + 1;
       dataObject.models.push(this);
       this.data.events.onDataObjectCreated.dispatch(this.data, dataObject);
     } else {
@@ -11553,7 +11554,7 @@ var DataModel = class {
   #removeObjectFromModels(dataObject) {
     for (let i = 0, len = dataObject.models.length; i < len; i++) {
       if (dataObject.models[i] === this) {
-        dataObject.models = dataObject.models.splice(i, 1);
+        dataObject.models.splice(i, 1);
         break;
       }
     }
@@ -13184,7 +13185,9 @@ var SceneMesh = class {
     this._emitMatrixChangedEventTask = new SDKTask({
       name: "SceneMesh._emitMatrixChangedEventTask",
       task: () => {
-        this.model.scene.events.onSceneMeshMatrixChanged.dispatch(this.model.scene, this);
+        if (this.model.streamingEnabled || this.model.finalized) {
+          this.model.scene.events.onSceneMeshMatrixChanged.dispatch(this.model.scene, this);
+        }
       },
       stage: SDKTask.ComputeStage2
       // Emit after transforms have been updated but before rendering
@@ -13231,7 +13234,9 @@ var SceneMesh = class {
     if (this.geometry === geometry) {
       return;
     }
-    this.model.scene.events.onSceneMeshGeometryChanged.dispatch(this.model.scene, this);
+    if (this.model.streamingEnabled || this.model.finalized) {
+      this.model.scene.events.onSceneMeshGeometryChanged.dispatch(this.model.scene, this);
+    }
   }
   /**
    * Gets the ID of the {@link SceneGeometry} used by this SceneMesh.
@@ -13280,7 +13285,9 @@ var SceneMesh = class {
     if (this.material === material) {
       return;
     }
-    this.model.scene.events.onSceneMeshMaterialChanged.dispatch(this.model.scene, this);
+    if (this.model.streamingEnabled || this.model.finalized) {
+      this.model.scene.events.onSceneMeshMaterialChanged.dispatch(this.model.scene, this);
+    }
   }
   /**
    * Gets the ID of the {@link SceneMaterial} used by this SceneMesh.
@@ -13329,7 +13336,9 @@ var SceneMesh = class {
       color2[1] = 1;
       color2[2] = 1;
     }
-    this.model.scene.events.onSceneMeshColorChanged.dispatch(this.model.scene, this);
+    if (this.model.streamingEnabled || this.model.finalized) {
+      this.model.scene.events.onSceneMeshColorChanged.dispatch(this.model.scene, this);
+    }
   }
   /**
    * Gets the global RGB color for this SceneMesh, which is the color of the material if it has one,
@@ -13423,7 +13432,9 @@ var SceneMesh = class {
       return;
     }
     this._opacity = opacity;
-    this.model.scene.events.onSceneMeshOpacityChanged.dispatch(this.model.scene, this);
+    if (this.model.streamingEnabled || this.model.finalized) {
+      this.model.scene.events.onSceneMeshOpacityChanged.dispatch(this.model.scene, this);
+    }
   }
   /**
    * Gets the global opacity factor for this SceneMesh, which is the opacity of the material if it has one,
@@ -14174,6 +14185,8 @@ var SceneModel2 = class {
    * - Created by {@link SceneModel.createObject | SceneModel.createObject}.
    */
   objects;
+  _streamingEnabled;
+  _finalized;
   /**
    * Statistics on this SceneModel.
    *
@@ -14218,6 +14231,8 @@ var SceneModel2 = class {
       },
       sceneModelParams?.coordinateSystem
     );
+    this._streamingEnabled = true;
+    this._finalized = false;
     this._coordinateSystemMatrix = createMat4Float64();
     this._coordinateSystemMatrixDirty = true;
     this.globalizedIds = !!sceneModelParams.globalizedIds;
@@ -14241,6 +14256,18 @@ var SceneModel2 = class {
       numVertices: 0,
       textureBytes: 0
     };
+  }
+  /**
+   * Indicates whether streaming is enabled for this SceneModel.
+   */
+  get streamingEnabled() {
+    return this._streamingEnabled;
+  }
+  /**
+   * Indicates whether this SceneModel has been finalized.
+   */
+  get finalized() {
+    return this._finalized;
   }
   /**
    * Caches a matrix used to transform positions between SceneModel and Scene CoordinateSystems.
@@ -14304,6 +14331,13 @@ var SceneModel2 = class {
         error: "[SceneModel.createTransform] SceneModel already destroyed"
       });
     }
+    if (this._finalized) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneModel.createTransform] SceneModel already _finalized`
+      });
+    }
     if (!transformParams.id) {
       return this.scene.logError({
         ok: false,
@@ -14335,7 +14369,9 @@ var SceneModel2 = class {
     }
     this.transforms[transformParams.id] = sceneTransform;
     this.stats.numTransforms++;
-    this.scene.events.onSceneTransformCreated.dispatch(this.scene, sceneTransform);
+    if (this._streamingEnabled) {
+      this.scene.events.onSceneTransformCreated.dispatch(this.scene, sceneTransform);
+    }
     return {
       ok: true,
       value: sceneTransform
@@ -14355,7 +14391,9 @@ var SceneModel2 = class {
     }
     delete this.transforms[transformId];
     this.stats.numTransforms--;
-    this.scene.events.onSceneTransformDestroyed.dispatch(this.scene, sceneTransform);
+    if (this._streamingEnabled) {
+      this.scene.events.onSceneTransformDestroyed.dispatch(this.scene, sceneTransform);
+    }
   }
   /**
    * Creates a new {@link SceneTexture} within this SceneModel.
@@ -14410,6 +14448,13 @@ var SceneModel2 = class {
         error: "[SceneModel.createTexture] SceneModel already destroyed"
       });
     }
+    if (this._finalized) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneModel.createTexture] SceneModel already _finalized`
+      });
+    }
     if (!textureParams.id) {
       return this.scene.logError({
         ok: false,
@@ -14440,7 +14485,9 @@ var SceneModel2 = class {
     const texture = new SceneTexture(this, textureParams);
     this.textures[textureParams.id] = texture;
     this.stats.numTextures++;
-    this.scene.events.onSceneTextureCreated.dispatch(this.scene, texture);
+    if (this._streamingEnabled) {
+      this.scene.events.onSceneTextureCreated.dispatch(this.scene, texture);
+    }
     return {
       ok: true,
       value: texture
@@ -14462,7 +14509,9 @@ var SceneModel2 = class {
     delete this.textures[textureId];
     this.stats.numTextures--;
     this.stats.textureBytes -= sceneTexture.imageData ? sceneTexture.imageData.width * sceneTexture.imageData.height * 4 : 0;
-    this.scene.events.onSceneTextureDestroyed.dispatch(this.scene, sceneTexture);
+    if (this._streamingEnabled) {
+      this.scene.events.onSceneTextureDestroyed.dispatch(this.scene, sceneTexture);
+    }
   }
   /**
    * Creates a new {@link SceneMaterial} within this SceneModel.
@@ -14505,6 +14554,13 @@ var SceneModel2 = class {
         ok: false,
         type: 1 /* InvalidOperation */,
         error: "[SceneModel.createMaterial] Cannot create SceneMaterial - SceneModel already destroyed"
+      });
+    }
+    if (this._finalized) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneModel.createMaterial] SceneModel already _finalized`
       });
     }
     if (this.materials[materialParams.id]) {
@@ -14582,7 +14638,9 @@ var SceneModel2 = class {
     });
     this.materials[materialParams.id] = material;
     this.stats.numMaterials++;
-    this.scene.events.onSceneMaterialCreated.dispatch(this.scene, material);
+    if (this._streamingEnabled) {
+      this.scene.events.onSceneMaterialCreated.dispatch(this.scene, material);
+    }
     return {
       ok: true,
       value: material
@@ -14603,7 +14661,9 @@ var SceneModel2 = class {
     }
     delete this.materials[materialId];
     this.stats.numMaterials--;
-    this.scene.events.onSceneMaterialDestroyed.dispatch(this.scene, sceneMaterial);
+    if (this._streamingEnabled) {
+      this.scene.events.onSceneMaterialDestroyed.dispatch(this.scene, sceneMaterial);
+    }
   }
   /**
    * Creates a new {@link SceneGeometry} within this SceneModel, from non-compressed geometry parameters.
@@ -14663,6 +14723,13 @@ var SceneModel2 = class {
         ok: false,
         type: 1 /* InvalidOperation */,
         error: "[SceneModel.createGeometry] SceneModel already destroyed"
+      });
+    }
+    if (this._finalized) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneModel.createGeometry] SceneModel already _finalized`
       });
     }
     if (!geometryParams) {
@@ -14779,7 +14846,9 @@ var SceneModel2 = class {
       this.stats.numPoints += positions.length / 3;
     }
     this.stats.numVertices += positions.length / 3;
-    this.scene.events.onSceneGeometryCreated.dispatch(this.scene, sceneGeometry);
+    if (this._streamingEnabled) {
+      this.scene.events.onSceneGeometryCreated.dispatch(this.scene, sceneGeometry);
+    }
     return {
       ok: true,
       value: sceneGeometry
@@ -14843,6 +14912,13 @@ var SceneModel2 = class {
         ok: false,
         type: 1 /* InvalidOperation */,
         error: "[SceneModel.createGeometryCompressed] SceneModel already destroyed"
+      });
+    }
+    if (this._finalized) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneModel.createGeometryCompressed] SceneModel already _finalized`
       });
     }
     if (!geometryCompressedParams) {
@@ -14934,7 +15010,9 @@ var SceneModel2 = class {
       this.stats.numPoints += positionsCompressed.length / 3;
     }
     this.stats.numVertices += positionsCompressed.length / 3;
-    this.scene.events.onSceneGeometryCreated.dispatch(this.scene, sceneGeometry);
+    if (this._streamingEnabled) {
+      this.scene.events.onSceneGeometryCreated.dispatch(this.scene, sceneGeometry);
+    }
     return {
       ok: true,
       value: sceneGeometry
@@ -14967,7 +15045,9 @@ var SceneModel2 = class {
       this.stats.numPoints -= sceneGeometry.positionsCompressed.length / 3;
     }
     this.stats.numVertices -= sceneGeometry.positionsCompressed.length / 3;
-    this.scene.events.onSceneGeometryDestroyed.dispatch(this.scene, sceneGeometry);
+    if (this._streamingEnabled) {
+      this.scene.events.onSceneGeometryDestroyed.dispatch(this.scene, sceneGeometry);
+    }
   }
   /**
    * Creates a new {@link SceneMesh} within this SceneModel.
@@ -15030,6 +15110,13 @@ var SceneModel2 = class {
         ok: false,
         type: 1 /* InvalidOperation */,
         error: "[SceneModel.addMesh] SceneModel already destroyed"
+      });
+    }
+    if (this._finalized) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneModel.createMesh] SceneModel already _finalized`
       });
     }
     if (this.meshes[id]) {
@@ -15138,7 +15225,9 @@ var SceneModel2 = class {
     geometry.numMeshes++;
     this.meshes[id] = sceneMesh;
     this.stats.numMeshes++;
-    this.scene.events.onSceneMeshCreated.dispatch(this.scene, sceneMesh);
+    if (this._streamingEnabled) {
+      this.scene.events.onSceneMeshCreated.dispatch(this.scene, sceneMesh);
+    }
     return {
       ok: true,
       value: sceneMesh
@@ -15171,7 +15260,9 @@ var SceneModel2 = class {
     }
     delete this.meshes[meshId];
     this.stats.numMeshes--;
-    this.scene.events.onSceneMeshDestroyed.dispatch(this.scene, existing);
+    if (this._streamingEnabled) {
+      this.scene.events.onSceneMeshDestroyed.dispatch(this.scene, existing);
+    }
   }
   /**
    * Creates a new {@link SceneObject}.
@@ -15223,6 +15314,13 @@ var SceneModel2 = class {
         ok: false,
         type: 1 /* InvalidOperation */,
         error: "[SceneModel.createObject] SceneModel already destroyed"
+      });
+    }
+    if (this._finalized) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneModel.createObject] SceneModel already _finalized`
       });
     }
     if (!meshIds || meshIds.length === 0) {
@@ -15329,6 +15427,13 @@ var SceneModel2 = class {
         ok: false,
         type: 1 /* InvalidOperation */,
         error: "[SceneModel.fromParams] SceneModel already destroyed"
+      });
+    }
+    if (this._finalized) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneModel.fromParams] SceneModel already _finalized`
       });
     }
     if (sceneModelParams.coordinateSystem) {
@@ -15456,6 +15561,39 @@ var SceneModel2 = class {
     };
   }
   /**
+   * When in deferred build mode, finalizes this SceneModel, preventing creation of new components within it.
+   * Only applies when {@link SceneModel._streamingEnabled | _streamingEnabled} is `false`.
+   */
+  finalize() {
+    if (this.destroyed) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[SceneModel.finalize] SceneModel already destroyed"
+      });
+    }
+    if (this._streamingEnabled) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[SceneModel.finalize] SceneModel is streaming-enabled, so cannot be finalized"
+      });
+    }
+    if (this._finalized) {
+      return this.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneModel.finalize] SceneModel already finalized`
+      });
+    }
+    this._finalized = true;
+    this.scene.events.onSceneModelFinalized.dispatch(this.scene, this);
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  /**
    * Destroys this SceneModel.
    *
    * - Fires {@link SceneEvents.onSceneModelDestroyed | SceneEvents.onSceneModelDestroyed}.
@@ -15534,6 +15672,12 @@ var SceneEvents = class {
    * Emits an event each time a {@link SceneModel} is created within the {@link Scene}.
    */
   onSceneModelCreated;
+  /**
+   * For each {@link SceneModel} with  {@link SceneModel.streamingEnabled | SceneModel.streamingEnabled} is enabled, emits an
+   * event each time the SceneModel is finalized within the {@link Scene}, indicating that the model is
+   * fully populated and ready for use.
+   */
+  onSceneModelFinalized;
   /**
    * Emits an event each time a {@link SceneModel} is destroyed within the {@link Scene}.
    */
@@ -15671,6 +15815,7 @@ var SceneEvents = class {
     this.onSceneCoordSystemScaleToMetersChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneCoordSystemUpdated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneModelCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneModelFinalized = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneModelDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneModelCoordSystemBasisChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneModelCoordSystemOriginChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
@@ -15714,6 +15859,7 @@ var SceneEvents = class {
     this.onSceneCoordSystemScaleToMetersChanged.clear();
     this.onSceneCoordSystemUpdated.clear();
     this.onSceneModelCreated.clear();
+    this.onSceneModelFinalized.clear();
     this.onSceneModelDestroyed.clear();
     this.onSceneModelCoordSystemBasisChanged.clear();
     this.onSceneModelCoordSystemOriginChanged.clear();
@@ -15874,12 +16020,16 @@ var Scene = class {
   /** @private */
   _deregisterObject(sceneObject) {
     delete this.objects[sceneObject.id];
-    this.events.onSceneObjectDestroyed.dispatch(this, sceneObject);
+    if (sceneObject.model.streamingEnabled) {
+      this.events.onSceneObjectDestroyed.dispatch(this, sceneObject);
+    }
   }
   /** @private */
   _registerObject(sceneObject) {
     this.objects[sceneObject.id] = sceneObject;
-    this.events.onSceneObjectCreated.dispatch(this, sceneObject);
+    if (sceneObject.model.streamingEnabled) {
+      this.events.onSceneObjectCreated.dispatch(this, sceneObject);
+    }
   }
   /**
    * Destroys all {@link SceneModel} instances in this Scene.
@@ -16008,24 +16158,43 @@ __export(aabb_exports, {
 });
 
 // ../sdk/src/collision/aabb/SceneAABB3Index.ts
-var tempVec4a3 = createVec4Float64();
-var tempVec4b3 = createVec4Float64();
-function getPositionsWorldAABB3(positionsCompressed, aabb, matrix, worldAABB) {
-  collapseAABB3(worldAABB);
-  const xScale = (aabb[3] - aabb[0]) / 65535;
-  const xOffset = aabb[0];
-  const yScale = (aabb[4] - aabb[1]) / 65535;
-  const yOffset = aabb[1];
-  const zScale = (aabb[5] - aabb[2]) / 65535;
-  const zOffset = aabb[2];
-  for (let i = 0, len = positionsCompressed.length; i < len; i += 3) {
-    tempVec4a3[0] = positionsCompressed[i] * xScale + xOffset;
-    tempVec4a3[1] = positionsCompressed[i + 1] * yScale + yOffset;
-    tempVec4a3[2] = positionsCompressed[i + 2] * zScale + zOffset;
-    tempVec4a3[3] = 1;
-    transformPoint4(matrix, tempVec4a3, tempVec4b3);
-    expandAABB3Point3(worldAABB, tempVec4b3);
-  }
+function getAABBWorldAABB3(localAABB, matrix, worldAABB) {
+  const minX = localAABB[0];
+  const minY = localAABB[1];
+  const minZ = localAABB[2];
+  const maxX = localAABB[3];
+  const maxY = localAABB[4];
+  const maxZ = localAABB[5];
+  const cx = (minX + maxX) * 0.5;
+  const cy = (minY + maxY) * 0.5;
+  const cz = (minZ + maxZ) * 0.5;
+  const ex = (maxX - minX) * 0.5;
+  const ey = (maxY - minY) * 0.5;
+  const ez = (maxZ - minZ) * 0.5;
+  const m00 = matrix[0];
+  const m01 = matrix[4];
+  const m02 = matrix[8];
+  const m03 = matrix[12];
+  const m10 = matrix[1];
+  const m11 = matrix[5];
+  const m12 = matrix[9];
+  const m13 = matrix[13];
+  const m20 = matrix[2];
+  const m21 = matrix[6];
+  const m22 = matrix[10];
+  const m23 = matrix[14];
+  const worldCx = m00 * cx + m01 * cy + m02 * cz + m03;
+  const worldCy = m10 * cx + m11 * cy + m12 * cz + m13;
+  const worldCz = m20 * cx + m21 * cy + m22 * cz + m23;
+  const worldEx = Math.abs(m00) * ex + Math.abs(m01) * ey + Math.abs(m02) * ez;
+  const worldEy = Math.abs(m10) * ex + Math.abs(m11) * ey + Math.abs(m12) * ez;
+  const worldEz = Math.abs(m20) * ex + Math.abs(m21) * ey + Math.abs(m22) * ez;
+  worldAABB[0] = worldCx - worldEx;
+  worldAABB[1] = worldCy - worldEy;
+  worldAABB[2] = worldCz - worldEz;
+  worldAABB[3] = worldCx + worldEx;
+  worldAABB[4] = worldCy + worldEy;
+  worldAABB[5] = worldCz + worldEz;
   return worldAABB;
 }
 var SceneAABB3Index = class {
@@ -16042,7 +16211,7 @@ var SceneAABB3Index = class {
   #sceneAABBDirty;
   #sceneCenter;
   /**
-   * Constructs a new SceneAABB3Index for the given {@link Scene}.
+   * Constructs a new SceneAABB3Index for the given Scene.
    * @param scene The scene to tileIndex.
    */
   constructor(scene) {
@@ -16052,63 +16221,67 @@ var SceneAABB3Index = class {
     this.#sceneAABBDirty = true;
     for (const object of Object.values(scene.objects)) {
       for (const mesh of object.meshes) {
-        this.#meshDirty.add(mesh.id);
+        const meshId = `${mesh.object.id}-${mesh.id}`;
+        this.#meshDirty.add(meshId);
       }
       this.#objectDirty.add(object.id);
     }
     this.#unsubscribers.push(
       scene.events.onSceneObjectCreated.subscribe((_, object) => {
         for (const mesh of object.meshes) {
-          this.#meshDirty.add(mesh.id);
+          const meshId = `${mesh.object.id}-${mesh.id}`;
+          this.#meshDirty.add(meshId);
         }
         this.#objectDirty.add(object.id);
+        this.#sceneAABBDirty = true;
       }),
       scene.events.onSceneMeshMoved.subscribe((_, mesh) => {
-        this.#meshDirty.add(mesh.id);
+        const meshId = `${mesh.object.id}-${mesh.id}`;
+        this.#meshDirty.add(meshId);
         if (mesh.object) {
           this.#objectDirty.add(mesh.object.id);
         }
+        this.#sceneAABBDirty = true;
       }),
       scene.events.onSceneObjectDestroyed.subscribe((_, object) => {
         for (const mesh of object.meshes) {
-          this.#meshAABBs.delete(mesh.id);
-          this.#meshDirty.delete(mesh.id);
+          const meshId = `${mesh.object.id}-${mesh.id}`;
+          this.#meshAABBs.delete(meshId);
+          this.#meshDirty.delete(meshId);
         }
         this.#objectAABBs.delete(object.id);
         this.#objectDirty.delete(object.id);
+        this.#sceneAABBDirty = true;
       }),
       scene.events.onSceneModelDestroyed.subscribe((_, model) => {
         for (const object of Object.values(model.objects)) {
           for (const mesh of object.meshes) {
-            this.#meshAABBs.delete(mesh.id);
-            this.#meshDirty.delete(mesh.id);
+            const meshId = `${mesh.object.id}-${mesh.id}`;
+            this.#meshAABBs.delete(meshId);
+            this.#meshDirty.delete(meshId);
           }
           this.#objectAABBs.delete(object.id);
           this.#objectDirty.delete(object.id);
         }
+        this.#sceneAABBDirty = true;
       })
     );
   }
   getMeshAABB(mesh) {
-    let aabb = this.#meshAABBs.get(mesh.id);
+    const meshId = `${mesh.object.id}-${mesh.id}`;
+    let aabb = this.#meshAABBs.get(meshId);
     if (!aabb) {
       aabb = createAABB3Float64();
-      this.#meshAABBs.set(mesh.id, aabb);
+      this.#meshAABBs.set(meshId, aabb);
     }
-    if (this.#meshDirty.has(mesh.id)) {
-      getPositionsWorldAABB3(
-        mesh.geometry.positionsCompressed,
-        mesh.geometry.aabb,
-        // Dequantization AABB
-        mesh.globalMatrix,
-        aabb
-      );
-      this.#meshDirty.delete(mesh.id);
+    if (this.#meshDirty.has(meshId)) {
+      getAABBWorldAABB3(mesh.geometry.aabb, mesh.globalMatrix, aabb);
+      this.#meshDirty.delete(meshId);
     }
     return aabb;
   }
   /**
-   * Gets the cached or computed AABB of a single {@link SceneObject}, if available.
+   * Gets the cached or computed AABB of a single SceneObject, if available.
    *
    * @param objectId The SceneObject ID.
    * @returns AABB or `null` if the object does not exist or has no meshes.
@@ -16142,7 +16315,7 @@ var SceneAABB3Index = class {
    * Gets the combined axis-aligned bounding box (AABB) of the entire scene.
    */
   getSceneAABB() {
-    if (this.#objectDirty.size > 0) {
+    if (this.#sceneAABBDirty || this.#objectDirty.size > 0) {
       collapseAABB3(this.#sceneAABB);
       for (const object of Object.values(this.scene.objects)) {
         const aabb = this.getObjectAABB(object.id);
@@ -16158,17 +16331,16 @@ var SceneAABB3Index = class {
    * Gets the center of the scene's AABB.
    */
   getSceneCenter() {
-    if (this.#sceneAABBDirty) {
+    if (this.#sceneAABBDirty || this.#objectDirty.size > 0) {
       this.getSceneAABB();
     }
     this.#sceneCenter[0] = (this.#sceneAABB[0] + this.#sceneAABB[3]) * 0.5;
     this.#sceneCenter[1] = (this.#sceneAABB[1] + this.#sceneAABB[4]) * 0.5;
     this.#sceneCenter[2] = (this.#sceneAABB[2] + this.#sceneAABB[5]) * 0.5;
-    this.#sceneCenter[3] = 1;
     return this.#sceneCenter;
   }
   /**
-   * Gets the combined AABB of the given {@link SceneObject} IDs.
+   * Gets the combined AABB of the given SceneObject IDs.
    * Only includes objects that are currently registered and valid.
    *
    * @param objectIds The list of SceneObject IDs.
@@ -16218,14 +16390,14 @@ function getSceneAABB3Index(scene) {
 }
 
 // ../sdk/src/collision/aabb/createSceneObjectAABB3.ts
-var tempVec4a4 = createVec4Float64();
-var tempVec4b4 = createVec4Float64();
+var tempVec4a3 = createVec4Float64();
+var tempVec4b3 = createVec4Float64();
 var tempAABB3a = createAABB3Float64();
 function createSceneObjectAABB3(sceneObject, aabb = createAABB3Float64()) {
   collapseAABB3(aabb);
   let found = false;
   for (const mesh of sceneObject.meshes) {
-    expandAABB3(aabb, getPositionsWorldAABB32(
+    expandAABB3(aabb, getPositionsWorldAABB3(
       mesh.geometry.positionsCompressed,
       mesh.geometry.aabb,
       mesh.matrix,
@@ -16238,7 +16410,7 @@ function createSceneObjectAABB3(sceneObject, aabb = createAABB3Float64()) {
   }
   return aabb;
 }
-function getPositionsWorldAABB32(positionsCompressed, aabb, matrix, worldAABB) {
+function getPositionsWorldAABB3(positionsCompressed, aabb, matrix, worldAABB) {
   const xScale = (aabb[3] - aabb[0]) / 65535;
   const xOffset = aabb[0];
   const yScale = (aabb[4] - aabb[1]) / 65535;
@@ -16246,12 +16418,12 @@ function getPositionsWorldAABB32(positionsCompressed, aabb, matrix, worldAABB) {
   const zScale = (aabb[5] - aabb[2]) / 65535;
   const zOffset = aabb[2];
   for (let i = 0, len = positionsCompressed.length; i < len; i += 3) {
-    tempVec4a4[0] = positionsCompressed[i] * xScale + xOffset;
-    tempVec4a4[1] = positionsCompressed[i + 1] * yScale + yOffset;
-    tempVec4a4[2] = positionsCompressed[i + 2] * zScale + zOffset;
-    tempVec4a4[3] = 1;
-    transformPoint4(matrix, tempVec4a4, tempVec4b4);
-    expandAABB3Point3(worldAABB, tempVec4b4);
+    tempVec4a3[0] = positionsCompressed[i] * xScale + xOffset;
+    tempVec4a3[1] = positionsCompressed[i + 1] * yScale + yOffset;
+    tempVec4a3[2] = positionsCompressed[i + 2] * zScale + zOffset;
+    tempVec4a3[3] = 1;
+    transformPoint4(matrix, tempVec4a3, tempVec4b3);
+    expandAABB3Point3(worldAABB, tempVec4b3);
   }
   return aabb;
 }
@@ -24956,9 +25128,12 @@ var ModelLoader = class {
           return reject(`[${className}.load] Unsupported source file schema version: ${version2} - supported versions are [${this.versions}]`);
         }
         if (sceneModel || dataModel) {
+          sdkProgress.addTask();
           parser({ fileData: fileData2, sceneModel, dataModel }, options).then(() => {
+            sdkProgress.completeTask();
             resolve2();
           }).catch((err) => {
+            sdkProgress.completeTask();
             reject(err);
           });
         } else {
@@ -25878,7 +26053,7 @@ var GLTFLoader2 = class extends ModelLoader {
     });
   }
 };
-function parseGLTF2(params) {
+function parseGLTF2(params, options) {
   return new Promise(function(resolve2, reject) {
     const { fileData, sceneModel, dataModel } = params;
     if (!sceneModel && !dataModel) {
@@ -25897,7 +26072,8 @@ function parseGLTF2(params) {
         nextId: 0,
         errors: [],
         dataModel,
-        sceneModel
+        sceneModel,
+        options: options || {}
       };
       if (parseTextures(ctx) && parseMaterials(ctx) && parseDefaultScene(ctx)) {
         return resolve2();
@@ -26239,7 +26415,8 @@ var parseNodesWithoutNames = /* @__PURE__ */ function() {
       if (meshIds && meshIds.length > 0) {
         const result = ctx.sceneModel.createObject({
           id: objectId,
-          meshIds
+          meshIds,
+          layerId: ctx.options.layerId
         });
         if (result.ok === false) {
           ctx.errors.push(`[GLTFLoader.load] Failed to create SceneObject -> ${result.error}`);
@@ -98067,15 +98244,16 @@ var IfcAPI2 = class {
 // ../sdk/src/formats/ifc/versions/IFC4/parse.ts
 var SCHEMA2 = "IFC4";
 async function parse5(ifcAPI, params, options) {
-  await parseWebIFC(ifcAPI, params);
+  await parseWebIFC(ifcAPI, params, options);
 }
-async function parseWebIFC(ifcAPI, params) {
+async function parseWebIFC(ifcAPI, params, options) {
   const { sceneModel, dataModel, fileData } = params;
   const dataArray = new Uint8Array(fileData);
   const modelId = ifcAPI.OpenModel(dataArray);
   const lines = ifcAPI.GetLineIDsWithType(modelId, IFCPROJECT);
   const ifcProjectId = lines.get(0);
   const ctx = {
+    options: options || {},
     fileData,
     modelId,
     lines,
@@ -98212,7 +98390,8 @@ function parseSceneModel(ctx) {
     if (meshIds.length > 0) {
       ctx.sceneModel.createObject({
         id: objectId,
-        meshIds
+        meshIds,
+        layerId: ctx.options.layerId
       });
     }
   });
@@ -98494,7 +98673,8 @@ function unpackXGF(arrayBuffer) {
 
 // ../sdk/src/formats/xgf/versions/v1/xgfToModel.ts
 function xgfToModel(params) {
-  const { xgfData, sceneModel, dataModel } = params;
+  const { xgfData, sceneModel, dataModel, options } = params;
+  const layerId = options?.layerId || "default";
   const defaultId = sceneModel ? sceneModel.id : createUUID();
   if (dataModel) {
     dataModel.createObject({
@@ -98618,7 +98798,8 @@ function xgfToModel(params) {
       if (sceneModel) {
         sceneModel.createObject({
           id: objectId,
-          meshIds
+          meshIds,
+          layerId
         });
       }
       if (dataModel) {
@@ -98644,7 +98825,8 @@ function parse7(params, options) {
     xgfToModel({
       xgfData: unpackXGF(fileData),
       sceneModel,
-      dataModel
+      dataModel,
+      options
     });
     resolve2();
   });
@@ -99027,8 +99209,8 @@ function unpackXKT(arrayBuffer) {
 }
 
 // ../sdk/src/formats/xkt/versions/v10/xktToModel.ts
-var tempVec4a5 = createVec4Float64();
-var tempVec4b5 = createVec4Float64();
+var tempVec4a4 = createVec4Float64();
+var tempVec4b4 = createVec4Float64();
 var NUM_TEXTURE_ATTRIBUTES = 9;
 function lineStripToLines(positions, indices) {
   const linesIndices = [];
@@ -99453,11 +99635,26 @@ function parseMetaModel(params) {
       }
       const propertySet = dataModel.propertySets[propertySetData.id];
       if (!propertySet) {
+        const properties = [];
+        for (let j = 0, len2 = propertySetData.properties.length; j < len2; j++) {
+          const propertyItem = propertySetData.properties[j];
+          let propertyData = propertyItem;
+          if (propertyItem.id === void 0) {
+            const propertyId = propertyItem;
+            propertyData = fileData.properties ? fileData.properties[propertyId] : void 0;
+          }
+          if (propertyData) {
+            if (propertyItem.value === void 0) {
+              propertyData.value = null;
+            }
+            properties.push(propertyData);
+          }
+        }
         const result = dataModel.createPropertySet({
           id: propertySetData.id,
           type: propertySetData.type,
           name: propertySetData.name,
-          properties: propertySetData.properties
+          properties
         });
         if (result.ok === false) {
           return Promise.reject(`[MetaModelLoader.load]: Could not create PropertySet -> ${result.error}`);
@@ -99484,6 +99681,13 @@ function parseMetaModel(params) {
         if (result2.ok === false) {
           return Promise.reject(`[MetaModelLoader.load]: Could not create DataObject -> ${result2.error}`);
         }
+      }
+    }
+    for (let i = 0, len = fileData.metaObjects.length; i < len; i++) {
+      const metaObjectData = fileData.metaObjects[i];
+      const id = metaObjectData.id;
+      const dataObject = dataModel.objects[id];
+      if (dataObject) {
         if (metaObjectData.parent) {
           const result3 = dataModel.createRelationship({
             relatingObjectId: metaObjectData.parent,
@@ -118659,7 +118863,9 @@ var LASLoader4 = class extends ModelLoader {
    * - If the SceneModel has already been destroyed.
    * - If the DataModel has already been destroyed.
    */
-  load(params, options = {}) {
+  load(params, options = {
+    layerId: "default"
+  }) {
     return super.load(params, options);
   }
 };
@@ -118748,7 +118954,8 @@ function parseLAS2(params, options = {}) {
         }
         sceneModel.createObject({
           id: entityId,
-          meshIds
+          meshIds,
+          layerId: options.layerId
         });
       }
       if (dataModel) {
@@ -119649,7 +119856,8 @@ function flushCurrentObject(ctx) {
   const objectId = createUUID();
   const createObjectResult = ctx.sceneModel.createObject({
     id: objectId,
-    meshIds: [meshId]
+    meshIds: [meshId],
+    layerId: ctx.options.layerId
   });
   if (createObjectResult.ok !== true) {
     ctx.errors.push(`Failed to create object for object '${object.id}'`);
@@ -121154,8 +121362,8 @@ var OrthoProjection = class {
 
 // ../sdk/src/viewer/PerspectiveProjection.ts
 var import_strongly_typed_events8 = __toESM(require_dist8());
-var tempVec4a6 = createVec4Float64();
-var tempVec4b6 = createVec4Float64();
+var tempVec4a5 = createVec4Float64();
+var tempVec4b5 = createVec4Float64();
 var tempVec4c = createVec4Float64();
 var PerspectiveProjection = class {
   /**
@@ -121384,17 +121592,17 @@ var PerspectiveProjection = class {
     screenPos2[0] = (canvasPos2[0] - halfViewWidth) / halfViewWidth;
     screenPos2[1] = (canvasPos2[1] - halfViewHeight) / halfViewHeight;
     screenPos2[2] = screenZ;
-    tempVec4a6[0] = screenPos2[0];
-    tempVec4a6[1] = screenPos2[1];
-    tempVec4a6[2] = screenPos2[2];
-    tempVec4a6[3] = 1;
-    transformPoint4(this.inverseProjMatrix, tempVec4a6, tempVec4b6);
-    mulVec3Scalar(tempVec4b6, 1 / tempVec4b6[3]);
-    viewPos2[0] = tempVec4b6[0];
-    viewPos2[1] = tempVec4b6[1];
-    viewPos2[2] = tempVec4b6[2];
-    tempVec4b6[1] *= -1;
-    transformPoint4(this.camera.inverseViewMatrix, tempVec4b6, tempVec4c);
+    tempVec4a5[0] = screenPos2[0];
+    tempVec4a5[1] = screenPos2[1];
+    tempVec4a5[2] = screenPos2[2];
+    tempVec4a5[3] = 1;
+    transformPoint4(this.inverseProjMatrix, tempVec4a5, tempVec4b5);
+    mulVec3Scalar(tempVec4b5, 1 / tempVec4b5[3]);
+    viewPos2[0] = tempVec4b5[0];
+    viewPos2[1] = tempVec4b5[1];
+    viewPos2[2] = tempVec4b5[2];
+    tempVec4b5[1] *= -1;
+    transformPoint4(this.camera.inverseViewMatrix, tempVec4b5, tempVec4c);
     worldPos[0] = tempVec4c[0];
     worldPos[1] = tempVec4c[1];
     worldPos[2] = tempVec4c[2];
@@ -124617,13 +124825,6 @@ var ViewLayer = class {
       const model = models[id];
       this._sceneModelCreated(model);
     }
-    const sceneEvents = this.viewer.scene.events;
-    sceneEvents.onSceneObjectCreated.subscribe((scene, sceneObject) => {
-      this._sceneObjectCreated(sceneObject);
-    });
-    sceneEvents.onSceneObjectDestroyed.subscribe((scene, sceneObject) => {
-      this._sceneObjectDestroyed(sceneObject);
-    });
   }
   /**
    * @private
@@ -125530,6 +125731,14 @@ var View2 = class {
     });
     this.lights = {};
     this._autoLayers = viewParams.autoLayers !== false;
+    if (viewParams.layers) {
+      for (const viewLayerParams of viewParams.layers) {
+        const existingViewLayer = this.layers[viewLayerParams.id];
+        if (!existingViewLayer) {
+          this.createLayer(viewLayerParams);
+        }
+      }
+    }
     new AmbientLight(this, {
       color: [1, 1, 1],
       intensity: 1
@@ -127093,6 +127302,7 @@ var Viewer = class {
   _onSceneDestroyed;
   _onSceneMeshMatrixChanged;
   _onSceneMeshColorChanged;
+  _onSceneModelFinalized;
   /**
    * Creates a Viewer.
    *
@@ -127161,6 +127371,9 @@ var Viewer = class {
     this._onSceneObjectDestroyed = this.scene.events.onSceneObjectDestroyed.subscribe((scene2, sceneObject) => {
       this._detachSceneObject(sceneObject);
     });
+    this._onSceneModelFinalized = this.scene.events.onSceneModelFinalized.subscribe((scene2, sceneModel) => {
+      this._sceneModelFinalized(sceneModel);
+    });
     const sceneMeshUpdated = (scene2, mesh) => {
       for (const viewId in this.views) {
         const view = this.views[viewId];
@@ -127174,6 +127387,15 @@ var Viewer = class {
       ok: true,
       value: this
     };
+  }
+  _sceneModelFinalized(sceneModel) {
+    for (const viewId in this.views) {
+      const view = this.views[viewId];
+      for (const sceneObjectId in sceneModel.objects) {
+        const sceneObject = sceneModel.objects[sceneObjectId];
+        view._attachSceneObject(sceneObject);
+      }
+    }
   }
   _attachSceneObject(sceneObject) {
     for (const viewId in this.views) {
@@ -127215,6 +127437,9 @@ var Viewer = class {
     this.scene.events.onSceneDestroyed.unsubscribe(this._onSceneDestroyed);
     this.scene.events.onSceneObjectCreated.unsubscribe(this._onSceneObjectCreated);
     this.scene.events.onSceneObjectDestroyed.unsubscribe(this._onSceneObjectDestroyed);
+    this.scene.events.onSceneModelFinalized.unsubscribe(this._onSceneModelFinalized);
+    this.scene.events.onSceneMeshMatrixChanged.unsubscribe(this._onSceneMeshMatrixChanged);
+    this.scene.events.onSceneMeshColorChanged.unsubscribe(this._onSceneMeshColorChanged);
     const scene = this.scene;
     this.scene = null;
     this.events.onSceneDetached.dispatch(this, scene);
@@ -130337,8 +130562,6 @@ var GPUMemoryCheckResult = /* @__PURE__ */ ((GPUMemoryCheckResult4) => {
 })(GPUMemoryCheckResult || {});
 
 // ../sdk/src/webglrenderer/internal/gpuMemoryManager/GPUMemoryBatch.ts
-var MAX_MESHES = 5e5;
-var MAX_GEOMETRIES = 5e5;
 var GPUMemoryBatch = class {
   /**
    * The data textures that implement GPU-side model storage for this GPUMemoryBatch.
@@ -130366,18 +130589,12 @@ var GPUMemoryBatch = class {
   _geometryIndicesUsed;
   _sceneGeometries;
   _numGeometries;
-  _maxGeometries;
   _lastFreeMeshIndex;
   _lastFreeGeometryIndex;
   _geometryHandles;
   _meshHandles;
   _onTick;
-  _maxSlices;
-  _maxLights;
   _renderContext;
-  _maxIndices;
-  _maxPositions;
-  _maxPrims;
   /**
    * Creates a new GPUMemoryBatch.
    */
@@ -130559,6 +130776,10 @@ var GPUMemoryBatch = class {
     for (let i = 0; i < this._edgeMeshIndexTexture.length; i++) {
       total += this._edgeMeshIndexTexture[i].getAllocatedBytes();
     }
+    const numViews = this._meshViewAttributeTexture.length;
+    for (let i = 0; i < numViews; i++) {
+      total += this._meshViewAttributeTexture[i].getAllocatedBytes();
+    }
     return total;
   }
   /**
@@ -130580,6 +130801,10 @@ var GPUMemoryBatch = class {
     for (let i = 0; i < this._edgeMeshIndexTexture.length; i++) {
       total += this._edgeMeshIndexTexture[i].getUsedBytes();
     }
+    const numViews = this._meshViewAttributeTexture.length;
+    for (let i = 0; i < numViews; i++) {
+      total += this._meshViewAttributeTexture[i].getUsedBytes();
+    }
     return total;
   }
   /**
@@ -130598,7 +130823,7 @@ var GPUMemoryBatch = class {
     const vertCount = (geometry.positionsCompressed?.length ?? 0) / 3;
     const geometryExists = !!this._geometryHandles[geometry.id];
     if (!geometryExists) {
-      if (this._numGeometries >= this._maxGeometries) {
+      if (this._numGeometries >= this._renderContext.memoryConfigs.maxBatchGeometries) {
         return 3 /* TooManyGeometries */;
       }
       if (vertCount <= 0 || this._vertexPositionTexture.canGetPortion(vertCount) === false) {
@@ -130647,21 +130872,27 @@ var GPUMemoryBatch = class {
   addMesh(sceneMesh) {
     const existingMeshHandle = this._meshHandles[sceneMesh.id];
     if (existingMeshHandle) {
-      return existingMeshHandle.meshIndex;
+      return { ok: true, value: existingMeshHandle.meshIndex };
     }
-    if (this._numMeshes >= MAX_MESHES) {
+    const maxBatchMeshes = this._renderContext.memoryConfigs.maxBatchMeshes;
+    if (this._numMeshes + 1 >= maxBatchMeshes) {
       return {
         ok: false,
         type: 8 /* MemoryAllocationFailed */,
-        error: `GPUMemoryBatch.addMesh: Exceeded maximum number of meshes (${MAX_MESHES})`
+        error: `GPUMemoryBatch.addMesh: Exceeded maximum number of meshes (${maxBatchMeshes})`
       };
     }
-    if (this._numGeometries >= MAX_GEOMETRIES) {
-      return {
-        ok: false,
-        type: 8 /* MemoryAllocationFailed */,
-        error: `GPUMemoryBatch.addMesh: Exceeded maximum number of geometries (${MAX_GEOMETRIES})`
-      };
+    const sceneGeometry = sceneMesh.geometry;
+    let geometryHandle = this._geometryHandles[sceneGeometry.id];
+    if (!geometryHandle) {
+      const maxGeometries = this._renderContext.memoryConfigs.maxBatchGeometries;
+      if (this._numGeometries + 1 >= maxGeometries) {
+        return {
+          ok: false,
+          type: 8 /* MemoryAllocationFailed */,
+          error: `GPUMemoryBatch.addMesh: Exceeded maximum number of geometries (${maxGeometries})`
+        };
+      }
     }
     let positionsPortion = null;
     let vertexColorsPortion = null;
@@ -130690,8 +130921,6 @@ var GPUMemoryBatch = class {
       }
     };
     meshIndex = this._getFreeMeshIndex();
-    const sceneGeometry = sceneMesh.geometry;
-    let geometryHandle = this._geometryHandles[sceneGeometry.id];
     if (!geometryHandle) {
       geometryIndex = this._getFreeGeometryIndex();
       positionsPortion = this._vertexPositionTexture.getPortion(
@@ -130992,6 +131221,12 @@ var GPUMemoryBatch = class {
       if (geometryHandle.vertexColorsPortion) {
         this._vertexColorTexture.putPortion(geometryHandle.vertexColorsPortion);
       }
+      if (geometryHandle.indicesHandle) {
+        this._indexTexture.putPortion(geometryHandle.indicesHandle);
+      }
+      if (geometryHandle.edgeIndicesHandle) {
+        this._edgeIndexTexture.putPortion(geometryHandle.edgeIndicesHandle);
+      }
       delete this._geometryHandles[sceneGeometry.id];
       this._putFreeGeometryIndex(geometryHandle.geometryIndex);
       this._numGeometries--;
@@ -131015,7 +131250,9 @@ var GPUMemoryBatch = class {
     }
     delete this._meshHandles[sceneMesh.id];
     this._putFreeMeshIndex(meshIndex);
-    delete this._sceneGeometries[meshIndex];
+    if (geometryHandle) {
+      delete this._sceneGeometries[geometryHandle.geometryIndex];
+    }
     delete this._sceneMeshes[meshIndex];
     this._numMeshes--;
   }
@@ -131073,7 +131310,8 @@ var GPUMemoryBatch = class {
     return null;
   }
   _getFreeMeshIndex() {
-    for (let i = this._lastFreeMeshIndex; ; i = (i + 1) % MAX_MESHES) {
+    const maxMeshes = this._renderContext.memoryConfigs.maxBatchMeshes;
+    for (let i = this._lastFreeMeshIndex; ; i = (i + 1) % maxMeshes) {
       if (!this._meshIndicesUsed[i]) {
         this._meshIndicesUsed[i] = true;
         return i;
@@ -131087,7 +131325,8 @@ var GPUMemoryBatch = class {
     }
   }
   _getFreeGeometryIndex() {
-    for (let i = this._lastFreeGeometryIndex; ; i = (i + 1) % MAX_GEOMETRIES) {
+    const maxGeometries = this._renderContext.memoryConfigs.maxBatchGeometries;
+    for (let i = this._lastFreeGeometryIndex; ; i = (i + 1) % maxGeometries) {
       if (!this._geometryIndicesUsed[i]) {
         this._geometryIndicesUsed[i] = true;
         return i;
@@ -131116,7 +131355,8 @@ var GPUMemoryBatch = class {
     didFlush = this._vertexPositionTexture.uploadChanges() || didFlush;
     didFlush = this._vertexColorTexture.uploadChanges() || didFlush;
     didFlush = this._meshMatrixTexture.uploadChanges() || didFlush;
-    for (let i = 0; i < 4; i++) {
+    const numViews = this._renderContext.memoryConfigs.maxViews;
+    for (let i = 0; i < numViews; i++) {
       const primitiveMeshIndexTexture = this._primitiveMeshIndexTexture[i];
       if (primitiveMeshIndexTexture) {
         const primitiveMeshIndexTextureFlushed = primitiveMeshIndexTexture.uploadChanges();
@@ -131173,6 +131413,7 @@ var GPUMemoryBatch = class {
     this._meshAttributeTexture = clear(this._meshAttributeTexture);
     this._meshViewAttributeTexture = this._meshViewAttributeTexture.map(clear);
     this._geometryAttributeTexture = clear(this._geometryAttributeTexture);
+    this._geometryQuantRangeTexture = clear(this._geometryQuantRangeTexture);
     this._indexTexture = clear(this._indexTexture);
     this._edgeIndexTexture = clear(this._edgeIndexTexture);
     this._vertexPositionTexture = clear(this._vertexPositionTexture);
@@ -131685,7 +131926,7 @@ var GPUMemoryManager = class {
 // ../sdk/src/webglrenderer/internal/meshManager/RendererMesh.ts
 var tempIdentityMat4 = identityMat4(createMat4Float64());
 var identityVec4 = createVec4Float64([0, 0, 0, 1]);
-var tempVec4a7 = createVec4Float64();
+var tempVec4a6 = createVec4Float64();
 var RendererMesh = class {
   /**
    * The GPU tile currently assigned to this mesh.
@@ -131724,8 +131965,8 @@ var RendererMesh = class {
       colorizing: false,
       coloringOpacity: false,
       transparent: null,
-      objectVisible: true,
-      meshVisible: true
+      objectVisible: false,
+      meshVisible: false
     }));
     this.setMatrix(sceneMesh.globalMatrix);
     this.setOpacity(sceneMesh.globalOpacity);
@@ -131736,7 +131977,7 @@ var RendererMesh = class {
    */
   setMatrix(matrix) {
     matrix = matrix || tempIdentityMat4;
-    const center2 = transformPoint4(matrix, identityVec4, tempVec4a7);
+    const center2 = transformPoint4(matrix, identityVec4, tempVec4a6);
     const oldTile = this.gpuTile;
     this.gpuTile = oldTile ? this._gpuMemoryManager.moveTile(oldTile, center2) : this._gpuMemoryManager.getTile(center2);
     const tileChanged = !oldTile || oldTile.id !== this.gpuTile.id;
@@ -132288,6 +132529,21 @@ var MeshManager = class {
       };
     }
     this._rendererModels[sceneModel.id] = { rendererMeshes: {} };
+    return { ok: true, value: void 0 };
+  }
+  sceneModelFinalized(sceneModel) {
+    for (const sceneMesh of Object.values(sceneModel.meshes)) {
+      const result = this.sceneMeshCreated(sceneMesh);
+      if (!result.ok) {
+        return result;
+      }
+    }
+    for (const sceneObject of Object.values(sceneModel.objects)) {
+      const result = this.sceneObjectCreated(sceneObject);
+      if (!result.ok) {
+        return result;
+      }
+    }
     return { ok: true, value: void 0 };
   }
   /**
@@ -134662,8 +134918,8 @@ function putDrawOps(drawOps) {
 var tempVec3a10 = createVec3Float64();
 var tempVec3b10 = createVec3Float64();
 var tempVec3c6 = createVec3Float64();
-var tempVec4a8 = createVec4Float64();
-var tempVec4b7 = createVec4Float64();
+var tempVec4a7 = createVec4Float64();
+var tempVec4b6 = createVec4Float64();
 var tempVec4c2 = createVec4Float64();
 var tempVec4d = createVec4Float64();
 var tempVec4e = createVec4Float64();
@@ -134872,17 +135128,17 @@ var PickManager = class {
     const coordSysMatrix = sceneMesh.model.coordinateSystemMatrix;
     const pvmMat = mulMat4(mulMat4(pickProjMatrix, viewMatrix, tempMat4b2), coordSysMatrix, tempMat4d);
     const pvMatInverse = inverseMat4(pvmMat, tempMat4c);
-    tempVec4a8[0] = x;
-    tempVec4a8[1] = y;
-    tempVec4a8[2] = -1;
-    tempVec4a8[3] = 1;
-    let world1 = transformVec4(pvMatInverse, tempVec4a8);
+    tempVec4a7[0] = x;
+    tempVec4a7[1] = y;
+    tempVec4a7[2] = -1;
+    tempVec4a7[3] = 1;
+    let world1 = transformVec4(pvMatInverse, tempVec4a7);
     mulVec4Scalar(world1, 1 / world1[3], world1);
-    tempVec4b7[0] = x;
-    tempVec4b7[1] = y;
-    tempVec4b7[2] = 1;
-    tempVec4b7[3] = 1;
-    let world2 = transformVec4(pvMatInverse, tempVec4b7);
+    tempVec4b6[0] = x;
+    tempVec4b6[1] = y;
+    tempVec4b6[2] = 1;
+    tempVec4b6[3] = 1;
+    let world2 = transformVec4(pvMatInverse, tempVec4b6);
     mulVec4Scalar(world2, 1 / world2[3], world2);
     const dir = subVec3(world2, world1, tempVec3a10);
     const offset = mulVec3Scalar(dir, depth, tempVec3b10);
@@ -136782,6 +137038,12 @@ var ViewManager2 = class {
     return this._meshManager.sceneModelCreated(sceneModel);
   }
   /**
+   * Notifies the renderer that a {@link SceneModel} was finalized.
+   */
+  sceneModelFinalized(sceneModel) {
+    return this._meshManager.sceneModelFinalized(sceneModel);
+  }
+  /**
    * Notifies the renderer that a {@link SceneModel} was destroyed.
    *
    * Forwards to {@link MeshManager} to release associated GPU structures.
@@ -137506,6 +137768,7 @@ var WebGLRenderer3 = class {
       // Scene components creation/destruction
       // Log errors from these calls
       sceneEvents.onSceneModelCreated.subscribe((_, sceneModel) => this.logError(viewManager.sceneModelCreated(sceneModel))),
+      sceneEvents.onSceneModelFinalized.subscribe((_, sceneModel) => this.logError(viewManager.sceneModelFinalized(sceneModel))),
       sceneEvents.onSceneModelDestroyed.subscribe((_, sceneModel) => this.logError(viewManager.sceneModelDestroyed(sceneModel))),
       sceneEvents.onSceneGeometryCreated.subscribe((_, sceneGeometry) => this.logError(viewManager.sceneGeometryCreated(sceneGeometry))),
       sceneEvents.onSceneGeometryDestroyed.subscribe((_, sceneGeometry) => this.logError(viewManager.sceneGeometryDestroyed(sceneGeometry))),
@@ -137524,7 +137787,6 @@ var WebGLRenderer3 = class {
       viewerEvents.onViewDestroyed.subscribe((_, view) => this.logError(viewManager.viewDestroyed(view))),
       // SceneMesh and SceneTransform state changes
       sceneEvents.onSceneMeshGeometryChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshGeometryChanged(sceneMesh)),
-      //  sceneEvents.onSceneMeshVisibilityChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshVisibilityChanged(sceneMesh)),
       sceneEvents.onSceneMeshMatrixChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshMatrixChanged(sceneMesh)),
       sceneEvents.onSceneMeshColorChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshColorChanged(sceneMesh)),
       sceneEvents.onSceneMeshOpacityChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshOpacityChanged(sceneMesh)),
@@ -139821,6 +140083,12 @@ var PickController = class {
       return;
     }
     if (!this.schedulePick) {
+      return;
+    }
+    if (!this.#viewController.pick) {
+      console.warn("[PickController.update] No pick implementation found on ViewController.");
+      this.schedulePick = false;
+      this.scheduleSnapOrPick = false;
       return;
     }
     const hash = `${~~this.pickCursorPos[0]}-${~~this.pickCursorPos[1]}-${this.scheduleSnapOrPick}-${this.schedulePick}`;
@@ -142962,6 +143230,7 @@ var ContextMenu = class {
 // ../sdk/src/ui/treeview/index.ts
 var treeview_exports = {};
 __export(treeview_exports, {
+  TabbedTreeViewPanel: () => TabbedTreeViewPanel,
   TreeView: () => TreeView
 });
 
@@ -143006,6 +143275,191 @@ var TreeViewEvents = class {
 };
 
 // ../sdk/src/ui/treeview/TreeView.ts
+var TREE_VIEW_STYLE_ELEMENT_ID = "xeokit-treeview-styles";
+var TREE_VIEW_CSS = `
+  .xeokit-tree-view {
+    color: #1f2937;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  .xeokit-tree-view ul {
+    list-style: none;
+    margin: 0;
+    padding-left: 18px;
+  }
+
+  .xeokit-tree-view > ul {
+    padding-left: 0;
+  }
+
+  .xeokit-tree-view li {
+    position: relative;
+    display: block;
+    white-space: nowrap;
+    line-height: 1.45;
+    margin: 2px 0;
+    padding: 3px 0;
+    border-radius: 10px;
+  }
+
+  .xeokit-tree-view li::before {
+    content: "";
+    position: absolute;
+    left: -10px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: transparent;
+  }
+
+  .xeokit-tree-view a.plus,
+  .xeokit-tree-view a.minus {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    margin-right: 6px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    background: #f8fafc;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    vertical-align: middle;
+    transition: all 120ms ease;
+    box-sizing: border-box;
+  }
+
+  .xeokit-tree-view a.plus:hover,
+  .xeokit-tree-view a.minus:hover {
+    background: #eef2ff;
+    border-color: rgba(37, 99, 235, 0.28);
+    color: #2563eb;
+    transform: translateY(-1px);
+  }
+
+  .xeokit-tree-view input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    margin: 0 8px 0 0;
+    border-radius: 4px;
+    border: 1px solid rgba(100, 116, 139, 0.4);
+    background: white;
+    vertical-align: -2px;
+    position: relative;
+    cursor: pointer;
+    transition: all 120ms ease;
+  }
+
+  .xeokit-tree-view input[type="checkbox"]:checked {
+    background: #2563eb;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  }
+
+  .xeokit-tree-view input[type="checkbox"]:checked::after {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 1px;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  .xeokit-tree-view span {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #1f2937;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 120ms ease, color 120ms ease;
+  }
+
+  .xeokit-tree-view span:hover {
+    background: #f3f4f6;
+    color: #111827;
+  }
+
+  .xeokit-tree-view .highlighted-node > span {
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-weight: 600;
+  }
+
+  .xeokit-tree-view .xrayed-node > span {
+    opacity: 0.62;
+    font-style: italic;
+  }
+
+  .xeokit-context-menu {
+    font-family: 'Roboto', sans-serif;
+    font-size: 15px;
+    display: none;
+    z-index: 300000;
+    background: rgba(255, 255, 255, 0.46);
+    border: 1px solid black;
+    border-radius: 6px;
+    padding: 0;
+    width: 200px;
+  }
+
+  .xeokit-context-menu ul {
+    list-style: none;
+    margin-left: 0;
+    padding: 0;
+  }
+
+  .xeokit-context-menu-item {
+    list-style-type: none;
+    padding-left: 10px;
+    padding-right: 20px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    color: black;
+    background: rgba(255, 255, 255, 0.46);
+    cursor: pointer;
+    width: calc(100% - 30px);
+  }
+
+  .xeokit-context-menu-item:hover {
+    background: black;
+    color: white;
+    font-weight: normal;
+  }
+
+  .xeokit-context-menu-item span {
+    display: inline-block;
+  }
+
+  .xeokit-context-menu .disabled {
+    display: inline-block;
+    color: gray;
+    cursor: default;
+    font-weight: normal;
+  }
+
+  .xeokit-context-menu .disabled:hover {
+    color: gray;
+    cursor: default;
+    background: #eeeeee;
+    font-weight: normal;
+  }
+
+  .xeokit-context-menu-item-separator {
+    background: rgba(0, 0, 0, 1);
+    height: 1px;
+    width: 100%;
+  }
+`;
 var TreeView = class _TreeView {
   /**
    * Hierarchy mode that arranges the {@link TreeViewNode | TreeViewNodes} as an aggregation hierarchy.
@@ -143042,7 +143496,7 @@ var TreeView = class _TreeView {
   /**
    * The events emitted by this TreeView.
    */
-  events = new TreeViewEvents();
+  events;
   /**
    * The semantic {@link data!Data | Data} model that determines the structure of this TreeView.
    */
@@ -143074,6 +143528,7 @@ var TreeView = class _TreeView {
   _switchCollapseHandler;
   _checkboxChangeHandler;
   _destroyed;
+  _ownsContainerElement;
   _onSceneModelCreated;
   _onSceneModelDestroyed;
   _onViewObjectVisibility;
@@ -143088,22 +143543,20 @@ var TreeView = class _TreeView {
    * @param params
    */
   constructor(params) {
-    if (!params.containerElement) {
-      throw new Error("Config expected: containerElement");
-    }
     if (!params.data) {
       throw new Error("Config expected: data");
     }
     if (!params.view) {
       throw new Error("Config expected: view");
     }
+    this.events = params.events || new TreeViewEvents();
     this.data = params.data;
     this.view = params.view;
     this._viewer = params.view.viewer;
     this._linkType = params.linkType;
     this._groupTypes = params.groupTypes || [];
     this._hierarchy = _TreeView.AggregationHierarchy;
-    this._containerElement = params.containerElement;
+    this._containerElement = params.containerElement || this._createDefaultContainerElement();
     this._dataModels = {};
     this._autoAddModels = true;
     this._autoExpandDepth = params.autoExpandDepth || 0;
@@ -143118,10 +143571,13 @@ var TreeView = class _TreeView {
     this._showListItemElementId = null;
     this._destroyed = false;
     this._spatialSortFunc = null;
+    this._ownsContainerElement = !params.containerElement;
     this._dataObjectSceneObjectCounts = {};
     this._groupNodeIndex = {};
     this._typeRootNodeIndex = {};
     this._groupsTypeNodeIndex = {};
+    this._ensureStyles();
+    this._containerElement.classList.add("xeokit-tree-view");
     this._containerElement.oncontextmenu = (e) => {
       e.preventDefault();
     };
@@ -143453,6 +143909,10 @@ var TreeView = class _TreeView {
     viewerEvents.onViewObjectXRayedChanged.unsubscribe(this._onViewObjectXRayed);
     this.data.events.onDataObjectCreated.unsubscribe(this._onDataObjectCreated);
     this.data.events.onDataObjectDestroyed.unsubscribe(this._onDataObjectDestroyed);
+    this._containerElement.classList.remove("xeokit-tree-view");
+    if (this._ownsContainerElement && this._containerElement.parentNode) {
+      this._containerElement.parentNode.removeChild(this._containerElement);
+    }
     this._destroyed = true;
     this.events.destroy();
   }
@@ -144465,6 +144925,291 @@ var TreeView = class _TreeView {
       current = parent;
     }
   }
+  _ensureStyles() {
+    if (typeof document === "undefined") {
+      return;
+    }
+    const existing = document.getElementById(TREE_VIEW_STYLE_ELEMENT_ID);
+    if (existing) {
+      return;
+    }
+    const styleElement = document.createElement("style");
+    styleElement.id = TREE_VIEW_STYLE_ELEMENT_ID;
+    styleElement.type = "text/css";
+    styleElement.textContent = TREE_VIEW_CSS;
+    document.head.appendChild(styleElement);
+  }
+  _createDefaultContainerElement() {
+    if (typeof document === "undefined") {
+      throw new Error("Config expected: containerElement");
+    }
+    const containerElement = document.createElement("div");
+    containerElement.style.position = "absolute";
+    containerElement.style.left = "0";
+    containerElement.style.top = "0";
+    containerElement.style.zIndex = "100000";
+    document.body.appendChild(containerElement);
+    return containerElement;
+  }
+};
+
+// ../sdk/src/ui/treeview/TabbedTreeViewPanel.ts
+var TABBED_TREE_VIEW_STYLE_ELEMENT_ID = "xeokit-tabbed-treeview-styles";
+var TABBED_TREE_VIEW_CSS = `
+  .xeokit-tree-panel {
+    position: absolute;
+    left: 16px;
+    top: 76px;
+    width: 640px;
+    max-height: calc(100vh - 32px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.14);
+    backdrop-filter: blur(10px);
+    color: #1f2937;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    z-index: 100000;
+  }
+
+  .xeokit-tree-panel-header {
+    padding: 14px 16px 12px 16px;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.75), rgba(255,255,255,0.55));
+  }
+
+  .xeokit-tree-panel-title {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: #111827;
+    margin-bottom: 2px;
+  }
+
+  .xeokit-tree-panel-subtitle {
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  .xeokit-tree-panel-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px 0 12px;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    background: rgba(255, 255, 255, 0.55);
+  }
+
+  .xeokit-tree-panel-tab {
+    appearance: none;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    background: #f8fafc;
+    color: #475569;
+    border-radius: 10px 10px 0 0;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 120ms ease;
+  }
+
+  .xeokit-tree-panel-tab:hover {
+    background: #eef2ff;
+    color: #2563eb;
+    border-color: rgba(37, 99, 235, 0.28);
+  }
+
+  .xeokit-tree-panel-tab.active {
+    background: #dbeafe;
+    color: #1d4ed8;
+    border-color: rgba(37, 99, 235, 0.28);
+  }
+
+  .xeokit-tree-panel-body {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .xeokit-tree-panel-pane {
+    display: none;
+    height: 100%;
+    overflow: auto;
+    padding: 10px 10px 14px 10px;
+  }
+
+  .xeokit-tree-panel-pane.active {
+    display: block;
+  }
+
+  .xeokit-tree-panel-pane::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  .xeokit-tree-panel-pane::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.28);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  .xeokit-tree-panel-pane .xeokit-tree-view {
+    position: relative;
+  }
+`;
+var TabbedTreeViewPanel = class {
+  aggregationTreeView;
+  typesTreeView;
+  groupsTreeView;
+  panelElement;
+  /**
+   * The events emitted by this TabbedTreeViewPanel.
+   */
+  events = new TreeViewEvents();
+  _ownsPanelElement;
+  _tabButtons = [];
+  _tabPanes = [];
+  constructor(params) {
+    if (!params.data) {
+      throw new Error("Config expected: data");
+    }
+    if (!params.view) {
+      throw new Error("Config expected: view");
+    }
+    this._ensureStyles();
+    this.panelElement = params.panelElement || this._createDefaultPanelElement();
+    this._ownsPanelElement = !params.panelElement;
+    this.panelElement.classList.add("xeokit-tree-panel");
+    const header = document.createElement("div");
+    header.className = "xeokit-tree-panel-header";
+    const title = document.createElement("div");
+    title.className = "xeokit-tree-panel-title";
+    title.textContent = params.title || "Model Tree";
+    const subtitle = document.createElement("div");
+    subtitle.className = "xeokit-tree-panel-subtitle";
+    subtitle.textContent = params.subtitle || "Browse the model using different hierarchy views";
+    header.appendChild(title);
+    header.appendChild(subtitle);
+    const tabs = document.createElement("div");
+    tabs.className = "xeokit-tree-panel-tabs";
+    const body = document.createElement("div");
+    body.className = "xeokit-tree-panel-body";
+    this.panelElement.appendChild(header);
+    this.panelElement.appendChild(tabs);
+    this.panelElement.appendChild(body);
+    const aggregationPane = this._createPane(body);
+    const typesPane = this._createPane(body);
+    const groupsPane = this._createPane(body);
+    const baseParams = {
+      ...params
+    };
+    this.aggregationTreeView = new TreeView({
+      ...baseParams,
+      containerElement: aggregationPane,
+      hierarchy: TreeView.AggregationHierarchy,
+      events: this.events
+    });
+    this.typesTreeView = new TreeView({
+      ...baseParams,
+      containerElement: typesPane,
+      hierarchy: TreeView.TypesHierarchy,
+      events: this.events
+    });
+    this.groupsTreeView = new TreeView({
+      ...baseParams,
+      containerElement: groupsPane,
+      hierarchy: TreeView.GroupsHierarchy,
+      events: this.events
+    });
+    this._createTabButton(tabs, "Aggregation", 0);
+    this._createTabButton(tabs, "Types", 1);
+    this._createTabButton(tabs, "Storeys", 2);
+    this._activateTab(0);
+  }
+  /**
+   * Activates a tab by index.
+   */
+  setActiveTab(tabIndex) {
+    this._activateTab(tabIndex);
+  }
+  /**
+   * Highlights a node in all three tree views.
+   */
+  showNode(objectId) {
+    this.aggregationTreeView.showNode(objectId);
+    this.typesTreeView.showNode(objectId);
+    this.groupsTreeView.showNode(objectId);
+  }
+  /**
+   * Removes any current highlight from all tree views.
+   */
+  unShowNode() {
+    this.aggregationTreeView.unShowNode();
+    this.typesTreeView.unShowNode();
+    this.groupsTreeView.unShowNode();
+  }
+  /**
+   * Destroys the panel and its child tree views.
+   */
+  destroy() {
+    this.aggregationTreeView.destroy();
+    this.typesTreeView.destroy();
+    this.groupsTreeView.destroy();
+    if (this._ownsPanelElement && this.panelElement.parentNode) {
+      this.panelElement.parentNode.removeChild(this.panelElement);
+    }
+  }
+  _createPane(body) {
+    const pane = document.createElement("div");
+    pane.className = "xeokit-tree-panel-pane";
+    body.appendChild(pane);
+    this._tabPanes.push(pane);
+    return pane;
+  }
+  _createTabButton(tabs, label, tabIndex) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "xeokit-tree-panel-tab";
+    button.textContent = label;
+    button.addEventListener("click", () => {
+      this._activateTab(tabIndex);
+    });
+    tabs.appendChild(button);
+    this._tabButtons.push(button);
+  }
+  _activateTab(tabIndex) {
+    for (let i = 0; i < this._tabButtons.length; i++) {
+      const active = i === tabIndex;
+      this._tabButtons[i].classList.toggle("active", active);
+      this._tabPanes[i].classList.toggle("active", active);
+    }
+  }
+  _ensureStyles() {
+    if (typeof document === "undefined") {
+      return;
+    }
+    const existing = document.getElementById(TABBED_TREE_VIEW_STYLE_ELEMENT_ID);
+    if (existing) {
+      return;
+    }
+    const styleElement = document.createElement("style");
+    styleElement.id = TABBED_TREE_VIEW_STYLE_ELEMENT_ID;
+    styleElement.type = "text/css";
+    styleElement.textContent = TABBED_TREE_VIEW_CSS;
+    document.head.appendChild(styleElement);
+  }
+  _createDefaultPanelElement() {
+    if (typeof document === "undefined") {
+      throw new Error("Config expected: panelElement");
+    }
+    const panelElement = document.createElement("div");
+    document.body.appendChild(panelElement);
+    return panelElement;
+  }
 };
 
 // ../sdk/src/modelconverter/index.ts
@@ -144992,8 +145737,10 @@ function stripPathFromFilename(fullPath) {
 // ../sdk/src/demo/index.ts
 var demo_exports = {};
 __export(demo_exports, {
+  AutoDimensions: () => AutoDimensions,
   CanvasContextMenu: () => CanvasContextMenu,
   DemoHelper: () => DemoHelper2,
+  LoadingSpinner: () => LoadingSpinner,
   SceneModelExploder: () => SceneModelExploder,
   ViewObjectContextMenu: () => ViewObjectContextMenu,
   buildDemoModelTable: () => buildDemoModelTable
@@ -151659,13 +152406,6 @@ function createWebGLContextGroup() {
   ];
 }
 function loseWebGLContext(renderer) {
-  const gl = renderer?.gl ?? renderer?._gl ?? renderer?.context;
-  const ext = gl?.getExtension?.("WEBGL_lose_context");
-  if (!ext) {
-    console.warn("WEBGL_lose_context extension is not available.");
-    return;
-  }
-  ext.loseContext();
 }
 function createCameraProjectionGroup() {
   return [
@@ -152316,9 +153056,415 @@ function escapeHtml5(s) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
+// ../sdk/src/demo/LoadingSpinner.ts
+var LoadingSpinner = class _LoadingSpinner {
+  total = 0;
+  loaded = 0;
+  overlay;
+  container;
+  spinnerWrap;
+  cube;
+  text;
+  subtext;
+  progressTrack;
+  progressFill;
+  hideTimer = null;
+  opts;
+  static stylesInjected = false;
+  /**
+   * Creates a ``LoadingSpinner``.
+   *
+   * @param options Spinner configuration.
+   */
+  constructor(options = {}) {
+    this.opts = {
+      clamp: options.clamp ?? true,
+      autoHide: options.autoHide ?? true,
+      autoHideDelayMs: options.autoHideDelayMs ?? 300,
+      ...options
+    };
+    this.injectStylesOnce();
+    this.overlay = document.createElement("div");
+    this.overlay.className = "xeokit-loading-overlay";
+    this.container = document.createElement("div");
+    this.container.className = "xeokit-loading-card";
+    this.container.setAttribute("role", "progressbar");
+    this.container.setAttribute("aria-valuemin", "0");
+    this.spinnerWrap = document.createElement("div");
+    this.spinnerWrap.className = "xeokit-spinner-wrap";
+    const scene = document.createElement("div");
+    scene.className = "xeokit-spinner-scene";
+    this.cube = document.createElement("div");
+    this.cube.className = "xeokit-cube";
+    const faces2 = ["front", "back", "right", "left", "top", "bottom"];
+    for (const face of faces2) {
+      const faceEl = document.createElement("div");
+      faceEl.className = `xeokit-cube-face xeokit-cube-face-${face}`;
+      this.cube.appendChild(faceEl);
+    }
+    const orbit = document.createElement("div");
+    orbit.className = "xeokit-orbit-ring";
+    const glow = document.createElement("div");
+    glow.className = "xeokit-spinner-glow";
+    scene.appendChild(glow);
+    scene.appendChild(orbit);
+    scene.appendChild(this.cube);
+    this.spinnerWrap.appendChild(scene);
+    this.text = document.createElement("div");
+    this.text.className = "xeokit-loading-text";
+    this.text.textContent = "Loading model\u2026";
+    this.subtext = document.createElement("div");
+    this.subtext.className = "xeokit-loading-subtext";
+    this.subtext.textContent = "";
+    this.progressTrack = document.createElement("div");
+    this.progressTrack.className = "xeokit-loading-progress-track";
+    this.progressFill = document.createElement("div");
+    this.progressFill.className = "xeokit-loading-progress-fill";
+    this.progressTrack.appendChild(this.progressFill);
+    this.container.appendChild(this.spinnerWrap);
+    this.container.appendChild(this.text);
+    this.container.appendChild(this.subtext);
+    this.container.appendChild(this.progressTrack);
+    this.overlay.appendChild(this.container);
+    document.body.appendChild(this.overlay);
+    if (typeof this.opts.initialLoaded === "number") {
+      this.loaded = Math.max(0, this.opts.initialLoaded);
+    }
+    this.render();
+    sdkProgress.onTasksAdded.subscribe((_sdkProgress, numAdded) => {
+      this.total += numAdded;
+      this.cancelAutoHide();
+      this.show();
+      this.render();
+    });
+    sdkProgress.onTaskCompleted.subscribe(() => {
+      this.itemLoaded();
+    });
+  }
+  /**
+   * Sets the total number of items to load.
+   *
+   * Optionally preserves the current loaded count.
+   *
+   * @param totalThings Total number of items.
+   * @param keepLoaded When ``true``, preserves the current loaded count instead of resetting it.
+   */
+  setTotal(totalThings, keepLoaded = false) {
+    this.total = Math.max(0, Math.floor(totalThings));
+    if (!keepLoaded)
+      this.loaded = 0;
+    this.cancelAutoHide();
+    this.show();
+    this.render();
+  }
+  /**
+   * Increments the number of loaded items.
+   *
+   * @param count Number of items completed.
+   */
+  itemLoaded(count = 1) {
+    if (this.total <= 0)
+      return;
+    this.loaded += count;
+    if (this.opts.clamp) {
+      this.loaded = Math.min(Math.max(this.loaded, 0), this.total);
+    }
+    this.render();
+    if (this.loaded >= this.total && this.opts.autoHide) {
+      this.scheduleAutoHide();
+    }
+  }
+  /**
+   * Sets the number of loaded items directly.
+   *
+   * @param loadedThings Number of loaded items.
+   */
+  setLoaded(loadedThings) {
+    this.loaded = Math.floor(loadedThings);
+    if (this.opts.clamp && this.total > 0) {
+      this.loaded = Math.min(Math.max(this.loaded, 0), this.total);
+    }
+    this.cancelAutoHide();
+    this.show();
+    this.render();
+    if (this.total > 0 && this.loaded >= this.total && this.opts.autoHide) {
+      this.scheduleAutoHide();
+    }
+  }
+  /**
+   * Resets progress to zero and shows the spinner.
+   */
+  reset() {
+    this.loaded = 0;
+    this.cancelAutoHide();
+    this.show();
+    this.render();
+  }
+  /**
+   * Shows the spinner overlay.
+   */
+  show() {
+    this.overlay.style.display = "flex";
+  }
+  /**
+   * Hides the spinner overlay.
+   */
+  hide() {
+    this.overlay.style.display = "none";
+  }
+  /**
+   * Destroys this spinner and removes its DOM elements.
+   */
+  destroy() {
+    this.cancelAutoHide();
+    this.overlay.remove();
+  }
+  /**
+   * Renders the current progress state to the DOM.
+   */
+  render() {
+    const pct = this.total <= 0 ? 0 : this.loaded / this.total * 100;
+    const safePct = Math.min(Math.max(pct, 0), 100);
+    this.container.setAttribute("aria-valuemax", String(this.total));
+    this.container.setAttribute("aria-valuenow", String(this.loaded));
+    this.progressFill.style.width = `${safePct}%`;
+    const labelText = this.opts.label?.(this.loaded, this.total, safePct) ?? (this.total > 0 ? `Loading model\u2026 ${this.loaded} / ${this.total} (${Math.round(safePct)}%)` : `Preparing scene\u2026`);
+    this.subtext.textContent = labelText;
+    const glowStrength = 0.35 + safePct / 180;
+    this.spinnerWrap.style.setProperty("--xeokit-glow-alpha", String(glowStrength));
+  }
+  /**
+   * Schedules the spinner to hide after the configured auto-hide delay.
+   */
+  scheduleAutoHide() {
+    this.cancelAutoHide();
+    this.hideTimer = window.setTimeout(() => this.hide(), this.opts.autoHideDelayMs);
+  }
+  /**
+   * Cancels any pending auto-hide timer.
+   */
+  cancelAutoHide() {
+    if (this.hideTimer !== null) {
+      window.clearTimeout(this.hideTimer);
+      this.hideTimer = null;
+    }
+  }
+  /**
+   * Injects shared CSS styles for the spinner once per page.
+   */
+  injectStylesOnce() {
+    if (_LoadingSpinner.stylesInjected)
+      return;
+    _LoadingSpinner.stylesInjected = true;
+    const style = document.createElement("style");
+    style.textContent = `
+      .xeokit-loading-overlay {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background:
+          radial-gradient(circle at 50% 50%, rgba(80, 140, 255, 0.10), rgba(0, 0, 0, 0.50)),
+          rgba(7, 10, 18, 0.45);
+        backdrop-filter: blur(4px);
+        z-index: 2000000;
+      }
+
+      .xeokit-loading-card {
+        min-width: 280px;
+        max-width: 80%;
+        padding: 20px 22px 18px;
+        border-radius: 16px;
+        background: linear-gradient(180deg, rgba(20,24,36,0.96), rgba(11,14,22,0.96));
+        box-shadow:
+          0 18px 50px rgba(0,0,0,0.45),
+          inset 0 1px 0 rgba(255,255,255,0.06);
+        border: 1px solid rgba(120, 160, 255, 0.18);
+        text-align: center;
+        color: #e8eefc;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      .xeokit-spinner-wrap {
+        --xeokit-glow-alpha: 0.5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .xeokit-spinner-scene {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        perspective: 700px;
+      }
+
+      .xeokit-spinner-glow {
+        position: absolute;
+        inset: 50% auto auto 50%;
+        width: 64px;
+        height: 64px;
+        transform: translate(-50%, -50%);
+        border-radius: 999px;
+        background: radial-gradient(circle, rgba(92, 153, 255, var(--xeokit-glow-alpha)) 0%, rgba(92, 153, 255, 0.06) 55%, rgba(92, 153, 255, 0) 72%);
+        filter: blur(6px);
+        animation: xeokit-pulse 1.8s ease-in-out infinite;
+        pointer-events: none;
+      }
+
+      .xeokit-orbit-ring {
+        position: absolute;
+        inset: 50% auto auto 50%;
+        width: 74px;
+        height: 74px;
+        transform: translate(-50%, -50%) rotateX(70deg);
+        border-radius: 999px;
+        border: 1px solid rgba(120, 170, 255, 0.4);
+        box-shadow: 0 0 14px rgba(90, 150, 255, 0.15);
+        animation: xeokit-ring-spin 2.8s linear infinite;
+      }
+
+      .xeokit-orbit-ring::before,
+      .xeokit-orbit-ring::after {
+        content: "";
+        position: absolute;
+        inset: -1px;
+        border-radius: 999px;
+        border: 1px solid rgba(120, 170, 255, 0.18);
+      }
+
+      .xeokit-orbit-ring::before {
+        transform: rotate(60deg);
+      }
+
+      .xeokit-orbit-ring::after {
+        transform: rotate(120deg);
+      }
+
+      .xeokit-cube {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 34px;
+        height: 34px;
+        transform-style: preserve-3d;
+        transform: translate(-50%, -50%) rotateX(-24deg) rotateY(35deg);
+        animation: xeokit-cube-spin 2.2s cubic-bezier(.65,.05,.36,1) infinite;
+      }
+
+      .xeokit-cube-face {
+        position: absolute;
+        width: 34px;
+        height: 34px;
+        box-sizing: border-box;
+        border: 1px solid rgba(168, 206, 255, 0.55);
+        background:
+          linear-gradient(135deg, rgba(95, 155, 255, 0.22), rgba(95, 155, 255, 0.04));
+        box-shadow:
+          inset 0 0 12px rgba(110, 170, 255, 0.12),
+          0 0 10px rgba(80, 140, 255, 0.08);
+        backdrop-filter: blur(2px);
+      }
+
+      .xeokit-cube-face::after {
+        content: "";
+        position: absolute;
+        inset: 5px;
+        border: 1px solid rgba(180, 220, 255, 0.22);
+      }
+
+      .xeokit-cube-face-front  { transform: translateZ(17px); }
+      .xeokit-cube-face-back   { transform: rotateY(180deg) translateZ(17px); }
+      .xeokit-cube-face-right  { transform: rotateY(90deg) translateZ(17px); }
+      .xeokit-cube-face-left   { transform: rotateY(-90deg) translateZ(17px); }
+      .xeokit-cube-face-top    { transform: rotateX(90deg) translateZ(17px); }
+      .xeokit-cube-face-bottom { transform: rotateX(-90deg) translateZ(17px); }
+
+      .xeokit-loading-text {
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        margin-bottom: 4px;
+        color: #f4f7ff;
+      }
+
+      .xeokit-loading-subtext {
+        font-size: 12px;
+        line-height: 1.4;
+        color: rgba(225, 234, 255, 0.72);
+        margin-bottom: 12px;
+        min-height: 17px;
+      }
+
+      .xeokit-loading-progress-track {
+        width: 100%;
+        height: 8px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: rgba(255,255,255,0.08);
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.35);
+      }
+
+      .xeokit-loading-progress-fill {
+        width: 0%;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #4f8cff, #7db6ff);
+        box-shadow: 0 0 16px rgba(87, 151, 255, 0.5);
+        transition: width 160ms ease;
+      }
+
+      @keyframes xeokit-cube-spin {
+        0% {
+          transform: translate(-50%, -50%) rotateX(-24deg) rotateY(0deg) rotateZ(0deg);
+        }
+        25% {
+          transform: translate(-50%, -50%) rotateX(56deg) rotateY(90deg) rotateZ(8deg);
+        }
+        50% {
+          transform: translate(-50%, -50%) rotateX(156deg) rotateY(180deg) rotateZ(0deg);
+        }
+        75% {
+          transform: translate(-50%, -50%) rotateX(236deg) rotateY(270deg) rotateZ(-8deg);
+        }
+        100% {
+          transform: translate(-50%, -50%) rotateX(336deg) rotateY(360deg) rotateZ(0deg);
+        }
+      }
+
+      @keyframes xeokit-ring-spin {
+        from {
+          transform: translate(-50%, -50%) rotateX(70deg) rotateZ(0deg);
+        }
+        to {
+          transform: translate(-50%, -50%) rotateX(70deg) rotateZ(360deg);
+        }
+      }
+
+      @keyframes xeokit-pulse {
+        0%, 100% {
+          transform: translate(-50%, -50%) scale(0.92);
+          opacity: 0.72;
+        }
+        50% {
+          transform: translate(-50%, -50%) scale(1.08);
+          opacity: 1;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+};
+
 // ../sdk/src/demo/DemoHelper.ts
 var taskRunner2 = getGlobalTaskRunner();
 var DemoHelper2 = class {
+  /**
+   * Base directory for loading models, relative to the HTML page.
+   */
+  modelsDir = "../../models";
   /**
    * The Scene created by the DemoHelper. Holds all 3D objects.
    */
@@ -152347,7 +153493,6 @@ var DemoHelper2 = class {
    * The maximum number of views to create.
    */
   maxViews;
-  makeView;
   makeComponents;
   showOverlayButton;
   overlayButton = null;
@@ -152364,6 +153509,7 @@ var DemoHelper2 = class {
   _autoCanvasByViewId = {};
   _viewObjectContextMenu;
   _canvasContextMenu;
+  _loadingSpinner;
   /**
    * Statistics about the demo, available after calling `finished()`.
    */
@@ -152373,7 +153519,9 @@ var DemoHelper2 = class {
    * @param cfg
    */
   constructor(cfg = {}) {
-    this.makeView = cfg.makeView !== false;
+    if (cfg.modelsDir) {
+      this.modelsDir = cfg.modelsDir;
+    }
     this.makeComponents = cfg.makeComponents !== false;
     this.showOverlayButton = cfg.showOverlayButton !== false;
     this.maxViews = cfg.maxViews ?? 4;
@@ -152403,20 +153551,38 @@ var DemoHelper2 = class {
         this.data = new Data2();
         this.viewer = new Viewer();
         this.renderer = new WebGLRenderer3({
+          // memoryConfigs: {
+          //   maxViews: this.maxViews ?? (cfg.maxViews ?? 1),
+          //   tileSize: 200,
+          //   maxTiles: 2000,
+          //   maxBatches: 300,
+          //   maxBatchVertices: 70000,
+          //   maxBatchIndices: 170000,
+          //   maxBatchGeometries: 10000,
+          //   maxBatchMeshes: 20000,
+          //   maxBatchPrims: 1000000
+          // }
           memoryConfigs: {
             maxViews: this.maxViews ?? (cfg.maxViews ?? 1),
             tileSize: 200,
             maxTiles: 2e3,
             maxBatches: 300,
-            maxBatchVertices: 5e5,
-            maxBatchIndices: 7e5,
+            maxBatchVertices: 1e5,
+            maxBatchIndices: 1e5,
             maxBatchGeometries: 1e4,
             maxBatchMeshes: 1e4,
-            maxBatchPrims: 1e6
+            maxBatchPrims: 1e5
           }
         });
         const log2 = (eventName, sender, args) => {
+          console.log(`[${sender.constructor.name.padEnd(14)}] ${eventName}`, args);
         };
+        if (cfg.logging) {
+          new EventsLogger(this.scene.events, { prefix: "[Scene        ]", log: log2 });
+          new EventsLogger(this.data.events, { prefix: "[Data         ]", log: log2 });
+          new EventsLogger(this.viewer.events, { prefix: "[Viewer       ]", log: log2 });
+          new EventsLogger(this.renderer.events, { prefix: "[WebGLRenderer]", log: log2 });
+        }
         const onError = (_, result) => {
           setInterval(() => {
             window.postMessage({
@@ -152450,12 +153616,224 @@ var DemoHelper2 = class {
         this._viewObjectContextMenu.on("hidden", () => {
           taskRunner2.unsuspend();
         });
+        this._loadingSpinner = new LoadingSpinner({
+          autoHide: true,
+          autoHideDelayMs: 500
+        });
+        sdkProgress.addTask();
         window.demoHelper = this;
         resolve2({});
       } else {
         resolve2({});
       }
     });
+  }
+  /**
+   * Loads a model into the Scene and/or Data layers using a format-specific loader.
+   *
+   * This method:
+   * - Resolves or creates {@link SceneModel} and {@link DataModel} instances when not provided
+   * - Fetches model data from `params.src` or a default path derived from `modelId`
+   * - Selects the appropriate loader based on `params.format`
+   * - Delegates parsing and population to the corresponding loader implementation
+   *
+   * Supported formats:
+   * - `"xgf"` → {@link XGFLoader} (binary)
+   * - `"ifc"` → {@link IFCLoader} (binary)
+   * - `"gltf"` → {@link GLTFLoader} (binary, `.glb`)
+   * - `"metamodel"` → {@link MetaModelLoader} (JSON, data-only)
+   * - `"datamodel"` → {@link DataModelParamsLoader} (JSON, data-only)
+   * - `"scenemodel"` → {@link SceneModelParamsLoader} (JSON, scene-only)
+   *
+   * Default source resolution:
+   * If `params.src` is not provided, the source path is inferred as:
+   * `../../models/{modelId}/{format}/model.{ext}`
+   *
+   * Model creation behavior:
+   * - If `sceneModel` is not provided, a new one is created via `this.scene.createModel()`
+   * - If `dataModel` is not provided, a new one is created via `this.data.createModel()`
+   * - Created model IDs are derived from `modelId` when available
+   *
+   * @param params - Configuration for loading the model
+   * @param params.src - Optional explicit source URL/path for the model file
+   * @param params.modelId - Optional identifier used for default paths and generated model IDs
+   * @param params.format - Model format determining which loader to use
+   * @param params.dataModel - Optional existing {@link DataModel} to populate
+   * @param params.sceneModel - Optional existing {@link SceneModel} to populate
+   *
+   * @param options - Loader-specific options passed through to the underlying loader
+   *
+   * @returns A promise resolving to an {@link SDKResult} containing the loader result
+   *
+   * @throws Error
+   * - If model creation fails
+   * - If the format is unsupported
+   * - If fetching or parsing the model data fails
+   */
+  async loadModel(params, options) {
+    const getSceneModel = () => {
+      if (params.sceneModel) {
+        return params.sceneModel;
+      }
+      const result = this.scene.createModel({
+        id: params.modelId ? `${params.modelId}-scene` : void 0
+      });
+      if (result.ok === false) {
+        throw new Error(result.error);
+      }
+      return result.value;
+    };
+    const getDataModel = () => {
+      if (params.dataModel) {
+        return params.dataModel;
+      }
+      const result = this.data.createModel({
+        id: params.modelId ? `${params.modelId}-data` : void 0
+      });
+      if (result.ok === false) {
+        throw new Error(result.error);
+      }
+      return result.value;
+    };
+    const loadArrayBuffer = async (src) => {
+      const response = await fetch(src);
+      return response.arrayBuffer();
+    };
+    const loadJSON2 = async (src) => {
+      const response = await fetch(src);
+      return response.json();
+    };
+    const loadText = async (src) => {
+      const response = await fetch(src);
+      return response.text();
+    };
+    switch (params.format) {
+      case "xgf": {
+        const fileData = await loadArrayBuffer(
+          params.src || `../../models/${params.modelId}/xgf/model.xgf`
+        );
+        return new XGFLoader().load(
+          {
+            fileData,
+            sceneModel: getSceneModel()
+          },
+          options
+        );
+      }
+      case "ifc": {
+        const fileData = await loadArrayBuffer(
+          params.src || `../../models/${params.modelId}/ifc/model.ifc`
+        );
+        return new IFCLoader().load(
+          {
+            fileData,
+            sceneModel: getSceneModel(),
+            dataModel: getDataModel()
+          },
+          options
+        );
+      }
+      case "gltf": {
+        const fileData = await loadArrayBuffer(
+          params.src || `../../models/${params.modelId}/gltf/model.glb`
+        );
+        return new GLTFLoader2().load(
+          {
+            fileData,
+            sceneModel: getSceneModel()
+          },
+          options
+        );
+      }
+      case "mtl": {
+        const fileData = await loadText(
+          params.src || `../../models/${params.modelId}/mtl/model.mtl`
+        );
+        return new MTLLoader().load(
+          {
+            fileData,
+            sceneModel: getSceneModel()
+          },
+          options
+        );
+      }
+      case "obj": {
+        const fileData = await loadText(
+          params.src || `../../models/${params.modelId}/obj/model.obj`
+        );
+        return new OBJLoader().load(
+          {
+            fileData,
+            sceneModel: getSceneModel()
+          },
+          options
+        );
+      }
+      case "dotbim": {
+        const fileData = await loadArrayBuffer(
+          params.src || `../../models/${params.modelId}/dotbim/model.bim`
+        );
+        return new DotBIMLoader().load(
+          {
+            fileData,
+            sceneModel: getSceneModel(),
+            dataModel: getDataModel()
+          },
+          options
+        );
+      }
+      case "cityjson": {
+        const fileData = await loadJSON2(
+          params.src || `../../models/${params.modelId}/cityjson/model.json`
+        );
+        return new CityJSONLoader().load(
+          {
+            fileData,
+            sceneModel: getSceneModel(),
+            dataModel: getDataModel()
+          },
+          options
+        );
+      }
+      case "metamodel": {
+        const fileData = await loadJSON2(
+          params.src || `../../models/${params.modelId}/metamodel/model.json`
+        );
+        return new MetaModelLoader().load(
+          {
+            fileData,
+            dataModel: getDataModel()
+          },
+          options
+        );
+      }
+      case "datamodel": {
+        const fileData = await loadJSON2(
+          params.src || `../../models/${params.modelId}/datamodel/model.json`
+        );
+        return new DataModelParamsLoader().load(
+          {
+            fileData,
+            dataModel: getDataModel()
+          },
+          options
+        );
+      }
+      case "scenemodel": {
+        const fileData = await loadJSON2(
+          params.src || `../../models/${params.modelId}/scenemodel/model.json`
+        );
+        return new SceneModelParamsLoader().load(
+          {
+            fileData,
+            sceneModel: getSceneModel()
+          },
+          options
+        );
+      }
+      default:
+        throw new Error(`Unsupported model format: ${params.format}`);
+    }
   }
   /**
    * Creates a new View in the Viewer.
@@ -152577,6 +153955,24 @@ var DemoHelper2 = class {
     return view;
   }
   /**
+   * Fits the camera of the given View to the Scene's AABB.
+   * @param view
+   */
+  viewFit(view) {
+    const viewData = this.views[view.id];
+    if (!viewData) {
+      throw new Error(`View with ID ${view.id} not found`);
+    }
+    const { cameraFlight } = viewData;
+    const aabb = this.aabb3Index.getSceneAABB();
+    if (aabb) {
+      cameraFlight.jumpTo({
+        aabb,
+        fitFOV: 45
+      });
+    }
+  }
+  /**
    * Destroys a View created by `createView()`, removing its canvas if it was auto-created.
    * @param view
    */
@@ -152669,9 +154065,6 @@ var DemoHelper2 = class {
   }
   /**
    * Toggles the visibility of the floating inspector panels.
-   *
-   * Also keeps the Open/Close Inspectors button state synchronized no matter
-   * how this method is invoked.
    */
   toggleInspector() {
     const view = this._getInspectorView();
@@ -152756,6 +154149,7 @@ var DemoHelper2 = class {
         }
       }, "*");
     }, 1e3);
+    sdkProgress.completeTask();
     this.signalFinished();
   }
   signalFinished() {
@@ -153404,6 +154798,720 @@ var SceneModelExploder = class {
     return modelLocalVector;
   }
 };
+
+// ../sdk/src/demo/AutoDimensions.ts
+var AutoDimensions = class {
+  sceneModel;
+  aabb3index;
+  sourceScene;
+  data;
+  includedDataObjectTypes;
+  idPrefix;
+  color;
+  textColor;
+  offset;
+  extensionOvershoot;
+  tickSize;
+  includeDegenerate;
+  autoUpdate;
+  plane;
+  planeGap;
+  explicitPlaneCoordinate;
+  textScale;
+  textOffset;
+  formatLabel;
+  dimensionObjectIdsBySourceObjectId = /* @__PURE__ */ new Map();
+  generatedObjectIds = /* @__PURE__ */ new Set();
+  generatedMeshIds = /* @__PURE__ */ new Set();
+  generatedGeometryIds = /* @__PURE__ */ new Set();
+  unsubscribers = [];
+  rebuildQueued = false;
+  destroyed = false;
+  constructor(params) {
+    const { sceneModel, aabb3index } = params;
+    this.sceneModel = sceneModel;
+    this.aabb3index = aabb3index;
+    this.sourceScene = params.scene ?? aabb3index.scene;
+    this.data = params.data;
+    this.includedDataObjectTypes = new Set(params.includedDataObjectTypes ?? []);
+    const sceneSize = this._getSceneMaxSize();
+    this.plane = params.plane ?? "XZ";
+    this.idPrefix = params.idPrefix ?? "__autoDims__";
+    this.color = params.color ?? [0.5, 0.5, 0.5];
+    this.textColor = params.textColor ?? this.color;
+    this.offset = params.offset ?? Math.max(sceneSize * 0.02, 0.35);
+    this.extensionOvershoot = params.extensionOvershoot ?? Math.max(sceneSize * 8e-3, 0.15);
+    this.tickSize = params.tickSize ?? Math.max(sceneSize * 6e-3, 0.12);
+    this.planeGap = params.planeGap ?? Math.max(sceneSize * 0.15, 2);
+    this.explicitPlaneCoordinate = params.planeCoordinate;
+    this.includeDegenerate = params.includeDegenerate ?? false;
+    this.autoUpdate = params.autoUpdate ?? true;
+    this.textScale = params.textScale ?? Math.max(sceneSize * 6e-3, 0.08);
+    this.textOffset = params.textOffset ?? Math.max(sceneSize * 0.02, 0.3);
+    this.formatLabel = params.formatLabel ?? ((value) => formatDimensionValue(value));
+    this.rebuild();
+    if (this.autoUpdate) {
+      this._bindSceneEvents();
+      this._bindDataEvents();
+    }
+  }
+  rebuild() {
+    if (this.destroyed) {
+      return;
+    }
+    this._clearGeneratedDimensions();
+    const matches3 = this._getDimensionableMatches();
+    if (matches3.length === 0) {
+      return;
+    }
+    const layout = this._getGlobalPlanLayout(matches3);
+    for (let i = 0, len = matches3.length; i < len; i++) {
+      this._createDimensionsForMatch(matches3[i], layout);
+    }
+  }
+  setDimensionsVisible(sourceObjectId, visible) {
+    const objectIds = this.dimensionObjectIdsBySourceObjectId.get(sourceObjectId);
+    if (!objectIds) {
+      return;
+    }
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const dimensionObjectId = objectIds[i];
+      const dimensionObject = this.sourceScene.objects[dimensionObjectId];
+      if (dimensionObject) {
+      }
+    }
+  }
+  showDimensions(sourceObjectId) {
+    this.setDimensionsVisible(sourceObjectId, true);
+  }
+  hideDimensions(sourceObjectId) {
+    this.setDimensionsVisible(sourceObjectId, false);
+  }
+  showAllDimensions() {
+    for (const sourceObjectId of this.dimensionObjectIdsBySourceObjectId.keys()) {
+      this.setDimensionsVisible(sourceObjectId, true);
+    }
+  }
+  hideAllDimensions() {
+    for (const sourceObjectId of this.dimensionObjectIdsBySourceObjectId.keys()) {
+      this.setDimensionsVisible(sourceObjectId, false);
+    }
+  }
+  destroy() {
+    if (this.destroyed) {
+      return;
+    }
+    for (let i = 0, len = this.unsubscribers.length; i < len; i++) {
+      this.unsubscribers[i]();
+    }
+    this.unsubscribers.length = 0;
+    this._clearGeneratedDimensions();
+    this.destroyed = true;
+  }
+  _bindSceneEvents() {
+    const events = this.sourceScene.events;
+    this.unsubscribers.push(
+      events.onSceneObjectCreated.subscribe((_scene, sceneObject) => {
+        if (sceneObject.model === this.sceneModel) {
+          return;
+        }
+        this._queueRebuild();
+      }),
+      events.onSceneObjectDestroyed.subscribe((_scene, sceneObject) => {
+        if (sceneObject.model === this.sceneModel) {
+          return;
+        }
+        this._queueRebuild();
+      }),
+      events.onSceneMeshMoved.subscribe((_scene, sceneMesh) => {
+        if (sceneMesh.model === this.sceneModel) {
+          return;
+        }
+        this._queueRebuild();
+      }),
+      events.onSceneMeshGeometryChanged.subscribe((_scene, sceneMesh) => {
+        if (sceneMesh.model === this.sceneModel) {
+          return;
+        }
+        this._queueRebuild();
+      }),
+      events.onSceneModelDestroyed.subscribe((_scene, sceneModel) => {
+        if (sceneModel === this.sceneModel) {
+          this.destroy();
+          return;
+        }
+        this._queueRebuild();
+      }),
+      events.onSceneDestroyed.subscribe(() => {
+        this.destroy();
+      })
+    );
+  }
+  _bindDataEvents() {
+    if (!this.data) {
+      return;
+    }
+    const events = this.data.events;
+    this.unsubscribers.push(
+      events.onDataModelCreated.subscribe(() => {
+        this._queueRebuild();
+      }),
+      events.onDataModelDestroyed.subscribe(() => {
+        this._queueRebuild();
+      }),
+      events.onDataObjectCreated.subscribe((_data, dataObject) => {
+        if (this._matchesIncludedDataObjectTypes(dataObject)) {
+          this._queueRebuild();
+        }
+      }),
+      events.onDataObjectDestroyed.subscribe((_data, dataObject) => {
+        if (this._matchesIncludedDataObjectTypes(dataObject)) {
+          this._queueRebuild();
+        }
+      }),
+      events.onDataDestroyed.subscribe(() => {
+        this.destroy();
+      })
+    );
+  }
+  _queueRebuild() {
+    if (this.destroyed || this.rebuildQueued) {
+      return;
+    }
+    this.rebuildQueued = true;
+    queueMicrotask(() => {
+      this.rebuildQueued = false;
+      if (!this.destroyed) {
+        this.rebuild();
+      }
+    });
+  }
+  _getDimensionableMatches() {
+    const matches3 = [];
+    const sceneObjects = this.sourceScene.objects;
+    for (const objectId in sceneObjects) {
+      const sceneObject = sceneObjects[objectId];
+      if (!sceneObject) {
+        continue;
+      }
+      if (sceneObject.model === this.sceneModel) {
+        continue;
+      }
+      const dataObject = this._getMatchingDataObject(sceneObject.id);
+      if (!dataObject) {
+        continue;
+      }
+      const aabb = this.aabb3index.getObjectAABB(sceneObject.id);
+      if (!aabb) {
+        continue;
+      }
+      matches3.push({
+        sceneObject,
+        dataObject,
+        aabb
+      });
+    }
+    return matches3;
+  }
+  _getMatchingDataObject(id) {
+    if (!this.data) {
+      return null;
+    }
+    const dataObject = this.data.objects[id];
+    if (!dataObject) {
+      return null;
+    }
+    if (!this._matchesIncludedDataObjectTypes(dataObject)) {
+      return null;
+    }
+    return dataObject;
+  }
+  _matchesIncludedDataObjectTypes(dataObject) {
+    if (this.includedDataObjectTypes.size === 0) {
+      return true;
+    }
+    return this.includedDataObjectTypes.has(dataObject.type);
+  }
+  _createDimensionsForMatch(match, layout) {
+    const { sceneObject, dataObject, aabb } = match;
+    const generatedObjectIds = [];
+    const [axisA, axisB] = this._getPlaneAxes();
+    const sizeA = this._getAxisMax(aabb, axisA) - this._getAxisMin(aabb, axisA);
+    const sizeB = this._getAxisMax(aabb, axisB) - this._getAxisMin(aabb, axisB);
+    if (this.includeDegenerate || sizeA > 1e-9) {
+      const dimA = this._buildDimensionForAxis(sceneObject.id, dataObject, aabb, axisA, layout);
+      if (dimA) {
+        generatedObjectIds.push(...dimA.objectIds);
+      }
+    }
+    if (this.includeDegenerate || sizeB > 1e-9) {
+      const dimB = this._buildDimensionForAxis(sceneObject.id, dataObject, aabb, axisB, layout);
+      if (dimB) {
+        generatedObjectIds.push(...dimB.objectIds);
+      }
+    }
+    if (generatedObjectIds.length > 0) {
+      this.dimensionObjectIdsBySourceObjectId.set(sceneObject.id, generatedObjectIds);
+    }
+  }
+  _buildDimensionForAxis(sourceObjectId, dataObject, aabb, axis, layout) {
+    const segments = this._buildSegmentsForAxis(aabb, axis, layout);
+    const lineObject = this._createLineDimensionObject(sourceObjectId, axis, segments);
+    if (!lineObject) {
+      return null;
+    }
+    const value = this._getAxisMax(aabb, axis) - this._getAxisMin(aabb, axis);
+    const label = this.formatLabel(value, axis, sourceObjectId, dataObject);
+    const labelPlacement = this._getLabelPlacement(aabb, axis, layout);
+    const textObject = this._createTextLabelObject(
+      sourceObjectId,
+      axis,
+      label,
+      labelPlacement.position,
+      labelPlacement.rotation
+    );
+    const objectIds = [lineObject.objectId];
+    if (textObject) {
+      objectIds.push(textObject.objectId);
+    }
+    return { objectIds };
+  }
+  _getGlobalPlanLayout(matches3) {
+    const [axisA, axisB] = this._getPlaneAxes();
+    let minA = Infinity;
+    let maxA = -Infinity;
+    let minB = Infinity;
+    let maxB = -Infinity;
+    for (let i = 0, len = matches3.length; i < len; i++) {
+      const aabb = matches3[i].aabb;
+      minA = Math.min(minA, this._getAxisMin(aabb, axisA));
+      maxA = Math.max(maxA, this._getAxisMax(aabb, axisA));
+      minB = Math.min(minB, this._getAxisMin(aabb, axisB));
+      maxB = Math.max(maxB, this._getAxisMax(aabb, axisB));
+    }
+    return {
+      minA,
+      maxA,
+      minB,
+      maxB,
+      planeCoordinate: this._getPlaneCoordinate()
+    };
+  }
+  _buildSegmentsForAxis(aabb, axis, layout) {
+    switch (this.plane) {
+      case "XY":
+        return axis === "x" ? this._buildXY_X_DimensionSegments(aabb, layout) : this._buildXY_Y_DimensionSegments(aabb, layout);
+      case "YZ":
+        return axis === "y" ? this._buildYZ_Y_DimensionSegments(aabb, layout) : this._buildYZ_Z_DimensionSegments(aabb, layout);
+      case "XZ":
+      default:
+        return axis === "x" ? this._buildXZ_X_DimensionSegments(aabb, layout) : this._buildXZ_Z_DimensionSegments(aabb, layout);
+    }
+  }
+  _buildXZ_X_DimensionSegments(aabb, layout) {
+    const minX = aabb[0];
+    const minZ = aabb[2];
+    const maxX = aabb[3];
+    const y = layout.planeCoordinate;
+    const z = layout.maxB + this.offset;
+    const a2 = [minX, y, z];
+    const b4 = [maxX, y, z];
+    const extA0 = [minX, y, minZ];
+    const extA1 = [minX, y, z + this.extensionOvershoot];
+    const extB0 = [maxX, y, minZ];
+    const extB1 = [maxX, y, z + this.extensionOvershoot];
+    const tickA0 = [minX, y, z - this.tickSize];
+    const tickA1 = [minX, y, z + this.tickSize];
+    const tickB0 = [maxX, y, z - this.tickSize];
+    const tickB1 = [maxX, y, z + this.tickSize];
+    return [
+      [extA0, extA1],
+      [extB0, extB1],
+      [a2, b4],
+      [tickA0, tickA1],
+      [tickB0, tickB1]
+    ];
+  }
+  _buildXZ_Z_DimensionSegments(aabb, layout) {
+    const minX = aabb[0];
+    const minZ = aabb[2];
+    const maxZ = aabb[5];
+    const y = layout.planeCoordinate;
+    const x = layout.minA - this.offset;
+    const a2 = [x, y, minZ];
+    const b4 = [x, y, maxZ];
+    const extA0 = [minX, y, minZ];
+    const extA1 = [x - this.extensionOvershoot, y, minZ];
+    const extB0 = [minX, y, maxZ];
+    const extB1 = [x - this.extensionOvershoot, y, maxZ];
+    const tickA0 = [x - this.tickSize, y, minZ];
+    const tickA1 = [x + this.tickSize, y, minZ];
+    const tickB0 = [x - this.tickSize, y, maxZ];
+    const tickB1 = [x + this.tickSize, y, maxZ];
+    return [
+      [extA0, extA1],
+      [extB0, extB1],
+      [a2, b4],
+      [tickA0, tickA1],
+      [tickB0, tickB1]
+    ];
+  }
+  _buildXY_X_DimensionSegments(aabb, layout) {
+    const minX = aabb[0];
+    const minY = aabb[1];
+    const maxX = aabb[3];
+    const z = layout.planeCoordinate;
+    const y = layout.maxB + this.offset;
+    const a2 = [minX, y, z];
+    const b4 = [maxX, y, z];
+    const extA0 = [minX, minY, z];
+    const extA1 = [minX, y + this.extensionOvershoot, z];
+    const extB0 = [maxX, minY, z];
+    const extB1 = [maxX, y + this.extensionOvershoot, z];
+    const tickA0 = [minX, y - this.tickSize, z];
+    const tickA1 = [minX, y + this.tickSize, z];
+    const tickB0 = [maxX, y - this.tickSize, z];
+    const tickB1 = [maxX, y + this.tickSize, z];
+    return [
+      [extA0, extA1],
+      [extB0, extB1],
+      [a2, b4],
+      [tickA0, tickA1],
+      [tickB0, tickB1]
+    ];
+  }
+  _buildXY_Y_DimensionSegments(aabb, layout) {
+    const maxX = aabb[3];
+    const minY = aabb[1];
+    const maxY = aabb[4];
+    const z = layout.planeCoordinate;
+    const x = layout.maxA + this.offset;
+    const a2 = [x, minY, z];
+    const b4 = [x, maxY, z];
+    const extA0 = [maxX, minY, z];
+    const extA1 = [x + this.extensionOvershoot, minY, z];
+    const extB0 = [maxX, maxY, z];
+    const extB1 = [x + this.extensionOvershoot, maxY, z];
+    const tickA0 = [x - this.tickSize, minY, z];
+    const tickA1 = [x + this.tickSize, minY, z];
+    const tickB0 = [x - this.tickSize, maxY, z];
+    const tickB1 = [x + this.tickSize, maxY, z];
+    return [
+      [extA0, extA1],
+      [extB0, extB1],
+      [a2, b4],
+      [tickA0, tickA1],
+      [tickB0, tickB1]
+    ];
+  }
+  _buildYZ_Y_DimensionSegments(aabb, layout) {
+    const minY = aabb[1];
+    const minZ = aabb[2];
+    const maxY = aabb[4];
+    const x = layout.planeCoordinate;
+    const z = layout.maxB + this.offset;
+    const a2 = [x, minY, z];
+    const b4 = [x, maxY, z];
+    const extA0 = [x, minY, minZ];
+    const extA1 = [x, minY, z + this.extensionOvershoot];
+    const extB0 = [x, maxY, minZ];
+    const extB1 = [x, maxY, z + this.extensionOvershoot];
+    const tickA0 = [x, minY, z - this.tickSize];
+    const tickA1 = [x, minY, z + this.tickSize];
+    const tickB0 = [x, maxY, z - this.tickSize];
+    const tickB1 = [x, maxY, z + this.tickSize];
+    return [
+      [extA0, extA1],
+      [extB0, extB1],
+      [a2, b4],
+      [tickA0, tickA1],
+      [tickB0, tickB1]
+    ];
+  }
+  _buildYZ_Z_DimensionSegments(aabb, layout) {
+    const minY = aabb[1];
+    const minZ = aabb[2];
+    const maxZ = aabb[5];
+    const x = layout.planeCoordinate;
+    const y = layout.minA - this.offset;
+    const a2 = [x, y, minZ];
+    const b4 = [x, y, maxZ];
+    const extA0 = [x, minY, minZ];
+    const extA1 = [x, y - this.extensionOvershoot, minZ];
+    const extB0 = [x, minY, maxZ];
+    const extB1 = [x, y - this.extensionOvershoot, maxZ];
+    const tickA0 = [x, y - this.tickSize, minZ];
+    const tickA1 = [x, y + this.tickSize, minZ];
+    const tickB0 = [x, y - this.tickSize, maxZ];
+    const tickB1 = [x, y + this.tickSize, maxZ];
+    return [
+      [extA0, extA1],
+      [extB0, extB1],
+      [a2, b4],
+      [tickA0, tickA1],
+      [tickB0, tickB1]
+    ];
+  }
+  _getLabelPlacement(aabb, axis, layout) {
+    switch (this.plane) {
+      case "XY":
+        return axis === "x" ? {
+          position: [
+            (aabb[0] + aabb[3]) * 0.5,
+            layout.maxB + this.offset + this.textOffset,
+            layout.planeCoordinate
+          ],
+          rotation: [0, 0, 0]
+        } : {
+          position: [
+            layout.maxA + this.offset + this.textOffset,
+            (aabb[1] + aabb[4]) * 0.5,
+            layout.planeCoordinate
+          ],
+          rotation: [0, 0, 90]
+        };
+      case "YZ":
+        return axis === "y" ? {
+          position: [
+            layout.planeCoordinate,
+            (aabb[1] + aabb[4]) * 0.5,
+            layout.maxB + this.offset + this.textOffset
+          ],
+          rotation: [0, 90, 90]
+        } : {
+          position: [
+            layout.planeCoordinate,
+            layout.minA - this.offset - this.textOffset,
+            (aabb[2] + aabb[5]) * 0.5
+          ],
+          rotation: [90, 90, 0]
+        };
+      case "XZ":
+      default:
+        return axis === "x" ? {
+          position: [
+            (aabb[0] + aabb[3]) * 0.5,
+            layout.planeCoordinate,
+            layout.maxB + this.offset + this.textOffset
+          ],
+          rotation: [90, 0, 0]
+        } : {
+          position: [
+            layout.minA - this.offset - this.textOffset,
+            layout.planeCoordinate,
+            (aabb[2] + aabb[5]) * 0.5
+          ],
+          rotation: [90, 0, 90]
+        };
+    }
+  }
+  _createTextLabelObject(sourceObjectId, axisName, text, position, rotation) {
+    const textGeometryResult = buildVectorTextGeometry({ size: 1, origin: [0, 0, 0], text });
+    if (textGeometryResult.ok === false) {
+      console.error(textGeometryResult.error);
+      return null;
+    }
+    const textGeometry = textGeometryResult.value;
+    const geometryId = `${this.idPrefix}${sourceObjectId}-${this.plane}-${axisName}-label-geometry`;
+    const meshId = `${this.idPrefix}${sourceObjectId}-${this.plane}-${axisName}-label-mesh`;
+    const objectId = `${this.idPrefix}${sourceObjectId}-${this.plane}-${axisName}-label-object`;
+    const geometryResult = this.sceneModel.createGeometry({
+      id: geometryId,
+      primitive: LinesPrimitive,
+      positions: textGeometry.positions,
+      indices: textGeometry.indices
+    });
+    if (geometryResult.ok === false) {
+      console.error(geometryResult.error);
+      return null;
+    }
+    const meshResult = this.sceneModel.createMesh({
+      id: meshId,
+      geometryId,
+      position,
+      rotation,
+      scale: [this.textScale, this.textScale, this.textScale],
+      color: this.textColor
+    });
+    if (meshResult.ok === false) {
+      console.error(meshResult.error);
+      const geometry = this.sceneModel.geometries[geometryId];
+      if (geometry) {
+        geometry.destroy();
+      }
+      return null;
+    }
+    const objectResult = this.sceneModel.createObject({
+      id: objectId,
+      meshIds: [meshId]
+    });
+    if (objectResult.ok === false) {
+      console.error(objectResult.error);
+      const mesh = this.sceneModel.meshes[meshId];
+      if (mesh) {
+        mesh.destroy();
+      }
+      const geometry = this.sceneModel.geometries[geometryId];
+      if (geometry) {
+        geometry.destroy();
+      }
+      return null;
+    }
+    this.generatedGeometryIds.add(geometryId);
+    this.generatedMeshIds.add(meshId);
+    this.generatedObjectIds.add(objectId);
+    return { objectId };
+  }
+  _createLineDimensionObject(sourceObjectId, axisName, segments) {
+    const { positions, indices } = buildLineGeometry(segments);
+    const geometryId = `${this.idPrefix}${sourceObjectId}-${this.plane}-${axisName}-geometry`;
+    const meshId = `${this.idPrefix}${sourceObjectId}-${this.plane}-${axisName}-mesh`;
+    const objectId = `${this.idPrefix}${sourceObjectId}-${this.plane}-${axisName}-object`;
+    const geometryResult = this.sceneModel.createGeometry({
+      id: geometryId,
+      primitive: LinesPrimitive,
+      positions,
+      indices
+    });
+    if (geometryResult.ok === false) {
+      console.error(geometryResult.error);
+      return null;
+    }
+    const meshResult = this.sceneModel.createMesh({
+      id: meshId,
+      geometryId,
+      color: this.color
+    });
+    if (meshResult.ok === false) {
+      console.error(meshResult.error);
+      const geometry = this.sceneModel.geometries[geometryId];
+      if (geometry) {
+        geometry.destroy();
+      }
+      return null;
+    }
+    const objectResult = this.sceneModel.createObject({
+      id: objectId,
+      meshIds: [meshId]
+    });
+    if (objectResult.ok === false) {
+      console.error(objectResult.error);
+      const mesh = this.sceneModel.meshes[meshId];
+      if (mesh) {
+        mesh.destroy();
+      }
+      const geometry = this.sceneModel.geometries[geometryId];
+      if (geometry) {
+        geometry.destroy();
+      }
+      return null;
+    }
+    this.generatedGeometryIds.add(geometryId);
+    this.generatedMeshIds.add(meshId);
+    this.generatedObjectIds.add(objectId);
+    return { objectId };
+  }
+  _clearGeneratedDimensions() {
+    this.dimensionObjectIdsBySourceObjectId.clear();
+    for (const objectId of this.generatedObjectIds) {
+      const object = this.sceneModel.objects[objectId];
+      if (object) {
+        object.destroy();
+      }
+    }
+    this.generatedObjectIds.clear();
+    for (const meshId of this.generatedMeshIds) {
+      const mesh = this.sceneModel.meshes[meshId];
+      if (mesh) {
+        mesh.destroy();
+      }
+    }
+    this.generatedMeshIds.clear();
+    for (const geometryId of this.generatedGeometryIds) {
+      const geometry = this.sceneModel.geometries[geometryId];
+      if (geometry) {
+        geometry.destroy();
+      }
+    }
+    this.generatedGeometryIds.clear();
+  }
+  _getPlaneAxes() {
+    switch (this.plane) {
+      case "XY":
+        return ["x", "y"];
+      case "YZ":
+        return ["y", "z"];
+      case "XZ":
+      default:
+        return ["x", "z"];
+    }
+  }
+  _getAxisMin(aabb, axis) {
+    switch (axis) {
+      case "x":
+        return aabb[0];
+      case "y":
+        return aabb[1];
+      case "z":
+        return aabb[2];
+    }
+  }
+  _getAxisMax(aabb, axis) {
+    switch (axis) {
+      case "x":
+        return aabb[3];
+      case "y":
+        return aabb[4];
+      case "z":
+        return aabb[5];
+    }
+  }
+  _getPlaneCoordinate() {
+    if (this.explicitPlaneCoordinate !== void 0) {
+      return this.explicitPlaneCoordinate;
+    }
+    const sceneAABB = this.aabb3index.getSceneAABB();
+    switch (this.plane) {
+      case "XY":
+        return sceneAABB[5] + this.planeGap;
+      case "YZ":
+        return sceneAABB[3] + this.planeGap;
+      case "XZ":
+      default:
+        return sceneAABB[4] + this.planeGap;
+    }
+  }
+  _getSceneMaxSize() {
+    const sceneAABB = this.aabb3index.getSceneAABB();
+    const sizeX = sceneAABB[3] - sceneAABB[0];
+    const sizeY = sceneAABB[4] - sceneAABB[1];
+    const sizeZ = sceneAABB[5] - sceneAABB[2];
+    return Math.max(sizeX, sizeY, sizeZ, 1);
+  }
+};
+function buildLineGeometry(segments) {
+  const positions = [];
+  const indices = [];
+  let index = 0;
+  for (let i = 0, len = segments.length; i < len; i++) {
+    const [a2, b4] = segments[i];
+    positions.push(
+      a2[0],
+      a2[1],
+      a2[2],
+      b4[0],
+      b4[1],
+      b4[2]
+    );
+    indices.push(index, index + 1);
+    index += 2;
+  }
+  return { positions, indices };
+}
+function formatDimensionValue(value) {
+  const rounded = Math.round(value * 1e3) / 1e3;
+  return `${rounded}`;
+}
 export {
   bcf_exports as bcf,
   cameraflight_exports as cameraflight,

@@ -83,9 +83,13 @@ function getCoordinateSystem(coordsys) {
 }
 
 async function main() {
-  const demoHelper = new xeokit.demo.DemoHelper({});
+  const demoHelper = new xeokit.demo.DemoHelper({
 
-  await demoHelper.init();
+  });
+
+  await demoHelper.init({
+    logging: false
+  });
 
   const { data, scene } = demoHelper;
 
@@ -106,7 +110,8 @@ async function main() {
 
   const sceneModelResult = scene.createModel({
     id: "demoModel",
-    coordinateSystem
+    coordinateSystem,
+   // deferredBuild: true
   });
 
   if (sceneModelResult.ok === false) {
@@ -132,6 +137,8 @@ async function main() {
   for (const format of formats) {
     await demoHelper.loadModel({ modelId, format, sceneModel, dataModel }, {});
   }
+
+  sceneModel.finalize();
 
   demoHelper.viewFit(view);
 

@@ -8,6 +8,8 @@ import {type MeshBatch} from "../meshManager/MeshBatch";
 import {RENDER_PASSES} from "../RENDER_PASSES";
 import {SDKInternalException, type SDKResult} from "../../../core";
 import {RENDER_BINS} from "../RENDER_BINS";
+import {InfiniteGridRenderer} from "./InfiniteGridRenderer";
+import {SkyRenderer} from "./SkyRenderer";
 
 
 /**
@@ -49,6 +51,16 @@ export class RenderManager {
    * Used internally, but made public to support diagnostics and testing.
    */
   public drawOps: DrawOps;
+
+  /**
+   * Infinite ground grid renderer. Set {@link InfiniteGridRenderer.enabled} to true to activate.
+   */
+  public infiniteGrid: InfiniteGridRenderer;
+
+  /**
+   * Sky/environment renderer.
+   */
+  public skyRenderer: SkyRenderer;
 
   /** Shared render context (WebGL state + global flags). */
   private _renderContext: RenderContext;
@@ -107,10 +119,32 @@ export class RenderManager {
       }
       this.drawOps = result.value;
     }
+
     this._extensionHandles = {};
     this._logarithmicDepthBufferEnabled = false;
     this._alphaDepthMask = false;
     this._activateExtensions();
+
+    if (!this.infiniteGrid) {
+      this.infiniteGrid = new InfiniteGridRenderer(this._renderContext.gl, {
+        minorColor: [0.36, 0.40, 0.42],
+        majorColor: [0,0,0],
+        xAxisColor: [0.68, 0.42, 0.40],
+        zAxisColor: [0.40, 0.58, 0.70]
+      });
+      this.infiniteGrid.init();
+    }
+
+    if (!this.skyRenderer) {
+      this.skyRenderer = new SkyRenderer(this._renderContext.gl, {
+        skyColor:     [0.74, 0.80, 0.88],
+        horizonColor: [0.66, 0.72, 0.74],
+        horizonBlend: 0.5,
+        groundColor:  [0.58, 0.64, 0.60]
+      });
+      this.skyRenderer.init();
+    }
+
     return {
       ok: true,
       value: undefined
@@ -183,9 +217,11 @@ export class RenderManager {
 
     const bins = {
       normalDrawSAO: [] as MeshBatch[],
-      edgesColorOpaque: [] as MeshBatch[],
+
+      normalEdgesOpaque: [] as MeshBatch[],
       normalFillTransparent: [] as MeshBatch[],
-      edgesColorTransparent: [] as MeshBatch[],
+      normalEdgesTransparent: [] as MeshBatch[],
+
       xrayedSilhouetteOpaque: [] as MeshBatch[],
       xrayEdgesOpaque: [] as MeshBatch[],
       xrayedSilhouetteTransparent: [] as MeshBatch[],
@@ -226,6 +262,11 @@ export class RenderManager {
     if (clear !== false) {
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     }
+
+    // if (this.infiniteGrid?.enabled) {
+    this.skyRenderer.render(rendererView);
+    this.infiniteGrid.render(rendererView);
+    // }
 
     const enableOpaqueBin = (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.OPAQUE));
 
@@ -271,10 +312,10 @@ export class RenderManager {
 
       if (edgeMaterial.applied) {
         if (opaque) {
-          bins.edgesColorOpaque.push(meshBatch);
+          bins.normalEdgesOpaque.push(meshBatch);
         }
         if (transparent) {
-          bins.edgesColorTransparent.push(meshBatch);
+          bins.normalEdgesTransparent.push(meshBatch);
         }
         if (xray) {
           (xrayMaterial.edgeAlpha < 1.0 ? bins.xrayEdgesTransparent : bins.xrayEdgesOpaque).push(meshBatch);
@@ -288,13 +329,14 @@ export class RenderManager {
       }
     }
 
+
     for (let i = 0; i < bins.normalDrawSAO.length; i++) {
       //  renderers?.colorSAOOpaqueRenderer.bins.normalDrawSAO[i].drawColorSAOOpaque();
     }
 
     if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.EDGES_OPAQUE)) {
       drawInspector?.renderBinStarted(RENDER_BINS.EDGES_OPAQUE);
-      bins.edgesColorOpaque.forEach(meshBatch => {
+      bins.normalEdgesOpaque.forEach(meshBatch => {
         drawOps[meshBatch.primitive].opaqueEdges?.drawBatch(meshBatch);
       });
     }
@@ -318,7 +360,7 @@ export class RenderManager {
     // Draw Translucent
     if (
       bins.normalFillTransparent.length ||
-      bins.edgesColorTransparent.length ||
+      bins.normalEdgesTransparent.length ||
       bins.xrayedSilhouetteTransparent.length ||
       bins.xrayEdgesTransparent.length
     ) {
@@ -351,13 +393,13 @@ export class RenderManager {
         });
       }
 
-      if (bins.edgesColorTransparent.length || bins.normalFillTransparent.length) {
+      if (bins.normalEdgesTransparent.length || bins.normalFillTransparent.length) {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       }
 
       if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.EDGES_TRANSPARENT)) {
         drawInspector?.renderBinStarted(RENDER_BINS.EDGES_TRANSPARENT);
-        bins.edgesColorTransparent.forEach(meshBatch => {
+        bins.normalEdgesTransparent.forEach(meshBatch => {
           drawOps[meshBatch.primitive].transparentEdges?.drawBatch(meshBatch);
         });
       }
@@ -374,6 +416,8 @@ export class RenderManager {
         gl.depthMask(true);
       }
     }
+
+
 
     gl.disable(gl.CULL_FACE);
     gl.clear(gl.DEPTH_BUFFER_BIT);
@@ -464,6 +508,10 @@ export class RenderManager {
     if (this.drawOps) {
       putDrawOps(this.drawOps);
       this.drawOps = null;
+    }
+    if (this.infiniteGrid) {
+      this.infiniteGrid.destroy();
+      this.infiniteGrid = null;
     }
     this._extensionHandles = null;
     this._renderContext = null;

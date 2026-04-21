@@ -1144,7 +1144,7 @@ void main(void) {`);
     vec3 lightDir1    = normalize(vec3(0.0, 0.0, -1.0));
     vec4 lightColor1  = vec4(0.7, 0.7, 0.7, 1.0);
     vec3 lightDir2    = normalize(vec3(-1.0, 1.0, 1.0));
-    vec4 lightColor2  = vec4(1.0, 1.0, 1.0, 0.5);
+    vec4 lightColor2  = vec4(1.0, 1.0, 1.0, 1.0);
     vec3 lightDir3    = normalize(vec3(-1.0, 1.0, 1.0));
     vec4 lightColor3  = vec4(1.0, 1.0, 1.0, 0.2);
 

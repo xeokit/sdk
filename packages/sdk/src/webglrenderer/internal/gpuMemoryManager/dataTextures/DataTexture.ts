@@ -53,6 +53,11 @@ export abstract class DataTexture {
    */
   public height: number;
 
+    /**
+     * Whether to use a CPU-side buffer for staging data before uploading to the GPU.
+     */
+    public useBuffer: boolean;
+
   /**
    * CPU-side backing buffer used to populate this texture.
    *
@@ -120,6 +125,7 @@ export abstract class DataTexture {
    */
   private _getNumItems: () => number;
 
+
   /**
    * Gets the number of logical items currently stored in this texture.
    */
@@ -176,6 +182,7 @@ export abstract class DataTexture {
     maxItems: number;
     width: number;
     getNumItems: () => number;
+    useBuffer?: boolean;
   }) {
     this.gl = params.gl;
     this.description = params.description;
@@ -223,6 +230,8 @@ export abstract class DataTexture {
             this.bytesPerTexel = 4 * (this.type === this.gl.FLOAT ? 4 : (this.type === this.gl.UNSIGNED_INT ? 4 : (this.type === this.gl.UNSIGNED_SHORT ? 2 : 1)));
             break;
     }
+
+    this.useBuffer = params.useBuffer ?? true;
   }
 
   /**
@@ -230,15 +239,17 @@ export abstract class DataTexture {
    * @internal
    */
   public allocate(): SDKResult<void> {
-    try {
-      this.buffer = new this.bufferClass(this.width * this.height * this.elementsPerTexel);
-    } catch (e) {
-      return {
-        ok: false,
-        type:SDKErrorType.InitializationFailed,
-        error: `[${this.constructor.name}.allocate]: Buffer allocation failed: ${e}`,
-      };
-    }
+  if (this.useBuffer) {
+      try {
+          this.buffer = new this.bufferClass(this.width * this.height * this.elementsPerTexel);
+      } catch (e) {
+          return {
+              ok: false,
+              type: SDKErrorType.InitializationFailed,
+              error: `[${this.constructor.name}.allocate]: Buffer allocation failed: ${e}`,
+          };
+      }
+  }
       return this._allocateTexture(false);
   }
 
@@ -261,7 +272,7 @@ export abstract class DataTexture {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       gl.texStorage2D(gl.TEXTURE_2D, 1, this.internalFormat, this.width, this.height);
-      if (uploadBuffer) {
+      if (this.useBuffer && uploadBuffer) {
         gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.width, this.height, this.format, this.type,this.buffer);
         this.cancelUploads();
       }

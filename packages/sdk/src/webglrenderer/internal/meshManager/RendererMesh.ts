@@ -1,7 +1,7 @@
 import {
   createVec4Float64,
   subVec3,
- type Vec3,
+  type Vec3,
 } from "../../../math/vector";
 import {
   createMat4Float64,
@@ -11,16 +11,23 @@ import {
 } from "../../../math/matrix";
 import type {MeshBatchImpl} from "./MeshBatchImpl";
 import type {RenderContext} from "../RenderContext";
-import {type SceneMesh} from "../../../scene";
 import {type GPUTile} from "../gpuMemoryManager/GPUTile";
 import {type GPUMemoryManager} from "../gpuMemoryManager/GPUMemoryManager";
 import {type MeshBatchMeshHandle} from "./MeshBatchMeshHandle";
 import {SDKInternalException} from "../../../core";
+import {SceneMesh} from "../../../scene";
 
 const tempIdentityMat4 = identityMat4(createMat4Float64());
 const identityVec4 = createVec4Float64([0, 0, 0, 1]);
 const tempVec4a = createVec4Float64();
 
+const enum ViewStateBits {
+  Colorizing = 1 << 0,
+  ColoringOpacity = 1 << 1,
+  Transparent = 1 << 2,
+  ObjectVisible = 1 << 3,
+  MeshVisible = 1 << 4,
+}
 
 /**
  * Represents a single mesh within the WebGL renderer, managing its GPU tile assignment,
@@ -40,33 +47,14 @@ const tempVec4a = createVec4Float64();
  */
 export class RendererMesh {
 
-  /**
-   * The GPU tile currently assigned to this mesh.
-   *
-   * @remarks
-   * - This tile defines the mesh's local RTC (Relative To Center) coordinate system for high-precision rendering.
-   * - The tile is managed and updated automatically by the GPU memory management layer; it may change if the mesh moves in world space.
-   * - RendererMesh does not manage tiling logic directly—tile assignment and RTC matrix updates are fully encapsulated by {@link GPUMemoryManager} and {@link GPUTileManager}.
-   * - This reference is used for efficient mesh picking and RTC-space transformations.
-   */
   public gpuTile: GPUTile;
 
-  private readonly _renderContext: RenderContext;
   private readonly _sceneMesh: SceneMesh;
   private readonly _meshBatch: MeshBatchImpl;
   private readonly _meshHandle: MeshBatchMeshHandle;
   private readonly _gpuMemoryManager: GPUMemoryManager;
-  private readonly _viewStates: {
-    colorizing: boolean;
-    coloringOpacity?: boolean;
-    transparent: boolean;
-    objectVisible: boolean;
-    meshVisible: boolean;
-  }[];
+  private readonly _viewFlags: Uint8Array<any>;
 
-  /**
-   * Constructs a RendererMesh instance.
-   */
   constructor({
                 sceneMesh,
                 meshBatch,
@@ -80,107 +68,111 @@ export class RendererMesh {
     gpuMemoryManager: GPUMemoryManager;
     meshHandle: MeshBatchMeshHandle;
   }) {
-    this._renderContext = renderContext;
     this._sceneMesh = sceneMesh;
     this._meshBatch = meshBatch;
     this._gpuMemoryManager = gpuMemoryManager;
     this._meshHandle = meshHandle;
     this.gpuTile = null;
-    const numViews = renderContext.memoryConfigs.maxViews;
-    this._viewStates = Array.from({length: numViews}, () => ({
-      colorizing: false,
-      coloringOpacity: false,
-      transparent:null,
-      objectVisible: false,
-      meshVisible: false
-    }));
+    this._viewFlags = new Uint8Array(renderContext.memoryConfigs.maxViews);
+    this.setMatrix(sceneMesh.worldMatrix);
+    this.setOpacity(sceneMesh.effectiveOpacity);
+  }
 
-    this.setMatrix(sceneMesh.globalMatrix);
-    this.setOpacity(sceneMesh.globalOpacity);
+  private _hasFlag(viewIndex: number, flag: ViewStateBits): boolean {
+    return (this._viewFlags[viewIndex] & flag) !== 0;
+  }
+
+  private _setFlag(viewIndex: number, flag: ViewStateBits, enabled: boolean): void {
+    if (enabled) {
+      this._viewFlags[viewIndex] |= flag;
+    } else {
+      this._viewFlags[viewIndex] &= ~flag;
+    }
   }
 
   /**
-   * Sets the transformation matrix for the mesh.
-   * Called by {@link RendererObject.setMatrix}.
+   * Sets the transformation matrix for the mesh, updating the assigned GPU tile as needed based on the new center position.
+   * @param matrix
    */
   setMatrix(matrix: Mat4): void {
     matrix = matrix || tempIdentityMat4;
-    const center:Vec3 = <Vec3>transformPoint4(matrix, identityVec4, tempVec4a);
+    const center: Vec3 = <Vec3>transformPoint4(matrix, identityVec4, tempVec4a);
     const oldTile = this.gpuTile;
     this.gpuTile = oldTile
       ? this._gpuMemoryManager.moveTile(oldTile, center)
       : this._gpuMemoryManager.getTile(center);
-    const tileChanged = !oldTile || oldTile.id !== this.gpuTile.id;
-    if (tileChanged) {
+
+    if (!oldTile || oldTile.id !== this.gpuTile.id) {
       this._meshBatch.setMeshTile(this._meshHandle, this.gpuTile.tileIndex);
     }
-    const tileCenter = this.gpuTile.center;
+
     const relativeMatrix = createMat4Float64(matrix);
-    // @ts-ignore
-    relativeMatrix.set(subVec3(center, tileCenter), 12);
+    relativeMatrix.set(subVec3(center, this.gpuTile.center), 12);
     this._meshBatch.setMeshMatrix(this._meshHandle, relativeMatrix);
   }
 
   /**
-   * Sets the color of the mesh.
-   * Called by {@link RendererObject.setColor}.
+   * Sets the color of the mesh, updating the color in all views that are not currently overridden by view-specific colorization.
+   * @param color
    */
   setColor(color: Vec3) {
-    for (let viewIndex = 0, len = this._viewStates.length; viewIndex < len; viewIndex++) {
-      const viewState = this._viewStates[viewIndex];
-      if (!viewState.colorizing) {
+    for (let viewIndex = 0, len = this._viewFlags.length; viewIndex < len; viewIndex++) {
+      if (!this._hasFlag(viewIndex, ViewStateBits.Colorizing)) {
         this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, color);
       }
     }
   }
 
   /**
-   * Sets the opacity of the mesh.
-   * Called by {@link RendererObject.setOpacity}.
+   * Sets the opacity of the mesh, updating the transparent state as needed.
+   * @param opacity
    */
   setOpacity(opacity: number) {
-    for (let viewIndex = 0, len = this._viewStates.length; viewIndex < len; viewIndex++) {
-      const viewState = this._viewStates[viewIndex];
-      if (!viewState.coloringOpacity) {
+    const transparent = opacity < 1.0;
+    for (let viewIndex = 0, len = this._viewFlags.length; viewIndex < len; viewIndex++) {
+      if (!this._hasFlag(viewIndex, ViewStateBits.ColoringOpacity)) {
         this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
       }
-      const transparent = opacity < 1.0;
-      if (viewState.transparent !== transparent) {
-        viewState.transparent = transparent;
-        this._meshBatch.setMeshTransparent(viewIndex, this._meshHandle, viewState.transparent);
+      if (this._hasFlag(viewIndex, ViewStateBits.Transparent) !== transparent) {
+        this._setFlag(viewIndex, ViewStateBits.Transparent, transparent);
+        this._meshBatch.setMeshTransparent(viewIndex, this._meshHandle, transparent);
       }
     }
   }
 
   /**
-   * Sets the object-level visibility of the mesh in a specific view.
+   * Sets the visibility of the mesh for a specific view, taking into account both the mesh's
+   * own visibility and the object's visibility in that view.
    * @param viewIndex
    * @param objectVisible
    */
   setObjectVisible(viewIndex: number, objectVisible: boolean) {
-    const viewState = this._viewStates[viewIndex];
-    if (!viewState) {
+    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
       throw new SDKInternalException(`[RendererMesh.setObjectVisible] No view state for view index ${viewIndex}`);
     }
-    if (viewState.objectVisible === objectVisible) {
+
+    if (this._hasFlag(viewIndex, ViewStateBits.ObjectVisible) === objectVisible) {
       return;
     }
-    viewState.objectVisible = objectVisible;
-    this._meshBatch.setMeshVisible(viewIndex, this._meshHandle, objectVisible && viewState.meshVisible);
+
+    this._setFlag(viewIndex, ViewStateBits.ObjectVisible, objectVisible);
+
+    const meshVisible = this._hasFlag(viewIndex, ViewStateBits.MeshVisible);
+    this._meshBatch.setMeshVisible(viewIndex, this._meshHandle, objectVisible && meshVisible);
   }
 
   /**
-   * Sets the mesh-level visibility of the mesh in all views.
-   * Called by {@link RendererObject.setVisible}.
+   * Sets the visibility of the mesh for all views.
+   * @param meshVisible
    */
-  setVisible( meshVisible: boolean) {
-    for (let viewIndex = 0, len = this._viewStates.length; viewIndex < len; viewIndex++) {
-      const viewState = this._viewStates[viewIndex];
-      if (viewState.meshVisible === meshVisible) {
+  setVisible(meshVisible: boolean) {
+    for (let viewIndex = 0, len = this._viewFlags.length; viewIndex < len; viewIndex++) {
+      if (this._hasFlag(viewIndex, ViewStateBits.MeshVisible) === meshVisible) {
         continue;
       }
-      viewState.meshVisible = meshVisible;
-      this._meshBatch.setMeshVisible(viewIndex, this._meshHandle, viewState.objectVisible && meshVisible);
+      this._setFlag(viewIndex, ViewStateBits.MeshVisible, meshVisible);
+      const objectVisible = this._hasFlag(viewIndex, ViewStateBits.ObjectVisible);
+      this._meshBatch.setMeshVisible(viewIndex, this._meshHandle, objectVisible && meshVisible);
     }
   }
 
@@ -189,16 +181,15 @@ export class RendererMesh {
    * Called by {@link RendererObject.setColorize}.
    */
   setColorInView(viewIndex: number, colorize: Vec3 | null) {
-    const viewStates = this._viewStates[viewIndex];
-    if (!viewStates) {
+    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
       throw new SDKInternalException(`[RendererMesh.setColorInView] No view state for view index ${viewIndex}`);
     }
-    if (colorize !== null) { // Apply color override
+    if (colorize !== null) {
       this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, colorize);
-      viewStates.colorizing = true;
-    } else { // Restore original color
-      this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, this._sceneMesh.globalColor);
-      viewStates.colorizing = false;
+      this._setFlag(viewIndex, ViewStateBits.Colorizing, true);
+    } else {
+      this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, this._sceneMesh.effectiveColor);
+      this._setFlag(viewIndex, ViewStateBits.Colorizing, false);
     }
   }
 
@@ -207,16 +198,15 @@ export class RendererMesh {
    * Called by {@link RendererObject.setOpacityInView}.
    */
   setOpacityInView(viewIndex: number, opacity: number | null) {
-    const viewStates = this._viewStates[viewIndex];
-    if (!viewStates) {
+    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
       throw new SDKInternalException(`[RendererMesh.setOpacityInView] No view state for view index ${viewIndex}`);
     }
-    if (opacity !== null) { // Apply opacity override
+    if (opacity !== null) {
       this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
-      viewStates.coloringOpacity = true;
-    } else { // Restore original opacity
-      this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, this._sceneMesh.globalOpacity);
-      viewStates.coloringOpacity = false;
+      this._setFlag(viewIndex, ViewStateBits.ColoringOpacity, true);
+    } else {
+      this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, this._sceneMesh.effectiveOpacity);
+      this._setFlag(viewIndex, ViewStateBits.ColoringOpacity, false);
     }
   }
 
@@ -225,12 +215,15 @@ export class RendererMesh {
    * Called by {@link RendererObject.setHighlighted}.
    */
   setHighlighted(viewIndex: number, highlighted: boolean) {
-    const viewStates = this._viewStates[viewIndex];
-    if (!viewStates) {
+    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
       throw new SDKInternalException(`[RendererMesh.setHighlighted] No view state for view index ${viewIndex}`);
     }
-    const transparent = viewStates.transparent; // For restore to opaque vs transparent bin, when un-highlighting
-    this._meshBatch.setMeshHighlighted(viewIndex, this._meshHandle, highlighted, transparent);
+    this._meshBatch.setMeshHighlighted(
+      viewIndex,
+      this._meshHandle,
+      highlighted,
+      this._hasFlag(viewIndex, ViewStateBits.Transparent)
+    );
   }
 
   /**
@@ -238,12 +231,15 @@ export class RendererMesh {
    * Called by {@link RendererObject.setXRayed}.
    */
   setXRayed(viewIndex: number, xrayed: boolean) {
-    const viewStates = this._viewStates[viewIndex];
-    if (!viewStates) {
+    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
       throw new SDKInternalException(`[RendererMesh.setXRayed] No view state for view index ${viewIndex}`);
     }
-    const transparent = viewStates.transparent; // For restore to opaque vs transparent bin, when un-x-raying
-    this._meshBatch.setMeshXRayed(viewIndex, this._meshHandle, xrayed, transparent);
+    this._meshBatch.setMeshXRayed(
+      viewIndex,
+      this._meshHandle,
+      xrayed,
+      this._hasFlag(viewIndex, ViewStateBits.Transparent)
+    );
   }
 
   /**
@@ -251,12 +247,15 @@ export class RendererMesh {
    * Called by {@link RendererObject.setSelected}.
    */
   setSelected(viewIndex: number, selected: boolean) {
-    const viewStates = this._viewStates[viewIndex];
-    if (!viewStates) {
+    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
       throw new SDKInternalException(`[RendererMesh.setSelected] No view state for view index ${viewIndex}`);
     }
-    const transparent = viewStates.transparent; // For restore to opaque vs transparent bin, when de-selecting
-    this._meshBatch.setMeshSelected(viewIndex, this._meshHandle, selected, transparent);
+    this._meshBatch.setMeshSelected(
+      viewIndex,
+      this._meshHandle,
+      selected,
+      this._hasFlag(viewIndex, ViewStateBits.Transparent)
+    );
   }
 
   /**
@@ -264,8 +263,7 @@ export class RendererMesh {
    * Called by {@link RendererObject.setClippable}.
    */
   setClippable(viewIndex: number, clippable: boolean) {
-    const viewStates = this._viewStates[viewIndex];
-    if (!viewStates) {
+    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
       throw new SDKInternalException(`[RendererMesh.setClippable] No view state for view index ${viewIndex}`);
     }
     this._meshBatch.setMeshClippable(viewIndex, this._meshHandle, clippable);
@@ -276,7 +274,6 @@ export class RendererMesh {
    * Called by {@link RendererObject.setCollidable}.
    */
   setCollidable(viewIndex: number, collidable: boolean) {
-    // this._meshBatch.setLayerMeshCollidable(viewIndex, this._meshHandle, renderFlags);
   }
 
   /**

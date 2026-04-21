@@ -1,6 +1,5 @@
-import type { Vec3} from "../../../math/vector";
-import type {RendererMesh} from "./RendererMesh";
-import {RenderContext} from "../RenderContext";
+import type { Vec3 } from "../../../math/vector";
+import type { RendererMesh } from "./RendererMesh";
 
 const tempIntRGB = new Uint16Array([0, 0, 0]);
 
@@ -28,30 +27,15 @@ export class RendererObject  {
    */
   readonly id: string;
 
-  /**
-   * List of renderer meshes associated with this object.
-   * Each mesh can represent a part of the object, such as its geometry and texture.
-   * The object controls the visual state of these meshes in the renderer, as a whole.
-   */
   private readonly _rendererMeshes: RendererMesh[];
 
-  /**
-   * The RenderContext associated with this object.
-   */
-  private readonly _renderContext: RenderContext;
-
-  /**
-   * @private
-   */
   constructor(params: {
     id: string,
-    renderContext: RenderContext;
     rendererMeshes: RendererMesh[];
   }) {
     this.id = params.id;
     this._rendererMeshes = params.rendererMeshes || [];
-    this._renderContext = params.renderContext;
-   }
+  }
 
   /**
    * Adds a renderer mesh to this object.
@@ -74,7 +58,9 @@ export class RendererObject  {
    * Sets the visibility of the object in a specific view.
    */
   setVisible(viewIndex: number, visible: boolean): void {
-      this._rendererMeshes.forEach(mesh => mesh.setObjectVisible(viewIndex, visible));
+    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+      this._rendererMeshes[i].setObjectVisible(viewIndex, visible);
+    }
   }
 
   /**

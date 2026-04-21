@@ -1,19 +1,97 @@
-import type { RenderPassValue } from "../../RENDER_PASSES";
 import { SDKInternalException } from "../../../../core";
 import { DataTexture } from "./DataTexture";
 import { type PrimRange } from "./PrimRange";
 
 /**
- * Handle to an allocated portion in PrimitiveMeshIndexTexture.
+ * Runtime identifier for a render pass.
+ *
+ * Unlike the original implementation, render passes are not restricted to a
+ * fixed enum. Any numeric ID can be registered at runtime.
+ *
+ * Built-in pass IDs can still be used directly.
+ */
+export type PrimitiveRenderPassId = number;
+
+/**
+ * Handle to an allocated portion in {@link PrimitiveMeshIndexTexture}.
+ *
+ * A portion represents a contiguous range of primitives belonging to a single mesh
+ * and assigned to a specific render pass.
+ *
+ * Portions are opaque handles owned by the texture. Their `offset` is updated during
+ * {@link uploadChanges}, when the internal buffer is rebuilt and repacked.
  */
 export interface PrimitiveMeshIndexTexturePortionHandle {
+  /**
+   * Unique portion identifier.
+   */
   id: number;
+
+  /**
+   * Offset of the portion within the packed primitive buffer.
+   *
+   * This is updated during {@link uploadChanges}.
+   */
   offset: number;
+
+  /**
+   * Number of primitives in this portion.
+   */
   size: number;
+
+  /**
+   * Index of the mesh that owns this portion.
+   */
   meshIndex: number;
+
+  /**
+   * Object-level visibility flag.
+   */
   objectVisible: boolean;
+
+  /**
+   * Mesh-level visibility flag.
+   */
   meshVisible: boolean;
-  renderPass: RenderPassValue;
+
+  /**
+   * Render pass this portion belongs to.
+   */
+  renderPass: PrimitiveRenderPassId;
+}
+
+/**
+ * Options when registering a render pass.
+ */
+export interface RegisterRenderPassOptions {
+  /**
+   * Insert the new pass before an existing pass.
+   */
+  before?: PrimitiveRenderPassId;
+
+  /**
+   * Insert the new pass after an existing pass.
+   */
+  after?: PrimitiveRenderPassId;
+}
+
+/**
+ * Options when unregistering a render pass.
+ */
+export interface UnregisterRenderPassOptions {
+  /**
+   * Policy for portions currently assigned to the pass being removed.
+   *
+   * - `"throw"`: Throws if any portions still reference the pass.
+   * - `"move"`: Reassigns them to {@link targetRenderPass}.
+   * - `"hide"`: Marks them invisible.
+   */
+  onAssignedPortions?: "throw" | "move" | "hide";
+
+  /**
+   * Target render pass when `onAssignedPortions === "move"`.
+   */
+  targetRenderPass?: PrimitiveRenderPassId;
 }
 
 /**
@@ -23,32 +101,88 @@ export interface PrimitiveMeshIndexTexturePortionHandle {
  * for each primitive (triangle, line, or point), which mesh it belongs to and its offset within that mesh.
  *
  * ## Structure
- * - Each item stores two `uint32` values: `meshIndex` and `offset`.
- * - Items are grouped into "portions", each associated with a mesh and a render pass (e.g., OPAQUE, XRAYED).
- * - The texture maintains a mapping of render pass IDs to primitive ranges, enabling fast per-pass rendering.
+ * - Each item stores two `uint32` values:
+ *   - `meshIndex`: index of the owning mesh
+ *   - `offset`: primitive index within that mesh
+ * - Items are grouped into "portions", each associated with:
+ *   - a mesh (`meshIndex`)
+ *   - a render pass (`renderPass`)
+ * - Portions are dynamically packed into contiguous runs per render pass during {@link uploadChanges}.
+ *
+ * ## Render pass model
+ * - Render passes are registered at runtime using {@link registerRenderPass}.
+ * - Each registered pass gets a contiguous primitive range stored in {@link passRanges}.
+ * - Pass registration order defines packing order, which also defines draw order for users
+ *   that consume the ranges sequentially.
+ *
+ * ## Visibility
+ * A portion is included in packing only when both:
+ * - `objectVisible === true`
+ * - `meshVisible === true`
+ *
+ * Invisible portions remain allocated, but do not contribute to packed primitive ranges.
+ *
+ * ## Usage
+ * Typical flow:
+ * 1. Register render passes
+ * 2. Create portions
+ * 3. Modify visibility and/or render passes
+ * 4. Call {@link uploadChanges}
+ * 5. Use {@link getPassRange} to drive draw calls
  */
 export class PrimitiveMeshIndexTexture extends DataTexture {
+  /**
+   * All allocated portions indexed by portion ID.
+   */
+  private readonly portions = new Map<number, PrimitiveMeshIndexTexturePortionHandle>();
 
-  private readonly portions: Map<number, PrimitiveMeshIndexTexturePortionHandle> = new Map();
-  private readonly renderPassIds: RenderPassValue[];
+  /**
+   * Ordered list of registered render passes.
+   *
+   * This defines packing order and, by extension, the order of contiguous pass ranges.
+   */
+  private readonly renderPassOrder: PrimitiveRenderPassId[] = [];
 
-  public readonly passRanges: Map<number, PrimRange> = new Map();
+  /**
+   * Set of registered render passes for fast membership checks.
+   */
+  private readonly registeredRenderPasses = new Set<PrimitiveRenderPassId>();
 
+  /**
+   * Per-pass primitive ranges.
+   *
+   * Each entry defines a contiguous segment within the packed primitive buffer.
+   */
+  public readonly passRanges = new Map<PrimitiveRenderPassId, PrimRange>();
+
+  /**
+   * Full range of drawable primitives across all visible portions and all registered passes.
+   *
+   * This is useful for passes such as picking that want to consider all visible primitives
+   * regardless of render pass.
+   */
   public readonly primRange: PrimRange = { firstPrim: 0, numPrims: 0 };
 
-  private nextPortionId: number = 1;
-  private numAllocatedItems: number = 0;
-  private needUpload: boolean = true;
+  private nextPortionId = 1;
+  private numAllocatedItems = 0;
+  private needUpload = true;
 
-  public static readonly itemSizeInBytes = 8; // 2 × uint32 per item (meshIndex, offset)
+  /**
+   * Size of a single item in bytes.
+   *
+   * Each item stores:
+   * - `meshIndex` (`uint32`)
+   * - `offset` (`uint32`)
+   */
+  public static readonly itemSizeInBytes = 8;
 
   /**
    * @private
-   * @param options
+   * @param options Constructor options.
    */
   constructor(options: {
     gl: WebGL2RenderingContext;
-    bins: RenderPassValue[];
+    bins?: PrimitiveRenderPassId[];
     maxItems: number;
     description: string;
   }) {
@@ -65,26 +199,33 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
       texelsPerItem: 1,
       elementsPerTexel: 2,
     });
-    this.renderPassIds = options.bins;
+
+    for (const passId of options.bins ?? []) {
+      this.registerRenderPass(passId);
+    }
   }
 
   /**
-   * Number of allocated primitives (across all portions).
+   * Number of allocated primitives across all portions, including invisible ones.
    */
   public get numItems(): number {
     return this.numAllocatedItems;
   }
 
   /**
-   * Number of primitives currently drawable (post-uploadChanges).
-   * This is also the number of pickable primitives, since picking considers all primitives regardless of render pass.
+   * Number of primitives currently drawable after the most recent packing pass.
+   *
+   * This counts only visible primitives in registered render passes.
    */
   public get numPrimitives(): number {
     return this.primRange.numPrims;
   }
 
   /**
-   * Checks if a new portion of the given size fits (ignores culling).
+   * Checks if a new portion of the given size fits within capacity.
+   *
+   * This check considers allocation only and ignores visibility/culling.
+   *
    * @param size Number of items to allocate.
    */
   public canGetPortion(size: number): boolean {
@@ -92,18 +233,186 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
   }
 
   /**
-   * Allocates a portion belonging to a given renderPass bin.
+   * Checks whether a render pass is currently registered.
+   *
+   * @param renderPass Render pass ID.
+   */
+  public hasRenderPass(renderPass: PrimitiveRenderPassId): boolean {
+    return this.registeredRenderPasses.has(renderPass);
+  }
+
+  /**
+   * Gets the ordered list of registered render pass IDs.
+   *
+   * The returned array is a copy and can be safely modified by the caller.
+   */
+  public getRenderPassIds(): PrimitiveRenderPassId[] {
+    return this.renderPassOrder.slice();
+  }
+
+  /**
+   * Registers a render pass at runtime.
+   *
+   * If the pass is already registered, this is a no-op.
+   *
+   * Ordering can optionally be controlled relative to an existing pass.
+   * If neither `before` nor `after` is provided, the pass is appended.
+   *
+   * @param renderPass Unique pass ID.
+   * @param options Optional ordering constraints.
+   */
+  public registerRenderPass(
+      renderPass: PrimitiveRenderPassId,
+      options?: RegisterRenderPassOptions
+  ): void {
+    if (this.registeredRenderPasses.has(renderPass)) {
+      return;
+    }
+
+    const { before, after } = options ?? {};
+
+    if (before !== undefined && after !== undefined) {
+      throw new SDKInternalException(
+          "[PrimitiveMeshIndexTexture.registerRenderPass]: Specify only one of 'before' or 'after'"
+      );
+    }
+
+    if (before !== undefined) {
+      const idx = this.renderPassOrder.indexOf(before);
+      if (idx === -1) {
+        throw new SDKInternalException(
+            "[PrimitiveMeshIndexTexture.registerRenderPass]: 'before' pass is not registered"
+        );
+      }
+      this.renderPassOrder.splice(idx, 0, renderPass);
+    } else if (after !== undefined) {
+      const idx = this.renderPassOrder.indexOf(after);
+      if (idx === -1) {
+        throw new SDKInternalException(
+            "[PrimitiveMeshIndexTexture.registerRenderPass]: 'after' pass is not registered"
+        );
+      }
+      this.renderPassOrder.splice(idx + 1, 0, renderPass);
+    } else {
+      this.renderPassOrder.push(renderPass);
+    }
+
+    this.registeredRenderPasses.add(renderPass);
+    this.passRanges.set(renderPass, { firstPrim: 0, numPrims: 0 });
+    this.needUpload = true;
+  }
+
+  /**
+   * Unregisters a render pass.
+   *
+   * By default this throws if any portions are still assigned to the pass.
+   * Callers may instead choose to move or hide those portions.
+   *
+   * If the pass is not registered, this is a no-op.
+   *
+   * @param renderPass Render pass ID to remove.
+   * @param options Behavior for portions still assigned to the pass.
+   */
+  public unregisterRenderPass(
+      renderPass: PrimitiveRenderPassId,
+      options?: UnregisterRenderPassOptions
+  ): void {
+    if (!this.registeredRenderPasses.has(renderPass)) {
+      return;
+    }
+
+    const onAssignedPortions = options?.onAssignedPortions ?? "throw";
+    const affected: PrimitiveMeshIndexTexturePortionHandle[] = [];
+
+    for (const portion of this.portions.values()) {
+      if (portion.renderPass === renderPass) {
+        affected.push(portion);
+      }
+    }
+
+    if (affected.length > 0) {
+      switch (onAssignedPortions) {
+        case "throw":
+          throw new SDKInternalException(
+              "[PrimitiveMeshIndexTexture.unregisterRenderPass]: Pass still has assigned portions"
+          );
+
+        case "move": {
+          const target = options?.targetRenderPass;
+          if (target === undefined) {
+            throw new SDKInternalException(
+                "[PrimitiveMeshIndexTexture.unregisterRenderPass]: targetRenderPass is required when onAssignedPortions='move'"
+            );
+          }
+          if (target === renderPass) {
+            throw new SDKInternalException(
+                "[PrimitiveMeshIndexTexture.unregisterRenderPass]: targetRenderPass must differ from renderPass"
+            );
+          }
+          if (!this.registeredRenderPasses.has(target)) {
+            throw new SDKInternalException(
+                "[PrimitiveMeshIndexTexture.unregisterRenderPass]: targetRenderPass is not registered"
+            );
+          }
+          for (const portion of affected) {
+            portion.renderPass = target;
+          }
+          break;
+        }
+
+        case "hide":
+          for (const portion of affected) {
+            portion.objectVisible = false;
+            portion.meshVisible = false;
+          }
+          break;
+
+        default:
+          throw new SDKInternalException(
+              "[PrimitiveMeshIndexTexture.unregisterRenderPass]: Unsupported onAssignedPortions policy"
+          );
+      }
+    }
+
+    this.registeredRenderPasses.delete(renderPass);
+    const idx = this.renderPassOrder.indexOf(renderPass);
+    if (idx !== -1) {
+      this.renderPassOrder.splice(idx, 1);
+    }
+    this.passRanges.delete(renderPass);
+    this.needUpload = true;
+  }
+
+  /**
+   * Allocates a portion belonging to a given render pass.
+   *
+   * The render pass must already be registered.
+   *
    * @param size Number of items in the portion.
    * @param meshIndex Mesh index for the portion.
-   * @param renderPass Render pass bin.
+   * @param renderPass Render pass ID.
    */
-  public createPortion(size: number, meshIndex: number, renderPass: RenderPassValue): PrimitiveMeshIndexTexturePortionHandle {
+  public createPortion(
+      size: number,
+      meshIndex: number,
+      renderPass: PrimitiveRenderPassId
+  ): PrimitiveMeshIndexTexturePortionHandle {
     if (size <= 0) {
-      throw new SDKInternalException("[PrimitiveMeshIndexTexture.createPortion]: size must be > 0");
+      throw new SDKInternalException(
+          "[PrimitiveMeshIndexTexture.createPortion]: size must be > 0"
+      );
     }
     if (this.numAllocatedItems + size > this.maxItems) {
-      throw new SDKInternalException("[PrimitiveMeshIndexTexture.createPortion]: Not enough capacity");
+      throw new SDKInternalException(
+          "[PrimitiveMeshIndexTexture.createPortion]: Not enough capacity"
+      );
     }
+    if (!this.registeredRenderPasses.has(renderPass)) {
+      throw new SDKInternalException(
+          "[PrimitiveMeshIndexTexture.createPortion]: Render pass is not registered"
+      );
+    }
+
     const id = this.nextPortionId++;
     const handle: PrimitiveMeshIndexTexturePortionHandle = {
       id,
@@ -114,6 +423,7 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
       objectVisible: true,
       meshVisible: true,
     };
+
     this.portions.set(id, handle);
     this.numAllocatedItems += size;
     this.needUpload = true;
@@ -122,12 +432,15 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
 
   /**
    * Frees a previously allocated portion.
+   *
    * @param handle Portion handle.
    */
   public deletePortion(handle: PrimitiveMeshIndexTexturePortionHandle): void {
     const removed = this.portions.get(handle.id);
     if (!removed) {
-      throw new SDKInternalException("[PrimitiveMeshIndexTexture.deletePortion]: Unknown portion handle");
+      throw new SDKInternalException(
+          "[PrimitiveMeshIndexTexture.deletePortion]: Unknown portion handle"
+      );
     }
     this.portions.delete(handle.id);
     this.numAllocatedItems -= removed.size;
@@ -135,14 +448,27 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
   }
 
   /**
-   * Changes a portion's renderPass bin.
+   * Changes a portion's render pass.
+   *
+   * The target render pass must already be registered.
+   *
    * @param handle Portion handle.
-   * @param renderPass New render pass bin.
+   * @param renderPass New render pass ID.
    */
-  public setRenderPass(handle: PrimitiveMeshIndexTexturePortionHandle, renderPass: RenderPassValue): void {
+  public setRenderPass(
+      handle: PrimitiveMeshIndexTexturePortionHandle,
+      renderPass: PrimitiveRenderPassId
+  ): void {
     const portion = this.portions.get(handle.id);
     if (!portion) {
-      throw new SDKInternalException("[PrimitiveMeshIndexTexture.setRenderPass]: Unknown portion handle");
+      throw new SDKInternalException(
+          "[PrimitiveMeshIndexTexture.setRenderPass]: Unknown portion handle"
+      );
+    }
+    if (!this.registeredRenderPasses.has(renderPass)) {
+      throw new SDKInternalException(
+          "[PrimitiveMeshIndexTexture.setRenderPass]: Render pass is not registered"
+      );
     }
     if (portion.renderPass === renderPass) {
       return;
@@ -154,13 +480,19 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
 
   /**
    * Sets the object-level visibility of a portion.
+   *
    * @param handle Portion handle.
    * @param objectVisible Whether the portion is visible at the object level.
    */
-  public setObjectVisible(handle: PrimitiveMeshIndexTexturePortionHandle, objectVisible: boolean): void {
+  public setObjectVisible(
+      handle: PrimitiveMeshIndexTexturePortionHandle,
+      objectVisible: boolean
+  ): void {
     const portion = this.portions.get(handle.id);
     if (!portion) {
-      throw new SDKInternalException("[PrimitiveMeshIndexTexture.setObjectVisible]: Unknown portion handle");
+      throw new SDKInternalException(
+          "[PrimitiveMeshIndexTexture.setObjectVisible]: Unknown portion handle"
+      );
     }
     portion.objectVisible = !!objectVisible;
     handle.objectVisible = portion.objectVisible;
@@ -169,13 +501,19 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
 
   /**
    * Sets the mesh-level visibility of a portion.
+   *
    * @param handle Portion handle.
    * @param meshVisible Whether the portion is visible at the mesh level.
    */
-  public setMeshVisible(handle: PrimitiveMeshIndexTexturePortionHandle, meshVisible: boolean): void {
+  public setMeshVisible(
+      handle: PrimitiveMeshIndexTexturePortionHandle,
+      meshVisible: boolean
+  ): void {
     const portion = this.portions.get(handle.id);
     if (!portion) {
-      throw new SDKInternalException("[PrimitiveMeshIndexTexture.setMeshVisible]: Unknown portion handle");
+      throw new SDKInternalException(
+          "[PrimitiveMeshIndexTexture.setMeshVisible]: Unknown portion handle"
+      );
     }
     portion.meshVisible = !!meshVisible;
     handle.meshVisible = portion.meshVisible;
@@ -183,7 +521,12 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
   }
 
   /**
-   * Gets the visibility of a portion.
+   * Gets the current visibility of a portion.
+   *
+   * This mirrors the original behavior: if the handle is still known by the texture,
+   * visibility is read from internal state; otherwise the visibility recorded on the handle
+   * is returned as a fallback.
+   *
    * @param handle Portion handle.
    */
   public isVisible(handle: PrimitiveMeshIndexTexturePortionHandle): boolean {
@@ -192,28 +535,32 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
   }
 
   /**
-   * Gets the first/count for a renderPass bin.
-   * @param renderPass Render pass bin.
+   * Gets the first/count range for a render pass.
+   *
+   * If the pass has no drawable primitives, a zero-length range is returned.
+   *
+   * @param renderPass Render pass ID.
    */
-  public getPassRange(renderPass: RenderPassValue): PrimRange {
+  public getPassRange(renderPass: PrimitiveRenderPassId): PrimRange {
     return this.passRanges.get(renderPass) ?? { firstPrim: 0, numPrims: 0 };
   }
 
   /**
-   * Gets the full range of drawable primitives, for picking.
-   * This can be used for picking passes that want to consider all primitives regardless of render pass.
+   * Gets the full range of drawable primitives, for picking or other whole-buffer passes.
+   *
+   * This can be used for passes that want to consider all visible primitives regardless of render pass.
    */
   public getPrimRange(): PrimRange {
     return this.primRange;
   }
 
   /**
-   * Gets the meshIndex and offset for a primitive index.
+   * Gets the mesh index and primitive offset for a packed primitive index.
    *
-   * The offset is the index of the primitive within its mesh. For example, for a triangle mesh,
-   * the offset will be 0 for the first triangle, 1 for the second triangle, and so on. This
-   * allows the vertex shader to determine which vertices to use when rendering the primitive.
-   * @param primIndex Primitive index.
+   * The `offset` is the primitive index within its mesh. For example, for a triangle mesh,
+   * the offset will be `0` for the first triangle, `1` for the second triangle, and so on.
+   *
+   * @param primIndex Packed primitive index.
    */
   public getItem(primIndex: number): { meshIndex: number; offset: number } {
     const meshIndex = this.buffer[primIndex * 2];
@@ -223,54 +570,65 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
 
   /**
    * Cancels any pending uploads.
+   *
+   * This clears the dirty flag without modifying the current buffer contents.
    */
   protected cancelUploads(): void {
     this.needUpload = false;
   }
 
   /**
-   * Uploads current CPU buffer if dirty; rebuilds runs when necessary.
+   * Uploads the current CPU buffer if dirty and rebuilds packed runs when necessary.
    *
    * Internal algorithm:
-   * - If no upload is needed, returns false.
-   * - If no items are allocated, clears buffer and returns false.
-   * - Otherwise, rebuilds runs and buffer:
-   *   - Groups portions by renderPass, preserving insertion order.
-   *   - Packs contiguous runs per renderPass, updating offsets.
-   *   - Updates passRanges for each renderPass.
-   *   - Uploads buffer to GPU.
-   *   - Updates numDrawablePrims.
-   * - Notifies update and resets needUpload.
+   * - If no upload is needed, returns `false`.
+   * - If no items are allocated, clears ranges and returns `false`.
+   * - Otherwise:
+   *   - groups visible portions by render pass
+   *   - packs contiguous runs in registered render pass order
+   *   - updates {@link passRanges}
+   *   - updates {@link primRange}
+   *   - uploads the buffer to the GPU
+   *   - clears the dirty flag
    *
-   * @returns True if any uploads occurred, false otherwise.
+   * @returns `true` if a GPU upload occurred, otherwise `false`.
    */
   public uploadChanges(): boolean {
     if (!this.needUpload) {
       return false;
     }
+
     if (this.numAllocatedItems === 0) {
       this.buffer.fill(0);
       this.passRanges.clear();
+      for (const renderPass of this.renderPassOrder) {
+        this.passRanges.set(renderPass, { firstPrim: 0, numPrims: 0 });
+      }
+      this.primRange.firstPrim = 0;
+      this.primRange.numPrims = 0;
       this.needUpload = false;
       return false;
     }
+
     this._rebuildRunsAndBuffer();
     this.notifyUpdated();
+
     const gl = this.gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
     gl.texSubImage2D(
-      gl.TEXTURE_2D,
-      0,
-      0,
-      0,
-      this.width,
-      this.height,
-      this.format,
-      this.type,
-      this.buffer
+        gl.TEXTURE_2D,
+        0,
+        0,
+        0,
+        this.width,
+        this.height,
+        this.format,
+        this.type,
+        this.buffer
     );
     gl.bindTexture(gl.TEXTURE_2D, null);
+
     this.needUpload = false;
     return true;
   }
@@ -282,64 +640,88 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
     super.destroy();
     this.portions.clear();
     this.passRanges.clear();
+    this.renderPassOrder.length = 0;
+    this.registeredRenderPasses.clear();
   }
 
   // ---------------- Internals ----------------
 
   /**
-   * Rebuilds runs and buffer for all portions, grouped by renderPass.
+   * Rebuilds packed runs and the CPU buffer for all visible portions, grouped by render pass.
+   *
+   * Packing is performed in registered render pass order. Each pass receives a contiguous
+   * primitive range in {@link passRanges}.
+   *
+   * For each packed primitive:
+   * - `buffer[n * 2 + 0] = meshIndex`
+   * - `buffer[n * 2 + 1] = primitive offset within mesh`
    */
   private _rebuildRunsAndBuffer(): void {
-    // Group portions by renderPass, preserving insertion order
-    const buckets = new Map<number, PrimitiveMeshIndexTexturePortionHandle[]>();
+    const buckets = new Map<PrimitiveRenderPassId, PrimitiveMeshIndexTexturePortionHandle[]>();
+
+    for (const renderPass of this.renderPassOrder) {
+      buckets.set(renderPass, []);
+    }
+
     for (const portion of this.portions.values()) {
-      if (!portion.objectVisible || !portion.meshVisible) continue;
-      if (!buckets.has(portion.renderPass)) {
-        buckets.set(portion.renderPass, []);
+      if (!portion.objectVisible || !portion.meshVisible) {
+        continue;
+      }
+      if (!this.registeredRenderPasses.has(portion.renderPass)) {
+        continue;
       }
       buckets.get(portion.renderPass)!.push(portion);
     }
 
-    // Pack contiguous runs per renderPass
     let base = 0;
-    let firstPrim = 0;
-    let numPrims = 0;
     this.passRanges.clear();
-    for (const renderPass of this.renderPassIds) {
-      const bucket = buckets.get(renderPass);
-      if (!bucket || bucket.length === 0) {
-        this.passRanges.set(renderPass, { firstPrim: base, numPrims: 0 });
-        continue;
-      }
-      firstPrim = base;
+
+    for (const renderPass of this.renderPassOrder) {
+      const bucket = buckets.get(renderPass)!;
+      const firstPrim = base;
+
       for (const portion of bucket) {
         portion.offset = base;
+
         for (let i = 0; i < portion.size; i++) {
           const bufIdx = (base + i) * 2;
           this.buffer[bufIdx] = portion.meshIndex;
           this.buffer[bufIdx + 1] = i;
         }
+
         base += portion.size;
       }
+
       this.passRanges.set(renderPass, {
-        firstPrim: firstPrim,
-        numPrims: base - firstPrim
+        firstPrim,
+        numPrims: base - firstPrim,
       });
     }
+
+    this.primRange.firstPrim = 0;
     this.primRange.numPrims = base;
-    // Optionally zero out remainder for debugging
-    // if (base < this.buffer.length) this.buffer.fill(0, base * 2);
+
+    if (base * 2 < this.buffer.length) {
+      this.buffer.fill(0, base * 2);
+    }
   }
 
   /**
-   * Encode (x, y) → linear address for a 2D table with known width.
+   * Encodes `(x, y)` into a linear address for a 2D table with known width.
+   *
+   * @param x X coordinate.
+   * @param y Y coordinate.
+   * @param width Table width.
    */
   public static encodeAddress(x: number, y: number, width: number): number {
     return ((y | 0) * (width | 0) + (x | 0)) >>> 0;
   }
 
   /**
-   * Decode linear address → (x, y) for a given width.
+   * Decodes a linear address into `(x, y)` for a 2D table with known width.
+   *
+   * @param addr Linear address.
+   * @param width Table width.
    */
   public static decodeAddress(addr: number, width: number): { x: number; y: number } {
     const a = addr >>> 0;

@@ -15,8 +15,25 @@ import {RENDER_PASSES, type RenderPassValue} from "../RENDER_PASSES";
 import {SDKErrorType, SDKInternalException, type SDKResult} from "../../../core";
 import {type MemoryConfigs} from "../../MemoryConfigs";
 import type {Mat4} from "../../../math/matrix";
-import type {Vec3, Vec4} from "../../../math/vector";
+import type {Vec3} from "../../../math/vector";
 import {GPUMemoryCheckResult} from "./GPUMemoryCheckResult";
+
+type GeometryHandle = {
+  sceneGeometry: SceneGeometry;
+  positionsPortion: any;
+  vertexColorsPortion: any;
+  geometryIndex: number;
+  indicesHandle: any;
+  edgeIndicesHandle: any;
+  useCount: number;
+};
+
+type MeshHandle = {
+  sceneMesh: SceneMesh;
+  meshIndex: number;
+  primitiveMeshIndexTextureHandles: any[];
+  edgeMeshIndexTextureHandles?: any[];
+};
 
 /**
  * Manages GPU-resident, dynamically-editable data storage for model geometry and attributes.
@@ -48,15 +65,21 @@ export class GPUMemoryBatch {
   private _meshMatrixTexture: MatrixTexture;
   private _meshIndicesUsed: boolean[];
   private _meshes: {};
-  private _sceneMeshes: {};
   private _numMeshes: number;
   private _geometryIndicesUsed: boolean[];
-  private _sceneGeometries: {};
+  private _sceneGeometries: Record<number, SceneGeometry>;
   private _numGeometries: number;
   private _lastFreeMeshIndex: number;
   private _lastFreeGeometryIndex: number;
-  private _geometryHandles: any;
-  private _meshHandles: any;
+  private _geometryHandles: Record<string, GeometryHandle>;
+  /**
+   * Mesh handles keyed directly by meshIndex for fast lookup in hot paths.
+   */
+  private _meshHandles: Record<number, MeshHandle>;
+  /**
+   * Keeps addMesh(SceneMesh) idempotent by allowing lookup of an existing meshIndex for a SceneMesh.uniqueId.
+   */
+  private _meshIndicesByUniqueId: Record<string, number>;
   private _onTick: () => void;
   private _renderContext: RenderContext;
 
@@ -71,7 +94,7 @@ export class GPUMemoryBatch {
 
     this._geometryHandles = {};
     this._meshHandles = {};
-    this._sceneMeshes = {};
+    this._meshIndicesByUniqueId = {};
 
     this._meshIndicesUsed = [];
     this._lastFreeMeshIndex = 0;
@@ -118,11 +141,11 @@ export class GPUMemoryBatch {
 
       this._edgeMeshIndexTexture.push(
         new PrimitiveMeshIndexTexture({
-        gl,
-        maxItems: memoryConfigs.maxBatchPrims,
-        bins,
-        description: `[Batch ${this.index}, View ${viewIndex}] - edgeIndex -> meshIndex`
-      }));
+          gl,
+          maxItems: memoryConfigs.maxBatchPrims,
+          bins,
+          description: `[Batch ${this.index}, View ${viewIndex}] - edgeIndex -> meshIndex`
+        }));
 
       this._meshViewAttributeTexture.push(
         new MeshViewAttributeTexture({
@@ -323,7 +346,7 @@ export class GPUMemoryBatch {
       return GPUMemoryCheckResult.NoGeometry;
     }
     const vertCount = (geometry.positionsCompressed?.length ?? 0) / 3;
-    const geometryExists = !!this._geometryHandles[geometry.id];
+    const geometryExists = !!this._geometryHandles[geometry.uniqueId];
     if (!geometryExists) {
       if (this._numGeometries >= this._renderContext.memoryConfigs.maxBatchGeometries) {
         return GPUMemoryCheckResult.TooManyGeometries;
@@ -339,17 +362,9 @@ export class GPUMemoryBatch {
       }
     }
     const isPoints = geometry.primitive === PointsPrimitive;
-    if (isPoints) {
-      if (!geometryExists) {
-        if (geometry.colorsCompressed && this._vertexColorTexture.canGetPortion(geometry.colorsCompressed.length) === false) {
-          return GPUMemoryCheckResult.NotEnoughColorSpace;
-        }
-      }
-    } else {
-      if (!geometryExists) {
-        if (geometry.colorsCompressed && this._vertexColorTexture.canGetPortion(geometry.colorsCompressed.length) === false) {
-          return GPUMemoryCheckResult.NotEnoughColorSpace;
-        }
+    if (!geometryExists) {
+      if (geometry.colorsCompressed && this._vertexColorTexture.canGetPortion(geometry.colorsCompressed.length) === false) {
+        return GPUMemoryCheckResult.NotEnoughColorSpace;
       }
     }
     const primCount = isPoints
@@ -378,15 +393,14 @@ export class GPUMemoryBatch {
    */
   addMesh(sceneMesh: SceneMesh): SDKResult<number> {
 
-    const existingMeshHandle = this._meshHandles[sceneMesh.id];
-
-    if (existingMeshHandle) {
-      return {ok: true, value: existingMeshHandle.meshIndex };
+    const existingMeshIndex = this._meshIndicesByUniqueId[sceneMesh.uniqueId];
+    if (existingMeshIndex !== undefined) {
+      return {ok: true, value: existingMeshIndex};
     }
 
     const maxBatchMeshes = this._renderContext.memoryConfigs.maxBatchMeshes;
 
-    if ((this._numMeshes+1) >= maxBatchMeshes) {
+    if ((this._numMeshes + 1) >= maxBatchMeshes) {
       return {
         ok: false,
         type: SDKErrorType.MemoryAllocationFailed,
@@ -395,12 +409,11 @@ export class GPUMemoryBatch {
     }
 
     const sceneGeometry = sceneMesh.geometry;
-
-    let geometryHandle = this._geometryHandles[sceneGeometry.id];
+    let geometryHandle = this._geometryHandles[sceneGeometry.uniqueId];
 
     if (!geometryHandle) {
       const maxGeometries = this._renderContext.memoryConfigs.maxBatchGeometries;
-      if ((this._numGeometries+1) >= maxGeometries) {
+      if ((this._numGeometries + 1) >= maxGeometries) {
         return {
           ok: false,
           type: SDKErrorType.MemoryAllocationFailed,
@@ -439,6 +452,15 @@ export class GPUMemoryBatch {
 
     meshIndex = this._getFreeMeshIndex();
 
+    if (this._meshHandles[meshIndex]) {
+      cleanup();
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `GPUMemoryBatch.addMesh: Mesh handle already exists at meshIndex ${meshIndex}`
+      };
+    }
+
     if (!geometryHandle) {
 
       geometryIndex = this._getFreeGeometryIndex();
@@ -446,7 +468,7 @@ export class GPUMemoryBatch {
       positionsPortion = this._vertexPositionTexture.getPortion(
         sceneGeometry.positionsCompressed, // 3xcomponents per position
         (newBase: number) => {
-          const verticesBase = newBase / 3 // 3xcomponents per position
+          const verticesBase = newBase / 3; // 3xcomponents per position
           this._geometryAttributeTexture.setItem(geometryIndex, {
             verticesBase
           });
@@ -529,6 +551,7 @@ export class GPUMemoryBatch {
       });
 
       geometryHandle = {
+        sceneGeometry,
         positionsPortion,
         vertexColorsPortion,
         geometryIndex,
@@ -537,7 +560,7 @@ export class GPUMemoryBatch {
         useCount: 0
       };
 
-      this._geometryHandles[sceneGeometry.id] = geometryHandle;
+      this._geometryHandles[sceneGeometry.uniqueId] = geometryHandle;
 
       this._numGeometries++;
     }
@@ -551,13 +574,13 @@ export class GPUMemoryBatch {
 
     const numViews = this._renderContext.memoryConfigs.maxViews;
 
-    const color =  [
-      Math.floor(sceneMesh.globalColor[0] * 255.0),
-      Math.floor(sceneMesh.globalColor[1] * 255.0),
-      Math.floor(sceneMesh.globalColor[2] * 255.0)
+    const color = [
+      Math.floor(sceneMesh.effectiveColor[0] * 255.0),
+      Math.floor(sceneMesh.effectiveColor[1] * 255.0),
+      Math.floor(sceneMesh.effectiveColor[2] * 255.0)
     ] as Vec3;
 
-    const opacity = Math.floor(sceneMesh.globalOpacity * 255.0);
+    const opacity = Math.floor(sceneMesh.effectiveOpacity * 255.0);
 
     for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
       this._meshViewAttributeTexture[viewIndex].setItem(meshIndex, {
@@ -583,7 +606,7 @@ export class GPUMemoryBatch {
         this._primitiveMeshIndexTexture[viewIndex].createPortion(primitiveCount, meshIndex, RENDER_PASSES.OPAQUE));
     }
 
-    let edgeMeshIndexTextureHandles;
+    let edgeMeshIndexTextureHandles: any[] | undefined;
 
     if (sceneGeometry.primitive === TrianglesPrimitive) {
       const edgeCount = sceneGeometry.edgeIndices ? sceneGeometry.edgeIndices.length / 2 : 0;
@@ -594,14 +617,15 @@ export class GPUMemoryBatch {
       }
     }
 
-    this._meshHandles[sceneMesh.id] = {
+    this._meshHandles[meshIndex] = {
+      sceneMesh,
       meshIndex,
       primitiveMeshIndexTextureHandles,
       edgeMeshIndexTextureHandles
     };
 
+    this._meshIndicesByUniqueId[sceneMesh.uniqueId] = meshIndex;
     this._sceneGeometries[geometryHandle.geometryIndex] = sceneGeometry;
-    this._sceneMeshes[meshIndex] = sceneMesh;
 
     this._numMeshes++;
 
@@ -678,11 +702,7 @@ export class GPUMemoryBatch {
     meshIndex: number,
     viewIndex: number,
     renderPass: RenderPassValue) {
-    const sceneMesh = this._sceneMeshes[meshIndex];
-    if (!sceneMesh) {
-      throw new SDKInternalException(`GPUMemoryBatch.setMeshRenderBin: No SceneMesh at index ${meshIndex}`);
-    }
-    const meshHandle = this._meshHandles[sceneMesh.id];
+    const meshHandle = this._meshHandles[meshIndex];
     if (!meshHandle) {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no meshHandle`);
     }
@@ -711,11 +731,7 @@ export class GPUMemoryBatch {
     meshIndex: number,
     viewIndex: number,
     visible: boolean) {
-    const sceneMesh = this._sceneMeshes[meshIndex];
-    if (!sceneMesh) {
-      throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: No SceneMesh at index ${meshIndex}`);
-    }
-    const meshHandle = this._meshHandles[sceneMesh.id];
+    const meshHandle = this._meshHandles[meshIndex];
     if (!meshHandle) {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no meshHandle`);
     }
@@ -779,16 +795,15 @@ export class GPUMemoryBatch {
    * @param meshIndex
    */
   removeMesh(meshIndex: number): void {
-    const sceneMesh = this._sceneMeshes[meshIndex];
-    if (!sceneMesh) {
-      return;
-    }
-    const meshHandle = this._meshHandles[sceneMesh.id];
+    const meshHandle = this._meshHandles[meshIndex];
     if (!meshHandle) {
       return;
     }
+
+    const sceneMesh = meshHandle.sceneMesh;
     const sceneGeometry = sceneMesh.geometry;
-    const geometryHandle = this._geometryHandles[sceneGeometry.id];
+    const geometryHandle = this._geometryHandles[sceneGeometry.uniqueId];
+
     if (geometryHandle && --geometryHandle.useCount <= 0) {
       if (geometryHandle.positionsPortion) {
         this._vertexPositionTexture.putPortion(geometryHandle.positionsPortion);
@@ -802,10 +817,12 @@ export class GPUMemoryBatch {
       if (geometryHandle.edgeIndicesHandle) {
         this._edgeIndexTexture.putPortion(geometryHandle.edgeIndicesHandle);
       }
-      delete this._geometryHandles[sceneGeometry.id];
+      delete this._geometryHandles[sceneGeometry.uniqueId];
+      delete this._sceneGeometries[geometryHandle.geometryIndex];
       this._putFreeGeometryIndex(geometryHandle.geometryIndex);
       this._numGeometries--;
     }
+
     const numViews = this._renderContext.memoryConfigs.maxViews;
 
     if (meshHandle.primitiveMeshIndexTextureHandles) {
@@ -818,21 +835,11 @@ export class GPUMemoryBatch {
         this._edgeMeshIndexTexture[viewIndex].deletePortion(meshHandle.edgeMeshIndexTextureHandles[viewIndex]);
       }
     }
-    if (meshHandle.indicesHandle) {
-      this._indexTexture.putPortion(meshHandle.indicesHandle);
-    }
-    if (meshHandle.edgeIndicesHandle) {
-      this._edgeIndexTexture.putPortion(meshHandle.edgeIndicesHandle);
-    }
 
-    delete this._meshHandles[sceneMesh.id];
+    delete this._meshHandles[meshIndex];
+    delete this._meshIndicesByUniqueId[sceneMesh.uniqueId];
 
     this._putFreeMeshIndex(meshIndex);
-
-    if (geometryHandle) {
-      delete this._sceneGeometries[geometryHandle.geometryIndex];
-    }
-    delete this._sceneMeshes[meshIndex];
 
     this._numMeshes--;
   }
@@ -850,7 +857,7 @@ export class GPUMemoryBatch {
    * @param meshIndex
    */
   getMeshAtIndex(meshIndex: number): SceneMesh | null {
-    return this._sceneMeshes[meshIndex] ?? null;
+    return this._meshHandles[meshIndex]?.sceneMesh ?? null;
   }
 
   /**
@@ -858,19 +865,22 @@ export class GPUMemoryBatch {
    * @param meshIndex
    */
   getDrawArraysParamsForMesh(meshIndex: number): { first: number, count: number } | null {
-    const sceneMesh = this._sceneMeshes[meshIndex];
-    if (!sceneMesh) {
-      return null;
-    }
-    const sceneGeometry = sceneMesh.geometry;
-    if (!sceneGeometry) {
-      return null;
-    }
-    const meshHandle = this._meshHandles[sceneMesh.id];
+    const meshHandle = this._meshHandles[meshIndex];
     if (!meshHandle) {
       return null;
     }
-    const primsBase = meshHandle.primsBase;
+    const sceneGeometry = meshHandle.sceneMesh.geometry;
+    if (!sceneGeometry) {
+      return null;
+    }
+
+    const primitiveMeshIndexTextureHandle = meshHandle.primitiveMeshIndexTextureHandles?.[0];
+    if (!primitiveMeshIndexTextureHandle) {
+      return null;
+    }
+
+    const primsBase = primitiveMeshIndexTextureHandle.base ?? primitiveMeshIndexTextureHandle.start ?? 0;
+
     if (sceneGeometry.primitive === PointsPrimitive) {
       const count = sceneGeometry.positionsCompressed.length / 3; // 3xcomponents per position
       return {
@@ -962,7 +972,7 @@ export class GPUMemoryBatch {
   }
 
   webglContextRestored(): SDKResult<void> {
-    for (const dataTexture in [
+    const dataTextures = [
       ...this._primitiveMeshIndexTexture,
       ...this._edgeMeshIndexTexture,
       this._meshAttributeTexture,
@@ -974,8 +984,10 @@ export class GPUMemoryBatch {
       this._edgeIndexTexture,
       this._vertexPositionTexture,
       this._vertexColorTexture
-    ]) {
-      const result = (<any>dataTexture).webglContextRestored();
+    ];
+
+    for (const dataTexture of dataTextures) {
+      const result = (dataTexture as any).webglContextRestored();
       if (!result.ok) {
         return result;
       }
@@ -1009,5 +1021,9 @@ export class GPUMemoryBatch {
     this._vertexPositionTexture = clear(this._vertexPositionTexture);
     this._vertexColorTexture = clear(this._vertexColorTexture);
     this._meshMatrixTexture = clear(this._meshMatrixTexture);
+    this._meshHandles = {};
+    this._meshIndicesByUniqueId = {};
+    this._geometryHandles = {};
+    this._sceneGeometries = {};
   }
 }

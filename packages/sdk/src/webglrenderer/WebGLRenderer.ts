@@ -466,6 +466,9 @@ export class WebGLRenderer {
       sceneEvents.onSceneObjectCreated.subscribe((_, sceneObject) => this.logError(viewManager.sceneObjectCreated(sceneObject))),
       sceneEvents.onSceneObjectDestroyed.subscribe((_, sceneObject) => this.logError(viewManager.sceneObjectDestroyed(sceneObject))),
 
+      viewerEvents.onEffectCreated.subscribe((_, effect) => this.logError(viewManager.effectCreated(effect))),
+      viewerEvents.onEffectDestroyed.subscribe((_, effect) => this.logError(viewManager.effectDestroyed(effect))),
+
       // View and ViewObject creation/destruction
       // Log errors from these calls
 

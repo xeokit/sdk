@@ -7,3 +7,4 @@
  */
 
 export * from "./RenderManager";
+export * from "./InfiniteGridRenderer";

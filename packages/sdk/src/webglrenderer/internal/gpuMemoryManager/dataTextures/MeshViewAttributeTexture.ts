@@ -1,11 +1,29 @@
 import type { Vec3 } from "../../../../math/vector";
 import { ItemDataTexture } from "./ItemDataTexture";
 
+type MeshViewAttributeItem = {
+  color: Vec3;
+  opacity: number;
+  pickable: boolean;
+  clippable: boolean;
+};
+
+const data = new Uint8Array(8);
+
 /**
  * Stores per-view-mesh attributes: color, opacity, pickability, clippability.
+ *
+ * This version:
+ * - does not use the ItemDataTexture backing buffer for writes
+ * - uploads each changed item directly into the GPU texture
+ * - supports partial updates via a small per-item JS cache
+ * - uses a dirty flag and uploadChanges() like MatrixTexture
  */
 export class MeshViewAttributeTexture extends ItemDataTexture {
-  static readonly itemSizeInBytes = 16; // 4 × uint32 per uvec4
+  static readonly itemSizeInBytes = 16; // preserved to match existing texture sizing assumptions
+
+  private dirty: boolean;
+  private readonly itemCache: MeshViewAttributeItem[];
 
   constructor(options: {
     gl: WebGL2RenderingContext;
@@ -25,7 +43,20 @@ export class MeshViewAttributeTexture extends ItemDataTexture {
       itemSizeInBytes: MeshViewAttributeTexture.itemSizeInBytes,
       texelsPerItem: 2,
       elementsPerTexel: 4,
+      useBuffer: false
     });
+
+    this.dirty = false;
+    this.itemCache = new Array(options.maxItems);
+
+    for (let i = 0; i < options.maxItems; i++) {
+      this.itemCache[i] = {
+        color: [0, 0, 0],
+        opacity: 255,
+        pickable: false,
+        clippable: false,
+      };
+    }
   }
 
   setItem(itemIndex: number, item: {
@@ -35,17 +66,62 @@ export class MeshViewAttributeTexture extends ItemDataTexture {
     pickable?: boolean;
     clippable?: boolean;
   }): void {
-    const base = itemIndex * this.elementsPerItem;
-    const buf = this.buffer;
-    if (item.color) {
-      buf[base] = item.color[0];
-      buf[base + 1] = item.color[1];
-      buf[base + 2] = item.color[2];
+    const gl = this.gl;
+
+    const cached = this.itemCache[itemIndex];
+    if (!cached) {
+      throw new Error(`[MeshViewAttributeTexture.setItem] Item index out of range: ${itemIndex}`);
     }
-    if (item.opacity !== undefined) buf[base + 3] = item.opacity;
-    if (item.pickable !== undefined) buf[base + 4] = item.pickable ? 1 : 0;
-    if (item.clippable !== undefined) buf[base + 5] = item.clippable ? 1 : 0;
-    this.setItemDirty(itemIndex);
+
+    if (item.color) {
+      cached.color = [
+        this.toU8(item.color[0]),
+        this.toU8(item.color[1]),
+        this.toU8(item.color[2]),
+      ];
+    }
+
+    if (item.opacity !== undefined) {
+      cached.opacity = this.toU8(item.opacity);
+    }
+
+    if (item.pickable !== undefined) {
+      cached.pickable = !!item.pickable;
+    }
+
+    if (item.clippable !== undefined) {
+      cached.clippable = !!item.clippable;
+    }
+
+    const itemsPerRow = Math.floor(this.width / this.texelsPerItem);
+    const x = (itemIndex % itemsPerRow) * this.texelsPerItem;
+    const y = Math.floor(itemIndex / itemsPerRow);
+
+    data[0] = cached.color[0];
+    data[1] = cached.color[1];
+    data[2] = cached.color[2];
+    data[3] = cached.opacity;
+    data[4] = cached.pickable ? 1 : 0;
+    data[5] = cached.clippable ? 1 : 0;
+    data[6] = 0;
+    data[7] = 0;
+
+    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.texSubImage2D(
+        gl.TEXTURE_2D,
+        0,
+        x,
+        y,
+        2,
+        1,
+        this.format,
+        this.type,
+        data
+    );
+ //   gl.bindTexture(gl.TEXTURE_2D, null);
+
+    this.dirty = true;
   }
 
   getItem(itemIndex: number): {
@@ -54,13 +130,30 @@ export class MeshViewAttributeTexture extends ItemDataTexture {
     pickable: boolean;
     clippable: boolean;
   } {
-    const base = itemIndex * this.elementsPerItem;
-    const buf = this.buffer;
+    const cached = this.itemCache[itemIndex];
+    if (!cached) {
+      throw new Error(`[MeshViewAttributeTexture.getItem] Item index out of range: ${itemIndex}`);
+    }
+
     return {
-      color: [buf[base], buf[base + 1], buf[base + 2]],
-      opacity: buf[base + 3],
-      pickable: buf[base + 4] !== 0,
-      clippable: buf[base + 5] !== 0,
+      color: [cached.color[0], cached.color[1], cached.color[2]],
+      opacity: cached.opacity,
+      pickable: cached.pickable,
+      clippable: cached.clippable,
     };
+  }
+
+  public uploadChanges(): boolean {
+    if (!this.dirty) {
+      return false;
+    }
+
+    this.dirty = false;
+    this.notifyUpdated();
+    return true;
+  }
+
+  private toU8(x: number): number {
+    return Math.max(0, Math.min(255, x | 0));
   }
 }

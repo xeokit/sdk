@@ -1,5 +1,5 @@
 import {RenderContext} from "./RenderContext";
-import {Camera, View, Viewer, ViewObject} from "../../viewer";
+import {Camera, Effect, View, Viewer, ViewObject} from "../../viewer";
 import {type PickParams, type PickResult} from "../../viewer";
 import {SDKInternalException, SDKErrorType, type SDKResult} from "../../core";
 import {ViewRenderState} from "./ViewRenderState";
@@ -360,6 +360,28 @@ export class ViewManager {
    */
   public get viewer(): Viewer {
     return this._viewer;
+  }
+
+  /**
+   * Registers a newly created {@link Effect} with the renderer.
+   * @param effect
+   */
+  effectCreated(effect: Effect) : SDKResult<any>{
+    return {
+      ok: true,
+      value: undefined
+    };
+  }
+
+  /**
+   * Unregisters a destroyed {@link Effect} with the renderer.
+   * @param effect
+   */
+  effectDestroyed(effect: Effect) : SDKResult<any>{
+    return {
+      ok: true,
+      value: undefined
+    };
   }
 
   /**
@@ -1038,4 +1060,5 @@ export class ViewManager {
     this.dataTextures = undefined as unknown as DataTextures;
     this.shaderInspector = undefined as unknown as ShaderInspector;
   }
+
 }

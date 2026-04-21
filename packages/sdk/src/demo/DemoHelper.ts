@@ -207,7 +207,7 @@ export class DemoHelper {
         this.viewer = new Viewer();
 
         this.renderer = new WebGLRenderer({
-          // memoryConfigs: {
+          // memoryConfigs: {whats
           //   maxViews: this.maxViews ?? (cfg.maxViews ?? 1),
           //   tileSize: 200,
           //   maxTiles: 2000,
@@ -223,11 +223,11 @@ export class DemoHelper {
             tileSize: 200,
             maxTiles: 2000,
             maxBatches: 300,
-            maxBatchVertices: 100000,
-            maxBatchIndices: 100000,
-            maxBatchGeometries: 10000,
+            maxBatchVertices: 60000,
+            maxBatchIndices: 60000,
+            maxBatchGeometries: 60000,
             maxBatchMeshes: 10000,
-            maxBatchPrims: 100000
+            maxBatchPrims: 60000
           }
         });
 
@@ -568,6 +568,7 @@ export class DemoHelper {
         throw new Error(`Unsupported model format: ${params.format}`);
     }
   }
+
   /**
    * Creates a new View in the Viewer.
    *

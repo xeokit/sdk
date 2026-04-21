@@ -13,6 +13,7 @@ import {DemoHelper} from "./DemoHelper";
 import {WebGLRenderer} from "../webglrenderer";
 import {OrthoProjectionType, PerspectiveProjectionType} from "../constants";
 import {type AABB3} from "../math/boundaries";
+import {IFCExporter} from "../formats/ifc";
 
 /**
  * Shared context shape for menus that operate on a view.
@@ -769,6 +770,29 @@ function createFileExportGroup() {
             JSON.stringify(fileData, null, 2),
             `${context.sceneModel.id}.bim`,
             "application/json"
+          );
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    },
+    {
+      title: "Export as IFC",
+      doAction: async (context: BaseViewContext) => {
+        try {
+          const fileData = await new IFCExporter().write(
+            {
+              sceneModel: context.sceneModel,
+              dataModel: context.dataModel
+            },
+            {
+              coordinateSystem: createExportCoordinateSystem()
+            }
+          );
+          downloadText(
+            fileData,
+            `${context.sceneModel.id}.ifc`,
+            "application/text"
           );
         } catch (error) {
           console.error(error);

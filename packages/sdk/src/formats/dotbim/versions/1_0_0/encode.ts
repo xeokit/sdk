@@ -87,7 +87,7 @@ export function encode(params: ModelEncodeParams, options?: any): Promise<any> {
         meshId = sceneObject.id;
       }
       const firstMesh = meshes[0];
-      const color = firstMesh.globalColor;
+      const color = firstMesh.effectiveColor;
       const position = createVec3Float64();
       const quaternion = createVec4Float64();
       const scale = createVec3Float64();
@@ -119,7 +119,7 @@ export function encode(params: ModelEncodeParams, options?: any): Promise<any> {
           r: color[0] * 255,
           g: color[1] * 255,
           b: color[2] * 255,
-          a: firstMesh.globalOpacity
+          a: firstMesh.effectiveOpacity
         },
         vector: {
           x: position[0],

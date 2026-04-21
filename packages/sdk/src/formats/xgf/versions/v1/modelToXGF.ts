@@ -175,10 +175,10 @@ export function modelToXGF(params: {
         xgfData.eachMeshMatricesBase [meshesBase] = matricesBase;
         matricesBase += 16;
       }
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = (mesh.globalColor[0] * 255); // Color RGB
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = (mesh.globalColor[1] * 255);
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = (mesh.globalColor[2] * 255);
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = (mesh.globalOpacity * 255); // Opacity
+      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = (mesh.effectiveColor[0] * 255); // Color RGB
+      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = (mesh.effectiveColor[1] * 255);
+      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = (mesh.effectiveColor[2] * 255);
+      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = (mesh.effectiveOpacity * 255); // Opacity
       meshesBase++;
     }
   }

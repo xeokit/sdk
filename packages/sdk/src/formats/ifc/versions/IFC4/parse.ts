@@ -24,6 +24,7 @@ interface ParsingContext {
   modelId: number;
   lines: WebIFC.Vector<number>;
   ifcProjectId: number;
+  propertySetsByObjectExpressId: { [expressId: number]: string[] };
 }
 
 async function parseWebIFC(ifcAPI: WebIFC.IfcAPI, params: ModelParseParams, options: any): Promise<void> {
@@ -43,6 +44,7 @@ async function parseWebIFC(ifcAPI: WebIFC.IfcAPI, params: ModelParseParams, opti
     sceneModel,
     dataModel,
     nextId: 0,
+    propertySetsByObjectExpressId: {},
   };
 
   parseIFC(ctx);
@@ -54,12 +56,14 @@ function parseIFC(ctx: ParsingContext): void {
 }
 
 function parseDataModel(ctx: ParsingContext): void {
+  // Property sets must be created before DataObjects so that createObject can
+  // receive propertySetIds and link them at construction time.
+  parsePropertySets(ctx);
+
   const lines = ctx.ifcAPI.GetLineIDsWithType(ctx.modelId, WebIFC.IFCPROJECT);
   const ifcProjectId = lines.get(0);
   const ifcProject = ctx.ifcAPI.GetLine(ctx.modelId, ifcProjectId);
-
-  parseDataObjectAggregation(ctx, ifcProject);
-  parsePropertySets(ctx);
+  parseDataObjectAggregation(ctx, ifcProject, undefined, "IfcRelAggregates");
 }
 
 function parsePropertySets(ctx: ParsingContext): void {
@@ -71,7 +75,9 @@ function parsePropertySets(ctx: ParsingContext): void {
     if (!rel || !rel.RelatingPropertyDefinition) continue;
 
     const def = rel.RelatingPropertyDefinition;
-    const propertySetId = def.GlobalId.value;
+    const propertySetId = def.GlobalId?.value;
+    if (!propertySetId) continue;
+
     const properties = (def.HasProperties || []).map((prop) => ({
       name: prop.Name?.value,
       type: prop.NominalValue?.type,
@@ -88,41 +94,45 @@ function parsePropertySets(ctx: ParsingContext): void {
       properties,
     });
 
-    // for (const relatedObject of rel.RelatedObjects || []) {
-    //   const dataObject = ctx.dataModel!.objects[relatedObject.GlobalId.value];
-    //   if (dataObject) {
-    //     dataObject.propertySetIds ??= [];
-    //     dataObject.propertySetIds.push(propertySetId);
-    //   }
-    // }
+    // Record which IFC elements (by expressID) reference this property set so
+    // we can pass propertySetIds when creating DataObjects.
+    for (const relatedObject of (rel.RelatedObjects || [])) {
+      const expId: number = relatedObject.value;
+      if (!ctx.propertySetsByObjectExpressId[expId]) {
+        ctx.propertySetsByObjectExpressId[expId] = [];
+      }
+      ctx.propertySetsByObjectExpressId[expId].push(propertySetId);
+    }
   }
 }
 
-function parseDataObjectAggregation(ctx: ParsingContext, element: any, parentId?: string): void {
-  createDataObject(ctx, element, parentId);
+function parseDataObjectAggregation(ctx: ParsingContext, element: any, parentId?: string, relType?: string): void {
+  createDataObject(ctx, element, parentId, relType);
   const elementId = element.GlobalId.value;
 
-  parseRelatedItemsOfType(ctx, element.expressID, "RelatingObject", "RelatedObjects", WebIFC.IFCRELAGGREGATES, elementId);
-  parseRelatedItemsOfType(ctx, element.expressID, "RelatingStructure", "RelatedElements", WebIFC.IFCRELCONTAINEDINSPATIALSTRUCTURE, elementId);
+  parseRelatedItemsOfType(ctx, element.expressID, "RelatingObject", "RelatedObjects", WebIFC.IFCRELAGGREGATES, elementId, "IfcRelAggregates");
+  parseRelatedItemsOfType(ctx, element.expressID, "RelatingStructure", "RelatedElements", WebIFC.IFCRELCONTAINEDINSPATIALSTRUCTURE, elementId, "IfcRelContainedInSpatialStructure");
 }
 
-function createDataObject(ctx: ParsingContext, element: any, parentId?: string): void {
+function createDataObject(ctx: ParsingContext, element: any, parentId?: string, relType?: string): void {
 
   const id = element.GlobalId.value;
   const typeName = element.__proto__.constructor.name;
   const name = element.Name?.value || typeName;
   const typeCode = typeName ?? "IfcElement";
+  const propertySetIds = ctx.propertySetsByObjectExpressId[element.expressID];
 
   ctx.dataModel!.createObject({
     id,
     name,
     type: typeCode,
-    schema: SCHEMA
+    schema: SCHEMA,
+    ...(propertySetIds && propertySetIds.length > 0 ? { propertySetIds } : {})
   });
 
   if (parentId) {
     ctx.dataModel!.createRelationship({
-      type: "IfcRelAggregates",
+      type: relType || "IfcRelAggregates",
       schema: SCHEMA,
       relatingObjectId: parentId,
       relatedObjectId: id,
@@ -136,7 +146,8 @@ function parseRelatedItemsOfType(
   relationKey: string,
   relatedKey: string,
   type: number,
-  parentId: string
+  parentId: string,
+  relTypeName: string
 ): void {
   const lines = ctx.ifcAPI.GetLineIDsWithType(ctx.modelId, type);
 
@@ -155,7 +166,7 @@ function parseRelatedItemsOfType(
 
     for (const target of relatedElements) {
       const element = ctx.ifcAPI.GetLine(ctx.modelId, target.value);
-      parseDataObjectAggregation(ctx, element, parentId);
+      parseDataObjectAggregation(ctx, element, parentId, relTypeName);
     }
   }
 }

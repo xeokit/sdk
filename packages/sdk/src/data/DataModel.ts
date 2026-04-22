@@ -232,7 +232,9 @@ export class DataModel  {
         error: "[DataModel.createObject] DataModel already destroyed"
       });
     }
+
     const id = dataObjectParams.id;
+
     if (this.objects[id]) {
       return this.data.logError({
         ok: false,
@@ -240,54 +242,75 @@ export class DataModel  {
         error: "[DataModel.createObject] DataObject with same ID already created in this DataModel. It's OK to have duplicates shared between DataModels, but they must be unique within each DataModel."
       });
     }
+
     const type = dataObjectParams.type;
     let dataObject = this.data.objects[id];
+
     if (!dataObject) {
       const propertySets = [];
+
       if (dataObjectParams.propertySetIds) {
         for (let i = 0, len = dataObjectParams.propertySetIds.length; i < len; i++) {
           const propertySetId = dataObjectParams.propertySetIds[i];
           const propertySet = this.propertySets[propertySetId];
+
           if (!propertySet) {
             return this.data.logError({
               ok: false,
               type: SDKErrorType.InvalidInput,
               error: `[DataModel.createObject] PropertySet not found: "${propertySetId}"`
             });
-          } else {
-            if (propertySet.schema !== dataObjectParams.schema) {
-              return this.data.logError({
-                ok: false,
-                type: SDKErrorType.InvalidInput,
-                error: `[DataModel.createObject] PropertySet "${propertySet.id}" and DataObject "${dataObjectParams.id}" belong to different schemas`
-              });
-            }
-            propertySets.push(propertySet);
           }
+
+          if (propertySet.schema !== dataObjectParams.schema) {
+            return this.data.logError({
+              ok: false,
+              type: SDKErrorType.InvalidInput,
+              error: `[DataModel.createObject] PropertySet "${propertySet.id}" and DataObject "${dataObjectParams.id}" belong to different schemas`
+            });
+          }
+
+          propertySets.push(propertySet);
         }
       }
-      dataObject = new DataObject(this.data, this, id, dataObjectParams.originalSystemId, dataObjectParams.name, dataObjectParams.description, dataObjectParams.type, dataObjectParams.schema, propertySets);
-      this.objects[id] = dataObject;
+
+      dataObject = new DataObject(
+        this.data,
+        this,
+        id,
+        dataObjectParams.originalSystemId,
+        dataObjectParams.name,
+        dataObjectParams.description,
+        dataObjectParams.type,
+        dataObjectParams.schema,
+        propertySets
+      );
+
       this.data.objects[id] = dataObject;
+
       if (!this.data.objectsByType[type]) {
         this.data.objectsByType[type] = {};
       }
       this.data.objectsByType[type][id] = dataObject;
+
       this.data.typeCounts[type] = (this.data.typeCounts[type] === undefined) ? 1 : this.data.typeCounts[type] + 1;
-      this.typeCounts[type] = (this.typeCounts[type] === undefined) ? 1 : this.typeCounts[type] + 1;
-      dataObject.models.push(this);
+
       this.data.events.onDataObjectCreated.dispatch(this.data, dataObject);
-    } else {
-      this.objects[id] = dataObject;
-      this.data.objects[id] = dataObject;
-      if (!this.objectsByType[type]) {
-        this.objectsByType[type] = {};
-      }
-      this.objectsByType[type][id] = dataObject;
-      this.typeCounts[type] = (this.typeCounts[type] === undefined) ? 1 : this.typeCounts[type] + 1;
-      dataObject.models.push(this);
     }
+
+    this.objects[id] = dataObject;
+
+    if (!this.objectsByType[type]) {
+      this.objectsByType[type] = {};
+    }
+    this.objectsByType[type][id] = dataObject;
+
+    this.typeCounts[type] = (this.typeCounts[type] === undefined) ? 1 : this.typeCounts[type] + 1;
+
+    dataObject.models.push(this);
+
     this.stats.numObjects++;
+
     return {
       ok: true,
       value: dataObject

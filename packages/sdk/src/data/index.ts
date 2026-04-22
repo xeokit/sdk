@@ -9,19 +9,22 @@
  *
  * ---
  *
- * # Overview
+ * ## Overview
  *
- * The xeokit SDK represents “meaning” (entities, properties, and relationships) as a generic **entity-relationship graph**
- * that works in both browsers and Node.js. Use this module to:
+ * The `data` module represents semantic information (entities, properties, relationships) as a generic **entity-relationship graph**
+ * that works in browsers and Node.js. It provides a structure-independent layer for managing model metadata and topology
+ * alongside rendered content.
  *
- * - build semantic graphs programmatically,
- * - load and export semantic data via {@link formats | @xeokit/sdk/formats},
- * - query and traverse semantic structures (eg. hierarchies and classifications), and
- * - keep semantic information alongside renderable content (eg. a {@link scene!SceneModel | SceneModel} shown in the Viewer).
- *
- * The class diagram below summarizes the main classes in this module and their relationships:
+ * **Core capabilities:**
+ * - Build semantic graphs programmatically or import from structured formats
+ * - Query and traverse hierarchies, classifications, and arbitrary relationships
+ * - Serialize/deserialize semantic data independently of geometry
+ * - Load data via format converters ({@link formats | @xeokit/sdk/formats})
+ * - Keep semantic information synced with a {@link scene!SceneModel | SceneModel} in the viewer
  *
  * <br>
+ *
+ * ## Architecture
  *
  * ```mermaid
  * classDiagram
@@ -78,104 +81,69 @@
  *    DataEvents:onDataDestroyed
  * ```
  *
- * At the top level is {@link Data}, which owns one or more {@link DataModel | DataModels}. Each {@link DataModel} contains:
+ * **Key components:**
  *
- * - {@link DataObject | DataObjects} (entities),
- * - {@link PropertySet | PropertySets} (grouped attributes), and
- * - {@link Relationship | Relationships} (typed edges between objects).
- *
- * To construct DataModels in code, use builder methods such as {@link Data.createModel}, {@link DataModel.createObject},
- * {@link DataModel.createPropertySet}, and {@link DataModel.createRelationship}. To traverse/query the graph, use
- * {@link searchObjects} and the relationship links on {@link DataObject}.
- *
- * <br>
- *
- * ### Notes
- *
- * * {@link DataObject | DataObjects} and {@link PropertySet | PropertySets} are created via a {@link DataModel}, but are indexed globally on {@link Data} for fast lookup.
- * * {@link DataModel | DataModels} may reuse existing {@link DataObject | DataObjects} and {@link PropertySet | PropertySets} when those IDs already exist in the owning {@link Data}.
- * * {@link Relationship | Relationships} may connect DataObjects across different DataModels, as long as they share the same owning {@link Data}.
+ * - {@link Data} — Root container that owns {@link DataModel | DataModels} and indexes all entities globally
+ * - {@link DataModel} — Schema container holding objects, relationships, and property sets
+ * - {@link DataObject} — Entity with identity, type, and attributes (e.g., a wall, a room, a component)
+ * - {@link PropertySet} — Named collection of typed {@link Property | Properties} that describe an object
+ * - {@link Relationship} — Typed connection between two objects (e.g., aggregation, composition, reference)
+ * - {@link DataEvents} — Event emitter for lifecycle notifications
  *
  * <br>
  *
- * # Installation
+ * ## Design Principles
+ *
+ * 1. **Global indexing** — All {@link DataObject | DataObjects} and {@link PropertySet | PropertySets} are registered
+ *    globally in {@link Data}, enabling O(1) lookups regardless of hierarchy structure.
+ *
+ * 2. **Model sharing** — Multiple {@link DataModel | DataModels} can reference the same entity if IDs match,
+ *    allowing efficient multi-perspective representations.
+ *
+ * 3. **Relationship freedom** — {@link Relationship | Relationships} can connect objects across different models
+ *    as long as they share the same parent {@link Data} instance.
+ *
+ * 4. **Result-based error handling** — All operations return {@link core!SDKResult | SDKResult<T>} for
+ *    functional error handling without exceptions.
+ *
+ * <br>
+ *
+ * ## Quick Start
+ *
+ * ### Installation
  *
  * ````bash
  * npm install @xeokit/sdk
  * ````
  *
- * <br>
+ * ### Creating a DataModel
  *
- * # Usage
- *
- * <br>
- *
- * ## Creating a DataModel from JSON
- *
- * This example creates a {@link DataModel} from a {@link DataModelParams} object that describes a simple table:
- * a tabletop and four legs. After building the model, you can traverse it to collect the IDs of contained
- * {@link DataObject | DataObjects}.
- *
- * The DataModel defines:
- *
- * * six DataObjects (table, tabletop, four legs),
- * * aggregation Relationships that connect them into a hierarchy, and
- * * PropertySets with Properties that describe attributes such as height and weight.
- *
- * All methods in this example return {@link core!SDKResult | SDKResult} values, which should be checked for errors.
+ * Build a simple semantic model with objects, properties, and relationships:
  *
  * ````ts
- * import type { SDKResult } from "@xeokit/sdk/core";
  * import { Data, type DataModel } from "@xeokit/sdk/data";
  *
  * const data = new Data();
  *
- * const result: SDKResult<DataModel> = data.createModel({
- *   id: "myTableModel",
+ * const result = data.createModel({
+ *   id: "table-model",
  *   objects: [
- *     { id: "table",    type: "BasicEntity", name: "Table",           propertySetIds: ["tablePropertySet"] },
- *     { id: "tableTop", type: "BasicEntity", name: "Purple tabletop", propertySetIds: ["tableTopPropertySet"] },
- *     { id: "redLeg",   type: "BasicEntity", name: "Red leg",         propertySetIds: ["legPropertySet"] },
- *     { id: "greenLeg", type: "BasicEntity", name: "Green leg",       propertySetIds: ["legPropertySet"] },
- *     { id: "blueLeg",  type: "BasicEntity", name: "Blue leg",        propertySetIds: ["legPropertySet"] },
- *     { id: "yellowLeg",type: "BasicEntity", name: "Yellow leg",      propertySetIds: ["legPropertySet"] },
+ *     { id: "table", type: "Furniture", name: "Dining Table", propertySetIds: ["dims"] },
+ *     { id: "leg-1", type: "Component", name: "Front Left Leg", propertySetIds: ["dims"] },
+ *     { id: "leg-2", type: "Component", name: "Front Right Leg", propertySetIds: ["dims"] },
  *   ],
  *   relationships: [
- *     { type: "BasicAggregation", relatingObjectId: "table",    relatedObjectId: "tableTop" },
- *     { type: "BasicAggregation", relatingObjectId: "tableTop", relatedObjectId: "redLeg" },
- *     { type: "BasicAggregation", relatingObjectId: "tableTop", relatedObjectId: "greenLeg" },
- *     { type: "BasicAggregation", relatingObjectId: "tableTop", relatedObjectId: "blueLeg" },
- *     { type: "BasicAggregation", relatingObjectId: "tableTop", relatedObjectId: "yellowLeg" },
+ *     { type: "supports", relatingObjectId: "table", relatedObjectId: "leg-1" },
+ *     { type: "supports", relatingObjectId: "table", relatedObjectId: "leg-2" },
  *   ],
  *   propertySets: [
  *     {
- *       id: "tablePropertySet",
- *       originalSystemId: "tablePropertySet",
- *       name: "Table properties",
- *       type: "",
+ *       id: "dims",
+ *       name: "Dimensions",
+ *       type: "Physical",
  *       properties: [
- *         { name: "Weight", value: 5,  type: "", valueType: "", description: "Weight" },
- *         { name: "Height", value: 12, type: "", valueType: "", description: "Height" },
- *       ],
- *     },
- *     {
- *       id: "tableTopPropertySet",
- *       originalSystemId: "tableTopPropertySet",
- *       name: "Tabletop properties",
- *       type: "",
- *       properties: [
- *         { name: "Weight", value: 2,  type: "", valueType: "", description: "Weight" },
- *         { name: "Thickness", value: 0.5, type: "", valueType: "", description: "Thickness" },
- *       ],
- *     },
- *     {
- *       id: "legPropertySet",
- *       originalSystemId: "legPropertySet",
- *       name: "Leg properties",
- *       type: "",
- *       properties: [
- *         { name: "Weight", value: 1,  type: "", valueType: "", description: "Weight" },
- *         { name: "Height", value: 12, type: "", valueType: "", description: "Height" },
+ *         { name: "Height", value: 0.75, valueType: "number", description: "In meters" },
+ *         { name: "Material", value: "Wood", valueType: "string" },
  *       ],
  *     },
  *   ],
@@ -184,263 +152,152 @@
  * if (!result.ok) {
  *   console.error(result.error);
  * } else {
- *   console.log("DataModel created:", result.value.id);
+ *   console.log("Model created:", result.value.id);
  * }
  * ````
  *
  * <br>
  *
- * ## Creating a DataModel using Builder Methods
+ * ## Usage Patterns
  *
- * This example recreates the same model, but constructs each {@link PropertySet}, {@link DataObject}, and
- * {@link Relationship} individually using {@link DataModel} builder methods.
+ * ### Building a Model Incrementally
  *
+ * Use builder methods for step-by-step construction:
  *
  * ````ts
- * import { SDKResult } from "@xeokit/sdk/core";
- * import { Data, searchObjects } from "@xeokit/sdk/data";
+ * const modelRes = data.createModel({ id: "my-model" });
+ * if (!modelRes.ok) throw new Error(modelRes.error);
  *
- * const data = new Data();
+ * const model = modelRes.value;
  *
- * const modelRes: SDKResult<DataModel> = data.createModel({
- *   id: "myTableModel",
+ * // Create a property set
+ * const propsRes = model.createPropertySet({
+ *   id: "material-props",
+ *   name: "Material",
+ *   type: "Physical",
+ *   properties: [
+ *     { name: "Color", value: "Red", description: "Primary color" },
+ *   ],
  * });
  *
- * if (!modelRes.ok) {
- *   console.error(modelRes.error);
- * } else {
- *   const dataModel = modelRes.value;
+ * // Create objects
+ * const objRes = model.createObject({
+ *   id: "wall-1",
+ *   type: "Wall",
+ *   name: "Exterior Wall",
+ *   propertySetIds: ["material-props"],
+ * });
  *
- *   const tablePSRes: SDKResult<PropertySet> = dataModel.createPropertySet({
- *     id: "tablePropertySet",
- *     name: "Table properties",
- *     type: "",
- *     properties: [
- *       { name: "Weight", value: 5, type: "", valueType: "", description: "Weight of the thing" },
- *       { name: "Height", value: 12, type: "", valueType: "", description: "Height of the thing" },
- *     ],
- *   });
- *   if (!tablePSRes.ok) console.error(tablePSRes.error);
- *
- *   const legPSRes: SDKResult<PropertySet> = dataModel.createPropertySet({
- *     id: "legPropertySet",
- *     name: "Table leg properties",
- *     type: "",
- *     properties: [
- *       { name: "Weight", value: 5, type: "", valueType: "", description: "Weight of the thing" },
- *       { name: "Height", value: 12, type: "", valueType: "", description: "Height of the thing" },
- *     ],
- *   });
- *   if (!legPSRes.ok) console.error(legPSRes.error);
- *
- *   const tableTopPSRes: SDKResult<PropertySet> = dataModel.createPropertySet({
- *     id: "tableTopPropertySet",
- *     name: "Table top properties",
- *     type: "",
- *     properties: [
- *       { name: "Weight", value: 5, type: "", valueType: "", description: "Weight of the thing" },
- *       { name: "Thickness", value: 1, type: "", valueType: "", description: "Thickness of the thing" },
- *     ],
- *   });
- *   if (!tableTopPSRes.ok) console.error(tableTopPSRes.error);
- *
- *   const tableRes: SDKResult<DataObject> = dataModel.createObject({
- *     id: "table",
- *     type: "BasicEntity"",
- *     name: "Table",
- *     propertySetIds: ["tablePropertySet"],
- *   });
- *   if (!tableRes.ok) console.error(tableRes.error);
- *
- *   const redLegRes = dataModel.createObject({
- *     id: "redLeg",
- *     name: "Red table leg",
- *     type: "BasicEntity",
- *     propertySetIds: ["legPropertySet"],
- *   });
- *   if (!redLegRes.ok) console.error(redLegRes.error);
- *
- *   const greenLegRes = dataModel.createObject({
- *     id: "greenLeg",
- *     name: "Green table leg",
- *     type: "BasicEntity",
- *     propertySetIds: ["legPropertySet"],
- *   });
- *   if (!greenLegRes.ok) console.error(greenLegRes.error);
- *
- *   const blueLegRes = dataModel.createObject({
- *     id: "blueLeg",
- *     name: "Blue table leg",
- *     type: "BasicEntity",
- *     propertySetIds: ["legPropertySet"],
- *   });
- *   if (!blueLegRes.ok) console.error(blueLegRes.error);
- *
- *   const yellowLegRes = dataModel.createObject({
- *     id: "yellowLeg",
- *     name: "Yellow table leg",
- *     type: "BasicEntity",
- *     propertySetIds: ["legPropertySet"],
- *   });
- *   if (!yellowLegRes.ok) console.error(yellowLegRes.error);
- *
- *   const tableTopRes = dataModel.createObject({
- *     id: "tableTop",
- *     name: "Purple table top",
- *     type: "BasicEntity",
- *     propertySetIds: ["tableTopPropertySet"],
- *   });
- *   if (!tableTopRes.ok) console.error(tableTopRes.error);
- *
- *   const rel1Res: SDKResult<Relationship> = dataModel.createRelationship({
- *     type: "BasicAggregation",
- *     relatingObjectId: "table",
- *     relatedObjectId: "tableTop",
- *   });
- *   if (!rel1Res.ok) console.error(rel1Res.error);
- *
- *   const rel2Res = dataModel.createRelationship({
- *     type: "BasicAggregation",
- *     relatingObjectId: "tableTop",
- *     relatedObjectId: "redLeg",
- *   });
- *   if (!rel2Res.ok) console.error(rel2Res.error);
- *
- *   const rel3Res = dataModel.createRelationship({
- *     type: "BasicAggregation",
- *     relatingObjectId: "tableTop",
- *     relatedObjectId: "greenLeg",
- *   });
- *   if (!rel3Res.ok) console.error(rel3Res.error);
- *
- *   const rel4Res = dataModel.createRelationship({
- *     type: "BasicAggregation",
- *     relatingObjectId: "tableTop",
- *     relatedObjectId: "blueLeg",
- *   });
- *   if (!rel4Res.ok) console.error(rel4Res.error);
- *
- *   const rel5Res = dataModel.createRelationship({
- *     type: "BasicAggregation",
- *     relatingObjectId: "tableTop",
- *     relatedObjectId: "yellowLeg",
- *   });
- *   if (!rel5Res.ok) console.error(rel5Res.error);
- * }
+ * // Create a relationship
+ * const relRes = model.createRelationship({
+ *   type: "contains",
+ *   relatingObjectId: "building",
+ *   relatedObjectId: "wall-1",
+ * });
  * ````
  *
- * <br>
+ * ### Traversing the Graph
  *
- * ## Reading DataObjects
- *
- * With a {@link DataModel} built, {@link searchObjects} can traverse the graph and collect IDs of visited
- * {@link DataObject | DataObjects}. A common use case is building a tree view by following aggregation relationships.
+ * Access objects and follow relationships directly:
  *
  * ````ts
- * const resultObjectIds: string[] = [];
+ * // Get an object by ID
+ * const table = data.objects["table"];
+ *
+ * // Get all "supports" relationships where table is the source
+ * const supportsRels = table.related["supports"] || [];
+ *
+ * for (const rel of supportsRels) {
+ *   const leg = rel.relatedObject;
+ *   console.log(`Table supports leg: ${leg.name}`);
+ * }
+ *
+ * // Get incoming relationships (what relates to this leg)
+ * const relatingRels = leg.relating["supports"] || [];
+ * ````
+ *
+ * ### Querying Objects
+ *
+ * Use {@link searchObjects} to traverse and filter hierarchies:
+ *
+ * ````ts
+ * const resultIds: string[] = [];
  *
  * searchObjects(data, {
  *   startObjectId: "table",
- *   includeObjects: ["BasicEntity"],
- *   includeRelated: ["BasicAggregation"],
- *   resultObjectIds,
+ *   includeObjects: ["Component"],
+ *   includeRelated: ["supports"],
+ *   resultObjectIds: resultIds,
  * });
  *
- * // resultObjectIds == ["table", "tableTop", "redLeg", "greenLeg", "blueLeg", "yellowLeg"];
+ * console.log("Found components:", resultIds);
  * ````
  *
- * <br>
+ * ### Serializing a Model
  *
- * ## Traversing Relationships Directly
- *
- * This example follows outgoing {@link Relationship | Relationships} from a root {@link DataObject}:
+ * Export model structure to JSON:
  *
  * ````ts
- * const table = data.objects["table"];
- * const relations = table.related["BasicAggregation"] || [];
+ * const params = model.toParams();
+ * const jsonStr = JSON.stringify(params);
+ * ````
  *
- * for (let i = 0, len = relations.length; i < len; i++) {
- *   const relation = relations[i];
- *   const child = relation.related;
- *   // ...
+ * Import from JSON:
+ *
+ * ````ts
+ * const modelRes = data.createModel({ id: "restored" });
+ * if (modelRes.ok) {
+ *   modelRes.value.fromParams(params);
  * }
  * ````
  *
- * <br>
+ * ### Loading from Files
  *
- * ## Serializing a DataModel to JSON
+ * Use format-specific loaders to populate data from standard formats:
  *
  * ````ts
- * const dataModelParams = dataModel.toParams();
+ * import { dotBIMLoader } from "@xeokit/sdk/formats";
+ *
+ * const dataRes = data.createModel({ id: "loaded" });
+ * if (!dataRes.ok) throw new Error(dataRes.error);
+ *
+ * const fileData = await fetch("model.json").then(r => r.json());
+ * await dotBIMLoader.load({
+ *   fileData,
+ *   dataModel: dataRes.value,
+ * });
  * ````
  *
- * <br>
+ * ### Listening to Events
  *
- * ## Deserializing a DataModel from JSON
- *
- * ````ts
- * const dataModel2Res = data.createModel({ id: "myDataModel2" });
- * if (dataModel2Res.ok) {
- *   dataModel2Res.value.fromParams(dataModelParams);
- * } else {
- *   console.error(dataModel2Res.error);
- * }
- * ````
- *
- * <br>
- *
- * ## Destroying a DataModel
+ * React to model lifecycle changes:
  *
  * ````ts
- * dataModel2.destroy();
- * ````
- *
- * <br>
- *
- * ## Loading a DataModel from a File
- *
- * DataModels can be loaded from supported file formats via loaders in {@link formats | @xeokit/sdk/formats}.
- * For example, a DotBIM loader can populate both a {@link scene!SceneModel | SceneModel} (geometry) and a {@link DataModel}
- * (semantics) from the same source data:
- *
- * ````ts
- * // Pseudocode (loader API depends on the format module you use)
- * const sceneModelRes = scene.createModel({ id: "myModel3" });
- * const dataModelRes  = data.createModel({ id: "myModel3" });
- *
- * if (!sceneModelRes.ok) throw new Error(sceneModelRes.error);
- * if (!dataModelRes.ok)  throw new Error(dataModelRes.error);
- *
- * const sceneModel3 = sceneModelRes.value;
- * const dataModel3  = dataModelRes.value;
- *
- * fetch("model.json")
- *   .then(r => r.json())
- *   .then(fileData => {
- *     // eg: return dotBIMLoader.load({ fileData, sceneModel: sceneModel3, dataModel: dataModel3 });
- *   })
- *   .catch(err => {
- *     sceneModel3.destroy();
- *     dataModel3.destroy();
- *     console.error(err);
- *   });
- * ````
- *
- * <br>
- *
- * ## Handling Events
- *
- * All events for a {@link Data} are emitted through {@link DataEvents} at {@link Data.events}. For example, you can listen
- * for model creation and destruction:
- *
- * ````ts
- * data.events.onModelCreated.subscribe((data, dataModel) => {
- *   console.log(`New DataModel created with ID: ${dataModel.id}`);
+ * data.events.onModelCreated.subscribe((data, model) => {
+ *   console.log(`Model created: ${model.id}`);
  * });
  *
- * data.events.onModelDestroyed.subscribe((data, dataModel) => {
- *   console.log(`DataModel destroyed with ID: ${dataModel.id}`);
+ * data.events.onObjectCreated.subscribe((data, obj) => {
+ *   console.log(`Object created: ${obj.name}`);
  * });
+ *
+ * data.events.onError.subscribe((data, error) => {
+ *   console.error("Data error:", error);
+ * });
+ * ````
+ *
+ * <br>
+ *
+ * ## Managing Lifecycle
+ *
+ * Clean up resources explicitly:
+ *
+ * ````ts
+ * // Destroy a single model
+ * model.destroy();
+ *
+ * // Destroy all models and data
+ * data.destroy();
  * ````
  *
  * @module data

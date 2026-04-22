@@ -1,9 +1,0 @@
-[xeoconvert] Running conversion pipeline 'cityjson'
-[xeoconvert] Reading inputs
-[xeoconvert] Reading input --cityjson ./models/VM05_2009/cityjson/model.json
-[xeoconvert] Converting
-[xeoconvert] Conversion complete
-[xeoconvert] Writing outputs
-[xeoconvert] Reporter 'stats-report' writing report to ./models/VM05_2009/cityjson/xeoconvert-stats-report.json
-[xeoconvert] Reporter 'manifest-report' writing report to ./models/VM05_2009/cityjson/xeoconvert-manifest-report.json
-[xeoconvert] Done.

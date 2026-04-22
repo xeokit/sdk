@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="xeokit - SDK for Browser-Based 3D BIM Visualization">
+  <meta name="author" content="Lindsay Kay">
+  <meta name="keywords" content="BIM,IFC,WebGL,JavaScript,Browser,BCF,Web,xeolabs,3D,3D Viewer,Lindsay Kay,xeokit,MedViz,ArchViz,Open Source,Browser,Viewer">
+
+  <title>xeokit - 3D Web Programming Toolkit for BIM and Engineering Visualization</title>
+
+  <link href="https://xeokit.github.io/sdk//libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://xeokit.github.io/sdk//css/business-frontpage.css" rel="stylesheet">
+
+  <link href="https://fonts.googleapis.com/css?family=Rubik" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <script src="https://xeokit.github.io/sdk//libs/jquery/jquery.min.js"></script>
+  <script src="https://xeokit.github.io/sdk//libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <link href="https://xeokit.github.io/sdk//css/index.css" rel="stylesheet" type="text/css">
+
+  <style>
+    #index {
+      height: 100%;
+      overflow-y: auto;
+      padding-bottom: 24px;
+    }
+
+    .models-menu-title {
+      margin: 0 0 12px 0;
+    }
+
+    .models-menu-toolbar {
+      margin-bottom: 12px;
+    }
+
+    .models-menu-filter {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px 10px;
+      border: 1px solid #d0d0d0;
+      border-radius: 4px;
+      outline: none;
+    }
+
+    .models-menu-status {
+      margin: 8px 0 16px 0;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .model-group {
+      margin-bottom: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .model-header {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: 0;
+      background: #f7f7f7;
+      padding: 10px 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .model-header:hover {
+      background: #efefef;
+    }
+
+    .model-details {
+      padding: 10px 12px;
+      border-top: 1px solid #e5e5e5;
+    }
+
+    .model-meta {
+      margin-bottom: 8px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #444;
+    }
+
+    .model-meta strong {
+      color: #222;
+    }
+
+    .model-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .model-action-btn {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #fafafa;
+      padding: 6px 8px;
+      cursor: pointer;
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    .model-action-btn:hover {
+      background: #f0f0f0;
+    }
+
+    .model-action-btn.active {
+      background: #dbeafe;
+      border-color: #93c5fd;
+    }
+
+    .model-empty {
+      color: #666;
+      font-size: 13px;
+      padding: 8px 0;
+    }
+
+    .coord-sys {
+      word-break: break-word;
+    }
+
+    /*
+     * Sidebar toggle button.
+     *
+     * This is now a real <button> instead of a checkbox/label pair.
+     * It is fixed above the viewer and given a high z-index so it remains visible.
+     */
+    .index-button {
+      position: fixed;
+      top: 76px;
+      left: 16px;
+      z-index: 200000;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      background: rgba(33, 37, 41, 0.95);
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    .index-button:hover {
+      background: rgba(52, 58, 64, 0.98);
+    }
+
+    .index-button:focus {
+      outline: 2px solid #93c5fd;
+      outline-offset: 2px;
+    }
+
+    .index-button i {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    /*
+     * Slide-out menu panel.
+     *
+     * Hidden by default and shown by toggling the "open" class from JavaScript.
+     */
+    .slideout-sidebar {
+      position: fixed;
+      top: 56px;
+      left: 0;
+      width: 360px;
+      max-width: calc(100vw - 24px);
+      height: calc(100vh - 56px);
+      background: #fff;
+      z-index: 1500;
+      box-shadow: 2px 0 12px rgba(0, 0, 0, 0.2);
+      transform: translateX(-100%);
+      transition: transform 0.2s ease;
+      overflow: hidden;
+    }
+
+    .slideout-sidebar.open {
+      transform: translateX(0);
+    }
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top ">
+  <span style="color: #ffffff;"><a class="navbar-home" href="http://xeolabs.com">xeolabs</a>/<a class="navbar-parent" href="https://xeokit.github.io/sdk/">@xeokit/sdk</a>/<a class="navbar-brand" href="https://xeokit.github.io/sdk//models/index.html">Models</a></span>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarResponsive">
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="https://xeokit.github.io/sdk//index.html?foo=0">Home</a>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link" href="https://xeokit.github.io/sdk//examples/index.html">Examples</a>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link" href="https://xeokit.github.io/sdk//models/index.html">Models</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://xeokit.github.io/sdk//userguide/index.html">User Guide</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://xeokit.github.io/sdk//api-docs.html#/sdk/docs/api/modules.html">API Docs</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://github.com/xeokit/sdk">GitHub</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<section id="intro" class="full-width-section" style="max-width:100%; height:100vh">
+  <div class="container" style="max-width:100%; height:100vh; padding: 0">
+    <div class="row" style="max-width:100%; height:100vh; margin: 0;">
+      <div class="col-lg-12 h-100" style="padding-left: 0; padding-right: 0; height:100vh">
+
+        <!--
+          Toggle button for the slide-out model menu.
+
+          This replaces the old checkbox/label approach with a real button so that:
+          - it is keyboard accessible
+          - it is always visible
+          - its open/closed state can be reflected with aria-expanded
+        -->
+        <button id="index_toggle" class="index-button" type="button" aria-label="Toggle model menu" aria-expanded="false">
+          <i class="fa fa-bars" aria-hidden="true"></i>
+        </button>
+
+        <div class="page-title" id="page-title"></div>
+        <div class="viewSourceButton" id="viewSourceButton"><i class="fas fa-2x fa-code"></i></div>
+        <div class="content-overlay" id="viewer-overlay"></div>
+
+        <div class="embed-responsive embed-responsive-16by9" style="max-width:100%; height:100vh">
+          <iframe class="embed-responsive-item" style="height:100vh; background-color: lightgray;" id="viewer" src="./../examples/default.html"></iframe>
+        </div>
+
+        <!--
+          Slide-out sidebar that contains the model index.
+
+          Visibility is controlled by toggling the "open" class via JavaScript.
+        -->
+        <div class="slideout-sidebar">
+          <div id="index"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="py-5 bg-dark xeokit-footer">
+  <div class="container pt-5">
+    <div class="row">
+      <div class="col-md-4 col-sm-12 mb-3 text-left">
+        <h2>xeokit SDK</h2>
+        <p>Powering Engineering Graphics on the Web</p>
+        <img src="https://xeokit.github.io/sdk//images/xeokitLogoAlphaBG.png">
+      </div>
+      <div class="col-md-8 col-sm-12">
+
+        <div class="col-md-4 col-sm-6 col-6 p-0 float-left mb-3">
+          <h5 class="mb-4 font-weight-bold text-uppercase">Learn</h5>
+          <ul class="list-group">
+            <li class="list-group-item bg-transparent border-0 p-0 mb-2"><a href="https://xeokit.github.io/sdk//examples">Examples</a></li>
+            <li class="list-group-item bg-transparent border-0 p-0 mb-2"><a href="https://xeokit.github.io/sdk//userguide">User Guide</a></li>
+            <li class="list-group-item bg-transparent border-0 p-0 mb-2"><a href="https://xeokit.github.io/sdk//api-docs.html#/sdk/docs/api/modules.html">API Docs</a></li>
+            <li class="list-group-item bg-transparent border-0 p-0 mb-2"><a href="">Pricing</a></li>
+            <li class="list-group-item bg-transparent border-0 p-0 mb-2"><a href="">FAQ</a></li>
+          </ul>
+        </div>
+
+        <div class="col-md-4 col-sm-6 col-6 p-0 mb-3 float-left">
+          <h5 class="mb-4 font-weight-bold text-uppercase">Develop</h5>
+          <ul class="list-group">
+            <li class="list-group-item bg-transparent border-0 p-0 mb-2"><a href="https://github.com/xeokit/sdk/releases">Download</a></li>
+            <li class="list-group-item bg-transparent border-0 p-0 mb-2"><a href="https://github.com/xeokit/sdk">Source Code</a></li>
+            <li class="list-group-item bg-transparent border-0 p-0 mb-2"><a href="https://github.com/xeokit/xeokit-sdk/issues">Issues</a></li>
+          </ul>
+        </div>
+
+        <div class="col-md-4 col-sm-6 col-6 mb-3 p-0 float-left">
+          <h5 class="mb-4 font-weight-bold text-uppercase">Connect</h5>
+          <ul class="list-group">
+            <li class="list-group-item bg-transparent border-0 p-0 mb-2">
+              <a href="http://www.xeolabs.com"><i class="fa fa-globe mr-1"></i> xeolabs.com</a>
+            </li>
+            <li class="list-group-item bg-transparent border-0 p-0 mb-2">
+              <a href="https://www.linkedin.com/company/xeolabs"><i class="fa fa-linkedin mr-1"></i> LinkedIn</a>
+            </li>
+            <li class="list-group-item bg-transparent border-0 p-0 mb-2">
+              <a href="https://github.com/xeolabs" target="_code"><i class="fa fa-github mr-1"></i> Github</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="py-4 d-flex justify-content-center align-items-center">
+          <p class="m-0 text-center">Copyright &copy; <a href="http://xeolabs.com">xeolabs</a> 2025</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script type="module">
+  const indexEl = document.getElementById("index");
+  const pageTitleEl = document.getElementById("page-title");
+  const viewerEl = document.getElementById("viewer");
+  const viewSourceButtonEl = document.getElementById("viewSourceButton");
+  const sidebarToggleEl = document.getElementById("index_toggle");
+  const sidebarEl = document.querySelector(".slideout-sidebar");
+
+  const DEFAULT_VIEWER_SRC = "./../examples/ModelLoader_viewModel/index.html";
+  const MODELS_INDEX_URL = "./index.json";
+
+  let modelsIndex = {};
+  let currentSelection = null;
+
+  function escapeHtml(value) {
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function normalizeDatasetLabel(label) {
+    return String(label)
+      .split(",")
+      .map(s => s.trim())
+      .join(", ");
+  }
+
+  function makeViewerSrc(modelId, dataset) {
+    const url = new URL(DEFAULT_VIEWER_SRC, window.location.href);
+    url.searchParams.set("modelId", modelId);
+    url.searchParams.set("format", dataset);
+    return url.toString();
+  }
+
+  /*
+   * Opens or closes the slide-out menu.
+   *
+   * The visible state is represented by the sidebar's "open" class and mirrored
+   * on the toggle button via aria-expanded for accessibility.
+   */
+  function setSidebarOpen(isOpen) {
+    if (!sidebarEl || !sidebarToggleEl) {
+      return;
+    }
+
+    sidebarEl.classList.toggle("open", isOpen);
+    sidebarToggleEl.setAttribute("aria-expanded", String(isOpen));
+  }
+
+  /*
+   * Toggles the menu open/closed.
+   */
+  function toggleSidebar() {
+    if (!sidebarEl) {
+      return;
+    }
+    setSidebarOpen(!sidebarEl.classList.contains("open"));
+  }
+
+  function updateViewer(modelId, dataset) {
+    currentSelection = {modelId, dataset};
+
+    viewerEl.src = makeViewerSrc(modelId, dataset);
+    pageTitleEl.textContent = `${modelId} [${normalizeDatasetLabel(dataset)}]`;
+
+    viewSourceButtonEl.title = `View model source for ${modelId}`;
+    viewSourceButtonEl.onclick = () => {
+      window.open(`https://github.com/xeokit/sdk/tree/master/models/${encodeURIComponent(modelId)}`, "_blank");
+    };
+
+    highlightActiveSelection();
+  }
+
+  function highlightActiveSelection() {
+    const buttons = indexEl.querySelectorAll(".model-action-btn");
+    buttons.forEach(btn => btn.classList.remove("active"));
+
+    if (!currentSelection) {
+      return;
+    }
+
+    const selector = `.model-action-btn[data-model-id="${CSS.escape(currentSelection.modelId)}"][data-dataset="${CSS.escape(currentSelection.dataset)}"]`;
+    const active = indexEl.querySelector(selector);
+    if (active) {
+      active.classList.add("active");
+    }
+  }
+
+  function renderMenu(filterText = "") {
+    const query = filterText.trim().toLowerCase();
+    const modelIds = Object.keys(modelsIndex).sort((a, b) => a.localeCompare(b));
+
+    const filteredModelIds = modelIds.filter((modelId) => {
+      const info = modelsIndex[modelId] || {};
+      const dataset = Array.isArray(info.dataset) ? info.dataset : [];
+
+      if (dataset.length === 0) {
+        return false;
+      }
+
+      if (!query) {
+        return true;
+      }
+
+      const haystack = [
+        modelId,
+        ...dataset.map(normalizeDatasetLabel)
+      ].join(" ").toLowerCase();
+
+      return haystack.includes(query);
+    });
+
+    const html = [];
+
+    html.push(`<h1 class="models-menu-title">View a model with xeokit</h1>`);
+    html.push(`
+            <div class="models-menu-toolbar">
+                <input id="models-filter-input" class="models-menu-filter" type="text" placeholder="Filter models and datasets..." value="${escapeHtml(filterText)}">
+                <div class="models-menu-status">${filteredModelIds.length} of ${modelIds.length} models</div>
+            </div>
+        `);
+
+    if (filteredModelIds.length === 0) {
+      html.push(`<div class="model-empty">No matching models with datasets</div>`);
+      indexEl.innerHTML = html.join("");
+      bindFilter();
+      return;
+    }
+
+    for (const modelId of filteredModelIds) {
+      const info = modelsIndex[modelId] || {};
+      const dataset = Array.isArray(info.dataset) ? info.dataset : [];
+
+      const datasetButtons = dataset.map(ds => `
+                <button
+                    class="model-action-btn"
+                    data-model-id="${escapeHtml(modelId)}"
+                    data-dataset="${escapeHtml(ds)}"
+                    type="button">
+                    ${escapeHtml(normalizeDatasetLabel(ds))}
+                </button>
+            `).join("");
+
+      html.push(`
+                <div class="model-group">
+                    <button class="model-header" type="button" data-toggle-details="${escapeHtml(modelId)}">
+                        ${escapeHtml(modelId)}
+                    </button>
+                    <div class="model-details">
+                        <div class="model-meta"><strong>Datasets:</strong> ${escapeHtml(dataset.map(normalizeDatasetLabel).join(" | "))}</div>
+                        <div class="model-actions">${datasetButtons}</div>
+                    </div>
+                </div>
+            `);
+    }
+
+    indexEl.innerHTML = html.join("");
+
+    bindFilter();
+    bindActionButtons();
+    bindHeaders();
+    highlightActiveSelection();
+  }
+
+  function bindFilter() {
+    const input = document.getElementById("models-filter-input");
+    if (!input) {
+      return;
+    }
+
+    input.addEventListener("input", (event) => {
+      renderMenu(event.target.value);
+    });
+  }
+
+  function bindActionButtons() {
+    const buttons = indexEl.querySelectorAll(".model-action-btn");
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const modelId = button.getAttribute("data-model-id");
+        const dataset = button.getAttribute("data-dataset");
+
+        if (!modelId || !dataset) {
+          return;
+        }
+
+        updateViewer(modelId, dataset);
+
+        /*
+         * Close the sidebar after a dataset is selected so the viewer is visible.
+         */
+        setSidebarOpen(false);
+      });
+    });
+  }
+
+  function bindHeaders() {
+    const headers = indexEl.querySelectorAll("[data-toggle-details]");
+    headers.forEach((header) => {
+      header.addEventListener("click", () => {
+        const details = header.nextElementSibling;
+        if (!details) {
+          return;
+        }
+        const isHidden = details.style.display === "none";
+        details.style.display = isHidden ? "" : "none";
+      });
+    });
+  }
+
+  async function init() {
+    /*
+     * Hook up the sidebar toggle button.
+     */
+    if (sidebarToggleEl) {
+      sidebarToggleEl.addEventListener("click", toggleSidebar);
+    }
+
+    indexEl.innerHTML = `
+            <h1 class="models-menu-title">View a model with xeokit</h1>
+            <div class="models-menu-status">Loading model index...</div>
+        `;
+
+    try {
+      const response = await fetch(MODELS_INDEX_URL, {cache: "no-cache"});
+      if (!response.ok) {
+        throw new Error(`Failed to load ${MODELS_INDEX_URL}: ${response.status} ${response.statusText}`);
+      }
+
+      modelsIndex = await response.json();
+      renderMenu("");
+
+      const firstModelId = Object.keys(modelsIndex)
+        .sort((a, b) => a.localeCompare(b))
+        .find(modelId => Array.isArray(modelsIndex[modelId]?.dataset) && modelsIndex[modelId].dataset.length > 0);
+
+      if (!firstModelId) {
+        pageTitleEl.textContent = "No datasets available";
+        return;
+      }
+
+      const firstDataset = modelsIndex[firstModelId].dataset[0];
+      updateViewer(firstModelId, firstDataset);
+    } catch (error) {
+      console.error(error);
+      indexEl.innerHTML = `
+                <h1 class="models-menu-title">View a model with xeokit</h1>
+                <div class="model-empty">${escapeHtml(error?.message || "Failed to load model index")}</div>
+            `;
+      pageTitleEl.textContent = "Failed to load models";
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>

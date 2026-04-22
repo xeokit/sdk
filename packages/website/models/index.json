@@ -1,0 +1,188 @@
+{
+  "Archicad-Demoprojekt": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["gltf", "ifc", "xgf"],
+    "dataset": ["xgf", "gltf", "ifc"]
+  },
+  "BlenderHouse": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["datamodel", "dotbim", "scenemodel", "xgf"],
+    "dataset": ["datamodel, scenemodel", "datamodel, xgf", "scenemodel", "xgf", "dotbim"]
+  },
+  "Box": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["datamodel", "scenemodel"],
+    "dataset": ["datamodel, scenemodel", "scenemodel"]
+  },
+  "Duplex": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["datamodel", "gltf", "ifc", "metamodel", "scenemodel", "xgf"],
+    "dataset": ["datamodel, scenemodel", "datamodel, xgf", "datamodel, gltf", "scenemodel", "xgf", "gltf", "ifc"]
+  },
+  "FM_ARC": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["datamodel", "gltf", "ifc", "metamodel", "scenemodel", "xgf"],
+    "dataset": ["datamodel, scenemodel", "datamodel, xgf", "datamodel, gltf", "scenemodel", "xgf", "gltf", "ifc"]
+  },
+  "FM_HGZ": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["datamodel", "gltf", "ifc", "metamodel", "scenemodel", "xgf"],
+    "dataset": ["datamodel, scenemodel", "datamodel, xgf", "datamodel, gltf", "scenemodel", "xgf", "gltf", "ifc"]
+  },
+  "FM_LFT": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["datamodel", "gltf", "ifc", "metamodel", "scenemodel", "xgf"],
+    "dataset": ["datamodel, scenemodel", "datamodel, xgf", "datamodel, gltf", "scenemodel", "xgf", "gltf", "ifc"]
+  },
+  "FM_SAN": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["datamodel", "gltf", "ifc", "metamodel", "scenemodel", "xgf"],
+    "dataset": ["datamodel, scenemodel", "datamodel, xgf", "datamodel, gltf", "scenemodel", "xgf", "gltf", "ifc"]
+  },
+  "Geometries": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["datamodel", "scenemodel", "xgf"],
+    "dataset": ["datamodel, scenemodel", "datamodel, xgf", "scenemodel", "xgf"]
+  },
+  "Ifc4_SampleHouse": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["ifc"],
+    "dataset": ["ifc"]
+  },
+  "IfcOpenHouse2x3": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["ifc"],
+    "dataset": ["ifc"]
+  },
+  "IfcOpenHouse4": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["dotbim", "gltf", "ifc"],
+    "dataset": ["gltf", "ifc", "dotbim"]
+  },
+  "Karhumaki_Bridge": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["ifc"],
+    "dataset": ["ifc"]
+  },
+  "LoD3_Railway": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["cityjson"]
+  },
+  "MAP": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["dotbim", "gltf", "ifc", "xgf"],
+    "dataset": ["xgf", "gltf", "ifc", "dotbim"]
+  },
+  "Nalls-Pumpkin-Hill": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["laz", "xgf"],
+    "dataset": ["xgf", "laz"]
+  },
+  "RAC": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    }
+  },
+  "SandDunes": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["ifc", "xgf"],
+    "dataset": ["xgf", "ifc"]
+  },
+  "SmallHouse": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["datamodel", "dotbim", "scenemodel", "xgf"],
+    "dataset": ["datamodel, scenemodel", "datamodel, xgf", "scenemodel", "xgf", "dotbim"]
+  },
+  "SportsCar": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["dotbim", "ifc", "mtl", "obj", "scenemodel", "xgf"],
+    "dataset": ["mtl, obj", "scenemodel", "xgf", "ifc", "dotbim"]
+  },
+  "Table": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["datamodel", "mtl", "obj", "scenemodel"],
+    "dataset": ["mtl, obj", "datamodel, scenemodel", "scenemodel"]
+  }
+}

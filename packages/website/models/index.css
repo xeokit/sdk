@@ -1,0 +1,114 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #000;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+
+iframe {
+    border: 0;
+    padding: 0;
+}
+
+#index {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #fdfdfd;
+    overflow: auto;
+    border-right: 2px solid #212529;
+    user-select: none;
+}
+
+.content-overlay {
+    position: absolute;
+    z-index: 7;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    transition: background 300ms ease-in-out;
+}
+
+.slideout-sidebar {
+    position: fixed;
+    top: 0;
+    left: -430px;
+    z-index: 10;
+    width: 430px;
+    height: 100%;
+    padding-top: 55px;
+    transition: left 300ms ease-in-out;
+}
+
+#index_toggle {
+    display: none;
+}
+
+.index-button {
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    font-size: 18px;
+    text-align: center;
+    vertical-align: middle;
+    user-select: none;
+    z-index: 5;
+    transition: left 300ms ease-in-out;
+}
+
+.index-button:hover {
+    cursor: pointer;
+    color: black;
+}
+
+.page-title {
+    position: absolute;
+    top: 20px;
+    left: 75px;
+    text-align: left;
+    user-select: none;
+    z-index: 5;
+    transition: left 300ms ease-in-out;
+    max-width: calc(100% - 550px);
+    pointer-events: none;
+}
+
+.viewSourceButton {
+    position: absolute;
+    left: 20px;
+    bottom: 70px;
+    z-index: 200;
+    transition: left 300ms ease-in-out;
+}
+
+.viewSourceButton:hover {
+    cursor: pointer;
+    color: black;
+}
+
+#index_toggle:checked ~ .slideout-sidebar {
+    left: 0;
+}
+
+#index_toggle:checked + .index-button {
+    left: 478px;
+    z-index: 50000;
+}
+
+#index_toggle:checked ~ .page-title {
+    left: 478px;
+}
+
+#index_toggle:checked ~ .viewSourceButton {
+    left: 478px;
+}
+
+#index_toggle:checked ~ .content-overlay {
+    pointer-events: all;
+}

@@ -260,6 +260,7 @@ class Camera {
   private _frustum: Frustum3;
   private _activeProjection: PerspectiveProjection | OrthoProjection | FrustumProjection | CustomProjection;
   private _buildViewMatrixTask: SDKTask;
+  private _projectionSubs: (() => void)[];
 
   /**
    * @private
@@ -286,33 +287,32 @@ class Camera {
     this._frustum = new Frustum3();
     this._activeProjection = this.perspectiveProjection;
 
-    this.perspectiveProjection.onProjMatrix.subscribe(() => {
-      if (this._projectionType === PerspectiveProjectionType) {
-        this.view.needsRender();
-        this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
-      }
-    });
-
-    this.orthoProjection.onProjMatrix.subscribe(() => {
-      if (this._projectionType === OrthoProjectionType) {
-        this.view.needsRender();
-        this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
-      }
-    });
-
-    this.frustumProjection.onProjMatrix.subscribe(() => {
-      if (this._projectionType === FrustumProjectionType) {
-        this.view.needsRender();
-        this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
-      }
-    });
-
-    this.customProjection.onProjMatrix.subscribe(() => {
-      if (this._projectionType === CustomProjectionType) {
-        this.view.needsRender();
-        this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
-      }
-    });
+    this._projectionSubs = [
+      this.perspectiveProjection.onProjMatrix.subscribe(() => {
+        if (this._projectionType === PerspectiveProjectionType) {
+          this.view.needsRender();
+          this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
+        }
+      }),
+      this.orthoProjection.onProjMatrix.subscribe(() => {
+        if (this._projectionType === OrthoProjectionType) {
+          this.view.needsRender();
+          this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
+        }
+      }),
+      this.frustumProjection.onProjMatrix.subscribe(() => {
+        if (this._projectionType === FrustumProjectionType) {
+          this.view.needsRender();
+          this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
+        }
+      }),
+      this.customProjection.onProjMatrix.subscribe(() => {
+        if (this._projectionType === CustomProjectionType) {
+          this.view.needsRender();
+          this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
+        }
+      })
+    ];
 
     this._buildViewMatrixTask = new SDKTask({
       name: "Camera._buildViewMatrixTask",
@@ -809,6 +809,12 @@ class Camera {
   destroy() {
     this._destroyed = true;
     this._buildViewMatrixTask.destroy();
+    for (const unsub of this._projectionSubs) unsub();
+    this._projectionSubs = [];
+    this.perspectiveProjection.destroy();
+    this.orthoProjection.destroy();
+    this.frustumProjection.destroy();
+    this.customProjection.destroy();
   }
 }
 

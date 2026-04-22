@@ -1,4 +1,4 @@
-import {addVec3, createVec3Float64,  negateVec3, normalizeVec3, subVec3, type Vec3} from "../math/vector";
+import {addVec3, createVec3Float64, negateVec3, normalizeVec3, subVec3, type Vec3} from "../math/vector";
 import type {BCFViewpoint} from "./BCFViewpoint";
 import {OrthoProjectionType} from "../constants";
 import type {SaveBCFViewpointParams} from "./SaveBCFViewpointParams";
@@ -209,40 +209,43 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): SDKResult<BCFV
 
     .reduce((coloringMap, viewObject: ViewObject) => {
 
-      let color = colorizeToRGB(viewObject.colorize);
-      let alpha;
+      if (viewObject.colorize) {
+        let color = colorizeToRGB(viewObject.colorize);
 
-      if (viewObject.xrayed) {
-        if (view.xrayMaterial.fillAlpha === 0.0 && view.xrayMaterial.edgeAlpha !== 0.0) {
-          // BCF can't deal with edges. If xRay is implemented only with edges, set an arbitrary opacity
-          alpha = 0.1;
-        } else {
-          alpha = view.xrayMaterial.fillAlpha;
+        let alpha;
+
+        if (viewObject.xrayed) {
+          if (view.xrayMaterial.fillAlpha === 0.0 && view.xrayMaterial.edgeAlpha !== 0.0) {
+            // BCF can't deal with edges. If xRay is implemented only with edges, set an arbitrary opacity
+            alpha = 0.1;
+          } else {
+            alpha = view.xrayMaterial.fillAlpha;
+          }
+          // @ts-ignore
+          alpha = Math.round(alpha * 255).toString(16).padStart(2, "0");
+          color = alpha + color;
+        } else if (opacityObjectIds.has(viewObject.id)) {
+          // @ts-ignore
+          alpha = Math.round(viewObject.opacity * 255).toString(16).padStart(2, "0");
+          color = alpha + color;
         }
-        // @ts-ignore
-        alpha = Math.round(alpha * 255).toString(16).padStart(2, "0");
-        color = alpha + color;
-      } else if (opacityObjectIds.has(viewObject.id)) {
-        // @ts-ignore
-        alpha = Math.round(viewObject.opacity * 255).toString(16).padStart(2, "0");
-        color = alpha + color;
-      }
 
-      if (!coloringMap[color]) {
-        coloringMap[color] = [];
-      }
+        if (!coloringMap[color]) {
+          coloringMap[color] = [];
+        }
 
-      const objectId = viewObject.id;
-      const originalSystemId = viewObject.originalSystemId;
-      const component: any = {
-        ifc_guid: originalSystemId,
-        originating_system: params.originatingSystem
-      };
-      if (originalSystemId !== objectId) {
-        component.authoring_tool_id = objectId;
-      }
+        const objectId = viewObject.id;
+        const originalSystemId = viewObject.originalSystemId;
+        const component: any = {
+          ifc_guid: originalSystemId,
+          originating_system: params.originatingSystem
+        };
+        if (originalSystemId !== objectId) {
+          component.authoring_tool_id = objectId;
+        }
 
-      coloringMap[color].push(component);
+        coloringMap[color].push(component);
+      }
 
       return coloringMap;
 

@@ -94,7 +94,7 @@ export class Scene {
       () => { // Updated
         for (const modelId in this.models) {
           const model = this.models[modelId];
-          model.setGlobalMatrixDirty();
+          model.setWorldMatrixDirty();
         }
       },
       params?.coordinateSystem);

@@ -38,6 +38,12 @@ export class SceneMesh {
   readonly id: string;
 
   /**
+   * The global ID of this SceneMesh, unique among all SceneMeshes within the Scene,
+   * which is the concatenation of the SceneModel's ID and this SceneMesh's ID, separated by "__".
+   */
+  readonly uniqueId: string;
+
+  /**
    * The SceneModel that contains this SceneMesh.
    */
   readonly model: SceneModel;
@@ -60,9 +66,9 @@ export class SceneMesh {
   private _color: Vec3;
   private _opacity: number;
   private _localMatrix: Mat4;
-  private _globalMatrix: Mat4;
+  private _worldMatrix: Mat4;
   private _parentTransform: SceneTransform | null = null;
-  private _globalMatrixDirty: boolean = true;
+  private _worldMatrixDirty: boolean = true;
 
   destroyed: boolean = false;
 
@@ -81,10 +87,11 @@ export class SceneMesh {
     opacity?: number;
   }) {
     this.id = meshParams.id;
+    this.uniqueId = `${meshParams.model.id}__${meshParams.id}`;
     this.model = meshParams.model;
     this._localMatrix = meshParams.matrix ? createMat4Float64(meshParams.matrix) : identityMat4();
-    this._globalMatrix = createMat4Float64();
-    this._globalMatrixDirty = true;
+    this._worldMatrix = createMat4Float64();
+    this._worldMatrixDirty = true;
     this.geometry = meshParams.geometry;
     this.material = meshParams.material;
     this._color = createVec3Float32(meshParams.color || [1, 1, 1]);
@@ -226,6 +233,7 @@ export class SceneMesh {
    *
    * - Fires an {@link SceneEvents.onSceneMeshColorChanged | SceneEvents.onSceneMeshColorChanged} event on the Scene.
    * - Each element of the color is in range ````[0..1]````.
+   * -- Overriden by the color of the material if this SceneMesh has a material.
    */
   set color(value: Vec3) {
     if (this.destroyed) {
@@ -260,10 +268,10 @@ export class SceneMesh {
   }
 
   /**
-   * Gets the global RGB color for this SceneMesh, which is the color of the material if it has one,
-   * or the local color otherwise.
+   * Gets the effective RGB color for this SceneMesh, which is the color of the SceneMaterial if it has one,
+   * or the SceneMesh's own color otherwise.
    */
-  get globalColor(): Vec3 {
+  get effectiveColor(): Vec3 {
     if (this.material) {
       return this.material.color;
     }
@@ -301,7 +309,7 @@ export class SceneMesh {
     } else {
       identityMat4(this._localMatrix);
     }
-    this.setGlobalMatrixDirty();
+    this.setWorldMatrixDirty();
 
   }
 
@@ -317,16 +325,16 @@ export class SceneMesh {
   /**
    * Gets the global transform matrix for this SceneMesh.
    */
-  get globalMatrix(): Mat4 {
-    if (this._globalMatrixDirty) {
+  get worldMatrix(): Mat4 {
+    if (this._worldMatrixDirty) {
       if (this._parentTransform) {
-        mulMat4( this._parentTransform.globalMatrix, this._localMatrix, this._globalMatrix);
+        mulMat4( this._parentTransform.worldMatrix, this._localMatrix, this._worldMatrix);
       } else {
-        mulMat4(this.model.coordinateSystemMatrix, this.matrix, this._globalMatrix);
+        mulMat4(this.model.coordinateSystemMatrix, this._localMatrix, this._worldMatrix);
       }
-      this._globalMatrixDirty = false;
+      this._worldMatrixDirty = false;
     }
-    return this._globalMatrix;
+    return this._worldMatrix;
   }
 
   /**
@@ -364,10 +372,10 @@ export class SceneMesh {
   }
 
   /**
-   * Gets the global opacity factor for this SceneMesh, which is the opacity of the material if it has one,
+   * Gets the effective opacity factor for this SceneMesh, which is the opacity of the material if it has one,
    * or the local opacity otherwise. This is a factor in range ````[0..1]````.
    */
-  get globalOpacity(): number {
+  get effectiveOpacity(): number {
     return this.material ? this.material.opacity : this._opacity;
   }
 
@@ -382,11 +390,11 @@ export class SceneMesh {
    * Updates the global transform matrix.
    * @internal
    */
-  setGlobalMatrixDirty(): void {
-    // if (this._globalMatrixDirty) {
+  setWorldMatrixDirty(): void {
+    // if (this._worldMatrixDirty) {
     //   return;
     // }
-    this._globalMatrixDirty = true;
+    this._worldMatrixDirty = true;
     this._emitMatrixChangedEventTask.schedule();
   }
 
@@ -408,7 +416,7 @@ export class SceneMesh {
     if (parent) {
       parent._childMeshes.push(this);
     }
-    this.setGlobalMatrixDirty();
+    this.setWorldMatrixDirty();
   }
 
   /**
@@ -444,17 +452,17 @@ export class SceneMesh {
     }
     const preserve = !!opts?.preserveWorld;
     if (preserve) {
-      this.setGlobalMatrixDirty();
-      const currentWorld = createMat4Float64(this._globalMatrix);
+      this.setWorldMatrixDirty();
+      const currentWorld = createMat4Float64(this._worldMatrix);
       this._attachParentTransform(parentTransform);
       if (this._parentTransform) {
-        const invParent = inverseMat4(this._parentTransform._globalMatrix, createMat4Float64());
+        const invParent = inverseMat4(this._parentTransform._worldMatrix, createMat4Float64());
         mulMat4(this._localMatrix, invParent, currentWorld);
       } else {
         // @ts-ignore
         this._localMatrix.set(currentWorld);
       }
-      this.setGlobalMatrixDirty();
+      this.setWorldMatrixDirty();
     } else {
       this._attachParentTransform(parentTransform);
     }

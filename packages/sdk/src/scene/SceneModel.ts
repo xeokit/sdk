@@ -246,11 +246,10 @@ export class SceneModel {
       this,
       () => { // Updated
         this._coordinateSystemMatrixDirty = true;
-        this.setGlobalMatrixDirty();
+        this.setWorldMatrixDirty();
       },
       sceneModelParams?.coordinateSystem);
-   // this._streamingEnabled = sceneModelParams?.streamingEnabled !== false;
-    this._streamingEnabled = true;
+    this._streamingEnabled = sceneModelParams?.streamingEnabled !== false;
     this._finalized = false;
     this._coordinateSystemMatrix = createMat4Float64();
     this._coordinateSystemMatrixDirty = true;
@@ -1544,12 +1543,12 @@ export class SceneModel {
    * Marks this transform globally dirty and propagates that state to all descendants.
    * @internal
    */
-  public setGlobalMatrixDirty(): void {
+  public setWorldMatrixDirty(): void {
     for (const id in this.transforms) {
-      this.transforms[id].setGlobalMatrixDirty();
+      this.transforms[id].setWorldMatrixDirty();
     }
     for (const id in this.meshes) {
-      this.meshes[id].setGlobalMatrixDirty();
+      this.meshes[id].setWorldMatrixDirty();
     }
   }
 

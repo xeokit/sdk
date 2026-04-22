@@ -118,6 +118,7 @@ export class SceneObject {
         error: `[SceneObject.addMesh] Mesh with ID '${meshId}' is already added to SceneObject '${this.id}'`
       });
     }
+    mesh.object = this;
     this.meshes.push(mesh);
     this.model.scene.events.onSceneObjectMeshAdded.dispatch(this, mesh);
     return {ok: true, value: undefined};
@@ -164,6 +165,7 @@ export class SceneObject {
         error: `[SceneObject.removeMesh] Mesh with ID '${meshId}' is not part of SceneObject '${this.id}'`
       });
     }
+    mesh.object = undefined;
     const index = this.meshes.indexOf(mesh);
     if (index !== -1) {
       this.meshes.splice(index, 1);
@@ -187,10 +189,10 @@ export class SceneObject {
       id: this.id,
       meshIds: []
     };
-    if (this.layerId != undefined) {
+    if (this.layerId !== undefined) {
       sceneObjectParams.layerId = this.layerId;
     }
-    if (this.meshes != undefined) {
+    if (this.meshes !== undefined) {
       for (let i = 0, len = this.meshes.length; i < len; i++) {
         sceneObjectParams.meshIds.push(this.meshes[i].id);
       }

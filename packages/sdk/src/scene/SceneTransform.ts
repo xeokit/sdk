@@ -99,6 +99,9 @@ export class SceneTransform {
   /** Unique identifier for this transform within the {@link SceneModel}. */
   readonly id: string;
 
+  /** The global ID of this SceneTransform, unique among all SceneTransforms within the Scene, **/
+  readonly uniqueId: string;
+
   /** The {@link SceneModel} this transform belongs to. */
   readonly model: SceneModel;
 
@@ -126,18 +129,18 @@ export class SceneTransform {
    * Global transformation matrix in model/world space.
    *
    * Computed as:
-   * - `parent.globalMatrix * localMatrix` when a parent exists
+   * - `parent.worldMatrix * localMatrix` when a parent exists
    * - `localMatrix` when no parent exists
    *
    * @private
    */
-  _globalMatrix: Mat4;
+  _worldMatrix: Mat4;
 
   /** True when {@link _localMatrix} needs rebuilding from TRS. */
   private _localMatrixDirty = false;
 
-  /** True when {@link _globalMatrix} needs rebuilding. */
-  private _globalMatrixDirty = true;
+  /** True when {@link _worldMatrix} needs rebuilding. */
+  private _worldMatrixDirty = true;
 
   /**
    * Child meshes directly parented to this transform.
@@ -171,18 +174,19 @@ export class SceneTransform {
    */
   constructor(model: SceneModel, transformParams: SceneTransformParams) {
     this.id = transformParams.id;
+    this.uniqueId = `${model.id}__${this.id}`;
     this.model = model;
 
     this._localMatrix = transformParams.matrix
       ? createMat4Float64(transformParams.matrix)
       : identityMat4();
 
-    this._globalMatrix = createMat4Float64();
+    this._worldMatrix = createMat4Float64();
 
     this._markTreeDirtyTask = new SDKTask({
       name: "SceneTransform._markTreeDirtyTask",
       stage: SDKTask.ComputeStage,
-      task: () => this.setGlobalMatrixDirty()
+      task: () => this.setWorldMatrixDirty()
     });
 
     if (transformParams.matrix) {
@@ -327,16 +331,16 @@ export class SceneTransform {
   }
 
   /** Gets the global transformation matrix. */
-  get globalMatrix(): Mat4 {
-    if (this._globalMatrixDirty) {
+  get worldMatrix(): Mat4 {
+    if (this._worldMatrixDirty) {
       if (this._parentTransform) {
-        mulMat4(this._parentTransform.globalMatrix, this.matrix, this._globalMatrix);
+        mulMat4(this._parentTransform.worldMatrix, this.matrix, this._worldMatrix);
       } else {
-        mulMat4(this.model.coordinateSystemMatrix, this.matrix, this._globalMatrix);
+        mulMat4(this.model.coordinateSystemMatrix, this.matrix, this._worldMatrix);
       }
-      this._globalMatrixDirty = false;
+      this._worldMatrixDirty = false;
     }
-    return this._globalMatrix;
+    return this._worldMatrix;
   }
 
   // ------------------------------------------------------------------------------------------------
@@ -362,13 +366,13 @@ export class SceneTransform {
    * Marks this transform globally dirty and propagates that state to all descendants.
    * @internal
    */
-  public setGlobalMatrixDirty(): void {
-    this._globalMatrixDirty = true;
+  public setWorldMatrixDirty(): void {
+    this._worldMatrixDirty = true;
     for (const child of this._childTransforms) {
-      child.setGlobalMatrixDirty();
+      child.setWorldMatrixDirty();
     }
     for (const childMesh of this._childMeshes) {
-      childMesh.setGlobalMatrixDirty();
+      childMesh.setWorldMatrixDirty();
     }
   }
 
@@ -435,10 +439,10 @@ export class SceneTransform {
     const preserve = !!opts?.preserveWorld;
     if (preserve) {
       this._updateGlobal();
-      const currentWorld = createMat4Float64(this._globalMatrix);
+      const currentWorld = createMat4Float64(this._worldMatrix);
       this._attachParentTransform(parentTransform);
       if (this._parentTransform) {
-        const invParent = inverseMat4(this._parentTransform._globalMatrix, createMat4Float64());
+        const invParent = inverseMat4(this._parentTransform._worldMatrix, createMat4Float64());
         mulMat4(invParent, currentWorld, this._localMatrix);
       } else {
         // @ts-ignore
@@ -573,12 +577,12 @@ export class SceneTransform {
   _updateGlobal(force: boolean = false): void {
     if (this._parentTransform) {
       this._parentTransform._updateGlobal(force);
-      mulMat4(this._parentTransform._globalMatrix, this._localMatrix, this._globalMatrix);
+      mulMat4(this._parentTransform._worldMatrix, this._localMatrix, this._worldMatrix);
     } else {
       // @ts-ignore
-      this._globalMatrix.set(this._localMatrix);
+      this._worldMatrix.set(this._localMatrix);
     }
-    this._globalMatrixDirty = false;
+    this._worldMatrixDirty = false;
 
     for (const child of this._childTransforms) {
       child._updateGlobal(force);

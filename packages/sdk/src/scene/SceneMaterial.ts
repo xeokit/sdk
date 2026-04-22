@@ -19,12 +19,18 @@ export class SceneMaterial {
    * The {@link SceneModel} that owns this SceneMaterial.
    * @private
    */
-  model: SceneModel;
+  readonly model: SceneModel;
 
   /**
-   * The ID of this SceneMaterial.
+   * The ID of this SceneMaterial within the SceneModel.
    */
-  id: string;
+  readonly id: string;
+
+  /**
+   * The global ID of this SceneMaterial, unique among all SceneMaterials within the Scene,
+   * which is the concatenation of the SceneModel's ID and this SceneMaterial's ID, separated by "__".
+   */
+  readonly uniqueId: string;
 
   _color: Vec3;
 
@@ -68,6 +74,7 @@ export class SceneMaterial {
 
     this.model = model;
     this.id = materialParams.id;
+    this.uniqueId = `${model.id}__${this.id}`;
     this._color = createVec3Float32(materialParams.color || [1, 1, 1]);
     this._opacity = (materialParams.opacity !== undefined && materialParams.opacity !== null) ? materialParams.opacity : 1.0;
     this.colorTexture = textures.colorTexture;

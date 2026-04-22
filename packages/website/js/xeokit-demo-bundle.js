@@ -122140,6 +122140,7 @@ var Camera2 = class {
   _frustum;
   _activeProjection;
   _buildViewMatrixTask;
+  _projectionSubs;
   /**
    * @private
    */
@@ -122162,30 +122163,32 @@ var Camera2 = class {
     this._inverseViewMatrix = createMat4Float64();
     this._frustum = new Frustum3();
     this._activeProjection = this.perspectiveProjection;
-    this.perspectiveProjection.onProjMatrix.subscribe(() => {
-      if (this._projectionType === PerspectiveProjectionType) {
-        this.view.needsRender();
-        this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
-      }
-    });
-    this.orthoProjection.onProjMatrix.subscribe(() => {
-      if (this._projectionType === OrthoProjectionType) {
-        this.view.needsRender();
-        this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
-      }
-    });
-    this.frustumProjection.onProjMatrix.subscribe(() => {
-      if (this._projectionType === FrustumProjectionType) {
-        this.view.needsRender();
-        this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
-      }
-    });
-    this.customProjection.onProjMatrix.subscribe(() => {
-      if (this._projectionType === CustomProjectionType) {
-        this.view.needsRender();
-        this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
-      }
-    });
+    this._projectionSubs = [
+      this.perspectiveProjection.onProjMatrix.subscribe(() => {
+        if (this._projectionType === PerspectiveProjectionType) {
+          this.view.needsRender();
+          this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
+        }
+      }),
+      this.orthoProjection.onProjMatrix.subscribe(() => {
+        if (this._projectionType === OrthoProjectionType) {
+          this.view.needsRender();
+          this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
+        }
+      }),
+      this.frustumProjection.onProjMatrix.subscribe(() => {
+        if (this._projectionType === FrustumProjectionType) {
+          this.view.needsRender();
+          this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
+        }
+      }),
+      this.customProjection.onProjMatrix.subscribe(() => {
+        if (this._projectionType === CustomProjectionType) {
+          this.view.needsRender();
+          this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
+        }
+      })
+    ];
     this._buildViewMatrixTask = new SDKTask({
       name: "Camera._buildViewMatrixTask",
       task: () => {
@@ -122632,6 +122635,13 @@ var Camera2 = class {
   destroy() {
     this._destroyed = true;
     this._buildViewMatrixTask.destroy();
+    for (const unsub of this._projectionSubs)
+      unsub();
+    this._projectionSubs = [];
+    this.perspectiveProjection.destroy();
+    this.orthoProjection.destroy();
+    this.frustumProjection.destroy();
+    this.customProjection.destroy();
   }
 };
 
@@ -122841,14 +122851,15 @@ var Edges = class {
         type: 2 /* InvalidInput */,
         error: "[Edges set edgeColor] Invalid color parameter."
       });
-    }
-    const edgeColor = this._edgeColor;
-    if (value && edgeColor[0] === value[0] && edgeColor[1] === value[1] && edgeColor[2] === value[2]) {
       return;
     }
-    edgeColor[0] = 0.2;
-    edgeColor[1] = 0.2;
-    edgeColor[2] = 0.2;
+    const edgeColor = this._edgeColor;
+    if (edgeColor[0] === value[0] && edgeColor[1] === value[1] && edgeColor[2] === value[2]) {
+      return;
+    }
+    edgeColor[0] = value[0];
+    edgeColor[1] = value[1];
+    edgeColor[2] = value[2];
     this.view.needsRender();
   }
   /**
@@ -123026,14 +123037,15 @@ var Effect = class {
         type: 2 /* InvalidInput */,
         error: "[Effect set fillColor] Invalid color parameter."
       });
+      return;
     }
     const fillColor = this._fillColor;
     if (fillColor[0] === value[0] && fillColor[1] === value[1] && fillColor[2] === value[2]) {
       return;
     }
-    fillColor[0] = 0.4;
-    fillColor[1] = 0.4;
-    fillColor[2] = 0.4;
+    fillColor[0] = value[0];
+    fillColor[1] = value[1];
+    fillColor[2] = value[2];
     this.view.needsRender();
   }
   /**
@@ -123100,14 +123112,15 @@ var Effect = class {
         type: 2 /* InvalidInput */,
         error: "[Effect set edgeColor] Invalid color parameter."
       });
+      return;
     }
     const edgeColor = this._edgeColor;
     if (edgeColor[0] === value[0] && edgeColor[1] === value[1] && edgeColor[2] === value[2]) {
       return;
     }
-    edgeColor[0] = 0.2;
-    edgeColor[1] = 0.2;
-    edgeColor[2] = 0.2;
+    edgeColor[0] = value[0];
+    edgeColor[1] = value[1];
+    edgeColor[2] = value[2];
     this.view.needsRender();
   }
   /**
@@ -124079,7 +124092,7 @@ var SectionPlane = class {
     this.view = view;
     this._active = sectionPlaneParams.active !== false;
     this._pos = createVec3Float64(sectionPlaneParams.pos || [0, 0, 0]);
-    this._dir = createVec3Float32(sectionPlaneParams.pos || [0, 0, -1]);
+    this._dir = createVec3Float32(sectionPlaneParams.dir || [0, 0, -1]);
     this._dist = 0;
   }
   /**
@@ -126095,7 +126108,8 @@ var View2 = class {
   _snapshotBegun;
   _autoCanvas;
   _needsRender;
-  _checkViewResizedTask;
+  _resizeObserver = null;
+  _windowResizeListener = null;
   _fireViewUpdatedEventTask;
   /**
    * @private
@@ -126256,61 +126270,26 @@ var View2 = class {
       space: "world"
     });
     this.onBoundary = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
-    let lastWindowWidth = 0;
-    let lastWindowHeight = 0;
-    let lastViewWidth = 0;
-    let lastViewHeight = 0;
-    let lastViewOffsetLeft = 0;
-    let lastViewOffsetTop = 0;
-    let lastParent = null;
-    let lastResolutionScale = null;
-    const handleResize = () => {
-      const htmlElement = this.htmlElement;
-      const currentResolutionScale = this.resolutionScale.resolutionScale;
-      const newResolutionScale = currentResolutionScale !== lastResolutionScale;
-      const newWindowSize = window.innerWidth !== lastWindowWidth || window.innerHeight !== lastWindowHeight;
-      const newViewSize = htmlElement.clientWidth !== lastViewWidth || htmlElement.clientHeight !== lastViewHeight;
-      const newViewPos = htmlElement.offsetLeft !== lastViewOffsetLeft || htmlElement.offsetTop !== lastViewOffsetTop;
-      const parent = htmlElement.parentElement;
-      const newParent = parent !== lastParent;
-      if (newResolutionScale || newWindowSize || newViewSize || newViewPos || newParent) {
-        if (newResolutionScale || newViewSize || newViewPos) {
-          const newWidth = htmlElement.clientWidth;
-          const newHeight = htmlElement.clientHeight;
-          if (newResolutionScale || newViewSize) {
-          }
-          const boundary = this.boundary;
-          boundary[0] = htmlElement.offsetLeft;
-          boundary[1] = htmlElement.offsetTop;
-          boundary[2] = newWidth;
-          boundary[3] = newHeight;
-          if (!newResolutionScale || newViewSize) {
-            this.onBoundary.dispatch(this, boundary);
-            this.viewer.events.onViewCanvasBoundaryChanged.dispatch(this, boundary);
-          }
-          lastViewWidth = newWidth;
-          lastViewHeight = newHeight;
-        }
-        if (newResolutionScale) {
-          lastResolutionScale = currentResolutionScale;
-        }
-        if (newWindowSize) {
-          lastWindowWidth = window.innerWidth;
-          lastWindowHeight = window.innerHeight;
-        }
-        if (newViewPos) {
-          lastViewOffsetLeft = htmlElement.offsetLeft;
-          lastViewOffsetTop = htmlElement.offsetTop;
-        }
-        lastParent = parent;
+    const updateBoundary = () => {
+      const el13 = this.htmlElement;
+      const newLeft = el13.offsetLeft;
+      const newTop = el13.offsetTop;
+      const newWidth = el13.clientWidth;
+      const newHeight = el13.clientHeight;
+      const b4 = this.boundary;
+      if (newLeft !== b4[0] || newTop !== b4[1] || newWidth !== b4[2] || newHeight !== b4[3]) {
+        b4[0] = newLeft;
+        b4[1] = newTop;
+        b4[2] = newWidth;
+        b4[3] = newHeight;
+        this.onBoundary.dispatch(this, b4);
+        this.viewer.events.onViewCanvasBoundaryChanged.dispatch(this, b4);
       }
     };
-    this._checkViewResizedTask = new SDKTask({
-      name: "View._checkViewResizedTask",
-      task: handleResize,
-      stage: SDKTask.CollectInputStage,
-      repeat: true
-    });
+    this._resizeObserver = new ResizeObserver(() => updateBoundary());
+    this._resizeObserver.observe(this.htmlElement);
+    this._windowResizeListener = updateBoundary;
+    window.addEventListener("resize", this._windowResizeListener);
     this._fireViewUpdatedEventTask = new SDKTask({
       name: "View._fireViewUpdatedEventTask",
       task: () => {
@@ -126953,11 +126932,12 @@ var View2 = class {
     this._needsRender = true;
     this._fireViewUpdatedEventTask.schedule();
   }
+  _ambientColorAndIntensity = new Float32Array([0.5, 0.5, 0.5, 1]);
   /**
    * @private
    */
   getAmbientColorAndIntensity() {
-    return [0.5, 0.5, 0.5, 1];
+    return this._ambientColorAndIntensity;
   }
   /**
    * Updates the visibility of the given {@link ViewObject | ViewObjects} in this View.
@@ -127543,7 +127523,14 @@ var View2 = class {
       });
       return;
     }
-    this._checkViewResizedTask.destroy();
+    if (this._resizeObserver) {
+      this._resizeObserver.disconnect();
+      this._resizeObserver = null;
+    }
+    if (this._windowResizeListener) {
+      window.removeEventListener("resize", this._windowResizeListener);
+      this._windowResizeListener = null;
+    }
     this._fireViewUpdatedEventTask.destroy();
     this._destroyViewLayers();
     this._destroyViewObjects();
@@ -127803,6 +127790,9 @@ var ViewerEvents = class {
     this.onSectionPlanePosChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.onSectionPlaneDirChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.onSectionPlaneActive = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onViewTransformCreated = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onViewTransformDestroyed = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onViewTransformUpdated = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.onSnapshotStarted = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.onSnapshotFinished = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
   }
@@ -127842,6 +127832,9 @@ var ViewerEvents = class {
     this.onSectionPlanePosChanged.clear();
     this.onSectionPlaneDirChanged.clear();
     this.onSectionPlaneActive.clear();
+    this.onViewTransformCreated.clear();
+    this.onViewTransformDestroyed.clear();
+    this.onViewTransformUpdated.clear();
     this.onSnapshotStarted.clear();
     this.onSnapshotFinished.clear();
   }
@@ -129437,6 +129430,11 @@ var RenderContext = class {
    */
   lastProgramId;
   /**
+   * Render pass of the last _bind call. Used together with lastProgramId to detect when pass-dependent
+   * uniforms (e.g. silhouetteColor) need re-uploading even though the same program is still bound.
+   */
+  lastRenderPass;
+  /**
    * The occlusion rendering texture.
    */
   saoOcclusionTexture;
@@ -129520,6 +129518,7 @@ var RenderContext = class {
       throw new SDKInternalException("RenderContext not initialized");
     }
     this.lastProgramId = -1;
+    this.lastRenderPass = -1;
     this.pbrEnabled = false;
     this.backfaces = false;
     this.frontface = true;
@@ -129784,19 +129783,26 @@ var DataTexture = class {
         this.bufferClass = Float32Array;
         break;
     }
+    const bytesPerElement = this.type === this.gl.FLOAT ? 4 : this.type === this.gl.UNSIGNED_INT ? 4 : this.type === this.gl.UNSIGNED_SHORT ? 2 : 1;
     switch (this.format) {
       case this.gl.RGBA:
-        this.bytesPerTexel = 4 * (this.type === this.gl.FLOAT ? 4 : this.type === this.gl.UNSIGNED_INT ? 4 : this.type === this.gl.UNSIGNED_SHORT ? 2 : 1);
+      case this.gl.RGBA_INTEGER:
+        this.bytesPerTexel = 4 * bytesPerElement;
         break;
       case this.gl.RGB:
-        this.bytesPerTexel = 3 * (this.type === this.gl.FLOAT ? 4 : this.type === this.gl.UNSIGNED_INT ? 4 : this.type === this.gl.UNSIGNED_SHORT ? 2 : 1);
+      case this.gl.RGB_INTEGER:
+        this.bytesPerTexel = 3 * bytesPerElement;
+        break;
+      case this.gl.RG:
+      case this.gl.RG_INTEGER:
+        this.bytesPerTexel = 2 * bytesPerElement;
         break;
       case this.gl.RED:
       case this.gl.RED_INTEGER:
-        this.bytesPerTexel = 1 * (this.type === this.gl.FLOAT ? 4 : this.type === this.gl.UNSIGNED_INT ? 4 : this.type === this.gl.UNSIGNED_SHORT ? 2 : 1);
+        this.bytesPerTexel = 1 * bytesPerElement;
         break;
       default:
-        this.bytesPerTexel = 4 * (this.type === this.gl.FLOAT ? 4 : this.type === this.gl.UNSIGNED_INT ? 4 : this.type === this.gl.UNSIGNED_SHORT ? 2 : 1);
+        this.bytesPerTexel = 4 * bytesPerElement;
         break;
     }
     this.useBuffer = params.useBuffer ?? true;
@@ -129943,9 +129949,11 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
     super({
       gl: options.gl,
       description: options.description,
-      format: options.gl.RED_INTEGER,
+      format: options.gl.RG_INTEGER,
+      // 2 channels: .r = meshIndex, .g = primOffset
       type: options.gl.UNSIGNED_INT,
-      internalFormat: options.gl.R32UI,
+      internalFormat: options.gl.RG32UI,
+      // 1 texel per primitive (was 2 texels with R32UI)
       maxItems: options.maxItems,
       getNumItems: () => this.numItems,
       width: 4096,
@@ -134003,6 +134011,11 @@ var MeshManager = class {
 // ../sdk/src/webglrenderer/internal/drawOps/DrawTechnique.ts
 var defaultColor = new Float32Array([1, 1, 1, 1]);
 var DrawTechnique = class {
+  /**
+   * When false, vertex positions are addressed directly (no index-buffer lookup).
+   * Override to false in point-cloud techniques.
+   */
+  useIndexBuffer = true;
   _renderContext;
   _gpuMemoryReader;
   _program;
@@ -134152,7 +134165,6 @@ var DrawTechnique = class {
     this._uniforms = {
       primBaseIndex: program.getLocation("uPrimBaseIndex"),
       renderPass: program.getLocation("uRenderPass"),
-      primitiveType: program.getLocation("uPrimitiveType"),
       gammaFactor: program.getLocation("uGammaFactor"),
       projMatrix: program.getLocation("uProjMatrix"),
       snapCameraEyeRTC: program.getLocation("snapCameraEyeRTC"),
@@ -134170,11 +134182,19 @@ var DrawTechnique = class {
       drawingBufferSize: program.getLocation("drawingBufferSize"),
       silhouetteColor: program.getLocation("uSilhouetteColor"),
       sectionPlanes: [],
-      lightColor: [],
-      lightDir: [],
+      lightColor: [
+        program.getLocation("uLightColor1"),
+        program.getLocation("uLightColor2"),
+        program.getLocation("uLightColor3")
+      ],
+      lightDir: [
+        program.getLocation("uLightDir1"),
+        program.getLocation("uLightDir2"),
+        program.getLocation("uLightDir3")
+      ],
       lightPos: [],
       lightAttenuation: [],
-      lightAmbient: program.getLocation("lightAmbient"),
+      lightAmbient: program.getLocation("uLightAmbient"),
       saoParams: program.getLocation("saoParams")
     };
     this._attributes = {};
@@ -134249,28 +134269,19 @@ var DrawTechnique = class {
     }
     const primitiveMeshIndexTexture = this.edges ? batchViewDataTextures.edgeMeshIndexTexture : batchViewDataTextures.primitiveMeshIndexTexture;
     renderContext.textureUnit = 0;
-    const bindTexture = (sampler, dataTexture) => {
-      if (!sampler || !dataTexture) {
-        return;
-      }
-      gl.activeTexture(gl["TEXTURE" + renderContext.textureUnit]);
-      gl.bindTexture(gl.TEXTURE_2D, dataTexture.texture);
-      gl.uniform1i(sampler, renderContext.textureUnit);
-      renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
-    };
-    bindTexture(
+    this._bindTexture(
       samplers.viewTileCameraMatrixTexture,
       (this._renderContext.rayPicking ? dataTextures.viewTilePickMatrixTexture : dataTextures.viewTileCameraMatrixTexture)[view.viewIndex]
     );
-    bindTexture(samplers.primitiveMeshIndex, primitiveMeshIndexTexture);
-    bindTexture(samplers.vertexPositionTexture, batchDataTextures.vertexPositionTexture);
-    bindTexture(samplers.vertexColorTexture, batchDataTextures.vertexColorTexture);
-    bindTexture(samplers.meshMatrixTexture, batchDataTextures.meshMatrixTexture);
-    bindTexture(samplers.meshAttributeTexture, batchDataTextures.meshAttributeTexture);
-    bindTexture(samplers.meshViewAttributeTexture, batchViewDataTextures.meshViewAttributeTexture);
-    bindTexture(samplers.geometryAttributes, batchDataTextures.geometryAttributeTexture);
-    bindTexture(samplers.geometryQuantRangeTexture, batchDataTextures.geometryQuantRangeTexture);
-    bindTexture(
+    this._bindTexture(samplers.primitiveMeshIndex, primitiveMeshIndexTexture);
+    this._bindTexture(samplers.vertexPositionTexture, batchDataTextures.vertexPositionTexture);
+    this._bindTexture(samplers.vertexColorTexture, batchDataTextures.vertexColorTexture);
+    this._bindTexture(samplers.meshMatrixTexture, batchDataTextures.meshMatrixTexture);
+    this._bindTexture(samplers.meshAttributeTexture, batchDataTextures.meshAttributeTexture);
+    this._bindTexture(samplers.meshViewAttributeTexture, batchViewDataTextures.meshViewAttributeTexture);
+    this._bindTexture(samplers.geometryAttributes, batchDataTextures.geometryAttributeTexture);
+    this._bindTexture(samplers.geometryQuantRangeTexture, batchDataTextures.geometryQuantRangeTexture);
+    this._bindTexture(
       samplers.indexTexture,
       this.edges ? batchDataTextures.edgeIndexTexture : batchDataTextures.indexTexture
     );
@@ -134278,8 +134289,6 @@ var DrawTechnique = class {
       gl.uniform1ui(this._uniforms.batchIndex, meshBatch.gpuMemoryBatchIndex);
     }
     gl.uniform1i(this._uniforms.primBaseIndex, 0);
-    const drawPrimitiveType = this.edges ? LinesPrimitive : meshBatch.primitive;
-    gl.uniform1i(this._uniforms.primitiveType, drawPrimitiveType);
     switch (meshBatch.primitive) {
       case TrianglesPrimitive:
         if (this.edges) {
@@ -134305,10 +134314,6 @@ var DrawTechnique = class {
       firstPrim: drawRange.firstPrim,
       numPrims: drawRange.numPrims
     });
-    for (let i = 0; i < 12; i++) {
-      gl.activeTexture(gl["TEXTURE" + i]);
-      gl.bindTexture(gl.TEXTURE_2D, null);
-    }
     return {
       ok: true,
       value: null
@@ -134345,7 +134350,7 @@ var DrawTechnique = class {
         else                           p = vec2( 0.0,  0.5);
         gl_Position = vec4(p, 0.0, 1.0);
         vColor      = vec4(1.0, 0.3, 0.1, 1.0);
-        vViewPos    = vec4(0.0);
+        vViewPos    = vec3(0.0);
 }`
     );
   }
@@ -134361,7 +134366,6 @@ var DrawTechnique = class {
 
 uniform int uRenderPass;
 uniform int uPrimBaseIndex;
-uniform int uPrimitiveType;
 
 uniform mat4 uProjMatrix;
 
@@ -134418,14 +134422,11 @@ ivec2 texCoord(uint index, uint texWidth) {
 // Primitive lookups
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 
-uint getPrimitiveMeshIndex(uint primIndex) {
+// Each texel stores (meshIndex, primOffsetWithinGeometry) in .r/.g.
+// RG32UI format: 1 texel per primitive, replacing the old 2-texel R32UI layout.
+uvec2 getPrimData(uint primIndex) {
   const uint texWidth = 4096u;
-  return texelFetch(uPrimitiveMeshIndexTexture, texCoord(primIndex * 2u, texWidth), 0).r;
-}
-
-uint getPrimitiveOffsetWithinGeometry(uint primIndex) {
-  const uint texWidth = 4096u;
-  return texelFetch(uPrimitiveMeshIndexTexture, texCoord((primIndex * 2u) + 1u, texWidth), 0).r;
+  return texelFetch(uPrimitiveMeshIndexTexture, texCoord(primIndex, texWidth), 0).rg;
 }
 
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
@@ -134529,37 +134530,6 @@ vec4 packUintToRGBA8(uint v) {
    ) / 255.0;
 }
 
-// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-// Get the eye position in world space from the view matrix
-// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-
-vec3 getEyePosition(mat4 viewMatrix) {
-    // Invert the view matrix to get the world matrix
-    mat4 invView = inverse(viewMatrix);
-    // The translation part (last column) is the eye position in world space
-    return invView[3].xyz;
-}
-
-// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-// Returns true if the triangle (a,b,c) in VIEW SPACE is facing the eye.
-// Assumes a right-handed view space with the camera at (0,0,0).
-// For conventional OpenGL view space (camera looks down -Z), this works as expected.
-// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-
-bool triangleFacesEyeVS(vec3 aVS, vec3 bVS, vec3 cVS) {
-    // Triangle normal from winding (right-hand rule)
-    vec3 n = normalize(cross(bVS - aVS, cVS - aVS));
-
-    // Eye position in view space is the origin
-    vec3 eyeVS = vec3(0.0);
-
-    // Vector from triangle toward the eye (use centroid for stability)
-    vec3 toEye = normalize(eyeVS - (aVS + bVS + cVS) * (1.0 / 3.0));
-
-    // Facing the eye if normal points (at least partially) toward the eye
-    return dot(n, toEye) > 0.0;
-}
-
 `);
   }
   /**
@@ -134581,7 +134551,7 @@ bool triangleFacesEyeVS(vec3 aVS, vec3 bVS, vec3 cVS) {
       "uniform vec3 uLightDir3;",
       "uniform vec4 uLightColor3;",
       "flat out vec4 vColor;",
-      "out vec4 vViewPos;",
+      "out vec3 vViewPos;",
       silhouette ? "uniform vec4 uSilhouetteColor;" : ""
     );
   }
@@ -134767,13 +134737,8 @@ void main(void) {`);
      // Identify which "draw vertex" we are processing
     uint drawVertexIndex  = uint(gl_VertexID);
 
-    // Determine topology: how many vertices per primitive?
-    //   triangles: 3
-    //   lines:     2
-    //   points:    1
-    uint numVertsPerPrim =
-        uint(uPrimitiveType == ${TrianglesPrimitive} ? 3u :   // triangles
-            (uPrimitiveType == ${LinesPrimitive} ? 2u : 1u)); // lines or points
+    // Compile-time topology constant: 3 = triangles, 2 = lines, 1 = points.
+    const uint numVertsPerPrim = ${this.vertsPerPrim}u;
 
     // Map draw vertex \u2192 draw primitive
     // Example (triangles): vertices 0,1,2 -> prim 0; 3,4,5 -> prim 1; etc.
@@ -134783,9 +134748,10 @@ void main(void) {`);
     // uPrimBaseIndex allows batching multiple draws into a big primitive table.
     uint primIndex = uint(uPrimBaseIndex) + drawPrimIndex;
 
-    // Primitive \u2192 mesh resolution
-    // Each primitive belongs to a mesh; meshIndex selects transforms + attributes.
-    uint meshIndex = getPrimitiveMeshIndex( primIndex );
+    // Single texelFetch returns both meshIndex (.r) and primOffset (.g).
+    uvec2 primData  = getPrimData( primIndex );
+    uint meshIndex  = primData.r;
+    uint primOffset = primData.g;
 
     // Fetch mesh view properties (color + flags)
     MeshViewAttributes meshViewAttributes = getMeshViewAttributes( meshIndex );
@@ -134795,10 +134761,6 @@ void main(void) {`);
       // gl_Position = vec4(3.0, 3.0, 3.0, 1.0); // Cull vertex
      //  return;
     }
-
-    // Primitive \u2192 offset inside the geometry\u2019s primitive list
-    // This tells us which triangle/line/point we are within the geometry.
-    uint primOffset = getPrimitiveOffsetWithinGeometry( primIndex );
     `);
   }
   /**
@@ -134828,13 +134790,10 @@ void main(void) {`);
     // For triangles: vertexOffsetWithinGeometry = primOffset*3 + localVert
     uint vertexOffsetWithinGeometry = (primOffset * numVertsPerPrim) + localVert;
 
-    // Resolve final vertex index within geometry
-    // - For non-indexed points (uPrimitiveType == 20000), we treat vertexOffsetWithinGeometry as direct.
-    // - Otherwise, we fetch an index from the index buffer, using geometryAttributes.indicesBase / edgeIndicesBase.
-    uint vertexIndexWithinGeometry =
-        (uPrimitiveType == 20000)
-        ? vertexOffsetWithinGeometry
-        : getVertexIndex(geometryAttributes.${this.edges ? "edgeIndicesBase" : "indicesBase"} + vertexOffsetWithinGeometry);
+    // Resolve final vertex index within geometry.
+    // Indexed primitives (triangles, lines) fetch from the index buffer.
+    // Non-indexed primitives (points) use vertexOffsetWithinGeometry directly.
+    uint vertexIndexWithinGeometry = ${this.useIndexBuffer ? `getVertexIndex(geometryAttributes.${this.edges ? "edgeIndicesBase" : "indicesBase"} + vertexOffsetWithinGeometry)` : `vertexOffsetWithinGeometry`};
 
     // Dequantization parameters for this geometry
     // Vertex positions are stored quantized; quantRange turns uvec3 into float vec3.
@@ -134865,75 +134824,20 @@ void main(void) {`);
     this._vertSrcBuf.push(
       `
     // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-    // Lighting section: compute a face normal from the full triangle
+    // Lighting section: pass through data needed by the fragment shader
     // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-    // Even though we are in a per-vertex shader, we reconstruct the entire
-    // triangle (3 indices + 3 positions) to compute a consistent face normal.
-    // This yields flat shading: all 3 vertices get the same normal-derived light.
-
-    // Compute the starting index of the triangle in the index buffer
-    // triIndex points at the first of the three indices for this triangle.
-    uint triIndex = geometryAttributes.indicesBase + primOffset * numVertsPerPrim;
-
-    // Fetch triangle vertex indices (within geometry)
-    uint ia = getVertexIndex(triIndex + 0u);
-    uint ib = getVertexIndex(triIndex + 1u);
-    uint ic = getVertexIndex(triIndex + 2u);
-
-    // Fetch quantized positions for all three triangle vertices
-    uvec3 qa = getVertexPosition(geometryAttributes.verticesBase + ia);
-    uvec3 qb = getVertexPosition(geometryAttributes.verticesBase + ib);
-    uvec3 qc = getVertexPosition(geometryAttributes.verticesBase + ic);
-
-    // Dequantize + transform those triangle vertices into view space
-    vec3 pa = (viewMatrix * (modelMatrix * vec4(quantRange.offset + quantRange.scale * vec3(qa), 1.0))).xyz;
-    vec3 pb = (viewMatrix * (modelMatrix * vec4(quantRange.offset + quantRange.scale * vec3(qb), 1.0))).xyz;
-    vec3 pc = (viewMatrix * (modelMatrix * vec4(quantRange.offset + quantRange.scale * vec3(qc), 1.0))).xyz;
-
-    // Ensure a consistent winding relative to the camera
-    // If the triangle is not facing the eye with the current vertex order,
-    // we swap two vertices to flip the winding. This makes the computed
-    // normal consistently oriented (reduces \u201Cinside-out\u201D lighting).
-    if (!triangleFacesEyeVS(pa, pb, pc)) {
-        vec3 tmp = pb;
-        pb = pc;
-        pc = tmp;
-    }
-
-    // Compute face normal in view space
-    vec3 normal = -normalize(cross(pc - pa, pb - pa));
-
-    // Set up Lambert lighting accumulation
-    float lambertian = 1.0;
-    vec3 reflectedColor = vec3(0.0);
-
-    vec4 lightAmbient = vec4(0.5, 0.5, 0.5, 1.0);
-    vec3 lightDir1    = normalize(vec3(0.0, 0.0, -1.0));
-    vec4 lightColor1  = vec4(0.7, 0.7, 0.7, 1.0);
-    vec3 lightDir2    = normalize(vec3(-1.0, 1.0, 1.0));
-    vec4 lightColor2  = vec4(1.0, 1.0, 1.0, 1.0);
-    vec3 lightDir3    = normalize(vec3(-1.0, 1.0, 1.0));
-    vec4 lightColor3  = vec4(1.0, 1.0, 1.0, 0.2);
-
-    // Lambert diffuse term (N\xB7L), clamped to [0,1]
-    // Currently using lightDir2 only.
-    lambertian = max(dot(normal, normalize(lightDir2)), 0.0);
+    // Lambert shading is computed per-fragment from dFdx/dFdy of view-space
+    // position. That gives a flat face normal without reconstructing the full
+    // triangle in the vertex shader.
 
     // Fetch mesh base color or silhouette color
-
     vec4 color = ${silhouette ? "vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, uSilhouetteColor.a);" : "vec4(meshViewAttributes.color) / 255.0; // Stored as RGBA8 in uvec4, convert to float 0..1."}
 
-    // Accumulate reflected/diffuse light contribution
-    // lightColor2.rgb * lightColor2.a acts like (color * intensity).
-    reflectedColor += lambertian * (lightColor2.rgb * lightColor2.a);
-
-    // Combine ambient + diffuse lighting
-    // Ambient is applied to base color, diffuse multiplies base color as well.
-    vec3 lit = (lightAmbient.rgb * lightAmbient.a * color.rgb) + (color.rgb * reflectedColor);
-
-    // Output to fragment shader
-    // Alpha is preserved from original color.
-    vColor = vec4(lit, color.a);`
+    // Pass through the base color and view-space position.
+    // vColor remains flat per primitive/mesh color.
+    // vViewPos is interpolated for fragment derivatives.
+    vColor = color;
+    vViewPos = viewPos.xyz;`
     );
   }
   /**
@@ -135105,7 +135009,14 @@ void main(void) {`);
     const src = this._fragSrcBuf;
     src.push(
       "flat in vec4 vColor;",
-      "flat in vec4 vViewPos;"
+      "in vec3 vViewPos;",
+      "uniform vec4 uLightAmbient;",
+      "uniform vec3 uLightDir1;",
+      "uniform vec4 uLightColor1;",
+      "uniform vec3 uLightDir2;",
+      "uniform vec4 uLightColor2;",
+      "uniform vec3 uLightDir3;",
+      "uniform vec4 uLightColor3;"
     );
   }
   /**
@@ -135113,7 +135024,29 @@ void main(void) {`);
    * @protected
    */
   fsLambertShadingLogic() {
-    this._fragSrcBuf.push("color = vColor;");
+    this._fragSrcBuf.push(`
+    // Reconstruct a face normal in view space from position derivatives.
+    // This gives a flat-shaded normal per fragment without refetching the
+    // whole triangle in the vertex shader.
+    vec3 dX = dFdx(vViewPos);
+    vec3 dY = dFdy(vViewPos);
+    vec3 normal = normalize(cross(dX, dY));
+
+    // Lambert diffuse term (N\xB7L), clamped to [0,1].
+    // The renderer convention for directional lights is typically the direction
+    // the light travels, so we negate it for the surface-to-light direction.
+    float lambertian = max(dot(normal, normalize(uLightDir2)), 0.0);
+
+    // Accumulate reflected/diffuse light contribution.
+    // uLightColor2.rgb * uLightColor2.a acts like (color * intensity).
+    vec3 reflectedColor = vec3(0.0);
+    reflectedColor += lambertian * (uLightColor2.rgb * uLightColor2.a);
+
+    // Combine ambient + diffuse lighting.
+    // Ambient is applied to base color, diffuse multiplies base color as well.
+    vec3 lit = (uLightAmbient.rgb * uLightAmbient.a * vColor.rgb) + (vColor.rgb * reflectedColor);
+
+    color = vec4(lit, vColor.a);`);
   }
   /**
    * Generates fragment shader defines for depth rendering.
@@ -135273,6 +135206,16 @@ void main(void) {`);
   fsCommonOutput() {
     this._fragSrcBuf.push("outColor = color;");
   }
+  _bindTexture(sampler, dataTexture) {
+    if (!sampler || !dataTexture)
+      return;
+    const rc = this._renderContext;
+    const gl = rc.gl;
+    gl.activeTexture(gl.TEXTURE0 + rc.textureUnit);
+    gl.bindTexture(gl.TEXTURE_2D, dataTexture.texture);
+    gl.uniform1i(sampler, rc.textureUnit);
+    rc.textureUnit = (rc.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
+  }
   /**
    * Binds the shader program and sets up the necessary uniforms and textures for rendering.
    * @param renderPass The draw pass identifier, which determines the rendering context (e.g., solid fill, silhouette, picking).
@@ -135288,12 +135231,15 @@ void main(void) {`);
       renderContext.lastProgramId = -1;
       return false;
     }
-    if (renderContext.lastProgramId === program.id) {
+    if (renderContext.lastProgramId === program.id && renderContext.lastRenderPass === renderPass) {
       return true;
     }
-    program.bind();
-    renderContext.lastProgramId = program.id;
-    renderContext.textureUnit = 0;
+    if (renderContext.lastProgramId !== program.id) {
+      program.bind();
+      renderContext.lastProgramId = program.id;
+      renderContext.textureUnit = 0;
+    }
+    renderContext.lastRenderPass = renderPass;
     if (uniforms.renderPass) {
       gl.uniform1i(uniforms.renderPass, renderPass);
     }
@@ -135330,6 +135276,23 @@ void main(void) {`);
     }
     if (uniforms.lightAmbient) {
       gl.uniform4fv(uniforms.lightAmbient, view.getAmbientColorAndIntensity());
+    }
+    const lights = view.lightsList || [];
+    for (let i = 0; i < 3; i++) {
+      const light = lights[i];
+      const dirLoc = uniforms.lightDir[i];
+      const colorLoc = uniforms.lightColor[i];
+      if (dirLoc) {
+        gl.uniform3f(dirLoc, 0, 1, 1);
+      }
+      if (colorLoc) {
+        if (light && light.color) {
+          const intensity = light.intensity !== void 0 && light.intensity !== null ? light.intensity : 1;
+          gl.uniform4f(colorLoc, light.color[0], light.color[1], light.color[2], intensity);
+        } else {
+          gl.uniform4f(colorLoc, 0, 0, 0, 0);
+        }
+      }
     }
     if (uniforms.silhouetteColor) {
       if (this.edges) {
@@ -135402,6 +135365,7 @@ function joinSrc(srcLines, srcLinesWithoutComments, srcLinesWithComments) {
 
 // ../sdk/src/webglrenderer/internal/drawOps/techniques/triangles/TrianglesDrawColorTechnique.ts
 var TrianglesDrawColorTechnique = class extends DrawTechnique {
+  vertsPerPrim = 3;
   buildVertexShader() {
     this.vsHeader();
     this.vsCommonDefines();
@@ -135428,6 +135392,11 @@ var TrianglesDrawColorTechnique = class extends DrawTechnique {
 
 // ../sdk/src/webglrenderer/internal/drawOps/techniques/generic/GenericDrawSilhouetteTechnique.ts
 var GenericDrawSilhouetteTechnique = class extends DrawTechnique {
+  vertsPerPrim;
+  constructor(renderContext, gpuMemoryReader, vertsPerPrim) {
+    super(renderContext, gpuMemoryReader);
+    this.vertsPerPrim = vertsPerPrim;
+  }
   buildVertexShader() {
     this.vsHeader();
     this.vsCommonDefines();
@@ -135454,6 +135423,8 @@ var GenericDrawSilhouetteTechnique = class extends DrawTechnique {
 
 // ../sdk/src/webglrenderer/internal/drawOps/techniques/points/PointsDrawColorTechnique.ts
 var PointsDrawColorTechnique = class extends DrawTechnique {
+  vertsPerPrim = 1;
+  useIndexBuffer = false;
   buildVertexShader() {
     this.vsHeader();
     this.vsCommonDefines();
@@ -135484,6 +135455,7 @@ var PointsDrawColorTechnique = class extends DrawTechnique {
 
 // ../sdk/src/webglrenderer/internal/drawOps/techniques/lines/LinesDrawColorTechnique.ts
 var LinesDrawColorTechnique = class extends DrawTechnique {
+  vertsPerPrim = 2;
   buildVertexShader() {
     this.vsHeader();
     this.vsCommonDefines();
@@ -135551,6 +135523,8 @@ var DrawOp = class {
 
 // ../sdk/src/webglrenderer/internal/drawOps/techniques/triangles/TrianglesDrawEdgeSilhouetteTechnique.ts
 var TrianglesDrawEdgeSilhouetteTechnique = class extends DrawTechnique {
+  vertsPerPrim = 2;
+  // edge indices are line segments
   constructor(renderContext, gpuMemoryReader) {
     super(renderContext, gpuMemoryReader, { edges: true });
   }
@@ -135580,6 +135554,8 @@ var TrianglesDrawEdgeSilhouetteTechnique = class extends DrawTechnique {
 
 // ../sdk/src/webglrenderer/internal/drawOps/techniques/triangles/TrianglesDrawEdgeColorTechnique.ts
 var TrianglesDrawEdgeColorTechnique = class extends DrawTechnique {
+  vertsPerPrim = 2;
+  // edge indices are line segments
   constructor(renderContext, gpuMemoryReader) {
     super(renderContext, gpuMemoryReader, { edges: true });
   }
@@ -135609,6 +135585,7 @@ var TrianglesDrawEdgeColorTechnique = class extends DrawTechnique {
 
 // ../sdk/src/webglrenderer/internal/drawOps/techniques/triangles/TrianglesDrawSilhouetteTechnique.ts
 var TrianglesDrawSilhouetteTechnique = class extends DrawTechnique {
+  vertsPerPrim = 3;
   buildVertexShader() {
     this.vsHeader();
     this.vsCommonDefines();
@@ -135648,8 +135625,10 @@ __export(generic_exports, {
 
 // ../sdk/src/webglrenderer/internal/drawOps/techniques/generic/GenericPickMeshTechnique.ts
 var GenericPickMeshTechnique = class extends DrawTechnique {
-  constructor(renderContext, gpuMemoryReader) {
+  vertsPerPrim;
+  constructor(renderContext, gpuMemoryReader, vertsPerPrim) {
     super(renderContext, gpuMemoryReader, { picking: true });
+    this.vertsPerPrim = vertsPerPrim;
   }
   buildVertexShader() {
     this.vsHeader();
@@ -135741,18 +135720,20 @@ var DrawOps = class {
       this._techniques.push(drawTechnique);
       return drawTechnique;
     };
-    const silhouette = saveForCleanup(new GenericDrawSilhouetteTechnique(renderContext, gpuMemoryReader));
+    const linesDrawSilhouette = saveForCleanup(new GenericDrawSilhouetteTechnique(renderContext, gpuMemoryReader, 2));
     const trianglesSilhouette = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader));
     const trianglesDrawColor = saveForCleanup(new TrianglesDrawColorTechnique(renderContext, gpuMemoryReader));
     const trianglesDrawEdgeSilhouette = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader));
     const trianglesDrawEdgeColor = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader));
-    const pickMesh = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader));
+    const trianglesPickMesh = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 3));
+    const linesPickMesh = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 2));
+    const pointsPickMesh = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 1));
     const linesDrawColor = saveForCleanup(new LinesDrawColorTechnique(renderContext, gpuMemoryReader));
     const pointsDrawColor = saveForCleanup(new PointsDrawColorTechnique(renderContext, gpuMemoryReader));
     for (let i = 0, len = this._techniques.length; i < len; i++) {
       const result = this._techniques[i].init();
       if (!result.ok) {
-        for (let j = i - 1; j >= 0; j--) {
+        for (let j = i; j >= 0; j--) {
           this._techniques[j].destroy();
         }
         this._techniques = [];
@@ -135772,15 +135753,15 @@ var DrawOps = class {
         selectedEdges: new DrawOp(trianglesDrawEdgeSilhouette, SELECTED),
         xrayed: new DrawOp(trianglesSilhouette, XRAYED),
         xrayedEdges: new DrawOp(trianglesDrawEdgeSilhouette, XRAYED),
-        pick: new DrawOp(pickMesh, PICK)
+        pick: new DrawOp(trianglesPickMesh, PICK)
       },
       [LinesPrimitive]: {
         opaque: new DrawOp(linesDrawColor, OPAQUE),
         transparent: new DrawOp(linesDrawColor, TRANSPARENT),
-        highlighted: new DrawOp(silhouette, HIGHLIGHTED),
-        selected: new DrawOp(silhouette, SELECTED),
-        xrayed: new DrawOp(silhouette, XRAYED),
-        pick: new DrawOp(pickMesh, PICK)
+        highlighted: new DrawOp(linesDrawSilhouette, HIGHLIGHTED),
+        selected: new DrawOp(linesDrawSilhouette, SELECTED),
+        xrayed: new DrawOp(linesDrawSilhouette, XRAYED),
+        pick: new DrawOp(linesPickMesh, PICK)
       },
       [PointsPrimitive]: {
         opaque: new DrawOp(pointsDrawColor, OPAQUE),
@@ -135788,7 +135769,7 @@ var DrawOps = class {
         // highlighted: new DrawOp(pointsSilhouette, HIGHLIGHTED),
         // selected: new DrawOp(pointsSilhouette, SELECTED),
         // xrayed: new DrawOp(pointsSilhouette, XRAYED),
-        pick: new DrawOp(pickMesh, PICK)
+        pick: new DrawOp(pointsPickMesh, PICK)
       }
     };
     return {
@@ -136059,7 +136040,7 @@ var PickManager = class {
     const x = (pickCanvasPos[0] - canvas2.clientWidth / 2) / (canvas2.clientWidth / 2);
     const y = -(pickCanvasPos[1] - canvas2.clientHeight / 2) / (canvas2.clientHeight / 2);
     const tileOrigin = gpuTile.center;
-    const gotOrigin = tileOrigin[0] !== 0 && tileOrigin[1] !== 0 && tileOrigin[2] !== 0;
+    const gotOrigin = tileOrigin[0] !== 0 || tileOrigin[1] !== 0 || tileOrigin[2] !== 0;
     const viewMatrix = gotOrigin ? createRTCViewMat(pickViewMatrix, tileOrigin, tempMat4a6) : pickViewMatrix;
     const coordSysMatrix = sceneMesh.model.coordinateSystemMatrix;
     const pvmMat = mulMat4(mulMat4(pickProjMatrix, viewMatrix, tempMat4b2), coordSysMatrix, tempMat4d);
@@ -136118,6 +136099,7 @@ function unpackRGBA8ToUint(bytes) {
 var InfiniteGridRenderer = class {
   gl;
   viewProjMatrix = createMat4Float64();
+  _rteViewMatrix = createMat4Float64();
   program = null;
   vao = null;
   vbo = null;
@@ -136227,77 +136209,92 @@ var InfiniteGridRenderer = class {
   /**
    * Allocates GL resources and compiles shaders.
    *
-   * Safe to call more than once; subsequent calls are ignored after successful initialization.
+   * Safe to call more than once; subsequent calls are no-ops after successful initialization.
    */
   init() {
-    this.ensureNotDestroyed();
+    if (this.destroyed) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[InfiniteGridRenderer] Renderer has been destroyed"
+      };
+    }
     if (this.initialized) {
-      return;
+      return { ok: true, value: void 0 };
     }
-    const gl = this.gl;
-    this.program = this.createProgram(VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
-    const vao = gl.createVertexArray();
-    const vbo = gl.createBuffer();
-    if (!vao || !vbo) {
-      throw new Error("[InfiniteGridRenderer] Failed to allocate WebGL resources");
+    try {
+      const gl = this.gl;
+      this.program = this.createProgram(VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+      const vao = gl.createVertexArray();
+      const vbo = gl.createBuffer();
+      if (!vao || !vbo) {
+        throw new Error("[InfiniteGridRenderer] Failed to allocate WebGL resources");
+      }
+      this.vao = vao;
+      this.vbo = vbo;
+      gl.bindVertexArray(this.vao);
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+        -1,
+        -1,
+        1,
+        -1,
+        -1,
+        1,
+        1,
+        1
+      ]), gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(0);
+      gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+      gl.bindVertexArray(null);
+      gl.bindBuffer(gl.ARRAY_BUFFER, null);
+      this.uViewProj = this.getUniformLocation("uViewProj");
+      this.uGridCenter = this.getUniformLocation("uGridCenter");
+      this.uGridHalfSize = this.getUniformLocation("uGridHalfSize");
+      this.uCameraPos = this.getUniformLocation("uCameraPos");
+      this.uMinorStep = this.getUniformLocation("uMinorStep");
+      this.uMajorStep = this.getUniformLocation("uMajorStep");
+      this.uAxisWidth = this.getUniformLocation("uAxisWidth");
+      this.uFadeStart = this.getUniformLocation("uFadeStart");
+      this.uFadeEnd = this.getUniformLocation("uFadeEnd");
+      this.uMinorColor = this.getUniformLocation("uMinorColor");
+      this.uMajorColor = this.getUniformLocation("uMajorColor");
+      this.uXAxisColor = this.getUniformLocation("uXAxisColor");
+      this.uZAxisColor = this.getUniformLocation("uZAxisColor");
+      this.uWorldRight = this.getUniformLocation("uWorldRight");
+      this.uWorldForward = this.getUniformLocation("uWorldForward");
+      this.initialized = true;
+      return { ok: true, value: void 0 };
+    } catch (e) {
+      this.destroy();
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: e instanceof Error ? e.message : String(e)
+      };
     }
-    this.vao = vao;
-    this.vbo = vbo;
-    gl.bindVertexArray(this.vao);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-      -1,
-      -1,
-      1,
-      -1,
-      -1,
-      1,
-      1,
-      1
-    ]), gl.STATIC_DRAW);
-    gl.enableVertexAttribArray(0);
-    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-    gl.bindVertexArray(null);
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
-    this.uViewProj = this.getUniformLocation("uViewProj");
-    this.uGridCenter = this.getUniformLocation("uGridCenter");
-    this.uGridHalfSize = this.getUniformLocation("uGridHalfSize");
-    this.uCameraPos = this.getUniformLocation("uCameraPos");
-    this.uMinorStep = this.getUniformLocation("uMinorStep");
-    this.uMajorStep = this.getUniformLocation("uMajorStep");
-    this.uAxisWidth = this.getUniformLocation("uAxisWidth");
-    this.uFadeStart = this.getUniformLocation("uFadeStart");
-    this.uFadeEnd = this.getUniformLocation("uFadeEnd");
-    this.uMinorColor = this.getUniformLocation("uMinorColor");
-    this.uMajorColor = this.getUniformLocation("uMajorColor");
-    this.uXAxisColor = this.getUniformLocation("uXAxisColor");
-    this.uZAxisColor = this.getUniformLocation("uZAxisColor");
-    this.uWorldRight = this.getUniformLocation("uWorldRight");
-    this.uWorldForward = this.getUniformLocation("uWorldForward");
-    this.initialized = true;
   }
   /**
    * Renders one frame of the infinite grid for the given view.
    *
    * Called by {@link RenderManager} when {@link enabled} is true.
-   * Optional params allow per-frame overrides without mutating instance defaults.
    */
-  render(viewRenderState, params = {}) {
+  render(viewRenderState) {
     this.ensureReady();
     const camera = viewRenderState.view.camera;
-    const viewMatrix = camera.viewMatrix;
-    const projMatrix = camera.projMatrix;
-    const cameraWorldPos = camera.eye;
-    mulMat4(projMatrix, viewMatrix, this.viewProjMatrix);
+    const eye = camera.eye;
+    const vm = this._rteViewMatrix;
+    const src = camera.viewMatrix;
+    for (let i = 0; i < 16; i++)
+      vm[i] = src[i];
+    vm[12] = 0;
+    vm[13] = 0;
+    vm[14] = 0;
+    mulMat4(camera.projMatrix, vm, this.viewProjMatrix);
     const up = this.worldUp;
-    const upDot = cameraWorldPos[0] * up[0] + cameraWorldPos[1] * up[1] + cameraWorldPos[2] * up[2];
-    const gridCenter = params.gridCenter ?? (this.followCamera ? [cameraWorldPos[0] - up[0] * upDot, cameraWorldPos[1] - up[1] * upDot, cameraWorldPos[2] - up[2] * upDot] : [0, 0, 0]);
-    const minorStep = params.minorStep ?? this.minorStep;
-    const majorStep = params.majorStep ?? this.majorStep;
-    const axisWidth = params.axisWidth ?? minorStep * this.axisWidth;
-    const fadeStart = params.fadeStart ?? this.fadeStart;
-    const fadeEnd = params.fadeEnd ?? this.fadeEnd;
-    const gridHalfSize = params.gridHalfSize ?? this.gridHalfSize;
+    const upDot = eye[0] * up[0] + eye[1] * up[1] + eye[2] * up[2];
+    const gridCenter = this.followCamera ? [-up[0] * upDot, -up[1] * upDot, -up[2] * upDot] : [-eye[0], -eye[1], -eye[2]];
+    const axisWidth = this.minorStep * this.axisWidth;
     const gl = this.gl;
     const prevProgram = gl.getParameter(gl.CURRENT_PROGRAM);
     const prevVAO = gl.getParameter(gl.VERTEX_ARRAY_BINDING);
@@ -136312,13 +136309,13 @@ var InfiniteGridRenderer = class {
     gl.depthMask(false);
     gl.uniformMatrix4fv(this.uViewProj, false, new Float32Array(this.viewProjMatrix));
     gl.uniform3f(this.uGridCenter, gridCenter[0], gridCenter[1], gridCenter[2]);
-    gl.uniform1f(this.uGridHalfSize, gridHalfSize);
-    gl.uniform3f(this.uCameraPos, cameraWorldPos[0], cameraWorldPos[1], cameraWorldPos[2]);
-    gl.uniform1f(this.uMinorStep, minorStep);
-    gl.uniform1f(this.uMajorStep, majorStep);
+    gl.uniform1f(this.uGridHalfSize, this.gridHalfSize);
+    gl.uniform3f(this.uCameraPos, 0, 0, 0);
+    gl.uniform1f(this.uMinorStep, this.minorStep);
+    gl.uniform1f(this.uMajorStep, this.majorStep);
     gl.uniform1f(this.uAxisWidth, axisWidth);
-    gl.uniform1f(this.uFadeStart, fadeStart);
-    gl.uniform1f(this.uFadeEnd, fadeEnd);
+    gl.uniform1f(this.uFadeStart, this.fadeStart);
+    gl.uniform1f(this.uFadeEnd, this.fadeEnd);
     gl.uniform3f(this.uMinorColor, this.minorColor[0], this.minorColor[1], this.minorColor[2]);
     gl.uniform3f(this.uMajorColor, this.majorColor[0], this.majorColor[1], this.majorColor[2]);
     gl.uniform3f(this.uXAxisColor, this.xAxisColor[0], this.xAxisColor[1], this.xAxisColor[2]);
@@ -136537,6 +136534,8 @@ var SkyRenderer = class {
   gl;
   viewProjMatrix = createMat4Float64();
   invViewProjMatrix = createMat4Float64();
+  _rteViewMatrix = createMat4Float64();
+  _invViewProjF32 = new Float32Array(16);
   program = null;
   vao = null;
   vbo = null;
@@ -136627,41 +136626,53 @@ var SkyRenderer = class {
   /**
    * Allocates GL resources and compiles shaders.
    *
-   * Safe to call more than once; subsequent calls are ignored after successful initialization.
+   * Safe to call more than once; subsequent calls are no-ops after successful initialization.
    */
   init() {
-    this.ensureNotDestroyed();
+    if (this.destroyed) {
+      return { ok: false, type: 0 /* InitializationFailed */, error: "[SkyRenderer] Renderer has been destroyed" };
+    }
     if (this.initialized)
-      return;
-    const gl = this.gl;
-    this.program = this.createProgram(VERTEX_SHADER_SOURCE2, FRAGMENT_SHADER_SOURCE2);
-    const vao = gl.createVertexArray();
-    const vbo = gl.createBuffer();
-    if (!vao || !vbo)
-      throw new Error("[SkyRenderer] Failed to allocate WebGL resources");
-    this.vao = vao;
-    this.vbo = vbo;
-    gl.bindVertexArray(this.vao);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
-    gl.enableVertexAttribArray(0);
-    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-    gl.bindVertexArray(null);
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
-    this.uInvViewProj = this.getUniformLocation("uInvViewProj");
-    this.uCameraPos = this.getUniformLocation("uCameraPos");
-    this.uWorldUp = this.getUniformLocation("uWorldUp");
-    this.uSkyColor = this.getUniformLocation("uSkyColor");
-    this.uHorizonColor = this.getUniformLocation("uHorizonColor");
-    this.uGroundColor = this.getUniformLocation("uGroundColor");
-    this.uHorizonBlend = this.getUniformLocation("uHorizonBlend");
-    this.uSunEnabled = this.getUniformLocation("uSunEnabled");
-    this.uSunDirection = this.getUniformLocation("uSunDirection");
-    this.uSunColor = this.getUniformLocation("uSunColor");
-    this.uSunCosSize = this.getUniformLocation("uSunCosSize");
-    this.uSunGlowSize = this.getUniformLocation("uSunGlowSize");
-    this.uSunGlowIntensity = this.getUniformLocation("uSunGlowIntensity");
-    this.initialized = true;
+      return { ok: true, value: void 0 };
+    try {
+      const gl = this.gl;
+      this.program = this.createProgram(VERTEX_SHADER_SOURCE2, FRAGMENT_SHADER_SOURCE2);
+      const vao = gl.createVertexArray();
+      const vbo = gl.createBuffer();
+      if (!vao || !vbo)
+        throw new Error("[SkyRenderer] Failed to allocate WebGL resources");
+      this.vao = vao;
+      this.vbo = vbo;
+      gl.bindVertexArray(this.vao);
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(0);
+      gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+      gl.bindVertexArray(null);
+      gl.bindBuffer(gl.ARRAY_BUFFER, null);
+      this.uInvViewProj = this.getUniformLocation("uInvViewProj");
+      this.uCameraPos = this.getUniformLocation("uCameraPos");
+      this.uWorldUp = this.getUniformLocation("uWorldUp");
+      this.uSkyColor = this.getUniformLocation("uSkyColor");
+      this.uHorizonColor = this.getUniformLocation("uHorizonColor");
+      this.uGroundColor = this.getUniformLocation("uGroundColor");
+      this.uHorizonBlend = this.getUniformLocation("uHorizonBlend");
+      this.uSunEnabled = this.getUniformLocation("uSunEnabled");
+      this.uSunDirection = this.getUniformLocation("uSunDirection");
+      this.uSunColor = this.getUniformLocation("uSunColor");
+      this.uSunCosSize = this.getUniformLocation("uSunCosSize");
+      this.uSunGlowSize = this.getUniformLocation("uSunGlowSize");
+      this.uSunGlowIntensity = this.getUniformLocation("uSunGlowIntensity");
+      this.initialized = true;
+      return { ok: true, value: void 0 };
+    } catch (e) {
+      this.destroy();
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: e instanceof Error ? e.message : String(e)
+      };
+    }
   }
   /**
    * Renders one frame of the sky for the given view.
@@ -136671,8 +136682,14 @@ var SkyRenderer = class {
   render(viewRenderState) {
     this.ensureReady();
     const camera = viewRenderState.view.camera;
-    const cameraPos = camera.eye;
-    mulMat4(camera.projMatrix, camera.viewMatrix, this.viewProjMatrix);
+    const vm = this._rteViewMatrix;
+    const src = camera.viewMatrix;
+    for (let i = 0; i < 16; i++)
+      vm[i] = src[i];
+    vm[12] = 0;
+    vm[13] = 0;
+    vm[14] = 0;
+    mulMat4(camera.projMatrix, vm, this.viewProjMatrix);
     inverseMat4(this.viewProjMatrix, this.invViewProjMatrix);
     const sd = this.sunDirection;
     const sdLen = Math.sqrt(sd[0] * sd[0] + sd[1] * sd[1] + sd[2] * sd[2]) || 1;
@@ -136688,8 +136705,9 @@ var SkyRenderer = class {
     gl.disable(gl.CULL_FACE);
     gl.useProgram(this.program);
     gl.bindVertexArray(this.vao);
-    gl.uniformMatrix4fv(this.uInvViewProj, false, new Float32Array(this.invViewProjMatrix));
-    gl.uniform3f(this.uCameraPos, cameraPos[0], cameraPos[1], cameraPos[2]);
+    this._invViewProjF32.set(this.invViewProjMatrix);
+    gl.uniformMatrix4fv(this.uInvViewProj, false, this._invViewProjF32);
+    gl.uniform3f(this.uCameraPos, 0, 0, 0);
     gl.uniform3f(this.uWorldUp, this.worldUp[0], this.worldUp[1], this.worldUp[2]);
     gl.uniform3f(this.uSkyColor, this.skyColor[0], this.skyColor[1], this.skyColor[2]);
     gl.uniform3f(this.uHorizonColor, this.horizonColor[0], this.horizonColor[1], this.horizonColor[2]);
@@ -136883,7 +136901,9 @@ void main() {
 `;
 
 // ../sdk/src/webglrenderer/internal/renderManager/RenderManager.ts
-var RenderManager = class {
+var RenderManager = class _RenderManager {
+  /** Number of texture units bound per draw call by {@link DrawTechnique._bindTexture}. */
+  static _MAX_DATA_TEXTURE_UNITS = 10;
   /**
    * Active drawing operations (shader programs + draw routines).
    *
@@ -136896,6 +136916,25 @@ var RenderManager = class {
    * Infinite ground grid renderer. Set {@link InfiniteGridRenderer.enabled} to true to activate.
    */
   infiniteGrid;
+  /** Pre-allocated render bins, reused every frame to avoid per-frame array allocation. */
+  _bins = {
+    normalDrawSAO: [],
+    normalEdgesOpaque: [],
+    normalFillTransparent: [],
+    normalEdgesTransparent: [],
+    xrayedSilhouetteOpaque: [],
+    xrayEdgesOpaque: [],
+    xrayedSilhouetteTransparent: [],
+    xrayEdgesTransparent: [],
+    highlightedSilhouetteOpaque: [],
+    highlightedEdgesOpaque: [],
+    highlightedSilhouetteTransparent: [],
+    highlightedEdgesTransparent: [],
+    selectedSilhouetteOpaque: [],
+    selectedEdgesOpaque: [],
+    selectedSilhouetteTransparent: [],
+    selectedEdgesTransparent: []
+  };
   /**
    * Sky/environment renderer.
    */
@@ -136955,7 +136994,11 @@ var RenderManager = class {
         xAxisColor: [0.68, 0.42, 0.4],
         zAxisColor: [0.4, 0.58, 0.7]
       });
-      this.infiniteGrid.init();
+      const gridResult = this.infiniteGrid.init();
+      if (gridResult.ok === false) {
+        this.infiniteGrid = null;
+        return gridResult;
+      }
     }
     if (!this.skyRenderer) {
       this.skyRenderer = new SkyRenderer(this._renderContext.gl, {
@@ -136964,7 +137007,11 @@ var RenderManager = class {
         horizonBlend: 0.5,
         groundColor: [0.58, 0.64, 0.6]
       });
-      this.skyRenderer.init();
+      const skyResult = this.skyRenderer.init();
+      if (skyResult.ok === false) {
+        this.skyRenderer = null;
+        return skyResult;
+      }
     }
     return {
       ok: true,
@@ -137022,24 +137069,23 @@ var RenderManager = class {
     const drawOps = this.drawOps.prims;
     const drawInspector = renderContext.renderInspector && renderContext.renderInspector.enabled ? renderContext.renderInspector : null;
     drawInspector?.frameStarted(view);
-    const bins = {
-      normalDrawSAO: [],
-      normalEdgesOpaque: [],
-      normalFillTransparent: [],
-      normalEdgesTransparent: [],
-      xrayedSilhouetteOpaque: [],
-      xrayEdgesOpaque: [],
-      xrayedSilhouetteTransparent: [],
-      xrayEdgesTransparent: [],
-      highlightedSilhouetteOpaque: [],
-      highlightedEdgesOpaque: [],
-      highlightedSilhouetteTransparent: [],
-      highlightedEdgesTransparent: [],
-      selectedSilhouetteOpaque: [],
-      selectedEdgesOpaque: [],
-      selectedSilhouetteTransparent: [],
-      selectedEdgesTransparent: []
-    };
+    const bins = this._bins;
+    bins.normalDrawSAO.length = 0;
+    bins.normalEdgesOpaque.length = 0;
+    bins.normalFillTransparent.length = 0;
+    bins.normalEdgesTransparent.length = 0;
+    bins.xrayedSilhouetteOpaque.length = 0;
+    bins.xrayEdgesOpaque.length = 0;
+    bins.xrayedSilhouetteTransparent.length = 0;
+    bins.xrayEdgesTransparent.length = 0;
+    bins.highlightedSilhouetteOpaque.length = 0;
+    bins.highlightedEdgesOpaque.length = 0;
+    bins.highlightedSilhouetteTransparent.length = 0;
+    bins.highlightedEdgesTransparent.length = 0;
+    bins.selectedSilhouetteOpaque.length = 0;
+    bins.selectedEdgesOpaque.length = 0;
+    bins.selectedSilhouetteTransparent.length = 0;
+    bins.selectedEdgesTransparent.length = 0;
     const resolutionScale = view.resolutionScale.applied ? view.resolutionScale.resolutionScale : 1;
     renderContext.webglCanvasElement.width = Math.floor(gl.drawingBufferWidth * resolutionScale);
     renderContext.webglCanvasElement.height = Math.floor(gl.drawingBufferHeight * resolutionScale);
@@ -137060,8 +137106,8 @@ var RenderManager = class {
     if (clear !== false) {
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     }
-    this.skyRenderer.render(rendererView);
-    this.infiniteGrid.render(rendererView);
+    this.skyRenderer?.render(rendererView);
+    this.infiniteGrid?.render(rendererView);
     const enableOpaqueBin = !drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.OPAQUE);
     if (enableOpaqueBin) {
       drawInspector?.renderBinStarted(RENDER_BINS.OPAQUE);
@@ -137222,13 +137268,10 @@ var RenderManager = class {
         drawOps[meshBatch.primitive].selectedEdges?.drawBatch(meshBatch);
       });
     }
-    for (let i = 0, texUnits = WEBGL_INFO.MAX_TEXTURE_UNITS; i < texUnits; i++) {
+    gl.disable(gl.BLEND);
+    for (let i = 0; i < _RenderManager._MAX_DATA_TEXTURE_UNITS; i++) {
       gl.activeTexture(gl.TEXTURE0 + i);
-    }
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
-    gl.bindTexture(gl.TEXTURE_2D, null);
-    for (let i = 0, attribs = WEBGL_INFO.MAX_VERTEX_ATTRIBS; i < attribs; i++) {
-      gl.disableVertexAttribArray(i);
+      gl.bindTexture(gl.TEXTURE_2D, null);
     }
     drawInspector?.frameEnded();
     return {
@@ -137243,6 +137286,10 @@ var RenderManager = class {
     if (this.drawOps) {
       putDrawOps(this.drawOps);
       this.drawOps = null;
+    }
+    if (this.skyRenderer) {
+      this.skyRenderer.destroy();
+      this.skyRenderer = null;
     }
     if (this.infiniteGrid) {
       this.infiniteGrid.destroy();
@@ -138068,6 +138115,8 @@ __export(points_exports, {
 
 // ../sdk/src/webglrenderer/internal/drawOps/techniques/points/PointsDrawSilhouetteTechnique.ts
 var PointsDrawSilhouetteTechnique = class extends DrawTechnique {
+  vertsPerPrim = 1;
+  useIndexBuffer = false;
   buildVertexShader() {
     this.vsHeader();
     this.vsCommonDefines();
@@ -138094,6 +138143,8 @@ var PointsDrawSilhouetteTechnique = class extends DrawTechnique {
 
 // ../sdk/src/webglrenderer/internal/drawOps/techniques/points/PointsPickDepthTechnique.ts
 var PointsPickDepth = class extends DrawTechnique {
+  vertsPerPrim = 1;
+  useIndexBuffer = false;
   buildVertexShader() {
     this.vsHeader();
     this.vsCommonDefines();
@@ -138120,6 +138171,8 @@ var PointsPickDepth = class extends DrawTechnique {
 
 // ../sdk/src/webglrenderer/internal/drawOps/techniques/points/PointsPickMeshDrawTechnique.ts
 var TrianglesPickMeshDrawTechnique = class extends DrawTechnique {
+  vertsPerPrim = 1;
+  useIndexBuffer = false;
   buildVertexShader() {
     this.vsHeader();
     this.vsCommonDefines();
@@ -139564,6 +139617,8 @@ var WebGLRenderer3 = class {
       this.events.webglContextLost.dispatch(this, event);
     });
     this._viewManager.getWebGLCanvasElement().addEventListener("webglcontextrestored", (event) => {
+      if (!this._viewManager)
+        return;
       const result2 = this._viewManager.webglContextRestored();
       if (result2.ok === false) {
         this.logError({

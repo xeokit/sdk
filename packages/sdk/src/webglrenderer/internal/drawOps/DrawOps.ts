@@ -157,7 +157,7 @@ export class DrawOps {
     for (let i = 0, len = this._techniques.length; i < len; i++) {
       const result = this._techniques[i].init();
       if (!result.ok) {
-        for (let j = i - 1; j >= 0; j--) {
+        for (let j = i; j >= 0; j--) {
           this._techniques[j].destroy();
         }
         this._techniques = [];

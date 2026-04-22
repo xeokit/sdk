@@ -516,6 +516,7 @@ export class WebGLRenderer {
     });
 
     this._viewManager.getWebGLCanvasElement().addEventListener("webglcontextrestored", (event) => {
+      if (!this._viewManager) return;
       const result = this._viewManager.webglContextRestored();
       if (result.ok === false) {
         this.logError({

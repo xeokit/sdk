@@ -1587,14 +1587,17 @@ void main(void) {`);
       return false;
     }
 
-    if (renderContext.lastProgramId === program.id) {
-      return true; // Already bound
+    if (renderContext.lastProgramId === program.id && renderContext.lastRenderPass === renderPass) {
+      return true;
     }
 
-    program.bind();
+    if (renderContext.lastProgramId !== program.id) {
+      program.bind();
+      renderContext.lastProgramId = program.id;
+      renderContext.textureUnit = 0;
+    }
 
-    renderContext.lastProgramId = program.id;
-    renderContext.textureUnit = 0;
+    renderContext.lastRenderPass = renderPass;
 
     if (uniforms.renderPass) {
       gl.uniform1i(uniforms.renderPass, renderPass);

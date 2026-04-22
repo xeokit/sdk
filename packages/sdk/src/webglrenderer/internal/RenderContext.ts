@@ -123,6 +123,12 @@ export class RenderContext implements WebGLContextProvider {
   public lastProgramId: number;
 
   /**
+   * Render pass of the last _bind call. Used together with lastProgramId to detect when pass-dependent
+   * uniforms (e.g. silhouetteColor) need re-uploading even though the same program is still bound.
+   */
+  public lastRenderPass: number;
+
+  /**
    * The occlusion rendering texture.
    */
   public saoOcclusionTexture: WebGLAbstractTexture|null;
@@ -214,6 +220,7 @@ export class RenderContext implements WebGLContextProvider {
         throw new SDKInternalException("RenderContext not initialized");
     }
     this.lastProgramId = -1;
+    this.lastRenderPass = -1;
     this.pbrEnabled = false;
     this.backfaces = false;
     this.frontface = true;

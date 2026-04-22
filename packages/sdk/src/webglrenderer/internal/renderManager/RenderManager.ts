@@ -149,6 +149,7 @@ export class RenderManager {
     this._activateExtensions();
 
     if (!this.infiniteGrid) {
+
       this.infiniteGrid = new InfiniteGridRenderer(this._renderContext.gl, {
         minorColor: [0.36, 0.40, 0.42],
         majorColor: [0,0,0],
@@ -500,7 +501,7 @@ export class RenderManager {
       });
     }
 
-  //  gl.disable(gl.BLEND);
+    gl.disable(gl.BLEND);
 
     // Unbind only the texture units _draw() actually uses (one per _bindTexture call, max 10).
     // The old loop activated all MAX_TEXTURE_UNITS units but only unbound the last one (bug),
@@ -525,6 +526,10 @@ export class RenderManager {
     if (this.drawOps) {
       putDrawOps(this.drawOps);
       this.drawOps = null;
+    }
+    if (this.skyRenderer) {
+      this.skyRenderer.destroy();
+      this.skyRenderer = null;
     }
     if (this.infiniteGrid) {
       this.infiniteGrid.destroy();

@@ -337,7 +337,7 @@ export class PickManager {
     // Compose the projection-view matrix (pvMat) and its inverse (pvMatInverse).
 
     const tileOrigin = gpuTile.center;
-    const gotOrigin = (tileOrigin[0] !== 0 && tileOrigin[1] !== 0 && tileOrigin[2] !== 0);
+    const gotOrigin = (tileOrigin[0] !== 0 || tileOrigin[1] !== 0 || tileOrigin[2] !== 0);
     const viewMatrix = gotOrigin ? createRTCViewMat(pickViewMatrix , tileOrigin, tempMat4a) : pickViewMatrix;
     const coordSysMatrix = sceneMesh.model.coordinateSystemMatrix;
 

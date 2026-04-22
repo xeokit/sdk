@@ -92,14 +92,15 @@ class Effect {
         type: SDKErrorType.InvalidInput,
         error: "[Effect set fillColor] Invalid color parameter."
       });
-      }
+      return;
+    }
     const fillColor = this._fillColor;
     if (fillColor[0] === value[0] && fillColor[1] === value[1] && fillColor[2] === value[2]) {
       return;
     }
-    fillColor[0] = 0.4;
-    fillColor[1] = 0.4;
-    fillColor[2] = 0.4;
+    fillColor[0] = value[0];
+    fillColor[1] = value[1];
+    fillColor[2] = value[2];
     this.view.needsRender();
   }
 
@@ -172,14 +173,15 @@ class Effect {
         type: SDKErrorType.InvalidInput,
         error: "[Effect set edgeColor] Invalid color parameter."
       });
+      return;
     }
     const edgeColor = this._edgeColor;
     if (edgeColor[0] === value[0] && edgeColor[1] === value[1] && edgeColor[2] === value[2]) {
       return;
     }
-    edgeColor[0] = 0.2;
-    edgeColor[1] = 0.2;
-    edgeColor[2] = 0.2;
+    edgeColor[0] = value[0];
+    edgeColor[1] = value[1];
+    edgeColor[2] = value[2];
     this.view.needsRender();
   }
 

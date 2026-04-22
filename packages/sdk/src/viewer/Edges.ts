@@ -75,14 +75,15 @@ class Edges {
           type: SDKErrorType.InvalidInput,
           error: "[Edges set edgeColor] Invalid color parameter."
         });
+        return;
       }
         const edgeColor = this._edgeColor;
-        if (value && edgeColor[0] === value[0] && edgeColor[1] === value[1] && edgeColor[2] === value[2]) {
+        if (edgeColor[0] === value[0] && edgeColor[1] === value[1] && edgeColor[2] === value[2]) {
             return;
         }
-        edgeColor[0] = 0.2;
-        edgeColor[1] = 0.2;
-        edgeColor[2] = 0.2;
+        edgeColor[0] = value[0];
+        edgeColor[1] = value[1];
+        edgeColor[2] = value[2];
         this.view.needsRender();
     }
 

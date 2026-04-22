@@ -623,14 +623,11 @@ ivec2 texCoord(uint index, uint texWidth) {
 // Primitive lookups
 // ─────────────────────────────────────────────────────────────
 
-uint getPrimitiveMeshIndex(uint primIndex) {
+// Each texel stores (meshIndex, primOffsetWithinGeometry) in .r/.g.
+// RG32UI format: 1 texel per primitive, replacing the old 2-texel R32UI layout.
+uvec2 getPrimData(uint primIndex) {
   const uint texWidth = 4096u;
-  return texelFetch(uPrimitiveMeshIndexTexture, texCoord(primIndex * 2u, texWidth), 0).r;
-}
-
-uint getPrimitiveOffsetWithinGeometry(uint primIndex) {
-  const uint texWidth = 4096u;
-  return texelFetch(uPrimitiveMeshIndexTexture, texCoord((primIndex * 2u) + 1u, texWidth), 0).r;
+  return texelFetch(uPrimitiveMeshIndexTexture, texCoord(primIndex, texWidth), 0).rg;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -980,9 +977,10 @@ void main(void) {`);
     // uPrimBaseIndex allows batching multiple draws into a big primitive table.
     uint primIndex = uint(uPrimBaseIndex) + drawPrimIndex;
 
-    // Primitive → mesh resolution
-    // Each primitive belongs to a mesh; meshIndex selects transforms + attributes.
-    uint meshIndex = getPrimitiveMeshIndex( primIndex );
+    // Single texelFetch returns both meshIndex (.r) and primOffset (.g).
+    uvec2 primData  = getPrimData( primIndex );
+    uint meshIndex  = primData.r;
+    uint primOffset = primData.g;
 
     // Fetch mesh view properties (color + flags)
     MeshViewAttributes meshViewAttributes = getMeshViewAttributes( meshIndex );
@@ -992,10 +990,6 @@ void main(void) {`);
       // gl_Position = vec4(3.0, 3.0, 3.0, 1.0); // Cull vertex
      //  return;
     }
-
-    // Primitive → offset inside the geometry’s primitive list
-    // This tells us which triangle/line/point we are within the geometry.
-    uint primOffset = getPrimitiveOffsetWithinGeometry( primIndex );
     `);
   }
 

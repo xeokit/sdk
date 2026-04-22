@@ -213,22 +213,30 @@ export abstract class DataTexture {
         break;
     }
 
+    const bytesPerElement = this.type === this.gl.FLOAT ? 4
+      : this.type === this.gl.UNSIGNED_INT ? 4
+      : this.type === this.gl.UNSIGNED_SHORT ? 2
+      : 1;
     switch (this.format) {
-        case this.gl.RGBA:
-            this.bytesPerTexel = 4 * (this.type === this.gl.FLOAT
-                ? 4 : (this.type === this.gl.UNSIGNED_INT ? 4 : (this.type === this.gl.UNSIGNED_SHORT ? 2 : 1)));
-            break;
-        case this.gl.RGB:
-            this.bytesPerTexel = 3 * (this.type === this.gl.FLOAT
-                ? 4 : (this.type === this.gl.UNSIGNED_INT ? 4 : (this.type === this.gl.UNSIGNED_SHORT ? 2 : 1)));
-            break;
-        case this.gl.RED:
-        case this.gl.RED_INTEGER:
-            this.bytesPerTexel = 1 * (this.type === this.gl.FLOAT ? 4 : (this.type === this.gl.UNSIGNED_INT ? 4 : (this.type === this.gl.UNSIGNED_SHORT ? 2 : 1)));
-            break;
-        default:
-            this.bytesPerTexel = 4 * (this.type === this.gl.FLOAT ? 4 : (this.type === this.gl.UNSIGNED_INT ? 4 : (this.type === this.gl.UNSIGNED_SHORT ? 2 : 1)));
-            break;
+      case this.gl.RGBA:
+      case this.gl.RGBA_INTEGER:
+        this.bytesPerTexel = 4 * bytesPerElement;
+        break;
+      case this.gl.RGB:
+      case this.gl.RGB_INTEGER:
+        this.bytesPerTexel = 3 * bytesPerElement;
+        break;
+      case this.gl.RG:
+      case this.gl.RG_INTEGER:
+        this.bytesPerTexel = 2 * bytesPerElement;
+        break;
+      case this.gl.RED:
+      case this.gl.RED_INTEGER:
+        this.bytesPerTexel = 1 * bytesPerElement;
+        break;
+      default:
+        this.bytesPerTexel = 4 * bytesPerElement;
+        break;
     }
 
     this.useBuffer = params.useBuffer ?? true;

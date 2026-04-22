@@ -189,9 +189,9 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
     super({
       gl: options.gl,
       description: options.description,
-      format: options.gl.RED_INTEGER,
+      format: options.gl.RG_INTEGER,   // 2 channels: .r = meshIndex, .g = primOffset
       type: options.gl.UNSIGNED_INT,
-      internalFormat: options.gl.R32UI,
+      internalFormat: options.gl.RG32UI, // 1 texel per primitive (was 2 texels with R32UI)
       maxItems: options.maxItems,
       getNumItems: () => this.numItems,
       width: 4096,

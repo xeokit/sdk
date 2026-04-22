@@ -131,7 +131,7 @@ export class SceneAABB3Index {
 
       scene.events.onSceneObjectDestroyed.subscribe((_, object) => {
         for (const mesh of object.meshes) {
-          const meshId = `${mesh.object.id}-${mesh.id}`;
+          const meshId = `${object.id}-${mesh.id}`;
           this.#meshAABBs.delete(meshId);
           this.#meshDirty.delete(meshId);
         }
@@ -165,7 +165,7 @@ export class SceneAABB3Index {
     }
 
     if (this.#meshDirty.has(meshId)) {
-      getAABBWorldAABB3(mesh.geometry.aabb, mesh.globalMatrix, aabb);
+      getAABBWorldAABB3(mesh.geometry.aabb, mesh.worldMatrix, aabb);
       this.#meshDirty.delete(meshId);
     }
 

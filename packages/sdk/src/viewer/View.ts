@@ -269,7 +269,8 @@ class View {
   private _snapshotBegun: boolean;
   private _autoCanvas: boolean;
   private _needsRender: boolean;
-  private _checkViewResizedTask: SDKTask;
+  private _resizeObserver: ResizeObserver | null = null;
+  private _windowResizeListener: (() => void) | null = null;
   private _fireViewUpdatedEventTask: SDKTask;
 
   /**
@@ -476,90 +477,32 @@ class View {
 
     this.onBoundary = new EventEmitter(new EventDispatcher<View, FloatArrayParam>());
 
-    // Publish htmlElement size and position changes on each scene tick
+    // Publish htmlElement size and position changes via ResizeObserver and window resize.
+    // ResizeObserver fires when the element's content box changes size.
+    // window 'resize' catches position-only changes (element moved when window resizes).
 
-    let lastWindowWidth = 0;
-    let lastWindowHeight = 0;
-    let lastViewWidth = 0;
-    let lastViewHeight = 0;
-    let lastViewOffsetLeft = 0;
-    let lastViewOffsetTop = 0;
-    let lastParent: null | HTMLElement = null;
-    let lastResolutionScale: null | number = null;
-
-    const handleResize = () => {
-      const htmlElement = this.htmlElement;
-      const currentResolutionScale = this.resolutionScale.resolutionScale;
-      const newResolutionScale = currentResolutionScale !== lastResolutionScale;
-      const newWindowSize =
-          window.innerWidth !== lastWindowWidth ||
-          window.innerHeight !== lastWindowHeight;
-      const newViewSize =
-          htmlElement.clientWidth !== lastViewWidth ||
-          htmlElement.clientHeight !== lastViewHeight;
-      const newViewPos =
-          htmlElement.offsetLeft !== lastViewOffsetLeft ||
-          htmlElement.offsetTop !== lastViewOffsetTop;
-      const parent = htmlElement.parentElement;
-      const newParent = parent !== lastParent;
-
-      if (
-          newResolutionScale ||
-          newWindowSize ||
-          newViewSize ||
-          newViewPos ||
-          newParent
-      ) {
-        //   this._spinner._adjustPosition();
-        if (newResolutionScale || newViewSize || newViewPos) {
-          const newWidth = htmlElement.clientWidth;
-          const newHeight = htmlElement.clientHeight;
-          if (newResolutionScale || newViewSize) {
-            //////////////////////////////////////////////////////////////////////////////////////
-            // TODO: apply resolutionscale properly
-            //////////////////////////////////////////////////////////////////////////////////////
-            // htmlElement.width = Math.round(
-            //     htmlElement.clientWidth * this.resolutionScale.resolutionScale
-            // );
-            // htmlElement.height = Math.round(
-            //     htmlElement.clientHeight * this.resolutionScale.resolutionScale
-            // );
-          }
-          const boundary = this.boundary;
-          boundary[0] = htmlElement.offsetLeft;
-          boundary[1] = htmlElement.offsetTop;
-          boundary[2] = newWidth;
-          boundary[3] = newHeight;
-          if (!newResolutionScale || newViewSize) {
-            this.onBoundary.dispatch(this, boundary); // Internal event
-            this.viewer.events.onViewCanvasBoundaryChanged.dispatch(this, boundary); // External event
-          }
-          lastViewWidth = newWidth;
-          lastViewHeight = newHeight;
-        }
-
-        if (newResolutionScale) {
-          lastResolutionScale = currentResolutionScale;
-        }
-        if (newWindowSize) {
-          lastWindowWidth = window.innerWidth;
-          lastWindowHeight = window.innerHeight;
-        }
-        if (newViewPos) {
-          lastViewOffsetLeft = htmlElement.offsetLeft;
-          lastViewOffsetTop = htmlElement.offsetTop;
-        }
-        lastParent = parent;
+    const updateBoundary = () => {
+      const el = this.htmlElement;
+      const newLeft = el.offsetLeft;
+      const newTop = el.offsetTop;
+      const newWidth = el.clientWidth;
+      const newHeight = el.clientHeight;
+      const b = this.boundary;
+      if (newLeft !== b[0] || newTop !== b[1] || newWidth !== b[2] || newHeight !== b[3]) {
+        b[0] = newLeft;
+        b[1] = newTop;
+        b[2] = newWidth;
+        b[3] = newHeight;
+        this.onBoundary.dispatch(this, b);
+        this.viewer.events.onViewCanvasBoundaryChanged.dispatch(this, b);
       }
     };
 
-    // Handle resizes on each tick
-    this._checkViewResizedTask = new SDKTask({
-      name: "View._checkViewResizedTask",
-      task: handleResize,
-      stage: SDKTask.CollectInputStage,
-      repeat: true
-    });
+    this._resizeObserver = new ResizeObserver(() => updateBoundary());
+    this._resizeObserver.observe(this.htmlElement);
+
+    this._windowResizeListener = updateBoundary;
+    window.addEventListener('resize', this._windowResizeListener);
 
     this._fireViewUpdatedEventTask = new SDKTask({
       name: "View._fireViewUpdatedEventTask",
@@ -1940,7 +1883,14 @@ class View {
       });
       return;
     }
-    this._checkViewResizedTask.destroy();
+    if (this._resizeObserver) {
+      this._resizeObserver.disconnect();
+      this._resizeObserver = null;
+    }
+    if (this._windowResizeListener) {
+      window.removeEventListener('resize', this._windowResizeListener);
+      this._windowResizeListener = null;
+    }
     this._fireViewUpdatedEventTask.destroy();
     this._destroyViewLayers();
     this._destroyViewObjects();

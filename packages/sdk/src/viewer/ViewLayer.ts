@@ -428,7 +428,7 @@ class ViewLayer {
 
     this._numObjects = 0;
     this._numVisibleObjects = 0;
-    this._numXRayedObjects = 0
+    this._numXRayedObjects = 0;
     this._numHighlightedObjects = 0;
     this._numSelectedObjects = 0;
     this._numColorizedObjects = 0;
@@ -511,6 +511,9 @@ class ViewLayer {
   }
 
   _attachViewObject(viewObject: ViewObject) {
+    if (this.objects[viewObject.id]) {
+      return;
+    }
     this.objects[viewObject.id] = viewObject;
     this._numObjects++;
     this._objectIds = null; // Lazy regenerate
@@ -518,6 +521,9 @@ class ViewLayer {
 
   _deattachViewObject(viewObject: ViewObject) {
     const objectId = viewObject.id;
+    if (!this.objects[objectId]) {
+      return;
+    }
     delete this.objects[objectId];
     delete this.visibleObjects[objectId];
     delete this.xrayedObjects[objectId];
@@ -806,11 +812,22 @@ class ViewLayer {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject: ViewObject) => {
-      const changed = (viewObject.visible !== visible);
-      viewObject.visible = visible; // Triggers ViewLayer.objectVisibilityUpdated
-      return changed;
-    });
+
+    let changed = false;
+    const objects = this.objects;
+
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.visible !== visible) {
+        viewObject.visible = visible; // Triggers ViewLayer.objectVisibilityUpdated
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 
   /**
@@ -831,11 +848,22 @@ class ViewLayer {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject: ViewObject) => {
-      const changed = (viewObject.collidable !== collidable);
-      viewObject.collidable = collidable;
-      return changed;
-    });
+
+    let changed = false;
+    const objects = this.objects;
+
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.collidable !== collidable) {
+        viewObject.collidable = collidable;
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 
   /**
@@ -848,11 +876,21 @@ class ViewLayer {
    * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */
   setObjectsCulled(objectIds: string[], culled: boolean): boolean {
-    return this.withObjects(objectIds, (viewObject: ViewObject) => {
-      const changed = (viewObject.culled !== culled);
-      viewObject.culled = culled;
-      return changed;
-    });
+    let changed = false;
+    const objects = this.objects;
+
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.culled !== culled) {
+        viewObject.culled = culled;
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 
   /**
@@ -866,11 +904,21 @@ class ViewLayer {
    * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */
   setObjectsSelected(objectIds: string[], selected: boolean): boolean {
-    return this.withObjects(objectIds, (viewObject: ViewObject) => {
-      const changed = (viewObject.selected !== selected);
-      viewObject.selected = selected; // Triggers ViewLayer.objectSelectedUpdated
-      return changed;
-    });
+    let changed = false;
+    const objects = this.objects;
+
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.selected !== selected) {
+        viewObject.selected = selected; // Triggers ViewLayer.objectSelectedUpdated
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 
   /**
@@ -884,11 +932,21 @@ class ViewLayer {
    * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */
   setObjectsHighlighted(objectIds: string[], highlighted: boolean): boolean {
-    return this.withObjects(objectIds, (viewObject: ViewObject) => {
-      const changed = (viewObject.highlighted !== highlighted);
-      viewObject.highlighted = highlighted; // Triggers ViewLayer.objectHighlightedUpdated
-      return changed;
-    });
+    let changed = false;
+    const objects = this.objects;
+
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.highlighted !== highlighted) {
+        viewObject.highlighted = highlighted; // Triggers ViewLayer.objectHighlightedUpdated
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 
   /**
@@ -902,13 +960,21 @@ class ViewLayer {
    * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */
   setObjectsXRayed(objectIds: string[], xrayed: boolean): boolean {
-    return this.withObjects(objectIds, (viewObject: ViewObject) => {
-      const changed = (viewObject.xrayed !== xrayed);
-      if (changed) {
-        viewObject.xrayed = xrayed; // Triggers ViewLayer.objectXRayedUpdated
+    let changed = false;
+    const objects = this.objects;
+
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
       }
-      return changed;
-    });
+      if (viewObject.xrayed !== xrayed) {
+        viewObject.xrayed = xrayed; // Triggers ViewLayer.objectXRayedUpdated
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 
   /**
@@ -922,9 +988,19 @@ class ViewLayer {
    * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
    */
   setObjectsColorized(objectIds: string[], colorize: Vec3) {
-    return this.withObjects(objectIds, (viewObject: ViewObject) => {
+    let changed = false;
+    const objects = this.objects;
+
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
       viewObject.colorize = colorize; // Triggers ViewLayer.objectColorizeUpdated
-    });
+      changed = true;
+    }
+
+    return changed;
   }
 
   /**
@@ -938,13 +1014,21 @@ class ViewLayer {
    * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
    */
   setObjectsOpacity(objectIds: string[], opacity: number): boolean {
-    return this.withObjects(objectIds, (viewObject: ViewObject) => {
-      const changed = (viewObject.opacity !== opacity);
-      if (changed) {
-        viewObject.opacity = opacity; // Triggers ViewLayer.objectOpacityUpdated
+    let changed = false;
+    const objects = this.objects;
+
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
       }
-      return changed;
-    });
+      if (viewObject.opacity !== opacity) {
+        viewObject.opacity = opacity; // Triggers ViewLayer.objectOpacityUpdated
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 
   /**
@@ -958,13 +1042,21 @@ class ViewLayer {
    * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */
   setObjectsPickable(objectIds: string[], pickable: boolean): boolean {
-    return this.withObjects(objectIds, (viewObject: ViewObject) => {
-      const changed = (viewObject.pickable !== pickable);
-      if (changed) {
-        viewObject.pickable = pickable;
+    let changed = false;
+    const objects = this.objects;
+
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
       }
-      return changed;
-    });
+      if (viewObject.pickable !== pickable) {
+        viewObject.pickable = pickable;
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 
   /**
@@ -978,13 +1070,21 @@ class ViewLayer {
    * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */
   setObjectsClippable(objectIds: string[], clippable: boolean): boolean {
-    return this.withObjects(objectIds, (viewObject: ViewObject) => {
-      const changed = (viewObject.clippable !== clippable);
-      if (changed) {
-        viewObject.clippable = clippable;
+    let changed = false;
+    const objects = this.objects;
+
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
       }
-      return changed;
-    });
+      if (viewObject.clippable !== clippable) {
+        viewObject.clippable = clippable;
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 
   /**

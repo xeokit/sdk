@@ -1,4 +1,4 @@
-import type {EmphasisMaterialParams} from "./EmphasisMaterialParams";
+import type {EffectParams} from "./EffectParams";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../core";
 import type {Vec3} from "../math/vector";
@@ -12,10 +12,10 @@ import {createVec3Float32} from "../math/vector";
  * * Highlight a {@link ViewObject} by setting {@link ViewObject.highlighted} ````true````.
  * * Select a {@link ViewObject} by setting {@link ViewObject.selected} ````true````.
  */
-class EmphasisMaterial {
+class Effect {
 
   /**
-   * The View to which this EmphasisMaterial belongs.
+   * The View to which this Effect belongs.
    */
   public readonly view: View;
 
@@ -90,7 +90,7 @@ class EmphasisMaterial {
       this.view.viewer.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: "[EmphasisMaterial set fillColor] Invalid color parameter."
+        error: "[Effect set fillColor] Invalid color parameter."
       });
       }
     const fillColor = this._fillColor;
@@ -170,7 +170,7 @@ class EmphasisMaterial {
       this.view.viewer.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: "[EmphasisMaterial set edgeColor] Invalid color parameter."
+        error: "[Effect set edgeColor] Invalid color parameter."
       });
     }
     const edgeColor = this._edgeColor;
@@ -240,7 +240,7 @@ class EmphasisMaterial {
   }
 
   /**
-   * Sets whether to render backfaces of emphasized {@link ViewObject | ViewObjects} when {@link EmphasisMaterial.fill} is ````true````.
+   * Sets whether to render backfaces of emphasized {@link ViewObject | ViewObjects} when {@link Effect.fill} is ````true````.
    *
    * Default is ````false````.
    */
@@ -253,7 +253,7 @@ class EmphasisMaterial {
   }
 
   /**
-   * Gets whether to render backfaces of emphasized {@link ViewObject | ViewObjects} when {@link EmphasisMaterial.fill} is ````true````.
+   * Gets whether to render backfaces of emphasized {@link ViewObject | ViewObjects} when {@link Effect.fill} is ````true````.
    *
    * Default is ````false````.
    */
@@ -298,15 +298,15 @@ class EmphasisMaterial {
   }
 
   /**
-   * Configures this EmphasisMaterial.
+   * Configures this Effect.
    * @param emphasisMaterialParams
    */
-  fromParams(emphasisMaterialParams: EmphasisMaterialParams): SDKResult<any> {
+  fromParams(emphasisMaterialParams: EffectParams): SDKResult<any> {
     if (this._destroyed) {
       return this.view.viewer.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[EmphasisMaterial.fromParams] EmphasisMaterial has been destroyed."
+        error: "[Effect.fromParams] Effect has been destroyed."
       });
     }
     if (emphasisMaterialParams.fillColor !== undefined) {
@@ -343,9 +343,9 @@ class EmphasisMaterial {
   }
 
   /**
-   * Gets the current configuration of this EmphasisMaterial.
+   * Gets the current configuration of this Effect.
    */
-  toParams(): SDKResult<EmphasisMaterialParams> {
+  toParams(): SDKResult<EffectParams> {
     return {
       ok: true,
       value: {
@@ -370,4 +370,4 @@ class EmphasisMaterial {
   }
 }
 
-export {EmphasisMaterial};
+export {Effect};

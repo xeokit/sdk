@@ -9,7 +9,7 @@ import {createUUID} from "../utils";
 import {createVec3Float64} from "../math/vector";
 import {DirLight} from "./DirLight";
 import {Edges} from "./Edges";
-import {EmphasisMaterial} from "./EmphasisMaterial";
+import {Effect} from "./Effect";
 import {LinesMaterial} from "./LinesMaterial";
 import type {PointLight} from "./PointLight";
 import {PointsMaterial} from "./PointsMaterial";
@@ -27,7 +27,7 @@ import {EventDispatcher} from "strongly-typed-events";
 import type {CameraParams} from "./CameraParams";
 import type {SAOParams} from "./SAOParams";
 import type {EdgesParams} from "./EdgesParams";
-import type {EmphasisMaterialParams} from "./EmphasisMaterialParams";
+import type {EffectParams} from "./EffectParams";
 import type {PointsMaterialParams} from "./PointsMaterialParams";
 import type {ResolutionScaleParams} from "./ResolutionScaleParams";
 import {ViewTransformParams} from "./ViewTransformParams";
@@ -111,17 +111,17 @@ class View {
   /**
    * Configures the X-rayed appearance of {@link ViewObject | ViewObjects} in this View.
    */
-  readonly xrayMaterial: EmphasisMaterial;
+  readonly xrayMaterial: Effect;
 
   /**
    * Configures the highlighted appearance of {@link ViewObject | ViewObjects} in this View.
    */
-  readonly highlightMaterial: EmphasisMaterial;
+  readonly highlightMaterial: Effect;
 
   /**
    * Configures the appearance of {@link ViewObject | ViewObjects} in this View.
    */
-  readonly selectedMaterial: EmphasisMaterial;
+  readonly selectedMaterial: Effect;
 
   /**
    * Configures resolution scaling for this View.
@@ -225,7 +225,7 @@ class View {
   /**
    * Set of {@link ViewTransform}s in this View.
    */
-  readonly transforms: Set<ViewTransform> = new Set<ViewTransform>();
+  readonly transforms: { [key: string]: ViewTransform };
 
   /**
    * Map of the all {@link ViewLayer}s in this View.
@@ -284,7 +284,7 @@ class View {
 
     if (viewParams.htmlElement || viewParams.elementId) {
       canvas = // Canvas is actually a generic HTMLElement, but we think of it as a canvas
-        viewParams.htmlElement || document.getElementById(<string>viewParams.elementId);
+          viewParams.htmlElement || document.getElementById(<string>viewParams.elementId);
       if (!(canvas instanceof HTMLElement)) {
         throw new SDKInternalException("[View.constructor] Mandatory View config expected: valid HTMLElement");
       }
@@ -318,6 +318,7 @@ class View {
     this.lights = {};
     this.lightsList = [];
     this.layers = {};
+    this.transforms = {};
 
     this._numObjects = 0;
     this._objectIds = null;
@@ -335,6 +336,7 @@ class View {
     this._opacityObjectIds = null;
     this.gammaOutput = true;
     this._snapshotBegun = false;
+    this._needsRender = false;
 
     this._sectionPlanesHash = null;
     this._lightsHash = null;
@@ -361,7 +363,7 @@ class View {
       viewParams.backgroundColor ? viewParams.backgroundColor[2] : 1,
     ]);
     this._backgroundColorFromAmbientLight =
-      !!viewParams.backgroundColorFromAmbientLight;
+        !!viewParams.backgroundColorFromAmbientLight;
     this.transparent = !!viewParams.transparent;
     // this.htmlElement.width = this.htmlElement.clientWidth;
     // this.htmlElement.height = this.htmlElement.clientHeight;
@@ -378,7 +380,7 @@ class View {
 
     this.texturing = new Texturing(this, {});
 
-    this.xrayMaterial = new EmphasisMaterial(this, viewParams.xrayMaterial || {
+    this.xrayMaterial = new Effect(this, viewParams.xrayMaterial || {
       fill: true,
       fillColor: [0.7, 0.7, 0.7],
       fillAlpha: 0.1,
@@ -388,7 +390,7 @@ class View {
       edgeWidth: 1,
     });
 
-    this.highlightMaterial = new EmphasisMaterial(this, viewParams.highlightMaterial || {
+    this.highlightMaterial = new Effect(this, viewParams.highlightMaterial || {
       fill: true,
       fillColor: [1.0, 1.0, 0.0],
       fillAlpha: 0.5,
@@ -398,7 +400,7 @@ class View {
       edgeWidth: 1,
     });
 
-    this.selectedMaterial = new EmphasisMaterial(this, viewParams.selectedMaterial || {
+    this.selectedMaterial = new Effect(this, viewParams.selectedMaterial || {
       fill: true,
       fillColor: [0.0, 1.0, 0.0],
       fillAlpha: 0.5,
@@ -435,8 +437,6 @@ class View {
       lineWidth: 1,
     });
 
-    this.lights = {};
-
     this._autoLayers = viewParams.autoLayers !== false;
 
     if (viewParams.layers) {
@@ -444,7 +444,7 @@ class View {
         const existingViewLayer = this.layers[viewLayerParams.id];
         if (!existingViewLayer) {
           this.createLayer(viewLayerParams);
-          }
+        }
       }
     }
 
@@ -485,30 +485,30 @@ class View {
     let lastViewOffsetLeft = 0;
     let lastViewOffsetTop = 0;
     let lastParent: null | HTMLElement = null;
-
-    const lastResolutionScale: null | number = null;
+    let lastResolutionScale: null | number = null;
 
     const handleResize = () => {
       const htmlElement = this.htmlElement;
-      const newResolutionScale = this.resolutionScale.resolutionScale !== lastResolutionScale;
+      const currentResolutionScale = this.resolutionScale.resolutionScale;
+      const newResolutionScale = currentResolutionScale !== lastResolutionScale;
       const newWindowSize =
-        window.innerWidth !== lastWindowWidth ||
-        window.innerHeight !== lastWindowHeight;
+          window.innerWidth !== lastWindowWidth ||
+          window.innerHeight !== lastWindowHeight;
       const newViewSize =
-        htmlElement.clientWidth !== lastViewWidth ||
-        htmlElement.clientHeight !== lastViewHeight;
+          htmlElement.clientWidth !== lastViewWidth ||
+          htmlElement.clientHeight !== lastViewHeight;
       const newViewPos =
-        htmlElement.offsetLeft !== lastViewOffsetLeft ||
-        htmlElement.offsetTop !== lastViewOffsetTop;
+          htmlElement.offsetLeft !== lastViewOffsetLeft ||
+          htmlElement.offsetTop !== lastViewOffsetTop;
       const parent = htmlElement.parentElement;
       const newParent = parent !== lastParent;
 
       if (
-        newResolutionScale ||
-        newWindowSize ||
-        newViewSize ||
-        newViewPos ||
-        newParent
+          newResolutionScale ||
+          newWindowSize ||
+          newViewSize ||
+          newViewPos ||
+          newParent
       ) {
         //   this._spinner._adjustPosition();
         if (newResolutionScale || newViewSize || newViewPos) {
@@ -539,7 +539,7 @@ class View {
         }
 
         if (newResolutionScale) {
-          //   lastResolutionScale = this._resolutionScale;
+          lastResolutionScale = currentResolutionScale;
         }
         if (newWindowSize) {
           lastWindowWidth = window.innerWidth;
@@ -551,7 +551,7 @@ class View {
         }
         lastParent = parent;
       }
-    }
+    };
 
     // Handle resizes on each tick
     this._checkViewResizedTask = new SDKTask({
@@ -576,7 +576,12 @@ class View {
   /**
    * @private
    */
-   _attachSceneObject(sceneObject: SceneObject) {
+  _attachSceneObject(sceneObject: SceneObject) {
+    const objectId = sceneObject.id;
+    if (this.objects[objectId]) {
+      return;
+    }
+
     const layerId = sceneObject.layerId || "default";
     let viewLayer = this.layers[layerId];
     if (!viewLayer) {
@@ -601,8 +606,12 @@ class View {
   /**
    * @private
    */
-   _attachViewObject(viewObject: ViewObject) {
-    this.objects[viewObject.id] = viewObject;
+  _attachViewObject(viewObject: ViewObject) {
+    const objectId = viewObject.id;
+    if (this.objects[objectId]) {
+      return;
+    }
+    this.objects[objectId] = viewObject;
     this._numObjects++;
     this._objectIds = null; // Lazy regenerate
   }
@@ -631,13 +640,17 @@ class View {
    * @private
    */
   _deattachViewObject(viewObject: ViewObject) {
-    delete this.objects[viewObject.id];
-    delete this.visibleObjects[viewObject.id];
-    delete this.xrayedObjects[viewObject.id];
-    delete this.highlightedObjects[viewObject.id];
-    delete this.selectedObjects[viewObject.id];
-    delete this.colorizedObjects[viewObject.id];
-    delete this.opacityObjects[viewObject.id];
+    const objectId = viewObject.id;
+    if (!this.objects[objectId]) {
+      return;
+    }
+    delete this.objects[objectId];
+    delete this.visibleObjects[objectId];
+    delete this.xrayedObjects[objectId];
+    delete this.highlightedObjects[objectId];
+    delete this.selectedObjects[objectId];
+    delete this.colorizedObjects[objectId];
+    delete this.opacityObjects[objectId];
     this._numObjects--;
     this._objectIds = null; // Lazy regenerate
   }
@@ -797,7 +810,7 @@ class View {
    * Default value is ````true````.
    */
   set backgroundColorFromAmbientLight(
-    backgroundColorFromAmbientLight: boolean
+      backgroundColorFromAmbientLight: boolean
   ) {
     if (this.destroyed) {
       this.viewer.logError({
@@ -808,7 +821,7 @@ class View {
       return;
     }
     this._backgroundColorFromAmbientLight =
-      backgroundColorFromAmbientLight !== false;
+        backgroundColorFromAmbientLight !== false;
   }
 
   /**
@@ -943,9 +956,9 @@ class View {
    * @private
    */
   objectVisibilityUpdated(
-    viewObject: ViewObject,
-    visible: boolean,
-    notify: boolean = true
+      viewObject: ViewObject,
+      visible: boolean,
+      notify: boolean = true
   ) {
     if (visible) {
       this.visibleObjects[viewObject.id] = viewObject;
@@ -966,9 +979,9 @@ class View {
    * @private
    */
   objectXRayedUpdated(
-    viewObject: ViewObject,
-    xrayed: boolean,
-    notify: boolean = true
+      viewObject: ViewObject,
+      xrayed: boolean,
+      notify: boolean = true
   ) {
     if (xrayed) {
       this.xrayedObjects[viewObject.id] = viewObject;
@@ -989,9 +1002,9 @@ class View {
    * @private
    */
   objectHighlightedUpdated(
-    viewObject: ViewObject,
-    highlighted: boolean,
-    notify: boolean = true) {
+      viewObject: ViewObject,
+      highlighted: boolean,
+      notify: boolean = true) {
     if (highlighted) {
       this.highlightedObjects[viewObject.id] = viewObject;
       this._numHighlightedObjects++;
@@ -1011,9 +1024,9 @@ class View {
    * @private
    */
   objectSelectedUpdated(
-    viewObject: ViewObject,
-    selected: boolean,
-    notify: boolean = true) {
+      viewObject: ViewObject,
+      selected: boolean,
+      notify: boolean = true) {
     if (selected) {
       this.selectedObjects[viewObject.id] = viewObject;
       this._numSelectedObjects++;
@@ -1168,10 +1181,8 @@ class View {
     if (this.sectionPlanesList.length === 0) {
       return (this._sectionPlanesHash = ";");
     }
-    let sectionPlane;
     const hashParts = [];
     for (let i = 0, len = this.sectionPlanesList.length; i < len; i++) {
-      sectionPlane = this.sectionPlanesList[i];
       hashParts.push("cp");
     }
     hashParts.push(";");
@@ -1291,11 +1302,22 @@ class View {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject: ViewObject) => {
-      const changed = viewObject.visible !== visible;
-      viewObject.visible = visible;
-      return changed;
-    });
+
+    let changed = false;
+    const objects = this.objects;
+
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.visible !== visible) {
+        viewObject.visible = visible;
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 
   /**
@@ -1316,11 +1338,22 @@ class View {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject: ViewObject) => {
-      const changed = viewObject.collidable !== collidable;
-      viewObject.collidable = collidable;
-      return changed;
-    });
+
+    let changed = false;
+    const objects = this.objects;
+
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.collidable !== collidable) {
+        viewObject.collidable = collidable;
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 
   /**
@@ -1341,11 +1374,22 @@ class View {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject: ViewObject) => {
-      const changed = viewObject.culled !== culled;
-      viewObject.culled = culled;
-      return changed;
-    });
+
+    let changed = false;
+    const objects = this.objects;
+
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.culled !== culled) {
+        viewObject.culled = culled;
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 
   /**
@@ -1367,11 +1411,22 @@ class View {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject: ViewObject) => {
-      const changed = viewObject.selected !== selected;
-      viewObject.selected = selected;
-      return changed;
-    });
+
+    let changed = false;
+    const objects = this.objects;
+
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.selected !== selected) {
+        viewObject.selected = selected;
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 
   /**
@@ -1393,11 +1448,22 @@ class View {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject: ViewObject) => {
-      const changed = viewObject.highlighted !== highlighted;
-      viewObject.highlighted = highlighted;
-      return changed;
-    });
+
+    let changed = false;
+    const objects = this.objects;
+
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.highlighted !== highlighted) {
+        viewObject.highlighted = highlighted;
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 
   /**
@@ -1419,13 +1485,22 @@ class View {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject: ViewObject) => {
-      const changed = viewObject.xrayed !== xrayed;
-      if (changed) {
-        viewObject.xrayed = xrayed;
+
+    let changed = false;
+    const objects = this.objects;
+
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
       }
-      return changed;
-    });
+      if (viewObject.xrayed !== xrayed) {
+        viewObject.xrayed = xrayed;
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 
   /**
@@ -1447,9 +1522,20 @@ class View {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject: ViewObject) => {
+
+    let changed = false;
+    const objects = this.objects;
+
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
       viewObject.colorize = colorize;
-    });
+      changed = true;
+    }
+
+    return changed;
   }
 
   /**
@@ -1471,13 +1557,22 @@ class View {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject: ViewObject) => {
-      const changed = viewObject.opacity !== opacity;
-      if (changed) {
-        viewObject.opacity = opacity;
+
+    let changed = false;
+    const objects = this.objects;
+
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
       }
-      return changed;
-    });
+      if (viewObject.opacity !== opacity) {
+        viewObject.opacity = opacity;
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 
   /**
@@ -1499,13 +1594,22 @@ class View {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject: ViewObject) => {
-      const changed = viewObject.pickable !== pickable;
-      if (changed) {
-        viewObject.pickable = pickable;
+
+    let changed = false;
+    const objects = this.objects;
+
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
       }
-      return changed;
-    });
+      if (viewObject.pickable !== pickable) {
+        viewObject.pickable = pickable;
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 
   /**
@@ -1527,13 +1631,22 @@ class View {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject: ViewObject) => {
-      const changed = viewObject.clippable !== clippable;
-      if (changed) {
-        viewObject.clippable = clippable;
+
+    let changed = false;
+    const objects = this.objects;
+
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
       }
-      return changed;
-    });
+      if (viewObject.clippable !== clippable) {
+        viewObject.clippable = clippable;
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 
   /**
@@ -1801,9 +1914,9 @@ class View {
         // lights: Object.values(this.lights).map(light => light.toParams()),
         sao: (<{ value: SAOParams }>this.sao.toParams()).value,
         edges: (<{ value: EdgesParams }>this.edges.toParams()).value,
-        highlightMaterial: (<{ value: EmphasisMaterialParams }>this.highlightMaterial.toParams()).value,
-        selectedMaterial: (<{ value: EmphasisMaterialParams }>this.selectedMaterial.toParams()).value,
-        xrayMaterial: (<{ value: EmphasisMaterialParams }>this.xrayMaterial.toParams()).value,
+        highlightMaterial: (<{ value: EffectParams }>this.highlightMaterial.toParams()).value,
+        selectedMaterial: (<{ value: EffectParams }>this.selectedMaterial.toParams()).value,
+        xrayMaterial: (<{ value: EffectParams }>this.xrayMaterial.toParams()).value,
         pointsMaterial: (<{ value: PointsMaterialParams }>this.pointsMaterial.toParams()).value,
         resolutionScale: (<{ value: ResolutionScaleParams }>this.resolutionScale.toParams()).value,
         renderMode: this.renderMode

@@ -35,10 +35,10 @@ export class ViewObject {
      */
     public readonly originalSystemId: string;
 
-  /**
-   * The View to which this ViewObject belongs.
-   */
-  public readonly view: View;
+    /**
+     * The View to which this ViewObject belongs.
+     */
+    public readonly view: View;
 
     /**
      * The ViewLayer to which this ViewObject belongs.
@@ -50,27 +50,29 @@ export class ViewObject {
      */
     public readonly sceneObject: SceneObject;
 
-  /**
-   * The {@link ViewTransform} that defines the local transform of this ViewObject, if any.
-   */
-  public viewTransform: ViewTransform;
+    /**
+     * The {@link ViewTransform} that defines the local transform of this ViewObject, if any.
+     */
+    public viewTransform: ViewTransform;
 
-    private _visible: boolean;
-    private _culled: boolean;
-    private _pickable: boolean;
-    private _clippable: boolean;
-    private _collidable: boolean;
-    private _xrayed: boolean;
-    private _selected: boolean;
-    private _highlighted: boolean;
+    private _flags: number;
     private _colorize: Vec3;
-    private _colorized: boolean;
-    private _opacityUpdated: boolean;
 
     /**
      * True if this ViewObject has been destroyed.
      */
     public destroyed: boolean = false;
+
+    private static readonly VISIBLE = 1 << 0;
+    private static readonly CULLED = 1 << 1;
+    private static readonly PICKABLE = 1 << 2;
+    private static readonly CLIPPABLE = 1 << 3;
+    private static readonly COLLIDABLE = 1 << 4;
+    private static readonly XRAYED = 1 << 5;
+    private static readonly SELECTED = 1 << 6;
+    private static readonly HIGHLIGHTED = 1 << 7;
+    private static readonly COLORIZED = 1 << 8;
+    private static readonly OPACITY_UPDATED = 1 << 9;
 
     /**
      * @private
@@ -84,41 +86,37 @@ export class ViewObject {
         this.sceneObject = sceneObject;
         this.viewTransform = null;
 
-        this._visible = true;
-        this._culled = false;
-        this._pickable = true;
-        this._clippable = true;
-        this._collidable = true;
-        this._xrayed = false;
-        this._selected = false;
-        this._highlighted = false;
-        this._colorize = new Float32Array(4);
-        this._colorized = false;
-        this._opacityUpdated = false;
+        this._flags =
+            ViewObject.VISIBLE |
+            ViewObject.PICKABLE |
+            ViewObject.CLIPPABLE |
+            ViewObject.COLLIDABLE;
 
-        this.layer.objectVisibilityUpdated(this, this._visible, false);
+        this._colorize = new Float32Array(4);
+
+        this.layer.objectVisibilityUpdated(this, this.visible, false);
     }
 
-  // /**
-  //  * @private
-  //  * @param viewTransform
-  //  */
-  // set viewTransform(viewTransform: ViewTransform) {
-  //       if (this.destroyed) {
-  //           this.layer.view.viewer.logError({
-  //               ok: false,
-  //               type: SDKErrorType.InvalidOperation,
-  //               error: "[ViewObject.viewTransform] ViewObject already destroyed"
-  //           });
-  //           return;
-  //       }
-  //       this._viewTransform = viewTransform;
-  //   //this.view.objectViewTransformUpdated(this, visible, notify);
-  //   }
-  //
-  //   get viewTransform(): ViewTransform {
-  //       return this._viewTransform;
-  //   }
+    // /**
+    //  * @private
+    //  * @param viewTransform
+    //  */
+    // set viewTransform(viewTransform: ViewTransform) {
+    //       if (this.destroyed) {
+    //           this.layer.view.viewer.logError({
+    //               ok: false,
+    //               type: SDKErrorType.InvalidOperation,
+    //               error: "[ViewObject.viewTransform] ViewObject already destroyed"
+    //           });
+    //           return;
+    //       }
+    //       this._viewTransform = viewTransform;
+    //   //this.view.objectViewTransformUpdated(this, visible, notify);
+    //   }
+    //
+    //   get viewTransform(): ViewTransform {
+    //       return this._viewTransform;
+    //   }
 
     /**
      * Gets if this ViewObject is visible.
@@ -128,7 +126,7 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsVisible} to batch-update the visibility of ViewObjects, which fires a single event for the batch.
      */
     get visible(): boolean {
-        return this._visible;
+        return (this._flags & ViewObject.VISIBLE) !== 0;
     }
 
     /**
@@ -148,10 +146,10 @@ export class ViewObject {
             });
             return;
         }
-        if (visible === this._visible) {
+        if (visible === this.visible) {
             return;
         }
-        this._visible = visible;
+        this._setFlag(ViewObject.VISIBLE, visible);
         this.layer.objectVisibilityUpdated(this, visible, true);
     }
 
@@ -179,7 +177,7 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
      */
     get xrayed(): boolean {
-        return this._xrayed;
+        return (this._flags & ViewObject.XRAYED) !== 0;
     }
 
     /**
@@ -197,10 +195,10 @@ export class ViewObject {
             });
             return;
         }
-        if (this._xrayed === xrayed) {
+        if (this.xrayed === xrayed) {
             return;
         }
-        this._xrayed = xrayed;
+        this._setFlag(ViewObject.XRAYED, xrayed);
         this.layer.objectXRayedUpdated(this, xrayed);
     }
 
@@ -211,7 +209,7 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
      */
     get highlighted(): boolean {
-        return this._highlighted;
+        return (this._flags & ViewObject.HIGHLIGHTED) !== 0;
     }
 
     /**
@@ -229,10 +227,10 @@ export class ViewObject {
             });
             return;
         }
-        if (highlighted === this._highlighted) {
+        if (highlighted === this.highlighted) {
             return;
         }
-        this._highlighted = highlighted;
+        this._setFlag(ViewObject.HIGHLIGHTED, highlighted);
         this.layer.objectHighlightedUpdated(this, highlighted);
     }
 
@@ -243,7 +241,7 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
      */
     get selected(): boolean {
-        return this._selected;
+        return (this._flags & ViewObject.SELECTED) !== 0;
     }
 
     /**
@@ -261,10 +259,10 @@ export class ViewObject {
             });
             return;
         }
-        if (selected === this._selected) {
+        if (selected === this.selected) {
             return;
         }
-        this._selected = selected;
+        this._setFlag(ViewObject.SELECTED, selected);
         this.layer.objectSelectedUpdated(this, selected);
     }
 
@@ -275,7 +273,7 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsCulled} to batch-update the culled state of ViewObjects.
      */
     get culled(): boolean {
-        return this._culled;
+        return (this._flags & ViewObject.CULLED) !== 0;
     }
 
     /**
@@ -293,11 +291,10 @@ export class ViewObject {
             });
             return;
         }
-        if (culled === this._culled) {
+        if (culled === this.culled) {
             return;
         }
-        // this.sceneObject.sceneObjectRendererProxy.setCulled(this.layer.view.viewIndex, culled);
-        this._culled = culled;
+        this._setFlag(ViewObject.CULLED, culled);
     }
 
     /**
@@ -307,7 +304,7 @@ export class ViewObject {
      * * Use {@link View.setObjectsClippable | View.setObjectsClippable} or {@link ViewLayer.setObjectsClippable | ViewLayer.setObjectsClippable} to batch-update the clippable state of multiple ViewObjects.
      */
     get clippable(): boolean {
-        return this._clippable;
+        return (this._flags & ViewObject.CLIPPABLE) !== 0;
     }
 
     /**
@@ -325,18 +322,17 @@ export class ViewObject {
             });
             return;
         }
-        if (clippable === this._clippable) {
+        if (clippable === this.clippable) {
             return;
         }
-        // this.sceneObject.sceneObjectRendererProxy.setCulled(this.layer.view.viewIndex, clippable);
-        this._clippable = clippable;
+        this._setFlag(ViewObject.CLIPPABLE, clippable);
     }
 
     /**
      * Gets if this ViewObject is included in boundary calculations.
      */
     get collidable(): boolean {
-        return this._collidable;
+        return (this._flags & ViewObject.COLLIDABLE) !== 0;
     }
 
     /**
@@ -351,14 +347,14 @@ export class ViewObject {
             });
             return;
         }
-        if (collidable === this._collidable) {
+        if (collidable === this.collidable) {
             return;
         }
         // const result = this.sceneObject.sceneObjectRendererProxy.setCollidable(this._layer.view.viewIndex, collidable);
         // if (result instanceof SDKError) {
         //     throw result;
         // }
-        this._collidable = collidable;
+        this._setFlag(ViewObject.COLLIDABLE, collidable);
         // this._setAABBDirty();
         // this._layer._aabbDirty = true;
     }
@@ -370,7 +366,7 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsPickable} to batch-update the pickable state of ViewObjects.
      */
     get pickable(): boolean {
-        return this._pickable;
+        return (this._flags & ViewObject.PICKABLE) !== 0;
     }
 
     /**
@@ -388,11 +384,11 @@ export class ViewObject {
             });
             return;
         }
-        if (this._pickable === pickable) {
+        if (this.pickable === pickable) {
             return;
         }
         //
-        this._pickable = pickable;
+        this._setFlag(ViewObject.PICKABLE, pickable);
         this.layer.objectPickableUpdated(this, pickable);
     }
 
@@ -404,7 +400,7 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
      */
     get colorize(): Vec3 | null{
-        return this._colorized ? this._colorize : null;
+        return this.colorized ? this._colorize : null;
     }
 
     /**
@@ -434,8 +430,8 @@ export class ViewObject {
             colorize[1] = 1;
             colorize[2] = 1;
         }
-        this._colorized = !!value;
-        this.layer.objectColorizeUpdated(this, this._colorized);
+        this._setFlag(ViewObject.COLORIZED, !!value);
+        this.layer.objectColorizeUpdated(this, this.colorized);
     }
 
     /**
@@ -464,11 +460,11 @@ export class ViewObject {
             });
             return;
         }
-        const colorize = this._colorize;
-        this._opacityUpdated = opacity !== null && opacity !== undefined;
+        const opacityUpdated = opacity !== null && opacity !== undefined;
+        this._setFlag(ViewObject.OPACITY_UPDATED, opacityUpdated);
         // @ts-ignore
-        colorize[3] = this._opacityUpdated ? opacity : 1.0;
-        this.layer.objectOpacityUpdated(this, this._opacityUpdated);
+        this._colorize[3] = opacityUpdated ? opacity : 1.0;
+        this.layer.objectOpacityUpdated(this, this.opacityUpdated);
     }
 
     /**
@@ -476,24 +472,39 @@ export class ViewObject {
      */
     _destroy() {
         // Called by ViewLayer#destroyViewObjects
-        if (this._visible) {
+        if (this.visible) {
             this.layer.objectVisibilityUpdated(this, false, false);
         }
-        if (this._xrayed) {
+        if (this.xrayed) {
             this.layer.objectXRayedUpdated(this, false);
         }
-        if (this._selected) {
+        if (this.selected) {
             this.layer.objectSelectedUpdated(this, false);
         }
-        if (this._highlighted) {
+        if (this.highlighted) {
             this.layer.objectHighlightedUpdated(this, false);
         }
-        if (this._colorized) {
+        if (this.colorized) {
             this.layer.objectColorizeUpdated(this, false);
         }
-        if (this._opacityUpdated) {
+        if (this.opacityUpdated) {
             this.layer.objectOpacityUpdated(this, false);
         }
     }
-}
 
+    private _setFlag(flag: number, enabled: boolean): void {
+        if (enabled) {
+            this._flags |= flag;
+        } else {
+            this._flags &= ~flag;
+        }
+    }
+
+    private get colorized(): boolean {
+        return (this._flags & ViewObject.COLORIZED) !== 0;
+    }
+
+    private get opacityUpdated(): boolean {
+        return (this._flags & ViewObject.OPACITY_UPDATED) !== 0;
+    }
+}

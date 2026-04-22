@@ -2,7 +2,7 @@ import type {AmbientLightParams} from "./AmbientLightParams";
 import type {CameraParams} from "./CameraParams";
 import type {DirLightParams} from "./DirLightParams";
 import type {EdgesParams} from "./EdgesParams";
-import type {EmphasisMaterialParams} from "./EmphasisMaterialParams";
+import type {EffectParams} from "./EffectParams";
 import type {FloatArrayParam} from "../math";
 import type {PointLightParams} from "./PointLightParams";
 import type {PointsMaterialParams} from "./PointsMaterialParams";
@@ -109,17 +109,17 @@ export interface ViewParams {
   /**
    * Parameters for the appearance of {@link ViewObject | ViewObjects} in the View when they are selected.
    */
-  selectedMaterial?: EmphasisMaterialParams;
+  selectedMaterial?: EffectParams;
 
   /**
    * Parameters for the appearance of {@link ViewObject | ViewObjects} in the View when they are highlighted.
    */
-  highlightMaterial?: EmphasisMaterialParams;
+  highlightMaterial?: EffectParams;
 
   /**
    * Parameters for the appearance of {@link ViewObject | ViewObjects} in the View when they are X-rayed.
    */
-  xrayMaterial?: EmphasisMaterialParams;
+  xrayMaterial?: EffectParams;
 
   /**
    * Parameters for the {@link View | View's} {@link PointsMaterial}.

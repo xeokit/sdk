@@ -13,6 +13,7 @@ import { EventDispatcher } from "strongly-typed-events";
 import type { Spinner } from "./Spinner";
 import type { Scene } from "../scene";
 import {ViewTransform} from "./ViewTransform";
+import {Effect} from "./Effect";
 
 /**
  * Events emitted by a {@link viewer!Viewer | Viewer}.
@@ -52,7 +53,17 @@ export class ViewerEvents {
    */
   readonly log: EventEmitter<Viewer, string>;
 
+  //---------------------------- Effect Events ----------------------------//
 
+  /**
+   * Emits an event each time an {@link Effect} is created within the {@link Viewer}.
+   */
+  readonly onEffectCreated: EventEmitter<Viewer, Effect>;
+
+  /**
+   * Emits an event each time a {@link Effect} is destroyed within the {@link Viewer}.
+   */
+  readonly onEffectDestroyed: EventEmitter<Viewer, Effect>;
 
   //---------------------------- View Events ----------------------------//
 
@@ -254,6 +265,8 @@ export class ViewerEvents {
     this.onViewerDestroyed = new EventEmitter(new EventDispatcher<Viewer, boolean>());
     this.onTick = new EventEmitter(new EventDispatcher<Viewer, TickParams>());
     this.log = new EventEmitter(new EventDispatcher<Viewer, string>());
+    this.onEffectCreated = new EventEmitter(new EventDispatcher<Viewer, Effect>());
+    this.onEffectDestroyed = new EventEmitter(new EventDispatcher<Viewer, Effect>());
     this.onViewCreated = new EventEmitter(new EventDispatcher<Viewer, View>());
     this.onViewUpdated = new EventEmitter(new EventDispatcher<View, View>());
     this.onViewDestroyed = new EventEmitter(new EventDispatcher<Viewer, View>());
@@ -292,6 +305,8 @@ export class ViewerEvents {
     this.onViewerDestroyed.clear();
     this.onTick.clear();
     this.log.clear();
+    this.onEffectCreated.clear();
+    this.onEffectDestroyed.clear();
     this.onViewCreated.clear();
     this.onViewUpdated.clear();
     this.onViewDestroyed.clear();

@@ -36,7 +36,7 @@ import type {SceneObject, SceneMesh} from "../scene";
  * The renderer combines the Scene transform product with the View transform product in the shader.
  * This class assumes the View product post-multiplies the Scene product:
  *
- * `modelMatrix = sceneMatrix * globalMatrix`
+ * `modelMatrix = sceneMatrix * worldMatrix`
  */
 export class ViewTransform {
   /** Unique identifier for this transform within its owning {@link View} or {@link ViewLayer}. */
@@ -54,10 +54,10 @@ export class ViewTransform {
   private _quaternion: Quat = createQuatFloat64();
 
   private _localMatrix: Mat4 = identityMat4();
-  private _globalMatrix: Mat4;
+  private _worldMatrix: Mat4;
 
   private _localMatrixDirty = false;
-  private _globalMatrixDirty = true;
+  private _worldMatrixDirty = true;
 
   private _childTransforms: ViewTransform[] = [];
   private _parentTransform: ViewTransform | null = null;
@@ -96,7 +96,7 @@ export class ViewTransform {
     this.layer = params.layer ?? null;
 
     this._localMatrix = params.matrix ? createMat4Float64(params.matrix) : identityMat4();
-    this._globalMatrix = createMat4Float64();
+    this._worldMatrix = createMat4Float64();
 
     this._markTreeDirtyTask = new SDKTask({
       name: "ViewTransform._markTreeDirtyTask",
@@ -231,17 +231,17 @@ export class ViewTransform {
    * Returns the composed transform matrix for this node within the ViewTransform hierarchy.
    * Intended for renderer use when building the per-object view transform product.
    */
-  get globalMatrix(): Mat4 {
-    if (this._globalMatrixDirty) {
+  get worldMatrix(): Mat4 {
+    if (this._worldMatrixDirty) {
       if (this._parentTransform) {
-        mulMat4(this._parentTransform.globalMatrix, this.matrix, this._globalMatrix);
+        mulMat4(this._parentTransform.worldMatrix, this.matrix, this._worldMatrix);
       } else {
         // @ts-ignore
-        this._globalMatrix.set(this.matrix);
+        this._worldMatrix.set(this.matrix);
       }
-      this._globalMatrixDirty = false;
+      this._worldMatrixDirty = false;
     }
-    return this._globalMatrix;
+    return this._worldMatrix;
   }
 
   // ---------------------------------------------------------------------------------------------
@@ -257,7 +257,7 @@ export class ViewTransform {
   }
 
   private _markTransformDirty(): void {
-    this._globalMatrixDirty = true;
+    this._worldMatrixDirty = true;
     for (const child of this._childTransforms) {
       child._markTransformDirty();
     }
@@ -308,12 +308,12 @@ export class ViewTransform {
 
     if (preserve) {
       this._updateGlobal();
-      const currentWorld = createMat4Float64(this._globalMatrix);
+      const currentWorld = createMat4Float64(this._worldMatrix);
 
       this._attachParentTransform(parent);
 
       if (this._parentTransform) {
-        const invParent = inverseMat4(this._parentTransform._globalMatrix, createMat4Float64());
+        const invParent = inverseMat4(this._parentTransform._worldMatrix, createMat4Float64());
         mulMat4(invParent, currentWorld, this._localMatrix);
       } else {
         // @ts-ignore
@@ -426,13 +426,13 @@ export class ViewTransform {
   _updateGlobal(force: boolean = false): void {
     if (this._parentTransform) {
       this._parentTransform._updateGlobal(force);
-      mulMat4(this._parentTransform._globalMatrix, this._localMatrix, this._globalMatrix);
+      mulMat4(this._parentTransform._worldMatrix, this._localMatrix, this._worldMatrix);
     } else {
       // @ts-ignore
-      this._globalMatrix.set(this._localMatrix);
+      this._worldMatrix.set(this._localMatrix);
     }
 
-    this._globalMatrixDirty = false;
+    this._worldMatrixDirty = false;
 
     for (const child of this._childTransforms) {
       child._updateGlobal(force);

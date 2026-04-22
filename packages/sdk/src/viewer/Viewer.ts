@@ -5,6 +5,7 @@ import {View} from "./View";
 import type {ViewerParams} from "./ViewerParams";
 import type {ViewParams} from "./ViewParams";
 import {ViewerEvents} from "./ViewerEvents";
+import {Effect} from "./Effect";
 
 /**
  * 3D model viewer.
@@ -38,6 +39,11 @@ export class Viewer {
    * loaded in the Viewer.
    */
   scene: Scene;
+
+  /**
+   * Map of {@link Effect | Effects} in this Viewer.
+   */
+  readonly effects: { [key: string]: Effect };
 
   /**
    * Map of all the Views in this Viewer.
@@ -92,6 +98,7 @@ export class Viewer {
   }) {
     this.id = params?.id || createUUID();
     this.events = new ViewerEvents();
+    this.effects = {};
     this.viewList = [];
     this.numViews = 0;
     this.views = {};
@@ -136,32 +143,45 @@ export class Viewer {
     if (this.scene) {
       this.detachScene();
     }
+
     this.scene = scene;
-    for (const sceneObjectId in this.scene.objects) {
-      const sceneObject = this.scene.objects[sceneObjectId];
-      this._attachSceneObject(sceneObject);
+
+    const sceneObjects = this.scene.objects;
+    for (const sceneObjectId in sceneObjects) {
+      this._attachSceneObject(sceneObjects[sceneObjectId]);
     }
+
     this._onSceneDestroyed = this.scene.events.onSceneDestroyed.subscribe(() => {
       this.detachScene();
     });
-    this._onSceneObjectCreated = this.scene.events.onSceneObjectCreated.subscribe((scene: Scene, sceneObject: SceneObject) => {
+
+    this._onSceneObjectCreated = this.scene.events.onSceneObjectCreated.subscribe((_scene: Scene, sceneObject: SceneObject) => {
       this._attachSceneObject(sceneObject);
     });
-    this._onSceneObjectDestroyed = this.scene.events.onSceneObjectDestroyed.subscribe((scene: Scene, sceneObject: SceneObject) => {
+
+    this._onSceneObjectDestroyed = this.scene.events.onSceneObjectDestroyed.subscribe((_scene: Scene, sceneObject: SceneObject) => {
       this._detachSceneObject(sceneObject);
     });
-    this._onSceneModelFinalized = this.scene.events.onSceneModelFinalized.subscribe(((scene: Scene, sceneModel) => {
+
+    this._onSceneModelFinalized = this.scene.events.onSceneModelFinalized.subscribe((_scene: Scene, sceneModel: SceneModel) => {
       this._sceneModelFinalized(sceneModel);
-    }));
-    const sceneMeshUpdated = (scene: Scene, mesh: SceneMesh) => {
-      for (const viewId in this.views) {
-        const view = this.views[viewId];
-        view.needsRender();
+    });
+
+    const sceneMeshUpdated = (_scene: Scene, _mesh: SceneMesh) => {
+      const viewList = this.viewList;
+      for (let i = 0, len = viewList.length; i < len; i++) {
+        const view = viewList[i];
+        if (view) {
+          view.needsRender();
+        }
       }
     };
+
     this._onSceneMeshMatrixChanged = this.scene.events.onSceneMeshMatrixChanged.subscribe(sceneMeshUpdated);
     this._onSceneMeshColorChanged = this.scene.events.onSceneMeshColorChanged.subscribe(sceneMeshUpdated);
+
     this.events.onSceneAttached.dispatch(this, scene);
+
     return {
       ok: true,
       value: this
@@ -169,26 +189,37 @@ export class Viewer {
   }
 
   private _sceneModelFinalized(sceneModel: SceneModel): void {
-    for (const viewId in this.views) {
-      const view = this.views[viewId];
-        for (const sceneObjectId in sceneModel.objects) {
-          const sceneObject = sceneModel.objects[sceneObjectId];
-          view._attachSceneObject(sceneObject);
-        }
+    const viewList = this.viewList;
+    const sceneObjects = sceneModel.objects;
+
+    for (let i = 0, len = viewList.length; i < len; i++) {
+      const view = viewList[i];
+      if (!view) {
+        continue;
+      }
+      for (const sceneObjectId in sceneObjects) {
+        view._attachSceneObject(sceneObjects[sceneObjectId]);
+      }
     }
   }
 
   private _attachSceneObject(sceneObject: SceneObject) {
-    for (const viewId in this.views) {
-      const view = this.views[viewId];
-      view._attachSceneObject(sceneObject);
+    const viewList = this.viewList;
+    for (let i = 0, len = viewList.length; i < len; i++) {
+      const view = viewList[i];
+      if (view) {
+        view._attachSceneObject(sceneObject);
+      }
     }
   }
 
   private _detachSceneObject(sceneObject: SceneObject) {
-    for (const viewId in this.views) {
-      const view = this.views[viewId];
-      view._detachSceneObject(sceneObject);
+    const viewList = this.viewList;
+    for (let i = 0, len = viewList.length; i < len; i++) {
+      const view = viewList[i];
+      if (view) {
+        view._detachSceneObject(sceneObject);
+      }
     }
   }
 
@@ -213,24 +244,68 @@ export class Viewer {
         error: "[Viewer.detachScene] No Scene attached."
       });
     }
-    for (const sceneObjectId in this.scene.objects) {
-      const sceneObject = this.scene.objects[sceneObjectId];
-      this._detachSceneObject(sceneObject);
+
+    const sceneObjects = this.scene.objects;
+    for (const sceneObjectId in sceneObjects) {
+      this._detachSceneObject(sceneObjects[sceneObjectId]);
     }
+
     this.scene.events.onSceneDestroyed.unsubscribe(this._onSceneDestroyed);
     this.scene.events.onSceneObjectCreated.unsubscribe(this._onSceneObjectCreated);
     this.scene.events.onSceneObjectDestroyed.unsubscribe(this._onSceneObjectDestroyed);
     this.scene.events.onSceneModelFinalized.unsubscribe(this._onSceneModelFinalized);
     this.scene.events.onSceneMeshMatrixChanged.unsubscribe(this._onSceneMeshMatrixChanged);
     this.scene.events.onSceneMeshColorChanged.unsubscribe(this._onSceneMeshColorChanged);
+
     const scene = this.scene;
     this.scene = null;
     this.events.onSceneDetached.dispatch(this, scene);
+
     return {
       ok: true,
       value: this
     };
   }
+
+  // /**
+  //  * Creates a new {@link Effect} within this Viewer.
+  //  *
+  //  * To destroy the Effect after use, call {@link Effect.destroy}.
+  //  *
+  //  * @param effectParams
+  //  */
+  // createEffect(effectParams: any): SDKResult<Effect> {
+  //   if (this.destroyed) {
+  //     return this.logError({
+  //       ok: false,
+  //       type: SDKErrorType.InvalidOperation,
+  //       error: "[Viewer.createEffect] Viewer has been destroyed."
+  //     });
+  //   }
+  //   const effectId = effectParams.id || createUUID();
+  //   if (this.effects[effectId]) {
+  //     return this.logError({
+  //       ok: false,
+  //       type: SDKErrorType.InvalidInput,
+  //       error: `[Viewer.createEffect] An Effect with ID "${effectId}" already exists.`
+  //     });
+  //   }
+  //   const effect = new Effect(this, apply({id: effectId}, effectParams));
+  //   this.effects[effectId] = effect;
+  //   this.events.onEffectCreated.dispatch(this, effect);
+  //   return {
+  //     ok: true,
+  //     value: effect
+  //   };
+  // }
+  //
+  // _destroyEffect(effect: Effect): void {
+  //   if (!this.effects[effect.id]) {
+  //     return;
+  //   }
+  //   delete this.effects[effect.id];
+  //   this.events.onEffectDestroyed.dispatch(this, effect);
+  // }
 
   /**
    * Creates a new {@link View} within this Viewer.
@@ -268,7 +343,9 @@ export class Viewer {
         error: "[Viewer.createView] Viewer has been destroyed."
       });
     }
+
     const viewId = viewParams.id || createUUID();
+
     if (this.views[viewId]) {
       return this.logError({
         ok: false,
@@ -276,6 +353,7 @@ export class Viewer {
         error: `[Viewer.createView] A View with ID "${viewId}" already exists.`
       });
     }
+
     if (!viewParams.elementId && !viewParams.htmlElement) {
       return this.logError({
         ok: false,
@@ -283,6 +361,7 @@ export class Viewer {
         error: `[Viewer.createView] Must provide either elementId or htmlElement in viewParams.`
       });
     }
+
     if (viewParams.elementId) {
       const htmlElement = document.getElementById(viewParams.elementId);
       if (!(htmlElement instanceof HTMLElement)) {
@@ -293,6 +372,7 @@ export class Viewer {
         });
       }
     }
+
     if (viewParams.htmlElement) {
       if (!(viewParams.htmlElement instanceof HTMLElement)) {
         return this.logError({
@@ -302,6 +382,7 @@ export class Viewer {
         });
       }
     }
+
     if (viewParams.backgroundColor) {
       const bgColor = viewParams.backgroundColor;
       if (bgColor.length < 3) {
@@ -322,15 +403,19 @@ export class Viewer {
         }
       }
     }
+
     const view = new View(this, apply({id: viewId}, viewParams));
     this._attachView(view);
+
     if (this.scene) {
-      for (const sceneObjectId in this.scene.objects) {
-        const sceneObject = this.scene.objects[sceneObjectId];
-        view._attachSceneObject(sceneObject);
+      const sceneObjects = this.scene.objects;
+      for (const sceneObjectId in sceneObjects) {
+        view._attachSceneObject(sceneObjects[sceneObjectId]);
       }
     }
+
     this.events.onViewCreated.dispatch(this, view);
+
     return {
       ok: true,
       value: view
@@ -352,8 +437,12 @@ export class Viewer {
    * @private
    */
   needsRender(): void {
-    for (const viewId in this.views) {
-      this.views[viewId].needsRender();
+    const viewList = this.viewList;
+    for (let i = 0, len = viewList.length; i < len; i++) {
+      const view = viewList[i];
+      if (view) {
+        view.needsRender();
+      }
     }
   }
 
@@ -362,6 +451,7 @@ export class Viewer {
    *
    * Destroys all existing {@link View | Views} and resets all properties to their default values.
    */
+
   clear(): SDKResult<void> {
     if (this.destroyed) {
       return this.logError({
@@ -370,17 +460,22 @@ export class Viewer {
         error: "[Viewer.clear] Viewer already destroyed"
       });
     }
-    for (const viewId in this.views) {
-      const view = this.views[viewId];
-      view.destroy();
+
+    const viewList = this.viewList;
+    for (let i = 0, len = viewList.length; i < len; i++) {
+      const view = viewList[i];
+      if (view) {
+        view.destroy();
+      }
     }
+
     return {
       ok: true,
       value: undefined
     };
   }
 
- private _attachView(view: View): void {
+  private _attachView(view: View): void {
     if (this.views[view.id]) {
       return;
     }
@@ -403,6 +498,7 @@ export class Viewer {
     delete this.viewList[view.viewIndex];
     this.numViews--;
   }
+
 
   /**
    * Configures this Viewer.
@@ -457,20 +553,23 @@ export class Viewer {
         error: "[Viewer.toParams] Viewer already destroyed"
       });
     }
+
     const params = {
       views: []
     };
-    this.viewList.map(el => el.toParams())
-    for (let i = 0; i < this.numViews; i++) {
+
+    for (let i = 0, len = this.viewList.length; i < len; i++) {
       const view = this.viewList[i];
-      if (view) {
-        const viewParamsResult = view.toParams();
-        if (viewParamsResult.ok === false) {
-          return viewParamsResult; // Already logged
-        }
-        params.views.push(viewParamsResult.value);
+      if (!view) {
+        continue;
       }
+      const viewParamsResult = view.toParams();
+      if (!viewParamsResult.ok) {
+        return viewParamsResult;
+      }
+      params.views.push(viewParamsResult.value);
     }
+
     return {
       ok: true,
       value: params

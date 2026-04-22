@@ -3,28 +3,28 @@ import type {Vec3} from "../math/vector";
 /**
  * Parameters for a View's selected, highlighted and x-ray effects.
  *
- * * Returned by {@link EmphasisMaterial.toParams | EmphasisMaterial.toParams}
- * * Passed to {@link EmphasisMaterial.fromParams | EmphasisMaterial.fromParams}
+ * * Returned by {@link Effect.toParams | Effect.toParams}
+ * * Passed to {@link Effect.fromParams | Effect.fromParams}
  * * Located at {@link ViewParams.highlightMaterial | ViewParams.highlightMaterial}, {@link ViewParams.selectedMaterial | ViewParams.selectedMaterial} and {@link ViewParams.xrayMaterial | ViewParams.xrayMaterial}
  */
-export interface EmphasisMaterialParams {
+export interface EffectParams {
 
   /**
-   * The RGB color of {@link EmphasisMaterial | EmphasisMaterial} edges.
+   * The RGB color of {@link Effect | Effect} edges.
    *
    * Default is ```` [0.2, 0.2, 0.2]````.
    */
   edgeColor?: Vec3;
 
   /**
-   * Pixel width of {@link EmphasisMaterial | EmphasisMaterial} edges.
+   * Pixel width of {@link Effect | Effect} edges.
    *
    * Default is ````1````.
    */
   edgeWidth?: number;
 
   /**
-   * Opacity of {@link EmphasisMaterial | EmphasisMaterial} edges.
+   * Opacity of {@link Effect | Effect} edges.
    *
    * Value is in range ````[0..1]````.
    *
@@ -33,28 +33,28 @@ export interface EmphasisMaterialParams {
   edgeAlpha?: number;
 
   /**
-   * Whether {@link EmphasisMaterial | EmphasisMaterial} edges are visible.
+   * Whether {@link Effect | Effect} edges are visible.
    *
    * Default is ````true````.
    */
   edges?: boolean;
 
   /**
-   * The RGB color of {@link EmphasisMaterial | EmphasisMaterial} surfaces.
+   * The RGB color of {@link Effect | Effect} surfaces.
    *
    * Default is ```` [1.0, 1.0, 1.0]````.
    */
   fillColor?: Vec3;
 
   /**
-   * Whether {@link EmphasisMaterial | EmphasisMaterial} backfaces are visible.
+   * Whether {@link Effect | Effect} backfaces are visible.
    *
    * Default is ````false````.
    */
   backfaces?: boolean;
 
   /**
-   * Opacity of {@link EmphasisMaterial | EmphasisMaterial} surfaces.
+   * Opacity of {@link Effect | Effect} surfaces.
    *
    * Value is in range ````[0..1]````.
    *
@@ -63,7 +63,7 @@ export interface EmphasisMaterialParams {
   fillAlpha?: number;
 
   /**
-   * Whether {@link EmphasisMaterial | EmphasisMaterial} surfaces are filled.
+   * Whether {@link Effect | Effect} surfaces are filled.
    *
    * Default is ````true````.
    */

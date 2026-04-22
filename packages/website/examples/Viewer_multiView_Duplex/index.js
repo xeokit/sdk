@@ -1,30 +1,27 @@
-// Import the xeokit SDK from a prebuilt bundle used by these demos/examples.
+// Import the xeokit SDK bundle. This bundle provides the demo helper
+// together with the scene, data, loader, and view APIs used by this
+// example.
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
-// Create a DemoHelper, but *don’t* let it auto-create the default View.
-// We’ll create and configure three separate Views (and canvases) ourselves.
+// Create the demo helper without automatically creating a default View.
+// This example creates and configures three separate Views manually.
 const demoHelper = new xeokit.demo.DemoHelper({
   makeView: false,
   maxViews: 3
 });
 
-// DemoHelper.init() creates the core pieces (Viewer, Scene, Data, etc).
-// We wait for that to complete before creating Views and loading models.
+// Initialize the shared runtime context before creating Views or
+// loading model content.
 demoHelper.init().then(() => {
 
-  // Convenience handles:
-  // - viewer: manages Views, render loop, interactions
-  // - scene: holds renderable geometry (SceneModels)
-  // - data: holds metadata graph (DataModels) for search/query, BIM relationships, etc
+  // Access the core subsystems created by the DemoHelper. The Viewer
+  // manages Views, the Scene manages renderable content, and the Data
+  // subsystem manages metadata and semantic relationships.
   const { viewer, scene, data } = demoHelper;
 
-  // ---------------------------------------------------------------------------
-  // VIEW 1 - Perspective, side-ish view
-  // ---------------------------------------------------------------------------
-
-  // Create a View bound to <canvas id="demoCanvas1">.
-  // Each View has its own Camera, ViewController, and per-View object states
-  // (visibility/xray/highlight/etc).
+  // Create the first View and bind it to the first canvas. This View
+  // uses a perspective camera positioned to show the model from an
+  // elevated side angle.
   const view1Result = viewer.createView({
     id: "demoView1",
     elementId: "demoCanvas1"
@@ -36,22 +33,12 @@ demoHelper.init().then(() => {
 
   const view1 = view1Result.value;
 
-  // Choose projection type (Perspective is default in many setups).
-  // Uncomment if you want to be explicit:
-  // view1.camera.projectionType = xeokit.constants.PerspectiveProjectionType;
-
-  // Position the camera for View 1.
-  // eye  = camera position
-  // look = target point
-  // up   = “up” direction (Z-up here)
-  view1.camera.eye  = [15, 23, 8];
+  view1.camera.eye = [15, 23, 8];
   view1.camera.look = [4, 10, 0];
-  view1.camera.up   = [0, 0, 1];
+  view1.camera.up = [0, 0, 1];
 
-  // ---------------------------------------------------------------------------
-  // VIEW 2 - Orthographic, top view
-  // ---------------------------------------------------------------------------
-
+  // Create the second View and bind it to the second canvas. This View
+  // is configured as a top-oriented architectural view.
   const view2Result = viewer.createView({
     id: "demoView2",
     elementId: "demoCanvas2"
@@ -63,20 +50,12 @@ demoHelper.init().then(() => {
 
   const view2 = view2Result.value;
 
-  // Set orthographic projection for an architectural “plan” style view.
-  // Uncomment if you want it explicitly orthographic:
-  // view2.camera.projectionType = xeokit.constants.OrthoProjectionType;
-
-  // Top-ish camera looking down.
-  // Note: up is set to +X to keep the plan oriented nicely (so it’s not “rotated”).
-  view2.camera.eye  = [5, 9, 20];
+  view2.camera.eye = [5, 9, 20];
   view2.camera.look = [5, 9, 0];
-  view2.camera.up   = [1, 0, 0];
+  view2.camera.up = [1, 0, 0];
 
-  // ---------------------------------------------------------------------------
-  // VIEW 3 - Perspective, alternate angle
-  // ---------------------------------------------------------------------------
-
+  // Create the third View and bind it to the third canvas. This View
+  // provides an alternate perspective angle onto the same model.
   const view3Result = viewer.createView({
     id: "demoView3",
     elementId: "demoCanvas3"
@@ -88,52 +67,29 @@ demoHelper.init().then(() => {
 
   const view3 = view3Result.value;
 
-  // Uncomment if you want to be explicit:
-  // view3.camera.projectionType = xeokit.constants.PerspectiveProjectionType;
-
-  // Another perspective angle.
-  view3.camera.eye  = [5, 28, 2];
+  view3.camera.eye = [5, 28, 2];
   view3.camera.look = [5, 9, 2];
-  view3.camera.up   = [0, 0, 1];
+  view3.camera.up = [0, 0, 1];
 
-  // ---------------------------------------------------------------------------
-  // Attach CameraControls so each canvas can orbit/pan/zoom independently.
-  // (Each View gets its own controller instance.)
-  // ---------------------------------------------------------------------------
-
-  new xeokit.viewcontroller.ViewController(view1, {
-
-  });
+  // Attach independent interaction controllers to each View so that
+  // each canvas can orbit, pan, and zoom separately.
+  new xeokit.viewcontroller.ViewController(view1, {});
   new xeokit.viewcontroller.ViewController(view2, {});
   new xeokit.viewcontroller.ViewController(view3, {});
 
-  // ---------------------------------------------------------------------------
-  // Create the SceneModel (renderable geometry)
-  // ---------------------------------------------------------------------------
-
-  // SceneModel holds the triangles/meshes that get drawn.
-  // We also define the coordinate system so units/orientation are consistent.
+  // Create a SceneModel to hold renderable model content. The
+  // coordinate system is defined explicitly so axis orientation and
+  // units are interpreted consistently.
   const sceneModelResult = scene.createModel({
     id: "demoModel",
     coordinateSystem: {
-      // 3x3 basis matrix, row-major:
-      // [ Xx Xy Xz
-      //   Yx Yy Yz
-      //   Zx Zy Zz ]
-      // Identity means X-right, Y-forward, Z-up (no axis remap).
       basis: [
         1, 0, 0,
         0, 1, 0,
         0, 0, 1
       ],
-      // Model origin in world coordinates.
       origin: [0, 0, 0],
-
-      // Units metadata (helps tools that care about real-world scale).
       units: "meters",
-
-      // If your source data is not in meters, set scaleToMeters accordingly.
-      // e.g. millimeters -> 0.001
       scaleToMeters: 1
     }
   });
@@ -144,13 +100,9 @@ demoHelper.init().then(() => {
 
   const sceneModel = sceneModelResult.value;
 
-  // ---------------------------------------------------------------------------
-  // Create the DataModel (metadata graph / BIM semantics)
-  // ---------------------------------------------------------------------------
-
-  // DataModel stores IFC object tree, types, relationships, properties, etc.
-  // IMPORTANT: we use the same id as the SceneModel ("demoModel") so the
-  // geometry + metadata correspond to the same logical model.
+  // Create a DataModel to hold semantic content such as object types,
+  // relationships, and properties. The DataModel uses the same logical
+  // model identifier as the SceneModel.
   const dataModelResult = data.createModel({
     id: "demoModel"
   });
@@ -161,109 +113,101 @@ demoHelper.init().then(() => {
 
   const dataModel = dataModelResult.value;
 
-  // ---------------------------------------------------------------------------
-  // Load IFC into both models (geometry -> SceneModel, metadata -> DataModel)
-  // ---------------------------------------------------------------------------
-
+  // Create an IFCLoader and use it to load the IFC file into both the
+  // renderable and semantic model layers.
   const ifcLoader = new xeokit.formats.ifc.IFCLoader();
 
-  // Fetch the IFC file as an ArrayBuffer, then hand it to the loader.
   fetch(`../../models/Duplex/ifc/model.ifc`)
-    .then((response) => response.arrayBuffer())
-    .then((fileData) => {
-      // Loader populates both the sceneModel (renderable objects) and dataModel (metadata).
-      return ifcLoader.load({
-        fileData,
-        sceneModel,
-        dataModel
+      .then((response) => response.arrayBuffer())
+      .then((fileData) => {
+        return ifcLoader.load({
+          fileData,
+          sceneModel,
+          dataModel
+        });
+      })
+      .then(() => {
+
+        // Query the semantic graph and apply per-view appearance changes.
+        // These changes are local to each View and do not affect the
+        // appearance of the model in other Views.
+
+        {
+          // In the first View, X-ray exterior and envelope-style elements
+          // so the model remains visible while appearing partially transparent.
+          const resultObjectIds = [];
+          const result = xeokit.data.searchObjects(data, {
+            startObjectId: "1xS3BCk291UvhgP2a6eflK",
+            includeObjects: [
+              "IfcWallStandardCase",
+              "IfcWall",
+              "IfcRoof",
+              "IfcDoor",
+              "IfcWindow",
+              "IfcStairCase"
+            ],
+            includeRelated: ["IfcRelAggregates"],
+            resultObjectIds
+          });
+
+          if (!result.ok) {
+            console.error(result);
+            return;
+          }
+
+          view1.setObjectsXRayed(resultObjectIds, true);
+        }
+
+        {
+          // In the second View, highlight furniture elements so they stand
+          // out clearly from the rest of the model.
+          const resultObjectIds = [];
+          const result = xeokit.data.searchObjects(data, {
+            startObjectId: "1xS3BCk291UvhgP2a6eflK",
+            includeObjects: ["IfcFurnishingElement"],
+            includeRelated: ["IfcRelAggregates"],
+            resultObjectIds
+          });
+
+          if (!result.ok) {
+            console.error(result);
+            return;
+          }
+
+          view2.setObjectsHighlighted(resultObjectIds, true);
+        }
+
+        {
+          // In the third View, hide envelope-style elements to expose the
+          // interior of the building more clearly.
+          const resultObjectIds = [];
+          const result = xeokit.data.searchObjects(data, {
+            startObjectId: "1xS3BCk291UvhgP2a6eflK",
+            includeObjects: [
+              "IfcWallStandardCase",
+              "IfcWall",
+              "IfcRoof",
+              "IfcDoor",
+              "IfcWindow",
+              "IfcStairCase"
+            ],
+            includeRelated: ["IfcRelAggregates"],
+            resultObjectIds
+          });
+
+          if (!result.ok) {
+            console.error(result);
+            return;
+          }
+
+          view3.setObjectsVisible(resultObjectIds, false);
+        }
+
+        // Signal that loading and setup have completed.
+        demoHelper.finished();
+      })
+      .catch((err) => {
+        console.error(err);
+        throw err;
       });
-    })
-    .then(() => {
-
-      // -----------------------------------------------------------------------
-      // Per-view filtering/appearance driven by metadata queries
-      // -----------------------------------------------------------------------
-      //
-      // xeokit.data.searchObjects() traverses the DataModel graph and returns a set
-      // of matching object IDs (typically entity IDs from the loaded IFC data graph).
-      //
-      // We then apply a *view-local* state change:
-      // - xray some objects in view1
-      // - highlight some objects in view2
-      // - hide some objects in view3
-      //
-      // These state changes do not affect other Views.
-
-      {
-        // View 1: X-ray the building envelope-ish elements (walls/roof/doors/windows/stairs).
-        const resultObjectIds = [];
-        const result = xeokit.data.searchObjects(data, {
-          startObjectId: "1xS3BCk291UvhgP2a6eflK", // IFC element ID: IfcBuilding
-          includeObjects: [
-            "IfcWallStandardCase",
-            "IfcWall",
-            "IfcRoof",
-            "IfcDoor",
-            "IfcWindow",
-            "IfcStairCase"
-          ],
-          // Follow relationships while traversing from the startObjectId.
-          // IfcRelAggregates is commonly used for decomposition (building -> storeys -> spaces, etc).
-          includeRelated: ["IfcRelAggregates"],
-          // Output array (filled by the function)
-          resultObjectIds
-        });
-        if (!result.ok) {
-          console.error(result);
-          return;
-        }
-        view1.setObjectsXRayed(resultObjectIds, true);
-      }
-
-      {
-        // View 2: Highlight furnishing elements.
-        const resultObjectIds = [];
-        const result = xeokit.data.searchObjects(data, {
-          startObjectId: "1xS3BCk291UvhgP2a6eflK", // IfcBuilding
-          includeObjects: ["IfcFurnishingElement"],
-          includeRelated: ["IfcRelAggregates"],
-          resultObjectIds
-        });
-        if (!result.ok) {
-          console.error(result);
-          return;
-        }
-        view2.setObjectsHighlighted(resultObjectIds, true);
-      }
-
-      {
-        // View 3: Hide envelope-ish elements (so you can “see inside” in this view).
-        const resultObjectIds = [];
-        const result = xeokit.data.searchObjects(data, {
-          startObjectId: "1xS3BCk291UvhgP2a6eflK", // IfcBuilding
-          includeObjects: [
-            "IfcWallStandardCase",
-            "IfcWall",
-            "IfcRoof",
-            "IfcDoor",
-            "IfcWindow",
-            "IfcStairCase"
-          ],
-          includeRelated: ["IfcRelAggregates"],
-          resultObjectIds
-        });
-        if (!result.ok) {
-          console.error(result);
-          return;
-        }
-        view3.setObjectsVisible(resultObjectIds, false);
-      }
-
-      // Signal to DemoHelper that everything is loaded and ready (often hides spinners, etc).
-      demoHelper.finished();
-    })
-    .catch((err) => {
-      console.error(err);
-      throw err;
-    });
 });

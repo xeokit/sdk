@@ -1,7 +1,7 @@
 {
   "id": "Viewer_multiView_IfcOpenHouse4",
-  "title": "Viewing an IFC model in multiple Views",
-  "description": "In this example, we'll use the xeokit SDK to load an IFC model and view it within multiple canvases in the browser",
+  "title": "Multi-View IFC Viewer (IfcOpenHouse4)",
+  "description": "Render a single IFC model across multiple canvases with independent camera and interaction states.",
   "isTutorial": false,
   "isVisualTest": true,
   "tags": [],
@@ -9,5 +9,6 @@
     "Viewer",
     "Views"
   ],
-  "topic": "general"
+  "topic": "viewer.multiview",
+  "template": "basicPage"
 }

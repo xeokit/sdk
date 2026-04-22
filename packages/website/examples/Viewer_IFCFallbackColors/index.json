@@ -1,17 +1,18 @@
 {
-  "id": "XGFLoader_MAP",
-  "title": "Viewing XGF using XGFLoader",
-  "description": "How to load an IFC model from XGF format directly into a xeokit web viewer.",
+  "id": "Viewer_IFCFallbackColors",
+  "title": "IFC Fallback Colors in Viewer",
+  "description": "Demonstrates fallback color behavior for IFC-derived model content across layered views.",
   "isTutorial": true,
   "isVisualTest": true,
   "tags": [
-    "XGF",
-    "_Featured"
+    "Viewer",
+    "IFC"
   ],
   "categories": [
-    "Importing",
-    "XGF"
+    "Viewer",
+    "IFC",
+    "Configuration"
   ],
-  "topic": "import.xgf",
+  "topic": "viewer.configuration",
   "template": "basicPage"
 }

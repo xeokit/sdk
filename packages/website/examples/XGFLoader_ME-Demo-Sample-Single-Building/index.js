@@ -1,5 +1,5 @@
-// Import the SDK from a bundle built for these examples.
-
+// Import the xeokit SDK bundle used by this example.
+// It provides the helper, loader, and rendering APIs used in this sample.
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
 const demoHelper = new xeokit.demo.DemoHelper({});
@@ -12,7 +12,8 @@ demoHelper.init().then(() => {
 
   const xgfLoader = new xeokit.formats.xgf.XGFLoader();
 
-  // Arrange the View's Camera to look at the origin of the World coordinate system
+  // Create a view and set the initial camera.
+  // The camera is aimed at the world origin to frame the model consistently.
 
   const view = demoHelper.createView({
     id: "demoView",
@@ -28,9 +29,8 @@ demoHelper.init().then(() => {
     0, 0, 1, // Up +Z
     0, -1, 0  // Forward -Y
   ];
-
-// Create a SceneModel to hold our model's geometry and materials
-
+  // Create a SceneModel for renderable model content.
+  // Geometry and material data loaded from files is stored here.
   const sceneModelRes = scene.createModel({
     id: "demoModel",
     coordinateSystem: { // Model's local Y-up coordinate system
@@ -49,9 +49,8 @@ demoHelper.init().then(() => {
   }
 
   const sceneModel = sceneModelRes.value;
-
-  // Create a DataModel to hold semantic data for our model
-
+  // Create a DataModel for semantic model data.
+  // Metadata, relationships, and object meaning are stored here.
   const dataModelRes = data.createModel({
     id: "demoModel"
   });
@@ -63,9 +62,8 @@ demoHelper.init().then(() => {
   } else {
 
     const dataModel = dataModelRes.value;
-
-    // Use the XGFLoader to load an IFC model from a .XGF file into our SceneModel and DataModel
-
+  // Fetch and load the XGF file into the SceneModel.
+  // After loading, the view can switch to its final quality settings.
     fetch("../../models/ME-Demo_Sample_Single_Building_01/ifc2xgf/model.xgf").then(response => {
 
       response

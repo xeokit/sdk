@@ -1,4 +1,44 @@
 {
+  "SceneModel_DoublePrecision": {
+    "id": "SceneModel_DoublePrecision",
+    "title": "Double-Precision Coordinate System",
+    "description": "Demonstrates xeokit's transparent 64-bit coordinate system support. A city block is placed at real UTM coordinates (~474,000 m easting, ~5,561,000 m northing) and a tower crane animates at those large coordinates with sub-millimetre precision. A live overlay shows the raw Float64 world coordinates to make clear why standard WebGL float32 scenes would jitter at this scale.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "DoublePrecision",
+      "SceneModel",
+      "SceneTransform",
+      "RTC",
+      "_Featured"
+    ],
+    "categories": [
+      "SceneModel",
+      "Transforms",
+      "Coordinates"
+    ],
+    "topic": "scene.doublePrecision",
+    "template": "basicPage"
+  },
+  "BCF_saveAndLoad": {
+    "id": "BCF_saveAndLoad",
+    "title": "BCF Viewpoint Save and Load",
+    "description": "How to use saveBCFViewpoint and loadBCFViewpoint to capture and restore a viewer state — including camera position, section planes, and per-object selection, x-ray, and visibility states.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "BCF",
+      "IFC",
+      "_Featured"
+    ],
+    "categories": [
+      "Interaction",
+      "BCF",
+      "IFC"
+    ],
+    "topic": "interaction.bcf",
+    "template": "basicPage"
+  },
   "CityJSONLoader_Railway": {
     "id": "CityJSONLoader_Railway",
     "title": "Viewing CityJSON using CityJSONLoader",
@@ -18,8 +58,8 @@
   },
   "DotBIMLoader_BlenderHouse": {
     "id": "DotBIMLoader_BlenderHouse",
-    "title": "Viewing .BIM using DotBIMLoader",
-    "description": "How to load an IFC model from dotbim (.bim) format directly into a xeokit web viewer.",
+    "title": "Viewing DotBIM using DotBIMLoader",
+    "description": "How to load a dotbim (.bim) model directly into a xeokit web viewer.",
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [
@@ -36,7 +76,7 @@
   "GLTFLoader_MAP": {
     "id": "GLTFLoader_MAP",
     "title": "Viewing glTF using GLTFLoader",
-    "description": "How to load an IFC model from glTF (.glb) format directly into a xeokit web viewer.",
+    "description": "How to load a glTF (.glb) model directly into a xeokit web viewer.",
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [
@@ -126,8 +166,8 @@
   },
   "ModelConverter_dotbim2json": {
     "id": "ModelConverter_dotbim2json",
-    "title": "Viewing .BIM using ModelConverter and IFCLoader",
-    "description": "Use the ModelConverter class to convert a model from dotbim (.bim) format to JSON SceneModelParams and DataModelParams, then use SceneModelParamsLoader and DataModelParamsLoader to view the model in a xeokit web viewer.",
+    "title": "Converting DotBIM to Scene/Data JSON with ModelConverter",
+    "description": "Use ModelConverter to convert a dotbim (.bim) model into SceneModelParams and DataModelParams JSON, then load and view the result in xeokit.",
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [
@@ -143,53 +183,72 @@
   },
   "ModelConverter_ifc2dotbim": {
     "id": "ModelConverter_ifc2dotbim",
-    "title": "Viewing .BIM using ModelConverter and IFCLoader",
-    "description": "Use the ModelConverter class to convert a model from dotbim (.bim) format to JSON SceneModelParams and DataModelParams, then use SceneModelParamsLoader and DataModelParamsLoader to view the model in a xeokit web viewer.",
+    "title": "Converting IFC to DotBIM with ModelConverter",
+    "description": "Use ModelConverter to convert an IFC model to dotbim (.bim), then load and view the result in xeokit.",
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [
       "Importing",
+      "IFC",
       "DotBIM"
     ],
     "categories": [
       "Importing",
+      "IFC",
       "DotBIM"
     ],
-    "topic": "import.dotbim",
+    "topic": "import.ifc",
+    "template": "basicPage"
+  },
+  "ModelLoader_viewModel": {
+    "id": "ModelLoader_viewModel",
+    "title": "Loading Models with ModelLoader",
+    "description": "Use DemoHelper and ModelLoader to load a model into SceneModel/DataModel with selectable coordinate-system presets.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "Viewer",
+      "Loading"
+    ],
+    "categories": [
+      "Viewer",
+      "Loading"
+    ],
+    "topic": "viewer.loading",
     "template": "basicPage"
   },
   "OBJLoader_SportsCar": {
     "id": "OBJLoader_SportsCar",
-    "title": "Viewing .BIM using DotBIMLoader",
-    "description": "How to load an IFC model from dotbim (.bim) format directly into a xeokit web viewer.",
+    "title": "Viewing OBJ using OBJLoader",
+    "description": "How to load an OBJ model directly into a xeokit web viewer.",
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [
       "Importing",
-      "DotBIM"
+      "OBJ"
     ],
     "categories": [
       "Importing",
-      "DotBIM"
+      "OBJ"
     ],
-    "topic": "import.dotbim",
+    "topic": "import.obj",
     "template": "basicPage"
   },
   "OBJLoader_Table": {
     "id": "OBJLoader_Table",
-    "title": "Viewing .BIM using DotBIMLoader",
-    "description": "How to load an IFC model from dotbim (.bim) format directly into a xeokit web viewer.",
+    "title": "Viewing OBJ using OBJLoader",
+    "description": "How to load an OBJ model directly into a xeokit web viewer.",
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [
       "Importing",
-      "DotBIM"
+      "OBJ"
     ],
     "categories": [
       "Importing",
-      "DotBIM"
+      "OBJ"
     ],
-    "topic": "import.dotbim",
+    "topic": "import.obj",
     "template": "basicPage"
   },
   "SceneModel_DataModel_build_table": {
@@ -238,6 +297,36 @@
     "topic": "modeling.scene.geometry",
     "template": "basicPage"
   },
+  "SceneModel_build_sanddunes": {
+    "id": "SceneModel_build_sanddunes",
+    "title": "Procedural Sand Dunes",
+    "description": "Procedurally generate a field of smooth, realistically-shaped sand dunes as a triangle mesh, using a sum of asymmetric dune wave functions with smooth normals computed from the height gradient.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "tags": [],
+    "categories": [
+      "Modeling",
+      "Scene",
+      "Geometry"
+    ],
+    "topic": "modeling.scene.geometry",
+    "template": "basicPage"
+  },
+  "SceneModel_build_cityscape": {
+    "id": "SceneModel_build_cityscape",
+    "title": "Procedural Cityscape",
+    "description": "Stress test: procedurally generate ~40,000 buildings in a SceneModel using a single shared box geometry, scaled transforms, and a seeded PRNG for reproducible layout.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "tags": [],
+    "categories": [
+      "Modeling",
+      "Scene",
+      "Geometry"
+    ],
+    "topic": "modeling.scene.geometry",
+    "template": "basicPage"
+  },
   "SceneModel_build_geometries": {
     "id": "SceneModel_build_geometries",
     "title": "Creating Various Geometries",
@@ -255,8 +344,8 @@
   },
   "SceneModel_build_points": {
     "id": "SceneModel_build_points",
-    "title": "Creating a 3D Triangle",
-    "description": "Using xeokit SDK to create and view a single 3D triangle in the browser.",
+    "title": "Creating 3D Points",
+    "description": "Using xeokit SDK to create and view a point cloud-style SceneModel in the browser.",
     "isTutorial": true,
     "isVisualTest": false,
     "tags": [],
@@ -317,9 +406,7 @@
     "description": "In this example, we'll use the xeokit SDK to build and view a table-shaped SceneModel, from JSON",
     "isTutorial": true,
     "isVisualTest": true,
-    "tags": [
-      "_Featured"
-    ],
+    "tags": [],
     "categories": [
       "Modeling",
       "Scene"
@@ -347,9 +434,7 @@
     "description": "Using xeokit to create a 3D model composed of multiple objects with triangle mesh geometry.",
     "isTutorial": true,
     "isVisualTest": true,
-    "tags": [
-      "_Featured"
-    ],
+    "tags": [],
     "categories": [
       "Modeling",
       "Scene",
@@ -364,9 +449,7 @@
     "description": "In this example, we'll use the xeokit SDK to create a 3D model with a transform hierarchy.",
     "isTutorial": true,
     "isVisualTest": true,
-    "tags": [
-      "_Featured"
-    ],
+    "tags": [],
     "categories": [
       "Modeling",
       "Data"
@@ -376,21 +459,19 @@
   },
   "SceneTransform_SeparateBuildingStoreys": {
     "id": "SceneTransform_SeparateBuildingStoreys",
-    "title": "Viewing IFC using IFCLoader",
-    "description": "How to use IFCLoader to view an IFC model in the browser with a xeokit web viewer.",
+    "title": "Separating Building Storeys with SceneTransform",
+    "description": "Use SceneTransform to separate a building model into storeys for exploded-view style analysis.",
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [
-      "IFC",
-      "XGF",
-      "webifc2xgf",
-      "_Featured"
+      "Modeling",
+      "Transforms"
     ],
     "categories": [
-      "Importing",
-      "IFC"
+      "Modeling",
+      "Transforms"
     ],
-    "topic": "import.ifc",
+    "topic": "modeling.transforms",
     "template": "basicPage"
   },
   "SceneTransform_build_table": {
@@ -411,8 +492,8 @@
   },
   "TreeView_IFCLoader_IfcOpenHouse4": {
     "id": "TreeView_IFCLoader_IfcOpenHouse4",
-    "title": "Viewing IFC using IFCLoader",
-    "description": "How to use IFCLoader to view an IFC model in the browser with a xeokit web viewer.",
+    "title": "IFC Tree View and Scene Synchronization",
+    "description": "Load IFC with IFCLoader and synchronize object visibility and selection with a hierarchical tree view.",
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [
@@ -422,16 +503,17 @@
       "_Featured"
     ],
     "categories": [
-      "Importing",
+      "Interaction",
+      "TreeView",
       "IFC"
     ],
-    "topic": "import.ifc",
+    "topic": "interaction.treeview",
     "template": "basicPage"
   },
   "ViewLayer_auto": {
     "id": "ViewLayer_auto",
     "title": "Creating a Viewer with automatic ViewLayers",
-    "description": "",
+    "description": "Create a viewer with automatically managed ViewLayers to control scene partitioning and rendering behavior.",
     "isTutorial": true,
     "isVisualTest": false,
     "tags": [],
@@ -446,11 +528,15 @@
   "ViewLayer_manual": {
     "id": "ViewLayer_manual",
     "title": "Creating a Viewer with manual ViewLayers",
-    "description": "",
+    "description": "Create a viewer with explicitly managed ViewLayers for deterministic layer composition and control.",
     "isTutorial": true,
     "isVisualTest": false,
     "tags": [],
-    "categories": [],
+    "categories": [
+      "Viewer",
+      "Views",
+      "ViewLayers"
+    ],
     "topic": "viewer.view.viewlayer",
     "template": "basicPage"
   },
@@ -471,6 +557,24 @@
     "topic": "performance.resolutionScale",
     "template": "basicPage"
   },
+  "Viewer_IFCFallbackColors": {
+    "id": "Viewer_IFCFallbackColors",
+    "title": "IFC Fallback Colors in Viewer",
+    "description": "Demonstrates fallback color behavior for IFC-derived model content across layered views.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "Viewer",
+      "IFC"
+    ],
+    "categories": [
+      "Viewer",
+      "IFC",
+      "Configuration"
+    ],
+    "topic": "viewer.configuration",
+    "template": "basicPage"
+  },
   "Viewer_fromParams": {
     "id": "Viewer_fromParams",
     "title": "Loading a Viewer Configuration",
@@ -489,22 +593,23 @@
   },
   "Viewer_memConfigs": {
     "id": "Viewer_memConfigs",
-    "title": "Viewing a .BIM model and hiding IfcSpaces",
-    "description": "",
+    "title": "Viewer Memory Configuration Presets",
+    "description": "Configure Viewer and renderer memory presets and compare behavior on the same model.",
     "isTutorial": false,
     "isVisualTest": true,
     "tags": [],
     "categories": [
-      "Importing",
-      "DotBIM"
+      "Viewer",
+      "Configuration",
+      "Performance"
     ],
-    "topic": "import.dotbim",
+    "topic": "viewer.configuration",
     "template": "basicPage"
   },
   "Viewer_multiView_AlignedPointCloud": {
     "id": "Viewer_multiView_AlignedPointCloud",
-    "title": "Viewing an IFC model in multiple Views",
-    "description": "In this example, we'll use the xeokit SDK to load an IFC model and view it within multiple canvases in the browser",
+    "title": "Multi-View with Aligned Point Cloud",
+    "description": "Render an aligned point cloud across multiple canvas views that share model data but maintain independent view state.",
     "isTutorial": false,
     "isVisualTest": true,
     "tags": [],
@@ -512,12 +617,13 @@
       "Viewer",
       "Views"
     ],
-    "topic": "general"
+    "topic": "viewer.multiview",
+    "template": "basicPage"
   },
   "Viewer_multiView_Duplex": {
     "id": "Viewer_multiView_Duplex",
-    "title": "Viewing an IFC model in multiple Views",
-    "description": "In this example, we'll use the xeokit SDK to load an IFC model and view it within multiple canvases in the browser",
+    "title": "Multi-View IFC Viewer (Duplex)",
+    "description": "Render a single IFC model across multiple canvases with independent camera and interaction states.",
     "isTutorial": false,
     "isVisualTest": true,
     "tags": [],
@@ -525,12 +631,13 @@
       "Viewer",
       "Views"
     ],
-    "topic": "general"
+    "topic": "viewer.multiview",
+    "template": "basicPage"
   },
   "Viewer_multiView_IfcOpenHouse4": {
     "id": "Viewer_multiView_IfcOpenHouse4",
-    "title": "Viewing an IFC model in multiple Views",
-    "description": "In this example, we'll use the xeokit SDK to load an IFC model and view it within multiple canvases in the browser",
+    "title": "Multi-View IFC Viewer (IfcOpenHouse4)",
+    "description": "Render a single IFC model across multiple canvases with independent camera and interaction states.",
     "isTutorial": false,
     "isVisualTest": true,
     "tags": [],
@@ -538,12 +645,13 @@
       "Viewer",
       "Views"
     ],
-    "topic": "general"
+    "topic": "viewer.multiview",
+    "template": "basicPage"
   },
   "Viewer_multiView_SportsCar": {
     "id": "Viewer_multiView_SportsCar",
-    "title": "Viewing an IFC model in multiple Views",
-    "description": "In this example, we'll use the xeokit SDK to load an IFC model and view it within multiple canvases in the browser",
+    "title": "Multi-View Model Viewer (SportsCar)",
+    "description": "Render a single model across multiple canvases with independent camera and interaction states.",
     "isTutorial": false,
     "isVisualTest": true,
     "tags": [],
@@ -551,20 +659,21 @@
       "Viewer",
       "Views"
     ],
-    "topic": "general"
+    "topic": "viewer.multiview",
+    "template": "basicPage"
   },
   "WebGLRenderer_createGPUMemoryConfigs": {
     "id": "WebGLRenderer_createGPUMemoryConfigs",
     "title": "Configuring WebGLRenderer GPU Memory Limits",
-    "description": "",
+    "description": "Configure WebGLRenderer GPU memory limits and observe the impact on model loading and rendering behavior.",
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [],
     "categories": [
-      "Renderer",
-      "DotBIM"
+      "Performance",
+      "Renderer"
     ],
-    "topic": "renderer.configs",
+    "topic": "performance.gpuMemory",
     "template": "basicPage"
   },
   "WebGLRenderer_picking_box": {
@@ -573,9 +682,7 @@
     "description": "In this example, we'll use the xeokit SDK to build and view a table-shaped SceneModel, from JSON, and then we'll use the WebGLRenderer's picking API to pick objects in the SceneModel.",
     "isTutorial": true,
     "isVisualTest": true,
-    "tags": [
-      "_Featured"
-    ],
+    "tags": [],
     "categories": [
       "Picking",
       "Scene"
@@ -603,6 +710,23 @@
     "id": "XGFLoader_Geometries",
     "title": "Viewing XGF using XGFLoader",
     "description": "How to load an IFC model from XGF format directly into a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "XGF",
+      "_Featured"
+    ],
+    "categories": [
+      "Importing",
+      "XGF"
+    ],
+    "topic": "import.xgf",
+    "template": "basicPage"
+  },
+  "XGFLoader_HolterTower": {
+    "id": "XGFLoader_HolterTower",
+    "title": "Viewing XGF using XGFLoader",
+    "description": "How to use XGFLoader to view an XGF model in the browser with a xeokit web viewer.",
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [
@@ -652,25 +776,24 @@
   },
   "XGFLoader_SportsCar": {
     "id": "XGFLoader_SportsCar",
-    "title": "Viewing .BIM using DotBIMLoader",
-    "description": "How to load an IFC model from dotbim (.bim) format directly into a xeokit web viewer.",
+    "title": "Viewing XGF using XGFLoader",
+    "description": "How to load an XGF model directly into a xeokit web viewer.",
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [
-      "Importing",
-      "DotBIM"
+      "XGF"
     ],
     "categories": [
       "Importing",
-      "DotBIM"
+      "XGF"
     ],
-    "topic": "import.dotbim",
+    "topic": "import.xgf",
     "template": "basicPage"
   },
   "ifc2gltf2xgf_Karhumaki": {
     "id": "ifc2gltf2xgf_Karhumaki",
     "title": "Importing IFC Converted by ifc2gltf2xgf",
-    "description": "In this example, we'll use the xeokit SDK to view a glTF model in the browser.",
+    "description": "Load and view an IFC model that was converted with the ifc2gltf2xgf pipeline.",
     "isTutorial": false,
     "isVisualTest": true,
     "tags": [

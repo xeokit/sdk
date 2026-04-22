@@ -1,146 +1,30 @@
+
 <!doctype html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>xeokit SDK – Multi-Canvas IFC Viewer</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Multi-View Model Viewer (SportsCar)</title>
+    <style>
+        body {
+            background-color: white;
+            overflow: hidden;
+            margin: 0;
+            user-select: none;
+        }
 
-  <style>
-    body {
-      background-color: #111;
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      color: #eee;
-      line-height: 1.6;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 40px auto;
-      padding: 0 24px;
-    }
-
-    h1 {
-      margin-bottom: 10px;
-      font-weight: 600;
-    }
-
-    .description {
-      max-width: 900px;
-      color: #bbb;
-      margin-bottom: 40px;
-    }
-
-    /* Illustration layout */
-    .illustrations {
-      display: grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap: 30px;
-      align-items: start;
-    }
-
-    .right-column {
-      display: flex;
-      flex-direction: column;
-      gap: 30px;
-    }
-
-    figure {
-      margin: 0;
-      background: #1a1a1a;
-      padding: 16px;
-      border-radius: 8px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-    }
-
-    figcaption {
-      margin-top: 12px;
-      font-size: 13px;
-      color: #aaa;
-    }
-
-    img {
-      width: 100%;
-      display: block;
-      border-radius: 4px;
-      border: 1px solid #333;
-      user-select: none;
-      -webkit-user-drag: none;
-      -moz-user-drag: none;
-      -ms-user-drag: none;
-      user-drag: none;
-    }
-
-    /* Specific heights */
-    #demoCanvas1 {
-      height: 600px;
-      width:800px;
-    }
-
-    #demoCanvas2,
-    #demoCanvas3 {
-      height: 500px;
-      width:700px
-    }
-
-    @media (max-width: 1000px) {
-      .illustrations {
-        grid-template-columns: 1fr;
-      }
-    }
-
-  </style>
+        #demoCanvas {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            background: white;
+            border: 0;
+        }
+    </style>
 </head>
-
 <body>
-
-<div class="container">
-
-  <h1>xeokit SDK Multi-Canvas IFC Viewer</h1>
-
-  <p class="description">
-    This example demonstrates the xeokit SDK's multi-canvas support.
-    A single Viewer renders one IFC model simultaneously in three completely
-    separate canvas elements. Each View has its own camera and maintains
-    independent visual states (such as visibility, selection, and highlighting),
-    while sharing the same underlying scene and model data.
-  </p>
-
-  <div class="illustrations">
-
-    <figure>
-      <img id="demoCanvas1">
-      <figcaption>
-        Canvas 1 – Independent View (Perspective). This is a separate canvas element
-        with its own camera and object selection state.
-      </figcaption>
-    </figure>
-
-    <div class="right-column">
-
-      <figure>
-        <img id="demoCanvas2">
-        <figcaption>
-          Canvas 2 – Independent View. Separate canvas element sharing the same model data,
-          but maintaining its own visual state.
-        </figcaption>
-      </figure>
-
-      <figure>
-        <img id="demoCanvas3">
-        <figcaption>
-          Canvas 3 – Independent View. Another standalone canvas element.
-        </figcaption>
-      </figure>
-
-    </div>
-
-  </div>
-
-</div>
-
+<canvas id="demoCanvas"></canvas>
 </body>
-
-<script type="module" src="index.js"></script>
+<script type="module" src="./index.js"></script>
 </html>

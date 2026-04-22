@@ -1,9 +1,8 @@
-// Import the SDK from a bundle built for these examples.
-
+// Import the xeokit SDK bundle used by this example.
+// It provides the helper, loader, and rendering APIs used in this sample.
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
-
-// Create a inspectors that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
-
+// Create the demo helper.
+// It initializes the scene, data, viewer, and renderer context for this demo.
 const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper
@@ -109,7 +108,7 @@ demoHelper
 
       dequeue.push(objectRes.value);
 
-      if (dequeue.length > 5000) {
+      if (dequeue.length > 1000) {
         const oldObject = dequeue.shift();
         oldObject.destroy();
         oldObject.meshes.forEach((mesh) => {

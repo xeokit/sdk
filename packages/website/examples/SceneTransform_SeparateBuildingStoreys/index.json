@@ -1,19 +1,17 @@
 {
   "id": "SceneTransform_SeparateBuildingStoreys",
-  "title": "Viewing IFC using IFCLoader",
-  "description": "How to use IFCLoader to view an IFC model in the browser with a xeokit web viewer.",
+  "title": "Separating Building Storeys with SceneTransform",
+  "description": "Use SceneTransform to separate a building model into storeys for exploded-view style analysis.",
   "isTutorial": true,
   "isVisualTest": true,
   "tags": [
-    "IFC",
-    "XGF",
-    "webifc2xgf",
-    "_Featured"
+    "Modeling",
+    "Transforms"
   ],
   "categories": [
-    "Importing",
-    "IFC"
+    "Modeling",
+    "Transforms"
   ],
-  "topic": "import.ifc",
+  "topic": "modeling.transforms",
   "template": "basicPage"
 }

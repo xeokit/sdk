@@ -1,29 +1,35 @@
-// Import the SDK from a bundle built for these examples.
-
+// Import the xeokit SDK bundle. This bundle provides the demo helper
+// together with the scene, data, loader, and UI APIs used by this
+// example.
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
-// Create a inspectors that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
-
+// Create the demo helper. This helper initializes the shared runtime
+// context and provides utilities for configuring and running the demo.
 const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper.init().then(() => {
 
-  const {scene, data, renderer} = demoHelper;
+  // Access the Scene, Data, and Renderer subsystems created by the
+  // DemoHelper. The Scene manages renderable content, while the Data
+  // subsystem manages semantic model structure and metadata.
+  const { scene, data, renderer } = demoHelper;
 
-  // Create an IFCLoader to load IFC files
+  // Create an IFCLoader to parse IFC data into renderable geometry and
+  // corresponding semantic objects.
   const ifcLoader = new xeokit.formats.ifc.IFCLoader();
 
-  // Arrange the View's Camera
-
+  // Create a View and position the camera to frame the model after it
+  // has loaded.
   const view = demoHelper.createView({
     camera: {
-      "eye": [-28.61121936096161,13.521426697632066,19.058116784372952],
-      "look": [-0.0015259021896687486,0.0015259021896687486,-1.1749992675781256],
-      "up": [0.4870560392709646,-0.23016497899858748,0.8424965857807737],
+      eye: [-28.61, 13.52, 19.06],
+      look: [-0.00, 0.00, -1.17],
+      up: [0.49, -0.23, 0.84],
     }
   });
 
-  // Create a SceneModel to hold our model's geometry and materials
+  // Create a SceneModel to hold the renderable model content. Geometry
+  // and material state loaded from the IFC file will be stored here.
   const sceneModelResult = scene.createModel({
     id: "demoModel",
     coordinateSystem: {
@@ -42,7 +48,8 @@ demoHelper.init().then(() => {
     throw new Error("Failed to create SceneModel: " + sceneModelResult.error);
   }
 
-  // Create a DataModel to hold semantic data for our model
+  // Create a DataModel to hold semantic content such as object types,
+  // relationships, and metadata.
   const dataModelResult = data.createModel({
     id: "demoModel"
   });
@@ -54,92 +61,84 @@ demoHelper.init().then(() => {
   const sceneModel = sceneModelResult.value;
   const dataModel = dataModelResult.value;
 
-  // Load our IFC data into the SceneModel and DataModel
+  // Fetch the IFC file and load it into both the renderable and semantic
+  // model layers so that geometry and metadata remain linked.
   fetch(`../../models/IfcOpenHouse4/ifc/model.ifc`)
-    .then(response => response.arrayBuffer())
-    .then(fileData => {
+      .then(response => response.arrayBuffer())
+      .then(fileData => {
 
-      ifcLoader.load({
-        fileData,
-        sceneModel,
-        dataModel
-      }).then(() => {
+        ifcLoader.load({
+          fileData,
+          sceneModel,
+          dataModel
+        }).then(() => {
 
-        // Create a TabbedTreeViewPanel to show the model hierarchy in three tabs:
-        //
-        // - Aggregation: follows IfcRelAggregates
-        // - Types: groups objects by IFC type
-        // - Groups: groups objects using groupTypes, then by type
-        //
-        // The panel creates and manages its own DOM and styling unless we provide
-        // a panelElement explicitly.
-
-        const treePanel = new xeokit.ui.treeview.TabbedTreeViewPanel({
-          data,
-          view,
-          linkType: "IfcRelAggregates",
-          autoExpandDepth: 4,
-          sortNodes: true,
-          pruneEmptyNodes: true,
-          rootName: "IfcOpenHouse4",
-          title: "IfcOpenHouse4",
-          subtitle: "Browse IFC structure"
-        });
-
-        treePanel.events.onContextMenu.subscribe((treePanelInstance, event) => {
-          console.log("Tree node context menu:", event.treeViewNode);
-        });
-
-        // Wire the same node-click behavior onto each tab's TreeView so selection
-        // works consistently regardless of which hierarchy tab is currently active.
-
-        const attachTreeHandlers = (treeView) => {
-          treeView.events.onNodeTitleClicked.subscribe((treeViewInstance, event) => {
-
-            const objectId = event.treeViewNode.objectId;
-
-            //   treeView.showNode(objectId);
-
-            const resultObjectIds = [];
-
-            const result = xeokit.data.searchObjects(data, {
-              startObjectId: objectId,
-              resultObjectIds
-            });
-
-            // Check if the query was valid.
-
-            if (!result.ok) {
-              console.error("Error querying IFC data: " + result.error);
-              return;
-            }
-
-            // If the query succeeded, go ahead and mark whatever
-            // objects we found as selected. In this case, it will set the window
-            // frames as selected in the View.
-
-            view.setObjectsSelected(view.selectedObjectIds, false);
-            view.setObjectsSelected(resultObjectIds, true);
-
-            console.log("Tree node clicked:", event.treeViewNode);
+          // Create a tabbed tree panel that presents the model hierarchy in
+          // multiple ways, including aggregation, type, and grouped views.
+          // The panel manages its own DOM and styling unless a host element
+          // is provided explicitly.
+          const treePanel = new xeokit.ui.treeview.TabbedTreeViewPanel({
+            data,
+            view,
+            linkType: ["IfcRelAggregates", "IfcRelContainedInSpatialStructure"],
+            autoExpandDepth: 4,
+            sortNodes: true,
+            pruneEmptyNodes: true,
+            rootName: "IfcOpenHouse4",
+            title: "IfcOpenHouse4",
+            subtitle: "Browse IFC structure"
           });
 
-          treeView.events.onContextMenu.subscribe((treeViewInstance, event) => {
+          // Log tree panel context-menu events for debugging.
+          treePanel.events.onContextMenu.subscribe((treePanelInstance, event) => {
             console.log("Tree node context menu:", event.treeViewNode);
           });
-        };
 
-        attachTreeHandlers(treePanel.aggregationTreeView);
-        attachTreeHandlers(treePanel.typesTreeView);
-        attachTreeHandlers(treePanel.groupsTreeView);
+          // Attach the same interaction behavior to each tab so selection
+          // works consistently regardless of which hierarchy view is active.
+          const attachTreeHandlers = (treeView) => {
+            treeView.events.onNodeTitleClicked.subscribe((treeViewInstance, event) => {
 
-        demoHelper.finished();
+              const objectId = event.treeViewNode.objectId;
 
-      }).catch(e => {
+              const resultObjectIds = [];
+              const result = xeokit.data.searchObjects(data, {
+                startObjectId: objectId,
+                resultObjectIds
+              });
+
+              // Stop if the query fails.
+              if (!result.ok) {
+                console.error("Error querying IFC data: " + result.error);
+                return;
+              }
+
+              // Clear the current selection and select the clicked object
+              // together with any related objects returned by the query.
+              view.setObjectsSelected(view.selectedObjectIds, false);
+              view.setObjectsSelected(resultObjectIds, true);
+
+              console.log("Tree node clicked:", event.treeViewNode);
+            });
+
+            // Log per-tree context-menu events for debugging.
+            treeView.events.onContextMenu.subscribe((treeViewInstance, event) => {
+              console.log("Tree node context menu:", event.treeViewNode);
+            });
+          };
+
+          attachTreeHandlers(treePanel.aggregationTreeView);
+          attachTreeHandlers(treePanel.typesTreeView);
+          attachTreeHandlers(treePanel.groupsTreeView);
+
+          // Signal that loading and UI setup have completed.
+          demoHelper.finished();
+
+        }).catch(e => {
+          console.error(e);
+        });
+      })
+      .catch(e => {
         console.error(e);
       });
-    })
-    .catch(e => {
-      console.error(e);
-    });
 });

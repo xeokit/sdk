@@ -1,91 +1,61 @@
+/**
+ * Provides a flexible model viewer that can load and display any model from the
+ * demo examples collection. The model is selected using the `modelId` query
+ * parameter, while one or more source formats are specified via the `format`
+ * parameter. The source coordinate system is loaded from `coordSys.json` in the
+ * target model directory, ensuring correct interpretation of axis orientation
+ * and handedness.
+ *
+ * The example loads the coordinate system from disk, loads the requested model
+ * data into both SceneModel and DataModel layers, and then fits the View for
+ * interaction.
+ */
+
 // Import the xeokit SDK bundle used by this example.
 // Includes the rendering engine, format loaders, and demo helpers.
-
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
-function getCoordinateSystem(coordsys) {
-  const systems = {
-    // --- Base coordinate systems ---
+/**
+ * Loads a coordinate system JSON file from the selected model directory.
+ *
+ * Expected path:
+ * `./models/<modelId>/coordSys.json`
+ *
+ * This function assumes the file always exists and is valid.
+ * It will throw if the file cannot be loaded or parsed.
+ */
+async function loadCoordinateSystemFromFile(modelId) {
+  const coordSysPath = `../../models/${encodeURIComponent(modelId)}/coordSys.json`;
 
-    "yup-rh": {
-      basis: [1, 0, 0,  0, 1, 0,  0, 0, -1],
-      origin: [0, 0, 0],
-      units: "meters"
-    },
-    "yup-lh": {
-      basis: [1, 0, 0,  0, 1, 0,  0, 0, 1],
-      origin: [0, 0, 0],
-      units: "meters"
-    },
-    "zup-rh": {
-      basis: [1, 0, 0,  0, 0, 1,  0, 1, 0],
-      origin: [0, 0, 0],
-      units: "meters"
-    },
-    "zup-lh": {
-      basis: [1, 0, 0,  0, 0, 1,  0, -1, 0],
-      origin: [0, 0, 0],
-      units: "meters"
-    },
-    "xup-rh": {
-      basis: [0, 1, 0,  1, 0, 0,  0, 0, 1],
-      origin: [0, 0, 0],
-      units: "meters"
-    },
-    "xup-lh": {
-      basis: [0, 1, 0,  1, 0, 0,  0, 0, -1],
-      origin: [0, 0, 0],
-      units: "meters"
-    }
-  };
+  const response = await fetch(coordSysPath, { cache: "no-cache" });
 
-  // --- Aliases for common tools / formats ---
-  const aliases = {
-    // glTF / Web
-    "gltf": "yup-rh",
-    "glb": "yup-rh",
-    "web": "yup-rh",
+  if (!response.ok) {
+    throw new Error(`Failed to load coordSys.json at ${coordSysPath}`);
+  }
 
-    // Blender
-    "blender": "zup-rh",
+  const json = await response.json();
 
-    // Unity
-    "unity": "yup-lh",
+  if (
+    !json ||
+    !Array.isArray(json.basis) ||
+    !Array.isArray(json.origin) ||
+    typeof json.units !== "string"
+  ) {
+    throw new Error(`Invalid coordSys.json at ${coordSysPath}`);
+  }
 
-    // Unreal Engine
-    "unreal": "zup-lh",
-
-    // Autodesk tools
-    "3dsmax": "zup-rh",
-    "max": "zup-rh",
-    "maya": "yup-rh",
-
-    // BIM / CAD
-    "revit": "zup-rh",
-    "ifc": "zup-rh",
-    "cad": "zup-rh",
-
-    // Generic fallbacks
-    "y-up": "yup-rh",
-    "z-up": "zup-rh",
-    "x-up": "xup-rh"
-  };
-
-  const key = coordsys.toLowerCase();
-
-  const resolved = systems[key]
-    ? key
-    : aliases[key]
-      ? aliases[key]
-      : "yup-rh";
-
-  return systems[resolved];
+  return json;
 }
 
+/**
+ * Entry point for the demo. Initializes xeokit, resolves runtime
+ * parameters, loads model data, and prepares the View.
+ */
 async function main() {
-  const demoHelper = new xeokit.demo.DemoHelper({
 
-  });
+  // Create and initialize the DemoHelper, which sets up Scene, Data,
+  // Viewer, and rendering context.
+  const demoHelper = new xeokit.demo.DemoHelper({});
 
   await demoHelper.init({
     logging: false
@@ -93,31 +63,37 @@ async function main() {
 
   const { data, scene } = demoHelper;
 
- const view = demoHelper.createView({
+  // Create a View and configure the initial camera framing.
+  const view = demoHelper.createView({
     camera: {
-      "eye": [-3.23,-3.49,2.58],
-      "look": [-0.03,0.05,0.5],
-      "up": [0.26,0.29,0.91]
+      eye: [-3.23, -3.49, 2.58],
+      look: [-0.03, 0.05, 0.5],
+      up: [0.26, 0.29, 0.91]
     }
   });
+
+  // Read runtime parameters from the URL query string.
+  // - modelId: selects which demo model to load
+  // - format: selects one or more source formats (comma-separated)
 
   const params = new URLSearchParams(window.location.search);
   const modelId = params.get("modelId") || "Duplex";
   const formatParam = params.get("format") || "xgf";
-  const coordsysParam = params.get("coordsys") || "yup-rh";
 
-  const coordinateSystem = getCoordinateSystem(coordsysParam);
+  // Load coordinate system from the model's coordSys.json file.
+  const coordinateSystem = await loadCoordinateSystemFromFile(modelId);
 
+  // Create a SceneModel to hold renderable geometry.
   const sceneModelResult = scene.createModel({
     id: "demoModel",
     coordinateSystem,
-   // deferredBuild: true
   });
 
   if (sceneModelResult.ok === false) {
     throw new Error(`Error creating SceneModel: ${sceneModelResult.error}`);
   }
 
+  // Create a DataModel to hold semantic metadata.
   const dataModelResult = data.createModel({
     id: "demoModel"
   });
@@ -129,22 +105,30 @@ async function main() {
   const sceneModel = sceneModelResult.value;
   const dataModel = dataModelResult.value;
 
+  // Parse the format parameter into a list of formats.
+  // Multiple formats can be specified as a comma-separated string.
   const formats = formatParam
     .split(",")
     .map((format) => format.trim())
     .filter(Boolean);
 
+  // Load each requested format into the same SceneModel/DataModel.
+  // This allows combining geometry and metadata from multiple sources.
   for (const format of formats) {
-    await demoHelper.loadModel({ modelId, format, sceneModel, dataModel }, {});
+    await demoHelper.loadModel(
+      { modelId, format, sceneModel, dataModel },
+      {}
+    );
   }
 
-  sceneModel.finalize();
-
+  // Fit the View to the model bounds and signal that initialization
+  // has completed.
   demoHelper.viewFit(view);
 
   demoHelper.finished();
 }
 
+// Run the demo and report any initialization errors.
 main().catch((err) => {
   console.error("Error initializing demo:", err);
 });

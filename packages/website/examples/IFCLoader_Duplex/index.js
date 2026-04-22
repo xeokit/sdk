@@ -1,31 +1,36 @@
-// Import the SDK from a bundle built for these examples.
-
+// Import the xeokit SDK bundle used by this example. This bundle provides
+// the demo helper together with the scene, data, loader, and rendering
+// APIs needed by the sample.
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
-// Create a inspectors that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
-
+// Create the demo helper. This helper initializes the shared rendering
+// context and provides utilities for setting up and finalizing the demo.
 const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper.init().then(() => {
 
-  const {scene, data, renderer} = demoHelper;
+  // Access the Scene, Data, and Renderer subsystems created by the
+  // DemoHelper. The Scene manages renderable content, while the Data
+  // subsystem manages semantic model structure.
+  const { scene, data, renderer } = demoHelper;
 
-  // Create an IFCLoader to load IFC files
-
+  // Create an IFCLoader to parse IFC data into renderable scene content
+  // and corresponding semantic objects.
   const ifcLoader = new xeokit.formats.ifc.IFCLoader();
 
-  // Arrange the View's Camera
-
+  // Create a View and configure its initial camera so that the loaded
+  // model is framed clearly.
   const view = demoHelper.createView({
     camera: {
-      "eye": [24.40,23.70,27.04],
-      "look": [4.39,8.90,2.54],
-      "up": [-0.56,-0.41,0.71]
+      eye: [24.40, 23.70, 27.04],
+      look: [4.39, 8.90, 2.54],
+      up: [-0.56, -0.41, 0.71]
     }
   });
 
-  // Create a SceneModel to hold our model's geometry and materials
-
+  // Create a SceneModel to hold the renderable model content. The
+  // coordinate system is defined explicitly so that axes and units are
+  // interpreted consistently.
   const sceneModelResult = scene.createModel({
     id: "demoModel",
     coordinateSystem: {
@@ -34,22 +39,24 @@ demoHelper.init().then(() => {
         0, 1, 0, // Up
         0, 0, 1  // Forward
       ],
-      origin: [0,0,0],
+      origin: [0, 0, 0],
       units: "meters",
       scaleToMeters: 1
     }
   });
 
+  // Ensure that the SceneModel was created successfully before continuing.
   if (!sceneModelResult.ok) {
     throw new Error("Failed to create SceneModel: " + sceneModelResult.error);
   }
 
-  // Create a DataModel to hold semantic data for our model
-
+  // Create a DataModel to hold semantic content such as object types,
+  // relationships, and metadata.
   const dataModelResult = data.createModel({
     id: "demoModel"
   });
 
+  // Ensure that the DataModel was created successfully before continuing.
   if (!dataModelResult.ok) {
     throw new Error("Failed to create DataModel: " + dataModelResult.error);
   }
@@ -57,59 +64,54 @@ demoHelper.init().then(() => {
   const sceneModel = sceneModelResult.value;
   const dataModel = dataModelResult.value;
 
-  // Load our IFC data into the SceneModel and DataModel
-
+  // Fetch the IFC file and load it into both the SceneModel and DataModel.
+  // This keeps the renderable model and its semantic representation linked.
   fetch(`../../models/Duplex/ifc/model.ifc`)
-    .then(response => {
-      response
-        .arrayBuffer()
-        .then(fileData => {
+      .then(response => {
+        response
+            .arrayBuffer()
+            .then(fileData => {
 
-          ifcLoader.load({
-            fileData,
-            sceneModel,
-            dataModel
+              ifcLoader.load({
+                fileData,
+                sceneModel,
+                dataModel
 
-          }).then(() => { // IFC file loaded
+              }).then(() => {
 
-            // The IFC model now appears in our Viewer.  The DataModel and the Data will then contain DataObject,
-            // Relationship and PropertySet components that represent the IFC data as an
-            // entity-relationship graph.
+                // At this point, the IFC model is loaded into the SceneModel,
+                // while the DataModel contains DataObject, Relationship, and
+                // PropertySet components representing the IFC structure as an
+                // entity-relationship graph.
 
-            // Using the searchObjects function, query the Data for all the
-            // IfcFurnishingElement elements within the IfcBuilding.
+                // Query the semantic model for all IfcFurnishingElement objects
+                // that are contained within the specified IfcBuilding.
+                const resultObjectIds = [];
 
-            const resultObjectIds = [];
+                const result = xeokit.data.searchObjects(data, {
+                  startObjectId: "1xS3BCk291UvhgP2a6eflK", // IfcBuilding
+                  includeObjects: ["IfcFurnishingElement"],
+                  includeRelated: ["IfcRelAggregates"],
+                  resultObjectIds
+                });
 
-            const result = xeokit.data.searchObjects(data, {
-              startObjectId: "1xS3BCk291UvhgP2a6eflK", // IfcBuilding
-              includeObjects: ["IfcFurnishingElement"],
-              includeRelated: ["IfcRelAggregates"],
-              resultObjectIds
+                // Ensure that the query completed successfully before using
+                // the results.
+                if (!result.ok) {
+                  console.error(result);
+                } else {
+
+                  // Select the matching furnishing objects in the View so that
+                  // they are visually distinguished in the loaded model.
+                  view.setObjectsSelected(resultObjectIds, true);
+                }
+
+                // Signal that loading and setup have completed.
+                demoHelper.finished();
+
+              }).catch(e => {
+                console.error(e);
+              });
             });
-
-            // Check if the query was valid.
-
-            if (!result.ok) {
-              console.error(result);
-              return;
-            }
-
-            // If the query succeeded, go ahead and mark whatever
-            // objects we found as selected. In this case, it will set the furniture
-            // objects as selected in the View.
-
-            view.setObjectsSelected(resultObjectIds, true);
-
-            demoHelper.finished();
-
-
-
-
-          }).catch(e => {
-            console.error(e);
-          });
-        });
-    });
+      });
 });
-

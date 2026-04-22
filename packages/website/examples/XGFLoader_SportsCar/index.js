@@ -1,4 +1,5 @@
-// Import the SDK from a bundle built for these examples.
+// Import the xeokit SDK bundle used by these examples.
+// The bundle provides loader, scene, and helper APIs used below.
 
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
@@ -19,7 +20,8 @@ demoHelper.init().then(() => {
 
   const xgfLoader = new xeokit.formats.xgf.XGFLoader();
 
-  // Create a SceneModel to hold our model's geometry and materials
+  // Create a SceneModel for renderable model content.
+  // Coordinate settings define basis, origin, and units for the loaded data.
 
   const sceneModelRes = scene.createModel({
     id: "demoModel",
@@ -42,7 +44,8 @@ demoHelper.init().then(() => {
 
   const sceneModel = sceneModelRes.value;
 
-  // Create a DataModel to hold semantic data for our model
+  // Create a DataModel for semantic model data.
+  // This can be used for metadata-driven interactions.
 
   const dataModelRes = data.createModel({
     id: "demoModel"
@@ -57,7 +60,8 @@ demoHelper.init().then(() => {
 
     response.arrayBuffer().then(fileData => {
 
-      // Parse the XGF file and populate the SceneModel
+      // Load the XGF file into the SceneModel.
+      // When loading finishes, build helper visualization state.
       xgfLoader.load({
         fileData,
         sceneModel

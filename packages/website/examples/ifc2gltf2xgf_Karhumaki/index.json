@@ -1,7 +1,7 @@
 {
   "id": "ifc2gltf2xgf_Karhumaki",
   "title": "Importing IFC Converted by ifc2gltf2xgf",
-  "description": "In this example, we'll use the xeokit SDK to view a glTF model in the browser.",
+  "description": "Load and view an IFC model that was converted with the ifc2gltf2xgf pipeline.",
   "isTutorial": false,
   "isVisualTest": true,
   "tags": [

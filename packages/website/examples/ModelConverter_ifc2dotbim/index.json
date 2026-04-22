@@ -1,17 +1,19 @@
 {
   "id": "ModelConverter_ifc2dotbim",
-  "title": "Viewing .BIM using ModelConverter and IFCLoader",
-  "description": "Use the ModelConverter class to convert a model from dotbim (.bim) format to JSON SceneModelParams and DataModelParams, then use SceneModelParamsLoader and DataModelParamsLoader to view the model in a xeokit web viewer.",
+  "title": "Converting IFC to DotBIM with ModelConverter",
+  "description": "Use ModelConverter to convert an IFC model to dotbim (.bim), then load and view the result in xeokit.",
   "isTutorial": true,
   "isVisualTest": true,
   "tags": [
     "Importing",
+    "IFC",
     "DotBIM"
   ],
   "categories": [
     "Importing",
+    "IFC",
     "DotBIM"
   ],
-  "topic": "import.dotbim",
+  "topic": "import.ifc",
   "template": "basicPage"
 }

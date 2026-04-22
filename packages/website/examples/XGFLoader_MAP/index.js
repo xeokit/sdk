@@ -1,24 +1,27 @@
-// Import the xeokit SDK bundle used by this example.
-// This includes the rendering engine plus format loaders and demo helpers.
+// Import the xeokit SDK bundle. This bundle provides the rendering
+// engine together with format loaders and demo utilities used by
+// this example.
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
-// Create a helper that sets up a ready-to-use Scene, View, and Data system.
-// This avoids manual setup of rendering, camera, and data layers.
+// Create the demo helper. This helper initializes the shared runtime
+// context and provides utilities for configuring and running the demo.
 const demoHelper = new xeokit.demo.DemoHelper({});
 
-// Initialize everything, then build the example.
+// Initialize the runtime context before creating views or loading
+// model content.
 demoHelper.init().then(() => {
 
-  // These are the core systems:
-  // - scene: holds geometry and renderable objects
-  // - view: controls camera and rendering
-  // - data: holds semantic/model metadata (eg. IFC structure)
-  const {scene, data} = demoHelper;
+  // Access the Scene and Data subsystems created by the DemoHelper.
+  // The Scene manages renderable content, while the Data subsystem
+  // manages semantic model information when present.
+  const { scene, data } = demoHelper;
 
-  // Create a loader for .XGF files.
-  // XGF is a compact xeokit-specific format (often converted from IFC).
+  // Create an XGFLoader to parse xeokit XGF model data into the
+  // renderable scene model.
   const xgfLoader = new xeokit.formats.xgf.XGFLoader();
 
+  // Create a View and position the camera to frame the model from
+  // the desired starting viewpoint.
   const view = demoHelper.createView({
     camera: {
       eye: [1841990.2778388674, 5173295.7011186555, 16.25441882894172],
@@ -27,12 +30,12 @@ demoHelper.init().then(() => {
     }
   });
 
-  // Create a SceneModel to store geometry and materials.
-  // This represents the visual side of the model.
+  // Create a SceneModel to hold renderable geometry and material state.
+  // The coordinate system is defined explicitly so that axis orientation
+  // and units are interpreted consistently.
   const sceneModelRes = scene.createModel({
     id: "demoModel",
     coordinateSystem: {
-      // This model uses a local Y-up coordinate system.
       basis: [
         1, 0, 0, // +X = right
         0, 1, 0, // +Y = up
@@ -49,23 +52,24 @@ demoHelper.init().then(() => {
 
   const sceneModel = sceneModelRes.value;
 
-  // Load a .XGF file (converted from IFC) using fetch.
-  // The file is loaded as binary data (ArrayBuffer).
-  fetch("../../models/MAP/ifc2xgf/model.xgf").then(response => {
+  // Fetch the XGF file as binary data and load it into the SceneModel.
+  // The loaded model was converted from IFC into xeokit's compact XGF
+  // representation.
+  fetch("../../models/MAP/xgf/model.xgf").then(response => {
 
     response.arrayBuffer().then(fileData => {
 
-      // Parse the XGF file and populate the SceneModel
       xgfLoader.load({
         fileData,
         sceneModel
       }).then(() => {
 
-        // After loading, the SceneModel contains SceneObjects (visual elements)
-        //
-        // The View automatically creates ViewObjects for rendering,
-        // which you can use to control visibility, color, selection, etc.
+        // At this point, the SceneModel contains SceneObjects for the
+        // loaded model, and the View contains corresponding ViewObjects
+        // that control per-view appearance and interaction state.
 
+        // Create a SceneModelExploder to compute exploded positions for
+        // the loaded model, then rebuild its internal state.
         const exploder = new xeokit.demo.SceneModelExploder({
           scene,
           sceneModel,
@@ -74,6 +78,8 @@ demoHelper.init().then(() => {
 
         exploder.rebuild();
 
+        // Fit the active View to the loaded model bounds, then signal
+        // that initialization has completed.
         demoHelper.viewFit(view);
 
         demoHelper.finished();

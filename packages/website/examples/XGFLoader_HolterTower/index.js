@@ -1,9 +1,8 @@
-// Import the SDK from a bundle built for these examples.
-
+// Import the xeokit SDK bundle used by this example.
+// It provides the helper, loader, and rendering APIs used in this sample.
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
-
-// Create a inspectors that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
-
+// Create the demo helper.
+// It initializes the scene, data, viewer, and renderer context for this demo.
 const demoHelper = new xeokit.demo.DemoHelper();
 
 demoHelper.init({
@@ -15,9 +14,8 @@ demoHelper.init({
   // Create an xgfLoader to load IFC files
 
   const xgfLoader = new xeokit.formats.xgf.XGFLoader();
-
-  // Arrange the View's Camera
-
+  // Create a view and set the initial camera.
+  // The camera is placed to frame the model after loading.
   const view = demoHelper.createView({
     camera: {
       "eye": [213.40728695310605,113.76051876858196,322.9017599849709],
@@ -25,9 +23,8 @@ demoHelper.init({
       "up": [-0.56,-0.41,0.71]
     }
   });
-
-  // Create a SceneModel to hold our model's geometry and materials
-
+  // Create a SceneModel for renderable model content.
+  // Geometry and material data loaded from files is stored here.
   const sceneModelResult = scene.createModel({
     id: "demoModel",
     coordinateSystem: {
@@ -46,9 +43,8 @@ demoHelper.init({
   if (!sceneModelResult.ok) {
     throw new Error("Failed to create SceneModel: " + sceneModelResult.error);
   }
-
-  // Create a DataModel to hold semantic data for our model
-
+  // Create a DataModel for semantic model data.
+  // Metadata, relationships, and object meaning are stored here.
   const dataModelResult = data.createModel({
     id: "demoModel"
   });
@@ -59,9 +55,8 @@ demoHelper.init({
 
   const sceneModel = sceneModelResult.value;
   const dataModel = dataModelResult.value;
-
-  // Load our IFC data into the SceneModel and DataModel
-
+  // Fetch and load the IFC file.
+  // The loader populates both SceneModel and DataModel so graphics and metadata stay linked.
   fetch(`../../models/HolterTower/xgf/model.xgf`)
     .then(response => {
       response

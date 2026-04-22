@@ -1,7 +1,7 @@
 {
   "id": "SceneModel_build_points",
-  "title": "Creating a 3D Triangle",
-  "description": "Using xeokit SDK to create and view a single 3D triangle in the browser.",
+  "title": "Creating 3D Points",
+  "description": "Using xeokit SDK to create and view a point cloud-style SceneModel in the browser.",
   "isTutorial": true,
   "isVisualTest": false,
   "tags": [],

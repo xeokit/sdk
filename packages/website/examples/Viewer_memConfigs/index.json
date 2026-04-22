@@ -1,14 +1,15 @@
 {
   "id": "Viewer_memConfigs",
-  "title": "Viewing a .BIM model and hiding IfcSpaces",
-  "description": "",
+  "title": "Viewer Memory Configuration Presets",
+  "description": "Configure Viewer and renderer memory presets and compare behavior on the same model.",
   "isTutorial": false,
   "isVisualTest": true,
   "tags": [],
   "categories": [
-    "Importing",
-    "DotBIM"
+    "Viewer",
+    "Configuration",
+    "Performance"
   ],
-  "topic": "import.dotbim",
+  "topic": "viewer.configuration",
   "template": "basicPage"
 }

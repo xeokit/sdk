@@ -1,62 +1,34 @@
-// Step 1: Import the xeokit SDK bundle.
-//
-// This bundle exposes the xeokit SDK v3 APIs used in this example.
-// In a real application you would typically import from a package,
-// but here we use a prebuilt bundle to keep the focus on the core concepts.
-
+// Import the xeokit SDK bundle. This example uses a prebuilt bundle to
+// focus on the core API flow without additional setup.
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
 
-// Step 2: Create the four core engine components.
-//
-// This is the canonical “hello world” structure in xeokit SDK v3:
-//
-// - Scene: holds all world data (models, objects, geometry)
-// - Data: optional data layer (metadata, external data sources)
-// - Viewer: manages Views (presentation of the Scene)
-// - WebGLRenderer: performs actual rendering to the canvas
-//
-// In v3, these are intentionally decoupled so you can compose them
-// flexibly depending on your application needs.
-
+// Create the core subsystems. The Scene manages renderable content, the
+// Data subsystem holds optional semantic data, the Viewer manages Views,
+// and the Renderer draws frames to the canvas.
 const scene = new xeokit.scene.Scene();
 const data = new xeokit.data.Data();
 const viewer = new xeokit.viewer.Viewer();
 const renderer = new xeokit.webglrenderer.WebGLRenderer();
 
 
-// Step 3: Attach debug event loggers (optional but very useful).
-//
-// xeokit SDK v3 is event-driven internally. Attaching event loggers
-// to each core component lets you observe how the system behaves as
-// it initializes, renders, and updates. This is especially helpful
-// when learning the architecture or debugging issues.
-
-new xeokit.core.EventsLogger(scene.events, {prefix: "[Scene    ]"});
-new xeokit.core.EventsLogger(data.events, {prefix: "[Data     ]"});
-new xeokit.core.EventsLogger(viewer.events, {prefix: "[Viewer   ]"});
-new xeokit.core.EventsLogger(renderer.events, {prefix: "[Renderer ]"});
+// Attach optional debug event loggers. These log lifecycle and update
+// events for each subsystem, which is useful for understanding behavior
+// during development.
+new xeokit.core.EventsLogger(scene.events, { prefix: "[Scene    ]" });
+new xeokit.core.EventsLogger(data.events, { prefix: "[Data     ]" });
+new xeokit.core.EventsLogger(viewer.events, { prefix: "[Viewer   ]" });
+new xeokit.core.EventsLogger(renderer.events, { prefix: "[Renderer ]" });
 
 
-// Step 4: Connect the components together.
-//
-// In v3, nothing is implicitly wired. We explicitly connect:
-//
-// - Viewer → Scene (so Views know what to display)
-// - Renderer → Viewer (so Views can be rendered)
-//
-// This explicit composition is a key design choice in xeokit SDK v3.
-
+// Connect the subsystems explicitly. The Viewer consumes the Scene,
+// and the Renderer consumes the Viewer to produce visual output.
 viewer.attachScene(scene);
 renderer.attachViewer(viewer);
 
 
-// Step 5: Create a View to display the Scene.
-//
-// A View represents a specific presentation of the Scene. It binds to
-// an HTML canvas and defines how the Scene is rendered (camera, background,
-// transparency, etc). Multiple Views could render the same Scene differently.
-
+// Create a View to display the Scene. The View binds to a canvas element
+// and manages camera configuration and presentation settings.
 const viewResult = viewer.createView({
   id: "demoView",
   elementId: "demoCanvas",
@@ -67,43 +39,27 @@ if (!viewResult.ok) throw new Error("Failed to create View");
 const view = viewResult.value;
 
 
-// Step 6: Configure the camera.
-//
-// The camera belongs to the View (not the Scene). This reinforces the
-// separation between data and presentation. Here we position the camera
-// so it looks at the origin from a distance along the Z axis.
-
+// Configure the camera on the View. Camera state is owned by the View,
+// not the Scene.
 view.camera.eye = [0, 0, 7];
 view.camera.look = [0, 0, 0];
 view.camera.up = [0, 1, 0];
 
 
-// Step 7: Enable user interaction.
-//
-// The ViewController adds standard controls (mouse, touch, keyboard)
-// for orbiting, panning, and zooming the camera. This is optional,
-// but typically included in interactive applications.
-
+// Enable user interaction. The ViewController adds orbit, pan, and zoom
+// controls for navigating the scene.
 new xeokit.viewcontroller.ViewController(view);
 
 
-// Step 8: Create a SceneModel to hold our content.
-//
-// A SceneModel is the main container for geometry, meshes, and objects
-// inside the Scene. In xeokit SDK v3, all renderable content lives inside
-// SceneModels, whether it comes from a file loader or is created manually.
-
-const sceneModelResult = scene.createModel({id: "demoModel"});
+// Create a SceneModel to hold renderable content. SceneModels group
+// geometry, meshes, and objects into a logical model.
+const sceneModelResult = scene.createModel({ id: "demoModel" });
 if (!sceneModelResult.ok) throw new Error("Failed to create SceneModel");
 const sceneModel = sceneModelResult.value;
 
 
-// Step 9: Define reusable geometry.
-//
-// Geometry is defined once and can be reused by multiple meshes.
-// Here we define a simple triangle using positions and indices.
-// This is the lowest-level building block for rendering.
-
+// Define reusable geometry. This triangle can be instanced by multiple
+// meshes to avoid duplicating vertex data.
 sceneModel.createGeometry({
   id: "triangleGeometry",
   primitive: xeokit.constants.TrianglesPrimitive,
@@ -116,14 +72,8 @@ sceneModel.createGeometry({
 });
 
 
-// Step 10: Create meshes that use the geometry.
-//
-// A mesh references geometry and adds instance-specific properties
-// like transform (matrix) and color. Here we create two meshes from
-// the same triangle geometry, positioned left and right, with different colors.
-//
-// This demonstrates an important v3 pattern: reuse geometry, vary meshes.
-
+// Create meshes that instance the shared geometry. Each mesh applies its
+// own transform and color while reusing the same vertex data.
 const myMeshResult = sceneModel.createMesh({
   id: "triangleMesh",
   geometryId: "triangleGeometry",
@@ -131,7 +81,7 @@ const myMeshResult = sceneModel.createMesh({
     position: [-1, 0, 0],
     scale: [1, 1, 1]
   }),
-  color: [0, 1, 1] // Cyan
+  color: [0, 1, 1]
 });
 if (!myMeshResult.ok) throw new Error("Failed to create SceneMesh");
 const myMesh = myMeshResult.value;
@@ -143,21 +93,14 @@ const myMesh2Result = sceneModel.createMesh({
     position: [1, 0, 0],
     scale: [1, 1, 1]
   }),
-  color: [0, 1, 0] // Green
+  color: [0, 1, 0]
 });
 if (!myMesh2Result.ok) throw new Error("Failed to create SceneMesh2");
 const myMesh2 = myMesh2Result.value;
 
 
-// Step 11: Group meshes into a SceneObject.
-//
-// A SceneObject groups one or more meshes into a logical entity.
-// This is the level at which you typically interact with objects
-// (selection, visibility, metadata, etc).
-//
-// Even in this simple example, grouping the meshes reflects how
-// real models are structured in xeokit SDK v3.
-
+// Group the meshes into a SceneObject. SceneObjects represent logical
+// entities that can be selected, hidden, or styled as a unit.
 const createObjectResult = sceneModel.createObject({
   id: "triangleObject",
   meshIds: ["triangleMesh", "triangleMesh2"]
@@ -165,15 +108,8 @@ const createObjectResult = sceneModel.createObject({
 if (!createObjectResult.ok) throw new Error("Failed to create SceneObject");
 
 
-// Step 12: Animate the meshes using an SDKTask.
-//
-// xeokit SDK v3 provides a task system for per-frame updates.
-// Here we register a repeating task that updates each frame,
-// rotating the two meshes on different axes.
-//
-// This demonstrates how dynamic behavior is integrated into the engine
-// without directly managing a render loop yourself.
-
+// Animate the meshes using an SDKTask. The task runs each frame and
+// updates the mesh transforms to produce continuous rotation.
 let r = 0;
 
 new xeokit.core.SDKTask({

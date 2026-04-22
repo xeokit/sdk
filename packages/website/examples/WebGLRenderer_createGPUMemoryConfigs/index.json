@@ -1,14 +1,14 @@
 {
   "id": "WebGLRenderer_createGPUMemoryConfigs",
   "title": "Configuring WebGLRenderer GPU Memory Limits",
-  "description": "",
+  "description": "Configure WebGLRenderer GPU memory limits and observe the impact on model loading and rendering behavior.",
   "isTutorial": true,
   "isVisualTest": true,
   "tags": [],
   "categories": [
-    "Renderer",
-    "DotBIM"
+    "Performance",
+    "Renderer"
   ],
-  "topic": "renderer.configs",
+  "topic": "performance.gpuMemory",
   "template": "basicPage"
 }

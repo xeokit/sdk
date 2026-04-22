@@ -1,7 +1,7 @@
 {
   "id": "ViewLayer_auto",
   "title": "Creating a Viewer with automatic ViewLayers",
-  "description": "",
+  "description": "Create a viewer with automatically managed ViewLayers to control scene partitioning and rendering behavior.",
   "isTutorial": true,
   "isVisualTest": false,
   "tags": [],

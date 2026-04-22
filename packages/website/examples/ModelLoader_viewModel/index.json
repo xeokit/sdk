@@ -1,17 +1,17 @@
 {
-  "id": "XGFLoader_SportsCar",
-  "title": "Viewing .BIM using DotBIMLoader",
-  "description": "How to load an IFC model from dotbim (.bim) format directly into a xeokit web viewer.",
+  "id": "ModelLoader_viewModel",
+  "title": "Loading Models with ModelLoader",
+  "description": "Use DemoHelper and ModelLoader to load a model into SceneModel/DataModel with selectable coordinate-system presets.",
   "isTutorial": true,
   "isVisualTest": true,
   "tags": [
-    "Importing",
-    "DotBIM"
+    "Viewer",
+    "Loading"
   ],
   "categories": [
-    "Importing",
-    "DotBIM"
+    "Viewer",
+    "Loading"
   ],
-  "topic": "import.dotbim",
+  "topic": "viewer.loading",
   "template": "basicPage"
 }

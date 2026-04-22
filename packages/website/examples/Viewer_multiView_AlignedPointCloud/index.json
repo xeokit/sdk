@@ -1,7 +1,7 @@
 {
   "id": "Viewer_multiView_AlignedPointCloud",
-  "title": "Viewing an IFC model in multiple Views",
-  "description": "In this example, we'll use the xeokit SDK to load an IFC model and view it within multiple canvases in the browser",
+  "title": "Multi-View with Aligned Point Cloud",
+  "description": "Render an aligned point cloud across multiple canvas views that share model data but maintain independent view state.",
   "isTutorial": false,
   "isVisualTest": true,
   "tags": [],
@@ -9,5 +9,6 @@
     "Viewer",
     "Views"
   ],
-  "topic": "general"
+  "topic": "viewer.multiview",
+  "template": "basicPage"
 }

@@ -1,7 +1,7 @@
 {
   "id": "TreeView_IFCLoader_IfcOpenHouse4",
-  "title": "Viewing IFC using IFCLoader",
-  "description": "How to use IFCLoader to view an IFC model in the browser with a xeokit web viewer.",
+  "title": "IFC Tree View and Scene Synchronization",
+  "description": "Load IFC with IFCLoader and synchronize object visibility and selection with a hierarchical tree view.",
   "isTutorial": true,
   "isVisualTest": true,
   "tags": [
@@ -11,9 +11,10 @@
     "_Featured"
   ],
   "categories": [
-    "Importing",
+    "Interaction",
+    "TreeView",
     "IFC"
   ],
-  "topic": "import.ifc",
+  "topic": "interaction.treeview",
   "template": "basicPage"
 }

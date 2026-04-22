@@ -1,4 +1,5 @@
-// Import the SDK from a bundle built for these examples.
+// Import the xeokit SDK bundle used by this example.
+// It provides the helper, loader, and rendering APIs used in this sample.
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
 const demoHelper = new xeokit.demo.DemoHelper({

@@ -1,30 +1,27 @@
-// Import the xeokit SDK from a prebuilt bundle used by these demos/examples.
+// Import the xeokit SDK bundle. This bundle provides the demo helper
+// together with the scene, data, loader, and view APIs used by this
+// example.
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
-// Create a DemoHelper, but *don’t* let it auto-create the default View.
-// We’ll create and configure three separate Views (and canvases) ourselves.
+// Create the demo helper without automatically creating a default View.
+// This example creates and configures three separate Views manually.
 const demoHelper = new xeokit.demo.DemoHelper({
   makeView: false,
   maxViews: 3
 });
 
-// DemoHelper.init() creates the core pieces (Viewer, Scene, Data, etc).
-// We wait for that to complete before creating Views and loading models.
+// Initialize the shared runtime context before creating Views or
+// loading model content.
 demoHelper.init().then(() => {
 
-  // Convenience handles:
-  // - viewer: manages Views, render loop, interactions
-  // - scene: holds renderable geometry (SceneModels)
-  // - data: holds metadata graph (DataModels) for search/query, BIM relationships, etc
+  // Access the core subsystems created by the DemoHelper. The Viewer
+  // manages Views, the Scene manages renderable content, and the Data
+  // subsystem manages semantic model structure and metadata.
   const { viewer, scene, data } = demoHelper;
 
-  // ---------------------------------------------------------------------------
-  // VIEW 1 - Perspective, side-ish view
-  // ---------------------------------------------------------------------------
-
-  // Create a View bound to <canvas id="demoCanvas1">.
-  // Each View has its own Camera, ViewController, and per-View object states
-  // (visibility/xray/highlight/etc).
+  // Create the first View and bind it to the first canvas. This View
+  // uses a perspective camera positioned to show the model from an
+  // angled exterior viewpoint.
   const view1Result = viewer.createView({
     id: "demoView1",
     elementId: "demoCanvas1"
@@ -36,22 +33,13 @@ demoHelper.init().then(() => {
 
   const view1 = view1Result.value;
 
-  // Choose projection type (Perspective is default in many setups).
-  // Uncomment if you want to be explicit:
-  // view1.camera.projectionType = xeokit.constants.PerspectiveProjectionType;
-
-  // Position the camera for View 1.
-  // eye  = camera position
-  // look = target point
-  // up   = “up” direction (Z-up here)
   view1.camera.eye = [3.27, 2.39, 3.91];
   view1.camera.look = [0, 0, 0];
   view1.camera.up = [-0.18, 0.93, -0.28];
 
-  // ---------------------------------------------------------------------------
-  // VIEW 2 - Orthographic, top view
-  // ---------------------------------------------------------------------------
-
+  // Create the second View and bind it to the second canvas. This View
+  // is configured independently, allowing it to maintain its own camera
+  // state and presentation settings.
   const view2Result = viewer.createView({
     id: "demoView2",
     elementId: "demoCanvas2"
@@ -63,20 +51,12 @@ demoHelper.init().then(() => {
 
   const view2 = view2Result.value;
 
-  // Set orthographic projection for an architectural “plan” style view.
-  // Uncomment if you want it explicitly orthographic:
-  // view2.camera.projectionType = xeokit.constants.OrthoProjectionType;
-
-  // Top-ish camera looking down.
-  // Note: up is set to +X to keep the plan oriented nicely (so it’s not “rotated”).
   view2.camera.eye = [3.27, 2.39, 3.91];
   view2.camera.look = [0, 0, 0];
   view2.camera.up = [-0.18, 0.93, -0.28];
 
-  // ---------------------------------------------------------------------------
-  // VIEW 3 - Perspective, alternate angle
-  // ---------------------------------------------------------------------------
-
+  // Create the third View and bind it to the third canvas. Like the
+  // other Views, it has its own camera and per-view object state.
   const view3Result = viewer.createView({
     id: "demoView3",
     elementId: "demoCanvas3"
@@ -88,33 +68,22 @@ demoHelper.init().then(() => {
 
   const view3 = view3Result.value;
 
-  // Uncomment if you want to be explicit:
-  // view3.camera.projectionType = xeokit.constants.PerspectiveProjectionType;
-
-  // Another perspective angle.
   view3.camera.eye = [3.27, 2.39, 3.91];
   view3.camera.look = [0, 0, 0];
   view3.camera.up = [-0.18, 0.93, -0.28];
 
-  // ---------------------------------------------------------------------------
-  // Attach CameraControls so each canvas can orbit/pan/zoom independently.
-  // (Each View gets its own controller instance.)
-  // ---------------------------------------------------------------------------
-
+  // Attach independent interaction controllers to each View so that
+  // each canvas can orbit, pan, and zoom separately.
   new xeokit.viewcontroller.ViewController(view1, {});
   new xeokit.viewcontroller.ViewController(view2, {});
   new xeokit.viewcontroller.ViewController(view3, {});
 
-  // ---------------------------------------------------------------------------
-  // Create the SceneModel (renderable geometry)
-  // ---------------------------------------------------------------------------
-
-  // SceneModel holds the triangles/meshes that get drawn.
-  // We also define the coordinate system so units/orientation are consistent.
+  // Create a SceneModel to hold renderable model content. The
+  // coordinate system is defined explicitly so axis orientation and
+  // units are interpreted consistently.
   const sceneModelResult = scene.createModel({
     id: "demoModel",
     coordinateSystem: {
-
       basis: [
         1, 0, 0,
         0, 0, 1,
@@ -132,13 +101,9 @@ demoHelper.init().then(() => {
 
   const sceneModel = sceneModelResult.value;
 
-  // ---------------------------------------------------------------------------
-  // Create the DataModel (metadata graph / BIM semantics)
-  // ---------------------------------------------------------------------------
-
-  // DataModel stores IFC object tree, types, relationships, properties, etc.
-  // IMPORTANT: we use the same id as the SceneModel ("demoModel") so the
-  // geometry + metadata correspond to the same logical model.
+  // Create a DataModel to hold semantic content associated with the
+  // model. The DataModel uses the same logical identifier as the
+  // SceneModel so both layers correspond to the same model.
   const dataModelResult = data.createModel({
     id: "demoModel"
   });
@@ -149,31 +114,28 @@ demoHelper.init().then(() => {
 
   const dataModel = dataModelResult.value;
 
-  // ---------------------------------------------------------------------------
-  // Load IFC into both models (geometry -> SceneModel, metadata -> DataModel)
-  // ---------------------------------------------------------------------------
-
+  // Create an XGFLoader to load the model into both the renderable and
+  // semantic model layers.
   const xgfLoader = new xeokit.formats.xgf.XGFLoader();
 
-  // Fetch the IFC file as an ArrayBuffer, then hand it to the loader.
+  // Fetch the XGF file as binary data, then load it into the SceneModel
+  // and DataModel.
   fetch(`../../models/SportsCar/xgf/model.xgf`)
-    .then((response) => response.arrayBuffer())
-    .then((fileData) => {
-      // Loader populates both the sceneModel (renderable objects) and dataModel (metadata).
-      return xgfLoader.load({
-        fileData,
-        sceneModel,
-        dataModel
+      .then((response) => response.arrayBuffer())
+      .then((fileData) => {
+        return xgfLoader.load({
+          fileData,
+          sceneModel,
+          dataModel
+        });
+      })
+      .then(() => {
+
+        // Signal that loading and setup have completed.
+        demoHelper.finished();
+      })
+      .catch((err) => {
+        console.error(err);
+        throw err;
       });
-    })
-    .then(() => {
-
-
-      // Signal to DemoHelper that everything is loaded and ready (often hides spinners, etc).
-      demoHelper.finished();
-    })
-    .catch((err) => {
-      console.error(err);
-      throw err;
-    });
 });

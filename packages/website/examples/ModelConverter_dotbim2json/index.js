@@ -1,9 +1,8 @@
-// Import the SDK from a bundle built for these examples.
-
+// Import the xeokit SDK bundle used by this example.
+// It provides the helper, loader, and rendering APIs used in this sample.
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
-
-// Create a inspectors that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
-
+// Create the demo helper.
+// It initializes the scene, data, viewer, and renderer context for this demo.
 const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper.init().then(() => {
@@ -12,7 +11,7 @@ demoHelper.init().then(() => {
 
   // Create a ModelConverter instance configured to convert our .BIM file into SceneModelParams and DataModelParams JSON.
   // We configure the ModelConverter with a DotBIMLoader to load BIM files, a SceneModelParamsExporter, and a DataModelParamsExporter. We'll also
-  // configure the ModelConveter with a single pipeline, "dotbim2json", which connects our loader and exporters together into a pipeline.
+  // configure the ModelConveter with a single pipeline, "scenemodel", which connects our loader and exporters together into a pipeline.
 
   const modelConverter = new xeokit.modelconverter.ModelConverter({
     loaders: {

@@ -1,7 +1,7 @@
 {
   "id": "DotBIMLoader_BlenderHouse",
-  "title": "Viewing .BIM using DotBIMLoader",
-  "description": "How to load an IFC model from dotbim (.bim) format directly into a xeokit web viewer.",
+  "title": "Viewing DotBIM using DotBIMLoader",
+  "description": "How to load a dotbim (.bim) model directly into a xeokit web viewer.",
   "isTutorial": true,
   "isVisualTest": true,
   "tags": [

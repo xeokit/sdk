@@ -1,4 +1,5 @@
-// Import the SDK from a bundle built for these examples.
+// Import the xeokit SDK bundle used by these examples.
+// It provides the helper, renderer, and loader APIs used in this sample.
 
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
@@ -8,11 +9,13 @@ demoHelper.init().then(() => {
 
   const {viewer, scene} = demoHelper;
 
-  // Create a XGFLoader to load .XGF files
+  // Create an XGFLoader.
+  // This loader parses XGF data into scene content.
 
   const xgfLoader = new xeokit.formats.xgf.XGFLoader();
 
-  // Arrange the View's Camera within our +Z "up" coordinate system
+  // Create a view and set the initial camera.
+  // The camera is placed around the model's expected location.
 
   const view = demoHelper.createView({
     camera: {
@@ -22,25 +25,31 @@ demoHelper.init().then(() => {
     }
   });
 
-  view.resolutionScale.resolutionScale = 0.6; // Start in low quality for faster loading
+  // Start with a lower resolution scale for responsive interaction and loading.
+  // The view will return to full-quality rendering after camera movement settles.
+  view.resolutionScale.resolutionScale = 0.6;
 
-  // Tracks the pending restore-to-quality timeout while camera moves
+  // Track the pending timer used to restore quality rendering.
+  // Each new camera movement resets this timer.
 
   let restoreRenderModeTimeout = null;
 
   viewer.events.onCameraViewMatrixUpdated.subscribe(() => {
 
-    // Switch immediately to fast render whenever camera moves
+    // Switch to fast render while the camera is moving.
+    // This reduces frame cost during interaction.
 
     view.renderMode = xeokit.constants.FastRender;
 
-    // Reset the restore timer if we're still within the previous delay
+    // Clear the previous restore timer if it is still active.
+    // This prevents quality mode from turning on too early.
 
     if (restoreRenderModeTimeout !== null) {
       clearTimeout(restoreRenderModeTimeout);
     }
 
-    // Restore quality render 2 seconds after the last camera movement event
+    // Restore quality mode shortly after the last camera update.
+    // This brings back higher image quality when interaction ends.
 
     restoreRenderModeTimeout = setTimeout(() => {
       view.renderMode = xeokit.constants.QualityRender;
@@ -48,15 +57,16 @@ demoHelper.init().then(() => {
     }, 500);
   });
 
-  // Create a SceneModel to hold our model's geometry and materials
+  // Create a SceneModel for renderable model content.
+  // Coordinate system values define how model axes and units are interpreted.
 
   const sceneModelRes = scene.createModel({
     id: "demoModel",
-    coordinateSystem: { // Model's local Y-up coordinate system
+    coordinateSystem: {
       basis: [
-        1, 0, 0, // Right +X
-        0, 1, 0, // Up +Y
-        0, 0, -1 // Forward -Z
+        1, 0, 0,
+        0, 1, 0,
+        0, 0, -1
       ],
       origin: [0, 0, 0],
       units: "meters"
@@ -69,7 +79,8 @@ demoHelper.init().then(() => {
 
   const sceneModel = sceneModelRes.value;
 
-  // Use the XGFLoader to load an IFC model from a .XGF file into our SceneModel and DataModel
+  // Fetch and load the XGF file into the SceneModel.
+  // After loading, switch the view back to quality rendering.
 
   fetch("./model.xgf").then(response => {
     response.arrayBuffer().then(fileData => {
@@ -78,7 +89,8 @@ demoHelper.init().then(() => {
         sceneModel
       }).then(() => {
 
-        // Start in high quality once loading is complete
+        // Return to quality rendering once loading is complete.
+        // Interaction handlers will still switch to fast mode while moving.
 
         view.renderMode = xeokit.constants.QualityRender;
 

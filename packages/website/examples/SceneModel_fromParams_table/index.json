@@ -4,9 +4,7 @@
   "description": "In this example, we'll use the xeokit SDK to build and view a table-shaped SceneModel, from JSON",
   "isTutorial": true,
   "isVisualTest": true,
-  "tags": [
-    "_Featured"
-  ],
+  "tags": [],
   "categories": [
     "Modeling",
     "Scene"

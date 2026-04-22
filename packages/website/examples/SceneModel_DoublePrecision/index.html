@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Double-Precision Coordinate System</title>
+    <style>
+        body {
+            background-color: white;
+            overflow: hidden;
+            margin: 0;
+            user-select: none;
+        }
+
+        #demoCanvas {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            background: white;
+            border: 0;
+        }
+
+        #infoPanel {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            width: 340px;
+            background: rgba(0, 0, 0, 0.72);
+            color: #e8e8e8;
+            border-radius: 6px;
+            padding: 14px 16px 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 11.5px;
+            line-height: 1.6;
+            pointer-events: none;
+            z-index: 200000;
+        }
+
+        #infoPanel h3 {
+            margin: 0 0 10px;
+            font-size: 13px;
+            font-family: sans-serif;
+            color: #fff;
+            letter-spacing: 0.04em;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+
+        .info-label {
+            color: #aaa;
+            flex-shrink: 0;
+            margin-right: 8px;
+        }
+
+        .info-value {
+            color: #7df;
+            text-align: right;
+            word-break: break-all;
+        }
+
+        .info-divider {
+            border: none;
+            border-top: 1px solid #444;
+            margin: 8px 0;
+        }
+
+        .info-note {
+            color: #f90;
+            font-family: sans-serif;
+            font-size: 11px;
+            line-height: 1.5;
+            margin-top: 8px;
+        }
+
+        .info-note strong {
+            color: #fc0;
+        }
+    </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="infoPanel">
+    <h3>Double-Precision Coordinates</h3>
+    <div class="info-row">
+        <span class="info-label">Model origin</span>
+        <span class="info-value" id="modelOriginVal">—</span>
+    </div>
+    <div class="info-row">
+        <span class="info-label">Camera eye</span>
+        <span class="info-value" id="cameraEyeVal">—</span>
+    </div>
+    <div class="info-row">
+        <span class="info-label">Camera look</span>
+        <span class="info-value" id="cameraLookVal">—</span>
+    </div>
+    <hr class="info-divider">
+    <div class="info-row">
+        <span class="info-label">Crane arm tip</span>
+        <span class="info-value" id="craneTipVal">—</span>
+    </div>
+    <div class="info-row">
+        <span class="info-label">Crane rotation</span>
+        <span class="info-value" id="craneRotVal">—</span>
+    </div>
+    <hr class="info-divider">
+    <div class="info-note">
+        <strong>Float32 precision at this scale</strong><br>
+        UTM northing ~5,561,000 m → ±<span id="float32PrecVal">—</span> m per step<br>
+        xeokit uses RTC tiling to maintain sub-mm accuracy
+    </div>
+</div>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

@@ -1,90 +1,87 @@
-// Import the SDK from a bundle built for these examples.
-
+// Import the xeokit SDK bundle. This bundle provides the demo helper
+// together with the scene, data, loader, and rendering APIs used by
+// this example.
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
-// Create a inspectors that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
-
+// Create the demo helper. This helper initializes the shared rendering
+// context and provides utilities for configuring and running the demo.
 const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper.init().then(() => {
 
-  const {scene, data} = demoHelper;
+  // Access the Scene and Data subsystems created by the DemoHelper. The
+  // Scene manages renderable content, while the Data subsystem manages
+  // semantic model information.
+  const { scene, data } = demoHelper;
 
-  // Create a CityJSONLoader to load CityJSON files
-
+  // Create a CityJSONLoader to parse CityJSON data into renderable and
+  // semantic model structures.
   const cityJSONLoader = new xeokit.formats.cityjson.CityJSONLoader();
 
-  // Configure the View's World-space coordinate axis to make the +Z axis "up.
-  // This is actually the default, but we show it here for clarity
-
+  // Create a View with a camera configured in a +Z-up world coordinate
+  // system. This is the default orientation, but it is shown here
+  // explicitly for clarity.
   demoHelper.createView({
     id: "demoView",
     camera: {
-     // projection: "perspective",
+      // projection: "perspective",
       eye: [11.50, 16.32, 15.12],
       look: [9.01, 9.65, 11.22],
       up: [-0.16, -0.45, 0.87]
     }
   });
 
-  // Create a SceneModel to hold our model's geometry and materials
-
+  // Create a SceneModel to hold renderable model content. Geometry and
+  // appearance data loaded from the CityJSON file will be stored here.
   const sceneModelResult = scene.createModel({
-    id: "demoModel",
-    // coordinateSystem: { // Model's local CityJSON-standard coordinate system
-    //   basis: [
-    //     1, 0, 0, // Right +X
-    //     0, 0, 1, // Up +Z
-    //     0, -1, 0  // Forward -Y
-    //   ],
-    //   origin: [0, 0, 0],
-    //   units: "meters"
-    // }
+    id: "demoModel"
   });
 
+  // Stop if the SceneModel could not be created.
   if (!sceneModelResult.ok) {
     return;
   }
 
   const sceneModel = sceneModelResult.value;
 
-  // Create a DataModel to hold semantic data for our model
-
+  // Create a DataModel to hold semantic model information such as object
+  // metadata and identity.
   const dataModelResult = data.createModel({
     id: "demoModel"
   });
 
+  // Stop if the DataModel could not be created.
   if (!dataModelResult.ok) {
     return;
   }
 
   const dataModel = dataModelResult.value;
 
-  // Use CityJSONLoader to load the file into our SceneModel and DataModel
-
+  // Fetch the CityJSON file, parse it as JSON, and load it into both the
+  // SceneModel and DataModel so that rendering and semantic information
+  // remain linked.
   fetch("../../models/LoD3_Railway/cityjson/model.json").then(response => {
 
     response
-      .json()
-      .then(fileData => {
+        .json()
+        .then(fileData => {
 
-        cityJSONLoader.load({
-          fileData,
-          sceneModel,
-          dataModel
-        }).then(() => {
+          cityJSONLoader.load({
+            fileData,
+            sceneModel,
+            dataModel
+          }).then(() => {
 
-          // The Scene and SceneModel will now contain a SceneObject for each displayable object in our model.
-          // The Data and DataModel will contain a DataObject for each IFC element in the model. Each SceneObject
-          // will have a corresponding DataObject with the same ID, to show semantic meaning.
-          // The View will contain a ViewObject corresponding to each SceneObject, through which the
-          // appearance of the object can be controlled in the View.
+            // At this point, the SceneModel contains a SceneObject for each
+            // renderable object in the model, while the DataModel contains
+            // corresponding semantic objects. Each View also contains a
+            // ViewObject for each SceneObject, allowing per-view appearance
+            // control.
+            demoHelper.finished();
 
-          demoHelper.finished();
-
-        }).catch(message => {
-          console.error(`Error loading CityJSON: ${message}`);
+          }).catch(message => {
+            console.error(`Error loading CityJSON: ${message}`);
+          });
         });
-      });
   });
 });

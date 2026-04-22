@@ -1,9 +1,8 @@
-// Import the SDK from a bundle built for these examples.
-
+// Import the xeokit SDK bundle used by this example.
+// It provides the helper, loader, and rendering APIs used in this sample.
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
-
-// Create a inspectors that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
-
+// Create the demo helper.
+// It initializes the scene, data, viewer, and renderer context for this demo.
 const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper.init().then(() => {
@@ -15,9 +14,8 @@ demoHelper.init().then(() => {
   if (!drawInspectorResult.ok) {
     throw new Error("Failed to get RenderInspector: " + drawInspectorResult.error);
   }
-
-// Create a SceneModel to hold our model's geometry and materials
-
+  // Create a SceneModel for renderable model content.
+  // Geometry and material data loaded from files is stored here.
   const sceneModelResult = scene.createModel({
     id: "demoModel"
   });
@@ -27,9 +25,8 @@ demoHelper.init().then(() => {
   }
 
   const sceneModel = sceneModelResult.value;
-
-  // Create a DataModel to hold semantic data for our model
-
+  // Create a DataModel for semantic model data.
+  // Metadata, relationships, and object meaning are stored here.
   const dataModelResult = data.createModel({
     id: "demoModel"
   });
@@ -40,7 +37,7 @@ demoHelper.init().then(() => {
 
   const dataModel = dataModelResult.value;
 
-  // Fetch the ModelChunksManifestParams for the model. This file was output by ifc2gltf2xgf.
+  // Fetch the ModelChunksManifestParams for the model. This file was output by xgf.
 
   fetch(`../../models/KarhumakiBridge/ifc2gltf2xgf/model.manifest.json`)
     .then(response => {
@@ -62,7 +59,7 @@ demoHelper.init().then(() => {
 
           modelChunksLoader.load({
             modelChunksManifest,
-            baseDir: "../../models/KarhumakiBridge/ifc2gltf2xgf/",
+            baseDir: "../../models/KarhumakiBridge/xgf/",
             sceneModel,
             dataModel
 

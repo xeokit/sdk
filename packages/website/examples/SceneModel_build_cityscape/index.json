@@ -1,0 +1,15 @@
+{
+  "id": "SceneModel_build_cityscape",
+  "title": "Procedural Cityscape",
+  "description": "Stress test: procedurally generate ~40,000 buildings in a SceneModel using a single shared box geometry, scaled transforms, and a seeded PRNG for reproducible layout.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [],
+  "categories": [
+    "Modeling",
+    "Scene",
+    "Geometry"
+  ],
+  "topic": "modeling.scene.geometry",
+  "template": "basicPage"
+}

@@ -1,158 +1,154 @@
-// Import the SDK from a bundle built for these examples.
-
+// Import the xeokit SDK bundle used by this example. This bundle provides
+// the helper utilities along with the scene, model, and rendering APIs
+// required to construct and display geometry.
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
-// Create a inspectors that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
-
+// Create the demo helper. This helper initializes the rendering context,
+// constructs the Scene, and provides convenience methods for setting up
+// Views and managing demo lifecycle.
 const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper.init().then(() => {
 
-  const {scene} = demoHelper;
+  // Access the Scene instance created by the DemoHelper. The Scene manages
+  // models, geometry, transforms, and rendering state.
+  const { scene } = demoHelper;
 
-  // Position the View's Camera to look at the origin of the coordinate system
-
-  demoHelper.createView({
+  // Create a View with a camera positioned to look at the origin of the
+  // coordinate system. The camera is offset slightly to provide a clear
+  // perspective of the model.
+  const view = demoHelper.createView({
     id: "demoView",
     camera: {
-     eye: [0, 5, 2],
+      eye: [0, 5, 2],
       look: [0, 0, 0],
       up: [0, 0, 1]
     }
   });
 
-  // Within the Scene, create a SceneModel to hold geometry and materials for our model
-
+  // Create a SceneModel within the Scene. The SceneModel acts as a container
+  // for geometry, meshes, transforms, and objects that together define the
+  // model content.
   const sceneModelResult = scene.createModel({
     id: "demoModel"
   });
 
+  // Validate that the SceneModel was created successfully. If creation
+  // failed, throw an error with the provided message.
   if (!sceneModelResult.ok) {
     throw new Error(sceneModelResult.error);
   }
 
   const sceneModel = sceneModelResult.value;
 
-  // Create a SceneGeometry that defines the shape of the box
-
+  // Create a SceneGeometry that defines the shape of a box. The geometry is
+  // specified using explicit vertex positions and triangle indices.
   sceneModel.createGeometry({
     id: "boxGeometry",
     primitive: xeokit.constants.TrianglesPrimitive,
 
-    // Define the SceneGeometry vertices - eight for our box, each
-    // one spanning three array elements for X,Y and Z
-
+    // Define the vertex positions for the box. Each vertex consists of three
+    // consecutive elements representing X, Y, and Z coordinates. The vertices
+    // are arranged per face to allow independent triangle construction.
     positions: [
 
-      1.0, 1.0, 1.0, // v0-v1-v2-v3 front
+      1.0, 1.0, 1.0, // Front face
       -1.0, 1.0, 1.0,
       -1.0, -1.0, 1.0,
       1.0, -1.0, 1.0,
 
-      1.0, 1.0, 1.0, // v0-v3-v4-v1 right
+      1.0, 1.0, 1.0, // Right face
       1.0, -1.0, 1.0,
       1.0, -1.0, -1.0,
       1.0, 1.0, -1.0,
 
-      1.0, 1.0, 1.0, // v0-v1-v6-v1 top
+      1.0, 1.0, 1.0, // Top face
       1.0, 1.0, -1.0,
       -1.0, 1.0, -1.0,
       -1.0, 1.0, 1.0,
 
-      -1.0, 1.0, 1.0,  // v1-v6-v7-v2 left
+      -1.0, 1.0, 1.0, // Left face
       -1.0, 1.0, -1.0,
       -1.0, -1.0, -1.0,
       -1.0, -1.0, 1.0,
 
-      -1.0, -1.0, -1.0, // v7-v4-v3-v2 bottom
+      -1.0, -1.0, -1.0, // Bottom face
       1.0, -1.0, -1.0,
       1.0, -1.0, 1.0,
       -1.0, -1.0, 1.0,
 
-      1.0, -1.0, -1.0,  // v4-v7-v6-v1 back
+      1.0, -1.0, -1.0, // Back face
       -1.0, -1.0, -1.0,
       -1.0, 1.0, -1.0,
       1.0, 1.0, -1.0
     ],
 
-    // Define the SceneGeometry indices - these organise the
-    // positions coordinates
-    // into geometric primitives in accordance
-    // with the TrianglesPrimitive parameter,
-    // in this case a set of three indices
-    // for each triangle. Note that each triangle is specified
-    // in counter-clockwise winding order.
-
+    // Define triangle indices that reference the vertex positions. Each
+    // group of three indices defines a triangle in counter-clockwise order,
+    // which determines the front-facing side of each triangle.
     indices: [
 
       0, 1, 2,   // Front
       0, 2, 3,
 
-      4, 5, 6,  // Right
+      4, 5, 6,   // Right
       4, 6, 7,
 
-      8, 9, 10, // Top
+      8, 9, 10,  // Top
       8, 10, 11,
 
-      12, 13, 14,   // Left
+      12, 13, 14, // Left
       12, 14, 15,
 
-      16, 17, 18,  // Bottom
+      16, 17, 18, // Bottom
       16, 18, 19,
 
-      20, 21, 22,// Back
+      20, 21, 22, // Back
       20, 22, 23
     ]
   });
 
+  // Create a transform that defines the spatial placement of the mesh.
+  // This transform uses an identity matrix, meaning no translation,
+  // rotation, or scaling is applied.
   const transformResult = sceneModel.createTransform({
     id: "yellowLegTransform",
-    //    parentId: "rootTransform",
     matrix: xeokit.scene.buildMat4({
-      position: [0,0,0],
+      position: [0, 0, 0],
       rotation: [0, 0, 0],
       scale: [1, 1, 1],
-   }),
+    }),
   });
 
-
-
-  // Create a red SceneMesh that instances our SceneGeometry
-
-  const mesh =sceneModel.createMesh({
+  // Create a mesh that instances the box geometry and attaches it to the
+  // transform. The mesh defines the visual appearance of the geometry.
+  const mesh = sceneModel.createMesh({
     id: "boxMesh",
     geometryId: "boxGeometry",
     parentTransformId: "yellowLegTransform",
-    // matrix: xeokit.scene.buildMat4({
-    //   position: [0, 0, 0], // Default
-    //   scale: [1, 1, 1], // Default
-    //   rotation: [20, .1, 0], // Default
-    // }),
 
-
-    color: [1.0, 0.0, 0.5] // Default is [1,1,1]
+    // Assign a color to the mesh. This example uses a pinkish tone.
+    color: [1.0, 0.0, 0.5]
   }).result;
 
-
-  // Create a SceneObject that aggregates our SceneMesh
-
+  // Create a SceneObject that aggregates the mesh. SceneObjects are the
+  // entities that Views interact with for selection, highlighting, and
+  // visibility control.
   sceneModel.createObject({
     id: "boxObject",
     meshIds: ["boxMesh"]
   });
 
-
-  transformResult.value.rotation = [0, 0, 0];
-
+  // Signal that initialization is complete. This typically hides any
+  // loading UI managed by the DemoHelper.
   demoHelper.finished();
 
+  // Continuously orbit the camera around the model to demonstrate the
+  // scene in motion. This produces a simple rotation around the Y axis.
   let y = 0;
   setInterval(() => {
-     view.camera.orbitYaw(1);
-   //  view.camera.orbitPitch(.2);
+    view.camera.orbitYaw(1);
+    // view.camera.orbitPitch(0.2);
   }, 20);
 
 });
-
-
-

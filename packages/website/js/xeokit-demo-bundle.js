@@ -5778,16 +5778,16 @@ function loadArraybuffer(url, ok, err) {
   const dataUriRegexResult = url.match(dataUriRegex);
   if (dataUriRegexResult) {
     const isBase64 = !!dataUriRegexResult[2];
-    let data = dataUriRegexResult[3];
-    data = window.decodeURIComponent(data);
+    let data5 = dataUriRegexResult[3];
+    data5 = window.decodeURIComponent(data5);
     if (isBase64) {
-      data = window.atob(data);
+      data5 = window.atob(data5);
     }
     try {
-      const buffer = new ArrayBuffer(data.length);
+      const buffer = new ArrayBuffer(data5.length);
       const view = new Uint8Array(buffer);
-      for (let i = 0; i < data.length; i++) {
-        view[i] = data.charCodeAt(i);
+      for (let i = 0; i < data5.length; i++) {
+        view[i] = data5.charCodeAt(i);
       }
       window.setTimeout(function() {
         ok(buffer);
@@ -5822,8 +5822,8 @@ function saveArrayBuffer(arrayBuffer, filename2) {
   link.click();
   document.body.removeChild(link);
 }
-function saveJSON(data, filename2) {
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+function saveJSON(data5, filename2) {
+  const blob = new Blob([JSON.stringify(data5, null, 2)], { type: "application/json" });
   const link = document.createElement("a");
   link.download = filename2;
   link.href = window.URL.createObjectURL(blob);
@@ -6005,11 +6005,11 @@ var WebGLArrayBuf = class {
   /**
    * Creates a WebGL ArrayBuffer.
    */
-  constructor(gl, type, data, numItems, itemSize, usage, normalized, stride, offset) {
+  constructor(gl, type, data5, numItems, itemSize, usage, normalized, stride, offset) {
     this.gl = gl;
     this.type = type;
     this.allocated = false;
-    switch (data.constructor) {
+    switch (data5.constructor) {
       case Uint8Array:
         this.itemType = gl.UNSIGNED_BYTE;
         this.itemByteSize = 1;
@@ -6053,9 +6053,9 @@ var WebGLArrayBuf = class {
     this.normalized = !!normalized;
     this.stride = stride || 0;
     this.offset = offset || 0;
-    this._allocate(data);
+    this._allocate(data5);
   }
-  _allocate(data) {
+  _allocate(data5) {
     this.allocated = false;
     this.handle = this.gl.createBuffer();
     if (!this.handle) {
@@ -6063,9 +6063,9 @@ var WebGLArrayBuf = class {
     }
     if (this.handle) {
       this.gl.bindBuffer(this.type, this.handle);
-      this.gl.bufferData(this.type, data.length > this.dataLength ? data.slice(0, this.dataLength) : data, this.usage);
+      this.gl.bufferData(this.type, data5.length > this.dataLength ? data5.slice(0, this.dataLength) : data5, this.usage);
       this.gl.bindBuffer(this.type, null);
-      this.length = data.length;
+      this.length = data5.length;
       this.numItems = this.length / this.itemSize;
       this.allocated = true;
     }
@@ -6075,19 +6075,19 @@ var WebGLArrayBuf = class {
    * @param data
    * @param offset
    */
-  setData(data, offset) {
+  setData(data5, offset) {
     if (!this.allocated) {
       return;
     }
-    if (data.length + (offset || 0) > this.length) {
+    if (data5.length + (offset || 0) > this.length) {
       this.destroy();
-      this._allocate(data);
+      this._allocate(data5);
     } else {
       this.gl.bindBuffer(this.type, this.handle);
       if (offset && offset !== 0) {
-        this.gl.bufferSubData(this.type, offset * this.itemByteSize, data);
+        this.gl.bufferSubData(this.type, offset * this.itemByteSize, data5);
       } else {
-        this.gl.bufferData(this.type, data, this.usage);
+        this.gl.bufferData(this.type, data5, this.usage);
       }
       this.gl.bindBuffer(this.type, null);
     }
@@ -7787,12 +7787,12 @@ var Canvas2Image = function() {
     const iWidth = parseInt(oCanvas2.width), iHeight = parseInt(oCanvas2.height);
     return oCanvas2.getContext("2d").getImageData(0, 0, iWidth, iHeight);
   };
-  const encodeData = function(data) {
+  const encodeData = function(data5) {
     let i, aData, strData = "";
-    if (typeof data == "string") {
-      strData = data;
+    if (typeof data5 == "string") {
+      strData = data5;
     } else {
-      aData = data;
+      aData = data5;
       for (i = 0; i < aData.length; i++) {
         strData += sc(aData[i]);
       }
@@ -10911,8 +10911,8 @@ var DataObject = class {
   /**
    * @private
    */
-  constructor(data, model, id, originalSystemId, name12, description, type, schema, propertySets) {
-    this.data = data;
+  constructor(data5, model, id, originalSystemId, name12, description, type, schema, propertySets) {
+    this.data = data5;
     this.models = [model];
     this.id = id;
     this.originalSystemId = originalSystemId;
@@ -11146,8 +11146,8 @@ var DataModel = class {
   /**
    * @private
    */
-  constructor(data, id, dataModelParams) {
-    this.data = data;
+  constructor(data5, id, dataModelParams) {
+    this.data = data5;
     this.id = id;
     this.projectId = dataModelParams.projectId || "";
     this.revisionId = dataModelParams.revisionId || "";
@@ -11262,39 +11262,43 @@ var DataModel = class {
               type: 2 /* InvalidInput */,
               error: `[DataModel.createObject] PropertySet not found: "${propertySetId}"`
             });
-          } else {
-            if (propertySet.schema !== dataObjectParams.schema) {
-              return this.data.logError({
-                ok: false,
-                type: 2 /* InvalidInput */,
-                error: `[DataModel.createObject] PropertySet "${propertySet.id}" and DataObject "${dataObjectParams.id}" belong to different schemas`
-              });
-            }
-            propertySets.push(propertySet);
           }
+          if (propertySet.schema !== dataObjectParams.schema) {
+            return this.data.logError({
+              ok: false,
+              type: 2 /* InvalidInput */,
+              error: `[DataModel.createObject] PropertySet "${propertySet.id}" and DataObject "${dataObjectParams.id}" belong to different schemas`
+            });
+          }
+          propertySets.push(propertySet);
         }
       }
-      dataObject = new DataObject(this.data, this, id, dataObjectParams.originalSystemId, dataObjectParams.name, dataObjectParams.description, dataObjectParams.type, dataObjectParams.schema, propertySets);
-      this.objects[id] = dataObject;
+      dataObject = new DataObject(
+        this.data,
+        this,
+        id,
+        dataObjectParams.originalSystemId,
+        dataObjectParams.name,
+        dataObjectParams.description,
+        dataObjectParams.type,
+        dataObjectParams.schema,
+        propertySets
+      );
       this.data.objects[id] = dataObject;
       if (!this.data.objectsByType[type]) {
         this.data.objectsByType[type] = {};
       }
       this.data.objectsByType[type][id] = dataObject;
       this.data.typeCounts[type] = this.data.typeCounts[type] === void 0 ? 1 : this.data.typeCounts[type] + 1;
-      this.typeCounts[type] = this.typeCounts[type] === void 0 ? 1 : this.typeCounts[type] + 1;
-      dataObject.models.push(this);
       this.data.events.onDataObjectCreated.dispatch(this.data, dataObject);
-    } else {
-      this.objects[id] = dataObject;
-      this.data.objects[id] = dataObject;
-      if (!this.objectsByType[type]) {
-        this.objectsByType[type] = {};
-      }
-      this.objectsByType[type][id] = dataObject;
-      this.typeCounts[type] = this.typeCounts[type] === void 0 ? 1 : this.typeCounts[type] + 1;
-      dataObject.models.push(this);
     }
+    this.objects[id] = dataObject;
+    if (!this.objectsByType[type]) {
+      this.objectsByType[type] = {};
+    }
+    this.objectsByType[type][id] = dataObject;
+    this.typeCounts[type] = this.typeCounts[type] === void 0 ? 1 : this.typeCounts[type] + 1;
+    dataObject.models.push(this);
     this.stats.numObjects++;
     return {
       ok: true,
@@ -11828,8 +11832,8 @@ var Data2 = class {
 };
 
 // ../sdk/src/data/searchObjects.ts
-function searchObjects(data, searchParams) {
-  if (data.destroyed) {
+function searchObjects(data5, searchParams) {
+  if (data5.destroyed) {
     return {
       ok: false,
       type: 1 /* InvalidOperation */,
@@ -11888,7 +11892,7 @@ function searchObjects(data, searchParams) {
   }
   const depth = 0;
   if (searchParams.startObjectId) {
-    const startObject2 = data.objects[searchParams.startObjectId];
+    const startObject2 = data5.objects[searchParams.startObjectId];
     if (!startObject2) {
       return {
         ok: false,
@@ -11898,7 +11902,7 @@ function searchObjects(data, searchParams) {
     }
     visit(startObject2, depth);
   } else if (searchParams.startObject) {
-    if (searchParams.startObject.data != data) {
+    if (searchParams.startObject.data != data5) {
       return {
         ok: false,
         type: 2 /* InvalidInput */,
@@ -11907,8 +11911,8 @@ function searchObjects(data, searchParams) {
     }
     visit(searchParams.startObject, depth + 1);
   } else {
-    for (const id in data.rootObjects) {
-      visit(data.rootObjects[id], depth + 1);
+    for (const id in data5.rootObjects) {
+      visit(data5.rootObjects[id], depth + 1);
     }
   }
   return {
@@ -12138,6 +12142,11 @@ var SceneGeometry = class {
    */
   id;
   /**
+   * The global ID of this SceneGeometry, unique among all SceneGeometrys within the Scene,
+   * which is the concatenation of the SceneModel's ID and this SceneGeometry's ID, separated by "__".
+   */
+  uniqueId;
+  /**
    * The SceneModel that contains this SceneGeometry.
    */
   model;
@@ -12201,6 +12210,7 @@ var SceneGeometry = class {
   constructor(model, params) {
     this.model = model;
     this.id = params.id;
+    this.uniqueId = `${model.id}__${this.id}`;
     this.primitive = params.primitive;
     this.positionsCompressed = params.positionsCompressed;
     this.uvsCompressed = params.uvsCompressed;
@@ -12649,6 +12659,8 @@ function unitScale(unit) {
 var SceneTransform = class {
   /** Unique identifier for this transform within the {@link SceneModel}. */
   id;
+  /** The global ID of this SceneTransform, unique among all SceneTransforms within the Scene, **/
+  uniqueId;
   /** The {@link SceneModel} this transform belongs to. */
   model;
   /** Local scale vector (XYZ). Defaults to `[1, 1, 1]`. */
@@ -12670,16 +12682,16 @@ var SceneTransform = class {
    * Global transformation matrix in model/world space.
    *
    * Computed as:
-   * - `parent.globalMatrix * localMatrix` when a parent exists
+   * - `parent.worldMatrix * localMatrix` when a parent exists
    * - `localMatrix` when no parent exists
    *
    * @private
    */
-  _globalMatrix;
+  _worldMatrix;
   /** True when {@link _localMatrix} needs rebuilding from TRS. */
   _localMatrixDirty = false;
-  /** True when {@link _globalMatrix} needs rebuilding. */
-  _globalMatrixDirty = true;
+  /** True when {@link _worldMatrix} needs rebuilding. */
+  _worldMatrixDirty = true;
   /**
    * Child meshes directly parented to this transform.
    * @private
@@ -12707,13 +12719,14 @@ var SceneTransform = class {
    */
   constructor(model, transformParams) {
     this.id = transformParams.id;
+    this.uniqueId = `${model.id}__${this.id}`;
     this.model = model;
     this._localMatrix = transformParams.matrix ? createMat4Float64(transformParams.matrix) : identityMat4();
-    this._globalMatrix = createMat4Float64();
+    this._worldMatrix = createMat4Float64();
     this._markTreeDirtyTask = new SDKTask({
       name: "SceneTransform._markTreeDirtyTask",
       stage: SDKTask.ComputeStage,
-      task: () => this.setGlobalMatrixDirty()
+      task: () => this.setWorldMatrixDirty()
     });
     if (transformParams.matrix) {
       this.matrix = transformParams.matrix;
@@ -12838,16 +12851,16 @@ var SceneTransform = class {
     return this._localMatrix;
   }
   /** Gets the global transformation matrix. */
-  get globalMatrix() {
-    if (this._globalMatrixDirty) {
+  get worldMatrix() {
+    if (this._worldMatrixDirty) {
       if (this._parentTransform) {
-        mulMat4(this._parentTransform.globalMatrix, this.matrix, this._globalMatrix);
+        mulMat4(this._parentTransform.worldMatrix, this.matrix, this._worldMatrix);
       } else {
-        mulMat4(this.model.coordinateSystemMatrix, this.matrix, this._globalMatrix);
+        mulMat4(this.model.coordinateSystemMatrix, this.matrix, this._worldMatrix);
       }
-      this._globalMatrixDirty = false;
+      this._worldMatrixDirty = false;
     }
-    return this._globalMatrix;
+    return this._worldMatrix;
   }
   // ------------------------------------------------------------------------------------------------
   // Hierarchy
@@ -12868,13 +12881,13 @@ var SceneTransform = class {
    * Marks this transform globally dirty and propagates that state to all descendants.
    * @internal
    */
-  setGlobalMatrixDirty() {
-    this._globalMatrixDirty = true;
+  setWorldMatrixDirty() {
+    this._worldMatrixDirty = true;
     for (const child of this._childTransforms) {
-      child.setGlobalMatrixDirty();
+      child.setWorldMatrixDirty();
     }
     for (const childMesh of this._childMeshes) {
-      childMesh.setGlobalMatrixDirty();
+      childMesh.setWorldMatrixDirty();
     }
   }
   /**
@@ -12939,10 +12952,10 @@ var SceneTransform = class {
     const preserve = !!opts?.preserveWorld;
     if (preserve) {
       this._updateGlobal();
-      const currentWorld = createMat4Float64(this._globalMatrix);
+      const currentWorld = createMat4Float64(this._worldMatrix);
       this._attachParentTransform(parentTransform);
       if (this._parentTransform) {
-        const invParent = inverseMat4(this._parentTransform._globalMatrix, createMat4Float64());
+        const invParent = inverseMat4(this._parentTransform._worldMatrix, createMat4Float64());
         mulMat4(invParent, currentWorld, this._localMatrix);
       } else {
         this._localMatrix.set(currentWorld);
@@ -13071,11 +13084,11 @@ var SceneTransform = class {
   _updateGlobal(force = false) {
     if (this._parentTransform) {
       this._parentTransform._updateGlobal(force);
-      mulMat4(this._parentTransform._globalMatrix, this._localMatrix, this._globalMatrix);
+      mulMat4(this._parentTransform._worldMatrix, this._localMatrix, this._worldMatrix);
     } else {
-      this._globalMatrix.set(this._localMatrix);
+      this._worldMatrix.set(this._localMatrix);
     }
-    this._globalMatrixDirty = false;
+    this._worldMatrixDirty = false;
     for (const child of this._childTransforms) {
       child._updateGlobal(force);
     }
@@ -13145,6 +13158,11 @@ var SceneMesh = class {
    */
   id;
   /**
+   * The global ID of this SceneMesh, unique among all SceneMeshes within the Scene,
+   * which is the concatenation of the SceneModel's ID and this SceneMesh's ID, separated by "__".
+   */
+  uniqueId;
+  /**
    * The SceneModel that contains this SceneMesh.
    */
   model;
@@ -13163,9 +13181,9 @@ var SceneMesh = class {
   _color;
   _opacity;
   _localMatrix;
-  _globalMatrix;
+  _worldMatrix;
   _parentTransform = null;
-  _globalMatrixDirty = true;
+  _worldMatrixDirty = true;
   destroyed = false;
   _emitMatrixChangedEventTask;
   /**
@@ -13173,10 +13191,11 @@ var SceneMesh = class {
    */
   constructor(meshParams) {
     this.id = meshParams.id;
+    this.uniqueId = `${meshParams.model.id}__${meshParams.id}`;
     this.model = meshParams.model;
     this._localMatrix = meshParams.matrix ? createMat4Float64(meshParams.matrix) : identityMat4();
-    this._globalMatrix = createMat4Float64();
-    this._globalMatrixDirty = true;
+    this._worldMatrix = createMat4Float64();
+    this._worldMatrixDirty = true;
     this.geometry = meshParams.geometry;
     this.material = meshParams.material;
     this._color = createVec3Float32(meshParams.color || [1, 1, 1]);
@@ -13308,6 +13327,7 @@ var SceneMesh = class {
    *
    * - Fires an {@link SceneEvents.onSceneMeshColorChanged | SceneEvents.onSceneMeshColorChanged} event on the Scene.
    * - Each element of the color is in range ````[0..1]````.
+   * -- Overriden by the color of the material if this SceneMesh has a material.
    */
   set color(value) {
     if (this.destroyed) {
@@ -13341,10 +13361,10 @@ var SceneMesh = class {
     }
   }
   /**
-   * Gets the global RGB color for this SceneMesh, which is the color of the material if it has one,
-   * or the local color otherwise.
+   * Gets the effective RGB color for this SceneMesh, which is the color of the SceneMaterial if it has one,
+   * or the SceneMesh's own color otherwise.
    */
-  get globalColor() {
+  get effectiveColor() {
     if (this.material) {
       return this.material.color;
     }
@@ -13380,7 +13400,7 @@ var SceneMesh = class {
     } else {
       identityMat4(this._localMatrix);
     }
-    this.setGlobalMatrixDirty();
+    this.setWorldMatrixDirty();
   }
   /**
    * Gets this SceneMesh's local modeling transform matrix.
@@ -13393,16 +13413,16 @@ var SceneMesh = class {
   /**
    * Gets the global transform matrix for this SceneMesh.
    */
-  get globalMatrix() {
-    if (this._globalMatrixDirty) {
+  get worldMatrix() {
+    if (this._worldMatrixDirty) {
       if (this._parentTransform) {
-        mulMat4(this._parentTransform.globalMatrix, this._localMatrix, this._globalMatrix);
+        mulMat4(this._parentTransform.worldMatrix, this._localMatrix, this._worldMatrix);
       } else {
-        mulMat4(this.model.coordinateSystemMatrix, this.matrix, this._globalMatrix);
+        mulMat4(this.model.coordinateSystemMatrix, this._localMatrix, this._worldMatrix);
       }
-      this._globalMatrixDirty = false;
+      this._worldMatrixDirty = false;
     }
-    return this._globalMatrix;
+    return this._worldMatrix;
   }
   /**
    * Gets the opacity factor for this SceneMesh.
@@ -13437,10 +13457,10 @@ var SceneMesh = class {
     }
   }
   /**
-   * Gets the global opacity factor for this SceneMesh, which is the opacity of the material if it has one,
+   * Gets the effective opacity factor for this SceneMesh, which is the opacity of the material if it has one,
    * or the local opacity otherwise. This is a factor in range ````[0..1]````.
    */
-  get globalOpacity() {
+  get effectiveOpacity() {
     return this.material ? this.material.opacity : this._opacity;
   }
   /**
@@ -13453,8 +13473,8 @@ var SceneMesh = class {
    * Updates the global transform matrix.
    * @internal
    */
-  setGlobalMatrixDirty() {
-    this._globalMatrixDirty = true;
+  setWorldMatrixDirty() {
+    this._worldMatrixDirty = true;
     this._emitMatrixChangedEventTask.schedule();
   }
   /**
@@ -13475,7 +13495,7 @@ var SceneMesh = class {
     if (parent) {
       parent._childMeshes.push(this);
     }
-    this.setGlobalMatrixDirty();
+    this.setWorldMatrixDirty();
   }
   /**
    * Sets the parent transform for this mesh.
@@ -13510,16 +13530,16 @@ var SceneMesh = class {
     }
     const preserve = !!opts?.preserveWorld;
     if (preserve) {
-      this.setGlobalMatrixDirty();
-      const currentWorld = createMat4Float64(this._globalMatrix);
+      this.setWorldMatrixDirty();
+      const currentWorld = createMat4Float64(this._worldMatrix);
       this._attachParentTransform(parentTransform);
       if (this._parentTransform) {
-        const invParent = inverseMat4(this._parentTransform._globalMatrix, createMat4Float64());
+        const invParent = inverseMat4(this._parentTransform._worldMatrix, createMat4Float64());
         mulMat4(this._localMatrix, invParent, currentWorld);
       } else {
         this._localMatrix.set(currentWorld);
       }
-      this.setGlobalMatrixDirty();
+      this.setWorldMatrixDirty();
     } else {
       this._attachParentTransform(parentTransform);
     }
@@ -13683,6 +13703,7 @@ var SceneObject = class {
         error: `[SceneObject.addMesh] Mesh with ID '${meshId}' is already added to SceneObject '${this.id}'`
       });
     }
+    mesh.object = this;
     this.meshes.push(mesh);
     this.model.scene.events.onSceneObjectMeshAdded.dispatch(this, mesh);
     return { ok: true, value: void 0 };
@@ -13728,6 +13749,7 @@ var SceneObject = class {
         error: `[SceneObject.removeMesh] Mesh with ID '${meshId}' is not part of SceneObject '${this.id}'`
       });
     }
+    mesh.object = void 0;
     const index = this.meshes.indexOf(mesh);
     if (index !== -1) {
       this.meshes.splice(index, 1);
@@ -13750,10 +13772,10 @@ var SceneObject = class {
       id: this.id,
       meshIds: []
     };
-    if (this.layerId != void 0) {
+    if (this.layerId !== void 0) {
       sceneObjectParams.layerId = this.layerId;
     }
-    if (this.meshes != void 0) {
+    if (this.meshes !== void 0) {
       for (let i = 0, len = this.meshes.length; i < len; i++) {
         sceneObjectParams.meshIds.push(this.meshes[i].id);
       }
@@ -13933,9 +13955,14 @@ var SceneMaterial = class {
    */
   model;
   /**
-   * The ID of this SceneMaterial.
+   * The ID of this SceneMaterial within the SceneModel.
    */
   id;
+  /**
+   * The global ID of this SceneMaterial, unique among all SceneMaterials within the Scene,
+   * which is the concatenation of the SceneModel's ID and this SceneMaterial's ID, separated by "__".
+   */
+  uniqueId;
   _color;
   _opacity;
   /**
@@ -13964,6 +13991,7 @@ var SceneMaterial = class {
   constructor(model, materialParams, textures) {
     this.model = model;
     this.id = materialParams.id;
+    this.uniqueId = `${model.id}__${this.id}`;
     this._color = createVec3Float32(materialParams.color || [1, 1, 1]);
     this._opacity = materialParams.opacity !== void 0 && materialParams.opacity !== null ? materialParams.opacity : 1;
     this.colorTexture = textures.colorTexture;
@@ -14227,11 +14255,11 @@ var SceneModel2 = class {
       this,
       () => {
         this._coordinateSystemMatrixDirty = true;
-        this.setGlobalMatrixDirty();
+        this.setWorldMatrixDirty();
       },
       sceneModelParams?.coordinateSystem
     );
-    this._streamingEnabled = true;
+    this._streamingEnabled = sceneModelParams?.streamingEnabled !== false;
     this._finalized = false;
     this._coordinateSystemMatrix = createMat4Float64();
     this._coordinateSystemMatrixDirty = true;
@@ -15381,12 +15409,12 @@ var SceneModel2 = class {
    * Marks this transform globally dirty and propagates that state to all descendants.
    * @internal
    */
-  setGlobalMatrixDirty() {
+  setWorldMatrixDirty() {
     for (const id in this.transforms) {
-      this.transforms[id].setGlobalMatrixDirty();
+      this.transforms[id].setWorldMatrixDirty();
     }
     for (const id in this.meshes) {
-      this.meshes[id].setGlobalMatrixDirty();
+      this.meshes[id].setWorldMatrixDirty();
     }
   }
   /**
@@ -15951,7 +15979,7 @@ var Scene = class {
       () => {
         for (const modelId in this.models) {
           const model = this.models[modelId];
-          model.setGlobalMatrixDirty();
+          model.setWorldMatrixDirty();
         }
       },
       params?.coordinateSystem
@@ -16245,7 +16273,7 @@ var SceneAABB3Index = class {
       }),
       scene.events.onSceneObjectDestroyed.subscribe((_, object) => {
         for (const mesh of object.meshes) {
-          const meshId = `${mesh.object.id}-${mesh.id}`;
+          const meshId = `${object.id}-${mesh.id}`;
           this.#meshAABBs.delete(meshId);
           this.#meshDirty.delete(meshId);
         }
@@ -16275,7 +16303,7 @@ var SceneAABB3Index = class {
       this.#meshAABBs.set(meshId, aabb);
     }
     if (this.#meshDirty.has(meshId)) {
-      getAABBWorldAABB3(mesh.geometry.aabb, mesh.globalMatrix, aabb);
+      getAABBWorldAABB3(mesh.geometry.aabb, mesh.worldMatrix, aabb);
       this.#meshDirty.delete(meshId);
     }
     return aabb;
@@ -17129,7 +17157,7 @@ var NodeFileIO = class {
    * @returns A promise that resolves when the file is successfully written.
    * @throws An error if the data type is unsupported or the write fails.
    */
-  async save(data, targetPath) {
+  async save(data5, targetPath) {
     return new Promise((resolve2, reject) => {
       resolve2();
     });
@@ -17398,14 +17426,14 @@ var FileLoader = class extends Loader {
             return response.arrayBuffer().then((ab2) => decoder.decode(ab2));
           }
       }
-    }).then((data) => {
-      Cache.add(url, data);
+    }).then((data5) => {
+      Cache.add(url, data5);
       const callbacks = loading[url];
       delete loading[url];
       for (let i = 0, il = callbacks.length; i < il; i++) {
         const callback = callbacks[i];
         if (callback.onLoad) {
-          callback.onLoad(data);
+          callback.onLoad(data5);
         }
       }
     }).catch((err) => {
@@ -17476,8 +17504,8 @@ __export(EXT_mesh_features_exports, {
 var VERSION = true ? "4.3.3" : "latest";
 
 // ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/loader-types.js
-async function parseFromContext(data, loaders, options, context) {
-  return context._parse(data, loaders, options, context);
+async function parseFromContext(data5, loaders, options, context) {
+  return context._parse(data5, loaders, options, context);
 }
 
 // ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/env-utils/assert.js
@@ -18195,9 +18223,9 @@ var WorkerThread = class {
    * @param data any data structure, ideally consisting mostly of transferrable objects
    * @param transferList If not supplied, calculated automatically by traversing data
    */
-  postMessage(data, transferList) {
-    transferList = transferList || getTransferList(data);
-    this.worker.postMessage(data, transferList);
+  postMessage(data5, transferList) {
+    transferList = transferList || getTransferList(data5);
+    this.worker.postMessage(data5, transferList);
   }
   // PRIVATE
   /**
@@ -18250,8 +18278,8 @@ var WorkerThread = class {
     } else {
       throw new Error("no worker");
     }
-    worker.on("message", (data) => {
-      this.onMessage(data);
+    worker.on("message", (data5) => {
+      this.onMessage(data5);
     });
     worker.on("error", (error) => {
       this.onError(error);
@@ -18317,7 +18345,7 @@ var WorkerPool = class {
       this.onDebug = props.onDebug;
     }
   }
-  async startJob(name12, onMessage2 = (job, type, data) => job.done(data), onError = (job, error) => job.error(error)) {
+  async startJob(name12, onMessage2 = (job, type, data5) => job.done(data5), onError = (job, error) => job.error(error)) {
     const startPromise = new Promise((onStart) => {
       this.jobQueue.push({ name: name12, onMessage: onMessage2, onError, onStart });
       return this;
@@ -18347,7 +18375,7 @@ var WorkerPool = class {
         backlog: this.jobQueue.length
       });
       const job = new WorkerJob(queuedJob.name, workerThread);
-      workerThread.onMessage = (data) => queuedJob.onMessage(job, data.type, data.payload);
+      workerThread.onMessage = (data5) => queuedJob.onMessage(job, data5.type, data5.payload);
       workerThread.onError = (error) => queuedJob.onError(job, error);
       queuedJob.onStart(job);
       try {
@@ -18620,7 +18648,7 @@ function canParseWithWorker(loader, options) {
   }
   return loader.worker && options?.worker;
 }
-async function parseWithWorker(loader, data, options, context, parseOnMainThread) {
+async function parseWithWorker(loader, data5, options, context, parseOnMainThread) {
   const name12 = loader.id;
   const url = getWorkerURL(loader, options);
   const workerFarm = WorkerFarm.getWorkerFarm(options);
@@ -18635,7 +18663,7 @@ async function parseWithWorker(loader, data, options, context, parseOnMainThread
   );
   job.postMessage("process", {
     // @ts-ignore
-    input: data,
+    input: data5,
     options,
     context
   });
@@ -18666,14 +18694,14 @@ async function onMessage(parseOnMainThread, job, type, payload) {
 }
 
 // ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/loader-utils/dist/lib/binary-utils/get-first-characters.js
-function getFirstCharacters(data, length2 = 5) {
-  if (typeof data === "string") {
-    return data.slice(0, length2);
-  } else if (ArrayBuffer.isView(data)) {
-    return getMagicString(data.buffer, data.byteOffset, length2);
-  } else if (data instanceof ArrayBuffer) {
+function getFirstCharacters(data5, length2 = 5) {
+  if (typeof data5 === "string") {
+    return data5.slice(0, length2);
+  } else if (ArrayBuffer.isView(data5)) {
+    return getMagicString(data5.buffer, data5.byteOffset, length2);
+  } else if (data5 instanceof ArrayBuffer) {
     const byteOffset = 0;
-    return getMagicString(data, byteOffset, length2);
+    return getMagicString(data5, byteOffset, length2);
   }
   return "";
 }
@@ -18786,26 +18814,26 @@ function toArrayBuffer(buffer) {
 function isBuffer(value) {
   return value && typeof value === "object" && value.isBuffer;
 }
-function toArrayBuffer2(data) {
-  if (isBuffer(data)) {
-    return toArrayBuffer(data);
+function toArrayBuffer2(data5) {
+  if (isBuffer(data5)) {
+    return toArrayBuffer(data5);
   }
-  if (data instanceof ArrayBuffer) {
-    return data;
+  if (data5 instanceof ArrayBuffer) {
+    return data5;
   }
-  if (ArrayBuffer.isView(data)) {
-    if (data.byteOffset === 0 && data.byteLength === data.buffer.byteLength) {
-      return data.buffer;
+  if (ArrayBuffer.isView(data5)) {
+    if (data5.byteOffset === 0 && data5.byteLength === data5.buffer.byteLength) {
+      return data5.buffer;
     }
-    return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+    return data5.buffer.slice(data5.byteOffset, data5.byteOffset + data5.byteLength);
   }
-  if (typeof data === "string") {
-    const text = data;
+  if (typeof data5 === "string") {
+    const text = data5;
     const uint8Array = new TextEncoder().encode(text);
     return uint8Array.buffer;
   }
-  if (data && typeof data === "object" && data._toArrayBuffer) {
-    return data._toArrayBuffer();
+  if (data5 && typeof data5 === "object" && data5._toArrayBuffer) {
+    return data5._toArrayBuffer();
   }
   throw new Error("toArrayBuffer");
 }
@@ -19265,15 +19293,15 @@ function getJpegMarkers() {
   ]);
   return { tableMarkers, sofMarkers };
 }
-function toDataView(data) {
-  if (data instanceof DataView) {
-    return data;
+function toDataView(data5) {
+  if (data5 instanceof DataView) {
+    return data5;
   }
-  if (ArrayBuffer.isView(data)) {
-    return new DataView(data.buffer);
+  if (ArrayBuffer.isView(data5)) {
+    return new DataView(data5.buffer);
   }
-  if (data instanceof ArrayBuffer) {
-    return new DataView(data);
+  if (data5 instanceof ArrayBuffer) {
+    return new DataView(data5);
   }
   throw new Error("toDataView");
 }
@@ -19557,8 +19585,8 @@ var GLTFScenegraph = class {
     return this.gltf.json;
   }
   getApplicationData(key) {
-    const data = this.json[key];
-    return data;
+    const data5 = this.json[key];
+    return data5;
   }
   getExtraData(key) {
     const extras = this.json.extras || {};
@@ -19671,27 +19699,27 @@ var GLTFScenegraph = class {
   /**
    * Add an extra application-defined key to the top-level data structure
    */
-  addApplicationData(key, data) {
-    this.json[key] = data;
+  addApplicationData(key, data5) {
+    this.json[key] = data5;
     return this;
   }
   /**
    * `extras` - Standard GLTF field for storing application specific data
    */
-  addExtraData(key, data) {
+  addExtraData(key, data5) {
     this.json.extras = this.json.extras || {};
-    this.json.extras[key] = data;
+    this.json.extras[key] = data5;
     return this;
   }
-  addObjectExtension(object, extensionName, data) {
+  addObjectExtension(object, extensionName, data5) {
     object.extensions = object.extensions || {};
-    object.extensions[extensionName] = data;
+    object.extensions[extensionName] = data5;
     this.registerUsedExtension(extensionName);
     return this;
   }
-  setObjectExtension(object, extensionName, data) {
+  setObjectExtension(object, extensionName, data5) {
     const extensions = object.extensions || {};
-    extensions[extensionName] = data;
+    extensions[extensionName] = data5;
   }
   removeObjectExtension(object, extensionName) {
     const extensions = object?.extensions || {};
@@ -20106,14 +20134,14 @@ function getOffsetsForProperty(scenegraph, bufferViewIndex, offsetType, numberOf
   }
   return arrayOffsets;
 }
-function convertRawBufferToMetadataArray(data, attributeType, componentType, elementCount = 1) {
+function convertRawBufferToMetadataArray(data5, attributeType, componentType, elementCount = 1) {
   const numberOfComponents = ATTRIBUTE_TYPE_TO_COMPONENTS2[attributeType];
   const ArrayType = ATTRIBUTE_COMPONENT_TYPE_TO_ARRAY2[componentType];
   const size = ATTRIBUTE_COMPONENT_TYPE_TO_BYTE_SIZE2[componentType];
   const length2 = elementCount * numberOfComponents;
   const byteLength = length2 * size;
-  let buffer = data.buffer;
-  let offset = data.byteOffset;
+  let buffer = data5.buffer;
+  let offset = data5.byteOffset;
   if (offset % size !== 0) {
     const bufferArray = new Uint8Array(buffer);
     buffer = bufferArray.slice(offset, offset + byteLength).buffer;
@@ -20489,13 +20517,13 @@ function processPropertyTable(scenegraph, schema, propertyTable) {
     const classProperty = schemaClass.properties[propertyName];
     const propertyTableProperty = propertyTable.properties?.[propertyName];
     if (propertyTableProperty) {
-      const data = getPropertyDataFromBinarySource(scenegraph, schema, classProperty, numberOfElements, propertyTableProperty);
-      propertyTableProperty.data = data;
+      const data5 = getPropertyDataFromBinarySource(scenegraph, schema, classProperty, numberOfElements, propertyTableProperty);
+      propertyTableProperty.data = data5;
     }
   }
 }
 function getPropertyDataFromBinarySource(scenegraph, schema, classProperty, numberOfElements, propertyTableProperty) {
-  let data = [];
+  let data5 = [];
   const valuesBufferView = propertyTableProperty.values;
   const valuesDataBytes = scenegraph.getTypedArrayForBufferView(valuesBufferView);
   const arrayOffsets = getArrayOffsetsForProperty(scenegraph, classProperty, propertyTableProperty, numberOfElements);
@@ -20508,24 +20536,24 @@ function getPropertyDataFromBinarySource(scenegraph, schema, classProperty, numb
     case "MAT2":
     case "MAT3":
     case "MAT4": {
-      data = getPropertyDataNumeric(classProperty, numberOfElements, valuesDataBytes, arrayOffsets);
+      data5 = getPropertyDataNumeric(classProperty, numberOfElements, valuesDataBytes, arrayOffsets);
       break;
     }
     case "BOOLEAN": {
       throw new Error(`Not implemented - classProperty.type=${classProperty.type}`);
     }
     case "STRING": {
-      data = getPropertyDataString(numberOfElements, valuesDataBytes, arrayOffsets, stringOffsets);
+      data5 = getPropertyDataString(numberOfElements, valuesDataBytes, arrayOffsets, stringOffsets);
       break;
     }
     case "ENUM": {
-      data = getPropertyDataENUM(schema, classProperty, numberOfElements, valuesDataBytes, arrayOffsets);
+      data5 = getPropertyDataENUM(schema, classProperty, numberOfElements, valuesDataBytes, arrayOffsets);
       break;
     }
     default:
       throw new Error(`Unknown classProperty type ${classProperty.type}`);
   }
-  return data;
+  return data5;
 }
 function getArrayOffsetsForProperty(scenegraph, classProperty, propertyTableProperty, numberOfElements) {
   if (classProperty.array && // `count` is a number of array elements. May only be defined when `array` is true.
@@ -20673,11 +20701,11 @@ function encodeExtStructuralMetadata(scenegraph, options) {
 }
 function encodeProperties(table, schemaClass, scenegraph) {
   for (const propertyName in table.properties) {
-    const data = table.properties[propertyName].data;
-    if (data) {
+    const data5 = table.properties[propertyName].data;
+    if (data5) {
       const classProperty = schemaClass.properties[propertyName];
       if (classProperty) {
-        const tableProperty = createPropertyTableProperty(data, classProperty, scenegraph);
+        const tableProperty = createPropertyTableProperty(data5, classProperty, scenegraph);
         table.properties[propertyName] = tableProperty;
       }
     }
@@ -20745,8 +20773,8 @@ function createPropertyTableProperty(values, classProperty, scenegraph) {
     prop.stringOffsets = createBufferView(stringOffsets, scenegraph);
     prop.values = createBufferView(stringData, scenegraph);
   } else if (classProperty.type === "SCALAR" && classProperty.componentType) {
-    const data = createPropertyDataScalar(values, classProperty.componentType);
-    prop.values = createBufferView(data, scenegraph);
+    const data5 = createPropertyDataScalar(values, classProperty.componentType);
+    prop.values = createBufferView(data5, scenegraph);
   }
   return prop;
 }
@@ -20892,8 +20920,8 @@ function processPropertyTable2(scenegraph, schema, propertyTable) {
     const classProperty = schemaClass.properties[propertyName];
     const propertyTableProperty = propertyTable.properties?.[propertyName];
     if (propertyTableProperty) {
-      const data = getPropertyDataFromBinarySource2(scenegraph, schema, classProperty, numberOfElements, propertyTableProperty);
-      propertyTableProperty.data = data;
+      const data5 = getPropertyDataFromBinarySource2(scenegraph, schema, classProperty, numberOfElements, propertyTableProperty);
+      propertyTableProperty.data = data5;
     }
   }
 }
@@ -20902,23 +20930,23 @@ function handleFeatureTextureProperties(scenegraph, featureTexture, schemaClass)
   for (const propertyName in schemaClass.properties) {
     const featureTextureProperty = featureTexture?.properties?.[propertyName];
     if (featureTextureProperty) {
-      const data = getPropertyDataFromTexture(scenegraph, featureTextureProperty, attributeName);
-      featureTextureProperty.data = data;
+      const data5 = getPropertyDataFromTexture(scenegraph, featureTextureProperty, attributeName);
+      featureTextureProperty.data = data5;
     }
   }
 }
 function getPropertyDataFromBinarySource2(scenegraph, schema, classProperty, numberOfFeatures, featureTableProperty) {
-  let data = [];
+  let data5 = [];
   const bufferView = featureTableProperty.bufferView;
   const dataArray = scenegraph.getTypedArrayForBufferView(bufferView);
   const arrayOffsets = getArrayOffsetsForProperty2(scenegraph, classProperty, featureTableProperty, numberOfFeatures);
   const stringOffsets = getStringOffsetsForProperty2(scenegraph, classProperty, featureTableProperty, numberOfFeatures);
   if (classProperty.type === "STRING" || classProperty.componentType === "STRING") {
-    data = getPropertyDataString(numberOfFeatures, dataArray, arrayOffsets, stringOffsets);
+    data5 = getPropertyDataString(numberOfFeatures, dataArray, arrayOffsets, stringOffsets);
   } else if (isNumericProperty(classProperty)) {
-    data = getPropertyDataNumeric2(classProperty, numberOfFeatures, dataArray, arrayOffsets);
+    data5 = getPropertyDataNumeric2(classProperty, numberOfFeatures, dataArray, arrayOffsets);
   }
-  return data;
+  return data5;
 }
 function getArrayOffsetsForProperty2(scenegraph, classProperty, propertyTableProperty, numberOfElements) {
   if (classProperty.type === "ARRAY" && // `componentCount` is a number of fixed-length array elements.
@@ -21213,8 +21241,8 @@ var KTX2_ID = [
   26,
   10
 ];
-function isKTX(data) {
-  const id = new Uint8Array(data);
+function isKTX(data5) {
+  const id = new Uint8Array(data5);
   const notKTX = id.byteLength < KTX2_ID.length || id[0] !== KTX2_ID[0] || // '´'
   id[1] !== KTX2_ID[1] || // 'K'
   id[2] !== KTX2_ID[2] || // 'T'
@@ -21274,33 +21302,33 @@ var OutputFormat = {
   bgr565: { basisFormat: 15, compressed: false },
   rgba4444: { basisFormat: 16, compressed: false }
 };
-async function parseBasis(data, options) {
+async function parseBasis(data5, options) {
   if (options.basis.containerFormat === "auto") {
-    if (isKTX(data)) {
+    if (isKTX(data5)) {
       const fileConstructors = await loadBasisEncoderModule(options);
-      return parseKTX2File(fileConstructors.KTX2File, data, options);
+      return parseKTX2File(fileConstructors.KTX2File, data5, options);
     }
     const { BasisFile } = await loadBasisTranscoderModule(options);
-    return parseBasisFile(BasisFile, data, options);
+    return parseBasisFile(BasisFile, data5, options);
   }
   switch (options.basis.module) {
     case "encoder":
       const fileConstructors = await loadBasisEncoderModule(options);
       switch (options.basis.containerFormat) {
         case "ktx2":
-          return parseKTX2File(fileConstructors.KTX2File, data, options);
+          return parseKTX2File(fileConstructors.KTX2File, data5, options);
         case "basis":
         default:
-          return parseBasisFile(fileConstructors.BasisFile, data, options);
+          return parseBasisFile(fileConstructors.BasisFile, data5, options);
       }
     case "transcoder":
     default:
       const { BasisFile } = await loadBasisTranscoderModule(options);
-      return parseBasisFile(BasisFile, data, options);
+      return parseBasisFile(BasisFile, data5, options);
   }
 }
-function parseBasisFile(BasisFile, data, options) {
-  const basisFile = new BasisFile(new Uint8Array(data));
+function parseBasisFile(BasisFile, data5, options) {
+  const basisFile = new BasisFile(new Uint8Array(data5));
   try {
     if (!basisFile.startTranscoding()) {
       throw new Error("Failed to start basis transcoding");
@@ -21345,8 +21373,8 @@ function transcodeImage(basisFile, imageIndex, levelIndex, options) {
     hasAlpha
   };
 }
-function parseKTX2File(KTX2File, data, options) {
-  const ktx2File = new KTX2File(new Uint8Array(data));
+function parseKTX2File(KTX2File, data5, options) {
+  const ktx2File = new KTX2File(new Uint8Array(data5));
   try {
     if (!ktx2File.startTranscoding()) {
       throw new Error("failed to start KTX2 transcoding");
@@ -21743,14 +21771,14 @@ async function loadWasmModule() {
   await result.instance.exports.__wasm_call_ctors();
   return result.instance;
 }
-function unpack(data) {
-  const result = new Uint8Array(data.length);
-  for (let i = 0; i < data.length; ++i) {
-    const ch = data.charCodeAt(i);
+function unpack(data5) {
+  const result = new Uint8Array(data5.length);
+  for (let i = 0; i < data5.length; ++i) {
+    const ch = data5.charCodeAt(i);
     result[i] = ch > 96 ? ch - 71 : ch > 64 ? ch - 65 : ch > 47 ? ch + 4 : ch > 46 ? 63 : 62;
   }
   let write = 0;
-  for (let i = 0; i < data.length; ++i) {
+  for (let i = 0; i < data5.length; ++i) {
     result[write++] = result[i] < 60 ? wasmpack[result[i]] : (result[i] - 60) * 64 + result[++i];
   }
   return result.buffer.slice(0, write);
@@ -22081,7 +22109,7 @@ var DracoParser = class {
       const geometry = this._getMeshData(dracoGeometry, loaderData, options);
       const boundingBox = getMeshBoundingBox(geometry.attributes);
       const schema = getDracoSchema(geometry.attributes, loaderData, geometry.indices);
-      const data = {
+      const data5 = {
         loader: "draco",
         loaderData,
         header: {
@@ -22091,7 +22119,7 @@ var DracoParser = class {
         ...geometry,
         schema
       };
-      return data;
+      return data5;
     } finally {
       this.draco.destroy(buffer);
       if (dracoGeometry) {
@@ -24483,19 +24511,19 @@ async function parseGLTF(gltf, arrayBufferOrString, byteOffset = 0, options, con
   await decodeExtensions(gltf, options, context);
   return gltf;
 }
-function parseGLTFContainerSync(gltf, data, byteOffset, options) {
+function parseGLTFContainerSync(gltf, data5, byteOffset, options) {
   if (options.uri) {
     gltf.baseUri = options.uri;
   }
-  if (data instanceof ArrayBuffer && !isGLB(data, byteOffset, options)) {
+  if (data5 instanceof ArrayBuffer && !isGLB(data5, byteOffset, options)) {
     const textDecoder = new TextDecoder();
-    data = textDecoder.decode(data);
+    data5 = textDecoder.decode(data5);
   }
-  if (typeof data === "string") {
-    gltf.json = parseJSON(data);
-  } else if (data instanceof ArrayBuffer) {
+  if (typeof data5 === "string") {
+    gltf.json = parseJSON(data5);
+  } else if (data5 instanceof ArrayBuffer) {
     const glb = {};
-    byteOffset = parseGLBSync(glb, data, byteOffset, options.glb);
+    byteOffset = parseGLBSync(glb, data5, byteOffset, options.glb);
     assert4(glb.type === "glTF", `Invalid GLB magic string ${glb.type}`);
     gltf._glb = glb;
     gltf.json = glb.json;
@@ -25128,12 +25156,9 @@ var ModelLoader = class {
           return reject(`[${className}.load] Unsupported source file schema version: ${version2} - supported versions are [${this.versions}]`);
         }
         if (sceneModel || dataModel) {
-          sdkProgress.addTask();
           parser({ fileData: fileData2, sceneModel, dataModel }, options).then(() => {
-            sdkProgress.completeTask();
             resolve2();
           }).catch((err) => {
-            sdkProgress.completeTask();
             reject(err);
           });
         } else {
@@ -25604,25 +25629,25 @@ function getRegisteredLoaders() {
 
 // ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/api/select-loader.js
 var EXT_PATTERN = /\.([^.]+)$/;
-async function selectLoader(data, loaders = [], options, context) {
-  if (!validHTTPResponse(data)) {
+async function selectLoader(data5, loaders = [], options, context) {
+  if (!validHTTPResponse(data5)) {
     return null;
   }
-  let loader = selectLoaderSync(data, loaders, { ...options, nothrow: true }, context);
+  let loader = selectLoaderSync(data5, loaders, { ...options, nothrow: true }, context);
   if (loader) {
     return loader;
   }
-  if (isBlob(data)) {
-    data = await data.slice(0, 10).arrayBuffer();
-    loader = selectLoaderSync(data, loaders, options, context);
+  if (isBlob(data5)) {
+    data5 = await data5.slice(0, 10).arrayBuffer();
+    loader = selectLoaderSync(data5, loaders, options, context);
   }
   if (!loader && !options?.nothrow) {
-    throw new Error(getNoValidLoaderMessage(data));
+    throw new Error(getNoValidLoaderMessage(data5));
   }
   return loader;
 }
-function selectLoaderSync(data, loaders = [], options, context) {
-  if (!validHTTPResponse(data)) {
+function selectLoaderSync(data5, loaders = [], options, context) {
+  if (!validHTTPResponse(data5)) {
     return null;
   }
   if (loaders && !Array.isArray(loaders)) {
@@ -25636,15 +25661,15 @@ function selectLoaderSync(data, loaders = [], options, context) {
     candidateLoaders.push(...getRegisteredLoaders());
   }
   normalizeLoaders(candidateLoaders);
-  const loader = selectLoaderInternal(data, candidateLoaders, options, context);
+  const loader = selectLoaderInternal(data5, candidateLoaders, options, context);
   if (!loader && !options?.nothrow) {
-    throw new Error(getNoValidLoaderMessage(data));
+    throw new Error(getNoValidLoaderMessage(data5));
   }
   return loader;
 }
-function selectLoaderInternal(data, loaders, options, context) {
-  const url = getResourceUrl(data);
-  const type = getResourceMIMEType(data);
+function selectLoaderInternal(data5, loaders, options, context) {
+  const url = getResourceUrl(data5);
+  const type = getResourceMIMEType(data5);
   const testUrl = stripQueryString(url) || context?.url;
   let loader = null;
   let reason = "";
@@ -25656,8 +25681,8 @@ function selectLoaderInternal(data, loaders, options, context) {
   reason = reason || (loader ? `matched url ${testUrl}` : "");
   loader = loader || findLoaderByMIMEType(loaders, type);
   reason = reason || (loader ? `matched MIME type ${type}` : "");
-  loader = loader || findLoaderByInitialBytes(loaders, data);
-  reason = reason || (loader ? `matched initial data ${getFirstCharacters2(data)}` : "");
+  loader = loader || findLoaderByInitialBytes(loaders, data5);
+  reason = reason || (loader ? `matched initial data ${getFirstCharacters2(data5)}` : "");
   if (options?.fallbackMimeType) {
     loader = loader || findLoaderByMIMEType(loaders, options?.fallbackMimeType);
     reason = reason || (loader ? `matched fallback MIME type ${type}` : "");
@@ -25667,21 +25692,21 @@ function selectLoaderInternal(data, loaders, options, context) {
   }
   return loader;
 }
-function validHTTPResponse(data) {
-  if (data instanceof Response) {
-    if (data.status === 204) {
+function validHTTPResponse(data5) {
+  if (data5 instanceof Response) {
+    if (data5.status === 204) {
       return false;
     }
   }
   return true;
 }
-function getNoValidLoaderMessage(data) {
-  const url = getResourceUrl(data);
-  const type = getResourceMIMEType(data);
+function getNoValidLoaderMessage(data5) {
+  const url = getResourceUrl(data5);
+  const type = getResourceMIMEType(data5);
   let message = "No valid loader found (";
   message += url ? `${path_exports.filename(url)}, ` : "no url provided, ";
   message += `MIME type: ${type ? `"${type}"` : "not provided"}, `;
-  const firstCharacters = data ? getFirstCharacters2(data) : "";
+  const firstCharacters = data5 ? getFirstCharacters2(data5) : "";
   message += firstCharacters ? ` first bytes: "${firstCharacters}"` : "first bytes: not available";
   message += ")";
   return message;
@@ -25718,61 +25743,61 @@ function findLoaderByMIMEType(loaders, mimeType) {
   }
   return null;
 }
-function findLoaderByInitialBytes(loaders, data) {
-  if (!data) {
+function findLoaderByInitialBytes(loaders, data5) {
+  if (!data5) {
     return null;
   }
   for (const loader of loaders) {
-    if (typeof data === "string") {
-      if (testDataAgainstText(data, loader)) {
+    if (typeof data5 === "string") {
+      if (testDataAgainstText(data5, loader)) {
         return loader;
       }
-    } else if (ArrayBuffer.isView(data)) {
-      if (testDataAgainstBinary(data.buffer, data.byteOffset, loader)) {
+    } else if (ArrayBuffer.isView(data5)) {
+      if (testDataAgainstBinary(data5.buffer, data5.byteOffset, loader)) {
         return loader;
       }
-    } else if (data instanceof ArrayBuffer) {
+    } else if (data5 instanceof ArrayBuffer) {
       const byteOffset = 0;
-      if (testDataAgainstBinary(data, byteOffset, loader)) {
+      if (testDataAgainstBinary(data5, byteOffset, loader)) {
         return loader;
       }
     }
   }
   return null;
 }
-function testDataAgainstText(data, loader) {
+function testDataAgainstText(data5, loader) {
   if (loader.testText) {
-    return loader.testText(data);
+    return loader.testText(data5);
   }
   const tests = Array.isArray(loader.tests) ? loader.tests : [loader.tests];
-  return tests.some((test) => data.startsWith(test));
+  return tests.some((test) => data5.startsWith(test));
 }
-function testDataAgainstBinary(data, byteOffset, loader) {
+function testDataAgainstBinary(data5, byteOffset, loader) {
   const tests = Array.isArray(loader.tests) ? loader.tests : [loader.tests];
-  return tests.some((test) => testBinary(data, byteOffset, loader, test));
+  return tests.some((test) => testBinary(data5, byteOffset, loader, test));
 }
-function testBinary(data, byteOffset, loader, test) {
+function testBinary(data5, byteOffset, loader, test) {
   if (test instanceof ArrayBuffer) {
-    return compareArrayBuffers(test, data, test.byteLength);
+    return compareArrayBuffers(test, data5, test.byteLength);
   }
   switch (typeof test) {
     case "function":
-      return test(data);
+      return test(data5);
     case "string":
-      const magic = getMagicString3(data, byteOffset, test.length);
+      const magic = getMagicString3(data5, byteOffset, test.length);
       return test === magic;
     default:
       return false;
   }
 }
-function getFirstCharacters2(data, length2 = 5) {
-  if (typeof data === "string") {
-    return data.slice(0, length2);
-  } else if (ArrayBuffer.isView(data)) {
-    return getMagicString3(data.buffer, data.byteOffset, length2);
-  } else if (data instanceof ArrayBuffer) {
+function getFirstCharacters2(data5, length2 = 5) {
+  if (typeof data5 === "string") {
+    return data5.slice(0, length2);
+  } else if (ArrayBuffer.isView(data5)) {
+    return getMagicString3(data5.buffer, data5.byteOffset, length2);
+  } else if (data5 instanceof ArrayBuffer) {
     const byteOffset = 0;
-    return getMagicString3(data, byteOffset, length2);
+    return getMagicString3(data5, byteOffset, length2);
   }
   return "";
 }
@@ -25861,21 +25886,21 @@ async function* makeNodeStreamIterator(stream, options) {
 }
 
 // ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/iterators/make-iterator/make-iterator.js
-function makeIterator(data, options) {
-  if (typeof data === "string") {
-    return makeStringIterator(data, options);
+function makeIterator(data5, options) {
+  if (typeof data5 === "string") {
+    return makeStringIterator(data5, options);
   }
-  if (data instanceof ArrayBuffer) {
-    return makeArrayBufferIterator(data, options);
+  if (data5 instanceof ArrayBuffer) {
+    return makeArrayBufferIterator(data5, options);
   }
-  if (isBlob(data)) {
-    return makeBlobIterator(data, options);
+  if (isBlob(data5)) {
+    return makeBlobIterator(data5, options);
   }
-  if (isReadableStream(data)) {
-    return makeStreamIterator(data, options);
+  if (isReadableStream(data5)) {
+    return makeStreamIterator(data5, options);
   }
-  if (isResponse(data)) {
-    const response = data;
+  if (isResponse(data5)) {
+    const response = data5;
     return makeStreamIterator(response.body, options);
   }
   throw new Error("makeIterator");
@@ -25883,53 +25908,53 @@ function makeIterator(data, options) {
 
 // ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/loader-utils/get-data.js
 var ERR_DATA = "Cannot convert supplied data type";
-function getArrayBufferOrStringFromDataSync(data, loader, options) {
-  if (loader.text && typeof data === "string") {
-    return data;
+function getArrayBufferOrStringFromDataSync(data5, loader, options) {
+  if (loader.text && typeof data5 === "string") {
+    return data5;
   }
-  if (isBuffer2(data)) {
-    data = data.buffer;
+  if (isBuffer2(data5)) {
+    data5 = data5.buffer;
   }
-  if (data instanceof ArrayBuffer) {
-    const arrayBuffer = data;
+  if (data5 instanceof ArrayBuffer) {
+    const arrayBuffer = data5;
     if (loader.text && !loader.binary) {
       const textDecoder = new TextDecoder("utf8");
       return textDecoder.decode(arrayBuffer);
     }
     return arrayBuffer;
   }
-  if (ArrayBuffer.isView(data)) {
+  if (ArrayBuffer.isView(data5)) {
     if (loader.text && !loader.binary) {
       const textDecoder = new TextDecoder("utf8");
-      return textDecoder.decode(data);
+      return textDecoder.decode(data5);
     }
-    let arrayBuffer = data.buffer;
-    const byteLength = data.byteLength || data.length;
-    if (data.byteOffset !== 0 || byteLength !== arrayBuffer.byteLength) {
-      arrayBuffer = arrayBuffer.slice(data.byteOffset, data.byteOffset + byteLength);
+    let arrayBuffer = data5.buffer;
+    const byteLength = data5.byteLength || data5.length;
+    if (data5.byteOffset !== 0 || byteLength !== arrayBuffer.byteLength) {
+      arrayBuffer = arrayBuffer.slice(data5.byteOffset, data5.byteOffset + byteLength);
     }
     return arrayBuffer;
   }
   throw new Error(ERR_DATA);
 }
-async function getArrayBufferOrStringFromData(data, loader, options) {
-  const isArrayBuffer = data instanceof ArrayBuffer || ArrayBuffer.isView(data);
-  if (typeof data === "string" || isArrayBuffer) {
-    return getArrayBufferOrStringFromDataSync(data, loader, options);
+async function getArrayBufferOrStringFromData(data5, loader, options) {
+  const isArrayBuffer = data5 instanceof ArrayBuffer || ArrayBuffer.isView(data5);
+  if (typeof data5 === "string" || isArrayBuffer) {
+    return getArrayBufferOrStringFromDataSync(data5, loader, options);
   }
-  if (isBlob(data)) {
-    data = await makeResponse(data);
+  if (isBlob(data5)) {
+    data5 = await makeResponse(data5);
   }
-  if (isResponse(data)) {
-    const response = data;
+  if (isResponse(data5)) {
+    const response = data5;
     await checkResponse(response);
     return loader.binary ? await response.arrayBuffer() : await response.text();
   }
-  if (isReadableStream(data)) {
-    data = makeIterator(data, options);
+  if (isReadableStream(data5)) {
+    data5 = makeIterator(data5, options);
   }
-  if (isIterable(data) || isAsyncIterable(data)) {
-    return concatenateArrayBuffersAsync(data);
+  if (isIterable(data5) || isAsyncIterable(data5)) {
+    return concatenateArrayBuffersAsync(data5);
   }
   throw new Error(ERR_DATA);
 }
@@ -25987,18 +26012,18 @@ function getLoadersFromContext(loaders, context) {
 }
 
 // ../../node_modules/.pnpm/@loaders.gl+core@4.3.4/node_modules/@loaders.gl/core/dist/lib/api/parse.js
-async function parse3(data, loaders, options, context) {
+async function parse3(data5, loaders, options, context) {
   if (loaders && !Array.isArray(loaders) && !isLoaderObject(loaders)) {
     context = void 0;
     options = loaders;
     loaders = void 0;
   }
-  data = await data;
+  data5 = await data5;
   options = options || {};
-  const url = getResourceUrl(data);
+  const url = getResourceUrl(data5);
   const typedLoaders = loaders;
   const candidateLoaders = getLoadersFromContext(typedLoaders, context);
-  const loader = await selectLoader(data, candidateLoaders, options);
+  const loader = await selectLoader(data5, candidateLoaders, options);
   if (!loader) {
     return null;
   }
@@ -26009,30 +26034,30 @@ async function parse3(data, loaders, options, context) {
     options,
     context || null
   );
-  return await parseWithLoader(loader, data, options, context);
+  return await parseWithLoader(loader, data5, options, context);
 }
-async function parseWithLoader(loader, data, options, context) {
+async function parseWithLoader(loader, data5, options, context) {
   validateWorkerVersion(loader);
   options = mergeLoaderOptions(loader.options, options);
-  if (isResponse(data)) {
-    const response = data;
+  if (isResponse(data5)) {
+    const response = data5;
     const { ok, redirected, status, statusText, type, url } = response;
     const headers = Object.fromEntries(response.headers.entries());
     context.response = { headers, ok, redirected, status, statusText, type, url };
   }
-  data = await getArrayBufferOrStringFromData(data, loader, options);
+  data5 = await getArrayBufferOrStringFromData(data5, loader, options);
   const loaderWithParser = loader;
-  if (loaderWithParser.parseTextSync && typeof data === "string") {
-    return loaderWithParser.parseTextSync(data, options, context);
+  if (loaderWithParser.parseTextSync && typeof data5 === "string") {
+    return loaderWithParser.parseTextSync(data5, options, context);
   }
   if (canParseWithWorker(loader, options)) {
-    return await parseWithWorker(loader, data, options, context, parse3);
+    return await parseWithWorker(loader, data5, options, context, parse3);
   }
-  if (loaderWithParser.parseText && typeof data === "string") {
-    return await loaderWithParser.parseText(data, options, context);
+  if (loaderWithParser.parseText && typeof data5 === "string") {
+    return await loaderWithParser.parseText(data5, options, context);
   }
   if (loaderWithParser.parse) {
-    return await loaderWithParser.parse(data, options, context);
+    return await loaderWithParser.parse(data5, options, context);
   }
   assert3(!loaderWithParser.parseSync);
   throw new Error(`${loader.id} loader - no parser found and worker is disabled`);
@@ -27363,9 +27388,9 @@ var BufferUtils = class {
       }
       return ia;
     } else {
-      const data = dataURI.split(",")[1];
+      const data5 = dataURI.split(",")[1];
       const isBase64 = dataURI.indexOf("base64") >= 0;
-      return Buffer.from(data, isBase64 ? "base64" : "utf8");
+      return Buffer.from(data5, isBase64 ? "base64" : "utf8");
     }
   }
   /** Encodes text to a byte array. */
@@ -31142,29 +31167,29 @@ var WriterContext = class {
     }
     return accessorDef;
   }
-  createImageData(imageDef, data, texture) {
+  createImageData(imageDef, data5, texture) {
     if (this.options.format === Format.GLB) {
-      this.imageBufferViews.push(data);
+      this.imageBufferViews.push(data5);
       imageDef.bufferView = this.jsonDoc.json.bufferViews.length;
       this.jsonDoc.json.bufferViews.push({
         buffer: 0,
         byteOffset: -1,
         // determined while iterating buffers, in Writer.ts.
-        byteLength: data.byteLength
+        byteLength: data5.byteLength
       });
     } else {
       const extension = ImageUtils.mimeTypeToExtension(texture.getMimeType());
       imageDef.uri = this.imageURIGenerator.createURI(texture, extension);
-      this.assignResourceURI(imageDef.uri, data, false);
+      this.assignResourceURI(imageDef.uri, data5, false);
     }
   }
-  assignResourceURI(uri, data, throwOnConflict) {
+  assignResourceURI(uri, data5, throwOnConflict) {
     const resources = this.jsonDoc.resources;
     if (!(uri in resources)) {
-      resources[uri] = data;
+      resources[uri] = data5;
       return;
     }
-    if (data === resources[uri]) {
+    if (data5 === resources[uri]) {
       this.logger.warn(`Duplicate resource URI, "${uri}".`);
       return;
     }
@@ -31291,10 +31316,10 @@ var GLTFWriter = class {
         const accessorDef = context.createAccessorDef(accessor);
         accessorDef.bufferView = json.bufferViews.length;
         const accessorArray = accessor.getArray();
-        const data = BufferUtils.pad(BufferUtils.toView(accessorArray));
+        const data5 = BufferUtils.pad(BufferUtils.toView(accessorArray));
         accessorDef.byteOffset = byteLength;
-        byteLength += data.byteLength;
-        buffers.push(data);
+        byteLength += data5.byteLength;
+        buffers.push(data5);
         context.accessorIndexMap.set(accessor, json.accessors.length);
         json.accessors.push(accessorDef);
       }
@@ -31401,19 +31426,19 @@ var GLTFWriter = class {
             values.push(el13[j]);
         }
         const count = indices.length;
-        const data = {
+        const data5 = {
           accessorDef,
           count
         };
-        sparseData.set(accessor, data);
+        sparseData.set(accessor, data5);
         if (count === 0)
           continue;
         if (count > accessor.getCount() / 2) {
           needSparseWarning = true;
         }
         const ValueArray = ComponentTypeToTypedArray[accessor.getComponentType()];
-        data.indices = indices;
-        data.values = new ValueArray(values);
+        data5.indices = indices;
+        data5.values = new ValueArray(values);
       }
       if (!Number.isFinite(maxIndex)) {
         return {
@@ -31432,11 +31457,11 @@ var GLTFWriter = class {
         byteLength: 0
       };
       for (const accessor of accessors) {
-        const data = sparseData.get(accessor);
-        if (data.count === 0)
+        const data5 = sparseData.get(accessor);
+        if (data5.count === 0)
           continue;
-        data.indicesByteOffset = indicesBufferViewDef.byteLength;
-        const buffer = BufferUtils.pad(BufferUtils.toView(new IndexArray(data.indices)));
+        data5.indicesByteOffset = indicesBufferViewDef.byteLength;
+        const buffer = BufferUtils.pad(BufferUtils.toView(new IndexArray(data5.indices)));
         buffers.push(buffer);
         byteLength += buffer.byteLength;
         indicesBufferViewDef.byteLength += buffer.byteLength;
@@ -31449,11 +31474,11 @@ var GLTFWriter = class {
         byteLength: 0
       };
       for (const accessor of accessors) {
-        const data = sparseData.get(accessor);
-        if (data.count === 0)
+        const data5 = sparseData.get(accessor);
+        if (data5.count === 0)
           continue;
-        data.valuesByteOffset = valuesBufferViewDef.byteLength;
-        const buffer = BufferUtils.pad(BufferUtils.toView(data.values));
+        data5.valuesByteOffset = valuesBufferViewDef.byteLength;
+        const buffer = BufferUtils.pad(BufferUtils.toView(data5.values));
         buffers.push(buffer);
         byteLength += buffer.byteLength;
         valuesBufferViewDef.byteLength += buffer.byteLength;
@@ -31461,19 +31486,19 @@ var GLTFWriter = class {
       json.bufferViews.push(valuesBufferViewDef);
       const valuesBufferViewIndex = json.bufferViews.length - 1;
       for (const accessor of accessors) {
-        const data = sparseData.get(accessor);
-        if (data.count === 0)
+        const data5 = sparseData.get(accessor);
+        if (data5.count === 0)
           continue;
-        data.accessorDef.sparse = {
-          count: data.count,
+        data5.accessorDef.sparse = {
+          count: data5.count,
           indices: {
             bufferView: indicesBufferViewIndex,
-            byteOffset: data.indicesByteOffset,
+            byteOffset: data5.indicesByteOffset,
             componentType: IndexComponentType
           },
           values: {
             bufferView: valuesBufferViewIndex,
-            byteOffset: data.valuesByteOffset
+            byteOffset: data5.valuesByteOffset
           }
         };
       }
@@ -31595,15 +31620,15 @@ var GLTFWriter = class {
         }
       }
       if (context.otherBufferViews.has(buffer)) {
-        for (const data of context.otherBufferViews.get(buffer)) {
+        for (const data5 of context.otherBufferViews.get(buffer)) {
           json.bufferViews.push({
             buffer: bufferIndex,
             byteOffset: bufferByteLength,
-            byteLength: data.byteLength
+            byteLength: data5.byteLength
           });
-          context.otherBufferViewsIndexMap.set(data, json.bufferViews.length - 1);
-          bufferByteLength += data.byteLength;
-          buffers.push(data);
+          context.otherBufferViewsIndexMap.set(data5, json.bufferViews.length - 1);
+          bufferByteLength += data5.byteLength;
+          buffers.push(data5);
         }
       }
       if (bufferByteLength) {
@@ -32240,11 +32265,11 @@ var earcut = /* @__PURE__ */ (() => {
       this.steiner = false;
     }
   }
-  const earcut2 = (data, holeIndices, dim = 2) => {
+  const earcut2 = (data5, holeIndices, dim = 2) => {
     dim = dim || 2;
     const hasHoles = holeIndices && holeIndices.length > 0;
-    const outerLen = hasHoles ? holeIndices[0] * dim : data.length;
-    let outerNode = linkedList(data, 0, outerLen, dim, true);
+    const outerLen = hasHoles ? holeIndices[0] * dim : data5.length;
+    let outerNode = linkedList(data5, 0, outerLen, dim, true);
     const triangles = [];
     if (!outerNode || outerNode.next === outerNode.prev)
       return triangles;
@@ -32256,14 +32281,14 @@ var earcut = /* @__PURE__ */ (() => {
     let y;
     let invSize;
     if (hasHoles) {
-      outerNode = eliminateHoles(data, holeIndices, outerNode, dim);
+      outerNode = eliminateHoles(data5, holeIndices, outerNode, dim);
     }
-    if (data.length > 80 * dim) {
-      minX = maxX = data[0];
-      minY = maxY = data[1];
+    if (data5.length > 80 * dim) {
+      minX = maxX = data5[0];
+      minY = maxY = data5[1];
       for (let i = dim; i < outerLen; i += dim) {
-        x = data[i];
-        y = data[i + 1];
+        x = data5[i];
+        y = data5[i + 1];
         if (x < minX)
           minX = x;
         if (y < minY)
@@ -32279,16 +32304,16 @@ var earcut = /* @__PURE__ */ (() => {
     earcutLinked(outerNode, triangles, dim, minX, minY, invSize);
     return triangles;
   };
-  const linkedList = (data, start, end, dim, clockwise) => {
+  const linkedList = (data5, start, end, dim, clockwise) => {
     let i;
     let last;
-    if (clockwise === signedArea(data, start, end, dim) > 0) {
+    if (clockwise === signedArea(data5, start, end, dim) > 0) {
       for (i = start; i < end; i += dim) {
-        last = insertNode(i, data[i], data[i + 1], last);
+        last = insertNode(i, data5[i], data5[i + 1], last);
       }
     } else {
       for (i = end - dim; i >= start; i -= dim) {
-        last = insertNode(i, data[i], data[i + 1], last);
+        last = insertNode(i, data5[i], data5[i + 1], last);
       }
     }
     if (last && equals2(last, last.next)) {
@@ -32435,7 +32460,7 @@ var earcut = /* @__PURE__ */ (() => {
       a2 = a2.next;
     } while (a2 !== start);
   };
-  const eliminateHoles = (data, holeIndices, outerNode, dim) => {
+  const eliminateHoles = (data5, holeIndices, outerNode, dim) => {
     const queue = [];
     let i;
     const len = holeIndices.length;
@@ -32444,8 +32469,8 @@ var earcut = /* @__PURE__ */ (() => {
     let list;
     for (i = 0; i < len; i++) {
       start = holeIndices[i] * dim;
-      end = i < len - 1 ? holeIndices[i + 1] * dim : data.length;
-      list = linkedList(data, start, end, dim, false);
+      end = i < len - 1 ? holeIndices[i + 1] * dim : data5.length;
+      list = linkedList(data5, start, end, dim, false);
       if (list === list.next)
         list.steiner = true;
       queue.push(getLeftmost(list));
@@ -32705,10 +32730,10 @@ var earcut = /* @__PURE__ */ (() => {
     if (p.nextZ)
       p.nextZ.prevZ = p.prevZ;
   };
-  const signedArea = (data, start, end, dim) => {
+  const signedArea = (data5, start, end, dim) => {
     let sum = 0;
     for (let i = start, j = end - dim; i < end; i += dim) {
-      sum += (data[j] - data[i]) * (data[i + 1] + data[j + 1]);
+      sum += (data5[j] - data5[i]) * (data5[i + 1] + data5[j + 1]);
       j = i;
     }
     return sum;
@@ -33914,7 +33939,7 @@ var require_web_ifc_mt = __commonJS2({
           }
         }, ioctl_tcgets: function(tty) {
           return { c_iflag: 25856, c_oflag: 5, c_cflag: 191, c_lflag: 35387, c_cc: [3, 28, 127, 21, 4, 0, 1, 0, 17, 19, 26, 0, 18, 15, 23, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
-        }, ioctl_tcsets: function(tty, optional_actions, data) {
+        }, ioctl_tcsets: function(tty, optional_actions, data5) {
           return 0;
         }, ioctl_tiocgwinsz: function(tty) {
           return [24, 80];
@@ -35027,15 +35052,15 @@ var require_web_ifc_mt = __commonJS2({
           }
           FS.close(stream);
           return ret;
-        }, writeFile: (path, data, opts = {}) => {
+        }, writeFile: (path, data5, opts = {}) => {
           opts.flags = opts.flags || 577;
           var stream = FS.open(path, opts.flags, opts.mode);
-          if (typeof data == "string") {
-            var buf = new Uint8Array(lengthBytesUTF8(data) + 1);
-            var actualNumBytes = stringToUTF8Array(data, buf, 0, buf.length);
+          if (typeof data5 == "string") {
+            var buf = new Uint8Array(lengthBytesUTF8(data5) + 1);
+            var actualNumBytes = stringToUTF8Array(data5, buf, 0, buf.length);
             FS.write(stream, buf, 0, actualNumBytes, void 0, opts.canOwn);
-          } else if (ArrayBuffer.isView(data)) {
-            FS.write(stream, data, 0, data.byteLength, void 0, opts.canOwn);
+          } else if (ArrayBuffer.isView(data5)) {
+            FS.write(stream, data5, 0, data5.byteLength, void 0, opts.canOwn);
           } else {
             throw new Error("Unsupported data type");
           }
@@ -35200,7 +35225,7 @@ var require_web_ifc_mt = __commonJS2({
           var path = PATH.join2(typeof parent == "string" ? parent : FS.getPath(parent), name12);
           var mode = FS_getMode(canRead, canWrite);
           return FS.create(path, mode);
-        }, createDataFile: (parent, name12, data, canRead, canWrite, canOwn) => {
+        }, createDataFile: (parent, name12, data5, canRead, canWrite, canOwn) => {
           var path = name12;
           if (parent) {
             parent = typeof parent == "string" ? parent : FS.getPath(parent);
@@ -35208,16 +35233,16 @@ var require_web_ifc_mt = __commonJS2({
           }
           var mode = FS_getMode(canRead, canWrite);
           var node = FS.create(path, mode);
-          if (data) {
-            if (typeof data == "string") {
-              var arr = new Array(data.length);
-              for (var i = 0, len = data.length; i < len; ++i)
-                arr[i] = data.charCodeAt(i);
-              data = arr;
+          if (data5) {
+            if (typeof data5 == "string") {
+              var arr = new Array(data5.length);
+              for (var i = 0, len = data5.length; i < len; ++i)
+                arr[i] = data5.charCodeAt(i);
+              data5 = arr;
             }
             FS.chmod(node, mode | 146);
             var stream = FS.open(node, 577);
-            FS.write(stream, data, 0, data.length, 0, canOwn);
+            FS.write(stream, data5, 0, data5.length, 0, canOwn);
             FS.close(stream);
             FS.chmod(node, mode);
           }
@@ -35560,7 +35585,7 @@ var require_web_ifc_mt = __commonJS2({
           PThread.runningWorkers.splice(PThread.runningWorkers.indexOf(worker), 1);
           worker.pthread_ptr = 0;
           __emscripten_thread_free_data(pthread_ptr);
-        }, receiveObjectTransfer: function(data) {
+        }, receiveObjectTransfer: function(data5) {
         }, threadInitTLS: function() {
           PThread.tlsInitFunctions.forEach((f) => f());
         }, loadWasmModuleToWorker: (worker) => new Promise((onFinishedLoading) => {
@@ -36955,8 +36980,8 @@ var require_web_ifc_mt = __commonJS2({
             handle = handle >> 2;
             var heap = GROWABLE_HEAP_U32();
             var size = heap[handle >>> 0];
-            var data = heap[handle + 1 >>> 0];
-            return new TA(heap.buffer, data, size);
+            var data5 = heap[handle + 1 >>> 0];
+            return new TA(heap.buffer, data5, size);
           }
           name12 = readLatin1String(name12);
           registerType(rawType, { name: name12, "fromWireType": decodeMemoryView, "argPackAdvance": 8, "readValueFromPointer": decodeMemoryView }, { ignoreDuplicateRegistrations: true });
@@ -39666,8 +39691,8 @@ var require_web_ifc = __commonJS2({
             handle = handle >> 2;
             var heap = HEAPU32;
             var size = heap[handle >>> 0];
-            var data = heap[handle + 1 >>> 0];
-            return new TA(heap.buffer, data, size);
+            var data5 = heap[handle + 1 >>> 0];
+            return new TA(heap.buffer, data5, size);
           }
           name12 = readLatin1String(name12);
           registerType(rawType, { name: name12, "fromWireType": decodeMemoryView, "argPackAdvance": 8, "readValueFromPointer": decodeMemoryView }, { ignoreDuplicateRegistrations: true });
@@ -40534,7 +40559,7 @@ var require_web_ifc = __commonJS2({
           }
         }, ioctl_tcgets: function(tty) {
           return { c_iflag: 25856, c_oflag: 5, c_cflag: 191, c_lflag: 35387, c_cc: [3, 28, 127, 21, 4, 0, 1, 0, 17, 19, 26, 0, 18, 15, 23, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
-        }, ioctl_tcsets: function(tty, optional_actions, data) {
+        }, ioctl_tcsets: function(tty, optional_actions, data5) {
           return 0;
         }, ioctl_tiocgwinsz: function(tty) {
           return [24, 80];
@@ -41647,15 +41672,15 @@ var require_web_ifc = __commonJS2({
           }
           FS.close(stream);
           return ret;
-        }, writeFile: (path, data, opts = {}) => {
+        }, writeFile: (path, data5, opts = {}) => {
           opts.flags = opts.flags || 577;
           var stream = FS.open(path, opts.flags, opts.mode);
-          if (typeof data == "string") {
-            var buf = new Uint8Array(lengthBytesUTF8(data) + 1);
-            var actualNumBytes = stringToUTF8Array(data, buf, 0, buf.length);
+          if (typeof data5 == "string") {
+            var buf = new Uint8Array(lengthBytesUTF8(data5) + 1);
+            var actualNumBytes = stringToUTF8Array(data5, buf, 0, buf.length);
             FS.write(stream, buf, 0, actualNumBytes, void 0, opts.canOwn);
-          } else if (ArrayBuffer.isView(data)) {
-            FS.write(stream, data, 0, data.byteLength, void 0, opts.canOwn);
+          } else if (ArrayBuffer.isView(data5)) {
+            FS.write(stream, data5, 0, data5.byteLength, void 0, opts.canOwn);
           } else {
             throw new Error("Unsupported data type");
           }
@@ -41820,7 +41845,7 @@ var require_web_ifc = __commonJS2({
           var path = PATH.join2(typeof parent == "string" ? parent : FS.getPath(parent), name12);
           var mode = FS_getMode(canRead, canWrite);
           return FS.create(path, mode);
-        }, createDataFile: (parent, name12, data, canRead, canWrite, canOwn) => {
+        }, createDataFile: (parent, name12, data5, canRead, canWrite, canOwn) => {
           var path = name12;
           if (parent) {
             parent = typeof parent == "string" ? parent : FS.getPath(parent);
@@ -41828,16 +41853,16 @@ var require_web_ifc = __commonJS2({
           }
           var mode = FS_getMode(canRead, canWrite);
           var node = FS.create(path, mode);
-          if (data) {
-            if (typeof data == "string") {
-              var arr = new Array(data.length);
-              for (var i = 0, len = data.length; i < len; ++i)
-                arr[i] = data.charCodeAt(i);
-              data = arr;
+          if (data5) {
+            if (typeof data5 == "string") {
+              var arr = new Array(data5.length);
+              for (var i = 0, len = data5.length; i < len; ++i)
+                arr[i] = data5.charCodeAt(i);
+              data5 = arr;
             }
             FS.chmod(node, mode | 146);
             var stream = FS.open(node, 577);
-            FS.write(stream, data, 0, data.length, 0, canOwn);
+            FS.write(stream, data5, 0, data5.length, 0, canOwn);
             FS.close(stream);
             FS.chmod(node, mode);
           }
@@ -97714,12 +97739,12 @@ var IfcAPI2 = class {
     }
     return -1;
   }
-  OpenModel(data, settings) {
+  OpenModel(data5, settings) {
     let s = this.CreateSettings(settings);
     let result = this.wasmModule.OpenModel(s, (destPtr, offsetInSrc, destSize) => {
-      let srcSize = Math.min(data.byteLength - offsetInSrc, destSize);
+      let srcSize = Math.min(data5.byteLength - offsetInSrc, destSize);
       let dest = this.wasmModule.HEAPU8.subarray(destPtr, destPtr + srcSize);
-      let src = data.subarray(offsetInSrc, offsetInSrc + srcSize);
+      let src = data5.subarray(offsetInSrc, offsetInSrc + srcSize);
       dest.set(src);
       return srcSize;
     });
@@ -97738,10 +97763,10 @@ var IfcAPI2 = class {
   OpenModelFromCallback(callback, settings) {
     let s = this.CreateSettings(settings);
     let result = this.wasmModule.OpenModel(s, (destPtr, offsetInSrc, destSize) => {
-      let data = callback(offsetInSrc, destSize);
-      let srcSize = Math.min(data.byteLength, destSize);
+      let data5 = callback(offsetInSrc, destSize);
+      let srcSize = Math.min(data5.byteLength, destSize);
       let dest = this.wasmModule.HEAPU8.subarray(destPtr, destPtr + srcSize);
-      dest.set(data);
+      dest.set(data5);
       return srcSize;
     });
     this.deletedLines.set(result, /* @__PURE__ */ new Set());
@@ -97963,12 +97988,12 @@ var IfcAPI2 = class {
   GetRawLineData(modelID, expressID) {
     return this.wasmModule.GetLine(modelID, expressID);
   }
-  WriteRawLineData(modelID, data) {
-    this.wasmModule.WriteLine(modelID, data.ID, data.type, data.arguments);
+  WriteRawLineData(modelID, data5) {
+    this.wasmModule.WriteLine(modelID, data5.ID, data5.type, data5.arguments);
   }
-  WriteRawLinesData(modelID, data) {
-    this.wasmModule.ExtendLineStorage(modelID, data.length);
-    for (let rawLine of data)
+  WriteRawLinesData(modelID, data5) {
+    this.wasmModule.ExtendLineStorage(modelID, data5.length);
+    for (let rawLine of data5)
       this.wasmModule.WriteLine(modelID, rawLine.ID, rawLine.type, rawLine.arguments);
   }
   GetLineIDsWithType(modelID, type, includeInherited = false) {
@@ -98261,7 +98286,8 @@ async function parseWebIFC(ifcAPI, params, options) {
     ifcAPI,
     sceneModel,
     dataModel,
-    nextId: 0
+    nextId: 0,
+    propertySetsByObjectExpressId: {}
   };
   parseIFC(ctx);
 }
@@ -98270,11 +98296,11 @@ function parseIFC(ctx) {
   ctx.sceneModel && parseSceneModel(ctx);
 }
 function parseDataModel(ctx) {
+  parsePropertySets(ctx);
   const lines = ctx.ifcAPI.GetLineIDsWithType(ctx.modelId, IFCPROJECT);
   const ifcProjectId = lines.get(0);
   const ifcProject = ctx.ifcAPI.GetLine(ctx.modelId, ifcProjectId);
-  parseDataObjectAggregation(ctx, ifcProject);
-  parsePropertySets(ctx);
+  parseDataObjectAggregation(ctx, ifcProject, void 0, "IfcRelAggregates");
 }
 function parsePropertySets(ctx) {
   const lines = ctx.ifcAPI.GetLineIDsWithType(ctx.modelId, IFCRELDEFINESBYPROPERTIES);
@@ -98284,7 +98310,9 @@ function parsePropertySets(ctx) {
     if (!rel || !rel.RelatingPropertyDefinition)
       continue;
     const def = rel.RelatingPropertyDefinition;
-    const propertySetId = def.GlobalId.value;
+    const propertySetId = def.GlobalId?.value;
+    if (!propertySetId)
+      continue;
     const properties = (def.HasProperties || []).map((prop) => ({
       name: prop.Name?.value,
       type: prop.NominalValue?.type,
@@ -98299,35 +98327,44 @@ function parsePropertySets(ctx) {
       name: def.Name?.value,
       properties
     });
+    for (const relatedObject of rel.RelatedObjects || []) {
+      const expId = relatedObject.value;
+      if (!ctx.propertySetsByObjectExpressId[expId]) {
+        ctx.propertySetsByObjectExpressId[expId] = [];
+      }
+      ctx.propertySetsByObjectExpressId[expId].push(propertySetId);
+    }
   }
 }
-function parseDataObjectAggregation(ctx, element, parentId) {
-  createDataObject(ctx, element, parentId);
+function parseDataObjectAggregation(ctx, element, parentId, relType) {
+  createDataObject(ctx, element, parentId, relType);
   const elementId = element.GlobalId.value;
-  parseRelatedItemsOfType(ctx, element.expressID, "RelatingObject", "RelatedObjects", IFCRELAGGREGATES, elementId);
-  parseRelatedItemsOfType(ctx, element.expressID, "RelatingStructure", "RelatedElements", IFCRELCONTAINEDINSPATIALSTRUCTURE, elementId);
+  parseRelatedItemsOfType(ctx, element.expressID, "RelatingObject", "RelatedObjects", IFCRELAGGREGATES, elementId, "IfcRelAggregates");
+  parseRelatedItemsOfType(ctx, element.expressID, "RelatingStructure", "RelatedElements", IFCRELCONTAINEDINSPATIALSTRUCTURE, elementId, "IfcRelContainedInSpatialStructure");
 }
-function createDataObject(ctx, element, parentId) {
+function createDataObject(ctx, element, parentId, relType) {
   const id = element.GlobalId.value;
   const typeName = element.__proto__.constructor.name;
   const name12 = element.Name?.value || typeName;
   const typeCode = typeName ?? "IfcElement";
+  const propertySetIds = ctx.propertySetsByObjectExpressId[element.expressID];
   ctx.dataModel.createObject({
     id,
     name: name12,
     type: typeCode,
-    schema: SCHEMA2
+    schema: SCHEMA2,
+    ...propertySetIds && propertySetIds.length > 0 ? { propertySetIds } : {}
   });
   if (parentId) {
     ctx.dataModel.createRelationship({
-      type: "IfcRelAggregates",
+      type: relType || "IfcRelAggregates",
       schema: SCHEMA2,
       relatingObjectId: parentId,
       relatedObjectId: id
     });
   }
 }
-function parseRelatedItemsOfType(ctx, id, relationKey, relatedKey, type, parentId) {
+function parseRelatedItemsOfType(ctx, id, relationKey, relatedKey, type, parentId, relTypeName) {
   const lines = ctx.ifcAPI.GetLineIDsWithType(ctx.modelId, type);
   for (let i = 0; i < lines.size(); i++) {
     const rel = ctx.ifcAPI.GetLine(ctx.modelId, lines.get(i));
@@ -98339,7 +98376,7 @@ function parseRelatedItemsOfType(ctx, id, relationKey, relatedKey, type, parentI
     const relatedElements = Array.isArray(targets) ? targets : [targets];
     for (const target of relatedElements) {
       const element = ctx.ifcAPI.GetLine(ctx.modelId, target.value);
-      parseDataObjectAggregation(ctx, element, parentId);
+      parseDataObjectAggregation(ctx, element, parentId, relTypeName);
     }
   }
 }
@@ -98459,63 +98496,219 @@ async function parse6(params, options) {
   }
 }
 
+// ../sdk/src/formats/ifc/createDefaultIFCDataModel.ts
+function createDefaultIFCDataModel(sceneModel, dataModel) {
+  const getFirstObjectOfType = (type) => {
+    const bucket = dataModel.objectsByType?.[type];
+    return bucket ? Object.values(bucket)[0] : void 0;
+  };
+  const ensureObject = (type, name12) => {
+    const existing = getFirstObjectOfType(type);
+    if (existing) {
+      return existing;
+    }
+    const result = dataModel.createObject({
+      id: createUUID(),
+      type,
+      name: name12
+    });
+    if (result.ok !== true) {
+      throw new Error(result.error);
+    }
+    return result.value;
+  };
+  const hasRelationship = (type, relatingObjectId, relatedObjectId) => {
+    for (let i = 0, len = dataModel.relationships.length; i < len; i++) {
+      const rel = dataModel.relationships[i];
+      if (rel.type === type && rel.relatingObject.id === relatingObjectId && rel.relatedObject.id === relatedObjectId) {
+        return true;
+      }
+    }
+    return false;
+  };
+  const ensureRelationship = (type, relatingObjectId, relatedObjectId) => {
+    if (hasRelationship(type, relatingObjectId, relatedObjectId)) {
+      return;
+    }
+    const result = dataModel.createRelationship({
+      type,
+      relatingObjectId,
+      relatedObjectId
+    });
+    if (result.ok !== true) {
+      throw new Error(result.error);
+    }
+  };
+  const isSpatialType = (type) => {
+    return type === "IfcProject" || type === "IfcSite" || type === "IfcBuilding" || type === "IfcBuildingStorey" || type === "IfcSpace";
+  };
+  const isContainedAlready = (objectId) => {
+    for (let i = 0, len = dataModel.relationships.length; i < len; i++) {
+      const rel = dataModel.relationships[i];
+      if (rel.type === "IfcRelContainedInSpatialStructure" && rel.relatedObject.id === objectId) {
+        return true;
+      }
+    }
+    return false;
+  };
+  const project = ensureObject("IfcProject", dataModel.name || sceneModel.id || "Project");
+  const site = ensureObject("IfcSite", "Default Site");
+  const building = ensureObject("IfcBuilding", "Default Building");
+  const storey = ensureObject("IfcBuildingStorey", "Default Storey");
+  ensureRelationship("IfcRelAggregates", project.id, site.id);
+  ensureRelationship("IfcRelAggregates", site.id, building.id);
+  ensureRelationship("IfcRelAggregates", building.id, storey.id);
+  for (const objectId in sceneModel.objects) {
+    const sceneObject = sceneModel.objects[objectId];
+    if (!sceneObject) {
+      continue;
+    }
+    if (!sceneObject.meshes || sceneObject.meshes.length === 0) {
+      continue;
+    }
+    let dataObject = dataModel.objects[objectId];
+    if (!dataObject) {
+      const result = dataModel.createObject({
+        id: objectId,
+        type: "IfcBuildingElementProxy",
+        name: sceneObject.id || "IfcBuildingElementProxy"
+      });
+      if (result.ok !== true) {
+        throw new Error(result.error);
+      }
+      dataObject = result.value;
+    }
+    if (isSpatialType(dataObject.type)) {
+      continue;
+    }
+    if (!isContainedAlready(dataObject.id)) {
+      ensureRelationship("IfcRelContainedInSpatialStructure", storey.id, dataObject.id);
+    }
+  }
+}
+
 // ../sdk/src/formats/ifc/versions/IFC4/encode.ts
+var _compressedPos = new Float32Array(3);
+var _decompressedPos = new Float64Array(3);
 function encode7(ifcAPI, params, options) {
   return new Promise(function(resolve2, reject) {
-    const { sceneModel, dataModel } = params;
-    const coordinateSystemMatrix = options.coordinateSystem ? createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4Float64()) : null;
+    const { sceneModel } = params;
+    let dataModel;
+    if (!params.dataModel || params.dataModel.objectsByType?.["IfcProject"] === void 0) {
+      const data5 = new Data2();
+      const dataModelRes = data5.createModel({
+        id: sceneModel.id
+      });
+      if (dataModelRes.ok !== true) {
+        reject("[IFC4 encode] Failed to create DataModel: " + dataModelRes.error);
+        return;
+      }
+      dataModel = dataModelRes.value;
+      createDefaultIFCDataModel(sceneModel, dataModel);
+    } else {
+      dataModel = params.dataModel;
+    }
     const modelId = ifcAPI.CreateModel({
       schema: Schemas.IFC4,
-      name: "Model",
-      description: ["Demo"],
-      authors: ["xeokit-sdk"],
+      name: dataModel?.name || "Model",
+      description: ["Generated by xeokit SDK"],
+      authors: [dataModel?.author || "xeokit"],
       organizations: []
     });
-    const org = new IFC4.IfcOrganization(null, new IFC4.IfcLabel("xeokit"), null, null, null);
+    const org = new IFC4.IfcOrganization(
+      null,
+      new IFC4.IfcLabel(dataModel?.creatingApplication || "xeokit"),
+      null,
+      null,
+      null
+    );
     ifcAPI.WriteLine(modelId, org);
     const app = new IFC4.IfcApplication(
       org,
-      new IFC4.IfcLabel("0.0.1"),
-      new IFC4.IfcIdentifier("my app"),
-      new IFC4.IfcIdentifier("app")
+      new IFC4.IfcLabel("1.0.0"),
+      new IFC4.IfcLabel("xeokit SDK"),
+      new IFC4.IfcIdentifier("xeokit-sdk")
     );
     ifcAPI.WriteLine(modelId, app);
-    const unit_1 = new IFC4.IfcSIUnit(
-      IFC4.IfcUnitEnum.VOLUMEUNIT,
-      IFC4.IfcSIPrefix.MILLI,
-      IFC4.IfcSIUnitName.CUBIC_METRE
+    const person = new IFC4.IfcPerson(
+      null,
+      new IFC4.IfcLabel(""),
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
     );
-    const unitAssign = new IFC4.IfcUnitAssignment([unit_1]);
+    ifcAPI.WriteLine(modelId, person);
+    const personAndOrg = new IFC4.IfcPersonAndOrganization(person, org, null);
+    ifcAPI.WriteLine(modelId, personAndOrg);
+    const ownerHistory = new IFC4.IfcOwnerHistory(
+      personAndOrg,
+      app,
+      null,
+      null,
+      null,
+      null,
+      null,
+      new IFC4.IfcTimeStamp(Math.floor(Date.now() / 1e3))
+    );
+    ifcAPI.WriteLine(modelId, ownerHistory);
+    const lenUnit = new IFC4.IfcSIUnit(null, null, IFC4.IfcSIUnitName.METRE);
+    const areaUnit = new IFC4.IfcSIUnit(null, null, IFC4.IfcSIUnitName.SQUARE_METRE);
+    const volUnit = new IFC4.IfcSIUnit(null, null, IFC4.IfcSIUnitName.CUBIC_METRE);
+    const unitAssign = new IFC4.IfcUnitAssignment([lenUnit, areaUnit, volUnit]);
     ifcAPI.WriteLine(modelId, unitAssign);
-    const origin2 = [
+    const worldOrigin2d = new IFC4.IfcCartesianPoint([
+      new IFC4.IfcLengthMeasure(0),
+      new IFC4.IfcLengthMeasure(0)
+    ]);
+    ifcAPI.WriteLine(modelId, worldOrigin2d);
+    const worldAxis2d = new IFC4.IfcAxis2Placement2D(worldOrigin2d, null);
+    ifcAPI.WriteLine(modelId, worldAxis2d);
+    const trueNorth = new IFC4.IfcDirection([
+      new IFC4.IfcReal(0),
+      new IFC4.IfcReal(1)
+    ]);
+    ifcAPI.WriteLine(modelId, trueNorth);
+    const geomContext = new IFC4.IfcGeometricRepresentationContext(
+      new IFC4.IfcLabel("3D"),
+      new IFC4.IfcLabel("Model"),
+      new IFC4.IfcDimensionCount(3),
+      null,
+      worldAxis2d,
+      trueNorth
+    );
+    ifcAPI.WriteLine(modelId, geomContext);
+    const identityOrigin = new IFC4.IfcCartesianPoint([
       new IFC4.IfcLengthMeasure(0),
       new IFC4.IfcLengthMeasure(0),
       new IFC4.IfcLengthMeasure(0)
-    ];
-    const cartPoint = new IFC4.IfcCartesianPoint(origin2);
-    ifcAPI.WriteLine(modelId, cartPoint);
-    origin2[2].value = 1;
-    const dir = new IFC4.IfcDirection(origin2);
-    ifcAPI.WriteLine(modelId, dir);
-    const axis = new IFC4.IfcAxis2Placement2D(cartPoint, dir);
-    ifcAPI.WriteLine(modelId, axis);
-    const geomContext = new IFC4.IfcGeometricRepresentationContext(
-      new IFC4.IfcLabel("30 context"),
-      new IFC4.IfcLabel("model"),
-      new IFC4.IfcDimensionCount("30 context"),
-      null,
-      axis,
-      dir
-    );
-    ifcAPI.WriteLine(modelId, geomContext);
-    const projectDataObjects = dataModel.objectsByType["IfcProject"];
+    ]);
+    ifcAPI.WriteLine(modelId, identityOrigin);
+    const zAxis = new IFC4.IfcDirection([
+      new IFC4.IfcReal(0),
+      new IFC4.IfcReal(0),
+      new IFC4.IfcReal(1)
+    ]);
+    ifcAPI.WriteLine(modelId, zAxis);
+    const xAxis = new IFC4.IfcDirection([
+      new IFC4.IfcReal(1),
+      new IFC4.IfcReal(0),
+      new IFC4.IfcReal(0)
+    ]);
+    ifcAPI.WriteLine(modelId, xAxis);
+    const identityAP3D = new IFC4.IfcAxis2Placement3D(identityOrigin, zAxis, xAxis);
+    ifcAPI.WriteLine(modelId, identityAP3D);
+    const identityPlacement = new IFC4.IfcLocalPlacement(null, identityAP3D);
+    ifcAPI.WriteLine(modelId, identityPlacement);
+    const projectDataObjects = dataModel?.objectsByType?.["IfcProject"];
     const projectDataObject = projectDataObjects ? Object.values(projectDataObjects)[0] : null;
-    const projectId = projectDataObject ? projectDataObject.id : createUUID();
     const proj = new IFC4.IfcProject(
-      projectId,
-      null,
-      new IFC4.IfcLabel("project"),
-      new IFC4.IfcText("project desc"),
+      new IFC4.IfcGloballyUniqueId(projectDataObject?.id || createUUID()),
+      ownerHistory,
+      new IFC4.IfcLabel(projectDataObject?.name || "Project"),
+      projectDataObject?.description ? new IFC4.IfcText(projectDataObject.description) : null,
       null,
       null,
       null,
@@ -98524,60 +98717,277 @@ function encode7(ifcAPI, params, options) {
     );
     ifcAPI.WriteLine(modelId, proj);
     const ifcElementMap = {};
-    for (let objectId in dataModel.objects) {
-      const dataObject = dataModel.objects[objectId];
-      const dataObjectType = dataObject.type !== void 0 && dataObject.type !== null ? dataObject.type : "IfcBuildingElementProxy";
-      const dataObjectTypeName = dataObjectType || "IfcBuildingElementProxy";
-      const ifcElementClass = IFC4[dataObjectTypeName];
-      if (ifcElementClass) {
-        const ifcElement = new ifcElementClass(
-          dataObject.id,
-          null,
-          new IFC4.IfcLabel(dataObjectTypeName),
-          new IFC4.IfcText(dataObjectTypeName + " description"),
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null
-        );
+    if (projectDataObject) {
+      ifcElementMap[projectDataObject.id] = proj;
+    }
+    if (dataModel) {
+      for (const objectId in dataModel.objects) {
+        if (ifcElementMap[objectId])
+          continue;
+        const dataObject = dataModel.objects[objectId];
+        const typeName = dataObject.type || "IfcBuildingElementProxy";
+        const IfcClass = IFC4[typeName];
+        const IfcClassResolved = IfcClass || IFC4.IfcBuildingElementProxy;
+        const guid = new IFC4.IfcGloballyUniqueId(dataObject.id);
+        const name12 = new IFC4.IfcLabel(dataObject.name || typeName);
+        const desc = dataObject.description ? new IFC4.IfcText(dataObject.description) : null;
+        let representation = null;
+        const sceneObject = sceneModel?.objects[objectId];
+        if (sceneObject) {
+          const repItems = [];
+          for (const mesh of sceneObject.meshes) {
+            const geometry = mesh.geometry;
+            if (!geometry.indices || geometry.indices.length === 0)
+              continue;
+            const posComp = geometry.positionsCompressed;
+            const aabb = geometry.aabb;
+            const matrix = mesh.worldMatrix;
+            const numVerts = posComp.length / 3;
+            const coordList = [];
+            const coordIndex = [];
+            for (let i = 0; i < numVerts; i++) {
+              _compressedPos[0] = posComp[i * 3];
+              _compressedPos[1] = posComp[i * 3 + 1];
+              _compressedPos[2] = posComp[i * 3 + 2];
+              decompressPoint3WithAABB3(_compressedPos, aabb, _decompressedPos);
+              const lx = _decompressedPos[0];
+              const ly = _decompressedPos[1];
+              const lz = _decompressedPos[2];
+              coordList.push([
+                new IFC4.IfcLengthMeasure(matrix[0] * lx + matrix[4] * ly + matrix[8] * lz + matrix[12]),
+                new IFC4.IfcLengthMeasure(matrix[1] * lx + matrix[5] * ly + matrix[9] * lz + matrix[13]),
+                new IFC4.IfcLengthMeasure(matrix[2] * lx + matrix[6] * ly + matrix[10] * lz + matrix[14])
+              ]);
+            }
+            const idx = geometry.indices;
+            for (let i = 0, len = idx.length; i < len; i += 3) {
+              coordIndex.push([idx[i] + 1, idx[i + 1] + 1, idx[i + 2] + 1]);
+            }
+            if (coordList.length === 0)
+              continue;
+            const pts = new IFC4.IfcCartesianPointList3D(coordList);
+            ifcAPI.WriteLine(modelId, pts);
+            const tfs = new IFC4.IfcTriangulatedFaceSet(
+              pts,
+              null,
+              null,
+              coordIndex,
+              null
+            );
+            ifcAPI.WriteLine(modelId, tfs);
+            const col = mesh.effectiveColor;
+            const alpha = mesh.effectiveOpacity;
+            const rgb = new IFC4.IfcColourRgb(
+              null,
+              new IFC4.IfcNormalisedRatioMeasure(col[0]),
+              new IFC4.IfcNormalisedRatioMeasure(col[1]),
+              new IFC4.IfcNormalisedRatioMeasure(col[2])
+            );
+            ifcAPI.WriteLine(modelId, rgb);
+            const surfaceRendering = new IFC4.IfcSurfaceStyleRendering(
+              rgb,
+              alpha < 1 ? new IFC4.IfcNormalisedRatioMeasure(1 - alpha) : null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            );
+            ifcAPI.WriteLine(modelId, surfaceRendering);
+            const surfaceStyle = new IFC4.IfcSurfaceStyle(null, null, [surfaceRendering]);
+            ifcAPI.WriteLine(modelId, surfaceStyle);
+            ifcAPI.WriteLine(modelId, new IFC4.IfcStyledItem(tfs, [surfaceStyle], null));
+            repItems.push(tfs);
+          }
+          if (repItems.length > 0) {
+            const shapeRep = new IFC4.IfcShapeRepresentation(
+              geomContext,
+              new IFC4.IfcLabel("Body"),
+              new IFC4.IfcLabel("Tessellation"),
+              repItems
+            );
+            ifcAPI.WriteLine(modelId, shapeRep);
+            representation = new IFC4.IfcProductDefinitionShape(null, null, [shapeRep]);
+            ifcAPI.WriteLine(modelId, representation);
+          }
+        }
+        let ifcElement;
+        if (typeName === "IfcSite") {
+          ifcElement = new IFC4.IfcSite(
+            guid,
+            ownerHistory,
+            name12,
+            desc,
+            null,
+            identityPlacement,
+            representation,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          );
+        } else if (typeName === "IfcBuilding") {
+          ifcElement = new IFC4.IfcBuilding(
+            guid,
+            ownerHistory,
+            name12,
+            desc,
+            null,
+            identityPlacement,
+            representation,
+            null,
+            null,
+            null,
+            null,
+            null
+          );
+        } else if (typeName === "IfcBuildingStorey") {
+          ifcElement = new IFC4.IfcBuildingStorey(
+            guid,
+            ownerHistory,
+            name12,
+            desc,
+            null,
+            identityPlacement,
+            representation,
+            null,
+            null,
+            null
+          );
+        } else if (typeName === "IfcSpace") {
+          ifcElement = new IFC4.IfcSpace(
+            guid,
+            ownerHistory,
+            name12,
+            desc,
+            null,
+            identityPlacement,
+            representation,
+            null,
+            null,
+            null,
+            null
+          );
+        } else {
+          try {
+            ifcElement = new IfcClassResolved(
+              guid,
+              ownerHistory,
+              name12,
+              desc,
+              null,
+              representation ? identityPlacement : null,
+              representation,
+              null,
+              null
+            );
+          } catch (_) {
+            ifcElement = new IFC4.IfcBuildingElementProxy(
+              guid,
+              ownerHistory,
+              name12,
+              desc,
+              null,
+              representation ? identityPlacement : null,
+              representation,
+              null,
+              null
+            );
+          }
+        }
         ifcAPI.WriteLine(modelId, ifcElement);
         ifcElementMap[objectId] = ifcElement;
-      }
-      const sceneObject = sceneModel.objects[objectId];
-      if (sceneObject) {
-        const triFaceSet = new IFC4.IfcTriangulatedFaceSet(void 0, void 0, void 0, [], void 0);
+        if (dataObject.propertySets?.length) {
+          for (const propSet of dataObject.propertySets) {
+            const ifcProperties = propSet.properties.map((p) => {
+              const val = new IFC4.IfcPropertySingleValue(
+                new IFC4.IfcIdentifier(p.name),
+                p.description ? new IFC4.IfcText(p.description) : null,
+                p.value !== void 0 ? new IFC4.IfcLabel(String(p.value)) : null,
+                null
+              );
+              ifcAPI.WriteLine(modelId, val);
+              return val;
+            });
+            const ifcPSet = new IFC4.IfcPropertySet(
+              new IFC4.IfcGloballyUniqueId(propSet.id || createUUID()),
+              ownerHistory,
+              new IFC4.IfcLabel(propSet.name || "PropertySet"),
+              null,
+              ifcProperties
+            );
+            ifcAPI.WriteLine(modelId, ifcPSet);
+            const relDef = new IFC4.IfcRelDefinesByProperties(
+              new IFC4.IfcGloballyUniqueId(createUUID()),
+              ownerHistory,
+              null,
+              null,
+              [ifcElement],
+              ifcPSet
+            );
+            ifcAPI.WriteLine(modelId, relDef);
+          }
+        }
       }
     }
-    for (let relationshipId in dataModel.relationships) {
-      const relationship = dataModel.relationships[relationshipId];
-      const relatingDataObject = relationship.relatingObject;
-      const relatedDataObject = relationship.relatedObject;
-      const relatingIfcElement = ifcElementMap[relatingDataObject.id];
-      const relatedIfcElement = ifcElementMap[relatedDataObject.id];
-      if (!relatingIfcElement || !relatedIfcElement) {
-        continue;
+    if (dataModel) {
+      const relGroups = {};
+      for (const rel of dataModel.relationships) {
+        const key = `${rel.type}|${rel.relatingObject.id}`;
+        if (!relGroups[key]) {
+          relGroups[key] = { type: rel.type, relatingId: rel.relatingObject.id, relatedIds: [] };
+        }
+        relGroups[key].relatedIds.push(rel.relatedObject.id);
       }
-      const relationshipType = relationship.type !== void 0 && relationship.type !== null ? relationship.type : "IfcRelAggregates";
-      const relatonshipTypeName = relationshipType;
-      const ifcRelationshipClass = IFC4[relatonshipTypeName];
-      if (ifcRelationshipClass) {
-        const ifcRelationship = new ifcRelationshipClass(
-          relationshipId,
-          null,
-          new IFC4.IfcLabel(relatonshipTypeName),
-          new IFC4.IfcText(relatonshipTypeName + " description"),
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null
-        );
-        ifcAPI.WriteLine(modelId, ifcRelationship);
+      for (const key in relGroups) {
+        const group = relGroups[key];
+        const relatingEl = ifcElementMap[group.relatingId];
+        if (!relatingEl)
+          continue;
+        const relatedEls = group.relatedIds.map((id) => ifcElementMap[id]).filter(Boolean);
+        if (relatedEls.length === 0)
+          continue;
+        const relGuid = new IFC4.IfcGloballyUniqueId(createUUID());
+        const relLabel = new IFC4.IfcLabel(group.type);
+        if (group.type === "IfcRelAggregates") {
+          ifcAPI.WriteLine(modelId, new IFC4.IfcRelAggregates(
+            relGuid,
+            ownerHistory,
+            relLabel,
+            null,
+            relatingEl,
+            relatedEls
+          ));
+        } else if (group.type === "IfcRelContainedInSpatialStructure") {
+          ifcAPI.WriteLine(modelId, new IFC4.IfcRelContainedInSpatialStructure(
+            relGuid,
+            ownerHistory,
+            relLabel,
+            null,
+            relatedEls,
+            relatingEl
+          ));
+        } else {
+          const IfcRelClass = IFC4[group.type];
+          if (IfcRelClass) {
+            try {
+              ifcAPI.WriteLine(modelId, new IfcRelClass(
+                relGuid,
+                ownerHistory,
+                relLabel,
+                null,
+                relatingEl,
+                relatedEls
+              ));
+            } catch (_) {
+            }
+          }
+        }
       }
     }
     resolve2(ifcAPI.SaveModel(modelId));
@@ -99001,10 +99411,10 @@ function modelToXGF(params) {
         xgfData.eachMeshMatricesBase[meshesBase] = matricesBase;
         matricesBase += 16;
       }
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.globalColor[0] * 255;
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.globalColor[1] * 255;
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.globalColor[2] * 255;
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.globalOpacity * 255;
+      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.effectiveColor[0] * 255;
+      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.effectiveColor[1] * 255;
+      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.effectiveColor[2] * 255;
+      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.effectiveOpacity * 255;
       meshesBase++;
     }
   }
@@ -99956,25 +100366,25 @@ function getModule() {
   } else if (ENVIRONMENT_IS_SHELL) {
     if (typeof read != "undefined") {
       read_ = function shell_read(f) {
-        var data2 = tryParseAsDataURI(f);
-        if (data2) {
-          return intArrayToString(data2);
+        var data6 = tryParseAsDataURI(f);
+        if (data6) {
+          return intArrayToString(data6);
         }
         return read(f);
       };
     }
     readBinary = function readBinary2(f) {
-      var data2;
-      data2 = tryParseAsDataURI(f);
-      if (data2) {
-        return data2;
+      var data6;
+      data6 = tryParseAsDataURI(f);
+      if (data6) {
+        return data6;
       }
       if (typeof readbuffer === "function") {
         return new Uint8Array(readbuffer(f));
       }
-      data2 = read(f, "binary");
-      assert6(typeof data2 === "object");
-      return data2;
+      data6 = read(f, "binary");
+      assert6(typeof data6 === "object");
+      return data6;
     };
     if (typeof scriptArgs != "undefined") {
       arguments_ = scriptArgs;
@@ -100011,9 +100421,9 @@ function getModule() {
           xhr.send(null);
           return xhr.responseText;
         } catch (err2) {
-          var data2 = tryParseAsDataURI(url);
-          if (data2) {
-            return intArrayToString(data2);
+          var data6 = tryParseAsDataURI(url);
+          if (data6) {
+            return intArrayToString(data6);
           }
           throw err2;
         }
@@ -100027,9 +100437,9 @@ function getModule() {
             xhr.send(null);
             return new Uint8Array(xhr.response);
           } catch (err2) {
-            var data2 = tryParseAsDataURI(url);
-            if (data2) {
-              return data2;
+            var data6 = tryParseAsDataURI(url);
+            if (data6) {
+              return data6;
             }
             throw err2;
           }
@@ -100044,9 +100454,9 @@ function getModule() {
             onload(xhr.response);
             return;
           }
-          var data2 = tryParseAsDataURI(url);
-          if (data2) {
-            onload(data2.buffer);
+          var data6 = tryParseAsDataURI(url);
+          if (data6) {
+            onload(data6.buffer);
             return;
           }
           onerror();
@@ -101794,8 +102204,8 @@ function getModule() {
       handle = handle >> 2;
       var heap = HEAPU32;
       var size = heap[handle];
-      var data2 = heap[handle + 1];
-      return new TA(buffer, data2, size);
+      var data6 = heap[handle + 1];
+      return new TA(buffer, data6, size);
     }
     name12 = readLatin1String(name12);
     registerType(rawType, {
@@ -118184,14 +118594,14 @@ function getModule() {
       memoryInitializer = locateFile(memoryInitializer);
     }
     if (ENVIRONMENT_IS_NODE || ENVIRONMENT_IS_SHELL) {
-      var data = readBinary(memoryInitializer);
-      HEAPU8.set(data, GLOBAL_BASE);
+      var data5 = readBinary(memoryInitializer);
+      HEAPU8.set(data5, GLOBAL_BASE);
     } else {
       addRunDependency("memory initializer");
-      var applyMemoryInitializer = function(data2) {
-        if (data2.byteLength)
-          data2 = new Uint8Array(data2);
-        HEAPU8.set(data2, GLOBAL_BASE);
+      var applyMemoryInitializer = function(data6) {
+        if (data6.byteLength)
+          data6 = new Uint8Array(data6);
+        HEAPU8.set(data6, GLOBAL_BASE);
         if (Module2["memoryInitializerRequest"])
           delete Module2["memoryInitializerRequest"].response;
         removeRunDependency("memory initializer");
@@ -118210,9 +118620,9 @@ function getModule() {
           var request = Module2["memoryInitializerRequest"];
           var response = request.response;
           if (request.status !== 200 && request.status !== 0) {
-            var data2 = tryParseAsDataURI(Module2["memoryInitializerRequestURL"]);
-            if (data2) {
-              response = data2.buffer;
+            var data6 = tryParseAsDataURI(Module2["memoryInitializerRequestURL"]);
+            if (data6) {
+              response = data6.buffer;
             } else {
               console.warn("a problem seems to have happened with Module.memoryInitializerRequest, status: " + request.status + ", retrying " + memoryInitializer);
               doBrowserLoad();
@@ -119319,7 +119729,7 @@ function encode10(params, options) {
         meshId = sceneObject.id;
       }
       const firstMesh = meshes[0];
-      const color2 = firstMesh.globalColor;
+      const color2 = firstMesh.effectiveColor;
       const position = createVec3Float64();
       const quaternion = createVec4Float64();
       const scale3 = createVec3Float64();
@@ -119351,7 +119761,7 @@ function encode10(params, options) {
           r: color2[0] * 255,
           g: color2[1] * 255,
           b: color2[2] * 255,
-          a: firstMesh.globalOpacity
+          a: firstMesh.effectiveOpacity
         },
         vector: {
           x: position[0],
@@ -119448,7 +119858,7 @@ function encode11(params, options) {
       const position = createVec3Float64();
       const quaternion = createVec4Float64();
       const scale3 = createVec3Float64();
-      const matrix = coordinateSystemMatrix ? mulMat4(firstMesh.globalMatrix, coordinateSystemMatrix, tempMat4a5) : firstMesh.globalMatrix;
+      const matrix = coordinateSystemMatrix ? mulMat4(firstMesh.worldMatrix, coordinateSystemMatrix, tempMat4a5) : firstMesh.worldMatrix;
       decomposeMat4(matrix, position, quaternion, scale3);
       const info = {
         id: sceneObject.id,
@@ -119476,7 +119886,7 @@ function encode11(params, options) {
           r: color2[0],
           g: color2[1],
           b: color2[2],
-          a: firstMesh.globalOpacity
+          a: firstMesh.effectiveOpacity
         },
         vector: {
           x: position[0],
@@ -120533,7 +120943,7 @@ __export(viewer_exports, {
   CustomProjection: () => CustomProjection,
   DirLight: () => DirLight,
   Edges: () => Edges,
-  EmphasisMaterial: () => EmphasisMaterial,
+  Effect: () => Effect,
   FrustumProjection: () => FrustumProjection,
   LinesMaterial: () => LinesMaterial,
   OrthoProjection: () => OrthoProjection,
@@ -122553,10 +122963,10 @@ var Edges = class {
   }
 };
 
-// ../sdk/src/viewer/EmphasisMaterial.ts
-var EmphasisMaterial = class {
+// ../sdk/src/viewer/Effect.ts
+var Effect = class {
   /**
-   * The View to which this EmphasisMaterial belongs.
+   * The View to which this Effect belongs.
    */
   view;
   _fillColor;
@@ -122614,7 +123024,7 @@ var EmphasisMaterial = class {
       this.view.viewer.logError({
         ok: false,
         type: 2 /* InvalidInput */,
-        error: "[EmphasisMaterial set fillColor] Invalid color parameter."
+        error: "[Effect set fillColor] Invalid color parameter."
       });
     }
     const fillColor = this._fillColor;
@@ -122688,7 +123098,7 @@ var EmphasisMaterial = class {
       this.view.viewer.logError({
         ok: false,
         type: 2 /* InvalidInput */,
-        error: "[EmphasisMaterial set edgeColor] Invalid color parameter."
+        error: "[Effect set edgeColor] Invalid color parameter."
       });
     }
     const edgeColor = this._edgeColor;
@@ -122752,7 +123162,7 @@ var EmphasisMaterial = class {
     return this._edgeWidth;
   }
   /**
-   * Sets whether to render backfaces of emphasized {@link ViewObject | ViewObjects} when {@link EmphasisMaterial.fill} is ````true````.
+   * Sets whether to render backfaces of emphasized {@link ViewObject | ViewObjects} when {@link Effect.fill} is ````true````.
    *
    * Default is ````false````.
    */
@@ -122764,7 +123174,7 @@ var EmphasisMaterial = class {
     this.view.needsRender();
   }
   /**
-   * Gets whether to render backfaces of emphasized {@link ViewObject | ViewObjects} when {@link EmphasisMaterial.fill} is ````true````.
+   * Gets whether to render backfaces of emphasized {@link ViewObject | ViewObjects} when {@link Effect.fill} is ````true````.
    *
    * Default is ````false````.
    */
@@ -122805,7 +123215,7 @@ var EmphasisMaterial = class {
     return "";
   }
   /**
-   * Configures this EmphasisMaterial.
+   * Configures this Effect.
    * @param emphasisMaterialParams
    */
   fromParams(emphasisMaterialParams) {
@@ -122813,7 +123223,7 @@ var EmphasisMaterial = class {
       return this.view.viewer.logError({
         ok: false,
         type: 1 /* InvalidOperation */,
-        error: "[EmphasisMaterial.fromParams] EmphasisMaterial has been destroyed."
+        error: "[Effect.fromParams] Effect has been destroyed."
       });
     }
     if (emphasisMaterialParams.fillColor !== void 0) {
@@ -122849,7 +123259,7 @@ var EmphasisMaterial = class {
     };
   }
   /**
-   * Gets the current configuration of this EmphasisMaterial.
+   * Gets the current configuration of this Effect.
    */
   toParams() {
     return {
@@ -123915,9 +124325,9 @@ var ViewTransform = class {
   _position = createVec3Float64([0, 0, 0]);
   _quaternion = createQuatFloat64();
   _localMatrix = identityMat4();
-  _globalMatrix;
+  _worldMatrix;
   _localMatrixDirty = false;
-  _globalMatrixDirty = true;
+  _worldMatrixDirty = true;
   _childTransforms = [];
   _parentTransform = null;
   /** ViewObject IDs associated with this transform. */
@@ -123933,7 +124343,7 @@ var ViewTransform = class {
     this.view = view;
     this.layer = params.layer ?? null;
     this._localMatrix = params.matrix ? createMat4Float64(params.matrix) : identityMat4();
-    this._globalMatrix = createMat4Float64();
+    this._worldMatrix = createMat4Float64();
     this._markTreeDirtyTask = new SDKTask({
       name: "ViewTransform._markTreeDirtyTask",
       stage: SDKTask.ComputeStage,
@@ -124042,16 +124452,16 @@ var ViewTransform = class {
    * Returns the composed transform matrix for this node within the ViewTransform hierarchy.
    * Intended for renderer use when building the per-object view transform product.
    */
-  get globalMatrix() {
-    if (this._globalMatrixDirty) {
+  get worldMatrix() {
+    if (this._worldMatrixDirty) {
       if (this._parentTransform) {
-        mulMat4(this._parentTransform.globalMatrix, this.matrix, this._globalMatrix);
+        mulMat4(this._parentTransform.worldMatrix, this.matrix, this._worldMatrix);
       } else {
-        this._globalMatrix.set(this.matrix);
+        this._worldMatrix.set(this.matrix);
       }
-      this._globalMatrixDirty = false;
+      this._worldMatrixDirty = false;
     }
-    return this._globalMatrix;
+    return this._worldMatrix;
   }
   // ---------------------------------------------------------------------------------------------
   // Hierarchy
@@ -124063,7 +124473,7 @@ var ViewTransform = class {
     return this._childTransforms;
   }
   _markTransformDirty() {
-    this._globalMatrixDirty = true;
+    this._worldMatrixDirty = true;
     for (const child of this._childTransforms) {
       child._markTransformDirty();
     }
@@ -124104,10 +124514,10 @@ var ViewTransform = class {
     const preserve = !!opts?.preserveWorld;
     if (preserve) {
       this._updateGlobal();
-      const currentWorld = createMat4Float64(this._globalMatrix);
+      const currentWorld = createMat4Float64(this._worldMatrix);
       this._attachParentTransform(parent);
       if (this._parentTransform) {
-        const invParent = inverseMat4(this._parentTransform._globalMatrix, createMat4Float64());
+        const invParent = inverseMat4(this._parentTransform._worldMatrix, createMat4Float64());
         mulMat4(invParent, currentWorld, this._localMatrix);
       } else {
         this._localMatrix.set(currentWorld);
@@ -124202,11 +124612,11 @@ var ViewTransform = class {
   _updateGlobal(force = false) {
     if (this._parentTransform) {
       this._parentTransform._updateGlobal(force);
-      mulMat4(this._parentTransform._globalMatrix, this._localMatrix, this._globalMatrix);
+      mulMat4(this._parentTransform._worldMatrix, this._localMatrix, this._worldMatrix);
     } else {
-      this._globalMatrix.set(this._localMatrix);
+      this._worldMatrix.set(this._localMatrix);
     }
-    this._globalMatrixDirty = false;
+    this._worldMatrixDirty = false;
     for (const child of this._childTransforms) {
       child._updateGlobal(force);
     }
@@ -124283,7 +124693,7 @@ var ViewTransform = class {
 };
 
 // ../sdk/src/viewer/ViewObject.ts
-var ViewObject = class {
+var ViewObject = class _ViewObject {
   /**
    * Unique ID of this ViewObject within {@link ViewLayer.objects}.
    */
@@ -124308,21 +124718,22 @@ var ViewObject = class {
    * The {@link ViewTransform} that defines the local transform of this ViewObject, if any.
    */
   viewTransform;
-  _visible;
-  _culled;
-  _pickable;
-  _clippable;
-  _collidable;
-  _xrayed;
-  _selected;
-  _highlighted;
+  _flags;
   _colorize;
-  _colorized;
-  _opacityUpdated;
   /**
    * True if this ViewObject has been destroyed.
    */
   destroyed = false;
+  static VISIBLE = 1 << 0;
+  static CULLED = 1 << 1;
+  static PICKABLE = 1 << 2;
+  static CLIPPABLE = 1 << 3;
+  static COLLIDABLE = 1 << 4;
+  static XRAYED = 1 << 5;
+  static SELECTED = 1 << 6;
+  static HIGHLIGHTED = 1 << 7;
+  static COLORIZED = 1 << 8;
+  static OPACITY_UPDATED = 1 << 9;
   /**
    * @private
    */
@@ -124333,18 +124744,9 @@ var ViewObject = class {
     this.layer = layer;
     this.sceneObject = sceneObject;
     this.viewTransform = null;
-    this._visible = true;
-    this._culled = false;
-    this._pickable = true;
-    this._clippable = true;
-    this._collidable = true;
-    this._xrayed = false;
-    this._selected = false;
-    this._highlighted = false;
+    this._flags = _ViewObject.VISIBLE | _ViewObject.PICKABLE | _ViewObject.CLIPPABLE | _ViewObject.COLLIDABLE;
     this._colorize = new Float32Array(4);
-    this._colorized = false;
-    this._opacityUpdated = false;
-    this.layer.objectVisibilityUpdated(this, this._visible, false);
+    this.layer.objectVisibilityUpdated(this, this.visible, false);
   }
   // /**
   //  * @private
@@ -124374,7 +124776,7 @@ var ViewObject = class {
    * * Use {@link ViewLayer.setObjectsVisible} to batch-update the visibility of ViewObjects, which fires a single event for the batch.
    */
   get visible() {
-    return this._visible;
+    return (this._flags & _ViewObject.VISIBLE) !== 0;
   }
   /**
    * Sets if this ViewObject is visible.
@@ -124393,10 +124795,10 @@ var ViewObject = class {
       });
       return;
     }
-    if (visible === this._visible) {
+    if (visible === this.visible) {
       return;
     }
-    this._visible = visible;
+    this._setFlag(_ViewObject.VISIBLE, visible);
     this.layer.objectVisibilityUpdated(this, visible, true);
   }
   // /**
@@ -124422,7 +124824,7 @@ var ViewObject = class {
    * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
    */
   get xrayed() {
-    return this._xrayed;
+    return (this._flags & _ViewObject.XRAYED) !== 0;
   }
   /**
    * Sets if this ViewObject is X-rayed.
@@ -124439,10 +124841,10 @@ var ViewObject = class {
       });
       return;
     }
-    if (this._xrayed === xrayed) {
+    if (this.xrayed === xrayed) {
       return;
     }
-    this._xrayed = xrayed;
+    this._setFlag(_ViewObject.XRAYED, xrayed);
     this.layer.objectXRayedUpdated(this, xrayed);
   }
   /**
@@ -124452,7 +124854,7 @@ var ViewObject = class {
    * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
    */
   get highlighted() {
-    return this._highlighted;
+    return (this._flags & _ViewObject.HIGHLIGHTED) !== 0;
   }
   /**
    * Sets if this ViewObject is highlighted.
@@ -124469,10 +124871,10 @@ var ViewObject = class {
       });
       return;
     }
-    if (highlighted === this._highlighted) {
+    if (highlighted === this.highlighted) {
       return;
     }
-    this._highlighted = highlighted;
+    this._setFlag(_ViewObject.HIGHLIGHTED, highlighted);
     this.layer.objectHighlightedUpdated(this, highlighted);
   }
   /**
@@ -124482,7 +124884,7 @@ var ViewObject = class {
    * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
    */
   get selected() {
-    return this._selected;
+    return (this._flags & _ViewObject.SELECTED) !== 0;
   }
   /**
    * Sets if this ViewObject is selected.
@@ -124499,10 +124901,10 @@ var ViewObject = class {
       });
       return;
     }
-    if (selected === this._selected) {
+    if (selected === this.selected) {
       return;
     }
-    this._selected = selected;
+    this._setFlag(_ViewObject.SELECTED, selected);
     this.layer.objectSelectedUpdated(this, selected);
   }
   /**
@@ -124512,7 +124914,7 @@ var ViewObject = class {
    * * Use {@link ViewLayer.setObjectsCulled} to batch-update the culled state of ViewObjects.
    */
   get culled() {
-    return this._culled;
+    return (this._flags & _ViewObject.CULLED) !== 0;
   }
   /**
    * Sets if this ViewObject is culled.
@@ -124529,10 +124931,10 @@ var ViewObject = class {
       });
       return;
     }
-    if (culled === this._culled) {
+    if (culled === this.culled) {
       return;
     }
-    this._culled = culled;
+    this._setFlag(_ViewObject.CULLED, culled);
   }
   /**
    * Gets if this ViewObject is clippable.
@@ -124541,7 +124943,7 @@ var ViewObject = class {
    * * Use {@link View.setObjectsClippable | View.setObjectsClippable} or {@link ViewLayer.setObjectsClippable | ViewLayer.setObjectsClippable} to batch-update the clippable state of multiple ViewObjects.
    */
   get clippable() {
-    return this._clippable;
+    return (this._flags & _ViewObject.CLIPPABLE) !== 0;
   }
   /**
    * Sets if this ViewObject is clippable.
@@ -124558,16 +124960,16 @@ var ViewObject = class {
       });
       return;
     }
-    if (clippable === this._clippable) {
+    if (clippable === this.clippable) {
       return;
     }
-    this._clippable = clippable;
+    this._setFlag(_ViewObject.CLIPPABLE, clippable);
   }
   /**
    * Gets if this ViewObject is included in boundary calculations.
    */
   get collidable() {
-    return this._collidable;
+    return (this._flags & _ViewObject.COLLIDABLE) !== 0;
   }
   /**
    * Sets if this ViewObject included in boundary calculations.
@@ -124581,10 +124983,10 @@ var ViewObject = class {
       });
       return;
     }
-    if (collidable === this._collidable) {
+    if (collidable === this.collidable) {
       return;
     }
-    this._collidable = collidable;
+    this._setFlag(_ViewObject.COLLIDABLE, collidable);
   }
   /**
    * Gets if this ViewObject is pickable.
@@ -124593,7 +124995,7 @@ var ViewObject = class {
    * * Use {@link ViewLayer.setObjectsPickable} to batch-update the pickable state of ViewObjects.
    */
   get pickable() {
-    return this._pickable;
+    return (this._flags & _ViewObject.PICKABLE) !== 0;
   }
   /**
    * Sets if this ViewObject is pickable.
@@ -124610,10 +125012,10 @@ var ViewObject = class {
       });
       return;
     }
-    if (this._pickable === pickable) {
+    if (this.pickable === pickable) {
       return;
     }
-    this._pickable = pickable;
+    this._setFlag(_ViewObject.PICKABLE, pickable);
     this.layer.objectPickableUpdated(this, pickable);
   }
   /**
@@ -124624,7 +125026,7 @@ var ViewObject = class {
    * * Use {@link ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
    */
   get colorize() {
-    return this._colorized ? this._colorize : null;
+    return this.colorized ? this._colorize : null;
   }
   /**
    * Sets the RGB colorize color for this ViewObject.
@@ -124653,8 +125055,8 @@ var ViewObject = class {
       colorize[1] = 1;
       colorize[2] = 1;
     }
-    this._colorized = !!value;
-    this.layer.objectColorizeUpdated(this, this._colorized);
+    this._setFlag(_ViewObject.COLORIZED, !!value);
+    this.layer.objectColorizeUpdated(this, this.colorized);
   }
   /**
    * Gets the opacity factor for this ViewObject.
@@ -124681,33 +125083,46 @@ var ViewObject = class {
       });
       return;
     }
-    const colorize = this._colorize;
-    this._opacityUpdated = opacity !== null && opacity !== void 0;
-    colorize[3] = this._opacityUpdated ? opacity : 1;
-    this.layer.objectOpacityUpdated(this, this._opacityUpdated);
+    const opacityUpdated = opacity !== null && opacity !== void 0;
+    this._setFlag(_ViewObject.OPACITY_UPDATED, opacityUpdated);
+    this._colorize[3] = opacityUpdated ? opacity : 1;
+    this.layer.objectOpacityUpdated(this, this.opacityUpdated);
   }
   /**
    * @private
    */
   _destroy() {
-    if (this._visible) {
+    if (this.visible) {
       this.layer.objectVisibilityUpdated(this, false, false);
     }
-    if (this._xrayed) {
+    if (this.xrayed) {
       this.layer.objectXRayedUpdated(this, false);
     }
-    if (this._selected) {
+    if (this.selected) {
       this.layer.objectSelectedUpdated(this, false);
     }
-    if (this._highlighted) {
+    if (this.highlighted) {
       this.layer.objectHighlightedUpdated(this, false);
     }
-    if (this._colorized) {
+    if (this.colorized) {
       this.layer.objectColorizeUpdated(this, false);
     }
-    if (this._opacityUpdated) {
+    if (this.opacityUpdated) {
       this.layer.objectOpacityUpdated(this, false);
     }
+  }
+  _setFlag(flag, enabled2) {
+    if (enabled2) {
+      this._flags |= flag;
+    } else {
+      this._flags &= ~flag;
+    }
+  }
+  get colorized() {
+    return (this._flags & _ViewObject.COLORIZED) !== 0;
+  }
+  get opacityUpdated() {
+    return (this._flags & _ViewObject.OPACITY_UPDATED) !== 0;
   }
 };
 
@@ -124876,12 +125291,18 @@ var ViewLayer = class {
     this.view.viewer.events.onViewObjectDestroyed.dispatch(this.view, viewObject);
   }
   _attachViewObject(viewObject) {
+    if (this.objects[viewObject.id]) {
+      return;
+    }
     this.objects[viewObject.id] = viewObject;
     this._numObjects++;
     this._objectIds = null;
   }
   _deattachViewObject(viewObject) {
     const objectId = viewObject.id;
+    if (!this.objects[objectId]) {
+      return;
+    }
     delete this.objects[objectId];
     delete this.visibleObjects[objectId];
     delete this.xrayedObjects[objectId];
@@ -125144,11 +125565,19 @@ var ViewLayer = class {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.visible !== visible;
-      viewObject.visible = visible;
-      return changed;
-    });
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.visible !== visible) {
+        viewObject.visible = visible;
+        changed = true;
+      }
+    }
+    return changed;
   }
   /**
    * Updates the collidability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
@@ -125168,11 +125597,19 @@ var ViewLayer = class {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.collidable !== collidable;
-      viewObject.collidable = collidable;
-      return changed;
-    });
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.collidable !== collidable) {
+        viewObject.collidable = collidable;
+        changed = true;
+      }
+    }
+    return changed;
   }
   /**
    * Updates the culled status of the given {@link ViewObject | ViewObjects} in this ViewLayer.
@@ -125184,11 +125621,19 @@ var ViewLayer = class {
    * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */
   setObjectsCulled(objectIds, culled) {
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.culled !== culled;
-      viewObject.culled = culled;
-      return changed;
-    });
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.culled !== culled) {
+        viewObject.culled = culled;
+        changed = true;
+      }
+    }
+    return changed;
   }
   /**
    * Selects or deselects the given {@link ViewObject | ViewObjects} in this ViewLayer.
@@ -125201,11 +125646,19 @@ var ViewLayer = class {
    * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */
   setObjectsSelected(objectIds, selected) {
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.selected !== selected;
-      viewObject.selected = selected;
-      return changed;
-    });
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.selected !== selected) {
+        viewObject.selected = selected;
+        changed = true;
+      }
+    }
+    return changed;
   }
   /**
    * Highlights or un-highlights the given {@link ViewObject | ViewObjects} in this ViewLayer.
@@ -125218,11 +125671,19 @@ var ViewLayer = class {
    * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */
   setObjectsHighlighted(objectIds, highlighted) {
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.highlighted !== highlighted;
-      viewObject.highlighted = highlighted;
-      return changed;
-    });
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.highlighted !== highlighted) {
+        viewObject.highlighted = highlighted;
+        changed = true;
+      }
+    }
+    return changed;
   }
   /**
    * Applies or removes X-ray rendering for the given {@link ViewObject | ViewObjects} in this ViewLayer.
@@ -125235,13 +125696,19 @@ var ViewLayer = class {
    * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */
   setObjectsXRayed(objectIds, xrayed) {
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.xrayed !== xrayed;
-      if (changed) {
-        viewObject.xrayed = xrayed;
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
       }
-      return changed;
-    });
+      if (viewObject.xrayed !== xrayed) {
+        viewObject.xrayed = xrayed;
+        changed = true;
+      }
+    }
+    return changed;
   }
   /**
    * Colorizes the given {@link ViewObject | ViewObjects} in this ViewLayer.
@@ -125254,9 +125721,17 @@ var ViewLayer = class {
    * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
    */
   setObjectsColorized(objectIds, colorize) {
-    return this.withObjects(objectIds, (viewObject) => {
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
       viewObject.colorize = colorize;
-    });
+      changed = true;
+    }
+    return changed;
   }
   /**
    * Sets the opacity of the given {@link ViewObject | ViewObjects} in this ViewLayer.
@@ -125269,13 +125744,19 @@ var ViewLayer = class {
    * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
    */
   setObjectsOpacity(objectIds, opacity) {
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.opacity !== opacity;
-      if (changed) {
-        viewObject.opacity = opacity;
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
       }
-      return changed;
-    });
+      if (viewObject.opacity !== opacity) {
+        viewObject.opacity = opacity;
+        changed = true;
+      }
+    }
+    return changed;
   }
   /**
    * Sets the pickability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
@@ -125288,13 +125769,19 @@ var ViewLayer = class {
    * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */
   setObjectsPickable(objectIds, pickable) {
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.pickable !== pickable;
-      if (changed) {
-        viewObject.pickable = pickable;
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
       }
-      return changed;
-    });
+      if (viewObject.pickable !== pickable) {
+        viewObject.pickable = pickable;
+        changed = true;
+      }
+    }
+    return changed;
   }
   /**
    * Sets the clippability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
@@ -125307,13 +125794,19 @@ var ViewLayer = class {
    * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */
   setObjectsClippable(objectIds, clippable) {
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.clippable !== clippable;
-      if (changed) {
-        viewObject.clippable = clippable;
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
       }
-      return changed;
-    });
+      if (viewObject.clippable !== clippable) {
+        viewObject.clippable = clippable;
+        changed = true;
+      }
+    }
+    return changed;
   }
   /**
    * Iterates with a callback over the given {@link ViewObject | ViewObjects} in this ViewLayer.
@@ -125562,7 +126055,7 @@ var View2 = class {
   /**
    * Set of {@link ViewTransform}s in this View.
    */
-  transforms = /* @__PURE__ */ new Set();
+  transforms;
   /**
    * Map of the all {@link ViewLayer}s in this View.
    *
@@ -125645,6 +126138,7 @@ var View2 = class {
     this.lights = {};
     this.lightsList = [];
     this.layers = {};
+    this.transforms = {};
     this._numObjects = 0;
     this._objectIds = null;
     this._numVisibleObjects = 0;
@@ -125661,6 +126155,7 @@ var View2 = class {
     this._opacityObjectIds = null;
     this.gammaOutput = true;
     this._snapshotBegun = false;
+    this._needsRender = false;
     this._sectionPlanesHash = null;
     this._lightsHash = null;
     this._backgroundColor = createVec3Float64([
@@ -125679,7 +126174,7 @@ var View2 = class {
     this.camera = new Camera2(this, viewParams.camera || {});
     this.sao = new SAO(this, viewParams.sao || {});
     this.texturing = new Texturing(this, {});
-    this.xrayMaterial = new EmphasisMaterial(this, viewParams.xrayMaterial || {
+    this.xrayMaterial = new Effect(this, viewParams.xrayMaterial || {
       fill: true,
       fillColor: [0.7, 0.7, 0.7],
       fillAlpha: 0.1,
@@ -125688,7 +126183,7 @@ var View2 = class {
       edgeAlpha: 0.2,
       edgeWidth: 1
     });
-    this.highlightMaterial = new EmphasisMaterial(this, viewParams.highlightMaterial || {
+    this.highlightMaterial = new Effect(this, viewParams.highlightMaterial || {
       fill: true,
       fillColor: [1, 1, 0],
       fillAlpha: 0.5,
@@ -125697,7 +126192,7 @@ var View2 = class {
       edgeAlpha: 1,
       edgeWidth: 1
     });
-    this.selectedMaterial = new EmphasisMaterial(this, viewParams.selectedMaterial || {
+    this.selectedMaterial = new Effect(this, viewParams.selectedMaterial || {
       fill: true,
       fillColor: [0, 1, 0],
       fillAlpha: 0.5,
@@ -125729,7 +126224,6 @@ var View2 = class {
     this.linesMaterial = new LinesMaterial(this, {
       lineWidth: 1
     });
-    this.lights = {};
     this._autoLayers = viewParams.autoLayers !== false;
     if (viewParams.layers) {
       for (const viewLayerParams of viewParams.layers) {
@@ -125769,10 +126263,11 @@ var View2 = class {
     let lastViewOffsetLeft = 0;
     let lastViewOffsetTop = 0;
     let lastParent = null;
-    const lastResolutionScale = null;
+    let lastResolutionScale = null;
     const handleResize = () => {
       const htmlElement = this.htmlElement;
-      const newResolutionScale = this.resolutionScale.resolutionScale !== lastResolutionScale;
+      const currentResolutionScale = this.resolutionScale.resolutionScale;
+      const newResolutionScale = currentResolutionScale !== lastResolutionScale;
       const newWindowSize = window.innerWidth !== lastWindowWidth || window.innerHeight !== lastWindowHeight;
       const newViewSize = htmlElement.clientWidth !== lastViewWidth || htmlElement.clientHeight !== lastViewHeight;
       const newViewPos = htmlElement.offsetLeft !== lastViewOffsetLeft || htmlElement.offsetTop !== lastViewOffsetTop;
@@ -125797,6 +126292,7 @@ var View2 = class {
           lastViewHeight = newHeight;
         }
         if (newResolutionScale) {
+          lastResolutionScale = currentResolutionScale;
         }
         if (newWindowSize) {
           lastWindowWidth = window.innerWidth;
@@ -125830,6 +126326,10 @@ var View2 = class {
    * @private
    */
   _attachSceneObject(sceneObject) {
+    const objectId = sceneObject.id;
+    if (this.objects[objectId]) {
+      return;
+    }
     const layerId = sceneObject.layerId || "default";
     let viewLayer = this.layers[layerId];
     if (!viewLayer) {
@@ -125854,7 +126354,11 @@ var View2 = class {
    * @private
    */
   _attachViewObject(viewObject) {
-    this.objects[viewObject.id] = viewObject;
+    const objectId = viewObject.id;
+    if (this.objects[objectId]) {
+      return;
+    }
+    this.objects[objectId] = viewObject;
     this._numObjects++;
     this._objectIds = null;
   }
@@ -125881,13 +126385,17 @@ var View2 = class {
    * @private
    */
   _deattachViewObject(viewObject) {
-    delete this.objects[viewObject.id];
-    delete this.visibleObjects[viewObject.id];
-    delete this.xrayedObjects[viewObject.id];
-    delete this.highlightedObjects[viewObject.id];
-    delete this.selectedObjects[viewObject.id];
-    delete this.colorizedObjects[viewObject.id];
-    delete this.opacityObjects[viewObject.id];
+    const objectId = viewObject.id;
+    if (!this.objects[objectId]) {
+      return;
+    }
+    delete this.objects[objectId];
+    delete this.visibleObjects[objectId];
+    delete this.xrayedObjects[objectId];
+    delete this.highlightedObjects[objectId];
+    delete this.selectedObjects[objectId];
+    delete this.colorizedObjects[objectId];
+    delete this.opacityObjects[objectId];
     this._numObjects--;
     this._objectIds = null;
   }
@@ -126364,10 +126872,8 @@ var View2 = class {
     if (this.sectionPlanesList.length === 0) {
       return this._sectionPlanesHash = ";";
     }
-    let sectionPlane;
     const hashParts = [];
     for (let i = 0, len = this.sectionPlanesList.length; i < len; i++) {
-      sectionPlane = this.sectionPlanesList[i];
       hashParts.push("cp");
     }
     hashParts.push(";");
@@ -126472,11 +126978,19 @@ var View2 = class {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.visible !== visible;
-      viewObject.visible = visible;
-      return changed;
-    });
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.visible !== visible) {
+        viewObject.visible = visible;
+        changed = true;
+      }
+    }
+    return changed;
   }
   /**
    * Updates the collidability of the given {@link ViewObject | ViewObjects} in this View.
@@ -126496,11 +127010,19 @@ var View2 = class {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.collidable !== collidable;
-      viewObject.collidable = collidable;
-      return changed;
-    });
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.collidable !== collidable) {
+        viewObject.collidable = collidable;
+        changed = true;
+      }
+    }
+    return changed;
   }
   /**
    * Updates the culled status of the given {@link ViewObject | ViewObjects} in this View.
@@ -126520,11 +127042,19 @@ var View2 = class {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.culled !== culled;
-      viewObject.culled = culled;
-      return changed;
-    });
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.culled !== culled) {
+        viewObject.culled = culled;
+        changed = true;
+      }
+    }
+    return changed;
   }
   /**
    * Selects or deselects the given {@link ViewObject | ViewObjects} in this View.
@@ -126545,11 +127075,19 @@ var View2 = class {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.selected !== selected;
-      viewObject.selected = selected;
-      return changed;
-    });
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.selected !== selected) {
+        viewObject.selected = selected;
+        changed = true;
+      }
+    }
+    return changed;
   }
   /**
    * Highlights or un-highlights the given {@link ViewObject | ViewObjects} in this View.
@@ -126570,11 +127108,19 @@ var View2 = class {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.highlighted !== highlighted;
-      viewObject.highlighted = highlighted;
-      return changed;
-    });
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.highlighted !== highlighted) {
+        viewObject.highlighted = highlighted;
+        changed = true;
+      }
+    }
+    return changed;
   }
   /**
    * Applies or removes X-ray rendering for the given {@link ViewObject | ViewObjects} in this View.
@@ -126595,13 +127141,19 @@ var View2 = class {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.xrayed !== xrayed;
-      if (changed) {
-        viewObject.xrayed = xrayed;
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
       }
-      return changed;
-    });
+      if (viewObject.xrayed !== xrayed) {
+        viewObject.xrayed = xrayed;
+        changed = true;
+      }
+    }
+    return changed;
   }
   /**
    * Colorizes the given {@link ViewObject | ViewObjects} in this View.
@@ -126622,9 +127174,17 @@ var View2 = class {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject) => {
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
       viewObject.colorize = colorize;
-    });
+      changed = true;
+    }
+    return changed;
   }
   /**
    * Sets the opacity of the given {@link ViewObject | ViewObjects} in this View.
@@ -126645,13 +127205,19 @@ var View2 = class {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.opacity !== opacity;
-      if (changed) {
-        viewObject.opacity = opacity;
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
       }
-      return changed;
-    });
+      if (viewObject.opacity !== opacity) {
+        viewObject.opacity = opacity;
+        changed = true;
+      }
+    }
+    return changed;
   }
   /**
    * Sets the pickability of the given {@link ViewObject | ViewObjects} in this View.
@@ -126672,13 +127238,19 @@ var View2 = class {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.pickable !== pickable;
-      if (changed) {
-        viewObject.pickable = pickable;
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
       }
-      return changed;
-    });
+      if (viewObject.pickable !== pickable) {
+        viewObject.pickable = pickable;
+        changed = true;
+      }
+    }
+    return changed;
   }
   /**
    * Sets the clippability of the given {@link ViewObject | ViewObjects} in this View.
@@ -126699,13 +127271,19 @@ var View2 = class {
       });
       return;
     }
-    return this.withObjects(objectIds, (viewObject) => {
-      const changed = viewObject.clippable !== clippable;
-      if (changed) {
-        viewObject.clippable = clippable;
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
       }
-      return changed;
-    });
+      if (viewObject.clippable !== clippable) {
+        viewObject.clippable = clippable;
+        changed = true;
+      }
+    }
+    return changed;
   }
   /**
    * Iterates with a callback over the given {@link ViewObject | ViewObjects} in this View.
@@ -127028,6 +127606,15 @@ var ViewerEvents = class {
    * Emits an event each time a message is logged by the {@link Viewer}.
    */
   log;
+  //---------------------------- Effect Events ----------------------------//
+  /**
+   * Emits an event each time an {@link Effect} is created within the {@link Viewer}.
+   */
+  onEffectCreated;
+  /**
+   * Emits an event each time a {@link Effect} is destroyed within the {@link Viewer}.
+   */
+  onEffectDestroyed;
   //---------------------------- View Events ----------------------------//
   /**
    * Emits an event each time a {@link View} is created within the {@link Viewer}.
@@ -127190,6 +127777,8 @@ var ViewerEvents = class {
     this.onViewerDestroyed = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.onTick = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.log = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onEffectCreated = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onEffectDestroyed = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.onViewCreated = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.onViewUpdated = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.onViewDestroyed = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
@@ -127227,6 +127816,8 @@ var ViewerEvents = class {
     this.onViewerDestroyed.clear();
     this.onTick.clear();
     this.log.clear();
+    this.onEffectCreated.clear();
+    this.onEffectDestroyed.clear();
     this.onViewCreated.clear();
     this.onViewUpdated.clear();
     this.onViewDestroyed.clear();
@@ -127271,6 +127862,10 @@ var Viewer = class {
    */
   scene;
   /**
+   * Map of {@link Effect | Effects} in this Viewer.
+   */
+  effects;
+  /**
    * Map of all the Views in this Viewer.
    *
    * Each {@link View} is mapped here against {@link View.id | View.id}.
@@ -127314,6 +127909,7 @@ var Viewer = class {
   constructor(params) {
     this.id = params?.id || createUUID();
     this.events = new ViewerEvents();
+    this.effects = {};
     this.viewList = [];
     this.numViews = 0;
     this.views = {};
@@ -127358,26 +127954,29 @@ var Viewer = class {
       this.detachScene();
     }
     this.scene = scene;
-    for (const sceneObjectId in this.scene.objects) {
-      const sceneObject = this.scene.objects[sceneObjectId];
-      this._attachSceneObject(sceneObject);
+    const sceneObjects = this.scene.objects;
+    for (const sceneObjectId in sceneObjects) {
+      this._attachSceneObject(sceneObjects[sceneObjectId]);
     }
     this._onSceneDestroyed = this.scene.events.onSceneDestroyed.subscribe(() => {
       this.detachScene();
     });
-    this._onSceneObjectCreated = this.scene.events.onSceneObjectCreated.subscribe((scene2, sceneObject) => {
+    this._onSceneObjectCreated = this.scene.events.onSceneObjectCreated.subscribe((_scene, sceneObject) => {
       this._attachSceneObject(sceneObject);
     });
-    this._onSceneObjectDestroyed = this.scene.events.onSceneObjectDestroyed.subscribe((scene2, sceneObject) => {
+    this._onSceneObjectDestroyed = this.scene.events.onSceneObjectDestroyed.subscribe((_scene, sceneObject) => {
       this._detachSceneObject(sceneObject);
     });
-    this._onSceneModelFinalized = this.scene.events.onSceneModelFinalized.subscribe((scene2, sceneModel) => {
+    this._onSceneModelFinalized = this.scene.events.onSceneModelFinalized.subscribe((_scene, sceneModel) => {
       this._sceneModelFinalized(sceneModel);
     });
-    const sceneMeshUpdated = (scene2, mesh) => {
-      for (const viewId in this.views) {
-        const view = this.views[viewId];
-        view.needsRender();
+    const sceneMeshUpdated = (_scene, _mesh) => {
+      const viewList = this.viewList;
+      for (let i = 0, len = viewList.length; i < len; i++) {
+        const view = viewList[i];
+        if (view) {
+          view.needsRender();
+        }
       }
     };
     this._onSceneMeshMatrixChanged = this.scene.events.onSceneMeshMatrixChanged.subscribe(sceneMeshUpdated);
@@ -127389,24 +127988,34 @@ var Viewer = class {
     };
   }
   _sceneModelFinalized(sceneModel) {
-    for (const viewId in this.views) {
-      const view = this.views[viewId];
-      for (const sceneObjectId in sceneModel.objects) {
-        const sceneObject = sceneModel.objects[sceneObjectId];
-        view._attachSceneObject(sceneObject);
+    const viewList = this.viewList;
+    const sceneObjects = sceneModel.objects;
+    for (let i = 0, len = viewList.length; i < len; i++) {
+      const view = viewList[i];
+      if (!view) {
+        continue;
+      }
+      for (const sceneObjectId in sceneObjects) {
+        view._attachSceneObject(sceneObjects[sceneObjectId]);
       }
     }
   }
   _attachSceneObject(sceneObject) {
-    for (const viewId in this.views) {
-      const view = this.views[viewId];
-      view._attachSceneObject(sceneObject);
+    const viewList = this.viewList;
+    for (let i = 0, len = viewList.length; i < len; i++) {
+      const view = viewList[i];
+      if (view) {
+        view._attachSceneObject(sceneObject);
+      }
     }
   }
   _detachSceneObject(sceneObject) {
-    for (const viewId in this.views) {
-      const view = this.views[viewId];
-      view._detachSceneObject(sceneObject);
+    const viewList = this.viewList;
+    for (let i = 0, len = viewList.length; i < len; i++) {
+      const view = viewList[i];
+      if (view) {
+        view._detachSceneObject(sceneObject);
+      }
     }
   }
   /**
@@ -127430,9 +128039,9 @@ var Viewer = class {
         error: "[Viewer.detachScene] No Scene attached."
       });
     }
-    for (const sceneObjectId in this.scene.objects) {
-      const sceneObject = this.scene.objects[sceneObjectId];
-      this._detachSceneObject(sceneObject);
+    const sceneObjects = this.scene.objects;
+    for (const sceneObjectId in sceneObjects) {
+      this._detachSceneObject(sceneObjects[sceneObjectId]);
     }
     this.scene.events.onSceneDestroyed.unsubscribe(this._onSceneDestroyed);
     this.scene.events.onSceneObjectCreated.unsubscribe(this._onSceneObjectCreated);
@@ -127448,6 +128057,45 @@ var Viewer = class {
       value: this
     };
   }
+  // /**
+  //  * Creates a new {@link Effect} within this Viewer.
+  //  *
+  //  * To destroy the Effect after use, call {@link Effect.destroy}.
+  //  *
+  //  * @param effectParams
+  //  */
+  // createEffect(effectParams: any): SDKResult<Effect> {
+  //   if (this.destroyed) {
+  //     return this.logError({
+  //       ok: false,
+  //       type: SDKErrorType.InvalidOperation,
+  //       error: "[Viewer.createEffect] Viewer has been destroyed."
+  //     });
+  //   }
+  //   const effectId = effectParams.id || createUUID();
+  //   if (this.effects[effectId]) {
+  //     return this.logError({
+  //       ok: false,
+  //       type: SDKErrorType.InvalidInput,
+  //       error: `[Viewer.createEffect] An Effect with ID "${effectId}" already exists.`
+  //     });
+  //   }
+  //   const effect = new Effect(this, apply({id: effectId}, effectParams));
+  //   this.effects[effectId] = effect;
+  //   this.events.onEffectCreated.dispatch(this, effect);
+  //   return {
+  //     ok: true,
+  //     value: effect
+  //   };
+  // }
+  //
+  // _destroyEffect(effect: Effect): void {
+  //   if (!this.effects[effect.id]) {
+  //     return;
+  //   }
+  //   delete this.effects[effect.id];
+  //   this.events.onEffectDestroyed.dispatch(this, effect);
+  // }
   /**
    * Creates a new {@link View} within this Viewer.
    *
@@ -127541,9 +128189,9 @@ var Viewer = class {
     const view = new View2(this, apply({ id: viewId }, viewParams));
     this._attachView(view);
     if (this.scene) {
-      for (const sceneObjectId in this.scene.objects) {
-        const sceneObject = this.scene.objects[sceneObjectId];
-        view._attachSceneObject(sceneObject);
+      const sceneObjects = this.scene.objects;
+      for (const sceneObjectId in sceneObjects) {
+        view._attachSceneObject(sceneObjects[sceneObjectId]);
       }
     }
     this.events.onViewCreated.dispatch(this, view);
@@ -127566,8 +128214,12 @@ var Viewer = class {
    * @private
    */
   needsRender() {
-    for (const viewId in this.views) {
-      this.views[viewId].needsRender();
+    const viewList = this.viewList;
+    for (let i = 0, len = viewList.length; i < len; i++) {
+      const view = viewList[i];
+      if (view) {
+        view.needsRender();
+      }
     }
   }
   /**
@@ -127583,9 +128235,12 @@ var Viewer = class {
         error: "[Viewer.clear] Viewer already destroyed"
       });
     }
-    for (const viewId in this.views) {
-      const view = this.views[viewId];
-      view.destroy();
+    const viewList = this.viewList;
+    for (let i = 0, len = viewList.length; i < len; i++) {
+      const view = viewList[i];
+      if (view) {
+        view.destroy();
+      }
     }
     return {
       ok: true,
@@ -127669,16 +128324,16 @@ var Viewer = class {
     const params = {
       views: []
     };
-    this.viewList.map((el13) => el13.toParams());
-    for (let i = 0; i < this.numViews; i++) {
+    for (let i = 0, len = this.viewList.length; i < len; i++) {
       const view = this.viewList[i];
-      if (view) {
-        const viewParamsResult = view.toParams();
-        if (viewParamsResult.ok === false) {
-          return viewParamsResult;
-        }
-        params.views.push(viewParamsResult.value);
+      if (!view) {
+        continue;
       }
+      const viewParamsResult = view.toParams();
+      if (!viewParamsResult.ok) {
+        return viewParamsResult;
+      }
+      params.views.push(viewParamsResult.value);
     }
     return {
       ok: true,
@@ -129004,6 +129659,10 @@ var DataTexture = class {
    */
   height;
   /**
+   * Whether to use a CPU-side buffer for staging data before uploading to the GPU.
+   */
+  useBuffer;
+  /**
    * CPU-side backing buffer used to populate this texture.
    *
    * The concrete type depends on the implementation (e.g., `Uint32Array`,
@@ -129140,20 +129799,23 @@ var DataTexture = class {
         this.bytesPerTexel = 4 * (this.type === this.gl.FLOAT ? 4 : this.type === this.gl.UNSIGNED_INT ? 4 : this.type === this.gl.UNSIGNED_SHORT ? 2 : 1);
         break;
     }
+    this.useBuffer = params.useBuffer ?? true;
   }
   /**
    * Allocates the CPU-side buffer and the GPU texture.
    * @internal
    */
   allocate() {
-    try {
-      this.buffer = new this.bufferClass(this.width * this.height * this.elementsPerTexel);
-    } catch (e) {
-      return {
-        ok: false,
-        type: 0 /* InitializationFailed */,
-        error: `[${this.constructor.name}.allocate]: Buffer allocation failed: ${e}`
-      };
+    if (this.useBuffer) {
+      try {
+        this.buffer = new this.bufferClass(this.width * this.height * this.elementsPerTexel);
+      } catch (e) {
+        return {
+          ok: false,
+          type: 0 /* InitializationFailed */,
+          error: `[${this.constructor.name}.allocate]: Buffer allocation failed: ${e}`
+        };
+      }
     }
     return this._allocateTexture(false);
   }
@@ -129176,7 +129838,7 @@ var DataTexture = class {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       gl.texStorage2D(gl.TEXTURE_2D, 1, this.internalFormat, this.width, this.height);
-      if (uploadBuffer) {
+      if (this.useBuffer && uploadBuffer) {
         gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.width, this.height, this.format, this.type, this.buffer);
         this.cancelUploads();
       }
@@ -129235,18 +129897,47 @@ var DataTexture = class {
 
 // ../sdk/src/webglrenderer/internal/gpuMemoryManager/dataTextures/PrimitiveMeshIndexTexture.ts
 var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTexture {
+  /**
+   * All allocated portions indexed by portion ID.
+   */
   portions = /* @__PURE__ */ new Map();
-  renderPassIds;
+  /**
+   * Ordered list of registered render passes.
+   *
+   * This defines packing order and, by extension, the order of contiguous pass ranges.
+   */
+  renderPassOrder = [];
+  /**
+   * Set of registered render passes for fast membership checks.
+   */
+  registeredRenderPasses = /* @__PURE__ */ new Set();
+  /**
+   * Per-pass primitive ranges.
+   *
+   * Each entry defines a contiguous segment within the packed primitive buffer.
+   */
   passRanges = /* @__PURE__ */ new Map();
+  /**
+   * Full range of drawable primitives across all visible portions and all registered passes.
+   *
+   * This is useful for passes such as picking that want to consider all visible primitives
+   * regardless of render pass.
+   */
   primRange = { firstPrim: 0, numPrims: 0 };
   nextPortionId = 1;
   numAllocatedItems = 0;
   needUpload = true;
+  /**
+   * Size of a single item in bytes.
+   *
+   * Each item stores:
+   * - `meshIndex` (`uint32`)
+   * - `offset` (`uint32`)
+   */
   static itemSizeInBytes = 8;
-  // 2 × uint32 per item (meshIndex, offset)
   /**
    * @private
-   * @param options
+   * @param options Constructor options.
    */
   constructor(options) {
     super({
@@ -129262,40 +129953,188 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
       texelsPerItem: 1,
       elementsPerTexel: 2
     });
-    this.renderPassIds = options.bins;
+    for (const passId of options.bins ?? []) {
+      this.registerRenderPass(passId);
+    }
   }
   /**
-   * Number of allocated primitives (across all portions).
+   * Number of allocated primitives across all portions, including invisible ones.
    */
   get numItems() {
     return this.numAllocatedItems;
   }
   /**
-   * Number of primitives currently drawable (post-uploadChanges).
-   * This is also the number of pickable primitives, since picking considers all primitives regardless of render pass.
+   * Number of primitives currently drawable after the most recent packing pass.
+   *
+   * This counts only visible primitives in registered render passes.
    */
   get numPrimitives() {
     return this.primRange.numPrims;
   }
   /**
-   * Checks if a new portion of the given size fits (ignores culling).
+   * Checks if a new portion of the given size fits within capacity.
+   *
+   * This check considers allocation only and ignores visibility/culling.
+   *
    * @param size Number of items to allocate.
    */
   canGetPortion(size) {
     return this.numAllocatedItems + (size | 0) <= this.maxItems;
   }
   /**
-   * Allocates a portion belonging to a given renderPass bin.
+   * Checks whether a render pass is currently registered.
+   *
+   * @param renderPass Render pass ID.
+   */
+  hasRenderPass(renderPass) {
+    return this.registeredRenderPasses.has(renderPass);
+  }
+  /**
+   * Gets the ordered list of registered render pass IDs.
+   *
+   * The returned array is a copy and can be safely modified by the caller.
+   */
+  getRenderPassIds() {
+    return this.renderPassOrder.slice();
+  }
+  /**
+   * Registers a render pass at runtime.
+   *
+   * If the pass is already registered, this is a no-op.
+   *
+   * Ordering can optionally be controlled relative to an existing pass.
+   * If neither `before` nor `after` is provided, the pass is appended.
+   *
+   * @param renderPass Unique pass ID.
+   * @param options Optional ordering constraints.
+   */
+  registerRenderPass(renderPass, options) {
+    if (this.registeredRenderPasses.has(renderPass)) {
+      return;
+    }
+    const { before, after } = options ?? {};
+    if (before !== void 0 && after !== void 0) {
+      throw new SDKInternalException(
+        "[PrimitiveMeshIndexTexture.registerRenderPass]: Specify only one of 'before' or 'after'"
+      );
+    }
+    if (before !== void 0) {
+      const idx = this.renderPassOrder.indexOf(before);
+      if (idx === -1) {
+        throw new SDKInternalException(
+          "[PrimitiveMeshIndexTexture.registerRenderPass]: 'before' pass is not registered"
+        );
+      }
+      this.renderPassOrder.splice(idx, 0, renderPass);
+    } else if (after !== void 0) {
+      const idx = this.renderPassOrder.indexOf(after);
+      if (idx === -1) {
+        throw new SDKInternalException(
+          "[PrimitiveMeshIndexTexture.registerRenderPass]: 'after' pass is not registered"
+        );
+      }
+      this.renderPassOrder.splice(idx + 1, 0, renderPass);
+    } else {
+      this.renderPassOrder.push(renderPass);
+    }
+    this.registeredRenderPasses.add(renderPass);
+    this.passRanges.set(renderPass, { firstPrim: 0, numPrims: 0 });
+    this.needUpload = true;
+  }
+  /**
+   * Unregisters a render pass.
+   *
+   * By default this throws if any portions are still assigned to the pass.
+   * Callers may instead choose to move or hide those portions.
+   *
+   * If the pass is not registered, this is a no-op.
+   *
+   * @param renderPass Render pass ID to remove.
+   * @param options Behavior for portions still assigned to the pass.
+   */
+  unregisterRenderPass(renderPass, options) {
+    if (!this.registeredRenderPasses.has(renderPass)) {
+      return;
+    }
+    const onAssignedPortions = options?.onAssignedPortions ?? "throw";
+    const affected = [];
+    for (const portion of this.portions.values()) {
+      if (portion.renderPass === renderPass) {
+        affected.push(portion);
+      }
+    }
+    if (affected.length > 0) {
+      switch (onAssignedPortions) {
+        case "throw":
+          throw new SDKInternalException(
+            "[PrimitiveMeshIndexTexture.unregisterRenderPass]: Pass still has assigned portions"
+          );
+        case "move": {
+          const target = options?.targetRenderPass;
+          if (target === void 0) {
+            throw new SDKInternalException(
+              "[PrimitiveMeshIndexTexture.unregisterRenderPass]: targetRenderPass is required when onAssignedPortions='move'"
+            );
+          }
+          if (target === renderPass) {
+            throw new SDKInternalException(
+              "[PrimitiveMeshIndexTexture.unregisterRenderPass]: targetRenderPass must differ from renderPass"
+            );
+          }
+          if (!this.registeredRenderPasses.has(target)) {
+            throw new SDKInternalException(
+              "[PrimitiveMeshIndexTexture.unregisterRenderPass]: targetRenderPass is not registered"
+            );
+          }
+          for (const portion of affected) {
+            portion.renderPass = target;
+          }
+          break;
+        }
+        case "hide":
+          for (const portion of affected) {
+            portion.objectVisible = false;
+            portion.meshVisible = false;
+          }
+          break;
+        default:
+          throw new SDKInternalException(
+            "[PrimitiveMeshIndexTexture.unregisterRenderPass]: Unsupported onAssignedPortions policy"
+          );
+      }
+    }
+    this.registeredRenderPasses.delete(renderPass);
+    const idx = this.renderPassOrder.indexOf(renderPass);
+    if (idx !== -1) {
+      this.renderPassOrder.splice(idx, 1);
+    }
+    this.passRanges.delete(renderPass);
+    this.needUpload = true;
+  }
+  /**
+   * Allocates a portion belonging to a given render pass.
+   *
+   * The render pass must already be registered.
+   *
    * @param size Number of items in the portion.
    * @param meshIndex Mesh index for the portion.
-   * @param renderPass Render pass bin.
+   * @param renderPass Render pass ID.
    */
   createPortion(size, meshIndex, renderPass) {
     if (size <= 0) {
-      throw new SDKInternalException("[PrimitiveMeshIndexTexture.createPortion]: size must be > 0");
+      throw new SDKInternalException(
+        "[PrimitiveMeshIndexTexture.createPortion]: size must be > 0"
+      );
     }
     if (this.numAllocatedItems + size > this.maxItems) {
-      throw new SDKInternalException("[PrimitiveMeshIndexTexture.createPortion]: Not enough capacity");
+      throw new SDKInternalException(
+        "[PrimitiveMeshIndexTexture.createPortion]: Not enough capacity"
+      );
+    }
+    if (!this.registeredRenderPasses.has(renderPass)) {
+      throw new SDKInternalException(
+        "[PrimitiveMeshIndexTexture.createPortion]: Render pass is not registered"
+      );
     }
     const id = this.nextPortionId++;
     const handle = {
@@ -129314,26 +130153,39 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
   }
   /**
    * Frees a previously allocated portion.
+   *
    * @param handle Portion handle.
    */
   deletePortion(handle) {
     const removed = this.portions.get(handle.id);
     if (!removed) {
-      throw new SDKInternalException("[PrimitiveMeshIndexTexture.deletePortion]: Unknown portion handle");
+      throw new SDKInternalException(
+        "[PrimitiveMeshIndexTexture.deletePortion]: Unknown portion handle"
+      );
     }
     this.portions.delete(handle.id);
     this.numAllocatedItems -= removed.size;
     this.needUpload = true;
   }
   /**
-   * Changes a portion's renderPass bin.
+   * Changes a portion's render pass.
+   *
+   * The target render pass must already be registered.
+   *
    * @param handle Portion handle.
-   * @param renderPass New render pass bin.
+   * @param renderPass New render pass ID.
    */
   setRenderPass(handle, renderPass) {
     const portion = this.portions.get(handle.id);
     if (!portion) {
-      throw new SDKInternalException("[PrimitiveMeshIndexTexture.setRenderPass]: Unknown portion handle");
+      throw new SDKInternalException(
+        "[PrimitiveMeshIndexTexture.setRenderPass]: Unknown portion handle"
+      );
+    }
+    if (!this.registeredRenderPasses.has(renderPass)) {
+      throw new SDKInternalException(
+        "[PrimitiveMeshIndexTexture.setRenderPass]: Render pass is not registered"
+      );
     }
     if (portion.renderPass === renderPass) {
       return;
@@ -129344,13 +130196,16 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
   }
   /**
    * Sets the object-level visibility of a portion.
+   *
    * @param handle Portion handle.
    * @param objectVisible Whether the portion is visible at the object level.
    */
   setObjectVisible(handle, objectVisible) {
     const portion = this.portions.get(handle.id);
     if (!portion) {
-      throw new SDKInternalException("[PrimitiveMeshIndexTexture.setObjectVisible]: Unknown portion handle");
+      throw new SDKInternalException(
+        "[PrimitiveMeshIndexTexture.setObjectVisible]: Unknown portion handle"
+      );
     }
     portion.objectVisible = !!objectVisible;
     handle.objectVisible = portion.objectVisible;
@@ -129358,20 +130213,28 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
   }
   /**
    * Sets the mesh-level visibility of a portion.
+   *
    * @param handle Portion handle.
    * @param meshVisible Whether the portion is visible at the mesh level.
    */
   setMeshVisible(handle, meshVisible) {
     const portion = this.portions.get(handle.id);
     if (!portion) {
-      throw new SDKInternalException("[PrimitiveMeshIndexTexture.setMeshVisible]: Unknown portion handle");
+      throw new SDKInternalException(
+        "[PrimitiveMeshIndexTexture.setMeshVisible]: Unknown portion handle"
+      );
     }
     portion.meshVisible = !!meshVisible;
     handle.meshVisible = portion.meshVisible;
     this.needUpload = true;
   }
   /**
-   * Gets the visibility of a portion.
+   * Gets the current visibility of a portion.
+   *
+   * This mirrors the original behavior: if the handle is still known by the texture,
+   * visibility is read from internal state; otherwise the visibility recorded on the handle
+   * is returned as a fallback.
+   *
    * @param handle Portion handle.
    */
   isVisible(handle) {
@@ -129379,26 +130242,30 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
     return portion ? portion.meshVisible : handle.meshVisible;
   }
   /**
-   * Gets the first/count for a renderPass bin.
-   * @param renderPass Render pass bin.
+   * Gets the first/count range for a render pass.
+   *
+   * If the pass has no drawable primitives, a zero-length range is returned.
+   *
+   * @param renderPass Render pass ID.
    */
   getPassRange(renderPass) {
     return this.passRanges.get(renderPass) ?? { firstPrim: 0, numPrims: 0 };
   }
   /**
-   * Gets the full range of drawable primitives, for picking.
-   * This can be used for picking passes that want to consider all primitives regardless of render pass.
+   * Gets the full range of drawable primitives, for picking or other whole-buffer passes.
+   *
+   * This can be used for passes that want to consider all visible primitives regardless of render pass.
    */
   getPrimRange() {
     return this.primRange;
   }
   /**
-   * Gets the meshIndex and offset for a primitive index.
+   * Gets the mesh index and primitive offset for a packed primitive index.
    *
-   * The offset is the index of the primitive within its mesh. For example, for a triangle mesh,
-   * the offset will be 0 for the first triangle, 1 for the second triangle, and so on. This
-   * allows the vertex shader to determine which vertices to use when rendering the primitive.
-   * @param primIndex Primitive index.
+   * The `offset` is the primitive index within its mesh. For example, for a triangle mesh,
+   * the offset will be `0` for the first triangle, `1` for the second triangle, and so on.
+   *
+   * @param primIndex Packed primitive index.
    */
   getItem(primIndex) {
     const meshIndex = this.buffer[primIndex * 2];
@@ -129407,25 +130274,27 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
   }
   /**
    * Cancels any pending uploads.
+   *
+   * This clears the dirty flag without modifying the current buffer contents.
    */
   cancelUploads() {
     this.needUpload = false;
   }
   /**
-   * Uploads current CPU buffer if dirty; rebuilds runs when necessary.
+   * Uploads the current CPU buffer if dirty and rebuilds packed runs when necessary.
    *
    * Internal algorithm:
-   * - If no upload is needed, returns false.
-   * - If no items are allocated, clears buffer and returns false.
-   * - Otherwise, rebuilds runs and buffer:
-   *   - Groups portions by renderPass, preserving insertion order.
-   *   - Packs contiguous runs per renderPass, updating offsets.
-   *   - Updates passRanges for each renderPass.
-   *   - Uploads buffer to GPU.
-   *   - Updates numDrawablePrims.
-   * - Notifies update and resets needUpload.
+   * - If no upload is needed, returns `false`.
+   * - If no items are allocated, clears ranges and returns `false`.
+   * - Otherwise:
+   *   - groups visible portions by render pass
+   *   - packs contiguous runs in registered render pass order
+   *   - updates {@link passRanges}
+   *   - updates {@link primRange}
+   *   - uploads the buffer to the GPU
+   *   - clears the dirty flag
    *
-   * @returns True if any uploads occurred, false otherwise.
+   * @returns `true` if a GPU upload occurred, otherwise `false`.
    */
   uploadChanges() {
     if (!this.needUpload) {
@@ -129434,6 +130303,11 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
     if (this.numAllocatedItems === 0) {
       this.buffer.fill(0);
       this.passRanges.clear();
+      for (const renderPass of this.renderPassOrder) {
+        this.passRanges.set(renderPass, { firstPrim: 0, numPrims: 0 });
+      }
+      this.primRange.firstPrim = 0;
+      this.primRange.numPrims = 0;
       this.needUpload = false;
       return false;
     }
@@ -129464,32 +130338,39 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
     super.destroy();
     this.portions.clear();
     this.passRanges.clear();
+    this.renderPassOrder.length = 0;
+    this.registeredRenderPasses.clear();
   }
   // ---------------- Internals ----------------
   /**
-   * Rebuilds runs and buffer for all portions, grouped by renderPass.
+   * Rebuilds packed runs and the CPU buffer for all visible portions, grouped by render pass.
+   *
+   * Packing is performed in registered render pass order. Each pass receives a contiguous
+   * primitive range in {@link passRanges}.
+   *
+   * For each packed primitive:
+   * - `buffer[n * 2 + 0] = meshIndex`
+   * - `buffer[n * 2 + 1] = primitive offset within mesh`
    */
   _rebuildRunsAndBuffer() {
     const buckets = /* @__PURE__ */ new Map();
+    for (const renderPass of this.renderPassOrder) {
+      buckets.set(renderPass, []);
+    }
     for (const portion of this.portions.values()) {
-      if (!portion.objectVisible || !portion.meshVisible)
+      if (!portion.objectVisible || !portion.meshVisible) {
         continue;
-      if (!buckets.has(portion.renderPass)) {
-        buckets.set(portion.renderPass, []);
+      }
+      if (!this.registeredRenderPasses.has(portion.renderPass)) {
+        continue;
       }
       buckets.get(portion.renderPass).push(portion);
     }
     let base = 0;
-    let firstPrim = 0;
-    let numPrims = 0;
     this.passRanges.clear();
-    for (const renderPass of this.renderPassIds) {
+    for (const renderPass of this.renderPassOrder) {
       const bucket = buckets.get(renderPass);
-      if (!bucket || bucket.length === 0) {
-        this.passRanges.set(renderPass, { firstPrim: base, numPrims: 0 });
-        continue;
-      }
-      firstPrim = base;
+      const firstPrim = base;
       for (const portion of bucket) {
         portion.offset = base;
         for (let i = 0; i < portion.size; i++) {
@@ -129504,16 +130385,27 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
         numPrims: base - firstPrim
       });
     }
+    this.primRange.firstPrim = 0;
     this.primRange.numPrims = base;
+    if (base * 2 < this.buffer.length) {
+      this.buffer.fill(0, base * 2);
+    }
   }
   /**
-   * Encode (x, y) → linear address for a 2D table with known width.
+   * Encodes `(x, y)` into a linear address for a 2D table with known width.
+   *
+   * @param x X coordinate.
+   * @param y Y coordinate.
+   * @param width Table width.
    */
   static encodeAddress(x, y, width) {
     return (y | 0) * (width | 0) + (x | 0) >>> 0;
   }
   /**
-   * Decode linear address → (x, y) for a given width.
+   * Decodes a linear address into `(x, y)` for a 2D table with known width.
+   *
+   * @param addr Linear address.
+   * @param width Table width.
    */
   static decodeAddress(addr, width) {
     const a2 = addr >>> 0;
@@ -129577,9 +130469,12 @@ var ItemDataTexture = class extends DataTexture {
 };
 
 // ../sdk/src/webglrenderer/internal/gpuMemoryManager/dataTextures/MeshAttributeTexture.ts
+var data = new Uint32Array(4);
 var MeshAttributeTexture = class _MeshAttributeTexture extends ItemDataTexture {
   static itemSizeInBytes = 16;
-  // 4 × uint32 per uvec4
+  // 4 x uint32 per uvec4
+  dirty;
+  itemCache;
   constructor(options) {
     super({
       gl: options.gl,
@@ -129592,23 +130487,63 @@ var MeshAttributeTexture = class _MeshAttributeTexture extends ItemDataTexture {
       width: 4096,
       itemSizeInBytes: _MeshAttributeTexture.itemSizeInBytes,
       texelsPerItem: 1,
-      elementsPerTexel: 4
+      elementsPerTexel: 4,
+      useBuffer: false
     });
+    this.dirty = false;
+    this.itemCache = new Array(options.maxItems);
+    for (let i = 0; i < options.maxItems; i++) {
+      this.itemCache[i] = {
+        tileIndex: 0,
+        geometryIndex: 0
+      };
+    }
   }
   setItem(itemIndex, item) {
-    const base = itemIndex * this.elementsPerItem;
-    if (item.tileIndex !== void 0)
-      this.buffer[base] = this.toU32(item.tileIndex);
-    if (item.geometryIndex !== void 0)
-      this.buffer[base + 1] = this.toU32(item.geometryIndex);
-    this.setItemDirty(itemIndex);
+    const cached = this.itemCache[itemIndex];
+    if (!cached) {
+      throw new Error(`[MeshAttributeTexture.setItem] Item index out of range: ${itemIndex}`);
+    }
+    if (item.tileIndex !== void 0) {
+      cached.tileIndex = this.toU32(item.tileIndex);
+    }
+    if (item.geometryIndex !== void 0) {
+      cached.geometryIndex = this.toU32(item.geometryIndex);
+    }
+    const x = itemIndex % this.width;
+    const y = Math.floor(itemIndex / this.width);
+    data[0] = cached.tileIndex;
+    data[1] = cached.geometryIndex;
+    data[2] = 0;
+    data[3] = 0;
+    const gl = this.gl;
+    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.texSubImage2D(
+      gl.TEXTURE_2D,
+      0,
+      x,
+      y,
+      1,
+      1,
+      this.format,
+      this.type,
+      data
+    );
+    this.dirty = true;
   }
   getItem(itemIndex) {
-    const base = itemIndex * this.elementsPerItem;
+    const cached = this.itemCache[itemIndex];
+    if (!cached) {
+      throw new Error(`[MeshAttributeTexture.getItem] Item index out of range: ${itemIndex}`);
+    }
     return {
-      tileIndex: this.buffer[base],
-      geometryIndex: this.buffer[base + 1]
+      tileIndex: cached.tileIndex,
+      geometryIndex: cached.geometryIndex
     };
+  }
+  uploadChanges() {
+    return false;
   }
   toU32(x) {
     return typeof x === "bigint" ? Number(x & 0xFFFFFFFFn) : x >>> 0;
@@ -129618,11 +130553,8 @@ var MeshAttributeTexture = class _MeshAttributeTexture extends ItemDataTexture {
 // ../sdk/src/webglrenderer/internal/gpuMemoryManager/dataTextures/MatrixTexture.ts
 var MatrixTexture = class _MatrixTexture extends ItemDataTexture {
   static itemSizeInBytes = 64;
-  // 16 × float per mat4
-  /**
-   * @private
-   * @param options
-   */
+  // 16 floats x 4 bytes
+  dirty;
   constructor(options) {
     super({
       gl: options.gl,
@@ -129635,38 +130567,66 @@ var MatrixTexture = class _MatrixTexture extends ItemDataTexture {
       width: 4096,
       itemSizeInBytes: _MatrixTexture.itemSizeInBytes,
       texelsPerItem: 4,
-      elementsPerTexel: 4
+      // 4 RGBA texels = 16 floats = 1 mat4
+      elementsPerTexel: 4,
+      useBuffer: false
     });
+    this.dirty = false;
   }
   /**
    * Sets the matrix for the given item index.
-   * @param itemIndex
-   * @param matrix
    */
   setItem(itemIndex, matrix) {
-    this.buffer.set(matrix, itemIndex * this.elementsPerItem);
-    this.setItemDirty(itemIndex);
+    const gl = this.gl;
+    const data5 = matrix instanceof Float32Array ? matrix : new Float32Array(matrix);
+    if (data5.length !== 16) {
+      throw new Error(`[MatrixTexture.setItem] Expected matrix with 16 elements, got ${data5.length}`);
+    }
+    const texelIndex = itemIndex * this.texelsPerItem;
+    const x = texelIndex % this.width;
+    const y = Math.floor(texelIndex / this.width);
+    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.texSubImage2D(
+      gl.TEXTURE_2D,
+      0,
+      x,
+      y,
+      4,
+      // 4 texels wide
+      1,
+      // 1 texel high
+      this.format,
+      this.type,
+      data5
+    );
+    this.dirty = true;
   }
   /**
    * Gets the matrix for the given item index.
-   * @param itemIndex
    */
   getItem(itemIndex) {
     const offset = itemIndex * this.elementsPerItem;
     return {
-      matrix: Array.from(this.buffer.subarray(offset, offset + this.elementsPerItem))
+      matrix: createMat4Float64(this.buffer.subarray(offset, offset + 16))
     };
+  }
+  uploadChanges() {
+    if (!this.dirty) {
+      return false;
+    }
+    this.dirty = false;
+    this.notifyUpdated();
+    return true;
   }
 };
 
 // ../sdk/src/webglrenderer/internal/gpuMemoryManager/dataTextures/GeometryAttributeTexture.ts
+var data2 = new Uint32Array(4);
 var GeometryAttributeTexture = class _GeometryAttributeTexture extends ItemDataTexture {
   static itemSizeInBytes = 16;
-  // 4 × uint32 per uvec4
-  /**
-   * @private
-   * @param options
-   */
+  // 4 x uint32 per uvec4
+  dirty;
   constructor(options) {
     super({
       gl: options.gl,
@@ -129679,35 +130639,44 @@ var GeometryAttributeTexture = class _GeometryAttributeTexture extends ItemDataT
       width: 4096,
       itemSizeInBytes: _GeometryAttributeTexture.itemSizeInBytes,
       texelsPerItem: 1,
-      elementsPerTexel: 4
+      elementsPerTexel: 4,
+      useBuffer: false
     });
+    this.dirty = false;
   }
-  /**
-   * Sets the attribute data for a specific geometry item.
-   * @param itemIndex
-   * @param item
-   */
   setItem(itemIndex, item) {
-    const base = itemIndex * this.elementsPerItem;
-    if (item.verticesBase !== void 0)
-      this.buffer[base] = this.toU32(item.verticesBase);
-    if (item.indicesBase !== void 0)
-      this.buffer[base + 1] = this.toU32(item.indicesBase);
-    if (item.edgeIndicesBase !== void 0)
-      this.buffer[base + 2] = this.toU32(item.edgeIndicesBase);
-    this.setItemDirty(itemIndex);
+    const x = itemIndex % this.width;
+    const y = Math.floor(itemIndex / this.width);
+    data2[0] = this.toU32(item.verticesBase);
+    data2[1] = this.toU32(item.indicesBase);
+    data2[2] = this.toU32(item.edgeIndicesBase);
+    data2[3] = 0;
+    const gl = this.gl;
+    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.texSubImage2D(
+      gl.TEXTURE_2D,
+      0,
+      x,
+      y,
+      1,
+      1,
+      this.format,
+      this.type,
+      data2
+    );
+    this.dirty = true;
   }
-  /**
-   * Retrieves the attribute data for a specific geometry item.
-   * @param itemIndex
-   */
-  getItem(itemIndex) {
-    const base = itemIndex * this.elementsPerItem;
-    return {
-      verticesBase: this.buffer[base],
-      indicesBase: this.buffer[base + 1],
-      edgeIndicesBase: this.buffer[base + 2]
-    };
+  getItem(_itemIndex) {
+    throw new Error("[GeometryAttributeTexture.getItem] Not supported without backing state");
+  }
+  uploadChanges() {
+    if (!this.dirty) {
+      return false;
+    }
+    this.dirty = false;
+    this.notifyUpdated();
+    return true;
   }
   toU32(x) {
     return typeof x === "bigint" ? Number(x & 0xFFFFFFFFn) : x >>> 0;
@@ -129715,9 +130684,11 @@ var GeometryAttributeTexture = class _GeometryAttributeTexture extends ItemDataT
 };
 
 // ../sdk/src/webglrenderer/internal/gpuMemoryManager/dataTextures/GeometryQuantRangeTexture.ts
+var data3 = new Float32Array(8);
 var GeometryQuantRangeTexture = class _GeometryQuantRangeTexture extends ItemDataTexture {
   static itemSizeInBytes = 32;
-  // 8 × float per item
+  // 8 x float per item
+  dirty;
   /**
    * @private
    * @param options
@@ -129734,35 +130705,49 @@ var GeometryQuantRangeTexture = class _GeometryQuantRangeTexture extends ItemDat
       width: 2048,
       itemSizeInBytes: _GeometryQuantRangeTexture.itemSizeInBytes,
       texelsPerItem: 2,
-      elementsPerTexel: 4
+      elementsPerTexel: 4,
+      useBuffer: false
     });
+    this.dirty = false;
   }
   setItem(itemIndex, item) {
-    const base = itemIndex * this.elementsPerItem;
-    this.buffer[base + 0] = +item.offset[0];
-    this.buffer[base + 1] = +item.offset[1];
-    this.buffer[base + 2] = +item.offset[2];
-    this.buffer[base + 3] = 0;
-    this.buffer[base + 4] = +item.scale[0];
-    this.buffer[base + 5] = +item.scale[1];
-    this.buffer[base + 6] = +item.scale[2];
-    this.buffer[base + 7] = 0;
-    this.setItemDirty(itemIndex);
+    const texelIndex = itemIndex * this.texelsPerItem;
+    const x = texelIndex % this.width;
+    const y = Math.floor(texelIndex / this.width);
+    data3[0] = +item.offset[0];
+    data3[1] = +item.offset[1];
+    data3[2] = +item.offset[2];
+    data3[3] = 0;
+    data3[4] = +item.scale[0];
+    data3[5] = +item.scale[1];
+    data3[6] = +item.scale[2];
+    data3[7] = 0;
+    const gl = this.gl;
+    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.texSubImage2D(
+      gl.TEXTURE_2D,
+      0,
+      x,
+      y,
+      2,
+      1,
+      this.format,
+      this.type,
+      data3
+    );
+    this.dirty = true;
   }
-  getItem(itemIndex) {
-    const base = itemIndex * this.elementsPerItem;
-    return {
-      offset: [
-        this.buffer[base + 0],
-        this.buffer[base + 1],
-        this.buffer[base + 2]
-      ],
-      scale: [
-        this.buffer[base + 4],
-        this.buffer[base + 5],
-        this.buffer[base + 6]
-      ]
-    };
+  getItem(_itemIndex) {
+    throw new Error("[GeometryQuantRangeTexture.getItem] Not supported without a backing buffer");
+  }
+  uploadChanges() {
+    if (!this.dirty) {
+      return false;
+    }
+    this.dirty = false;
+    this.notifyUpdated();
+    return true;
   }
 };
 
@@ -129803,9 +130788,9 @@ var PortionDataTexture = class extends DataTexture {
    * @param onMove Optional callback invoked if the portion is moved during packing.
    * @returns Portion handle, or null if allocation failed.
    */
-  getPortion(data, onMove) {
-    const size = data.length / this.elementsPerItem | 0;
-    if (size <= 0 || data.length % this.elementsPerItem !== 0) {
+  getPortion(data5, onMove) {
+    const size = data5.length / this.elementsPerItem | 0;
+    if (size <= 0 || data5.length % this.elementsPerItem !== 0) {
       throw new SDKInternalException("getPortion: data length must be a positive multiple of elementsPerItem");
     }
     let index = this.findFreeBlock(size);
@@ -129818,7 +130803,7 @@ var PortionDataTexture = class extends DataTexture {
     }
     this._numItems += size;
     const handle = this.allocateHandleAt(index, size, onMove);
-    this._setPortionData(handle, data);
+    this._setPortionData(handle, data5);
     return handle;
   }
   /**
@@ -129840,17 +130825,17 @@ var PortionDataTexture = class extends DataTexture {
    * @param handle Portion handle.
    * @param data Data to set.
    */
-  _setPortionData(handle, data) {
+  _setPortionData(handle, data5) {
     const portion = this.usedPortions.get(handle.id);
     if (!portion) {
       throw new SDKInternalException("Invalid handle ID");
     }
     const expectedItems = portion.size;
-    if (data.length / this.elementsPerItem !== expectedItems) {
+    if (data5.length / this.elementsPerItem !== expectedItems) {
       throw new SDKInternalException("Mismatched data length");
     }
     const offset = portion.base * this.elementsPerItem;
-    this.buffer.set(data, offset);
+    this.buffer.set(data5, offset);
     this.dirtyPortionIds.add(handle.id);
   }
   /**
@@ -129861,17 +130846,17 @@ var PortionDataTexture = class extends DataTexture {
    * @param data New data array (must be a multiple of elementsPerItem).
    * @returns SDKResult with updated PortionHandle.
    */
-  setPortionData(handle, data) {
+  setPortionData(handle, data5) {
     const portion = this.usedPortions.get(handle.id);
     if (!portion) {
       throw new SDKInternalException("Invalid handle ID");
     }
-    const newSize = data.length / this.elementsPerItem | 0;
+    const newSize = data5.length / this.elementsPerItem | 0;
     if (newSize <= 0) {
       throw new SDKInternalException("New portion size must be > 0");
     }
     if (newSize === portion.size) {
-      this._setPortionData(handle, data);
+      this._setPortionData(handle, data5);
       return { ok: true, value: handle };
     }
     const canGrowInPlace = newSize > portion.size && this.freePortions.length > 0 && this.freePortions.some(
@@ -129889,7 +130874,7 @@ var PortionDataTexture = class extends DataTexture {
         if (free.size === 0)
           this.freePortions.splice(freeIdx, 1);
         portion.size = newSize;
-        this._setPortionData(handle, data);
+        this._setPortionData(handle, data5);
         this.dirtyPortionIds.add(handle.id);
         this._numItems += newSize - portion.size;
         return { ok: true, value: handle };
@@ -129897,7 +130882,7 @@ var PortionDataTexture = class extends DataTexture {
     }
     let newHandle;
     try {
-      newHandle = this.getPortion(data, this.portionCallbacks.get(handle.id));
+      newHandle = this.getPortion(data5, this.portionCallbacks.get(handle.id));
     } catch (e) {
       return {
         ok: false,
@@ -129905,7 +130890,7 @@ var PortionDataTexture = class extends DataTexture {
         error: "[PortionDataTexture] Failed to allocate new portion: " + e
       };
     }
-    this._setPortionData(newHandle, data);
+    this._setPortionData(newHandle, data5);
     this.putPortion(handle);
     handle.base = newHandle.base;
     handle.id = newHandle.id;
@@ -130148,9 +131133,12 @@ var VertexColorTexture = class _VertexColorTexture extends PortionDataTexture {
 };
 
 // ../sdk/src/webglrenderer/internal/gpuMemoryManager/dataTextures/MeshViewAttributeTexture.ts
+var data4 = new Uint8Array(8);
 var MeshViewAttributeTexture = class _MeshViewAttributeTexture extends ItemDataTexture {
   static itemSizeInBytes = 16;
-  // 4 × uint32 per uvec4
+  // preserved to match existing texture sizing assumptions
+  dirty;
+  itemCache;
   constructor(options) {
     super({
       gl: options.gl,
@@ -130163,34 +131151,90 @@ var MeshViewAttributeTexture = class _MeshViewAttributeTexture extends ItemDataT
       width: 4096,
       itemSizeInBytes: _MeshViewAttributeTexture.itemSizeInBytes,
       texelsPerItem: 2,
-      elementsPerTexel: 4
+      elementsPerTexel: 4,
+      useBuffer: false
     });
+    this.dirty = false;
+    this.itemCache = new Array(options.maxItems);
+    for (let i = 0; i < options.maxItems; i++) {
+      this.itemCache[i] = {
+        color: [0, 0, 0],
+        opacity: 255,
+        pickable: false,
+        clippable: false
+      };
+    }
   }
   setItem(itemIndex, item) {
-    const base = itemIndex * this.elementsPerItem;
-    const buf = this.buffer;
-    if (item.color) {
-      buf[base] = item.color[0];
-      buf[base + 1] = item.color[1];
-      buf[base + 2] = item.color[2];
+    const gl = this.gl;
+    const cached = this.itemCache[itemIndex];
+    if (!cached) {
+      throw new Error(`[MeshViewAttributeTexture.setItem] Item index out of range: ${itemIndex}`);
     }
-    if (item.opacity !== void 0)
-      buf[base + 3] = item.opacity;
-    if (item.pickable !== void 0)
-      buf[base + 4] = item.pickable ? 1 : 0;
-    if (item.clippable !== void 0)
-      buf[base + 5] = item.clippable ? 1 : 0;
-    this.setItemDirty(itemIndex);
+    if (item.color) {
+      cached.color = [
+        this.toU8(item.color[0]),
+        this.toU8(item.color[1]),
+        this.toU8(item.color[2])
+      ];
+    }
+    if (item.opacity !== void 0) {
+      cached.opacity = this.toU8(item.opacity);
+    }
+    if (item.pickable !== void 0) {
+      cached.pickable = !!item.pickable;
+    }
+    if (item.clippable !== void 0) {
+      cached.clippable = !!item.clippable;
+    }
+    const itemsPerRow = Math.floor(this.width / this.texelsPerItem);
+    const x = itemIndex % itemsPerRow * this.texelsPerItem;
+    const y = Math.floor(itemIndex / itemsPerRow);
+    data4[0] = cached.color[0];
+    data4[1] = cached.color[1];
+    data4[2] = cached.color[2];
+    data4[3] = cached.opacity;
+    data4[4] = cached.pickable ? 1 : 0;
+    data4[5] = cached.clippable ? 1 : 0;
+    data4[6] = 0;
+    data4[7] = 0;
+    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.texSubImage2D(
+      gl.TEXTURE_2D,
+      0,
+      x,
+      y,
+      2,
+      1,
+      this.format,
+      this.type,
+      data4
+    );
+    this.dirty = true;
   }
   getItem(itemIndex) {
-    const base = itemIndex * this.elementsPerItem;
-    const buf = this.buffer;
+    const cached = this.itemCache[itemIndex];
+    if (!cached) {
+      throw new Error(`[MeshViewAttributeTexture.getItem] Item index out of range: ${itemIndex}`);
+    }
     return {
-      color: [buf[base], buf[base + 1], buf[base + 2]],
-      opacity: buf[base + 3],
-      pickable: buf[base + 4] !== 0,
-      clippable: buf[base + 5] !== 0
+      color: [cached.color[0], cached.color[1], cached.color[2]],
+      opacity: cached.opacity,
+      pickable: cached.pickable,
+      clippable: cached.clippable
     };
+  }
+  uploadChanges() {
+    if (!this.dirty) {
+      return false;
+    }
+    this.dirty = false;
+    this.notifyUpdated();
+    return true;
+  }
+  toU8(x) {
+    return Math.max(0, Math.min(255, x | 0));
   }
 };
 
@@ -130234,23 +131278,10 @@ var RendererObject = class {
    * This ID is used to reference the object within the renderer.
    */
   id;
-  /**
-   * List of renderer meshes associated with this object.
-   * Each mesh can represent a part of the object, such as its geometry and texture.
-   * The object controls the visual state of these meshes in the renderer, as a whole.
-   */
   _rendererMeshes;
-  /**
-   * The RenderContext associated with this object.
-   */
-  _renderContext;
-  /**
-   * @private
-   */
   constructor(params) {
     this.id = params.id;
     this._rendererMeshes = params.rendererMeshes || [];
-    this._renderContext = params.renderContext;
   }
   /**
    * Adds a renderer mesh to this object.
@@ -130271,7 +131302,9 @@ var RendererObject = class {
    * Sets the visibility of the object in a specific view.
    */
   setVisible(viewIndex, visible) {
-    this._rendererMeshes.forEach((mesh) => mesh.setObjectVisible(viewIndex, visible));
+    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+      this._rendererMeshes[i].setObjectVisible(viewIndex, visible);
+    }
   }
   /**
    * Sets the highlighted state of the object in a specific view.
@@ -130584,7 +131617,6 @@ var GPUMemoryBatch = class {
   _meshMatrixTexture;
   _meshIndicesUsed;
   _meshes;
-  _sceneMeshes;
   _numMeshes;
   _geometryIndicesUsed;
   _sceneGeometries;
@@ -130592,7 +131624,14 @@ var GPUMemoryBatch = class {
   _lastFreeMeshIndex;
   _lastFreeGeometryIndex;
   _geometryHandles;
+  /**
+   * Mesh handles keyed directly by meshIndex for fast lookup in hot paths.
+   */
   _meshHandles;
+  /**
+   * Keeps addMesh(SceneMesh) idempotent by allowing lookup of an existing meshIndex for a SceneMesh.uniqueId.
+   */
+  _meshIndicesByUniqueId;
   _onTick;
   _renderContext;
   /**
@@ -130603,7 +131642,7 @@ var GPUMemoryBatch = class {
     this._renderContext = renderContext;
     this._geometryHandles = {};
     this._meshHandles = {};
-    this._sceneMeshes = {};
+    this._meshIndicesByUniqueId = {};
     this._meshIndicesUsed = [];
     this._lastFreeMeshIndex = 0;
     this._meshes = {};
@@ -130821,7 +131860,7 @@ var GPUMemoryBatch = class {
       return 2 /* NoGeometry */;
     }
     const vertCount = (geometry.positionsCompressed?.length ?? 0) / 3;
-    const geometryExists = !!this._geometryHandles[geometry.id];
+    const geometryExists = !!this._geometryHandles[geometry.uniqueId];
     if (!geometryExists) {
       if (this._numGeometries >= this._renderContext.memoryConfigs.maxBatchGeometries) {
         return 3 /* TooManyGeometries */;
@@ -130837,17 +131876,9 @@ var GPUMemoryBatch = class {
       }
     }
     const isPoints = geometry.primitive === PointsPrimitive;
-    if (isPoints) {
-      if (!geometryExists) {
-        if (geometry.colorsCompressed && this._vertexColorTexture.canGetPortion(geometry.colorsCompressed.length) === false) {
-          return 5 /* NotEnoughColorSpace */;
-        }
-      }
-    } else {
-      if (!geometryExists) {
-        if (geometry.colorsCompressed && this._vertexColorTexture.canGetPortion(geometry.colorsCompressed.length) === false) {
-          return 5 /* NotEnoughColorSpace */;
-        }
+    if (!geometryExists) {
+      if (geometry.colorsCompressed && this._vertexColorTexture.canGetPortion(geometry.colorsCompressed.length) === false) {
+        return 5 /* NotEnoughColorSpace */;
       }
     }
     const primCount = isPoints ? vertCount : geometry.primitive === LinesPrimitive ? geometry.indices.length / 2 : geometry.indices.length / 3;
@@ -130870,9 +131901,9 @@ var GPUMemoryBatch = class {
    * @param sceneMesh
    */
   addMesh(sceneMesh) {
-    const existingMeshHandle = this._meshHandles[sceneMesh.id];
-    if (existingMeshHandle) {
-      return { ok: true, value: existingMeshHandle.meshIndex };
+    const existingMeshIndex = this._meshIndicesByUniqueId[sceneMesh.uniqueId];
+    if (existingMeshIndex !== void 0) {
+      return { ok: true, value: existingMeshIndex };
     }
     const maxBatchMeshes = this._renderContext.memoryConfigs.maxBatchMeshes;
     if (this._numMeshes + 1 >= maxBatchMeshes) {
@@ -130883,7 +131914,7 @@ var GPUMemoryBatch = class {
       };
     }
     const sceneGeometry = sceneMesh.geometry;
-    let geometryHandle = this._geometryHandles[sceneGeometry.id];
+    let geometryHandle = this._geometryHandles[sceneGeometry.uniqueId];
     if (!geometryHandle) {
       const maxGeometries = this._renderContext.memoryConfigs.maxBatchGeometries;
       if (this._numGeometries + 1 >= maxGeometries) {
@@ -130921,6 +131952,14 @@ var GPUMemoryBatch = class {
       }
     };
     meshIndex = this._getFreeMeshIndex();
+    if (this._meshHandles[meshIndex]) {
+      cleanup();
+      return {
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `GPUMemoryBatch.addMesh: Mesh handle already exists at meshIndex ${meshIndex}`
+      };
+    }
     if (!geometryHandle) {
       geometryIndex = this._getFreeGeometryIndex();
       positionsPortion = this._vertexPositionTexture.getPortion(
@@ -131000,6 +132039,7 @@ var GPUMemoryBatch = class {
         edgeIndicesBase: edgeIndicesHandle ? edgeIndicesHandle.base : 0
       });
       geometryHandle = {
+        sceneGeometry,
         positionsPortion,
         vertexColorsPortion,
         geometryIndex,
@@ -131007,7 +132047,7 @@ var GPUMemoryBatch = class {
         edgeIndicesHandle,
         useCount: 0
       };
-      this._geometryHandles[sceneGeometry.id] = geometryHandle;
+      this._geometryHandles[sceneGeometry.uniqueId] = geometryHandle;
       this._numGeometries++;
     }
     geometryHandle.useCount++;
@@ -131018,11 +132058,11 @@ var GPUMemoryBatch = class {
     });
     const numViews = this._renderContext.memoryConfigs.maxViews;
     const color2 = [
-      Math.floor(sceneMesh.globalColor[0] * 255),
-      Math.floor(sceneMesh.globalColor[1] * 255),
-      Math.floor(sceneMesh.globalColor[2] * 255)
+      Math.floor(sceneMesh.effectiveColor[0] * 255),
+      Math.floor(sceneMesh.effectiveColor[1] * 255),
+      Math.floor(sceneMesh.effectiveColor[2] * 255)
     ];
-    const opacity = Math.floor(sceneMesh.globalOpacity * 255);
+    const opacity = Math.floor(sceneMesh.effectiveOpacity * 255);
     for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
       this._meshViewAttributeTexture[viewIndex].setItem(meshIndex, {
         color: color2,
@@ -131049,13 +132089,14 @@ var GPUMemoryBatch = class {
         );
       }
     }
-    this._meshHandles[sceneMesh.id] = {
+    this._meshHandles[meshIndex] = {
+      sceneMesh,
       meshIndex,
       primitiveMeshIndexTextureHandles,
       edgeMeshIndexTextureHandles
     };
+    this._meshIndicesByUniqueId[sceneMesh.uniqueId] = meshIndex;
     this._sceneGeometries[geometryHandle.geometryIndex] = sceneGeometry;
-    this._sceneMeshes[meshIndex] = sceneMesh;
     this._numMeshes++;
     return {
       ok: true,
@@ -131109,11 +132150,7 @@ var GPUMemoryBatch = class {
    * @param renderPass
    */
   setMeshRenderPass(meshIndex, viewIndex, renderPass) {
-    const sceneMesh = this._sceneMeshes[meshIndex];
-    if (!sceneMesh) {
-      throw new SDKInternalException(`GPUMemoryBatch.setMeshRenderBin: No SceneMesh at index ${meshIndex}`);
-    }
-    const meshHandle = this._meshHandles[sceneMesh.id];
+    const meshHandle = this._meshHandles[meshIndex];
     if (!meshHandle) {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no meshHandle`);
     }
@@ -131138,11 +132175,7 @@ var GPUMemoryBatch = class {
    * @param visible
    */
   setMeshVisible(meshIndex, viewIndex, visible) {
-    const sceneMesh = this._sceneMeshes[meshIndex];
-    if (!sceneMesh) {
-      throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: No SceneMesh at index ${meshIndex}`);
-    }
-    const meshHandle = this._meshHandles[sceneMesh.id];
+    const meshHandle = this._meshHandles[meshIndex];
     if (!meshHandle) {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no meshHandle`);
     }
@@ -131204,16 +132237,13 @@ var GPUMemoryBatch = class {
    * @param meshIndex
    */
   removeMesh(meshIndex) {
-    const sceneMesh = this._sceneMeshes[meshIndex];
-    if (!sceneMesh) {
-      return;
-    }
-    const meshHandle = this._meshHandles[sceneMesh.id];
+    const meshHandle = this._meshHandles[meshIndex];
     if (!meshHandle) {
       return;
     }
+    const sceneMesh = meshHandle.sceneMesh;
     const sceneGeometry = sceneMesh.geometry;
-    const geometryHandle = this._geometryHandles[sceneGeometry.id];
+    const geometryHandle = this._geometryHandles[sceneGeometry.uniqueId];
     if (geometryHandle && --geometryHandle.useCount <= 0) {
       if (geometryHandle.positionsPortion) {
         this._vertexPositionTexture.putPortion(geometryHandle.positionsPortion);
@@ -131227,7 +132257,8 @@ var GPUMemoryBatch = class {
       if (geometryHandle.edgeIndicesHandle) {
         this._edgeIndexTexture.putPortion(geometryHandle.edgeIndicesHandle);
       }
-      delete this._geometryHandles[sceneGeometry.id];
+      delete this._geometryHandles[sceneGeometry.uniqueId];
+      delete this._sceneGeometries[geometryHandle.geometryIndex];
       this._putFreeGeometryIndex(geometryHandle.geometryIndex);
       this._numGeometries--;
     }
@@ -131242,18 +132273,9 @@ var GPUMemoryBatch = class {
         this._edgeMeshIndexTexture[viewIndex].deletePortion(meshHandle.edgeMeshIndexTextureHandles[viewIndex]);
       }
     }
-    if (meshHandle.indicesHandle) {
-      this._indexTexture.putPortion(meshHandle.indicesHandle);
-    }
-    if (meshHandle.edgeIndicesHandle) {
-      this._edgeIndexTexture.putPortion(meshHandle.edgeIndicesHandle);
-    }
-    delete this._meshHandles[sceneMesh.id];
+    delete this._meshHandles[meshIndex];
+    delete this._meshIndicesByUniqueId[sceneMesh.uniqueId];
     this._putFreeMeshIndex(meshIndex);
-    if (geometryHandle) {
-      delete this._sceneGeometries[geometryHandle.geometryIndex];
-    }
-    delete this._sceneMeshes[meshIndex];
     this._numMeshes--;
   }
   /**
@@ -131268,26 +132290,26 @@ var GPUMemoryBatch = class {
    * @param meshIndex
    */
   getMeshAtIndex(meshIndex) {
-    return this._sceneMeshes[meshIndex] ?? null;
+    return this._meshHandles[meshIndex]?.sceneMesh ?? null;
   }
   /**
    * Retrieves parameters for a drawArrays() call to render a specific mesh.
    * @param meshIndex
    */
   getDrawArraysParamsForMesh(meshIndex) {
-    const sceneMesh = this._sceneMeshes[meshIndex];
-    if (!sceneMesh) {
-      return null;
-    }
-    const sceneGeometry = sceneMesh.geometry;
-    if (!sceneGeometry) {
-      return null;
-    }
-    const meshHandle = this._meshHandles[sceneMesh.id];
+    const meshHandle = this._meshHandles[meshIndex];
     if (!meshHandle) {
       return null;
     }
-    const primsBase = meshHandle.primsBase;
+    const sceneGeometry = meshHandle.sceneMesh.geometry;
+    if (!sceneGeometry) {
+      return null;
+    }
+    const primitiveMeshIndexTextureHandle = meshHandle.primitiveMeshIndexTextureHandles?.[0];
+    if (!primitiveMeshIndexTextureHandle) {
+      return null;
+    }
+    const primsBase = primitiveMeshIndexTextureHandle.base ?? primitiveMeshIndexTextureHandle.start ?? 0;
     if (sceneGeometry.primitive === PointsPrimitive) {
       const count = sceneGeometry.positionsCompressed.length / 3;
       return {
@@ -131373,7 +132395,7 @@ var GPUMemoryBatch = class {
     return didFlush;
   }
   webglContextRestored() {
-    for (const dataTexture in [
+    const dataTextures = [
       ...this._primitiveMeshIndexTexture,
       ...this._edgeMeshIndexTexture,
       this._meshAttributeTexture,
@@ -131385,7 +132407,8 @@ var GPUMemoryBatch = class {
       this._edgeIndexTexture,
       this._vertexPositionTexture,
       this._vertexColorTexture
-    ]) {
+    ];
+    for (const dataTexture of dataTextures) {
       const result = dataTexture.webglContextRestored();
       if (!result.ok) {
         return result;
@@ -131419,6 +132442,10 @@ var GPUMemoryBatch = class {
     this._vertexPositionTexture = clear(this._vertexPositionTexture);
     this._vertexColorTexture = clear(this._vertexColorTexture);
     this._meshMatrixTexture = clear(this._meshMatrixTexture);
+    this._meshHandles = {};
+    this._meshIndicesByUniqueId = {};
+    this._geometryHandles = {};
+    this._sceneGeometries = {};
   }
 };
 
@@ -131928,25 +132955,12 @@ var tempIdentityMat4 = identityMat4(createMat4Float64());
 var identityVec4 = createVec4Float64([0, 0, 0, 1]);
 var tempVec4a6 = createVec4Float64();
 var RendererMesh = class {
-  /**
-   * The GPU tile currently assigned to this mesh.
-   *
-   * @remarks
-   * - This tile defines the mesh's local RTC (Relative To Center) coordinate system for high-precision rendering.
-   * - The tile is managed and updated automatically by the GPU memory management layer; it may change if the mesh moves in world space.
-   * - RendererMesh does not manage tiling logic directly—tile assignment and RTC matrix updates are fully encapsulated by {@link GPUMemoryManager} and {@link GPUTileManager}.
-   * - This reference is used for efficient mesh picking and RTC-space transformations.
-   */
   gpuTile;
-  _renderContext;
   _sceneMesh;
   _meshBatch;
   _meshHandle;
   _gpuMemoryManager;
-  _viewStates;
-  /**
-   * Constructs a RendererMesh instance.
-   */
+  _viewFlags;
   constructor({
     sceneMesh,
     meshBatch,
@@ -131954,98 +132968,97 @@ var RendererMesh = class {
     gpuMemoryManager,
     meshHandle
   }) {
-    this._renderContext = renderContext;
     this._sceneMesh = sceneMesh;
     this._meshBatch = meshBatch;
     this._gpuMemoryManager = gpuMemoryManager;
     this._meshHandle = meshHandle;
     this.gpuTile = null;
-    const numViews = renderContext.memoryConfigs.maxViews;
-    this._viewStates = Array.from({ length: numViews }, () => ({
-      colorizing: false,
-      coloringOpacity: false,
-      transparent: null,
-      objectVisible: false,
-      meshVisible: false
-    }));
-    this.setMatrix(sceneMesh.globalMatrix);
-    this.setOpacity(sceneMesh.globalOpacity);
+    this._viewFlags = new Uint8Array(renderContext.memoryConfigs.maxViews);
+    this.setMatrix(sceneMesh.worldMatrix);
+    this.setOpacity(sceneMesh.effectiveOpacity);
+  }
+  _hasFlag(viewIndex, flag) {
+    return (this._viewFlags[viewIndex] & flag) !== 0;
+  }
+  _setFlag(viewIndex, flag, enabled2) {
+    if (enabled2) {
+      this._viewFlags[viewIndex] |= flag;
+    } else {
+      this._viewFlags[viewIndex] &= ~flag;
+    }
   }
   /**
-   * Sets the transformation matrix for the mesh.
-   * Called by {@link RendererObject.setMatrix}.
+   * Sets the transformation matrix for the mesh, updating the assigned GPU tile as needed based on the new center position.
+   * @param matrix
    */
   setMatrix(matrix) {
     matrix = matrix || tempIdentityMat4;
     const center2 = transformPoint4(matrix, identityVec4, tempVec4a6);
     const oldTile = this.gpuTile;
     this.gpuTile = oldTile ? this._gpuMemoryManager.moveTile(oldTile, center2) : this._gpuMemoryManager.getTile(center2);
-    const tileChanged = !oldTile || oldTile.id !== this.gpuTile.id;
-    if (tileChanged) {
+    if (!oldTile || oldTile.id !== this.gpuTile.id) {
       this._meshBatch.setMeshTile(this._meshHandle, this.gpuTile.tileIndex);
     }
-    const tileCenter = this.gpuTile.center;
     const relativeMatrix = createMat4Float64(matrix);
-    relativeMatrix.set(subVec3(center2, tileCenter), 12);
+    relativeMatrix.set(subVec3(center2, this.gpuTile.center), 12);
     this._meshBatch.setMeshMatrix(this._meshHandle, relativeMatrix);
   }
   /**
-   * Sets the color of the mesh.
-   * Called by {@link RendererObject.setColor}.
+   * Sets the color of the mesh, updating the color in all views that are not currently overridden by view-specific colorization.
+   * @param color
    */
   setColor(color2) {
-    for (let viewIndex = 0, len = this._viewStates.length; viewIndex < len; viewIndex++) {
-      const viewState = this._viewStates[viewIndex];
-      if (!viewState.colorizing) {
+    for (let viewIndex = 0, len = this._viewFlags.length; viewIndex < len; viewIndex++) {
+      if (!this._hasFlag(viewIndex, 1 /* Colorizing */)) {
         this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, color2);
       }
     }
   }
   /**
-   * Sets the opacity of the mesh.
-   * Called by {@link RendererObject.setOpacity}.
+   * Sets the opacity of the mesh, updating the transparent state as needed.
+   * @param opacity
    */
   setOpacity(opacity) {
-    for (let viewIndex = 0, len = this._viewStates.length; viewIndex < len; viewIndex++) {
-      const viewState = this._viewStates[viewIndex];
-      if (!viewState.coloringOpacity) {
+    const transparent = opacity < 1;
+    for (let viewIndex = 0, len = this._viewFlags.length; viewIndex < len; viewIndex++) {
+      if (!this._hasFlag(viewIndex, 2 /* ColoringOpacity */)) {
         this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
       }
-      const transparent = opacity < 1;
-      if (viewState.transparent !== transparent) {
-        viewState.transparent = transparent;
-        this._meshBatch.setMeshTransparent(viewIndex, this._meshHandle, viewState.transparent);
+      if (this._hasFlag(viewIndex, 4 /* Transparent */) !== transparent) {
+        this._setFlag(viewIndex, 4 /* Transparent */, transparent);
+        this._meshBatch.setMeshTransparent(viewIndex, this._meshHandle, transparent);
       }
     }
   }
   /**
-   * Sets the object-level visibility of the mesh in a specific view.
+   * Sets the visibility of the mesh for a specific view, taking into account both the mesh's
+   * own visibility and the object's visibility in that view.
    * @param viewIndex
    * @param objectVisible
    */
   setObjectVisible(viewIndex, objectVisible) {
-    const viewState = this._viewStates[viewIndex];
-    if (!viewState) {
+    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
       throw new SDKInternalException(`[RendererMesh.setObjectVisible] No view state for view index ${viewIndex}`);
     }
-    if (viewState.objectVisible === objectVisible) {
+    if (this._hasFlag(viewIndex, 8 /* ObjectVisible */) === objectVisible) {
       return;
     }
-    viewState.objectVisible = objectVisible;
-    this._meshBatch.setMeshVisible(viewIndex, this._meshHandle, objectVisible && viewState.meshVisible);
+    this._setFlag(viewIndex, 8 /* ObjectVisible */, objectVisible);
+    const meshVisible = this._hasFlag(viewIndex, 16 /* MeshVisible */);
+    this._meshBatch.setMeshVisible(viewIndex, this._meshHandle, objectVisible && meshVisible);
   }
   /**
-   * Sets the mesh-level visibility of the mesh in all views.
-   * Called by {@link RendererObject.setVisible}.
+   * Sets the visibility of the mesh for all views.
+   * @param meshVisible
    */
   setVisible(meshVisible) {
-    for (let viewIndex = 0, len = this._viewStates.length; viewIndex < len; viewIndex++) {
-      const viewState = this._viewStates[viewIndex];
-      if (viewState.meshVisible === meshVisible) {
+    for (let viewIndex = 0, len = this._viewFlags.length; viewIndex < len; viewIndex++) {
+      if (this._hasFlag(viewIndex, 16 /* MeshVisible */) === meshVisible) {
         continue;
       }
-      viewState.meshVisible = meshVisible;
-      this._meshBatch.setMeshVisible(viewIndex, this._meshHandle, viewState.objectVisible && meshVisible);
+      this._setFlag(viewIndex, 16 /* MeshVisible */, meshVisible);
+      const objectVisible = this._hasFlag(viewIndex, 8 /* ObjectVisible */);
+      this._meshBatch.setMeshVisible(viewIndex, this._meshHandle, objectVisible && meshVisible);
     }
   }
   /**
@@ -132053,16 +133066,15 @@ var RendererMesh = class {
    * Called by {@link RendererObject.setColorize}.
    */
   setColorInView(viewIndex, colorize) {
-    const viewStates = this._viewStates[viewIndex];
-    if (!viewStates) {
+    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
       throw new SDKInternalException(`[RendererMesh.setColorInView] No view state for view index ${viewIndex}`);
     }
     if (colorize !== null) {
       this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, colorize);
-      viewStates.colorizing = true;
+      this._setFlag(viewIndex, 1 /* Colorizing */, true);
     } else {
-      this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, this._sceneMesh.globalColor);
-      viewStates.colorizing = false;
+      this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, this._sceneMesh.effectiveColor);
+      this._setFlag(viewIndex, 1 /* Colorizing */, false);
     }
   }
   /**
@@ -132070,16 +133082,15 @@ var RendererMesh = class {
    * Called by {@link RendererObject.setOpacityInView}.
    */
   setOpacityInView(viewIndex, opacity) {
-    const viewStates = this._viewStates[viewIndex];
-    if (!viewStates) {
+    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
       throw new SDKInternalException(`[RendererMesh.setOpacityInView] No view state for view index ${viewIndex}`);
     }
     if (opacity !== null) {
       this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
-      viewStates.coloringOpacity = true;
+      this._setFlag(viewIndex, 2 /* ColoringOpacity */, true);
     } else {
-      this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, this._sceneMesh.globalOpacity);
-      viewStates.coloringOpacity = false;
+      this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, this._sceneMesh.effectiveOpacity);
+      this._setFlag(viewIndex, 2 /* ColoringOpacity */, false);
     }
   }
   /**
@@ -132087,44 +133098,52 @@ var RendererMesh = class {
    * Called by {@link RendererObject.setHighlighted}.
    */
   setHighlighted(viewIndex, highlighted) {
-    const viewStates = this._viewStates[viewIndex];
-    if (!viewStates) {
+    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
       throw new SDKInternalException(`[RendererMesh.setHighlighted] No view state for view index ${viewIndex}`);
     }
-    const transparent = viewStates.transparent;
-    this._meshBatch.setMeshHighlighted(viewIndex, this._meshHandle, highlighted, transparent);
+    this._meshBatch.setMeshHighlighted(
+      viewIndex,
+      this._meshHandle,
+      highlighted,
+      this._hasFlag(viewIndex, 4 /* Transparent */)
+    );
   }
   /**
    * Sets the x-ray state of the mesh for a specific view.
    * Called by {@link RendererObject.setXRayed}.
    */
   setXRayed(viewIndex, xrayed) {
-    const viewStates = this._viewStates[viewIndex];
-    if (!viewStates) {
+    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
       throw new SDKInternalException(`[RendererMesh.setXRayed] No view state for view index ${viewIndex}`);
     }
-    const transparent = viewStates.transparent;
-    this._meshBatch.setMeshXRayed(viewIndex, this._meshHandle, xrayed, transparent);
+    this._meshBatch.setMeshXRayed(
+      viewIndex,
+      this._meshHandle,
+      xrayed,
+      this._hasFlag(viewIndex, 4 /* Transparent */)
+    );
   }
   /**
    * Sets the selection state of the mesh for a specific view.
    * Called by {@link RendererObject.setSelected}.
    */
   setSelected(viewIndex, selected) {
-    const viewStates = this._viewStates[viewIndex];
-    if (!viewStates) {
+    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
       throw new SDKInternalException(`[RendererMesh.setSelected] No view state for view index ${viewIndex}`);
     }
-    const transparent = viewStates.transparent;
-    this._meshBatch.setMeshSelected(viewIndex, this._meshHandle, selected, transparent);
+    this._meshBatch.setMeshSelected(
+      viewIndex,
+      this._meshHandle,
+      selected,
+      this._hasFlag(viewIndex, 4 /* Transparent */)
+    );
   }
   /**
    * Sets the clippable state of the mesh for a specific view.
    * Called by {@link RendererObject.setClippable}.
    */
   setClippable(viewIndex, clippable) {
-    const viewStates = this._viewStates[viewIndex];
-    if (!viewStates) {
+    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
       throw new SDKInternalException(`[RendererMesh.setClippable] No view state for view index ${viewIndex}`);
     }
     this._meshBatch.setMeshClippable(viewIndex, this._meshHandle, clippable);
@@ -132457,25 +133476,22 @@ var MeshManager = class {
    * treats object IDs as globally unique and maps them to a single {@link RendererObject}.
    */
   _rendererObjects = {};
+  /**
+   * Renderer meshes keyed by {@link SceneMesh.uniqueId}.
+   */
+  _rendererMeshes = {};
   /** Shared render context used for device resources and viewer access. */
   _renderContext;
   /** Allocates/updates GPU memory for batches, meshes, and per-frame state. */
   _gpuMemoryManager;
   /**
-   * Renderer models keyed by {@link SceneModel.id}.
-   * Each model contains its {@link RendererMesh} instances keyed by {@link SceneMesh.id}.
-   */
-  _rendererModels = {};
-  /**
-   * Mesh batches keyed by an internal batch id (not the batch index).
+   * Mesh batches.
    *
    * Batches are grouped primarily by primitive type (and additional compatibility checks).
    */
-  _sortedBatches = {};
-  /** Cached list view of {@link _sortedBatches}, sorted by primitive. */
-  _batchList = [];
-  /** Whether {@link _batchList} needs to be rebuilt from {@link _sortedBatches}. */
-  _batchListDirty = true;
+  _batches = [];
+  /** Whether {@link _batches} needs to be re-sorted by primitive. */
+  _batchesDirty = true;
   /**
    * Creates a {@link MeshManager}.
    *
@@ -132521,14 +133537,6 @@ var MeshManager = class {
    * was already registered.
    */
   sceneModelCreated(sceneModel) {
-    if (this._rendererModels[sceneModel.id]) {
-      return {
-        ok: false,
-        type: 2 /* InvalidInput */,
-        error: `[MeshManager.sceneModelCreated] SceneModel already added with this ID: ${sceneModel.id}`
-      };
-    }
-    this._rendererModels[sceneModel.id] = { rendererMeshes: {} };
     return { ok: true, value: void 0 };
   }
   sceneModelFinalized(sceneModel) {
@@ -132551,20 +133559,17 @@ var MeshManager = class {
    *
    * @param sceneModel - The model to unregister.
    * @returns {@link SDKResult} indicating success, or `ok:false` if the model was not registered.
-   *
-   * @remarks
-   * This method currently does not iterate and destroy meshes belonging to the model. Mesh lifetime
-   * is managed via {@link sceneObjectDestroyed} and mesh removal paths.
    */
   sceneModelDestroyed(sceneModel) {
-    if (!this._rendererModels[sceneModel.id]) {
-      return {
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[MeshManager.sceneModelDestroyed] SceneModel not attached with this ID: ${sceneModel.id}`
-      };
+    for (const sceneObject of Object.values(sceneModel.objects)) {
+      if (this._rendererObjects[sceneObject.id]) {
+        delete this._rendererObjects[sceneObject.id];
+      }
     }
-    delete this._rendererModels[sceneModel.id];
+    for (const sceneMesh of Object.values(sceneModel.meshes)) {
+      this._removeMesh(sceneMesh);
+    }
+    this._batchesDirty = true;
     return { ok: true, value: void 0 };
   }
   /**
@@ -132590,16 +133595,7 @@ var MeshManager = class {
    * @returns {@link SDKResult} indicating success, or `ok:false` if registration fails.
    */
   sceneMeshCreated(sceneMesh) {
-    const modelId = sceneMesh.model.id;
-    const rendererModel = this._rendererModels[modelId];
-    if (!rendererModel) {
-      return {
-        ok: false,
-        type: 2 /* InvalidInput */,
-        error: `[MeshManager.sceneMeshCreated] No SceneModel added with this ID: ${modelId}`
-      };
-    }
-    return this._addMesh(rendererModel, sceneMesh);
+    return this._addMesh(sceneMesh);
   }
   /**
    * Unregisters a {@link SceneMesh}.
@@ -132607,28 +133603,18 @@ var MeshManager = class {
    * @returns {@link SDKResult} indicating success, or `ok:false` if unregistration fails.
    */
   sceneMeshDestroyed(sceneMesh) {
-    const modelId = sceneMesh.model.id;
-    const rendererModel = this._rendererModels[modelId];
-    if (!rendererModel) {
-      return {
-        ok: false,
-        type: 2 /* InvalidInput */,
-        error: `[MeshManager.sceneMeshDestroyed] No SceneModel added with this ID: ${modelId}`
-      };
-    }
-    this._removeMesh(rendererModel, sceneMesh);
+    this._removeMesh(sceneMesh);
     return { ok: true, value: void 0 };
   }
   /**
    * Registers a newly created {@link SceneObject}.
    *
    * Creates a {@link RendererObject}, expects that all its meshes are pre-registered
-   * and have {@link RendererMesh} instances registered on the owning {@link SceneModel}.
+   * and have corresponding {@link RendererMesh} instances.
    *
    * @param sceneObject - The object to register.
    * @returns {@link SDKResult} indicating success, or `ok:false` if:
    * - an object with the same id already exists,
-   * - the owning model is not registered,
    * - or any mesh/batch allocation fails.
    */
   sceneObjectCreated(sceneObject) {
@@ -132640,51 +133626,38 @@ var MeshManager = class {
         error: `[MeshManager.sceneObjectCreated] SceneObject already added with this ID: ${objectId}`
       };
     }
-    const modelId = sceneObject.model.id;
-    const rendererModel = this._rendererModels[modelId];
-    if (!rendererModel) {
-      return {
-        ok: false,
-        type: 2 /* InvalidInput */,
-        error: `[MeshManager.sceneObjectCreated] No SceneModel added with this ID: ${modelId}`
-      };
-    }
     const rendererMeshes = [];
     for (const sceneMesh of sceneObject.meshes) {
-      const meshId = sceneMesh.id;
-      const rendererMesh = rendererModel.rendererMeshes[meshId];
+      const rendererMesh = this._rendererMeshes[sceneMesh.uniqueId];
       if (!rendererMesh) {
         return {
           ok: false,
           type: 2 /* InvalidInput */,
-          error: `[MeshManager.sceneObjectCreated] SceneMesh not attached with this ID: ${meshId}`
+          error: `[MeshManager.sceneObjectCreated] SceneMesh not attached with this globalId: ${sceneMesh.uniqueId}`
         };
       }
       rendererMeshes.push(rendererMesh);
     }
     this._rendererObjects[objectId] = new RendererObject({
-      renderContext: this._renderContext,
       id: objectId,
       rendererMeshes
-      // Zero meshes are OK
     });
-    this._batchListDirty = true;
+    this._batchesDirty = true;
     return { ok: true, value: void 0 };
   }
   /**
    * Creates (or reuses) a compatible {@link MeshBatchImpl} and registers the given {@link SceneMesh}
-   * as a {@link RendererMesh} on the provided renderer model.
+   * as a {@link RendererMesh}.
    *
-   * @param rendererModel - Renderer model container that will own the created {@link RendererMesh}.
    * @param sceneMesh - The mesh to register.
    */
-  _addMesh(rendererModel, sceneMesh) {
-    const meshId = sceneMesh.id;
-    if (rendererModel.rendererMeshes[meshId]) {
+  _addMesh(sceneMesh) {
+    const meshGlobalId = sceneMesh.uniqueId;
+    if (this._rendererMeshes[meshGlobalId]) {
       return {
         ok: false,
         type: 2 /* InvalidInput */,
-        error: `[MeshManager._addMesh] SceneMesh already added with this ID: ${meshId}`
+        error: `[MeshManager._addMesh] SceneMesh already added with this globalId: ${meshGlobalId}`
       };
     }
     const meshBatchResult = this._getMeshBatch(sceneMesh);
@@ -132704,7 +133677,7 @@ var MeshManager = class {
       gpuMemoryManager: this._gpuMemoryManager,
       meshHandle
     });
-    rendererModel.rendererMeshes[meshId] = rendererMesh;
+    this._rendererMeshes[meshGlobalId] = rendererMesh;
     return { ok: true, value: rendererMesh };
   }
   /**
@@ -132719,7 +133692,8 @@ var MeshManager = class {
    */
   _getMeshBatch(sceneMesh) {
     const primitive = sceneMesh.geometry.primitive;
-    for (const meshBatch of Object.values(this._sortedBatches)) {
+    for (let i = 0, len = this._batches.length; i < len; i++) {
+      const meshBatch = this._batches[i];
       if (meshBatch.primitive === primitive) {
         const canAddResult = meshBatch.canAddMesh(sceneMesh);
         if (canAddResult !== 0 /* OK */) {
@@ -132728,7 +133702,6 @@ var MeshManager = class {
         return { ok: true, value: meshBatch };
       }
     }
-    const meshBatchId = `meshBatch-${primitive}-${Object.keys(this._sortedBatches).length}`;
     const result = this._gpuMemoryManager.createBatch();
     if (result.ok === false) {
       return result;
@@ -132740,28 +133713,19 @@ var MeshManager = class {
       gpuMemoryManager: this._gpuMemoryManager,
       gpuMemoryBatchIndex
     });
-    this._sortedBatches[meshBatchId] = newMeshBatch;
-    this._batchListDirty = true;
+    this._batches.push(newMeshBatch);
+    this._batchesDirty = true;
     return { ok: true, value: newMeshBatch };
   }
   /**
    * Unregisters a {@link SceneObject}.
    *
-   * Destroys the {@link RendererObject} and its associated {@link RendererMesh} instances on the
-   * owning model (if any).
+   * Destroys the {@link RendererObject}.
    *
    * @param sceneObject - The object to unregister.
-   * @returns {@link SDKResult} indicating success, or `ok:false` if the model or object is not registered.
+   * @returns {@link SDKResult} indicating success, or `ok:false` if the object is not registered.
    */
   sceneObjectDestroyed(sceneObject) {
-    const rendererModel = this._rendererModels[sceneObject.model.id];
-    if (!rendererModel) {
-      return {
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[MeshManager.sceneObjectDestroyed] SceneModel not attached with this ID: ${sceneObject.model.id}`
-      };
-    }
     if (!this._rendererObjects[sceneObject.id]) {
       return {
         ok: false,
@@ -132770,24 +133734,23 @@ var MeshManager = class {
       };
     }
     delete this._rendererObjects[sceneObject.id];
-    sceneObject.meshes?.forEach((mesh) => this._removeMesh(rendererModel, mesh));
-    this._batchListDirty = true;
+    sceneObject.meshes?.forEach((mesh) => this._removeMesh(mesh));
+    this._batchesDirty = true;
     return { ok: true, value: void 0 };
   }
   /**
-   * Removes a {@link RendererMesh} from a renderer model (if present) and destroys it.
+   * Removes a {@link RendererMesh} (if present) and destroys it.
    *
-   * @param rendererModel - Renderer model container holding the mesh.
    * @param sceneMesh - The mesh to remove.
    */
-  _removeMesh(rendererModel, sceneMesh) {
-    const rendererMesh = rendererModel.rendererMeshes[sceneMesh.id];
+  _removeMesh(sceneMesh) {
+    const rendererMesh = this._rendererMeshes[sceneMesh.uniqueId];
     if (!rendererMesh) {
       return;
     }
     rendererMesh.destroy();
-    delete rendererModel.rendererMeshes[sceneMesh.id];
-    this._batchListDirty = true;
+    delete this._rendererMeshes[sceneMesh.uniqueId];
+    this._batchesDirty = true;
   }
   /**
    * Connects an existing {@link SceneMesh} to an existing {@link SceneObject}.
@@ -132795,14 +133758,6 @@ var MeshManager = class {
    * @param sceneMesh
    */
   sceneObjectMeshAdded(sceneObject, sceneMesh) {
-    const rendererModel = this._rendererModels[sceneObject.model.id];
-    if (!rendererModel) {
-      return {
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[MeshManager.sceneObjectMeshAdded] SceneModel not attached with this ID: ${sceneObject.model.id}`
-      };
-    }
     const rendererObject = this._rendererObjects[sceneObject.id];
     if (!rendererObject) {
       return {
@@ -132811,12 +133766,12 @@ var MeshManager = class {
         error: `[MeshManager.sceneObjectMeshAdded] SceneObject not attached with this ID: ${sceneObject.id}`
       };
     }
-    const rendererMesh = rendererModel.rendererMeshes[sceneMesh.id];
+    const rendererMesh = this._rendererMeshes[sceneMesh.uniqueId];
     if (!rendererMesh) {
       return {
         ok: false,
         type: 1 /* InvalidOperation */,
-        error: `[MeshManager.sceneObjectMeshAdded] SceneMesh not attached with this ID: ${sceneMesh.id}`
+        error: `[MeshManager.sceneObjectMeshAdded] SceneMesh not attached with this globalId: ${sceneMesh.uniqueId}`
       };
     }
     rendererObject.addRendererMesh(rendererMesh);
@@ -132839,11 +133794,7 @@ var MeshManager = class {
    * @param viewObject
    */
   _synchronizeMeshWithViewObject(sceneMesh, viewObject) {
-    const rendererModel = this._rendererModels[sceneMesh.model.id];
-    if (!rendererModel) {
-      return;
-    }
-    const rendererMesh = rendererModel.rendererMeshes[sceneMesh.id];
+    const rendererMesh = this._rendererMeshes[sceneMesh.uniqueId];
     if (!rendererMesh) {
       return;
     }
@@ -132862,14 +133813,6 @@ var MeshManager = class {
    * @param sceneMesh
    */
   sceneObjectMeshRemoved(sceneObject, sceneMesh) {
-    const rendererModel = this._rendererModels[sceneObject.model.id];
-    if (!rendererModel) {
-      return {
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: `[MeshManager.sceneObjectMeshRemoved] SceneModel not attached with this ID: ${sceneObject.model.id}`
-      };
-    }
     const rendererObject = this._rendererObjects[sceneObject.id];
     if (!rendererObject) {
       return {
@@ -132878,17 +133821,17 @@ var MeshManager = class {
         error: `[MeshManager.sceneObjectMeshAdded] SceneObject not attached with this ID: ${sceneObject.id}`
       };
     }
-    const existingMesh = rendererModel.rendererMeshes[sceneMesh.id];
-    if (!existingMesh) {
+    const rendererMesh = this._rendererMeshes[sceneMesh.uniqueId];
+    if (!rendererMesh) {
       return {
         ok: false,
         type: 1 /* InvalidOperation */,
-        error: `[MeshManager.sceneObjectMeshRemoved] SceneMesh not attached with this ID: ${sceneMesh.id}`
+        error: `[MeshManager.sceneObjectMeshRemoved] SceneMesh not attached with this globalId: ${sceneMesh.uniqueId}`
       };
     }
-    rendererObject.removeRendererMesh(existingMesh);
+    rendererObject.removeRendererMesh(rendererMesh);
     for (let viewIndex = 0, numViews = this._renderContext.viewer.viewList.length; viewIndex < numViews; viewIndex++) {
-      existingMesh.setObjectVisible(viewIndex, false);
+      rendererMesh.setObjectVisible(viewIndex, false);
     }
     return { ok: true, value: void 0 };
   }
@@ -132903,7 +133846,7 @@ var MeshManager = class {
    * Forwards to the corresponding {@link RendererMesh} (if registered).
    */
   sceneMeshMatrixChanged(sceneMesh) {
-    this._rendererModels[sceneMesh.model.id]?.rendererMeshes[sceneMesh.id]?.setMatrix(sceneMesh.globalMatrix);
+    this._rendererMeshes[sceneMesh.uniqueId]?.setMatrix(sceneMesh.worldMatrix);
   }
   /**
    * Handles changes to a {@link SceneMesh}'s color.
@@ -132911,7 +133854,7 @@ var MeshManager = class {
    * Forwards to the corresponding {@link RendererMesh} (if registered).
    */
   sceneMeshColorChanged(sceneMesh) {
-    this._rendererModels[sceneMesh.model.id]?.rendererMeshes[sceneMesh.id]?.setColor(sceneMesh.globalColor);
+    this._rendererMeshes[sceneMesh.uniqueId]?.setColor(sceneMesh.effectiveColor);
   }
   /**
    * Handles changes to a {@link SceneMesh}'s opacity.
@@ -132919,7 +133862,7 @@ var MeshManager = class {
    * Forwards to the corresponding {@link RendererMesh} (if registered).
    */
   sceneMeshOpacityChanged(sceneMesh) {
-    this._rendererModels[sceneMesh.model.id]?.rendererMeshes[sceneMesh.id]?.setOpacity(sceneMesh.globalOpacity);
+    this._rendererMeshes[sceneMesh.uniqueId]?.setOpacity(sceneMesh.effectiveOpacity);
   }
   /**
    * Handles changes to a {@link ViewObject}'s visibility.
@@ -132986,25 +133929,25 @@ var MeshManager = class {
     this._gpuMemoryManager.cameraViewMatrixUpdated(camera);
   }
   /**
-   * Returns a cached list of mesh batches sorted by primitive type.
+   * Returns the mesh batches sorted by primitive type.
    *
-   * @remarks The list is rebuilt lazily when {@link _batchListDirty} is true.
+   * @remarks The array is sorted lazily in place when dirty.
    */
   get sortedBatches() {
-    if (this._batchListDirty) {
-      this._batchList = Object.values(this._sortedBatches).sort((a2, b4) => a2.primitive - b4.primitive);
-      this._batchListDirty = false;
+    if (this._batchesDirty) {
+      this._batches.sort((a2, b4) => a2.primitive - b4.primitive);
+      this._batchesDirty = false;
     }
-    return this._batchList;
+    return this._batches;
   }
   /**
-   * Retrieves a mesh batch by index.
+   * Retrieves a mesh batch by index in the sorted batch array.
    *
-   * @param batchIndex - Batch index.
+   * @param batchIndex - Batch array index.
    * @returns The batch if found, otherwise `null`.
    */
   getBatch(batchIndex) {
-    return this._sortedBatches[batchIndex] ?? null;
+    return this.sortedBatches[batchIndex] ?? null;
   }
   /**
    * Retrieves a {@link SceneMesh} within a specific GPU batch.
@@ -133020,15 +133963,7 @@ var MeshManager = class {
    * @param sceneMesh
    */
   getMeshTile(sceneMesh) {
-    const rendererModel = this._rendererModels[sceneMesh.model.id];
-    if (!rendererModel) {
-      return null;
-    }
-    const rendererMesh = rendererModel.rendererMeshes[sceneMesh.id];
-    if (!rendererMesh) {
-      return null;
-    }
-    return rendererMesh.gpuTile;
+    return this._rendererMeshes[sceneMesh.uniqueId]?.gpuTile ?? null;
   }
   /**
    * Returns the parameters required for a WebGL `drawArrays` call for a mesh within a batch.
@@ -133046,7 +133981,7 @@ var MeshManager = class {
    * @remarks
    * - Attempts to unregister all objects/models currently present in the viewer scene.
    * - Destroys all mesh batches.
-   * - Clears internal maps and cached batch list.
+   * - Clears internal maps and batch storage.
    */
   destroy() {
     const { viewer } = this._renderContext;
@@ -133054,13 +133989,14 @@ var MeshManager = class {
       const { models, objects } = viewer.scene;
       Object.values(objects).forEach((sceneObject) => this.sceneObjectDestroyed(sceneObject));
       Object.values(models).forEach((sceneModel) => this.sceneModelDestroyed(sceneModel));
-      Object.values(this._sortedBatches).forEach((meshBatch) => meshBatch.destroy());
+      for (let i = 0, len = this._batches.length; i < len; i++) {
+        this._batches[i].destroy();
+      }
     }
-    this._sortedBatches = {};
-    this._batchList = [];
+    this._batches = [];
     this._rendererObjects = {};
-    this._rendererModels = {};
-    this._batchListDirty = true;
+    this._rendererMeshes = {};
+    this._batchesDirty = true;
   }
 };
 
@@ -133975,7 +134911,7 @@ void main(void) {`);
     vec3 lightDir1    = normalize(vec3(0.0, 0.0, -1.0));
     vec4 lightColor1  = vec4(0.7, 0.7, 0.7, 1.0);
     vec3 lightDir2    = normalize(vec3(-1.0, 1.0, 1.0));
-    vec4 lightColor2  = vec4(1.0, 1.0, 1.0, 0.5);
+    vec4 lightColor2  = vec4(1.0, 1.0, 1.0, 1.0);
     vec3 lightDir3    = normalize(vec3(-1.0, 1.0, 1.0));
     vec4 lightColor3  = vec4(1.0, 1.0, 1.0, 0.2);
 
@@ -135178,6 +136114,774 @@ function unpackRGBA8ToUint(bytes) {
   return (bytes[0] >>> 0 | bytes[1] << 8 >>> 0 | bytes[2] << 16 >>> 0 | bytes[3] << 24 >>> 0) >>> 0;
 }
 
+// ../sdk/src/webglrenderer/internal/renderManager/InfiniteGridRenderer.ts
+var InfiniteGridRenderer = class {
+  gl;
+  viewProjMatrix = createMat4Float64();
+  program = null;
+  vao = null;
+  vbo = null;
+  uViewProj = null;
+  uGridCenter = null;
+  uGridHalfSize = null;
+  uCameraPos = null;
+  uMinorStep = null;
+  uMajorStep = null;
+  uAxisWidth = null;
+  uFadeStart = null;
+  uFadeEnd = null;
+  uMinorColor = null;
+  uMajorColor = null;
+  uXAxisColor = null;
+  uZAxisColor = null;
+  uWorldRight = null;
+  uWorldForward = null;
+  /**
+   * When true, {@link RenderManager} will render this grid each frame.
+   */
+  enabled = false;
+  /**
+   * Default spacing for minor grid lines.
+   */
+  minorStep;
+  /**
+   * Default spacing for major grid lines.
+   */
+  majorStep;
+  /**
+   * Default axis width multiplier relative to minorStep.
+   */
+  axisWidth;
+  /**
+   * Default fade start distance from camera in XZ.
+   */
+  fadeStart;
+  /**
+   * Default fade end distance from camera in XZ.
+   */
+  fadeEnd;
+  /**
+   * Default half-size of the rendered quad in world units.
+   */
+  gridHalfSize;
+  /**
+   * When true, the quad is centered under the camera in XZ by default.
+   */
+  followCamera;
+  /**
+   * Default minor grid color.
+   */
+  minorColor;
+  /**
+   * Default major grid color.
+   */
+  majorColor;
+  /**
+   * Default X-axis color.
+   */
+  xAxisColor;
+  /**
+   * Default Z-axis color.
+   */
+  zAxisColor;
+  /**
+   * World-space "up" direction. Matches the Scene's `CoordinateSystem.worldUp`.
+   * Default is `[0,0,1]` (Z-up), matching the Scene default.
+   */
+  worldUp;
+  /**
+   * World-space "right" direction (first floor-plane axis).
+   * Default is `[1,0,0]`, matching the Scene default.
+   */
+  worldRight;
+  /**
+   * World-space "forward" direction (second floor-plane axis).
+   * Default is `[0,1,0]`, matching the Scene default.
+   */
+  worldForward;
+  /**
+   * True once init() has successfully allocated resources.
+   */
+  initialized = false;
+  /**
+   * True once destroy() has been called.
+   */
+  destroyed = false;
+  constructor(gl, options = {}) {
+    this.gl = gl;
+    this.minorStep = options.minorStep ?? 1;
+    this.majorStep = options.majorStep ?? 10;
+    this.axisWidth = options.axisWidth ?? 0.06;
+    this.fadeStart = options.fadeStart ?? 80;
+    this.fadeEnd = options.fadeEnd ?? 500;
+    this.gridHalfSize = options.gridHalfSize ?? 1e3;
+    this.followCamera = options.followCamera ?? true;
+    this.minorColor = options.minorColor ?? [0.24, 0.27, 0.31];
+    this.majorColor = options.majorColor ?? [0.42, 0.46, 0.52];
+    this.xAxisColor = options.xAxisColor ?? [0.93, 0.36, 0.3];
+    this.zAxisColor = options.zAxisColor ?? [0.33, 0.62, 0.96];
+    this.worldUp = options.worldUp ?? [0, 0, 1];
+    this.worldRight = options.worldRight ?? [1, 0, 0];
+    this.worldForward = options.worldForward ?? [0, 1, 0];
+  }
+  /**
+   * Allocates GL resources and compiles shaders.
+   *
+   * Safe to call more than once; subsequent calls are ignored after successful initialization.
+   */
+  init() {
+    this.ensureNotDestroyed();
+    if (this.initialized) {
+      return;
+    }
+    const gl = this.gl;
+    this.program = this.createProgram(VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+    const vao = gl.createVertexArray();
+    const vbo = gl.createBuffer();
+    if (!vao || !vbo) {
+      throw new Error("[InfiniteGridRenderer] Failed to allocate WebGL resources");
+    }
+    this.vao = vao;
+    this.vbo = vbo;
+    gl.bindVertexArray(this.vao);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      -1,
+      -1,
+      1,
+      -1,
+      -1,
+      1,
+      1,
+      1
+    ]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0);
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    gl.bindVertexArray(null);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    this.uViewProj = this.getUniformLocation("uViewProj");
+    this.uGridCenter = this.getUniformLocation("uGridCenter");
+    this.uGridHalfSize = this.getUniformLocation("uGridHalfSize");
+    this.uCameraPos = this.getUniformLocation("uCameraPos");
+    this.uMinorStep = this.getUniformLocation("uMinorStep");
+    this.uMajorStep = this.getUniformLocation("uMajorStep");
+    this.uAxisWidth = this.getUniformLocation("uAxisWidth");
+    this.uFadeStart = this.getUniformLocation("uFadeStart");
+    this.uFadeEnd = this.getUniformLocation("uFadeEnd");
+    this.uMinorColor = this.getUniformLocation("uMinorColor");
+    this.uMajorColor = this.getUniformLocation("uMajorColor");
+    this.uXAxisColor = this.getUniformLocation("uXAxisColor");
+    this.uZAxisColor = this.getUniformLocation("uZAxisColor");
+    this.uWorldRight = this.getUniformLocation("uWorldRight");
+    this.uWorldForward = this.getUniformLocation("uWorldForward");
+    this.initialized = true;
+  }
+  /**
+   * Renders one frame of the infinite grid for the given view.
+   *
+   * Called by {@link RenderManager} when {@link enabled} is true.
+   * Optional params allow per-frame overrides without mutating instance defaults.
+   */
+  render(viewRenderState, params = {}) {
+    this.ensureReady();
+    const camera = viewRenderState.view.camera;
+    const viewMatrix = camera.viewMatrix;
+    const projMatrix = camera.projMatrix;
+    const cameraWorldPos = camera.eye;
+    mulMat4(projMatrix, viewMatrix, this.viewProjMatrix);
+    const up = this.worldUp;
+    const upDot = cameraWorldPos[0] * up[0] + cameraWorldPos[1] * up[1] + cameraWorldPos[2] * up[2];
+    const gridCenter = params.gridCenter ?? (this.followCamera ? [cameraWorldPos[0] - up[0] * upDot, cameraWorldPos[1] - up[1] * upDot, cameraWorldPos[2] - up[2] * upDot] : [0, 0, 0]);
+    const minorStep = params.minorStep ?? this.minorStep;
+    const majorStep = params.majorStep ?? this.majorStep;
+    const axisWidth = params.axisWidth ?? minorStep * this.axisWidth;
+    const fadeStart = params.fadeStart ?? this.fadeStart;
+    const fadeEnd = params.fadeEnd ?? this.fadeEnd;
+    const gridHalfSize = params.gridHalfSize ?? this.gridHalfSize;
+    const gl = this.gl;
+    const prevProgram = gl.getParameter(gl.CURRENT_PROGRAM);
+    const prevVAO = gl.getParameter(gl.VERTEX_ARRAY_BINDING);
+    const blendWasEnabled = gl.isEnabled(gl.BLEND);
+    const cullWasEnabled = gl.isEnabled(gl.CULL_FACE);
+    const depthMask = gl.getParameter(gl.DEPTH_WRITEMASK);
+    gl.useProgram(this.program);
+    gl.bindVertexArray(this.vao);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.disable(gl.CULL_FACE);
+    gl.depthMask(false);
+    gl.uniformMatrix4fv(this.uViewProj, false, new Float32Array(this.viewProjMatrix));
+    gl.uniform3f(this.uGridCenter, gridCenter[0], gridCenter[1], gridCenter[2]);
+    gl.uniform1f(this.uGridHalfSize, gridHalfSize);
+    gl.uniform3f(this.uCameraPos, cameraWorldPos[0], cameraWorldPos[1], cameraWorldPos[2]);
+    gl.uniform1f(this.uMinorStep, minorStep);
+    gl.uniform1f(this.uMajorStep, majorStep);
+    gl.uniform1f(this.uAxisWidth, axisWidth);
+    gl.uniform1f(this.uFadeStart, fadeStart);
+    gl.uniform1f(this.uFadeEnd, fadeEnd);
+    gl.uniform3f(this.uMinorColor, this.minorColor[0], this.minorColor[1], this.minorColor[2]);
+    gl.uniform3f(this.uMajorColor, this.majorColor[0], this.majorColor[1], this.majorColor[2]);
+    gl.uniform3f(this.uXAxisColor, this.xAxisColor[0], this.xAxisColor[1], this.xAxisColor[2]);
+    gl.uniform3f(this.uZAxisColor, this.zAxisColor[0], this.zAxisColor[1], this.zAxisColor[2]);
+    gl.uniform3f(this.uWorldRight, this.worldRight[0], this.worldRight[1], this.worldRight[2]);
+    gl.uniform3f(this.uWorldForward, this.worldForward[0], this.worldForward[1], this.worldForward[2]);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    gl.depthMask(depthMask);
+    if (!blendWasEnabled) {
+      gl.disable(gl.BLEND);
+    }
+    if (cullWasEnabled) {
+      gl.enable(gl.CULL_FACE);
+    }
+    gl.bindVertexArray(prevVAO);
+    gl.useProgram(prevProgram);
+  }
+  /**
+   * Frees all GL resources owned by this renderer.
+   *
+   * Safe to call more than once.
+   */
+  destroy() {
+    if (this.destroyed) {
+      return;
+    }
+    const gl = this.gl;
+    if (this.vbo) {
+      gl.deleteBuffer(this.vbo);
+      this.vbo = null;
+    }
+    if (this.vao) {
+      gl.deleteVertexArray(this.vao);
+      this.vao = null;
+    }
+    if (this.program) {
+      gl.deleteProgram(this.program);
+      this.program = null;
+    }
+    this.uViewProj = null;
+    this.uGridCenter = null;
+    this.uGridHalfSize = null;
+    this.uCameraPos = null;
+    this.uMinorStep = null;
+    this.uMajorStep = null;
+    this.uAxisWidth = null;
+    this.uFadeStart = null;
+    this.uFadeEnd = null;
+    this.uMinorColor = null;
+    this.uMajorColor = null;
+    this.uXAxisColor = null;
+    this.uZAxisColor = null;
+    this.uWorldRight = null;
+    this.uWorldForward = null;
+    this.initialized = false;
+    this.destroyed = true;
+  }
+  ensureNotDestroyed() {
+    if (this.destroyed) {
+      throw new Error("[InfiniteGridRenderer] Renderer has been destroyed");
+    }
+  }
+  ensureReady() {
+    this.ensureNotDestroyed();
+    if (!this.initialized || !this.program || !this.vao) {
+      throw new Error("[InfiniteGridRenderer] Renderer not initialized - call init() first");
+    }
+  }
+  createProgram(vertexSource, fragmentSource) {
+    const gl = this.gl;
+    const vertexShader = this.createShader(gl.VERTEX_SHADER, vertexSource);
+    const fragmentShader = this.createShader(gl.FRAGMENT_SHADER, fragmentSource);
+    const program = gl.createProgram();
+    if (!program) {
+      gl.deleteShader(vertexShader);
+      gl.deleteShader(fragmentShader);
+      throw new Error("[InfiniteGridRenderer] Failed to create WebGL program");
+    }
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+    gl.deleteShader(vertexShader);
+    gl.deleteShader(fragmentShader);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      const info = gl.getProgramInfoLog(program) || "Program link failed";
+      gl.deleteProgram(program);
+      throw new Error(`[InfiniteGridRenderer] ${info}`);
+    }
+    return program;
+  }
+  createShader(type, source) {
+    const gl = this.gl;
+    const shader = gl.createShader(type);
+    if (!shader) {
+      throw new Error("[InfiniteGridRenderer] Failed to create shader");
+    }
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      const info = gl.getShaderInfoLog(shader) || "Shader compile failed";
+      gl.deleteShader(shader);
+      throw new Error(`[InfiniteGridRenderer] ${info}`);
+    }
+    return shader;
+  }
+  getUniformLocation(name12) {
+    if (!this.program) {
+      throw new Error("[InfiniteGridRenderer] Program not initialized");
+    }
+    const location = this.gl.getUniformLocation(this.program, name12);
+    if (location === null) {
+      throw new Error(`[InfiniteGridRenderer] Uniform not found: ${name12}`);
+    }
+    return location;
+  }
+};
+var VERTEX_SHADER_SOURCE = `#version 300 es
+precision highp float;
+
+layout(location = 0) in vec2 aPosition;
+
+uniform mat4 uViewProj;
+uniform vec3 uGridCenter;
+uniform float uGridHalfSize;
+uniform vec3 uWorldRight;
+uniform vec3 uWorldForward;
+
+out vec3 vWorldPos;
+
+void main() {
+  // Span the quad in the floor plane using the scene's right/forward axes.
+  // uGridCenter is already projected to the floor (up-component zeroed on the CPU side).
+  vec3 worldPos = uGridCenter
+    + uWorldRight   * (aPosition.x * uGridHalfSize)
+    + uWorldForward * (aPosition.y * uGridHalfSize);
+
+  vWorldPos = worldPos;
+  gl_Position = uViewProj * vec4(worldPos, 1.0);
+}
+`;
+var FRAGMENT_SHADER_SOURCE = `#version 300 es
+precision highp float;
+
+in vec3 vWorldPos;
+out vec4 outColor;
+
+uniform vec3 uCameraPos;
+uniform float uMinorStep;
+uniform float uMajorStep;
+uniform float uAxisWidth;
+uniform float uFadeStart;
+uniform float uFadeEnd;
+uniform vec3 uMinorColor;
+uniform vec3 uMajorColor;
+uniform vec3 uXAxisColor;
+uniform vec3 uZAxisColor;
+uniform vec3 uWorldRight;
+uniform vec3 uWorldForward;
+
+// Returns a softened line intensity for a repeated coordinate.
+float lineFactor(float coord, float stepSize) {
+  float x = coord / stepSize;
+  float fw = max(fwidth(x), 1e-6);
+  float d = abs(fract(x - 0.5) - 0.5) / fw;
+  return 1.0 - min(d, 1.0);
+}
+
+// 2D grid intensity from floor-plane coordinates.
+float gridFactor(vec2 p, float stepSize) {
+  float gx = lineFactor(p.x, stepSize);
+  float gz = lineFactor(p.y, stepSize);
+  return max(gx, gz);
+}
+
+// World-axis highlight with derivative-aware softening.
+float axisFactor(float coord, float widthWorld) {
+  float fw = max(fwidth(coord), 1e-6);
+  float w = max(widthWorld, fw);
+  float d = abs(coord) / w;
+  return 1.0 - smoothstep(0.0, 1.0, d);
+}
+
+void main() {
+  // Project world position onto the floor plane coordinate axes.
+  vec2 p = vec2(dot(vWorldPos, uWorldRight), dot(vWorldPos, uWorldForward));
+
+  float minor = gridFactor(p, uMinorStep);
+  float major = gridFactor(p, uMajorStep);
+  float axisX = axisFactor(p.x, uAxisWidth);
+  float axisZ = axisFactor(p.y, uAxisWidth);
+
+  vec3 color = vec3(0.0);
+  color += uMinorColor * minor * 0.8;
+  color += uMajorColor * major;
+  color = mix(color, uXAxisColor, axisX);
+  color = mix(color, uZAxisColor, axisZ);
+
+  // Fade by distance from the camera within the floor plane.
+  vec2 camFloor = vec2(dot(uCameraPos, uWorldRight), dot(uCameraPos, uWorldForward));
+  float distFloor = distance(camFloor, p);
+  float fade = 1.0 - smoothstep(uFadeStart, uFadeEnd, distFloor);
+
+  float lineAlpha = max(max(minor * 0.55, major), max(axisX, axisZ));
+  float alpha = lineAlpha * fade;
+
+  if (alpha < 0.01) {
+    discard;
+  }
+
+  outColor = vec4(color, alpha);
+}
+`;
+
+// ../sdk/src/webglrenderer/internal/renderManager/SkyRenderer.ts
+var SkyRenderer = class {
+  gl;
+  viewProjMatrix = createMat4Float64();
+  invViewProjMatrix = createMat4Float64();
+  program = null;
+  vao = null;
+  vbo = null;
+  uInvViewProj = null;
+  uCameraPos = null;
+  uWorldUp = null;
+  uSkyColor = null;
+  uHorizonColor = null;
+  uGroundColor = null;
+  uHorizonBlend = null;
+  uSunEnabled = null;
+  uSunDirection = null;
+  uSunColor = null;
+  uSunCosSize = null;
+  uSunGlowSize = null;
+  uSunGlowIntensity = null;
+  /**
+   * When true, {@link RenderManager} will render this sky each frame before scene geometry.
+   */
+  enabled = false;
+  /**
+   * Sky zenith color.
+   */
+  skyColor;
+  /**
+   * Horizon color.
+   */
+  horizonColor;
+  /**
+   * Below-horizon ground color.
+   */
+  groundColor;
+  /**
+   * Angular width of the horizon blend band (elevation units, ~0–1). Default `0.15`.
+   */
+  horizonBlend;
+  /**
+   * Whether to render a sun disc and glow.
+   */
+  sunEnabled;
+  /**
+   * World-space direction toward the sun (need not be normalized).
+   */
+  sunDirection;
+  /**
+   * Sun disc and corona color.
+   */
+  sunColor;
+  /**
+   * Angular diameter of the sun disc in degrees.
+   */
+  sunAngularSize;
+  /**
+   * Glow falloff exponent. Higher = tighter glow around the sun disc.
+   */
+  sunGlowSize;
+  /**
+   * Peak intensity of the sun glow.
+   */
+  sunGlowIntensity;
+  /**
+   * World-space "up" direction. Matches the Scene's `CoordinateSystem.worldUp`.
+   * Default is `[0,0,1]` (Z-up), matching the Scene default.
+   */
+  worldUp;
+  /**
+   * True once `init()` has successfully allocated resources.
+   */
+  initialized = false;
+  /**
+   * True once `destroy()` has been called.
+   */
+  destroyed = false;
+  constructor(gl, options = {}) {
+    this.gl = gl;
+    this.skyColor = options.skyColor ?? [0.28, 0.52, 0.93];
+    this.horizonColor = options.horizonColor ?? [0.72, 0.86, 0.97];
+    this.groundColor = options.groundColor ?? [0.22, 0.2, 0.18];
+    this.horizonBlend = options.horizonBlend ?? 0.15;
+    this.sunEnabled = options.sunEnabled ?? true;
+    this.sunDirection = options.sunDirection ?? [0.577, 0.577, 0.577];
+    this.sunColor = options.sunColor ?? [1, 0.97, 0.82];
+    this.sunAngularSize = options.sunAngularSize ?? 3;
+    this.sunGlowSize = options.sunGlowSize ?? 16;
+    this.sunGlowIntensity = options.sunGlowIntensity ?? 0.25;
+    this.worldUp = options.worldUp ?? [0, 0, 1];
+  }
+  /**
+   * Allocates GL resources and compiles shaders.
+   *
+   * Safe to call more than once; subsequent calls are ignored after successful initialization.
+   */
+  init() {
+    this.ensureNotDestroyed();
+    if (this.initialized)
+      return;
+    const gl = this.gl;
+    this.program = this.createProgram(VERTEX_SHADER_SOURCE2, FRAGMENT_SHADER_SOURCE2);
+    const vao = gl.createVertexArray();
+    const vbo = gl.createBuffer();
+    if (!vao || !vbo)
+      throw new Error("[SkyRenderer] Failed to allocate WebGL resources");
+    this.vao = vao;
+    this.vbo = vbo;
+    gl.bindVertexArray(this.vao);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0);
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    gl.bindVertexArray(null);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    this.uInvViewProj = this.getUniformLocation("uInvViewProj");
+    this.uCameraPos = this.getUniformLocation("uCameraPos");
+    this.uWorldUp = this.getUniformLocation("uWorldUp");
+    this.uSkyColor = this.getUniformLocation("uSkyColor");
+    this.uHorizonColor = this.getUniformLocation("uHorizonColor");
+    this.uGroundColor = this.getUniformLocation("uGroundColor");
+    this.uHorizonBlend = this.getUniformLocation("uHorizonBlend");
+    this.uSunEnabled = this.getUniformLocation("uSunEnabled");
+    this.uSunDirection = this.getUniformLocation("uSunDirection");
+    this.uSunColor = this.getUniformLocation("uSunColor");
+    this.uSunCosSize = this.getUniformLocation("uSunCosSize");
+    this.uSunGlowSize = this.getUniformLocation("uSunGlowSize");
+    this.uSunGlowIntensity = this.getUniformLocation("uSunGlowIntensity");
+    this.initialized = true;
+  }
+  /**
+   * Renders one frame of the sky for the given view.
+   *
+   * Called by {@link RenderManager} when {@link enabled} is true, before scene geometry.
+   */
+  render(viewRenderState) {
+    this.ensureReady();
+    const camera = viewRenderState.view.camera;
+    const cameraPos = camera.eye;
+    mulMat4(camera.projMatrix, camera.viewMatrix, this.viewProjMatrix);
+    inverseMat4(this.viewProjMatrix, this.invViewProjMatrix);
+    const sd = this.sunDirection;
+    const sdLen = Math.sqrt(sd[0] * sd[0] + sd[1] * sd[1] + sd[2] * sd[2]) || 1;
+    const sunCosSize = Math.cos(this.sunAngularSize * (Math.PI / 180) * 0.5);
+    const gl = this.gl;
+    const prevProgram = gl.getParameter(gl.CURRENT_PROGRAM);
+    const prevVAO = gl.getParameter(gl.VERTEX_ARRAY_BINDING);
+    const depthTestWasEnabled = gl.isEnabled(gl.DEPTH_TEST);
+    const cullWasEnabled = gl.isEnabled(gl.CULL_FACE);
+    const prevDepthMask = gl.getParameter(gl.DEPTH_WRITEMASK);
+    gl.disable(gl.DEPTH_TEST);
+    gl.depthMask(false);
+    gl.disable(gl.CULL_FACE);
+    gl.useProgram(this.program);
+    gl.bindVertexArray(this.vao);
+    gl.uniformMatrix4fv(this.uInvViewProj, false, new Float32Array(this.invViewProjMatrix));
+    gl.uniform3f(this.uCameraPos, cameraPos[0], cameraPos[1], cameraPos[2]);
+    gl.uniform3f(this.uWorldUp, this.worldUp[0], this.worldUp[1], this.worldUp[2]);
+    gl.uniform3f(this.uSkyColor, this.skyColor[0], this.skyColor[1], this.skyColor[2]);
+    gl.uniform3f(this.uHorizonColor, this.horizonColor[0], this.horizonColor[1], this.horizonColor[2]);
+    gl.uniform3f(this.uGroundColor, this.groundColor[0], this.groundColor[1], this.groundColor[2]);
+    gl.uniform1f(this.uHorizonBlend, this.horizonBlend);
+    gl.uniform1i(this.uSunEnabled, this.sunEnabled ? 1 : 0);
+    gl.uniform3f(this.uSunDirection, sd[0] / sdLen, sd[1] / sdLen, sd[2] / sdLen);
+    gl.uniform3f(this.uSunColor, this.sunColor[0], this.sunColor[1], this.sunColor[2]);
+    gl.uniform1f(this.uSunCosSize, sunCosSize);
+    gl.uniform1f(this.uSunGlowSize, this.sunGlowSize);
+    gl.uniform1f(this.uSunGlowIntensity, this.sunGlowIntensity);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    gl.depthMask(prevDepthMask);
+    if (depthTestWasEnabled)
+      gl.enable(gl.DEPTH_TEST);
+    if (cullWasEnabled)
+      gl.enable(gl.CULL_FACE);
+    gl.bindVertexArray(prevVAO);
+    gl.useProgram(prevProgram);
+  }
+  /**
+   * Frees all GL resources owned by this renderer. Safe to call more than once.
+   */
+  destroy() {
+    if (this.destroyed)
+      return;
+    const gl = this.gl;
+    if (this.vbo) {
+      gl.deleteBuffer(this.vbo);
+      this.vbo = null;
+    }
+    if (this.vao) {
+      gl.deleteVertexArray(this.vao);
+      this.vao = null;
+    }
+    if (this.program) {
+      gl.deleteProgram(this.program);
+      this.program = null;
+    }
+    this.uInvViewProj = null;
+    this.uCameraPos = null;
+    this.uWorldUp = null;
+    this.uSkyColor = null;
+    this.uHorizonColor = null;
+    this.uGroundColor = null;
+    this.uHorizonBlend = null;
+    this.uSunEnabled = null;
+    this.uSunDirection = null;
+    this.uSunColor = null;
+    this.uSunCosSize = null;
+    this.uSunGlowSize = null;
+    this.uSunGlowIntensity = null;
+    this.initialized = false;
+    this.destroyed = true;
+  }
+  ensureNotDestroyed() {
+    if (this.destroyed)
+      throw new Error("[SkyRenderer] Renderer has been destroyed");
+  }
+  ensureReady() {
+    this.ensureNotDestroyed();
+    if (!this.initialized || !this.program || !this.vao) {
+      throw new Error("[SkyRenderer] Renderer not initialized \u2014 call init() first");
+    }
+  }
+  createProgram(vertexSource, fragmentSource) {
+    const gl = this.gl;
+    const vs = this.createShader(gl.VERTEX_SHADER, vertexSource);
+    const fs = this.createShader(gl.FRAGMENT_SHADER, fragmentSource);
+    const program = gl.createProgram();
+    if (!program) {
+      gl.deleteShader(vs);
+      gl.deleteShader(fs);
+      throw new Error("[SkyRenderer] Failed to create WebGL program");
+    }
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
+    gl.deleteShader(vs);
+    gl.deleteShader(fs);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      const info = gl.getProgramInfoLog(program) || "Program link failed";
+      gl.deleteProgram(program);
+      throw new Error(`[SkyRenderer] ${info}`);
+    }
+    return program;
+  }
+  createShader(type, source) {
+    const gl = this.gl;
+    const shader = gl.createShader(type);
+    if (!shader)
+      throw new Error("[SkyRenderer] Failed to create shader");
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      const info = gl.getShaderInfoLog(shader) || "Shader compile failed";
+      gl.deleteShader(shader);
+      throw new Error(`[SkyRenderer] ${info}`);
+    }
+    return shader;
+  }
+  getUniformLocation(name12) {
+    if (!this.program)
+      throw new Error("[SkyRenderer] Program not initialized");
+    const loc = this.gl.getUniformLocation(this.program, name12);
+    if (loc === null)
+      throw new Error(`[SkyRenderer] Uniform not found: ${name12}`);
+    return loc;
+  }
+};
+var VERTEX_SHADER_SOURCE2 = `#version 300 es
+precision highp float;
+
+layout(location = 0) in vec2 aPosition;
+
+uniform mat4 uInvViewProj;
+uniform vec3 uCameraPos;
+
+out vec3 vRayDir;
+
+void main() {
+  // Unproject a point on the far plane to get the world-space ray direction.
+  vec4 world = uInvViewProj * vec4(aPosition, 1.0, 1.0);
+  vRayDir = (world.xyz / world.w) - uCameraPos;
+
+  // Fullscreen quad; depth is irrelevant (depth test disabled by caller).
+  gl_Position = vec4(aPosition, 1.0, 1.0);
+}
+`;
+var FRAGMENT_SHADER_SOURCE2 = `#version 300 es
+precision highp float;
+
+in vec3 vRayDir;
+out vec4 outColor;
+
+uniform vec3 uWorldUp;
+uniform vec3 uSkyColor;
+uniform vec3 uHorizonColor;
+uniform vec3 uGroundColor;
+uniform float uHorizonBlend;
+
+uniform int uSunEnabled;
+uniform vec3 uSunDirection;   // pre-normalized on CPU
+uniform vec3 uSunColor;
+uniform float uSunCosSize;    // cos(angularRadius)
+uniform float uSunGlowSize;   // falloff exponent
+uniform float uSunGlowIntensity;
+
+uniform vec3 uCameraPos;      // unused in gradient but available for future use
+
+void main() {
+  vec3 dir = normalize(vRayDir);
+
+  // Elevation: +1 at zenith, 0 at horizon, -1 at nadir.
+  float elevation = dot(dir, uWorldUp);
+
+  // Sky half (elevation > 0): exponential ramp from horizon to zenith.
+  float blendInv = 1.0 / max(uHorizonBlend, 0.001);
+  float skyT = 1.0 - exp(-max(elevation, 0.0) * blendInv * 3.0);
+
+  // Ground half (elevation < 0): linear ramp controlled by horizonBlend.
+  float groundT = clamp(-elevation * blendInv, 0.0, 1.0);
+
+  vec3 color = uHorizonColor;
+  color = mix(color, uSkyColor, skyT);
+  color = mix(color, uGroundColor, groundT);
+
+  if (uSunEnabled != 0) {
+    // Sun disc: sharp edge with a thin antialiased ring.
+    float cosA = dot(dir, uSunDirection);
+    float discEdge = 0.0015; // ~half-pixel softening in cosine space
+    float disc = smoothstep(uSunCosSize - discEdge, uSunCosSize + discEdge, cosA);
+
+    // Radial glow: pow gives a compact halo that falls off quickly.
+    float glow = pow(max(0.0, cosA), uSunGlowSize) * uSunGlowIntensity;
+
+    // Horizon haze: brighten the horizon band in the direction of the sun.
+    float horizonBand = 1.0 - smoothstep(0.0, uHorizonBlend * 2.5, abs(elevation));
+    vec2 sunFloor = uSunDirection.xy; // floor-plane projection of sun dir
+    vec2 dirFloor = dir.xy;
+    float sunAzimuth = (length(sunFloor) > 0.001 && length(dirFloor) > 0.001)
+      ? dot(normalize(dirFloor), normalize(sunFloor))
+      : 0.0;
+    float haze = horizonBand * max(0.0, sunAzimuth) * 0.18;
+
+    color += uSunColor * (disc + glow + haze);
+  }
+
+  outColor = vec4(color, 1.0);
+}
+`;
+
 // ../sdk/src/webglrenderer/internal/renderManager/RenderManager.ts
 var RenderManager = class {
   /**
@@ -135188,6 +136892,14 @@ var RenderManager = class {
    * Used internally, but made public to support diagnostics and testing.
    */
   drawOps;
+  /**
+   * Infinite ground grid renderer. Set {@link InfiniteGridRenderer.enabled} to true to activate.
+   */
+  infiniteGrid;
+  /**
+   * Sky/environment renderer.
+   */
+  skyRenderer;
   /** Shared render context (WebGL state + global flags). */
   _renderContext;
   /** Provides access to mesh batches and render-pass classification. */
@@ -135236,6 +136948,24 @@ var RenderManager = class {
     this._logarithmicDepthBufferEnabled = false;
     this._alphaDepthMask = false;
     this._activateExtensions();
+    if (!this.infiniteGrid) {
+      this.infiniteGrid = new InfiniteGridRenderer(this._renderContext.gl, {
+        minorColor: [0.36, 0.4, 0.42],
+        majorColor: [0, 0, 0],
+        xAxisColor: [0.68, 0.42, 0.4],
+        zAxisColor: [0.4, 0.58, 0.7]
+      });
+      this.infiniteGrid.init();
+    }
+    if (!this.skyRenderer) {
+      this.skyRenderer = new SkyRenderer(this._renderContext.gl, {
+        skyColor: [0.74, 0.8, 0.88],
+        horizonColor: [0.66, 0.72, 0.74],
+        horizonBlend: 0.5,
+        groundColor: [0.58, 0.64, 0.6]
+      });
+      this.skyRenderer.init();
+    }
     return {
       ok: true,
       value: void 0
@@ -135294,9 +137024,9 @@ var RenderManager = class {
     drawInspector?.frameStarted(view);
     const bins = {
       normalDrawSAO: [],
-      edgesColorOpaque: [],
+      normalEdgesOpaque: [],
       normalFillTransparent: [],
-      edgesColorTransparent: [],
+      normalEdgesTransparent: [],
       xrayedSilhouetteOpaque: [],
       xrayEdgesOpaque: [],
       xrayedSilhouetteTransparent: [],
@@ -135330,6 +137060,8 @@ var RenderManager = class {
     if (clear !== false) {
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     }
+    this.skyRenderer.render(rendererView);
+    this.infiniteGrid.render(rendererView);
     const enableOpaqueBin = !drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.OPAQUE);
     if (enableOpaqueBin) {
       drawInspector?.renderBinStarted(RENDER_BINS.OPAQUE);
@@ -135363,10 +137095,10 @@ var RenderManager = class {
       }
       if (edgeMaterial.applied) {
         if (opaque) {
-          bins.edgesColorOpaque.push(meshBatch);
+          bins.normalEdgesOpaque.push(meshBatch);
         }
         if (transparent) {
-          bins.edgesColorTransparent.push(meshBatch);
+          bins.normalEdgesTransparent.push(meshBatch);
         }
         if (xray) {
           (xrayMaterial.edgeAlpha < 1 ? bins.xrayEdgesTransparent : bins.xrayEdgesOpaque).push(meshBatch);
@@ -135383,7 +137115,7 @@ var RenderManager = class {
     }
     if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.EDGES_OPAQUE)) {
       drawInspector?.renderBinStarted(RENDER_BINS.EDGES_OPAQUE);
-      bins.edgesColorOpaque.forEach((meshBatch) => {
+      bins.normalEdgesOpaque.forEach((meshBatch) => {
         drawOps[meshBatch.primitive].opaqueEdges?.drawBatch(meshBatch);
       });
     }
@@ -135399,7 +137131,7 @@ var RenderManager = class {
         drawOps[meshBatch.primitive].xrayedEdges?.drawBatch(meshBatch);
       });
     }
-    if (bins.normalFillTransparent.length || bins.edgesColorTransparent.length || bins.xrayedSilhouetteTransparent.length || bins.xrayEdgesTransparent.length) {
+    if (bins.normalFillTransparent.length || bins.normalEdgesTransparent.length || bins.xrayedSilhouetteTransparent.length || bins.xrayEdgesTransparent.length) {
       gl.enable(gl.CULL_FACE);
       gl.enable(gl.BLEND);
       gl.blendEquation(gl.FUNC_ADD);
@@ -135420,12 +137152,12 @@ var RenderManager = class {
           drawOps[meshBatch.primitive].xrayed?.drawBatch(meshBatch);
         });
       }
-      if (bins.edgesColorTransparent.length || bins.normalFillTransparent.length) {
+      if (bins.normalEdgesTransparent.length || bins.normalFillTransparent.length) {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       }
       if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.EDGES_TRANSPARENT)) {
         drawInspector?.renderBinStarted(RENDER_BINS.EDGES_TRANSPARENT);
-        bins.edgesColorTransparent.forEach((meshBatch) => {
+        bins.normalEdgesTransparent.forEach((meshBatch) => {
           drawOps[meshBatch.primitive].transparentEdges?.drawBatch(meshBatch);
         });
       }
@@ -135511,6 +137243,10 @@ var RenderManager = class {
     if (this.drawOps) {
       putDrawOps(this.drawOps);
       this.drawOps = null;
+    }
+    if (this.infiniteGrid) {
+      this.infiniteGrid.destroy();
+      this.infiniteGrid = null;
     }
     this._extensionHandles = null;
     this._renderContext = null;
@@ -135602,6 +137338,7 @@ var ViewRenderState2 = class {
 // ../sdk/src/webglrenderer/internal/renderManager/index.ts
 var renderManager_exports = {};
 __export(renderManager_exports, {
+  InfiniteGridRenderer: () => InfiniteGridRenderer,
   RenderManager: () => RenderManager
 });
 
@@ -135625,13 +137362,7 @@ __export(meshManager_exports, {
 
 // ../sdk/src/webglrenderer/internal/meshManager/RendererGeometry.ts
 var RendererGeometry = class {
-  /**
-   * The number of times this geometry is used by a mesh
-   */
-  useCount;
-  constructor() {
-    this.useCount = 0;
-  }
+  useCount = 0;
 };
 
 // ../sdk/src/webglrenderer/internal/meshManager/RendererTexture.ts
@@ -136731,6 +138462,26 @@ var ViewManager2 = class {
     return this._viewer;
   }
   /**
+   * Registers a newly created {@link Effect} with the renderer.
+   * @param effect
+   */
+  effectCreated(effect) {
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  /**
+   * Unregisters a destroyed {@link Effect} with the renderer.
+   * @param effect
+   */
+  effectDestroyed(effect) {
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  /**
    * Registers a newly created {@link View} with the renderer.
    *
    * Creates a {@link ViewRenderState} wrapper and assigns {@link View.viewIndex}.
@@ -137776,6 +139527,8 @@ var WebGLRenderer3 = class {
       sceneEvents.onSceneMeshDestroyed.subscribe((_, sceneMesh) => this.logError(viewManager.sceneMeshDestroyed(sceneMesh))),
       sceneEvents.onSceneObjectCreated.subscribe((_, sceneObject) => this.logError(viewManager.sceneObjectCreated(sceneObject))),
       sceneEvents.onSceneObjectDestroyed.subscribe((_, sceneObject) => this.logError(viewManager.sceneObjectDestroyed(sceneObject))),
+      viewerEvents.onEffectCreated.subscribe((_, effect) => this.logError(viewManager.effectCreated(effect))),
+      viewerEvents.onEffectDestroyed.subscribe((_, effect) => this.logError(viewManager.effectDestroyed(effect))),
       // View and ViewObject creation/destruction
       // Log errors from these calls
       viewerEvents.onViewCreated.subscribe((_, view) => this.logError(viewManager.viewCreated(view))),
@@ -141953,7 +143706,7 @@ function loadBCFViewpoint(params) {
   const includeViewLayers = params.includeViewLayerIds ? new Set(params.includeViewLayerIds) : null;
   const excludeViewLayers = params.excludeViewLayerIds ? new Set(params.excludeViewLayerIds) : null;
   const view = params.view;
-  const data = params.data;
+  const data5 = params.data;
   const camera = view.camera;
   const coordinateSystem = view.viewer.scene.coordinateSystem;
   const rayCast = !!params.rayCast;
@@ -142046,7 +143799,7 @@ function loadBCFViewpoint(params) {
     }
   }
   function withViewObjectsOfType(type, callback) {
-    const dataObjects = data.objectsByType[type];
+    const dataObjects = data5.objectsByType[type];
     for (const dataObjectId in dataObjects) {
       const viewObject = view.objects[dataObjectId];
       if (viewObject && filterViewObject(viewObject)) {
@@ -142065,9 +143818,9 @@ function loadBCFViewpoint(params) {
         return;
       }
       if (params.updateCompositeObjects) {
-        const dataObject = data.objects[id];
+        const dataObject = data5.objects[id];
         if (dataObject) {
-          searchObjects(data, {
+          searchObjects(data5, {
             // Updated aggregated IFC elements
             startObjectId: dataObject.id,
             includeStart: true,
@@ -142094,9 +143847,9 @@ function loadBCFViewpoint(params) {
         return;
       }
       if (params.updateCompositeObjects) {
-        const dataObject = data.objects[originalSystemId];
+        const dataObject = data5.objects[originalSystemId];
         if (dataObject) {
-          searchObjects(data, {
+          searchObjects(data5, {
             startObjectId: dataObject.id,
             includeStart: true,
             includeRelated: ["BasicAggregation"],
@@ -142384,33 +144137,35 @@ function saveBCFViewpoint(params) {
   const xrayedObjectIds = new Set(view.xrayedObjectIds);
   const colorizedObjectIds = new Set(view.colorizedObjectIds);
   const coloringMap = Object.values(view.objects).filter((viewObject) => !viewObject.layer || (!includeViewLayers || includeViewLayers.has(viewObject.layer.id)) && (!excludeViewLayers || !excludeViewLayers.has(viewObject.layer.id)) && (opacityObjectIds.has(viewObject.id) || colorizedObjectIds.has(viewObject.id) || xrayedObjectIds.has(viewObject.id))).reduce((coloringMap2, viewObject) => {
-    let color2 = colorizeToRGB(viewObject.colorize);
-    let alpha;
-    if (viewObject.xrayed) {
-      if (view.xrayMaterial.fillAlpha === 0 && view.xrayMaterial.edgeAlpha !== 0) {
-        alpha = 0.1;
-      } else {
-        alpha = view.xrayMaterial.fillAlpha;
+    if (viewObject.colorize) {
+      let color2 = colorizeToRGB(viewObject.colorize);
+      let alpha;
+      if (viewObject.xrayed) {
+        if (view.xrayMaterial.fillAlpha === 0 && view.xrayMaterial.edgeAlpha !== 0) {
+          alpha = 0.1;
+        } else {
+          alpha = view.xrayMaterial.fillAlpha;
+        }
+        alpha = Math.round(alpha * 255).toString(16).padStart(2, "0");
+        color2 = alpha + color2;
+      } else if (opacityObjectIds.has(viewObject.id)) {
+        alpha = Math.round(viewObject.opacity * 255).toString(16).padStart(2, "0");
+        color2 = alpha + color2;
       }
-      alpha = Math.round(alpha * 255).toString(16).padStart(2, "0");
-      color2 = alpha + color2;
-    } else if (opacityObjectIds.has(viewObject.id)) {
-      alpha = Math.round(viewObject.opacity * 255).toString(16).padStart(2, "0");
-      color2 = alpha + color2;
+      if (!coloringMap2[color2]) {
+        coloringMap2[color2] = [];
+      }
+      const objectId = viewObject.id;
+      const originalSystemId = viewObject.originalSystemId;
+      const component = {
+        ifc_guid: originalSystemId,
+        originating_system: params.originatingSystem
+      };
+      if (originalSystemId !== objectId) {
+        component.authoring_tool_id = objectId;
+      }
+      coloringMap2[color2].push(component);
     }
-    if (!coloringMap2[color2]) {
-      coloringMap2[color2] = [];
-    }
-    const objectId = viewObject.id;
-    const originalSystemId = viewObject.originalSystemId;
-    const component = {
-      ifc_guid: originalSystemId,
-      originating_system: params.originatingSystem
-    };
-    if (originalSystemId !== objectId) {
-      component.authoring_tool_id = objectId;
-    }
-    coloringMap2[color2].push(component);
     return coloringMap2;
   }, {});
   const coloringArray = Object.entries(coloringMap).map(([color2, components]) => {
@@ -143506,7 +145261,7 @@ var TreeView = class _TreeView {
    * navigated by this TreeView.
    */
   view;
-  _linkType;
+  _linkTypes;
   _groupTypes;
   _containerElement;
   _hierarchy;
@@ -143553,7 +145308,7 @@ var TreeView = class _TreeView {
     this.data = params.data;
     this.view = params.view;
     this._viewer = params.view.viewer;
-    this._linkType = params.linkType;
+    this._linkTypes = Array.isArray(params.linkType) ? params.linkType : [params.linkType];
     this._groupTypes = params.groupTypes || [];
     this._hierarchy = _TreeView.AggregationHierarchy;
     this._containerElement = params.containerElement || this._createDefaultContainerElement();
@@ -143724,13 +145479,13 @@ var TreeView = class _TreeView {
         this._removeModel(sceneModel.id);
       }
     });
-    this._onDataObjectCreated = this.data.events.onDataObjectCreated.subscribe((data, dataObject) => {
+    this._onDataObjectCreated = this.data.events.onDataObjectCreated.subscribe((data5, dataObject) => {
       if (this._destroyed || !dataObject) {
         return;
       }
       this._handleDataObjectCreated(dataObject);
     });
-    this._onDataObjectDestroyed = this.data.events.onDataObjectDestroyed.subscribe((data, dataObject) => {
+    this._onDataObjectDestroyed = this.data.events.onDataObjectDestroyed.subscribe((data5, dataObject) => {
       if (this._destroyed || !dataObject) {
         return;
       }
@@ -143765,7 +145520,7 @@ var TreeView = class _TreeView {
    * {@link data!DataObject.relating | DataObject.relating}.
    */
   get linkType() {
-    return this._linkType;
+    return this._linkTypes.length === 1 ? this._linkTypes[0] : this._linkTypes;
   }
   /**
    * When traversing the {@link data!Data | Data} to build the tree UI nodes, at each
@@ -143774,10 +145529,11 @@ var TreeView = class _TreeView {
    * {@link data!DataObject.relating | DataObject.relating}.
    */
   set linkType(linkType) {
-    if (this._linkType === linkType) {
+    const next = Array.isArray(linkType) ? linkType : [linkType];
+    if (next.length === this._linkTypes.length && next.every((t, i) => t === this._linkTypes[i])) {
       return;
     }
-    this._linkType = linkType;
+    this._linkTypes = next;
     this._rebuildNodes();
   }
   /**
@@ -144081,16 +145837,16 @@ var TreeView = class _TreeView {
   }
   _findEmptyNodes2(dataObject) {
     const scene = this._viewer.scene;
-    const aggregations = dataObject.related ? dataObject.related[this._linkType] : null;
+    const aggregations = this._getRelatedObjects(dataObject);
     const objectId = dataObject.id;
     const viewObject = scene.objects[objectId];
     let sceneObjectCounts = 0;
     if (viewObject) {
       sceneObjectCounts++;
     }
-    if (aggregations) {
+    if (aggregations.length > 0) {
       for (let i = 0, len = aggregations.length; i < len; i++) {
-        const aggregatedDataObject = aggregations[i].relatedObject;
+        const aggregatedDataObject = aggregations[i];
         const aggregatedCount = this._findEmptyNodes2(aggregatedDataObject);
         this._dataObjectSceneObjectCounts[aggregatedDataObject.id] = aggregatedCount;
         sceneObjectCounts += aggregatedCount;
@@ -144114,10 +145870,10 @@ var TreeView = class _TreeView {
       return;
     }
     this._insertGroupsNode(dataObject, true);
-    const aggregations = dataObject.related ? dataObject.related[this._linkType] : null;
-    if (aggregations) {
+    const aggregations = this._getRelatedObjects(dataObject);
+    if (aggregations.length > 0) {
       for (let i = 0, len = aggregations.length; i < len; i++) {
-        this._buildGroupsNodes2(aggregations[i].relatedObject);
+        this._buildGroupsNodes2(aggregations[i]);
       }
     }
   }
@@ -144197,11 +145953,9 @@ var TreeView = class _TreeView {
       this._rootNodes.push(node);
     }
     this._objectNodes[node.objectId] = node;
-    const aggregations = dataObject.related ? dataObject.related[this._linkType] : null;
-    if (aggregations) {
-      for (let i = 0, len = aggregations.length; i < len; i++) {
-        this._buildAggregationNodes2(aggregations[i].relatedObject, node);
-      }
+    const aggregations = this._getRelatedObjects(dataObject);
+    for (let i = 0, len = aggregations.length; i < len; i++) {
+      this._buildAggregationNodes2(aggregations[i], node);
     }
   }
   _insertAggregationNode(dataObject) {
@@ -144247,13 +146001,11 @@ var TreeView = class _TreeView {
     this._syncSingleNodeToEntity(node);
     this._bubbleNodeCountsToParents(node);
     this._insertNodeIntoDOM(node);
-    const aggregations = dataObject.related ? dataObject.related[this._linkType] : null;
-    if (aggregations) {
-      for (let i = 0, len = aggregations.length; i < len; i++) {
-        const child = aggregations[i].relatedObject;
-        if (!this._objectNodes[child.id] && this._shouldIncludeDataObject(child)) {
-          this._insertAggregationNode(child);
-        }
+    const aggregations = this._getRelatedObjects(dataObject);
+    for (let i = 0, len = aggregations.length; i < len; i++) {
+      const child = aggregations[i];
+      if (!this._objectNodes[child.id] && this._shouldIncludeDataObject(child)) {
+        this._insertAggregationNode(child);
       }
     }
   }
@@ -144732,13 +146484,30 @@ var TreeView = class _TreeView {
     }
     return this._isDefaultishName(name12) ? type : name12;
   }
-  _getAggregationParentDataObject(dataObject) {
-    const rels = dataObject.relating ? dataObject.relating[this._linkType] : null;
-    if (!rels || rels.length === 0) {
-      return null;
+  _getRelatedObjects(dataObject) {
+    if (!dataObject.related)
+      return [];
+    const result = [];
+    for (const lt of this._linkTypes) {
+      const rels = dataObject.related[lt];
+      if (rels) {
+        for (let i = 0, len = rels.length; i < len; i++) {
+          result.push(rels[i].relatedObject);
+        }
+      }
     }
-    const rel = rels[0];
-    return rel.relatingObject || null;
+    return result;
+  }
+  _getAggregationParentDataObject(dataObject) {
+    if (!dataObject.relating)
+      return null;
+    for (const lt of this._linkTypes) {
+      const rels = dataObject.relating[lt];
+      if (rels && rels.length > 0) {
+        return rels[0].relatingObject || null;
+      }
+    }
+    return null;
   }
   _shouldIncludeDataObject(dataObject) {
     if (!this._pruneEmptyNodes) {
@@ -145310,12 +147079,12 @@ var ModelConverter = class {
         }
       }
       const scene = new Scene();
-      const data = new Data2();
+      const data5 = new Data2();
       const modelConverterResult = {
         modelConverter: this,
         pipeline: pipelineId,
         scene,
-        data,
+        data: data5,
         inputs: {},
         outputs: {},
         errors: []
@@ -145341,9 +147110,9 @@ var ModelConverter = class {
             sceneModel = sceneModelResult.value;
           }
           const dataModelId = pipelineInput.dataModel || "default";
-          let dataModel = data.models[dataModelId];
+          let dataModel = data5.models[dataModelId];
           if (!dataModel) {
-            const dataModelResult = data.createModel({ id: dataModelId });
+            const dataModelResult = data5.createModel({ id: dataModelId });
             if (dataModelResult.ok === false) {
               reject(`[ModelConverter.convert] Failed to create DataModel "${dataModelId}": ${dataModelResult.error}`);
               return;
@@ -145422,9 +147191,9 @@ var ModelConverter = class {
             }
             sceneModel = sceneModelResult.value;
           }
-          let dataModel = data.models[dataModelId];
+          let dataModel = data5.models[dataModelId];
           if (!dataModel) {
-            const dataModelResult = data.createModel({ id: dataModelId });
+            const dataModelResult = data5.createModel({ id: dataModelId });
             if (dataModelResult.ok === false) {
               reject(`[ModelConverter.convert] Failed to create DataModel "${dataModelId}": ${dataModelResult.error}`);
               return;
@@ -147193,9 +148962,9 @@ var DataPanel = class _DataPanel {
   #listEl = null;
   #countEl = null;
   #tileEl = null;
-  constructor(flowHost, data, opts = {}) {
-    this.#data = data;
-    this.#events = data.events;
+  constructor(flowHost, data5, opts = {}) {
+    this.#data = data5;
+    this.#events = data5.events;
     this.#opts = opts;
     _DataPanel.#ensureGlobalStyle();
     const root = this.render();
@@ -147208,8 +148977,8 @@ var DataPanel = class _DataPanel {
     this.#populateFromDataModels();
     this.#wireEvents();
   }
-  static show(flowHost, data, opts = {}) {
-    return new _DataPanel(flowHost, data, opts);
+  static show(flowHost, data5, opts = {}) {
+    return new _DataPanel(flowHost, data5, opts);
   }
   destroy() {
     for (const u of this.#unsubs) {
@@ -150465,7 +152234,7 @@ var DataTexturesPanel = class _DataTexturesPanel {
       Math.min(totalTexels, this.#toNumber(tex?.numItems, 0) * this.#toNumber(tex?.texelsPerItem, 1))
     );
     const img = ctx.createImageData(targetW, targetH);
-    const data = img.data;
+    const data5 = img.data;
     const abs = Math.abs;
     const eps = 1e-12;
     const occupied = (texelIndex) => {
@@ -150504,10 +152273,10 @@ var DataTexturesPanel = class _DataTexturesPanel {
           a2 = 120;
         }
         const i = (py * targetW + px) * 4;
-        data[i + 0] = r;
-        data[i + 1] = g;
-        data[i + 2] = b4;
-        data[i + 3] = a2;
+        data5[i + 0] = r;
+        data5[i + 1] = g;
+        data5[i + 2] = b4;
+        data5[i + 3] = a2;
       }
     }
     ctx.putImageData(img, 0, 0);
@@ -151758,10 +153527,10 @@ var DownloadPanel = class _DownloadPanel {
   #unsubs = [];
   #tileEl = null;
   #countEl = null;
-  constructor(flowHost, scene, data, opts = {}) {
+  constructor(flowHost, scene, data5, opts = {}) {
     this.#scene = scene;
-    this.#data = data;
-    this.#events = data.events;
+    this.#data = data5;
+    this.#events = data5.events;
     this.#opts = opts;
     _DownloadPanel.#ensureGlobalStyle();
     const root = this.render();
@@ -151773,8 +153542,8 @@ var DownloadPanel = class _DownloadPanel {
     this.#tileEl = tile;
     this.#refreshModelCount();
   }
-  static show(flowHost, scene, data, opts = {}) {
-    return new _DownloadPanel(flowHost, scene, data, opts);
+  static show(flowHost, scene, data5, opts = {}) {
+    return new _DownloadPanel(flowHost, scene, data5, opts);
   }
   destroy() {
     for (const u of this.#unsubs) {
@@ -152092,8 +153861,8 @@ function writeBool7(key, value) {
   } catch {
   }
 }
-function downloadBlob(data, fileName, mimeType) {
-  const blob = new Blob([data], { type: mimeType });
+function downloadBlob(data5, fileName, mimeType) {
+  const blob = new Blob([data5], { type: mimeType });
   const url = URL.createObjectURL(blob);
   triggerDownload(url, fileName);
   setTimeout(() => URL.revokeObjectURL(url), 0);
@@ -152808,6 +154577,29 @@ function createFileExportGroup() {
       }
     },
     {
+      title: "Export as IFC",
+      doAction: async (context) => {
+        try {
+          const fileData = await new IFCExporter().write(
+            {
+              sceneModel: context.sceneModel,
+              dataModel: context.dataModel
+            },
+            {
+              coordinateSystem: createExportCoordinateSystem()
+            }
+          );
+          downloadText2(
+            fileData,
+            `${context.sceneModel.id}.ifc`,
+            "application/text"
+          );
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    },
+    {
       title: "Export as JSON",
       doAction: (context) => {
         downloadSceneAndDataJson(context);
@@ -152899,8 +154691,8 @@ function downloadSceneAndDataJson(context) {
     );
   }
 }
-function downloadBlob2(data, fileName, mimeType) {
-  const blob = new Blob([data], { type: mimeType });
+function downloadBlob2(data5, fileName, mimeType) {
+  const blob = new Blob([data5], { type: mimeType });
   const url = URL.createObjectURL(blob);
   triggerDownload2(url, fileName);
   setTimeout(() => URL.revokeObjectURL(url), 0);
@@ -153551,7 +155343,7 @@ var DemoHelper2 = class {
         this.data = new Data2();
         this.viewer = new Viewer();
         this.renderer = new WebGLRenderer3({
-          // memoryConfigs: {
+          // memoryConfigs: {whats
           //   maxViews: this.maxViews ?? (cfg.maxViews ?? 1),
           //   tileSize: 200,
           //   maxTiles: 2000,
@@ -153567,11 +155359,11 @@ var DemoHelper2 = class {
             tileSize: 200,
             maxTiles: 2e3,
             maxBatches: 300,
-            maxBatchVertices: 1e5,
-            maxBatchIndices: 1e5,
-            maxBatchGeometries: 1e4,
+            maxBatchVertices: 6e4,
+            maxBatchIndices: 6e4,
+            maxBatchGeometries: 6e4,
             maxBatchMeshes: 1e4,
-            maxBatchPrims: 1e5
+            maxBatchPrims: 6e4
           }
         });
         const log2 = (eventName, sender, args) => {

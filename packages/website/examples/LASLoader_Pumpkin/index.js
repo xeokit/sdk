@@ -1,26 +1,36 @@
-// Import the SDK from a bundle built for these examples.
-
+// Import the xeokit SDK bundle used by this example. This bundle provides
+// the helper, loader, scene, data, and rendering APIs required by the
+// sample.
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
-// Create a inspectors that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
-
+// Create the demo helper. This helper initializes the rendering context,
+// constructs the Scene and Data subsystems, and provides utilities for
+// setting up the demo.
 const demoHelper = new xeokit.demo.DemoHelper({});
 
 demoHelper.init().then(() => {
 
-  const {scene, data} = demoHelper;
+  // Access the Scene and Data instances created by the DemoHelper. The Scene
+  // manages renderable model content, while the Data subsystem manages
+  // semantic and metadata content associated with the model.
+  const { scene, data } = demoHelper;
 
-// Arrange the View's Camera
-
+  // Create a View and configure its initial camera. The camera is positioned
+  // to frame the model after loading, and the perspective far plane is
+  // extended to accommodate large point cloud extents.
   const view = demoHelper.createView({
     camera: {
-      eye: [-11.88,39.43, 12.95],
-      look: [2.34,20.84,1.71],
-      up: [0.26,-0.34,0.90],
+      eye: [-11.88, 39.43, 12.95],
+      look: [2.34, 20.84, 1.71],
+      up: [0.26, -0.34, 0.90],
       perspectiveProjection: {
         far: 10000000
       }
     },
+
+    // Configure point rendering for the point cloud. These settings control
+    // point size, shape, perspective scaling, and the intensity filtering
+    // range used when rendering LAS or LAZ data.
     pointsMaterial: {
       pointSize: 2,
       roundPoints: true,
@@ -33,56 +43,65 @@ demoHelper.init().then(() => {
     }
   });
 
-// Create a SceneModel to hold our model's geometry and materials
-
+  // Create a SceneModel to hold renderable model content. Geometry and
+  // appearance data loaded from the LAZ file will be stored in this model.
   const sceneModelResult = scene.createModel({
     id: "demoModel"
   });
 
+  // Validate that the SceneModel was created successfully. If creation
+  // fails, log the error.
   if (sceneModelResult.ok === false) {
     console.error(`Error creating SceneModel: ${sceneModelResult.error}`);
   }
 
   const sceneModel = sceneModelResult.value;
 
-  // Create a DataModel to hold semantic data for our model
-
+  // Create a DataModel to hold semantic model data. Metadata, object
+  // relationships, and higher-level object meaning are stored here.
   const dataModelResult = data.createModel({
     id: "demoModel"
   });
 
+  // Validate that the DataModel was created successfully. If creation
+  // fails, log the error.
   if (dataModelResult.ok === false) {
     console.error(`Error creating DataModel: ${dataModelResult.error}`);
   }
 
   const dataModel = dataModelResult.value;
 
-  // Use LASLoader to load a LAZ model into our SceneModel and DataModel
-
+  // Create a LASLoader to load LAS or LAZ point cloud data into the
+  // SceneModel and DataModel.
   const lasLoader = new xeokit.formats.las.LASLoader();
 
+  // Fetch the LAZ file, decode it to an ArrayBuffer, and then load it into
+  // the SceneModel and DataModel.
   fetch("../../models/Nalls-Pumpkin-Hill/laz/model.laz").then(response => {
 
     response
-      .arrayBuffer()
-      .then(fileData => {
+        .arrayBuffer()
+        .then(fileData => {
 
-        lasLoader.load({
-          fileData,
-          sceneModel,
-          dataModel
-        }).then(() => {
+          // Load the point cloud into the scene and semantic data models.
+          // This creates renderable point cloud content in the Scene and
+          // corresponding semantic objects in the Data subsystem.
+          lasLoader.load({
+            fileData,
+            sceneModel,
+            dataModel
+          }).then(() => {
 
-          // The Scene and SceneModel will now contain a SceneObject to represent the LAS/LAZ point cloud,
-          // and the Data and DataModel will contain a corresponding DataObject.
+            // Signal that loading has completed. At this point, the Scene and
+            // SceneModel contain the rendered point cloud, while the Data and
+            // DataModel contain the corresponding semantic representation.
+            demoHelper.finished();
 
-          demoHelper.finished();
+          }).catch(message => {
 
-        }).catch(message => {
-          console.error(`[LASLoader.load] Error loading LAS: ${message}`);
+            // Log any errors that occur while loading the LAS or LAZ data.
+            console.error(`[LASLoader.load] Error loading LAS: ${message}`);
+          });
         });
-      });
   });
 });
-
-

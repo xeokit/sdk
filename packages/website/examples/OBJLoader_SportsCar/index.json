@@ -1,17 +1,17 @@
 {
   "id": "OBJLoader_SportsCar",
-  "title": "Viewing .BIM using DotBIMLoader",
-  "description": "How to load an IFC model from dotbim (.bim) format directly into a xeokit web viewer.",
+  "title": "Viewing OBJ using OBJLoader",
+  "description": "How to load an OBJ model directly into a xeokit web viewer.",
   "isTutorial": true,
   "isVisualTest": true,
   "tags": [
     "Importing",
-    "DotBIM"
+    "OBJ"
   ],
   "categories": [
     "Importing",
-    "DotBIM"
+    "OBJ"
   ],
-  "topic": "import.dotbim",
+  "topic": "import.obj",
   "template": "basicPage"
 }

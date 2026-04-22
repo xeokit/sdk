@@ -1,8 +1,10 @@
-// Import the SDK from a bundle built for these examples.
+// Import the xeokit SDK bundle used by these examples.
+// It includes format loaders and demo helper utilities.
 
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
-// Create a inspectors that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
+// Create the demo helper.
+// It initializes the scene, data, viewer, and renderer context used in this demo.
 
 const demoHelper = new xeokit.demo.DemoHelper({});
 
@@ -14,7 +16,8 @@ demoHelper
 
     const dotBIMLoader = new xeokit.formats.dotbim.DotBIMLoader();
 
-    // Point the View's Camera at the center of the World coordinate system
+    // Create a view and set an initial camera.
+    // The camera framing is chosen to show the model clearly after loading.
 
     demoHelper.createView({
       camera: {
@@ -24,7 +27,8 @@ demoHelper
       }
     });
 
-    // Create a SceneModel to hold model geometry and materials
+    // Create a SceneModel for renderable geometry and material data.
+    // This is where the loaded DotBIM geometry will be stored.
 
     const sceneModelResult = scene.createModel({
       id: "myModel"
@@ -36,7 +40,8 @@ demoHelper
 
     const sceneModel = sceneModelResult.value;
 
-    // Create a DataModel to hold model semantic data
+    // Create a DataModel for semantic object data.
+    // Metadata and relationships are loaded here.
 
     const dataModelResult = data.createModel({
       id: "myModel"
@@ -48,7 +53,8 @@ demoHelper
 
     const dataModel = dataModelResult.value;
 
-    // Use DotBIMLoader to load a DotBIM model into the SceneModel and DataModel
+    // Fetch and load the DotBIM file.
+    // The loader populates both SceneModel and DataModel for linked graphics and metadata.
 
     fetch("../../models/BlenderHouse/dotbim/model.bim")
       .then(response => {
@@ -60,7 +66,8 @@ demoHelper
             dataModel
           }).then(() => {
 
-            // All done, model loaded.
+            // Mark the demo as finished once loading succeeds.
+            // At this point the model is ready for interaction.
 
             demoHelper.finished();
           });

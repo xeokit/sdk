@@ -1,7 +1,7 @@
 {
   "id": "ModelConverter_dotbim2json",
-  "title": "Viewing .BIM using ModelConverter and IFCLoader",
-  "description": "Use the ModelConverter class to convert a model from dotbim (.bim) format to JSON SceneModelParams and DataModelParams, then use SceneModelParamsLoader and DataModelParamsLoader to view the model in a xeokit web viewer.",
+  "title": "Converting DotBIM to Scene/Data JSON with ModelConverter",
+  "description": "Use ModelConverter to convert a dotbim (.bim) model into SceneModelParams and DataModelParams JSON, then load and view the result in xeokit.",
   "isTutorial": true,
   "isVisualTest": true,
   "tags": [

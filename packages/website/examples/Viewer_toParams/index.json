@@ -1,7 +1,7 @@
 {
   "id": "Viewer_toParams",
   "title": "Saving a Viewer Configuration",
-  "description": "This example demonstrates how to capture a JSON snapshot of a xeokit Viewer's current runtime configuration.",
+  "description": "Capture a JSON snapshot of a xeokit Viewer runtime configuration with Viewer.toParams().",
   "isTutorial": true,
   "isVisualTest": false,
   "tags": [

@@ -1,4 +1,6 @@
-// Import the SDK from a bundle built for these examples.
+// Import the xeokit SDK bundle used by these examples.
+// It includes the demo helper, renderer, scene/data APIs, and format loaders,
+// so this file can focus on the OBJ + MTL loading flow.
 
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
@@ -8,16 +10,21 @@ demoHelper.init().then(() => {
 
   const {scene, data} = demoHelper;
 
-  // Create loaders
+  // Create separate loaders for materials and geometry.
+  // OBJ files usually depend on a .mtl file, so loading materials first helps ensure
+  // the model is rendered with the expected look when geometry is loaded.
 
   const mtlLoader = new xeokit.formats.mtl.MTLLoader();
   const objLoader = new xeokit.formats.obj.OBJLoader();
 
-  // Arrange the View's Camera within our +Z "up" coordinate system
+  // Configure the first camera in a +Z-up coordinate system.
+  // This gives a clear perspective framing and makes world orientation explicit,
+  // which is helpful when adapting to different asset up-axis conventions.
 
   demoHelper.createView({
       camera: {
-        // projection: "perspective",
+        // Keep perspective projection for the main view.
+        // It preserves depth cues and keeps setup simple.
         eye: [3.27, 3.91, 2.39],
         look: [0, 0, 0],
         up: [-0.18, -0.28, 0.93]
@@ -26,18 +33,16 @@ demoHelper.init().then(() => {
 
   const view2 = demoHelper.createView({
     camera: {
-   //   projectionType: xeokit.constants.OrthoProjectionType,
       eye: [3.27, 3.91, 2.39],
       look: [0, 0, 0],
       up: [-0.18, -0.28, 0.93]
-      // orthoProjection:{
-      //   scale:1.0
-      // }
     }
   });
 
 
-  // Create a SceneModel to hold our model's geometry and materials
+  // Create a SceneModel to hold renderable model content.
+  // It stores geometry and materials, and its coordinate system settings define
+  // basis, origin, and units for consistent model interpretation.
 
   const sceneModelRes = scene.createModel({
     id: "demoModel",
@@ -60,7 +65,9 @@ demoHelper.init().then(() => {
 
   const sceneModel = sceneModelRes.value;
 
-  // Create a DataModel to hold semantic data for our model
+  // Create a DataModel to hold semantic and logical data.
+  // This supports workflows like object inspection and metadata-based filtering
+  // without coupling that logic to render-only structures.
 
   const dataModelRes = data.createModel({
     id: "demoModel"
@@ -73,7 +80,9 @@ demoHelper.init().then(() => {
 
   const dataModel = dataModelRes.value;
 
-  // Load MTL first, then OBJ
+  // Fetch both files, then load MTL before OBJ.
+  // Files are fetched in parallel for speed, but materials are applied first so
+  // OBJ meshes can bind the correct material definitions right away.
 
   Promise.all([
     fetch("../../models/SportsCar/obj/model.obj").then((response) => {
@@ -107,6 +116,10 @@ demoHelper.init().then(() => {
       });
     })
     .then(() => {
+
+      // Add a simple post-load inspection workflow.
+      // Rebuild exploder bounds and apply x-ray styling in the second view to
+      // highlight selected objects after loading.
 
       const exploder = new xeokit.demo.SceneModelExploder({
         scene,

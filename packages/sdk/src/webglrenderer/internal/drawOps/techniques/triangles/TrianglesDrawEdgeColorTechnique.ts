@@ -8,6 +8,8 @@ import {type GPUMemoryReader} from "../../../gpuMemoryManager/GPUMemoryReader";
  */
 export class TrianglesDrawEdgeColorTechnique extends DrawTechnique {
 
+  protected readonly vertsPerPrim = 2; // edge indices are line segments
+
   constructor(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader) {
     super(renderContext, gpuMemoryReader, { edges: true });
   }

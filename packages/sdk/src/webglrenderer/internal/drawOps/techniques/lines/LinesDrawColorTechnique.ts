@@ -7,6 +7,8 @@ import {DrawTechnique} from "../../DrawTechnique";
  */
 export class LinesDrawColorTechnique extends DrawTechnique {
 
+  protected readonly vertsPerPrim = 2;
+
   protected buildVertexShader(): void {
     this.vsHeader();
     this.vsCommonDefines();

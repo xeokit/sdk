@@ -6,6 +6,9 @@ import {DrawTechnique} from "../../DrawTechnique";
  */
 export class PointsDrawSilhouetteTechnique extends DrawTechnique {
 
+  protected readonly vertsPerPrim = 1;
+  protected readonly useIndexBuffer = false;
+
   protected buildVertexShader(): void {
     this.vsHeader();
     this.vsCommonDefines();

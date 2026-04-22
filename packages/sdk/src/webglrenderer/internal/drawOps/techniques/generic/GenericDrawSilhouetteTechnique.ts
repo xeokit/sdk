@@ -6,6 +6,13 @@ import {DrawTechnique} from "../../DrawTechnique";
  */
 export class GenericDrawSilhouetteTechnique extends DrawTechnique {
 
+  protected readonly vertsPerPrim: number;
+
+  constructor(renderContext, gpuMemoryReader, vertsPerPrim: number) {
+    super(renderContext, gpuMemoryReader);
+    this.vertsPerPrim = vertsPerPrim;
+  }
+
   protected buildVertexShader(): void {
     this.vsHeader();
     this.vsCommonDefines();

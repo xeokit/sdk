@@ -6,6 +6,8 @@ import {DrawTechnique} from "../../DrawTechnique";
  */
 export class TrianglesSnapInitTechnique extends DrawTechnique {
 
+  protected readonly vertsPerPrim = 3;
+
   protected buildVertexShader(): void {
    //  this.vsHeader();
    //  this.vsCommonDefines();

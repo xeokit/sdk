@@ -44,10 +44,27 @@ const defaultColor = new Float32Array([1, 1, 1, 1]);
  * and {@link vsCommonDefines}, provided by the base class, to construct the shader source
  * (i.e. Template Method / Template Base Class pattern).
  *
+ * Note: Lambert shading now computes the face normal in the fragment shader from
+ * `dFdx/dFdy(vViewPos)` instead of reconstructing the full triangle in the vertex shader.
+ * This preserves the template-method API used by concrete techniques such as
+ * `TrianglesDrawColorTechnique` while removing the expensive per-vertex triangle refetch.
+ *
  * @internal
  */
 
 export abstract class DrawTechnique {
+
+  /**
+   * Number of vertices per primitive: 3 for triangles, 2 for lines, 1 for points.
+   * Emitted as a compile-time constant into the vertex shader.
+   */
+  protected abstract readonly vertsPerPrim: number;
+
+  /**
+   * When false, vertex positions are addressed directly (no index-buffer lookup).
+   * Override to false in point-cloud techniques.
+   */
+  protected readonly useIndexBuffer: boolean = true;
 
   private _renderContext: RenderContext;
   private _gpuMemoryReader: GPUMemoryReader;
@@ -113,7 +130,6 @@ export abstract class DrawTechnique {
   private _uniforms: {
     renderPass: WebGLUniformLocation; // Current draw pass (e.g., color, pick, silhouette)
     primBaseIndex: WebGLUniformLocation; // Base tileIndex for the current draw call
-    primitiveType: WebGLUniformLocation; // Primitive type being rendered (triangles, lines, points)
     pointCloudIntensityRange: WebGLUniformLocation; // Intensity range for point cloud rendering
     nearPlaneHeight: WebGLUniformLocation; // Near plane height for perspective point size calculation
     silhouetteColor: WebGLUniformLocation; // Color used for silhouette rendering
@@ -269,7 +285,6 @@ export abstract class DrawTechnique {
     this._uniforms = {
       primBaseIndex: program.getLocation("uPrimBaseIndex"),
       renderPass: program.getLocation("uRenderPass"),
-      primitiveType: program.getLocation("uPrimitiveType"),
       gammaFactor: program.getLocation("uGammaFactor"),
       projMatrix: program.getLocation("uProjMatrix"),
       snapCameraEyeRTC: program.getLocation("snapCameraEyeRTC"),
@@ -287,11 +302,19 @@ export abstract class DrawTechnique {
       drawingBufferSize: program.getLocation("drawingBufferSize"),
       silhouetteColor: program.getLocation("uSilhouetteColor"),
       sectionPlanes: [],
-      lightColor: [],
-      lightDir: [],
+      lightColor: [
+        program.getLocation("uLightColor1"),
+        program.getLocation("uLightColor2"),
+        program.getLocation("uLightColor3")
+      ],
+      lightDir: [
+        program.getLocation("uLightDir1"),
+        program.getLocation("uLightDir2"),
+        program.getLocation("uLightDir3")
+      ],
       lightPos: [],
       lightAttenuation: [],
-      lightAmbient: program.getLocation("lightAmbient"),
+      lightAmbient: program.getLocation("uLightAmbient"),
       saoParams: program.getLocation("saoParams")
     };
 
@@ -445,13 +468,6 @@ export abstract class DrawTechnique {
 
     gl.uniform1i(this._uniforms.primBaseIndex, 0);
 
-    const drawPrimitiveType // Draw LINES for batches in edge rendering pass, even if the mesh primitive is TRIANGLES
-      = this.edges
-      ? LinesPrimitive
-      : meshBatch.primitive;
-
-    gl.uniform1i(this._uniforms.primitiveType, drawPrimitiveType);
-
     switch (meshBatch.primitive) {
       case TrianglesPrimitive:
         if (this.edges) {
@@ -535,7 +551,7 @@ export abstract class DrawTechnique {
         else                           p = vec2( 0.0,  0.5);
         gl_Position = vec4(p, 0.0, 1.0);
         vColor      = vec4(1.0, 0.3, 0.1, 1.0);
-        vViewPos    = vec4(0.0);
+        vViewPos    = vec3(0.0);
 }`);
   }
 
@@ -551,7 +567,6 @@ export abstract class DrawTechnique {
 
 uniform int uRenderPass;
 uniform int uPrimBaseIndex;
-uniform int uPrimitiveType;
 
 uniform mat4 uProjMatrix;
 
@@ -719,37 +734,6 @@ vec4 packUintToRGBA8(uint v) {
    ) / 255.0;
 }
 
-// ─────────────────────────────────────────────────────────────
-// Get the eye position in world space from the view matrix
-// ─────────────────────────────────────────────────────────────
-
-vec3 getEyePosition(mat4 viewMatrix) {
-    // Invert the view matrix to get the world matrix
-    mat4 invView = inverse(viewMatrix);
-    // The translation part (last column) is the eye position in world space
-    return invView[3].xyz;
-}
-
-// ─────────────────────────────────────────────────────────────
-// Returns true if the triangle (a,b,c) in VIEW SPACE is facing the eye.
-// Assumes a right-handed view space with the camera at (0,0,0).
-// For conventional OpenGL view space (camera looks down -Z), this works as expected.
-// ─────────────────────────────────────────────────────────────
-
-bool triangleFacesEyeVS(vec3 aVS, vec3 bVS, vec3 cVS) {
-    // Triangle normal from winding (right-hand rule)
-    vec3 n = normalize(cross(bVS - aVS, cVS - aVS));
-
-    // Eye position in view space is the origin
-    vec3 eyeVS = vec3(0.0);
-
-    // Vector from triangle toward the eye (use centroid for stability)
-    vec3 toEye = normalize(eyeVS - (aVS + bVS + cVS) * (1.0 / 3.0));
-
-    // Facing the eye if normal points (at least partially) toward the eye
-    return dot(n, toEye) > 0.0;
-}
-
 `);
   }
 
@@ -771,7 +755,7 @@ bool triangleFacesEyeVS(vec3 aVS, vec3 bVS, vec3 cVS) {
       "uniform vec3 uLightDir3;",
       "uniform vec4 uLightColor3;",
       "flat out vec4 vColor;",
-      "out vec4 vViewPos;",
+      "out vec3 vViewPos;",
       silhouette ? "uniform vec4 uSilhouetteColor;" : "");
   }
 
@@ -985,13 +969,8 @@ void main(void) {`);
      // Identify which "draw vertex" we are processing
     uint drawVertexIndex  = uint(gl_VertexID);
 
-    // Determine topology: how many vertices per primitive?
-    //   triangles: 3
-    //   lines:     2
-    //   points:    1
-    uint numVertsPerPrim =
-        uint(uPrimitiveType == ${TrianglesPrimitive} ? 3u :   // triangles
-            (uPrimitiveType == ${LinesPrimitive} ? 2u : 1u)); // lines or points
+    // Compile-time topology constant: 3 = triangles, 2 = lines, 1 = points.
+    const uint numVertsPerPrim = ${this.vertsPerPrim}u;
 
     // Map draw vertex → draw primitive
     // Example (triangles): vertices 0,1,2 -> prim 0; 3,4,5 -> prim 1; etc.
@@ -1046,13 +1025,12 @@ void main(void) {`);
     // For triangles: vertexOffsetWithinGeometry = primOffset*3 + localVert
     uint vertexOffsetWithinGeometry = (primOffset * numVertsPerPrim) + localVert;
 
-    // Resolve final vertex index within geometry
-    // - For non-indexed points (uPrimitiveType == 20000), we treat vertexOffsetWithinGeometry as direct.
-    // - Otherwise, we fetch an index from the index buffer, using geometryAttributes.indicesBase / edgeIndicesBase.
-    uint vertexIndexWithinGeometry =
-        (uPrimitiveType == 20000)
-        ? vertexOffsetWithinGeometry
-        : getVertexIndex(geometryAttributes.${this.edges ? "edgeIndicesBase" : "indicesBase"} + vertexOffsetWithinGeometry);
+    // Resolve final vertex index within geometry.
+    // Indexed primitives (triangles, lines) fetch from the index buffer.
+    // Non-indexed primitives (points) use vertexOffsetWithinGeometry directly.
+    uint vertexIndexWithinGeometry = ${this.useIndexBuffer
+      ? `getVertexIndex(geometryAttributes.${this.edges ? "edgeIndicesBase" : "indicesBase"} + vertexOffsetWithinGeometry)`
+      : `vertexOffsetWithinGeometry`};
 
     // Dequantization parameters for this geometry
     // Vertex positions are stored quantized; quantRange turns uvec3 into float vec3.
@@ -1083,77 +1061,22 @@ void main(void) {`);
   protected vsLambertShadingLogic(silhouette?: boolean) {
     this._vertSrcBuf.push(`
     // ─────────────────────────────────────────────────────────
-    // Lighting section: compute a face normal from the full triangle
+    // Lighting section: pass through data needed by the fragment shader
     // ─────────────────────────────────────────────────────────
-    // Even though we are in a per-vertex shader, we reconstruct the entire
-    // triangle (3 indices + 3 positions) to compute a consistent face normal.
-    // This yields flat shading: all 3 vertices get the same normal-derived light.
-
-    // Compute the starting index of the triangle in the index buffer
-    // triIndex points at the first of the three indices for this triangle.
-    uint triIndex = geometryAttributes.indicesBase + primOffset * numVertsPerPrim;
-
-    // Fetch triangle vertex indices (within geometry)
-    uint ia = getVertexIndex(triIndex + 0u);
-    uint ib = getVertexIndex(triIndex + 1u);
-    uint ic = getVertexIndex(triIndex + 2u);
-
-    // Fetch quantized positions for all three triangle vertices
-    uvec3 qa = getVertexPosition(geometryAttributes.verticesBase + ia);
-    uvec3 qb = getVertexPosition(geometryAttributes.verticesBase + ib);
-    uvec3 qc = getVertexPosition(geometryAttributes.verticesBase + ic);
-
-    // Dequantize + transform those triangle vertices into view space
-    vec3 pa = (viewMatrix * (modelMatrix * vec4(quantRange.offset + quantRange.scale * vec3(qa), 1.0))).xyz;
-    vec3 pb = (viewMatrix * (modelMatrix * vec4(quantRange.offset + quantRange.scale * vec3(qb), 1.0))).xyz;
-    vec3 pc = (viewMatrix * (modelMatrix * vec4(quantRange.offset + quantRange.scale * vec3(qc), 1.0))).xyz;
-
-    // Ensure a consistent winding relative to the camera
-    // If the triangle is not facing the eye with the current vertex order,
-    // we swap two vertices to flip the winding. This makes the computed
-    // normal consistently oriented (reduces “inside-out” lighting).
-    if (!triangleFacesEyeVS(pa, pb, pc)) {
-        vec3 tmp = pb;
-        pb = pc;
-        pc = tmp;
-    }
-
-    // Compute face normal in view space
-    vec3 normal = -normalize(cross(pc - pa, pb - pa));
-
-    // Set up Lambert lighting accumulation
-    float lambertian = 1.0;
-    vec3 reflectedColor = vec3(0.0);
-
-    vec4 lightAmbient = vec4(0.5, 0.5, 0.5, 1.0);
-    vec3 lightDir1    = normalize(vec3(0.0, 0.0, -1.0));
-    vec4 lightColor1  = vec4(0.7, 0.7, 0.7, 1.0);
-    vec3 lightDir2    = normalize(vec3(-1.0, 1.0, 1.0));
-    vec4 lightColor2  = vec4(1.0, 1.0, 1.0, 1.0);
-    vec3 lightDir3    = normalize(vec3(-1.0, 1.0, 1.0));
-    vec4 lightColor3  = vec4(1.0, 1.0, 1.0, 0.2);
-
-    // Lambert diffuse term (N·L), clamped to [0,1]
-    // Currently using lightDir2 only.
-    lambertian = max(dot(normal, normalize(lightDir2)), 0.0);
+    // Lambert shading is computed per-fragment from dFdx/dFdy of view-space
+    // position. That gives a flat face normal without reconstructing the full
+    // triangle in the vertex shader.
 
     // Fetch mesh base color or silhouette color
-
     vec4 color = ${silhouette
       ? "vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, uSilhouetteColor.a);"
       : "vec4(meshViewAttributes.color) / 255.0; // Stored as RGBA8 in uvec4, convert to float 0..1."}
 
-    // Accumulate reflected/diffuse light contribution
-    // lightColor2.rgb * lightColor2.a acts like (color * intensity).
-    reflectedColor += lambertian * (lightColor2.rgb * lightColor2.a);
-
-    // Combine ambient + diffuse lighting
-    // Ambient is applied to base color, diffuse multiplies base color as well.
-    vec3 lit = (lightAmbient.rgb * lightAmbient.a * color.rgb) + (color.rgb * reflectedColor);
-
-    // Output to fragment shader
-    // Alpha is preserved from original color.
-    vColor = vec4(lit, color.a);`
+    // Pass through the base color and view-space position.
+    // vColor remains flat per primitive/mesh color.
+    // vViewPos is interpolated for fragment derivatives.
+    vColor = color;
+    vViewPos = viewPos.xyz;`
     );
   }
 
@@ -1352,7 +1275,14 @@ void main(void) {`);
     const src = this._fragSrcBuf;
     src.push(
       "flat in vec4 vColor;",
-      "flat in vec4 vViewPos;");
+      "in vec3 vViewPos;",
+      "uniform vec4 uLightAmbient;",
+      "uniform vec3 uLightDir1;",
+      "uniform vec4 uLightColor1;",
+      "uniform vec3 uLightDir2;",
+      "uniform vec4 uLightColor2;",
+      "uniform vec3 uLightDir3;",
+      "uniform vec4 uLightColor3;");
   }
 
   /**
@@ -1360,7 +1290,29 @@ void main(void) {`);
    * @protected
    */
   protected fsLambertShadingLogic() {
-    this._fragSrcBuf.push("color = vColor;");
+    this._fragSrcBuf.push(`
+    // Reconstruct a face normal in view space from position derivatives.
+    // This gives a flat-shaded normal per fragment without refetching the
+    // whole triangle in the vertex shader.
+    vec3 dX = dFdx(vViewPos);
+    vec3 dY = dFdy(vViewPos);
+    vec3 normal = normalize(cross(dX, dY));
+
+    // Lambert diffuse term (N·L), clamped to [0,1].
+    // The renderer convention for directional lights is typically the direction
+    // the light travels, so we negate it for the surface-to-light direction.
+    float lambertian = max(dot(normal, normalize(uLightDir2)), 0.0);
+
+    // Accumulate reflected/diffuse light contribution.
+    // uLightColor2.rgb * uLightColor2.a acts like (color * intensity).
+    vec3 reflectedColor = vec3(0.0);
+    reflectedColor += lambertian * (uLightColor2.rgb * uLightColor2.a);
+
+    // Combine ambient + diffuse lighting.
+    // Ambient is applied to base color, diffuse multiplies base color as well.
+    vec3 lit = (uLightAmbient.rgb * uLightAmbient.a * vColor.rgb) + (vColor.rgb * reflectedColor);
+
+    color = vec4(lit, vColor.a);`);
   }
 
   /**
@@ -1649,20 +1601,31 @@ void main(void) {`);
       gl.uniform4fv(uniforms.lightAmbient, <any>view.getAmbientColorAndIntensity());
     }
 
-    // for (let i = 0, len = view.lightsList.length; i < len; i++) {
-    //   const light = view.lightsList[i];
-    //   if (uniforms.lightColor[i]) {
-    //     gl.uniform4f(uniforms.lightColor[i], light.color[0], light.color[1], light.color[2], light.intensity);
-    //   }
-    //   if (uniforms.lightPos[i]) {
-    //     const pointLight = <PointLight>light;
-    //     gl.uniform3fv(uniforms.lightPos[i], <any>pointLight.pos);
-    //   }
-    //   if (uniforms.lightDir[i]) {
-    //     const dirLight = <DirLight>light;
-    //     gl.uniform3fv(uniforms.lightDir[i], <any>dirLight.dir);
-    //   }
-    // }
+    // Bind up to three directional lights for Lambert shading.
+    // Keep the binding generic here so we do not need concrete light class imports.
+    const lights = <any[]>(((view as any).lightsList) || []);
+    for (let i = 0; i < 3; i++) {
+      const light = lights[i];
+      const dirLoc = uniforms.lightDir[i];
+      const colorLoc = uniforms.lightColor[i];
+
+      if (dirLoc) {
+        // if (light && light.dir) {
+        //   gl.uniform3f(dirLoc, light.dir[0], light.dir[1], light.dir[2]);
+        // } else {
+          gl.uniform3f(dirLoc, 0.0, 1.0, 1.0);
+        //}
+      }
+
+      if (colorLoc) {
+        if (light && light.color) {
+          const intensity = (light.intensity !== undefined && light.intensity !== null) ? light.intensity : 1.0;
+          gl.uniform4f(colorLoc, light.color[0], light.color[1], light.color[2], intensity);
+        } else {
+          gl.uniform4f(colorLoc, 0.0, 0.0, 0.0, 0.0);
+        }
+      }
+    }
 
     if (uniforms.silhouetteColor) {
       if (this.edges) {

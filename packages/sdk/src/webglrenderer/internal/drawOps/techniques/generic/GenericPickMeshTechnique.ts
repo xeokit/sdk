@@ -8,8 +8,11 @@ import type {GPUMemoryReader} from "../../../gpuMemoryManager";
  */
 export class GenericPickMeshTechnique extends DrawTechnique {
 
-  constructor(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader) {
+  protected readonly vertsPerPrim: number;
+
+  constructor(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader, vertsPerPrim: number) {
     super(renderContext, gpuMemoryReader, { picking: true });
+    this.vertsPerPrim = vertsPerPrim;
   }
 
   protected buildVertexShader(): void {

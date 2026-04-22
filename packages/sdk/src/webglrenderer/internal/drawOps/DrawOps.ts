@@ -145,12 +145,14 @@ export class DrawOps {
     // A draw op applies a draw technique to a specific render pass.
     // E.g. the silhouetteTechnique draw technique is used for highlighted, selected and xrayed triangles.
 
-    const silhouette = saveForCleanup(new GenericDrawSilhouetteTechnique(renderContext, gpuMemoryReader));
+    const linesDrawSilhouette = saveForCleanup(new GenericDrawSilhouetteTechnique(renderContext, gpuMemoryReader, 2));
     const trianglesSilhouette = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader));
     const trianglesDrawColor = saveForCleanup(new TrianglesDrawColorTechnique(renderContext, gpuMemoryReader));
     const trianglesDrawEdgeSilhouette = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader));
     const trianglesDrawEdgeColor = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader));
-     const pickMesh = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader));
+    const trianglesPickMesh = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 3));
+    const linesPickMesh = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 2));
+    const pointsPickMesh = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 1));
     const linesDrawColor = saveForCleanup(new LinesDrawColorTechnique(renderContext, gpuMemoryReader));
     const pointsDrawColor = saveForCleanup(new PointsDrawColorTechnique(renderContext, gpuMemoryReader));
 
@@ -182,16 +184,16 @@ export class DrawOps {
         selectedEdges: new DrawOp(trianglesDrawEdgeSilhouette, SELECTED),
         xrayed: new DrawOp(trianglesSilhouette, XRAYED),
         xrayedEdges: new DrawOp(trianglesDrawEdgeSilhouette, XRAYED),
-        pick: new DrawOp(pickMesh, PICK)
+        pick: new DrawOp(trianglesPickMesh, PICK)
       },
 
       [LinesPrimitive]: {
         opaque: new DrawOp(linesDrawColor, OPAQUE),
         transparent: new DrawOp(linesDrawColor, TRANSPARENT),
-        highlighted: new DrawOp(silhouette, HIGHLIGHTED),
-        selected: new DrawOp(silhouette, SELECTED),
-        xrayed: new DrawOp(silhouette, XRAYED),
-        pick: new DrawOp(pickMesh, PICK)
+        highlighted: new DrawOp(linesDrawSilhouette, HIGHLIGHTED),
+        selected: new DrawOp(linesDrawSilhouette, SELECTED),
+        xrayed: new DrawOp(linesDrawSilhouette, XRAYED),
+        pick: new DrawOp(linesPickMesh, PICK)
       },
 
       [PointsPrimitive]: {
@@ -200,7 +202,7 @@ export class DrawOps {
         // highlighted: new DrawOp(pointsSilhouette, HIGHLIGHTED),
         // selected: new DrawOp(pointsSilhouette, SELECTED),
         // xrayed: new DrawOp(pointsSilhouette, XRAYED),
-        pick: new DrawOp(pickMesh, PICK)
+        pick: new DrawOp(pointsPickMesh, PICK)
       }
     };
     return {

@@ -57,6 +57,26 @@ export class RenderManager {
    */
   public infiniteGrid: InfiniteGridRenderer;
 
+  /** Pre-allocated render bins, reused every frame to avoid per-frame array allocation. */
+  private readonly _bins = {
+    normalDrawSAO:                    [] as MeshBatch[],
+    normalEdgesOpaque:                [] as MeshBatch[],
+    normalFillTransparent:            [] as MeshBatch[],
+    normalEdgesTransparent:           [] as MeshBatch[],
+    xrayedSilhouetteOpaque:           [] as MeshBatch[],
+    xrayEdgesOpaque:                  [] as MeshBatch[],
+    xrayedSilhouetteTransparent:      [] as MeshBatch[],
+    xrayEdgesTransparent:             [] as MeshBatch[],
+    highlightedSilhouetteOpaque:      [] as MeshBatch[],
+    highlightedEdgesOpaque:           [] as MeshBatch[],
+    highlightedSilhouetteTransparent: [] as MeshBatch[],
+    highlightedEdgesTransparent:      [] as MeshBatch[],
+    selectedSilhouetteOpaque:         [] as MeshBatch[],
+    selectedEdgesOpaque:              [] as MeshBatch[],
+    selectedSilhouetteTransparent:    [] as MeshBatch[],
+    selectedEdgesTransparent:         [] as MeshBatch[],
+  };
+
   /**
    * Sky/environment renderer.
    */
@@ -215,26 +235,23 @@ export class RenderManager {
 
     drawInspector?.frameStarted(view);
 
-    const bins = {
-      normalDrawSAO: [] as MeshBatch[],
-
-      normalEdgesOpaque: [] as MeshBatch[],
-      normalFillTransparent: [] as MeshBatch[],
-      normalEdgesTransparent: [] as MeshBatch[],
-
-      xrayedSilhouetteOpaque: [] as MeshBatch[],
-      xrayEdgesOpaque: [] as MeshBatch[],
-      xrayedSilhouetteTransparent: [] as MeshBatch[],
-      xrayEdgesTransparent: [] as MeshBatch[],
-      highlightedSilhouetteOpaque: [] as MeshBatch[],
-      highlightedEdgesOpaque: [] as MeshBatch[],
-      highlightedSilhouetteTransparent: [] as MeshBatch[],
-      highlightedEdgesTransparent: [] as MeshBatch[],
-      selectedSilhouetteOpaque: [] as MeshBatch[],
-      selectedEdgesOpaque: [] as MeshBatch[],
-      selectedSilhouetteTransparent: [] as MeshBatch[],
-      selectedEdgesTransparent: [] as MeshBatch[]
-    };
+    const bins = this._bins;
+    bins.normalDrawSAO.length                    = 0;
+    bins.normalEdgesOpaque.length                = 0;
+    bins.normalFillTransparent.length            = 0;
+    bins.normalEdgesTransparent.length           = 0;
+    bins.xrayedSilhouetteOpaque.length           = 0;
+    bins.xrayEdgesOpaque.length                  = 0;
+    bins.xrayedSilhouetteTransparent.length      = 0;
+    bins.xrayEdgesTransparent.length             = 0;
+    bins.highlightedSilhouetteOpaque.length      = 0;
+    bins.highlightedEdgesOpaque.length           = 0;
+    bins.highlightedSilhouetteTransparent.length = 0;
+    bins.highlightedEdgesTransparent.length      = 0;
+    bins.selectedSilhouetteOpaque.length         = 0;
+    bins.selectedEdgesOpaque.length              = 0;
+    bins.selectedSilhouetteTransparent.length    = 0;
+    bins.selectedEdgesTransparent.length         = 0;
 
     const resolutionScale = view.resolutionScale.applied ? view.resolutionScale.resolutionScale : 1.0;
     renderContext.webglCanvasElement.width = Math.floor(gl.drawingBufferWidth * resolutionScale);

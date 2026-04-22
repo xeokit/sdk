@@ -5,6 +5,7 @@ import {
   type Mat4
 } from "../../../math/matrix";
 import type {ViewRenderState} from "../ViewRenderState";
+import {SDKErrorType, type SDKResult} from "../../../core";
 
 export interface SkyRendererOptions {
   /**
@@ -91,6 +92,8 @@ export class SkyRenderer {
   private readonly gl: WebGL2RenderingContext;
   private readonly viewProjMatrix: Mat4 = createMat4Float64();
   private readonly invViewProjMatrix: Mat4 = createMat4Float64();
+  private readonly _rteViewMatrix: Mat4 = createMat4Float64();
+  private readonly _invViewProjF32: Float32Array = new Float32Array(16);
 
   private program: WebGLProgram | null = null;
   private vao: WebGLVertexArrayObject | null = null;
@@ -199,45 +202,57 @@ export class SkyRenderer {
   /**
    * Allocates GL resources and compiles shaders.
    *
-   * Safe to call more than once; subsequent calls are ignored after successful initialization.
+   * Safe to call more than once; subsequent calls are no-ops after successful initialization.
    */
-  init(): void {
-    this.ensureNotDestroyed();
-    if (this.initialized) return;
+  init(): SDKResult<void> {
+    if (this.destroyed) {
+      return {ok: false, type: SDKErrorType.InitializationFailed, error: "[SkyRenderer] Renderer has been destroyed"};
+    }
+    if (this.initialized) return {ok: true, value: undefined};
 
-    const gl = this.gl;
-    this.program = this.createProgram(VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+    try {
+      const gl = this.gl;
+      this.program = this.createProgram(VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
 
-    const vao = gl.createVertexArray();
-    const vbo = gl.createBuffer();
-    if (!vao || !vbo) throw new Error("[SkyRenderer] Failed to allocate WebGL resources");
+      const vao = gl.createVertexArray();
+      const vbo = gl.createBuffer();
+      if (!vao || !vbo) throw new Error("[SkyRenderer] Failed to allocate WebGL resources");
 
-    this.vao = vao;
-    this.vbo = vbo;
+      this.vao = vao;
+      this.vbo = vbo;
 
-    gl.bindVertexArray(this.vao);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
-    gl.enableVertexAttribArray(0);
-    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-    gl.bindVertexArray(null);
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+      gl.bindVertexArray(this.vao);
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(0);
+      gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+      gl.bindVertexArray(null);
+      gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-    this.uInvViewProj = this.getUniformLocation("uInvViewProj");
-    this.uCameraPos = this.getUniformLocation("uCameraPos");
-    this.uWorldUp = this.getUniformLocation("uWorldUp");
-    this.uSkyColor = this.getUniformLocation("uSkyColor");
-    this.uHorizonColor = this.getUniformLocation("uHorizonColor");
-    this.uGroundColor = this.getUniformLocation("uGroundColor");
-    this.uHorizonBlend = this.getUniformLocation("uHorizonBlend");
-    this.uSunEnabled = this.getUniformLocation("uSunEnabled");
-    this.uSunDirection = this.getUniformLocation("uSunDirection");
-    this.uSunColor = this.getUniformLocation("uSunColor");
-    this.uSunCosSize = this.getUniformLocation("uSunCosSize");
-    this.uSunGlowSize = this.getUniformLocation("uSunGlowSize");
-    this.uSunGlowIntensity = this.getUniformLocation("uSunGlowIntensity");
+      this.uInvViewProj = this.getUniformLocation("uInvViewProj");
+      this.uCameraPos = this.getUniformLocation("uCameraPos");
+      this.uWorldUp = this.getUniformLocation("uWorldUp");
+      this.uSkyColor = this.getUniformLocation("uSkyColor");
+      this.uHorizonColor = this.getUniformLocation("uHorizonColor");
+      this.uGroundColor = this.getUniformLocation("uGroundColor");
+      this.uHorizonBlend = this.getUniformLocation("uHorizonBlend");
+      this.uSunEnabled = this.getUniformLocation("uSunEnabled");
+      this.uSunDirection = this.getUniformLocation("uSunDirection");
+      this.uSunColor = this.getUniformLocation("uSunColor");
+      this.uSunCosSize = this.getUniformLocation("uSunCosSize");
+      this.uSunGlowSize = this.getUniformLocation("uSunGlowSize");
+      this.uSunGlowIntensity = this.getUniformLocation("uSunGlowIntensity");
 
-    this.initialized = true;
+      this.initialized = true;
+      return {ok: true, value: undefined};
+    } catch (e) {
+      this.destroy();
+      return {
+        ok: false,
+        type: SDKErrorType.InitializationFailed,
+        error: e instanceof Error ? e.message : String(e)
+      };
+    }
   }
 
   /**
@@ -249,9 +264,16 @@ export class SkyRenderer {
     this.ensureReady();
 
     const camera = viewRenderState.view.camera;
-    const cameraPos = camera.eye;
 
-    mulMat4(camera.projMatrix, camera.viewMatrix, this.viewProjMatrix);
+    // RTE: strip the view matrix translation so the inverse carries no large values. so the inverse carries no large values.
+    // Sky rendering only needs view direction, not position — the translation column
+    // of the view matrix contributes nothing useful but causes float32 precision loss
+    // in the inverse, producing jittery ray directions for distant cameras.
+    const vm = this._rteViewMatrix;
+    const src = camera.viewMatrix;
+    for (let i = 0; i < 16; i++) vm[i] = src[i];
+    vm[12] = 0; vm[13] = 0; vm[14] = 0;
+    mulMat4(camera.projMatrix, vm, this.viewProjMatrix);
     inverseMat4(this.viewProjMatrix, this.invViewProjMatrix);
 
     const sd = this.sunDirection;
@@ -275,8 +297,9 @@ export class SkyRenderer {
     gl.useProgram(this.program);
     gl.bindVertexArray(this.vao);
 
-    gl.uniformMatrix4fv(this.uInvViewProj, false, new Float32Array(this.invViewProjMatrix as Float32List));
-    gl.uniform3f(this.uCameraPos, cameraPos[0], cameraPos[1], cameraPos[2]);
+    this._invViewProjF32.set(this.invViewProjMatrix as ArrayLike<number>);
+    gl.uniformMatrix4fv(this.uInvViewProj, false, this._invViewProjF32);
+    gl.uniform3f(this.uCameraPos, 0, 0, 0); // RTE: camera is at origin in this coordinate frame
     gl.uniform3f(this.uWorldUp, this.worldUp[0], this.worldUp[1], this.worldUp[2]);
     gl.uniform3f(this.uSkyColor, this.skyColor[0], this.skyColor[1], this.skyColor[2]);
     gl.uniform3f(this.uHorizonColor, this.horizonColor[0], this.horizonColor[1], this.horizonColor[2]);

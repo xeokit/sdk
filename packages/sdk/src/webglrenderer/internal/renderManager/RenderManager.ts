@@ -149,14 +149,17 @@ export class RenderManager {
     this._activateExtensions();
 
     if (!this.infiniteGrid) {
-
       this.infiniteGrid = new InfiniteGridRenderer(this._renderContext.gl, {
         minorColor: [0.36, 0.40, 0.42],
         majorColor: [0,0,0],
         xAxisColor: [0.68, 0.42, 0.40],
         zAxisColor: [0.40, 0.58, 0.70]
       });
-      this.infiniteGrid.init();
+      const gridResult = this.infiniteGrid.init();
+      if (gridResult.ok === false) {
+        this.infiniteGrid = null;
+        return gridResult;
+      }
     }
 
     if (!this.skyRenderer) {
@@ -166,7 +169,11 @@ export class RenderManager {
         horizonBlend: 0.5,
         groundColor:  [0.58, 0.64, 0.60]
       });
-      this.skyRenderer.init();
+      const skyResult = this.skyRenderer.init();
+      if (skyResult.ok === false) {
+        this.skyRenderer = null;
+        return skyResult;
+      }
     }
 
     return {
@@ -174,7 +181,6 @@ export class RenderManager {
       value: undefined
     };
   }
-
   /**
    * Reinitializes draw operations after a WebGL context restore.
    */
@@ -284,10 +290,8 @@ export class RenderManager {
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     }
 
-    // if (this.infiniteGrid?.enabled) {
-    this.skyRenderer.render(rendererView);
-    this.infiniteGrid.render(rendererView);
-    // }
+    this.skyRenderer?.render(rendererView);
+    this.infiniteGrid?.render(rendererView);
 
     const enableOpaqueBin = (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.OPAQUE));
 

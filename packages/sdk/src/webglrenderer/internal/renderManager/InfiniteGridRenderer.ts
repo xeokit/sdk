@@ -3,8 +3,8 @@ import {
   mulMat4,
   type Mat4
 } from "../../../math/matrix";
-import type {Vec3} from "../../../math/vector";
 import type {ViewRenderState} from "../ViewRenderState";
+import {SDKErrorType, type SDKResult} from "../../../core";
 
 export interface InfiniteGridRendererOptions {
   /**
@@ -78,43 +78,6 @@ export interface InfiniteGridRendererOptions {
   worldForward?: [number, number, number];
 }
 
-export interface InfiniteGridRenderParams {
-  /**
-   * Optional explicit grid center. Defaults to camera XZ when followCamera is true,
-   * otherwise [0, 0, 0].
-   */
-  gridCenter?: Vec3 | number[];
-
-  /**
-   * Optional per-frame override for minor grid spacing.
-   */
-  minorStep?: number;
-
-  /**
-   * Optional per-frame override for major grid spacing.
-   */
-  majorStep?: number;
-
-  /**
-   * Optional per-frame override for axis width in world units.
-   */
-  axisWidth?: number;
-
-  /**
-   * Optional per-frame override for fade start distance.
-   */
-  fadeStart?: number;
-
-  /**
-   * Optional per-frame override for fade end distance.
-   */
-  fadeEnd?: number;
-
-  /**
-   * Optional per-frame override for quad half-size.
-   */
-  gridHalfSize?: number;
-}
 
 /**
  * Infinite ground grid renderer for xeokit V3.
@@ -144,6 +107,7 @@ export interface InfiniteGridRenderParams {
 export class InfiniteGridRenderer {
   private readonly gl: WebGL2RenderingContext;
   private readonly viewProjMatrix: Mat4 = createMat4Float64();
+  private readonly _rteViewMatrix: Mat4 = createMat4Float64();
 
   private program: WebGLProgram | null = null;
   private vao: WebGLVertexArrayObject | null = null;
@@ -275,95 +239,104 @@ export class InfiniteGridRenderer {
   /**
    * Allocates GL resources and compiles shaders.
    *
-   * Safe to call more than once; subsequent calls are ignored after successful initialization.
+   * Safe to call more than once; subsequent calls are no-ops after successful initialization.
    */
-  init(): void {
-    this.ensureNotDestroyed();
-
+  init(): SDKResult<void> {
+    if (this.destroyed) {
+      return {
+        ok: false,
+        type: SDKErrorType.InitializationFailed,
+        error: "[InfiniteGridRenderer] Renderer has been destroyed"
+      };
+    }
     if (this.initialized) {
-      return;
+      return {ok: true, value: undefined};
     }
 
-    const gl = this.gl;
+    try {
+      const gl = this.gl;
 
-    this.program = this.createProgram(VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+      this.program = this.createProgram(VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
 
-    const vao = gl.createVertexArray();
-    const vbo = gl.createBuffer();
+      const vao = gl.createVertexArray();
+      const vbo = gl.createBuffer();
 
-    if (!vao || !vbo) {
-      throw new Error("[InfiniteGridRenderer] Failed to allocate WebGL resources");
+      if (!vao || !vbo) {
+        throw new Error("[InfiniteGridRenderer] Failed to allocate WebGL resources");
+      }
+
+      this.vao = vao;
+      this.vbo = vbo;
+
+      gl.bindVertexArray(this.vao);
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+        -1, -1,
+        1, -1,
+        -1, 1,
+        1, 1
+      ]), gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(0);
+      gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+      gl.bindVertexArray(null);
+      gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+      this.uViewProj = this.getUniformLocation("uViewProj");
+      this.uGridCenter = this.getUniformLocation("uGridCenter");
+      this.uGridHalfSize = this.getUniformLocation("uGridHalfSize");
+      this.uCameraPos = this.getUniformLocation("uCameraPos");
+      this.uMinorStep = this.getUniformLocation("uMinorStep");
+      this.uMajorStep = this.getUniformLocation("uMajorStep");
+      this.uAxisWidth = this.getUniformLocation("uAxisWidth");
+      this.uFadeStart = this.getUniformLocation("uFadeStart");
+      this.uFadeEnd = this.getUniformLocation("uFadeEnd");
+      this.uMinorColor = this.getUniformLocation("uMinorColor");
+      this.uMajorColor = this.getUniformLocation("uMajorColor");
+      this.uXAxisColor = this.getUniformLocation("uXAxisColor");
+      this.uZAxisColor = this.getUniformLocation("uZAxisColor");
+      this.uWorldRight = this.getUniformLocation("uWorldRight");
+      this.uWorldForward = this.getUniformLocation("uWorldForward");
+
+      this.initialized = true;
+      return {ok: true, value: undefined};
+    } catch (e) {
+      this.destroy();
+      return {
+        ok: false,
+        type: SDKErrorType.InitializationFailed,
+        error: e instanceof Error ? e.message : String(e)
+      };
     }
-
-    this.vao = vao;
-    this.vbo = vbo;
-
-    // One fullscreen-style local quad, expanded into a camera-centered world quad
-    // in the vertex shader.
-    gl.bindVertexArray(this.vao);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-      -1, -1,
-      1, -1,
-      -1,  1,
-      1,  1
-    ]), gl.STATIC_DRAW);
-    gl.enableVertexAttribArray(0);
-    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-    gl.bindVertexArray(null);
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
-    this.uViewProj = this.getUniformLocation("uViewProj");
-    this.uGridCenter = this.getUniformLocation("uGridCenter");
-    this.uGridHalfSize = this.getUniformLocation("uGridHalfSize");
-    this.uCameraPos = this.getUniformLocation("uCameraPos");
-    this.uMinorStep = this.getUniformLocation("uMinorStep");
-    this.uMajorStep = this.getUniformLocation("uMajorStep");
-    this.uAxisWidth = this.getUniformLocation("uAxisWidth");
-    this.uFadeStart = this.getUniformLocation("uFadeStart");
-    this.uFadeEnd = this.getUniformLocation("uFadeEnd");
-    this.uMinorColor = this.getUniformLocation("uMinorColor");
-    this.uMajorColor = this.getUniformLocation("uMajorColor");
-    this.uXAxisColor = this.getUniformLocation("uXAxisColor");
-    this.uZAxisColor = this.getUniformLocation("uZAxisColor");
-    this.uWorldRight = this.getUniformLocation("uWorldRight");
-    this.uWorldForward = this.getUniformLocation("uWorldForward");
-
-    this.initialized = true;
   }
 
   /**
    * Renders one frame of the infinite grid for the given view.
    *
    * Called by {@link RenderManager} when {@link enabled} is true.
-   * Optional params allow per-frame overrides without mutating instance defaults.
    */
-  render(viewRenderState: ViewRenderState, params: InfiniteGridRenderParams = {}): void {
+  render(viewRenderState: ViewRenderState): void {
     this.ensureReady();
 
     const camera = viewRenderState.view.camera;
+    const eye = camera.eye;
 
-    const viewMatrix = camera.viewMatrix;
-    const projMatrix = camera.projMatrix;
-    const cameraWorldPos = camera.eye;
+    // RTE: strip the view matrix translation so float32 GPU values stay small.
+    // Large eye positions cause catastrophic cancellation when world coords are
+    // multiplied by a viewProj that carries a large translation column.
+    const vm = this._rteViewMatrix;
+    const src = camera.viewMatrix;
+    for (let i = 0; i < 16; i++) vm[i] = src[i];
+    vm[12] = 0; vm[13] = 0; vm[14] = 0;
+    mulMat4(camera.projMatrix, vm, this.viewProjMatrix);
 
-    // xeokit V3 math utility: out = a * b
-    mulMat4(projMatrix, viewMatrix, this.viewProjMatrix);
-
+    // Express grid center relative to the camera eye so vertex positions are small.
     const up = this.worldUp;
-    const upDot = cameraWorldPos[0] * up[0] + cameraWorldPos[1] * up[1] + cameraWorldPos[2] * up[2];
-    const gridCenter = params.gridCenter ?? (
-      this.followCamera
-        ? [cameraWorldPos[0] - up[0] * upDot, cameraWorldPos[1] - up[1] * upDot, cameraWorldPos[2] - up[2] * upDot]
-        : [0, 0, 0]
-    );
+    const upDot = eye[0] * up[0] + eye[1] * up[1] + eye[2] * up[2];
+    const gridCenter = this.followCamera
+      ? [-up[0] * upDot, -up[1] * upDot, -up[2] * upDot]   // camera-relative floor projection ≈ [0,0,0] for typical heights
+      : [-eye[0], -eye[1], -eye[2]];                         // world origin relative to camera
 
-    const minorStep = params.minorStep ?? this.minorStep;
-    const majorStep = params.majorStep ?? this.majorStep;
-    const axisWidth = params.axisWidth ?? (minorStep * this.axisWidth);
-    const fadeStart = params.fadeStart ?? this.fadeStart;
-    const fadeEnd = params.fadeEnd ?? this.fadeEnd;
-    const gridHalfSize = params.gridHalfSize ?? this.gridHalfSize;
+    const axisWidth = this.minorStep * this.axisWidth;
 
     const gl = this.gl;
 
@@ -385,13 +358,13 @@ export class InfiniteGridRenderer {
 
     gl.uniformMatrix4fv(this.uViewProj, false, new Float32Array(this.viewProjMatrix as Float32List)); // TODO: avoid this allocation each frame
     gl.uniform3f(this.uGridCenter, gridCenter[0], gridCenter[1], gridCenter[2]);
-    gl.uniform1f(this.uGridHalfSize, gridHalfSize);
-    gl.uniform3f(this.uCameraPos, cameraWorldPos[0], cameraWorldPos[1], cameraWorldPos[2]);
-    gl.uniform1f(this.uMinorStep, minorStep);
-    gl.uniform1f(this.uMajorStep, majorStep);
+    gl.uniform1f(this.uGridHalfSize, this.gridHalfSize);
+    gl.uniform3f(this.uCameraPos, 0, 0, 0); // RTE: camera is at origin in this coordinate frame
+    gl.uniform1f(this.uMinorStep, this.minorStep);
+    gl.uniform1f(this.uMajorStep, this.majorStep);
     gl.uniform1f(this.uAxisWidth, axisWidth);
-    gl.uniform1f(this.uFadeStart, fadeStart);
-    gl.uniform1f(this.uFadeEnd, fadeEnd);
+    gl.uniform1f(this.uFadeStart, this.fadeStart);
+    gl.uniform1f(this.uFadeEnd, this.fadeEnd);
     gl.uniform3f(this.uMinorColor, this.minorColor[0], this.minorColor[1], this.minorColor[2]);
     gl.uniform3f(this.uMajorColor, this.majorColor[0], this.majorColor[1], this.majorColor[2]);
     gl.uniform3f(this.uXAxisColor, this.xAxisColor[0], this.xAxisColor[1], this.xAxisColor[2]);

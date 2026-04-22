@@ -419,32 +419,22 @@ export abstract class DrawTechnique {
 
     // TODO: Avoid re-binding this set of textures if already bound for this batch.
 
-    const bindTexture = (sampler, dataTexture) => {
-      if (!sampler || !dataTexture) {
-        return;
-      }
-      gl.activeTexture(gl["TEXTURE" + renderContext.textureUnit]);
-      gl.bindTexture(gl.TEXTURE_2D, dataTexture.texture);
-      gl.uniform1i(sampler, renderContext.textureUnit);
-      renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
-    };
-
-    bindTexture(samplers.viewTileCameraMatrixTexture,
+    this._bindTexture(samplers.viewTileCameraMatrixTexture,
       (this._renderContext.rayPicking
         ? dataTextures.viewTilePickMatrixTexture
         : dataTextures.viewTileCameraMatrixTexture)
         [view.viewIndex]);
 
-    bindTexture(samplers.primitiveMeshIndex, primitiveMeshIndexTexture);
-    bindTexture(samplers.vertexPositionTexture, batchDataTextures.vertexPositionTexture);
-    bindTexture(samplers.vertexColorTexture, batchDataTextures.vertexColorTexture);
-    bindTexture(samplers.meshMatrixTexture, batchDataTextures.meshMatrixTexture);
-    bindTexture(samplers.meshAttributeTexture, batchDataTextures.meshAttributeTexture);
-    bindTexture(samplers.meshViewAttributeTexture, batchViewDataTextures.meshViewAttributeTexture);
-    bindTexture(samplers.geometryAttributes, batchDataTextures.geometryAttributeTexture);
-    bindTexture(samplers.geometryQuantRangeTexture, batchDataTextures.geometryQuantRangeTexture);
-    //   bindTexture(samplers.edgeIndexTexture, batchDataTextures.edgeIndexTexture); // TODO: Redundant?
-    bindTexture(samplers.indexTexture,
+    this._bindTexture(samplers.primitiveMeshIndex, primitiveMeshIndexTexture);
+    this._bindTexture(samplers.vertexPositionTexture, batchDataTextures.vertexPositionTexture);
+    this._bindTexture(samplers.vertexColorTexture, batchDataTextures.vertexColorTexture);
+    this._bindTexture(samplers.meshMatrixTexture, batchDataTextures.meshMatrixTexture);
+    this._bindTexture(samplers.meshAttributeTexture, batchDataTextures.meshAttributeTexture);
+    this._bindTexture(samplers.meshViewAttributeTexture, batchViewDataTextures.meshViewAttributeTexture);
+    this._bindTexture(samplers.geometryAttributes, batchDataTextures.geometryAttributeTexture);
+    this._bindTexture(samplers.geometryQuantRangeTexture, batchDataTextures.geometryQuantRangeTexture);
+    //   this._bindTexture(samplers.edgeIndexTexture, batchDataTextures.edgeIndexTexture); // TODO: Redundant?
+    this._bindTexture(samplers.indexTexture,
       this.edges
         ? batchDataTextures.edgeIndexTexture
         : batchDataTextures.indexTexture);
@@ -488,11 +478,6 @@ export abstract class DrawTechnique {
       firstPrim: drawRange.firstPrim,
       numPrims: drawRange.numPrims
     });
-
-    for (let i = 0; i < 12; i++) {
-      gl.activeTexture(gl["TEXTURE" + i]);
-      gl.bindTexture(gl.TEXTURE_2D, null);
-    }
 
     return {
       ok: true,
@@ -1574,6 +1559,16 @@ void main(void) {`);
     this._fragSrcBuf.push("outColor = color;");
   }
 
+  private _bindTexture(sampler: WebGLUniformLocation | null, dataTexture: { texture: WebGLTexture | null } | null): void {
+    if (!sampler || !dataTexture) return;
+    const rc = this._renderContext;
+    const gl = rc.gl;
+    gl.activeTexture(gl.TEXTURE0 + rc.textureUnit);
+    gl.bindTexture(gl.TEXTURE_2D, dataTexture.texture);
+    gl.uniform1i(sampler, rc.textureUnit);
+    rc.textureUnit = (rc.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
+  }
+
   /**
    * Binds the shader program and sets up the necessary uniforms and textures for rendering.
    * @param renderPass The draw pass identifier, which determines the rendering context (e.g., solid fill, silhouette, picking).
@@ -1631,7 +1626,7 @@ void main(void) {`);
       gl.uniform1f(uniforms.nearPlaneHeight,
         (view.camera.projectionType === OrthoProjectionType)
           ? 1.0
-          : (gl.drawingBufferHeight / (2 * Math.tan(0.5 * view.camera.perspectiveProjection.fov * Math.PI / 180.0))));
+          : gl.drawingBufferHeight / (2 * Math.tan(0.5 * view.camera.perspectiveProjection.fov * Math.PI / 180.0)));
     }
 
     if (uniforms.pickZNear) {

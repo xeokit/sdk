@@ -1276,11 +1276,13 @@ class View {
     this._fireViewUpdatedEventTask.schedule();
   }
 
+  private readonly _ambientColorAndIntensity: FloatArrayParam = new Float32Array([0.5, 0.5, 0.5, 1]);
+
   /**
    * @private
    */
   getAmbientColorAndIntensity(): FloatArrayParam {
-    return [0.5, 0.5, 0.5, 1];
+    return this._ambientColorAndIntensity;
   }
 
   /**

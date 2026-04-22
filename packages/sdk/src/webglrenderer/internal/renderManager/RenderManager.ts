@@ -43,6 +43,9 @@ import {SkyRenderer} from "./SkyRenderer";
  */
 export class RenderManager {
 
+  /** Number of texture units bound per draw call by {@link DrawTechnique._bindTexture}. */
+  private static readonly _MAX_DATA_TEXTURE_UNITS = 10;
+
   /**
    * Active drawing operations (shader programs + draw routines).
    *
@@ -499,15 +502,12 @@ export class RenderManager {
 
   //  gl.disable(gl.BLEND);
 
-    // Cleanup GPU state
-    for (let i = 0, texUnits = WEBGL_INFO.MAX_TEXTURE_UNITS; i < texUnits; i++) {
+    // Unbind only the texture units _draw() actually uses (one per _bindTexture call, max 10).
+    // The old loop activated all MAX_TEXTURE_UNITS units but only unbound the last one (bug),
+    // and the vertex attrib loop was redundant because VAOs own that state.
+    for (let i = 0; i < RenderManager._MAX_DATA_TEXTURE_UNITS; i++) {
       gl.activeTexture(gl.TEXTURE0 + i);
-    }
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
-    gl.bindTexture(gl.TEXTURE_2D, null);
-
-    for (let i = 0, attribs = WEBGL_INFO.MAX_VERTEX_ATTRIBS; i < attribs; i++) {
-      gl.disableVertexAttribArray(i);
+      gl.bindTexture(gl.TEXTURE_2D, null);
     }
 
     drawInspector?.frameEnded();

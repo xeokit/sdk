@@ -3,7 +3,8 @@ import {RenderContext} from "../../../RenderContext";
 import {type GPUMemoryReader} from "../../../gpuMemoryManager/GPUMemoryReader";
 
 /**
- * Draw technique for rendering triangle edges as silhouettes.
+ * Draw technique for rendering triangle mesh edges as silhouettes.
+ * Uses edge index buffers (vertsPerPrim = 2) and the edge-material silhouette color uniforms.
  * @internal
  */
 export class TrianglesDrawEdgeSilhouetteTechnique extends DrawTechnique {
@@ -16,25 +17,25 @@ export class TrianglesDrawEdgeSilhouetteTechnique extends DrawTechnique {
 
   protected buildVertexShader(): void {
     this.vsHeader();
-    this.vsCommonDefines();
-    this.vsSlicingDefines();
-    this.vsSilhouetteDefines();
-    this.vsMainOpen();
+    this.vsCommonDeclarations();
+    this.vsSlicingDeclarations();
+    this.vsSilhouetteDeclarations();
+    this.vsMainBegin();
     this.vsSilhouetteLogic();
     this.vsSlicingLogic();
-    this.vsMainClose();
+    this.vsMainEnd();
   }
 
   protected buildFragmentShader(): void {
     this.fsHeader();
-    this.fsPrecisionDefines();
-    this.fsCommonDefines();
-    this.fsSlicingDefines();
-    this.fsSilhouetteDefines();
-    this.fsMainOpen();
+    this.fsPrecisionDeclarations();
+    this.fsColorDeclarations();
+    this.fsSlicingDeclarations();
+    this.fsSilhouetteDeclarations();
+    this.fsMainBegin();
     this.fsSlicingLogic();
     this.fsSilhouetteLogic();
-    this.fsCommonOutput();
-    this.fsMainClose();
+    this.fsOutputColor();
+    this.fsMainEnd();
   }
 }

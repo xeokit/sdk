@@ -1,7 +1,7 @@
 import {DrawTechnique} from "../../DrawTechnique";
 
 /**
- * Draw technique for rendering triangle meshes for picking.
+ * Draw technique for rendering point cloud meshes into the pick framebuffer.
  * @internal
  */
 export class TrianglesPickMeshDrawTechnique extends DrawTechnique {
@@ -11,25 +11,25 @@ export class TrianglesPickMeshDrawTechnique extends DrawTechnique {
 
   protected buildVertexShader(): void {
     this.vsHeader();
-    this.vsCommonDefines();
-    this.vsSlicingDefines();
-    this.vsPickMeshDefines();
-    this.vsPickMainOpen();
+    this.vsCommonDeclarations();
+    this.vsSlicingDeclarations();
+    this.vsPickDeclarations();
+    this.vsPickMainBegin();
     this.vsPickMeshLogic();
     this.vsSlicingLogic();
-    this.vsMainClose();
+    this.vsMainEnd();
   }
 
   protected buildFragmentShader(): void {
     this.fsHeader();
-    this.fsPrecisionDefines();
-    this.fsCommonDefines();
-    this.fsSlicingDefines();
-    this.fsPickMeshDefines();
-    this.fsMainOpen();
+    this.fsPrecisionDeclarations();
+    // Pick techniques use MRT outputs declared by fsPickMeshDeclarations(),
+    // so fsColorDeclarations() is intentionally omitted here.
+    this.fsSlicingDeclarations();
+    this.fsPickMeshDeclarations();
+    this.fsMainBegin();
     this.fsSlicingLogic();
     this.fsPickMeshLogic();
-    this.fsCommonOutput();
-    this.fsMainClose();
+    this.fsMainEnd();
   }
 }

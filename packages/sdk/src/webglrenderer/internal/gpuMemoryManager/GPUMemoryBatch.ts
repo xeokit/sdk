@@ -466,11 +466,10 @@ export class GPUMemoryBatch {
       geometryIndex = this._getFreeGeometryIndex();
 
       positionsPortion = this._vertexPositionTexture.getPortion(
-        sceneGeometry.positionsCompressed, // 3xcomponents per position
+        sceneGeometry.positionsCompressed,
         (newBase: number) => {
-          const verticesBase = newBase / 3; // 3xcomponents per position
           this._geometryAttributeTexture.setItem(geometryIndex, {
-            verticesBase
+            verticesBase: newBase
           });
         });
 

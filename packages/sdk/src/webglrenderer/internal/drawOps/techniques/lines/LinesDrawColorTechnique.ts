@@ -1,8 +1,7 @@
 import {DrawTechnique} from "../../DrawTechnique";
 
 /**
- * Draw technique for rendering lines with a flat color.
- *
+ * Draw technique for rendering lines with a flat (per-mesh) color.
  * @internal
  */
 export class LinesDrawColorTechnique extends DrawTechnique {
@@ -11,25 +10,25 @@ export class LinesDrawColorTechnique extends DrawTechnique {
 
   protected buildVertexShader(): void {
     this.vsHeader();
-    this.vsCommonDefines();
-    this.vsDrawFlatColorDefs();
-    this.vsSlicingDefines();
-    this.vsMainOpen();
-    this.vsDrawFlatColorLogic(); // Flat color for lines
+    this.vsCommonDeclarations();
+    this.vsSlicingDeclarations();
+    this.vsDrawFlatColorDeclarations();
+    this.vsMainBegin();
+    this.vsDrawFlatColorLogic();
     this.vsSlicingLogic();
-    this.vsMainClose();
+    this.vsMainEnd();
   }
 
   protected buildFragmentShader(): void {
     this.fsHeader();
-    this.fsPrecisionDefines();
-    this.fsCommonDefines();
-    this.fsSlicingDefines();
-    this.fsDrawFlatColorDefines();
-    this.fsMainOpen();
+    this.fsPrecisionDeclarations();
+    this.fsColorDeclarations();
+    this.fsSlicingDeclarations();
+    this.fsDrawFlatColorDeclarations();
+    this.fsMainBegin();
     this.fsSlicingLogic();
     this.fsDrawFlatColorLogic();
-    this.fsCommonOutput();
-    this.fsMainClose();
+    this.fsOutputColor();
+    this.fsMainEnd();
   }
 }

@@ -10,25 +10,25 @@ export class TrianglesDrawColorTechnique extends DrawTechnique {
 
   protected buildVertexShader(): void {
     this.vsHeader();
-    this.vsCommonDefines();
-    this.vsSlicingDefines();
-    this.vsLambertShadingDefines();
-    this.vsMainOpen();
+    this.vsCommonDeclarations();
+    this.vsSlicingDeclarations();
+    this.vsLambertShadingDeclarations();
+    this.vsMainBegin();
     this.vsLambertShadingLogic();
     this.vsSlicingLogic();
-   this.vsMainClose();
+    this.vsMainEnd();
   }
 
   protected buildFragmentShader(): void {
     this.fsHeader();
-    this.fsPrecisionDefines();
-    this.fsCommonDefines();
-    this.fsSlicingDefines();
-    this.fsLambertShadingDefines();
-    this.fsMainOpen();
+    this.fsPrecisionDeclarations();
+    this.fsColorDeclarations();
+    this.fsSlicingDeclarations();
+    this.fsLambertShadingDeclarations();
+    this.fsMainBegin();
     this.fsSlicingLogic();
     this.fsLambertShadingLogic();
-    this.fsCommonOutput();
-    this.fsMainClose();
+    this.fsOutputColor();
+    this.fsMainEnd();
   }
 }

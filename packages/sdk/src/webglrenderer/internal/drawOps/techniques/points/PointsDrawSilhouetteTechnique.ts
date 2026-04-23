@@ -1,7 +1,7 @@
 import {DrawTechnique} from "../../DrawTechnique";
 
 /**
- * Draw technique for rendering point silhouettes.
+ * Draw technique for rendering point cloud silhouettes.
  * @internal
  */
 export class PointsDrawSilhouetteTechnique extends DrawTechnique {
@@ -11,25 +11,25 @@ export class PointsDrawSilhouetteTechnique extends DrawTechnique {
 
   protected buildVertexShader(): void {
     this.vsHeader();
-    this.vsCommonDefines();
-    this.vsSlicingDefines();
-    this.vsSilhouetteDefines();
-    this.vsMainOpen();
+    this.vsCommonDeclarations();
+    this.vsSlicingDeclarations();
+    this.vsSilhouetteDeclarations();
+    this.vsMainBegin();
     this.vsSilhouetteLogic();
     this.vsSlicingLogic();
-    this.vsMainClose();
+    this.vsMainEnd();
   }
 
   protected buildFragmentShader(): void {
     this.fsHeader();
-    this.fsPrecisionDefines();
-    this.fsCommonDefines();
-    this.fsSlicingDefines();
-    this.fsSilhouetteDefines();
-    this.fsMainOpen();
+    this.fsPrecisionDeclarations();
+    this.fsColorDeclarations();
+    this.fsSlicingDeclarations();
+    this.fsSilhouetteDeclarations();
+    this.fsMainBegin();
     this.fsSlicingLogic();
     this.fsSilhouetteLogic();
-    this.fsCommonOutput();
-    this.fsMainClose();
+    this.fsOutputColor();
+    this.fsMainEnd();
   }
 }

@@ -1,7 +1,7 @@
 import {DrawTechnique} from "../../DrawTechnique";
 
 /**
- * Draw technique for rendering colored points.
+ * Draw technique for rendering colored point clouds.
  * @internal
  */
 export class PointsDrawColorTechnique extends DrawTechnique {
@@ -11,29 +11,29 @@ export class PointsDrawColorTechnique extends DrawTechnique {
 
   protected buildVertexShader(): void {
     this.vsHeader();
-    this.vsCommonDefines();
-    this.vsDrawVertexColorDefs(); // Flat color definitions
-    this.vsSlicingDefines();
-    this.vsPointsDefines();
-    this.vsMainOpen();
-    this.vsDrawVertexColorLogic(); // Vertex colors for points
+    this.vsCommonDeclarations();
+    this.vsSlicingDeclarations();
+    this.vsDrawVertexColorDeclarations();
+    this.vsPointsDeclarations();
+    this.vsMainBegin();
+    this.vsDrawVertexColorLogic();
     this.vsSlicingLogic();
     this.vsPointsGeometryLogic();
-    this.vsMainClose();
+    this.vsMainEnd();
   }
 
   protected buildFragmentShader(): void {
     this.fsHeader();
-    this.fsPrecisionDefines();
-    this.fsCommonDefines();
-    this.fsSlicingDefines();
-    this.fsPointsDefines();
-    this.fsDrawFlatColorDefines(); // Flat color definitions
-    this.fsMainOpen();
+    this.fsPrecisionDeclarations();
+    this.fsColorDeclarations();
+    this.fsSlicingDeclarations();
+    this.fsPointsDeclarations();
+    this.fsDrawFlatColorDeclarations();
+    this.fsMainBegin();
     this.fsSlicingLogic();
     this.fsPointsGeometryLogic();
-    this.fsDrawFlatColorLogic(); // Flat color logic
-    this.fsCommonOutput();
-    this.fsMainClose();
+    this.fsDrawFlatColorLogic();
+    this.fsOutputColor();
+    this.fsMainEnd();
   }
 }

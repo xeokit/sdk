@@ -41,7 +41,7 @@ const defaultColor = new Float32Array([1, 1, 1, 1]);
  *
  * These methods are called during {@link init} to generate the GLSL source code,
  * and would typically use inspectors methods like {@link vsCode}, {@link vsHeader},
- * and {@link vsCommonDefines}, provided by the base class, to construct the shader source
+ * and {@link vsCommonDeclarations}, provided by the base class, to construct the shader source
  * (i.e. Template Method / Template Base Class pattern).
  *
  * Note: Lambert shading now computes the face normal in the fragment shader from
@@ -518,14 +518,21 @@ export abstract class DrawTechnique {
   protected abstract buildFragmentShader();
 
   /**
-   * Inserts a line of custom vertex shader code into the generated vertex shader source.
+   * Appends a raw GLSL snippet to the vertex shader source being built.
    */
   protected vsCode(src) {
     this._vertSrcBuf.push(src);
   }
 
   /**
-   * Generates the vertex shader header.
+   * Appends a raw GLSL snippet to the fragment shader source being built.
+   */
+  protected fsCode(src) {
+    this._fragSrcBuf.push(src);
+  }
+
+  /**
+   * Emits the vertex shader version directive and identifying comment.
    */
   protected vsHeader() {
     this._vertSrcBuf
@@ -540,25 +547,10 @@ export abstract class DrawTechnique {
   }
 
   /**
-   * Generates a simple internal vertex shader main function.
+   * Emits uniforms, samplers, structs, and GPU data-texture helper functions shared by all
+   * techniques.  Every vertex shader calls this once, right after {@link vsHeader}.
    */
-  protected vsDebugMain() {
-    this._vertSrcBuf.push(
-      `void main(void) {
-        vec2 p;
-        if (gl_VertexID % 3 == 0)      p = vec2(-0.5, -0.5);
-        else if (gl_VertexID % 3 == 1) p = vec2( 0.5, -0.5);
-        else                           p = vec2( 0.0,  0.5);
-        gl_Position = vec4(p, 0.0, 1.0);
-        vColor      = vec4(1.0, 0.3, 0.1, 1.0);
-        vViewPos    = vec3(0.0);
-}`);
-  }
-
-  /**
-   * Generates vertex shader precision definitions and common definitions.
-   */
-  protected vsCommonDefines() {
+  protected vsCommonDeclarations() {
     this._vertSrcBuf.push(`
 
 // ─────────────────────────────────────────────────────────────
@@ -735,13 +727,15 @@ vec4 packUintToRGBA8(uint v) {
   }
 
   /**
-   * Generates vertex shader definitions for Lambert shading.
-   * @protected
+   * Declares the uniforms and varyings required by Lambert shading:
+   * three directional lights, ambient, the flat color varying, and the
+   * view-space position varying (used by the fragment shader for face-normal
+   * reconstruction via dFdx/dFdy).
    */
-  protected vsLambertShadingDefines(silhouette?: boolean) {
+  protected vsLambertShadingDeclarations() {
     this._vertSrcBuf.push(`
 // ─────────────────────────────────────────────────────────────
-// Lambertian directional lighting configuration
+// Lambertian directional lighting
 // ─────────────────────────────────────────────────────────────
 `,
       "uniform vec4 uLightAmbient;",
@@ -752,18 +746,16 @@ vec4 packUintToRGBA8(uint v) {
       "uniform vec3 uLightDir3;",
       "uniform vec4 uLightColor3;",
       "flat out vec4 vColor;",
-      "out vec3 vViewPos;",
-      silhouette ? "uniform vec4 uSilhouetteColor;" : "");
+      "out vec3 vViewPos;");
   }
 
   /**
-   * Generates vertex shader definitions for silhouette rendering.
-   * @protected
+   * Declares the silhouette color uniform and flat color varying.
    */
-  protected vsSilhouetteDefines() {
+  protected vsSilhouetteDeclarations() {
     this._vertSrcBuf.push(`
 // ─────────────────────────────────────────────────────────────
-// Silhouette rendering configuration
+// Silhouette rendering
 // ─────────────────────────────────────────────────────────────
 
 uniform vec4 uSilhouetteColor;
@@ -771,52 +763,48 @@ flat out vec4 vColor;`);
   }
 
   /**
-   * Generates vertex shader definitions for flat color rendering.
-   * @protected
+   * Declares the flat color varying used when each primitive carries a single solid color.
    */
-  protected vsDrawFlatColorDefs() {
+  protected vsDrawFlatColorDeclarations() {
     this._vertSrcBuf.push(`
 // ─────────────────────────────────────────────────────────────
-// Flat color rendering configuration
+// Flat (per-mesh) color
 // ─────────────────────────────────────────────────────────────
 
 flat out vec4 vColor;`);
   }
 
   /**
-   * Generates vertex shader definitions for vertex color rendering.
-   * @protected
+   * Declares the flat color varying used when each vertex carries its own color.
    */
-  protected vsDrawVertexColorDefs() {
+  protected vsDrawVertexColorDeclarations() {
     this._vertSrcBuf.push(`
 // ─────────────────────────────────────────────────────────────
-// Vertex color rendering configuration
+// Per-vertex color
 // ─────────────────────────────────────────────────────────────
 
 flat out vec4 vColor;`);
   }
 
   /**
-   * Generates vertex shader definitions for depth rendering.
-   * @protected
+   * Declares the high-precision depth varying used for linearized depth rendering.
    */
-  protected vsDrawDepthDefines() {
+  protected vsDrawDepthDeclarations() {
     this._vertSrcBuf.push(`
 // ─────────────────────────────────────────────────────────────
-// Vertex color rendering configuration
+// High-precision depth output
 // ─────────────────────────────────────────────────────────────
 
 out highp vec2 vHighPrecisionZW;`);
   }
 
   /**
-   * Generates vertex shader definitions for point rendering.
-   * @protected
+   * Declares uniforms that control point size and perspective attenuation.
    */
-  protected vsPointsDefines(): void {
+  protected vsPointsDeclarations(): void {
     this._vertSrcBuf.push(`
 // ─────────────────────────────────────────────────────────────
-// Point rendering configuration
+// Point cloud sizing
 // ─────────────────────────────────────────────────────────────
 
 uniform float uNearPlaneHeight;
@@ -827,10 +815,10 @@ uniform float pointSize;`);
   }
 
   /**
-   * Generates vertex shader definitions for pick rendering.
-   * @protected
+   * Declares the pick-pass uniforms, varyings, and the clip-space remapping helper
+   * used to render into the pick framebuffer.
    */
-  protected vsPickDefines() {
+  protected vsPickDeclarations() {
     this._vertSrcBuf.push(`
 // ─────────────────────────────────────────────────────────────
 // Pick common rendering configuration
@@ -860,24 +848,9 @@ vec4 remapPickClipPos(vec4 clipPos) {
   }
 
   /**
-   * Generates vertex shader definitions for pick rendering.
-   * @protected
+   * Declares section-plane varyings (currently a stub pending section-plane support).
    */
-  protected vsPickMeshDefines() {
-//     this._vertSrcBuf.push(`
-// // ─────────────────────────────────────────────────────────────
-// // Pick mesh rendering configuration
-// // ─────────────────────────────────────────────────────────────
-//
-// flat out vec4 vPickColor;
-// `);
-  }
-
-  /**
-   * Generates vertex shader definitions for slicing (section planes).
-   * @protected
-   */
-  protected vsSlicingDefines() {
+  protected vsSlicingDeclarations() {
     // if (this._renderContext.view.getNumAllocatedSectionPlanes() > 0) {
     //   const src = this._vertSrcBuf;
     //   src.push("out vec4 vWorldPosition;");
@@ -886,10 +859,11 @@ vec4 remapPickClipPos(vec4 clipPos) {
   }
 
   /**
-   * Generates the opening of the vertex shader main function.
-   * @protected
+   * Opens the vertex shader main() and emits the full mesh/geometry/transform pipeline
+   * (gl_VertexID → primitive → mesh → geometry → vertex → clip space).
+   * Technique-specific logic is appended after this call, before {@link vsMainEnd}.
    */
-  protected vsMainOpen() { // default
+  protected vsMainBegin() {
     this._vertSrcBuf.push(`
 // ─────────────────────────────────────────────────────────────
 // Vertex shader main function
@@ -901,28 +875,13 @@ void main(void) {`);
   }
 
   /**
-   * Generates the opening of the vertex shader main function for draw rendering.
-   * @protected
+   * Opens the vertex shader main() for pick rendering.  Identical to {@link vsMainBegin}
+   * but additionally reads and checks the per-mesh "pickable" render flag.
    */
-  protected vsDrawMainOpen() { // default
+  protected vsPickMainBegin() {
     this._vertSrcBuf.push(`
 // ─────────────────────────────────────────────────────────────
-// Vertex shader main function for draw rendering
-// ─────────────────────────────────────────────────────────────
-
-void main(void) {`);
-    this._vsMeshLogic();
-    this._vsMeshLogic2();
-  }
-
-  /**
-   * Generates the opening of the vertex shader main function for pick rendering.
-   * @protected
-   */
-  protected vsPickMainOpen() { // pick
-    this._vertSrcBuf.push(`
-// ─────────────────────────────────────────────────────────────
-// Vertex shader main function for pick rendering
+// Vertex shader main function (pick pass)
 // ─────────────────────────────────────────────────────────────
 
 void main(void) {`);
@@ -930,24 +889,19 @@ void main(void) {`);
     this._vertSrcBuf.push(
       `    uint pickable = meshViewAttributes.renderFlags.g;`,
       `    if (pickable == 255u) {`,
-      //  "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
-      // "        return;",
       "    }");
     this._vsMeshLogic2();
   }
 
   /**
-   * Generates the closing of the vertex shader main function.
-   * @protected
+   * Closes the vertex shader main() function.
    */
-  protected vsMainClose() { // default, silhouette, pick
-    this._vertSrcBuf.push(
-      "}");
+  protected vsMainEnd() {
+    this._vertSrcBuf.push("}");
   }
 
   /**
-   * Generates vertex shader logic for slicing (section planes).
-   * @protected
+   * Emits section-plane clipping logic (currently a stub pending section-plane support).
    */
   protected vsSlicingLogic() {
     // if (this._renderContext.view.getNumAllocatedSectionPlanes() > 0) {
@@ -1052,24 +1006,20 @@ void main(void) {`);
     );
   }
 
-  protected vsLambertShadingLogic(silhouette?: boolean) {
+  /**
+   * Writes the mesh's RGBA8 color into vColor and the view-space position into vViewPos,
+   * which the fragment shader uses for face-normal reconstruction (dFdx/dFdy).
+   */
+  protected vsLambertShadingLogic() {
     this._vertSrcBuf.push(`
     // ─────────────────────────────────────────────────────────
-    // Lighting section: pass through data needed by the fragment shader
+    // Lambert shading vertex pass-through
     // ─────────────────────────────────────────────────────────
-    // Lambert shading is computed per-fragment from dFdx/dFdy of view-space
-    // position. That gives a flat face normal without reconstructing the full
-    // triangle in the vertex shader.
+    // Actual lighting is computed per-fragment from dFdx/dFdy(vViewPos),
+    // giving a flat face normal without a per-vertex triangle refetch.
 
-    // Fetch mesh base color or silhouette color
-    vec4 color = ${silhouette
-      ? "vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, uSilhouetteColor.a);"
-      : "vec4(meshViewAttributes.color) / 255.0; // Stored as RGBA8 in uvec4, convert to float 0..1."}
-
-    // Pass through the base color and view-space position.
-    // vColor remains flat per primitive/mesh color.
-    // vViewPos is interpolated for fragment derivatives.
-    vColor = color;
+    vec4 color = vec4(meshViewAttributes.color) / 255.0; // RGBA8 → float [0,1]
+    vColor   = color;
     vViewPos = viewPos.xyz;`
     );
   }
@@ -1182,15 +1132,7 @@ void main(void) {`);
   }
 
   /**
-   * Inserts a line of custom vertex shader code into the generated vertex shader source.
-   */
-  protected fragmentCode(src) {
-    this._fragSrcBuf.push(src);
-  }
-
-  /**
-   * Generates the fragment shader header.
-   * @protected
+   * Emits the fragment shader version directive and identifying comment.
    */
   protected fsHeader() {
     this._fragSrcBuf.push(
@@ -1199,10 +1141,9 @@ void main(void) {`);
   }
 
   /**
-   * Generates fragment shader precision definitions.
-   * @protected
+   * Emits precision qualifier declarations required by all fragment shaders.
    */
-  protected fsPrecisionDefines() {
+  protected fsPrecisionDeclarations() {
     this._fragSrcBuf.push(
       "#ifdef GL_FRAGMENT_PRECISION_HIGH",
       "precision highp float;",
@@ -1220,52 +1161,47 @@ void main(void) {`);
   }
 
   /**
-   * Generates fragment shader common definitions.
-   * @protected
+   * Declares the working color variable and the standard color output.
+   * Pick techniques declare their own MRT outputs and do NOT call this.
    */
-  protected fsCommonDefines() {
+  protected fsColorDeclarations() {
     this._fragSrcBuf.push(
       "vec4 color;",
       "out vec4 outColor;");
   }
 
   /**
-   * Generates fragment shader defines for silhouette rendering.
-   * @protected
+   * Declares the flat color varying read by silhouette logic.
    */
-  protected fsSilhouetteDefines() {
+  protected fsSilhouetteDeclarations() {
     this._fragSrcBuf.push("flat in vec4 vColor;");
   }
 
   /**
-   * Generates fragment shader logic for silhouette rendering.
-   * @protected
+   * Assigns the interpolated vertex color to the working color variable.
    */
   protected fsSilhouetteLogic() {
     this._fragSrcBuf.push("color = vColor;");
   }
 
   /**
-   * Generates fragment shader defines for flat-shaded color rendering.
-   * @protected
+   * Declares the flat color varying read by flat-shaded color logic.
    */
-  protected fsDrawFlatColorDefines() {
+  protected fsDrawFlatColorDeclarations() {
     this._fragSrcBuf.push("flat in vec4 vColor;");
   }
 
   /**
-   * Generates fragment shader logic for flat-shaded color rendering.
-   * @protected
+   * Assigns the flat color varying to the working color variable.
    */
   protected fsDrawFlatColorLogic() {
     this._fragSrcBuf.push("color = vColor;");
   }
 
   /**
-   * Generates fragment shader defines for Lambert shading.
-   * @protected
+   * Declares the varyings and light uniforms required by Lambert shading in the fragment shader.
    */
-  protected fsLambertShadingDefines() {
+  protected fsLambertShadingDeclarations() {
     const src = this._fragSrcBuf;
     src.push(
       "flat in vec4 vColor;",
@@ -1310,10 +1246,9 @@ void main(void) {`);
   }
 
   /**
-   * Generates fragment shader defines for depth rendering.
-   * @protected
+   * Declares the high-precision depth varying used for linearized depth rendering.
    */
-  protected fsDrawDepthDefines() {
+  protected fsDrawDepthDeclarations() {
     this._fragSrcBuf.push("in vec2 vHighPrecisionZW;");
   }
 
@@ -1328,10 +1263,9 @@ void main(void) {`);
   }
 
   /**
-   * Generates fragment shader defines for screen-space ambient occlusion (SAO).
-   * @protected
+   * Declares the SAO occlusion sampler and unpacking helpers.
    */
-  protected fsDrawSAODefs() {
+  protected fsDrawSAODeclarations() {
     this._fragSrcBuf.push(
       "uniform sampler2D saoOcclusionTexture;",
       "uniform vec4      saoParams;",
@@ -1359,10 +1293,10 @@ void main(void) {`);
   }
 
   /**
-   * Generates fragment shader defines for pick rendering.
-   * @protected
+   * Declares the pick-pass MRT outputs, pick depth uniforms, and bit-packing helpers.
+   * Pick techniques call this instead of {@link fsColorDeclarations}.
    */
-  protected fsPickMeshDefines() {
+  protected fsPickMeshDeclarations() {
     this._fragSrcBuf.push(
       `flat in uint vMeshIndex;
        flat in uint vBatchIndex;
@@ -1401,10 +1335,6 @@ void main(void) {`);
    * Generates fragment shader logic for pick rendering.
    * @protected
    */
-  // protected fsPickMeshLogic() {
-  //   this._fragSrcBuf.push("color = vPickColor;");
-  // }
-
   protected fsPickMeshLogic() {
     this._fragSrcBuf.push(`
     outBatchIndex = packUintToRGBA8(vBatchIndex);
@@ -1416,10 +1346,9 @@ void main(void) {`);
 
 
   /**
-   * Generates fragment shader defines for slicing (section planes).
-   * @protected
+   * Declares section-plane varyings in the fragment shader (currently a stub pending section-plane support).
    */
-  protected fsSlicingDefines() {
+  protected fsSlicingDeclarations() {
     // const numSectionPlanes = this._renderContext.view.getNumAllocatedSectionPlanes();
     // if (numSectionPlanes === 0) {
     //   return;
@@ -1435,8 +1364,7 @@ void main(void) {`);
   }
 
   /**
-   * Generates fragment shader logic for slicing (section planes).
-   * @protected
+   * Emits section-plane discarding logic (currently a stub pending section-plane support).
    */
   protected fsSlicingLogic() {
     // const numSectionPlanes = this._renderContext.view.getNumAllocatedSectionPlanes();
@@ -1456,27 +1384,23 @@ void main(void) {`);
   }
 
   /**
-   * Generates fragment shader defines for point rendering.
-   * @protected
+   * Declares the round-points uniform used to discard fragments outside the point circle.
    */
-  protected fsPointsDefines(): void {
+  protected fsPointsDeclarations(): void {
     this._fragSrcBuf.push(`uniform int uRoundPoints;`);
   }
 
   /**
-   * Generates the opening of the fragment shader main function.
-   * @protected
+   * Opens the fragment shader main() function.
    */
-  protected fsMainOpen() {
+  protected fsMainBegin() {
     this._fragSrcBuf.push("void main(void) {");
   }
 
-
   /**
-   * Generates the closing of the fragment shader main function.
-   * @protected
+   * Closes the fragment shader main() function.
    */
-  protected fsMainClose() {
+  protected fsMainEnd() {
     this._fragSrcBuf.push("}");
   }
 
@@ -1498,10 +1422,10 @@ void main(void) {`);
   }
 
   /**
-   * Generates fragment shader logic for common output.
-   * @protected
+   * Writes the accumulated color variable to the standard fragment output.
+   * Pick techniques write directly to MRT outputs and do NOT call this.
    */
-  protected fsCommonOutput() {
+  protected fsOutputColor() {
     this._fragSrcBuf.push("outColor = color;");
   }
 

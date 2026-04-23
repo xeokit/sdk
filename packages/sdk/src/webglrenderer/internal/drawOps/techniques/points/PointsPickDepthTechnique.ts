@@ -1,7 +1,7 @@
 import {DrawTechnique} from "../../DrawTechnique";
 
 /**
- * Draw technique for rendering point depth for picking.
+ * Draw technique for rendering point cloud depth into the pick framebuffer.
  * @internal
  */
 export class PointsPickDepth extends DrawTechnique {
@@ -11,25 +11,25 @@ export class PointsPickDepth extends DrawTechnique {
 
   protected buildVertexShader(): void {
     this.vsHeader();
-    this.vsCommonDefines();
-    this.vsSlicingDefines();
-    this.vsDrawDepthDefines();
-    this.vsPickMainOpen(); // Depth rendering is always for picking
+    this.vsCommonDeclarations();
+    this.vsSlicingDeclarations();
+    this.vsDrawDepthDeclarations();
+    this.vsPickMainBegin();
     this.vsDrawDepthLogic();
     this.vsSlicingLogic();
-    this.vsMainClose();
+    this.vsMainEnd();
   }
 
   protected buildFragmentShader(): void {
     this.fsHeader();
-    this.fsPrecisionDefines();
-    this.fsCommonDefines();
-    this.fsSlicingDefines();
-    this.fsDrawDepthDefines();
-    this.fsMainOpen();
+    this.fsPrecisionDeclarations();
+    this.fsColorDeclarations();
+    this.fsSlicingDeclarations();
+    this.fsDrawDepthDeclarations();
+    this.fsMainBegin();
     this.fsSlicingLogic();
     this.fsDrawDepthLogic();
-    this.fsCommonOutput();
-    this.fsMainClose();
+    this.fsOutputColor();
+    this.fsMainEnd();
   }
 }

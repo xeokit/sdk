@@ -74,6 +74,9 @@ export class RendererMesh {
     this._meshHandle = meshHandle;
     this.gpuTile = null;
     this._viewFlags = new Uint8Array(renderContext.memoryConfigs.maxViews);
+    // GPU portions are created with objectVisible=true and meshVisible=true.
+    // CPU flags must match so that the first setObjectVisible(false) is not treated as a no-op.
+    this._viewFlags.fill(ViewStateBits.ObjectVisible | ViewStateBits.MeshVisible);
     this.setMatrix(sceneMesh.worldMatrix);
     this.setOpacity(sceneMesh.effectiveOpacity);
   }

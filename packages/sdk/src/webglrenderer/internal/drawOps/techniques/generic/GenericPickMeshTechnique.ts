@@ -3,7 +3,7 @@ import {RenderContext} from "../../../RenderContext";
 import type {GPUMemoryReader} from "../../../gpuMemoryManager";
 
 /**
- * Draw technique for rendering meshes for picking, generic for all primitive types.
+ * Draw technique for rendering meshes into the pick framebuffer — generic across all primitive types.
  * @internal
  */
 export class GenericPickMeshTechnique extends DrawTechnique {
@@ -17,25 +17,25 @@ export class GenericPickMeshTechnique extends DrawTechnique {
 
   protected buildVertexShader(): void {
     this.vsHeader();
-    this.vsCommonDefines();
-    this.vsSlicingDefines();
-    this.vsPickDefines();
-    this.vsPickMeshDefines();
-    this.vsPickMainOpen();
+    this.vsCommonDeclarations();
+    this.vsSlicingDeclarations();
+    this.vsPickDeclarations();
+    this.vsPickMainBegin();
     this.vsPickMeshLogic();
     this.vsSlicingLogic();
-    this.vsMainClose();
+    this.vsMainEnd();
   }
 
   protected buildFragmentShader(): void {
     this.fsHeader();
-    this.fsPrecisionDefines();
-    //this.fsCommonDefines();
-    this.fsSlicingDefines();
-    this.fsPickMeshDefines();
-    this.fsMainOpen();
+    this.fsPrecisionDeclarations();
+    // Pick techniques use MRT outputs declared by fsPickMeshDeclarations(),
+    // so fsColorDeclarations() is intentionally omitted here.
+    this.fsSlicingDeclarations();
+    this.fsPickMeshDeclarations();
+    this.fsMainBegin();
     this.fsSlicingLogic();
     this.fsPickMeshLogic();
-    this.fsMainClose();
+    this.fsMainEnd();
   }
 }

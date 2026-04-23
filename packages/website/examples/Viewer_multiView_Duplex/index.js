@@ -1,213 +1,336 @@
 // Import the xeokit SDK bundle. This bundle provides the demo helper
-// together with the scene, data, loader, and view APIs used by this
-// example.
+// together with the scene, data, loader, and rendering APIs used by this example.
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
-// Create the demo helper without automatically creating a default View.
-// This example creates and configures three separate Views manually.
 const demoHelper = new xeokit.demo.DemoHelper({
-  makeView: false,
-  maxViews: 3
+  maxViews: 2
 });
 
-// Initialize the shared runtime context before creating Views or
-// loading model content.
-demoHelper.init().then(() => {
+function must(result, what) {
+  if (!result.ok) {
+    throw new Error(`Failed to create ${what}: ${result.error}`);
+  }
+  return result.value;
+}
 
-  // Access the core subsystems created by the DemoHelper. The Viewer
-  // manages Views, the Scene manages renderable content, and the Data
-  // subsystem manages metadata and semantic relationships.
-  const { viewer, scene, data } = demoHelper;
+function subtractVec3(a, b) {
+  return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+}
 
-  // Create the first View and bind it to the first canvas. This View
-  // uses a perspective camera positioned to show the model from an
-  // elevated side angle.
-  const view1Result = viewer.createView({
-    id: "demoView1",
-    elementId: "demoCanvas1"
-  });
+function scaleVec3(v, s) {
+  return [v[0] * s, v[1] * s, v[2] * s];
+}
 
-  if (!view1Result.ok) {
-    throw new Error("Failed to create View: " + view1Result.error);
+function addVec3(a, b) {
+  return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+}
+
+function crossVec3(a, b) {
+  return [
+    a[1] * b[2] - a[2] * b[1],
+    a[2] * b[0] - a[0] * b[2],
+    a[0] * b[1] - a[1] * b[0]
+  ];
+}
+
+function lengthVec3(v) {
+  return Math.hypot(v[0], v[1], v[2]);
+}
+
+function normalizeVec3(v) {
+  const len = lengthVec3(v);
+  if (len < 1e-8) {
+    return [0, 0, 1];
+  }
+  return [v[0] / len, v[1] / len, v[2] / len];
+}
+
+function composeBasisMatrix4(origin, xAxis, yAxis, zAxis, scale) {
+  return [
+    xAxis[0] * scale[0], xAxis[1] * scale[0], xAxis[2] * scale[0], 0,
+    yAxis[0] * scale[1], yAxis[1] * scale[1], yAxis[2] * scale[1], 0,
+    zAxis[0] * scale[2], zAxis[1] * scale[2], zAxis[2] * scale[2], 0,
+    origin[0], origin[1], origin[2], 1
+  ];
+}
+
+function getCameraBasis(camera) {
+  const eye = camera.eye;
+  const look = camera.look;
+  const forward = normalizeVec3(subtractVec3(look, eye));
+  let right = normalizeVec3(crossVec3(forward, camera.up));
+
+  if (lengthVec3(right) < 1e-6) {
+    right = [1, 0, 0];
   }
 
-  const view1 = view1Result.value;
+  const up = normalizeVec3(crossVec3(right, forward));
+  return { eye, forward, right, up };
+}
 
-  view1.camera.eye = [15, 23, 8];
-  view1.camera.look = [4, 10, 0];
-  view1.camera.up = [0, 0, 1];
+function createFrustumGeometry({ near = 0.35, far = 1.0, nearHalfWidth = 0.08, nearHalfHeight = 0.08, farHalfWidth = 0.45, farHalfHeight = 0.28 }) {
+  // Local +Y is camera-forward. The frustum is truncated: no apex.
+  // Near plane is close to the camera eye, far plane points away from it.
+  const positions = [
+    // Near plane, y = near
+    -nearHalfWidth, near, -nearHalfHeight,
+    nearHalfWidth, near, -nearHalfHeight,
+    nearHalfWidth, near,  nearHalfHeight,
+    -nearHalfWidth, near,  nearHalfHeight,
 
-  // Create the second View and bind it to the second canvas. This View
-  // is configured as a top-oriented architectural view.
-  const view2Result = viewer.createView({
-    id: "demoView2",
-    elementId: "demoCanvas2"
+    // Far plane, y = far
+    -farHalfWidth, far, -farHalfHeight,
+    farHalfWidth, far, -farHalfHeight,
+    farHalfWidth, far,  farHalfHeight,
+    -farHalfWidth, far,  farHalfHeight
+  ];
+
+  const indices = [
+    // near cap
+    0, 1, 2, 0, 2, 3,
+    // far cap
+    4, 6, 5, 4, 7, 6,
+    // sides
+    0, 4, 5, 0, 5, 1,
+    1, 5, 6, 1, 6, 2,
+    2, 6, 7, 2, 7, 3,
+    3, 7, 4, 3, 4, 0
+  ];
+
+  return { positions, indices };
+}
+
+function createCameraMarker(sceneModel, idPrefix, color, layerId) {
+  const bodyId = `${idPrefix}.body`;
+  const frustumId = `${idPrefix}.frustum`;
+  const objectId = `${idPrefix}.object`;
+
+  sceneModel.createMesh({
+    id: bodyId,
+    geometryId: "cameraBodyGeometry",
+    matrix: xeokit.scene.buildMat4({
+      position: [0, 0, 0],
+      scale: [1, 1, 1]
+    }),
+    color,
+    opacity: 0.95
   });
 
-  if (!view2Result.ok) {
-    throw new Error("Failed to create View: " + view2Result.error);
-  }
-
-  const view2 = view2Result.value;
-
-  view2.camera.eye = [5, 9, 20];
-  view2.camera.look = [5, 9, 0];
-  view2.camera.up = [1, 0, 0];
-
-  // Create the third View and bind it to the third canvas. This View
-  // provides an alternate perspective angle onto the same model.
-  const view3Result = viewer.createView({
-    id: "demoView3",
-    elementId: "demoCanvas3"
+  sceneModel.createMesh({
+    id: frustumId,
+    geometryId: "cameraFrustumGeometry",
+    matrix: xeokit.scene.buildMat4({
+      position: [0, 0, 0],
+      scale: [1, 1, 1]
+    }),
+    color,
+    opacity: 0.22
   });
 
-  if (!view3Result.ok) {
-    throw new Error("Failed to create View: " + view3Result.error);
+  sceneModel.createObject({
+    id: objectId,
+    meshIds: [bodyId, frustumId],
+    layerId
+  });
+
+  return { bodyId, frustumId, objectId };
+}
+
+function updateCameraMarker(sceneModel, marker, camera, markerSize = 0.45, frustumLength = 4.0) {
+  const { eye, forward, right, up } = getCameraBasis(camera);
+
+  const fovDeg = camera.perspectiveProjection?.fov ?? 60;
+  const fovRad = fovDeg * Math.PI / 180;
+
+  // Use the view canvas aspect ratio when available, otherwise fall back to 16:9.
+  const canvas = camera.view?.canvasElement;
+  const aspect = canvas && canvas.clientHeight > 0 ? canvas.clientWidth / canvas.clientHeight : 16 / 9;
+
+  const farHalfHeight = Math.tan(fovRad * 0.5) * frustumLength;
+  const farHalfWidth = farHalfHeight * aspect;
+  const nearHalfHeight = farHalfHeight * 0.12;
+  const nearHalfWidth = farHalfWidth * 0.12;
+
+  const bodyMatrix = composeBasisMatrix4(
+    eye,
+    right,
+    forward,
+    up,
+    [markerSize, markerSize, markerSize]
+  );
+
+  // The generated frustum is normalized to: near=0.35, far=1.0,
+  // nearHalfWidth/Height=0.08, farHalfWidth=0.45, farHalfHeight=0.28.
+  // Scale it so local +Y follows the camera forward vector, with the wide end
+  // away from the camera. This is the "flipped" direction requested.
+  const frustumMatrix = composeBasisMatrix4(
+    eye,
+    right,
+    forward,
+    up,
+    [farHalfWidth / 0.45, frustumLength, farHalfHeight / 0.28]
+  );
+
+  sceneModel.meshes[marker.bodyId].matrix = bodyMatrix;
+  sceneModel.meshes[marker.frustumId].matrix = frustumMatrix;
+}
+
+function syncCameraMarkers(sceneModel, viewA, viewB, markerA, markerB) {
+  // In view B we show view A's camera marker.
+  updateCameraMarker(sceneModel, markerA, viewA.camera);
+
+  // In view A we show view B's camera marker.
+  updateCameraMarker(sceneModel, markerB, viewB.camera);
+}
+
+function mustLayer(view, layerId) {
+  const layer = view.layers[layerId];
+  if (!layer) {
+    throw new Error(`Expected ViewLayer "${layerId}" in View "${view.id}"`);
   }
+  return layer;
+}
 
-  const view3 = view3Result.value;
+function setViewLayerVisible(view, layerId, visible) {
+  const layer = mustLayer(view, layerId);
+  layer.setObjectsVisible(layer.objectIds, visible);
+}
 
-  view3.camera.eye = [5, 28, 2];
-  view3.camera.look = [5, 9, 2];
-  view3.camera.up = [0, 0, 1];
+async function main() {
+  await demoHelper.init();
 
-  // Attach independent interaction controllers to each View so that
-  // each canvas can orbit, pan, and zoom separately.
-  new xeokit.viewcontroller.ViewController(view1, {});
-  new xeokit.viewcontroller.ViewController(view2, {});
-  new xeokit.viewcontroller.ViewController(view3, {});
+  const { scene, data, viewer } = demoHelper;
 
-  // Create a SceneModel to hold renderable model content. The
-  // coordinate system is defined explicitly so axis orientation and
-  // units are interpreted consistently.
-  const sceneModelResult = scene.createModel({
+  // Two views of the same building. Each view shows a 3D marker for the other
+  // view's camera. The marker is a small sphere plus a truncated frustum that
+  // indicates the camera's position, orientation, and perspective field of view.
+  const viewA = demoHelper.createView({
+    id: "viewA",
+    camera: {
+      projection: "perspective",
+      eye: [-16, -14, 10],
+      look: [4, 4, 4],
+      up: [0, 0, 1]
+    }
+  });
+
+  const viewB = demoHelper.createView({
+    id: "viewB",
+    camera: {
+      projection: "perspective",
+      eye: [22, 4, 8],
+      look: [4, 4, 4],
+      up: [0, 0, 1]
+    }
+  });
+
+  const sceneModel = must(scene.createModel({
     id: "demoModel",
     coordinateSystem: {
       basis: [
         1, 0, 0,
-        0, 1, 0,
-        0, 0, 1
+        0, 0, 1,
+        0, 1, 0
       ],
       origin: [0, 0, 0],
       units: "meters",
       scaleToMeters: 1
     }
-  });
+  }), "SceneModel");
 
-  if (!sceneModelResult.ok) {
-    throw new Error("Failed to create SceneModel: " + sceneModelResult.error);
-  }
-
-  const sceneModel = sceneModelResult.value;
-
-  // Create a DataModel to hold semantic content such as object types,
-  // relationships, and properties. The DataModel uses the same logical
-  // model identifier as the SceneModel.
-  const dataModelResult = data.createModel({
+  const dataModel = must(data.createModel({
     id: "demoModel"
+  }), "DataModel");
+
+  const sphere = must(xeokit.procgen.buildSphereGeometry({
+    radius: 1,
+    widthSegments: 16,
+    heightSegments: 12
+  }), "sphere geometry");
+
+  const frustum = createFrustumGeometry({
+    near: 0.35,
+    far: 1.0,
+    nearHalfWidth: 0.08,
+    nearHalfHeight: 0.08,
+    farHalfWidth: 0.45,
+    farHalfHeight: 0.28
   });
 
-  if (!dataModelResult.ok) {
-    throw new Error("Failed to create DataModel: " + dataModelResult.error);
-  }
+  sceneModel.createGeometry({
+    id: "cameraBodyGeometry",
+    primitive: xeokit.constants.TrianglesPrimitive,
+    positions: sphere.positions,
+    indices: sphere.indices
+  });
 
-  const dataModel = dataModelResult.value;
+  sceneModel.createGeometry({
+    id: "cameraFrustumGeometry",
+    primitive: xeokit.constants.TrianglesPrimitive,
+    positions: frustum.positions,
+    indices: frustum.indices
+  });
 
-  // Create an IFCLoader and use it to load the IFC file into both the
-  // renderable and semantic model layers.
-  const ifcLoader = new xeokit.formats.ifc.IFCLoader();
+  // Load one building and show it in both views.
+  await demoHelper.loadModel({
+    id: "demoModel",
+    src: "../../models/Duplex/datamodel/model.json",
+    format: "datamodel",
+    dataModel
+  });
 
-  fetch(`../../models/Duplex/ifc/model.ifc`)
-      .then((response) => response.arrayBuffer())
-      .then((fileData) => {
-        return ifcLoader.load({
-          fileData,
-          sceneModel,
-          dataModel
-        });
-      })
-      .then(() => {
+  await demoHelper.loadModel({
+    id: "demoModel",
+    src: "../../models/Duplex/xgf/model.xgf",
+    format: "xgf",
+    sceneModel
+  });
 
-        // Query the semantic graph and apply per-view appearance changes.
-        // These changes are local to each View and do not affect the
-        // appearance of the model in other Views.
+  const cameraALayerId = "cameraAIndicator";
+  const cameraBLayerId = "cameraBIndicator";
 
-        {
-          // In the first View, X-ray exterior and envelope-style elements
-          // so the model remains visible while appearing partially transparent.
-          const resultObjectIds = [];
-          const result = xeokit.data.searchObjects(data, {
-            startObjectId: "1xS3BCk291UvhgP2a6eflK",
-            includeObjects: [
-              "IfcWallStandardCase",
-              "IfcWall",
-              "IfcRoof",
-              "IfcDoor",
-              "IfcWindow",
-              "IfcStairCase"
-            ],
-            includeRelated: ["IfcRelAggregates"],
-            resultObjectIds
-          });
+  // Each marker SceneObject gets its own layerId. Because ViewLayers group
+  // ViewObjects by SceneObject.layerId, each View can independently show or
+  // hide each marker layer.
+  const markerA = createCameraMarker(sceneModel, "cameraAMarker", [0.98, 0.40, 0.12], cameraALayerId);
+  const markerB = createCameraMarker(sceneModel, "cameraBMarker", [0.18, 0.48, 0.95], cameraBLayerId);
 
-          if (!result.ok) {
-            console.error(result);
-            return;
-          }
+  sceneModel.finalize();
 
-          view1.setObjectsXRayed(resultObjectIds, true);
-        }
+  const syncMarkers = () => {
+    syncCameraMarkers(sceneModel, viewA, viewB, markerA, markerB);
+  };
 
-        {
-          // In the second View, highlight furniture elements so they stand
-          // out clearly from the rest of the model.
-          const resultObjectIds = [];
-          const result = xeokit.data.searchObjects(data, {
-            startObjectId: "1xS3BCk291UvhgP2a6eflK",
-            includeObjects: ["IfcFurnishingElement"],
-            includeRelated: ["IfcRelAggregates"],
-            resultObjectIds
-          });
+  syncMarkers();
 
-          if (!result.ok) {
-            console.error(result);
-            return;
-          }
+  // Marker visibility is per-view:
+  // - view A shows only view B's camera indicator
+  // - view B shows only view A's camera indicator
+  setViewLayerVisible(viewA, cameraALayerId, false);
+  setViewLayerVisible(viewA, cameraBLayerId, true);
+  setViewLayerVisible(viewB, cameraALayerId, true);
+  setViewLayerVisible(viewB, cameraBLayerId, false);
 
-          view2.setObjectsHighlighted(resultObjectIds, true);
-        }
+  // Sync marker transforms via Viewer#events instead of a requestAnimationFrame loop.
+  viewer.events.onCameraViewMatrixUpdated.subscribe(() => {
+    syncMarkers();
+  });
 
-        {
-          // In the third View, hide envelope-style elements to expose the
-          // interior of the building more clearly.
-          const resultObjectIds = [];
-          const result = xeokit.data.searchObjects(data, {
-            startObjectId: "1xS3BCk291UvhgP2a6eflK",
-            includeObjects: [
-              "IfcWallStandardCase",
-              "IfcWall",
-              "IfcRoof",
-              "IfcDoor",
-              "IfcWindow",
-              "IfcStairCase"
-            ],
-            includeRelated: ["IfcRelAggregates"],
-            resultObjectIds
-          });
+  viewer.events.onCameraProjMatrixUpdated.subscribe(() => {
+    syncMarkers();
+  });
 
-          if (!result.ok) {
-            console.error(result);
-            return;
-          }
+  viewer.events.onCameraProjectionTypeChanged.subscribe(() => {
+    syncMarkers();
+  });
 
-          view3.setObjectsVisible(resultObjectIds, false);
-        }
+  viewer.events.onViewCanvasBoundaryChanged.subscribe(() => {
+    syncMarkers();
+  });
 
-        // Signal that loading and setup have completed.
-        demoHelper.finished();
-      })
-      .catch((err) => {
-        console.error(err);
-        throw err;
-      });
+  demoHelper.finished();
+}
+
+main().catch((err) => {
+  console.error(err);
 });

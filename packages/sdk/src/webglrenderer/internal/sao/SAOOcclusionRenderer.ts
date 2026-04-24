@@ -17,7 +17,7 @@ export class SAOOcclusionRenderer {
   #programError: boolean;
   #aPosition: WebGLAttribute;
   #aUV: WebGLAttribute;
-  #uDepthTexture: string;
+  #uDepthTexture: WebGLUniformLocation;
   #uCameraNear: WebGLUniformLocation;
   #uCameraFar: WebGLUniformLocation;
   #uCameraProjectionMatrix: WebGLUniformLocation;
@@ -54,7 +54,7 @@ export class SAOOcclusionRenderer {
     this.#aPosition = null;
     this.#aUV = null;
 
-    this.#uDepthTexture = "uDepthTexture";
+    this.#uDepthTexture = null;
 
     this.#uCameraNear = null;
     this.#uCameraFar = null;
@@ -132,9 +132,11 @@ export class SAOOcclusionRenderer {
     gl.uniform2fv(this.#uViewport, <Float32List>tempVec2);
     gl.uniform1f(this.#uRandomSeed, randomSeed);
 
-    // const depthTexture = depthRenderBuffer.getDepthTexture();
-    //
-    // program.bindTexture(this.#uDepthTexture, depthTexture, 0);
+    const depthTexture = depthRenderBuffer.getDepthTexture();
+    if (depthTexture) {
+      depthTexture.bind(0);
+      gl.uniform1i(this.#uDepthTexture, 0);
+    }
 
     this.#aUV.bindArrayBuffer(this.#uvBuf);
     this.#aPosition.bindArrayBuffer(this.#positionsBuf);
@@ -337,12 +339,13 @@ export class SAOOcclusionRenderer {
 
                 	float ambientOcclusion = getAmbientOcclusion( viewPosition );
 
-                	outColor = packFloatToRGBA(  1.0- ambientOcclusion );
+                	outColor = packFloatToRGBA( clamp( 1.0 - ambientOcclusion, 0.0, 1.0 ) );
                 }`
     });
 
-    if (this.#program.errors) {
-      console.error(this.#program.errors.join("\n"));
+    const initResult = this.#program.init();
+    if (initResult.ok === false || this.#program.errors) {
+      console.error(this.#program.errors ? this.#program.errors.join("\n") : (initResult as any).error);
       this.#programError = true;
       return;
     }
@@ -377,6 +380,7 @@ export class SAOOcclusionRenderer {
 
     this.#aPosition = this.#program.getAttribute("aPosition");
     this.#aUV = this.#program.getAttribute("aUV");
+    this.#uDepthTexture = this.#program.getSampler("uDepthTexture");
 
     this.#dirty = false;
   }

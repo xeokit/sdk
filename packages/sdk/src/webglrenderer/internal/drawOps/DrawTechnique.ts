@@ -462,6 +462,10 @@ export abstract class DrawTechnique {
         ? batchDataTextures.edgeIndexTexture
         : batchDataTextures.indexTexture);
 
+    // Bind SAO occlusion texture after all per-batch data textures so its texture
+    // unit isn't clobbered by the data-texture bindings above.
+    this._bindSAOTexture();
+
     if (this._uniforms.batchIndex) {
       gl.uniform1ui(this._uniforms.batchIndex, meshBatch.gpuMemoryBatchIndex);
     }
@@ -1288,8 +1292,9 @@ void main(void) {`);
       "   float saoBlendCutoff = saoParams[2];",
       "   float saoBlendFactor = saoParams[3];",
       "   vec2  saoUV = vec2(gl_FragCoord.x / saoViewportWidth, gl_FragCoord.y / saoViewportHeight);",
-      "   float saoAmbient = smoothstep(saoBlendCutoff, 1.0, saoUnpackRGBToFloat(texture(saoOcclusionTexture, saoUV))) * saoBlendFactor;",
-      "   color = vec4(color.rgb * saoAmbient, 1.0);");
+      "   float saoOcclusion = saoUnpackRGBToFloat(texture(saoOcclusionTexture, saoUV));",
+      "   float saoAOFactor = (smoothstep(saoBlendCutoff, 1.0, saoOcclusion) - 1.0) * saoBlendFactor + 1.0;",
+      "   color = vec4(color.rgb * clamp(saoAOFactor, 0.0, 1.0), color.a);");
   }
 
   /**
@@ -1583,19 +1588,29 @@ void main(void) {`);
       }
     }
 
-    const sao = view.sao;
-    const saoEnabled = sao.possible;
-    if (saoEnabled) {
-      // if (uniforms.saoParams) {
-      //   gl.uniform4f(uniforms.saoParams, gl.drawingBufferWidth, gl.drawingBufferHeight, sao.blendCutoff, sao.blendFactor);
-      //   program.bindTexture(
-      //     this._samplers.saoOcclusionTexture,
-      //     renderContext.saoOcclusionTexture,
-      //     renderContext.textureUnit);
-      //   renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
-      // }
+    // Note: the SAO occlusion texture is intentionally bound inside _draw,
+    // AFTER the per-batch data textures — _draw resets textureUnit to 0 after _bind
+    // returns, and the data-texture bindings would clobber the unit this binding used.
+    if (uniforms.saoParams) {
+      const sao = view.sao;
+      gl.uniform4f(uniforms.saoParams, gl.drawingBufferWidth, gl.drawingBufferHeight, sao.blendCutoff, sao.blendFactor);
     }
     return true;
+  }
+
+  /**
+   * Binds the SAO occlusion texture and sets its sampler. Called from _draw after
+   * the per-batch data textures are bound, so that this binding is not clobbered.
+   */
+  private _bindSAOTexture(): void {
+    const renderContext = this._renderContext;
+    if (!this._samplers.saoOcclusionTexture || !renderContext.saoOcclusionTexture) {
+      return;
+    }
+    const unit = renderContext.textureUnit;
+    renderContext.saoOcclusionTexture.bind(unit);
+    renderContext.gl.uniform1i(this._samplers.saoOcclusionTexture, unit);
+    renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
   }
 
   /**

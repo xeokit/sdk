@@ -82,7 +82,7 @@ export class MeshBatchImpl implements MeshBatch {
     this.sortId = `batch-${primitive}`;
     this.numIndices = 0;
     this.numVertices = 0;
-    this.saoSupported = false;
+    this.saoSupported = true;
   }
 
   /**

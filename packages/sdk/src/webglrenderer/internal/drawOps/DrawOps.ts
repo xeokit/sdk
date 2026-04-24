@@ -3,6 +3,7 @@ import type {SDKResult} from "../../../core";
 import {RenderContext} from "../RenderContext";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../../../constants";
 import {TrianglesDrawColorTechnique} from "./techniques/triangles/TrianglesDrawColorTechnique";
+import {TrianglesDrawColorSAOTechnique} from "./techniques/triangles/TrianglesDrawColorSAOTechnique";
 import {GenericDrawSilhouetteTechnique} from "./techniques/generic/GenericDrawSilhouetteTechnique";
 import {PointsDrawColorTechnique} from "./techniques/points/PointsDrawColorTechnique";
 import {LinesDrawColorTechnique} from "./techniques/lines/LinesDrawColorTechnique";
@@ -148,6 +149,7 @@ export class DrawOps {
     const linesDrawSilhouette = saveForCleanup(new GenericDrawSilhouetteTechnique(renderContext, gpuMemoryReader, 2));
     const trianglesSilhouette = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader));
     const trianglesDrawColor = saveForCleanup(new TrianglesDrawColorTechnique(renderContext, gpuMemoryReader));
+    const trianglesDrawColorSAO = saveForCleanup(new TrianglesDrawColorSAOTechnique(renderContext, gpuMemoryReader));
     const trianglesDrawEdgeSilhouette = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader));
     const trianglesDrawEdgeColor = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader));
     const trianglesPickMesh = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 3));
@@ -175,6 +177,7 @@ export class DrawOps {
 
       [TrianglesPrimitive]: {
         opaque: new DrawOp(trianglesDrawColor, OPAQUE),
+        opaqueSAO: new DrawOp(trianglesDrawColorSAO, OPAQUE),
         opaqueEdges: new DrawOp(trianglesDrawEdgeColor, OPAQUE),
         transparent: new DrawOp(trianglesDrawColor, TRANSPARENT),
         transparentEdges: new DrawOp(trianglesDrawEdgeColor, TRANSPARENT),

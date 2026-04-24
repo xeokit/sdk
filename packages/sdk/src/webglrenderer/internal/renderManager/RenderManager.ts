@@ -10,6 +10,8 @@ import {SDKInternalException, type SDKResult} from "../../../core";
 import {RENDER_BINS} from "../RENDER_BINS";
 import {InfiniteGridRenderer} from "./InfiniteGridRenderer";
 import {SkyRenderer} from "./SkyRenderer";
+import {SAOOcclusionRenderer} from "../sao/SAOOcclusionRenderer";
+import {SAODepthLimitedBlurRenderer} from "../sao/SAODepthLimitedBlurRenderer";
 
 
 /**
@@ -62,28 +64,34 @@ export class RenderManager {
 
   /** Pre-allocated render bins, reused every frame to avoid per-frame array allocation. */
   private readonly _bins = {
-    normalDrawSAO:                    [] as MeshBatch[],
-    normalEdgesOpaque:                [] as MeshBatch[],
-    normalFillTransparent:            [] as MeshBatch[],
-    normalEdgesTransparent:           [] as MeshBatch[],
-    xrayedSilhouetteOpaque:           [] as MeshBatch[],
-    xrayEdgesOpaque:                  [] as MeshBatch[],
-    xrayedSilhouetteTransparent:      [] as MeshBatch[],
-    xrayEdgesTransparent:             [] as MeshBatch[],
-    highlightedSilhouetteOpaque:      [] as MeshBatch[],
-    highlightedEdgesOpaque:           [] as MeshBatch[],
+    normalDrawSAO: [] as MeshBatch[],
+    normalEdgesOpaque: [] as MeshBatch[],
+    normalFillTransparent: [] as MeshBatch[],
+    normalEdgesTransparent: [] as MeshBatch[],
+    xrayedSilhouetteOpaque: [] as MeshBatch[],
+    xrayEdgesOpaque: [] as MeshBatch[],
+    xrayedSilhouetteTransparent: [] as MeshBatch[],
+    xrayEdgesTransparent: [] as MeshBatch[],
+    highlightedSilhouetteOpaque: [] as MeshBatch[],
+    highlightedEdgesOpaque: [] as MeshBatch[],
     highlightedSilhouetteTransparent: [] as MeshBatch[],
-    highlightedEdgesTransparent:      [] as MeshBatch[],
-    selectedSilhouetteOpaque:         [] as MeshBatch[],
-    selectedEdgesOpaque:              [] as MeshBatch[],
-    selectedSilhouetteTransparent:    [] as MeshBatch[],
-    selectedEdgesTransparent:         [] as MeshBatch[],
+    highlightedEdgesTransparent: [] as MeshBatch[],
+    selectedSilhouetteOpaque: [] as MeshBatch[],
+    selectedEdgesOpaque: [] as MeshBatch[],
+    selectedSilhouetteTransparent: [] as MeshBatch[],
+    selectedEdgesTransparent: [] as MeshBatch[],
   };
 
   /**
    * Sky/environment renderer.
    */
   public skyRenderer: SkyRenderer;
+
+  /** Computes screen-space AO from the scene depth texture. */
+  private _saoOcclusionRenderer: SAOOcclusionRenderer;
+
+  /** Applies a depth-limited Gaussian blur to the AO occlusion texture. */
+  private _saoBlurRenderer: SAODepthLimitedBlurRenderer;
 
   /** Shared render context (WebGL state + global flags). */
   private _renderContext: RenderContext;
@@ -162,12 +170,20 @@ export class RenderManager {
       }
     }
 
+    if (!this._saoOcclusionRenderer) {
+      this._saoOcclusionRenderer = new SAOOcclusionRenderer({renderContext: this._renderContext});
+    }
+
+    if (!this._saoBlurRenderer) {
+      this._saoBlurRenderer = new SAODepthLimitedBlurRenderer({renderContext: this._renderContext});
+    }
+
     if (!this.skyRenderer) {
       this.skyRenderer = new SkyRenderer(this._renderContext.gl, {
-        skyColor:     [0.74, 0.80, 0.88],
+        skyColor: [0.74, 0.80, 0.88],
         horizonColor: [0.66, 0.72, 0.74],
         horizonBlend: 0.5,
-        groundColor:  [0.58, 0.64, 0.60]
+        groundColor: [0.58, 0.64, 0.60]
       });
       const skyResult = this.skyRenderer.init();
       if (skyResult.ok === false) {
@@ -181,6 +197,7 @@ export class RenderManager {
       value: undefined
     };
   }
+
   /**
    * Reinitializes draw operations after a WebGL context restore.
    */
@@ -246,22 +263,22 @@ export class RenderManager {
     drawInspector?.frameStarted(view);
 
     const bins = this._bins;
-    bins.normalDrawSAO.length                    = 0;
-    bins.normalEdgesOpaque.length                = 0;
-    bins.normalFillTransparent.length            = 0;
-    bins.normalEdgesTransparent.length           = 0;
-    bins.xrayedSilhouetteOpaque.length           = 0;
-    bins.xrayEdgesOpaque.length                  = 0;
-    bins.xrayedSilhouetteTransparent.length      = 0;
-    bins.xrayEdgesTransparent.length             = 0;
-    bins.highlightedSilhouetteOpaque.length      = 0;
-    bins.highlightedEdgesOpaque.length           = 0;
+    bins.normalDrawSAO.length = 0;
+    bins.normalEdgesOpaque.length = 0;
+    bins.normalFillTransparent.length = 0;
+    bins.normalEdgesTransparent.length = 0;
+    bins.xrayedSilhouetteOpaque.length = 0;
+    bins.xrayEdgesOpaque.length = 0;
+    bins.xrayedSilhouetteTransparent.length = 0;
+    bins.xrayEdgesTransparent.length = 0;
+    bins.highlightedSilhouetteOpaque.length = 0;
+    bins.highlightedEdgesOpaque.length = 0;
     bins.highlightedSilhouetteTransparent.length = 0;
-    bins.highlightedEdgesTransparent.length      = 0;
-    bins.selectedSilhouetteOpaque.length         = 0;
-    bins.selectedEdgesOpaque.length              = 0;
-    bins.selectedSilhouetteTransparent.length    = 0;
-    bins.selectedEdgesTransparent.length         = 0;
+    bins.highlightedEdgesTransparent.length = 0;
+    bins.selectedSilhouetteOpaque.length = 0;
+    bins.selectedEdgesOpaque.length = 0;
+    bins.selectedSilhouetteTransparent.length = 0;
+    bins.selectedEdgesTransparent.length = 0;
 
     const resolutionScale = view.resolutionScale.applied ? view.resolutionScale.resolutionScale : 1.0;
     renderContext.webglCanvasElement.width = Math.floor(gl.drawingBufferWidth * resolutionScale);
@@ -355,8 +372,61 @@ export class RenderManager {
     }
 
 
-    for (let i = 0; i < bins.normalDrawSAO.length; i++) {
-      //  renderers?.colorSAOOpaqueRenderer.bins.normalDrawSAO[i].drawColorSAOOpaque();
+    if (bins.normalDrawSAO.length > 0) {
+      const saoDepthBuffer = rendererView.renderBuffers.getRenderBuffer("saoDepth", {depthTexture: true});
+      const saoOcclusionBuffer = rendererView.renderBuffers.getRenderBuffer("saoOcclusion");
+
+      // Depth pass: render SAO geometry into depth FBO so AO can sample scene depth
+      saoDepthBuffer.bind();
+      gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      gl.enable(gl.DEPTH_TEST);
+      gl.depthMask(true);
+      renderContext.lastProgramId = -1;
+      for (let i = 0; i < bins.normalDrawSAO.length; i++) {
+        drawOps[bins.normalDrawSAO[i].primitive]?.opaque?.drawBatch(bins.normalDrawSAO[i]);
+      }
+      saoDepthBuffer.unbind();
+
+      // AO pass: compute occlusion from depth
+      saoOcclusionBuffer.bind();
+      this._saoOcclusionRenderer.render({depthRenderBuffer: saoDepthBuffer, view});
+      saoOcclusionBuffer.unbind();
+
+      // Blur pass (two-pass depth-limited Gaussian)
+      if (view.sao.blur) {
+        const saoBlurBuffer = rendererView.renderBuffers.getRenderBuffer("saoBlur");
+        saoBlurBuffer.bind();
+        this._saoBlurRenderer.render({
+          view,
+          depthRenderBuffer: saoDepthBuffer,
+          occlusionRenderBuffer: saoOcclusionBuffer,
+          direction: 0
+        });
+        saoBlurBuffer.unbind();
+        saoOcclusionBuffer.bind();
+        this._saoBlurRenderer.render({
+          view,
+          depthRenderBuffer: saoDepthBuffer,
+          occlusionRenderBuffer: saoBlurBuffer,
+          direction: 1
+        });
+        saoOcclusionBuffer.unbind();
+      }
+
+      // Draw SAO geometry to main framebuffer, reading the occlusion texture.
+      // SAO fullscreen passes above disabled depth test and bound their own program;
+      // restore depth test and force a program rebind so the next draw re-uploads all uniforms.
+      renderContext.saoOcclusionTexture = saoOcclusionBuffer.getTexture();
+      gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+      gl.enable(gl.DEPTH_TEST);
+      gl.depthMask(true);
+      gl.disable(gl.BLEND);
+      renderContext.lastProgramId = -1;
+      for (let i = 0; i < bins.normalDrawSAO.length; i++) {
+        drawOps[bins.normalDrawSAO[i].primitive]?.opaqueSAO?.drawBatch(bins.normalDrawSAO[i]);
+      }
     }
 
     if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.EDGES_OPAQUE)) {
@@ -391,9 +461,9 @@ export class RenderManager {
     ) {
       gl.enable(gl.CULL_FACE);
       gl.enable(gl.BLEND);
-     // if (rendererView.view.transparent) {
-        gl.blendEquation(gl.FUNC_ADD);
-        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+      // if (rendererView.view.transparent) {
+      gl.blendEquation(gl.FUNC_ADD);
+      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
       // } else {
       //   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       // }
@@ -441,7 +511,6 @@ export class RenderManager {
         gl.depthMask(true);
       }
     }
-
 
 
     gl.disable(gl.CULL_FACE);
@@ -534,6 +603,14 @@ export class RenderManager {
     if (this.skyRenderer) {
       this.skyRenderer.destroy();
       this.skyRenderer = null;
+    }
+    if (this._saoOcclusionRenderer) {
+      this._saoOcclusionRenderer.destroy();
+      this._saoOcclusionRenderer = null;
+    }
+    if (this._saoBlurRenderer) {
+      this._saoBlurRenderer.destroy();
+      this._saoBlurRenderer = null;
     }
     if (this.infiniteGrid) {
       this.infiniteGrid.destroy();

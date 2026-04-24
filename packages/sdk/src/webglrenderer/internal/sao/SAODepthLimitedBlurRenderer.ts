@@ -25,8 +25,8 @@ export class SAODepthLimitedBlurRenderer {
   #programError: boolean;
   #aPosition: WebGLAttribute;
   #aUV: WebGLAttribute;
-  #uDepthTexture: string;
-  #uOcclusionTexture: string;
+  #uDepthTexture: WebGLUniformLocation;
+  #uOcclusionTexture: WebGLUniformLocation;
   #uViewport: WebGLUniformLocation;
   #uCameraNear: WebGLUniformLocation;
   #uCameraFar: WebGLUniformLocation;
@@ -55,8 +55,8 @@ export class SAODepthLimitedBlurRenderer {
     this.#aPosition = null;
     this.#aUV = null;
 
-    this.#uDepthTexture = "uDepthTexture";
-    this.#uOcclusionTexture = "uOcclusionTexture";
+    this.#uDepthTexture = null;
+    this.#uOcclusionTexture = null;
 
     this.#uViewport = null;
     this.#uCameraNear = null;
@@ -211,8 +211,9 @@ export class SAODepthLimitedBlurRenderer {
                 }`
     });
 
-    if (this.#program.errors) {
-      console.error(this.#program.errors.join("\n"));
+    const initResult = this.#program.init();
+    if (initResult.ok === false || this.#program.errors) {
+      console.error(this.#program.errors ? this.#program.errors.join("\n") : (initResult as any).error);
       this.#programError = true;
       return;
     }
@@ -241,6 +242,8 @@ export class SAODepthLimitedBlurRenderer {
 
     this.#aPosition = this.#program.getAttribute("aPosition");
     this.#aUV = this.#program.getAttribute("aUV");
+    this.#uDepthTexture = this.#program.getSampler("uDepthTexture");
+    this.#uOcclusionTexture = this.#program.getSampler("uOcclusionTexture");
   }
 
   render(params: {
@@ -292,10 +295,13 @@ export class SAODepthLimitedBlurRenderer {
     gl.uniform1fv(this.#uSampleWeights, sampleWeights);
 
     const depthTexture = depthRenderBuffer.getDepthTexture();
+    if (depthTexture) {
+      depthTexture.bind(0);
+      gl.uniform1i(this.#uDepthTexture, 0);
+    }
     const saoOcclusionTexture = occlusionRenderBuffer.getTexture();
-
-    // program.bindTexture(this.#uDepthTexture, depthTexture, 0); // TODO: use FrameCtx.textureUnit
-    // program.bindTexture(this.#uOcclusionTexture, saoOcclusionTexture, 1);
+    saoOcclusionTexture.bind(1);
+    gl.uniform1i(this.#uOcclusionTexture, 1);
 
     this.#aUV.bindArrayBuffer(this.#uvBuf);
     this.#aPosition.bindArrayBuffer(this.#positionsBuf);

@@ -43,7 +43,7 @@ export class SAO {
     this._scale = (saoParams.scale !== undefined) ? saoParams.scale : 1.0;
     this._minResolution = (saoParams.minResolution !== undefined) ? saoParams.minResolution : 0.0;
     this._numSamples = (saoParams.numSamples !== undefined) ? saoParams.numSamples : 10;
-    this._blur = !!(saoParams.blur);
+    this._blur = saoParams.blur !== false;
     this._blendCutoff = (saoParams.blendCutoff !== undefined) ? saoParams.blendCutoff : 0.3;
     this._blendFactor = (saoParams.blendFactor !== undefined) ? saoParams.blendFactor : 1.0;
   }
@@ -77,7 +77,7 @@ export class SAO {
    * Even when enabled, SAO will only work if supported.
    */
   get supported(): boolean {
-    return false; //  this.view.viewer.renderer.getSAOSupported();
+    return true;
   }
 
   /**

@@ -16,6 +16,11 @@ export interface RenderPassDrawOps {
   opaque?: DrawOp;
 
   /**
+   * Draw operation for rendering opaque objects with SAO (Scalable Ambient Obscurance).
+   */
+  opaqueSAO?: DrawOp;
+
+  /**
    * Draw operation for rendering opaque edges.
    */
   opaqueEdges?: DrawOp;

@@ -110,8 +110,15 @@ export function buildCylinderGeometry(cfg: {
 
     const halfHeight = height / 2;
 
+    // Side-wall vertices, laid out as a (heightSegments + 1) × (radialSegments + 1)
+    // grid. Vertex (y, x) sits at flat index `y * stride + x` — used below to
+    // form quads between adjacent rows without a per-row scratch buffer.
+    //
+    // Note: `x = 0` and `x = radialSegments` give the same world position
+    // (the seam) but are kept as distinct vertices so UV.u runs from 0 to 1
+    // continuously around the cylinder instead of wrapping to 0 mid-quad.
+    const stride = radialSegments + 1;
     for (let y = 0; y <= heightSegments; y++) {
-        const indexRow: number[] = [];
         const v = y / heightSegments;
         const radius = v * (radiusBottom - radiusTop) + radiusTop;
 
@@ -129,20 +136,18 @@ export function buildCylinderGeometry(cfg: {
             positions.push(vertexX + center[0], vertexY + center[1], vertexZ + center[2]);
             normals.push(sinTheta, 0, cosTheta);
             uvs.push(u, 1 - v);
-
-            indexRow.push(positions.length / 3 - 1);
         }
+    }
 
-        if (y > 0) {
-            for (let x = 0; x < radialSegments; x++) {
-                const a = indexRow[x];
-                const b = indexRow[x + 1];
-                const c = indexRow[x + radialSegments + 1];
-                const d = indexRow[x + radialSegments];
+    for (let y = 1; y <= heightSegments; y++) {
+        for (let x = 0; x < radialSegments; x++) {
+            const a = (y - 1) * stride + x;       // top-left
+            const b = (y - 1) * stride + x + 1;   // top-right
+            const c = y * stride + x + 1;         // bottom-right
+            const d = y * stride + x;             // bottom-left
 
-                indices.push(a, b, d);
-                indices.push(b, c, d);
-            }
+            indices.push(a, b, d);
+            indices.push(b, c, d);
         }
     }
 

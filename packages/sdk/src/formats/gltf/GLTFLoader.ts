@@ -13,7 +13,7 @@ import {
   TrianglesPrimitive
 } from "../../constants";
 import {createMat4Float64, identityMat4, type Mat4, mulMat4, scalingMat4v, translationMat4v} from "../../math/matrix";
-import {createUUID, isString} from "../../utils";
+import {createUUID} from "../../utils";
 import {GLTFLoader as glGLTFLoader, postProcessGLTF} from '@loaders.gl/gltf';
 import type {ModelLoadParams} from "../ModelLoadParams";
 import {ModelLoader} from "../ModelLoader";
@@ -62,7 +62,15 @@ function parseGLTF(params: ModelLoadParams, options: any): Promise<any> {
     if (!sceneModel && !dataModel) {
       return resolve();
     }
-    parse(fileData, glGLTFLoader, {}).then((gltfData) => {
+    // baseUri lets loaders.gl resolve external buffers + textures (`.bin`,
+    // `.jpg`, etc.) referenced by relative URIs in the .gltf JSON. Without
+    // it, multi-file models can only be loaded once their resources have
+    // been pre-fetched. Single-file `.glb` doesn't need it.
+    const parseOptions: any = {};
+    if (options && options.baseUri) {
+      parseOptions.baseUri = options.baseUri;
+    }
+    parse(fileData, glGLTFLoader, parseOptions).then((gltfData) => {
       const processedGLTF = postProcessGLTF(gltfData);
       const ctx: ParsingContext = {
         nodesHaveNames: false, // determined in testIfNodesHaveNames()
@@ -180,7 +188,7 @@ function parseTexture(ctx: any, texture: any): boolean {
   }
   const result = ctx.sceneModel.createTexture({
     id: textureId,
-    imageData: texture.source.image,
+    image: texture.source.image,
     mediaType: texture.source.mediaType,
     compressed: true,
     width: texture.source.image.width,
@@ -207,150 +215,143 @@ function parseMaterials(ctx: ParsingContext): boolean {
   if (materials) {
     for (let i = 0, len = materials.length; i < len; i++) {
       const material = materials[i];
+      // Always-create: every glTF material maps to one SceneMaterial,
+      // even ones without textures, so meshes referencing them get
+      // their PBR factors via `materialId` rather than via a
+      // per-mesh fallback. Drops the legacy `_attributes`/null-return
+      // dance — color/opacity/roughness/metallic are now baked into
+      // the SceneMaterial up front.
       const materialCfg = parseMaterial(ctx, material);
-      if (materialCfg) {
-        const materialResult = ctx.sceneModel.createMaterial(materialCfg);
-        if (materialResult.ok === false) {
-          ctx.errors.push(`Failed to create SceneMaterial set -> ${materialResult.error}`);
-          return false;
-        }
-        const sceneMaterial = materialResult.value;
-        material._materialId = sceneMaterial.id;
+      const materialResult = ctx.sceneModel.createMaterial(materialCfg);
+      if (materialResult.ok === false) {
+        ctx.errors.push(`Failed to create SceneMaterial set -> ${materialResult.error}`);
+        return false;
       }
-      material._attributes = parseMaterialAttributes(ctx, material);
+      material._materialId = materialResult.value.id;
     }
   }
   return true;
 }
 
-function parseMaterial(ctx: ParsingContext, material: any): null | SceneMaterialParams {
+/**
+ * Translates a glTF material into a {@link SceneMaterialParams}.
+ *
+ * Maps:
+ *   - `pbrMetallicRoughness.baseColorFactor` → `color` + `opacity`
+ *   - `pbrMetallicRoughness.metallicFactor`  → `metallic` (default 1)
+ *   - `pbrMetallicRoughness.roughnessFactor` → `roughness` (default 1)
+ *   - `pbrMetallicRoughness.baseColorTexture`         → `colorTextureId`
+ *   - `pbrMetallicRoughness.metallicRoughnessTexture` → `metallicRoughnessTextureId`
+ *   - `normalTexture`                                  → `normalsTextureId`
+ *   - `occlusionTexture`                               → `occlusionTextureId`
+ *   - `emissiveTexture`                                → `emissiveTextureId`
+ *
+ * Falls back to legacy `KHR_materials_pbrSpecularGlossiness` when no
+ * MetallicRoughness block is present (some older models use it).
+ *
+ * Texture references rely on `parseTextures` having run first — that
+ * stamps a `_textureId` on each glTF texture entry which we look up
+ * here. The chain is `material.<map>.texture._textureId` (after
+ * `postProcessGLTF` resolves indices to objects); when the texture
+ * field hasn't been resolved we fall back to the raw `index` lookup.
+ */
+function parseMaterial(ctx: ParsingContext, material: any): SceneMaterialParams {
   const materialCfg: SceneMaterialParams = {
-    id: null,
-    occlusionTextureId: undefined,
-    emissiveTextureId: undefined,
-    colorTextureId: undefined,
-    metallicRoughnessTextureId: undefined
-  };
-  if (material.occlusionTexture) {
-    materialCfg.occlusionTextureId = material.occlusionTexture.texture._textureId;
-  }
-  if (material.emissiveTexture) {
-    materialCfg.emissiveTextureId = material.emissiveTexture.texture._textureId;
-  }
-  // const alphaMode = material.alphaMode;
-  // switch (alphaMode) {
-  //     case "NORMAL_OPAQUE":
-  //         materialCfg.alphaMode = "opaque";
-  //         break;
-  //     case "MASK":
-  //         materialCfg.alphaMode = "mask";
-  //         break;
-  //     case "BLEND":
-  //         materialCfg.alphaMode = "blend";
-  //         break;
-  //     default:
-  // }
-  // const alphaCutoff = material.alphaCutoff;
-  // if (alphaCutoff !== undefined) {
-  //     materialCfg.alphaCutoff = alphaCutoff;
-  // }
-  const metallicPBR = material.pbrMetallicRoughness;
-  if (material.pbrMetallicRoughness) {
-    const pbrMetallicRoughness = material.pbrMetallicRoughness;
-    const baseColorTexture = pbrMetallicRoughness.baseColorTexture || pbrMetallicRoughness.colorTexture;
-    if (baseColorTexture) {
-      if (baseColorTexture.texture) {
-        materialCfg.colorTextureId = baseColorTexture.texture._textureId;
-      } else {
-        materialCfg.colorTextureId = ctx.gltfData.textures[baseColorTexture.index]._textureId;
-      }
-    }
-    if (metallicPBR.metallicRoughnessTexture) {
-      materialCfg.metallicRoughnessTextureId = metallicPBR.metallicRoughnessTexture.texture._textureId;
-    }
-  }
-  const extensions = material.extensions;
-  if (extensions) {
-    const specularPBR = extensions["KHR_materials_pbrSpecularGlossiness"];
-    if (specularPBR) {
-      const specularTexture = specularPBR.specularTexture;
-      if (specularTexture !== null && specularTexture !== undefined) {
-        //  materialCfg.colorTextureId = ctx.gltfData.textures[specularColorTexture.tileIndex]._textureId;
-      }
-      const specularColorTexture = specularPBR.specularColorTexture;
-      if (specularColorTexture !== null && specularColorTexture !== undefined) {
-        materialCfg.colorTextureId = ctx.gltfData.textures[specularColorTexture.index]._textureId;
-      }
-    }
-  }
-  if (materialCfg.occlusionTextureId !== undefined ||
-    materialCfg.emissiveTextureId !== undefined ||
-    materialCfg.colorTextureId !== undefined ||
-    materialCfg.metallicRoughnessTextureId !== undefined) {
-    materialCfg.id = `material-${ctx.nextId++};`
-    return materialCfg;
-  }
-  return null;
-}
-
-function parseMaterialAttributes(ctx: ParsingContext, material: any): any { // Substitute RGBA for material, to use fast flat shading instead
-  const extensions = material.extensions;
-  const materialAttributes = {
-    color: new Float32Array([1, 1, 1, 1]),
+    id: `material-${ctx.nextId++}`,
+    color: [1, 1, 1],
     opacity: 1,
-    metallic: 0,
-    roughness: 1
+    roughness: 1,
+    metallic: 1  // glTF default — texture-driven materials use 1×1; lit materials override.
   };
-  if (extensions) {
-    const specularPBR = extensions["KHR_materials_pbrSpecularGlossiness"];
-    if (specularPBR) {
-      const diffuseFactor = specularPBR.diffuseFactor;
-      if (diffuseFactor !== null && diffuseFactor !== undefined) {
-        materialAttributes.color.set(diffuseFactor);
-      }
-    }
-    const common = extensions["KHR_materials_common"];
-    if (common) {
-      const technique = common.technique;
-      const values = common.values || {};
-      const blinn = technique === "BLINN";
-      const phong = technique === "PHONG";
-      const lambert = technique === "LAMBERT";
-      const diffuse = values.diffuse;
-      if (diffuse && (blinn || phong || lambert)) {
-        if (!isString(diffuse)) {
-          materialAttributes.color.set(diffuse);
-        }
-      }
-      const transparency = values.transparency;
-      if (transparency !== null && transparency !== undefined) {
-        materialAttributes.opacity = transparency;
-      }
-      const transparent = values.transparent;
-      if (transparent !== null && transparent !== undefined) {
-        materialAttributes.opacity = transparent;
-      }
-    }
-  }
+
+  // ── Factors (always present in glTF 2.0 PBR) ───────────────────────────
   const metallicPBR = material.pbrMetallicRoughness;
   if (metallicPBR) {
     const baseColorFactor = metallicPBR.baseColorFactor;
     if (baseColorFactor) {
-      materialAttributes.color[0] = baseColorFactor[0];
-      materialAttributes.color[1] = baseColorFactor[1];
-      materialAttributes.color[2] = baseColorFactor[2];
-      materialAttributes.opacity = baseColorFactor[3];
+      materialCfg.color   = [baseColorFactor[0], baseColorFactor[1], baseColorFactor[2]];
+      materialCfg.opacity = baseColorFactor[3] ?? 1;
     }
-    const metallicFactor = metallicPBR.metallicFactor;
-    if (metallicFactor !== null && metallicFactor !== undefined) {
-      materialAttributes.metallic = metallicFactor;
+    if (metallicPBR.metallicFactor !== undefined && metallicPBR.metallicFactor !== null) {
+      materialCfg.metallic = metallicPBR.metallicFactor;
     }
-    const roughnessFactor = metallicPBR.roughnessFactor;
-    if (roughnessFactor !== null && roughnessFactor !== undefined) {
-      materialAttributes.roughness = roughnessFactor;
+    if (metallicPBR.roughnessFactor !== undefined && metallicPBR.roughnessFactor !== null) {
+      materialCfg.roughness = metallicPBR.roughnessFactor;
+    }
+    // ── PBR maps ─────────────────────────────────────────────────────────
+    const baseColorTexture = metallicPBR.baseColorTexture || metallicPBR.colorTexture;
+    if (baseColorTexture) {
+      materialCfg.colorTextureId = resolveTextureId(ctx, baseColorTexture);
+    }
+    if (metallicPBR.metallicRoughnessTexture) {
+      materialCfg.metallicRoughnessTextureId = resolveTextureId(ctx, metallicPBR.metallicRoughnessTexture);
     }
   }
-  return materialAttributes;
+
+  // ── Alpha mode + cutoff (glTF 2.0 alphaMode/alphaCutoff) ───────────────
+  // OPAQUE is the glTF default. MASK + cutoff drives cutout cases like
+  // Sponza's drape and the leaves on foliage glTFs; BLEND lets the
+  // sampled alpha through to the framebuffer for translucent materials.
+  if (material.alphaMode === "MASK" || material.alphaMode === "BLEND") {
+    materialCfg.alphaMode = material.alphaMode;
+  }
+  if (material.alphaCutoff !== undefined && material.alphaCutoff !== null) {
+    materialCfg.alphaCutoff = material.alphaCutoff;
+  }
+
+  // ── Standard non-PBR maps ──────────────────────────────────────────────
+  if (material.normalTexture) {
+    materialCfg.normalsTextureId = resolveTextureId(ctx, material.normalTexture);
+  }
+  if (material.occlusionTexture) {
+    materialCfg.occlusionTextureId = resolveTextureId(ctx, material.occlusionTexture);
+  }
+  if (material.emissiveTexture) {
+    materialCfg.emissiveTextureId = resolveTextureId(ctx, material.emissiveTexture);
+  }
+
+  // ── Legacy KHR_materials_pbrSpecularGlossiness fallback ────────────────
+  // Older glTFs (especially exported from Substance) still ship this
+  // extension with a diffuseFactor + diffuseTexture instead of base-
+  // colour. Map the diffuse colour onto our base colour so the
+  // material at least picks up the right tint; we don't try to convert
+  // the gloss/spec textures to MR here.
+  const extensions = material.extensions;
+  if (extensions) {
+    const specularPBR = extensions["KHR_materials_pbrSpecularGlossiness"];
+    if (specularPBR) {
+      const diffuseFactor = specularPBR.diffuseFactor;
+      if (diffuseFactor) {
+        materialCfg.color   = [diffuseFactor[0], diffuseFactor[1], diffuseFactor[2]];
+        materialCfg.opacity = diffuseFactor[3] ?? materialCfg.opacity;
+      }
+      if (specularPBR.diffuseTexture && !materialCfg.colorTextureId) {
+        materialCfg.colorTextureId = resolveTextureId(ctx, specularPBR.diffuseTexture);
+      }
+    }
+  }
+
+  return materialCfg;
+}
+
+/**
+ * Resolves a glTF textureInfo into the SceneTexture id that
+ * {@link parseTexture} stamped onto the texture entry. Handles both
+ * post-processed form (`textureInfo.texture._textureId`) and the raw
+ * index form (`gltfData.textures[textureInfo.index]._textureId`).
+ * Returns `undefined` if the texture entry is missing — surfaces fall
+ * back to factor-only rendering when that happens.
+ */
+function resolveTextureId(ctx: ParsingContext, textureInfo: any): string | undefined {
+  if (!textureInfo) return undefined;
+  if (textureInfo.texture && textureInfo.texture._textureId) {
+    return textureInfo.texture._textureId;
+  }
+  if (typeof textureInfo.index === "number" && ctx.gltfData.textures) {
+    const entry = ctx.gltfData.textures[textureInfo.index];
+    return entry && entry._textureId;
+  }
+  return undefined;
 }
 
 function parseDefaultScene(ctx: ParsingContext): boolean {
@@ -494,9 +495,13 @@ const parseNodesWithNames = (function () {
     if (node.name) {
       meshIds = [];
       let objectId = node.name;
-      if (!!objectId && ctx.sceneModel.objects[objectId]) {
-        ctx.errors.push(`[GLTFLoader.load] Two or more glTF nodes found with same value for 'name' attribute: '${objectId}'`);
-        return false;
+      // Some exporters (notably 3DS Max) emit duplicate node names like
+      // `3DSMeshMatrix` across many nodes. We can't fail the whole load
+      // on that — synthesize a unique fallback ID instead and warn once
+      // per duplicate so the issue is still visible in the console.
+      if (objectId && ctx.sceneModel.objects[objectId]) {
+        console.warn(`[GLTFLoader.load] Duplicate glTF node 'name' attribute: '${objectId}' — assigning a synthetic ID`);
+        objectId = "";
       }
       while (!objectId || ctx.sceneModel.objects[objectId]) {
         objectId = "entity-" + ctx.nextId++;
@@ -635,6 +640,9 @@ function parseMesh(node: any, ctx: ParsingContext, matrix: Mat4, meshIds: string
         if (primitive.attributes.COLOR_0) {
           geometryParams.colors = primitive.attributes.COLOR_0.value;
         }
+        if (primitive.attributes.NORMAL) {
+          geometryParams.normals = primitive.attributes.NORMAL.value;
+        }
         if (primitive.attributes.TEXCOORD_0) {
           geometryParams.uvs = primitive.attributes.TEXCOORD_0.value;
         }
@@ -657,12 +665,8 @@ function parseMesh(node: any, ctx: ParsingContext, matrix: Mat4, meshIds: string
         materialId: undefined
       };
       const material = primitive.material;
-      if (material) {
-        //     meshParams.materialId = material._materialId;
-        meshParams.color = material._attributes.color.slice(0, 3);
-        meshParams.opacity = material._attributes.opacity;
-        // meshParams.metallic = material._attributes.metallic;
-        // meshParams.roughness = material._attributes.roughness;
+      if (material && material._materialId) {
+        meshParams.materialId = material._materialId;
       } else {
         meshParams.color = [1.0, 1.0, 1.0];
         meshParams.opacity = 1.0;

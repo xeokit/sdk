@@ -20,4 +20,12 @@ export interface ModelLoadOptions {
    * is used when the Scene is attached to a {@link viewer!Viewer | Viewer}.
    */
   layerId?: string;
+
+  /**
+   * Optional base URL used by formats that reference external resources
+   * (e.g. glTF's separate `.bin` and texture files). When set, the loader
+   * resolves relative URIs in the model file against this base — set this
+   * to the directory the model lives in.
+   */
+  baseUri?: string;
 }

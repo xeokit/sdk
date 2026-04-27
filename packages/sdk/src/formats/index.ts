@@ -27,6 +27,12 @@
  * - {@link las} – LAS / LAZ point cloud formats
  * - {@link xkt} – xeokit XKT
  * - {@link xgf} – xeokit Geometry Format
+ * - {@link obj} – Wavefront OBJ
+ * - {@link mtl} – Wavefront MTL
+ * - {@link rvm} – AVEVA RVM
+ * - {@link scenemodel} – xeokit SceneModel
+ * - {@link datamodel} – xeokit DataModel
+ * - {@link metamodel} – xeokit Metadata and schema-level information (legacy support)
  *
  * Each format's namespace typically provides one or more of the following:
  *
@@ -76,6 +82,7 @@ export * as datamodel from "./datamodel";
 export * as metamodel from "./metamodel";
 export * as obj from "./obj";
 export * as mtl from "./mtl";
+export * as rvm from "./rvm";
 
 export * from "./ModelEncodeParams";
 export * from "./ModelEncoder";

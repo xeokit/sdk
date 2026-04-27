@@ -2,7 +2,7 @@ import {createUUID} from "../../../../utils";
 import type {ModelEncodeParams} from "../../../ModelEncodeParams";
 import * as WebIFC from "web-ifc";
 import {decompressPoint3WithAABB3} from "../../../../math/compression";
-import {Data} from "../../../../data";
+import {Data, type DataModel} from "../../../../data";
 import {createDefaultIFCDataModel} from "../../createDefaultIFCDataModel";
 
 // Reusable scratch buffers for position decompression — avoids per-vertex allocation
@@ -15,7 +15,7 @@ export function encode(ifcAPI: WebIFC.IfcAPI, params: ModelEncodeParams, options
 
     const {sceneModel} = params;
 
-    let dataModel;
+    let dataModel: DataModel;
 
     if (!params.dataModel || params.dataModel.objectsByType?.["IfcProject"] === undefined) {
       const data = new Data(); // GCd after encoding

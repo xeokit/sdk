@@ -8,6 +8,16 @@ import {RenderInspector} from "./inspectors/RenderInspector";
 
 
 /**
+ * Maximum number of shadow cascades the renderer supports. Shadow-aware
+ * shaders declare exactly this many samplers and matrix slots; runtime
+ * cascadeCount just decides how many of them actually carry data.
+ *
+ * @internal
+ */
+export const MAX_SHADOW_CASCADES = 6;
+
+
+/**
  * Represents the rendering context`.
  *
  * @internal
@@ -129,9 +139,90 @@ export class RenderContext implements WebGLContextProvider {
   public lastRenderPass: number;
 
   /**
+   * Width of the FBO the scene is currently being rendered into. Equal to
+   * `drawingBufferWidth` when {@link Tonemap.renderScale} is 1; larger when
+   * supersampling is on. Post-process passes (tonemap, FXAA) use
+   * `drawingBufferWidth` — they sample this bigger scene texture down to
+   * canvas size on the way out.
+   */
+  public sceneRenderWidth: number;
+
+  /** See {@link sceneRenderWidth}. */
+  public sceneRenderHeight: number;
+
+  /**
    * The occlusion rendering texture.
    */
   public saoOcclusionTexture: WebGLAbstractTexture|null;
+
+  /**
+   * One shadow-map depth texture per cascade (indices `0..shadowCascadeCount-1`
+   * are populated). Unused slots alias to cascade 0's texture so every sampler
+   * in shadow-aware shaders has a valid binding. Null array entries indicate
+   * shadows aren't in effect this frame.
+   */
+  public shadowMapTextures: Array<WebGLAbstractTexture | null>;
+
+  /**
+   * Light view-projection matrix for the cascade currently being rendered,
+   * used by the shadow-depth technique which only ever processes one cascade
+   * per draw pass. Set by {@link ShadowPipeline} before each cascade's depth
+   * dispatch; ignored by shadow-aware color techniques (they read the array
+   * form, {@link shadowLightViewProjMatrices}).
+   */
+  public shadowLightViewProjMatrix: Float32Array<any>;
+
+  /**
+   * Concatenated array of up to {@link MAX_SHADOW_CASCADES} mat4s (16 floats
+   * each) — `shadowLightViewProjMatrices.subarray(i*16, (i+1)*16)` is the
+   * camera-view-space → cascade-`i` light-clip matrix.
+   */
+  public shadowLightViewProjMatrices: Float32Array<any>;
+
+  /**
+   * View-space `|z|` boundaries between cascades. Entry `i` is the far edge
+   * of cascade `i` (equivalently the near edge of cascade `i+1`). Only the
+   * first `shadowCascadeCount - 1` entries are meaningful.
+   */
+  public shadowCascadeSplits: Float32Array<any>;
+
+  /** Number of shadow cascades active this frame, in `[1, MAX_SHADOW_CASCADES]`. */
+  public shadowCascadeCount: number;
+
+  /**
+   * IBL Layer-2 prefiltered samplers — populated by the IBL prefilter
+   * pipeline before the BRDF passes run. The smooth-shaded technique
+   * variants bind these for the split-sum specular IBL approximation:
+   *
+   *   - `iblIrradianceCubemap`: cosine-convolved cubemap for diffuse IBL
+   *   - `iblPrefilteredCubemap`: GGX-prefiltered cubemap with mip chain
+   *   - `iblBRDFLUT`: shared 2D `(NdotV, roughness) → (scale, bias)` LUT
+   *
+   * `iblMaxSpecularMipLevel` is the highest valid mip on the prefiltered
+   * cubemap, used to scale `roughness` into the lod range.
+   *
+   * All four are `null` outside the BRDF binding window — the renderer
+   * sets them in {@link RenderManager._renderScene} and clears them in
+   * {@link reset}.
+   */
+  public iblIrradianceCubemap: WebGLTexture | null = null;
+  public iblPrefilteredCubemap: WebGLTexture | null = null;
+  public iblBRDFLUT: WebGLTexture | null = null;
+  public iblMaxSpecularMipLevel: number = 0;
+  /**
+   * View-to-world rotation (3×3, transposed view matrix's upper-left)
+   * uploaded as a `mat3` so the BRDF shader can transform view-space
+   * normals/reflection vectors into world space for cubemap sampling.
+   * Populated alongside the cubemaps. Float32 column-major.
+   */
+  public iblViewToWorldRot: Float32Array = new Float32Array(9);
+
+  /**
+   * Light direction in camera-view space (xyz). Populated alongside
+   * {@link shadowLightViewProjMatrices} and used by shadow-aware draw
+   * techniques for slope-scaled bias computation.
+   */
+  public shadowLightDirView: Float32Array<any>;
 
   /**
    * TODO
@@ -232,6 +323,18 @@ export class RenderContext implements WebGLContextProvider {
     this.pickInvisible = false;
     this.lineWidth = 1;
     this.saoOcclusionTexture = null;
+    this.sceneRenderWidth = 0;
+    this.sceneRenderHeight = 0;
+    this.shadowMapTextures = new Array(MAX_SHADOW_CASCADES).fill(null);
+    this.shadowLightViewProjMatrix = new Float32Array(16);
+    this.shadowLightViewProjMatrices = new Float32Array(16 * MAX_SHADOW_CASCADES);
+    this.shadowCascadeSplits = new Float32Array(MAX_SHADOW_CASCADES);
+    this.shadowCascadeCount = 0;
+    this.shadowLightDirView = new Float32Array(3);
+    this.iblIrradianceCubemap = null;
+    this.iblPrefilteredCubemap = null;
+    this.iblBRDFLUT = null;
+    this.iblMaxSpecularMipLevel = 0;
     this.rayPicking = false;
   }
 

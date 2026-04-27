@@ -1,5 +1,5 @@
 import {type  AABB3Float32, createAABB3Float32} from "../math/boundaries";
-import type {IntArrayParam} from "../math";
+import type {FloatArrayParam, IntArrayParam} from "../math";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
 import {SceneModel} from "./SceneModel";
 import {SDKErrorType, type SDKResult} from "../core";
@@ -63,16 +63,27 @@ export class SceneGeometry {
   readonly positionsCompressed: IntArrayParam;
 
   /**
-   * UV coordinates, quantized as 16-bit integers.
-   *
-   * Internally, the Viewer de-quantizes these with {@link SceneGeometry.uvsDecompressMatrix | SceneGeometry.uvsDecompressMatrix}.
+   * UV coordinates, packed as 32-bit floats (one `Float32Array` of
+   * length `2 × vertexCount`). UVs ship to the GPU uncompressed so
+   * tiling values (UVs outside `[0, 1]`) survive intact — the shader
+   * applies a per-fragment `fract()` before transforming into the
+   * mesh's atlas sub-rect.
    */
-  readonly uvsCompressed?: IntArrayParam;
+  readonly uvsCompressed?: FloatArrayParam;
 
   /**
    * Vertex RGBA colors, quantized as 8-bit integers.
    */
   readonly colorsCompressed?: IntArrayParam;
+
+  /**
+   * Vertex normals, octahedral-encoded as pairs of 16-bit unsigned integers.
+   *
+   * When defined, the renderer reads these per-vertex and uses them for
+   * smooth shading; when undefined, fragments derive a flat face normal
+   * from view-space position derivatives.
+   */
+  readonly normalsCompressed?: IntArrayParam;
 
   /**
    * primitive indices.
@@ -109,6 +120,7 @@ export class SceneGeometry {
     this.positionsCompressed = params.positionsCompressed;
     this.uvsCompressed = params.uvsCompressed;
     this.colorsCompressed = params.colorsCompressed;
+    this.normalsCompressed = params.normalsCompressed;
     this.indices = params.indices;
     this.edgeIndices = params.edgeIndices;
     this.aabb = createAABB3Float32(params.aabb);
@@ -140,6 +152,9 @@ export class SceneGeometry {
     }
     if (this.colorsCompressed) {
       params.colorsCompressed = Array.from(this.colorsCompressed);
+    }
+    if (this.normalsCompressed) {
+      params.normalsCompressed = Array.from(this.normalsCompressed);
     }
     if (this.indices) {
       params.indices = Array.from(this.indices);

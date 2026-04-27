@@ -7,6 +7,9 @@ import {GeometryAttributeTexture} from "./dataTextures/GeometryAttributeTexture"
 import {GeometryQuantRangeTexture} from "./dataTextures/GeometryQuantRangeTexture";
 import {VertexPositionTexture} from "./dataTextures/VertexPositionTexture";
 import {VertexColorTexture} from "./dataTextures/VertexColorTexture";
+import {VertexNormalTexture} from "./dataTextures/VertexNormalTexture";
+import {VertexUVTexture} from "./dataTextures/VertexUVTexture";
+import {TextureAtlas} from "./dataTextures/TextureAtlas";
 import {MeshViewAttributeTexture} from "./dataTextures/MeshViewAttributeTexture";
 import {IndexTexture} from "./dataTextures/IndexTexture";
 
@@ -172,4 +175,61 @@ export interface BatchDataTextures {
    * Stores per-vertex RGB color data for geometries in this batch.
    */
   vertexColorTexture: VertexColorTexture;
+
+  /**
+   * Vertex normal buffer (optional).
+   *
+   * Stores octahedral-encoded per-vertex normals as RG16UI pairs. Only
+   * allocated for batches whose meshes provide vertex normals; for
+   * flat-shaded batches this property is omitted and the renderer derives
+   * a face normal in the fragment shader via `dFdx/dFdy`.
+   */
+  vertexNormalTexture?: VertexNormalTexture;
+
+  /**
+   * Vertex UV buffer (optional).
+   *
+   * Stores quantised per-vertex UV pairs as RG16UI. Only allocated for
+   * batches whose meshes provide UV coordinates; the UV-aware draw
+   * technique variant binds this to the `uVertexUVTexture` sampler and
+   * emits a `vUV` varying. Non-UV variants don't reference the texture.
+   */
+  vertexUVTexture?: VertexUVTexture;
+
+  /**
+   * Albedo (base-colour) texture atlas (optional).
+   *
+   * One shelf-packed sRGB 2D texture per UV-bearing batch. Each
+   * {@link SceneTexture} referenced by the batch's meshes occupies a
+   * sub-rect; the per-mesh UV transform stored in
+   * {@link MeshAttributeTexture} remaps `[0, 1]` UVs into that sub-rect.
+   * Untextured meshes get a sentinel transform (scale = 0) that collapses
+   * the sample to a pre-stamped white texel — no shader branching.
+   */
+  albedoAtlasTexture?: TextureAtlas;
+
+  /**
+   * Metallic-roughness texture atlas (optional).
+   *
+   * Linear RGBA8 atlas mirroring the albedo atlas in shape and packing.
+   * Channel layout follows glTF 2.0: G = roughness, B = metallic. The
+   * shader multiplies the sampled `mr.g` and `mr.b` against
+   * `material.roughness` and `material.metallic` respectively, so an
+   * artist setting both to `1.0` lets the texture drive the values
+   * directly. Untextured meshes hit the white sentinel and the
+   * multiplier is `1.0` — passthrough.
+   */
+  metallicRoughnessAtlasTexture?: TextureAtlas;
+
+  /**
+   * Tangent-space normal-map atlas (optional).
+   *
+   * Linear RGBA8. RGB encodes a tangent-space normal as `(x*0.5+0.5,
+   * y*0.5+0.5, z*0.5+0.5)`; the shader decodes via `n*2 - 1` and
+   * transforms by a per-pixel TBN built from view-space derivatives
+   * (Schueler's robust frame). Sentinel = `(128, 128, 255, 255)` so
+   * untextured meshes decode to `(0, 0, 1)` — no perturbation, BRDF
+   * uses the smooth `vViewNormal` unchanged.
+   */
+  normalMapAtlasTexture?: TextureAtlas;
 }

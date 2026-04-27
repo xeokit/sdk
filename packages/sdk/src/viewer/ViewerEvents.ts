@@ -291,6 +291,9 @@ export class ViewerEvents {
     this.onSectionPlanePosChanged = new EventEmitter(new EventDispatcher<SectionPlane, Vec3>());
     this.onSectionPlaneDirChanged = new EventEmitter(new EventDispatcher<SectionPlane, Vec3>());
     this.onSectionPlaneActive = new EventEmitter(new EventDispatcher<SectionPlane, boolean>());
+    this.onViewTransformCreated = new EventEmitter(new EventDispatcher<View, ViewTransform>());
+    this.onViewTransformDestroyed = new EventEmitter(new EventDispatcher<View, ViewTransform>());
+    this.onViewTransformUpdated = new EventEmitter(new EventDispatcher<ViewTransform, ViewTransform>());
     this.onSnapshotStarted = new EventEmitter(new EventDispatcher<View, SnapshotStartedEvent>());
     this.onSnapshotFinished = new EventEmitter(new EventDispatcher<View, SnapshotFinishedEvent>());
   }
@@ -331,6 +334,9 @@ export class ViewerEvents {
     this.onSectionPlanePosChanged.clear();
     this.onSectionPlaneDirChanged.clear();
     this.onSectionPlaneActive.clear();
+    this.onViewTransformCreated.clear();
+    this.onViewTransformDestroyed.clear();
+    this.onViewTransformUpdated.clear();
     this.onSnapshotStarted.clear();
     this.onSnapshotFinished.clear();
   }

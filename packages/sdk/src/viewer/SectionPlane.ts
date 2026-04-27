@@ -52,7 +52,7 @@ class SectionPlane {
         this.view = view;
         this._active = sectionPlaneParams.active !== false;
         this._pos = createVec3Float64(sectionPlaneParams.pos || [0, 0, 0]);
-        this._dir = createVec3Float32(sectionPlaneParams.pos || [0, 0, -1]);
+        this._dir = createVec3Float32(sectionPlaneParams.dir || [0, 0, -1]);
         this._dist = 0;
     }
 

@@ -2,6 +2,30 @@
 import type {Vec4} from "../math/vector";
 
 /**
+ * Raw pixel buffer accepted as `SceneTextureParams.imageData`. Either
+ * the DOM `ImageData` type itself, or a JSON-serializable plain object
+ * carrying the same fields (the constructor normalises the plain form
+ * into an `ImageData` so the renderer always sees the canonical type).
+ */
+export interface SceneTexturePixelBuffer {
+  data: Uint8Array<any> | Uint8ClampedArray<any> | number[];
+  width: number;
+  height: number;
+}
+
+/**
+ * Runtime-decoded image source accepted as `SceneTextureParams.image`.
+ * These are the four object forms WebGL2's `texSubImage2D` accepts
+ * directly, so the renderer can hand them straight to the GPU without
+ * an intermediate decode.
+ */
+export type SceneTextureImageSource =
+  HTMLImageElement
+  | HTMLCanvasElement
+  | ImageBitmap
+  | OffscreenCanvas;
+
+/**
  * {@link SceneTexture} creation parameters for {@link SceneModel.createTexture | SceneModel.createTexture}.
  */
 export interface SceneTextureParams {
@@ -12,24 +36,35 @@ export interface SceneTextureParams {
   id: string;
 
   /**
-   * Path to an image file.
+   * URL to fetch the image from. Any URL form is accepted —
+   * `http(s):`, `blob:`, or `data:`. A canvas serialised via
+   * `canvas.toDataURL()` belongs here, not in `imageData`.
    */
   src?: string;
 
   /**
-   * Image file data.
+   * Raw pixel buffer with explicit dimensions. JSON-serialisable
+   * params produced by {@link SceneTexture.toParams} use the plain
+   * `{ data, width, height }` form; the constructor normalises that
+   * back into a DOM `ImageData` for the renderer.
+   *
+   * Use {@link SceneTextureParams.image} for already-decoded
+   * canvas / image / ImageBitmap inputs.
    */
-  imageData?: any;
+  imageData?: ImageData | SceneTexturePixelBuffer;
 
   /**
-   * Transcoded texture data.
+   * Transcoded / compressed texture data, decoded by the runtime
+   * transcoder pipeline before upload.
    */
   buffers?: ArrayBuffer[];
 
   /**
-   * HTMLImage containing the texture image.
+   * Already-decoded image source the renderer can hand straight to
+   * `texSubImage2D`. Pass canvases, `HTMLImageElement`s,
+   * `ImageBitmap`s, and `OffscreenCanvas`es here.
    */
-  image?: HTMLImageElement;
+  image?: SceneTextureImageSource;
 
   /**
    * Media type.

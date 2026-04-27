@@ -47,4 +47,12 @@ export enum GPUMemoryCheckResult {
    * Insufficient GPU memory for additional primitives.
    */
   NotEnoughPrimSpace,
+
+  /**
+   * One of the batch's PBR-map atlases (albedo / metallic-roughness /
+   * normal-map) couldn't fit the mesh's texture, but the texture is
+   * small enough to fit in a fresh atlas — the caller should spawn a
+   * new batch.
+   */
+  NotEnoughAtlasSpace,
 }

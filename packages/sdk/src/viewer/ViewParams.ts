@@ -8,6 +8,11 @@ import type {PointLightParams} from "./PointLightParams";
 import type {PointsMaterialParams} from "./PointsMaterialParams";
 import type {ResolutionScaleParams} from "./ResolutionScaleParams";
 import type {SAOParams} from "./SAOParams";
+import type {ShadowsParams} from "./ShadowsParams";
+import type {TonemapParams} from "./TonemapParams";
+import type {AntiAliasingParams} from "./AntiAliasingParams";
+import type {BloomParams} from "./BloomParams";
+import type {IBLParams} from "./IBLParams";
 import type {SectionPlaneParams} from "./SectionPlaneParams";
 import type {ViewLayerParams} from "./ViewLayerParams";
 
@@ -102,6 +107,32 @@ export interface ViewParams {
   sao?: SAOParams;
 
   /**
+   * Parameters for the View's single-cascade directional shadow mapping, {@link Shadows}.
+   */
+  shadows?: ShadowsParams;
+
+  /**
+   * Parameters for the View's HDR tonemap pass, {@link Tonemap}.
+   */
+  tonemap?: TonemapParams;
+
+  /**
+   * Parameters for the View's final antialiasing pass, {@link AntiAliasing}.
+   */
+  antiAliasing?: AntiAliasingParams;
+
+  /**
+   * Parameters for the View's HDR bloom post-process, {@link Bloom}.
+   */
+  bloom?: BloomParams;
+
+  /**
+   * Parameters for the View's hemispherical image-based lighting,
+   * {@link IBL}.
+   */
+  ibl?: IBLParams;
+
+  /**
    * Parameters for the View's edge enhancement effect, {@link Edges}.
    */
   edges?: EdgesParams;
@@ -154,7 +185,7 @@ export interface ViewParams {
   /**
    * Configures which rendering mode the View is in.
    *
-   * Default is {@link constants!QualityRender | QualityRender}.
+   * Default is {@link constants!DetailedRender | DetailedRender}.
    */
   renderMode?: number;
 }

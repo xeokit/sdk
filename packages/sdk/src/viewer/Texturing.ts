@@ -1,4 +1,4 @@
-import {QualityRender} from "../constants";
+import {DetailedRender, RealisticRender} from "../constants";
 import type {View} from "./View";
 
 
@@ -28,16 +28,15 @@ class Texturing {
         renderModes?: number[];
     } = {}) {
         this.view = view;
-        this._renderModes = options.renderModes || [QualityRender];
+        this._renderModes = options.renderModes || [DetailedRender, RealisticRender];
         this._enabled = options.enabled !== false;
     }
 
     /**
      * Sets which rendering modes in which to render textures.
      *
-     * Accepted modes are {@link constants!QualityRender} and {@link constants!FastRender}.
-     *
-     * Default value is [{@link constants!QualityRender}].
+     * Default value is [{@link constants!DetailedRender | DetailedRender},
+     * {@link constants!RealisticRender | RealisticRender}].
      */
     set renderModes(value: number[]) {
         this._renderModes = value;
@@ -47,9 +46,8 @@ class Texturing {
     /**
      * Gets which rendering modes in which to render textures.
      *
-     * Accepted modes are {@link constants!QualityRender} and {@link constants!FastRender}.
-     *
-     * Default value is [{@link constants!QualityRender}].
+     * Default value is [{@link constants!DetailedRender | DetailedRender},
+     * {@link constants!RealisticRender | RealisticRender}].
      */
     get renderModes(): number[] {
         return this._renderModes;

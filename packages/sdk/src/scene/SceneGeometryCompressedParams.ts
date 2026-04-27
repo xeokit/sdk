@@ -1,5 +1,5 @@
 
-import type {IntArrayParam} from "../math";
+import type {FloatArrayParam, IntArrayParam} from "../math";
 import type {AABB3} from "../math/boundaries";
 import type {Vec3} from "../math/vector";
 import type {Mat4} from "../math/matrix";
@@ -11,8 +11,9 @@ import type {Mat4} from "../math/matrix";
  * * Created from {@link SceneGeometryParams | SceneGeometryParams} using {@link compressGeometryParams | compressGeometryParams}
  * * Used with {@link SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
  * * Generates edge indices for triangle meshes
- * * Ignores normals (our shaders auto-generate them)
  * * Quantizes positions and UVs as 16-bit unsigned integers
+ * * Quantizes normals (when supplied) as octahedral pairs in 16-bit unsigned integers; geometry without
+ *   normals continues to render with shader-derived flat normals
  *
  * See {@link scene | @xeokit/sdk/scene} for usage.
  */
@@ -53,17 +54,30 @@ export interface SceneGeometryCompressedParams {
   positionsCompressed: IntArrayParam,
 
   /**
-   * UV coordinates, quantized as 16-bit integers.
-   *
-   * Internally, the Viewer de-quantizes these
-   * with {@link SceneGeometryCompressedParams.uvsDecompressMatrix | SceneGeometryCompressedParams.uvsDecompressMatrix}.
+   * UV coordinates, packed as 32-bit floats (one `Float32Array` of
+   * length `2 × vertexCount`). UVs ship to the GPU uncompressed so
+   * tiling values (UVs outside `[0, 1]`) survive intact — the shader
+   * applies a per-fragment `fract()` before transforming into the
+   * mesh's atlas sub-rect.
    */
-  uvsCompressed?: IntArrayParam,
+  uvsCompressed?: FloatArrayParam,
 
   /**
    * vertex RGBA colors, quantized as 8-bit integers.
    */
   colorsCompressed?: IntArrayParam;
+
+  /**
+   * Vertex normals, octahedral-encoded as pairs of 16-bit unsigned integers.
+   *
+   * Optional. Two values per vertex: each pair represents the octahedral
+   * (x, y) projection of the unit normal, mapped from `[-1, 1]` to
+   * `[0, 65535]`. Length must equal `(positionsCompressed.length / 3) * 2`.
+   *
+   * Geometry without `normalsCompressed` is rendered with shader-derived
+   * flat face normals.
+   */
+  normalsCompressed?: IntArrayParam;
 
   /**
    * primitive indices.

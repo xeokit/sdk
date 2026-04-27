@@ -40,7 +40,12 @@ export class RenderBuffers {
    */
   getRenderBuffer(
       id: string,
-      options?: { depthTexture?: boolean; size?: [number, number] }
+      options?: {
+        depthTexture?: boolean;
+        size?: [number, number];
+        depthTextureCompare?: boolean;
+        colorFilter?: "linear" | "nearest";
+      }
   ): WebGLRenderBuffer {
     if (!id || typeof id !== "string") {
       throw new Error("A valid string ID is required to retrieve a render buffer.");
@@ -59,6 +64,8 @@ export class RenderBuffers {
         this._renderContext.gl,
         {
           depthTexture: options?.depthTexture ?? false,
+          depthTextureCompare: options?.depthTextureCompare ?? false,
+          colorFilter: options?.colorFilter,
           size: options?.size,
         }
     );

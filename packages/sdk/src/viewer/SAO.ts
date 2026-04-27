@@ -1,4 +1,4 @@
-import {CustomProjectionType, FrustumProjectionType, QualityRender} from "../constants";
+import {CustomProjectionType, DetailedRender, FrustumProjectionType, RealisticRender} from "../constants";
 import {type SAOParams} from "./SAOParams";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../core";
@@ -36,7 +36,7 @@ export class SAO {
 
     this.view = view;
 
-    this._renderModes = [QualityRender];
+    this._renderModes = [DetailedRender, RealisticRender];
     this._kernelRadius = saoParams.kernelRadius || 100.0;
     this._intensity = (saoParams.intensity !== undefined) ? saoParams.intensity : 0.15;
     this._bias = (saoParams.bias !== undefined) ? saoParams.bias : 0.5;
@@ -53,7 +53,8 @@ export class SAO {
    *
    * The {@link View} will apply SAO whenever {@link View.renderMode} has been set one of these values.
    *
-   * Default value is [{@link constants!QualityRender | QualityRender}].
+   * Default value is [{@link constants!DetailedRender | DetailedRender},
+   * {@link constants!RealisticRender | RealisticRender}].
    */
   set renderModes(value: number[]) {
     this._renderModes = value;
@@ -65,7 +66,8 @@ export class SAO {
    *
    * The {@link View} will apply SAO whenever {@link View.renderMode} has been set one of these values.
    *
-   * Default value is [{@link constants!QualityRender | QualityRender}].
+   * Default value is [{@link constants!DetailedRender | DetailedRender},
+   * {@link constants!RealisticRender | RealisticRender}].
    */
   get renderModes(): number[] {
     return this._renderModes;

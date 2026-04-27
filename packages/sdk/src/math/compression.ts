@@ -1278,4 +1278,79 @@ export function compressRGBColors(colors: FloatArrayParam): IntArrayParam {
   return compressed;
 }
 
+/**
+ * Packages a flat array of 2D UV coordinates into a `Float32Array` for
+ * GPU upload.
+ *
+ * Stored uncompressed (RG32F) so tiling textures (UVs outside `[0, 1]`)
+ * round-trip through the GPU intact — the shader applies a per-fragment
+ * `fract()` before transforming into the per-mesh atlas sub-rect, which
+ * gives correct wrap-around for tiled materials without losing the
+ * integer part to a quantisation clamp.
+ *
+ * Memory cost: 8 bytes/vertex (vs 4 bytes for the previous RG16UI form).
+ * For any vertex-heavy model the position+normal data dominates anyway.
+ *
+ * Pass-through if the input is already a `Float32Array`; otherwise copies
+ * to one.
+ */
+export function packUVsToFloat32(uvs: FloatArrayParam): Float32Array {
+  if (uvs instanceof Float32Array) {
+    return uvs;
+  }
+  const out = new Float32Array(uvs.length);
+  for (let i = 0, len = uvs.length; i < len; i++) {
+    out[i] = uvs[i];
+  }
+  return out;
+}
+
+/**
+ * Octahedral-encodes an array of unit-length 3D normals into a flat array of
+ * 16-bit unsigned integers (two values per normal).
+ *
+ * The signed-zero octahedral form maps a unit normal to a 2D coordinate in
+ * `[-1, 1]`; this encoder remaps that range to `[0, 65535]` so the output
+ * fits a single RG16UI texel per normal — half the memory cost of three
+ * unquantised floats while retaining sub-degree precision (worst-case angular
+ * error is roughly 0.001 rad), which is comfortably below the perceptual
+ * threshold for diffuse Lambert and the lower-frequency PBR terms.
+ *
+ * Input is read three components at a time. Non-unit inputs are normalised
+ * before encoding. The output length is two-thirds of the input length.
+ *
+ * The matching shader-side decode is:
+ * ```glsl
+ * vec2 e = vec2(packed) / 65535.0 * 2.0 - 1.0;
+ * vec3 n = vec3(e.xy, 1.0 - abs(e.x) - abs(e.y));
+ * if (n.z < 0.0) n.xy = (1.0 - abs(n.yx)) * sign(n.xy);
+ * n = normalize(n);
+ * ```
+ */
+export function octEncodeNormalsToU16(normals: FloatArrayParam): Uint16Array {
+  const numNormals = (normals.length / 3) | 0;
+  const out = new Uint16Array(numNormals * 2);
+  for (let i = 0; i < numNormals; i++) {
+    let nx = normals[i * 3];
+    let ny = normals[i * 3 + 1];
+    let nz = normals[i * 3 + 2];
+    const invLen = 1.0 / (Math.sqrt(nx * nx + ny * ny + nz * nz) || 1.0);
+    nx *= invLen;
+    ny *= invLen;
+    nz *= invLen;
+    const denom = Math.abs(nx) + Math.abs(ny) + Math.abs(nz) || 1.0;
+    let ex = nx / denom;
+    let ey = ny / denom;
+    if (nz < 0.0) {
+      const tx = (1.0 - Math.abs(ey)) * (ex >= 0.0 ? 1.0 : -1.0);
+      const ty = (1.0 - Math.abs(ex)) * (ey >= 0.0 ? 1.0 : -1.0);
+      ex = tx;
+      ey = ty;
+    }
+    out[i * 2]     = Math.round((ex * 0.5 + 0.5) * 65535.0);
+    out[i * 2 + 1] = Math.round((ey * 0.5 + 0.5) * 65535.0);
+  }
+  return out;
+}
+
 

@@ -422,15 +422,15 @@
  * Rendering modes let you enable/disable effects as a group (eg. quality vs performance).
  *
  * ````javascript
- * import { FastRender, QualityRender } from "@xeokit/sdk/constants";
+ * import { NavigationRender, DetailedRender, RealisticRender } from "@xeokit/sdk/constants";
  *
- * view1.edges.renderModes = [QualityRender];
- * view1.sao.renderModes = [QualityRender];
- * view1.resolutionScale.renderModes = [FastRender];
+ * view1.edges.renderModes = [DetailedRender];
+ * view1.sao.renderModes = [DetailedRender, RealisticRender];
+ * view1.resolutionScale.renderModes = [NavigationRender];
  *
- * view1.renderMode = FastRender;
- * view1.renderMode = QualityRender;
- * view1.renderMode = FastRender;
+ * view1.renderMode = NavigationRender;
+ * view1.renderMode = DetailedRender;
+ * view1.renderMode = RealisticRender;
  * ````
  *
  * <br>
@@ -500,6 +500,16 @@ export * from "./SectionPlane";
 export * from "./SectionPlaneParams";
 export * from "./SAO";
 export * from "./SAOParams";
+export * from "./Shadows";
+export * from "./ShadowsParams";
+export * from "./Tonemap";
+export * from "./TonemapParams";
+export * from "./AntiAliasing";
+export * from "./AntiAliasingParams";
+export * from "./Bloom";
+export * from "./BloomParams";
+export * from "./IBL";
+export * from "./IBLParams";
 export * from "./ViewLayerParams";
 export * from "./ResolutionScale";
 export * from "./ResolutionScaleParams";

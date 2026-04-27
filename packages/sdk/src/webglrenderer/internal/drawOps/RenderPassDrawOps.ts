@@ -21,6 +21,23 @@ export interface RenderPassDrawOps {
   opaqueSAO?: DrawOp;
 
   /**
+   * Draw operation that renders depth from the shadow-casting light's point of
+   * view into the shadow-map FBO.
+   */
+  shadowDepth?: DrawOp;
+
+  /**
+   * Draw operation for rendering opaque objects with directional shadow mapping.
+   */
+  opaqueShadow?: DrawOp;
+
+  /**
+   * Draw operation that renders opaque objects with BOTH SAO and shadow mapping
+   * applied in a single pass.
+   */
+  opaqueSAOShadow?: DrawOp;
+
+  /**
    * Draw operation for rendering opaque edges.
    */
   opaqueEdges?: DrawOp;

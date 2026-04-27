@@ -16,12 +16,17 @@ export class TrianglesDrawEdgeSilhouetteTechnique extends DrawTechnique {
   }
 
   protected buildVertexShader(): void {
+    // Edges render at true depth — RenderManager's scene-phase
+    // `POLYGON_OFFSET_FILL` pushes surfaces back so these lines naturally
+    // win depth-test ties without needing a shader-side bias.
     this.vsHeader();
     this.vsCommonDeclarations();
     this.vsSlicingDeclarations();
     this.vsSilhouetteDeclarations();
+    this.vsEdgeFadeDeclarations();
     this.vsMainBegin();
     this.vsSilhouetteLogic();
+    this.vsEdgeFadeLogic();
     this.vsSlicingLogic();
     this.vsMainEnd();
   }
@@ -32,9 +37,11 @@ export class TrianglesDrawEdgeSilhouetteTechnique extends DrawTechnique {
     this.fsColorDeclarations();
     this.fsSlicingDeclarations();
     this.fsSilhouetteDeclarations();
+    this.fsEdgeFadeDeclarations();
     this.fsMainBegin();
     this.fsSlicingLogic();
     this.fsSilhouetteLogic();
+    this.fsEdgeFadeLogic();
     this.fsOutputColor();
     this.fsMainEnd();
   }

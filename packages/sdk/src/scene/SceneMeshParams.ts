@@ -39,13 +39,6 @@ export interface SceneMeshParams {
   color?: Vec3;
 
   /**
-   * RGB pick color of the new {@link SceneMesh}.
-   *
-   * This is used internally within {@link SceneModel | SceneModel}.
-   */
-  pickColor?: Vec4;
-
-  /**
    * Opacity of the new {@link SceneMesh}.
    *
    * Default is 1.

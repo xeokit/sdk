@@ -1,5 +1,5 @@
 import {collapseAABB3, expandAABB3Points3, createAABB3Float32} from "../math/boundaries";
-import {compressRGBColors, quantizePositions3} from "../math/compression";
+import {compressRGBColors, octEncodeNormalsToU16, packUVsToFloat32, quantizePositions3} from "../math/compression";
 import {createVec3Float64} from "../math/vector";
 import {LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../constants";
 import {buildEdgeIndices} from "./buildEdgeIndices";
@@ -53,11 +53,29 @@ export function compressGeometryParams(geometryParams: SceneGeometryParams): Sce
       || geometryParams.primitive === TrianglesPrimitive) && geometryParams.indices
       ? buildEdgeIndices(positionsCompressed, geometryParams.indices, aabb, 10)
       : null;
+    // Encode normals only when supplied and length-matched against positions.
+    // Mismatched lengths fall through to the no-normals path so a malformed
+    // normals array degrades to flat shading rather than aborting the build.
+    const normalsCompressed =
+      geometryParams.normals && geometryParams.normals.length === geometryParams.positions.length
+        ? octEncodeNormalsToU16(geometryParams.normals)
+        : undefined;
+    // UVs ship to the GPU as RG32F so tiling values (UVs outside [0, 1])
+    // survive intact — the shader applies fract() per-fragment before
+    // sampling the atlas, which is what makes tiled materials work.
+    // Mismatched lengths degrade to no-UVs rather than abort.
+    const expectedUvLen = (geometryParams.positions.length / 3) * 2;
+    const uvsCompressed =
+      geometryParams.uvs && geometryParams.uvs.length === expectedUvLen
+        ? packUVsToFloat32(geometryParams.uvs)
+        : undefined;
     return { // Assume that closed triangle mesh is decomposed into open surfaces
       id: geometryParams.id,
       primitive: geometryParams.primitive,
       aabb,
       positionsCompressed,
+      normalsCompressed,
+      uvsCompressed,
       indices: geometryParams.indices,
       edgeIndices,
       origin: rtcNeeded ? rtcCenter : null

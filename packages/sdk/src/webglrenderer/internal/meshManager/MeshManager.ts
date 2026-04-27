@@ -286,8 +286,12 @@ export class MeshManager {
   /**
    * Returns an existing compatible {@link MeshBatchImpl} for the mesh or creates a new one.
    *
-   * Compatibility is currently determined by:
-   * - matching geometry primitive type, and
+   * Compatibility is determined by:
+   * - matching geometry primitive type,
+   * - matching `hasNormals` flag (so geometry-with-normals lands in the
+   *   smooth-shaded batch and geometry-without lands in the flat-shaded one),
+   * - matching `hasUVs` flag (so the UV-bearing technique variant only sees
+   *   geometries that actually populate the UV data texture), and
    * - {@link MeshBatchImpl.canAddMesh} constraints.
    *
    * @param sceneMesh - The mesh requiring a batch.
@@ -295,10 +299,14 @@ export class MeshManager {
    */
   private _getMeshBatch(sceneMesh: SceneMesh): SDKResult<MeshBatchImpl> {
     const primitive = sceneMesh.geometry.primitive;
+    const hasNormals = !!sceneMesh.geometry.normalsCompressed;
+    const hasUVs     = !!sceneMesh.geometry.uvsCompressed;
 
     for (let i = 0, len = this._batches.length; i < len; i++) {
       const meshBatch = this._batches[i];
-      if (meshBatch.primitive === primitive) {
+      if (meshBatch.primitive === primitive
+          && meshBatch.hasNormals === hasNormals
+          && meshBatch.hasUVs === hasUVs) {
         const canAddResult = meshBatch.canAddMesh(sceneMesh);
         if (canAddResult !== GPUMemoryCheckResult.OK) {
           continue;
@@ -307,7 +315,7 @@ export class MeshManager {
       }
     }
 
-    const result = this._gpuMemoryManager.createBatch();
+    const result = this._gpuMemoryManager.createBatch({hasNormals, hasUVs});
     if (result.ok === false) {
       return result;
     }
@@ -316,6 +324,8 @@ export class MeshManager {
 
     const newMeshBatch = new MeshBatchImpl({
       primitive,
+      hasNormals,
+      hasUVs,
       renderContext: this._renderContext,
       gpuMemoryManager: this._gpuMemoryManager,
       gpuMemoryBatchIndex,

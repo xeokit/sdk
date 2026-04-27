@@ -1,0 +1,127 @@
+import type {AntiAliasingMode, AntiAliasingParams} from "./AntiAliasingParams";
+import type {View} from "./View";
+import {SDKErrorType, type SDKResult} from "../core";
+import {DetailedRender, RealisticRender} from "../constants";
+
+/**
+ * Configures the final antialiasing post-process pass for a {@link View}.
+ *
+ * * Located at {@link View.antiAliasing}.
+ * * FXAA runs after {@link Tonemap} so it sees final LDR colours.
+ * * Has no effect when the renderer has fallen back to LDR mode (no HDR
+ *   target), since there's no intermediate texture to filter from.
+ */
+export class AntiAliasing {
+
+  /** The View this AntiAliasing belongs to. */
+  public readonly view: View;
+
+  private _renderModes: number[];
+  private _mode: AntiAliasingMode;
+  private _destroyed = false;
+
+  /** @private */
+  constructor(view: View, params: AntiAliasingParams) {
+    this.view = view;
+    this._renderModes = [DetailedRender, RealisticRender];
+    this._mode = params.mode !== undefined ? params.mode : "fxaa";
+  }
+
+  /**
+   * Sets which rendering modes in which to apply AntiAliasing.
+   *
+   * The {@link View} will apply AA whenever {@link View.renderMode} has been set one of these values.
+   *
+   * Default value is [{@link constants!DetailedRender | DetailedRender},
+   * {@link constants!RealisticRender | RealisticRender}].
+   */
+  set renderModes(value: number[]) {
+    this._renderModes = value;
+    this.view.needsRender();
+  }
+
+  /**
+   * Gets which rendering modes in which to apply AntiAliasing.
+   *
+   * The {@link View} will apply AA whenever {@link View.renderMode} has been set one of these values.
+   *
+   * Default value is [{@link constants!DetailedRender | DetailedRender},
+   * {@link constants!RealisticRender | RealisticRender}].
+   */
+  get renderModes(): number[] {
+    return this._renderModes;
+  }
+
+  /**
+   * Gets whether AntiAliasing is supported by this browser and GPU.
+   */
+  get supported(): boolean {
+    return true;
+  }
+
+  /**
+   * Returns true if AntiAliasing is currently possible. Called internally
+   * by renderer logic.
+   * @private
+   */
+  get possible(): boolean {
+    return this.supported;
+  }
+
+  /**
+   * Gets if AntiAliasing is currently applied.
+   *
+   * This is `true` when {@link View.renderMode | View.renderMode} is
+   * in {@link AntiAliasing.renderModes | AntiAliasing.renderModes}.
+   */
+  get applied(): boolean {
+    for (let i = 0, len = this._renderModes.length; i < len; i++) {
+      if (this.view.renderMode === this._renderModes[i]) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /** AA mode. Default `"fxaa"`. */
+  get mode(): AntiAliasingMode {
+    return this._mode;
+  }
+
+  set mode(value: AntiAliasingMode) {
+    if (value !== "none" && value !== "fxaa") return;
+    if (this._mode === value) return;
+    this._mode = value;
+    this.view.needsRender();
+  }
+
+  /** Gets this AntiAliasing as JSON. */
+  toParams(): SDKResult<AntiAliasingParams> {
+    return {
+      ok: true,
+      value: {
+        renderModes: this._renderModes,
+        mode: this._mode
+      }
+    };
+  }
+
+  /** Configures this AntiAliasing. */
+  fromParams(params: AntiAliasingParams): SDKResult<any> {
+    if (this._destroyed) {
+      return this.view.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[AntiAliasing.fromParams] AntiAliasing has been destroyed."
+      });
+    }
+    if (params.renderModes !== undefined) this.renderModes = params.renderModes;
+    if (params.mode !== undefined) this.mode = params.mode;
+    return {ok: true, value: undefined};
+  }
+
+  /** @private */
+  destroy() {
+    this._destroyed = true;
+  }
+}

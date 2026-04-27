@@ -1,9 +1,9 @@
-import {WebGLArrayBuf, WebGLProgram} from "../../../webglutils";
-import type {WebGLAttribute, WebGLRenderBuffer} from "../../../webglutils";
-import {createVec2Float64} from "../../../math/vector";
-import {PerspectiveProjectionType} from "../../../constants";
-import type {RenderContext} from "../RenderContext";
-import type {View} from "../../../viewer";
+import {WebGLArrayBuf, WebGLProgram} from "../../../../webglutils";
+import type {WebGLAttribute, WebGLRenderBuffer} from "../../../../webglutils";
+import {createVec2Float64} from "../../../../math/vector";
+import {PerspectiveProjectionType} from "../../../../constants";
+import type {RenderContext} from "../../RenderContext";
+import type {View} from "../../../../viewer";
 
 const tempVec2 = createVec2Float64();
 
@@ -92,8 +92,11 @@ export class SAOOcclusionRenderer {
 
     const program = this.#program;
     const sao = view.sao;
-    const viewportWidth = gl.drawingBufferWidth;
-    const viewportHeight = gl.drawingBufferHeight;
+    // Match the scene render size so the fullscreen quad covers the whole
+    // AO texture and `uViewport` — used for the kernel-radius-in-UV math —
+    // is in the same units as the depth texture the shader samples.
+    const viewportWidth = this.#renderContext.sceneRenderWidth || gl.drawingBufferWidth;
+    const viewportHeight = this.#renderContext.sceneRenderHeight || gl.drawingBufferHeight;
     const projection = view.camera.projectionType === PerspectiveProjectionType
       ? view.camera.perspectiveProjection
       : view.camera.orthoProjection;

@@ -143,6 +143,31 @@ export function buildBoxGeometry(cfg: {
         xmax, ymax, zmin
       ],
 
+      // Per-face vertex normals — one shared normal per face, repeated four
+      // times (once per face vertex). Faces are kept duplicated rather than
+      // welded so the box renders with crisp edges; sharing vertices across
+      // faces would average normals at every corner and round the box.
+      normals: [
+
+        // front (+Z)
+        0, 0, 1,  0, 0, 1,  0, 0, 1,  0, 0, 1,
+
+        // right (+X)
+        1, 0, 0,  1, 0, 0,  1, 0, 0,  1, 0, 0,
+
+        // top (+Y)
+        0, 1, 0,  0, 1, 0,  0, 1, 0,  0, 1, 0,
+
+        // left (-X)
+        -1, 0, 0,  -1, 0, 0,  -1, 0, 0,  -1, 0, 0,
+
+        // bottom (-Y)
+        0, -1, 0,  0, -1, 0,  0, -1, 0,  0, -1, 0,
+
+        // back (-Z)
+        0, 0, -1,  0, 0, -1,  0, 0, -1,  0, 0, -1
+      ],
+
       // UV coordinates for each vertex
       uv: [
 

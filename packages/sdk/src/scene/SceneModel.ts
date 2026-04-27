@@ -469,7 +469,7 @@ export class SceneModel {
    * - On success, the created {@link SceneTexture}.
    * - On failure, an error message. Reasons for failure include:
    *   - SceneModel already destroyed.
-   *   - Missing required parameter: textureParams.imageData, textureParams.src or textureParams.buffers.
+   *   - Missing required parameter: textureParams.imageData, textureParams.image, textureParams.src or textureParams.buffers.
    *   - Texture already exists with the given ID.
    *   - Unsupported image extension.
    */
@@ -496,12 +496,12 @@ export class SceneModel {
         error: "[SceneModel.createTexture] Parameter expected: textureParams.id"
       });
     }
-    if (!textureParams.imageData && !textureParams.src && !textureParams.buffers) {
+    if (!textureParams.imageData && !textureParams.image && !textureParams.src && !textureParams.buffers) {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
         error:
-          "[SceneModel.createTexture] Parameter expected: textureParams.imageData, textureParams.src or textureParams.buffers"
+          "[SceneModel.createTexture] Parameter expected: textureParams.imageData, textureParams.image, textureParams.src or textureParams.buffers"
       });
     }
 
@@ -520,9 +520,12 @@ export class SceneModel {
       // }
     }
 
-    if (textureParams.imageData) {
-      // Rough estimate: 4 bytes per pixel (RGBA)
-      this.stats.textureBytes += textureParams.imageData.width * textureParams.imageData.height * 4;
+    // Rough estimate: 4 bytes per pixel (RGBA). `imageData` and `image`
+    // both expose `.width` / `.height` directly; we ignore `src` (size
+    // is unknown until decode) and `buffers` (compressed payload).
+    const sized = textureParams.imageData || textureParams.image;
+    if (sized && (sized as any).width && (sized as any).height) {
+      this.stats.textureBytes += (sized as any).width * (sized as any).height * 4;
     }
 
     const texture = new SceneTexture(this, textureParams);
@@ -698,6 +701,7 @@ export class SceneModel {
       emissiveTexture,
       occlusionTexture,
       metallicRoughnessTexture,
+      normalsTexture,
       colorTexture
     });
 
@@ -811,7 +815,7 @@ export class SceneModel {
       });
     }
 
-    const {id, positions, indices, primitive, uvs, colors} = geometryParams;
+    const {id, positions, indices, primitive, uvs, colors, normals} = geometryParams;
 
     if (id === null || id === undefined) {
       return this.scene.logError({
@@ -893,6 +897,16 @@ export class SceneModel {
           ok: false,
           type: SDKErrorType.InvalidInput,
           error: "[SceneModel.createGeometry] Mismatch between given quantities of vertex positions and UVs"
+        });
+      }
+    }
+
+    if (normals && normals.length > 0) {
+      if (normals.length !== positions.length) {
+        return this.scene.logError({
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: "[SceneModel.createGeometry] Mismatch between given quantities of vertex positions and normals"
         });
       }
     }
@@ -1030,7 +1044,7 @@ export class SceneModel {
       });
     }
 
-    const {id, indices, primitive, positionsCompressed, uvsCompressed} = geometryCompressedParams;
+    const {id, indices, primitive, positionsCompressed, uvsCompressed, normalsCompressed} = geometryCompressedParams;
 
     if (id === null || id === undefined) {
       return this.scene.logError({
@@ -1063,6 +1077,16 @@ export class SceneModel {
           ok: false,
           type: SDKErrorType.InvalidInput,
           error: "[SceneModel.createGeometryCompressed] Mismatch between given quantities of vertex positions and UVs"
+        });
+      }
+    }
+
+    if (normalsCompressed) {
+      if (normalsCompressed.length / 2 !== positionsCompressed.length / 3) {
+        return this.scene.logError({
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: "[SceneModel.createGeometryCompressed] Mismatch between given quantities of vertex positions and normals"
         });
       }
     }
@@ -1720,13 +1744,13 @@ export class SceneModel {
       }
       sceneModelParams.transforms.push(res.value);
     }
-    // for (const key in this.textures) {
-    //        const res =  this.textures[key].toParams();
-    //        if (!res.ok) {
-    //          return res;
-    //        }
-    //          sceneModelParams.textures.push(res.value);
-    // }
+    for (const key in this.textures) {
+           const res =  this.textures[key].toParams();
+           if (!res.ok) {
+             return res;
+           }
+             sceneModelParams.textures.push(res.value);
+    }
     for (const key in this.materials) {
       const res =  this.materials[key].toParams();
       if (!res.ok) {

@@ -26,7 +26,6 @@ export * as scene from "./scene";
 // Collisions and picking
 
 export * as collision from "./collision";
-export * as pick from "./pick";
 
 // Model importers and exporters
 

@@ -1,5 +1,5 @@
 import {EventEmitter, SDKErrorType, SDKInternalException, type SDKResult, SDKTask,} from "../core";
-import {FastRender, QualityRender} from "../constants";
+import {DetailedRender, NavigationRender, RealisticRender} from "../constants";
 import type {FloatArrayParam} from "../math";
 import type { Vec3} from "../math/vector";
 import type {SceneObject} from "../scene";
@@ -15,6 +15,11 @@ import type {PointLight} from "./PointLight";
 import {PointsMaterial} from "./PointsMaterial";
 import {ResolutionScale} from "./ResolutionScale";
 import {SAO} from "./SAO";
+import {Shadows} from "./Shadows";
+import {Tonemap} from "./Tonemap";
+import {AntiAliasing} from "./AntiAliasing";
+import {Bloom} from "./Bloom";
+import {IBL} from "./IBL";
 import {SectionPlane} from "./SectionPlane";
 import type {SectionPlaneParams} from "./SectionPlaneParams";
 import {Texturing} from "./Texturing";
@@ -26,6 +31,11 @@ import type {ViewParams} from "./ViewParams";
 import {EventDispatcher} from "strongly-typed-events";
 import type {CameraParams} from "./CameraParams";
 import type {SAOParams} from "./SAOParams";
+import type {ShadowsParams} from "./ShadowsParams";
+import type {TonemapParams} from "./TonemapParams";
+import type {AntiAliasingParams} from "./AntiAliasingParams";
+import type {BloomParams} from "./BloomParams";
+import type {IBLParams} from "./IBLParams";
 import type {EdgesParams} from "./EdgesParams";
 import type {EffectParams} from "./EffectParams";
 import type {PointsMaterialParams} from "./PointsMaterialParams";
@@ -97,6 +107,35 @@ class View {
    * Configures Scalable Ambient Obscurance (SAO) for this View.
    */
   public readonly sao: SAO;
+
+  /**
+   * Configures directional shadow mapping for this View.
+   */
+  public readonly shadows: Shadows;
+
+  /**
+   * Configures the HDR tonemap pass for this View.
+   */
+  public readonly tonemap: Tonemap;
+
+  /**
+   * Configures the final antialiasing pass for this View.
+   */
+  public readonly antiAliasing: AntiAliasing;
+
+  /**
+   * Configures the HDR bloom post-process for this View.
+   */
+  public readonly bloom: Bloom;
+
+  /**
+   * Configures hemispherical image-based lighting for this View.
+   *
+   * When {@link IBL.enabled} is `true`, the renderer's ambient term
+   * uses a sky / ground gradient based on each fragment's world-up
+   * normal direction instead of a flat constant.
+   */
+  public readonly ibl: IBL;
 
   /**
    * Configures when textures are rendered for this View.
@@ -246,7 +285,7 @@ class View {
    */
   public destroyed: boolean = false;
 
-  private _renderMode: number = QualityRender;
+  private _renderMode: number = DetailedRender;
   private _autoLayers: boolean;
   private _backgroundColor: FloatArrayParam;
   private _backgroundColorFromAmbientLight: boolean;
@@ -321,6 +360,7 @@ class View {
     this.layers = {};
     this.transforms = {};
 
+    this._renderMode = viewParams.renderMode !== undefined ? viewParams.renderMode : DetailedRender;
     this._numObjects = 0;
     this._objectIds = null;
     this._numVisibleObjects = 0;
@@ -379,34 +419,54 @@ class View {
 
     this.sao = new SAO(this, viewParams.sao || {});
 
+    this.shadows = new Shadows(this, viewParams.shadows || {
+      renderModes: [RealisticRender]
+    });
+
+    this.tonemap = new Tonemap(this, viewParams.tonemap || {
+    });
+
+    this.antiAliasing = new AntiAliasing(this, viewParams.antiAliasing || {});
+
+    this.bloom = new Bloom(this, viewParams.bloom || {});
+
+    this.ibl = new IBL(this, viewParams.ibl || {});
+
     this.texturing = new Texturing(this, {});
 
     this.xrayMaterial = new Effect(this, viewParams.xrayMaterial || {
+      // Conventional "x-ray ghost" — cool pale-blue body, translucent enough
+      // to see through but solid enough not to wash out, with fully-opaque
+      // dark edges so silhouettes read clearly through stacked geometry.
       fill: true,
-      fillColor: [0.7, 0.7, 0.7],
-      fillAlpha: 0.1,
+      fillColor: [0.85, 0.9, 1.0],
+      fillAlpha: 0.35,
       edges: true,
-      edgeColor: [0.4, 0.4, 0.4],
-      edgeAlpha: 0.2,
+      edgeColor: [0.1, 0.15, 0.25],
+      edgeAlpha: 1.0,
       edgeWidth: 1,
     });
 
     this.highlightMaterial = new Effect(this, viewParams.highlightMaterial || {
+      // Warm amber "hover" — less harsh than pure yellow, with a darker
+      // same-hue edge so the silhouette reads on any background.
       fill: true,
-      fillColor: [1.0, 1.0, 0.0],
-      fillAlpha: 0.5,
+      fillColor: [1.0, 0.78, 0.25],
+      fillAlpha: 0.4,
       edges: true,
-      edgeColor: [0.5, 0.4, 0.4],
+      edgeColor: [0.55, 0.35, 0.05],
       edgeAlpha: 1.0,
       edgeWidth: 1,
     });
 
     this.selectedMaterial = new Effect(this, viewParams.selectedMaterial || {
+      // Cool teal "committed" — pairs with the warm highlight (warm = hot/
+      // hovered, cool = locked-in). Darker teal edge for clean silhouettes.
       fill: true,
-      fillColor: [0.0, 1.0, 0.0],
-      fillAlpha: 0.5,
+      fillColor: [0.1, 0.7, 1.0],
+      fillAlpha: 0.4,
       edges: true,
-      edgeColor: [0.4, 0.5, 0.4],
+      edgeColor: [0.05, 0.3, 0.55],
       edgeAlpha: 1.0,
       edgeWidth: 1,
     });
@@ -415,11 +475,11 @@ class View {
       edgeColor: [0.0, 0.0, 0.0],
       edgeAlpha: 1.0,
       edgeWidth: 1,
-      renderModes: [QualityRender],
+      renderModes: [DetailedRender]
     });
 
     this.resolutionScale = new ResolutionScale(this, viewParams.resolutionScale || {
-      renderModes: [FastRender],
+      renderModes: [NavigationRender],
       resolutionScale: 1.0
     });
 
@@ -658,7 +718,7 @@ class View {
   /**
    * Sets which rendering mode this View is in.
    *
-   * Default value is {@link constants!QualityRender | QualityRender}.
+   * Default value is {@link constants!DetailedRender | DetailedRender}.
    *
    * Setting a View's rendering mode will activate whatever effects (eg. SAO, edges, canas scaling) are configured to
    * be active in that mode, while deactivating all other effects.
@@ -679,7 +739,7 @@ class View {
   /**
    * Gets which rendering mode this View is in.
    *
-   * Default value is {@link constants!QualityRender | QualityRender}.
+   * Default value is {@link constants!DetailedRender | DetailedRender}.
    */
   get renderMode(): number {
     return this._renderMode;
@@ -1807,6 +1867,30 @@ class View {
         return result;
       }
     }
+    if (viewParams.shadows) {
+      const result = this.shadows.fromParams(viewParams.shadows);
+      if (result.ok === false) {
+        return result;
+      }
+    }
+    if (viewParams.tonemap) {
+      const result = this.tonemap.fromParams(viewParams.tonemap);
+      if (result.ok === false) {
+        return result;
+      }
+    }
+    if (viewParams.antiAliasing) {
+      const result = this.antiAliasing.fromParams(viewParams.antiAliasing);
+      if (result.ok === false) {
+        return result;
+      }
+    }
+    if (viewParams.bloom) {
+      const result = this.bloom.fromParams(viewParams.bloom);
+      if (result.ok === false) {
+        return result;
+      }
+    }
     if (viewParams.edges) {
       const result = this.edges.fromParams(viewParams.edges);
       if (result.ok === false) {
@@ -1858,6 +1942,10 @@ class View {
         // sectionPlanes: Object.values(this.sectionPlanes).map(sectionPlane => (<{ value: SectionPlaneParams }>sectionPlane.toParams()).value),
         // lights: Object.values(this.lights).map(light => light.toParams()),
         sao: (<{ value: SAOParams }>this.sao.toParams()).value,
+        shadows: (<{ value: ShadowsParams }>this.shadows.toParams()).value,
+        tonemap: (<{ value: TonemapParams }>this.tonemap.toParams()).value,
+        antiAliasing: (<{ value: AntiAliasingParams }>this.antiAliasing.toParams()).value,
+        bloom: (<{ value: BloomParams }>this.bloom.toParams()).value,
         edges: (<{ value: EdgesParams }>this.edges.toParams()).value,
         highlightMaterial: (<{ value: EffectParams }>this.highlightMaterial.toParams()).value,
         selectedMaterial: (<{ value: EffectParams }>this.selectedMaterial.toParams()).value,

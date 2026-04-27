@@ -21,22 +21,42 @@ class WebGLRenderBuffer {
   #texture: WebGLAbstractTexture | null = null;
   #depthTexture: WebGLAbstractTexture | null = null;
   #hasDepthTexture: boolean;
+  #depthTextureCompare: boolean;
+  #colorFilter: "linear" | "nearest";
 
   /**
    * Creates a WebGLRenderBuffer.
-   * @param canvas
-   * @param gl
+   *
+   * @param canvas host canvas (for image-cache sizing only)
+   * @param gl    WebGL2 context
    * @param options
+   * @param options.depthTexture create a sampleable depth attachment
+   * @param options.depthTextureCompare when `depthTexture` is true, set
+   *   TEXTURE_COMPARE_MODE on the depth texture so it can be sampled with
+   *   `sampler2DShadow` in GLSL — gets 2×2 hardware-bilinear comparison free
+   *   per tap. Also switches the depth texture to LINEAR filtering (only
+   *   valid with compare mode on).
+   * @param options.colorFilter `"nearest"` (default) for pixel-accurate
+   *   sampling (e.g. SAO depth), `"linear"` for bilinear-filtered reads
+   *   (e.g. supersampling downsample on the HDR scene target).
+   * @param options.size explicit buffer size (defaults to canvas size)
    */
   constructor(
       canvas: HTMLCanvasElement,
       gl: WebGL2RenderingContext,
-      options: { depthTexture: boolean; size?: readonly [number, number] }
+      options: {
+        depthTexture: boolean;
+        size?: readonly [number, number];
+        depthTextureCompare?: boolean;
+        colorFilter?: "linear" | "nearest";
+      }
   ) {
     this.#gl = gl;
     this.canvas = canvas;
     this.size = options.size;
     this.#hasDepthTexture = !!options.depthTexture;
+    this.#depthTextureCompare = !!options.depthTextureCompare;
+    this.#colorFilter = options.colorFilter === "linear" ? "linear" : "nearest";
   }
 
   /** Whether GPU resources are currently allocated. */
@@ -59,7 +79,11 @@ class WebGLRenderBuffer {
   /** Bind the framebuffer, allocating or resizing as needed. */
   bind(...internalformats: number[]) {
     this.touch(...internalformats);
-    if (this.bound || !this.#buffer) return;
+    if (!this.#buffer) return;
+    // Always re-issue the GL bind. The `bound` flag can't be trusted as a
+    // short-circuit because other buffers' `unbind()` calls mutate the GL
+    // state behind this one's back — skipping the bind here leaves draws
+    // going to whichever framebuffer was unbound-to-null last.
     const gl = this.#gl;
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.#buffer.framebuf);
     this.bound = true;
@@ -124,10 +148,21 @@ class WebGLRenderBuffer {
         throw new Error("Failed to create depth texture");
       }
       gl.bindTexture(gl.TEXTURE_2D, depthTex);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      // When compare mode is on, LINEAR filtering gives a 2×2 PCF-style
+      // bilinear compare per sample. Without it, use NEAREST (LINEAR + no
+      // compare mode is undefined behaviour on several drivers).
+      const depthFilter = this.#depthTextureCompare ? gl.LINEAR : gl.NEAREST;
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, depthFilter);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, depthFilter);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      if (this.#depthTextureCompare) {
+        // Any sampler2DShadow sample will compare its reference against this
+        // texture with LESS (frag passes — i.e. is lit — when its refDepth is
+        // smaller than the stored texel).
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_FUNC, gl.LESS);
+      }
       // Use DEPTH_COMPONENT24 for wide compatibility; 32F may be unsupported on some devices.
       gl.texImage2D(
           gl.TEXTURE_2D,
@@ -347,8 +382,9 @@ class WebGLRenderBuffer {
     const tex = gl.createTexture();
     if (!tex) throw new Error("Failed to create texture");
     gl.bindTexture(gl.TEXTURE_2D, tex);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    const colorFilter = this.#colorFilter === "linear" ? gl.LINEAR : gl.NEAREST;
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, colorFilter);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, colorFilter);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 

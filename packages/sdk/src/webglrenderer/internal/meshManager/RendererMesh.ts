@@ -109,7 +109,7 @@ export class RendererMesh {
       this._meshBatch.setMeshTile(this._meshHandle, this.gpuTile.tileIndex);
     }
 
-    const relativeMatrix = createMat4Float64(matrix);
+    const relativeMatrix = createMat4Float64(matrix) as any;
     relativeMatrix.set(subVec3(center, this.gpuTile.center), 12);
     this._meshBatch.setMeshMatrix(this._meshHandle, relativeMatrix);
   }

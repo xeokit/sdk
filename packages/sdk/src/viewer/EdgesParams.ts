@@ -35,7 +35,33 @@ export interface EdgesParams {
   /**
    * Which rendering modes in which to render edges.
    *
-   * Default value is [{@link constants!QualityRender | QualityRender}].
+   * Default value is [{@link constants!DetailedRender | DetailedRender}].
    */
   renderModes?: number[];
+
+  /**
+   * Distance (as a fraction of the active camera's far plane) at which edge
+   * fade-out begins. Edges closer than this remain at full intensity.
+   *
+   * Combined with {@link EdgesParams.edgeFadeEnd | edgeFadeEnd} to produce a
+   * smooth alpha falloff that prevents edge density from clumping into a dark
+   * mass at long range — most visible in x-ray and silhouette modes.
+   *
+   * Effective range is `[0, 1]`. Set this `>= edgeFadeEnd` to disable the
+   * fade and keep the previous distance-independent appearance.
+   *
+   * Default value is `0.4`.
+   */
+  edgeFadeStart?: number;
+
+  /**
+   * Distance (as a fraction of the active camera's far plane) at which edges
+   * are fully transparent.
+   *
+   * Combined with {@link EdgesParams.edgeFadeStart | edgeFadeStart} to
+   * produce the smooth falloff. Effective range is `[0, 1]`.
+   *
+   * Default value is `1.0`.
+   */
+  edgeFadeEnd?: number;
 }

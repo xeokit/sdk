@@ -4,6 +4,10 @@ import type {SceneModel} from "./SceneModel";
 import {createVec3Float32, type Vec3} from "../math/vector";
 import {SDKErrorType, type SDKResult} from "../core";
 
+function clamp01(v: number): number {
+  return v < 0 ? 0 : v > 1 ? 1 : v;
+}
+
 /**
  * A set of {@link SceneTexture | Textures} in a {@link SceneModel | SceneModel}.
  *
@@ -36,6 +40,25 @@ export class SceneMaterial {
 
   _opacity: number;
 
+  _roughness: number;
+
+  _metallic: number;
+
+  /**
+   * Alpha-handling mode encoded as a small integer:
+   * `0 = OPAQUE`, `1 = MASK`, `2 = BLEND`. Matches the glTF 2.0
+   * `alphaMode` semantics. The shader reads this to decide whether to
+   * `discard` low-alpha fragments (`MASK`) or pass alpha through to the
+   * blender (`BLEND`).
+   */
+  _alphaMode: number;
+
+  /**
+   * Cut-off threshold for `MASK` mode. Fragments with
+   * `albedoAlpha < alphaCutoff` are discarded.
+   */
+  _alphaCutoff: number;
+
   /**
    * The color {@link SceneTexture} in this set.
    */
@@ -45,6 +68,15 @@ export class SceneMaterial {
    * The metallic-roughness {@link SceneTexture} in this set.
    */
   metallicRoughnessTexture?: SceneTexture;
+
+  /**
+   * The tangent-space normal map {@link SceneTexture} in this set.
+   *
+   * RGB encodes a tangent-space perturbation as `(x*0.5+0.5,
+   * y*0.5+0.5, z*0.5+0.5)`. The renderer transforms it into view
+   * space via a per-pixel TBN built from view-space derivatives.
+   */
+  normalsTexture?: SceneTexture;
 
   /**
    * The occlusion {@link SceneTexture} in this set.
@@ -69,6 +101,7 @@ export class SceneMaterial {
                 emissiveTexture?: SceneTexture;
                 occlusionTexture?: SceneTexture;
                 metallicRoughnessTexture?: SceneTexture;
+                normalsTexture?: SceneTexture;
                 colorTexture?: SceneTexture;
               }) {
 
@@ -77,8 +110,29 @@ export class SceneMaterial {
     this.uniqueId = `${model.id}__${this.id}`;
     this._color = createVec3Float32(materialParams.color || [1, 1, 1]);
     this._opacity = (materialParams.opacity !== undefined && materialParams.opacity !== null) ? materialParams.opacity : 1.0;
+    // Cook-Torrance defaults: moderately rough dielectric. Clamped on
+    // construction so out-of-range params logged as a constructor argument
+    // can't break the shader (e.g. negative roughness producing NaN in
+    // the GGX denominator).
+    this._roughness = clamp01(
+      (materialParams.roughness !== undefined && materialParams.roughness !== null) ? materialParams.roughness : 0.6
+    );
+    this._metallic = clamp01(
+      (materialParams.metallic !== undefined && materialParams.metallic !== null) ? materialParams.metallic : 0.0
+    );
+    // Alpha mode: glTF default is OPAQUE. We accept the string form on
+    // the way in (matches the glTF JSON) and store as a small integer
+    // because that's what the per-mesh attribute texture packs to.
+    const alphaMode = materialParams.alphaMode;
+    this._alphaMode = alphaMode === "MASK" ? 1 : alphaMode === "BLEND" ? 2 : 0;
+    this._alphaCutoff = clamp01(
+      (materialParams.alphaCutoff !== undefined && materialParams.alphaCutoff !== null)
+        ? materialParams.alphaCutoff
+        : 0.5
+    );
     this.colorTexture = textures.colorTexture;
     this.metallicRoughnessTexture = textures.metallicRoughnessTexture;
+    this.normalsTexture = textures.normalsTexture;
     this.occlusionTexture = textures.occlusionTexture;
     this.emissiveTexture = textures.emissiveTexture;
   }
@@ -140,6 +194,44 @@ export class SceneMaterial {
   }
 
   /**
+   * Microfacet roughness consumed by the Cook-Torrance BRDF.
+   *
+   * `0` is mirror-smooth, `1` is fully diffuse. Only consulted on the
+   * smooth-shaded (per-vertex normals) render path.
+   */
+  get roughness(): number {
+    return this._roughness;
+  }
+
+  /**
+   * Metallic factor consumed by the Cook-Torrance BRDF.
+   *
+   * `0` is a pure dielectric (Fresnel `F0` is 0.04 grey); `1` is a pure
+   * metal (Fresnel `F0` is the surface colour or sampled colour-texture
+   * value, diffuse term suppressed). Only consulted on the smooth-shaded
+   * render path.
+   */
+  get metallic(): number {
+    return this._metallic;
+  }
+
+  /**
+   * Alpha-handling mode: `0 = OPAQUE`, `1 = MASK`, `2 = BLEND`.
+   * Matches the glTF 2.0 `alphaMode` semantics.
+   */
+  get alphaMode(): number {
+    return this._alphaMode;
+  }
+
+  /**
+   * Cut-off threshold used when `alphaMode === MASK`. Fragments with
+   * `albedoAlpha < alphaCutoff` are discarded by the renderer.
+   */
+  get alphaCutoff(): number {
+    return this._alphaCutoff;
+  }
+
+  /**
    * Sets the opacity factor for this SceneMaterial.
    *
    * - This is a factor in range ````[0..1]````.
@@ -176,8 +268,15 @@ export class SceneMaterial {
     const materialParams = <SceneMaterialParams>{
       id: this.id,
       color: Array.from(this._color),
-      opacity: this._opacity
+      opacity: this._opacity,
+      roughness: this._roughness,
+      metallic: this._metallic
     };
+    if (this.colorTexture) materialParams.colorTextureId = this.colorTexture.id;
+    if (this.metallicRoughnessTexture) materialParams.metallicRoughnessTextureId = this.metallicRoughnessTexture.id;
+    if (this.normalsTexture) materialParams.normalsTextureId = this.normalsTexture.id;
+    if (this.occlusionTexture) materialParams.occlusionTextureId = this.occlusionTexture.id;
+    if (this.emissiveTexture) materialParams.emissiveTextureId = this.emissiveTexture.id;
     return {
       ok: true,
       value: materialParams

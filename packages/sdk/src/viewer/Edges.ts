@@ -1,5 +1,5 @@
 import type {EdgesParams} from "./EdgesParams";
-import {QualityRender} from "../constants";
+import {DetailedRender} from "../constants";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../core";
 import {createVec3Float64, type Vec3} from "../math/vector";
@@ -24,6 +24,8 @@ class Edges {
     private _edgeColor: Vec3;
     private _edgeWidth: number;
     private _edgeAlpha: number;
+    private _edgeFadeStart: number;
+    private _edgeFadeEnd: number;
     private _renderModes: number[];
     private _destroyed = false;
 
@@ -34,10 +36,12 @@ class Edges {
 
         this.view = view;
 
-        this._renderModes = options.renderModes || [QualityRender];
-        this._edgeColor = createVec3Float64(options.edgeColor || [0.2, 0.2, 0.2]);
+        this._renderModes = options.renderModes || [DetailedRender];
+        this._edgeColor = createVec3Float64(options.edgeColor || [0.35, 0.35, 0.35]);
         this._edgeAlpha = (options.edgeAlpha !== undefined && options.edgeAlpha !== null) ? options.edgeAlpha : 0.5;
         this._edgeWidth = (options.edgeWidth !== undefined && options.edgeWidth !== null) ? options.edgeWidth : 1;
+        this._edgeFadeStart = (options.edgeFadeStart !== undefined && options.edgeFadeStart !== null) ? options.edgeFadeStart : 0.4;
+        this._edgeFadeEnd = (options.edgeFadeEnd !== undefined && options.edgeFadeEnd !== null) ? options.edgeFadeEnd : 1.0;
     }
 
     /**
@@ -45,7 +49,7 @@ class Edges {
      *
      * The {@link View} will show edges whenever {@link View.renderMode} has been set one of these values.
      *
-     * Default value is [{@link constants!QualityRender | QualityRender}].
+     * Default value is [{@link constants!DetailedRender | DetailedRender}].
      */
     set renderModes(value: number[]) {
         this._renderModes = value;
@@ -57,7 +61,7 @@ class Edges {
      *
      * The {@link View} will show edges whenever {@link View.renderMode} has been set one of these values.
      *
-     * Default value is [{@link constants!QualityRender | QualityRender}].
+     * Default value is [{@link constants!DetailedRender | DetailedRender}].
      */
     get renderModes(): number[] {
         return this._renderModes;
@@ -147,6 +151,59 @@ class Edges {
     }
 
     /**
+     * Sets the fraction of the active camera's far plane at which edge
+     * fade-out begins.
+     *
+     * Smoothly attenuates edge alpha with view-space depth so distant edges
+     * stop crowding into a dark mass — most visible in x-ray and silhouette
+     * modes. Edges closer than this remain at full intensity. Range is
+     * `[0, 1]`; set this `>= edgeFadeEnd` to disable the fade.
+     *
+     * Default value is ````0.4````.
+     */
+    set edgeFadeStart(value: number) {
+        if (this._edgeFadeStart === value) {
+            return;
+        }
+        this._edgeFadeStart = value;
+        this.view.needsRender();
+    }
+
+    /**
+     * Gets the fraction of the active camera's far plane at which edge
+     * fade-out begins.
+     *
+     * Default value is ````0.4````.
+     */
+    get edgeFadeStart(): number {
+        return this._edgeFadeStart;
+    }
+
+    /**
+     * Sets the fraction of the active camera's far plane at which edges
+     * become fully transparent.
+     *
+     * Default value is ````1.0````.
+     */
+    set edgeFadeEnd(value: number) {
+        if (this._edgeFadeEnd === value) {
+            return;
+        }
+        this._edgeFadeEnd = value;
+        this.view.needsRender();
+    }
+
+    /**
+     * Gets the fraction of the active camera's far plane at which edges
+     * become fully transparent.
+     *
+     * Default value is ````1.0````.
+     */
+    get edgeFadeEnd(): number {
+        return this._edgeFadeEnd;
+    }
+
+    /**
      * Gets if edges are currently applied.
      *
      * This is `true` when {@link View.renderMode | View.renderMode} is
@@ -171,7 +228,9 @@ class Edges {
             renderModes: this.renderModes,
             edgeColor: <Vec3> Array.from(this.edgeColor),
             edgeWidth: this.edgeWidth,
-            edgeAlpha: this.edgeAlpha
+            edgeAlpha: this.edgeAlpha,
+            edgeFadeStart: this.edgeFadeStart,
+            edgeFadeEnd: this.edgeFadeEnd
         }
         };
     }
@@ -193,6 +252,12 @@ class Edges {
         this.edgeColor = <Vec3>Array.from(edgesParams.edgeColor);
         this.edgeWidth = edgesParams.edgeWidth;
         this.edgeAlpha = edgesParams.edgeAlpha;
+        if (edgesParams.edgeFadeStart !== undefined) {
+            this.edgeFadeStart = edgesParams.edgeFadeStart;
+        }
+        if (edgesParams.edgeFadeEnd !== undefined) {
+            this.edgeFadeEnd = edgesParams.edgeFadeEnd;
+        }
         return {
             ok: true,
             value: undefined

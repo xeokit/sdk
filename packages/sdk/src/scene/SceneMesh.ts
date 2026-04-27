@@ -16,8 +16,12 @@ import type {SceneMeshParams} from "./SceneMeshParams";
 import type {SceneObject} from "./SceneObject";
 import type {SceneMaterial} from "./SceneMaterial";
 import type {SceneModel} from "./SceneModel";
+import type {SceneTexture} from "./SceneTexture";
 import {SceneTransform} from "./SceneTransform";
 import {SDKErrorType, type SDKResult, SDKTask} from "../core";
+
+const DEFAULT_ROUGHNESS = 0.6;
+const DEFAULT_METALLIC  = 0.0;
 
 /**
  * A mesh in a {@link SceneModel | SceneModel}.
@@ -60,6 +64,11 @@ export class SceneMesh {
 
   /**
    * {@link SceneMaterial} used by this SceneMesh.
+   *
+   * The material is the canonical home for PBR parameters — roughness,
+   * metallic, and the colour/normal/etc. textures all live there. A mesh
+   * without a material falls back to renderer defaults (moderately rough
+   * dielectric, no textures).
    */
   readonly material?: SceneMaterial;
 
@@ -377,6 +386,72 @@ export class SceneMesh {
    */
   get effectiveOpacity(): number {
     return this.material ? this.material.opacity : this._opacity;
+  }
+
+  /**
+   * Effective microfacet roughness — the material's roughness if a
+   * material is attached, otherwise the renderer default (0.6).
+   *
+   * The renderer's Cook-Torrance BRDF reads this; meshes without a
+   * material render as a moderately-rough dielectric.
+   */
+  get effectiveRoughness(): number {
+    return this.material ? this.material.roughness : DEFAULT_ROUGHNESS;
+  }
+
+  /**
+   * Effective metallic factor — the material's metallic value if a
+   * material is attached, otherwise the renderer default (0.0).
+   */
+  get effectiveMetallic(): number {
+    return this.material ? this.material.metallic : DEFAULT_METALLIC;
+  }
+
+  /**
+   * Effective albedo (colour) texture — the material's `colorTexture`
+   * if a material is attached, otherwise `undefined`. Untextured meshes
+   * sample the per-batch atlas's white sentinel.
+   */
+  get effectiveColorTexture(): SceneTexture | undefined {
+    return this.material ? this.material.colorTexture : undefined;
+  }
+
+  /**
+   * Effective metallic-roughness texture — the material's
+   * `metallicRoughnessTexture` if a material is attached, otherwise
+   * `undefined`. Channel layout follows glTF 2.0: `G` = roughness,
+   * `B` = metallic. Untextured meshes sample the per-batch MR atlas's
+   * white sentinel — a multiplicative passthrough.
+   */
+  get effectiveMetallicRoughnessTexture(): SceneTexture | undefined {
+    return this.material ? this.material.metallicRoughnessTexture : undefined;
+  }
+
+  /**
+   * Effective tangent-space normal map — the material's `normalsTexture`
+   * if a material is attached, otherwise `undefined`. Encoded RGB with
+   * `(x, y, z) = sample.rgb * 2 - 1`. Untextured meshes sample the
+   * per-batch normal-map atlas's neutral sentinel `(128, 128, 255, 255)`,
+   * which decodes to `(0, 0, 1)` — no perturbation.
+   */
+  get effectiveNormalsTexture(): SceneTexture | undefined {
+    return this.material ? this.material.normalsTexture : undefined;
+  }
+
+  /**
+   * Effective alpha-handling mode: `0 = OPAQUE`, `1 = MASK`, `2 = BLEND`.
+   * Defaults to `OPAQUE` when no material is attached.
+   */
+  get effectiveAlphaMode(): number {
+    return this.material ? this.material.alphaMode : 0;
+  }
+
+  /**
+   * Effective `alphaCutoff` threshold for `MASK` mode. Defaults to `0.5`
+   * when no material is attached (matches glTF default).
+   */
+  get effectiveAlphaCutoff(): number {
+    return this.material ? this.material.alphaCutoff : 0.5;
   }
 
   /**

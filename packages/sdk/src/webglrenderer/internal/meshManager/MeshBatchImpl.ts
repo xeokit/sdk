@@ -9,6 +9,7 @@ import type {SDKResult} from "../../../core";
 import type {Mat4} from "../../../math/matrix";
 import type {Vec3} from "../../../math/vector";
 import {GPUMemoryCheckResult} from "../gpuMemoryManager";
+import {TrianglesPrimitive} from "../../../constants";
 
 /**
  * A MeshBatchImpl manages a batch of SceneMeshes that use the same primitive type.
@@ -33,6 +34,22 @@ export class MeshBatchImpl implements MeshBatch {
   primitive: number;
 
   /**
+   * Whether the geometries in this batch carry per-vertex normals.
+   *
+   * Set at construction from the first mesh that lands in the batch and
+   * never mutates afterward — {@link MeshManager} prevents geometries with
+   * a different `hasNormals` value from joining.
+   */
+  readonly hasNormals: boolean;
+
+  /**
+   * Whether the geometries in this batch carry per-vertex UV coordinates.
+   *
+   * Independent axis from {@link hasNormals}; same constancy guarantee.
+   */
+  readonly hasUVs: boolean;
+
+  /**
    * Base primitive tileIndex for this batch.
    */
   primBaseIndex: number;
@@ -46,6 +63,11 @@ export class MeshBatchImpl implements MeshBatch {
    * Whether this batch supports Screen Space Ambient Occlusion (SSAO) rendering.
    */
   saoSupported: boolean;
+
+  /**
+   * Whether this batch supports directional shadow-map rendering.
+   */
+  shadowsSupported: boolean;
 
   /**
    * The total number of indices in all meshes of this batch. This is used with WebGL render calls to determine how many indices to render
@@ -72,24 +94,33 @@ export class MeshBatchImpl implements MeshBatch {
     gpuMemoryManager: GPUMemoryManager;
     gpuMemoryBatchIndex: number;
     primitive: number;
+    hasNormals: boolean;
+    hasUVs: boolean;
   }) {
-    const {renderContext, gpuMemoryManager, primitive} = batchParams;
+    const {renderContext, gpuMemoryManager, primitive, hasNormals, hasUVs} = batchParams;
     this._renderContext = renderContext;
     this._gpuMemoryManager = gpuMemoryManager;
     this.gpuMemoryBatchIndex = batchParams.gpuMemoryBatchIndex;
     this.primitive = primitive;
+    this.hasNormals = hasNormals === true;
+    this.hasUVs = hasUVs === true;
     this.primBaseIndex = 0; // TODO
-    this.sortId = `batch-${primitive}`;
+    this.sortId = `batch-${primitive}-${this.hasNormals ? "n" : "f"}-${this.hasUVs ? "u" : "x"}`;
     this.numIndices = 0;
     this.numVertices = 0;
-    this.saoSupported = true;
+    // SAO and Shadows are triangle-only effects: the line / point draw-op
+    // tables have no `opaqueSAO`/`opaqueShadow`/`opaqueSAOShadow` entries.
+    // Marking line/point batches as supporting them would route them into
+    // bins whose dispatch is a no-op, and they'd never render.
+    this.saoSupported = (primitive === TrianglesPrimitive);
+    this.shadowsSupported = (primitive === TrianglesPrimitive);
   }
 
   /**
    * A hash string representing this batch, used for quick comparisons.
    */
   public get hash(): string {
-    return `${this.primitive}`;
+    return `${this.primitive}-${this.hasNormals ? 1 : 0}-${this.hasUVs ? 1 : 0}`;
   }
 
   /**

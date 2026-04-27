@@ -5,6 +5,9 @@ import {MeshAttributeTexture} from "./dataTextures/MeshAttributeTexture";
 import {GeometryQuantRangeTexture} from "./dataTextures/GeometryQuantRangeTexture";
 import {VertexPositionTexture} from "./dataTextures/VertexPositionTexture";
 import {VertexColorTexture} from "./dataTextures/VertexColorTexture";
+import {VertexNormalTexture} from "./dataTextures/VertexNormalTexture";
+import {VertexUVTexture} from "./dataTextures/VertexUVTexture";
+import {TextureAtlas, type AtlasTransform} from "./dataTextures/TextureAtlas";
 import {MatrixTexture} from "./dataTextures/MatrixTexture";
 import {IndexTexture} from "./dataTextures/IndexTexture";
 import {GeometryAttributeTexture} from "./dataTextures/GeometryAttributeTexture";
@@ -18,10 +21,67 @@ import type {Mat4} from "../../../math/matrix";
 import type {Vec3} from "../../../math/vector";
 import {GPUMemoryCheckResult} from "./GPUMemoryCheckResult";
 
+/**
+ * Folds the "atlas exists?" / "mesh has texture?" / "upload succeeded?" /
+ * "fall back to sentinel" sequence used by every PBR-map slot in addMesh.
+ *
+ * Returns the canonical zero transform when the batch has no atlas (so
+ * the per-mesh attribute buffer ends up with deterministic zeros) or
+ * the atlas's sentinel transform when no texture is attached or upload
+ * failed.
+ */
+const ZERO_ATLAS_TRANSFORM: AtlasTransform = { uOffset: 0, vOffset: 0, uScale: 0, vScale: 0 };
+
+/**
+ * Probe used by {@link GPUMemoryBatch.hasMemoryForMesh} to decide
+ * whether a mesh's texture would fit in the batch's atlas of the same
+ * type. Returns true when the texture would fit in a fresh same-size
+ * atlas but not this one — the caller should spawn a new batch.
+ *
+ * "Too big for any atlas" is treated as not-overflow here, because
+ * spawning a new batch wouldn't help. Those go to the sentinel at
+ * upload time and the user sees a console warning.
+ */
+function atlasOverflow(
+  atlas: TextureAtlas | null,
+  sceneTexture: { id: string; image?: any; imageData?: any; width?: number; height?: number } | undefined
+): boolean {
+  if (!atlas || !sceneTexture) return false;
+  const source = sceneTexture.image ?? sceneTexture.imageData ?? null;
+  const w = (source && source.width)  ?? sceneTexture.width  ?? 0;
+  const h = (source && source.height) ?? sceneTexture.height ?? 0;
+  if (w <= 0 || h <= 0) return false;
+  return atlas.canFitTexture(sceneTexture.id, w, h) === "would-fit-in-fresh-atlas";
+}
+
+function resolveAtlasTransform(
+  atlas: TextureAtlas | null,
+  sceneTexture: { id: string; image?: any; imageData?: any } | undefined,
+  label: string
+): AtlasTransform {
+  if (!atlas) {
+    return ZERO_ATLAS_TRANSFORM;
+  }
+  if (sceneTexture) {
+    // Prefer `image` (decoded HTMLImageElement) and fall back to
+    // `imageData` (ImageBitmap | Canvas | OffscreenCanvas) — both forms
+    // are what `texSubImage2D` natively accepts in WebGL2.
+    const source = sceneTexture.image ?? sceneTexture.imageData ?? null;
+    if (source) {
+      const t = atlas.addTexture(sceneTexture.id, source);
+      if (t) return t;
+      console.warn(`GPUMemoryBatch.addMesh: ${label} atlas full or upload failed for SceneTexture '${sceneTexture.id}' — falling back to sentinel`);
+    }
+  }
+  return atlas.sentinelTransform;
+}
+
 type GeometryHandle = {
   sceneGeometry: SceneGeometry;
   positionsPortion: any;
   vertexColorsPortion: any;
+  vertexNormalsPortion: any;
+  vertexUVsPortion: any;
   geometryIndex: number;
   indicesHandle: any;
   edgeIndicesHandle: any;
@@ -62,6 +122,11 @@ export class GPUMemoryBatch {
   private _edgeMeshIndexTexture: PrimitiveMeshIndexTexture[];
   private _vertexPositionTexture: VertexPositionTexture;
   private _vertexColorTexture: VertexColorTexture;
+  private _vertexNormalTexture: VertexNormalTexture | null;
+  private _vertexUVTexture: VertexUVTexture | null;
+  private _albedoAtlasTexture: TextureAtlas | null;
+  private _metallicRoughnessAtlasTexture: TextureAtlas | null;
+  private _normalMapAtlasTexture: TextureAtlas | null;
   private _meshMatrixTexture: MatrixTexture;
   private _meshIndicesUsed: boolean[];
   private _meshes: {};
@@ -84,13 +149,29 @@ export class GPUMemoryBatch {
   private _renderContext: RenderContext;
 
   /**
+   * True when this batch carries per-vertex normals — drives lazy
+   * allocation of {@link _vertexNormalTexture} and the technique variant
+   * that reads from it.
+   */
+  public readonly hasNormals: boolean;
+
+  /**
+   * True when this batch carries per-vertex UV coordinates — drives lazy
+   * allocation of {@link _vertexUVTexture} and the technique variant that
+   * binds it.
+   */
+  public readonly hasUVs: boolean;
+
+  /**
    * Creates a new GPUMemoryBatch.
    */
-  constructor(index: number, renderContext: RenderContext) {
+  constructor(index: number, renderContext: RenderContext, options: { hasNormals?: boolean, hasUVs?: boolean } = {}) {
 
     this.index = index;
 
     this._renderContext = renderContext;
+    this.hasNormals = options.hasNormals === true;
+    this.hasUVs = options.hasUVs === true;
 
     this._geometryHandles = {};
     this._meshHandles = {};
@@ -102,6 +183,11 @@ export class GPUMemoryBatch {
     this._geometryIndicesUsed = [];
     this._lastFreeGeometryIndex = 0;
     this._sceneGeometries = {};
+    this._vertexNormalTexture = null;
+    this._vertexUVTexture = null;
+    this._albedoAtlasTexture = null;
+    this._metallicRoughnessAtlasTexture = null;
+    this._normalMapAtlasTexture = null;
 
     this._numGeometries = 0;
     this._numMeshes = 0;
@@ -208,6 +294,52 @@ export class GPUMemoryBatch {
       description: `[Batch ${this.index}] - vertex RGB colors`
     });
 
+    if (this.hasNormals) {
+      this._vertexNormalTexture = new VertexNormalTexture({
+        gl,
+        maxItems: memoryConfigs.maxBatchVertices,
+        description: `[Batch ${this.index}] - vertex normals (octahedral RG16UI)`
+      });
+    }
+
+    if (this.hasUVs) {
+      this._vertexUVTexture = new VertexUVTexture({
+        gl,
+        maxItems: memoryConfigs.maxBatchVertices,
+        description: `[Batch ${this.index}] - vertex UVs (RG16UI, [0, 1] mapped to [0, 65535])`
+      });
+      // The albedo atlas is bound by the UV-bearing technique variants
+      // unconditionally — always-allocate keeps the shader path
+      // branch-free. Untextured meshes write the atlas's sentinel
+      // transform (scale = 0) and sample its pre-stamped white block.
+      this._albedoAtlasTexture = new TextureAtlas({
+        gl,
+        description: `[Batch ${this.index}] - albedo atlas (sRGB 2D, shelf-packed)`
+        // internalFormat defaults to SRGB8_ALPHA8.
+      });
+      // Metallic-roughness atlas — same shape, but linear RGBA8 since the
+      // values are reflectance parameters, not colour. Sentinel = white,
+      // which is exactly the multiplicative identity for the BRDF (`mr.g
+      // * material.roughness` and `mr.b * material.metallic` both pass
+      // the material values through unchanged when the texture is the
+      // sentinel).
+      this._metallicRoughnessAtlasTexture = new TextureAtlas({
+        gl,
+        description: `[Batch ${this.index}] - metallic-roughness atlas (linear 2D, shelf-packed)`,
+        internalFormat: gl.RGBA8
+      });
+      // Tangent-space normal-map atlas. Sentinel `(128, 128, 255, 255)`
+      // decodes to (0, 0, 1) — i.e. surface normal — so untextured
+      // meshes get an identity perturbation and look exactly as they
+      // did before normal-mapping landed.
+      this._normalMapAtlasTexture = new TextureAtlas({
+        gl,
+        description: `[Batch ${this.index}] - normal-map atlas (linear 2D, shelf-packed)`,
+        internalFormat: gl.RGBA8,
+        sentinelColor: [128, 128, 255, 255]
+      });
+    }
+
     const textures: {
       allocate(): SDKResult<void>;
       destroy(): void;
@@ -222,7 +354,12 @@ export class GPUMemoryBatch {
       this._indexTexture,
       this._edgeIndexTexture,
       this._vertexPositionTexture,
-      this._vertexColorTexture
+      this._vertexColorTexture,
+      ...(this._vertexNormalTexture ? [this._vertexNormalTexture] : []),
+      ...(this._vertexUVTexture ? [this._vertexUVTexture] : []),
+      ...(this._albedoAtlasTexture ? [this._albedoAtlasTexture] : []),
+      ...(this._metallicRoughnessAtlasTexture ? [this._metallicRoughnessAtlasTexture] : []),
+      ...(this._normalMapAtlasTexture ? [this._normalMapAtlasTexture] : [])
     ];
 
     for (let i = 0, leni = textures.length; i < leni; i++) {
@@ -257,7 +394,12 @@ export class GPUMemoryBatch {
       geometryAttributeTexture: this._geometryAttributeTexture,
       geometryQuantRangeTexture: this._geometryQuantRangeTexture,
       vertexPositionTexture: this._vertexPositionTexture,
-      vertexColorTexture: this._vertexColorTexture
+      vertexColorTexture: this._vertexColorTexture,
+      vertexNormalTexture: this._vertexNormalTexture ?? undefined,
+      vertexUVTexture: this._vertexUVTexture ?? undefined,
+      albedoAtlasTexture: this._albedoAtlasTexture ?? undefined,
+      metallicRoughnessAtlasTexture: this._metallicRoughnessAtlasTexture ?? undefined,
+      normalMapAtlasTexture: this._normalMapAtlasTexture ?? undefined
     };
 
     // this.structSpecs = {
@@ -287,6 +429,11 @@ export class GPUMemoryBatch {
     let total = 0;
     total += this._vertexPositionTexture.getAllocatedBytes();
     total += this._vertexColorTexture.getAllocatedBytes();
+    if (this._vertexNormalTexture) total += this._vertexNormalTexture.getAllocatedBytes();
+    if (this._vertexUVTexture)     total += this._vertexUVTexture.getAllocatedBytes();
+    if (this._albedoAtlasTexture)  total += this._albedoAtlasTexture.getAllocatedBytes();
+    if (this._metallicRoughnessAtlasTexture) total += this._metallicRoughnessAtlasTexture.getAllocatedBytes();
+    if (this._normalMapAtlasTexture) total += this._normalMapAtlasTexture.getAllocatedBytes();
     total += this._indexTexture.getAllocatedBytes();
     total += this._edgeIndexTexture.getAllocatedBytes();
     total += this._meshAttributeTexture.getAllocatedBytes();
@@ -313,6 +460,11 @@ export class GPUMemoryBatch {
     let total = 0;
     total += this._vertexPositionTexture.getUsedBytes();
     total += this._vertexColorTexture.getUsedBytes();
+    if (this._vertexNormalTexture) total += this._vertexNormalTexture.getUsedBytes();
+    if (this._vertexUVTexture)     total += this._vertexUVTexture.getUsedBytes();
+    if (this._albedoAtlasTexture)  total += this._albedoAtlasTexture.getUsedBytes();
+    if (this._metallicRoughnessAtlasTexture) total += this._metallicRoughnessAtlasTexture.getUsedBytes();
+    if (this._normalMapAtlasTexture) total += this._normalMapAtlasTexture.getUsedBytes();
     total += this._indexTexture.getUsedBytes();
     total += this._edgeIndexTexture.getUsedBytes();
     total += this._meshAttributeTexture.getUsedBytes();
@@ -366,6 +518,20 @@ export class GPUMemoryBatch {
       if (geometry.colorsCompressed && this._vertexColorTexture.canGetPortion(geometry.colorsCompressed.length) === false) {
         return GPUMemoryCheckResult.NotEnoughColorSpace;
       }
+      // For batches with normals, the normals portion size matches the
+      // vertex count (two u16s per vertex = one item). A normals-bearing
+      // geometry landing in a non-normals batch is filtered out earlier
+      // by MeshManager._getMeshBatch, so we don't have to handle that case.
+      if (this._vertexNormalTexture && geometry.normalsCompressed
+        && this._vertexNormalTexture.canGetPortion(geometry.normalsCompressed.length / 2) === false) {
+        return GPUMemoryCheckResult.NotEnoughVertexSpace;
+      }
+      // Same shape for UVs: 2 u16s per vertex = one item. Same routing
+      // guarantee from MeshManager.
+      if (this._vertexUVTexture && geometry.uvsCompressed
+        && this._vertexUVTexture.canGetPortion(geometry.uvsCompressed.length / 2) === false) {
+        return GPUMemoryCheckResult.NotEnoughVertexSpace;
+      }
     }
     const primCount = isPoints
       ? vertCount
@@ -380,6 +546,16 @@ export class GPUMemoryBatch {
     }
     if (this._primitiveMeshIndexTexture[0].canGetPortion(primCount) === false) { // FIXME: Only defined for View 0
       return GPUMemoryCheckResult.NotEnoughPrimSpace;
+    }
+    // Atlas-fit probe — if any of the mesh's PBR-map textures wouldn't
+    // fit in the corresponding batch atlas but WOULD fit in a fresh
+    // atlas, route the mesh to a new batch. Textures that are simply
+    // too big for any atlas of this size fall through here and end up
+    // on the sentinel at upload time.
+    if (atlasOverflow(this._albedoAtlasTexture, sceneMesh.effectiveColorTexture)
+      || atlasOverflow(this._metallicRoughnessAtlasTexture, sceneMesh.effectiveMetallicRoughnessTexture)
+      || atlasOverflow(this._normalMapAtlasTexture, sceneMesh.effectiveNormalsTexture)) {
+      return GPUMemoryCheckResult.NotEnoughAtlasSpace;
     }
     return GPUMemoryCheckResult.OK;
   }
@@ -424,6 +600,8 @@ export class GPUMemoryBatch {
 
     let positionsPortion = null;
     let vertexColorsPortion = null;
+    let vertexNormalsPortion = null;
+    let vertexUVsPortion = null;
     let indicesHandle = null;
     let edgeIndicesHandle = null;
     let geometryIndex = -1;
@@ -435,6 +613,12 @@ export class GPUMemoryBatch {
       }
       if (vertexColorsPortion) {
         this._vertexColorTexture.putPortion(vertexColorsPortion);
+      }
+      if (vertexNormalsPortion && this._vertexNormalTexture) {
+        this._vertexNormalTexture.putPortion(vertexNormalsPortion);
+      }
+      if (vertexUVsPortion && this._vertexUVTexture) {
+        this._vertexUVTexture.putPortion(vertexUVsPortion);
       }
       if (indicesHandle) {
         this._indexTexture.putPortion(indicesHandle);
@@ -501,6 +685,52 @@ export class GPUMemoryBatch {
         }
       }
 
+      // Normals are only stored on batches that opted in; the geometry-side
+      // `normalsCompressed` is octahedral RG16UI pairs (2 elements per vertex),
+      // matching VertexNormalTexture.elementsPerItem so we can pass the array
+      // straight to getPortion.
+      if (this._vertexNormalTexture && sceneGeometry.normalsCompressed) {
+        const normalsBaseGeometryIndex = geometryIndex;
+        vertexNormalsPortion = this._vertexNormalTexture.getPortion(
+          sceneGeometry.normalsCompressed,
+          (newBase: number) => {
+            this._geometryAttributeTexture.setItem(normalsBaseGeometryIndex, {
+              normalsBase: newBase
+            });
+          }
+        );
+        if (vertexNormalsPortion === null) {
+          cleanup();
+          return {
+            ok: false,
+            type: SDKErrorType.MemoryAllocationFailed,
+            error: `GPUMemoryBatch.addMesh: Unable to allocate vertex normals portion (of length ${sceneGeometry.normalsCompressed.length}) for geometry ${sceneGeometry.id} - limit is ${this._renderContext.memoryConfigs.maxBatchVertices * 2} normal components`
+          }
+        }
+      }
+
+      // UVs follow the same shape — 2 u16s per vertex, one item per vertex.
+      // Stored only on batches with the hasUVs flag set.
+      if (this._vertexUVTexture && sceneGeometry.uvsCompressed) {
+        const uvsBaseGeometryIndex = geometryIndex;
+        vertexUVsPortion = this._vertexUVTexture.getPortion(
+          sceneGeometry.uvsCompressed,
+          (newBase: number) => {
+            this._geometryAttributeTexture.setItem(uvsBaseGeometryIndex, {
+              uvsBase: newBase
+            });
+          }
+        );
+        if (vertexUVsPortion === null) {
+          cleanup();
+          return {
+            ok: false,
+            type: SDKErrorType.MemoryAllocationFailed,
+            error: `GPUMemoryBatch.addMesh: Unable to allocate vertex UVs portion (of length ${sceneGeometry.uvsCompressed.length}) for geometry ${sceneGeometry.id} - limit is ${this._renderContext.memoryConfigs.maxBatchVertices * 2} UV components`
+          }
+        }
+      }
+
       if (sceneGeometry.primitive !== PointsPrimitive && sceneGeometry.indices) {
         indicesHandle = this._indexTexture.getPortion(
           sceneGeometry.indices,
@@ -546,13 +776,17 @@ export class GPUMemoryBatch {
       this._geometryAttributeTexture.setItem(geometryIndex, {
         verticesBase: positionsPortion.base, // XYZ
         indicesBase: indicesHandle ? indicesHandle.base : 0,
-        edgeIndicesBase: edgeIndicesHandle ? edgeIndicesHandle.base : 0
+        edgeIndicesBase: edgeIndicesHandle ? edgeIndicesHandle.base : 0,
+        normalsBase: vertexNormalsPortion ? vertexNormalsPortion.base : 0,
+        uvsBase: vertexUVsPortion ? vertexUVsPortion.base : 0
       });
 
       geometryHandle = {
         sceneGeometry,
         positionsPortion,
         vertexColorsPortion,
+        vertexNormalsPortion,
+        vertexUVsPortion,
         geometryIndex,
         indicesHandle,
         edgeIndicesHandle,
@@ -566,9 +800,47 @@ export class GPUMemoryBatch {
 
     geometryHandle.useCount++;
 
+    // Resolve each PBR-map texture into a sub-rect of its atlas when the
+    // batch carries one. Untextured slots get the sentinel transform —
+    // every fragment samples a white texel, so the BRDF's multiplier
+    // collapses to passthrough and the shader stays branch-free.
+    const albedoXform = resolveAtlasTransform(
+      this._albedoAtlasTexture,
+      sceneMesh.effectiveColorTexture,
+      "albedo"
+    );
+    const mrXform = resolveAtlasTransform(
+      this._metallicRoughnessAtlasTexture,
+      sceneMesh.effectiveMetallicRoughnessTexture,
+      "metallic-roughness"
+    );
+    const nmXform = resolveAtlasTransform(
+      this._normalMapAtlasTexture,
+      sceneMesh.effectiveNormalsTexture,
+      "normal-map"
+    );
+
     this._meshAttributeTexture.setItem(meshIndex, {
       tileIndex: 0, // Set by setMeshAttribs()
-      geometryIndex: geometryHandle.geometryIndex
+      geometryIndex: geometryHandle.geometryIndex,
+      // Cook-Torrance material params written once at attach time. The
+      // smooth-shaded technique unpacks them per-fragment; flat-shaded
+      // batches' shaders never read this slot. Sourced from the mesh's
+      // material (or renderer defaults when no material is attached).
+      roughness: sceneMesh.effectiveRoughness,
+      metallic:  sceneMesh.effectiveMetallic,
+      // Alpha mode + cutoff. The shader uses these to discard fragments
+      // for `MASK` materials (cutout foliage / fences / Sponza drapes)
+      // and to pass the sampled alpha through to the framebuffer for
+      // `BLEND` materials.
+      alphaMode:   sceneMesh.effectiveAlphaMode,
+      alphaCutoff: sceneMesh.effectiveAlphaCutoff,
+      albedoUVOffset: [albedoXform.uOffset, albedoXform.vOffset],
+      albedoUVScale:  [albedoXform.uScale,  albedoXform.vScale],
+      metallicRoughnessUVOffset: [mrXform.uOffset, mrXform.vOffset],
+      metallicRoughnessUVScale:  [mrXform.uScale,  mrXform.vScale],
+      normalMapUVOffset: [nmXform.uOffset, nmXform.vOffset],
+      normalMapUVScale:  [nmXform.uScale,  nmXform.vScale]
     });
 
     const numViews = this._renderContext.memoryConfigs.maxViews;
@@ -810,6 +1082,12 @@ export class GPUMemoryBatch {
       if (geometryHandle.vertexColorsPortion) {
         this._vertexColorTexture.putPortion(geometryHandle.vertexColorsPortion);
       }
+      if (geometryHandle.vertexNormalsPortion && this._vertexNormalTexture) {
+        this._vertexNormalTexture.putPortion(geometryHandle.vertexNormalsPortion);
+      }
+      if (geometryHandle.vertexUVsPortion && this._vertexUVTexture) {
+        this._vertexUVTexture.putPortion(geometryHandle.vertexUVsPortion);
+      }
       if (geometryHandle.indicesHandle) {
         this._indexTexture.putPortion(geometryHandle.indicesHandle);
       }
@@ -951,6 +1229,12 @@ export class GPUMemoryBatch {
     didFlush = this._edgeIndexTexture.uploadChanges() || didFlush;
     didFlush = this._vertexPositionTexture.uploadChanges() || didFlush;
     didFlush = this._vertexColorTexture.uploadChanges() || didFlush;
+    if (this._vertexNormalTexture) {
+      didFlush = this._vertexNormalTexture.uploadChanges() || didFlush;
+    }
+    if (this._vertexUVTexture) {
+      didFlush = this._vertexUVTexture.uploadChanges() || didFlush;
+    }
     didFlush = this._meshMatrixTexture.uploadChanges() || didFlush;
     const numViews = this._renderContext.memoryConfigs.maxViews;
     for (let i = 0; i < numViews; i++) {
@@ -982,7 +1266,12 @@ export class GPUMemoryBatch {
       this._indexTexture,
       this._edgeIndexTexture,
       this._vertexPositionTexture,
-      this._vertexColorTexture
+      this._vertexColorTexture,
+      ...(this._vertexNormalTexture ? [this._vertexNormalTexture] : []),
+      ...(this._vertexUVTexture ? [this._vertexUVTexture] : []),
+      ...(this._albedoAtlasTexture ? [this._albedoAtlasTexture] : []),
+      ...(this._metallicRoughnessAtlasTexture ? [this._metallicRoughnessAtlasTexture] : []),
+      ...(this._normalMapAtlasTexture ? [this._normalMapAtlasTexture] : [])
     ];
 
     for (const dataTexture of dataTextures) {
@@ -1019,6 +1308,11 @@ export class GPUMemoryBatch {
     this._edgeIndexTexture = clear(this._edgeIndexTexture);
     this._vertexPositionTexture = clear(this._vertexPositionTexture);
     this._vertexColorTexture = clear(this._vertexColorTexture);
+    this._vertexNormalTexture = clear(this._vertexNormalTexture);
+    this._vertexUVTexture = clear(this._vertexUVTexture);
+    this._albedoAtlasTexture = clear(this._albedoAtlasTexture);
+    this._metallicRoughnessAtlasTexture = clear(this._metallicRoughnessAtlasTexture);
+    this._normalMapAtlasTexture = clear(this._normalMapAtlasTexture);
     this._meshMatrixTexture = clear(this._meshMatrixTexture);
     this._meshHandles = {};
     this._meshIndicesByUniqueId = {};

@@ -30,6 +30,18 @@ export interface SceneGeometryParams {
    */
   positions: FloatArrayParam;
 
+  /**
+   * Flat array of uncompressed floating-point 3D vertex normals.
+   *
+   * Optional. When supplied, the renderer uses these for smooth shading;
+   * when omitted, the fragment shader derives a flat face normal from
+   * position derivatives.
+   *
+   * Length must equal `positions.length`. Ignored for `LinesPrimitive`
+   * and `PointsPrimitive`.
+   */
+  normals?: FloatArrayParam;
+
   /*
     * Flat array of uncompressed floating-point vertex UV coordinates.
     */

@@ -17,6 +17,25 @@ export interface MeshBatch {
   primitive: number;
 
   /**
+   * Whether the batch's geometries carry per-vertex normals.
+   *
+   * Mirrors the `hasNormals` axis the {@link MeshManager} splits batches on.
+   * The renderer uses this flag to dispatch between the smooth-shaded and
+   * flat-shaded {@link DrawTechnique} variants — geometries within a batch
+   * always agree on this, so the dispatch is per-batch, not per-mesh.
+   */
+  hasNormals: boolean;
+
+  /**
+   * Whether the batch's geometries carry per-vertex UV coordinates.
+   *
+   * Independent axis from {@link hasNormals}. The renderer uses this to
+   * select draw-technique variants that bind a UV data texture and emit a
+   * `vUV` varying — the foundation for material-texture support.
+   */
+  hasUVs: boolean;
+
+  /**
    * Base primitive base index for this batch.
    */
   primBaseIndex: number;
@@ -25,6 +44,11 @@ export interface MeshBatch {
    * Whether this batch supports Screen Space Ambient Occlusion (SSAO) rendering.
    */
   saoSupported: boolean;
+
+  /**
+   * Whether this batch supports directional shadow-map rendering.
+   */
+  shadowsSupported: boolean;
 
   /**
    * The total number of indices in all meshes of this batch. This is used with WebGL draw calls to determine how many indices to draw

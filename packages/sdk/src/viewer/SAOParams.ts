@@ -73,7 +73,8 @@ export interface SAOParams {
   /**
    * Which rendering modes in which to apply {@link SAO}.
    *
-   * Default value is [{@link constants!QualityRender | QualityRender}].
+   * Default value is [{@link constants!DetailedRender | DetailedRender},
+   * {@link constants!RealisticRender | RealisticRender}].
    */
   renderModes?: number[];
 }

@@ -5,13 +5,34 @@ import {type DrawOps, getDrawOps, putDrawOps} from "../drawOps/DrawOps";
 import {type ViewRenderState} from "../ViewRenderState";
 import {type GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
 import {type MeshBatch} from "../meshManager/MeshBatch";
-import {RENDER_PASSES} from "../RENDER_PASSES";
 import {SDKInternalException, type SDKResult} from "../../../core";
 import {RENDER_BINS} from "../RENDER_BINS";
-import {InfiniteGridRenderer} from "./InfiniteGridRenderer";
-import {SkyRenderer} from "./SkyRenderer";
-import {SAOOcclusionRenderer} from "../sao/SAOOcclusionRenderer";
-import {SAODepthLimitedBlurRenderer} from "../sao/SAODepthLimitedBlurRenderer";
+import {type RenderPassDrawOps} from "../drawOps/RenderPassDrawOps";
+import {InfiniteGridRenderer} from "./environment/InfiniteGridRenderer";
+import {SkyRenderer} from "./environment/SkyRenderer";
+import {SAOPipeline} from "./sao/SAOPipeline";
+import {ShadowPipeline} from "./shadows/ShadowPipeline";
+import {PostProcessChain} from "./postprocess/PostProcessChain";
+import {BRDFLUTTexture} from "./ibl/BRDFLUTTexture";
+import {IBLPrefilter, type SkyParams} from "./ibl/IBLPrefilter";
+import {RenderBinClassifier, type RenderBins} from "./RenderBinClassifier";
+import type {RenderInspector} from "../inspectors/RenderInspector";
+
+
+/**
+ * Set of WebGL extension handles whose activation is gated by feature flags.
+ *
+ * Held as references on the manager only to keep the handles alive for the
+ * lifetime of the renderer; their behaviour is registered with the GL
+ * context at `getExtension` time.
+ *
+ * @internal
+ */
+interface ExtensionHandles {
+  OES_element_index_uint?: any;
+  WEBGL_depth_texture?: any;
+  EXT_color_buffer_float?: any;
+}
 
 
 /**
@@ -38,11 +59,21 @@ import {SAODepthLimitedBlurRenderer} from "../sao/SAODepthLimitedBlurRenderer";
  *
  * @remarks
  * - Uses a shared {@link DrawOps} pool to reduce shader/program churn.
- * - Assumes a maximum of 4 views (indexed via `View.viewIndex`).
  * - GPU state cleanup is performed explicitly at the end of each render.
  *
  * @internal
  */
+/**
+ * Coerces a possibly-{@link Vec3} (Float32Array, plain array, etc.) into
+ * a fresh `[r, g, b]` triple, falling back to the supplied default when
+ * the source is `undefined` or too short. Used by the IBL prep block to
+ * ferry colour values from `view.ibl` into the prefilter pipeline.
+ */
+function arrTriple(src: any, fallback: [number, number, number]): [number, number, number] {
+  if (src && src.length >= 3) return [src[0], src[1], src[2]];
+  return [fallback[0], fallback[1], fallback[2]];
+}
+
 export class RenderManager {
 
   /** Number of texture units bound per draw call by {@link DrawTechnique._bindTexture}. */
@@ -63,35 +94,65 @@ export class RenderManager {
   public infiniteGrid: InfiniteGridRenderer;
 
   /** Pre-allocated render bins, reused every frame to avoid per-frame array allocation. */
-  private readonly _bins = {
-    normalDrawSAO: [] as MeshBatch[],
-    normalEdgesOpaque: [] as MeshBatch[],
-    normalFillTransparent: [] as MeshBatch[],
-    normalEdgesTransparent: [] as MeshBatch[],
-    xrayedSilhouetteOpaque: [] as MeshBatch[],
-    xrayEdgesOpaque: [] as MeshBatch[],
-    xrayedSilhouetteTransparent: [] as MeshBatch[],
-    xrayEdgesTransparent: [] as MeshBatch[],
-    highlightedSilhouetteOpaque: [] as MeshBatch[],
-    highlightedEdgesOpaque: [] as MeshBatch[],
-    highlightedSilhouetteTransparent: [] as MeshBatch[],
-    highlightedEdgesTransparent: [] as MeshBatch[],
-    selectedSilhouetteOpaque: [] as MeshBatch[],
-    selectedEdgesOpaque: [] as MeshBatch[],
-    selectedSilhouetteTransparent: [] as MeshBatch[],
-    selectedEdgesTransparent: [] as MeshBatch[],
+  private readonly _bins: RenderBins = {
+    normalDrawOpaque: [],
+    normalDrawSAO: [],
+    normalDrawShadow: [],
+    normalDrawSAOShadow: [],
+    normalEdgesOpaque: [],
+    normalFillTransparent: [],
+    normalEdgesTransparent: [],
+    xrayedSilhouetteOpaque: [],
+    xrayEdgesOpaque: [],
+    xrayedSilhouetteTransparent: [],
+    xrayEdgesTransparent: [],
+    highlightedSilhouetteOpaque: [],
+    highlightedEdgesOpaque: [],
+    highlightedSilhouetteTransparent: [],
+    highlightedEdgesTransparent: [],
+    selectedSilhouetteOpaque: [],
+    selectedEdgesOpaque: [],
+    selectedSilhouetteTransparent: [],
+    selectedEdgesTransparent: [],
   };
+
+  /** Sorts mesh batches into {@link _bins} once per frame. Stateless helper. */
+  private readonly _binClassifier = new RenderBinClassifier();
 
   /**
    * Sky/environment renderer.
    */
   public skyRenderer: SkyRenderer;
 
-  /** Computes screen-space AO from the scene depth texture. */
-  private _saoOcclusionRenderer: SAOOcclusionRenderer;
+  /** Owns the SAO depth → AO → blur sequence. */
+  private _saoPipeline: SAOPipeline;
 
-  /** Applies a depth-limited Gaussian blur to the AO occlusion texture. */
-  private _saoBlurRenderer: SAODepthLimitedBlurRenderer;
+  /** Owns the shadow light-VP computation and shadow-map depth pass. */
+  private _shadowPipeline: ShadowPipeline;
+
+  /**
+   * Owns the HDR substrate and the entire post-process chain (bloom →
+   * tonemap → FXAA → canvas). Inert when HDR isn't available; the scene
+   * draws straight to the canvas in that case.
+   */
+  private _postProcess: PostProcessChain;
+
+  /** Shared BRDF LUT for the split-sum specular IBL approximation. */
+  private _brdfLUT: BRDFLUTTexture | null = null;
+
+  /**
+   * One IBL prefilter pipeline per view (each carries its own sky
+   * cubemap because each view has independent IBL params and shadow
+   * direction). Indexed by viewIndex.
+   */
+  private _iblPrefilters: Map<number, IBLPrefilter> = new Map();
+
+  /** Cached signature of last-applied sky params per view, for dirty detection. */
+  private _iblParamSignatures: Map<number, string> = new Map();
+
+  /** Last-seen `view.ibl.environmentVersion` per view, so the prefilter
+   *  only re-uploads its equirect texture when the image actually changes. */
+  private _iblEnvVersions: Map<number, number> = new Map();
 
   /** Shared render context (WebGL state + global flags). */
   private _renderContext: RenderContext;
@@ -100,19 +161,10 @@ export class RenderManager {
   private _meshManager: MeshManager;
 
   /** WebGL extension handles enabled for this renderer. */
-  private _extensionHandles: any;
-
-  /** Whether logarithmic depth buffer rendering is enabled. */
-  private _logarithmicDepthBufferEnabled: boolean;
-
-  /** Whether alpha-tested geometry writes to the depth buffer. */
-  private _alphaDepthMask: boolean;
+  private _extensionHandles: ExtensionHandles | null = null;
 
   /** Read-only interface into GPU memory (geometry, attributes, indices). */
   private _gpuMemoryReader: GPUMemoryReader;
-
-  /** Whether {@link init} has completed successfully. */
-  private _initialized: boolean;
 
 
   /**
@@ -130,7 +182,6 @@ export class RenderManager {
     this._renderContext = cfg.renderContext;
     this._gpuMemoryReader = cfg.gpuMemoryReader;
     this._meshManager = cfg.meshManager;
-    this._initialized = false;
   }
 
   /**
@@ -152,8 +203,6 @@ export class RenderManager {
     }
 
     this._extensionHandles = {};
-    this._logarithmicDepthBufferEnabled = false;
-    this._alphaDepthMask = false;
     this._activateExtensions();
 
     if (!this.infiniteGrid) {
@@ -170,14 +219,6 @@ export class RenderManager {
       }
     }
 
-    if (!this._saoOcclusionRenderer) {
-      this._saoOcclusionRenderer = new SAOOcclusionRenderer({renderContext: this._renderContext});
-    }
-
-    if (!this._saoBlurRenderer) {
-      this._saoBlurRenderer = new SAODepthLimitedBlurRenderer({renderContext: this._renderContext});
-    }
-
     if (!this.skyRenderer) {
       this.skyRenderer = new SkyRenderer(this._renderContext.gl, {
         skyColor: [0.74, 0.80, 0.88],
@@ -192,6 +233,48 @@ export class RenderManager {
       }
     }
 
+    if (!this._saoPipeline) {
+      this._saoPipeline = new SAOPipeline(this._renderContext);
+    }
+    const saoResult = this._saoPipeline.init();
+    if (saoResult.ok === false) {
+      // Clean up the partially-constructed pipeline so destroy() and retries
+      // don't observe an unusable instance.
+      this._saoPipeline.destroy();
+      this._saoPipeline = null;
+      return saoResult;
+    }
+
+    if (!this._shadowPipeline) {
+      this._shadowPipeline = new ShadowPipeline(this._renderContext);
+    }
+    const shadowResult = this._shadowPipeline.init();
+    if (shadowResult.ok === false) {
+      this._shadowPipeline.destroy();
+      this._shadowPipeline = null;
+      return shadowResult;
+    }
+
+    // Post-process chain owns the HDR substrate (RGBA16F target) and every
+    // pass between scene-rendering and the canvas: bloom, tonemap, FXAA. It
+    // self-degrades if HDR isn't supported, so init never fails the renderer.
+    if (!this._postProcess) {
+      this._postProcess = new PostProcessChain(this._renderContext);
+    }
+    this._postProcess.init();
+
+    // Split-sum BRDF integration LUT — generated once, shared across views.
+    // Per-view IBL prefilter pipelines are created lazily in _renderScene
+    // when a view first asks for IBL.
+    if (!this._brdfLUT) {
+      this._brdfLUT = new BRDFLUTTexture(this._renderContext.gl);
+      const lutResult = this._brdfLUT.allocate();
+      if (lutResult.ok === false) {
+        this._brdfLUT = null;
+        return lutResult;
+      }
+    }
+
     return {
       ok: true,
       value: undefined
@@ -199,26 +282,214 @@ export class RenderManager {
   }
 
   /**
-   * Reinitializes draw operations after a WebGL context restore.
+   * Refreshes the active view's IBL prefilter pipeline (sky cubemap +
+   * irradiance + prefiltered specular) and publishes the resulting
+   * texture handles plus the view-to-world rotation matrix on the
+   * shared RenderContext so the BRDF technique can bind them.
+   *
+   * Cheap when params haven't changed — the prefilter dirty-checks
+   * itself by signature and only re-renders when sky/sun/up moves.
+   */
+  private _prepareIBL(view: import("../../../viewer").View): void {
+    if (!this._brdfLUT) return; // BRDF LUT init failed earlier; soft-disable.
+    const rc = this._renderContext;
+    const viewIndex = view.viewIndex;
+
+    let pipeline = this._iblPrefilters.get(viewIndex);
+    if (!pipeline) {
+      // HDR cubemaps require EXT_color_buffer_float — already activated in
+      // `_activateExtensions`. Without it we silently fall back to RGBA8.
+      const hdr = !!(this._extensionHandles && this._extensionHandles.EXT_color_buffer_float);
+      pipeline = new IBLPrefilter(rc.gl, this._brdfLUT, { hdr });
+      const allocResult = pipeline.allocate();
+      if (allocResult.ok === false) {
+        // Logged once and the view simply doesn't get IBL; the BRDF
+        // shader's null-cubemap path falls back to no IBL contribution.
+        console.warn(`[RenderManager] IBL prefilter alloc failed for view ${viewIndex}: ${allocResult.error}`);
+        return;
+      }
+      this._iblPrefilters.set(viewIndex, pipeline);
+    }
+
+    // Sync user-supplied equirectangular environment image (if any).
+    // The IBL component bumps `environmentVersion` each time the image
+    // changes; we re-upload only on a version mismatch. Clearing the
+    // image (image becomes undefined) reverts the prefilter to the
+    // procedural sky path.
+    const iblComp: any = (view as any).ibl;
+    const envVersion = iblComp ? (iblComp.environmentVersion as number) : 0;
+    if (this._iblEnvVersions.get(viewIndex) !== envVersion) {
+      const envImage = iblComp ? iblComp.environmentImage : undefined;
+      if (envImage) {
+        const r = pipeline.setEnvironmentEquirect(envImage as TexImageSource);
+        if (r.ok === false) {
+          console.warn(`[RenderManager] IBL setEnvironmentEquirect failed for view ${viewIndex}: ${r.error}`);
+        }
+      } else {
+        pipeline.clearEnvironmentEquirect();
+      }
+      this._iblEnvVersions.set(viewIndex, envVersion);
+    }
+
+    // Build sky params from the view's IBL component and shadow direction.
+    // The sun direction comes from `view.shadows.direction`, negated to
+    // get "direction toward the sun" — matches what the procedural sky
+    // expects.
+    const ibl: any = (view as any).ibl;
+    const shadowDir = view.shadows && view.shadows.direction
+      ? view.shadows.direction
+      : [-0.45, -0.35, -0.80];
+    const sunToward: [number, number, number] = [-shadowDir[0], -shadowDir[1], -shadowDir[2]];
+    // Build a horizon colour that's distinctly brighter than either sky
+    // or ground — the contrast between zenith / horizon / ground is what
+    // makes specular reflections on curved metals look interesting.
+    // Without a richer horizon band, smooth metals just reflect a flat
+    // disk of zenith colour.
+    const skyZenith = arrTriple(ibl?.skyColor, [0.62, 0.72, 0.86]);
+    const groundC   = arrTriple(ibl?.groundColor, [0.42, 0.36, 0.30]);
+    const horizon: [number, number, number] = [
+      Math.min(1, skyZenith[0] * 0.55 + 0.40),
+      Math.min(1, skyZenith[1] * 0.55 + 0.40),
+      Math.min(1, skyZenith[2] * 0.55 + 0.40)
+    ];
+    // Sun brightness scales with the cubemap's HDR capability. With
+    // RGBA16F we can stamp a genuinely-bright sun (~12× sky luminance,
+    // visually bright enough to drive the ACES tonemap into highlight
+    // bloom on smooth metal reflections). RGBA8 clamps everything to 1
+    // — keep sun close to 1 to avoid wholesale clipping at the disk.
+    const hdrPipeline = pipeline.hdr;
+    const sunColor: [number, number, number] = hdrPipeline
+      ? [12.0, 11.0, 8.5]   // HDR: punchy yellow-white sun
+      : [1.5, 1.45, 1.20];  // LDR: just brighter than sky
+    const sky: SkyParams = {
+      skyColor: skyZenith,
+      horizonColor: horizon,
+      groundColor: groundC,
+      horizonBlend: 0.25,
+      sunEnabled: true,
+      sunDirection: sunToward,
+      sunColor,
+      sunAngularSizeDegrees: 4.0,
+      sunGlowSize: 8.0,
+      sunGlowIntensity: hdrPipeline ? 4.5 : 1.4,
+      worldUp: arrTriple(ibl?.worldUp, [0, 0, 1])
+    };
+    // Dirty-detect via a cheap string signature so we don't repeatedly
+    // re-render an unchanged sky.
+    const signature = JSON.stringify(sky);
+    if (this._iblParamSignatures.get(viewIndex) !== signature) {
+      pipeline.setParams(sky);
+      this._iblParamSignatures.set(viewIndex, signature);
+    }
+
+    const refreshResult = pipeline.refresh();
+    if (refreshResult.ok === false) {
+      console.warn(`[RenderManager] IBL refresh failed for view ${viewIndex}: ${refreshResult.error}`);
+      return;
+    }
+
+    // Publish handles + view-to-world rotation for the BRDF binder.
+    rc.iblIrradianceCubemap = pipeline.irradianceCubemap;
+    rc.iblPrefilteredCubemap = pipeline.environmentCubemap;
+    rc.iblBRDFLUT = this._brdfLUT.texture;
+    rc.iblMaxSpecularMipLevel = pipeline.maxSpecularMipLevel;
+    // Transpose of the view matrix's upper-left 3×3 == inverse rotation
+    // (assumes orthonormal view rotation, which xeokit's camera always
+    // produces). Column-major mat3 layout for `gl.uniformMatrix3fv`.
+    const vm = view.camera.viewMatrix;
+    const m = rc.iblViewToWorldRot;
+    m[0] = vm[0]; m[1] = vm[4]; m[2] = vm[8];
+    m[3] = vm[1]; m[4] = vm[5]; m[5] = vm[9];
+    m[6] = vm[2]; m[7] = vm[6]; m[8] = vm[10];
+  }
+
+  /** Binds the main colour target for the scene phase (HDR FBO or canvas). */
+  private _bindSceneTarget(): void {
+    const rc = this._renderContext;
+    const w = rc.sceneRenderWidth || rc.gl.drawingBufferWidth;
+    const h = rc.sceneRenderHeight || rc.gl.drawingBufferHeight;
+    this._postProcess.bindSceneTarget(w, h);
+  }
+
+  /**
+   * Iterates a bin, dispatching each batch to `drawOps[primitive][opKey]`.
+   * Optional `renderBinId` runs the inspector hook (early-exits when the
+   * bin is disabled, fires `renderBinStarted` when enabled).
+   *
+   * Collapses the dozen-plus `bins.X.forEach(b => drawOps[b.primitive].Y?.drawBatch(b))`
+   * sites that previously littered the render method.
+   */
+  private _drawBin(batches: ReadonlyArray<MeshBatch>, opKey: keyof RenderPassDrawOps, renderBinName?: string): void {
+    if (renderBinName !== undefined) {
+      const ri = this._inspector();
+      if (ri) {
+        if (!ri.getRenderBinEnabled(renderBinName)) return;
+        ri.renderBinStarted(renderBinName);
+      }
+    }
+    const drawOps = this.drawOps.prims;
+    for (let i = 0; i < batches.length; i++) {
+      const ops = drawOps[batches[i].primitive];
+      if (!ops) continue;
+      ops[opKey]?.drawBatch(batches[i]);
+    }
+  }
+
+  /**
+   * Returns the active render inspector iff one is attached and currently
+   * enabled — otherwise `null`. Centralises the `?.enabled &&` check that
+   * every inspector call site previously had to repeat.
+   */
+  private _inspector(): RenderInspector | null {
+    const ri = this._renderContext.renderInspector;
+    return ri && ri.enabled ? ri : null;
+  }
+
+  /**
+   * Reinitializes everything that holds GL state after a context restore.
+   *
+   * Context loss invalidates every GPU resource — programs, textures,
+   * framebuffers, renderbuffers — across the whole renderer. `drawOps`
+   * has its own in-place restore hook (the program pool is shared, so it
+   * needs to recompile rather than be reconstructed); everything else
+   * (sky, grid, SAO pipeline, shadow pipeline, post-process chain) is
+   * torn down and re-initialised through {@link init} so each owner
+   * walks back through its own lazy-construction path with a fresh GL
+   * context.
    */
   webglContextRestored(): SDKResult<void> {
-    return this.drawOps
-      ? this.drawOps.webglContextRestored()
-      : {
-        ok: true,
-        value: undefined
-      };
+    if (this.drawOps) {
+      const result = this.drawOps.webglContextRestored();
+      if (result.ok === false) return result;
+    }
+
+    this.skyRenderer?.destroy();
+    this.skyRenderer = null;
+    this.infiniteGrid?.destroy();
+    this.infiniteGrid = null;
+    this._saoPipeline?.destroy();
+    this._saoPipeline = null;
+    this._shadowPipeline?.destroy();
+    this._shadowPipeline = null;
+    this._postProcess?.destroy();
+    this._postProcess = null;
+
+    return this.init();
   }
 
   private _activateExtensions() {
+    const gl = this._renderContext.gl;
+    const handles = this._extensionHandles!;
     if (WEBGL_INFO.SUPPORTED_EXTENSIONS["OES_element_index_uint"]) {
-      this._extensionHandles.OES_element_index_uint = this._renderContext.gl.getExtension("OES_element_index_uint");
-    }
-    if (this._logarithmicDepthBufferEnabled && WEBGL_INFO.SUPPORTED_EXTENSIONS["EXT_frag_depth"]) {
-      this._extensionHandles.EXT_frag_depth = this._renderContext.gl.getExtension('EXT_frag_depth');
+      handles.OES_element_index_uint = gl.getExtension("OES_element_index_uint");
     }
     if (WEBGL_INFO.SUPPORTED_EXTENSIONS["WEBGL_depth_texture"]) {
-      this._extensionHandles.WEBGL_depth_texture = this._renderContext.gl.getExtension('WEBGL_depth_texture');
+      handles.WEBGL_depth_texture = gl.getExtension("WEBGL_depth_texture");
+    }
+    // Required for RGBA16F colour attachments on the HDR target.
+    // If unavailable, HDRRenderTarget.init() returns an error and we fall back to LDR.
+    if (WEBGL_INFO.SUPPORTED_EXTENSIONS["EXT_color_buffer_float"]) {
+      handles.EXT_color_buffer_float = gl.getExtension("EXT_color_buffer_float");
     }
   }
 
@@ -247,38 +518,37 @@ export class RenderManager {
     }
 
     const {view} = rendererView;
-    const {clear} = options;
-    const viewIndex = view.viewIndex;
+    const inspector = this._inspector();
+
+    inspector?.frameStarted(view);
+
+    this._beginFrame(rendererView);
+    this._classifyBatches(view);
+    this._renderScene(rendererView, options);
+    this._endFrame();
+    this._postProcess.composite(view);
+
+    inspector?.frameEnded();
+
+    return {ok: true, value: undefined};
+  }
+
+  // ------------------------------------------------------------------
+  // Frame lifecycle: begin → classify → render → end → composite.
+  //
+  // Each phase is intentionally narrow:
+  //   - _beginFrame: scene-render size, GL state, scene target.
+  //   - _classifyBatches: bin sort (delegated to RenderBinClassifier).
+  //   - _renderScene: SAO/shadow prep, opaque, edges, silhouettes, transparents.
+  //   - _endFrame: tear down scene-phase GL state.
+  //   - _postProcess.composite: bloom + tonemap + FXAA → canvas.
+  // ------------------------------------------------------------------
+
+  /** Sets up scene-phase GL state and binds the target the scene draws into. */
+  private _beginFrame(rendererView: ViewRenderState): void {
     const renderContext = this._renderContext;
     const gl = renderContext.gl;
-    const edgeMaterial = view.edges;
-    const highlightMaterial = view.highlightMaterial;
-    const selectedMaterial = view.selectedMaterial;
-    const xrayMaterial = view.xrayMaterial;
-    const meshBatches = this._meshManager.sortedBatches;
-    const drawOps = this.drawOps.prims;
-
-    const drawInspector = (renderContext.renderInspector && renderContext.renderInspector.enabled) ? renderContext.renderInspector : null;
-
-    drawInspector?.frameStarted(view);
-
-    const bins = this._bins;
-    bins.normalDrawSAO.length = 0;
-    bins.normalEdgesOpaque.length = 0;
-    bins.normalFillTransparent.length = 0;
-    bins.normalEdgesTransparent.length = 0;
-    bins.xrayedSilhouetteOpaque.length = 0;
-    bins.xrayEdgesOpaque.length = 0;
-    bins.xrayedSilhouetteTransparent.length = 0;
-    bins.xrayEdgesTransparent.length = 0;
-    bins.highlightedSilhouetteOpaque.length = 0;
-    bins.highlightedEdgesOpaque.length = 0;
-    bins.highlightedSilhouetteTransparent.length = 0;
-    bins.highlightedEdgesTransparent.length = 0;
-    bins.selectedSilhouetteOpaque.length = 0;
-    bins.selectedEdgesOpaque.length = 0;
-    bins.selectedSilhouetteTransparent.length = 0;
-    bins.selectedEdgesTransparent.length = 0;
+    const view = rendererView.view;
 
     const resolutionScale = view.resolutionScale.applied ? view.resolutionScale.resolutionScale : 1.0;
     renderContext.webglCanvasElement.width = Math.floor(gl.drawingBufferWidth * resolutionScale);
@@ -286,10 +556,20 @@ export class RenderManager {
 
     renderContext.reset();
     renderContext.activeView = view;
-    renderContext.pbrEnabled = false; // rendererView.view.pbrEnabled;
+    renderContext.pbrEnabled = false;
 
-    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-    const bg = rendererView.view.transparent ? [0, 0, 0, 0] : [...view.backgroundColor, 1];
+    // Scene render size: canvas × tonemap.renderScale when HDR is on
+    // (supersampling); plain canvas size otherwise.
+    const sceneScale = this._postProcess?.hasHDR() ? view.tonemap.renderScale : 1.0;
+    const sceneW = Math.max(1, Math.floor(gl.drawingBufferWidth * sceneScale));
+    const sceneH = Math.max(1, Math.floor(gl.drawingBufferHeight * sceneScale));
+    renderContext.sceneRenderWidth = sceneW;
+    renderContext.sceneRenderHeight = sceneH;
+
+    this._bindSceneTarget();
+
+    gl.viewport(0, 0, sceneW, sceneH);
+    const bg = view.transparent ? [0, 0, 0, 0] : [...view.backgroundColor, 1];
     gl.clearColor(bg[0], bg[1], bg[2], bg[3]);
     gl.enable(gl.DEPTH_TEST);
     gl.frontFace(gl.CCW);
@@ -298,298 +578,187 @@ export class RenderManager {
     gl.lineWidth(1);
     renderContext.lineWidth = 1;
 
-    const drawWithSAO = rendererView.view.sao.applied && view.sao.possible;
-    renderContext.saoOcclusionTexture = drawWithSAO
-      ? rendererView.renderBuffers.getRenderBuffer("saoOcclusion")?.getTexture() ?? null
-      : null;
+    // Slope-scaled depth offset on filled triangles so coplanar GL_LINES
+    // edges naturally win z-test ties (POLYGON_OFFSET_FILL only applies to
+    // GL_TRIANGLES). Distance-aware, no far-plane edge poking.
+    gl.enable(gl.POLYGON_OFFSET_FILL);
+    gl.polygonOffset(1.0, 1.0);
 
-    if (clear !== false) {
+    // Effect-availability publishing on the render context.
+    const drawWithSAO = view.sao.applied && view.sao.possible;
+    renderContext.saoOcclusionTexture = drawWithSAO
+      ? rendererView.renderBuffers.getRenderBuffer("saoOcclusion", {size: [sceneW, sceneH]})?.getTexture() ?? null
+      : null;
+    for (let i = 0; i < renderContext.shadowMapTextures.length; i++) {
+      renderContext.shadowMapTextures[i] = null;
+    }
+    renderContext.shadowCascadeCount = 0;
+  }
+
+  /** Re-fills {@link _bins} from the current frame's mesh batches. */
+  private _classifyBatches(view: import("../../../viewer").View): void {
+    const drawWithSAO = view.sao.applied && view.sao.possible;
+    const drawWithShadows = view.shadows.applied && view.shadows.possible;
+    this._binClassifier.clear(this._bins);
+    this._binClassifier.classify({
+      meshBatches: this._meshManager.sortedBatches,
+      view,
+      viewIndex: view.viewIndex,
+      bins: this._bins,
+      flags: {drawWithSAO, drawWithShadows}
+    });
+  }
+
+  /**
+   * Top-level scene-phase orchestration: sky/grid → SAO+shadow prep →
+   * opaque colour → edges → opaque silhouettes → transparents → transparent
+   * silhouettes. Each sub-pass is one method call so this body stays readable.
+   */
+  private _renderScene(rendererView: ViewRenderState, options: { clear: boolean }): void {
+    const renderContext = this._renderContext;
+    const gl = renderContext.gl;
+    const view = rendererView.view;
+    const bins = this._bins;
+
+    if (options.clear !== false) {
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     }
 
     this.skyRenderer?.render(rendererView);
     this.infiniteGrid?.render(rendererView);
 
-    const enableOpaqueBin = (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.OPAQUE));
+    // IBL prefilter — refreshes the per-view sky cubemap + irradiance +
+    // prefiltered specular mip chain when params change. Runs before the
+    // BRDF passes so the smooth-shaded technique can sample them.
+    this._prepareIBL(view);
 
-    if (enableOpaqueBin) {
-      drawInspector?.renderBinStarted(RENDER_BINS.OPAQUE);
+    // SAO + shadow prep passes (each runs once per frame, drawing into its
+    // own FBO). Both pull their batches from the relevant bin sets.
+    const needSAO = bins.normalDrawSAO.length > 0 || bins.normalDrawSAOShadow.length > 0;
+    const needShadow = bins.normalDrawShadow.length > 0 || bins.normalDrawSAOShadow.length > 0;
+    if (needSAO) {
+      this._saoPipeline.render({
+        rendererView,
+        drawOps: this.drawOps.prims,
+        saoBatches: bins.normalDrawSAO,
+        comboBatches: bins.normalDrawSAOShadow
+      });
+    }
+    if (needShadow) {
+      this._shadowPipeline.render({
+        rendererView,
+        drawOps: this.drawOps.prims,
+        shadowBatches: bins.normalDrawShadow,
+        comboBatches: bins.normalDrawSAOShadow
+      });
     }
 
-    for (const meshBatch of meshBatches) {
-
-      const opaque = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.OPAQUE);
-      const transparent = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.TRANSPARENT);
-      const xray = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.XRAYED);
-      const highlight = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.HIGHLIGHTED);
-      const select = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.SELECTED);
-
-      if (opaque) {
-        if (drawWithSAO && meshBatch.saoSupported) {
-          bins.normalDrawSAO.push(meshBatch);
-        } else {
-          if (enableOpaqueBin) {
-            drawOps[meshBatch.primitive]?.opaque?.drawBatch(meshBatch);
-          }
-        }
-      }
-      if (transparent) {
-        bins.normalFillTransparent.push(meshBatch);
-      }
-      if (xray && xrayMaterial.fill) {
-        (xrayMaterial.fillAlpha < 1.0
-          ? bins.xrayedSilhouetteTransparent
-          : bins.xrayedSilhouetteOpaque).push(meshBatch);
-      }
-      if (highlight && highlightMaterial.fill) {
-        (highlightMaterial.fillAlpha < 1.0
-          ? bins.highlightedSilhouetteTransparent
-          : bins.highlightedSilhouetteOpaque).push(meshBatch);
-      }
-      if (select && selectedMaterial.fill) {
-        (selectedMaterial.fillAlpha < 1.0
-          ? bins.selectedSilhouetteTransparent
-          : bins.selectedSilhouetteOpaque).push(meshBatch);
-      }
-
-      if (edgeMaterial.applied) {
-        if (opaque) {
-          bins.normalEdgesOpaque.push(meshBatch);
-        }
-        if (transparent) {
-          bins.normalEdgesTransparent.push(meshBatch);
-        }
-        if (xray) {
-          (xrayMaterial.edgeAlpha < 1.0 ? bins.xrayEdgesTransparent : bins.xrayEdgesOpaque).push(meshBatch);
-        }
-        if (highlight) {
-          (highlightMaterial.edgeAlpha < 1.0 ? bins.highlightedEdgesTransparent : bins.highlightedEdgesOpaque).push(meshBatch);
-        }
-        if (select) {
-          (selectedMaterial.edgeAlpha < 1.0 ? bins.selectedEdgesTransparent : bins.selectedEdgesOpaque).push(meshBatch);
-        }
-      }
-    }
-
-
-    if (bins.normalDrawSAO.length > 0) {
-      const saoDepthBuffer = rendererView.renderBuffers.getRenderBuffer("saoDepth", {depthTexture: true});
-      const saoOcclusionBuffer = rendererView.renderBuffers.getRenderBuffer("saoOcclusion");
-
-      // Depth pass: render SAO geometry into depth FBO so AO can sample scene depth
-      saoDepthBuffer.bind();
-      gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-      gl.clearColor(0, 0, 0, 0);
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-      gl.enable(gl.DEPTH_TEST);
-      gl.depthMask(true);
-      renderContext.lastProgramId = -1;
-      for (let i = 0; i < bins.normalDrawSAO.length; i++) {
-        drawOps[bins.normalDrawSAO[i].primitive]?.opaque?.drawBatch(bins.normalDrawSAO[i]);
-      }
-      saoDepthBuffer.unbind();
-
-      // AO pass: compute occlusion from depth
-      saoOcclusionBuffer.bind();
-      this._saoOcclusionRenderer.render({depthRenderBuffer: saoDepthBuffer, view});
-      saoOcclusionBuffer.unbind();
-
-      // Blur pass (two-pass depth-limited Gaussian)
-      if (view.sao.blur) {
-        const saoBlurBuffer = rendererView.renderBuffers.getRenderBuffer("saoBlur");
-        saoBlurBuffer.bind();
-        this._saoBlurRenderer.render({
-          view,
-          depthRenderBuffer: saoDepthBuffer,
-          occlusionRenderBuffer: saoOcclusionBuffer,
-          direction: 0
-        });
-        saoBlurBuffer.unbind();
-        saoOcclusionBuffer.bind();
-        this._saoBlurRenderer.render({
-          view,
-          depthRenderBuffer: saoDepthBuffer,
-          occlusionRenderBuffer: saoBlurBuffer,
-          direction: 1
-        });
-        saoOcclusionBuffer.unbind();
-      }
-
-      // Draw SAO geometry to main framebuffer, reading the occlusion texture.
-      // SAO fullscreen passes above disabled depth test and bound their own program;
-      // restore depth test and force a program rebind so the next draw re-uploads all uniforms.
-      renderContext.saoOcclusionTexture = saoOcclusionBuffer.getTexture();
-      gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+    // Sub-pipelines each bound their own FBOs and unbound to null. Re-bind
+    // the scene target and reset the program-id cache before resuming the
+    // main scene draw.
+    if (needSAO || needShadow) {
+      this._bindSceneTarget();
+      gl.viewport(0, 0, renderContext.sceneRenderWidth, renderContext.sceneRenderHeight);
       gl.enable(gl.DEPTH_TEST);
       gl.depthMask(true);
       gl.disable(gl.BLEND);
       renderContext.lastProgramId = -1;
-      for (let i = 0; i < bins.normalDrawSAO.length; i++) {
-        drawOps[bins.normalDrawSAO[i].primitive]?.opaqueSAO?.drawBatch(bins.normalDrawSAO[i]);
-      }
     }
 
-    if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.EDGES_OPAQUE)) {
-      drawInspector?.renderBinStarted(RENDER_BINS.EDGES_OPAQUE);
-      bins.normalEdgesOpaque.forEach(meshBatch => {
-        drawOps[meshBatch.primitive].opaqueEdges?.drawBatch(meshBatch);
-      });
+    // Opaque colour passes — every batch routes to one of these four bins.
+    this._drawBin(bins.normalDrawOpaque, "opaque", RENDER_BINS.OPAQUE);
+    this._drawBin(bins.normalDrawSAO, "opaqueSAO");
+    this._drawBin(bins.normalDrawShadow, "opaqueShadow");
+    this._drawBin(bins.normalDrawSAOShadow, "opaqueSAOShadow");
+
+    // Shadow data is no longer needed after the opaque passes.
+    for (let i = 0; i < renderContext.shadowMapTextures.length; i++) {
+      renderContext.shadowMapTextures[i] = null;
     }
+    renderContext.shadowCascadeCount = 0;
 
-    if (!drawInspector || (drawInspector.getRenderBinEnabled(RENDER_BINS.XRAYED_SILHOUETTE_OPAQUE))) {
-      drawInspector?.renderBinStarted(RENDER_BINS.XRAYED_SILHOUETTE_OPAQUE);
-      bins.xrayedSilhouetteOpaque.forEach(meshBatch => {
-        drawOps[meshBatch.primitive].xrayed?.drawBatch(meshBatch);
-      });
-    }
+    this._drawBin(bins.normalEdgesOpaque, "opaqueEdges", RENDER_BINS.EDGES_OPAQUE);
+    this._drawBin(bins.xrayedSilhouetteOpaque, "xrayed", RENDER_BINS.XRAYED_SILHOUETTE_OPAQUE);
+    this._drawBin(bins.xrayEdgesOpaque, "xrayedEdges", RENDER_BINS.XRAYED_EDGES_OPAQUE);
 
-    if (!drawInspector || (drawInspector.getRenderBinEnabled(RENDER_BINS.XRAYED_EDGES_OPAQUE))) {
-      drawInspector?.renderBinStarted(RENDER_BINS.XRAYED_EDGES_OPAQUE);
-      bins.xrayEdgesOpaque.forEach(meshBatch => {
-        drawOps[meshBatch.primitive].xrayedEdges?.drawBatch(meshBatch);
-      });
-    }
-
-    //  for (let i = 0; i < bins.xrayEdgesOpaque.length; i++) bins.xrayEdgesOpaque[i].drawEdgesXRayed();
-
-    // Draw Translucent
-    if (
-      bins.normalFillTransparent.length ||
-      bins.normalEdgesTransparent.length ||
-      bins.xrayedSilhouetteTransparent.length ||
-      bins.xrayEdgesTransparent.length
-    ) {
-      gl.enable(gl.CULL_FACE);
-      gl.enable(gl.BLEND);
-      // if (rendererView.view.transparent) {
-      gl.blendEquation(gl.FUNC_ADD);
-      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-      // } else {
-      //   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-      // }
-
-      renderContext.backfaces = false;
-
-      if (!this._alphaDepthMask) {
-        gl.depthMask(false);
-      }
-
-      if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.XRAYED_EDGES_TRANSPARENT)) {
-        drawInspector?.renderBinStarted(RENDER_BINS.XRAYED_EDGES_TRANSPARENT);
-        bins.xrayEdgesTransparent.forEach(meshBatch => {
-          drawOps[meshBatch.primitive].xrayedEdges?.drawBatch(meshBatch);
-        });
-      }
-
-      if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.XRAYED_SILHOUETTE_TRANSPARENT)) {
-        drawInspector?.renderBinStarted(RENDER_BINS.XRAYED_SILHOUETTE_TRANSPARENT);
-        bins.xrayedSilhouetteTransparent.forEach(meshBatch => {
-          drawOps[meshBatch.primitive].xrayed?.drawBatch(meshBatch);
-        });
-      }
-
-      if (bins.normalEdgesTransparent.length || bins.normalFillTransparent.length) {
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-      }
-
-      if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.EDGES_TRANSPARENT)) {
-        drawInspector?.renderBinStarted(RENDER_BINS.EDGES_TRANSPARENT);
-        bins.normalEdgesTransparent.forEach(meshBatch => {
-          drawOps[meshBatch.primitive].transparentEdges?.drawBatch(meshBatch);
-        });
-      }
-
-      if (!drawInspector || drawInspector.getRenderBinEnabled(RENDER_BINS.TRANSPARENT)) {
-        drawInspector?.renderBinStarted(RENDER_BINS.TRANSPARENT);
-        bins.normalFillTransparent.forEach(meshBatch => {
-          drawOps[meshBatch.primitive].transparent?.drawBatch(meshBatch);
-        });
-      }
-
-      gl.disable(gl.BLEND);
-      if (!this._alphaDepthMask) {
-        gl.depthMask(true);
-      }
-    }
-
+    this._renderTransparents();
 
     gl.disable(gl.CULL_FACE);
     gl.clear(gl.DEPTH_BUFFER_BIT);
 
-    if (bins.highlightedSilhouetteOpaque.length) {
-      drawInspector?.renderBinStarted(RENDER_BINS.HIGHLIGHTED_SILHOUETTE_OPAQUE);
-      bins.highlightedSilhouetteOpaque.forEach(meshBatch => {
-        drawOps[meshBatch.primitive].highlighted?.drawBatch(meshBatch);
-      });
-    }
+    // Always-on-top opaque silhouettes (highlighted/selected). Each edge bin
+    // clears the depth buffer first so its lines aren't z-occluded by the
+    // silhouette fill we just laid down.
+    this._drawBin(bins.highlightedSilhouetteOpaque, "highlighted", RENDER_BINS.HIGHLIGHTED_SILHOUETTE_OPAQUE);
+    if (bins.highlightedEdgesOpaque.length) gl.clear(gl.DEPTH_BUFFER_BIT);
+    this._drawBin(bins.highlightedEdgesOpaque, "highlightedEdges");
+    this._drawBin(bins.selectedSilhouetteOpaque, "selected");
+    if (bins.selectedEdgesOpaque.length) gl.clear(gl.DEPTH_BUFFER_BIT);
+    this._drawBin(bins.selectedEdgesOpaque, "selectedEdges");
 
-    if (bins.highlightedEdgesOpaque.length) {
-      //drawInspector?.renderBinStarted(RENDER_BINS.HIGHLIGHTED_EDGES_OPAQUE);
-      gl.clear(gl.DEPTH_BUFFER_BIT);
-      bins.highlightedEdgesOpaque.forEach(meshBatch => {
-        drawOps[meshBatch.primitive].highlightedEdges?.drawBatch(meshBatch);
-      });
-    }
-
-    if (bins.selectedSilhouetteOpaque.length) {
-      bins.selectedSilhouetteOpaque.forEach(meshBatch => {
-        drawOps[meshBatch.primitive].selected?.drawBatch(meshBatch);
-      });
-    }
-
-    if (bins.selectedEdgesOpaque.length) {
-      gl.clear(gl.DEPTH_BUFFER_BIT);
-      bins.selectedEdgesOpaque.forEach(meshBatch => {
-        drawOps[meshBatch.primitive].selectedEdges?.drawBatch(meshBatch);
-      });
-    }
-
+    // Always-on-top transparent silhouettes.
     gl.enable(gl.BLEND);
+    this._drawBin(bins.highlightedSilhouetteTransparent, "highlighted", RENDER_BINS.HIGHLIGHTED_SILHOUETTE_TRANSPARENT);
+    if (bins.highlightedEdgesTransparent.length) gl.clear(gl.DEPTH_BUFFER_BIT);
+    this._drawBin(bins.highlightedEdgesTransparent, "highlightedEdges");
+    this._drawBin(bins.selectedSilhouetteTransparent, "selected", RENDER_BINS.SELECTED_SILHOUETTE_TRANSPARENT);
+    if (bins.selectedEdgesTransparent.length) gl.clear(gl.DEPTH_BUFFER_BIT);
+    this._drawBin(bins.selectedEdgesTransparent, "selectedEdges");
+    gl.disable(gl.BLEND);
+  }
 
-    if (bins.highlightedSilhouetteTransparent.length) {
-      drawInspector?.renderBinStarted(RENDER_BINS.HIGHLIGHTED_SILHOUETTE_TRANSPARENT);
-      bins.highlightedSilhouetteTransparent.forEach(meshBatch => {
-        drawOps[meshBatch.primitive].highlighted?.drawBatch(meshBatch);
-      });
+  /**
+   * Transparent block — sets up premultiplied-alpha blending, draws the four
+   * transparent bins, then restores depth-write state.
+   */
+  private _renderTransparents(): void {
+    const renderContext = this._renderContext;
+    const gl = renderContext.gl;
+    const bins = this._bins;
+
+    if (
+      !bins.normalFillTransparent.length &&
+      !bins.normalEdgesTransparent.length &&
+      !bins.xrayedSilhouetteTransparent.length &&
+      !bins.xrayEdgesTransparent.length
+    ) {
+      return;
     }
 
-    if (bins.highlightedEdgesTransparent.length) {
-      gl.clear(gl.DEPTH_BUFFER_BIT);
-      bins.highlightedEdgesTransparent.forEach(meshBatch => {
-        drawOps[meshBatch.primitive].highlightedEdges?.drawBatch(meshBatch);
-      });
+    gl.enable(gl.CULL_FACE);
+    gl.enable(gl.BLEND);
+    // Premultiplied alpha: fragment shaders emit `(rgb * a, a)`, so source
+    // factor is `ONE` (multiplication has already happened in the shader).
+    gl.blendEquation(gl.FUNC_ADD);
+    gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    renderContext.backfaces = false;
+    gl.depthMask(false);
+
+    this._drawBin(bins.xrayEdgesTransparent, "xrayedEdges", RENDER_BINS.XRAYED_EDGES_TRANSPARENT);
+    this._drawBin(bins.xrayedSilhouetteTransparent, "xrayed", RENDER_BINS.XRAYED_SILHOUETTE_TRANSPARENT);
+
+    if (bins.normalEdgesTransparent.length || bins.normalFillTransparent.length) {
+      gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     }
 
-    if (bins.selectedSilhouetteTransparent.length) {
-      drawInspector?.renderBinStarted(RENDER_BINS.HIGHLIGHTED_SILHOUETTE_TRANSPARENT);
-      bins.selectedSilhouetteTransparent.forEach(meshBatch => {
-        drawOps[meshBatch.primitive].selected?.drawBatch(meshBatch);
-      });
-    }
-
-    if (bins.selectedEdgesTransparent.length) {
-      gl.clear(gl.DEPTH_BUFFER_BIT);
-      bins.selectedEdgesTransparent.forEach(meshBatch => {
-        drawOps[meshBatch.primitive].selectedEdges?.drawBatch(meshBatch);
-      });
-    }
+    this._drawBin(bins.normalEdgesTransparent, "transparentEdges", RENDER_BINS.EDGES_TRANSPARENT);
+    this._drawBin(bins.normalFillTransparent, "transparent", RENDER_BINS.TRANSPARENT);
 
     gl.disable(gl.BLEND);
+    gl.depthMask(true);
+  }
 
-    // Unbind only the texture units _draw() actually uses (one per _bindTexture call, max 10).
-    // The old loop activated all MAX_TEXTURE_UNITS units but only unbound the last one (bug),
-    // and the vertex attrib loop was redundant because VAOs own that state.
+  /** Tears down scene-phase GL state and unbinds the texture units _draw() actually used. */
+  private _endFrame(): void {
+    const gl = this._renderContext.gl;
+    gl.disable(gl.BLEND);
+    gl.disable(gl.POLYGON_OFFSET_FILL);
+    gl.polygonOffset(0.0, 0.0);
+
     for (let i = 0; i < RenderManager._MAX_DATA_TEXTURE_UNITS; i++) {
       gl.activeTexture(gl.TEXTURE0 + i);
       gl.bindTexture(gl.TEXTURE_2D, null);
     }
-
-    drawInspector?.frameEnded();
-
-    return {
-      ok: true,
-      value: undefined
-    };
   }
 
   /**
@@ -604,17 +773,30 @@ export class RenderManager {
       this.skyRenderer.destroy();
       this.skyRenderer = null;
     }
-    if (this._saoOcclusionRenderer) {
-      this._saoOcclusionRenderer.destroy();
-      this._saoOcclusionRenderer = null;
+    if (this._saoPipeline) {
+      this._saoPipeline.destroy();
+      this._saoPipeline = null;
     }
-    if (this._saoBlurRenderer) {
-      this._saoBlurRenderer.destroy();
-      this._saoBlurRenderer = null;
+    if (this._shadowPipeline) {
+      this._shadowPipeline.destroy();
+      this._shadowPipeline = null;
+    }
+    if (this._postProcess) {
+      this._postProcess.destroy();
+      this._postProcess = null;
     }
     if (this.infiniteGrid) {
       this.infiniteGrid.destroy();
       this.infiniteGrid = null;
+    }
+    for (const pipeline of this._iblPrefilters.values()) {
+      pipeline.destroy();
+    }
+    this._iblPrefilters.clear();
+    this._iblParamSignatures.clear();
+    if (this._brdfLUT) {
+      this._brdfLUT.destroy();
+      this._brdfLUT = null;
     }
     this._extensionHandles = null;
     this._renderContext = null;

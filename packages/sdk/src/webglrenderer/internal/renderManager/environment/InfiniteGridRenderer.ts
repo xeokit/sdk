@@ -2,9 +2,9 @@ import {
   createMat4Float64,
   mulMat4,
   type Mat4
-} from "../../../math/matrix";
-import type {ViewRenderState} from "../ViewRenderState";
-import {SDKErrorType, type SDKResult} from "../../../core";
+} from "../../../../math/matrix";
+import type {ViewRenderState} from "../../ViewRenderState";
+import {SDKErrorType, type SDKResult} from "../../../../core";
 
 export interface InfiniteGridRendererOptions {
   /**

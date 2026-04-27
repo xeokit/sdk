@@ -10,6 +10,29 @@ import {type WebGLContextProvider} from "../../../webglutils/WebGLContextProvide
 const defaultColor = new Float32Array([1, 1, 1, 1]);
 
 /**
+ * Debug toggle: when true, the smooth + UV fragment shader writes the
+ * raw RGB of the normal-map atlas sample directly to the output, instead
+ * of running the BRDF. Lets us visually answer "is the normal-map
+ * texture actually reaching the shader?".
+ *
+ * What you should see when this is on:
+ *   - Light-blue fragments (≈ #8080FF) → atlas is sampling the SENTINEL
+ *     texel: no normal map is reaching this mesh (atlas upload failed,
+ *     UV transform is sentinel-only, or the material has no
+ *     normalsTextureId).
+ *   - Black fragments → atlas isn't bound; the cubemap-sampler binding
+ *     never resolved.
+ *   - Colourful patterns (reds, greens, cyans, varying with surface) →
+ *     the atlas is working; the normal map's content is what you see
+ *     directly. Bumpy patterns mean the texture has bumps; flat areas
+ *     of one colour mean the texture is mostly flat there.
+ *
+ * Flip back to `false` and rebuild the bundle once we've identified the
+ * issue. This is a strict short-term debug aid, not a feature.
+ */
+const DEBUG_VISUALIZE_NORMAL_MAP = false;
+
+/**
  * Base class for GPU draw techniques.
  *
  * Used by {@link DrawOp}s to perform actual draw calls.
@@ -94,6 +117,26 @@ export abstract class DrawTechnique {
   public picking: boolean;
 
   /**
+   * When true, the technique compiles a vertex normal sampler into its shaders
+   * and reads smooth view-space normals from the batch's
+   * {@link BatchDataTextures.vertexNormalTexture}. When false, the fragment
+   * shader derives a flat face normal from `dFdx/dFdy(vViewPos)`.
+   *
+   * This is the per-batch axis the renderer dispatches on — only the Lambert
+   * colour techniques are paired into `{false, true}` variants; edge,
+   * silhouette, pick and snap techniques keep the single flat-shaded path.
+   */
+  public hasNormals: boolean;
+
+  /**
+   * When true, the technique compiles a vertex UV sampler into its shaders
+   * and emits a `vUV` varying for downstream texture sampling. Independent
+   * axis from {@link hasNormals}; combined into a 4-way variant lookup on
+   * the Lambert colour techniques.
+   */
+  public hasUVs: boolean;
+
+  /**
    * Vertex shader source code. Available after `init()` is called.
    */
   public vertexShaderSrc: string;
@@ -152,7 +195,22 @@ export abstract class DrawTechnique {
     lightColor: WebGLUniformLocation[];
     lightAttenuation: WebGLUniformLocation[];
     lightAmbient: WebGLUniformLocation;
+    primaryLightDirView: WebGLUniformLocation;
+    iblMaxSpecularMipLevel: WebGLUniformLocation;
+    iblViewToWorldRot: WebGLUniformLocation;
     saoParams: WebGLUniformLocation;
+    shadowLightVP: WebGLUniformLocation;       // singular — depth pass uses one cascade at a time
+    shadowLightVPs: WebGLUniformLocation;      // mat4[MAX_SHADOW_CASCADES] — color pass picks per fragment
+    shadowCascadeSplits: WebGLUniformLocation; // vec4 — view-space |z| boundaries between cascades
+    shadowCascadeCount: WebGLUniformLocation;  // int — how many entries of the arrays carry data
+    shadowParams: WebGLUniformLocation;
+    shadowPcfRadius: WebGLUniformLocation;
+    shadowSlope: WebGLUniformLocation;
+    edgeFadeRange: WebGLUniformLocation; // vec2(start, end) view-space distances; only edge techniques declare this
+    iblIntensity: WebGLUniformLocation;  // float 0 = off (or IBL.enabled=false), >0 = IBL contribution multiplier
+    iblSky:       WebGLUniformLocation;  // vec3 linear-RGB sky colour
+    iblGround:    WebGLUniformLocation;  // vec3 linear-RGB ground colour
+    iblUpView:    WebGLUniformLocation;  // vec3 world-up direction expressed in view space
   };
 
   /**
@@ -172,10 +230,25 @@ export abstract class DrawTechnique {
     geometryQuantRangeTexture: WebGLUniformLocation; // Quantization ranges
     vertexPositionTexture: WebGLUniformLocation; // Quantized vertex positions
     vertexColorTexture: WebGLUniformLocation; // Vertex RGB colors
+    vertexNormalTexture: WebGLUniformLocation | null; // Octahedral RG16UI vertex normals (only when hasNormals)
+    vertexUVTexture: WebGLUniformLocation | null; // RG32F vertex UVs (only when hasUVs)
+    albedoAtlas: WebGLUniformLocation | null; // sRGB 2D albedo atlas (only when hasUVs)
+    metallicRoughnessAtlas: WebGLUniformLocation | null; // Linear 2D metallic-roughness atlas (only when hasUVs)
+    normalMapAtlas: WebGLUniformLocation | null; // Linear 2D tangent-space normal-map atlas (only when hasUVs)
+    iblIrradianceCubemap: WebGLUniformLocation | null; // Diffuse-convolved cubemap (only when hasNormals)
+    iblPrefilteredCubemap: WebGLUniformLocation | null; // GGX-prefiltered cubemap (only when hasNormals)
+    iblBRDFLUT: WebGLUniformLocation | null; // 2D split-sum BRDF LUT (only when hasNormals)
     indexTexture: WebGLUniformLocation; // Primitive connectivity indices
     edgeIndexTexture: WebGLUniformLocation; // Edge connectivity indices
     viewTileCameraMatrixTexture: WebGLUniformLocation; // GPUTile view matrices
     saoOcclusionTexture: WebGLUniformLocation; // SAO occlusion texture
+    shadowMapTexture: WebGLUniformLocation;         // singular — depth pass (not used today, kept for symmetry)
+    shadowMap0: WebGLUniformLocation;               // per-cascade shadow-map samplers (color pass)
+    shadowMap1: WebGLUniformLocation;
+    shadowMap2: WebGLUniformLocation;
+    shadowMap3: WebGLUniformLocation;
+    shadowMap4: WebGLUniformLocation;
+    shadowMap5: WebGLUniformLocation;
   };
 
   /**
@@ -196,9 +269,11 @@ export abstract class DrawTechnique {
    * @param gpuMemoryReader
    * @param cfg
    */
-  constructor(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader, cfg: { edges?: boolean, picking?: boolean } = {
+  constructor(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader, cfg: { edges?: boolean, picking?: boolean, hasNormals?: boolean, hasUVs?: boolean } = {
     edges: false,
-    picking: false
+    picking: false,
+    hasNormals: false,
+    hasUVs: false
   }) {
     if (cfg.picking && cfg.edges) { // Edges are an un-pickable visual effect
       throw new Error("Invalid DrawTechnique configuration: cannot have both picking and edges enabled.");
@@ -207,6 +282,8 @@ export abstract class DrawTechnique {
     this._gpuMemoryReader = gpuMemoryReader;
     this.edges = cfg.edges === true;
     this.picking = cfg.picking === true;
+    this.hasNormals = cfg.hasNormals === true;
+    this.hasUVs = cfg.hasUVs === true;
     this._program = null;
   }
 
@@ -315,7 +392,22 @@ export abstract class DrawTechnique {
       lightPos: [],
       lightAttenuation: [],
       lightAmbient: program.getLocation("uLightAmbient"),
-      saoParams: program.getLocation("saoParams")
+      primaryLightDirView: program.getLocation("uPrimaryLightDirView"),
+      saoParams: program.getLocation("saoParams"),
+      shadowLightVP: program.getLocation("uShadowLightVP"),
+      shadowLightVPs: program.getLocation("uShadowLightVPs[0]"),
+      shadowCascadeSplits: program.getLocation("uShadowCascadeSplits[0]"),
+      shadowCascadeCount: program.getLocation("uShadowCascadeCount"),
+      shadowParams: program.getLocation("uShadowParams"),
+      shadowPcfRadius: program.getLocation("uShadowPcfRadius"),
+      shadowSlope: program.getLocation("uShadowSlope"),
+      edgeFadeRange: program.getLocation("uEdgeFadeRange"),
+      iblIntensity: program.getLocation("uIBLIntensity"),
+      iblSky:       program.getLocation("uIBLSky"),
+      iblGround:    program.getLocation("uIBLGround"),
+      iblUpView:    program.getLocation("uIBLUpView"),
+      iblMaxSpecularMipLevel: program.getLocation("uIBLMaxSpecularMipLevel"),
+      iblViewToWorldRot: program.getLocation("uIBLViewToWorldRot")
     };
 
     // const lights = view.lightsList;
@@ -356,9 +448,24 @@ export abstract class DrawTechnique {
       viewTileCameraMatrixTexture: program.getSampler("uViewTileCameraMatrixTexture"),
       vertexPositionTexture: program.getSampler("uVertexPositionTexture"),
       vertexColorTexture: program.getSampler("uVertexColorTexture"),
+      vertexNormalTexture: this.hasNormals ? program.getSampler("uVertexNormalTexture") : null,
+      vertexUVTexture: this.hasUVs ? program.getSampler("uVertexUVTexture") : null,
+      albedoAtlas: this.hasUVs ? program.getSampler("uAlbedoAtlas") : null,
+      metallicRoughnessAtlas: this.hasUVs ? program.getSampler("uMetallicRoughnessAtlas") : null,
+      normalMapAtlas: this.hasUVs ? program.getSampler("uNormalMapAtlas") : null,
+      iblIrradianceCubemap: this.hasNormals ? program.getSampler("uIBLIrradianceCubemap") : null,
+      iblPrefilteredCubemap: this.hasNormals ? program.getSampler("uIBLPrefilteredCubemap") : null,
+      iblBRDFLUT: this.hasNormals ? program.getSampler("uIBLBRDFLUT") : null,
       indexTexture: program.getSampler("uIndexTexture"),
       edgeIndexTexture: program.getSampler("uEdgeIndexTexture"), // TODO: Maybe redundant
-      saoOcclusionTexture: program.getSampler("saoOcclusionTexture")
+      saoOcclusionTexture: program.getSampler("saoOcclusionTexture"),
+      shadowMapTexture: program.getSampler("uShadowMapTexture"),
+      shadowMap0: program.getSampler("uShadowMap0"),
+      shadowMap1: program.getSampler("uShadowMap1"),
+      shadowMap2: program.getSampler("uShadowMap2"),
+      shadowMap3: program.getSampler("uShadowMap3"),
+      shadowMap4: program.getSampler("uShadowMap4"),
+      shadowMap5: program.getSampler("uShadowMap5")
     };
 
     return {
@@ -451,6 +558,35 @@ export abstract class DrawTechnique {
     this._bindTexture(samplers.primitiveMeshIndex, primitiveMeshIndexTexture);
     this._bindTexture(samplers.vertexPositionTexture, batchDataTextures.vertexPositionTexture);
     this._bindTexture(samplers.vertexColorTexture, batchDataTextures.vertexColorTexture);
+    if (this.hasNormals && batchDataTextures.vertexNormalTexture) {
+      this._bindTexture(samplers.vertexNormalTexture, batchDataTextures.vertexNormalTexture);
+    }
+    if (this.hasUVs && batchDataTextures.vertexUVTexture) {
+      this._bindTexture(samplers.vertexUVTexture, batchDataTextures.vertexUVTexture);
+    }
+    if (this.hasUVs && batchDataTextures.albedoAtlasTexture && batchDataTextures.albedoAtlasTexture.texture) {
+      // The atlas isn't a DataTexture (no CPU buffer, no texelFetch — it's
+      // a real sampler2D), but its `.texture` field is shape-compatible
+      // with `_bindTexture`'s expectations.
+      this._bindTexture(samplers.albedoAtlas, batchDataTextures.albedoAtlasTexture);
+    }
+    if (this.hasUVs && batchDataTextures.metallicRoughnessAtlasTexture && batchDataTextures.metallicRoughnessAtlasTexture.texture) {
+      this._bindTexture(samplers.metallicRoughnessAtlas, batchDataTextures.metallicRoughnessAtlasTexture);
+    }
+    if (this.hasUVs && batchDataTextures.normalMapAtlasTexture && batchDataTextures.normalMapAtlasTexture.texture) {
+      this._bindTexture(samplers.normalMapAtlas, batchDataTextures.normalMapAtlasTexture);
+    }
+    // IBL Layer-2 cubemaps + BRDF LUT — populated on RenderContext by
+    // RenderManager._prepareIBL once per view. Only the smooth-shaded
+    // technique variant declares the matching uniforms; the bind is a
+    // no-op when sampler locations are null (flat-shaded variant).
+    if (this.hasNormals) {
+      this._bindCubemap(samplers.iblIrradianceCubemap, renderContext.iblIrradianceCubemap);
+      this._bindCubemap(samplers.iblPrefilteredCubemap, renderContext.iblPrefilteredCubemap);
+      if (samplers.iblBRDFLUT && renderContext.iblBRDFLUT) {
+        this._bindTexture(samplers.iblBRDFLUT, { texture: renderContext.iblBRDFLUT });
+      }
+    }
     this._bindTexture(samplers.meshMatrixTexture, batchDataTextures.meshMatrixTexture);
     this._bindTexture(samplers.meshAttributeTexture, batchDataTextures.meshAttributeTexture);
     this._bindTexture(samplers.meshViewAttributeTexture, batchViewDataTextures.meshViewAttributeTexture);
@@ -465,6 +601,7 @@ export abstract class DrawTechnique {
     // Bind SAO occlusion texture after all per-batch data textures so its texture
     // unit isn't clobbered by the data-texture bindings above.
     this._bindSAOTexture();
+    this._bindShadowMapTexture();
 
     if (this._uniforms.batchIndex) {
       gl.uniform1ui(this._uniforms.batchIndex, meshBatch.gpuMemoryBatchIndex);
@@ -572,7 +709,9 @@ uniform mat4 uProjMatrix;
 
 uniform highp usampler2D uPrimitiveMeshIndexTexture;
 uniform highp usampler2D uVertexPositionTexture;
-uniform highp usampler2D uVertexColorTexture;
+uniform highp usampler2D uVertexColorTexture;${this.hasNormals ? `
+uniform highp usampler2D uVertexNormalTexture;` : ``}${this.hasUVs ? `
+uniform highp sampler2D  uVertexUVTexture;` : ``}
 uniform highp usampler2D uIndexTexture;
 // uniform highp usampler2D uEdgeIndexTexture;
 uniform highp sampler2D  uViewTileCameraMatrixTexture;
@@ -594,6 +733,24 @@ struct QuantRange {
 struct MeshAttribTable {
   uint tileIndex;
   uint geometryIndex;
+  // Packed Cook-Torrance material: byte 0 = roughness, byte 1 = metallic
+  // (each in 0..255, mapped from [0, 1]). Bytes 2-3 are reserved for
+  // future per-mesh material flags. Only consumed by the smooth-shaded
+  // technique variant; flat-shaded shaders ignore it.
+  uint material;
+  // Packed alpha attributes: byte 0 = alphaMode (0=OPAQUE, 1=MASK,
+  // 2=BLEND), byte 1 = alphaCutoff (0..255, mapped from [0, 1]).
+  // Drives the per-fragment discard for cutout materials.
+  uint alpha;
+  // Packed atlas UV transforms — one (offset, scale) pair per PBR map
+  // type. Each value is a u16 in normalised [0, 1] form, R = lo. Only
+  // consumed by the UV-bearing technique variant.
+  uint albedoUVOffsetPacked;
+  uint albedoUVScalePacked;
+  uint mrUVOffsetPacked;
+  uint mrUVScalePacked;
+  uint normalUVOffsetPacked;
+  uint normalUVScalePacked;
 };
 
 struct MeshViewAttributes {
@@ -605,6 +762,8 @@ struct GeometryAttributes {
   uint verticesBase;
   uint indicesBase;
   uint edgeIndicesBase;
+  uint normalsBase;
+  uint uvsBase;
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -643,7 +802,36 @@ uvec3 getVertexPosition(uint vertexIndexWithinGeometry) {
 uvec4 getVertexColor(uint vertexIndexWithinGeometry) {
   const uint texWidth = 4096u;
   return texelFetch(uVertexColorTexture, texCoord(vertexIndexWithinGeometry, texWidth), 0).rgba;
+}${this.hasNormals ? `
+
+// Octahedral RG16UI normal fetch + decode. The encoder maps unit-vector
+// octahedral coords from [-1, 1] to [0, 65535]; we undo that, then run the
+// standard signed-zero unwrap before normalising. Decoding in the vertex
+// stage so the varying is a vec3 — interpolating octahedral coords across
+// the triangle would produce incorrect normals.
+uvec2 getVertexNormalPacked(uint vertexIndexWithinGeometry) {
+  const uint texWidth = 4096u;
+  return texelFetch(uVertexNormalTexture, texCoord(vertexIndexWithinGeometry, texWidth), 0).rg;
 }
+
+vec3 octDecodeNormalU16(uvec2 packed) {
+  vec2 e = vec2(packed) / 65535.0 * 2.0 - 1.0;
+  vec3 n = vec3(e.xy, 1.0 - abs(e.x) - abs(e.y));
+  if (n.z < 0.0) {
+    vec2 sgn = vec2(n.x >= 0.0 ? 1.0 : -1.0, n.y >= 0.0 ? 1.0 : -1.0);
+    n.xy = (1.0 - abs(n.yx)) * sgn;
+  }
+  return normalize(n);
+}` : ``}${this.hasUVs ? `
+
+// Per-vertex UV fetch. UVs are stored as raw RG32F floats so tiling
+// values (UVs outside [0, 1]) round-trip through the GPU intact — the
+// fragment stage applies fract() before transforming into the per-mesh
+// atlas sub-rect, which is what makes tiled materials sample correctly.
+vec2 getVertexUV(uint vertexIndexWithinGeometry) {
+  const uint texWidth = 4096u;
+  return texelFetch(uVertexUVTexture, texCoord(vertexIndexWithinGeometry, texWidth), 0).rg;
+}` : ``}
 
 // ─────────────────────────────────────────────────────────────
 // Geometry + mesh metadata fetch
@@ -662,22 +850,63 @@ QuantRange getGeometryQuantRange(uint geometryIndex) {
 }
 
 GeometryAttributes getGeometryAttributeTexture(uint geometryIndex) {
+  // Two texels per geometry — the texture holds 8 u32 slots of metadata
+  // per item to leave room for future per-attribute base addresses.
   const uint texWidth = 4096u;
-  uvec4 texel = texelFetch(uGeometryAttributeTexture, texCoord((geometryIndex), texWidth), 0);
+  const uint texelsPerItem = 2u;
+  uint base = geometryIndex * texelsPerItem;
+  uvec4 t0 = texelFetch(uGeometryAttributeTexture, texCoord(base + 0u, texWidth), 0);
+  uvec4 t1 = texelFetch(uGeometryAttributeTexture, texCoord(base + 1u, texWidth), 0);
   GeometryAttributes s;
-  s.verticesBase    = texel.r;
-  s.indicesBase     = texel.g;
-  s.edgeIndicesBase = texel.b;
+  s.verticesBase    = t0.r;
+  s.indicesBase     = t0.g;
+  s.edgeIndicesBase = t0.b;
+  s.normalsBase     = t0.a;
+  s.uvsBase         = t1.r;
   return s;
 }
 
 MeshAttribTable getMeshAttribTable(uint meshIndex) {
+  // Three texels per mesh — texel 0 holds tile/geometry/material/flags;
+  // texel 1 holds the albedo + MR UV transforms; texel 2 holds the
+  // normal-map UV transform plus reserved slots for occlusion/emissive.
+  // Layout matches MeshAttributeTexture's setItem.
   const uint texWidth = 4096u;
-  uvec4 texel = texelFetch(uMeshAttributeTexture, texCoord((meshIndex), texWidth), 0);
+  const uint texelsPerItem = 3u;
+  uint base = meshIndex * texelsPerItem;
+  uvec4 t0 = texelFetch(uMeshAttributeTexture, texCoord(base + 0u, texWidth), 0);
+  uvec4 t1 = texelFetch(uMeshAttributeTexture, texCoord(base + 1u, texWidth), 0);
+  uvec4 t2 = texelFetch(uMeshAttributeTexture, texCoord(base + 2u, texWidth), 0);
   MeshAttribTable s;
-  s.tileIndex      = texel.r;
-  s.geometryIndex  = texel.g;
+  s.tileIndex            = t0.r;
+  s.geometryIndex        = t0.g;
+  s.material             = t0.b;
+  s.alpha                = t0.a;
+  s.albedoUVOffsetPacked = t1.r;
+  s.albedoUVScalePacked  = t1.g;
+  s.mrUVOffsetPacked     = t1.b;
+  s.mrUVScalePacked      = t1.a;
+  s.normalUVOffsetPacked = t2.r;
+  s.normalUVScalePacked  = t2.g;
   return s;
+}
+
+// Unpacks the packed Cook-Torrance material into (roughness, metallic).
+// Cheap: two bit ops + one divide.
+vec2 unpackRoughnessMetallic(uint packed) {
+  return vec2(
+    float(packed & 0xFFu),
+    float((packed >> 8u) & 0xFFu)
+  ) / 255.0;
+}
+
+// Unpacks two u16s in [0, 65535] (R = lo, G = hi) to a vec2 in [0, 1].
+// WebGL2's GLSL ES 3.00 doesn't have unpackUnorm2x16, so do it manually.
+vec2 unpackUnorm2x16FromU32(uint packed) {
+  return vec2(
+    float(packed & 0xFFFFu),
+    float((packed >> 16u) & 0xFFFFu)
+  ) / 65535.0;
 }
 
 MeshViewAttributes getMeshViewAttributes(uint meshIndex) {
@@ -750,7 +979,38 @@ vec4 packUintToRGBA8(uint v) {
       "uniform vec3 uLightDir3;",
       "uniform vec4 uLightColor3;",
       "flat out vec4 vColor;",
-      "out vec3 vViewPos;");
+      "out vec3 vViewPos;",
+      // Smooth view-space normal varying. Only emitted on the hasNormals
+      // technique variant; the flat-shaded variant keeps deriving the
+      // normal in the fragment stage from `vViewPos` derivatives.
+      ...(this.hasNormals ? [
+        "out vec3 vViewNormal;",
+        // Pre-decoded Cook-Torrance material (roughness, metallic), passed
+        // flat so every fragment in a triangle sees the source mesh's
+        // values verbatim. Decoding here keeps the fragment shader free of
+        // bit-shifts on hot paths.
+        "flat out vec2 vMaterial;"
+      ] : []),
+      // UV varying — only emitted on the hasUVs variant. The fragment
+      // stage uses it together with the per-mesh atlas transforms to
+      // sample each PBR-map atlas.
+      ...(this.hasUVs ? [
+        "out vec2 vUV;",
+        // Per-mesh atlas UV transforms: `atlasUV = vUV * scale + offset`,
+        // one pair per PBR-map type. Passed flat — the source values are
+        // constant for every fragment of a given mesh, so interpolation
+        // is wrong (and wasteful) here.
+        "flat out vec2 vAlbedoUVOffset;",
+        "flat out vec2 vAlbedoUVScale;",
+        "flat out vec2 vMRUVOffset;",
+        "flat out vec2 vMRUVScale;",
+        "flat out vec2 vNormalUVOffset;",
+        "flat out vec2 vNormalUVScale;",
+        // Per-mesh alpha mode (0=OPAQUE, 1=MASK, 2=BLEND) and the MASK
+        // cutoff threshold. Both flat — uniform across the mesh.
+        "flat out uint  vAlphaMode;",
+        "flat out float vAlphaCutoff;"
+      ] : []));
   }
 
   /**
@@ -905,6 +1165,81 @@ void main(void) {`);
   }
 
   /**
+   * Pulls the vertex a tiny fraction toward the camera in clip space so that
+   * coplanar line/edge geometry wins depth-test ties against the triangle
+   * surface it sits on. Subtracting `eps * gl_Position.w` from `gl_Position.z`
+   * shifts NDC z by exactly `eps` regardless of vertex distance.
+   *
+   * Kept small on purpose: the depth buffer is non-linear with perspective,
+   * so a constant NDC offset covers proportionally more *world* distance at
+   * the far plane than at the near plane. Too large an offset and distant
+   * edges start poking through the front of foreground geometry. `2e-5` is
+   * still hundreds of times the 24-bit depth-buffer quantum — plenty to
+   * win ties from rasterisation noise — while leaving the world-space
+   * leakage at the far plane negligible.
+   *
+   * Emit AFTER {@link vsMainBegin} (which sets `gl_Position`) and before
+   * {@link vsMainEnd}. Intended for edge/line techniques.
+   */
+  protected vsEdgeDepthBiasLogic() {
+    this._vertSrcBuf.push("    gl_Position.z -= 2.0e-5 * gl_Position.w;");
+  }
+
+  /**
+   * Declares the view-space depth varying consumed by {@link fsEdgeFadeLogic}.
+   *
+   * Used only by edge techniques. Kept separate from `vViewPos` (the full
+   * view-space position used by Lambert shading) because edge techniques
+   * don't need the xy components — uploading just the linear distance halves
+   * the varying interpolation cost.
+   */
+  protected vsEdgeFadeDeclarations() {
+    this._vertSrcBuf.push("out float vEdgeViewDist;");
+  }
+
+  /**
+   * Writes positive view-space distance from the camera into the fade varying.
+   * Camera looks down -Z, so the distance is `-viewPos.z`.
+   *
+   * Emit AFTER {@link vsMainBegin} so `viewPos` is in scope, and before
+   * {@link vsMainEnd}.
+   */
+  protected vsEdgeFadeLogic() {
+    this._vertSrcBuf.push("    vEdgeViewDist = -viewPos.z;");
+  }
+
+  /**
+   * Declares the fragment-side fade uniform and matching varying.
+   *
+   * `uEdgeFadeRange` is `vec2(startDist, endDist)` in view-space units. The
+   * CPU side derives both values from the active camera's far plane and the
+   * view's `Edges.edgeFadeStart` / `edgeFadeEnd` knobs.
+   */
+  protected fsEdgeFadeDeclarations() {
+    this._fragSrcBuf.push(
+      "in float vEdgeViewDist;",
+      "uniform vec2 uEdgeFadeRange;");
+  }
+
+  /**
+   * Multiplies the working `color.a` by the fade factor.
+   *
+   * `smoothstep(start, end, dist)` is `0` at `dist <= start`, `1` at
+   * `dist >= end`. We invert it so near edges keep full alpha and far edges
+   * fade to zero. Branch-free: when `start >= end`, smoothstep collapses to a
+   * step at `start`, which means edges past `start` simply disappear — that's
+   * the documented "set start >= end to disable" path. To keep edges
+   * fully opaque always, ship `start >= 1.0` AND `end >= 1.0`.
+   *
+   * Must run AFTER `fsSilhouetteLogic` (which writes `color = vColor`) and
+   * BEFORE `fsOutputColor` (which premultiplies and emits the final RGBA).
+   */
+  protected fsEdgeFadeLogic() {
+    this._fragSrcBuf.push(
+      "    color.a *= 1.0 - smoothstep(uEdgeFadeRange.x, uEdgeFadeRange.y, vEdgeViewDist);");
+  }
+
+  /**
    * Emits section-plane clipping logic (currently a stub pending section-plane support).
    */
   protected vsSlicingLogic() {
@@ -1019,12 +1354,36 @@ void main(void) {`);
     // ─────────────────────────────────────────────────────────
     // Lambert shading vertex pass-through
     // ─────────────────────────────────────────────────────────
-    // Actual lighting is computed per-fragment from dFdx/dFdy(vViewPos),
-    // giving a flat face normal without a per-vertex triangle refetch.
+    ${this.hasNormals
+      ? `// Decode the per-vertex normal and rotate it from model space into the
+    // tile's view space. Skipping the normal-matrix inverse-transpose: the
+    // pipeline assumes near-rigid model and view matrices (uniform scale
+    // and rotation only), so the upper-left 3×3 is sufficient — anything
+    // else would also break the existing vertex-position pipeline.`
+      : `// Actual lighting is computed per-fragment from dFdx/dFdy(vViewPos),
+    // giving a flat face normal without a per-vertex triangle refetch.`}
 
     vec4 color = vec4(meshViewAttributes.color) / 255.0; // RGBA8 → float [0,1]
     vColor   = color;
-    vViewPos = viewPos.xyz;`
+    vViewPos = viewPos.xyz;${this.hasNormals ? `
+
+    uvec2 packedNormal = getVertexNormalPacked(geometryAttributes.normalsBase + vertexIndexWithinGeometry);
+    vec3  modelNormal  = octDecodeNormalU16(packedNormal);
+    mat3  normalMatrix = mat3(viewMatrix) * mat3(modelMatrix);
+    vViewNormal        = normalize(normalMatrix * modelNormal);
+    vMaterial          = unpackRoughnessMetallic(meshAttributeTexture.material);` : ``}${this.hasUVs ? `
+
+    vUV              = getVertexUV(geometryAttributes.uvsBase + vertexIndexWithinGeometry);
+    vAlbedoUVOffset  = unpackUnorm2x16FromU32(meshAttributeTexture.albedoUVOffsetPacked);
+    vAlbedoUVScale   = unpackUnorm2x16FromU32(meshAttributeTexture.albedoUVScalePacked);
+    vMRUVOffset      = unpackUnorm2x16FromU32(meshAttributeTexture.mrUVOffsetPacked);
+    vMRUVScale       = unpackUnorm2x16FromU32(meshAttributeTexture.mrUVScalePacked);
+    vNormalUVOffset  = unpackUnorm2x16FromU32(meshAttributeTexture.normalUVOffsetPacked);
+    vNormalUVScale   = unpackUnorm2x16FromU32(meshAttributeTexture.normalUVScalePacked);
+    // Alpha-mode unpack: byte 0 = mode (0=OPAQUE/1=MASK/2=BLEND),
+    // byte 1 = cutoff in 0..255 mapped from [0, 1].
+    vAlphaMode       = meshAttributeTexture.alpha & 0xFFu;
+    vAlphaCutoff     = float((meshAttributeTexture.alpha >> 8u) & 0xFFu) / 255.0;` : ``}`
     );
   }
 
@@ -1069,6 +1428,51 @@ void main(void) {`);
     this._vertSrcBuf.push(
       "    vHighPrecisionZW = gl_Position.zw;"
     );
+  }
+
+  /**
+   * Declares the light view-projection matrix uniform used by both the
+   * shadow-map depth pass and the shadow-sampling color pass.
+   *
+   * `uShadowLightVP` is expressed in CAMERA-VIEW space, not world space: it
+   * maps camera-space positions to the light's clip space. This is so the
+   * shader can apply it to `viewPos` (which is small, single-precision safe
+   * and correct for every RTC tile) instead of `worldPos` (which is only
+   * tile-local and has no true-world meaning for double-precision models).
+   */
+  protected vsShadowSharedDeclarations() {
+    this._vertSrcBuf.push("uniform mat4 uShadowLightVP;");
+  }
+
+  /**
+   * Shadow-map depth pass: overrides gl_Position to use the light VP matrix.
+   *
+   * Emitted AFTER vsMainBegin, which leaves `viewPos` in scope.
+   */
+  protected vsShadowDepthLogic() {
+    this._vertSrcBuf.push(
+      "    gl_Position = uShadowLightVP * viewPos;"
+    );
+  }
+
+  /**
+   * Shadow-aware color pass: no-op under CSM. With N cascades the fragment
+   * shader has to pick the right cascade per-fragment and transform
+   * `vViewPos` on the fly — precomputing a single `vShadowCoord` in the
+   * vertex stage would force a choice we can't make there. The required
+   * varying (`vViewPos`) is already declared by Lambert shading.
+   *
+   * Kept as a hook so technique subclasses that already call it don't
+   * break, and so future shadow techniques (e.g. non-Lambert receivers)
+   * can add their own vertex-side setup without changing callers.
+   */
+  protected vsDrawShadowDeclarations() {
+    // intentionally empty
+  }
+
+  /** @see vsDrawShadowDeclarations */
+  protected vsDrawShadowLogic() {
+    // intentionally empty
   }
 
   /**
@@ -1155,12 +1559,14 @@ void main(void) {`);
       "precision highp usampler2D;",
       "precision highp isampler2D;",
       "precision highp sampler2D;",
+      "precision highp sampler2DShadow;",
       "#else",
       "precision mediump float;",
       "precision mediump int;",
       "precision mediump usampler2D;",
       "precision mediump isampler2D;",
       "precision mediump sampler2D;",
+      "precision mediump sampler2DShadow;",
       "#endif");
   }
 
@@ -1210,13 +1616,102 @@ void main(void) {`);
     src.push(
       "flat in vec4 vColor;",
       "in vec3 vViewPos;",
+      ...(this.hasNormals ? [
+        "in vec3 vViewNormal;",
+        "flat in vec2 vMaterial;"
+      ] : []),
+      ...(this.hasUVs ? [
+        "in vec2 vUV;",
+        "flat in vec2 vAlbedoUVOffset;",
+        "flat in vec2 vAlbedoUVScale;",
+        "flat in vec2 vMRUVOffset;",
+        "flat in vec2 vMRUVScale;",
+        "flat in vec2 vNormalUVOffset;",
+        "flat in vec2 vNormalUVScale;",
+        // Per-mesh alpha mode + cutoff. Used by the discard test for
+        // MASK-mode materials below.
+        "flat in uint  vAlphaMode;",
+        "flat in float vAlphaCutoff;",
+        // Albedo atlas (sRGB-decoded automatically by the GPU because the
+        // texture's internalFormat is SRGB8_ALPHA8). One sampler per
+        // batch; `texture()` returns linear RGBA in `[0, 1]`.
+        "uniform sampler2D uAlbedoAtlas;",
+        // Metallic-roughness atlas — linear RGBA8. glTF 2.0 channel
+        // layout: G = roughness, B = metallic. The shader multiplies the
+        // sampled values against `material.roughness`/`material.metallic`,
+        // so a material with both set to `1.0` lets the texture drive
+        // each parameter directly.
+        "uniform sampler2D uMetallicRoughnessAtlas;",
+        // Tangent-space normal-map atlas — linear RGBA8. RGB encodes the
+        // tangent-space normal as (x*0.5+0.5, y*0.5+0.5, z*0.5+0.5).
+        // Sentinel sample is (0.5, 0.5, 1.0) → decodes to (0, 0, 1) so
+        // untextured meshes use the smooth normal unchanged.
+        "uniform sampler2D uNormalMapAtlas;"
+      ] : []),
       "uniform vec4 uLightAmbient;",
       "uniform vec3 uLightDir1;",
       "uniform vec4 uLightColor1;",
       "uniform vec3 uLightDir2;",
       "uniform vec4 uLightColor2;",
       "uniform vec3 uLightDir3;",
-      "uniform vec4 uLightColor3;");
+      "uniform vec4 uLightColor3;",
+      // Primary directional light direction in view space, sourced from
+      // `view.shadows.direction` and pre-rotated by the view matrix in
+      // the renderer. Used by both the Lambert and Cook-Torrance paths so
+      // direct lighting and cast shadows agree on which way the sun points.
+      "uniform vec3 uPrimaryLightDirView;",
+      // Hemispherical IBL Layer 1 — analytical, no cubemap. uIBLIntensity
+      // is the fade between the flat ambient and the sky/ground gradient
+      // (0 = flat, 1 = full IBL). uIBLUpView is world-up in view space so
+      // the dot with the view-space normal stays cheap.
+      "uniform float uIBLIntensity;",
+      "uniform vec3  uIBLSky;",
+      "uniform vec3  uIBLGround;",
+      "uniform vec3  uIBLUpView;",
+      // Layer-2 IBL — proper split-sum specular IBL with prefiltered
+      // cubemap + diffuse irradiance cubemap + BRDF LUT. Bound by the
+      // smooth-shaded variant; the flat-shaded path keeps the cheap
+      // analytical hemisphere only.
+      ...(this.hasNormals ? [
+        "uniform samplerCube uIBLIrradianceCubemap;",
+        "uniform samplerCube uIBLPrefilteredCubemap;",
+        "uniform sampler2D   uIBLBRDFLUT;",
+        "uniform float       uIBLMaxSpecularMipLevel;",
+        "uniform mat3        uIBLViewToWorldRot;"
+      ] : []),
+      // `g_ambient` is the resolved per-fragment ambient (flat or IBL)
+      // declared at main-scope so the shadow stage can clamp shadowed
+      // fragments to the same floor without recomputing.
+      "vec3 g_ambient;");
+    if (this.hasNormals) {
+      // Cook-Torrance microfacet BRDF helpers. Standard real-time PBR set:
+      // GGX normal distribution, Smith-GGX geometry term, Schlick Fresnel.
+      // Inlined as a string so the technique pair shares one source.
+      src.push(`
+const float PBR_MIN_ROUGHNESS = 0.045;
+
+float D_GGX(float NdotH, float a2) {
+  float f = (NdotH * a2 - NdotH) * NdotH + 1.0;
+  return a2 / max(3.14159265 * f * f, 1e-6);
+}
+
+float G_SchlickGGX(float NdotV, float k) {
+  return NdotV / (NdotV * (1.0 - k) + k);
+}
+
+float G_Smith(float NdotL, float NdotV, float roughness) {
+  // Schlick-GGX approximation of Smith's geometric attenuation, with the
+  // (r+1)/2 remapping that's standard for direct lighting (Disney/Karis).
+  float r = roughness + 1.0;
+  float k = (r * r) / 8.0;
+  return G_SchlickGGX(NdotL, k) * G_SchlickGGX(NdotV, k);
+}
+
+vec3 F_Schlick(vec3 F0, float cosTheta) {
+  float f = pow(1.0 - cosTheta, 5.0);
+  return F0 + (1.0 - F0) * f;
+}`);
+    }
   }
 
   /**
@@ -1224,7 +1719,229 @@ void main(void) {`);
    * @protected
    */
   protected fsLambertShadingLogic() {
+    if (this.hasNormals) {
+      // ── Debug visualization shortcut ─────────────────────────────────
+      // When DEBUG_VISUALIZE_NORMAL_MAP is on and this is the smooth+UV
+      // variant (the only one that binds the normal-map atlas), output
+      // the raw RGB of the sampled normal map directly. Bypasses the
+      // BRDF entirely — the goal is to confirm the texture is reaching
+      // the shader, NOT to render correctly.
+      if (DEBUG_VISUALIZE_NORMAL_MAP && this.hasUVs) {
+        // The shadow stage (fsDrawShadowLogic) appended later in shadow-
+        // aware techniques references `albedo` and `g_ambient` to clamp
+        // shadowed fragments. We declare both so the shader still
+        // compiles, and set them so shadows DON'T darken the debug
+        // colour — `ambientFloor = g_ambient * albedo = nm_raw`, so the
+        // shadow stage's `max(color * shadowFactor, ambientFloor)`
+        // clamps back up to the raw normal-map sample. Net effect: the
+        // debug viz comes through the BRDF and shadow stages unaffected.
+        this._fragSrcBuf.push(`
+    vec2 wrappedUV = fract(vUV);
+    vec2 normalAtlasUV = wrappedUV * vNormalUVScale + vNormalUVOffset;
+    vec3 nm_raw = texture(uNormalMapAtlas, normalAtlasUV).rgb;
+    vec3 albedo = nm_raw;
+    g_ambient = vec3(1.0);
+    color = vec4(nm_raw, 1.0);`);
+        return;
+      }
+      // The smooth-shaded variant has two flavours that differ only in
+      // how the albedo (base colour) is resolved:
+      //   - hasUVs: sample the atlas, then tint by vColor
+      //   - !hasUVs: vColor IS the albedo
+      // Either way the BRDF below is the same.
+      const albedoSrc = this.hasUVs
+        ? `// Per-fragment fract() wraps tiling UVs (Sponza-style values
+    // outside [0, 1]) into a single tile before the atlas transform —
+    // without it, the linear sub-rect map would push UVs off the atlas
+    // and CLAMP_TO_EDGE would pin every fragment to a single edge column.
+    // Visible cost is a 1-pixel seam at integer UV boundaries; for the
+    // tiled materials this fixes, that's almost imperceptible.
+    vec2 wrappedUV = fract(vUV);
+    // Atlas sub-rect: wrappedUV maps from [0, 1) into the mesh's sub-rect
+    // of the per-batch atlas via the flat-varying transform written in
+    // the vertex stage. Untextured meshes get scale = 0 + offset =
+    // white-sentinel, so this collapses to a constant white and \`albedo\`
+    // is just \`vColor.rgb\`.
+    vec2 albedoAtlasUV = wrappedUV * vAlbedoUVScale + vAlbedoUVOffset;
+    vec4 albedoSample = texture(uAlbedoAtlas, albedoAtlasUV);
+    vec3 albedo = albedoSample.rgb * vColor.rgb;
+    float albedoAlpha = albedoSample.a * vColor.a;
+
+    // Alpha-mask cutout (glTF alphaMode == MASK). Done before the BRDF
+    // so cutout fragments cost no shading work. OPAQUE and BLEND skip
+    // the discard — for OPAQUE the alpha is implicitly 1.0; for BLEND
+    // it feeds color.a at the end.
+    //
+    // Anti-aliased alpha test (Ben Golus 2019, "Anti-aliased Alpha Test:
+    // The Esoteric Alpha To Coverage"). The naive (albedoAlpha < cutoff)
+    // form leaves a soft band of passing fragments at the boundary where the
+    // bilinear sample has bled RGB in from alpha=0 neighbour texels
+    // (those neighbours are usually white in the source PNG, which is
+    // why the halo reads white). Mapping the threshold zone through the
+    // alpha's screen-space gradient with fwidth() narrows the surviving
+    // band to ~1 pixel, kicking the bleed band out and leaving a clean
+    // edge — same look you'd get from real alpha-to-coverage MSAA.
+    if (vAlphaMode == 1u) {
+      float aaAlpha = (albedoAlpha - vAlphaCutoff) / max(fwidth(albedoAlpha), 1e-4) + 0.5;
+      if (aaAlpha < 0.5) discard;
+    }
+
+    // Metallic-roughness sample — glTF 2.0 channel layout (G = roughness,
+    // B = metallic). The atlas's white sentinel makes the sample (1, 1)
+    // for untextured meshes, so the multiply leaves the material values
+    // unchanged. With a real texture and a material set to 1.0/1.0, the
+    // texture drives the values directly.
+    vec2 mrAtlasUV = wrappedUV * vMRUVScale + vMRUVOffset;
+    vec4 mrSample = texture(uMetallicRoughnessAtlas, mrAtlasUV);
+    float mrRoughnessFactor = mrSample.g;
+    float mrMetallicFactor  = mrSample.b;`
+        : `// No UVs on this batch — vColor is the only source of albedo,
+    // and the material's roughness/metallic pass through unchanged.
+    vec3 albedo = vColor.rgb;
+    float albedoAlpha = vColor.a;
+    float mrRoughnessFactor = 1.0;
+    float mrMetallicFactor  = 1.0;`;
+      this._fragSrcBuf.push(`
+    // ─────────────────────────────────────────────────────────
+    // Cook-Torrance shading (GGX + Smith-GGX + Schlick Fresnel)
+    // ─────────────────────────────────────────────────────────
+    // Diffuse stays as energy-conserving Lambert; specular is the standard
+    // real-time microfacet BRDF. F0 is 0.04 grey for dielectrics, tinted
+    // by the surface albedo for metals (mix(0.04, albedo, metallic)).
+
+    ${albedoSrc}
+
+    // Re-normalize after rasterizer interpolation; linear blends of unit
+    // vectors generally come out sub-unit length.
+    vec3 N_smooth = normalize(vViewNormal);
+    ${this.hasUVs ? `// Tangent-space normal map sample. Sentinel-fallback for untextured
+    // meshes is (0.5, 0.5, 1.0) → tangent-space (0, 0, 1) → no
+    // perturbation, so the BRDF below sees the unmodified N_smooth.
+    //
+    // TBN reconstruction: Schueler 2013, "Normal Mapping Without
+    // Precomputed Tangents". We build the basis from the screen-space
+    // derivatives of view-space position and the geometry UV, then
+    // orthogonalize with respect to N_smooth. Cheaper than the
+    // matched-tangent approach, robust against arbitrary UV mappings,
+    // and identical to per-vertex tangents on smooth meshes (the only
+    // disagreement is at hard normals/UV seams, where neither approach
+    // is "right" anyway).
+    // Reuses wrappedUV from the albedo block above — the same fract() applied
+    // there is what makes tiled normal maps line up with their albedo siblings.
+    vec2 normalAtlasUV = wrappedUV * vNormalUVScale + vNormalUVOffset;
+    vec3 nm_tangent = texture(uNormalMapAtlas, normalAtlasUV).xyz * 2.0 - 1.0;
+
+    vec3 dp1 = dFdx(vViewPos);
+    vec3 dp2 = dFdy(vViewPos);
+    vec2 duv1 = dFdx(vUV);
+    vec2 duv2 = dFdy(vUV);
+    // Robust frame: project dp1/dp2 onto the plane perpendicular to
+    // N_smooth, then build T/B from those + the UV gradient.
+    vec3 dp2perp = cross(dp2, N_smooth);
+    vec3 dp1perp = cross(N_smooth, dp1);
+    vec3 T = dp2perp * duv1.x + dp1perp * duv2.x;
+    vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;
+    float tbnInvMax = inversesqrt(max(dot(T, T), dot(B, B)));
+    mat3 TBN = mat3(T * tbnInvMax, B * tbnInvMax, N_smooth);
+    vec3 N = normalize(TBN * nm_tangent);` : `vec3 N = N_smooth;`}
+    // View direction in view space (camera at origin → fragment).
+    vec3 V = normalize(-vViewPos);
+    // Light direction the light travels along; surface-to-light is its
+    // negation.
+    vec3 L = normalize(-uPrimaryLightDirView);
+    vec3 H = normalize(L + V);
+
+    float NdotL = max(dot(N, L), 0.0);
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotH = max(dot(N, H), 0.0);
+    float VdotH = max(dot(V, H), 0.0);
+
+    // Material roughness/metallic times the texture multiplier (1.0 when
+    // no texture is bound — see the albedo block above for the sentinel
+    // path). Roughness is clamped to PBR_MIN_ROUGHNESS to keep the GGX
+    // denominator from collapsing at mirror-smooth.
+    float roughness = max(vMaterial.x * mrRoughnessFactor, PBR_MIN_ROUGHNESS);
+    float metallic  = clamp(vMaterial.y * mrMetallicFactor, 0.0, 1.0);
+    float a         = roughness * roughness;
+    float a2        = a * a;
+
+    vec3 F0 = mix(vec3(0.04), albedo, metallic);
+
+    // Specular term — D * G * F / (4 N·V N·L). The 4 N·V N·L denominator
+    // can underflow near grazing angles; clamp via max.
+    float D = D_GGX(NdotH, a2);
+    float G = G_Smith(NdotL, NdotV, roughness);
+    vec3  F = F_Schlick(F0, VdotH);
+    vec3  specular = (D * G) * F / max(4.0 * NdotL * NdotV, 1e-4);
+
+    // Diffuse term — energy conservation: any light reflected as specular
+    // can't also be diffuse, and metals have no diffuse term at all.
+    vec3 kd = (1.0 - F) * (1.0 - metallic);
+    vec3 diffuse = kd * albedo / 3.14159265;
+
+    // Direct lighting contribution from the primary directional light.
+    // Light colour (uLightColor2.rgb * .a = colour * intensity) plus N·L.
+    vec3 directLight = uLightColor2.rgb * uLightColor2.a * NdotL;
+    vec3 directContrib = (diffuse + specular) * directLight;
+
+    // ── Indirect (IBL Layer 2 — split-sum) ────────────────────────────
+    // Sample the prefiltered cubemap pair generated once per view by
+    // IBLPrefilter:
+    //   - irradiance cubemap is cosine-convolved → diffuse term
+    //   - prefiltered cubemap is GGX-convolved per mip → specular term
+    //   - BRDF LUT folds the rest of the integral into a 2D lookup
+    //
+    // Sampling cubemaps requires a world-space normal/reflection —
+    // we have view-space ones, so transform via the inverse view
+    // rotation (uIBLViewToWorldRot, supplied by the renderer).
+    vec3 worldN = normalize(uIBLViewToWorldRot * N);
+    vec3 worldR = reflect(-(uIBLViewToWorldRot * V), worldN);
+    vec3 iblDiffuseEnv = texture(uIBLIrradianceCubemap, worldN).rgb;
+
+    // Mip selection: roughness in [0, 1] maps to mip [0, MAX]. textureLod
+    // is required because the gradient-derived mip from a plain texture()
+    // would over-blur on curved surfaces.
+    float specMip = roughness * uIBLMaxSpecularMipLevel;
+    vec3 iblSpecEnv = textureLod(uIBLPrefilteredCubemap, worldR, specMip).rgb;
+
+    // Standard split-sum form: prefilteredColor * (F0 * lut.x + lut.y)
+    // where lut.x is the F0 scale factor and lut.y is the F0-independent
+    // bias. Encodes both the Fresnel and geometry terms exactly.
+    vec3  F_NV    = F_Schlick(F0, NdotV);
+    vec2  brdfLUT = texture(uIBLBRDFLUT, vec2(NdotV, roughness)).rg;
+    vec3  iblSpec = iblSpecEnv * (F0 * brdfLUT.x + brdfLUT.y);
+    vec3  iblDiff = (1.0 - F_NV) * (1.0 - metallic) * iblDiffuseEnv * albedo;
+    vec3  iblContrib = (iblDiff + iblSpec);
+
+    // Resolve the per-fragment ambient term so the shadow stage can use
+    // it as a floor. Multiplicative scale rather than lerp so
+    // intermediate intensity values mean "IBL contribution at N×
+    // strength" rather than "N× toward IBL away from flat ambient" —
+    // the lerp form muted the IBL character too quickly at low values
+    // (intensity=0.1 was 90% flat ambient + 10% IBL, hiding metals'
+    // reflectivity rather than just attenuating it).
+    //
+    // flatAmbient stays as an unconditional baseline so the surface
+    // never goes black when IBL is disabled (intensity=0); IBL is
+    // added on top, scaled by intensity. At intensity=1 this gives
+    // (flat + full IBL) — slightly hotter than the lerp's (just IBL)
+    // but the Views lightAmbient defaults to a small grey, so the
+    // visible difference is modest.
+    vec3 flatAmbient = uLightAmbient.rgb * uLightAmbient.a;
+    float iblScale = max(uIBLIntensity, 0.0);
+    g_ambient = flatAmbient + iblDiffuseEnv * iblScale;
+
+    vec3 lit = directContrib + flatAmbient * albedo + iblContrib * iblScale;
+    color = vec4(lit, albedoAlpha);`);
+      return;
+    }
     this._fragSrcBuf.push(`
+    // Flat-shaded path — no UVs, no texture, vColor IS the albedo. The
+    // alias keeps the shared shadow logic able to reference \`albedo\`
+    // regardless of which Lambert variant is in scope.
+    vec3 albedo = vColor.rgb;
+    float albedoAlpha = vColor.a;
+
     // Reconstruct a face normal in view space from position derivatives.
     // This gives a flat-shaded normal per fragment without refetching the
     // whole triangle in the vertex shader.
@@ -1232,21 +1949,37 @@ void main(void) {`);
     vec3 dY = dFdy(vViewPos);
     vec3 normal = normalize(cross(dX, dY));
 
-    // Lambert diffuse term (N·L), clamped to [0,1].
-    // The renderer convention for directional lights is typically the direction
-    // the light travels, so we negate it for the surface-to-light direction.
-    float lambertian = max(dot(normal, normalize(uLightDir2)), 0.0);
+    // Lambert diffuse term (N·L), clamped to [0,1]. Light direction is
+    // the direction the light travels, so we negate to get surface-to-light.
+    float lambertian = max(dot(normal, normalize(-uPrimaryLightDirView)), 0.0);
 
     // Accumulate reflected/diffuse light contribution.
     // uLightColor2.rgb * uLightColor2.a acts like (color * intensity).
     vec3 reflectedColor = vec3(0.0);
     reflectedColor += lambertian * (uLightColor2.rgb * uLightColor2.a);
 
+    // Hemispherical IBL: pick a colour between the sky and ground based
+    // on how much the surface normal faces world up. uIBLUpView is the
+    // world-up axis pre-transformed into view space by the renderer, so
+    // we don't need a view→world matrix in the shader — just one dot.
+    // dot · 0.5 + 0.5 maps [-1, 1] → [0, 1] for the mix factor.
+    float iblFacing = dot(normal, uIBLUpView) * 0.5 + 0.5;
+    vec3 iblAmbient = mix(uIBLGround, uIBLSky, iblFacing);
+
+    // Resolve the ambient term: flat ambient as unconditional baseline,
+    // IBL contribution scaled by uIBLIntensity on top — matches the
+    // smooth-shaded path so toggling/scaling IBL produces the same
+    // change in look on flat-shaded geometry as on PBR meshes. The
+    // shadow stage clamps shadowed fragments to this floor.
+    vec3 flatAmbient = uLightAmbient.rgb * uLightAmbient.a;
+    float iblScale = max(uIBLIntensity, 0.0);
+    g_ambient = flatAmbient + iblAmbient * iblScale;
+
     // Combine ambient + diffuse lighting.
     // Ambient is applied to base color, diffuse multiplies base color as well.
-    vec3 lit = (uLightAmbient.rgb * uLightAmbient.a * vColor.rgb) + (vColor.rgb * reflectedColor);
+    vec3 lit = (g_ambient * albedo) + (albedo * reflectedColor);
 
-    color = vec4(lit, vColor.a);`);
+    color = vec4(lit, albedoAlpha);`);
   }
 
   /**
@@ -1295,6 +2028,149 @@ void main(void) {`);
       "   float saoOcclusion = saoUnpackRGBToFloat(texture(saoOcclusionTexture, saoUV));",
       "   float saoAOFactor = (smoothstep(saoBlendCutoff, 1.0, saoOcclusion) - 1.0) * saoBlendFactor + 1.0;",
       "   color = vec4(color.rgb * clamp(saoAOFactor, 0.0, 1.0), color.a);");
+  }
+
+  /**
+   * Declares the shadow-map samplers (one per cascade), the per-cascade
+   * light-VP array, the cascade split distances, the scalar shadow params,
+   * and the PCF / slope-bias data.
+   *
+   * Uniform layout:
+   *   - `uShadowMap0..3`: `sampler2DShadow` per cascade. `TEXTURE_COMPARE_MODE`
+   *     is set on each depth texture so `texture(sampler, vec3(uv, refDepth))`
+   *     returns the hardware-bilinear PCF comparison (0 = shadow, 1 = lit).
+   *   - `uShadowLightVPs[4]`: mat4 per cascade, camera-view → cascade light-clip.
+   *   - `uShadowCascadeSplits`: view-space `|z|` boundaries between cascades;
+   *     entry `i` is the far edge of cascade `i`. Only entries
+   *     `0 .. uShadowCascadeCount - 2` are meaningful.
+   *   - `uShadowCascadeCount`: number of populated cascades in `[1, 4]`.
+   *   - `uShadowParams`: `(intensity, depthBias, texelSize, normalOffsetBias)`.
+   *   - `uShadowSlope`: `(dirViewX, dirViewY, dirViewZ, slopeBias)`.
+   *   - `uShadowPcfRadius`: half-width of the PCF kernel (0 = 1×1, 1 = 3×3…).
+   *
+   * Per-fragment cascade selection happens in {@link fsDrawShadowLogic}, so
+   * there's no `vShadowCoord` varying — we transform `vViewPos` through the
+   * chosen cascade's matrix at fragment time instead.
+   */
+  protected fsDrawShadowDeclarations() {
+    this._fragSrcBuf.push(
+      "uniform sampler2DShadow uShadowMap0;",
+      "uniform sampler2DShadow uShadowMap1;",
+      "uniform sampler2DShadow uShadowMap2;",
+      "uniform sampler2DShadow uShadowMap3;",
+      "uniform sampler2DShadow uShadowMap4;",
+      "uniform sampler2DShadow uShadowMap5;",
+      "uniform mat4            uShadowLightVPs[6];",
+      "uniform float           uShadowCascadeSplits[6];",
+      "uniform int             uShadowCascadeCount;",
+      "uniform vec4            uShadowParams;",
+      "uniform vec4            uShadowSlope;",
+      "uniform int             uShadowPcfRadius;"
+    );
+  }
+
+  /**
+   * Selects the best-fitting cascade for the current fragment (based on its
+   * camera-view-space `|z|`), samples that cascade's shadow map with hardware
+   * PCF, and darkens `color`.
+   *
+   * Per-fragment steps:
+   *   1. Cascade selection from view-space `-vViewPos.z` against
+   *      `uShadowCascadeSplits`.
+   *   2. Compute the light-clip position by applying the chosen cascade's
+   *      matrix to `vViewPos` (plus the normal-offset push).
+   *   3. Slope-scaled bias, then the PCF loop (1..7² taps via `uShadowPcfRadius`).
+   *
+   * `vViewPos` must be in scope — the shadow-aware techniques always run with
+   * Lambert shading which declares it.
+   */
+  protected fsDrawShadowLogic() {
+    this._fragSrcBuf.push(`
+    {
+        // ---- Cascade selection (view-space |z|). ----------------------------
+        // Start at cascade 0 and walk up while this fragment is past each split.
+        // Splits beyond \`uShadowCascadeCount - 1\` are MAX_VALUE so they never
+        // trigger an upgrade.
+        float shadowViewZ = -vViewPos.z;
+        int   shadowCascade = 0;
+        if (uShadowCascadeCount > 1 && shadowViewZ > uShadowCascadeSplits[0]) shadowCascade = 1;
+        if (uShadowCascadeCount > 2 && shadowViewZ > uShadowCascadeSplits[1]) shadowCascade = 2;
+        if (uShadowCascadeCount > 3 && shadowViewZ > uShadowCascadeSplits[2]) shadowCascade = 3;
+        if (uShadowCascadeCount > 4 && shadowViewZ > uShadowCascadeSplits[3]) shadowCascade = 4;
+        if (uShadowCascadeCount > 5 && shadowViewZ > uShadowCascadeSplits[4]) shadowCascade = 5;
+
+        // Per-fragment view-space normal — smooth when the technique was
+        // compiled with hasNormals, flat otherwise. Either way it matches
+        // the Lambert pass so the shadow bias and the lit term agree.
+        ${this.hasNormals
+      ? `vec3 shadowNormalView = normalize(vViewNormal);`
+      : `vec3 shadowNormalView = normalize(cross(dFdx(vViewPos), dFdy(vViewPos)));`}
+
+        // Normal-offset push: receivers move toward the light, killing acne at
+        // glancing angles. lightVP is linear with w = 0 on direction vectors.
+        // Array indexing with a non-constant is allowed in GLSL ES 300.
+        mat4 shadowVP       = uShadowLightVPs[shadowCascade];
+        vec4 shadowBasePos  = shadowVP * vec4(vViewPos, 1.0);
+        vec4 shadowOffset   = shadowVP * vec4(shadowNormalView * uShadowParams.w, 0.0);
+        vec4 biasedCoord    = shadowBasePos + shadowOffset;
+
+        vec3 shadowNdc = biasedCoord.xyz / biasedCoord.w;
+        vec3 shadowUv  = shadowNdc * 0.5 + 0.5;
+
+        bool inside =
+            shadowUv.x > 0.0 && shadowUv.x < 1.0 &&
+            shadowUv.y > 0.0 && shadowUv.y < 1.0 &&
+            shadowUv.z > 0.0 && shadowUv.z < 1.0;
+
+        if (inside) {
+            // Slope-scaled bias: tan(angle(normal, light)), clamped.
+            float cosTheta = clamp(dot(shadowNormalView, -uShadowSlope.xyz), 0.001, 1.0);
+            float slopeFactor = min(sqrt(max(0.0, 1.0 - cosTheta * cosTheta)) / cosTheta, 10.0);
+            float totalBias = uShadowParams.y + uShadowSlope.w * slopeFactor;
+
+            float refDepth  = shadowUv.z - totalBias;
+            float texel     = uShadowParams.z;
+            int   r         = uShadowPcfRadius;
+            int   diameter  = 2 * r + 1;
+            float tapCount  = float(diameter * diameter);
+            float litSum    = 0.0;
+
+            // Hardware PCF: each tap is a bilinear 2×2 compare, so a 3×3 tap
+            // grid effectively samples a 6×6 neighbourhood. sampler2DShadow
+            // can't be indexed with a non-constant, so branch on cascade.
+            for (int dy = -r; dy <= r; dy++) {
+                for (int dx = -r; dx <= r; dx++) {
+                    vec2 off = vec2(float(dx), float(dy)) * texel;
+                    vec3 uvd = vec3(shadowUv.xy + off, refDepth);
+                    float lit;
+                    if      (shadowCascade == 0) lit = texture(uShadowMap0, uvd);
+                    else if (shadowCascade == 1) lit = texture(uShadowMap1, uvd);
+                    else if (shadowCascade == 2) lit = texture(uShadowMap2, uvd);
+                    else if (shadowCascade == 3) lit = texture(uShadowMap3, uvd);
+                    else if (shadowCascade == 4) lit = texture(uShadowMap4, uvd);
+                    else                         lit = texture(uShadowMap5, uvd);
+                    litSum += lit;
+                }
+            }
+
+            float shadowFraction = 1.0 - (litSum / tapCount);
+            float shadowFactor   = 1.0 - shadowFraction * uShadowParams.x;
+
+            // Shadows attenuate the direct light contribution but must not
+            // dim the surface below what ambient fill alone would produce —
+            // ambient is a stand-in for indirect/bounce light that isn't
+            // occluded by the cast shadow. Without this clamp, fully-
+            // shadowed fragments end up darker than their ambient floor and
+            // read as "ink" rather than "shade", which is what the user
+            // reported on the Cityscape model. Per-channel max preserves
+            // colour tint when the ambient or surface colour is non-grey.
+            // Read the ambient term Lambert already resolved (flat or
+            // IBL hemisphere) so the shadowed floor matches the
+            // unshadowed-from-the-light side, without recomputing.
+            vec3 ambientFloor = g_ambient * albedo;
+            color = vec4(max(color.rgb * shadowFactor, ambientFloor), color.a);
+        }
+    }`);
   }
 
   /**
@@ -1403,6 +2279,21 @@ void main(void) {`);
   }
 
   /**
+   * Appends raw lines to the fragment shader source buffer. For subclasses that
+   * need to emit shader code not covered by the base-class helpers.
+   */
+  protected fsEmit(...lines: string[]) {
+    this._fragSrcBuf.push(...lines);
+  }
+
+  /**
+   * Appends raw lines to the vertex shader source buffer.
+   */
+  protected vsEmit(...lines: string[]) {
+    this._vertSrcBuf.push(...lines);
+  }
+
+  /**
    * Closes the fragment shader main() function.
    */
   protected fsMainEnd() {
@@ -1427,11 +2318,18 @@ void main(void) {`);
   }
 
   /**
-   * Writes the accumulated color variable to the standard fragment output.
+   * Writes the accumulated color variable to the standard fragment output
+   * using the premultiplied-alpha convention: `(rgb * a, a)`.
+   *
+   * Paired with the blend func `(ONE, ONE_MINUS_SRC_ALPHA)` during the
+   * transparent pass, this gives correct blending at partial-coverage edges
+   * and after any bilinear filtering. For fully-opaque fragments (a = 1),
+   * `rgb * 1 = rgb` — so opaque output is unchanged.
+   *
    * Pick techniques write directly to MRT outputs and do NOT call this.
    */
   protected fsOutputColor() {
-    this._fragSrcBuf.push("outColor = color;");
+    this._fragSrcBuf.push("outColor = vec4(color.rgb * color.a, color.a);");
   }
 
   private _bindTexture(sampler: WebGLUniformLocation | null, dataTexture: { texture: WebGLTexture | null } | null): void {
@@ -1440,6 +2338,22 @@ void main(void) {`);
     const gl = rc.gl;
     gl.activeTexture(gl.TEXTURE0 + rc.textureUnit);
     gl.bindTexture(gl.TEXTURE_2D, dataTexture.texture);
+    gl.uniform1i(sampler, rc.textureUnit);
+    rc.textureUnit = (rc.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
+  }
+
+  /**
+   * Cubemap counterpart to {@link _bindTexture} — same texture-unit
+   * round-robin, but binds to `TEXTURE_CUBE_MAP` instead of
+   * `TEXTURE_2D`. Used for the IBL irradiance + prefiltered specular
+   * cubemaps (the `samplerCube` path).
+   */
+  private _bindCubemap(sampler: WebGLUniformLocation | null, texture: WebGLTexture | null): void {
+    if (!sampler || !texture) return;
+    const rc = this._renderContext;
+    const gl = rc.gl;
+    gl.activeTexture(gl.TEXTURE0 + rc.textureUnit);
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
     gl.uniform1i(sampler, rc.textureUnit);
     rc.textureUnit = (rc.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
   }
@@ -1524,6 +2438,68 @@ void main(void) {`);
       gl.uniform4fv(uniforms.lightAmbient, <any>view.getAmbientColorAndIntensity());
     }
 
+    // IBL Layer-2 scalars + matrix. The cubemap samplers themselves
+    // are bound by `_draw` after this method returns; here we just push
+    // the parameters the shader needs alongside them. Uploaded for
+    // every program that has the smooth-shaded uniforms — flat-shaded
+    // shaders strip the unused locations and these become no-ops.
+    if (uniforms.iblMaxSpecularMipLevel) {
+      gl.uniform1f(uniforms.iblMaxSpecularMipLevel, renderContext.iblMaxSpecularMipLevel);
+    }
+    if (uniforms.iblViewToWorldRot) {
+      gl.uniformMatrix3fv(uniforms.iblViewToWorldRot, false, renderContext.iblViewToWorldRot);
+    }
+
+    // Primary directional light direction, in view space. Both the Lambert
+    // and Cook-Torrance shading branches read this; sourcing it from
+    // `view.shadows.direction` keeps the shaded surface and the cast
+    // shadow agreeing on which way the sun points. If shadows are disabled
+    // we still upload a sane default — the historical hardcoded value lit
+    // surfaces from the upper-front-right.
+    if (uniforms.primaryLightDirView) {
+      const sd: any = (view.shadows && view.shadows.direction) ? view.shadows.direction : [0.0, -1.0, -1.0];
+      const sdLen = Math.hypot(sd[0], sd[1], sd[2]) || 1.0;
+      const sx = sd[0] / sdLen, sy = sd[1] / sdLen, sz = sd[2] / sdLen;
+      const vm = view.camera.viewMatrix;
+      const lvx = vm[0] * sx + vm[4] * sy + vm[8]  * sz;
+      const lvy = vm[1] * sx + vm[5] * sy + vm[9]  * sz;
+      const lvz = vm[2] * sx + vm[6] * sy + vm[10] * sz;
+      const llen = Math.sqrt(lvx * lvx + lvy * lvy + lvz * lvz) || 1.0;
+      gl.uniform3f(uniforms.primaryLightDirView, lvx / llen, lvy / llen, lvz / llen);
+    }
+
+    // IBL Layer 1 — hemispherical sky/ground gradient. uIBLIntensity
+    // gates the contribution so a single shader can serve both the
+    // IBL-on and IBL-off cases without recompiling. When the View's
+    // IBL component is disabled we upload `0` and the Lambert mix in
+    // the shader collapses back to the flat ambient term.
+    if (uniforms.iblIntensity) {
+      const ibl = view.ibl;
+      const iblActive = !!(ibl && ibl.enabled && ibl.applied && ibl.possible);
+      const intensity = iblActive ? ibl.intensity : 0.0;
+      gl.uniform1f(uniforms.iblIntensity, intensity);
+
+      if (uniforms.iblSky)    gl.uniform3fv(uniforms.iblSky,    <any>(ibl ? ibl.skyColor    : [0, 0, 0]));
+      if (uniforms.iblGround) gl.uniform3fv(uniforms.iblGround, <any>(ibl ? ibl.groundColor : [0, 0, 0]));
+
+      if (uniforms.iblUpView) {
+        // Project world-up into view space so the shader's dot-with-normal
+        // stays a single fma. The view matrix's upper 3×3 is a pure
+        // rotation, so applying it to a direction is enough — no
+        // translation column needed, no inverse, no normal matrix.
+        const wu: any = ibl ? ibl.worldUp : [0, 0, 1];
+        const vm = view.camera.viewMatrix;
+        const ux = vm[0] * wu[0] + vm[4] * wu[1] + vm[8]  * wu[2];
+        const uy = vm[1] * wu[0] + vm[5] * wu[1] + vm[9]  * wu[2];
+        const uz = vm[2] * wu[0] + vm[6] * wu[1] + vm[10] * wu[2];
+        // Re-normalise — defensive, the camera's matrix should already
+        // be orthonormal but a non-uniform-scale custom view matrix
+        // could break the assumption.
+        const len = Math.sqrt(ux * ux + uy * uy + uz * uz) || 1.0;
+        gl.uniform3f(uniforms.iblUpView, ux / len, uy / len, uz / len);
+      }
+    }
+
     // Bind up to three directional lights for Lambert shading.
     // Keep the binding generic here so we do not need concrete light class imports.
     const lights = <any[]>(((view as any).lightsList) || []);
@@ -1548,6 +2524,18 @@ void main(void) {`);
           gl.uniform4f(colorLoc, 0.0, 0.0, 0.0, 0.0);
         }
       }
+    }
+
+    if (uniforms.edgeFadeRange) {
+      // Convert the view's [0..1] far-plane fractions into absolute view-space
+      // distances at bind time. Camera 'far' lives on the active concrete
+      // projection (PerspectiveProjection / OrthoProjection / FrustumProjection
+      // all expose it; CustomProjection doesn't, so we fall back to a value
+      // that makes the smoothstep collapse beyond any plausible scene).
+      const projection = view.camera.projection as { far?: number };
+      const far = projection.far ?? 1.0e9;
+      const edges = view.edges;
+      gl.uniform2f(uniforms.edgeFadeRange, far * edges.edgeFadeStart, far * edges.edgeFadeEnd);
     }
 
     if (uniforms.silhouetteColor) {
@@ -1593,7 +2581,58 @@ void main(void) {`);
     // returns, and the data-texture bindings would clobber the unit this binding used.
     if (uniforms.saoParams) {
       const sao = view.sao;
-      gl.uniform4f(uniforms.saoParams, gl.drawingBufferWidth, gl.drawingBufferHeight, sao.blendCutoff, sao.blendFactor);
+      // Use the scene render size (accounts for Tonemap.renderScale supersampling)
+      // so the fragment shader's UV math matches the SAO texture's resolution.
+      const saoVW = renderContext.sceneRenderWidth || gl.drawingBufferWidth;
+      const saoVH = renderContext.sceneRenderHeight || gl.drawingBufferHeight;
+      gl.uniform4f(uniforms.saoParams, saoVW, saoVH, sao.blendCutoff, sao.blendFactor);
+    }
+
+    // Shadow uniforms: the light VP matrix is always uploaded when the shader
+    // declares it — the shadow-DEPTH pass needs it even though the shadow-map
+    // texture isn't populated yet at that point. The shadowMap sampler itself is
+    // bound in _draw (like the SAO sampler), for the same clobber-avoidance reason.
+    if (uniforms.shadowLightVP) {
+      // Used only by the shadow-depth technique — always the matrix of the
+      // cascade being rendered right now (ShadowPipeline writes it per-slice).
+      gl.uniformMatrix4fv(uniforms.shadowLightVP, false, renderContext.shadowLightViewProjMatrix);
+    }
+    if (uniforms.shadowLightVPs) {
+      // Used by shadow-aware color techniques — all MAX_SHADOW_CASCADES matrices
+      // as one mat4 array. The fragment shader picks the right one per pixel.
+      gl.uniformMatrix4fv(uniforms.shadowLightVPs, false, renderContext.shadowLightViewProjMatrices);
+    }
+    if (uniforms.shadowCascadeSplits) {
+      // `shadowCascadeSplits` is a `float[MAX_SHADOW_CASCADES]`. Only entries
+      // `0 .. cascadeCount - 2` are meaningful boundaries; everything beyond
+      // is set to MAX_VALUE by ShadowPipeline so the cascade-select comparison
+      // never upgrades past the last active cascade.
+      gl.uniform1fv(uniforms.shadowCascadeSplits, renderContext.shadowCascadeSplits);
+    }
+    if (uniforms.shadowCascadeCount) {
+      gl.uniform1i(uniforms.shadowCascadeCount, renderContext.shadowCascadeCount);
+    }
+    if (uniforms.shadowParams) {
+      const shadows = view.shadows;
+      const texelSize = shadows ? 1.0 / Math.max(1, shadows.resolution) : 0.0;
+      // shadowParams = (intensity, depthBias, texelSize, normalOffsetBias)
+      gl.uniform4f(uniforms.shadowParams,
+        shadows ? shadows.intensity : 0.0,
+        shadows ? shadows.bias : 0.003,
+        texelSize,
+        shadows ? shadows.normalOffsetBias : 0.0);
+    }
+    if (uniforms.shadowPcfRadius) {
+      // Kernel size is an odd number in [1, 7]; radius = (size - 1) / 2, so 0..3.
+      const size = view.shadows ? view.shadows.pcfKernelSize : 1;
+      gl.uniform1i(uniforms.shadowPcfRadius, (size - 1) >> 1);
+    }
+    if (uniforms.shadowSlope) {
+      // (dirViewX, dirViewY, dirViewZ, slopeBias)
+      const d = renderContext.shadowLightDirView;
+      gl.uniform4f(uniforms.shadowSlope,
+        d[0], d[1], d[2],
+        view.shadows ? view.shadows.slopeBias : 0.0);
     }
     return true;
   }
@@ -1611,6 +2650,36 @@ void main(void) {`);
     renderContext.saoOcclusionTexture.bind(unit);
     renderContext.gl.uniform1i(this._samplers.saoOcclusionTexture, unit);
     renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
+  }
+
+  /**
+   * Binds one shadow-map depth texture per cascade sampler declared in the
+   * current shader, each to its own texture unit. Called from _draw after
+   * the per-batch data textures so the units aren't clobbered.
+   *
+   * Every sampler the shader declares gets a bound texture — unused cascades
+   * (beyond `renderContext.shadowCascadeCount`) alias to cascade 0's texture
+   * via the same aliasing {@link ShadowPipeline} set up on the array.
+   */
+  private _bindShadowMapTexture(): void {
+    const renderContext = this._renderContext;
+    const samplers = this._samplers;
+    const gl = renderContext.gl;
+    const mapSamplers = [
+      samplers.shadowMap0, samplers.shadowMap1, samplers.shadowMap2,
+      samplers.shadowMap3, samplers.shadowMap4, samplers.shadowMap5
+    ];
+
+    for (let c = 0; c < mapSamplers.length; c++) {
+      const sampler = mapSamplers[c];
+      if (!sampler) continue;
+      const tex = renderContext.shadowMapTextures[c];
+      if (!tex) continue;
+      const unit = renderContext.textureUnit;
+      tex.bind(unit);
+      gl.uniform1i(sampler, unit);
+      renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
+    }
   }
 
   /**

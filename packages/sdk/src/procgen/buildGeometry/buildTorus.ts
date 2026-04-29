@@ -1,8 +1,8 @@
-import {normalizeVec3, subVec3, type Vec3} from "../math/vector";
-import {apply} from "../utils";
+import {normalizeVec3, subVec3, type Vec3} from "../../math/vector";
+import {apply} from "../../utils";
 import type {GeometryArrays} from "./GeometryArrays";
-import {TrianglesPrimitive} from "../constants";
-import {SDKErrorType, type SDKResult} from "../core";
+import {TrianglesPrimitive} from "../../constants";
+import {SDKErrorType, type SDKResult} from "../../core";
 
 /**
  * Creates a torus-shaped {@link scene!SceneGeometry | SceneGeometry}.
@@ -14,7 +14,7 @@ import {SDKErrorType, type SDKResult} from "../core";
  * To create a torus geometry, call the function with the desired configuration. For example:
  *
  * ````javascript
- * const torusGeometryResult = buildTorusGeometry({
+ * const torusGeometryResult = buildTorus({
  *     radius: 2,
  *     tube: 0.5,
  *     radialSegments: 36,
@@ -47,7 +47,7 @@ import {SDKErrorType, type SDKResult} from "../core";
  *
  * ## Example:
  * ```javascript
- * const torusGeometryResult = buildTorusGeometry({
+ * const torusGeometryResult = buildTorus({
  *     radius: 1.5,
  *     tube: 0.4,
  *     radialSegments: 24,
@@ -71,7 +71,7 @@ import {SDKErrorType, type SDKResult} from "../core";
  *
  * * @returns {SDKResult<GeometryArrays>} The geometry data for the torus, including positions, normals, UVs, and indices for rendering, or an error message.
  */
-export function buildTorusGeometry(cfg: {
+export function buildTorus(cfg: {
   tube?: number;
   arc?: number;
   center?: Vec3;
@@ -91,7 +91,7 @@ export function buildTorusGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildTorusGeometry] Negative radius not allowed."
+      error: "[buildTorus] Negative radius not allowed."
     };
   }
   radius *= 0.5;
@@ -101,7 +101,7 @@ export function buildTorusGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildTorusGeometry] Negative tube not allowed."
+      error: "[buildTorus] Negative tube not allowed."
     };
   }
 
@@ -110,7 +110,7 @@ export function buildTorusGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildTorusGeometry] radialSegments must be at least 4."
+      error: "[buildTorus] radialSegments must be at least 4."
     };
   }
 
@@ -119,7 +119,7 @@ export function buildTorusGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildTorusGeometry] tubeSegments must be at least 4."
+      error: "[buildTorus] tubeSegments must be at least 4."
     };
   }
 
@@ -128,7 +128,7 @@ export function buildTorusGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildTorusGeometry] Arc must be greater than 0."
+      error: "[buildTorus] Arc must be greater than 0."
     };
   }
 
@@ -138,7 +138,7 @@ export function buildTorusGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildTorusGeometry] Center must be a 3D point [x, y, z]."
+      error: "[buildTorus] Center must be a 3D point [x, y, z]."
     };
   }
 

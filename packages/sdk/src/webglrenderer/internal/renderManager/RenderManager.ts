@@ -292,6 +292,13 @@ export class RenderManager {
    */
   private _prepareIBL(view: import("../../../viewer").View): void {
     if (!this._brdfLUT) return; // BRDF LUT init failed earlier; soft-disable.
+    // Effect activation is gated entirely by `applied` — when the
+    // current View.renderMode isn't in IBL.renderModes we skip the
+    // prefilter refresh, sky-param build, and cubemap publish, and let
+    // the BRDF's iblIntensity=0 path produce a zero contribution. As
+    // soon as renderMode flips back into the list, the next call here
+    // notices its dirty signature and re-renders the cubemap chain.
+    if (!view.ibl.applied || !view.ibl.possible) return;
     const rc = this._renderContext;
     const viewIndex = view.viewIndex;
 
@@ -313,14 +320,20 @@ export class RenderManager {
 
     // Sync user-supplied equirectangular environment image (if any).
     // The IBL component bumps `environmentVersion` each time the image
-    // changes; we re-upload only on a version mismatch. Clearing the
-    // image (image becomes undefined) reverts the prefilter to the
-    // procedural sky path.
+    // or HDR slot changes; we re-upload only on a version mismatch.
+    // HDR takes priority over LDR; clearing both reverts the prefilter
+    // to the procedural sky path.
     const iblComp: any = (view as any).ibl;
     const envVersion = iblComp ? (iblComp.environmentVersion as number) : 0;
     if (this._iblEnvVersions.get(viewIndex) !== envVersion) {
+      const envHDR = iblComp ? iblComp.environmentHDR : undefined;
       const envImage = iblComp ? iblComp.environmentImage : undefined;
-      if (envImage) {
+      if (envHDR) {
+        const r = pipeline.setEnvironmentEquirectHDR(envHDR.data, envHDR.width, envHDR.height);
+        if (r.ok === false) {
+          console.warn(`[RenderManager] IBL setEnvironmentEquirectHDR failed for view ${viewIndex}: ${r.error}`);
+        }
+      } else if (envImage) {
         const r = pipeline.setEnvironmentEquirect(envImage as TexImageSource);
         if (r.ok === false) {
           console.warn(`[RenderManager] IBL setEnvironmentEquirect failed for view ${viewIndex}: ${r.error}`);

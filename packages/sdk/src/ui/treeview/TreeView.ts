@@ -262,7 +262,7 @@ export class TreeView {
    */
   public readonly view: View;
 
-  _linkType: string;
+  _linkTypes: string[];
   _groupTypes: string[];
   _containerElement: HTMLElement;
   _hierarchy: number;
@@ -316,7 +316,7 @@ export class TreeView {
     this.view = params.view;
 
     this._viewer = params.view.viewer;
-    this._linkType = params.linkType;
+    this._linkTypes = Array.isArray(params.linkType) ? params.linkType : [params.linkType];
     this._groupTypes = params.groupTypes || [];
     this._hierarchy = TreeView.AggregationHierarchy;
     this._containerElement = params.containerElement || this._createDefaultContainerElement();
@@ -563,8 +563,8 @@ export class TreeView {
    * {@link data!Relationship | Relationships} of this type in
    * {@link data!DataObject.relating | DataObject.relating}.
    */
-  get linkType(): string {
-    return this._linkType;
+  get linkType(): string | string[] {
+    return this._linkTypes.length === 1 ? this._linkTypes[0] : this._linkTypes;
   }
 
   /**
@@ -573,11 +573,12 @@ export class TreeView {
    * {@link data!Relationship | Relationships} of this type in
    * {@link data!DataObject.relating | DataObject.relating}.
    */
-  set linkType(linkType: string) {
-    if (this._linkType === linkType) {
+  set linkType(linkType: string | string[]) {
+    const next = Array.isArray(linkType) ? linkType : [linkType];
+    if (next.length === this._linkTypes.length && next.every((t, i) => t === this._linkTypes[i])) {
       return;
     }
-    this._linkType = linkType;
+    this._linkTypes = next;
     this._rebuildNodes();
   }
 
@@ -922,7 +923,7 @@ export class TreeView {
 
   _findEmptyNodes2(dataObject: DataObject): number {
     const scene = this._viewer.scene;
-    const aggregations = dataObject.related ? dataObject.related[this._linkType] : null;
+    const aggregations = this._getRelatedObjects(dataObject);
     const objectId = dataObject.id;
     const viewObject = scene.objects[objectId];
 
@@ -931,9 +932,9 @@ export class TreeView {
       sceneObjectCounts++;
     }
 
-    if (aggregations) {
+    if (aggregations.length > 0) {
       for (let i = 0, len = aggregations.length; i < len; i++) {
-        const aggregatedDataObject = aggregations[i].relatedObject;
+        const aggregatedDataObject = aggregations[i];
         const aggregatedCount = this._findEmptyNodes2(aggregatedDataObject);
         this._dataObjectSceneObjectCounts[aggregatedDataObject.id] = aggregatedCount;
         sceneObjectCounts += aggregatedCount;
@@ -962,10 +963,10 @@ export class TreeView {
 
     this._insertGroupsNode(dataObject, true);
 
-    const aggregations = dataObject.related ? dataObject.related[this._linkType] : null;
-    if (aggregations) {
+    const aggregations = this._getRelatedObjects(dataObject);
+    if (aggregations.length > 0) {
       for (let i = 0, len = aggregations.length; i < len; i++) {
-        this._buildGroupsNodes2(aggregations[i].relatedObject);
+        this._buildGroupsNodes2(aggregations[i]);
       }
     }
   }
@@ -1056,11 +1057,9 @@ export class TreeView {
 
     this._objectNodes[node.objectId] = node;
 
-    const aggregations = dataObject.related ? dataObject.related[this._linkType] : null;
-    if (aggregations) {
-      for (let i = 0, len = aggregations.length; i < len; i++) {
-        this._buildAggregationNodes2(aggregations[i].relatedObject, node);
-      }
+    const aggregations = this._getRelatedObjects(dataObject);
+    for (let i = 0, len = aggregations.length; i < len; i++) {
+      this._buildAggregationNodes2(aggregations[i], node);
     }
   }
 
@@ -1113,13 +1112,11 @@ export class TreeView {
     this._bubbleNodeCountsToParents(node);
     this._insertNodeIntoDOM(node);
 
-    const aggregations = dataObject.related ? dataObject.related[this._linkType] : null;
-    if (aggregations) {
-      for (let i = 0, len = aggregations.length; i < len; i++) {
-        const child = aggregations[i].relatedObject;
-        if (!this._objectNodes[child.id] && this._shouldIncludeDataObject(child)) {
-          this._insertAggregationNode(child);
-        }
+    const aggregations = this._getRelatedObjects(dataObject);
+    for (let i = 0, len = aggregations.length; i < len; i++) {
+      const child = aggregations[i];
+      if (!this._objectNodes[child.id] && this._shouldIncludeDataObject(child)) {
+        this._insertAggregationNode(child);
       }
     }
   }
@@ -1681,13 +1678,29 @@ export class TreeView {
     return this._isDefaultishName(name) ? type : (name as string);
   }
 
-  _getAggregationParentDataObject(dataObject: DataObject): DataObject | null {
-    const rels = dataObject.relating ? dataObject.relating[this._linkType] : null;
-    if (!rels || rels.length === 0) {
-      return null;
+  _getRelatedObjects(dataObject: DataObject): DataObject[] {
+    if (!dataObject.related) return [];
+    const result: DataObject[] = [];
+    for (const lt of this._linkTypes) {
+      const rels = dataObject.related[lt];
+      if (rels) {
+        for (let i = 0, len = rels.length; i < len; i++) {
+          result.push(rels[i].relatedObject);
+        }
+      }
     }
-    const rel = rels[0];
-    return rel.relatingObject || null;
+    return result;
+  }
+
+  _getAggregationParentDataObject(dataObject: DataObject): DataObject | null {
+    if (!dataObject.relating) return null;
+    for (const lt of this._linkTypes) {
+      const rels = dataObject.relating[lt];
+      if (rels && rels.length > 0) {
+        return rels[0].relatingObject || null;
+      }
+    }
+    return null;
   }
 
   _shouldIncludeDataObject(dataObject: DataObject): boolean {

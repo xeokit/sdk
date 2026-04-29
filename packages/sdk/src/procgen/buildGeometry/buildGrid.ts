@@ -1,6 +1,6 @@
-import * as utils from "../utils";
+import * as utils from "../../utils";
 import type {GeometryArrays} from "./GeometryArrays";
-import {SDKErrorType, type SDKResult} from "../core";
+import {SDKErrorType, type SDKResult} from "../../core";
 
 /**
  * Creates a grid-shaped geometry.
@@ -12,7 +12,7 @@ import {SDKErrorType, type SDKResult} from "../core";
  * ## Usage
  *
  * ````javascript
- * const gridGeometryResult = buildGridGeometry({
+ * const gridGeometryResult = buildGrid({
  *     size: 10,               // Size of the grid along both X and Z axes
  *     divisions: 10           // Number of divisions (grid lines) along X and Z axes
  * });
@@ -30,7 +30,7 @@ import {SDKErrorType, type SDKResult} from "../core";
  * @param [cfg.divisions=1] The number of divisions (lines) on the X and Z axes. Default is `1`.
  * @returns {SDKResult<GeometryArrays>} The geometry arrays for the grid, including positions and indices for the lines, or an error message.
  */
-export function buildGridGeometry(cfg : {
+export function buildGrid(cfg : {
   size?: number,
   divisions?: number
 }): SDKResult<GeometryArrays> {
@@ -39,7 +39,7 @@ export function buildGridGeometry(cfg : {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildGridGeometry] Negative size not allowed."
+      error: "[buildGrid] Negative size not allowed."
     };
   }
 
@@ -48,7 +48,7 @@ export function buildGridGeometry(cfg : {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildGridGeometry] Negative divisions not allowed."
+      error: "[buildGrid] Negative divisions not allowed."
     };
   }
   if (divisions < 1) {

@@ -41,7 +41,7 @@ export interface TreeViewParams {
    * {@link data!Relationship| Relationships} of this type in
    * {@link data!DataObject.relating | DataObject.relating}.
    */
-  linkType: string,
+  linkType: string | string[],
 
   /**
    * When traversing the {@link data!Data | Data} to build the tree UI nodes for a {@link treeview!TreeView.GroupsHierarchy | GroupsHierarchy}

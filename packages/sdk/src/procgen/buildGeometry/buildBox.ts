@@ -1,8 +1,8 @@
-import * as utils from "../utils";
+import * as utils from "../../utils";
 import type {GeometryArrays} from "./GeometryArrays";
-import {SDKErrorType, type SDKResult} from "../core";
-import {TrianglesPrimitive} from "../constants";
-import type {Vec3} from "../math/vector";
+import {SDKErrorType, type SDKResult} from "../../core";
+import {TrianglesPrimitive} from "../../constants";
+import type {Vec3} from "../../math/vector";
 
 /**
  * Creates box-shaped geometry.
@@ -14,7 +14,7 @@ import type {Vec3} from "../math/vector";
  * ## Usage
  *
  * ````javascript
- * const boxGeometryResult = buildBoxGeometry({
+ * const boxGeometryResult = buildBox({
  *     center: [0, 0, 0],   // Center of the box
  *     xSize: 2,            // Half-size along the X-axis
  *     ySize: 1,            // Half-size along the Y-axis
@@ -36,7 +36,7 @@ import type {Vec3} from "../math/vector";
  * @param [cfg.zSize=1.0] Half-size of the box along the Z-axis. The default value is `1.0`.
  * @returns {SDKResult<GeometryArrays>} The geometry arrays for a box, including positions, UVs, and indices, or an error message.
  */
-export function buildBoxGeometry(cfg: {
+export function buildBox(cfg: {
   center?: Vec3,
   ySize?: number,
   xSize?: number,
@@ -54,7 +54,7 @@ export function buildBoxGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildBoxGeometry] Center must be a 3D point [x, y, z]"
+      error: "[buildBox] Center must be a 3D point [x, y, z]"
     };
   }
 
@@ -63,7 +63,7 @@ export function buildBoxGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildBoxGeometry] Negative xSize not allowed"
+      error: "[buildBox] Negative xSize not allowed"
     };
   }
 
@@ -72,7 +72,7 @@ export function buildBoxGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildBoxGeometry] Negative ySize not allowed"
+      error: "[buildBox] Negative ySize not allowed"
     };
   }
 
@@ -81,7 +81,7 @@ export function buildBoxGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildBoxGeometry] Negative zSize not allowed"
+      error: "[buildBox] Negative zSize not allowed"
     };
   }
 

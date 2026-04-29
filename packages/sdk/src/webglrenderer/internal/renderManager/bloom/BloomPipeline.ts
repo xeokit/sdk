@@ -120,7 +120,6 @@ export class BloomPipeline {
 
     const {hdrSourceTexture, hdrTarget, view} = params;
     const bloom = view.bloom;
-    if (!bloom.enabled) return;
 
     const rc = this._renderContext;
     const gl = rc.gl;

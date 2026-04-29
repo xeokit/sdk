@@ -1,4 +1,4 @@
-import type {FloatArrayParam, IntArrayParam} from "../math";
+import type {FloatArrayParam, IntArrayParam} from "../../math";
 
 /**
  * Geometry data arrays.
@@ -16,13 +16,13 @@ import type {FloatArrayParam, IntArrayParam} from "../math";
  * may be treated as a point or line.
  *
  * ## Usage:
- * A typical geometry configuration is created by a builder function like `buildGridGeometry` or `buildPlaneGeometry`, which populate the
+ * A typical geometry configuration is created by a builder function like `buildGrid` or `buildPlane`, which populate the
  * `positions`, `normals`, `uv`, and `indices` arrays. The data is then returned in this `GeometryArrays` format and can be used for rendering in a 3D scene.
  *
  * For example, when building a plane geometry:
  *
  * ````javascript
- * const planeGeometry = buildPlaneGeometry({
+ * const planeGeometry = buildPlane({
  *     xSize: 10,
  *     zSize: 10,
  *     xSegments: 10,

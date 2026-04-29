@@ -1,7 +1,7 @@
-import * as utils from "../utils";
+import * as utils from "../../utils";
 import type {GeometryArrays} from "./GeometryArrays";
-import {SDKErrorType, type SDKResult} from "../core";
-import type {Vec3} from "../math/vector";
+import {SDKErrorType, type SDKResult} from "../../core";
+import type {Vec3} from "../../math/vector";
 
 /**
  * Creates a plane-shaped geometry.
@@ -13,7 +13,7 @@ import type {Vec3} from "../math/vector";
  * ## Usage
  *
  * ````javascript
- * const planeGeometryResult = buildPlaneGeometry({
+ * const planeGeometryResult = buildPlane({
  *     xSize: 10,              // Width of the plane
  *     zSize: 10,              // Depth of the plane
  *     xSegments: 10,          // Number of segments along the X-axis
@@ -37,7 +37,7 @@ import type {Vec3} from "../math/vector";
  * @param [cfg.zSegments=1] The number of segments along the Z-axis. Default is `1`.
  * @returns {SDKResult<GeometryArrays>} The geometry arrays for the plane, including positions, normals, UVs, and indices, or an error message.
  */
-export function buildPlaneGeometry(cfg : {
+export function buildPlane(cfg : {
   xSize?: number,
   zSize?: number,
   xSegments?: number,
@@ -49,7 +49,7 @@ export function buildPlaneGeometry(cfg : {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildPlaneGeometry] Negative xSize not allowed."
+      error: "[buildPlane] Negative xSize not allowed."
     };
   }
 
@@ -58,7 +58,7 @@ export function buildPlaneGeometry(cfg : {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildPlaneGeometry] Negative zSize not allowed."
+      error: "[buildPlane] Negative zSize not allowed."
     };
   }
 
@@ -67,7 +67,7 @@ export function buildPlaneGeometry(cfg : {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildPlaneGeometry] xSegments must be at least 1."
+      error: "[buildPlane] xSegments must be at least 1."
     };
   }
 
@@ -76,7 +76,7 @@ export function buildPlaneGeometry(cfg : {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildPlaneGeometry] zSegments must be at least 1."
+      error: "[buildPlane] zSegments must be at least 1."
     };
   }
 
@@ -86,7 +86,7 @@ export function buildPlaneGeometry(cfg : {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildPlaneGeometry] Center must be a 3D point [x, y, z]."
+      error: "[buildPlane] Center must be a 3D point [x, y, z]."
     };
   }
 

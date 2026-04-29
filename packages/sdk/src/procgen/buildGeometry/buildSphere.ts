@@ -1,8 +1,8 @@
-import * as utils from "../utils";
+import * as utils from "../../utils";
 import type {GeometryArrays} from "./GeometryArrays";
-import {TrianglesPrimitive} from "../constants";
-import {SDKErrorType, type SDKResult} from "../core";
-import type {Vec3} from "../math/vector";
+import {TrianglesPrimitive} from "../../constants";
+import {SDKErrorType, type SDKResult} from "../../core";
+import type {Vec3} from "../../math/vector";
 
 /**
  * Creates a sphere-shaped geometry.
@@ -14,7 +14,7 @@ import type {Vec3} from "../math/vector";
  * To create a sphere geometry, call the function with the desired configuration. For example:
  *
  * ```javascript
- * const sphereGeometry = buildSphereGeometry({
+ * const sphereGeometry = buildSphere({
  *     radius: 2,
  *     heightSegments: 24,
  *     widthSegments: 18,
@@ -36,7 +36,7 @@ import type {Vec3} from "../math/vector";
  *
  * ## Example:
  * ```javascript
- * const sphereGeometryResult = buildSphereGeometry({
+ * const sphereGeometryResult = buildSphere({
  *     radius: 2,
  *     heightSegments: 24,
  *     widthSegments: 18,
@@ -60,7 +60,7 @@ import type {Vec3} from "../math/vector";
  * @returns {SDKResult<GeometryArrays>} The geometry data for the sphere, including positions, normals, UVs, and indices for rendering, or an error message.
  */
 
-export function buildSphereGeometry(cfg: {
+export function buildSphere(cfg: {
   center?: Vec3
   heightSegments?: number;
   radius?: number;
@@ -77,7 +77,7 @@ export function buildSphereGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildSphereGeometry] Center must be a 3D point [x, y, z]."
+      error: "[buildSphere] Center must be a 3D point [x, y, z]."
     };
   }
 
@@ -90,7 +90,7 @@ export function buildSphereGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildSphereGeometry] Negative radius not allowed."
+      error: "[buildSphere] Negative radius not allowed."
     };
   }
 
@@ -99,7 +99,7 @@ export function buildSphereGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildSphereGeometry] Negative heightSegments not allowed."
+      error: "[buildSphere] Negative heightSegments not allowed."
     };
   }
   heightSegments = Math.floor(heightSegments);
@@ -112,7 +112,7 @@ export function buildSphereGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildSphereGeometry] Negative widthSegments not allowed."
+      error: "[buildSphere] Negative widthSegments not allowed."
     };
   }
   widthSegments = Math.floor(widthSegments);
@@ -153,8 +153,8 @@ export function buildSphereGeometry(cfg: {
       const first = i * (widthSegments + 1) + j;
       const second = first + widthSegments + 1;
 
-      indices.push(first, second, first + 1);
-      indices.push(second, second + 1, first + 1);
+      indices.push(first, first + 1, second);
+      indices.push(first + 1, second + 1, second);
     }
   }
 

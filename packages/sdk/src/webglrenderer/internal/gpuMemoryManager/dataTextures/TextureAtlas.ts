@@ -259,6 +259,56 @@ export class TextureAtlas {
   }
 
   /**
+   * Re-upload the pixels of an already-added texture, reusing its
+   * cached sub-rect placement. Returns `true` if the entry exists
+   * and the upload was issued, `false` otherwise (id not in this
+   * atlas).
+   *
+   * Used by the post-finalize `onSceneTextureImageDataChanged` path,
+   * when a caller has mutated a SceneTexture's `imageData` and wants
+   * the GPU copy refreshed without rebuilding any meshes or
+   * materials. The shelf-pack state is left untouched — the atlas
+   * doesn't know whether the new pixel buffer's dimensions match the
+   * cached placement, so it's the caller's responsibility to ensure
+   * the source's `width`/`height` haven't changed.
+   */
+  public updateTexture(id: string, source: ImageSource): boolean {
+    if (!this.allocated || !this.texture) {
+      return false;
+    }
+    const entry = this._entries.get(id);
+    if (!entry) {
+      return false;
+    }
+    const gl = this.gl;
+    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    try {
+      gl.texSubImage2D(
+        gl.TEXTURE_2D,
+        0,
+        entry.x,
+        entry.y,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        source as any
+      );
+    } catch (e) {
+      gl.bindTexture(gl.TEXTURE_2D, null);
+      console.warn(`[TextureAtlas] updateTexture texSubImage2D failed for id='${id}': ${e}`);
+      return false;
+    }
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    // Cache the new source for future `addTexture(id)` repeat-calls
+    // (which return the cached transform without re-uploading).
+    entry.source = source;
+    this.onUpdated.dispatch(this, undefined);
+    return true;
+  }
+
+  /**
    * Non-destructive shelf-pack probe — tells the batch router whether
    * a texture would land in this atlas (`"fits"`), would fit in a
    * fresh atlas of the same size but not this one (`"would-fit-in-fresh-atlas"`,

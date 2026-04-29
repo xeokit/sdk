@@ -1814,6 +1814,17 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     // Re-normalize after rasterizer interpolation; linear blends of unit
     // vectors generally come out sub-unit length.
     vec3 N_smooth = normalize(vViewNormal);
+    // Force the normal to face the viewer. Handles three cases at
+    // once: double-sided rendering (opaque pass: no culling;
+    // transparent thin shells), source assets with reversed face
+    // winding, and assets with inverted per-vertex normals. Testing
+    // the normal directly via dot(N, vViewPos) is more robust than a
+    // gl_FrontFacing branch — gl_FrontFacing reflects face winding,
+    // which can disagree with the per-vertex normal direction (some
+    // OBJ files). Any normal pointing away from the camera (positive
+    // dot with the camera-to-fragment vector vViewPos) gets flipped
+    // to point toward it.
+    if (dot(N_smooth, vViewPos) > 0.0) N_smooth = -N_smooth;
     ${this.hasUVs ? `// Tangent-space normal map sample. Sentinel-fallback for untextured
     // meshes is (0.5, 0.5, 1.0) → tangent-space (0, 0, 1) → no
     // perturbation, so the BRDF below sees the unmodified N_smooth.
@@ -1936,11 +1947,17 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
       return;
     }
     this._fragSrcBuf.push(`
-    // Flat-shaded path — no UVs, no texture, vColor IS the albedo. The
-    // alias keeps the shared shadow logic able to reference \`albedo\`
-    // regardless of which Lambert variant is in scope.
-    vec3 albedo = vColor.rgb;
-    float albedoAlpha = vColor.a;
+    // Flat-shaded path. ${this.hasUVs
+      ? "UV-bearing variant: sample the albedo atlas just like the\n    // smooth-shaded path so geometries that ship without per-vertex\n    // normals (typical IFC) still pick up textured materials. The\n    // alias keeps shared shadow logic able to reference `albedo`."
+      : "No UVs, no texture — vColor IS the albedo. The alias\n    // keeps shared shadow logic able to reference `albedo`."}
+    ${this.hasUVs
+      ? `vec2 wrappedUV = fract(vUV);
+    vec2 albedoAtlasUV = wrappedUV * vAlbedoUVScale + vAlbedoUVOffset;
+    vec4 albedoSample = texture(uAlbedoAtlas, albedoAtlasUV);
+    vec3 albedo = albedoSample.rgb * vColor.rgb;
+    float albedoAlpha = albedoSample.a * vColor.a;`
+      : `vec3 albedo = vColor.rgb;
+    float albedoAlpha = vColor.a;`}
 
     // Reconstruct a face normal in view space from position derivatives.
     // This gives a flat-shaded normal per fragment without refetching the
@@ -2470,12 +2487,13 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
 
     // IBL Layer 1 — hemispherical sky/ground gradient. uIBLIntensity
     // gates the contribution so a single shader can serve both the
-    // IBL-on and IBL-off cases without recompiling. When the View's
-    // IBL component is disabled we upload `0` and the Lambert mix in
-    // the shader collapses back to the flat ambient term.
+    // IBL-on and IBL-off cases without recompiling. When the active
+    // View.renderMode isn't in IBL.renderModes we upload `0` and the
+    // Lambert mix in the shader collapses back to the flat ambient
+    // term.
     if (uniforms.iblIntensity) {
       const ibl = view.ibl;
-      const iblActive = !!(ibl && ibl.enabled && ibl.applied && ibl.possible);
+      const iblActive = !!(ibl && ibl.applied && ibl.possible);
       const intensity = iblActive ? ibl.intensity : 0.0;
       gl.uniform1f(uniforms.iblIntensity, intensity);
 

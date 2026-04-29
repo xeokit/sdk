@@ -97,7 +97,7 @@ export class PostProcessChain {
 
     // 1. Bloom (optional). Reads HDR, accumulates a blur pyramid, adds it
     //    back into the HDR target. Tonemap downstream sees the bloomed scene.
-    if (this._bloomPipeline && view.bloom.enabled && view.bloom.applied && view.bloom.possible) {
+    if (this._bloomPipeline && view.bloom.applied && view.bloom.possible) {
       const hdrSrc = this._hdrTarget!.getTexture();
       if (hdrSrc) {
         this._bloomPipeline.render({

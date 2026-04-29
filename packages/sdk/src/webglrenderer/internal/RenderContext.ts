@@ -209,13 +209,30 @@ export class RenderContext implements WebGLContextProvider {
   public iblPrefilteredCubemap: WebGLTexture | null = null;
   public iblBRDFLUT: WebGLTexture | null = null;
   public iblMaxSpecularMipLevel: number = 0;
+
+  /**
+   * 1×1 black placeholder cubemap. Bound to the IBL `samplerCube`
+   * uniforms whenever no real IBL cubemap is published — keeps every
+   * sampler in the active program pointing at a valid texture of the
+   * matching type, which WebGL2 validates regardless of whether the
+   * shader actually dereferences the sampler at runtime. Without this,
+   * switching to a render mode where IBL isn't applied leaves the
+   * cubemap samplers pointing at units that have `sampler2D` data
+   * textures bound, triggering `GL_INVALID_OPERATION: Two textures of
+   * different types use the same sampler location.`.
+   */
+  private _placeholderCubemap: WebGLTexture | null = null;
+
+  /** 1×1 black placeholder 2D texture. Same role as
+   *  {@link _placeholderCubemap} but for `sampler2D` slots. */
+  private _placeholderTexture2D: WebGLTexture | null = null;
   /**
    * View-to-world rotation (3×3, transposed view matrix's upper-left)
    * uploaded as a `mat3` so the BRDF shader can transform view-space
    * normals/reflection vectors into world space for cubemap sampling.
    * Populated alongside the cubemaps. Float32 column-major.
    */
-  public iblViewToWorldRot: Float32Array = new Float32Array(9);
+  public iblViewToWorldRot: Float32Array<any> = new Float32Array(9);
 
   /**
    * Light direction in camera-view space (xyz). Populated alongside
@@ -257,6 +274,7 @@ export class RenderContext implements WebGLContextProvider {
     this.webglCanvasElement = webglCanvasElement;
     this.renderInspector = new RenderInspector();
     this.debugging = false;
+    this._allocatePlaceholderTextures();
     this.initialized = true;
     this.reset();
     return {
@@ -304,6 +322,45 @@ export class RenderContext implements WebGLContextProvider {
   }
 
   /**
+   * Allocates the 1×1 placeholder cubemap and 2D texture used to
+   * keep IBL sampler uniforms pointing at valid textures of the
+   * matching type when IBL isn't applied. Called once during
+   * {@link init}; the textures live for the lifetime of the
+   * `RenderContext`.
+   */
+  private _allocatePlaceholderTextures(): void {
+    const gl = this.gl;
+    const black = new Uint8Array([0, 0, 0, 255]);
+
+    const cube = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, cube);
+    const faces = [
+      gl.TEXTURE_CUBE_MAP_POSITIVE_X, gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
+      gl.TEXTURE_CUBE_MAP_POSITIVE_Y, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
+      gl.TEXTURE_CUBE_MAP_POSITIVE_Z, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z
+    ];
+    for (const face of faces) {
+      gl.texImage2D(face, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, black);
+    }
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+    this._placeholderCubemap = cube;
+
+    const tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, black);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    this._placeholderTexture2D = tex;
+  }
+
+  /**
    * Called before each frame.
    */
   reset() {
@@ -331,9 +388,9 @@ export class RenderContext implements WebGLContextProvider {
     this.shadowCascadeSplits = new Float32Array(MAX_SHADOW_CASCADES);
     this.shadowCascadeCount = 0;
     this.shadowLightDirView = new Float32Array(3);
-    this.iblIrradianceCubemap = null;
-    this.iblPrefilteredCubemap = null;
-    this.iblBRDFLUT = null;
+    this.iblIrradianceCubemap = this._placeholderCubemap;
+    this.iblPrefilteredCubemap = this._placeholderCubemap;
+    this.iblBRDFLUT = this._placeholderTexture2D;
     this.iblMaxSpecularMipLevel = 0;
     this.rayPicking = false;
   }

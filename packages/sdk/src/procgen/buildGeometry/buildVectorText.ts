@@ -1,8 +1,8 @@
-import * as utils from "../utils";
+import * as utils from "../../utils";
 import type {GeometryArrays} from "./GeometryArrays";
-import {LinesPrimitive} from "../constants";
-import {SDKErrorType, type SDKResult} from "../core";
-import type {Vec3} from "../math/vector";
+import {LinesPrimitive} from "../../constants";
+import {SDKErrorType, type SDKResult} from "../../core";
+import type {Vec3} from "../../math/vector";
 
 
 const letters = {
@@ -1590,7 +1590,7 @@ const letters = {
  * To create wireframe vector text geometry, simply call the function and pass the appropriate configuration object. For example:
  *
  * ```javascript
- * const textGeometry = buildVectorTextGeometry({
+ * const textGeometry = buildVectorText({
  *     size: 2,
  *     origin: [0, 0, 0],
  *     text: "Hello, World!"
@@ -1610,7 +1610,7 @@ const letters = {
  *
  * ## Example:
  * ````javascript
- * const textGeometryResult = buildVectorTextGeometry({
+ * const textGeometryResult = buildVectorText({
  *     size: 1.5,
  *     origin: [0, 0, 0],
  *     text: "Sample Text"
@@ -1630,7 +1630,7 @@ const letters = {
  *
  * @returns {SDKResult<GeometryArrays>} A result object containing the geometry arrays for the wireframe text or an error message.
  */
-export function buildVectorTextGeometry(cfg: {
+export function buildVectorText(cfg: {
   size: number;
   origin: Vec3;
   text: string;
@@ -1646,7 +1646,7 @@ export function buildVectorTextGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildVectorTextGeometry] Origin must be a 3D point (array of 3 numbers)."
+      error: "[buildVectorText] Origin must be a 3D point (array of 3 numbers)."
     };
   }
 
@@ -1656,7 +1656,7 @@ export function buildVectorTextGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildVectorTextGeometry] Size must be a positive non-zero number."
+      error: "[buildVectorText] Size must be a positive non-zero number."
     };
   }
 
@@ -1664,7 +1664,7 @@ export function buildVectorTextGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildVectorTextGeometry] Text string is required."
+      error: "[buildVectorText] Text string is required."
     };
   }
 

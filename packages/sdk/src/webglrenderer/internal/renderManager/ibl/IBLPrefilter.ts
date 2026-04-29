@@ -208,6 +208,76 @@ export class IBLPrefilter {
     return { ok: true, value: undefined };
   }
 
+  /**
+   * Replace the procedural sky source with a Float32 RGBA equirectangular
+   * HDR image. Same effect as {@link setEnvironmentEquirect}, but the
+   * texture is uploaded as `RGBA16F` so the prefilter pipeline preserves
+   * super-bright pixels (the sun, sky-glow) instead of clamping them
+   * to 1.0.
+   *
+   * `pixels` is row-major top-down RGBA, length `width * height * 4`.
+   * Typical source is {@link parseHDR} on a Radiance `.hdr` file.
+   *
+   * Requires `EXT_color_buffer_float` to have been activated at renderer
+   * init — without it the prefilter cubemaps are RGBA8 anyway, so the
+   * HDR data is uploaded losslessly into the equirect texture but then
+   * clamps when projected onto the cubemap. (The shader path is
+   * identical; only the destination format differs.)
+   */
+  public setEnvironmentEquirectHDR(
+    pixels: Float32Array,
+    width: number,
+    height: number
+  ): SDKResult<void> {
+    if (!this.allocated) {
+      const r = this.allocate();
+      if (!r.ok) return r;
+    }
+    const gl = this.gl;
+    if (width <= 0 || height <= 0) {
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[IBLPrefilter.setEnvironmentEquirectHDR] invalid dimensions ${width}x${height}`
+      };
+    }
+    const expected = width * height * 4;
+    if (pixels.length !== expected) {
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[IBLPrefilter.setEnvironmentEquirectHDR] pixel buffer length ${pixels.length} != ${expected} (${width}x${height} RGBA)`
+      };
+    }
+    if (!this._equirectTexture) {
+      const tex = gl.createTexture();
+      if (!tex) {
+        return {
+          ok: false,
+          type: SDKErrorType.InitializationFailed,
+          error: "[IBLPrefilter.setEnvironmentEquirectHDR] createTexture failed"
+        };
+      }
+      this._equirectTexture = tex;
+    }
+    gl.bindTexture(gl.TEXTURE_2D, this._equirectTexture);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    // Source pixels are already linear-light Float32 — no sRGB decode
+    // wanted on sample. RGBA16F is filterable by default in WebGL2.
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, width, height, 0, gl.RGBA, gl.FLOAT, pixels);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    this._equirectWidth = width;
+    this._equirectHeight = height;
+    this._dirty = true;
+    return { ok: true, value: undefined };
+  }
+
   /** Drop any user-supplied equirect environment and fall back to the
    *  procedural sky source on next refresh. */
   public clearEnvironmentEquirect(): void {

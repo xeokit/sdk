@@ -482,10 +482,10 @@ export class WebGLRenderer {
 
       // SceneMesh and SceneTransform state changes
 
-      sceneEvents.onSceneMeshGeometryChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshGeometryChanged(sceneMesh)),
       sceneEvents.onSceneMeshMatrixChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshMatrixChanged(sceneMesh)),
       sceneEvents.onSceneMeshColorChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshColorChanged(sceneMesh)),
       sceneEvents.onSceneMeshOpacityChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshOpacityChanged(sceneMesh)),
+      sceneEvents.onSceneTextureImageDataChanged.subscribe((_, sceneTexture) => viewManager.sceneTextureImageDataChanged(sceneTexture)),
       sceneEvents.onSceneTransformMatrixChanged.subscribe((_, sceneMesh) => viewManager.sceneTransformMatrixChanged(sceneMesh)),
 
       sceneEvents.onSceneObjectMeshAdded.subscribe((sceneObject, sceneMesh) => this.logError(viewManager.sceneObjectMeshAdded(sceneObject, sceneMesh))),

@@ -581,6 +581,24 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    *
    * @throws {@link SDKInternalException} If the mesh handle references an invalid batch.
    */
+  /**
+   * Walks every batch and re-uploads the SceneTexture's pixels into
+   * any atlas that holds it. Returns `true` if at least one atlas
+   * was refreshed.
+   *
+   * Wired to the `Scene.events.onSceneTextureImageDataChanged` flow —
+   * lets callers (e.g. the heat-map brush) mutate
+   * `SceneTexture.imageData` in place and have the GPU side stay in
+   * sync without a finalize/rebuild cycle.
+   */
+  public updateSceneTexture(sceneTexture: { id: string; image?: any; imageData?: any }): boolean {
+    let updated = false;
+    for (const batch of this._batches) {
+      if (batch.updateSceneTexture(sceneTexture)) updated = true;
+    }
+    return updated;
+  }
+
   public removeMesh(meshHandle: GPUMemoryMeshHandle): void {
     const batch = this._batches[meshHandle.gpuMemoryBatchIndex];
     if (!batch) {

@@ -425,6 +425,26 @@ export class GPUMemoryBatch {
     }
   }
 
+  /**
+   * Re-upload the pixels of an already-cached SceneTexture from this
+   * batch's atlases. Walks all three atlases (albedo,
+   * metallic-roughness, normal-map) and re-uploads wherever the id
+   * matches; returns `true` if any of them held the texture.
+   *
+   * Used by the post-finalize `onSceneTextureImageDataChanged` flow.
+   * The source's dimensions must match the placement — heat-map
+   * painting mutates pixels in place but never resizes.
+   */
+  updateSceneTexture(sceneTexture: { id: string; image?: any; imageData?: any }): boolean {
+    const source = sceneTexture.image ?? sceneTexture.imageData ?? null;
+    if (!source) return false;
+    let updated = false;
+    if (this._albedoAtlasTexture)            updated = this._albedoAtlasTexture.updateTexture(sceneTexture.id, source) || updated;
+    if (this._metallicRoughnessAtlasTexture) updated = this._metallicRoughnessAtlasTexture.updateTexture(sceneTexture.id, source) || updated;
+    if (this._normalMapAtlasTexture)         updated = this._normalMapAtlasTexture.updateTexture(sceneTexture.id, source) || updated;
+    return updated;
+  }
+
   getAllocatedBytes(): number {
     let total = 0;
     total += this._vertexPositionTexture.getAllocatedBytes();

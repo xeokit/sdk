@@ -1,8 +1,8 @@
 
 import type {GeometryArrays} from "./GeometryArrays";
-import {TrianglesPrimitive} from "../constants";
-import {SDKErrorType, type SDKResult} from "../core";
-import type {Vec3} from "../math/vector";
+import {TrianglesPrimitive} from "../../constants";
+import {SDKErrorType, type SDKResult} from "../../core";
+import type {Vec3} from "../../math/vector";
 
 /**
  * Creates a cylinder-shaped geometry.
@@ -13,7 +13,7 @@ import type {Vec3} from "../math/vector";
  * ## Usage
  *
  * ````javascript
- * const cylinderGeometryResult = buildCylinderGeometry({
+ * const cylinderGeometryResult = buildCylinder({
  *     center: [0, 0, 0],        // Center of the cylinder
  *     radiusTop: 1,             // Radius of the top of the cylinder
  *     radiusBottom: 1,          // Radius of the bottom of the cylinder
@@ -41,7 +41,7 @@ import type {Vec3} from "../math/vector";
  * @param [cfg.openEnded=false] Whether or not the cylinder has solid caps at the top and bottom. Default is `false`.
  * @returns {SDKResult<GeometryArrays>} The geometry arrays for the cylinder, including positions, normals, UVs, and indices, or an error message.
  */
-export function buildCylinderGeometry(cfg: {
+export function buildCylinder(cfg: {
     center?: Vec3;
     radiusTop?: number;
     radiusBottom?: number;
@@ -70,7 +70,7 @@ export function buildCylinderGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "[buildCylinderGeometry] Center must be a 3D point [x, y, z]."
+      error: "[buildCylinder] Center must be a 3D point [x, y, z]."
     };
   }
 
@@ -78,28 +78,28 @@ export function buildCylinderGeometry(cfg: {
         return {
             ok: false,
             type: SDKErrorType.InvalidInput,
-            error: "[buildCylinderGeometry] Negative radius values are not allowed."
+            error: "[buildCylinder] Negative radius values are not allowed."
         };
     }
     if (height < 0) {
         return {
             ok: false,
             type: SDKErrorType.InvalidInput,
-            error: "[buildCylinderGeometry] Negative height is not allowed."
+            error: "[buildCylinder] Negative height is not allowed."
         };
     }
     if (radialSegments < 3) {
         return {
             ok: false,
             type: SDKErrorType.InvalidInput,
-            error: "[buildCylinderGeometry] radialSegments must be at least 3."
+            error: "[buildCylinder] radialSegments must be at least 3."
         };
     }
     if (heightSegments < 1) {
         return {
             ok: false,
             type: SDKErrorType.InvalidInput,
-            error: "[buildCylinderGeometry] heightSegments must be at least 1."
+            error: "[buildCylinder] heightSegments must be at least 1."
         };
     }
 

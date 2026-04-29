@@ -8,7 +8,7 @@ import {PickManager} from "./pickManager";
 import {GPUMemoryManager} from "./gpuMemoryManager";
 import {MeshManager} from "./meshManager";
 import {type GPUMemoryReader} from "./gpuMemoryManager";
-import {SceneGeometry, SceneMesh, SceneModel, SceneObject} from "../../scene";
+import {SceneGeometry, SceneMesh, SceneModel, SceneObject, SceneTexture} from "../../scene";
 import {SceneTransform} from "../../scene/SceneTransform";
 import {type MemoryConfigs} from "../MemoryConfigs";
 import type {DataTextures} from "./gpuMemoryManager/DataTextures";
@@ -484,25 +484,13 @@ export class ViewManager {
     if (!rendererView) {
       throw new SDKInternalException(`[ViewManager.getSnapshot] View with id '${view.id}' is not registered with the renderer`);
     }
-    const boundingRect = rendererView.view.htmlElement.getBoundingClientRect();
-    const width = Math.round(boundingRect.width);
-    const height = Math.round(boundingRect.height);
-    const snapshotBuffer = rendererView.renderBuffers.getRenderBuffer("snapshot", {
-      depthTexture: false,
-      size: [width, height]
-    });
-    if (!snapshotBuffer) {
-      return {
-        ok: false,
-        type: SDKErrorType.MemoryAllocationFailed,
-        error: `[ViewManager.getSnapshot] Failed to create snapshot render buffer for view '${view.id}'`
-      }
-    }
-    snapshotBuffer.bind();
-    snapshotBuffer.clear();
+    // RenderManager binds its own scene target (HDR FBO or default canvas) on
+    // _beginFrame, so any pre-bound snapshot FBO would be overwritten before
+    // any pixels are drawn. The shared WebGL context is created with
+    // preserveDrawingBuffer:true, so reading straight off the canvas after
+    // the synchronous render returns the pixels we just drew.
     this._renderManager.render(rendererView, {clear: true});
-    const image = snapshotBuffer.readImage({format: "png", height, width});
-    snapshotBuffer.unbind();
+    const image = this._renderContext.webglCanvasElement.toDataURL("image/png");
     return {
       ok: true,
       value: image
@@ -513,9 +501,9 @@ export class ViewManager {
    * Makes the given renderer view the active view.
    *
    * Implementation detail:
-   * - If there is a previously active view, it is rendered into its "snapshot" render buffer and
-   *   the resulting image is written into the previous view’s HTML element (assumed to be an
-   *   {@link HTMLImageElement}).
+   * - If there is a previously active view, it is rendered to the shared canvas
+   *   and the resulting data URL is written into the previous view's HTML element
+   *   (assumed to be an {@link HTMLImageElement}).
    * - The shared WebGL canvas is then positioned and resized to match the target view element.
    *
    * @param rendererView - The renderer view to activate.
@@ -525,26 +513,15 @@ export class ViewManager {
     const activeRendererView = this._activeView;
 
     if (activeRendererView && activeRendererView !== rendererView) {
-
-        const activeCanvasBoundingRect = activeRendererView.view.htmlElement.getBoundingClientRect();
-        const width = Math.round(activeCanvasBoundingRect.width);
-        const height = Math.round(activeCanvasBoundingRect.height);
-        const snapshotBuffer = activeRendererView.renderBuffers.getRenderBuffer("snapshot", {
-          depthTexture: false,
-          size: [width, height]
-        });
-
-        snapshotBuffer.bind();
-        snapshotBuffer.clear();
-
+        // RenderManager rebinds its own scene target on _beginFrame, so a
+        // pre-bound snapshot FBO would be overwritten. The shared WebGL
+        // context is created with preserveDrawingBuffer:true — reading the
+        // canvas straight after the synchronous render returns the pixels
+        // we just drew.
         this._renderManager.render(activeRendererView, {clear: true});
-
-        const image = snapshotBuffer.readImage({format: "png", height, width});
-
-        snapshotBuffer.unbind();
+        const image = this._renderContext.webglCanvasElement.toDataURL("image/png");
 
         const htmlElement = activeRendererView.view.htmlElement;
-
         (<HTMLImageElement>htmlElement).src = image;
       }
 
@@ -864,9 +841,6 @@ export class ViewManager {
 
   // Mesh and Transform state uploads, not requiring error handling
 
-  sceneMeshGeometryChanged(sceneMesh: SceneMesh) {
-  }
-
   /**
    * Notifies that a {@link SceneMesh}'s world matrix changed (eg. moved/rotated/scaled).
    * Forwards to {@link MeshManager} to queue GPU updates.
@@ -889,6 +863,21 @@ export class ViewManager {
    */
   public sceneMeshOpacityChanged(sceneMesh: SceneMesh): void {
     this._meshManager.sceneMeshOpacityChanged(sceneMesh);
+  }
+
+  /**
+   * Notifies that a {@link SceneTexture}'s `imageData` was mutated in
+   * place (e.g. heat-map brush painting). Routes to
+   * {@link GPUMemoryManager} which re-uploads the pixels into every
+   * atlas that holds the texture, then schedules a redraw on every
+   * registered view so the change becomes visible without the caller
+   * having to nudge the render loop themselves.
+   */
+  public sceneTextureImageDataChanged(sceneTexture: SceneTexture): void {
+    if (!this._gpuMemoryManager.updateSceneTexture(sceneTexture)) return;
+    for (const rv of this._rendererViewsList) {
+      rv.view.needsRender();
+    }
   }
 
   /**

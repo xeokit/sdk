@@ -140,18 +140,6 @@ export class SceneEvents {
   public readonly onSceneMeshMoved: EventEmitter<Scene, SceneMesh>;
 
   /**
-   * Emits an event each time a {@link SceneMesh} switches to a different {@link SceneGeometry}
-   * within the {@link Scene}.
-   */
-  public readonly onSceneMeshGeometryChanged: EventEmitter<Scene, SceneMesh>;
-
-  /**
-   * Emits an event each time a {@link SceneMesh} switches to a different {@link SceneMaterial}
-   * within the {@link Scene}.
-   */
-  public readonly onSceneMeshMaterialChanged: EventEmitter<Scene, SceneMesh>;
-
-  /**
    * Emits an event each time the color of a {@link SceneMesh} is updated within the {@link Scene}.
    */
   public readonly onSceneMeshColorChanged: EventEmitter<Scene, SceneMesh>;
@@ -204,6 +192,13 @@ export class SceneEvents {
   public readonly onSceneTextureDestroyed: EventEmitter<Scene, SceneTexture>;
 
   /**
+   * Emits an event each time a {@link SceneTexture}'s `imageData` is
+   * mutated post-creation. Subscribers (e.g. the renderer's texture
+   * atlas) re-upload the texture's pixels to the GPU.
+   */
+  public readonly onSceneTextureImageDataChanged: EventEmitter<Scene, SceneTexture>;
+
+  /**
    * Emits an event each time a {@link SceneMaterial} is created within the {@link Scene}.
    */
   public readonly onSceneMaterialCreated: EventEmitter<Scene, SceneMaterial>;
@@ -251,12 +246,11 @@ export class SceneEvents {
     this.onSceneMeshDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
     this.onSceneMeshMatrixChanged = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
     this.onSceneMeshMoved = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
-    this.onSceneMeshGeometryChanged = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
-    this.onSceneMeshMaterialChanged = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
     this.onSceneMeshColorChanged = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
     this.onSceneMeshOpacityChanged = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
     this.onSceneTextureCreated = new EventEmitter(new EventDispatcher<Scene, SceneTexture>());
     this.onSceneTextureDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneTexture>());
+    this.onSceneTextureImageDataChanged = new EventEmitter(new EventDispatcher<Scene, SceneTexture>());
     this.onSceneMaterialCreated = new EventEmitter(new EventDispatcher<Scene, SceneMaterial>());
     this.onSceneMaterialColorChanged = new EventEmitter(new EventDispatcher<Scene, SceneMaterial>());
     this.onSceneMaterialOpacityChanged = new EventEmitter(new EventDispatcher<Scene, SceneMaterial>());
@@ -292,13 +286,12 @@ export class SceneEvents {
     this.onSceneObjectMeshAdded.clear();
     this.onSceneObjectMeshRemoved.clear();
     this.onSceneMeshMoved.clear();
-    this.onSceneMeshGeometryChanged.clear();
-    this.onSceneMeshMaterialChanged.clear();
     this.onSceneMeshColorChanged.clear();
     this.onSceneMeshMatrixChanged.clear();
     this.onSceneMeshOpacityChanged.clear();
     this.onSceneTextureCreated.clear();
     this.onSceneTextureDestroyed.clear();
+    this.onSceneTextureImageDataChanged.clear();
     this.onSceneMaterialCreated.clear();
     this.onSceneMaterialColorChanged.clear();
     this.onSceneMaterialOpacityChanged.clear();

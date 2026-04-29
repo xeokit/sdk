@@ -22,7 +22,7 @@ import type {
   SceneTexturePixelBuffer
 } from "./SceneTextureParams";
 import type {SceneModel} from "./SceneModel";
-import type {SDKResult} from "../core";
+import {SDKErrorType, type SDKResult} from "../core";
 
 /**
  * A texture in a {@link SceneModel | SceneModel}.
@@ -50,10 +50,11 @@ export class SceneTexture {
 
   /**
    * Raw pixel buffer with explicit dimensions, normalised to a DOM
-   * `ImageData` by the constructor when the caller passed the plain
-   * `{ data, width, height }` form.
+   * `ImageData` (see {@link imageData} getter / setter).
+   *
+   * @internal
    */
-  imageData?: ImageData;
+  private _imageData?: ImageData;
 
   /**
    * Transcoded / compressed texture data.
@@ -163,6 +164,18 @@ export class SceneTexture {
   public model: SceneModel;
 
   /**
+   * The count of {@link SceneMaterial | SceneMaterials} that
+   * reference this SceneTexture (in any of the colour, normals,
+   * metallic-roughness, occlusion, or emissive slots). Maintained by
+   * `SceneModel.createMaterial` / `SceneModel._destroyMaterial`. Used
+   * by {@link destroy} to refuse destruction while at least one
+   * material still references the texture (the same guard
+   * {@link SceneGeometry.destroy} and {@link SceneMaterial.destroy}
+   * carry).
+   */
+  numMaterials: number;
+
+  /**
    * True if this SceneTexture has been destroyed.
    */
   public destroyed: boolean = false;
@@ -175,7 +188,11 @@ export class SceneTexture {
     this.id = params.id;
     this.src = params.src;
     this.image = params.image;
-    this.imageData = normalizeImageData(params.imageData);
+    // Direct field assignment — the setter would fire the change event,
+    // which is incorrect during construction (no listeners are attached
+    // yet, and the renderer learns about new textures via the
+    // `onSceneTextureCreated` path the SceneModel fires on createTexture).
+    this._imageData = normalizeImageData(params.imageData);
     this.buffers = params.buffers;
     this.mediaType = params.mediaType;
     this.minFilter = params.minFilter || LinearMipMapNearestFilter;
@@ -186,6 +203,7 @@ export class SceneTexture {
     this.encoding = params.encoding || LinearEncoding;
     this.preloadColor = createVec4Float64(params.preloadColor || [1, 1, 1, 1]);
     this.channel = 0;
+    this.numMaterials = 0;
   }
 
   /**
@@ -223,18 +241,76 @@ export class SceneTexture {
   }
 
   /**
-   * Destroy this SceneTexture.
+   * The raw pixel buffer backing this SceneTexture, or `undefined` for
+   * image-element / encoded-buffer textures.
    */
-  destroy() {
+  get imageData(): ImageData | undefined {
+    return this._imageData;
+  }
+
+  /**
+   * Replace this SceneTexture's pixel buffer.
+   *
+   * Accepts either a DOM `ImageData` or the JSON-friendly
+   * `{data, width, height}` form (normalised to `ImageData` here).
+   * Once the SceneModel is finalized (or is in streaming mode), every
+   * assignment fires `Scene.events.onSceneTextureImageDataChanged` so
+   * the renderer can re-upload the pixels into its atlas sub-rect via
+   * `texSubImage2D` — no batch / mesh / material rebuild.
+   *
+   * The setter fires unconditionally on every assignment (no identity
+   * skip), so callers that mutate the bytes of an existing `ImageData`
+   * in place can re-trigger the upload by reassigning the same buffer:
+   * `texture.imageData = texture.imageData`.
+   */
+  set imageData(value: ImageData | SceneTexturePixelBuffer | undefined) {
     if (this.destroyed) {
-        return;
+      this.model.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneTexture.imageData] Cannot set imageData on destroyed SceneTexture '${this.id}'`,
+      });
+      return;
     }
-    //  TODO: Null any Material references to this texture
+    this._imageData = normalizeImageData(value);
+    if (this._imageData && (this.model.streamingEnabled || this.model.finalized)) {
+      this.model.scene.events.onSceneTextureImageDataChanged.dispatch(this.model.scene, this);
+    }
+  }
+
+  /**
+   * Destroy this SceneTexture.
+   *
+   * Refuses to destroy while at least one {@link SceneMaterial} in
+   * the SceneModel still references this texture (in any slot —
+   * colour, normals, metallic-roughness, occlusion, or emissive).
+   * Destroy or replace those materials first. Mirrors
+   * {@link SceneGeometry.destroy} and {@link SceneMaterial.destroy}.
+   */
+  destroy(): SDKResult<void> {
+    if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneTexture.destroy] SceneTexture '${this.id}' already destroyed`
+      });
+    }
+    if (this.numMaterials > 0) {
+      return this.model.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneTexture.destroy] Cannot destroy SceneTexture '${this.id}' - ` +
+               `still referenced by ${this.numMaterials} SceneMaterial(s), which you need to destroy first`
+      });
+    }
     this.image = undefined;
-    this.imageData = undefined;
+    // Direct backing-field write — the setter would dispatch a change
+    // event on what's about to become a destroyed texture.
+    this._imageData = undefined;
     this.buffers = undefined;
     this.model._destroyTexture(this);
     this.destroyed = true;
+    return {ok: true, value: undefined};
   }
 }
 

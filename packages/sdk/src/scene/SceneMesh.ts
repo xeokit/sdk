@@ -121,104 +121,12 @@ export class SceneMesh {
   }
 
   /**
-   * Sets the {@link SceneGeometry} used by this SceneMesh.
-   *
-   * The SceneMesh will already have the SceneGeometry it was created with,
-   * and then you can change it to a different SceneGeometry using this setter.
-   *
-   * This mechanism allows you to dynamically switch the geometric representation
-   * of a SceneMesh at runtime.
-   *
-   * When the switch succeeds, {@link SceneMesh.geometry | SceneMesh.geometry} will reference
-   * the new SceneGeometry and an {@link SceneEvents.onSceneMeshGeometryChanged | SceneEvents.onSceneMeshGeometryChanged}
-   * event is dispatched on the Scene.
-   *
-   * If the given geometryId is invalid, such as when the SceneGeometry does not
-   * exist in the SceneModel, an error will be logged and the SceneGeometry will not be changed.
-   *
-   * Note that you cannot destroy a SceneGeometry that is currently in use by a SceneMesh.
-   *
-   * @param value - The ID of the new SceneGeometry to use. Must exist in the SceneModel.
-   */
-  set geometryId(value: string) {
-    if (this.destroyed) {
-      this.model.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: `[SceneMesh.geometryId] Cannot set geometryId on destroyed SceneMesh ${this.id}`
-      });
-      return;
-    }
-    const geometry = this.model.geometries[value];
-    if (!geometry) {
-      this.model.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidInput,
-        error: `[SceneMesh.geometryId] Invalid geometryId '${value}' for SceneMesh ${this.id}`
-      });
-      return;
-    }
-    if (this.geometry === geometry) {
-      return;
-    }
-    if (this.model.streamingEnabled || this.model.finalized) {
-      this.model.scene.events.onSceneMeshGeometryChanged.dispatch(this.model.scene, this);
-    }
-  }
-
-  /**
-   * Gets the ID of the {@link SceneGeometry} used by this SceneMesh.
+   * Gets the {@link SceneGeometry} used by this SceneMesh.
    */
   get geometryId(): string {
     return this.geometry.id;
   }
 
-
-  /**
-   * Sets the {@link SceneMaterial} used by this SceneMesh.
-   *
-   * The SceneMesh will already have the SceneMaterial it was created with,
-   * and then you can change it to a different SceneMaterial using this setter.
-   *
-   * This mechanism allows you to dynamically switch the geometric representation
-   * of a SceneMesh at runtime.
-   *
-   * When the switch succeeds, {@link SceneMesh.material | SceneMesh.material} will reference
-   * the new SceneMaterial and an {@link SceneEvents.onSceneMeshMaterialChanged | SceneEvents.onSceneMeshMaterialChanged}
-   * event is dispatched on the Scene.
-   *
-   * If the given materialId is invalid, such as when the SceneMaterial does not
-   * exist in the SceneModel, an error will be logged and the SceneMaterial will not be changed.
-   *
-   * Note that you cannot destroy a SceneMaterial that is currently in use by a SceneMesh.
-   *
-   * @param value - The ID of the new SceneMaterial to use. Must exist in the SceneModel.
-   */
-  set materialId(value: string) {
-    if (this.destroyed) {
-      this.model.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: `[SceneMesh.materialId] Cannot set materialId on destroyed SceneMesh ${this.id}`
-      });
-      return;
-    }
-    const material = this.model.materials[value];
-    if (!material) {
-      this.model.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidInput,
-        error: `[SceneMesh.materialId] Invalid materialId '${value}' for SceneMesh ${this.id}`
-      });
-      return;
-    }
-    if (this.material === material) {
-      return;
-    }
-    if (this.model.streamingEnabled || this.model.finalized) {
-      this.model.scene.events.onSceneMeshMaterialChanged.dispatch(this.model.scene, this);
-    }
-  }
 
   /**
    * Gets the ID of the {@link SceneMaterial} used by this SceneMesh.
@@ -541,6 +449,7 @@ export class SceneMesh {
     } else {
       this._attachParentTransform(parentTransform);
     }
+    return {ok: true, value: undefined};
   }
 
   /**

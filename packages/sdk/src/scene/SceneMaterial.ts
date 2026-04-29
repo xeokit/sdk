@@ -89,6 +89,15 @@ export class SceneMaterial {
   emissiveTexture?: SceneTexture;
 
   /**
+   * The count of {@link SceneMesh | SceneMeshes} that reference this
+   * SceneMaterial. Maintained by `SceneModel.createMesh` /
+   * `SceneModel._destroyMesh`. Used by {@link destroy} to refuse
+   * destruction while at least one mesh still references the
+   * material (the same guard {@link SceneGeometry.destroy} carries).
+   */
+  numMeshes: number;
+
+  /**
    * True if this SceneMaterial has been destroyed.
    */
   public destroyed: boolean = false;
@@ -135,6 +144,7 @@ export class SceneMaterial {
     this.normalsTexture = textures.normalsTexture;
     this.occlusionTexture = textures.occlusionTexture;
     this.emissiveTexture = textures.emissiveTexture;
+    this.numMeshes = 0;
   }
 
 
@@ -285,12 +295,29 @@ export class SceneMaterial {
 
   /**
    * Destroys this SceneMaterial.
+   *
+   * Refuses to destroy while at least one {@link SceneMesh} in the
+   * SceneModel still references this material — destroy or
+   * reassign those meshes first. Mirrors {@link SceneGeometry.destroy}.
    */
-  destroy(): void {
+  destroy(): SDKResult<void> {
     if (this.destroyed) {
-      return;
+      return this.model.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneMaterial.destroy] SceneMaterial '${this.id}' already destroyed`
+      });
+    }
+    if (this.numMeshes > 0) {
+      return this.model.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneMaterial.destroy] Cannot destroy SceneMaterial '${this.id}' - ` +
+               `still referenced by ${this.numMeshes} SceneMesh(es), which you need to destroy first`
+      });
     }
     this.model._destroyMaterial(this);
     this.destroyed = true;
+    return {ok: true, value: undefined};
   }
 }

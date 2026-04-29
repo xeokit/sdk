@@ -705,6 +705,12 @@ export class SceneModel {
       colorTexture
     });
 
+    if (colorTexture)             colorTexture.numMaterials++;
+    if (metallicRoughnessTexture) metallicRoughnessTexture.numMaterials++;
+    if (normalsTexture)           normalsTexture.numMaterials++;
+    if (occlusionTexture)         occlusionTexture.numMaterials++;
+    if (emissiveTexture)          emissiveTexture.numMaterials++;
+
     this.materials[materialParams.id] = material;
     this.stats.numMaterials++;
     if (this._streamingEnabled) {
@@ -730,6 +736,11 @@ export class SceneModel {
     if (!this.materials[materialId]) {
       throw new SDKInternalException(`Cannot destroy SceneMaterial '${materialId}' - SceneMaterial not found in SceneModel`);
     }
+    if (sceneMaterial.colorTexture)             sceneMaterial.colorTexture.numMaterials--;
+    if (sceneMaterial.metallicRoughnessTexture) sceneMaterial.metallicRoughnessTexture.numMaterials--;
+    if (sceneMaterial.normalsTexture)           sceneMaterial.normalsTexture.numMaterials--;
+    if (sceneMaterial.occlusionTexture)         sceneMaterial.occlusionTexture.numMaterials--;
+    if (sceneMaterial.emissiveTexture)          sceneMaterial.emissiveTexture.numMaterials--;
     delete this.materials[materialId];
     this.stats.numMaterials--;
     if (this._streamingEnabled) {
@@ -1393,6 +1404,9 @@ export class SceneModel {
     }
 
     geometry.numMeshes++;
+    if (material) {
+      material.numMeshes++;
+    }
     this.meshes[id] = sceneMesh;
     this.stats.numMeshes++;
     if (this._streamingEnabled) {
@@ -1431,6 +1445,9 @@ export class SceneModel {
     }
     if (existing.geometry) {
       existing.geometry.numMeshes--;
+    }
+    if (existing.material) {
+      existing.material.numMeshes--;
     }
     delete this.meshes[meshId];
     this.stats.numMeshes--;
@@ -1814,6 +1831,10 @@ export class SceneModel {
         error: "[SceneModel.destroy] SceneModel already destroyed"
       });
     }
+    // Order matters: meshes release the geometry/material refs they
+    // hold, then materials release the texture refs they hold, then
+    // each leaf can destroy with its `numMeshes`/`numMaterials`
+    // guard satisfied.
     for (const key in this.objects) {
       this.objects[key].destroy();
     }
@@ -1823,14 +1844,14 @@ export class SceneModel {
     for (const key in this.transforms) {
       this.transforms[key].destroy();
     }
+    for (const key in this.materials) {
+      this.materials[key].destroy();
+    }
     for (const key in this.geometries) {
       this.geometries[key].destroy();
     }
     for (const key in this.textures) {
       this.textures[key].destroy();
-    }
-    for (const key in this.materials) {
-       this.materials[key].destroy();
     }
     this.scene._destroyModel(this);
     this.destroyed = true;

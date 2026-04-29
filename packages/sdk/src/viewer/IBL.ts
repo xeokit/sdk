@@ -3,6 +3,7 @@ import type {View} from "./View";
 import {createVec3Float64, type Vec3, type Vec3Float} from "../math/vector";
 import {SDKErrorType, type SDKResult} from "../core";
 import {DetailedRender, RealisticRender} from "../constants";
+import {parseHDR, type HDRImage} from "./hdrLoader";
 
 
 /**
@@ -16,7 +17,8 @@ import {DetailedRender, RealisticRender} from "../constants";
  * based on how much the fragment's normal faces world up vs. world
  * down. No cubemap textures, no specular reflections, no prefiltering —
  * just a smooth two-colour gradient that replaces the existing flat
- * ambient when enabled.
+ * ambient whenever the active {@link View.renderMode} is in
+ * {@link IBL.renderModes}.
  *
  * The point: indoor BIM scenes look noticeably more "lit" than they do
  * with a constant ambient grey, especially under directional shadows
@@ -37,7 +39,6 @@ class IBL {
   public readonly view: View;
 
   #renderModes: number[];
-  #enabled: boolean;
   #intensity: number;
   #skyColor: Vec3Float;
   #groundColor: Vec3Float;
@@ -49,8 +50,13 @@ class IBL {
   // the procedural sky. `#environmentSrc` is the URL the user passed
   // (kept for round-trip serialisation); `#environmentImage` is the
   // decoded `HTMLImageElement` (or canvas / bitmap) the renderer reads.
+  // `#environmentHDR` holds a parsed Radiance `.hdr` decode (Float32
+  // RGBA) — set by the HDR APIs and uploaded as RGBA16F so super-bright
+  // sun pixels survive the prefilter without clamping. Only one of the
+  // LDR / HDR slots is active at a time; setting one clears the other.
   #environmentSrc: string | undefined = undefined;
   #environmentImage: HTMLImageElement | HTMLCanvasElement | ImageBitmap | OffscreenCanvas | undefined = undefined;
+  #environmentHDR: HDRImage | undefined = undefined;
   // Bumped whenever the environment image changes; the renderer
   // compares against its own last-seen value to push a new texture
   // upload to the prefilter only on change.
@@ -61,13 +67,7 @@ class IBL {
    */
   constructor(view: View, params: IBLParams = {}) {
     this.view = view;
-    this.#renderModes = [DetailedRender, RealisticRender];
-    // IBL fires under DetailedRender/RealisticRender by default — the
-    // renderMode gate is what decides whether it contributes, just like
-    // every other effect. The legacy `enabled === true` default left
-    // IBL silently inert under the standard render presets, which has
-    // surprised every demo author who relied on it.
-    this.#enabled = params.enabled !== false;
+    this.#renderModes = params.renderModes ?? [DetailedRender, RealisticRender];
     this.#intensity = params.intensity !== undefined ? params.intensity : 1.0;
     this.#skyColor = createVec3Float64(params.skyColor || [0.62, 0.72, 0.86]);
     this.#groundColor = createVec3Float64(params.groundColor || [0.42, 0.36, 0.30]);
@@ -100,19 +100,13 @@ class IBL {
   }
 
   /**
-   * Gets whether IBL is supported by this browser and GPU.
-   */
-  get supported(): boolean {
-    return true;
-  }
-
-  /**
-   * Returns true if IBL is currently possible (supported, and the current
-   * view state is compatible). Called internally by renderer logic.
+   * Returns true if IBL is currently possible given the View's state.
+   * The renderer is the authority on whether the GPU can actually run
+   * it.
    * @private
    */
   get possible(): boolean {
-    return this.supported;
+    return true;
   }
 
   /**
@@ -131,31 +125,10 @@ class IBL {
   }
 
   /**
-   * Sets whether IBL is active. When `false`, the renderer keeps using
-   * the flat ambient term from {@link View.getAmbientColorAndIntensity}.
-   *
-   * Default value is `true` — IBL fires whenever the active render
-   * mode is in {@link IBL.renderModes}. Set this to `false` only when
-   * you specifically want to disable IBL across all modes.
-   */
-  set enabled(value: boolean) {
-    value = value === true;
-    if (this.#enabled === value) return;
-    this.#enabled = value;
-    this.view.needsRender();
-  }
-
-  /**
-   * Gets whether IBL is active.
-   */
-  get enabled(): boolean {
-    return this.#enabled;
-  }
-
-  /**
    * Sets the IBL contribution multiplier. Range `[0, 1]`. Effectively
    * acts as a fade between the flat ambient (0) and full hemisphere
-   * IBL (1). Has no effect while {@link IBL.enabled} is `false`.
+   * IBL (1). Has no effect when the active {@link View.renderMode} is
+   * not in {@link IBL.renderModes}.
    *
    * Default value is `1.0x`.
    */
@@ -278,6 +251,7 @@ class IBL {
       const image = await loadImage(url);
       this.#environmentSrc = url;
       this.#environmentImage = image;
+      this.#environmentHDR = undefined;
       this.#environmentVersion++;
       this.view.needsRender();
       return { ok: true, value: undefined };
@@ -316,6 +290,77 @@ class IBL {
     }
     this.#environmentSrc = undefined;
     this.#environmentImage = image;
+    this.#environmentHDR = undefined;
+    this.#environmentVersion++;
+    this.view.needsRender();
+    return { ok: true, value: undefined };
+  }
+
+  /**
+   * Replaces the procedural sky with a Radiance HDR (`.hdr`) file
+   * fetched from `url`. Same effect as {@link setEnvironment} but the
+   * environment is uploaded as `RGBA16F` so super-bright pixels
+   * (the sun, sky-glow) survive the prefilter at full intensity, giving
+   * smooth metals a proper HDR specular bloom under tonemapping.
+   *
+   * Resolves with `{ ok: true }` once the file has fetched and decoded.
+   * Rejects on network failure or malformed `.hdr` contents.
+   *
+   * Pass any URL form — `http(s):`, `blob:`, `data:`. Cross-origin URLs
+   * need CORS headers from the host.
+   */
+  async setEnvironmentHDR(url: string): Promise<SDKResult<void>> {
+    if (this.#destroyed) {
+      return this.view.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[IBL.setEnvironmentHDR] IBL has been destroyed."
+      });
+    }
+    let buffer: ArrayBuffer;
+    try {
+      const resp = await fetch(url);
+      if (!resp.ok) {
+        return this.view.viewer.logError({
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: `[IBL.setEnvironmentHDR] Fetch '${url}' failed: ${resp.status} ${resp.statusText}`
+        });
+      }
+      buffer = await resp.arrayBuffer();
+    } catch (e) {
+      return this.view.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[IBL.setEnvironmentHDR] Fetch '${url}' failed: ${e instanceof Error ? e.message : String(e)}`
+      });
+    }
+    const result = this.setEnvironmentHDRBuffer(buffer);
+    if (result.ok) this.#environmentSrc = url;
+    return result;
+  }
+
+  /**
+   * Replaces the procedural sky with a Radiance HDR file already
+   * fetched into an `ArrayBuffer`. Same effect as {@link setEnvironmentHDR}
+   * but synchronous — useful when the caller has already produced the
+   * bytes (bundler import, IndexedDB, etc.).
+   */
+  setEnvironmentHDRBuffer(buffer: ArrayBuffer): SDKResult<void> {
+    if (this.#destroyed) {
+      return this.view.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[IBL.setEnvironmentHDRBuffer] IBL has been destroyed."
+      });
+    }
+    const parsed = parseHDR(buffer);
+    if (!parsed.ok) {
+      return this.view.viewer.logError(parsed);
+    }
+    this.#environmentSrc = undefined;
+    this.#environmentImage = undefined;
+    this.#environmentHDR = parsed.value;
     this.#environmentVersion++;
     this.view.needsRender();
     return { ok: true, value: undefined };
@@ -327,9 +372,10 @@ class IBL {
    * on the next frame.
    */
   clearEnvironment(): void {
-    if (!this.#environmentImage && !this.#environmentSrc) return;
+    if (!this.#environmentImage && !this.#environmentSrc && !this.#environmentHDR) return;
     this.#environmentSrc = undefined;
     this.#environmentImage = undefined;
+    this.#environmentHDR = undefined;
     this.#environmentVersion++;
     this.view.needsRender();
   }
@@ -338,6 +384,18 @@ class IBL {
   get environmentImage():
     HTMLImageElement | HTMLCanvasElement | ImageBitmap | OffscreenCanvas | undefined {
     return this.#environmentImage;
+  }
+
+  /**
+   * The decoded HDR environment currently driving IBL, if any. Holds
+   * row-major top-down Float32 RGBA pixels (linear-space) plus the
+   * source dimensions. Mutually exclusive with {@link environmentImage}
+   * — at most one slot is populated at a time.
+   *
+   * @internal
+   */
+  get environmentHDR(): HDRImage | undefined {
+    return this.#environmentHDR;
   }
 
   /** The URL the environment was loaded from, if any. Empty string
@@ -366,7 +424,6 @@ class IBL {
       ok: true,
       value: {
         renderModes: this.renderModes,
-        enabled: this.enabled,
         intensity: this.intensity,
         skyColor: <Vec3>Array.from(this.skyColor),
         groundColor: <Vec3>Array.from(this.groundColor),
@@ -387,7 +444,6 @@ class IBL {
       });
     }
     if (params.renderModes !== undefined) this.renderModes = params.renderModes;
-    if (params.enabled !== undefined)     this.enabled     = params.enabled;
     if (params.intensity !== undefined)   this.intensity   = params.intensity;
     if (params.skyColor !== undefined)    this.skyColor    = <Vec3>Array.from(params.skyColor);
     if (params.groundColor !== undefined) this.groundColor = <Vec3>Array.from(params.groundColor);

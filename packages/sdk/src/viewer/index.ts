@@ -510,6 +510,7 @@ export * from "./Bloom";
 export * from "./BloomParams";
 export * from "./IBL";
 export * from "./IBLParams";
+export * from "./hdrLoader";
 export * from "./ViewLayerParams";
 export * from "./ResolutionScale";
 export * from "./ResolutionScaleParams";

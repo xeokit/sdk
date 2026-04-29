@@ -15,18 +15,11 @@ export interface BloomParams {
   renderModes?: number[];
 
   /**
-   * Whether the bloom pass runs. When `false`, the renderer skips it
-   * entirely (no FBOs bound, no shader dispatch) — cheaper than setting
-   * {@link BloomParams.intensity} to 0.
-   *
-   * Default is `true` when the renderer has HDR. Bloom is only meaningful
-   * with an HDR substrate; in LDR mode it's forced off.
-   */
-  enabled?: boolean;
-
-  /**
    * Luminance threshold above which pixels contribute to bloom. Values
-   * between scene-reasonable `1.0` and `~4.0` are common. Default is `1.0`.
+   * between scene-reasonable `1.0` and `~4.0` are common. Default is
+   * `4.0` — only the brightest HDR-range pixels (sun core, smooth-metal
+   * specular peaks) bloom, so the effect reads as a tight glow on real
+   * highlights rather than a haze over moderately-bright surfaces.
    */
   threshold?: number;
 
@@ -38,9 +31,14 @@ export interface BloomParams {
   knee?: number;
 
   /**
-   * How strongly the bloom pyramid is added back to the scene. `0` = off
-   * (but still costs the prep passes — use {@link enabled} to really skip
-   * the work), `1` = full additive contribution. Default is `0.4`.
+   * How strongly the bloom pyramid is added back to the scene. `0` =
+   * no contribution (but still costs the prep passes — drop the active
+   * {@link View.renderMode} out of {@link BloomParams.renderModes} to
+   * skip the work entirely), `1` = full additive contribution.
+   * Default is `0.15` — a subtle additive contribution that picks
+   * up specular peaks (HDR sun, smooth-metal reflections) without
+   * washing out the rest of the scene. Increase for a more
+   * pronounced glow.
    */
   intensity?: number;
 }

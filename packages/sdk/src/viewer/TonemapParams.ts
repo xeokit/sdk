@@ -32,7 +32,10 @@ export interface TonemapParams {
    * above 1 make the scene brighter and push more of the range into the
    * tonemap curve; values below 1 darken.
    *
-   * Default is `1.0`.
+   * Default is `0.5` — chosen so ACES midtones stay below the
+   * no-tonemap (DetailedRender) reference, leaving headroom for
+   * HDR specular peaks (sun, smooth-metal reflections) to read as
+   * bright accents rather than washing into the rest of the frame.
    */
   exposure?: number;
 

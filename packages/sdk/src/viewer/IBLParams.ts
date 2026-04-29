@@ -19,20 +19,10 @@ export interface IBLParams {
   renderModes?: number[];
 
   /**
-   * Whether image-based lighting is active.
-   *
-   * Default value is `true` — IBL fires whenever the active render
-   * mode is in {@link IBLParams.renderModes}. Set this to `false`
-   * only when you specifically want to disable IBL across all modes;
-   * in that case the renderer falls back to the flat ambient term
-   * from `View.getAmbientColorAndIntensity()`.
-   */
-  enabled?: boolean;
-
-  /**
    * Multiplier on the IBL ambient contribution. Range `[0, 1]`. At `1`
-   * IBL fully replaces the flat ambient term; at `0` IBL is invisible
-   * even when {@link IBLParams.enabled} is `true`.
+   * IBL fully replaces the flat ambient term; at `0` IBL contributes
+   * nothing even when the active {@link View.renderMode} is in
+   * {@link IBLParams.renderModes}.
    *
    * Default value is `1.0`.
    */

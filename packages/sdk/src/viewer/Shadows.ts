@@ -84,19 +84,13 @@ export class Shadows {
   }
 
   /**
-   * Whether shadows are supported by this browser and GPU.
-   */
-  get supported(): boolean {
-    return true;
-  }
-
-  /**
-   * Returns true if shadows are currently possible — supported, enabled,
-   * and the current view state is compatible.
+   * Returns true if shadows are currently possible given the View's
+   * camera projection. The renderer is the authority on whether the
+   * GPU can actually run them — this just reflects view-state
+   * compatibility.
    * @private
    */
   get possible(): boolean {
-    if (!this.supported) return false;
     const projectionType = this.view.camera.projectionType;
     if (projectionType === CustomProjectionType) return false;
     if (projectionType === FrustumProjectionType) return false;

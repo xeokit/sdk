@@ -74,23 +74,12 @@ export class SAO {
   }
 
   /**
-   * Gets whether SAO is supported by this browser and GPU.
-   *
-   * Even when enabled, SAO will only work if supported.
-   */
-  get supported(): boolean {
-    return true;
-  }
-
-  /**
-   * Returns true if SAO is currently possible, where it is supported, enabled, and the current view state is compatible.
-   * Called internally by renderers logic.
+   * Returns true if SAO is currently possible given the View's camera
+   * projection. The renderer is the authority on whether the GPU can
+   * actually run it — this just reflects view-state compatibility.
    * @private
    */
   get possible(): boolean {
-    if (!this.supported) {
-      return false;
-    }
     const projectionType = this.view.camera.projectionType;
     if (projectionType === CustomProjectionType) {
       return false;

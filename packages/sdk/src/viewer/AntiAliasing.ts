@@ -53,19 +53,13 @@ export class AntiAliasing {
   }
 
   /**
-   * Gets whether AntiAliasing is supported by this browser and GPU.
-   */
-  get supported(): boolean {
-    return true;
-  }
-
-  /**
-   * Returns true if AntiAliasing is currently possible. Called internally
-   * by renderer logic.
+   * Returns true if AntiAliasing is currently possible given the
+   * View's state. The renderer is the authority on whether the GPU
+   * can actually run it.
    * @private
    */
   get possible(): boolean {
-    return this.supported;
+    return true;
   }
 
   /**

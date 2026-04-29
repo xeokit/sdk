@@ -9,9 +9,15 @@ import {RealisticRender} from "../constants";
  * * Located at {@link View.tonemap}.
  * * The renderer always composites the HDR scene target through this pass
  *   when HDR rendering is available. The defaults — `mode = "aces"`,
- *   `exposure = 1.0`, `sRGBEncode = false` — apply the ACES Filmic curve
+ *   `exposure = 0.5`, `sRGBEncode = false` — apply the ACES Filmic curve
  *   so HDR-range scene values roll off into displayable range without
- *   clipping. Set `mode = "none"` for an identity copy.
+ *   clipping. The exposure default is below 1.0 because ACES lifts
+ *   midtones noticeably above their linear input — at exposure 1.0 the
+ *   scene reads brighter than the no-tonemap path that BIM assets are
+ *   typically authored against; 0.5 controls midtones tightly so HDR
+ *   peaks (sun, smooth-metal specular) stand out as bright accents
+ *   rather than washing into the rest of the frame. Set `mode = "none"`
+ *   for an identity copy.
  */
 export class Tonemap {
 
@@ -29,7 +35,7 @@ export class Tonemap {
   constructor(view: View, params: TonemapParams) {
     this.view = view;
     this._renderModes = [RealisticRender];
-    this._exposure = params.exposure !== undefined ? params.exposure : 1.0;
+    this._exposure = params.exposure !== undefined ? params.exposure : 0.5;
     this._mode = params.mode !== undefined ? params.mode : "aces";
     this._sRGBEncode = params.sRGBEncode === true;
     this._renderScale = clampRenderScale(params.renderScale !== undefined ? params.renderScale : 1.0);
@@ -62,19 +68,13 @@ export class Tonemap {
   }
 
   /**
-   * Gets whether Tonemap is supported by this browser and GPU.
-   */
-  get supported(): boolean {
-    return true;
-  }
-
-  /**
-   * Returns true if Tonemap is currently possible. Called internally by
-   * renderer logic.
+   * Returns true if Tonemap is currently possible given the View's
+   * state. The renderer is the authority on whether the GPU can
+   * actually run it.
    * @private
    */
   get possible(): boolean {
-    return this.supported;
+    return true;
   }
 
   /**
@@ -93,7 +93,7 @@ export class Tonemap {
     return false;
   }
 
-  /** Linear multiplier applied before tonemapping. Default `1.0`. */
+  /** Linear multiplier applied before tonemapping. Default `0.5`. */
   get exposure(): number {
     return this._exposure;
   }

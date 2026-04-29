@@ -19,7 +19,6 @@ export class Bloom {
   public readonly view: View;
 
   private _renderModes: number[];
-  private _enabled: boolean;
   private _threshold: number;
   private _knee: number;
   private _intensity: number;
@@ -28,11 +27,10 @@ export class Bloom {
   /** @private */
   constructor(view: View, params: BloomParams) {
     this.view = view;
-    this._renderModes = [RealisticRender];
-    this._enabled = params.enabled !== false;
-    this._threshold = params.threshold !== undefined ? params.threshold : 1.0;
+    this._renderModes = params.renderModes ?? [RealisticRender];
+    this._threshold = params.threshold !== undefined ? params.threshold : 4.0;
     this._knee = params.knee !== undefined ? params.knee : 0.5;
-    this._intensity = params.intensity !== undefined ? params.intensity : 0.4;
+    this._intensity = params.intensity !== undefined ? params.intensity : 0.15;
   }
 
   /**
@@ -59,19 +57,13 @@ export class Bloom {
   }
 
   /**
-   * Gets whether Bloom is supported by this browser and GPU.
-   */
-  get supported(): boolean {
-    return true;
-  }
-
-  /**
-   * Returns true if Bloom is currently possible. Called internally by
-   * renderer logic.
+   * Returns true if Bloom is currently possible given the View's
+   * state. The renderer is the authority on whether the GPU can
+   * actually run it.
    * @private
    */
   get possible(): boolean {
-    return this.supported;
+    return true;
   }
 
   /**
@@ -89,19 +81,7 @@ export class Bloom {
     return false;
   }
 
-  /** Whether the bloom pass runs this frame. Default `true`. */
-  get enabled(): boolean {
-    return this._enabled;
-  }
-
-  set enabled(value: boolean) {
-    value = value !== false;
-    if (this._enabled === value) return;
-    this._enabled = value;
-    this.view.needsRender();
-  }
-
-  /** Luminance threshold. Default `1.0`. */
+  /** Luminance threshold. Default `4.0`. */
   get threshold(): number {
     return this._threshold;
   }
@@ -125,13 +105,13 @@ export class Bloom {
     this.view.needsRender();
   }
 
-  /** Composite intensity. Default `0.4`. */
+  /** Composite intensity. Default `0.15`. */
   get intensity(): number {
     return this._intensity;
   }
 
   set intensity(value: number) {
-    if (value === undefined || value === null) value = 0.4;
+    if (value === undefined || value === null) value = 0.15;
     if (this._intensity === value) return;
     this._intensity = value;
     this.view.needsRender();
@@ -143,7 +123,6 @@ export class Bloom {
       ok: true,
       value: {
         renderModes: this._renderModes,
-        enabled: this._enabled,
         threshold: this._threshold,
         knee: this._knee,
         intensity: this._intensity
@@ -161,7 +140,6 @@ export class Bloom {
       });
     }
     if (params.renderModes !== undefined) this.renderModes = params.renderModes;
-    if (params.enabled !== undefined) this.enabled = params.enabled;
     if (params.threshold !== undefined) this.threshold = params.threshold;
     if (params.knee !== undefined) this.knee = params.knee;
     if (params.intensity !== undefined) this.intensity = params.intensity;

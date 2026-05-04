@@ -46,7 +46,7 @@ export const addMissingNormals: Fix = {
 
   apply(issue: Issue, sceneModel: SceneModel): SDKResult<FixApplyResult> {
     const ctx = issue.context;
-    const geomId = (ctx && typeof ctx.geometryId === "string") ? ctx.geometryId : undefined;
+    const geomId = ctx.geometryId;
     if (!geomId) {
       return {
         ok: false,

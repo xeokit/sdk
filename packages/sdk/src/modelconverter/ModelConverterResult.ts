@@ -1,5 +1,6 @@
 import {type ModelConverterResultInput} from "./ModelConverterResultInput";
 import {type ModelConverterResultOutput} from "./ModelConverterResultOutput";
+import {type ModelConverterResultInspection} from "./ModelConverterResultInspection";
 import {type Scene} from "../scene";
 import {type Data} from "../data";
 import {type ModelConverter} from "./ModelConverter";
@@ -42,6 +43,21 @@ export interface ModelConverterResult {
    */
   outputs: {
     [key: string]: ModelConverterResultOutput;
+  };
+
+  /**
+   * Inspection results, present when the pipeline had an
+   * {@link ModelConverterPipelineConfig.inspect | inspect} block
+   * enabled. Keyed by SceneModel id — a SceneModel fed by multiple
+   * inputs is inspected once after `processInputs` completes.
+   *
+   * If `inspect.failOnErrors` triggered, `outputs` is empty and the
+   * matching SceneModel entry's `report.errors` carries the reason.
+   */
+  inspection?: {
+    bySceneModel: {
+      [sceneModelId: string]: ModelConverterResultInspection;
+    };
   };
 
   /**

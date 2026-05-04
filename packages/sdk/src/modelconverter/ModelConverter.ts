@@ -3,6 +3,7 @@ import {Scene} from "../scene";
 import type {ModelLoader, ModelExporter} from "../formats";
 import {type ModelConverterParams} from "./ModelConverterParams";
 import {type ModelConverterPipelineConfig} from "./ModelConverterPipelineConfig";
+import {type ModelConverterInspectConfig} from "./ModelConverterInspectConfig";
 import {type ModelConverterRequest} from "./ModelConverterRequest";
 import {type ModelConverterResult} from "./ModelConverterResult";
 import {type ModelConverterConfig} from "./ModelConverterConfig";
@@ -10,6 +11,13 @@ import {type ModelConverterConfig} from "./ModelConverterConfig";
 import {createFileIO} from "./../io/FileIOFactory";
 import {type ModelLoadOptions} from "../formats/ModelLoadOptions";
 import {SDKErrorType, type SDKResult} from "../core";
+import {
+  applyFixes,
+  inspectSceneModel,
+  inspectSceneModelAsync,
+  type ApplyFixesResult,
+  type InspectionReport,
+} from "../modelInspector";
 
 const fileIO = createFileIO();
 
@@ -338,8 +346,69 @@ export class ModelConverter {
         }
       }
 
+      const runInspection = async (
+        cfg: ModelConverterInspectConfig,
+      ): Promise<boolean /* aborted */> => {
+
+        modelConverterResult.inspection = {bySceneModel: {}};
+        let aborted = false;
+
+        for (const sceneModelId of Object.keys(scene.models)) {
+          const sceneModel = scene.models[sceneModelId];
+          const t0 = Date.now();
+
+          // `inspectSceneModel` returns a report directly;
+          // `inspectSceneModelAsync` returns a promise. `await`
+          // resolves both shapes uniformly.
+          const report: InspectionReport = await (cfg.async
+            ? inspectSceneModelAsync({sceneModel, ...(cfg.checks ?? {})})
+            : inspectSceneModel({sceneModel, ...(cfg.checks ?? {})}));
+
+          let fixResult: ApplyFixesResult | undefined;
+          let reReport: InspectionReport | undefined;
+
+          // Fix pass only runs on a clean pre-fix report — mutating
+          // on top of structural errors masks data corruption.
+          if (cfg.fix && report.errors.length === 0) {
+            const r = applyFixes({sceneModel, report});
+            if (r.ok === false) {
+              modelConverterResult.errors.push(
+                `[ModelConverter.convert] applyFixes failed for "${sceneModelId}": ${r.error}`);
+            } else {
+              fixResult = r.value;
+              if (cfg.reInspect !== false) {
+                reReport = await (cfg.async
+                  ? inspectSceneModelAsync({sceneModel, ...(cfg.checks ?? {})})
+                  : inspectSceneModel({sceneModel, ...(cfg.checks ?? {})}));
+              }
+            }
+          }
+
+          modelConverterResult.inspection.bySceneModel[sceneModelId] = {
+            sceneModel: sceneModelId,
+            report,
+            fixResult,
+            reReport,
+            durationMs: Date.now() - t0,
+          };
+
+          if ((cfg.failOnErrors !== false) && report.errors.length > 0) {
+            modelConverterResult.errors.push(
+              `[ModelConverter.convert] Inspection found ${report.errors.length} ` +
+              `error(s) in SceneModel "${sceneModelId}"; skipping export.`);
+            aborted = true;
+          }
+        }
+        return aborted;
+      };
+
       const runPipeline = async (): Promise<ModelConverterResult> => {
         await processInputs();
+
+        const inspectCfg = pipeline.inspect;
+        const blocked = inspectCfg?.enabled ? await runInspection(inspectCfg) : false;
+        if (blocked) return modelConverterResult;
+
         await processOutputs();
         return modelConverterResult;
       };

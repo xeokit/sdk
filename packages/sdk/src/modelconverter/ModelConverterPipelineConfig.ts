@@ -1,5 +1,6 @@
 import type {ModelConverterInputConfig} from "./ModelConverterInputConfig";
 import type {ModelConverterOutputConfig} from "./ModelConverterOutputConfig";
+import type {ModelConverterInspectConfig} from "./ModelConverterInspectConfig";
 
 /**
  * Defines the structure of a conversion pipeline within a {@link ModelConverter | ModelConverter}.
@@ -25,5 +26,12 @@ export interface ModelConverterPipelineConfig {
   outputs?: {
     [key: string]: ModelConverterOutputConfig;
   };
+
+  /**
+   * Optional inspect / fix step, run after every loader has
+   * populated its SceneModel and before any exporter runs. See
+   * {@link ModelConverterInspectConfig}.
+   */
+  inspect?: ModelConverterInspectConfig;
 
 }

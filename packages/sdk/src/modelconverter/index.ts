@@ -258,6 +258,7 @@
 export * from "./ModelConverter";
 export * from "./ModelConverterParams";
 export * from "./ModelConverterPipelineConfig";
+export * from "./ModelConverterInspectConfig";
 export * from "./ModelConverterInputConfig";
 export * from "./ModelConverterOutputConfig";
 
@@ -266,6 +267,7 @@ export * from "./ModelConverterConfig";
 export * from "./ModelConverterRequest";
 export * from "./ModelConverterResult";
 export * from "./ModelConverterResultInput";
+export * from "./ModelConverterResultInspection";
 export * from "./ModelConverterResultOutput";
 
 export * as reporters from "./reporters"

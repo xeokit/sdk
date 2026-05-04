@@ -3,7 +3,7 @@ import {SceneModel} from "../scene";
 import {SceneAABB3Index} from "../collision/aabb";
 import type {AABB3Float} from "../math/boundaries";
 import type {Scene, SceneObject} from "../scene";
-import {buildVectorTextGeometry} from "../procgen";
+import {buildVectorText} from "../procgen/buildGeometry";
 import type {Data} from "./../data";
 import type {DataObject} from "./../data";
 
@@ -212,13 +212,6 @@ export class AutoDimensions {
       }),
 
       events.onSceneMeshMoved.subscribe((_scene, sceneMesh) => {
-        if (sceneMesh.model === this.sceneModel) {
-          return;
-        }
-        this._queueRebuild();
-      }),
-
-      events.onSceneMeshGeometryChanged.subscribe((_scene, sceneMesh) => {
         if (sceneMesh.model === this.sceneModel) {
           return;
         }
@@ -722,7 +715,7 @@ export class AutoDimensions {
     position: Vec3,
     rotation?: Vec3
   ): { objectId: string } | null {
-    const textGeometryResult = buildVectorTextGeometry({size: 1, origin: [0, 0, 0], text});
+    const textGeometryResult = buildVectorText({size: 1, origin: [0, 0, 0], text});
     if (textGeometryResult.ok === false) {
       console.error(textGeometryResult.error);
       return null;

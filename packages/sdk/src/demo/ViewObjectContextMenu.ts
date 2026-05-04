@@ -1,19 +1,56 @@
 import {ContextMenu} from "../ui/contextmenu";
+import {SceneHealthPanel} from "./sceneHealthPanel/SceneHealthPanel";
+import {SceneStatsPanel} from "./sceneStats/SceneStatsPanel";
+import {SchemaMaterialsPanel} from "./schemaMaterialsPanel/SchemaMaterialsPanel";
+import {ViewerConfigPanel} from "./viewerPanel/ViewerConfigPanel";
+import {GPUMemoryPanel} from "./gpuMemoryUsage/GPUMemoryUsage";
+import {Toolbar} from "./toolbar/Toolbar";
+import {ExportDialog} from "./exportDialog/ExportDialog";
+import {ExplorerPanel} from "./explorerPanel/ExplorerPanel";
+import {EventsPanel} from "./eventsPanel/EventsPanel";
+import {DataStatsPanel} from "./dataStats/DataStatsPanel";
+import {BoundariesPanel} from "./boundariesPanel/BoundariesPanel";
+import {TilesPanel} from "./tilesPanel/TilesPanel";
+import {SampleModelsPanel} from "./sampleModelsPanel/SampleModelsPanel";
 import {ViewObject} from "../viewer";
-import {SceneAABB3Index} from "../collision/aabb";
+import {SceneCollisionIndex} from "../collision/bvh";
 import {XGFExporter} from "../formats/xgf";
 import {type CoordinateSystemParams, SceneModel, type SceneModelParams, SceneObject} from "../scene";
 import {DataModel, type DataModelContentParams, DataObject} from "../data";
 import {OBJExporter} from "../formats/obj";
 import {MTLExporter} from "../formats/mtl";
 import {DotBIMExporter} from "../formats/dotbim";
+import {GLTFExporter} from "../formats/gltf";
 import {saveBCFViewpoint} from "../bcf";
 import {CameraFlightAnimation} from "../cameraflight";
 import {DemoHelper} from "./DemoHelper";
 import {WebGLRenderer} from "../webglrenderer";
-import {OrthoProjectionType, PerspectiveProjectionType} from "../constants";
+import {
+  DetailedRender,
+  NavigationRender,
+  OrthoProjectionType,
+  PerspectiveProjectionType,
+  RealisticRender
+} from "../constants";
 import {type AABB3} from "../math/boundaries";
 import {IFCExporter} from "../formats/ifc";
+import {applyIFCMaterials} from "./applyIFCMaterials";
+import {MaterialsPalette, type PainterCatalogEntry} from "./materials";
+
+/**
+ * Lazily-initialised, module-scoped MaterialsPalette shared by every
+ * ViewObjectContextMenu instance. Built on first menu invocation;
+ * subsequent invocations re-use it so the per-(SceneModel, painter)
+ * material cache survives across right-clicks.
+ */
+let _materialsPalette: MaterialsPalette | undefined;
+
+function getMaterialsPalette(): MaterialsPalette {
+  if (!_materialsPalette) {
+    _materialsPalette = new MaterialsPalette();
+  }
+  return _materialsPalette;
+}
 
 /**
  * Shared context shape for menus that operate on a view.
@@ -52,7 +89,7 @@ interface BaseViewContext {
   /**
    * Spatial index used to resolve object and scene bounds.
    */
-  aabb3index: SceneAABB3Index;
+  collisionIndex: SceneCollisionIndex;
 }
 
 /**
@@ -99,13 +136,27 @@ export class ViewObjectContextMenu extends ContextMenu {
    */
   constructor(_params: {}) {
     super({
+      // Verb-led structure, two-level nesting max:
+      //   Frame ▶ — three flat actions, the most-used at the top.
+      //   Show  ▶ — visibility, x-ray, selection (was a 3-deep Display
+      //             tree, flattened to one submenu with separators).
+      //   Inspect ▶ — read-only diagnostic surfaces (panel openers +
+      //               JSON dumps).
+      //   Modify ▶ — non-destructive mutations (Change Material,
+      //              IFC Materials, Demolish — was the old Effects
+      //              + standalone Change Material).
+      //   View ▶ — viewer / renderer settings (Render Mode + Camera
+      //            Projection + Create / Close View, was scattered).
+      //   Export ▶ — snapshots + file-format export.
+      //   Delete — last group, with the natural separator above acting
+      //            as a visual moat against the destructive actions.
       items: [
         [
           {
             getTitle: () => "Frame Object",
             doAction: (context: ViewObjectContextMenuContext) => {
               context.cameraFlight.jumpTo({
-                aabb: context.aabb3index.getObjectAABB(context.viewObject.id),
+                aabb: context.collisionIndex.getObjectAABB(context.viewObject.id),
                 duration: 0.5,
                 fitFOV: 40
               });
@@ -125,18 +176,26 @@ export class ViewObjectContextMenu extends ContextMenu {
             getTitle: () => "Frame Scene",
             doAction: (context: ViewObjectContextMenuContext) => {
               context.cameraFlight.jumpTo({
-                aabb: context.aabb3index.getSceneAABB(),
+                aabb: context.collisionIndex.getSceneAABB(),
                 duration: 0.5,
                 fitFOV: 40
               });
             }
           }
         ],
-        createViewObjectNavigateGroup(),
-        createViewObjectDisplayGroup(),
-        createViewObjectInspectGroup(),
+        [createViewObjectShowGroup()],
+        // Inspect ▶ split by user intent: "I have a problem" lands
+        // under Diagnose, "I want a fact" lands under Examine.
+        // Viewer Configuration + Toolbar moved into View ▶ (they're
+        // viewer settings, not inspections); Schema Materials moved
+        // into Modify ▶ (it mutates).
+        createViewObjectDiagnoseGroup(),
+        createViewObjectExamineGroup(),
+        [createViewObjectModifyGroup()],
+        [createViewObjectViewGroup()],
+        createViewObjectImportGroup(),
         createViewObjectExportGroup(),
-        createViewObjectEditGroup()
+        createViewObjectDeleteGroup(),
       ]
     });
   }
@@ -166,113 +225,177 @@ export class CanvasContextMenu extends ContextMenu {
    */
   constructor(_params: {}) {
     super({
+      // Same verb-led structure as the per-object menu, slimmed
+      // down for a click into empty canvas: no per-object actions,
+      // and the JSON dumps are dropped (no specific resource to
+      // serialize).
       items: [
-        [{
-          getTitle: () => "Frame Scene",
-          doAction: (context: CanvasContextMenuContext) => {
-            context.cameraFlight.jumpTo({
-              aabb: context.aabb3index.getSceneAABB(),
-              duration: 0.5,
-              fitFOV: 40
-            });
-          }
-        }],
-        createCanvasNavigateGroup(),
-        createCanvasDisplayGroup(),
-        createCanvasInspectGroup(),
-        createCanvasExportGroup()
+        [
+          {
+            getTitle: () => "Frame Scene",
+            doAction: (context: CanvasContextMenuContext) => {
+              context.cameraFlight.jumpTo({
+                aabb: context.collisionIndex.getSceneAABB(),
+                duration: 0.5,
+                fitFOV: 40
+              });
+            }
+          },
+        ],
+        [createCanvasShowGroup()],
+        // Inspect split — see ViewObjectContextMenu for rationale.
+        [createCanvasDiagnoseGroup()],
+        [createCanvasExamineGroup()],
+        [createCanvasViewGroup()],
+        createCanvasImportGroup(),
+        createCanvasExportGroup(),
       ]
     });
   }
 }
 
 /**
- * Creates the root menu group for view-object navigation and lifecycle actions.
- *
- * @returns Context-menu item group.
+ * Builds the **View** submenu — viewer / renderer settings the
+ * user is most likely reaching for in a context menu: render
+ * mode, camera projection, view lifecycle. Replaces the old
+ * scattered set ("Render Mode" at top level, "View Settings",
+ * "Create View", "Close View" each as separate top-level rows).
  */
-function createViewObjectNavigateGroup() {
-  return [
-    {
-      getTitle: () => "View Settings",
-      items: [
-        createCameraProjectionGroup(),
-        createWebGLContextGroup()
-      ]
-    },
-    {
-      getTitle: () => "Create View",
-      getEnabled: (context: ViewObjectContextMenuContext) => {
-        return context.view.viewer.viewList.length < 4; // TODO
-      },
-      doAction: (context: ViewObjectContextMenuContext) => {
-        const result = context.view.camera.toParams();
-        if (result.ok === false) {
-          console.error("Failed to get camera parameters:", result.error);
-          return;
-        }
-        context.demoHelper.createView({
-          camera: result.value
-        });
-      }
-    },
-    {
-      getTitle: () => "Close View",
-      doAction: (context: ViewObjectContextMenuContext) => {
-        context.demoHelper.destroyView(context.view);
-      }
-    }
-  ];
+function createViewObjectViewGroup() {
+  return {
+    getTitle: () => "View",
+    items: [
+      // Renderer / camera settings — the everyday toggles.
+      [
+        {
+          getTitle: () => "Render Mode",
+          items: [createRenderModeGroup()],
+        },
+        {
+          getTitle: () => "Camera Projection",
+          items: [createCameraProjectionGroup()],
+        },
+      ],
+      // Viewer configuration panels (relocated from the old Inspect
+      // submenu — these mutate viewer settings, so they belong with
+      // the other View toggles).
+      [
+        {
+          title: "Viewer Configuration",
+          icon: ViewerConfigPanel.iconSvg(),
+          doAction: (context: ViewObjectContextMenuContext) => {
+            context.demoHelper.openViewerConfigPanel();
+          }
+        },
+        {
+          getTitle: (context: ViewObjectContextMenuContext) => {
+            const tb = Toolbar.getFor(context.demoHelper.viewer);
+            return tb && tb.visible ? "Hide Toolbar" : "Show Toolbar";
+          },
+          icon: Toolbar.iconSvg(),
+          doAction: (context: ViewObjectContextMenuContext) => {
+            context.demoHelper.toggleToolbar();
+          }
+        },
+      ],
+      // View lifecycle + low-level renderer actions (less common,
+      // separated visually).
+      [
+        {
+          getTitle: () => "Create View",
+          getEnabled: (context: ViewObjectContextMenuContext) => {
+            return context.view.viewer.viewList.length < 4; // TODO
+          },
+          doAction: (context: ViewObjectContextMenuContext) => {
+            const result = context.view.camera.toParams();
+            if (result.ok === false) {
+              console.error("Failed to get camera parameters:", result.error);
+              return;
+            }
+            context.demoHelper.createView({camera: result.value});
+          }
+        },
+        {
+          getTitle: () => "Close View",
+          doAction: (context: ViewObjectContextMenuContext) => {
+            context.demoHelper.destroyView(context.view);
+          }
+        },
+        {
+          getTitle: () => "Lose WebGL Context",
+          doAction: (context: ViewObjectContextMenuContext) => {
+            loseWebGLContext(context.renderer);
+          }
+        },
+      ],
+    ],
+  };
 }
 
-function createCanvasNavigateGroup() {
-  return [
-    {
-      getTitle: () => "View Settings",
-      items: [
-        createCameraProjectionGroup(),
-        createWebGLContextGroup()
-      ]
-    },
-    {
-      getTitle: () => "Create View",
-      getEnabled: (context: CanvasContextMenuContext) => {
-        return context.view.viewer.viewList.length < 4; // TODO
-      },
-      doAction: (context: CanvasContextMenuContext) => {
-        const result = context.view.camera.toParams();
-        if (result.ok === false) {
-          console.error("Failed to get camera parameters:", result.error);
-          return;
-        }
-        context.demoHelper.createView({
-          camera: result.value
-        });
-      }
-    },
-    {
-      getTitle: () => "Close View",
-      doAction: (context: CanvasContextMenuContext) => {
-        context.demoHelper.destroyView(context.view);
-      }
-    }
-  ];
-}
-
-/**
- * Creates the submenu group for WebGL context actions.
- *
- * @returns Context-menu item group.
- */
-function createWebGLContextGroup() {
-  return [
-    {
-      getTitle: () => "Lose WEBGL Context",
-      doAction: (context: BaseViewContext) => {
-        loseWebGLContext(context.renderer);
-      }
-    }
-  ];
+/** Canvas-side counterpart of {@link createViewObjectViewGroup}. */
+function createCanvasViewGroup() {
+  return {
+    getTitle: () => "View",
+    items: [
+      [
+        {
+          getTitle: () => "Render Mode",
+          items: [createRenderModeGroup()],
+        },
+        {
+          getTitle: () => "Camera Projection",
+          items: [createCameraProjectionGroup()],
+        },
+      ],
+      [
+        {
+          title: "Viewer Configuration",
+          icon: ViewerConfigPanel.iconSvg(),
+          doAction: (context: CanvasContextMenuContext) => {
+            context.demoHelper.openViewerConfigPanel();
+          }
+        },
+        {
+          getTitle: (context: CanvasContextMenuContext) => {
+            const tb = Toolbar.getFor(context.demoHelper.viewer);
+            return tb && tb.visible ? "Hide Toolbar" : "Show Toolbar";
+          },
+          icon: Toolbar.iconSvg(),
+          doAction: (context: CanvasContextMenuContext) => {
+            context.demoHelper.toggleToolbar();
+          }
+        },
+      ],
+      [
+        {
+          getTitle: () => "Create View",
+          getEnabled: (context: CanvasContextMenuContext) => {
+            return context.view.viewer.viewList.length < 4; // TODO
+          },
+          doAction: (context: CanvasContextMenuContext) => {
+            const result = context.view.camera.toParams();
+            if (result.ok === false) {
+              console.error("Failed to get camera parameters:", result.error);
+              return;
+            }
+            context.demoHelper.createView({camera: result.value});
+          }
+        },
+        {
+          getTitle: () => "Close View",
+          doAction: (context: CanvasContextMenuContext) => {
+            context.demoHelper.destroyView(context.view);
+          }
+        },
+        {
+          getTitle: () => "Lose WebGL Context",
+          doAction: (context: CanvasContextMenuContext) => {
+            loseWebGLContext(context.renderer);
+          }
+        },
+      ],
+    ],
+  };
 }
 
 /**
@@ -311,261 +434,201 @@ function createCameraProjectionGroup() {
 }
 
 /**
- * Creates the root menu group for view-object display actions.
+ * Creates the submenu group for render-mode preset switching.
  *
- * @returns Context-menu item group.
+ * Each item drives `view.renderMode` to one of the three preset
+ * constants. `getEnabled` returns `false` for the currently-active
+ * mode so the menu disables it (matching the camera-projection
+ * group's idiom).
  */
-function createViewObjectDisplayGroup() {
+function createRenderModeGroup() {
   return [
     {
-      getTitle: () => "Display",
-      items: [
-        createViewObjectVisibilityGroup(),
-        createViewObjectXRayGroup(),
-        createViewObjectSelectionGroup()
-      ]
-    }
-  ];
-}
-
-/**
- * Creates the root menu group for canvas display actions.
- *
- * @returns Context-menu item group.
- */
-function createCanvasDisplayGroup() {
-  return [
-    {
-      getTitle: () => "Display",
-      items: [
-        createCanvasVisibilityGroup(),
-        createCanvasXRayGroup(),
-        createCanvasSelectionGroup()
-      ]
-    }
-  ];
-}
-
-/**
- * Creates the visibility submenu group for a view object.
- *
- * @returns Context-menu item group.
- */
-function createViewObjectVisibilityGroup() {
-  return [
-    {
-      getTitle: () => "Hide Object",
-      getEnabled: (context: ViewObjectContextMenuContext) => {
-        return context.viewObject.visible;
+      getTitle: () => "Navigation Render",
+      getEnabled: (context: BaseViewContext) => {
+        return context.view.renderMode !== NavigationRender;
       },
-      doAction: (context: ViewObjectContextMenuContext) => {
-        context.viewObject.visible = false;
+      doAction: (context: BaseViewContext) => {
+        context.view.renderMode = NavigationRender;
       }
     },
     {
-      getTitle: () => "Isolate Object",
-      doAction: (context: ViewObjectContextMenuContext) => {
-        const {viewObject} = context;
-        const {view} = viewObject;
-        view.setObjectsVisible(view.visibleObjectIds, false);
-        viewObject.visible = true;
+      getTitle: () => "Detailed Render",
+      getEnabled: (context: BaseViewContext) => {
+        return context.view.renderMode !== DetailedRender;
+      },
+      doAction: (context: BaseViewContext) => {
+        context.view.renderMode = DetailedRender;
       }
     },
     {
-      getTitle: () => "Hide All Objects",
-      getEnabled: (context: ViewObjectContextMenuContext) => {
-        return context.view.numVisibleObjects > 0;
+      getTitle: () => "Realistic Render",
+      getEnabled: (context: BaseViewContext) => {
+        return context.view.renderMode !== RealisticRender;
       },
-      doAction: (context: ViewObjectContextMenuContext) => {
-        context.view.setObjectsVisible(context.view.visibleObjectIds, false);
-      }
-    },
-    {
-      getTitle: () => "Show All Objects",
-      getEnabled: (context: ViewObjectContextMenuContext) => {
-        const {view} = context;
-        return view.numVisibleObjects < view.numObjects || view.numXRayedObjects > 0;
-      },
-      doAction: (context: ViewObjectContextMenuContext) => {
-        const {view} = context;
-        view.setObjectsVisible(view.objectIds, true);
-        view.setObjectsPickable(view.xrayedObjectIds, true);
-        view.setObjectsXRayed(view.xrayedObjectIds, false);
+      doAction: (context: BaseViewContext) => {
+        context.view.renderMode = RealisticRender;
       }
     }
   ];
 }
 
 /**
- * Creates the visibility submenu group for the canvas.
+ * Builds the **Show** submenu — visibility / x-ray / selection
+ * actions, flattened from the old 3-deep `Display → {Visibility,
+ * X-Ray, Selection}` tree into one submenu with a separator
+ * between per-object actions and scene-wide resets.
  *
- * @returns Context-menu item group.
+ * Per-object actions read as a vertical menu of toggles; the
+ * Select / Deselect entry uses a dynamic title rather than two
+ * mutually-disabled rows so the user always sees the action that
+ * actually applies right now.
  */
-function createCanvasVisibilityGroup() {
-  return [
-    {
-      getTitle: () => "Hide All Objects",
-      getEnabled: (context: CanvasContextMenuContext) => {
-        return context.view.numVisibleObjects > 0;
-      },
-      doAction: (context: CanvasContextMenuContext) => {
-        context.view.setObjectsVisible(context.view.visibleObjectIds, false);
-      }
-    },
-    {
-      getTitle: () => "Show All Objects",
-      getEnabled: (context: CanvasContextMenuContext) => {
-        const {view} = context;
-        return view.numVisibleObjects < view.numObjects || view.numXRayedObjects > 0;
-      },
-      doAction: (context: CanvasContextMenuContext) => {
-        const {view} = context;
-        view.setObjectsVisible(view.objectIds, true);
-        view.setObjectsPickable(view.xrayedObjectIds, true);
-        view.setObjectsXRayed(view.xrayedObjectIds, false);
-      }
-    }
-  ];
+function createViewObjectShowGroup() {
+  return {
+    getTitle: () => "Show",
+    items: [
+      // Per-object actions.
+      [
+        {
+          getTitle: () => "Hide",
+          getEnabled: (context: ViewObjectContextMenuContext) => context.viewObject.visible,
+          doAction: (context: ViewObjectContextMenuContext) => {
+            context.viewObject.visible = false;
+          }
+        },
+        {
+          getTitle: () => "Isolate",
+          doAction: (context: ViewObjectContextMenuContext) => {
+            const {viewObject} = context;
+            const {view} = viewObject;
+            view.setObjectsVisible(view.visibleObjectIds, false);
+            viewObject.visible = true;
+          }
+        },
+        {
+          getTitle: () => "X-Ray Object",
+          getEnabled: (context: ViewObjectContextMenuContext) => !context.viewObject.xrayed,
+          doAction: (context: ViewObjectContextMenuContext) => {
+            context.viewObject.xrayed = true;
+          }
+        },
+        {
+          getTitle: () => "X-Ray Others",
+          doAction: (context: ViewObjectContextMenuContext) => {
+            const {viewObject} = context;
+            const {view} = viewObject;
+            view.setObjectsXRayed(view.objectIds, true);
+            viewObject.xrayed = false;
+          }
+        },
+        {
+          // Single dynamic toggle instead of two rows where one
+          // is always disabled — fewer visual distractions.
+          getTitle: (context: ViewObjectContextMenuContext) =>
+            context.viewObject.selected ? "Deselect" : "Select",
+          doAction: (context: ViewObjectContextMenuContext) => {
+            context.viewObject.selected = !context.viewObject.selected;
+          }
+        },
+      ],
+      // Scene-wide resets.
+      [
+        {
+          getTitle: () => "Show All",
+          getEnabled: (context: ViewObjectContextMenuContext) => {
+            const {view} = context;
+            return view.numVisibleObjects < view.numObjects || view.numXRayedObjects > 0;
+          },
+          doAction: (context: ViewObjectContextMenuContext) => {
+            const {view} = context;
+            view.setObjectsVisible(view.objectIds, true);
+            view.setObjectsPickable(view.xrayedObjectIds, true);
+            view.setObjectsXRayed(view.xrayedObjectIds, false);
+          }
+        },
+        {
+          getTitle: () => "Clear X-Ray",
+          getEnabled: (context: ViewObjectContextMenuContext) => context.view.numXRayedObjects > 0,
+          doAction: (context: ViewObjectContextMenuContext) => {
+            const {view} = context;
+            const {xrayedObjectIds} = view;
+            view.setObjectsPickable(xrayedObjectIds, true);
+            view.setObjectsXRayed(xrayedObjectIds, false);
+          }
+        },
+        {
+          getTitle: () => "Clear Selection",
+          getEnabled: (context: ViewObjectContextMenuContext) => context.view.numSelectedObjects > 0,
+          doAction: (context: ViewObjectContextMenuContext) => {
+            context.view.setObjectsSelected(context.view.selectedObjectIds, false);
+          }
+        },
+      ],
+    ],
+  };
 }
 
 /**
- * Creates the x-ray submenu group for a view object.
- *
- * @returns Context-menu item group.
+ * Canvas-side counterpart of {@link createViewObjectShowGroup} —
+ * scene-wide resets only since there's no specific
+ * {@link ViewObject} to act on.
  */
-function createViewObjectXRayGroup() {
-  return [
-    {
-      getTitle: () => "X-Ray Object",
-      getEnabled: (context: ViewObjectContextMenuContext) => {
-        return !context.viewObject.xrayed;
-      },
-      doAction: (context: ViewObjectContextMenuContext) => {
-        context.viewObject.xrayed = true;
-      }
-    },
-    {
-      getTitle: () => "X-Ray Others",
-      doAction: (context: ViewObjectContextMenuContext) => {
-        const {viewObject} = context;
-        const {view} = viewObject;
-        view.setObjectsXRayed(view.objectIds, true);
-        viewObject.xrayed = false;
-      }
-    },
-    {
-      getTitle: () => "X-Ray All Objects",
-      getEnabled: (context: ViewObjectContextMenuContext) => {
-        return context.view.numXRayedObjects < context.view.numObjects;
-      },
-      doAction: (context: ViewObjectContextMenuContext) => {
-        const {view} = context;
-        view.setObjectsVisible(view.objectIds, true);
-        view.setObjectsXRayed(view.objectIds, true);
-      }
-    },
-    {
-      getTitle: () => "Clear X-Ray",
-      getEnabled: (context: ViewObjectContextMenuContext) => {
-        return context.view.numXRayedObjects > 0;
-      },
-      doAction: (context: ViewObjectContextMenuContext) => {
-        const {view} = context;
-        const {xrayedObjectIds} = view;
-        view.setObjectsPickable(xrayedObjectIds, true);
-        view.setObjectsXRayed(xrayedObjectIds, false);
-      }
-    }
-  ];
-}
-
-/**
- * Creates the x-ray submenu group for the canvas.
- *
- * @returns Context-menu item group.
- */
-function createCanvasXRayGroup() {
-  return [
-    {
-      getTitle: () => "X-Ray All Objects",
-      getEnabled: (context: CanvasContextMenuContext) => {
-        return context.view.numXRayedObjects < context.view.numObjects;
-      },
-      doAction: (context: CanvasContextMenuContext) => {
-        const {view} = context;
-        view.setObjectsVisible(view.objectIds, true);
-        view.setObjectsXRayed(view.objectIds, true);
-      }
-    },
-    {
-      getTitle: () => "Clear X-Ray",
-      getEnabled: (context: CanvasContextMenuContext) => {
-        return context.view.numXRayedObjects > 0;
-      },
-      doAction: (context: CanvasContextMenuContext) => {
-        const {view} = context;
-        const {xrayedObjectIds} = view;
-        view.setObjectsPickable(xrayedObjectIds, true);
-        view.setObjectsXRayed(xrayedObjectIds, false);
-      }
-    }
-  ];
-}
-
-/**
- * Creates the selection submenu group for a view object.
- *
- * @returns Context-menu item group.
- */
-function createViewObjectSelectionGroup() {
-  return [
-    {
-      getTitle: () => "Select Object",
-      getEnabled: (context: ViewObjectContextMenuContext) => {
-        return !context.viewObject.selected;
-      },
-      doAction: (context: ViewObjectContextMenuContext) => {
-        context.viewObject.selected = true;
-      }
-    },
-    {
-      getTitle: () => "Deselect Object",
-      getEnabled: (context: ViewObjectContextMenuContext) => {
-        return context.viewObject.selected;
-      },
-      doAction: (context: ViewObjectContextMenuContext) => {
-        context.viewObject.selected = false;
-      }
-    },
-    {
-      getTitle: () => "Clear Selection",
-      getEnabled: (context: ViewObjectContextMenuContext) => {
-        return context.view.numSelectedObjects > 0;
-      },
-      doAction: (context: ViewObjectContextMenuContext) => {
-        context.view.setObjectsSelected(context.view.selectedObjectIds, false);
-      }
-    }
-  ];
-}
-
-/**
- * Creates the selection submenu group for the canvas.
- *
- * @returns Context-menu item group.
- */
-function createCanvasSelectionGroup() {
-  return [
-    {
-      getTitle: () => "Clear Selection",
-      getEnabled: (context: CanvasContextMenuContext) => {
-        return context.view.numSelectedObjects > 0;
-      },
-      doAction: (context: CanvasContextMenuContext) => {
-        context.view.setObjectsSelected(context.view.selectedObjectIds, false);
-      }
-    }
-  ];
+function createCanvasShowGroup() {
+  return {
+    getTitle: () => "Show",
+    items: [
+      [
+        {
+          getTitle: () => "Show All",
+          getEnabled: (context: CanvasContextMenuContext) => {
+            const {view} = context;
+            return view.numVisibleObjects < view.numObjects || view.numXRayedObjects > 0;
+          },
+          doAction: (context: CanvasContextMenuContext) => {
+            const {view} = context;
+            view.setObjectsVisible(view.objectIds, true);
+            view.setObjectsPickable(view.xrayedObjectIds, true);
+            view.setObjectsXRayed(view.xrayedObjectIds, false);
+          }
+        },
+        {
+          getTitle: () => "Hide All",
+          getEnabled: (context: CanvasContextMenuContext) => context.view.numVisibleObjects > 0,
+          doAction: (context: CanvasContextMenuContext) => {
+            context.view.setObjectsVisible(context.view.visibleObjectIds, false);
+          }
+        },
+        {
+          getTitle: () => "X-Ray All",
+          getEnabled: (context: CanvasContextMenuContext) =>
+            context.view.numXRayedObjects < context.view.numObjects,
+          doAction: (context: CanvasContextMenuContext) => {
+            const {view} = context;
+            view.setObjectsVisible(view.objectIds, true);
+            view.setObjectsXRayed(view.objectIds, true);
+          }
+        },
+        {
+          getTitle: () => "Clear X-Ray",
+          getEnabled: (context: CanvasContextMenuContext) => context.view.numXRayedObjects > 0,
+          doAction: (context: CanvasContextMenuContext) => {
+            const {view} = context;
+            const {xrayedObjectIds} = view;
+            view.setObjectsPickable(xrayedObjectIds, true);
+            view.setObjectsXRayed(xrayedObjectIds, false);
+          }
+        },
+        {
+          getTitle: () => "Clear Selection",
+          getEnabled: (context: CanvasContextMenuContext) => context.view.numSelectedObjects > 0,
+          doAction: (context: CanvasContextMenuContext) => {
+            context.view.setObjectsSelected(context.view.selectedObjectIds, false);
+          }
+        },
+      ],
+    ],
+  };
 }
 
 /**
@@ -573,18 +636,99 @@ function createCanvasSelectionGroup() {
  *
  * @returns Context-menu item group.
  */
-function createViewObjectInspectGroup() {
+/**
+ * Builds the **Diagnose** submenu — issue-finding workflows: the
+ * Model Inspector, debug-viz panels (Scene Boundaries, GPU
+ * Tiles), and the GPU Memory monitor. Cleanly separated from
+ * **Examine** (read-only stats / JSON dumps) so the menu reads
+ * as goal-paths: "I have a problem" → Diagnose, "I want a fact"
+ * → Examine.
+ */
+function createViewObjectDiagnoseGroup() {
   return [
     {
-      getTitle: () => "Inspect",
+      getTitle: () => "Diagnose",
       items: [
         [
           {
-            title: "Open Inspectors",
+            title: "Scene Health",
+            icon: SceneHealthPanel.iconSvg(),
             doAction: (context: ViewObjectContextMenuContext) => {
-              context.demoHelper.toggleInspector();
+              // Pass the clicked object's SceneModel as initial
+              // focus — the panel opens with that model selected
+              // in the tab strip, even if it was previously
+              // showing another model.
+              context.demoHelper.getSceneHealthPanel(
+                context.viewObject.sceneObject.model
+              );
             }
-          }
+          },
+          {
+            title: "Scene Boundaries",
+            icon: BoundariesPanel.iconSvg(),
+            doAction: (context: ViewObjectContextMenuContext) => {
+              context.demoHelper.openBoundariesPanel();
+            }
+          },
+          {
+            title: "GPU Tiles",
+            icon: TilesPanel.iconSvg(),
+            doAction: (context: ViewObjectContextMenuContext) => {
+              context.demoHelper.openTilesPanel();
+            }
+          },
+          {
+            title: "GPU Memory",
+            icon: GPUMemoryPanel.iconSvg(),
+            doAction: (context: ViewObjectContextMenuContext) => {
+              context.demoHelper.getGPUMemoryPanel();
+            }
+          },
+          {
+            title: "Events",
+            icon: EventsPanel.iconSvg(),
+            doAction: (context: ViewObjectContextMenuContext) => {
+              context.demoHelper.getEventsPanel();
+            }
+          },
+        ],
+      ]
+    }
+  ];
+}
+
+/**
+ * Builds the **Examine** submenu — read-only "tell me about
+ * this" surfaces: Scene / Data statistics, plus per-object JSON
+ * dumps for the active SceneObject and matching DataObject.
+ */
+function createViewObjectExamineGroup() {
+  return [
+    {
+      getTitle: () => "Examine",
+      items: [
+        [
+          {
+            title: "Explorer",
+            icon: ExplorerPanel.iconSvg(),
+            doAction: (context: ViewObjectContextMenuContext) => {
+              context.demoHelper.getExplorer();
+            }
+          },
+          {
+            title: "Scene Statistics",
+            icon: SceneStatsPanel.iconSvg(),
+            doAction: (context: ViewObjectContextMenuContext) => {
+              context.demoHelper.openSceneStatsPanel();
+            }
+          },
+          {
+            title: "Data Statistics",
+            icon: DataStatsPanel.iconSvg(),
+            doAction: (context: ViewObjectContextMenuContext) => {
+              context.demoHelper.openDataStatsPanel();
+            }
+          },
         ],
         [
           {
@@ -614,32 +758,147 @@ function createViewObjectInspectGroup() {
 }
 
 /**
- * Creates the root menu group for canvas inspection actions.
- *
- * @returns Context-menu item group.
+ * Canvas-side **Diagnose** submenu — Scene Boundaries / GPU
+ * Tiles / GPU Memory. Per-object Inspector is omitted (canvas
+ * menu fires on empty space, no SceneModel context).
  */
-function createCanvasInspectGroup() {
+function createCanvasDiagnoseGroup() {
+  return {
+    getTitle: () => "Diagnose",
+    items: [
+      [
+        {
+          title: "Scene Health",
+          icon: SceneHealthPanel.iconSvg(),
+          doAction: (context: CanvasContextMenuContext) => {
+            // No specific SceneModel — the panel falls back to
+            // its first loaded model (or empty state).
+            context.demoHelper.getSceneHealthPanel();
+          }
+        },
+        {
+          title: "Scene Boundaries",
+          icon: BoundariesPanel.iconSvg(),
+          doAction: (context: CanvasContextMenuContext) => {
+            context.demoHelper.openBoundariesPanel();
+          }
+        },
+        {
+          title: "GPU Tiles",
+          icon: TilesPanel.iconSvg(),
+          doAction: (context: CanvasContextMenuContext) => {
+            context.demoHelper.openTilesPanel();
+          }
+        },
+        {
+          title: "GPU Memory",
+          icon: GPUMemoryPanel.iconSvg(),
+          doAction: (context: CanvasContextMenuContext) => {
+            context.demoHelper.getGPUMemoryPanel();
+          }
+        },
+        {
+          title: "Events",
+          icon: EventsPanel.iconSvg(),
+          doAction: (context: CanvasContextMenuContext) => {
+            context.demoHelper.getEventsPanel();
+          }
+        },
+      ],
+    ],
+  };
+}
+
+/**
+ * Canvas-side **Examine** submenu — Scene / Data statistics.
+ * JSON dumps are dropped on the canvas variant (no specific
+ * resource to serialise from an empty-space click).
+ */
+function createCanvasExamineGroup() {
+  return {
+    getTitle: () => "Examine",
+    items: [
+      [
+        {
+          title: "Explorer",
+          icon: ExplorerPanel.iconSvg(),
+          doAction: (context: CanvasContextMenuContext) => {
+            context.demoHelper.getExplorer();
+          }
+        },
+        {
+          title: "Scene Statistics",
+          icon: SceneStatsPanel.iconSvg(),
+          doAction: (context: CanvasContextMenuContext) => {
+            context.demoHelper.openSceneStatsPanel();
+          }
+        },
+        {
+          title: "Data Statistics",
+          icon: DataStatsPanel.iconSvg(),
+          doAction: (context: CanvasContextMenuContext) => {
+            context.demoHelper.openDataStatsPanel();
+          }
+        },
+      ],
+    ],
+  };
+}
+
+/**
+ * Builds the **Import** submenu — sits next to **Export** in
+ * both the view-object and canvas menus and currently exposes
+ * the **Sample Models** entry (the floating
+ * {@link SampleModelsPanel}, which lists every demo model the
+ * helper can load). Kept as a submenu so future import sources
+ * (drag-drop, file picker, URL prompt) drop in without
+ * reshuffling the top-level layout.
+ */
+function createViewObjectImportGroup() {
   return [
     {
-      getTitle: () => "Inspect",
+      getTitle: () => "Import",
       items: [
         [
           {
-            title: "Open Inspectors",
-            doAction: (context: CanvasContextMenuContext) => {
-              context.demoHelper.toggleInspector();
+            title: "Sample Models",
+            icon: SampleModelsPanel.iconSvg(),
+            doAction: (context: ViewObjectContextMenuContext) => {
+              context.demoHelper.showSampleModels();
             }
-          }
-        ]
+          },
+        ],
+      ]
+    }
+  ];
+}
+
+/** Canvas-side counterpart of {@link createViewObjectImportGroup}. */
+function createCanvasImportGroup() {
+  return [
+    {
+      getTitle: () => "Import",
+      items: [
+        [
+          {
+            title: "Sample Models",
+            icon: SampleModelsPanel.iconSvg(),
+            doAction: (context: CanvasContextMenuContext) => {
+              context.demoHelper.showSampleModels();
+            }
+          },
+        ],
       ]
     }
   ];
 }
 
 /**
- * Creates the root menu group for view-object export actions.
- *
- * @returns Context-menu item group.
+ * Builds the view-object **Export** submenu — snapshots + a
+ * nested "Export As" submenu for the six file formats. Three
+ * levels deep but the file formats are similar enough that the
+ * extra click is well worth the reduced clutter at the top
+ * Export menu.
  */
 function createViewObjectExportGroup() {
   return [
@@ -647,25 +906,46 @@ function createViewObjectExportGroup() {
       getTitle: () => "Export",
       items: [
         createSnapshotExportGroup(),
-        createFileExportGroup()
+        [
+          {
+            getTitle: () => "Export As",
+            items: [createFileExportGroup()],
+          },
+        ],
+        [
+          {
+            title: "Export Models…",
+            icon: ExportDialog.iconSvg(),
+            doAction: (context: ViewObjectContextMenuContext) => {
+              context.demoHelper.openExportDialog();
+            }
+          },
+        ],
       ]
     }
   ];
 }
 
 /**
- * Creates the root menu group for canvas export actions.
- *
- * Canvas export intentionally excludes model file export formats.
- *
- * @returns Context-menu item group.
+ * Canvas-side **Export** submenu — snapshots only. File-format
+ * exports require a specific SceneModel and don't make sense
+ * from a generic canvas right-click.
  */
 function createCanvasExportGroup() {
   return [
     {
       getTitle: () => "Export",
       items: [
-        createSnapshotExportGroup()
+        createSnapshotExportGroup(),
+        [
+          {
+            title: "Export Models…",
+            icon: ExportDialog.iconSvg(),
+            doAction: (context: CanvasContextMenuContext) => {
+              context.demoHelper.openExportDialog();
+            }
+          },
+        ],
       ]
     }
   ];
@@ -712,7 +992,7 @@ function createSnapshotExportGroup() {
 function createFileExportGroup() {
   return [
     {
-      title: "Export as OBJ + MTL",
+      title: "OBJ + MTL",
       doAction: async (context: BaseViewContext) => {
         const {sceneModel} = context;
 
@@ -734,14 +1014,15 @@ function createFileExportGroup() {
         }
       }
     },
-    {
-      title: "Export as XGF",
+   {
+      title: "XGF",
       doAction: async (context: BaseViewContext) => {
         try {
           const fileData = await new XGFExporter().write(
             {
               sceneModel: context.sceneModel,
-              dataModel: context.dataModel
+              dataModel: context.dataModel,
+              version: "1.1.0"
             },
             {
               coordinateSystem: createExportCoordinateSystem()
@@ -754,7 +1035,26 @@ function createFileExportGroup() {
       }
     },
     {
-      title: "Export as DotBIM",
+      title: "glTF",
+      doAction: async (context: BaseViewContext) => {
+        try {
+          const fileData = await new GLTFExporter().write(
+            {
+              sceneModel: context.sceneModel,
+              dataModel: context.dataModel
+            },
+            {
+              coordinateSystem: createExportCoordinateSystem()
+            }
+          );
+          downloadBlob(fileData, `${context.sceneModel.id}.glb`, "model/gltf-binary");
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    },
+    {
+      title: "DotBIM",
       doAction: async (context: BaseViewContext) => {
         try {
           const fileData = await new DotBIMExporter().write(
@@ -777,7 +1077,7 @@ function createFileExportGroup() {
       }
     },
     {
-      title: "Export as IFC",
+      title: "IFC",
       doAction: async (context: BaseViewContext) => {
         try {
           const fileData = await new IFCExporter().write(
@@ -800,7 +1100,7 @@ function createFileExportGroup() {
       }
     },
     {
-      title: "Export as JSON",
+      title: "JSON",
       doAction: (context: BaseViewContext) => {
         downloadSceneAndDataJson(context);
       }
@@ -809,11 +1109,129 @@ function createFileExportGroup() {
 }
 
 /**
- * Creates the root menu group for edit actions.
+ * Builds the **Modify** submenu — non-destructive mutations on
+ * the targeted object's parent SceneModel. Replaces the old
+ * "Effects" submenu (which was a junk drawer with IFC materials
+ * + demolish) and the standalone top-level "Change Material"
+ * item.
  *
- * @returns Context-menu item group.
+ * "Modify" is honest about what these do (mutate scene state);
+ * the old "Effects" name suggested visual filters.
  */
-function createViewObjectEditGroup() {
+function createViewObjectModifyGroup() {
+  return {
+    getTitle: () => "Modify",
+    items: [
+      [
+        {
+          getTitle: () => "Change Material",
+          items: [createCategorySubmenus()],
+        },
+      ],
+      [
+        {
+          getTitle: () => "Add IFC Materials",
+          getEnabled: (context: ViewObjectContextMenuContext) => !!context.dataModel,
+          doAction: async (context: ViewObjectContextMenuContext) => {
+            const sceneModel = context.viewObject.sceneObject.model;
+            const dataModel = context.dataModel;
+            if (!dataModel) {
+              console.warn("[ViewObjectContextMenu] Add IFC Materials: no DataModel in context");
+              return;
+            }
+            const result = await applyIFCMaterials({sceneModel, dataModel});
+            if (result.ok === false) {
+              console.error("[ViewObjectContextMenu] Add IFC Materials failed:", result.error);
+            }
+          }
+        },
+        {
+          title: "Schema Materials…",
+          icon: SchemaMaterialsPanel.iconSvg(),
+          getEnabled: (context: ViewObjectContextMenuContext) => !!context.dataModel,
+          doAction: (context: ViewObjectContextMenuContext) => {
+            context.demoHelper.openSchemaMaterialsPanel(
+              context.viewObject.sceneObject.model
+            );
+          }
+        },
+        {
+          getTitle: () => "Demolish Model",
+          doAction: async (context: ViewObjectContextMenuContext) => {
+            const result = await context.demoHelper.demolishModel(context.viewObject.sceneObject.model);
+            if (result.ok === false) {
+              console.error(result.error);
+            }
+          }
+        }
+      ]
+    ]
+  };
+}
+
+/**
+ * Builds the per-category submenu list used by the "Change
+ * Material" entry inside the **Modify** submenu.
+ *
+ * Walks the shared {@link MaterialsPalette} catalog, groups entries
+ * by their {@link PainterCatalogEntry.category}, and emits one
+ * submenu item per non-empty category with the painters as actions
+ * inside it. Display order is fixed (Masonry → Interior → Metals →
+ * Glass) so the menu reads the same regardless of catalog
+ * declaration order.
+ */
+function createCategorySubmenus() {
+  const palette = getMaterialsPalette();
+  const byCategory: Record<string, PainterCatalogEntry[]> = {};
+  for (const entry of palette.catalog) {
+    (byCategory[entry.category] ||= []).push(entry);
+  }
+
+  // Catalog enum values are singular; the user-visible labels follow
+  // the more natural plural for "Metals". Order is fixed so menu
+  // structure stays stable across catalog reshuffling.
+  const order: ReadonlyArray<{cat: PainterCatalogEntry["category"]; label: string}> = [
+    {cat: "Masonry",  label: "Masonry"},
+    {cat: "Interior", label: "Interior"},
+    {cat: "Metal",    label: "Metals"},
+    {cat: "Glass",    label: "Glass"},
+  ];
+
+  return order
+    .filter(({cat}) => byCategory[cat] && byCategory[cat].length > 0)
+    .map(({cat, label}) => ({
+      getTitle: () => label,
+      items: [
+        byCategory[cat].map(entry => ({
+          getTitle: () => entry.label,
+          doAction: (context: ViewObjectContextMenuContext) => {
+            const sceneObject = context.viewObject.sceneObject;
+            const meshIds = sceneObject.meshes.map(m => m.id);
+            const sceneModel = sceneObject.model;
+            for (const meshId of meshIds) {
+              const mesh = sceneModel.meshes[meshId];
+              if (!mesh) {
+                continue;
+              }
+              const result = palette.paintMaterial(mesh, entry.id);
+              if (result.ok === false) {
+                console.error(`[ViewObjectContextMenu] Change Material '${entry.id}' on mesh '${meshId}' failed:`, result.error);
+              }
+            }
+          },
+        })),
+      ],
+    }));
+}
+
+/**
+ * Builds the trailing **Delete** group — destructive actions
+ * placed last so the implicit group-separator above them acts as
+ * a visual moat against accidental clicks. Two flat items rather
+ * than a submenu so the click count stays low when the user
+ * really wants to delete.
+ */
+function createViewObjectDeleteGroup() {
   return [
     {
       getTitle: () => "Delete Object",
@@ -824,7 +1242,13 @@ function createViewObjectEditGroup() {
     {
       getTitle: () => "Delete Model",
       doAction: (context: ViewObjectContextMenuContext) => {
-        context.viewObject.sceneObject.model.destroy();
+        // Defer to DemoHelper so the matching DataModel goes
+        // away too — destroying just the SceneModel here would
+        // leave its DataObjects hanging around in `Data` and
+        // every panel that walks the data graph would still
+        // show them.
+        const id = context.viewObject.sceneObject.model.id;
+        context.demoHelper.destroyModel(id);
       }
     }
   ];
@@ -837,7 +1261,7 @@ function createViewObjectEditGroup() {
  * @returns Scene-model AABB.
  */
 function getSceneModelAABB(context: BaseViewContext): AABB3 {
-  return context.aabb3index.getCombinedObjectAABB(Object.keys(context.sceneModel.objects));
+  return context.collisionIndex.getCombinedObjectAABB(Object.keys(context.sceneModel.objects));
 }
 
 /**

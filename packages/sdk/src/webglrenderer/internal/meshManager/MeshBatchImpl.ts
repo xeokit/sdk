@@ -139,8 +139,17 @@ export class MeshBatchImpl implements MeshBatch {
     if (!batchViewDataTextures) {
       return false;
     }
-    if (renderPass === RENDER_PASSES.PICK) {
+    // PICK and SNAP_INIT draw the pickable-triangle set
+    // (`pickPrimitiveRange`); SNAP draws corner vertices and crease
+    // edges only — those ride the dihedral-angle-thresholded edge
+    // index buffer, so SNAP consults `pickEdgePrimitiveRange`
+    // instead. A batch contributes to SNAP iff it has any edges.
+    if (renderPass === RENDER_PASSES.PICK ||
+        renderPass === RENDER_PASSES.SNAP_INIT) {
       return batchViewDataTextures.pickPrimitiveRange.numPrims > 0;
+    }
+    if (renderPass === RENDER_PASSES.SNAP) {
+      return batchViewDataTextures.pickEdgePrimitiveRange.numPrims > 0;
     }
     return batchViewDataTextures.renderPassPrimitiveRanges.get(<number>renderPass)?.numPrims! > 0;
   }

@@ -91,7 +91,7 @@ export class SAOOcclusionRenderer {
     const gl = this.#renderContext.gl;
 
     const program = this.#program;
-    const sao = view.sao;
+    const sao = view.effects.sao;
     // Match the scene render size so the fullscreen quad covers the whole
     // AO texture and `uViewport` — used for the kernel-radius-in-UV math —
     // is in the same units as the depth texture the shader samples.
@@ -152,7 +152,7 @@ export class SAOOcclusionRenderer {
 
     let dirty = false;
 
-    const sao = this.#renderContext.activeView.sao;
+    const sao = this.#renderContext.activeView.effects.sao;
 
     if (sao.numSamples !== this.#numSamples) {
       this.#numSamples = Math.floor(sao.numSamples);

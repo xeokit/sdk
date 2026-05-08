@@ -71,12 +71,12 @@ export class TonemapPipeline {
   /**
    * Draws the HDR texture across the bound framebuffer. Assumes the caller
    * has already bound the final target (usually the default canvas) and set
-   * the viewport. Uniforms are read from `view.tonemap`.
+   * the viewport. Uniforms are read from `view.effects.tonemap`.
    */
   render(params: { hdrTexture: WebGLAbstractTexture; view: View }): void {
     if (!this._program) return;
     const gl = this._renderContext.gl;
-    const tonemap = params.view.tonemap;
+    const tonemap = params.view.effects.tonemap;
 
     gl.disable(gl.DEPTH_TEST);
     gl.depthMask(false);
@@ -102,7 +102,9 @@ export class TonemapPipeline {
       gl.uniform1i(this._uTonemapMode, modeToInt(active ? tonemap.mode : "none"));
     }
     if (this._uSRGBEncode) {
-      gl.uniform1i(this._uSRGBEncode, (active && tonemap.sRGBEncode) ? 1 : 0);
+      // sRGB encode is independent of the active render mode — the
+      // swap chain expects gamma-encoded values either way.
+      gl.uniform1i(this._uSRGBEncode, tonemap.sRGBEncode ? 1 : 0);
     }
 
     // 3 vertices form a screen-covering triangle (gl_VertexID drives positions).

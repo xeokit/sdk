@@ -103,7 +103,7 @@ export class RenderBinClassifier {
     flags: RenderBinClassificationFlags;
   }): void {
     const {meshBatches, view, viewIndex, bins, flags} = params;
-    const edgeMaterial = view.edges;
+    const edgeMaterial = view.effects.edges;
     const xrayMaterial = view.xrayMaterial;
     const highlightMaterial = view.highlightMaterial;
     const selectedMaterial = view.selectedMaterial;
@@ -148,18 +148,28 @@ export class RenderBinClassifier {
           : bins.selectedSilhouetteOpaque).push(meshBatch);
       }
 
+      // Normal edges (the global "wireframe overlay" effect) are gated on
+      // `view.effects.edges.applied`, which respects `Edges.renderModes`
+      // (DetailedRender by default).
       if (edgeMaterial.applied) {
         if (opaque) bins.normalEdgesOpaque.push(meshBatch);
         if (transparent) bins.normalEdgesTransparent.push(meshBatch);
-        if (xray) {
-          (xrayMaterial.edgeAlpha < 1.0 ? bins.xrayEdgesTransparent : bins.xrayEdgesOpaque).push(meshBatch);
-        }
-        if (highlight) {
-          (highlightMaterial.edgeAlpha < 1.0 ? bins.highlightedEdgesTransparent : bins.highlightedEdgesOpaque).push(meshBatch);
-        }
-        if (select) {
-          (selectedMaterial.edgeAlpha < 1.0 ? bins.selectedEdgesTransparent : bins.selectedEdgesOpaque).push(meshBatch);
-        }
+      }
+
+      // X-ray / highlight / selected edges are part of the visual identity
+      // of those *modes* — they belong wherever an object is xrayed /
+      // highlighted / selected, regardless of the global edges effect.
+      // Gate them on each effect material's own `edges` flag (and require
+      // a usable alpha) so e.g. flipping `View.renderMode` to
+      // RealisticRender doesn't silently swallow the silhouettes.
+      if (xray && xrayMaterial.edges && xrayMaterial.edgeAlpha > 0) {
+        (xrayMaterial.edgeAlpha < 1.0 ? bins.xrayEdgesTransparent : bins.xrayEdgesOpaque).push(meshBatch);
+      }
+      if (highlight && highlightMaterial.edges && highlightMaterial.edgeAlpha > 0) {
+        (highlightMaterial.edgeAlpha < 1.0 ? bins.highlightedEdgesTransparent : bins.highlightedEdgesOpaque).push(meshBatch);
+      }
+      if (select && selectedMaterial.edges && selectedMaterial.edgeAlpha > 0) {
+        (selectedMaterial.edgeAlpha < 1.0 ? bins.selectedEdgesTransparent : bins.selectedEdgesOpaque).push(meshBatch);
       }
     }
   }

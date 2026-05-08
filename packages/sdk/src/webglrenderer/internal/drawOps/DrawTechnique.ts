@@ -117,6 +117,24 @@ export abstract class DrawTechnique {
   public picking: boolean;
 
   /**
+   * Snap-pass mode flag.
+   *
+   *   - `0` (default) — not a snap pass.
+   *   - `3`           — snap-init pass: triangles render to populate the
+   *                     snap FBO's depth + view-position outputs (uses
+   *                     `gl.TRIANGLES`, same index buffer as colour pass).
+   *   - `2`           — edge snap: edge-index buffer drawn as `gl.LINES`.
+   *   - `1`           — vertex snap: every unique vertex drawn as a
+   *                     1-pixel `gl.POINTS` (no index buffer).
+   *
+   * Snap techniques bind the shared snap uniforms (drawing-buffer size,
+   * snap clip-pos centre, snap z-range — same shape as the picking
+   * uniforms) and write view-space position into an RGBA32F MRT target
+   * the renderer scans on read-back.
+   */
+  public snap: 0 | 1 | 2 | 3;
+
+  /**
    * When true, the technique compiles a vertex normal sampler into its shaders
    * and reads smooth view-space normals from the batch's
    * {@link BatchDataTextures.vertexNormalTexture}. When false, the fragment
@@ -187,6 +205,8 @@ export abstract class DrawTechnique {
     intensityRange: WebGLUniformLocation; // Intensity range for point rendering
     pickZFar: WebGLUniformLocation; // Far plane for rendering pick depth
     pickClipPos: WebGLUniformLocation; // Clip-space position for pick rendering (used to reconstruct view ray)
+    snapClipPos: WebGLUniformLocation; // Cursor's clip-space position for the snap pass viewport remap
+    snapBufferSize: WebGLUniformLocation; // Snap FBO size (px) — used to scale the remapSnapClipPos transform
     drawingBufferSize: WebGLUniformLocation; // Size of the drawing buffer (canvas) in pixels, used for pick ray calculations
     sectionPlanes: any[];
     projMatrix: WebGLUniformLocation;
@@ -207,10 +227,11 @@ export abstract class DrawTechnique {
     shadowPcfRadius: WebGLUniformLocation;
     shadowSlope: WebGLUniformLocation;
     edgeFadeRange: WebGLUniformLocation; // vec2(start, end) view-space distances; only edge techniques declare this
-    iblIntensity: WebGLUniformLocation;  // float 0 = off (or IBL.enabled=false), >0 = IBL contribution multiplier
-    iblSky:       WebGLUniformLocation;  // vec3 linear-RGB sky colour
-    iblGround:    WebGLUniformLocation;  // vec3 linear-RGB ground colour
-    iblUpView:    WebGLUniformLocation;  // vec3 world-up direction expressed in view space
+    iblIntensity:        WebGLUniformLocation;  // float — gates the cubemap diffuse + specular contribution
+    hemisphereIntensity: WebGLUniformLocation;  // float — gates the analytical hemisphere ambient term
+    hemisphereSky:       WebGLUniformLocation;  // vec3 linear-RGB sky colour
+    hemisphereGround:    WebGLUniformLocation;  // vec3 linear-RGB ground colour
+    hemisphereUpView:    WebGLUniformLocation;  // vec3 world-up direction expressed in view space
   };
 
   /**
@@ -269,19 +290,30 @@ export abstract class DrawTechnique {
    * @param gpuMemoryReader
    * @param cfg
    */
-  constructor(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader, cfg: { edges?: boolean, picking?: boolean, hasNormals?: boolean, hasUVs?: boolean } = {
+  constructor(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader, cfg: {
+    edges?: boolean,
+    picking?: boolean,
+    snap?: 0 | 1 | 2 | 3,
+    hasNormals?: boolean,
+    hasUVs?: boolean,
+  } = {
     edges: false,
     picking: false,
+    snap: 0,
     hasNormals: false,
     hasUVs: false
   }) {
     if (cfg.picking && cfg.edges) { // Edges are an un-pickable visual effect
       throw new Error("Invalid DrawTechnique configuration: cannot have both picking and edges enabled.");
     }
+    if (cfg.snap && cfg.picking) {
+      throw new Error("Invalid DrawTechnique configuration: cannot have both picking and snap enabled.");
+    }
     this._renderContext = renderContext;
     this._gpuMemoryReader = gpuMemoryReader;
     this.edges = cfg.edges === true;
     this.picking = cfg.picking === true;
+    this.snap = (cfg.snap ?? 0) as (0 | 1 | 2 | 3);
     this.hasNormals = cfg.hasNormals === true;
     this.hasUVs = cfg.hasUVs === true;
     this._program = null;
@@ -375,6 +407,8 @@ export abstract class DrawTechnique {
       pickZNear: program.getLocation("pickZNear"),
       pickZFar: program.getLocation("pickZFar"),
       pickClipPos: program.getLocation("pickClipPos"),
+      snapClipPos: program.getLocation("snapClipPos"),
+      snapBufferSize: program.getLocation("snapBufferSize"),
       batchIndex: program.getLocation("batchIndex"),
       drawingBufferSize: program.getLocation("drawingBufferSize"),
       silhouetteColor: program.getLocation("uSilhouetteColor"),
@@ -402,12 +436,13 @@ export abstract class DrawTechnique {
       shadowPcfRadius: program.getLocation("uShadowPcfRadius"),
       shadowSlope: program.getLocation("uShadowSlope"),
       edgeFadeRange: program.getLocation("uEdgeFadeRange"),
-      iblIntensity: program.getLocation("uIBLIntensity"),
-      iblSky:       program.getLocation("uIBLSky"),
-      iblGround:    program.getLocation("uIBLGround"),
-      iblUpView:    program.getLocation("uIBLUpView"),
+      iblIntensity:        program.getLocation("uIBLIntensity"),
+      hemisphereIntensity: program.getLocation("uHemisphereIntensity"),
+      hemisphereSky:       program.getLocation("uHemisphereSky"),
+      hemisphereGround:    program.getLocation("uHemisphereGround"),
+      hemisphereUpView:    program.getLocation("uHemisphereUpView"),
       iblMaxSpecularMipLevel: program.getLocation("uIBLMaxSpecularMipLevel"),
-      iblViewToWorldRot: program.getLocation("uIBLViewToWorldRot")
+      iblViewToWorldRot:      program.getLocation("uIBLViewToWorldRot")
     };
 
     // const lights = view.lightsList;
@@ -514,11 +549,19 @@ export abstract class DrawTechnique {
     const batchViewDataTextures = batchDataTextures.views[viewIndex];
 
     const drawRange =
-      this.edges
-        ? batchViewDataTextures.renderPassEdgePrimitiveRanges.get(renderPass)
-        : (this.picking
-          ? batchViewDataTextures.pickPrimitiveRange // Draw all bins for picking
-          : batchViewDataTextures.renderPassPrimitiveRanges.get(renderPass));
+      this.snap
+        // Snap-init draws triangle surfaces (pickPrimitiveRange);
+        // snap-vertex and snap-edge both ride the edge index buffer
+        // (pickEdgePrimitiveRange) so neither lands on interior
+        // diagonals or coplanar triangulation seams.
+        ? (this.edges
+            ? batchViewDataTextures.pickEdgePrimitiveRange
+            : batchViewDataTextures.pickPrimitiveRange)
+        : (this.edges
+            ? batchViewDataTextures.renderPassEdgePrimitiveRanges.get(renderPass)
+            : (this.picking
+                ? batchViewDataTextures.pickPrimitiveRange
+                : batchViewDataTextures.renderPassPrimitiveRanges.get(renderPass)));
 
     if (!drawRange || drawRange.numPrims === 0) {
       return {
@@ -611,8 +654,16 @@ export abstract class DrawTechnique {
 
     switch (meshBatch.primitive) {
       case TrianglesPrimitive:
-        if (this.edges) {
-          gl.drawArrays(gl.LINES, drawRange.firstPrim * 2, drawRange.numPrims * 2); // Edges draw range
+        if (this.snap === 1) {
+          // Vertex-snap rides the edge index buffer (2 indices per
+          // edge, each index being a vertex) — every drawArrays
+          // POINT lands on a real geometric corner. Drawing
+          // `numEdges * 2` POINTS produces duplicate hits on shared
+          // endpoints, but each duplicate lands on the same FBO
+          // texel, so it's harmless.
+          gl.drawArrays(gl.POINTS, drawRange.firstPrim * 2, drawRange.numPrims * 2);
+        } else if (this.snap === 2 || this.edges) {
+          gl.drawArrays(gl.LINES, drawRange.firstPrim * 2, drawRange.numPrims * 2); // Edges / edge-snap draw range
         } else {
           gl.drawArrays(gl.TRIANGLES, drawRange.firstPrim * 3, drawRange.numPrims * 3); // Triangles draw range
         }
@@ -1112,6 +1163,44 @@ vec4 remapPickClipPos(vec4 clipPos) {
   }
 
   /**
+   * Declares the snap-pass uniforms, varyings, and the clip-space remapping
+   * helper used to render into the snap framebuffer.
+   *
+   * Mirrors {@link vsPickDeclarations} (snap reuses the same "render into
+   * a small viewport centred on the cursor" trick) but only emits the
+   * varying the snap fragment shader actually consumes — high-precision
+   * view-space position. The helper `remapSnapClipPos` is byte-identical
+   * to `remapPickClipPos`; declared separately so a snap technique can be
+   * built without dragging in the pick-only varyings (`vBatchIndex`,
+   * `vMeshIndex`) that would compile-error if both helpers shared the
+   * same uniform names.
+   */
+  protected vsSnapDeclarations() {
+    this._vertSrcBuf.push(`
+// ─────────────────────────────────────────────────────────────
+// Snap common rendering configuration
+// ─────────────────────────────────────────────────────────────
+
+uniform vec2 drawingBufferSize;   // Canvas drawing-buffer size (px)
+uniform vec2 snapClipPos;         // Cursor in NDC (range [-1, 1])
+uniform vec2 snapBufferSize;      // Snap FBO size (px)
+
+out highp vec3 vSnapViewPosition;
+
+// Remap the clip-space position so the rendered fragment lands in a
+// small NDC region centred on the cursor. Scaling by
+// (drawingBufferSize / snapBufferSize) maps a one-pixel offset on
+// the canvas to a one-pixel offset on the snap FBO, so a
+// snapRadius-pixel screen window lands flush against the FBO edges.
+vec4 remapSnapClipPos(vec4 clipPos) {
+    clipPos.xy /= clipPos.w;
+    clipPos.xy = (clipPos.xy - snapClipPos) * (drawingBufferSize / snapBufferSize);
+    clipPos.xy *= clipPos.w;
+    return clipPos;
+}`);
+  }
+
+  /**
    * Declares section-plane varyings (currently a stub pending section-plane support).
    */
   protected vsSlicingDeclarations() {
@@ -1488,6 +1577,26 @@ void main(void) {`);
   }
 
   /**
+   * Snap-pass vertex logic — exports view-space position and remaps
+   * `gl_Position` into the small snap viewport. For vertex snap
+   * (`this.snap === 1`) every vertex is rasterised as a 1-pixel point,
+   * so `gl_PointSize = 1.0` is set explicitly.
+   *
+   * Emit AFTER {@link vsMainBegin} so `viewPos` and `gl_Position` are
+   * in scope, and after {@link vsSnapDeclarations} so `vSnapViewPosition`
+   * has been declared.
+   */
+  protected vsSnapLogic() {
+    this._vertSrcBuf.push(
+      "    vSnapViewPosition = viewPos.xyz;",
+      "    gl_Position = remapSnapClipPos(gl_Position);",
+    );
+    if (this.snap === 1) {
+      this._vertSrcBuf.push("    gl_PointSize = 1.0;");
+    }
+  }
+
+  /**
    * Generates vertex shader logic for depth pick rendering.
    * @protected
    */
@@ -1656,22 +1765,27 @@ void main(void) {`);
       "uniform vec3 uLightDir3;",
       "uniform vec4 uLightColor3;",
       // Primary directional light direction in view space, sourced from
-      // `view.shadows.direction` and pre-rotated by the view matrix in
+      // `view.effects.shadows.direction` and pre-rotated by the view matrix in
       // the renderer. Used by both the Lambert and Cook-Torrance paths so
       // direct lighting and cast shadows agree on which way the sun points.
       "uniform vec3 uPrimaryLightDirView;",
-      // Hemispherical IBL Layer 1 — analytical, no cubemap. uIBLIntensity
-      // is the fade between the flat ambient and the sky/ground gradient
-      // (0 = flat, 1 = full IBL). uIBLUpView is world-up in view space so
-      // the dot with the view-space normal stays cheap.
+      // Analytical hemisphere ambient — sky/ground gradient driven by
+      // the dot of the surface normal with world up. Cheap (one dot,
+      // one mix) and active in every render mode listed in
+      // View.lights.hemispheric.renderModes. uHemisphereUpView is
+      // world-up pre-rotated into view space so the dot stays a
+      // single fma.
+      "uniform float uHemisphereIntensity;",
+      "uniform vec3  uHemisphereSky;",
+      "uniform vec3  uHemisphereGround;",
+      "uniform vec3  uHemisphereUpView;",
+      // Cubemap IBL — proper split-sum specular IBL with prefiltered
+      // cubemap + diffuse irradiance cubemap + BRDF LUT. uIBLIntensity
+      // gates this contribution independently of the hemisphere term
+      // above so the two stack additively when both apply. Bound by
+      // the smooth-shaded variant; the flat-shaded path stays on the
+      // cheap analytical hemisphere only.
       "uniform float uIBLIntensity;",
-      "uniform vec3  uIBLSky;",
-      "uniform vec3  uIBLGround;",
-      "uniform vec3  uIBLUpView;",
-      // Layer-2 IBL — proper split-sum specular IBL with prefiltered
-      // cubemap + diffuse irradiance cubemap + BRDF LUT. Bound by the
-      // smooth-shaded variant; the flat-shaded path keeps the cheap
-      // analytical hemisphere only.
       ...(this.hasNormals ? [
         "uniform samplerCube uIBLIrradianceCubemap;",
         "uniform samplerCube uIBLPrefilteredCubemap;",
@@ -1924,25 +2038,31 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     vec3  iblDiff = (1.0 - F_NV) * (1.0 - metallic) * iblDiffuseEnv * albedo;
     vec3  iblContrib = (iblDiff + iblSpec);
 
+    // Analytical hemisphere term — gated independently of the cubemap
+    // so non-IBL render modes still get a directional sky/ground fill.
+    // Same maths as the flat-shaded path: dot the view-space normal
+    // with view-space world-up, lerp ground→sky.
+    float hemiFacing = dot(N, uHemisphereUpView) * 0.5 + 0.5;
+    vec3 hemiAmbient = mix(uHemisphereGround, uHemisphereSky, hemiFacing);
+    float hemiScale = max(uHemisphereIntensity, 0.0);
+
     // Resolve the per-fragment ambient term so the shadow stage can use
     // it as a floor. Multiplicative scale rather than lerp so
-    // intermediate intensity values mean "IBL contribution at N×
-    // strength" rather than "N× toward IBL away from flat ambient" —
-    // the lerp form muted the IBL character too quickly at low values
-    // (intensity=0.1 was 90% flat ambient + 10% IBL, hiding metals'
-    // reflectivity rather than just attenuating it).
+    // intermediate intensity values mean "contribution at N× strength"
+    // rather than "N× toward this term away from flat ambient" — the
+    // lerp form muted character too quickly at low values.
     //
     // flatAmbient stays as an unconditional baseline so the surface
-    // never goes black when IBL is disabled (intensity=0); IBL is
-    // added on top, scaled by intensity. At intensity=1 this gives
-    // (flat + full IBL) — slightly hotter than the lerp's (just IBL)
-    // but the Views lightAmbient defaults to a small grey, so the
-    // visible difference is modest.
+    // never goes black when both terms are disabled. The hemisphere
+    // and cubemap diffuse stack additively on top, each scaled by its
+    // own intensity uniform.
     vec3 flatAmbient = uLightAmbient.rgb * uLightAmbient.a;
     float iblScale = max(uIBLIntensity, 0.0);
-    g_ambient = flatAmbient + iblDiffuseEnv * iblScale;
+    g_ambient = flatAmbient + hemiAmbient * hemiScale + iblDiffuseEnv * iblScale;
 
-    vec3 lit = directContrib + flatAmbient * albedo + iblContrib * iblScale;
+    vec3 lit = directContrib
+             + (flatAmbient + hemiAmbient * hemiScale) * albedo
+             + iblContrib * iblScale;
     color = vec4(lit, albedoAlpha);`);
       return;
     }
@@ -1975,22 +2095,23 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     vec3 reflectedColor = vec3(0.0);
     reflectedColor += lambertian * (uLightColor2.rgb * uLightColor2.a);
 
-    // Hemispherical IBL: pick a colour between the sky and ground based
-    // on how much the surface normal faces world up. uIBLUpView is the
-    // world-up axis pre-transformed into view space by the renderer, so
-    // we don't need a view→world matrix in the shader — just one dot.
-    // dot · 0.5 + 0.5 maps [-1, 1] → [0, 1] for the mix factor.
-    float iblFacing = dot(normal, uIBLUpView) * 0.5 + 0.5;
-    vec3 iblAmbient = mix(uIBLGround, uIBLSky, iblFacing);
+    // Analytical hemisphere ambient: pick a colour between the sky and
+    // ground based on how much the surface normal faces world up.
+    // uHemisphereUpView is the world-up axis pre-transformed into view
+    // space by the renderer, so we don't need a view→world matrix in
+    // the shader — just one dot. dot · 0.5 + 0.5 maps [-1, 1] → [0, 1]
+    // for the mix factor.
+    float hemiFacing = dot(normal, uHemisphereUpView) * 0.5 + 0.5;
+    vec3 hemiAmbient = mix(uHemisphereGround, uHemisphereSky, hemiFacing);
 
     // Resolve the ambient term: flat ambient as unconditional baseline,
-    // IBL contribution scaled by uIBLIntensity on top — matches the
-    // smooth-shaded path so toggling/scaling IBL produces the same
-    // change in look on flat-shaded geometry as on PBR meshes. The
-    // shadow stage clamps shadowed fragments to this floor.
+    // hemisphere contribution scaled by uHemisphereIntensity on top.
+    // The flat-shaded path has no cubemap path — hemisphere is the
+    // only non-flat ambient available here. The shadow stage clamps
+    // shadowed fragments to this floor.
     vec3 flatAmbient = uLightAmbient.rgb * uLightAmbient.a;
-    float iblScale = max(uIBLIntensity, 0.0);
-    g_ambient = flatAmbient + iblAmbient * iblScale;
+    float hemiScale = max(uHemisphereIntensity, 0.0);
+    g_ambient = flatAmbient + hemiAmbient * hemiScale;
 
     // Combine ambient + diffuse lighting.
     // Ambient is applied to base color, diffuse multiplies base color as well.
@@ -2242,6 +2363,66 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     `);
   }
 
+  /**
+   * Declares the snap-pass MRT outputs.
+   *
+   * Snap techniques target a single RGBA32F render target carrying
+   * view-space position. The init pass (`snap === 3`) fills the target
+   * across triangle surfaces so the subsequent vertex/edge passes z-test
+   * against real geometry; the snap pass itself (`snap === 1` or `2`)
+   * only writes where points/lines pass that depth test, so JS can
+   * read back and search outward from the cursor for the nearest
+   * non-empty texel.
+   *
+   * `fsColorDeclarations()` is intentionally NOT called by snap
+   * techniques — they declare their MRT slot here.
+   */
+  protected fsSnapDeclarations() {
+    this._fragSrcBuf.push(
+      "in highp vec3 vSnapViewPosition;",
+      "layout(location = 0) out vec4 outSnapViewPosition;",
+    );
+  }
+
+  /**
+   * Generates fragment-shader logic for the snap pass — emit the
+   * high-precision view-space position. The alpha channel is a kind
+   * tag so the JS read-back can tell apart:
+   *
+   *   - init pass (`snap === 3`):    alpha = 2.0  (surface depth-only)
+   *   - vertex snap (`snap === 1`):  alpha = 1.0
+   *   - edge snap   (`snap === 2`):  alpha = 1.0
+   *
+   * Read-back accepts `alpha === 1.0` only, so init's surface texels
+   * never get mistaken for vertex/edge hits — and crucially we don't
+   * have to disable colour writes during init (some GL drivers
+   * short-circuit fragment writes when the colour mask is fully off,
+   * which also drops the depth-write side-effect).
+   *
+   * Init pass also nudges the surface depth deeper by one pixel of
+   * depth gradient (V2's `length(vec2(dFdx, dFdy))` trick) so that
+   * coplanar vertex/edge fragments in the snap pass reliably pass
+   * LEQUAL against the rasterised surface depth. Without this bump,
+   * interpolation noise occasionally pushes a visible vertex's
+   * depth a hair past the surface's stored depth — the visible
+   * vertex fails LEQUAL, doesn't write, and the read-back falls
+   * back to whatever back-of-mesh vertices/edges managed to slip
+   * through at the rasteriser's edge cases.
+   */
+  protected fsSnapLogic() {
+    if (this.snap === 3) {
+      this._fragSrcBuf.push(
+        "    float snapDepth = gl_FragCoord.z;",
+        "    gl_FragDepth = snapDepth + length(vec2(dFdx(snapDepth), dFdy(snapDepth)));",
+        "    outSnapViewPosition = vec4(vSnapViewPosition, 2.0);",
+      );
+    } else {
+      this._fragSrcBuf.push(
+        "    outSnapViewPosition = vec4(vSnapViewPosition, 1.0);",
+      );
+    }
+  }
+
 
   /**
    * Declares section-plane varyings in the fragment shader (currently a stub pending section-plane support).
@@ -2451,6 +2632,14 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
       gl.uniform2fv(uniforms.pickClipPos, <any>renderContext.pickClipPos);
     }
 
+    if (uniforms.snapClipPos) {
+      gl.uniform2fv(uniforms.snapClipPos, <any>renderContext.snapClipPos);
+    }
+
+    if (uniforms.snapBufferSize) {
+      gl.uniform2fv(uniforms.snapBufferSize, <any>renderContext.snapBufferSize);
+    }
+
     if (uniforms.lightAmbient) {
       gl.uniform4fv(uniforms.lightAmbient, <any>view.getAmbientColorAndIntensity());
     }
@@ -2469,12 +2658,12 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
 
     // Primary directional light direction, in view space. Both the Lambert
     // and Cook-Torrance shading branches read this; sourcing it from
-    // `view.shadows.direction` keeps the shaded surface and the cast
+    // `view.effects.shadows.direction` keeps the shaded surface and the cast
     // shadow agreeing on which way the sun points. If shadows are disabled
     // we still upload a sane default — the historical hardcoded value lit
     // surfaces from the upper-front-right.
     if (uniforms.primaryLightDirView) {
-      const sd: any = (view.shadows && view.shadows.direction) ? view.shadows.direction : [0.0, -1.0, -1.0];
+      const sd: any = (view.effects.shadows && view.effects.shadows.direction) ? view.effects.shadows.direction : [0.0, -1.0, -1.0];
       const sdLen = Math.hypot(sd[0], sd[1], sd[2]) || 1.0;
       const sx = sd[0] / sdLen, sy = sd[1] / sdLen, sz = sd[2] / sdLen;
       const vm = view.camera.viewMatrix;
@@ -2485,37 +2674,44 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
       gl.uniform3f(uniforms.primaryLightDirView, lvx / llen, lvy / llen, lvz / llen);
     }
 
-    // IBL Layer 1 — hemispherical sky/ground gradient. uIBLIntensity
-    // gates the contribution so a single shader can serve both the
-    // IBL-on and IBL-off cases without recompiling. When the active
-    // View.renderMode isn't in IBL.renderModes we upload `0` and the
-    // Lambert mix in the shader collapses back to the flat ambient
-    // term.
+    // Cubemap IBL multiplier — gates the prefiltered-cubemap diffuse +
+    // specular contribution. Zero when the active View.renderMode
+    // isn't in View.lights.ibl.renderModes; the shader's iblScale=0 path
+    // collapses the cubemap term to nothing without recompiling.
     if (uniforms.iblIntensity) {
-      const ibl = view.ibl;
+      const ibl = (view as any).lights?.ibl;
       const iblActive = !!(ibl && ibl.applied && ibl.possible);
       const intensity = iblActive ? ibl.intensity : 0.0;
       gl.uniform1f(uniforms.iblIntensity, intensity);
+    }
 
-      if (uniforms.iblSky)    gl.uniform3fv(uniforms.iblSky,    <any>(ibl ? ibl.skyColor    : [0, 0, 0]));
-      if (uniforms.iblGround) gl.uniform3fv(uniforms.iblGround, <any>(ibl ? ibl.groundColor : [0, 0, 0]));
-
-      if (uniforms.iblUpView) {
-        // Project world-up into view space so the shader's dot-with-normal
-        // stays a single fma. The view matrix's upper 3×3 is a pure
-        // rotation, so applying it to a direction is enough — no
-        // translation column needed, no inverse, no normal matrix.
-        const wu: any = ibl ? ibl.worldUp : [0, 0, 1];
-        const vm = view.camera.viewMatrix;
-        const ux = vm[0] * wu[0] + vm[4] * wu[1] + vm[8]  * wu[2];
-        const uy = vm[1] * wu[0] + vm[5] * wu[1] + vm[9]  * wu[2];
-        const uz = vm[2] * wu[0] + vm[6] * wu[1] + vm[10] * wu[2];
-        // Re-normalise — defensive, the camera's matrix should already
-        // be orthonormal but a non-uniform-scale custom view matrix
-        // could break the assumption.
-        const len = Math.sqrt(ux * ux + uy * uy + uz * uz) || 1.0;
-        gl.uniform3f(uniforms.iblUpView, ux / len, uy / len, uz / len);
-      }
+    // Analytical hemisphere ambient — sky/ground/up plus an intensity,
+    // independent of the cubemap path so non-IBL render modes still
+    // get directional fill. Zero when the active View.renderMode
+    // isn't in View.lights.hemispheric.renderModes.
+    const hemi = (view as any).lights?.hemispheric;
+    const hemiActive = !!(hemi && hemi.applied && hemi.possible);
+    if (uniforms.hemisphereIntensity) {
+      const intensity = hemiActive ? hemi.intensity : 0.0;
+      gl.uniform1f(uniforms.hemisphereIntensity, intensity);
+    }
+    if (uniforms.hemisphereSky)    gl.uniform3fv(uniforms.hemisphereSky,    <any>(hemi ? hemi.skyColor    : [0, 0, 0]));
+    if (uniforms.hemisphereGround) gl.uniform3fv(uniforms.hemisphereGround, <any>(hemi ? hemi.groundColor : [0, 0, 0]));
+    if (uniforms.hemisphereUpView) {
+      // Project world-up into view space so the shader's dot-with-normal
+      // stays a single fma. The view matrix's upper 3×3 is a pure
+      // rotation, so applying it to a direction is enough — no
+      // translation column needed, no inverse, no normal matrix.
+      const wu: any = hemi ? hemi.worldUp : [0, 0, 1];
+      const vm = view.camera.viewMatrix;
+      const ux = vm[0] * wu[0] + vm[4] * wu[1] + vm[8]  * wu[2];
+      const uy = vm[1] * wu[0] + vm[5] * wu[1] + vm[9]  * wu[2];
+      const uz = vm[2] * wu[0] + vm[6] * wu[1] + vm[10] * wu[2];
+      // Re-normalise — defensive, the camera's matrix should already
+      // be orthonormal but a non-uniform-scale custom view matrix
+      // could break the assumption.
+      const len = Math.sqrt(ux * ux + uy * uy + uz * uz) || 1.0;
+      gl.uniform3f(uniforms.hemisphereUpView, ux / len, uy / len, uz / len);
     }
 
     // Bind up to three directional lights for Lambert shading.
@@ -2552,7 +2748,7 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
       // that makes the smoothstep collapse beyond any plausible scene).
       const projection = view.camera.projection as { far?: number };
       const far = projection.far ?? 1.0e9;
-      const edges = view.edges;
+      const edges = view.effects.edges;
       gl.uniform2f(uniforms.edgeFadeRange, far * edges.edgeFadeStart, far * edges.edgeFadeEnd);
     }
 
@@ -2571,7 +2767,7 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
           const color = material.edgeColor;
           gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.edgeAlpha);
         } else {
-          const material = view.edges;
+          const material = view.effects.edges;
           const color = material.edgeColor;
           gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.edgeAlpha);
         }
@@ -2598,7 +2794,7 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     // AFTER the per-batch data textures — _draw resets textureUnit to 0 after _bind
     // returns, and the data-texture bindings would clobber the unit this binding used.
     if (uniforms.saoParams) {
-      const sao = view.sao;
+      const sao = view.effects.sao;
       // Use the scene render size (accounts for Tonemap.renderScale supersampling)
       // so the fragment shader's UV math matches the SAO texture's resolution.
       const saoVW = renderContext.sceneRenderWidth || gl.drawingBufferWidth;
@@ -2631,7 +2827,7 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
       gl.uniform1i(uniforms.shadowCascadeCount, renderContext.shadowCascadeCount);
     }
     if (uniforms.shadowParams) {
-      const shadows = view.shadows;
+      const shadows = view.effects.shadows;
       const texelSize = shadows ? 1.0 / Math.max(1, shadows.resolution) : 0.0;
       // shadowParams = (intensity, depthBias, texelSize, normalOffsetBias)
       gl.uniform4f(uniforms.shadowParams,
@@ -2642,7 +2838,7 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     }
     if (uniforms.shadowPcfRadius) {
       // Kernel size is an odd number in [1, 7]; radius = (size - 1) / 2, so 0..3.
-      const size = view.shadows ? view.shadows.pcfKernelSize : 1;
+      const size = view.effects.shadows ? view.effects.shadows.pcfKernelSize : 1;
       gl.uniform1i(uniforms.shadowPcfRadius, (size - 1) >> 1);
     }
     if (uniforms.shadowSlope) {
@@ -2650,7 +2846,7 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
       const d = renderContext.shadowLightDirView;
       gl.uniform4f(uniforms.shadowSlope,
         d[0], d[1], d[2],
-        view.shadows ? view.shadows.slopeBias : 0.0);
+        view.effects.shadows ? view.effects.shadows.slopeBias : 0.0);
     }
     return true;
   }

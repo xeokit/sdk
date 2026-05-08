@@ -67,7 +67,7 @@ interface ExtensionHandles {
  * Coerces a possibly-{@link Vec3} (Float32Array, plain array, etc.) into
  * a fresh `[r, g, b]` triple, falling back to the supplied default when
  * the source is `undefined` or too short. Used by the IBL prep block to
- * ferry colour values from `view.ibl` into the prefilter pipeline.
+ * ferry colour values from `view.lights.ibl` into the prefilter pipeline.
  */
 function arrTriple(src: any, fallback: [number, number, number]): [number, number, number] {
   if (src && src.length >= 3) return [src[0], src[1], src[2]];
@@ -150,7 +150,7 @@ export class RenderManager {
   /** Cached signature of last-applied sky params per view, for dirty detection. */
   private _iblParamSignatures: Map<number, string> = new Map();
 
-  /** Last-seen `view.ibl.environmentVersion` per view, so the prefilter
+  /** Last-seen `view.lights.ibl.environmentVersion` per view, so the prefilter
    *  only re-uploads its equirect texture when the image actually changes. */
   private _iblEnvVersions: Map<number, number> = new Map();
 
@@ -298,7 +298,7 @@ export class RenderManager {
     // the BRDF's iblIntensity=0 path produce a zero contribution. As
     // soon as renderMode flips back into the list, the next call here
     // notices its dirty signature and re-renders the cubemap chain.
-    if (!view.ibl.applied || !view.ibl.possible) return;
+    if (!view.lights.ibl.applied || !view.lights.ibl.possible) return;
     const rc = this._renderContext;
     const viewIndex = view.viewIndex;
 
@@ -323,7 +323,7 @@ export class RenderManager {
     // or HDR slot changes; we re-upload only on a version mismatch.
     // HDR takes priority over LDR; clearing both reverts the prefilter
     // to the procedural sky path.
-    const iblComp: any = (view as any).ibl;
+    const iblComp: any = (view as any).lights?.ibl;
     const envVersion = iblComp ? (iblComp.environmentVersion as number) : 0;
     if (this._iblEnvVersions.get(viewIndex) !== envVersion) {
       const envHDR = iblComp ? iblComp.environmentHDR : undefined;
@@ -344,13 +344,16 @@ export class RenderManager {
       this._iblEnvVersions.set(viewIndex, envVersion);
     }
 
-    // Build sky params from the view's IBL component and shadow direction.
-    // The sun direction comes from `view.shadows.direction`, negated to
-    // get "direction toward the sun" — matches what the procedural sky
-    // expects.
-    const ibl: any = (view as any).ibl;
-    const shadowDir = view.shadows && view.shadows.direction
-      ? view.shadows.direction
+    // Build sky params from the view's hemisphere ambient colours and
+    // shadow direction. The sky/ground/up colours live on
+    // `view.lights.hemispheric` (shared with the analytical hemisphere
+    // term) so the procedural cubemap and the cheap fallback agree on
+    // what "the sky" looks like. The sun direction comes from
+    // `view.effects.shadows.direction`, negated to get "direction toward the
+    // sun" — matches what the procedural sky expects.
+    const hemi: any = (view as any).lights?.hemispheric;
+    const shadowDir = view.effects.shadows && view.effects.shadows.direction
+      ? view.effects.shadows.direction
       : [-0.45, -0.35, -0.80];
     const sunToward: [number, number, number] = [-shadowDir[0], -shadowDir[1], -shadowDir[2]];
     // Build a horizon colour that's distinctly brighter than either sky
@@ -358,8 +361,8 @@ export class RenderManager {
     // makes specular reflections on curved metals look interesting.
     // Without a richer horizon band, smooth metals just reflect a flat
     // disk of zenith colour.
-    const skyZenith = arrTriple(ibl?.skyColor, [0.62, 0.72, 0.86]);
-    const groundC   = arrTriple(ibl?.groundColor, [0.42, 0.36, 0.30]);
+    const skyZenith = arrTriple(hemi?.skyColor, [0.62, 0.72, 0.86]);
+    const groundC   = arrTriple(hemi?.groundColor, [0.42, 0.36, 0.30]);
     const horizon: [number, number, number] = [
       Math.min(1, skyZenith[0] * 0.55 + 0.40),
       Math.min(1, skyZenith[1] * 0.55 + 0.40),
@@ -385,7 +388,7 @@ export class RenderManager {
       sunAngularSizeDegrees: 4.0,
       sunGlowSize: 8.0,
       sunGlowIntensity: hdrPipeline ? 4.5 : 1.4,
-      worldUp: arrTriple(ibl?.worldUp, [0, 0, 1])
+      worldUp: arrTriple(hemi?.worldUp, [0, 0, 1])
     };
     // Dirty-detect via a cheap string signature so we don't repeatedly
     // re-render an unchanged sky.
@@ -573,7 +576,7 @@ export class RenderManager {
 
     // Scene render size: canvas × tonemap.renderScale when HDR is on
     // (supersampling); plain canvas size otherwise.
-    const sceneScale = this._postProcess?.hasHDR() ? view.tonemap.renderScale : 1.0;
+    const sceneScale = this._postProcess?.hasHDR() ? view.effects.tonemap.renderScale : 1.0;
     const sceneW = Math.max(1, Math.floor(gl.drawingBufferWidth * sceneScale));
     const sceneH = Math.max(1, Math.floor(gl.drawingBufferHeight * sceneScale));
     renderContext.sceneRenderWidth = sceneW;
@@ -598,7 +601,7 @@ export class RenderManager {
     gl.polygonOffset(1.0, 1.0);
 
     // Effect-availability publishing on the render context.
-    const drawWithSAO = view.sao.applied && view.sao.possible;
+    const drawWithSAO = view.effects.sao.applied && view.effects.sao.possible;
     renderContext.saoOcclusionTexture = drawWithSAO
       ? rendererView.renderBuffers.getRenderBuffer("saoOcclusion", {size: [sceneW, sceneH]})?.getTexture() ?? null
       : null;
@@ -610,8 +613,8 @@ export class RenderManager {
 
   /** Re-fills {@link _bins} from the current frame's mesh batches. */
   private _classifyBatches(view: import("../../../viewer").View): void {
-    const drawWithSAO = view.sao.applied && view.sao.possible;
-    const drawWithShadows = view.shadows.applied && view.shadows.possible;
+    const drawWithSAO = view.effects.sao.applied && view.effects.sao.possible;
+    const drawWithShadows = view.effects.shadows.applied && view.effects.shadows.possible;
     this._binClassifier.clear(this._bins);
     this._binClassifier.classify({
       meshBatches: this._meshManager.sortedBatches,

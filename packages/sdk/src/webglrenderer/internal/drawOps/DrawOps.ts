@@ -19,6 +19,8 @@ import {TrianglesDrawEdgeColorTechnique} from "./techniques/triangles/TrianglesD
 import {SDKInternalException} from "../../../core";
 import {TrianglesDrawSilhouetteTechnique} from "./techniques/triangles/TrianglesDrawSilhouetteTechnique";
 import {GenericPickMeshTechnique} from "./techniques/generic";
+import {TrianglesSnapInitTechnique} from "./techniques/triangles/TrianglesSnapInitTechnique";
+import {TrianglesSnapTechnique} from "./techniques/triangles/TrianglesSnapTechnique";
 
 /**
  * Owns and manages all {@link DrawTechnique} instances
@@ -175,6 +177,9 @@ export class DrawOps {
     const pointsPickMesh = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 1));
     const linesDrawColor = saveForCleanup(new LinesDrawColorTechnique(renderContext, gpuMemoryReader));
     const pointsDrawColor = saveForCleanup(new PointsDrawColorTechnique(renderContext, gpuMemoryReader));
+    const trianglesSnapInit   = saveForCleanup(new TrianglesSnapInitTechnique(renderContext, gpuMemoryReader));
+    const trianglesSnapVertex = saveForCleanup(new TrianglesSnapTechnique(renderContext, gpuMemoryReader, 1));
+    const trianglesSnapEdge   = saveForCleanup(new TrianglesSnapTechnique(renderContext, gpuMemoryReader, 2));
 
     for (let i = 0, len = this._techniques.length; i < len; i++) {
       const result = this._techniques[i].init();
@@ -187,7 +192,7 @@ export class DrawOps {
       }
     }
 
-    const {OPAQUE, TRANSPARENT, HIGHLIGHTED, SELECTED, XRAYED, PICK} = RENDER_PASSES;
+    const {OPAQUE, TRANSPARENT, HIGHLIGHTED, SELECTED, XRAYED, PICK, SNAP_INIT, SNAP} = RENDER_PASSES;
 
     // DrawOp instances are just thin wrappers around DrawTechniques for specific render passes.
 
@@ -208,7 +213,10 @@ export class DrawOps {
         selectedEdges: new DrawOp(trianglesDrawEdgeSilhouette, SELECTED),
         xrayed: new DrawOp(trianglesSilhouette, XRAYED),
         xrayedEdges: new DrawOp(trianglesDrawEdgeSilhouette, XRAYED),
-        pick: new DrawOp(trianglesPickMesh, PICK)
+        pick: new DrawOp(trianglesPickMesh, PICK),
+        snapInit:   new DrawOp(trianglesSnapInit,   SNAP_INIT),
+        snapVertex: new DrawOp(trianglesSnapVertex, SNAP),
+        snapEdge:   new DrawOp(trianglesSnapEdge,   SNAP),
       },
 
       [LinesPrimitive]: {

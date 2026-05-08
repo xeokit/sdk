@@ -15,7 +15,7 @@ import {SDKErrorType, type SDKResult} from "../../../../core";
  * Renders Cascaded Shadow Maps (CSM) for a directional light.
  *
  * The camera's view-space depth range (`[near, maxDistance]`) is split into
- * `view.shadows.cascadeCount` slices using PSSM (Lambda-weighted mix of
+ * `view.effects.shadows.cascadeCount` slices using PSSM (Lambda-weighted mix of
  * uniform and logarithmic splits). Each slice gets its own shadow map whose
  * ortho frustum is auto-fit tightly to that slice's frustum corners — so
  * near slices concentrate shadow-map texels on nearby geometry, and far
@@ -77,7 +77,7 @@ export class ShadowPipeline {
     const view = rendererView.view;
     const rc = this._renderContext;
     const gl = rc.gl;
-    const shadowsCfg = view.shadows;
+    const shadowsCfg = view.effects.shadows;
     const resolution = shadowsCfg.resolution;
     const cascadeCount = Math.min(MAX_SHADOW_CASCADES, Math.max(1, shadowsCfg.cascadeCount));
 
@@ -171,7 +171,7 @@ export class ShadowPipeline {
   // ------------------------------------------------------------------
   private _computeLightView(view: View): void {
     const rc = this._renderContext;
-    const shadowsCfg = view.shadows;
+    const shadowsCfg = view.effects.shadows;
     const cameraViewMatrix = view.camera.viewMatrix;
     const dir = shadowsCfg.direction;
 
@@ -242,7 +242,7 @@ export class ShadowPipeline {
       const fit = this._fitOrthoToSlice(view, gl.drawingBufferWidth, gl.drawingBufferHeight, resolution, sliceNear, sliceFar);
       left = fit.left; right = fit.right; bottom = fit.bottom; top = fit.top; near = fit.near; far = fit.far;
     } else {
-      const shadowsCfg = view.shadows;
+      const shadowsCfg = view.effects.shadows;
       const projSize = shadowsCfg.projectionSize;
       const lightDistance = shadowsCfg.lightDistance;
       left = -projSize; right = projSize; bottom = -projSize; top = projSize;
@@ -268,7 +268,7 @@ export class ShadowPipeline {
     sliceNear: number,
     sliceFar: number
   ): { left: number; right: number; bottom: number; top: number; near: number; far: number } {
-    const shadowsCfg = view.shadows;
+    const shadowsCfg = view.effects.shadows;
     const camera = view.camera;
     const aspect = Math.max(1e-6, drawingBufferHeight > 0 ? drawingBufferWidth / drawingBufferHeight : 1);
 

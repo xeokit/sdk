@@ -381,7 +381,8 @@ export class GPUMemoryBatch {
         meshViewAttributeTexture: this._meshViewAttributeTexture[i],
         renderPassPrimitiveRanges: this._primitiveMeshIndexTexture[i].passRanges,
         renderPassEdgePrimitiveRanges: this._edgeMeshIndexTexture[i].passRanges,
-        pickPrimitiveRange: this._primitiveMeshIndexTexture[i].primRange
+        pickPrimitiveRange: this._primitiveMeshIndexTexture[i].primRange,
+        pickEdgePrimitiveRange: this._edgeMeshIndexTexture[i].primRange,
       });
     }
 

@@ -116,7 +116,7 @@ export class SAOPipeline {
     occlusionBuffer.unbind();
 
     // Optional two-pass depth-limited Gaussian blur.
-    if (view.sao.blur) {
+    if (view.effects.sao.blur) {
       const blurBuffer = rendererView.renderBuffers.getRenderBuffer("saoBlur", {size: [sceneW, sceneH]});
       blurBuffer.bind();
       this._blurRenderer!.render({

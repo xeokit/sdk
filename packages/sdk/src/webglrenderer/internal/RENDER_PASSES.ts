@@ -47,7 +47,24 @@ export const RENDER_PASSES = {
    * Picking pass.
    * Used for object picking to determine which object is under the cursor or selected.
    */
-  PICK: 6
+  PICK: 6,
+
+  /**
+   * Snap-init pass — populates the snap framebuffer's depth and view-position
+   * outputs from triangle surfaces. Sets up the scene under a small viewport
+   * centred on the cursor so the subsequent {@link RENDER_PASSES.SNAP} pass
+   * can z-test vertex / edge primitives against real geometry.
+   */
+  SNAP_INIT: 7,
+
+  /**
+   * Snap pass — rasterises vertices (as 1-pixel points) or edges (as
+   * 1-pixel lines) into the same FBO populated by {@link RENDER_PASSES.SNAP_INIT},
+   * but only where they pass the depth test. The fragment shader writes
+   * the high-precision view-space position so JS can read back and pick
+   * the nearest snap target to the cursor.
+   */
+  SNAP: 8,
 };
 
 

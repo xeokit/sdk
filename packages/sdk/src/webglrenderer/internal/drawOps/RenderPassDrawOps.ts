@@ -91,4 +91,25 @@ export interface RenderPassDrawOps {
    * Draw operation for depth picking (renders screen-space depths).
    */
   pickDepth?: DrawOp;
+
+  /**
+   * Snap-init draw operation — rasterises triangle surfaces into the
+   * snap FBO (depth + view position) so subsequent vertex / edge snap
+   * draws z-test against real geometry.
+   */
+  snapInit?: DrawOp;
+
+  /**
+   * Vertex-snap draw operation — every unique vertex of the geometry
+   * is drawn as a 1-pixel `gl.POINTS`, view-space position written into
+   * the snap FBO at fragments that survive the init pass's depth test.
+   */
+  snapVertex?: DrawOp;
+
+  /**
+   * Edge-snap draw operation — the geometry's edge-index buffer is
+   * drawn as `gl.LINES`, view-space position written into the snap FBO
+   * at fragments that survive the init pass's depth test.
+   */
+  snapEdge?: DrawOp;
 }

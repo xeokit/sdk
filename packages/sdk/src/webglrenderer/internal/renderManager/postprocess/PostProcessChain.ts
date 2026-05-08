@@ -97,7 +97,7 @@ export class PostProcessChain {
 
     // 1. Bloom (optional). Reads HDR, accumulates a blur pyramid, adds it
     //    back into the HDR target. Tonemap downstream sees the bloomed scene.
-    if (this._bloomPipeline && view.bloom.applied && view.bloom.possible) {
+    if (this._bloomPipeline && view.effects.bloom.applied && view.effects.bloom.possible) {
       const hdrSrc = this._hdrTarget!.getTexture();
       if (hdrSrc) {
         this._bloomPipeline.render({
@@ -115,9 +115,9 @@ export class PostProcessChain {
     const wantFXAA = !!(
       this._fxaaPipeline &&
       this._ldrIntermediate &&
-      view.antiAliasing.mode === "fxaa" &&
-      view.antiAliasing.applied &&
-      view.antiAliasing.possible
+      view.effects.antiAliasing.mode === "fxaa" &&
+      view.effects.antiAliasing.applied &&
+      view.effects.antiAliasing.possible
     );
     const vpW = gl.drawingBufferWidth;
     const vpH = gl.drawingBufferHeight;

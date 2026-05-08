@@ -246,6 +246,23 @@ export class RenderContext implements WebGLContextProvider {
    */
   public pickClipPos: FloatArrayParam;
 
+  /**
+   * Cursor position in clip space (range `[-1, 1]` on each axis), set
+   * by the {@link SnapManager} before binding a snap technique. The
+   * snap pass uses this to centre its viewport-remap helper on the
+   * cursor — same shape as {@link pickClipPos} but kept separate so
+   * pick and snap can run side by side without clobbering each other.
+   */
+  public snapClipPos: FloatArrayParam;
+
+  /**
+   * Snap framebuffer size in pixels — the snap shaders use the
+   * ratio (drawingBufferSize / snapBufferSize) to convert a
+   * canvas-pixel offset into the matching offset on the small snap
+   * FBO, so the cursor's surroundings land flush against its edges.
+   */
+  public snapBufferSize: FloatArrayParam;
+
   private initialized: boolean = false;
 
 

@@ -5,6 +5,7 @@ import {SDKInternalException, SDKErrorType, type SDKResult} from "../../core";
 import {ViewRenderState} from "./ViewRenderState";
 import {RenderManager} from "./renderManager";
 import {PickManager} from "./pickManager";
+import {SnapManager} from "./snapManager";
 import {GPUMemoryManager} from "./gpuMemoryManager";
 import {MeshManager} from "./meshManager";
 import {type GPUMemoryReader} from "./gpuMemoryManager";
@@ -94,6 +95,11 @@ export class ViewManager {
    * @internal
    */
   public _pickManager: PickManager;
+
+  /** Manages GPU snap-to-vertex / snap-to-edge picking.
+   * @internal
+   */
+  public _snapManager: SnapManager;
 
   /** Owns GPU-side geometry/mesh buffers and data-texture uploads.
    * @internal
@@ -230,6 +236,21 @@ export class ViewManager {
       return resultPick;
     }
 
+    this._snapManager = new SnapManager({
+      renderContext: this._renderContext,
+      meshManager: this._meshManager,
+      gpuMemoryManager: this._gpuMemoryManager,
+    });
+    const resultSnap = this._snapManager.init();
+    if (resultSnap.ok === false) {
+      // Snap is opt-in; a missing EXT_color_buffer_float shouldn't
+      // fail-init the whole renderer. Log + drop the snap manager,
+      // and a subsequent snapPick() returns "not snapped" gracefully.
+      console.warn("[ViewManager.init] SnapManager unavailable:", resultSnap.error);
+      this._snapManager.destroy();
+      this._snapManager = undefined as unknown as SnapManager;
+    }
+
     for (const view of viewer.viewList) {
       const result = this.viewCreated(view);
       if (!result.ok) {
@@ -286,6 +307,14 @@ export class ViewManager {
     const resultPick = this._pickManager.webglContextRestored();
     if (resultPick.ok === false) {
       return resultPick;
+    }
+    if (this._snapManager) {
+      const resultSnap = this._snapManager.webglContextRestored();
+      if (resultSnap.ok === false) {
+        console.warn("[ViewManager.webglContextRestored] SnapManager restore failed:", resultSnap.error);
+        this._snapManager.destroy();
+        this._snapManager = undefined as unknown as SnapManager;
+      }
     }
 
     if (this._activeView) {
@@ -754,13 +783,6 @@ export class ViewManager {
   }
 
   /**
-   * Notifies the renderer that a {@link SceneModel} was finalized.
-   */
-  public sceneModelFinalized(sceneModel: SceneModel): SDKResult<any> {
-    return this._meshManager.sceneModelFinalized(sceneModel);
-  }
-
-  /**
    * Notifies the renderer that a {@link SceneModel} was destroyed.
    *
    * Forwards to {@link MeshManager} to release associated GPU structures.
@@ -1009,7 +1031,53 @@ export class ViewManager {
       this._renderManager.render(rendererView, {clear: true});
     }
 
-    return this._pickManager.pick(rendererView, pickParams);
+    const pickResult = this._pickManager.pick(rendererView, pickParams);
+    if (pickResult.ok === false) return pickResult;
+
+    // Snap is an enrichment of the pick — runs only when the caller
+    // asked for it AND we have a renderable RGBA32F snap target.
+    const wantSnap =
+      (pickParams.snapToVertex !== false || pickParams.snapToEdge !== false) &&
+      (pickParams.snapToVertex || pickParams.snapToEdge) &&
+      !!pickParams.canvasPos;
+    if (wantSnap && this._snapManager) {
+      let snapResult;
+      try {
+        snapResult = this._snapManager.snapPick(rendererView, pickParams);
+      } catch (e) {
+        console.warn("[WebGLRenderer] snapPick threw — falling back to surface pick:", e);
+        return pickResult;
+      }
+      if (snapResult.ok && snapResult.value) {
+        // Fold snap fields onto the surface pick when one exists,
+        // so the caller gets a single PickResult with both the
+        // ViewObject pick and the snapped world position; otherwise
+        // return the snap-only result.
+        //
+        // Assign `viewObject` on the snap result before reading its
+        // public getters — `snappedToVertex` / `snappedToEdge` /
+        // `worldPos` are all gated on `viewObject !== null`, and
+        // SnapManager doesn't know which ViewObject owns the snapped
+        // texel. The surface pick under the cursor is the best
+        // available proxy: a vertex within `snapRadius` pixels of
+        // the cursor almost always belongs to the same object.
+        const snap = snapResult.value;
+        const surfaceObj = pickResult.value ? pickResult.value.viewObject ?? null : null;
+        if (surfaceObj) {
+          snap.viewObject = surfaceObj;
+        }
+        if (pickResult.value) {
+          const out = pickResult.value;
+          out.worldPos = snap.worldPos;
+          out.snappedToVertex = snap.snappedToVertex;
+          out.snappedToEdge = snap.snappedToEdge;
+          out.snappedCanvasPos = snap.snappedCanvasPos;
+          return {ok: true, value: out};
+        }
+        return {ok: true, value: snap};
+      }
+    }
+    return pickResult;
   }
 
   /**
@@ -1034,11 +1102,13 @@ export class ViewManager {
     this._rendererViewsList = [];
     this._activeView = undefined as unknown as ViewRenderState;
 
+    this._snapManager?.destroy();
     this._pickManager?.destroy();
     this._renderManager?.destroy();
     this._meshManager?.destroy();
     this._gpuMemoryManager?.destroy();
 
+    this._snapManager = undefined as unknown as SnapManager;
     this._pickManager = undefined as unknown as PickManager;
     this._renderManager = undefined as unknown as RenderManager;
     this._meshManager = undefined as unknown as MeshManager;

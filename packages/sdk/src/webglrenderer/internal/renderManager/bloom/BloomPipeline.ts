@@ -119,7 +119,7 @@ export class BloomPipeline {
     if (!this._prefilterProgram || !this._downProgram || !this._upProgram) return;
 
     const {hdrSourceTexture, hdrTarget, view} = params;
-    const bloom = view.bloom;
+    const bloom = view.effects.bloom;
 
     const rc = this._renderContext;
     const gl = rc.gl;

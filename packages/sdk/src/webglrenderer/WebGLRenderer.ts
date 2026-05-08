@@ -454,7 +454,6 @@ export class WebGLRenderer {
       // Log errors from these calls
 
       sceneEvents.onSceneModelCreated.subscribe((_, sceneModel) => this.logError(viewManager.sceneModelCreated(sceneModel))),
-      sceneEvents.onSceneModelFinalized.subscribe((_, sceneModel) => this.logError(viewManager.sceneModelFinalized(sceneModel))),
       sceneEvents.onSceneModelDestroyed.subscribe((_, sceneModel) => this.logError(viewManager.sceneModelDestroyed(sceneModel))),
 
       sceneEvents.onSceneGeometryCreated.subscribe((_, sceneGeometry) => this.logError(viewManager.sceneGeometryCreated(sceneGeometry))),

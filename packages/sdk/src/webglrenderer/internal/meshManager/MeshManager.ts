@@ -118,23 +118,6 @@ export class MeshManager {
     return {ok: true, value: undefined};
   }
 
-  public sceneModelFinalized(sceneModel: SceneModel): SDKResult<any> {
-    for (const sceneMesh of Object.values(sceneModel.meshes)) {
-      const result = this.sceneMeshCreated(sceneMesh);
-      if (!result.ok) {
-        return result;
-      }
-    }
-
-    for (const sceneObject of Object.values(sceneModel.objects)) {
-      const result = this.sceneObjectCreated(sceneObject);
-      if (!result.ok) {
-        return result;
-      }
-    }
-    return {ok: true, value: undefined};
-  }
-
   /**
    * Unregisters a {@link SceneModel}.
    *

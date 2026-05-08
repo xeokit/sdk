@@ -105,6 +105,18 @@ export interface BatchDataTextures {
      * Overall primitive range to draw for this View when picking.
      */
     pickPrimitiveRange: PrimRange;
+
+    /**
+     * Overall edge-primitive range to draw for this View when snap-picking.
+     *
+     * Analogous to {@link pickPrimitiveRange} but covers edges from the
+     * dihedral-angle-thresholded edge index buffer — i.e. the
+     * silhouette / crease edges only, never the interior diagonals
+     * shared between coplanar triangles. Snap-to-vertex and
+     * snap-to-edge both source from this so neither lands on
+     * triangulation artefacts.
+     */
+    pickEdgePrimitiveRange: PrimRange;
   }>;
 
   /**

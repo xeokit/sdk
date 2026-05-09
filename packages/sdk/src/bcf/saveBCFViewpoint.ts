@@ -276,11 +276,21 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): SDKResult<BCFV
 
   bcfViewpoint.components.translucency = createBCFComponents(view.xrayedObjectIds);
 
-  if (params.snapshot !== false) {
-    // bcfViewpoint.snapshot = {
-    //   snapshot_type: "png",
-    //   snapshot_data: view.getSnapshot({format: "png"})
-    // };
+  if (params.snapshot !== false && params.renderer) {
+    const snap = params.renderer.getSnapshot(view);
+    if (snap.ok === false) {
+      console.warn(`[saveBCFViewpoint] Snapshot capture failed: ${snap.error}`);
+    } else {
+      // BCFSnapshot.snapshot_data is the raw base64 payload —
+      // strip the `data:image/png;base64,` prefix the renderer
+      // returns.
+      const dataUrl = snap.value;
+      const comma = dataUrl.indexOf(",");
+      bcfViewpoint.snapshot = {
+        snapshot_type: "png",
+        snapshot_data: comma >= 0 ? dataUrl.slice(comma + 1) : dataUrl,
+      };
+    }
   }
 
   return {

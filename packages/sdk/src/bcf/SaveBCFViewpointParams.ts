@@ -1,4 +1,19 @@
 import type {View} from "../viewer";
+import type {SDKResult} from "../core";
+
+/**
+ * Minimal snapshot capability {@link saveBCFViewpoint} needs to
+ * populate {@link BCFViewpoint.snapshot}. Structurally satisfied
+ * by `WebGLRenderer` (and any other renderer that implements
+ * `getSnapshot(view)` returning a `data:image/png;base64,…` URL).
+ *
+ * Declared structurally rather than imported from
+ * `webglrenderer` to keep the `bcf` module free of a renderer
+ * dependency.
+ */
+export interface BCFSnapshotSource {
+  getSnapshot(view: View): SDKResult<string>;
+}
 
 /**
  * Parameters for {@link saveBCFViewpoint | saveBCFViewpoint}.
@@ -11,10 +26,27 @@ export interface SaveBCFViewpointParams {
 
   /**
    * Whether to capture a snapshot image in the BCF viewpoint.
+   * Requires {@link SaveBCFViewpointParams.renderer | renderer}
+   * to be supplied — without it `saveBCFViewpoint` has no way to
+   * read the canvas. The captured PNG is base64-encoded into
+   * {@link BCFViewpoint.snapshot | BCFViewpoint.snapshot}.
    *
-   * The snapshot would be saved in {@link BCFViewpoint.snapshot | BCFViewpoint.snapshot}.
+   * Defaults to `true`. Set explicitly to `false` to omit the
+   * snapshot even when a renderer is wired in.
    */
   snapshot?: boolean;
+
+  /**
+   * Renderer used to capture {@link BCFViewpoint.snapshot}. The
+   * renderer's `getSnapshot(view)` is called when
+   * {@link SaveBCFViewpointParams.snapshot | snapshot} is `true`
+   * (the default). When omitted, the snapshot is silently
+   * skipped — the rest of the viewpoint still serialises.
+   *
+   * Structurally typed via {@link BCFSnapshotSource} so the
+   * `bcf` module doesn't need to import the renderer package.
+   */
+  renderer?: BCFSnapshotSource;
 
   /**
    * Identifies the system that authors this BCF viewpoint.

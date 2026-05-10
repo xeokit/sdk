@@ -42,4 +42,14 @@ export interface DataModelParams extends DataModelContentParams {
    * The application used to create the data model, if known.
    */
   creatingApplication?: string;
+
+  /**
+   * The data format / schema this DataModel conforms to (e.g.
+   * `"IFC4"`, `"AP214"`, `"MyApp/v1"`). Mirrors
+   * {@link DataObjectParams.schema} at the model level — handy for
+   * tooling that wants the schema id without having to inspect a
+   * sample DataObject. Loaders typically stamp this and the
+   * per-DataObject `schema` field with the same value.
+   */
+  schema?: string;
 }

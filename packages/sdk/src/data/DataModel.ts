@@ -70,6 +70,15 @@ export class DataModel  {
   public creatingApplication?: string;
 
   /**
+   * The data format / schema this DataModel conforms to (e.g.
+   * `"IFC4"`, `"AP214"`, `"MyApp/v1"`). Mirrors
+   * {@link DataObject.schema} at the model level. Loaders
+   * typically stamp this and the per-DataObject `schema` field
+   * with the same value.
+   */
+  public schema?: string;
+
+  /**
    * The{@link PropertySet | PropertySets} in this DataModel, mapped to
    * {@link PropertySet.id | PropertySet.id}.
    *
@@ -142,6 +151,7 @@ export class DataModel  {
     this.author = dataModelParams.author || "";
     this.createdAt = dataModelParams.createdAt || "";
     this.creatingApplication = dataModelParams.creatingApplication || "";
+    this.schema = dataModelParams.schema;
     this.propertySets = {};
     this.objects = {};
     this.objectsByType = {};
@@ -452,6 +462,12 @@ export class DataModel  {
       objects: [],
       relationships: []
     };
+    if (this.projectId           !== undefined) dataModelParams.projectId           = this.projectId;
+    if (this.revisionId          !== undefined) dataModelParams.revisionId          = this.revisionId;
+    if (this.author              !== undefined) dataModelParams.author              = this.author;
+    if (this.createdAt           !== undefined) dataModelParams.createdAt           = this.createdAt;
+    if (this.creatingApplication !== undefined) dataModelParams.creatingApplication = this.creatingApplication;
+    if (this.schema              !== undefined) dataModelParams.schema              = this.schema;
     for (const id in this.propertySets) {
       const propertySet = this.propertySets[id];
       const propertySetParams = <PropertySetParams>{

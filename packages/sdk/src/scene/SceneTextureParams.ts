@@ -127,4 +127,25 @@ export interface SceneTextureParams {
    * RGBA color to preload the texture with.
    */
   preloadColor?: Vec4;
+
+  /**
+   * Opt this texture into mipmapped sampling. When `true`, the
+   * renderer routes meshes whose materials reference this
+   * SceneTexture into a mipmap-bearing batch — the per-batch
+   * atlas is allocated with a full mip pyramid and sampled with
+   * `LINEAR_MIPMAP_LINEAR`, eliminating shimmer at distance and
+   * grazing angles.
+   *
+   * Default `false` — mipmaps cost about 33% extra atlas memory
+   * and the renderer regenerates the whole atlas pyramid on every
+   * slice add (cheap when textures are uploaded once at load,
+   * noticeable past ~100 streamed-in textures).
+   *
+   * Caveat: a material that binds a mix of opted-in and
+   * non-opted-in textures lands its meshes in a single mipped
+   * batch — the non-opted-in textures end up in a mipped atlas
+   * too. In practice, opt every map of a material in or out
+   * together.
+   */
+  mipmap?: boolean;
 }

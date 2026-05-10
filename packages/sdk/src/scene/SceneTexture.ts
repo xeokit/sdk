@@ -154,6 +154,14 @@ export class SceneTexture {
   preloadColor: Vec4;
 
   /**
+   * Mipmap opt-in. `true` routes meshes whose materials reference
+   * this SceneTexture into a mipmap-bearing batch; the per-batch
+   * atlas is allocated with a full mip pyramid and sampled
+   * trilinearly. Default `false`.
+   */
+  readonly mipmap: boolean;
+
+  /**
    * @private
    */
   channel: number;
@@ -202,6 +210,7 @@ export class SceneTexture {
     this.wrapR = params.wrapR || RepeatWrapping
     this.encoding = params.encoding || LinearEncoding;
     this.preloadColor = createVec4Float64(params.preloadColor || [1, 1, 1, 1]);
+    this.mipmap = params.mipmap === true;
     this.channel = 0;
     this.numMaterials = 0;
   }
@@ -235,7 +244,8 @@ export class SceneTexture {
         wrapT: this.wrapT,
         wrapR: this.wrapR,
         encoding: this.encoding,
-        preloadColor: this.preloadColor
+        preloadColor: this.preloadColor,
+        mipmap: this.mipmap
       }
     };
   }

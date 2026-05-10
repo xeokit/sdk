@@ -173,9 +173,19 @@ export class GPUMemoryBatch {
   public readonly triplanar: boolean;
 
   /**
+   * When `true`, the batch's per-batch PBR atlases are allocated
+   * with a full mip pyramid and sampled trilinearly. Set when at
+   * least one of the meshes' materials binds an opted-in
+   * {@link "../../../scene".SceneTexture | SceneTexture}
+   * (`SceneTextureParams.mipmap === true`); otherwise the atlases
+   * stay on the cheap single-level path.
+   */
+  public readonly mipmap: boolean;
+
+  /**
    * Creates a new GPUMemoryBatch.
    */
-  constructor(index: number, renderContext: RenderContext, options: { hasNormals?: boolean, hasUVs?: boolean, triplanar?: boolean } = {}) {
+  constructor(index: number, renderContext: RenderContext, options: { hasNormals?: boolean, hasUVs?: boolean, triplanar?: boolean, mipmap?: boolean } = {}) {
 
     this.index = index;
 
@@ -183,6 +193,7 @@ export class GPUMemoryBatch {
     this.hasNormals = options.hasNormals === true;
     this.hasUVs = options.hasUVs === true;
     this.triplanar = options.triplanar === true;
+    this.mipmap = options.mipmap === true;
 
     this._geometryHandles = {};
     this._meshHandles = {};
@@ -325,14 +336,16 @@ export class GPUMemoryBatch {
     // world-space UVs derived from `vWorldPos`). Allocate whenever
     // either flag is set.
     if (this.hasUVs || this.triplanar) {
+      const atlasMipmap = this.mipmap;
       // The albedo atlas is bound by the textured technique variants
       // unconditionally — always-allocate keeps the shader path
       // branch-free. Untextured meshes write the atlas's sentinel
       // transform (scale = 0) and sample its pre-stamped white block.
       this._albedoAtlasTexture = new TextureAtlas({
         gl,
-        description: `[Batch ${this.index}] - albedo atlas (sRGB 2D, shelf-packed)`
+        description: `[Batch ${this.index}] - albedo atlas (sRGB 2D, shelf-packed${atlasMipmap ? ", mipmapped" : ""})`,
         // internalFormat defaults to SRGB8_ALPHA8.
+        mipmap: atlasMipmap
       });
       // Metallic-roughness atlas — same shape, but linear RGBA8 since the
       // values are reflectance parameters, not colour. Sentinel = white,
@@ -342,8 +355,9 @@ export class GPUMemoryBatch {
       // sentinel).
       this._metallicRoughnessAtlasTexture = new TextureAtlas({
         gl,
-        description: `[Batch ${this.index}] - metallic-roughness atlas (linear 2D, shelf-packed)`,
-        internalFormat: gl.RGBA8
+        description: `[Batch ${this.index}] - metallic-roughness atlas (linear 2D, shelf-packed${atlasMipmap ? ", mipmapped" : ""})`,
+        internalFormat: gl.RGBA8,
+        mipmap: atlasMipmap
       });
       // Tangent-space normal-map atlas. Sentinel `(128, 128, 255, 255)`
       // decodes to (0, 0, 1) — i.e. surface normal — so untextured
@@ -351,9 +365,10 @@ export class GPUMemoryBatch {
       // did before normal-mapping landed.
       this._normalMapAtlasTexture = new TextureAtlas({
         gl,
-        description: `[Batch ${this.index}] - normal-map atlas (linear 2D, shelf-packed)`,
+        description: `[Batch ${this.index}] - normal-map atlas (linear 2D, shelf-packed${atlasMipmap ? ", mipmapped" : ""})`,
         internalFormat: gl.RGBA8,
-        sentinelColor: [128, 128, 255, 255]
+        sentinelColor: [128, 128, 255, 255],
+        mipmap: atlasMipmap
       });
     }
 

@@ -276,7 +276,10 @@ export class MeshManager {
    * - matching `hasUVs` flag (so the UV-bearing technique variant only sees
    *   geometries that actually populate the UV data texture),
    * - matching `triplanar` flag (so the triplanar shader variant only sees
-   *   meshes whose textures it must derive from world-space coordinates), and
+   *   meshes whose textures it must derive from world-space coordinates),
+   * - matching `mipmap` flag (so an opted-in {@link SceneTexture}'s meshes
+   *   land in a mipmap-bearing atlas while the standard non-mipped path
+   *   stays cheap), and
    * - {@link MeshBatchImpl.canAddMesh} constraints.
    *
    * @param sceneMesh - The mesh requiring a batch.
@@ -291,13 +294,21 @@ export class MeshManager {
     // Mutually exclusive with `hasUVs` by construction — UV-bearing
     // geometry routes through the existing atlas path.
     const triplanar = !hasUVs && _materialHasAnyTexture(sceneMesh);
+    // Mipmap engages when any of the material's bound textures opted
+    // in via `SceneTextureParams.mipmap`. Untextured batches keep
+    // `mipmap: false` — there's nothing to filter trilinearly. A
+    // material with mixed-mode textures (some mipped, some not) lands
+    // in a mipped batch, so the non-mipped textures end up in a
+    // mipped atlas too — predictable, documented on the param.
+    const mipmap = (hasUVs || triplanar) && _materialHasMippedTexture(sceneMesh);
 
     for (let i = 0, len = this._batches.length; i < len; i++) {
       const meshBatch = this._batches[i];
       if (meshBatch.primitive === primitive
           && meshBatch.hasNormals === hasNormals
           && meshBatch.hasUVs === hasUVs
-          && meshBatch.triplanar === triplanar) {
+          && meshBatch.triplanar === triplanar
+          && meshBatch.mipmap === mipmap) {
         const canAddResult = meshBatch.canAddMesh(sceneMesh);
         if (canAddResult !== GPUMemoryCheckResult.OK) {
           continue;
@@ -306,7 +317,7 @@ export class MeshManager {
       }
     }
 
-    const result = this._gpuMemoryManager.createBatch({hasNormals, hasUVs, triplanar});
+    const result = this._gpuMemoryManager.createBatch({hasNormals, hasUVs, triplanar, mipmap});
     if (result.ok === false) {
       return result;
     }
@@ -318,6 +329,7 @@ export class MeshManager {
       hasNormals,
       hasUVs,
       triplanar,
+      mipmap,
       renderContext: this._renderContext,
       gpuMemoryManager: this._gpuMemoryManager,
       gpuMemoryBatchIndex,
@@ -671,5 +683,23 @@ function _materialHasAnyTexture(sceneMesh: SceneMesh): boolean {
     m.normalsTexture ||
     m.occlusionTexture ||
     m.emissiveTexture
+  );
+}
+
+/**
+ * `true` when any texture bound to the mesh's material opted into
+ * mipmapped sampling via `SceneTextureParams.mipmap`. The batch
+ * routing reads this once at registration time to pick a
+ * mipmap-bearing atlas variant.
+ */
+function _materialHasMippedTexture(sceneMesh: SceneMesh): boolean {
+  const m: any = sceneMesh.material;
+  if (!m) return false;
+  return !!(
+    (m.colorTexture              && m.colorTexture.mipmap === true) ||
+    (m.metallicRoughnessTexture  && m.metallicRoughnessTexture.mipmap === true) ||
+    (m.normalsTexture            && m.normalsTexture.mipmap === true) ||
+    (m.occlusionTexture          && m.occlusionTexture.mipmap === true) ||
+    (m.emissiveTexture           && m.emissiveTexture.mipmap === true)
   );
 }

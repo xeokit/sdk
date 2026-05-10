@@ -639,17 +639,27 @@ export abstract class DrawTechnique {
     // shader variant that derives sample coordinates from `vWorldPos`,
     // but they still read through the same per-batch atlases populated
     // when each mesh attaches.
+    //
+    // For mipmapped atlases, `flushMipmaps()` runs immediately
+    // before each bind. The call is a one-branch no-op when the
+    // atlas isn't dirty (per-bind cost ≈ a property read), and
+    // pays one `gl.generateMipmap` per atlas per frame when it
+    // is — independent of how many `addTexture` / `updateTexture`
+    // calls landed since the previous draw.
     const _bindAtlases = (this.hasUVs || this.triplanar);
     if (_bindAtlases && batchDataTextures.albedoAtlasTexture && batchDataTextures.albedoAtlasTexture.texture) {
+      batchDataTextures.albedoAtlasTexture.flushMipmaps();
       // The atlas isn't a DataTexture (no CPU buffer, no texelFetch — it's
       // a real sampler2D), but its `.texture` field is shape-compatible
       // with `_bindTexture`'s expectations.
       this._bindTexture(samplers.albedoAtlas, batchDataTextures.albedoAtlasTexture);
     }
     if (_bindAtlases && batchDataTextures.metallicRoughnessAtlasTexture && batchDataTextures.metallicRoughnessAtlasTexture.texture) {
+      batchDataTextures.metallicRoughnessAtlasTexture.flushMipmaps();
       this._bindTexture(samplers.metallicRoughnessAtlas, batchDataTextures.metallicRoughnessAtlasTexture);
     }
     if (_bindAtlases && batchDataTextures.normalMapAtlasTexture && batchDataTextures.normalMapAtlasTexture.texture) {
+      batchDataTextures.normalMapAtlasTexture.flushMipmaps();
       this._bindTexture(samplers.normalMapAtlas, batchDataTextures.normalMapAtlasTexture);
     }
     // IBL Layer-2 cubemaps + BRDF LUT — populated on RenderContext by
@@ -2038,9 +2048,26 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     vec2 wrappedY = fract(triUVy);
     vec2 wrappedZ = fract(triUVz);
 
-    vec4 albedoX = texture(uAlbedoAtlas, wrappedX * vAlbedoUVScale + vAlbedoUVOffset);
-    vec4 albedoY = texture(uAlbedoAtlas, wrappedY * vAlbedoUVScale + vAlbedoUVOffset);
-    vec4 albedoZ = texture(uAlbedoAtlas, wrappedZ * vAlbedoUVScale + vAlbedoUVOffset);
+    // Pre-fract derivatives. The atlas-sample coord
+    // \`wrappedX * scale + offset\` has a discontinuity at every
+    // tile seam (where \`fract\` snaps from ~1 → 0); the GPU's
+    // automatic mip selection sees that as a huge gradient and
+    // picks the smallest mip, smearing seams. Using the
+    // *un-fract'd* triUV gradient — multiplied by the per-mesh
+    // atlas scale — gives the true rate of change across the
+    // triangle, so mip selection lands on the right level even
+    // at tile boundaries. Each per-axis dx/dy is computed once
+    // and reused across albedo / MR / normal-map samples.
+    vec2 dxX = dFdx(triUVx);
+    vec2 dyX = dFdy(triUVx);
+    vec2 dxY = dFdx(triUVy);
+    vec2 dyY = dFdy(triUVy);
+    vec2 dxZ = dFdx(triUVz);
+    vec2 dyZ = dFdy(triUVz);
+
+    vec4 albedoX = textureGrad(uAlbedoAtlas, wrappedX * vAlbedoUVScale + vAlbedoUVOffset, dxX * vAlbedoUVScale, dyX * vAlbedoUVScale);
+    vec4 albedoY = textureGrad(uAlbedoAtlas, wrappedY * vAlbedoUVScale + vAlbedoUVOffset, dxY * vAlbedoUVScale, dyY * vAlbedoUVScale);
+    vec4 albedoZ = textureGrad(uAlbedoAtlas, wrappedZ * vAlbedoUVScale + vAlbedoUVOffset, dxZ * vAlbedoUVScale, dyZ * vAlbedoUVScale);
     vec4 albedoSample = albedoX * triW.x + albedoY * triW.y + albedoZ * triW.z;
     vec3 albedo = albedoSample.rgb * vColor.rgb;
     float albedoAlpha = albedoSample.a * vColor.a;
@@ -2051,9 +2078,9 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
       if (aaAlpha < 0.5) discard;
     }
 
-    vec4 mrX = texture(uMetallicRoughnessAtlas, wrappedX * vMRUVScale + vMRUVOffset);
-    vec4 mrY = texture(uMetallicRoughnessAtlas, wrappedY * vMRUVScale + vMRUVOffset);
-    vec4 mrZ = texture(uMetallicRoughnessAtlas, wrappedZ * vMRUVScale + vMRUVOffset);
+    vec4 mrX = textureGrad(uMetallicRoughnessAtlas, wrappedX * vMRUVScale + vMRUVOffset, dxX * vMRUVScale, dyX * vMRUVScale);
+    vec4 mrY = textureGrad(uMetallicRoughnessAtlas, wrappedY * vMRUVScale + vMRUVOffset, dxY * vMRUVScale, dyY * vMRUVScale);
+    vec4 mrZ = textureGrad(uMetallicRoughnessAtlas, wrappedZ * vMRUVScale + vMRUVOffset, dxZ * vMRUVScale, dyZ * vMRUVScale);
     vec4 mrSample = mrX * triW.x + mrY * triW.y + mrZ * triW.z;
     float mrRoughnessFactor = mrSample.g;
     float mrMetallicFactor  = mrSample.b;`
@@ -2125,9 +2152,11 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     // The result is a perturbed world-space normal; the BRDF that follows
     // works in view space, so we rotate back via uIBLViewToWorldRot's
     // inverse (the matrix is a pure rotation, so transpose suffices).
-    vec3 nmX = texture(uNormalMapAtlas, wrappedX * vNormalUVScale + vNormalUVOffset).xyz * 2.0 - 1.0;
-    vec3 nmY = texture(uNormalMapAtlas, wrappedY * vNormalUVScale + vNormalUVOffset).xyz * 2.0 - 1.0;
-    vec3 nmZ = texture(uNormalMapAtlas, wrappedZ * vNormalUVScale + vNormalUVOffset).xyz * 2.0 - 1.0;
+    // textureGrad with the pre-fract derivatives — same anti-seam
+    // reasoning as the albedo/MR triplanar samples above.
+    vec3 nmX = textureGrad(uNormalMapAtlas, wrappedX * vNormalUVScale + vNormalUVOffset, dxX * vNormalUVScale, dyX * vNormalUVScale).xyz * 2.0 - 1.0;
+    vec3 nmY = textureGrad(uNormalMapAtlas, wrappedY * vNormalUVScale + vNormalUVOffset, dxY * vNormalUVScale, dyY * vNormalUVScale).xyz * 2.0 - 1.0;
+    vec3 nmZ = textureGrad(uNormalMapAtlas, wrappedZ * vNormalUVScale + vNormalUVOffset, dxZ * vNormalUVScale, dyZ * vNormalUVScale).xyz * 2.0 - 1.0;
     // Mirror the tangent-x channel on negative-axis-facing fragments to
     // match the per-plane UV mirroring above; otherwise the perturbation
     // appears reversed on opposing faces.
@@ -2275,9 +2304,18 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     vec2 wrappedY = fract(triUVy);
     vec2 wrappedZ = fract(triUVz);
 
-    vec4 albedoX = texture(uAlbedoAtlas, wrappedX * vAlbedoUVScale + vAlbedoUVOffset);
-    vec4 albedoY = texture(uAlbedoAtlas, wrappedY * vAlbedoUVScale + vAlbedoUVOffset);
-    vec4 albedoZ = texture(uAlbedoAtlas, wrappedZ * vAlbedoUVScale + vAlbedoUVOffset);
+    // Pre-fract derivatives — see the smooth-triplanar variant
+    // for why this matters (mip selection across tile seams).
+    vec2 dxX = dFdx(triUVx);
+    vec2 dyX = dFdy(triUVx);
+    vec2 dxY = dFdx(triUVy);
+    vec2 dyY = dFdy(triUVy);
+    vec2 dxZ = dFdx(triUVz);
+    vec2 dyZ = dFdy(triUVz);
+
+    vec4 albedoX = textureGrad(uAlbedoAtlas, wrappedX * vAlbedoUVScale + vAlbedoUVOffset, dxX * vAlbedoUVScale, dyX * vAlbedoUVScale);
+    vec4 albedoY = textureGrad(uAlbedoAtlas, wrappedY * vAlbedoUVScale + vAlbedoUVOffset, dxY * vAlbedoUVScale, dyY * vAlbedoUVScale);
+    vec4 albedoZ = textureGrad(uAlbedoAtlas, wrappedZ * vAlbedoUVScale + vAlbedoUVOffset, dxZ * vAlbedoUVScale, dyZ * vAlbedoUVScale);
     vec4 albedoSample = albedoX * triW.x + albedoY * triW.y + albedoZ * triW.z;
     vec3 albedo = albedoSample.rgb * vColor.rgb;
     float albedoAlpha = albedoSample.a * vColor.a;`
@@ -2299,9 +2337,12 @@ ${this.triplanar ? `
     // rotation, which is orthonormal so transpose == inverse) to
     // override the cross-product face normal computed above.
     {
-      vec3 nmX = texture(uNormalMapAtlas, wrappedX * vNormalUVScale + vNormalUVOffset).xyz * 2.0 - 1.0;
-      vec3 nmY = texture(uNormalMapAtlas, wrappedY * vNormalUVScale + vNormalUVOffset).xyz * 2.0 - 1.0;
-      vec3 nmZ = texture(uNormalMapAtlas, wrappedZ * vNormalUVScale + vNormalUVOffset).xyz * 2.0 - 1.0;
+      // textureGrad with the pre-fract derivatives — mip selection
+      // is consistent across tile seams. dxX/dyX/etc. are in scope
+      // from the flat-triplanar albedo block above.
+      vec3 nmX = textureGrad(uNormalMapAtlas, wrappedX * vNormalUVScale + vNormalUVOffset, dxX * vNormalUVScale, dyX * vNormalUVScale).xyz * 2.0 - 1.0;
+      vec3 nmY = textureGrad(uNormalMapAtlas, wrappedY * vNormalUVScale + vNormalUVOffset, dxY * vNormalUVScale, dyY * vNormalUVScale).xyz * 2.0 - 1.0;
+      vec3 nmZ = textureGrad(uNormalMapAtlas, wrappedZ * vNormalUVScale + vNormalUVOffset, dxZ * vNormalUVScale, dyZ * vNormalUVScale).xyz * 2.0 - 1.0;
       if (triNorm.x < 0.0) nmX.x = -nmX.x;
       if (triNorm.y < 0.0) nmY.x = -nmY.x;
       if (triNorm.z < 0.0) nmZ.x = -nmZ.x;

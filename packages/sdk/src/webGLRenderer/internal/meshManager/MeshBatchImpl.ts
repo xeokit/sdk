@@ -68,6 +68,15 @@ export class MeshBatchImpl implements MeshBatch {
   readonly triplanar: boolean;
 
   /**
+   * Whether this batch's atlases carry mip pyramids and sample
+   * trilinearly. Derived from the meshes' materials at batch-
+   * construction time — `true` when any bound texture opted into
+   * mipmaps via `SceneTextureParams.mipmap`. Same constancy
+   * guarantee as the other axes.
+   */
+  readonly mipmap: boolean;
+
+  /**
    * Base primitive tileIndex for this batch.
    */
   primBaseIndex: number;
@@ -115,8 +124,9 @@ export class MeshBatchImpl implements MeshBatch {
     hasNormals: boolean;
     hasUVs: boolean;
     triplanar: boolean;
+    mipmap: boolean;
   }) {
-    const {renderContext, gpuMemoryManager, primitive, hasNormals, hasUVs, triplanar} = batchParams;
+    const {renderContext, gpuMemoryManager, primitive, hasNormals, hasUVs, triplanar, mipmap} = batchParams;
     this._renderContext = renderContext;
     this._gpuMemoryManager = gpuMemoryManager;
     this.gpuMemoryBatchIndex = batchParams.gpuMemoryBatchIndex;
@@ -124,8 +134,9 @@ export class MeshBatchImpl implements MeshBatch {
     this.hasNormals = hasNormals === true;
     this.hasUVs = hasUVs === true;
     this.triplanar = triplanar === true;
+    this.mipmap = mipmap === true;
     this.primBaseIndex = 0; // TODO
-    this.sortId = `batch-${primitive}-${this.hasNormals ? "n" : "f"}-${this.hasUVs ? "u" : "x"}-${this.triplanar ? "t" : "p"}`;
+    this.sortId = `batch-${primitive}-${this.hasNormals ? "n" : "f"}-${this.hasUVs ? "u" : "x"}-${this.triplanar ? "t" : "p"}-${this.mipmap ? "m" : "0"}`;
     this.numIndices = 0;
     this.numVertices = 0;
     // SAO and Shadows are triangle-only effects: the line / point draw-op
@@ -140,7 +151,7 @@ export class MeshBatchImpl implements MeshBatch {
    * A hash string representing this batch, used for quick comparisons.
    */
   public get hash(): string {
-    return `${this.primitive}-${this.hasNormals ? 1 : 0}-${this.hasUVs ? 1 : 0}-${this.triplanar ? 1 : 0}`;
+    return `${this.primitive}-${this.hasNormals ? 1 : 0}-${this.hasUVs ? 1 : 0}-${this.triplanar ? 1 : 0}-${this.mipmap ? 1 : 0}`;
   }
 
   /**

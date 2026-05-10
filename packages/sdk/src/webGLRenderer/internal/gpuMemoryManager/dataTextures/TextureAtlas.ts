@@ -79,6 +79,17 @@ export class TextureAtlas {
   public static readonly DEFAULT_PADDING = 2;
 
   /**
+   * Gutter (pixels) around each entry on a mipmapped atlas. Each
+   * mip level halves the entry's footprint, so adjacent entries
+   * can bleed across the original level-0 boundary at higher
+   * levels — `8` covers entries down to ~16-pixel level-0 sizes
+   * cleanly. Larger entries waste a small fraction of the atlas;
+   * smaller entries (~tens of pixels) might still bleed at the
+   * tiniest mips, which is acceptable for first-cut Phase 1.
+   */
+  public static readonly DEFAULT_PADDING_MIPMAP = 8;
+
+  /**
    * UV transform for "no texture" — collapses every fragment to the
    * sentinel white texel at atlas (0.5/size, 0.5/size). Initialised in
    * {@link allocate}.
@@ -107,6 +118,23 @@ export class TextureAtlas {
   public allocated: boolean = false;
 
   /**
+   * `true` when the atlas was allocated with a full mip pyramid
+   * (`floor(log2(size)) + 1` levels) and is sampled trilinearly.
+   * Set from the constructor option; `false` keeps the cheap
+   * single-level path.
+   */
+  public mipmap: boolean = false;
+
+  /**
+   * Set by `addTexture` / `updateTexture` when a level-0 write
+   * has happened since the last `gl.generateMipmap`; cleared by
+   * {@link flushMipmaps}. Lets the atlas batch many level-0
+   * mutations and pay one full-pyramid regeneration per draw
+   * instead of N regenerations during the burst.
+   */
+  private _mipsDirty: boolean = false;
+
+  /**
    * Notifies inspectors that the atlas was modified. Fires when entries
    * are added or after {@link webglContextRestored} re-stamps everything.
    */
@@ -133,11 +161,25 @@ export class TextureAtlas {
      * untextured-fallback decodes to a flat tangent-space normal.
      */
     sentinelColor?: [number, number, number, number];
+    /**
+     * Allocate the atlas with a full mip pyramid and sample
+     * trilinearly. Default `false`. When `true`, every successful
+     * `addTexture` triggers `gl.generateMipmap` to refresh the
+     * pyramid for the entire atlas — fine when textures upload
+     * once at load, scales with atlas size as more textures
+     * stream in.
+     */
+    mipmap?: boolean;
   }) {
     this.gl = options.gl;
     this._description = options.description;
     this.size = options.size ?? TextureAtlas.DEFAULT_SIZE;
-    this.padding = options.padding ?? TextureAtlas.DEFAULT_PADDING;
+    this.mipmap = options.mipmap === true;
+    // Mipmapped atlases need a wider gutter — see DEFAULT_PADDING_MIPMAP.
+    const defaultPadding = this.mipmap
+      ? TextureAtlas.DEFAULT_PADDING_MIPMAP
+      : TextureAtlas.DEFAULT_PADDING;
+    this.padding = options.padding ?? defaultPadding;
     this.internalFormat = options.internalFormat ?? options.gl.SRGB8_ALPHA8;
     this.sentinelColor = options.sentinelColor ?? [255, 255, 255, 255];
   }
@@ -165,15 +207,45 @@ export class TextureAtlas {
       gl.bindTexture(gl.TEXTURE_2D, tex);
       // CLAMP_TO_EDGE: sub-rects can't legally tile, and the gutter pads
       // bilinear samples away from neighbours so we don't bleed.
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      // Min-filter switches based on mipmap opt-in: trilinear when
+      // mipmapped (samples blend between two adjacent mip levels),
+      // bilinear otherwise (single-level filtered sample).
+      gl.texParameteri(
+        gl.TEXTURE_2D,
+        gl.TEXTURE_MIN_FILTER,
+        this.mipmap ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR
+      );
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       // Internal format dictates whether the GPU sRGB-decodes on sample.
       // Albedo uses SRGB8_ALPHA8 (sRGB-encoded source → linear sample);
       // MR / normals / occlusion use RGBA8 (linear all the way).
-      gl.texStorage2D(gl.TEXTURE_2D, 1, this.internalFormat, this.size, this.size);
+      const mipLevels = this.mipmap
+        ? (Math.floor(Math.log2(this.size)) + 1)
+        : 1;
+      gl.texStorage2D(gl.TEXTURE_2D, mipLevels, this.internalFormat, this.size, this.size);
+      // Pre-fill every level-0 texel with `sentinelColor`. Without
+      // this, `texStorage2D` leaves contents undefined (zeros on
+      // every browser we've shipped against), which on a mipmapped
+      // atlas shows up as dark seams: at high mip levels
+      // `generateMipmap`'s box filter averages each slice's edge
+      // texels with the dark gutter and dark neighbouring-slice
+      // bleed. Pre-filling makes the gutter read as the neutral
+      // fallback (white for albedo, neutral-tangent for normal
+      // maps) so the bleed is harmless. The sentinel-corner stamp
+      // below is then redundant but kept for clarity / robustness
+      // against any code path that fills the gutter later.
+      this._fillSentinel();
       this._stampSentinel();
+      // Initial mip pyramid: level-0 is now uniformly `sentinelColor`
+      // (post-fill) plus the 4×4 sentinel stamp at the origin (same
+      // colour). `generateMipmap` propagates that to levels 1..N so a
+      // sentinel sample at any mip level returns the same colour, and
+      // untextured meshes look identical regardless of mip mode.
+      if (this.mipmap) {
+        gl.generateMipmap(gl.TEXTURE_2D);
+      }
       gl.bindTexture(gl.TEXTURE_2D, null);
       this.allocated = true;
       // Sentinel transform: scale = 0 collapses any input UV to a single
@@ -239,6 +311,14 @@ export class TextureAtlas {
         gl.UNSIGNED_BYTE,
         source as any
       );
+      // Defer the mip-pyramid refresh. {@link flushMipmaps} runs
+      // before the next draw and pays one regeneration per atlas
+      // per frame regardless of how many slice writes happened —
+      // critical when a loader streams in hundreds of textures
+      // across a few frames.
+      if (this.mipmap) {
+        this._mipsDirty = true;
+      }
     } catch (e) {
       gl.bindTexture(gl.TEXTURE_2D, null);
       // The shelf entry is wasted but the atlas is otherwise intact.
@@ -295,6 +375,10 @@ export class TextureAtlas {
         gl.UNSIGNED_BYTE,
         source as any
       );
+      // Same deferred-flush as `addTexture` — see comment there.
+      if (this.mipmap) {
+        this._mipsDirty = true;
+      }
     } catch (e) {
       gl.bindTexture(gl.TEXTURE_2D, null);
       console.warn(`[TextureAtlas] updateTexture texSubImage2D failed for id='${id}': ${e}`);
@@ -386,9 +470,41 @@ export class TextureAtlas {
         console.warn(`[TextureAtlas] context-restore re-stamp failed: ${e}`);
       }
     }
+    // Mark dirty rather than regenerating directly. The next
+    // `flushMipmaps` (called per draw) will pick it up. Same
+    // deferred-flush model as `addTexture` / `updateTexture`,
+    // which keeps the regeneration cost amortised whether the
+    // dirtying came from a context restore or a live texture
+    // burst.
+    if (this.mipmap) {
+      this._mipsDirty = true;
+    }
     gl.bindTexture(gl.TEXTURE_2D, null);
     this.onUpdated.dispatch(this, undefined);
     return { ok: true, value: undefined };
+  }
+
+  /**
+   * If a mip-bearing atlas has level-0 writes pending since the
+   * last flush, regenerate the pyramid and clear the dirty flag.
+   * Cheap to call when the flag is `false` (one branch).
+   *
+   * Called by the renderer immediately before binding the atlas
+   * for a draw so each atlas pays at most one
+   * `gl.generateMipmap` per frame regardless of how many slices
+   * were written since the previous draw.
+   */
+  public flushMipmaps(): void {
+    if (!this._mipsDirty) return;
+    if (!this.mipmap || !this.allocated || !this.texture) {
+      this._mipsDirty = false;
+      return;
+    }
+    const gl = this.gl;
+    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    this._mipsDirty = false;
   }
 
   /** Frees the GPU texture and clears all CPU-side state. */
@@ -414,6 +530,56 @@ export class TextureAtlas {
       total += e.width * e.height * 4;
     }
     return total;
+  }
+
+  /**
+   * Fills the entire level-0 atlas with {@link sentinelColor}.
+   *
+   * Implemented as a one-shot framebuffer clear — attach the atlas
+   * as colour attachment 0, `gl.clear`, detach. Beats the obvious
+   * `texSubImage2D(... new Uint8Array(size² × 4))` alternative on
+   * memory (which would allocate ~64 MB temporarily for a 4096²
+   * atlas) and on time (the GPU clear is essentially free).
+   *
+   * Restores the previous framebuffer binding and clear colour
+   * before returning so callers don't see side effects on global
+   * GL state.
+   */
+  private _fillSentinel(): void {
+    const gl = this.gl;
+    if (!this.texture) return;
+    const fbo = gl.createFramebuffer();
+    if (!fbo) return;
+
+    const prevFbo = gl.getParameter(gl.DRAW_FRAMEBUFFER_BINDING);
+    const prevClear = gl.getParameter(gl.COLOR_CLEAR_VALUE) as Float32Array;
+    const prevColorMask = gl.getParameter(gl.COLOR_WRITEMASK) as boolean[];
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    gl.framebufferTexture2D(
+      gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0
+    );
+
+    // Clear colour comes in as 0..255 bytes; GL wants 0..1 floats.
+    // For sRGB atlases the GPU encodes the linear write to sRGB on
+    // store automatically — `(1, 1, 1, 1)` linear → `(255, 255, 255, 255)`
+    // bytes, which is what the sentinel stamp would write directly,
+    // so the two paths agree.
+    gl.clearColor(
+      this.sentinelColor[0] / 255,
+      this.sentinelColor[1] / 255,
+      this.sentinelColor[2] / 255,
+      this.sentinelColor[3] / 255,
+    );
+    gl.colorMask(true, true, true, true);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    // Restore.
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, null, 0);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, prevFbo);
+    gl.deleteFramebuffer(fbo);
+    gl.clearColor(prevClear[0], prevClear[1], prevClear[2], prevClear[3]);
+    gl.colorMask(prevColorMask[0], prevColorMask[1], prevColorMask[2], prevColorMask[3]);
   }
 
   /**

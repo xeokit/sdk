@@ -50,6 +50,18 @@ export interface MeshBatch {
   triplanar: boolean;
 
   /**
+   * Whether the batch's per-batch atlases ship with a full mip
+   * pyramid and are sampled trilinearly.
+   *
+   * Set when at least one mesh in the batch carries a material
+   * referencing a {@link "../scene".SceneTexture | SceneTexture}
+   * with `SceneTextureParams.mipmap === true`. Routes to the
+   * mipmap-bearing atlas variant; non-opted-in textures stay on
+   * the cheap single-level path.
+   */
+  mipmap: boolean;
+
+  /**
    * Base primitive base index for this batch.
    */
   primBaseIndex: number;

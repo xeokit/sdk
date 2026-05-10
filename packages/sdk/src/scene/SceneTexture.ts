@@ -253,10 +253,9 @@ export class SceneTexture {
    *
    * Accepts either a DOM `ImageData` or the JSON-friendly
    * `{data, width, height}` form (normalised to `ImageData` here).
-   * Once the SceneModel is finalized (or is in streaming mode), every
-   * assignment fires `Scene.events.onSceneTextureImageDataChanged` so
-   * the renderer can re-upload the pixels into its atlas sub-rect via
-   * `texSubImage2D` — no batch / mesh / material rebuild.
+   * Every assignment fires `Scene.events.onSceneTextureImageDataChanged`
+   * so the renderer can re-upload the pixels into its atlas sub-rect
+   * via `texSubImage2D` — no batch / mesh / material rebuild.
    *
    * The setter fires unconditionally on every assignment (no identity
    * skip), so callers that mutate the bytes of an existing `ImageData`
@@ -273,7 +272,7 @@ export class SceneTexture {
       return;
     }
     this._imageData = normalizeImageData(value);
-    if (this._imageData && (this.model.streamingEnabled || this.model.finalized)) {
+    if (this._imageData) {
       this.model.scene.events.onSceneTextureImageDataChanged.dispatch(this.model.scene, this);
     }
   }

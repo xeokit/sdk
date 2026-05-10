@@ -172,8 +172,8 @@
  * } from "@xeokit/sdk/constants";
  *
  * import { Viewer } from "@xeokit/sdk/viewer";
- * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
- * import { ViewController } from "@xeokit/sdk/viewcontroller";
+ * import { WebGLRenderer } from "@xeokit/sdk/webGLRenderer";
+ * import { ViewController } from "@xeokit/sdk/viewController";
  * ```
  *
  * <br>
@@ -233,13 +233,13 @@
  * ### 5) Attach a Viewer (browser only)
  *
  * A {@link Scene} is renderer-agnostic. In Node.js you typically build/convert/export without rendering.
- * In the browser, attach the Scene to a {@link viewer!Viewer | Viewer} and {@link webglrenderer!WebGLRenderer | WebGLRenderer}.
+ * In the browser, attach the Scene to a {@link viewer!Viewer | Viewer} and {@link webGLRenderer!WebGLRenderer | WebGLRenderer}.
  *
  * A minimal setup uses:
  *
- * - {@link webglrenderer!WebGLRenderer | WebGLRenderer} (WebGL rendering)
+ * - {@link webGLRenderer!WebGLRenderer | WebGLRenderer} (WebGL rendering)
  * - {@link viewer!View | View} (a canvas target)
- * - {@link viewcontroller!ViewController | ViewController} (mouse/touch navigation)
+ * - {@link viewController!ViewController | ViewController} (mouse/touch navigation)
  *
  * ```javascript
  * const viewer = new Viewer({ scene });
@@ -657,6 +657,6 @@ export * from "./compressGeometryParams";
 export * from "./buildMat4"
 
 import type {Viewer} from "../viewer";
-import type {WebGLRenderer} from "../webglrenderer";
+import type {WebGLRenderer} from "../webGLRenderer";
 import type {DotBIMLoader, DotBIMExporter} from "../formats/dotbim";
 

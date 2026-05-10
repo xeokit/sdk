@@ -200,10 +200,6 @@ export class SceneModel {
    */
   public readonly objects: { [key: string]: SceneObject };
 
-  private _streamingEnabled: boolean;
-
-  private _finalized: boolean;
-
   /**
    * Statistics on this SceneModel.
    *
@@ -249,8 +245,6 @@ export class SceneModel {
         this.setWorldMatrixDirty();
       },
       sceneModelParams?.coordinateSystem);
-    this._streamingEnabled = sceneModelParams?.streamingEnabled !== false;
-    this._finalized = false;
     this._coordinateSystemMatrix = createMat4Float64();
     this._coordinateSystemMatrixDirty = true;
     this.globalizedIds = (!!sceneModelParams.globalizedIds);
@@ -275,20 +269,6 @@ export class SceneModel {
       numVertices: 0,
       textureBytes: 0
     };
-  }
-
-  /**
-   * Indicates whether streaming is enabled for this SceneModel.
-   */
-  get streamingEnabled(): boolean {
-    return this._streamingEnabled;
-  }
-
-  /**
-   * Indicates whether this SceneModel has been finalized.
-   */
-  get finalized() : boolean {
-    return this._finalized;
   }
 
   /**
@@ -356,13 +336,6 @@ export class SceneModel {
       });
     }
 
-    if (this._finalized) {
-      return this.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: `[SceneModel.createTransform] SceneModel already _finalized`
-      });
-    }
 
     if (!transformParams.id) {
       return this.scene.logError({
@@ -400,9 +373,7 @@ export class SceneModel {
 
     this.transforms[transformParams.id] = sceneTransform;
     this.stats.numTransforms++;
-    if (this._streamingEnabled) {
-      this.scene.events.onSceneTransformCreated.dispatch(this.scene, sceneTransform);
-    }
+    this.scene.events.onSceneTransformCreated.dispatch(this.scene, sceneTransform);
     return {
       ok: true,
       value: sceneTransform
@@ -423,9 +394,7 @@ export class SceneModel {
     }
     delete this.transforms[transformId];
     this.stats.numTransforms--;
-    if (this._streamingEnabled) {
-      this.scene.events.onSceneTransformDestroyed.dispatch(this.scene, sceneTransform);
-    }
+    this.scene.events.onSceneTransformDestroyed.dispatch(this.scene, sceneTransform);
   }
 
   /**
@@ -482,13 +451,6 @@ export class SceneModel {
         error: "[SceneModel.createTexture] SceneModel already destroyed"
       });
     }
-    if (this._finalized) {
-      return this.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: `[SceneModel.createTexture] SceneModel already _finalized`
-      });
-    }
     if (!textureParams.id) {
       return this.scene.logError({
         ok: false,
@@ -531,9 +493,7 @@ export class SceneModel {
     const texture = new SceneTexture(this, textureParams);
     this.textures[textureParams.id] = texture;
     this.stats.numTextures++;
-    if (this._streamingEnabled) {
-      this.scene.events.onSceneTextureCreated.dispatch(this.scene, texture);
-    }
+    this.scene.events.onSceneTextureCreated.dispatch(this.scene, texture);
     return {
       ok: true,
       value: texture
@@ -556,9 +516,7 @@ export class SceneModel {
     delete this.textures[textureId];
     this.stats.numTextures--;
     this.stats.textureBytes -= sceneTexture.imageData ? (sceneTexture.imageData.width * sceneTexture.imageData.height * 4) : 0;
-    if (this._streamingEnabled) {
-      this.scene.events.onSceneTextureDestroyed.dispatch(this.scene, sceneTexture);
-    }
+    this.scene.events.onSceneTextureDestroyed.dispatch(this.scene, sceneTexture);
   }
 
   /**
@@ -606,13 +564,6 @@ export class SceneModel {
       });
     }
 
-    if (this._finalized) {
-      return this.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: `[SceneModel.createMaterial] SceneModel already _finalized`
-      });
-    }
 
     if (this.materials[materialParams.id]) {
       return this.scene.logError({
@@ -713,9 +664,7 @@ export class SceneModel {
 
     this.materials[materialParams.id] = material;
     this.stats.numMaterials++;
-    if (this._streamingEnabled) {
-      this.scene.events.onSceneMaterialCreated.dispatch(this.scene, material);
-    }
+    this.scene.events.onSceneMaterialCreated.dispatch(this.scene, material);
     return {
       ok: true,
       value: material
@@ -743,9 +692,7 @@ export class SceneModel {
     if (sceneMaterial.emissiveTexture)          sceneMaterial.emissiveTexture.numMaterials--;
     delete this.materials[materialId];
     this.stats.numMaterials--;
-    if (this._streamingEnabled) {
-      this.scene.events.onSceneMaterialDestroyed.dispatch(this.scene, sceneMaterial);
-    }
+    this.scene.events.onSceneMaterialDestroyed.dispatch(this.scene, sceneMaterial);
   }
 
   /**
@@ -810,13 +757,6 @@ export class SceneModel {
       });
     }
 
-    if (this._finalized) {
-      return this.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: `[SceneModel.createGeometry] SceneModel already _finalized`
-      });
-    }
 
     if (!geometryParams) {
       return this.scene.logError({
@@ -965,9 +905,7 @@ export class SceneModel {
     }
     this.stats.numVertices += positions.length / 3;
 
-    if (this._streamingEnabled) {
-      this.scene.events.onSceneGeometryCreated.dispatch(this.scene, sceneGeometry);
-    }
+    this.scene.events.onSceneGeometryCreated.dispatch(this.scene, sceneGeometry);
 
     return {
       ok: true,
@@ -1039,13 +977,6 @@ export class SceneModel {
       });
     }
 
-    if (this._finalized) {
-      return this.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: `[SceneModel.createGeometryCompressed] SceneModel already _finalized`
-      });
-    }
 
     if (!geometryCompressedParams) {
       return this.scene.logError({
@@ -1167,9 +1098,7 @@ export class SceneModel {
     }
     this.stats.numVertices += positionsCompressed.length / 3;
 
-    if (this._streamingEnabled) {
-      this.scene.events.onSceneGeometryCreated.dispatch(this.scene, sceneGeometry);
-    }
+    this.scene.events.onSceneGeometryCreated.dispatch(this.scene, sceneGeometry);
 
     return {
       ok: true,
@@ -1205,9 +1134,7 @@ export class SceneModel {
       this.stats.numPoints -= sceneGeometry.positionsCompressed.length / 3;
     }
     this.stats.numVertices -= sceneGeometry.positionsCompressed.length / 3;
-    if (this._streamingEnabled) {
-      this.scene.events.onSceneGeometryDestroyed.dispatch(this.scene, sceneGeometry);
-    }
+    this.scene.events.onSceneGeometryDestroyed.dispatch(this.scene, sceneGeometry);
   }
 
   /**
@@ -1276,13 +1203,6 @@ export class SceneModel {
       });
     }
 
-    if (this._finalized) {
-      return this.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: `[SceneModel.createMesh] SceneModel already _finalized`
-      });
-    }
 
     if (this.meshes[id]) {
       return this.scene.logError({
@@ -1409,9 +1329,7 @@ export class SceneModel {
     }
     this.meshes[id] = sceneMesh;
     this.stats.numMeshes++;
-    if (this._streamingEnabled) {
-      this.scene.events.onSceneMeshCreated.dispatch(this.scene, sceneMesh);
-    }
+    this.scene.events.onSceneMeshCreated.dispatch(this.scene, sceneMesh);
 
     return {
       ok: true,
@@ -1451,9 +1369,7 @@ export class SceneModel {
     }
     delete this.meshes[meshId];
     this.stats.numMeshes--;
-    if (this._streamingEnabled) {
-      this.scene.events.onSceneMeshDestroyed.dispatch(this.scene, existing);
-    }
+    this.scene.events.onSceneMeshDestroyed.dispatch(this.scene, existing);
   }
 
   /**
@@ -1511,13 +1427,6 @@ export class SceneModel {
       });
     }
 
-    if (this._finalized) {
-      return this.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: `[SceneModel.createObject] SceneModel already _finalized`
-      });
-    }
 
     if (!meshIds || meshIds.length === 0) {
       return this.scene.logError({
@@ -1636,13 +1545,6 @@ export class SceneModel {
       });
     }
 
-    if (this._finalized) {
-      return this.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: `[SceneModel.fromParams] SceneModel already _finalized`
-      });
-    }
 
     if (sceneModelParams.coordinateSystem) {
       this.coordinateSystem.fromParams(sceneModelParams.coordinateSystem);
@@ -1782,41 +1684,6 @@ export class SceneModel {
   }
 
   /**
-   * When in deferred build mode, finalizes this SceneModel, preventing creation of new components within it.
-   * Only applies when {@link SceneModel._streamingEnabled | _streamingEnabled} is `false`.
-   */
-  finalize():SDKResult<any> {
-    if (this.destroyed) {
-      return this.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: "[SceneModel.finalize] SceneModel already destroyed"
-      });
-    }
-    if (this._streamingEnabled) {
-      return this.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: "[SceneModel.finalize] SceneModel is streaming-enabled, so cannot be finalized"
-      });
-    }
-    if (this._finalized) {
-      return this.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: `[SceneModel.finalize] SceneModel already finalized`
-      });
-    }
-    // @ts-ignore
-    this._finalized = true;
-    this.scene.events.onSceneModelFinalized.dispatch(this.scene, this);
-    return {
-      ok: true,
-      value: undefined
-    };
-  }
-
-  /**
    * Destroys this SceneModel.
    *
    * - Fires {@link SceneEvents.onSceneModelDestroyed | SceneEvents.onSceneModelDestroyed}.
@@ -1835,24 +1702,22 @@ export class SceneModel {
     // hold, then materials release the texture refs they hold, then
     // each leaf can destroy with its `numMeshes`/`numMaterials`
     // guard satisfied.
-    for (const key in this.objects) {
-      this.objects[key].destroy();
-    }
-    for (const key in this.meshes) {
-      this.meshes[key].destroy();
-    }
-    for (const key in this.transforms) {
-      this.transforms[key].destroy();
-    }
-    for (const key in this.materials) {
-      this.materials[key].destroy();
-    }
-    for (const key in this.geometries) {
-      this.geometries[key].destroy();
-    }
-    for (const key in this.textures) {
-      this.textures[key].destroy();
-    }
+    //
+    // Each child's `destroy()` removes itself from the registry it
+    // came from, so we snapshot the keys with `Object.keys` before
+    // iterating instead of relying on `for..in` over a mutating
+    // collection.
+    const destroyAll = (registry: { [k: string]: { destroy(): unknown } }): void => {
+      for (const key of Object.keys(registry)) {
+        registry[key]?.destroy();
+      }
+    };
+    destroyAll(this.objects);
+    destroyAll(this.meshes);
+    destroyAll(this.transforms);
+    destroyAll(this.materials);
+    destroyAll(this.geometries);
+    destroyAll(this.textures);
     this.scene._destroyModel(this);
     this.destroyed = true;
     return {

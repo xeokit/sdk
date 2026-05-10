@@ -110,9 +110,7 @@ export class SceneMesh {
     this._emitMatrixChangedEventTask = new SDKTask({
       name: "SceneMesh._emitMatrixChangedEventTask",
       task: () => {
-        if (this.model.streamingEnabled || this.model.finalized) {
-          this.model.scene.events.onSceneMeshMatrixChanged.dispatch(this.model.scene, this);
-        }
+        this.model.scene.events.onSceneMeshMatrixChanged.dispatch(this.model.scene, this);
       },
       stage: SDKTask.ComputeStage2 // Emit after transforms have been updated but before rendering
     });
@@ -179,9 +177,7 @@ export class SceneMesh {
       color[1] = 1;
       color[2] = 1;
     }
-    if (this.model.streamingEnabled || this.model.finalized) {
-      this.model.scene.events.onSceneMeshColorChanged.dispatch(this.model.scene, this);
-    }
+    this.model.scene.events.onSceneMeshColorChanged.dispatch(this.model.scene, this);
   }
 
   /**
@@ -283,9 +279,7 @@ export class SceneMesh {
       return;
     }
     this._opacity = opacity;
-    if (this.model.streamingEnabled || this.model.finalized) {
-      this.model.scene.events.onSceneMeshOpacityChanged.dispatch(this.model.scene, this);
-    }
+    this.model.scene.events.onSceneMeshOpacityChanged.dispatch(this.model.scene, this);
   }
 
   /**

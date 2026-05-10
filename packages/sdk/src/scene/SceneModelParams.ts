@@ -114,9 +114,4 @@ export interface SceneModelParams {
    * Overrides {@link SceneObjectParams.layerId | SceneObjectParams.layerId}.
    */
   layerId?: string;
-
-  /**
-   * Whether streaming is enabled for this SceneModel.
-   */
-  streamingEnabled?: boolean;
 }

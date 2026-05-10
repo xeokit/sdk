@@ -54,8 +54,6 @@ export function compressGeometryParams(geometryParams: SceneGeometryParams): Sce
       ? buildEdgeIndices(positionsCompressed, geometryParams.indices, aabb, 10)
       : null;
     // Encode normals only when supplied and length-matched against positions.
-    // Mismatched lengths fall through to the no-normals path so a malformed
-    // normals array degrades to flat shading rather than aborting the build.
     const normalsCompressed =
       geometryParams.normals && geometryParams.normals.length === geometryParams.positions.length
         ? octEncodeNormalsToU16(geometryParams.normals)

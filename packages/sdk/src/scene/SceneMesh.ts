@@ -20,8 +20,9 @@ import type {SceneTexture} from "./SceneTexture";
 import {SceneTransform} from "./SceneTransform";
 import {SDKErrorType, type SDKResult, SDKTask} from "../core";
 
-const DEFAULT_ROUGHNESS = 0.6;
-const DEFAULT_METALLIC  = 0.0;
+const DEFAULT_ROUGHNESS       = 0.6;
+const DEFAULT_METALLIC        = 0.0;
+const DEFAULT_TRIPLANAR_SCALE = 1.0;
 
 /**
  * A mesh in a {@link SceneModel | SceneModel}.
@@ -354,6 +355,17 @@ export class SceneMesh {
    */
   get effectiveAlphaCutoff(): number {
     return this.material ? this.material.alphaCutoff : 0.5;
+  }
+
+  /**
+   * Effective triplanar repeat distance — the material's
+   * `triplanarScale` if a material is attached, otherwise the
+   * renderer default (1.0). Read by the triplanar shader variant
+   * to convert world-space position into texture-sample
+   * coordinates; ignored on UV-bearing batches.
+   */
+  get effectiveTriplanarScale(): number {
+    return this.material ? this.material.triplanarScale : DEFAULT_TRIPLANAR_SCALE;
   }
 
   /**

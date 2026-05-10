@@ -97,4 +97,22 @@ export interface SceneMaterialParams {
    * `albedoAlpha < alphaCutoff` are discarded. Default is `0.5`.
    */
   alphaCutoff?: number;
+
+  /**
+   * World-space repeat distance used by a renderer's *triplanar*
+   * texture-sampling fallback, in scene units per texture repeat.
+   *
+   * Triplanar fallback should engage automatically for any mesh that
+   * carries this material when the mesh's geometry has no UV
+   * coordinates — typical of BIM, sweeps, lofted pipes, and
+   * generated curve meshes. Each fragment derives its sample
+   * coordinates from world-space position rather than vertex UVs,
+   * so the texture appears at a fixed physical scale regardless
+   * of mesh scale or geometry layout.
+   *
+   * Materials whose meshes all carry UVs ignore this value.
+   *
+   * Default is `1.0` — one texture repeat per scene unit.
+   */
+  triplanarScale?: number;
 }

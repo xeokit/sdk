@@ -60,6 +60,15 @@ export class SceneMaterial {
   _alphaCutoff: number;
 
   /**
+   * World-space repeat distance for the renderer's triplanar
+   * texture-sampling fallback (engages when a mesh that carries
+   * this material has no UV coordinates). Stored in scene units
+   * per texture repeat. Materials whose meshes all carry UVs
+   * ignore this value.
+   */
+  _triplanarScale: number;
+
+  /**
    * The color {@link SceneTexture} in this set.
    */
   colorTexture?: SceneTexture;
@@ -139,6 +148,15 @@ export class SceneMaterial {
         ? materialParams.alphaCutoff
         : 0.5
     );
+    // Triplanar scale: clamp to a strictly positive minimum so the
+    // shader's `worldPos / triplanarScale` can never blow up. The
+    // upper bound is left open — values much larger than the scene
+    // produce a single (mostly invisible) atlas tile across the
+    // model, which is the user's intent if they ask for it.
+    {
+      const t = materialParams.triplanarScale;
+      this._triplanarScale = (t !== undefined && t !== null && t > 1e-4) ? t : 1.0;
+    }
     this.colorTexture = textures.colorTexture;
     this.metallicRoughnessTexture = textures.metallicRoughnessTexture;
     this.normalsTexture = textures.normalsTexture;
@@ -242,6 +260,16 @@ export class SceneMaterial {
   }
 
   /**
+   * World-space repeat distance for triplanar texture sampling, in
+   * scene units per texture repeat. Consulted by a renderer when
+   * a mesh carrying this material has no UV coordinates and the
+   * material binds a texture; ignored otherwise.
+   */
+  get triplanarScale(): number {
+    return this._triplanarScale;
+  }
+
+  /**
    * Sets the opacity factor for this SceneMaterial.
    *
    * - This is a factor in range ````[0..1]````.
@@ -280,7 +308,8 @@ export class SceneMaterial {
       color: Array.from(this._color),
       opacity: this._opacity,
       roughness: this._roughness,
-      metallic: this._metallic
+      metallic: this._metallic,
+      triplanarScale: this._triplanarScale
     };
     if (this.colorTexture) materialParams.colorTextureId = this.colorTexture.id;
     if (this.metallicRoughnessTexture) materialParams.metallicRoughnessTextureId = this.metallicRoughnessTexture.id;

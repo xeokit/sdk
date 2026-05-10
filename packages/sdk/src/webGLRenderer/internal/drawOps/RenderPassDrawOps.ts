@@ -1,0 +1,115 @@
+import {DrawOp} from "./DrawOp";
+
+/**
+ * Collection of draw operations for all render passes, for a specific primitive type.
+ *
+ * Each property represents a {@link DrawOp} used to render the given primitive type within a particular pass,
+ * such as opaque, transparent, highlighted, selected, x-rayed, edge rendering, and picking.
+ *
+ * @internal
+ */
+export interface RenderPassDrawOps {
+
+  /**
+   * Draw operation for rendering opaque objects.
+   */
+  opaque?: DrawOp;
+
+  /**
+   * Draw operation for rendering opaque objects with SAO (Scalable Ambient Obscurance).
+   */
+  opaqueSAO?: DrawOp;
+
+  /**
+   * Draw operation that renders depth from the shadow-casting light's point of
+   * view into the shadow-map FBO.
+   */
+  shadowDepth?: DrawOp;
+
+  /**
+   * Draw operation for rendering opaque objects with directional shadow mapping.
+   */
+  opaqueShadow?: DrawOp;
+
+  /**
+   * Draw operation that renders opaque objects with BOTH SAO and shadow mapping
+   * applied in a single pass.
+   */
+  opaqueSAOShadow?: DrawOp;
+
+  /**
+   * Draw operation for rendering opaque edges.
+   */
+  opaqueEdges?: DrawOp;
+
+  /**
+   * Draw operation for rendering transparent objects.
+   */
+  transparent?: DrawOp;
+
+  /**
+   * Draw operation for rendering transparent edges.
+   */
+  transparentEdges?: DrawOp;
+
+  /**
+   * Draw operation for rendering highlighted silhouettes.
+   */
+  highlighted?: DrawOp;
+
+  /**
+   * Draw operation for rendering selected silhouettes.
+   */
+  selected?: DrawOp;
+
+  /**
+   * Draw operation for rendering x-rayed silhouettes.
+   */
+  xrayed?: DrawOp;
+
+  /**
+   * Draw operation for rendering highlighted silhouette edges.
+   */
+  highlightedEdges?: DrawOp;
+
+  /**
+   * Draw operation for rendering selected silhouette edges.
+   */
+  selectedEdges?: DrawOp;
+
+  /**
+   * Draw operation for rendering x-rayed silhouette edges.
+   */
+  xrayedEdges?: DrawOp;
+
+  /**
+   * Draw operation for mesh picking (renders mesh IDs to pick buffer).
+   */
+  pick?: DrawOp;
+
+  /**
+   * Draw operation for depth picking (renders screen-space depths).
+   */
+  pickDepth?: DrawOp;
+
+  /**
+   * Snap-init draw operation — rasterises triangle surfaces into the
+   * snap FBO (depth + view position) so subsequent vertex / edge snap
+   * draws z-test against real geometry.
+   */
+  snapInit?: DrawOp;
+
+  /**
+   * Vertex-snap draw operation — every unique vertex of the geometry
+   * is drawn as a 1-pixel `gl.POINTS`, view-space position written into
+   * the snap FBO at fragments that survive the init pass's depth test.
+   */
+  snapVertex?: DrawOp;
+
+  /**
+   * Edge-snap draw operation — the geometry's edge-index buffer is
+   * drawn as `gl.LINES`, view-space position written into the snap FBO
+   * at fragments that survive the init pass's depth test.
+   */
+  snapEdge?: DrawOp;
+}

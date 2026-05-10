@@ -1,0 +1,48 @@
+import {DrawTechnique} from "../../DrawTechnique";
+import {RenderContext} from "../../../RenderContext";
+import {type GPUMemoryReader} from "../../../gpuMemoryManager/GPUMemoryReader";
+
+/**
+ * Draw technique for rendering triangle mesh edges as silhouettes.
+ * Uses edge index buffers (vertsPerPrim = 2) and the edge-material silhouette color uniforms.
+ * @internal
+ */
+export class TrianglesDrawEdgeSilhouetteTechnique extends DrawTechnique {
+
+  protected readonly vertsPerPrim = 2; // edge indices are line segments
+
+  constructor(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader) {
+    super(renderContext, gpuMemoryReader, { edges: true });
+  }
+
+  protected buildVertexShader(): void {
+    // Edges render at true depth — RenderManager's scene-phase
+    // `POLYGON_OFFSET_FILL` pushes surfaces back so these lines naturally
+    // win depth-test ties without needing a shader-side bias.
+    this.vsHeader();
+    this.vsCommonDeclarations();
+    this.vsSlicingDeclarations();
+    this.vsSilhouetteDeclarations();
+    this.vsEdgeFadeDeclarations();
+    this.vsMainBegin();
+    this.vsSilhouetteLogic();
+    this.vsEdgeFadeLogic();
+    this.vsSlicingLogic();
+    this.vsMainEnd();
+  }
+
+  protected buildFragmentShader(): void {
+    this.fsHeader();
+    this.fsPrecisionDeclarations();
+    this.fsColorDeclarations();
+    this.fsSlicingDeclarations();
+    this.fsSilhouetteDeclarations();
+    this.fsEdgeFadeDeclarations();
+    this.fsMainBegin();
+    this.fsSlicingLogic();
+    this.fsSilhouetteLogic();
+    this.fsEdgeFadeLogic();
+    this.fsOutputColor();
+    this.fsMainEnd();
+  }
+}

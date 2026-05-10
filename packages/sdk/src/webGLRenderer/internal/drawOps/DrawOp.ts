@@ -4,8 +4,9 @@ import {type MeshBatch} from "../meshManager/MeshBatch";
 
 /**
  * Variant configuration for a Lambert-style {@link DrawOp} that has up to
- * four pre-compiled {@link DrawTechnique}s — one per `(hasNormals, hasUVs)`
- * combination. Only the flat/no-UVs `technique` is required; missing
+ * six pre-compiled {@link DrawTechnique}s — one per `(hasNormals, hasUVs,
+ * triplanar)` combination (with `hasUVs && triplanar` excluded by
+ * construction). Only the flat/no-UVs `technique` is required; missing
  * variants fall through to closer matches at draw time.
  */
 export interface DrawOpVariants {
@@ -17,6 +18,18 @@ export interface DrawOpVariants {
   withUVs?: DrawTechnique;
   /** Smooth-shaded, with UVs. The texture-ready PBR variant. */
   withNormalsAndUVs?: DrawTechnique;
+  /**
+   * Flat-shaded triplanar — textured material on UV-less
+   * geometry, world-space sampling with face-normal blend
+   * weights derived from `dFdx/dFdy(vWorldPos)`.
+   */
+  withTriplanar?: DrawTechnique;
+  /**
+   * Smooth-shaded triplanar — textured material on UV-less
+   * geometry, world-space sampling with blend weights derived
+   * from per-vertex normals rotated to world space.
+   */
+  withNormalsAndTriplanar?: DrawTechnique;
 }
 
 /**
@@ -54,6 +67,12 @@ export class DrawOp {
   /** Smooth-shaded, with-UVs variant. */
   public readonly techniqueWithNormalsAndUVs: DrawTechnique | null;
 
+  /** Flat-shaded triplanar variant (no per-vertex normals). */
+  public readonly techniqueWithTriplanar: DrawTechnique | null;
+
+  /** Smooth-shaded triplanar variant. */
+  public readonly techniqueWithNormalsAndTriplanar: DrawTechnique | null;
+
   /** The render pass in which this draw operation is executed. */
   public readonly renderPass: RenderPassValue;
 
@@ -78,15 +97,19 @@ export class DrawOp {
       // Legacy positional form — single technique plus optional smooth/no-UV
       // sibling. Kept so existing single-variant call sites don't break.
       this.technique = techniqueOrVariants;
-      this.techniqueWithNormals       = legacyWithNormals;
-      this.techniqueWithUVs           = null;
-      this.techniqueWithNormalsAndUVs = null;
+      this.techniqueWithNormals             = legacyWithNormals;
+      this.techniqueWithUVs                 = null;
+      this.techniqueWithNormalsAndUVs       = null;
+      this.techniqueWithTriplanar           = null;
+      this.techniqueWithNormalsAndTriplanar = null;
     } else {
-      // Variants-object form — populates all four slots up front.
+      // Variants-object form — populates all six slots up front.
       this.technique = techniqueOrVariants.technique;
-      this.techniqueWithNormals       = techniqueOrVariants.withNormals ?? null;
-      this.techniqueWithUVs           = techniqueOrVariants.withUVs ?? null;
-      this.techniqueWithNormalsAndUVs = techniqueOrVariants.withNormalsAndUVs ?? null;
+      this.techniqueWithNormals             = techniqueOrVariants.withNormals ?? null;
+      this.techniqueWithUVs                 = techniqueOrVariants.withUVs ?? null;
+      this.techniqueWithNormalsAndUVs       = techniqueOrVariants.withNormalsAndUVs ?? null;
+      this.techniqueWithTriplanar           = techniqueOrVariants.withTriplanar ?? null;
+      this.techniqueWithNormalsAndTriplanar = techniqueOrVariants.withNormalsAndTriplanar ?? null;
     }
   }
 
@@ -94,20 +117,31 @@ export class DrawOp {
    * Picks the most-specific technique available for the batch's flag set.
    *
    * Selection order:
-   *   1. Exact match on (hasNormals, hasUVs)
-   *   2. Drop the UV requirement
+   *   1. Exact match on (hasNormals, hasUVs, triplanar)
+   *   2. Drop the UV / triplanar requirement
    *   3. Drop the normals requirement
    *   4. Fall back to the flat/no-UVs default
+   *
+   * `triplanar` is only checked when `hasUVs` is false — they're
+   * mutually exclusive at the batch level. A triplanar batch with
+   * no triplanar variant configured falls through to the
+   * un-textured path (degraded but not broken).
    */
   private _select(meshBatch: MeshBatch): DrawTechnique {
     if (meshBatch.hasNormals && meshBatch.hasUVs && this.techniqueWithNormalsAndUVs) {
       return this.techniqueWithNormalsAndUVs;
+    }
+    if (meshBatch.hasNormals && meshBatch.triplanar && this.techniqueWithNormalsAndTriplanar) {
+      return this.techniqueWithNormalsAndTriplanar;
     }
     if (meshBatch.hasNormals && this.techniqueWithNormals) {
       return this.techniqueWithNormals;
     }
     if (meshBatch.hasUVs && this.techniqueWithUVs) {
       return this.techniqueWithUVs;
+    }
+    if (meshBatch.triplanar && this.techniqueWithTriplanar) {
+      return this.techniqueWithTriplanar;
     }
     return this.technique;
   }

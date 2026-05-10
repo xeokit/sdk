@@ -50,6 +50,24 @@ export class MeshBatchImpl implements MeshBatch {
   readonly hasUVs: boolean;
 
   /**
+   * Whether the renderer should sample this batch's textures via the
+   * **triplanar** world-space fallback rather than the usual
+   * UV-attribute path.
+   *
+   * Set when the batch's meshes share the property
+   * `(material has any texture) && (geometry has no UVs)` — typical
+   * of BIM, sweeps, and lofted curve geometry that loaders produce
+   * without UV data. Mutually exclusive with {@link hasUVs} by
+   * definition; the triplanar shader variant ignores the vertex UV
+   * attribute and derives sample coordinates from world position.
+   *
+   * Same constancy guarantee as the other axes — never mutates
+   * after construction; {@link MeshManager} prevents incompatible
+   * meshes from joining.
+   */
+  readonly triplanar: boolean;
+
+  /**
    * Base primitive tileIndex for this batch.
    */
   primBaseIndex: number;
@@ -96,16 +114,18 @@ export class MeshBatchImpl implements MeshBatch {
     primitive: number;
     hasNormals: boolean;
     hasUVs: boolean;
+    triplanar: boolean;
   }) {
-    const {renderContext, gpuMemoryManager, primitive, hasNormals, hasUVs} = batchParams;
+    const {renderContext, gpuMemoryManager, primitive, hasNormals, hasUVs, triplanar} = batchParams;
     this._renderContext = renderContext;
     this._gpuMemoryManager = gpuMemoryManager;
     this.gpuMemoryBatchIndex = batchParams.gpuMemoryBatchIndex;
     this.primitive = primitive;
     this.hasNormals = hasNormals === true;
     this.hasUVs = hasUVs === true;
+    this.triplanar = triplanar === true;
     this.primBaseIndex = 0; // TODO
-    this.sortId = `batch-${primitive}-${this.hasNormals ? "n" : "f"}-${this.hasUVs ? "u" : "x"}`;
+    this.sortId = `batch-${primitive}-${this.hasNormals ? "n" : "f"}-${this.hasUVs ? "u" : "x"}-${this.triplanar ? "t" : "p"}`;
     this.numIndices = 0;
     this.numVertices = 0;
     // SAO and Shadows are triangle-only effects: the line / point draw-op
@@ -120,7 +140,7 @@ export class MeshBatchImpl implements MeshBatch {
    * A hash string representing this batch, used for quick comparisons.
    */
   public get hash(): string {
-    return `${this.primitive}-${this.hasNormals ? 1 : 0}-${this.hasUVs ? 1 : 0}`;
+    return `${this.primitive}-${this.hasNormals ? 1 : 0}-${this.hasUVs ? 1 : 0}-${this.triplanar ? 1 : 0}`;
   }
 
   /**

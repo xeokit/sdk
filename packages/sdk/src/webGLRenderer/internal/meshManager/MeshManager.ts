@@ -274,7 +274,9 @@ export class MeshManager {
    * - matching `hasNormals` flag (so geometry-with-normals lands in the
    *   smooth-shaded batch and geometry-without lands in the flat-shaded one),
    * - matching `hasUVs` flag (so the UV-bearing technique variant only sees
-   *   geometries that actually populate the UV data texture), and
+   *   geometries that actually populate the UV data texture),
+   * - matching `triplanar` flag (so the triplanar shader variant only sees
+   *   meshes whose textures it must derive from world-space coordinates), and
    * - {@link MeshBatchImpl.canAddMesh} constraints.
    *
    * @param sceneMesh - The mesh requiring a batch.
@@ -284,12 +286,18 @@ export class MeshManager {
     const primitive = sceneMesh.geometry.primitive;
     const hasNormals = !!sceneMesh.geometry.normalsCompressed;
     const hasUVs     = !!sceneMesh.geometry.uvsCompressed;
+    // Triplanar engages when the material binds at least one texture
+    // and the geometry has no UVs to drive the standard sampling path.
+    // Mutually exclusive with `hasUVs` by construction — UV-bearing
+    // geometry routes through the existing atlas path.
+    const triplanar = !hasUVs && _materialHasAnyTexture(sceneMesh);
 
     for (let i = 0, len = this._batches.length; i < len; i++) {
       const meshBatch = this._batches[i];
       if (meshBatch.primitive === primitive
           && meshBatch.hasNormals === hasNormals
-          && meshBatch.hasUVs === hasUVs) {
+          && meshBatch.hasUVs === hasUVs
+          && meshBatch.triplanar === triplanar) {
         const canAddResult = meshBatch.canAddMesh(sceneMesh);
         if (canAddResult !== GPUMemoryCheckResult.OK) {
           continue;
@@ -298,7 +306,7 @@ export class MeshManager {
       }
     }
 
-    const result = this._gpuMemoryManager.createBatch({hasNormals, hasUVs});
+    const result = this._gpuMemoryManager.createBatch({hasNormals, hasUVs, triplanar});
     if (result.ok === false) {
       return result;
     }
@@ -309,6 +317,7 @@ export class MeshManager {
       primitive,
       hasNormals,
       hasUVs,
+      triplanar,
       renderContext: this._renderContext,
       gpuMemoryManager: this._gpuMemoryManager,
       gpuMemoryBatchIndex,
@@ -643,4 +652,24 @@ export class MeshManager {
     this._rendererMeshes = {};
     this._batchesDirty = true;
   }
+}
+
+/**
+ * `true` when the mesh's material binds at least one of the
+ * texture slots the renderer can sample at draw time. The
+ * triplanar batch routing predicates on this — a UV-less mesh
+ * whose material binds no texture has nothing for the triplanar
+ * shader variant to do, so it stays on the standard flat-colour
+ * path.
+ */
+function _materialHasAnyTexture(sceneMesh: SceneMesh): boolean {
+  const m: any = sceneMesh.material;
+  if (!m) return false;
+  return !!(
+    m.colorTexture ||
+    m.metallicRoughnessTexture ||
+    m.normalsTexture ||
+    m.occlusionTexture ||
+    m.emissiveTexture
+  );
 }

@@ -155,6 +155,22 @@ export abstract class DrawTechnique {
   public hasUVs: boolean;
 
   /**
+   * When true, the technique samples the per-batch albedo /
+   * metallic-roughness / normal-map atlases via *triplanar*
+   * world-space projection rather than the vertex `vUV`
+   * attribute. Used for batches whose meshes have textured
+   * materials but no UV coordinates — typical of BIM, sweeps and
+   * lofted curve geometry.
+   *
+   * Mutually exclusive with {@link hasUVs}: triplanar variants
+   * are constructed with `hasUVs: false`. Independent axis from
+   * {@link hasNormals}; combined into a 6-way variant lookup on
+   * the Lambert colour techniques (`(normals?, uvs?, triplanar?)`
+   * with `uvs && triplanar` excluded by construction).
+   */
+  public triplanar: boolean;
+
+  /**
    * Vertex shader source code. Available after `init()` is called.
    */
   public vertexShaderSrc: string;
@@ -296,18 +312,23 @@ export abstract class DrawTechnique {
     snap?: 0 | 1 | 2 | 3,
     hasNormals?: boolean,
     hasUVs?: boolean,
+    triplanar?: boolean,
   } = {
     edges: false,
     picking: false,
     snap: 0,
     hasNormals: false,
-    hasUVs: false
+    hasUVs: false,
+    triplanar: false
   }) {
     if (cfg.picking && cfg.edges) { // Edges are an un-pickable visual effect
       throw new Error("Invalid DrawTechnique configuration: cannot have both picking and edges enabled.");
     }
     if (cfg.snap && cfg.picking) {
       throw new Error("Invalid DrawTechnique configuration: cannot have both picking and snap enabled.");
+    }
+    if (cfg.triplanar && cfg.hasUVs) { // Triplanar replaces vertex UVs by definition
+      throw new Error("Invalid DrawTechnique configuration: cannot have both triplanar and hasUVs enabled.");
     }
     this._renderContext = renderContext;
     this._gpuMemoryReader = gpuMemoryReader;
@@ -316,6 +337,7 @@ export abstract class DrawTechnique {
     this.snap = (cfg.snap ?? 0) as (0 | 1 | 2 | 3);
     this.hasNormals = cfg.hasNormals === true;
     this.hasUVs = cfg.hasUVs === true;
+    this.triplanar = cfg.triplanar === true;
     this._program = null;
   }
 
@@ -485,9 +507,14 @@ export abstract class DrawTechnique {
       vertexColorTexture: program.getSampler("uVertexColorTexture"),
       vertexNormalTexture: this.hasNormals ? program.getSampler("uVertexNormalTexture") : null,
       vertexUVTexture: this.hasUVs ? program.getSampler("uVertexUVTexture") : null,
-      albedoAtlas: this.hasUVs ? program.getSampler("uAlbedoAtlas") : null,
-      metallicRoughnessAtlas: this.hasUVs ? program.getSampler("uMetallicRoughnessAtlas") : null,
-      normalMapAtlas: this.hasUVs ? program.getSampler("uNormalMapAtlas") : null,
+      // Atlas samplers — bound by both the UV-attribute path and the
+      // triplanar fallback. Only the UV path samples through `vUV`; the
+      // triplanar path derives its sample coordinates from `vWorldPos`
+      // but reads through the same per-batch atlases and the same
+      // per-mesh sub-rect transforms.
+      albedoAtlas:            (this.hasUVs || this.triplanar) ? program.getSampler("uAlbedoAtlas") : null,
+      metallicRoughnessAtlas: (this.hasUVs || this.triplanar) ? program.getSampler("uMetallicRoughnessAtlas") : null,
+      normalMapAtlas:         (this.hasUVs || this.triplanar) ? program.getSampler("uNormalMapAtlas") : null,
       iblIrradianceCubemap: this.hasNormals ? program.getSampler("uIBLIrradianceCubemap") : null,
       iblPrefilteredCubemap: this.hasNormals ? program.getSampler("uIBLPrefilteredCubemap") : null,
       iblBRDFLUT: this.hasNormals ? program.getSampler("uIBLBRDFLUT") : null,
@@ -607,16 +634,22 @@ export abstract class DrawTechnique {
     if (this.hasUVs && batchDataTextures.vertexUVTexture) {
       this._bindTexture(samplers.vertexUVTexture, batchDataTextures.vertexUVTexture);
     }
-    if (this.hasUVs && batchDataTextures.albedoAtlasTexture && batchDataTextures.albedoAtlasTexture.texture) {
+    // Atlas binds — required by both the UV-attribute path and the
+    // triplanar fallback. Triplanar batches are routed to a dedicated
+    // shader variant that derives sample coordinates from `vWorldPos`,
+    // but they still read through the same per-batch atlases populated
+    // when each mesh attaches.
+    const _bindAtlases = (this.hasUVs || this.triplanar);
+    if (_bindAtlases && batchDataTextures.albedoAtlasTexture && batchDataTextures.albedoAtlasTexture.texture) {
       // The atlas isn't a DataTexture (no CPU buffer, no texelFetch — it's
       // a real sampler2D), but its `.texture` field is shape-compatible
       // with `_bindTexture`'s expectations.
       this._bindTexture(samplers.albedoAtlas, batchDataTextures.albedoAtlasTexture);
     }
-    if (this.hasUVs && batchDataTextures.metallicRoughnessAtlasTexture && batchDataTextures.metallicRoughnessAtlasTexture.texture) {
+    if (_bindAtlases && batchDataTextures.metallicRoughnessAtlasTexture && batchDataTextures.metallicRoughnessAtlasTexture.texture) {
       this._bindTexture(samplers.metallicRoughnessAtlas, batchDataTextures.metallicRoughnessAtlasTexture);
     }
-    if (this.hasUVs && batchDataTextures.normalMapAtlasTexture && batchDataTextures.normalMapAtlasTexture.texture) {
+    if (_bindAtlases && batchDataTextures.normalMapAtlasTexture && batchDataTextures.normalMapAtlasTexture.texture) {
       this._bindTexture(samplers.normalMapAtlas, batchDataTextures.normalMapAtlasTexture);
     }
     // IBL Layer-2 cubemaps + BRDF LUT — populated on RenderContext by
@@ -802,6 +835,12 @@ struct MeshAttribTable {
   uint mrUVScalePacked;
   uint normalUVOffsetPacked;
   uint normalUVScalePacked;
+  // World-units-per-repeat for triplanar texture sampling. Stored
+  // CPU-side as the IEEE-754 Float32 bit pattern of
+  // SceneMaterial.triplanarScale; recovered here with
+  // uintBitsToFloat. Only consumed by the triplanar technique
+  // variant; UV-bearing variants ignore it.
+  float triplanarScale;
 };
 
 struct MeshViewAttributes {
@@ -939,6 +978,7 @@ MeshAttribTable getMeshAttribTable(uint meshIndex) {
   s.mrUVScalePacked      = t1.a;
   s.normalUVOffsetPacked = t2.r;
   s.normalUVScalePacked  = t2.g;
+  s.triplanarScale       = uintBitsToFloat(t2.b);
   return s;
 }
 
@@ -1046,8 +1086,30 @@ vec4 packUintToRGBA8(uint v) {
       // stage uses it together with the per-mesh atlas transforms to
       // sample each PBR-map atlas.
       ...(this.hasUVs ? [
-        "out vec2 vUV;",
-        // Per-mesh atlas UV transforms: `atlasUV = vUV * scale + offset`,
+        "out vec2 vUV;"
+      ] : []),
+      // World-space position varying — only emitted on the triplanar
+      // variant. The fragment stage divides it by `vTriplanarScale` to
+      // compose the three sets of atlas UVs that drive the world-space
+      // sampling fallback.
+      ...(this.triplanar ? [
+        "out vec3 vWorldPos;",
+        // World-space normal varying. Carried alongside `vWorldPos` so
+        // the fragment stage can derive the triplanar blend weights
+        // without an extra normal-matrix multiply per pixel. Only when
+        // the batch carries per-vertex normals; the flat-shaded
+        // triplanar variant reconstructs a face normal from
+        // `dFdx/dFdy(vWorldPos)` instead.
+        ...(this.hasNormals ? ["out vec3 vWorldNormal;"] : []),
+        // Per-mesh world-units-per-repeat. Flat — the source value is
+        // constant for every fragment of a given mesh.
+        "flat out float vTriplanarScale;"
+      ] : []),
+      // Per-mesh atlas transforms + alpha attributes — needed by both
+      // the standard UV path and the triplanar path. Same packing on
+      // both sides; only the source UVs differ.
+      ...((this.hasUVs || this.triplanar) ? [
+        // Per-mesh atlas UV transforms: `atlasUV = uv * scale + offset`,
         // one pair per PBR-map type. Passed flat — the source values are
         // constant for every fragment of a given mesh, so interpolation
         // is wrong (and wasteful) here.
@@ -1462,7 +1524,22 @@ void main(void) {`);
     vViewNormal        = normalize(normalMatrix * modelNormal);
     vMaterial          = unpackRoughnessMetallic(meshAttributeTexture.material);` : ``}${this.hasUVs ? `
 
-    vUV              = getVertexUV(geometryAttributes.uvsBase + vertexIndexWithinGeometry);
+    vUV              = getVertexUV(geometryAttributes.uvsBase + vertexIndexWithinGeometry);` : ``}${this.triplanar ? `
+
+    // World-space pass-through for the triplanar fragment path.
+    // \`worldPos\` is already RTC-adjusted by the modelMatrix, so the
+    // values the fragment stage divides by \`vTriplanarScale\` are
+    // stable across the model regardless of which RTC tile the mesh
+    // landed in.
+    vWorldPos        = worldPos.xyz;${this.hasNormals ? `
+    // Reuse the model-space normal decoded above — rotate just by the
+    // model matrix's upper-3x3 to land in world space (assumes the
+    // near-rigid model matrix the rest of the pipeline already
+    // requires; non-uniform scale would also break the position
+    // pipeline).
+    vWorldNormal     = normalize(mat3(modelMatrix) * modelNormal);` : ``}
+    vTriplanarScale  = meshAttributeTexture.triplanarScale;` : ``}${(this.hasUVs || this.triplanar) ? `
+
     vAlbedoUVOffset  = unpackUnorm2x16FromU32(meshAttributeTexture.albedoUVOffsetPacked);
     vAlbedoUVScale   = unpackUnorm2x16FromU32(meshAttributeTexture.albedoUVScalePacked);
     vMRUVOffset      = unpackUnorm2x16FromU32(meshAttributeTexture.mrUVOffsetPacked);
@@ -1730,7 +1807,19 @@ void main(void) {`);
         "flat in vec2 vMaterial;"
       ] : []),
       ...(this.hasUVs ? [
-        "in vec2 vUV;",
+        "in vec2 vUV;"
+      ] : []),
+      // World-space inputs for the triplanar variant. `vWorldPos` is the
+      // rasterised world position; `vWorldNormal` is the rotated
+      // model-space normal (only when the batch carries normals — the
+      // flat-shaded triplanar variant reconstructs a face normal in the
+      // fragment stage from `dFdx/dFdy(vWorldPos)`).
+      ...(this.triplanar ? [
+        "in vec3 vWorldPos;",
+        ...(this.hasNormals ? ["in vec3 vWorldNormal;"] : []),
+        "flat in float vTriplanarScale;"
+      ] : []),
+      ...((this.hasUVs || this.triplanar) ? [
         "flat in vec2 vAlbedoUVOffset;",
         "flat in vec2 vAlbedoUVScale;",
         "flat in vec2 vMRUVOffset;",
@@ -1790,7 +1879,16 @@ void main(void) {`);
         "uniform samplerCube uIBLIrradianceCubemap;",
         "uniform samplerCube uIBLPrefilteredCubemap;",
         "uniform sampler2D   uIBLBRDFLUT;",
-        "uniform float       uIBLMaxSpecularMipLevel;",
+        "uniform float       uIBLMaxSpecularMipLevel;"
+      ] : []),
+      // World-from-view rotation. Bound by the renderer regardless
+      // of `hasNormals` because the triplanar variants — both
+      // smooth and flat — need it to rotate their world-space
+      // perturbed normal back into the view-space frame the BRDF
+      // evaluates in. The cubemaps + BRDF LUT above stay
+      // smooth-only because IBL itself only fires for the
+      // smooth-shaded path.
+      ...((this.hasNormals || this.triplanar) ? [
         "uniform mat3        uIBLViewToWorldRot;"
       ] : []),
       // `g_ambient` is the resolved per-fragment ambient (flat or IBL)
@@ -1858,11 +1956,13 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     color = vec4(nm_raw, 1.0);`);
         return;
       }
-      // The smooth-shaded variant has two flavours that differ only in
-      // how the albedo (base colour) is resolved:
-      //   - hasUVs: sample the atlas, then tint by vColor
-      //   - !hasUVs: vColor IS the albedo
-      // Either way the BRDF below is the same.
+      // The smooth-shaded variant has three flavours that differ only
+      // in how the albedo (base colour) is resolved:
+      //   - hasUVs:   sample the atlas via vertex UVs, then tint by vColor
+      //   - triplanar: sample the atlas three times via world-space
+      //               coordinates, blend by world normal weights
+      //   - neither:  vColor IS the albedo
+      // The BRDF that follows is identical in all three cases.
       const albedoSrc = this.hasUVs
         ? `// Per-fragment fract() wraps tiling UVs (Sponza-style values
     // outside [0, 1]) into a single tile before the atlas transform —
@@ -1907,6 +2007,54 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     // texture drives the values directly.
     vec2 mrAtlasUV = wrappedUV * vMRUVScale + vMRUVOffset;
     vec4 mrSample = texture(uMetallicRoughnessAtlas, mrAtlasUV);
+    float mrRoughnessFactor = mrSample.g;
+    float mrMetallicFactor  = mrSample.b;`
+        : this.triplanar
+        ? `// Triplanar (world-space) sampling. Built per-fragment from
+    // vWorldPos and the world-space normal — independent of any vertex
+    // UV attribute, so it works on BIM, sweeps and any other geometry
+    // the loader produced without UVs.
+    //
+    // Construct three sets of UVs by projecting world position onto the
+    // three coordinate planes (each scaled by the per-mesh
+    // vTriplanarScale for "world units per repeat"), then blend three
+    // texture samples by the absolute world normal raised to a power.
+    // The exponent sharpens the blend bands — 4.0 is a common compromise
+    // between perceptible blur near the diagonals and visible seams at
+    // axis-aligned faces.
+    vec3 triNorm = normalize(vWorldNormal);
+    vec3 triAbs = abs(triNorm);
+    vec3 triW = pow(triAbs, vec3(4.0));
+    triW /= max(triW.x + triW.y + triW.z, 1e-5);
+
+    vec3 triP = vWorldPos / max(vTriplanarScale, 1e-4);
+    // Per-plane mirror flip on negative-axis-facing fragments keeps the
+    // texture from appearing reversed on opposing faces.
+    vec2 triUVx = vec2(triNorm.x < 0.0 ? -triP.z : triP.z, triP.y);
+    vec2 triUVy = vec2(triP.x, triNorm.y < 0.0 ? -triP.z : triP.z);
+    vec2 triUVz = vec2(triNorm.z < 0.0 ? -triP.x : triP.x, triP.y);
+
+    vec2 wrappedX = fract(triUVx);
+    vec2 wrappedY = fract(triUVy);
+    vec2 wrappedZ = fract(triUVz);
+
+    vec4 albedoX = texture(uAlbedoAtlas, wrappedX * vAlbedoUVScale + vAlbedoUVOffset);
+    vec4 albedoY = texture(uAlbedoAtlas, wrappedY * vAlbedoUVScale + vAlbedoUVOffset);
+    vec4 albedoZ = texture(uAlbedoAtlas, wrappedZ * vAlbedoUVScale + vAlbedoUVOffset);
+    vec4 albedoSample = albedoX * triW.x + albedoY * triW.y + albedoZ * triW.z;
+    vec3 albedo = albedoSample.rgb * vColor.rgb;
+    float albedoAlpha = albedoSample.a * vColor.a;
+
+    // Alpha-mask cutout — same semantics as the UV path above.
+    if (vAlphaMode == 1u) {
+      float aaAlpha = (albedoAlpha - vAlphaCutoff) / max(fwidth(albedoAlpha), 1e-4) + 0.5;
+      if (aaAlpha < 0.5) discard;
+    }
+
+    vec4 mrX = texture(uMetallicRoughnessAtlas, wrappedX * vMRUVScale + vMRUVOffset);
+    vec4 mrY = texture(uMetallicRoughnessAtlas, wrappedY * vMRUVScale + vMRUVOffset);
+    vec4 mrZ = texture(uMetallicRoughnessAtlas, wrappedZ * vMRUVScale + vMRUVOffset);
+    vec4 mrSample = mrX * triW.x + mrY * triW.y + mrZ * triW.z;
     float mrRoughnessFactor = mrSample.g;
     float mrMetallicFactor  = mrSample.b;`
         : `// No UVs on this batch — vColor is the only source of albedo,
@@ -1968,7 +2116,40 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;
     float tbnInvMax = inversesqrt(max(dot(T, T), dot(B, B)));
     mat3 TBN = mat3(T * tbnInvMax, B * tbnInvMax, N_smooth);
-    vec3 N = normalize(TBN * nm_tangent);` : `vec3 N = N_smooth;`}
+    vec3 N = normalize(TBN * nm_tangent);`
+    : this.triplanar ? `// Triplanar tangent-space normal map. Sample the atlas three times
+    // (once per axis projection), interpret each sample as a perturbation
+    // of the world-space basis aligned with that projection, blend by the
+    // same triplanar weights, and add to the geometric world normal —
+    // the "whiteout" / "swizzle" blend from Barré-Brisebois & Hill 2012.
+    // The result is a perturbed world-space normal; the BRDF that follows
+    // works in view space, so we rotate back via uIBLViewToWorldRot's
+    // inverse (the matrix is a pure rotation, so transpose suffices).
+    vec3 nmX = texture(uNormalMapAtlas, wrappedX * vNormalUVScale + vNormalUVOffset).xyz * 2.0 - 1.0;
+    vec3 nmY = texture(uNormalMapAtlas, wrappedY * vNormalUVScale + vNormalUVOffset).xyz * 2.0 - 1.0;
+    vec3 nmZ = texture(uNormalMapAtlas, wrappedZ * vNormalUVScale + vNormalUVOffset).xyz * 2.0 - 1.0;
+    // Mirror the tangent-x channel on negative-axis-facing fragments to
+    // match the per-plane UV mirroring above; otherwise the perturbation
+    // appears reversed on opposing faces.
+    if (triNorm.x < 0.0) nmX.x = -nmX.x;
+    if (triNorm.y < 0.0) nmY.x = -nmY.x;
+    if (triNorm.z < 0.0) nmZ.x = -nmZ.x;
+    // Whiteout swizzle: each axis contributes (tangent_x, tangent_y, 0)
+    // in its own local frame, mapped into world coords by axis swap.
+    //   X-projection (yz plane): sample (x,y) → world (z,y), normal is X
+    //   Y-projection (xz plane): sample (x,y) → world (x,z), normal is Y
+    //   Z-projection (xy plane): sample (x,y) → world (x,y), normal is Z
+    vec3 nmWorld = (vec3(0.0,    nmX.y,  nmX.x)) * triW.x
+                 + (vec3(nmY.x,  0.0,    nmY.y)) * triW.y
+                 + (vec3(nmZ.x,  nmZ.y,  0.0))   * triW.z;
+    // Blend the perturbation onto the geometric world normal, then
+    // bring back into view space. Sentinel \`(0, 0, 1)\` from untextured
+    // mesh slots contributes a zero-tangent perturbation, so untextured
+    // triplanar meshes fall back to plain \`N_smooth\` automatically.
+    vec3 N_world = normalize(triNorm + nmWorld);
+    vec3 N = normalize(transpose(uIBLViewToWorldRot) * N_world);
+    if (dot(N, vViewPos) > 0.0) N = -N;`
+    : `vec3 N = N_smooth;`}
     // View direction in view space (camera at origin → fragment).
     vec3 V = normalize(-vViewPos);
     // Light direction the light travels along; surface-to-light is its
@@ -2069,11 +2250,35 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     this._fragSrcBuf.push(`
     // Flat-shaded path. ${this.hasUVs
       ? "UV-bearing variant: sample the albedo atlas just like the\n    // smooth-shaded path so geometries that ship without per-vertex\n    // normals (typical IFC) still pick up textured materials. The\n    // alias keeps shared shadow logic able to reference `albedo`."
+      : this.triplanar
+      ? "Triplanar variant: derive the world-space face normal from\n    // dFdx/dFdy(vWorldPos) so the blend weights are valid even on\n    // UV-less geometry without per-vertex normals (BIM, sweeps).\n    // Three texture samples, blended."
       : "No UVs, no texture — vColor IS the albedo. The alias\n    // keeps shared shadow logic able to reference `albedo`."}
     ${this.hasUVs
       ? `vec2 wrappedUV = fract(vUV);
     vec2 albedoAtlasUV = wrappedUV * vAlbedoUVScale + vAlbedoUVOffset;
     vec4 albedoSample = texture(uAlbedoAtlas, albedoAtlasUV);
+    vec3 albedo = albedoSample.rgb * vColor.rgb;
+    float albedoAlpha = albedoSample.a * vColor.a;`
+      : this.triplanar
+      ? `// World-space face normal from screen-space derivatives.
+    vec3 triNorm = normalize(cross(dFdx(vWorldPos), dFdy(vWorldPos)));
+    vec3 triAbs = abs(triNorm);
+    vec3 triW = pow(triAbs, vec3(4.0));
+    triW /= max(triW.x + triW.y + triW.z, 1e-5);
+
+    vec3 triP = vWorldPos / max(vTriplanarScale, 1e-4);
+    vec2 triUVx = vec2(triNorm.x < 0.0 ? -triP.z : triP.z, triP.y);
+    vec2 triUVy = vec2(triP.x, triNorm.y < 0.0 ? -triP.z : triP.z);
+    vec2 triUVz = vec2(triNorm.z < 0.0 ? -triP.x : triP.x, triP.y);
+
+    vec2 wrappedX = fract(triUVx);
+    vec2 wrappedY = fract(triUVy);
+    vec2 wrappedZ = fract(triUVz);
+
+    vec4 albedoX = texture(uAlbedoAtlas, wrappedX * vAlbedoUVScale + vAlbedoUVOffset);
+    vec4 albedoY = texture(uAlbedoAtlas, wrappedY * vAlbedoUVScale + vAlbedoUVOffset);
+    vec4 albedoZ = texture(uAlbedoAtlas, wrappedZ * vAlbedoUVScale + vAlbedoUVOffset);
+    vec4 albedoSample = albedoX * triW.x + albedoY * triW.y + albedoZ * triW.z;
     vec3 albedo = albedoSample.rgb * vColor.rgb;
     float albedoAlpha = albedoSample.a * vColor.a;`
       : `vec3 albedo = vColor.rgb;
@@ -2085,7 +2290,29 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     vec3 dX = dFdx(vViewPos);
     vec3 dY = dFdy(vViewPos);
     vec3 normal = normalize(cross(dX, dY));
-
+${this.triplanar ? `
+    // Triplanar tangent-space normal map override. Sample three
+    // times and apply the same whiteout swizzle the smooth path
+    // uses (Barré-Brisebois & Hill 2012). The result is a
+    // perturbed *world*-space normal; rotate back into view space
+    // via \`transpose(uIBLViewToWorldRot)\` (the camera's view
+    // rotation, which is orthonormal so transpose == inverse) to
+    // override the cross-product face normal computed above.
+    {
+      vec3 nmX = texture(uNormalMapAtlas, wrappedX * vNormalUVScale + vNormalUVOffset).xyz * 2.0 - 1.0;
+      vec3 nmY = texture(uNormalMapAtlas, wrappedY * vNormalUVScale + vNormalUVOffset).xyz * 2.0 - 1.0;
+      vec3 nmZ = texture(uNormalMapAtlas, wrappedZ * vNormalUVScale + vNormalUVOffset).xyz * 2.0 - 1.0;
+      if (triNorm.x < 0.0) nmX.x = -nmX.x;
+      if (triNorm.y < 0.0) nmY.x = -nmY.x;
+      if (triNorm.z < 0.0) nmZ.x = -nmZ.x;
+      vec3 nmWorld = (vec3(0.0,    nmX.y,  nmX.x)) * triW.x
+                   + (vec3(nmY.x,  0.0,    nmY.y)) * triW.y
+                   + (vec3(nmZ.x,  nmZ.y,  0.0))   * triW.z;
+      vec3 N_world = normalize(triNorm + nmWorld);
+      normal = normalize(transpose(uIBLViewToWorldRot) * N_world);
+      if (dot(normal, vViewPos) > 0.0) normal = -normal;
+    }
+` : ``}
     // Lambert diffuse term (N·L), clamped to [0,1]. Light direction is
     // the direction the light travels, so we negate to get surface-to-light.
     float lambertian = max(dot(normal, normalize(-uPrimaryLightDirView)), 0.0);

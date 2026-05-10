@@ -163,15 +163,26 @@ export class GPUMemoryBatch {
   public readonly hasUVs: boolean;
 
   /**
+   * When `true`, the batch's per-batch PBR atlases (`albedo`,
+   * `metallic-roughness`, `normal-map`) get allocated even when
+   * {@link hasUVs} is `false`. The renderer's *triplanar* shader
+   * variant samples those atlases via world-space UVs derived from
+   * `vWorldPos`, so triplanar batches need the atlases populated even
+   * though the geometry itself has no per-vertex UV stream.
+   */
+  public readonly triplanar: boolean;
+
+  /**
    * Creates a new GPUMemoryBatch.
    */
-  constructor(index: number, renderContext: RenderContext, options: { hasNormals?: boolean, hasUVs?: boolean } = {}) {
+  constructor(index: number, renderContext: RenderContext, options: { hasNormals?: boolean, hasUVs?: boolean, triplanar?: boolean } = {}) {
 
     this.index = index;
 
     this._renderContext = renderContext;
     this.hasNormals = options.hasNormals === true;
     this.hasUVs = options.hasUVs === true;
+    this.triplanar = options.triplanar === true;
 
     this._geometryHandles = {};
     this._meshHandles = {};
@@ -308,7 +319,13 @@ export class GPUMemoryBatch {
         maxItems: memoryConfigs.maxBatchVertices,
         description: `[Batch ${this.index}] - vertex UVs (RG16UI, [0, 1] mapped to [0, 65535])`
       });
-      // The albedo atlas is bound by the UV-bearing technique variants
+    }
+    // Atlases are needed by both the UV-bearing technique variant
+    // (samples via `vUV`) and the triplanar variant (samples via
+    // world-space UVs derived from `vWorldPos`). Allocate whenever
+    // either flag is set.
+    if (this.hasUVs || this.triplanar) {
+      // The albedo atlas is bound by the textured technique variants
       // unconditionally — always-allocate keeps the shader path
       // branch-free. Untextured meshes write the atlas's sentinel
       // transform (scale = 0) and sample its pre-stamped white block.
@@ -861,7 +878,12 @@ export class GPUMemoryBatch {
       metallicRoughnessUVOffset: [mrXform.uOffset, mrXform.vOffset],
       metallicRoughnessUVScale:  [mrXform.uScale,  mrXform.vScale],
       normalMapUVOffset: [nmXform.uOffset, nmXform.vOffset],
-      normalMapUVScale:  [nmXform.uScale,  nmXform.vScale]
+      normalMapUVScale:  [nmXform.uScale,  nmXform.vScale],
+      // Sampled by the triplanar shader variant; UV-bearing batches
+      // ignore the slot. Stored at full Float32 precision so users
+      // can pick an arbitrary world-units-per-repeat without
+      // quantisation surprises.
+      triplanarScale: sceneMesh.effectiveTriplanarScale
     });
 
     const numViews = this._renderContext.memoryConfigs.maxViews;

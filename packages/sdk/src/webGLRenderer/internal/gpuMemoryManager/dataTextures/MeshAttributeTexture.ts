@@ -19,7 +19,11 @@ import { ItemDataTexture } from "./ItemDataTexture";
  *   - `base + 7`  packed metallic-roughness `(uScale,  vScale)`
  *   - `base + 8`  packed normal-map `(uOffset, vOffset)`
  *   - `base + 9`  packed normal-map `(uScale,  vScale)`
- *   - `base + 10..11` reserved — slot for occlusion / emissive when those land
+ *   - `base + 10` triplanar repeat distance — Float32 bit pattern reinterpret
+ *                 (read in the shader via `uintBitsToFloat`). Consumed only
+ *                 by the triplanar shader variant; UV-bearing batches ignore
+ *                 it.
+ *   - `base + 11` reserved — slot for occlusion / emissive when those land
  *
  * Each UV transform takes per-vertex `vUV ∈ [0, 1]` to atlas-space:
  * `atlasUV = vUV * (uScale, vScale) + (uOffset, vOffset)`. Different
@@ -68,6 +72,7 @@ setItem(itemIndex: number, item: {
   metallicRoughnessUVScale?:  [number, number];
   normalMapUVOffset?: [number, number];
   normalMapUVScale?:  [number, number];
+  triplanarScale?: number;
 }): void {
   const base = itemIndex * this.elementsPerItem;
   if (item.tileIndex !== undefined) this.buffer[base] = this.toU32(item.tileIndex);
@@ -113,6 +118,12 @@ setItem(itemIndex: number, item: {
   }
   if (item.normalMapUVScale !== undefined) {
     this.buffer[base + 9] = packUV2(item.normalMapUVScale);
+  }
+  if (item.triplanarScale !== undefined) {
+    // Reinterpret the float as a u32 bit pattern. The shader recovers
+    // it with `uintBitsToFloat`. Avoids quantising a value the user is
+    // free to pick at any magnitude.
+    this.buffer[base + 10] = floatBitsToU32(item.triplanarScale);
   }
   this.setItemDirty(itemIndex);
 }
@@ -169,4 +180,17 @@ function packUV2(uv: [number, number]): number {
 
 function unpackUV2(packed: number): [number, number] {
   return [(packed & 0xffff) / 65535, ((packed >>> 16) & 0xffff) / 65535];
+}
+
+/**
+ * Reinterpret a JS number's IEEE-754 single-precision bit pattern as a
+ * u32. Used so the shader can recover the value with `uintBitsToFloat`
+ * without losing precision to a fixed-point quantisation.
+ */
+const _floatBitsToU32_buf = new ArrayBuffer(4);
+const _floatBitsToU32_f32 = new Float32Array(_floatBitsToU32_buf);
+const _floatBitsToU32_u32 = new Uint32Array(_floatBitsToU32_buf);
+function floatBitsToU32(f: number): number {
+  _floatBitsToU32_f32[0] = f;
+  return _floatBitsToU32_u32[0];
 }

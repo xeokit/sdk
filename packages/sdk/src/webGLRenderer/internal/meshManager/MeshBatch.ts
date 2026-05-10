@@ -36,6 +36,20 @@ export interface MeshBatch {
   hasUVs: boolean;
 
   /**
+   * Whether the batch's textures must be sampled via the
+   * **triplanar** world-space fallback rather than the standard
+   * UV-attribute path.
+   *
+   * Set when the batch's meshes share `(material has any texture)
+   * && (geometry has no UVs)` — typical of BIM, sweeps and lofted
+   * curve geometry. Mutually exclusive with {@link hasUVs}: the
+   * renderer dispatches triplanar batches to a sibling shader
+   * variant that derives sample coordinates from world position,
+   * blended by world normal.
+   */
+  triplanar: boolean;
+
+  /**
    * Base primitive base index for this batch.
    */
   primBaseIndex: number;

@@ -395,7 +395,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    *
    * @returns {@link SDKResult} containing the new batch index, or `ok:false` if allocation fails.
    */
-  public createBatch(options: { hasNormals?: boolean, hasUVs?: boolean } = {}): SDKResult<number> {
+  public createBatch(options: { hasNormals?: boolean, hasUVs?: boolean, triplanar?: boolean } = {}): SDKResult<number> {
     if (this._batches.length >= this._renderContext.memoryConfigs.maxBatches) {
       return {
         ok: false,

@@ -153,17 +153,20 @@ export class DrawOps {
 
     const linesDrawSilhouette = saveForCleanup(new GenericDrawSilhouetteTechnique(renderContext, gpuMemoryReader, 2));
     const trianglesSilhouette = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader));
-    // Lambert colour techniques exist as 4-way variants on the
-    // `(hasNormals, hasUVs)` axes. The DrawOp picks at draw time via
-    // `MeshBatch.hasNormals`/`hasUVs`, so batches that don't carry an
-    // attribute don't pay for shaders that sample it. Each helper below
-    // returns a `DrawOpVariants` object the DrawOp wires straight into its
-    // 4-slot lookup.
+    // Lambert colour techniques exist as 6-way variants on the
+    // `(hasNormals, hasUVs, triplanar)` axes (`hasUVs && triplanar`
+    // excluded by construction). The DrawOp picks at draw time via
+    // `MeshBatch.hasNormals` / `hasUVs` / `triplanar`, so batches
+    // that don't carry an attribute don't pay for shaders that
+    // sample it. Each helper below returns a `DrawOpVariants`
+    // object the DrawOp wires straight into its 6-slot lookup.
     const lambertVariants = <T extends new (...args: any[]) => any>(Cls: T) => ({
-      technique:         saveForCleanup(new Cls(renderContext, gpuMemoryReader)),
-      withNormals:       saveForCleanup(new Cls(renderContext, gpuMemoryReader, {hasNormals: true})),
-      withUVs:           saveForCleanup(new Cls(renderContext, gpuMemoryReader, {hasUVs: true})),
-      withNormalsAndUVs: saveForCleanup(new Cls(renderContext, gpuMemoryReader, {hasNormals: true, hasUVs: true})),
+      technique:               saveForCleanup(new Cls(renderContext, gpuMemoryReader)),
+      withNormals:             saveForCleanup(new Cls(renderContext, gpuMemoryReader, {hasNormals: true})),
+      withUVs:                 saveForCleanup(new Cls(renderContext, gpuMemoryReader, {hasUVs: true})),
+      withNormalsAndUVs:       saveForCleanup(new Cls(renderContext, gpuMemoryReader, {hasNormals: true, hasUVs: true})),
+      withTriplanar:           saveForCleanup(new Cls(renderContext, gpuMemoryReader, {triplanar: true})),
+      withNormalsAndTriplanar: saveForCleanup(new Cls(renderContext, gpuMemoryReader, {hasNormals: true, triplanar: true})),
     });
     const trianglesDrawColor          = lambertVariants(TrianglesDrawColorTechnique);
     const trianglesDrawColorSAO       = lambertVariants(TrianglesDrawColorSAOTechnique);

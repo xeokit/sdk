@@ -24,7 +24,7 @@
  *
  * ```javascript
  * import { Viewer } from "@xeokit/sdk/viewer";
- * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
+ * import { WebGLRenderer } from "@xeokit/sdk/webGLRenderer";
  * import { Data } from "@xeokit/sdk/data";
  * import { Scene } from "@xeokit/sdk/scene";
  * import * as ifcTypes from "@xeokit/sdk/formats/ifc/ifctypes_4_0_2_1";

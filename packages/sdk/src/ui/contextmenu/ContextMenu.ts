@@ -40,6 +40,9 @@ const CONTEXT_MENU_CSS = `
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .xeokit-context-menu-item:hover {
@@ -53,6 +56,37 @@ const CONTEXT_MENU_CSS = `
 
 .xeokit-context-menu-item.disabled:hover {
   background: transparent;
+}
+
+.xeokit-context-menu-item-label {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Icon column. Hidden by default; the build pass adds
+   the .xeokit-context-menu-with-icons class to the menu wrapper
+   when at least one item carries an icon — every row in that
+   menu then reserves the icon column so labels stay aligned
+   regardless of which rows actually paint a glyph. */
+.xeokit-context-menu-item-icon {
+  display: none;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  align-items: center;
+  justify-content: center;
+  color: #2d5e8c;
+}
+.xeokit-context-menu-with-icons .xeokit-context-menu-item-icon {
+  display: inline-flex;
+}
+.xeokit-context-menu-item-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.xeokit-context-menu-item.disabled .xeokit-context-menu-item-icon {
+  color: #999;
 }
 
 .xeokit-context-menu-item-separator {
@@ -113,6 +147,18 @@ type ItemAction = (context: any) => void;
 type ItemStateGetter = (context: any) => boolean;
 
 /**
+ * Resolves an item icon from the current menu context. Returns
+ * an SVG markup string (or `null` / empty for "no icon"). The
+ * markup is dropped into the icon column via `innerHTML`, so it
+ * must be trusted content. Stroke / fill colours that use
+ * `currentColor` will pick up the icon column's text colour.
+ *
+ * @param context Current menu context.
+ * @returns SVG markup, or null / empty when no icon should render.
+ */
+type ItemIconGetter = (context: any) => string | null | undefined;
+
+/**
  * Resolves the root menu title from the current context.
  *
  * @param context Current menu context.
@@ -135,6 +181,19 @@ export interface ContextMenuItemConfig {
    * Dynamic item title resolver.
    */
   getTitle?: ItemTitleGetter;
+
+  /**
+   * Optional icon for this item. Either a static SVG markup
+   * string or a context-aware resolver returning one. The markup
+   * is rendered via `innerHTML` into the menu's icon column —
+   * stroke / fill colours that use `currentColor` will pick up
+   * the menu's icon-column colour automatically.
+   *
+   * Items without an icon render normally; if at least one item
+   * in a menu has an icon, every item in that menu reserves the
+   * icon-column space so labels stay aligned.
+   */
+  icon?: string | ItemIconGetter;
 
   /**
    * Action invoked when the item is activated.
@@ -309,6 +368,12 @@ class Item {
   getTitle: ItemTitleGetter;
 
   /**
+   * Resolves the icon SVG markup, or `null` when no icon. Set
+   * to `null` for items configured without an `icon`.
+   */
+  getIcon: ItemIconGetter | null;
+
+  /**
    * Activation handler.
    */
   doAction: ItemAction;
@@ -365,13 +430,15 @@ class Item {
     getTitle: ItemTitleGetter,
     doAction: ItemAction,
     getEnabled: ItemStateGetter,
-    getShown: ItemStateGetter
+    getShown: ItemStateGetter,
+    getIcon: ItemIconGetter | null
   ) {
     this.id = id;
     this.getTitle = getTitle;
     this.doAction = doAction;
     this.getEnabled = getEnabled;
     this.getShown = getShown;
+    this.getIcon = getIcon;
     this.itemElement = null;
     this.subMenu = null;
     this.enabled = true;
@@ -442,16 +509,28 @@ class ContextMenu {
     this._getTitle = () => this._title;
 
     if (cfg.hideOnMouseDown !== false) {
+      // Hide-on-outside-click. Use `closest()` rather than
+      // `classList.contains()` on the literal target — every menu
+      // row is now `<li><span class="…-icon"></span><span
+      // class="…-label"></span></li>`, so a click target may be
+      // the icon span, the label span, or an SVG inside the icon
+      // span. A naive `target === LI` check would treat clicks
+      // on inner spans as outside-the-menu clicks: the menu would
+      // hide on `mousedown`, the LI's `click` handler would never
+      // fire (because `mouseup` lands on whatever's underneath
+      // the now-hidden menu, which fails the same-target rule
+      // for synthesising `click`), and the residual `mouseup`
+      // would reach the canvas and nudge the camera.
       this._parentNode.addEventListener("mousedown", (event: Event) => {
         const target = event.target as Element | null;
-        if (!target?.classList?.contains("xeokit-context-menu-item")) {
+        if (!target?.closest?.(".xeokit-context-menu-item")) {
           this.hide();
         }
       });
 
       this._canvasTouchStartHandler = (event: TouchEvent) => {
         const target = event.target as Element | null;
-        if (!target?.classList?.contains("xeokit-context-menu-item")) {
+        if (!target?.closest?.(".xeokit-context-menu-item")) {
           this.hide();
         }
       };
@@ -660,12 +739,20 @@ class ContextMenu {
           const getShown: ItemStateGetter =
             itemCfg.getShown || (() => true);
 
+          const getIcon: ItemIconGetter | null =
+            typeof itemCfg.icon === "function"
+              ? itemCfg.icon as ItemIconGetter
+              : typeof itemCfg.icon === "string"
+                ? () => itemCfg.icon as string
+                : null;
+
           const item = new Item(
             itemId,
             getTitle,
             doAction,
             getEnabled,
-            getShown
+            getShown,
+            getIcon
           );
 
           item.doHover = itemCfg.doHover;
@@ -734,6 +821,20 @@ class ContextMenu {
       html.push(`<div class="xeokit-context-menu-title"></div>`);
     }
 
+    // If any item in this menu carries an icon, every row in the
+    // menu reserves the icon column so labels stay aligned. The
+    // empty span on icon-less rows is laid out at the same width
+    // as a real icon, just blank.
+    let hasIcons = false;
+    for (let i = 0; i < groups.length && !hasIcons; i++) {
+      for (const item of groups[i].items) {
+        if (item.getIcon) { hasIcons = true; break; }
+      }
+    }
+    if (hasIcons) {
+      menuElement.classList.add("xeokit-context-menu-with-icons");
+    }
+
     html.push("<ul>");
 
     for (let i = 0, len = groups.length; i < len; i++) {
@@ -745,17 +846,22 @@ class ContextMenu {
       for (let j = 0, lenj = groupItems.length; j < lenj; j++) {
         const item = groupItems[j];
         const itemSubMenu = item.subMenu;
-        const actionTitle = "";
 
-        if (itemSubMenu) {
-          html.push(
-            `<li id="${item.id}" class="xeokit-context-menu-item xeokit-context-menu-submenu">${actionTitle}</li>`
-          );
-        } else {
-          html.push(
-            `<li id="${item.id}" class="xeokit-context-menu-item">${actionTitle}</li>`
-          );
-        }
+        // Each row gets a structured `icon span + label span` so
+        // the label-update path can write to its span without
+        // clobbering the icon. When the menu has no icons at all
+        // we still emit the spans for consistency — the icon
+        // column is just hidden via the `:not(.with-icons)` CSS
+        // rule below.
+        const inner =
+          `<span class="xeokit-context-menu-item-icon"></span>` +
+          `<span class="xeokit-context-menu-item-label"></span>`;
+        const submenuClass = itemSubMenu
+          ? " xeokit-context-menu-submenu"
+          : "";
+        html.push(
+          `<li id="${item.id}" class="xeokit-context-menu-item${submenuClass}">${inner}</li>`
+        );
 
         if (!((groupIdx === groupLen - 1) || (j < lenj - 1))) {
           html.push(
@@ -935,8 +1041,34 @@ class ContextMenu {
       if (!getShown || !getShown(this._context)) {
         continue;
       }
-      const title = item.getTitle(this._context);
-      itemElement.innerText = title;
+      // Write into the structured spans rather than clobbering
+      // the LI's innerText — the icon span needs to survive
+      // every title update, and the LI also carries the
+      // submenu-arrow `::after` styling.
+      const labelEl = itemElement.querySelector(
+        ".xeokit-context-menu-item-label"
+      ) as HTMLElement | null;
+      if (labelEl) {
+        labelEl.innerText = item.getTitle(this._context);
+      } else {
+        // Fallback for any LI built before the structured
+        // markup landed (none in current code, but defensive).
+        itemElement.innerText = item.getTitle(this._context);
+      }
+      const iconEl = itemElement.querySelector(
+        ".xeokit-context-menu-item-icon"
+      ) as HTMLElement | null;
+      if (iconEl) {
+        const iconMarkup = item.getIcon
+          ? item.getIcon(this._context) || ""
+          : "";
+        // Avoid an unnecessary innerHTML assignment when the
+        // markup hasn't changed — keeps the GPU off the SVG
+        // re-parse path on hover-driven re-renders.
+        if (iconEl.innerHTML !== iconMarkup) {
+          iconEl.innerHTML = iconMarkup;
+        }
+      }
     }
   }
 

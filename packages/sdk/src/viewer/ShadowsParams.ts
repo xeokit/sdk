@@ -5,7 +5,7 @@ import type {FloatArrayParam} from "../math";
  *
  * * Returned by {@link Shadows.toParams | Shadows.toParams}
  * * Passed to {@link Shadows.fromParams | Shadows.fromParams}
- * * Located at {@link ViewParams.shadows | ViewParams.shadows}
+ * * Located at {@link EffectsParams.shadows}
  */
 export interface ShadowsParams {
 

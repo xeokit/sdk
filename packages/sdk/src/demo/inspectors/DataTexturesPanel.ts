@@ -1,4 +1,4 @@
-import type { DataTextures } from "../../webglrenderer/internal/gpuMemoryManager/DataTextures";
+import type { DataTextures } from "../../webGLRenderer/internal/gpuMemoryManager/DataTextures";
 import { SDKTaskRunner } from "../../core";
 
 // Small DOM util

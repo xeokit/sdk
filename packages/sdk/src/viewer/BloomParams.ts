@@ -3,7 +3,7 @@
  *
  * * Returned by {@link Bloom.toParams | Bloom.toParams}
  * * Passed to {@link Bloom.fromParams | Bloom.fromParams}
- * * Located at {@link ViewParams.bloom | ViewParams.bloom}
+ * * Located at {@link EffectsParams.bloom}
  */
 export interface BloomParams {
 

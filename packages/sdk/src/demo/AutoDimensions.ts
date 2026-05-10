@@ -1,6 +1,6 @@
 import {LinesPrimitive} from "../constants";
 import {SceneModel} from "../scene";
-import {SceneAABB3Index} from "../collision/aabb";
+import {SceneCollisionIndex} from "../collision";
 import type {AABB3Float} from "../math/boundaries";
 import type {Scene, SceneObject} from "../scene";
 import {buildVectorText} from "../procgen/buildGeometry";
@@ -27,7 +27,7 @@ type GlobalPlanLayout = {
 
 export class AutoDimensions {
   private readonly sceneModel: SceneModel;
-  private readonly aabb3index: SceneAABB3Index;
+  private readonly collisionIndex: SceneCollisionIndex;
   private readonly sourceScene: Scene;
   private readonly data?: Data;
 
@@ -64,7 +64,7 @@ export class AutoDimensions {
 
   constructor(params: {
     sceneModel: SceneModel;
-    aabb3index: SceneAABB3Index;
+    collisionIndex: SceneCollisionIndex;
     scene?: Scene;
     data?: Data;
     includedDataObjectTypes?: Iterable<string>;
@@ -88,11 +88,11 @@ export class AutoDimensions {
       dataObject: DataObject
     ) => string;
   }) {
-    const {sceneModel, aabb3index} = params;
+    const {sceneModel, collisionIndex} = params;
 
     this.sceneModel = sceneModel;
-    this.aabb3index = aabb3index;
-    this.sourceScene = params.scene ?? aabb3index.scene;
+    this.collisionIndex = collisionIndex;
+    this.sourceScene = params.scene ?? collisionIndex.scene;
     this.data = params.data;
 
     this.includedDataObjectTypes = new Set(params.includedDataObjectTypes ?? []);
@@ -300,7 +300,7 @@ export class AutoDimensions {
         continue;
       }
 
-      const aabb = this.aabb3index.getObjectAABB(sceneObject.id);
+      const aabb = this.collisionIndex.getObjectAABB(sceneObject.id);
       if (!aabb) {
         continue;
       }
@@ -911,7 +911,7 @@ export class AutoDimensions {
       return this.explicitPlaneCoordinate;
     }
 
-    const sceneAABB = this.aabb3index.getSceneAABB();
+    const sceneAABB = this.collisionIndex.getSceneAABB();
 
     switch (this.plane) {
       case "XY":
@@ -925,7 +925,7 @@ export class AutoDimensions {
   }
 
   private _getSceneMaxSize(): number {
-    const sceneAABB = this.aabb3index.getSceneAABB();
+    const sceneAABB = this.collisionIndex.getSceneAABB();
     const sizeX = sceneAABB[3] - sceneAABB[0];
     const sizeY = sceneAABB[4] - sceneAABB[1];
     const sizeZ = sceneAABB[5] - sceneAABB[2];

@@ -3,9 +3,12 @@ import {
   createMat4Float64,
   inverseMat4,
   orthoMat4c,
+  transformPoint4,
   transposeMat4
 } from "../math/matrix";
 import {
+  createVec4Float64,
+  mulVec3Scalar,
   type Vec2,
   type Vec3
 } from "../math/vector";
@@ -16,6 +19,12 @@ import type {OrthoProjectionParams} from "./OrthoProjectionParams";
 import {OrthoProjectionType} from "../constants";
 import type {Projection} from "./Projection";
 import {SDKTask} from "../core/SDKTask";
+
+// Scratch buffers reused across `unproject` calls — see
+// PerspectiveProjection for the rationale.
+const tempVec4a = createVec4Float64();
+const tempVec4b = createVec4Float64();
+const tempVec4c = createVec4Float64();
 
 
 /**
@@ -275,23 +284,41 @@ export class OrthoProjection implements Projection {
     viewPos: Vec3,
     worldPos: Vec3): Vec3 {
 
-    // const canvas = this.camera.view.htmlElement;
-    //
-    // const halfViewWidth = canvas.offsetWidth / 2.0;
-    // const halfViewHeight = canvas.offsetHeight / 2.0;
-    //
-    // screenPos[0] = (canvasPos[0] - halfViewWidth) / halfViewWidth;
-    // screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;
-    // screenPos[2] = screenZ;
-    // screenPos[3] = 1.0;
-    //
-    // mulMat4v4(this.inverseProjMatrix, screenPos, viewPos);
-    // mulVec3Scalar(viewPos, 1.0 / viewPos[3]);
-    //
-    // viewPos[3] = 1.0;
-    // viewPos[1] *= -1;
-    //
-    // mulMat4v4(this.camera.inverseViewMatrix, viewPos, worldPos);
+    // Same generalised inverse-projection formula as
+    // PerspectiveProjection — works for ortho without
+    // modification because we go through the projection matrix's
+    // actual inverse rather than a closed-form perspective
+    // shortcut. For an orthographic projection the perspective
+    // divide collapses to the identity (w stays 1), but we still
+    // run it so the same code path covers any future weirdness in
+    // the projection matrix.
+    const htmlElement = this.camera.view.htmlElement;
+    const halfViewWidth  = htmlElement.offsetWidth  / 2.0;
+    const halfViewHeight = htmlElement.offsetHeight / 2.0;
+
+    screenPos[0] = (canvasPos[0] - halfViewWidth)  / halfViewWidth;
+    screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;
+    screenPos[2] = screenZ;
+
+    tempVec4a[0] = screenPos[0];
+    tempVec4a[1] = screenPos[1];
+    tempVec4a[2] = screenPos[2];
+    tempVec4a[3] = 1.0;
+
+    transformPoint4(this.inverseProjMatrix, tempVec4a, tempVec4b);
+    mulVec3Scalar(tempVec4b as Vec3, 1.0 / tempVec4b[3]);
+
+    viewPos[0] = tempVec4b[0];
+    viewPos[1] = tempVec4b[1];
+    viewPos[2] = tempVec4b[2];
+
+    tempVec4b[1] *= -1;
+
+    transformPoint4(this.camera.inverseViewMatrix, tempVec4b, tempVec4c);
+
+    worldPos[0] = tempVec4c[0];
+    worldPos[1] = tempVec4c[1];
+    worldPos[2] = tempVec4c[2];
 
     return worldPos;
   }

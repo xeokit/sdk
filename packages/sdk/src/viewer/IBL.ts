@@ -1,33 +1,26 @@
 import type {IBLParams} from "./IBLParams";
 import type {View} from "./View";
-import {createVec3Float64, type Vec3, type Vec3Float} from "../math/vector";
 import {SDKErrorType, type SDKResult} from "../core";
 import {DetailedRender, RealisticRender} from "../constants";
 import {parseHDR, type HDRImage} from "./hdrLoader";
 
 
 /**
- * Configures hemispherical image-based lighting (IBL) for a {@link View}.
+ * Configures cubemap-based image-based lighting (IBL) for a {@link View}.
  *
- * * Located at {@link View.ibl}.
+ * * Located at {@link Lights.ibl}, which lives at {@link View.lights}.
  *
- * Layer 1 of the IBL feature set — diffuse-only, analytical hemisphere
- * model. The renderer evaluates an ambient irradiance term per fragment
- * by lerping between {@link IBL.skyColor} and {@link IBL.groundColor}
- * based on how much the fragment's normal faces world up vs. world
- * down. No cubemap textures, no specular reflections, no prefiltering —
- * just a smooth two-colour gradient that replaces the existing flat
- * ambient whenever the active {@link View.renderMode} is in
+ * Drives the prefiltered-cubemap diffuse + specular contribution to
+ * each fragment's BRDF: the renderer projects either a procedural sky
+ * (built from {@link Lights.hemispheric}) or a user-supplied
+ * equirectangular environment image onto a cubemap, then prefilters
+ * the diffuse irradiance and GGX-convolved specular for fast lookup at
+ * draw time. Active whenever the current {@link View.renderMode} is in
  * {@link IBL.renderModes}.
  *
- * The point: indoor BIM scenes look noticeably more "lit" than they do
- * with a constant ambient grey, especially under directional shadows
- * where the unlit side of every object now picks up a colour-correct
- * fill. Cost is two uniforms and one `mix`-and-`dot` per fragment.
- *
- * Future layers will extend this with cubemap-based irradiance + a
- * prefiltered specular map — those will hang on the same component
- * without breaking the Layer-1 surface.
+ * The cheap analytical sky/ground/up gradient lives separately on
+ * {@link Lights.hemispheric} — it applies in every render mode by
+ * default and stacks with this cubemap path when both are enabled.
  *
  * See {@link viewer | @xeokit/sdk/viewer} for usage info.
  */
@@ -40,9 +33,6 @@ class IBL {
 
   #renderModes: number[];
   #intensity: number;
-  #skyColor: Vec3Float;
-  #groundColor: Vec3Float;
-  #worldUp: Vec3Float;
   #destroyed: boolean = false;
 
   // User-supplied equirectangular environment map. When set, the
@@ -67,11 +57,8 @@ class IBL {
    */
   constructor(view: View, params: IBLParams = {}) {
     this.view = view;
-    this.#renderModes = params.renderModes ?? [DetailedRender, RealisticRender];
-    this.#intensity = params.intensity !== undefined ? params.intensity : 1.0;
-    this.#skyColor = createVec3Float64(params.skyColor || [0.62, 0.72, 0.86]);
-    this.#groundColor = createVec3Float64(params.groundColor || [0.42, 0.36, 0.30]);
-    this.#worldUp = createVec3Float64(params.worldUp || [0, 0, 1]);
+    this.#renderModes = params.renderModes ?? [RealisticRender];
+    this.#intensity = params.intensity !== undefined ? params.intensity : 1.4;
   }
 
   /**
@@ -125,12 +112,14 @@ class IBL {
   }
 
   /**
-   * Sets the IBL contribution multiplier. Range `[0, 1]`. Effectively
-   * acts as a fade between the flat ambient (0) and full hemisphere
-   * IBL (1). Has no effect when the active {@link View.renderMode} is
-   * not in {@link IBL.renderModes}.
+   * Sets the cubemap IBL contribution multiplier. Range `[0, ∞)`. At
+   * `0` the cubemap contributes nothing even when the active
+   * {@link View.renderMode} is in {@link IBL.renderModes}.
    *
-   * Default value is `1.0x`.
+   * Default value is `1.4` — a modest boost over the natural `1.0`
+   * level so RealisticRender's prefiltered-cubemap fill reads as
+   * distinctly brighter than the analytical hemisphere fill in
+   * NavigationRender / DetailedRender.
    */
   set intensity(value: number) {
     if (typeof value !== "number") return;
@@ -140,87 +129,10 @@ class IBL {
   }
 
   /**
-   * Gets the IBL contribution multiplier.
+   * Gets the cubemap IBL contribution multiplier.
    */
   get intensity(): number {
     return this.#intensity;
-  }
-
-  /**
-   * Sets the linear-space RGB colour the renderer returns for normals
-   * facing world up.
-   *
-   * Default value is `[0.62, 0.72, 0.86]`.
-   */
-  set skyColor(value: Vec3) {
-    if (!value || value.length < 3) {
-      this.view.viewer.logError({
-        ok: false,
-        type: SDKErrorType.InvalidInput,
-        error: "[IBL set skyColor] Invalid colour parameter."
-      });
-      return;
-    }
-    const c = this.#skyColor;
-    if (c[0] === value[0] && c[1] === value[1] && c[2] === value[2]) return;
-    c[0] = value[0]; c[1] = value[1]; c[2] = value[2];
-    this.view.needsRender();
-  }
-
-  /**
-   * Gets the linear-space RGB sky colour.
-   */
-  get skyColor(): Vec3 {
-    return this.#skyColor;
-  }
-
-  /**
-   * Sets the linear-space RGB colour the renderer returns for normals
-   * facing world down.
-   *
-   * Default value is `[0.42, 0.36, 0.30]`.
-   */
-  set groundColor(value: Vec3) {
-    if (!value || value.length < 3) {
-      this.view.viewer.logError({
-        ok: false,
-        type: SDKErrorType.InvalidInput,
-        error: "[IBL set groundColor] Invalid colour parameter."
-      });
-      return;
-    }
-    const c = this.#groundColor;
-    if (c[0] === value[0] && c[1] === value[1] && c[2] === value[2]) return;
-    c[0] = value[0]; c[1] = value[1]; c[2] = value[2];
-    this.view.needsRender();
-  }
-
-  /**
-   * Gets the linear-space RGB ground colour.
-   */
-  get groundColor(): Vec3 {
-    return this.#groundColor;
-  }
-
-  /**
-   * Sets the world-space up axis used to weight the sky/ground sample.
-   * Override for non-Z-up scenes (e.g. `[0, 1, 0]` for Y-up).
-   *
-   * Default value is `[0, 0, 1]`.
-   */
-  set worldUp(value: Vec3) {
-    if (!value || value.length < 3) return;
-    const c = this.#worldUp;
-    if (c[0] === value[0] && c[1] === value[1] && c[2] === value[2]) return;
-    c[0] = value[0]; c[1] = value[1]; c[2] = value[2];
-    this.view.needsRender();
-  }
-
-  /**
-   * Gets the world-space up axis.
-   */
-  get worldUp(): Vec3 {
-    return this.#worldUp;
   }
 
   /**
@@ -424,10 +336,7 @@ class IBL {
       ok: true,
       value: {
         renderModes: this.renderModes,
-        intensity: this.intensity,
-        skyColor: <Vec3>Array.from(this.skyColor),
-        groundColor: <Vec3>Array.from(this.groundColor),
-        worldUp: <Vec3>Array.from(this.worldUp)
+        intensity: this.intensity
       }
     };
   }
@@ -445,9 +354,6 @@ class IBL {
     }
     if (params.renderModes !== undefined) this.renderModes = params.renderModes;
     if (params.intensity !== undefined)   this.intensity   = params.intensity;
-    if (params.skyColor !== undefined)    this.skyColor    = <Vec3>Array.from(params.skyColor);
-    if (params.groundColor !== undefined) this.groundColor = <Vec3>Array.from(params.groundColor);
-    if (params.worldUp !== undefined)     this.worldUp     = <Vec3>Array.from(params.worldUp);
     return { ok: true, value: undefined };
   }
 

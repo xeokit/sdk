@@ -43,9 +43,9 @@
  * ```ts
  * import { Scene } from "@xeokit/sdk/scene";
  * import { Data } from "@xeokit/sdk/data";
- * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
+ * import { WebGLRenderer } from "@xeokit/sdk/webGLRenderer";
  * import { Viewer } from "@xeokit/sdk/viewer";
- * import { ViewController } from "@xeokit/sdk/viewcontroller";
+ * import { ViewController } from "@xeokit/sdk/viewController";
  * import { XGFLoader, XGFExporter } from "@xeokit/sdk/formats/xgf";
  *
  * const scene = new Scene();
@@ -119,3 +119,4 @@
 export * from "./XGFLoader";
 export * from "./XGFExporter";
 export * from "./versions/v1/XGFData_v1";
+export * from "./versions/v2/XGFData_v2";

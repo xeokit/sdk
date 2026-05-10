@@ -3,7 +3,7 @@
  *
  * * Returned by {@link SAO.toParams | SAO.toParams}
  * * Passed to {@link SAO.fromParams | SAO.fromParams}
- * * Located at {@link ViewParams.sao | ViewParams.sao}
+ * * Located at {@link EffectsParams.sao}
  */
 export interface SAOParams {
 

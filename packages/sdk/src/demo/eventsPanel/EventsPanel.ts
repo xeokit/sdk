@@ -17,11 +17,12 @@
 import {Scene} from "../../scene";
 import {Data} from "../../data";
 import {Viewer} from "../../viewer";
-import {WebGLRenderer} from "../../webglrenderer";
+import {WebGLRenderer} from "../../webGLRenderer";
 import {SDKErrorType, type SDKResult} from "../../core";
-import {bringFloatingPanelToFront} from "../floatingPanelZ";
 
 
+import {el} from "../utils/el";
+import {FloatingPanelBase} from "../floatingPanelBase";
 // ─────────────────────────────────────────────────────────────────
 // Public types
 // ─────────────────────────────────────────────────────────────────
@@ -481,7 +482,7 @@ const PANEL_CSS = `
 // Public class
 // ─────────────────────────────────────────────────────────────────
 
-export class EventsPanel {
+export class EventsPanel extends FloatingPanelBase {
 
   private static readonly _instances = new WeakMap<Viewer, EventsPanel>();
 
@@ -519,19 +520,13 @@ export class EventsPanel {
   readonly scene: Scene;
   readonly data: Data;
   readonly renderer: WebGLRenderer;
-  private readonly _container: HTMLElement;
-  private readonly _storageKey: string;
 
   // DOM refs.
-  private _panel!: HTMLElement;
-  private _pill!: HTMLElement;
   private _pillCountEl!: HTMLElement;
-  private _header!: HTMLElement;
   private _counterEl!: HTMLElement;
   private _copyLogBtn!: HTMLButtonElement;
   private _openLogBtn!: HTMLButtonElement;
   private _clearBtn!: HTMLButtonElement;
-  private _closeBtn!: HTMLButtonElement;
   private _bodyEl!: HTMLElement;
   private _sections!: Record<EventsPanelSource, SectionView>;
 
@@ -581,22 +576,18 @@ export class EventsPanel {
 
   // Lifecycle handles.
   private readonly _unsubs: Array<() => void> = [];
-  private _destroyed = false;
 
   // Drag state.
-  private _dragging = false;
-  private _dragOffsetX = 0;
-  private _dragOffsetY = 0;
-
-  private readonly _onResize = (): void => {
-    this._clampToViewport();
-    this._saveLayout();
-  };
 
   constructor(params: EventsPanelParams) {
     if (!params || !params.viewer) {
       throw new Error("EventsPanel: viewer is required");
     }
+    super({
+      container:   params.container,
+      storageKey:  params.storageKey || "xkt-events-panel",
+      classPrefix: "xkt-events",
+    });
     if (!params.scene)    throw new Error("EventsPanel: scene is required");
     if (!params.data)     throw new Error("EventsPanel: data is required");
     if (!params.renderer) throw new Error("EventsPanel: renderer is required");
@@ -605,8 +596,6 @@ export class EventsPanel {
     this.scene     = params.scene;
     this.data      = params.data;
     this.renderer  = params.renderer;
-    this._container  = params.container || document.body;
-    this._storageKey = params.storageKey || "xkt-events-panel";
 
     // Replace any prior instance bound to the same Viewer — the
     // panel keeps DOM and live event subscriptions, both of
@@ -617,13 +606,12 @@ export class EventsPanel {
 
     injectStylesOnce();
     this._buildDom();
+    this._bindChrome();
     this._wireDomEvents();
-    this._restoreLayout();
     this._attachListeners();
     this._updateAllSectionMeta();
     this._updateCounter();
 
-    window.addEventListener("resize", this._onResize);
 
     // Default-hidden: the panel is meant to lie in wait and
     // surface itself only when something goes wrong. Callers
@@ -650,18 +638,12 @@ export class EventsPanel {
 
   show(): void {
     if (this._destroyed) return;
-    this._panel.style.display = "flex";
-    this._pill.hidden = true;
-    this._clampToViewport();
-    this._saveLayout();
-    bringFloatingPanelToFront(this._panel);
+    super.show();
   }
 
   hide(): void {
     if (this._destroyed) return;
-    this._panel.style.display = "none";
-    this._pill.hidden = false;
-    this._saveLayout();
+    super.hide();
   }
 
   toggle(): void {
@@ -691,14 +673,11 @@ export class EventsPanel {
 
   destroy(): void {
     if (this._destroyed) return;
-    this._destroyed = true;
     this._detachListeners();
     if (EventsPanel._instances.get(this.viewer) === this) {
       EventsPanel._instances.delete(this.viewer);
     }
-    window.removeEventListener("resize", this._onResize);
-    this._panel.remove();
-    this._pill.remove();
+    super.destroy();
   }
 
 
@@ -805,7 +784,7 @@ export class EventsPanel {
 
   // ── DOM / rendering ───────────────────────────────────────────
 
-  private _buildDom(): void {
+  protected _buildDom(): void {
     this._pill = el("button", "xkt-events-pill", {
       type: "button",
       title: "Reopen the Events panel",
@@ -1174,14 +1153,6 @@ export class EventsPanel {
   }
 
   private _wireDomEvents(): void {
-    this._panel.addEventListener("pointerdown", () => {
-      bringFloatingPanelToFront(this._panel);
-    });
-
-    this._closeBtn.addEventListener("click", (ev) => {
-      ev.stopPropagation();
-      this.hide();
-    });
     this._clearBtn.addEventListener("click", (ev) => {
       ev.stopPropagation();
       this.clear();
@@ -1194,86 +1165,11 @@ export class EventsPanel {
       ev.stopPropagation();
       this._openLogInNewTab();
     });
-    this._pill.addEventListener("click", () => this.show());
-
-    // Drag on the header. Clicks on buttons inside the header
-    // (close, clear) are exempted via the `closest("button")`
-    // check.
-    this._header.addEventListener("pointerdown", (ev) => {
-      if ((ev.target as Element).closest("button")) return;
-      if (ev.button !== 0) return;
-      const rect = this._panel.getBoundingClientRect();
-      this._dragOffsetX = ev.clientX - rect.left;
-      this._dragOffsetY = ev.clientY - rect.top;
-      this._panel.style.right = "auto";
-      this._panel.style.left  = rect.left + "px";
-      this._panel.style.top   = rect.top  + "px";
-      this._dragging = true;
-      this._header.classList.add("xkt-events-dragging");
-      this._header.setPointerCapture(ev.pointerId);
-      ev.preventDefault();
-    });
-    this._header.addEventListener("pointermove", (ev) => {
-      if (!this._dragging) return;
-      const rect = this._panel.getBoundingClientRect();
-      let l = ev.clientX - this._dragOffsetX;
-      let t = ev.clientY - this._dragOffsetY;
-      l = Math.max(0, Math.min(l, window.innerWidth  - rect.width));
-      t = Math.max(0, Math.min(t, window.innerHeight - rect.height));
-      this._panel.style.left = l + "px";
-      this._panel.style.top  = t + "px";
-    });
-    const endDrag = (ev: PointerEvent): void => {
-      if (!this._dragging) return;
-      this._dragging = false;
-      this._header.classList.remove("xkt-events-dragging");
-      try { this._header.releasePointerCapture(ev.pointerId); } catch { /* ignore */ }
-      this._saveLayout();
-    };
-    this._header.addEventListener("pointerup",     endDrag);
-    this._header.addEventListener("pointercancel", endDrag);
   }
 
 
   // ── Layout persistence ────────────────────────────────────────
 
-  private _restoreLayout(): void {
-    let saved: {top?: number; left?: number; hidden?: boolean} | null = null;
-    try {
-      const raw = window.localStorage.getItem(this._storageKey);
-      if (raw) saved = JSON.parse(raw);
-    } catch { saved = null; }
-    if (!saved) return;
-    if (Number.isFinite(saved.left) && Number.isFinite(saved.top)) {
-      this._panel.style.right = "auto";
-      this._panel.style.left  = saved.left + "px";
-      this._panel.style.top   = saved.top  + "px";
-      this._clampToViewport();
-    }
-  }
-
-  private _saveLayout(): void {
-    const state: {top?: number; left?: number; hidden: boolean} = {
-      hidden: this._panel.style.display === "none",
-    };
-    const l = parseFloat(this._panel.style.left);
-    const t = parseFloat(this._panel.style.top);
-    if (Number.isFinite(l)) state.left = l;
-    if (Number.isFinite(t)) state.top  = t;
-    try { window.localStorage.setItem(this._storageKey, JSON.stringify(state)); }
-    catch { /* quota / disabled — drop silently */ }
-  }
-
-  private _clampToViewport(): void {
-    const l = parseFloat(this._panel.style.left);
-    const t = parseFloat(this._panel.style.top);
-    if (!Number.isFinite(l) || !Number.isFinite(t)) return;
-    const rect = this._panel.getBoundingClientRect();
-    const maxL = Math.max(0, window.innerWidth  - rect.width);
-    const maxT = Math.max(0, window.innerHeight - rect.height);
-    this._panel.style.left = Math.max(0, Math.min(l, maxL)) + "px";
-    this._panel.style.top  = Math.max(0, Math.min(t, maxT)) + "px";
-  }
 }
 
 
@@ -1428,28 +1324,3 @@ function formatTime(ts: number): string {
   return `${hh}:${mm}:${ss}`;
 }
 
-function el<K extends keyof HTMLElementTagNameMap>(
-  tag: K,
-  className?: string,
-  props?: Record<string, unknown>,
-): HTMLElementTagNameMap[K];
-function el(tag: string, className?: string, props?: Record<string, unknown>): HTMLElement {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  if (props) {
-    for (const k of Object.keys(props)) {
-      const v = props[k];
-      if (v === undefined) continue;
-      if (k === "textContent" || k === "innerHTML") {
-        (node as any)[k] = v;
-      } else if (k === "hidden") {
-        (node as HTMLElement).hidden = !!v;
-      } else if (k in node) {
-        (node as any)[k] = v;
-      } else {
-        node.setAttribute(k, String(v));
-      }
-    }
-  }
-  return node;
-}

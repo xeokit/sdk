@@ -1,5 +1,7 @@
 import type {ModelEncodeParams} from "../../../ModelEncodeParams";
 import type {SceneMaterial} from "../../../../scene";
+import {yieldToHost} from "../../../../utils";
+import type {LoaderProgress} from "../../../LoaderProgress";
 
 /**
  * Encodes a SceneModel's materials as WaveFront MTL text.
@@ -16,75 +18,79 @@ import type {SceneMaterial} from "../../../../scene";
  *
  * @private
  */
-export function encode(params: ModelEncodeParams, options?: any): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
-    try {
-      const {sceneModel} = params;
-
-      const lines: string[] = [];
-      const writtenMaterialIds = new Set<string>();
-
-      lines.push("# WaveFront MTL");
-      lines.push(`# SceneModel: ${sceneModel.id}`);
-      lines.push("");
-
-      // ------------------------------------------------------------------------------------------------
-      // Export explicit SceneMaterials
-      // ------------------------------------------------------------------------------------------------
-
-      const sceneMaterials = Object.values(sceneModel.materials || {});
-
-      for (let i = 0, len = sceneMaterials.length; i < len; i++) {
-        const material = sceneMaterials[i];
-        if (!material || writtenMaterialIds.has(material.id)) {
-          continue;
-        }
-
-        const materialName = getMaterialNameForSceneMaterial(material);
-        writeSceneMaterial(lines, materialName, material);
-        writtenMaterialIds.add(materialName);
-      }
-
-      // ------------------------------------------------------------------------------------------------
-      // Export fallback mesh-local materials for meshes without SceneMaterial
-      // ------------------------------------------------------------------------------------------------
-
-      const sceneMeshes = Object.values(sceneModel.meshes || {});
-
-      for (let i = 0, len = sceneMeshes.length; i < len; i++) {
-        const mesh = sceneMeshes[i];
-        if (!mesh || mesh.material) {
-          continue;
-        }
-
-        const fallbackMaterialId = getMaterialNameForMesh(mesh);
-
-        if (writtenMaterialIds.has(fallbackMaterialId)) {
-          continue;
-        }
-
-        const color = mesh.color || [1, 1, 1];
-        const opacity = mesh.opacity ?? 1.0;
-        const dissolve = clamp01(opacity);
-
-        lines.push(`newmtl ${sanitizeMTLName(fallbackMaterialId)}`);
-        lines.push(`Kd ${formatNum(color[0])} ${formatNum(color[1])} ${formatNum(color[2])}`);
-        lines.push(`Ka 0.000000 0.000000 0.000000`);
-        lines.push(`Ks 0.000000 0.000000 0.000000`);
-        lines.push(`Ns 0.000000`);
-        lines.push(`d ${formatNum(dissolve)}`);
-        lines.push(`Tr ${formatNum(1.0 - dissolve)}`);
-        lines.push(`illum 2`);
-        lines.push("");
-
-        writtenMaterialIds.add(fallbackMaterialId);
-      }
-
-      resolve(lines.join("\n"));
-    } catch (e) {
-      reject(e);
+export async function encode(params: ModelEncodeParams, options?: any): Promise<string> {
+  const {sceneModel} = params;
+  const opts = options || {};
+  const onProgress: ((p: LoaderProgress) => void) | undefined = opts.onProgress;
+  const signal: AbortSignal | undefined = opts.signal;
+  const progress: LoaderProgress = {phase: "", current: 0, total: 0};
+  const step = async (phase: string, current: number, total: number): Promise<void> => {
+    if (onProgress) {
+      progress.phase = phase;
+      progress.current = current;
+      progress.total = total;
+      onProgress(progress);
     }
-  });
+    await yieldToHost(signal);
+  };
+
+  const lines: string[] = [];
+  const writtenMaterialIds = new Set<string>();
+
+  lines.push("# WaveFront MTL");
+  lines.push(`# SceneModel: ${sceneModel.id}`);
+  lines.push("");
+
+  // Export explicit SceneMaterials
+  const sceneMaterials = Object.values(sceneModel.materials || {});
+
+  for (let i = 0, len = sceneMaterials.length; i < len; i++) {
+    if ((i & 0x3F) === 0) await step("Encoding MTL materials", i, len);
+    const material = sceneMaterials[i];
+    if (!material || writtenMaterialIds.has(material.id)) {
+      continue;
+    }
+
+    const materialName = getMaterialNameForSceneMaterial(material);
+    writeSceneMaterial(lines, materialName, material);
+    writtenMaterialIds.add(materialName);
+  }
+
+  // Export fallback mesh-local materials for meshes without SceneMaterial
+  const sceneMeshes = Object.values(sceneModel.meshes || {});
+
+  for (let i = 0, len = sceneMeshes.length; i < len; i++) {
+    if ((i & 0x3F) === 0) await step("Encoding MTL fallback meshes", i, len);
+    const mesh = sceneMeshes[i];
+    if (!mesh || mesh.material) {
+      continue;
+    }
+
+    const fallbackMaterialId = getMaterialNameForMesh(mesh);
+
+    if (writtenMaterialIds.has(fallbackMaterialId)) {
+      continue;
+    }
+
+    const color = mesh.color || [1, 1, 1];
+    const opacity = mesh.opacity ?? 1.0;
+    const dissolve = clamp01(opacity);
+
+    lines.push(`newmtl ${sanitizeMTLName(fallbackMaterialId)}`);
+    lines.push(`Kd ${formatNum(color[0])} ${formatNum(color[1])} ${formatNum(color[2])}`);
+    lines.push(`Ka 0.000000 0.000000 0.000000`);
+    lines.push(`Ks 0.000000 0.000000 0.000000`);
+    lines.push(`Ns 0.000000`);
+    lines.push(`d ${formatNum(dissolve)}`);
+    lines.push(`Tr ${formatNum(1.0 - dissolve)}`);
+    lines.push(`illum 2`);
+    lines.push("");
+
+    writtenMaterialIds.add(fallbackMaterialId);
+  }
+
+  await step("Encoding MTL", sceneMeshes.length, sceneMeshes.length);
+  return lines.join("\n");
 }
 
 function writeSceneMaterial(lines: string[], materialName: string, material: SceneMaterial) {

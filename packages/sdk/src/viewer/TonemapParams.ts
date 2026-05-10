@@ -13,7 +13,7 @@ export type TonemapMode = "none" | "reinhard" | "aces";
  *
  * * Returned by {@link Tonemap.toParams | Tonemap.toParams}
  * * Passed to {@link Tonemap.fromParams | Tonemap.fromParams}
- * * Located at {@link ViewParams.tonemap | ViewParams.tonemap}
+ * * Located at {@link EffectsParams.tonemap}
  */
 export interface TonemapParams {
 
@@ -49,9 +49,12 @@ export interface TonemapParams {
 
   /**
    * If `true`, the final colour is gamma-encoded with `pow(c, 1/2.2)` before
-   * writing to the canvas. Only makes sense when scene colours are in linear
-   * space; most setups still treat inputs as sRGB-ish, so this defaults to
-   * `false` for the retrofit.
+   * writing to the canvas. The renderer's albedo textures upload as
+   * `SRGB8_ALPHA8` (sRGB-source, linear-sample) and shading runs in linear
+   * space, so the swap-chain write needs the inverse encode for the canvas
+   * to display gamma-correct. Defaults to `true`; only set `false` if you
+   * have a reason (e.g. a custom downstream encode in your own canvas
+   * pipeline).
    */
   sRGBEncode?: boolean;
 

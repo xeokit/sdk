@@ -23,6 +23,7 @@
 
 export * from "./Map";
 export * from "./Queue";
+export * from "./yieldToHost";
 
 
 /**

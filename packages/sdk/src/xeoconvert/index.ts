@@ -40,7 +40,42 @@
  * * `--log` - Enables verbose logging for debugging and progress monitoring.
  * * `--<reporterId> <reportPath>` - Generates a conversion report in the specified file. *Reporter IDs vary depending on available report types.*
  *
+ * ### Inspection
+ *
+ * `xeoconvert` can run {@link sceneModelInspector} on each loaded SceneModel before export — useful for catching
+ * data-integrity errors and performance / correctness warnings, and (optionally) auto-fixing them. Results
+ * surface on {@link modelConverter!ModelConverterResult.inspection | ModelConverterResult.inspection} and via
+ * the `inspection-report` reporter.
+ *
+ * * `--inspect` - Enables inspection. Implied by any other `--inspect-*` flag.
+ * * `--inspect-fix` - Run {@link sceneModelInspector!applyFixes | applyFixes} after inspection (skipped if errors are present).
+ * * `--inspect-checks <list>` - Comma-separated opt-in checks. Available: `dup, similar, dense, large, quality, objects, textures, geom-far, all`.
+ * * `--no-fail-on-inspect-errors` - Continue to export even when inspection found errors. Default is to abort.
+ * * `--inspect-async` - Use {@link sceneModelInspector!inspectSceneModelAsync | inspectSceneModelAsync} so very large models don't block.
+ * * `--inspection-report <file>` - Write a JSON inspection report (auto-registered with the other reporters).
+ *
+ * ### Examples
+ *
+ * Inspect, auto-fix, and re-export a glTF model:
+ *
+ * ````bash
+ * node xeoconvert.js \
+ *   --pipeline gltf2gltf \
+ *   --gltf model.glb \
+ *   --gltf-out model.fixed.glb \
+ *   --datamodel model.json \
+ *   --inspect-fix --inspect-checks all \
+ *   --inspection-report inspection.json --log
+ * ````
+ *
+ * Inspect-only, no rewrite:
+ *
+ * ````bash
+ * node xeoconvert.js --pipeline gltf --gltf model.glb \
+ *   --inspect --inspect-checks all --inspection-report inspection.json --log
+ * ````
+ *
  * @module xeoconvert
  */
-export * from "../modelconverter/reporters";
+export * from "../modelConverter/reporters";
 

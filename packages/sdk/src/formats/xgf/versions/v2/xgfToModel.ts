@@ -18,11 +18,12 @@ import {
   TrianglesPrimitive
 } from "../../../../constants";
 import type {SceneGeometryCompressedParams, SceneModel} from "../../../../scene";
-import {createUUID} from "../../../../utils";
+import {createUUID, yieldToHost} from "../../../../utils";
 import type {DataModel} from "../../../../data";
 import type {Vec3} from "../../../../math/vector";
 import type {XGFData_v2} from "./XGFData_v2";
 import {createVec3Float32} from "../../../../math/vector";
+import type {LoaderProgress} from "../../../LoaderProgress";
 
 const NUM_MATERIAL_ATTRIBUTES = 4;
 const NUM_MATERIAL_TEXTURE_REFS = 5;
@@ -65,12 +66,31 @@ export async function xgfToModel(params: {
   xgfData: XGFData_v2,
   sceneModel?: SceneModel,
   dataModel?: DataModel,
-  options: { layerId?: string }
+  options: {
+    layerId?: string;
+    signal?: AbortSignal;
+    onProgress?: (p: LoaderProgress) => void;
+  }
 }): Promise<void> {
 
   const {xgfData, sceneModel, dataModel, options} = params;
   const layerId = options?.layerId || "default";
   const defaultId = sceneModel ? sceneModel.id : createUUID();
+
+  // Reusable progress payload — mutated and re-emitted to keep
+  // per-yield allocations to zero. The signal is checked inside
+  // yieldToHost itself, so a cancelled load aborts within ≈one
+  // yield interval (≈16 ms).
+  const progress: LoaderProgress = {phase: "", current: 0, total: 0};
+  const step = async (phase: string, current: number, total: number): Promise<void> => {
+    if (options.onProgress) {
+      progress.phase = phase;
+      progress.current = current;
+      progress.total = total;
+      options.onProgress(progress);
+    }
+    await yieldToHost(options.signal);
+  };
 
   if (dataModel) {
     dataModel.createObject({
@@ -121,6 +141,10 @@ export async function xgfToModel(params: {
   const createdTextureIds: string[] = [];
   if (sceneModel) {
     for (let i = 0; i < numTextures; i++) {
+      // Step every 4 textures — texture decoding is heavy
+      // (createImageBitmap), so keep the step cadence tight to
+      // catch cancellations + emit smooth progress.
+      if ((i & 0x03) === 0) await step("Decoding textures", i, numTextures);
       const id = eachTextureId[i] || `texture-${i}`;
       createdTextureIds.push(id);
 
@@ -193,6 +217,7 @@ export async function xgfToModel(params: {
   // ── Materials ──────────────────────────────────────────────────────
   if (sceneModel) {
     for (let i = 0; i < numMaterials; i++) {
+      if ((i & 0x3F) === 0) await step("Building materials", i, numMaterials);
       const id = eachMaterialId[i];
       const base = i * NUM_MATERIAL_PBR_BYTES;
       const tBase = i * NUM_MATERIAL_TEXTURE_REFS;
@@ -228,6 +253,13 @@ export async function xgfToModel(params: {
   const floatColor = createVec3Float32();
 
   for (let objectIdx = 0; objectIdx < numObjects; objectIdx++) {
+    if ((objectIdx & 0x1F) === 0) {
+      // Step every 32 objects — geometry building is the
+      // heaviest phase but each individual object is fast, so
+      // we don't need a per-object yield. 32-object cadence is
+      // dense enough for smooth bar updates on big models.
+      await step("Building meshes", objectIdx, numObjects);
+    }
     const objectId = eachObjectId[objectIdx];
     const atLastObject = (objectIdx === numObjects - 1);
     const firstMeshIdx = eachObjectMeshesBase[objectIdx];
@@ -318,6 +350,15 @@ export async function xgfToModel(params: {
         });
       }
     }
+  }
+
+  // Final emit so the progress bar reads as 100% before the
+  // promise resolves, regardless of which loop was last.
+  if (options.onProgress) {
+    progress.phase = "Building meshes";
+    progress.current = numObjects;
+    progress.total = numObjects;
+    options.onProgress(progress);
   }
 }
 

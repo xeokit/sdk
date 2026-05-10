@@ -55,6 +55,7 @@
 import type {LoaderProgress} from "../../formats/LoaderProgress";
 
 
+import {el} from "../utils/el";
 // ─────────────────────────────────────────────────────────────────
 // Public types
 // ─────────────────────────────────────────────────────────────────
@@ -634,31 +635,6 @@ export class LoaderProgressDialog {
 // Module-private helpers
 // ─────────────────────────────────────────────────────────────────
 
-function el<K extends keyof HTMLElementTagNameMap>(
-  tag: K,
-  className?: string,
-  props?: Record<string, unknown>,
-): HTMLElementTagNameMap[K];
-function el(tag: string, className?: string, props?: Record<string, unknown>): HTMLElement {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  if (props) {
-    for (const k of Object.keys(props)) {
-      const v = props[k];
-      if (v === undefined) continue;
-      if (k === "textContent" || k === "innerHTML") {
-        (node as any)[k] = v;
-      } else if (k === "hidden") {
-        (node as HTMLElement).hidden = !!v;
-      } else if (k in node) {
-        (node as any)[k] = v;
-      } else {
-        node.setAttribute(k, String(v));
-      }
-    }
-  }
-  return node;
-}
 
 function nowMs(): number {
   return (typeof performance !== "undefined" && performance.now)

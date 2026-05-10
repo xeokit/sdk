@@ -1,5 +1,5 @@
 
-import type { SceneAABB3Index } from "../../collision/aabb";
+import type { SceneCollisionIndex } from "../../collision";
 import { FloatingPanelFlowHost } from "./FloatingPanelFlowHost";
 import {View} from "../../viewer";
 import type {Vec3} from "../../math/vector";
@@ -38,14 +38,14 @@ function boundariesPanelIconDataUri(): string {
 }
 
 /**
- * Panel for visualizing a SceneAABB3Index snapshot. Shows the bounding boxes of all objects in the scene from
+ * Panel for visualizing a SceneCollisionIndex snapshot. Shows the bounding boxes of all objects in the scene from
  * three orthogonal views (top, front, side).
  */
 export class BoundariesPanel {
   static #TILE_ID = "__sceneaabb3index_tile__";
   static #STYLE_ID = "__sceneaabb3index_style__";
 
-  static show(flowHost: HTMLDivElement, view: View, index: SceneAABB3Index, opts: any = {}) {
+  static show(flowHost: HTMLDivElement, view: View, index: SceneCollisionIndex, opts: any = {}) {
     this.#ensureGlobalStyle();
     let tile = document.getElementById(this.#TILE_ID) as HTMLDivElement | null;
     const root = this.render(view, index, opts);
@@ -62,7 +62,7 @@ export class BoundariesPanel {
     return tile;
   }
 
-  static render(view: View, index: SceneAABB3Index, opts: any = {}) {
+  static render(view: View, index: SceneCollisionIndex, opts: any = {}) {
     const root = el("div", { className: "sceneaabb3index-root" });
     root.appendChild(this.renderHeader());
     root.appendChild(this.renderBody(view, index));
@@ -86,7 +86,7 @@ export class BoundariesPanel {
     ]);
   }
 
-  static renderBody(view: View, index: SceneAABB3Index) {
+  static renderBody(view: View, index: SceneCollisionIndex) {
     const scene = index.scene;
     const cs = scene.coordinateSystem;
     const body = el("div", { className: "sceneaabb3index-body" });
@@ -97,6 +97,11 @@ export class BoundariesPanel {
       }
     }
     const sceneAABB = index.getSceneAABB();
+    if (!sceneAABB) {
+      // Empty scene — nothing meaningful to render.
+      body.appendChild(el("div", { className: "sceneaabb3index-extentspin" }, ["Scene AABB: (empty scene)"]));
+      return body;
+    }
 
     // Scene AABB label
     const extentsLabel = el("div", { className: "sceneaabb3index-extentspin" }, [

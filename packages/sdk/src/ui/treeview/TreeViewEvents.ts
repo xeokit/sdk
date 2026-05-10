@@ -23,6 +23,21 @@ export class TreeViewEvents {
   public readonly onContextMenu: EventEmitter<TreeView, TreeViewNodeContextMenuEvent>;
 
   /**
+   * Emits when the user clicks the per-row **Select** button —
+   * host typically toggles the matching `ViewObject`s' `selected`
+   * state. Payload reuses {@link TreeViewNodeTitleClickedEvent}
+   * so callers have one shape to switch on.
+   */
+  public readonly onNodeSelectClicked: EventEmitter<TreeView, TreeViewNodeTitleClickedEvent>;
+
+  /**
+   * Emits when the user clicks the per-row **Frame** button —
+   * host typically jumps a {@link CameraFlightAnimation} to the
+   * union AABB of the matching `ViewObject`s.
+   */
+  public readonly onNodeFrameClicked: EventEmitter<TreeView, TreeViewNodeTitleClickedEvent>;
+
+  /**
    * Emits an event when the TreeView is destroyed.
    */
   readonly onTreeViewDestroyed: EventEmitter<TreeView, boolean>;
@@ -36,6 +51,8 @@ export class TreeViewEvents {
          this.log = new EventEmitter(new EventDispatcher<TreeView, string>());
       this.onNodeTitleClicked = new EventEmitter(new EventDispatcher<TreeView, TreeViewNodeTitleClickedEvent>());
       this.onContextMenu = new EventEmitter(new EventDispatcher<TreeView, TreeViewNodeContextMenuEvent>());
+      this.onNodeSelectClicked = new EventEmitter(new EventDispatcher<TreeView, TreeViewNodeTitleClickedEvent>());
+      this.onNodeFrameClicked  = new EventEmitter(new EventDispatcher<TreeView, TreeViewNodeTitleClickedEvent>());
     }
 
     /**
@@ -45,7 +62,9 @@ export class TreeViewEvents {
         this.onError.clear();
         this.log.clear();
         this.onNodeTitleClicked.clear();
+        this.onContextMenu.clear();
+        this.onNodeSelectClicked.clear();
+        this.onNodeFrameClicked.clear();
         this.onTreeViewDestroyed.clear();
-        this.log.clear();
     }
 }

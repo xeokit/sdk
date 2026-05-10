@@ -2,7 +2,7 @@ import type {Ifc2gltfManifestParams} from "./Ifc2gltfManifestParams";
 import type {ModelChunksManifestParams} from "../core";
 
 /**
- * Converts a file manifest from {@link ifc2gltf2xgf!Ifc2gltfManifestParams | Ifc2gltfManifestParams} to
+ * Converts a file manifest from {@link xgf!Ifc2gltfManifestParams | Ifc2gltfManifestParams} to
  * {@link core!ModelChunksManifestParams | ModelChunksManifestParams}.
  */
 function convertIfc2gltfManifest(ifc2gltfManifestParams: Ifc2gltfManifestParams): ModelChunksManifestParams {

@@ -13,7 +13,7 @@ export type AntiAliasingMode = "none" | "fxaa";
  *
  * * Returned by {@link AntiAliasing.toParams | AntiAliasing.toParams}
  * * Passed to {@link AntiAliasing.fromParams | AntiAliasing.fromParams}
- * * Located at {@link ViewParams.antiAliasing | ViewParams.antiAliasing}
+ * * Located at {@link EffectsParams.antiAliasing}
  */
 export interface AntiAliasingParams {
 

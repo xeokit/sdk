@@ -76,12 +76,35 @@ export class Viewer {
    */
   public logging: boolean = false;
 
-  private _onSceneObjectCreated: () => void;
-  private _onSceneObjectDestroyed: () => void;
-  private _onSceneDestroyed: () => void;
-  private _onSceneMeshMatrixChanged: () => void;
-  private _onSceneMeshColorChanged: () => void;
-  private _onSceneModelFinalized: () => void;
+  // Each subscribe() call returns an unsubscribe function — held here
+  // so detachScene() can call each one to release the handler. Held
+  // as `() => void | undefined` because attachScene may not have run
+  // (or detachScene may have already cleared them).
+  //
+  // The set covers every Scene event that requires a render-side
+  // reaction — ViewObject lifecycle (so each View can sync its
+  // ViewObjects), SceneModel lifecycle, and the mesh / object /
+  // geometry / transform / material mutations that affect what's
+  // drawn (each one nudges View.needsRender() on every attached
+  // View). Texture imageData changes have their own atlas-aware
+  // path inside the renderer's ViewManager and aren't routed here.
+  private _onSceneDestroyed?: () => void;
+  private _onSceneObjectCreated?: () => void;
+  private _onSceneObjectDestroyed?: () => void;
+  private _onSceneObjectMeshAdded?: () => void;
+  private _onSceneObjectMeshRemoved?: () => void;
+  private _onSceneMeshCreated?: () => void;
+  private _onSceneMeshDestroyed?: () => void;
+  private _onSceneMeshMatrixChanged?: () => void;
+  private _onSceneMeshMoved?: () => void;
+  private _onSceneMeshColorChanged?: () => void;
+  private _onSceneMeshOpacityChanged?: () => void;
+  private _onSceneTransformMatrixChanged?: () => void;
+  private _onSceneGeometryCreated?: () => void;
+  private _onSceneGeometryDestroyed?: () => void;
+  private _onSceneGeometryUpdated?: () => void;
+  private _onSceneMaterialColorChanged?: () => void;
+  private _onSceneMaterialOpacityChanged?: () => void;
 
   /**
    * Creates a Viewer.
@@ -163,11 +186,11 @@ export class Viewer {
       this._detachSceneObject(sceneObject);
     });
 
-    this._onSceneModelFinalized = this.scene.events.onSceneModelFinalized.subscribe((_scene: Scene, sceneModel: SceneModel) => {
-      this._sceneModelFinalized(sceneModel);
-    });
-
-    const sceneMeshUpdated = (_scene: Scene, _mesh: SceneMesh) => {
+    // Single shared callback used by every render-relevant Scene
+    // mutation event. Args are ignored — the Viewer's job here is to
+    // tell each View "you have a fresh frame to draw"; the renderer
+    // walks the scene state directly when it actually paints.
+    const nudgeAllViews = () => {
       const viewList = this.viewList;
       for (let i = 0, len = viewList.length; i < len; i++) {
         const view = viewList[i];
@@ -177,8 +200,27 @@ export class Viewer {
       }
     };
 
-    this._onSceneMeshMatrixChanged = this.scene.events.onSceneMeshMatrixChanged.subscribe(sceneMeshUpdated);
-    this._onSceneMeshColorChanged = this.scene.events.onSceneMeshColorChanged.subscribe(sceneMeshUpdated);
+    // Each subscribe() returns an unsubscribe fn — store and call
+    // on detach. The cast lets one `nudgeAllViews` serve emitters
+    // with different (sender, args) signatures.
+    const sub = <T extends (...a: any[]) => void>(emitter: { subscribe(h: T): () => void }, h: () => void): () => void =>
+      emitter.subscribe(h as unknown as T);
+
+    const events = this.scene.events;
+    this._onSceneObjectMeshAdded         = sub(events.onSceneObjectMeshAdded,         nudgeAllViews);
+    this._onSceneObjectMeshRemoved       = sub(events.onSceneObjectMeshRemoved,       nudgeAllViews);
+    this._onSceneMeshCreated             = sub(events.onSceneMeshCreated,             nudgeAllViews);
+    this._onSceneMeshDestroyed           = sub(events.onSceneMeshDestroyed,           nudgeAllViews);
+    this._onSceneMeshMatrixChanged       = sub(events.onSceneMeshMatrixChanged,       nudgeAllViews);
+    this._onSceneMeshMoved               = sub(events.onSceneMeshMoved,               nudgeAllViews);
+    this._onSceneMeshColorChanged        = sub(events.onSceneMeshColorChanged,        nudgeAllViews);
+    this._onSceneMeshOpacityChanged      = sub(events.onSceneMeshOpacityChanged,      nudgeAllViews);
+    this._onSceneTransformMatrixChanged  = sub(events.onSceneTransformMatrixChanged,  nudgeAllViews);
+    this._onSceneGeometryCreated         = sub(events.onSceneGeometryCreated,         nudgeAllViews);
+    this._onSceneGeometryDestroyed       = sub(events.onSceneGeometryDestroyed,       nudgeAllViews);
+    this._onSceneGeometryUpdated         = sub(events.onSceneGeometryUpdated,         nudgeAllViews);
+    this._onSceneMaterialColorChanged    = sub(events.onSceneMaterialColorChanged,    nudgeAllViews);
+    this._onSceneMaterialOpacityChanged  = sub(events.onSceneMaterialOpacityChanged,  nudgeAllViews);
 
     this.events.onSceneAttached.dispatch(this, scene);
 
@@ -186,21 +228,6 @@ export class Viewer {
       ok: true,
       value: this
     };
-  }
-
-  private _sceneModelFinalized(sceneModel: SceneModel): void {
-    const viewList = this.viewList;
-    const sceneObjects = sceneModel.objects;
-
-    for (let i = 0, len = viewList.length; i < len; i++) {
-      const view = viewList[i];
-      if (!view) {
-        continue;
-      }
-      for (const sceneObjectId in sceneObjects) {
-        view._attachSceneObject(sceneObjects[sceneObjectId]);
-      }
-    }
   }
 
   private _attachSceneObject(sceneObject: SceneObject) {
@@ -250,12 +277,50 @@ export class Viewer {
       this._detachSceneObject(sceneObjects[sceneObjectId]);
     }
 
-    this.scene.events.onSceneDestroyed.unsubscribe(this._onSceneDestroyed);
-    this.scene.events.onSceneObjectCreated.unsubscribe(this._onSceneObjectCreated);
-    this.scene.events.onSceneObjectDestroyed.unsubscribe(this._onSceneObjectDestroyed);
-    this.scene.events.onSceneModelFinalized.unsubscribe(this._onSceneModelFinalized);
-    this.scene.events.onSceneMeshMatrixChanged.unsubscribe(this._onSceneMeshMatrixChanged);
-    this.scene.events.onSceneMeshColorChanged.unsubscribe(this._onSceneMeshColorChanged);
+    // EventEmitter.subscribe() returns an unsubscribe function; call
+    // each one to release the handler. (The previous implementation
+    // passed the unsubscribe fn back into `.unsubscribe(...)`, which
+    // is a no-op — those handlers leaked and stayed attached to the
+    // Scene for the lifetime of every Viewer that ever attached it.)
+    const unsubs: (undefined | (() => void))[] = [
+      this._onSceneDestroyed,
+      this._onSceneObjectCreated,
+      this._onSceneObjectDestroyed,
+      this._onSceneObjectMeshAdded,
+      this._onSceneObjectMeshRemoved,
+      this._onSceneMeshCreated,
+      this._onSceneMeshDestroyed,
+      this._onSceneMeshMatrixChanged,
+      this._onSceneMeshMoved,
+      this._onSceneMeshColorChanged,
+      this._onSceneMeshOpacityChanged,
+      this._onSceneTransformMatrixChanged,
+      this._onSceneGeometryCreated,
+      this._onSceneGeometryDestroyed,
+      this._onSceneGeometryUpdated,
+      this._onSceneMaterialColorChanged,
+      this._onSceneMaterialOpacityChanged,
+    ];
+    for (const u of unsubs) {
+      if (u) u();
+    }
+    this._onSceneDestroyed                = undefined;
+    this._onSceneObjectCreated            = undefined;
+    this._onSceneObjectDestroyed          = undefined;
+    this._onSceneObjectMeshAdded          = undefined;
+    this._onSceneObjectMeshRemoved        = undefined;
+    this._onSceneMeshCreated              = undefined;
+    this._onSceneMeshDestroyed            = undefined;
+    this._onSceneMeshMatrixChanged        = undefined;
+    this._onSceneMeshMoved                = undefined;
+    this._onSceneMeshColorChanged         = undefined;
+    this._onSceneMeshOpacityChanged       = undefined;
+    this._onSceneTransformMatrixChanged   = undefined;
+    this._onSceneGeometryCreated          = undefined;
+    this._onSceneGeometryDestroyed        = undefined;
+    this._onSceneGeometryUpdated          = undefined;
+    this._onSceneMaterialColorChanged     = undefined;
+    this._onSceneMaterialOpacityChanged   = undefined;
 
     const scene = this.scene;
     this.scene = null;
@@ -597,6 +662,15 @@ export class Viewer {
   destroy(): void {
     if (this.destroyed) {
       return;
+    }
+    // Release Scene-event subscriptions before flipping `destroyed`
+    // — detachScene() refuses to run on a destroyed Viewer, so order
+    // matters. Without this, every subscribe() done in attachScene()
+    // would leak past the Viewer lifetime, the Scene would keep its
+    // handlers, and a long-lived Scene would slowly grow a list of
+    // dead Viewer references.
+    if (this.scene) {
+      this.detachScene();
     }
     this.destroyed = true;
     for (const id in this.views) {

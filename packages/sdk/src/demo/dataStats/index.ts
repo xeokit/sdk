@@ -1,7 +1,7 @@
 /**
  * Floating, draggable Data-statistics panel — sister widget to
  * `demo/sceneStats/SceneStatsPanel` and
- * `demo/modelInspector/ui/SceneHealthPanel`.
+ * `demo/sceneModelInspector/ui/SceneHealthPanel`.
  *
  * @module demo/dataStats
  */

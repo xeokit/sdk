@@ -32,8 +32,8 @@
  * ## Usage
  *
  * This example demonstrates how to:
- * - Set up a {@link viewer!Viewer | Viewer}, {@link scene!Scene | Scene}, and {@link webglrenderer!WebGLRenderer | WebGLRenderer}
- * - Attach a {@link viewcontroller!ViewController | ViewController} for interaction
+ * - Set up a {@link viewer!Viewer | Viewer}, {@link scene!Scene | Scene}, and {@link webGLRenderer!WebGLRenderer | WebGLRenderer}
+ * - Attach a {@link viewController!ViewController | ViewController} for interaction
  * - Load a LAS model using {@link LASLoader}
  * - Handle loading and error scenarios
  *
@@ -41,9 +41,9 @@
  * import { SDKError } from "@xeokit/sdk/core";
  * import { Scene } from "@xeokit/sdk/scene";
  * import { Data } from "@xeokit/sdk/data";
- * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
+ * import { WebGLRenderer } from "@xeokit/sdk/webGLRenderer";
  * import { Viewer } from "@xeokit/sdk/viewer";
- * import { ViewController } from "@xeokit/sdk/viewcontroller";
+ * import { ViewController } from "@xeokit/sdk/viewController";
  * import { LASLoader } from "@xeokit/sdk/formats/las";
  *
  * const scene = new Scene();

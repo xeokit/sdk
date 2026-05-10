@@ -1,7 +1,7 @@
 /**
  * <img style="padding:0px; padding-top:30px; padding-bottom:10px; height:130px;" src="https://xeokit.github.io/sdk/docs/assets/xeokit_logo_mesh.png"/>
  *
- * # xeokit ifc2gltf → XGF Converter
+ * # xeokit gltf → XGF Converter
  *
  * ---
  *
@@ -10,7 +10,7 @@
  * ---
  *
  * ## Features
- * - Optimizes `ifc2gltf` output for efficient loading in a xeokit Viewer.
+ * - Optimizes `gltf` output for efficient loading in a xeokit Viewer.
  * - Converts glTF files to XGF, xeokit's compact binary geometry format.
  * - Converts JSON MetaModel files to JSON MetaData files, xeokit's newer data model format.
  * - Supports generation of all XGF versions.
@@ -24,11 +24,11 @@
  *
  * ### Converting a Batch of glTF + MetaModel Files
  *
- * Use the `ifc2gltf2xgf` tool to convert a batch of glTF+MetaModel files into a batch of XGF+DataModel files.
+ * Use the `xgf` tool to convert a batch of glTF+MetaModel files into a batch of XGF+DataModel files.
  *
  * ```bash
- * node ifc2gltf2xgf.js -h
- * Usage: ifc2gltf2xgf [options]
+ * node xgf.js -h
+ * Usage: xgf [options]
  *
  * CLI to batch-convert a manifest of glTF/GLB files into XGF SceneModel files and/or JSON DataModel files
  *
@@ -64,7 +64,7 @@
  *
  * Convert to XGF using:
  * ```bash
- * node ifc2gltf2xgf -i ifc2gltfManifest.json -o xgfManifest.json
+ * node xgf -i ifc2gltfManifest.json -o xgfManifest.json
  * ```
  *
  * To load `ifc2gltfManifest.json` into a SceneModel and DataModel:
@@ -92,7 +92,7 @@
  *
  * fetch("ifc2gltfManifest.json").then(response => {
  *     response.json().then(ifc2gltfManifest => {
- *         const modelChunksManifest = xeokit.ifc2gltf2xgf.convertIfc2gltfManifest(ifc2gltfManifest);
+ *         const modelChunksManifest = xeokit.xgf.convertIfc2gltfManifest(ifc2gltfManifest);
  *         modelChunksLoader.load({
  *             modelChunksManifest,
  *             baseDir: ".",

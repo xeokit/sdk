@@ -40,8 +40,8 @@
  * ````javascript
  * import { Scene } from "@xeokit/sdk/scene";
  * import { Viewer } from "@xeokit/sdk/viewer";
- * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
- * import { ViewController } from "@xeokit/sdk/viewcontroller";
+ * import { WebGLRenderer } from "@xeokit/sdk/webGLRenderer";
+ * import { ViewController } from "@xeokit/sdk/viewController";
  *
  * import {
  *   OrthoProjectionType,
@@ -65,7 +65,7 @@
  * {@link View | Views} (canvases), user interaction state (camera control, picking, emphasis effects, section planes,
  * render modes, etc), and it provides a Viewer-centric event stream that reflects interactions and viewer-side changes.
  *
- * Finally, attach a {@link webglrenderer!WebGLRenderer | WebGLRenderer}. The WebGLRenderer is the rendering backend that
+ * Finally, attach a {@link webGLRenderer!WebGLRenderer | WebGLRenderer}. The WebGLRenderer is the rendering backend that
  * listens to changes and draws the Scene into the View canvases using the browser’s WebGL API.
  *
  * The runtime event flow is:
@@ -137,7 +137,7 @@
  *
  * ## 6) Align navigation to a world axis convention
  *
- * Configure {@link Camera.worldAxis | worldAxis} to match your domain’s coordinate system. This affects navigation behavior when using {@link viewcontroller!ViewController | ViewController}.
+ * Configure {@link Camera.worldAxis | worldAxis} to match your domain’s coordinate system. This affects navigation behavior when using {@link viewController!ViewController | ViewController}.
  *
  * +Y up (+X right, -Z forward):
  *
@@ -508,8 +508,14 @@ export * from "./AntiAliasing";
 export * from "./AntiAliasingParams";
 export * from "./Bloom";
 export * from "./BloomParams";
+export * from "./HemisphereAmbient";
+export * from "./HemisphereAmbientParams";
 export * from "./IBL";
 export * from "./IBLParams";
+export * from "./Lights";
+export * from "./LightsParams";
+export * from "./Effects";
+export * from "./EffectsParams";
 export * from "./hdrLoader";
 export * from "./ViewLayerParams";
 export * from "./ResolutionScale";

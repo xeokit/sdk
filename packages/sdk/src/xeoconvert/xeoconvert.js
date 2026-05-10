@@ -39,8 +39,21 @@ Options:
   --<reporterId> <reportFile> Generate a conversion report. Available reporters are: ${Object.keys(reporters).join(", ")}
   --help                      Show this help message
 
+Inspection (run sceneModelInspector on each loaded SceneModel before export):
+  --inspect                   Enable inspection. Implied by any other --inspect-* flag.
+  --inspect-fix               Run applyFixes after inspection (skipped if errors present).
+  --inspect-checks <list>     Comma-separated opt-in checks. Available:
+                                dup, similar, dense, large, quality, objects, textures, geom-far, all
+  --no-fail-on-inspect-errors Continue to export even when inspection found errors. Default is to abort.
+  --inspect-async             Use inspectSceneModelAsync (non-blocking, useful for very large models).
+  --inspection-report <file>  Write a JSON inspection report (this is also a reporter — listed above).
+
 Example:
   node xeoconvert.js --pipeline ifc2xgf --ifc model.ifc --xgf sceneModel.xgf --datamodel dataModel.json --stats-report manifest.json --log
+
+Example (inspect + auto-fix + write report):
+  node xeoconvert.js --pipeline ifc2xgf --ifc model.ifc --xgf sceneModel.xgf --datamodel dataModel.json \\
+    --inspect-fix --inspect-checks all --inspection-report inspection.json --log
 `);
     process.exit(0);
   }
@@ -69,6 +82,49 @@ Example:
       logError(`Error: Missing output argument --${outputId}, required for --pipeline ${argv.pipeline}`);
       process.exit(-1);
     }
+  }
+
+  // Synthesize an `inspect` block on the pipeline from CLI flags.
+  // Any --inspect-* flag implies --inspect.
+  const inspectFlagsPresent =
+    argv.inspect ||
+    argv["inspect-fix"] ||
+    argv["inspect-checks"] !== undefined ||
+    argv["inspect-async"];
+  if (inspectFlagsPresent) {
+    const checksMap = {
+      "dup":      "checkDuplicateGeometries",
+      "similar":  "checkSimilarGeometries",
+      "dense":    "checkDenseGeometries",
+      "large":    "checkLargeGeometries",
+      "quality":  "checkGeometryQuality",
+      "objects":  "checkObjectStructure",
+      "textures": "checkTextureSanity",
+      "geom-far": "checkGeometryFarFromOrigin",
+    };
+    const checks = {};
+    const raw = argv["inspect-checks"];
+    if (raw !== undefined) {
+      const tokens = String(raw).split(",").map(s => s.trim()).filter(Boolean);
+      const expand = tokens.includes("all") ? Object.keys(checksMap) : tokens;
+      for (const t of expand) {
+        const k = checksMap[t];
+        if (!k) {
+          logError(`Error: Unknown --inspect-checks token '${t}'. Available: ${Object.keys(checksMap).concat(["all"]).join(", ")}`);
+          process.exit(-1);
+        }
+        checks[k] = true;
+      }
+    }
+    pipeline.inspect = {
+      enabled:      true,
+      checks,
+      fix:          !!argv["inspect-fix"],
+      // yargs maps --no-fail-on-inspect-errors to argv["fail-on-inspect-errors"] === false.
+      failOnErrors: argv["fail-on-inspect-errors"] !== false,
+      async:        !!argv["inspect-async"],
+    };
+    logInfo(`Inspection enabled (checks: ${Object.keys(checks).length ? Object.keys(checks).join(",") : "default"}, fix: ${pipeline.inspect.fix}, failOnErrors: ${pipeline.inspect.failOnErrors})`);
   }
 
   logInfo(`Running conversion pipeline '${argv.pipeline}'`);
@@ -160,29 +216,29 @@ Example:
 
       for (let reporterId in reporters) {
         const reportPath = argv[reporterId];
-        if (reportPath) {
-          const reporter = reporters[reporterId];
-          if (!reporter) {
-            logError(`Error: Unknown report type '${reporterId}'. Available options: ${Object.keys(reporters).join(", ")}`);
-            process.exit(-1);
-          } else {
-            const report = reporter(modelConverterResult);
-            if (!report) {
-              logError(`Error: Reporter '${reporterId}' failed to generate report.`);
-              process.exit(-1);
-            } else {
-              const dirName = path.dirname(reportPath);
-              if (dirName !== "" && !fs.existsSync(dirName)) {
-                fs.mkdirSync(dirName, {recursive: true});
-              }
-              logInfo(`Reporter '${reporterId}' writing report to ${reportPath}`);
-              fs.writeFileSync(reportPath, JSON.stringify(report, null, 4));
-            }
-          }
-        } else {
-          logError(`Error: Invalid value for argument '${reporterId}'.`);
+        if (reportPath === undefined) {
+          continue;
+        }
+        if (reportPath === true || reportPath === "") {
+          logError(`Error: --${reporterId} requires a file path.`);
           process.exit(-1);
         }
+        const reporter = reporters[reporterId];
+        const report = reporter(modelConverterResult);
+        if (report === null) {
+          logInfo(`Reporter '${reporterId}' produced no output (skipped).`);
+          continue;
+        }
+        if (!report) {
+          logError(`Error: Reporter '${reporterId}' failed to generate report.`);
+          process.exit(-1);
+        }
+        const dirName = path.dirname(reportPath);
+        if (dirName !== "" && !fs.existsSync(dirName)) {
+          fs.mkdirSync(dirName, {recursive: true});
+        }
+        logInfo(`Reporter '${reporterId}' writing report to ${reportPath}`);
+        fs.writeFileSync(reportPath, JSON.stringify(report, null, 4));
       }
       logInfo(`Done.`);
       process.exit(1);

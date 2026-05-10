@@ -4,8 +4,8 @@ import {SDKErrorType, type SDKResult} from "../../core";
 import {LinearEncoding, LinearFilter, sRGBEncoding} from "../../constants";
 import {yieldToHost} from "../../utils";
 
-import {ensureGeometryAttribs} from "../synthesizeGeometryAttribs";
 import type {LoaderProgress} from "../../formats/LoaderProgress";
+import {ensureGeometryAttribs} from "../ensureGeometryAttribs";
 
 import {DEFAULT_IFC_PAINTERS}    from "./DEFAULT_IFC_PAINTERS";
 import {DEFAULT_IFC_NAME_RULES}  from "./DEFAULT_IFC_NAME_RULES";
@@ -25,10 +25,14 @@ import type {IfcPropertyRule}    from "./IfcPropertyRule";
  * `SceneTexture`s (colour, normal, metallic-roughness) they
  * reference.
  *
- * Synthesises planar UVs and per-vertex octahedral normals for any
- * `SceneGeometry` that ships without them (typical for IFC sources)
- * so the painted textures actually tile across surfaces and shading
- * routes through the smooth-shaded PBR variant.
+ * The painted materials all carry textures; the SceneGeometries
+ * coming out of an IFC loader carry no UVs. The renderer detects
+ * the mismatch and dispatches those meshes to its triplanar
+ * shader variant, which derives sample coordinates from world
+ * position scaled by the material's `triplanarScale`. Per-vertex
+ * smooth normals are auto-filled inside `SceneModel.createGeometry`,
+ * so painted IFC meshes route through the smooth-shaded PBR path
+ * without any post-construction geometry mutation.
  *
  * Mutation-only — no mesh / object recreation. Whether the renderer
  * picks the new material up at render time depends on whether it
@@ -48,9 +52,12 @@ export async function applyIFCMaterials(params: {
   textureSize?: number;
 
   /**
-   * Approximate metres of geometry per UV unit when synthesising
-   * fallback UVs. Smaller values tile the texture more times across
-   * the surface. Default `1.0`.
+   * Approximate metres of geometry per texture repeat. Forwarded to
+   * each created `SceneMaterial` as `triplanarScale`, which the
+   * renderer's triplanar texture-sampling fallback uses to scale
+   * world-space UVs on UV-less geometry (typical for IFC). Smaller
+   * values tile the texture more times across each surface.
+   * Default `1.0`.
    */
   uvScale?: number;
 
@@ -144,32 +151,7 @@ export async function applyIFCMaterials(params: {
   };
 
 
-  // ── 1. Synthesise UVs and normals where missing ─────────────────
-  //
-  // Both `uvsCompressed` and `normalsCompressed` are declared
-  // `readonly` for compile-time safety; readonly is TypeScript-only
-  // at runtime so a typed cast is the documented mutation path. The
-  // renderer hasn't bound these geometries' UV / normal state to the
-  // meshes yet — the mesh-rebuild below is what brings the new
-  // attributes through.
-  //
-  // The SceneModel's world-up aligns the UV V axis with vertical on
-  // wall-like geometries, so direction-bearing painters (e.g. wood
-  // planks) render the same orientation on every wall regardless of
-  // which horizontal axis the wall is thin along.
-
-  const worldUp: ArrayLike<number> = sceneModel.coordinateSystem
-    ? sceneModel.coordinateSystem.worldUp
-    : [0, 0, 1];
-
-  const geomIds = Object.keys(sceneModel.geometries);
-  for (let i = 0, len = geomIds.length; i < len; i++) {
-    if ((i & 0x3F) === 0) await step("Synthesising attributes", i, len);
-    ensureGeometryAttribs(sceneModel.geometries[geomIds[i]], {uvScale, worldUp});
-  }
-
-
-  // ── 2. Plan: resolve ifcType + snapshot meshes for every object ─
+  // ── 1. Plan: resolve ifcType + snapshot meshes for every object ─
   //
   // Single planning pass so the subsequent destroy + create phases
   // can run in dependency order (meshes before materials before
@@ -357,6 +339,11 @@ export async function applyIFCMaterials(params: {
       colorTextureId:             cTex,
       normalsTextureId:           nTex,
       metallicRoughnessTextureId: mTex,
+      // The IFC pipeline emits geometry without UVs; the renderer
+      // routes its textured materials through the triplanar
+      // fallback, which reads `triplanarScale` to convert world
+      // position into per-fragment sample coordinates.
+      triplanarScale:             uvScale,
       ...(entry.material || {}),
     });
     if (matRes.ok === false) {
@@ -387,9 +374,19 @@ export async function applyIFCMaterials(params: {
       if (!sceneModel.geometries[snap.geometryId]) {
         continue;
       }
+      // The painters need smooth normals to evaluate PBR shading
+      // correctly. IFC-loaded geometry usually arrives without
+      // them, so swap the recreated mesh to a sibling SceneGeometry
+      // that does — `ensureGeometryAttribs` is a no-op when the
+      // source already carries normals, and idempotent across
+      // meshes that share a geometry (only one sibling is built per
+      // unique source). The original geometry stays intact for any
+      // mesh that wasn't part of this re-style pass.
+      const augmentedGeomRes = ensureGeometryAttribs(sceneModel, snap.geometryId);
+      const geometryId = augmentedGeomRes.ok ? augmentedGeomRes.value : snap.geometryId;
       const cr = sceneModel.createMesh({
         id:         snap.id,
-        geometryId: snap.geometryId,
+        geometryId,
         materialId,
         matrix:     snap.matrix,
         opacity:    snap.opacity,

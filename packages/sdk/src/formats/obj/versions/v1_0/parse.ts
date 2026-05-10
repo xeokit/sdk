@@ -3,8 +3,9 @@
 import type { ModelParser } from "../../../ModelParser";
 import { TrianglesPrimitive } from "../../../../constants";
 
-import { createUUID } from "../../../../utils";
+import { createUUID, yieldToHost } from "../../../../utils";
 import { type SceneGeometryParams } from "../../../../scene";
+import type { LoaderProgress } from "../../../LoaderProgress";
 
 /**
  * @private
@@ -13,45 +14,54 @@ export const parse: ModelParser = async (
   params,
   options
 ) => {
-  return new Promise<void>((resolve, reject) => {
-    const { fileData, sceneModel, dataModel } = params;
+  const { fileData, sceneModel, dataModel } = params;
+  const opts = options || {};
+  const onProgress: ((p: LoaderProgress) => void) | undefined = opts.onProgress;
+  const signal: AbortSignal | undefined = opts.signal;
+  const progress: LoaderProgress = {phase: "", current: 0, total: 0};
+  const step = async (phase: string, current: number, total: number): Promise<void> => {
+    if (onProgress) {
+      progress.phase = phase;
+      progress.current = current;
+      progress.total = total;
+      onProgress(progress);
+    }
+    await yieldToHost(signal);
+  };
 
-    if (sceneModel || dataModel) {
-      const ctx: ParseContext = {
-        fileData,
-        errors: [],
-        warnings: [],
-        sceneModel,
-        dataModel,
-        nextId: 0,
-        options: options || {},
+  if (sceneModel || dataModel) {
+    const ctx: ParseContext = {
+      fileData,
+      errors: [],
+      warnings: [],
+      sceneModel,
+      dataModel,
+      nextId: 0,
+      options: opts,
 
-        srcPositions: [],
-        srcNormals: [],
-        srcUVs: [],
+      srcPositions: [],
+      srcNormals: [],
+      srcUVs: [],
 
-        materials: {},
+      materials: {},
 
-        currentObject: null
-      };
+      currentObject: null
+    };
 
-      parseOBJDirect(ctx);
+    await parseOBJDirect(ctx, step);
 
-      if (ctx.currentObject) {
-        flushCurrentObject(ctx);
-      }
-
-      if (ctx.errors.length > 0) {
-        return reject(`[OBJLoader] Failed to parse OBJ file: ${ctx.errors[0]}`);
-      }
-
-      if (ctx.warnings.length > 0) {
-        console.warn(`[OBJLoader] Warning while parsing OBJ file: ${ctx.warnings[0]}`);
-      }
+    if (ctx.currentObject) {
+      flushCurrentObject(ctx);
     }
 
-    resolve();
-  });
+    if (ctx.errors.length > 0) {
+      throw new Error(`[OBJLoader] Failed to parse OBJ file: ${ctx.errors[0]}`);
+    }
+
+    if (ctx.warnings.length > 0) {
+      console.warn(`[OBJLoader] Warning while parsing OBJ file: ${ctx.warnings[0]}`);
+    }
+  }
 };
 
 interface ParsedMaterial {
@@ -105,7 +115,10 @@ const regexp = {
   material_use_pattern: /^usemtl /
 };
 
-function parseOBJDirect(ctx: ParseContext): void {
+async function parseOBJDirect(
+  ctx: ParseContext,
+  step: (phase: string, current: number, total: number) => Promise<void>,
+): Promise<void> {
   let fileData = ctx.fileData;
 
   startObject(ctx, "", false);
@@ -119,6 +132,7 @@ function parseOBJDirect(ctx: ParseContext): void {
   const trimLeft = typeof "".trimStart === "function";
 
   for (let i = 0, l = lines.length; i < l; i++) {
+    if ((i & 0xFFF) === 0) await step("Parsing OBJ lines", i, l);
     let line = lines[i];
     line = trimLeft ? line.trimStart() : line.trim();
 
@@ -209,6 +223,7 @@ function parseOBJDirect(ctx: ParseContext): void {
     ctx.errors.push(`Unexpected line: '${line}'`);
     return;
   }
+  await step("Parsing OBJ lines", lines.length, lines.length);
 }
 
 function startObject(ctx: ParseContext, id: string, fromDeclaration: boolean): void {
@@ -260,8 +275,17 @@ function flushCurrentObject(ctx: ParseContext): void {
     indices: geometry.indices.slice()
   };
 
-  if (geometry.uv.length > 0) {
-    // geometryCfg.uv = geometry.uv;
+  // Pass normals and UVs through only when their counts match the
+  // position count. OBJ files can mix face refs that include normals
+  // / UVs with refs that don't, in which case `getOrCreateVertex`
+  // emits per-vertex arrays of inconsistent length — `createGeometry`
+  // would reject those.
+  const vertexCount = geometry.positions.length / 3;
+  if (geometry.normals.length === vertexCount * 3) {
+    geometryCfg.normals = geometry.normals.slice();
+  }
+  if (geometry.uv.length === vertexCount * 2) {
+    geometryCfg.uvs = geometry.uv.slice();
   }
 
   const createGeometryResult = ctx.sceneModel.createGeometry(geometryCfg);

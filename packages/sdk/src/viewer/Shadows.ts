@@ -9,7 +9,7 @@ const DEFAULT_DIRECTION: [number, number, number] = [-0.5, -1.0, -0.3];
 /**
  * Configures single-cascade directional shadow mapping for a {@link View}.
  *
- * * Located at {@link View.shadows}.
+ * * Located at {@link Effects.shadows}, which lives at {@link View.effects}.
  * * View will cast shadows when {@link View.renderMode | View.renderMode} is set to one of the values
  *   specified in {@link Shadows.renderModes}.
  *

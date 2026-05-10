@@ -31,10 +31,10 @@
  * ## Usage
  *
  * In the example below, we will create a {@link viewer!Viewer | Viewer} with
- * a {@link webglrenderer!WebGLRenderer | WebGLRenderer}  and a {@link scene!Scene | Scene}, which holds model geometry and materials.
+ * a {@link webGLRenderer!WebGLRenderer | WebGLRenderer}  and a {@link scene!Scene | Scene}, which holds model geometry and materials.
  *
  * On our Viewer, we will create a single {@link viewer!View | View} to render it to a canvas element on the page. We will
- * also show a {@link viewcontroller!ViewController | ViewController} to our View, allowing us to control its camera with mouse and touch input.
+ * also show a {@link viewController!ViewController | ViewController} to our View, allowing us to control its camera with mouse and touch input.
  *
  * Within the Scene, we will create a {@link scene!SceneModel | SceneModel} to hold a model. We will then use
  * {@link xkt!XKTLoader | XKTLoader} to load
@@ -47,9 +47,9 @@
  * ````javascript
  * import {SDKError} from "@xeokit/core";
  * import {Scene} from "@xeokit/scene";
- * import {WebGLRenderer} from "@xeokit/webglrenderer";
+ * import {WebGLRenderer} from "@xeokit/webGLRenderer";
  * import {Viewer} from "@xeokit/viewer";
- * import {ViewController} from "@xeokit/viewcontroller";
+ * import {ViewController} from "@xeokit/viewController";
  * import {XKTLoader} from "@xeokit/xkt";
  *
  * const scene = new Scene();

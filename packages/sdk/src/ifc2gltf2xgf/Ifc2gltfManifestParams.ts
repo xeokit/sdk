@@ -1,5 +1,5 @@
 /**
- * Defines the format the glTF file manifests output by ifc2gltf.
+ * Defines the format the glTF file manifests output by gltf.
  */
 export class Ifc2gltfManifestParams {
 

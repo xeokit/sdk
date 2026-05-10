@@ -8,7 +8,7 @@ import type {SDKResult} from "../core";
  * `getSnapshot(view)` returning a `data:image/png;base64,…` URL).
  *
  * Declared structurally rather than imported from
- * `webglrenderer` to keep the `bcf` module free of a renderer
+ * `webGLRenderer` to keep the `bcf` module free of a renderer
  * dependency.
  */
 export interface BCFSnapshotSource {

@@ -1,7 +1,7 @@
 // File: packages/sdk/src/demo/TilesPanel.ts
 
-import type { RenderStats } from "../../webglrenderer/internal/inspectors/RenderStats";
-import type { TileStats } from "../../webglrenderer/internal/inspectors/TileStats";
+import type { RenderStats } from "../../webGLRenderer/internal/inspectors/RenderStats";
+import type { TileStats } from "../../webGLRenderer/internal/inspectors/TileStats";
 import { FloatingPanelFlowHost } from "./FloatingPanelFlowHost";
 
 

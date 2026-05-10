@@ -14,6 +14,7 @@ import {
 } from "../../procgen/paintMaterials";
 
 import type {ApplyHeatMapMaterialsParams} from "./ApplyHeatMapMaterialsParams";
+import {ensureGeometryAttribs} from "../ensureGeometryAttribs";
 
 
 /**
@@ -147,6 +148,14 @@ export function applyHeatMapMaterials(params: ApplyHeatMapMaterialsParams): SDKR
   // ── 2. Paint each geometry, write UVs, create textures + material ─
 
   const materialIdByGeometryId: Record<string, string> = {};
+  // Maps the source geometry id to the id of the sibling
+  // SceneGeometry that carries the painted UVs (and synthesised
+  // smooth normals when the source had none). The reskin pass
+  // below routes recreated meshes onto the sibling rather than
+  // mutating the source — keeps SceneGeometry immutable
+  // post-construction and leaves the source available for any mesh
+  // that wasn't part of this paint pass.
+  const replacementGeomIdByGeometryId: Record<string, string> = {};
   const preserveUvs = !!params.preserveExistingUvs;
 
   for (const {geom, scalars} of paintable) {
@@ -175,10 +184,23 @@ export function applyHeatMapMaterials(params: ApplyHeatMapMaterialsParams): SDKR
       },
     );
 
-    // SceneGeometry's UV field is declared `readonly` for compile-
-    // time safety; readonly is TypeScript-only at runtime. Same
-    // documented mutation path applyIFCMaterials uses.
-    (geom as { uvsCompressed: typeof result.uvs }).uvsCompressed = result.uvs;
+    // Build a sibling SceneGeometry that carries the painted UVs
+    // (and synthesised smooth normals when missing). The original
+    // is left intact. `result.uvs` is already a `Float32Array` in
+    // the layout `SceneGeometry.uvsCompressed` expects, so the
+    // helper just stores it.
+    const siblingRes = ensureGeometryAttribs(sceneModel, geom.id, {
+      uvs: result.uvs,
+      cloneIdSuffix: "__heat",
+    });
+    if (siblingRes.ok === false) {
+      return {
+        ok:    false,
+        type:  SDKErrorType.InvalidOperation,
+        error: `[applyHeatMapMaterials] ensureGeometryAttribs(${geom.id}) failed: ${siblingRes.error}`,
+      };
+    }
+    replacementGeomIdByGeometryId[geom.id] = siblingRes.value;
 
     const matId = `_heat_mat_${geom.id}`;
     const cTex  = `_heat_${geom.id}_color`;
@@ -282,15 +304,19 @@ export function applyHeatMapMaterials(params: ApplyHeatMapMaterialsParams): SDKR
     }
 
     for (const snap of meshSnaps) {
-      // Defensive — geometry might have been pruned between destroy
-      // and recreate (no current pass does this, but the pattern
-      // matches applyIFCMaterials).
-      if (!sceneModel.geometries[snap.geometryId]) {
+      // Recreated meshes bind to the sibling geometry built in
+      // step 2 (carrying the heat-map UVs and any synthesised
+      // smooth normals). Falls back to the source id if the
+      // sibling wasn't built — should only happen for an
+      // un-paintable geometry, in which case the snap wouldn't
+      // have been collected, but defensive anyway.
+      const geometryId = replacementGeomIdByGeometryId[snap.geometryId] ?? snap.geometryId;
+      if (!sceneModel.geometries[geometryId]) {
         continue;
       }
       const cr = sceneModel.createMesh({
         id:         snap.id,
-        geometryId: snap.geometryId,
+        geometryId,
         materialId: snap.materialId,
         matrix:     snap.matrix,
         opacity:    snap.opacity,

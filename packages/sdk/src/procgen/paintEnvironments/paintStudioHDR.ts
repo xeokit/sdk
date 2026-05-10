@@ -14,9 +14,9 @@ import {paintStudio, type PaintStudioOptions} from "./paintStudio";
 export interface PaintStudioHDROptions extends PaintStudioOptions {
   /**
    * Sun core radiance multiplier. Default `20.0` — well above the
-   * SDK's default `view.bloom.threshold = 4.0` so the sun reliably
+   * SDK's default `view.effects.bloom.threshold = 4.0` so the sun reliably
    * triggers a tight bloom glow, while the SDK's default
-   * `view.tonemap.exposure = 0.5` keeps the rest of the scene from
+   * `view.effects.tonemap.exposure = 0.5` keeps the rest of the scene from
    * washing out around it.
    */
   sunIntensity?: number;
@@ -44,7 +44,7 @@ export function paintStudioHDR(
   width: number,
   height: number,
   options: PaintStudioHDROptions = {}
-): Float32Array {
+): Float32Array<any> {
   const drawSun          = options.sun              ?? true;
   const drawSoftboxes    = options.softboxes        ?? true;
   const sunIntensity     = options.sunIntensity     ?? 20.0;

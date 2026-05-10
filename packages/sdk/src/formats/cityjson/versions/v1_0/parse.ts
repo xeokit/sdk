@@ -12,6 +12,8 @@ import {
 import {earcut} from './earcut';
 import type {ModelParser} from "../../../ModelParser";
 import {TrianglesPrimitive} from "../../../../constants";
+import {yieldToHost} from "../../../../utils";
+import type {LoaderProgress} from "../../../LoaderProgress";
 
 const tempVec2a = createVec2Float64();
 const tempVec3a = createVec3Float64();
@@ -27,31 +29,42 @@ export const parse: ModelParser = async (
   params,
   options
 ) => {
-  return new Promise<void>((resolve, reject) => {
-    const {fileData, sceneModel, dataModel} = params;
-
-    if (sceneModel || dataModel) {
-      const ctx = {
-        fileData,
-        errors: [],
-        warnings: [],
-        vertices: (fileData.transform && sceneModel)
-          ? transformVertices(fileData.vertices, fileData.transform)
-          : fileData.vertices,
-        sceneModel,
-        dataModel,
-        nextId: 0,
-        options: options || {}
-      };
-      if (!parseCityJSON(ctx)) {
-        return reject(
-          ctx.errors.length > 0
-            ? `[CityJSONLoader] Failed to parse CityJSON file:${ctx.errors[0]}`
-            : `[CityJSONLoader] Failed to parse CityJSON file: Unknown error`);
-      }
+  const {fileData, sceneModel, dataModel} = params;
+  const opts = options || {};
+  const onProgress: ((p: LoaderProgress) => void) | undefined = opts.onProgress;
+  const signal: AbortSignal | undefined = opts.signal;
+  const progress: LoaderProgress = {phase: "", current: 0, total: 0};
+  const step = async (phase: string, current: number, total: number): Promise<void> => {
+    if (onProgress) {
+      progress.phase = phase;
+      progress.current = current;
+      progress.total = total;
+      onProgress(progress);
     }
-    resolve();
-  });
+    await yieldToHost(signal);
+  };
+
+  if (sceneModel || dataModel) {
+    const ctx = {
+      fileData,
+      errors: [],
+      warnings: [],
+      vertices: (fileData.transform && sceneModel)
+        ? transformVertices(fileData.vertices, fileData.transform)
+        : fileData.vertices,
+      sceneModel,
+      dataModel,
+      nextId: 0,
+      options: opts
+    };
+    const ok = await parseCityJSON(ctx, step);
+    if (!ok) {
+      throw new Error(
+        ctx.errors.length > 0
+          ? `[CityJSONLoader] Failed to parse CityJSON file:${ctx.errors[0]}`
+          : `[CityJSONLoader] Failed to parse CityJSON file: Unknown error`);
+    }
+  }
 };
 
 
@@ -68,21 +81,31 @@ function transformVertices(vertices: any, transform: any) {
   return transformedVertices;
 }
 
-function parseCityJSON(ctx: any): boolean {
+async function parseCityJSON(
+  ctx: any,
+  step: (phase: string, current: number, total: number) => Promise<void>,
+): Promise<boolean> {
   const fileData = ctx.fileData;
   const cityObjects = fileData.CityObjects;
-  for (const objectId in cityObjects) {
+  const ids = Object.keys(cityObjects);
+  const total = ids.length;
+  for (let i = 0; i < total; i++) {
+    if ((i & 0x1F) === 0) await step("Parsing city objects", i, total);
+    const objectId = ids[i];
     if (!parseCityObject(ctx, cityObjects[objectId], objectId)) {
       return false;
     }
   }
   if (ctx.dataModel) {
-    for (const objectId in cityObjects) {
+    for (let i = 0; i < total; i++) {
+      if ((i & 0x3F) === 0) await step("Building relationships", i, total);
+      const objectId = ids[i];
       if (!parseRelationship(ctx, cityObjects[objectId], objectId)) {
         return false;
       }
     }
   }
+  await step("Parsing city objects", total, total);
   return true;
 }
 

@@ -11,6 +11,8 @@ import {
 } from "../../../../constants";
 import type {SceneModel} from "../../../../scene";
 import type {XKTData} from "./XKTData";
+import {yieldToHost} from "../../../../utils";
+import type {LoaderProgress} from "../../../LoaderProgress";
 
 const tempVec4a = createVec4Float64();
 const tempVec4b = createVec4Float64();
@@ -46,10 +48,26 @@ const decompressColor = (function () {
 /**
  * @private
  */
-export function xktToModel(params: {
+export async function xktToModel(params: {
   xktData: XKTData,
-  sceneModel: SceneModel
-}): void {
+  sceneModel: SceneModel,
+  options?: {signal?: AbortSignal; onProgress?: (p: LoaderProgress) => void}
+}): Promise<void> {
+
+  const options = params.options || {};
+  const onProgress = options.onProgress;
+  const signal = options.signal;
+  // Reusable progress payload — see the LoaderProgress contract.
+  const progress: LoaderProgress = {phase: "", current: 0, total: 0};
+  const step = async (phase: string, current: number, total: number): Promise<void> => {
+    if (onProgress) {
+      progress.phase = phase;
+      progress.current = current;
+      progress.total = total;
+      onProgress(progress);
+    }
+    await yieldToHost(signal);
+  };
 
   let nextId = 0;
 
@@ -109,6 +127,7 @@ export function xktToModel(params: {
   // Create textures
 
   for (let textureIndex = 0; textureIndex < numTextures; textureIndex++) {
+    if ((textureIndex & 0x03) === 0) await step("Decoding textures", textureIndex, numTextures);
     const atLastTexture = (textureIndex === (numTextures - 1));
     const textureDataPortionStart = eachTextureDataPortion[textureIndex];
     const textureDataPortionEnd = atLastTexture ? textureData.length : (eachTextureDataPortion[textureIndex + 1]);
@@ -210,6 +229,12 @@ export function xktToModel(params: {
   const geometryArraysCache = {};
 
   for (let tileIndex = 0; tileIndex < numTiles; tileIndex++) {
+    if ((tileIndex & 0x07) === 0) {
+      // Yield every 8 tiles — each tile builds many entities,
+      // so this gives a paint opportunity at the heaviest
+      // phase boundary.
+      await step("Building tiles", tileIndex, numTiles);
+    }
 
     const lastTileIndex = (numTiles - 1);
 
@@ -466,6 +491,15 @@ export function xktToModel(params: {
         });
       }
     }
+  }
+
+  // Final emit so the bar reads as 100% before the promise
+  // resolves.
+  if (onProgress) {
+    progress.phase = "Building tiles";
+    progress.current = numTiles;
+    progress.total = numTiles;
+    onProgress(progress);
   }
 }
 

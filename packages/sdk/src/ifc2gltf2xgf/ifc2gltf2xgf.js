@@ -17,7 +17,7 @@ program.version(npmPackage.version, '-v, --version');
 
 program
   .description(`CLI to convert a manifest of glTF+JSON files from ifc2gltf into a manifest of XGF+JSON to load into a SceneModel+DataModel`)
-  .option('-i, --input [file]', 'path to glTF+JSON manifest created by ifc2gltf (required)')
+  .option('-i, --input [file]', 'path to glTF+JSON manifest created by gltf (required)')
   .option('-o, --output [file]', 'path to target XGF+JSON manifest to create (required)')
   .option('-f, --format [number]', `target XGF version (optional) - ${supportedXGF()}, default is ${_DEFAULT_SAVED_XGF_VERSION}`)
   .option('-l, --log', 'enable logging (optional)');

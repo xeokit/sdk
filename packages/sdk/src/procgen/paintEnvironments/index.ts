@@ -10,7 +10,7 @@
  * ```ts
  * import {paintStudio} from "@xeokit/sdk/procgen/paintEnvironments";
  *
- * view.ibl.setEnvironmentImage(paintStudio(1024, 512));
+ * view.lights.ibl.setEnvironmentImage(paintStudio(1024, 512));
  * ```
  *
  * @module environments

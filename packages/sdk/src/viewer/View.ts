@@ -8,18 +8,13 @@ import {Camera} from "./Camera";
 import {createUUID} from "../utils";
 import {createVec3Float64} from "../math/vector";
 import {DirLight} from "./DirLight";
-import {Edges} from "./Edges";
 import {Effect} from "./Effect";
 import {LinesMaterial} from "./LinesMaterial";
 import type {PointLight} from "./PointLight";
 import {PointsMaterial} from "./PointsMaterial";
 import {ResolutionScale} from "./ResolutionScale";
-import {SAO} from "./SAO";
-import {Shadows} from "./Shadows";
-import {Tonemap} from "./Tonemap";
-import {AntiAliasing} from "./AntiAliasing";
-import {Bloom} from "./Bloom";
-import {IBL} from "./IBL";
+import {Effects} from "./Effects";
+import {Lights} from "./Lights";
 import {SectionPlane} from "./SectionPlane";
 import type {SectionPlaneParams} from "./SectionPlaneParams";
 import {Texturing} from "./Texturing";
@@ -35,7 +30,6 @@ import type {ShadowsParams} from "./ShadowsParams";
 import type {TonemapParams} from "./TonemapParams";
 import type {AntiAliasingParams} from "./AntiAliasingParams";
 import type {BloomParams} from "./BloomParams";
-import type {IBLParams} from "./IBLParams";
 import type {EdgesParams} from "./EdgesParams";
 import type {EffectParams} from "./EffectParams";
 import type {PointsMaterialParams} from "./PointsMaterialParams";
@@ -104,48 +98,27 @@ class View {
   public readonly boundary: number[];
 
   /**
-   * Configures Scalable Ambient Obscurance (SAO) for this View.
+   * Aggregates the renderer-effect components for this View — SAO,
+   * Edges, Bloom, Tonemap, AntiAliasing, and Shadows. Reach the
+   * individual effects through {@link Effects.sao},
+   * {@link Effects.edges}, {@link Effects.bloom},
+   * {@link Effects.tonemap}, {@link Effects.antiAliasing}, and
+   * {@link Effects.shadows}.
    */
-  public readonly sao: SAO;
+  public readonly effects: Effects;
 
   /**
-   * Configures directional shadow mapping for this View.
+   * Aggregates the environment-illumination components for this View
+   * — cubemap {@link IBL} at {@link Lights.ibl}, plus the analytical
+   * {@link HemisphereAmbient | hemispheric ambient} at
+   * {@link Lights.hemispheric}.
    */
-  public readonly shadows: Shadows;
-
-  /**
-   * Configures the HDR tonemap pass for this View.
-   */
-  public readonly tonemap: Tonemap;
-
-  /**
-   * Configures the final antialiasing pass for this View.
-   */
-  public readonly antiAliasing: AntiAliasing;
-
-  /**
-   * Configures the HDR bloom post-process for this View.
-   */
-  public readonly bloom: Bloom;
-
-  /**
-   * Configures hemispherical image-based lighting for this View.
-   *
-   * When {@link IBL.enabled} is `true`, the renderer's ambient term
-   * uses a sky / ground gradient based on each fragment's world-up
-   * normal direction instead of a flat constant.
-   */
-  public readonly ibl: IBL;
+  public readonly lights: Lights;
 
   /**
    * Configures when textures are rendered for this View.
    */
   public readonly texturing: Texturing;
-
-  /**
-   * Configures the appearance of edges belonging to {@link ViewObject} in this View.
-   */
-  readonly edges: Edges;
 
   /**
    * Configures the X-rayed appearance of {@link ViewObject | ViewObjects} in this View.
@@ -250,12 +223,18 @@ class View {
   readonly sectionPlanesList: SectionPlane[] = [];
 
   /**
-   * Map of light sources in this View.
+   * Id-keyed registry of legacy {@link AmbientLight} / {@link PointLight} /
+   * {@link DirLight} instances attached to this View. Populated by the
+   * light constructors via {@link View.registerLight}.
+   *
+   * @internal
    */
-  readonly lights: { [key: string]: AmbientLight | PointLight | DirLight };
+  readonly lightSources: { [key: string]: AmbientLight | PointLight | DirLight };
 
   /**
-   * List of light sources in this View.
+   * List of legacy light sources in this View, in registration order.
+   *
+   * @internal
    */
   readonly lightsList: (AmbientLight | PointLight | DirLight)[] = [];
 
@@ -355,7 +334,7 @@ class View {
     this.opacityObjects = {};
     this.sectionPlanes = {};
     this.sectionPlanesList = [];
-    this.lights = {};
+    this.lightSources = {};
     this.lightsList = [];
     this.layers = {};
     this.transforms = {};
@@ -417,20 +396,9 @@ class View {
 
     this.camera = new Camera(this, viewParams.camera || {});
 
-    this.sao = new SAO(this, viewParams.sao || {});
+    this.effects = new Effects(this, viewParams.effects || {});
 
-    this.shadows = new Shadows(this, viewParams.shadows || {
-      renderModes: [RealisticRender]
-    });
-
-    this.tonemap = new Tonemap(this, viewParams.tonemap || {
-    });
-
-    this.antiAliasing = new AntiAliasing(this, viewParams.antiAliasing || {});
-
-    this.bloom = new Bloom(this, viewParams.bloom || {});
-
-    this.ibl = new IBL(this, viewParams.ibl || {});
+    this.lights = new Lights(this, viewParams.lights || {});
 
     this.texturing = new Texturing(this, {});
 
@@ -469,13 +437,6 @@ class View {
       edgeColor: [0.05, 0.3, 0.55],
       edgeAlpha: 1.0,
       edgeWidth: 1,
-    });
-
-    this.edges = new Edges(this, viewParams.edges || {
-      edgeColor: [0.0, 0.0, 0.0],
-      edgeAlpha: 1.0,
-      edgeWidth: 1,
-      renderModes: [DetailedRender]
     });
 
     this.resolutionScale = new ResolutionScale(this, viewParams.resolutionScale || {
@@ -1198,7 +1159,7 @@ class View {
    */
   registerLight(light: PointLight | DirLight | AmbientLight) {
     this.lightsList.push(light);
-    this.lights[light.id] = light;
+    this.lightSources[light.id] = light;
     this._lightsHash = null;
     //  this.rebuild();
   }
@@ -1211,7 +1172,7 @@ class View {
       if (this.lightsList[i].id === light.id) {
         this.lightsList.splice(i, 1);
         this._lightsHash = null;
-        delete this.lights[light.id];
+        delete this.lightSources[light.id];
         //       this.rebuild();
         return;
       }
@@ -1230,9 +1191,9 @@ class View {
       });
       return;
     }
-    const lightIds = Object.keys(this.lights);
+    const lightIds = Object.keys(this.lightSources);
     for (let i = 0, len = lightIds.length; i < len; i++) {
-      this.lights[lightIds[i]].destroy();
+      this.lightSources[lightIds[i]].destroy();
     }
   }
 
@@ -1861,40 +1822,43 @@ class View {
     //         }
     //     }
     // }
-    if (viewParams.sao) {
-      const result = this.sao.fromParams(viewParams.sao);
-      if (result.ok === false) {
-        return result;
+    if (viewParams.effects) {
+      const e = viewParams.effects;
+      if (e.sao) {
+        const result = this.effects.sao.fromParams(e.sao);
+        if (result.ok === false) {
+          return result;
+        }
       }
-    }
-    if (viewParams.shadows) {
-      const result = this.shadows.fromParams(viewParams.shadows);
-      if (result.ok === false) {
-        return result;
+      if (e.shadows) {
+        const result = this.effects.shadows.fromParams(e.shadows);
+        if (result.ok === false) {
+          return result;
+        }
       }
-    }
-    if (viewParams.tonemap) {
-      const result = this.tonemap.fromParams(viewParams.tonemap);
-      if (result.ok === false) {
-        return result;
+      if (e.tonemap) {
+        const result = this.effects.tonemap.fromParams(e.tonemap);
+        if (result.ok === false) {
+          return result;
+        }
       }
-    }
-    if (viewParams.antiAliasing) {
-      const result = this.antiAliasing.fromParams(viewParams.antiAliasing);
-      if (result.ok === false) {
-        return result;
+      if (e.antiAliasing) {
+        const result = this.effects.antiAliasing.fromParams(e.antiAliasing);
+        if (result.ok === false) {
+          return result;
+        }
       }
-    }
-    if (viewParams.bloom) {
-      const result = this.bloom.fromParams(viewParams.bloom);
-      if (result.ok === false) {
-        return result;
+      if (e.bloom) {
+        const result = this.effects.bloom.fromParams(e.bloom);
+        if (result.ok === false) {
+          return result;
+        }
       }
-    }
-    if (viewParams.edges) {
-      const result = this.edges.fromParams(viewParams.edges);
-      if (result.ok === false) {
-        return result;
+      if (e.edges) {
+        const result = this.effects.edges.fromParams(e.edges);
+        if (result.ok === false) {
+          return result;
+        }
       }
     }
     if (viewParams.highlightMaterial) {
@@ -1940,13 +1904,15 @@ class View {
         autoLayers: this.autoLayers,
         layers: Object.values(this.layers).map(viewLayer => (<{ value: ViewLayerParams }>viewLayer.toParams()).value),
         // sectionPlanes: Object.values(this.sectionPlanes).map(sectionPlane => (<{ value: SectionPlaneParams }>sectionPlane.toParams()).value),
-        // lights: Object.values(this.lights).map(light => light.toParams()),
-        sao: (<{ value: SAOParams }>this.sao.toParams()).value,
-        shadows: (<{ value: ShadowsParams }>this.shadows.toParams()).value,
-        tonemap: (<{ value: TonemapParams }>this.tonemap.toParams()).value,
-        antiAliasing: (<{ value: AntiAliasingParams }>this.antiAliasing.toParams()).value,
-        bloom: (<{ value: BloomParams }>this.bloom.toParams()).value,
-        edges: (<{ value: EdgesParams }>this.edges.toParams()).value,
+        // lights: Object.values(this.lightSources).map(light => light.toParams()),
+        effects: {
+          sao:          (<{ value: SAOParams          }>this.effects.sao.toParams()).value,
+          shadows:      (<{ value: ShadowsParams      }>this.effects.shadows.toParams()).value,
+          tonemap:      (<{ value: TonemapParams      }>this.effects.tonemap.toParams()).value,
+          antiAliasing: (<{ value: AntiAliasingParams }>this.effects.antiAliasing.toParams()).value,
+          bloom:        (<{ value: BloomParams        }>this.effects.bloom.toParams()).value,
+          edges:        (<{ value: EdgesParams        }>this.effects.edges.toParams()).value,
+        },
         highlightMaterial: (<{ value: EffectParams }>this.highlightMaterial.toParams()).value,
         selectedMaterial: (<{ value: EffectParams }>this.selectedMaterial.toParams()).value,
         xrayMaterial: (<{ value: EffectParams }>this.xrayMaterial.toParams()).value,

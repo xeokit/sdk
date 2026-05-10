@@ -1,5 +1,5 @@
 import {FloatingPanelFlowHost} from "./FloatingPanelFlowHost";
-import {ShaderInspector, type ShaderSource} from "../../webglrenderer/internal/inspectors";
+import {ShaderInspector, type ShaderSource} from "../../webGLRenderer/internal/inspectors";
 
 // In file: packages/sdk/src/demo/ShadersPanel.ts
 

@@ -34,9 +34,8 @@
  * @module demo/sceneStats
  */
 import type {Scene, SceneModel, SceneModelStats} from "../../scene";
-import {bringFloatingPanelToFront} from "../floatingPanelZ";
-
-
+import {FloatingPanelBase} from "../floatingPanelBase";
+import {el} from "../utils/el";
 // ─────────────────────────────────────────────────────────────────
 // Public types
 // ─────────────────────────────────────────────────────────────────
@@ -169,17 +168,6 @@ const PANEL_CSS = `
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-.xkt-scs-panel .xkt-scs-title-id {
-  flex-shrink: 0;
-  padding: 2px 8px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 11px;
-  font-weight: 500;
-  color: #555;
-  background: #f0f0f0;
-  border-radius: 4px;
-  letter-spacing: 0.1px;
 }
 /* Header status badge — at-a-glance "is anything loaded?" pill.
    Green when one or more SceneModels are present, muted when the
@@ -406,7 +394,7 @@ const PANEL_CSS = `
 // Public class
 // ─────────────────────────────────────────────────────────────────
 
-export class SceneStatsPanel {
+export class SceneStatsPanel extends FloatingPanelBase {
 
   /**
    * Per-Scene instance registry. Lets {@link openFor} hand back
@@ -467,15 +455,8 @@ export class SceneStatsPanel {
   }
 
   readonly scene: Scene;
-  private readonly _container: HTMLElement;
-  private readonly _storageKey: string;
 
-  // DOM refs.
-  private _panel!: HTMLElement;
-  private _pill!: HTMLElement;
-  private _header!: HTMLElement;
-  private _closeBtn!: HTMLButtonElement;
-  private _titleIdEl!: HTMLElement;
+  // Panel-content DOM refs (chrome refs live on FloatingPanelBase).
   private _statusBadgeEl!: HTMLElement;
   private _bodyEl!: HTMLElement;
   private _coordsBody: HTMLElement | null = null;
@@ -488,30 +469,22 @@ export class SceneStatsPanel {
     statsBody: HTMLElement;
   }>();
 
-  // Lifecycle state.
-  private _destroyed = false;
+  // Listener state.
   private _listenersAttached = false;
   private _refreshScheduled = false;
   private readonly _unsubs: Array<() => void> = [];
   private _onSceneDestroyedUnsub: (() => void) | null = null;
 
-  // Drag state.
-  private _dragging = false;
-  private _dragOffsetX = 0;
-  private _dragOffsetY = 0;
-
-  private readonly _onResize = (): void => {
-    this._clampToViewport();
-    this._saveLayout();
-  };
-
   constructor(params: SceneStatsPanelParams) {
     if (!params || !params.scene) {
       throw new Error("SceneStatsPanel: scene is required");
     }
+    super({
+      container:   params.container,
+      storageKey:  params.storageKey || "xkt-scs-panel",
+      classPrefix: "xkt-scs",
+    });
     this.scene = params.scene;
-    this._container = params.container || document.body;
-    this._storageKey = params.storageKey || "xkt-scs-panel";
 
     // Replace any prior panel bound to the same Scene — keeps
     // openFor's idempotence honest and avoids stale DOM left
@@ -522,16 +495,13 @@ export class SceneStatsPanel {
 
     injectStylesOnce();
     this._buildDom();
-    this._wireDomEvents();
-    this._restoreLayout();
+    this._bindChrome();
 
     // Always-on minimal watcher — if the Scene is destroyed while
     // the panel is hidden, we still need to clean up.
     this._onSceneDestroyedUnsub = this.scene.events.onSceneDestroyed.subscribe(() => {
       this.destroy();
     });
-
-    window.addEventListener("resize", this._onResize);
 
     if (params.visible === false) {
       this.hide();
@@ -544,24 +514,12 @@ export class SceneStatsPanel {
   // ── Public lifecycle ──────────────────────────────────────────
 
   /**
-   * `true` when the floating panel is mounted and visible. `false`
-   * when hidden via the close button (the pill stands in for it).
-   */
-  get visible(): boolean {
-    return this._panel.style.display !== "none";
-  }
-
-  /**
    * Reveal the panel. Attaches Scene event listeners and paints
-   * fresh content.
+   * fresh content on top of the base's panel/pill swap.
    */
   show(): void {
     if (this._destroyed) return;
-    this._panel.style.display = "flex";
-    this._pill.hidden = true;
-    this._clampToViewport();
-    this._saveLayout();
-    bringFloatingPanelToFront(this._panel);
+    super.show();
     this._attachListeners();
     this._renderAll();
   }
@@ -573,21 +531,13 @@ export class SceneStatsPanel {
    */
   hide(): void {
     if (this._destroyed) return;
-    this._panel.style.display = "none";
-    this._pill.hidden = false;
-    this._saveLayout();
+    super.hide();
     this._detachListeners();
-  }
-
-  /** Toggle visibility. */
-  toggle(): void {
-    if (this.visible) this.hide(); else this.show();
   }
 
   /** Tear down DOM + every listener. Idempotent. */
   destroy(): void {
     if (this._destroyed) return;
-    this._destroyed = true;
     this._detachListeners();
     if (this._onSceneDestroyedUnsub) {
       try { this._onSceneDestroyedUnsub(); } catch { /* ignore */ }
@@ -596,9 +546,7 @@ export class SceneStatsPanel {
     if (SceneStatsPanel._instances.get(this.scene) === this) {
       SceneStatsPanel._instances.delete(this.scene);
     }
-    window.removeEventListener("resize", this._onResize);
-    this._panel.remove();
-    this._pill.remove();
+    super.destroy();
   }
 
 
@@ -627,7 +575,6 @@ export class SceneStatsPanel {
       this._removeModelSection(model);
       this._scheduleRefresh();
     }));
-    sub(ev.onSceneModelFinalized.subscribe(() => this._scheduleRefresh()));
 
     // Coord-system updates.
     sub(ev.onSceneCoordSystemUpdated.subscribe(() => this._renderSceneCoordSys()));
@@ -685,7 +632,7 @@ export class SceneStatsPanel {
 
   // ── DOM construction ──────────────────────────────────────────
 
-  private _buildDom(): void {
+  protected _buildDom(): void {
     this._pill = el("button", "xkt-scs-pill", {
       type: "button",
       title: "Reopen the Scene Statistics panel",
@@ -700,10 +647,7 @@ export class SceneStatsPanel {
     const title = el("h2", "xkt-scs-title");
     title.innerHTML =
       `<span class="xkt-scs-title-icon">${SceneStatsPanel.iconSvg()}</span>` +
-      `<span class="xkt-scs-title-text">Scene Statistics</span>` +
-      `<span class="xkt-scs-title-id" title="Scene id"></span>`;
-    this._titleIdEl = title.querySelector(".xkt-scs-title-id") as HTMLElement;
-    this._titleIdEl.textContent = String((this.scene as any).id ?? "Scene");
+      `<span class="xkt-scs-title-text">Scene Statistics</span>`;
 
     this._statusBadgeEl = el("span", "xkt-scs-status-badge");
     this._statusBadgeEl.classList.add("xkt-scs-status-empty");
@@ -728,103 +672,6 @@ export class SceneStatsPanel {
     this._container.appendChild(this._pill);
     this._container.appendChild(this._panel);
   }
-
-  private _wireDomEvents(): void {
-    // Bring-to-front on any pointer-down inside the panel —
-    // bubbles up so clicks on buttons / scroll thumbs / drag
-    // handle all promote the panel above its siblings.
-    this._panel.addEventListener("pointerdown", () => {
-      bringFloatingPanelToFront(this._panel);
-    });
-
-    // Close + pill.
-    this._closeBtn.addEventListener("click", (ev) => {
-      ev.stopPropagation();
-      this.hide();
-    });
-    this._pill.addEventListener("click", () => this.show());
-
-    // Drag.
-    this._header.addEventListener("pointerdown", (ev) => {
-      if ((ev.target as Element).closest("button")) return;
-      if (ev.button !== 0) return;
-      const rect = this._panel.getBoundingClientRect();
-      this._dragOffsetX = ev.clientX - rect.left;
-      this._dragOffsetY = ev.clientY - rect.top;
-      this._panel.style.right = "auto";
-      this._panel.style.left  = rect.left + "px";
-      this._panel.style.top   = rect.top  + "px";
-      this._dragging = true;
-      this._header.classList.add("xkt-scs-dragging");
-      this._header.setPointerCapture(ev.pointerId);
-      ev.preventDefault();
-    });
-    this._header.addEventListener("pointermove", (ev) => {
-      if (!this._dragging) return;
-      const rect = this._panel.getBoundingClientRect();
-      let l = ev.clientX - this._dragOffsetX;
-      let t = ev.clientY - this._dragOffsetY;
-      l = Math.max(0, Math.min(l, window.innerWidth  - rect.width));
-      t = Math.max(0, Math.min(t, window.innerHeight - rect.height));
-      this._panel.style.left = l + "px";
-      this._panel.style.top  = t + "px";
-    });
-    const endDrag = (ev: PointerEvent): void => {
-      if (!this._dragging) return;
-      this._dragging = false;
-      this._header.classList.remove("xkt-scs-dragging");
-      try { this._header.releasePointerCapture(ev.pointerId); } catch { /* ignore */ }
-      this._saveLayout();
-    };
-    this._header.addEventListener("pointerup",     endDrag);
-    this._header.addEventListener("pointercancel", endDrag);
-  }
-
-
-  // ── Layout persistence ────────────────────────────────────────
-
-  private _restoreLayout(): void {
-    let saved: {top?: number; left?: number; hidden?: boolean} | null = null;
-    try {
-      const raw = window.localStorage.getItem(this._storageKey);
-      if (raw) saved = JSON.parse(raw);
-    } catch { saved = null; }
-    if (!saved) return;
-    if (Number.isFinite(saved.left) && Number.isFinite(saved.top)) {
-      this._panel.style.right = "auto";
-      this._panel.style.left  = saved.left + "px";
-      this._panel.style.top   = saved.top  + "px";
-      this._clampToViewport();
-    }
-    if (saved.hidden) {
-      this._panel.style.display = "none";
-      this._pill.hidden = false;
-    }
-  }
-
-  private _saveLayout(): void {
-    const state: {top?: number; left?: number; hidden: boolean} = {
-      hidden: this._panel.style.display === "none",
-    };
-    const l = parseFloat(this._panel.style.left);
-    const t = parseFloat(this._panel.style.top);
-    if (Number.isFinite(l)) state.left = l;
-    if (Number.isFinite(t)) state.top  = t;
-    try { window.localStorage.setItem(this._storageKey, JSON.stringify(state)); }
-    catch { /* quota / disabled — drop silently */ }
-  }
-
-  private _clampToViewport(): void {
-    const l = parseFloat(this._panel.style.left);
-    const t = parseFloat(this._panel.style.top);
-    if (!Number.isFinite(l) || !Number.isFinite(t)) return;
-    const rect = this._panel.getBoundingClientRect();
-    const maxL = Math.max(0, window.innerWidth  - rect.width);
-    const maxT = Math.max(0, window.innerHeight - rect.height);
-    this._panel.style.left = Math.max(0, Math.min(l, maxL)) + "px";
-    this._panel.style.top  = Math.max(0, Math.min(t, maxT)) + "px";
-  }
-
 
   // ── Rendering ─────────────────────────────────────────────────
 
@@ -1105,31 +952,6 @@ export class SceneStatsPanel {
 // Module-private helpers
 // ─────────────────────────────────────────────────────────────────
 
-function el<K extends keyof HTMLElementTagNameMap>(
-  tag: K,
-  className?: string,
-  props?: Record<string, unknown>,
-): HTMLElementTagNameMap[K];
-function el(tag: string, className?: string, props?: Record<string, unknown>): HTMLElement {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  if (props) {
-    for (const k of Object.keys(props)) {
-      const v = props[k];
-      if (v === undefined) continue;
-      if (k === "textContent" || k === "innerHTML") {
-        (node as any)[k] = v;
-      } else if (k === "hidden") {
-        (node as HTMLElement).hidden = !!v;
-      } else if (k in node) {
-        (node as any)[k] = v;
-      } else {
-        node.setAttribute(k, String(v));
-      }
-    }
-  }
-  return node;
-}
 
 function renderStatsGrid(stats: SceneModelStats): string {
   const rows: Array<[string, number]> = [

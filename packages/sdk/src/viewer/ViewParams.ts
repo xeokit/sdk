@@ -1,18 +1,10 @@
-import type {AmbientLightParams} from "./AmbientLightParams";
 import type {CameraParams} from "./CameraParams";
-import type {DirLightParams} from "./DirLightParams";
-import type {EdgesParams} from "./EdgesParams";
 import type {EffectParams} from "./EffectParams";
+import type {EffectsParams} from "./EffectsParams";
 import type {FloatArrayParam} from "../math";
-import type {PointLightParams} from "./PointLightParams";
 import type {PointsMaterialParams} from "./PointsMaterialParams";
 import type {ResolutionScaleParams} from "./ResolutionScaleParams";
-import type {SAOParams} from "./SAOParams";
-import type {ShadowsParams} from "./ShadowsParams";
-import type {TonemapParams} from "./TonemapParams";
-import type {AntiAliasingParams} from "./AntiAliasingParams";
-import type {BloomParams} from "./BloomParams";
-import type {IBLParams} from "./IBLParams";
+import type {LightsParams} from "./LightsParams";
 import type {SectionPlaneParams} from "./SectionPlaneParams";
 import type {ViewLayerParams} from "./ViewLayerParams";
 
@@ -101,41 +93,19 @@ export interface ViewParams {
   autoLayers?: boolean;
 
   /**
-   * Parameters for the View's scalable ambient obscurance effect, {@link SAO}, which enhances 3D model visualization by darkening
-   * areas with limited ambient light exposure.
+   * Parameters for the View's renderer-effect components,
+   * {@link Effects} — covering {@link SAO}, {@link Edges},
+   * {@link Bloom}, {@link Tonemap}, {@link AntiAliasing}, and
+   * {@link Shadows}.
    */
-  sao?: SAOParams;
+  effects?: EffectsParams;
 
   /**
-   * Parameters for the View's single-cascade directional shadow mapping, {@link Shadows}.
+   * Parameters for the View's environment-illumination components,
+   * {@link Lights} — covering both {@link IBL} (cubemap) and
+   * {@link HemisphereAmbient} (analytical hemispheric).
    */
-  shadows?: ShadowsParams;
-
-  /**
-   * Parameters for the View's HDR tonemap pass, {@link Tonemap}.
-   */
-  tonemap?: TonemapParams;
-
-  /**
-   * Parameters for the View's final antialiasing pass, {@link AntiAliasing}.
-   */
-  antiAliasing?: AntiAliasingParams;
-
-  /**
-   * Parameters for the View's HDR bloom post-process, {@link Bloom}.
-   */
-  bloom?: BloomParams;
-
-  /**
-   * Parameters for the View's hemispherical image-based lighting,
-   * {@link IBL}.
-   */
-  ibl?: IBLParams;
-
-  /**
-   * Parameters for the View's edge enhancement effect, {@link Edges}.
-   */
-  edges?: EdgesParams;
+  lights?: LightsParams;
 
   /**
    * Parameters for the appearance of {@link ViewObject | ViewObjects} in the View when they are selected.
@@ -166,11 +136,6 @@ export interface ViewParams {
    * Parameters for the View's {@link Camera}.
    */
   camera?: CameraParams;
-
-  /**
-   * Parameters for the View's light sources.
-   */
-  lights?: (AmbientLightParams | PointLightParams | DirLightParams)[];
 
   /**
    * Paramaters for the View's {@link SectionPlane | SectionPlanes}.

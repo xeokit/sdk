@@ -1,5 +1,5 @@
 import '@loaders.gl/polyfills';/**/
-import {ModelConverter} from "../modelconverter";
+import {ModelConverter} from "../modelConverter";
 import {GLTFLoader, GLTFExporter} from "../formats/gltf";
 import {DotBIMLoader, DotBIMExporter} from "../formats/dotbim";
 import {DataModelParamsLoader, DataModelParamsExporter} from "../formats/datamodel";
@@ -9,16 +9,19 @@ import {XKTLoader} from "../formats/xkt";
 import {XGFLoader, XGFExporter} from "../formats/xgf";
 import {LASLoader} from "../formats/las";
 import {IFCExporter, IFCLoader} from "../formats/ifc";
+import {STEPLoader} from "../formats/step";
 
-import {createStatsReport} from "../modelconverter/reporters/stats/createStatsReport";
-import {createManifestReport} from "../modelconverter/reporters/manifest/createManifestReport";
+import {createStatsReport} from "../modelConverter/reporters/stats/createStatsReport";
+import {createManifestReport} from "../modelConverter/reporters/manifest/createManifestReport";
+import {createInspectionReport} from "../modelConverter/reporters/inspection/createInspectionReport";
 
 /**
  * Available Reporters
  */
 export const reporters = {
   "stats-report": createStatsReport,
-  "manifest-report": createManifestReport
+  "manifest-report": createManifestReport,
+  "inspection-report": createInspectionReport
 };
 
 export const CoordinateSystems = {
@@ -64,6 +67,7 @@ export const modelConverter = new ModelConverter({
     "xkt": new XKTLoader(),
     "xgf": new XGFLoader(),
     "las": new LASLoader(),
+    "step": new STEPLoader(),
     "datamodel": new DataModelParamsLoader(),
     "scenemodel": new SceneModelParamsLoader()
   },
@@ -134,6 +138,30 @@ export const modelConverter = new ModelConverter({
           exporter: "xgf",
           options: {
             coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          },
+          sceneModel: "geometry"
+        },
+        "datamodel": {
+          exporter: "datamodel"
+        }
+      }
+    },
+
+    "gltf2gltf": {
+      inputs: {
+        "gltf": {
+          loader: "glb",
+          options: {
+            coordinateSystem: CoordinateSystems.YUp_RightHanded_Meters
+          },
+          sceneModel: "geometry"
+        }
+      },
+      outputs: {
+        "gltf-out": {
+          exporter: "glb",
+          options: {
+            coordinateSystem: CoordinateSystems.YUp_RightHanded_Meters
           },
           sceneModel: "geometry"
         },
@@ -399,6 +427,39 @@ export const modelConverter = new ModelConverter({
             colorDepth: "auto",
             coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
           }
+        }
+      }
+    },
+
+    "step": {
+      inputs: {
+        "step": {
+          loader: "step",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      }
+    },
+
+    "step2xgf": {
+      inputs: {
+        "step": {
+          loader: "step",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      },
+      outputs: {
+        "xgf": {
+          exporter: "xgf",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        },
+        "datamodel": {
+          exporter: "datamodel"
         }
       }
     },

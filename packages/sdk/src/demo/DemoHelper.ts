@@ -1,13 +1,14 @@
 import {Scene, SceneModel, type SceneModelStats, type CoordinateSystemParams} from "../scene";
 import {Data, DataModel, type DataModelStats} from "../data";
 import {type PickParams, PickResult, View, Viewer, ViewObject, type ViewParams} from "../viewer";
-import {type MemoryUsage, WebGLRenderer} from "../webglrenderer";
+import {type MemoryUsage, WebGLRenderer} from "../webGLRenderer";
 import {EventsLogger, getGlobalTaskRunner, sdkProgress, SDKErrorType, type SDKResult, SDKTask} from "../core";
-import {SceneAABB3Index} from "../collision/aabb";
-import {ScenePicker, SceneCollisionIndex} from "../collision/bvh";
-import {CameraFlightAnimation} from "../cameraflight";
-import {type RenderStats} from "../webglrenderer/internal/inspectors";
-import {ViewController} from "../viewcontroller";
+import {RealisticRender} from "../constants";
+import {SceneCollisionIndex} from "../collision";
+import {MemoisingPickStrategy, RoutingPickStrategy, type PickStrategy} from "../picking";
+import {CameraFlightAnimation} from "../cameraFlight";
+import {type RenderStats} from "../webGLRenderer/internal/inspectors";
+import {ViewController} from "../viewController";
 import {ScenePanel} from "./inspectors/ScenePanel";
 import {DataPanel} from "./inspectors/DataPanel";
 import {ShadersPanel} from "./inspectors/ShadersPanel";
@@ -30,6 +31,8 @@ import {DataTexturesPanel} from "./inspectors/DataTexturesPanel";
 import {TilesPanel as LegacyTilesPanelInspector} from "./inspectors/TilesPanel";
 import {DownloadPanel} from "./inspectors/DownloadPanel";
 import {SceneHealthPanel} from "./sceneHealthPanel/SceneHealthPanel";
+import {DataHealthPanel} from "./dataHealthPanel/DataHealthPanel";
+import type {DataFormatSchema} from "../dataModelInspector";
 import {BoundariesPanel} from "./boundariesPanel/BoundariesPanel";
 import {TilesPanel} from "./tilesPanel/TilesPanel";
 import {SceneStatsPanel} from "./sceneStats/SceneStatsPanel";
@@ -40,6 +43,7 @@ import {ViewerConfigPanel} from "./viewerPanel/ViewerConfigPanel";
 import {GPUMemoryPanel} from "./gpuMemoryUsage/GPUMemoryUsage";
 import {Toolbar} from "./toolbar/Toolbar";
 import {ExportDialog} from "./exportDialog/ExportDialog";
+import {ExportBCFPanel} from "./exportBCF/ExportBCFPanel";
 import {ExplorerPanel} from "./explorerPanel/ExplorerPanel";
 import {EventsPanel} from "./eventsPanel/EventsPanel";
 import {LoaderProgressDialog} from "./loaderProgressDialog/LoaderProgressDialog";
@@ -61,6 +65,15 @@ import {DotBIMLoader} from "../formats/dotbim";
 import {OBJLoader} from "../formats/obj";
 import {CityJSONLoader} from "../formats/cityjson";
 import {LoadingSpinner} from "./LoadingSpinner";
+import {NavCube} from "./navCube/NavCube";
+import type {NavCubeParams} from "./navCube/NavCubeParams";
+import {DistanceMeasurementTool} from "./measurements/distance/DistanceMeasurementTool";
+import type {DistanceMeasurementToolParams} from "./measurements/distance/DistanceMeasurementToolParams";
+import {DistanceMeasurementsPanel} from "./distanceMeasurementsPanel/DistanceMeasurementsPanel";
+import {AngleMeasurementsPanel} from "./angleMeasurementsPanel/AngleMeasurementsPanel";
+import {ViewsPanel} from "./viewsPanel/ViewsPanel";
+import {AngleMeasurementsTool} from "./measurements/angle/AngleMeasurementsTool";
+import type {AngleMeasurementsToolParams} from "./measurements/angle/AngleMeasurementsToolParams";
 import {encodeRadianceHDR, paintSunSkyHDR} from "../procgen/paintEnvironments";
 import {getScenePhysics, type ScenePhysics} from "./physics";
 
@@ -92,6 +105,14 @@ export interface DemoHelperConfig {
    */
   logging?: boolean;
 
+  /**
+   * When `true`, exposes engineer-only entries in the context
+   * menus (currently a Debug ▶ submenu with the WebGL
+   * context-loss simulator). Default `false` — production demos
+   * keep the surface area free of debug affordances.
+   */
+  debug?: boolean;
+
 
   showOverlayButton?: boolean;
 }
@@ -114,25 +135,24 @@ export class DemoHelper {
   public scene: Scene;
 
   /**
-   * Dynamically tracks the 3D boundaries of the objects in the Scene.
-   * Used by the BoundariesPanel inspector. Distinct from the
-   * {@link SceneCollisionIndex} that powers fly-to and picking — both
-   * track AABBs but the collision index also maintains the BVH.
-   */
-  private _aabb3Index: SceneAABB3Index;
-
-  /**
-   * BVH index used for fly-to AABB queries and as the spatial back-end
-   * of {@link _picker}. Lazy-built on first access via
-   * {@link collisionIndex}.
+   * BVH index used for fly-to AABB queries, per-object / per-mesh
+   * AABB lookups, and as the spatial back-end of {@link _picker}.
+   * Lazy-built on first access via {@link collisionIndex}.
    */
   private _collisionIndex: SceneCollisionIndex;
 
   /**
-   * Triangle-precise ray picker layered on {@link _collisionIndex}.
-   * Lazy-built on first access via {@link picker}.
+   * Unified picker layered over the BVH ({@link _collisionIndex}) and
+   * the GPU pick path on {@link renderer}. Routes per-call between
+   * the two and exposes snap-to-vertex / snap-to-edge when the
+   * renderer is ready. Lazy-built on first access via {@link picker}.
+   *
+   * Wrapped in a {@link MemoisingPickStrategy} so identical pick
+   * calls (same view, canvas position, snap flags, etc.) within the
+   * same renderer-state epoch return the cached result without
+   * re-running the BVH descent or the GPU `readPixels` stall.
    */
-  private _picker: ScenePicker;
+  private _picker: PickStrategy;
 
   /**
    * The Data created by the DemoHelper. Holds all data models.
@@ -167,6 +187,7 @@ export class DemoHelper {
 
   private makeComponents: boolean;
   private showOverlayButton: boolean;
+  private debug: boolean = false;
   private overlayButton: HTMLButtonElement | null = null;
   private inspectorVisible: boolean = false;
   private inspectorFlowHost: HTMLDivElement;
@@ -219,6 +240,7 @@ export class DemoHelper {
     }
     this.makeComponents = cfg.makeComponents !== false;
     this.showOverlayButton = cfg.showOverlayButton !== false;
+    this.debug = cfg.debug === true;
     this.maxViews = cfg.maxViews ?? 4;
     this.stats = {
       startTime: 0,
@@ -337,9 +359,9 @@ export class DemoHelper {
         const renderInspector = renderInspectorResult.value;
         renderInspector.enabled = true;
 
-        this._viewObjectContextMenu = new ViewObjectContextMenu({});
+        this._viewObjectContextMenu = new ViewObjectContextMenu({debug: this.debug});
 
-        this._canvasContextMenu = new CanvasContextMenu({});
+        this._canvasContextMenu = new CanvasContextMenu({debug: this.debug});
 
         this._canvasContextMenu.on("hidden", () => {
           taskRunner.unsuspend();
@@ -370,7 +392,7 @@ export class DemoHelper {
         //   sceneModel: dimensionsModel,
         //   scene: this.scene,
         //   data: this.data,
-        //   aabb3index: this.aabb3Index,
+        //   collisionIndex: this.collisionIndex,
         //   color: [1.0, 1.0, 1.0],
         //   offset: 1.55,
         //   extensionOvershoot: 0.35,
@@ -383,6 +405,18 @@ export class DemoHelper {
 
         // @ts-ignore
         window.demoHelper = this;
+
+        // Auto-mount the Toolbar. After the menu restructure
+        // (Phase 1) the Toolbar is the only UI surface that
+        // exposes the Measure cluster, NavCube, Views, and the
+        // other tool toggles, so mounting it on init makes those
+        // affordances reachable by default. Hidden state is
+        // recoverable via the floating reopen pill.
+        try {
+          this.openToolbar();
+        } catch (e: any) {
+          console.warn("[DemoHelper.init] Failed to auto-mount Toolbar:", e?.message ?? e);
+        }
 
         resolve({});
       } else {
@@ -686,7 +720,11 @@ export class DemoHelper {
       id: viewParams.id || createUUID(),
       backgroundColor: [0, 0, 0],
       transparent: false,
-      ...viewParams
+      // RealisticRender by default (HDR pipeline + ACES tonemap +
+      // sRGB encode all live from the first frame). Overridden
+      // when the caller passes their own `renderMode`.
+      renderMode: RealisticRender,
+      ...viewParams,
     };
 
     const hasExplicitElement = !!(resolvedViewParams.elementId || resolvedViewParams.htmlElement);
@@ -747,11 +785,10 @@ export class DemoHelper {
       view,
       cameraFlight,
       viewController: new ViewController(view, {
-        // ViewController picks (orbit-around-pivot, follow-pointer, hover
-        // events) go through ScenePicker too, so the entire DemoHelper
-        // picking path is BVH-based and renderer.pick is never invoked.
-        // Snap-to-vertex / snap-to-edge fall back to renderer.pick because
-        // the BVH path doesn't model them.
+        // ViewController picks (orbit-around-pivot, follow-pointer,
+        // hover events) go through the unified picker, which routes
+        // each call to BVH or GPU as appropriate (snap requests go to
+        // GPU when the renderer is ready, BVH otherwise).
         pick: (view: View, pickParams: PickParams): SDKResult<PickResult> => {
           return this._pickViaBvh(view, pickParams);
         }
@@ -761,27 +798,21 @@ export class DemoHelper {
     // Attach a mouse click listener to the View's canvas, and show our ContextMenu
     // when the user right-clicks on an object in the View.
     //
-    // Picking goes through ScenePicker (BVH + triangle-precise M-T) instead
-    // of renderer.pick — same `canvasPos` input but no GPU pipeline stall,
-    // and a triangle-level hit point for the Frame-on-pick actions.
+    // Routes through the unified picker — BVH for object id (this
+    // call doesn't request snap, so it stays on the cheap path).
+    // Returns a canonical PickResult directly rather than an
+    // SDKResult; programmer-error inputs surface as a miss.
 
     const tryPick = (view, e) => {
 
       const rect = view.htmlElement.getBoundingClientRect();
-      const result = this.picker.pick({
+      const pickResult = this.picker.pick({
         view,
         canvasPos: [e.clientX - rect.left, e.clientY - rect.top]
       });
 
-      if (result.ok === false) {
-        console.error("[DemoHelper.tryPick]", result.error);
-        return;
-      }
-
-      const pickResult = result.value;
-
-      if (pickResult.hit) {
-        // BVH returns the SceneObject id; resolve the corresponding
+      if (pickResult.hit && pickResult.objectId) {
+        // Picker returns the SceneObject id; resolve the corresponding
         // ViewObject so the existing context-menu plumbing keeps working.
         const viewObject = view.objects[pickResult.objectId];
         if (viewObject) {
@@ -837,12 +868,13 @@ export class DemoHelper {
   }
 
   /**
-   * ViewController-shape picking, served from ScenePicker.
+   * ViewController-shape picking, served from the unified picker.
    *
    * Adapts the viewer-side `PickParams`/`PickResult` contract that
-   * ViewController and PickController expect to the BVH stack. Falls back
-   * to `renderer.pick` only for snap-to-vertex / snap-to-edge requests,
-   * which the BVH path doesn't model.
+   * ViewController and PickController expect onto the unified
+   * `PickStrategy.pick` interface. Snap fields (`snapToVertex` /
+   * `snapToEdge`) are forwarded so any ViewController consumer that
+   * asks for snap gets it via the routing strategy's GPU branch.
    *
    * Populates the fields PickController + the mouse handlers actually
    * consume: `viewObject`, `canvasPos`, `worldPos`. Other fields stay
@@ -851,28 +883,28 @@ export class DemoHelper {
    */
   private _pickViaBvh(view: View, pickParams: PickParams): SDKResult<PickResult> {
 
-    // if (pickParams.snapToVertex || pickParams.snapToEdge) {
-    //   // Snap is a feature only the GPU-pick path implements. Defer.
-    //   return this.renderer.pick(view, pickParams);
-    // }
-
+    // The unified picker handles snap routing internally (snap requests
+    // go through the GPU when available, fall through to BVH otherwise).
+    // We forward the snap fields so ViewController callers can ask for
+    // snap and get it transparently.
     const result = this.picker.pick({
       view,
-      canvasPos: pickParams.canvasPos,
-      ray: pickParams.rayPick && pickParams.rayOrigin && pickParams.rayDirection
-        ? {origin: pickParams.rayOrigin, dir: pickParams.rayDirection}
-        : undefined,
-      matrix: pickParams.rayMatrix,
-      visiblePickableOnly: pickParams.pickInvisible !== true
+      canvasPos:     pickParams.canvasPos,
+      ray:           pickParams.rayPick && pickParams.rayOrigin && pickParams.rayDirection
+                       ? {origin: pickParams.rayOrigin, dir: pickParams.rayDirection}
+                       : undefined,
+      matrix:        pickParams.rayMatrix,
+      pickInvisible: pickParams.pickInvisible === true,
+      snapToVertex:  pickParams.snapToVertex === true,
+      snapToEdge:    pickParams.snapToEdge === true,
+      snapRadius:    pickParams.snapRadius,
     });
 
-    if (result.ok === false) return result;
-
-    if (!result.value.hit) {
+    if (!result.hit) {
       return {ok: true, value: null as any};
     }
 
-    const viewObject = view.objects[result.value.objectId!];
+    const viewObject = result.objectId ? view.objects[result.objectId] : undefined;
     const pickResult = new PickResult();
     pickResult.view = view;
     pickResult.viewObject = viewObject ?? null;
@@ -882,9 +914,14 @@ export class DemoHelper {
     if (pickParams.canvasPos) {
       pickResult.canvasPos = pickParams.canvasPos;
     }
-    pickResult.worldPos = result.value.worldPos as any;
-    pickResult.origin = result.value.rayOrigin;
-    pickResult.direction = result.value.rayDir;
+    pickResult.worldPos = result.worldPos as any;
+    pickResult.origin    = result.rayOrigin as any;
+    pickResult.direction = result.rayDir as any;
+    if (result.snap) {
+      pickResult.snappedCanvasPos = result.snap.canvasPos;
+      pickResult.snappedToVertex  = result.snap.type === "vertex";
+      pickResult.snappedToEdge    = result.snap.type === "edge";
+    }
 
     return {ok: true, value: pickResult};
   }
@@ -1105,16 +1142,6 @@ export class DemoHelper {
   }
 
   /**
-   * Gets the SceneAABB3Index for the Scene, which dynamically tracks the 3D boundaries of the objects in the Scene.
-   */
-  get aabb3Index(): SceneAABB3Index {
-    if (!this._aabb3Index) {
-      this._aabb3Index = new SceneAABB3Index(this.scene);
-    }
-    return this._aabb3Index;
-  }
-
-  /**
    * Gets the {@link SceneCollisionIndex} for this demo's Scene, used by
    * fly-to (AABB queries) and the {@link picker}.
    *
@@ -1130,14 +1157,24 @@ export class DemoHelper {
   }
 
   /**
-   * Gets the {@link ScenePicker} for this demo's Scene. Wraps the
-   * {@link collisionIndex} BVH and adds triangle-precise raycasting,
-   * `canvasPos | ray | matrix` input dispatch, and view-side
-   * visible/pickable filtering.
+   * Gets the unified picker for this demo. A
+   * {@link MemoisingPickStrategy} wrapping a {@link RoutingPickStrategy}
+   * — the router decides BVH vs GPU snap per call (and tracks
+   * renderer attach / context loss via the routing strategy's
+   * observer); the memoiser caches the most recent result so that
+   * identical back-to-back picks (e.g. a same-frame
+   * `pointermove` → ViewController hover + measurement hover both
+   * picking the same canvas pixel) skip the underlying work.
+   *
+   * Tolerance is `0` (exact match) so caching is strictly
+   * correctness-preserving; pass a `MemoisingPickStrategy` directly
+   * to anything that wants pixel-jitter slack.
    */
-  get picker(): ScenePicker {
+  get picker(): PickStrategy {
     if (!this._picker) {
-      this._picker = new ScenePicker(this.scene);
+      this._picker = new MemoisingPickStrategy(
+        new RoutingPickStrategy(this.scene, this.renderer),
+      );
     }
     return this._picker;
   }
@@ -1242,6 +1279,41 @@ export class DemoHelper {
   }
 
   /**
+   * Opens a {@link DataHealthPanel} bound to `this.data`, mounting
+   * one if no panel currently exists. Sister of
+   * {@link getSceneHealthPanel}.
+   *
+   * @param focusDataModel Optional DataModel to focus on open. When
+   *                       the panel is already mounted and showing
+   *                       a different model, focus switches to this
+   *                       one.
+   * @param schema Optional {@link DataFormatSchema} the inspector
+   *               validates against — drives the schema-aware
+   *               inspections (type registration, type binding,
+   *               schema tagging, IFC hierarchy / containment).
+   *               Without it, only the always-on structural checks
+   *               fire.
+   * @returns The panel instance — newly mounted, re-revealed, or
+   *          the unchanged already-visible instance.
+   */
+  public getDataHealthPanel(
+    focusDataModel?: DataModel,
+    schema?: DataFormatSchema,
+  ): DataHealthPanel {
+    const existing = DataHealthPanel.getFor(this.data);
+    if (existing) {
+      if (!existing.visible) existing.show();
+      if (focusDataModel) existing.focusModel(focusDataModel);
+      return existing;
+    }
+    return DataHealthPanel.openFor({
+      data: this.data,
+      focusDataModel,
+      schema,
+    });
+  }
+
+  /**
    * Opens a {@link BoundariesPanel} bound to `scene`, mounting
    * one if no panel currently exists for that Scene.
 
@@ -1335,6 +1407,30 @@ export class DemoHelper {
   }
 
   /**
+   * Opens (or returns the live) {@link ExportBCFPanel} bound to
+   * the inspector View — the floating dialog that lets the user
+   * pick which {@link ViewLayer | ViewLayers} contribute to a
+   * {@link bcf!BCFViewpoint | BCFViewpoint} export and writes the
+   * result as a JSON download.
+   *
+   * Returns `undefined` if no View has been created yet (the
+   * panel needs a View to capture state from).
+   */
+  public openExportBCFPanel(): ExportBCFPanel | undefined {
+    const view = this._getInspectorView();
+    if (!view) {
+      console.warn("[DemoHelper.openExportBCFPanel] No View available — BCF export needs a View to capture state from.");
+      return undefined;
+    }
+    const existing = ExportBCFPanel.getFor(view);
+    if (existing) {
+      if (!existing.visible) existing.show();
+      return existing;
+    }
+    return ExportBCFPanel.openFor({view, renderer: this.renderer});
+  }
+
+  /**
    * Opens (or returns the live) {@link ExplorerPanel} bound
    * to this helper's `Data` graph.
    */
@@ -1349,7 +1445,8 @@ export class DemoHelper {
       if (!existing.visible) existing.show();
       return existing;
     }
-    return ExplorerPanel.openFor({data: this.data, view});
+    const cameraFlight = this.views[view.id]?.cameraFlight;
+    return ExplorerPanel.openFor({data: this.data, view, cameraFlight});
   }
 
   /**
@@ -1421,6 +1518,295 @@ export class DemoHelper {
   }
 
   /**
+   * Mounts (or returns the live) {@link ViewsPanel} for the
+   * helper's {@link viewer} — a floating panel that lists
+   * every {@link View} on the Viewer with per-row close
+   * buttons and a "New View" footer button. The footer
+   * button clones the active View's camera via
+   * {@link createView}.
+   */
+  public openViewsPanel(): ViewsPanel {
+    const existing = ViewsPanel.getFor(this.viewer);
+    if (existing) {
+      existing.show();
+      return existing;
+    }
+    return ViewsPanel.openFor({viewer: this.viewer, demoHelper: this});
+  }
+
+  /**
+   * Hide (without destroying) the {@link ViewsPanel} for the
+   * helper's {@link viewer}. The pill stands in for the panel
+   * until it is reopened.
+   */
+  public hideViewsPanel(): void {
+    const existing = ViewsPanel.getFor(this.viewer);
+    if (existing) existing.hide();
+  }
+
+  /**
+   * Toggle the {@link ViewsPanel} for the helper's
+   * {@link viewer}. Constructs the panel on first call.
+   */
+  public toggleViewsPanel(): ViewsPanel {
+    const existing = ViewsPanel.getFor(this.viewer);
+    if (existing) {
+      existing.toggle();
+      return existing;
+    }
+    return this.openViewsPanel();
+  }
+
+  /**
+   * Mounts (or returns the live) {@link NavCube} bound to
+   * {@link view} — a small CSS-3D cube that mirrors the View's
+   * camera orientation and lets the user click face/edge/corner
+   * regions to fly to canonical views.
+   *
+   * Auto-wires the View's {@link CameraFlightAnimation} when one
+   * was registered via {@link createView}, so clicks animate
+   * rather than hard-snap. Extra {@link NavCubeParams} are merged
+   * on top — e.g. `openNavCube(view, { size: 160 })`.
+   */
+  public openNavCube(view: View, params: Partial<NavCubeParams> = {}): NavCube {
+    const existing = NavCube.getFor(view);
+    if (existing) {
+      existing.show();
+      return existing;
+    }
+    return NavCube.openFor({
+      view,
+      cameraFlight: this.views[view.id]?.cameraFlight,
+      ...params,
+    });
+  }
+
+  /**
+   * Hide the NavCube on {@link view} without tearing it down.
+   * No-op when no NavCube has been mounted.
+   */
+  public hideNavCube(view: View): void {
+    const existing = NavCube.getFor(view);
+    if (existing) existing.hide();
+  }
+
+  /**
+   * Toggle NavCube visibility on {@link view}. Constructs the
+   * NavCube on first call (same idempotence as
+   * {@link openNavCube}).
+   */
+  public toggleNavCube(view: View, params: Partial<NavCubeParams> = {}): NavCube {
+    const existing = NavCube.getFor(view);
+    if (existing) {
+      existing.toggle();
+      return existing;
+    }
+    return this.openNavCube(view, params);
+  }
+
+  /**
+   * Mounts (or returns the live) {@link DistanceMeasurementTool}
+   * bound to {@link view}. Auto-supplies the BVH-based
+   * {@link picker} the helper already owns so the plugin doesn't
+   * spin up a redundant one.
+   */
+  public openDistanceMeasurements(
+    view: View,
+    params: Partial<DistanceMeasurementToolParams> = {},
+  ): DistanceMeasurementTool {
+    const existing = DistanceMeasurementTool.getFor(view);
+    if (existing) {
+      existing.show();
+      return existing;
+    }
+    return DistanceMeasurementTool.openFor({
+      view,
+      picker: this.picker,
+      ...params,
+    });
+  }
+
+  /** Hide (without destroying) the DistanceMeasurementTool on {@link view}. */
+  public hideDistanceMeasurements(view: View): void {
+    const existing = DistanceMeasurementTool.getFor(view);
+    if (existing) existing.hide();
+  }
+
+  /**
+   * Toggle the DistanceMeasurementTool overlay on {@link view}.
+   * Constructs the plugin on first call.
+   */
+  public toggleDistanceMeasurements(
+    view: View,
+    params: Partial<DistanceMeasurementToolParams> = {},
+  ): DistanceMeasurementTool {
+    const existing = DistanceMeasurementTool.getFor(view);
+    if (existing) {
+      existing.toggle();
+      return existing;
+    }
+    return this.openDistanceMeasurements(view, params);
+  }
+
+  /**
+   * Convenience: ensure the DistanceMeasurementTool exists on
+   * {@link view} and toggle its mouse control. Returns the
+   * {@link MouseDistanceMeasurementsControl}, post-toggle.
+   */
+  public toggleDistanceMeasurementsControl(view: View) {
+    const plugin = this.openDistanceMeasurements(view);
+    const mc = plugin.mouseControl;
+    if (mc.active) mc.deactivate();
+    else mc.activate();
+    return mc;
+  }
+
+  /**
+   * Mounts (or returns the live) {@link DistanceMeasurementsPanel}
+   * for {@link view} — a floating panel that lists every
+   * {@link DistanceMeasurement} on the View's
+   * {@link DistanceMeasurementTool} and lets the user destroy them.
+   *
+   * Ensures the underlying {@link DistanceMeasurementTool} exists
+   * on the View first, so this single call is enough to put both
+   * the in-scene wires and the side panel on screen.
+   */
+  public openDistanceMeasurementsPanel(view: View): DistanceMeasurementsPanel {
+    const existing = DistanceMeasurementsPanel.getFor(view);
+    if (existing) {
+      existing.show();
+      return existing;
+    }
+    const tool = this.openDistanceMeasurements(view);
+    return DistanceMeasurementsPanel.openFor({tool});
+  }
+
+  /**
+   * Hide (without destroying) the
+   * {@link DistanceMeasurementsPanel} for {@link view}. The pill
+   * stands in for the panel until it is reopened.
+   */
+  public hideDistanceMeasurementsPanel(view: View): void {
+    const existing = DistanceMeasurementsPanel.getFor(view);
+    if (existing) existing.hide();
+  }
+
+  /**
+   * Toggle the {@link DistanceMeasurementsPanel} for {@link view}.
+   * Constructs the panel on first call (and the underlying tool,
+   * if necessary).
+   */
+  public toggleDistanceMeasurementsPanel(view: View): DistanceMeasurementsPanel {
+    const existing = DistanceMeasurementsPanel.getFor(view);
+    if (existing) {
+      existing.toggle();
+      return existing;
+    }
+    return this.openDistanceMeasurementsPanel(view);
+  }
+
+  /**
+   * Mounts (or returns the live) {@link AngleMeasurementsTool}
+   * bound to {@link view}. Auto-supplies the BVH-based
+   * {@link picker} the helper already owns so the tool doesn't
+   * spin up a redundant one.
+   */
+  public openAngleMeasurements(
+    view: View,
+    params: Partial<AngleMeasurementsToolParams> = {},
+  ): AngleMeasurementsTool {
+    const existing = AngleMeasurementsTool.getFor(view);
+    if (existing) {
+      existing.show();
+      return existing;
+    }
+    return AngleMeasurementsTool.openFor({
+      view,
+      picker: this.picker,
+      ...params,
+    });
+  }
+
+  /** Hide (without destroying) the AngleMeasurementsTool on {@link view}. */
+  public hideAngleMeasurements(view: View): void {
+    const existing = AngleMeasurementsTool.getFor(view);
+    if (existing) existing.hide();
+  }
+
+  /**
+   * Toggle the AngleMeasurementsTool overlay on {@link view}.
+   * Constructs the tool on first call.
+   */
+  public toggleAngleMeasurements(
+    view: View,
+    params: Partial<AngleMeasurementsToolParams> = {},
+  ): AngleMeasurementsTool {
+    const existing = AngleMeasurementsTool.getFor(view);
+    if (existing) {
+      existing.toggle();
+      return existing;
+    }
+    return this.openAngleMeasurements(view, params);
+  }
+
+  /**
+   * Convenience: ensure the AngleMeasurementsTool exists on
+   * {@link view} and toggle its mouse control. Returns the
+   * {@link MouseAngleMeasurementsControl}, post-toggle.
+   */
+  public toggleAngleMeasurementsControl(view: View) {
+    const tool = this.openAngleMeasurements(view);
+    const mc = tool.mouseControl;
+    if (mc.active) mc.deactivate();
+    else mc.activate();
+    return mc;
+  }
+
+  /**
+   * Mounts (or returns the live) {@link AngleMeasurementsPanel}
+   * for {@link view} — a floating panel that lists every
+   * {@link AngleMeasurement} on the View's
+   * {@link AngleMeasurementsTool} and lets the user destroy them.
+   *
+   * Ensures the underlying {@link AngleMeasurementsTool} exists
+   * on the View first, so this single call is enough to put both
+   * the in-scene wires and the side panel on screen.
+   */
+  public openAngleMeasurementsPanel(view: View): AngleMeasurementsPanel {
+    const existing = AngleMeasurementsPanel.getFor(view);
+    if (existing) {
+      existing.show();
+      return existing;
+    }
+    const tool = this.openAngleMeasurements(view);
+    return AngleMeasurementsPanel.openFor({tool});
+  }
+
+  /**
+   * Hide (without destroying) the {@link AngleMeasurementsPanel}
+   * for {@link view}. The pill stands in for the panel until it
+   * is reopened.
+   */
+  public hideAngleMeasurementsPanel(view: View): void {
+    const existing = AngleMeasurementsPanel.getFor(view);
+    if (existing) existing.hide();
+  }
+
+  /**
+   * Toggle the {@link AngleMeasurementsPanel} for {@link view}.
+   * Constructs the panel on first call (and the underlying tool,
+   * if necessary).
+   */
+  public toggleAngleMeasurementsPanel(view: View): AngleMeasurementsPanel {
+    const existing = AngleMeasurementsPanel.getFor(view);
+    if (existing) {
+      existing.toggle();
+      return existing;
+    }
+    return this.openAngleMeasurementsPanel(view);
+  }
+
+  /**
    * Opens (or returns the live) {@link GPUMemoryPanel} bound to
    * the helper's {@link renderer}.
 
@@ -1449,21 +1835,26 @@ export class DemoHelper {
   }
 
   /**
-   * Opens a {@link SchemaMaterialsPanel} bound to `sceneModel` and
-   * the matching {@link DataModel} in the helper's Data graph.
+   * Reveal (or lazily mount) the floating
+   * {@link SchemaMaterialsPanel} bound to this DemoHelper's Scene.
+   * The panel manages every {@link SceneModel} in the Scene with
+   * a tab strip — pass `focusSceneModel` to start with a specific
+   * model selected (e.g. the right-clicked one).
    */
-  public openSchemaMaterialsPanel(sceneModel: SceneModel): SchemaMaterialsPanel | undefined {
-    const dataModel = this.data.models[sceneModel.id];
-    if (!dataModel) {
-      console.warn(`[DemoHelper.openSchemaMaterialsPanel] No DataModel found for SceneModel '${sceneModel.id}' — Schema Materials needs DataObjects to group by schema and type.`);
-      return undefined;
-    }
-    const existing = SchemaMaterialsPanel.getFor(sceneModel);
+  public openSchemaMaterialsPanel(focusSceneModel?: SceneModel): SchemaMaterialsPanel {
+    const existing = SchemaMaterialsPanel.getFor(this.scene);
     if (existing) {
       if (!existing.visible) existing.show();
+      if (focusSceneModel && !focusSceneModel.destroyed) {
+        existing.focusModel(focusSceneModel);
+      }
       return existing;
     }
-    return SchemaMaterialsPanel.openFor({sceneModel, dataModel});
+    return SchemaMaterialsPanel.openFor({
+      scene: this.scene,
+      data:  this.data,
+      focusSceneModel,
+    });
   }
 
   /**
@@ -1687,7 +2078,7 @@ export class DemoHelper {
       TaskPanel.show(this.inspectorFlowHost, taskRunner, {});
 
       if (view) {
-        LegacyBoundariesPanelInspector.show(this.inspectorFlowHost, view, this.aabb3Index, {});
+        LegacyBoundariesPanelInspector.show(this.inspectorFlowHost, view, this.collisionIndex, {});
       }
 
       const memoryInspectorResult = this.renderer.getMemoryInspector();
@@ -1717,7 +2108,8 @@ export class DemoHelper {
 
     stats.scene = this._getCombinedSceneModelStats();
     stats.data = this._getCombinedDataModelStats();
-    stats.aabb = Array.from(this.aabb3Index.getSceneAABB());
+    const sceneAABB = this.collisionIndex.getSceneAABB();
+    stats.aabb = sceneAABB ? Array.from(sceneAABB) : [];
     stats.endTime = performance.now();
     stats.elapsedTime = stats.endTime - (stats.startTime ?? stats.endTime);
 

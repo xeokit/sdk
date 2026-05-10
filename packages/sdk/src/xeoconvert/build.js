@@ -3,7 +3,7 @@
 const {build} = require("esbuild");
 const sharedConfig = {
   entryPoints: [
-    "src/xeoconvert/xeoconvert.ts"
+    "src/xeoconvert/xeoconvert_core.ts"
   ],
   bundle: true,
   minify: false
@@ -14,5 +14,5 @@ build({
   platform: 'node',
   format: 'cjs',
   target: "node10.4",
-  outfile: "src/xeoconvert/dist/xeoconvert.cjs.js"
+  outfile: "src/xeoconvert/xeoconvert_core.cjs.js"
 });

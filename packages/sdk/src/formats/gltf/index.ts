@@ -54,7 +54,7 @@
  *
  * The following example demonstrates a complete flow:
  *
- * - create a {@link viewer!Viewer | Viewer} and {@link webglrenderer!WebGLRenderer | WebGLRenderer}
+ * - create a {@link viewer!Viewer | Viewer} and {@link webGLRenderer!WebGLRenderer | WebGLRenderer}
  * - create a {@link viewer!View | View} bound to a canvas
  * - load a binary glTF (`.glb`) file into a {@link scene!SceneModel | SceneModel}
  *
@@ -62,8 +62,8 @@
  * import { Scene } from "@xeokit/sdk/scene";
  * import { Data } from "@xeokit/sdk/data";
  * import { Viewer } from "@xeokit/sdk/viewer";
- * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
- * import { ViewController } from "@xeokit/sdk/viewcontroller";
+ * import { WebGLRenderer } from "@xeokit/sdk/webGLRenderer";
+ * import { ViewController } from "@xeokit/sdk/viewController";
  * import { GLTFLoader } from "@xeokit/sdk/formats/gltf";
  *
  * // 1) Create containers for geometry and optional structural data

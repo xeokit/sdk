@@ -8,7 +8,7 @@ import {createVec3Float64, type Vec3} from "../math/vector";
 /**
  * Configures edge enhancement effect for a {@link View}.
  *
- * * Located at {@link View.edges}.
+ * * Located at {@link Effects.edges}, which lives at {@link View.effects}.
  * * View will apply edge enhancement when {@link View.renderMode | View.renderMode} is set to one of the values
  * specified in {@link Edges.renderModes}.
  *

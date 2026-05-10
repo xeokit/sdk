@@ -6,7 +6,7 @@ import {RealisticRender} from "../constants";
 /**
  * Configures the HDR bloom post-process for a {@link View}.
  *
- * * Located at {@link View.bloom}.
+ * * Located at {@link Effects.bloom}, which lives at {@link View.effects}.
  * * Runs between the scene phase and the tonemap pass. Reads the HDR scene
  *   target, builds a blur pyramid using Kawase dual filtering, and adds the
  *   result back into the HDR target before tonemap.

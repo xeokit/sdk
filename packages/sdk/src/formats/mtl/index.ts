@@ -35,8 +35,8 @@
  * ```ts
  * import { Scene } from "@xeokit/sdk/scene";
  * import { Viewer } from "@xeokit/sdk/viewer";
- * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
- * import { ViewController } from "@xeokit/sdk/viewcontroller";
+ * import { WebGLRenderer } from "@xeokit/sdk/webGLRenderer";
+ * import { ViewController } from "@xeokit/sdk/viewController";
  * import { MTLLoader } from "@xeokit/sdk/formats/mtl";
  *
  * const handleError = (error: string) => {

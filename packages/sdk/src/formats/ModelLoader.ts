@@ -1,11 +1,13 @@
 
-import {isJSONObject} from "../utils";
+import {isJSONObject, setYieldIntervalOverride} from "../utils";
 import {type ModelLoadParams} from "./ModelLoadParams";
 import {type ModelLoaderParams} from "./ModelLoaderParams";
 import {type ModelParser} from "./ModelParser";
 
 import {createFileIO} from '../io/FileIOFactory';
 import {type ModelLoadOptions} from "./ModelLoadOptions";
+
+const MIN_YIELD_INTERVAL_MS = 16;
 
 const fileIO = createFileIO();
 
@@ -110,11 +112,32 @@ export class ModelLoader {
           return reject(`[${className}.load] Unsupported source file schema version: ${version} - supported versions are [${this.versions}]`);
         }
         if (sceneModel || dataModel) {
+          // Push the caller's `yieldIntervalMs` (clamped to the
+          // 16ms minimum) onto the cooperative-yield throttle so
+          // every `yieldToHost` deeper in the parser picks it up
+          // without each call site having to thread the value
+          // through. Restored in finally so a thrown parser
+          // can't leave the override leaking into the next load.
+          let prevYieldOverride: number | undefined;
+          let pushedYieldOverride = false;
+          if (options.yieldIntervalMs !== undefined) {
+            const clamped = Math.max(MIN_YIELD_INTERVAL_MS, options.yieldIntervalMs);
+            prevYieldOverride = setYieldIntervalOverride(clamped);
+            pushedYieldOverride = true;
+          }
+          const restoreYieldOverride = (): void => {
+            if (pushedYieldOverride) {
+              setYieldIntervalOverride(prevYieldOverride);
+              pushedYieldOverride = false;
+            }
+          };
           parser({fileData, sceneModel, dataModel}, options)
             .then(() => {
+              restoreYieldOverride();
               resolve();
             })
             .catch(err => {
+              restoreYieldOverride();
               reject(err); // We expect the parser to prefix its errors
             });
         } else {

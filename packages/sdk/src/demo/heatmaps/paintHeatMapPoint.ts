@@ -5,11 +5,11 @@
  * the heat-map painter chose, and rasterised as a circular brush over
  * the colour texture's `imageData`.
  *
- * Mutates `texture.imageData.data` in place. The mutation is visible
- * to anything that reads the SceneTexture from JS — but the
- * renderer's atlas uploads each SceneTexture once at finalize and has
- * no re-upload path today, so post-finalize calls don't refresh the
- * GPU. Pre-finalize edits are picked up by the next finalize.
+ * Mutates `texture.imageData.data` in place, then reassigns
+ * `texture.imageData = imageData` so the SceneTexture setter fires
+ * `onSceneTextureImageDataChanged` — the renderer's atlas re-uploads
+ * the affected sub-rect via `texSubImage2D`, no batch / mesh / material
+ * rebuild needed.
  */
 
 import {SDKErrorType, type SDKResult} from "../../core";
@@ -84,7 +84,7 @@ export function paintHeatMapPoint(
   transformPoint3(inv, worldP, localP);
 
   // ── 2. Pick UV axes ─────────────────────────────────────────────
-  // Same heuristic as paintHeatMap / generatePlanarUVs.
+  // Same heuristic as paintHeatMap.
   const aabb = mesh.geometry.aabb;
   const exts: [number, number, number] = [
     aabb[3] - aabb[0],
@@ -170,8 +170,7 @@ export function paintHeatMapPoint(
   }
 
   // Re-trigger the SceneTexture's setter so the renderer's atlas
-  // re-uploads the affected sub-rect. Pre-finalize the setter no-ops
-  // on the event side; the next finalize picks up the mutation.
+  // re-uploads the affected sub-rect via texSubImage2D.
   if (x1 >= x0 && y1 >= y0) {
     texture.imageData = imageData;
   }

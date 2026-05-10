@@ -6,18 +6,21 @@ import {RealisticRender} from "../constants";
 /**
  * Configures the HDR tonemap pass for a {@link View}.
  *
- * * Located at {@link View.tonemap}.
+ * * Located at {@link Effects.tonemap}, which lives at {@link View.effects}.
  * * The renderer always composites the HDR scene target through this pass
  *   when HDR rendering is available. The defaults — `mode = "aces"`,
- *   `exposure = 0.5`, `sRGBEncode = false` — apply the ACES Filmic curve
+ *   `exposure = 0.5`, `sRGBEncode = true` — apply the ACES Filmic curve
  *   so HDR-range scene values roll off into displayable range without
- *   clipping. The exposure default is below 1.0 because ACES lifts
- *   midtones noticeably above their linear input — at exposure 1.0 the
- *   scene reads brighter than the no-tonemap path that BIM assets are
- *   typically authored against; 0.5 controls midtones tightly so HDR
- *   peaks (sun, smooth-metal specular) stand out as bright accents
- *   rather than washing into the rest of the frame. Set `mode = "none"`
- *   for an identity copy.
+ *   clipping, then encode the linear LDR result to sRGB so the canvas
+ *   displays gamma-correct (the renderer's albedo textures upload as
+ *   SRGB8_ALPHA8 and shade in linear space, so the swap-chain write
+ *   needs the inverse encode). The exposure default is below 1.0
+ *   because ACES lifts midtones noticeably above their linear input —
+ *   at exposure 1.0 the scene reads brighter than the no-tonemap path
+ *   that BIM assets are typically authored against; 0.5 controls
+ *   midtones tightly so HDR peaks (sun, smooth-metal specular) stand
+ *   out as bright accents rather than washing into the rest of the
+ *   frame. Set `mode = "none"` for an identity copy.
  */
 export class Tonemap {
 
@@ -37,7 +40,7 @@ export class Tonemap {
     this._renderModes = [RealisticRender];
     this._exposure = params.exposure !== undefined ? params.exposure : 0.5;
     this._mode = params.mode !== undefined ? params.mode : "aces";
-    this._sRGBEncode = params.sRGBEncode === true;
+    this._sRGBEncode = params.sRGBEncode !== undefined ? params.sRGBEncode === true : true;
     this._renderScale = clampRenderScale(params.renderScale !== undefined ? params.renderScale : 1.0);
   }
 
@@ -48,8 +51,9 @@ export class Tonemap {
    * {@link View.renderMode} has been set to one of these values. When
    * {@link View.renderMode} falls outside this list the tonemap pass
    * still runs (it is the HDR-to-LDR composite), but it falls back to
-   * an identity copy: `mode = "none"`, `exposure = 1.0`,
-   * `sRGBEncode = false`.
+   * an identity tone-curve: `mode = "none"`, `exposure = 1.0`. The
+   * sRGB encode is always applied — the swap chain expects gamma-
+   * encoded values regardless of which render mode is active.
    *
    * Default value is [{@link constants!RealisticRender | RealisticRender}].
    */
@@ -117,7 +121,7 @@ export class Tonemap {
     this.view.needsRender();
   }
 
-  /** Whether to gamma-encode the final colour. Default `false`. */
+  /** Whether to gamma-encode the final colour. Default `true`. */
   get sRGBEncode(): boolean {
     return this._sRGBEncode;
   }

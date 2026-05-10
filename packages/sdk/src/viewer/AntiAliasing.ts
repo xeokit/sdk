@@ -6,7 +6,7 @@ import {DetailedRender, RealisticRender} from "../constants";
 /**
  * Configures the final antialiasing post-process pass for a {@link View}.
  *
- * * Located at {@link View.antiAliasing}.
+ * * Located at {@link Effects.antiAliasing}, which lives at {@link View.effects}.
  * * FXAA runs after {@link Tonemap} so it sees final LDR colours.
  * * Has no effect when the renderer has fallen back to LDR mode (no HDR
  *   target), since there's no intermediate texture to filter from.

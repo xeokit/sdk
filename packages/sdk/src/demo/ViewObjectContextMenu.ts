@@ -1,5 +1,6 @@
 import {ContextMenu} from "../ui/contextmenu";
 import {SceneHealthPanel} from "./sceneHealthPanel/SceneHealthPanel";
+import {DataHealthPanel} from "./dataHealthPanel/DataHealthPanel";
 import {SceneStatsPanel} from "./sceneStats/SceneStatsPanel";
 import {SchemaMaterialsPanel} from "./schemaMaterialsPanel/SchemaMaterialsPanel";
 import {ViewerConfigPanel} from "./viewerPanel/ViewerConfigPanel";
@@ -12,19 +13,14 @@ import {DataStatsPanel} from "./dataStats/DataStatsPanel";
 import {BoundariesPanel} from "./boundariesPanel/BoundariesPanel";
 import {TilesPanel} from "./tilesPanel/TilesPanel";
 import {SampleModelsPanel} from "./sampleModelsPanel/SampleModelsPanel";
+import {ExportBCFPanel} from "./exportBCF/ExportBCFPanel";
 import {ViewObject} from "../viewer";
-import {SceneCollisionIndex} from "../collision/bvh";
-import {XGFExporter} from "../formats/xgf";
-import {type CoordinateSystemParams, SceneModel, type SceneModelParams, SceneObject} from "../scene";
+import {SceneCollisionIndex} from "../collision";
+import {SceneModel, type SceneModelParams, SceneObject} from "../scene";
 import {DataModel, type DataModelContentParams, DataObject} from "../data";
-import {OBJExporter} from "../formats/obj";
-import {MTLExporter} from "../formats/mtl";
-import {DotBIMExporter} from "../formats/dotbim";
-import {GLTFExporter} from "../formats/gltf";
-import {saveBCFViewpoint} from "../bcf";
-import {CameraFlightAnimation} from "../cameraflight";
+import {CameraFlightAnimation} from "../cameraFlight";
 import {DemoHelper} from "./DemoHelper";
-import {WebGLRenderer} from "../webglrenderer";
+import {WebGLRenderer} from "../webGLRenderer";
 import {
   DetailedRender,
   NavigationRender,
@@ -33,7 +29,6 @@ import {
   RealisticRender
 } from "../constants";
 import {type AABB3} from "../math/boundaries";
-import {IFCExporter} from "../formats/ifc";
 import {applyIFCMaterials} from "./applyIFCMaterials";
 import {MaterialsPalette, type PainterCatalogEntry} from "./materials";
 
@@ -132,9 +127,13 @@ export class ViewObjectContextMenu extends ContextMenu {
   /**
    * Creates a view-object context menu with predefined grouped actions.
    *
-   * @param _params Constructor params placeholder.
+   * @param params Optional params. `debug: true` exposes the
+   *   engineer-only Debug submenu (currently the WebGL
+   *   context-loss simulator). Default `false`.
    */
-  constructor(_params: {}) {
+  constructor(params: { debug?: boolean } = {}) {
+    const debug = params.debug === true;
+    const debugSub = createDebugSubmenu(debug);
     super({
       // Verb-led structure, two-level nesting max:
       //   Frame ▶ — three flat actions, the most-used at the top.
@@ -184,18 +183,13 @@ export class ViewObjectContextMenu extends ContextMenu {
           }
         ],
         [createViewObjectShowGroup()],
-        // Inspect ▶ split by user intent: "I have a problem" lands
-        // under Diagnose, "I want a fact" lands under Examine.
-        // Viewer Configuration + Toolbar moved into View ▶ (they're
-        // viewer settings, not inspections); Schema Materials moved
-        // into Modify ▶ (it mutates).
-        createViewObjectDiagnoseGroup(),
-        createViewObjectExamineGroup(),
+        [createInspectGroup(true)],
         [createViewObjectModifyGroup()],
-        [createViewObjectViewGroup()],
+        [createVisualStyleEntry(), createCameraProjectionEntry()],
         createViewObjectImportGroup(),
         createViewObjectExportGroup(),
         createViewObjectDeleteGroup(),
+        ...(debugSub ? [[debugSub]] : []),
       ]
     });
   }
@@ -221,9 +215,12 @@ export class CanvasContextMenu extends ContextMenu {
   /**
    * Creates a canvas context menu with view-level and scene-level actions.
    *
-   * @param _params Constructor params placeholder.
+   * @param params Optional params. `debug: true` exposes the
+   *   engineer-only Debug submenu. Default `false`.
    */
-  constructor(_params: {}) {
+  constructor(params: { debug?: boolean } = {}) {
+    const debug = params.debug === true;
+    const debugSub = createDebugSubmenu(debug);
     super({
       // Same verb-led structure as the per-object menu, slimmed
       // down for a click into empty canvas: no per-object actions,
@@ -243,15 +240,41 @@ export class CanvasContextMenu extends ContextMenu {
           },
         ],
         [createCanvasShowGroup()],
-        // Inspect split — see ViewObjectContextMenu for rationale.
-        [createCanvasDiagnoseGroup()],
-        [createCanvasExamineGroup()],
-        [createCanvasViewGroup()],
+        [createInspectGroup(false)],
+        [createCanvasModifyGroup()],
+        [createVisualStyleEntry(), createCameraProjectionEntry()],
         createCanvasImportGroup(),
         createCanvasExportGroup(),
+        [createSettingsEntry()],
+        ...(debugSub ? [[debugSub]] : []),
       ]
     });
   }
+}
+
+
+/**
+ * Builds the **Modify** submenu for the canvas context menu —
+ * scene-level mutators that don't need a specific object pick.
+ * Mirrors the entries in {@link createViewObjectModifyGroup} that
+ * make sense without a {@link ViewObject} target.
+ */
+function createCanvasModifyGroup() {
+  return {
+    getTitle: () => "Modify",
+    items: [
+      [
+        {
+          title: "Schema Materials…",
+          icon: SchemaMaterialsPanel.iconSvg(),
+          getEnabled: (context: CanvasContextMenuContext) => !!context.dataModel,
+          doAction: (context: CanvasContextMenuContext) => {
+            context.demoHelper.openSchemaMaterialsPanel(context.sceneModel);
+          }
+        }
+      ]
+    ]
+  };
 }
 
 /**
@@ -261,137 +284,63 @@ export class CanvasContextMenu extends ContextMenu {
  * scattered set ("Render Mode" at top level, "View Settings",
  * "Create View", "Close View" each as separate top-level rows).
  */
-function createViewObjectViewGroup() {
+/**
+ * Visual Style submenu — promoted from the old `View ▶ Render
+ * Mode ▶` to a top-level entry. Vocabulary aligned with the AEC
+ * convention (Revit, Navisworks both call this "Visual Style").
+ * The internal API still references `view.renderMode`; only the
+ * label changes.
+ */
+function createVisualStyleEntry() {
   return {
-    getTitle: () => "View",
-    items: [
-      // Renderer / camera settings — the everyday toggles.
-      [
-        {
-          getTitle: () => "Render Mode",
-          items: [createRenderModeGroup()],
-        },
-        {
-          getTitle: () => "Camera Projection",
-          items: [createCameraProjectionGroup()],
-        },
-      ],
-      // Viewer configuration panels (relocated from the old Inspect
-      // submenu — these mutate viewer settings, so they belong with
-      // the other View toggles).
-      [
-        {
-          title: "Viewer Configuration",
-          icon: ViewerConfigPanel.iconSvg(),
-          doAction: (context: ViewObjectContextMenuContext) => {
-            context.demoHelper.openViewerConfigPanel();
-          }
-        },
-        {
-          getTitle: (context: ViewObjectContextMenuContext) => {
-            const tb = Toolbar.getFor(context.demoHelper.viewer);
-            return tb && tb.visible ? "Hide Toolbar" : "Show Toolbar";
-          },
-          icon: Toolbar.iconSvg(),
-          doAction: (context: ViewObjectContextMenuContext) => {
-            context.demoHelper.toggleToolbar();
-          }
-        },
-      ],
-      // View lifecycle + low-level renderer actions (less common,
-      // separated visually).
-      [
-        {
-          getTitle: () => "Create View",
-          getEnabled: (context: ViewObjectContextMenuContext) => {
-            return context.view.viewer.viewList.length < 4; // TODO
-          },
-          doAction: (context: ViewObjectContextMenuContext) => {
-            const result = context.view.camera.toParams();
-            if (result.ok === false) {
-              console.error("Failed to get camera parameters:", result.error);
-              return;
-            }
-            context.demoHelper.createView({camera: result.value});
-          }
-        },
-        {
-          getTitle: () => "Close View",
-          doAction: (context: ViewObjectContextMenuContext) => {
-            context.demoHelper.destroyView(context.view);
-          }
-        },
-        {
-          getTitle: () => "Lose WebGL Context",
-          doAction: (context: ViewObjectContextMenuContext) => {
-            loseWebGLContext(context.renderer);
-          }
-        },
-      ],
-    ],
+    getTitle: () => "Visual Style",
+    items: [createRenderModeGroup()],
   };
 }
 
-/** Canvas-side counterpart of {@link createViewObjectViewGroup}. */
-function createCanvasViewGroup() {
+/**
+ * Camera Projection submenu — promoted from the old
+ * `View ▶ Camera Projection ▶` to a top-level entry.
+ */
+function createCameraProjectionEntry() {
   return {
-    getTitle: () => "View",
+    getTitle: () => "Camera Projection",
+    items: [createCameraProjectionGroup()],
+  };
+}
+
+/**
+ * Settings entry — opens the {@link ViewerConfigPanel}. Sits at
+ * the top level of the canvas menu near the bottom; not in the
+ * object menu, since settings are not object-scoped.
+ */
+function createSettingsEntry() {
+  return {
+    title: "Settings…",
+    icon: ViewerConfigPanel.iconSvg(),
+    doAction: (context: BaseViewContext) => {
+      context.demoHelper.openViewerConfigPanel();
+    },
+  };
+}
+
+/**
+ * Debug submenu — gated on {@link DemoHelperConfig.debug}.
+ * Hosts engineer-only entries (currently just the WebGL
+ * context-loss simulator). Returns `null` when the debug flag
+ * is unset, so the caller filters it out of the menu.
+ */
+function createDebugSubmenu(debug: boolean) {
+  if (!debug) return null;
+  return {
+    getTitle: () => "Debug",
     items: [
       [
         {
-          getTitle: () => "Render Mode",
-          items: [createRenderModeGroup()],
-        },
-        {
-          getTitle: () => "Camera Projection",
-          items: [createCameraProjectionGroup()],
-        },
-      ],
-      [
-        {
-          title: "Viewer Configuration",
-          icon: ViewerConfigPanel.iconSvg(),
-          doAction: (context: CanvasContextMenuContext) => {
-            context.demoHelper.openViewerConfigPanel();
-          }
-        },
-        {
-          getTitle: (context: CanvasContextMenuContext) => {
-            const tb = Toolbar.getFor(context.demoHelper.viewer);
-            return tb && tb.visible ? "Hide Toolbar" : "Show Toolbar";
-          },
-          icon: Toolbar.iconSvg(),
-          doAction: (context: CanvasContextMenuContext) => {
-            context.demoHelper.toggleToolbar();
-          }
-        },
-      ],
-      [
-        {
-          getTitle: () => "Create View",
-          getEnabled: (context: CanvasContextMenuContext) => {
-            return context.view.viewer.viewList.length < 4; // TODO
-          },
-          doAction: (context: CanvasContextMenuContext) => {
-            const result = context.view.camera.toParams();
-            if (result.ok === false) {
-              console.error("Failed to get camera parameters:", result.error);
-              return;
-            }
-            context.demoHelper.createView({camera: result.value});
-          }
-        },
-        {
-          getTitle: () => "Close View",
-          doAction: (context: CanvasContextMenuContext) => {
-            context.demoHelper.destroyView(context.view);
-          }
-        },
-        {
           getTitle: () => "Lose WebGL Context",
-          doAction: (context: CanvasContextMenuContext) => {
+          doAction: (context: BaseViewContext) => {
             loseWebGLContext(context.renderer);
-          }
+          },
         },
       ],
     ],
@@ -637,211 +586,123 @@ function createCanvasShowGroup() {
  * @returns Context-menu item group.
  */
 /**
- * Builds the **Diagnose** submenu — issue-finding workflows: the
- * Model Inspector, debug-viz panels (Scene Boundaries, GPU
- * Tiles), and the GPU Memory monitor. Cleanly separated from
- * **Examine** (read-only stats / JSON dumps) so the menu reads
- * as goal-paths: "I have a problem" → Diagnose, "I want a fact"
- * → Examine.
+ * Builds the **Inspect** submenu shared between the object
+ * and canvas menus — every read-only diagnostic and metadata
+ * panel in one flat list, separated by usage cluster:
+ *
+ *   1. Health checks (problem-finding, top-billed because
+ *      that is the most common reason to open Inspect).
+ *   2. Browsing / statistics surfaces.
+ *   3. Debug-viz panels (Boundaries, Tiles, GPU Memory) and
+ *      the Events log.
+ *   4. Object-scoped JSON dumps (object menu only).
+ *
+ * The previous Diagnose / Examine split is gone — users do
+ * not predictably know which submenu hosts which panel, and
+ * the two-level nesting added a click without aiding recall.
  */
-function createViewObjectDiagnoseGroup() {
-  return [
+function createInspectGroup(forObject: boolean) {
+
+  const healthGroup: any[] = [
     {
-      getTitle: () => "Diagnose",
-      items: [
-        [
-          {
-            title: "Scene Health",
-            icon: SceneHealthPanel.iconSvg(),
-            doAction: (context: ViewObjectContextMenuContext) => {
-              // Pass the clicked object's SceneModel as initial
-              // focus — the panel opens with that model selected
-              // in the tab strip, even if it was previously
-              // showing another model.
-              context.demoHelper.getSceneHealthPanel(
-                context.viewObject.sceneObject.model
-              );
-            }
-          },
-          {
-            title: "Scene Boundaries",
-            icon: BoundariesPanel.iconSvg(),
-            doAction: (context: ViewObjectContextMenuContext) => {
-              context.demoHelper.openBoundariesPanel();
-            }
-          },
-          {
-            title: "GPU Tiles",
-            icon: TilesPanel.iconSvg(),
-            doAction: (context: ViewObjectContextMenuContext) => {
-              context.demoHelper.openTilesPanel();
-            }
-          },
-          {
-            title: "GPU Memory",
-            icon: GPUMemoryPanel.iconSvg(),
-            doAction: (context: ViewObjectContextMenuContext) => {
-              context.demoHelper.getGPUMemoryPanel();
-            }
-          },
-          {
-            title: "Events",
-            icon: EventsPanel.iconSvg(),
-            doAction: (context: ViewObjectContextMenuContext) => {
-              context.demoHelper.getEventsPanel();
-            }
-          },
-        ],
-      ]
-    }
-  ];
-}
-
-/**
- * Builds the **Examine** submenu — read-only "tell me about
- * this" surfaces: Scene / Data statistics, plus per-object JSON
- * dumps for the active SceneObject and matching DataObject.
- */
-function createViewObjectExamineGroup() {
-  return [
+      title: "Scene Health",
+      icon: SceneHealthPanel.iconSvg(),
+      doAction: (context: any) => {
+        // For the object menu, pass the clicked object's
+        // SceneModel as initial focus so the panel opens on the
+        // right model in its tab strip. For the canvas menu,
+        // there is no specific SceneModel; the panel falls back
+        // to its first loaded model.
+        const focus = forObject
+          ? (context as ViewObjectContextMenuContext).viewObject.sceneObject.model
+          : undefined;
+        context.demoHelper.getSceneHealthPanel(focus);
+      },
+    },
     {
-      getTitle: () => "Examine",
-      items: [
-        [
-          {
-            title: "Explorer",
-            icon: ExplorerPanel.iconSvg(),
-            doAction: (context: ViewObjectContextMenuContext) => {
-              context.demoHelper.getExplorer();
-            }
-          },
-          {
-            title: "Scene Statistics",
-            icon: SceneStatsPanel.iconSvg(),
-            doAction: (context: ViewObjectContextMenuContext) => {
-              context.demoHelper.openSceneStatsPanel();
-            }
-          },
-          {
-            title: "Data Statistics",
-            icon: DataStatsPanel.iconSvg(),
-            doAction: (context: ViewObjectContextMenuContext) => {
-              context.demoHelper.openDataStatsPanel();
-            }
-          },
-        ],
-        [
-          {
-            title: "View DataObject JSON",
-            getEnabled: (context: ViewObjectContextMenuContext) => {
-              return !!getCurrentDataObject(context);
-            },
-            doAction: (context: ViewObjectContextMenuContext) => {
-              const dataObject = getCurrentDataObject(context);
-              if (!dataObject) {
-                return;
-              }
-              openJsonInNewTab(getDataObjectJSON(dataObject), `DataObject ${dataObject.id}`);
-            }
-          },
-          {
-            title: "View SceneObject JSON",
-            doAction: (context: ViewObjectContextMenuContext) => {
-              const sceneObject = getCurrentSceneObject(context);
-              openJsonInNewTab(getSceneObjectJSON(sceneObject), `SceneObject ${sceneObject.id}`);
-            }
-          }
-        ]
-      ]
-    }
+      title: "Data Health",
+      icon: DataHealthPanel.iconSvg(),
+      doAction: (context: any) => {
+        const focus = forObject
+          ? getCurrentDataObject(context as ViewObjectContextMenuContext)?.models[0]
+          : undefined;
+        context.demoHelper.getDataHealthPanel(focus);
+      },
+    },
   ];
-}
 
-/**
- * Canvas-side **Diagnose** submenu — Scene Boundaries / GPU
- * Tiles / GPU Memory. Per-object Inspector is omitted (canvas
- * menu fires on empty space, no SceneModel context).
- */
-function createCanvasDiagnoseGroup() {
-  return {
-    getTitle: () => "Diagnose",
-    items: [
-      [
-        {
-          title: "Scene Health",
-          icon: SceneHealthPanel.iconSvg(),
-          doAction: (context: CanvasContextMenuContext) => {
-            // No specific SceneModel — the panel falls back to
-            // its first loaded model (or empty state).
-            context.demoHelper.getSceneHealthPanel();
-          }
-        },
-        {
-          title: "Scene Boundaries",
-          icon: BoundariesPanel.iconSvg(),
-          doAction: (context: CanvasContextMenuContext) => {
-            context.demoHelper.openBoundariesPanel();
-          }
-        },
-        {
-          title: "GPU Tiles",
-          icon: TilesPanel.iconSvg(),
-          doAction: (context: CanvasContextMenuContext) => {
-            context.demoHelper.openTilesPanel();
-          }
-        },
-        {
-          title: "GPU Memory",
-          icon: GPUMemoryPanel.iconSvg(),
-          doAction: (context: CanvasContextMenuContext) => {
-            context.demoHelper.getGPUMemoryPanel();
-          }
-        },
-        {
-          title: "Events",
-          icon: EventsPanel.iconSvg(),
-          doAction: (context: CanvasContextMenuContext) => {
-            context.demoHelper.getEventsPanel();
-          }
-        },
-      ],
-    ],
-  };
-}
+  const browseGroup: any[] = [
+    {
+      title: "Explorer",
+      icon: ExplorerPanel.iconSvg(),
+      doAction: (context: any) => context.demoHelper.getExplorer(),
+    },
+    {
+      title: "Scene Statistics",
+      icon: SceneStatsPanel.iconSvg(),
+      doAction: (context: any) => context.demoHelper.openSceneStatsPanel(),
+    },
+    {
+      title: "Data Statistics",
+      icon: DataStatsPanel.iconSvg(),
+      doAction: (context: any) => context.demoHelper.openDataStatsPanel(),
+    },
+  ];
 
-/**
- * Canvas-side **Examine** submenu — Scene / Data statistics.
- * JSON dumps are dropped on the canvas variant (no specific
- * resource to serialise from an empty-space click).
- */
-function createCanvasExamineGroup() {
+  const debugGroup: any[] = [
+    {
+      title: "Scene Boundaries",
+      icon: BoundariesPanel.iconSvg(),
+      doAction: (context: any) => context.demoHelper.openBoundariesPanel(),
+    },
+    {
+      title: "GPU Tiles",
+      icon: TilesPanel.iconSvg(),
+      doAction: (context: any) => context.demoHelper.openTilesPanel(),
+    },
+    {
+      title: "GPU Memory",
+      icon: GPUMemoryPanel.iconSvg(),
+      doAction: (context: any) => context.demoHelper.getGPUMemoryPanel(),
+    },
+    {
+      title: "Events",
+      icon: EventsPanel.iconSvg(),
+      doAction: (context: any) => context.demoHelper.getEventsPanel(),
+    },
+  ];
+
+  // JSON dumps are object-scoped — there is no per-object
+  // resource to serialise from an empty-space canvas click.
+  const jsonGroup: any[] = forObject
+    ? [
+        {
+          title: "View DataObject JSON",
+          getEnabled: (context: ViewObjectContextMenuContext) =>
+            !!getCurrentDataObject(context),
+          doAction: (context: ViewObjectContextMenuContext) => {
+            const dataObject = getCurrentDataObject(context);
+            if (!dataObject) return;
+            openJsonInNewTab(getDataObjectJSON(dataObject), `DataObject ${dataObject.id}`);
+          },
+        },
+        {
+          title: "View SceneObject JSON",
+          doAction: (context: ViewObjectContextMenuContext) => {
+            const sceneObject = getCurrentSceneObject(context);
+            openJsonInNewTab(getSceneObjectJSON(sceneObject), `SceneObject ${sceneObject.id}`);
+          },
+        },
+      ]
+    : [];
+
+  const items = jsonGroup.length > 0
+    ? [healthGroup, browseGroup, debugGroup, jsonGroup]
+    : [healthGroup, browseGroup, debugGroup];
+
   return {
-    getTitle: () => "Examine",
-    items: [
-      [
-        {
-          title: "Explorer",
-          icon: ExplorerPanel.iconSvg(),
-          doAction: (context: CanvasContextMenuContext) => {
-            context.demoHelper.getExplorer();
-          }
-        },
-        {
-          title: "Scene Statistics",
-          icon: SceneStatsPanel.iconSvg(),
-          doAction: (context: CanvasContextMenuContext) => {
-            context.demoHelper.openSceneStatsPanel();
-          }
-        },
-        {
-          title: "Data Statistics",
-          icon: DataStatsPanel.iconSvg(),
-          doAction: (context: CanvasContextMenuContext) => {
-            context.demoHelper.openDataStatsPanel();
-          }
-        },
-      ],
-    ],
+    getTitle: () => "Inspect",
+    items,
   };
 }
 
@@ -894,11 +755,9 @@ function createCanvasImportGroup() {
 }
 
 /**
- * Builds the view-object **Export** submenu — snapshots + a
- * nested "Export As" submenu for the six file formats. Three
- * levels deep but the file formats are similar enough that the
- * extra click is well worth the reduced clutter at the top
- * Export menu.
+ * Builds the view-object **Export** submenu — snapshots plus the
+ * "Export Models…" launcher for the full ExportDialog (which
+ * supersedes the old per-format "Export As" cascade).
  */
 function createViewObjectExportGroup() {
   return [
@@ -906,12 +765,6 @@ function createViewObjectExportGroup() {
       getTitle: () => "Export",
       items: [
         createSnapshotExportGroup(),
-        [
-          {
-            getTitle: () => "Export As",
-            items: [createFileExportGroup()],
-          },
-        ],
         [
           {
             title: "Export Models…",
@@ -960,149 +813,16 @@ function createSnapshotExportGroup() {
   return [
     {
       title: "Save Screenshot",
+      icon: screenshotIconSvg(),
       doAction: async (context: BaseViewContext) => {
         await saveViewScreenshot(context);
       }
     },
     {
-      title: "Export BCF Viewpoint",
+      title: "Export BCF Viewpoint…",
+      icon: ExportBCFPanel.iconSvg(),
       doAction: (context: BaseViewContext) => {
-        const bcfViewpointResult = saveBCFViewpoint({
-          view: context.view,
-          includeViewLayerIds: ["default"]
-        });
-
-        if (bcfViewpointResult.ok) {
-          downloadText(
-            JSON.stringify(bcfViewpointResult.value, null, 2),
-            "bcfViewpoint.json",
-            "application/json"
-          );
-        }
-      }
-    }
-  ];
-}
-
-/**
- * Creates the export submenu group for scene and model file formats.
- *
- * @returns Context-menu item group.
- */
-function createFileExportGroup() {
-  return [
-    {
-      title: "OBJ + MTL",
-      doAction: async (context: BaseViewContext) => {
-        const {sceneModel} = context;
-
-        try {
-          const objData = await new OBJExporter().write(
-            {sceneModel},
-            {coordinateSystem: createExportCoordinateSystem()}
-          );
-          downloadText(objData, `${sceneModel.id}.obj`, "application/text");
-        } catch (error) {
-          console.error(error);
-        }
-
-        try {
-          const mtlData = await new MTLExporter().write({sceneModel});
-          downloadText(mtlData, `${sceneModel.id}.mtl`, "application/text");
-        } catch (error) {
-          console.error(error);
-        }
-      }
-    },
-   {
-      title: "XGF",
-      doAction: async (context: BaseViewContext) => {
-        try {
-          const fileData = await new XGFExporter().write(
-            {
-              sceneModel: context.sceneModel,
-              dataModel: context.dataModel,
-              version: "1.1.0"
-            },
-            {
-              coordinateSystem: createExportCoordinateSystem()
-            }
-          );
-          downloadBlob(fileData, `${context.sceneModel.id}.xgf`, "application/octet-stream");
-        } catch (error) {
-          console.error(error);
-        }
-      }
-    },
-    {
-      title: "glTF",
-      doAction: async (context: BaseViewContext) => {
-        try {
-          const fileData = await new GLTFExporter().write(
-            {
-              sceneModel: context.sceneModel,
-              dataModel: context.dataModel
-            },
-            {
-              coordinateSystem: createExportCoordinateSystem()
-            }
-          );
-          downloadBlob(fileData, `${context.sceneModel.id}.glb`, "model/gltf-binary");
-        } catch (error) {
-          console.error(error);
-        }
-      }
-    },
-    {
-      title: "DotBIM",
-      doAction: async (context: BaseViewContext) => {
-        try {
-          const fileData = await new DotBIMExporter().write(
-            {
-              sceneModel: context.sceneModel,
-              dataModel: context.dataModel
-            },
-            {
-              coordinateSystem: createExportCoordinateSystem()
-            }
-          );
-          downloadText(
-            JSON.stringify(fileData, null, 2),
-            `${context.sceneModel.id}.bim`,
-            "application/json"
-          );
-        } catch (error) {
-          console.error(error);
-        }
-      }
-    },
-    {
-      title: "IFC",
-      doAction: async (context: BaseViewContext) => {
-        try {
-          const fileData = await new IFCExporter().write(
-            {
-              sceneModel: context.sceneModel,
-              dataModel: context.dataModel
-            },
-            {
-              coordinateSystem: createExportCoordinateSystem()
-            }
-          );
-          downloadText(
-            fileData,
-            `${context.sceneModel.id}.ifc`,
-            "application/text"
-          );
-        } catch (error) {
-          console.error(error);
-        }
-      }
-    },
-    {
-      title: "JSON",
-      doAction: (context: BaseViewContext) => {
-        downloadSceneAndDataJson(context);
+        context.demoHelper.openExportBCFPanel();
       }
     }
   ];
@@ -1288,21 +1008,23 @@ function getCurrentDataObject(context: ViewObjectContextMenuContext): DataObject
 }
 
 /**
- * Creates the shared coordinate-system configuration used by exporters.
- *
- * @returns Export coordinate-system config.
+ * SVG markup for the Save-Screenshot menu glyph — a camera body
+ * with a centred lens. Strokes use `currentColor`, so the
+ * context menu's accent shows through.
  */
-function createExportCoordinateSystem(): CoordinateSystemParams {
-  return {
-    basis: [
-      1, 0, 0, // Right
-      0, 0, 1, // Up
-      0, 1, 0 // Forward
-    ],
-    origin: [0, 0, 0] as [number, number, number],
-    units: "meters"
-  };
+function screenshotIconSvg(): string {
+  return `<svg viewBox="0 0 24 24" aria-hidden="true">` +
+    // Body shell.
+    `<path d="M 4 8 H 8 L 9.5 6 H 14.5 L 16 8 H 20 A 1.5 1.5 0 0 1 21.5 9.5 V 17.5 A 1.5 1.5 0 0 1 20 19 H 4 A 1.5 1.5 0 0 1 2.5 17.5 V 9.5 A 1.5 1.5 0 0 1 4 8 Z" ` +
+          `fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>` +
+    // Lens.
+    `<circle cx="12" cy="13.5" r="3.5" ` +
+            `fill="none" stroke="currentColor" stroke-width="1.6"/>` +
+    // Lens highlight (small dot).
+    `<circle cx="18.4" cy="10.4" r="0.6" fill="currentColor"/>` +
+  `</svg>`;
 }
+
 
 /**
  * Saves a PNG screenshot for the current view.
@@ -1332,36 +1054,6 @@ function getScreenshotFileName(context: BaseViewContext): string {
     : context.sceneModel.id;
 
   return `${sanitizeFileName(baseName)}-screenshot.png`;
-}
-
-/**
- * Downloads serialized scene-model and optional data-model JSON files.
- *
- * @param context Current menu context.
- */
-function downloadSceneAndDataJson(context: BaseViewContext): void {
-  const {sceneModel, dataModel} = context;
-  const sceneParamsResult = sceneModel.toParams();
-  if (sceneParamsResult.ok) {
-    downloadText(
-      JSON.stringify(sceneParamsResult.value, null, 2),
-      `${sceneModel.id}-scene.json`,
-      "application/json"
-    );
-  }
-
-  if (!dataModel) {
-    return;
-  }
-
-  const dataParamsResult = dataModel.toParams();
-  if (dataParamsResult.ok) {
-    downloadText(
-      JSON.stringify(dataParamsResult.value, null, 2),
-      `${dataModel.id}-data.json`,
-      "application/json"
-    );
-  }
 }
 
 /**

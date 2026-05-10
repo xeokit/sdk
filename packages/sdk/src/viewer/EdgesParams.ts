@@ -5,7 +5,7 @@ import type {Vec3} from "../math/vector";
  *
  * * Returned by {@link Edges.toParams | Edges.toParams}
  * * Passed to {@link Edges.fromParams | Edges.fromParams}
- * * Located at {@link ViewParams.edges | ViewParams.edges}
+ * * Located at {@link EffectsParams.edges}
  */
 export interface EdgesParams {
 

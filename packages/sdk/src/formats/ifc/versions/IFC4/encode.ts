@@ -1,36 +1,47 @@
-import {createUUID} from "../../../../utils";
+import {createUUID, yieldToHost} from "../../../../utils";
 import type {ModelEncodeParams} from "../../../ModelEncodeParams";
 import * as WebIFC from "web-ifc";
 import {decompressPoint3WithAABB3} from "../../../../math/compression";
 import {Data, type DataModel} from "../../../../data";
 import {createDefaultIFCDataModel} from "../../createDefaultIFCDataModel";
+import type {LoaderProgress} from "../../../LoaderProgress";
 
 // Reusable scratch buffers for position decompression — avoids per-vertex allocation
 const _compressedPos = new Float32Array(3);
 const _decompressedPos = new Float64Array(3);
 
 /** @private */
-export function encode(ifcAPI: WebIFC.IfcAPI, params: ModelEncodeParams, options?: any): Promise<any> {
-  return new Promise<any>(function (resolve, reject) {
-
-    const {sceneModel} = params;
-
-    let dataModel: DataModel;
-
-    if (!params.dataModel || params.dataModel.objectsByType?.["IfcProject"] === undefined) {
-      const data = new Data(); // GCd after encoding
-      const dataModelRes = data.createModel({
-        id: sceneModel.id
-      });
-      if (dataModelRes.ok !== true) {
-        reject("[IFC4 encode] Failed to create DataModel: " + dataModelRes.error);
-        return;
-      }
-      dataModel = dataModelRes.value;
-      createDefaultIFCDataModel(sceneModel, dataModel);
-    } else {
-      dataModel = params.dataModel;
+export async function encode(ifcAPI: WebIFC.IfcAPI, params: ModelEncodeParams, options?: any): Promise<any> {
+  const {sceneModel} = params;
+  const opts = options || {};
+  const onProgress: ((p: LoaderProgress) => void) | undefined = opts.onProgress;
+  const signal: AbortSignal | undefined = opts.signal;
+  const progress: LoaderProgress = {phase: "", current: 0, total: 0};
+  const step = async (phase: string, current: number, total: number): Promise<void> => {
+    if (onProgress) {
+      progress.phase = phase;
+      progress.current = current;
+      progress.total = total;
+      onProgress(progress);
     }
+    await yieldToHost(signal);
+  };
+
+  let dataModel: DataModel;
+
+  if (!params.dataModel || params.dataModel.objectsByType?.["IfcProject"] === undefined) {
+    const data = new Data(); // GCd after encoding
+    const dataModelRes = data.createModel({
+      id: sceneModel.id
+    });
+    if (dataModelRes.ok !== true) {
+      throw new Error("[IFC4 encode] Failed to create DataModel: " + dataModelRes.error);
+    }
+    dataModel = dataModelRes.value;
+    createDefaultIFCDataModel(sceneModel, dataModel);
+  } else {
+    dataModel = params.dataModel;
+  }
 
     const modelId = ifcAPI.CreateModel({
       schema: WebIFC.Schemas.IFC4,
@@ -174,7 +185,10 @@ export function encode(ifcAPI: WebIFC.IfcAPI, params: ModelEncodeParams, options
     // -------------------------------------------------------------------------
 
     if (dataModel) {
-      for (const objectId in dataModel.objects) {
+      const objectIds = Object.keys(dataModel.objects);
+      for (let oi = 0; oi < objectIds.length; oi++) {
+        if ((oi & 0x1F) === 0) await step("Encoding IFC objects", oi, objectIds.length);
+        const objectId = objectIds[oi];
         if (ifcElementMap[objectId]) continue; // already handled (IfcProject)
 
         const dataObject = dataModel.objects[objectId];
@@ -442,6 +456,6 @@ export function encode(ifcAPI: WebIFC.IfcAPI, params: ModelEncodeParams, options
       }
     }
 
-    resolve(ifcAPI.SaveModel(modelId));
-  });
+    await step("Saving IFC model", 1, 1);
+    return ifcAPI.SaveModel(modelId);
 }

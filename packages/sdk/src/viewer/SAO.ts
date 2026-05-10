@@ -6,7 +6,7 @@ import {SDKErrorType, type SDKResult} from "../core";
 /**
  * Configures Scalable Ambient Obscurance (SAO) for a {@link View}.
  *
- * * Located at {@link View.sao}.
+ * * Located at {@link Effects.sao}, which lives at {@link View.effects}.
  * * View will apply SAO when {@link View.renderMode | View.renderMode} is set to one of the values
  * specified in {@link SAO.renderModes}.
  *

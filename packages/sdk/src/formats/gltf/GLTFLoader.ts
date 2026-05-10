@@ -13,7 +13,7 @@ import {
   TrianglesPrimitive
 } from "../../constants";
 import {createMat4Float64, identityMat4, type Mat4, mulMat4, scalingMat4v, translationMat4v} from "../../math/matrix";
-import {createUUID} from "../../utils";
+import {createUUID, yieldToHost} from "../../utils";
 import {GLTFLoader as glGLTFLoader, postProcessGLTF} from '@loaders.gl/gltf';
 import type {ModelLoadParams} from "../ModelLoadParams";
 import {ModelLoader} from "../ModelLoader";
@@ -21,6 +21,7 @@ import type {SceneGeometryParams, SceneMeshParams, SceneModel, SceneMaterialPara
 import type {DataModel} from "../../data/DataModel";
 import {parse} from '@loaders.gl/core';
 import {quatToMat4} from "../../math/quat";
+import type {LoaderProgress} from "../LoaderProgress";
 
 /**
  * Loads a glTF file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
@@ -56,46 +57,81 @@ interface ParsingContext {
   options: any;
 }
 
-function parseGLTF(params: ModelLoadParams, options: any): Promise<any> {
-  return new Promise<void>(function (resolve, reject) {
-    const {fileData, sceneModel, dataModel} = params;
-    if (!sceneModel && !dataModel) {
-      return resolve();
-    }
-    // baseUri lets loaders.gl resolve external buffers + textures (`.bin`,
-    // `.jpg`, etc.) referenced by relative URIs in the .gltf JSON. Without
-    // it, multi-file models can only be loaded once their resources have
-    // been pre-fetched. Single-file `.glb` doesn't need it.
-    const parseOptions: any = {};
-    if (options && options.baseUri) {
-      parseOptions.baseUri = options.baseUri;
-    }
-    parse(fileData, glGLTFLoader, parseOptions).then((gltfData) => {
-      const processedGLTF = postProcessGLTF(gltfData);
-      const ctx: ParsingContext = {
-        nodesHaveNames: false, // determined in testIfNodesHaveNames()
-        meshIds: [],
-        meshIdsStack: [],
-        objectIdStack: [],
-        baseId: createUUID(),
-        gltfData: processedGLTF,
-        nextId: 0,
-        errors: [],
-        dataModel,
-        sceneModel,
-        options: options || {}
-      };
-      if (parseTextures(ctx)
-        && parseMaterials(ctx)
-        && parseDefaultScene(ctx)) {
-        return resolve();
-      } else {
-        return reject(ctx.errors.length > 0 ? ctx.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
-      }
-    }, (errMsg) => {
-      return reject(`[GLTFLoader.load] Error parsing glTF -> ${errMsg}`);
-    });
-  });
+async function parseGLTF(params: ModelLoadParams, options: any): Promise<any> {
+  const {fileData, sceneModel, dataModel} = params;
+  if (!sceneModel && !dataModel) {
+    return;
+  }
+  // baseUri lets loaders.gl resolve external buffers + textures (`.bin`,
+  // `.jpg`, etc.) referenced by relative URIs in the .gltf JSON. Without
+  // it, multi-file models can only be loaded once their resources have
+  // been pre-fetched. Single-file `.glb` doesn't need it.
+  const parseOptions: any = {};
+  if (options && options.baseUri) {
+    parseOptions.baseUri = options.baseUri;
+  }
+
+  const onProgress: ((p: LoaderProgress) => void) | undefined = options?.onProgress;
+  const signal: AbortSignal | undefined = options?.signal;
+  // Reusable progress payload — see the LoaderProgress
+  // contract: consumers must copy out fields they retain.
+  const progress: LoaderProgress = {phase: "Decoding glTF", current: 0, total: 0};
+  const emit = (phase: string, current: number, total: number): void => {
+    if (!onProgress) return;
+    progress.phase = phase;
+    progress.current = current;
+    progress.total = total;
+    onProgress(progress);
+  };
+
+  emit("Decoding glTF", 0, 0);
+  await yieldToHost(signal);
+
+  let processedGLTF: any;
+  try {
+    const gltfData = await parse(fileData, glGLTFLoader, parseOptions);
+    processedGLTF = postProcessGLTF(gltfData);
+  } catch (errMsg) {
+    throw new Error(`[GLTFLoader.load] Error parsing glTF -> ${errMsg}`);
+  }
+  await yieldToHost(signal);
+
+  const ctx: ParsingContext = {
+    nodesHaveNames: false, // determined in testIfNodesHaveNames()
+    meshIds: [],
+    meshIdsStack: [],
+    objectIdStack: [],
+    baseId: createUUID(),
+    gltfData: processedGLTF,
+    nextId: 0,
+    errors: [],
+    dataModel,
+    sceneModel,
+    options: options || {}
+  };
+
+  // Phase boundaries — yield + emit between each so the dialog
+  // paints during the heaviest phase transitions. Per-item
+  // yields inside the recursive scene walker are a future
+  // refinement; this minimum gives huge glTFs three or four
+  // paint opportunities mid-load instead of zero.
+  emit("Decoding textures", 0, 0);
+  if (!parseTextures(ctx)) {
+    throw new Error(ctx.errors.length > 0 ? ctx.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
+  }
+  await yieldToHost(signal);
+
+  emit("Building materials", 0, 0);
+  if (!parseMaterials(ctx)) {
+    throw new Error(ctx.errors.length > 0 ? ctx.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
+  }
+  await yieldToHost(signal);
+
+  emit("Building scene", 0, 0);
+  if (!parseDefaultScene(ctx)) {
+    throw new Error(ctx.errors.length > 0 ? ctx.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
+  }
+  emit("Building scene", 1, 1);
 }
 
 function parseTextures(ctx: any): boolean {

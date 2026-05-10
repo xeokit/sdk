@@ -9,6 +9,28 @@ import {TreeViewEvents} from "./TreeViewEvents";
 
 const TREE_VIEW_STYLE_ELEMENT_ID = "xeokit-treeview-styles";
 
+/** Crosshair / target glyph for the per-row Select button —
+ *  evokes "pick this object". Uses `currentColor` so it tracks
+ *  the button's accent on hover. */
+const SELECT_ICON_SVG =
+  `<svg viewBox="0 0 16 16" aria-hidden="true">` +
+    `<circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="1.4"/>` +
+    `<line x1="8" y1="0.5" x2="8"  y2="3.5"  stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>` +
+    `<line x1="8" y1="12.5" x2="8" y2="15.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>` +
+    `<line x1="0.5" y1="8" x2="3.5"  y2="8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>` +
+    `<line x1="12.5" y1="8" x2="15.5" y2="8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>` +
+    `<circle cx="8" cy="8" r="1.4" fill="currentColor"/>` +
+  `</svg>`;
+
+/** Frame-/zoom-to-fit glyph: four corner brackets boxing a
+ *  region — universal "frame the selection in the camera". */
+const FRAME_ICON_SVG =
+  `<svg viewBox="0 0 16 16" aria-hidden="true">` +
+    `<path d="M 1.5 5 V 1.5 H 5 M 11 1.5 H 14.5 V 5 M 14.5 11 V 14.5 H 11 M 5 14.5 H 1.5 V 11" ` +
+          `fill="none" stroke="currentColor" stroke-width="1.4" ` +
+          `stroke-linecap="round" stroke-linejoin="round"/>` +
+  `</svg>`;
+
 /**
  * Default DOM styles for TreeView.
  *
@@ -21,92 +43,117 @@ const TREE_VIEW_CSS = `
   .xeokit-tree-view {
     color: #1f2937;
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 12.5px;
+    line-height: 1.4;
   }
 
+  /* Indentation. Each nested <ul> adds a fixed amount; the
+     amount is large enough that descendants are visually well
+     inside their parent regardless of whether the parent has a
+     toggle button or not. */
   .xeokit-tree-view ul {
     list-style: none;
     margin: 0;
     padding-left: 18px;
+    position: relative;
   }
-
   .xeokit-tree-view > ul {
     padding-left: 0;
   }
 
+  /* Subtle vertical guide line per nested level — sits in the
+     ul's padding-left column. Skipped on the outer ul. */
+  .xeokit-tree-view ul ul::before {
+    content: "";
+    position: absolute;
+    left: 8px;
+    top: 4px;
+    bottom: 4px;
+    width: 1px;
+    background: rgba(99, 116, 139, 0.18);
+    pointer-events: none;
+  }
+
+  /* Each row reserves a 24px-wide column on its left for the
+     expand/collapse toggle. The toggle itself is absolutely
+     positioned into that column when present; leaf rows keep
+     the column reserved so their labels line up with
+     toggle-bearing siblings. We deliberately keep \`li\` as
+     \`display: block\` (not flex) — child \`<ul>\` elements
+     for expanded subtrees are direct children and need to
+     flow below the row, not next to it. */
   .xeokit-tree-view li {
     position: relative;
     display: block;
     white-space: nowrap;
-    line-height: 1.45;
-    margin: 2px 0;
-    padding: 3px 0;
-    border-radius: 10px;
+    margin: 1px 0;
+    padding: 2px 6px 2px 24px;
+    border-radius: 5px;
+    min-height: 22px;
   }
 
-  .xeokit-tree-view li::before {
-    content: "";
-    position: absolute;
-    left: -10px;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background: transparent;
+  .xeokit-tree-view li:hover {
+    background: rgba(37, 99, 235, 0.05);
   }
 
+  /* Toggle is absolutely positioned into the 24px reserved
+     column on its row's left. Pinned to \`top: 2px\` (not
+     centered) because an expanded \`<li>\` also contains its
+     children's \`<ul>\` — vertical-centering would drag the
+     toggle down into the middle of the expanded subtree. */
   .xeokit-tree-view a.plus,
   .xeokit-tree-view a.minus {
+    position: absolute;
+    left: 1px;
+    top: 2px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 18px;
     height: 18px;
-    margin-right: 6px;
-    border-radius: 999px;
+    border-radius: 4px;
     text-decoration: none;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
+    line-height: 1;
     color: #475569;
-    background: #f8fafc;
-    border: 1px solid rgba(148, 163, 184, 0.25);
-    vertical-align: middle;
-    transition: all 120ms ease;
+    background: #f1f5f9;
+    border: 1px solid rgba(148, 163, 184, 0.32);
+    transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
     box-sizing: border-box;
+    cursor: pointer;
   }
-
   .xeokit-tree-view a.plus:hover,
   .xeokit-tree-view a.minus:hover {
-    background: #eef2ff;
-    border-color: rgba(37, 99, 235, 0.28);
+    background: #e0e7ff;
+    border-color: rgba(37, 99, 235, 0.45);
     color: #2563eb;
-    transform: translateY(-1px);
   }
 
   .xeokit-tree-view input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
-    width: 15px;
-    height: 15px;
-    margin: 0 8px 0 0;
-    border-radius: 4px;
-    border: 1px solid rgba(100, 116, 139, 0.4);
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin: 0 5px 0 0;
+    vertical-align: -3px;
+    border-radius: 3px;
+    border: 1px solid rgba(100, 116, 139, 0.45);
     background: white;
-    vertical-align: -2px;
     position: relative;
     cursor: pointer;
-    transition: all 120ms ease;
+    transition: background 120ms ease, border-color 120ms ease;
   }
-
   .xeokit-tree-view input[type="checkbox"]:checked {
     background: #2563eb;
     border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
   }
-
   .xeokit-tree-view input[type="checkbox"]:checked::after {
     content: "";
     position: absolute;
-    left: 4px;
-    top: 1px;
+    left: 3px;
+    top: 0;
     width: 4px;
     height: 8px;
     border: solid white;
@@ -116,18 +163,16 @@ const TREE_VIEW_CSS = `
 
   .xeokit-tree-view span {
     display: inline-block;
-    padding: 4px 8px;
-    border-radius: 8px;
+    vertical-align: middle;
+    padding: 1px 4px;
+    border-radius: 4px;
     cursor: pointer;
     color: #1f2937;
-    font-size: 13px;
     font-weight: 500;
-    transition: background 120ms ease, color 120ms ease;
+    letter-spacing: -0.005em;
   }
-
-  .xeokit-tree-view span:hover {
-    background: #f3f4f6;
-    color: #111827;
+  .xeokit-tree-view li:hover > span {
+    color: #0f172a;
   }
 
   .xeokit-tree-view .highlighted-node > span {
@@ -137,68 +182,59 @@ const TREE_VIEW_CSS = `
   }
 
   .xeokit-tree-view .xrayed-node > span {
-    opacity: 0.62;
+    opacity: 0.55;
     font-style: italic;
   }
 
-  .xeokit-context-menu {
-    font-family: 'Roboto', sans-serif;
-    font-size: 15px;
-    display: none;
-    z-index: 300000;
-    background: rgba(255, 255, 255, 0.46);
-    border: 1px solid black;
-    border-radius: 6px;
-    padding: 0;
-    width: 200px;
+  /* Per-row action buttons (Select + Frame). Hidden by
+     default — surfaced on row hover (or when the row contains
+     a focused button) so they don't clutter quiet scrolling.
+     Click handlers stop propagation so they never fire the
+     row's title-click / context-menu event by accident. */
+  .xeokit-tree-view .xeokit-tree-view-row-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: 4px;
+    vertical-align: middle;
+    opacity: 0;
+    transition: opacity 100ms ease-out;
+    pointer-events: none;
   }
-
-  .xeokit-context-menu ul {
-    list-style: none;
-    margin-left: 0;
-    padding: 0;
+  .xeokit-tree-view li:hover > .xeokit-tree-view-row-actions,
+  .xeokit-tree-view li:focus-within > .xeokit-tree-view-row-actions {
+    opacity: 1;
+    pointer-events: auto;
   }
-
-  .xeokit-context-menu-item {
-    list-style-type: none;
-    padding-left: 10px;
-    padding-right: 20px;
-    padding-top: 8px;
-    padding-bottom: 8px;
-    color: black;
-    background: rgba(255, 255, 255, 0.46);
+  .xeokit-tree-view button.xeokit-tree-view-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    color: #475569;
+    background: #f1f5f9;
+    border: 1px solid rgba(148, 163, 184, 0.32);
+    border-radius: 4px;
     cursor: pointer;
-    width: calc(100% - 30px);
+    line-height: 1;
+    transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
   }
-
-  .xeokit-context-menu-item:hover {
-    background: black;
-    color: white;
-    font-weight: normal;
+  .xeokit-tree-view button.xeokit-tree-view-action:hover {
+    background: #e0e7ff;
+    border-color: rgba(37, 99, 235, 0.45);
+    color: #2563eb;
   }
-
-  .xeokit-context-menu-item span {
-    display: inline-block;
+  .xeokit-tree-view button.xeokit-tree-view-action:focus-visible {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.20);
   }
-
-  .xeokit-context-menu .disabled {
-    display: inline-block;
-    color: gray;
-    cursor: default;
-    font-weight: normal;
-  }
-
-  .xeokit-context-menu .disabled:hover {
-    color: gray;
-    cursor: default;
-    background: #eeeeee;
-    font-weight: normal;
-  }
-
-  .xeokit-context-menu-item-separator {
-    background: rgba(0, 0, 0, 1);
-    height: 1px;
-    width: 100%;
+  .xeokit-tree-view button.xeokit-tree-view-action svg {
+    width: 12px;
+    height: 12px;
+    pointer-events: none;
   }
 `;
 
@@ -1604,7 +1640,61 @@ export class TreeView {
       e.preventDefault();
     };
 
+    // Per-row action buttons — surfaced on hover. Each fires
+    // its own event; the host (e.g. ExplorerPanel) decides what
+    // to do with the node (toggle selection, frame the camera,
+    // etc.).
+    const actions = document.createElement("span");
+    actions.className = "xeokit-tree-view-row-actions";
+    actions.appendChild(this._buildActionButton(
+      "select", "Select / deselect", SELECT_ICON_SVG,
+      (e) => {
+        this.events.onNodeSelectClicked.dispatch(this, {
+          event: e, treeView: this, treeViewNode: node,
+        } as TreeViewNodeTitleClickedEvent);
+      },
+    ));
+    actions.appendChild(this._buildActionButton(
+      "frame", "Frame in camera", FRAME_ICON_SVG,
+      (e) => {
+        this.events.onNodeFrameClicked.dispatch(this, {
+          event: e, treeView: this, treeViewNode: node,
+        } as TreeViewNodeTitleClickedEvent);
+      },
+    ));
+    nodeElement.appendChild(actions);
+
     return nodeElement;
+  }
+
+  _buildActionButton(
+    kind:    string,
+    title:   string,
+    iconSvg: string,
+    onClick: (ev: MouseEvent) => void,
+  ): HTMLButtonElement {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "xeokit-tree-view-action";
+    btn.dataset.action = kind;
+    btn.title = title;
+    btn.setAttribute("aria-label", title);
+    btn.innerHTML = iconSvg;
+    btn.addEventListener("click", (ev) => {
+      // The label / checkbox / context menu all sit on the
+      // same row; without these guards the click would also
+      // fire the row's title handler (and toggle the chevron).
+      ev.stopPropagation();
+      ev.preventDefault();
+      onClick(ev);
+      // Drop focus so the row drops out of `:focus-within` and
+      // the action strip rolls back under the hover gate.
+      // Without this the buttons stay visible after every
+      // click until the user clicks somewhere else.
+      btn.blur();
+    });
+    btn.addEventListener("mousedown", (ev) => ev.stopPropagation());
+    return btn;
   }
 
   _expandSwitchElement(switchElement: HTMLElement): void {

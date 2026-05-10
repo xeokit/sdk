@@ -48,9 +48,10 @@
  * @module demo/sampleModelsPanel
  */
 import type {DemoHelper} from "../DemoHelper";
-import {bringFloatingPanelToFront} from "../floatingPanelZ";
 
 
+import {el} from "../utils/el";
+import {FloatingPanelBase} from "../floatingPanelBase";
 // ─────────────────────────────────────────────────────────────────
 // Public types
 // ─────────────────────────────────────────────────────────────────
@@ -507,7 +508,7 @@ const PANEL_CSS = `
 // Public class
 // ─────────────────────────────────────────────────────────────────
 
-export class SampleModelsPanel {
+export class SampleModelsPanel extends FloatingPanelBase {
 
   /**
    * Per-DemoHelper instance registry. Keyed by helper because
@@ -554,15 +555,9 @@ export class SampleModelsPanel {
   }
 
   readonly demoHelper: DemoHelper;
-  private readonly _container: HTMLElement;
-  private readonly _storageKey: string;
   private readonly _sampleModelsUrl: string;
 
   // DOM refs.
-  private _panel!: HTMLElement;
-  private _pill!: HTMLElement;
-  private _header!: HTMLElement;
-  private _closeBtn!: HTMLButtonElement;
   private _titleIdEl!: HTMLElement;
   private _bodyEl!: HTMLElement;
   private _progressEl!: HTMLElement;
@@ -608,25 +603,19 @@ export class SampleModelsPanel {
   private readonly _unsubs: Array<() => void> = [];
 
   // Lifecycle state.
-  private _destroyed = false;
 
   // Drag state.
-  private _dragging = false;
-  private _dragOffsetX = 0;
-  private _dragOffsetY = 0;
-
-  private readonly _onResize = (): void => {
-    this._clampToViewport();
-    this._saveLayout();
-  };
 
   constructor(params: SampleModelsPanelParams) {
     if (!params || !params.demoHelper) {
       throw new Error("SampleModelsPanel: demoHelper is required");
     }
+    super({
+      container:   params.container,
+      storageKey:  params.storageKey || "xkt-sam-panel",
+      classPrefix: "xkt-sam",
+    });
     this.demoHelper = params.demoHelper;
-    this._container = params.container || document.body;
-    this._storageKey = params.storageKey || "xkt-sam-panel";
     this._sampleModelsUrl =
       params.sampleModelsUrl ||
       `${(this.demoHelper as any).modelsDir || "../../models"}/index.json`;
@@ -640,11 +629,10 @@ export class SampleModelsPanel {
 
     injectStylesOnce();
     this._buildDom();
+    this._bindChrome();
     this._wireDomEvents();
-    this._restoreLayout();
     this._attachSceneListeners();
 
-    window.addEventListener("resize", this._onResize);
 
     if (params.visible === false) {
       this.hide();
@@ -662,11 +650,7 @@ export class SampleModelsPanel {
 
   show(): void {
     if (this._destroyed) return;
-    this._panel.style.display = "flex";
-    this._pill.hidden = true;
-    this._clampToViewport();
-    this._saveLayout();
-    bringFloatingPanelToFront(this._panel);
+    super.show();
     // Lazy fetch: only the first show triggers a network request;
     // subsequent shows reuse the cached catalog.
     if (!this._sampleModels && !this._fetchInFlight) {
@@ -676,9 +660,7 @@ export class SampleModelsPanel {
 
   hide(): void {
     if (this._destroyed) return;
-    this._panel.style.display = "none";
-    this._pill.hidden = false;
-    this._saveLayout();
+    super.hide();
   }
 
   toggle(): void {
@@ -687,7 +669,6 @@ export class SampleModelsPanel {
 
   destroy(): void {
     if (this._destroyed) return;
-    this._destroyed = true;
     for (const u of this._unsubs) {
       try { u(); } catch { /* ignore */ }
     }
@@ -695,9 +676,7 @@ export class SampleModelsPanel {
     if (SampleModelsPanel._instances.get(this.demoHelper) === this) {
       SampleModelsPanel._instances.delete(this.demoHelper);
     }
-    window.removeEventListener("resize", this._onResize);
-    this._panel.remove();
-    this._pill.remove();
+    super.destroy();
   }
 
 
@@ -1089,7 +1068,7 @@ export class SampleModelsPanel {
 
   // ── DOM construction ──────────────────────────────────────────
 
-  private _buildDom(): void {
+  protected _buildDom(): void {
     this._pill = el("button", "xkt-sam-pill", {
       type: "button",
       title: "Reopen the Sample Models panel",
@@ -1167,97 +1146,11 @@ export class SampleModelsPanel {
   }
 
   private _wireDomEvents(): void {
-    // Bring-to-front on any pointer-down inside the panel.
-    this._panel.addEventListener("pointerdown", () => {
-      bringFloatingPanelToFront(this._panel);
-    });
-
-    this._closeBtn.addEventListener("click", (ev) => {
-      ev.stopPropagation();
-      this.hide();
-    });
-    this._pill.addEventListener("click", () => this.show());
-
-    // Drag.
-    this._header.addEventListener("pointerdown", (ev) => {
-      if ((ev.target as Element).closest("button")) return;
-      if (ev.button !== 0) return;
-      const rect = this._panel.getBoundingClientRect();
-      this._dragOffsetX = ev.clientX - rect.left;
-      this._dragOffsetY = ev.clientY - rect.top;
-      this._panel.style.right = "auto";
-      this._panel.style.left  = rect.left + "px";
-      this._panel.style.top   = rect.top  + "px";
-      this._dragging = true;
-      this._header.classList.add("xkt-sam-dragging");
-      this._header.setPointerCapture(ev.pointerId);
-      ev.preventDefault();
-    });
-    this._header.addEventListener("pointermove", (ev) => {
-      if (!this._dragging) return;
-      const rect = this._panel.getBoundingClientRect();
-      let l = ev.clientX - this._dragOffsetX;
-      let t = ev.clientY - this._dragOffsetY;
-      l = Math.max(0, Math.min(l, window.innerWidth  - rect.width));
-      t = Math.max(0, Math.min(t, window.innerHeight - rect.height));
-      this._panel.style.left = l + "px";
-      this._panel.style.top  = t + "px";
-    });
-    const endDrag = (ev: PointerEvent): void => {
-      if (!this._dragging) return;
-      this._dragging = false;
-      this._header.classList.remove("xkt-sam-dragging");
-      try { this._header.releasePointerCapture(ev.pointerId); } catch { /* ignore */ }
-      this._saveLayout();
-    };
-    this._header.addEventListener("pointerup", endDrag);
-    this._header.addEventListener("pointercancel", endDrag);
   }
 
 
   // ── Layout persistence ────────────────────────────────────────
 
-  private _restoreLayout(): void {
-    let saved: {top?: number; left?: number; hidden?: boolean} | null = null;
-    try {
-      const raw = window.localStorage.getItem(this._storageKey);
-      if (raw) saved = JSON.parse(raw);
-    } catch { saved = null; }
-    if (!saved) return;
-    if (Number.isFinite(saved.left) && Number.isFinite(saved.top)) {
-      this._panel.style.right = "auto";
-      this._panel.style.left  = saved.left + "px";
-      this._panel.style.top   = saved.top  + "px";
-      this._clampToViewport();
-    }
-    if (saved.hidden) {
-      this._panel.style.display = "none";
-      this._pill.hidden = false;
-    }
-  }
-
-  private _saveLayout(): void {
-    const state: {top?: number; left?: number; hidden: boolean} = {
-      hidden: this._panel.style.display === "none",
-    };
-    const l = parseFloat(this._panel.style.left);
-    const t = parseFloat(this._panel.style.top);
-    if (Number.isFinite(l)) state.left = l;
-    if (Number.isFinite(t)) state.top  = t;
-    try { window.localStorage.setItem(this._storageKey, JSON.stringify(state)); }
-    catch { /* quota / disabled — drop silently */ }
-  }
-
-  private _clampToViewport(): void {
-    const l = parseFloat(this._panel.style.left);
-    const t = parseFloat(this._panel.style.top);
-    if (!Number.isFinite(l) || !Number.isFinite(t)) return;
-    const rect = this._panel.getBoundingClientRect();
-    const maxL = Math.max(0, window.innerWidth  - rect.width);
-    const maxT = Math.max(0, window.innerHeight - rect.height);
-    this._panel.style.left = Math.max(0, Math.min(l, maxL)) + "px";
-    this._panel.style.top  = Math.max(0, Math.min(t, maxT)) + "px";
-  }
 }
 
 
@@ -1283,31 +1176,6 @@ interface RowEntry {
   loadedSceneModelId: string | undefined;
 }
 
-function el<K extends keyof HTMLElementTagNameMap>(
-  tag: K,
-  className?: string,
-  props?: Record<string, unknown>,
-): HTMLElementTagNameMap[K];
-function el(tag: string, className?: string, props?: Record<string, unknown>): HTMLElement {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  if (props) {
-    for (const k of Object.keys(props)) {
-      const v = props[k];
-      if (v === undefined) continue;
-      if (k === "textContent" || k === "innerHTML") {
-        (node as any)[k] = v;
-      } else if (k === "hidden") {
-        (node as HTMLElement).hidden = !!v;
-      } else if (k in node) {
-        (node as any)[k] = v;
-      } else {
-        node.setAttribute(k, String(v));
-      }
-    }
-  }
-  return node;
-}
 
 /**
  * Parse a dataset descriptor like `"datamodel, scenemodel"` into

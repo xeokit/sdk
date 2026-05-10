@@ -16,11 +16,14 @@
  * @module demo/explorerPanel
  */
 import type {Data} from "../../data";
-import type {View} from "../../viewer";
-import {bringFloatingPanelToFront} from "../floatingPanelZ";
+import type {View, ViewObject} from "../../viewer";
+import type {CameraFlightAnimation} from "../../cameraFlight";
+import type {TreeViewNode} from "../../ui/treeview/TreeViewNode";
 import {TreeView} from "../../ui/treeview/TreeView";
 
 
+import {el} from "../utils/el";
+import {FloatingPanelBase} from "../floatingPanelBase";
 // ─────────────────────────────────────────────────────────────────
 // Public types
 // ─────────────────────────────────────────────────────────────────
@@ -40,6 +43,16 @@ export interface ExplorerPanelParams {
    * for object lookups.
    */
   view: View;
+
+  /**
+   * Optional camera-flight animator. Wired to the per-row
+   * **Frame** button — clicking it jumps the camera to the
+   * union AABB of the matching `ViewObject`s. When omitted, the
+   * Frame button still fires its event (hosts can subscribe
+   * directly via {@link TreeViewEvents.onNodeFrameClicked}) but
+   * the panel no-ops on its own.
+   */
+  cameraFlight?: CameraFlightAnimation;
 
   /**
    * Aggregation relationship type to traverse when building
@@ -261,7 +274,7 @@ const PANEL_CSS = `
 // Public class
 // ─────────────────────────────────────────────────────────────────
 
-export class ExplorerPanel {
+export class ExplorerPanel extends FloatingPanelBase {
 
   private static readonly _instances = new WeakMap<Data, ExplorerPanel>();
 
@@ -301,8 +314,7 @@ export class ExplorerPanel {
 
   readonly data: Data;
   readonly view: View;
-  private readonly _container: HTMLElement;
-  private readonly _storageKey: string;
+  readonly cameraFlight: CameraFlightAnimation | undefined;
   /**
    * `null` when the caller didn't pass `linkType` and we should
    * auto-detect from the current Data on each rebuild — needed
@@ -318,10 +330,6 @@ export class ExplorerPanel {
   private readonly _autoExpandDepth: number;
 
   // DOM refs.
-  private _panel!: HTMLElement;
-  private _pill!: HTMLElement;
-  private _header!: HTMLElement;
-  private _closeBtn!: HTMLButtonElement;
   private _bodyEl!: HTMLElement;
   private _treeHostEl!: HTMLElement;
 
@@ -346,17 +354,8 @@ export class ExplorerPanel {
   private static readonly _REBUILD_QUIET_MS = 120;
 
   // Lifecycle state.
-  private _destroyed = false;
 
   // Drag state.
-  private _dragging = false;
-  private _dragOffsetX = 0;
-  private _dragOffsetY = 0;
-
-  private readonly _onResize = (): void => {
-    this._clampToViewport();
-    this._saveLayout();
-  };
 
   constructor(params: ExplorerPanelParams) {
     if (!params || !params.data) {
@@ -365,10 +364,14 @@ export class ExplorerPanel {
     if (!params.view) {
       throw new Error("ExplorerPanel: view is required");
     }
+    super({
+      container:   params.container,
+      storageKey:  params.storageKey || "xkt-explorer-panel",
+      classPrefix: "xkt-explorer",
+    });
     this.data       = params.data;
     this.view       = params.view;
-    this._container = params.container || document.body;
-    this._storageKey = params.storageKey || "xkt-explorer-panel";
+    this.cameraFlight = params.cameraFlight;
     this._userLinkType = params.linkType ?? null;
     this._linkType  = params.linkType ?? pickAggregationLinkTypes(params.data);
     this._autoExpandDepth = params.autoExpandDepth ?? 2;
@@ -382,11 +385,10 @@ export class ExplorerPanel {
 
     injectStylesOnce();
     this._buildDom();
+    this._bindChrome();
     this._wireDomEvents();
-    this._restoreLayout();
     this._attachDataListeners();
 
-    window.addEventListener("resize", this._onResize);
 
     if (params.visible === false) {
       this.hide();
@@ -404,19 +406,13 @@ export class ExplorerPanel {
 
   show(): void {
     if (this._destroyed) return;
-    this._panel.style.display = "flex";
-    this._pill.hidden = true;
-    this._clampToViewport();
-    this._saveLayout();
-    bringFloatingPanelToFront(this._panel);
+    super.show();
     this._ensureTree();
   }
 
   hide(): void {
     if (this._destroyed) return;
-    this._panel.style.display = "none";
-    this._pill.hidden = false;
-    this._saveLayout();
+    super.hide();
   }
 
   toggle(): void {
@@ -425,7 +421,6 @@ export class ExplorerPanel {
 
   destroy(): void {
     if (this._destroyed) return;
-    this._destroyed = true;
     this._detachDataListeners();
     if (this._tree) {
       try { (this._tree as any).destroy?.(); } catch { /* ignore */ }
@@ -434,9 +429,7 @@ export class ExplorerPanel {
     if (ExplorerPanel._instances.get(this.data) === this) {
       ExplorerPanel._instances.delete(this.data);
     }
-    window.removeEventListener("resize", this._onResize);
-    this._panel.remove();
-    this._pill.remove();
+    super.destroy();
   }
 
 
@@ -593,6 +586,16 @@ export class ExplorerPanel {
         hierarchy:        TreeView.AggregationHierarchy,
         autoExpandDepth:  this._autoExpandDepth,
       } as any);
+
+      // Per-row Select / Frame buttons — wire the events
+      // dispatched by the TreeView to local handlers that walk
+      // the node's subtree and act on the matching ViewObjects.
+      this._tree.events.onNodeSelectClicked.subscribe((_t, ev) => {
+        this._toggleSelectionForNode(ev.treeViewNode);
+      });
+      this._tree.events.onNodeFrameClicked.subscribe((_t, ev) => {
+        this._frameNode(ev.treeViewNode);
+      });
     } catch (e: any) {
       console.warn("[ExplorerPanel] Failed to mount TreeView:", e?.message ?? e);
       this._treeHostEl.innerHTML = "";
@@ -604,9 +607,59 @@ export class ExplorerPanel {
   }
 
 
+  // ── Per-row actions (Select / Frame) ─────────────────────────
+
+  /**
+   * Toggle selection for every {@link ViewObject} under
+   * `node`. If *any* matching view-object is currently
+   * unselected, the action selects them all; otherwise it
+   * deselects. Walks `node.childNodes` recursively so a
+   * non-leaf row acts on its whole subtree.
+   */
+  private _toggleSelectionForNode(node: TreeViewNode): void {
+    const objs = this._collectViewObjectsUnderNode(node);
+    if (objs.length === 0) return;
+    const allSelected = objs.every((o) => o.selected);
+    const next = !allSelected;
+    for (const o of objs) o.selected = next;
+  }
+
+  /**
+   * Jump the camera to the union AABB of every
+   * {@link ViewObject} under `node`. No-op if the panel has
+   * no `cameraFlight` reference, or if no matching view-object
+   * carries a finite AABB.
+   */
+  private _frameNode(node: TreeViewNode): void {
+    if (!this.cameraFlight) return;
+    const objs = this._collectViewObjectsUnderNode(node);
+    const aabb = unionAABB(objs);
+    if (!aabb) return;
+    this.cameraFlight.jumpTo({aabb, duration: 0.5, fitFOV: 40} as any);
+  }
+
+  /**
+   * Walk `node` (and every descendant via `childNodes`) and
+   * collect each `ViewObject` whose id matches a node's
+   * `objectId`. Nodes without a matching ViewObject — typical
+   * of "type" rollup nodes that have no scene representation —
+   * are skipped.
+   */
+  private _collectViewObjectsUnderNode(node: TreeViewNode): ViewObject[] {
+    const out: ViewObject[] = [];
+    const walk = (n: TreeViewNode): void => {
+      const obj = (this.view as any).objects[n.objectId];
+      if (obj) out.push(obj as ViewObject);
+      for (const child of n.childNodes) walk(child);
+    };
+    walk(node);
+    return out;
+  }
+
+
   // ── DOM construction ──────────────────────────────────────────
 
-  private _buildDom(): void {
+  protected _buildDom(): void {
     this._pill = el("button", "xkt-explorer-pill", {
       type: "button",
       title: "Reopen the Explorer panel",
@@ -643,99 +696,11 @@ export class ExplorerPanel {
     this._container.appendChild(this._panel);
   }
 
-  private _wireDomEvents(): void {
-    this._panel.addEventListener("pointerdown", () => {
-      bringFloatingPanelToFront(this._panel);
-    });
-
-    this._closeBtn.addEventListener("click", (ev) => {
-      ev.stopPropagation();
-      this.hide();
-    });
-    this._pill.addEventListener("click", () => this.show());
-
-    // Drag on the header. Clicks on buttons inside the header
-    // (only the close button today) are exempted via the
-    // `closest("button")` check.
-    this._header.addEventListener("pointerdown", (ev) => {
-      if ((ev.target as Element).closest("button")) return;
-      if (ev.button !== 0) return;
-      const rect = this._panel.getBoundingClientRect();
-      this._dragOffsetX = ev.clientX - rect.left;
-      this._dragOffsetY = ev.clientY - rect.top;
-      this._panel.style.right = "auto";
-      this._panel.style.left  = rect.left + "px";
-      this._panel.style.top   = rect.top  + "px";
-      this._dragging = true;
-      this._header.classList.add("xkt-explorer-dragging");
-      this._header.setPointerCapture(ev.pointerId);
-      ev.preventDefault();
-    });
-    this._header.addEventListener("pointermove", (ev) => {
-      if (!this._dragging) return;
-      const rect = this._panel.getBoundingClientRect();
-      let l = ev.clientX - this._dragOffsetX;
-      let t = ev.clientY - this._dragOffsetY;
-      l = Math.max(0, Math.min(l, window.innerWidth  - rect.width));
-      t = Math.max(0, Math.min(t, window.innerHeight - rect.height));
-      this._panel.style.left = l + "px";
-      this._panel.style.top  = t + "px";
-    });
-    const endDrag = (ev: PointerEvent): void => {
-      if (!this._dragging) return;
-      this._dragging = false;
-      this._header.classList.remove("xkt-explorer-dragging");
-      try { this._header.releasePointerCapture(ev.pointerId); } catch { /* ignore */ }
-      this._saveLayout();
-    };
-    this._header.addEventListener("pointerup",     endDrag);
-    this._header.addEventListener("pointercancel", endDrag);
-  }
+  private _wireDomEvents(): void {  }
 
 
   // ── Layout persistence ────────────────────────────────────────
 
-  private _restoreLayout(): void {
-    let saved: {top?: number; left?: number; hidden?: boolean} | null = null;
-    try {
-      const raw = window.localStorage.getItem(this._storageKey);
-      if (raw) saved = JSON.parse(raw);
-    } catch { saved = null; }
-    if (!saved) return;
-    if (Number.isFinite(saved.left) && Number.isFinite(saved.top)) {
-      this._panel.style.right = "auto";
-      this._panel.style.left  = saved.left + "px";
-      this._panel.style.top   = saved.top  + "px";
-      this._clampToViewport();
-    }
-    if (saved.hidden) {
-      this._panel.style.display = "none";
-      this._pill.hidden = false;
-    }
-  }
-
-  private _saveLayout(): void {
-    const state: {top?: number; left?: number; hidden: boolean} = {
-      hidden: this._panel.style.display === "none",
-    };
-    const l = parseFloat(this._panel.style.left);
-    const t = parseFloat(this._panel.style.top);
-    if (Number.isFinite(l)) state.left = l;
-    if (Number.isFinite(t)) state.top  = t;
-    try { window.localStorage.setItem(this._storageKey, JSON.stringify(state)); }
-    catch { /* quota / disabled — drop silently */ }
-  }
-
-  private _clampToViewport(): void {
-    const l = parseFloat(this._panel.style.left);
-    const t = parseFloat(this._panel.style.top);
-    if (!Number.isFinite(l) || !Number.isFinite(t)) return;
-    const rect = this._panel.getBoundingClientRect();
-    const maxL = Math.max(0, window.innerWidth  - rect.width);
-    const maxT = Math.max(0, window.innerHeight - rect.height);
-    this._panel.style.left = Math.max(0, Math.min(l, maxL)) + "px";
-    this._panel.style.top  = Math.max(0, Math.min(t, maxT)) + "px";
-  }
 }
 
 
@@ -864,28 +829,27 @@ function pickAggregationLinkTypes(data: Data): string[] {
   return result;
 }
 
-function el<K extends keyof HTMLElementTagNameMap>(
-  tag: K,
-  className?: string,
-  props?: Record<string, unknown>,
-): HTMLElementTagNameMap[K];
-function el(tag: string, className?: string, props?: Record<string, unknown>): HTMLElement {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  if (props) {
-    for (const k of Object.keys(props)) {
-      const v = props[k];
-      if (v === undefined) continue;
-      if (k === "textContent" || k === "innerHTML") {
-        (node as any)[k] = v;
-      } else if (k === "hidden") {
-        (node as HTMLElement).hidden = !!v;
-      } else if (k in node) {
-        (node as any)[k] = v;
-      } else {
-        node.setAttribute(k, String(v));
-      }
-    }
+/**
+ * Return the union of every `ViewObject.aabb` whose first
+ * component is finite (the SDK convention for "no AABB
+ * computed yet"). `null` when no object contributes.
+ */
+function unionAABB(objs: ReadonlyArray<ViewObject>): Float64Array | null {
+  let minX = Infinity, minY = Infinity, minZ = Infinity;
+  let maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
+  let hit = false;
+  for (const o of objs) {
+    const a = (o as any).aabb as ArrayLike<number> | undefined;
+    if (!a || a.length < 6 || !Number.isFinite(a[0])) continue;
+    if (a[0] < minX) minX = a[0];
+    if (a[1] < minY) minY = a[1];
+    if (a[2] < minZ) minZ = a[2];
+    if (a[3] > maxX) maxX = a[3];
+    if (a[4] > maxY) maxY = a[4];
+    if (a[5] > maxZ) maxZ = a[5];
+    hit = true;
   }
-  return node;
+  if (!hit) return null;
+  return new Float64Array([minX, minY, minZ, maxX, maxY, maxZ]);
 }
+

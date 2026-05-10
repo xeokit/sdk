@@ -21,6 +21,8 @@ import {createMat4Float64, isIdentityMat4} from "../../../../math/matrix";
 import type {SceneModel} from "../../../../scene";
 import type {XGFData_v2} from "./XGFData_v2";
 import {createCoordinateSystemTransform, getMeshWorldMatrix} from "../../../../scene";
+import {yieldToHost} from "../../../../utils";
+import type {LoaderProgress} from "../../../LoaderProgress";
 
 const NUM_MATERIAL_ATTRIBUTES = 4;
 const NUM_MATERIAL_TEXTURE_REFS = 5;
@@ -67,7 +69,22 @@ export async function modelToXGF(params: {
 }): Promise<XGFData_v2> {
 
   const sceneModel = params.sceneModel;
-  const options = params.options;
+  const options = params.options || {};
+
+  const onProgress: ((p: LoaderProgress) => void) | undefined = options.onProgress;
+  const signal: AbortSignal | undefined = options.signal;
+  // Reusable progress payload — see the LoaderProgress
+  // contract: copy out fields you need to retain.
+  const progress: LoaderProgress = {phase: "", current: 0, total: 0};
+  const step = async (phase: string, current: number, total: number): Promise<void> => {
+    if (onProgress) {
+      progress.phase = phase;
+      progress.current = current;
+      progress.total = total;
+      onProgress(progress);
+    }
+    await yieldToHost(signal);
+  };
 
   // (Coordinate-system transform is applied through getMeshWorldMatrix
   // below — we don't need to materialise the matrix here.)
@@ -119,6 +136,7 @@ export async function modelToXGF(params: {
   const textureIndexById: Record<string, number> = {};
 
   for (let i = 0; i < numTextures; i++) {
+    if ((i & 0x03) === 0) await step("Encoding textures", i, numTextures);
     const tex = texturesList[i];
     textureIds.push(tex.id);
     textureIndexById[tex.id] = i;
@@ -170,6 +188,7 @@ export async function modelToXGF(params: {
   const eachMaterialTextures = new Int32Array(numMaterials * NUM_MATERIAL_TEXTURE_REFS);
   const eachMaterialId: string[] = [];
   for (let i = 0; i < numMaterials; i++) {
+    if ((i & 0x3F) === 0) await step("Encoding materials", i, numMaterials);
     const mat = materialsList[i];
     materialIndexById[mat.id] = i;
     eachMaterialId.push(mat.id);
@@ -310,6 +329,9 @@ export async function modelToXGF(params: {
   let meshesBase = 0;
   let materialAttrBase = 0;
   for (let objectIdx = 0; objectIdx < numObjects; objectIdx++) {
+    if ((objectIdx & 0x1F) === 0) {
+      await step("Encoding objects", objectIdx, numObjects);
+    }
     const object = objectsList[objectIdx];
     xgfData.eachObjectId[objectIdx] = object.id;
     xgfData.eachObjectMeshesBase[objectIdx] = meshesBase;
@@ -349,6 +371,15 @@ export async function modelToXGF(params: {
   xgfData.aabbs    = new Float32Array(aabbs);
   xgfData.matrices = new Float64Array(matrices);
 
+  // Final emit so the bar reads as 100% before the promise
+  // resolves regardless of which loop was last.
+  if (onProgress) {
+    progress.phase = "Encoding objects";
+    progress.current = numObjects;
+    progress.total = numObjects;
+    onProgress(progress);
+  }
+
   return xgfData;
 }
 
@@ -364,17 +395,40 @@ function textureIndexOrNone(id: string | undefined, indexById: Record<string, nu
 }
 
 /**
- * Re-encode a decoded image (HTMLImageElement / ImageBitmap / Canvas)
- * back to PNG bytes. Uses an `OffscreenCanvas` when available — that's
- * the faster path; falls back to a DOM canvas + `toBlob` otherwise.
+ * Re-encode a texture image to PNG bytes. Accepts both drawable sources
+ * (`HTMLImageElement` / `ImageBitmap` / `OffscreenCanvas` / `HTMLCanvasElement`)
+ * and raw RGBA pixel buffers (`ImageData` or any `{data, width, height}`-shaped
+ * value, e.g. `MaterialPixelBuffer` from `procgen/paintMaterials`).
+ *
+ * Uses an `OffscreenCanvas` when available — that's the faster path;
+ * falls back to a DOM canvas + `toBlob` otherwise.
  */
 async function encodeImageToPNG(imageData: any): Promise<Uint8Array<any>> {
   const w = imageData.width, h = imageData.height;
+
+  // Raw pixel buffers (MaterialPixelBuffer, ImageData, or the
+  // serialised-array form) need putImageData — drawImage rejects them.
+  const isPixelBuffer = imageData && imageData.data && imageData.data.length === w * h * 4;
+
+  const paint = (ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D) => {
+    if (isPixelBuffer) {
+      const bytes = imageData.data instanceof Uint8ClampedArray
+        ? imageData.data
+        : new Uint8ClampedArray(imageData.data);
+      const id = (typeof ImageData !== "undefined" && imageData instanceof ImageData)
+        ? imageData
+        : new ImageData(bytes, w, h);
+      ctx.putImageData(id, 0, 0);
+    } else {
+      ctx.drawImage(imageData, 0, 0);
+    }
+  };
+
   if (typeof OffscreenCanvas !== "undefined") {
     const canvas = new OffscreenCanvas(w, h);
     const ctx = canvas.getContext("2d");
     if (!ctx) return new Uint8Array(0);
-    ctx.drawImage(imageData, 0, 0);
+    paint(ctx);
     const blob = await canvas.convertToBlob({ type: "image/png" });
     return new Uint8Array(await blob.arrayBuffer());
   }
@@ -382,7 +436,7 @@ async function encodeImageToPNG(imageData: any): Promise<Uint8Array<any>> {
   canvas.width = w; canvas.height = h;
   const ctx = canvas.getContext("2d");
   if (!ctx) return new Uint8Array(0);
-  ctx.drawImage(imageData, 0, 0);
+  paint(ctx);
   return await new Promise<Uint8Array>((resolve) => {
     canvas.toBlob(async (blob) => {
       if (!blob) return resolve(new Uint8Array(0));

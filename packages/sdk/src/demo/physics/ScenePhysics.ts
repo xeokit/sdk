@@ -168,6 +168,24 @@ export class ScenePhysics {
           this.removeBody(id);
           this.#pending.delete(id);
         }
+      }),
+      // Mesh-membership events. The re-style flow used by
+      // `applyHeatMapMaterials` and `applyIFCMaterials` swaps a
+      // mesh's material by destroying the old SceneMesh and
+      // creating a fresh one with the same id and matrix on the
+      // same SceneObject. Without these handlers, the body's
+      // `meshRelMatrices` keeps a reference to the destroyed
+      // mesh — `step()` then writes `.matrix` onto an orphan and
+      // the freshly-created mesh never tracks the body. We just
+      // patch the entry list in-place: drop the dead mesh on
+      // remove, append the new one on add (with its rel-pose
+      // recomputed against the body's current world transform so
+      // the swap is seamless mid-simulation).
+      scene.events.onSceneObjectMeshRemoved.subscribe((obj, mesh) => {
+        this.#detachMeshFromBody(obj.id, mesh);
+      }),
+      scene.events.onSceneObjectMeshAdded.subscribe((obj, mesh) => {
+        this.#attachMeshToBody(obj.id, mesh);
       })
     );
   }
@@ -327,6 +345,65 @@ export class ScenePhysics {
   // ------------------------------------------------------------------
   // Internals
   // ------------------------------------------------------------------
+
+  /**
+   * Drops `mesh` from the body's `meshRelMatrices` if present.
+   * Triggered by `onSceneObjectMeshRemoved` so the per-step writeback
+   * stops touching meshes that are no longer part of the SceneObject
+   * (which would either NPE on a destroyed mesh or move an orphan
+   * the renderer is no longer bothering to draw).
+   */
+  #detachMeshFromBody(objectId: string, mesh: SceneMesh): void {
+    const record = this.#bodies.get(objectId);
+    if (!record) return;
+    const list = record.meshRelMatrices;
+    for (let i = 0, n = list.length; i < n; i++) {
+      if (list[i].mesh === mesh) {
+        list.splice(i, 1);
+        return;
+      }
+    }
+  }
+
+  /**
+   * Appends `mesh` to the body's `meshRelMatrices` with its rest pose
+   * derived from the body's *current* world transform. Triggered by
+   * `onSceneObjectMeshAdded` so a re-style cycle (destroy old mesh →
+   * create new mesh on the same SceneObject) immediately re-attaches
+   * the new mesh to the body — the new mesh tracks the body from the
+   * very next `step()` instead of being silently dropped.
+   *
+   * Idempotent: if `mesh` is already in the list (some loader paths
+   * fire add twice during a transactional reskin), the second call is
+   * a no-op.
+   */
+  #attachMeshToBody(objectId: string, mesh: SceneMesh): void {
+    const record = this.#bodies.get(objectId);
+    if (!record) return;
+    const list = record.meshRelMatrices;
+    for (let i = 0, n = list.length; i < n; i++) {
+      if (list[i].mesh === mesh) return;
+    }
+
+    // Rest pose against the body's *current* world transform — the
+    // body may have been moving for many steps before this mesh
+    // joined, so its initial-pose-based rest matrix from `#createBody`
+    // is no longer the right anchor. Reading translation+rotation
+    // from the live RigidBody handles the in-flight case correctly.
+    const t = record.body.translation();
+    const r = record.body.rotation();
+    composeMat4(
+      [t.x, t.y, t.z],
+      [r.x, r.y, r.z, r.w] as Quat,
+      [1, 1, 1],
+      this.#scratchBodyMat
+    );
+    inverseMat4(this.#scratchBodyMat, this.#scratchInvMat);
+
+    const rel = createMat4Float64();
+    mulMat4(this.#scratchInvMat, mesh.matrix as Mat4, rel);
+    list.push({mesh, rel});
+  }
 
   #createBody(sceneObject: SceneObject, params: PhysicsBodyParams): RapierRigidBody | null {
     const aabb = this.#computeObjectAABB(sceneObject);

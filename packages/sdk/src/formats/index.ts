@@ -30,6 +30,7 @@
  * - {@link obj} – Wavefront OBJ
  * - {@link mtl} – Wavefront MTL
  * - {@link rvm} – AVEVA RVM
+ * - {@link step} – ISO 10303-21 STEP (`.step` / `.stp`)
  * - {@link scenemodel} – xeokit SceneModel
  * - {@link datamodel} – xeokit DataModel
  * - {@link metamodel} – xeokit Metadata and schema-level information (legacy support)
@@ -83,12 +84,14 @@ export * as metamodel from "./metamodel";
 export * as obj from "./obj";
 export * as mtl from "./mtl";
 export * as rvm from "./rvm";
+export * as step from "./step";
 
 export * from "./ModelEncodeParams";
 export * from "./ModelEncoder";
 export * from "./ModelExporter";
 export * from "./ModelExporterParams";
 export * from "./ModelExportParams";
+export * from "./LoaderProgress";
 export * from "./ModelLoader";
 export * from "./ModelLoaderParams";
 export * from "./ModelLoadOptions";

@@ -45,6 +45,7 @@ class PickResult {
     this.#view = null as any;
     this.#viewObject = null;
     this.#canvasPos = createVec2Int32();
+    this.#snappedCanvasPos = createVec2Int32();
     this.#origin = createVec3Float64();
     this.#direction = createVec3Float64();
     this.#indices = new Int32Array(3);
@@ -232,11 +233,19 @@ class PickResult {
   }
 
   /**
-   * Picked World-space point on surface.
-   * Only defined when an object and a point on its surface was picked.
+   * Picked World-space point. Populated when the surface ray hit
+   * an object's surface OR when a snap-to-vertex / snap-to-edge
+   * landed (in which case it's the snapped point's world position
+   * — which can be valid even with no surface hit, e.g. the cursor
+   * was in empty space adjacent to a vertex).
+   *
+   * Gated on `gotWorldPos` only — NOT on `viewObject`. The snap path
+   * resolves a worldPos without an associated picked object when the
+   * cursor is in empty space; a viewObject-gated check would silently
+   * drop those snap hits.
    */
   get worldPos(): Vec3 | null {
-    return this.#viewObject && this.#gotWorldPos ? this.#worldPos : null;
+    return this.#gotWorldPos ? this.#worldPos : null;
   }
 
   /**
@@ -321,9 +330,13 @@ class PickResult {
   /**
    * Returns `true` if picking has snapped to the canvas coordinates of the nearest vertex.
    * When this is `true`, then {@link PickResult.snappedCanvasPos} will contain the canvas coordinates of the nearest position on teh nearest vertex.
+   *
+   * Not gated on `viewObject` — snap can land on a vertex when the
+   * cursor is in empty space (no surface ray hit), and we want
+   * callers to see that.
    */
   get snappedToVertex(): boolean {
-    return this.#viewObject !== null && this.#snappedToVertex;
+    return this.#snappedToVertex;
   }
 
   /**
@@ -336,9 +349,11 @@ class PickResult {
   /**
    * Returns `true` if picking has snapped to the canvas coordinates of the nearest edge.
    * When this is `true`, then {@link PickResult.snappedCanvasPos} will contain the canvas coordinates of the nearest position on teh nearest edge.
+   *
+   * Not gated on `viewObject` — see {@link snappedToVertex}.
    */
   get snappedToEdge(): boolean {
-    return this.#viewObject !== null && this.#snappedToEdge;
+    return this.#snappedToEdge;
   }
 
   set snappedToEdge(value: boolean) {

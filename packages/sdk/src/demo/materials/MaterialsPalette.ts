@@ -1,7 +1,6 @@
 import type {SceneMesh, SceneModel} from "../../scene";
 import {SDKErrorType, type SDKResult} from "../../core";
 import {LinearEncoding, LinearFilter, sRGBEncoding} from "../../constants";
-import {ensureGeometryAttribs} from "../synthesizeGeometryAttribs";
 
 import {
   paintAluminium,
@@ -123,10 +122,12 @@ export class MaterialsPalette {
   public textureSize: number;
 
   /**
-   * Approximate metres of geometry per UV unit when synthesising
-   * fallback UVs for a target mesh whose geometry doesn't ship
-   * with `uvsCompressed`. Smaller values tile the painted texture
-   * more times across the surface. Default `1.0`.
+   * Approximate metres of geometry per texture repeat. Forwarded
+   * to each created `SceneMaterial` as `triplanarScale`, which
+   * the renderer's triplanar texture-sampling fallback consults
+   * when painting UV-less geometry (typical of BIM, sweeps and
+   * lofted curves). Smaller values tile the painted texture more
+   * times across each surface. Default `1.0`.
    */
   public uvScale: number;
 
@@ -150,9 +151,9 @@ export class MaterialsPalette {
    *   painter pre-registered.
    * @param params.textureSize Painter texture size in pixels. Default
    *   `256`.
-   * @param params.uvScale Metres of geometry per UV unit used when
-   *   synthesising planar UVs for a target mesh's geometry. Default
-   *   `1.0`.
+   * @param params.uvScale Metres of geometry per texture repeat,
+   *   forwarded to each created SceneMaterial as `triplanarScale`.
+   *   Default `1.0`.
    */
   constructor(params: {
     catalog?:     PainterCatalogEntry[];
@@ -232,20 +233,6 @@ export class MaterialsPalette {
     }
     const materialId = matRes.value;
 
-    // Bring the geometry up to the attribute set a procedural PBR
-    // painter expects — planar UVs (so the colour / normal / MR
-    // textures sample anywhere) and area-weighted smooth normals
-    // (so shading routes through the smooth-shaded variant). Skipped
-    // when the geometry already carries them. Same path
-    // applyIFCMaterials uses.
-    const geom = sceneMesh.geometry;
-    if (geom) {
-      const worldUp: ArrayLike<number> = sceneModel.coordinateSystem
-        ? sceneModel.coordinateSystem.worldUp
-        : [0, 0, 1];
-      ensureGeometryAttribs(geom, {uvScale: this.uvScale, worldUp});
-    }
-
     // Snapshot the mesh's params before destroying. Reading after
     // destroy is invalid — `matrix` would point at freed state.
     const snap = {
@@ -323,9 +310,9 @@ export class MaterialsPalette {
 
     const maps = entry.paint(this.textureSize);
 
-    const cR = sceneModel.createTexture({id: cTex, imageData: maps.color,  encoding: sRGBEncoding,   minFilter: LinearFilter, flipY: false});
-    const nR = sceneModel.createTexture({id: nTex, imageData: maps.normal, encoding: LinearEncoding, minFilter: LinearFilter, flipY: false});
-    const mR = sceneModel.createTexture({id: mTex, imageData: maps.mr,     encoding: LinearEncoding, minFilter: LinearFilter, flipY: false});
+    const cR = sceneModel.createTexture({id: cTex, mipmap: true, imageData: maps.color,  encoding: sRGBEncoding,   minFilter: LinearFilter, flipY: false});
+    const nR = sceneModel.createTexture({id: nTex, mipmap: true, imageData: maps.normal, encoding: LinearEncoding, minFilter: LinearFilter, flipY: false});
+    const mR = sceneModel.createTexture({id: mTex, mipmap: true, imageData: maps.mr,     encoding: LinearEncoding, minFilter: LinearFilter, flipY: false});
     if (cR.ok === false) console.warn(`[MaterialsPalette] createTexture(${cTex}) failed:`, cR.error);
     if (nR.ok === false) console.warn(`[MaterialsPalette] createTexture(${nTex}) failed:`, nR.error);
     if (mR.ok === false) console.warn(`[MaterialsPalette] createTexture(${mTex}) failed:`, mR.error);
@@ -335,6 +322,13 @@ export class MaterialsPalette {
       colorTextureId:             cTex,
       normalsTextureId:           nTex,
       metallicRoughnessTextureId: mTex,
+      // Forward the palette's `uvScale` as the material's
+      // `triplanarScale`. Geometry coming in without UVs (most BIM,
+      // sweeps, lofted curve meshes) routes through the renderer's
+      // triplanar texture-sampling fallback, which reads this value
+      // to convert world position into per-fragment sample
+      // coordinates. UV-bearing geometry ignores it.
+      triplanarScale:             this.uvScale,
       ...(entry.material || {}),
     });
     if (matRes.ok === false) {

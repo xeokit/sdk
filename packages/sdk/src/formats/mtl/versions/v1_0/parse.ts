@@ -1,4 +1,6 @@
 import type { ModelParser } from "../../../ModelParser";
+import { yieldToHost } from "../../../../utils";
+import type { LoaderProgress } from "../../../LoaderProgress";
 
 /**
  * @private
@@ -7,31 +9,40 @@ export const parse: ModelParser = async (
   params,
   options
 ) => {
-  return new Promise<void>((resolve, reject) => {
-    const { fileData, sceneModel} = params;
+  const { fileData, sceneModel} = params;
+  const opts = options || {};
+  const onProgress: ((p: LoaderProgress) => void) | undefined = opts.onProgress;
+  const signal: AbortSignal | undefined = opts.signal;
+  const progress: LoaderProgress = {phase: "", current: 0, total: 0};
+  const step = async (phase: string, current: number, total: number): Promise<void> => {
+    if (onProgress) {
+      progress.phase = phase;
+      progress.current = current;
+      progress.total = total;
+      onProgress(progress);
+    }
+    await yieldToHost(signal);
+  };
 
-    if (sceneModel) {
-      const ctx: ParseContext = {
-        fileData,
-        errors: [],
-        warnings: [],
-        sceneModel,
-        options: options || {}
-      };
+  if (sceneModel) {
+    const ctx: ParseContext = {
+      fileData,
+      errors: [],
+      warnings: [],
+      sceneModel,
+      options: opts
+    };
 
-      parseMTL(ctx, fileData || "");
+    await parseMTL(ctx, fileData || "", step);
 
-      if (ctx.errors.length > 0) {
-        return reject(`[MTLLoader] Failed to parse MTL file: ${ctx.errors[0]}`);
-      }
-
-      if (ctx.warnings.length > 0) {
-        console.warn(`[MTLLoader] Warning while parsing MTL file: ${ctx.warnings[0]}`);
-      }
+    if (ctx.errors.length > 0) {
+      throw new Error(`[MTLLoader] Failed to parse MTL file: ${ctx.errors[0]}`);
     }
 
-    resolve();
-  });
+    if (ctx.warnings.length > 0) {
+      console.warn(`[MTLLoader] Warning while parsing MTL file: ${ctx.warnings[0]}`);
+    }
+  }
 };
 
 interface ParsedMaterial {
@@ -47,13 +58,18 @@ interface ParseContext {
   options: any;
 }
 
-function parseMTL(ctx: ParseContext, text: string): void {
+async function parseMTL(
+  ctx: ParseContext,
+  text: string,
+  step: (phase: string, current: number, total: number) => Promise<void>,
+): Promise<void> {
   const lines = text.split("\n");
 
   let current: ParsedMaterial | null = null;
   let currentId = "";
 
   for (let i = 0; i < lines.length; i++) {
+    if ((i & 0xFFF) === 0) await step("Parsing MTL", i, lines.length);
     const line = lines[i].trim();
 
     if (line.length === 0 || line.charAt(0) === "#") {
@@ -119,4 +135,5 @@ function parseMTL(ctx: ParseContext, text: string): void {
       opacity: current.opacity
     });
   }
+  await step("Parsing MTL", lines.length, lines.length);
 }

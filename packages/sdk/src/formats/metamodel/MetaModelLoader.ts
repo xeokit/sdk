@@ -1,6 +1,8 @@
 import type {ModelLoadParams} from "../ModelLoadParams";
 import {ModelLoader} from "../ModelLoader";
 import {DataModel} from "../../data";
+import {yieldToHost} from "../../utils";
+import type {LoaderProgress} from "../LoaderProgress";
 
 /**
  * Loads {@link MetaModelParams | MetaModelParams} into a {@link DataModel | DataModel}.
@@ -24,13 +26,26 @@ export class MetaModelLoader extends ModelLoader {
   }
 }
 
-function parseMetaModel(params: ModelLoadParams): Promise<void> {
+async function parseMetaModel(params: ModelLoadParams, options: any = {}): Promise<void> {
   const {fileData, dataModel} = params;
+  const onProgress: ((p: LoaderProgress) => void) | undefined = options.onProgress;
+  const signal: AbortSignal | undefined = options.signal;
+  const progress: LoaderProgress = {phase: "", current: 0, total: 0};
+  const step = async (phase: string, current: number, total: number): Promise<void> => {
+    if (onProgress) {
+      progress.phase = phase;
+      progress.current = current;
+      progress.total = total;
+      onProgress(progress);
+    }
+    await yieldToHost(signal);
+  };
 
   // TODO: Property set decompression
 
   if (fileData.propertySets) {
     for (let i = 0, len = fileData.propertySets.length; i < len; i++) {
+      if ((i & 0x3F) === 0) await step("Parsing property sets", i, len);
       const propertySetData = fileData.propertySets[i];
       if (!propertySetData.properties) { // HACK: https://github.com/Creoox/creoox-ifc2gltfcxconverter/issues/8
         propertySetData.properties = [];
@@ -61,13 +76,14 @@ function parseMetaModel(params: ModelLoadParams): Promise<void> {
           properties
         });
         if (result.ok ===false) {
-          return Promise.reject(`[MetaModelLoader.load]: Could not create PropertySet -> ${result.error}`);
+          throw new Error(`[MetaModelLoader.load]: Could not create PropertySet -> ${result.error}`);
         }
       }
     }
   }
   if (fileData.metaObjects) {
     for (let i = 0, len = fileData.metaObjects.length; i < len; i++) {
+      if ((i & 0x3F) === 0) await step("Parsing meta objects", i, len);
       const metaObjectData = fileData.metaObjects[i];
       const id = metaObjectData.id;
       const dataObject = dataModel.objects[id];
@@ -83,12 +99,13 @@ function parseMetaModel(params: ModelLoadParams): Promise<void> {
           propertySetIds
         });
         if (result2.ok===false) {
-          return Promise.reject(`[MetaModelLoader.load]: Could not create DataObject -> ${result2.error}`);
+          throw new Error(`[MetaModelLoader.load]: Could not create DataObject -> ${result2.error}`);
         }
       }
     }
 
     for (let i = 0, len = fileData.metaObjects.length; i < len; i++) {
+      if ((i & 0x3F) === 0) await step("Building relationships", i, len);
       const metaObjectData = fileData.metaObjects[i];
       const id = metaObjectData.id;
       const dataObject = dataModel.objects[id];
@@ -100,11 +117,11 @@ function parseMetaModel(params: ModelLoadParams): Promise<void> {
             type: "IfcRelAggregates"
           });
           if (result3.ok===false) {
-            return Promise.reject(`[MetaModelLoader.load]: Could not create Relationship -> ${result3.error}`);
+            throw new Error(`[MetaModelLoader.load]: Could not create Relationship -> ${result3.error}`);
           }
         }
       }
     }
+    await step("Building relationships", fileData.metaObjects.length, fileData.metaObjects.length);
   }
-  return Promise.resolve();
 }

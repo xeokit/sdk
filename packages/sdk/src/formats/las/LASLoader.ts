@@ -2,13 +2,14 @@
 import {createMat4Float64, transformPoint3} from "../../math/matrix";
 import { createVec3Float64} from "../../math/vector";
 import {ModelLoader} from "../ModelLoader";
-import {createUUID} from "../../utils";
+import {createUUID, yieldToHost} from "../../utils";
 import {LASLoader as glLASLoader} from '@loaders.gl/las';
 import type {LASLoaderOptions} from "./LASLoaderOptions";
 import {parse} from '@loaders.gl/core';
 import {PointsPrimitive} from "../../constants";
 import type {ModelLoadParams} from "../ModelLoadParams";
 import type {ModelParseParams} from "../ModelParseParams";
+import type {LoaderProgress} from "../LoaderProgress";
 
 const MAX_VERTICES = 20000; // TODO: Rough estimate
 
@@ -49,25 +50,49 @@ export class LASLoader extends ModelLoader {
   }
 }
 
-function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}): Promise<void> {
+async function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}): Promise<void> {
 
-  return new Promise(function (resolve, reject) {
-    const {sceneModel, dataModel, fileData} = params;
-    if (!sceneModel && !dataModel) {
-      return resolve();
+  const {sceneModel, dataModel, fileData} = params;
+  if (!sceneModel && !dataModel) {
+    return;
+  }
+  const skip = options.skip || 1;
+  const log = (msg: string) => {
+    if (params.log) {
+      params.log(msg);
     }
-    const skip = options.skip || 1;
-    const log = (msg) => {
-      if (params.log) {
-        params.log(msg);
-      }
-    }
-    parse(params.fileData, glLASLoader, {
+  };
+
+  const onProgress: ((p: LoaderProgress) => void) | undefined = (options as any).onProgress;
+  const signal: AbortSignal | undefined = (options as any).signal;
+  const progress: LoaderProgress = {phase: "Parsing LAS/LAZ", current: 0, total: 0};
+  const emit = (phase: string, current: number, total: number): void => {
+    if (!onProgress) return;
+    progress.phase = phase;
+    progress.current = current;
+    progress.total = total;
+    onProgress(progress);
+  };
+  const step = async (phase: string, current: number, total: number): Promise<void> => {
+    emit(phase, current, total);
+    await yieldToHost(signal);
+  };
+
+  emit("Parsing LAS/LAZ", 0, 0);
+  await yieldToHost(signal);
+  let parsedData: any;
+  try {
+    parsedData = await parse(params.fileData, glLASLoader, {
       las: {
         colorDepth: options.colorDepth || "auto",
         fp64: options.fp64 !== undefined ? options.fp64 : false
       }
-    }).then((parsedData) => {
+    });
+  } catch (errMsg) {
+    throw new Error(`Error parsing LAS/LAZ data -> ${errMsg}`);
+  }
+
+  {
       const entityId = createUUID();
       if (sceneModel) {
         const meshIds = [];
@@ -111,7 +136,12 @@ function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}): Pro
         }
         const pointsChunks = chunkArray(readPositions(readAttributes.positions), MAX_VERTICES * 3);
         const colorsChunks = chunkArray(readAttributes.colors, MAX_VERTICES * 4);
-        for (let j = 0, lenj = pointsChunks.length; j < lenj; j++) {
+        const totalChunks = pointsChunks.length;
+        for (let j = 0; j < totalChunks; j++) {
+          // One yield per chunk — each chunk is up to 20 000
+          // points + a SceneGeometry/Mesh creation, so this is
+          // the natural granularity for the bar to track.
+          await step("Building point chunks", j, totalChunks);
           const geometryId = `geometry-${j}`;
           const geometryResult = sceneModel.createGeometry({
             id: geometryId,
@@ -138,6 +168,7 @@ function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}): Pro
           meshIds,
           layerId: options.layerId
         });
+        emit("Building point chunks", totalChunks, totalChunks);
       }
       if (dataModel) {
         const rootMetaObjectId = createUUID();
@@ -157,10 +188,7 @@ function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}): Pro
           relatedObjectId: entityId
         });
       }
-      resolve();
-    }, (errMsg) => {
-      return reject(`Error parsing LAS/LAZ data -> errMsg}`);
-    });
+    }
 
     function readPositions(positionsValue) {
       if (positionsValue) {
@@ -264,5 +292,4 @@ function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}): Pro
       }
       return result;
     }
-  });
 }

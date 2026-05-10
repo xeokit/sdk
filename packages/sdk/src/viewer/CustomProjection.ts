@@ -2,16 +2,25 @@ import {EventEmitter, SDKErrorType, type SDKResult} from "../core";
 import {
   createMat4Float32, identityMat4,
   inverseMat4, type Mat4,
+  transformPoint4,
   transposeMat4,
 } from "../math/matrix";
 import {
-type Vec2, type Vec3,
+  createVec4Float64,
+  mulVec3Scalar,
+  type Vec2, type Vec3,
 } from "../math/vector";
 import type {Camera} from "./Camera";
 import type {CustomProjectionParams} from "./CustomProjectionParams";
 import {CustomProjectionType} from "../constants";
 import {EventDispatcher} from "strongly-typed-events";
 import type {Projection} from "./Projection";
+
+// Scratch buffers reused across `unproject` calls — see
+// PerspectiveProjection for the rationale.
+const tempVec4a = createVec4Float64();
+const tempVec4b = createVec4Float64();
+const tempVec4c = createVec4Float64();
 
 /**
  * Configures a custom projection for a {@link Camera | Camera} .
@@ -129,19 +138,41 @@ class CustomProjection implements Projection {
         screenZ: number,
         screenPos: Vec3,
         viewPos: Vec3,
-        worldPos: Vec3) {
-        // const htmlElement = this.camera.view.htmlElement;
-        // const halfViewWidth = htmlElement.offsetWidth / 2.0;
-        // const halfViewHeight = htmlElement.offsetHeight / 2.0;
-        // screenPos[0] = (canvasPos[0] - halfViewWidth) / halfViewWidth;
-        // screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;
-        // screenPos[2] = screenZ;
-        // screenPos[3] = 1.0;
-        // mulMat4v4(this.inverseProjMatrix, screenPos, viewPos);
-        // mulVec3Scalar(viewPos, 1.0 / viewPos[3]);
-        // viewPos[3] = 1.0;
-        // viewPos[1] *= -1;
-        // mulMat4v4(this.camera.inverseViewMatrix, viewPos, worldPos);
+        worldPos: Vec3): Vec3 {
+
+        // Mirrors PerspectiveProjection.unproject. The custom
+        // projection matrix is whatever the host wires in; this
+        // formula goes through its actual inverse, so any
+        // well-formed projection (perspective, ortho, sheared,
+        // off-axis) unprojects correctly.
+        const htmlElement = this.camera.view.htmlElement;
+        const halfViewWidth  = htmlElement.offsetWidth  / 2.0;
+        const halfViewHeight = htmlElement.offsetHeight / 2.0;
+
+        screenPos[0] = (canvasPos[0] - halfViewWidth)  / halfViewWidth;
+        screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;
+        screenPos[2] = screenZ;
+
+        tempVec4a[0] = screenPos[0];
+        tempVec4a[1] = screenPos[1];
+        tempVec4a[2] = screenPos[2];
+        tempVec4a[3] = 1.0;
+
+        transformPoint4(this.inverseProjMatrix, tempVec4a, tempVec4b);
+        mulVec3Scalar(tempVec4b as Vec3, 1.0 / tempVec4b[3]);
+
+        viewPos[0] = tempVec4b[0];
+        viewPos[1] = tempVec4b[1];
+        viewPos[2] = tempVec4b[2];
+
+        tempVec4b[1] *= -1;
+
+        transformPoint4(this.camera.inverseViewMatrix, tempVec4b, tempVec4c);
+
+        worldPos[0] = tempVec4c[0];
+        worldPos[1] = tempVec4c[1];
+        worldPos[2] = tempVec4c[2];
+
         return worldPos;
     }
 

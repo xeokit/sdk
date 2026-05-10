@@ -1,6 +1,6 @@
 /**
  * Floating, draggable, closeable panel that visualises GPU
- * tiles produced by the {@link webglrenderer!WebGLRenderer | WebGLRenderer} —
+ * tiles produced by the {@link webGLRenderer!WebGLRenderer | WebGLRenderer} —
  * three orthogonal projections (Top XZ, Front XY, Side YZ) of
  * the tile grid, with a 1 m background grid and a camera "you
  * are here" glyph. Sister widget to
@@ -47,11 +47,12 @@
  */
 import type {Scene} from "../../scene";
 import type {View} from "../../viewer";
-import type {RenderStats} from "../../webglrenderer/internal/inspectors/RenderStats";
-import type {TileStats} from "../../webglrenderer/internal/inspectors/TileStats";
-import {bringFloatingPanelToFront} from "../floatingPanelZ";
+import type {RenderStats} from "../../webGLRenderer/internal/inspectors/RenderStats";
+import type {TileStats} from "../../webGLRenderer/internal/inspectors/TileStats";
 
 
+import {el} from "../utils/el";
+import {FloatingPanelBase} from "../floatingPanelBase";
 // ─────────────────────────────────────────────────────────────────
 // Public types
 // ─────────────────────────────────────────────────────────────────
@@ -403,7 +404,7 @@ interface FrameData {
   camLook: [number, number, number];
 }
 
-export class TilesPanel {
+export class TilesPanel extends FloatingPanelBase {
 
   /**
    * Per-Scene instance registry. {@link openFor} reuses the
@@ -453,14 +454,8 @@ export class TilesPanel {
   readonly scene: Scene;
   readonly view: View;
   readonly renderStats: RenderStats;
-  private readonly _container: HTMLElement;
-  private readonly _storageKey: string;
 
   // DOM refs.
-  private _panel!: HTMLElement;
-  private _pill!: HTMLElement;
-  private _header!: HTMLElement;
-  private _closeBtn!: HTMLButtonElement;
   private _titleIdEl!: HTMLElement;
   private _bodyEl!: HTMLElement;
   private _extentsEl: HTMLElement | null = null;
@@ -469,31 +464,25 @@ export class TilesPanel {
   private _sections: SectionRefs[] = [];
 
   // Lifecycle state.
-  private _destroyed = false;
   private _listenersAttached = false;
   private _refreshScheduled = false;
   private readonly _unsubs: Array<() => void> = [];
   private _onSceneDestroyedUnsub: (() => void) | null = null;
 
   // Drag state.
-  private _dragging = false;
-  private _dragOffsetX = 0;
-  private _dragOffsetY = 0;
-
-  private readonly _onResize = (): void => {
-    this._clampToViewport();
-    this._saveLayout();
-  };
 
   constructor(params: TilesPanelParams) {
     if (!params || !params.scene || !params.view || !params.renderStats) {
       throw new Error("TilesPanel: scene, view, and renderStats are required");
     }
+    super({
+      container:   params.container,
+      storageKey:  params.storageKey || "xkt-tls-panel",
+      classPrefix: "xkt-tls",
+    });
     this.scene = params.scene;
     this.view  = params.view;
     this.renderStats = params.renderStats;
-    this._container = params.container || document.body;
-    this._storageKey = params.storageKey || "xkt-tls-panel";
 
     // Replace any prior panel bound to the same Scene — keeps
     // openFor's idempotence honest and avoids stale DOM left
@@ -504,14 +493,13 @@ export class TilesPanel {
 
     injectStylesOnce();
     this._buildDom();
+    this._bindChrome();
     this._wireDomEvents();
-    this._restoreLayout();
 
     this._onSceneDestroyedUnsub = this.scene.events.onSceneDestroyed.subscribe(() => {
       this.destroy();
     });
 
-    window.addEventListener("resize", this._onResize);
 
     if (params.visible === false) {
       this.hide();
@@ -529,20 +517,14 @@ export class TilesPanel {
 
   show(): void {
     if (this._destroyed) return;
-    this._panel.style.display = "flex";
-    this._pill.hidden = true;
-    this._clampToViewport();
-    this._saveLayout();
-    bringFloatingPanelToFront(this._panel);
+    super.show();
     this._attachListeners();
     this._renderAll();
   }
 
   hide(): void {
     if (this._destroyed) return;
-    this._panel.style.display = "none";
-    this._pill.hidden = false;
-    this._saveLayout();
+    super.hide();
     this._detachListeners();
   }
 
@@ -552,7 +534,6 @@ export class TilesPanel {
 
   destroy(): void {
     if (this._destroyed) return;
-    this._destroyed = true;
     this._detachListeners();
     if (this._onSceneDestroyedUnsub) {
       try { this._onSceneDestroyedUnsub(); } catch { /* ignore */ }
@@ -561,9 +542,7 @@ export class TilesPanel {
     if (TilesPanel._instances.get(this.scene) === this) {
       TilesPanel._instances.delete(this.scene);
     }
-    window.removeEventListener("resize", this._onResize);
-    this._panel.remove();
-    this._pill.remove();
+    super.destroy();
   }
 
 
@@ -622,7 +601,7 @@ export class TilesPanel {
 
   // ── DOM construction ──────────────────────────────────────────
 
-  private _buildDom(): void {
+  protected _buildDom(): void {
     this._pill = el("button", "xkt-tls-pill", {
       type: "button",
       title: "Reopen the GPU Tiles panel",
@@ -661,97 +640,11 @@ export class TilesPanel {
   private _wireDomEvents(): void {
     // Bring-to-front on any pointer-down inside the panel —
     // bubbles up so clicks on buttons / scroll thumbs / drag
-    // handle all promote the panel above its siblings.
-    this._panel.addEventListener("pointerdown", () => {
-      bringFloatingPanelToFront(this._panel);
-    });
-
-    this._closeBtn.addEventListener("click", (ev) => {
-      ev.stopPropagation();
-      this.hide();
-    });
-    this._pill.addEventListener("click", () => this.show());
-
-    // Drag.
-    this._header.addEventListener("pointerdown", (ev) => {
-      if ((ev.target as Element).closest("button")) return;
-      if (ev.button !== 0) return;
-      const rect = this._panel.getBoundingClientRect();
-      this._dragOffsetX = ev.clientX - rect.left;
-      this._dragOffsetY = ev.clientY - rect.top;
-      this._panel.style.right = "auto";
-      this._panel.style.left  = rect.left + "px";
-      this._panel.style.top   = rect.top  + "px";
-      this._dragging = true;
-      this._header.classList.add("xkt-tls-dragging");
-      this._header.setPointerCapture(ev.pointerId);
-      ev.preventDefault();
-    });
-    this._header.addEventListener("pointermove", (ev) => {
-      if (!this._dragging) return;
-      const rect = this._panel.getBoundingClientRect();
-      let l = ev.clientX - this._dragOffsetX;
-      let t = ev.clientY - this._dragOffsetY;
-      l = Math.max(0, Math.min(l, window.innerWidth  - rect.width));
-      t = Math.max(0, Math.min(t, window.innerHeight - rect.height));
-      this._panel.style.left = l + "px";
-      this._panel.style.top  = t + "px";
-    });
-    const endDrag = (ev: PointerEvent): void => {
-      if (!this._dragging) return;
-      this._dragging = false;
-      this._header.classList.remove("xkt-tls-dragging");
-      try { this._header.releasePointerCapture(ev.pointerId); } catch { /* ignore */ }
-      this._saveLayout();
-    };
-    this._header.addEventListener("pointerup",     endDrag);
-    this._header.addEventListener("pointercancel", endDrag);
   }
 
 
   // ── Layout persistence ────────────────────────────────────────
 
-  private _restoreLayout(): void {
-    let saved: {top?: number; left?: number; hidden?: boolean} | null = null;
-    try {
-      const raw = window.localStorage.getItem(this._storageKey);
-      if (raw) saved = JSON.parse(raw);
-    } catch { saved = null; }
-    if (!saved) return;
-    if (Number.isFinite(saved.left) && Number.isFinite(saved.top)) {
-      this._panel.style.right = "auto";
-      this._panel.style.left  = saved.left + "px";
-      this._panel.style.top   = saved.top  + "px";
-      this._clampToViewport();
-    }
-    if (saved.hidden) {
-      this._panel.style.display = "none";
-      this._pill.hidden = false;
-    }
-  }
-
-  private _saveLayout(): void {
-    const state: {top?: number; left?: number; hidden: boolean} = {
-      hidden: this._panel.style.display === "none",
-    };
-    const l = parseFloat(this._panel.style.left);
-    const t = parseFloat(this._panel.style.top);
-    if (Number.isFinite(l)) state.left = l;
-    if (Number.isFinite(t)) state.top  = t;
-    try { window.localStorage.setItem(this._storageKey, JSON.stringify(state)); }
-    catch { /* quota / disabled — drop silently */ }
-  }
-
-  private _clampToViewport(): void {
-    const l = parseFloat(this._panel.style.left);
-    const t = parseFloat(this._panel.style.top);
-    if (!Number.isFinite(l) || !Number.isFinite(t)) return;
-    const rect = this._panel.getBoundingClientRect();
-    const maxL = Math.max(0, window.innerWidth  - rect.width);
-    const maxT = Math.max(0, window.innerHeight - rect.height);
-    this._panel.style.left = Math.max(0, Math.min(l, maxL)) + "px";
-    this._panel.style.top  = Math.max(0, Math.min(t, maxT)) + "px";
-  }
 
 
   // ── Rendering ─────────────────────────────────────────────────
@@ -901,31 +794,6 @@ export class TilesPanel {
 // Module-private helpers
 // ─────────────────────────────────────────────────────────────────
 
-function el<K extends keyof HTMLElementTagNameMap>(
-  tag: K,
-  className?: string,
-  props?: Record<string, unknown>,
-): HTMLElementTagNameMap[K];
-function el(tag: string, className?: string, props?: Record<string, unknown>): HTMLElement {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  if (props) {
-    for (const k of Object.keys(props)) {
-      const v = props[k];
-      if (v === undefined) continue;
-      if (k === "textContent" || k === "innerHTML") {
-        (node as any)[k] = v;
-      } else if (k === "hidden") {
-        (node as HTMLElement).hidden = !!v;
-      } else if (k in node) {
-        (node as any)[k] = v;
-      } else {
-        node.setAttribute(k, String(v));
-      }
-    }
-  }
-  return node;
-}
 
 /**
  * Render one orthogonal projection of the tile grid onto axes

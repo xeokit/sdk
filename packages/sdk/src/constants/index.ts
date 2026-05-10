@@ -422,14 +422,34 @@ export const SolidPrimitive = 20003;
 export const SurfacePrimitive = 20004;
 
 /**
- * Fast rendering mode.
+ * Navigation rendering preset — prioritises frame rate during user
+ * interaction (orbiting, panning, zooming).
+ *
+ * Out of the box no effect's `renderModes` list contains this value, so
+ * the renderer skips every post-process and ambient embellishment when
+ * `View.renderMode === NavigationRender`. Effects can still be opted in
+ * per-application by adding this value to their `renderModes`.
  */
-export const FastRender = 300001;
+export const NavigationRender = 30001;
 
 /**
- * Quality rendering mode.
+ * Detailed rendering preset — fidelity-first for CAD / BIM inspection.
+ *
+ * Default-on effects: edges, SAO, IBL, antialiasing. Shadows, bloom and
+ * the ACES tonemap stay off so authored colours render close to the
+ * source. Use when a user is reading geometry, not when they are
+ * showing it off.
  */
-export const QualityRender = 30000;
+export const DetailedRender = 30002;
+
+/**
+ * Realistic rendering preset — full PBR-grade pipeline for
+ * marketing-quality stills and walkthroughs.
+ *
+ * Default-on effects: SAO, shadows, IBL, bloom, antialiasing, tonemap.
+ * The most expensive option; not appropriate for navigation.
+ */
+export const RealisticRender = 30003;
 
 /**
  * Meters unit of measurement.

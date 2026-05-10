@@ -19,9 +19,9 @@ export interface PaintSunSkyHDROptions {
   sunDirection?: [number, number, number];
   /**
    * Sun core radiance multiplier. Default `20.0` — well above the
-   * SDK's default `view.bloom.threshold = 4.0` so the sun reliably
+   * SDK's default `view.effects.bloom.threshold = 4.0` so the sun reliably
    * triggers a tight bloom glow, while the SDK's default
-   * `view.tonemap.exposure = 0.5` keeps the rest of the scene from
+   * `view.effects.tonemap.exposure = 0.5` keeps the rest of the scene from
    * washing out around it. Would clamp to 1.0 in an LDR pipeline.
    */
   sunIntensity?: number;

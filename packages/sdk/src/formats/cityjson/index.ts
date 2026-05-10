@@ -55,8 +55,8 @@
  * import { Scene } from "@xeokit/sdk/scene";
  * import { Data } from "@xeokit/sdk/data";
  * import { Viewer } from "@xeokit/sdk/viewer";
- * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
- * import { ViewController } from "@xeokit/sdk/viewcontroller";
+ * import { WebGLRenderer } from "@xeokit/sdk/webGLRenderer";
+ * import { ViewController } from "@xeokit/sdk/viewController";
  * import { CityJSONLoader } from "@xeokit/sdk/formats/cityjson";
  *
  * const handleError = (error: string) => {

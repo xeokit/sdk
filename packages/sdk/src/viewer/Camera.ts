@@ -688,7 +688,16 @@ class Camera {
    */
   pan(pan: Vec3) {
     const eye2 = subVec3(this._eye, this._look, tempVec3);
+    // Zero `vec` before accumulating into it. `tempVec3b` is a
+    // module-level scratch buffer reused across `pan` calls; without
+    // this reset, each call would carry over the previous call's
+    // accumulated delta and successive pans (e.g. one per mouse-move
+    // during a drag) would compound into ever-larger camera jumps —
+    // the "hydraulic / accelerating" pan feel.
     const vec = tempVec3b;
+    vec[0] = 0;
+    vec[1] = 0;
+    vec[2] = 0;
     let v;
     if (pan[0] !== 0) {
       const left = cross3Vec3(normalizeVec3(eye2, tempVec3c), normalizeVec3(this._up, tempVec3d));

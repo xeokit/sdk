@@ -11,7 +11,7 @@
  *
  *   - **Masonry** — brick, concrete, limestone, granite.
  *   - **Interior finishes** — marble, oak, painted plaster, asphalt,
- *     ceramic tile.
+ *     ceramic tile, carpet, wallpaper.
  *   - **Metals** — polished steel, brushed steel, copper, chrome,
  *     gold, aluminium, brass.
  *   - **Glass** — tinted dielectric.
@@ -58,6 +58,8 @@ export * from "./paintWoodPlank";
 export * from "./paintPlaster";
 export * from "./paintAsphalt";
 export * from "./paintCeramicTile";
+export * from "./paintCarpet";
+export * from "./paintWallpaper";
 export * from "./paintPolSteel";
 export * from "./paintBrushSteel";
 export * from "./paintCopper";

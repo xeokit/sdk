@@ -10,43 +10,57 @@ const CONTEXT_MENU_STYLE_ID = "xeokit-context-menu-styles";
 const CONTEXT_MENU_CSS = `
 .xeokit-context-menu {
   position: absolute;
-  z-index: 300000;
+  /* int32 ceiling — sits above every floating panel regardless of
+     how many times floatingPanelZ has bumped them. */
+  z-index: 2147483647;
   display: none;
   min-width: 180px;
-  background: #fff;
-  border: 1px solid #000;
-  border-radius: 4px;
-  box-shadow: 0 4px 5px 0 gray;
-  font-family: sans-serif;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #111;
 }
 
 .xeokit-context-menu ul {
   list-style: none;
   margin: 0;
-  padding: 4px 0;
+  padding: 0;
 }
 
 .xeokit-context-menu-title {
   display: none;
-  padding: 8px 12px;
+  padding: 6px 10px;
+  margin-bottom: 2px;
   font-weight: 600;
+  color: #2d5e8c;
   white-space: nowrap;
-  border-bottom: 1px solid #d9d9d9;
+  border-bottom: 1px solid #ececec;
 }
 
 .xeokit-context-menu-item {
   position: relative;
-  padding: 8px 12px;
-  cursor: pointer;
-  user-select: none;
-  white-space: nowrap;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  padding: 7px 12px;
+  white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
 }
 
 .xeokit-context-menu-item:hover {
-  background: #f2f2f2;
+  background: #eef3f9;
+  border-color: #c8d6e6;
 }
 
 .xeokit-context-menu-item.disabled {
@@ -56,6 +70,7 @@ const CONTEXT_MENU_CSS = `
 
 .xeokit-context-menu-item.disabled:hover {
   background: transparent;
+  border-color: transparent;
 }
 
 .xeokit-context-menu-item-label {
@@ -63,11 +78,9 @@ const CONTEXT_MENU_CSS = `
   min-width: 0;
 }
 
-/* Icon column. Hidden by default; the build pass adds
-   the .xeokit-context-menu-with-icons class to the menu wrapper
-   when at least one item carries an icon — every row in that
-   menu then reserves the icon column so labels stay aligned
-   regardless of which rows actually paint a glyph. */
+/* Icon column hidden until the wrapper opts in via the
+   .xeokit-context-menu-with-icons class, so label-only menus
+   don't reserve unused space. */
 .xeokit-context-menu-item-icon {
   display: none;
   flex-shrink: 0;
@@ -91,13 +104,13 @@ const CONTEXT_MENU_CSS = `
 
 .xeokit-context-menu-item-separator {
   height: 1px;
-  margin: 4px 0;
-  background: #d9d9d9;
+  margin: 4px 6px;
+  background: #ececec;
   pointer-events: none;
 }
 
 .xeokit-context-menu-submenu {
-  padding-right: 28px;
+  padding-right: 26px;
 }
 
 .xeokit-context-menu-submenu::after {
@@ -106,8 +119,8 @@ const CONTEXT_MENU_CSS = `
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 10px;
-  opacity: 0.8;
+  font-size: 9px;
+  color: #777;
 }
 
 .xeokit-context-menu-submenu[data-submenuposition="left"]::after {
@@ -475,6 +488,15 @@ class ContextMenu {
   private _document: Document;
 
   /**
+   * Pending cascade-collapse timer. When the pointer leaves a
+   * menu element a check is scheduled for ~200ms later (to allow
+   * brief gaps while the cursor crosses between adjacent menus
+   * in the cascade); entering any other menu in the cascade
+   * before the timer fires cancels it. See {@link _scheduleCascadeCheck}.
+   */
+  private _pendingCascadeCheck: number | null = null;
+
+  /**
    * Creates a context menu.
    *
    * @param cfg Menu configuration.
@@ -684,12 +706,14 @@ class ContextMenu {
     if (!this._enabled || !this._shown) {
       return;
     }
+    this._cancelCascadeCheck();
     this._hideAllMenus();
     this._shown = false;
     this.fire("hidden", {});
   }
 
   destroy(): void {
+    this._cancelCascadeCheck();
     this._context = null;
     this._clear();
     if (this._id !== null) {
@@ -884,6 +908,20 @@ class ContextMenu {
     menuElement.oncontextmenu = (e: MouseEvent) => {
       e.preventDefault();
     };
+
+    // Cascade cleanup. `mouseenter` / `mouseleave` only fire on
+    // the menu container (not bubbling from child items), so they
+    // detect the pointer crossing the menu's outer boundary.
+    // Leaving schedules a deferred collapse; entering ANY menu in
+    // the cascade cancels a pending one — so brief gaps while the
+    // cursor crosses between adjacent menus in a chain don't trip
+    // the timer.
+    menuElement.addEventListener("mouseenter", () => {
+      this._cancelCascadeCheck();
+    });
+    menuElement.addEventListener("mouseleave", () => {
+      this._scheduleCascadeCheck();
+    });
 
     if (menu.titleElement) {
       this._updateMenuTitle();
@@ -1162,6 +1200,21 @@ class ContextMenu {
     if (!menu.shown) {
       return;
     }
+    // Cascade through descendants first so leaf menus disappear
+    // before their parent does. Without this, hiding a mid-chain
+    // menu (e.g. when the per-item `lastSubMenu` swap dismisses a
+    // sibling branch) leaves any deeper submenus stranded — they
+    // stay visible after their ancestor is gone, because the
+    // per-item handler only references the immediate child it
+    // tracks. Walking the subtree here makes "hide menu X" mean
+    // "hide X and everything beneath it".
+    for (const group of menu.groups) {
+      for (const item of group.items) {
+        if (item.subMenu && item.subMenu.shown) {
+          this._hideMenu(item.subMenu.id);
+        }
+      }
+    }
     const menuElement = menu.menuElement;
     if (menuElement) {
       this._hideMenuElement(menuElement);
@@ -1173,6 +1226,69 @@ class ContextMenu {
     for (let i = 0, len = this._menuList.length; i < len; i++) {
       const menu = this._menuList[i];
       this._hideMenu(menu.id);
+    }
+  }
+
+  /**
+   * Schedule a deferred cascade-collapse check. The 200 ms grace
+   * period is enough to span the visual gap between a menu and
+   * its child submenu when the pointer transits between them, but
+   * short enough that genuinely abandoned cascades collapse
+   * promptly.
+   */
+  private _scheduleCascadeCheck(): void {
+    this._cancelCascadeCheck();
+    this._pendingCascadeCheck = window.setTimeout(() => {
+      this._pendingCascadeCheck = null;
+      this._collapseUnhoveredCascade();
+    }, 200);
+  }
+
+  private _cancelCascadeCheck(): void {
+    if (this._pendingCascadeCheck != null) {
+      window.clearTimeout(this._pendingCascadeCheck);
+      this._pendingCascadeCheck = null;
+    }
+  }
+
+  /**
+   * Hide every open submenu deeper than the deepest menu the
+   * pointer is currently hovering. With nothing in the cascade
+   * hovered, every submenu collapses but the root is left for
+   * the existing outside-mousedown path to dismiss.
+   *
+   * Depth is measured by walking `parentItem.parentMenu` upward
+   * from each open menu — root sits at depth 0; its direct
+   * children at depth 1, and so on.
+   */
+  private _collapseUnhoveredCascade(): void {
+    const depthOf = (menu: Menu): number => {
+      let d = 0;
+      let m: Menu | null = menu;
+      while (m && m.parentItem && m.parentItem.parentMenu) {
+        d++;
+        m = m.parentItem.parentMenu;
+      }
+      return d;
+    };
+
+    let deepestHoveredDepth = -1;
+    for (const menu of this._menuList) {
+      if (!menu.shown || !menu.menuElement) continue;
+      // `:hover` is the cheapest way to ask "is the pointer
+      // currently inside this element". Reliable on every modern
+      // browser; updates synchronously with pointer movement.
+      if (!menu.menuElement.matches(":hover")) continue;
+      const d = depthOf(menu);
+      if (d > deepestHoveredDepth) deepestHoveredDepth = d;
+    }
+
+    for (const menu of this._menuList) {
+      if (!menu.shown) continue;
+      if (menu === this._rootMenu) continue;
+      if (depthOf(menu) > deepestHoveredDepth) {
+        this._hideMenu(menu.id);
+      }
     }
   }
 

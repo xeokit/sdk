@@ -1794,7 +1794,18 @@ class View {
         return result;
       }
     }
-    this.autoLayers = viewParams.autoLayers;
+    if (viewParams.renderMode !== undefined) {
+      this.renderMode = viewParams.renderMode;
+    }
+    if (viewParams.backgroundColor !== undefined) {
+      this.backgroundColor = viewParams.backgroundColor;
+    }
+    if (viewParams.backgroundColorFromAmbientLight !== undefined) {
+      this.backgroundColorFromAmbientLight = viewParams.backgroundColorFromAmbientLight;
+    }
+    if (viewParams.autoLayers !== undefined) {
+      this.autoLayers = viewParams.autoLayers;
+    }
     if (viewParams.layers) {
       for (const viewLayerParams of viewParams.layers) {
         const existingViewLayer = this.layers[viewLayerParams.id];

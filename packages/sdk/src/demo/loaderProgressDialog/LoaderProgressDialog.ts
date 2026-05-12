@@ -56,6 +56,8 @@ import type {LoaderProgress} from "../../formats/LoaderProgress";
 
 
 import {el} from "../utils/el";
+import {bringFloatingPanelToFront} from "../panels/floatingPanelZ";
+import {showBackdrop, hideBackdrop} from "../panels/modalBackdrop";
 // ─────────────────────────────────────────────────────────────────
 // Public types
 // ─────────────────────────────────────────────────────────────────
@@ -172,7 +174,7 @@ const DIALOG_CSS = `
 .xkt-lpd-dialog .xkt-lpd-title {
   flex: 1;
   margin: 0;
-  font-size: 16px;
+  font-size: 22px;
   font-weight: 650;
   color: #111;
   white-space: nowrap;
@@ -386,6 +388,8 @@ export class LoaderProgressDialog {
   private _lastFraction = 0;
   private _smoothedEtaMs = 0;
 
+  private _backdrop: HTMLElement | null = null;
+
   constructor(params: {title?: string; container?: HTMLElement; delayMs?: number; minVisibleMs?: number} = {}) {
     this._container   = params.container || document.body;
     this._delayMs     = params.delayMs ?? 250;
@@ -434,6 +438,11 @@ export class LoaderProgressDialog {
     this._shown = true;
     this._shownAtMs = nowMs();
     this._root.style.display = "flex";
+    bringFloatingPanelToFront(this._root, /* aboveModals */ true);
+    // Modal scrim. No click-outside dismiss — a running load
+    // shouldn't be cancellable by a stray backdrop click; the
+    // Cancel / Dismiss buttons own that path.
+    this._backdrop = showBackdrop(this._container, this._root);
   }
 
   /**
@@ -464,6 +473,8 @@ export class LoaderProgressDialog {
       clearTimeout(this._delayTimer);
       this._delayTimer = null;
     }
+    hideBackdrop(this._backdrop);
+    this._backdrop = null;
     this._root.remove();
   }
 

@@ -30,22 +30,24 @@ import {DataTexturesPanel} from "./inspectors/DataTexturesPanel";
 // `openTilesPanel()` works with.
 import {TilesPanel as LegacyTilesPanelInspector} from "./inspectors/TilesPanel";
 import {DownloadPanel} from "./inspectors/DownloadPanel";
-import {SceneHealthPanel} from "./sceneHealthPanel/SceneHealthPanel";
-import {DataHealthPanel} from "./dataHealthPanel/DataHealthPanel";
+import type {ImportProvenance} from "./panels/modelsPanel/ImportProvenance";
+import {ModelsPanel} from "./panels/modelsPanel/ModelsPanel";
+import {SceneHealthPanel} from "./panels/sceneHealthPanel/SceneHealthPanel";
+import {DataHealthPanel} from "./panels/dataHealthPanel/DataHealthPanel";
 import type {DataFormatSchema} from "../dataModelInspector";
-import {BoundariesPanel} from "./boundariesPanel/BoundariesPanel";
-import {TilesPanel} from "./tilesPanel/TilesPanel";
-import {SceneStatsPanel} from "./sceneStats/SceneStatsPanel";
-import {DataStatsPanel} from "./dataStats/DataStatsPanel";
-import {SampleModelsPanel} from "./sampleModelsPanel/SampleModelsPanel";
-import {SchemaMaterialsPanel} from "./schemaMaterialsPanel/SchemaMaterialsPanel";
-import {ViewerConfigPanel} from "./viewerPanel/ViewerConfigPanel";
-import {GPUMemoryPanel} from "./gpuMemoryUsage/GPUMemoryUsage";
-import {Toolbar} from "./toolbar/Toolbar";
-import {ExportDialog} from "./exportDialog/ExportDialog";
-import {ExportBCFPanel} from "./exportBCF/ExportBCFPanel";
-import {ExplorerPanel} from "./explorerPanel/ExplorerPanel";
-import {EventsPanel} from "./eventsPanel/EventsPanel";
+import {BoundariesPanel} from "./panels/boundariesPanel/BoundariesPanel";
+import {TilesPanel} from "./panels/tilesPanel/TilesPanel";
+import {SceneStatsPanel} from "./panels/sceneStats/SceneStatsPanel";
+import {DataStatsPanel} from "./panels/dataStats/DataStatsPanel";
+import {SampleModelsPanel} from "./panels/sampleModelsPanel/SampleModelsPanel";
+import {SchemaMaterialsPanel} from "./panels/schemaMaterialsPanel/SchemaMaterialsPanel";
+import {ViewerConfigPanel} from "./panels/viewerPanel/ViewerConfigPanel";
+import {GPUMemoryPanel} from "./panels/gpuMemoryUsage/GPUMemoryUsage";
+import {Toolbar} from "./panels/toolbar/Toolbar";
+import {ExportDialog} from "./panels/exportDialog/ExportDialog";
+import {ExportBCFPanel} from "./panels/exportBCF/ExportBCFPanel";
+import {ExplorerPanel} from "./panels/explorerPanel/ExplorerPanel";
+import {EventsPanel} from "./panels/eventsPanel/EventsPanel";
 import {LoaderProgressDialog} from "./loaderProgressDialog/LoaderProgressDialog";
 import {createUUID} from "../utils";
 import {
@@ -65,17 +67,16 @@ import {DotBIMLoader} from "../formats/dotbim";
 import {OBJLoader} from "../formats/obj";
 import {CityJSONLoader} from "../formats/cityjson";
 import {LoadingSpinner} from "./LoadingSpinner";
-import {NavCube} from "./navCube/NavCube";
-import type {NavCubeParams} from "./navCube/NavCubeParams";
-import {DistanceMeasurementTool} from "./measurements/distance/DistanceMeasurementTool";
-import type {DistanceMeasurementToolParams} from "./measurements/distance/DistanceMeasurementToolParams";
-import {DistanceMeasurementsPanel} from "./distanceMeasurementsPanel/DistanceMeasurementsPanel";
-import {AngleMeasurementsPanel} from "./angleMeasurementsPanel/AngleMeasurementsPanel";
-import {ViewsPanel} from "./viewsPanel/ViewsPanel";
-import {AngleMeasurementsTool} from "./measurements/angle/AngleMeasurementsTool";
-import type {AngleMeasurementsToolParams} from "./measurements/angle/AngleMeasurementsToolParams";
+import {NavCube} from "./panels/navCube/NavCube";
+import type {NavCubeParams} from "./panels/navCube/NavCubeParams";
+import {DistanceMeasurementTool} from "./systems/measurements/distance/DistanceMeasurementTool";
+import type {DistanceMeasurementToolParams} from "./systems/measurements/distance/DistanceMeasurementToolParams";
+import {DistanceMeasurementsPanel} from "./panels/distanceMeasurementsPanel/DistanceMeasurementsPanel";
+import {AngleMeasurementsPanel} from "./panels/angleMeasurementsPanel/AngleMeasurementsPanel";
+import {AngleMeasurementsTool} from "./systems/measurements/angle/AngleMeasurementsTool";
+import type {AngleMeasurementsToolParams} from "./systems/measurements/angle/AngleMeasurementsToolParams";
 import {encodeRadianceHDR, paintSunSkyHDR} from "../procgen/paintEnvironments";
-import {getScenePhysics, type ScenePhysics} from "./physics";
+import {getScenePhysics, type ScenePhysics} from "./systems/physics";
 
 const taskRunner = getGlobalTaskRunner();
 
@@ -483,12 +484,17 @@ export class DemoHelper {
       coordinateSystem = await this._loadCoordSys(params.modelId);
     }
 
+    // SceneModel and DataModel for the same load share a single
+    // id — that's what `TreeView._addModel`, `loadDataset`, and
+    // every "find the paired model" lookup expects. Earlier code
+    // suffixed `-scene` / `-data` here, which made the pair
+    // unresolvable.
     const getSceneModel = () => {
       if (params.sceneModel) {
         return params.sceneModel;
       }
       const result = this.scene.createModel({
-        id: params.modelId ? `${params.modelId}-scene` : undefined,
+        id: params.modelId,
         coordinateSystem,
       });
       if (result.ok === false) {
@@ -502,7 +508,7 @@ export class DemoHelper {
         return params.dataModel;
       }
       const result = this.data.createModel({
-        id: params.modelId ? `${params.modelId}-data` : undefined
+        id: params.modelId
       });
       if (result.ok === false) {
         throw new Error(result.error);
@@ -1019,7 +1025,51 @@ export class DemoHelper {
       }
     }
 
+    this._modelOrigins.delete(modelId);
+
     return {sceneModelDestroyed, dataModelDestroyed};
+  }
+
+  /** Provenance recorded by the ImportDialog, keyed by modelId. */
+  private readonly _modelOrigins = new Map<string, ImportProvenance>();
+
+  /**
+   * Record where a freshly-loaded model came from. The ModelsPanel
+   * reads this back via {@link getModelOrigin} to surface "loaded
+   * via …" details. Cleared by {@link destroyModel}.
+   */
+  public recordModelOrigin(modelId: string, provenance: ImportProvenance): void {
+    this._modelOrigins.set(modelId, provenance);
+  }
+
+  /** Provenance for `modelId`, or `undefined` if none was recorded. */
+  public getModelOrigin(modelId: string): ImportProvenance | undefined {
+    return this._modelOrigins.get(modelId);
+  }
+
+  /**
+   * Open (or reveal) the {@link ModelsPanel}, a master-detail
+   * browser for every loaded SceneModel. Lists models, surfaces
+   * identity / provenance / coord system / stats, and routes
+   * quick actions (Fit / Hide / Show / Unload) plus jump-to
+   * links to the deeper inspector panels.
+   */
+  public openModelsPanel(): ModelsPanel {
+    return ModelsPanel.openFor({demoHelper: this});
+  }
+
+  public hideModelsPanel(): void {
+    const existing = ModelsPanel.getFor(this);
+    if (existing) existing.hide();
+  }
+
+  public toggleModelsPanel(): ModelsPanel {
+    const existing = ModelsPanel.getFor(this);
+    if (existing) {
+      existing.toggle();
+      return existing;
+    }
+    return this.openModelsPanel();
   }
 
   /**
@@ -1518,43 +1568,30 @@ export class DemoHelper {
   }
 
   /**
-   * Mounts (or returns the live) {@link ViewsPanel} for the
-   * helper's {@link viewer} — a floating panel that lists
-   * every {@link View} on the Viewer with per-row close
-   * buttons and a "New View" footer button. The footer
-   * button clones the active View's camera via
-   * {@link createView}.
+   * Toggle the {@link ViewerConfigPanel} for the helper's
+   * {@link viewer} — the "Views" panel that lists every
+   * {@link View} on the Viewer, exposes its `ViewerParams`
+   * fields for editing, and offers per-View destroy buttons
+   * plus a footer "New View" button. Constructs the panel on
+   * first call.
    */
-  public openViewsPanel(): ViewsPanel {
-    const existing = ViewsPanel.getFor(this.viewer);
-    if (existing) {
-      existing.show();
-      return existing;
-    }
-    return ViewsPanel.openFor({viewer: this.viewer, demoHelper: this});
-  }
-
-  /**
-   * Hide (without destroying) the {@link ViewsPanel} for the
-   * helper's {@link viewer}. The pill stands in for the panel
-   * until it is reopened.
-   */
-  public hideViewsPanel(): void {
-    const existing = ViewsPanel.getFor(this.viewer);
-    if (existing) existing.hide();
-  }
-
-  /**
-   * Toggle the {@link ViewsPanel} for the helper's
-   * {@link viewer}. Constructs the panel on first call.
-   */
-  public toggleViewsPanel(): ViewsPanel {
-    const existing = ViewsPanel.getFor(this.viewer);
+  public toggleViewsPanel(): ViewerConfigPanel {
+    const existing = ViewerConfigPanel.getFor(this.viewer);
     if (existing) {
       existing.toggle();
       return existing;
     }
-    return this.openViewsPanel();
+    return this.openViewerConfigPanel();
+  }
+
+  /**
+   * Hide (without destroying) the {@link ViewerConfigPanel} for
+   * the helper's {@link viewer}. The pill stands in for the panel
+   * until it is reopened.
+   */
+  public hideViewsPanel(): void {
+    const existing = ViewerConfigPanel.getFor(this.viewer);
+    if (existing) existing.hide();
   }
 
   /**
@@ -1831,7 +1868,7 @@ export class DemoHelper {
       if (!existing.visible) existing.show();
       return existing;
     }
-    return ViewerConfigPanel.openFor({viewer: this.viewer});
+    return ViewerConfigPanel.openFor({viewer: this.viewer, demoHelper: this});
   }
 
   /**

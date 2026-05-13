@@ -150,8 +150,10 @@ const PANEL_CSS = `
 }
 .xkt-scs-panel .xkt-scs-title-icon {
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
+  align-self: flex-start;
+  margin-top: 2px;
+  width: 24px;
+  height: 24px;
   color: #2d5e8c;
   display: inline-flex;
   align-items: center;
@@ -168,6 +170,19 @@ const PANEL_CSS = `
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.xkt-scs-panel .xkt-scs-title-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.xkt-scs-panel .xkt-scs-subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  color: #475569;
+  line-height: 1.25;
 }
 /* Header status badge — at-a-glance "is anything loaded?" pill.
    Green when one or more SceneModels are present, muted when the
@@ -647,7 +662,10 @@ export class SceneStatsPanel extends FloatingPanelBase {
     const title = el("h2", "xkt-scs-title");
     title.innerHTML =
       `<span class="xkt-scs-title-icon">${SceneStatsPanel.iconSvg()}</span>` +
-      `<span class="xkt-scs-title-text">Scene Statistics</span>`;
+      `<span class="xkt-scs-title-stack">` +
+        `<span class="xkt-scs-title-text">Scene Statistics</span>` +
+        `<span class="xkt-scs-subtitle">Live Scene resource counts.</span>` +
+      `</span>`;
 
     this._statusBadgeEl = el("span", "xkt-scs-status-badge");
     this._statusBadgeEl.classList.add("xkt-scs-status-empty");

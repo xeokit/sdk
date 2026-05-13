@@ -172,8 +172,10 @@ const PANEL_CSS = `
 }
 .xkt-bnd-panel .xkt-bnd-title-icon {
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
+  align-self: flex-start;
+  margin-top: 2px;
+  width: 24px;
+  height: 24px;
   color: #2d5e8c;
   display: inline-flex;
   align-items: center;
@@ -191,16 +193,18 @@ const PANEL_CSS = `
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.xkt-bnd-panel .xkt-bnd-title-id {
-  flex-shrink: 0;
-  padding: 2px 8px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+.xkt-bnd-panel .xkt-bnd-title-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.xkt-bnd-panel .xkt-bnd-subtitle {
   font-size: 11px;
-  font-weight: 500;
-  color: #555;
-  background: #f0f0f0;
-  border-radius: 4px;
-  letter-spacing: 0.1px;
+  font-weight: 400;
+  color: #475569;
+  line-height: 1.25;
 }
 .xkt-bnd-panel .xkt-bnd-close {
   flex-shrink: 0;
@@ -275,6 +279,61 @@ const PANEL_CSS = `
   font-weight: 600;
   color: #666;
   margin-right: 8px;
+}
+
+/* Layer-filter pip row — one pip per observed SceneObject.layerId
+   plus the implicit "default" bucket. Clicking a pip toggles
+   inclusion of every object on that layer in the AABB projection. */
+.xkt-bnd-panel .xkt-bnd-layers {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0 10px;
+  padding: 8px 12px;
+  background: #fcfcfc;
+  border: 1px solid #ececec;
+  border-radius: 6px;
+  font-size: 11px;
+}
+.xkt-bnd-panel .xkt-bnd-layers-label {
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #666;
+  margin-right: 4px;
+}
+.xkt-bnd-panel .xkt-bnd-layer-pip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  font-size: 11px;
+  color: #475569;
+  background: #fff;
+  border: 1px solid #d0d7de;
+  border-radius: 999px;
+  cursor: pointer;
+  user-select: none;
+}
+.xkt-bnd-panel .xkt-bnd-layer-pip[data-on="1"] {
+  color: #fff;
+  background: #2d5e8c;
+  border-color: #1f4669;
+}
+.xkt-bnd-panel .xkt-bnd-layer-pip[data-on="1"] .xkt-bnd-layer-dot {
+  background: #fff;
+}
+.xkt-bnd-panel .xkt-bnd-layer-pip:hover {
+  border-color: #2d5e8c;
+}
+.xkt-bnd-panel .xkt-bnd-layer-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #c0c0c0;
 }
 
 /* Per-axis section — collapsible. */
@@ -442,9 +501,33 @@ export class BoundariesPanel extends FloatingPanelBase {
   private readonly _index: SceneCollisionIndex;
 
   // DOM refs.
-  private _titleIdEl!: HTMLElement;
   private _bodyEl!: HTMLElement;
   private _extentsEl: HTMLElement | null = null;
+  private _layersEl: HTMLElement | null = null;
+  /**
+   * Set of `layerId` values the user has *disabled* via the
+   * filter pip row. Objects whose `layerId` (or the implicit
+   * `"default"` bucket for objects with no layerId) is in this
+   * set are excluded from the AABB collection — both the
+   * Scene AABB and every per-section SVG paint skips them.
+   *
+   * Stored as the disabled set rather than the enabled set so
+   * `"default"` doesn't need explicit population — layers the user
+   * has never toggled simply aren't in the set.
+   *
+   * Non-`"default"` layers are auto-added to this set the first
+   * time they appear (see `_seenLayers`) so the panel opens on a
+   * clean default-only view; the user can then opt non-default
+   * layers in via the pip row.
+   */
+  private readonly _disabledLayers = new Set<string>();
+  /**
+   * Every `layerId` value the panel has ever observed in the
+   * Scene. Used to gate the one-shot auto-disable for non-default
+   * layers — once a layer is in this set, the panel respects the
+   * user's last pip choice for it and never auto-disables again.
+   */
+  private readonly _seenLayers = new Set<string>();
   private _sections: SectionRefs[] = [];
 
   // Lifecycle state.
@@ -618,10 +701,10 @@ export class BoundariesPanel extends FloatingPanelBase {
     const title = el("h2", "xkt-bnd-title");
     title.innerHTML =
       `<span class="xkt-bnd-title-icon">${BoundariesPanel.iconSvg()}</span>` +
-      `<span class="xkt-bnd-title-text">Scene Boundaries</span>` +
-      `<span class="xkt-bnd-title-id" title="Scene id"></span>`;
-    this._titleIdEl = title.querySelector(".xkt-bnd-title-id") as HTMLElement;
-    this._titleIdEl.textContent = String((this.scene as any).id ?? "Scene");
+      `<span class="xkt-bnd-title-stack">` +
+        `<span class="xkt-bnd-title-text">Scene Boundaries</span>` +
+        `<span class="xkt-bnd-subtitle">Axis-aligned views of scene object boundaries.</span>` +
+      `</span>`;
 
     this._closeBtn = el("button", "xkt-bnd-close", {
       type: "button",
@@ -660,6 +743,7 @@ export class BoundariesPanel extends FloatingPanelBase {
     if (!data) {
       this._bodyEl.innerHTML = `<div class="xkt-bnd-empty">No object boundaries to display.</div>`;
       this._extentsEl = null;
+      this._layersEl = null;
       this._sections = [];
       return;
     }
@@ -677,6 +761,11 @@ export class BoundariesPanel extends FloatingPanelBase {
         `<span class="xkt-bnd-extents-label">Scene AABB</span>` +
         escapeHtml(formatAABB(data.sceneAABB));
     }
+
+    // Layer-filter pips — refreshed on every paint so new
+    // layers appearing after the panel opens get a pip without
+    // a manual rebuild.
+    this._renderLayerPips(data.layers);
 
     // Per-view: render only the sections that are currently open.
     // Closed sections get their `dirty` flag set so the one-shot
@@ -704,22 +793,68 @@ export class BoundariesPanel extends FloatingPanelBase {
     sceneAABB: AABB3;
     camEye: Vec3;
     camLook: Vec3;
+    /** Sorted list of every distinct `layerId` observed, including
+     *  the implicit `"default"` bucket for objects without one. */
+    layers: string[];
   } | null {
     const objects = (this.scene as any).objects || {};
     const aabbs: Array<{id: string; aabb: AABB3}> = [];
+    const layerSet = new Set<string>();
+    let unionAABB: AABB3 | null = null;
     for (const id of Object.keys(objects)) {
       const obj: any = objects[id];
       if (!obj.meshes || obj.meshes.length === 0) continue;
+      const layer = obj.layerId || "default";
+      // First-sighting of any non-default layer is auto-disabled
+      // so the boundaries view opens on the source model only —
+      // non-default layers (e.g. blueprint chrome) can be
+      // confusing to a user who doesn't know what they are. The
+      // user can opt them in via the pip row, and that choice
+      // sticks because the layer is now in `_seenLayers`.
+      if (!this._seenLayers.has(layer)) {
+        this._seenLayers.add(layer);
+        if (layer !== "default") this._disabledLayers.add(layer);
+      }
+      layerSet.add(layer);
+      if (this._disabledLayers.has(layer)) continue;
       const a = this._index.getObjectAABB(id);
-      if (a) aabbs.push({id, aabb: a});
+      if (!a) continue;
+      aabbs.push({id, aabb: a});
+      if (!unionAABB) {
+        unionAABB = a.slice() as AABB3;
+      } else {
+        if (a[0] < unionAABB[0]) unionAABB[0] = a[0];
+        if (a[1] < unionAABB[1]) unionAABB[1] = a[1];
+        if (a[2] < unionAABB[2]) unionAABB[2] = a[2];
+        if (a[3] > unionAABB[3]) unionAABB[3] = a[3];
+        if (a[4] > unionAABB[4]) unionAABB[4] = a[4];
+        if (a[5] > unionAABB[5]) unionAABB[5] = a[5];
+      }
     }
-    if (aabbs.length === 0) return null;
+    if (aabbs.length === 0 || !unionAABB) {
+      // Even an empty frame needs to surface the layer list so
+      // the pips render — fall back to the all-layers union if
+      // the filter set has eaten every object, otherwise return
+      // null to leave the panel in its "no boundaries" state.
+      if (layerSet.size === 0) return null;
+      return {
+        aabbs: [],
+        sceneAABB: [0, 0, 0, 0, 0, 0] as AABB3,
+        camEye:    (this.view.camera as any).eye  as Vec3,
+        camLook:   (this.view.camera as any).look as Vec3,
+        layers:    Array.from(layerSet).sort(),
+      };
+    }
     const cam: any = this.view.camera;
     return {
       aabbs,
-      sceneAABB: this._index.getSceneAABB(),
+      // Use the filtered union, not the SceneCollisionIndex's
+      // unconditional Scene AABB — otherwise disabling a layer
+      // would still affect the readout's extents.
+      sceneAABB: unionAABB,
       camEye:    cam.eye  as Vec3,
       camLook:   cam.look as Vec3,
+      layers:    Array.from(layerSet).sort(),
     };
   }
 
@@ -735,6 +870,13 @@ export class BoundariesPanel extends FloatingPanelBase {
 
     this._extentsEl = el("div", "xkt-bnd-extents");
     this._bodyEl.appendChild(this._extentsEl);
+
+    // Per-layer toggle row. The pip list is rebuilt on every
+    // re-render so newly-created layers (e.g. blueprints
+    // appearing after a model load) show up without a panel
+    // reopen.
+    this._layersEl = el("div", "xkt-bnd-layers");
+    this._bodyEl.appendChild(this._layersEl);
 
     const cs: any = (this.scene as any).coordinateSystem;
     const upAxis      = axisIndex(cs?.worldUp);
@@ -787,6 +929,49 @@ export class BoundariesPanel extends FloatingPanelBase {
 
       return ref;
     });
+  }
+
+  /**
+   * Rebuild the layer-filter pip row. One pip per observed
+   * SceneObject.layerId (including the implicit `"default"`
+   * bucket). Clicking a pip toggles its layer's inclusion in
+   * the AABB projection; the panel re-renders so the extents
+   * readout and the open SVG section reflect the change.
+   */
+  private _renderLayerPips(layers: string[]): void {
+    const host = this._layersEl;
+    if (!host) return;
+    host.replaceChildren();
+    const label = el("span", "xkt-bnd-layers-label", {textContent: "Layers"});
+    host.appendChild(label);
+    for (const layer of layers) {
+      const enabled = !this._disabledLayers.has(layer);
+      const pip = el("button", "xkt-bnd-layer-pip", {
+        type: "button",
+        title: enabled
+          ? `Click to hide objects on layer "${layer}".`
+          : `Click to show objects on layer "${layer}".`,
+      }) as HTMLButtonElement;
+      pip.dataset.on = enabled ? "1" : "0";
+      pip.dataset.layer = layer;
+      const dot = el("span", "xkt-bnd-layer-dot");
+      const name = el("span", undefined, {textContent: layer});
+      pip.append(dot, name);
+      pip.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        if (this._disabledLayers.has(layer)) {
+          this._disabledLayers.delete(layer);
+        } else {
+          this._disabledLayers.add(layer);
+        }
+        // Mark every section dirty so the next paint redraws.
+        // Open sections re-paint immediately via _renderAll;
+        // closed ones repaint when next expanded.
+        for (const ref of this._sections) ref.dirty = true;
+        this._renderAll();
+      });
+      host.appendChild(pip);
+    }
   }
 
   /** Repaint a single section's SVG using snapshotted data. */

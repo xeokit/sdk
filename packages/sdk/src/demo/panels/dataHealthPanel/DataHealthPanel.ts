@@ -236,8 +236,10 @@ const PANEL_CSS = `
 }
 .xkt-dh-panel .xkt-dh-title-icon {
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
+  align-self: flex-start;
+  margin-top: 2px;
+  width: 24px;
+  height: 24px;
   color: #2c7e6f;
   display: inline-flex;
   align-items: center;
@@ -254,6 +256,19 @@ const PANEL_CSS = `
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.xkt-dh-panel .xkt-dh-title-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.xkt-dh-panel .xkt-dh-subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  color: #475569;
+  line-height: 1.25;
 }
 .xkt-dh-panel .xkt-dh-title-id {
   flex-shrink: 0;
@@ -1523,7 +1538,10 @@ export class DataHealthPanel extends FloatingPanelBase {
     const title = el("h2", "xkt-dh-title");
     title.innerHTML =
       `<span class="xkt-dh-title-icon">${DataHealthPanel.iconSvg()}</span>` +
-      `<span class="xkt-dh-title-text">Data Health</span>`;
+      `<span class="xkt-dh-title-stack">` +
+        `<span class="xkt-dh-title-text">Data Health</span>` +
+        `<span class="xkt-dh-subtitle">Data graph problems and one-click fixes.</span>` +
+      `</span>`;
     this._closeBtn = el("button", "xkt-dh-close", {
       type: "button",
       "aria-label": "Close panel",

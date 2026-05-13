@@ -184,8 +184,10 @@ const PANEL_CSS = `
 }
 .xkt-tls-panel .xkt-tls-title-icon {
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
+  align-self: flex-start;
+  margin-top: 2px;
+  width: 24px;
+  height: 24px;
   color: #2d5e8c;
   display: inline-flex;
   align-items: center;
@@ -203,16 +205,19 @@ const PANEL_CSS = `
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.xkt-tls-panel .xkt-tls-title-id {
-  flex-shrink: 0;
-  padding: 2px 8px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+.xkt-tls-panel .xkt-tls-title-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.xkt-tls-panel .xkt-tls-subtitle {
   font-size: 11px;
-  font-weight: 500;
-  color: #555;
-  background: #f0f0f0;
-  border-radius: 4px;
-  letter-spacing: 0.1px;
+  font-weight: 400;
+  color: #475569;
+  line-height: 1.3;
+  white-space: normal;
 }
 .xkt-tls-panel .xkt-tls-close {
   flex-shrink: 0;
@@ -456,7 +461,6 @@ export class TilesPanel extends FloatingPanelBase {
   readonly renderStats: RenderStats;
 
   // DOM refs.
-  private _titleIdEl!: HTMLElement;
   private _bodyEl!: HTMLElement;
   private _extentsEl: HTMLElement | null = null;
   private _extentsValueEl: HTMLElement | null = null;
@@ -615,10 +619,10 @@ export class TilesPanel extends FloatingPanelBase {
     const title = el("h2", "xkt-tls-title");
     title.innerHTML =
       `<span class="xkt-tls-title-icon">${TilesPanel.iconSvg()}</span>` +
-      `<span class="xkt-tls-title-text">GPU Tiles</span>` +
-      `<span class="xkt-tls-title-id" title="Scene id"></span>`;
-    this._titleIdEl = title.querySelector(".xkt-tls-title-id") as HTMLElement;
-    this._titleIdEl.textContent = String((this.scene as any).id ?? "Scene");
+      `<span class="xkt-tls-title-stack">` +
+        `<span class="xkt-tls-title-text">GPU Tiles</span>` +
+        `<span class="xkt-tls-subtitle">Live RTC tile map. An RTC tile is a region of the scene with its own local origin, used to keep geometry precise far from the world origin.</span>` +
+      `</span>`;
 
     this._closeBtn = el("button", "xkt-tls-close", {
       type: "button",

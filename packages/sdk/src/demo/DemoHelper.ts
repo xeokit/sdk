@@ -11,17 +11,14 @@ import {type RenderStats} from "../webGLRenderer/internal/inspectors";
 import {ViewController} from "../viewController";
 import {ScenePanel} from "./inspectors/ScenePanel";
 import {DataPanel} from "./inspectors/DataPanel";
-import {ShadersPanel} from "./inspectors/ShadersPanel";
 import {RendererPanel} from "./inspectors/RendererPanel";
 import {FloatingPanelFlowHost} from "./inspectors/FloatingPanelFlowHost";
-import {TaskPanel} from "./inspectors/TaskPanel";
 // Aliased so it doesn't collide with the newer floating
 // `BoundariesPanel` widget at `./boundariesPanel/`. This legacy
 // import is the static-class panel that `toggleInspector()`
 // mounts inside the FloatingPanelFlowHost; the floating widget
 // is the one `openBoundariesPanel()` works with.
 import {BoundariesPanel as LegacyBoundariesPanelInspector} from "./inspectors/BoundariesPanel";
-import {DataTexturesPanel} from "./inspectors/DataTexturesPanel";
 // Aliased so it doesn't collide with the newer floating
 // `TilesPanel` widget at `./tilesPanel/`. Same pattern as the
 // BoundariesPanel split — this legacy import is the
@@ -48,6 +45,10 @@ import {ExportDialog} from "./panels/exportDialog/ExportDialog";
 import {ExportBCFPanel} from "./panels/exportBCF/ExportBCFPanel";
 import {ExplorerPanel} from "./panels/explorerPanel/ExplorerPanel";
 import {EventsPanel} from "./panels/eventsPanel/EventsPanel";
+import {TasksPanel} from "./panels/tasksPanel/TasksPanel";
+import {ShadersPanel} from "./panels/shadersPanel/ShadersPanel";
+import {DataTexturesPanel} from "./panels/dataTexturesPanel/DataTexturesPanel";
+import {BluePrintsPanel} from "./panels/blueprints/BluePrintsPanel";
 import {LoaderProgressDialog} from "./loaderProgressDialog/LoaderProgressDialog";
 import {createUUID} from "../utils";
 import {
@@ -1444,6 +1445,88 @@ export class DemoHelper {
   }
 
   /**
+   * Opens a {@link TasksPanel} bound to the global
+   * {@link SDKTaskRunner}, mounting one if no panel currently
+   * exists. Surfaces every {@link SDKTask} registered with the
+   * runner, grouped by update-cycle stage.
+   */
+  public openTasksPanel(): TasksPanel {
+    const existing = TasksPanel.getFor(taskRunner);
+    if (existing) {
+      if (!existing.visible) existing.show();
+      return existing;
+    }
+    return TasksPanel.openFor({runner: taskRunner});
+  }
+
+  /**
+   * Opens a {@link ShadersPanel} bound to the helper's
+   * {@link WebGLRenderer | renderer}'s
+   * {@link ShaderInspector | shader inspector}, mounting one if
+   * no panel currently exists. Returns `undefined` if the
+   * renderer can't yet expose an inspector (no Viewer attached).
+   */
+  public openShadersPanel(): ShadersPanel | undefined {
+    const inspectorRes = this.renderer.getShaderInspector();
+    if (inspectorRes.ok === false) {
+      console.warn("[DemoHelper.openShadersPanel] Renderer doesn't expose a ShaderInspector:", inspectorRes.error);
+      return undefined;
+    }
+    const inspector = inspectorRes.value;
+    const existing = ShadersPanel.getFor(inspector);
+    if (existing) {
+      if (!existing.visible) existing.show();
+      return existing;
+    }
+    return ShadersPanel.openFor({inspector});
+  }
+
+  /**
+   * Opens a {@link DataTexturesPanel} bound to the helper's
+   * {@link WebGLRenderer | renderer}'s
+   * {@link DataTextures | data-textures} bundle, mounting one
+   * if no panel currently exists. Returns `undefined` if the
+   * renderer's {@link MemoryInspector} isn't yet available
+   * (no Viewer attached).
+   */
+  public openDataTexturesPanel(): DataTexturesPanel | undefined {
+    const memoryRes = this.renderer.getMemoryInspector();
+    if (memoryRes.ok === false) {
+      console.warn("[DemoHelper.openDataTexturesPanel] Renderer doesn't expose a MemoryInspector:", memoryRes.error);
+      return undefined;
+    }
+    const dataTextures = memoryRes.value.dataTextures;
+    if (!dataTextures) {
+      console.warn("[DemoHelper.openDataTexturesPanel] MemoryInspector has no DataTextures bundle.");
+      return undefined;
+    }
+    const existing = DataTexturesPanel.getFor(dataTextures);
+    if (existing) {
+      if (!existing.visible) existing.show();
+      return existing;
+    }
+    return DataTexturesPanel.openFor({dataTextures});
+  }
+
+  /**
+   * Opens (or returns the live) {@link BluePrintsPanel} bound
+   * to this helper — the floating controller that generates and
+   * manages wireframe ortho "blueprint" SceneModels (plan view +
+   * elevations) for each source SceneModel currently in the
+   * Scene. Panel filters its own projection outputs out of the
+   * candidate list so blueprints can't recurse into blueprints
+   * of themselves.
+   */
+  public openBluePrintsPanel(): BluePrintsPanel {
+    const existing = BluePrintsPanel.getFor(this);
+    if (existing) {
+      if (!existing.visible) existing.show();
+      return existing;
+    }
+    return BluePrintsPanel.openFor({demoHelper: this});
+  }
+
+  /**
    * Opens (or returns the live) {@link ExportDialog} bound to
    * this helper.
    */
@@ -2099,11 +2182,6 @@ export class DemoHelper {
 
       DataPanel.show(this.inspectorFlowHost, this.data, {});
 
-      const shaderInspectorResult = this.renderer.getShaderInspector();
-      if (shaderInspectorResult.ok) {
-        ShadersPanel.show(this.inspectorFlowHost, shaderInspectorResult.value);
-      }
-
       const renderInspectorResult = this.renderer.getRenderInspector();
       if (renderInspectorResult.ok) {
         RendererPanel.show(this.inspectorFlowHost, this.renderer);
@@ -2112,17 +2190,8 @@ export class DemoHelper {
         LegacyTilesPanelInspector.show(this.inspectorFlowHost, renderStats);
       }
 
-      TaskPanel.show(this.inspectorFlowHost, taskRunner, {});
-
       if (view) {
         LegacyBoundariesPanelInspector.show(this.inspectorFlowHost, view, this.collisionIndex, {});
-      }
-
-      const memoryInspectorResult = this.renderer.getMemoryInspector();
-      if (memoryInspectorResult.ok) {
-        const memoryInspector = memoryInspectorResult.value;
-        const dataTextures = memoryInspector.dataTextures;
-        DataTexturesPanel.show(this.inspectorFlowHost, dataTextures);
       }
 
       // Viewer config UI is now the floating ViewerConfigPanel

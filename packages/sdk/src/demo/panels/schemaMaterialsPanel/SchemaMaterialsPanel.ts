@@ -213,8 +213,10 @@ const PANEL_CSS = `
 }
 .xkt-smp-panel .xkt-smp-title-icon {
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
+  align-self: flex-start;
+  margin-top: 2px;
+  width: 24px;
+  height: 24px;
   color: #6b3aa0;
   display: inline-flex;
   align-items: center;
@@ -231,6 +233,19 @@ const PANEL_CSS = `
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.xkt-smp-panel .xkt-smp-title-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.xkt-smp-panel .xkt-smp-subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  color: #475569;
+  line-height: 1.25;
 }
 .xkt-smp-panel .xkt-smp-close {
   flex-shrink: 0;
@@ -1242,7 +1257,10 @@ export class SchemaMaterialsPanel extends FloatingPanelBase {
     const title = el("h2", "xkt-smp-title");
     title.innerHTML =
       `<span class="xkt-smp-title-icon">${SchemaMaterialsPanel.iconSvg()}</span>` +
-      `<span class="xkt-smp-title-text">Schema Materials</span>`;
+      `<span class="xkt-smp-title-stack">` +
+        `<span class="xkt-smp-title-text">Schema Materials</span>` +
+        `<span class="xkt-smp-subtitle">Schema-code to material map.</span>` +
+      `</span>`;
     this._closeBtn = el("button", "xkt-smp-close", {
       type: "button",
       "aria-label": "Close panel",

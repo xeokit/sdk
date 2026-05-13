@@ -87,8 +87,10 @@ const PANEL_CSS = `
 }
 .xkt-am-panel .xkt-am-title-icon {
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
+  align-self: flex-start;
+  margin-top: 2px;
+  width: 24px;
+  height: 24px;
   color: #9C27B0;
   display: inline-flex;
   align-items: center;
@@ -105,6 +107,19 @@ const PANEL_CSS = `
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.xkt-am-panel .xkt-am-title-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.xkt-am-panel .xkt-am-subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  color: #475569;
+  line-height: 1.25;
 }
 .xkt-am-panel .xkt-am-close {
   flex-shrink: 0;
@@ -412,10 +427,16 @@ export class AngleMeasurementsPanel extends FloatingPanelBase {
     const titleIcon = document.createElement("span");
     titleIcon.className = "xkt-am-title-icon";
     titleIcon.innerHTML = AngleMeasurementsPanel.iconSvg();
+    const titleStack = document.createElement("span");
+    titleStack.className = "xkt-am-title-stack";
     const titleText = document.createElement("span");
     titleText.className = "xkt-am-title-text";
     titleText.textContent = "Angle Measurements";
-    title.append(titleIcon, titleText);
+    const subtitle = document.createElement("span");
+    subtitle.className = "xkt-am-subtitle";
+    subtitle.textContent = "Angle measurements on this View.";
+    titleStack.append(titleText, subtitle);
+    title.append(titleIcon, titleStack);
 
     this._closeBtn = document.createElement("button");
     this._closeBtn.className = "xkt-am-close";

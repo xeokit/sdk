@@ -290,8 +290,10 @@ const PANEL_CSS = `
 }
 .xkt-sh-panel .xkt-sh-title-icon {
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
+  align-self: flex-start;
+  margin-top: 2px;
+  width: 24px;
+  height: 24px;
   color: #2d5e8c;
   display: inline-flex;
   align-items: center;
@@ -308,6 +310,19 @@ const PANEL_CSS = `
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.xkt-sh-panel .xkt-sh-title-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.xkt-sh-panel .xkt-sh-subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  color: #475569;
+  line-height: 1.25;
 }
 .xkt-sh-panel .xkt-sh-title-id {
   flex-shrink: 0;
@@ -2087,7 +2102,10 @@ export class SceneHealthPanel extends FloatingPanelBase {
     const title = el("h2", "xkt-sh-title");
     title.innerHTML =
       `<span class="xkt-sh-title-icon">${SceneHealthPanel.iconSvg()}</span>` +
-      `<span class="xkt-sh-title-text">Scene Health</span>`;
+      `<span class="xkt-sh-title-stack">` +
+        `<span class="xkt-sh-title-text">Scene Health</span>` +
+        `<span class="xkt-sh-subtitle">Scene problems and one-click fixes.</span>` +
+      `</span>`;
     this._closeBtn = el("button", "xkt-sh-close", {
       type: "button",
       "aria-label": "Close panel",

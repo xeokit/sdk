@@ -136,8 +136,10 @@ const PANEL_CSS = `
 }
 .xkt-gpu-panel .xkt-gpu-title-icon {
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
+  align-self: flex-start;
+  margin-top: 2px;
+  width: 24px;
+  height: 24px;
   color: #4a90e2;
   display: inline-flex;
   align-items: center;
@@ -154,6 +156,19 @@ const PANEL_CSS = `
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.xkt-gpu-panel .xkt-gpu-title-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.xkt-gpu-panel .xkt-gpu-subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  color: #475569;
+  line-height: 1.25;
 }
 .xkt-gpu-panel .xkt-gpu-close {
   flex-shrink: 0;
@@ -600,7 +615,10 @@ export class GPUMemoryPanel extends FloatingPanelBase {
     const title = el("h2", "xkt-gpu-title");
     title.innerHTML =
       `<span class="xkt-gpu-title-icon">${GPUMemoryPanel.iconSvg()}</span>` +
-      `<span class="xkt-gpu-title-text">GPU Memory</span>`;
+      `<span class="xkt-gpu-title-stack">` +
+        `<span class="xkt-gpu-title-text">GPU Memory</span>` +
+        `<span class="xkt-gpu-subtitle">GPU memory by allocation.</span>` +
+      `</span>`;
 
     this._closeBtn = el("button", "xkt-gpu-close", {
       type: "button",

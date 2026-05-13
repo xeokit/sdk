@@ -97,8 +97,10 @@ const PANEL_CSS = `
 }
 .xkt-imp-panel .xkt-imp-title-icon {
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
+  align-self: flex-start;
+  margin-top: 2px;
+  width: 24px;
+  height: 24px;
   color: #2d5e8c;
   display: inline-flex;
   align-items: center;
@@ -111,6 +113,19 @@ const PANEL_CSS = `
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.xkt-imp-panel .xkt-imp-title-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.xkt-imp-panel .xkt-imp-subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  color: #475569;
+  line-height: 1.25;
 }
 .xkt-imp-panel .xkt-imp-close {
   flex-shrink: 0;
@@ -409,7 +424,10 @@ export class ImportDialog extends FloatingPanelBase {
     const title = el("h2", "xkt-imp-title");
     title.innerHTML =
       `<span class="xkt-imp-title-icon">${ImportDialog.iconSvg()}</span>` +
-      `<span class="xkt-imp-title-text">Import Model</span>`;
+      `<span class="xkt-imp-title-stack">` +
+        `<span class="xkt-imp-title-text">Import Model</span>` +
+        `<span class="xkt-imp-subtitle">Load a model file.</span>` +
+      `</span>`;
     this._closeBtn = el("button", "xkt-imp-close", {
       type: "button",
       "aria-label": "Close Import dialog",

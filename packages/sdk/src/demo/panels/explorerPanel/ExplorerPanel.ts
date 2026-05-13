@@ -188,8 +188,10 @@ const PANEL_CSS = `
 }
 .xkt-explorer-panel .xkt-explorer-title-icon {
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
+  align-self: flex-start;
+  margin-top: 2px;
+  width: 24px;
+  height: 24px;
   color: #2d5e8c;
   display: inline-flex;
   align-items: center;
@@ -206,6 +208,19 @@ const PANEL_CSS = `
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.xkt-explorer-panel .xkt-explorer-title-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.xkt-explorer-panel .xkt-explorer-subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  color: #475569;
+  line-height: 1.25;
 }
 .xkt-explorer-panel .xkt-explorer-close {
   flex-shrink: 0;
@@ -705,7 +720,10 @@ export class ExplorerPanel extends FloatingPanelBase {
     const title = el("h2", "xkt-explorer-title");
     title.innerHTML =
       `<span class="xkt-explorer-title-icon">${ExplorerPanel.iconSvg()}</span>` +
-      `<span class="xkt-explorer-title-text">Explorer</span>`;
+      `<span class="xkt-explorer-title-stack">` +
+        `<span class="xkt-explorer-title-text">Explorer</span>` +
+        `<span class="xkt-explorer-subtitle">Tree view of data objects.</span>` +
+      `</span>`;
 
     this._closeBtn = el("button", "xkt-explorer-close", {
       type: "button",

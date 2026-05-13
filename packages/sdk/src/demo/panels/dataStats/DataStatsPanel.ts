@@ -150,8 +150,10 @@ const PANEL_CSS = `
 }
 .xkt-dts-panel .xkt-dts-title-icon {
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
+  align-self: flex-start;
+  margin-top: 2px;
+  width: 24px;
+  height: 24px;
   color: #2d5e8c;
   display: inline-flex;
   align-items: center;
@@ -168,6 +170,19 @@ const PANEL_CSS = `
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.xkt-dts-panel .xkt-dts-title-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.xkt-dts-panel .xkt-dts-subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  color: #475569;
+  line-height: 1.25;
 }
 .xkt-dts-panel .xkt-dts-title-id {
   flex-shrink: 0;
@@ -597,7 +612,10 @@ export class DataStatsPanel extends FloatingPanelBase {
     const title = el("h2", "xkt-dts-title");
     title.innerHTML =
       `<span class="xkt-dts-title-icon">${DataStatsPanel.iconSvg()}</span>` +
-      `<span class="xkt-dts-title-text">Data Statistics</span>` +
+      `<span class="xkt-dts-title-stack">` +
+        `<span class="xkt-dts-title-text">Data Statistics</span>` +
+        `<span class="xkt-dts-subtitle">Live Data graph counts.</span>` +
+      `</span>` +
       `<span class="xkt-dts-title-id" title="Data id"></span>`;
     this._titleIdEl = title.querySelector(".xkt-dts-title-id") as HTMLElement;
     this._titleIdEl.textContent = String((this.data as any).id ?? "Data");

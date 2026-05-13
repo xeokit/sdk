@@ -38,6 +38,10 @@ import {BoundariesPanel} from "../boundariesPanel/BoundariesPanel";
 import {TilesPanel} from "../tilesPanel/TilesPanel";
 import {GPUMemoryPanel} from "../gpuMemoryUsage/GPUMemoryUsage";
 import {EventsPanel} from "../eventsPanel/EventsPanel";
+import {TasksPanel} from "../tasksPanel/TasksPanel";
+import {ShadersPanel} from "../shadersPanel/ShadersPanel";
+import {DataTexturesPanel} from "../dataTexturesPanel/DataTexturesPanel";
+import {BluePrintsPanel} from "../blueprints/BluePrintsPanel";
 import {DistanceMeasurementTool} from "../../systems/measurements/distance/DistanceMeasurementTool";
 import {AngleMeasurementsTool} from "../../systems/measurements/angle/AngleMeasurementsTool";
 import {DistanceMeasurementsPanel} from "../distanceMeasurementsPanel/DistanceMeasurementsPanel";
@@ -1064,6 +1068,26 @@ export class Toolbar extends FloatingPanelBase {
             label: "Events",
             svg:   EventsPanel.iconSvg(),
             run:   () => { this.demoHelper?.getEventsPanel(); },
+          },
+          {
+            label: "Tasks",
+            svg:   TasksPanel.iconSvg(),
+            run:   () => { this.demoHelper?.openTasksPanel(); },
+          },
+          {
+            label: "Shaders",
+            svg:   ShadersPanel.iconSvg(),
+            run:   () => { this.demoHelper?.openShadersPanel(); },
+          },
+          {
+            label: "Data Textures",
+            svg:   DataTexturesPanel.iconSvg(),
+            run:   () => { this.demoHelper?.openDataTexturesPanel(); },
+          },
+          {
+            label: "Blueprints",
+            svg:   BluePrintsPanel.iconSvg(),
+            run:   () => { this.demoHelper?.openBluePrintsPanel(); },
           },
         ],
       },

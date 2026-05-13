@@ -86,8 +86,10 @@ const PANEL_CSS = `
 }
 .xkt-dm-panel .xkt-dm-title-icon {
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
+  align-self: flex-start;
+  margin-top: 2px;
+  width: 24px;
+  height: 24px;
   color: #FFA500;
   display: inline-flex;
   align-items: center;
@@ -104,6 +106,19 @@ const PANEL_CSS = `
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.xkt-dm-panel .xkt-dm-title-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.xkt-dm-panel .xkt-dm-subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  color: #475569;
+  line-height: 1.25;
 }
 .xkt-dm-panel .xkt-dm-close {
   flex-shrink: 0;
@@ -410,10 +425,16 @@ export class DistanceMeasurementsPanel extends FloatingPanelBase {
     const titleIcon = document.createElement("span");
     titleIcon.className = "xkt-dm-title-icon";
     titleIcon.innerHTML = DistanceMeasurementsPanel.iconSvg();
+    const titleStack = document.createElement("span");
+    titleStack.className = "xkt-dm-title-stack";
     const titleText = document.createElement("span");
     titleText.className = "xkt-dm-title-text";
     titleText.textContent = "Distance Measurements";
-    title.append(titleIcon, titleText);
+    const subtitle = document.createElement("span");
+    subtitle.className = "xkt-dm-subtitle";
+    subtitle.textContent = "Distance measurements on this View.";
+    titleStack.append(titleText, subtitle);
+    title.append(titleIcon, titleStack);
 
     this._closeBtn = document.createElement("button");
     this._closeBtn.className = "xkt-dm-close";

@@ -142,8 +142,10 @@ const PANEL_CSS = `
 }
 .xkt-bcf-panel .xkt-bcf-title-icon {
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
+  align-self: flex-start;
+  margin-top: 2px;
+  width: 24px;
+  height: 24px;
   color: #2c7e6f;
   display: inline-flex;
   align-items: center;
@@ -160,6 +162,19 @@ const PANEL_CSS = `
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.xkt-bcf-panel .xkt-bcf-title-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.xkt-bcf-panel .xkt-bcf-subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  color: #475569;
+  line-height: 1.25;
 }
 .xkt-bcf-panel .xkt-bcf-close {
   flex-shrink: 0;
@@ -623,7 +638,10 @@ export class ExportBCFPanel extends FloatingPanelBase {
     const title = el("h2", "xkt-bcf-title");
     title.innerHTML =
       `<span class="xkt-bcf-title-icon">${ExportBCFPanel.iconSvg()}</span>` +
-      `<span class="xkt-bcf-title-text">Export BCF Viewpoint</span>`;
+      `<span class="xkt-bcf-title-stack">` +
+        `<span class="xkt-bcf-title-text">Export BCF Viewpoint</span>` +
+        `<span class="xkt-bcf-subtitle">Capture a BCF viewpoint.</span>` +
+      `</span>`;
     this._closeBtn = el("button", "xkt-bcf-close", {
       type: "button",
       "aria-label": "Close panel",

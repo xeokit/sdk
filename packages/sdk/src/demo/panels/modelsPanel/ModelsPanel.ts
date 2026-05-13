@@ -98,8 +98,10 @@ const PANEL_CSS = `
 }
 .xkt-mp-panel .xkt-mp-title-icon {
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
+  align-self: flex-start;
+  margin-top: 2px;
+  width: 24px;
+  height: 24px;
   color: #2d5e8c;
   display: inline-flex;
   align-items: center;
@@ -109,6 +111,19 @@ const PANEL_CSS = `
   width: 100%;
   height: 100%;
   display: block;
+}
+.xkt-mp-panel .xkt-mp-title-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.xkt-mp-panel .xkt-mp-subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  color: #475569;
+  line-height: 1.25;
 }
 .xkt-mp-panel .xkt-mp-close {
   flex-shrink: 0;
@@ -474,7 +489,10 @@ export class ModelsPanel extends FloatingPanelBase {
     const title = el("h2", "xkt-mp-title");
     title.innerHTML =
       `<span class="xkt-mp-title-icon">${ModelsPanel.iconSvg()}</span>` +
-      `<span class="xkt-mp-title-text">Models</span>`;
+      `<span class="xkt-mp-title-stack">` +
+        `<span class="xkt-mp-title-text">Models</span>` +
+        `<span class="xkt-mp-subtitle">Loaded models, with unload actions.</span>` +
+      `</span>`;
     this._closeBtn = el("button", "xkt-mp-close", {
       type: "button",
       "aria-label": "Close Models panel",

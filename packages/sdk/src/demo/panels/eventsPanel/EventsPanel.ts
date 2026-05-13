@@ -167,8 +167,10 @@ const PANEL_CSS = `
 }
 .xkt-events-panel .xkt-events-title-icon {
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
+  align-self: flex-start;
+  margin-top: 2px;
+  width: 24px;
+  height: 24px;
   color: #b91c1c;
   display: inline-flex;
   align-items: center;
@@ -185,6 +187,19 @@ const PANEL_CSS = `
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.xkt-events-panel .xkt-events-title-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.xkt-events-panel .xkt-events-subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  color: #475569;
+  line-height: 1.25;
 }
 .xkt-events-panel .xkt-events-counter {
   flex-shrink: 0;
@@ -808,7 +823,10 @@ export class EventsPanel extends FloatingPanelBase {
     const title = el("h2", "xkt-events-title");
     title.innerHTML =
       `<span class="xkt-events-title-icon">${EventsPanel.iconSvg()}</span>` +
-      `<span class="xkt-events-title-text">Events</span>`;
+      `<span class="xkt-events-title-stack">` +
+        `<span class="xkt-events-title-text">Events</span>` +
+        `<span class="xkt-events-subtitle">Errors and warnings this session.</span>` +
+      `</span>`;
 
     this._counterEl = el("span", "xkt-events-counter");
     this._counterEl.textContent = "0";

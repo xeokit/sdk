@@ -4,9 +4,9 @@ import {
   buildBox,
   buildCylinder,
   buildSphere
-} from "../../../../procgen/buildGeometry";
-import type {SceneGeometryParams} from "../../../../scene";
-import {TrianglesPrimitive} from "../../../../constants";
+} from "../../../../model/procgen/buildGeometry";
+import type {SceneGeometryParams} from "../../../../model/scene";
+import {TrianglesPrimitive} from "../../../../base/constants";
 import {
   buildCircTorus,
   buildEllipDish,

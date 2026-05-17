@@ -1,6 +1,6 @@
-import type {SceneModel} from "../../scene";
-import type {SDKResult} from "../../core";
-import {yieldToHost} from "../../utils";
+import type {SceneModel} from "../../model/scene";
+import type {SDKResult} from "../../base/core";
+import {yieldToHost} from "../../base/utils";
 import type {LoaderProgress} from "../../formats/LoaderProgress";
 
 

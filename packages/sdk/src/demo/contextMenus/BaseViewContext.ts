@@ -9,12 +9,12 @@
  * @module demo/viewObjectContextMenu/BaseViewContext
  */
 
-import type {ViewObject} from "../../viewer";
-import type {SceneCollisionIndex} from "../../collision";
-import type {SceneModel} from "../../scene";
-import type {DataModel} from "../../data";
-import type {CameraFlightAnimation} from "../../cameraFlight";
-import type {WebGLRenderer} from "../../webGLRenderer";
+import type {ViewObject} from "../../viewing/viewer";
+import type {SceneCollisionIndex} from "../../spatial/collision";
+import type {SceneModel} from "../../model/scene";
+import type {DataModel} from "../../model/data";
+import type {CameraFlightAnimation} from "../../viewing/cameraFlight";
+import type {WebGLRenderer} from "../../viewing/webGLRenderer";
 import type {DemoHelper} from "../DemoHelper";
 
 

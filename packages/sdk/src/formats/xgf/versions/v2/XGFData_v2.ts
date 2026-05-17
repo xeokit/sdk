@@ -3,7 +3,7 @@
  *  textures, per-geometry normals and per-geometry UVs.
  *
  *  Pack order in the binary form is the field-declaration order below;
- *  {@link packXGF} and {@link unpackXGF} read/write it positionally.
+ *  `packXGF` and `unpackXGF` read/write it positionally.
  *
  *  @internal
  */
@@ -90,7 +90,7 @@ export interface XGFData_v2 {
   eachTextureDataBase: Uint32Array<any>;
 
   /**
-   * Per-texture media type, matching {@link constants!PNGMediaType}
+   * Per-texture media type, matching {@link base!constants.PNGMediaType | PNGMediaType}
    * etc. Stored as a small integer:
    *   0 — PNG
    *   1 — JPEG
@@ -110,7 +110,7 @@ export interface XGFData_v2 {
    * Per-texture sampler params, five bytes each (in order):
    *   minFilter, magFilter, wrapS, wrapT, wrapR
    *
-   * Each is the small-integer code from {@link constants}:
+   * Each is the small-integer code from {@link base!constants | constants}:
    *   1 — RepeatWrapping
    *   2 — ClampToEdgeWrapping
    *   3 — MirroredRepeatWrapping

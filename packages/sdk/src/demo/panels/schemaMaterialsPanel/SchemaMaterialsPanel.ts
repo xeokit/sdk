@@ -1,7 +1,7 @@
 /**
  * Floating, draggable panel that lets the user assign procedural
- * PBR materials to every {@link SceneModel} in a {@link Scene},
- * keyed by the matching {@link DataModel}'s schema and types.
+ * PBR materials to every {@link model!scene.SceneModel | SceneModel} in a {@link model!scene.Scene | Scene},
+ * keyed by the matching {@link model!data.DataModel | DataModel}'s schema and types.
  *
  * Modeled after {@link SceneHealthPanel}: one panel per Scene,
  * with a tab strip across the top listing every loaded
@@ -24,14 +24,14 @@
  *
  * @module demo/schemaMaterialsPanel
  */
-import type {Scene, SceneModel} from "../../../scene";
-import type {Data, DataModel, DataObject} from "../../../data";
+import type {Scene, SceneModel} from "../../../model/scene";
+import type {Data, DataModel, DataObject} from "../../../model/data";
 import {applyIFCMaterials} from "../../applyIFCMaterials/applyIFCMaterials";
 import {removeAttachedMaterials} from "../../applyIFCMaterials/removeAttachedMaterials";
 import {DEFAULT_IFC_PAINTERS} from "../../applyIFCMaterials/DEFAULT_IFC_PAINTERS";
 import type {IfcPainterEntry} from "../../applyIFCMaterials/IfcPainterEntry";
-import {MaterialsPalette} from "../../systems/materials/MaterialsPalette";
-import type {PainterCatalogEntry} from "../../systems/materials/PainterCatalogEntry";
+import {MaterialsPalette} from "../../../presentations/materials/MaterialsPalette";
+import type {PainterCatalogEntry} from "../../../presentations/materials/PainterCatalogEntry";
 
 
 import {el} from "../../utils/el";
@@ -44,7 +44,7 @@ export interface SchemaMaterialsPanelParams {
 
   /**
    * Scene the panel is bound to. The panel manages every
-   * {@link SceneModel} in this Scene; new SceneModels appear in
+   * {@link model!scene.SceneModel | SceneModel} in this Scene; new SceneModels appear in
    * the tab strip automatically as they're created. Required
    * unless `focusSceneModel` is given (its `.scene` is used).
    */
@@ -846,7 +846,7 @@ export class SchemaMaterialsPanel extends FloatingPanelBase {
 
   // ── Public lifecycle ──────────────────────────────────────────
 
-  /** Currently-focused {@link DataModel}, derived from the
+  /** Currently-focused {@link model!data.DataModel | DataModel}, derived from the
    *  Data graph by id of the focused SceneModel. `undefined`
    *  when no SceneModel is focused or no DataModel exists yet
    *  for the focused SceneModel's id. */

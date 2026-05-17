@@ -1,5 +1,5 @@
 
-import { type MemoryUsage } from "../../webGLRenderer";
+import { type MemoryUsage } from "../../viewing/webGLRenderer";
 import { FloatingPanelFlowHost } from "./FloatingPanelFlowHost";
 
 // In file: packages/sdk/src/demo/GPUMemoryUsagePanel.ts

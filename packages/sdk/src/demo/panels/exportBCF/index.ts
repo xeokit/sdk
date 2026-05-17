@@ -1,10 +1,10 @@
 /**
  * # Export BCF Panel
  *
- * Floating panel that captures the active {@link viewer!View | View}'s
+ * Floating panel that captures the active {@link viewing!viewer.View | View}'s
  * state — visibility, x-ray, selection, camera, section planes —
- * into a {@link bcf!BCFViewpoint | BCFViewpoint} JSON, with
- * checkbox-driven control over which {@link viewer!ViewLayer |
+ * into a {@link interop!bcf.BCFViewpoint | BCFViewpoint} JSON, with
+ * checkbox-driven control over which {@link viewing!viewer.ViewLayer |
  * ViewLayers} contribute their component states.
  *
  * @module demo/exportBCF

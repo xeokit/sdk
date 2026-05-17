@@ -1,18 +1,18 @@
 // SceneBuilder.ts
-import { SDKErrorType, type SDKResult } from "../core";
-import { Scene } from "./../scene/Scene";
-import type { SceneParams } from "./../scene/SceneParams";
-import type { CoordinateSystemParams } from "./../scene/CoordinateSystemParams";
+import { SDKErrorType, type SDKResult } from "../base/core";
+import { Scene } from "../model/scene/Scene";
+import type { SceneParams } from "../model/scene/SceneParams";
+import type { CoordinateSystemParams } from "../model/scene/CoordinateSystemParams";
 
-import type { SceneModel } from "./../scene/SceneModel";
-import type { SceneModelParams } from "./../scene/SceneModelParams";
+import type { SceneModel } from "../model/scene/SceneModel";
+import type { SceneModelParams } from "../model/scene/SceneModelParams";
 
-import type { SceneTransformParams } from "./../scene/SceneTransformParams";
-import type { SceneGeometryParams } from "./../scene/SceneGeometryParams";
-import type { SceneGeometryCompressedParams } from "./../scene/SceneGeometryCompressedParams";
-import type { SceneMeshParams } from "./../scene/SceneMeshParams";
-import type { SceneObjectParams } from "./../scene/SceneObjectParams";
-import {Data} from "../data";
+import type { SceneTransformParams } from "../model/scene/SceneTransformParams";
+import type { SceneGeometryParams } from "../model/scene/SceneGeometryParams";
+import type { SceneGeometryCompressedParams } from "../model/scene/SceneGeometryCompressedParams";
+import type { SceneMeshParams } from "../model/scene/SceneMeshParams";
+import type { SceneObjectParams } from "../model/scene/SceneObjectParams";
+import {Data} from "../model/data";
 
 export class DemoBuilder {
 

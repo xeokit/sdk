@@ -1,5 +1,5 @@
 
-import {Scene, SceneEvents, SceneModel, type SceneModelStats} from "../../scene";
+import {Scene, SceneEvents, SceneModel, type SceneModelStats} from "../../model/scene";
 import {FloatingPanelFlowHost} from "./FloatingPanelFlowHost";
 
 function fileIconSvg() {

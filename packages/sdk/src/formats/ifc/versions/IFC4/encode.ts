@@ -1,8 +1,8 @@
-import {createUUID, yieldToHost} from "../../../../utils";
+import {createUUID, yieldToHost} from "../../../../base/utils";
 import type {ModelEncodeParams} from "../../../ModelEncodeParams";
 import * as WebIFC from "web-ifc";
-import {decompressPoint3WithAABB3} from "../../../../math/compression";
-import {Data, type DataModel} from "../../../../data";
+import {decompressPoint3WithAABB3} from "../../../../base/math/compression";
+import {Data, type DataModel} from "../../../../model/data";
 import {createDefaultIFCDataModel} from "../../createDefaultIFCDataModel";
 import type {LoaderProgress} from "../../../LoaderProgress";
 

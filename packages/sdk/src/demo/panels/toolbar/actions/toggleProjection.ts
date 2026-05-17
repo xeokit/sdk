@@ -6,7 +6,7 @@
  * @module demo/toolbar/actions/toggleProjection
  */
 
-import {OrthoProjectionType, PerspectiveProjectionType} from "../../../../constants";
+import {OrthoProjectionType, PerspectiveProjectionType} from "../../../../base/constants";
 import type {ToolbarActionDescriptor} from "./ToolbarActionDescriptor";
 
 

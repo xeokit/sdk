@@ -1,7 +1,7 @@
 /**
  * Floating, draggable, closeable panel that surfaces live
- * {@link Scene} statistics — total resource counts at the Scene
- * level plus a per-{@link SceneModel} breakdown, kept in sync via
+ * {@link model!scene.Scene | Scene} statistics — total resource counts at the Scene
+ * level plus a per-{@link model!scene.SceneModel | SceneModel} breakdown, kept in sync via
  * {@link SceneEvents}.
  *
  * ## Lazy event wiring
@@ -33,7 +33,7 @@
  *
  * @module demo/sceneStats
  */
-import type {Scene, SceneModel, SceneModelStats} from "../../../scene";
+import type {Scene, SceneModel, SceneModelStats} from "../../../model/scene";
 import {FloatingPanelBase} from "../floatingPanelBase";
 import {el} from "../../utils/el";
 // ─────────────────────────────────────────────────────────────────
@@ -455,7 +455,7 @@ export class SceneStatsPanel extends FloatingPanelBase {
    * is still alive, it's brought back to the foreground;
    * otherwise a fresh one is constructed.
    *
-   * Built for the {@link demo/ViewObjectContextMenu} "Scene
+   * Built for the {@link demo!ViewObjectContextMenu | ViewObjectContextMenu} "Scene
    * Stats" entry, so the menu works in every host regardless
    * of whether the example wired a panel up itself.
    */

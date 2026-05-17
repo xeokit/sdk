@@ -1,7 +1,7 @@
 import type {ModelLoadParams} from "../ModelLoadParams";
 import {ModelLoader} from "../ModelLoader";
-import {DataModel} from "../../data";
-import {yieldToHost} from "../../utils";
+import {DataModel} from "../../model/data";
+import {yieldToHost} from "../../base/utils";
 import type {LoaderProgress} from "../LoaderProgress";
 
 /**

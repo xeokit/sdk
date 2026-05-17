@@ -2,7 +2,7 @@ import {ModelLoader} from "../ModelLoader";
 import {parse as parse_10} from "./versions/v10/parse";
 
 /**
- * Loads an XKT file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
+ * Loads an XKT file into a {@link model!scene.SceneModel | SceneModel} and/or a {@link model!data.DataModel | DataModel}.
  *
  * For detailed usage, refer to {@link xkt | @xeokit/sdk/formats/xkt}.
  */

@@ -6,7 +6,7 @@
  * @module demo/viewObjectContextMenu/submenus/createRenderModeGroup
  */
 
-import {DetailedRender, NavigationRender, RealisticRender} from "../../../constants";
+import {DetailedRender, NavigationRender, RealisticRender} from "../../../base/constants";
 import type {BaseViewContext} from "../BaseViewContext";
 
 

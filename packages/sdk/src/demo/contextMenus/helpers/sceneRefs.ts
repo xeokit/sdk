@@ -10,9 +10,9 @@
  * @module demo/viewObjectContextMenu/helpers/sceneRefs
  */
 
-import type {AABB3} from "../../../math/boundaries";
-import type {SceneObject} from "../../../scene";
-import type {DataObject} from "../../../data";
+import type {AABB3} from "../../../base/math/boundaries";
+import type {SceneObject} from "../../../model/scene";
+import type {DataObject} from "../../../model/data";
 import type {BaseViewContext} from "../BaseViewContext";
 import type {ViewObjectContextMenuContext} from "../ViewObjectContextMenuContext";
 

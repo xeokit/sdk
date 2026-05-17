@@ -1,9 +1,9 @@
 
-import type { SceneCollisionIndex } from "../../collision";
+import type { SceneCollisionIndex } from "../../spatial/collision";
 import { FloatingPanelFlowHost } from "./FloatingPanelFlowHost";
-import {View} from "../../viewer";
-import type {Vec3} from "../../math/vector";
-import type {AABB3} from "../../math/boundaries";
+import {View} from "../../viewing/viewer";
+import type {Vec3} from "../../base/math/vector";
+import type {AABB3} from "../../base/math/boundaries";
 
 function boundariesPanelIconDataUri(): string {
   // 60x60 SVG: 3D cube (scene AABB) with inner colored cubes (object AABBs)

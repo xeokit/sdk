@@ -37,12 +37,49 @@
  *   Converts a `MetaModelParams` object into a `DataModelParams` object.
  * - {@link MetaModelLoader | MetaModelLoader}
  *   Loads a `MetaModelParams` object directly into an existing `DataModel`.
- * - {@link data!DataModel | DataModel}
+ * - {@link model!data.DataModel | DataModel}
  *   The modern semantic data model used by xeokit, based on entity–relationship graphs.
- * - {@link data!DataModelParams | DataModelParams}
+ * - {@link model!data.DataModelParams | DataModelParams}
  *   The JSON format used to populate a `DataModel`.
  * - {@link MetaModelParams | MetaModelParams}
  *   The legacy JSON format describing a hierarchy of entities with property sets.
+ *
+ * ---
+ *
+ *
+ * <br>
+ *
+ * ## Shape
+ *
+ * ```mermaid
+ * classDiagram
+ *     direction TB
+ *     class MetaModelLoader {
+ *       +format : "MetaModel"
+ *       +load(params, options?) Promise~void~
+ *     }
+ *     class convertMetaModel {
+ *       <<function>>
+ *       +(metaModelParams) DataModelParams
+ *     }
+ *     class ModelLoader {
+ *       <<formats>>
+ *     }
+ *     ModelLoader <|-- MetaModelLoader
+ *     convertMetaModel ..> MetaModelLoader : upgrades to v3
+ * ```
+ *
+ * <br>
+ *
+ * ## Features
+ *
+ * - **Legacy V2 MetaModel** — preserves the older xeokit-sdk V2
+ *   metadata format for backward compatibility with existing
+ *   `xeokit-convert` outputs.
+ * - **Convert-then-load** — {@link convertMetaModel} adapts the
+ *   V2 shape to V3 {@link model!data.DataModelParams | DataModelParams};
+ *   feed the result to {@link formats!datamodel.DataModelParamsLoader | DataModelParamsLoader}
+ *   for a single-format pipeline.
  *
  * ---
  *
@@ -70,7 +107,7 @@
  * #### Step 1: Create a DataModel
  *
  * ```js
- * import { Data } from "@xeokit/sdk/data";
+ * import { Data } from "@xeokit/sdk/model/data";
  * import { MetaModelLoader } from "@xeokit/sdk/formats/metamodel";
  *
  * const data = new Data();
@@ -109,7 +146,7 @@
  * #### Step 1: Create a DataModel
  *
  * ```js
- * import { Data } from "@xeokit/sdk/data";
+ * import { Data } from "@xeokit/sdk/model/data";
  * import { convertMetaModel } from "@xeokit/sdk/metamodel";
  *
  * const data = new Data();

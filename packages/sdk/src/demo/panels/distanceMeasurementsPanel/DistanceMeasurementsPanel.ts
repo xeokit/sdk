@@ -1,6 +1,6 @@
-import type {View} from "../../../viewer";
+import type {View} from "../../../viewing/viewer";
 import {FloatingPanelBase} from "../floatingPanelBase";
-import {DistanceMeasurementTool} from "../../systems/measurements/distance/DistanceMeasurementTool";
+import {DistanceMeasurementTool} from "../../../tools/measurements/distance/DistanceMeasurementTool";
 import type {DistanceMeasurementsPanelParams} from "./DistanceMeasurementsPanelParams";
 
 

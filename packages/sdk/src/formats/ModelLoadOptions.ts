@@ -1,4 +1,4 @@
-import type {CoordinateSystemParams, SceneObject} from "../scene";
+import type {CoordinateSystemParams, SceneObject} from "../model/scene";
 import type {LoaderProgress} from "./LoaderProgress";
 
 /**
@@ -15,10 +15,10 @@ export interface ModelLoadOptions {
   coordinateSystem?: CoordinateSystemParams;
 
   /**
-   * Optional layer ID to assign to all {@link SceneObject | SceneObjects} created by the loader.
+   * Optional layer ID to assign to all {@link model!scene.SceneObject | SceneObjects} created by the loader.
    *
-   * See {@link SceneObject.layerId | SceneObject.layerId} for details on how this layer ID
-   * is used when the Scene is attached to a {@link viewer!Viewer | Viewer}.
+   * See {@link model!scene.SceneObject.layerId | SceneObject.layerId} for details on how this layer ID
+   * is used when the Scene is attached to a {@link viewing!viewer.Viewer | Viewer}.
    */
   layerId?: string;
 
@@ -47,7 +47,7 @@ export interface ModelLoadOptions {
   /**
    * Optional progress callback. Loaders fire this from inside
    * their hot loops at roughly 60 Hz (paced by the same
-   * {@link "@xeokit/sdk/utils".yieldToHost | yieldToHost}
+   * {@link base!utils.yieldToHost | yieldToHost}
    * interval that keeps the main thread responsive). UIs
    * subscribe to drive a progress bar / phase label /
    * cancellable dialog.

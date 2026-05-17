@@ -9,7 +9,7 @@
  * @module demo/toolbar/actions/toggle2D3D
  */
 
-import {OrthoProjectionType, PerspectiveProjectionType} from "../../../../constants";
+import {OrthoProjectionType, PerspectiveProjectionType} from "../../../../base/constants";
 import type {ToolbarActionDescriptor} from "./ToolbarActionDescriptor";
 
 

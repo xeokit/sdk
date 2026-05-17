@@ -11,12 +11,12 @@
  * @module demo/viewObjectContextMenu/helpers/json
  */
 
-import type {SceneModelParams, SceneObject} from "../../../scene";
-import type {DataModelContentParams, DataObject} from "../../../data";
+import type {SceneModelParams, SceneObject} from "../../../model/scene";
+import type {DataModelContentParams, DataObject} from "../../../model/data";
 
 
 /**
- * Serializes a {@link SceneObject} into a minimal
+ * Serializes a {@link model!scene.SceneObject | SceneObject} into a minimal
  * {@link SceneModelParams} payload — includes mesh params,
  * referenced compressed geometry, referenced materials, and the
  * object params itself.
@@ -61,7 +61,7 @@ export function getSceneObjectJSON(sceneObject: SceneObject): SceneModelParams {
 }
 
 /**
- * Serializes a {@link DataObject} into a minimal
+ * Serializes a {@link model!data.DataObject | DataObject} into a minimal
  * {@link DataModelContentParams} payload — includes the data
  * object itself plus its property sets. Relationships are
  * intentionally omitted (the relationship walk is currently

@@ -1,5 +1,5 @@
-import {DataModel} from "../data";
-import {setYieldIntervalOverride} from "../utils";
+import {DataModel} from "../model/data";
+import {setYieldIntervalOverride} from "../base/utils";
 import type {ModelEncoder} from "./ModelEncoder";
 import type {ModelExporterParams} from "./ModelExporterParams";
 import type {ModelExportParams} from "./ModelExportParams";
@@ -8,7 +8,7 @@ import type {ModelExportOptions} from "./ModelExportOptions";
 const MIN_YIELD_INTERVAL_MS = 16;
 
 /**
- * Exports a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel} to a file.
+ * Exports a {@link model!scene.SceneModel | SceneModel} and/or a {@link model!data.DataModel | DataModel} to a file.
  */
 export class ModelExporter {
 
@@ -53,13 +53,10 @@ export class ModelExporter {
   }
 
   /**
-   * Exports a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel} to file data.
+   * Exports a {@link model!scene.SceneModel | SceneModel} and/or a {@link model!data.DataModel | DataModel} to file data.
    *
    * @param params - The parameters used for writing the file data.
-   * @param params.sceneModel - The {@link scene!SceneModel | SceneModel} to write.
-   * @param params.dataModel - The {@link data!DataModel | DataModel} to write.
    * @param options - Options for customizing the export process.
-   * @param options.coordinateSystem - Optional target CoordinateSystem for export.
    * @returns {Promise} Resolves when the SceneModel and/or DataModel has been successfully written.
    *
    * @throws

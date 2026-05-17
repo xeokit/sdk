@@ -1,11 +1,11 @@
 import type {TreeView} from "./TreeView";
-import {EventEmitter, type SDKResult} from "../../core";
+import {EventEmitter, type SDKResult} from "../../base/core";
 import {EventDispatcher} from "strongly-typed-events";
 import type {TreeViewNodeTitleClickedEvent} from "./TreeViewNodeTitleClickedEvent";
 import type {TreeViewNodeContextMenuEvent} from "./TreeViewNodeContextMenuEvent";
 
 /**
- * Events emitted by a {@link treeview!TreeView | TreeView}.
+ * Events emitted by a {@link ui!treeview.TreeView | TreeView}.
  */
 export class TreeViewEvents {
 

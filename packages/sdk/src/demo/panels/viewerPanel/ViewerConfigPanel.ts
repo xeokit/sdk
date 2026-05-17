@@ -20,17 +20,17 @@
  *
  * @module demo/viewerPanel
  */
-import type {Viewer} from "../../../viewer";
-import type {View} from "../../../viewer/View";
-import type {ViewerParams} from "../../../viewer/ViewerParams";
-import type {ViewParams} from "../../../viewer/ViewParams";
-import type {ViewLayerParams} from "../../../viewer/ViewLayerParams";
+import type {Viewer} from "../../../viewing/viewer";
+import type {View} from "../../../viewing/viewer/View";
+import type {ViewerParams} from "../../../viewing/viewer/ViewerParams";
+import type {ViewParams} from "../../../viewing/viewer/ViewParams";
+import type {ViewLayerParams} from "../../../viewing/viewer/ViewLayerParams";
 import type {DemoHelper} from "../../DemoHelper";
 
 
 import {el} from "../../utils/el";
 import {FloatingPanelBase} from "../floatingPanelBase";
-import {DetailedRender, NavigationRender, RealisticRender} from "../../../constants";
+import {DetailedRender, NavigationRender, RealisticRender} from "../../../base/constants";
 
 
 /**
@@ -1058,6 +1058,12 @@ export class ViewerConfigPanel extends FloatingPanelBase {
    * Create a fresh View, cloning the first existing View's camera
    * when one can be serialised. Routes through {@link DemoHelper}
    * when supplied so its per-View bookkeeping stays consistent.
+   *
+   * The View is opened in a floating {@link ViewPanel} — the "New
+   * View" button is meant to feel like the other demo panels
+   * (drag-handle header, reopen pill, persistent layout). Pass
+   * `floating: false` via the lower-level `helper.createView` if
+   * the tiled-in-layout behaviour is what you want.
    */
   private _createView(): void {
     if (this._destroyed) return;
@@ -1072,8 +1078,14 @@ export class ViewerConfigPanel extends FloatingPanelBase {
       }
     }
     if (this.demoHelper) {
-      this.demoHelper.createView(cameraParams ? {camera: cameraParams} : {});
+      this.demoHelper.createView({
+        ...(cameraParams ? {camera: cameraParams} : {}),
+        floating: true,
+      });
     } else {
+      // No DemoHelper: fall back to the raw Viewer.createView, which
+      // doesn't know about the floating panel. The caller wires the
+      // canvas themselves in that case.
       (this.viewer as any).createView?.(cameraParams ? {camera: cameraParams} : {});
     }
   }

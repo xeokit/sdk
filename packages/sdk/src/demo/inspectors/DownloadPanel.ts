@@ -1,6 +1,6 @@
-import {Data, DataEvents, DataModel, type DataModelParams} from "../../data";
+import {Data, DataEvents, DataModel, type DataModelParams} from "../../model/data";
 import {FloatingPanelFlowHost} from "./FloatingPanelFlowHost";
-import {Scene, type SceneModelParams} from "../../scene";
+import {Scene, type SceneModelParams} from "../../model/scene";
 import {XGFExporter} from "../../formats/xgf";
 import {DotBIMExporter} from "../../formats/dotbim";
 import {OBJExporter} from "../../formats/obj";

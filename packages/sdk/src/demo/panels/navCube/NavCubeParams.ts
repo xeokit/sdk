@@ -1,12 +1,12 @@
-import type {View} from "../../../viewer";
-import type {CameraFlightAnimation} from "../../../cameraFlight";
+import type {View} from "../../../viewing/viewer";
+import type {CameraFlightAnimation} from "../../../viewing/cameraFlight";
 
 /**
  * Construction parameters for {@link NavCube}.
  */
 export type NavCubeParams = {
   /**
-   * The {@link View} the NavCube reflects and drives. The cube
+   * The {@link viewing!viewer.View | View} the NavCube reflects and drives. The cube
    * tracks the View's camera orientation and, on click, flies the
    * camera to the canonical axis / corner / edge view.
    */

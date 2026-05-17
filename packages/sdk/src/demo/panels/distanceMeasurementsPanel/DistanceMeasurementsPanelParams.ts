@@ -1,4 +1,4 @@
-import type {DistanceMeasurementTool} from "../../systems/measurements/distance/DistanceMeasurementTool";
+import type {DistanceMeasurementTool} from "../../../tools/measurements/distance/DistanceMeasurementTool";
 
 /**
  * Construction parameters for {@link DistanceMeasurementsPanel}.

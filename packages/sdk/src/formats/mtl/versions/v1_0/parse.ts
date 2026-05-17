@@ -1,5 +1,5 @@
 import type { ModelParser } from "../../../ModelParser";
-import { yieldToHost } from "../../../../utils";
+import { yieldToHost } from "../../../../base/utils";
 import type { LoaderProgress } from "../../../LoaderProgress";
 
 /**

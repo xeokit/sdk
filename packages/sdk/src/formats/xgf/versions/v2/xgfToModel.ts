@@ -16,13 +16,13 @@ import {
   SolidPrimitive,
   SurfacePrimitive,
   TrianglesPrimitive
-} from "../../../../constants";
-import type {SceneGeometryCompressedParams, SceneModel} from "../../../../scene";
-import {createUUID, yieldToHost} from "../../../../utils";
-import type {DataModel} from "../../../../data";
-import type {Vec3} from "../../../../math/vector";
+} from "../../../../base/constants";
+import type {SceneGeometryCompressedParams, SceneModel} from "../../../../model/scene";
+import {createUUID, yieldToHost} from "../../../../base/utils";
+import type {DataModel} from "../../../../model/data";
+import type {Vec3} from "../../../../base/math/vector";
 import type {XGFData_v2} from "./XGFData_v2";
-import {createVec3Float32} from "../../../../math/vector";
+import {createVec3Float32} from "../../../../base/math/vector";
 import type {LoaderProgress} from "../../../LoaderProgress";
 
 const NUM_MATERIAL_ATTRIBUTES = 4;

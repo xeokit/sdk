@@ -1,4 +1,5 @@
-import type {MaterialMaps} from "../../procgen/paintMaterials";
+import type {MaterialMaps} from "../../model/procgen/paintMaterials";
+import type {HatchParams, HatchStyle} from "../../model/scene/hatchPattern";
 
 
 /**
@@ -19,11 +20,21 @@ export interface IfcPainterEntry {
    * Optional non-texture material parameters merged into the
    * generated `SceneMaterial`. Useful for transparent dielectrics
    * (windows, curtain wall) where `opacity` and `alphaMode` matter,
-   * or for adding a per-type colour multiplier.
+   * for adding a per-type colour multiplier, and for tagging the
+   * material with an engineering hatch pattern (consumed by the
+   * section-plane cap pass and the Detailed-mode hatched body
+   * shading — `view.effects.bodyHatch`).
    */
   material?: {
-    color?:     [number, number, number];
-    opacity?:   number;
-    alphaMode?: "OPAQUE" | "MASK" | "BLEND";
+    color?:        [number, number, number];
+    opacity?:      number;
+    alphaMode?:    "OPAQUE" | "MASK" | "BLEND";
+    /**
+     * ANSI / ISO hatch convention for the IFC type, applied to
+     * the section-plane cap and (in DetailedRender) overlaid on
+     * the body. Accepts either a named style or full params.
+     * Realistic mode ignores it and renders PBR.
+     */
+    hatchPattern?: HatchStyle | HatchParams;
   };
 }

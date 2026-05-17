@@ -12,7 +12,75 @@
  * ## Overview
  *
  * This module allows applications to load, parse, encode, and export
- * models in a variety of 3D, BIM, and point cloud formats.
+ * models in a variety of 3D, BIM, and point cloud formats. Every
+ * format ships behind a uniform {@link ModelLoader} /
+ * {@link ModelExporter} interface so tooling and applications can
+ * work with multiple formats through one API.
+ *
+ * <br>
+ *
+ * ## Shape
+ *
+ * ```mermaid
+ * classDiagram
+ *     direction TB
+ *     class ModelLoader {
+ *       <<abstract>>
+ *       +format         : string
+ *       +versions       : string[]
+ *       +fileDataType   : string
+ *       +load(params, options?) Promise~void~
+ *     }
+ *     class ModelExporter {
+ *       <<abstract>>
+ *       +format         : string
+ *       +versions       : string[]
+ *       +fileDataType   : string
+ *       +write(params, options?) Promise~fileData~
+ *     }
+ *     class ModelParser {
+ *       <<abstract>>
+ *       +parse(params) Promise~void~
+ *     }
+ *     class ModelEncoder {
+ *       <<abstract>>
+ *       +encode(params) Promise~fileData~
+ *     }
+ *     class GeometryFormats {
+ *       gltf / ifc / dotbim / las / xgf / xkt
+ *       cityjson / obj / mtl / rvm / step
+ *     }
+ *     class XeokitNativeFormats {
+ *       scenemodel / datamodel / metamodel
+ *     }
+ *     ModelLoader <|-- GeometryFormats
+ *     ModelExporter <|-- GeometryFormats
+ *     ModelLoader <|-- XeokitNativeFormats
+ *     ModelExporter <|-- XeokitNativeFormats
+ * ```
+ *
+ * <br>
+ *
+ * ## Features
+ *
+ * - **Uniform loader / exporter interface** — every format
+ *   subclasses {@link ModelLoader} or {@link ModelExporter} so
+ *   callers can swap formats without changing call shape.
+ * - **Multi-version per format** — many formats (XGF, XKT, glTF)
+ *   ship multiple readers / writers under one class; `version`
+ *   selects which one to use, defaulting to the latest.
+ * - **Cooperative yields** — every loader / exporter honours the
+ *   {@link base!utils.yieldToHost | yieldToHost} interval so very
+ *   large files don't block the host's UI thread.
+ * - **Progress reporting** — `options.onProgress` fires from inside
+ *   loader / exporter hot loops at ~60 Hz; pair with
+ *   {@link base!core.SDKProgress | SDKProgress} for typed updates.
+ * - **AbortSignal cancellation** — loaders and exporters check
+ *   `options.signal.aborted` at every yield and reject with
+ *   `DOMException("Aborted", "AbortError")` when the caller cancels.
+ * - **Cross-platform** — every format works equally well in the
+ *   browser (via {@link base!io.BrowserFileIO | BrowserFileIO}) and
+ *   in Node (via {@link base!io.NodeFileIO | NodeFileIO}).
  *
  * <br>
  *
@@ -20,20 +88,20 @@
  *
  * The following formats are supported:
  *
- * - {@link gltf} – glTF and GLB
- * - {@link ifc} – Industry Foundation Classes (IFC)
- * - {@link cityjson} – CityJSON
- * - {@link dotbim} – DotBIM
- * - {@link las} – LAS / LAZ point cloud formats
- * - {@link xkt} – xeokit XKT
- * - {@link xgf} – xeokit Geometry Format
- * - {@link obj} – Wavefront OBJ
- * - {@link mtl} – Wavefront MTL
- * - {@link rvm} – AVEVA RVM
- * - {@link step} – ISO 10303-21 STEP (`.step` / `.stp`)
- * - {@link scenemodel} – xeokit SceneModel
- * - {@link datamodel} – xeokit DataModel
- * - {@link metamodel} – xeokit Metadata and schema-level information (legacy support)
+ * - {@link formats!gltf | gltf} – glTF and GLB
+ * - {@link formats!ifc | ifc} – Industry Foundation Classes (IFC)
+ * - {@link formats!cityjson | cityjson} – CityJSON
+ * - {@link formats!dotbim | dotbim} – DotBIM
+ * - {@link formats!las | las} – LAS / LAZ point cloud formats
+ * - {@link formats!xkt | xkt} – xeokit XKT
+ * - {@link formats!xgf | xgf} – xeokit Geometry Format
+ * - {@link formats!obj | obj} – Wavefront OBJ
+ * - {@link formats!mtl | mtl} – Wavefront MTL
+ * - {@link formats!rvm | rvm} – AVEVA RVM
+ * - {@link formats!step | step} – ISO 10303-21 STEP (`.step` / `.stp`)
+ * - {@link formats!scenemodel | scenemodel} – xeokit SceneModel
+ * - {@link formats!datamodel | datamodel} – xeokit DataModel
+ * - {@link formats!metamodel | metamodel} – xeokit Metadata and schema-level information (legacy support)
  *
  * Each format's namespace typically provides one or more of the following:
  *
@@ -48,9 +116,9 @@
  * In addition to external file formats, this module includes support for xeokit's native
  * JSON-based serialization formats:
  *
- * - {@link scenemodel} – Serialization of {@link scene!SceneModel | SceneModels}
- * - {@link datamodel} – Serialization of {@link data!DataModel | DataModels}
- * - {@link metamodel} – Serialization of metadata and schema-level information (legacy support)
+ * - {@link formats!scenemodel | scenemodel} – Serialization of {@link model!scene.SceneModel | SceneModels}
+ * - {@link formats!datamodel | datamodel} – Serialization of {@link model!data.DataModel | DataModels}
+ * - {@link formats!metamodel | metamodel} – Serialization of metadata and schema-level information (legacy support)
  *
  * These formats are typically used for persistence, interchange between applications,
  * or pre-processing workflows.

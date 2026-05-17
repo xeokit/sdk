@@ -16,12 +16,12 @@ import {
   SolidPrimitive,
   SurfacePrimitive,
   TrianglesPrimitive
-} from "../../../../constants";
-import {createMat4Float64, isIdentityMat4} from "../../../../math/matrix";
-import type {SceneModel} from "../../../../scene";
+} from "../../../../base/constants";
+import {createMat4Float64, isIdentityMat4} from "../../../../base/math/matrix";
+import type {SceneModel} from "../../../../model/scene";
 import type {XGFData_v2} from "./XGFData_v2";
-import {createCoordinateSystemTransform, getMeshWorldMatrix} from "../../../../scene";
-import {yieldToHost} from "../../../../utils";
+import {createCoordinateSystemTransform, getMeshWorldMatrix} from "../../../../model/scene";
+import {yieldToHost} from "../../../../base/utils";
 import type {LoaderProgress} from "../../../LoaderProgress";
 
 const NUM_MATERIAL_ATTRIBUTES = 4;

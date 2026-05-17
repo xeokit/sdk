@@ -1,6 +1,6 @@
 /**
  * Browser for every loaded model in the demo's Scene. Renders one
- * collapsible {@link HTMLDetailsElement} per {@link SceneModel},
+ * collapsible {@link HTMLDetailsElement} per {@link model!scene.SceneModel | SceneModel},
  * each carrying identity, provenance, coordinate system, stats,
  * quick actions and jump-to links to deeper panels (Scene Health,
  * Data Health, Boundaries, Explorer).
@@ -16,11 +16,11 @@
  */
 
 import type {DemoHelper} from "../../DemoHelper";
-import type {SceneModel} from "../../../scene";
+import type {SceneModel} from "../../../model/scene";
 import {el} from "../../utils/el";
 import {FloatingPanelBase} from "../floatingPanelBase";
 import type {ModelsPanelParams} from "./ModelsPanelParams";
-import {getSceneCollisionIndex} from "../../../collision";
+import {getSceneCollisionIndex} from "../../../spatial/collision";
 
 
 // ─────────────────────────────────────────────────────────────────

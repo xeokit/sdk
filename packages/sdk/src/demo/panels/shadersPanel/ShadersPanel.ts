@@ -14,8 +14,8 @@
  * collapsed branch — no per-frame polling, no listeners.
  *
  * Same chrome and lifecycle as the sister diagnostic panels
- * ({@link demo/eventsPanel!EventsPanel},
- * {@link demo/tasksPanel!TasksPanel}) — per-inspector WeakMap
+ * ({@link demo/eventsPanel!EventsPanel | EventsPanel},
+ * {@link demo/tasksPanel!TasksPanel | TasksPanel}) — per-inspector WeakMap
  * registry, idempotent `getFor` / `openFor`, drag-header,
  * close button + reopen pill, layout persistence,
  * bring-to-front on pointer-down, scoped `xkt-shins-` CSS
@@ -28,7 +28,7 @@ import {
   type DrawTechniqueRecord,
   type ShaderVariantName,
   type ShaderVariantRecord,
-} from "../../../webGLRenderer/internal/inspectors";
+} from "../../../viewing/webGLRenderer/internal/inspectors";
 
 import {el} from "../../utils/el";
 import {FloatingPanelBase} from "../floatingPanelBase";
@@ -417,6 +417,30 @@ const PANEL_CSS = `
   color: #475569;
   font-variant-numeric: tabular-nums;
 }
+.xkt-shins-panel .xkt-shins-tech-cfg {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 9.5px;
+  color: #475569;
+  background: #eef2f7;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.xkt-shins-panel .xkt-shins-tech-badge {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.xkt-shins-panel .xkt-shins-tech-badge-thick {
+  color: #ffffff;
+  background: #2d5e8c;
+}
 
 .xkt-shins-panel .xkt-shins-variant {
   border: 1px solid #e6e6e6;
@@ -760,6 +784,24 @@ export class ShadersPanel extends FloatingPanelBase {
     });
     summary.append(twisty, label, classNameEl);
 
+    // Thick-line slots get a distinctive badge so the
+    // quad-expansion path is visible at a glance — the only
+    // surface difference vs. legacy GL_LINES is `vertsPerPrim:
+    // 6` plus the `thickLines: true` flag, otherwise it's just
+    // a shader-source diff buried inside the vertex source.
+    if (tech.config?.thickLines) {
+      summary.appendChild(el("span", "xkt-shins-tech-badge xkt-shins-tech-badge-thick", {
+        textContent: "thick",
+        title: "Thick-line technique — vertices expanded to 6/line in the vertex shader (`gl_VertexID` quad-expansion), width driven by `uLineWidth` + per-mesh SceneMaterial.lineWidth override.",
+      }));
+    }
+    if (tech.config) {
+      summary.appendChild(el("span", "xkt-shins-tech-cfg", {
+        textContent: `v/prim ${tech.config.vertsPerPrim}`,
+        title: "Vertices per primitive emitted by the technique (3 = tri, 2 = line, 1 = point, 6 = thick-line quad expansion).",
+      }));
+    }
+
     const variantCount = tech.variants ? Object.keys(tech.variants).length : 0;
     if (variantCount > 0) {
       const variantsCountEl = el("span", "xkt-shins-tech-variants-count", {
@@ -812,6 +854,17 @@ export class ShadersPanel extends FloatingPanelBase {
       title: `DrawTechnique class: ${variant.className}`,
     });
     summary.append(twisty, nameEl, classNameEl);
+    if (variant.config?.thickLines) {
+      summary.appendChild(el("span", "xkt-shins-tech-badge xkt-shins-tech-badge-thick", {
+        textContent: "thick",
+        title: "Thick-line variant — quad-expanded in the vertex shader.",
+      }));
+    }
+    if (variant.config) {
+      summary.appendChild(el("span", "xkt-shins-tech-cfg", {
+        textContent: `v/prim ${variant.config.vertsPerPrim}`,
+      }));
+    }
     details.appendChild(summary);
 
     const inner = el("div", "xkt-shins-leafs");

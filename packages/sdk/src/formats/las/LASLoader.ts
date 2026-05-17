@@ -1,12 +1,12 @@
 
-import {createMat4Float64, transformPoint3} from "../../math/matrix";
-import { createVec3Float64} from "../../math/vector";
+import {createMat4Float64, transformPoint3} from "../../base/math/matrix";
+import { createVec3Float64} from "../../base/math/vector";
 import {ModelLoader} from "../ModelLoader";
-import {createUUID, yieldToHost} from "../../utils";
+import {createUUID, yieldToHost} from "../../base/utils";
 import {LASLoader as glLASLoader} from '@loaders.gl/las';
 import type {LASLoaderOptions} from "./LASLoaderOptions";
 import {parse} from '@loaders.gl/core';
-import {PointsPrimitive} from "../../constants";
+import {PointsPrimitive} from "../../base/constants";
 import type {ModelLoadParams} from "../ModelLoadParams";
 import type {ModelParseParams} from "../ModelParseParams";
 import type {LoaderProgress} from "../LoaderProgress";
@@ -14,7 +14,7 @@ import type {LoaderProgress} from "../LoaderProgress";
 const MAX_VERTICES = 20000; // TODO: Rough estimate
 
 /**
- * Loads a LAS/LAZ file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
+ * Loads a LAS/LAZ file into a {@link model!scene.SceneModel | SceneModel} and/or a {@link model!data.DataModel | DataModel}.
  *
  * For detailed usage, refer to {@link las | @xeokit/sdk/formats/las}.
  */
@@ -33,7 +33,7 @@ export class LASLoader extends ModelLoader {
   }
 
   /**
-   * Loads LAS/LAZ file data into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
+   * Loads LAS/LAZ file data into a {@link model!scene.SceneModel | SceneModel} and/or a {@link model!data.DataModel | DataModel}.
    *
    * @param params - The parameters used for loading the file data.
    * @param options - Options for loading the LAS/LAZ file.

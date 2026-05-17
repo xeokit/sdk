@@ -1,6 +1,6 @@
 import type { ModelParser } from "../../../ModelParser";
-import { TrianglesPrimitive } from "../../../../constants";
-import { yieldToHost } from "../../../../utils";
+import { TrianglesPrimitive } from "../../../../base/constants";
+import { yieldToHost } from "../../../../base/utils";
 import type { LoaderProgress } from "../../../LoaderProgress";
 
 const SCHEMA = "IFC4";

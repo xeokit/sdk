@@ -1,6 +1,6 @@
 /**
  * Floating, draggable Explorer panel — hosts a unified
- * {@link ui/treeview!TreeView | TreeView} of every
+ * {@link ui!treeview.TreeView | TreeView} of every
  * `DataModel` in the helper's `Data` graph. The TreeView's
  * `_autoAddModels` flag means new DataModels show up in the
  * tree the instant they're loaded, and disappear when
@@ -15,12 +15,12 @@
  *
  * @module demo/explorerPanel
  */
-import type {Data} from "../../../data";
-import type {View, ViewObject} from "../../../viewer";
-import type {CameraFlightAnimation} from "../../../cameraFlight";
+import type {Data} from "../../../model/data";
+import type {View, ViewObject} from "../../../viewing/viewer";
+import type {CameraFlightAnimation} from "../../../viewing/cameraFlight";
 import type {TreeViewNode} from "../../../ui/treeview/TreeViewNode";
 import {TreeView} from "../../../ui/treeview/TreeView";
-import {getSceneCollisionIndex} from "../../../collision";
+import {getSceneCollisionIndex} from "../../../spatial/collision";
 
 
 import {el} from "../../utils/el";
@@ -628,7 +628,7 @@ export class ExplorerPanel extends FloatingPanelBase {
   // ── Per-row actions (Select / Frame) ─────────────────────────
 
   /**
-   * Toggle selection for every {@link ViewObject} under
+   * Toggle selection for every {@link viewing!viewer.ViewObject | ViewObject} under
    * `node`. If *any* matching view-object is currently
    * unselected, the action selects them all; otherwise it
    * deselects. Walks `node.childNodes` recursively so a
@@ -644,7 +644,7 @@ export class ExplorerPanel extends FloatingPanelBase {
 
   /**
    * Jump the camera to the union AABB of every
-   * {@link ViewObject} under `node`. No-op if the panel has
+   * {@link viewing!viewer.ViewObject | ViewObject} under `node`. No-op if the panel has
    * no `cameraFlight` reference, or if no matching view-object
    * is registered with the SceneCollisionIndex.
    *

@@ -17,7 +17,7 @@ const object2Array = (function () {
  *   - bytes                 each entry's payload, padded to its
  *                           BYTES_PER_ELEMENT alignment
  *
- * The reader ({@link unpackXGF}) walks the same positional list to
+ * The reader (`unpackXGF`) walks the same positional list to
  * recover each typed-array view.
  */
 function toArrayBuffer(arrays: any[]): ArrayBuffer {
@@ -76,7 +76,7 @@ function toArrayBuffer(arrays: any[]): ArrayBuffer {
 
 /**
  * Pack the XGF v2 payload into the binary file format. The order of
- * entries below MUST match {@link unpackXGF}.
+ * entries below MUST match `unpackXGF`.
  *
  * @private
  */

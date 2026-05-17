@@ -1,4 +1,4 @@
-import type {AngleMeasurementsTool} from "../../systems/measurements/angle/AngleMeasurementsTool";
+import type {AngleMeasurementsTool} from "../../../tools/measurements/angle/AngleMeasurementsTool";
 
 /**
  * Construction parameters for {@link AngleMeasurementsPanel}.

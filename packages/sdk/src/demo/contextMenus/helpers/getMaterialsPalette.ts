@@ -8,7 +8,7 @@
  * @module demo/viewObjectContextMenu/helpers/getMaterialsPalette
  */
 
-import {MaterialsPalette} from "../../systems/materials";
+import {MaterialsPalette} from "../../../presentations/materials";
 
 
 let _materialsPalette: MaterialsPalette | undefined;

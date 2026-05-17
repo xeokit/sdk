@@ -12,7 +12,7 @@
  * @module demo/viewObjectContextMenu/submenus/createCategorySubmenus
  */
 
-import type {PainterCatalogEntry} from "../../systems/materials";
+import type {PainterCatalogEntry} from "../../../presentations/materials";
 import type {ViewObjectContextMenuContext} from "../ViewObjectContextMenuContext";
 import {getMaterialsPalette} from "../helpers/getMaterialsPalette";
 

@@ -7,7 +7,7 @@
  * @module demo/viewObjectContextMenu/submenus/createDebugSubmenu
  */
 
-import type {WebGLRenderer} from "../../../webGLRenderer";
+import type {WebGLRenderer} from "../../../viewing/webGLRenderer";
 import type {BaseViewContext} from "../BaseViewContext";
 
 

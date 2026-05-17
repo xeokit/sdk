@@ -1,8 +1,8 @@
 /**
  * Floating progress dialog for long-running loader calls. Pairs
  * with the cooperative-yield loader sweep
- * ({@link "@xeokit/sdk/utils".yieldToHost | yieldToHost} +
- * {@link "@xeokit/sdk/formats".LoaderProgress | LoaderProgress}
+ * ({@link base!utils.yieldToHost | yieldToHost} +
+ * {@link formats!LoaderProgress | LoaderProgress}
  * + `ModelLoadOptions.signal`) so the bar advances while the
  * load runs, the phase label tracks what the loader is doing,
  * and a Cancel button propagates an `AbortSignal` to abort

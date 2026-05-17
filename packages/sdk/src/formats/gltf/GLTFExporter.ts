@@ -15,12 +15,12 @@ import {
   decompressNormals,
   decompressPoint3WithAABB3,
   decompressUVs
-} from "../../math/compression";
-import {createVec3Float64} from "../../math/vector";
-import {createMat4Float64, mulMat4} from "../../math/matrix";
-import {createCoordinateSystemTransform} from "../../scene";
-import type {SceneGeometry, SceneMaterial, SceneMesh, SceneTexture} from "../../scene";
-import {yieldToHost} from "../../utils";
+} from "../../base/math/compression";
+import {createVec3Float64} from "../../base/math/vector";
+import {createMat4Float64, mulMat4} from "../../base/math/matrix";
+import {createCoordinateSystemTransform} from "../../model/scene";
+import type {SceneGeometry, SceneMaterial, SceneMesh, SceneTexture} from "../../model/scene";
+import {yieldToHost} from "../../base/utils";
 import type {LoaderProgress} from "../LoaderProgress";
 
 import {
@@ -39,13 +39,13 @@ import {
   PointsPrimitive,
   RepeatWrapping,
   TrianglesPrimitive
-} from "../../constants";
+} from "../../base/constants";
 
 const tempVec3a = createVec3Float64();
 const tempVec3b = createVec3Float64();
 
 /**
- * Exports a {@link scene!SceneModel | SceneModel} to glTF (2) format.
+ * Exports a {@link model!scene.SceneModel | SceneModel} to glTF (2) format.
  *
  * Emits a binary `.glb` containing:
  *

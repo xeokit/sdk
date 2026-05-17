@@ -10,10 +10,10 @@
  * @module demo/toolbar/actions/ToolbarActionContext
  */
 
-import type {Viewer, View} from "../../../../viewer";
+import type {Viewer, View} from "../../../../viewing/viewer";
 import type {DemoHelper} from "../../../DemoHelper";
-import type {ViewController} from "../../../../viewController";
-import type {FloatingPanelBase} from "../../../panels/floatingPanelBase";
+import type {ViewController} from "../../../../viewing/viewController";
+import type {FloatingPanelBase} from "../../floatingPanelBase";
 import type {ToolbarAction} from "../Toolbar";
 
 

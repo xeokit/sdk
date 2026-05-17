@@ -1,58 +1,21 @@
-// Core
-
-export * as core from "./core";
-export * as constants from "./constants";
-
-// Utilities
-
-//export * as math from "./math";
-export * as utils from "./utils";
-export * as webGLUtils from "./webGLUtils";
-export * as io from "./io";
-
-// Geometry generation
-
-export * as procgen from "./procgen";
-
-// Localization
-
-export * as locale from "./locale";
-
-// Models
-
-export * as data from "./data";
-export * as scene from "./scene";
-
-// Collisions and picking
-
-export * as collision from "./collision";
-export * as picking from "./picking";
-
-// Inspect / fix toolkit
-
-export * as sceneModelInspector     from "./sceneModelInspector";
-export * as dataModelInspector from "./dataModelInspector";
-
-// Model importers and exporters
-
-export * as formats from "./formats";
-export * as modelConverter from "./modelConverter";
-export * as modelChunksLoader from "./modelChunksLoader";
-
-// Viewer
-
-export * as viewer from "./viewer";
-export * as webGLRenderer from "./webGLRenderer";
-export * as viewController from "./viewController";
-export * as cameraFlight from "./cameraFlight";
-export * as bcf from "./bcf";
-export * as ifc2gltf2xgf from "./ifc2gltf2xgf";
-export * as xeoconvert from "./xeoconvert";
-
-// UI
-
-export * as ui from "./ui";
-
-// Demo helpers
-
-export * as demo from "./demo";
+/**
+ * @xeokit/sdk root entry point.
+ *
+ * Top-level buckets group modules by topical aim — see the per-bucket
+ * index.ts files for what's inside each. The flat names that used to
+ * live here (scene, data, viewer, etc.) now live under their
+ * topical bucket: `model/scene`, `model/data`, `viewing/viewer`, …
+ */
+export * as base          from "./base";
+export * as model         from "./model";
+export * as formats       from "./formats";
+export * as inspect       from "./inspect";
+export * as spatial       from "./spatial";
+export * as viewing       from "./viewing";
+export * as presentations from "./presentations";
+export * as tools         from "./tools";
+export * as simulation    from "./simulation";
+export * as interop       from "./interop";
+export * as convert       from "./convert";
+export * as ui            from "./ui";
+export * as demo          from "./demo";

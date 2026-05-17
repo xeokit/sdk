@@ -16,8 +16,50 @@
  * ### How it Works
  *
  * Use the {@link LASLoader} class to load LAS data into:
- * - a {@link scene!SceneModel | SceneModel} for rendering geometry
- * - a {@link data!DataModel | DataModel} for managing associated semantic information
+ * - a {@link model!scene.SceneModel | SceneModel} for rendering geometry
+ * - a {@link model!data.DataModel | DataModel} for managing associated semantic information
+ *
+ * ---
+ *
+ *
+ * <br>
+ *
+ * ## Shape
+ *
+ * ```mermaid
+ * classDiagram
+ *     direction TB
+ *     class LASLoader {
+ *       +format : "LAS"
+ *       +load(params, options?) Promise~void~
+ *     }
+ *     class LASLoaderOptions {
+ *       +skip? : number
+ *       +rotate? : boolean
+ *       +layerId?
+ *       +center? / fp64?
+ *     }
+ *     class ModelLoader {
+ *       <<formats>>
+ *     }
+ *     ModelLoader <|-- LASLoader
+ *     LASLoader ..> LASLoaderOptions : reads
+ * ```
+ *
+ * <br>
+ *
+ * ## Features
+ *
+ * - **LAS + LAZ** — uncompressed and LASzip-compressed point
+ *   clouds, common in surveying and lidar workflows.
+ * - **Per-point colour + classification** — RGB attributes and
+ *   point classification (ground, building, vegetation) preserved
+ *   onto the SceneModel's geometry attributes.
+ * - **Optional decimation** — `skip: N` keeps every Nth point;
+ *   useful for previewing very dense clouds before importing the
+ *   full set.
+ * - **Coordinate-system aware** — `rotate: true` flips LAS's
+ *   default +Z-up to xeokit's +Z-up world space (and vice versa).
  *
  * ---
  *
@@ -32,18 +74,18 @@
  * ## Usage
  *
  * This example demonstrates how to:
- * - Set up a {@link viewer!Viewer | Viewer}, {@link scene!Scene | Scene}, and {@link webGLRenderer!WebGLRenderer | WebGLRenderer}
- * - Attach a {@link viewController!ViewController | ViewController} for interaction
+ * - Set up a {@link viewing!viewer.Viewer | Viewer}, {@link model!scene.Scene | Scene}, and {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer}
+ * - Attach a {@link viewing!viewController.ViewController | ViewController} for interaction
  * - Load a LAS model using {@link LASLoader}
  * - Handle loading and error scenarios
  *
  * ```ts
- * import { SDKError } from "@xeokit/sdk/core";
- * import { Scene } from "@xeokit/sdk/scene";
- * import { Data } from "@xeokit/sdk/data";
- * import { WebGLRenderer } from "@xeokit/sdk/webGLRenderer";
- * import { Viewer } from "@xeokit/sdk/viewer";
- * import { ViewController } from "@xeokit/sdk/viewController";
+ * import { SDKError } from "@xeokit/sdk/base/core";
+ * import { Scene } from "@xeokit/sdk/model/scene";
+ * import { Data } from "@xeokit/sdk/model/data";
+ * import { WebGLRenderer } from "@xeokit/sdk/viewing/webGLRenderer";
+ * import { Viewer } from "@xeokit/sdk/viewing/viewer";
+ * import { ViewController } from "@xeokit/sdk/viewing/viewController";
  * import { LASLoader } from "@xeokit/sdk/formats/las";
  *
  * const scene = new Scene();

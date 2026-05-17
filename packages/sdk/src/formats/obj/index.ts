@@ -1,6 +1,6 @@
 /**
  * <img style="padding:0; padding-top:20px; padding-bottom:30px; height:130px;"
- *      src="https://xeokit.github.io/sdk/docs/assets/oBJLogo.svg"/>
+ *      src="https://xeokit.github.io/sdk/docs/assets/obj_logo.png"/>
  *
  * # obj — OBJ Importer
  *
@@ -30,8 +30,49 @@
  *
  * The loader populates:
  *
- * - a {@link scene!SceneModel | SceneModel} with renderable geometry
- * - a {@link data!DataModel | DataModel} with semantic and structural information
+ * - a {@link model!scene.SceneModel | SceneModel} with renderable geometry
+ * - a {@link model!data.DataModel | DataModel} with semantic and structural information
+ *
+ * ---
+ *
+ *
+ * <br>
+ *
+ * ## Shape
+ *
+ * ```mermaid
+ * classDiagram
+ *     direction TB
+ *     class OBJLoader {
+ *       +format : "OBJ"
+ *       +load(params, options?) Promise~void~
+ *     }
+ *     class OBJExporter {
+ *       +format : "OBJ"
+ *       +write(params, options?) Promise~string~
+ *     }
+ *     class ModelLoader {
+ *       <<formats>>
+ *     }
+ *     class ModelExporter {
+ *       <<formats>>
+ *     }
+ *     ModelLoader <|-- OBJLoader
+ *     ModelExporter <|-- OBJExporter
+ *     OBJLoader ..> MTLLoader : optional materials
+ * ```
+ *
+ * <br>
+ *
+ * ## Features
+ *
+ * - **Wavefront OBJ** — classic plain-text mesh format; pairs with
+ *   {@link formats!mtl | MTL} material files.
+ * - **Groups → SceneObjects** — every OBJ `g` group becomes one
+ *   SceneObject; pair an `o` line at the top to give the whole
+ *   model a single root id.
+ * - **Round-trip** — `OBJExporter` writes SceneModel meshes back
+ *   to OBJ, with an optional matching MTL.
  *
  * ---
  *
@@ -49,11 +90,11 @@
  * including explicit error handling for all xeokit factory calls.
  *
  * ```ts
- * import { Scene } from "@xeokit/sdk/scene";
- * import { Data } from "@xeokit/sdk/data";
- * import { Viewer } from "@xeokit/sdk/viewer";
- * import { WebGLRenderer } from "@xeokit/sdk/webGLRenderer";
- * import { ViewController } from "@xeokit/sdk/viewController";
+ * import { Scene } from "@xeokit/sdk/model/scene";
+ * import { Data } from "@xeokit/sdk/model/data";
+ * import { Viewer } from "@xeokit/sdk/viewing/viewer";
+ * import { WebGLRenderer } from "@xeokit/sdk/viewing/webGLRenderer";
+ * import { ViewController } from "@xeokit/sdk/viewing/viewController";
  * import { OBJLoader } from "@xeokit/sdk/formats/obj";
  *
  * const handleError = (error: string) => {

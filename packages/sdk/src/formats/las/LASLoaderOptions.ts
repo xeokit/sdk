@@ -1,8 +1,8 @@
 import type {ModelLoadOptions} from "../ModelLoadOptions";
-import type {Mat4} from "../../math/matrix";
+import type {Mat4} from "../../base/math/matrix";
 
 /**
- * Options for {@link las!LASLoader.load | LASLoader.load}.
+ * Options for {@link formats!las.LASLoader.load | LASLoader.load}.
  *
  * For detailed usage, refer to {@link las | @xeokit/sdk/formats/las}.
  */
@@ -34,10 +34,10 @@ export interface LASLoaderOptions extends ModelLoadOptions  {
   colorDepth?: string | number;
 
     /**
-    * Optional layer ID to assign to all {@link SceneObject | SceneObjects} created by the loader.
+    * Optional layer ID to assign to all {@link model!scene.SceneObject | SceneObjects} created by the loader.
     *
-    * See {@link SceneObject.layerId | SceneObject.layerId} for details on how this layer ID
-    * is used when the Scene is attached to a {@link viewer!Viewer | Viewer}.
+    * See {@link model!scene.SceneObject.layerId | SceneObject.layerId} for details on how this layer ID
+    * is used when the Scene is attached to a {@link viewing!viewer.Viewer | Viewer}.
     */
   layerId?: string;
 }

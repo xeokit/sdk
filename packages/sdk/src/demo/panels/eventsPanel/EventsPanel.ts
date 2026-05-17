@@ -14,11 +14,11 @@
  *
  * @module demo/eventsPanel
  */
-import {Scene} from "../../../scene";
-import {Data} from "../../../data";
-import {Viewer} from "../../../viewer";
-import {WebGLRenderer} from "../../../webGLRenderer";
-import {SDKErrorType, type SDKResult} from "../../../core";
+import {Scene} from "../../../model/scene";
+import {Data} from "../../../model/data";
+import {Viewer} from "../../../viewing/viewer";
+import {WebGLRenderer} from "../../../viewing/webGLRenderer";
+import {SDKErrorType, type SDKResult} from "../../../base/core";
 
 
 import {el} from "../../utils/el";
@@ -986,11 +986,13 @@ export class EventsPanel extends FloatingPanelBase {
     sec.count++;
     sec.lastTimestamp = rec.timestamp;
 
-    // Auto-open the section the first time something lands in
-    // it, so the user doesn't have to click to discover the new
-    // event. Subsequent events leave the open/closed state
+    // Auto-open the section once it accumulates more than one
+    // event — a lone error stays collapsed so the panel doesn't
+    // surface a long-message row unbidden, but a multi-error
+    // section opens itself so the user sees the spread at a
+    // glance. Subsequent events leave the open/closed state
     // alone — respect the user's collapse choice.
-    if (!sec.autoOpened) {
+    if (!sec.autoOpened && sec.count > 1) {
       sec.autoOpened = true;
       sec.details.open = true;
     }

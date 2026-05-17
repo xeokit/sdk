@@ -1,0 +1,122 @@
+import type {View} from "../../viewing/viewer";
+import type {SDKResult} from "../../base/core";
+
+/**
+ * Minimal snapshot capability {@link saveBCFViewpoint} needs to
+ * populate {@link BCFViewpoint.snapshot}. Structurally satisfied
+ * by `WebGLRenderer` (and any other renderer that implements
+ * `getSnapshot(view)` returning a `data:image/png;base64,…` URL).
+ *
+ * Declared structurally rather than imported from
+ * `webGLRenderer` to keep the `bcf` module free of a renderer
+ * dependency.
+ */
+export interface BCFSnapshotSource {
+  getSnapshot(view: View): SDKResult<string>;
+}
+
+/**
+ * Parameters for {@link saveBCFViewpoint | saveBCFViewpoint}.
+ *
+ * See {@link bcf | @xeokit/sdk/interop/bcf}  for usage.
+ */
+export interface SaveBCFViewpointParams {
+
+  defaultInvisible?: boolean;
+
+  /**
+   * Whether to capture a snapshot image in the BCF viewpoint.
+   * Requires {@link SaveBCFViewpointParams.renderer | renderer}
+   * to be supplied — without it `saveBCFViewpoint` has no way to
+   * read the canvas. The captured PNG is base64-encoded into
+   * {@link BCFViewpoint.snapshot | BCFViewpoint.snapshot}.
+   *
+   * Defaults to `true`. Set explicitly to `false` to omit the
+   * snapshot even when a renderer is wired in.
+   */
+  snapshot?: boolean;
+
+  /**
+   * Renderer used to capture {@link BCFViewpoint.snapshot}. The
+   * renderer's `getSnapshot(view)` is called when
+   * {@link SaveBCFViewpointParams.snapshot | snapshot} is `true`
+   * (the default). When omitted, the snapshot is silently
+   * skipped — the rest of the viewpoint still serialises.
+   *
+   * Structurally typed via {@link BCFSnapshotSource} so the
+   * `bcf` module doesn't need to import the renderer package.
+   */
+  renderer?: BCFSnapshotSource;
+
+  /**
+   * Identifies the system that authors this BCF viewpoint.
+   */
+  originatingSystem?: string;
+
+  /**
+   * Whether to flip the direction of the {@link viewing!viewer.SectionPlane | SectionPlanes} captured in the BCF viewpoint.
+   */
+  reverseClippingPlanes?: boolean;
+
+  /**
+   * Value to set on {@link BCFViewSetupHints.openings_translucent | BCFViewSetupHints.openings_translucent} within the BCF viewpoint.
+   */
+  openings_translucent?: boolean;
+
+  /**
+   * Value to set on {@link BCFViewSetupHints.space_boundaries_translucent | BCFViewSetupHints.space_boundaries_translucent} within the BCF viewpoint.
+   */
+  space_boundaries_translucent?: boolean;
+
+  /**
+   * Value to set on {@link BCFViewSetupHints.spaces_translucent | BCFViewSetupHints.spaces_translucent} within the BCF viewpoint.
+   */
+  spaces_translucent?: boolean;
+
+  /**
+   * Value to set on {@link BCFViewSetupHints.openings_visible | BCFViewSetupHints.openings_visible} within the BCF viewpoint.
+   */
+  openingsVisible?: boolean;
+
+  /**
+   * Value to set on {@link BCFViewSetupHints.space_boundaries_visible | BCFViewSetupHints.space_boundaries_visible} within the BCF viewpoint.
+   */
+  spaceBoundariesVisible?: boolean;
+
+  /**
+   * Value to set on {@link BCFViewSetupHints.spaces_visible | BCFViewSetupHints.spaces_visible} within the BCF viewpoint.
+   */
+  spacesVisible?: boolean;
+
+  /**
+   * The {@link viewing!viewer.View | View} to export as a BCF viewpoint.
+   *
+   * This will export component states in the BCF (see {@link BCFComponents}) for all
+   * {@link viewing!viewer.ViewObject | ViewObjects} in this View.
+   */
+  view: View;
+
+  /**
+   * Only export BCF viewpoint components if their corresponding {@link viewing!viewer.ViewObject | ViewObjects}
+   * are in {@link viewing!viewer.ViewLayer | ViewLayers} that match these IDs.
+   *
+   * The {@link saveBCFViewpoint | saveBCFViewpoint} function will silently ignore each component state that has no corresponding
+   * ViewObject in any of these ViewLayers.
+   *
+   * Each ViewLayer's occurrence in {@link SaveBCFViewpointParams.excludeViewLayerIds | SaveBCFViewpointParams.excludeViewLayerIds} will override
+   * its appearance in this list.
+   */
+  includeViewLayerIds?: string[]
+
+  /**
+   * Never export BCF viewpoint components if their corresponding {@link viewing!viewer.ViewObject | ViewObjects}
+   * are in {@link viewing!viewer.ViewLayer |ViewLayers} that have the given IDs.
+   *
+   * The {@link saveBCFViewpoint | saveBCFViewpoint} function will silently ignore each component state that has a corresponding
+   * ViewObject in any of these ViewLayers.
+   *
+   * Each ViewLayer's occurrence in this list will override its occurrance
+   * in {@link SaveBCFViewpointParams.includeViewLayerIds}.
+   */
+  excludeViewLayerIds?: string[]
+}

@@ -2,7 +2,7 @@
  * @module demo/panels/modelsPanel/ImportProvenance
  */
 
-import type {CoordinateSystemParams} from "../../../scene";
+import type {CoordinateSystemParams} from "../../../model/scene";
 
 
 /**

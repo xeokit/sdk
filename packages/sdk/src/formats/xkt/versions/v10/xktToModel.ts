@@ -1,6 +1,6 @@
-import {type AABB3, createAABB3Float64, getAABB3Center} from "../../../../math/boundaries";
-import {createVec3Float32, createVec3Float64, createVec4Float64, type Vec3} from "../../../../math/vector";
-import type {Mat4} from "../../../../math/matrix";
+import {type AABB3, createAABB3Float64, getAABB3Center} from "../../../../base/math/boundaries";
+import {createVec3Float32, createVec3Float64, createVec4Float64, type Vec3} from "../../../../base/math/vector";
+import type {Mat4} from "../../../../base/math/matrix";
 import {
   JPEGMediaType,
   LinesPrimitive,
@@ -8,10 +8,10 @@ import {
   PointsPrimitive,
   SolidPrimitive,
   SurfacePrimitive
-} from "../../../../constants";
-import type {SceneModel} from "../../../../scene";
+} from "../../../../base/constants";
+import type {SceneModel} from "../../../../model/scene";
 import type {XKTData} from "./XKTData";
-import {yieldToHost} from "../../../../utils";
+import {yieldToHost} from "../../../../base/utils";
 import type {LoaderProgress} from "../../../LoaderProgress";
 
 const tempVec4a = createVec4Float64();

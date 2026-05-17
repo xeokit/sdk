@@ -22,7 +22,7 @@
  *
  * @module demo/gpuMemoryUsage
  */
-import type {WebGLRenderer, MemoryUsage, MemoryConfigs} from "../../../webGLRenderer";
+import type {WebGLRenderer, MemoryUsage, MemoryConfigs} from "../../../viewing/webGLRenderer";
 
 
 import {el} from "../../utils/el";

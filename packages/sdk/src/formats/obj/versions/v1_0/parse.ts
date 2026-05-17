@@ -1,10 +1,10 @@
 
 // @ts-ignore
 import type { ModelParser } from "../../../ModelParser";
-import { TrianglesPrimitive } from "../../../../constants";
+import { TrianglesPrimitive } from "../../../../base/constants";
 
-import { createUUID, yieldToHost } from "../../../../utils";
-import { type SceneGeometryParams } from "../../../../scene";
+import { createUUID, yieldToHost } from "../../../../base/utils";
+import { type SceneGeometryParams } from "../../../../model/scene";
 import type { LoaderProgress } from "../../../LoaderProgress";
 
 /**

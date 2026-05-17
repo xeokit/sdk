@@ -1,14 +1,14 @@
-import {Scene, SceneModel, type SceneModelStats, type CoordinateSystemParams} from "../scene";
-import {Data, DataModel, type DataModelStats} from "../data";
-import {type PickParams, PickResult, View, Viewer, ViewObject, type ViewParams} from "../viewer";
-import {type MemoryUsage, WebGLRenderer} from "../webGLRenderer";
-import {EventsLogger, getGlobalTaskRunner, sdkProgress, SDKErrorType, type SDKResult, SDKTask} from "../core";
-import {RealisticRender} from "../constants";
-import {SceneCollisionIndex} from "../collision";
-import {MemoisingPickStrategy, RoutingPickStrategy, type PickStrategy} from "../picking";
-import {CameraFlightAnimation} from "../cameraFlight";
-import {type RenderStats} from "../webGLRenderer/internal/inspectors";
-import {ViewController} from "../viewController";
+import {Scene, SceneModel, type SceneModelStats, type CoordinateSystemParams} from "../model/scene";
+import {Data, DataModel, type DataModelStats} from "../model/data";
+import {type PickParams, PickResult, View, Viewer, ViewObject, type ViewParams} from "../viewing/viewer";
+import {type MemoryUsage, WebGLRenderer} from "../viewing/webGLRenderer";
+import {EventsLogger, getGlobalTaskRunner, sdkProgress, SDKErrorType, type SDKResult, SDKTask} from "../base/core";
+import {RealisticRender} from "../base/constants";
+import {SceneCollisionIndex} from "../spatial/collision";
+import {MemoisingPickStrategy, RoutingPickStrategy, type PickStrategy} from "../spatial/picking";
+import {CameraFlightAnimation} from "../viewing/cameraFlight";
+import {type RenderStats} from "../viewing/webGLRenderer/internal/inspectors";
+import {ViewController} from "../viewing/viewController";
 import {ScenePanel} from "./inspectors/ScenePanel";
 import {DataPanel} from "./inspectors/DataPanel";
 import {RendererPanel} from "./inspectors/RendererPanel";
@@ -31,7 +31,7 @@ import type {ImportProvenance} from "./panels/modelsPanel/ImportProvenance";
 import {ModelsPanel} from "./panels/modelsPanel/ModelsPanel";
 import {SceneHealthPanel} from "./panels/sceneHealthPanel/SceneHealthPanel";
 import {DataHealthPanel} from "./panels/dataHealthPanel/DataHealthPanel";
-import type {DataFormatSchema} from "../dataModelInspector";
+import type {DataFormatSchema} from "../inspect/dataModel";
 import {BoundariesPanel} from "./panels/boundariesPanel/BoundariesPanel";
 import {TilesPanel} from "./panels/tilesPanel/TilesPanel";
 import {SceneStatsPanel} from "./panels/sceneStats/SceneStatsPanel";
@@ -48,9 +48,9 @@ import {EventsPanel} from "./panels/eventsPanel/EventsPanel";
 import {TasksPanel} from "./panels/tasksPanel/TasksPanel";
 import {ShadersPanel} from "./panels/shadersPanel/ShadersPanel";
 import {DataTexturesPanel} from "./panels/dataTexturesPanel/DataTexturesPanel";
-import {BluePrintsPanel} from "./panels/blueprints/BluePrintsPanel";
+import {DrawingsPanel} from "./panels/drawings/DrawingsPanel";
 import {LoaderProgressDialog} from "./loaderProgressDialog/LoaderProgressDialog";
-import {createUUID} from "../utils";
+import {createUUID} from "../base/utils";
 import {
   CanvasContextMenu,
   type CanvasContextMenuContext,
@@ -70,14 +70,19 @@ import {CityJSONLoader} from "../formats/cityjson";
 import {LoadingSpinner} from "./LoadingSpinner";
 import {NavCube} from "./panels/navCube/NavCube";
 import type {NavCubeParams} from "./panels/navCube/NavCubeParams";
-import {DistanceMeasurementTool} from "./systems/measurements/distance/DistanceMeasurementTool";
-import type {DistanceMeasurementToolParams} from "./systems/measurements/distance/DistanceMeasurementToolParams";
+import {ViewPanel, type ViewPanelParams} from "./panels/viewPanel";
+import type {DemoHelperCreateViewParams} from "./DemoHelperCreateViewParams";
+import {DistanceMeasurementTool} from "../tools/measurements/distance/DistanceMeasurementTool";
+import type {DistanceMeasurementToolParams} from "../tools/measurements/distance/DistanceMeasurementToolParams";
 import {DistanceMeasurementsPanel} from "./panels/distanceMeasurementsPanel/DistanceMeasurementsPanel";
 import {AngleMeasurementsPanel} from "./panels/angleMeasurementsPanel/AngleMeasurementsPanel";
-import {AngleMeasurementsTool} from "./systems/measurements/angle/AngleMeasurementsTool";
-import type {AngleMeasurementsToolParams} from "./systems/measurements/angle/AngleMeasurementsToolParams";
-import {encodeRadianceHDR, paintSunSkyHDR} from "../procgen/paintEnvironments";
-import {getScenePhysics, type ScenePhysics} from "./systems/physics";
+import {AngleMeasurementsTool} from "../tools/measurements/angle/AngleMeasurementsTool";
+import type {AngleMeasurementsToolParams} from "../tools/measurements/angle/AngleMeasurementsToolParams";
+import {TransformControls} from "../viewing/transformControls";
+import type {TransformControlsMode, TransformControlsParams, TransformControlsTarget} from "../viewing/transformControls";
+import type {Vec3} from "../base/math/vector";
+import {encodeRadianceHDR, paintSunSkyHDR} from "../model/procgen/paintEnvironments";
+import {getScenePhysics, type ScenePhysics} from "../simulation/physics";
 
 const taskRunner = getGlobalTaskRunner();
 
@@ -205,6 +210,13 @@ export class DemoHelper {
    * Tracks auto-created canvases by view ID.
    */
   private _autoCanvasByViewId: { [viewId: string]: HTMLImageElement } = {};
+
+  /**
+   * Tracks the {@link ViewPanel} hosting each floating-mode View, keyed by
+   * view ID. Populated by `createView` when the caller passes `floating: true`
+   * (or a `ViewPanelParams` object); destroyed by `destroyView`.
+   */
+  private _floatingPanelByViewId: { [viewId: string]: ViewPanel } = {};
 
   private _viewObjectContextMenu: ViewObjectContextMenu;
 
@@ -431,7 +443,7 @@ export class DemoHelper {
    * Loads a model into the Scene and/or Data layers using a format-specific loader.
    *
    * This method:
-   * - Resolves or creates {@link SceneModel} and {@link DataModel} instances when not provided
+   * - Resolves or creates {@link model!scene.SceneModel | SceneModel} and {@link model!data.DataModel | DataModel} instances when not provided
    * - Fetches model data from `params.src` or a default path derived from `modelId`
    * - Selects the appropriate loader based on `params.format`
    * - Delegates parsing and population to the corresponding loader implementation
@@ -457,12 +469,12 @@ export class DemoHelper {
    * @param params.src - Optional explicit source URL/path for the model file
    * @param params.modelId - Optional identifier used for default paths and generated model IDs
    * @param params.format - Model format determining which loader to use
-   * @param params.dataModel - Optional existing {@link DataModel} to populate
-   * @param params.sceneModel - Optional existing {@link SceneModel} to populate
+   * @param params.dataModel - Optional existing {@link model!data.DataModel | DataModel} to populate
+   * @param params.sceneModel - Optional existing {@link model!scene.SceneModel | SceneModel} to populate
    *
    * @param options - Loader-specific options passed through to the underlying loader
    *
-   * @returns A promise resolving to an {@link SDKResult} containing the loader result
+   * @returns A promise resolving to an {@link base!core.SDKResult | SDKResult} containing the loader result
    *
    * @throws Error
    * - If model creation fails
@@ -707,7 +719,14 @@ export class DemoHelper {
    *
    * When `viewParams.elementId` and `viewParams.htmlElement` are omitted,
    * this method auto-creates a canvas element, passes it to `viewer.createView`,
-   * and lays it out snugly with other auto-created canvases inside the window.
+   * and either:
+   *
+   *  - lays it out snugly with other auto-created canvases inside the
+   *    window (the default), or
+   *  - wraps it in a floating, draggable {@link ViewPanel} when
+   *    {@link DemoHelperCreateViewParams.floating} is set — each call
+   *    creates its own panel with the same chrome as the other demo
+   *    panels (header, close button, reopen pill, layout persistence).
    *
    * Auto-created canvases are given `z-index: 100000`.
    *
@@ -717,31 +736,37 @@ export class DemoHelper {
    * @param viewParams Parameters for the View.
    * @returns The created View.
    */
-  createView(viewParams: ViewParams = {}): View {
+  createView(viewParams: DemoHelperCreateViewParams = {}): View {
 
     if (!this.viewer) {
       throw new Error("Viewer not initialized");
     }
 
+    const floatingOpt = viewParams.floating;
+    const wantsFloating = floatingOpt === true || (typeof floatingOpt === "object" && floatingOpt !== null);
+
+    // `floating` is the demo's own knob — strip it off before forwarding
+    // to viewer.createView so the SDK doesn't see an unknown field.
+    const {floating: _drop, ...sdkViewParams} = viewParams;
+
     const resolvedViewParams: ViewParams = {
-      id: viewParams.id || createUUID(),
+      id: sdkViewParams.id || createUUID(),
       backgroundColor: [0, 0, 0],
       transparent: false,
       // RealisticRender by default (HDR pipeline + ACES tonemap +
       // sRGB encode all live from the first frame). Overridden
       // when the caller passes their own `renderMode`.
       renderMode: RealisticRender,
-      ...viewParams,
+      ...sdkViewParams,
     };
 
     const hasExplicitElement = !!(resolvedViewParams.elementId || resolvedViewParams.htmlElement);
 
     let autoCreatedCanvas: HTMLImageElement | null = null;
+    let floatingPanel: ViewPanel | null = null;
     let viewId = resolvedViewParams.id;
 
     if (!hasExplicitElement) {
-      this._ensureViewLayoutContainer();
-
       autoCreatedCanvas = document.createElement("img");
       autoCreatedCanvas.id = viewId ? `${viewId}-canvas` : `demohelper-canvas-${this.viewer.numViews}`;
       autoCreatedCanvas.style.display = "block";
@@ -751,7 +776,6 @@ export class DemoHelper {
       autoCreatedCanvas.style.minHeight = "0";
       autoCreatedCanvas.style.margin = "0";
       autoCreatedCanvas.style.padding = "0";
-      autoCreatedCanvas.style.border = "1px solid white";
       autoCreatedCanvas.style.outline = "none";
       autoCreatedCanvas.style.boxSizing = "border-box";
       autoCreatedCanvas.style.background = "black";
@@ -759,9 +783,26 @@ export class DemoHelper {
       autoCreatedCanvas.style.pointerEvents = "auto";
       autoCreatedCanvas.style.userSelect = "none";
       autoCreatedCanvas.draggable = false;
-      //autoCreatedCanvas.style.zIndex = "1";
 
-      this._viewLayoutContainer!.appendChild(autoCreatedCanvas);
+      if (wantsFloating) {
+        // Each floating View gets its own panel. Use the view id (when
+        // supplied) as the storage key so the dragged position
+        // persists per logical view, not per session.
+        const panelParams: ViewPanelParams = {
+          title:      `View — ${viewId}`,
+          storageKey: `xkt-vp-panel-${viewId}`,
+          ...(typeof floatingOpt === "object" && floatingOpt !== null ? floatingOpt : {}),
+        };
+
+        floatingPanel = new ViewPanel(panelParams);
+        floatingPanel.body.appendChild(autoCreatedCanvas);
+      } else {
+        // Legacy auto-layout — tile the canvas into the shared layout
+        // container alongside any other auto-created canvases.
+        autoCreatedCanvas.style.border = "1px solid white";
+        this._ensureViewLayoutContainer();
+        this._viewLayoutContainer!.appendChild(autoCreatedCanvas);
+      }
 
       // @ts-ignore
       resolvedViewParams.htmlElement = autoCreatedCanvas;
@@ -774,16 +815,31 @@ export class DemoHelper {
       if (autoCreatedCanvas?.parentElement) {
         autoCreatedCanvas.parentElement.removeChild(autoCreatedCanvas);
       }
+      if (floatingPanel) {
+        floatingPanel.destroy();
+      }
       throw new Error(result.error);
     }
 
     const view = result.value;
 
     if (autoCreatedCanvas) {
-      this._autoCanvasByViewId[view.id] = autoCreatedCanvas;
       autoCreatedCanvas.setAttribute("data-view-id", view.id);
       autoCreatedCanvas.id = `${view.id}-canvas`;
-      this._updateAutoCanvasLayout();
+      if (floatingPanel) {
+        this._floatingPanelByViewId[view.id] = floatingPanel;
+        floatingPanel.setTitle(`View — ${view.id}`);
+        // Panel drag changes the panel's CSS left/top but no
+        // descendant resizes, so the renderer's ResizeObserver
+        // on the View's element never fires. Forward the panel's
+        // own onLayoutChanged to view.needsRender() so the shared
+        // WebGL canvas re-aligns on every drag pointermove and
+        // viewport clamp.
+        floatingPanel.onLayoutChanged.subscribe(() => view.needsRender());
+      } else {
+        this._autoCanvasByViewId[view.id] = autoCreatedCanvas;
+        this._updateAutoCanvasLayout();
+      }
     }
 
     const cameraFlight = new CameraFlightAnimation(view);
@@ -834,7 +890,11 @@ export class DemoHelper {
             viewObject,
             sceneModel,
             dataModel,
-            collisionIndex: this.collisionIndex
+            collisionIndex: this.collisionIndex,
+            // Surface the picked world point so submenus can anchor
+            // at exactly where the user clicked (the Transform
+            // submenu uses this as the gizmo's pivot, for example).
+            pickedWorldPos: pickResult.worldPos ?? null,
           };
           this._viewObjectContextMenu.show(e.clientX, e.clientY);
           taskRunner.suspend();
@@ -966,7 +1026,12 @@ export class DemoHelper {
       throw new Error("Viewer not initialized");
     }
     const viewId = view.id;
-    if (this._autoCanvasByViewId[viewId]) {
+    if (this._floatingPanelByViewId[viewId]) {
+      // The panel owns the canvas DOM — destroying the panel removes
+      // both the canvas and the panel chrome.
+      this._floatingPanelByViewId[viewId].destroy();
+      delete this._floatingPanelByViewId[viewId];
+    } else if (this._autoCanvasByViewId[viewId]) {
       const canvas = this._autoCanvasByViewId[viewId];
       if (canvas.parentElement) {
         canvas.parentElement.removeChild(canvas);
@@ -979,7 +1044,7 @@ export class DemoHelper {
   }
 
   /**
-   * Destroys both the {@link SceneModel} and the {@link DataModel}
+   * Destroys both the {@link model!scene.SceneModel | SceneModel} and the {@link model!data.DataModel | DataModel}
    * that share `modelId` (when each exists). Either side may be
    * absent — a model loaded via {@link loadModel} with no
    * `dataModel` argument leaves the data side empty, and a model
@@ -1105,7 +1170,7 @@ export class DemoHelper {
     if (!this._demolitionPhysics) {
       // Rapier isn't a static dependency of the SDK — pull the
       // WASM-bundled compat build from CDN on first demolition. Same
-      // package the ScenePhysics_Duplex example uses.
+      // package the simulation_physics_duplex example uses.
       const rapierUrl = "https://cdn.jsdelivr.net/npm/@dimforge/rapier3d-compat@0.14.0/+esm";
       let mod: any;
       try {
@@ -1509,21 +1574,21 @@ export class DemoHelper {
   }
 
   /**
-   * Opens (or returns the live) {@link BluePrintsPanel} bound
+   * Opens (or returns the live) {@link DrawingsPanel} bound
    * to this helper — the floating controller that generates and
-   * manages wireframe ortho "blueprint" SceneModels (plan view +
+   * manages wireframe ortho "drawing" SceneModels (plan view +
    * elevations) for each source SceneModel currently in the
    * Scene. Panel filters its own projection outputs out of the
-   * candidate list so blueprints can't recurse into blueprints
+   * candidate list so drawings can't recurse into drawings
    * of themselves.
    */
-  public openBluePrintsPanel(): BluePrintsPanel {
-    const existing = BluePrintsPanel.getFor(this);
+  public openDrawingsPanel(): DrawingsPanel {
+    const existing = DrawingsPanel.getFor(this);
     if (existing) {
       if (!existing.visible) existing.show();
       return existing;
     }
-    return BluePrintsPanel.openFor({demoHelper: this});
+    return DrawingsPanel.openFor({demoHelper: this});
   }
 
   /**
@@ -1543,7 +1608,7 @@ export class DemoHelper {
    * Opens (or returns the live) {@link ExportBCFPanel} bound to
    * the inspector View — the floating dialog that lets the user
    * pick which {@link ViewLayer | ViewLayers} contribute to a
-   * {@link bcf!BCFViewpoint | BCFViewpoint} export and writes the
+   * {@link interop!bcf.BCFViewpoint | BCFViewpoint} export and writes the
    * result as a JSON download.
    *
    * Returns `undefined` if no View has been created yet (the
@@ -1653,7 +1718,7 @@ export class DemoHelper {
   /**
    * Toggle the {@link ViewerConfigPanel} for the helper's
    * {@link viewer} — the "Views" panel that lists every
-   * {@link View} on the Viewer, exposes its `ViewerParams`
+   * {@link viewing!viewer.View | View} on the Viewer, exposes its `ViewerParams`
    * fields for editing, and offers per-View destroy buttons
    * plus a footer "New View" button. Constructs the panel on
    * first call.
@@ -1927,6 +1992,77 @@ export class DemoHelper {
   }
 
   /**
+   * Mounts (or returns the live) {@link TransformControls} bound to
+   * {@link view}.
+   *
+   * Auto-supplies the unified BVH-backed {@link picker} the helper
+   * already owns, and the View's
+   * {@link viewing!viewController.ViewController | ViewController}
+   * (so handle drags pause camera orbit / pan for the duration of
+   * the gesture). Caller-supplied {@link params} fields override
+   * those defaults.
+   *
+   * Idempotent — repeat calls for the same View return the live
+   * controls. Pair with
+   * {@link attachTransformControls | attachTransformControls()}
+   * to attach a target in one go from the toolbar / context menu.
+   */
+  public openTransformControls(
+    view: View,
+    params: Partial<TransformControlsParams> = {},
+  ): TransformControls {
+    const existing = TransformControls.getFor(view);
+    if (existing) return existing;
+    const viewRecord = (this.views as any)?.[view.id];
+    return TransformControls.openFor({
+      view,
+      picker:         this.picker,
+      viewController: viewRecord?.viewController,
+      ...params,
+    });
+  }
+
+  /**
+   * Mounts the {@link TransformControls} for {@link view} (creating
+   * them on first call), attaches them to {@link target}, and
+   * switches to {@link mode} if supplied.
+   *
+   * `pivotWorld` is the world-space anchor the handles render
+   * around — typically the surface point the picker returned from
+   * the click that triggered the attach. Rotate and scale drags
+   * operate about this point, and translate drags carry it with
+   * the object. Omit it to fall back to the target's primary
+   * world-matrix translation (the SceneObject's geometric origin
+   * in most cases).
+   *
+   * Convenience for toolbar buttons and context-menu entries that
+   * "click a transform mode on this object at this surface point"
+   * in a single action.
+   */
+  public attachTransformControls(
+    view: View,
+    target: TransformControlsTarget,
+    mode?: TransformControlsMode,
+    pivotWorld?: Vec3,
+  ): TransformControls {
+    const tc = this.openTransformControls(view);
+    tc.attach(target, pivotWorld ? {pivotWorld} : undefined);
+    if (mode) tc.setMode(mode);
+    return tc;
+  }
+
+  /**
+   * Detaches the {@link TransformControls} on {@link view}, if any.
+   * Leaves the controls live (still bound to the View) so the next
+   * {@link attachTransformControls | attachTransformControls()}
+   * call reuses the same instance.
+   */
+  public detachTransformControls(view: View): void {
+    const existing = TransformControls.getFor(view);
+    if (existing) existing.detach();
+  }
+
+  /**
    * Opens (or returns the live) {@link GPUMemoryPanel} bound to
    * the helper's {@link renderer}.
 
@@ -1957,7 +2093,7 @@ export class DemoHelper {
   /**
    * Reveal (or lazily mount) the floating
    * {@link SchemaMaterialsPanel} bound to this DemoHelper's Scene.
-   * The panel manages every {@link SceneModel} in the Scene with
+   * The panel manages every {@link model!scene.SceneModel | SceneModel} in the Scene with
    * a tab strip — pass `focusSceneModel` to start with a specific
    * model selected (e.g. the right-clicked one).
    */
@@ -2016,7 +2152,7 @@ export class DemoHelper {
     /**
      * Optional override for the cooperative-yield throttle, in
      * milliseconds. See
-     * {@link "@xeokit/sdk/formats".ModelLoadOptions.yieldIntervalMs}
+     * {@link formats!ModelLoadOptions.yieldIntervalMs | yieldIntervalMs}
      * — passed through to every per-format `loadModel` call so a
      * single override applies across the whole dataset load.
      * Raise above the 16ms default for noticeably faster large

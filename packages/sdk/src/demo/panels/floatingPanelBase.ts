@@ -41,7 +41,7 @@
  * @module demo/floatingPanelBase
  */
 import {EventDispatcher} from "strongly-typed-events";
-import {EventEmitter} from "../../core";
+import {EventEmitter} from "../../base/core";
 import {bringFloatingPanelToFront} from "./floatingPanelZ";
 import {registerPill, unregisterPill} from "./floatingPanelPillRail";
 import {
@@ -80,6 +80,22 @@ export interface FloatingPanelBaseParams {
    * centering CSS (`top: 50%; left: 50%; transform: translate(-50%, -50%)`).
    */
   modal?: boolean;
+
+  /**
+   * When `true` (the default), eight invisible drag handles
+   * (4 edges + 4 corners) are injected into `_panel` and the
+   * user can resize it. Resize is suppressed when {@link modal}
+   * is `true`. Panels that wrap a fixed-size child (NavCube)
+   * or whose internal layout doesn't tolerate width changes
+   * (Toolbar) opt out by passing `false`.
+   */
+  resizable?: boolean;
+
+  /** Minimum width the resize handles will allow, in CSS pixels. Default 280. */
+  minWidth?: number;
+
+  /** Minimum height the resize handles will allow, in CSS pixels. Default 200. */
+  minHeight?: number;
 }
 
 
@@ -107,10 +123,29 @@ export abstract class FloatingPanelBase {
     new EventDispatcher<FloatingPanelBase, boolean>(),
   );
 
+  /**
+   * Fires while the user drags the panel (one notification per
+   * `pointermove` during a drag) and once when the drag ends.
+   *
+   * Drag changes the panel's CSS `left` / `top` but never its
+   * size, so a `ResizeObserver` on any descendant element never
+   * sees it. Subclasses or hosts that need to track the panel's
+   * viewport position — for example a {@link viewing!viewer.View | View}
+   * embedded in the body whose shared WebGL canvas must follow
+   * the panel — should subscribe to this and re-read the
+   * panel's bounding rect.
+   */
+  readonly onLayoutChanged = new EventEmitter<FloatingPanelBase, void>(
+    new EventDispatcher<FloatingPanelBase, void>(),
+  );
+
   protected readonly _container: HTMLElement;
   protected readonly _storageKey: string;
   protected readonly _classPrefix: string;
   protected readonly _modal: boolean;
+  protected readonly _resizable: boolean;
+  protected readonly _minWidth: number;
+  protected readonly _minHeight: number;
   protected _destroyed = false;
 
   private _dragging = false;
@@ -122,6 +157,12 @@ export abstract class FloatingPanelBase {
   private readonly _onResize = (): void => {
     this._clampToViewport();
     this._saveLayout();
+    // Window resize can shift the panel without resizing it (the
+    // clamp logic moves it back into the viewport). Treat that
+    // the same as a drag: fire the layout-change notification so
+    // hosts can re-align contents that depend on the panel's
+    // viewport position.
+    this.onLayoutChanged.dispatch(this, undefined);
   };
 
   private readonly _onModalKeydown = (ev: KeyboardEvent): void => {
@@ -133,6 +174,9 @@ export abstract class FloatingPanelBase {
     this._storageKey = params.storageKey;
     this._classPrefix = params.classPrefix;
     this._modal = params.modal === true;
+    this._resizable = params.resizable !== false && !this._modal;
+    this._minWidth  = params.minWidth  ?? 280;
+    this._minHeight = params.minHeight ?? 200;
   }
 
 
@@ -203,6 +247,11 @@ export abstract class FloatingPanelBase {
       );
       this._panel.style.left = snapped.left + "px";
       this._panel.style.top  = snapped.top  + "px";
+      // Drag only moves the panel — no descendant resizes — so
+      // ResizeObserver-based listeners would miss this. Fire
+      // `onLayoutChanged` so hosts can re-align contents whose
+      // viewport position depends on the panel.
+      this.onLayoutChanged.dispatch(this, undefined);
     });
     const endDrag = (ev: PointerEvent): void => {
       if (!this._dragging) return;
@@ -210,14 +259,159 @@ export abstract class FloatingPanelBase {
       this._header.classList.remove(draggingClass);
       try { this._header.releasePointerCapture(ev.pointerId); } catch { /* ignore */ }
       this._saveLayout();
+      this.onLayoutChanged.dispatch(this, undefined);
     };
     this._header.addEventListener("pointerup",     endDrag);
     this._header.addEventListener("pointercancel", endDrag);
+
+    if (this._resizable) this._bindResize();
 
     window.addEventListener("resize", this._onResize);
     // Modals always centre themselves on show; persisting a
     // dragged position would fight that on the next open.
     if (!this._modal) this._restoreLayout();
+  }
+
+
+  // ── Resize handles ────────────────────────────────────────────
+
+  /**
+   * Inject eight invisible drag handles (4 edges + 4 corners)
+   * into `_panel` and wire pointer events. Each handle pins the
+   * panel to absolute `left` / `top` on pointerdown (so subsequent
+   * size + position writes take effect over any CSS that uses
+   * `right` / `bottom`), then writes new `width` / `height` —
+   * and, for north / west edges, new `left` / `top` — on
+   * pointermove. `onLayoutChanged` fires per move and at drag-end;
+   * the saved layout is updated on drag-end.
+   *
+   * `min-width` / `min-height` enforced from `_minWidth` /
+   * `_minHeight`; `max-width` / `max-height` are released by
+   * setting them to `"none"` inline so user-driven size is not
+   * clipped by CSS bounds like `max-height: calc(100vh - 32px)`.
+   */
+  protected _bindResize(): void {
+    // Enforce minimums so handles can't crush the panel to nothing.
+    this._panel.style.minWidth  = `${this._minWidth}px`;
+    this._panel.style.minHeight = `${this._minHeight}px`;
+
+    const EDGE   = 5;   // edge-handle thickness, px
+    const CORNER = 8;   // corner-handle square, px
+    const positions: Array<"n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw"> =
+      ["n", "s", "e", "w", "ne", "nw", "se", "sw"];
+    const cursorFor: Record<string, string> = {
+      n:  "ns-resize", s:  "ns-resize",
+      e:  "ew-resize", w:  "ew-resize",
+      ne: "nesw-resize", sw: "nesw-resize",
+      nw: "nwse-resize", se: "nwse-resize",
+    };
+
+    for (const pos of positions) {
+      const handle = document.createElement("div");
+      handle.setAttribute("data-resize-handle", pos);
+      const s = handle.style;
+      s.position    = "absolute";
+      s.background  = "transparent";
+      s.cursor      = cursorFor[pos];
+      s.touchAction = "none";
+      s.zIndex      = "2";
+
+      // Edge handles run the full length of the panel minus the
+      // corner zones, so corners always win on the diagonals.
+      switch (pos) {
+        case "n":
+          s.top = "0";    s.left  = `${CORNER}px`; s.right  = `${CORNER}px`; s.height = `${EDGE}px`; break;
+        case "s":
+          s.bottom = "0"; s.left  = `${CORNER}px`; s.right  = `${CORNER}px`; s.height = `${EDGE}px`; break;
+        case "e":
+          s.right = "0";  s.top   = `${CORNER}px`; s.bottom = `${CORNER}px`; s.width  = `${EDGE}px`; break;
+        case "w":
+          s.left = "0";   s.top   = `${CORNER}px`; s.bottom = `${CORNER}px`; s.width  = `${EDGE}px`; break;
+        case "ne":
+          s.top = "0"; s.right = "0";    s.width = `${CORNER}px`; s.height = `${CORNER}px`; break;
+        case "nw":
+          s.top = "0"; s.left  = "0";    s.width = `${CORNER}px`; s.height = `${CORNER}px`; break;
+        case "se":
+          s.bottom = "0"; s.right = "0"; s.width = `${CORNER}px`; s.height = `${CORNER}px`; break;
+        case "sw":
+          s.bottom = "0"; s.left  = "0"; s.width = `${CORNER}px`; s.height = `${CORNER}px`; break;
+      }
+      this._panel.appendChild(handle);
+
+      let resizing = false;
+      let startX = 0, startY = 0;
+      let startW = 0, startH = 0;
+      let startL = 0, startT = 0;
+
+      handle.addEventListener("pointerdown", (ev) => {
+        if (ev.button !== 0) return;
+        const rect = this._panel.getBoundingClientRect();
+        startX = ev.clientX; startY = ev.clientY;
+        startW = rect.width; startH = rect.height;
+        startL = rect.left;  startT = rect.top;
+        // Pin to absolute pixels — same dance _bindChrome's drag-start
+        // performs — so subsequent left / top / width / height writes
+        // are not fought by CSS using right / bottom / transform.
+        const ps = this._panel.style;
+        ps.right     = "auto";
+        ps.bottom    = "auto";
+        ps.left      = startL + "px";
+        ps.top       = startT + "px";
+        ps.transform = "none";
+        // Release CSS max-* clamps so user-set size is honoured.
+        ps.maxWidth  = "none";
+        ps.maxHeight = "none";
+        resizing = true;
+        handle.setPointerCapture(ev.pointerId);
+        ev.preventDefault();
+        ev.stopPropagation();
+      });
+
+      handle.addEventListener("pointermove", (ev) => {
+        if (!resizing) return;
+        const dx = ev.clientX - startX;
+        const dy = ev.clientY - startY;
+        let newW = startW, newH = startH, newL = startL, newT = startT;
+
+        if (pos.includes("e")) {
+          newW = clamp(startW + dx, this._minWidth,  window.innerWidth  - startL);
+        }
+        if (pos.includes("w")) {
+          // Dragging the west edge moves left and changes width
+          // by the opposite delta. Clamp left so width never
+          // falls below minWidth.
+          const maxL = startL + startW - this._minWidth;
+          newL = clamp(startL + dx, 0, maxL);
+          newW = startL + startW - newL;
+        }
+        if (pos.includes("s")) {
+          newH = clamp(startH + dy, this._minHeight, window.innerHeight - startT);
+        }
+        if (pos.includes("n")) {
+          const maxT = startT + startH - this._minHeight;
+          newT = clamp(startT + dy, 0, maxT);
+          newH = startT + startH - newT;
+        }
+
+        const ps = this._panel.style;
+        ps.left   = newL + "px";
+        ps.top    = newT + "px";
+        ps.width  = newW + "px";
+        ps.height = newH + "px";
+
+        this.onLayoutChanged.dispatch(this, undefined);
+      });
+
+      const endResize = (ev: PointerEvent): void => {
+        if (!resizing) return;
+        resizing = false;
+        try { handle.releasePointerCapture(ev.pointerId); } catch { /* ignore */ }
+        this._saveLayout();
+        this.onLayoutChanged.dispatch(this, undefined);
+      };
+      handle.addEventListener("pointerup",     endResize);
+      handle.addEventListener("pointercancel", endResize);
+    }
   }
 
 
@@ -315,7 +509,7 @@ export abstract class FloatingPanelBase {
   // ── Layout persistence ────────────────────────────────────────
 
   protected _restoreLayout(): void {
-    let saved: {top?: number; left?: number; hidden?: boolean} | null = null;
+    let saved: {top?: number; left?: number; width?: number; height?: number; hidden?: boolean} | null = null;
     try {
       const raw = window.localStorage.getItem(this._storageKey);
       if (raw) saved = JSON.parse(raw);
@@ -323,6 +517,8 @@ export abstract class FloatingPanelBase {
 
     const hasSavedPosition = !!saved
       && Number.isFinite(saved.left) && Number.isFinite(saved.top);
+    const hasSavedSize = !!saved
+      && Number.isFinite(saved.width) && Number.isFinite(saved.height);
 
     if (hasSavedPosition) {
       this._panel.style.right     = "auto";
@@ -332,12 +528,24 @@ export abstract class FloatingPanelBase {
       // coordinates are absolute, so any centering translate from
       // the panel's CSS would push it off-screen on restore.
       this._panel.style.transform = "none";
-      this._clampToViewport();
     } else {
       // First time this panel opens for the user — start centred.
       // Drag persists a new position; subsequent opens restore it.
       this._centerPanel();
     }
+
+    if (hasSavedSize) {
+      this._panel.style.bottom    = "auto";
+      this._panel.style.width     = saved!.width!  + "px";
+      this._panel.style.height    = saved!.height! + "px";
+      // CSS max-* bounds (e.g. `max-height: calc(100vh - 32px)`)
+      // would otherwise clip a user-resized panel; release them
+      // so persisted size is honoured.
+      this._panel.style.maxWidth  = "none";
+      this._panel.style.maxHeight = "none";
+    }
+
+    if (hasSavedPosition || hasSavedSize) this._clampToViewport();
 
     if (saved?.hidden) {
       this._panel.style.display = "none";
@@ -347,18 +555,38 @@ export abstract class FloatingPanelBase {
 
   protected _saveLayout(): void {
     if (this._modal) return;
-    const state: {top?: number; left?: number; hidden: boolean} = {
+    const state: {top?: number; left?: number; width?: number; height?: number; hidden: boolean} = {
       hidden: this._panel.style.display === "none",
     };
     const l = parseFloat(this._panel.style.left);
     const t = parseFloat(this._panel.style.top);
     if (Number.isFinite(l)) state.left = l;
     if (Number.isFinite(t)) state.top  = t;
+    // Only persist size if the user actually set it via the
+    // resize handles (inline pixel value present). Panels at
+    // their CSS-default size store no width / height and
+    // therefore continue to track future stylesheet changes.
+    if (isPixelLength(this._panel.style.width))  state.width  = parseFloat(this._panel.style.width);
+    if (isPixelLength(this._panel.style.height)) state.height = parseFloat(this._panel.style.height);
     try { window.localStorage.setItem(this._storageKey, JSON.stringify(state)); }
     catch { /* quota / disabled — drop silently */ }
   }
 
   protected _clampToViewport(): void {
+    // Shrink user-set pixel size to fit the current viewport
+    // first, so the subsequent position clamp can use the new
+    // (smaller) rect.
+    if (isPixelLength(this._panel.style.width)) {
+      const w = parseFloat(this._panel.style.width);
+      const maxW = Math.max(this._minWidth, window.innerWidth);
+      if (w > maxW) this._panel.style.width = maxW + "px";
+    }
+    if (isPixelLength(this._panel.style.height)) {
+      const h = parseFloat(this._panel.style.height);
+      const maxH = Math.max(this._minHeight, window.innerHeight);
+      if (h > maxH) this._panel.style.height = maxH + "px";
+    }
+
     // Only clamp pixel offsets. `parseFloat("50%")` returns 50,
     // which would otherwise get written back as `left: 50px;` and
     // — combined with a centering `translate(-50%, -50%)` —
@@ -378,4 +606,8 @@ export abstract class FloatingPanelBase {
 
 function isPixelLength(value: string): boolean {
   return /^-?\d+(\.\d+)?px$/.test(value);
+}
+
+function clamp(v: number, lo: number, hi: number): number {
+  return Math.max(lo, Math.min(hi, v));
 }

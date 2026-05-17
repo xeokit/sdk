@@ -5,8 +5,8 @@ import {
   RenderInspector,
   type RenderStats,
   type ViewRenderStats,
-} from "../../webGLRenderer/internal/inspectors";
-import { WebGLRenderer } from "../../webGLRenderer";
+} from "../../viewing/webGLRenderer/internal/inspectors";
+import { WebGLRenderer } from "../../viewing/webGLRenderer";
 
 function rendererLogIconDataUri(): string {
   // 60x60 SVG: scope/trace icon (timeline + waveform + markers + GPU chip badge)

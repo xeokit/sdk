@@ -5,14 +5,59 @@
  *
  * ---
  *
- * **Import and export semantic {@link data!DataModel | DataModels} using xeokit’s JSON-based
- * {@link data!DataModelParams | DataModelParams} interchange format.**
+ * **Import and export semantic {@link model!data.DataModel | DataModels} using xeokit’s JSON-based
+ * {@link model!data.DataModelParams | DataModelParams} interchange format.**
  *
  * ---
  *
- * This module provides utilities for serializing and deserializing {@link data!DataModel | DataModels}
- * to and from the SDK’s canonical JSON representation, {@link data!DataModelParams | DataModelParams}. The format captures
+ * This module provides utilities for serializing and deserializing {@link model!data.DataModel | DataModels}
+ * to and from the SDK’s canonical JSON representation, {@link model!data.DataModelParams | DataModelParams}. The format captures
  * a DataModel’s complete semantic state, including objects, relationships, properties, and metadata.
+ *
+ * ---
+ *
+ *
+ * <br>
+ *
+ * ## Shape
+ *
+ * ```mermaid
+ * classDiagram
+ *     direction TB
+ *     class DataModelParamsLoader {
+ *       +format : "DataModelParams"
+ *       +load(params, options?) Promise~void~
+ *     }
+ *     class DataModelParamsExporter {
+ *       +format : "DataModelParams"
+ *       +write(params, options?) Promise~string~
+ *     }
+ *     class DataModelParams {
+ *       <<data>>
+ *     }
+ *     class ModelLoader {
+ *       <<formats>>
+ *     }
+ *     class ModelExporter {
+ *       <<formats>>
+ *     }
+ *     ModelLoader <|-- DataModelParamsLoader
+ *     ModelExporter <|-- DataModelParamsExporter
+ *     DataModelParamsLoader ..> DataModelParams : reads
+ *     DataModelParamsExporter ..> DataModelParams : writes
+ * ```
+ *
+ * <br>
+ *
+ * ## Features
+ *
+ * - **xeokit-native JSON** — round-trips a
+ *   {@link model!data.DataModel | DataModel} to and from
+ *   {@link model!data.DataModelParams | DataModelParams} JSON.
+ * - **Pairs with XGF** — geometry in `.xgf` + semantics in `.json`
+ *   form the canonical xeokit streamed-model bundle.
+ * - **Compact** — objects, relationships, and property sets only;
+ *   no geometry payload.
  *
  * ---
  *
@@ -28,8 +73,8 @@
  *
  * ### Exporting a DataModel to JSON
  *
- * Use {@link DataModelParamsExporter} to serialize a {@link data!DataModel | DataModel} into a
- * {@link data!DataModelParams | DataModelParams} object, which can then be stored or transmitted as JSON.
+ * Use {@link DataModelParamsExporter} to serialize a {@link model!data.DataModel | DataModel} into a
+ * {@link model!data.DataModelParams | DataModelParams} object, which can then be stored or transmitted as JSON.
  *
  * ```ts
  * import { DataModelParamsExporter } from "@xeokit/sdk/datamodel";
@@ -51,12 +96,12 @@
  *
  * ### Importing a DataModel from JSON
  *
- * Use {@link DataModelParamsLoader} to reconstruct a {@link data!DataModel | DataModel} from a previously
- * serialized {@link data!DataModelParams | DataModelParams} object.
+ * Use {@link DataModelParamsLoader} to reconstruct a {@link model!data.DataModel | DataModel} from a previously
+ * serialized {@link model!data.DataModelParams | DataModelParams} object.
  *
  * ```ts
  * import { DataModelParamsLoader } from "@xeokit/sdk/datamodel";
- * import { Data } from "@xeokit/sdk/data";
+ * import { Data } from "@xeokit/sdk/model/data";
  *
  * const data = new Data();
  *
@@ -77,7 +122,7 @@
  *
  * ### Round-tripping DataModels
  *
- * Because {@link data!DataModelParams | DataModelParams} is a lossless representation of xeokit’s semantic graph,
+ * Because {@link model!data.DataModelParams | DataModelParams} is a lossless representation of xeokit’s semantic graph,
  * a DataModel can be exported and re-imported without changing object IDs, relationships,
  * or properties—making it suitable for caching and synchronization workflows.
  *

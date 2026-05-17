@@ -1,6 +1,6 @@
 import type {ModelEncodeParams} from "../../../ModelEncodeParams";
-import type {SceneMaterial} from "../../../../scene";
-import {yieldToHost} from "../../../../utils";
+import type {SceneMaterial} from "../../../../model/scene";
+import {yieldToHost} from "../../../../base/utils";
 import type {LoaderProgress} from "../../../LoaderProgress";
 
 /**

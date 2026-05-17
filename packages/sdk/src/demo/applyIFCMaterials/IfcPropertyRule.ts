@@ -1,4 +1,4 @@
-import type {DataObject} from "../../data";
+import type {DataObject} from "../../model/data";
 
 
 /**

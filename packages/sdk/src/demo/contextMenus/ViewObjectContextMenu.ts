@@ -1,5 +1,5 @@
 /**
- * Context menu for interacting with a {@link ViewObject}.
+ * Context menu for interacting with a {@link viewing!viewer.ViewObject | ViewObject}.
  *
  * The menu is organized around the most common user goals:
  *
@@ -23,6 +23,7 @@ import type {ViewObjectContextMenuContext} from "./ViewObjectContextMenuContext"
 import {createViewObjectFrameGroup} from "./submenus/createViewObjectFrameGroup";
 import {createViewObjectShowGroup} from "./submenus/createViewObjectShowGroup";
 import {createViewObjectModifyGroup} from "./submenus/createViewObjectModifyGroup";
+import {createViewObjectTransformGroup} from "./submenus/createViewObjectTransformGroup";
 import {createViewObjectDeleteGroup} from "./submenus/createViewObjectDeleteGroup";
 import {createRenderModeGroup} from "./submenus/createRenderModeGroup";
 import {createDebugSubmenu} from "./submenus/createDebugSubmenu";
@@ -67,6 +68,7 @@ export class ViewObjectContextMenu extends ContextMenu {
         createViewObjectFrameGroup(),
         [createViewObjectShowGroup()],
         [createViewObjectModifyGroup()],
+        [createViewObjectTransformGroup()],
         [{
           getTitle: () => "Render Mode",
           items: [createRenderModeGroup()],

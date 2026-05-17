@@ -1,15 +1,15 @@
-import {LinesPrimitive} from "../constants";
-import {SceneModel} from "../scene";
-import {SceneCollisionIndex} from "../collision";
-import type {AABB3Float} from "../math/boundaries";
-import type {Scene, SceneObject} from "../scene";
-import {buildVectorText} from "../procgen/buildGeometry";
-import type {Data} from "./../data";
-import type {DataObject} from "./../data";
+import {LinesPrimitive} from "../base/constants";
+import {SceneModel} from "../model/scene";
+import {SceneCollisionIndex} from "../spatial/collision";
+import type {AABB3Float} from "../base/math/boundaries";
+import type {Scene, SceneObject} from "../model/scene";
+import {buildVectorText} from "../model/procgen/buildGeometry";
+import type {Data} from "../model/data";
+import type {DataObject} from "../model/data";
 
 type Vec3 = [number, number, number];
-type PlaneName = "XY" | "XZ" | "YZ";
-type PlaneAxisName = "x" | "y" | "z";
+export type PlaneName = "XY" | "XZ" | "YZ";
+export type PlaneAxisName = "x" | "y" | "z";
 
 type DimensionableMatch = {
   sceneObject: SceneObject;

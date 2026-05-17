@@ -1,6 +1,6 @@
-import type { ViewerParams } from "../../viewer/ViewerParams";
-import type { ViewParams } from "../../viewer/ViewParams";
-import type { ViewLayerParams } from "../../viewer/ViewLayerParams";
+import type { ViewerParams } from "../../viewing/viewer/ViewerParams";
+import type { ViewParams } from "../../viewing/viewer/ViewParams";
+import type { ViewLayerParams } from "../../viewing/viewer/ViewLayerParams";
 import { FloatingPanelFlowHost } from "./FloatingPanelFlowHost";
 
 // DOM util

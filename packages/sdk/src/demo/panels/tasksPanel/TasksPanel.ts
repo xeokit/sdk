@@ -8,17 +8,17 @@
  * panel is visible.
  *
  * Same chrome and lifecycle as the sister diagnostic panels
- * ({@link demo/eventsPanel!EventsPanel},
- * {@link demo/sceneStats!SceneStatsPanel},
- * {@link demo/dataStats!DataStatsPanel}) — per-runner WeakMap
+ * ({@link demo/eventsPanel!EventsPanel | EventsPanel},
+ * {@link demo/sceneStats!SceneStatsPanel | SceneStatsPanel},
+ * {@link demo/dataStats!DataStatsPanel | DataStatsPanel}) — per-runner WeakMap
  * registry, idempotent `getFor` / `openFor`, drag-header, close
  * button + reopen pill, layout persistence, bring-to-front on
  * pointer-down, scoped `xkt-tasks-` CSS prefix.
  *
  * @module demo/tasksPanel
  */
-import {SDKTask} from "../../../core/SDKTask";
-import {SDKTaskRunner} from "../../../core/SDKTaskRunner";
+import {SDKTask} from "../../../base/core/SDKTask";
+import {SDKTaskRunner} from "../../../base/core/SDKTaskRunner";
 
 import {el} from "../../utils/el";
 import {FloatingPanelBase} from "../floatingPanelBase";

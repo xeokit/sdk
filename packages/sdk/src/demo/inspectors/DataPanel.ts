@@ -1,4 +1,4 @@
-import { Data, DataEvents, DataModel, type DataModelStats } from "../../data";
+import { Data, DataEvents, DataModel, type DataModelStats } from "../../model/data";
 import {FloatingPanelFlowHost} from "./FloatingPanelFlowHost";
 
 function erDiagramIconDataUri(): string {

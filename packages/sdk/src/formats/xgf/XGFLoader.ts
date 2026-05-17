@@ -3,7 +3,7 @@ import {parse as parse_v1} from "./versions/v1/parse"
 import {parse as parse_v2} from "./versions/v2/parse"
 
 /**
- * Loads an XGF file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
+ * Loads an XGF file into a {@link model!scene.SceneModel | SceneModel} and/or a {@link model!data.DataModel | DataModel}.
  *
  * For detailed usage, refer to {@link xgf | @xeokit/sdk/formats/xgf}.
  */

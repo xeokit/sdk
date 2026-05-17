@@ -3,7 +3,7 @@ import {parse as parse_1_0_0} from "./versions/1_0_0/parse"
 import {parse as parse_1_1_0} from "./versions/1_1_0/parse"
 
 /**
- * Loads a .BIM file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
+ * Loads a .BIM file into a {@link model!scene.SceneModel | SceneModel} and/or a {@link model!data.DataModel | DataModel}.
  *
  * For detailed usage, refer to {@link dotbim | @xeokit/sdk/formats/dotbim}.
  */

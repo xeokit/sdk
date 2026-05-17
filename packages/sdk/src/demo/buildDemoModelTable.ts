@@ -1,10 +1,10 @@
 
-import {SDKErrorType, type SDKResult} from "../core";
-import type {Vec3} from "../math/vector";
-import {SceneModel} from "../scene";
-import {DataModel} from "../data";
-import {TrianglesPrimitive} from "../constants";
-import {createUUID} from "../utils";
+import {SDKErrorType, type SDKResult} from "../base/core";
+import type {Vec3} from "../base/math/vector";
+import {SceneModel} from "../model/scene";
+import {DataModel} from "../model/data";
+import {TrianglesPrimitive} from "../base/constants";
+import {createUUID} from "../base/utils";
 
 /**
  * Builds a simple table model with a top and four legs, using box geometries.

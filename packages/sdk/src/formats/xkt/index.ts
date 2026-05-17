@@ -16,11 +16,49 @@
  * a compact payload that loads quickly over the Web into a xeokit viewer running in the browser.
  *
  * To import a [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) model into xeokit, use the {@link XKTLoader} class,
- * which will load the file into a {@link scene!SceneModel | SceneModel}.
+ * which will load the file into a {@link model!scene.SceneModel | SceneModel}.
  *
- * Use the {@link metamodel!MetaModelLoader | MetaModelLoader} function to load legacy JSON metadata into a {@link data!DataModel | DataModel}.
+ * Use the {@link formats!metamodel.MetaModelLoader | MetaModelLoader} function to load legacy JSON metadata into a {@link model!data.DataModel | DataModel}.
  *
  * <br>
+ *
+ *
+ * <br>
+ *
+ * ## Shape
+ *
+ * ```mermaid
+ * classDiagram
+ *     direction TB
+ *     class XKTLoader {
+ *       +format : "XKT"
+ *       +versions : ["v1".."v10"]
+ *       +load(params, options?) Promise~void~
+ *     }
+ *     class ModelLoader {
+ *       <<formats>>
+ *     }
+ *     ModelLoader <|-- XKTLoader
+ * ```
+ *
+ * Legacy v1–v10 XKT formats are all read by the same loader; the
+ * version is auto-detected from the file header.
+ * ```
+ *
+ * <br>
+ *
+ * ## Features
+ *
+ * - **xeokit V2 compatibility** — load every XKT vintage produced
+ *   by `xeokit-convert` (v1 through v10) into the V3 SceneModel +
+ *   DataModel pipeline.
+ * - **Geometry + metadata** — XKT carries both meshes and the
+ *   matching MetaModel; the loader splits them across SceneModel
+ *   and DataModel automatically.
+ * - **Read-only** — no `.xkt` exporter ships; v3 hosts produce
+ *   XGF + DataModel JSON instead.
+ *
+ * ---
  *
  * ## Installation
  *
@@ -30,14 +68,14 @@
  *
  * ## Usage
  *
- * In the example below, we will create a {@link viewer!Viewer | Viewer} with
- * a {@link webGLRenderer!WebGLRenderer | WebGLRenderer}  and a {@link scene!Scene | Scene}, which holds model geometry and materials.
+ * In the example below, we will create a {@link viewing!viewer.Viewer | Viewer} with
+ * a {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer}  and a {@link model!scene.Scene | Scene}, which holds model geometry and materials.
  *
- * On our Viewer, we will create a single {@link viewer!View | View} to render it to a canvas element on the page. We will
- * also show a {@link viewController!ViewController | ViewController} to our View, allowing us to control its camera with mouse and touch input.
+ * On our Viewer, we will create a single {@link viewing!viewer.View | View} to render it to a canvas element on the page. We will
+ * also show a {@link viewing!viewController.ViewController | ViewController} to our View, allowing us to control its camera with mouse and touch input.
  *
- * Within the Scene, we will create a {@link scene!SceneModel | SceneModel} to hold a model. We will then use
- * {@link xkt!XKTLoader | XKTLoader} to load
+ * Within the Scene, we will create a {@link model!scene.SceneModel | SceneModel} to hold a model. We will then use
+ * {@link formats!xkt.XKTLoader | XKTLoader} to load
  * any XKT file into our SceneModel.
  *
  * The  class will be used to handle any errors that may occur during this process.

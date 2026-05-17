@@ -4,8 +4,8 @@
  * "you are here" arrow on each view shows the camera's eye +
  * look direction projected onto that plane.
  *
- * Sister widget to {@link demo/sceneStats!SceneStatsPanel} and
- * {@link demo/dataStats!DataStatsPanel} — same floating chrome,
+ * Sister widget to {@link demo/sceneStats!SceneStatsPanel | SceneStatsPanel} and
+ * {@link demo/dataStats!DataStatsPanel | DataStatsPanel} — same floating chrome,
  * same colour palette, same drag / close / reopen-pill mechanics.
  *
  * ## Lazy event wiring
@@ -37,11 +37,11 @@
  *
  * @module demo/boundariesPanel
  */
-import type {Scene} from "../../../scene";
-import type {View} from "../../../viewer";
-import type {Vec3} from "../../../math/vector";
-import type {AABB3} from "../../../math/boundaries";
-import {type SceneCollisionIndex, getSceneCollisionIndex} from "../../../collision";
+import type {Scene} from "../../../model/scene";
+import type {View} from "../../../viewing/viewer";
+import type {Vec3} from "../../../base/math/vector";
+import type {AABB3} from "../../../base/math/boundaries";
+import {type SceneCollisionIndex, getSceneCollisionIndex} from "../../../spatial/collision";
 
 
 import {el} from "../../utils/el";
@@ -483,7 +483,7 @@ export class BoundariesPanel extends FloatingPanelBase {
    * is still alive, it's brought back to the foreground;
    * otherwise a fresh one is constructed.
    *
-   * Built for the {@link demo/ViewObjectContextMenu} "Boundaries"
+   * Built for the {@link demo!ViewObjectContextMenu | ViewObjectContextMenu} "Boundaries"
    * entry routed through {@link DemoHelper.openBoundariesPanel}.
    */
   static openFor(params: BoundariesPanelParams): BoundariesPanel {

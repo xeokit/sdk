@@ -5,12 +5,107 @@
  *
  * # xeokit Tree View UI
  *
- * ## Overview
- * * {@link treeview!TreeView | TreeView} - A fast and interactive HTML-based tree view.
- * * Enables seamless navigation of federated models in a {@link viewer!Viewer | Viewer}.
- * * Designed to work with a {@link viewer!View | View} and a semantic {@link data!Data | Data} model.
- * * Supports Industry Foundation Classes ([IFC](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ifc)).
- * * Compatible with any schema structured as an ER graph with aggregation relationships.
+ * ---
+ *
+ * **Fast HTML-based hierarchical tree widget bound to a
+ * {@link viewing!viewer.View | View} and a semantic
+ * {@link model!data.Data | Data} model — navigate federated BIM
+ * (IFC and any ER-shaped schema) by drilling through aggregation
+ * relationships.**
+ *
+ * ---
+ *
+ * The {@link TreeView} renders the
+ * {@link model!data.DataObject | DataObject} graph as a clickable
+ * tree; each node maps to the matching
+ * {@link viewing!viewer.ViewObject | ViewObject}, so toggling a
+ * branch's visibility / selection / highlight in the tree drives the
+ * same state in the View. Works with any schema structured as an
+ * entity-relationship graph with aggregation relationships, with
+ * IFC as the first-class case.
+ *
+ * <br>
+ *
+ * ## Shape
+ *
+ * ```mermaid
+ * classDiagram
+ *     direction TB
+ *     class TreeView {
+ *       +view : View
+ *       +data : Data
+ *       +containerElement
+ *       +hierarchy   : ContainmentHierarchy | TypesHierarchy | GroupsHierarchy
+ *       +linkType    : relationship type id
+ *       +groupTypes? : object type ids
+ *       +events      : TreeViewEvents
+ *       +showNode(objectId) / unShowNode(objectId)
+ *       +collapse() / expand()
+ *       +destroy()
+ *     }
+ *     class TabbedTreeViewPanel {
+ *       +tabs : TreeView[]
+ *       +activeTab
+ *     }
+ *     class TreeViewParams {
+ *       +view              : View
+ *       +data              : Data
+ *       +containerElement
+ *       +hierarchy         : Hierarchy
+ *       +linkType          : type id
+ *       +groupTypes?       : type id[]
+ *     }
+ *     class TreeViewNode {
+ *       +id / title / type
+ *       +parent / children
+ *     }
+ *     class TreeViewEvents {
+ *       +onNodeTitleClicked
+ *       +onNodeContextMenu
+ *       +onNodeFrameClicked
+ *     }
+ *     class View {
+ *       <<viewer>>
+ *     }
+ *     class Data {
+ *       <<data>>
+ *     }
+ *     TreeView ..> TreeViewParams : reads
+ *     TreeView "1" *-- "1" TreeViewEvents
+ *     TreeView o-- View : drives ViewObject state
+ *     TreeView o-- Data : reads DataObject graph
+ *     TreeView "1" *-- "*" TreeViewNode
+ *     TabbedTreeViewPanel "1" *-- "*" TreeView
+ * ```
+ *
+ * <br>
+ *
+ * ## Features
+ *
+ * - **HTML-based, no canvas** — the tree is a regular `<ul>`/`<li>`
+ *   DOM tree styled with CSS; trivially restylable per host.
+ * - **Three hierarchy strategies** — `ContainmentHierarchy` (walks
+ *   `linkType` relationships), `TypesHierarchy` (groups by
+ *   `DataObject.type`), `GroupsHierarchy` (custom multi-level
+ *   grouping via `groupTypes`).
+ * - **IFC-native** — `linkType: IfcRelAggregates` plus
+ *   `groupTypes: [IfcBuilding, IfcBuildingStorey]` is the standard
+ *   IFC navigation tree out of the box.
+ * - **Schema-agnostic** — works with any ER graph with
+ *   aggregation-style relationships; pass any relationship type id
+ *   for `linkType`.
+ * - **Per-View bound** — clicking a node toggles state on the bound
+ *   View only; multiple TreeViews can drive multiple Views
+ *   independently from the same Data graph.
+ * - **Per-node events** — `onNodeTitleClicked`,
+ *   `onNodeContextMenu`, `onNodeFrameClicked` give the host control
+ *   over selection / highlight / fly-to behaviour.
+ * - **Tabbed multi-hierarchy** — {@link TabbedTreeViewPanel} mounts
+ *   several TreeViews (one per hierarchy strategy) in a tab strip,
+ *   so users can switch between "containment", "types", and
+ *   "groups" views of the same model.
+ *
+ * <br>
  *
  * ## Installation
  *
@@ -23,10 +118,10 @@
  * ### Import Required Modules
  *
  * ```javascript
- * import { Viewer } from "@xeokit/sdk/viewer";
- * import { WebGLRenderer } from "@xeokit/sdk/webGLRenderer";
- * import { Data } from "@xeokit/sdk/data";
- * import { Scene } from "@xeokit/sdk/scene";
+ * import { Viewer } from "@xeokit/sdk/viewing/viewer";
+ * import { WebGLRenderer } from "@xeokit/sdk/viewing/webGLRenderer";
+ * import { Data } from "@xeokit/sdk/model/data";
+ * import { Scene } from "@xeokit/sdk/model/scene";
  * import * as ifcTypes from "@xeokit/sdk/formats/ifc/ifctypes_4_0_2_1";
  * import { TreeView } from "@xeokit/sdk/treeview";
  * import { XGFLoader } from "@xeokit/sdk/formats/xgf";
@@ -103,3 +198,5 @@ export type {TreeViewParams} from "./TreeViewParams";
 export type {TreeViewNode} from "./TreeViewNode";
 export type {TreeViewNodeContextMenuEvent} from "./TreeViewNodeContextMenuEvent";
 export type {TreeViewNodeTitleClickedEvent} from "./TreeViewNodeTitleClickedEvent";
+export {TreeViewEvents} from "./TreeViewEvents";
+export type {TabbedTreeViewPanelParams} from "./TabbedTreeViewPanel";

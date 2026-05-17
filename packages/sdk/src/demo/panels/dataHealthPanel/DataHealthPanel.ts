@@ -1,7 +1,7 @@
 /**
  * Floating, draggable Data Health panel — UI surface for the
  * `dataModelInspector` toolkit. Same chrome / lifecycle as
- * {@link demo/sceneHealthPanel!SceneHealthPanel}, minus the fix
+ * {@link demo/sceneHealthPanel!SceneHealthPanel | SceneHealthPanel}, minus the fix
  * half (the SDK doesn't auto-fix DataModels).
  *
  * ```ts
@@ -32,19 +32,19 @@
  *
  * @module demo/dataHealthPanel
  */
-import type {Data, DataModel} from "../../../data";
-import type {DataFormatSchema} from "../../../dataModelInspector/DataFormatSchema";
-import type {Inspection} from "../../../dataModelInspector/Inspection";
-import type {Issue} from "../../../dataModelInspector/Issue";
-import type {InspectionReport} from "../../../dataModelInspector/InspectionReport";
-import type {InspectDataModelParams} from "../../../dataModelInspector/params/InspectDataModelParams";
-import {DEFAULT_INSPECTION_REGISTRY} from "../../../dataModelInspector/DEFAULT_INSPECTION_REGISTRY";
-import {InspectionRegistry} from "../../../dataModelInspector/InspectionRegistry";
-import {inspectDataModel} from "../../../dataModelInspector/inspectDataModel";
-import {inspectDataModelAsync} from "../../../dataModelInspector/async/inspectDataModelAsync";
-import {inspectionReportToJson} from "../../../dataModelInspector/serializers/inspectionReportToJson";
-import {labelForCode} from "../../../dataModelInspector/labels/labelForCode";
-import {descriptionForCode} from "../../../dataModelInspector/labels/descriptionForCode";
+import type {Data, DataModel} from "../../../model/data";
+import type {DataFormatSchema} from "../../../inspect/dataModel/DataFormatSchema";
+import type {Inspection} from "../../../inspect/dataModel/Inspection";
+import type {Issue} from "../../../inspect/dataModel/Issue";
+import type {InspectionReport} from "../../../inspect/dataModel/InspectionReport";
+import type {InspectDataModelParams} from "../../../inspect/dataModel/params/InspectDataModelParams";
+import {DEFAULT_INSPECTION_REGISTRY} from "../../../inspect/dataModel/DEFAULT_INSPECTION_REGISTRY";
+import {InspectionRegistry} from "../../../inspect/dataModel/InspectionRegistry";
+import {inspectDataModel} from "../../../inspect/dataModel/inspectDataModel";
+import {inspectDataModelAsync} from "../../../inspect/dataModel/async/inspectDataModelAsync";
+import {inspectionReportToJson} from "../../../inspect/dataModel/serializers/inspectionReportToJson";
+import {labelForCode} from "../../../inspect/dataModel/labels/labelForCode";
+import {descriptionForCode} from "../../../inspect/dataModel/labels/descriptionForCode";
 
 
 import {el} from "../../utils/el";

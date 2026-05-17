@@ -1,11 +1,11 @@
 /**
  * Floating, draggable, closeable panel that surfaces live
  * {@link Data} statistics — total counts at the Data level plus
- * a per-{@link DataModel} breakdown, kept in sync via
+ * a per-{@link model!data.DataModel | DataModel} breakdown, kept in sync via
  * {@link DataEvents}.
  *
- * Sister widget to {@link demo/sceneStats!SceneStatsPanel} and
- * {@link demo/sceneModelInspector/ui!SceneHealthPanel} — same
+ * Sister widget to {@link demo/sceneStats!SceneStatsPanel | SceneStatsPanel} and
+ * {@link demo/sceneModelInspector/ui!SceneHealthPanel | SceneHealthPanel} — same
  * floating chrome, same colour palette, same drag / close /
  * reopen-pill mechanics. Three panels are designed to coexist on
  * one page; their reopen pills park in different spots along the
@@ -32,7 +32,7 @@
  *
  * @module demo/dataStats
  */
-import type {Data, DataModel, DataModelStats} from "../../../data";
+import type {Data, DataModel, DataModelStats} from "../../../model/data";
 import {FloatingPanelBase} from "../floatingPanelBase";
 import {el} from "../../utils/el";
 // ─────────────────────────────────────────────────────────────────
@@ -442,7 +442,7 @@ export class DataStatsPanel extends FloatingPanelBase {
    * and is still alive, it's brought back to the foreground;
    * otherwise a fresh one is constructed.
    *
-   * Built for the {@link demo/ViewObjectContextMenu} "Data
+   * Built for the {@link demo!ViewObjectContextMenu | ViewObjectContextMenu} "Data
    * Stats" entry, so the menu works in every host regardless
    * of whether the example wired a panel up itself.
    */

@@ -2,10 +2,10 @@ import type {ModelParseParams} from "../../../ModelParseParams";
 import {ChunkReader} from "./chunkReader";
 import {parsePrimitive} from "./parsePrimitive";
 import {RVMPrimitive} from "./RVMPrimitive";
-import {createMat4Float64, identityMat4} from "../../../../math/matrix";
-import type {Mat4} from "../../../../math/matrix";
-import type {Vec3} from "../../../../math/vector";
-import {yieldToHost} from "../../../../utils";
+import {createMat4Float64, identityMat4} from "../../../../base/math/matrix";
+import type {Mat4} from "../../../../base/math/matrix";
+import type {Vec3} from "../../../../base/math/vector";
+import {yieldToHost} from "../../../../base/utils";
 import type {LoaderProgress} from "../../../LoaderProgress";
 
 /**

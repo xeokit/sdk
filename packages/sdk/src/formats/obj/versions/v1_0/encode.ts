@@ -1,13 +1,13 @@
-import {createVec3Float64} from "../../../../math/vector";
+import {createVec3Float64} from "../../../../base/math/vector";
 import {
   createMat4Float64,
   mulMat4,
   transformPoint3
-} from "../../../../math/matrix";
-import {decompressPoint3WithAABB3} from "../../../../math/compression";
+} from "../../../../base/math/matrix";
+import {decompressPoint3WithAABB3} from "../../../../base/math/compression";
 import type {ModelEncodeParams} from "../../../ModelEncodeParams";
-import {getMeshWorldMatrix} from "../../../../scene";
-import {yieldToHost} from "../../../../utils";
+import {getMeshWorldMatrix} from "../../../../model/scene";
+import {yieldToHost} from "../../../../base/utils";
 import type {LoaderProgress} from "../../../LoaderProgress";
 
 const tempVec3a = createVec3Float64();

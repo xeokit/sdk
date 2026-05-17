@@ -2,7 +2,7 @@ import type {XGFData_v2} from "./XGFData_v2";
 
 /**
  * Unpack the v2 binary file into the {@link XGFData_v2} payload. The
- * positional read order MUST match {@link packXGF} exactly.
+ * positional read order MUST match `packXGF` exactly.
  *
  * @private
  */

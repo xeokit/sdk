@@ -1,22 +1,22 @@
-import type {Data} from "../../data";
-import type {View} from "../../viewer";
+import type {Data} from "../../model/data";
+import type {View} from "../../viewing/viewer";
 import {TreeViewEvents} from "./TreeViewEvents";
 
 /**
- * Parameters to create a {@link treeview!TreeView | TreeView}.
+ * Parameters to create a {@link ui!treeview.TreeView | TreeView}.
  *
  * See {@link treeview | @xeokit/sdk/treeview} for usage.
  */
 export interface TreeViewParams {
 
   /**
-   * The {@link viewer!View | View} that contains the {@link viewer!ViewObject | ViewObjects}
-   * navigated by the {@link treeview!TreeView | TreeView}.
+   * The {@link viewing!viewer.View | View} that contains the {@link viewing!viewer.ViewObject | ViewObjects}
+   * navigated by the {@link ui!treeview.TreeView | TreeView}.
    */
   view: View;
 
   /**
-   * The semantic {@link data!Data | Data} model that determines the structure of the {@link treeview!TreeView | TreeView}.
+   * The semantic {@link model!data.Data | Data} model that determines the structure of the {@link ui!treeview.TreeView | TreeView}.
    */
   data: Data;
 
@@ -36,25 +36,25 @@ export interface TreeViewParams {
   excludeViewLayerIds?: string[];
 
   /**
-   * When traversing the {@link data!Data | Data} to build the tree UI nodes, at each
-   * {@link data!DataObject | DataObjects}, the {@link treeview!TreeView | TreeView} will traverse only the outgoing
-   * {@link data!Relationship| Relationships} of this type in
-   * {@link data!DataObject.relating | DataObject.relating}.
+   * When traversing the {@link model!data.Data | Data} to build the tree UI nodes, at each
+   * {@link model!data.DataObject | DataObjects}, the {@link ui!treeview.TreeView | TreeView} will traverse only the outgoing
+   * {@link model!data.Relationship| Relationships} of this type in
+   * {@link model!data.DataObject.relating | DataObject.relating}.
    */
   linkType: string | string[],
 
   /**
-   * When traversing the {@link data!Data | Data} to build the tree UI nodes for a {@link treeview!TreeView.GroupsHierarchy | GroupsHierarchy}
-   * hierarchy, these are the values of {@link data!DataObject.type | DataObject.type} that the
-   * {@link treeview!TreeView | TreeView} groups the {@link data!DataObject | DataObjects} on.
+   * When traversing the {@link model!data.Data | Data} to build the tree UI nodes for a {@link ui!treeview.TreeView.GroupsHierarchy | GroupsHierarchy}
+   * hierarchy, these are the values of {@link model!data.DataObject.type | DataObject.type} that the
+   * {@link ui!treeview.TreeView | TreeView} groups the {@link model!data.DataObject | DataObjects} on.
    *
-   * The grouping for the {@link treeview!TreeView.GroupsHierarchy | GroupsHierarchy} hierarchy has two levels. The major grouping type is given
+   * The grouping for the {@link ui!treeview.TreeView.GroupsHierarchy | GroupsHierarchy} hierarchy has two levels. The major grouping type is given
    * in ````groupTypes[0]```` and the minor grouping type is given in ````storeyGroups[1]````.
    */
   groupTypes: string[]
 
   /**
-   * {@link data!DataObject.type | DataObject.type}
+   * {@link model!data.DataObject.type | DataObject.type}
    *
    * TODO
    *
@@ -70,7 +70,7 @@ export interface TreeViewParams {
   autoExpandDepth?: number;
 
   /**
-   * External emitters for this {@link treeview!TreeView | TreeView}.
+   * External emitters for this {@link ui!treeview.TreeView | TreeView}.
    * Used when routing events from multiple TreeViews.
    */
   events? : TreeViewEvents;

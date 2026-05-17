@@ -2,7 +2,7 @@
  * Floating, draggable, closeable panel that shows the demo's
  * model catalog (one row per model, expandable to a list of
  * available datasets) and lets the user load any dataset into
- * the {@link DemoHelper}'s {@link Scene} + {@link Data} with a
+ * the {@link DemoHelper}'s {@link model!scene.Scene | Scene} + {@link Data} with a
  * single click.
  *
  * Sister widget to the other floating panels — same chrome,

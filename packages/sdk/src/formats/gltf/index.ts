@@ -34,11 +34,63 @@
  *
  * The loader populates:
  *
- * - a {@link scene!SceneModel | SceneModel} with geometry and materials
- * - optionally, a {@link data!DataModel | DataModel} that mirrors the glTF node hierarchy
+ * - a {@link model!scene.SceneModel | SceneModel} with geometry and materials
+ * - optionally, a {@link model!data.DataModel | DataModel} that mirrors the glTF node hierarchy
  *
  * This allows applications to render glTF content while also retaining
  * structural information about the model’s scene graph.
+ *
+ * <br>
+ *
+ * ## Shape
+ *
+ * ```mermaid
+ * classDiagram
+ *     direction TB
+ *     class GLTFLoader {
+ *       +format : "glTF"
+ *       +load(params, options?) Promise~void~
+ *     }
+ *     class GLTFExporter {
+ *       +format : "glTF"
+ *       +write(params, options?) Promise~Uint8Array~
+ *     }
+ *     class ModelLoader {
+ *       <<formats>>
+ *     }
+ *     class ModelExporter {
+ *       <<formats>>
+ *     }
+ *     class SceneModel {
+ *       <<scene>>
+ *     }
+ *     class DataModel {
+ *       <<data>>
+ *     }
+ *     ModelLoader <|-- GLTFLoader
+ *     ModelExporter <|-- GLTFExporter
+ *     GLTFLoader ..> SceneModel : writes
+ *     GLTFLoader ..> DataModel : writes nodes
+ *     GLTFExporter ..> SceneModel : reads
+ *     GLTFExporter ..> DataModel : reads
+ * ```
+ *
+ * <br>
+ *
+ * ## Features
+ *
+ * - **`.gltf` + `.glb`** — JSON and binary container variants.
+ * - **Full PBR materials** — colour / metallic-roughness / normal /
+ *   occlusion / emissive textures map to
+ *   {@link model!scene.SceneMaterial | SceneMaterial} verbatim.
+ * - **Node hierarchy → DataModel** — optionally mirrors the glTF
+ *   scene-graph node tree into a {@link model!data.DataModel | DataModel}
+ *   so picking and inspection see one coherent semantic graph.
+ * - **Round-trip** — `GLTFExporter` writes a SceneModel back to
+ *   `.glb`, reusing accessors across meshes that share geometry.
+ * - **Texture pass-through** — already-encoded PNG / JPEG bytes
+ *   from `SceneTexture.buffers` / `src` are preserved verbatim on
+ *   export.
  *
  * ---
  *
@@ -54,16 +106,16 @@
  *
  * The following example demonstrates a complete flow:
  *
- * - create a {@link viewer!Viewer | Viewer} and {@link webGLRenderer!WebGLRenderer | WebGLRenderer}
- * - create a {@link viewer!View | View} bound to a canvas
- * - load a binary glTF (`.glb`) file into a {@link scene!SceneModel | SceneModel}
+ * - create a {@link viewing!viewer.Viewer | Viewer} and {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer}
+ * - create a {@link viewing!viewer.View | View} bound to a canvas
+ * - load a binary glTF (`.glb`) file into a {@link model!scene.SceneModel | SceneModel}
  *
  * ```ts
- * import { Scene } from "@xeokit/sdk/scene";
- * import { Data } from "@xeokit/sdk/data";
- * import { Viewer } from "@xeokit/sdk/viewer";
- * import { WebGLRenderer } from "@xeokit/sdk/webGLRenderer";
- * import { ViewController } from "@xeokit/sdk/viewController";
+ * import { Scene } from "@xeokit/sdk/model/scene";
+ * import { Data } from "@xeokit/sdk/model/data";
+ * import { Viewer } from "@xeokit/sdk/viewing/viewer";
+ * import { WebGLRenderer } from "@xeokit/sdk/viewing/webGLRenderer";
+ * import { ViewController } from "@xeokit/sdk/viewing/viewController";
  * import { GLTFLoader } from "@xeokit/sdk/formats/gltf";
  *
  * // 1) Create containers for geometry and optional structural data

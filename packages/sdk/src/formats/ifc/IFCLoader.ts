@@ -4,7 +4,7 @@ import { parse as parse_IFC4 } from "./versions/IFC4/parse";
 import {getInitializedIFCAPI} from "./getInitializedIFCAPI";
 
 /**
- * Loads an IFC file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
+ * Loads an IFC file into a {@link model!scene.SceneModel | SceneModel} and/or a {@link model!data.DataModel | DataModel}.
  *
  * For detailed usage, refer to {@link ifc | @xeokit/sdk/formats/ifc}.
  */

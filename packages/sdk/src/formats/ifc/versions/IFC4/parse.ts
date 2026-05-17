@@ -1,12 +1,12 @@
 import * as WebIFC from "web-ifc";
-import {identityMat4 } from "../../../../math/matrix";
-import type { DataModel } from "../../../../data";
+import {identityMat4 } from "../../../../base/math/matrix";
+import type { DataModel } from "../../../../model/data";
 import type { ModelParseParams } from "../../../ModelParseParams";
-import type { SceneModel } from "../../../../scene";
+import type { SceneModel } from "../../../../model/scene";
 import type { ModelLoadOptions } from "../../../ModelLoadOptions";
 import type { LoaderProgress } from "../../../LoaderProgress";
-import { TrianglesPrimitive } from "../../../../constants";
-import { yieldToHost } from "../../../../utils";
+import { TrianglesPrimitive } from "../../../../base/constants";
+import { yieldToHost } from "../../../../base/utils";
 
 const SCHEMA = "IFC4";
 
@@ -14,7 +14,7 @@ const SCHEMA = "IFC4";
  * Parses an IFC model into scene and data models.
  *
  * Cooperative-yield: every hot loop calls
- * {@link "@xeokit/sdk/utils".yieldToHost | yieldToHost} between
+ * {@link base!utils.yieldToHost | yieldToHost} between
  * items, paced at ≈60 Hz so paint + input are never starved.
  * The same yield points emit `options.onProgress` so a load
  * dialog can show a smooth bar, and check `options.signal` so

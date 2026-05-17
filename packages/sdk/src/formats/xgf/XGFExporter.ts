@@ -3,7 +3,7 @@ import {encode as encode_1_1_0} from "./versions/v2/encode";
 import {ModelExporter} from "../ModelExporter";
 
 /**
- * Exports a {@link scene!SceneModel | SceneModel} to an XGF file.
+ * Exports a {@link model!scene.SceneModel | SceneModel} to an XGF file.
  *
  * For detailed usage, refer to {@link xgf | @xeokit/sdk/formats/xgf}.
  *

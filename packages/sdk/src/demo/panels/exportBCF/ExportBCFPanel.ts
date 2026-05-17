@@ -1,7 +1,7 @@
 /**
  * Floating, draggable BCF Viewpoint export panel.
  *
- * Lists the active {@link View}'s {@link ViewLayer}s as
+ * Lists the active {@link viewing!viewer.View | View}'s {@link ViewLayer}s as
  * checkboxes (with a per-layer object count) so the user can
  * choose which layers' component states the BCF viewpoint
  * captures, exposes the most-used `saveBCFViewpoint` options
@@ -17,9 +17,9 @@
  *
  * @module demo/exportBCF
  */
-import type {View, ViewLayer} from "../../../viewer";
-import type {WebGLRenderer} from "../../../webGLRenderer";
-import {saveBCFViewpoint} from "../../../bcf";
+import type {View, ViewLayer} from "../../../viewing/viewer";
+import type {WebGLRenderer} from "../../../viewing/webGLRenderer";
+import {saveBCFViewpoint} from "../../../interop/bcf";
 import {FloatingPanelBase} from "../floatingPanelBase";
 import {el} from "../../utils/el";
 

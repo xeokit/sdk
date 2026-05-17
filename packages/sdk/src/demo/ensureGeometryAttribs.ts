@@ -1,13 +1,13 @@
-import type {SceneModel} from "../scene";
-import {generateSmoothNormals} from "../scene/generateSmoothNormals";
-import {decompressPositions3WithAABB3, packUVsToFloat32} from "../math/compression";
-import {SDKErrorType, type SDKResult} from "../core";
-import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../constants";
-import type {FloatArrayParam} from "../math";
+import type {SceneModel} from "../model/scene";
+import {generateSmoothNormals} from "../model/scene/generateSmoothNormals";
+import {decompressPositions3WithAABB3, packUVsToFloat32} from "../base/math/compression";
+import {SDKErrorType, type SDKResult} from "../base/core";
+import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../base/constants";
+import type {FloatArrayParam} from "../base/math";
 
 
 /**
- * Returns the id of a {@link SceneGeometry} that satisfies the
+ * Returns the id of a {@link model!scene.SceneGeometry | SceneGeometry} that satisfies the
  * caller's attribute requirements:
  *
  *   - **Smooth normals**: synthesised when the source has none and
@@ -32,7 +32,7 @@ import type {FloatArrayParam} from "../math";
  * already-created sibling and returns its id rather than building a
  * second copy.
  *
- * Use case: callers that re-style {@link "../scene".SceneObject |
+ * Use case: callers that re-style {@link model!scene.SceneObject |
  * SceneObjects} at runtime (`applyIFCMaterials`, `applyHeatMapMaterials`)
  * destroy + recreate the meshes with a new material; if the new
  * material needs attributes the source geometry lacks, this helper

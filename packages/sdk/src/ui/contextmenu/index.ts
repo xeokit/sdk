@@ -1,14 +1,91 @@
 /**
- *  A customizable HTML context menu.
+ * # xeokit Context Menu
+ *
+ * ---
+ *
+ * **Customisable HTML context menu — dynamically configured menu
+ * items, per-item enabled / shown predicates, cascading sub-menus,
+ * and CSS-restylable chrome.**
+ *
+ * ---
  *
  * [<img src="http://xeokit.io/img/docs/ContextMenu/ContextMenu.gif">](https://xeokit.github.io/xeokit-sdk/examples/index.html#ContextMenu_Canvas_TreeViewPlugin_Custom)
  *
- * * A pure JavaScript, lightweight context menu
- * * Dynamically configure menu items
- * * Dynamically enable or disable items
- * * Dynamically show or hide items
- * * Supports cascading sub-menus
- * * Configure custom style with CSS (see examples above)
+ * The `contextmenu` module ships a pure-DOM context menu with a
+ * declarative item-config API. Each item carries a `title`, an
+ * optional `doAction(context)` callback, and optional
+ * `getEnabled(context)` / `getShown(context)` predicates that fire
+ * every time the menu opens, so the same menu can adapt its visible
+ * items to whatever was right-clicked.
+ *
+ * <br>
+ *
+ * ## Shape
+ *
+ * ```mermaid
+ * classDiagram
+ *     direction TB
+ *     class ContextMenu {
+ *       +context     : any
+ *       +enabled     : boolean
+ *       +items       : ContextMenuItemConfig[][]
+ *       +show(x, y)
+ *       +hide()
+ *       +on(event, callback)
+ *       +destroy()
+ *     }
+ *     class ContextMenuConfig {
+ *       +items?           : ContextMenuItemConfig[][]
+ *       +context?         : any
+ *       +enabled?         : boolean
+ *       +hideOnMouseDown? : boolean
+ *       +hideOnAction?    : boolean
+ *       +parentNode?      : Node
+ *       +title?           : string
+ *     }
+ *     class ContextMenuItemConfig {
+ *       +title?      : string
+ *       +getTitle?   : ItemTitleGetter
+ *       +icon?       : string | ItemIconGetter
+ *       +doAction?   : ItemAction
+ *       +doHover?    : ItemAction
+ *       +getEnabled? : ItemStateGetter
+ *       +getShown?   : ItemStateGetter
+ *       +items?      : ContextMenuItemConfig[][]
+ *     }
+ *     ContextMenu ..> ContextMenuConfig : reads
+ *     ContextMenu "1" *-- "*" ContextMenuItemConfig
+ *     ContextMenuItemConfig "1" *-- "*" ContextMenuItemConfig : sub-menu
+ * ```
+ *
+ * <br>
+ *
+ * ## Features
+ *
+ * - **Declarative item config** — group items into nested arrays;
+ *   each inner array becomes a visual section.
+ * - **Per-item predicates** — `getEnabled(context)` and
+ *   `getShown(context)` fire every time the menu opens, so the
+ *   same menu adapts to whichever object was right-clicked.
+ * - **Cascading sub-menus** — an item's own `items: [[…]]`
+ *   creates a nested menu that opens on hover; nests arbitrarily
+ *   deep.
+ * - **Per-item icons** — `icon` accepts a static SVG markup
+ *   string or a `(context) => svg` resolver; markup is dropped
+ *   into the icon column via `innerHTML` and inherits the column's
+ *   text colour through `currentColor`.
+ * - **Per-item hover actions** — `doHover(context)` fires when
+ *   the pointer enters an item, useful for previewing the action
+ *   (e.g. highlight the target object before clicking).
+ * - **CSS-restylable** — every selector is rooted at
+ *   `.xeokit-context-menu`; override colours / typography / spacing
+ *   without touching SDK code.
+ * - **Auto-positioning** — `show(x, y)` repositions the menu when
+ *   it would overflow the viewport, keeping every item visible.
+ * - **Hide-on-action / hide-on-mousedown-outside** — both
+ *   configurable via `ContextMenuConfig`.
+ *
+ * <br>
  *
  * # Installation
  *
@@ -19,7 +96,7 @@
  * # Usage
  *
  * In the example below we'll create a ````ContextMenu```` that pops up whenever we right-click on an object within
- * our {@link Scene}.
+ * our {@link model!scene.Scene | Scene}.
  *
  * First, we'll create the ````ContextMenu````, configuring it with a list of menu items.
  *

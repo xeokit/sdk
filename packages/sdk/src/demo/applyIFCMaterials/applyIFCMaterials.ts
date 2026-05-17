@@ -1,8 +1,8 @@
-import type {SceneModel} from "../../scene";
-import type {DataModel, DataObject} from "../../data";
-import {SDKErrorType, type SDKResult} from "../../core";
-import {LinearEncoding, LinearFilter, sRGBEncoding} from "../../constants";
-import {yieldToHost} from "../../utils";
+import type {SceneModel} from "../../model/scene";
+import type {DataModel, DataObject} from "../../model/data";
+import {SDKErrorType, type SDKResult} from "../../base/core";
+import {LinearEncoding, LinearFilter, sRGBEncoding} from "../../base/constants";
+import {yieldToHost} from "../../base/utils";
 
 import type {LoaderProgress} from "../../formats/LoaderProgress";
 import {ensureGeometryAttribs} from "../ensureGeometryAttribs";

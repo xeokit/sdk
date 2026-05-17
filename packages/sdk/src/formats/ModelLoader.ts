@@ -1,10 +1,10 @@
 
-import {isJSONObject, setYieldIntervalOverride} from "../utils";
+import {isJSONObject, setYieldIntervalOverride} from "../base/utils";
 import {type ModelLoadParams} from "./ModelLoadParams";
 import {type ModelLoaderParams} from "./ModelLoaderParams";
 import {type ModelParser} from "./ModelParser";
 
-import {createFileIO} from '../io/FileIOFactory';
+import {createFileIO} from '../base/io/FileIOFactory';
 import {type ModelLoadOptions} from "./ModelLoadOptions";
 
 const MIN_YIELD_INTERVAL_MS = 16;
@@ -13,7 +13,7 @@ const fileIO = createFileIO();
 
 
 /**
- * Loads a model file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
+ * Loads a model file into a {@link model!scene.SceneModel | SceneModel} and/or a {@link model!data.DataModel | DataModel}.
  */
 export class ModelLoader {
 
@@ -63,7 +63,7 @@ export class ModelLoader {
   }
 
   /**
-   * Loads file data into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
+   * Loads file data into a {@link model!scene.SceneModel | SceneModel} and/or a {@link model!data.DataModel | DataModel}.
    *
    * @param params - The parameters used for loading the file data.
    * @param options - Options for customizing the loading process. These are specific to the Loader subclass.

@@ -30,11 +30,44 @@
  *
  * The loader populates:
  *
- * - a {@link scene!SceneModel | SceneModel} with renderable geometry
- * - a {@link data!DataModel | DataModel} with semantic and structural information
+ * - a {@link model!scene.SceneModel | SceneModel} with renderable geometry
+ * - a {@link model!data.DataModel | DataModel} with semantic and structural information
  *
  * This separation allows applications to visualize large urban models while
  * still querying and analyzing their underlying city objects.
+ *
+ * ---
+ *
+ *
+ * <br>
+ *
+ * ## Shape
+ *
+ * ```mermaid
+ * classDiagram
+ *     direction TB
+ *     class CityJSONLoader {
+ *       +format : "CityJSON"
+ *       +load(params, options?) Promise~void~
+ *     }
+ *     class ModelLoader {
+ *       <<formats>>
+ *     }
+ *     ModelLoader <|-- CityJSONLoader
+ * ```
+ *
+ * <br>
+ *
+ * ## Features
+ *
+ * - **CityJSON 1.1** — the OGC standard for city models;
+ *   buildings, terrain, roads, vegetation.
+ * - **Solid + Surface primitives** — polyhedral solids tessellate
+ *   into TrianglesPrimitive meshes via `earcut`; surface
+ *   collections become `SurfacePrimitive` meshes.
+ * - **Per-feature semantics** — CityJSON `Feature`s become
+ *   {@link model!data.DataObject | DataObjects} with their original
+ *   id + type preserved.
  *
  * ---
  *
@@ -52,11 +85,11 @@
  * including explicit error handling for all xeokit factory calls.
  *
  * ```ts
- * import { Scene } from "@xeokit/sdk/scene";
- * import { Data } from "@xeokit/sdk/data";
- * import { Viewer } from "@xeokit/sdk/viewer";
- * import { WebGLRenderer } from "@xeokit/sdk/webGLRenderer";
- * import { ViewController } from "@xeokit/sdk/viewController";
+ * import { Scene } from "@xeokit/sdk/model/scene";
+ * import { Data } from "@xeokit/sdk/model/data";
+ * import { Viewer } from "@xeokit/sdk/viewing/viewer";
+ * import { WebGLRenderer } from "@xeokit/sdk/viewing/webGLRenderer";
+ * import { ViewController } from "@xeokit/sdk/viewing/viewController";
  * import { CityJSONLoader } from "@xeokit/sdk/formats/cityjson";
  *
  * const handleError = (error: string) => {
@@ -140,7 +173,7 @@
  * ## Notes
  *
  * - CityJSON is well suited for **large-scale urban visualization**.
- * - The resulting {@link data!DataModel | DataModel} exposes city objects and
+ * - The resulting {@link model!data.DataModel | DataModel} exposes city objects and
  *   their attributes for querying and analysis.
  *
  * @module cityjson

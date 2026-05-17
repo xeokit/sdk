@@ -1,9 +1,9 @@
-import {DataModel} from "../../data/DataModel";
+import {DataModel} from "../../model/data/DataModel";
 import {ModelLoader} from "../ModelLoader";
 import {parse as parse_1_0} from "./versions/1_0/parse"
 
 /**
- * Reads {@link DataModelParams | DataModelParams} into a {@link DataModel | DataModel}.
+ * Reads {@link model!data.DataModelParams | DataModelParams} into a {@link model!data.DataModel | DataModel}.
  */
 export class DataModelParamsLoader extends ModelLoader {
 

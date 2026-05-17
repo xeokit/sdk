@@ -1,5 +1,5 @@
-import type {DataModel} from "../data/DataModel";
-import type {SceneModel} from "../scene/SceneModel";
+import type {DataModel} from "../model/data/DataModel";
+import type {SceneModel} from "../model/scene/SceneModel";
 
 /**
  * Parameters for {@link ModelParser}.

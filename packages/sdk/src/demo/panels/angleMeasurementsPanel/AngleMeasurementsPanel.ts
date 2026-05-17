@@ -1,6 +1,6 @@
-import type {View} from "../../../viewer";
+import type {View} from "../../../viewing/viewer";
 import {FloatingPanelBase} from "../floatingPanelBase";
-import {AngleMeasurementsTool} from "../../systems/measurements/angle/AngleMeasurementsTool";
+import {AngleMeasurementsTool} from "../../../tools/measurements/angle/AngleMeasurementsTool";
 import type {AngleMeasurementsPanelParams} from "./AngleMeasurementsPanelParams";
 
 

@@ -1,4 +1,4 @@
-import { type MemoryConfigs } from "../../webGLRenderer";
+import { type MemoryConfigs } from "../../viewing/webGLRenderer";
 import { FloatingPanelFlowHost } from "./FloatingPanelFlowHost";
 
 /**

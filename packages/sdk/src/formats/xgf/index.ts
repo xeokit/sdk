@@ -15,16 +15,72 @@
  * ### Importing XGF Models
  *
  * Use the {@link XGFLoader} class to load XGF files into:
- * - a {@link scene!SceneModel | SceneModel} for geometry and materials
- * - a {@link data!DataModel | DataModel} for semantic data
+ * - a {@link model!scene.SceneModel | SceneModel} for geometry and materials
+ * - a {@link model!data.DataModel | DataModel} for semantic data
  *
  * ### Exporting XGF Models
  *
  * Use the {@link XGFExporter} class to export:
- * - a {@link scene!SceneModel | SceneModel}
- * - a {@link data!DataModel | DataModel}
+ * - a {@link model!scene.SceneModel | SceneModel}
+ * - a {@link model!data.DataModel | DataModel}
  *
  * into XGF file data.
+ *
+ * ---
+ *
+ *
+ * <br>
+ *
+ * ## Shape
+ *
+ * ```mermaid
+ * classDiagram
+ *     direction TB
+ *     class XGFLoader {
+ *       +format : "XGF"
+ *       +versions : ["1.0", "2.0"]
+ *       +load(params, options?) Promise~void~
+ *     }
+ *     class XGFExporter {
+ *       +format : "XGF"
+ *       +write(params, options?) Promise~ArrayBuffer~
+ *     }
+ *     class XGFData_v1 {
+ *       <<wire format>>
+ *     }
+ *     class XGFData_v2 {
+ *       <<wire format>>
+ *     }
+ *     class ModelLoader {
+ *       <<formats>>
+ *     }
+ *     class ModelExporter {
+ *       <<formats>>
+ *     }
+ *     ModelLoader <|-- XGFLoader
+ *     ModelExporter <|-- XGFExporter
+ *     XGFLoader ..> XGFData_v1 : reads
+ *     XGFLoader ..> XGFData_v2 : reads
+ *     XGFExporter ..> XGFData_v2 : writes
+ * ```
+ *
+ * <br>
+ *
+ * ## Features
+ *
+ * - **Compact binary** — xeokit-native geometry format; ~5–10×
+ *   smaller than equivalent glTF, ~10× faster to load.
+ * - **Multi-version** — v1 (legacy) and v2 (current) supported in
+ *   the same loader/exporter pair; `version` parameter selects
+ *   which writer to use.
+ * - **Quantised positions** — vertex positions stored as 16-bit
+ *   integers against per-geometry AABBs; no precision loss for
+ *   typical model scales.
+ * - **Octahedron-encoded normals** — 2-byte normals via oct
+ *   encoding, decoded in the vertex shader.
+ * - **Pairs naturally with DataModel JSON** — geometry chunks in
+ *   `.xgf` + semantic chunks in `.json` form the canonical
+ *   xeokit streamed-model payload.
  *
  * ---
  *
@@ -38,14 +94,14 @@
  *
  * ## Usage
  *
- * Below is an example of loading and displaying an XGF (xeokit Geometry Format) model in a {@link viewer!Viewer | Viewer}:
+ * Below is an example of loading and displaying an XGF (xeokit Geometry Format) model in a {@link viewing!viewer.Viewer | Viewer}:
  *
  * ```ts
- * import { Scene } from "@xeokit/sdk/scene";
- * import { Data } from "@xeokit/sdk/data";
- * import { WebGLRenderer } from "@xeokit/sdk/webGLRenderer";
- * import { Viewer } from "@xeokit/sdk/viewer";
- * import { ViewController } from "@xeokit/sdk/viewController";
+ * import { Scene } from "@xeokit/sdk/model/scene";
+ * import { Data } from "@xeokit/sdk/model/data";
+ * import { WebGLRenderer } from "@xeokit/sdk/viewing/webGLRenderer";
+ * import { Viewer } from "@xeokit/sdk/viewing/viewer";
+ * import { ViewController } from "@xeokit/sdk/viewing/viewController";
  * import { XGFLoader, XGFExporter } from "@xeokit/sdk/formats/xgf";
  *
  * const scene = new Scene();

@@ -31,8 +31,8 @@
  *
  * Use {@link DotBIMLoader} to load `.bim` file data into xeokit:
  *
- * - a {@link scene!SceneModel | SceneModel} receives geometry and materials
- * - a {@link data!DataModel | DataModel} receives semantic metadata
+ * - a {@link model!scene.SceneModel | SceneModel} receives geometry and materials
+ * - a {@link model!data.DataModel | DataModel} receives semantic metadata
  *
  * The loader is **data-driven**: you provide already-parsed JSON, along with target
  * models, and the loader populates them.
@@ -45,10 +45,52 @@
  *
  * You can export:
  *
- * - a {@link scene!SceneModel | SceneModel}
- * - a {@link data!DataModel | DataModel}
+ * - a {@link model!scene.SceneModel | SceneModel}
+ * - a {@link model!data.DataModel | DataModel}
  *
  * into a single `.bim` JSON structure suitable for storage or transfer.
+ *
+ * ---
+ *
+ *
+ * <br>
+ *
+ * ## Shape
+ *
+ * ```mermaid
+ * classDiagram
+ *     direction TB
+ *     class DotBIMLoader {
+ *       +format : "DotBIM"
+ *       +load(params, options?) Promise~void~
+ *     }
+ *     class DotBIMExporter {
+ *       +format : "DotBIM"
+ *       +write(params, options?) Promise~string~
+ *     }
+ *     class ModelLoader {
+ *       <<formats>>
+ *     }
+ *     class ModelExporter {
+ *       <<formats>>
+ *     }
+ *     ModelLoader <|-- DotBIMLoader
+ *     ModelExporter <|-- DotBIMExporter
+ * ```
+ *
+ * <br>
+ *
+ * ## Features
+ *
+ * - **Single-file JSON BIM** — DotBIM ships geometry + semantics
+ *   in one `.bim` file; ideal for small-to-medium BIM exchanges
+ *   that don't justify IFC's complexity.
+ * - **Round-trip** — `DotBIMExporter` writes a SceneModel +
+ *   DataModel back to DotBIM 1.1, preserving element types,
+ *   info dictionaries, and triangle meshes.
+ * - **Per-element info** — every DotBIM element carries an
+ *   `info: {...}` map; the loader writes those keys into the
+ *   matching DataObject's {@link model!data.PropertySet | PropertySets}.
  *
  * ---
  *
@@ -63,14 +105,14 @@
  * ## Example: loading a .BIM model
  *
  * The following example shows the full flow for loading and displaying a `.bim`
- * model in a {@link viewer!Viewer | Viewer}.
+ * model in a {@link viewing!viewer.Viewer | Viewer}.
  *
  * ```ts
- * import { Scene } from "@xeokit/sdk/scene";
- * import { Data } from "@xeokit/sdk/data";
- * import { Viewer } from "@xeokit/sdk/viewer";
- * import { WebGLRenderer } from "@xeokit/sdk/webGLRenderer";
- * import { ViewController } from "@xeokit/sdk/viewController";
+ * import { Scene } from "@xeokit/sdk/model/scene";
+ * import { Data } from "@xeokit/sdk/model/data";
+ * import { Viewer } from "@xeokit/sdk/viewing/viewer";
+ * import { WebGLRenderer } from "@xeokit/sdk/viewing/webGLRenderer";
+ * import { ViewController } from "@xeokit/sdk/viewing/viewController";
  * import { DotBIMLoader } from "@xeokit/sdk/formats/dotbim";
  *
  * // 1) Create core containers for geometry and metadata

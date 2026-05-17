@@ -12,7 +12,7 @@
  * @module demo/toolbar/actions/toggleFirstPerson
  */
 
-import {FirstPersonNavigationMode, OrbitNavigationMode} from "../../../../constants";
+import {FirstPersonNavigationMode, OrbitNavigationMode} from "../../../../base/constants";
 import type {ToolbarActionDescriptor} from "./ToolbarActionDescriptor";
 
 

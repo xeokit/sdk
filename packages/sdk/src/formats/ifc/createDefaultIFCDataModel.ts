@@ -1,7 +1,7 @@
 
-import {type DataModel} from "../../data";
-import {type SceneModel} from "../../scene";
-import {createUUID} from "../../utils";
+import {type DataModel} from "../../model/data";
+import {type SceneModel} from "../../model/scene";
+import {createUUID} from "../../base/utils";
 
 /**
  * Populates a DataModel with a minimal IFC spatial structure and creates

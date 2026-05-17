@@ -1,9 +1,9 @@
 import {ModelLoader } from "../ModelLoader";
 import {parse as parse_1_0} from "./versions/1_0/parse"
-import {SceneModel} from "../../scene/SceneModel";
+import {SceneModel} from "../../model/scene/SceneModel";
 
 /**
- * Reads {@link SceneModelParams | SceneModelParams} into a {@link SceneModel | SceneModel}.
+ * Reads {@link model!scene.SceneModelParams | SceneModelParams} into a {@link model!scene.SceneModel | SceneModel}.
  */
  export class SceneModelParamsLoader extends ModelLoader {
 

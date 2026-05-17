@@ -8,7 +8,7 @@
  */
 
 import type {DemoHelper} from "../../DemoHelper";
-import type {CoordinateSystemParams} from "../../../scene";
+import type {CoordinateSystemParams} from "../../../model/scene";
 import {el} from "../../utils/el";
 import {FloatingPanelBase} from "../floatingPanelBase";
 import {IMPORT_DATA_SETS} from "./IMPORT_DATA_SETS";

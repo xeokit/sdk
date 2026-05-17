@@ -2,7 +2,7 @@
  * Canvas-side **Modify** submenu — scene-level mutators that
  * don't need a specific object pick. Mirrors the entries in
  * {@link createViewObjectModifyGroup} that still make sense
- * without a {@link ViewObject} target.
+ * without a {@link viewing!viewer.ViewObject | ViewObject} target.
  *
  * @module demo/viewObjectContextMenu/submenus/createCanvasModifyGroup
  */

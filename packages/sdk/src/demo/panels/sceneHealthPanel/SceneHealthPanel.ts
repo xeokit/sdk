@@ -41,25 +41,26 @@
  *
  * @module demo/sceneHealthPanel
  */
-import type {Scene, SceneModel} from "../../../scene";
-import type {View} from "../../../viewer";
+import type {Scene, SceneModel} from "../../../model/scene";
+import type {View} from "../../../viewing/viewer";
 import type {DemoHelper} from "../../DemoHelper";
-import type {Inspection} from "../../../sceneModelInspector/Inspection";
-import type {Issue} from "../../../sceneModelInspector/Issue";
-import type {InspectionReport} from "../../../sceneModelInspector/InspectionReport";
-import type {InspectSceneModelParams} from "../../../sceneModelInspector/params/InspectSceneModelParams";
-import type {ApplyFixesResult} from "../../../sceneModelInspector/ApplyFixesResult";
-import {DEFAULT_INSPECTION_REGISTRY} from "../../../sceneModelInspector/DEFAULT_INSPECTION_REGISTRY";
-import {DEFAULT_FIX_REGISTRY} from "../../../sceneModelInspector/DEFAULT_FIX_REGISTRY";
-import {InspectionRegistry} from "../../../sceneModelInspector/InspectionRegistry";
-import {inspectSceneModel} from "../../../sceneModelInspector/inspectSceneModel";
-import {inspectSceneModelAsync} from "../../../sceneModelInspector/async/inspectSceneModelAsync";
-import {applyFixesAsync} from "../../../sceneModelInspector/async/applyFixesAsync";
-import {inspectionReportToJson} from "../../../sceneModelInspector/serializers/inspectionReportToJson";
-import {applyFixesResultToJson} from "../../../sceneModelInspector/serializers/applyFixesResultToJson";
-import {findResourceLabel} from "../../../sceneModelInspector/labels/findResourceLabel";
-import {labelForCode} from "../../../sceneModelInspector/labels/labelForCode";
-import {descriptionForCode} from "../../../sceneModelInspector/labels/descriptionForCode";
+import type {Inspection} from "../../../inspect/sceneModel/Inspection";
+import type {ConfigField} from "../../../inspect/sceneModel/Config";
+import {resolveConfig} from "../../../inspect/sceneModel/Config";
+import type {Issue} from "../../../inspect/sceneModel/Issue";
+import type {InspectionReport} from "../../../inspect/sceneModel/InspectionReport";
+import type {InspectSceneModelParams} from "../../../inspect/sceneModel/params/InspectSceneModelParams";
+import type {ApplyFixesResult} from "../../../inspect/sceneModel/ApplyFixesResult";
+import {DEFAULT_INSPECTION_REGISTRY} from "../../../inspect/sceneModel/DEFAULT_INSPECTION_REGISTRY";
+import {DEFAULT_FIX_REGISTRY} from "../../../inspect/sceneModel/DEFAULT_FIX_REGISTRY";
+import {inspectSceneModel} from "../../../inspect/sceneModel/inspectSceneModel";
+import {inspectSceneModelAsync} from "../../../inspect/sceneModel/async/inspectSceneModelAsync";
+import {applyFixesAsync} from "../../../inspect/sceneModel/async/applyFixesAsync";
+import {inspectionReportToJson} from "../../../inspect/sceneModel/serializers/inspectionReportToJson";
+import {applyFixesResultToJson} from "../../../inspect/sceneModel/serializers/applyFixesResultToJson";
+import {findResourceLabel} from "../../../inspect/sceneModel/labels/findResourceLabel";
+import {labelForCode} from "../../../inspect/sceneModel/labels/labelForCode";
+import {descriptionForCode} from "../../../inspect/sceneModel/labels/descriptionForCode";
 
 
 import {el} from "../../utils/el";
@@ -123,9 +124,24 @@ export interface SceneHealthPanelParams {
   container?: HTMLElement;
 
   /**
-   * Initial inspection params. Each opt-in inspection's flag here
-   * lights up the matching toggle in the Inspections subpanel.
-   * Defaults to all opt-in checks enabled.
+   * Initial inspection-config overrides. Each schema-keyed field
+   * (`checkX`, threshold values, etc.) is folded into the
+   * {@link DEFAULT_INSPECTION_REGISTRY}'s config map at
+   * construction time — same store the per-row toggles and
+   * threshold inputs write through to.
+   *
+   * Application order (last write wins on overlapping keys):
+   *
+   *   1. Panel defaults — every opt-in inspection enabled.
+   *   2. Persisted localStorage overrides from the user's last
+   *      session.
+   *   3. The fields supplied here.
+   *
+   * Note that this writes into the global registry — overrides
+   * leak across any other consumer of the same registry until
+   * the user resets them. For per-call-only overrides, pass them
+   * directly to {@link inspectSceneModel} instead of through
+   * this panel.
    */
   inspectParams?: Partial<InspectSceneModelParams>;
 
@@ -659,6 +675,9 @@ const PANEL_CSS = `
   display: flex;
   flex-direction: column;
   gap: 2px;
+  max-height: 240px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .xkt-sh-panel .xkt-sh-inspection-row {
   display: flex;
@@ -724,6 +743,100 @@ const PANEL_CSS = `
   color: #b88500;
   font-size: 10px;
   font-weight: 600;
+}
+
+/* Per-inspection threshold form. Sits indented under the row's
+ * description so the form belongs visibly to its inspection. The
+ * "●" suffix on the description marks inspections whose stored
+ * overrides differ from the schema defaults. */
+.xkt-sh-panel .xkt-sh-inspection-row.xkt-sh-modified .xkt-sh-inspection-desc::after {
+  content: "  ●";
+  color: #f59e0b;
+  font-size: 11px;
+}
+.xkt-sh-panel .xkt-sh-inspection-row.xkt-sh-opt-in.xkt-sh-modified .xkt-sh-inspection-desc::after {
+  content: "  · opt-in  ●";
+}
+
+/* Chevron button — collapses an inspection's codes + fields form
+ * down to its description. Initial state is collapsed; clicking
+ * the chevron toggles the xkt-sh-collapsed class on the row,
+ * which hides the codes / fields children via the rules below.
+ * Sits between the checkbox and the text column, sized to match
+ * the checkbox so the columns line up. */
+.xkt-sh-panel .xkt-sh-inspection-chevron {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: #888;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(90deg);
+  transition: transform 120ms ease, color 120ms ease;
+}
+.xkt-sh-panel .xkt-sh-inspection-chevron:hover { color: #2d5e8c; }
+.xkt-sh-panel .xkt-sh-inspection-row.xkt-sh-collapsed .xkt-sh-inspection-chevron {
+  transform: rotate(0deg);
+}
+.xkt-sh-panel .xkt-sh-inspection-row.xkt-sh-collapsed .xkt-sh-inspection-codes,
+.xkt-sh-panel .xkt-sh-inspection-row.xkt-sh-collapsed .xkt-sh-inspection-fields {
+  display: none;
+}
+.xkt-sh-panel .xkt-sh-inspection-fields {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 10px;
+  margin-top: 6px;
+  padding: 6px 8px;
+  background: #eef3f8;
+  border-radius: 4px;
+  cursor: default;
+}
+.xkt-sh-panel .xkt-sh-inspection-field-label {
+  font-size: 10.5px;
+  color: #2d3e50;
+  align-self: center;
+}
+.xkt-sh-panel .xkt-sh-inspection-field-description {
+  grid-column: 1 / -1;
+  font-size: 10px;
+  color: #64748b;
+  line-height: 1.35;
+  margin: -2px 0 2px;
+}
+.xkt-sh-panel .xkt-sh-inspection-field-input {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+.xkt-sh-panel .xkt-sh-inspection-field-input input[type="number"] {
+  width: 92px;
+  padding: 2px 6px;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  border: 1px solid #c0d2e0;
+  border-radius: 3px;
+  background: #fff;
+}
+.xkt-sh-panel .xkt-sh-inspection-field-input select {
+  padding: 2px 6px;
+  font: inherit;
+  border: 1px solid #c0d2e0;
+  border-radius: 3px;
+  background: #fff;
+}
+.xkt-sh-panel .xkt-sh-inspection-field-input .xkt-sh-inspection-field-unit {
+  color: #64748b;
+  font-size: 10px;
 }
 
 .xkt-sh-panel .xkt-sh-issues {
@@ -1602,8 +1715,6 @@ export class SceneHealthPanel extends FloatingPanelBase {
   private readonly _view: View | undefined;
   private readonly _demoHelper: DemoHelper | undefined;
 
-  private readonly _inspectParams: Partial<InspectSceneModelParams>;
-
   // Panel + pill DOM roots.
 
   // Element refs that the render functions need to address.
@@ -1640,7 +1751,15 @@ export class SceneHealthPanel extends FloatingPanelBase {
   private _baselineStats: ReadonlyArray<StatRow> | null = null;
   private readonly _fixRunLog: FixRunLogEntry[] = [];
   private readonly _lastFixResultByCode = new Map<string, LastFixOutcome>();
-  private readonly _enabledInspections = new Set<Inspection>();
+  /**
+   * `localStorage` key under which user-tuned inspection overrides
+   * are persisted as the {@link InspectionRegistry.serializeConfigs}
+   * blob. Set to `null` to opt out of persistence (used by tests).
+   */
+  private readonly _overridesStorageKey: string | null = "xkt-sh-inspection-overrides";
+
+  /** Debounce handle for {@link _persistInspectionOverrides}. */
+  private _persistTimer: number | null = null;
 
   // Drag state.
 
@@ -1701,7 +1820,6 @@ export class SceneHealthPanel extends FloatingPanelBase {
     if (initial) this.sceneModel = initial;
     this._view       = params.view;
     this._demoHelper = params.demoHelper;
-    this._inspectParams = {...DEFAULT_INSPECT_PARAMS, ...(params.inspectParams || {})};
 
     // Replace any prior instance bound to the same Scene — an old
     // panel left over from a hot-reload / re-import would
@@ -1712,10 +1830,23 @@ export class SceneHealthPanel extends FloatingPanelBase {
     SceneHealthPanel._instances.set(scene, this);
 
     injectStylesOnce();
+
+    // Seed the inspection registry. Application order is panel
+    // defaults → persisted localStorage → caller-supplied
+    // inspectParams, with `loadConfigs` and `setConfig` both
+    // merging per-inspection so a later layer only overwrites
+    // the keys it actually declares.
+    this._seedRegistryFromParams(DEFAULT_INSPECT_PARAMS);
+    this._loadInspectionOverrides();
+    if (params.inspectParams) {
+      this._seedRegistryFromParams(params.inspectParams);
+      // Persist the caller's seed so the next session sees them
+      // without needing the caller to re-supply.
+      this._persistInspectionOverrides();
+    }
     this._buildDom();
     this._bindChrome();
     this._wireEvents();
-    this._initInspectionToggles();
     this._renderInspectionsPanel();
 
     document.addEventListener("xeokit:inspect-model", this._onInspectModelEvent);
@@ -1809,6 +1940,10 @@ export class SceneHealthPanel extends FloatingPanelBase {
     if (this._backgroundController) {
       this._backgroundController.abort();
       this._backgroundController = null;
+    }
+    if (this._persistTimer !== null) {
+      window.clearTimeout(this._persistTimer);
+      this._persistTimer = null;
     }
     this._detachSceneListeners();
     if (SceneHealthPanel._instances.get(this.scene) === this) {
@@ -1970,7 +2105,6 @@ export class SceneHealthPanel extends FloatingPanelBase {
       try {
         const report = await inspectSceneModelAsync({
           sceneModel: sm,
-          ...this._inspectParams,
           signal: ctrl.signal,
         } as any);
         if (ctrl.signal.aborted || this._destroyed) return;
@@ -2288,8 +2422,7 @@ export class SceneHealthPanel extends FloatingPanelBase {
       this._showProgress({label: `${stageLabel}…`, indeterminate: true});
       return await inspectSceneModelAsync({
         sceneModel: this.sceneModel,
-        registry: this._buildInspectionRegistry(),
-        ...this._inspectParams,
+        registry: DEFAULT_INSPECTION_REGISTRY,
         signal: controller.signal,
         onProgress: ({current, total, label, phase}) => {
           if (phase === "before") {
@@ -2312,12 +2445,10 @@ export class SceneHealthPanel extends FloatingPanelBase {
     const controller = new AbortController();
     this._activeController = controller;
     try {
-      const registry = this._buildInspectionRegistry();
       this._showProgress({label: "Inspecting (pre-fix)…", indeterminate: true});
       const report = await inspectSceneModelAsync({
         sceneModel: this.sceneModel,
-        registry,
-        ...this._inspectParams,
+        registry: DEFAULT_INSPECTION_REGISTRY,
         signal: controller.signal,
         onProgress: ({current, total, label, phase}) => {
           if (phase === "before") {
@@ -2348,8 +2479,7 @@ export class SceneHealthPanel extends FloatingPanelBase {
       this._showProgress({label: "Re-inspecting (post-fix)…", indeterminate: true});
       const after = await inspectSceneModelAsync({
         sceneModel: this.sceneModel,
-        registry,
-        ...this._inspectParams,
+        registry: DEFAULT_INSPECTION_REGISTRY,
         signal: controller.signal,
         onProgress: ({current, total, label, phase}) => {
           if (phase === "before") {
@@ -2364,8 +2494,7 @@ export class SceneHealthPanel extends FloatingPanelBase {
         try {
           const after = inspectSceneModel({
             sceneModel: this.sceneModel,
-            registry: this._buildInspectionRegistry(),
-            ...this._inspectParams,
+            registry: DEFAULT_INSPECTION_REGISTRY,
           });
           this._renderReport(after);
         } catch { /* swallow */ }
@@ -2413,8 +2542,7 @@ export class SceneHealthPanel extends FloatingPanelBase {
       this._showProgress({label: "Re-inspecting (post-fix)…", indeterminate: true});
       const after = await inspectSceneModelAsync({
         sceneModel: this.sceneModel,
-        registry: this._buildInspectionRegistry(),
-        ...this._inspectParams,
+        registry: DEFAULT_INSPECTION_REGISTRY,
         signal: controller.signal,
         onProgress: ({current, total, label, phase}) => {
           if (phase === "before") {
@@ -2438,46 +2566,89 @@ export class SceneHealthPanel extends FloatingPanelBase {
 
   // ── Inspection toggles ────────────────────────────────────────
 
-  private _initInspectionToggles(): void {
-    this._enabledInspections.clear();
-    for (const insp of DEFAULT_INSPECTION_REGISTRY.inspections()) {
-      if (insp.optIn) {
-        if (insp.paramsKey && (this._inspectParams as any)[insp.paramsKey]) {
-          this._enabledInspections.add(insp);
-        }
-      } else {
-        this._enabledInspections.add(insp);
-      }
-    }
+  /**
+   * `true` when the inspection would run under the current
+   * registry + per-call overrides. Mirrors what the orchestrator
+   * computes when it merges
+   * `{...registry.getConfig(insp), ...params}` and passes the
+   * result through `resolveConfig`.
+   *
+   * Inspections without a `config` schema are always enabled —
+   * `resolveConfig(undefined, …)` returns `{enabled: true}`.
+   */
+  private _isInspectionEnabled(insp: Inspection): boolean {
+    return resolveConfig(insp.config, DEFAULT_INSPECTION_REGISTRY.getConfig(insp)).enabled;
   }
 
-  private _buildInspectionRegistry(): InspectionRegistry {
-    const list: Inspection[] = [];
+  /**
+   * Walk a flat `InspectSceneModelParams`-shaped bag and fold any
+   * schema-keyed fields into the registry's stored config. The
+   * same key can appear on multiple inspections' schemas (e.g.
+   * `maxOriginDistance` on both `objectPlacement` and
+   * `farFromOriginGeometries`); each schema-having inspection
+   * that recognises a key picks that key up.
+   *
+   * Unrecognised fields are silently ignored — non-schema params
+   * like `signal` / `onProgress` have no slot in the registry.
+   */
+  private _seedRegistryFromParams(bag: Partial<InspectSceneModelParams>): void {
+    const flat = bag as Record<string, unknown>;
     for (const insp of DEFAULT_INSPECTION_REGISTRY.inspections()) {
-      if (this._enabledInspections.has(insp)) list.push(insp);
+      if (!insp.config) continue;
+      const overrides: Record<string, unknown> = {};
+      if (insp.config.enabled && insp.config.enabled.key in flat) {
+        overrides[insp.config.enabled.key] = flat[insp.config.enabled.key];
+      }
+      for (const f of insp.config.fields ?? []) {
+        if (f.key in flat) overrides[f.key] = flat[f.key];
+      }
+      if (Object.keys(overrides).length > 0) {
+        DEFAULT_INSPECTION_REGISTRY.setConfig(insp, overrides);
+      }
     }
-    return new InspectionRegistry(list);
   }
 
   private _renderInspectionsPanel(): void {
     const all = Array.from(DEFAULT_INSPECTION_REGISTRY.inspections());
     let on = 0;
-    for (const insp of all) if (this._enabledInspections.has(insp)) on++;
+    for (const insp of all) if (this._isInspectionEnabled(insp)) on++;
     this._inspectionsCount.textContent = `${on} / ${all.length}`;
 
     this._inspectionsBody.innerHTML = "";
     for (const insp of all) {
-      const row = el("label", "xkt-sh-inspection-row" + (insp.optIn ? " xkt-sh-opt-in" : ""));
+      // Each inspection row defaults to collapsed — only the
+      // description shows. Clicking the chevron expands to reveal
+      // the inspection codes and the threshold-fields form.
+      const classes = ["xkt-sh-inspection-row", "xkt-sh-collapsed"];
+      if (insp.optIn) classes.push("xkt-sh-opt-in");
+      if (this._inspectionHasOverrides(insp)) classes.push("xkt-sh-modified");
+      const row = el("label", classes.join(" "));
       const cb = el("input") as HTMLInputElement;
       cb.type = "checkbox";
-      cb.checked = this._enabledInspections.has(insp);
+      cb.checked = this._isInspectionEnabled(insp);
       cb.addEventListener("change", () => {
-        if (cb.checked) this._enabledInspections.add(insp);
-        else            this._enabledInspections.delete(insp);
-        if (insp.paramsKey) (this._inspectParams as any)[insp.paramsKey] = cb.checked;
+        if (insp.config?.enabled) {
+          DEFAULT_INSPECTION_REGISTRY.setConfig(insp, {[insp.config.enabled.key]: cb.checked});
+          this._persistInspectionOverrides();
+        }
         void this._reInspectAfterToggle();
       });
       row.appendChild(cb);
+
+      // Chevron toggles collapsed state. preventDefault on click
+      // stops the surrounding `<label>` from flipping the
+      // checkbox; stopPropagation belt-and-braces against any
+      // future row-level click handlers.
+      const chevron = el("button", "xkt-sh-inspection-chevron", {textContent: "›"}) as HTMLButtonElement;
+      chevron.type = "button";
+      chevron.setAttribute("aria-label", "Toggle inspection details");
+      chevron.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        row.classList.toggle("xkt-sh-collapsed");
+      });
+      row.appendChild(chevron);
+
       const text = el("span", "xkt-sh-inspection-text");
       const desc = el("span", "xkt-sh-inspection-desc", {textContent: insp.description});
       text.appendChild(desc);
@@ -2491,15 +2662,157 @@ export class SceneHealthPanel extends FloatingPanelBase {
         codes.appendChild(line);
       }
       text.appendChild(codes);
+
+      // Threshold form — one row per non-`enabled` schema field.
+      // Inspections without `config.fields` render nothing extra,
+      // so always-run / opt-in-only inspections look the same as
+      // before.
+      const fields = insp.config?.fields ?? [];
+      if (fields.length > 0) {
+        const form = el("div", "xkt-sh-inspection-fields");
+        // Stop label-click → checkbox propagation so the user can
+        // interact with form controls without flipping the
+        // inspection on/off.
+        form.addEventListener("click", (ev) => ev.preventDefault());
+        for (const f of fields) {
+          this._appendInspectionField(form, insp, f, row);
+        }
+        text.appendChild(form);
+      }
+
       row.appendChild(text);
       this._inspectionsBody.appendChild(row);
+    }
+  }
+
+
+  /**
+   * Render one input control for a non-`enabled` schema field on
+   * an inspection. Commits write through to
+   * {@link DEFAULT_INSPECTION_REGISTRY} so the orchestrator's
+   * merge layer (`schema-default < registry-stored < per-call`)
+   * picks them up on the next pass, then debounce-persist + kick a
+   * re-inspect.
+   */
+  private _appendInspectionField(
+    host: HTMLElement,
+    insp: Inspection,
+    field: ConfigField,
+    row: HTMLElement,
+  ): void {
+    const stored = DEFAULT_INSPECTION_REGISTRY.getConfig(insp);
+    const labelEl = el("span", "xkt-sh-inspection-field-label", {textContent: field.label});
+    const inputWrap = el("span", "xkt-sh-inspection-field-input");
+
+    const commit = (value: boolean | number | string): void => {
+      DEFAULT_INSPECTION_REGISTRY.setConfig(insp, {[field.key]: value});
+      row.classList.toggle("xkt-sh-modified", this._inspectionHasOverrides(insp));
+      this._persistInspectionOverrides();
+      void this._reInspectAfterToggle();
+    };
+
+    if (field.kind === "number") {
+      const input = document.createElement("input");
+      input.type = "number";
+      input.value = String(typeof stored?.[field.key] === "number" ? stored![field.key] : field.default);
+      if (field.min  !== undefined) input.min  = String(field.min);
+      if (field.max  !== undefined) input.max  = String(field.max);
+      if (field.step !== undefined) input.step = String(field.step);
+      // Eat clicks so they don't bubble to the row's <label> and
+      // accidentally toggle the inspection's enabled state.
+      input.addEventListener("click", (ev) => ev.stopPropagation());
+      input.addEventListener("change", () => {
+        const n = parseFloat(input.value);
+        if (!Number.isFinite(n)) {
+          const cur = DEFAULT_INSPECTION_REGISTRY.getConfig(insp);
+          input.value = String(typeof cur?.[field.key] === "number" ? cur![field.key] : field.default);
+          return;
+        }
+        commit(n);
+      });
+      inputWrap.appendChild(input);
+      if (field.unit) {
+        const unit = el("span", "xkt-sh-inspection-field-unit", {textContent: field.unit});
+        inputWrap.appendChild(unit);
+      }
+    } else if (field.kind === "select") {
+      const select = document.createElement("select");
+      for (const opt of field.options) {
+        const o = document.createElement("option");
+        o.value = opt.value;
+        o.textContent = opt.label;
+        select.appendChild(o);
+      }
+      const initial = stored?.[field.key];
+      select.value = (typeof initial === "string" && field.options.some(o => o.value === initial))
+        ? initial : field.default;
+      select.addEventListener("click", (ev) => ev.stopPropagation());
+      select.addEventListener("change", () => commit(select.value));
+      inputWrap.appendChild(select);
+    } else {
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      const initial = stored?.[field.key];
+      cb.checked = typeof initial === "boolean" ? initial : field.default;
+      cb.addEventListener("click", (ev) => ev.stopPropagation());
+      cb.addEventListener("change", () => commit(cb.checked));
+      inputWrap.appendChild(cb);
+    }
+
+    if (field.description) {
+      const desc = el("span", "xkt-sh-inspection-field-description", {textContent: field.description});
+      host.appendChild(desc);
+    }
+    host.appendChild(labelEl);
+    host.appendChild(inputWrap);
+  }
+
+  /**
+   * `true` when at least one schema-keyed override is currently
+   * stored on the registry for this inspection. Drives the "●"
+   * marker on the row.
+   */
+  private _inspectionHasOverrides(insp: Inspection): boolean {
+    const o = DEFAULT_INSPECTION_REGISTRY.getConfig(insp);
+    return !!o && Object.keys(o).length > 0;
+  }
+
+  /**
+   * Debounce stored-override writes to `localStorage`. Every
+   * threshold tweak fires a `change`; coalescing them into a
+   * single flush ~200 ms after the last edit keeps the call rate
+   * down to once per tweak-burst.
+   */
+  private _persistInspectionOverrides(): void {
+    if (this._overridesStorageKey === null) return;
+    if (this._persistTimer !== null) window.clearTimeout(this._persistTimer);
+    this._persistTimer = window.setTimeout(() => {
+      this._persistTimer = null;
+      try {
+        const blob = DEFAULT_INSPECTION_REGISTRY.serializeConfigs();
+        window.localStorage.setItem(this._overridesStorageKey!, JSON.stringify(blob));
+      } catch {
+        // Quota / disabled storage — keep in-memory state.
+      }
+    }, 200);
+  }
+
+  private _loadInspectionOverrides(): void {
+    if (this._overridesStorageKey === null) return;
+    try {
+      const raw = window.localStorage.getItem(this._overridesStorageKey);
+      if (!raw) return;
+      const blob = JSON.parse(raw) as Record<string, Record<string, unknown>>;
+      DEFAULT_INSPECTION_REGISTRY.loadConfigs(blob);
+    } catch {
+      // Corrupted blob — leave registry untouched.
     }
   }
 
   private async _reInspectAfterToggle(): Promise<void> {
     const all = Array.from(DEFAULT_INSPECTION_REGISTRY.inspections());
     let on = 0;
-    for (const insp of all) if (this._enabledInspections.has(insp)) on++;
+    for (const insp of all) if (this._isInspectionEnabled(insp)) on++;
     this._inspectionsCount.textContent = `${on} / ${all.length}`;
     const report = await this._runInspect("Re-inspecting");
     if (report) this._renderReport(report);
@@ -2507,10 +2820,11 @@ export class SceneHealthPanel extends FloatingPanelBase {
 
   private _setAllInspectionsEnabled(enabled: boolean): void {
     for (const insp of DEFAULT_INSPECTION_REGISTRY.inspections()) {
-      if (enabled) this._enabledInspections.add(insp);
-      else         this._enabledInspections.delete(insp);
-      if (insp.paramsKey) (this._inspectParams as any)[insp.paramsKey] = enabled;
+      if (insp.config?.enabled) {
+        DEFAULT_INSPECTION_REGISTRY.setConfig(insp, {[insp.config.enabled.key]: enabled});
+      }
     }
+    this._persistInspectionOverrides();
     this._renderInspectionsPanel();
     void this._reInspectAfterToggle();
   }

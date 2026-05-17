@@ -1,8 +1,8 @@
-import type {DataModelParams, RelationshipParams} from "../../data";
+import type {DataModelParams, RelationshipParams} from "../../model/data";
 import type {MetaModelParams} from "./MetaModelParams";
 
 /***
- * Converts a {@link metamodel!MetaModelParams | MetaModelParams} to a {@link data!DataModelParams | DataModelParams}.
+ * Converts a {@link formats!metamodel.MetaModelParams | MetaModelParams} to a {@link model!data.DataModelParams | DataModelParams}.
  *
  * See {@link "metamodel" | @xeokit/sdk/metamodel} for usage.
  */

@@ -1,7 +1,7 @@
 import type {ModelEncodeParams} from "../../../ModelEncodeParams";
 import {ChunkWriter} from "./chunkWriter";
 import {RVMPrimitive} from "./RVMPrimitive";
-import {yieldToHost} from "../../../../utils";
+import {yieldToHost} from "../../../../base/utils";
 import type {LoaderProgress} from "../../../LoaderProgress";
 
 /**

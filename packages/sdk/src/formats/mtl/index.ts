@@ -1,16 +1,16 @@
 /**
  * <img style="padding:0; padding-top:20px; padding-bottom:30px; height:130px;"
- *      src="https://xeokit.github.io/sdk/docs/assets/oBJLogo.svg"/>
+ *      src="https://xeokit.github.io/sdk/docs/assets/obj_logo.png"/>
  *
  * # mtl — Wavefront MTL Loader
  *
  * Loads {@link https://en.wikipedia.org/wiki/Wavefront_.obj_file#Material_template_library | Wavefront MTL}
- * files into a {@link scene!SceneModel | SceneModel}.
+ * files into a {@link model!scene.SceneModel | SceneModel}.
  *
  * ## Overview
  *
- * `MTLLoader` parses **MTL** files and creates {@link scene!SceneMaterial | SceneMaterials}
- * within a {@link scene!SceneModel}.
+ * `MTLLoader` parses **MTL** files and creates {@link model!scene.SceneMaterial | SceneMaterials}
+ * within a {@link model!scene.SceneModel | SceneModel}.
  *
  * MTL files define surface appearance for OBJ geometry, including:
  *
@@ -18,7 +18,46 @@
  * - texture maps (eg. diffuse maps)
  * - transparency and illumination models
  *
- * This loader is typically used alongside an {@link OBJLoader} that references the same materials.
+ * This loader is typically used alongside an {@link formats!obj.OBJLoader | OBJLoader} that references the same materials.
+ *
+ * ---
+ *
+ *
+ * <br>
+ *
+ * ## Shape
+ *
+ * ```mermaid
+ * classDiagram
+ *     direction TB
+ *     class MTLLoader {
+ *       +format : "MTL"
+ *       +load(params, options?) Promise~void~
+ *     }
+ *     class MTLExporter {
+ *       +format : "MTL"
+ *       +write(params, options?) Promise~string~
+ *     }
+ *     class ModelLoader {
+ *       <<formats>>
+ *     }
+ *     class ModelExporter {
+ *       <<formats>>
+ *     }
+ *     ModelLoader <|-- MTLLoader
+ *     ModelExporter <|-- MTLExporter
+ * ```
+ *
+ * <br>
+ *
+ * ## Features
+ *
+ * - **Wavefront MTL** — material companion to {@link formats!obj | OBJ}.
+ * - **Diffuse + ambient + specular** — classic Phong material
+ *   parameters mapped to PBR equivalents in
+ *   {@link model!scene.SceneMaterial | SceneMaterial}.
+ * - **Texture map support** — `map_Kd`, `map_Ks`, `map_Bump`, etc.
+ *   loaded into matching {@link model!scene.SceneTexture | SceneTextures}.
  *
  * ---
  *
@@ -33,10 +72,10 @@
  * ## Example: loading an MTL file
  *
  * ```ts
- * import { Scene } from "@xeokit/sdk/scene";
- * import { Viewer } from "@xeokit/sdk/viewer";
- * import { WebGLRenderer } from "@xeokit/sdk/webGLRenderer";
- * import { ViewController } from "@xeokit/sdk/viewController";
+ * import { Scene } from "@xeokit/sdk/model/scene";
+ * import { Viewer } from "@xeokit/sdk/viewing/viewer";
+ * import { WebGLRenderer } from "@xeokit/sdk/viewing/webGLRenderer";
+ * import { ViewController } from "@xeokit/sdk/viewing/viewController";
  * import { MTLLoader } from "@xeokit/sdk/formats/mtl";
  *
  * const handleError = (error: string) => {
@@ -101,7 +140,7 @@
  *
  * - MTL files define **materials only**, not geometry.
  * - Typically used together with OBJ loading workflows.
- * - Materials are attached to the provided {@link scene!SceneModel | SceneModel}.
+ * - Materials are attached to the provided {@link model!scene.SceneModel | SceneModel}.
  *
  * @module mtl
  */

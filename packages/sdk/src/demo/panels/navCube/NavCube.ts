@@ -1,4 +1,4 @@
-import type {View} from "../../../viewer";
+import type {View} from "../../../viewing/viewer";
 import type {NavCubeParams} from "./NavCubeParams";
 import {el} from "../../utils/el";
 import {FloatingPanelBase} from "../floatingPanelBase";
@@ -225,6 +225,7 @@ export class NavCube extends FloatingPanelBase {
       container:   params.container,
       storageKey:  "xkt-nc-panel",
       classPrefix: "xkt-nc",
+      resizable:   false, // wraps a fixed-size WebGL canvas
     });
 
     this._flight = params.cameraFlight ?? null;
@@ -372,7 +373,7 @@ export class NavCube extends FloatingPanelBase {
    * (TOP face). CSS X/Y/Z inside the cube DOM map directly to world
    * X/Y/Z; the sync matrix handles the world→screen rotation.
    *
-   * Why each face has a {@code <span>} child with {@code scaleX(-1)}:
+   * Why each face has a `<span>` child with `scaleX(-1)`:
    * CSS uses Y-down for text layout but the cube lives in a Z-up
    * world, so the rotation that places a face with its outward
    * normal facing the canonical-view camera also reflects text
@@ -439,7 +440,7 @@ export class NavCube extends FloatingPanelBase {
    *
    * Each click region sits flush against a face plane just inside
    * the cube edge, so face clicks still register up to the very
-   * corner — only the {@code t}-pixel rim along each edge / corner
+   * corner — only the `t`-pixel rim along each edge / corner
    * goes to the diagonal targets.
    */
   private _buildEdgesAndCorners(): void {

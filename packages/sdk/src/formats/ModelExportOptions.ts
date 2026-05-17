@@ -1,9 +1,9 @@
-import {type CoordinateSystemParams} from "../scene";
+import {type CoordinateSystemParams} from "../model/scene";
 import type {LoaderProgress} from "./LoaderProgress";
 
 /**
- * Options for customizing the export process when exporting a {@link scene!SceneModel | SceneModel}
- * and/or a {@link data!DataModel | DataModel} to a file.
+ * Options for customizing the export process when exporting a {@link model!scene.SceneModel | SceneModel}
+ * and/or a {@link model!data.DataModel | DataModel} to a file.
  */
 export type ModelExportOptions = {
 
@@ -26,7 +26,7 @@ export type ModelExportOptions = {
    * Optional progress callback. Same contract as
    * `ModelLoadOptions.onProgress` — the exporter fires this
    * from inside its hot loops at ≈60 Hz, paced by the same
-   * {@link "@xeokit/sdk/utils".yieldToHost | yieldToHost}
+   * {@link base!utils.yieldToHost | yieldToHost}
    * interval that keeps the main thread responsive.
    *
    * Exporters may reuse a single object literal across emits

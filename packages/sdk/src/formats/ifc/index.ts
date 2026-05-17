@@ -23,8 +23,47 @@
  *
  * Use {@link IFCLoader} to load an IFC file into:
  *
- * - a {@link scene!SceneModel | SceneModel} for geometry and materials
- * - a {@link data!DataModel | DataModel} for IFC semantics and relationships
+ * - a {@link model!scene.SceneModel | SceneModel} for geometry and materials
+ * - a {@link model!data.DataModel | DataModel} for IFC semantics and relationships
+ *
+ * <br>
+ *
+ * ## Shape
+ *
+ * ```mermaid
+ * classDiagram
+ *     direction TB
+ *     class IFCLoader {
+ *       +format / versions / fileDataType
+ *       +load(params, options?) Promise~void~
+ *     }
+ *     class ifctypes_4_0_2_1 {
+ *       <<sub-module>>
+ *       IFC4 ObjectType / RelationshipType id constants
+ *     }
+ *     class ModelLoader {
+ *       <<formats>>
+ *     }
+ *     ModelLoader <|-- IFCLoader
+ *     IFCLoader ..> ifctypes_4_0_2_1 : uses
+ * ```
+ *
+ * <br>
+ *
+ * ## Features
+ *
+ * - **IFC2x3 + IFC4 + IFC4x3** — multi-version parser; auto-detects
+ *   the schema from the `FILE_SCHEMA(...)` header.
+ * - **Geometry + semantics** — fills a SceneModel with implicit
+ *   geometry (extrusions, sweeps, profiles) tessellated into
+ *   triangle meshes, and a DataModel with the IFC entity graph
+ *   (IfcProject → IfcSite → IfcBuilding → IfcBuildingStorey → …).
+ * - **Stable type ids** — IFC type constants are exported from
+ *   `ifctypes_*` sub-modules so application code references them
+ *   by symbol instead of magic strings.
+ * - **Property-set passthrough** — every IfcPropertySet attached
+ *   to an IfcObject becomes a {@link model!data.PropertySet | PropertySet}
+ *   on the matching DataObject.
  *
  * ---
  *
@@ -39,11 +78,11 @@
  * ## Example: loading an IFC model (with error checking)
  *
  * ```ts
- * import { Scene } from "@xeokit/sdk/scene";
- * import { Data } from "@xeokit/sdk/data";
- * import { Viewer } from "@xeokit/sdk/viewer";
- * import { WebGLRenderer } from "@xeokit/sdk/webGLRenderer";
- * import { ViewController } from "@xeokit/sdk/viewController";
+ * import { Scene } from "@xeokit/sdk/model/scene";
+ * import { Data } from "@xeokit/sdk/model/data";
+ * import { Viewer } from "@xeokit/sdk/viewing/viewer";
+ * import { WebGLRenderer } from "@xeokit/sdk/viewing/webGLRenderer";
+ * import { ViewController } from "@xeokit/sdk/viewing/viewController";
  * import { IFCLoader } from "@xeokit/sdk/formats/ifc";
  *
  * // 1) Create containers for geometry and IFC semantics
@@ -114,7 +153,7 @@
  *
  * - Always check `result.ok === false` when calling xeokit factory methods.
  * - Clean up partially-created models on failure to avoid leaking state.
- * - The resulting {@link data!DataModel | DataModel} exposes full IFC entities
+ * - The resulting {@link model!data.DataModel | DataModel} exposes full IFC entities
  *   and relationships for querying and analysis.
  *
  * @module ifc

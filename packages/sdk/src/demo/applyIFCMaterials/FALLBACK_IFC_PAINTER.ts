@@ -1,4 +1,4 @@
-import {paintConcrete} from "../../procgen/paintMaterials";
+import {paintConcrete} from "../../model/procgen/paintMaterials";
 
 import type {IfcPainterEntry} from "./IfcPainterEntry";
 

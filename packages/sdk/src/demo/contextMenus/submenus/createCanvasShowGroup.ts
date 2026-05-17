@@ -1,7 +1,7 @@
 /**
  * Canvas-side counterpart of {@link createViewObjectShowGroup} —
  * scene-wide resets only since there's no specific
- * {@link ViewObject} to act on.
+ * {@link viewing!viewer.ViewObject | ViewObject} to act on.
  *
  * @module demo/viewObjectContextMenu/submenus/createCanvasShowGroup
  */

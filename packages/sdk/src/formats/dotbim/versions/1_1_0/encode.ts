@@ -1,10 +1,10 @@
-import {createVec3Float64, createVec4Float64} from "../../../../math/vector";
-import {createMat4Float64,  decomposeMat4, mulMat4} from "../../../../math/matrix";
+import {createVec3Float64, createVec4Float64} from "../../../../base/math/vector";
+import {createMat4Float64,  decomposeMat4, mulMat4} from "../../../../base/math/matrix";
 
-import {decompressPoint3WithAABB3} from "../../../../math/compression";
+import {decompressPoint3WithAABB3} from "../../../../base/math/compression";
 import type {ModelEncodeParams} from "../../../ModelEncodeParams";
-import {createCoordinateSystemTransform} from "../../../../scene";
-import {yieldToHost} from "../../../../utils";
+import {createCoordinateSystemTransform} from "../../../../model/scene";
+import {yieldToHost} from "../../../../base/utils";
 import type {LoaderProgress} from "../../../LoaderProgress";
 
 const tempVec3a = createVec3Float64();

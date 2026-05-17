@@ -1,7 +1,7 @@
-import {createVec3Float64, type Vec3} from "../math/vector";
-import {Data, DataModel} from "../data";
-import { Scene, SceneModel} from "../scene";
-import {createUUID} from "../utils";
+import {createVec3Float64, type Vec3} from "../base/math/vector";
+import {Data, DataModel} from "../model/data";
+import { Scene, SceneModel} from "../model/scene";
+import {createUUID} from "../base/utils";
 import {IFCLoader} from "../formats/ifc";
 
 /**

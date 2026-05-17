@@ -21,7 +21,7 @@
  *
  * @module demo/toolbar
  */
-import type {Viewer, View} from "../../../viewer";
+import type {Viewer, View} from "../../../viewing/viewer";
 import type {DemoHelper} from "../../DemoHelper";
 import {ModelsPanel} from "../modelsPanel/ModelsPanel";
 import {NavCube} from "../navCube/NavCube";
@@ -41,13 +41,14 @@ import {EventsPanel} from "../eventsPanel/EventsPanel";
 import {TasksPanel} from "../tasksPanel/TasksPanel";
 import {ShadersPanel} from "../shadersPanel/ShadersPanel";
 import {DataTexturesPanel} from "../dataTexturesPanel/DataTexturesPanel";
-import {BluePrintsPanel} from "../blueprints/BluePrintsPanel";
-import {DistanceMeasurementTool} from "../../systems/measurements/distance/DistanceMeasurementTool";
-import {AngleMeasurementsTool} from "../../systems/measurements/angle/AngleMeasurementsTool";
+import {DrawingsPanel} from "../drawings/DrawingsPanel";
+import {DistanceMeasurementTool} from "../../../tools/measurements/distance/DistanceMeasurementTool";
+import {AngleMeasurementsTool} from "../../../tools/measurements/angle/AngleMeasurementsTool";
 import {DistanceMeasurementsPanel} from "../distanceMeasurementsPanel/DistanceMeasurementsPanel";
 import {AngleMeasurementsPanel} from "../angleMeasurementsPanel/AngleMeasurementsPanel";
-import {FirstPersonNavigationMode} from "../../../constants";
-import type {ViewController} from "../../../viewController";
+import {TransformControls} from "../../../viewing/transformControls";
+import {FirstPersonNavigationMode} from "../../../base/constants";
+import type {ViewController} from "../../../viewing/viewController";
 
 
 import {el} from "../../utils/el";
@@ -68,7 +69,10 @@ export type ToolbarToolMode =
   | "select"
   | "marquee"
   | "measureDistance"
-  | "measureAngle";
+  | "measureAngle"
+  | "transformTranslate"
+  | "transformRotate"
+  | "transformScale";
 
 /**
  * Stable ids for the toolbar's actions, fired through the
@@ -174,10 +178,14 @@ const TOOLBAR_CSS = `
   top: 17px;
   left: 50%;
   transform: translateX(-50%);
+  /* Two rows of captioned groups, stacked vertically. Inner
+   * .xkt-tb-row divs hold each row's groups; the toolbar itself
+   * is now a column container rather than a single flex row. */
   display: flex;
-  align-items: center;
-  gap: 0;
-  padding: 6px 8px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  padding: 6px 36px 8px 8px;
   background: rgba(255, 255, 255, 0.97);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
@@ -194,23 +202,51 @@ const TOOLBAR_CSS = `
 .xkt-tb-toolbar.xkt-tb-dragging { cursor: grabbing; }
 .xkt-tb-toolbar[hidden] { display: none; }
 
+/* One row of captioned groups. The toolbar holds two of these. */
+.xkt-tb-toolbar .xkt-tb-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+/* A group — its caption + button strip stacked. */
 .xkt-tb-toolbar .xkt-tb-group {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 3px;
+  padding: 0 4px;
+}
+
+/* The "Inspect" group on row 2 sits flush right, pushed there by
+ * an auto-margin so close button + group hug the right edge. */
+.xkt-tb-toolbar .xkt-tb-group-end {
+  margin-left: auto;
+}
+
+/* Mini section caption above each group's button strip. */
+.xkt-tb-toolbar .xkt-tb-group-title {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #6c8194;
+  line-height: 1;
+  padding: 0 2px;
+}
+
+/* Horizontal button strip within a group. */
+.xkt-tb-toolbar .xkt-tb-group-btns {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 0 6px;
 }
-/* Final group, sat at the right end of the toolbar (just before the close
- * button). The extra left padding gives the button a touch of breathing room
- * after the separator that precedes it. */
-.xkt-tb-toolbar .xkt-tb-group-end {
-  padding-left: 10px;
-}
+
+/* Separators retained as a class for backward compat with any
+ * external CSS selectors, but the captioned layout no longer
+ * needs vertical dividers — the section labels do the work. */
 .xkt-tb-toolbar .xkt-tb-sep {
-  width: 1px;
-  align-self: stretch;
-  background: #ececec;
-  margin: 4px 0;
+  display: none;
 }
 
 .xkt-tb-toolbar .xkt-tb-btn {
@@ -255,7 +291,11 @@ const TOOLBAR_CSS = `
 }
 
 .xkt-tb-toolbar .xkt-tb-close {
-  margin-left: 6px;
+  /* Anchored to the toolbar's top-right corner so it doesn't
+   * push the last group around when the row contents change. */
+  position: absolute;
+  top: 6px;
+  right: 6px;
   width: 24px;
   height: 24px;
   padding: 0;
@@ -492,6 +532,16 @@ export class Toolbar extends FloatingPanelBase {
   private _objectModeClick: ((e: MouseEvent) => void) | null = null;
   private _objectModeCanvas: HTMLElement | null = null;
 
+  /**
+   * Click handler installed on the active View's canvas while one
+   * of the transform tool modes (Translate / Rotate / Scale) is
+   * active. The handler picks the clicked object and attaches the
+   * gizmo to it. Held so {@link _applyTransformMode} can detach it
+   * on transform-mode exit.
+   */
+  private _transformModeClick: ((e: MouseEvent) => void) | null = null;
+  private _transformModeCanvas: HTMLElement | null = null;
+
   // Lifecycle state.
 
   // Drag state.
@@ -504,6 +554,7 @@ export class Toolbar extends FloatingPanelBase {
       container:   params.container,
       storageKey:  params.storageKey || "xkt-tb-toolbar",
       classPrefix: "xkt-tb",
+      resizable:   false, // horizontal icon strip; resize has no useful meaning
     });
     this.viewer = params.viewer;
     this.demoHelper = params.demoHelper;
@@ -590,6 +641,7 @@ export class Toolbar extends FloatingPanelBase {
     // Per-button pressed state for the tool-mode buttons.
     const tracked: ToolbarToolMode[] = [
       "hide", "select", "marquee", "measureDistance", "measureAngle",
+      "transformTranslate", "transformRotate", "transformScale",
     ];
     for (const m of tracked) {
       const btn = this._btns[m as keyof typeof this._btns];
@@ -624,6 +676,10 @@ export class Toolbar extends FloatingPanelBase {
     // Drive the canvas click handler for object pick-driven modes.
     this._applyObjectMode(prev, mode);
 
+    // Drive the TransformControls attach / mode transitions for the
+    // transform-mode cluster (Translate / Rotate / Scale).
+    this._applyTransformMode(prev, mode);
+
     if (this._onAction) {
       this._onAction("toolModeChanged", {toolbar: this, viewer: this.viewer, mode});
     }
@@ -650,109 +706,116 @@ export class Toolbar extends FloatingPanelBase {
     this._panel  = this._toolbar;
     this._header = this._toolbar;
 
-    // ── Group 0 — Files menu (Import, Export)
-    const g0 = el("div", "xkt-tb-group");
-    g0.appendChild(this._mkFilesMenuBtn());
-    this._toolbar.appendChild(g0);
+    // Two captioned rows: row 1 holds Files / Panels / Camera,
+    // row 2 holds Tools / Transform / Measure / Inspect. Each
+    // group is a vertical stack of its caption + button strip;
+    // the rows are independent flex containers so the layout is
+    // predictable on every screen width — no responsive wrap.
+    const row1 = el("div", "xkt-tb-row");
+    const row2 = el("div", "xkt-tb-row");
+    this._toolbar.appendChild(row1);
+    this._toolbar.appendChild(row2);
 
-    this._toolbar.appendChild(el("div", "xkt-tb-sep"));
+    // ── Row 1 — Files · Panels · Camera ────────────────────────
+    const gFiles = this._mkGroup("Files");
+    gFiles.btns.appendChild(this._mkFilesMenuBtn());
+    row1.appendChild(gFiles.wrap);
 
-    // ── Group 1 — Panels (Explorer, Views)
-    const g1 = el("div", "xkt-tb-group");
-    g1.appendChild(this._mkBtn({
+    const gPanels = this._mkGroup("Panels");
+    gPanels.btns.appendChild(this._mkBtn({
       action: "toggleExplorer",
       title:  "Toggle Explorer",
       svg:    ICONS.explorer,
       toggle: true,
     }));
-    g1.appendChild(this._mkBtn({
+    gPanels.btns.appendChild(this._mkBtn({
       action: "toggleModels",
       title:  "Toggle Models Panel",
       svg:    ICONS.models,
       toggle: true,
     }));
-    g1.appendChild(this._mkBtn({
+    gPanels.btns.appendChild(this._mkBtn({
       action: "toggleViews",
       title:  "Toggle Views Panel",
       svg:    ICONS.views,
       toggle: true,
     }));
-    this._toolbar.appendChild(g1);
+    row1.appendChild(gPanels.wrap);
 
-    this._toolbar.appendChild(el("div", "xkt-tb-sep"));
-
-    // ── Group 2 — Camera / projection / framing
-    const g2 = el("div", "xkt-tb-group");
-    g2.appendChild(this._mkBtn({
+    const gCamera = this._mkGroup("Camera");
+    gCamera.btns.appendChild(this._mkBtn({
       action: "resetView",
       title:  "Reset View",
       svg:    ICONS.home,
     }));
-    g2.appendChild(this._mkBtn({
+    gCamera.btns.appendChild(this._mkBtn({
       action: "toggle2D3D",
       title:  "Toggle 2D / 3D",
       svg:    ICONS.cube,
       toggle: true,
     }));
-    g2.appendChild(this._mkBtn({
+    gCamera.btns.appendChild(this._mkBtn({
       action: "toggleProjection",
       title:  "Toggle Perspective / Ortho",
       svg:    ICONS.frustum,
       toggle: true,
     }));
-    g2.appendChild(this._mkBtn({
+    gCamera.btns.appendChild(this._mkBtn({
       action: "fitAll",
       title:  "View Fit All",
       svg:    ICONS.fitAll,
     }));
-    g2.appendChild(this._mkBtn({
+    gCamera.btns.appendChild(this._mkBtn({
       action: "toggleFirstPerson",
       title:  "Toggle First-Person Navigation",
       svg:    ICONS.person,
       toggle: true,
     }));
-    g2.appendChild(this._mkBtn({
+    gCamera.btns.appendChild(this._mkBtn({
       action: "toggleNavCube",
       title:  "Toggle NavCube",
       svg:    ICONS.navCube,
       toggle: true,
     }));
-    this._toolbar.appendChild(g2);
+    row1.appendChild(gCamera.wrap);
 
-    this._toolbar.appendChild(el("div", "xkt-tb-sep"));
+    // ── Row 2 — Tools · Transform · Measure · Inspect ──────────
+    const gTools = this._mkGroup("Tools");
+    gTools.btns.appendChild(this._mkToolModeBtn("hide",    "Hide Objects",   ICONS.eraser));
+    gTools.btns.appendChild(this._mkToolModeBtn("select",  "Select Objects", ICONS.pointer));
+    gTools.btns.appendChild(this._mkToolModeBtn("marquee", "Marquee Select", ICONS.marquee));
+    row2.appendChild(gTools.wrap);
 
-    // ── Group 3 — Mutually-exclusive object tool modes
-    const g3 = el("div", "xkt-tb-group");
-    g3.appendChild(this._mkToolModeBtn("hide",    "Hide Objects",    ICONS.eraser));
-    g3.appendChild(this._mkToolModeBtn("select",  "Select Objects",  ICONS.pointer));
-    g3.appendChild(this._mkToolModeBtn("marquee", "Marquee Select",  ICONS.marquee));
-    this._toolbar.appendChild(g3);
+    // Transform cluster — activates the TransformControls gizmo
+    // on the active View in the matching mode, then waits for a
+    // canvas click to choose the target. Same "click the tool,
+    // then click an object" pattern as Hide / Select / Marquee.
+    const gXform = this._mkGroup("Transform");
+    gXform.btns.appendChild(this._mkToolModeBtn("transformTranslate", "Translate", ICONS.transformTranslate));
+    gXform.btns.appendChild(this._mkToolModeBtn("transformRotate",    "Rotate",    ICONS.transformRotate));
+    gXform.btns.appendChild(this._mkToolModeBtn("transformScale",     "Scale",     ICONS.transformScale));
+    row2.appendChild(gXform.wrap);
 
-    this._toolbar.appendChild(el("div", "xkt-tb-sep"));
-
-    // ── Group 4 — Measurement cluster (split-button mode + panels)
-    const g4 = el("div", "xkt-tb-group");
-    g4.appendChild(this._mkMeasureSplitBtn());
-    g4.appendChild(this._mkBtn({
+    const gMeasure = this._mkGroup("Measure");
+    gMeasure.btns.appendChild(this._mkMeasureSplitBtn());
+    gMeasure.btns.appendChild(this._mkBtn({
       action: "toggleDistancePanel",
       title:  "Toggle Distance Measurements Panel",
       svg:    ICONS.distancePanel,
       toggle: true,
     }));
-    g4.appendChild(this._mkBtn({
+    gMeasure.btns.appendChild(this._mkBtn({
       action: "toggleAnglePanel",
       title:  "Toggle Angle Measurements Panel",
       svg:    ICONS.anglePanel,
       toggle: true,
     }));
-    this._toolbar.appendChild(g4);
+    row2.appendChild(gMeasure.wrap);
 
-    this._toolbar.appendChild(el("div", "xkt-tb-sep"));
-
-    // ── Group 5 — Inspect (sits at the right end of the toolbar)
-    const g5 = el("div", "xkt-tb-group xkt-tb-group-end");
-    g5.appendChild(this._mkInspectMenuBtn());
-    this._toolbar.appendChild(g5);
+    const gInspect = this._mkGroup("Inspect");
+    gInspect.wrap.classList.add("xkt-tb-group-end");
+    gInspect.btns.appendChild(this._mkInspectMenuBtn());
+    row2.appendChild(gInspect.wrap);
 
     // ── Close
     this._closeBtn = el("button", "xkt-tb-close", {
@@ -765,6 +828,23 @@ export class Toolbar extends FloatingPanelBase {
 
     this._container.appendChild(this._pill);
     this._container.appendChild(this._toolbar);
+  }
+
+  /**
+   * Build one captioned group — outer `wrap` holds the title row
+   * and the buttons row, `btns` is the inner button-strip element
+   * the caller appends buttons into. Captions render in the small
+   * uppercase style above each strip; section boundaries come
+   * from the captions, not from vertical dividers.
+   */
+  private _mkGroup(title: string): {wrap: HTMLElement; btns: HTMLElement} {
+    const wrap = el("div", "xkt-tb-group");
+    const titleEl = el("div", "xkt-tb-group-title");
+    titleEl.textContent = title;
+    const btns = el("div", "xkt-tb-group-btns");
+    wrap.appendChild(titleEl);
+    wrap.appendChild(btns);
+    return {wrap, btns};
   }
 
   private _mkBtn(opts: {
@@ -1085,9 +1165,9 @@ export class Toolbar extends FloatingPanelBase {
             run:   () => { this.demoHelper?.openDataTexturesPanel(); },
           },
           {
-            label: "Blueprints",
-            svg:   BluePrintsPanel.iconSvg(),
-            run:   () => { this.demoHelper?.openBluePrintsPanel(); },
+            label: "Drawings",
+            svg:   DrawingsPanel.iconSvg(),
+            run:   () => { this.demoHelper?.openDrawingsPanel(); },
           },
         ],
       },
@@ -1326,6 +1406,108 @@ export class Toolbar extends FloatingPanelBase {
     this._objectModeCanvas = canvas;
   }
 
+  /**
+   * Drive {@link TransformControls} lifecycle when {@link toolMode}
+   * transitions in or out of the transform cluster
+   * (`"transformTranslate" / "transformRotate" / "transformScale"`).
+   *
+   * - Entering a transform mode from a non-transform mode: ensure
+   *   the controls exist on the active View, install a canvas
+   *   click-pick handler so the user can choose a target, and set
+   *   the controls' interaction mode to match the button.
+   * - Switching between transform modes: just retarget the
+   *   existing controls' mode. The click handler stays installed
+   *   so the user can still pick a different target.
+   * - Leaving the transform cluster: detach the controls and tear
+   *   down the click handler.
+   *
+   * The click handler picks via the unified BVH picker but ignores
+   * hits on the gizmo's own SceneObjects (ids prefixed with
+   * `"__tc."`) — without this skip, clicking a gizmo handle would
+   * re-attach to the handle's own SceneObject as if it were a
+   * scene target.
+   */
+  private _applyTransformMode(prev: ToolbarToolMode, next: ToolbarToolMode): void {
+    const TRANSFORM_MODES: ToolbarToolMode[] = [
+      "transformTranslate", "transformRotate", "transformScale",
+    ];
+    const wasTransform = TRANSFORM_MODES.includes(prev);
+    const isTransform  = TRANSFORM_MODES.includes(next);
+
+    // Tear down on the way out (or when no longer in any transform
+    // mode). Detach also resets the gizmo's UI state.
+    if (wasTransform && !isTransform) {
+      const view = this._activeView();
+      if (view) {
+        const tc = TransformControls.getFor(view);
+        if (tc) tc.detach();
+      }
+      if (this._transformModeClick && this._transformModeCanvas) {
+        this._transformModeCanvas.removeEventListener("pointerdown", this._transformModeClick, true);
+        this._transformModeCanvas.style.cursor = "";
+        this._transformModeClick = null;
+        this._transformModeCanvas = null;
+      }
+      return;
+    }
+
+    if (!isTransform) return;
+
+    const view = this._activeView();
+    if (!view || !this.demoHelper) return;
+
+    const tcMode = next === "transformTranslate" ? "translate"
+                 : next === "transformRotate"    ? "rotate"
+                                                  : "scale";
+    const tc = this.demoHelper.openTransformControls(view);
+    tc.setMode(tcMode);
+
+    if (wasTransform) return; // mode-only switch — click handler already installed
+
+    const canvas = view.htmlElement;
+    const picker = this.demoHelper.picker;
+    // Listen on `pointerdown` (not `click`) so the attach happens
+    // at the press position, not the release. The `click` event
+    // fires at the pointerup location, so any drift between press
+    // and release would re-pick under the release point and move
+    // the gizmo from where the user actually clicked.
+    //
+    // Capture-phase registration so this handler sits in the same
+    // event-flow lane as TC's own pointerdown listener. TC was
+    // registered first (by openTransformControls above), so the
+    // capture-phase order is: TC → this handler. When TC consumes
+    // a gizmo-handle click it calls `stopImmediatePropagation`
+    // and this handler is silently skipped; when TC's pick
+    // returns null (the click missed all handles) propagation
+    // continues and we pick / attach normally.
+    const handler = (e: MouseEvent) => {
+      // Primary button only — `click` was implicitly left-button
+      // filtered; pointerdown isn't.
+      if (e.button !== 0) return;
+      const rect = canvas.getBoundingClientRect();
+      const result = picker.pick({
+        view,
+        canvasPos: [e.clientX - rect.left, e.clientY - rect.top],
+      });
+      if (!result.hit || !result.objectId) return;
+      // Skip clicks on the gizmo's own SceneObjects — defensive
+      // belt-and-braces against the same id leaking through some
+      // host PickStrategy that doesn't apply TC's filter.
+      if (result.objectId.startsWith("__tc.")) return;
+      const viewObject = view.objects[result.objectId];
+      if (!viewObject) return;
+      // Pass the picked surface point through as the gizmo's
+      // pivot so rotate / scale operate about exactly where the
+      // user clicked, not the SceneObject's geometric origin.
+      const pivotWorld = result.worldPos ?? undefined;
+      tc.attach(viewObject.sceneObject, pivotWorld ? {pivotWorld} : undefined);
+    };
+    canvas.addEventListener("pointerdown", handler, true);
+    canvas.style.cursor = "crosshair";
+    this._transformModeClick = handler;
+    this._transformModeCanvas = canvas;
+  }
+
   private _activeView(): View | null {
     return this.viewer.viewList[0] ?? null;
   }
@@ -1333,7 +1515,7 @@ export class Toolbar extends FloatingPanelBase {
   /**
    * Look up the {@link CameraFlightAnimation} the {@link DemoHelper}
    * registered alongside the active View. The flight isn't a
-   * property of {@link View} itself — `DemoHelper.createView()`
+   * property of {@link viewing!viewer.View | View} itself — `DemoHelper.createView()`
    * stashes it on `demoHelper.views[viewId].cameraFlight`. Returns
    * `null` when no helper is wired or the active View has no
    * registered flight.
@@ -1349,7 +1531,7 @@ export class Toolbar extends FloatingPanelBase {
    * Look up the {@link ViewController} the {@link DemoHelper}
    * registered alongside the active View. Same shape as
    * {@link _cameraFlight}: the `ViewController` is not a property
-   * of {@link View} itself — `DemoHelper.createView()` stashes it
+   * of {@link viewing!viewer.View | View} itself — `DemoHelper.createView()` stashes it
    * on `demoHelper.views[viewId].viewController`. Returns `null`
    * when no helper is wired or the active View has no registered
    * controller.
@@ -1542,6 +1724,43 @@ const ICONS = {
       `<rect x="3" y="3" width="18" height="18" rx="0.5" ` +
             `fill="none" stroke="currentColor" stroke-width="1.7" ` +
             `stroke-dasharray="2.4 2.4" stroke-linecap="round"/>` +
+    `</svg>`,
+
+  // Three-axis arrows — translate mode (TransformControls).
+  transformTranslate:
+    `<svg viewBox="0 0 24 24" aria-hidden="true">` +
+      `<circle cx="11" cy="13" r="1.5" fill="currentColor" stroke="none"/>` +
+      `<line x1="11" y1="13" x2="21" y2="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>` +
+      `<polyline points="19 11 21 13 19 15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>` +
+      `<line x1="11" y1="13" x2="11" y2="3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>` +
+      `<polyline points="9 5 11 3 13 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>` +
+      `<line x1="11" y1="13" x2="4" y2="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>` +
+      `<polyline points="4.5 17.5 4 20 6.5 19.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>` +
+    `</svg>`,
+
+  // Curved arrow — rotate mode (TransformControls).
+  transformRotate:
+    `<svg viewBox="0 0 24 24" aria-hidden="true">` +
+      `<path d="M5 12 A 7 7 0 1 1 12 19" ` +
+            `fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>` +
+      `<polyline points="9 17 12 19 13 16" ` +
+            `fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>` +
+      `<circle cx="12" cy="12" r="1.4" fill="currentColor"/>` +
+    `</svg>`,
+
+  // Box with directional arrows — scale mode (TransformControls).
+  transformScale:
+    `<svg viewBox="0 0 24 24" aria-hidden="true">` +
+      `<rect x="8" y="8" width="8" height="8" rx="0.6" ` +
+            `fill="none" stroke="currentColor" stroke-width="1.6"/>` +
+      `<polyline points="3 3 6 6 4 6 6 6 6 4" ` +
+            `fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>` +
+      `<polyline points="21 3 18 6 20 6 18 6 18 4" ` +
+            `fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>` +
+      `<polyline points="3 21 6 18 6 20 6 18 4 18" ` +
+            `fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>` +
+      `<polyline points="21 21 18 18 20 18 18 18 18 20" ` +
+            `fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>` +
     `</svg>`,
 
   // Tilted ruler — measure distance mode.

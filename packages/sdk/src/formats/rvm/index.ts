@@ -1,9 +1,62 @@
 /**
  * # rvm — AVEVA RVM Importer / Exporter
  *
- * Loads AVEVA RVM v2 binary files (the plant-design format produced
+ * ---
+ *
+ * **Loads AVEVA RVM v2 binary files (the plant-design format produced
  * by PDMS / E3D) into a `SceneModel`, and exports a `SceneModel` back
- * out as a minimal RVM v2 file.
+ * out as a minimal RVM v2 file.**
+ *
+ * ---
+ *
+ * <br>
+ *
+ * ## Shape
+ *
+ * ```mermaid
+ * classDiagram
+ *     direction TB
+ *     class RVMLoader {
+ *       +format : "RVM"
+ *       +load(params, options?) Promise~void~
+ *     }
+ *     class RVMExporter {
+ *       +format : "RVM"
+ *       +write(params, options?) Promise~ArrayBuffer~
+ *     }
+ *     class ChunkReader / ChunkWriter {
+ *       <<low-level helpers>>
+ *     }
+ *     class RVMPrimitive {
+ *       <<wire format>>
+ *     }
+ *     class ModelLoader {
+ *       <<formats>>
+ *     }
+ *     class ModelExporter {
+ *       <<formats>>
+ *     }
+ *     ModelLoader <|-- RVMLoader
+ *     ModelExporter <|-- RVMExporter
+ *     RVMLoader ..> ChunkReader : reads
+ *     RVMExporter ..> ChunkWriter : writes
+ * ```
+ *
+ * <br>
+ *
+ * ## Features
+ *
+ * - **AVEVA RVM v2** — plant-design and process-piping format
+ *   common in oil-and-gas / power-plant CAD pipelines.
+ * - **Implicit primitives** — RVM stores parametric primitives
+ *   (boxes, cylinders, spheres, snouts, tori, dish heads); the
+ *   loader tessellates them via {@link model!procgen.buildGeometry | procgen}.
+ * - **Round-trip** — exporter writes one `CNTB` per SceneObject +
+ *   one Box `PRIM` per SceneMesh, preserving placement + hierarchy
+ *   (geometry compressed to per-mesh AABBs).
+ * - **Low-level escape hatch** — {@link ChunkReader} /
+ *   {@link ChunkWriter} / {@link RVMPrimitive} are exported for
+ *   hand-crafted RVM bytes (sample fixtures, fuzzers, tooling).
  *
  * ## Loader
  *

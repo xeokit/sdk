@@ -1,9 +1,9 @@
-import { sdkProgress } from "../core";
+import { sdkProgress } from "../base/core";
 
 /**
  * Configuration for {@link LoadingSpinner}.
  */
-type ProgressBarOptions = {
+export type ProgressBarOptions = {
   /**
    * Initial number of completed items.
    *

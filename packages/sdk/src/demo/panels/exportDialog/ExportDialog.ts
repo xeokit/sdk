@@ -20,8 +20,8 @@
  *
  * @module demo/exportDialog
  */
-import type {SceneModel} from "../../../scene";
-import type {DataModel} from "../../../data";
+import type {SceneModel} from "../../../model/scene";
+import type {DataModel} from "../../../model/data";
 import type {DemoHelper} from "../../DemoHelper";
 import {XGFExporter}              from "../../../formats/xgf/XGFExporter";
 import {GLTFExporter}             from "../../../formats/gltf/GLTFExporter";

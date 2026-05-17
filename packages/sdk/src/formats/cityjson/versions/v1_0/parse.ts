@@ -7,12 +7,12 @@ import {
   mulVec3Scalar,
   normalizeVec3,
   subVec3
-} from "../../../../math/vector";
+} from "../../../../base/math/vector";
 // @ts-ignore
 import {earcut} from './earcut';
 import type {ModelParser} from "../../../ModelParser";
-import {TrianglesPrimitive} from "../../../../constants";
-import {yieldToHost} from "../../../../utils";
+import {TrianglesPrimitive} from "../../../../base/constants";
+import {yieldToHost} from "../../../../base/utils";
 import type {LoaderProgress} from "../../../LoaderProgress";
 
 const tempVec2a = createVec2Float64();

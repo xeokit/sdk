@@ -1,9 +1,9 @@
-import type {SceneGeometry} from "../scene";
-import {SDKErrorType, type SDKResult} from "../core";
+import type {SceneGeometry} from "../model/scene";
+import {SDKErrorType, type SDKResult} from "../base/core";
 
 
 /**
- * Demo-grade utility that splits an existing {@link SceneGeometry}
+ * Demo-grade utility that splits an existing {@link model!scene.SceneGeometry | SceneGeometry}
  * into two new SceneGeometries by partitioning its triangles. The
  * partition is whole-triangle — no plane clipping, no edge cutting,
  * no geometry generated — so each source triangle ends up in exactly

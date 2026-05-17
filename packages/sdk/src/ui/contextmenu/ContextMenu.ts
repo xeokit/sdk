@@ -1,4 +1,4 @@
-import { Map } from "../../utils/Map";
+import { Map } from "../../base/utils/Map";
 
 /**
  * Registry used to allocate and release unique {@link ContextMenu} IDs.
@@ -134,7 +134,7 @@ const CONTEXT_MENU_CSS = `
  * @typeParam T - Event payload type.
  * @param value Event payload.
  */
-type EventCallback<T = unknown> = (value: T) => void;
+export type EventCallback<T = unknown> = (value: T) => void;
 
 /**
  * Resolves an item title from the current menu context.
@@ -142,14 +142,14 @@ type EventCallback<T = unknown> = (value: T) => void;
  * @param context Current menu context.
  * @returns Item title.
  */
-type ItemTitleGetter = (context: any) => string;
+export type ItemTitleGetter = (context: any) => string;
 
 /**
  * Performs an item action using the current menu context.
  *
  * @param context Current menu context.
  */
-type ItemAction = (context: any) => void;
+export type ItemAction = (context: any) => void;
 
 /**
  * Resolves an item state from the current menu context.
@@ -157,7 +157,7 @@ type ItemAction = (context: any) => void;
  * @param context Current menu context.
  * @returns State value.
  */
-type ItemStateGetter = (context: any) => boolean;
+export type ItemStateGetter = (context: any) => boolean;
 
 /**
  * Resolves an item icon from the current menu context. Returns
@@ -169,7 +169,7 @@ type ItemStateGetter = (context: any) => boolean;
  * @param context Current menu context.
  * @returns SVG markup, or null / empty when no icon should render.
  */
-type ItemIconGetter = (context: any) => string | null | undefined;
+export type ItemIconGetter = (context: any) => string | null | undefined;
 
 /**
  * Resolves the root menu title from the current context.

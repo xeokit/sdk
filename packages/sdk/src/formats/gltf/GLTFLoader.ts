@@ -11,20 +11,20 @@ import {
   PointsPrimitive,
   RepeatWrapping,
   TrianglesPrimitive
-} from "../../constants";
-import {createMat4Float64, identityMat4, type Mat4, mulMat4, scalingMat4v, translationMat4v} from "../../math/matrix";
-import {createUUID, yieldToHost} from "../../utils";
+} from "../../base/constants";
+import {createMat4Float64, identityMat4, type Mat4, mulMat4, scalingMat4v, translationMat4v} from "../../base/math/matrix";
+import {createUUID, yieldToHost} from "../../base/utils";
 import {GLTFLoader as glGLTFLoader, postProcessGLTF} from '@loaders.gl/gltf';
 import type {ModelLoadParams} from "../ModelLoadParams";
 import {ModelLoader} from "../ModelLoader";
-import type {SceneGeometryParams, SceneMeshParams, SceneModel, SceneMaterialParams} from "../../scene";
-import type {DataModel} from "../../data/DataModel";
+import type {SceneGeometryParams, SceneMeshParams, SceneModel, SceneMaterialParams} from "../../model/scene";
+import type {DataModel} from "../../model/data/DataModel";
 import {parse} from '@loaders.gl/core';
-import {quatToMat4} from "../../math/quat";
+import {quatToMat4} from "../../base/math/quat";
 import type {LoaderProgress} from "../LoaderProgress";
 
 /**
- * Loads a glTF file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
+ * Loads a glTF file into a {@link model!scene.SceneModel | SceneModel} and/or a {@link model!data.DataModel | DataModel}.
  *
  * For detailed usage, refer to {@link gltf | @xeokit/sdk/formats/gltf}.
  */

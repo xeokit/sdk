@@ -1,6 +1,6 @@
-import {EventEmitter, SDKInternalException} from "../../core";
-import type {Data, DataModel, DataObject} from "../../data";
-import type {View, Viewer, ViewObject} from "../../viewer";
+import {EventEmitter, SDKInternalException} from "../../base/core";
+import type {Data, DataModel, DataObject} from "../../model/data";
+import type {View, Viewer, ViewObject} from "../../viewing/viewer";
 import type {TreeViewNode} from "./TreeViewNode";
 import type {TreeViewNodeContextMenuEvent} from "./TreeViewNodeContextMenuEvent";
 import type {TreeViewNodeTitleClickedEvent} from "./TreeViewNodeTitleClickedEvent";
@@ -239,9 +239,9 @@ const TREE_VIEW_CSS = `
 `;
 
 /**
- * An HTMl tree view that navigates the {@link data!DataObject | DataObjects} in the given
- * {@link data!Data | Data}, while controlling the visibility of their corresponding
- * {@link viewer!ViewObject | ViewObjects} in the given {@link viewer!View | View}.
+ * An HTMl tree view that navigates the {@link model!data.DataObject | DataObjects} in the given
+ * {@link model!data.Data | Data}, while controlling the visibility of their corresponding
+ * {@link viewing!viewer.ViewObject | ViewObjects} in the given {@link viewing!viewer.View | View}.
  *
  * See {@link ui/treeview | @xeokit/sdk/treeview} for usage.
  */
@@ -251,8 +251,8 @@ export class TreeView {
    * Hierarchy mode that arranges the {@link TreeViewNode | TreeViewNodes} as an aggregation hierarchy.
    *
    * The mode creates a TreeViewNode hierarchy that mirrors that of the
-   * {@link data!DataObject | DataObjects} and
-   * aggregation {@link data!Relationship | Relationships} in the {@link data!Data | Data}.
+   * {@link model!data.DataObject | DataObjects} and
+   * aggregation {@link model!data.Relationship | Relationships} in the {@link model!data.Data | Data}.
    *
    * In this hierarchy, each TreeViewNode corresponds to a DataObject in the Data. The TreeViewNodes are connected
    * into a hierarchy that reflects a depth-first traversal from the root DataObjects that follows each DataObject's
@@ -264,9 +264,9 @@ export class TreeView {
    * Hierarchy mode that groups the {@link TreeViewNode | TreeViewNodes} by type.
    *
    * This mode creates a two-level hierarchy. At the root level, we get TreeViewNodes that represent each of the
-   * distinct types in our {@link data!Data | Data}. Each of those gets one or more child TreeViewNodes
-   * that represent {@link data!DataObject | DataObjects} of that type. When those DataObjects have
-   * {@link viewer!ViewObject | ViewObjects} of the same ID, then the TreeViewNodes will have checkboxes
+   * distinct types in our {@link model!data.Data | Data}. Each of those gets one or more child TreeViewNodes
+   * that represent {@link model!data.DataObject | DataObjects} of that type. When those DataObjects have
+   * {@link viewing!viewer.ViewObject | ViewObjects} of the same ID, then the TreeViewNodes will have checkboxes
    * that we can use to show, hide, and X-ray their ViewObjects.
    */
   static TypesHierarchy = 1;
@@ -288,12 +288,12 @@ export class TreeView {
   public readonly events: TreeViewEvents;
 
   /**
-   * The semantic {@link data!Data | Data} model that determines the structure of this TreeView.
+   * The semantic {@link model!data.Data | Data} model that determines the structure of this TreeView.
    */
   public readonly data: Data;
 
   /**
-   * The {@link viewer!View | View} that contains the {@link viewer!ViewObject | ViewObjects}
+   * The {@link viewing!viewer.View | View} that contains the {@link viewing!viewer.ViewObject | ViewObjects}
    * navigated by this TreeView.
    */
   public readonly view: View;
@@ -594,20 +594,20 @@ export class TreeView {
   }
 
   /**
-   * When traversing the {@link data!Data | Data} to build the tree UI nodes, at each
-   * {@link data!DataObject | DataObjects}, the TreeView will traverse only the outgoing
-   * {@link data!Relationship | Relationships} of this type in
-   * {@link data!DataObject.relating | DataObject.relating}.
+   * When traversing the {@link model!data.Data | Data} to build the tree UI nodes, at each
+   * {@link model!data.DataObject | DataObjects}, the TreeView will traverse only the outgoing
+   * {@link model!data.Relationship | Relationships} of this type in
+   * {@link model!data.DataObject.relating | DataObject.relating}.
    */
   get linkType(): string | string[] {
     return this._linkTypes.length === 1 ? this._linkTypes[0] : this._linkTypes;
   }
 
   /**
-   * When traversing the {@link data!Data | Data} to build the tree UI nodes, at each
-   * {@link data!DataObject | DataObjects}, the TreeView will traverse only the outgoing
-   * {@link data!Relationship | Relationships} of this type in
-   * {@link data!DataObject.relating | DataObject.relating}.
+   * When traversing the {@link model!data.Data | Data} to build the tree UI nodes, at each
+   * {@link model!data.DataObject | DataObjects}, the TreeView will traverse only the outgoing
+   * {@link model!data.Relationship | Relationships} of this type in
+   * {@link model!data.DataObject.relating | DataObject.relating}.
    */
   set linkType(linkType: string | string[]) {
     const next = Array.isArray(linkType) ? linkType : [linkType];

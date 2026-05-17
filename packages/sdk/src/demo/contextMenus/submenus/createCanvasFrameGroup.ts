@@ -1,6 +1,6 @@
 /**
  * Frame group on the canvas menu — Scene only, since there's no
- * specific {@link ViewObject} or focused SceneModel without an
+ * specific {@link viewing!viewer.ViewObject | ViewObject} or focused SceneModel without an
  * object pick.
  *
  * @module demo/viewObjectContextMenu/submenus/createCanvasFrameGroup

@@ -1,10 +1,10 @@
 /**
  * Floating, draggable, closeable panel that visualises GPU
- * tiles produced by the {@link webGLRenderer!WebGLRenderer | WebGLRenderer} —
+ * tiles produced by the {@link viewing!webGLRenderer.WebGLRenderer | WebGLRenderer} —
  * three orthogonal projections (Top XZ, Front XY, Side YZ) of
  * the tile grid, with a 1 m background grid and a camera "you
  * are here" glyph. Sister widget to
- * {@link demo/boundariesPanel!BoundariesPanel} — same floating
+ * {@link demo/boundariesPanel!BoundariesPanel | BoundariesPanel} — same floating
  * chrome, same colour palette, same per-section lazy refresh.
  *
  * ## Lazy event wiring
@@ -45,10 +45,10 @@
  *
  * @module demo/tilesPanel
  */
-import type {Scene} from "../../../scene";
-import type {View} from "../../../viewer";
-import type {RenderStats} from "../../../webGLRenderer/internal/inspectors/RenderStats";
-import type {TileStats} from "../../../webGLRenderer/internal/inspectors/TileStats";
+import type {Scene} from "../../../model/scene";
+import type {View} from "../../../viewing/viewer";
+import type {RenderStats} from "../../../viewing/webGLRenderer/internal/inspectors/RenderStats";
+import type {TileStats} from "../../../viewing/webGLRenderer/internal/inspectors/TileStats";
 
 
 import {el} from "../../utils/el";

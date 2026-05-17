@@ -1,4 +1,4 @@
-import {sdkProgress} from "../core";
+import {sdkProgress} from "../base/core";
 
 type ProgressBarOptions = {
   initialLoaded?: number;

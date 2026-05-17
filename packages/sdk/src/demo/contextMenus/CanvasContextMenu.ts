@@ -3,7 +3,7 @@
  *
  * Includes only actions that apply to the view, scene, or model as
  * a whole, and excludes actions that require a specific
- * {@link ViewObject}.
+ * {@link viewing!viewer.ViewObject | ViewObject}.
  *
  * Submenu builders live one-per-file under `./submenus/`; the
  * shape here is a thin composition of those builders, mirrored

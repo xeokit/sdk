@@ -22,16 +22,11 @@
 export * from "./DemoHelper";
 export * from "./buildDemoModelTable";
 export * from "./ViewObjectContextMenu";
-export * from "./systems/exploder";
 export * from "./AutoDimensions";
 export * from "./LoadingSpinner";
 export * from "./splitSceneGeometry";
 export * from "./ensureGeometryAttribs";
-export * as physics from "./systems/physics";
-export * as blueprintProjector from "./systems/blueprintProjector";
 export * as applyIFCMaterials from "./applyIFCMaterials";
-export * as heatmaps from "./systems/heatmaps";
-export * as materials from "./systems/materials";
 export * as sceneHealthPanel from "./panels/sceneHealthPanel";
 export * as dataHealthPanel from "./panels/dataHealthPanel";
 export * as sceneStats from "./panels/sceneStats";
@@ -51,10 +46,13 @@ export * as eventsPanel from "./panels/eventsPanel";
 export * as tasksPanel from "./panels/tasksPanel";
 export * as shadersPanel from "./panels/shadersPanel";
 export * as dataTexturesPanel from "./panels/dataTexturesPanel";
-export * as blueprintsPanel from "./panels/blueprints";
+export * as drawingsPanel from "./panels/drawings";
+export * as modelsPanel from "./panels/modelsPanel";
+export * from "./panels/floatingPanelBase";
 export * as navCube from "./panels/navCube";
-export * as measurements from "./systems/measurements";
+export * as viewPanel from "./panels/viewPanel";
 export * as distanceMeasurementsPanel from "./panels/distanceMeasurementsPanel";
 export * as angleMeasurementsPanel from "./panels/angleMeasurementsPanel";
+export type {DemoHelperCreateViewParams} from "./DemoHelperCreateViewParams";
 
 

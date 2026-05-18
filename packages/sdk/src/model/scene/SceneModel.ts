@@ -1529,6 +1529,7 @@ export class SceneModel {
       id: objectId,
       originalSystemId: originalSystemId,
       layerId: this.layerId || layerId,
+      clippable: objectParams.clippable,
       model: this,
       meshes
     });

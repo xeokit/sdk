@@ -56,6 +56,18 @@ export class SceneObject {
   public readonly meshes: SceneMesh[];
 
   /**
+   * Initial value of the corresponding
+   * {@link viewing!viewer.ViewObject.clippable | ViewObject.clippable}
+   * flag for every View that creates a ViewObject for this
+   * SceneObject. `undefined` is treated as the default (`true`).
+   *
+   * See {@link SceneObjectParams.clippable} for the use case
+   * (drawings / annotations / overlays that should ignore
+   * section planes).
+   */
+  public readonly clippable?: boolean;
+
+  /**
    * True if this SceneObject has been destroyed.
    */
   public destroyed: boolean = false;
@@ -69,12 +81,14 @@ export class SceneObject {
     id: string;
     originalSystemId?: string;
     layerId?: string;
+    clippable?: boolean;
   }) {
     this.id = cfg.id;
     this.originalSystemId = cfg.originalSystemId || this.id;
     this.layerId = cfg.layerId;
     this.model = cfg.model;
     this.meshes = cfg.meshes;
+    this.clippable = cfg.clippable;
   }
 
   /**
@@ -191,6 +205,9 @@ export class SceneObject {
     };
     if (this.layerId !== undefined) {
       sceneObjectParams.layerId = this.layerId;
+    }
+    if (this.clippable !== undefined) {
+      sceneObjectParams.clippable = this.clippable;
     }
     if (this.meshes !== undefined) {
       for (let i = 0, len = this.meshes.length; i < len; i++) {

@@ -36,4 +36,24 @@ export interface SceneObjectParams {
    * Overridden by {@link SceneObjectParams.layerId | SceneObjectParams.layerId}.
    */
   layerId?: string;
+
+  /**
+   * Initial value of the corresponding
+   * {@link viewing!viewer.ViewObject.clippable | ViewObject.clippable}
+   * flag in every {@link viewing!viewer.View | View} that picks
+   * this SceneObject up.
+   *
+   * Defaults to `true` — the ViewObject participates in section-
+   * plane clipping like every other scene object.
+   *
+   * Pass `false` for objects that should remain visible (and
+   * pickable) regardless of any active section planes — drawings,
+   * annotations, tool overlays, or other "out-of-band" content
+   * that isn't part of the model being cut. The flag is wired
+   * through to the renderer's per-mesh `clippable` bit at the
+   * point the ViewObject is constructed, so this is a per-
+   * creation default rather than a runtime API; callers can
+   * still flip the flag later via `view.objects[id].clippable`.
+   */
+  clippable?: boolean;
 }

@@ -1,0 +1,13 @@
+{
+  "id": "building_sceneModel_points",
+  "title": "Creating 3D Points",
+  "description": "Using xeokit SDK to create and view a point cloud-style SceneModel in the browser.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [],
+  "categories": [
+    "Modeling",
+    "Scene"
+  ],
+  "topic": "modeling.scene.geometry"
+}

@@ -1,0 +1,20 @@
+{
+  "id": "presentations_solar_ifcOpenHouse4",
+  "title": "Animated Solar Irradiance Heat Maps on IfcOpenHouse4",
+  "description": "Live daylight study on the IfcOpenHouse4 model: a synthetic sun arcs from sunrise to sunset, per-vertex Lambert irradiance is recomputed each tick, and the per-geometry heat-map textures are repainted in place. The renderer's atlas re-uploads only the affected sub-rects via texSubImage2D \u2014 no batch / mesh / material rebuild \u2014 so the southern facades light up in the morning, the gable shades the north wall after noon, and the surfaces darken into night without a single allocation in the hot path beyond the per-frame scalar arrays.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "Materials",
+    "Procedural",
+    "HeatMap",
+    "Animation",
+    "Daylight",
+    "IFC"
+  ],
+  "categories": [
+    "Materials",
+    "Demo Helpers"
+  ],
+  "topic": "materials.procedural"
+}

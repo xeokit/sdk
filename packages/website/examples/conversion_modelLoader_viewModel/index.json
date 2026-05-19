@@ -1,0 +1,16 @@
+{
+  "id": "conversion_modelLoader_viewModel",
+  "title": "Loading Models with ModelLoader",
+  "description": "Use DemoHelper and ModelLoader to load a model into SceneModel/DataModel with selectable coordinate-system presets.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "tags": [
+    "Viewer",
+    "Loading"
+  ],
+  "categories": [
+    "Viewer",
+    "Loading"
+  ],
+  "topic": "viewer.loading"
+}

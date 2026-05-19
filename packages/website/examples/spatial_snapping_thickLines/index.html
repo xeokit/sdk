@@ -1,0 +1,164 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WebGLRenderer — snap-to-vertex / snap-to-edge on thick lines</title>
+  <style>
+    body {
+      background-color: #f6f7f9;
+      overflow: hidden;
+      margin: 0;
+      user-select: none;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: #111;
+    }
+
+    #demoCanvas {
+      position: absolute;
+      inset: 0;
+      background: white;
+      border: 0;
+    }
+
+    #intro {
+      position: absolute;
+      top: 86px;
+      left: 12px;
+      max-width: 380px;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 6px;
+      color: #333;
+      font-size: 12px;
+      line-height: 1.45;
+      z-index: 300000;
+    }
+    #intro strong { color: #111; }
+    #intro .legend {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    #intro .swatch {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+    }
+    #intro .swatch::before {
+      content: "";
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 0, 0, 0.2);
+    }
+    #intro .swatch.vertex::before { background: #d04040; }
+    #intro .swatch.edge::before   { background: #d6a020; }
+
+    /* Line-style picker — small radio-style row of buttons that
+       cycle view.linesMaterial.linePattern through the named
+       presets. Active button highlights so the current style is
+       always obvious; the canvas updates on the next frame. */
+    #styleSwitcher {
+      display: flex;
+      gap: 4px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    #styleSwitcher button {
+      font: inherit;
+      font-size: 11px;
+      padding: 4px 8px;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 4px;
+      cursor: pointer;
+      color: #333;
+    }
+    #styleSwitcher button:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+    #styleSwitcher button[aria-pressed="true"] {
+      background: #2c7e6f;
+      border-color: #1d5e52;
+      color: #fff;
+    }
+
+    #status {
+      position: absolute;
+      top: 142px;
+      right: 12px;
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      color: #555;
+      z-index: 300000;
+      transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+    }
+    #status[data-mode="vertex"] { color: #fff; background: #d04040; border-color: #a02020; }
+    #status[data-mode="edge"]   { color: #fff; background: #d6a020; border-color: #976d0a; }
+
+    #marker {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9), 0 1px 3px rgba(0, 0, 0, 0.35);
+      transition: background 80ms ease, border-color 80ms ease;
+      z-index: 200000;
+      display: none;
+    }
+    #marker[data-mode="vertex"] { background: #d04040; }
+    #marker[data-mode="edge"]   { background: #d6a020; }
+  </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="marker"></div>
+<div id="intro">
+  Six thick-line shapes — each with its own
+  <strong>linePattern</strong>. Move the cursor over any of them
+  and the marker snaps to the nearest vertex (red) or edge
+  (amber) within ~30 px. Snap deliberately ignores the dash
+  gaps so dashed lines are still snappable along their full
+  length.
+  <div class="legend">
+    <span class="swatch vertex">Vertex</span>
+    <span class="swatch edge">Edge</span>
+  </div>
+  <div style="margin-top: 8px; font-size: 11px;">
+    Per-material override: pentagram dashed · Z dotted ·
+    triangle dash-dot · plus dash-dot-dot · octagon custom
+    <code>[5,1,1,1]</code>. The <strong>box</strong> has no
+    material — it follows the view-level pattern below:
+  </div>
+  <div id="styleSwitcher" role="radiogroup" aria-label="View-level line pattern">
+    <button type="button" data-style="solid"      aria-pressed="false">solid</button>
+    <button type="button" data-style="dashed"     aria-pressed="false">dashed</button>
+    <button type="button" data-style="dotted"     aria-pressed="false">dotted</button>
+    <button type="button" data-style="dashDot"    aria-pressed="false">dash-dot</button>
+    <button type="button" data-style="dashDotDot" aria-pressed="false">dash-dot-dot</button>
+  </div>
+</div>
+<div id="status" data-mode="none">No snap</div>
+<script type="module" src="./index.js"></script>
+</body>
+</html>

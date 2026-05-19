@@ -1,0 +1,19 @@
+{
+  "id": "building_doublePrecision_infiniteLandscape",
+  "title": "Infinite Scrolling Landscape",
+  "description": "An infinite-feeling cityscape rendered from a finite pool of N pre-allocated SceneObjects (each carrying one mesh per shared primitive: box, slab, cylinder, dome). An external instruction-source module emits, per frame, an array of {slotId, geomType, transform, color, opacity} tuples \u2014 index.js writes them straight onto the matching slot's active SceneMesh. As the user drags the canvas, slots that scroll past one edge wrap to the opposite side and are re-randomised from a deterministic hash of (slotId, wrapCountX, wrapCountY), giving the illusion of an endless skyline while reusing the same handful of geometries.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "Procgen",
+    "InstanceReuse",
+    "Streaming",
+    "SceneModel",
+    "Pooling"
+  ],
+  "categories": [
+    "Modeling",
+    "Streaming"
+  ],
+  "topic": "modeling.scene.streaming"
+}

@@ -1,0 +1,19 @@
+{
+  "id": "presentations_sectionCaps_testGrid",
+  "title": "Section Caps \u2014 Generated Test Row",
+  "description": "Twelve minimal generated solids laid out in a single row along world +X, all sliced by one horizontal section plane. Designed as a visual regression harness for xeokit.presentations.sectionCaps.createSectionCaps. Each emitted cap renders twice: in-place at the cut plane (embedded in the source row) and again in a parallel cap-preview row lifted above the source row via the cap SceneModel's coordinateSystem.origin. The slider moves the cut up and down through the entire row, recomputing both placements every input event. Cases (left to right): cube, vertical cylinder, sphere, cone, hollow cylinder, hollow box, plate with 2 cylindrical holes, two disjoint cubes (one mesh), slab top coplanar with cut, cube above cut, cube below cut, open-sided non-watertight cube.",
+  "isTutorial": false,
+  "isVisualTest": true,
+  "tags": [
+    "SectionPlane",
+    "Caps",
+    "Procedural",
+    "Test",
+    "Regression"
+  ],
+  "categories": [
+    "Section Planes",
+    "Testing"
+  ],
+  "topic": "testing.section"
+}

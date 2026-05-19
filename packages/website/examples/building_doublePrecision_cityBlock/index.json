@@ -1,0 +1,20 @@
+{
+  "id": "building_doublePrecision_cityBlock",
+  "title": "Double-Precision Coordinate System",
+  "description": "Demonstrates xeokit's transparent 64-bit coordinate system support. A city block is placed at real UTM coordinates (~474,000 m easting, ~5,561,000 m northing) and a tower crane animates at those large coordinates with sub-millimetre precision. A live overlay shows the raw Float64 world coordinates to make clear why standard WebGL float32 scenes would jitter at this scale.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "tags": [
+    "DoublePrecision",
+    "SceneModel",
+    "SceneTransform",
+    "RTC",
+    "_Featured"
+  ],
+  "categories": [
+    "SceneModel",
+    "Transforms",
+    "Coordinates"
+  ],
+  "topic": "scene.doublePrecision"
+}

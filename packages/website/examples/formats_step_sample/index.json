@@ -1,0 +1,20 @@
+{
+  "id": "formats_step_sample",
+  "title": "ISO 10303-21 STEP loader smoke test",
+  "description": "Loads an ISO 10303-21 STEP (`.step` / `.stp`) file through STEPLoader and renders one SceneObject per `PRODUCT` instance. Drop a real STEP at models/STEP_Sample/step/model.step and the example loads it directly; otherwise it synthesises a small AP214 fragment in-memory with six PRODUCTs so the example always renders something. Each SceneObject points at a single shared placeholder cube \u2014 a stand-in until the B-Rep tessellator that replaces those with real triangulated shapes lands.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "STEP",
+    "ISO 10303",
+    "AP214",
+    "AP203",
+    "AP242",
+    "Importing"
+  ],
+  "categories": [
+    "Importing",
+    "STEP"
+  ],
+  "topic": "import.step"
+}

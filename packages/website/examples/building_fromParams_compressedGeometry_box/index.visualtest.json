@@ -1,0 +1,142 @@
+{
+  "stats": {
+    "startTime": 338.90000009536743,
+    "endTime": 467.90000009536743,
+    "elapsedTime": 129,
+    "aabb": [
+      -1,
+      -1,
+      -1,
+      1,
+      1,
+      1
+    ],
+    "scene": {
+      "numTransforms": 0,
+      "numObjects": 1,
+      "numMeshes": 1,
+      "numGeometries": 1,
+      "numTextures": 0,
+      "numMaterials": 0,
+      "numTriangles": 12,
+      "numLines": 0,
+      "numPoints": 0,
+      "numVertices": 24,
+      "textureBytes": 0
+    },
+    "data": {
+      "numObjects": 0,
+      "numRelationships": 0,
+      "numPropertySets": 0
+    },
+    "memory": {
+      "allocatedMB": 11.877059936523438,
+      "usedMB": 0.0018157958984375
+    },
+    "renderer": {
+      "tiles": {
+        "0-0-0": {
+          "id": "0-0-0",
+          "rtcCenter": [
+            0,
+            0,
+            0
+          ],
+          "size": 1000,
+          "tileIndex": 0,
+          "numMeshes": 1
+        }
+      },
+      "views": [
+        {
+          "viewId": "798b30ea-8e93-4f9f-afd7-b3a2ab58cb6b",
+          "canvasSize": [
+            0,
+            0
+          ],
+          "renderBins": [
+            {
+              "name": "UnnamedPass",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 12
+                  },
+                  "timeMs": {
+                    "start": 1548.4000000953674,
+                    "end": 1548.5,
+                    "duration": 0.09999990463256836
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 1548.4000000953674,
+                "end": 1548.5,
+                "duration": 0.09999990463256836
+              }
+            },
+            {
+              "name": "opaque",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 12
+                  },
+                  "timeMs": {
+                    "start": 1548.5,
+                    "end": 1548.5,
+                    "duration": 0
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 1548.5,
+                "end": 1548.5,
+                "duration": 0
+              }
+            },
+            {
+              "name": "edgesColorOpaque",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 12
+                  },
+                  "timeMs": {
+                    "start": 1548.6000000238419,
+                    "end": 1548.6000000238419,
+                    "duration": 0
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 1548.5,
+                "end": 1548.6000000238419,
+                "duration": 0.10000002384185791
+              }
+            }
+          ],
+          "timeMs": {
+            "start": 1547.3000000715256,
+            "end": 1548.6000000238419,
+            "duration": 1.2999999523162842
+          },
+          "numDrawCalls": 3,
+          "numPrims": 36
+        }
+      ]
+    }
+  }
+}

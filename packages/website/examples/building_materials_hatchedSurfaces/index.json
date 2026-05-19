@@ -1,0 +1,17 @@
+{
+  "id": "building_materials_hatchedSurfaces",
+  "title": "Hatch patterns on triangle surfaces",
+  "description": "Six boxes side-by-side, each carrying a `SceneMaterial` with a different hatch pattern. The picker in the intro toggles all five hatched materials between screen-space and world-space coordinate modes at runtime via `material.hatchPattern = \u2026` and the `onSceneMaterialPatternChanged` re-encode path. Screen-space mode keeps spacing and line-width in pixels (camera-locked); world-space mode keeps them in world units (geometry-locked) \u2014 matching how a CAD package's material-fill hatches behave under zoom. Picking ignores the hatch in both modes.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "Materials",
+    "Hatch",
+    "Engineering",
+    "SceneMaterial"
+  ],
+  "categories": [
+    "Materials"
+  ],
+  "topic": "materials.hatch"
+}

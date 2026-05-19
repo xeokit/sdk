@@ -1,0 +1,17 @@
+{
+  "id": "presentations_drawings_duplex",
+  "title": "Drawings \u2014 Duplex",
+  "description": "Generates three drawing SceneModels (plan, front elevation, right elevation) from the Duplex IFC model via buildDrawing, with a live control panel for every major drawings API parameter \u2014 style (lines / fills), hidden-line elimination + resolution, frame margin, panel opacity, title block, plane offset, line width, and a per-plan section cut. When the section caps toggle is enabled, buildSectionCaps generates filled cap geometry at the cut depth, then buildDrawing is called a SECOND time onto the same plan-view target SceneModel \u2014 demonstrating multi-source composition (caller threads matching direction / aabb / offset, chrome only on the first call). Clicking any drawing selects the source ViewObject.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "tags": [
+    "Wireframe",
+    "Projection",
+    "IFC",
+    "Duplex"
+  ],
+  "categories": [
+    "Demos"
+  ],
+  "topic": "demos.wireframe"
+}

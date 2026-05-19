@@ -1,0 +1,18 @@
+{
+  "id": "building_doublePrecision_megasite",
+  "title": "Double-Precision Megasite",
+  "description": "Stress-tests xeokit's double-precision world transforms by placing a kilometre-scale procedurally-generated site at very large world coordinates that would jitter under standard float32 WebGL. Vertex coordinates stay local and small; only the transforms and the model's coordinate-system origin carry the large values. The renderer's relative-to-camera tiling keeps motion stable even when the camera is zoomed in close to geometry that sits millions of units from the world origin.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "DoublePrecision",
+    "RTC",
+    "Procgen",
+    "Megasite"
+  ],
+  "categories": [
+    "Modeling",
+    "Scene"
+  ],
+  "topic": "modeling.scene.doubleprecision"
+}

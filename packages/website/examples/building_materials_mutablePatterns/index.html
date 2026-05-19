@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SceneMaterial — mutable line + hatch patterns</title>
+  <style>
+    body {
+      background-color: #f6f7f9;
+      overflow: hidden;
+      margin: 0;
+      user-select: none;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: #111;
+    }
+    #demoCanvas {
+      position: absolute;
+      inset: 0;
+      background: white;
+      border: 0;
+    }
+    #intro {
+      position: absolute;
+      top: 86px;
+      left: 12px;
+      max-width: 440px;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 6px;
+      color: #333;
+      font-size: 12px;
+      line-height: 1.45;
+      z-index: 300000;
+    }
+    #intro code {
+      background: rgba(0, 0, 0, 0.05);
+      padding: 0 4px;
+      border-radius: 3px;
+    }
+    .pickerRow {
+      margin-top: 8px;
+    }
+    .pickerLabel {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .pickerRow .buttons {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .pickerRow button {
+      font: inherit;
+      font-size: 11px;
+      padding: 4px 8px;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 4px;
+      cursor: pointer;
+      color: #333;
+    }
+    .pickerRow button:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+    .pickerRow button[aria-pressed="true"] {
+      background: #2c7e6f;
+      border-color: #1d5e52;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="intro">
+  <strong>Mutable material patterns.</strong> The two rows of boxes
+  below share a single <code>SceneMaterial</code> each — surface
+  boxes on the top, wireframe boxes on the bottom. Clicking the
+  buttons below updates the material's
+  <code>hatchPattern</code> or <code>linePattern</code> at runtime;
+  the new texel data lands in the per-batch pattern table on the
+  next frame, with no model rebuild and no mesh-side resync.
+
+  <div class="pickerRow">
+    <span class="pickerLabel">Surface material — hatchPattern</span>
+    <div class="buttons" id="hatchPicker" role="radiogroup">
+      <button type="button" data-style="solid"         aria-pressed="false">solid</button>
+      <button type="button" data-style="lines"         aria-pressed="false">lines</button>
+      <button type="button" data-style="cross"         aria-pressed="false">cross</button>
+      <button type="button" data-style="diagonalLines" aria-pressed="false">diagonal</button>
+      <button type="button" data-style="diagonalCross" aria-pressed="false">diagonal-cross</button>
+    </div>
+  </div>
+
+  <div class="pickerRow">
+    <span class="pickerLabel">Hatch coordinate space</span>
+    <div class="buttons" id="hatchSpacePicker" role="radiogroup">
+      <button type="button" data-space="screen" aria-pressed="false">screen-space</button>
+      <button type="button" data-space="world"  aria-pressed="false">world-space</button>
+    </div>
+  </div>
+
+  <div class="pickerRow">
+    <span class="pickerLabel">Wireframe material — linePattern</span>
+    <div class="buttons" id="linePicker" role="radiogroup">
+      <button type="button" data-style="solid"      aria-pressed="false">solid</button>
+      <button type="button" data-style="dashed"     aria-pressed="false">dashed</button>
+      <button type="button" data-style="dotted"     aria-pressed="false">dotted</button>
+      <button type="button" data-style="dashDot"    aria-pressed="false">dash-dot</button>
+      <button type="button" data-style="dashDotDot" aria-pressed="false">dash-dot-dot</button>
+    </div>
+  </div>
+</div>
+<script type="module" src="./index.js"></script>
+</body>
+</html>

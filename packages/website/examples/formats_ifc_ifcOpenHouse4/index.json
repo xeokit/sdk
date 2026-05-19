@@ -1,0 +1,18 @@
+{
+  "id": "formats_ifc_ifcOpenHouse4",
+  "title": "Viewing IFC using IFCLoader",
+  "description": "How to use IFCLoader to view an IFC model in the browser with a xeokit web viewer.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "tags": [
+    "IFC",
+    "XGF",
+    "webifc2xgf",
+    "_Featured"
+  ],
+  "categories": [
+    "Importing",
+    "IFC"
+  ],
+  "topic": "import.ifc"
+}

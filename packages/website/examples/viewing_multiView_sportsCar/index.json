@@ -1,0 +1,13 @@
+{
+  "id": "viewing_multiView_sportsCar",
+  "title": "Multi-View Model Viewer (SportsCar)",
+  "description": "Render a single model across multiple canvases with independent camera and interaction states.",
+  "isTutorial": false,
+  "isVisualTest": true,
+  "tags": [],
+  "categories": [
+    "Viewer",
+    "Views"
+  ],
+  "topic": "viewer.multiview"
+}

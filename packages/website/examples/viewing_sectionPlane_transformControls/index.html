@@ -1,0 +1,85 @@
+
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SectionPlane driven by TransformControls (Duplex)</title>
+    <style>
+        body {
+            background-color: white;
+            overflow: hidden;
+            margin: 0;
+            user-select: none;
+            font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+        }
+
+        #demoCanvas {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            background: white;
+            border: 0;
+        }
+
+        #card {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(255, 255, 255, 0.92);
+            padding: 10px 12px;
+            border-radius: 6px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+            font-size: 12px;
+            line-height: 1.4;
+            max-width: 280px;
+            z-index: 10;
+        }
+
+        #card kbd {
+            display: inline-block;
+            min-width: 16px;
+            padding: 0 5px;
+            background: #f1f1f1;
+            border: 1px solid #ccc;
+            border-bottom-width: 2px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        #card button {
+            font: inherit;
+            padding: 2px 8px;
+            border: 1px solid #bbb;
+            background: #fafafa;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        #card button[aria-pressed="true"] {
+            background: #2b6cb0;
+            color: white;
+            border-color: #2b6cb0;
+        }
+    </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+
+<div id="card">
+    <strong>SectionPlane × TransformControls</strong><br/>
+    Drag the gizmo to slice the model. The gizmo's translation
+    becomes <code>plane.pos</code>; its rotated +Z axis becomes
+    <code>plane.dir</code>.<br/><br/>
+    <kbd>G</kbd> translate &nbsp; <kbd>R</kbd> rotate &nbsp;
+    <kbd>N</kbd> hide gizmo<br/>
+    <kbd>Q</kbd> world / local space<br/><br/>
+    Plane: <button id="planeToggle" aria-pressed="true">on</button>
+</div>
+
+</body>
+<script type="module" src="./index.js"></script>
+</html>

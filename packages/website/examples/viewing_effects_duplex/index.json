@@ -1,0 +1,23 @@
+{
+  "id": "viewing_effects_duplex",
+  "title": "Full Effects Stack (Duplex)",
+  "description": "Every post-process and shading knob exposed on one Duplex IFC scene \u2014 SAO, cascaded directional shadows, edges, tonemap + supersampling, bloom, and FXAA. Use the collapsible sections in the panel to tune each effect in isolation.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "SAO",
+    "Shadows",
+    "CSM",
+    "Edges",
+    "Tonemap",
+    "Bloom",
+    "FXAA",
+    "HDR",
+    "Renderer"
+  ],
+  "categories": [
+    "Effects",
+    "Renderer"
+  ],
+  "topic": "effects.full"
+}

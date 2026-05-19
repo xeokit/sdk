@@ -1,0 +1,18 @@
+{
+  "id": "interop_bcf_saveAndLoad",
+  "title": "BCF Viewpoint Save and Load",
+  "description": "How to use saveBCFViewpoint and loadBCFViewpoint to capture and restore a viewer state \u2014 including camera position, section planes, and per-object selection, x-ray, and visibility states.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "tags": [
+    "BCF",
+    "IFC",
+    "_Featured"
+  ],
+  "categories": [
+    "Interaction",
+    "BCF",
+    "IFC"
+  ],
+  "topic": "interaction.bcf"
+}

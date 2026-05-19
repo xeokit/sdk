@@ -1,0 +1,14 @@
+{
+  "id": "building_sceneModel_sandDunes",
+  "title": "Procedural Sand Dunes",
+  "description": "Procedurally generate a field of realistic sand dunes combining broad wave undulation with 30 individual barchan crescent dunes \u2014 each a parabolic mound with a leeward notch that forms the characteristic curved slip face and two downwind horns. Smooth normals are computed analytically from the height gradient.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [],
+  "categories": [
+    "Modeling",
+    "Scene",
+    "Geometry"
+  ],
+  "topic": "modeling.scene.geometry"
+}

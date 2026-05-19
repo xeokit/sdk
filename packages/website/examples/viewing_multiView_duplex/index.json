@@ -1,0 +1,13 @@
+{
+  "id": "viewing_multiView_duplex",
+  "title": "Multi-View IFC Viewer (Duplex)",
+  "description": "Render a single IFC model across multiple canvases with independent camera and interaction states.",
+  "isTutorial": false,
+  "isVisualTest": true,
+  "tags": [],
+  "categories": [
+    "Viewer",
+    "Views"
+  ],
+  "topic": "viewer.multiview"
+}

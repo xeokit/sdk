@@ -1,0 +1,13 @@
+{
+  "id": "building_fromParams_triangle",
+  "title": "Building and viewing a simple SceneModel, from JSON",
+  "description": "In this example, we'll use the xeokit SDK to build and view a simple model, from JSON",
+  "isTutorial": false,
+  "isVisualTest": true,
+  "tags": [],
+  "categories": [
+    "Modeling",
+    "Scene"
+  ],
+  "topic": "modeling.scene.geometry"
+}

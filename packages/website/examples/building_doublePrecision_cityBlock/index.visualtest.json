@@ -1,0 +1,483 @@
+{
+  "stats": {
+    "startTime": 343.2000000476837,
+    "endTime": 491.3000000715256,
+    "elapsedTime": 148.10000002384186,
+    "aabb": [
+      473988,
+      -1,
+      5560988,
+      474108,
+      43,
+      5561108
+    ],
+    "scene": {
+      "numTransforms": 0,
+      "numObjects": 43,
+      "numMeshes": 43,
+      "numGeometries": 1,
+      "numTextures": 0,
+      "numMaterials": 0,
+      "numTriangles": 12,
+      "numLines": 0,
+      "numPoints": 0,
+      "numVertices": 24,
+      "textureBytes": 0
+    },
+    "data": {
+      "numObjects": 0,
+      "numRelationships": 0,
+      "numPropertySets": 0
+    },
+    "memory": {
+      "allocatedMB": 12.144088745117188,
+      "usedMB": 0.0548553466796875
+    },
+    "renderer": {
+      "tiles": {
+        "474040-0-5561040": {
+          "id": "474040-0-5561040",
+          "rtcCenter": [
+            474040,
+            0,
+            5561040
+          ],
+          "size": 20,
+          "tileIndex": 0,
+          "numMeshes": 2
+        },
+        "474000-0-5561000": {
+          "id": "474000-0-5561000",
+          "rtcCenter": [
+            474000,
+            0,
+            5561000
+          ],
+          "size": 20,
+          "tileIndex": 1,
+          "numMeshes": 1
+        },
+        "474020-0-5561000": {
+          "id": "474020-0-5561000",
+          "rtcCenter": [
+            474020,
+            0,
+            5561000
+          ],
+          "size": 20,
+          "tileIndex": 2,
+          "numMeshes": 1
+        },
+        "474040-0-5561000": {
+          "id": "474040-0-5561000",
+          "rtcCenter": [
+            474040,
+            0,
+            5561000
+          ],
+          "size": 20,
+          "tileIndex": 3,
+          "numMeshes": 1
+        },
+        "474060-20-5561000": {
+          "id": "474060-20-5561000",
+          "rtcCenter": [
+            474060,
+            20,
+            5561000
+          ],
+          "size": 20,
+          "tileIndex": 4,
+          "numMeshes": 1
+        },
+        "474080-0-5561000": {
+          "id": "474080-0-5561000",
+          "rtcCenter": [
+            474080,
+            0,
+            5561000
+          ],
+          "size": 20,
+          "tileIndex": 5,
+          "numMeshes": 2
+        },
+        "474000-0-5561020": {
+          "id": "474000-0-5561020",
+          "rtcCenter": [
+            474000,
+            0,
+            5561020
+          ],
+          "size": 20,
+          "tileIndex": 6,
+          "numMeshes": 1
+        },
+        "474020-20-5561020": {
+          "id": "474020-20-5561020",
+          "rtcCenter": [
+            474020,
+            20,
+            5561020
+          ],
+          "size": 20,
+          "tileIndex": 7,
+          "numMeshes": 1
+        },
+        "474040-0-5561020": {
+          "id": "474040-0-5561020",
+          "rtcCenter": [
+            474040,
+            0,
+            5561020
+          ],
+          "size": 20,
+          "tileIndex": 8,
+          "numMeshes": 1
+        },
+        "474060-0-5561020": {
+          "id": "474060-0-5561020",
+          "rtcCenter": [
+            474060,
+            0,
+            5561020
+          ],
+          "size": 20,
+          "tileIndex": 9,
+          "numMeshes": 1
+        },
+        "474080-20-5561020": {
+          "id": "474080-20-5561020",
+          "rtcCenter": [
+            474080,
+            20,
+            5561020
+          ],
+          "size": 20,
+          "tileIndex": 10,
+          "numMeshes": 1
+        },
+        "474080-0-5561020": {
+          "id": "474080-0-5561020",
+          "rtcCenter": [
+            474080,
+            0,
+            5561020
+          ],
+          "size": 20,
+          "tileIndex": 11,
+          "numMeshes": 1
+        },
+        "474000-0-5561040": {
+          "id": "474000-0-5561040",
+          "rtcCenter": [
+            474000,
+            0,
+            5561040
+          ],
+          "size": 20,
+          "tileIndex": 12,
+          "numMeshes": 1
+        },
+        "474020-0-5561040": {
+          "id": "474020-0-5561040",
+          "rtcCenter": [
+            474020,
+            0,
+            5561040
+          ],
+          "size": 20,
+          "tileIndex": 13,
+          "numMeshes": 1
+        },
+        "474060-0-5561040": {
+          "id": "474060-0-5561040",
+          "rtcCenter": [
+            474060,
+            0,
+            5561040
+          ],
+          "size": 20,
+          "tileIndex": 14,
+          "numMeshes": 1
+        },
+        "474080-0-5561040": {
+          "id": "474080-0-5561040",
+          "rtcCenter": [
+            474080,
+            0,
+            5561040
+          ],
+          "size": 20,
+          "tileIndex": 15,
+          "numMeshes": 2
+        },
+        "474000-20-5561060": {
+          "id": "474000-20-5561060",
+          "rtcCenter": [
+            474000,
+            20,
+            5561060
+          ],
+          "size": 20,
+          "tileIndex": 16,
+          "numMeshes": 1
+        },
+        "474020-0-5561060": {
+          "id": "474020-0-5561060",
+          "rtcCenter": [
+            474020,
+            0,
+            5561060
+          ],
+          "size": 20,
+          "tileIndex": 17,
+          "numMeshes": 1
+        },
+        "474040-0-5561060": {
+          "id": "474040-0-5561060",
+          "rtcCenter": [
+            474040,
+            0,
+            5561060
+          ],
+          "size": 20,
+          "tileIndex": 18,
+          "numMeshes": 1
+        },
+        "474060-0-5561060": {
+          "id": "474060-0-5561060",
+          "rtcCenter": [
+            474060,
+            0,
+            5561060
+          ],
+          "size": 20,
+          "tileIndex": 19,
+          "numMeshes": 1
+        },
+        "474080-20-5561060": {
+          "id": "474080-20-5561060",
+          "rtcCenter": [
+            474080,
+            20,
+            5561060
+          ],
+          "size": 20,
+          "tileIndex": 20,
+          "numMeshes": 1
+        },
+        "474080-0-5561060": {
+          "id": "474080-0-5561060",
+          "rtcCenter": [
+            474080,
+            0,
+            5561060
+          ],
+          "size": 20,
+          "tileIndex": 21,
+          "numMeshes": 1
+        },
+        "474000-0-5561080": {
+          "id": "474000-0-5561080",
+          "rtcCenter": [
+            474000,
+            0,
+            5561080
+          ],
+          "size": 20,
+          "tileIndex": 22,
+          "numMeshes": 2
+        },
+        "474020-20-5561080": {
+          "id": "474020-20-5561080",
+          "rtcCenter": [
+            474020,
+            20,
+            5561080
+          ],
+          "size": 20,
+          "tileIndex": 23,
+          "numMeshes": 1
+        },
+        "474040-0-5561080": {
+          "id": "474040-0-5561080",
+          "rtcCenter": [
+            474040,
+            0,
+            5561080
+          ],
+          "size": 20,
+          "tileIndex": 24,
+          "numMeshes": 2
+        },
+        "474060-0-5561080": {
+          "id": "474060-0-5561080",
+          "rtcCenter": [
+            474060,
+            0,
+            5561080
+          ],
+          "size": 20,
+          "tileIndex": 25,
+          "numMeshes": 2
+        },
+        "474080-0-5561080": {
+          "id": "474080-0-5561080",
+          "rtcCenter": [
+            474080,
+            0,
+            5561080
+          ],
+          "size": 20,
+          "tileIndex": 26,
+          "numMeshes": 2
+        },
+        "474020-0-5561080": {
+          "id": "474020-0-5561080",
+          "rtcCenter": [
+            474020,
+            0,
+            5561080
+          ],
+          "size": 20,
+          "tileIndex": 27,
+          "numMeshes": 1
+        },
+        "474080-20-5561080": {
+          "id": "474080-20-5561080",
+          "rtcCenter": [
+            474080,
+            20,
+            5561080
+          ],
+          "size": 20,
+          "tileIndex": 28,
+          "numMeshes": 2
+        },
+        "474040-20-5561040": {
+          "id": "474040-20-5561040",
+          "rtcCenter": [
+            474040,
+            20,
+            5561040
+          ],
+          "size": 20,
+          "tileIndex": 29,
+          "numMeshes": 1
+        },
+        "474040-40-5561040": {
+          "id": "474040-40-5561040",
+          "rtcCenter": [
+            474040,
+            40,
+            5561040
+          ],
+          "size": 20,
+          "tileIndex": 30,
+          "numMeshes": 3
+        },
+        "474060-40-5561040": {
+          "id": "474060-40-5561040",
+          "rtcCenter": [
+            474060,
+            40,
+            5561040
+          ],
+          "size": 20,
+          "tileIndex": 31,
+          "numMeshes": 2
+        }
+      },
+      "views": [
+        {
+          "viewId": "0911714a-b270-4530-a867-89ae30735606",
+          "canvasSize": [
+            0,
+            0
+          ],
+          "renderBins": [
+            {
+              "name": "UnnamedPass",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 516
+                  },
+                  "timeMs": {
+                    "start": 1430.7000000476837,
+                    "end": 1430.8000000715256,
+                    "duration": 0.10000002384185791
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 1430.7000000476837,
+                "end": 1430.8000000715256,
+                "duration": 0.10000002384185791
+              }
+            },
+            {
+              "name": "opaque",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 516
+                  },
+                  "timeMs": {
+                    "start": 1430.8999999761581,
+                    "end": 1430.8999999761581,
+                    "duration": 0
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 1430.8000000715256,
+                "end": 1430.8999999761581,
+                "duration": 0.09999990463256836
+              }
+            },
+            {
+              "name": "edgesColorOpaque",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 516
+                  },
+                  "timeMs": {
+                    "start": 1430.8999999761581,
+                    "end": 1430.8999999761581,
+                    "duration": 0
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 1430.8999999761581,
+                "end": 1430.8999999761581,
+                "duration": 0
+              }
+            }
+          ],
+          "timeMs": {
+            "start": 1429.8000000715256,
+            "end": 1430.8999999761581,
+            "duration": 1.0999999046325684
+          },
+          "numDrawCalls": 3,
+          "numPrims": 1548
+        }
+      ]
+    }
+  }
+}

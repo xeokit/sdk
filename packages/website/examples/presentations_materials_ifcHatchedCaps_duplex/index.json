@@ -1,0 +1,19 @@
+{
+  "id": "presentations_materials_ifcHatchedCaps_duplex",
+  "title": "IFC Materials with Section Caps \u2014 Duplex",
+  "description": "Loads the Duplex IFC model, applies procedural PBR materials per IFC type (each tagged with the appropriate ANSI/ISO hatch convention for body shading), and slices the model with a horizontal section plane. Caps render via the stencil-based cap pass and fill each cross-section with a flat capColor. Toggle between DetailedRender (hatched-Lambert body) and RealisticRender (PBR body) \u2014 caps stay filled in both.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "Materials",
+    "Procedural",
+    "IFC",
+    "SectionPlane",
+    "Hatch"
+  ],
+  "categories": [
+    "Materials",
+    "Section Planes"
+  ],
+  "topic": "materials.procedural.section"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "viewing_viewer_fromParams",
+  "title": "Loading a Viewer Configuration",
+  "description": "This example demonstrates how to load a JSON snapshot of a xeokit Viewer's current runtime configuration.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "tags": [
+    "Viewer"
+  ],
+  "categories": [
+    "Viewer",
+    "Configuration"
+  ],
+  "topic": "viewer.configuration"
+}

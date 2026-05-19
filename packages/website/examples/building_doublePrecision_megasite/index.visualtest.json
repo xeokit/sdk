@@ -1,0 +1,5279 @@
+{
+  "stats": {
+    "startTime": 513.3999999761581,
+    "endTime": 739.1999999284744,
+    "elapsedTime": 225.79999995231628,
+    "aabb": [
+      -4200,
+      -4200,
+      -33.10842785052955,
+      4200,
+      4200,
+      113.06815634868107
+    ],
+    "scene": {
+      "numTransforms": 0,
+      "numObjects": 974,
+      "numMeshes": 974,
+      "numGeometries": 3,
+      "numTextures": 0,
+      "numMaterials": 0,
+      "numTriangles": 724,
+      "numLines": 0,
+      "numPoints": 0,
+      "numVertices": 455,
+      "textureBytes": 0
+    },
+    "data": {
+      "numObjects": 0,
+      "numRelationships": 0,
+      "numPropertySets": 0
+    },
+    "memory": {
+      "allocatedMB": 11.877059936523438,
+      "usedMB": 3.7922916412353516
+    },
+    "renderer": {
+      "tiles": {
+        "0-0-0": {
+          "id": "0-0-0",
+          "rtcCenter": [
+            0,
+            0,
+            0
+          ],
+          "size": 8388.608,
+          "tileIndex": 0,
+          "numMeshes": 9
+        },
+        "1520--1200-0": {
+          "id": "1520--1200-0",
+          "rtcCenter": [
+            1520,
+            -1200,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 1,
+          "numMeshes": 1
+        },
+        "-3040-0-0": {
+          "id": "-3040-0-0",
+          "rtcCenter": [
+            -3040,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 2,
+          "numMeshes": 1
+        },
+        "-2960-0-0": {
+          "id": "-2960-0-0",
+          "rtcCenter": [
+            -2960,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 3,
+          "numMeshes": 1
+        },
+        "-2920-0-0": {
+          "id": "-2920-0-0",
+          "rtcCenter": [
+            -2920,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 4,
+          "numMeshes": 1
+        },
+        "-2840-0-0": {
+          "id": "-2840-0-0",
+          "rtcCenter": [
+            -2840,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 5,
+          "numMeshes": 1
+        },
+        "-2760-0-0": {
+          "id": "-2760-0-0",
+          "rtcCenter": [
+            -2760,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 6,
+          "numMeshes": 1
+        },
+        "-2680-0-0": {
+          "id": "-2680-0-0",
+          "rtcCenter": [
+            -2680,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 7,
+          "numMeshes": 1
+        },
+        "-2600-0-0": {
+          "id": "-2600-0-0",
+          "rtcCenter": [
+            -2600,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 8,
+          "numMeshes": 1
+        },
+        "-2560-0-0": {
+          "id": "-2560-0-0",
+          "rtcCenter": [
+            -2560,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 9,
+          "numMeshes": 1
+        },
+        "-2480-0-0": {
+          "id": "-2480-0-0",
+          "rtcCenter": [
+            -2480,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 10,
+          "numMeshes": 1
+        },
+        "-2400-0-0": {
+          "id": "-2400-0-0",
+          "rtcCenter": [
+            -2400,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 11,
+          "numMeshes": 3
+        },
+        "-2320-0-0": {
+          "id": "-2320-0-0",
+          "rtcCenter": [
+            -2320,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 12,
+          "numMeshes": 1
+        },
+        "-2280-0-0": {
+          "id": "-2280-0-0",
+          "rtcCenter": [
+            -2280,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 13,
+          "numMeshes": 1
+        },
+        "-2200-0-0": {
+          "id": "-2200-0-0",
+          "rtcCenter": [
+            -2200,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 14,
+          "numMeshes": 1
+        },
+        "-2120-0-0": {
+          "id": "-2120-0-0",
+          "rtcCenter": [
+            -2120,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 15,
+          "numMeshes": 1
+        },
+        "-2040-0-0": {
+          "id": "-2040-0-0",
+          "rtcCenter": [
+            -2040,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 16,
+          "numMeshes": 1
+        },
+        "-2000-0-0": {
+          "id": "-2000-0-0",
+          "rtcCenter": [
+            -2000,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 17,
+          "numMeshes": 1
+        },
+        "-1920-0-0": {
+          "id": "-1920-0-0",
+          "rtcCenter": [
+            -1920,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 18,
+          "numMeshes": 1
+        },
+        "-1840-0-0": {
+          "id": "-1840-0-0",
+          "rtcCenter": [
+            -1840,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 19,
+          "numMeshes": 1
+        },
+        "-1760-0-0": {
+          "id": "-1760-0-0",
+          "rtcCenter": [
+            -1760,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 20,
+          "numMeshes": 1
+        },
+        "-1680-0-0": {
+          "id": "-1680-0-0",
+          "rtcCenter": [
+            -1680,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 21,
+          "numMeshes": 1
+        },
+        "-1640-0-0": {
+          "id": "-1640-0-0",
+          "rtcCenter": [
+            -1640,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 22,
+          "numMeshes": 1
+        },
+        "-1560-0-0": {
+          "id": "-1560-0-0",
+          "rtcCenter": [
+            -1560,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 23,
+          "numMeshes": 1
+        },
+        "-1480-0-0": {
+          "id": "-1480-0-0",
+          "rtcCenter": [
+            -1480,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 24,
+          "numMeshes": 1
+        },
+        "-1400-0-0": {
+          "id": "-1400-0-0",
+          "rtcCenter": [
+            -1400,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 25,
+          "numMeshes": 1
+        },
+        "-1360-0-0": {
+          "id": "-1360-0-0",
+          "rtcCenter": [
+            -1360,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 26,
+          "numMeshes": 1
+        },
+        "-1280-0-0": {
+          "id": "-1280-0-0",
+          "rtcCenter": [
+            -1280,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 27,
+          "numMeshes": 1
+        },
+        "-1200-0-0": {
+          "id": "-1200-0-0",
+          "rtcCenter": [
+            -1200,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 28,
+          "numMeshes": 1
+        },
+        "-1120-0-0": {
+          "id": "-1120-0-0",
+          "rtcCenter": [
+            -1120,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 29,
+          "numMeshes": 1
+        },
+        "-1080-0-0": {
+          "id": "-1080-0-0",
+          "rtcCenter": [
+            -1080,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 30,
+          "numMeshes": 1
+        },
+        "-1000-0-0": {
+          "id": "-1000-0-0",
+          "rtcCenter": [
+            -1000,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 31,
+          "numMeshes": 1
+        },
+        "-920-0-0": {
+          "id": "-920-0-0",
+          "rtcCenter": [
+            -920,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 32,
+          "numMeshes": 1
+        },
+        "-840-0-0": {
+          "id": "-840-0-0",
+          "rtcCenter": [
+            -840,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 33,
+          "numMeshes": 1
+        },
+        "-760-0-0": {
+          "id": "-760-0-0",
+          "rtcCenter": [
+            -760,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 34,
+          "numMeshes": 1
+        },
+        "-720-0-0": {
+          "id": "-720-0-0",
+          "rtcCenter": [
+            -720,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 35,
+          "numMeshes": 1
+        },
+        "-640-0-0": {
+          "id": "-640-0-0",
+          "rtcCenter": [
+            -640,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 36,
+          "numMeshes": 1
+        },
+        "-560-0-0": {
+          "id": "-560-0-0",
+          "rtcCenter": [
+            -560,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 37,
+          "numMeshes": 1
+        },
+        "-480-0-0": {
+          "id": "-480-0-0",
+          "rtcCenter": [
+            -480,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 38,
+          "numMeshes": 1
+        },
+        "-440-0-0": {
+          "id": "-440-0-0",
+          "rtcCenter": [
+            -440,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 39,
+          "numMeshes": 1
+        },
+        "-360-0-0": {
+          "id": "-360-0-0",
+          "rtcCenter": [
+            -360,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 40,
+          "numMeshes": 1
+        },
+        "-280-0-0": {
+          "id": "-280-0-0",
+          "rtcCenter": [
+            -280,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 41,
+          "numMeshes": 1
+        },
+        "-200-0-0": {
+          "id": "-200-0-0",
+          "rtcCenter": [
+            -200,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 42,
+          "numMeshes": 1
+        },
+        "-160-0-0": {
+          "id": "-160-0-0",
+          "rtcCenter": [
+            -160,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 43,
+          "numMeshes": 1
+        },
+        "-80-0-0": {
+          "id": "-80-0-0",
+          "rtcCenter": [
+            -80,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 44,
+          "numMeshes": 1
+        },
+        "80-0-0": {
+          "id": "80-0-0",
+          "rtcCenter": [
+            80,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 45,
+          "numMeshes": 5
+        },
+        "160-0-0": {
+          "id": "160-0-0",
+          "rtcCenter": [
+            160,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 46,
+          "numMeshes": 1
+        },
+        "200-0-0": {
+          "id": "200-0-0",
+          "rtcCenter": [
+            200,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 47,
+          "numMeshes": 2
+        },
+        "280-0-0": {
+          "id": "280-0-0",
+          "rtcCenter": [
+            280,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 48,
+          "numMeshes": 1
+        },
+        "360-0-0": {
+          "id": "360-0-0",
+          "rtcCenter": [
+            360,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 49,
+          "numMeshes": 1
+        },
+        "440-0-0": {
+          "id": "440-0-0",
+          "rtcCenter": [
+            440,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 50,
+          "numMeshes": 1
+        },
+        "480-0-0": {
+          "id": "480-0-0",
+          "rtcCenter": [
+            480,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 51,
+          "numMeshes": 1
+        },
+        "560-0-0": {
+          "id": "560-0-0",
+          "rtcCenter": [
+            560,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 52,
+          "numMeshes": 1
+        },
+        "640-0-0": {
+          "id": "640-0-0",
+          "rtcCenter": [
+            640,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 53,
+          "numMeshes": 1
+        },
+        "720-0-0": {
+          "id": "720-0-0",
+          "rtcCenter": [
+            720,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 54,
+          "numMeshes": 1
+        },
+        "760-0-0": {
+          "id": "760-0-0",
+          "rtcCenter": [
+            760,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 55,
+          "numMeshes": 1
+        },
+        "840-0-0": {
+          "id": "840-0-0",
+          "rtcCenter": [
+            840,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 56,
+          "numMeshes": 1
+        },
+        "920-0-0": {
+          "id": "920-0-0",
+          "rtcCenter": [
+            920,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 57,
+          "numMeshes": 1
+        },
+        "1000-0-0": {
+          "id": "1000-0-0",
+          "rtcCenter": [
+            1000,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 58,
+          "numMeshes": 1
+        },
+        "1080-0-0": {
+          "id": "1080-0-0",
+          "rtcCenter": [
+            1080,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 59,
+          "numMeshes": 1
+        },
+        "1120-0-0": {
+          "id": "1120-0-0",
+          "rtcCenter": [
+            1120,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 60,
+          "numMeshes": 1
+        },
+        "1200-0-0": {
+          "id": "1200-0-0",
+          "rtcCenter": [
+            1200,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 61,
+          "numMeshes": 1
+        },
+        "1280-0-0": {
+          "id": "1280-0-0",
+          "rtcCenter": [
+            1280,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 62,
+          "numMeshes": 1
+        },
+        "1360-0-0": {
+          "id": "1360-0-0",
+          "rtcCenter": [
+            1360,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 63,
+          "numMeshes": 1
+        },
+        "1400-0-0": {
+          "id": "1400-0-0",
+          "rtcCenter": [
+            1400,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 64,
+          "numMeshes": 1
+        },
+        "1480-0-0": {
+          "id": "1480-0-0",
+          "rtcCenter": [
+            1480,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 65,
+          "numMeshes": 1
+        },
+        "1560-0-0": {
+          "id": "1560-0-0",
+          "rtcCenter": [
+            1560,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 66,
+          "numMeshes": 1
+        },
+        "1640-0-0": {
+          "id": "1640-0-0",
+          "rtcCenter": [
+            1640,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 67,
+          "numMeshes": 1
+        },
+        "1680-0-0": {
+          "id": "1680-0-0",
+          "rtcCenter": [
+            1680,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 68,
+          "numMeshes": 1
+        },
+        "1760-0-0": {
+          "id": "1760-0-0",
+          "rtcCenter": [
+            1760,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 69,
+          "numMeshes": 1
+        },
+        "1840-0-0": {
+          "id": "1840-0-0",
+          "rtcCenter": [
+            1840,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 70,
+          "numMeshes": 1
+        },
+        "1920-0-0": {
+          "id": "1920-0-0",
+          "rtcCenter": [
+            1920,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 71,
+          "numMeshes": 1
+        },
+        "2000-0-0": {
+          "id": "2000-0-0",
+          "rtcCenter": [
+            2000,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 72,
+          "numMeshes": 1
+        },
+        "2040-0-0": {
+          "id": "2040-0-0",
+          "rtcCenter": [
+            2040,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 73,
+          "numMeshes": 1
+        },
+        "2120-0-0": {
+          "id": "2120-0-0",
+          "rtcCenter": [
+            2120,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 74,
+          "numMeshes": 1
+        },
+        "2200-0-0": {
+          "id": "2200-0-0",
+          "rtcCenter": [
+            2200,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 75,
+          "numMeshes": 1
+        },
+        "2280-0-0": {
+          "id": "2280-0-0",
+          "rtcCenter": [
+            2280,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 76,
+          "numMeshes": 1
+        },
+        "2320-0-0": {
+          "id": "2320-0-0",
+          "rtcCenter": [
+            2320,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 77,
+          "numMeshes": 1
+        },
+        "2400-0-0": {
+          "id": "2400-0-0",
+          "rtcCenter": [
+            2400,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 78,
+          "numMeshes": 3
+        },
+        "2480-0-0": {
+          "id": "2480-0-0",
+          "rtcCenter": [
+            2480,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 79,
+          "numMeshes": 1
+        },
+        "2560-0-0": {
+          "id": "2560-0-0",
+          "rtcCenter": [
+            2560,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 80,
+          "numMeshes": 1
+        },
+        "2600-0-0": {
+          "id": "2600-0-0",
+          "rtcCenter": [
+            2600,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 81,
+          "numMeshes": 1
+        },
+        "2680-0-0": {
+          "id": "2680-0-0",
+          "rtcCenter": [
+            2680,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 82,
+          "numMeshes": 1
+        },
+        "2760-0-0": {
+          "id": "2760-0-0",
+          "rtcCenter": [
+            2760,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 83,
+          "numMeshes": 1
+        },
+        "2840-0-0": {
+          "id": "2840-0-0",
+          "rtcCenter": [
+            2840,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 84,
+          "numMeshes": 1
+        },
+        "2920-0-0": {
+          "id": "2920-0-0",
+          "rtcCenter": [
+            2920,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 85,
+          "numMeshes": 1
+        },
+        "2960-0-0": {
+          "id": "2960-0-0",
+          "rtcCenter": [
+            2960,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 86,
+          "numMeshes": 1
+        },
+        "3040-0-0": {
+          "id": "3040-0-0",
+          "rtcCenter": [
+            3040,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 87,
+          "numMeshes": 1
+        },
+        "0--3040-0": {
+          "id": "0--3040-0",
+          "rtcCenter": [
+            0,
+            -3040,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 88,
+          "numMeshes": 1
+        },
+        "0--2960-0": {
+          "id": "0--2960-0",
+          "rtcCenter": [
+            0,
+            -2960,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 89,
+          "numMeshes": 1
+        },
+        "0--2920-0": {
+          "id": "0--2920-0",
+          "rtcCenter": [
+            0,
+            -2920,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 90,
+          "numMeshes": 1
+        },
+        "0--2840-0": {
+          "id": "0--2840-0",
+          "rtcCenter": [
+            0,
+            -2840,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 91,
+          "numMeshes": 1
+        },
+        "0--2760-0": {
+          "id": "0--2760-0",
+          "rtcCenter": [
+            0,
+            -2760,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 92,
+          "numMeshes": 1
+        },
+        "0--2680-0": {
+          "id": "0--2680-0",
+          "rtcCenter": [
+            0,
+            -2680,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 93,
+          "numMeshes": 1
+        },
+        "0--2600-0": {
+          "id": "0--2600-0",
+          "rtcCenter": [
+            0,
+            -2600,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 94,
+          "numMeshes": 1
+        },
+        "0--2560-0": {
+          "id": "0--2560-0",
+          "rtcCenter": [
+            0,
+            -2560,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 95,
+          "numMeshes": 1
+        },
+        "0--2480-0": {
+          "id": "0--2480-0",
+          "rtcCenter": [
+            0,
+            -2480,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 96,
+          "numMeshes": 1
+        },
+        "0--2400-0": {
+          "id": "0--2400-0",
+          "rtcCenter": [
+            0,
+            -2400,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 97,
+          "numMeshes": 3
+        },
+        "0--2320-0": {
+          "id": "0--2320-0",
+          "rtcCenter": [
+            0,
+            -2320,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 98,
+          "numMeshes": 1
+        },
+        "0--2280-0": {
+          "id": "0--2280-0",
+          "rtcCenter": [
+            0,
+            -2280,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 99,
+          "numMeshes": 1
+        },
+        "0--2200-0": {
+          "id": "0--2200-0",
+          "rtcCenter": [
+            0,
+            -2200,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 100,
+          "numMeshes": 1
+        },
+        "0--2120-0": {
+          "id": "0--2120-0",
+          "rtcCenter": [
+            0,
+            -2120,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 101,
+          "numMeshes": 1
+        },
+        "0--2040-0": {
+          "id": "0--2040-0",
+          "rtcCenter": [
+            0,
+            -2040,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 102,
+          "numMeshes": 1
+        },
+        "0--2000-0": {
+          "id": "0--2000-0",
+          "rtcCenter": [
+            0,
+            -2000,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 103,
+          "numMeshes": 1
+        },
+        "0--1920-0": {
+          "id": "0--1920-0",
+          "rtcCenter": [
+            0,
+            -1920,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 104,
+          "numMeshes": 1
+        },
+        "0--1840-0": {
+          "id": "0--1840-0",
+          "rtcCenter": [
+            0,
+            -1840,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 105,
+          "numMeshes": 1
+        },
+        "0--1760-0": {
+          "id": "0--1760-0",
+          "rtcCenter": [
+            0,
+            -1760,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 106,
+          "numMeshes": 1
+        },
+        "0--1680-0": {
+          "id": "0--1680-0",
+          "rtcCenter": [
+            0,
+            -1680,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 107,
+          "numMeshes": 1
+        },
+        "0--1640-0": {
+          "id": "0--1640-0",
+          "rtcCenter": [
+            0,
+            -1640,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 108,
+          "numMeshes": 1
+        },
+        "0--1560-0": {
+          "id": "0--1560-0",
+          "rtcCenter": [
+            0,
+            -1560,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 109,
+          "numMeshes": 1
+        },
+        "0--1480-0": {
+          "id": "0--1480-0",
+          "rtcCenter": [
+            0,
+            -1480,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 110,
+          "numMeshes": 1
+        },
+        "0--1400-0": {
+          "id": "0--1400-0",
+          "rtcCenter": [
+            0,
+            -1400,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 111,
+          "numMeshes": 1
+        },
+        "0--1360-0": {
+          "id": "0--1360-0",
+          "rtcCenter": [
+            0,
+            -1360,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 112,
+          "numMeshes": 1
+        },
+        "0--1280-0": {
+          "id": "0--1280-0",
+          "rtcCenter": [
+            0,
+            -1280,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 113,
+          "numMeshes": 1
+        },
+        "0--1200-0": {
+          "id": "0--1200-0",
+          "rtcCenter": [
+            0,
+            -1200,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 114,
+          "numMeshes": 1
+        },
+        "0--1120-0": {
+          "id": "0--1120-0",
+          "rtcCenter": [
+            0,
+            -1120,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 115,
+          "numMeshes": 1
+        },
+        "0--1080-0": {
+          "id": "0--1080-0",
+          "rtcCenter": [
+            0,
+            -1080,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 116,
+          "numMeshes": 1
+        },
+        "0--1000-0": {
+          "id": "0--1000-0",
+          "rtcCenter": [
+            0,
+            -1000,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 117,
+          "numMeshes": 1
+        },
+        "0--920-0": {
+          "id": "0--920-0",
+          "rtcCenter": [
+            0,
+            -920,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 118,
+          "numMeshes": 1
+        },
+        "0--840-0": {
+          "id": "0--840-0",
+          "rtcCenter": [
+            0,
+            -840,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 119,
+          "numMeshes": 1
+        },
+        "0--760-0": {
+          "id": "0--760-0",
+          "rtcCenter": [
+            0,
+            -760,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 120,
+          "numMeshes": 1
+        },
+        "0--720-0": {
+          "id": "0--720-0",
+          "rtcCenter": [
+            0,
+            -720,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 121,
+          "numMeshes": 1
+        },
+        "0--640-0": {
+          "id": "0--640-0",
+          "rtcCenter": [
+            0,
+            -640,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 122,
+          "numMeshes": 1
+        },
+        "0--560-0": {
+          "id": "0--560-0",
+          "rtcCenter": [
+            0,
+            -560,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 123,
+          "numMeshes": 1
+        },
+        "0--480-0": {
+          "id": "0--480-0",
+          "rtcCenter": [
+            0,
+            -480,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 124,
+          "numMeshes": 1
+        },
+        "0--440-0": {
+          "id": "0--440-0",
+          "rtcCenter": [
+            0,
+            -440,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 125,
+          "numMeshes": 1
+        },
+        "0--360-0": {
+          "id": "0--360-0",
+          "rtcCenter": [
+            0,
+            -360,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 126,
+          "numMeshes": 1
+        },
+        "0--280-0": {
+          "id": "0--280-0",
+          "rtcCenter": [
+            0,
+            -280,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 127,
+          "numMeshes": 1
+        },
+        "0--200-0": {
+          "id": "0--200-0",
+          "rtcCenter": [
+            0,
+            -200,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 128,
+          "numMeshes": 1
+        },
+        "0--160-0": {
+          "id": "0--160-0",
+          "rtcCenter": [
+            0,
+            -160,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 129,
+          "numMeshes": 1
+        },
+        "0--80-0": {
+          "id": "0--80-0",
+          "rtcCenter": [
+            0,
+            -80,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 130,
+          "numMeshes": 1
+        },
+        "0-80-0": {
+          "id": "0-80-0",
+          "rtcCenter": [
+            0,
+            80,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 131,
+          "numMeshes": 1
+        },
+        "0-160-0": {
+          "id": "0-160-0",
+          "rtcCenter": [
+            0,
+            160,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 132,
+          "numMeshes": 1
+        },
+        "0-200-0": {
+          "id": "0-200-0",
+          "rtcCenter": [
+            0,
+            200,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 133,
+          "numMeshes": 1
+        },
+        "0-280-0": {
+          "id": "0-280-0",
+          "rtcCenter": [
+            0,
+            280,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 134,
+          "numMeshes": 1
+        },
+        "0-360-0": {
+          "id": "0-360-0",
+          "rtcCenter": [
+            0,
+            360,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 135,
+          "numMeshes": 1
+        },
+        "0-440-0": {
+          "id": "0-440-0",
+          "rtcCenter": [
+            0,
+            440,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 136,
+          "numMeshes": 1
+        },
+        "0-480-0": {
+          "id": "0-480-0",
+          "rtcCenter": [
+            0,
+            480,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 137,
+          "numMeshes": 1
+        },
+        "0-560-0": {
+          "id": "0-560-0",
+          "rtcCenter": [
+            0,
+            560,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 138,
+          "numMeshes": 1
+        },
+        "0-640-0": {
+          "id": "0-640-0",
+          "rtcCenter": [
+            0,
+            640,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 139,
+          "numMeshes": 1
+        },
+        "0-720-0": {
+          "id": "0-720-0",
+          "rtcCenter": [
+            0,
+            720,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 140,
+          "numMeshes": 1
+        },
+        "0-760-0": {
+          "id": "0-760-0",
+          "rtcCenter": [
+            0,
+            760,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 141,
+          "numMeshes": 1
+        },
+        "0-840-0": {
+          "id": "0-840-0",
+          "rtcCenter": [
+            0,
+            840,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 142,
+          "numMeshes": 1
+        },
+        "0-920-0": {
+          "id": "0-920-0",
+          "rtcCenter": [
+            0,
+            920,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 143,
+          "numMeshes": 1
+        },
+        "0-1000-0": {
+          "id": "0-1000-0",
+          "rtcCenter": [
+            0,
+            1000,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 144,
+          "numMeshes": 1
+        },
+        "0-1080-0": {
+          "id": "0-1080-0",
+          "rtcCenter": [
+            0,
+            1080,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 145,
+          "numMeshes": 1
+        },
+        "0-1120-0": {
+          "id": "0-1120-0",
+          "rtcCenter": [
+            0,
+            1120,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 146,
+          "numMeshes": 1
+        },
+        "0-1200-0": {
+          "id": "0-1200-0",
+          "rtcCenter": [
+            0,
+            1200,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 147,
+          "numMeshes": 1
+        },
+        "0-1280-0": {
+          "id": "0-1280-0",
+          "rtcCenter": [
+            0,
+            1280,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 148,
+          "numMeshes": 1
+        },
+        "0-1360-0": {
+          "id": "0-1360-0",
+          "rtcCenter": [
+            0,
+            1360,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 149,
+          "numMeshes": 1
+        },
+        "0-1400-0": {
+          "id": "0-1400-0",
+          "rtcCenter": [
+            0,
+            1400,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 150,
+          "numMeshes": 1
+        },
+        "0-1480-0": {
+          "id": "0-1480-0",
+          "rtcCenter": [
+            0,
+            1480,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 151,
+          "numMeshes": 1
+        },
+        "0-1560-0": {
+          "id": "0-1560-0",
+          "rtcCenter": [
+            0,
+            1560,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 152,
+          "numMeshes": 1
+        },
+        "0-1640-0": {
+          "id": "0-1640-0",
+          "rtcCenter": [
+            0,
+            1640,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 153,
+          "numMeshes": 1
+        },
+        "0-1680-0": {
+          "id": "0-1680-0",
+          "rtcCenter": [
+            0,
+            1680,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 154,
+          "numMeshes": 1
+        },
+        "0-1760-0": {
+          "id": "0-1760-0",
+          "rtcCenter": [
+            0,
+            1760,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 155,
+          "numMeshes": 1
+        },
+        "0-1840-0": {
+          "id": "0-1840-0",
+          "rtcCenter": [
+            0,
+            1840,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 156,
+          "numMeshes": 1
+        },
+        "0-1920-0": {
+          "id": "0-1920-0",
+          "rtcCenter": [
+            0,
+            1920,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 157,
+          "numMeshes": 1
+        },
+        "0-2000-0": {
+          "id": "0-2000-0",
+          "rtcCenter": [
+            0,
+            2000,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 158,
+          "numMeshes": 1
+        },
+        "0-2040-0": {
+          "id": "0-2040-0",
+          "rtcCenter": [
+            0,
+            2040,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 159,
+          "numMeshes": 1
+        },
+        "0-2120-0": {
+          "id": "0-2120-0",
+          "rtcCenter": [
+            0,
+            2120,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 160,
+          "numMeshes": 1
+        },
+        "0-2200-0": {
+          "id": "0-2200-0",
+          "rtcCenter": [
+            0,
+            2200,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 161,
+          "numMeshes": 1
+        },
+        "0-2280-0": {
+          "id": "0-2280-0",
+          "rtcCenter": [
+            0,
+            2280,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 162,
+          "numMeshes": 1
+        },
+        "0-2320-0": {
+          "id": "0-2320-0",
+          "rtcCenter": [
+            0,
+            2320,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 163,
+          "numMeshes": 1
+        },
+        "0-2400-0": {
+          "id": "0-2400-0",
+          "rtcCenter": [
+            0,
+            2400,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 164,
+          "numMeshes": 3
+        },
+        "0-2480-0": {
+          "id": "0-2480-0",
+          "rtcCenter": [
+            0,
+            2480,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 165,
+          "numMeshes": 1
+        },
+        "0-2560-0": {
+          "id": "0-2560-0",
+          "rtcCenter": [
+            0,
+            2560,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 166,
+          "numMeshes": 1
+        },
+        "0-2600-0": {
+          "id": "0-2600-0",
+          "rtcCenter": [
+            0,
+            2600,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 167,
+          "numMeshes": 1
+        },
+        "0-2680-0": {
+          "id": "0-2680-0",
+          "rtcCenter": [
+            0,
+            2680,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 168,
+          "numMeshes": 1
+        },
+        "0-2760-0": {
+          "id": "0-2760-0",
+          "rtcCenter": [
+            0,
+            2760,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 169,
+          "numMeshes": 1
+        },
+        "0-2840-0": {
+          "id": "0-2840-0",
+          "rtcCenter": [
+            0,
+            2840,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 170,
+          "numMeshes": 1
+        },
+        "0-2920-0": {
+          "id": "0-2920-0",
+          "rtcCenter": [
+            0,
+            2920,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 171,
+          "numMeshes": 1
+        },
+        "0-2960-0": {
+          "id": "0-2960-0",
+          "rtcCenter": [
+            0,
+            2960,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 172,
+          "numMeshes": 1
+        },
+        "0-3040-0": {
+          "id": "0-3040-0",
+          "rtcCenter": [
+            0,
+            3040,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 173,
+          "numMeshes": 1
+        },
+        "-600-800-0": {
+          "id": "-600-800-0",
+          "rtcCenter": [
+            -600,
+            800,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 174,
+          "numMeshes": 1
+        },
+        "-2320--400-0": {
+          "id": "-2320--400-0",
+          "rtcCenter": [
+            -2320,
+            -400,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 175,
+          "numMeshes": 1
+        },
+        "-2240--360-0": {
+          "id": "-2240--360-0",
+          "rtcCenter": [
+            -2240,
+            -360,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 176,
+          "numMeshes": 1
+        },
+        "-2200--320-0": {
+          "id": "-2200--320-0",
+          "rtcCenter": [
+            -2200,
+            -320,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 177,
+          "numMeshes": 1
+        },
+        "-2120--280-0": {
+          "id": "-2120--280-0",
+          "rtcCenter": [
+            -2120,
+            -280,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 178,
+          "numMeshes": 1
+        },
+        "-2080--240-0": {
+          "id": "-2080--240-0",
+          "rtcCenter": [
+            -2080,
+            -240,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 179,
+          "numMeshes": 1
+        },
+        "-2000--200-0": {
+          "id": "-2000--200-0",
+          "rtcCenter": [
+            -2000,
+            -200,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 180,
+          "numMeshes": 1
+        },
+        "-1960--160-0": {
+          "id": "-1960--160-0",
+          "rtcCenter": [
+            -1960,
+            -160,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 181,
+          "numMeshes": 1
+        },
+        "-1880--120-0": {
+          "id": "-1880--120-0",
+          "rtcCenter": [
+            -1880,
+            -120,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 182,
+          "numMeshes": 1
+        },
+        "-1840--80-0": {
+          "id": "-1840--80-0",
+          "rtcCenter": [
+            -1840,
+            -80,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 183,
+          "numMeshes": 1
+        },
+        "-1800--40-0": {
+          "id": "-1800--40-0",
+          "rtcCenter": [
+            -1800,
+            -40,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 184,
+          "numMeshes": 1
+        },
+        "-1720-0-0": {
+          "id": "-1720-0-0",
+          "rtcCenter": [
+            -1720,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 185,
+          "numMeshes": 1
+        },
+        "-1680-40-0": {
+          "id": "-1680-40-0",
+          "rtcCenter": [
+            -1680,
+            40,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 186,
+          "numMeshes": 1
+        },
+        "-1600-80-0": {
+          "id": "-1600-80-0",
+          "rtcCenter": [
+            -1600,
+            80,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 187,
+          "numMeshes": 1
+        },
+        "-1560-120-0": {
+          "id": "-1560-120-0",
+          "rtcCenter": [
+            -1560,
+            120,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 188,
+          "numMeshes": 1
+        },
+        "-1480-160-0": {
+          "id": "-1480-160-0",
+          "rtcCenter": [
+            -1480,
+            160,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 189,
+          "numMeshes": 1
+        },
+        "-1440-200-0": {
+          "id": "-1440-200-0",
+          "rtcCenter": [
+            -1440,
+            200,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 190,
+          "numMeshes": 1
+        },
+        "-1360-240-0": {
+          "id": "-1360-240-0",
+          "rtcCenter": [
+            -1360,
+            240,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 191,
+          "numMeshes": 1
+        },
+        "-1320-280-0": {
+          "id": "-1320-280-0",
+          "rtcCenter": [
+            -1320,
+            280,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 192,
+          "numMeshes": 1
+        },
+        "-1280-320-0": {
+          "id": "-1280-320-0",
+          "rtcCenter": [
+            -1280,
+            320,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 193,
+          "numMeshes": 1
+        },
+        "-1200-360-0": {
+          "id": "-1200-360-0",
+          "rtcCenter": [
+            -1200,
+            360,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 194,
+          "numMeshes": 1
+        },
+        "-1160-400-0": {
+          "id": "-1160-400-0",
+          "rtcCenter": [
+            -1160,
+            400,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 195,
+          "numMeshes": 1
+        },
+        "-1080-440-0": {
+          "id": "-1080-440-0",
+          "rtcCenter": [
+            -1080,
+            440,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 196,
+          "numMeshes": 1
+        },
+        "-1040-480-0": {
+          "id": "-1040-480-0",
+          "rtcCenter": [
+            -1040,
+            480,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 197,
+          "numMeshes": 1
+        },
+        "-960-520-0": {
+          "id": "-960-520-0",
+          "rtcCenter": [
+            -960,
+            520,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 198,
+          "numMeshes": 1
+        },
+        "-920-560-0": {
+          "id": "-920-560-0",
+          "rtcCenter": [
+            -920,
+            560,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 199,
+          "numMeshes": 1
+        },
+        "-840-600-0": {
+          "id": "-840-600-0",
+          "rtcCenter": [
+            -840,
+            600,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 200,
+          "numMeshes": 1
+        },
+        "-800-640-0": {
+          "id": "-800-640-0",
+          "rtcCenter": [
+            -800,
+            640,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 201,
+          "numMeshes": 1
+        },
+        "-760-680-0": {
+          "id": "-760-680-0",
+          "rtcCenter": [
+            -760,
+            680,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 202,
+          "numMeshes": 1
+        },
+        "-680-720-0": {
+          "id": "-680-720-0",
+          "rtcCenter": [
+            -680,
+            720,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 203,
+          "numMeshes": 1
+        },
+        "-640-760-0": {
+          "id": "-640-760-0",
+          "rtcCenter": [
+            -640,
+            760,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 204,
+          "numMeshes": 1
+        },
+        "-560-840-0": {
+          "id": "-560-840-0",
+          "rtcCenter": [
+            -560,
+            840,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 205,
+          "numMeshes": 1
+        },
+        "-520-880-0": {
+          "id": "-520-880-0",
+          "rtcCenter": [
+            -520,
+            880,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 206,
+          "numMeshes": 1
+        },
+        "-440-920-0": {
+          "id": "-440-920-0",
+          "rtcCenter": [
+            -440,
+            920,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 207,
+          "numMeshes": 1
+        },
+        "-400-960-0": {
+          "id": "-400-960-0",
+          "rtcCenter": [
+            -400,
+            960,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 208,
+          "numMeshes": 1
+        },
+        "-360-1000-0": {
+          "id": "-360-1000-0",
+          "rtcCenter": [
+            -360,
+            1000,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 209,
+          "numMeshes": 1
+        },
+        "-280-1040-0": {
+          "id": "-280-1040-0",
+          "rtcCenter": [
+            -280,
+            1040,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 210,
+          "numMeshes": 1
+        },
+        "-240-1080-0": {
+          "id": "-240-1080-0",
+          "rtcCenter": [
+            -240,
+            1080,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 211,
+          "numMeshes": 1
+        },
+        "-160-1120-0": {
+          "id": "-160-1120-0",
+          "rtcCenter": [
+            -160,
+            1120,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 212,
+          "numMeshes": 1
+        },
+        "-120-1160-0": {
+          "id": "-120-1160-0",
+          "rtcCenter": [
+            -120,
+            1160,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 213,
+          "numMeshes": 1
+        },
+        "-40-1200-0": {
+          "id": "-40-1200-0",
+          "rtcCenter": [
+            -40,
+            1200,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 214,
+          "numMeshes": 1
+        },
+        "0-1240-0": {
+          "id": "0-1240-0",
+          "rtcCenter": [
+            0,
+            1240,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 215,
+          "numMeshes": 1
+        },
+        "80-1280-0": {
+          "id": "80-1280-0",
+          "rtcCenter": [
+            80,
+            1280,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 216,
+          "numMeshes": 1
+        },
+        "120-1320-0": {
+          "id": "120-1320-0",
+          "rtcCenter": [
+            120,
+            1320,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 217,
+          "numMeshes": 1
+        },
+        "160-1360-0": {
+          "id": "160-1360-0",
+          "rtcCenter": [
+            160,
+            1360,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 218,
+          "numMeshes": 1
+        },
+        "240-1400-0": {
+          "id": "240-1400-0",
+          "rtcCenter": [
+            240,
+            1400,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 219,
+          "numMeshes": 1
+        },
+        "280-1440-0": {
+          "id": "280-1440-0",
+          "rtcCenter": [
+            280,
+            1440,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 220,
+          "numMeshes": 1
+        },
+        "360-1480-0": {
+          "id": "360-1480-0",
+          "rtcCenter": [
+            360,
+            1480,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 221,
+          "numMeshes": 1
+        },
+        "400-1520-0": {
+          "id": "400-1520-0",
+          "rtcCenter": [
+            400,
+            1520,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 222,
+          "numMeshes": 1
+        },
+        "480-1560-0": {
+          "id": "480-1560-0",
+          "rtcCenter": [
+            480,
+            1560,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 223,
+          "numMeshes": 1
+        },
+        "520-1600-0": {
+          "id": "520-1600-0",
+          "rtcCenter": [
+            520,
+            1600,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 224,
+          "numMeshes": 1
+        },
+        "600-1640-0": {
+          "id": "600-1640-0",
+          "rtcCenter": [
+            600,
+            1640,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 225,
+          "numMeshes": 1
+        },
+        "640-1680-0": {
+          "id": "640-1680-0",
+          "rtcCenter": [
+            640,
+            1680,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 226,
+          "numMeshes": 1
+        },
+        "680-1720-0": {
+          "id": "680-1720-0",
+          "rtcCenter": [
+            680,
+            1720,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 227,
+          "numMeshes": 1
+        },
+        "760-1760-0": {
+          "id": "760-1760-0",
+          "rtcCenter": [
+            760,
+            1760,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 228,
+          "numMeshes": 1
+        },
+        "800-1800-0": {
+          "id": "800-1800-0",
+          "rtcCenter": [
+            800,
+            1800,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 229,
+          "numMeshes": 1
+        },
+        "880-1840-0": {
+          "id": "880-1840-0",
+          "rtcCenter": [
+            880,
+            1840,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 230,
+          "numMeshes": 1
+        },
+        "920-1880-0": {
+          "id": "920-1880-0",
+          "rtcCenter": [
+            920,
+            1880,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 231,
+          "numMeshes": 1
+        },
+        "1000-1920-0": {
+          "id": "1000-1920-0",
+          "rtcCenter": [
+            1000,
+            1920,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 232,
+          "numMeshes": 1
+        },
+        "1040-1960-0": {
+          "id": "1040-1960-0",
+          "rtcCenter": [
+            1040,
+            1960,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 233,
+          "numMeshes": 1
+        },
+        "1120-2000-0": {
+          "id": "1120-2000-0",
+          "rtcCenter": [
+            1120,
+            2000,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 234,
+          "numMeshes": 1
+        },
+        "1320--480-0": {
+          "id": "1320--480-0",
+          "rtcCenter": [
+            1320,
+            -480,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 235,
+          "numMeshes": 2
+        },
+        "-120-160-0": {
+          "id": "-120-160-0",
+          "rtcCenter": [
+            -120,
+            160,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 236,
+          "numMeshes": 1
+        },
+        "-40-120-0": {
+          "id": "-40-120-0",
+          "rtcCenter": [
+            -40,
+            120,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 237,
+          "numMeshes": 1
+        },
+        "40-80-0": {
+          "id": "40-80-0",
+          "rtcCenter": [
+            40,
+            80,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 238,
+          "numMeshes": 1
+        },
+        "80-80-0": {
+          "id": "80-80-0",
+          "rtcCenter": [
+            80,
+            80,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 239,
+          "numMeshes": 1
+        },
+        "160-40-0": {
+          "id": "160-40-0",
+          "rtcCenter": [
+            160,
+            40,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 240,
+          "numMeshes": 1
+        },
+        "280--40-0": {
+          "id": "280--40-0",
+          "rtcCenter": [
+            280,
+            -40,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 241,
+          "numMeshes": 1
+        },
+        "360--40-0": {
+          "id": "360--40-0",
+          "rtcCenter": [
+            360,
+            -40,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 242,
+          "numMeshes": 1
+        },
+        "400--80-0": {
+          "id": "400--80-0",
+          "rtcCenter": [
+            400,
+            -80,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 243,
+          "numMeshes": 1
+        },
+        "480--120-0": {
+          "id": "480--120-0",
+          "rtcCenter": [
+            480,
+            -120,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 244,
+          "numMeshes": 1
+        },
+        "520--160-0": {
+          "id": "520--160-0",
+          "rtcCenter": [
+            520,
+            -160,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 245,
+          "numMeshes": 1
+        },
+        "600--160-0": {
+          "id": "600--160-0",
+          "rtcCenter": [
+            600,
+            -160,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 246,
+          "numMeshes": 1
+        },
+        "680--200-0": {
+          "id": "680--200-0",
+          "rtcCenter": [
+            680,
+            -200,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 247,
+          "numMeshes": 1
+        },
+        "720--240-0": {
+          "id": "720--240-0",
+          "rtcCenter": [
+            720,
+            -240,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 248,
+          "numMeshes": 1
+        },
+        "800--280-0": {
+          "id": "800--280-0",
+          "rtcCenter": [
+            800,
+            -280,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 249,
+          "numMeshes": 1
+        },
+        "840--280-0": {
+          "id": "840--280-0",
+          "rtcCenter": [
+            840,
+            -280,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 250,
+          "numMeshes": 1
+        },
+        "920--320-0": {
+          "id": "920--320-0",
+          "rtcCenter": [
+            920,
+            -320,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 251,
+          "numMeshes": 1
+        },
+        "1000--360-0": {
+          "id": "1000--360-0",
+          "rtcCenter": [
+            1000,
+            -360,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 252,
+          "numMeshes": 1
+        },
+        "1040--400-0": {
+          "id": "1040--400-0",
+          "rtcCenter": [
+            1040,
+            -400,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 253,
+          "numMeshes": 1
+        },
+        "1120--400-0": {
+          "id": "1120--400-0",
+          "rtcCenter": [
+            1120,
+            -400,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 254,
+          "numMeshes": 1
+        },
+        "1160--440-0": {
+          "id": "1160--440-0",
+          "rtcCenter": [
+            1160,
+            -440,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 255,
+          "numMeshes": 1
+        },
+        "1240--480-0": {
+          "id": "1240--480-0",
+          "rtcCenter": [
+            1240,
+            -480,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 256,
+          "numMeshes": 1
+        },
+        "1360--520-0": {
+          "id": "1360--520-0",
+          "rtcCenter": [
+            1360,
+            -520,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 257,
+          "numMeshes": 1
+        },
+        "1440--560-0": {
+          "id": "1440--560-0",
+          "rtcCenter": [
+            1440,
+            -560,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 258,
+          "numMeshes": 1
+        },
+        "1480--600-0": {
+          "id": "1480--600-0",
+          "rtcCenter": [
+            1480,
+            -600,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 259,
+          "numMeshes": 1
+        },
+        "1560--600-0": {
+          "id": "1560--600-0",
+          "rtcCenter": [
+            1560,
+            -600,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 260,
+          "numMeshes": 1
+        },
+        "1600--640-0": {
+          "id": "1600--640-0",
+          "rtcCenter": [
+            1600,
+            -640,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 261,
+          "numMeshes": 1
+        },
+        "1680--680-0": {
+          "id": "1680--680-0",
+          "rtcCenter": [
+            1680,
+            -680,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 262,
+          "numMeshes": 1
+        },
+        "1760--720-0": {
+          "id": "1760--720-0",
+          "rtcCenter": [
+            1760,
+            -720,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 263,
+          "numMeshes": 1
+        },
+        "1800--720-0": {
+          "id": "1800--720-0",
+          "rtcCenter": [
+            1800,
+            -720,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 264,
+          "numMeshes": 1
+        },
+        "1880--760-0": {
+          "id": "1880--760-0",
+          "rtcCenter": [
+            1880,
+            -760,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 265,
+          "numMeshes": 1
+        },
+        "1920--800-0": {
+          "id": "1920--800-0",
+          "rtcCenter": [
+            1920,
+            -800,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 266,
+          "numMeshes": 1
+        },
+        "2000--840-0": {
+          "id": "2000--840-0",
+          "rtcCenter": [
+            2000,
+            -840,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 267,
+          "numMeshes": 1
+        },
+        "2080--840-0": {
+          "id": "2080--840-0",
+          "rtcCenter": [
+            2080,
+            -840,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 268,
+          "numMeshes": 1
+        },
+        "2120--880-0": {
+          "id": "2120--880-0",
+          "rtcCenter": [
+            2120,
+            -880,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 269,
+          "numMeshes": 1
+        },
+        "2200--920-0": {
+          "id": "2200--920-0",
+          "rtcCenter": [
+            2200,
+            -920,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 270,
+          "numMeshes": 1
+        },
+        "2240--960-0": {
+          "id": "2240--960-0",
+          "rtcCenter": [
+            2240,
+            -960,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 271,
+          "numMeshes": 1
+        },
+        "2320--960-0": {
+          "id": "2320--960-0",
+          "rtcCenter": [
+            2320,
+            -960,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 272,
+          "numMeshes": 1
+        },
+        "2400--1000-0": {
+          "id": "2400--1000-0",
+          "rtcCenter": [
+            2400,
+            -1000,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 273,
+          "numMeshes": 5
+        },
+        "2440--1040-0": {
+          "id": "2440--1040-0",
+          "rtcCenter": [
+            2440,
+            -1040,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 274,
+          "numMeshes": 1
+        },
+        "2520--1080-0": {
+          "id": "2520--1080-0",
+          "rtcCenter": [
+            2520,
+            -1080,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 275,
+          "numMeshes": 5
+        },
+        "2560--1080-0": {
+          "id": "2560--1080-0",
+          "rtcCenter": [
+            2560,
+            -1080,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 276,
+          "numMeshes": 2
+        },
+        "2640--1120-0": {
+          "id": "2640--1120-0",
+          "rtcCenter": [
+            2640,
+            -1120,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 277,
+          "numMeshes": 1
+        },
+        "2720--1160-0": {
+          "id": "2720--1160-0",
+          "rtcCenter": [
+            2720,
+            -1160,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 278,
+          "numMeshes": 1
+        },
+        "-1600-0-0": {
+          "id": "-1600-0-0",
+          "rtcCenter": [
+            -1600,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 279,
+          "numMeshes": 2
+        },
+        "0--1600-0": {
+          "id": "0--1600-0",
+          "rtcCenter": [
+            0,
+            -1600,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 280,
+          "numMeshes": 2
+        },
+        "-800-0-0": {
+          "id": "-800-0-0",
+          "rtcCenter": [
+            -800,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 281,
+          "numMeshes": 2
+        },
+        "0--800-0": {
+          "id": "0--800-0",
+          "rtcCenter": [
+            0,
+            -800,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 282,
+          "numMeshes": 2
+        },
+        "800-0-0": {
+          "id": "800-0-0",
+          "rtcCenter": [
+            800,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 283,
+          "numMeshes": 2
+        },
+        "0-800-0": {
+          "id": "0-800-0",
+          "rtcCenter": [
+            0,
+            800,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 284,
+          "numMeshes": 2
+        },
+        "1600-0-0": {
+          "id": "1600-0-0",
+          "rtcCenter": [
+            1600,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 285,
+          "numMeshes": 2
+        },
+        "0-1600-0": {
+          "id": "0-1600-0",
+          "rtcCenter": [
+            0,
+            1600,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 286,
+          "numMeshes": 2
+        },
+        "-1880-1240-0": {
+          "id": "-1880-1240-0",
+          "rtcCenter": [
+            -1880,
+            1240,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 287,
+          "numMeshes": 1
+        },
+        "-1880-1200-0": {
+          "id": "-1880-1200-0",
+          "rtcCenter": [
+            -1880,
+            1200,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 288,
+          "numMeshes": 3
+        },
+        "-1880-1240-40": {
+          "id": "-1880-1240-40",
+          "rtcCenter": [
+            -1880,
+            1240,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 289,
+          "numMeshes": 9
+        },
+        "-80--80-0": {
+          "id": "-80--80-0",
+          "rtcCenter": [
+            -80,
+            -80,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 290,
+          "numMeshes": 4
+        },
+        "-1920-1200-0": {
+          "id": "-1920-1200-0",
+          "rtcCenter": [
+            -1920,
+            1200,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 291,
+          "numMeshes": 4
+        },
+        "-1920-1200-40": {
+          "id": "-1920-1200-40",
+          "rtcCenter": [
+            -1920,
+            1200,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 292,
+          "numMeshes": 8
+        },
+        "-1920-1200-80": {
+          "id": "-1920-1200-80",
+          "rtcCenter": [
+            -1920,
+            1200,
+            80
+          ],
+          "size": 40,
+          "tileIndex": 293,
+          "numMeshes": 2
+        },
+        "-120--80-0": {
+          "id": "-120--80-0",
+          "rtcCenter": [
+            -120,
+            -80,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 294,
+          "numMeshes": 4
+        },
+        "-1680-1320-0": {
+          "id": "-1680-1320-0",
+          "rtcCenter": [
+            -1680,
+            1320,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 295,
+          "numMeshes": 1
+        },
+        "-1720-1280-0": {
+          "id": "-1720-1280-0",
+          "rtcCenter": [
+            -1720,
+            1280,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 296,
+          "numMeshes": 1
+        },
+        "-1680-1280-0": {
+          "id": "-1680-1280-0",
+          "rtcCenter": [
+            -1680,
+            1280,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 297,
+          "numMeshes": 2
+        },
+        "-1680-1320-40": {
+          "id": "-1680-1320-40",
+          "rtcCenter": [
+            -1680,
+            1320,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 298,
+          "numMeshes": 4
+        },
+        "-1720-1280-40": {
+          "id": "-1720-1280-40",
+          "rtcCenter": [
+            -1720,
+            1280,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 299,
+          "numMeshes": 1
+        },
+        "-1720-1320-40": {
+          "id": "-1720-1320-40",
+          "rtcCenter": [
+            -1720,
+            1320,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 300,
+          "numMeshes": 9
+        },
+        "-1680-1280-40": {
+          "id": "-1680-1280-40",
+          "rtcCenter": [
+            -1680,
+            1280,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 301,
+          "numMeshes": 2
+        },
+        "-1680-1320-80": {
+          "id": "-1680-1320-80",
+          "rtcCenter": [
+            -1680,
+            1320,
+            80
+          ],
+          "size": 40,
+          "tileIndex": 302,
+          "numMeshes": 1
+        },
+        "120-0-0": {
+          "id": "120-0-0",
+          "rtcCenter": [
+            120,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 303,
+          "numMeshes": 6
+        },
+        "-1720-1200-0": {
+          "id": "-1720-1200-0",
+          "rtcCenter": [
+            -1720,
+            1200,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 304,
+          "numMeshes": 4
+        },
+        "-1720-1200-40": {
+          "id": "-1720-1200-40",
+          "rtcCenter": [
+            -1720,
+            1200,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 305,
+          "numMeshes": 6
+        },
+        "-1720-1240-40": {
+          "id": "-1720-1240-40",
+          "rtcCenter": [
+            -1720,
+            1240,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 306,
+          "numMeshes": 2
+        },
+        "-1720-1200-80": {
+          "id": "-1720-1200-80",
+          "rtcCenter": [
+            -1720,
+            1200,
+            80
+          ],
+          "size": 40,
+          "tileIndex": 307,
+          "numMeshes": 1
+        },
+        "-1720-1200-120": {
+          "id": "-1720-1200-120",
+          "rtcCenter": [
+            -1720,
+            1200,
+            120
+          ],
+          "size": 40,
+          "tileIndex": 308,
+          "numMeshes": 1
+        },
+        "80--80-0": {
+          "id": "80--80-0",
+          "rtcCenter": [
+            80,
+            -80,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 309,
+          "numMeshes": 4
+        },
+        "-1760-1360-0": {
+          "id": "-1760-1360-0",
+          "rtcCenter": [
+            -1760,
+            1360,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 310,
+          "numMeshes": 1
+        },
+        "-1760-1320-0": {
+          "id": "-1760-1320-0",
+          "rtcCenter": [
+            -1760,
+            1320,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 311,
+          "numMeshes": 3
+        },
+        "-1760-1360-40": {
+          "id": "-1760-1360-40",
+          "rtcCenter": [
+            -1760,
+            1360,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 312,
+          "numMeshes": 8
+        },
+        "-1760-1360-80": {
+          "id": "-1760-1360-80",
+          "rtcCenter": [
+            -1760,
+            1360,
+            80
+          ],
+          "size": 40,
+          "tileIndex": 313,
+          "numMeshes": 1
+        },
+        "40-40-0": {
+          "id": "40-40-0",
+          "rtcCenter": [
+            40,
+            40,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 314,
+          "numMeshes": 6
+        },
+        "-1720-1320-0": {
+          "id": "-1720-1320-0",
+          "rtcCenter": [
+            -1720,
+            1320,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 315,
+          "numMeshes": 4
+        },
+        "-1720-1320-80": {
+          "id": "-1720-1320-80",
+          "rtcCenter": [
+            -1720,
+            1320,
+            80
+          ],
+          "size": 40,
+          "tileIndex": 316,
+          "numMeshes": 2
+        },
+        "-880-1720-0": {
+          "id": "-880-1720-0",
+          "rtcCenter": [
+            -880,
+            1720,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 317,
+          "numMeshes": 4
+        },
+        "-880-1720-40": {
+          "id": "-880-1720-40",
+          "rtcCenter": [
+            -880,
+            1720,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 318,
+          "numMeshes": 8
+        },
+        "-880-1720-80": {
+          "id": "-880-1720-80",
+          "rtcCenter": [
+            -880,
+            1720,
+            80
+          ],
+          "size": 40,
+          "tileIndex": 319,
+          "numMeshes": 1
+        },
+        "-880-1720-120": {
+          "id": "-880-1720-120",
+          "rtcCenter": [
+            -880,
+            1720,
+            120
+          ],
+          "size": 40,
+          "tileIndex": 320,
+          "numMeshes": 2
+        },
+        "40-0-0": {
+          "id": "40-0-0",
+          "rtcCenter": [
+            40,
+            0,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 321,
+          "numMeshes": 2
+        },
+        "-840-1640-0": {
+          "id": "-840-1640-0",
+          "rtcCenter": [
+            -840,
+            1640,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 322,
+          "numMeshes": 3
+        },
+        "-800-1640-0": {
+          "id": "-800-1640-0",
+          "rtcCenter": [
+            -800,
+            1640,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 323,
+          "numMeshes": 1
+        },
+        "-840-1640-40": {
+          "id": "-840-1640-40",
+          "rtcCenter": [
+            -840,
+            1640,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 324,
+          "numMeshes": 4
+        },
+        "-800-1640-40": {
+          "id": "-800-1640-40",
+          "rtcCenter": [
+            -800,
+            1640,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 325,
+          "numMeshes": 2
+        },
+        "-800-1680-40": {
+          "id": "-800-1680-40",
+          "rtcCenter": [
+            -800,
+            1680,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 326,
+          "numMeshes": 1
+        },
+        "-840-1680-40": {
+          "id": "-840-1680-40",
+          "rtcCenter": [
+            -840,
+            1680,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 327,
+          "numMeshes": 1
+        },
+        "-840-1640-80": {
+          "id": "-840-1640-80",
+          "rtcCenter": [
+            -840,
+            1640,
+            80
+          ],
+          "size": 40,
+          "tileIndex": 328,
+          "numMeshes": 1
+        },
+        "40--40-0": {
+          "id": "40--40-0",
+          "rtcCenter": [
+            40,
+            -40,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 329,
+          "numMeshes": 2
+        },
+        "80--40-0": {
+          "id": "80--40-0",
+          "rtcCenter": [
+            80,
+            -40,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 330,
+          "numMeshes": 2
+        },
+        "-800-1720-0": {
+          "id": "-800-1720-0",
+          "rtcCenter": [
+            -800,
+            1720,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 331,
+          "numMeshes": 3
+        },
+        "-760-1720-0": {
+          "id": "-760-1720-0",
+          "rtcCenter": [
+            -760,
+            1720,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 332,
+          "numMeshes": 1
+        },
+        "-800-1720-40": {
+          "id": "-800-1720-40",
+          "rtcCenter": [
+            -800,
+            1720,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 333,
+          "numMeshes": 4
+        },
+        "-800-1760-40": {
+          "id": "-800-1760-40",
+          "rtcCenter": [
+            -800,
+            1760,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 334,
+          "numMeshes": 2
+        },
+        "-760-1720-40": {
+          "id": "-760-1720-40",
+          "rtcCenter": [
+            -760,
+            1720,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 335,
+          "numMeshes": 1
+        },
+        "-760-1760-40": {
+          "id": "-760-1760-40",
+          "rtcCenter": [
+            -760,
+            1760,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 336,
+          "numMeshes": 1
+        },
+        "-800-1720-80": {
+          "id": "-800-1720-80",
+          "rtcCenter": [
+            -800,
+            1720,
+            80
+          ],
+          "size": 40,
+          "tileIndex": 337,
+          "numMeshes": 2
+        },
+        "120-40-0": {
+          "id": "120-40-0",
+          "rtcCenter": [
+            120,
+            40,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 338,
+          "numMeshes": 2
+        },
+        "640-400-0": {
+          "id": "640-400-0",
+          "rtcCenter": [
+            640,
+            400,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 339,
+          "numMeshes": 20
+        },
+        "600-400-0": {
+          "id": "600-400-0",
+          "rtcCenter": [
+            600,
+            400,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 340,
+          "numMeshes": 6
+        },
+        "680-400-0": {
+          "id": "680-400-0",
+          "rtcCenter": [
+            680,
+            400,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 341,
+          "numMeshes": 26
+        },
+        "760-400-0": {
+          "id": "760-400-0",
+          "rtcCenter": [
+            760,
+            400,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 342,
+          "numMeshes": 18
+        },
+        "720-400-0": {
+          "id": "720-400-0",
+          "rtcCenter": [
+            720,
+            400,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 343,
+          "numMeshes": 23
+        },
+        "760-400-40": {
+          "id": "760-400-40",
+          "rtcCenter": [
+            760,
+            400,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 344,
+          "numMeshes": 1
+        },
+        "640-360-40": {
+          "id": "640-360-40",
+          "rtcCenter": [
+            640,
+            360,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 345,
+          "numMeshes": 2
+        },
+        "640-360-0": {
+          "id": "640-360-0",
+          "rtcCenter": [
+            640,
+            360,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 346,
+          "numMeshes": 1
+        },
+        "680-360-40": {
+          "id": "680-360-40",
+          "rtcCenter": [
+            680,
+            360,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 347,
+          "numMeshes": 2
+        },
+        "680-360-0": {
+          "id": "680-360-0",
+          "rtcCenter": [
+            680,
+            360,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 348,
+          "numMeshes": 1
+        },
+        "720-360-40": {
+          "id": "720-360-40",
+          "rtcCenter": [
+            720,
+            360,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 349,
+          "numMeshes": 2
+        },
+        "720-360-0": {
+          "id": "720-360-0",
+          "rtcCenter": [
+            720,
+            360,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 350,
+          "numMeshes": 1
+        },
+        "800-400-0": {
+          "id": "800-400-0",
+          "rtcCenter": [
+            800,
+            400,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 351,
+          "numMeshes": 4
+        },
+        "1280-880-0": {
+          "id": "1280-880-0",
+          "rtcCenter": [
+            1280,
+            880,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 352,
+          "numMeshes": 3
+        },
+        "1320-880-0": {
+          "id": "1320-880-0",
+          "rtcCenter": [
+            1320,
+            880,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 353,
+          "numMeshes": 7
+        },
+        "1360-880-0": {
+          "id": "1360-880-0",
+          "rtcCenter": [
+            1360,
+            880,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 354,
+          "numMeshes": 1
+        },
+        "1280-920-0": {
+          "id": "1280-920-0",
+          "rtcCenter": [
+            1280,
+            920,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 355,
+          "numMeshes": 3
+        },
+        "1320-920-0": {
+          "id": "1320-920-0",
+          "rtcCenter": [
+            1320,
+            920,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 356,
+          "numMeshes": 7
+        },
+        "1360-920-0": {
+          "id": "1360-920-0",
+          "rtcCenter": [
+            1360,
+            920,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 357,
+          "numMeshes": 1
+        },
+        "2400--1120-0": {
+          "id": "2400--1120-0",
+          "rtcCenter": [
+            2400,
+            -1120,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 358,
+          "numMeshes": 2
+        },
+        "2400--1080-0": {
+          "id": "2400--1080-0",
+          "rtcCenter": [
+            2400,
+            -1080,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 359,
+          "numMeshes": 2
+        },
+        "2400--1080-40": {
+          "id": "2400--1080-40",
+          "rtcCenter": [
+            2400,
+            -1080,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 360,
+          "numMeshes": 4
+        },
+        "2480--1120-0": {
+          "id": "2480--1120-0",
+          "rtcCenter": [
+            2480,
+            -1120,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 361,
+          "numMeshes": 2
+        },
+        "2480--1080-0": {
+          "id": "2480--1080-0",
+          "rtcCenter": [
+            2480,
+            -1080,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 362,
+          "numMeshes": 2
+        },
+        "2480--1080-40": {
+          "id": "2480--1080-40",
+          "rtcCenter": [
+            2480,
+            -1080,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 363,
+          "numMeshes": 4
+        },
+        "2520--1120-0": {
+          "id": "2520--1120-0",
+          "rtcCenter": [
+            2520,
+            -1120,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 364,
+          "numMeshes": 2
+        },
+        "2560--1120-0": {
+          "id": "2560--1120-0",
+          "rtcCenter": [
+            2560,
+            -1120,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 365,
+          "numMeshes": 1
+        },
+        "2520--1080-40": {
+          "id": "2520--1080-40",
+          "rtcCenter": [
+            2520,
+            -1080,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 366,
+          "numMeshes": 1
+        },
+        "2560--1080-40": {
+          "id": "2560--1080-40",
+          "rtcCenter": [
+            2560,
+            -1080,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 367,
+          "numMeshes": 3
+        },
+        "2600--1120-0": {
+          "id": "2600--1120-0",
+          "rtcCenter": [
+            2600,
+            -1120,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 368,
+          "numMeshes": 2
+        },
+        "2600--1080-0": {
+          "id": "2600--1080-0",
+          "rtcCenter": [
+            2600,
+            -1080,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 369,
+          "numMeshes": 2
+        },
+        "2600--1080-40": {
+          "id": "2600--1080-40",
+          "rtcCenter": [
+            2600,
+            -1080,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 370,
+          "numMeshes": 1
+        },
+        "2640--1080-40": {
+          "id": "2640--1080-40",
+          "rtcCenter": [
+            2640,
+            -1080,
+            40
+          ],
+          "size": 40,
+          "tileIndex": 371,
+          "numMeshes": 3
+        },
+        "2160--440-0": {
+          "id": "2160--440-0",
+          "rtcCenter": [
+            2160,
+            -440,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 372,
+          "numMeshes": 3
+        },
+        "2200--440-0": {
+          "id": "2200--440-0",
+          "rtcCenter": [
+            2200,
+            -440,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 373,
+          "numMeshes": 5
+        },
+        "2240--440-0": {
+          "id": "2240--440-0",
+          "rtcCenter": [
+            2240,
+            -440,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 374,
+          "numMeshes": 3
+        },
+        "1600--360-0": {
+          "id": "1600--360-0",
+          "rtcCenter": [
+            1600,
+            -360,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 375,
+          "numMeshes": 5
+        },
+        "800-320-0": {
+          "id": "800-320-0",
+          "rtcCenter": [
+            800,
+            320,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 376,
+          "numMeshes": 4
+        },
+        "920-200-0": {
+          "id": "920-200-0",
+          "rtcCenter": [
+            920,
+            200,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 377,
+          "numMeshes": 4
+        },
+        "1040-120-0": {
+          "id": "1040-120-0",
+          "rtcCenter": [
+            1040,
+            120,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 378,
+          "numMeshes": 4
+        },
+        "1160-40-0": {
+          "id": "1160-40-0",
+          "rtcCenter": [
+            1160,
+            40,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 379,
+          "numMeshes": 4
+        },
+        "1280--80-0": {
+          "id": "1280--80-0",
+          "rtcCenter": [
+            1280,
+            -80,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 380,
+          "numMeshes": 4
+        },
+        "1360--160-0": {
+          "id": "1360--160-0",
+          "rtcCenter": [
+            1360,
+            -160,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 381,
+          "numMeshes": 4
+        },
+        "1480--240-0": {
+          "id": "1480--240-0",
+          "rtcCenter": [
+            1480,
+            -240,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 382,
+          "numMeshes": 4
+        },
+        "1720--440-0": {
+          "id": "1720--440-0",
+          "rtcCenter": [
+            1720,
+            -440,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 383,
+          "numMeshes": 4
+        },
+        "1840--560-0": {
+          "id": "1840--560-0",
+          "rtcCenter": [
+            1840,
+            -560,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 384,
+          "numMeshes": 1
+        },
+        "1840--520-0": {
+          "id": "1840--520-0",
+          "rtcCenter": [
+            1840,
+            -520,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 385,
+          "numMeshes": 3
+        },
+        "1920--640-0": {
+          "id": "1920--640-0",
+          "rtcCenter": [
+            1920,
+            -640,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 386,
+          "numMeshes": 4
+        },
+        "2040--720-0": {
+          "id": "2040--720-0",
+          "rtcCenter": [
+            2040,
+            -720,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 387,
+          "numMeshes": 4
+        },
+        "2160--840-0": {
+          "id": "2160--840-0",
+          "rtcCenter": [
+            2160,
+            -840,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 388,
+          "numMeshes": 1
+        },
+        "2160--800-0": {
+          "id": "2160--800-0",
+          "rtcCenter": [
+            2160,
+            -800,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 389,
+          "numMeshes": 3
+        },
+        "2280--920-0": {
+          "id": "2280--920-0",
+          "rtcCenter": [
+            2280,
+            -920,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 390,
+          "numMeshes": 4
+        },
+        "-2600--1800-0": {
+          "id": "-2600--1800-0",
+          "rtcCenter": [
+            -2600,
+            -1800,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 391,
+          "numMeshes": 3
+        },
+        "-2560--1800-0": {
+          "id": "-2560--1800-0",
+          "rtcCenter": [
+            -2560,
+            -1800,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 392,
+          "numMeshes": 3
+        },
+        "-2520--1800-0": {
+          "id": "-2520--1800-0",
+          "rtcCenter": [
+            -2520,
+            -1800,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 393,
+          "numMeshes": 4
+        },
+        "-2480--1800-0": {
+          "id": "-2480--1800-0",
+          "rtcCenter": [
+            -2480,
+            -1800,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 394,
+          "numMeshes": 5
+        },
+        "-2440--1800-0": {
+          "id": "-2440--1800-0",
+          "rtcCenter": [
+            -2440,
+            -1800,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 395,
+          "numMeshes": 3
+        },
+        "-2400--1800-0": {
+          "id": "-2400--1800-0",
+          "rtcCenter": [
+            -2400,
+            -1800,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 396,
+          "numMeshes": 3
+        },
+        "-2360--1800-0": {
+          "id": "-2360--1800-0",
+          "rtcCenter": [
+            -2360,
+            -1800,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 397,
+          "numMeshes": 3
+        },
+        "-2320--1800-0": {
+          "id": "-2320--1800-0",
+          "rtcCenter": [
+            -2320,
+            -1800,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 398,
+          "numMeshes": 3
+        },
+        "-2280--1800-0": {
+          "id": "-2280--1800-0",
+          "rtcCenter": [
+            -2280,
+            -1800,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 399,
+          "numMeshes": 3
+        },
+        "-2600--1760-0": {
+          "id": "-2600--1760-0",
+          "rtcCenter": [
+            -2600,
+            -1760,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 400,
+          "numMeshes": 6
+        },
+        "-2560--1760-0": {
+          "id": "-2560--1760-0",
+          "rtcCenter": [
+            -2560,
+            -1760,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 401,
+          "numMeshes": 6
+        },
+        "-2520--1760-0": {
+          "id": "-2520--1760-0",
+          "rtcCenter": [
+            -2520,
+            -1760,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 402,
+          "numMeshes": 8
+        },
+        "-2480--1760-0": {
+          "id": "-2480--1760-0",
+          "rtcCenter": [
+            -2480,
+            -1760,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 403,
+          "numMeshes": 10
+        },
+        "-2440--1760-0": {
+          "id": "-2440--1760-0",
+          "rtcCenter": [
+            -2440,
+            -1760,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 404,
+          "numMeshes": 6
+        },
+        "-2400--1760-0": {
+          "id": "-2400--1760-0",
+          "rtcCenter": [
+            -2400,
+            -1760,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 405,
+          "numMeshes": 6
+        },
+        "-2360--1760-0": {
+          "id": "-2360--1760-0",
+          "rtcCenter": [
+            -2360,
+            -1760,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 406,
+          "numMeshes": 6
+        },
+        "-2320--1760-0": {
+          "id": "-2320--1760-0",
+          "rtcCenter": [
+            -2320,
+            -1760,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 407,
+          "numMeshes": 6
+        },
+        "-2280--1760-0": {
+          "id": "-2280--1760-0",
+          "rtcCenter": [
+            -2280,
+            -1760,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 408,
+          "numMeshes": 6
+        },
+        "-2600--1720-0": {
+          "id": "-2600--1720-0",
+          "rtcCenter": [
+            -2600,
+            -1720,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 409,
+          "numMeshes": 6
+        },
+        "-2560--1720-0": {
+          "id": "-2560--1720-0",
+          "rtcCenter": [
+            -2560,
+            -1720,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 410,
+          "numMeshes": 6
+        },
+        "-2520--1720-0": {
+          "id": "-2520--1720-0",
+          "rtcCenter": [
+            -2520,
+            -1720,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 411,
+          "numMeshes": 8
+        },
+        "-2480--1720-0": {
+          "id": "-2480--1720-0",
+          "rtcCenter": [
+            -2480,
+            -1720,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 412,
+          "numMeshes": 10
+        },
+        "-2440--1720-0": {
+          "id": "-2440--1720-0",
+          "rtcCenter": [
+            -2440,
+            -1720,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 413,
+          "numMeshes": 6
+        },
+        "-2400--1720-0": {
+          "id": "-2400--1720-0",
+          "rtcCenter": [
+            -2400,
+            -1720,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 414,
+          "numMeshes": 6
+        },
+        "-2360--1720-0": {
+          "id": "-2360--1720-0",
+          "rtcCenter": [
+            -2360,
+            -1720,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 415,
+          "numMeshes": 6
+        },
+        "-2320--1720-0": {
+          "id": "-2320--1720-0",
+          "rtcCenter": [
+            -2320,
+            -1720,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 416,
+          "numMeshes": 6
+        },
+        "-2280--1720-0": {
+          "id": "-2280--1720-0",
+          "rtcCenter": [
+            -2280,
+            -1720,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 417,
+          "numMeshes": 6
+        },
+        "-2600--1680-0": {
+          "id": "-2600--1680-0",
+          "rtcCenter": [
+            -2600,
+            -1680,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 418,
+          "numMeshes": 3
+        },
+        "-2560--1680-0": {
+          "id": "-2560--1680-0",
+          "rtcCenter": [
+            -2560,
+            -1680,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 419,
+          "numMeshes": 3
+        },
+        "-2520--1680-0": {
+          "id": "-2520--1680-0",
+          "rtcCenter": [
+            -2520,
+            -1680,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 420,
+          "numMeshes": 4
+        },
+        "-2480--1680-0": {
+          "id": "-2480--1680-0",
+          "rtcCenter": [
+            -2480,
+            -1680,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 421,
+          "numMeshes": 5
+        },
+        "-2440--1680-0": {
+          "id": "-2440--1680-0",
+          "rtcCenter": [
+            -2440,
+            -1680,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 422,
+          "numMeshes": 3
+        },
+        "-2400--1680-0": {
+          "id": "-2400--1680-0",
+          "rtcCenter": [
+            -2400,
+            -1680,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 423,
+          "numMeshes": 3
+        },
+        "-2360--1680-0": {
+          "id": "-2360--1680-0",
+          "rtcCenter": [
+            -2360,
+            -1680,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 424,
+          "numMeshes": 3
+        },
+        "-2320--1680-0": {
+          "id": "-2320--1680-0",
+          "rtcCenter": [
+            -2320,
+            -1680,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 425,
+          "numMeshes": 3
+        },
+        "-2280--1680-0": {
+          "id": "-2280--1680-0",
+          "rtcCenter": [
+            -2280,
+            -1680,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 426,
+          "numMeshes": 3
+        },
+        "2760--1320-0": {
+          "id": "2760--1320-0",
+          "rtcCenter": [
+            2760,
+            -1320,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 427,
+          "numMeshes": 2
+        },
+        "1720-1720-0": {
+          "id": "1720-1720-0",
+          "rtcCenter": [
+            1720,
+            1720,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 428,
+          "numMeshes": 2
+        },
+        "2360--2080-0": {
+          "id": "2360--2080-0",
+          "rtcCenter": [
+            2360,
+            -2080,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 429,
+          "numMeshes": 2
+        },
+        "-2800-2720-0": {
+          "id": "-2800-2720-0",
+          "rtcCenter": [
+            -2800,
+            2720,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 430,
+          "numMeshes": 2
+        },
+        "1440--1400-0": {
+          "id": "1440--1400-0",
+          "rtcCenter": [
+            1440,
+            -1400,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 431,
+          "numMeshes": 2
+        },
+        "-120--1480-0": {
+          "id": "-120--1480-0",
+          "rtcCenter": [
+            -120,
+            -1480,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 432,
+          "numMeshes": 2
+        },
+        "-1320-1320-0": {
+          "id": "-1320-1320-0",
+          "rtcCenter": [
+            -1320,
+            1320,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 433,
+          "numMeshes": 2
+        },
+        "-2840--80-0": {
+          "id": "-2840--80-0",
+          "rtcCenter": [
+            -2840,
+            -80,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 434,
+          "numMeshes": 2
+        },
+        "3240-3080-0": {
+          "id": "3240-3080-0",
+          "rtcCenter": [
+            3240,
+            3080,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 435,
+          "numMeshes": 2
+        },
+        "1560-2400-0": {
+          "id": "1560-2400-0",
+          "rtcCenter": [
+            1560,
+            2400,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 436,
+          "numMeshes": 2
+        },
+        "1400--240-0": {
+          "id": "1400--240-0",
+          "rtcCenter": [
+            1400,
+            -240,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 437,
+          "numMeshes": 2
+        },
+        "-600-960-0": {
+          "id": "-600-960-0",
+          "rtcCenter": [
+            -600,
+            960,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 438,
+          "numMeshes": 2
+        },
+        "1280-3080-0": {
+          "id": "1280-3080-0",
+          "rtcCenter": [
+            1280,
+            3080,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 439,
+          "numMeshes": 2
+        },
+        "2480-2200-0": {
+          "id": "2480-2200-0",
+          "rtcCenter": [
+            2480,
+            2200,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 440,
+          "numMeshes": 2
+        },
+        "2400--1840-0": {
+          "id": "2400--1840-0",
+          "rtcCenter": [
+            2400,
+            -1840,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 441,
+          "numMeshes": 2
+        },
+        "-2560--2760-0": {
+          "id": "-2560--2760-0",
+          "rtcCenter": [
+            -2560,
+            -2760,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 442,
+          "numMeshes": 2
+        },
+        "-2440--40-0": {
+          "id": "-2440--40-0",
+          "rtcCenter": [
+            -2440,
+            -40,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 443,
+          "numMeshes": 2
+        },
+        "1880--200-0": {
+          "id": "1880--200-0",
+          "rtcCenter": [
+            1880,
+            -200,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 444,
+          "numMeshes": 2
+        },
+        "200-240-0": {
+          "id": "200-240-0",
+          "rtcCenter": [
+            200,
+            240,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 445,
+          "numMeshes": 2
+        },
+        "-1720-2240-0": {
+          "id": "-1720-2240-0",
+          "rtcCenter": [
+            -1720,
+            2240,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 446,
+          "numMeshes": 2
+        },
+        "-440--1960-0": {
+          "id": "-440--1960-0",
+          "rtcCenter": [
+            -440,
+            -1960,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 447,
+          "numMeshes": 2
+        },
+        "120--2280-0": {
+          "id": "120--2280-0",
+          "rtcCenter": [
+            120,
+            -2280,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 448,
+          "numMeshes": 2
+        },
+        "-2080--840-0": {
+          "id": "-2080--840-0",
+          "rtcCenter": [
+            -2080,
+            -840,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 449,
+          "numMeshes": 2
+        },
+        "-1160-1360-0": {
+          "id": "-1160-1360-0",
+          "rtcCenter": [
+            -1160,
+            1360,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 450,
+          "numMeshes": 2
+        },
+        "-600--80-0": {
+          "id": "-600--80-0",
+          "rtcCenter": [
+            -600,
+            -80,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 451,
+          "numMeshes": 2
+        },
+        "1000--2880-0": {
+          "id": "1000--2880-0",
+          "rtcCenter": [
+            1000,
+            -2880,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 452,
+          "numMeshes": 2
+        },
+        "2920--1320-0": {
+          "id": "2920--1320-0",
+          "rtcCenter": [
+            2920,
+            -1320,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 453,
+          "numMeshes": 2
+        },
+        "-80-560-0": {
+          "id": "-80-560-0",
+          "rtcCenter": [
+            -80,
+            560,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 454,
+          "numMeshes": 2
+        },
+        "-1560-840-0": {
+          "id": "-1560-840-0",
+          "rtcCenter": [
+            -1560,
+            840,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 455,
+          "numMeshes": 2
+        },
+        "800-960-0": {
+          "id": "800-960-0",
+          "rtcCenter": [
+            800,
+            960,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 456,
+          "numMeshes": 2
+        },
+        "1920--160-0": {
+          "id": "1920--160-0",
+          "rtcCenter": [
+            1920,
+            -160,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 457,
+          "numMeshes": 2
+        },
+        "1080--3160-0": {
+          "id": "1080--3160-0",
+          "rtcCenter": [
+            1080,
+            -3160,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 458,
+          "numMeshes": 2
+        },
+        "240-2280-0": {
+          "id": "240-2280-0",
+          "rtcCenter": [
+            240,
+            2280,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 459,
+          "numMeshes": 2
+        },
+        "2880-3000-0": {
+          "id": "2880-3000-0",
+          "rtcCenter": [
+            2880,
+            3000,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 460,
+          "numMeshes": 2
+        },
+        "-1840-1560-0": {
+          "id": "-1840-1560-0",
+          "rtcCenter": [
+            -1840,
+            1560,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 461,
+          "numMeshes": 2
+        },
+        "-120--1600-0": {
+          "id": "-120--1600-0",
+          "rtcCenter": [
+            -120,
+            -1600,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 462,
+          "numMeshes": 2
+        },
+        "-2960-1760-0": {
+          "id": "-2960-1760-0",
+          "rtcCenter": [
+            -2960,
+            1760,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 463,
+          "numMeshes": 2
+        },
+        "-2720--2120-0": {
+          "id": "-2720--2120-0",
+          "rtcCenter": [
+            -2720,
+            -2120,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 464,
+          "numMeshes": 2
+        },
+        "2680-3080-0": {
+          "id": "2680-3080-0",
+          "rtcCenter": [
+            2680,
+            3080,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 465,
+          "numMeshes": 2
+        },
+        "-40--3080-0": {
+          "id": "-40--3080-0",
+          "rtcCenter": [
+            -40,
+            -3080,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 466,
+          "numMeshes": 2
+        },
+        "3200-2120-0": {
+          "id": "3200-2120-0",
+          "rtcCenter": [
+            3200,
+            2120,
+            0
+          ],
+          "size": 40,
+          "tileIndex": 467,
+          "numMeshes": 5
+        }
+      },
+      "views": [
+        {
+          "viewId": "23c43a89-519d-4915-a9b7-e9489cb35d93",
+          "canvasSize": [
+            0,
+            0
+          ],
+          "renderBins": [
+            {
+              "name": "UnnamedPass",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 66464
+                  },
+                  "timeMs": {
+                    "start": 1764,
+                    "end": 1764.1000000238419,
+                    "duration": 0.10000002384185791
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 1764,
+                "end": 1764.1000000238419,
+                "duration": 0.10000002384185791
+              }
+            },
+            {
+              "name": "opaque",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 66464
+                  },
+                  "timeMs": {
+                    "start": 1764.1000000238419,
+                    "end": 1764.1000000238419,
+                    "duration": 0
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 1764.1000000238419,
+                "end": 1764.1999999284744,
+                "duration": 0.09999990463256836
+              }
+            },
+            {
+              "name": "edgesColorOpaque",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 44488
+                  },
+                  "timeMs": {
+                    "start": 1764.1999999284744,
+                    "end": 1764.1999999284744,
+                    "duration": 0
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 1764.1999999284744,
+                "end": 1764.1999999284744,
+                "duration": 0
+              }
+            }
+          ],
+          "timeMs": {
+            "start": 1762.8999999761581,
+            "end": 1764.2999999523163,
+            "duration": 1.399999976158142
+          },
+          "numDrawCalls": 3,
+          "numPrims": 177416
+        }
+      ]
+    }
+  }
+}

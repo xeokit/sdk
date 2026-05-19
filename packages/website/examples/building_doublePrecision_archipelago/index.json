@@ -1,0 +1,16 @@
+{
+  "id": "building_doublePrecision_archipelago",
+  "title": "Procedural Archipelago \u2014 Double-Precision Coordinates",
+  "description": "Procedurally generates a rocky island archipelago placed at real-world UTM Zone 32N coordinates (~6.55 million metres northing). All geometry vertices stay within single-precision range; only the SceneModel origin carries the large double-precision world offset. The renderer uses Relative-To-Centre (RTC) tiling so orbiting close to cliff faces is jitter-free regardless of the enormous absolute coordinates. Rock formations are geometry-instanced across all islands to minimise GPU memory use.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "Featured"
+  ],
+  "categories": [
+    "Modeling",
+    "Scene",
+    "Geometry"
+  ],
+  "topic": "modeling.scene.geometry"
+}

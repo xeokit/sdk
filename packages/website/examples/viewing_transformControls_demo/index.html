@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TransformControls</title>
+    <style>
+        body { background: #1a1a1a; overflow: hidden; margin: 0; user-select: none; color: #eee;
+               font: 13px/1.4 -apple-system, system-ui, sans-serif; }
+        #demoCanvas { width: 100%; height: 100%; position: absolute; background: #1a1a1a; border: 0; }
+        #hud { position: absolute; top: 14px; left: 14px; padding: 12px 16px;
+               background: rgba(0, 0, 0, 0.6); border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.08);
+               backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+               min-width: 270px; pointer-events: none; z-index: 200000; }
+        #hud h2 { font-size: 14px; margin: 0 0 8px; font-weight: 600; letter-spacing: 0.02em; }
+        #hud table { border-collapse: collapse; width: 100%; }
+        #hud td { padding: 2px 0; vertical-align: top; }
+        #hud td.key { font-family: ui-monospace, "SF Mono", Menlo, monospace; color: #f6c177; width: 72px; padding-right: 12px; }
+        #hud td.desc { color: #ddd; }
+        #status { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.10); font-size: 12px; }
+        #status .label { color: #888; }
+        #status .value { color: #fff; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+        #log { position: absolute; bottom: 14px; left: 14px; max-width: 380px; padding: 8px 12px;
+               background: rgba(0, 0, 0, 0.6); border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.08);
+               font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11px; line-height: 1.5;
+               max-height: 120px; overflow-y: auto; z-index: 200000; }
+        #log .l { color: #8ec07c; }
+    </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="hud">
+    <h2>TransformControls</h2>
+    <table>
+        <tr><td class="key">click</td><td class="desc">pick a box as the target</td></tr>
+        <tr><td class="key">G / R / S</td><td class="desc">translate / rotate / scale</td></tr>
+        <tr><td class="key">Q</td><td class="desc">toggle world / local space</td></tr>
+        <tr><td class="key">+ / -</td><td class="desc">grow / shrink gizmo (pixels)</td></tr>
+        <tr><td class="key">X / Y / Z</td><td class="desc">toggle axis visibility</td></tr>
+        <tr><td class="key">T</td><td class="desc">toggle translation snap (1 unit)</td></tr>
+        <tr><td class="key">U</td><td class="desc">toggle rotation snap (15&deg;)</td></tr>
+        <tr><td class="key">V</td><td class="desc">toggle scale snap (10%)</td></tr>
+        <tr><td class="key">N</td><td class="desc">hide gizmo (none)</td></tr>
+        <tr><td class="key">Esc</td><td class="desc">detach</td></tr>
+        <tr><td class="key">1-4</td><td class="desc">attach to box by index</td></tr>
+    </table>
+    <div id="status">
+        <div><span class="label">target:&nbsp;&nbsp;</span> <span class="value" id="sTarget">—</span></div>
+        <div><span class="label">mode:&nbsp;&nbsp;&nbsp;&nbsp;</span> <span class="value" id="sMode">translate</span></div>
+        <div><span class="label">space:&nbsp;&nbsp;&nbsp;</span> <span class="value" id="sSpace">world</span></div>
+        <div><span class="label">size px:&nbsp;</span> <span class="value" id="sSize">120</span></div>
+        <div><span class="label">show:&nbsp;&nbsp;&nbsp;&nbsp;</span> <span class="value" id="sShow">X Y Z</span></div>
+        <div><span class="label">snap:&nbsp;&nbsp;&nbsp;&nbsp;</span> <span class="value" id="sSnap">off</span></div>
+        <div><span class="label">hover:&nbsp;&nbsp;&nbsp;</span> <span class="value" id="sHover">—</span></div>
+    </div>
+</div>
+<div id="log"></div>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

@@ -1,0 +1,20 @@
+{
+  "id": "demos_healthPanels",
+  "title": "Scene Health \u00d7 Data Health \u2014 Showcase",
+  "description": "Builds a small synthetic factory SceneModel + DataModel programmatically, with deliberate defects spanning both inspectors. SceneHealth opens on the right and surfaces duplicate wall geometries, a degenerate triangle, unused vertices, identity / orphan transforms, unused materials and textures, an NPOT texture, and a textured-material-on-no-UVs binding. DataHealth opens on the left and surfaces duplicate property-set refs, a schema-tag mismatch, an unknown type, an orphaned IfcSpace, walls aggregated under a storey instead of contained, plus a self-reference and an IfcRelAggregates cycle. Every flaw is annotated inline in the example's index.js so users can chase a panel highlight back to a single line.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "Inspect",
+    "SceneModelInspector",
+    "DataModelInspector",
+    "SceneHealthPanel",
+    "DataHealthPanel",
+    "DemoHelper"
+  ],
+  "categories": [
+    "Validation",
+    "Demo Helpers"
+  ],
+  "topic": "demos.healthPanels"
+}

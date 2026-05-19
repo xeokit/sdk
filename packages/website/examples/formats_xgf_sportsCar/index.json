@@ -1,0 +1,15 @@
+{
+  "id": "formats_xgf_sportsCar",
+  "title": "Viewing XGF using XGFLoader",
+  "description": "How to load an XGF model directly into a xeokit web viewer.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "tags": [
+    "XGF"
+  ],
+  "categories": [
+    "Importing",
+    "XGF"
+  ],
+  "topic": "import.xgf"
+}

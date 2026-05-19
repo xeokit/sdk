@@ -1,0 +1,94 @@
+{
+  "stats": {
+    "startTime": 277.7000000476837,
+    "endTime": 410.2000000476837,
+    "elapsedTime": 132.5,
+    "aabb": [
+      -50,
+      -5,
+      -50,
+      50,
+      -5,
+      50
+    ],
+    "scene": {
+      "numTransforms": 0,
+      "numObjects": 1,
+      "numMeshes": 1,
+      "numGeometries": 1,
+      "numTextures": 0,
+      "numMaterials": 0,
+      "numTriangles": 0,
+      "numLines": 202,
+      "numPoints": 0,
+      "numVertices": 404,
+      "textureBytes": 0
+    },
+    "data": {
+      "numObjects": 0,
+      "numRelationships": 0,
+      "numPropertySets": 0
+    },
+    "memory": {
+      "allocatedMB": 11.877059936523438,
+      "usedMB": 0.01073455810546875
+    },
+    "renderer": {
+      "tiles": {
+        "0-0-0": {
+          "id": "0-0-0",
+          "rtcCenter": [
+            0,
+            0,
+            0
+          ],
+          "size": 100,
+          "tileIndex": 0,
+          "numMeshes": 1
+        }
+      },
+      "views": [
+        {
+          "viewId": "3ab78ad4-8c8e-4057-8a6d-6c667c5f6c8f",
+          "canvasSize": [
+            0,
+            0
+          ],
+          "renderBins": [
+            {
+              "name": "highlightedSilhouetteTransparent",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "HIGHLIGHTED",
+                  "primitive": "LINES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 202
+                  },
+                  "timeMs": {
+                    "start": 1078.8000000715256,
+                    "end": 1078.8000000715256,
+                    "duration": 0
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 1078.7000000476837,
+                "end": 1078.8000000715256,
+                "duration": 0.10000002384185791
+              }
+            }
+          ],
+          "timeMs": {
+            "start": 1077.6000000238419,
+            "end": 1078.9000000953674,
+            "duration": 1.3000000715255737
+          },
+          "numDrawCalls": 1,
+          "numPrims": 202
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "building_dataModel_table",
+  "title": "Creating a 3D Model with Semantic Data",
+  "description": "In this example, we'll use the xeokit SDK to create a 3D model with semantic data attached.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "tags": [
+    "_Featured"
+  ],
+  "categories": [
+    "Modeling",
+    "Data"
+  ],
+  "topic": "modeling.data"
+}

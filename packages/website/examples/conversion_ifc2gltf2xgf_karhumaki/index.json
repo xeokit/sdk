@@ -1,0 +1,18 @@
+{
+  "id": "conversion_ifc2gltf2xgf_karhumaki",
+  "title": "Importing IFC Converted by ifc2gltf2xgf",
+  "description": "Load and view an IFC model that was converted with the ifc2gltf2xgf pipeline.",
+  "isTutorial": false,
+  "isVisualTest": true,
+  "tags": [
+    "IFC",
+    "XGF",
+    "ifc2gltf2xgf",
+    "_Featured"
+  ],
+  "categories": [
+    "Importing",
+    "IFC"
+  ],
+  "topic": "import.ifc"
+}

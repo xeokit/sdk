@@ -1,0 +1,13 @@
+{
+  "id": "building_fromParams_triplanar_table",
+  "title": "Triplanar Texturing on UV-less Geometry",
+  "description": "Builds the same table-shaped SceneModel as SceneModel_fromParams_table, but applies textured materials to its UV-less meshes. The renderer's triplanar fallback samples the textures from world-space coordinates so the wood and marble appear at a fixed physical scale on every face \u2014 no UV unwrap required.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "tags": [],
+  "categories": [
+    "Modeling",
+    "Scene"
+  ],
+  "topic": "modeling.scene.object"
+}

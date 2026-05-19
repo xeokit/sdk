@@ -1,0 +1,24 @@
+{
+  "id": "formats_gltf_realistic_sponza",
+  "title": "Sponza glTF + interactive PBR effects panel",
+  "description": "Loads the Khronos Sponza glTF 2.0 sample asset (full PBR \u2014 baseColor + metallicRoughness + normal maps) directly from the Khronos sample-asset CDN, and exposes every renderer effect (IBL, shadows, SAO, tonemap, bloom, AA, edges) through a side panel so you can see exactly what each one contributes.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "glTF",
+    "PBR",
+    "IBL",
+    "Shadows",
+    "SAO",
+    "Tonemap",
+    "Sponza",
+    "Renderer"
+  ],
+  "categories": [
+    "Importing",
+    "glTF",
+    "Effects",
+    "Renderer"
+  ],
+  "topic": "import.gltf"
+}

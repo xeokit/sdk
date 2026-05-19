@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ISO 10303-21 STEP loader smoke test</title>
+    <style>
+        body {
+            background-color: white;
+            overflow: hidden;
+            margin: 0;
+            user-select: none;
+        }
+
+        #demoCanvas {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            background: white;
+            border: 0;
+        }
+
+        #status {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            padding: 8px 12px;
+            font: 12px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            color: #1f2937;
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid #e6e6e6;
+            border-radius: 8px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+            white-space: pre-line;
+        }
+    </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="status">Loading STEP…</div>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

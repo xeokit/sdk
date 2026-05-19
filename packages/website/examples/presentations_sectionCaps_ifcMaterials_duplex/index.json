@@ -1,0 +1,20 @@
+{
+  "id": "presentations_sectionCaps_ifcMaterials_duplex",
+  "title": "IFC Materials with Section Caps \u2014 Duplex",
+  "description": "Loads the Duplex IFC model, applies procedural PBR materials per IFC type (each tagged with the appropriate ANSI/ISO hatch convention), then uses xeokit.presentations.sectionCaps.createSectionCaps to build a second SceneModel of filled cap geometry that lies on the section plane. Cap meshes inherit each source material's hatchPattern, so in DetailedRender the caps draw with the same engineering hatch as the source body. The cap SceneModel's objects are marked non-clippable so the section plane that slices the building leaves the caps intact.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "Materials",
+    "Procedural",
+    "IFC",
+    "SectionPlane",
+    "Hatch",
+    "Caps"
+  ],
+  "categories": [
+    "Materials",
+    "Section Planes"
+  ],
+  "topic": "materials.procedural.section"
+}

@@ -1,0 +1,1180 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SceneModel Inspection Report</title>
+  <style>
+    body {
+      background-color: white;
+      overflow: hidden;
+      margin: 0;
+      user-select: none;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: #111;
+    }
+
+    /* Canvas fills the page area to the right of the panel
+       column (12px gutter + Inspector 580 + 12 gap + Fix Results
+       580 + 12 gutter = 1196px), so the 3D scene is never
+       obscured by Inspector / Fix Results UI. */
+    #demoCanvas {
+      position: absolute;
+      top: 0;
+      left: 1196px;
+      right: 0;
+      bottom: 0;
+      background: white;
+      border: 0;
+    }
+
+    #status {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.93);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+      color: #444;
+      font-size: 12px;
+      z-index: 10;
+    }
+
+    #report,
+    #fixResults {
+      position: absolute;
+      top: 120px;
+      width: 580px;
+      max-height: calc(100vh - 132px);
+      display: flex;
+      flex-direction: column;
+      background: rgba(255, 255, 255, 0.97);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      border: 1px solid #e6e6e6;
+      border-radius: 12px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.14);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #111;
+      z-index: 200000000;
+      overflow: hidden;
+    }
+
+    /* Both panels live in a left-side column; Inspector first,
+       Fix Results to its right. Each is 580px wide with a 12px
+       gap. The canvas starts at the right edge of this column,
+       so the 3D scene is never obscured. */
+    #report     { left: 12px;  }
+    #fixResults { left: 604px; }
+
+    #report > .header {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid #ececec;
+      flex: 0 0 auto;
+    }
+
+    #report h2 {
+      margin: 0 0 6px 0;
+      font-size: 15px;
+      font-weight: 650;
+      color: #111;
+    }
+
+    #report .hint {
+      color: #666;
+      font-size: 11px;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    #report .summary {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    #report .summary .ok {
+      color: #1f7a1f;
+      font-weight: 600;
+    }
+
+    #report .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    #report .badge.error   { background: #fde7e7; color: #a02020; }
+    #report .badge.warning { background: #fdf3dc; color: #8a5a00; }
+    #report .badge.info    { background: #e6efff; color: #2d5e8c; }
+
+    /* Header summary counts — typographic, not chip. The per-section
+       coloured `.badge` still labels each section; the header
+       doesn't need to shout the totals a second time. */
+    #report .summary-count {
+      font-size: 11px;
+      font-weight: 600;
+      color: #888;
+      margin-right: 12px;
+    }
+    #report .summary-count.error   { color: #a02020; }
+    #report .summary-count.warning { color: #8a5a00; }
+
+    /* In-flight progress strip — visible only while
+       inspectSceneModelAsync / applyFixesAsync is running. The
+       Cancel button calls AbortController.abort() on the active
+       run; the orchestrator then throws AbortError between
+       chunks. */
+    #report .run-progress {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: #fff8e1;
+      border-bottom: 1px solid #f0e3b0;
+      font-size: 11px;
+    }
+    #report .run-progress[hidden] { display: none; }
+    #report .run-progress-label {
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #6b5300;
+      font-weight: 500;
+    }
+    #report .run-progress-bar {
+      flex-shrink: 0;
+      width: 110px;
+      height: 8px;
+    }
+    #report .run-progress-cancel {
+      flex-shrink: 0;
+      padding: 2px 10px;
+      font: inherit;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      color: #6b5300;
+      background: transparent;
+      border: 1px solid #c0a04c;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    #report .run-progress-cancel:hover {
+      background: #f1e3b6;
+      color: #4a3a00;
+    }
+
+    /* While a run is in flight (#report.busy), grey out and lock
+       every interactive surface in the panel except the progress
+       strip itself — its Cancel button needs to stay clickable
+       so the user can abort. Pointer-events:none beats `disabled`
+       attributes here because it covers links, custom click
+       handlers on details/summary, and inspection toggles all in
+       one rule. */
+    #report.busy .header .summary-row,
+    #report.busy .stats,
+    #report.busy .inspections-panel,
+    #report.busy .issues {
+      pointer-events: none;
+      opacity: 0.55;
+      user-select: none;
+    }
+    #report.busy .run-progress { pointer-events: auto; }
+
+    /* SceneModel summary stats — read live from sceneModel.stats
+       (objects, meshes, geometries, vertices, primitives, …) plus a
+       small derived walk for normals / UVs coverage. Re-rendered on
+       every renderReport so the counts track post-fix mutations. */
+    #report .stats {
+      flex: 0 0 auto;
+      padding: 8px 12px 10px;
+      border-bottom: 1px solid #ececec;
+      background: #fcfcfc;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px 14px;
+    }
+    #report .stat {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      font-size: 11px;
+      min-width: 0;
+    }
+    #report .stat .label {
+      flex: 1;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      font-size: 9.5px;
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    #report .stat .value {
+      flex-shrink: 0;
+      color: #111;
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+    }
+    #report .stat .value.zero { color: #aaa; font-weight: 400; }
+
+    /* Inspection toggle subpanel — collapsible. Lists every
+       Inspection from DEFAULT_INSPECTION_REGISTRY with a checkbox
+       so the user can enable / disable each one and watch the
+       report change. Re-runs `inspectSceneModel` on every toggle
+       (via a custom InspectionRegistry of the enabled set). */
+    #report .inspections-panel {
+      flex: 0 0 auto;
+      border-bottom: 1px solid #ececec;
+      background: #f7f9fb;
+    }
+    #report .inspections-panel > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 8px 12px;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      font-weight: 600;
+      font-size: 12px;
+      color: #2d5e8c;
+      user-select: none;
+    }
+    #report .inspections-panel > summary::-webkit-details-marker { display: none; }
+    #report .inspections-panel > summary::marker                  { display: none; }
+    #report .inspections-panel > summary::before {
+      content: "›";
+      display: inline-block;
+      width: 10px;
+      color: #888;
+      transform: translateY(-1px) rotate(0deg);
+      transition: transform 120ms ease;
+      font-size: 13px;
+      line-height: 1;
+    }
+    #report .inspections-panel[open] > summary::before {
+      transform: translateY(-1px) rotate(90deg);
+    }
+    #report .inspections-panel > summary:hover { background: #eef3f8; }
+
+    #report .inspections-count {
+      margin-left: auto;
+      color: #777;
+      font-weight: normal;
+      font-size: 11px;
+    }
+
+    /* Bulk toggle buttons in the Inspections summary row. Click
+       events stopPropagation to avoid toggling the surrounding
+       <details>. */
+    #report .inspections-toggle-all {
+      flex-shrink: 0;
+      padding: 2px 8px;
+      font: inherit;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      color: #2d5e8c;
+      background: transparent;
+      border: 1px solid #c0d2e0;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    #report .inspections-toggle-all:hover {
+      background: #eef3f8;
+      border-color: #2d5e8c;
+    }
+
+    #report .inspections-body {
+      padding: 4px 12px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    #report .inspection-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 4px 6px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    #report .inspection-row:hover { background: #eef3f8; }
+    #report .inspection-row > input[type="checkbox"] {
+      margin: 1px 0 0 0;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    #report .inspection-row > .inspection-text {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    #report .inspection-row > .inspection-text > .inspection-desc {
+      color: #222;
+      font-size: 11px;
+      line-height: 1.3;
+    }
+    #report .inspection-row > .inspection-text > .inspection-codes {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-top: 4px;
+      color: #444;
+      font-size: 10.5px;
+      line-height: 1.4;
+    }
+    /* Bullet + bold friendly name on each line. The bullet is a
+       CSS pseudo-element so we don't need a `<ul>` and keep the
+       existing flex-column layout. */
+    #report .inspection-row > .inspection-text > .inspection-codes > span {
+      padding-left: 12px;
+      position: relative;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #report .inspection-row > .inspection-text > .inspection-codes > span::before {
+      content: "•";
+      position: absolute;
+      left: 2px;
+      top: 0;
+      color: #999;
+      font-weight: 700;
+    }
+    #report .inspection-row > .inspection-text > .inspection-codes strong {
+      color: #222;
+      font-weight: 600;
+    }
+    /* Mono identifier in brackets after the friendly name. */
+    #report .inspection-code-id {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 9.5px;
+      color: #888;
+    }
+    #report .inspection-row.opt-in > .inspection-text > .inspection-desc::after {
+      content: "  · opt-in";
+      color: #b88500;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    #report .issues {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 8px 12px 14px;
+    }
+
+    /* Three-tier collapsible layout:
+       outer .severity-section (Errors / Warnings) → middle
+       .issue-type-group (one per Issue.code) → inner .issue cards.
+       Outer + middle tiers open by default; inner cards collapsed
+       by default. Every tier supports keyboard toggle and focus
+       rings through native <details> / <summary>. */
+
+    #report .severity-section {
+      margin: 6px 0;
+      background: #fafafa;
+      border: 1px solid #ececec;
+      border-left-width: 3px;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    #report .severity-section.error   { border-left-color: #c44; }
+    #report .severity-section.warning { border-left-color: #c80; }
+
+    #report .severity-section > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 8px 10px;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      user-select: none;
+      font-weight: 600;
+    }
+
+    #report .severity-section > .body {
+      padding: 4px 10px 8px;
+      border-top: 1px solid #ececec;
+      background: #fff;
+    }
+
+    #report .section-label {
+      flex: 1;
+      color: #222;
+    }
+
+    /* Middle-tier issue-type group — one per Issue.code, grouping
+       every issue with that code under a single collapsible. */
+    #report .issue-type-group {
+      margin: 4px 0;
+      background: #fff;
+      border: 1px solid #ececec;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    #report .issue-type-group > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 6px 8px;
+      display: flex;
+      gap: 6px;
+      align-items: flex-start;
+      user-select: none;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+
+    /* Stacks the [title row] over the rule [description] inside a
+       type-group's <summary>, so both stay visible whether the
+       group is collapsed or expanded. */
+    #report .issue-type-group > summary > .group-summary-content {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    #report .issue-type-group > summary .title-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    #report .issue-type-group > .body {
+      padding: 4px 8px 6px;
+      border-top: 1px solid #f4f4f4;
+      background: #fcfcfc;
+    }
+
+    /* Flat issue row inside a type group. The rule description sits
+       above all rows in the group; a row is just the resourceId /
+       message excerpt. When the issue carries a viewer-highlight
+       payload the row gets `.locatable` and the whole row becomes
+       the click target — no per-row button to compete with the
+       per-group / per-section Locate chips. */
+    #report .issue {
+      padding: 3px 8px;
+      font-size: 10.5px;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      border-radius: 3px;
+      color: #333;
+    }
+    /* Zebra stripe — calmer than borderline-cards on every row. */
+    #report .issue:nth-child(odd)  { background: #fafafa; }
+    #report .issue:nth-child(even) { background: #f4f4f4; }
+
+    #report .issue.locatable          { cursor: pointer; }
+    #report .issue.locatable:hover    { background: #e9eef3; color: #14385c; }
+    #report .issue.locatable:focus    { outline: 1px solid #2d5e8c; outline-offset: -1px; }
+    #report .issue.locatable:hover .locate-hint { color: #2d5e8c; }
+
+    /* Hover-revealed affordance hint — kept always-visible but
+       muted so the row isn't a mystery target without hover. */
+    #report .locate-hint {
+      flex-shrink: 0;
+      color: #b0b0b0;
+      font-size: 12px;
+      line-height: 1;
+      margin-left: 4px;
+    }
+
+    /* Per-issue Fix button — sits inside the row when a fix is
+       registered for the issue's code. Smaller / lighter than the
+       per-group Fix-all chip so a long list doesn't drown in
+       buttons. Click stops propagation so it doesn't fire the
+       row's Locate handler. */
+    #report .fix-action-row {
+      flex-shrink: 0;
+      margin-left: 6px;
+      padding: 1px 7px;
+      font: inherit;
+      font-size: 9.5px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      color: #2d5e8c;
+      background: transparent;
+      border: 1px solid #b6cadb;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      line-height: 1.2;
+    }
+    #report .fix-action-row:hover {
+      background: #e7eef5;
+      border-color: #2d5e8c;
+    }
+    #report .fix-action-row-icon {
+      font-size: 10px;
+      color: #4a82b6;
+    }
+    #report .fix-action-row:hover .fix-action-row-icon {
+      color: #2d5e8c;
+    }
+
+    /* (?) help icon next to a type-group's friendly label — its
+       `title` attribute carries the per-code "About this issue"
+       text from the Inspection's descriptions map. */
+    #report .help-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      margin-left: 4px;
+      border-radius: 50%;
+      background: #dde6ee;
+      color: #2d5e8c;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1;
+      cursor: help;
+      user-select: none;
+    }
+    #report .help-icon:hover {
+      background: #c9d6e3;
+      color: #1f4669;
+    }
+
+    #report .show-more {
+      display: block;
+      width: 100%;
+      margin: 4px 0 2px;
+      padding: 5px 8px;
+      font: inherit;
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      color: #2d5e8c;
+      background: transparent;
+      border: 1px dashed #c8d2da;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #report .show-more:hover { background: #f0f4f8; border-color: #2d5e8c; }
+
+    /* Custom chevron uniformly on the two collapsible layers. */
+    #report .severity-section  > summary::-webkit-details-marker,
+    #report .issue-type-group  > summary::-webkit-details-marker { display: none; }
+    #report .severity-section  > summary::marker,
+    #report .issue-type-group  > summary::marker { display: none; }
+
+    #report .severity-section  > summary::before,
+    #report .issue-type-group  > summary::before {
+      content: "›";
+      display: inline-block;
+      width: 10px;
+      color: #888;
+      transform: translateY(-1px) rotate(0deg);
+      transition: transform 120ms ease;
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    #report .severity-section[open]  > summary::before,
+    #report .issue-type-group[open]  > summary::before {
+      transform: translateY(-1px) rotate(90deg);
+    }
+
+    #report .severity-section  > summary:hover,
+    #report .issue-type-group  > summary:hover {
+      background: #f3f3f3;
+    }
+
+    #report .code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 10.5px;
+      color: #555;
+      font-weight: normal;
+      flex-shrink: 0;
+    }
+
+    #report .count {
+      margin-left: auto;
+      color: #777;
+      font-weight: normal;
+      font-size: 11px;
+    }
+
+    #report .issue-headline {
+      flex: 1;
+      min-width: 0;
+      color: #777;
+      font-weight: normal;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    /* Bold the friendly name within an issue row's headline. */
+    #report .issue-headline > strong {
+      color: #222;
+      font-weight: 600;
+    }
+    /* Mono id badge after the friendly name. Only rendered when
+       the SDK helper finds a friendly name distinct from the id. */
+    #report .issue-id-badge {
+      margin-left: 4px;
+      padding: 0 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 9.5px;
+      color: #888;
+      background: #f0f0f0;
+      border-radius: 3px;
+    }
+    /* Per-code blurb suffix — small muted text after the headline.
+       Examples: "1.2M units from origin", "→ collapses 3 others",
+       "12 of 8,420 triangles". */
+    #report .issue-blurb {
+      flex-shrink: 0;
+      margin-left: 8px;
+      color: #888;
+      font-size: 10px;
+      font-style: italic;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 240px;
+    }
+
+    /* Rule description rendered inline under the title row inside
+       a type-group's <summary>. Always visible — does not collapse
+       with the group's body. */
+    #report .group-description {
+      display: block;
+      color: #555;
+      font-size: 11px;
+      font-weight: normal;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    #report .empty,
+    #fixResults .empty {
+      padding: 24px 12px;
+      text-align: center;
+      color: #777;
+      font-size: 12px;
+    }
+
+    /* Action buttons that live inside <summary> rows — "Fix all
+       warnings", "Fix all GEOMETRY_DUPLICATE", etc. Click handlers
+       call event.stopPropagation() so clicking the button doesn't
+       toggle the surrounding <details>. */
+    #report .fix-action {
+      margin-left: 6px;
+      padding: 2px 8px;
+      font: inherit;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      color: #fff;
+      background: #2d5e8c;
+      border: 1px solid #25527b;
+      border-radius: 999px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    #report .fix-action:hover     { background: #366ea3; }
+    #report .fix-action:disabled  {
+      background: #cfd5dc;
+      border-color: #b9c0c8;
+      color: #666;
+      cursor: not-allowed;
+    }
+
+    /* Visualization affordance — present on issues / groups /
+       sections whose Issue.highlight is set. Calls into the Viewer
+       to xray everything else and fly the camera to the affected
+       SceneObjects. Sibling of .fix-action — same shape, different
+       colour, since the action is read-only (no SceneModel mutation). */
+    /* Secondary affordance — outline chip so the blue Fix-all
+       reads as primary and the Locate group/section affordance as
+       complementary. */
+    #report .locate-action {
+      margin-left: 6px;
+      padding: 2px 8px;
+      font: inherit;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      color: #3e6c45;
+      background: transparent;
+      border: 1px solid #b8cfbb;
+      border-radius: 999px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    #report .locate-action:hover {
+      background: #eaf3ec;
+      border-color: #4d8455;
+      color: #2c5232;
+    }
+
+    /* Header summary row — chips on the left, "Clear" button on the
+       right. Clear restores the default xrayed/highlighted state
+       across every ViewObject in the View. */
+    #report .summary-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    #report .summary-row > .summary { flex: 1; min-width: 0; }
+    #report .clear-locate {
+      padding: 3px 10px;
+      font: inherit;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      color: #555;
+      background: #fff;
+      border: 1px solid #d0d0d0;
+      border-radius: 999px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    #report .clear-locate:hover { background: #f3f3f3; color: #222; }
+
+    /* "Get Report" — download the latest InspectionReport (or
+       every recorded applyFixes run, on the Fix Results panel) as
+       JSON. Outline blue pill matching the per-group Fix-all
+       accent so the eye reads it as primary action chrome. */
+    .get-report {
+      flex-shrink: 0;
+      padding: 3px 10px;
+      font: inherit;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      color: #2d5e8c;
+      background: transparent;
+      border: 1px solid #b6cadb;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .get-report:hover {
+      background: #e7eef5;
+      border-color: #2d5e8c;
+    }
+    .get-report:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Fix Results header row — title on the left, Get Report on
+       the right. Mirrors the Inspector's summary-row layout. */
+    #fixResults .fix-results-header-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    #fixResults .fix-results-header-row > h2 {
+      flex: 1;
+      margin: 0;
+    }
+
+    /* Fix Results panel — IDE "Fix run" log, newest entry at top.
+       Each entry shows the action label + fixed/skipped/errors
+       counts; expanding reveals per-issue outcomes. */
+    #fixResults > .header {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid #ececec;
+      flex: 0 0 auto;
+    }
+
+    #fixResults h2 {
+      margin: 0 0 6px 0;
+      font-size: 15px;
+      font-weight: 650;
+      color: #111;
+    }
+
+    #fixResults .hint {
+      color: #666;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    /* Savings panel — chip grid mirroring the Inspector stats
+       panel, but each chip pairs the post-fix count with a signed
+       delta vs. the pre-fix baseline. Hidden until at least one
+       fix run has been logged. */
+    #fixResults .savings {
+      flex: 0 0 auto;
+      padding: 8px 12px 10px;
+      border-bottom: 1px solid #ececec;
+      background: #fcfcfc;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px 14px;
+    }
+    #fixResults .savings .stat {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      font-size: 11px;
+      min-width: 0;
+    }
+    #fixResults .savings .stat .label {
+      flex: 1;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      font-size: 9.5px;
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    #fixResults .savings .stat-row {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: baseline;
+      gap: 5px;
+    }
+    #fixResults .savings .stat .value {
+      flex-shrink: 0;
+      color: #111;
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+    }
+    #fixResults .savings .stat .value.zero { color: #aaa; font-weight: 400; }
+    #fixResults .savings .stat-delta {
+      font-size: 10px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+    #fixResults .savings .stat-delta.saved {
+      color: #1a7a3c;
+      background: #e3f3e7;
+    }
+    #fixResults .savings .stat-delta.added {
+      color: #8a5a00;
+      background: #fbeed1;
+    }
+    #fixResults .savings .stat-delta.neutral {
+      color: #aaa;
+      background: transparent;
+    }
+
+    #fixResults .entries {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 8px 12px 14px;
+    }
+
+    #fixResults .fix-entry {
+      margin: 6px 0;
+      background: #fafafa;
+      border: 1px solid #ececec;
+      border-left: 3px solid #2d5e8c;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    #fixResults .fix-entry > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 8px 10px;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      user-select: none;
+      font-weight: 600;
+      font-size: 11.5px;
+    }
+
+    #fixResults .fix-entry > summary::-webkit-details-marker { display: none; }
+    #fixResults .fix-entry > summary::marker { display: none; }
+    #fixResults .fix-entry > summary::before {
+      content: "›";
+      display: inline-block;
+      width: 10px;
+      color: #888;
+      transform: translateY(-1px) rotate(0deg);
+      transition: transform 120ms ease;
+      font-size: 13px;
+      line-height: 1;
+    }
+    #fixResults .fix-entry[open] > summary::before {
+      transform: translateY(-1px) rotate(90deg);
+    }
+    #fixResults .fix-entry > summary:hover { background: #f3f3f3; }
+
+    /* Friendly action label + mono code badge live inside this
+       wrapper so they flex together as a single "title" block,
+       leaving the counts on the right edge of the summary. */
+    #fixResults .fix-entry > summary > .entry-header {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    #fixResults .fix-entry .action-label {
+      flex: 1;
+      min-width: 0;
+      color: #222;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #fixResults .fix-entry .counts {
+      font-weight: normal;
+      font-size: 10.5px;
+      color: #555;
+    }
+
+    #fixResults .fix-entry .counts .fixed   { color: #1f7a1f; font-weight: 600; }
+    #fixResults .fix-entry .counts .errors  { color: #a02020; font-weight: 600; }
+
+    #fixResults .fix-entry > .body {
+      padding: 6px 10px 10px 24px;
+      border-top: 1px solid #ececec;
+      background: #fff;
+      font-size: 11px;
+      color: #333;
+    }
+
+    #fixResults .fix-entry .row {
+      padding: 3px 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: baseline;
+    }
+
+    /* Trace line — surfaces the resource id and any peripheral
+       ids the fix touched (destroyed siblings, split halves,
+       re-parented targets). flex-basis: 100% pushes it onto its
+       own line within the same flex row, with a left indent that
+       lines it up roughly under the .code column. */
+    #fixResults .fix-entry .row .trace {
+      flex-basis: 100%;
+      margin-left: 62px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 9.5px;
+      color: #888;
+      word-break: break-all;
+    }
+
+    #fixResults .fix-entry .row .outcome {
+      flex-shrink: 0;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 9.5px;
+      letter-spacing: 0.4px;
+      width: 56px;
+    }
+
+    #fixResults .fix-entry .row.fixed   .outcome { color: #1f7a1f; }
+    #fixResults .fix-entry .row.skipped .outcome { color: #888;   }
+    #fixResults .fix-entry .row.errors  .outcome { color: #a02020;}
+
+    /* FixSkipReason chip on a skipped row — small monospace pill
+       between "skipped" and the code, colored by reason class. */
+    #fixResults .fix-entry .row .reason-chip {
+      flex-shrink: 0;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 9.5px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      background: #f0f0f0;
+      color: #555;
+    }
+    #fixResults .fix-entry .row .reason-chip.reason-target-missing      { background: #ecf0f7; color: #2d5e8c; }
+    #fixResults .fix-entry .row .reason-chip.reason-malformed-issue     { background: #fbeed1; color: #8a5a00; }
+    #fixResults .fix-entry .row .reason-chip.reason-precondition-failed { background: #fde7e7; color: #a02020; }
+    #fixResults .fix-entry .row .reason-chip.reason-no-op               { background: #e6f0e6; color: #1a7a3c; }
+    #fixResults .fix-entry .row .reason-chip.reason-no-strategy         { background: #f0eaf5; color: #6a3f8a; }
+    #fixResults .fix-entry .row .reason-chip.reason-filter-excluded     { background: #f0f0f0; color: #555;   }
+
+    #fixResults .fix-entry .row .code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 10.5px;
+      color: #555;
+    }
+
+    #fixResults .fix-entry .row .detail {
+      flex: 1;
+      min-width: 0;
+      color: #444;
+      word-break: break-word;
+    }
+
+    /* ── Category colour stripes ──────────────────────────────────
+       Six muted hues + grey for misc. Same code carries the same
+       stripe colour wherever it appears (Inspector type-group,
+       Fix Results entry, per-issue rows in either panel) so the
+       eye can tie them together at a glance. */
+    [data-category="geometry"]  { --cat-color: #2d5e8c; }
+    [data-category="mesh"]      { --cat-color: #7c459e; }
+    [data-category="object"]    { --cat-color: #b06e2c; }
+    [data-category="material"]  { --cat-color: #2c7e6f; }
+    [data-category="texture"]   { --cat-color: #8a722c; }
+    [data-category="transform"] { --cat-color: #9c4666; }
+    [data-category="misc"]      { --cat-color: #777;    }
+
+    /* Inspector type-group: 3px stripe along the left edge,
+       overriding the existing border. */
+    #report .issue-type-group[data-category] {
+      border-left: 3px solid var(--cat-color);
+    }
+    /* Fix Results entry: stripe its summary row's left edge. */
+    #fixResults .fix-entry[data-category] > summary {
+      border-left: 3px solid var(--cat-color);
+      padding-left: 10px;
+    }
+    /* Per-issue rows in Fix Results body: thinner 2px stripe. */
+    #fixResults .fix-entry .row[data-category] {
+      border-left: 2px solid var(--cat-color);
+      padding-left: 8px;
+    }
+
+    /* Mono code badge — secondary text alongside the friendly
+       label in both panels. */
+    #report .code-badge,
+    #fixResults .code-badge {
+      flex-shrink: 0;
+      padding: 1px 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 9.5px;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+      color: #666;
+      background: #f0f0f0;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    /* Friendly label class (primary text in type-group title +
+       Fix Results action label). */
+    #report .friendly-label,
+    #fixResults .friendly-label {
+      flex: 1;
+      min-width: 0;
+      font-weight: 600;
+      color: #222;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── Reconciliation pulse ─────────────────────────────────────
+       When applyFixesAsync lands a Fix Results entry, the matching
+       Inspector type-group(s) briefly flash so the user can see
+       which issues that fix run was about. */
+    @keyframes inspector-pulse {
+      0%   { background-color: #fff5d4; }
+      100% { background-color: transparent; }
+    }
+    #report .issue-type-group.pulse {
+      animation: inspector-pulse 1.2s ease-out;
+    }
+
+    /* ── Cross-panel hover dim ───────────────────────────────────
+       Hovering an Inspector type-group dims non-matching Fix
+       Results entries. Matching entries pop to full opacity.
+       Symmetrical hover from the other side does the same to
+       Inspector type-groups. */
+    #fixResults.dim-non-matching .fix-entry             { opacity: 0.35; transition: opacity 120ms ease-out; }
+    #fixResults.dim-non-matching .fix-entry.match-hover { opacity: 1; }
+    #report.dim-non-matching     .issue-type-group             { opacity: 0.35; transition: opacity 120ms ease-out; }
+    #report.dim-non-matching     .issue-type-group.match-hover { opacity: 1; }
+  </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="status">Loading…</div>
+<div id="report" style="display:none">
+  <div class="header">
+    <h2>Model Inspector</h2>
+    <div class="hint">
+      Click <strong>Fix all</strong> to remediate, <strong>Locate</strong> (or any row) to highlight in the Viewer.
+    </div>
+    <div class="summary-row">
+      <div class="summary" id="summary"></div>
+      <button class="get-report" id="getInspectorReport" type="button" title="Download the latest InspectionReport as JSON">Get Report</button>
+      <button class="clear-locate" id="clearLocate" type="button" title="Restore default view state">Clear</button>
+    </div>
+  </div>
+  <div class="run-progress" id="runProgress" hidden>
+    <div class="run-progress-label" id="runProgressLabel">Inspecting…</div>
+    <progress class="run-progress-bar" id="runProgressBar" max="1" value="0"></progress>
+    <button class="run-progress-cancel" id="runProgressCancel" type="button" title="Abort the running inspection / fix">Cancel</button>
+  </div>
+  <div class="stats" id="stats"></div>
+  <details class="inspections-panel" id="inspectionsPanel">
+    <summary>
+      <span>Inspections</span>
+      <span class="inspections-count" id="inspectionsCount"></span>
+      <button class="inspections-toggle-all" id="inspectionsEnableAll" type="button" title="Enable every inspection">All</button>
+      <button class="inspections-toggle-all" id="inspectionsDisableAll" type="button" title="Disable every inspection">None</button>
+    </summary>
+    <div class="inspections-body" id="inspectionsBody"></div>
+  </details>
+  <div class="issues" id="issues"></div>
+</div>
+<div id="fixResults" style="display:none">
+  <div class="header">
+    <div class="fix-results-header-row">
+      <h2>Fix Results</h2>
+      <button class="get-report" id="getFixResultsReport" type="button" title="Download every applyFixes run since page load as JSON">Get Report</button>
+    </div>
+    <div class="hint">
+      Each entry logs one <code>applyFixes</code> run — the action
+      that triggered it and the fixed / skipped / errors counts
+      from <code>ApplyFixesResult</code>. Newest at top; expand to
+      see per-issue outcomes.
+    </div>
+  </div>
+  <div class="savings" id="savings" style="display:none"></div>
+  <div class="entries" id="fixEntries"></div>
+</div>
+<script type="module" src="./index.js"></script>
+</body>
+</html>

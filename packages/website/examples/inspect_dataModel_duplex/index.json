@@ -1,0 +1,20 @@
+{
+  "id": "inspect_dataModel_duplex",
+  "title": "Validate Duplex DataModel against IFC4 schema",
+  "description": "Loads the Duplex IFC DataModel and runs `inspectDataModel` from `dataModelInspector` against a curated IFC4 `DataFormatSchema`. Every opt-in check is enabled \u2014 schema tagging, relationship type binding (with super-type-aware matching against `IfcObjectDefinition`), and `IfcRelAggregates` cycle detection. The InspectionReport renders into a three-tier panel: severity counts in the header, one collapsible group per issue code with its plain-English description, and per-issue rows inside.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "IFC",
+    "IFC4",
+    "DataModel",
+    "DataModelInspector",
+    "Validate",
+    "Schema"
+  ],
+  "categories": [
+    "Validation",
+    "IFC"
+  ],
+  "topic": "dataModelInspector.validate"
+}

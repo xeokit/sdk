@@ -1,0 +1,14 @@
+{
+  "id": "viewing_viewLayers_manual",
+  "title": "Creating a Viewer with manual ViewLayers",
+  "description": "Create a viewer with explicitly managed ViewLayers for deterministic layer composition and control.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [],
+  "categories": [
+    "Viewer",
+    "Views",
+    "ViewLayers"
+  ],
+  "topic": "viewer.view.viewlayer"
+}

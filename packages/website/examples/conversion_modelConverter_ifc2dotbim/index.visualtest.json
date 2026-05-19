@@ -1,0 +1,118 @@
+{
+  "stats": {
+    "startTime": 5219.799999952316,
+    "endTime": 5898.899999976158,
+    "elapsedTime": 679.1000000238419,
+    "aabb": [
+      -26256.948242187493,
+      -29996.948242187493,
+      -21018.282373046874,
+      26898.2353515625,
+      29993.896484374993,
+      28123.896484374993
+    ],
+    "scene": {
+      "numTransforms": 0,
+      "numObjects": 35,
+      "numMeshes": 35,
+      "numGeometries": 35,
+      "numTextures": 0,
+      "numMaterials": 0,
+      "numTriangles": 1098,
+      "numLines": 0,
+      "numPoints": 0,
+      "numVertices": 3294,
+      "textureBytes": 0
+    },
+    "data": {
+      "numObjects": 35,
+      "numRelationships": 0,
+      "numPropertySets": 0
+    },
+    "memory": {
+      "allocatedMB": 11.877059936523438,
+      "usedMB": 0.09970474243164062
+    },
+    "renderer": {
+      "tiles": {
+        "0-0-0": {
+          "id": "0-0-0",
+          "rtcCenter": [
+            0,
+            0,
+            0
+          ],
+          "size": 100,
+          "tileIndex": 0,
+          "numMeshes": 35
+        }
+      },
+      "views": [
+        {
+          "viewId": "555b9526-4d21-4699-b55d-2e258628a3ff",
+          "canvasSize": [
+            0,
+            0
+          ],
+          "renderBins": [
+            {
+              "name": "edgesColorTransparent",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "TRANSPARENT",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 689
+                  },
+                  "timeMs": {
+                    "start": 5919.299999952316,
+                    "end": 5919.299999952316,
+                    "duration": 0
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 5919.100000023842,
+                "end": 5919.299999952316,
+                "duration": 0.19999992847442627
+              }
+            },
+            {
+              "name": "normalFillTransparent",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "TRANSPARENT",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 1098
+                  },
+                  "timeMs": {
+                    "start": 5919.5,
+                    "end": 5919.5,
+                    "duration": 0
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 5919.299999952316,
+                "end": 5919.5,
+                "duration": 0.20000004768371582
+              }
+            }
+          ],
+          "timeMs": {
+            "start": 5916.899999976158,
+            "end": 5919.600000023842,
+            "duration": 2.700000047683716
+          },
+          "numDrawCalls": 2,
+          "numPrims": 1787
+        }
+      ]
+    }
+  }
+}

@@ -1,25 +1,22 @@
 /**
- * Declarative configuration schemas for {@link Inspection} (and,
- * later, {@link Fix}).
+ * Declarative configuration schemas for {@link Inspection} and
+ * {@link Fix}.
  *
- * Each {@link Inspection} that opts into the schema declares a
- * {@link ConfigSchema} listing the knobs the user can tune
- * (opt-in toggle, numeric thresholds, enumerated choices). The
- * orchestrator (or the inspection itself) calls
- * {@link resolveConfig} to layer:
+ * Each {@link Inspection} declares a {@link ConfigSchema} listing
+ * the knobs the user can tune (opt-in toggle, numeric thresholds,
+ * enumerated choices). The orchestrator (or the inspection
+ * itself) calls {@link resolveConfig} to layer:
  *
  *   1. The field's `default`.
  *   2. Any saved per-inspection override stored on the
- *      {@link InspectionRegistry} (future: registry-side
- *      `getConfig` / `setConfig`).
- *   3. Per-call overrides on {@link InspectSceneModelParams}
- *      (the existing flat-field path — kept for backwards
- *      compatibility while the schema rolls out).
+ *      {@link InspectionRegistry} via `setConfig` /
+ *      `loadConfigs`.
+ *   3. Per-call overrides on {@link InspectSceneModelParams}.
  *
  * The result is a flat keyed bag the inspection's `run` consumes
  * in place of pulling fields off `params` directly.
  *
- * A DemoHelper "Inspection settings" panel can walk every
+ * A Studio "Inspection settings" panel can walk every
  * registered inspection's {@link ConfigSchema} and render a form
  * from the field metadata — labels, units, min/max, enumerations
  * — without any per-inspection UI code. Plugins inherit that UI
@@ -78,11 +75,6 @@ export type ConfigField =
  * `enabled` is the opt-in toggle — present on opt-in inspections,
  * omitted on always-run inspections. `fields` is the rest of the
  * tunable knobs.
- *
- * Schema-aware inspections may continue to declare the legacy
- * {@link Inspection.optIn} and {@link Inspection.paramsKey} fields
- * for backwards compatibility, but the schema is the source of
- * truth for any new tooling.
  */
 export interface ConfigSchema {
   enabled?: Extract<ConfigField, { kind: "boolean" }>;

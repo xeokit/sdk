@@ -1,6 +1,6 @@
 import type {SceneGeometry, SceneModel, SceneObject} from "../../../model/scene";
 import {type SDKResult} from "../../../base/core";
-import {splitSceneGeometry} from "../../../demo/splitSceneGeometry";
+import {splitSceneGeometry} from "./splitSceneGeometry";
 import type {FixApplyResult} from "../Fix";
 
 

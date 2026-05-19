@@ -144,7 +144,7 @@
  * ```javascript
  * import {
  *   DistanceMeasurementTool
- * } from "@xeokit/sdk/demo/systems/measurements/distance";
+ * } from "@xeokit/sdk/studio/systems/measurements/distance";
  * ```
  *
  * <br>

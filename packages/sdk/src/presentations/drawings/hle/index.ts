@@ -44,7 +44,7 @@
  * import {
  *   buildHLEDepthBuffer,
  *   visibleEdgeSegments
- * } from "@xeokit/sdk/demo/systems/drawings/hle";
+ * } from "@xeokit/sdk/studio/systems/drawings/hle";
  *
  * // Top-down basis: looking along -Y, +X reads as right, -Z as up.
  * const basis = {

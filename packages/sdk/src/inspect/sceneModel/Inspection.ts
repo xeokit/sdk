@@ -105,14 +105,13 @@ export interface Inspection {
    *
    * Carries enough metadata (labels, units, min/max, descriptions)
    * for a UI to auto-render a settings form per inspection — the
-   * DemoHelper's planned "Inspection settings" panel walks every
-   * registered inspection's schema and renders one form per
-   * inspection without per-inspection UI code. Plugins that
-   * declare a schema inherit that UI for free.
+   * SceneHealthPanel's Inspections section walks every registered
+   * inspection's schema and renders the form, with no
+   * per-inspection UI code. Plugins that declare a schema inherit
+   * that UI for free.
    *
-   * Optional — inspections without a schema continue to read
-   * fields directly off `params`, same as before. The two
-   * patterns coexist while the schema-driven approach rolls out.
+   * Optional — inspections without a schema read fields directly
+   * off `params`.
    */
   config?: ConfigSchema;
 
@@ -128,11 +127,8 @@ export interface Inspection {
    * pass — so expensive derived data (content hashes, vertex
    * dedup maps, edge incidence counts, decompressed positions) is
    * computed at most once per SceneModel and reused by every
-   * inspection (and follow-up fix) that needs it.
-   *
-   * Optional in this signature for backwards compatibility with
-   * pre-index inspections — the orchestrator always passes one.
-   * New inspections should treat it as required.
+   * inspection (and follow-up fix) that needs it. The orchestrator
+   * always passes one.
    */
   run(
     sceneModel: SceneModel,

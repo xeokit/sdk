@@ -147,7 +147,13 @@ export function buildGeometry(
     meshNormalColor[id] = color;
   };
   const addObject = (objectId: string, meshIds: string[]) => {
-    sceneModel.createObject({id: objectId, meshIds, layerId});
+    // `clippable: false` — gizmo handles are out-of-band UI and
+    // must never be clipped by section planes. The colour pass
+    // is handled at the technique level (overlay-bin's
+    // TrianglesDrawColorFlatTechnique already omits slicing);
+    // this flag is what makes the pick technique (shared with
+    // the main scene) skip the discard for these objects too.
+    sceneModel.createObject({id: objectId, meshIds, layerId, clippable: false});
   };
 
   /**
@@ -175,7 +181,10 @@ export function buildGeometry(
     const meshId = `${objectId}.picker.mesh`;
     sceneModel.createMesh({id: meshId, geometryId: pickerGeometryId, color: [0, 0, 0], opacity: 1.0, matrix: m, bin: "overlayPicker"});
     meshLocals[meshId] = m;
-    sceneModel.createObject({id: `${objectId}.picker`, meshIds: [meshId], layerId});
+    // `clippable: false` — see addObject above. Pickers must
+    // remain hit-testable through any active section plane so
+    // the gizmo stays draggable when the user has cut the scene.
+    sceneModel.createObject({id: `${objectId}.picker`, meshIds: [meshId], layerId, clippable: false});
   };
 
   // ----- Translate ---------------------------------------------

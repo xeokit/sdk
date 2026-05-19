@@ -375,7 +375,13 @@ export class TransformControls {
       this._handleSet.add(h);
       this._handleSet.add(`${h}.picker`);
     }
-    this.id = params.id ?? "transformControls";
+    // Default id carries the reserved `__` prefix so the
+    // gizmo's SceneModel + ViewLayer are auto-excluded from
+    // user-facing enumerators (BoundariesPanel, DrawingsPanel,
+    // SceneHealthPanel, the scene-AABB aggregator). Callers
+    // that override `params.id` are responsible for keeping
+    // the prefix if they want the same exclusion.
+    this.id = params.id ?? "__transformControls";
     this._mode  = params.mode  ?? "translate";
     this._space = params.space ?? "world";
     this._sizePx = params.size ?? 160;
@@ -761,7 +767,7 @@ export class TransformControls {
    *   move shows up immediately.
    *
    * Switch on from the host (or from a devtools console:
-   * `viewer.demoHelper.openTransformControls(view).setDebug(true)`)
+   * `viewer.studio.panels.open("transformControls", {view}).setDebug(true)`)
    * when chasing pivot drift, snapshot mismatch, or mid-drag
    * detach issues.
    */

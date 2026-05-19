@@ -134,6 +134,10 @@ export function paintRustyMetal(size: number, options: PaintRustyMetalOptions = 
   return {
     color,
     normal: heightToNormal(hgt, normStrength),
-    mr
+    mr,
+    // The "rusty" name implies rust dominates the visible
+    // surface — pick the rust colour rather than the
+    // underlying metal so swatches read as red-brown.
+    flatColor: rustColor,
   };
 }

@@ -64,6 +64,7 @@ export function paintBrushSteel(size: number, options: PaintBrushSteelOptions = 
   return {
     color,
     normal: heightToNormal(hgt, normalStrength),
-    mr: paintMR(size, (x, y) => [clamp01(roughness + stripeAt(x, y) * 0.18), 1.0])
+    mr: paintMR(size, (x, y) => [clamp01(roughness + stripeAt(x, y) * 0.18), 1.0]),
+    flatColor: baseColor,
   };
 }

@@ -28,7 +28,7 @@
  * Chrome is passed inline to {@link buildDrawing}:
  *
  * ```javascript
- * import { buildDrawing } from "@xeokit/sdk/demo/systems/drawings";
+ * import { buildDrawing } from "@xeokit/sdk/studio/systems/drawings";
  *
  * await buildDrawing({
  *   scene,

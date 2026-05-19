@@ -396,6 +396,23 @@ export class MaterialsPalette {
       // to convert world position into per-fragment sample
       // coordinates. UV-bearing geometry ignores it.
       triplanarScale:             this.uvScale,
+      // Forward the painter's flat-context fallbacks
+      // ({@link MaterialMaps.flatColor | flatColor},
+      // {@link MaterialMaps.flatOpacity | flatOpacity}) onto the
+      // SceneMaterial as its `color` / `opacity`. These are the
+      // values consumers like the drawings emitter read when
+      // they want a single textureless fill / line style for a
+      // material — a glass painter's `flatOpacity: 0.35` ends up
+      // as the mesh's effectiveOpacity, and the drawing pipeline
+      // (which inherits per-mesh color/opacity) automatically
+      // renders the pane as translucent in plan.
+      //
+      // `entry.material` overrides win — they're authored
+      // per-entry on the catalog, finer-grained than the painter
+      // itself, and a caller who hands us an entry with an
+      // explicit `color` clearly wants that to stick.
+      ...(maps.flatColor   !== undefined ? {color:   maps.flatColor}   : {}),
+      ...(maps.flatOpacity !== undefined ? {opacity: maps.flatOpacity} : {}),
       ...(entry.material || {}),
     });
     if (matRes.ok === false) {

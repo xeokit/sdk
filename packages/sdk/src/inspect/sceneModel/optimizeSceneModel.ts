@@ -1,6 +1,6 @@
 import type {SceneGeometry, SceneMesh, SceneModel, SceneTransform} from "../../model/scene";
 import {SDKErrorType, type SDKResult} from "../../base/core";
-import {splitSceneGeometry} from "../../demo/splitSceneGeometry";
+import {splitSceneGeometry} from "./internal/splitSceneGeometry";
 import type {OptimizeSceneModelParams} from "./params/OptimizeSceneModelParams";
 import {inspectSceneModel} from "./inspectSceneModel";
 

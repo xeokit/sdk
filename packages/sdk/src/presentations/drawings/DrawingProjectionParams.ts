@@ -1,4 +1,5 @@
 import type {SceneModel} from "../../model/scene";
+import type {Data} from "../../model/data";
 import type {FloatArrayParam} from "../../base/math";
 import type {Vec3} from "../../base/math/vector";
 
@@ -9,6 +10,7 @@ import type {HLEOptions} from "./hle/HLEOptions";
 import type {FillSpec} from "./fills/FillSpec";
 import type {PanelSpec} from "./chrome/PanelSpec";
 import type {TitleBlockSpec} from "./chrome/TitleBlockSpec";
+import type {SpaceLabelSpec} from "./labels/SpaceLabelSpec";
 
 export interface DrawingProjectionParams {
 
@@ -56,7 +58,7 @@ export interface DrawingProjectionParams {
    * the function computes it on the fly by walking every mesh's
    * world-space positions — the bound matches the source model's
    * actual extent. Pass an explicit AABB (e.g. from
-   * `demoHelper.collisionIndex.getSceneAABB()`) when you want
+   * `studio.picking.collisionIndex.getSceneAABB()`) when you want
    * the wireframe to sit on the bounds of more than one model.
    */
   aabb?: FloatArrayParam;
@@ -177,13 +179,20 @@ export interface DrawingProjectionParams {
   lines?: boolean;
 
   /**
-   * Optional clipping plane — turns the projection into a
+   * Optional clipping plane(s) — turn the projection into a
    * cut-away / sliced cross-section. Source geometry whose
-   * centroid lies on the discarded side of the plane is
-   * dropped during rasterisation (HLE) and tile-rasterisation
-   * (fills), and skipped in the per-edge wireframe loop.
+   * centroid lies on the discarded side of **any** supplied
+   * plane is dropped during rasterisation (HLE) and
+   * tile-rasterisation (fills), and skipped in the per-edge
+   * wireframe loop. The kept region is the intersection of
+   * every plane's kept half-space.
    *
-   * Two shapes:
+   * Pass a single {@link DrawingClipSpec} for one cut, or an
+   * array of specs to apply multiple cuts at once — typically
+   * fed from a View's
+   * {@link viewing!viewer.View.sectionPlanesList | active SectionPlanes}.
+   *
+   * Each spec takes one of two shapes:
    *
    * - `{depth: number}` — plane perpendicular to
    *   `basis.forward` at the given basis-d coordinate. The
@@ -196,7 +205,10 @@ export interface DrawingProjectionParams {
    * - `{point, normal}` — arbitrary world-space plane. The
    *   side `normal` points toward is kept; the opposite side
    *   is discarded. Useful for diagonal cut-aways (e.g. a
-   *   knife cut along an oblique direction).
+   *   knife cut along an oblique direction) or for mirroring
+   *   a {@link viewing!viewer.SectionPlane | SectionPlane}
+   *   (use `point: plane.pos` and `normal: -plane.dir` so the
+   *   kept side matches what the View renders).
    *
    * Clipping is centroid-based (per-triangle), so the cut
    * boundary is sub-pixel jagged — invisible at the default
@@ -204,7 +216,65 @@ export interface DrawingProjectionParams {
    * box, title block) is never clipped — it's not part of
    * the source model.
    */
-  clip?: DrawingClipSpec;
+  clip?: DrawingClipSpec | DrawingClipSpec[];
+
+  /**
+   * Optional {@link model!data.Data | Data} graph that pairs
+   * with `sourceModel` by SceneObject id. Required when
+   * {@link DrawingProjectionParams.spaceLabels | spaceLabels}
+   * is enabled — the label pass reads each source object's
+   * {@link model!data.DataObject.type | DataObject.type} and
+   * {@link model!data.DataObject.name | DataObject.name} from
+   * this graph. Ignored when no Data-driven feature is on.
+   */
+  data?: Data;
+
+  /**
+   * Optional in-polygon labels for each labelled source object
+   * (rooms / spaces). Requires {@link DrawingProjectionParams.fill | fill}
+   * to be on so the projector has the fill polygons it needs
+   * to find the pole-of-inaccessibility per object, and
+   * requires {@link DrawingProjectionParams.data | data} so it
+   * can read each candidate's name + type. Pass `true` for
+   * AEC defaults (all-caps `IfcSpace.name`, no area annotation),
+   * or pass a {@link SpaceLabelSpec} to tune the data-type
+   * filter, font scaling, casing, area annotation, and colour.
+   * Default `false` — no labels.
+   */
+  spaceLabels?: boolean | SpaceLabelSpec;
+
+  /**
+   * Treat transparent meshes as wireframe-only. Each source
+   * {@link model!scene.SceneMesh | SceneMesh} whose
+   * {@link model!scene.SceneMesh.effectiveOpacity | effectiveOpacity}
+   * is strictly below
+   * {@link DrawingProjectionParams.transparentThreshold | transparentThreshold}
+   * is excluded from the HLE depth buffer and from the fills
+   * pass, but its edges are still emitted. The edges are still
+   * HLE-tested against opaque geometry, so a window edge behind
+   * a wall stays hidden by the wall — only the *self*-occlusion
+   * goes away.
+   *
+   * Practical effect: a curtain wall draws its frame as
+   * solid+filled (opaque mesh) and its glass as wireframe
+   * (transparent mesh), and the room behind the glass shows
+   * through. Default `false` — every mesh occludes regardless
+   * of opacity.
+   */
+  transparentAsWireframe?: boolean;
+
+  /**
+   * Effective-opacity cutoff used by
+   * {@link DrawingProjectionParams.transparentAsWireframe | transparentAsWireframe}.
+   * A mesh is considered transparent when its
+   * {@link model!scene.SceneMesh.effectiveOpacity | effectiveOpacity}
+   * is strictly less than this. Default `0.99` — leaves a tiny
+   * margin for assets that store "fully opaque" as `0.999`
+   * after a colour-space round-trip.
+   *
+   * Ignored when `transparentAsWireframe` is `false`.
+   */
+  transparentThreshold?: number;
 
   /**
    * Yield to the host between batches of per-source-object

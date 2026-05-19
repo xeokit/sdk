@@ -172,7 +172,7 @@
  * import {
  *   applyHeatMapMaterials,
  *   paintHeatMapPoint
- * } from "@xeokit/sdk/demo/systems/heatmaps";
+ * } from "@xeokit/sdk/studio/systems/heatmaps";
  * ```
  *
  * <br>

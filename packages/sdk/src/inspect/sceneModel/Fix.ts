@@ -93,7 +93,7 @@ export interface Fix {
    * per-fix UI code — same pattern as {@link Inspection.config}.
    *
    * Optional — fixes without a schema run unconditionally for
-   * every matching issue, same as before.
+   * every matching issue.
    */
   config?: ConfigSchema;
 

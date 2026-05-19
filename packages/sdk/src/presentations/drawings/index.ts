@@ -124,7 +124,7 @@
  *   buildDrawing,
  *   canBuildDrawing,
  *   clearDrawing
- * } from "@xeokit/sdk/demo/systems/drawings";
+ * } from "@xeokit/sdk/studio/systems/drawings";
  * ```
  *
  * <br>
@@ -388,5 +388,6 @@ export * from "./ProgressiveSpec";
 export * as hle    from "./hle";
 export * as fills  from "./fills";
 export * as chrome from "./chrome";
+export * as labels from "./labels";
 
 export * from "./buildDrawing";

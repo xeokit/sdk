@@ -147,7 +147,7 @@
  * ```javascript
  * import {
  *   AngleMeasurementsTool
- * } from "@xeokit/sdk/demo/systems/measurements/angle";
+ * } from "@xeokit/sdk/studio/systems/measurements/angle";
  * ```
  *
  * <br>

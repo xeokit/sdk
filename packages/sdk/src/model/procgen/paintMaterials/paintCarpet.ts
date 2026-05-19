@@ -105,6 +105,7 @@ export function paintCarpet(size: number, options: PaintCarpetOptions = {}): Mat
   return {
     color,
     normal: heightToNormal(hgt, normalStrength),
-    mr: flatMR(size, roughness, 0.0)
+    mr: flatMR(size, roughness, 0.0),
+    flatColor: baseColor,
   };
 }

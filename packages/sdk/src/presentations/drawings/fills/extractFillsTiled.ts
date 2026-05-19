@@ -49,6 +49,11 @@ import type {AABB3} from "../../../base/math/boundaries";
 import {decompressPositions3WithAABB3} from "../../../base/math/compression";
 import {transformPoint3} from "../../../base/math/matrix";
 import type {Vec3} from "../../../base/math/vector";
+import {
+  douglasPeuckerClosed2D,
+  pointInPolygon2D,
+  polygonSignedArea2D,
+} from "../../../base/math/polygon2D";
 import type {SceneModel} from "../../../model/scene";
 
 import type {FillPolygons} from "./FillPolygons";
@@ -87,16 +92,23 @@ export async function extractFillsTiled(params: ExtractFillsTiledParams): Promis
   const cancelled      = params.cancelled;
 
   // Centroid-clip pre-computation — see buildHLEDepthBuffer for
-  // the matching commentary. `clipThreshold` is `dot(point, n)`
-  // so the per-triangle test reduces to one fused multiply-add
-  // against the centroid.
-  const clipActive = params.clipPoint != null && params.clipNormal != null;
-  const clipNx = clipActive ? params.clipNormal![0] : 0;
-  const clipNy = clipActive ? params.clipNormal![1] : 0;
-  const clipNz = clipActive ? params.clipNormal![2] : 0;
-  const clipThreshold = clipActive
-    ? params.clipPoint![0] * clipNx + params.clipPoint![1] * clipNy + params.clipPoint![2] * clipNz
-    : 0;
+  // the matching commentary. Per-plane scratch arrays let the
+  // per-triangle test fuse to a single multiply-add per plane
+  // against the centroid; intersection-of-half-spaces is the
+  // standard early-exit loop.
+  const clipPlanesIn = params.clipPlanes;
+  const planeCount = clipPlanesIn ? clipPlanesIn.length : 0;
+  const clipNx = new Float64Array(planeCount);
+  const clipNy = new Float64Array(planeCount);
+  const clipNz = new Float64Array(planeCount);
+  const clipThr = new Float64Array(planeCount);
+  for (let i = 0; i < planeCount; i++) {
+    const p = clipPlanesIn![i];
+    clipNx[i] = p.normal[0];
+    clipNy[i] = p.normal[1];
+    clipNz[i] = p.normal[2];
+    clipThr[i] = p.point[0] * p.normal[0] + p.point[1] * p.normal[1] + p.point[2] * p.normal[2];
+  }
 
   // ── 1. Output dimensions, derived from basis-rotated AABB. ──
   const {uMin, uMax, vMin, vMax} = basisUVExtents(basis, aabb);
@@ -185,10 +197,14 @@ export async function extractFillsTiled(params: ExtractFillsTiledParams): Promis
       const syTile = Ht / (tileVMax - tileVMin);
 
       // ── Rasterise candidate triangles into the tile buffer. ──
+      const meshFilter = params.meshFilter;
       const visitObject = (objectId: string) => {
         const obj = (sourceModel.objects as any)[objectId];
         if (!obj) return;
         for (const mesh of obj.meshes) {
+          // Caller-supplied predicate — keeps the fill pass
+          // aligned with the HLE depth buffer's mesh set.
+          if (meshFilter && !meshFilter(mesh, obj)) continue;
           const geom = mesh.geometry;
           if (!geom || !geom.indices || !geom.positionsCompressed || !geom.aabb) continue;
           if (geom.primitive !== TrianglesPrimitive &&
@@ -221,11 +237,18 @@ export async function extractFillsTiled(params: ExtractFillsTiledParams): Promis
             transformPoint3(worldMatrix, v0, p0);
             transformPoint3(worldMatrix, v1, p1);
             transformPoint3(worldMatrix, v2, p2);
-            if (clipActive) {
+            if (planeCount > 0) {
               const cx = (p0[0] + p1[0] + p2[0]) * (1 / 3);
               const cy = (p0[1] + p1[1] + p2[1]) * (1 / 3);
               const cz = (p0[2] + p1[2] + p2[2]) * (1 / 3);
-              if (cx * clipNx + cy * clipNy + cz * clipNz < clipThreshold) continue;
+              let clipped = false;
+              for (let pi = 0; pi < planeCount; pi++) {
+                if (cx * clipNx[pi] + cy * clipNy[pi] + cz * clipNz[pi] < clipThr[pi]) {
+                  clipped = true;
+                  break;
+                }
+              }
+              if (clipped) continue;
             }
             rasteriseTriangleIntoTile(
               basis, p0, p1, p2,
@@ -318,9 +341,9 @@ export async function extractFillsTiled(params: ExtractFillsTiledParams): Promis
     const outers: Array<{points: PixelPt[]; area: number}> = [];
     const holes:  Array<{points: PixelPt[]; area: number}> = [];
     for (const raw of loops) {
-      const simplified = simplifyEps > 0 ? douglasPeuckerClosed(raw, simplifyEps) : raw;
+      const simplified = simplifyEps > 0 ? douglasPeuckerClosed2D(raw, simplifyEps) : raw;
       if (simplified.length < 3) continue;
-      const sa = polygonSignedArea(simplified);
+      const sa = polygonSignedArea2D(simplified);
       if      (sa < 0) outers.push({points: simplified, area: -sa});
       else if (sa > 0) holes .push({points: simplified, area:  sa});
     }
@@ -336,7 +359,7 @@ export async function extractFillsTiled(params: ExtractFillsTiledParams): Promis
         let bestOuter = -1, bestArea = Infinity;
         for (let o = 0; o < outers.length; o++) {
           if (outers[o].area >= bestArea) continue;
-          if (pointInPolygon(probe, outers[o].points)) {
+          if (pointInPolygon2D(probe, outers[o].points)) {
             bestOuter = o; bestArea = outers[o].area;
           }
         }
@@ -565,85 +588,6 @@ function stitchSegments(segments: Segment[]): PixelPt[][] {
     if (loop.length >= 3) loops.push(loop);
   }
   return loops;
-}
-
-
-// ─────────────────────────────────────────────────────────────────
-// Polygon utilities (duplicated from extractFills.ts so the
-// tiled path stays self-contained — the untiled extractor's
-// helpers are module-private to that file)
-// ─────────────────────────────────────────────────────────────────
-
-function polygonSignedArea(points: PixelPt[]): number {
-  let area = 0;
-  for (let i = 0, n = points.length; i < n; i++) {
-    const a = points[i];
-    const b = points[(i + 1) % n];
-    area += a[0] * b[1] - b[0] * a[1];
-  }
-  return area * 0.5;
-}
-
-
-function pointInPolygon(p: PixelPt, ring: PixelPt[]): boolean {
-  let inside = false;
-  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-    const xi = ring[i][0], yi = ring[i][1];
-    const xj = ring[j][0], yj = ring[j][1];
-    const intersect =
-      ((yi > p[1]) !== (yj > p[1])) &&
-      p[0] < ((xj - xi) * (p[1] - yi)) / (yj - yi) + xi;
-    if (intersect) inside = !inside;
-  }
-  return inside;
-}
-
-
-function douglasPeuckerClosed(loop: PixelPt[], epsilon: number): PixelPt[] {
-  if (loop.length < 4) return loop;
-  let anchorB = 0, anchorBDist = 0;
-  for (let i = 1; i < loop.length; i++) {
-    const dx = loop[i][0] - loop[0][0];
-    const dy = loop[i][1] - loop[0][1];
-    const d2 = dx * dx + dy * dy;
-    if (d2 > anchorBDist) { anchorBDist = d2; anchorB = i; }
-  }
-  const arcA = loop.slice(0, anchorB + 1);
-  const arcB = loop.slice(anchorB).concat([loop[0]]);
-  const simpA = douglasPeuckerOpen(arcA, epsilon);
-  const simpB = douglasPeuckerOpen(arcB, epsilon);
-  const outLoop = simpA.slice(0, -1).concat(simpB.slice(0, -1));
-  return outLoop.length >= 3 ? outLoop : loop;
-}
-
-
-function douglasPeuckerOpen(points: PixelPt[], epsilon: number): PixelPt[] {
-  if (points.length < 3) return points.slice();
-  const lastIdx = points.length - 1;
-  let maxDist = 0, splitIdx = 0;
-  const a = points[0], b = points[lastIdx];
-  for (let i = 1; i < lastIdx; i++) {
-    const d = perpDistance(points[i], a, b);
-    if (d > maxDist) { maxDist = d; splitIdx = i; }
-  }
-  if (maxDist > epsilon) {
-    const left  = douglasPeuckerOpen(points.slice(0, splitIdx + 1), epsilon);
-    const right = douglasPeuckerOpen(points.slice(splitIdx),       epsilon);
-    return left.slice(0, -1).concat(right);
-  }
-  return [points[0], points[lastIdx]];
-}
-
-
-function perpDistance(p: PixelPt, a: PixelPt, b: PixelPt): number {
-  const dx = b[0] - a[0], dy = b[1] - a[1];
-  const len2 = dx * dx + dy * dy;
-  if (len2 < 1e-12) {
-    const ex = p[0] - a[0], ey = p[1] - a[1];
-    return Math.sqrt(ex * ex + ey * ey);
-  }
-  const cross = dx * (a[1] - p[1]) - (a[0] - p[0]) * dy;
-  return Math.abs(cross) / Math.sqrt(len2);
 }
 
 

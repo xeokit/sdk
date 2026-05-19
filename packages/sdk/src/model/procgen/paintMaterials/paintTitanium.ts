@@ -26,6 +26,7 @@ export function paintTitanium(size: number, options: PaintTitaniumOptions = {}):
   return {
     color: solidColor(size, color),
     normal: flatNormal(size),
-    mr: flatMR(size, roughness, 1.0)
+    mr: flatMR(size, roughness, 1.0),
+    flatColor: color,
   };
 }

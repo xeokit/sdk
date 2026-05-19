@@ -161,6 +161,12 @@ export function paintCopperRoof(size: number, options: PaintCopperRoofOptions = 
   return {
     color,
     normal: heightToNormal(hgt, normStrength),
-    mr
+    mr,
+    // Default copper-roof renders mostly weathered, so the
+    // patina (verdigris) colour is the dominant flat read.
+    // Callers who override `coverage = 0` get raw copper —
+    // they should also override flatColor in `entry.material`
+    // if they care about the swatch.
+    flatColor: patinaColor,
   };
 }

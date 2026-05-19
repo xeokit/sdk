@@ -75,6 +75,7 @@ export function paintMarble(size: number, options: PaintMarbleOptions = {}): Mat
   return {
     color,
     normal: heightToNormal(hgt, normalStrength),
-    mr: flatMR(size, roughness, 0.0)
+    mr: flatMR(size, roughness, 0.0),
+    flatColor: baseColor,
   };
 }

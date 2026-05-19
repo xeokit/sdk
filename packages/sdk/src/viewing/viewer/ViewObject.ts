@@ -86,11 +86,19 @@ export class ViewObject {
         this.sceneObject = sceneObject;
         this.viewTransform = null;
 
-        this._flags =
+        // Initial flag set. CLIPPABLE is on by default but can be
+        // opted out at creation time via `SceneObjectParams.clippable:
+        // false` — useful for drawings, annotations, and other
+        // overlay-style objects that should remain visible
+        // (and pickable) regardless of any active section planes.
+        let initialFlags =
             ViewObject.VISIBLE |
             ViewObject.PICKABLE |
-            ViewObject.CLIPPABLE |
             ViewObject.COLLIDABLE;
+        if (sceneObject.clippable !== false) {
+            initialFlags |= ViewObject.CLIPPABLE;
+        }
+        this._flags = initialFlags;
 
         this._colorize = new Float32Array(4);
 

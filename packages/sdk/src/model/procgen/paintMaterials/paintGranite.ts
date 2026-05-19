@@ -81,6 +81,10 @@ export function paintGranite(size: number, options: PaintGraniteOptions = {}): M
   return {
     color,
     normal: heightToNormal(hgt, normalStrength),
-    mr: flatMR(size, roughness, 0.0)
+    mr: flatMR(size, roughness, 0.0),
+    // Mid-tone grey is the granite swatch's dominant read;
+    // the dark / light / fleck colours all play around it but
+    // none owns the page in flat preview.
+    flatColor: midColor,
   };
 }

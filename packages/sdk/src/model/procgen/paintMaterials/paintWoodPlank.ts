@@ -167,6 +167,7 @@ export function paintWoodPlank(size: number, options: PaintWoodPlankOptions = {}
         return [clamp01(roughness + 0.25), 0.0];
       }
       return [clamp01(roughness + grainAt(x, y, col) * 0.12), 0.0];
-    })
+    }),
+    flatColor: baseColor,
   };
 }

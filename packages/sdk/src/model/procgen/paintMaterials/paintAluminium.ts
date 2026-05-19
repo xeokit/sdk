@@ -25,6 +25,7 @@ export function paintAluminium(size: number, options: PaintAluminiumOptions = {}
   return {
     color: solidColor(size, color),
     normal: flatNormal(size),
-    mr: flatMR(size, roughness, 1.0)
+    mr: flatMR(size, roughness, 1.0),
+    flatColor: color,
   };
 }

@@ -1,5 +1,5 @@
 import type {FloatArrayParam} from "../../../base/math";
-import type {SceneModel} from "../../../model/scene";
+import type {SceneMesh, SceneModel, SceneObject} from "../../../model/scene";
 import type {SceneCollisionIndex} from "../../../spatial/collision";
 
 import type {ProjectionBasis} from "../ProjectionBasis";
@@ -76,13 +76,24 @@ export interface ExtractFillsTiledParams {
    */
   cancelled?: () => boolean;
   /**
-   * Optional cut-away clip plane. When supplied, triangles
-   * whose **centroid** satisfies
-   * `dot(centroid - clipPoint, clipNormal) < 0` are skipped
-   * during tile rasterisation. `clipNormal` must be unit
-   * length. The kept side of the plane is the side
-   * `clipNormal` points toward.
+   * Optional cut-away clip planes. Each entry is `{point, normal}`
+   * in world space with `normal` unit length pointing toward the
+   * **kept** half-space. Triangles whose centroid fails any
+   * plane's test (`dot(centroid - point, normal) < 0`) are
+   * dropped during tile rasterisation. Mirrors
+   * {@link BuildHLEDepthBufferOptions.clipPlanes} so HLE and
+   * fills agree about what's kept.
    */
-  clipPoint?: ArrayLike<number>;
-  clipNormal?: ArrayLike<number>;
+  clipPlanes?: Array<{point: ArrayLike<number>; normal: ArrayLike<number>}>;
+  /**
+   * Optional per-mesh predicate. Returning `false` excludes the
+   * mesh from rasterisation — no triangles are tested, no
+   * pixels are owned, no fill polygon is emitted for it.
+   * Mirrors {@link BuildHLEDepthBufferOptions.meshFilter}; the
+   * two are typically supplied together so HLE depth and fill
+   * extraction agree on which meshes participate. `buildDrawing`
+   * uses this to drop transparent meshes from the fill pass
+   * when `transparentAsWireframe` is on.
+   */
+  meshFilter?: (mesh: SceneMesh, object: SceneObject) => boolean;
 }

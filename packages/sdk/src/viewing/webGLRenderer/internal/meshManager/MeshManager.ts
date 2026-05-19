@@ -217,6 +217,29 @@ export class MeshManager {
       rendererMeshes
     });
 
+    // Push the SceneObject's creation-time `clippable` preference
+    // through to every per-view mesh slot. GPUMemoryBatch.addMesh
+    // defaults the per-mesh clippable bit to `true`, and the
+    // ViewObject flag set during construction never reaches the
+    // renderer at initial creation — runtime sync paths
+    // (`_synchronizeMeshWithViewObject`, `onViewObjectClippableChanged`)
+    // only fire for mesh-adds and user-driven toggles, not at
+    // construction. Without this push, `SceneObjectParams.clippable:
+    // false` would leave the renderer's bit at `true` and the FS
+    // slicing test would still discard fragments behind active
+    // section planes.
+    //
+    // Only iterates when the caller explicitly opted out; the
+    // default path (`undefined` / `true`) skips the loop entirely.
+    if (sceneObject.clippable === false) {
+      const viewer = this._renderContext.viewer;
+      for (let viewIndex = 0, numViews = viewer.numViews; viewIndex < numViews; viewIndex++) {
+        for (let i = 0, n = rendererMeshes.length; i < n; i++) {
+          rendererMeshes[i].setClippable(viewIndex, false);
+        }
+      }
+    }
+
     this._batchesDirty = true;
 
     return {ok: true, value: undefined};
@@ -445,6 +468,13 @@ export class MeshManager {
     rendererMesh.setHighlighted(viewIndex, viewObject.highlighted);
     rendererMesh.setSelected(viewIndex, viewObject.selected);
     rendererMesh.setPickable(viewIndex, viewObject.pickable);
+    // Push the per-view clippable bit through to the renderer
+    // so creation-time `SceneObjectParams.clippable: false`
+    // actually reaches the fragment shader's slicing test.
+    // Without this, GPUMemoryBatch.addMesh's hard-coded
+    // `clippable: true` would override the ViewObject's flag
+    // and drawings / overlays would still get clipped.
+    rendererMesh.setClippable(viewIndex, viewObject.clippable);
     // rendererMesh.setColorize(viewIndex, viewObject.colorize);
     // rendererMesh.setOpacity(viewIndex, viewObject.opacity);
   }

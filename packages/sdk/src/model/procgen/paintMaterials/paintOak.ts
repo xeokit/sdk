@@ -82,6 +82,7 @@ export function paintOak(size: number, options: PaintOakOptions = {}): MaterialM
   return {
     color,
     normal: heightToNormal(hgt, normalStrength),
-    mr: paintMR(size, (x, y) => [clamp01(roughness + grainAt(x, y) * 0.18), 0.0])
+    mr: paintMR(size, (x, y) => [clamp01(roughness + grainAt(x, y) * 0.18), 0.0]),
+    flatColor: baseColor,
   };
 }

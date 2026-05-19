@@ -137,7 +137,7 @@
  * ### 1) Import the entry point
  *
  * ```javascript
- * import { SceneModelExploder } from "@xeokit/sdk/demo/systems/exploder";
+ * import { SceneModelExploder } from "@xeokit/sdk/studio/systems/exploder";
  * ```
  *
  * <br>
@@ -154,7 +154,7 @@
  * const exploder = new SceneModelExploder({
  *   scene,
  *   sceneModel:     scene.models["building"],
- *   collisionIndex: demoHelper.collisionIndex
+ *   collisionIndex: studio.picking.collisionIndex
  * });
  * ```
  *

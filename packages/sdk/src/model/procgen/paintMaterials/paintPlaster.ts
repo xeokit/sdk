@@ -57,6 +57,7 @@ export function paintPlaster(size: number, options: PaintPlasterOptions = {}): M
   return {
     color,
     normal: heightToNormal(hgt, normalStrength),
-    mr: flatMR(size, roughness, 0.0)
+    mr: flatMR(size, roughness, 0.0),
+    flatColor: baseColor,
   };
 }

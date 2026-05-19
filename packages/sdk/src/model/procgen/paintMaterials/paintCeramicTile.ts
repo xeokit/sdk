@@ -132,6 +132,7 @@ export function paintCeramicTile(size: number, options: PaintCeramicTileOptions 
       const inGroutY = yInCell < groutH || yInCell > cellH - groutH;
       const r = (inGroutX || inGroutY) ? groutRoughness : tileRoughness;
       return [r, 0.0];
-    })
+    }),
+    flatColor: baseColor,
   };
 }

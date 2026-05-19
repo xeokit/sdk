@@ -179,7 +179,7 @@
  *   buildSectionCaps,
  *   canBuildSectionCaps,
  *   clearSectionCaps
- * } from "@xeokit/sdk/demo/systems/sectionCaps";
+ * } from "@xeokit/sdk/studio/systems/sectionCaps";
  * ```
  *
  * <br>

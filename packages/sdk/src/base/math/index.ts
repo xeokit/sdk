@@ -161,3 +161,4 @@ export * as boundaries from "./boundaries";
 export * as rtc from "./rtc";
 export * as compression from "./compression";
 export * as curves from "./curves";
+export * as polygon2D from "./polygon2D";

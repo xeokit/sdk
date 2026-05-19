@@ -30,7 +30,7 @@ import {dropDuplicateTriangles} from "./fixes/dropDuplicateTriangles";
  * singleton on import:
  *
  * ```ts
- * import {DEFAULT_FIX_REGISTRY} from "@xeokit/sdk/demo";
+ * import {DEFAULT_FIX_REGISTRY} from "@xeokit/sdk/studio";
  *
  * DEFAULT_FIX_REGISTRY.register({
  *   codes: ["MyApp/STALE_PROPERTY_SET"],

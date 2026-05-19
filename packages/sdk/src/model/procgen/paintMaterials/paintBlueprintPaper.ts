@@ -158,5 +158,6 @@ export function paintBlueprintPaper(
     color,
     normal: heightToNormal(hgt, normalStrength),
     mr:     flatMR(size, roughness, 0.0),
+    flatColor: baseColor,
   };
 }

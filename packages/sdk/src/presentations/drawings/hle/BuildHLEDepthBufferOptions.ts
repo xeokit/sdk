@@ -1,8 +1,20 @@
+import type {SceneMesh, SceneObject} from "../../../model/scene";
+
 /**
  * Options for {@link buildHLEDepthBuffer}. All optional;
  * defaults work well for typical BIM geometry.
  */
 export interface BuildHLEDepthBufferOptions {
+  /**
+   * Optional per-mesh predicate. Returning `false` excludes the
+   * mesh from the depth buffer entirely — its triangles aren't
+   * rasterised and it never appears in the owner tables.
+   * `buildDrawing` uses this to make transparent meshes
+   * non-occluding (a window stops blocking the room behind it),
+   * but the hook is general: any caller that wants to spike out
+   * a subset can pass a filter.
+   */
+  meshFilter?: (mesh: SceneMesh, object: SceneObject) => boolean;
   /**
    * Buffer resolution along the longer of (u, v). Default `2048`.
    * Drives both edge-HLE precision and (when paired with
@@ -43,14 +55,15 @@ export interface BuildHLEDepthBufferOptions {
    */
   cancelled?: () => boolean;
   /**
-   * Optional cut-away clip plane. When supplied, triangles
-   * whose **centroid** satisfies
-   * `dot(centroid - clipPoint, clipNormal) < 0` are skipped
-   * during rasterisation — i.e. the side `clipNormal` points
-   * toward is kept, the opposite side is discarded. Used to
-   * render sliced cross-section / cut-away drawings.
-   * `clipNormal` must be unit length.
+   * Optional cut-away clip planes. Each plane is `{point, normal}`
+   * in world space, with `normal` unit length and pointing toward
+   * the **kept** half-space. A triangle is rasterised only when
+   * its centroid satisfies `dot(centroid - point, normal) >= 0`
+   * for **every** plane — i.e. the kept region is the
+   * intersection of all planes' kept sides. Pass an empty array
+   * (or omit) to disable clipping; pass one plane to reproduce
+   * the previous single-plane behaviour; pass several to mirror
+   * the View's active {@link viewing!viewer.SectionPlane | SectionPlane}s.
    */
-  clipPoint?: ArrayLike<number>;
-  clipNormal?: ArrayLike<number>;
+  clipPlanes?: Array<{point: ArrayLike<number>; normal: ArrayLike<number>}>;
 }

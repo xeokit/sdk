@@ -1,0 +1,1123 @@
+import {Scene, SceneModel, type SceneModelStats, type CoordinateSystemParams} from "../model/scene";
+import {Data, DataModel, type DataModelStats} from "../model/data";
+import {View, Viewer, ViewObject, type ViewParams} from "../viewing/viewer";
+import {type MemoryUsage, WebGLRenderer} from "../viewing/webGLRenderer";
+import {EventsLogger, getGlobalTaskRunner, sdkProgress, SDKErrorType, type SDKResult, SDKTask} from "../base/core";
+import {type RenderStats} from "../viewing/webGLRenderer/internal/inspectors";
+import type {ImportProvenance} from "./panels/modelsPanel/ImportProvenance";
+// IssuesPanel is the one panel Studio still touches directly — init()
+// pre-mounts it hidden (`visible: false`) so it begins capturing
+// onError emissions before the user opens it. The registry-provided
+// `issuesPanel` entry always reveals (visible: true), so the init
+// case stays direct.
+import {IssuesPanel} from "./panels/issuesPanel/IssuesPanel";
+import {LoaderProgressDialog} from "./dialogs/LoaderProgressDialog";
+import {createUUID} from "../base/utils";
+import {
+  CanvasContextMenu,
+  type CanvasContextMenuContext,
+  ViewObjectContextMenu,
+  type ViewObjectContextMenuContext
+} from "./contextMenus";
+import {
+  createDefaultLoaderRegistry,
+  DefaultModelLocator,
+  type FormatFetchKind,
+  type LoaderRegistry,
+  type ModelLocator,
+} from "./loading";
+import {
+  PanelRegistry,
+  registerBuiltinPanels,
+} from "./panels";
+import {LoadingSpinner} from "./LoadingSpinner";
+import {ViewManager, type ViewRecord} from "./viewManager";
+import {PickingService} from "./picking";
+import type {TransformControlsMode, TransformControlsTarget} from "../viewing/transformControls";
+import type {Vec3} from "../base/math/vector";
+import {encodeRadianceHDR, paintSunSkyHDR} from "../model/procgen/paintEnvironments";
+import {getScenePhysics, type ScenePhysics} from "../simulation/physics";
+
+const taskRunner = getGlobalTaskRunner();
+
+/**
+ * Configuration options for the Studio.
+ */
+export interface StudioConfig {
+
+  /**
+   * Base directory for loading models, relative to the HTML page. Defaults to `"../../models"`.
+   */
+  modelsDir?: string;
+
+  /**
+   * The maximum number of views to create. This is used to configure the WebGLRenderer's memory management,
+   * and also limits the number of views that can be created via `createView()`. Defaults to `4`.
+   */
+  maxViews?: number;
+
+
+  makeComponents?: boolean;
+
+  /**
+   * Whether to set up event loggers for the Scene, Data, Viewer, and WebGLRenderer. Defaults to `false`.
+   * These loggers will log their output to the console, and do slow down the demo, so they should only
+   * be enabled when needed for debugging.
+   */
+  logging?: boolean;
+
+  /**
+   * When `true`, exposes engineer-only entries in the context
+   * menus (currently a Debug ▶ submenu with the WebGL
+   * context-loss simulator). Default `false` — production demos
+   * keep the surface area free of debug affordances.
+   */
+  debug?: boolean;
+
+  /**
+   * Optional registry of model-format loaders. When omitted, Studio
+   * uses {@link createDefaultLoaderRegistry} which registers every
+   * built-in format. Pass a custom registry to load only a subset
+   * (smaller bundle), to add proprietary formats, or to substitute
+   * loader implementations in tests.
+   */
+  loaders?: LoaderRegistry;
+
+  /**
+   * Optional resolver for the default URL of a model when callers
+   * pass `{modelId, format}` without an explicit `src`. When omitted,
+   * Studio uses {@link DefaultModelLocator} with the convention
+   * `{modelsDir}/{modelId}/{format}/model.{ext}`. Inject a custom
+   * locator for deployments that arrange files differently.
+   */
+  locator?: ModelLocator;
+}
+
+/**
+ * Helper class to set up a basic 3D demo with a Scene, Data, Viewer, WebGLRenderer, and View.
+ *
+ * See {@link demo | @xeokit/sdk/demo} for usage.
+ */
+export class Studio {
+
+  /**
+   * Base directory for loading models, relative to the HTML page.
+   */
+  public modelsDir: string = "../../models";
+
+  /**
+   * The Scene created by the Studio. Holds all 3D objects.
+   */
+  public scene: Scene;
+
+  /**
+   * The Data created by the Studio. Holds all data models.
+   */
+  public data: Data;
+
+  /**
+   * The Viewer created by the Studio.
+   */
+  public viewer: Viewer;
+
+  /**
+   * The WebGLRenderer created by the Studio.
+   */
+  public renderer: WebGLRenderer;
+
+  /**
+   * Owns the lifecycle of every View created through Studio — the
+   * `views` map (records of `view`, `cameraFlight`, `viewController`),
+   * auto-canvas layout, and floating ViewPanels for `floating: true`.
+   * Read access: `studio.viewManager.views[id].cameraFlight`.
+   * Create / destroy: `studio.viewManager.createView(...)` /
+   * `studio.viewManager.destroyView(view)`.
+   */
+  public viewManager: ViewManager;
+
+  /**
+   * Owns the unified pick strategy and the BVH-backed
+   * {@link SceneCollisionIndex}. Lazy-built — demos that never pick
+   * pay for neither.
+   * Direct picks: `studio.picking.picker.pick({...})`.
+   * AABB queries: `studio.picking.collisionIndex.getSceneAABB()`.
+   * ViewController adapter: `studio.picking.pickForViewController(view, params)`.
+   */
+  public picking: PickingService;
+
+  /**
+   * Registry of model-format loaders consulted by {@link loadModel}.
+   * Populated from {@link StudioConfig.loaders} or {@link createDefaultLoaderRegistry}.
+   */
+  public loaders: LoaderRegistry;
+
+  /**
+   * Resolves the default URL for a `(modelId, format)` pair when
+   * {@link loadModel} is called without an explicit `src`. Populated
+   * from {@link StudioConfig.locator} or {@link DefaultModelLocator}.
+   */
+  public locator: ModelLocator;
+
+  /**
+   * Single dispatch point for opening, hiding, and toggling every
+   * built-in panel and tool — `studio.panels.open("modelsPanel")`,
+   * `studio.panels.toggle("navCube", {view})`, etc. Replaces the
+   * 40 dedicated `openX`/`hideX`/`toggleX` methods that used to
+   * live directly on Studio.
+   *
+   * Register custom panels with `studio.panels.register("myId", ...)`
+   * and augment {@link PanelMap} from your own module so the call
+   * sites stay typed.
+   */
+  public readonly panels: PanelRegistry;
+
+  private makeComponents: boolean;
+  private debug: boolean = false;
+
+  private _viewObjectContextMenu: ViewObjectContextMenu;
+
+  private _canvasContextMenu: CanvasContextMenu;
+
+  private _loadingSpinner: LoadingSpinner;
+
+  // Lazy-initialised by demolishModel(). Stays undefined until the
+  // first call so demos that never demolish anything don't pay for
+  // Rapier load + ScenePhysics setup.
+  private _demolitionPhysics?: ScenePhysics;
+  private _demolitionRaf: number | null = null;
+
+  /**
+   * Statistics about the demo, available after calling `finished()`.
+   */
+  public stats: {
+    aabb: number[];
+    startTime: number;
+    endTime: number;
+    elapsedTime: number;
+    scene: SceneModelStats;
+    data: DataModelStats;
+    memory: MemoryUsage;
+    renderer: RenderStats;
+  };
+
+  /**
+   * Creates a Studio instance.
+   * @param cfg
+   */
+  constructor(cfg: StudioConfig = {}) {
+    if (cfg.modelsDir) {
+      this.modelsDir = cfg.modelsDir;
+    }
+    this.loaders = cfg.loaders ?? createDefaultLoaderRegistry();
+    this.locator = cfg.locator ?? new DefaultModelLocator(this.modelsDir);
+    this.picking = new PickingService(() => this.scene, () => this.renderer);
+    this.panels  = new PanelRegistry({studio: this});
+    registerBuiltinPanels(this.panels);
+    this.makeComponents = cfg.makeComponents !== false;
+    this.debug = cfg.debug === true;
+    this.stats = {
+      startTime: 0,
+      endTime: 0,
+      elapsedTime: 0,
+      aabb: null,
+      scene: null,
+      data: null,
+      memory: null,
+      renderer: null
+    };
+  }
+
+  /**
+   * Initializes the Studio by creating the Scene, Data, Viewer, WebGLRenderer, and optional initial View.
+   *
+   * @param cfg Configuration options for initialization.
+   * @returns A promise that resolves when initialization is complete.
+   */
+  public init(cfg: StudioConfig = {}): Promise<any> {
+
+    return new Promise((resolve, reject) => {
+
+      this.stats.startTime = performance.now();
+
+      if (this.makeComponents) {
+
+        this.scene = new Scene();
+
+        this.data = new Data();
+
+        this.viewer = new Viewer();
+
+        this.viewManager = new ViewManager({
+            viewer: this.viewer,
+            // PickingService is constructed in Studio's constructor;
+            // its lazy getters wait for scene/renderer to be set.
+            pickFn: (view, pickParams) => this.picking.pickForViewController(view, pickParams),
+          },
+          {
+            // Studio layers context-menu wiring + IBL on top of the
+            // bare View record the manager produces.
+            onViewCreated: (view, record) => this._onViewCreated(view, record),
+          },
+          {maxViews: cfg.maxViews ?? 4},
+        );
+
+        this.renderer = new WebGLRenderer({
+          memoryConfigs: {
+            maxViews: this.viewManager.maxViews,
+            tileSize: 200,
+            maxTiles: 2000,
+            maxBatches: 300,
+            maxBatchVertices: 70000,
+            maxBatchIndices: 90000,
+            maxBatchGeometries: 60000,
+            maxBatchMeshes: 10000,
+            maxBatchPrims: 70000
+          }
+        });
+
+        const log = (eventName: string, sender: any, args: any) => {
+          console.log(`[${sender.constructor.name.padEnd(14)}] ${eventName}`, args);
+        };
+
+        if (cfg.logging) {
+          new EventsLogger(this.scene.events, {prefix: "[Scene        ]", log});
+          new EventsLogger(this.data.events, {prefix: "[Data         ]", log});
+          new EventsLogger(this.viewer.events, {prefix: "[Viewer       ]", log});
+          new EventsLogger(this.renderer.events, {prefix: "[WebGLRenderer]", log});
+        }
+
+        const onError = (_, result: SDKResult<any>) => {
+          setInterval(() => {
+            window.postMessage({
+              type: "xeokit.Error",
+              payload: result
+            }, "*");
+          }, 1000);
+          const div = document.createElement("div");
+          div.id = "Error";
+          document.body.appendChild(div);
+        };
+
+        this.scene.events.onError.subscribe(onError);
+        this.data.events.onError.subscribe(onError);
+        this.viewer.events.onError.subscribe(onError);
+        this.renderer.events.onError.subscribe(onError);
+
+        // Pre-mount the IssuesPanel (hidden) so it begins
+        // capturing onError emissions before the user opens it
+        // via the context menu — and so the very first error
+        // can auto-show the panel even when nothing else has
+        // touched the helper. Idempotent: `getIssuesPanel`
+        // returns this same instance later.
+        try {
+          IssuesPanel.openFor({
+            viewer: this.viewer,
+            scene: this.scene,
+            data: this.data,
+            renderer: this.renderer,
+            visible: false,
+          });
+        } catch (e: any) {
+          console.warn("[Studio.init] Failed to mount IssuesPanel:", e?.message ?? e);
+        }
+
+        this.viewer.attachScene(this.scene);
+        this.renderer.attachViewer(this.viewer);
+
+        const renderInspectorResult = this.renderer.getRenderInspector();
+        if (renderInspectorResult.ok !== true) {
+          reject(renderInspectorResult.error);
+          return;
+        }
+        const renderInspector = renderInspectorResult.value;
+        renderInspector.enabled = true;
+
+        this._viewObjectContextMenu = new ViewObjectContextMenu({debug: this.debug});
+
+        this._canvasContextMenu = new CanvasContextMenu({debug: this.debug});
+
+        this._canvasContextMenu.on("hidden", () => {
+          taskRunner.unsuspend();
+        });
+
+        this._viewObjectContextMenu.on("hidden", () => {
+          taskRunner.unsuspend();
+        });
+
+        this._loadingSpinner = new LoadingSpinner({
+          autoHide: true,
+          autoHideDelayMs: 500
+        });
+
+        sdkProgress.addTask(); // Init
+
+        // @ts-ignore
+        window.studio = this;
+
+        // Auto-mount the Toolbar. After the menu restructure
+        // (Phase 1) the Toolbar is the only UI surface that
+        // exposes the Measure cluster, NavCube, Views, and the
+        // other tool toggles, so mounting it on init makes those
+        // affordances reachable by default. Hidden state is
+        // recoverable via the floating reopen pill.
+        try {
+          this.panels.open("toolbar");
+        } catch (e: any) {
+          console.warn("[Studio.init] Failed to auto-mount Toolbar:", e?.message ?? e);
+        }
+
+        resolve({});
+      } else {
+        resolve({});
+      }
+    });
+  }
+
+  /**
+   * Loads a model into the Scene and/or Data layers using a format-specific loader.
+   *
+   * This method:
+   * - Resolves or creates {@link model!scene.SceneModel | SceneModel} and {@link model!data.DataModel | DataModel} instances when not provided
+   * - Fetches model data from `params.src` or a default path derived from `modelId`
+   * - Selects the appropriate loader based on `params.format`
+   * - Delegates parsing and population to the corresponding loader implementation
+   *
+   * Supported formats:
+   * - `"xgf"` → {@link XGFLoader} (binary)
+   * - `"ifc"` → {@link IFCLoader} (binary)
+   * - `"gltf"` → {@link GLTFLoader} (binary, `.glb`)
+   * - `"metamodel"` → {@link MetaModelLoader} (JSON, data-only)
+   * - `"datamodel"` → {@link DataModelParamsLoader} (JSON, data-only)
+   * - `"scenemodel"` → {@link SceneModelParamsLoader} (JSON, scene-only)
+   *
+   * Default source resolution:
+   * If `params.src` is not provided, the source path is inferred as:
+   * `../../models/{modelId}/{format}/model.{ext}`
+   *
+   * Model creation behavior:
+   * - If `sceneModel` is not provided, a new one is created via `this.scene.createModel()`
+   * - If `dataModel` is not provided, a new one is created via `this.data.createModel()`
+   * - Created model IDs are derived from `modelId` when available
+   *
+   * @param params - Configuration for loading the model
+   * @param params.src - Optional explicit source URL/path for the model file
+   * @param params.modelId - Optional identifier used for default paths and generated model IDs
+   * @param params.format - Model format determining which loader to use
+   * @param params.dataModel - Optional existing {@link model!data.DataModel | DataModel} to populate
+   * @param params.sceneModel - Optional existing {@link model!scene.SceneModel | SceneModel} to populate
+   *
+   * @param options - Loader-specific options passed through to the underlying loader
+   *
+   * @returns A promise resolving to an {@link base!core.SDKResult | SDKResult} containing the loader result
+   *
+   * @throws Error
+   * - If model creation fails
+   * - If the format is unsupported
+   * - If fetching or parsing the model data fails
+   */
+  async loadModel(
+    params: {
+      src?: string;
+      modelId?: string;
+      format: string;
+      dataModel?: DataModel;
+      sceneModel?: SceneModel;
+    },
+    options: any
+  ): Promise<SDKResult<any>> {
+
+    let coordinateSystem: CoordinateSystemParams | undefined;
+    if (!params.sceneModel && params.modelId) {
+      coordinateSystem = await this._loadCoordSys(params.modelId);
+    }
+
+    // SceneModel and DataModel for the same load share a single
+    // id — that's what `TreeView._addModel`, `loadDataset`, and
+    // every "find the paired model" lookup expects. Earlier code
+    // suffixed `-scene` / `-data` here, which made the pair
+    // unresolvable.
+    const getSceneModel = () => {
+      if (params.sceneModel) {
+        return params.sceneModel;
+      }
+      const result = this.scene.createModel({
+        id: params.modelId,
+        coordinateSystem,
+      });
+      if (result.ok === false) {
+        throw new Error(result.error);
+      }
+      return result.value;
+    };
+
+    const getDataModel = () => {
+      if (params.dataModel) {
+        return params.dataModel;
+      }
+      const result = this.data.createModel({
+        id: params.modelId
+      });
+      if (result.ok === false) {
+        throw new Error(result.error);
+      }
+      return result.value;
+    };
+
+    const descriptor = this.loaders.get(params.format);
+    if (!descriptor) {
+      throw new Error(`Unsupported model format: ${params.format}`);
+    }
+
+    const src = params.src ?? this.locator.resolve(params.modelId, params.format);
+    const fileData = await Studio._fetchAs(src, descriptor.fetch);
+
+    return descriptor.load(
+      {
+        fileData,
+        sceneModel: descriptor.needsScene ? getSceneModel() : undefined,
+        dataModel: descriptor.needsData ? getDataModel() : undefined,
+      },
+      options,
+    );
+  }
+
+  private static async _fetchAs(src: string, kind: FormatFetchKind): Promise<any> {
+    const response = await fetch(src);
+    switch (kind) {
+      case "arrayBuffer": return response.arrayBuffer();
+      case "json":        return response.json();
+      case "text":        return response.text();
+    }
+  }
+
+  /**
+   * Best-effort fetch of the per-model `coordSys.json` sidecar via
+   * {@link locator.resolveSidecar}, returning the parsed
+   * `CoordinateSystemParams` when the file exists or `undefined`
+   * when it doesn't (404, network error, malformed JSON — every
+   * failure mode is treated the same, since the file is optional
+   * and the caller falls back to SceneModel's default coordinate
+   * system).
+   *
+   * @param modelId Model directory name under the helper's models root.
+   */
+  private async _loadCoordSys(modelId: string): Promise<CoordinateSystemParams | undefined> {
+    const url = this.locator.resolveSidecar(modelId, "coordSys.json");
+    try {
+      const response = await fetch(url);
+      if (!response.ok) return undefined;
+      const json = await response.json();
+      return json as CoordinateSystemParams;
+    } catch {
+      return undefined;
+    }
+  }
+
+  /**
+   * Studio's `onViewCreated` hook for the {@link ViewManager}. Runs
+   * after the manager has created the View, its CameraFlight, and
+   * its ViewController — layers on the right-click context menus
+   * and the procedurally-generated HDR sky.
+   */
+  private _onViewCreated(view: View, record: ViewRecord): void {
+
+    const {cameraFlight} = record;
+
+    // Right-click context menu — routes through the unified picker
+    // for object id (no snap requested → cheap BVH path) and surfaces
+    // ViewObjectContextMenu / CanvasContextMenu accordingly.
+    const tryPick = (e: MouseEvent) => {
+
+      const rect = view.htmlElement.getBoundingClientRect();
+      const pickResult = this.picking.picker.pick({
+        view,
+        canvasPos: [e.clientX - rect.left, e.clientY - rect.top],
+      });
+
+      if (pickResult.hit && pickResult.objectId) {
+        const viewObject = view.objects[pickResult.objectId];
+        if (viewObject) {
+          const sceneModel = viewObject.sceneObject.model;
+          const dataModel = sceneModel ? this.data.models[sceneModel.id] : null;
+
+          this._viewObjectContextMenu.context = <ViewObjectContextMenuContext>{
+            view,
+            studio: this,
+            renderer: this.renderer,
+            cameraFlight,
+            viewObject,
+            sceneModel,
+            dataModel,
+            collisionIndex: this.picking.collisionIndex,
+            pickedWorldPos: pickResult.worldPos ?? null,
+          };
+          this._viewObjectContextMenu.show(e.clientX, e.clientY);
+          taskRunner.suspend();
+          return;
+        }
+      }
+
+      this._canvasContextMenu.context = <CanvasContextMenuContext>{
+        view,
+        studio: this,
+        renderer: this.renderer,
+        cameraFlight,
+        sceneModel: this._getDefaultSceneModel(),
+        dataModel:  this._getDefaultDataModel(),
+        collisionIndex: this.picking.collisionIndex,
+      };
+      this._canvasContextMenu.show(e.clientX, e.clientY);
+      taskRunner.suspend();
+    };
+
+    view.htmlElement.addEventListener("contextmenu", tryPick);
+
+    // Procedurally generate an HDR sun-sky environment aligned with
+    // the View's directional-light direction and load it as the IBL.
+    const sunWorld = (() => {
+      const sd = view.effects.shadows.direction;
+      const sl = Math.hypot(sd[0], sd[1], sd[2]) || 1;
+      return [-sd[0] / sl, -sd[1] / sl, -sd[2] / sl];
+    })();
+
+    const hdrPixels = paintSunSkyHDR(512, 256, {sunDirection: sunWorld as any});
+    const hdrBuf = encodeRadianceHDR(hdrPixels, 512, 256);
+    const hdrResult = view.lights.ibl.setEnvironmentHDRBuffer(hdrBuf);
+    if (hdrResult.ok === false) {
+      console.warn("[Studio]", hdrResult.error);
+    }
+  }
+
+  /**
+   * Destroys both the {@link model!scene.SceneModel | SceneModel} and the {@link model!data.DataModel | DataModel}
+   * that share `modelId` (when each exists). Either side may be
+   * absent — a model loaded via {@link loadModel} with no
+   * `dataModel` argument leaves the data side empty, and a model
+   * loaded with `datamodel` only leaves the scene side empty —
+   * and the call succeeds whichever combination is found.
+   *
+   * Pairs with how {@link loadDataset} mints SceneModel +
+   * DataModel under the same `id` so a "delete this model"
+   * action in the UI is the natural inverse: one call wipes
+   * both halves without the caller having to know which loader
+   * path produced them.
+   *
+   * @param modelId The ID shared by the SceneModel / DataModel
+   *   to destroy (typically `SceneModel.id` from the active
+   *   selection).
+   * @returns A small report of what was actually destroyed —
+   *   useful when the caller wants to log/announce only the
+   *   sides that existed.
+   */
+  public destroyModel(modelId: string): {
+    sceneModelDestroyed: boolean;
+    dataModelDestroyed: boolean;
+  } {
+    let sceneModelDestroyed = false;
+    let dataModelDestroyed = false;
+
+    const sceneModel = this.scene?.models?.[modelId];
+    if (sceneModel && !sceneModel.destroyed) {
+      try {
+        sceneModel.destroy();
+        sceneModelDestroyed = true;
+      } catch (e: any) {
+        console.warn(`[Studio.destroyModel] SceneModel '${modelId}' destroy threw:`, e?.message ?? e);
+      }
+    }
+
+    const dataModel = this.data?.models?.[modelId];
+    if (dataModel && !dataModel.destroyed) {
+      try {
+        dataModel.destroy();
+        dataModelDestroyed = true;
+      } catch (e: any) {
+        console.warn(`[Studio.destroyModel] DataModel '${modelId}' destroy threw:`, e?.message ?? e);
+      }
+    }
+
+    this._modelOrigins.delete(modelId);
+
+    return {sceneModelDestroyed, dataModelDestroyed};
+  }
+
+  /** Provenance recorded by the ImportDialog, keyed by modelId. */
+  private readonly _modelOrigins = new Map<string, ImportProvenance>();
+
+  /**
+   * Record where a freshly-loaded model came from. The ModelsPanel
+   * reads this back via {@link getModelOrigin} to surface "loaded
+   * via …" details. Cleared by {@link destroyModel}.
+   */
+  public recordModelOrigin(modelId: string, provenance: ImportProvenance): void {
+    this._modelOrigins.set(modelId, provenance);
+  }
+
+  /** Provenance for `modelId`, or `undefined` if none was recorded. */
+  public getModelOrigin(modelId: string): ImportProvenance | undefined {
+    return this._modelOrigins.get(modelId);
+  }
+
+  /**
+   * Lazily creates a {@link ScenePhysics} system, attaches every
+   * SceneObject of `sceneModel` (or every SceneObject of every
+   * SceneModel if no model is passed) as a dynamic Rapier body, and
+   * applies a downward gravity so the parts drop and "demolish"
+   * themselves.
+   *
+   * "Downward" is derived from {@link Scene.coordinateSystem}.worldUp
+   * — gravity points in `-worldUp`, which makes the demolition look
+   * the same regardless of whether the scene is Y-up, Z-up, or any
+   * other orientation. SceneModels with their own coordinate-system
+   * basis still fall the right way because Rapier bodies live in
+   * world space and the SceneModel's `coordinateSystemMatrix` has
+   * already mapped them there.
+   *
+   * The physics system, Rapier WASM module, and per-frame `step()`
+   * loop are only created on the first call — demos that never
+   * demolish anything pay nothing. Gravity is locked in at that first
+   * call from the Scene's worldUp; later calls don't re-derive it.
+   *
+   * Each object gets a small randomised initial angular + lateral
+   * velocity so the disassembly looks chaotic instead of monolithic.
+   *
+   * @param sceneModel SceneModel whose objects should be turned
+   *   into dynamic bodies. When omitted, every SceneModel currently
+   *   in the Scene is demolished.
+   * @returns SDKResult — `ok: false` if Rapier failed to load.
+   */
+  async demolishModel(sceneModel?: SceneModel): Promise<SDKResult<void>> {
+    if (!this._demolitionPhysics) {
+      // Rapier isn't a static dependency of the SDK — pull the
+      // WASM-bundled compat build from CDN on first demolition. Same
+      // package the simulation_physics_duplex example uses.
+      const rapierUrl = "https://cdn.jsdelivr.net/npm/@dimforge/rapier3d-compat@0.14.0/+esm";
+      let mod: any;
+      try {
+        mod = await import(/* @vite-ignore */ /* webpackIgnore: true */ rapierUrl);
+      } catch (e) {
+        return {
+          ok: false,
+          type: SDKErrorType.InvalidOperation,
+          error: `[Studio.demolishModel] Failed to load Rapier from CDN: ${e instanceof Error ? e.message : String(e)}`
+        };
+      }
+      const RAPIER = mod.default || mod;
+      if (typeof RAPIER.init === "function") {
+        await RAPIER.init();
+      }
+      // Pull world-up from the Scene's coordinate system and flip it
+      // to get "down" in world space. Magnitude is tuned for a slow,
+      // theatrical fall; the rotational chaos below makes the result
+      // read as "demolition" rather than "object dropped."
+      const worldUp = this.scene.coordinateSystem.worldUp;
+      const gMag = 2.0;
+      const gravity: [number, number, number] = [
+        -worldUp[0] * gMag,
+        -worldUp[1] * gMag,
+        -worldUp[2] * gMag
+      ];
+      this._demolitionPhysics = getScenePhysics(this.scene, {
+        rapier: RAPIER,
+        gravity,
+        autoCreateBodies: false
+      });
+      this._startDemolitionLoop();
+    }
+    const physics = this._demolitionPhysics;
+
+    const models: SceneModel[] = sceneModel
+      ? [sceneModel]
+      : Object.values(this.scene.models);
+
+    for (const model of models) {
+      for (const objectId in model.objects) {
+        physics.setBody(objectId, {
+          type: "dynamic",
+          shape: "cuboid",
+          density: 1.0,
+          friction: 0.5,
+          restitution: 0.05
+        });
+        const body = physics.getBody(objectId);
+        if (body) {
+          body.setAngvel({
+            x: (Math.random() - 0.5) * 0.5,
+            y: (Math.random() - 0.5) * 0.5,
+            z: (Math.random() - 0.5) * 0.5
+          }, true);
+          // Small lateral jitter on every axis. Gravity along
+          // -worldUp dominates the fall direction; this just keeps
+          // the parts from descending in lock-step.
+          body.setLinvel({
+            x: (Math.random() - 0.5) * 0.3,
+            y: (Math.random() - 0.5) * 0.3,
+            z: (Math.random() - 0.5) * 0.3
+          }, true);
+        }
+      }
+    }
+    return {ok: true, value: undefined};
+  }
+
+  // Drives `physics.step()` once per animation frame. Started by the
+  // first demolishModel() call; auto-stops when the Scene is destroyed
+  // (getScenePhysics cleans the cache, leaving _demolitionPhysics
+  // dangling — we detect that via the scene's destroyed flag).
+  private _startDemolitionLoop(): void {
+    const tick = () => {
+      const physics = this._demolitionPhysics;
+      if (!physics || this.scene.destroyed) {
+        this._demolitionRaf = null;
+        return;
+      }
+      physics.step();
+      this._demolitionRaf = requestAnimationFrame(tick);
+    };
+    this._demolitionRaf = requestAnimationFrame(tick);
+  }
+
+  /**
+   * Gets the primary view used by the inspector panels.
+   *
+   * @returns The first available view, or `undefined` when none exist.
+   */
+  private _getInspectorView(): View | undefined {
+    return this.viewer?.viewList?.[0];
+  }
+
+  /**
+   * Gets a default scene model for canvas-level actions.
+   *
+   * @returns The first available scene model, or `undefined` when none exist.
+   */
+  private _getDefaultSceneModel(): SceneModel | undefined {
+    for (const modelId in this.scene.models) {
+      return this.scene.models[modelId];
+    }
+    return undefined;
+  }
+
+  /**
+   * Gets a default data model for canvas-level actions.
+   *
+   * @returns The first available data model, or `undefined` when none exist.
+   */
+  private _getDefaultDataModel(): DataModel | undefined {
+    for (const modelId in this.data.models) {
+      return this.data.models[modelId];
+    }
+    return undefined;
+  }
+
+  /**
+   * Toggle the DistanceMeasurementTool's mouse control on {@link view},
+   * ensuring the tool exists first. Returns the
+   * `MouseDistanceMeasurementsControl` after the toggle.
+   *
+   * This is a domain operation — not a panel open/hide — so it stays
+   * as a direct method rather than going through {@link panels}.
+   */
+  public toggleDistanceMeasurementsControl(view: View) {
+    const tool = this.panels.open("distanceMeasurements", {view});
+    if (!tool) return undefined;
+    const mc = tool.mouseControl;
+    if (mc.active) mc.deactivate();
+    else mc.activate();
+    return mc;
+  }
+
+  /**
+   * Toggle the AngleMeasurementsTool's mouse control on {@link view},
+   * ensuring the tool exists first. Returns the
+   * `MouseAngleMeasurementsControl` after the toggle.
+   */
+  public toggleAngleMeasurementsControl(view: View) {
+    const tool = this.panels.open("angleMeasurements", {view});
+    if (!tool) return undefined;
+    const mc = tool.mouseControl;
+    if (mc.active) mc.deactivate();
+    else mc.activate();
+    return mc;
+  }
+
+  /**
+   * Mount the {@link TransformControls} on {@link view} (creating
+   * them on first call), attach them to {@link target}, and switch
+   * to {@link mode} when supplied.
+   *
+   * `pivotWorld` is the world-space anchor the handles render
+   * around — typically the surface point the picker returned from
+   * the click that triggered the attach.
+   */
+  public attachTransformControls(
+    view: View,
+    target: TransformControlsTarget,
+    mode?: TransformControlsMode,
+    pivotWorld?: Vec3,
+  ) {
+    const tc = this.panels.open("transformControls", {view});
+    if (!tc) return undefined;
+    tc.attach(target, pivotWorld ? {pivotWorld} : undefined);
+    if (mode) tc.setMode(mode);
+    return tc;
+  }
+
+  /**
+   * Detach the {@link TransformControls} on {@link view} if mounted.
+   * Leaves the controls live so the next {@link attachTransformControls}
+   * call reuses the same instance.
+   */
+  public detachTransformControls(view: View): void {
+    this.panels.get("transformControls", {view})?.detach();
+  }
+
+  /**
+   * Replace the helper's Scene + Data contents with a single
+   * named dataset from the demo model catalog
+   * (`models/index.json`). Loads `formats` sequentially into a
+   * fresh SceneModel + DataModel pair and frames the camera on the result.
+   *
+   * @returns The newly-created SceneModel + DataModel on success,
+   *          or an SDK error result if any phase fails.
+   */
+  public async loadDataset(params: {
+    modelId: string;
+    formats: string[];
+    /**
+     * When true (default), every existing SceneModel + DataModel
+     * in the helper's Scene / Data is destroyed before the new
+     * one is created. Pass false to load alongside whatever's
+     * already there.
+     */
+    clear?: boolean;
+    /**
+     * Optional override for the cooperative-yield throttle, in
+     * milliseconds. See
+     * {@link formats!ModelLoadOptions.yieldIntervalMs | yieldIntervalMs}
+     * — passed through to every per-format `loadModel` call so a
+     * single override applies across the whole dataset load.
+     * Raise above the 16ms default for noticeably faster large
+     * loads at the cost of less-frequent progress updates.
+     */
+    yieldIntervalMs?: number;
+  }): Promise<SDKResult<{ sceneModel: SceneModel; dataModel: DataModel }>> {
+    const {modelId, formats} = params;
+    const clear = params.clear !== false;
+    if (!modelId || !formats || formats.length === 0) {
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: "[Studio.loadDataset] modelId and formats are required",
+      };
+    }
+
+    if (clear) {
+      // Destroy in two passes — Scene first (so renderer drops
+      // its references) then Data. SceneModel.destroy() is
+      // idempotent and the destroy event handlers in our index
+      // tables will clear themselves.
+      for (const id of Object.keys(this.scene.models)) {
+        const m = this.scene.models[id];
+        if (m && !m.destroyed) m.destroy();
+      }
+      for (const id of Object.keys(this.data.models)) {
+        const m = this.data.models[id];
+        if (m && !m.destroyed) m.destroy();
+      }
+    }
+
+    // Use a unique id per load so the same dataset can be loaded
+    // again without colliding when `clear` is false.
+    const instanceId = clear ? modelId : `${modelId}-${Date.now()}`;
+
+    // If the model directory ships a `coordSys.json`, feed it
+    // to `scene.createModel` so the SceneModel knows its native
+    // axes/units. Missing file → undefined → SceneModel falls
+    // back to its built-in default.
+    const coordinateSystem = await this._loadCoordSys(modelId);
+
+    const sceneCreate = this.scene.createModel({id: instanceId, coordinateSystem});
+    if (sceneCreate.ok === false) {
+      return {ok: false, type: SDKErrorType.Unknown, error: sceneCreate.error};
+    }
+    const sceneModel = sceneCreate.value;
+
+    const dataCreate = this.data.createModel({id: instanceId});
+    if (dataCreate.ok === false) {
+      try {
+        sceneModel.destroy();
+      } catch { /* ignore */
+      }
+      return {ok: false, type: SDKErrorType.Unknown, error: dataCreate.error};
+    }
+    const dataModel = dataCreate.value;
+
+    // Wrap the per-format load loop in a LoaderProgressDialog so
+    // long loads paint a bar / phase label, and the user can
+    // hit Cancel. The dialog's delayed-paint policy means short
+    // loads finish without a dialog ever appearing. Loaders
+    // that respect the cooperative-yield contract (every parser
+    // swept under formats/) honour the signal + onProgress;
+    // loaders that don't run to completion as before.
+    const totalFormats = formats.length;
+    try {
+      await LoaderProgressDialog.runWith({
+        title: `Loading ${modelId} (${formats.join(", ")})`,
+        run: async (onProgress, signal) => {
+          for (let i = 0; i < formats.length; i++) {
+            const format = formats[i];
+            // Bracket each format's parser with a top-level
+            // emit so the user sees coarse progress between
+            // formats too — useful for multi-format datasets
+            // where one format finishes fast and the next is
+            // long.
+            onProgress({
+              phase: `Loading ${format}`,
+              current: i,
+              total: totalFormats,
+            });
+            const r = await this.loadModel(
+              {modelId, format, sceneModel, dataModel},
+              {onProgress, signal, yieldIntervalMs: params.yieldIntervalMs || 60},
+            );
+            if (r && (r as any).ok === false) {
+              throw new Error((r as any).error || `loadModel failed for format '${format}'`);
+            }
+          }
+          // Final phase before resolution so the bar reads as
+          // "done" rather than truncating mid-format.
+          onProgress({phase: "Finalising", current: totalFormats, total: totalFormats});
+          const view = this._getInspectorView();
+          if (view) {
+            try {
+              const aabb = this.picking.collisionIndex.getSceneAABB();
+              if (aabb) this.viewManager.fitToAabb(view, aabb);
+            } catch { /* ignore */
+            }
+          }
+        },
+      });
+      return {ok: true, value: {sceneModel, dataModel}};
+    } catch (err: any) {
+      // Best-effort cleanup so a half-loaded dataset doesn't
+      // leave the Scene in a stuck state. AbortError + parser
+      // failures both land here.
+      try {
+        sceneModel.destroy();
+      } catch { /* ignore */
+      }
+      try {
+        dataModel.destroy();
+      } catch { /* ignore */
+      }
+      const isAbort = err && err.name === "AbortError";
+      return {
+        ok: false,
+        type: SDKErrorType.Unknown,
+        error: isAbort
+          ? "[Studio.loadDataset] cancelled by user"
+          : `[Studio.loadDataset] ${err && err.message || err}`,
+      };
+    }
+  }
+
+  /**
+   * Finalizes the demo setup, gathering statistics and signaling completion.
+   */
+  public finished(): void {
+
+    const stats = this.stats;
+
+    stats.scene = this._getCombinedSceneModelStats();
+    stats.data = this._getCombinedDataModelStats();
+    const sceneAABB = this.picking.collisionIndex.getSceneAABB();
+    stats.aabb = sceneAABB ? Array.from(sceneAABB) : [];
+    stats.endTime = performance.now();
+    stats.elapsedTime = stats.endTime - (stats.startTime ?? stats.endTime);
+
+    if (this.renderer) {
+      stats.renderer = {
+        tiles: {},
+        views: []
+      };
+      stats.memory = this.renderer.getMemoryUsage();
+      const result = this.renderer.getRenderInspector();
+      if (result.ok) {
+        const renderInspector = result.value;
+        stats.renderer = renderInspector.renderStats;
+      }
+    }
+
+    setInterval(() => {
+      window.postMessage({
+        type: "xeokit.visualTestJson",
+        payload: {
+          stats: this.stats
+        }
+      }, "*");
+    }, 1000);
+
+    sdkProgress.completeTask();
+
+    this.signalFinished();
+  }
+
+  private signalFinished(): void {
+    const div = document.createElement("div");
+    div.id = "ExampleLoaded";
+    document.body.appendChild(div);
+  }
+
+  private _getCombinedSceneModelStats(): SceneModelStats {
+
+    const combinedStats: SceneModelStats = {
+      numTransforms: 0,
+      numObjects: 0,
+      numMeshes: 0,
+      numGeometries: 0,
+      numTextures: 0,
+      numMaterials: 0,
+      numTriangles: 0,
+      numLines: 0,
+      numPoints: 0,
+      numVertices: 0,
+      textureBytes: 0,
+    };
+
+    for (const modelId in this.scene.models) {
+      const model = this.scene.models[modelId];
+      const stats = model.stats;
+      combinedStats.numObjects += stats.numObjects;
+      combinedStats.numGeometries += stats.numGeometries;
+      combinedStats.numTextures += stats.numTextures;
+      combinedStats.numTriangles += stats.numTriangles;
+      combinedStats.numPoints += stats.numPoints;
+      combinedStats.numLines += stats.numLines;
+      combinedStats.numVertices += stats.numVertices;
+      combinedStats.numMeshes += stats.numMeshes;
+      combinedStats.numMaterials += stats.numMaterials;
+      combinedStats.textureBytes += stats.textureBytes;
+    }
+
+    return combinedStats;
+  }
+
+  private _getCombinedDataModelStats(): DataModelStats {
+
+    const combinedStats: DataModelStats = {
+      numObjects: 0,
+      numRelationships: 0,
+      numPropertySets: 0
+    };
+
+    for (const modelId in this.data.models) {
+      const model = this.data.models[modelId];
+      const stats = model.stats;
+      combinedStats.numObjects += stats.numObjects;
+      combinedStats.numRelationships += stats.numRelationships;
+      combinedStats.numPropertySets += stats.numPropertySets;
+    }
+    return combinedStats;
+  }
+}

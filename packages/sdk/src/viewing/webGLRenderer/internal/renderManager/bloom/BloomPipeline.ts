@@ -312,7 +312,7 @@ void main(void) {
     bvec3 bad = bvec3(notEqual(rgb, rgb));  // NaN: x != x
     bad = bvec3(bad.x || isinf(rgb.x), bad.y || isinf(rgb.y), bad.z || isinf(rgb.z));
     rgb = mix(rgb, vec3(0.0), vec3(bad));
-    rgb = min(rgb, vec3(4.0));
+    rgb = min(rgb, vec3(32.0));
 
     float brightness = max(rgb.r, max(rgb.g, rgb.b));
     float contrib = softKnee(brightness, uThreshold, uKnee) / max(brightness, 1e-5);

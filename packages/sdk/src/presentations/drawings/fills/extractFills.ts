@@ -17,6 +17,13 @@
  * @module demo/systems/drawings/extractFills
  */
 import {earcut} from "../../../formats/cityjson/versions/v1_0/earcut";
+import {
+  douglasPeuckerClosed2D,
+  marchingSquares2D,
+  pointInPolygon2D,
+  polygonSignedArea2D,
+  type Point2D,
+} from "../../../base/math/polygon2D";
 
 import type {HLEDepthBuffer} from "../hle/HLEDepthBuffer";
 import type {FillPolygons} from "./FillPolygons";
@@ -92,7 +99,7 @@ export function extractFills(
     }
 
     // Trace closed contours along the 0/1 boundary in pixel space.
-    const loops = marchingSquares(mask, W, H);
+    const loops = marchingSquares2D(mask, W, H);
     if (loops.length === 0) continue;
 
     // Classify each loop as outer (1-region inside) or hole
@@ -106,14 +113,14 @@ export function extractFills(
     // not what applies here.) We store absolute areas so the
     // containment-by-smallest-enclosing-outer pass works
     // sign-agnostically.
-    const outers: Array<{points: PixelPt[]; area: number}> = [];
-    const holes:  Array<{points: PixelPt[]; area: number}> = [];
+    const outers: Array<{points: Point2D[]; area: number}> = [];
+    const holes:  Array<{points: Point2D[]; area: number}> = [];
     for (const raw of loops) {
       const simplified = simplifyEpsilon > 0
-        ? douglasPeuckerClosed(raw, simplifyEpsilon)
-        : raw;
+        ? douglasPeuckerClosed2D(raw, simplifyEpsilon)
+        : raw.slice();
       if (simplified.length < 3) continue;
-      const signedArea = polygonSignedArea(simplified);
+      const signedArea = polygonSignedArea2D(simplified);
       if (signedArea < 0) outers.push({points: simplified, area: -signedArea});
       else if (signedArea > 0) holes.push({points: simplified, area: signedArea});
     }
@@ -133,7 +140,7 @@ export function extractFills(
         let bestArea = Infinity;
         for (let o = 0; o < outers.length; o++) {
           if (outers[o].area >= bestArea) continue;
-          if (pointInPolygon(probe, outers[o].points)) {
+          if (pointInPolygon2D(probe, outers[o].points)) {
             bestOuter = o;
             bestArea = outers[o].area;
           }
@@ -199,235 +206,4 @@ export function extractFills(
 
   return out;
 }
-
-
-// ─────────────────────────────────────────────────────────────────
-// Marching squares — binary mask → list of closed contours
-// ─────────────────────────────────────────────────────────────────
-
-type PixelPt = [number, number];
-
-/**
- * Trace the 0/1 boundary of `mask` using marching squares with
- * the disconnected-saddle convention. Returns a list of closed
- * loops, each given as a sequence of pixel-space points with
- * the 1-region consistently on the LEFT (i.e. positive signed
- * area in image-y-down coords).
- *
- * Cells extend one position beyond the mask on every side so
- * "1" pixels at the buffer edge close their contour against
- * the implicit zero-padded border instead of leaking open.
- */
-function marchingSquares(mask: Uint8Array, W: number, H: number): PixelPt[][] {
-  // Segment store. Each segment knows its endpoints and whether
-  // it's been consumed by the stitching pass. We also index
-  // segments by their `start` endpoint key, so the stitcher can
-  // chase the loop forward in O(1) per hop.
-  interface Seg { a: PixelPt; b: PixelPt; used: boolean; }
-  const segs: Seg[] = [];
-  const byStart = new Map<string, Seg>();
-
-  const sampleAt = (x: number, y: number): number => {
-    if (x < 0 || y < 0 || x >= W || y >= H) return 0;
-    return mask[y * W + x];
-  };
-
-  const key = (p: PixelPt): string => `${p[0]},${p[1]}`;
-  const addSeg = (a: PixelPt, b: PixelPt): void => {
-    const seg: Seg = {a, b, used: false};
-    segs.push(seg);
-    byStart.set(key(a), seg);
-  };
-
-  // Pixel-center samples — cell (cx, cy) has TL/TR/BR/BL at
-  // pixel centers offset by (0.5, 0.5). Iterating cx in
-  // [-1, W-1] (inclusive) wraps a zero-padded border around
-  // every mask=1 region.
-  for (let cy = -1; cy < H; cy++) {
-    for (let cx = -1; cx < W; cx++) {
-      const tl = sampleAt(cx,     cy);
-      const tr = sampleAt(cx + 1, cy);
-      const br = sampleAt(cx + 1, cy + 1);
-      const bl = sampleAt(cx,     cy + 1);
-      const code = (tl << 3) | (tr << 2) | (br << 1) | bl;
-      if (code === 0 || code === 15) continue;
-
-      // Midpoints in pixel-center coords: TL is at (cx+0.5, cy+0.5),
-      // BR is at (cx+1.5, cy+1.5), so the cell midpoints are
-      // these convex midpoints between adjacent samples.
-      const T: PixelPt = [cx + 1,   cy + 0.5];
-      const R: PixelPt = [cx + 1.5, cy + 1];
-      const B: PixelPt = [cx + 1,   cy + 1.5];
-      const L: PixelPt = [cx + 0.5, cy + 1];
-
-      // Disconnected-saddle convention for cases 5 and 10: each
-      // diagonal "1" gets its own contour piece. Avoids spurious
-      // merges across sub-pixel saddle points.
-      switch (code) {
-        case 1:  addSeg(B, L); break;
-        case 2:  addSeg(R, B); break;
-        case 3:  addSeg(R, L); break;
-        case 4:  addSeg(T, R); break;
-        case 5:  addSeg(T, R); addSeg(B, L); break;
-        case 6:  addSeg(T, B); break;
-        case 7:  addSeg(T, L); break;
-        case 8:  addSeg(L, T); break;
-        case 9:  addSeg(B, T); break;
-        case 10: addSeg(L, T); addSeg(R, B); break;
-        case 11: addSeg(R, T); break;
-        case 12: addSeg(L, R); break;
-        case 13: addSeg(B, R); break;
-        case 14: addSeg(L, B); break;
-      }
-    }
-  }
-
-  // Stitch segments end-to-start into closed loops.
-  const loops: PixelPt[][] = [];
-  for (const start of segs) {
-    if (start.used) continue;
-    start.used = true;
-    const loop: PixelPt[] = [start.a, start.b];
-    let cur = start;
-    while (true) {
-      const next = byStart.get(key(cur.b));
-      if (!next || next.used) break;
-      next.used = true;
-      // The next segment closes the loop iff its end matches
-      // the loop's start — in that case we're done without
-      // re-emitting the start point. Otherwise we append the
-      // segment's end and keep walking.
-      const closes =
-        next.b[0] === loop[0][0] && next.b[1] === loop[0][1];
-      if (closes) break;
-      loop.push(next.b);
-      cur = next;
-    }
-    if (loop.length >= 3) loops.push(loop);
-  }
-  return loops;
-}
-
-
-// ─────────────────────────────────────────────────────────────────
-// Polygon utilities
-// ─────────────────────────────────────────────────────────────────
-
-/**
- * Signed polygon area in image-y-down coordinates. Positive
- * when the polygon is CCW under that convention (1-region on
- * the LEFT when walking the contour), negative for CW (holes).
- */
-function polygonSignedArea(points: PixelPt[]): number {
-  let area = 0;
-  for (let i = 0, n = points.length; i < n; i++) {
-    const a = points[i];
-    const b = points[(i + 1) % n];
-    area += a[0] * b[1] - b[0] * a[1];
-  }
-  return area * 0.5;
-}
-
-
-/**
- * Standard ray-casting point-in-polygon test. Used to associate
- * each hole with the outer ring that contains it when an owner
- * projects into multiple disjoint outer blobs.
- */
-function pointInPolygon(p: PixelPt, ring: PixelPt[]): boolean {
-  let inside = false;
-  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-    const xi = ring[i][0], yi = ring[i][1];
-    const xj = ring[j][0], yj = ring[j][1];
-    const intersect =
-      ((yi > p[1]) !== (yj > p[1])) &&
-      p[0] < ((xj - xi) * (p[1] - yi)) / (yj - yi) + xi;
-    if (intersect) inside = !inside;
-  }
-  return inside;
-}
-
-
-/**
- * Douglas-Peucker on a closed loop. The standard recursive form
- * needs two fixed endpoints; we pick them as the diametrically
- * opposite pair (the two points furthest apart on the loop),
- * split the loop into two open arcs there, simplify each, and
- * stitch the result back into a closed ring. Robust against
- * starting at a collinear vertex, which would otherwise cause
- * a degenerate first segment.
- */
-function douglasPeuckerClosed(loop: PixelPt[], epsilon: number): PixelPt[] {
-  if (loop.length < 4) return loop;
-
-  // Pick the two anchor points: vertex 0 + the vertex farthest
-  // from vertex 0. This is cheaper than the full pairwise
-  // diameter and gives the same robustness — vertex 0 is always
-  // a corner of the marching-squares output (it sits at the
-  // start of a freshly-stitched contour).
-  let anchorB = 0;
-  let anchorBDist = 0;
-  for (let i = 1; i < loop.length; i++) {
-    const dx = loop[i][0] - loop[0][0];
-    const dy = loop[i][1] - loop[0][1];
-    const d2 = dx * dx + dy * dy;
-    if (d2 > anchorBDist) {
-      anchorBDist = d2;
-      anchorB = i;
-    }
-  }
-  // Two arcs: 0..anchorB and anchorB..end..0.
-  const arcA = loop.slice(0, anchorB + 1);
-  const arcB = loop.slice(anchorB).concat([loop[0]]);
-  const simpA = douglasPeuckerOpen(arcA, epsilon);
-  const simpB = douglasPeuckerOpen(arcB, epsilon);
-  // Concatenate, dropping the duplicated anchor at arc seam and
-  // the duplicated start at the loop seam.
-  const out: PixelPt[] = simpA.slice(0, -1).concat(simpB.slice(0, -1));
-  return out.length >= 3 ? out : loop;
-}
-
-
-function douglasPeuckerOpen(points: PixelPt[], epsilon: number): PixelPt[] {
-  if (points.length < 3) return points.slice();
-  const lastIdx = points.length - 1;
-  // Walk the polyline once and keep the vertex farthest from
-  // the straight chord between the endpoints. The standard
-  // recursive structure: split there, simplify the two halves,
-  // stitch.
-  let maxDist = 0;
-  let splitIdx = 0;
-  const a = points[0];
-  const b = points[lastIdx];
-  for (let i = 1; i < lastIdx; i++) {
-    const d = perpDistance(points[i], a, b);
-    if (d > maxDist) {
-      maxDist = d;
-      splitIdx = i;
-    }
-  }
-  if (maxDist > epsilon) {
-    const left  = douglasPeuckerOpen(points.slice(0, splitIdx + 1), epsilon);
-    const right = douglasPeuckerOpen(points.slice(splitIdx),       epsilon);
-    return left.slice(0, -1).concat(right);
-  }
-  return [points[0], points[lastIdx]];
-}
-
-
-/** Perpendicular distance from `p` to the line through `a`-`b`. */
-function perpDistance(p: PixelPt, a: PixelPt, b: PixelPt): number {
-  const dx = b[0] - a[0];
-  const dy = b[1] - a[1];
-  const len2 = dx * dx + dy * dy;
-  if (len2 < 1e-12) {
-    // Degenerate segment — fall back to point-to-point distance.
-    const ex = p[0] - a[0];
-    const ey = p[1] - a[1];
-    return Math.sqrt(ex * ex + ey * ey);
-  }
-  const cross = dx * (a[1] - p[1]) - (a[0] - p[0]) * dy;
-  return Math.abs(cross) / Math.sqrt(len2);
-}
-
 

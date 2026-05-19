@@ -37,14 +37,6 @@ import {resolveConfig} from "../Config";
  * the next inspection pass — the user (or
  * {@link optimizeSceneModel}) re-runs inspect → applyFixes until
  * the report converges.
- *
- * **Prototype** for the declarative {@link ConfigSchema} pipeline.
- * The thresholds and opt-in toggle live on `config` below; `run`
- * reads them via {@link resolveConfig}, layering schema defaults
- * under any matching fields supplied on
- * {@link InspectSceneModelParams}. Other inspections in this
- * directory still read fields directly from `params`; both
- * patterns coexist while the migration rolls out.
  */
 export const geometryArrayLengths: Inspection = {
 
@@ -61,9 +53,6 @@ export const geometryArrayLengths: Inspection = {
       "One of the geometry's typed arrays (positions, indices, normals, or UVs) is longer than the configured per-geometry threshold. The WebGLRenderer's GPUMemoryBatch allocates each array into a fixed-size portion of a shared batch texture, and rejects geometries whose array length exceeds that portion. Splitting the geometry (via splitOversizedGeometry) or raising the batch capacity avoids the upload-time MemoryAllocationFailed error.",
   },
 
-  // Legacy metadata — kept while the orchestrator and tooling
-  // still consult these. The `config.enabled` below is the new
-  // source of truth.
   optIn: true,
   paramsKey: "checkGeometryArrayLengths",
 

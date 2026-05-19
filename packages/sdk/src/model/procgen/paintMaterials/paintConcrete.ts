@@ -67,6 +67,7 @@ export function paintConcrete(size: number, options: PaintConcreteOptions = {}):
     mr: paintMR(size, (x, y) => {
       const n = periodicFbm(x * 12 / size, y * 12 / size, 12, 12, 3);
       return [clamp01(roughness + (n - 0.5) * 0.16), 0.0];
-    })
+    }),
+    flatColor: baseColor,
   };
 }

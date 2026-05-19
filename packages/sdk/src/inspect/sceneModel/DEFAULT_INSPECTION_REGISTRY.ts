@@ -44,7 +44,7 @@ import {farFromOriginGeometries} from "./inspections/farFromOriginGeometries";
  * singleton on import:
  *
  * ```ts
- * import {DEFAULT_INSPECTION_REGISTRY} from "@xeokit/sdk/demo";
+ * import {DEFAULT_INSPECTION_REGISTRY} from "@xeokit/sdk/studio";
  *
  * DEFAULT_INSPECTION_REGISTRY.register({
  *   codes: ["MyApp/CHECK_NAMING"],

@@ -11,7 +11,7 @@
  *
  * ```ts
  * // Mutate the singleton — applies to every applyFixes() call.
- * import {DEFAULT_FIX_REGISTRY, Fix} from "@xeokit/sdk/demo";
+ * import {DEFAULT_FIX_REGISTRY, Fix} from "@xeokit/sdk/studio";
  *
  * const myFix: Fix = {
  *   codes: ["MY_CUSTOM_CODE"],
@@ -23,7 +23,7 @@
  *
  * ```ts
  * // Or build a fresh registry — leaves the default untouched.
- * import {FixRegistry, mergeDuplicateGeometries, applyFixes} from "@xeokit/sdk/demo";
+ * import {FixRegistry, mergeDuplicateGeometries, applyFixes} from "@xeokit/sdk/studio";
  *
  * const registry = new FixRegistry();
  * registry.register(mergeDuplicateGeometries);   // pick what you want

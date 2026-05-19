@@ -168,7 +168,7 @@
  * ```ts
  * // Plug a strategy into the singleton — every applyFixes() call
  * // sees it from now on.
- * import {sceneModelInspector} from "@xeokit/sdk/demo";
+ * import {sceneModelInspector} from "@xeokit/sdk/studio";
  *
  * sceneModelInspector.DEFAULT_FIX_REGISTRY.register({
  *   codes: ["MyApp/STALE_PROPERTY_SET"],
@@ -186,7 +186,7 @@
  *   sceneModelInspector,
  *   FixRegistry,
  *   mergeDuplicateGeometries,
- * } from "@xeokit/sdk/demo";
+ * } from "@xeokit/sdk/studio";
  *
  * const registry = new FixRegistry([
  *   mergeDuplicateGeometries,   // pick the built-ins you want
@@ -263,7 +263,7 @@
  * ## Putting it together
  *
  * ```ts
- * import {sceneModelInspector} from "@xeokit/sdk/demo";
+ * import {sceneModelInspector} from "@xeokit/sdk/studio";
  *
  * const report = sceneModelInspector.inspectSceneModel({
  *   sceneModel,

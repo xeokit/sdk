@@ -122,19 +122,36 @@ export async function buildHLEDepthBuffer(
   // Centroid-clip pre-computation. The discard test is
   // `dot(centroid, n) - dot(point, n) < 0`, so cache the
   // right-hand side as a scalar threshold to save a vector
-  // subtraction per triangle. When no plane is supplied,
-  // `clipActive` stays false and the test is skipped.
-  const clipActive = options.clipPoint != null && options.clipNormal != null;
-  const clipNx = clipActive ? options.clipNormal![0] : 0;
-  const clipNy = clipActive ? options.clipNormal![1] : 0;
-  const clipNz = clipActive ? options.clipNormal![2] : 0;
-  const clipThreshold = clipActive
-    ? options.clipPoint![0] * clipNx + options.clipPoint![1] * clipNy + options.clipPoint![2] * clipNz
-    : 0;
+  // subtraction per triangle. When no planes are supplied the
+  // arrays stay empty and the per-triangle loop's `planeCount`
+  // bound resolves to zero, so the test is skipped without a
+  // branch. Each plane contributes one normal triple +
+  // pre-computed `dot(point, normal)` threshold; the centroid
+  // is kept when `cx*nx + cy*ny + cz*nz >= threshold` for every
+  // plane (intersection of half-spaces).
+  const clipPlanesIn = options.clipPlanes;
+  const planeCount = clipPlanesIn ? clipPlanesIn.length : 0;
+  const clipNx = new Float64Array(planeCount);
+  const clipNy = new Float64Array(planeCount);
+  const clipNz = new Float64Array(planeCount);
+  const clipThr = new Float64Array(planeCount);
+  for (let i = 0; i < planeCount; i++) {
+    const p = clipPlanesIn![i];
+    clipNx[i] = p.normal[0];
+    clipNy[i] = p.normal[1];
+    clipNz[i] = p.normal[2];
+    clipThr[i] = p.point[0] * p.normal[0] + p.point[1] * p.normal[1] + p.point[2] * p.normal[2];
+  }
 
+  const meshFilter = options.meshFilter;
   for (const objectId of Object.keys(sourceModel.objects)) {
     const obj = sourceModel.objects[objectId];
     for (const mesh of obj.meshes) {
+      // Caller-supplied predicate — skips meshes entirely
+      // (no rasterise, no owner-table entry). buildDrawing uses
+      // this to keep transparent geometry out of the depth
+      // buffer when `transparentAsWireframe` is on.
+      if (meshFilter && !meshFilter(mesh, obj)) continue;
       const geom = mesh.geometry;
       if (!geom || !geom.indices || !geom.positionsCompressed || !geom.aabb) continue;
       if (geom.primitive !== TrianglesPrimitive &&
@@ -163,16 +180,26 @@ export async function buildHLEDepthBuffer(
         transformPoint3(worldMatrix, v0, p0);
         transformPoint3(worldMatrix, v1, p1);
         transformPoint3(worldMatrix, v2, p2);
-        if (clipActive) {
-          // Centroid-side test for the clip plane. The
-          // boundary is sub-pixel jagged at the cut edge —
-          // acceptable at the default 2048+ buffer
-          // resolutions where the per-triangle pixel
-          // footprint is small anyway.
+        if (planeCount > 0) {
+          // Centroid-side test against every clip plane.
+          // Triangle is kept only when its centroid is on the
+          // kept (+normal) side of *all* planes — the
+          // intersection of every plane's half-space. The
+          // boundary is sub-pixel jagged at each cut edge,
+          // acceptable at the default 2048+ buffer resolutions
+          // where the per-triangle pixel footprint is small
+          // anyway.
           const cx = (p0[0] + p1[0] + p2[0]) * (1 / 3);
           const cy = (p0[1] + p1[1] + p2[1]) * (1 / 3);
           const cz = (p0[2] + p1[2] + p2[2]) * (1 / 3);
-          if (cx * clipNx + cy * clipNy + cz * clipNz < clipThreshold) continue;
+          let clipped = false;
+          for (let pi = 0; pi < planeCount; pi++) {
+            if (cx * clipNx[pi] + cy * clipNy[pi] + cz * clipNz[pi] < clipThr[pi]) {
+              clipped = true;
+              break;
+            }
+          }
+          if (clipped) continue;
         }
         if (ownerMeshIds && ownerObjectIds && ownerIndex < 0) {
           ownerIndex = ownerMeshIds.length;

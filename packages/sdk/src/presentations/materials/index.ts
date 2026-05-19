@@ -139,7 +139,7 @@
  * ### 1) Import the entry points
  *
  * ```javascript
- * import { MaterialsPalette } from "@xeokit/sdk/demo/systems/materials";
+ * import { MaterialsPalette } from "@xeokit/sdk/studio/systems/materials";
  * ```
  *
  * <br>

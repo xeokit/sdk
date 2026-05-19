@@ -42,6 +42,13 @@ export function paintGlass(size: number, options: PaintGlassOptions = {}): Mater
   return {
     color,
     normal: flatNormal(size),
-    mr: flatMR(size, roughness, 0.0)
+    mr: flatMR(size, roughness, 0.0),
+    // Flat-context fallback. The tint matches the texture's
+    // pixel mean (the buffer is solid `baseColor`), and the
+    // opacity is the conventional 0.35 the docstring above
+    // recommends pairing with the texture for plausible
+    // window-pane translucency.
+    flatColor: [baseColor[0], baseColor[1], baseColor[2]],
+    flatOpacity: 0.35,
   };
 }

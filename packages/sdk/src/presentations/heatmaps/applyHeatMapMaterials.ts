@@ -14,7 +14,7 @@ import {
 } from "../../model/procgen/paintMaterials";
 
 import type {ApplyHeatMapMaterialsParams} from "./ApplyHeatMapMaterialsParams";
-import {ensureGeometryAttribs} from "../../demo/ensureGeometryAttribs";
+import {ensureGeometryAttribs} from "../../model/scene/ensureGeometryAttribs";
 
 
 /**

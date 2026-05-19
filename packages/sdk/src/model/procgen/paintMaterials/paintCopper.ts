@@ -59,6 +59,7 @@ export function paintCopper(size: number, options: PaintCopperOptions = {}): Mat
   return {
     color,
     normal: heightToNormal(hgt, normalStrength),
-    mr: flatMR(size, roughness, 1.0)
+    mr: flatMR(size, roughness, 1.0),
+    flatColor: baseColor,
   };
 }

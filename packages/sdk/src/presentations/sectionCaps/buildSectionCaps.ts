@@ -5,6 +5,10 @@ import type {FloatArrayParam} from "../../base/math";
 import type {Vec3} from "../../base/math/vector";
 import {decompressPositions3WithAABB3} from "../../base/math/compression";
 import {transformPoint3} from "../../base/math/matrix";
+import {
+  pointInPolygon2DFlat,
+  polygonSignedArea2DFlat,
+} from "../../base/math/polygon2D";
 import {earcut} from "../../formats/cityjson/versions/v1_0/earcut";
 
 import type {CapPlane} from "./CapPlane";
@@ -559,7 +563,7 @@ function buildCapForMeshOnPlane(
         wx * frame.bitangent[0] + wy * frame.bitangent[1] + wz * frame.bitangent[2],
       );
     }
-    const area = signedArea2D(loop2D);
+    const area = polygonSignedArea2DFlat(loop2D);
     if (area === 0) continue; // collinear / degenerate ring
     rings.push({loop2D, loop3D: loop, signedArea: area});
   }
@@ -590,7 +594,7 @@ function buildCapForMeshOnPlane(
     let parent: OuterGroup | null = null;
     let parentArea = Infinity;
     for (const g of groups) {
-      if (!pointInPolygon2D(px, py, g.outer.loop2D)) continue;
+      if (!pointInPolygon2DFlat(px, py, g.outer.loop2D)) continue;
       const a = g.outer.signedArea;
       if (a < parentArea) { parent = g; parentArea = a; }
     }
@@ -638,41 +642,6 @@ interface RingData {
   loop2D: number[];
   loop3D: number[];
   signedArea: number;
-}
-
-/**
- * Signed area of a closed 2D polygon stored as flat
- * `[x, y, x, y, ...]`. Positive when wound counter-clockwise,
- * negative when clockwise.
- */
-function signedArea2D(poly: number[]): number {
-  let a = 0;
-  const n = poly.length / 2;
-  for (let i = 0, j = n - 1; i < n; j = i++) {
-    a += poly[j * 2] * poly[i * 2 + 1] - poly[i * 2] * poly[j * 2 + 1];
-  }
-  return a * 0.5;
-}
-
-/**
- * Ray-casting point-in-polygon test for a closed 2D polygon
- * stored as flat `[x, y, x, y, ...]`. Returns `true` when
- * `(px, py)` lies strictly inside the polygon (unspecified at
- * vertex / edge boundaries — caller must keep the test point
- * off the boundary).
- */
-function pointInPolygon2D(px: number, py: number, poly: number[]): boolean {
-  let inside = false;
-  const n = poly.length / 2;
-  for (let i = 0, j = n - 1; i < n; j = i++) {
-    const xi = poly[i * 2],     yi = poly[i * 2 + 1];
-    const xj = poly[j * 2],     yj = poly[j * 2 + 1];
-    if (((yi > py) !== (yj > py)) &&
-        (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) {
-      inside = !inside;
-    }
-  }
-  return inside;
 }
 
 interface CapSegment {

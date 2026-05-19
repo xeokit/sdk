@@ -11,6 +11,16 @@ import {DrawTechnique} from "../../DrawTechnique";
  * from the lights. Mirrors {@link LinesDrawColorTechnique} — same shader
  * skeleton, just with `vertsPerPrim = 3` for the triangle dispatch.
  *
+ * **No section-plane clipping.** Overlay-bin content is conceptually
+ * out-of-band UI (TransformControls handles, section-plane proxy quads,
+ * etc.) and should never disappear behind a user-placed cutting plane.
+ * The slicing helpers are intentionally omitted from both the VS and FS
+ * here — the technique never reads `uSectionPlanes` and the VS never
+ * emits the `vWorldPos` / `vClippable` varyings. The cost is a couple
+ * fewer instructions per vertex and zero fragment-side discards; the
+ * benefit is a categorical "overlay ignores section planes" rule that
+ * new overlay-bin authors get for free.
+ *
  * @internal
  */
 export class TrianglesDrawColorFlatTechnique extends DrawTechnique {
@@ -20,11 +30,9 @@ export class TrianglesDrawColorFlatTechnique extends DrawTechnique {
   protected buildVertexShader(): void {
     this.vsHeader();
     this.vsCommonDeclarations();
-    this.vsSlicingDeclarations();
     this.vsDrawFlatColorDeclarations();
     this.vsMainBegin();
     this.vsDrawFlatColorLogic();
-    this.vsSlicingLogic();
     this.vsMainEnd();
   }
 
@@ -32,10 +40,8 @@ export class TrianglesDrawColorFlatTechnique extends DrawTechnique {
     this.fsHeader();
     this.fsPrecisionDeclarations();
     this.fsColorDeclarations();
-    this.fsSlicingDeclarations();
     this.fsDrawFlatColorDeclarations();
     this.fsMainBegin();
-    this.fsSlicingLogic();
     this.fsDrawFlatColorLogic();
     // Overlay-bin batches drawn by this technique render straight
     // to the default canvas AFTER `PostProcessChain.composite`,

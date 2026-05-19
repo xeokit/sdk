@@ -18,4 +18,4 @@ export * as simulation    from "./simulation";
 export * as interop       from "./interop";
 export * as convert       from "./convert";
 export * as ui            from "./ui";
-export * as demo          from "./demo";
+export * as studio        from "./studio";

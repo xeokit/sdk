@@ -25,6 +25,7 @@ export function paintGold(size: number, options: PaintGoldOptions = {}): Materia
   return {
     color: solidColor(size, color),
     normal: flatNormal(size),
-    mr: flatMR(size, roughness, 1.0)
+    mr: flatMR(size, roughness, 1.0),
+    flatColor: color,
   };
 }

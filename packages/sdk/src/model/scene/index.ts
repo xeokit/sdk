@@ -716,6 +716,7 @@ export * from "./Scene";
 export * from "./SceneEvents";
 export * from "./SceneModel";
 export * from "./SceneModelParams";
+export * from "./isDefaultLayer";
 export * from "./SceneModelStats";
 export * from "./SceneObject";
 export * from "./SceneTexture";

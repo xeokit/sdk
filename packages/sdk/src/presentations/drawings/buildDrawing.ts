@@ -32,6 +32,8 @@ import type {PanelSpec} from "./chrome/PanelSpec";
 import type {TitleBlockSpec} from "./chrome/TitleBlockSpec";
 import type {HLEDepthBuffer} from "./hle/HLEDepthBuffer";
 import type {FillPolygons} from "./fills/FillPolygons";
+import type {SpaceLabelSpec} from "./labels/SpaceLabelSpec";
+import {computeLabelPlacement} from "./labels/computeLabelPlacement";
 
 
 /**
@@ -95,7 +97,7 @@ import type {FillPolygons} from "./fills/FillPolygons";
  * end-to-end usage examples.
  */
 export async function buildDrawing(
-  params: DrawingProjectionParams,
+    params: DrawingProjectionParams,
 ): Promise<SDKResult<SceneModel>> {
   const {sourceModel, targetModel: target, direction} = params;
   const offset = params.offset ?? 0;
@@ -141,21 +143,30 @@ export async function buildDrawing(
   const planeDepth = dMin - offset;
   const project = makeProjection(basis, planeDepth);
 
-  // Resolve the optional cut-away clip plane to a (point,
-  // normal) pair in world space. `clipActive` gates the
-  // per-triangle / per-edge centroid tests further down so the
-  // overhead is zero when no clipping is requested.
-  const resolvedClip = params.clip ? resolveClipPlane(params.clip, basis) : null;
-  const clipActive = resolvedClip !== null;
-  const clipPx = resolvedClip?.point[0]  ?? 0;
-  const clipPy = resolvedClip?.point[1]  ?? 0;
-  const clipPz = resolvedClip?.point[2]  ?? 0;
-  const clipNx = resolvedClip?.normal[0] ?? 0;
-  const clipNy = resolvedClip?.normal[1] ?? 0;
-  const clipNz = resolvedClip?.normal[2] ?? 0;
-  const clipThreshold = clipActive
-    ? clipPx * clipNx + clipPy * clipNy + clipPz * clipNz
-    : 0;
+  // Resolve the optional cut-away clip planes to (point, normal)
+  // pairs in world space. `params.clip` may be a single spec or
+  // an array — typically the View's active SectionPlanes, fed in
+  // by DrawingsPanel. Each plane contributes one row in the
+  // per-plane scratch buffers; the per-edge tests below loop
+  // over rows and reject on the first plane whose kept-side
+  // test fails. Empty array → tests collapse to a single
+  // `planeCount` compare.
+  const clipSpecs: DrawingClipSpec[] = params.clip == null
+      ? []
+      : Array.isArray(params.clip) ? params.clip : [params.clip];
+  const clipPlanesResolved = clipSpecs.map(spec => resolveClipPlane(spec, basis));
+  const planeCount = clipPlanesResolved.length;
+  const clipNx = new Float64Array(planeCount);
+  const clipNy = new Float64Array(planeCount);
+  const clipNz = new Float64Array(planeCount);
+  const clipThr = new Float64Array(planeCount);
+  for (let i = 0; i < planeCount; i++) {
+    const p = clipPlanesResolved[i];
+    clipNx[i] = p.normal[0];
+    clipNy[i] = p.normal[1];
+    clipNz[i] = p.normal[2];
+    clipThr[i] = p.point[0] * p.normal[0] + p.point[1] * p.normal[1] + p.point[2] * p.normal[2];
+  }
 
   // World-space anchor for every emitted mesh. The SceneGeometry
   // AABB is stored as Float32 (see `createAABB3Float32`), so
@@ -177,11 +188,11 @@ export async function buildDrawing(
   // overhead when disabled (the async function still returns a
   // Promise; the body just never `await`s).
   const progressiveSpec: ProgressiveSpec | null =
-    typeof params.progressive === "object"
-      ? params.progressive as ProgressiveSpec
-      : params.progressive
-        ? {}
-        : null;
+      typeof params.progressive === "object"
+          ? params.progressive as ProgressiveSpec
+          : params.progressive
+              ? {}
+              : null;
   const batchSize  = Math.max(1, progressiveSpec?.batchSize ?? 50);
   const yieldFn    = progressiveSpec?.yield ?? defaultYield;
 
@@ -212,8 +223,8 @@ export async function buildDrawing(
   // sits behind every later line geometry in alpha-blending
   // order — the wireframe and frame lines read crisply over it.
   const frameMargin = (params.frame !== undefined && params.frame !== false)
-    ? (typeof params.frame === "number" ? params.frame : 1.0)
-    : 0;
+      ? (typeof params.frame === "number" ? params.frame : 1.0)
+      : 0;
   if (params.panel) {
     const spec: PanelSpec = typeof params.panel === "object" ? params.panel : {};
     const panelRes = emitPanel(target, basis, aabb, planeDepth, frameMargin, spec, origin, params.layerId);
@@ -234,11 +245,11 @@ export async function buildDrawing(
   // Optional title block at the bottom-right of the frame.
   if (params.titleBlock) {
     const tbRes = emitTitleBlock(
-      target, basis, aabb, planeDepth, frameMargin,
-      params.titleBlock,
-      params.frameColor ?? params.color,
-      origin,
-      params.layerId,
+        target, basis, aabb, planeDepth, frameMargin,
+        params.titleBlock,
+        params.frameColor ?? params.color,
+        origin,
+        params.layerId,
     );
     if (tbRes.ok === false) {
       const err = {ok: false as const, type: tbRes.type, error: tbRes.error};
@@ -265,13 +276,27 @@ export async function buildDrawing(
   // memory regardless of the effective output resolution.
   const wantHLE   = !!params.hideHidden;
   const wantFills = !!params.fill;
+
+  // `transparentAsWireframe` filter — when on, transparent
+  // meshes are excluded from both the HLE depth buffer and the
+  // fill pass, but still flow through the edge-emission loop
+  // below. Net effect: a glass pane draws only its outline and
+  // doesn't hide the geometry behind it. Uses
+  // `effectiveOpacity` so material-overridden opacity wins over
+  // the per-mesh fallback — the same effective value the
+  // renderer uses when deciding the opaque/transparent bin.
+  const wantWireframeXP = params.transparentAsWireframe === true;
+  const xpThreshold     = params.transparentThreshold ?? 0.99;
+  const meshFilter = wantWireframeXP
+      ? ((mesh: any /* SceneMesh */) => mesh.effectiveOpacity >= xpThreshold)
+      : undefined;
   let hleBuffer: HLEDepthBuffer | undefined;
   let hleSamples = 0;
   let hleTolerance = 0;
   if (wantHLE) {
     const opts: HLEOptions = typeof params.hideHidden === "object"
-      ? params.hideHidden
-      : {};
+        ? params.hideHidden
+        : {};
     hleBuffer = await buildHLEDepthBuffer(sourceModel, basis, aabb, {
       resolution: opts.resolution,
       withOwners: false,
@@ -280,14 +305,14 @@ export async function buildDrawing(
       // SceneObjects — the heavy work is here, not in the
       // edge-emission loop further down.
       ...(progressiveSpec ? {yield: yieldFn} : {}),
-      // Optional cut-away — same plane the edge loop tests
+      // Optional cut-away — same planes the edge loop tests
       // against below, so HLE depth only reflects kept-side
       // geometry and edges from the discarded side aren't
       // tested against silhouettes that no longer exist.
-      ...(clipActive ? {
-        clipPoint:  [clipPx, clipPy, clipPz],
-        clipNormal: [clipNx, clipNy, clipNz],
-      } : {}),
+      ...(planeCount > 0 ? {clipPlanes: clipPlanesResolved} : {}),
+      // Drop transparent meshes from the depth buffer so their
+      // own edges (still emitted below) survive HLE testing.
+      ...(meshFilter ? {meshFilter} : {}),
     });
     hleSamples   = Math.max(2, opts.samples   ?? 5);
     hleTolerance = Math.max(0, opts.tolerance ?? 0.01);
@@ -309,8 +334,8 @@ export async function buildDrawing(
   if (wantFills) {
     fillSpec = typeof params.fill === "object" ? params.fill as FillSpec : {};
     const fillResolution = fillSpec.resolution
-      ?? (wantHLE && typeof params.hideHidden === "object" ? params.hideHidden.resolution : undefined)
-      ?? 2048;
+        ?? (wantHLE && typeof params.hideHidden === "object" ? params.hideHidden.resolution : undefined)
+        ?? 2048;
     // `tileSize <= 0` or `tileSize ≥ resolution` collapses the
     // tiled pipeline to a single tile spanning the whole buffer
     // — equivalent to the legacy untiled extractor.
@@ -333,12 +358,12 @@ export async function buildDrawing(
         yield:     yieldFn,
         cancelled: () => target.destroyed,
       } : {}),
-      // Same cut-away plane as the HLE rasteriser so fills and
+      // Same cut-away planes as the HLE rasteriser so fills and
       // wireframe edges agree about what's kept.
-      ...(clipActive ? {
-        clipPoint:  [clipPx, clipPy, clipPz],
-        clipNormal: [clipNx, clipNy, clipNz],
-      } : {}),
+      ...(planeCount > 0 ? {clipPlanes: clipPlanesResolved} : {}),
+      // Same mesh filter as HLE — transparent meshes get no
+      // fill polygon, matching their non-occluding depth role.
+      ...(meshFilter ? {meshFilter} : {}),
     });
     if (target.destroyed) {
       return {
@@ -406,8 +431,8 @@ export async function buildDrawing(
         // coords once per mesh. transformPoint3 then folds in
         // the world matrix per endpoint.
         const localPositions = decompressPositions3WithAABB3(
-          geom.positionsCompressed as FloatArrayParam,
-          geom.aabb,
+            geom.positionsCompressed as FloatArrayParam,
+            geom.aabb,
         );
 
         const positions: number[] = [];
@@ -434,15 +459,22 @@ export async function buildDrawing(
             transformPoint3(worldMatrix, v0, p0);
             transformPoint3(worldMatrix, v1, p1);
 
-            if (clipActive) {
+            if (planeCount > 0) {
               const mx = (p0[0] + p1[0]) * 0.5;
               const my = (p0[1] + p1[1]) * 0.5;
               const mz = (p0[2] + p1[2]) * 0.5;
-              if (mx * clipNx + my * clipNy + mz * clipNz < clipThreshold) continue;
+              let clipped = false;
+              for (let pi = 0; pi < planeCount; pi++) {
+                if (mx * clipNx[pi] + my * clipNy[pi] + mz * clipNz[pi] < clipThr[pi]) {
+                  clipped = true;
+                  break;
+                }
+              }
+              if (clipped) continue;
             }
 
             const segments = visibleEdgeSegments(
-              hleBuffer, p0, p1, hleSamples, hleTolerance,
+                hleBuffer, p0, p1, hleSamples, hleTolerance,
             );
             for (let s = 0; s < segments.length; s++) {
               const seg = segments[s];
@@ -482,7 +514,7 @@ export async function buildDrawing(
             const a = edgeIndices[i];
             const b = edgeIndices[i + 1];
             if (a === b) continue;
-            if (clipActive) {
+            if (planeCount > 0) {
               const aBase = a * 3;
               const bBase = b * 3;
               v0[0] = localPositions[aBase];
@@ -496,7 +528,14 @@ export async function buildDrawing(
               const mx = (p0[0] + p1[0]) * 0.5;
               const my = (p0[1] + p1[1]) * 0.5;
               const mz = (p0[2] + p1[2]) * 0.5;
-              if (mx * clipNx + my * clipNy + mz * clipNz < clipThreshold) continue;
+              let clipped = false;
+              for (let pi = 0; pi < planeCount; pi++) {
+                if (mx * clipNx[pi] + my * clipNy[pi] + mz * clipNz[pi] < clipThr[pi]) {
+                  clipped = true;
+                  break;
+                }
+              }
+              if (clipped) continue;
             }
             edgePool.push(a, b);
           }
@@ -537,7 +576,7 @@ export async function buildDrawing(
               return out;
             };
             const findUnvisitedNeighbour = (
-              vertex: number, exclude: number,
+                vertex: number, exclude: number,
             ): {edgeIndex: number; far: number} | null => {
               const list = adjacency.get(vertex);
               if (!list) return null;
@@ -602,8 +641,8 @@ export async function buildDrawing(
         // white in those cases and every fill would look grey.
         const srcLineColor = mesh.effectiveColor;
         const lineColor: [number, number, number] = params.color
-          ? [params.color[0], params.color[1], params.color[2]]
-          : [srcLineColor[0], srcLineColor[1], srcLineColor[2]];
+            ? [params.color[0], params.color[1], params.color[2]]
+            : [srcLineColor[0], srcLineColor[1], srcLineColor[2]];
         const mRes = target.createMesh({
           id: lineMeshId,
           geometryId: lineGeometryId,
@@ -653,15 +692,27 @@ export async function buildDrawing(
         // important: loaders (OBJ, glTF, XGF) typically route
         // colour through a SceneMaterial attached to the mesh,
         // leaving `mesh.color` at its default white and the
-        // colour only reachable via the material.
+        // colour only reachable via the material. The same
+        // path picks up MaterialMaps.flatColor when a procgen
+        // painter populated one, since the palette forwards
+        // that onto the SceneMaterial's `color`.
         const srcMesh = srcMeshById.get(fill.sourceMeshId);
         const srcFillColor = srcMesh?.effectiveColor;
         const fillColor: [number, number, number] = fillSpec?.color
-          ? [fillSpec.color[0], fillSpec.color[1], fillSpec.color[2]]
-          : srcFillColor
-            ? [srcFillColor[0], srcFillColor[1], srcFillColor[2]]
-            : [0.92, 0.93, 0.95];
-        const fillOpacity = fillSpec?.opacity ?? 1.0;
+            ? [fillSpec.color[0], fillSpec.color[1], fillSpec.color[2]]
+            : srcFillColor
+                ? [srcFillColor[0], srcFillColor[1], srcFillColor[2]]
+                : [0.92, 0.93, 0.95];
+        // Fill opacity: explicit `fillSpec.opacity` wins;
+        // otherwise mirror the source mesh's
+        // `effectiveOpacity` so a painter's `flatOpacity`
+        // (e.g. glass at 0.35) survives into the drawing.
+        // Drops to 1.0 only when neither side has anything to
+        // say, preserving the opaque default for materials
+        // that didn't bother declaring a flat opacity.
+        const srcFillOpacity = srcMesh?.effectiveOpacity;
+        const fillOpacity = fillSpec?.opacity
+            ?? (typeof srcFillOpacity === "number" ? srcFillOpacity : 1.0);
         const fmRes = target.createMesh({
           id: fillMeshId,
           geometryId: fillGeometryId,
@@ -683,6 +734,7 @@ export async function buildDrawing(
     const oRes = target.createObject({
       id: objId,
       meshIds,
+      clippable: false,
       ...(params.layerId ? {layerId: params.layerId} : {}),
     });
     if (oRes.ok === false) {
@@ -709,6 +761,166 @@ export async function buildDrawing(
           };
         }
       }
+    }
+  }
+
+  // ── Phase 5: Space labels (Phase 1 of the labelling system) ─
+  //
+  // Render text inside each eligible source object's fill
+  // polygon. Eligibility is the intersection of:
+  //
+  //   1. A bucket exists in `fillsBySource` — the fill pass
+  //      actually emitted polygons for this object (so the
+  //      caller asked for `fill: true` and the projection
+  //      didn't skip the object).
+  //   2. The supplied `data` graph has a DataObject with the
+  //      same id, and its `type` is in `spaceLabels.dataTypes`
+  //      (defaults to `["IfcSpace"]`).
+  //   3. The pole-of-inaccessibility solver returned a
+  //      placement whose inscribed circle radius scales the
+  //      label size above `minFontSize` and whose polygon
+  //      area is above `minArea`.
+  //
+  // Each label is one SceneObject (`__spaceLabel__<sourceId>`)
+  // carrying one LinesPrimitive geometry — the same shape as
+  // the existing title-block emission, so it picks up the
+  // global line material / lineWidth automatically.
+  if (params.spaceLabels && fillsBySource) {
+    if (!params.data) {
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: "[buildDrawing] `spaceLabels` requires `data` — pass the source model's Data graph so the label pass can read each space's name + type",
+      };
+    }
+    const labelSpec: SpaceLabelSpec = typeof params.spaceLabels === "object"
+        ? params.spaceLabels
+        : {};
+    const dataTypes  = labelSpec.dataTypes  ?? ["IfcSpace"];
+    const minArea    = labelSpec.minArea    ?? 0.5;
+    const fontScale  = labelSpec.fontScale  ?? 0.30;
+    const maxFontSize = labelSpec.maxFontSize ?? 0.45;
+    const minFontSize = labelSpec.minFontSize ?? 0.10;
+    const upperCase  = labelSpec.upperCase !== false;
+    const showArea   = labelSpec.showArea === true;
+    const labelColor = labelSpec.color ?? params.color;
+    const labelLineWidth = labelSpec.lineWidth ?? params.lineWidth;
+    const labelLayerId   = labelSpec.layerId  ?? params.layerId;
+
+    // Per-line vertical spacing. buildVectorText emits Hershey
+    // glyphs whose cap-height ≈ size; a line-gap of 0.4*size
+    // gives an 1.4*size advance that reads as proper paragraph
+    // leading at AEC drafting scale.
+    const lineAdvance = 1.4;
+
+    const typeSet = new Set(dataTypes);
+    const dataObjects = (params.data as any).objects as Record<string, {type: string; name?: string}>;
+
+    for (const [sourceObjectId, fills] of fillsBySource) {
+      const dobj = dataObjects?.[sourceObjectId];
+      if (!dobj || !typeSet.has(dobj.type)) continue;
+      const rawName = (dobj.name ?? "").trim();
+      if (!rawName) continue;
+
+      const place = computeLabelPlacement(fills, basis);
+      if (!place) continue;
+      if (place.area < minArea) continue;
+
+      let fontSize = place.inscribedRadius * fontScale * 2;  // 2 * radius * scale → diameter-relative
+      if (fontSize > maxFontSize) fontSize = maxFontSize;
+      if (fontSize < minFontSize) continue;
+
+      const lines: string[] = [
+        upperCase ? rawName.toUpperCase() : rawName,
+      ];
+      if (showArea) {
+        lines.push(`${place.area.toFixed(1)} m²`);
+      }
+
+      // Render each line via buildVectorText, measure its
+      // 2D extents, then map (line-local x, y) → world via
+      // basis.right / basis.up offset from the placement
+      // anchor on the projection plane. Lines stack downward
+      // around a vertical centre on the anchor (so a name +
+      // area pair brackets the anchor evenly).
+      const positions: number[] = [];
+      const indices:   number[] = [];
+      let vertexCount = 0;
+      const r = basis.right, up = basis.up, f = basis.forward;
+      // (u, v, planeDepth) → world: u*right + v*up + planeDepth*forward
+      const worldXAt = (u: number, v: number): number => u * r[0] + v * up[0] + planeDepth * f[0];
+      const worldYAt = (u: number, v: number): number => u * r[1] + v * up[1] + planeDepth * f[1];
+      const worldZAt = (u: number, v: number): number => u * r[2] + v * up[2] + planeDepth * f[2];
+
+      const totalLines = lines.length;
+      // First line's baseline `v` so the whole block is
+      // centred vertically on the anchor. Block height is
+      // `(totalLines - 1) * fontSize * lineAdvance + fontSize`
+      // (last line's cap reaches `fontSize` above its baseline).
+      const blockHeight = (totalLines - 1) * fontSize * lineAdvance + fontSize;
+      const firstBaselineV = place.v + blockHeight * 0.5 - fontSize;
+
+      for (let li = 0; li < lines.length; li++) {
+        const lineText = lines[li];
+        if (!lineText) continue;
+        const tRes = buildVectorText({size: fontSize, origin: [0, 0, 0], text: lineText});
+        if (!tRes.ok) continue;
+        const arr = tRes.value as {positions: number[]; indices: number[]};
+        // Measure line width — buildVectorText emits glyphs
+        // advancing along +x from x=0, so width = max(x).
+        let maxX = 0;
+        for (let i = 0; i < arr.positions.length; i += 3) {
+          if (arr.positions[i] > maxX) maxX = arr.positions[i];
+        }
+        const baselineV = firstBaselineV - li * fontSize * lineAdvance;
+        const startU    = place.u - maxX * 0.5;
+        const base = vertexCount;
+        for (let i = 0; i < arr.positions.length; i += 3) {
+          const lx = arr.positions[i];
+          const ly = arr.positions[i + 1];
+          const u = startU + lx;
+          const v = baselineV + ly;
+          positions.push(worldXAt(u, v), worldYAt(u, v), worldZAt(u, v));
+        }
+        const vCount = arr.positions.length / 3;
+        for (let i = 0; i < arr.indices.length; i++) {
+          indices.push(base + arr.indices[i]);
+        }
+        vertexCount = base + vCount;
+      }
+
+      if (positions.length === 0) continue;
+
+      const gid = `${target.id}__spaceLabel__${sourceObjectId}__geom`;
+      const mid = `${target.id}__spaceLabel__${sourceObjectId}__mesh`;
+      const oid = `${target.id}__spaceLabel__${sourceObjectId}`;
+
+      recenterPositions(positions, origin);
+      const gRes = target.createGeometry({
+        id: gid,
+        primitive: LinesPrimitive,
+        positions,
+        indices,
+      });
+      if (gRes.ok === false) continue;
+      const mRes = target.createMesh({
+        id: mid,
+        geometryId: gid,
+        position: origin,
+        ...(labelColor ? {color: labelColor} : {}),
+      });
+      if (mRes.ok === false) continue;
+      const oRes = target.createObject({
+        id: oid,
+        meshIds: [mid],
+        clippable: false,
+        ...(labelLayerId ? {layerId: labelLayerId} : {}),
+      });
+      // Failure to create the object isn't fatal for the
+      // overall projection — the rest of the drawing is
+      // already on the target.
+      if (oRes.ok === false) continue;
+      void labelLineWidth;  // Threaded through the lineMaterial later if we add per-label widths.
     }
   }
 
@@ -777,8 +989,8 @@ export function clearDrawing(targetModel: SceneModel | null | undefined): void {
  * edge walker know how to consume.
  */
 export function canBuildDrawing(
-  sourceModel: SceneModel,
-  mode: "lines" | "fill" | "either" = "either",
+    sourceModel: SceneModel,
+    mode: "lines" | "fill" | "either" = "either",
 ): boolean {
   if (!sourceModel || sourceModel.destroyed) return false;
   for (const objectId of Object.keys(sourceModel.objects)) {
@@ -787,9 +999,9 @@ export function canBuildDrawing(
       const geom = mesh.geometry;
       if (!geom) continue;
       const isTriangleFlavoured =
-        geom.primitive === TrianglesPrimitive ||
-        geom.primitive === SolidPrimitive ||
-        geom.primitive === SurfacePrimitive;
+          geom.primitive === TrianglesPrimitive ||
+          geom.primitive === SolidPrimitive ||
+          geom.primitive === SurfacePrimitive;
       if (!isTriangleFlavoured) continue;
       if (mode === "lines" || mode === "either") {
         if (geom.edgeIndices && geom.edgeIndices.length >= 2) return true;
@@ -817,8 +1029,8 @@ export function canBuildDrawing(
  * perpendicular is picked so projection always resolves.
  */
 function resolveBasis(
-  direction: DrawingProjectionDirection,
-  worldUp: [number, number, number] | undefined,
+    direction: DrawingProjectionDirection,
+    worldUp: [number, number, number] | undefined,
 ): ProjectionBasis {
   if (typeof direction === "string") {
     return FACE_BASES[direction];
@@ -833,8 +1045,8 @@ function resolveBasis(
     // forward, then orthonormalise.
     const absX = Math.abs(f[0]), absY = Math.abs(f[1]), absZ = Math.abs(f[2]);
     up = absX <= absY && absX <= absZ ? [1, 0, 0]
-       : absY <= absZ                 ? [0, 1, 0]
-                                      : [0, 0, 1];
+        : absY <= absZ                 ? [0, 1, 0]
+            : [0, 0, 1];
     proj = up[0] * f[0] + up[1] * f[1] + up[2] * f[2];
   }
   const upPerp: [number, number, number] = [
@@ -885,8 +1097,8 @@ function normalize3(v: ArrayLike<number>): [number, number, number] {
  * can size itself without a depth-buffer build.
  */
 function basisUVExtents(
-  basis: ProjectionBasis,
-  aabb: FloatArrayParam,
+    basis: ProjectionBasis,
+    aabb: FloatArrayParam,
 ): {uMin: number; uMax: number; vMin: number; vMax: number} {
   const {right, up} = basis;
   const xMin = aabb[0], yMin = aabb[1], zMin = aabb[2];
@@ -947,8 +1159,8 @@ function computeBasisDMin(basis: ProjectionBasis, aabb: FloatArrayParam): number
  * along the camera-look direction (i.e. deeper into the scene).
  */
 function resolveClipPlane(
-  clip: DrawingClipSpec,
-  basis: ProjectionBasis,
+    clip: DrawingClipSpec,
+    basis: ProjectionBasis,
 ): {point: [number, number, number]; normal: [number, number, number]} {
   if ("depth" in clip) {
     const f = basis.forward;
@@ -990,8 +1202,8 @@ function basisHandedness(basis: ProjectionBasis): number {
  * it without per-edge allocation.
  */
 function makeProjection(
-  basis: ProjectionBasis,
-  planeDepth: number,
+    basis: ProjectionBasis,
+    planeDepth: number,
 ): (p: Vec3) => void {
   const r = basis.right, u = basis.up, f = basis.forward;
   const fx = f[0] * planeDepth;
@@ -1027,8 +1239,8 @@ function sanitizeId(s: string): string {
  * Float64 local matrix.
  */
 function recenterPositions(
-  positions: number[],
-  origin: [number, number, number],
+    positions: number[],
+    origin: [number, number, number],
 ): void {
   for (let i = 0, n = positions.length; i < n; i += 3) {
     positions[i]     -= origin[0];
@@ -1046,15 +1258,15 @@ function recenterPositions(
  * frame failure into its own teardown.
  */
 function emitFrame(
-  target: SceneModel,
-  basis: ProjectionBasis,
-  aabb: FloatArrayParam,
-  planeDepth: number,
-  margin: number,
-  color: Vec3 | undefined,
-  origin: [number, number, number],
-  lineMaterialId: string | undefined,
-  layerId: string | undefined,
+    target: SceneModel,
+    basis: ProjectionBasis,
+    aabb: FloatArrayParam,
+    planeDepth: number,
+    margin: number,
+    color: Vec3 | undefined,
+    origin: [number, number, number],
+    lineMaterialId: string | undefined,
+    layerId: string | undefined,
 ): SDKResult<unknown> {
   // Four corners of the framed area on the projection plane.
   // Built in basis space (u, v, planeDepth) and lifted to
@@ -1107,6 +1319,7 @@ function emitFrame(
   return target.createObject({
     id: oid,
     meshIds: [mid],
+    clippable: false,
     ...(layerId ? {layerId} : {}),
   });
 }
@@ -1132,14 +1345,14 @@ function emitFrame(
  * and pickability.
  */
 function emitPanel(
-  target: SceneModel,
-  basis: ProjectionBasis,
-  aabb: FloatArrayParam,
-  planeDepth: number,
-  margin: number,
-  spec: PanelSpec,
-  origin: [number, number, number],
-  layerId: string | undefined,
+    target: SceneModel,
+    basis: ProjectionBasis,
+    aabb: FloatArrayParam,
+    planeDepth: number,
+    margin: number,
+    spec: PanelSpec,
+    origin: [number, number, number],
+    layerId: string | undefined,
 ): SDKResult<unknown> {
   // Default colour swaps depending on whether a painter is
   // supplied: a painter expects a white tint so its sampled
@@ -1206,7 +1419,7 @@ function emitPanel(
   // back to inward.
   const flip = basisHandedness(basis) > 0;
   const tri = (a: number, b: number, c: number): number[] =>
-    flip ? [a, c, b] : [a, b, c];
+      flip ? [a, c, b] : [a, b, c];
   const indices: number[] = [
     // dInner face (AABB-side wall, corners 0,1,2,3)
     ...tri(0, 1, 2), ...tri(0, 2, 3),
@@ -1296,6 +1509,7 @@ function emitPanel(
   return target.createObject({
     id: oid,
     meshIds: [mid],
+    clippable: false,
     ...(layerId ? {layerId} : {}),
   });
 }
@@ -1326,10 +1540,10 @@ interface FaceBasis {
  * arbitrary projection orientation.
  */
 function frameBasis(
-  basis: ProjectionBasis,
-  aabb: FloatArrayParam,
-  planeDepth: number,
-  margin: number,
+    basis: ProjectionBasis,
+    aabb: FloatArrayParam,
+    planeDepth: number,
+    margin: number,
 ): FaceBasis {
   const {uMin, uMax, vMin, vMax} = basisUVExtents(basis, aabb);
   const r = basis.right, up = basis.up, f = basis.forward;
@@ -1370,15 +1584,15 @@ function place(basis: FaceBasis, u: number, v: number): [number, number, number]
  * label/value cells, vector text in each cell.
  */
 function emitTitleBlock(
-  target: SceneModel,
-  projBasis: ProjectionBasis,
-  aabb: FloatArrayParam,
-  planeDepth: number,
-  margin: number,
-  spec: TitleBlockSpec,
-  color: Vec3 | undefined,
-  origin: [number, number, number],
-  layerId: string | undefined,
+    target: SceneModel,
+    projBasis: ProjectionBasis,
+    aabb: FloatArrayParam,
+    planeDepth: number,
+    margin: number,
+    spec: TitleBlockSpec,
+    color: Vec3 | undefined,
+    origin: [number, number, number],
+    layerId: string | undefined,
 ): SDKResult<unknown> {
   const basis = frameBasis(projBasis, aabb, planeDepth, margin);
   const rows = spec.rows ?? [];
@@ -1429,15 +1643,15 @@ function emitTitleBlock(
     const rowBot = rowTop - rowHeight;
     // Vertical divider between label/value cells.
     line(
-      place(basis, u0 + labelColWidth, rowTop),
-      place(basis, u0 + labelColWidth, rowBot),
+        place(basis, u0 + labelColWidth, rowTop),
+        place(basis, u0 + labelColWidth, rowBot),
     );
     // Horizontal row divider (except for the last row, which sits
     // on the cartouche outline).
     if (i < rows.length - 1) {
       line(
-        place(basis, u0,              rowBot),
-        place(basis, u0 + blockWidth, rowBot),
+          place(basis, u0,              rowBot),
+          place(basis, u0 + blockWidth, rowBot),
       );
     }
   }
@@ -1454,10 +1668,10 @@ function emitTitleBlock(
 
   // Heading row.
   appendText(positions, indices, () => vertexCount, (n) => { vertexCount = n; },
-    basis,
-    u0 + headingPadX,
-    v0 + blockHeight - headingHeight + headingPadY,
-    headingTextSize, spec.title,
+      basis,
+      u0 + headingPadX,
+      v0 + blockHeight - headingHeight + headingPadY,
+      headingTextSize, spec.title,
   );
 
   // Label/value rows.
@@ -1465,9 +1679,9 @@ function emitTitleBlock(
     const rowTop = v0 + blockHeight - headingHeight - i * rowHeight;
     const rowBaseV = rowTop - rowHeight + rowPadY;
     appendText(positions, indices, () => vertexCount, (n) => { vertexCount = n; },
-      basis, labelColX, rowBaseV, rowTextSize, rows[i].label);
+        basis, labelColX, rowBaseV, rowTextSize, rows[i].label);
     appendText(positions, indices, () => vertexCount, (n) => { vertexCount = n; },
-      basis, valueColX, rowBaseV, rowTextSize, rows[i].value);
+        basis, valueColX, rowBaseV, rowTextSize, rows[i].value);
   }
 
   const gid = `${target.id}__titleBlock_geom`;
@@ -1492,6 +1706,7 @@ function emitTitleBlock(
   return target.createObject({
     id: oid,
     meshIds: [mid],
+    clippable: false,
     ...(layerId ? {layerId} : {}),
   });
 }
@@ -1505,15 +1720,15 @@ function emitTitleBlock(
  * runs can share one geometry.
  */
 function appendText(
-  positions: number[],
-  indices: number[],
-  getVertexCount: () => number,
-  setVertexCount: (n: number) => void,
-  basis: FaceBasis,
-  uAnchor: number,
-  vAnchor: number,
-  size: number,
-  text: string,
+    positions: number[],
+    indices: number[],
+    getVertexCount: () => number,
+    setVertexCount: (n: number) => void,
+    basis: FaceBasis,
+    uAnchor: number,
+    vAnchor: number,
+    size: number,
+    text: string,
 ): void {
   if (!text) return;
   const res = buildVectorText({size, origin: [0, 0, 0], text});
@@ -1570,8 +1785,8 @@ function computeWorldAABB(sourceModel: SceneModel): FloatArrayParam {
           geom.primitive !== SolidPrimitive &&
           geom.primitive !== SurfacePrimitive) continue;
       const local = decompressPositions3WithAABB3(
-        geom.positionsCompressed as FloatArrayParam,
-        geom.aabb,
+          geom.positionsCompressed as FloatArrayParam,
+          geom.aabb,
       );
       const worldMatrix = mesh.worldMatrix;
       for (let i = 0, len = local.length; i < len; i += 3) {

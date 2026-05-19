@@ -13,7 +13,7 @@
  *
  * ```ts
  * // Mutate the singleton — applies to every inspectSceneModel() call.
- * import {DEFAULT_INSPECTION_REGISTRY, Inspection} from "@xeokit/sdk/demo";
+ * import {DEFAULT_INSPECTION_REGISTRY, Inspection} from "@xeokit/sdk/studio";
  *
  * const myInspection: Inspection = {
  *   codes: ["MyApp/STALE_PROPERTY_SET"],
@@ -25,7 +25,7 @@
  *
  * ```ts
  * // Or build a fresh registry — leaves the default untouched.
- * import {InspectionRegistry, geometryDataIntegrity, inspectSceneModel} from "@xeokit/sdk/demo";
+ * import {InspectionRegistry, geometryDataIntegrity, inspectSceneModel} from "@xeokit/sdk/studio";
  *
  * const registry = new InspectionRegistry();
  * registry.register(geometryDataIntegrity);   // pick what you want

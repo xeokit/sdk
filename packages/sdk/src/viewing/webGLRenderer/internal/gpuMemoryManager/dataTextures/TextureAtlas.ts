@@ -53,6 +53,14 @@ interface AtlasEntry {
  *   - No atlas growth. Once {@link allocate} fixes the size, overflow on
  *     {@link addTexture} returns `null` and the caller falls back to the
  *     sentinel.
+ *   - Sources larger than the atlas size are auto-downscaled to fit
+ *     (aspect-preserving) inside {@link addTexture}, emitting a warn-level
+ *     message with the original and new dimensions. This keeps streaming
+ *     scenes with unpredictable content sizes rendering with their PBR
+ *     detail instead of falling through to the sentinel; the renderer is
+ *     designed for continuous load/unload of varied content, so refusing
+ *     a too-big texture would surface an end-user-visible artefact rather
+ *     than a quietly lossy upload.
  *   - Same image registered twice gets a single shared sub-rect (cached
  *     by `SceneTexture.id`).
  *   - Tiling textures need to be pre-modulated into `[0, 1)` before
@@ -273,8 +281,127 @@ export class TextureAtlas {
   }
 
   /**
+   * Aspect-preserving downscale of a source to fit inside the atlas.
+   *
+   * Used by {@link addTexture} when the incoming texture would exceed
+   * `this.size` (after padding). Draws into an `OffscreenCanvas` when
+   * available, falling back to an `HTMLCanvasElement` in DOM-bearing
+   * contexts; both forms are accepted directly by `texSubImage2D`. In
+   * environments where neither exists (worker contexts without
+   * `OffscreenCanvas`, non-DOM tests) returns `null` and the caller
+   * falls through to the sentinel — consistent with the pre-downscale
+   * behaviour on too-big inputs.
+   *
+   * Uses `imageSmoothingQuality = "high"` so the downsample preserves
+   * as much detail as the browser's resampler allows (typically a
+   * bicubic / Lanczos approximation).
+   */
+  private _downscaleSource(source: ImageSource, targetW: number, targetH: number): ImageSource | null {
+    let canvas: OffscreenCanvas | HTMLCanvasElement | null = null;
+    if (typeof OffscreenCanvas !== "undefined") {
+      canvas = new OffscreenCanvas(targetW, targetH);
+    } else if (typeof document !== "undefined" && typeof document.createElement === "function") {
+      const c = document.createElement("canvas");
+      c.width = targetW;
+      c.height = targetH;
+      canvas = c;
+    }
+    if (!canvas) return null;
+    const ctx = (canvas as any).getContext("2d");
+    if (!ctx) return null;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    try {
+      ctx.drawImage(source as any, 0, 0, targetW, targetH);
+    } catch (e) {
+      console.warn(`[TextureAtlas] downscale drawImage failed: ${e}`);
+      return null;
+    }
+    return canvas as ImageSource;
+  }
+
+  /**
+   * If `source` exceeds the atlas dimensions (after padding), produce
+   * a downscaled copy that just fits; otherwise return the source as-is.
+   * Caller treats the result as the effective upload source.
+   *
+   * Decoupled from {@link addTexture} so {@link canFitTexture} can use
+   * the same target-dimension calculation without paying for the actual
+   * canvas allocation — the probe just needs the *would-be* width and
+   * height after downscale to drive its shelf-fit replay.
+   */
+  private _maybeDownscale(
+    id: string,
+    source: ImageSource,
+    w: number,
+    h: number
+  ): { source: ImageSource; w: number; h: number; downscaled: boolean } {
+    const maxFit = this._maxEntryDimension();
+    if (w <= maxFit && h <= maxFit) {
+      return { source, w, h, downscaled: false };
+    }
+    const scale = Math.min(maxFit / w, maxFit / h);
+    const targetW = Math.max(1, Math.floor(w * scale));
+    const targetH = Math.max(1, Math.floor(h * scale));
+    const scaled = this._downscaleSource(source, targetW, targetH);
+    if (!scaled) {
+      // Environment can't downscale — keep original; the shelf-pack
+      // will refuse it and the caller will fall through to sentinel
+      // (preserving prior behaviour for non-DOM contexts).
+      console.warn(
+        `[TextureAtlas] '${id}' ${w}×${h} exceeds atlas size ${this.size} and downscaling is unavailable — falling back to sentinel`
+      );
+      return { source, w, h, downscaled: false };
+    }
+    console.warn(
+      `[TextureAtlas] '${id}' ${w}×${h} exceeds atlas size ${this.size}; auto-downscaled to ${targetW}×${targetH} (${(scale * 100).toFixed(1)}% of original) — increase the atlas size in MemoryConfigs if you need full resolution`
+    );
+    return { source: scaled, w: targetW, h: targetH, downscaled: true };
+  }
+
+  /**
+   * Returns the aspect-preserving downscale dimensions of a source of
+   * size `(w, h)` if it would exceed the atlas size, or `(w, h)`
+   * unchanged otherwise. Used by {@link canFitTexture} to compute the
+   * fit-probe dimensions without materialising a canvas.
+   */
+  private _targetDimensions(w: number, h: number): { w: number; h: number } {
+    const maxFit = this._maxEntryDimension();
+    if (w <= maxFit && h <= maxFit) {
+      return { w, h };
+    }
+    const scale = Math.min(maxFit / w, maxFit / h);
+    return {
+      w: Math.max(1, Math.floor(w * scale)),
+      h: Math.max(1, Math.floor(h * scale))
+    };
+  }
+
+  /**
+   * Largest entry dimension that's guaranteed to shelf-pack into a
+   * fresh atlas of `this.size`. Has to budget for:
+   *   - the 4×4 sentinel block reserved at the top-left of every
+   *     atlas (consumes a full-width shelf of height `4 + padding`);
+   *   - the per-entry padding gutter applied during shelf-pack.
+   *
+   * Conservative on both axes so a square downscale guarantees both
+   * dimensions clear at once.
+   */
+  private _maxEntryDimension(): number {
+    // 4 (sentinel) + padding (sentinel's shelf padding) + padding (entry's own gutter)
+    return Math.max(1, this.size - 4 - 2 * this.padding);
+  }
+
+  /**
    * Adds an image to the atlas — or returns the cached transform if `id`
    * is already present. Returns `null` if the atlas is full.
+   *
+   * Sources whose `width` or `height` (with padding) would exceed the
+   * atlas dimensions are automatically downscaled to fit, with a
+   * warn-level log. The renderer is built around continuous streaming
+   * of varied content, so a too-big texture lands as a lower-res copy
+   * with PBR detail intact rather than as a sentinel that would surface
+   * as a visible material artefact.
    *
    * Caller must have called {@link allocate} first.
    */
@@ -286,9 +413,12 @@ export class TextureAtlas {
     if (cached) {
       return { uOffset: cached.uOffset, vOffset: cached.vOffset, uScale: cached.uScale, vScale: cached.vScale };
     }
-    const w = source.width;
-    const h = source.height;
-    if (w <= 0 || h <= 0) return null;
+    if (source.width <= 0 || source.height <= 0) return null;
+
+    const prepared = this._maybeDownscale(id, source, source.width, source.height);
+    const uploadSource = prepared.source;
+    const w = prepared.w;
+    const h = prepared.h;
 
     const placed = this._shelfPack(w, h);
     if (!placed) return null;
@@ -309,7 +439,7 @@ export class TextureAtlas {
         placed.y,
         gl.RGBA,
         gl.UNSIGNED_BYTE,
-        source as any
+        uploadSource as any
       );
       // Defer the mip-pyramid refresh. {@link flushMipmaps} runs
       // before the next draw and pays one regeneration per atlas
@@ -333,7 +463,7 @@ export class TextureAtlas {
       uScale:  w / this.size,
       vScale:  h / this.size
     };
-    this._entries.set(id, { ...placed, width: w, height: h, source, ...transform });
+    this._entries.set(id, { ...placed, width: w, height: h, source: uploadSource, ...transform });
     this.onUpdated.dispatch(this, undefined);
     return transform;
   }
@@ -360,6 +490,22 @@ export class TextureAtlas {
     if (!entry) {
       return false;
     }
+    // If the cached entry was downscaled at add time, the new source
+    // needs to be drawn at the same target dimensions or we'd write
+    // off the end of the cached sub-rect. Reuse the same downscale
+    // helper — when the incoming dimensions already match the entry,
+    // it's a no-op draw at native size.
+    let uploadSource: ImageSource = source;
+    if (source.width !== entry.width || source.height !== entry.height) {
+      const scaled = this._downscaleSource(source, entry.width, entry.height);
+      if (!scaled) {
+        console.warn(
+          `[TextureAtlas] updateTexture('${id}'): source ${source.width}×${source.height} does not match cached entry ${entry.width}×${entry.height} and downscaling is unavailable — refusing update`
+        );
+        return false;
+      }
+      uploadSource = scaled;
+    }
     const gl = this.gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
@@ -373,7 +519,7 @@ export class TextureAtlas {
         entry.y,
         gl.RGBA,
         gl.UNSIGNED_BYTE,
-        source as any
+        uploadSource as any
       );
       // Same deferred-flush as `addTexture` — see comment there.
       if (this.mipmap) {
@@ -387,7 +533,7 @@ export class TextureAtlas {
     gl.bindTexture(gl.TEXTURE_2D, null);
     // Cache the new source for future `addTexture(id)` repeat-calls
     // (which return the cached transform without re-uploading).
-    entry.source = source;
+    entry.source = uploadSource;
     this.onUpdated.dispatch(this, undefined);
     return true;
   }
@@ -400,6 +546,16 @@ export class TextureAtlas {
    * (`"too-big"`, meaning the upload will hit the sentinel fallback —
    * spawning a new batch wouldn't help).
    *
+   * Sources larger than the atlas dimensions are auto-downscaled by
+   * {@link addTexture}, so this probe uses the *post-downscale*
+   * dimensions for its shelf-fit replay — meaning `"too-big"` is now
+   * essentially reserved for the degenerate `w <= 0 || h <= 0` case.
+   * A oversize texture that triggers a downscale will still report
+   * `"fits"` or `"would-fit-in-fresh-atlas"` based on the scaled-down
+   * footprint, so the batch router doesn't pointlessly spawn a new
+   * batch (which wouldn't have helped — the downscaled copy fits in
+   * the current atlas just as well as in a fresh one).
+   *
    * Already-cached entries (matched by `id`) always report `"fits"` so
    * a SceneTexture shared by multiple meshes doesn't keep triggering
    * batch overflow.
@@ -411,11 +567,9 @@ export class TextureAtlas {
     if (w <= 0 || h <= 0) {
       return "too-big";
     }
-    const padW = w + this.padding;
-    const padH = h + this.padding;
-    if (padW > this.size || padH > this.size) {
-      return "too-big";
-    }
+    const target = this._targetDimensions(w, h);
+    const padW = target.w + this.padding;
+    const padH = target.h + this.padding;
     // Replay shelf-pack without mutating state.
     for (const shelf of this._shelves) {
       if (shelf.height >= padH && shelf.usedWidth + padW <= this.size) {

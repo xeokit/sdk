@@ -32,8 +32,15 @@ export class ThickLinesDrawColorTechnique extends DrawTechnique {
 
   public readonly vertsPerPrim = 6;
 
-  constructor(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader) {
-    super(renderContext, gpuMemoryReader, {thickLines: true});
+  constructor(
+    renderContext: RenderContext,
+    gpuMemoryReader: GPUMemoryReader,
+    opts: { logDepth?: boolean } = {},
+  ) {
+    super(renderContext, gpuMemoryReader, {
+      thickLines: true,
+      logDepth: opts.logDepth === true,
+    });
   }
 
   protected buildVertexShader(): void {
@@ -42,9 +49,11 @@ export class ThickLinesDrawColorTechnique extends DrawTechnique {
     this.vsSlicingDeclarations();
     this.vsDrawFlatColorDeclarations();
     this.vsThickLineDeclarations();
+    this.vsLogDepthDeclarations();
     this.vsThickLineMain();
     this.vsDrawFlatColorLogic();
     this.vsSlicingLogic();
+    this.vsLogDepthLogic();
     this.vsMainEnd();
   }
 

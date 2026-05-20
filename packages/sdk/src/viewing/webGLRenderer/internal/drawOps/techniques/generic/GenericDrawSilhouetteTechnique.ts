@@ -8,8 +8,15 @@ export class GenericDrawSilhouetteTechnique extends DrawTechnique {
 
   public readonly vertsPerPrim: number;
 
-  constructor(renderContext, gpuMemoryReader, vertsPerPrim: number) {
-    super(renderContext, gpuMemoryReader);
+  constructor(
+    renderContext,
+    gpuMemoryReader,
+    vertsPerPrim: number,
+    opts: { logDepth?: boolean } = {},
+  ) {
+    super(renderContext, gpuMemoryReader, {
+      logDepth: opts.logDepth === true,
+    });
     this.vertsPerPrim = vertsPerPrim;
   }
 
@@ -18,9 +25,11 @@ export class GenericDrawSilhouetteTechnique extends DrawTechnique {
     this.vsCommonDeclarations();
     this.vsSlicingDeclarations();
     this.vsSilhouetteDeclarations();
+    this.vsLogDepthDeclarations();
     this.vsMainBegin();
     this.vsSilhouetteLogic();
     this.vsSlicingLogic();
+    this.vsLogDepthLogic();
     this.vsMainEnd();
   }
 

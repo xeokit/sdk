@@ -218,6 +218,14 @@ export abstract class DrawTechnique {
   public thickLines: boolean;
 
   /**
+   * When `true`, the technique's compiled vertex shader rewrites
+   * `gl_Position.z` for a logarithmic depth-buffer mapping. See
+   * the constructor's `logDepth` config field for the
+   * permutation contract and which techniques opt in.
+   */
+  public logDepth: boolean;
+
+  /**
    * Vertex shader source code. Available after `init()` is called.
    */
   public vertexShaderSrc: string;
@@ -281,6 +289,14 @@ export abstract class DrawTechnique {
     sectionPlanes: WebGLUniformLocation | null;
     sectionPlaneCount: WebGLUniformLocation | null;
     projMatrix: WebGLUniformLocation;
+    /**
+     * Logarithmic-depth coefficient (`2 / log2(far + 1)`). Only
+     * populated when {@link logDepth} is true on the technique;
+     * the VS's `vsLogDepthLogic` snippet reads it to rewrite
+     * `gl_Position.z`. Updated once per frame from
+     * `view.camera.perspectiveProjection.far`.
+     */
+    logDepthCoef: WebGLUniformLocation | null;
     lightPos: WebGLUniformLocation[];
     lightDir: WebGLUniformLocation[];
     lightColor: WebGLUniformLocation[];
@@ -377,6 +393,21 @@ export abstract class DrawTechnique {
     hasUVs?: boolean,
     triplanar?: boolean,
     thickLines?: boolean,
+    /**
+     * Permutation flag. When `true`, the technique's vertex
+     * shader rewrites `gl_Position.z` so the depth-buffer mapping
+     * becomes *logarithmic* in view-space distance — same trick
+     * Cesium / Three.js use to get usable depth resolution across
+     * scenes that span huge distance ranges (UTM-scale terrain +
+     * close-up BIM, archipelagos, infinite landscapes). Done
+     * vertex-side so early-Z stays on; mid-triangle depth is
+     * linearly interpolated (fine for typical BIM-shaped meshes).
+     *
+     * Default `false`. Picking / snap / shadow-depth techniques
+     * deliberately stay linear; their depth read-back math
+     * would have to grow a `log2` term to match.
+     */
+    logDepth?: boolean,
   } = {
     edges: false,
     picking: false,
@@ -385,6 +416,7 @@ export abstract class DrawTechnique {
     hasUVs: false,
     triplanar: false,
     thickLines: false,
+    logDepth: false,
   }) {
     if (cfg.picking && cfg.edges) { // Edges are an un-pickable visual effect
       throw new Error("Invalid DrawTechnique configuration: cannot have both picking and edges enabled.");
@@ -404,6 +436,7 @@ export abstract class DrawTechnique {
     this.hasUVs = cfg.hasUVs === true;
     this.triplanar = cfg.triplanar === true;
     this.thickLines = cfg.thickLines === true;
+    this.logDepth = cfg.logDepth === true;
     this._program = null;
   }
 
@@ -484,6 +517,7 @@ export abstract class DrawTechnique {
       renderPass: program.getLocation("uRenderPass"),
       gammaFactor: program.getLocation("uGammaFactor"),
       projMatrix: program.getLocation("uProjMatrix"),
+      logDepthCoef: program.getLocation("uLogDepthCoef"),
       snapCameraEyeRTC: program.getLocation("snapCameraEyeRTC"),
       perspectivePoints: program.getLocation("uPerspectivePoints"),
       perspectivePointsMinMax: program.getLocation("uPerspectivePointsMinMax"),
@@ -1504,6 +1538,65 @@ void main(void) {`);
    */
   protected vsEdgeDepthBiasLogic() {
     this._vertSrcBuf.push("    gl_Position.z -= 2.0e-5 * gl_Position.w;");
+  }
+
+  /**
+   * Declare the uniform consumed by {@link vsLogDepthLogic}.
+   * No-op when {@link logDepth} is false on the technique, so a
+   * technique that calls both this and {@link vsLogDepthLogic}
+   * is identical to its non-log-depth sibling at the source
+   * level — meaning no behavioural change until the technique
+   * is constructed with `logDepth: true`.
+   *
+   * Emit AFTER {@link vsHeader} (so the version directive is in
+   * place) and before {@link vsMainBegin}.
+   */
+  protected vsLogDepthDeclarations() {
+    if (!this.logDepth) return;
+    // `uLogDepthCoef = 2 / log2(far + 1)` is uploaded once per
+    // frame from `view.camera.perspectiveProjection.far` (see
+    // the upload routine that ends at `gl.uniform1f(uniforms.logDepthCoef, …)`).
+    this._vertSrcBuf.push("uniform float uLogDepthCoef;");
+  }
+
+  /**
+   * Rewrite `gl_Position.z` so the depth buffer becomes
+   * logarithmic in view-space distance. Identical math to
+   * Cesium / Three.js — collapses 1/z's near-clip-clustered
+   * precision into something usable across scenes that span
+   * UTM-scale distances + close-up BIM. Done in the vertex
+   * shader so early-Z stays on; mid-triangle depth interpolates
+   * linearly across the rasterised triangle, which is fine for
+   * BIM-shaped geometry (small, lots of edges) and noticeable
+   * only on truly huge horizon-spanning triangles.
+   *
+   * No-op when {@link logDepth} is false — calling this from a
+   * technique's `buildVertexShader` costs nothing on the
+   * non-log-depth permutation.
+   *
+   * Emit AFTER any earlier writes to `gl_Position.z` (Lambert /
+   * silhouette logic, edge depth bias) so this is the FINAL
+   * value written. If a technique also calls
+   * {@link vsEdgeDepthBiasLogic}, call this FIRST so the
+   * subsequent bias subtracts from the already-log-mapped z;
+   * the bias is still effective in NDC units after this
+   * transform.
+   */
+  protected vsLogDepthLogic() {
+    if (!this.logDepth) return;
+    // gl_Position.w == -view-z for the standard perspective
+    // matrix, so `1 + gl_Position.w` is the view-space depth.
+    // The `max(1e-6, …)` clamps anything at-or-behind the
+    // near-plane edge case where w could land ≤ 0 (degenerate;
+    // shouldn't happen with sane geometry, but cheap insurance
+    // against a single bad vertex NaN-ing the rest of the
+    // primitive).
+    this._vertSrcBuf.push(
+      "    {",
+      "      float _logZ = log2(max(1.0e-6, 1.0 + gl_Position.w)) * uLogDepthCoef - 1.0;",
+      "      gl_Position.z = _logZ * gl_Position.w;",
+      "    }",
+    );
   }
 
   /**
@@ -4037,6 +4130,17 @@ ${this.triplanar ? `
     if (uniforms.pickZNear) {
       gl.uniform1f(uniforms.pickZNear, renderContext.pickZNear);
       gl.uniform1f(uniforms.pickZFar, renderContext.pickZFar);
+    }
+
+    if (uniforms.logDepthCoef) {
+      // Coefficient `Fcoef = 2 / log2(far + 1)` — same form Cesium
+      // and Three.js use for logarithmic depth. Read the camera's
+      // own far plane so a per-View override on the projection
+      // (the archipelago example sets far = 90 000) feeds through
+      // automatically. Default far stays around 2000 for typical
+      // BIM scenes, which is fine.
+      const far = view.camera.perspectiveProjection.far;
+      gl.uniform1f(uniforms.logDepthCoef, 2.0 / Math.log2(far + 1.0));
     }
 
     if (uniforms.drawingBufferSize) {

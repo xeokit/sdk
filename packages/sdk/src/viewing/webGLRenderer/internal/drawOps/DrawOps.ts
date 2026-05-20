@@ -155,8 +155,18 @@ export class DrawOps {
     // A draw op applies a draw technique to a specific render pass.
     // E.g. the silhouetteTechnique draw technique is used for highlighted, selected and xrayed triangles.
 
-    const linesDrawSilhouette = saveForCleanup(new GenericDrawSilhouetteTechnique(renderContext, gpuMemoryReader, 2));
-    const trianglesSilhouette = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader));
+    // Logarithmic depth buffer — opt every camera-visible
+    // technique (colour, edges, silhouette, lines, points) into
+    // the vertex-side log-depth permutation so depth precision
+    // stays usable across scenes with huge near/far ratios
+    // (UTM-scale terrain + close-up BIM, archipelagos, infinite
+    // landscapes). Picking / snap / shadow-depth techniques
+    // deliberately stay linear — their depth read-back math
+    // would have to grow a `log2` term to match.
+    const LOG_DEPTH = false;
+
+    const linesDrawSilhouette = saveForCleanup(new GenericDrawSilhouetteTechnique(renderContext, gpuMemoryReader, 2, {logDepth: LOG_DEPTH}));
+    const trianglesSilhouette = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH}));
     // Lambert colour techniques exist as 6-way variants on the
     // `(hasNormals, hasUVs, triplanar)` axes (`hasUVs && triplanar`
     // excluded by construction). The DrawOp picks at draw time via
@@ -164,13 +174,16 @@ export class DrawOps {
     // that don't carry an attribute don't pay for shaders that
     // sample it. Each helper below returns a `DrawOpVariants`
     // object the DrawOp wires straight into its 6-slot lookup.
+    //
+    // `logDepth` is folded into every variant — it's a global
+    // depth-precision choice, not a per-batch axis.
     const lambertVariants = <T extends new (...args: any[]) => any>(Cls: T) => ({
-      technique:               saveForCleanup(new Cls(renderContext, gpuMemoryReader)),
-      withNormals:             saveForCleanup(new Cls(renderContext, gpuMemoryReader, {hasNormals: true})),
-      withUVs:                 saveForCleanup(new Cls(renderContext, gpuMemoryReader, {hasUVs: true})),
-      withNormalsAndUVs:       saveForCleanup(new Cls(renderContext, gpuMemoryReader, {hasNormals: true, hasUVs: true})),
-      withTriplanar:           saveForCleanup(new Cls(renderContext, gpuMemoryReader, {triplanar: true})),
-      withNormalsAndTriplanar: saveForCleanup(new Cls(renderContext, gpuMemoryReader, {hasNormals: true, triplanar: true})),
+      technique:               saveForCleanup(new Cls(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH})),
+      withNormals:             saveForCleanup(new Cls(renderContext, gpuMemoryReader, {hasNormals: true, logDepth: LOG_DEPTH})),
+      withUVs:                 saveForCleanup(new Cls(renderContext, gpuMemoryReader, {hasUVs: true, logDepth: LOG_DEPTH})),
+      withNormalsAndUVs:       saveForCleanup(new Cls(renderContext, gpuMemoryReader, {hasNormals: true, hasUVs: true, logDepth: LOG_DEPTH})),
+      withTriplanar:           saveForCleanup(new Cls(renderContext, gpuMemoryReader, {triplanar: true, logDepth: LOG_DEPTH})),
+      withNormalsAndTriplanar: saveForCleanup(new Cls(renderContext, gpuMemoryReader, {hasNormals: true, triplanar: true, logDepth: LOG_DEPTH})),
     });
     const trianglesDrawColor          = lambertVariants(TrianglesDrawColorTechnique);
     const trianglesDrawColorSAO       = lambertVariants(TrianglesDrawColorSAOTechnique);
@@ -180,10 +193,10 @@ export class DrawOps {
     // No Lambert / PBR, no SAO, no shadow — fragment colour comes straight
     // from `MeshViewAttributes.color`. Single variant (none of the
     // hasNormals / hasUVs / triplanar axes are sampled).
-    const trianglesDrawColorFlat = saveForCleanup(new TrianglesDrawColorFlatTechnique(renderContext, gpuMemoryReader));
+    const trianglesDrawColorFlat = saveForCleanup(new TrianglesDrawColorFlatTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH}));
     const trianglesShadowDepth = saveForCleanup(new TrianglesShadowDepthTechnique(renderContext, gpuMemoryReader));
-    const trianglesDrawEdgeSilhouette = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader));
-    const trianglesDrawEdgeColor = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader));
+    const trianglesDrawEdgeSilhouette = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH}));
+    const trianglesDrawEdgeColor = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH}));
     const trianglesPickMesh = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 3));
     // Thick-line pick — same quad-expansion as the colour pass,
     // so the pickable region matches what the user sees as the
@@ -191,8 +204,8 @@ export class DrawOps {
     // GenericPickMeshTechnique would write).
     const linesPickMesh = saveForCleanup(new ThickLinesPickMeshTechnique(renderContext, gpuMemoryReader));
     const pointsPickMesh = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 1));
-    const linesDrawColor = saveForCleanup(new ThickLinesDrawColorTechnique(renderContext, gpuMemoryReader));
-    const pointsDrawColor = saveForCleanup(new PointsDrawColorTechnique(renderContext, gpuMemoryReader));
+    const linesDrawColor = saveForCleanup(new ThickLinesDrawColorTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH}));
+    const pointsDrawColor = saveForCleanup(new PointsDrawColorTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH}));
     const trianglesSnapInit   = saveForCleanup(new TrianglesSnapInitTechnique(renderContext, gpuMemoryReader));
     const trianglesSnapVertex = saveForCleanup(new TrianglesSnapTechnique(renderContext, gpuMemoryReader, 1));
     const trianglesSnapEdge   = saveForCleanup(new TrianglesSnapTechnique(renderContext, gpuMemoryReader, 2));

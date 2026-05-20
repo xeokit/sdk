@@ -14,9 +14,11 @@ export class PointsDrawSilhouetteTechnique extends DrawTechnique {
     this.vsCommonDeclarations();
     this.vsSlicingDeclarations();
     this.vsSilhouetteDeclarations();
+    this.vsLogDepthDeclarations();
     this.vsMainBegin();
     this.vsSilhouetteLogic();
     this.vsSlicingLogic();
+    this.vsLogDepthLogic();
     this.vsMainEnd();
   }
 

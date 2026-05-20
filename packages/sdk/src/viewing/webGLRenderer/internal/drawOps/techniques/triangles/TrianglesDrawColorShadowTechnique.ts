@@ -18,11 +18,13 @@ export class TrianglesDrawColorShadowTechnique extends DrawTechnique {
     this.vsLambertShadingDeclarations();
     this.vsDrawShadowDeclarations();
     if (hatch) this.vsHatchDeclarations();
+    this.vsLogDepthDeclarations();
     this.vsMainBegin();
     this.vsLambertShadingLogic();
     if (hatch) this.vsHatchLogic();
     this.vsSlicingLogic();
     this.vsDrawShadowLogic();
+    this.vsLogDepthLogic();
     this.vsMainEnd();
   }
 

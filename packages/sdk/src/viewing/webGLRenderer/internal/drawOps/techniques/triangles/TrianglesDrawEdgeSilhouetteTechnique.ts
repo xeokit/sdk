@@ -11,8 +11,15 @@ export class TrianglesDrawEdgeSilhouetteTechnique extends DrawTechnique {
 
   public readonly vertsPerPrim = 2; // edge indices are line segments
 
-  constructor(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader) {
-    super(renderContext, gpuMemoryReader, { edges: true });
+  constructor(
+    renderContext: RenderContext,
+    gpuMemoryReader: GPUMemoryReader,
+    opts: { logDepth?: boolean } = {},
+  ) {
+    super(renderContext, gpuMemoryReader, {
+      edges: true,
+      logDepth: opts.logDepth === true,
+    });
   }
 
   protected buildVertexShader(): void {
@@ -24,10 +31,12 @@ export class TrianglesDrawEdgeSilhouetteTechnique extends DrawTechnique {
     this.vsSlicingDeclarations();
     this.vsSilhouetteDeclarations();
     this.vsEdgeFadeDeclarations();
+    this.vsLogDepthDeclarations();
     this.vsMainBegin();
     this.vsSilhouetteLogic();
     this.vsEdgeFadeLogic();
     this.vsSlicingLogic();
+    this.vsLogDepthLogic();
     this.vsMainEnd();
   }
 

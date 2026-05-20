@@ -15,10 +15,12 @@ export class PointsDrawColorTechnique extends DrawTechnique {
     this.vsSlicingDeclarations();
     this.vsDrawVertexColorDeclarations();
     this.vsPointsDeclarations();
+    this.vsLogDepthDeclarations();
     this.vsMainBegin();
     this.vsDrawVertexColorLogic();
     this.vsSlicingLogic();
     this.vsPointsGeometryLogic();
+    this.vsLogDepthLogic();
     this.vsMainEnd();
   }
 

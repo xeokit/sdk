@@ -13,9 +13,11 @@ export class LinesDrawColorTechnique extends DrawTechnique {
     this.vsCommonDeclarations();
     this.vsSlicingDeclarations();
     this.vsDrawFlatColorDeclarations();
+    this.vsLogDepthDeclarations();
     this.vsMainBegin();
     this.vsDrawFlatColorLogic();
     this.vsSlicingLogic();
+    this.vsLogDepthLogic();
     this.vsMainEnd();
   }
 

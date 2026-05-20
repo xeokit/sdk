@@ -14,10 +14,12 @@ export class TrianglesDrawColorTechnique extends DrawTechnique {
     this.vsSlicingDeclarations();
     this.vsLambertShadingDeclarations();
     if (this._hatchInBody()) this.vsHatchDeclarations();
+    this.vsLogDepthDeclarations();
     this.vsMainBegin();
     this.vsLambertShadingLogic();
     if (this._hatchInBody()) this.vsHatchLogic();
     this.vsSlicingLogic();
+    this.vsLogDepthLogic();
     this.vsMainEnd();
   }
 

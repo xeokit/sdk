@@ -15,10 +15,12 @@ export class TrianglesDrawColorSAOTechnique extends DrawTechnique {
     this.vsSlicingDeclarations();
     this.vsLambertShadingDeclarations();
     if (hatch) this.vsHatchDeclarations();
+    this.vsLogDepthDeclarations();
     this.vsMainBegin();
     this.vsLambertShadingLogic();
     if (hatch) this.vsHatchLogic();
     this.vsSlicingLogic();
+    this.vsLogDepthLogic();
     this.vsMainEnd();
   }
 

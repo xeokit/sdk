@@ -31,8 +31,10 @@ export class TrianglesDrawColorFlatTechnique extends DrawTechnique {
     this.vsHeader();
     this.vsCommonDeclarations();
     this.vsDrawFlatColorDeclarations();
+    this.vsLogDepthDeclarations();
     this.vsMainBegin();
     this.vsDrawFlatColorLogic();
+    this.vsLogDepthLogic();
     this.vsMainEnd();
   }
 

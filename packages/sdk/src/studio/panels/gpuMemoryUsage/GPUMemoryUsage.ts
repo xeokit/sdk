@@ -21,6 +21,7 @@
  * @module demo/gpuMemoryUsage
  */
 import type {WebGLRenderer, MemoryUsage, MemoryConfigs} from "../../../viewing/webGLRenderer";
+import {clamp} from "../../../base/math";
 
 
 import {el} from "../../utils/el";
@@ -785,10 +786,6 @@ function appendSubsection(host: HTMLElement, title: string, rows: Array<[string,
     table.appendChild(tr);
   }
   host.appendChild(table);
-}
-
-function clamp(v: number, lo: number, hi: number): number {
-  return Math.max(lo, Math.min(hi, v));
 }
 
 function formatNumber(v: any): string {

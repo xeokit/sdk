@@ -13,6 +13,7 @@
  */
 
 import {SDKErrorType, type SDKResult} from "../../base/core";
+import {clamp01} from "../../base/math";
 import {inverseMat4, transformPoint3} from "../../base/math/matrix";
 import type {Vec3} from "../../base/math/vector";
 import type {PaintHeatMapPointParams} from "./PaintHeatMapPointParams";
@@ -185,10 +186,6 @@ export function paintHeatMapPoint(
   };
 }
 
-
-function clamp01(v: number): number {
-  return v < 0 ? 0 : v > 1 ? 1 : v;
-}
 
 function errInvalid<T>(message: string): SDKResult<T> {
   return {ok: false, type: SDKErrorType.InvalidOperation, error: message};

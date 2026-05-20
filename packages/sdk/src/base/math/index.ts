@@ -126,6 +126,17 @@ export function clamp(value: number, min: number, max: number): number {
 }
 
 /**
+ * Clamps a value to the unit range `[0, 1]`. Equivalent to
+ * `clamp(value, 0, 1)` but inlined so call sites read as
+ * "clamp to unit range" without binding `0` and `1` arguments
+ * explicitly — useful for colour channels, opacity, alpha
+ * masks, and any other normalised-range scalar.
+ */
+export function clamp01(value: number): number {
+  return value < 0 ? 0 : value > 1 ? 1 : value;
+}
+
+/**
  * Creates a new {@link FloatArrayParam} instance.
  *
  * @param values Optional initial values.

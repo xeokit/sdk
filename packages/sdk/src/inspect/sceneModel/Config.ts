@@ -1,3 +1,5 @@
+import {clamp} from "../../base/math";
+
 /**
  * Declarative configuration schemas for {@link Inspection} and
  * {@link Fix}.
@@ -136,7 +138,10 @@ export function resolveConfig(
       out[f.key] = typeof raw === "boolean" ? raw : f.default;
     } else if (f.kind === "number") {
       const n = typeof raw === "number" && Number.isFinite(raw) ? raw : f.default;
-      out[f.key] = clamp(n, f.min, f.max);
+      // Schema-field bounds are optional; substitute ±Infinity so
+      // the canonical clamp from `base/math` (which requires both
+      // bounds) collapses to a no-op when neither is supplied.
+      out[f.key] = clamp(n, f.min ?? -Infinity, f.max ?? Infinity);
     } else {
       out[f.key] = typeof raw === "string" && f.options.some(o => o.value === raw)
         ? raw
@@ -148,8 +153,3 @@ export function resolveConfig(
 }
 
 
-function clamp(v: number, min?: number, max?: number): number {
-  if (min !== undefined && v < min) return min;
-  if (max !== undefined && v > max) return max;
-  return v;
-}

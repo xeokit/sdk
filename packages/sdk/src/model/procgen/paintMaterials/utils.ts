@@ -21,7 +21,15 @@
  * @internal
  */
 
+import {clamp01} from "../../../base/math";
 import type {MaterialPixelBuffer} from "./MaterialPixelBuffer";
+
+// Re-export `clamp01` so every painter in this folder can keep
+// importing it from `./utils` alongside the painter-specific
+// helpers (`flatMR`, `flatNormal`, `newPixelBuffer`, …) without
+// having to learn a separate import path. The canonical
+// implementation lives in `base/math`.
+export {clamp01};
 
 // ---------------------------------------------------------------------
 // Pixel-buffer plumbing
@@ -38,11 +46,6 @@ export function newPixelBuffer(size: number): MaterialPixelBuffer {
   // A in their inner loop.
   for (let i = 3, n = data.length; i < n; i += 4) data[i] = 255;
   return {data, width: size, height: size};
-}
-
-/** Clamp `v` to the closed interval `[0, 1]`. */
-export function clamp01(v: number): number {
-  return v < 0 ? 0 : v > 1 ? 1 : v;
 }
 
 // ---------------------------------------------------------------------

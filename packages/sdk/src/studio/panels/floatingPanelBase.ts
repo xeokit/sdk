@@ -42,6 +42,7 @@
  */
 import {EventDispatcher} from "strongly-typed-events";
 import {EventEmitter} from "../../base/core";
+import {clamp} from "../../base/math";
 import {bringFloatingPanelToFront} from "./floatingPanelZ";
 import {registerPill, unregisterPill} from "./floatingPanelPillRail";
 import {
@@ -96,6 +97,16 @@ export interface FloatingPanelBaseParams {
 
   /** Minimum height the resize handles will allow, in CSS pixels. Default 200. */
   minHeight?: number;
+
+  /**
+   * Z-index tier the panel lives in. `"view"` panels (hosted
+   * Views) always sit beneath `"default"` panels (regular demo
+   * panels and dialogs); within each tier panels still reorder
+   * on click via {@link bringFloatingPanelToFront}. Defaults to
+   * `"default"`. See {@link demo/floatingPanelZ} for the
+   * counter ranges.
+   */
+  tier?: "view" | "default";
 }
 
 
@@ -146,6 +157,7 @@ export abstract class FloatingPanelBase {
   protected readonly _resizable: boolean;
   protected readonly _minWidth: number;
   protected readonly _minHeight: number;
+  protected readonly _tier: "view" | "default";
   protected _destroyed = false;
 
   private _dragging = false;
@@ -177,6 +189,7 @@ export abstract class FloatingPanelBase {
     this._resizable = params.resizable !== false && !this._modal;
     this._minWidth  = params.minWidth  ?? 280;
     this._minHeight = params.minHeight ?? 200;
+    this._tier = params.tier ?? "default";
   }
 
 
@@ -199,6 +212,10 @@ export abstract class FloatingPanelBase {
   protected _bindChrome(): void {
     if (this._chromeBound) return;
     this._chromeBound = true;
+
+    // Tag the panel so `bringFloatingPanelToFront` routes it to
+    // the right z-tier counter on every pointerdown / show.
+    this._panel.setAttribute("data-xkt-tier", this._tier);
 
     registerFloatingPanel(this._panel);
     // Modal panels never surface a reopen pill — they're
@@ -422,6 +439,44 @@ export abstract class FloatingPanelBase {
     return this._panel.style.display !== "none";
   }
 
+  /**
+   * Engage the header drag from an external pointerdown / move
+   * event so the panel begins following `ev` immediately. Used by
+   * the drag-to-undock gesture on docked View cells — the cell's
+   * own pointer listener detects motion-past-threshold, replaces
+   * the cell with this freshly-created floating panel, and hands
+   * the live pointer over via this method.
+   *
+   * The panel is reflowed so the pointer sits inside its header at
+   * `(panelOffsetX, panelOffsetY)` from the panel's top-left. Then
+   * `setPointerCapture` routes all subsequent `pointermove` /
+   * `pointerup` events for this pointerId to the panel's own
+   * header, where {@link _bindChrome}'s existing listeners drive
+   * the drag — no parallel drag loop required.
+   */
+  beginHeaderDragFromPointer(
+    ev: PointerEvent,
+    panelOffsetX?: number,
+    panelOffsetY?: number,
+  ): void {
+    if (this._destroyed) return;
+    const w = this._panel.offsetWidth  || 480;
+    const h = this._panel.offsetHeight || 360;
+    const offX = panelOffsetX ?? Math.min(w / 2, 120);
+    const offY = panelOffsetY ?? 14;
+    this._dragOffsetX = offX;
+    this._dragOffsetY = offY;
+    this._panel.style.right     = "auto";
+    this._panel.style.bottom    = "auto";
+    this._panel.style.left      = `${ev.clientX - offX}px`;
+    this._panel.style.top       = `${ev.clientY - offY}px`;
+    this._panel.style.transform = "none";
+    this._dragging = true;
+    this._header.classList.add(`${this._classPrefix}-dragging`);
+    try { this._header.setPointerCapture(ev.pointerId); } catch { /* ignore */ }
+    this.onLayoutChanged.dispatch(this, undefined);
+  }
+
   /** Reveal the panel; hide the floating reopen pill. */
   show(): void {
     if (this._destroyed) return;
@@ -606,8 +661,4 @@ export abstract class FloatingPanelBase {
 
 function isPixelLength(value: string): boolean {
   return /^-?\d+(\.\d+)?px$/.test(value);
-}
-
-function clamp(v: number, lo: number, hi: number): number {
-  return Math.max(lo, Math.min(hi, v));
 }

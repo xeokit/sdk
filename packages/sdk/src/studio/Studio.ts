@@ -11,6 +11,7 @@ import type {ImportProvenance} from "./panels/modelsPanel/ImportProvenance";
 // `issuesPanel` entry always reveals (visible: true), so the init
 // case stays direct.
 import {IssuesPanel} from "./panels/issuesPanel/IssuesPanel";
+import {InfoPanel, type InfoPanelParams} from "./panels/infoPanel";
 import {LoaderProgressDialog} from "./dialogs/LoaderProgressDialog";
 import {createUUID} from "../base/utils";
 import {
@@ -39,6 +40,21 @@ import {encodeRadianceHDR, paintSunSkyHDR} from "../model/procgen/paintEnvironme
 import {getScenePhysics, type ScenePhysics} from "../simulation/physics";
 
 const taskRunner = getGlobalTaskRunner();
+
+/**
+ * Tiny HTML escaper used by {@link Studio.openInfoPanelFromMeta}
+ * — example metadata `description` strings are author-trusted but
+ * may contain stray angle brackets that the InfoPanel would
+ * otherwise interpret as markup. Output is wrapped in a `<p>` by
+ * the caller, so no need to handle newlines here.
+ */
+function escapeHtmlForInfoPanel(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
 /**
  * Configuration options for the Studio.
@@ -185,6 +201,13 @@ export class Studio {
   // Rapier load + ScenePhysics setup.
   private _demolitionPhysics?: ScenePhysics;
   private _demolitionRaf: number | null = null;
+
+  /**
+   * Singleton InfoPanel managed by {@link openInfoPanel}. Each call
+   * destroys the previous panel before constructing a fresh one, so
+   * an example always has at most one info card on screen.
+   */
+  private _infoPanel: InfoPanel | null = null;
 
   /**
    * Statistics about the demo, available after calling `finished()`.
@@ -354,12 +377,13 @@ export class Studio {
         // @ts-ignore
         window.studio = this;
 
-        // Auto-mount the Toolbar. After the menu restructure
-        // (Phase 1) the Toolbar is the only UI surface that
-        // exposes the Measure cluster, NavCube, Views, and the
-        // other tool toggles, so mounting it on init makes those
-        // affordances reachable by default. Hidden state is
-        // recoverable via the floating reopen pill.
+        // Auto-mount the Toolbar but start it HIDDEN — the only UI
+        // surface that's visible by default is the reopen pill in
+        // the bottom-right rail. This keeps the canvas unobstructed
+        // for embeds and screenshots while leaving the Measure
+        // cluster, NavCube, Views and other tool toggles one click
+        // away. Visibility default lives in `builtinPanels.ts` as
+        // `visible: false` on the toolbar provider's `create`.
         try {
           this.panels.open("toolbar");
         } catch (e: any) {
@@ -1020,6 +1044,84 @@ export class Studio {
           : `[Studio.loadDataset] ${err && err.message || err}`,
       };
     }
+  }
+
+  /**
+   * Open the floating per-example info panel. Single-instance:
+   * a second call destroys the previously-opened panel before
+   * constructing a fresh one, so an example always has at most
+   * one info card on screen. The caller gets the panel handle
+   * back and uses its imperative builders to populate it:
+   *
+   * ```ts
+   * const info = studio.openInfoPanel({
+   *   id:          "viewing_sectionPlane_duplex",
+   *   title:       "Section Caps — Duplex",
+   *   description: "<p>Drag the slider to move the cut plane.</p>",
+   * });
+   * info.addToggle({ label: "Section plane", value: true,
+   *                  onChange: v => sp.active = v });
+   * info.addSlider({ label: "Cut Z (m)", min: 0, max: 5,
+   *                  value: 2.6, onChange: rebuildCaps });
+   * info.addStat  ({ id: "caps", label: "Cap meshes" });
+   * // …later:
+   * info.setStat("caps", String(result.numCapMeshes));
+   * ```
+   *
+   * Layout / chrome notes:
+   * - Default position is top-left so the panel doesn't compete
+   *   with the built-in panels that cluster top-right.
+   * - Non-modal: scene interaction passes through the body.
+   * - Per-example `localStorage` slot via {@link InfoPanelParams.id}.
+   */
+  public openInfoPanel(params: InfoPanelParams = {}): InfoPanel {
+    // `destroy()` on the base is idempotent — safe to call on a
+    // panel that may already be destroyed.
+    this._infoPanel?.destroy();
+    this._infoPanel = new InfoPanel(params);
+    return this._infoPanel;
+  }
+
+  /**
+   * Open an InfoPanel pre-populated from the example's own
+   * `index.json` metadata. Single line for every example:
+   *
+   * ```ts
+   * const info = await studio.openInfoPanelFromMeta();
+   * info.addToggle({...});   // optional — chain controls if needed
+   * ```
+   *
+   * Fetches `./index.json` (relative to the current page URL) and
+   * uses its `id`, `title`, and `description` fields to build the
+   * panel. If the fetch fails or the JSON is malformed, the
+   * promise still resolves with a generic panel rather than
+   * rejecting — examples never break because of a missing
+   * metadata file.
+   *
+   * Callers that need richer descriptions or want to override
+   * the metadata can pass `override` props that win over
+   * the fetched fields.
+   */
+  public async openInfoPanelFromMeta(
+    override: Partial<InfoPanelParams> = {},
+  ): Promise<InfoPanel> {
+    let meta: { id?: string; title?: string; description?: string } | null = null;
+    try {
+      const url = new URL("./index.json", window.location.href).href;
+      const res = await fetch(url);
+      if (res.ok) meta = await res.json();
+    } catch {
+      /* fall through — the panel still opens with a default title */
+    }
+    const params: InfoPanelParams = {
+      id:          override.id          ?? meta?.id,
+      title:       override.title       ?? meta?.title       ?? "Info",
+      description: override.description ?? (meta?.description
+        ? `<p>${escapeHtmlForInfoPanel(meta.description)}</p>`
+        : undefined),
+      container:   override.container,
+    };
+    return this.openInfoPanel(params);
   }
 
   /**

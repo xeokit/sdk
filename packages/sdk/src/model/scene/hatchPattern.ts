@@ -25,6 +25,7 @@
  */
 
 import {type Vec3} from "../../base/math/vector";
+import {clamp01} from "../../base/math";
 
 /**
  * Named hatch-pattern presets, mirroring common ANSI / ISO
@@ -432,6 +433,3 @@ function validateFamilies(families: HatchFamily[]): boolean {
   return true;
 }
 
-function clamp01(v: number): number {
-  return v < 0 ? 0 : v > 1 ? 1 : v;
-}

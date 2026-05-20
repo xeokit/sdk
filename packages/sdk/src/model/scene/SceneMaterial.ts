@@ -2,6 +2,7 @@ import type {SceneTexture} from "./SceneTexture";
 import type {SceneMaterialParams} from "./SceneMaterialParams";
 import type {SceneModel} from "./SceneModel";
 import {createVec3Float32, type Vec3} from "../../base/math/vector";
+import {clamp01} from "../../base/math";
 import {SDKErrorType, type SDKResult} from "../../base/core";
 import {
   type LineStyle,
@@ -17,9 +18,6 @@ import {
   normaliseHatchPattern,
 } from "./hatchPattern";
 
-function clamp01(v: number): number {
-  return v < 0 ? 0 : v > 1 ? 1 : v;
-}
 
 /**
  * A set of {@link SceneTexture | Textures} in a {@link SceneModel | SceneModel}.

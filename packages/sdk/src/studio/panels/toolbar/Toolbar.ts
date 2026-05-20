@@ -582,6 +582,14 @@ export class Toolbar extends FloatingPanelBase {
     this._bindChrome();
     this._wireDomEvents();
 
+    // The Toolbar's pill stays visible at all times — it doubles
+    // as a permanent landmark in the side rail rather than just a
+    // "panel was minimised" affordance. _bindChrome restores the
+    // base's `hidden=true` when the toolbar opens from
+    // localStorage; we override that here. See the `show()`
+    // override below for the same handling on every reopen.
+    this._pill.hidden = false;
+
     // Mirror the active ViewController's current navMode into the
     // First-Person button so the toolbar reflects pre-existing
     // state if the host configured the controller before mounting.
@@ -607,6 +615,10 @@ export class Toolbar extends FloatingPanelBase {
   show(): void {
     if (this._destroyed) return;
     super.show();
+    // Base sets `_pill.hidden = true` on every show. Override
+    // that so the Toolbar's pill stays in the rail as a fixed
+    // landmark even when the toolbar itself is open.
+    this._pill.hidden = false;
   }
 
   hide(): void {

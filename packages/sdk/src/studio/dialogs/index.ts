@@ -7,3 +7,4 @@
  * @module demo/dialogs
  */
 export * from "./LoaderProgressDialog";
+export * from "./ConfirmDialog";

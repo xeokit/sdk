@@ -20,6 +20,7 @@
  * @module demo/dataTexturesPanel
  */
 import type {DataTextures} from "../../../viewing/webGLRenderer/internal/gpuMemoryManager/DataTextures";
+import {clamp01} from "../../../base/math";
 
 import {el} from "../../utils/el";
 import {FloatingPanelBase} from "../floatingPanelBase";
@@ -1468,10 +1469,6 @@ function glEnumName(gl: WebGL2RenderingContext, v: number): string {
 function toNumber(v: any, fallback = 0): number {
   const n = Number(v);
   return Number.isFinite(n) ? n : fallback;
-}
-
-function clamp01(x: number): number {
-  return Math.max(0, Math.min(1, x));
 }
 
 /**

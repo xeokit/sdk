@@ -254,7 +254,13 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
 
   registry.register("toolbar", {
     find:   (ctx) => Toolbar.getFor(ctx.studio.viewer),
-    create: (ctx) => Toolbar.openFor({viewer: ctx.studio.viewer, studio: ctx.studio}),
+    // Initial mount starts hidden — only the reopen pill in the
+    // bottom-right rail is visible by default. Subsequent
+    // `panels.open("toolbar")` calls (from menus, hotkeys, etc.)
+    // hit the existing-instance branch in `PanelRegistry.open` and
+    // call `show()` as expected, so this only changes first-mount
+    // behaviour. The user clicks the pill to reveal the toolbar.
+    create: (ctx) => Toolbar.openFor({viewer: ctx.studio.viewer, studio: ctx.studio, visible: false}),
   });
 
   registry.register("viewerConfig", {

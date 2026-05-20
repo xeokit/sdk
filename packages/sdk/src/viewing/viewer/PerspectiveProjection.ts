@@ -304,6 +304,20 @@ export class PerspectiveProjection implements Projection {
     viewPos[2] = tempVec4b[2];
 
     tempVec4b[1] *= -1;
+    // After the perspective divide above, .xyz holds the
+    // view-space position but .w is still the pre-divide value
+    // (~ 1/-screenZ for a far-plane sample, i.e. tiny). Leaving
+    // it there makes the next `transformPoint4` scale the
+    // inverse-view translation column by that tiny w — so the
+    // camera-eye offset effectively drops out and the returned
+    // worldPos lands in camera-relative space rather than
+    // absolute world. Pinning w to 1 here keeps the translation
+    // intact. Visible as surface picking returning null for any
+    // model whose origin sits far from world zero (UTM-scale
+    // scenes, georeferenced BIM): the ray construction used
+    // worldPos - eye for the direction, and with worldPos
+    // relative to the eye the resulting ray was garbage.
+    tempVec4b[3] = 1;
 
     transformPoint4(this.camera.inverseViewMatrix, tempVec4b, tempVec4c);
 

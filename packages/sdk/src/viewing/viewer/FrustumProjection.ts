@@ -321,6 +321,11 @@ export class FrustumProjection implements Projection {
     viewPos[2] = tempVec4b[2];
 
     tempVec4b[1] *= -1;
+    // See PerspectiveProjection.unproject — without resetting w
+    // to 1 here, the next transformPoint4 scales the inverse-view
+    // translation by the stale perspective-divide w and the
+    // returned worldPos lands in camera-relative space.
+    tempVec4b[3] = 1;
 
     transformPoint4(this.camera.inverseViewMatrix, tempVec4b, tempVec4c);
 

@@ -313,6 +313,12 @@ export class OrthoProjection implements Projection {
     viewPos[2] = tempVec4b[2];
 
     tempVec4b[1] *= -1;
+    // See PerspectiveProjection.unproject for why this is needed —
+    // `mulVec3Scalar` divides .xyz by w but leaves .w stale, and
+    // the subsequent transformPoint4 would otherwise scale the
+    // inverse-view translation by that stale w. Pinning w=1 keeps
+    // the eye offset in the returned world position.
+    tempVec4b[3] = 1;
 
     transformPoint4(this.camera.inverseViewMatrix, tempVec4b, tempVec4c);
 

@@ -681,7 +681,16 @@ export class ExplorerPanel extends FloatingPanelBase {
     if (!aabb) aabb = unionAABB(objs);
     if (!aabb) return;
 
-    this.cameraFlight.jumpTo({aabb, duration: 0.5, fitFOV: 40} as any);
+    // Cinematic AABB-fit flight — matches the canvas / view-object
+    // context-menu "Frame …" actions: parabolic arc along the camera's
+    // look→eye axis, slow → fast → slow speed profile.
+    this.cameraFlight.flyTo({
+      aabb,
+      fitFOV:   45,
+      duration: 0.7,
+      arc:      true,
+      easing:   "inThenOut",
+    } as any);
   }
 
   /**

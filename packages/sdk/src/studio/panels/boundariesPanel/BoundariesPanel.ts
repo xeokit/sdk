@@ -39,6 +39,7 @@
  */
 import type {Scene} from "../../../model/scene";
 import type {View} from "../../../viewing/viewer";
+import type {CameraFlightAnimation} from "../../../viewing/cameraFlight";
 import type {Vec3} from "../../../base/math/vector";
 import type {AABB3} from "../../../base/math/boundaries";
 import {type SceneCollisionIndex, getSceneCollisionIndex} from "../../../spatial/collision";
@@ -60,6 +61,24 @@ export interface BoundariesPanelParams {
    * of the three orthogonal projections.
    */
   view: View;
+
+  /**
+   * {@link CameraFlightAnimation | CameraFlightAnimation} used for
+   * click-to-jump transitions between section centres. Optional —
+   * when omitted the panel falls back to an instant `cam.eye / cam.look`
+   * snap. `cameraFlight` is held on the per-View
+   * {@link studio!viewManager.ViewRecord | ViewRecord}, not the {@link View} itself, so callers that
+   * want the cinematic arc-and-ease flight need to thread it through
+   * explicitly:
+   *
+   * ```ts
+   * const record = studio.viewManager.views[view.id];
+   * BoundariesPanel.openFor({
+   *   scene, view, cameraFlight: record.cameraFlight,
+   * });
+   * ```
+   */
+  cameraFlight?: CameraFlightAnimation;
 
   /** DOM container; defaults to `document.body`. */
   container?: HTMLElement;
@@ -498,6 +517,7 @@ export class BoundariesPanel extends FloatingPanelBase {
 
   readonly scene: Scene;
   readonly view: View;
+  readonly cameraFlight: CameraFlightAnimation | null;
   private readonly _index: SceneCollisionIndex;
 
   // DOM refs.
@@ -549,6 +569,13 @@ export class BoundariesPanel extends FloatingPanelBase {
     });
     this.scene = params.scene;
     this.view  = params.view;
+    // Accept the flight via params (the ViewManager-owned ViewRecord
+    // holds it), and fall back to `view.cameraFlight` in case some
+    // future View grows one as a property. If neither is available,
+    // `_jumpCameraTo` reverts to an instant eye/look snap.
+    this.cameraFlight = params.cameraFlight
+      ?? ((params.view as any).cameraFlight as CameraFlightAnimation | undefined)
+      ?? null;
     this._index = getSceneCollisionIndex(this.scene);
 
     // Replace any prior panel bound to the same Scene — keeps
@@ -1042,9 +1069,27 @@ export class BoundariesPanel extends FloatingPanelBase {
       look[0] + delta[0], look[1] + delta[1], look[2] + delta[2],
     ];
 
-    const flight: any = (this.view as any).cameraFlight;
+    const flight: any = this.cameraFlight;
     if (flight && typeof flight.flyTo === "function") {
-      flight.flyTo({eye: newEye, look: newLook, duration: 0.4});
+      // Cinematic transit between AABB sections:
+      //   - `arc: true` lifts the camera into a parabolic apex along
+      //     its look→eye axis at the flight midpoint, giving a sense
+      //     of travel across the scene rather than a teleport.
+      //   - `easing: "inThenOut"` is the piecewise-quadratic
+      //     slow → fast → slow ease (triangular speed profile) — the
+      //     camera departs and arrives at zero velocity, sweeping
+      //     fastest at t = 0.5.
+      //   - `up: cam.up` is required for the flight's eye/look/up
+      //     interpolation branch to fire; without it `_flyingEyeLookUp`
+      //     stays false and the animation tick has no branch to run.
+      flight.flyTo({
+        eye:      newEye,
+        look:     newLook,
+        up:       Array.from(cam.up),
+        duration: 1.8,
+        arc:      true,
+        easing:   "inThenOut",
+      });
     } else {
       cam.eye  = newEye;
       cam.look = newLook;

@@ -14,10 +14,15 @@ export function createCanvasFrameGroup() {
     {
       getTitle: () => "Frame Scene",
       doAction: (context: CanvasContextMenuContext) => {
-        context.cameraFlight.jumpTo({
-          aabb: context.collisionIndex.getSceneAABB(),
-          duration: 0.5,
-          fitFOV: 40
+        // Cinematic AABB-fit flight — `arc + inThenOut` lifts the
+        // camera along its look→eye axis into a parabolic apex at
+        // t = 0.5, with a slow → fast → slow speed profile.
+        context.cameraFlight.flyTo({
+          aabb:     context.collisionIndex.getSceneAABB(),
+          fitFOV:   45,
+          duration: 0.7,
+          arc:      true,
+          easing:   "inThenOut",
         });
       }
     },

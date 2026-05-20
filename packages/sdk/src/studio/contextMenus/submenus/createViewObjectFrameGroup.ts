@@ -11,35 +11,43 @@ import type {ViewObjectContextMenuContext} from "../ViewObjectContextMenuContext
 import {getSceneModelAABB} from "../helpers/sceneRefs";
 
 
+// Shared flight params for the three Frame actions. `arc` + `inThenOut`
+// produce a parabolic lift along the look→eye axis with a slow → fast
+// → slow speed profile, so the camera reads as travelling across the
+// scene rather than teleporting.
+const FRAME_FLIGHT = {
+  fitFOV:   45,
+  duration: 0.7,
+  arc:      true,
+  easing:   "inThenOut" as const,
+};
+
 export function createViewObjectFrameGroup() {
   return [
     {
       getTitle: () => "Frame Object",
       doAction: (context: ViewObjectContextMenuContext) => {
-        context.cameraFlight.jumpTo({
+        context.cameraFlight.flyTo({
+          ...FRAME_FLIGHT,
           aabb: context.collisionIndex.getObjectAABB(context.viewObject.id),
-          duration: 0.5,
-          fitFOV: 40
         });
       }
     },
     {
       getTitle: () => "Frame Model",
       doAction: (context: ViewObjectContextMenuContext) => {
-        context.cameraFlight.jumpTo({
+        context.cameraFlight.flyTo({
+          ...FRAME_FLIGHT,
           aabb: getSceneModelAABB(context),
-          duration: 0.5,
-          fitFOV: 40
         });
       }
     },
     {
       getTitle: () => "Frame Scene",
       doAction: (context: ViewObjectContextMenuContext) => {
-        context.cameraFlight.jumpTo({
+        context.cameraFlight.flyTo({
+          ...FRAME_FLIGHT,
           aabb: context.collisionIndex.getSceneAABB(),
-          duration: 0.5,
-          fitFOV: 40
         });
       }
     }

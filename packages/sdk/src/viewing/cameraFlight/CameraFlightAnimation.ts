@@ -84,6 +84,45 @@ export interface FlyToParams {
    * Duration of the animation in seconds.
    */
   duration?: number;
+
+  /**
+   * When `true`, the camera follows an arc from `eye1` to `eye2`
+   * instead of a straight line — rising at the midpoint of the flight
+   * to give a sense of travelling over the scene. The apex height is
+   * controlled by `arcHeight` (or auto-derived from the eye distance).
+   * The look point still interpolates linearly so the focus tracks
+   * naturally; only the eye position picks up the parabolic offset.
+   *
+   * Only takes effect on flights that move the eye — i.e. AABB-fit
+   * flights and `{eye, look, up}` flights. Pure `look`-only or
+   * `eye`-only rotations ignore it.
+   */
+  arc?: boolean;
+
+  /**
+   * When `arc` is set, the apex height in metres along the arc-up
+   * axis (the world-up component perpendicular to the chord
+   * `eye2 - eye1`). Defaults to `0.25` × the eye-to-eye distance,
+   * so flights of any scale produce a visually similar arc.
+   */
+  arcHeight?: number;
+
+  /**
+   * Easing curve for this flight, overriding the per-instance
+   * {@link CameraFlightAnimation.easing} field for the duration of
+   * this call:
+   *
+   * - `true` (or omitted) — the default quadratic ease-out: starts
+   *   at full velocity and decelerates to a stop on arrival.
+   * - `"inThenOut"` — piecewise quadratic ease-in then ease-out
+   *   (`2t²` on [0, 0.5], `1 − 2(1−t)²` on [0.5, 1]). The camera
+   *   leaves and arrives at zero velocity, accelerating at a
+   *   constant rate up to the midpoint and decelerating at a
+   *   constant rate down to the target — i.e. a triangular speed
+   *   profile peaking at t=0.5.
+   * - `false` — no easing; constant velocity along the path.
+   */
+  easing?: boolean | "inThenOut";
 }
 
 /**
@@ -129,6 +168,19 @@ export class CameraFlightAnimation {
   _projection2: number;
   _projMatrix1: Mat4;
   _projMatrix2: Mat4;
+
+  // Arc-flight state. `_arcAmount` is the apex height in metres along
+  // `_arcDir`; both are recomputed per-flight in flyTo() once the
+  // start/end eye positions are known. `_arcAmount = 0` disables the
+  // bulge, so a non-arc flight pays only a single zero-check per tick.
+  _arc: boolean;
+  _arcAmount: number;
+  _arcDir: Vec3;
+
+  // Per-flight easing curve, resolved from `FlyToParams.easing` (or
+  // falling back to the class-level `easing` flag) at flyTo time.
+  // The tick reads this each frame to pick the time-warp function.
+  _easingMode: "default" | "inThenOut" | "none";
 
   private _animationTask: SDKTask;
 
@@ -188,55 +240,89 @@ export class CameraFlightAnimation {
     this._fit = true;
     this._duration = 500;
     this._fitFOV = 60;
+    this._arc = false;
+    this._arcAmount = 0;
+    this._arcDir = createVec3Float64();
+    this._easingMode = "default";
 
     this.onStarted = new EventEmitter(new EventDispatcher<CameraFlightAnimation, null>());
     this.onStopped = new EventEmitter(new EventDispatcher<CameraFlightAnimation, null>());
     this.onCancelled = new EventEmitter(new EventDispatcher<CameraFlightAnimation, null>());
 
+    // Repeating task on the AnimateStage — the SDKTaskRunner drives
+    // it every frame via requestAnimationFrame. Non-repeating tasks
+    // are deleted from the runner the same frame they execute (even
+    // if they reschedule themselves from inside their callback —
+    // SDKTaskRunner.runTasks unconditionally `tasks.delete(task)` for
+    // non-repeating tasks after running them), so the previous
+    // pattern of "schedule on flyTo, reschedule from inside the
+    // task" only ran for a single frame and the animation never
+    // reached its target. Gating on `this._flying` keeps the
+    // per-frame overhead trivial when no flight is in progress; the
+    // pivot/keyboard controllers use the same pattern.
     this._animationTask = new SDKTask({
       name: "CameraFlightAnimation._update",
       task: () => {
-          if (!this._flying) {
-            return;
-          }
-          const time = Date.now();
-          // @ts-ignore
-          let t = (time - this._time1) / (this._time2 - this._time1);
-          const stopping = (t >= 1);
-          if (t > 1) {
-            t = 1;
-          }
-          const tFlight = this.easing ? CameraFlightAnimation._ease(t, 0, 1, 1) : t;
-          const camera = this.camera;
-          if (this._flyingEye || this._flyingLook) {
-            if (this._flyingEye) {
-              subVec3(camera.eye, camera.look, newLookEyeVec);
-              camera.eye = lerpVec3(tFlight, 0, 1, this._eye1, this._eye2, newEye);
-              camera.look = subVec3(newEye, newLookEyeVec, newLook);
-            } else if (this._flyingLook) {
-              camera.look = lerpVec3(tFlight, 0, 1, this._look1, this._look2, newLook);
-              camera.up = lerpVec3(tFlight, 0, 1, this._up1, this._up2, newUp);
-            }
-          } else if (this._flyingEyeLookUp) {
+        if (!this._flying) {
+          return;
+        }
+        const time = Date.now();
+        // @ts-ignore
+        let t = (time - this._time1) / (this._time2 - this._time1);
+        const stopping = (t >= 1);
+        if (t > 1) {
+          t = 1;
+        }
+        const tFlight =
+          this._easingMode === "inThenOut" ? CameraFlightAnimation._easeInThenOut(t)
+          : this._easingMode === "default" ? CameraFlightAnimation._ease(t, 0, 1, 1)
+          : t;
+        const camera = this.camera;
+        if (this._flyingEye || this._flyingLook) {
+          if (this._flyingEye) {
+            subVec3(camera.eye, camera.look, newLookEyeVec);
             camera.eye = lerpVec3(tFlight, 0, 1, this._eye1, this._eye2, newEye);
+            camera.look = subVec3(newEye, newLookEyeVec, newLook);
+          } else if (this._flyingLook) {
             camera.look = lerpVec3(tFlight, 0, 1, this._look1, this._look2, newLook);
             camera.up = lerpVec3(tFlight, 0, 1, this._up1, this._up2, newUp);
           }
-          if (this._projection2) {
-            const tProj = (this._projection2 === OrthoProjectionType) ? CameraFlightAnimation._easeOutExpo(t, 0, 1, 1) : CameraFlightAnimation._easeInCubic(t, 0, 1, 1);
-            camera.customProjection.projMatrix = lerpMat4(tProj, 0, 1, this._projMatrix1, this._projMatrix2);
+        } else if (this._flyingEyeLookUp) {
+          lerpVec3(tFlight, 0, 1, this._eye1, this._eye2, newEye);
+          if (this._arcAmount > 0) {
+            // Parabolic apex: 4·tFlight·(1−tFlight) is zero at the
+            // endpoints and 1 at tFlight=0.5, so the bulge starts
+            // and ends at the straight-line eye lerp and rises to
+            // `_arcAmount` at the midpoint along `_arcDir`. We use
+            // `tFlight` here (not raw `t`) so the arc and the chord
+            // share the same time warp — that's what makes the
+            // total camera speed inherit the easing curve's bell
+            // shape instead of summing a bell (lerp) with a
+            // triangular bulge (whose derivative w.r.t. raw t is
+            // ±arcAmount · 4 at the endpoints).
+            const bulge = 4 * tFlight * (1 - tFlight) * this._arcAmount;
+            newEye[0] += bulge * this._arcDir[0];
+            newEye[1] += bulge * this._arcDir[1];
+            newEye[2] += bulge * this._arcDir[2];
+          }
+          camera.eye = newEye;
+          camera.look = lerpVec3(tFlight, 0, 1, this._look1, this._look2, newLook);
+          camera.up = lerpVec3(tFlight, 0, 1, this._up1, this._up2, newUp);
+        }
+        if (this._projection2) {
+          const tProj = (this._projection2 === OrthoProjectionType) ? CameraFlightAnimation._easeOutExpo(t, 0, 1, 1) : CameraFlightAnimation._easeInCubic(t, 0, 1, 1);
+          camera.customProjection.projMatrix = lerpMat4(tProj, 0, 1, this._projMatrix1, this._projMatrix2);
 
-          } else {
-            camera.orthoProjection.scale = this._orthoScale1 + (t * (this._orthoScale2 - this._orthoScale1));
-          }
-          if (stopping) {
-            camera.orthoProjection.scale = this._orthoScale2;
-            this.stop();
-            return;
-          }
-          this._animationTask.schedule();
+        } else {
+          camera.orthoProjection.scale = this._orthoScale1 + (t * (this._orthoScale2 - this._orthoScale1));
+        }
+        if (stopping) {
+          camera.orthoProjection.scale = this._orthoScale2;
+          this.stop();
+        }
       },
-      stage: SDKTask.CollectInputStage
+      stage: SDKTask.AnimateStage,
+      repeat: true
     });
   }
 
@@ -264,6 +350,20 @@ export class CameraFlightAnimation {
 
     this._callback = callback || function () {
     };
+
+    // Resolve the easing curve for this flight. `FlyToParams.easing`
+    // wins over the class-level `this.easing`; falling back to the
+    // legacy boolean flag preserves the existing default behaviour
+    // for callers that don't supply the new param.
+    if (params.easing === "inThenOut") {
+      this._easingMode = "inThenOut";
+    } else if (params.easing === false) {
+      this._easingMode = "none";
+    } else if (params.easing === true) {
+      this._easingMode = "default";
+    } else {
+      this._easingMode = this.easing ? "default" : "none";
+    }
 
     const camera = this.camera;
     const flyToProjection = (!!params.projection) && (params.projection !== camera.projectionType);
@@ -394,14 +494,49 @@ export class CameraFlightAnimation {
       this._projection2 = null;
     }
 
+    // Arc setup: only meaningful for flights whose eye actually moves
+    // (AABB-fit or eye/look/up branches). Pure look-only / eye-only
+    // partial flights would either leave eye fixed or rotate the look
+    // ray, neither of which mixes well with a parabolic apex.
+    this._arc = !!params.arc && (this._flyingEyeLookUp || (this._flyingEye === false && this._flyingLook === false));
+    this._arcAmount = 0;
+    if (this._arc) {
+      // Chord vector from current eye to target eye — sets the default
+      // apex height for callers that don't override it.
+      const chord = subVec3(this._eye2, this._eye1, tempVec3);
+      const chordLen = lenVec3(chord);
+      if (chordLen > 1e-6) {
+        // Apex direction = the look→eye vector at the flight midpoint
+        // (mid-eye − mid-look). Pulling the camera along this axis at
+        // t=0.5 dollies straight back along its viewing direction, so
+        // the scene "zooms out and then back in" through the flight —
+        // a sense-of-traversal cue that doesn't depend on the world
+        // having a meaningful up axis. Using the mid-point of start
+        // and end keeps the direction stable even when the camera
+        // pivots significantly during the flight.
+        this._arcDir[0] = (this._eye1[0] + this._eye2[0] - this._look1[0] - this._look2[0]) * 0.5;
+        this._arcDir[1] = (this._eye1[1] + this._eye2[1] - this._look1[1] - this._look2[1]) * 0.5;
+        this._arcDir[2] = (this._eye1[2] + this._eye2[2] - this._look1[2] - this._look2[2]) * 0.5;
+        const arcDirLen = lenVec3(this._arcDir);
+        if (arcDirLen > 1e-6) {
+          this._arcDir[0] /= arcDirLen;
+          this._arcDir[1] /= arcDirLen;
+          this._arcDir[2] /= arcDirLen;
+          this._arcAmount = params.arcHeight !== undefined
+            ? params.arcHeight
+            : chordLen * 0.25;
+        }
+      }
+    }
+
     this.onStarted.dispatch(this, null);
 
     this._time1 = Date.now();
     this._time2 = this._time1 + (params.duration ? params.duration * 1000 : this._duration);
 
-    this._flying = true; // False as soon as we stop
-
-    this._animationTask.schedule();
+    this._flying = true; // The repeating _animationTask picks this
+                         // up on the next AnimateStage tick; flips
+                         // back to false in stop() / cancel().
   }
 
   /**
@@ -496,6 +631,24 @@ export class CameraFlightAnimation {
   static _ease(t: number, b: number, c: number, d: number) { // Quadratic easing out - decelerating to zero velocity http://gizma.com/easing
     t /= d;
     return -c * t * (t - 2) + b;
+  }
+
+  // Piecewise quadratic ease-in-then-out:
+  //   first half  → 2t²            (quadratic ease-in,  accelerates)
+  //   second half → 1 − 2(1−t)²    (quadratic ease-out, decelerates)
+  //
+  // Position is C¹-continuous at the seam (both branches hit 0.5 at
+  // t=0.5, and the derivative matches: f′(0.5⁻) = 4·0.5 = 2,
+  // f′(0.5⁺) = 4·0.5 = 2). Velocity is a triangle peaking at t=0.5
+  // — linear ramp up from rest, linear ramp down to rest — so the
+  // camera leaves and arrives at zero velocity but accelerates and
+  // decelerates at a constant rate inside each half.
+  static _easeInThenOut(t: number): number {
+    if (t < 0.5) {
+      return 2 * t * t;                      // ease-in,  [0, 0.5] → [0, 0.5]
+    }
+    const u = 1 - t;
+    return 1 - 2 * u * u;                    // ease-out, [0.5, 1] → [0.5, 1]
   }
 
   static _easeInCubic(t: number, b: number, c: number, d: number) {

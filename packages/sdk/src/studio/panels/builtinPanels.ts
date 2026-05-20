@@ -124,7 +124,12 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
         console.warn("[PanelRegistry/boundariesPanel] No View available — needs a View for the camera-pose pointer.");
         return undefined;
       }
-      return BoundariesPanel.openFor({scene: ctx.studio.scene, view});
+      // CameraFlight is owned by the View's ViewRecord, not the
+      // View itself — pass it through explicitly so the panel's
+      // click-to-jump uses the cinematic flyTo path instead of
+      // falling back to an instant cam.eye / cam.look snap.
+      const cameraFlight = ctx.studio.viewManager?.views?.[view.id]?.cameraFlight;
+      return BoundariesPanel.openFor({scene: ctx.studio.scene, view, cameraFlight});
     },
   });
 

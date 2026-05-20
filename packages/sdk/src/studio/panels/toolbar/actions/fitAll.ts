@@ -21,6 +21,15 @@ export const fitAll: ToolbarActionDescriptor = {
       console.warn("[Toolbar] fitAll — no CameraFlight on the active View.");
       return;
     }
-    flight.flyTo({aabb});
+    // Cinematic AABB-fit flight — matches the context-menu Frame …
+    // actions: parabolic arc along the camera's look→eye axis, with a
+    // slow → fast → slow ("inThenOut") speed profile.
+    flight.flyTo({
+      aabb,
+      fitFOV:   45,
+      duration: 0.7,
+      arc:      true,
+      easing:   "inThenOut",
+    });
   }
 };

@@ -27,10 +27,12 @@ export class LinesDrawColorTechnique extends DrawTechnique {
     this.fsColorDeclarations();
     this.fsSlicingDeclarations();
     this.fsDrawFlatColorDeclarations();
+    this.fsLogDepthDeclarations();
     this.fsMainBegin();
     this.fsSlicingLogic();
     this.fsDrawFlatColorLogic();
     this.fsOutputColor();
+    this.fsLogDepthLogic();
     this.fsMainEnd();
   }
 }

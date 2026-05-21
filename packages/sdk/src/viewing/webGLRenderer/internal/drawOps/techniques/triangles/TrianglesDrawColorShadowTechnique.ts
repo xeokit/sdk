@@ -37,6 +37,7 @@ export class TrianglesDrawColorShadowTechnique extends DrawTechnique {
     this.fsLambertShadingDeclarations();
     this.fsDrawShadowDeclarations();
     if (hatch) this.fsHatchDeclarations();
+    this.fsLogDepthDeclarations();
     this.fsMainBegin();
     // Plain clip-and-discard. Caps live in a separate stencil
     // pass managed by RenderManager. Hatch overlay applies to
@@ -46,6 +47,7 @@ export class TrianglesDrawColorShadowTechnique extends DrawTechnique {
     this.fsDrawShadowLogic();
     if (hatch) this.fsHatchLogic();
     this.fsOutputColor();
+    this.fsLogDepthLogic();
     this.fsMainEnd();
   }
 }

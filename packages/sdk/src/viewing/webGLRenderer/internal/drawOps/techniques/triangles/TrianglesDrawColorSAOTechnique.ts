@@ -33,6 +33,7 @@ export class TrianglesDrawColorSAOTechnique extends DrawTechnique {
     this.fsLambertShadingDeclarations();
     this.fsDrawSAODeclarations();
     if (hatch) this.fsHatchDeclarations();
+    this.fsLogDepthDeclarations();
     this.fsMainBegin();
     // Plain clip-and-discard before lighting. Caps live in
     // a separate stencil pass managed by RenderManager. Hatch
@@ -43,6 +44,7 @@ export class TrianglesDrawColorSAOTechnique extends DrawTechnique {
     this.fsDrawSAOLogic();
     if (hatch) this.fsHatchLogic();
     this.fsOutputColor();
+    this.fsLogDepthLogic();
     this.fsMainEnd();
   }
 }

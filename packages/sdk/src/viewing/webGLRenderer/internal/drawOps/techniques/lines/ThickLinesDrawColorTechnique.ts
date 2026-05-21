@@ -64,11 +64,13 @@ export class ThickLinesDrawColorTechnique extends DrawTechnique {
     this.fsSlicingDeclarations();
     this.fsDrawFlatColorDeclarations();
     this.fsThickLineDeclarations();
+    this.fsLogDepthDeclarations();
     this.fsMainBegin();
     this.fsSlicingLogic();
     this.fsDrawFlatColorLogic();
     this.fsThickLineLogic();
     this.fsOutputColor();
+    this.fsLogDepthLogic();
     this.fsMainEnd();
   }
 }

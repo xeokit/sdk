@@ -31,11 +31,13 @@ export class PointsDrawColorTechnique extends DrawTechnique {
     this.fsSlicingDeclarations();
     this.fsPointsDeclarations();
     this.fsDrawFlatColorDeclarations();
+    this.fsLogDepthDeclarations();
     this.fsMainBegin();
     this.fsSlicingLogic();
     this.fsPointsGeometryLogic();
     this.fsDrawFlatColorLogic();
     this.fsOutputColor();
+    this.fsLogDepthLogic();
     this.fsMainEnd();
   }
 }

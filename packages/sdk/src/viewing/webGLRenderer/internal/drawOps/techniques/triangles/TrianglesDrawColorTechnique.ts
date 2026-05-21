@@ -30,6 +30,7 @@ export class TrianglesDrawColorTechnique extends DrawTechnique {
     this.fsSlicingDeclarations();
     this.fsLambertShadingDeclarations();
     if (this._hatchInBody()) this.fsHatchDeclarations();
+    this.fsLogDepthDeclarations();
     this.fsMainBegin();
     // Plain clip-and-discard. Cap rendering (when enabled
     // via `view.effects.sectionPlaneCaps`) is a separate
@@ -39,6 +40,7 @@ export class TrianglesDrawColorTechnique extends DrawTechnique {
     this.fsLambertShadingLogic();
     if (this._hatchInBody()) this.fsHatchLogic();
     this.fsOutputColor();
+    this.fsLogDepthLogic();
     this.fsMainEnd();
   }
 

@@ -1541,7 +1541,11 @@ void main(void) {`);
   }
 
   /**
-   * Declare the uniform consumed by {@link vsLogDepthLogic}.
+   * Declare the `vFragDepth` varying that carries per-vertex
+   * `1.0 + gl_Position.w` (i.e. view-space depth + 1) downstream
+   * to the FS, where {@link fsLogDepthLogic} writes
+   * `gl_FragDepth` per pixel.
+   *
    * No-op when {@link logDepth} is false on the technique, so a
    * technique that calls both this and {@link vsLogDepthLogic}
    * is identical to its non-log-depth sibling at the source
@@ -1553,49 +1557,91 @@ void main(void) {`);
    */
   protected vsLogDepthDeclarations() {
     if (!this.logDepth) return;
-    // `uLogDepthCoef = 2 / log2(far + 1)` is uploaded once per
-    // frame from `view.camera.perspectiveProjection.far` (see
-    // the upload routine that ends at `gl.uniform1f(uniforms.logDepthCoef, …)`).
-    this._vertSrcBuf.push("uniform float uLogDepthCoef;");
+    this._vertSrcBuf.push("out float vFragDepth;");
   }
 
   /**
-   * Rewrite `gl_Position.z` so the depth buffer becomes
-   * logarithmic in view-space distance. Identical math to
-   * Cesium / Three.js — collapses 1/z's near-clip-clustered
-   * precision into something usable across scenes that span
-   * UTM-scale distances + close-up BIM. Done in the vertex
-   * shader so early-Z stays on; mid-triangle depth interpolates
-   * linearly across the rasterised triangle, which is fine for
-   * BIM-shaped geometry (small, lots of edges) and noticeable
-   * only on truly huge horizon-spanning triangles.
+   * Pass view-space depth (`1.0 + gl_Position.w`) through to the
+   * FS in the `vFragDepth` varying. The companion FS snippet
+   * ({@link fsLogDepthLogic}) writes `gl_FragDepth` per pixel
+   * using the exact log-depth formula, so the depth-buffer value
+   * follows the true logarithmic curve regardless of how a
+   * triangle stretches across view-space depth.
    *
-   * No-op when {@link logDepth} is false — calling this from a
-   * technique's `buildVertexShader` costs nothing on the
-   * non-log-depth permutation.
+   * This replaces the previous "rewrite `gl_Position.z` in the
+   * VS" implementation, which interpolated the log-depth value
+   * linearly across each triangle. The linear interpolation
+   * doesn't follow the log curve and produces visible artefacts
+   * whenever a triangle's depth range is large — most painfully
+   * around the camera plane during walkthroughs, where a single
+   * floor/wall/ceiling triangle can span 50 cm to 30 m from the
+   * eye and the per-fragment depth lands far enough off the
+   * true curve to confuse the clipper. Writing the depth value
+   * per pixel from the FS eliminates that interpolation error.
    *
-   * Emit AFTER any earlier writes to `gl_Position.z` (Lambert /
-   * silhouette logic, edge depth bias) so this is the FINAL
-   * value written. If a technique also calls
-   * {@link vsEdgeDepthBiasLogic}, call this FIRST so the
-   * subsequent bias subtracts from the already-log-mapped z;
-   * the bias is still effective in NDC units after this
-   * transform.
+   * Trade-off: writing `gl_FragDepth` disables hardware early-Z
+   * for these techniques (the GPU can't cull a fragment by depth
+   * before running the FS that determines its depth).
+   *
+   * No-op when {@link logDepth} is false.
+   *
+   * Emit before {@link vsMainEnd}.
    */
   protected vsLogDepthLogic() {
     if (!this.logDepth) return;
     // gl_Position.w == -view-z for the standard perspective
-    // matrix, so `1 + gl_Position.w` is the view-space depth.
-    // The `max(1e-6, …)` clamps anything at-or-behind the
-    // near-plane edge case where w could land ≤ 0 (degenerate;
-    // shouldn't happen with sane geometry, but cheap insurance
-    // against a single bad vertex NaN-ing the rest of the
-    // primitive).
-    this._vertSrcBuf.push(
-      "    {",
-      "      float _logZ = log2(max(1.0e-6, 1.0 + gl_Position.w)) * uLogDepthCoef - 1.0;",
-      "      gl_Position.z = _logZ * gl_Position.w;",
-      "    }",
+    // matrix, so `1 + gl_Position.w` is the view-space depth
+    // (i.e. how far the vertex sits in front of the camera).
+    // Perspective-correct interpolation of `vFragDepth` is
+    // exact in view-space distance, so the FS gets the true
+    // view-space `1 + w` per pixel.
+    this._vertSrcBuf.push("    vFragDepth = 1.0 + gl_Position.w;");
+  }
+
+  /**
+   * Declare the FS-side inputs consumed by {@link fsLogDepthLogic}:
+   * the `vFragDepth` varying produced by {@link vsLogDepthLogic}
+   * and the per-frame `uLogDepthCoef` uniform.
+   *
+   * No-op when {@link logDepth} is false. Emit AFTER {@link fsHeader}
+   * and before {@link fsMainBegin}.
+   */
+  protected fsLogDepthDeclarations() {
+    if (!this.logDepth) return;
+    // `uLogDepthCoef = 2 / log2(far + 1)` is uploaded once per
+    // frame from `view.camera.perspectiveProjection.far` (see
+    // the upload routine that ends at `gl.uniform1f(uniforms.logDepthCoef, …)`).
+    this._fragSrcBuf.push("in float vFragDepth;");
+    this._fragSrcBuf.push("uniform float uLogDepthCoef;");
+  }
+
+  /**
+   * Write `gl_FragDepth` per pixel using the canonical log-depth
+   * formula — `gl_FragDepth = log2(vFragDepth) * uLogDepthCoef * 0.5`.
+   *
+   * Derivation: the vertex-side scheme used
+   *   `gl_Position.z = (log2(1 + w) * coef − 1) * w`
+   * which, after the GPU's `/w` divide, gives an NDC z of
+   *   `log2(1 + w) * coef − 1` ∈ [-1, 1]
+   * mapped to the depth buffer's [0, 1] via `(z + 1) * 0.5`. So
+   * the equivalent per-pixel write is
+   *   `gl_FragDepth = log2(1 + w) * coef * 0.5`
+   * with `1 + w` carried in `vFragDepth` from the VS.
+   *
+   * The `max(1.0e-6, vFragDepth)` clamp guards against fragments
+   * whose interpolated `1 + w` lands ≤ 0 — physically impossible
+   * for a fragment in front of the camera, but cheap insurance
+   * against a single bad triangle interpolant NaN-ing the depth
+   * buffer for the rest of the primitive.
+   *
+   * No-op when {@link logDepth} is false. Emit inside the FS
+   * main body, typically right before {@link fsMainEnd} — the
+   * value is independent of color, slicing, etc.
+   */
+  protected fsLogDepthLogic() {
+    if (!this.logDepth) return;
+    this._fragSrcBuf.push(
+      "    gl_FragDepth = log2(max(1.0e-6, vFragDepth)) * uLogDepthCoef * 0.5;",
     );
   }
 

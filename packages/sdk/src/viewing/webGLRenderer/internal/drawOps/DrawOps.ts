@@ -163,7 +163,7 @@ export class DrawOps {
     // landscapes). Picking / snap / shadow-depth techniques
     // deliberately stay linear — their depth read-back math
     // would have to grow a `log2` term to match.
-    const LOG_DEPTH = false;
+    const LOG_DEPTH = true;
 
     const linesDrawSilhouette = saveForCleanup(new GenericDrawSilhouetteTechnique(renderContext, gpuMemoryReader, 2, {logDepth: LOG_DEPTH}));
     const trianglesSilhouette = saveForCleanup(new TrianglesDrawSilhouetteTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH}));

@@ -47,6 +47,7 @@ export class TrianglesDrawColorSAOShadowTechnique extends DrawTechnique {
     this.fsDrawSAODeclarations();
     this.fsDrawShadowDeclarations();
     if (hatch) this.fsHatchDeclarations();
+    this.fsLogDepthDeclarations();
     this.fsMainBegin();
     // Plain clip-and-discard. Caps live in a separate stencil
     // pass managed by RenderManager. Hatch overlay applies to
@@ -57,6 +58,7 @@ export class TrianglesDrawColorSAOShadowTechnique extends DrawTechnique {
     this.fsDrawSAOLogic();
     if (hatch) this.fsHatchLogic();
     this.fsOutputColor();
+    this.fsLogDepthLogic();
     this.fsMainEnd();
   }
 }

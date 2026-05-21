@@ -47,11 +47,13 @@ export class TrianglesDrawEdgeSilhouetteTechnique extends DrawTechnique {
     this.fsSlicingDeclarations();
     this.fsSilhouetteDeclarations();
     this.fsEdgeFadeDeclarations();
+    this.fsLogDepthDeclarations();
     this.fsMainBegin();
     this.fsSlicingLogic();
     this.fsSilhouetteLogic();
     this.fsEdgeFadeLogic();
     this.fsOutputColor();
+    this.fsLogDepthLogic();
     this.fsMainEnd();
   }
 }

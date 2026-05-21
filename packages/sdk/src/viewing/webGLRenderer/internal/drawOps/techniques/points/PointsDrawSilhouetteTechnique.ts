@@ -28,10 +28,12 @@ export class PointsDrawSilhouetteTechnique extends DrawTechnique {
     this.fsColorDeclarations();
     this.fsSlicingDeclarations();
     this.fsSilhouetteDeclarations();
+    this.fsLogDepthDeclarations();
     this.fsMainBegin();
     this.fsSlicingLogic();
     this.fsSilhouetteLogic();
     this.fsOutputColor();
+    this.fsLogDepthLogic();
     this.fsMainEnd();
   }
 }

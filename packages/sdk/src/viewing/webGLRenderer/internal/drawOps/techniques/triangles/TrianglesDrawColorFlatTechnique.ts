@@ -43,6 +43,7 @@ export class TrianglesDrawColorFlatTechnique extends DrawTechnique {
     this.fsPrecisionDeclarations();
     this.fsColorDeclarations();
     this.fsDrawFlatColorDeclarations();
+    this.fsLogDepthDeclarations();
     this.fsMainBegin();
     this.fsDrawFlatColorLogic();
     // Overlay-bin batches drawn by this technique render straight
@@ -52,6 +53,7 @@ export class TrianglesDrawColorFlatTechnique extends DrawTechnique {
     // land in the same encoded space as the rest of the canvas.
     this.fsSRGBEncodeColor();
     this.fsOutputColor();
+    this.fsLogDepthLogic();
     this.fsMainEnd();
   }
 }

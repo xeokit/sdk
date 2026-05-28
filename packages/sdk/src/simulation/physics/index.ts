@@ -144,7 +144,7 @@
  *
  * ```javascript
  * import RAPIER from "@dimforge/rapier3d-compat";
- * import { getScenePhysics } from "@xeokit/sdk/studio/systems/physics";
+ * import { getScenePhysics } from "@xeokit/sdk/simulation/physics";
  * ```
  *
  * <br>

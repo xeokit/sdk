@@ -25,7 +25,7 @@
  *
  * ```mermaid
  * classDiagram
- *     direction TB
+ *     direction LR
  *     class AngleMeasurementsTool {
  *       +view                  : View
  *       +picker                : PickStrategy
@@ -85,21 +85,6 @@
  *
  * <br>
  *
- * ## Mouse-driven creation
- *
- * ```mermaid
- * flowchart LR
- *     A[activate] --> B[hover dot on pickable geometry]
- *     B --> C[click #1: origin]
- *     C --> D[click #2: corner — preview arms follow cursor]
- *     D --> E[click #3: target, commit]
- *     E --> F[onMeasurementsChanged]
- *     D -- Esc --> G[discard draft]
- *     F --> B
- * ```
- *
- * <br>
- *
  * ## Features
  *
  * - **Per-View singleton** —
@@ -147,7 +132,7 @@
  * ```javascript
  * import {
  *   AngleMeasurementsTool
- * } from "@xeokit/sdk/studio/systems/measurements/angle";
+ * } from "@xeokit/sdk/tools/measurements/angle";
  * ```
  *
  * <br>

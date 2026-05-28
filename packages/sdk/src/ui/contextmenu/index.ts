@@ -125,8 +125,6 @@
  *
  * We'll also initially enable the ````ContextMenu````.
  *
- * [[Run this example](https://xeokit.github.io/xeokit-sdk/examples/index.html#ContextMenu_Canvas_Custom)]
- *
  * ````javascript
  * const canvasContextMenu = new ContextMenu({
  *
@@ -216,8 +214,6 @@
  * In the example below, we'll create a simple ````ContextMenu```` that allows us to toggle the selection of an object
  * via its first item, which changes text depending on whether we are selecting or deselecting the object.
  *
- * [[Run an example](https://xeokit.github.io/xeokit-sdk/examples/index.html#ContextMenu_dynamicItemTitles)]
- *
  * ````javascript
  * const canvasContextMenu = new ContextMenu({
  *
@@ -256,8 +252,6 @@
  *
  * Note that our "Effects" item has no ````doAction```` callback, because an item with a sub-menu performs no
  * action of its own.
- *
- * [[Run this example](https://xeokit.github.io/xeokit-sdk/examples/index.html#ContextMenu_subMenus)]
  *
  * ````javascript
  * const canvasContextMenu = new ContextMenu({

@@ -24,7 +24,7 @@
  *
  * ```mermaid
  * classDiagram
- *     direction TB
+ *     direction LR
  *     class DistanceMeasurementTool {
  *       +view                  : View
  *       +picker                : PickStrategy
@@ -84,21 +84,6 @@
  *
  * <br>
  *
- * ## Mouse-driven creation
- *
- * ```mermaid
- * flowchart LR
- *     A[activate] --> B[hover dot on pickable geometry]
- *     B --> C[click #1: capture origin]
- *     C --> D[draft measurement follows cursor]
- *     D --> E[click #2: capture target, commit]
- *     E --> F[onMeasurementsChanged]
- *     D -- Esc --> G[discard draft]
- *     F --> B
- * ```
- *
- * <br>
- *
  * ## Features
  *
  * - **Per-View singleton** —
@@ -144,7 +129,7 @@
  * ```javascript
  * import {
  *   DistanceMeasurementTool
- * } from "@xeokit/sdk/studio/systems/measurements/distance";
+ * } from "@xeokit/sdk/tools/measurements/distance";
  * ```
  *
  * <br>

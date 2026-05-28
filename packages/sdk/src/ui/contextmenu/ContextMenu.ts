@@ -9,7 +9,17 @@ const CONTEXT_MENU_STYLE_ID = "xeokit-context-menu-styles";
 
 const CONTEXT_MENU_CSS = `
 .xeokit-context-menu {
-  position: absolute;
+  /* Fixed so positioning is viewport-anchored regardless of
+     where the menu is appended in the DOM. Avoids the
+     offsetParent landmine: when the DOM parent (body in the
+     default case) is unpositioned, an absolute-positioned
+     menu's offsetParent falls back to the initial containing
+     block, and the offset math read off
+     body.getBoundingClientRect() no longer matches where the
+     browser actually anchors the menu. Fixed sidesteps that:
+     style.left / style.top are interpreted directly as viewport
+     coordinates. */
+  position: fixed;
   /* int32 ceiling — sits above every floating panel regardless of
      how many times floatingPanelZ has bumped them. */
   z-index: 2147483647;
@@ -684,10 +694,17 @@ class ContextMenu {
       console.error("ContextMenu cannot be shown without a context - set context first");
       return;
     }
-    if (!this._enabled || this._shown || !this._rootMenu) {
+    if (!this._enabled || !this._rootMenu) {
       return;
     }
 
+    // Re-show always re-positions. The previous check bailed when
+    // `_shown` was already true, which left the menu stuck at its
+    // first-displayed coordinates — a problem if the menu landed
+    // off-screen (the user-initiated outside-click hide never
+    // fires because there's nothing visible to click outside of),
+    // and incorrect anyway when a second right-click should pop
+    // the menu at the new cursor position.
     this._hideAllMenus();
     this._updateMenuTitle();
     this._updateItemsTitles();
@@ -1297,24 +1314,24 @@ class ContextMenu {
 
     const menuHeight = menuElement.offsetHeight;
     const menuWidth = menuElement.offsetWidth;
-    const offsetRect = this._offsetParent.getBoundingClientRect();
 
-    const bottomContainerBorder =
-      this._offsetParent === window.document.body && offsetRect.bottom === 0
-        ? window.innerHeight
-        : offsetRect.bottom + window.scrollY;
+    // `position: fixed` (set on `.xeokit-context-menu` in the
+    // shared stylesheet) means `style.left` / `style.top` are
+    // interpreted directly as viewport coordinates — no
+    // offsetParent walk, no scroll-adjustment, no body-rect math.
+    // Callers pass click coordinates (which in practice are
+    // `e.clientX` / `e.clientY` — already viewport-relative); we
+    // clamp them against the viewport so the menu can't render
+    // partially off-screen.
+    const viewportW = window.innerWidth;
+    const viewportH = window.innerHeight;
+    let x = pageX;
+    let y = pageY;
+    if (y + menuHeight > viewportH) y = Math.max(0, viewportH - menuHeight);
+    if (x + menuWidth  > viewportW) x = Math.max(0, viewportW - menuWidth);
 
-    const rightContainerBorder = offsetRect.right + window.scrollX;
-
-    if (pageY + menuHeight > bottomContainerBorder) {
-      pageY = bottomContainerBorder - menuHeight;
-    }
-    if (pageX + menuWidth > rightContainerBorder) {
-      pageX = rightContainerBorder - menuWidth;
-    }
-
-    menuElement.style.left = `${pageX - offsetRect.left - window.scrollX}px`;
-    menuElement.style.top = `${pageY - offsetRect.top - window.scrollY}px`;
+    menuElement.style.left = `${x}px`;
+    menuElement.style.top  = `${y}px`;
   }
 
   private _hideMenuElement(menuElement: HTMLElement): void {

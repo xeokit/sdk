@@ -5,38 +5,27 @@
  *
  * ---
  *
- * **Cross-platform file loading primitives shared by every SDK
- * loader — works the same in browsers (fetch / Blob) and in Node
- * (filesystem).**
+ * **File loading primitive shared by every SDK loader.**
  *
  * ---
  *
  * The `io` module abstracts the "go fetch a file" step so loader
- * code is identical whether it runs in a browser or inside a Node
- * CLI / converter. Pick one of the platform-specific implementations
- * ({@link BrowserFileIO} / {@link NodeFileIO}) for the runtime
- * environment, then pass the loader-agnostic
- * {@link FileIO | FileIO} surface to any
- * {@link formats!ModelLoader | ModelLoader}.
+ * code calls a single {@link FileIO | FileIO} interface and stays
+ * portable. The shipped implementation is
+ * {@link BrowserFileIO | BrowserFileIO}, which fetches over
+ * HTTP(S) and returns a `Blob`. A Node implementation hasn't been
+ * ported yet.
  *
  * <br>
  *
  * ## Features
  *
- * - **One interface, two impls** — {@link FileIO | FileIO} is the
- *   contract every loader codes against; pick
- *   {@link BrowserFileIO | BrowserFileIO} or
- *   {@link NodeFileIO | NodeFileIO} at the host boundary and
- *   loaders stay portable.
+ * - **One interface** — {@link FileIO | FileIO} is the contract
+ *   every loader codes against. Hosts that need a different
+ *   transport (a CDN sidecar, an in-memory test fixture) supply
+ *   their own implementation.
  * - **CrossPlatformBlob** — uniform Blob-like with
- *   `arrayBuffer()` / `text()` / `json()` works whether the
- *   underlying payload came from `fetch` or `fs.readFile`.
- * - **LoadingManager events** — `onStart` / `onProgress` /
- *   `onLoad` / `onError` drive progress UI without each loader
- *   reinventing event plumbing.
- * - **Cache** — opt-in URL → ArrayBuffer cache shared by every
- *   {@link FileLoader | FileLoader}; useful for repeated chunk
- *   fetches inside a single load.
+ *   `arrayBuffer()` / `text()` / `json()`.
  *
  * <br>
  *
@@ -63,9 +52,4 @@
 
 export * from "./FileIO";
 export * from "./BrowserFileIO";
-export * from "./NodeFileIO";
 export * from "./CrossPlatformBlob";
-export * from "./Loader";
-export * from "./LoadingManager";
-export * from "./Cache";
-export * from "./FileLoader";

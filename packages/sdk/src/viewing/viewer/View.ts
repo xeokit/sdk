@@ -1502,11 +1502,24 @@ class View {
    * - Updates {@link ViewObject.colorize} on the Objects with the given IDs.
    * - Updates {@link View.colorizedObjects} and {@link View.numColorizedObjects}.
    *
+   * Passing `null` or `undefined` for `colorize` **clears the colorize
+   * flag** on each affected ViewObject — the underlying SceneMesh
+   * material's colour shows through unchanged. This is the call to make
+   * when transitioning an object back to its native appearance (e.g.
+   * a 4D scheduler returning a finished task's objects to their IFC
+   * tint). Passing a `Vec3` such as `[1, 1, 1]` instead enables the
+   * colorize path with a white tint, **replacing** the material colour
+   * — not equivalent to clearing it.
+   *
    * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param colorize - RGB colorize factors in range ````[0..1,0..1,0..1]````.
-   * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
+   * @param  colorize  RGB colorize factors in `[0..1, 0..1, 0..1]`, or
+   *                   `null` / `undefined` to clear the colorize flag
+   *                   and reveal the underlying material.
+   * @returns True if any {@link ViewObject | ViewObjects} changed
+   *          colorize state, else false if all updates were redundant
+   *          and not applied.
    */
-  setObjectsColorized(objectIds: string[], colorize: Vec3) {
+  setObjectsColorized(objectIds: string[], colorize: Vec3 | null | undefined) {
     if (this.destroyed) {
       this.viewer.logError({
         ok: false,
@@ -1537,11 +1550,26 @@ class View {
    * - Updates {@link ViewObject.opacity} on the Objects with the given IDs.
    * - Updates {@link View.opacityObjects} and {@link View.numOpacityObjects}.
    *
+   * Passing `null` or `undefined` for `opacity` **clears the
+   * `OPACITY_UPDATED` flag** on each affected ViewObject — the
+   * underlying SceneMesh material's alpha shows through unchanged.
+   * Make this call when transitioning an object back to its native
+   * appearance (e.g. a 4D scheduler returning a finished task's
+   * objects to their IFC materials); passing a number such as `1`
+   * instead **enables the opacity override** with that exact value
+   * and replaces the material alpha — equivalent to "force fully
+   * opaque", which incorrectly routes naturally-transparent glass
+   * / curtain-wall meshes through the opaque render bin.
+   *
    * @param  objectIds - One or more {@link ViewObject.id} values.
-   * @param opacity - Opacity factor in range ````[0..1]````.
-   * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
+   * @param  opacity   - Opacity factor in `[0..1]`, or `null` /
+   *                     `undefined` to clear the opacity override
+   *                     and let the material alpha through.
+   * @returns True if any {@link ViewObject | ViewObjects} changed
+   *          opacity state, else false if all updates were redundant
+   *          and not applied.
    */
-  setObjectsOpacity(objectIds: string[], opacity: number): boolean {
+  setObjectsOpacity(objectIds: string[], opacity: number | null | undefined): boolean {
     if (this.destroyed) {
       this.viewer.logError({
         ok: false,
@@ -1559,10 +1587,14 @@ class View {
       if (!viewObject) {
         continue;
       }
-      if (viewObject.opacity !== opacity) {
-        viewObject.opacity = opacity;
-        changed = true;
-      }
+      // The native setter handles `null` / `undefined` by clearing
+      // the `OPACITY_UPDATED` flag and resetting the stored value to
+      // 1.0 — no extra branch needed here, just forward the value.
+      // The previous "skip if equal" short-circuit could mask flag
+      // transitions (e.g. clearing the flag while `opacity` happens
+      // to already be 1.0), so the assignment is now unconditional.
+      viewObject.opacity = opacity as any;
+      changed = true;
     }
 
     return changed;

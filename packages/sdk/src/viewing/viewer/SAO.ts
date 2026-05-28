@@ -57,7 +57,13 @@ export class SAO {
    * {@link base!constants.RealisticRender | RealisticRender}].
    */
   set renderModes(value: number[]) {
-    this._renderModes = value;
+    // Treat `undefined` / `null` as "reset to default" rather than
+    // letting them through — without this guard, `fromParams` calls
+    // with a partial payload (or a direct `sao.renderModes = undefined`
+    // assignment) would leave the field unset and every subsequent
+    // `_beginFrame` would crash inside the `applied` getter at
+    // `this._renderModes.length`.
+    this._renderModes = value ?? [DetailedRender, RealisticRender];
     this.view.needsRender();
   }
 
@@ -330,8 +336,10 @@ export class SAO {
    * in {@link SAO.renderModes | SAO.renderModes}.
    */
   get applied(): boolean {
-    for (let i = 0, len = this._renderModes.length; i < len; i++) {
-      if (this.view.renderMode === this._renderModes[i]) {
+    const modes = this._renderModes;
+    if (!modes) return false;
+    for (let i = 0, len = modes.length; i < len; i++) {
+      if (this.view.renderMode === modes[i]) {
         return true;
       }
     }

@@ -766,10 +766,10 @@ export class TransformControls {
    *   translation deltas (start → new) so a mesh that fails to
    *   move shows up immediately.
    *
-   * Switch on from the host (or from a devtools console:
-   * `viewer.studio.panels.open("transformControls", {view}).setDebug(true)`)
-   * when chasing pivot drift, snapshot mismatch, or mid-drag
-   * detach issues.
+   * Switch on from the host (or from a devtools console on a
+   * captured reference: `transformControls.setDebug(true)`) when
+   * chasing pivot drift, snapshot mismatch, or mid-drag detach
+   * issues.
    */
   public setDebug(v: boolean): void {
     this._debug = v;

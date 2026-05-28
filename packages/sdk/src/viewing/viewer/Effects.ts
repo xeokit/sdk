@@ -6,6 +6,7 @@ import {Bloom} from "./Bloom";
 import {Tonemap} from "./Tonemap";
 import {AntiAliasing} from "./AntiAliasing";
 import {Shadows} from "./Shadows";
+import {Sky} from "./Sky";
 import {SectionPlaneCaps} from "./SectionPlaneCaps";
 import {BodyHatch} from "./BodyHatch";
 import {DetailedRender, RealisticRender} from "../../base/constants";
@@ -73,6 +74,15 @@ class Effects {
   public readonly shadows: Shadows;
 
   /**
+   * Procedural-sky background controls for this View — sun
+   * direction, sky / horizon / ground colours, and the sun
+   * disc + glow. {@link presentations!sunStudy.SunStudy | SunStudy}
+   * drives `sky.sunDirection` (and `sky.sunColor` / `sky.sunEnabled`)
+   * automatically when its `driveSky` option is set.
+   */
+  public readonly sky: Sky;
+
+  /**
    * Stencil-based section-plane caps for this View.
    *
    * When applied, the renderer fills the cross-section
@@ -115,6 +125,11 @@ class Effects {
     // View-construction behaviour — preserved here so callers that
     // don't pass `shadows` still see the same mode-gated behaviour.
     this.shadows      = new Shadows     (view, params.shadows      || {renderModes: [RealisticRender]});
+    // Sky defaults match the SkyRenderer's prior built-in values
+    // — palette matches what the renderer used to bake in, so
+    // any existing caller sees identical pixels when `sky` is
+    // left at its default.
+    this.sky          = new Sky         (view, params.sky          || {});
     // Section-plane caps default off — the stencil pass adds
     // ~2 model renders per cap-enabled plane, so the caller
     // opts in either by passing `sectionPlaneCaps` here or by

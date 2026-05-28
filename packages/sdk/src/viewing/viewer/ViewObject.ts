@@ -518,7 +518,21 @@ export class ViewObject {
         return (this._flags & ViewObject.COLORIZED) !== 0;
     }
 
-    private get opacityUpdated(): boolean {
+    /**
+     * `true` when the ViewObject's opacity is currently overriding
+     * the underlying SceneMesh material's alpha — i.e. the caller
+     * has set {@link opacity} to a value (any number, including 1).
+     * Cleared when the caller passes `null` / `undefined` to the
+     * setter, returning the renderer to the material's native alpha.
+     *
+     * The renderer's mesh-batch state-update bridge reads this flag
+     * to distinguish "user wants opacity = 1" (override on, alpha
+     * forced to 1.0, naturally-transparent meshes routed through
+     * the opaque bin) from "user has cleared the opacity override"
+     * (read material alpha — typically how a 4D scheduler returns
+     * finished objects to their native appearance).
+     */
+    get opacityUpdated(): boolean {
         return (this._flags & ViewObject.OPACITY_UPDATED) !== 0;
     }
 }

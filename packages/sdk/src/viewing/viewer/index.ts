@@ -595,6 +595,8 @@ export * from "./SAO";
 export * from "./SAOParams";
 export * from "./Shadows";
 export * from "./ShadowsParams";
+export * from "./Sky";
+export * from "./SkyParams";
 export * from "./Tonemap";
 export * from "./TonemapParams";
 export * from "./AntiAliasing";

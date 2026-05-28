@@ -4,6 +4,7 @@ import type {BloomParams} from "./BloomParams";
 import type {TonemapParams} from "./TonemapParams";
 import type {AntiAliasingParams} from "./AntiAliasingParams";
 import type {ShadowsParams} from "./ShadowsParams";
+import type {SkyParams} from "./SkyParams";
 
 
 /**
@@ -55,6 +56,14 @@ export interface EffectsParams {
    * {@link Shadows} — accessible at {@link Effects.shadows}.
    */
   shadows?: ShadowsParams;
+
+  /**
+   * Parameters for the View's procedural-sky background,
+   * {@link Sky} — accessible at {@link Effects.sky}. Drives the
+   * shared {@link SkyRenderer}'s draw on every frame this View is
+   * rendered.
+   */
+  sky?: SkyParams;
 
   /**
    * Parameters for the View's stencil-based section-plane caps,

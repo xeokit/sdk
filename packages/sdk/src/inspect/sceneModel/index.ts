@@ -168,7 +168,7 @@
  * ```ts
  * // Plug a strategy into the singleton — every applyFixes() call
  * // sees it from now on.
- * import {sceneModelInspector} from "@xeokit/sdk/studio";
+ * import * as sceneModelInspector from "@xeokit/sdk/inspect/sceneModel";
  *
  * sceneModelInspector.DEFAULT_FIX_REGISTRY.register({
  *   codes: ["MyApp/STALE_PROPERTY_SET"],
@@ -183,16 +183,16 @@
  * ```ts
  * // Or build a one-off registry — leaves the default untouched.
  * import {
- *   sceneModelInspector,
  *   FixRegistry,
  *   mergeDuplicateGeometries,
- * } from "@xeokit/sdk/studio";
+ *   applyFixes,
+ * } from "@xeokit/sdk/inspect/sceneModel";
  *
  * const registry = new FixRegistry([
  *   mergeDuplicateGeometries,   // pick the built-ins you want
  *   myFix,
  * ]);
- * sceneModelInspector.applyFixes({sceneModel, report, registry});
+ * applyFixes({sceneModel, report, registry});
  * ```
  *
  * Last registration wins for a given code, so plugins can
@@ -202,7 +202,7 @@
  * ## Built-in inspections
  *
  * One file per inspection under
- * {@link demo/sceneModelInspector/inspections}, all pre-registered into
+ * {@link studio/sceneModelInspector/inspections}, all pre-registered into
  * {@link DEFAULT_INSPECTION_REGISTRY}. Each inspection groups
  * codes by topical concern — one walk, multiple codes — so the
  * file count stays low and the registration order is meaningful.
@@ -226,7 +226,7 @@
  *
  * ## Built-in fixes
  *
- * One file per fix under {@link demo/sceneModelInspector/fixes}, all
+ * One file per fix under {@link studio/sceneModelInspector/fixes}, all
  * pre-registered into {@link DEFAULT_FIX_REGISTRY}.
  *
  * | Fix                              | Codes handled                                                  |
@@ -263,7 +263,7 @@
  * ## Putting it together
  *
  * ```ts
- * import {sceneModelInspector} from "@xeokit/sdk/studio";
+ * import * as sceneModelInspector from "@xeokit/sdk/inspect/sceneModel";
  *
  * const report = sceneModelInspector.inspectSceneModel({
  *   sceneModel,

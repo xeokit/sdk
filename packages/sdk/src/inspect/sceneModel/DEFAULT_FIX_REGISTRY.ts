@@ -24,13 +24,13 @@ import {dropDuplicateTriangles} from "./fixes/dropDuplicateTriangles";
  * The {@link FixRegistry} {@link applyFixes} reaches for
  * when no `registry` is supplied in its params. Pre-populated with
  * the built-in strategies that ship from
- * {@link demo/sceneModelInspector/fixes}.
+ * {@link studio/sceneModelInspector/fixes}.
  *
  * Plugins are expected to register additional strategies into this
  * singleton on import:
  *
  * ```ts
- * import {DEFAULT_FIX_REGISTRY} from "@xeokit/sdk/studio";
+ * import {DEFAULT_FIX_REGISTRY} from "@xeokit/sdk/inspect/sceneModel";
  *
  * DEFAULT_FIX_REGISTRY.register({
  *   codes: ["MyApp/STALE_PROPERTY_SET"],

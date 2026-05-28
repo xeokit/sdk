@@ -20,7 +20,7 @@ import {farFromOriginGeometries} from "./inspections/farFromOriginGeometries";
  * The {@link InspectionRegistry} {@link inspectSceneModel} reaches
  * for when no `registry` is supplied in its params. Pre-populated
  * with the built-in inspections that ship from
- * {@link demo/sceneModelInspector/inspections}.
+ * {@link studio/sceneModelInspector/inspections}.
  *
  * Registration order:
  *
@@ -44,7 +44,7 @@ import {farFromOriginGeometries} from "./inspections/farFromOriginGeometries";
  * singleton on import:
  *
  * ```ts
- * import {DEFAULT_INSPECTION_REGISTRY} from "@xeokit/sdk/studio";
+ * import {DEFAULT_INSPECTION_REGISTRY} from "@xeokit/sdk/inspect/sceneModel";
  *
  * DEFAULT_INSPECTION_REGISTRY.register({
  *   codes: ["MyApp/CHECK_NAMING"],

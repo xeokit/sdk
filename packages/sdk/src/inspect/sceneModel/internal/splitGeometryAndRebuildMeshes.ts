@@ -8,7 +8,7 @@ import type {FixApplyResult} from "../Fix";
  * Internal helper shared by every fix strategy that needs to split
  * a {@link model!scene.SceneGeometry | SceneGeometry} in two and fan referencing meshes onto
  * the resulting pieces. Same supported pattern
- * {@link applyIFCMaterials} / {@link demo.materials.MaterialsPalette}
+ * {@link applyIFCMaterials} / {@link studio.materials.MaterialsPalette}
  * use: detach + destroy + recreate + reattach, with a snapshot of
  * each mesh's id / matrix / opacity / parentTransform preserved
  * across the rebuild.

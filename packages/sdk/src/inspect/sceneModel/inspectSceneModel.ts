@@ -30,7 +30,7 @@ import {getInspectionIndex} from "./internal/getInspectionIndex";
  * ## Custom inspections
  *
  * ```ts
- * import {DEFAULT_INSPECTION_REGISTRY} from "@xeokit/sdk/studio";
+ * import {DEFAULT_INSPECTION_REGISTRY} from "@xeokit/sdk/inspect/sceneModel";
  *
  * DEFAULT_INSPECTION_REGISTRY.register({
  *   codes: ["MyApp/CHECK_NAMING"],
@@ -44,7 +44,7 @@ import {getInspectionIndex} from "./internal/getInspectionIndex";
  * Or for tests / isolated runs, build a fresh registry:
  *
  * ```ts
- * import {InspectionRegistry, geometryDataIntegrity, inspectSceneModel} from "@xeokit/sdk/studio";
+ * import {InspectionRegistry, geometryDataIntegrity, inspectSceneModel} from "@xeokit/sdk/inspect/sceneModel";
  *
  * const registry = new InspectionRegistry([geometryDataIntegrity]);
  * const report = inspectSceneModel({sceneModel, registry});

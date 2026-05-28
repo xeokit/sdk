@@ -18,7 +18,7 @@ import {clamp} from "../../base/math";
  * The result is a flat keyed bag the inspection's `run` consumes
  * in place of pulling fields off `params` directly.
  *
- * A Studio "Inspection settings" panel can walk every
+ * A host-supplied "Inspection settings" UI can walk every
  * registered inspection's {@link ConfigSchema} and render a form
  * from the field metadata — labels, units, min/max, enumerations
  * — without any per-inspection UI code. Plugins inherit that UI

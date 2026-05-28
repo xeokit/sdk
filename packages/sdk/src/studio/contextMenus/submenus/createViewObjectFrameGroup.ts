@@ -4,7 +4,7 @@
  * under a "Frame" submenu) because framing is the most common
  * right-click reason and an extra hover delays it.
  *
- * @module demo/viewObjectContextMenu/submenus/createViewObjectFrameGroup
+ * @module studio/viewObjectContextMenu/submenus/createViewObjectFrameGroup
  */
 
 import type {ViewObjectContextMenuContext} from "../ViewObjectContextMenuContext";

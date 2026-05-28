@@ -5,7 +5,7 @@
  * than a submenu so the click count stays low when the user
  * really wants to delete.
  *
- * @module demo/viewObjectContextMenu/submenus/createViewObjectDeleteGroup
+ * @module studio/viewObjectContextMenu/submenus/createViewObjectDeleteGroup
  */
 
 import type {ViewObjectContextMenuContext} from "../ViewObjectContextMenuContext";

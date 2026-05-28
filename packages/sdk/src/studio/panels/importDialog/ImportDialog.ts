@@ -4,7 +4,6 @@
  * registry — a new data set is added by editing that array, not
  * this file.
  *
- * @module demo/panels/importDialog/ImportDialog
  */
 
 import type {Studio} from "../../Studio";
@@ -716,7 +715,7 @@ export class ImportDialog extends FloatingPanelBase {
         coordinateSystem: this._resolveCoordSys(),
       });
       if (res.ok === false) {
-        console.error(`[ImportDialog] createModel failed: ${res.error}`);
+        this.studio.reportError(`[ImportDialog] createModel failed: ${res.error}`);
         return;
       }
       sceneModel = res.value;
@@ -726,7 +725,7 @@ export class ImportDialog extends FloatingPanelBase {
     if (wantsData) {
       const res = this.studio.data.createModel({id: modelId});
       if (res.ok === false) {
-        console.error(`[ImportDialog] createModel (data) failed: ${res.error}`);
+        this.studio.reportError(`[ImportDialog] createModel (data) failed: ${res.error}`);
         if (sceneModel) sceneModel.destroy();
         return;
       }
@@ -745,7 +744,7 @@ export class ImportDialog extends FloatingPanelBase {
           {},
         );
         if (result && (result as any).ok === false) {
-          console.warn(`[ImportDialog] ${spec.loadFormat} load failed: ${(result as any).error}`);
+          this.studio.reportWarning(`[ImportDialog] ${spec.loadFormat} load failed: ${(result as any).error}`);
         }
       }
       this.studio.recordModelOrigin(modelId, {
@@ -755,7 +754,7 @@ export class ImportDialog extends FloatingPanelBase {
         coordinateSystem: this._resolveCoordSys(),
       });
     } catch (e) {
-      console.warn(`[ImportDialog] load threw: ${e instanceof Error ? e.message : String(e)}`);
+      this.studio.reportWarning(`[ImportDialog] load threw: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
       for (const u of urls) URL.revokeObjectURL(u);
     }

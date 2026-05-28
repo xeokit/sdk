@@ -4,7 +4,7 @@
  * calls; future entries (confirm dialogs, prompt dialogs, etc.)
  * land here too.
  *
- * @module demo/dialogs
+ * @module dialogs
  */
 export * from "./LoaderProgressDialog";
 export * from "./ConfirmDialog";

@@ -127,7 +127,7 @@ const DEFAULT_CAP_COLOR: Vec3 = [0.55, 0.56, 0.58];
  * results; a caller-driven `targetModel.destroy()` between yields
  * bails the loop cleanly at the next batch boundary.
  *
- * See {@link sectionCaps | @xeokit/sdk/demo/systems/sectionCaps}
+ * See {@link sectionCaps | @xeokit/sdk/studio/systems/sectionCaps}
  * for end-to-end usage examples.
  */
 export async function buildSectionCaps(

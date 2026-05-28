@@ -36,6 +36,20 @@ interface AtlasEntry {
 }
 
 /**
+ * Shared GL resources for the gamma-correct mip-pyramid pass used
+ * on sRGB atlases. One set per WebGL context, cached in
+ * {@link TextureAtlas._mipPassCache}: a 3-vertex fullscreen-triangle
+ * shader program, an empty VAO for `gl_VertexID`-driven draws, and
+ * a reusable framebuffer that the per-level attachment swaps into.
+ */
+interface MipPassResources {
+  program: WebGLProgram;
+  vao: WebGLVertexArrayObject;
+  fbo: WebGLFramebuffer;
+  uSrc: WebGLUniformLocation;
+}
+
+/**
  * GPU 2D shelf-packed texture atlas — one per PBR map type per
  * {@link GPUMemoryBatch} (albedo, metallic-roughness, future normals /
  * occlusion / emissive).
@@ -96,6 +110,17 @@ export class TextureAtlas {
    * tiniest mips, which is acceptable for first-cut Phase 1.
    */
   public static readonly DEFAULT_PADDING_MIPMAP = 8;
+
+  /**
+   * Per-GL-context cache of the resources used by the sRGB
+   * mip-pass downsample (see {@link _generateSRGBMipmapsViaShader}).
+   * Compiling the program once and reusing the FBO + VAO across
+   * every atlas that shares a context keeps the per-atlas cost of
+   * mip regeneration to N small `drawArrays` calls. A cache entry
+   * of `null` means we attempted compilation and failed — don't
+   * retry on every flush.
+   */
+  private static _mipPassCache: WeakMap<WebGL2RenderingContext, MipPassResources | null> = new WeakMap();
 
   /**
    * UV transform for "no texture" — collapses every fragment to the
@@ -248,13 +273,13 @@ export class TextureAtlas {
       this._stampSentinel();
       // Initial mip pyramid: level-0 is now uniformly `sentinelColor`
       // (post-fill) plus the 4×4 sentinel stamp at the origin (same
-      // colour). `generateMipmap` propagates that to levels 1..N so a
+      // colour). Regenerating propagates that to levels 1..N so a
       // sentinel sample at any mip level returns the same colour, and
       // untextured meshes look identical regardless of mip mode.
-      if (this.mipmap) {
-        gl.generateMipmap(gl.TEXTURE_2D);
-      }
       gl.bindTexture(gl.TEXTURE_2D, null);
+      if (this.mipmap) {
+        this._regenerateMipmaps();
+      }
       this.allocated = true;
       // Sentinel transform: scale = 0 collapses any input UV to a single
       // point. Offset is the centre of the 4×4 white block at (0, 0).
@@ -388,8 +413,90 @@ export class TextureAtlas {
    * dimensions clear at once.
    */
   private _maxEntryDimension(): number {
-    // 4 (sentinel) + padding (sentinel's shelf padding) + padding (entry's own gutter)
-    return Math.max(1, this.size - 4 - 2 * this.padding);
+    // 4 (sentinel) + padding (sentinel's shelf trailing padding) +
+    // 2 * padding (entry's leading + trailing gutter for symmetric
+    // edge extrusion — see _extrudeWithGutter).
+    return Math.max(1, this.size - 4 - 3 * this.padding);
+  }
+
+  /**
+   * Build an extruded copy of `source` sized
+   * `(w + 2 * padding) × (h + 2 * padding)`, with the source
+   * centred at `(padding, padding)` and the surrounding gutter
+   * filled with replicated edge pixels (one 1-px slice per side
+   * stretched across the gutter, plus four corner stamps).
+   *
+   * Why extrude: each atlas entry has a CLAMP_TO_EDGE-style
+   * border requirement so that bilinear filtering at the entry's
+   * 0/1 UV edges, and `generateMipmap`'s box-filter at every
+   * higher mip level, only ever read the entry's own colour —
+   * never the sentinel fill or a neighbouring entry. Without
+   * this, an albedo entry's right edge would average to the
+   * neutral sentinel colour at higher mip levels, surfacing as a
+   * bright halo seam on the rendered mesh at distance.
+   *
+   * Returns the original `source` when `padding === 0`, or `null`
+   * in non-DOM contexts (Node tests, non-OffscreenCanvas workers).
+   * Callers fall back to a no-gutter upload in the `null` case
+   * — same behaviour as before this fix, just without the bleed
+   * protection.
+   */
+  private _extrudeWithGutter(source: ImageSource, w: number, h: number): ImageSource | null {
+    const p = this.padding;
+    if (p <= 0) return source;
+    const ew = w + 2 * p;
+    const eh = h + 2 * p;
+    let canvas: OffscreenCanvas | HTMLCanvasElement | null = null;
+    if (typeof OffscreenCanvas !== "undefined") {
+      canvas = new OffscreenCanvas(ew, eh);
+    } else if (typeof document !== "undefined" && typeof document.createElement === "function") {
+      const c = document.createElement("canvas");
+      c.width = ew; c.height = eh;
+      canvas = c;
+    }
+    if (!canvas) return null;
+    const ctx = (canvas as any).getContext("2d");
+    if (!ctx) return null;
+    // `imageSmoothingEnabled = false` so the per-slice extrusion
+    // copies (1-px source slices stretched to p-px gutter) replicate
+    // exactly without blending — bilinear scaling on a 1-px source
+    // would just multiply that pixel by alpha, but the gutter has
+    // to read the exact edge value at every sample to prevent any
+    // bleed during mip generation.
+    ctx.imageSmoothingEnabled = false;
+    try {
+      // Centre — entry's own pixels. The 2D-canvas drawImage spec
+      // accepts CSSImageValue / HTMLCanvasElement / HTMLImageElement
+      // / HTMLVideoElement / ImageBitmap / OffscreenCanvas /
+      // SVGImageElement / VideoFrame — but NOT ImageData (raw
+      // pixel buffer). texSubImage2D accepts ImageData natively so
+      // it shows up here too; use putImageData when we get one.
+      // Unknown source shapes (future texSubImage2D-accepted types
+      // we don't recognise) fall through to the catch and the
+      // caller swaps in the un-extruded upload path.
+      if (typeof ImageData !== "undefined" && source instanceof ImageData) {
+        ctx.putImageData(source, p, p);
+      } else {
+        ctx.drawImage(source as any, p, p, w, h);
+      }
+      // Edges — 1-px-wide source slices stretched across the gutter.
+      ctx.drawImage(canvas as any, p, p,           w, 1, p,     0,     w, p); // top
+      ctx.drawImage(canvas as any, p, p + h - 1,   w, 1, p,     p + h, w, p); // bottom
+      ctx.drawImage(canvas as any, p, p,           1, h, 0,     p,     p, h); // left
+      ctx.drawImage(canvas as any, p + w - 1, p,   1, h, p + w, p,     p, h); // right
+      // Corners — 1-px corner samples stretched into p×p quadrants.
+      ctx.drawImage(canvas as any, p,         p,         1, 1, 0,     0,     p, p); // TL
+      ctx.drawImage(canvas as any, p + w - 1, p,         1, 1, p + w, 0,     p, p); // TR
+      ctx.drawImage(canvas as any, p,         p + h - 1, 1, 1, 0,     p + h, p, p); // BL
+      ctx.drawImage(canvas as any, p + w - 1, p + h - 1, 1, 1, p + w, p + h, p, p); // BR
+    } catch (e) {
+      // Anything else (an unknown source shape, a Worker context
+      // where one of the calls isn't supported) — fall back silently
+      // and let the caller upload the un-extruded source. Seams may
+      // creep back at this entry's edges, but the texture loads.
+      return null;
+    }
+    return canvas as ImageSource;
   }
 
   /**
@@ -423,6 +530,19 @@ export class TextureAtlas {
     const placed = this._shelfPack(w, h);
     if (!placed) return null;
 
+    // Build an edge-extruded copy: original (w × h) centred inside
+    // a (w + 2p) × (h + 2p) canvas, gutter ring filled with
+    // replicated edge pixels. The shelf reserved the full
+    // (w + 2p) × (h + 2p) block already; we upload the extruded
+    // canvas starting `padding` to the up-left of the entry's
+    // pixel rect so the gutter ring lands in the reserved area.
+    // `null` return = environment can't extrude (no canvas); fall
+    // back to the un-extruded upload at the entry's pixel rect.
+    const extruded = this._extrudeWithGutter(uploadSource, w, h);
+    const uploadX = extruded ? placed.x - this.padding : placed.x;
+    const uploadY = extruded ? placed.y - this.padding : placed.y;
+    const finalUpload = extruded ?? uploadSource;
+
     const gl = this.gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
@@ -435,11 +555,11 @@ export class TextureAtlas {
       gl.texSubImage2D(
         gl.TEXTURE_2D,
         0,
-        placed.x,
-        placed.y,
+        uploadX,
+        uploadY,
         gl.RGBA,
         gl.UNSIGNED_BYTE,
-        uploadSource as any
+        finalUpload as any
       );
       // Defer the mip-pyramid refresh. {@link flushMipmaps} runs
       // before the next draw and pays one regeneration per atlas
@@ -506,6 +626,14 @@ export class TextureAtlas {
       }
       uploadSource = scaled;
     }
+    // Re-build the edge-extruded copy at the cached entry's size
+    // so the gutter ring around the entry contains the NEW source's
+    // edge pixels rather than the stale ones from the first add.
+    const extruded = this._extrudeWithGutter(uploadSource, entry.width, entry.height);
+    const uploadX = extruded ? entry.x - this.padding : entry.x;
+    const uploadY = extruded ? entry.y - this.padding : entry.y;
+    const finalUpload = extruded ?? uploadSource;
+
     const gl = this.gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
@@ -515,11 +643,11 @@ export class TextureAtlas {
       gl.texSubImage2D(
         gl.TEXTURE_2D,
         0,
-        entry.x,
-        entry.y,
+        uploadX,
+        uploadY,
         gl.RGBA,
         gl.UNSIGNED_BYTE,
-        uploadSource as any
+        finalUpload as any
       );
       // Same deferred-flush as `addTexture` — see comment there.
       if (this.mipmap) {
@@ -644,9 +772,9 @@ export class TextureAtlas {
    * Cheap to call when the flag is `false` (one branch).
    *
    * Called by the renderer immediately before binding the atlas
-   * for a draw so each atlas pays at most one
-   * `gl.generateMipmap` per frame regardless of how many slices
-   * were written since the previous draw.
+   * for a draw so each atlas pays at most one regeneration per
+   * frame regardless of how many slices were written since the
+   * previous draw.
    */
   public flushMipmaps(): void {
     if (!this._mipsDirty) return;
@@ -654,10 +782,7 @@ export class TextureAtlas {
       this._mipsDirty = false;
       return;
     }
-    const gl = this.gl;
-    gl.bindTexture(gl.TEXTURE_2D, this.texture);
-    gl.generateMipmap(gl.TEXTURE_2D);
-    gl.bindTexture(gl.TEXTURE_2D, null);
+    this._regenerateMipmaps();
     this._mipsDirty = false;
   }
 
@@ -737,6 +862,262 @@ export class TextureAtlas {
   }
 
   /**
+   * Refreshes the mip pyramid from level-0.
+   *
+   * sRGB-encoded atlases (`SRGB8_ALPHA8`) take the shader-pass
+   * path in {@link _generateSRGBMipmapsViaShader} because
+   * `gl.generateMipmap` on an sRGB texture is not required by the
+   * WebGL2 spec to box-filter in linear space — in practice
+   * browsers average the raw sRGB bytes, which brightens mid-tones
+   * at every mip level >0 and feeds the bloom / tonemap path with
+   * too much energy on distant surfaces (the symptom this whole
+   * dispatcher exists to fix). Linear atlases (`RGBA8` for MR /
+   * normals / occlusion / emissive) have no gamma to mishandle, so
+   * the cheap built-in path is correct.
+   */
+  private _regenerateMipmaps(): void {
+    const gl = this.gl;
+    if (!this.texture) return;
+    if (this.internalFormat === gl.SRGB8_ALPHA8) {
+      this._generateSRGBMipmapsViaShader();
+      return;
+    }
+    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+  }
+
+  /**
+   * Gamma-correct mip-pyramid generation for the sRGB albedo
+   * atlas.
+   *
+   * Each level i is rendered as a fullscreen-triangle pass that
+   * samples level i-1 with `LINEAR` filtering. The sampler's view
+   * of the texture is restricted to level i-1 via
+   * `TEXTURE_BASE_LEVEL` / `TEXTURE_MAX_LEVEL` so the read and the
+   * write target (level i, attached to the FBO) refer to disjoint
+   * mip levels of the same texture — that's what the GLES 3.0
+   * feedback-loop rule needs to be satisfied. The format is
+   * `SRGB8_ALPHA8` on both ends of the pipe, so the GPU decodes
+   * the source samples to linear on read and re-encodes the
+   * shader's output to sRGB on store; the actual box-average
+   * happens in linear space inside the bilinear hardware.
+   *
+   * State touched and restored: current framebuffer, current
+   * program, VAO binding, active texture unit + its `TEXTURE_2D`
+   * binding, viewport, color mask, and the BLEND / DEPTH_TEST /
+   * CULL_FACE / SCISSOR_TEST / STENCIL_TEST capability bits. The
+   * atlas's own `TEXTURE_BASE_LEVEL` / `TEXTURE_MAX_LEVEL` /
+   * `TEXTURE_MIN_FILTER` are also reset to the values
+   * {@link allocate} configured.
+   */
+  private _generateSRGBMipmapsViaShader(): void {
+    const gl = this.gl;
+    if (!this.texture) return;
+
+    const res = TextureAtlas._getMipPassResources(gl);
+    if (!res) {
+      // Couldn't compile the pass — fall back to the gamma-wrong
+      // built-in so the atlas at least samples *something* at
+      // distance instead of undefined level-N contents. Worse
+      // visual quality but better than a broken viewer.
+      console.warn(`[TextureAtlas] sRGB mip shader pass unavailable on '${this._description}' — falling back to gl.generateMipmap (gamma-incorrect).`);
+      gl.bindTexture(gl.TEXTURE_2D, this.texture);
+      gl.generateMipmap(gl.TEXTURE_2D);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+      return;
+    }
+
+    const mipLevels = Math.floor(Math.log2(this.size)) + 1;
+
+    // Snapshot every piece of GL state the pass touches. The
+    // renderer's per-draw bind path doesn't reset all of these
+    // unconditionally, so leaving any in a hijacked state would
+    // break subsequent draws.
+    const prevFbo = gl.getParameter(gl.DRAW_FRAMEBUFFER_BINDING);
+    const prevProgram = gl.getParameter(gl.CURRENT_PROGRAM);
+    const prevVao = gl.getParameter(gl.VERTEX_ARRAY_BINDING);
+    const prevViewport = gl.getParameter(gl.VIEWPORT) as Int32Array;
+    const prevActiveTexture = gl.getParameter(gl.ACTIVE_TEXTURE);
+    const prevColorMask = gl.getParameter(gl.COLOR_WRITEMASK) as boolean[];
+    const prevBlend = gl.isEnabled(gl.BLEND);
+    const prevDepthTest = gl.isEnabled(gl.DEPTH_TEST);
+    const prevCullFace = gl.isEnabled(gl.CULL_FACE);
+    const prevScissorTest = gl.isEnabled(gl.SCISSOR_TEST);
+    const prevStencilTest = gl.isEnabled(gl.STENCIL_TEST);
+
+    gl.activeTexture(gl.TEXTURE0);
+    const prevTextureUnit0 = gl.getParameter(gl.TEXTURE_BINDING_2D);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, res.fbo);
+    gl.useProgram(res.program);
+    gl.bindVertexArray(res.vao);
+    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    gl.uniform1i(res.uSrc, 0);
+
+    if (prevBlend) gl.disable(gl.BLEND);
+    if (prevDepthTest) gl.disable(gl.DEPTH_TEST);
+    if (prevCullFace) gl.disable(gl.CULL_FACE);
+    if (prevScissorTest) gl.disable(gl.SCISSOR_TEST);
+    if (prevStencilTest) gl.disable(gl.STENCIL_TEST);
+    gl.colorMask(true, true, true, true);
+
+    // Single-level sampling during the pass — the BASE/MAX_LEVEL
+    // window below picks which level that is per iteration.
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+    for (let i = 1; i < mipLevels; i++) {
+      const srcLevel = i - 1;
+      const dstSize = this.size >> i;
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_BASE_LEVEL, srcLevel);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAX_LEVEL, srcLevel);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, i);
+      gl.viewport(0, 0, dstSize, dstSize);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
+
+    // Restore the texture-side parameters to what allocate() set —
+    // the renderer assumes trilinear filtering across the full
+    // pyramid on every subsequent bind.
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_BASE_LEVEL, 0);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAX_LEVEL, mipLevels - 1);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+
+    // Detach the atlas from the cached FBO so it isn't keeping a
+    // reference in slot 0 between regenerations.
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, null, 0);
+
+    gl.bindTexture(gl.TEXTURE_2D, prevTextureUnit0);
+    gl.activeTexture(prevActiveTexture);
+    gl.bindVertexArray(prevVao);
+    gl.useProgram(prevProgram);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, prevFbo);
+    gl.viewport(prevViewport[0], prevViewport[1], prevViewport[2], prevViewport[3]);
+    gl.colorMask(prevColorMask[0], prevColorMask[1], prevColorMask[2], prevColorMask[3]);
+    if (prevBlend) gl.enable(gl.BLEND);
+    if (prevDepthTest) gl.enable(gl.DEPTH_TEST);
+    if (prevCullFace) gl.enable(gl.CULL_FACE);
+    if (prevScissorTest) gl.enable(gl.SCISSOR_TEST);
+    if (prevStencilTest) gl.enable(gl.STENCIL_TEST);
+  }
+
+  /**
+   * Returns the cached {@link MipPassResources} for `gl`, compiling
+   * and caching them on first use. If a previous attempt failed,
+   * the cache stores `null` and we return that without retrying.
+   * If the context was lost and restored since the last call, the
+   * `gl.isProgram` check picks up the now-invalid handle and a
+   * fresh set is built.
+   */
+  private static _getMipPassResources(gl: WebGL2RenderingContext): MipPassResources | null {
+    const cached = TextureAtlas._mipPassCache.get(gl);
+    if (cached === null) return null;
+    if (cached && gl.isProgram(cached.program)) return cached;
+
+    const vsSource = `#version 300 es
+out vec2 vUV;
+void main() {
+  // Three-vertex fullscreen triangle. The two-bit pattern across
+  // gl_VertexID = 0,1,2 puts the corners at (-1,-1), (3,-1), (-1,3)
+  // in clip space — the triangle covers the [-1,1]^2 viewport with
+  // a single primitive, and vUV interpolates over [0,2]^2 with the
+  // [0,1]^2 region landing inside the viewport.
+  vec2 pos = vec2(
+    float((gl_VertexID & 1) << 2) - 1.0,
+    float((gl_VertexID & 2) << 1) - 1.0
+  );
+  vUV = pos * 0.5 + 0.5;
+  gl_Position = vec4(pos, 0.0, 1.0);
+}
+`;
+    const fsSource = `#version 300 es
+precision highp float;
+in vec2 vUV;
+uniform sampler2D uSrc;
+out vec4 outColor;
+void main() {
+  // The atlas's BASE_LEVEL window restricts this sampler to a
+  // single source mip; bilinear filtering at the half-resolution
+  // viewport returns the 2x2 box average. For an SRGB8_ALPHA8
+  // texture the read decodes to linear and the write encodes to
+  // sRGB — the average happens in linear space, which is the
+  // entire point of routing albedo through here.
+  outColor = texture(uSrc, vUV);
+}
+`;
+    const program = TextureAtlas._compileMipProgram(gl, vsSource, fsSource);
+    if (!program) {
+      TextureAtlas._mipPassCache.set(gl, null);
+      return null;
+    }
+    const vao = gl.createVertexArray();
+    const fbo = gl.createFramebuffer();
+    const uSrc = gl.getUniformLocation(program, "uSrc");
+    if (!vao || !fbo || !uSrc) {
+      gl.deleteProgram(program);
+      if (vao) gl.deleteVertexArray(vao);
+      if (fbo) gl.deleteFramebuffer(fbo);
+      TextureAtlas._mipPassCache.set(gl, null);
+      return null;
+    }
+    const res: MipPassResources = { program, vao, fbo, uSrc };
+    TextureAtlas._mipPassCache.set(gl, res);
+    return res;
+  }
+
+  /**
+   * Compiles and links the mip-pass program. Returns `null` on
+   * any failure and logs the offending stage's info log; callers
+   * fall back to {@link gl.generateMipmap}.
+   */
+  private static _compileMipProgram(
+    gl: WebGL2RenderingContext,
+    vsSource: string,
+    fsSource: string
+  ): WebGLProgram | null {
+    const vs = gl.createShader(gl.VERTEX_SHADER);
+    const fs = gl.createShader(gl.FRAGMENT_SHADER);
+    if (!vs || !fs) {
+      if (vs) gl.deleteShader(vs);
+      if (fs) gl.deleteShader(fs);
+      return null;
+    }
+    gl.shaderSource(vs, vsSource);
+    gl.compileShader(vs);
+    if (!gl.getShaderParameter(vs, gl.COMPILE_STATUS)) {
+      console.error(`[TextureAtlas] mip-pass VS compile: ${gl.getShaderInfoLog(vs)}`);
+      gl.deleteShader(vs);
+      gl.deleteShader(fs);
+      return null;
+    }
+    gl.shaderSource(fs, fsSource);
+    gl.compileShader(fs);
+    if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) {
+      console.error(`[TextureAtlas] mip-pass FS compile: ${gl.getShaderInfoLog(fs)}`);
+      gl.deleteShader(vs);
+      gl.deleteShader(fs);
+      return null;
+    }
+    const program = gl.createProgram();
+    if (!program) {
+      gl.deleteShader(vs);
+      gl.deleteShader(fs);
+      return null;
+    }
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
+    gl.deleteShader(vs);
+    gl.deleteShader(fs);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      console.error(`[TextureAtlas] mip-pass link: ${gl.getProgramInfoLog(program)}`);
+      gl.deleteProgram(program);
+      return null;
+    }
+    return program;
+  }
+
+  /**
    * Stamps a 4×4 sentinel block at (0, 0) using {@link sentinelColor}.
    * Untextured meshes sample this block via their zero-scale UV
    * transform — the colour determines what "no texture" decodes to in
@@ -765,27 +1146,31 @@ export class TextureAtlas {
    * height left. Returns `null` on overflow.
    */
   private _shelfPack(w: number, h: number): { x: number, y: number } | null {
-    const padW = w + this.padding;
-    const padH = h + this.padding;
-    if (padW > this.size || padH > this.size) return null;
+    // Reserve symmetric leading + trailing padding around every
+    // entry so {@link _extrudeWithGutter} can fill the gutter on
+    // all four sides with replicated edge pixels. The returned
+    // position is the entry's own pixel rect — the extruded
+    // upload writes to (returned.x - padding, returned.y - padding)
+    // covering the full reserved block.
+    const p = this.padding;
+    const blockW = w + 2 * p;
+    const blockH = h + 2 * p;
+    if (blockW > this.size || blockH > this.size) return null;
 
-    // Try existing shelves first — fits when shelf has enough height
-    // headroom and free width for the padded entry.
     for (const shelf of this._shelves) {
-      if (shelf.height >= padH && shelf.usedWidth + padW <= this.size) {
-        const x = shelf.usedWidth;
-        const y = shelf.y;
-        shelf.usedWidth += padW;
-        return { x, y };
+      if (shelf.height >= blockH && shelf.usedWidth + blockW <= this.size) {
+        const blockX = shelf.usedWidth;
+        const blockY = shelf.y;
+        shelf.usedWidth += blockW;
+        return { x: blockX + p, y: blockY + p };
       }
     }
 
-    // Open a new shelf at the bottom if there's vertical room.
     const lastShelf = this._shelves[this._shelves.length - 1];
     const newY = lastShelf ? lastShelf.y + lastShelf.height : 0;
-    if (newY + padH > this.size) return null;
+    if (newY + blockH > this.size) return null;
 
-    this._shelves.push({ y: newY, height: padH, usedWidth: padW });
-    return { x: 0, y: newY };
+    this._shelves.push({ y: newY, height: blockH, usedWidth: blockW });
+    return { x: p, y: newY + p };
   }
 }

@@ -9,7 +9,6 @@
  * ({@link demo!boundariesPanel | BoundariesPanel}, etc.) — same
  * floating chrome and drag / persistence mechanics.
  *
- * @module demo/distanceMeasurementsPanel
  */
 
 export {DistanceMeasurementsPanel} from "./DistanceMeasurementsPanel";

@@ -1,5 +1,5 @@
 /**
- * @module demo/viewObjectContextMenu/ViewObjectContextMenuContext
+ * @module studio/viewObjectContextMenu/ViewObjectContextMenuContext
  */
 
 import type {ViewObject} from "../../viewing/viewer";

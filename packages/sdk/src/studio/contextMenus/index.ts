@@ -6,7 +6,7 @@
  * and the matching context types, which are what this barrel
  * exports.
  *
- * @module demo/viewObjectContextMenu
+ * @module menus
  */
 
 export {ViewObjectContextMenu} from "./ViewObjectContextMenu";

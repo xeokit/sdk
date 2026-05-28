@@ -3,7 +3,6 @@
  * dialog that lets the user pick a format and supply each file
  * the format needs from local disk.
  *
- * @module demo/toolbar/actions/importModel
  */
 
 import {ImportDialog} from "../../importDialog";

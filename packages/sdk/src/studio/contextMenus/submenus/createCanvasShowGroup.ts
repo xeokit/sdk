@@ -3,7 +3,7 @@
  * scene-wide resets only since there's no specific
  * {@link viewing!viewer.ViewObject | ViewObject} to act on.
  *
- * @module demo/viewObjectContextMenu/submenus/createCanvasShowGroup
+ * @module studio/viewObjectContextMenu/submenus/createCanvasShowGroup
  */
 
 import type {CanvasContextMenuContext} from "../CanvasContextMenuContext";

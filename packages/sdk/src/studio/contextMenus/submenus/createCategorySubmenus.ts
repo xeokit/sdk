@@ -9,7 +9,7 @@
  * → Metals → Glass) so the menu reads the same regardless of
  * catalog declaration order.
  *
- * @module demo/viewObjectContextMenu/submenus/createCategorySubmenus
+ * @module studio/viewObjectContextMenu/submenus/createCategorySubmenus
  */
 
 import type {PainterCatalogEntry} from "../../../presentations/materials";

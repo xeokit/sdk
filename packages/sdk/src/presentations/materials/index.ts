@@ -30,27 +30,34 @@
  *
  * ## Shape
  *
+ * The palette sits over a small cast of types: a {@link MaterialsPalette}
+ * owns a list of {@link PainterCatalogEntry} entries, delegates the actual
+ * texture work to the procgen painters in
+ * {@link procgen!materials.paintMaterials | paintMaterials}, and reuses each
+ * resulting {@link model!scene.SceneMaterial | SceneMaterial} through an
+ * internal per-`SceneModel` cache.
+ *
  * ```mermaid
  * classDiagram
  *     direction TB
  *     class MaterialsPalette {
- *       +catalog     : PainterCatalogEntry[]
+ *       +catalog : PainterCatalogEntry[]
  *       +textureSize : number
- *       +uvScale     : number
+ *       +uvScale : number
  *       +painterIds() string[]
  *       +getEntry(id) PainterCatalogEntry
- *       +paintMaterial(mesh, id) SDKResult~SceneMesh~
+ *       +paintMaterial(mesh, id) SDKResult
  *     }
  *     class PainterCatalogEntry {
- *       +id        : string
- *       +label     : string
- *       +category  : Masonry | Interior | Metal | Glass
- *       +paint     : (size) MaterialMaps
- *       +material? : { color, opacity, alphaMode, hatchPattern }
+ *       +id : string
+ *       +label : string
+ *       +category : string
+ *       +paint(size) MaterialMaps
+ *       +material : MaterialOverrides
  *     }
  *     class MatCache {
- *       <<internal WeakMap>>
- *       SceneModel -. painterId .-> materialId
+ *       <<internal>>
+ *       +get(model, id) SceneMaterial
  *     }
  *     class SceneMesh {
  *       <<scene>>
@@ -65,25 +72,31 @@
  *     MaterialsPalette "1" *-- "1" MatCache : reuses materials
  *     MaterialsPalette ..> paintMaterials : invokes painters
  *     MaterialsPalette ..> SceneMesh : repaints
- *     MatCache ..> SceneMaterial : shared per (SceneModel, painterId)
+ *     MatCache ..> SceneMaterial : shared per SceneModel + painterId
  * ```
  *
  * <br>
  *
  * ## Mesh repaint sequence
  *
+ * A repaint call routes through a catalog lookup, an optional first-time
+ * material build (painter → textures → material, cached), and the SDK's
+ * supported mutation pattern for swapping a mesh's material binding —
+ * snapshot the mesh's params, destroy the old mesh, then recreate it
+ * with the same id and re-attach it to its {@link model!scene.SceneObject | SceneObject}.
+ *
  * ```mermaid
  * flowchart TD
- *     A[paintMaterial mesh, painterId] --> B[lookup entry by id]
+ *     A[paintMaterial mesh painterId] --> B[lookup entry by id]
  *     B --> C{material cached for SceneModel?}
  *     C -- no --> D[call painter → MaterialMaps]
  *     D --> E[create SceneTextures]
- *     E --> F[create SceneMaterial<br/>cache as materialId]
+ *     E --> F[create SceneMaterial — cache as materialId]
  *     C -- yes --> G[reuse cached materialId]
  *     F --> H[snapshot mesh params]
  *     G --> H
  *     H --> I[detach + destroy old mesh]
- *     I --> J[create new mesh<br/>same id, new materialId]
+ *     I --> J[create new mesh — same id, new materialId]
  *     J --> K[re-attach to SceneObject]
  * ```
  *
@@ -139,7 +152,7 @@
  * ### 1) Import the entry points
  *
  * ```javascript
- * import { MaterialsPalette } from "@xeokit/sdk/studio/systems/materials";
+ * import { MaterialsPalette } from "@xeokit/sdk/presentations/materials";
  * ```
  *
  * <br>

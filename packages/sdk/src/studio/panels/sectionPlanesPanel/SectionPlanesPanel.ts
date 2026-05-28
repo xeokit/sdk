@@ -10,7 +10,6 @@
  * are an active checkbox and a destroy button. Clicking a row
  * promotes the plane to the gizmo's attached target.
  *
- * @module demo/sectionPlanesPanel
  */
 import {EventDispatcher} from "strongly-typed-events";
 import {EventEmitter} from "../../../base/core";

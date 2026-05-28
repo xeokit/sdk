@@ -3,7 +3,7 @@
  * Screenshot" entry — icon SVG, file-name derivation, and the
  * async capture+download path itself.
  *
- * @module demo/viewObjectContextMenu/helpers/screenshot
+ * @module studio/viewObjectContextMenu/helpers/screenshot
  */
 
 import type {BaseViewContext} from "../BaseViewContext";

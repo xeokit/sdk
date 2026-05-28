@@ -10,8 +10,6 @@
  * — same floating chrome and drag / persistence mechanics, with a
  * purple accent matching the angle tool's default colour and a
  * degree-formatted value column instead of a length column.
- *
- * @module demo/angleMeasurementsPanel
  */
 
 export {AngleMeasurementsPanel} from "./AngleMeasurementsPanel";

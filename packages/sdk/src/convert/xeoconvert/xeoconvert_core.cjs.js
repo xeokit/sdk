@@ -175585,7 +175585,7 @@ var FixRegistry = class {
 };
 _byCode = new WeakMap();
 
-// src/demo/synthesizeGeometryAttribs.ts
+// src/studio/synthesizeGeometryAttribs.ts
 function generateSmoothNormals(positionsCompressed, indices, aabb) {
   const vertCount = positionsCompressed.length / 3 | 0;
   const triCount = indices.length / 3 | 0;
@@ -176459,7 +176459,7 @@ function aabbDiagonal(aabb) {
   return Math.sqrt(dx * dx + dy * dy + dz * dz);
 }
 
-// src/demo/splitSceneGeometry.ts
+// src/studio/splitSceneGeometry.ts
 function splitSceneGeometry(params) {
   var _a2, _b;
   const src = params.sceneGeometry;

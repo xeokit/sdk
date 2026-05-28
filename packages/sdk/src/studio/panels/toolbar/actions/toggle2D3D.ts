@@ -6,7 +6,6 @@
  * convention) get a top-down look down −Z and Y-up scenes get a
  * top-down look down −Y.
  *
- * @module demo/toolbar/actions/toggle2D3D
  */
 
 import {OrthoProjectionType, PerspectiveProjectionType} from "../../../../base/constants";

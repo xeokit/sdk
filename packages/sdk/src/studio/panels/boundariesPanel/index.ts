@@ -1,9 +1,7 @@
 /**
  * Floating, draggable Boundaries panel — sister widget to
- * `demo/sceneStats/SceneStatsPanel`,
- * `demo/dataStats/DataStatsPanel`, and
- * `demo/sceneModelInspector/ui/SceneHealthPanel`.
- *
- * @module demo/boundariesPanel
+ * `studio/sceneStats/SceneStatsPanel`,
+ * `studio/dataStats/DataStatsPanel`, and
+ * `studio/sceneModelInspector/ui/SceneHealthPanel`.
  */
 export * from "./BoundariesPanel";

@@ -18,7 +18,6 @@
  * layout persistence, bring-to-front on pointer-down, scoped
  * `xkt-gpu-` CSS prefix.
  *
- * @module demo/gpuMemoryUsage
  */
 import type {WebGLRenderer, MemoryUsage, MemoryConfigs} from "../../../viewing/webGLRenderer";
 import {clamp} from "../../../base/math";

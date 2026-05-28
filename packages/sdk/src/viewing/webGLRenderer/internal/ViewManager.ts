@@ -362,6 +362,35 @@ export class ViewManager {
   }
 
   /**
+   * Passthrough to {@link MeshManager.enableStepStats} — toggles
+   * opt-in step-level timing inside `MeshManager._addMesh`. See
+   * {@link MeshManager.enableStepStats}.
+   *
+   * @internal
+   */
+  public enableMeshManagerStepStats(enabled: boolean): void {
+    this._meshManager.enableStepStats(enabled);
+  }
+
+  /**
+   * Passthrough to {@link MeshManager.resetStepStats}.
+   *
+   * @internal
+   */
+  public resetMeshManagerStepStats(): void {
+    this._meshManager.resetStepStats();
+  }
+
+  /**
+   * Passthrough to {@link MeshManager.getStepStats}.
+   *
+   * @internal
+   */
+  public getMeshManagerStepStats(): import("./meshManager").MeshManagerStepStats {
+    return this._meshManager.getStepStats();
+  }
+
+  /**
    * Returns the {@link viewing!viewer.View | View} at a given index in the internal view list.
    *
    * @param viewIndex - Index into the internal view list (aligned with {@link View.viewIndex}).

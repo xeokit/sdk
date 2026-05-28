@@ -5,6 +5,7 @@ import {type MemoryUsage, WebGLRenderer} from "../viewing/webGLRenderer";
 import {EventsLogger, getGlobalTaskRunner, sdkProgress, SDKErrorType, type SDKResult, SDKTask} from "../base/core";
 import {type RenderStats} from "../viewing/webGLRenderer/internal/inspectors";
 import type {ImportProvenance} from "./panels/modelsPanel/ImportProvenance";
+import {StudioEvents} from "./StudioEvents";
 // IssuesPanel is the one panel Studio still touches directly — init()
 // pre-mounts it hidden (`visible: false`) so it begins capturing
 // onError emissions before the user opens it. The registry-provided
@@ -112,7 +113,7 @@ export interface StudioConfig {
 /**
  * Helper class to set up a basic 3D demo with a Scene, Data, Viewer, WebGLRenderer, and View.
  *
- * See {@link demo | @xeokit/sdk/demo} for usage.
+ * See {@link studio | @xeokit/sdk/demo} for usage.
  */
 export class Studio {
 
@@ -187,6 +188,15 @@ export class Studio {
    */
   public readonly panels: PanelRegistry;
 
+  /**
+   * Per-Studio event hub — currently just `onError` / `onWarning`.
+   * Mirrors the `*.events` shape on Scene, Data, Viewer, and
+   * WebGLRenderer; the {@link panels!issuesPanel.IssuesPanel | IssuesPanel}
+   * subscribes here alongside those four to surface Studio-side
+   * failures in the same list.
+   */
+  public readonly events: StudioEvents = new StudioEvents();
+
   private makeComponents: boolean;
   private debug: boolean = false;
 
@@ -248,6 +258,40 @@ export class Studio {
       memory: null,
       renderer: null
     };
+  }
+
+  /**
+   * Dispatch an error through this Studio's {@link StudioEvents.onError}
+   * channel. The {@link panels!issuesPanel.IssuesPanel | IssuesPanel}
+   * is the canonical subscriber — every dispatch lands as a row in
+   * its log, with severity = `"error"`. Panels and host code use
+   * this in place of `throw` / `console.error` so the IssuesPanel
+   * is the single place to surface Studio-side failures.
+   *
+   * Accepts either an `SDKResult<any>` (an `ok: false` outcome
+   * coming back from a downstream call) or a plain message string.
+   * For the string form, the dispatched payload synthesises an
+   * `SDKResult<void>` shape with the supplied `type` (defaulting
+   * to `SDKErrorType.InvalidOperation`).
+   */
+  public reportError(error: SDKResult<any> | string, type?: SDKErrorType): void {
+    const payload: SDKResult<any> = typeof error === "string"
+      ? {ok: false, type: type ?? SDKErrorType.InvalidOperation, error}
+      : error;
+    this.events.onError.dispatch(this, payload);
+  }
+
+  /**
+   * Dispatch a recoverable warning through this Studio's
+   * {@link StudioEvents.onWarning} channel. Same payload shape and
+   * routing as {@link reportError}; the IssuesPanel surfaces these
+   * with severity = `"warning"`.
+   */
+  public reportWarning(warning: SDKResult<any> | string, type?: SDKErrorType): void {
+    const payload: SDKResult<any> = typeof warning === "string"
+      ? {ok: false, type: type ?? SDKErrorType.InvalidOperation, error: warning}
+      : warning;
+    this.events.onWarning.dispatch(this, payload);
   }
 
   /**
@@ -338,10 +382,14 @@ export class Studio {
             scene: this.scene,
             data: this.data,
             renderer: this.renderer,
+            studioEvents: this.events,
             visible: false,
           });
         } catch (e: any) {
-          console.warn("[Studio.init] Failed to mount IssuesPanel:", e?.message ?? e);
+          this.reportError(
+            `[Studio.init] Failed to mount IssuesPanel: ${e?.message ?? e}`,
+            SDKErrorType.InitializationFailed,
+          );
         }
 
         this.viewer.attachScene(this.scene);
@@ -387,7 +435,10 @@ export class Studio {
         try {
           this.panels.open("toolbar");
         } catch (e: any) {
-          console.warn("[Studio.init] Failed to auto-mount Toolbar:", e?.message ?? e);
+          this.reportError(
+            `[Studio.init] Failed to auto-mount Toolbar: ${e?.message ?? e}`,
+            SDKErrorType.InitializationFailed,
+          );
         }
 
         resolve({});
@@ -455,54 +506,78 @@ export class Studio {
       coordinateSystem = await this._loadCoordSys(params.modelId);
     }
 
+    const descriptor = this.loaders.get(params.format);
+    if (!descriptor) {
+      const err = this._reportAndReturn<any>(
+        `[Studio.loadModel] Unsupported model format: ${params.format}`,
+        SDKErrorType.InvalidInput,
+      );
+      return err;
+    }
+
     // SceneModel and DataModel for the same load share a single
     // id — that's what `TreeView._addModel`, `loadDataset`, and
     // every "find the paired model" lookup expects. Earlier code
     // suffixed `-scene` / `-data` here, which made the pair
     // unresolvable.
-    const getSceneModel = () => {
+    //
+    // Returns the lazily-resolved SceneModel / DataModel pair, or
+    // an `{ok: false, ...}` short-circuit when creation failed —
+    // the caller checks via the `failure` field before proceeding
+    // with the load. Reporting is centralised through
+    // `reportError` so the IssuesPanel sees the failure.
+    let sceneModel: SceneModel | undefined;
+    if (descriptor.needsScene) {
       if (params.sceneModel) {
-        return params.sceneModel;
+        sceneModel = params.sceneModel;
+      } else {
+        const sRes = this.scene.createModel({id: params.modelId, coordinateSystem});
+        if (sRes.ok === false) {
+          this.reportError(sRes);
+          return sRes;
+        }
+        sceneModel = sRes.value;
       }
-      const result = this.scene.createModel({
-        id: params.modelId,
-        coordinateSystem,
-      });
-      if (result.ok === false) {
-        throw new Error(result.error);
-      }
-      return result.value;
-    };
-
-    const getDataModel = () => {
+    }
+    let dataModel: DataModel | undefined;
+    if (descriptor.needsData) {
       if (params.dataModel) {
-        return params.dataModel;
+        dataModel = params.dataModel;
+      } else {
+        const dRes = this.data.createModel({id: params.modelId});
+        if (dRes.ok === false) {
+          this.reportError(dRes);
+          return dRes;
+        }
+        dataModel = dRes.value;
       }
-      const result = this.data.createModel({
-        id: params.modelId
-      });
-      if (result.ok === false) {
-        throw new Error(result.error);
-      }
-      return result.value;
-    };
-
-    const descriptor = this.loaders.get(params.format);
-    if (!descriptor) {
-      throw new Error(`Unsupported model format: ${params.format}`);
     }
 
     const src = params.src ?? this.locator.resolve(params.modelId, params.format);
     const fileData = await Studio._fetchAs(src, descriptor.fetch);
 
-    return descriptor.load(
-      {
-        fileData,
-        sceneModel: descriptor.needsScene ? getSceneModel() : undefined,
-        dataModel: descriptor.needsData ? getDataModel() : undefined,
-      },
+    const loadRes = await descriptor.load(
+      {fileData, sceneModel, dataModel},
       options,
     );
+    // Surface loader-side failures through the same channel so the
+    // IssuesPanel sees them alongside Studio-side ones. The result
+    // still flows back to the caller unchanged.
+    if (loadRes && (loadRes as any).ok === false) {
+      this.reportError(loadRes);
+    }
+    return loadRes;
+  }
+
+  /**
+   * Internal helper — dispatch a string error and return an
+   * `{ok: false, ...}` SDKResult mirroring it. Lets the loadModel
+   * (and similar) early-return paths report + return in one line.
+   */
+  private _reportAndReturn<T>(message: string, type: SDKErrorType): SDKResult<T> {
+    const payload: SDKResult<T> = {ok: false, type, error: message};
+    this.reportError(payload);
+    return payload;
   }
 
   private static async _fetchAs(src: string, kind: FormatFetchKind): Promise<any> {
@@ -550,6 +625,14 @@ export class Studio {
     // Right-click context menu — routes through the unified picker
     // for object id (no snap requested → cheap BVH path) and surfaces
     // ViewObjectContextMenu / CanvasContextMenu accordingly.
+    //
+    // NOTE — does NOT call `e.preventDefault()` here. The native
+    // browser menu suppression is the {@link ViewController}'s job
+    // (it sets `view.htmlElement.oncontextmenu = e => e.preventDefault()`
+    // during construction). Examples that don't instantiate a
+    // ViewController will see the browser's native menu fire alongside
+    // the Studio one — accepted as the user-controllable trade-off
+    // rather than unconditionally suppressing it here.
     const tryPick = (e: MouseEvent) => {
 
       const rect = view.htmlElement.getBoundingClientRect();
@@ -608,7 +691,7 @@ export class Studio {
     const hdrBuf = encodeRadianceHDR(hdrPixels, 512, 256);
     const hdrResult = view.lights.ibl.setEnvironmentHDRBuffer(hdrBuf);
     if (hdrResult.ok === false) {
-      console.warn("[Studio]", hdrResult.error);
+      this.reportWarning(`[Studio] HDR sky setup failed: ${hdrResult.error}`);
     }
   }
 
@@ -646,7 +729,9 @@ export class Studio {
         sceneModel.destroy();
         sceneModelDestroyed = true;
       } catch (e: any) {
-        console.warn(`[Studio.destroyModel] SceneModel '${modelId}' destroy threw:`, e?.message ?? e);
+        this.reportWarning(
+          `[Studio.destroyModel] SceneModel '${modelId}' destroy threw: ${e?.message ?? e}`,
+        );
       }
     }
 
@@ -656,7 +741,9 @@ export class Studio {
         dataModel.destroy();
         dataModelDestroyed = true;
       } catch (e: any) {
-        console.warn(`[Studio.destroyModel] DataModel '${modelId}' destroy threw:`, e?.message ?? e);
+        this.reportWarning(
+          `[Studio.destroyModel] DataModel '${modelId}' destroy threw: ${e?.message ?? e}`,
+        );
       }
     }
 
@@ -985,6 +1072,12 @@ export class Studio {
     // swept under formats/) honour the signal + onProgress;
     // loaders that don't run to completion as before.
     const totalFormats = formats.length;
+    // Captured-error pattern: the per-format `loadModel` outcomes
+    // are SDKResults. A failure inside the runWith callback used
+    // to throw to exit the loop — now we stash the failure here
+    // and `return` from the callback, then propagate after
+    // `runWith` resolves. Keeps the routing throw-free.
+    let innerFailure: SDKResult<any> | null = null;
     try {
       await LoaderProgressDialog.runWith({
         title: `Loading ${modelId} (${formats.join(", ")})`,
@@ -1006,7 +1099,11 @@ export class Studio {
               {onProgress, signal, yieldIntervalMs: params.yieldIntervalMs || 60},
             );
             if (r && (r as any).ok === false) {
-              throw new Error((r as any).error || `loadModel failed for format '${format}'`);
+              // loadModel already dispatched reportError on the
+              // failure, so it's in the IssuesPanel; just capture
+              // for the outer return.
+              innerFailure = r as SDKResult<any>;
+              return;
             }
           }
           // Final phase before resolution so the bar reads as
@@ -1022,6 +1119,11 @@ export class Studio {
           }
         },
       });
+      if (innerFailure) {
+        try { sceneModel.destroy(); } catch { /* ignore */ }
+        try { dataModel.destroy(); } catch { /* ignore */ }
+        return innerFailure;
+      }
       return {ok: true, value: {sceneModel, dataModel}};
     } catch (err: any) {
       // Best-effort cleanup so a half-loaded dataset doesn't

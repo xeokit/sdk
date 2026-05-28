@@ -4,7 +4,6 @@
  * `ViewerParams` for editing, plus per-View destroy buttons and
  * a "New View" footer button).
  *
- * @module demo/toolbar/actions/toggleViews
  */
 
 import type {ToolbarActionDescriptor} from "./ToolbarActionDescriptor";

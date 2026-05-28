@@ -146,34 +146,44 @@ export class RendererObject  {
 
   /**
    * Sets the opacity of the object in a specific view.
+   *
+   * Pass `undefined` (or `null`) to **clear** the per-mesh opacity
+   * override on each owned `RendererMesh`. The mesh's
+   * `setOpacityInView` interprets a null/undefined argument as
+   * "fall back to the SceneMesh's `effectiveOpacity` and clear the
+   * `ColoringOpacity` flag" — exactly what's needed when the
+   * upstream caller has cleared a ViewObject's opacity override
+   * (e.g. a 4D scheduler returning a finished task's objects to
+   * their native material alpha).
+   *
+   * Pass a number in `[0, 1]` to enable the override at that value;
+   * the mesh-level method quantises and writes the per-mesh data
+   * texture and sets the `ColoringOpacity` flag to true.
+   *
+   * Earlier behaviour clamped the null/undefined branch to a
+   * literal 255 quantised opacity and forwarded the number — this
+   * was visually equivalent to "force every mesh to alpha = 1.0",
+   * which silently routed naturally-transparent glass and curtain-
+   * wall meshes through the opaque render bin and produced uniform
+   * silhouettes on schedule-finish.
    */
-  setOpacity(viewIndex: number, opacity?: number): void {
+  setOpacity(viewIndex: number, opacity?: number | null): void {
     if (this._rendererMeshes.length === 0) {
       return;
     }
-    // @ts-ignore
-    const lastOpacityQuantized = this._rendererMeshes[0].opacity;
-    let opacityQuantized = 255;
     if (opacity !== null && opacity !== undefined) {
-      if (opacity < 0) {
-        opacity = 0;
-      } else if (opacity > 1) {
-        opacity = 1;
-      }
-      opacityQuantized = Math.floor(opacity * 255.0); // Quantize
-      // @ts-ignore
-      if (lastOpacityQuantized === opacityQuantized) {
-        return;
+      if (opacity < 0) opacity = 0;
+      else if (opacity > 1) opacity = 1;
+      const opacityQuantized = Math.floor(opacity * 255.0);
+      for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+        this._rendererMeshes[i].setOpacityInView(viewIndex, opacityQuantized);
       }
     } else {
-      opacityQuantized = 255.0;
-      // @ts-ignore
-      if (lastOpacityQuantized === opacityQuantized) {
-        return;
+      // Forward null to the mesh-level setter so it falls back to
+      // `sceneMesh.effectiveOpacity` and clears `ColoringOpacity`.
+      for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+        this._rendererMeshes[i].setOpacityInView(viewIndex, null);
       }
-    }
-    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
-      this._rendererMeshes[i].setOpacityInView(viewIndex, opacityQuantized);
     }
   }
 }

@@ -28,7 +28,7 @@
  *
  * ```mermaid
  * classDiagram
- *     direction TB
+ *     direction LR
  *     class applyHeatMapMaterials {
  *       +(params) SDKResult~void~
  *     }
@@ -81,30 +81,6 @@
  *     paintHeatMapPoint ..> PaintHeatMapPointResult : returns
  *     paintHeatMapPoint ..> SceneTexture : mutates imageData
  * ```
- *
- * <br>
- *
- * ## Bake pipeline (`applyHeatMapMaterials`)
- *
- * For every triangle-bearing
- * {@link model!scene.SceneGeometry | SceneGeometry} in the SceneModel:
- *
- * ```mermaid
- * flowchart TD
- *     A[Walk SceneModel.geometries] --> B[Resolve scalars callback]
- *     B --> C[Compute or apply scalar range]
- *     C --> D[procgen.paintHeatMap → MaterialMaps + UVs]
- *     D --> E[Write uvsCompressed onto SceneGeometry]
- *     E --> F[Create colour / normal / mr SceneTextures]
- *     F --> G[Create SceneMaterial]
- *     G --> H[Walk SceneModel.objects]
- *     H --> I[Snapshot + detach + destroy + recreate meshes<br/>bound to per-geometry heat-map material]
- *     I --> J[Reattach meshes to original SceneObjects]
- * ```
- *
- * Mesh transforms, opacity, and parent-transform bindings are
- * preserved — the SceneObject keeps its identity, only its meshes'
- * material bindings change.
  *
  * <br>
  *
@@ -172,7 +148,7 @@
  * import {
  *   applyHeatMapMaterials,
  *   paintHeatMapPoint
- * } from "@xeokit/sdk/studio/systems/heatmaps";
+ * } from "@xeokit/sdk/presentations/heatmaps";
  * ```
  *
  * <br>

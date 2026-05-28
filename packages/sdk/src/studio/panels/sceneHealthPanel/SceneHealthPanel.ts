@@ -39,7 +39,6 @@
  * The stylesheet is injected once per page (singleton `<style>`
  * tag) regardless of how many panel instances exist.
  *
- * @module demo/sceneHealthPanel
  */
 import type {Scene, SceneModel} from "../../../model/scene";
 import {isDefaultLayerModel} from "../../../model/scene";

@@ -6,7 +6,6 @@
  * authoring / output-side feature rather than a diagnostic,
  * which is why it lives under Present instead of Inspect.
  *
- * @module demo/toolbar/actions/openSchemaMaterials
  */
 
 import type {ToolbarActionDescriptor} from "./ToolbarActionDescriptor";

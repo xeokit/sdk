@@ -1,5 +1,4 @@
 /**
- * @module demo/panels/modelsPanel/ImportProvenance
  */
 
 import type {CoordinateSystemParams} from "../../../model/scene";

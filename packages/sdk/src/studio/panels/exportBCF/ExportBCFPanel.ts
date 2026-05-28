@@ -15,7 +15,6 @@
  * close + pill, layout persistence, bring-to-front on
  * pointer-down, scoped `xkt-bcf-` CSS prefix.
  *
- * @module demo/exportBCF
  */
 import type {View, ViewLayer} from "../../../viewing/viewer";
 import type {WebGLRenderer} from "../../../viewing/webGLRenderer";

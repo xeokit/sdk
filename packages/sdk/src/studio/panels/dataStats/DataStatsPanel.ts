@@ -4,8 +4,8 @@
  * a per-{@link model!data.DataModel | DataModel} breakdown, kept in sync via
  * {@link DataEvents}.
  *
- * Sister widget to {@link demo/sceneStats!SceneStatsPanel | SceneStatsPanel} and
- * {@link demo/sceneModelInspector/ui!SceneHealthPanel | SceneHealthPanel} — same
+ * Sister widget to {@link studio/sceneStats!SceneStatsPanel | SceneStatsPanel} and
+ * {@link studio/sceneModelInspector/ui!SceneHealthPanel | SceneHealthPanel} — same
  * floating chrome, same colour palette, same drag / close /
  * reopen-pill mechanics. Three panels are designed to coexist on
  * one page; their reopen pills park in different spots along the
@@ -30,7 +30,6 @@
  * stats.destroy();     // tears down
  * ```
  *
- * @module demo/dataStats
  */
 import type {Data, DataModel, DataModelStats} from "../../../model/data";
 import {FloatingPanelBase} from "../floatingPanelBase";

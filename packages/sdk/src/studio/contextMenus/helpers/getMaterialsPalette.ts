@@ -5,7 +5,7 @@
  * re-use it so the per-(SceneModel, painter) material cache
  * survives across right-clicks.
  *
- * @module demo/viewObjectContextMenu/helpers/getMaterialsPalette
+ * @module studio/viewObjectContextMenu/helpers/getMaterialsPalette
  */
 
 import {MaterialsPalette} from "../../../presentations/materials";

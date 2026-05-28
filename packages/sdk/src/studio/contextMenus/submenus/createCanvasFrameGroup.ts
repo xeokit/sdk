@@ -3,7 +3,7 @@
  * specific {@link viewing!viewer.ViewObject | ViewObject} or focused SceneModel without an
  * object pick.
  *
- * @module demo/viewObjectContextMenu/submenus/createCanvasFrameGroup
+ * @module studio/viewObjectContextMenu/submenus/createCanvasFrameGroup
  */
 
 import type {CanvasContextMenuContext} from "../CanvasContextMenuContext";

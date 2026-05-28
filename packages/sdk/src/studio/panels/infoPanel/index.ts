@@ -1,5 +1,4 @@
 /**
- * @module demo/panels/infoPanel
  */
 export {InfoPanel} from "./InfoPanel";
 export type {

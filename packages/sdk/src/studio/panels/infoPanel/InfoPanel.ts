@@ -24,7 +24,6 @@
  * For one-off widgets that don't fit the builders, {@link body}
  * is the escape hatch.
  *
- * @module demo/panels/infoPanel
  */
 
 import {FloatingPanelBase} from "../floatingPanelBase";

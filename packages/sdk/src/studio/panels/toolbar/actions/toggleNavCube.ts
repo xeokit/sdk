@@ -1,7 +1,6 @@
 /**
  * Toolbar action — toggle the {@link NavCube} on the active View.
  *
- * @module demo/toolbar/actions/toggleNavCube
  */
 
 import type {ToolbarActionDescriptor} from "./ToolbarActionDescriptor";

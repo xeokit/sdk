@@ -45,7 +45,6 @@
  * cat.destroy();
  * ```
  *
- * @module demo/sampleModelsPanel
  */
 import type {Studio} from "../../Studio";
 
@@ -1106,7 +1105,7 @@ export class SampleModelsPanel extends FloatingPanelBase {
       // body, which trapped the user with no recovery path.
       const msg = err && err.message ? err.message : String(err);
       this._showLoadError(modelId, formats, msg);
-      console.error(`[SampleModelsPanel] Load failed for '${modelId}' (${formats.join(", ")}):`, err);
+      this.studio.reportError(`${(`[SampleModelsPanel] Load failed for '${modelId}' (${formats.join(", ")}):`)}: ${err}`);
     } finally {
       this._loadInFlight = false;
       this._panel.classList.remove("xkt-sam-loading");
@@ -1128,7 +1127,7 @@ export class SampleModelsPanel extends FloatingPanelBase {
     try {
       (this.studio as any).destroyModel(id);
     } catch (e: any) {
-      console.warn(`[SampleModelsPanel] Unload failed for '${id}':`, e?.message ?? e);
+      this.studio.reportWarning(`${(`[SampleModelsPanel] Unload failed for '${id}':`)}: ${e?.message ?? e}`);
     }
     // If the helper didn't fire onSceneModelDestroyed for some
     // reason (e.g. the model was already gone), force the row

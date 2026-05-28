@@ -82,13 +82,6 @@ export function paintStudio(
   if (drawSun) {
     const sx = width * 0.18, sy = height * 0.20;
     const sRadius = Math.min(width, height) * 0.04;
-    const glowRadius = sRadius * 4.0;
-    const glow = ctx.createRadialGradient(sx, sy, 0, sx, sy, glowRadius);
-    glow.addColorStop(0,   "rgba(255,245,210,0.85)");
-    glow.addColorStop(0.4, "rgba(255,235,180,0.30)");
-    glow.addColorStop(1,   "rgba(255,235,180,0.00)");
-    ctx.fillStyle = glow;
-    ctx.beginPath(); ctx.arc(sx, sy, glowRadius, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = "rgb(255,250,235)";
     ctx.beginPath(); ctx.arc(sx, sy, sRadius, 0, Math.PI * 2); ctx.fill();
   }
@@ -105,12 +98,6 @@ export function paintStudio(
     for (const sb of softboxes) {
       const x = sb.u * width, y = sb.v * height;
       const w = sb.w * width, h = sb.h * height;
-      const halo = ctx.createRadialGradient(x + w * 0.5, y + h * 0.5, 0,
-                                            x + w * 0.5, y + h * 0.5, w * 0.85);
-      halo.addColorStop(0, sb.tint.replace("rgb", "rgba").replace(")", ",0.55)"));
-      halo.addColorStop(1, sb.tint.replace("rgb", "rgba").replace(")", ",0.00)"));
-      ctx.fillStyle = halo;
-      ctx.fillRect(x - w * 0.4, y - h * 1.5, w * 1.8, h * 4.0);
       ctx.fillStyle = sb.tint;
       ctx.fillRect(x, y, w, h);
     }

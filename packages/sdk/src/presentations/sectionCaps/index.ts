@@ -26,46 +26,46 @@
  * classDiagram
  *     direction TB
  *     class buildSectionCaps {
- *       +(params) Promise~SDKResult~BuildSectionCapsResult~~
+ *       +call(params)
  *     }
  *     class canBuildSectionCaps {
- *       +(sourceModel) boolean
+ *       +call(sourceModel) boolean
  *     }
  *     class clearSectionCaps {
- *       +(targetModel) void
+ *       +call(targetModel)
  *     }
  *     class BuildSectionCapsParams {
- *       +sourceModel        : SceneModel
- *       +targetModel        : SceneModel
- *       +capPlanes          : CapPlane[]
- *       +capColor?          : Vec3
- *       +idPrefix?          : string
- *       +layerId?           : string
- *       +includeObjectIds?  : string[] | Set~string~
- *       +excludeObjectIds?  : string[] | Set~string~
- *       +includeObject?     : (SceneObject) =&gt; boolean
- *       +progressive?       : boolean | ProgressiveSpec
+ *       +sourceModel : SceneModel
+ *       +targetModel : SceneModel
+ *       +capPlanes : CapPlane[]
+ *       +capColor : Vec3
+ *       +idPrefix : string
+ *       +layerId : string
+ *       +includeObjectIds : string[]
+ *       +excludeObjectIds : string[]
+ *       +includeObject(obj) boolean
+ *       +progressive : ProgressiveSpec
  *     }
  *     class CapPlane {
- *       +dir  : Vec3
+ *       +dir : Vec3
  *       +dist : number
  *     }
  *     class ProgressiveSpec {
- *       +batchSize? : number
- *       +yield?     : () =&gt; Promise~void~
+ *       +batchSize : number
+ *       +yield() Promise
  *     }
  *     class BuildSectionCapsResult {
  *       +numObjectsWithCaps : number
- *       +numCapMeshes       : number
- *       +numUnclosedMeshes  : number
+ *       +numCapMeshes : number
+ *       +numUnclosedMeshes : number
  *     }
  *     class SceneModel {
  *       <<scene>>
  *     }
  *     class SectionPlane {
  *       <<viewer>>
- *       +dir
- *       +dist
+ *       +dir : Vec3
+ *       +dist : number
  *     }
  *     BuildSectionCapsParams "1" *-- "*" CapPlane : capPlanes
  *     BuildSectionCapsParams o-- SceneModel : sourceModel
@@ -77,38 +77,6 @@
  *     clearSectionCaps ..> SceneModel : destroys
  *     CapPlane <.. SectionPlane : copy dir + dist
  * ```
- *
- * <br>
- *
- * ## Pipeline
- *
- * For every triangle-bearing source {@link model!scene.SceneMesh | SceneMesh}
- * the extractor straddle-tests each plane, stitches the resulting
- * segments into closed loops, then triangulates them into cap meshes:
- *
- * ```mermaid
- * flowchart TD
- *     A[Source SceneModel] --> B[Walk triangle meshes]
- *     B --> C[Slice triangles against plane]
- *     C --> D[Stitch segments into loops]
- *     D --> E[Sutherland-Hodgman trim against other planes]
- *     E --> F[Classify outer / hole rings]
- *     F --> G[earcut triangulate]
- *     G --> H[Emit geometry + material + mesh]
- *     H --> I[Group meshes per source object]
- *     I --> J[Target SceneModel]
- *     D -.unclosed.-> K[numUnclosedMeshes diagnostic]
- * ```
- *
- * The orchestrating entry point is {@link buildSectionCaps}, which
- * accepts a {@link BuildSectionCapsParams} bundle and returns counts
- * via {@link BuildSectionCapsResult} inside an
- * {@link base!core.SDKResult | SDKResult}. Sibling helpers:
- *
- * - {@link canBuildSectionCaps} — predicate guard: skip the call
- *   when the source has no triangle-bearing geometry.
- * - {@link clearSectionCaps} — destroyed-aware wrapper for tearing
- *   the target SceneModel down.
  *
  * <br>
  *
@@ -179,7 +147,7 @@
  *   buildSectionCaps,
  *   canBuildSectionCaps,
  *   clearSectionCaps
- * } from "@xeokit/sdk/studio/systems/sectionCaps";
+ * } from "@xeokit/sdk/presentations/sectionCaps";
  * ```
  *
  * <br>

@@ -48,11 +48,22 @@ export function compressGeometryParams(geometryParams: SceneGeometryParams): Sce
       origin: rtcNeeded ? rtcCenter : null
     };
   } else {
-    const edgeIndices = (geometryParams.primitive === SolidPrimitive
+    // For triangle-family geometries, auto-build feature edges. The
+    // builder returns an EMPTY typed array when every interior edge
+    // is too smooth to count (typical of a single fully-coplanar
+    // tessellation — e.g. an earcut'd 2D polygon at z=0, which is
+    // common in drawing/SVG/PDF imports) AND every triangle's edge
+    // is shared with a neighbour. Collapse that to `null` so
+    // downstream consumers (specifically the WebGLRenderer's edge
+    // portion allocator, which rejects size=0) see "no edges" as a
+    // first-class state rather than an empty buffer to upload.
+    let edgeIndices: ReturnType<typeof buildEdgeIndices> | null = null;
+    if ((geometryParams.primitive === SolidPrimitive
       || geometryParams.primitive === SurfacePrimitive
-      || geometryParams.primitive === TrianglesPrimitive) && geometryParams.indices
-      ? buildEdgeIndices(positionsCompressed, geometryParams.indices, aabb, 10)
-      : null;
+      || geometryParams.primitive === TrianglesPrimitive) && geometryParams.indices) {
+      const built = buildEdgeIndices(positionsCompressed, geometryParams.indices, aabb, 10);
+      if (built && built.length > 0) edgeIndices = built;
+    }
     // Encode normals only when supplied and length-matched against positions.
     const normalsCompressed =
       geometryParams.normals && geometryParams.normals.length === geometryParams.positions.length

@@ -130,7 +130,7 @@
  * if (!result.ok) throw new Error(result.error);
  * ```
  *
- * @module demo/applyIFCMaterials
+ * @module studio/applyIFCMaterials
  */
 
 export * from "./IfcPainterEntry";

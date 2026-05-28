@@ -11,12 +11,11 @@ import type {SceneObject} from "./SceneObject";
  * proxies, NavCube), user annotations, comparison snapshots,
  * etc.
  *
- * Studio panels that list "the SceneModels the user authored"
- * — SceneHealthPanel's tab strip, SchemaMaterialsPanel's tab
- * strip, DrawingsPanel's source-model picker, and any other
- * user-facing enumerator — call {@link isDefaultLayerModel} to
- * whitelist the default layer. Anything in a named layer is
- * skipped, regardless of name.
+ * Enumerators that list "the SceneModels the user authored" —
+ * user-facing tab strips, source-model pickers, inspection
+ * walkers — call {@link isDefaultLayerModel} to whitelist the
+ * default layer. Anything in a named layer is skipped, regardless
+ * of name.
  *
  * Consumption-side only — the renderer's draw, pick, and clip
  * paths see every layer normally.

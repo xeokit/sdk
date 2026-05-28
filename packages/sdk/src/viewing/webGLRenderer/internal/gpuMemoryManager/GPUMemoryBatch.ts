@@ -1107,7 +1107,14 @@ export class GPUMemoryBatch {
       });
     }
 
-    this._meshMatrixTexture.setItem(meshIndex, new Float32Array(sceneMesh.matrix));
+    // Upload the WORLD matrix — `sceneMesh.matrix` is the local matrix
+    // and silently drops the SceneModel's coordinateSystemMatrix on
+    // models whose basis differs from the scene's (e.g. a Z-up model in
+    // a Y-up scene), leaving any mesh whose initial GPU upload happens
+    // here unrotated until a follow-up setMatrix() overwrite arrives.
+    // `worldMatrix` already includes the coord-system pre-multiply and
+    // any parent-transform chain.
+    this._meshMatrixTexture.setItem(meshIndex, new Float32Array(sceneMesh.worldMatrix));
 
     const primitiveCount = sceneGeometry.primitive === PointsPrimitive
       ? sceneGeometry.positionsCompressed.length / 3
@@ -1127,9 +1134,20 @@ export class GPUMemoryBatch {
     if (sceneGeometry.primitive === TrianglesPrimitive) {
       const edgeCount = sceneGeometry.edgeIndices ? sceneGeometry.edgeIndices.length / 2 : 0;
       edgeMeshIndexTextureHandles = [];
-      for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
-        edgeMeshIndexTextureHandles.push(
-          this._edgeMeshIndexTexture[viewIndex].createPortion(edgeCount, meshIndex, RENDER_PASSES.OPAQUE));
+      // Skip the per-view edge portion when the geometry has no
+      // feature edges (typical of fully-coplanar earcut output from
+      // SVG / PDF / drawing imports). Without this guard,
+      // `createPortion(0)` throws `SDKInternalException` mid
+      // sceneMeshCreated dispatch, aborting the mesh creation and
+      // leaving the SceneObject with a dangling globalId. The
+      // primitive-side portion (line 1129 above) is allocated
+      // unconditionally because primitiveCount is already validated
+      // by SceneModel.createGeometry's empty-indices check.
+      if (edgeCount > 0) {
+        for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+          edgeMeshIndexTextureHandles.push(
+            this._edgeMeshIndexTexture[viewIndex].createPortion(edgeCount, meshIndex, RENDER_PASSES.OPAQUE));
+        }
       }
     }
 

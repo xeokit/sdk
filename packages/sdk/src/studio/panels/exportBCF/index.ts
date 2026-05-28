@@ -7,6 +7,5 @@
  * checkbox-driven control over which {@link viewing!viewer.ViewLayer |
  * ViewLayers} contribute their component states.
  *
- * @module demo/exportBCF
  */
 export * from "./ExportBCFPanel";

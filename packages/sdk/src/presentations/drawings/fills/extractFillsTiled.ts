@@ -35,7 +35,7 @@
  * runs in ~10 MB peak (tile buffer + segment lists), where the
  * untiled extractor would need ~1 GB just for owner+depth.
  *
- * @module demo/systems/drawings/extractFillsTiled
+ * @module studio/systems/drawings/extractFillsTiled
  */
 import type {SceneCollisionIndex} from "../../../spatial/collision";
 import {

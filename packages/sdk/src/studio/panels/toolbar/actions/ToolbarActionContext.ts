@@ -7,7 +7,6 @@
  * interface, so a host that wants a different Toolbar shell can
  * supply its own context and reuse the same action library.
  *
- * @module demo/toolbar/actions/ToolbarActionContext
  */
 
 import type {Viewer, View} from "../../../../viewing/viewer";

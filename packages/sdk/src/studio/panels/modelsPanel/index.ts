@@ -1,5 +1,4 @@
 /**
- * @module demo/panels/modelsPanel
  */
 
 export {ModelsPanel} from "./ModelsPanel";

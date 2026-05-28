@@ -4,7 +4,7 @@
  * context-loss simulator). Returns `null` when the debug flag
  * is unset, so the caller filters it out of the menu.
  *
- * @module demo/viewObjectContextMenu/submenus/createDebugSubmenu
+ * @module studio/viewObjectContextMenu/submenus/createDebugSubmenu
  */
 
 import type {WebGLRenderer} from "../../../viewing/webGLRenderer";

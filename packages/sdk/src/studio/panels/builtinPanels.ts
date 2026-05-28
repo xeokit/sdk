@@ -2,7 +2,6 @@ import type {SceneModel} from "../../model/scene";
 import type {DataModel} from "../../model/data";
 import type {View} from "../../viewing/viewer";
 import type {DataFormatSchema} from "../../inspect/dataModel";
-
 import {getGlobalTaskRunner} from "../../base/core";
 
 import {ModelsPanel} from "./modelsPanel/ModelsPanel";
@@ -24,13 +23,25 @@ import {IssuesPanel} from "./issuesPanel/IssuesPanel";
 import {TasksPanel} from "./tasksPanel/TasksPanel";
 import {ShadersPanel} from "./shadersPanel/ShadersPanel";
 import {DataTexturesPanel} from "./dataTexturesPanel/DataTexturesPanel";
+import {CameraTourPanel} from "./cameraTour/CameraTourPanel";
 import {DrawingsPanel} from "./drawings/DrawingsPanel";
 import {RendererPanel} from "./rendererPanel/RendererPanel";
+import {PdfImportPanel} from "./pdfImport/PdfImportPanel";
 import {NavCube} from "./navCube/NavCube";
 import type {NavCubeParams} from "./navCube/NavCubeParams";
 import {DistanceMeasurementsPanel} from "./distanceMeasurementsPanel/DistanceMeasurementsPanel";
 import {AngleMeasurementsPanel} from "./angleMeasurementsPanel/AngleMeasurementsPanel";
 import {SectionPlanesPanel} from "./sectionPlanesPanel/SectionPlanesPanel";
+import {SchedulePanel} from "./schedulePanel/SchedulePanel";
+import type {SchedulePlayer} from "../../presentations/schedule";
+import {SunStudyPanel} from "./sunStudyPanel/SunStudyPanel";
+import {SunStudy, type AnnualSunPlayer} from "../../presentations/sunStudy";
+import {DaylightAnalysisPanel} from "./daylightAnalysisPanel/DaylightAnalysisPanel";
+import {VolumeOverlayPanel} from "./volumeOverlayPanel/VolumeOverlayPanel";
+import type {VoxelGrid, VectorGrid, SliceAxis} from "../../presentations/volumeOverlay";
+import {makeDemoScalarField, makeDemoVectorField} from "../../presentations/volumeOverlay";
+import type {AnalysisGrid, SkyModel} from "../../presentations/daylightAnalysis";
+import type {Scene} from "../../model/scene";
 
 import {DistanceMeasurementTool} from "../../tools/measurements/distance/DistanceMeasurementTool";
 import type {DistanceMeasurementToolParams} from "../../tools/measurements/distance/DistanceMeasurementToolParams";
@@ -39,7 +50,7 @@ import type {AngleMeasurementsToolParams} from "../../tools/measurements/angle/A
 import {TransformControls} from "../../viewing/transformControls";
 import type {TransformControlsParams} from "../../viewing/transformControls";
 
-import type {PanelRegistry} from "./PanelRegistry";
+import type {PanelRegistry, PanelContext} from "./PanelRegistry";
 
 declare module "./PanelRegistry" {
   interface PanelMap {
@@ -54,6 +65,7 @@ declare module "./PanelRegistry" {
     shadersPanel:              {panel: ShadersPanel;               params: void};
     dataTexturesPanel:         {panel: DataTexturesPanel;          params: void};
     drawingsPanel:             {panel: DrawingsPanel;              params: void};
+    cameraTourPanel:           {panel: CameraTourPanel;            params: void};
     exportDialog:              {panel: ExportDialog;               params: void};
     exportBCFPanel:            {panel: ExportBCFPanel;             params: void};
     explorerPanel:             {panel: ExplorerPanel;              params: void};
@@ -62,8 +74,30 @@ declare module "./PanelRegistry" {
     viewerConfig:              {panel: ViewerConfigPanel;          params: void};
     gpuMemory:                 {panel: GPUMemoryPanel;             params: void};
     rendererPanel:             {panel: RendererPanel;              params: void};
+    pdfImport:                 {panel: PdfImportPanel;             params: void};
     schemaMaterials:           {panel: SchemaMaterialsPanel;       params: {focusSceneModel?: SceneModel}};
     sampleModels:              {panel: SampleModelsPanel;          params: void};
+
+    // per-player entry — `params.player` mandatory, since the panel
+    // is two-way-bound to a SchedulePlayer that the application
+    // constructed earlier.
+    schedulePanel:             {panel: SchedulePanel;              params: {player: SchedulePlayer}};
+
+    // per-sun-study entry — `params.sunStudy` mandatory; `player`
+    // optional (without it the panel is scrub-only).
+    sunStudyPanel:             {panel: SunStudyPanel;              params: {sunStudy: SunStudy; player?: AnnualSunPlayer}};
+
+    // per-sun-study + scene entry — the analysis raycasts the scene
+    // for occluders, so it needs the Scene as well as the SunStudy.
+    daylightAnalysisPanel:     {panel: DaylightAnalysisPanel;      params: {sunStudy: SunStudy; scene: Scene; initialGrid?: AnalysisGrid; initialYear?: number; initialDaysPerYear?: number; initialHoursPerDay?: number; initialSkyModel?: SkyModel}};
+
+    // per-VoxelGrid entry — slice-plane visualisation of a 3D
+    // scalar field. The panel takes the grid by reference, the
+    // scene as the SceneModel host. No application-side wiring
+    // is mandatory: there's no toolbar button for this one (yet),
+    // and creating one without a grid wouldn't have anything to
+    // visualise.
+    volumeOverlayPanel:        {panel: VolumeOverlayPanel;         params: {grid: VoxelGrid; vectorGrid?: VectorGrid; scene: Scene; initialTechnique?: "slice" | "isosurface" | "streamlines"; initialAxis?: SliceAxis; initialPosition?: number; initialIsovalue?: number; initialColormap?: string; initialSeedDensity?: number}};
 
     // per-view entries — `params.view` mandatory
     navCube:                   {panel: NavCube;                    params: {view: View} & Partial<NavCubeParams>};
@@ -75,6 +109,23 @@ declare module "./PanelRegistry" {
     transformControls:         {panel: TransformControls;          params: {view: View} & Partial<TransformControlsParams>};
   }
 }
+
+/**
+ * Returns the first live View in the Studio's ViewManager, or
+ * `undefined` if none exist yet. Used by the Toolbar-cold-start
+ * path of `sunStudyPanel` / `daylightAnalysisPanel` to pick a
+ * View to attach an auto-constructed SunStudy to.
+ */
+function firstView(ctx: PanelContext): View | undefined {
+  const views = ctx.studio.viewManager?.views;
+  if (!views) return undefined;
+  for (const id in views) {
+    const rec = views[id];
+    if (rec?.view) return rec.view;
+  }
+  return undefined;
+}
+
 
 /**
  * Registers every built-in panel and tool with the supplied registry.
@@ -121,7 +172,7 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
     create: (ctx) => {
       const view = ctx.studio.viewer?.viewList?.[0];
       if (!view) {
-        console.warn("[PanelRegistry/boundariesPanel] No View available — needs a View for the camera-pose pointer.");
+        ctx.studio.reportWarning("[PanelRegistry/boundariesPanel] No View available — needs a View for the camera-pose pointer.");
         return undefined;
       }
       // CameraFlight is owned by the View's ViewRecord, not the
@@ -138,12 +189,12 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
     create: (ctx) => {
       const view = ctx.studio.viewer?.viewList?.[0];
       if (!view) {
-        console.warn("[PanelRegistry/tilesPanel] No View available — needs a View for the camera-pose pointer.");
+        ctx.studio.reportWarning("[PanelRegistry/tilesPanel] No View available — needs a View for the camera-pose pointer.");
         return undefined;
       }
       const inspectorRes = ctx.studio.renderer.getRenderInspector();
       if (inspectorRes.ok === false) {
-        console.warn("[PanelRegistry/tilesPanel] Renderer doesn't expose a RenderInspector:", inspectorRes.error);
+        ctx.studio.reportWarning(`[PanelRegistry/tilesPanel] Renderer doesn't expose a RenderInspector:: ${inspectorRes.error}`);
         return undefined;
       }
       inspectorRes.value.enabled = true;
@@ -178,7 +229,7 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
     create: (ctx) => {
       const res = ctx.studio.renderer.getShaderInspector();
       if (res.ok === false) {
-        console.warn("[PanelRegistry/shadersPanel] Renderer doesn't expose a ShaderInspector:", res.error);
+        ctx.studio.reportWarning(`[PanelRegistry/shadersPanel] Renderer doesn't expose a ShaderInspector:: ${res.error}`);
         return undefined;
       }
       return ShadersPanel.openFor({inspector: res.value});
@@ -195,12 +246,12 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
     create: (ctx) => {
       const res = ctx.studio.renderer.getMemoryInspector();
       if (res.ok === false) {
-        console.warn("[PanelRegistry/dataTexturesPanel] Renderer doesn't expose a MemoryInspector:", res.error);
+        ctx.studio.reportWarning(`[PanelRegistry/dataTexturesPanel] Renderer doesn't expose a MemoryInspector:: ${res.error}`);
         return undefined;
       }
       const dt = res.value.dataTextures;
       if (!dt) {
-        console.warn("[PanelRegistry/dataTexturesPanel] MemoryInspector has no DataTextures bundle.");
+        ctx.studio.reportWarning("[PanelRegistry/dataTexturesPanel] MemoryInspector has no DataTextures bundle.");
         return undefined;
       }
       return DataTexturesPanel.openFor({dataTextures: dt});
@@ -210,6 +261,11 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
   registry.register("drawingsPanel", {
     find:   (ctx) => DrawingsPanel.getFor(ctx.studio),
     create: (ctx) => DrawingsPanel.openFor({studio: ctx.studio}),
+  });
+
+  registry.register("cameraTourPanel", {
+    find:   (ctx) => CameraTourPanel.getFor(ctx.studio),
+    create: (ctx) => CameraTourPanel.openFor({studio: ctx.studio}),
   });
 
   registry.register("exportDialog", {
@@ -225,7 +281,7 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
     create: (ctx) => {
       const view = ctx.studio.viewer?.viewList?.[0];
       if (!view) {
-        console.warn("[PanelRegistry/exportBCFPanel] No View available — BCF export needs a View to capture state from.");
+        ctx.studio.reportWarning("[PanelRegistry/exportBCFPanel] No View available — BCF export needs a View to capture state from.");
         return undefined;
       }
       return ExportBCFPanel.openFor({view, renderer: ctx.studio.renderer});
@@ -237,7 +293,7 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
     create: (ctx) => {
       const view = ctx.studio.viewer?.viewList?.[0];
       if (!view) {
-        console.warn("[PanelRegistry/explorerPanel] No View available — Explorer needs a View for visibility checkboxes.");
+        ctx.studio.reportWarning("[PanelRegistry/explorerPanel] No View available — Explorer needs a View for visibility checkboxes.");
         return undefined;
       }
       const cameraFlight = ctx.studio.viewManager.views?.[view.id]?.cameraFlight;
@@ -250,10 +306,17 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
     create: (ctx) => {
       const {viewer, scene, data, renderer} = ctx.studio;
       if (!viewer || !scene || !data || !renderer) {
-        console.warn("[PanelRegistry/issuesPanel] Studio not fully initialised yet — Viewer/Scene/Data/WebGLRenderer must exist.");
+        ctx.studio.reportError(
+          "[PanelRegistry/issuesPanel] Studio not fully initialised yet — " +
+          "Viewer/Scene/Data/WebGLRenderer must exist.",
+        );
         return undefined;
       }
-      return IssuesPanel.openFor({viewer, scene, data, renderer, visible: true});
+      return IssuesPanel.openFor({
+        viewer, scene, data, renderer,
+        studioEvents: ctx.studio.events,
+        visible: true,
+      });
     },
   });
 
@@ -283,6 +346,11 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
     create: (ctx) => RendererPanel.openFor({renderer: ctx.studio.renderer}),
   });
 
+  registry.register("pdfImport", {
+    find:   (ctx) => PdfImportPanel.getFor(ctx.studio),
+    create: (ctx) => PdfImportPanel.openFor({studio: ctx.studio}),
+  });
+
   registry.register("schemaMaterials", {
     find:   (ctx) => SchemaMaterialsPanel.getFor(ctx.studio.scene),
     create: (ctx, params) => SchemaMaterialsPanel.openFor({
@@ -300,6 +368,177 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
   registry.register("sampleModels", {
     find:   (ctx) => SampleModelsPanel.getFor(ctx.studio),
     create: (ctx) => SampleModelsPanel.openFor({studio: ctx.studio}),
+  });
+
+  // ── per-player panel ────────────────────────────────────────────────────
+  //
+  // SchedulePanel is two-way-bound to a SchedulePlayer the application
+  // constructed earlier — Studio doesn't own the player, so the
+  // registry can't synthesise one. Callers must pass `params.player`;
+  // the panel's per-player WeakMap registry handles idempotence.
+  registry.register("schedulePanel", {
+    find: (_ctx, params) => params?.player
+      ? SchedulePanel.getFor(params.player)
+      : undefined,
+    create: (ctx, params) => {
+      if (!params?.player) {
+        ctx.studio.reportWarning("[PanelRegistry/schedulePanel] missing required params.player");
+        return undefined;
+      }
+      return SchedulePanel.openFor({player: params.player});
+    },
+  });
+
+  // Same per-SunStudy contract — the panel is two-way bound to a
+  // SunStudy the application constructed; Studio can't synthesise
+  // one because it'd need the site coordinates. Optional `player`
+  // unlocks the play/pause/mode chrome.
+  registry.register("sunStudyPanel", {
+    // `find` falls back to the latest-opened panel when no
+    // sunStudy is in params — that's the Toolbar "Sun Study"
+    // button toggling whichever panel the application has
+    // already wired up. With a sunStudy in params, find the
+    // specific per-SunStudy instance as usual.
+    find: (_ctx, params) => params?.sunStudy
+      ? SunStudyPanel.getFor(params.sunStudy)
+      : SunStudyPanel.getLatest(),
+    create: (ctx, params) => {
+      // Cold-start fallback chain:
+      //   params.sunStudy → existing SunStudy.getLatest() → auto-
+      //   construct a default one on the first available View.
+      // The auto-construct path lets the Toolbar's Sun Study button
+      // open the panel from a completely cold scene, with no
+      // application-side SunStudy wiring required. Defaults to
+      // Greenwich (51.48°N, 0°) — a recognisable solar-reference
+      // site — and the SunStudy's own default solstice-noon cursor.
+      // Both are user-editable through the panel inputs.
+      let sunStudy = params?.sunStudy ?? SunStudy.getLatest();
+      if (!sunStudy) {
+        const view = firstView(ctx);
+        if (!view) {
+          ctx.studio.reportWarning(
+            "[PanelRegistry/sunStudyPanel] No View available to attach a SunStudy to. " +
+            "Create a View first (e.g. `studio.viewManager.createView({...})`)."
+          );
+          return undefined;
+        }
+        sunStudy = new SunStudy({
+          view,
+          latitude:  51.48,
+          longitude: 0,
+        });
+      }
+      return SunStudyPanel.openFor({sunStudy, player: params?.player});
+    },
+  });
+
+  // The daylight-analysis panel is also per-SunStudy (it derives the
+  // site location from there), and additionally takes the Scene as
+  // the source of occluder geometry for the raycast pass. Application
+  // supplies both — Studio doesn't know which Scene the caller wants
+  // to analyse against.
+  registry.register("daylightAnalysisPanel", {
+    // Same latest-fallback shape as sunStudyPanel — lets the
+    // Toolbar's Daylight Analysis button toggle whichever panel
+    // the application has already wired up, without needing to
+    // carry direct SunStudy / Scene references through the Toolbar.
+    find: (_ctx, params) => params?.sunStudy
+      ? DaylightAnalysisPanel.getFor(params.sunStudy)
+      : DaylightAnalysisPanel.getLatest(),
+    create: (ctx, params) => {
+      // Same cold-start fallback chain as `sunStudyPanel` above:
+      //   params.sunStudy → SunStudy.getLatest() → auto-construct
+      //   on the first View with Greenwich defaults. Scene falls
+      //   back to the Studio's own. Both paths make the Toolbar
+      //   "Daylight Analysis" button work from a completely cold
+      //   scene with zero application-side wiring.
+      const scene = params?.scene ?? ctx.studio.scene;
+      if (!scene) {
+        ctx.studio.reportWarning("[PanelRegistry/daylightAnalysisPanel] No Scene available.");
+        return undefined;
+      }
+      let sunStudy = params?.sunStudy ?? SunStudy.getLatest();
+      if (!sunStudy) {
+        const view = firstView(ctx);
+        if (!view) {
+          ctx.studio.reportWarning(
+            "[PanelRegistry/daylightAnalysisPanel] No View available to attach a SunStudy to. " +
+            "Create a View first (e.g. `studio.viewManager.createView({...})`)."
+          );
+          return undefined;
+        }
+        sunStudy = new SunStudy({
+          view,
+          latitude:  51.48,
+          longitude: 0,
+        });
+      }
+      return DaylightAnalysisPanel.openFor({
+        sunStudy,
+        scene,
+        initialGrid:         params?.initialGrid,
+        initialYear:         params?.initialYear,
+        initialDaysPerYear:  params?.initialDaysPerYear,
+        initialHoursPerDay:  params?.initialHoursPerDay,
+        initialSkyModel:     params?.initialSkyModel,
+      });
+    },
+  });
+
+  // The volume-overlay panel is per-VoxelGrid (it takes a direct
+  // reference to the field) and per-Scene (to host the slice
+  // SceneModel). No cold-start fallback path — there's nothing
+  // for the panel to visualise without a grid, so the application
+  // must always pass one.
+  registry.register("volumeOverlayPanel", {
+    find: (_ctx, params) => params?.grid
+      ? VolumeOverlayPanel.getFor(params.grid)
+      : VolumeOverlayPanel.getLatest(),
+    create: (ctx, params) => {
+      const scene = params?.scene ?? ctx.studio.scene;
+      if (!scene) {
+        ctx.studio.reportWarning("[PanelRegistry/volumeOverlayPanel] No Scene available.");
+        return undefined;
+      }
+      // Cold-start fallback: when no `grid` was supplied, synthesise
+      // a demo thermal field (+ matching natural-convection vector
+      // field) covering the scene's AABB. The toolbar uses this path
+      // so a click on "Volume Overlay" always produces something
+      // visible, even when the application hasn't wired up a real
+      // CFD result. Padded slightly outside the scene's bounds so
+      // the field surrounds the model rather than clipping it.
+      let grid       = params?.grid;
+      let vectorGrid = params?.vectorGrid;
+      if (!grid) {
+        const aabb = ctx.studio.picking?.collisionIndex?.getSceneAABB?.();
+        const pad  = 3;
+        const min: [number, number, number] = aabb
+          ? [aabb[0] - pad, aabb[1] - pad, aabb[2]]
+          : [-10, -10,  0];
+        const max: [number, number, number] = aabb
+          ? [aabb[3] + pad, aabb[4] + pad, aabb[5] + pad]
+          : [ 10,  10, 10];
+        grid       = makeDemoScalarField(min, max);
+        vectorGrid = vectorGrid ?? makeDemoVectorField(min, max);
+        console.info(
+          "[PanelRegistry/volumeOverlayPanel] No grid supplied — opened with a demo " +
+          "thermal field + convection vectors over the scene AABB. Pass `grid` and " +
+          "`vectorGrid` to `studio.panels.open(\"volumeOverlayPanel\", …)` to visualise real data."
+        );
+      }
+      return VolumeOverlayPanel.openFor({
+        grid,
+        vectorGrid,
+        scene,
+        studio:             ctx.studio,
+        initialTechnique:   params?.initialTechnique,
+        initialAxis:        params?.initialAxis,
+        initialPosition:    params?.initialPosition,
+        initialIsovalue:    params?.initialIsovalue,
+        initialColormap:    params?.initialColormap,
+        initialSeedDensity: params?.initialSeedDensity,
+      });
+    },
   });
 
   // ── per-view panels / tools ─────────────────────────────────────────────

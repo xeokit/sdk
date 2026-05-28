@@ -38,7 +38,6 @@
  * each subclass keeps its own static `_instances` registry,
  * scene / data references, and panel-content rendering.
  *
- * @module demo/floatingPanelBase
  */
 import {EventDispatcher} from "strongly-typed-events";
 import {EventEmitter} from "../../base/core";
@@ -103,7 +102,7 @@ export interface FloatingPanelBaseParams {
    * Views) always sit beneath `"default"` panels (regular demo
    * panels and dialogs); within each tier panels still reorder
    * on click via {@link bringFloatingPanelToFront}. Defaults to
-   * `"default"`. See {@link demo/floatingPanelZ} for the
+   * `"default"`. See {@link studio/floatingPanelZ} for the
    * counter ranges.
    */
   tier?: "view" | "default";

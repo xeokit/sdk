@@ -1,5 +1,4 @@
 /**
- * @module demo/panels/importDialog
  */
 
 export {ImportDialog, type ImportDialogParams} from "./ImportDialog";

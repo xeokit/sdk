@@ -78,4 +78,8 @@ export const DEFAULT_EXTENSIONS: Record<string, string> = {
   metamodel: "json",
   datamodel: "json",
   scenemodel: "json",
+  pdf: "pdf",
+  svg: "svg",
+  dwg: "dwg",
+  dxf: "dxf",
 };

@@ -1,10 +1,9 @@
 /**
  * Floating, draggable Model Inspection panel — browser UI for the
- * `demo/sceneModelInspector` toolkit. Sister widget to
- * `demo/sceneStats/SceneStatsPanel`,
- * `demo/dataStats/DataStatsPanel`, and
- * `demo/boundariesPanel/BoundariesPanel`.
+ * `studio/sceneModelInspector` toolkit. Sister widget to
+ * `studio/sceneStats/SceneStatsPanel`,
+ * `studio/dataStats/DataStatsPanel`, and
+ * `studio/boundariesPanel/BoundariesPanel`.
  *
- * @module demo/sceneHealthPanel
  */
 export * from "./SceneHealthPanel";

@@ -12,7 +12,6 @@
  * close + pill, layout persistence, bring-to-front on
  * pointer-down, scoped `xkt-issues-` CSS prefix.
  *
- * @module demo/issuesPanel
  */
 import {Scene} from "../../../model/scene";
 import {Data} from "../../../model/data";
@@ -28,7 +27,7 @@ import {FloatingPanelBase} from "../floatingPanelBase";
 // ─────────────────────────────────────────────────────────────────
 
 /** Originating emitter of an event record. */
-export type IssuesPanelSource = "scene" | "data" | "viewer" | "renderer";
+export type IssuesPanelSource = "scene" | "data" | "viewer" | "renderer" | "studio";
 
 /** Severity of an event record. All current SDK emissions land
  * as `"error"`; the field exists so a future `onWarning` event
@@ -69,6 +68,15 @@ export interface IssuesPanelParams {
 
   /** WebGLRenderer to monitor. */
   renderer: WebGLRenderer;
+
+  /**
+   * Optional `Studio.events` hub to monitor. When supplied, the
+   * panel adds a fifth `"studio"` section that surfaces every
+   * `studio.reportError` / `studio.reportWarning` dispatch
+   * alongside the four subsystem channels. Omit when constructing
+   * the panel headlessly (without a Studio in front).
+   */
+  studioEvents?: { onError?: any; onWarning?: any };
 
   /** DOM container; defaults to `document.body`. */
   container?: HTMLElement;
@@ -370,6 +378,7 @@ const PANEL_CSS = `
 .xkt-issues-panel .xkt-issues-section[data-source="data"]     .xkt-issues-section-name { color: #047857; }
 .xkt-issues-panel .xkt-issues-section[data-source="viewer"]   .xkt-issues-section-name { color: #7c3aed; }
 .xkt-issues-panel .xkt-issues-section[data-source="renderer"] .xkt-issues-section-name { color: #c2410c; }
+.xkt-issues-panel .xkt-issues-section[data-source="studio"]   .xkt-issues-section-name { color: #be185d; }
 .xkt-issues-panel .xkt-issues-section-summary {
   flex: 1;
   min-width: 0;
@@ -537,6 +546,7 @@ export class IssuesPanel extends FloatingPanelBase {
   readonly scene: Scene;
   readonly data: Data;
   readonly renderer: WebGLRenderer;
+  private readonly _studioEvents?: { onError?: any; onWarning?: any };
 
   // DOM refs.
   private _pillCountEl!: HTMLElement;
@@ -609,10 +619,11 @@ export class IssuesPanel extends FloatingPanelBase {
     if (!params.data)     throw new Error("IssuesPanel: data is required");
     if (!params.renderer) throw new Error("IssuesPanel: renderer is required");
 
-    this.viewer    = params.viewer;
-    this.scene     = params.scene;
-    this.data      = params.data;
-    this.renderer  = params.renderer;
+    this.viewer       = params.viewer;
+    this.scene        = params.scene;
+    this.data         = params.data;
+    this.renderer     = params.renderer;
+    this._studioEvents = params.studioEvents;
 
     // Replace any prior instance bound to the same Viewer — the
     // panel keeps DOM and live event subscriptions, both of
@@ -725,6 +736,11 @@ export class IssuesPanel extends FloatingPanelBase {
     subscribe((this.data     as any).events, "data");
     subscribe((this.viewer   as any).events, "viewer");
     subscribe((this.renderer as any).events, "renderer");
+    // Studio's own onError / onWarning — fed by `Studio.reportError`
+    // and the panel-level reportError(...) calls that panels use in
+    // place of throw / console.warn. Optional because the panel can
+    // be constructed without a Studio in front (headless tests).
+    if (this._studioEvents) subscribe(this._studioEvents, "studio");
   }
 
   /**
@@ -1241,6 +1257,7 @@ const SECTION_ORDER: readonly IssuesPanelSource[] = [
   "data",
   "viewer",
   "renderer",
+  "studio",
 ] as const;
 
 const SECTION_LABEL: Record<IssuesPanelSource, string> = {
@@ -1248,6 +1265,7 @@ const SECTION_LABEL: Record<IssuesPanelSource, string> = {
   data:     "Data",
   viewer:   "Viewer",
   renderer: "WebGLRenderer",
+  studio:   "Studio",
 };
 
 interface SectionView {

@@ -11,7 +11,7 @@
  * toolbar entries are the alternate "click a mode, then click an
  * object" path.
  *
- * @module demo/viewObjectContextMenu/submenus/createViewObjectTransformGroup
+ * @module studio/viewObjectContextMenu/submenus/createViewObjectTransformGroup
  */
 
 import type {ViewObjectContextMenuContext} from "../ViewObjectContextMenuContext";

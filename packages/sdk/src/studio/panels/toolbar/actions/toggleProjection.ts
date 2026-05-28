@@ -3,7 +3,6 @@
  * and ortho. Orientation is left untouched (the 2D/3D action
  * handles that case).
  *
- * @module demo/toolbar/actions/toggleProjection
  */
 
 import {OrthoProjectionType, PerspectiveProjectionType} from "../../../../base/constants";

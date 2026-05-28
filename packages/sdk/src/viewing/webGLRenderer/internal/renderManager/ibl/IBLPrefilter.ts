@@ -26,24 +26,53 @@ import {BRDFLUTTexture} from "./BRDFLUTTexture";
  *   - RGBA8 internal format. Sun intensity clamps at 1.0; HDR support
  *     would require RGBA16F + EXT_color_buffer_float (cheap upgrade
  *     when needed).
- *   - 32 importance samples per prefiltered specular texel — fine for
- *     the small mip sizes (4×4..256×256), would benefit from more
- *     samples at the smaller end but kept low for fast regeneration.
+ *   - 1024 GGX importance samples per prefiltered-specular texel +
+ *     Krivanek-Colbert filtered sampling against the source cubemap's
+ *     mip chain (each sample reads the mip whose solid angle matches
+ *     its pdf footprint), so low-roughness mips converge to a clean
+ *     mirror reflection without the cloud-shaped Monte-Carlo noise
+ *     that raw mip-0 sampling produced at 32 samples.
  *   - Single mip on the irradiance cubemap (no filtering needed since
  *     the convolution itself is the blur).
  *
- * Memory cost per view: 256*256*4*6*4/3 ≈ 1.4 MB env + 32*32*4*6 ≈
- * 24 KB irradiance ≈ 1.4 MB total. Plus the shared 256 KB BRDF LUT.
+ * Memory cost per view (RGBA16F, 512² source + output + 32² irradiance):
+ * source ~10.5 MB + prefiltered ~14 MB + 24 KB irradiance ≈ 25 MB total.
+ * Plus the shared 256 KB BRDF LUT.
  */
 
-/** Source environment dimension. Higher = sharper mirror reflections. */
-const ENV_SIZE = 256;
-/** Number of mip levels. log2(256) + 1 = 9, but 7 is enough for visibility. */
-const ENV_MIPS = 7;
+/**
+ * Source environment dimension. Higher = sharper mirror reflections at
+ * the cost of GPU memory + prefilter refresh time.
+ *
+ * At 512, the prefilter chain (source + output) is ~24 MB per view
+ * RGBA16F, and small bright equirect features (sun, softboxes) project
+ * onto the cubemap at enough resolution to read as recognisable shapes
+ * on smooth metals rather than aliasing into soft circular blobs.
+ * Bumping further to 1024 quadruples that to ~96 MB and helps mainly
+ * for sub-degree features; 512 hits the sweet spot for typical studio
+ * environments.
+ */
+const ENV_SIZE = 512;
+/** Number of mip levels on the prefiltered output cubemap. log2(512) + 1 = 10, but 8 is enough for visibility. */
+const ENV_MIPS = 8;
+/**
+ * Number of mip levels on the SOURCE cubemap. Full `log2(ENV_SIZE)+1` chain
+ * so the prefilter shader can use Krivanek-Colbert filtered importance
+ * sampling — each GGX sample reads a pre-blurred mip whose solid angle
+ * matches the sample's pdf footprint, killing the cloud-shaped Monte
+ * Carlo noise that 32 raw samples produced on smooth metals.
+ */
+const ENV_SOURCE_MIPS = 10;
 /** Diffuse irradiance is heavily smoothed — small is fine. */
 const IRRADIANCE_SIZE = 32;
-/** Importance samples per prefiltered-specular texel. */
-const PREFILTER_SAMPLES = 32;
+/**
+ * Importance samples per prefiltered-specular texel. 1024 + the
+ * Krivanek-Colbert filtered-sampling pass below is the khronos-reference
+ * recipe for clean low-roughness mips; the per-sample mip lookup makes
+ * each sample 6× more expensive but absolutely kills the variance that
+ * raw mip-0 sampling at 32 samples produces.
+ */
+const PREFILTER_SAMPLES = 1024;
 /** Importance samples per irradiance texel. */
 const IRRADIANCE_SAMPLES = 64;
 
@@ -197,7 +226,15 @@ export class IBLPrefilter {
     // Equirect images are conceptually colour data — let the GPU
     // sRGB-decode on sample so the prefilter operates in linear.
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.SRGB8_ALPHA8, gl.RGBA, gl.UNSIGNED_BYTE, source);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    // Build the equirect's own mip chain + trilinear filtering. The
+    // equirect→cubemap projection draws at 256² per face but the
+    // source is typically 1024×512, so without mipmaps each cubemap
+    // texel point-samples 1 of ~16 covered equirect pixels — bright
+    // sparse features (sun, softboxes) alias into the cubemap and
+    // propagate through the GGX prefilter as cloud-shaped patches on
+    // smooth metals. Mipmapping lets the GPU pick the right LOD.
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);            // u wraps around longitude
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);     // v clamps at the poles
@@ -267,7 +304,28 @@ export class IBLPrefilter {
     // Source pixels are already linear-light Float32 — no sRGB decode
     // wanted on sample. RGBA16F is filterable by default in WebGL2.
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, width, height, 0, gl.RGBA, gl.FLOAT, pixels);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    // Build mip chain + trilinear filtering. The equirect→cubemap
+    // projection draws at 256² per face but the HDR source is
+    // typically 1024×512, so without mipmaps each cubemap texel
+    // point-samples 1 of ~16 covered equirect pixels — bright sparse
+    // HDR features (sun core radiance 20, softbox cores radiance 5)
+    // alias into the cubemap and propagate through the GGX prefilter
+    // as cloud-shaped patches on smooth metals. RGBA16F mipmap
+    // generation requires EXT_color_buffer_float (always on when this
+    // path is reachable — HDR mode is gated on the extension).
+    while (gl.getError() !== gl.NO_ERROR) { /* drain pre-existing errors */ }
+    gl.generateMipmap(gl.TEXTURE_2D);
+    const mipErr = gl.getError();
+    if (mipErr !== gl.NO_ERROR) {
+      gl.bindTexture(gl.TEXTURE_2D, null);
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[IBLPrefilter.setEnvironmentEquirectHDR] generateMipmap failed with GL error 0x${mipErr.toString(16)} ` +
+               `(RGBA16F mipmap requires EXT_color_buffer_float to be active)`,
+      };
+    }
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -309,17 +367,20 @@ export class IBLPrefilter {
     // shader path is identical, just clamps writes.
     const internalFormat = this.hdr ? gl.RGBA16F : gl.RGBA8;
     try {
-      // Source sky cubemap — single mip, sampled-only. Sky pass writes
-      // to this; prefilter + irradiance passes read from it.
+      // Source sky cubemap — full mip chain, sampled-only. Sky pass
+      // writes mip 0; `generateMipmap` fills mips 1..N. The prefilter
+      // shader uses Krivanek-Colbert filtered importance sampling to
+      // read each GGX sample from the mip whose pre-blurred footprint
+      // matches the sample's pdf, eliminating Monte-Carlo cloud noise.
       const src = gl.createTexture();
       if (!src) throw new Error("createTexture (source) failed");
       this.sourceCubemap = src;
       gl.bindTexture(gl.TEXTURE_CUBE_MAP, src);
-      gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
       gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.texStorage2D(gl.TEXTURE_CUBE_MAP, 1, internalFormat, ENV_SIZE, ENV_SIZE);
+      gl.texStorage2D(gl.TEXTURE_CUBE_MAP, ENV_SOURCE_MIPS, internalFormat, ENV_SIZE, ENV_SIZE);
 
       // Prefiltered environment cubemap with mip storage. Mip 0 holds
       // a near-perfect mirror copy of the source (prefilter pass at
@@ -464,6 +525,11 @@ export class IBLPrefilter {
       // belongs and reflections come out wrong.
       const up = this._params.worldUp;
       gl.uniform3f(gl.getUniformLocation(program, "uWorldUp"), up[0], up[1], up[2]);
+      // Pass equirect dimensions for the solid-angle-matched LOD
+      // computation in the shader (replaces the GPU's derivative-based
+      // auto-LOD, which over-blurred near cubemap-face poles).
+      gl.uniform1f(gl.getUniformLocation(program, "uEquirectWidth"),  this._equirectWidth);
+      gl.uniform1f(gl.getUniformLocation(program, "uEquirectHeight"), this._equirectHeight);
       uFace = gl.getUniformLocation(program, "uFace");
     } else {
       this._uploadSkyUniforms(program);
@@ -488,6 +554,42 @@ export class IBLPrefilter {
 
     if (useEquirect) {
       gl.bindTexture(gl.TEXTURE_2D, null);
+    }
+
+    // Detach the source cubemap from the FBO before mip-generating it
+    // — WebGL2 leaves the framebuffer contents undefined when one of
+    // its attachments is the target of generateMipmap, and the next
+    // pass (prefilter) re-binds a different cubemap anyway.
+    gl.framebufferTexture2D(
+      gl.FRAMEBUFFER,
+      gl.COLOR_ATTACHMENT0,
+      gl.TEXTURE_CUBE_MAP_POSITIVE_X,
+      null,
+      0,
+    );
+
+    // Populate the source cubemap's mip chain. The prefilter shader
+    // reads from these lower mips via Krivanek-Colbert filtered
+    // importance sampling — each mip is a pre-blurred neighbourhood
+    // so a low sample count still converges cleanly on smooth metals.
+    //
+    // Probe gl.getError() around the call: RGBA16F cubemaps need
+    // EXT_color_buffer_float to be color-renderable for generateMipmap
+    // to succeed, and some software-WebGL backends drop the call
+    // entirely. A silent failure here leaves mips 1..N empty (sampled
+    // as zeros by the prefilter shader), which would smear the
+    // low-roughness output back into noise-looking blobs.
+    while (gl.getError() !== gl.NO_ERROR) { /* drain pre-existing errors */ }
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.sourceCubemap);
+    gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+    const mipErr = gl.getError();
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+    if (mipErr !== gl.NO_ERROR) {
+      throw new Error(
+        `[IBLPrefilter] generateMipmap(sourceCubemap) failed with GL error 0x${mipErr.toString(16)} ` +
+        `(hdr=${this.hdr}). RGBA16F + EXT_color_buffer_float required for the source mip chain; ` +
+        `falling back to mip-0-only sampling would re-introduce GGX cloud noise on smooth metals.`,
+      );
     }
   }
 
@@ -535,6 +637,95 @@ export class IBLPrefilter {
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       }
     }
+  }
+
+  /**
+   * Read back every mip × face of the prefiltered specular cubemap
+   * and tile them onto a single 2D canvas for visual inspection.
+   * Diagnostic-only — used to localise IBL artifacts to a specific
+   * mip when the BRDF consumer is producing unexplained patterns.
+   *
+   * Layout: rows = mips (top = mip 0 / mirror, bottom = mip N / matte),
+   * columns = the 6 cubemap faces in WebGL enum order
+   * (+X, -X, +Y, -Y, +Z, -Z). Each face is drawn at its native mip
+   * resolution; HDR values are Reinhard-tonemapped and sRGB-encoded
+   * to fit in 8-bit canvas pixels.
+   *
+   * Returns null if the prefilter hasn't been allocated yet.
+   */
+  public debugDumpPrefilteredCubemap(): HTMLCanvasElement | null {
+    if (!this.allocated || !this.environmentCubemap) return null;
+    const gl = this.gl;
+
+    const colWidth = ENV_SIZE;
+    let totalH = 0;
+    for (let m = 0; m < ENV_MIPS; m++) totalH += ENV_SIZE >> m;
+    const canvas = document.createElement("canvas");
+    canvas.width  = 6 * colWidth;
+    canvas.height = totalH;
+    const ctx = canvas.getContext("2d")!;
+    ctx.fillStyle = "#222";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const fbo = gl.createFramebuffer();
+    if (!fbo) return null;
+    const prevFbo = gl.getParameter(gl.FRAMEBUFFER_BINDING);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+
+    let yCursor = 0;
+    for (let mip = 0; mip < ENV_MIPS; mip++) {
+      const size = ENV_SIZE >> mip;
+      for (let face = 0; face < 6; face++) {
+        gl.framebufferTexture2D(
+          gl.FRAMEBUFFER,
+          gl.COLOR_ATTACHMENT0,
+          gl.TEXTURE_CUBE_MAP_POSITIVE_X + face,
+          this.environmentCubemap,
+          mip,
+        );
+        const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+        if (status !== gl.FRAMEBUFFER_COMPLETE) {
+          // Skip mip×face we can't read; leave its tile blank.
+          ctx.fillStyle = "#600";
+          ctx.fillRect(face * colWidth, yCursor, size, size);
+          continue;
+        }
+        const tile = ctx.createImageData(size, size);
+        if (this.hdr) {
+          const buf = new Float32Array(size * size * 4);
+          gl.readPixels(0, 0, size, size, gl.RGBA, gl.FLOAT, buf);
+          for (let i = 0, n = buf.length; i < n; i += 4) {
+            const r = Math.max(0, buf[i]),     g = Math.max(0, buf[i + 1]), b = Math.max(0, buf[i + 2]);
+            const tr = r / (1 + r),            tg = g / (1 + g),            tb = b / (1 + b);
+            tile.data[i]     = Math.round(Math.pow(tr, 1 / 2.2) * 255);
+            tile.data[i + 1] = Math.round(Math.pow(tg, 1 / 2.2) * 255);
+            tile.data[i + 2] = Math.round(Math.pow(tb, 1 / 2.2) * 255);
+            tile.data[i + 3] = 255;
+          }
+        } else {
+          const buf = new Uint8Array(size * size * 4);
+          gl.readPixels(0, 0, size, size, gl.RGBA, gl.UNSIGNED_BYTE, buf);
+          for (let i = 0, n = buf.length; i < n; i += 4) {
+            tile.data[i]     = buf[i];
+            tile.data[i + 1] = buf[i + 1];
+            tile.data[i + 2] = buf[i + 2];
+            tile.data[i + 3] = 255;
+          }
+        }
+        ctx.putImageData(tile, face * colWidth, yCursor);
+        ctx.strokeStyle = "#0ff";
+        ctx.strokeRect(face * colWidth + 0.5, yCursor + 0.5, size - 1, size - 1);
+      }
+      ctx.fillStyle = "#0ff";
+      ctx.font = "12px monospace";
+      ctx.fillText(`mip ${mip} (${size}px, roughness ${(mip / (ENV_MIPS - 1)).toFixed(3)})`,
+                   6 * colWidth - 240, yCursor + 14);
+      yCursor += size;
+    }
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, prevFbo as WebGLFramebuffer | null);
+    gl.deleteFramebuffer(fbo);
+    return canvas;
   }
 
   /** Cosine-convolve the source cubemap into the small irradiance cubemap. */
@@ -596,7 +787,11 @@ export class IBLPrefilter {
   public getAllocatedBytes(): number {
     if (!this.allocated) return 0;
     const bytesPerTexel = this.hdr ? 8 : 4; // RGBA16F vs RGBA8
-    const sourceBytes = ENV_SIZE * ENV_SIZE * bytesPerTexel * 6;
+    let sourceBytes = 0;
+    for (let mip = 0; mip < ENV_SOURCE_MIPS; mip++) {
+      const s = ENV_SIZE >> mip;
+      sourceBytes += s * s * bytesPerTexel * 6;
+    }
     let envBytes = 0;
     for (let mip = 0; mip < ENV_MIPS; mip++) {
       const s = ENV_SIZE >> mip;
@@ -753,6 +948,8 @@ out vec4 outColor;
 uniform sampler2D uEquirect;
 uniform int uFace;
 uniform vec3 uWorldUp;
+uniform float uEquirectWidth;
+uniform float uEquirectHeight;
 ${SHARED_GLSL}
 const float INV_TWO_PI = 0.15915494309189535;
 const float INV_PI     = 0.31830988618379067;
@@ -771,11 +968,32 @@ void main() {
   float lon = atan(dot(dir, east), dot(dir, north));
   float u = 0.5 + lon * INV_TWO_PI;
   float v = 0.5 - lat * INV_PI;
-  outColor = texture(uEquirect, vec2(u, v));
+
+  // Solid-angle-matched LOD. The GPU's auto-LOD (from texture())
+  // computes derivatives in equirect UV space, which spike near the
+  // cubemap face's high-latitude regions where U wraps quickly — that
+  // selected very high mips of the equirect, smearing bright sparse
+  // features (sun, softboxes) into circular halos that propagated
+  // through the GGX prefilter as cloud-shaped patches on smooth
+  // metals. Computing LOD from the actual solid-angle ratio
+  // (per-cubemap-texel vs per-equirect-texel, with cos(lat)
+  // correction for polar pinching) keeps the equirect sampling
+  // uniformly sharp across the cube face.
+  float saCube     = 4.0 * PI / (6.0 * ${ENV_SIZE.toFixed(1)} * ${ENV_SIZE.toFixed(1)});
+  float saEquirect = 2.0 * PI * PI * max(cos(lat), 1e-3)
+                   / (uEquirectWidth * uEquirectHeight);
+  float lod = max(0.0, 0.5 * log2(saCube / saEquirect));
+  outColor = textureLod(uEquirect, vec2(u, v), lod);
 }`;
 
 // GGX-importance-sample the source cubemap into a target mip at the
-// given roughness. Standard split-sum prefilter — see Karis 2013.
+// given roughness. Split-sum prefilter (Karis 2013) with Krivanek-
+// Colbert filtered importance sampling (Colbert/Krivanek 2007) — each
+// sample reads the source cubemap's pre-blurred mip whose solid angle
+// matches the sample's pdf footprint, so low-roughness mips converge
+// cleanly without needing thousands of samples. The previous "always
+// read mip 0" path produced cloud-shaped Monte-Carlo noise on smooth
+// metals.
 const PREFILTER_FS = `#version 300 es
 precision highp float;
 in vec2 vUV;
@@ -791,18 +1009,34 @@ void main() {
   vec3 V = N;
   vec3 prefilteredColor = vec3(0.0);
   float totalWeight = 0.0;
+
+  // Per-texel solid angle on the source cubemap. 4π steradians /
+  // (6 faces · ENV_SIZE²) — used as the reference area against which
+  // each sample's pdf footprint is compared to pick a source mip.
+  float saTexel = 4.0 * PI / (6.0 * ${ENV_SIZE.toFixed(1)} * ${ENV_SIZE.toFixed(1)});
+
+  float a = uRoughness * uRoughness;
   for (uint i = 0u; i < uSamples; ++i) {
     vec2 Xi = hammersley(i, uSamples);
     vec3 H = importanceSampleGGX(Xi, N, uRoughness);
     vec3 L = normalize(2.0 * dot(V, H) * H - V);
     float NdotL = max(dot(N, L), 0.0);
     if (NdotL > 0.0) {
-      // Sample mip 0 of the source — the unfiltered sky. For roughness
-      // close to 0 this barely matters because the lobe is a delta;
-      // higher roughness spreads the lobe and aliasing here would
-      // benefit from cosine-mipping the source, but for a small sample
-      // count the visual impact is minimal.
-      prefilteredColor += textureLod(uEnvironment, L, 0.0).rgb * NdotL;
+      // GGX pdf with V == N → VdotH == NdotH, so the standard
+      //   pdf = D · NdotH / (4 · VdotH)
+      // collapses to D / 4.
+      float NdotH = max(dot(N, H), 0.0);
+      float d = NdotH * NdotH * (a * a - 1.0) + 1.0;
+      float D = (a * a) / (PI * d * d);
+      float pdf = D * 0.25 + 1e-4;
+
+      // Per-sample solid angle. Take the source mip whose texel
+      // footprint matches it — mip 0 for a delta lobe (roughness=0),
+      // higher mips as the lobe widens.
+      float saSample = 1.0 / (float(uSamples) * pdf);
+      float mipLevel = uRoughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel);
+
+      prefilteredColor += textureLod(uEnvironment, L, mipLevel).rgb * NdotL;
       totalWeight += NdotL;
     }
   }

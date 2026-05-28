@@ -18,7 +18,7 @@
  *  - Everything else falls through to `setAttribute(k, String(v))`
  *    — for `aria-*`, `data-*`, `role`, etc.
  *
- * @module demo/utils/el
+ * @module studio/utils/el
  */
 export function el<K extends keyof HTMLElementTagNameMap>(
   tag: K,

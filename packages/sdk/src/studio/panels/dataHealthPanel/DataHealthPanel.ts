@@ -1,7 +1,7 @@
 /**
  * Floating, draggable Data Health panel — UI surface for the
  * `dataModelInspector` toolkit. Same chrome / lifecycle as
- * {@link demo/sceneHealthPanel!SceneHealthPanel | SceneHealthPanel}, minus the fix
+ * {@link studio/sceneHealthPanel!SceneHealthPanel | SceneHealthPanel}, minus the fix
  * half (the SDK doesn't auto-fix DataModels).
  *
  * ```ts
@@ -30,7 +30,6 @@
  * stylesheet is injected once per page regardless of instance
  * count.
  *
- * @module demo/dataHealthPanel
  */
 import type {Data, DataModel} from "../../../model/data";
 import type {DataFormatSchema} from "../../../inspect/dataModel/DataFormatSchema";

@@ -13,7 +13,6 @@
  * `Toolbar.ts` no longer needs `_actionX` methods — the registry
  * is the single source of truth for action behaviour.
  *
- * @module demo/toolbar/actions
  */
 
 import type {ToolbarAction} from "../Toolbar";
@@ -22,9 +21,13 @@ import type {ToolbarActionDescriptor} from "./ToolbarActionDescriptor";
 import {fitAll}              from "./fitAll";
 import {importModel}         from "./importModel";
 import {importSampleModel}   from "./importSampleModel";
-import {openDrawings}        from "./openDrawings";
-import {openExport}          from "./openExport";
-import {openSchemaMaterials} from "./openSchemaMaterials";
+import {openCameraTour}        from "./openCameraTour";
+import {openDaylightAnalysis}  from "./openDaylightAnalysis";
+import {openDrawings}          from "./openDrawings";
+import {openExport}            from "./openExport";
+import {openSchemaMaterials}   from "./openSchemaMaterials";
+import {openSunStudy}          from "./openSunStudy";
+import {openVolumeOverlay}     from "./openVolumeOverlay";
 import {resetView}           from "./resetView";
 import {toggle2D3D}          from "./toggle2D3D";
 import {toggleAnglePanel}    from "./toggleAnglePanel";
@@ -50,9 +53,13 @@ export const TOOLBAR_ACTIONS: Partial<Record<ToolbarAction, ToolbarActionDescrip
   fitAll,
   importModel,
   importSampleModel,
+  openCameraTour,
+  openDaylightAnalysis,
   openDrawings,
   openExport,
   openSchemaMaterials,
+  openSunStudy,
+  openVolumeOverlay,
   resetView,
   toggle2D3D,
   toggleAnglePanel,

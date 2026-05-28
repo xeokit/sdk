@@ -58,8 +58,9 @@ export interface DrawingProjectionParams {
    * the function computes it on the fly by walking every mesh's
    * world-space positions — the bound matches the source model's
    * actual extent. Pass an explicit AABB (e.g. from
-   * `studio.picking.collisionIndex.getSceneAABB()`) when you want
-   * the wireframe to sit on the bounds of more than one model.
+   * `new SceneCollisionIndex(scene).getSceneAABB()`) when you
+   * want the wireframe to sit on the bounds of more than one
+   * model.
    */
   aabb?: FloatArrayParam;
 

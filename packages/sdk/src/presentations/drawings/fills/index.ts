@@ -50,8 +50,8 @@
  * ### From an existing depth buffer
  *
  * ```javascript
- * import { buildHLEDepthBuffer } from "@xeokit/sdk/studio/systems/drawings/hle";
- * import { extractFills }        from "@xeokit/sdk/studio/systems/drawings/fills";
+ * import { buildHLEDepthBuffer } from "@xeokit/sdk/presentations/drawings/hle";
+ * import { extractFills }        from "@xeokit/sdk/presentations/drawings/fills";
  *
  * const buffer = await buildHLEDepthBuffer(sourceModel, basis, aabb, {
  *   resolution: 2048,
@@ -77,7 +77,7 @@
  * — peak memory stays `O(tileSize²)` regardless of `resolution`.
  *
  * ```javascript
- * import { extractFillsTiled } from "@xeokit/sdk/studio/systems/drawings/fills";
+ * import { extractFillsTiled } from "@xeokit/sdk/presentations/drawings/fills";
  * import { getSceneCollisionIndex } from "@xeokit/sdk/spatial/collision";
  *
  * const fills = await extractFillsTiled({

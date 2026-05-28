@@ -14,14 +14,13 @@
  * collapsed branch — no per-frame polling, no listeners.
  *
  * Same chrome and lifecycle as the sister diagnostic panels
- * ({@link demo/issuesPanel!IssuesPanel | IssuesPanel},
- * {@link demo/tasksPanel!TasksPanel | TasksPanel}) — per-inspector WeakMap
+ * ({@link studio/issuesPanel!IssuesPanel | IssuesPanel},
+ * {@link studio/tasksPanel!TasksPanel | TasksPanel}) — per-inspector WeakMap
  * registry, idempotent `getFor` / `openFor`, drag-header,
  * close button + reopen pill, layout persistence,
  * bring-to-front on pointer-down, scoped `xkt-shins-` CSS
  * prefix.
  *
- * @module demo/shadersPanel
  */
 import {
   ShaderInspector,

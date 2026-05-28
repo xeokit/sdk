@@ -7,6 +7,5 @@
  * selections to the matching {@link model!scene.SceneModel | SceneModel} via
  * {@link applyIFCMaterials}.
  *
- * @module demo/schemaMaterialsPanel
  */
 export * from "./SchemaMaterialsPanel";

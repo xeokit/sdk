@@ -10,6 +10,5 @@
  * per-`requestAnimationFrame` coalescing while visible; detaches
  * cleanly while hidden.
  *
- * @module demo/gpuMemoryUsage
  */
 export * from "./GPUMemoryUsage";

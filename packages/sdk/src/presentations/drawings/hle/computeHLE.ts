@@ -18,7 +18,7 @@
  * models. Edges are split at visibility transitions by sampling
  * `samples` points along each segment and walking the runs.
  *
- * @module demo/systems/drawings/computeHLE
+ * @module studio/systems/drawings/computeHLE
  */
 import type {SceneModel} from "../../../model/scene";
 import {

@@ -8,6 +8,5 @@
  * Section Planes / Resolution Scale / Layers). Edits flow through
  * `Viewer.fromParams` so the canvas updates live.
  *
- * @module demo/viewerPanel
  */
 export * from "./ViewerConfigPanel";

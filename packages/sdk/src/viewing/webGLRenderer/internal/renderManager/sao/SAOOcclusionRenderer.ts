@@ -249,8 +249,18 @@ export class SAOOcclusionRenderer {
                     return dot( floor( v * 255.0 + 0.5 ) / 255.0, unPackFactors );
                 }
 
-                float perspectiveDepthToViewZ( const in float invClipZ, const in float near, const in float far ) {
-                    return ( near * far ) / ( ( far - near ) * invClipZ - far );
+                // Inverse of the renderer's fragment-side log-depth:
+                //   depth   = log2(1 + w) * coef * 0.5,    coef = 2 / log2(1 + far)
+                //   so 1 + w = (1 + far)^depth
+                //   and view_z = -w = 1 - (1 + far)^depth
+                // The pow form is exact across the whole depth range -
+                // far more useful than the linear (near*far)/((far-near)*depth-far)
+                // formula that the previous SAO build assumed, which produces
+                // millimeter-scale view-Z values for half-far depths once the
+                // depth buffer is logarithmic. That mis-decode was what made
+                // SAO look broken at large far.
+                float perspectiveDepthToViewZ( const in float depth, const in float near, const in float far ) {
+                    return 1.0 - pow( 1.0 + far, depth );
                 }
 
                 float orthographicDepthToViewZ( const in float linearClipZ, const in float near, const in float far ) {
@@ -269,11 +279,28 @@ export class SAOOcclusionRenderer {
                      }
                 }
 
+                // Analytical perspective inverse: given screen-UV + view-Z,
+                // reconstruct view-space XY directly from the projection
+                // matrix's FOV terms. Doesn't touch the matrix's depth-
+                // related entries [2][2] / [2][3] / [3][2] - those encode
+                // the standard 1/z mapping that's incompatible with the
+                // log-depth value we just unprojected through getViewZ.
                 vec3 getViewPos( const in vec2 screenPos, const in float depth, const in float viewZ ) {
-                	float clipW = uProjectMatrix[2][3] * viewZ + uProjectMatrix[3][3];
-                	vec4 clipPosition = vec4( ( vec3( screenPos, depth ) - 0.5 ) * 2.0, 1.0 );
-                	clipPosition *= clipW;
-                	return ( uInverseProjectMatrix * clipPosition ).xyz;
+                    if (uPerspective) {
+                        vec2 ndcXY = ( screenPos - 0.5 ) * 2.0;
+                        // P[0][0] = 1 / (aspect * tan(fov/2))
+                        // P[1][1] = 1 / tan(fov/2)
+                        // ndc.x = view.x * P[0][0] / -view.z, so:
+                        float vx = ndcXY.x * ( -viewZ ) / uProjectMatrix[0][0];
+                        float vy = ndcXY.y * ( -viewZ ) / uProjectMatrix[1][1];
+                        return vec3( vx, vy, viewZ );
+                    }
+                    // Ortho path: matrix is depth-linear and unchanged by
+                    // the log-depth feature, so the old formulation works.
+                    float clipW = uProjectMatrix[2][3] * viewZ + uProjectMatrix[3][3];
+                    vec4 clipPosition = vec4( ( vec3( screenPos, depth ) - 0.5 ) * 2.0, 1.0 );
+                    clipPosition *= clipW;
+                    return ( uInverseProjectMatrix * clipPosition ).xyz;
                 }
 
                 vec3 getViewNormal( const in vec3 viewPosition, const in vec2 screenPos ) {

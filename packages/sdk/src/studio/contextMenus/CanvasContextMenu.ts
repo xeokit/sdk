@@ -9,7 +9,7 @@
  * shape here is a thin composition of those builders, mirrored
  * by {@link ViewObjectContextMenu}.
  *
- * @module demo/viewObjectContextMenu/CanvasContextMenu
+ * @module studio/viewObjectContextMenu/CanvasContextMenu
  */
 
 import {ContextMenu} from "../../ui/contextmenu";

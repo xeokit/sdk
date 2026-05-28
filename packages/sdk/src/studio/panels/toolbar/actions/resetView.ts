@@ -1,7 +1,6 @@
 /**
  * Toolbar action — instantly jump the camera to the scene AABB.
  *
- * @module demo/toolbar/actions/resetView
  */
 
 import type {ToolbarActionDescriptor} from "./ToolbarActionDescriptor";

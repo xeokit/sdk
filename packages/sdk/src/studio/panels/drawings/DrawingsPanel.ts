@@ -21,7 +21,6 @@
  * header, close button + reopen pill, layout persistence,
  * scoped `xkt-bp-` CSS prefix.
  *
- * @module demo/drawings
  */
 import type {SceneModel} from "../../../model/scene";
 import {isDefaultLayerModel} from "../../../model/scene";
@@ -1048,7 +1047,7 @@ export class DrawingsPanel extends FloatingPanelBase {
       // an error which we silently drop.
       const targetResult = this.studio.scene.createModel({id: targetId});
       if (targetResult.ok === false) {
-        console.warn(`[DrawingsPanel] createModel(${targetId}) failed:`, targetResult.error);
+        this.studio.reportWarning(`${(`[DrawingsPanel] createModel(${targetId}) failed:`)}: ${targetResult.error}`);
         continue;
       }
       const targetModel = targetResult.value;
@@ -1132,7 +1131,7 @@ export class DrawingsPanel extends FloatingPanelBase {
         // SceneModel, and the next teardown for this model will
         // sweep stale ids via the no-op `clearDrawing` path.
         if (!result.error.includes("destroyed mid-projection")) {
-          console.warn(`[DrawingsPanel] buildDrawing(${targetId}) failed:`, result.error);
+          this.studio.reportWarning(`${(`[DrawingsPanel] buildDrawing(${targetId}) failed:`)}: ${result.error}`);
         }
         // buildDrawing no longer destroys the target on failure;
         // we own that here. Tear down any partial state so we

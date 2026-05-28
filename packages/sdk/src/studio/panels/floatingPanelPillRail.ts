@@ -7,7 +7,6 @@
  * module just re-parents the pill into the rail and overrides
  * its positioning to flow inline with its siblings.
  *
- * @module demo/panels/floatingPanelPillRail
  */
 
 const RAIL_CLASS  = "xkt-pill-rail";

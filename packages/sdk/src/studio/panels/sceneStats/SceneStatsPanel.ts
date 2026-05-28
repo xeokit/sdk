@@ -31,7 +31,6 @@
  * stats.destroy();     // tears down the DOM and any listeners
  * ```
  *
- * @module demo/sceneStats
  */
 import type {Scene, SceneModel, SceneModelStats} from "../../../model/scene";
 import {isDefaultLayerModel} from "../../../model/scene";

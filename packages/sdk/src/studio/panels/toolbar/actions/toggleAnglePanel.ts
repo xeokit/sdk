@@ -2,7 +2,6 @@
  * Toolbar action — toggle the {@link AngleMeasurementsPanel} on
  * the active View.
  *
- * @module demo/toolbar/actions/toggleAnglePanel
  */
 
 import type {ToolbarActionDescriptor} from "./ToolbarActionDescriptor";

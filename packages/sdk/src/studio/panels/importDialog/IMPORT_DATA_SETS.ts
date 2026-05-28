@@ -1,5 +1,4 @@
 /**
- * @module demo/panels/importDialog/IMPORT_DATA_SETS
  */
 
 import type {ImportDataSet} from "./ImportDataSet";

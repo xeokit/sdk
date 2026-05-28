@@ -1,5 +1,4 @@
 /**
- * @module demo/panels/modelsPanel/ModelsPanelParams
  */
 
 import type {Studio} from "../../Studio";

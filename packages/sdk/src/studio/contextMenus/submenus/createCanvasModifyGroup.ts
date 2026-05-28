@@ -4,7 +4,7 @@
  * {@link createViewObjectModifyGroup} that still make sense
  * without a {@link viewing!viewer.ViewObject | ViewObject} target.
  *
- * @module demo/viewObjectContextMenu/submenus/createCanvasModifyGroup
+ * @module studio/viewObjectContextMenu/submenus/createCanvasModifyGroup
  */
 
 import {SchemaMaterialsPanel} from "../../panels/schemaMaterialsPanel/SchemaMaterialsPanel";

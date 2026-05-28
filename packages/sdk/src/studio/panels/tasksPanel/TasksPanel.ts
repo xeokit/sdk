@@ -8,14 +8,13 @@
  * panel is visible.
  *
  * Same chrome and lifecycle as the sister diagnostic panels
- * ({@link demo/issuesPanel!IssuesPanel | IssuesPanel},
- * {@link demo/sceneStats!SceneStatsPanel | SceneStatsPanel},
- * {@link demo/dataStats!DataStatsPanel | DataStatsPanel}) — per-runner WeakMap
+ * ({@link studio/issuesPanel!IssuesPanel | IssuesPanel},
+ * {@link studio/sceneStats!SceneStatsPanel | SceneStatsPanel},
+ * {@link studio/dataStats!DataStatsPanel | DataStatsPanel}) — per-runner WeakMap
  * registry, idempotent `getFor` / `openFor`, drag-header, close
  * button + reopen pill, layout persistence, bring-to-front on
  * pointer-down, scoped `xkt-tasks-` CSS prefix.
  *
- * @module demo/tasksPanel
  */
 import {SDKTask} from "../../../base/core/SDKTask";
 import {SDKTaskRunner} from "../../../base/core/SDKTaskRunner";

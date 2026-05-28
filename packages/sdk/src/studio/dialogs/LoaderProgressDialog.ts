@@ -50,7 +50,7 @@
  *    disappearing. The `runWith` promise rejects immediately;
  *    the dialog stays until the user dismisses it.
  *
- * @module demo/dialogs
+ * @module studio/dialogs
  */
 import type {LoaderProgress} from "../../formats/LoaderProgress";
 

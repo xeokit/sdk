@@ -9,7 +9,6 @@
  * `onAction` (and applies a different navMode itself) still ends
  * up with a correct toggle indicator.
  *
- * @module demo/toolbar/actions/toggleFirstPerson
  */
 
 import {FirstPersonNavigationMode, OrbitNavigationMode} from "../../../../base/constants";

@@ -8,7 +8,7 @@
  *   - {@link openJsonInNewTab} — write a syntax-highlighted HTML
  *     document into a new tab.
  *
- * @module demo/viewObjectContextMenu/helpers/json
+ * @module studio/viewObjectContextMenu/helpers/json
  */
 
 import type {SceneModelParams, SceneObject} from "../../../model/scene";

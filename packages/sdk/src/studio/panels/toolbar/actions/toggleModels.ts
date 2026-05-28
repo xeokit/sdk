@@ -1,7 +1,6 @@
 /**
  * Toolbar action — toggle the demo's {@link ModelsPanel}.
  *
- * @module demo/toolbar/actions/toggleModels
  */
 
 import type {ToolbarActionDescriptor} from "./ToolbarActionDescriptor";

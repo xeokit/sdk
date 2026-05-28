@@ -4,8 +4,8 @@
  * "you are here" arrow on each view shows the camera's eye +
  * look direction projected onto that plane.
  *
- * Sister widget to {@link demo/sceneStats!SceneStatsPanel | SceneStatsPanel} and
- * {@link demo/dataStats!DataStatsPanel | DataStatsPanel} — same floating chrome,
+ * Sister widget to {@link studio/sceneStats!SceneStatsPanel | SceneStatsPanel} and
+ * {@link studio/dataStats!DataStatsPanel | DataStatsPanel} — same floating chrome,
  * same colour palette, same drag / close / reopen-pill mechanics.
  *
  * ## Lazy event wiring
@@ -35,7 +35,6 @@
  * bnd.destroy();      // tears down DOM + listeners
  * ```
  *
- * @module demo/boundariesPanel
  */
 import type {Scene} from "../../../model/scene";
 import type {View} from "../../../viewing/viewer";

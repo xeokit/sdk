@@ -10,14 +10,13 @@
  * occupancy preview canvas plus the raw `getItems()` JSON.
  *
  * Same chrome and lifecycle as the sister diagnostic panels
- * ({@link demo/shadersPanel!ShadersPanel | ShadersPanel},
- * {@link demo/tasksPanel!TasksPanel | TasksPanel},
- * {@link demo/issuesPanel!IssuesPanel | IssuesPanel}) — per-DataTextures
+ * ({@link studio/shadersPanel!ShadersPanel | ShadersPanel},
+ * {@link studio/tasksPanel!TasksPanel | TasksPanel},
+ * {@link studio/issuesPanel!IssuesPanel | IssuesPanel}) — per-DataTextures
  * WeakMap registry, idempotent `getFor` / `openFor`, drag
  * header, close button + reopen pill, layout persistence,
  * bring-to-front on pointer-down, scoped `xkt-dtx-` CSS prefix.
  *
- * @module demo/dataTexturesPanel
  */
 import type {DataTextures} from "../../../viewing/webGLRenderer/internal/gpuMemoryManager/DataTextures";
 import {clamp01} from "../../../base/math";

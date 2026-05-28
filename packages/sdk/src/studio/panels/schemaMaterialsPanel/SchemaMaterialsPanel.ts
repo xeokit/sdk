@@ -22,7 +22,6 @@
  * `getFor` / `openFor` registry idempotence keyed off the Scene,
  * same icon contract, same layout-persistence localStorage key.
  *
- * @module demo/schemaMaterialsPanel
  */
 import type {Scene, SceneModel} from "../../../model/scene";
 import {isDefaultLayerModel} from "../../../model/scene";

@@ -1,5 +1,4 @@
 /**
- * @module demo/panels/importDialog/ImportCoordSysBasis
  */
 
 import type {Vec9} from "../../../base/math/vector";

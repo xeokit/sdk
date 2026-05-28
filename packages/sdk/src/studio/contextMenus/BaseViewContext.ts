@@ -6,7 +6,7 @@
  * {@link ViewObjectContextMenuContext} and the canvas-level
  * {@link CanvasContextMenuContext} extend it.
  *
- * @module demo/viewObjectContextMenu/BaseViewContext
+ * @module studio/viewObjectContextMenu/BaseViewContext
  */
 
 import type {ViewObject} from "../../viewing/viewer";

@@ -7,7 +7,6 @@
  * Toolbar button is now a matter of authoring a new descriptor
  * file and registering it — no edits to `Toolbar.ts` required.
  *
- * @module demo/toolbar/actions/ToolbarActionDescriptor
  */
 
 import type {ToolbarAction} from "../Toolbar";

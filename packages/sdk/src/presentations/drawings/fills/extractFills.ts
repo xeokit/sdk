@@ -14,7 +14,7 @@
  * the wireframe sits exactly on the fill silhouette, no halo at
  * occlusion edges.
  *
- * @module demo/systems/drawings/extractFills
+ * @module studio/systems/drawings/extractFills
  */
 import {earcut} from "../../../formats/cityjson/versions/v1_0/earcut";
 import {

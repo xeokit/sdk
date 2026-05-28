@@ -18,6 +18,7 @@ import {LoaderRegistry} from "./LoaderRegistry";
  * Studio uses this by default; callers wanting a slimmer bundle or a
  * different set construct their own registry and pass it via
  * {@link StudioConfig.loaders}.
+ * @private
  */
 export function createDefaultLoaderRegistry(): LoaderRegistry {
 

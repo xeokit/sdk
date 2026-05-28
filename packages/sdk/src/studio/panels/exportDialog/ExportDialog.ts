@@ -18,7 +18,6 @@
  * `openFor`, drag header, close + pill, layout persistence,
  * bring-to-front on pointer-down, scoped `xkt-exp-` CSS prefix.
  *
- * @module demo/exportDialog
  */
 import type {SceneModel} from "../../../model/scene";
 import {isDefaultLayerModel} from "../../../model/scene";
@@ -31,6 +30,8 @@ import {MTLExporter}              from "../../../formats/mtl/MTLExporter";
 import {IFCExporter}              from "../../../formats/ifc/IFCExporter";
 import {DotBIMExporter}           from "../../../formats/dotbim/DotBIMExporter";
 import {RVMExporter}              from "../../../formats/rvm/RVMExporter";
+import {DXFExporter}              from "../../../formats/dxf/DXFExporter";
+import {SVGExporter}              from "../../../formats/svg/SVGExporter";
 import {SceneModelParamsExporter} from "../../../formats/scenemodel/SceneModelParamsExporter";
 import {DataModelParamsExporter}  from "../../../formats/datamodel/DataModelParamsExporter";
 
@@ -88,8 +89,12 @@ interface FormatEntry {
   ext:      string;
   /** Content-Type used for the Blob. */
   mime:     string;
-  /** Build a fresh exporter on each export run. */
-  build:    () => any;
+  /**
+   * Build a fresh exporter on each export run. Receives the host
+   * Studio so formats that need injected adapters or other
+   * caller-supplied state can pull them at construction time.
+   */
+  build:    (studio?: Studio) => any;
   /**
    * Resolve the bytes the exporter returned into something
    * `Blob` can serialise. JSON exporters return objects, text
@@ -111,6 +116,14 @@ interface FormatEntry {
    * when omitted.
    */
   needsSceneModel?: boolean;
+  /**
+   * Optional predicate run before any chip is rendered. When
+   * present and returns `false`, the format is hidden from the
+   * dataset chip row entirely (not just disabled) — used for
+   * formats whose exporter requires extra Studio-level state
+   * the caller might not have wired. Defaults to "always available".
+   */
+  requiresStudio?: (studio?: Studio) => boolean;
 }
 
 const FORMAT_REGISTRY: Record<string, FormatEntry> = {
@@ -149,6 +162,16 @@ const FORMAT_REGISTRY: Record<string, FormatEntry> = {
     build:   () => new RVMExporter(),
     toBytes: (raw) => raw as ArrayBuffer,
   },
+  dxf: {
+    id: "dxf", label: "DXF", ext: "dxf", mime: "application/dxf",
+    build:   () => new DXFExporter(),
+    toBytes: (raw) => String(raw),
+  },
+  svg: {
+    id: "svg", label: "SVG", ext: "svg", mime: "image/svg+xml",
+    build:   () => new SVGExporter(),
+    toBytes: (raw) => String(raw),
+  },
   scenemodel: {
     id: "scenemodel", label: "SceneModel JSON", ext: "scenemodel.json", mime: "application/json",
     build:   () => new SceneModelParamsExporter(),
@@ -181,6 +204,8 @@ const DEFAULT_DATASET_TYPES: string[] = [
   "ifc",
   "dotbim",
   "rvm",
+  "dxf",
+  "svg",
   "datamodel",
 ];
 
@@ -292,6 +317,20 @@ const DATASET_PARAMS: Record<string, ParamDef[]> = {
       id: "rvmFileName", label: "RVM Filename", type: "string",
       default: "{id}.rvm", applyTo: [], filenameFor: "rvm",
       help: "Filename for the RVM download.",
+    },
+  ],
+  "dxf": [
+    {
+      id: "dxfFileName", label: "DXF Filename", type: "string",
+      default: "{id}.dxf", applyTo: [], filenameFor: "dxf",
+      help: "Filename for the DXF download. Emitted as AutoCAD R2000-compatible ASCII text.",
+    },
+  ],
+  "svg": [
+    {
+      id: "svgFileName", label: "SVG Filename", type: "string",
+      default: "{id}.svg", applyTo: [], filenameFor: "svg",
+      help: "Filename for the SVG download. SVG is 2D — the world XY plane is projected by default (Y-flipped so +Y reads up); pass options through `SVGExportOptions` if you need an XZ or YZ projection.",
     },
   ],
   "datamodel": [
@@ -1160,6 +1199,15 @@ export class ExportDialog extends FloatingPanelBase {
       const ids = parseDatasetFormats(desc);
       if (ids.length === 0) continue;
       if (!ids.every(i => FORMAT_REGISTRY[i])) continue;
+      // Hide datasets whose any format requires Studio-level state
+      // we don't currently have wired. Hiding (not disabling) is
+      // the right call here — these formats are categorically
+      // unavailable without setup the user has to do themselves,
+      // so a greyed chip would just invite a confused click.
+      if (!ids.every(i => {
+        const req = FORMAT_REGISTRY[i].requiresStudio;
+        return !req || req(this.studio);
+      })) continue;
 
       const compatible = this._isDatasetCompatible(desc);
 
@@ -1434,7 +1482,7 @@ export class ExportDialog extends FloatingPanelBase {
       const sm = (this.studio.scene.models as any)[modelId] as SceneModel | undefined;
       const dm = (this.studio.data.models  as any)[modelId] as DataModel  | undefined;
       if ((sm && sm.destroyed) ? false : (!sm && !dm)) {
-        console.warn(`[ExportDialog] Selected '${modelId}' has neither a live SceneModel nor a DataModel`);
+        this.studio.reportWarning(`[ExportDialog] Selected '${modelId}' has neither a live SceneModel nor a DataModel`);
         continue;
       }
       for (const desc of datasets) {
@@ -1443,11 +1491,11 @@ export class ExportDialog extends FloatingPanelBase {
           const entry = FORMAT_REGISTRY[id];
           if (!entry) continue;
           if (entry.needsSceneModel !== false && !sm) {
-            console.warn(`[ExportDialog] Skipping ${id} for '${modelId}' — no SceneModel (only the DataModel JSON exporter can run on a DataModel-only entry)`);
+            this.studio.reportWarning(`[ExportDialog] Skipping ${id} for '${modelId}' — no SceneModel (only the DataModel JSON exporter can run on a DataModel-only entry)`);
             continue;
           }
           if (entry.needsDataModel && !dm) {
-            console.warn(`[ExportDialog] Skipping ${id} for '${modelId}' — no DataModel`);
+            this.studio.reportWarning(`[ExportDialog] Skipping ${id} for '${modelId}' — no DataModel`);
             continue;
           }
           // {id} substitution in the filename uses the SceneModel
@@ -1488,7 +1536,7 @@ export class ExportDialog extends FloatingPanelBase {
       const filename = t.filename;
       this._showProgress(`Writing ${filename} (${i + 1}/${tasks.length})`, i, tasks.length);
       try {
-        const exporter = t.entry.build();
+        const exporter = t.entry.build(this.studio);
         const raw = await exporter.write({
           sceneModel: t.sceneModel,
           dataModel:  t.dataModel,
@@ -1499,7 +1547,7 @@ export class ExportDialog extends FloatingPanelBase {
       } catch (e: any) {
         errCount++;
         const msg = e?.message ?? String(e);
-        console.error(`[ExportDialog] Failed ${filename}: ${msg}`);
+        this.studio.reportError(`[ExportDialog] Failed ${filename}: ${msg}`);
       }
     }
     this._hideProgress();

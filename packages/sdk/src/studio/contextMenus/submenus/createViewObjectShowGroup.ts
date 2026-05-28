@@ -9,7 +9,7 @@
  * mutually-disabled rows so the user always sees the action that
  * actually applies right now.
  *
- * @module demo/viewObjectContextMenu/submenus/createViewObjectShowGroup
+ * @module studio/viewObjectContextMenu/submenus/createViewObjectShowGroup
  */
 
 import type {ViewObjectContextMenuContext} from "../ViewObjectContextMenuContext";

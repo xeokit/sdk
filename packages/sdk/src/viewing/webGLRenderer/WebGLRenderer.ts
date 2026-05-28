@@ -7,11 +7,11 @@ import {getWebGLExtension} from "../../base/webGL";
 import {type Capabilities} from "./Capabilities";
 import {type WebGLRendererEvents} from "./WebGLRendererEvents";
 import {type MemoryConfigs} from "./MemoryConfigs";
-import {createMemoryConfigs} from "./createMemoryConfigs";
 import {type MemoryUsage} from "./MemoryUsage";
 import {type DataTextures} from "./internal/gpuMemoryManager";
 import {SceneGeometry, SceneMesh} from "../../model/scene";
 import {ShaderInspector, RenderInspector, type MemoryInspector} from "./internal/inspectors";
+import {type MeshManagerStepStats} from "./internal/meshManager";
 import {type PickParams, type PickResult} from "../viewer";
 
 
@@ -327,6 +327,75 @@ export class WebGLRenderer {
       ok: true,
       value: this._viewManager.getRenderInspector()
     };
+  }
+
+  /**
+   * Enables (or disables) opt-in step-level timing inside the
+   * renderer's MeshManager, which fires synchronously on every
+   * `SceneModel.createMesh` call. Use to attribute time across the
+   * substeps (`getMeshBatch`, `batchAddMesh`, `rendererMeshCtor`)
+   * during a workload like a model load. Off by default so the hot
+   * path takes no `performance.now()` hit in normal use.
+   *
+   * Read the recorded numbers with {@link getMeshManagerStepStats}.
+   *
+   * @internal
+   */
+  public enableMeshManagerStepStats(enabled: boolean): void {
+    if (!this._viewManager) return;
+    this._viewManager.enableMeshManagerStepStats(enabled);
+  }
+
+  /**
+   * Zeroes the MeshManager step-stats counters. Call before the
+   * workload you want to attribute.
+   *
+   * @internal
+   */
+  public resetMeshManagerStepStats(): void {
+    if (!this._viewManager) return;
+    this._viewManager.resetMeshManagerStepStats();
+  }
+
+  /**
+   * Returns a snapshot of the MeshManager step-stats. Safe to call
+   * whether or not {@link enableMeshManagerStepStats} is on; values
+   * stay at the last-recorded numbers when disabled. Returns `null`
+   * before a viewer is attached.
+   *
+   * @internal
+   */
+  public getMeshManagerStepStats(): MeshManagerStepStats | null {
+    if (!this._viewManager) return null;
+    return this._viewManager.getMeshManagerStepStats();
+  }
+
+  /**
+   * Diagnostic: read back every mip × face of the GGX-prefiltered IBL
+   * cubemap for the given view and tile them onto an HTMLCanvasElement
+   * for visual inspection. Returns null when IBL hasn't been
+   * initialised for the view, or when the prefilter pipeline isn't
+   * allocated.
+   *
+   * Used to localise IBL artifacts to a specific mip without guessing.
+   * Call from the browser console:
+   *
+   * ```js
+   * const c = studio.renderer.debugDumpPrefilteredCubemap(0);
+   * document.body.appendChild(c);
+   * ```
+   *
+   * @internal
+   */
+  public debugDumpPrefilteredCubemap(viewIndex: number = 0): HTMLCanvasElement | null {
+    if (!this._viewManager) return null;
+    const rm: any = (this._viewManager as any)._renderManager;
+    if (!rm) return null;
+    const prefilters: Map<number, any> | undefined = rm._iblPrefilters;
+    if (!prefilters) return null;
+    const pipeline = prefilters.get(viewIndex);
+    if (!pipeline || typeof pipeline.debugDumpPrefilteredCubemap !== "function") return null;
+    return pipeline.debugDumpPrefilteredCubemap();
   }
 
   /**

@@ -55,7 +55,7 @@ export interface PaintWoodPlankOptions {
  *
  * Orientation on rendered surfaces depends on how the surface's UVs
  * were generated. The planar projection used by
- * {@link demo!attachSceneModelMaterials | attachSceneModelMaterials}
+ * {@link studio!attachSceneModelMaterials | attachSceneModelMaterials}
  * aligns V with world vertical on wall-like geometries, so this
  * painter renders vertical planks on every wall. Non-metal.
  */

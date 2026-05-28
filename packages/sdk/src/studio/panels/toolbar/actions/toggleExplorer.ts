@@ -1,7 +1,6 @@
 /**
  * Toolbar action — toggle the demo's {@link ExplorerPanel}.
  *
- * @module demo/toolbar/actions/toggleExplorer
  */
 
 import {ExplorerPanel} from "../../explorerPanel/ExplorerPanel";

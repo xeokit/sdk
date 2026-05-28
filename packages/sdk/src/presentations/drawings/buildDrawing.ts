@@ -1,11 +1,8 @@
 import type {SceneModel} from "../../model/scene";
 import {SDKErrorType, type SDKResult} from "../../base/core";
 import {
-  LinearEncoding,
-  LinearFilter,
   LinesPrimitive,
   SolidPrimitive,
-  sRGBEncoding,
   SurfacePrimitive,
   TrianglesPrimitive,
 } from "../../base/constants";
@@ -34,6 +31,14 @@ import type {HLEDepthBuffer} from "./hle/HLEDepthBuffer";
 import type {FillPolygons} from "./fills/FillPolygons";
 import type {SpaceLabelSpec} from "./labels/SpaceLabelSpec";
 import {computeLabelPlacement} from "./labels/computeLabelPlacement";
+
+import {buildDrawingPanel} from "./buildDrawingPanel";
+import {
+  basisHandedness,
+  basisUVExtents,
+  computeBasisDMin,
+  recenterPositions,
+} from "./internal/basisMath";
 
 
 /**
@@ -93,7 +98,7 @@ import {computeLabelPlacement} from "./labels/computeLabelPlacement";
  * {@link base!core.SDKResult | SDKResult} error and leaves any
  * partial state on the target for the caller to handle.
  *
- * See {@link drawings | @xeokit/sdk/demo/systems/drawings} for
+ * See {@link drawings | @xeokit/sdk/studio/systems/drawings} for
  * end-to-end usage examples.
  */
 export async function buildDrawing(
@@ -227,7 +232,16 @@ export async function buildDrawing(
       : 0;
   if (params.panel) {
     const spec: PanelSpec = typeof params.panel === "object" ? params.panel : {};
-    const panelRes = emitPanel(target, basis, aabb, planeDepth, frameMargin, spec, origin, params.layerId);
+    const panelRes = buildDrawingPanel({
+      targetModel: target,
+      basis,
+      aabb,
+      planeDepth,
+      margin:  frameMargin,
+      spec,
+      origin,
+      layerId: params.layerId,
+    });
     if (panelRes.ok === false) {
       const err = {ok: false as const, type: panelRes.type, error: panelRes.error};
       return err;
@@ -1090,63 +1104,6 @@ function normalize3(v: ArrayLike<number>): [number, number, number] {
 
 
 /**
- * Project the 8 corners of a world-space AABB onto the basis
- * `right`/`up` axes and return the rotated rectangle's u/v
- * extents. Same as the helper used inside `buildHLEDepthBuffer`,
- * re-derived here so the chrome (frame, panel, title block)
- * can size itself without a depth-buffer build.
- */
-function basisUVExtents(
-    basis: ProjectionBasis,
-    aabb: FloatArrayParam,
-): {uMin: number; uMax: number; vMin: number; vMax: number} {
-  const {right, up} = basis;
-  const xMin = aabb[0], yMin = aabb[1], zMin = aabb[2];
-  const xMax = aabb[3], yMax = aabb[4], zMax = aabb[5];
-  let uMin =  Infinity, uMax = -Infinity;
-  let vMin =  Infinity, vMax = -Infinity;
-  for (let i = 0; i < 8; i++) {
-    const x = (i & 1) ? xMax : xMin;
-    const y = (i & 2) ? yMax : yMin;
-    const z = (i & 4) ? zMax : zMin;
-    const u = x * right[0] + y * right[1] + z * right[2];
-    const v = x * up[0]    + y * up[1]    + z * up[2];
-    if (u < uMin) uMin = u; if (u > uMax) uMax = u;
-    if (v < vMin) vMin = v; if (v > vMax) vMax = v;
-  }
-  return {uMin, uMax, vMin, vMax};
-}
-
-
-/**
- * Minimum basis-d coord over the 8 AABB corners — the depth
- * value of the AABB face nearest the camera. The projection
- * plane sits `offset` past this on the camera side.
- */
-function computeBasisDMin(basis: ProjectionBasis, aabb: FloatArrayParam): number {
-  const f = basis.forward;
-  const xMin = aabb[0], yMin = aabb[1], zMin = aabb[2];
-  const xMax = aabb[3], yMax = aabb[4], zMax = aabb[5];
-  let dMin = Infinity;
-  for (let i = 0; i < 8; i++) {
-    const x = (i & 1) ? xMax : xMin;
-    const y = (i & 2) ? yMax : yMin;
-    const z = (i & 4) ? zMax : zMin;
-    const d = x * f[0] + y * f[1] + z * f[2];
-    if (d < dMin) dMin = d;
-  }
-  return dMin;
-}
-
-
-/**
- * Signed handedness of a {right, up, forward} basis — equal
- * to `(right × up) · forward`. Right-handed bases give `+1`,
- * left-handed bases `-1`. The panel-box winding flips with
- * sign so the inside-out box always shows the inside-facing
- * surface no matter which way the basis chirality lands.
- */
-/**
  * Resolve a {@link DrawingClipSpec} to a world-space plane:
  * a point on the plane and the unit normal vector pointing
  * toward the **kept** side. Triangles whose centroid satisfies
@@ -1185,15 +1142,6 @@ function resolveClipPlane(
 }
 
 
-function basisHandedness(basis: ProjectionBasis): number {
-  const r = basis.right, u = basis.up, f = basis.forward;
-  const cx = r[1] * u[2] - r[2] * u[1];
-  const cy = r[2] * u[0] - r[0] * u[2];
-  const cz = r[0] * u[1] - r[1] * u[0];
-  return cx * f[0] + cy * f[1] + cz * f[2];
-}
-
-
 /**
  * In-place "drop" of a world-space point onto the projection
  * plane. The basis-space (u, v) of the point are preserved;
@@ -1225,28 +1173,6 @@ function makeProjection(
  */
 function sanitizeId(s: string): string {
   return s.replace(/\s+/g, "_");
-}
-
-/**
- * Subtract `origin` from every triple in `positions` in place.
- *
- * Keeps emitted geometry positions in a small range near zero
- * so {@link SceneGeometry.aabb} — stored as Float32 — stays
- * precise even when the source model sits far from the world
- * origin. The caller passes the same `origin` to
- * {@link SceneModel.createMesh}'s `position` so the world
- * placement carries the full-precision offset in the mesh's
- * Float64 local matrix.
- */
-function recenterPositions(
-    positions: number[],
-    origin: [number, number, number],
-): void {
-  for (let i = 0, n = positions.length; i < n; i += 3) {
-    positions[i]     -= origin[0];
-    positions[i + 1] -= origin[1];
-    positions[i + 2] -= origin[2];
-  }
 }
 
 /**
@@ -1316,196 +1242,6 @@ function emitFrame(
   // is a per-View property — callers who want the frame
   // un-pickable can set `view.objects[oid].pickable = false` after
   // the View picks the new SceneModel up.
-  return target.createObject({
-    id: oid,
-    meshIds: [mid],
-    clippable: false,
-    ...(layerId ? {layerId} : {}),
-  });
-}
-
-/**
- * Emit a thin, axis-aligned, **inside-out** box straddling the
- * projection plane. The wireframe + frame lines sit at the box's
- * mid-plane; the box extends `±gap` perpendicular to that plane
- * and `+margin` in-plane on every side.
- *
- * Every triangle is wound so its front face points *inward*
- * (into the box interior). Combined with `SolidPrimitive` (which
- * culls back faces), this gives a one-sided backdrop visible
- * only from outside the box — the near wall the camera is
- * looking through gets back-face culled away, and the camera
- * sees the far wall's inner surface as a clean backdrop behind
- * the wireframe. Side walls work the same way at oblique angles,
- * so the diagram has a backdrop even when viewed edge-on — more
- * robust than the previous two-quad sandwich which lost its
- * backing once the camera grazed the plane.
- *
- * Emits as a single SceneObject so the whole box shares opacity
- * and pickability.
- */
-function emitPanel(
-    target: SceneModel,
-    basis: ProjectionBasis,
-    aabb: FloatArrayParam,
-    planeDepth: number,
-    margin: number,
-    spec: PanelSpec,
-    origin: [number, number, number],
-    layerId: string | undefined,
-): SDKResult<unknown> {
-  // Default colour swaps depending on whether a painter is
-  // supplied: a painter expects a white tint so its sampled
-  // colour shows through unmodified; without one, we fall back
-  // to the cool off-white the old flat-colour panel used.
-  const color   = spec.color   ?? (spec.paint ? [1, 1, 1] : [0.96, 0.97, 0.99]);
-  const opacity = spec.opacity ?? 0.55;
-  const gap = 0.05;
-
-  // Box extents in basis space. The box is thin along
-  // `basis.forward` (one wall on the camera side of the plane,
-  // one on the AABB side) and is grown by `margin` in the
-  // image-plane axes so it covers the framed area plus border.
-  //
-  // `dInner` (the AABB-side wall) is clamped so the inset
-  // never crosses into the source AABB — when `offset < gap`
-  // the inner wall coincides with the AABB face instead of
-  // dipping inside.
-  const {uMin, uMax, vMin, vMax} = basisUVExtents(basis, aabb);
-  const dMin = computeBasisDMin(basis, aabb);
-  const u0 = uMin - margin, u1 = uMax + margin;
-  const v0 = vMin - margin, v1 = vMax + margin;
-  const dOuter = planeDepth - gap;
-  const dInner = Math.min(planeDepth + gap, dMin);
-
-  // 8 corners of the box, numbered by a 3-bit basis-axis bit
-  // pattern: bit 0 = u choice (0 → u0, 1 → u1), bit 1 = v
-  // choice, bit 2 = d choice (0 → dInner, 1 → dOuter).
-  //
-  //         7──────6           +up
-  //        ╱│      │            │  +forward
-  //       3──────2 │            │ ╱
-  //       │ 4────│─5            │╱
-  //       │╱     │╱             ┕── +right
-  //       0──────1
-  //
-  // World position of corner i is `u_i*right + v_i*up + d_i*forward`.
-  const r = basis.right, up = basis.up, f = basis.forward;
-  const corner = (uu: number, vv: number, dd: number): [number, number, number] => [
-    uu * r[0] + vv * up[0] + dd * f[0],
-    uu * r[1] + vv * up[1] + dd * f[1],
-    uu * r[2] + vv * up[2] + dd * f[2],
-  ];
-  const c0 = corner(u0, v0, dInner);
-  const c1 = corner(u1, v0, dInner);
-  const c2 = corner(u1, v1, dInner);
-  const c3 = corner(u0, v1, dInner);
-  const c4 = corner(u0, v0, dOuter);
-  const c5 = corner(u1, v0, dOuter);
-  const c6 = corner(u1, v1, dOuter);
-  const c7 = corner(u0, v1, dOuter);
-  const positions: number[] = [
-    c0[0], c0[1], c0[2],  c1[0], c1[1], c1[2],  c2[0], c2[1], c2[2],  c3[0], c3[1], c3[2],
-    c4[0], c4[1], c4[2],  c5[0], c5[1], c5[2],  c6[0], c6[1], c6[2],  c7[0], c7[1], c7[2],
-  ];
-
-  // Inside-out winding: triangles oriented so `(b-a)×(c-a)`
-  // points *into* the box. For a left-handed basis (the case
-  // for five of the six face presets — only "front" is
-  // right-handed) the natural index table below is correct;
-  // for a right-handed basis the cross-product direction flips
-  // through the basis-to-world transform, so we swap the last
-  // two vertices of each triangle to reverse the world normal
-  // back to inward.
-  const flip = basisHandedness(basis) > 0;
-  const tri = (a: number, b: number, c: number): number[] =>
-      flip ? [a, c, b] : [a, b, c];
-  const indices: number[] = [
-    // dInner face (AABB-side wall, corners 0,1,2,3)
-    ...tri(0, 1, 2), ...tri(0, 2, 3),
-    // dOuter face (camera-side wall, corners 4,5,6,7)
-    ...tri(4, 7, 6), ...tri(4, 6, 5),
-    // v=v0 face (corners 0,1,5,4)
-    ...tri(0, 4, 5), ...tri(0, 5, 1),
-    // v=v1 face (corners 2,3,7,6)
-    ...tri(3, 2, 6), ...tri(3, 6, 7),
-    // u=u0 face (corners 0,3,7,4)
-    ...tri(0, 3, 7), ...tri(0, 7, 4),
-    // u=u1 face (corners 1,2,6,5)
-    ...tri(1, 5, 6), ...tri(1, 6, 2),
-  ];
-
-  const gid = `${target.id}__panel_geom`;
-  const mid = `${target.id}__panel_mesh`;
-  const oid = `${target.id}__panel`;
-
-  recenterPositions(positions, origin);
-  const gRes = target.createGeometry({
-    id: gid,
-    // TrianglesPrimitive routes through the renderer's transparent
-    // pass when opacity < 1, which enables `gl.CULL_FACE` —
-    // that's what makes the inward-wound box render as
-    // "inside-out": the camera-facing wall's back face is culled
-    // and the opposite wall's front face shows through as the
-    // backdrop. (`SolidPrimitive` isn't registered in the
-    // renderer's draw-op map and would silently skip the mesh.)
-    primitive: TrianglesPrimitive,
-    positions,
-    indices,
-  });
-  if (gRes.ok === false) return gRes;
-
-  // Optional PBR material — paint once and upload colour, normal,
-  // and metallic-roughness textures into the target SceneModel.
-  // The mesh below binds the material via `materialId`; the
-  // renderer's triplanar fallback samples the textures by world
-  // position because the quad geometry has no UVs.
-  let materialId: string | undefined;
-  if (spec.paint) {
-    const maps = spec.paint();
-    const matSuffix = "__panel";
-    const cTexId = `${target.id}${matSuffix}_color_tex`;
-    const nTexId = `${target.id}${matSuffix}_normal_tex`;
-    const mTexId = `${target.id}${matSuffix}_mr_tex`;
-    const matId  = `${target.id}${matSuffix}_mat`;
-
-    const cTex = target.createTexture({
-      id: cTexId, mipmap: true, imageData: maps.color,
-      encoding: sRGBEncoding, minFilter: LinearFilter, flipY: false,
-    });
-    if (cTex.ok === false) return cTex;
-    const nTex = target.createTexture({
-      id: nTexId, mipmap: true, imageData: maps.normal,
-      encoding: LinearEncoding, minFilter: LinearFilter, flipY: false,
-    });
-    if (nTex.ok === false) return nTex;
-    const mTex = target.createTexture({
-      id: mTexId, mipmap: true, imageData: maps.mr,
-      encoding: LinearEncoding, minFilter: LinearFilter, flipY: false,
-    });
-    if (mTex.ok === false) return mTex;
-
-    const matRes = target.createMaterial({
-      id:                         matId,
-      colorTextureId:             cTexId,
-      normalsTextureId:           nTexId,
-      metallicRoughnessTextureId: mTexId,
-      triplanarScale:             spec.textureScale ?? 1.0,
-      alphaMode:                  opacity < 1 ? "BLEND" : "OPAQUE",
-    });
-    if (matRes.ok === false) return matRes;
-    materialId = matId;
-  }
-
-  const mRes = target.createMesh({
-    id: mid,
-    geometryId: gid,
-    position: origin,
-    color,
-    opacity,
-    ...(materialId ? {materialId} : {}),
-  });
-  if (mRes.ok === false) return mRes;
   return target.createObject({
     id: oid,
     meshIds: [mid],

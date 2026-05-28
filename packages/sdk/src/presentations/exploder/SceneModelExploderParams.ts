@@ -25,9 +25,11 @@ export type SceneModelExploderParams = {
 
   /**
    * The {@link spatial!collision.SceneCollisionIndex | SceneCollisionIndex}
-   * the exploder reads per-mesh world AABBs from. Typically
-   * `studio.picking.collisionIndex`; any object exposing
-   * `getMeshAABB(mesh)` is accepted.
+   * the exploder reads per-mesh world AABBs from. Any object
+   * exposing `getMeshAABB(mesh)` is accepted — host code that
+   * already maintains a collision index can pass it through;
+   * standalone callers can spin one up with
+   * `new SceneCollisionIndex(scene)`.
    */
   collisionIndex: SceneCollisionIndex;
 

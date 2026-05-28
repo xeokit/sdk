@@ -1,5 +1,5 @@
 /**
- * @module demo/viewObjectContextMenu/CanvasContextMenuContext
+ * @module studio/viewObjectContextMenu/CanvasContextMenuContext
  */
 
 import type {BaseViewContext} from "./BaseViewContext";

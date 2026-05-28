@@ -7,7 +7,7 @@
  * "I have a view-object context", and these helpers depend on
  * "I have a scene / data model on it".
  *
- * @module demo/viewObjectContextMenu/helpers/sceneRefs
+ * @module studio/viewObjectContextMenu/helpers/sceneRefs
  */
 
 import type {AABB3} from "../../../base/math/boundaries";

@@ -15,7 +15,6 @@
  * gutter that reads as misalignment when several panels are
  * docked side by side.
  *
- * @module demo/floatingPanelSnap
  */
 
 /**

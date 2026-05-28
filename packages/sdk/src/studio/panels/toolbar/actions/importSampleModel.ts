@@ -2,7 +2,6 @@
  * Toolbar action — open the demo's {@link SampleModelsPanel},
  * the floating browser for the bundled example models.
  *
- * @module demo/toolbar/actions/importSampleModel
  */
 
 import type {ToolbarActionDescriptor} from "./ToolbarActionDescriptor";

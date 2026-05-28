@@ -30,7 +30,6 @@
  * any sibling panel that was constructed but hasn't been
  * brought forward yet.
  *
- * @module demo/floatingPanelZ
  */
 
 import {lowestModalBackdropZ} from "./modalBackdrop";

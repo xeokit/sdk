@@ -5,7 +5,6 @@
  * on the toolbar rather than burying it in the Inspect dropdown —
  * Drawings is a presentation/output feature, not a diagnostic.
  *
- * @module demo/toolbar/actions/openDrawings
  */
 
 import type {ToolbarActionDescriptor} from "./ToolbarActionDescriptor";

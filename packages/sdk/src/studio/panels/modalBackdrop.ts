@@ -9,7 +9,6 @@
  * above any previously-opened modal, with its own scrim above
  * the older modal's panel.
  *
- * @module demo/panels/modalBackdrop
  */
 
 const MODAL_BACKDROP_CLASS = "xkt-modal-backdrop";

@@ -4,7 +4,7 @@
  * three orthogonal projections (Top XZ, Front XY, Side YZ) of
  * the tile grid, with a 1 m background grid and a camera "you
  * are here" glyph. Sister widget to
- * {@link demo/boundariesPanel!BoundariesPanel | BoundariesPanel} — same floating
+ * {@link studio/boundariesPanel!BoundariesPanel | BoundariesPanel} — same floating
  * chrome, same colour palette, same per-section lazy refresh.
  *
  * ## Lazy event wiring
@@ -43,7 +43,6 @@
  * tiles.destroy();
  * ```
  *
- * @module demo/tilesPanel
  */
 import type {Scene} from "../../../model/scene";
 import type {View} from "../../../viewing/viewer";

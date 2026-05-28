@@ -13,7 +13,6 @@
  * layout persistence, bring-to-front on pointer-down, scoped
  * `xkt-explorer-` CSS prefix.
  *
- * @module demo/explorerPanel
  */
 import type {Data} from "../../../model/data";
 import type {View, ViewObject} from "../../../viewing/viewer";

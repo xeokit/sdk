@@ -1,5 +1,4 @@
 /**
- * @module demo/panels/importDialog/IMPORT_BASES
  */
 
 import type {ImportCoordSysBasis} from "./ImportCoordSysBasis";

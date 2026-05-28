@@ -19,7 +19,6 @@
  * `xkt-tb-` CSS prefix, `iconSvg()` for the pill / context-menu
  * glyph.
  *
- * @module demo/toolbar
  */
 import type {Viewer, View} from "../../../viewing/viewer";
 import type {Studio} from "../../Studio";
@@ -42,8 +41,12 @@ import {TasksPanel} from "../tasksPanel/TasksPanel";
 import {ShadersPanel} from "../shadersPanel/ShadersPanel";
 import {DataTexturesPanel} from "../dataTexturesPanel/DataTexturesPanel";
 import {RendererPanel} from "../rendererPanel/RendererPanel";
+import {CameraTourPanel} from "../cameraTour/CameraTourPanel";
 import {DrawingsPanel} from "../drawings/DrawingsPanel";
 import {SchemaMaterialsPanel} from "../schemaMaterialsPanel/SchemaMaterialsPanel";
+import {SunStudyPanel} from "../sunStudyPanel/SunStudyPanel";
+import {DaylightAnalysisPanel} from "../daylightAnalysisPanel/DaylightAnalysisPanel";
+import {VolumeOverlayPanel} from "../volumeOverlayPanel/VolumeOverlayPanel";
 import {DistanceMeasurementTool} from "../../../tools/measurements/distance/DistanceMeasurementTool";
 import {AngleMeasurementsTool} from "../../../tools/measurements/angle/AngleMeasurementsTool";
 import {DistanceMeasurementsPanel} from "../distanceMeasurementsPanel/DistanceMeasurementsPanel";
@@ -89,8 +92,12 @@ export type ToolbarAction =
   | "importModel"
   | "importSampleModel"
   | "openExport"
+  | "openCameraTour"
   | "openDrawings"
   | "openSchemaMaterials"
+  | "openSunStudy"
+  | "openDaylightAnalysis"
+  | "openVolumeOverlay"
   | "toggleExplorer"
   | "toggleViews"
   | "toggleModels"
@@ -859,9 +866,29 @@ export class Toolbar extends FloatingPanelBase {
       svg:    DrawingsPanel.iconSvg(),
     }));
     gPresent.btns.appendChild(this._mkBtn({
+      action: "openCameraTour",
+      title:  "Camera Tours",
+      svg:    CameraTourPanel.iconSvg(),
+    }));
+    gPresent.btns.appendChild(this._mkBtn({
       action: "openSchemaMaterials",
       title:  "Schema Materials",
       svg:    SchemaMaterialsPanel.iconSvg(),
+    }));
+    gPresent.btns.appendChild(this._mkBtn({
+      action: "openSunStudy",
+      title:  "Sun Study",
+      svg:    SunStudyPanel.iconSvg(),
+    }));
+    gPresent.btns.appendChild(this._mkBtn({
+      action: "openDaylightAnalysis",
+      title:  "Daylight Analysis",
+      svg:    DaylightAnalysisPanel.iconSvg(),
+    }));
+    gPresent.btns.appendChild(this._mkBtn({
+      action: "openVolumeOverlay",
+      title:  "Volume Overlay",
+      svg:    VolumeOverlayPanel.iconSvg(),
     }));
     row2.appendChild(gPresent.wrap);
 
@@ -924,7 +951,7 @@ export class Toolbar extends FloatingPanelBase {
   private _dispatch(action: ToolbarAction): void {
     const descriptor = TOOLBAR_ACTIONS[action];
     if (!descriptor) {
-      console.warn(`[Toolbar] No handler registered for action '${action}'.`);
+      this.studio.reportWarning(`[Toolbar] No handler registered for action '${action}'.`);
       return;
     }
     descriptor.do(this._makeActionCtx());

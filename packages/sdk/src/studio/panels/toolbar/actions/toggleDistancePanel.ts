@@ -2,7 +2,6 @@
  * Toolbar action — toggle the {@link DistanceMeasurementsPanel}
  * on the active View.
  *
- * @module demo/toolbar/actions/toggleDistancePanel
  */
 
 import type {ToolbarActionDescriptor} from "./ToolbarActionDescriptor";

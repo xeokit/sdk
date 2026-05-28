@@ -1,5 +1,4 @@
 /**
- * @module demo/panels/viewPanel
  */
 export {
   ViewPanel,

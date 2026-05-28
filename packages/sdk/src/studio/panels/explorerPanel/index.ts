@@ -6,6 +6,5 @@
  * the helper's `Data`. Use the panel to navigate and toggle
  * visibility / x-ray of the corresponding `ViewObject`s.
  *
- * @module demo/explorerPanel
  */
 export * from "./ExplorerPanel";

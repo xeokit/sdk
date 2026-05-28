@@ -579,8 +579,12 @@ export class SceneTransform {
       this._parentTransform._updateGlobal(force);
       mulMat4(this._parentTransform._worldMatrix, this._localMatrix, this._worldMatrix);
     } else {
-      // @ts-ignore
-      this._worldMatrix.set(this._localMatrix);
+      // Root transform — apply the SceneModel's coord-system pre-multiply,
+      // same as the `get worldMatrix()` getter. Previously this branch
+      // copied the local matrix directly, which produced a wrong world
+      // matrix for any reparenting/preserveWorld path on a model whose
+      // basis differed from the scene's.
+      mulMat4(this.model.coordinateSystemMatrix, this._localMatrix, this._worldMatrix);
     }
     this._worldMatrixDirty = false;
 

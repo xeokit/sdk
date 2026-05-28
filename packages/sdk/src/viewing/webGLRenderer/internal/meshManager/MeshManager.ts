@@ -66,6 +66,35 @@ export class MeshManager {
   private _batchesDirty = true;
 
   /**
+   * Opt-in step-level timing for {@link _addMesh}. Off by default so
+   * the hot path takes no `performance.now()` hit in normal use.
+   * Toggle via {@link enableStepStats}.
+   *
+   * @internal
+   */
+  private _stepStatsEnabled = false;
+
+  /**
+   * Per-step counters/timings populated when {@link _stepStatsEnabled}
+   * is on. Read via {@link getStepStats}, cleared via
+   * {@link resetStepStats}. Used by the load-pipeline benchmark to
+   * attribute time inside `SceneModel.createMesh`'s synchronous
+   * renderer cascade.
+   *
+   * @internal
+   */
+  private _stepStats: MeshManagerStepStats = {
+    getMeshBatchMs: 0,
+    getMeshBatchCalls: 0,
+    batchScanIters: 0,
+    newBatches: 0,
+    batchAddMeshMs: 0,
+    batchAddMeshCalls: 0,
+    rendererMeshCtorMs: 0,
+    rendererMeshCtorCalls: 0,
+  };
+
+  /**
    * Creates a {@link MeshManager}.
    *
    * @param renderContext - Shared renderer context (provides access to viewer + WebGL resources).
@@ -262,20 +291,33 @@ export class MeshManager {
       };
     }
 
+    const stats = this._stepStatsEnabled ? this._stepStats : null;
+
+    const t0 = stats ? performance.now() : 0;
     const meshBatchResult = this._getMeshBatch(sceneMesh);
+    if (stats) {
+      stats.getMeshBatchMs += performance.now() - t0;
+      stats.getMeshBatchCalls++;
+    }
     if (meshBatchResult.ok === false) {
       return meshBatchResult;
     }
 
     const meshBatch = meshBatchResult.value;
 
+    const t1 = stats ? performance.now() : 0;
     const meshResult = meshBatch.addMesh(sceneMesh);
+    if (stats) {
+      stats.batchAddMeshMs += performance.now() - t1;
+      stats.batchAddMeshCalls++;
+    }
     if (meshResult.ok === false) {
       return meshResult;
     }
 
     const meshHandle = meshResult.value;
 
+    const t2 = stats ? performance.now() : 0;
     const rendererMesh = new RendererMesh({
       renderContext: this._renderContext,
       sceneMesh,
@@ -283,8 +325,11 @@ export class MeshManager {
       gpuMemoryManager: this._gpuMemoryManager,
       meshHandle
     });
-
     this._rendererMeshes[meshGlobalId] = rendererMesh;
+    if (stats) {
+      stats.rendererMeshCtorMs += performance.now() - t2;
+      stats.rendererMeshCtorCalls++;
+    }
 
     return {ok: true, value: rendererMesh};
   }
@@ -329,7 +374,11 @@ export class MeshManager {
     // batches by bin without subdividing draw calls per-mesh.
     const bin = sceneMesh.bin;
 
-    for (let i = 0, len = this._batches.length; i < len; i++) {
+    const stats = this._stepStatsEnabled ? this._stepStats : null;
+    const len = this._batches.length;
+    let iters = 0;
+    for (let i = 0; i < len; i++) {
+      iters++;
       const meshBatch = this._batches[i];
       if (meshBatch.primitive === primitive
           && meshBatch.hasNormals === hasNormals
@@ -341,8 +390,13 @@ export class MeshManager {
         if (canAddResult !== GPUMemoryCheckResult.OK) {
           continue;
         }
+        if (stats) stats.batchScanIters += iters;
         return {ok: true, value: meshBatch};
       }
+    }
+    if (stats) {
+      stats.batchScanIters += iters;
+      stats.newBatches++;
     }
 
     const result = this._gpuMemoryManager.createBatch({hasNormals, hasUVs, triplanar, mipmap});
@@ -605,9 +659,26 @@ export class MeshManager {
    * Handles changes to a {@link viewing!viewer.ViewObject | ViewObject}'s opacity override.
    *
    * Updates the per-view opacity value on the owning {@link RendererObject}.
+   *
+   * Mirrors the colorize bridge's null-or-value contract: when the
+   * ViewObject's `OPACITY_UPDATED` flag is **off** (the caller passed
+   * `null`/`undefined` to clear the override), forward `undefined` so
+   * the renderer-side `RendererMesh.setOpacityInView` falls back to
+   * the SceneMesh's `effectiveOpacity` and clears the per-mesh
+   * `ColoringOpacity` flag — without this, a cleared override leaks
+   * to the renderer as an explicit `opacity = 1` write, forces glass
+   * and curtain-wall meshes into the opaque bin, and produces
+   * uniform-dark rendering for affected models.
+   *
+   * The `ViewObject.opacity` getter itself can't return null because
+   * the field has type `number` for backwards compatibility — so the
+   * gating happens here, at the bridge, not in the getter.
    */
   public viewObjectOpacityChanged(viewObject: ViewObject): void {
-    this._rendererObjects[viewObject.id]?.setOpacity(viewObject.layer.view.viewIndex, viewObject.opacity);
+    this._rendererObjects[viewObject.id]?.setOpacity(
+      viewObject.layer.view.viewIndex,
+      viewObject.opacityUpdated ? viewObject.opacity : undefined,
+    );
   }
 
   /**
@@ -712,6 +783,75 @@ export class MeshManager {
     this._rendererMeshes = {};
     this._batchesDirty = true;
   }
+
+  /**
+   * Enables (or disables) opt-in step-level timing inside
+   * {@link _addMesh}. Off by default; turn on around a workload
+   * (eg. a model load) to attribute time across the substeps
+   * (`getMeshBatch`, `batchAddMesh`, `rendererMeshCtor`), then
+   * read via {@link getStepStats}.
+   *
+   * @internal
+   */
+  public enableStepStats(enabled: boolean): void {
+    this._stepStatsEnabled = enabled;
+  }
+
+  /**
+   * Zeroes the step-stats counters without changing the enabled
+   * flag. Call before the workload you want to attribute.
+   *
+   * @internal
+   */
+  public resetStepStats(): void {
+    this._stepStats = {
+      getMeshBatchMs: 0,
+      getMeshBatchCalls: 0,
+      batchScanIters: 0,
+      newBatches: 0,
+      batchAddMeshMs: 0,
+      batchAddMeshCalls: 0,
+      rendererMeshCtorMs: 0,
+      rendererMeshCtorCalls: 0,
+    };
+  }
+
+  /**
+   * Returns a snapshot of the current step-stats counters. Safe to
+   * call whether or not {@link enableStepStats} is on; values stay
+   * at the last-recorded numbers when disabled.
+   *
+   * @internal
+   */
+  public getStepStats(): MeshManagerStepStats {
+    return {...this._stepStats};
+  }
+}
+
+/**
+ * Step-level timings + counters populated inside
+ * {@link MeshManager._addMesh} when {@link MeshManager.enableStepStats}
+ * is on. Read via {@link MeshManager.getStepStats}.
+ *
+ * @internal
+ */
+export interface MeshManagerStepStats {
+  /** Cumulative wall time spent inside `_getMeshBatch`. */
+  getMeshBatchMs: number;
+  /** Number of `_getMeshBatch` invocations. */
+  getMeshBatchCalls: number;
+  /** Cumulative scan iterations over the batches array. */
+  batchScanIters: number;
+  /** Number of times `_getMeshBatch` had to allocate a new batch. */
+  newBatches: number;
+  /** Cumulative wall time inside `meshBatch.addMesh` (GPU writes). */
+  batchAddMeshMs: number;
+  /** Number of `meshBatch.addMesh` invocations. */
+  batchAddMeshCalls: number;
+  /** Cumulative wall time constructing the `RendererMesh`. */
+  rendererMeshCtorMs: number;
+  /** Number of `RendererMesh` constructions. */
+  rendererMeshCtorCalls: number;
 }
 
 /**

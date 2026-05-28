@@ -263,9 +263,45 @@ export class SkyRenderer {
   render(viewRenderState: ViewRenderState): void {
     this.ensureReady();
 
-    const camera = viewRenderState.view.camera;
+    const view = viewRenderState.view;
+    const camera = view.camera;
 
-    // RTE: strip the view matrix translation so the inverse carries no large values. so the inverse carries no large values.
+    // Per-view sky config — `view.effects.sky` is where user-facing
+    // setters live (and where SunStudy writes when its `driveSky`
+    // option is on). The SkyRenderer's own instance fields stay as
+    // fallback defaults for views that don't carry an `effects.sky`
+    // (e.g. unit tests or downstream consumers using the renderer
+    // outside the Viewer pipeline).
+    const cfg = (view as any).effects?.sky as {
+      enabled: boolean;
+      skyColor: [number, number, number];
+      horizonColor: [number, number, number];
+      groundColor: [number, number, number];
+      horizonBlend: number;
+      sunEnabled: boolean;
+      sunDirection: [number, number, number];
+      sunColor: [number, number, number];
+      sunAngularSize: number;
+      sunGlowSize: number;
+      sunGlowIntensity: number;
+      worldUp: [number, number, number];
+    } | undefined;
+
+    if (cfg && cfg.enabled === false) return;
+
+    const skyColor         = cfg ? cfg.skyColor         : this.skyColor;
+    const horizonColor     = cfg ? cfg.horizonColor     : this.horizonColor;
+    const groundColor      = cfg ? cfg.groundColor      : this.groundColor;
+    const horizonBlend     = cfg ? cfg.horizonBlend     : this.horizonBlend;
+    const sunEnabled       = cfg ? cfg.sunEnabled       : this.sunEnabled;
+    const sunDir           = cfg ? cfg.sunDirection     : this.sunDirection;
+    const sunColor         = cfg ? cfg.sunColor         : this.sunColor;
+    const sunAngularSize   = cfg ? cfg.sunAngularSize   : this.sunAngularSize;
+    const sunGlowSize      = cfg ? cfg.sunGlowSize      : this.sunGlowSize;
+    const sunGlowIntensity = cfg ? cfg.sunGlowIntensity : this.sunGlowIntensity;
+    const worldUp          = cfg ? cfg.worldUp          : this.worldUp;
+
+    // RTE: strip the view matrix translation so the inverse carries no large values.
     // Sky rendering only needs view direction, not position — the translation column
     // of the view matrix contributes nothing useful but causes float32 precision loss
     // in the inverse, producing jittery ray directions for distant cameras.
@@ -276,10 +312,8 @@ export class SkyRenderer {
     mulMat4(camera.projMatrix, vm, this.viewProjMatrix);
     inverseMat4(this.viewProjMatrix, this.invViewProjMatrix);
 
-    const sd = this.sunDirection;
-    const sdLen = Math.sqrt(sd[0] * sd[0] + sd[1] * sd[1] + sd[2] * sd[2]) || 1;
-
-    const sunCosSize = Math.cos(this.sunAngularSize * (Math.PI / 180) * 0.5);
+    const sdLen = Math.sqrt(sunDir[0] * sunDir[0] + sunDir[1] * sunDir[1] + sunDir[2] * sunDir[2]) || 1;
+    const sunCosSize = Math.cos(sunAngularSize * (Math.PI / 180) * 0.5);
 
     const gl = this.gl;
 
@@ -300,17 +334,17 @@ export class SkyRenderer {
     this._invViewProjF32.set(this.invViewProjMatrix as ArrayLike<number>);
     gl.uniformMatrix4fv(this.uInvViewProj, false, this._invViewProjF32);
     gl.uniform3f(this.uCameraPos, 0, 0, 0); // RTE: camera is at origin in this coordinate frame
-    gl.uniform3f(this.uWorldUp, this.worldUp[0], this.worldUp[1], this.worldUp[2]);
-    gl.uniform3f(this.uSkyColor, this.skyColor[0], this.skyColor[1], this.skyColor[2]);
-    gl.uniform3f(this.uHorizonColor, this.horizonColor[0], this.horizonColor[1], this.horizonColor[2]);
-    gl.uniform3f(this.uGroundColor, this.groundColor[0], this.groundColor[1], this.groundColor[2]);
-    gl.uniform1f(this.uHorizonBlend, this.horizonBlend);
-    gl.uniform1i(this.uSunEnabled, this.sunEnabled ? 1 : 0);
-    gl.uniform3f(this.uSunDirection, sd[0] / sdLen, sd[1] / sdLen, sd[2] / sdLen);
-    gl.uniform3f(this.uSunColor, this.sunColor[0], this.sunColor[1], this.sunColor[2]);
+    gl.uniform3f(this.uWorldUp, worldUp[0], worldUp[1], worldUp[2]);
+    gl.uniform3f(this.uSkyColor, skyColor[0], skyColor[1], skyColor[2]);
+    gl.uniform3f(this.uHorizonColor, horizonColor[0], horizonColor[1], horizonColor[2]);
+    gl.uniform3f(this.uGroundColor, groundColor[0], groundColor[1], groundColor[2]);
+    gl.uniform1f(this.uHorizonBlend, horizonBlend);
+    gl.uniform1i(this.uSunEnabled, sunEnabled ? 1 : 0);
+    gl.uniform3f(this.uSunDirection, sunDir[0] / sdLen, sunDir[1] / sdLen, sunDir[2] / sdLen);
+    gl.uniform3f(this.uSunColor, sunColor[0], sunColor[1], sunColor[2]);
     gl.uniform1f(this.uSunCosSize, sunCosSize);
-    gl.uniform1f(this.uSunGlowSize, this.sunGlowSize);
-    gl.uniform1f(this.uSunGlowIntensity, this.sunGlowIntensity);
+    gl.uniform1f(this.uSunGlowSize, sunGlowSize);
+    gl.uniform1f(this.uSunGlowIntensity, sunGlowIntensity);
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 

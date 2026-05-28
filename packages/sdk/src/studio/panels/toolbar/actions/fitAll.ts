@@ -1,7 +1,6 @@
 /**
  * Toolbar action — animated camera flight to the scene AABB.
  *
- * @module demo/toolbar/actions/fitAll
  */
 
 import type {ToolbarActionDescriptor} from "./ToolbarActionDescriptor";

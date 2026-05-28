@@ -7,7 +7,7 @@
  * "Modify" is honest about what these do (mutate scene state);
  * the old "Effects" name suggested visual filters.
  *
- * @module demo/viewObjectContextMenu/submenus/createViewObjectModifyGroup
+ * @module studio/viewObjectContextMenu/submenus/createViewObjectModifyGroup
  */
 
 import {SchemaMaterialsPanel} from "../../panels/schemaMaterialsPanel/SchemaMaterialsPanel";

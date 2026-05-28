@@ -18,7 +18,7 @@
  * if (ok) panel.hide();
  * ```
  *
- * @module demo/dialogs
+ * @module studio/dialogs
  */
 
 import {el} from "../utils/el";

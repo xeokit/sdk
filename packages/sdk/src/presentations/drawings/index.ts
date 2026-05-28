@@ -124,7 +124,7 @@
  *   buildDrawing,
  *   canBuildDrawing,
  *   clearDrawing
- * } from "@xeokit/sdk/studio/systems/drawings";
+ * } from "@xeokit/sdk/presentations/drawings";
  * ```
  *
  * <br>
@@ -391,3 +391,4 @@ export * as chrome from "./chrome";
 export * as labels from "./labels";
 
 export * from "./buildDrawing";
+export * from "./buildDrawingPanel";

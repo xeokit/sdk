@@ -3539,7 +3539,18 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     vec2 albedoAtlasUV = wrappedUV * vAlbedoUVScale + vAlbedoUVOffset;
     vec4 albedoSample = texture(uAlbedoAtlas, albedoAtlasUV);
     vec3 albedo = albedoSample.rgb * vColor.rgb;
-    float albedoAlpha = albedoSample.a * vColor.a;`
+    float albedoAlpha = albedoSample.a * vColor.a;
+
+    // Alpha-mask cutout — same shape as the hasNormals path. The
+    // flat-shaded variant runs the AA-discard so MASK-mode textured
+    // triangles (cutout text labels, image masks, decals) drop
+    // transparent fragments instead of writing them as opaque black
+    // (BLEND on triangles is currently a render-loop no-op, so
+    // discard is the only option for triangle alphas).
+    if (vAlphaMode == 1u) {
+      float aaAlpha = (albedoAlpha - vAlphaCutoff) / max(fwidth(albedoAlpha), 1e-4) + 0.5;
+      if (aaAlpha < 0.5) discard;
+    }`
       : this.triplanar
       ? `// World-space face normal from screen-space derivatives.
     vec3 triNorm = normalize(cross(dFdx(vWorldPos), dFdy(vWorldPos)));
@@ -3570,7 +3581,12 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     vec4 albedoZ = textureGrad(uAlbedoAtlas, wrappedZ * vAlbedoUVScale + vAlbedoUVOffset, dxZ * vAlbedoUVScale, dyZ * vAlbedoUVScale);
     vec4 albedoSample = albedoX * triW.x + albedoY * triW.y + albedoZ * triW.z;
     vec3 albedo = albedoSample.rgb * vColor.rgb;
-    float albedoAlpha = albedoSample.a * vColor.a;`
+    float albedoAlpha = albedoSample.a * vColor.a;
+
+    if (vAlphaMode == 1u) {
+      float aaAlpha = (albedoAlpha - vAlphaCutoff) / max(fwidth(albedoAlpha), 1e-4) + 0.5;
+      if (aaAlpha < 0.5) discard;
+    }`
       : `vec3 albedo = vColor.rgb;
     float albedoAlpha = vColor.a;`}
 

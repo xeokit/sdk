@@ -3,7 +3,7 @@
  * the three preset constants. The currently-active mode is
  * disabled (matches the camera-projection group's idiom).
  *
- * @module demo/viewObjectContextMenu/submenus/createRenderModeGroup
+ * @module studio/viewObjectContextMenu/submenus/createRenderModeGroup
  */
 
 import {DetailedRender, NavigationRender, RealisticRender} from "../../../base/constants";

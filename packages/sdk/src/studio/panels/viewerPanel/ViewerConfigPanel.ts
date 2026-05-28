@@ -18,7 +18,6 @@
  * persistence, bring-to-front on pointer-down, scoped
  * `xkt-vcp-` CSS prefix.
  *
- * @module demo/viewerPanel
  */
 import type {Viewer} from "../../../viewing/viewer";
 import type {View} from "../../../viewing/viewer/View";
@@ -1012,13 +1011,13 @@ export class ViewerConfigPanel extends FloatingPanelBase {
     if (helper) {
       for (const view of existing) {
         try { helper.viewManager.destroyView(view); } catch (e) {
-          console.warn("[ViewerConfigPanel] destroyView failed during load:", e);
+          this.studio.reportWarning(`[ViewerConfigPanel] destroyView failed during load:: ${e}`);
         }
       }
     } else {
       for (const view of existing) {
         try { view.destroy(); } catch (e) {
-          console.warn("[ViewerConfigPanel] view.destroy failed during load:", e);
+          this.studio.reportWarning(`[ViewerConfigPanel] view.destroy failed during load:: ${e}`);
         }
       }
     }
@@ -1037,7 +1036,7 @@ export class ViewerConfigPanel extends FloatingPanelBase {
           helper.viewManager.createView(sanitised);
           created++;
         } catch (e: any) {
-          console.warn("[ViewerConfigPanel] createView failed during load:", e);
+          this.studio.reportWarning(`[ViewerConfigPanel] createView failed during load:: ${e}`);
           this._setStatus(`Load: createView failed: ${e?.message ?? String(e)}`, "error");
         }
       }
@@ -1072,7 +1071,7 @@ export class ViewerConfigPanel extends FloatingPanelBase {
     if (active) {
       const cameraResult = active.camera.toParams();
       if (cameraResult.ok === false) {
-        console.warn("[ViewerConfigPanel] camera.toParams failed; creating View with default camera:", cameraResult.error);
+        this.studio.reportWarning(`[ViewerConfigPanel] camera.toParams failed; creating View with default camera:: ${cameraResult.error}`);
       } else {
         cameraParams = cameraResult.value;
       }

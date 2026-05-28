@@ -15,7 +15,6 @@
  * pill, layout persistence) and reachable via
  * `studio.panels.open("rendererPanel")`.
  *
- * @module demo/rendererPanel
  */
 import type {WebGLRenderer} from "../../../viewing/webGLRenderer";
 import type {

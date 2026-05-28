@@ -12,7 +12,6 @@
  * is memoised across re-renders so a Scene mutation doesn't snap
  * everything shut.
  *
- * @module demo/panels/modelsPanel/ModelsPanel
  */
 
 import type {Studio} from "../../Studio";

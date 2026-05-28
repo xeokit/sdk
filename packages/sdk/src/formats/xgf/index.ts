@@ -38,7 +38,7 @@
  *     direction TB
  *     class XGFLoader {
  *       +format : "XGF"
- *       +versions : ["1.0", "2.0"]
+ *       +versions : ["v1".."v2"]
  *       +load(params, options?) Promise~void~
  *     }
  *     class XGFExporter {

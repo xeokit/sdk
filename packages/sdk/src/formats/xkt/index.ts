@@ -80,8 +80,6 @@
  *
  * The  class will be used to handle any errors that may occur during this process.
  *
- * * [Run this example]()
- *
  * ````javascript
  * import {SDKError} from "@xeokit/core";
  * import {Scene} from "@xeokit/scene";

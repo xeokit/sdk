@@ -78,9 +78,9 @@
  * - **AbortSignal cancellation** — loaders and exporters check
  *   `options.signal.aborted` at every yield and reject with
  *   `DOMException("Aborted", "AbortError")` when the caller cancels.
- * - **Cross-platform** — every format works equally well in the
- *   browser (via {@link base!io.BrowserFileIO | BrowserFileIO}) and
- *   in Node (via {@link base!io.NodeFileIO | NodeFileIO}).
+ * - **Browser-side I/O** — file fetches go through
+ *   {@link base!io.BrowserFileIO | BrowserFileIO}, which wraps the
+ *   `fetch` API.
  *
  * <br>
  *
@@ -153,6 +153,10 @@ export * as obj from "./obj";
 export * as mtl from "./mtl";
 export * as rvm from "./rvm";
 export * as step from "./step";
+export * as pdf from "./pdf";
+export * as svg from "./svg";
+export * as dwg from "./dwg";
+export * as dxf from "./dxf";
 
 export * from "./ModelEncodeParams";
 export * from "./ModelEncoder";

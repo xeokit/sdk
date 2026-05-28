@@ -10,28 +10,37 @@ Built with **TypeScript**, xeokit is designed for **extreme performance**: it st
 
 ## Key Features
 
-* **Lightning‑fast rendering** of massive AECO models using innovative 
-* **Browser & Node.js support** for viewing, conversion, and preprocessing
-* **Scene graph + data graph** architecture
-* **Multi‑canvas, multi‑view viewers**
-* **Full precision (64-bit) coordinate system**
-* **Pluggable renderer backends** (WebGL today, WebGPU ready)
-* **Import, export & convert** industry‑standard AECO formats
-* **BIM collaboration** via BCF Viewpoints
-* **Fully documented utility libraries**
-* **Open‑source** with a permissive AGPL‑3.0 license**
+* **Lightning‑fast rendering** of massive AECO models via batched draw calls, data textures, and a renderer designed for IFC-scale scenes.
+* **Browser & Node.js support** for viewing, conversion, and preprocessing.
+* **Scene graph + data graph** architecture, decoupled so semantics and geometry can be authored independently.
+* **Multi‑canvas, multi‑view viewers** with floating-panel and tiled layouts.
+* **Full precision (64‑bit) coordinate system**, so georeferenced and city-scale models render without jitter.
+* **Pluggable renderer backends** (WebGL today, WebGPU ready).
+* **Import, export & convert** industry‑standard AECO formats (IFC, glTF, LAS, CityJSON, XKT, XGF, DotBIM, OBJ, MTL, RVM, STEP).
+* **BIM collaboration** via BCF Viewpoints.
+* **Procedural content** (materials, geometry, environments) for scaffolding and tests.
+* **Open‑source** with a permissive AGPL‑3.0 license.
 
 ---
 
 ## Table of Contents
 
 #### [Modules](#modules)
-  - [Scene Graph](#scene-graph)
-  - [Data Graph](#data-graph)
-  - [Model Viewer & Renderer](#model-viewer--renderer-backend)
-  - [Importers & Exporters](#model-importers-and-exporters)
-  - [Model Conversion](#model-conversion)
-  - [BIM Interoperability (BCF)](#bim-interoperability-via-bcf-viewpoints)
+  - [Base](#base)
+  - [Model](#model)
+  - [Spatial](#spatial)
+  - [Viewing](#viewing)
+  - [Formats](#formats)
+  - [Convert](#convert)
+  - [Inspect](#inspect)
+  - [Presentations](#presentations)
+  - [Tools](#tools)
+  - [Simulation](#simulation)
+  - [Interop](#interop)
+  - [UI](#ui)
+  - [Demo](#demo)
+
+#### [Cheatsheets](#cheatsheets)
 
 #### [Examples](#examples)
   - [Spinning 3D Box](#spinning-3d-box)
@@ -51,106 +60,208 @@ Built with **TypeScript**, xeokit is designed for **extreme performance**: it st
 
 ## Modules
 
-### Scene Graph
+The SDK is organised into **topical buckets** rather than a flat namespace. Every import path begins with one of the buckets below; the table inside each bucket lists the concrete submodules. The same buckets are exposed at runtime as namespaces on the root `xeokit` object (e.g. `xeokit.model.scene`, `xeokit.viewing.viewer`).
 
-The **scene graph** represents 3D model geometry, materials, and objects. It is renderer‑agnostic and works identically in the browser and Node.js. You can use it to:
+See the [Cheatsheets](#cheatsheets) section below for visual overviews.
 
-* Build models programmatically
-* Convert between file formats
-* Drive one or more viewers
+### Base
 
-The scene graph emits events for every structural or visual change.
+Foundational primitives every other bucket depends on: result types, math, constants, locale strings, low-level WebGL utilities.
 
-| Module                                                                              | Description                                               |
-| ----------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| [`@xeokit/sdk/scene`](https://xeokit.github.io/sdk/docs/api/modules/scene.html) | Scene graph containing geometries, materials, and objects |
-
----
-
-### Data Graph
-
-The **data graph** manages model semantics using an entity‑relationship structure. It stores:
-
-* Entities
-* Properties
-* Relationships
-
-Like the scene graph, it runs in both browser and Node.js environments and emits change events independently of rendering.
-
-| Module                                                                                | Description                        |
-|---------------------------------------------------------------------------------------| ---------------------------------- |
-| [`@xeokit/sdk/data`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_data.html) | Semantic entity‑relationship graph |
+| Module                                                                                                                  | Description                                            |
+|-------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------|
+| [`@xeokit/sdk/base/core`](https://xeokit.github.io/sdk/docs/api/modules/base.core.html)                                 | `SDKResult`, `SDKErrorType`, `SDKTask`, event emitter. |
+| [`@xeokit/sdk/base/constants`](https://xeokit.github.io/sdk/docs/api/modules/base.constants.html)                       | Shared enums (primitive types, render modes, …).       |
+| [`@xeokit/sdk/base/math`](https://xeokit.github.io/sdk/docs/api/modules/base.math.html)                                 | Vectors, matrices, quaternions, AABBs.                 |
+| [`@xeokit/sdk/base/utils`](https://xeokit.github.io/sdk/docs/api/modules/base.utils.html)                               | `createUUID`, small helpers.                           |
+| [`@xeokit/sdk/base/io`](https://xeokit.github.io/sdk/docs/api/modules/base.io.html)                                     | File I/O wrappers for browser and Node.                |
+| [`@xeokit/sdk/base/locale`](https://xeokit.github.io/sdk/docs/api/modules/base.locale.html)                             | Localisation service.                                  |
+| [`@xeokit/sdk/base/webGL`](https://xeokit.github.io/sdk/docs/api/modules/base.webGL.html)                               | Low-level WebGL utilities (buffers, textures, FBOs).   |
 
 ---
 
-### Model Viewer & Renderer Backend
+### Model
 
-xeokit includes a high‑performance **browser viewer** that attaches to a scene graph and reacts to its events in real time.
+The **scene graph** (3D geometry, materials, objects) and the **data graph** (semantic entities, relationships, property sets). Both are renderer-agnostic and run identically in the browser and Node. Streaming and procedural authoring live here too.
 
-Rendering is handled by **pluggable backends**, allowing support for multiple graphics APIs.
-
-Key capabilities:
-
-* Multiple simultaneous models
-* Multiple canvases and views
-* Cameras, lights, section planes, annotations
-* UI widgets and localization
-
-| Module                                                                                              | Description                 |
-| --------------------------------------------------------------------------------------------------- | --------------------------- |
-| [`@xeokit/sdk/viewer`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_viewer.html)               | Browser‑based model viewer  |
-| [`@xeokit/sdk/webglrenderer`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_webglrenderer.html) | WebGL rendering backend     |
-| [`@xeokit/sdk/cameracontrol`](https://xeokit.github.io/sdk/docs/api/modules/cameracontrol.html)         | Interactive camera controls |
-| [`@xeokit/sdk/treeview`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_treeview.html)           | HTML tree view widget       |
-| [`@xeokit/sdk/locale`](https://xeokit.github.io/sdk/docs/api/modules/_xeokit_locale.html)               | Localization service        |
+| Module                                                                                                  | Description                                              |
+|---------------------------------------------------------------------------------------------------------|----------------------------------------------------------|
+| [`@xeokit/sdk/model/scene`](https://xeokit.github.io/sdk/docs/api/modules/model.scene.html)             | Scene graph: `SceneModel`, `SceneObject`, `SceneMesh`, …  |
+| [`@xeokit/sdk/model/data`](https://xeokit.github.io/sdk/docs/api/modules/model.data.html)               | Semantic graph: `DataModel`, `DataObject`, relationships. |
+| [`@xeokit/sdk/model/procgen`](https://xeokit.github.io/sdk/docs/api/modules/model.procgen.html)         | Procedural geometry / materials / environment generators. |
+| [`@xeokit/sdk/model/streaming`](https://xeokit.github.io/sdk/docs/api/modules/model.streaming.html)     | Chunked model streaming + caching.                       |
 
 ---
 
-### Model Importers and Exporters
+### Spatial
 
-xeokit supports several industry‑standard AECO formats. These modules can be used in:
+CPU-side spatial indices and the picking pipeline that builds on them.
 
-* Node.js (offline conversion pipelines)
-* Browsers (runtime loading)
-
-| Module                                                                                              | Description             |
-| --------------------------------------------------------------------------------------------------- | ----------------------- |
-| [`@xeokit/sdk/formats/dotbim`](https://xeokit.github.io/sdk/docs/api/modules/formats.dotbim.html)       | Import/export DotBIM    |
-| [`@xeokit/sdk/formats/xgf`](https://xeokit.github.io/sdk/docs/api/modules/formats.xgf.html)             | Import/export XGF       |
-| [`@xeokit/sdk/formats/gltf`](https://xeokit.github.io/sdk/docs/api/modules/formats.gltf.html)           | Import glTF / GLB       |
-| [`@xeokit/sdk/formats/las`](https://xeokit.github.io/sdk/docs/api/modules/formats.las.html)             | Import LAS point clouds |
-| [`@xeokit/sdk/formats/cityjson`](https://xeokit.github.io/sdk/docs/api/modules/formats.cityjson.html)   | Import CityJSON         |
-| [`@xeokit/sdk/formats/ifc`](https://xeokit.github.io/sdk/docs/api/modules/formats.ifc.html)          | Import IFC              |
-| [`@xeokit/sdk/formats/xkt`](https://xeokit.github.io/sdk/docs/api/modules/formats.xkt.html)             | Import XKT              |
-| [`@xeokit/sdk/formats/datamodel`](https://xeokit.github.io/sdk/docs/api/modules/formats.datamodel.html) | Native data models      |
-| [`@xeokit/sdk/formats/scenedata`](https://xeokit.github.io/sdk/docs/api/modules/formats.scenemodel.html) | Native scene models     |
+| Module                                                                                                       | Description                                              |
+|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------------|
+| [`@xeokit/sdk/spatial/collision`](https://xeokit.github.io/sdk/docs/api/modules/spatial.collision.html)      | KdTree / BVH indices over scene geometry.                |
+| [`@xeokit/sdk/spatial/picking`](https://xeokit.github.io/sdk/docs/api/modules/spatial.picking.html)          | Ray / canvas-pos picking, snap-to-vertex / snap-to-edge. |
 
 ---
 
-### Model Conversion
+### Viewing
 
-Convert between multiple AECO formats using a unified API or CLI.
+The browser viewer and its pluggable renderer backends, plus camera animations and pointer-driven controllers.
 
-| Module                                                                                                | Description            |
-| ----------------------------------------------------------------------------------------------------- | ---------------------- |
-| [`@xeokit/sdk/modelconverter`](https://xeokit.github.io/sdk/docs/api/modules/modelconverter.html) | Multi‑format converter |
-| [`@xeokit/sdk/xeoconvert`](https://xeokit.github.io/sdk/docs/api/modules/xeoconvert.html)         | CLI wrapper            |
+| Module                                                                                                                          | Description                                  |
+|---------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------|
+| [`@xeokit/sdk/viewing/viewer`](https://xeokit.github.io/sdk/docs/api/modules/viewing.viewer.html)                               | `Viewer`, `View`, `Camera`, lights, effects. |
+| [`@xeokit/sdk/viewing/webGLRenderer`](https://xeokit.github.io/sdk/docs/api/modules/viewing.webGLRenderer.html)                 | WebGL rendering backend.                     |
+| [`@xeokit/sdk/viewing/viewController`](https://xeokit.github.io/sdk/docs/api/modules/viewing.viewController.html)               | Mouse / touch camera controllers.            |
+| [`@xeokit/sdk/viewing/cameraFlight`](https://xeokit.github.io/sdk/docs/api/modules/viewing.cameraFlight.html)                   | Camera flight animations and bookmarks.      |
 
 ---
 
-### BIM Interoperability via BCF Viewpoints
+### Formats
 
-Share viewer state and issues with other BIM tools using **BCF Viewpoints**, enabling collaborative workflows across platforms.
+Import / export modules for the AECO file formats xeokit supports. Each loader populates a `SceneModel` (and optionally a `DataModel`); each exporter consumes them.
 
-| Module                                                             | Description                  |
-| ------------------------------------------------------------------ | ---------------------------- |
-| [`@xeokit/sdk/bcf`](https://xeokit.github.io/sdk/docs/api/modules/bcf.html) | Load and save BCF Viewpoints |
+| Module                                                                                                       | Description                       |
+|--------------------------------------------------------------------------------------------------------------|-----------------------------------|
+| [`@xeokit/sdk/formats/ifc`](https://xeokit.github.io/sdk/docs/api/modules/formats.ifc.html)                  | Import IFC.                       |
+| [`@xeokit/sdk/formats/gltf`](https://xeokit.github.io/sdk/docs/api/modules/formats.gltf.html)                | Import glTF / GLB.                |
+| [`@xeokit/sdk/formats/dotbim`](https://xeokit.github.io/sdk/docs/api/modules/formats.dotbim.html)            | Import / export DotBIM.           |
+| [`@xeokit/sdk/formats/xgf`](https://xeokit.github.io/sdk/docs/api/modules/formats.xgf.html)                  | Import / export XGF.              |
+| [`@xeokit/sdk/formats/xkt`](https://xeokit.github.io/sdk/docs/api/modules/formats.xkt.html)                  | Import XKT.                       |
+| [`@xeokit/sdk/formats/las`](https://xeokit.github.io/sdk/docs/api/modules/formats.las.html)                  | Import LAS point clouds.          |
+| [`@xeokit/sdk/formats/cityjson`](https://xeokit.github.io/sdk/docs/api/modules/formats.cityjson.html)        | Import CityJSON.                  |
+| [`@xeokit/sdk/formats/obj`](https://xeokit.github.io/sdk/docs/api/modules/formats.obj.html)                  | Import OBJ.                       |
+| [`@xeokit/sdk/formats/mtl`](https://xeokit.github.io/sdk/docs/api/modules/formats.mtl.html)                  | Import MTL material definitions.  |
+| [`@xeokit/sdk/formats/rvm`](https://xeokit.github.io/sdk/docs/api/modules/formats.rvm.html)                  | Import / export RVM.              |
+| [`@xeokit/sdk/formats/step`](https://xeokit.github.io/sdk/docs/api/modules/formats.step.html)                | Import STEP (AP214).              |
+| [`@xeokit/sdk/formats/datamodel`](https://xeokit.github.io/sdk/docs/api/modules/formats.datamodel.html)      | Native data-model JSON.           |
+| [`@xeokit/sdk/formats/scenemodel`](https://xeokit.github.io/sdk/docs/api/modules/formats.scenemodel.html)    | Native scene-model JSON.          |
+| [`@xeokit/sdk/formats/metamodel`](https://xeokit.github.io/sdk/docs/api/modules/formats.metamodel.html)      | Legacy metamodel JSON.            |
+
+---
+
+### Convert
+
+Format-conversion pipelines and the `xeoconvert` CLI.
+
+| Module                                                                                                              | Description                                  |
+|---------------------------------------------------------------------------------------------------------------------|----------------------------------------------|
+| [`@xeokit/sdk/convert/modelConverter`](https://xeokit.github.io/sdk/docs/api/modules/convert.modelConverter.html)   | Programmatic multi-format converter.         |
+| [`@xeokit/sdk/convert/ifc2gltf2xgf`](https://xeokit.github.io/sdk/docs/api/modules/convert.ifc2gltf2xgf.html)       | IFC → glTF → XGF pipeline.                   |
+| [`@xeokit/sdk/convert/xeoconvert`](https://xeokit.github.io/sdk/docs/api/modules/convert.xeoconvert.html)           | Command-line wrapper around the above.       |
+
+---
+
+### Inspect
+
+Read-only inspectors that report on the integrity and statistics of scene and data models.
+
+| Module                                                                                                  | Description                                              |
+|---------------------------------------------------------------------------------------------------------|----------------------------------------------------------|
+| [`@xeokit/sdk/inspect`](https://xeokit.github.io/sdk/docs/api/modules/inspect.html)                     | `SceneModelInspector`, `DataModelInspector`, and helpers. |
+
+---
+
+### Presentations
+
+**Scene processors** — modules that consume a `SceneModel` and emit a new one or mutate its presentation state. Useful for engineering output: technical drawings, sliced caps, heat maps, exploded views, recolour palettes.
+
+| Module                                                                                                                  | Description                                              |
+|-------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------|
+| [`@xeokit/sdk/presentations/drawings`](https://xeokit.github.io/sdk/docs/api/modules/presentations.drawings.html)       | Orthographic 2D drawings (wireframes, fills, chrome).    |
+| [`@xeokit/sdk/presentations/sectionCaps`](https://xeokit.github.io/sdk/docs/api/modules/presentations.sectionCaps.html) | Solid-cap geometry where section planes slice solids.    |
+| [`@xeokit/sdk/presentations/exploder`](https://xeokit.github.io/sdk/docs/api/modules/presentations.exploder.html)       | Per-object translation for assembly-explode views.       |
+| [`@xeokit/sdk/presentations/heatmaps`](https://xeokit.github.io/sdk/docs/api/modules/presentations.heatmaps.html)       | Scalar-data colour overlays as material textures.        |
+| [`@xeokit/sdk/presentations/materials`](https://xeokit.github.io/sdk/docs/api/modules/presentations.materials.html)     | Curated procedural-material palette (`MaterialsPalette`).|
+
+---
+
+### Tools
+
+Interactive widgets backed by picking.
+
+| Module                                                                                                          | Description                                            |
+|-----------------------------------------------------------------------------------------------------------------|--------------------------------------------------------|
+| [`@xeokit/sdk/tools/measurements`](https://xeokit.github.io/sdk/docs/api/modules/tools.measurements.html)       | Distance + angle measurement tools.                    |
+
+---
+
+### Simulation
+
+Animation / physics runtimes that drive scene transforms over time.
+
+| Module                                                                                                          | Description                                                  |
+|-----------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|
+| [`@xeokit/sdk/simulation/physics`](https://xeokit.github.io/sdk/docs/api/modules/simulation.physics.html)       | Rigid-body physics integration (`getScenePhysics`).          |
+
+---
+
+### Interop
+
+Cross-tool interchange formats that aren't strictly model formats.
+
+| Module                                                                                                  | Description                                              |
+|---------------------------------------------------------------------------------------------------------|----------------------------------------------------------|
+| [`@xeokit/sdk/interop/bcf`](https://xeokit.github.io/sdk/docs/api/modules/interop.bcf.html)             | Load and save BCF Viewpoints.                            |
+
+---
+
+### UI
+
+Plain-DOM UI primitives the demo and host applications can compose.
+
+| Module                                                                                  | Description                                              |
+|-----------------------------------------------------------------------------------------|----------------------------------------------------------|
+| [`@xeokit/sdk/ui`](https://xeokit.github.io/sdk/docs/api/modules/ui.html)               | Context menus, floating panels, button bars, dialogs.    |
+
+---
+
+### Demo
+
+Higher-level glue used by the demo site and the example gallery — `DemoHelper`, the toolbar, the panel registry, IFC-material auto-application, etc. Most production hosts won't depend on this bucket directly.
+
+| Module                                                                                          | Description                                              |
+|-------------------------------------------------------------------------------------------------|----------------------------------------------------------|
+| [`@xeokit/sdk/demo`](https://xeokit.github.io/sdk/docs/api/modules/demo.html)                   | `DemoHelper`, demo panels, sample-model registry.        |
+
+---
+
+## Cheatsheets
+
+Visual one-page references for the SDK and its main buckets. Click a thumbnail to open the full-size image, or use the Download link to save a local copy.
+
+<table>
+<tr>
+<td align="center" width="50%">
+<a href="packages/website/images/cheatsheets/sdk_overview.png"><img src="packages/website/images/cheatsheets/sdk_overview.png" alt="SDK overview cheatsheet" width="360"/></a><br/>
+<strong>SDK at a glance</strong><br/>
+<a href="packages/website/images/cheatsheets/sdk_overview.png">Open</a> · <a href="packages/website/images/cheatsheets/sdk_overview.png" download>Download</a>
+</td>
+<td align="center" width="50%">
+<a href="packages/website/images/cheatsheets/model_scene.png"><img src="packages/website/images/cheatsheets/model_scene.png" alt="model/scene cheatsheet" width="360"/></a><br/>
+<strong><code>model/scene</code> at a glance</strong><br/>
+<a href="packages/website/images/cheatsheets/model_scene.png">Open</a> · <a href="packages/website/images/cheatsheets/model_scene.png" download>Download</a>
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<a href="packages/website/images/cheatsheets/model_data.png"><img src="packages/website/images/cheatsheets/model_data.png" alt="model/data cheatsheet" width="360"/></a><br/>
+<strong><code>model/data</code> at a glance</strong><br/>
+<a href="packages/website/images/cheatsheets/model_data.png">Open</a> · <a href="packages/website/images/cheatsheets/model_data.png" download>Download</a>
+</td>
+<td align="center" width="50%">
+<a href="packages/website/images/cheatsheets/presentations_drawings.png"><img src="packages/website/images/cheatsheets/presentations_drawings.png" alt="presentations/drawings cheatsheet" width="360"/></a><br/>
+<strong><code>presentations/drawings</code> at a glance</strong><br/>
+<a href="packages/website/images/cheatsheets/presentations_drawings.png">Open</a> · <a href="packages/website/images/cheatsheets/presentations_drawings.png" download>Download</a>
+</td>
+</tr>
+</table>
 
 ---
 
 ## Examples
 
-Some minimal examples to get you started. Find more examples 
+Some minimal examples to get you started. Find more examples
 at [xeokit.github.io/sdk/examples](https://xeokit.github.io/sdk/examples/).
 
 ### Spinning 3D Box
@@ -164,10 +275,10 @@ a **Viewer** to visualize the scene, and a **WebGLRenderer** to handle rendering
 Instead of using exceptions, errors are handled gracefully using result monads. Any method in the SDK that can
 fail returns an `SDKResult` that indicates success or failure.
 
-Scene content is fully dynamic and can be modified at runtime. We can create and destroy 
+Scene content is fully dynamic and can be modified at runtime. We can create and destroy
 geometries, meshes, and objects in the Scene and the Viewer will update automatically.
 
-Everything is coupled via events. The Scene emits events when content changes; the Viewer 
+Everything is coupled via events. The Scene emits events when content changes; the Viewer
 emits events when viewing parameters change, and the WebGLRenderer reacts to all these events
 to update the display accordingly.
 
@@ -176,34 +287,32 @@ npm install @xeokit/sdk
 ```
 
 ```javascript
-import { Scene } from "@xeokit/sdk/scene";
-import { Viewer } from "@xeokit/sdk/viewer";
-import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
-import { SDKTask } from "@xeokit/sdk/core";
-import { TrianglesPrimitive } from "@xeokit/sdk/constants";
+import { Scene } from "@xeokit/sdk/model/scene";
+import { Viewer } from "@xeokit/sdk/viewing/viewer";
+import { WebGLRenderer } from "@xeokit/sdk/viewing/webGLRenderer";
+import { SDKTask } from "@xeokit/sdk/base/core";
+import { TrianglesPrimitive } from "@xeokit/sdk/base/constants";
 
 const scene = new Scene();
 const viewer = new Viewer({ scene });
 const renderer = new WebGLRenderer({ viewer });
 
-const viewResult = viewer.createView({ 
-  id: "view", 
-  elementId: "myCanvas" 
+const viewResult = viewer.createView({
+  id: "view",
+  elementId: "myCanvas"
 });
 
 if (!viewResult.ok) {
   throw new Error(viewResult.error);
 }
 
-const view = viewResult.value
+const view = viewResult.value;
 
 view.camera.eye = [0, 0, 10];
 view.camera.look = [0, 0, 0];
 view.camera.up = [0, 1, 0];
 
-const modelResult = scene.createModel({
-  id: "boxModel"
-});
+const modelResult = scene.createModel({ id: "boxModel" });
 
 if (!modelResult.ok) {
   throw new Error(modelResult.error);
@@ -218,15 +327,15 @@ model.createGeometry({
   indices: [0, 1, 2, 0, 2, 3]
 });
 
-model.addMesh({ 
-  id: "boxMesh", 
-  geometryId: "boxGeometry", 
-  color: [1, 0, 0] 
+model.createMesh({
+  id: "boxMesh",
+  geometryId: "boxGeometry",
+  color: [1, 0, 0]
 });
 
-model.createObject({ 
-  id: "box", 
-  meshIds: ["boxMesh"] 
+model.createObject({
+  id: "box",
+  meshIds: ["boxMesh"]
 });
 
 new SDKTask({
@@ -239,15 +348,15 @@ new SDKTask({
 
 ### IFC Model Viewer
 
-Load and display a IFC model in the browser, including semantic structure via the data graph.
+Load and display an IFC model in the browser, including semantic structure via the data graph.
 
 ```javascript
-import { Scene } from "@xeokit/sdk/scene";
-import { Data, searchObjects } from "@xeokit/sdk/data";
-import { Viewer } from "@xeokit/sdk/viewer";
-import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
-import { CameraControl } from "@xeokit/sdk/cameracontrol";
-import { IFCLoader } from "@xeokit/sdk/formats/dotbim";
+import { Scene } from "@xeokit/sdk/model/scene";
+import { Data, searchObjects } from "@xeokit/sdk/model/data";
+import { Viewer } from "@xeokit/sdk/viewing/viewer";
+import { WebGLRenderer } from "@xeokit/sdk/viewing/webGLRenderer";
+import { ViewController } from "@xeokit/sdk/viewing/viewController";
+import { IFCLoader } from "@xeokit/sdk/formats/ifc";
 
 // Create containers for geometry and optional structural data
 
@@ -274,7 +383,7 @@ view.camera.up = [0.12, 0.95, -0.27];
 
 // Enable mouse / touch camera interaction
 
-new CameraControl(view, {});
+new ViewController(view, {});
 
 // Create target models for the loader
 
@@ -290,9 +399,9 @@ const ifcLoader = new IFCLoader();
 fetch("model.ifc")
     .then((r) => r.arrayBuffer())
     .then((fileData) => {
- 
+
         // Load geometry (and optional node hierarchy) into the models
- 
+
         return ifcLoader.load({
             fileData,
             sceneModel,
@@ -300,12 +409,12 @@ fetch("model.ifc")
         });
     })
     .then(() => {
-        
+
         // Model successfully loaded and visible.
 
-        // Search the data graph for IfcWall objects, starting at the 
+        // Search the data graph for IfcWall objects, starting at the
         // IfcProject root node, including any children via IfcRelAggregates relationships.
-      
+
       const resultObjectIds = [];
 
       const result = searchObjects(data, {
@@ -357,16 +466,18 @@ node ./node_modules/@xeokit/sdk/dist/xeoconvert.js \
 
 ### Installation
 
-Install the package manager (recommended globally):
+Install pnpm (recommended globally):
 
-````
+```bash
+npm install -g pnpm
+```
 
 Clone the repository:
 
 ```bash
 git clone https://github.com/xeokit/sdk
 cd sdk
-````
+```
 
 Install dependencies:
 

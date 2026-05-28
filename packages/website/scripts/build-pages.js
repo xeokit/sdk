@@ -173,7 +173,10 @@ function compileExamples() {
                   articleInfo.tags = articleInfo.tags.concat(exampleInfo.tags);
                 }
                 fs.writeFileSync(path.join(articleDirPath, 'index.json'), JSON.stringify(articleInfo, null, 2));
-                fs.cpSync(path.join(exampleDirPath, 'index.png'), path.join(articleDirPath, 'index.png'));
+                const examplePngPath = path.join(exampleDirPath, 'index.png');
+                if (fs.existsSync(examplePngPath)) {
+                  fs.cpSync(examplePngPath, path.join(articleDirPath, 'index.png'));
+                }
               }
               const trimmedExampleInfo = {
                 id: exampleInfo.id,

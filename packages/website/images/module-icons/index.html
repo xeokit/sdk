@@ -1,0 +1,58 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>xeokit module icons</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font: 14px/1.4 -apple-system, system-ui, sans-serif; margin: 24px; }
+  h1 { font-size: 18px; margin: 0 0 16px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 16px; }
+  .cell {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    padding: 12px; border: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+    border-radius: 6px;
+  }
+  .cell img { width: 40px; height: 40px; }
+  .cell code { font-size: 11px; opacity: 0.7; text-align: center; word-break: break-all; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.6; margin: 20px 0 8px; }
+</style>
+<h1>xeokit module icons</h1>
+<p>24×24 viewBox, <code>stroke="currentColor"</code>. Drop into demo panels / docs.</p>
+<script>
+  const topLevel = ["base","model","spatial","viewing","formats","convert","inspect","presentations","tools","simulation","interop","ui","demo"];
+  const buckets = {
+    base: ["core", "constants", "math", "utils", "io", "locale", "webGL"],
+    model: ["scene", "data", "procgen", "streaming"],
+    spatial: ["collision", "picking"],
+    viewing: ["viewer", "webGLRenderer", "viewController", "cameraFlight", "transformControls"],
+    formats: ["ifc","gltf","las","cityjson","xkt","xgf","dotbim","obj","mtl","rvm","step","datamodel","metamodel","scenemodel"],
+    convert: ["modelConverter", "xeoconvert"],
+    presentations: ["drawings", "sectionCaps", "exploder", "heatmaps", "materials"],
+    tools: ["measurements"],
+    simulation: ["physics"],
+    interop: ["bcf"],
+    ui: ["contextmenu", "treeview"],
+  };
+  const root = document.body;
+  // top-level bucket icons
+  const topH = document.createElement("h2"); topH.textContent = "top-level"; root.append(topH);
+  const topG = document.createElement("div"); topG.className = "grid";
+  for (const b of topLevel) {
+    const cell = document.createElement("div"); cell.className = "cell";
+    const img = document.createElement("img"); img.src = `${b}.svg`; img.alt = b;
+    const code = document.createElement("code"); code.textContent = b;
+    cell.append(img, code); topG.append(cell);
+  }
+  root.append(topG);
+
+  for (const [bucket, mods] of Object.entries(buckets)) {
+    const h = document.createElement("h2"); h.textContent = bucket; root.append(h);
+    const g = document.createElement("div"); g.className = "grid";
+    for (const m of mods) {
+      const cell = document.createElement("div"); cell.className = "cell";
+      const img = document.createElement("img"); img.src = `${bucket}.${m}.svg`; img.alt = `${bucket}.${m}`;
+      const code = document.createElement("code"); code.textContent = `${bucket}.${m}`;
+      cell.append(img, code); g.append(cell);
+    }
+    root.append(g);
+  }
+</script>

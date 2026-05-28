@@ -196,9 +196,14 @@ iframe {
 }
 
 .index-button {
-    position: absolute;
+    /* Pin to the viewport rather than the section so the button
+       sits at a known absolute offset from the top edge. The
+       Info panel (rendered inside the iframe at iframe-top + 50px)
+       lands at parent y ≈ 57 + 50 = 107; we match that here with
+       navbar height (56) + 50 = 106 so both align horizontally. */
+    position: fixed;
     font-size: 18px;
-    top: 15px;
+    top: 106px;
     left: 20px;
     text-align: center;
     vertical-align: middle;

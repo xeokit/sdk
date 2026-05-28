@@ -17,15 +17,17 @@
         "sdk-dist": "pnpm --filter @xeokit/sdk sdk-dist",
         "__sdk-test": "pnpm --filter @xeokit/sdk sdk-test || node scripts/test-html-report/index.mjs",
         "sdk-publish": "pnpm --filter @xeokit/sdk sdk-publish",
-        "website-sdk-docs": "rimraf packages/website/docs && mkdir packages/website/docs && pnpm --filter @xeokit/sdk website-sdk-docs && typedoc --entryPointStrategy merge \"./packages/website/docs/json/*.json\" --tsconfig ./tsconfig.typedoc.json",
+        "website-sdk-docs": "rimraf packages/website/docs && mkdir packages/website/docs && pnpm --filter @xeokit/sdk website-sdk-docs && (cd packages/sdk && typedoc --entryPointStrategy merge \"../website/docs/json/*.json\" --tsconfig ../../tsconfig.typedoc.json --out ../website/docs/api)",
         "website-build-xeokit-lib": "pnpm --filter @xeokit/website website-build-xeokit-lib",
         "website-convert-models": "pnpm website-build-xeokit-lib && pnpm --filter @xeokit/website website-convert-models",
         "website-example-snapshots": "pnpm website-convert-models && pnpm --filter @xeokit/website website-example-snapshots",
         "website-build": "pnpm website-sdk-docs && pnpm --filter @xeokit/website website-build && pnpm website-example-snapshots",
-        "website-build-local": "pnpm website-sdk-docs && pnpm --filter @xeokit/website website-build-local && pnpm website-example-snapshots"
+        "website-build-local": "pnpm website-sdk-docs && pnpm --filter @xeokit/website website-build-local && pnpm website-example-snapshots",
+        "website-build-local-nosnapshots": "pnpm website-sdk-docs && pnpm --filter @xeokit/website website-build-local"
     },
     "devDependencies": {
         "@boneskull/typedoc-plugin-mermaid": "^0.1.0",
+        "typedoc-plugin-mermaid": "^1.12.0",
         "@changesets/cli": "^2.27.1",
         "@kayahr/jest-electron-runner": "^29.11.0",
         "@types/command-exists": "1.2.0",
@@ -56,7 +58,7 @@
         "typescript": "^5.7.2"
     },
     "optionalDependencies": {
-        "canvas": "^2.11.2"
+
     },
     "packageManager": "pnpm@8.7.6",
     "dependencies": {

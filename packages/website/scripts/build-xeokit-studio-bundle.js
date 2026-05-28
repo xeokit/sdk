@@ -16,5 +16,5 @@ build({
     ...sharedConfig,
     platform: 'browser',
     format: 'esm',
-    outfile: "js/xeokit-demo-bundle.js",
+    outfile: "js/xeokit-studio-bundle.js",
 });

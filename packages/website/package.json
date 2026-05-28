@@ -10,7 +10,7 @@
     "description": "Website for Next Generation xeokit SDK",
     "main": "src/index.ts",
     "scripts": {
-        "website-build-xeokit-lib": "node scripts/build-xeokit-demo-bundle.js",
+        "website-build-xeokit-lib": "node scripts/build-xeokit-studio-bundle.js",
         "website-convert-models": "node scripts/build-convert-models.js; sh scripts/convert-models.sh",
         "website-example-snapshots": "node scripts/create-example-snapshots.js",
         "website-model-snapshots": "node scripts/create-model-snapshots.js",

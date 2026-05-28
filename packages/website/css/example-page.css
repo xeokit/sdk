@@ -1,0 +1,33 @@
+/* Shared chrome for every example page.
+ *
+ * Each example links this stylesheet so the xeokit watermark sits
+ * behind the demo content uniformly across the gallery. Per-example
+ * inline styles override anything declared here without needing
+ * !important — they're loaded after this link tag.
+ *
+ * The url() resolves relative to this CSS file's own location, so
+ * the rule works regardless of how deep the example's index.html
+ * sits inside /examples.
+ */
+
+body {
+  background-color: #f6f7f9;
+}
+
+/* Pseudo-element overlay so the watermark can be faded — CSS has no
+ * way to set opacity on a background-image directly, only on the
+ * whole element (which would dim all children too). The ::before
+ * sits behind the page content via z-index: -1 and absorbs no
+ * pointer events. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("../images/xeokit.svg");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: min(80vmin, 80%) auto;
+  opacity: 0.10;
+  pointer-events: none;
+  z-index: -1;
+}

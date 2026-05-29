@@ -1,0 +1,180 @@
+<!DOCTYPE html><html class="default" lang="en" data-base=".."><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>measurements | @xeokit/sdk - v0.1.0</title><meta name="description" content="Documentation for @xeokit/sdk"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script>
+<style>
+:root.mermaid-enabled .mermaid-block > pre {
+  display: none;
+}
+:root:not(.mermaid-enabled) .mermaid-block > .mermaid {
+  display: none !important;
+}
+
+.mermaid-block > .mermaid[data-inserted].dark {
+  display: var(--mermaid-dark-display);
+}
+.mermaid-block > .mermaid[data-inserted].light {
+  display: var(--mermaid-light-display);
+}
+
+:root {
+  --mermaid-dark-display: none;
+  --mermaid-light-display: block;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --mermaid-dark-display: none;
+    --mermaid-light-display: block;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mermaid-dark-display: block;
+    --mermaid-light-display: none;
+  }
+}
+body.light, :root[data-theme="light"] {
+  --mermaid-dark-display: none;
+  --mermaid-light-display: block;
+}
+body.dark, :root[data-theme="dark"] {
+  --mermaid-dark-display: block;
+  --mermaid-light-display: none;
+}
+</style>
+</head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search"><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">@xeokit/sdk - v0.1.0</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb"><li><a href="../modules.html">@xeokit/sdk</a></li><li><a href="tools.html">tools</a></li><li><a href="tools.measurements.html">measurements</a></li></ul><h1>Namespace measurements</h1></div><section class="tsd-panel tsd-comment"><div class="tsd-comment tsd-typography"><a id="xeokit-measurements" class="tsd-anchor"></a><h1 class="tsd-anchor-link">xeokit Measurements<a href="#xeokit-measurements" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><hr>
+<p><strong>SVG + DOM overlay widgets that paint world-space measurements
+on a <a href="../classes/viewing.viewer.View.html" class="tsd-kind-class">View</a>'s canvas — diagonal distance with
+X/Y/Z decomposition, and three-anchor angle in degrees.</strong></p>
+<hr>
+<p>The <code>measurements</code> module ships one tool per measurement type. Each
+tool is a long-lived overlay attached to a single
+<a href="../classes/viewing.viewer.View.html" class="tsd-kind-class">View</a>, owning a keyed collection of measurement
+instances. Optional mouse-control helpers turn canvas clicks into
+measurements without the caller having to wire up pickers.</p>
+<br>
+<a id="sub-modules" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Sub-modules<a href="#sub-modules" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li><a href="tools.measurements.distance.html" class="tsd-kind-namespace">distance</a> — point-to-point 3D distance with
+X/Y/Z axis decomposition. Two-click creation via
+<a href="../classes/tools.measurements.distance.MouseDistanceMeasurementsControl.html" class="tsd-kind-class">MouseDistanceMeasurementsControl</a>.</li>
+<li><a href="tools.measurements.angle.html" class="tsd-kind-namespace">angle</a> — three-anchor (origin, corner, target)
+angle at the corner, in degrees. Three-click creation via
+<a href="../classes/tools.measurements.angle.MouseAngleMeasurementsControl.html" class="tsd-kind-class">MouseAngleMeasurementsControl</a>.</li>
+</ul>
+<br>
+<a id="shape" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Shape<a href="#shape" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Both sub-modules share the same tool / measurement / mouse-control
+shape:</p>
+<div class="mermaid-block"><div class="mermaid dark">%%{init:{"theme":"dark"}}%%
+classDiagram
+    direction TB
+    class Tool {
+      &lt;&lt;distance or angle&gt;&gt;
+      +view              : View
+      +measurements      : Map
+      +createMeasurement(params)
+      +destroyMeasurement(id)
+      +clear()
+      +show() / hide() / toggle()
+      +destroy()
+    }
+    class Measurement {
+      &lt;&lt;one per anchor set&gt;&gt;
+    }
+    class MouseControl {
+      +activate()
+      +deactivate()
+      +destroy()
+    }
+    class View {
+      &lt;&lt;viewer&gt;&gt;
+    }
+    class PickStrategy {
+      &lt;&lt;picking&gt;&gt;
+    }
+    Tool &quot;1&quot; *-- &quot;*&quot; Measurement : owns
+    Tool &quot;1&quot; o-- &quot;0..1&quot; MouseControl : lazy
+    Tool o-- View : paints over
+    Tool o-- PickStrategy : routes clicks</div><div class="mermaid light">%%{init:{"theme":"default"}}%%
+classDiagram
+    direction TB
+    class Tool {
+      &lt;&lt;distance or angle&gt;&gt;
+      +view              : View
+      +measurements      : Map
+      +createMeasurement(params)
+      +destroyMeasurement(id)
+      +clear()
+      +show() / hide() / toggle()
+      +destroy()
+    }
+    class Measurement {
+      &lt;&lt;one per anchor set&gt;&gt;
+    }
+    class MouseControl {
+      +activate()
+      +deactivate()
+      +destroy()
+    }
+    class View {
+      &lt;&lt;viewer&gt;&gt;
+    }
+    class PickStrategy {
+      &lt;&lt;picking&gt;&gt;
+    }
+    Tool &quot;1&quot; *-- &quot;*&quot; Measurement : owns
+    Tool &quot;1&quot; o-- &quot;0..1&quot; MouseControl : lazy
+    Tool o-- View : paints over
+    Tool o-- PickStrategy : routes clicks</div><pre><code class="language-mermaid">classDiagram
+    direction TB
+    class Tool {
+      &lt;&lt;distance or angle&gt;&gt;
+      +view              : View
+      +measurements      : Map
+      +createMeasurement(params)
+      +destroyMeasurement(id)
+      +clear()
+      +show() / hide() / toggle()
+      +destroy()
+    }
+    class Measurement {
+      &lt;&lt;one per anchor set&gt;&gt;
+    }
+    class MouseControl {
+      +activate()
+      +deactivate()
+      +destroy()
+    }
+    class View {
+      &lt;&lt;viewer&gt;&gt;
+    }
+    class PickStrategy {
+      &lt;&lt;picking&gt;&gt;
+    }
+    Tool &quot;1&quot; *-- &quot;*&quot; Measurement : owns
+    Tool &quot;1&quot; o-- &quot;0..1&quot; MouseControl : lazy
+    Tool o-- View : paints over
+    Tool o-- PickStrategy : routes clicks</code></pre></div>
+<p>Each tool is a per-View singleton — <code>openFor(params)</code> returns the
+existing instance for <code>params.view</code> (showing it again if hidden) or
+constructs a fresh one. See the sub-module docs for end-to-end
+snippets.</p>
+</div><div class="tsd-comment tsd-typography"></div></section><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Namespaces"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Namespaces</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="angle" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Namespace"><use href="../assets/icons.svg#icon-4"></use></svg><a href="tools.measurements.angle.html">angle</a><a href="#angle" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="distance" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Namespace"><use href="../assets/icons.svg#icon-4"></use></svg><a href="tools.measurements.distance.html">distance</a><a href="#distance" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-alpha" name="alpha"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Alpha</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-beta" name="beta"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Beta</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#xeokit-measurements"><span>xeokit <wbr/>Measurements</span></a><ul><li><a href="#sub-modules"><span>Sub-<wbr/>modules</span></a></li><li><a href="#shape"><span>Shape</span></a></li></ul><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Namespaces"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Namespaces</summary><div><a href="#angle" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Namespace"><use href="../assets/icons.svg#icon-4"></use></svg><span>angle</span></a><a href="#distance" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Namespace"><use href="../assets/icons.svg#icon-4"></use></svg><span>distance</span></a></div></details></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="../modules.html">@xeokit/sdk - v0.1.0</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div>
+<script type="module">
+import mermaid from "https://unpkg.com/mermaid@latest/dist/mermaid.esm.min.mjs";
+
+document.documentElement.classList.add("mermaid-enabled");
+
+mermaid.initialize({startOnLoad:true});
+
+requestAnimationFrame(function check() {
+  let some = false;
+  document.querySelectorAll("div.mermaid:not([data-inserted])").forEach(div => {
+    some = true;
+    if (div.querySelector("svg")) {
+      div.dataset.inserted = true;
+    }
+  });
+
+  if (some) {
+    requestAnimationFrame(check);
+  }
+});
+</script>
+</body></html>

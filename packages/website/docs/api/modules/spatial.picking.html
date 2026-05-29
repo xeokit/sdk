@@ -1,0 +1,286 @@
+<!DOCTYPE html><html class="default" lang="en" data-base=".."><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>picking | @xeokit/sdk - v0.1.0</title><meta name="description" content="Documentation for @xeokit/sdk"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script>
+<style>
+:root.mermaid-enabled .mermaid-block > pre {
+  display: none;
+}
+:root:not(.mermaid-enabled) .mermaid-block > .mermaid {
+  display: none !important;
+}
+
+.mermaid-block > .mermaid[data-inserted].dark {
+  display: var(--mermaid-dark-display);
+}
+.mermaid-block > .mermaid[data-inserted].light {
+  display: var(--mermaid-light-display);
+}
+
+:root {
+  --mermaid-dark-display: none;
+  --mermaid-light-display: block;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --mermaid-dark-display: none;
+    --mermaid-light-display: block;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mermaid-dark-display: block;
+    --mermaid-light-display: none;
+  }
+}
+body.light, :root[data-theme="light"] {
+  --mermaid-dark-display: none;
+  --mermaid-light-display: block;
+}
+body.dark, :root[data-theme="dark"] {
+  --mermaid-dark-display: block;
+  --mermaid-light-display: none;
+}
+</style>
+</head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search"><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">@xeokit/sdk - v0.1.0</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb"><li><a href="../modules.html">@xeokit/sdk</a></li><li><a href="spatial.html">spatial</a></li><li><a href="spatial.picking.html">picking</a></li></ul><h1>Namespace picking</h1></div><section class="tsd-panel tsd-comment"><div class="tsd-comment tsd-typography"><a id="xeokit-picking" class="tsd-anchor"></a><h1 class="tsd-anchor-link">xeokit Picking<a href="#xeokit-picking" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><hr>
+<p><strong>Unified picking surface that routes between the CPU-side BVH
+picker and the GPU pick path, surfacing snap-to-vertex and
+snap-to-edge as part of the same call.</strong></p>
+<hr>
+<p>Picking is two distinct problems wearing one hat. The
+BVH picker is fast, ray- or matrix-driven, and supports caller
+<code>filter</code> callbacks but cannot snap. The GPU picker only accepts a
+canvas position but produces world normals, UVs, and snap targets
+via a <code>gl.readPixels</code> stall. Most callers want the cheap path most
+of the time and the snap enrichment when they ask for it.</p>
+<p>The <code>picking</code> module wraps both behind a single
+<a href="../interfaces/spatial.picking.PickStrategy.html" class="tsd-kind-interface">PickStrategy</a> interface, with <a href="../classes/spatial.picking.RoutingPickStrategy.html" class="tsd-kind-class">RoutingPickStrategy</a>
+choosing the right backend per call. Snap requests degrade
+silently to BVH when the GPU isn't available (no renderer
+attached, context lost, etc.).</p>
+<br>
+<a id="shape" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Shape<a href="#shape" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><div class="mermaid-block"><div class="mermaid dark">%%{init:{"theme":"dark"}}%%
+classDiagram
+    direction TB
+    class PickStrategy {
+      &lt;&lt;interface&gt;&gt;
+      +pick(params) PickResult
+    }
+    class BVHPickStrategy {
+      +pick(params) PickResult
+    }
+    class RendererPickStrategy {
+      +pick(params) PickResult
+    }
+    class RoutingPickStrategy {
+      +pick(params) PickResult
+    }
+    class MemoisingPickStrategy {
+      +pick(params) PickResult
+    }
+    class PickParams {
+      +view           : View
+      +canvasPos?     : Vec2
+      +origin? / dir? : Vec3
+      +matrix?        : Mat4
+      +snapToVertex?  : boolean
+      +snapToEdge?    : boolean
+      +snapRadius?    : number
+      +filter?        : (obj) =&amp;gt; boolean
+    }
+    class PickResult {
+      +hit       : boolean
+      +viewObject? : ViewObject
+      +worldPos? / worldNormal? / uv?
+      +snap?       : PickSnap
+    }
+    class SceneCollisionIndex {
+      &lt;&lt;collision&gt;&gt;
+    }
+    class WebGLRenderer {
+      &lt;&lt;viewing&gt;&gt;
+    }
+    PickStrategy &lt;|.. BVHPickStrategy
+    PickStrategy &lt;|.. RendererPickStrategy
+    PickStrategy &lt;|.. RoutingPickStrategy
+    PickStrategy &lt;|.. MemoisingPickStrategy
+    BVHPickStrategy o-- SceneCollisionIndex : queries
+    RendererPickStrategy o-- WebGLRenderer : queries
+    RoutingPickStrategy o-- BVHPickStrategy : routes
+    RoutingPickStrategy o-- RendererPickStrategy : routes
+    MemoisingPickStrategy o-- PickStrategy : wraps
+    PickStrategy ..&gt; PickParams : reads
+    PickStrategy ..&gt; PickResult : returns</div><div class="mermaid light">%%{init:{"theme":"default"}}%%
+classDiagram
+    direction TB
+    class PickStrategy {
+      &lt;&lt;interface&gt;&gt;
+      +pick(params) PickResult
+    }
+    class BVHPickStrategy {
+      +pick(params) PickResult
+    }
+    class RendererPickStrategy {
+      +pick(params) PickResult
+    }
+    class RoutingPickStrategy {
+      +pick(params) PickResult
+    }
+    class MemoisingPickStrategy {
+      +pick(params) PickResult
+    }
+    class PickParams {
+      +view           : View
+      +canvasPos?     : Vec2
+      +origin? / dir? : Vec3
+      +matrix?        : Mat4
+      +snapToVertex?  : boolean
+      +snapToEdge?    : boolean
+      +snapRadius?    : number
+      +filter?        : (obj) =&amp;gt; boolean
+    }
+    class PickResult {
+      +hit       : boolean
+      +viewObject? : ViewObject
+      +worldPos? / worldNormal? / uv?
+      +snap?       : PickSnap
+    }
+    class SceneCollisionIndex {
+      &lt;&lt;collision&gt;&gt;
+    }
+    class WebGLRenderer {
+      &lt;&lt;viewing&gt;&gt;
+    }
+    PickStrategy &lt;|.. BVHPickStrategy
+    PickStrategy &lt;|.. RendererPickStrategy
+    PickStrategy &lt;|.. RoutingPickStrategy
+    PickStrategy &lt;|.. MemoisingPickStrategy
+    BVHPickStrategy o-- SceneCollisionIndex : queries
+    RendererPickStrategy o-- WebGLRenderer : queries
+    RoutingPickStrategy o-- BVHPickStrategy : routes
+    RoutingPickStrategy o-- RendererPickStrategy : routes
+    MemoisingPickStrategy o-- PickStrategy : wraps
+    PickStrategy ..&gt; PickParams : reads
+    PickStrategy ..&gt; PickResult : returns</div><pre><code class="language-mermaid">classDiagram
+    direction TB
+    class PickStrategy {
+      &lt;&lt;interface&gt;&gt;
+      +pick(params) PickResult
+    }
+    class BVHPickStrategy {
+      +pick(params) PickResult
+    }
+    class RendererPickStrategy {
+      +pick(params) PickResult
+    }
+    class RoutingPickStrategy {
+      +pick(params) PickResult
+    }
+    class MemoisingPickStrategy {
+      +pick(params) PickResult
+    }
+    class PickParams {
+      +view           : View
+      +canvasPos?     : Vec2
+      +origin? / dir? : Vec3
+      +matrix?        : Mat4
+      +snapToVertex?  : boolean
+      +snapToEdge?    : boolean
+      +snapRadius?    : number
+      +filter?        : (obj) =&amp;gt; boolean
+    }
+    class PickResult {
+      +hit       : boolean
+      +viewObject? : ViewObject
+      +worldPos? / worldNormal? / uv?
+      +snap?       : PickSnap
+    }
+    class SceneCollisionIndex {
+      &lt;&lt;collision&gt;&gt;
+    }
+    class WebGLRenderer {
+      &lt;&lt;viewing&gt;&gt;
+    }
+    PickStrategy &lt;|.. BVHPickStrategy
+    PickStrategy &lt;|.. RendererPickStrategy
+    PickStrategy &lt;|.. RoutingPickStrategy
+    PickStrategy &lt;|.. MemoisingPickStrategy
+    BVHPickStrategy o-- SceneCollisionIndex : queries
+    RendererPickStrategy o-- WebGLRenderer : queries
+    RoutingPickStrategy o-- BVHPickStrategy : routes
+    RoutingPickStrategy o-- RendererPickStrategy : routes
+    MemoisingPickStrategy o-- PickStrategy : wraps
+    PickStrategy ..&gt; PickParams : reads
+    PickStrategy ..&gt; PickResult : returns</code></pre></div>
+<br>
+<a id="features" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Features<a href="#features" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li><strong>Common interface</strong> — every picker implements <a href="../interfaces/spatial.picking.PickStrategy.html" class="tsd-kind-interface">PickStrategy</a>
+so callers don't branch on backend. Same <code>pick(params)</code> call;
+strategies decide what to do with <code>canvasPos</code> / <code>origin+dir</code> /
+<code>matrix</code> inputs.</li>
+<li><strong><a href="../classes/spatial.picking.BVHPickStrategy.html" class="tsd-kind-class">BVHPickStrategy</a></strong> — CPU-side, drives the
+collision!SceneCollisionIndex | SceneCollisionIndex.
+Accepts ray, matrix, or <code>canvasPos</code> (turned into a ray via the
+View's camera). No GPU stall; no snap.</li>
+<li><strong><a href="../classes/spatial.picking.RendererPickStrategy.html" class="tsd-kind-class">RendererPickStrategy</a></strong> — GPU-side, drives the
+<a href="../classes/viewing.webGLRenderer.WebGLRenderer.html" class="tsd-kind-class">WebGLRenderer</a>. Only
+<code>canvasPos</code> input; returns world normals, UVs, and snap targets
+at the cost of a <code>gl.readPixels</code> per call.</li>
+<li><strong><a href="../classes/spatial.picking.RoutingPickStrategy.html" class="tsd-kind-class">RoutingPickStrategy</a></strong> — composes the two. Without snap,
+routes to BVH (cheap); with snap requested, routes to GPU when
+ready and falls back to BVH (without snap) otherwise.</li>
+<li><strong><a href="../classes/spatial.picking.MemoisingPickStrategy.html" class="tsd-kind-class">MemoisingPickStrategy</a></strong> — wraps any strategy with a
+per-<code>canvasPos</code> cache so a hover handler that picks every
+pointer-move event doesn't repeat identical queries inside one
+frame.</li>
+<li><strong>Snap-aware</strong> — <code>snapToVertex</code> / <code>snapToEdge</code> + <code>snapRadius</code>
+ride along on every <code>pick()</code> call. Strategies that don't
+support snap drop the request and return a plain hit.</li>
+</ul>
+<br>
+<a id="installation" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Installation<a href="#installation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><pre><code class="bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">install</span><span class="hl-1"> </span><span class="hl-2">@xeokit/sdk</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="quick-start" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Quick Start<a href="#quick-start" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><a id="1-import-the-entry-points" class="tsd-anchor"></a><h3 class="tsd-anchor-link">1) Import the entry points<a href="#1-import-the-entry-points" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><pre><code class="javascript"><span class="hl-3">import</span><span class="hl-1"> {</span><br/><span class="hl-1">  </span><span class="hl-4">BVHPickStrategy</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">RendererPickStrategy</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">RoutingPickStrategy</span><br/><span class="hl-1">} </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@xeokit/sdk/spatial/picking&quot;</span><span class="hl-1">;</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="2-construct-a-routing-picker" class="tsd-anchor"></a><h3 class="tsd-anchor-link">2) Construct a routing picker<a href="#2-construct-a-routing-picker" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Pass the <a href="../classes/model.scene.Scene.html" class="tsd-kind-class">Scene</a> and the (optional)
+<a href="../classes/viewing.webGLRenderer.WebGLRenderer.html" class="tsd-kind-class">WebGLRenderer</a>. Without
+a renderer the strategy is BVH-only; snap requests degrade silently.</p>
+<pre><code class="javascript"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">picker</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">RoutingPickStrategy</span><span class="hl-1">({ </span><span class="hl-4">scene</span><span class="hl-1">, </span><span class="hl-4">renderer</span><span class="hl-1"> });</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="3-cheap-object-pick-bvh-path" class="tsd-anchor"></a><h3 class="tsd-anchor-link">3) Cheap object pick (BVH path)<a href="#3-cheap-object-pick-bvh-path" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><pre><code class="javascript"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">r</span><span class="hl-1"> = </span><span class="hl-4">picker</span><span class="hl-1">.</span><span class="hl-0">pick</span><span class="hl-1">({ </span><span class="hl-4">view</span><span class="hl-1">, </span><span class="hl-4">canvasPos:</span><span class="hl-1"> [</span><span class="hl-4">x</span><span class="hl-1">, </span><span class="hl-4">y</span><span class="hl-1">] });</span><br/><span class="hl-3">if</span><span class="hl-1"> (</span><span class="hl-4">r</span><span class="hl-1">.</span><span class="hl-4">hit</span><span class="hl-1">) {</span><br/><span class="hl-1">  </span><span class="hl-4">console</span><span class="hl-1">.</span><span class="hl-0">log</span><span class="hl-1">(</span><span class="hl-2">&quot;hit&quot;</span><span class="hl-1">, </span><span class="hl-4">r</span><span class="hl-1">.</span><span class="hl-4">viewObject</span><span class="hl-1">.</span><span class="hl-4">id</span><span class="hl-1">, </span><span class="hl-2">&quot;at&quot;</span><span class="hl-1">, </span><span class="hl-4">r</span><span class="hl-1">.</span><span class="hl-4">worldPos</span><span class="hl-1">);</span><br/><span class="hl-1">}</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="4-snap-to-vertex--snap-to-edge-gpu-when-ready-bvh-otherwise" class="tsd-anchor"></a><h3 class="tsd-anchor-link">4) Snap-to-vertex / snap-to-edge (GPU when ready, BVH otherwise)<a href="#4-snap-to-vertex--snap-to-edge-gpu-when-ready-bvh-otherwise" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><pre><code class="javascript"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">r</span><span class="hl-1"> = </span><span class="hl-4">picker</span><span class="hl-1">.</span><span class="hl-0">pick</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">view</span><span class="hl-1">, </span><span class="hl-4">canvasPos:</span><span class="hl-1"> [</span><span class="hl-4">x</span><span class="hl-1">, </span><span class="hl-4">y</span><span class="hl-1">],</span><br/><span class="hl-1">  </span><span class="hl-4">snapToVertex:</span><span class="hl-1"> </span><span class="hl-5">true</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">snapRadius:</span><span class="hl-1">   </span><span class="hl-7">30</span><br/><span class="hl-1">});</span><br/><br/><span class="hl-3">if</span><span class="hl-1"> (</span><span class="hl-4">r</span><span class="hl-1">.</span><span class="hl-4">snap</span><span class="hl-1">) {</span><br/><span class="hl-1">  </span><span class="hl-8">// Snap landed — use r.snap.worldPos</span><br/><span class="hl-1">} </span><span class="hl-3">else</span><span class="hl-1"> </span><span class="hl-3">if</span><span class="hl-1"> (</span><span class="hl-4">r</span><span class="hl-1">.</span><span class="hl-4">hit</span><span class="hl-1">) {</span><br/><span class="hl-1">  </span><span class="hl-8">// Plain surface hit</span><br/><span class="hl-1">}</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="5-memoise-to-avoid-repeat-queries-in-a-hover-handler" class="tsd-anchor"></a><h3 class="tsd-anchor-link">5) Memoise to avoid repeat queries in a hover handler<a href="#5-memoise-to-avoid-repeat-queries-in-a-hover-handler" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><pre><code class="javascript"><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-4">MemoisingPickStrategy</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@xeokit/sdk/spatial/picking&quot;</span><span class="hl-1">;</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">cached</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">MemoisingPickStrategy</span><span class="hl-1">(</span><span class="hl-4">picker</span><span class="hl-1">, {</span><br/><span class="hl-1">  </span><span class="hl-4">maxAgeMs:</span><span class="hl-1"> </span><span class="hl-7">16</span><span class="hl-1">              </span><span class="hl-8">// expire within one frame</span><br/><span class="hl-1">});</span><br/><br/><span class="hl-4">canvas</span><span class="hl-1">.</span><span class="hl-0">addEventListener</span><span class="hl-1">(</span><span class="hl-2">&quot;pointermove&quot;</span><span class="hl-1">, (</span><span class="hl-4">e</span><span class="hl-1">) </span><span class="hl-5">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1">  </span><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">r</span><span class="hl-1"> = </span><span class="hl-4">cached</span><span class="hl-1">.</span><span class="hl-0">pick</span><span class="hl-1">({ </span><span class="hl-4">view</span><span class="hl-1">, </span><span class="hl-4">canvasPos:</span><span class="hl-1"> [</span><span class="hl-4">e</span><span class="hl-1">.</span><span class="hl-4">offsetX</span><span class="hl-1">, </span><span class="hl-4">e</span><span class="hl-1">.</span><span class="hl-4">offsetY</span><span class="hl-1">] });</span><br/><span class="hl-1">  </span><span class="hl-8">// ...</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+</div><div class="tsd-comment tsd-typography"></div></section><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Classes"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Classes</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="bvhpickstrategy" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><a href="../classes/spatial.picking.BVHPickStrategy.html">BVHPickStrategy</a><a href="#bvhpickstrategy" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="memoisingpickstrategy" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><a href="../classes/spatial.picking.MemoisingPickStrategy.html">MemoisingPickStrategy</a><a href="#memoisingpickstrategy" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="rendererpickstrategy" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><a href="../classes/spatial.picking.RendererPickStrategy.html">RendererPickStrategy</a><a href="#rendererpickstrategy" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="routingpickstrategy" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><a href="../classes/spatial.picking.RoutingPickStrategy.html">RoutingPickStrategy</a><a href="#routingpickstrategy" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Interfaces"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Interfaces</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="memoisingpickstrategyoptions" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/spatial.picking.MemoisingPickStrategyOptions.html">MemoisingPickStrategyOptions</a><a href="#memoisingpickstrategyoptions" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="pickparams" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/spatial.picking.PickParams.html">PickParams</a><a href="#pickparams" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="pickresult" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/spatial.picking.PickResult.html">PickResult</a><a href="#pickresult" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="picksnap" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/spatial.picking.PickSnap.html">PickSnap</a><a href="#picksnap" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="pickstrategy" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/spatial.picking.PickStrategy.html">PickStrategy</a><a href="#pickstrategy" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Type Aliases"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Type Aliases</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="pickstrategyid" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Type Alias"><use href="../assets/icons.svg#icon-2097152"></use></svg><a href="../types/spatial.picking.PickStrategyId.html">PickStrategyId</a><a href="#pickstrategyid" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-alpha" name="alpha"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Alpha</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-beta" name="beta"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Beta</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#xeokit-picking"><span>xeokit <wbr/>Picking</span></a><ul><li><a href="#shape"><span>Shape</span></a></li><li><a href="#features"><span>Features</span></a></li><li><a href="#installation"><span>Installation</span></a></li><li><a href="#quick-start"><span>Quick <wbr/>Start</span></a></li><li><ul><li><a href="#1-import-the-entry-points"><span>1) <wbr/>Import the entry points</span></a></li><li><a href="#2-construct-a-routing-picker"><span>2) <wbr/>Construct a routing picker</span></a></li><li><a href="#3-cheap-object-pick-bvh-path"><span>3) <wbr/>Cheap object pick (BVH path)</span></a></li><li><a href="#4-snap-to-vertex--snap-to-edge-gpu-when-ready-bvh-otherwise"><span>4) <wbr/>Snap-<wbr/>to-<wbr/>vertex / snap-<wbr/>to-<wbr/>edge (GPU when ready, BVH otherwise)</span></a></li><li><a href="#5-memoise-to-avoid-repeat-queries-in-a-hover-handler"><span>5) <wbr/>Memoise to avoid repeat queries in a hover handler</span></a></li></ul></li></ul><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Classes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Classes</summary><div><a href="#bvhpickstrategy" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><span>BVHPick<wbr/>Strategy</span></a><a href="#memoisingpickstrategy" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><span>Memoising<wbr/>Pick<wbr/>Strategy</span></a><a href="#rendererpickstrategy" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><span>Renderer<wbr/>Pick<wbr/>Strategy</span></a><a href="#routingpickstrategy" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><span>Routing<wbr/>Pick<wbr/>Strategy</span></a></div></details><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Interfaces"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Interfaces</summary><div><a href="#memoisingpickstrategyoptions" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Memoising<wbr/>Pick<wbr/>Strategy<wbr/>Options</span></a><a href="#pickparams" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Pick<wbr/>Params</span></a><a href="#pickresult" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Pick<wbr/>Result</span></a><a href="#picksnap" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Pick<wbr/>Snap</span></a><a href="#pickstrategy" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Pick<wbr/>Strategy</span></a></div></details><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Type Aliases"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Type Aliases</summary><div><a href="#pickstrategyid" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Type Alias"><use href="../assets/icons.svg#icon-2097152"></use></svg><span>Pick<wbr/>Strategy<wbr/>Id</span></a></div></details></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="../modules.html">@xeokit/sdk - v0.1.0</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div>
+<script type="module">
+import mermaid from "https://unpkg.com/mermaid@latest/dist/mermaid.esm.min.mjs";
+
+document.documentElement.classList.add("mermaid-enabled");
+
+mermaid.initialize({startOnLoad:true});
+
+requestAnimationFrame(function check() {
+  let some = false;
+  document.querySelectorAll("div.mermaid:not([data-inserted])").forEach(div => {
+    some = true;
+    if (div.querySelector("svg")) {
+      div.dataset.inserted = true;
+    }
+  });
+
+  if (some) {
+    requestAnimationFrame(check);
+  }
+});
+</script>
+</body></html>

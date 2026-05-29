@@ -1,0 +1,398 @@
+<!DOCTYPE html><html class="default" lang="en" data-base=".."><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>sectionCaps | @xeokit/sdk - v0.1.0</title><meta name="description" content="Documentation for @xeokit/sdk"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script>
+<style>
+:root.mermaid-enabled .mermaid-block > pre {
+  display: none;
+}
+:root:not(.mermaid-enabled) .mermaid-block > .mermaid {
+  display: none !important;
+}
+
+.mermaid-block > .mermaid[data-inserted].dark {
+  display: var(--mermaid-dark-display);
+}
+.mermaid-block > .mermaid[data-inserted].light {
+  display: var(--mermaid-light-display);
+}
+
+:root {
+  --mermaid-dark-display: none;
+  --mermaid-light-display: block;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --mermaid-dark-display: none;
+    --mermaid-light-display: block;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mermaid-dark-display: block;
+    --mermaid-light-display: none;
+  }
+}
+body.light, :root[data-theme="light"] {
+  --mermaid-dark-display: none;
+  --mermaid-light-display: block;
+}
+body.dark, :root[data-theme="dark"] {
+  --mermaid-dark-display: block;
+  --mermaid-light-display: none;
+}
+</style>
+</head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search"><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">@xeokit/sdk - v0.1.0</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb"><li><a href="../modules.html">@xeokit/sdk</a></li><li><a href="presentations.html">presentations</a></li><li><a href="presentations.sectionCaps.html">sectionCaps</a></li></ul><h1>Namespace sectionCaps</h1></div><section class="tsd-panel tsd-comment"><div class="tsd-comment tsd-typography"><a id="xeokit-section-caps" class="tsd-anchor"></a><h1 class="tsd-anchor-link">xeokit Section Caps<a href="#xeokit-section-caps" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><hr>
+<p><strong>Generates filled cap geometry along arbitrary world-space cut planes
+through a <a href="../classes/model.scene.SceneModel.html" class="tsd-kind-class">SceneModel</a>, so sliced models read
+as solid cross-sections instead of hollow shells.</strong></p>
+<hr>
+<p>The <code>sectionCaps</code> module complements
+<a href="../classes/viewing.viewer.SectionPlane.html" class="tsd-kind-class">SectionPlane</a>-style clipping: where a
+SectionPlane hides everything on the clipped side of a plane,
+<code>sectionCaps</code> <em>fills the hole</em> the plane leaves behind. Output is
+baked into a caller-owned target <a href="../classes/model.scene.SceneModel.html" class="tsd-kind-class">SceneModel</a>
+as flat <code>TrianglesPrimitive</code> meshes lying on the cut planes, one
+<a href="../classes/model.scene.SceneObject.html" class="tsd-kind-class">SceneObject</a> per source object that
+contributed at least one cap.</p>
+<br>
+<a id="shape" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Shape<a href="#shape" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><div class="mermaid-block"><div class="mermaid dark">%%{init:{"theme":"dark"}}%%
+classDiagram
+    direction TB
+    class buildSectionCaps {
+      +call(params)
+    }
+    class canBuildSectionCaps {
+      +call(sourceModel) boolean
+    }
+    class clearSectionCaps {
+      +call(targetModel)
+    }
+    class BuildSectionCapsParams {
+      +sourceModel : SceneModel
+      +targetModel : SceneModel
+      +capPlanes : CapPlane[]
+      +capColor : Vec3
+      +idPrefix : string
+      +layerId : string
+      +includeObjectIds : string[]
+      +excludeObjectIds : string[]
+      +includeObject(obj) boolean
+      +progressive : ProgressiveSpec
+    }
+    class CapPlane {
+      +dir : Vec3
+      +dist : number
+    }
+    class ProgressiveSpec {
+      +batchSize : number
+      +yield() Promise
+    }
+    class BuildSectionCapsResult {
+      +numObjectsWithCaps : number
+      +numCapMeshes : number
+      +numUnclosedMeshes : number
+    }
+    class SceneModel {
+      &lt;&lt;scene&gt;&gt;
+    }
+    class SectionPlane {
+      &lt;&lt;viewer&gt;&gt;
+      +dir : Vec3
+      +dist : number
+    }
+    BuildSectionCapsParams &quot;1&quot; *-- &quot;*&quot; CapPlane : capPlanes
+    BuildSectionCapsParams o-- SceneModel : sourceModel
+    BuildSectionCapsParams o-- SceneModel : targetModel
+    BuildSectionCapsParams o-- ProgressiveSpec : progressive
+    buildSectionCaps ..&gt; BuildSectionCapsParams : reads
+    buildSectionCaps ..&gt; BuildSectionCapsResult : returns
+    canBuildSectionCaps ..&gt; SceneModel : scans
+    clearSectionCaps ..&gt; SceneModel : destroys
+    CapPlane &lt;.. SectionPlane : copy dir + dist</div><div class="mermaid light">%%{init:{"theme":"default"}}%%
+classDiagram
+    direction TB
+    class buildSectionCaps {
+      +call(params)
+    }
+    class canBuildSectionCaps {
+      +call(sourceModel) boolean
+    }
+    class clearSectionCaps {
+      +call(targetModel)
+    }
+    class BuildSectionCapsParams {
+      +sourceModel : SceneModel
+      +targetModel : SceneModel
+      +capPlanes : CapPlane[]
+      +capColor : Vec3
+      +idPrefix : string
+      +layerId : string
+      +includeObjectIds : string[]
+      +excludeObjectIds : string[]
+      +includeObject(obj) boolean
+      +progressive : ProgressiveSpec
+    }
+    class CapPlane {
+      +dir : Vec3
+      +dist : number
+    }
+    class ProgressiveSpec {
+      +batchSize : number
+      +yield() Promise
+    }
+    class BuildSectionCapsResult {
+      +numObjectsWithCaps : number
+      +numCapMeshes : number
+      +numUnclosedMeshes : number
+    }
+    class SceneModel {
+      &lt;&lt;scene&gt;&gt;
+    }
+    class SectionPlane {
+      &lt;&lt;viewer&gt;&gt;
+      +dir : Vec3
+      +dist : number
+    }
+    BuildSectionCapsParams &quot;1&quot; *-- &quot;*&quot; CapPlane : capPlanes
+    BuildSectionCapsParams o-- SceneModel : sourceModel
+    BuildSectionCapsParams o-- SceneModel : targetModel
+    BuildSectionCapsParams o-- ProgressiveSpec : progressive
+    buildSectionCaps ..&gt; BuildSectionCapsParams : reads
+    buildSectionCaps ..&gt; BuildSectionCapsResult : returns
+    canBuildSectionCaps ..&gt; SceneModel : scans
+    clearSectionCaps ..&gt; SceneModel : destroys
+    CapPlane &lt;.. SectionPlane : copy dir + dist</div><pre><code class="language-mermaid">classDiagram
+    direction TB
+    class buildSectionCaps {
+      +call(params)
+    }
+    class canBuildSectionCaps {
+      +call(sourceModel) boolean
+    }
+    class clearSectionCaps {
+      +call(targetModel)
+    }
+    class BuildSectionCapsParams {
+      +sourceModel : SceneModel
+      +targetModel : SceneModel
+      +capPlanes : CapPlane[]
+      +capColor : Vec3
+      +idPrefix : string
+      +layerId : string
+      +includeObjectIds : string[]
+      +excludeObjectIds : string[]
+      +includeObject(obj) boolean
+      +progressive : ProgressiveSpec
+    }
+    class CapPlane {
+      +dir : Vec3
+      +dist : number
+    }
+    class ProgressiveSpec {
+      +batchSize : number
+      +yield() Promise
+    }
+    class BuildSectionCapsResult {
+      +numObjectsWithCaps : number
+      +numCapMeshes : number
+      +numUnclosedMeshes : number
+    }
+    class SceneModel {
+      &lt;&lt;scene&gt;&gt;
+    }
+    class SectionPlane {
+      &lt;&lt;viewer&gt;&gt;
+      +dir : Vec3
+      +dist : number
+    }
+    BuildSectionCapsParams &quot;1&quot; *-- &quot;*&quot; CapPlane : capPlanes
+    BuildSectionCapsParams o-- SceneModel : sourceModel
+    BuildSectionCapsParams o-- SceneModel : targetModel
+    BuildSectionCapsParams o-- ProgressiveSpec : progressive
+    buildSectionCaps ..&gt; BuildSectionCapsParams : reads
+    buildSectionCaps ..&gt; BuildSectionCapsResult : returns
+    canBuildSectionCaps ..&gt; SceneModel : scans
+    clearSectionCaps ..&gt; SceneModel : destroys
+    CapPlane &lt;.. SectionPlane : copy dir + dist</code></pre></div>
+<br>
+<a id="features" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Features<a href="#features" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li><strong>Watertight cap fills</strong> — every cut produces a closed,
+triangulated polygon (per source mesh per plane) so the model
+reads as a solid cross-section rather than a hollow shell.</li>
+<li><strong>Multi-plane caps</strong> — caps from intersecting cut planes are
+trimmed against each other's kept half-spaces (Sutherland-Hodgman),
+so two cuts don't double-cover their shared corner.</li>
+<li><strong>Outer / hole topology</strong> — loops are classified by signed area
+and holes attached to their tightest container, so cross-sections
+through hollow members (pipes, walls with openings) render with
+their interiors open rather than filled.</li>
+<li><strong>Hatch-pattern preservation</strong> — the cap's
+<a href="../classes/model.scene.SceneMaterial.html" class="tsd-kind-class">SceneMaterial</a> inherits the source
+mesh material's <code>hatchPattern</code> (when present), so sectioned
+masonry, concrete, and metal read with the same engineering
+hatch convention as the rest of the model.</li>
+<li><strong>Per-mesh colour passthrough</strong> — when no <code>capColor</code> is supplied,
+each cap inherits its source mesh's effective colour (material
+colour first, then mesh-level colour, then a neutral grey
+fallback). Reads better on multi-material BIM models than a
+single global tint.</li>
+<li><strong><a href="../classes/viewing.viewer.SectionPlane.html" class="tsd-kind-class">SectionPlane</a>-compatible
+convention</strong> — <code>CapPlane.dir</code> and <code>CapPlane.dist</code> match the
+accessors on a viewer-side SectionPlane verbatim, so a cap can
+be built directly from any clipping plane the host already drives.</li>
+<li><strong>Cross-Scene</strong> — source and target
+<a href="../classes/model.scene.SceneModel.html" class="tsd-kind-class">SceneModels</a> may live in different
+Scenes.</li>
+<li><strong>Object filtering</strong> — restrict the cap pass with
+<code>includeObjectIds</code>, <code>excludeObjectIds</code>, and/or an arbitrary
+<code>includeObject</code> predicate. Right for &quot;cap walls + slabs but not
+furniture&quot; or &quot;cap whatever's visible right now.&quot;</li>
+<li><strong>ViewLayer parking</strong> — pass <code>layerId</code> to assign every emitted
+SceneObject to a named
+<a href="../classes/viewing.viewer.ViewLayer.html" class="tsd-kind-class">ViewLayer</a>; the host can then hide,
+show, or style caps collectively.</li>
+<li><strong>Progressive emission</strong> — yield between batches so very large
+models cap progressively without blocking the main thread.</li>
+<li><strong>Diagnostic counts</strong> — <code>numUnclosedMeshes</code> flags non-watertight
+source geometry that produced no cap.</li>
+</ul>
+<br>
+<a id="installation" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Installation<a href="#installation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><pre><code class="bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">install</span><span class="hl-1"> </span><span class="hl-2">@xeokit/sdk</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="quick-start" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Quick Start<a href="#quick-start" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>The snippets below assume a <a href="../classes/model.scene.Scene.html" class="tsd-kind-class">Scene</a> with a
+source <a href="../classes/model.scene.SceneModel.html" class="tsd-kind-class">SceneModel</a> already loaded (via any
+SDK importer — for example, <code>DotBIMLoader</code> or <code>IFCLoader</code>).</p>
+<br>
+<a id="1-import-the-entry-points" class="tsd-anchor"></a><h3 class="tsd-anchor-link">1) Import the entry points<a href="#1-import-the-entry-points" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><pre><code class="javascript"><span class="hl-3">import</span><span class="hl-1"> {</span><br/><span class="hl-1">  </span><span class="hl-4">buildSectionCaps</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">canBuildSectionCaps</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">clearSectionCaps</span><br/><span class="hl-1">} </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@xeokit/sdk/presentations/sectionCaps&quot;</span><span class="hl-1">;</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="2-cap-one-source-model-against-one-plane" class="tsd-anchor"></a><h3 class="tsd-anchor-link">2) Cap one source model against one plane<a href="#2-cap-one-source-model-against-one-plane" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>The caller creates the target <a href="../classes/model.scene.SceneModel.html" class="tsd-kind-class">SceneModel</a>
+and passes it in — <code>buildSectionCaps</code> populates it. The plane
+convention matches <a href="../classes/viewing.viewer.SectionPlane.html" class="tsd-kind-class">SectionPlane</a>: the
+half-space <code>dot(dir, p) + dist &gt; 0</code> is clipped (discarded) and the
+cap's face normal is <code>+dir</code>.</p>
+<pre><code class="javascript"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">sourceModel</span><span class="hl-1"> = </span><span class="hl-4">scene</span><span class="hl-1">.</span><span class="hl-4">models</span><span class="hl-1">[</span><span class="hl-2">&quot;myModel&quot;</span><span class="hl-1">];</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">targetModel</span><span class="hl-1"> = </span><span class="hl-4">scene</span><span class="hl-1">.</span><span class="hl-0">createModel</span><span class="hl-1">({ </span><span class="hl-4">id:</span><span class="hl-1"> </span><span class="hl-2">&quot;myModel__caps&quot;</span><span class="hl-1"> }).</span><span class="hl-4">value</span><span class="hl-1">;</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">result</span><span class="hl-1"> = </span><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">buildSectionCaps</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">sourceModel</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">targetModel</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">capPlanes:</span><span class="hl-1"> [</span><br/><span class="hl-1">    { </span><span class="hl-4">dir:</span><span class="hl-1"> [</span><span class="hl-7">0</span><span class="hl-1">, </span><span class="hl-7">1</span><span class="hl-1">, </span><span class="hl-7">0</span><span class="hl-1">], </span><span class="hl-4">dist:</span><span class="hl-1"> -</span><span class="hl-7">1.2</span><span class="hl-1"> }   </span><span class="hl-8">// horizontal cut at y = 1.2</span><br/><span class="hl-1">  ]</span><br/><span class="hl-1">});</span><br/><br/><span class="hl-3">if</span><span class="hl-1"> (!</span><span class="hl-4">result</span><span class="hl-1">.</span><span class="hl-4">ok</span><span class="hl-1">) {</span><br/><span class="hl-1">  </span><span class="hl-4">console</span><span class="hl-1">.</span><span class="hl-0">error</span><span class="hl-1">(</span><span class="hl-4">result</span><span class="hl-1">.</span><span class="hl-4">error</span><span class="hl-1">);</span><br/><span class="hl-1">  </span><span class="hl-4">targetModel</span><span class="hl-1">.</span><span class="hl-0">destroy</span><span class="hl-1">();              </span><span class="hl-8">// partial state may exist</span><br/><span class="hl-1">} </span><span class="hl-3">else</span><span class="hl-1"> {</span><br/><span class="hl-1">  </span><span class="hl-5">const</span><span class="hl-1"> { </span><span class="hl-6">numObjectsWithCaps</span><span class="hl-1">, </span><span class="hl-6">numCapMeshes</span><span class="hl-1"> } = </span><span class="hl-4">result</span><span class="hl-1">.</span><span class="hl-4">value</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-4">console</span><span class="hl-1">.</span><span class="hl-0">log</span><span class="hl-1">(</span><span class="hl-2">`</span><span class="hl-5">${</span><span class="hl-4">numCapMeshes</span><span class="hl-5">}</span><span class="hl-2"> caps across </span><span class="hl-5">${</span><span class="hl-4">numObjectsWithCaps</span><span class="hl-5">}</span><span class="hl-2"> objects`</span><span class="hl-1">);</span><br/><span class="hl-1">}</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="3-multi-plane-caps" class="tsd-anchor"></a><h3 class="tsd-anchor-link">3) Multi-plane caps<a href="#3-multi-plane-caps" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Pass several planes to cut along independent axes. Each plane
+produces its own cap set per source object, trimmed against the
+kept half-space of every other plane so intersecting cuts don't
+overlap at their shared corner.</p>
+<pre><code class="javascript"><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">buildSectionCaps</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">sourceModel</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">targetModel</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">capPlanes:</span><span class="hl-1"> [</span><br/><span class="hl-1">    { </span><span class="hl-4">dir:</span><span class="hl-1"> [</span><span class="hl-7">0</span><span class="hl-1">, </span><span class="hl-7">1</span><span class="hl-1">, </span><span class="hl-7">0</span><span class="hl-1">], </span><span class="hl-4">dist:</span><span class="hl-1">  -</span><span class="hl-7">1.2</span><span class="hl-1"> },  </span><span class="hl-8">// floor cut</span><br/><span class="hl-1">    { </span><span class="hl-4">dir:</span><span class="hl-1"> [</span><span class="hl-7">1</span><span class="hl-1">, </span><span class="hl-7">0</span><span class="hl-1">, </span><span class="hl-7">0</span><span class="hl-1">], </span><span class="hl-4">dist:</span><span class="hl-1">  -</span><span class="hl-7">5.0</span><span class="hl-1"> },  </span><span class="hl-8">// east-west cut</span><br/><span class="hl-1">    { </span><span class="hl-4">dir:</span><span class="hl-1"> [</span><span class="hl-7">0</span><span class="hl-1">, </span><span class="hl-7">0</span><span class="hl-1">, </span><span class="hl-7">1</span><span class="hl-1">], </span><span class="hl-4">dist:</span><span class="hl-1"> -</span><span class="hl-7">10.0</span><span class="hl-1"> }   </span><span class="hl-8">// north-south cut</span><br/><span class="hl-1">  ]</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="4-match-an-existing-viewer-sectionplane" class="tsd-anchor"></a><h3 class="tsd-anchor-link">4) Match an existing viewer SectionPlane<a href="#4-match-an-existing-viewer-sectionplane" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p><a href="../interfaces/presentations.sectionCaps.CapPlane.html" class="tsd-kind-interface">CapPlane</a> mirrors the <code>dir</code> / <code>dist</code> accessors on a
+<a href="../classes/viewing.viewer.SectionPlane.html" class="tsd-kind-class">SectionPlane</a>, so the host's existing
+clipping plane can be reused verbatim — cap geometry lands on the
+same plane the viewer is already clipping against.</p>
+<pre><code class="javascript"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">sectionPlane</span><span class="hl-1"> = </span><span class="hl-4">view</span><span class="hl-1">.</span><span class="hl-4">sectionPlanes</span><span class="hl-1">[</span><span class="hl-2">&quot;floor&quot;</span><span class="hl-1">];</span><br/><br/><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">buildSectionCaps</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">sourceModel</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">targetModel</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">capPlanes:</span><span class="hl-1"> [</span><br/><span class="hl-1">    { </span><span class="hl-4">dir:</span><span class="hl-1"> </span><span class="hl-4">sectionPlane</span><span class="hl-1">.</span><span class="hl-4">dir</span><span class="hl-1">, </span><span class="hl-4">dist:</span><span class="hl-1"> </span><span class="hl-4">sectionPlane</span><span class="hl-1">.</span><span class="hl-4">dist</span><span class="hl-1"> }</span><br/><span class="hl-1">  ]</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="5-multiple-cap-passes-into-one-target-model" class="tsd-anchor"></a><h3 class="tsd-anchor-link">5) Multiple cap passes into one target model<a href="#5-multiple-cap-passes-into-one-target-model" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p><code>idPrefix</code> namespaces every emitted geometry, material, mesh, and
+object id (<code>&quot;{idPrefix}__{sourceObjectId}__…&quot;</code>). Pick a unique
+prefix per pass when running the extractor more than once into the
+same target — e.g. one prefix per cap-plane set, or one per
+source model when capping a federation against the same plane.</p>
+<pre><code class="javascript"><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">buildSectionCaps</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">sourceModel:</span><span class="hl-1"> </span><span class="hl-4">scene</span><span class="hl-1">.</span><span class="hl-4">models</span><span class="hl-1">[</span><span class="hl-2">&quot;architectural&quot;</span><span class="hl-1">],</span><br/><span class="hl-1">  </span><span class="hl-4">targetModel</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">capPlanes</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">idPrefix:</span><span class="hl-1"> </span><span class="hl-2">&quot;cap_arch&quot;</span><br/><span class="hl-1">});</span><br/><br/><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">buildSectionCaps</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">sourceModel:</span><span class="hl-1"> </span><span class="hl-4">scene</span><span class="hl-1">.</span><span class="hl-4">models</span><span class="hl-1">[</span><span class="hl-2">&quot;structural&quot;</span><span class="hl-1">],</span><br/><span class="hl-1">  </span><span class="hl-4">targetModel</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">capPlanes</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">idPrefix:</span><span class="hl-1"> </span><span class="hl-2">&quot;cap_struct&quot;</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="6-colour-and-hatch-pattern" class="tsd-anchor"></a><h3 class="tsd-anchor-link">6) Colour and hatch pattern<a href="#6-colour-and-hatch-pattern" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p><code>capColor</code> sets the RGB base colour of every emitted cap
+<a href="../classes/model.scene.SceneMaterial.html" class="tsd-kind-class">SceneMaterial</a>. Omit <code>capColor</code> to
+inherit each cap's tint from its source mesh's effective colour
+(material colour first, then mesh-level colour, then a neutral
+grey fallback) — useful on multi-material BIM models where a
+single global tint would erase material differences. When the
+corresponding source mesh's material carries a <code>hatchPattern</code>,
+the cap material inherits it — sectioned masonry, concrete, or
+metal then renders with the same engineering hatch as the rest
+of the model.</p>
+<pre><code class="javascript"><span class="hl-8">// Inherit per-mesh colour from the source material:</span><br/><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">buildSectionCaps</span><span class="hl-1">({ </span><span class="hl-4">sourceModel</span><span class="hl-1">, </span><span class="hl-4">targetModel</span><span class="hl-1">, </span><span class="hl-4">capPlanes</span><span class="hl-1"> });</span><br/><br/><span class="hl-8">// Or override every cap with a uniform paper-white:</span><br/><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">buildSectionCaps</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">sourceModel</span><span class="hl-1">, </span><span class="hl-4">targetModel</span><span class="hl-1">, </span><span class="hl-4">capPlanes</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">capColor:</span><span class="hl-1"> [</span><span class="hl-7">0.92</span><span class="hl-1">, </span><span class="hl-7">0.93</span><span class="hl-1">, </span><span class="hl-7">0.95</span><span class="hl-1">]</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="7-park-caps-on-their-own-viewlayer" class="tsd-anchor"></a><h3 class="tsd-anchor-link">7) Park caps on their own ViewLayer<a href="#7-park-caps-on-their-own-viewlayer" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Pass <code>layerId</code> to assign every emitted SceneObject to a named
+<a href="../classes/viewing.viewer.ViewLayer.html" class="tsd-kind-class">ViewLayer</a>. The host can then hide,
+show, or restyle the caps collectively without touching the
+source model.</p>
+<pre><code class="javascript"><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">buildSectionCaps</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">sourceModel</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">targetModel</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">capPlanes</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">layerId:</span><span class="hl-1"> </span><span class="hl-2">&quot;sectionCaps&quot;</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="8-filter-which-source-objects-get-capped" class="tsd-anchor"></a><h3 class="tsd-anchor-link">8) Filter which source objects get capped<a href="#8-filter-which-source-objects-get-capped" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Restrict the cap pass with any combination of an id whitelist, an
+id blacklist, and an arbitrary predicate. All three conditions
+AND together when present.</p>
+<pre><code class="javascript"><span class="hl-8">// Cap only specific objects:</span><br/><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">buildSectionCaps</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">sourceModel</span><span class="hl-1">, </span><span class="hl-4">targetModel</span><span class="hl-1">, </span><span class="hl-4">capPlanes</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">includeObjectIds:</span><span class="hl-1"> [</span><span class="hl-2">&quot;wall_01&quot;</span><span class="hl-1">, </span><span class="hl-2">&quot;wall_02&quot;</span><span class="hl-1">, </span><span class="hl-2">&quot;slab_03&quot;</span><span class="hl-1">]</span><br/><span class="hl-1">});</span><br/><br/><span class="hl-8">// Cap everything except a transient hidden set (large set -&gt;</span><br/><span class="hl-8">// prefer Set membership):</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">hidden</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">Set</span><span class="hl-1">(</span><span class="hl-4">currentlyHiddenIds</span><span class="hl-1">);</span><br/><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">buildSectionCaps</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">sourceModel</span><span class="hl-1">, </span><span class="hl-4">targetModel</span><span class="hl-1">, </span><span class="hl-4">capPlanes</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">excludeObjectIds:</span><span class="hl-1"> </span><span class="hl-4">hidden</span><br/><span class="hl-1">});</span><br/><br/><span class="hl-8">// Predicate filter — &quot;cap walls + slabs only&quot;, from the semantic</span><br/><span class="hl-8">// Data graph:</span><br/><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">buildSectionCaps</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">sourceModel</span><span class="hl-1">, </span><span class="hl-4">targetModel</span><span class="hl-1">, </span><span class="hl-4">capPlanes</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-0">includeObject</span><span class="hl-4">:</span><span class="hl-1"> (</span><span class="hl-4">obj</span><span class="hl-1">) </span><span class="hl-5">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">ifcType</span><span class="hl-1"> = </span><span class="hl-4">data</span><span class="hl-1">.</span><span class="hl-4">objects</span><span class="hl-1">[</span><span class="hl-4">obj</span><span class="hl-1">.</span><span class="hl-4">id</span><span class="hl-1">]?.</span><span class="hl-4">type</span><span class="hl-1">;</span><br/><span class="hl-1">    </span><span class="hl-3">return</span><span class="hl-1"> </span><span class="hl-4">ifcType</span><span class="hl-1"> === </span><span class="hl-2">&quot;IfcWallStandardCase&quot;</span><br/><span class="hl-1">        || </span><span class="hl-4">ifcType</span><span class="hl-1"> === </span><span class="hl-2">&quot;IfcSlab&quot;</span><span class="hl-1">;</span><br/><span class="hl-1">  }</span><br/><span class="hl-1">});</span><br/><br/><span class="hl-8">// Predicate filter — &quot;cap whatever&#39;s visible in this View&quot;:</span><br/><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">buildSectionCaps</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">sourceModel</span><span class="hl-1">, </span><span class="hl-4">targetModel</span><span class="hl-1">, </span><span class="hl-4">capPlanes</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-0">includeObject</span><span class="hl-4">:</span><span class="hl-1"> (</span><span class="hl-4">obj</span><span class="hl-1">) </span><span class="hl-5">=&gt;</span><span class="hl-1"> </span><span class="hl-4">view</span><span class="hl-1">.</span><span class="hl-4">objects</span><span class="hl-1">[</span><span class="hl-4">obj</span><span class="hl-1">.</span><span class="hl-4">id</span><span class="hl-1">]?.</span><span class="hl-4">visible</span><span class="hl-1"> === </span><span class="hl-5">true</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="9-progressive-emission" class="tsd-anchor"></a><h3 class="tsd-anchor-link">9) Progressive emission<a href="#9-progressive-emission" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>For large source models, pass <code>progressive: true</code> so the function
+yields between batches of source-object emissions and the caps
+paint into the View as they build. Pass a <a href="../interfaces/presentations.sectionCaps.ProgressiveSpec.html" class="tsd-kind-interface">ProgressiveSpec</a>
+for finer control.</p>
+<pre><code class="javascript"><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">buildSectionCaps</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">sourceModel</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">targetModel</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">capPlanes</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">progressive:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">batchSize:</span><span class="hl-1"> </span><span class="hl-7">50</span><span class="hl-1">,                        </span><span class="hl-8">// source objects per yield</span><br/><span class="hl-1">    </span><span class="hl-0">yield</span><span class="hl-4">:</span><span class="hl-1"> () </span><span class="hl-5">=&gt;</span><span class="hl-1"> </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-13">Promise</span><span class="hl-1">(</span><span class="hl-4">resolve</span><span class="hl-1"> </span><span class="hl-5">=&gt;</span><br/><span class="hl-1">      </span><span class="hl-0">requestAnimationFrame</span><span class="hl-1">(() </span><span class="hl-5">=&gt;</span><span class="hl-1"> </span><span class="hl-0">resolve</span><span class="hl-1">())</span><br/><span class="hl-1">    )</span><br/><span class="hl-1">  }</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="10-source-and-target-in-different-scenes" class="tsd-anchor"></a><h3 class="tsd-anchor-link">10) Source and target in different Scenes<a href="#10-source-and-target-in-different-scenes" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>The function only reads source geometry and writes to the target,
+so the two <a href="../classes/model.scene.SceneModel.html" class="tsd-kind-class">SceneModels</a> may live in
+different <a href="../classes/model.scene.Scene.html" class="tsd-kind-class">Scenes</a>. Useful when capping a
+federation loaded in one Scene into a &quot;drawings&quot; Scene that the
+host renders on a separate canvas / view.</p>
+<pre><code class="javascript"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">liveScene</span><span class="hl-1">     = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">Scene</span><span class="hl-1">();</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">drawingsScene</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">Scene</span><span class="hl-1">();</span><br/><br/><span class="hl-8">// ... load the building into liveScene[&quot;building&quot;] ...</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">capTarget</span><span class="hl-1"> = </span><span class="hl-4">drawingsScene</span><span class="hl-1">.</span><span class="hl-0">createModel</span><span class="hl-1">({ </span><span class="hl-4">id:</span><span class="hl-1"> </span><span class="hl-2">&quot;caps&quot;</span><span class="hl-1"> }).</span><span class="hl-4">value</span><span class="hl-1">;</span><br/><br/><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">buildSectionCaps</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">sourceModel:</span><span class="hl-1"> </span><span class="hl-4">liveScene</span><span class="hl-1">.</span><span class="hl-4">models</span><span class="hl-1">[</span><span class="hl-2">&quot;building&quot;</span><span class="hl-1">],</span><br/><span class="hl-1">  </span><span class="hl-4">targetModel:</span><span class="hl-1"> </span><span class="hl-4">capTarget</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">capPlanes:</span><span class="hl-1"> [{ </span><span class="hl-4">dir:</span><span class="hl-1"> [</span><span class="hl-7">0</span><span class="hl-1">, </span><span class="hl-7">1</span><span class="hl-1">, </span><span class="hl-7">0</span><span class="hl-1">], </span><span class="hl-4">dist:</span><span class="hl-1"> -</span><span class="hl-7">1.2</span><span class="hl-1"> }]</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="11-guard-against-unprojectable-sources" class="tsd-anchor"></a><h3 class="tsd-anchor-link">11) Guard against unprojectable sources<a href="#11-guard-against-unprojectable-sources" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Point clouds and line-only models produce no caps.
+<a href="../functions/presentations.sectionCaps.canBuildSectionCaps.html" class="tsd-kind-function">canBuildSectionCaps</a> reports whether the source has any
+triangle-bearing geometry the cap builder can usefully consume,
+so callers can skip the call instead of running it for nothing.</p>
+<pre><code class="javascript"><span class="hl-3">if</span><span class="hl-1"> (</span><span class="hl-0">canBuildSectionCaps</span><span class="hl-1">(</span><span class="hl-4">sourceModel</span><span class="hl-1">)) {</span><br/><span class="hl-1">  </span><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">targetModel</span><span class="hl-1"> = </span><span class="hl-4">scene</span><span class="hl-1">.</span><span class="hl-0">createModel</span><span class="hl-1">({ </span><span class="hl-4">id:</span><span class="hl-1"> </span><span class="hl-2">&quot;caps&quot;</span><span class="hl-1"> }).</span><span class="hl-4">value</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">buildSectionCaps</span><span class="hl-1">({ </span><span class="hl-4">sourceModel</span><span class="hl-1">, </span><span class="hl-4">targetModel</span><span class="hl-1">, </span><span class="hl-4">capPlanes</span><span class="hl-1"> });</span><br/><span class="hl-1">}</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="12-inspecting-results" class="tsd-anchor"></a><h3 class="tsd-anchor-link">12) Inspecting results<a href="#12-inspecting-results" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p><a href="../interfaces/presentations.sectionCaps.BuildSectionCapsResult.html" class="tsd-kind-interface">BuildSectionCapsResult</a> reports per-pass counts. The
+<code>numUnclosedMeshes</code> field is a diagnostic — non-zero means the
+source had non-watertight meshes whose cap segments didn't stitch
+into closed loops. Cap coverage degrades on those meshes; meshes
+with stitched loops still produce caps.</p>
+<pre><code class="javascript"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">result</span><span class="hl-1"> = </span><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">buildSectionCaps</span><span class="hl-1">({ / * ... * / });</span><br/><br/><span class="hl-3">if</span><span class="hl-1"> (</span><span class="hl-4">result</span><span class="hl-1">.</span><span class="hl-4">ok</span><span class="hl-1">) {</span><br/><span class="hl-1">  </span><span class="hl-5">const</span><span class="hl-1"> { </span><span class="hl-6">numObjectsWithCaps</span><span class="hl-1">, </span><span class="hl-6">numCapMeshes</span><span class="hl-1">, </span><span class="hl-6">numUnclosedMeshes</span><span class="hl-1"> } = </span><span class="hl-4">result</span><span class="hl-1">.</span><span class="hl-4">value</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-3">if</span><span class="hl-1"> (</span><span class="hl-4">numUnclosedMeshes</span><span class="hl-1"> &gt; </span><span class="hl-7">0</span><span class="hl-1">) {</span><br/><span class="hl-1">    </span><span class="hl-4">console</span><span class="hl-1">.</span><span class="hl-0">warn</span><span class="hl-1">(</span><span class="hl-2">`</span><span class="hl-5">${</span><span class="hl-4">numUnclosedMeshes</span><span class="hl-5">}</span><span class="hl-2"> source meshes were non-watertight`</span><span class="hl-1">);</span><br/><span class="hl-1">  }</span><br/><span class="hl-1">}</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="13-tearing-down" class="tsd-anchor"></a><h3 class="tsd-anchor-link">13) Tearing down<a href="#13-tearing-down" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>The caller owns the target SceneModel, so teardown is just
+<code>targetModel.destroy()</code>. <a href="../functions/presentations.sectionCaps.clearSectionCaps.html" class="tsd-kind-function">clearSectionCaps</a> is a convenience
+wrapper that no-ops if the target is null or already destroyed.
+Running <code>buildSectionCaps</code> repeatedly into a freshly-created
+target lets the host swap cap sets as the user moves the cut
+plane.</p>
+<pre><code class="javascript"><span class="hl-0">clearSectionCaps</span><span class="hl-1">(</span><span class="hl-4">targetModel</span><span class="hl-1">);</span>
+</code><button type="button">Copy</button></pre>
+
+</div><div class="tsd-comment tsd-typography"></div></section><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Interfaces"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Interfaces</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="buildsectioncapsparams" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/presentations.sectionCaps.BuildSectionCapsParams.html">BuildSectionCapsParams</a><a href="#buildsectioncapsparams" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="buildsectioncapsresult" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/presentations.sectionCaps.BuildSectionCapsResult.html">BuildSectionCapsResult</a><a href="#buildsectioncapsresult" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="capplane" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/presentations.sectionCaps.CapPlane.html">CapPlane</a><a href="#capplane" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="progressivespec" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/presentations.sectionCaps.ProgressiveSpec.html">ProgressiveSpec</a><a href="#progressivespec" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Functions"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Functions</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="buildsectioncaps" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><a href="../functions/presentations.sectionCaps.buildSectionCaps.html">buildSectionCaps</a><a href="#buildsectioncaps" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="canbuildsectioncaps" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><a href="../functions/presentations.sectionCaps.canBuildSectionCaps.html">canBuildSectionCaps</a><a href="#canbuildsectioncaps" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="clearsectioncaps" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><a href="../functions/presentations.sectionCaps.clearSectionCaps.html">clearSectionCaps</a><a href="#clearsectioncaps" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-alpha" name="alpha"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Alpha</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-beta" name="beta"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Beta</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#xeokit-section-caps"><span>xeokit <wbr/>Section <wbr/>Caps</span></a><ul><li><a href="#shape"><span>Shape</span></a></li><li><a href="#features"><span>Features</span></a></li><li><a href="#installation"><span>Installation</span></a></li><li><a href="#quick-start"><span>Quick <wbr/>Start</span></a></li><li><ul><li><a href="#1-import-the-entry-points"><span>1) <wbr/>Import the entry points</span></a></li><li><a href="#2-cap-one-source-model-against-one-plane"><span>2) <wbr/>Cap one source model against one plane</span></a></li><li><a href="#3-multi-plane-caps"><span>3) <wbr/>Multi-<wbr/>plane caps</span></a></li><li><a href="#4-match-an-existing-viewer-sectionplane"><span>4) <wbr/>Match an existing viewer <wbr/>Section<wbr/>Plane</span></a></li><li><a href="#5-multiple-cap-passes-into-one-target-model"><span>5) <wbr/>Multiple cap passes into one target model</span></a></li><li><a href="#6-colour-and-hatch-pattern"><span>6) <wbr/>Colour and hatch pattern</span></a></li><li><a href="#7-park-caps-on-their-own-viewlayer"><span>7) <wbr/>Park caps on their own <wbr/>View<wbr/>Layer</span></a></li><li><a href="#8-filter-which-source-objects-get-capped"><span>8) <wbr/>Filter which source objects get capped</span></a></li><li><a href="#9-progressive-emission"><span>9) <wbr/>Progressive emission</span></a></li><li><a href="#10-source-and-target-in-different-scenes"><span>10) <wbr/>Source and target in different <wbr/>Scenes</span></a></li><li><a href="#11-guard-against-unprojectable-sources"><span>11) <wbr/>Guard against unprojectable sources</span></a></li><li><a href="#12-inspecting-results"><span>12) <wbr/>Inspecting results</span></a></li><li><a href="#13-tearing-down"><span>13) <wbr/>Tearing down</span></a></li></ul></li></ul><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Interfaces"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Interfaces</summary><div><a href="#buildsectioncapsparams" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Build<wbr/>Section<wbr/>Caps<wbr/>Params</span></a><a href="#buildsectioncapsresult" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Build<wbr/>Section<wbr/>Caps<wbr/>Result</span></a><a href="#capplane" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Cap<wbr/>Plane</span></a><a href="#progressivespec" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Progressive<wbr/>Spec</span></a></div></details><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Functions"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Functions</summary><div><a href="#buildsectioncaps" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><span>build<wbr/>Section<wbr/>Caps</span></a><a href="#canbuildsectioncaps" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><span>can<wbr/>Build<wbr/>Section<wbr/>Caps</span></a><a href="#clearsectioncaps" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><span>clear<wbr/>Section<wbr/>Caps</span></a></div></details></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="../modules.html">@xeokit/sdk - v0.1.0</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div>
+<script type="module">
+import mermaid from "https://unpkg.com/mermaid@latest/dist/mermaid.esm.min.mjs";
+
+document.documentElement.classList.add("mermaid-enabled");
+
+mermaid.initialize({startOnLoad:true});
+
+requestAnimationFrame(function check() {
+  let some = false;
+  document.querySelectorAll("div.mermaid:not([data-inserted])").forEach(div => {
+    some = true;
+    if (div.querySelector("svg")) {
+      div.dataset.inserted = true;
+    }
+  });
+
+  if (some) {
+    requestAnimationFrame(check);
+  }
+});
+</script>
+</body></html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html><html class="default" lang="en" data-base=".."><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>geometryQuality | @xeokit/sdk - v0.1.0</title><meta name="description" content="Documentation for @xeokit/sdk"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search"><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">@xeokit/sdk - v0.1.0</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb"><li><a href="../modules.html">@xeokit/sdk</a></li><li><a href="../modules/inspect.html">inspect</a></li><li><a href="../modules/inspect.sceneModel.html">sceneModel</a></li><li><a href="inspect.sceneModel.geometryQuality.html">geometryQuality</a></li></ul><h1>Variable geometryQuality<code class="tsd-tag">Const</code></h1></div><div class="tsd-signature"><span class="tsd-kind-variable">geometryQuality</span><span class="tsd-signature-symbol">:</span> <a href="../modules/inspect.html" class="tsd-signature-type tsd-kind-namespace">inspect</a><span class="tsd-signature-symbol">.</span><a href="../modules/inspect.sceneModel.html" class="tsd-signature-type tsd-kind-namespace">sceneModel</a><span class="tsd-signature-symbol">.</span><a href="../interfaces/inspect.sceneModel.Inspection.html" class="tsd-signature-type tsd-kind-interface">Inspection</a><span class="tsd-signature-symbol"> = ...</span></div><div class="tsd-comment tsd-typography"><p><strong>Opt-in</strong> (<a href="../interfaces/inspect.sceneModel.InspectSceneModelParams.html#checkgeometryquality" class="tsd-kind-property">InspectSceneModelParams.checkGeometryQuality</a>).
+Five geometry-quality checks the SDK's <code>createGeometry</code>
+lifecycle gate doesn't enforce — these are <em>quality</em> concerns,
+not data-shape errors:</p>
+<ul>
+<li><code>GEOMETRY_ZERO_VOLUME_AABB</code> — AABB collapsed to a point or
+a line segment (one or more axes have zero extent). Likely
+a single-point / single-line geometry that won't render
+visibly.</li>
+<li><code>GEOMETRY_DEGENERATE_TRIANGLES</code> — one or more triangles
+have repeated indices (e.g. <code>[7, 7, 12]</code>) or near-zero
+cross-product magnitude. Render nothing but cost vertex /
+fragment work.</li>
+<li><code>GEOMETRY_UNUSED_VERTICES</code> — positions exist that no
+<code>indices</code> / <code>edgeIndices</code> entry references. Wasted vertex
+buffer + per-vertex shader work for non-indexed renders.</li>
+<li><code>GEOMETRY_DUPLICATE_VERTICES</code> — two or more vertex slots are
+byte-identical across every populated attribute (positions,
+normals, UVs). Coalescing them shrinks the vertex buffer
+without altering any rendered surface — vertex splitting
+for genuine seam / crease cases produces <em>different</em>
+normals or UVs, so those slots wouldn't match.</li>
+<li><code>GEOMETRY_NON_WATERTIGHT</code> — primitive is <code>SolidPrimitive</code>
+but at least one triangle edge is shared by != 2 faces. The
+geometry isn't actually a closed manifold; downstream
+pipelines that rely on solid semantics (back-face culling
+decisions, IFC inside / outside, BVH closed-cell
+containment) will misbehave.</li>
+<li><code>GEOMETRY_INCONSISTENT_WINDING</code> — two or more adjacent
+triangles traverse a shared edge in the <em>same</em> direction
+(manifold meshes have each edge traversed in opposite
+directions by its two faces). Causes backface-cull
+artefacts: faces randomly disappear depending on the camera
+side. Independent of <code>GEOMETRY_NON_WATERTIGHT</code> — both can
+fire on the same mesh.</li>
+<li><code>GEOMETRY_AABB_NOT_TIGHT</code> — the actual u16 range used in
+<code>positionsCompressed</code> covers less than
+<a href="../interfaces/inspect.sceneModel.InspectSceneModelParams.html#minaabbfill" class="tsd-kind-property">minAabbFill</a>
+of the available <code>[0, 65535]</code> quantisation grid on at
+least one axis. Wasted precision; loaders sometimes emit
+a generous AABB and never re-tighten it.</li>
+<li><code>GEOMETRY_DUPLICATE_INDICES</code> — the same triangle (same
+three vertex ids, in any rotation / winding) appears more
+than once in <code>indices</code>. Causes invisible overdraw. Distinct
+from <code>GEOMETRY_DUPLICATE_VERTICES</code> (different vertex slots
+with identical attribute bytes).</li>
+</ul>
+<p>Pure read pass — no mutation. Each issue carries a
+<code>highlight.objectIds</code> payload built from
+<a href="../functions/inspect.sceneModel.findSceneObjectsForGeometry.html" class="tsd-kind-function">findSceneObjectsForGeometry</a> so the example UI can
+locate the affected SceneObjects in the Viewer.</p>
+</div><div class="tsd-comment tsd-typography"></div><aside class="tsd-sources"><ul><li>Defined in <a href="https://github.com/xeokit/sdk/blob/934eefb40e52ce4d91188209ae94be37870f6fb2/packages/sdk/src/inspect/sceneModel/inspections/geometryQuality.ts#L66">packages/sdk/src/inspect/sceneModel/inspections/geometryQuality.ts:66</a></li></ul></aside></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-alpha" name="alpha"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Alpha</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-beta" name="beta"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Beta</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div></div><div class="site-menu"><nav class="tsd-navigation"><a href="../modules.html">@xeokit/sdk - v0.1.0</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>

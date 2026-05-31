@@ -18,7 +18,7 @@
     "id": "building_doublePrecision_archipelago",
     "title": "Procedural Archipelago — Double-Precision Coordinates",
     "description": "An archipelago of 54 rocky islands spread across a 56 km expanse of ocean, geo-located at real-world UTM Zone 32N coordinates (~267 km easting, 6.55 million metres northing — off the Norwegian coast, ~50 km west of Stavanger). Three buildings inhabit the scene: a Duplex on the central island, an IfcOpenHouse4 on the far NW island, and a Ferry afloat ~12 km southeast. xeokit holds every world coordinate as a true double-precision value while keeping per-vertex geometry float32-safe, resolving the two at render time so the camera can orbit a window mullion at sub-millimetre precision inside a scene the size of a small archipelago.",
-    "isTutorial": true,
+    "isTutorial": false,
     "isVisualTest": false,
     "tags": [
       "Featured"
@@ -29,26 +29,6 @@
       "Geometry"
     ],
     "topic": "modeling.scene.geometry"
-  },
-  "building_doublePrecision_cityBlock": {
-    "id": "building_doublePrecision_cityBlock",
-    "title": "Double-Precision Coordinate System",
-    "description": "Demonstrates xeokit's transparent 64-bit coordinate system support. A city block is placed at real UTM coordinates (~474,000 m easting, ~5,561,000 m northing) and a tower crane animates at those large coordinates with sub-millimetre precision. A live overlay shows the raw Float64 world coordinates to make clear why standard WebGL float32 scenes would jitter at this scale.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "tags": [
-      "DoublePrecision",
-      "SceneModel",
-      "SceneTransform",
-      "RTC",
-      "_Featured"
-    ],
-    "categories": [
-      "SceneModel",
-      "Transforms",
-      "Coordinates"
-    ],
-    "topic": "scene.doublePrecision"
   },
   "building_doublePrecision_infiniteLandscape": {
     "id": "building_doublePrecision_infiniteLandscape",
@@ -68,24 +48,6 @@
       "Streaming"
     ],
     "topic": "modeling.scene.streaming"
-  },
-  "building_doublePrecision_megasite": {
-    "id": "building_doublePrecision_megasite",
-    "title": "Double-Precision Megasite",
-    "description": "Stress-tests xeokit's double-precision world transforms by placing a kilometre-scale procedurally-generated site at very large world coordinates that would jitter under standard float32 WebGL. Vertex coordinates stay local and small; only the transforms and the model's coordinate-system origin carry the large values. The renderer's relative-to-camera tiling keeps motion stable even when the camera is zoomed in close to geometry that sits millions of units from the world origin.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "tags": [
-      "DoublePrecision",
-      "RTC",
-      "Procgen",
-      "Megasite"
-    ],
-    "categories": [
-      "Modeling",
-      "Scene"
-    ],
-    "topic": "modeling.scene.doubleprecision"
   },
   "building_fromParams_compressedGeometry_box": {
     "id": "building_fromParams_compressedGeometry_box",
@@ -314,28 +276,6 @@
     ],
     "topic": "modeling.scene.geometry"
   },
-  "building_sceneModel_smoothNormals_cityscape": {
-    "id": "building_sceneModel_smoothNormals_cityscape",
-    "title": "Procedural Cityscape with Smooth Vertex Normals",
-    "description": "A small procedurally-generated city built from boxes, cylinders and spheres, with per-vertex normals fed through to the renderer's smooth-shaded technique pair. SAO, directional shadows and hemispherical IBL make the difference between flat and smooth shading easy to see — the dome and tower silhouettes round off across each ring of triangles instead of faceting.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "tags": [
-      "Geometry",
-      "Normals",
-      "Procgen",
-      "Cityscape",
-      "SAO",
-      "Shadows",
-      "IBL"
-    ],
-    "categories": [
-      "Modeling",
-      "Scene",
-      "Geometry"
-    ],
-    "topic": "modeling.scene.geometry"
-  },
   "building_sceneModel_stressTest": {
     "id": "building_sceneModel_stressTest",
     "title": "Creating a 3D Model",
@@ -407,24 +347,6 @@
     ],
     "topic": "modeling.data"
   },
-  "convert_ifc2gltf2xgf_karhumaki": {
-    "id": "convert_ifc2gltf2xgf_karhumaki",
-    "title": "Importing IFC Converted by ifc2gltf2xgf",
-    "description": "Load and view an IFC model that was converted with the ifc2gltf2xgf pipeline.",
-    "isTutorial": false,
-    "isVisualTest": true,
-    "tags": [
-      "IFC",
-      "XGF",
-      "ifc2gltf2xgf",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "IFC"
-    ],
-    "topic": "import.ifc"
-  },
   "convert_modelConverter_dotbim2json": {
     "id": "convert_modelConverter_dotbim2json",
     "title": "Converting DotBIM to Scene/Data JSON with ModelConverter",
@@ -458,39 +380,22 @@
     ],
     "topic": "conversion.interactive"
   },
-  "convert_modelConverter_ifc2dotbim": {
-    "id": "convert_modelConverter_ifc2dotbim",
-    "title": "Converting IFC to DotBIM with ModelConverter",
-    "description": "Use ModelConverter to convert an IFC model to dotbim (.bim), then load and view the result in xeokit.",
-    "isTutorial": true,
-    "isVisualTest": true,
+  "elevations": {
+    "id": "elevations",
+    "title": "Elevations — XGF viewer",
+    "description": "Minimal viewer for the elevations dataset. Loads the pre-converted dataset/model/model.xgf geometry and dataset/model/model.datamodel.json semantic graph, then frames the camera to the model's world AABB.",
+    "isTutorial": false,
+    "isVisualTest": false,
     "tags": [
-      "Importing",
-      "IFC",
-      "DotBIM"
+      "XGF",
+      "DataModel",
+      "Elevations"
     ],
     "categories": [
       "Importing",
-      "IFC",
-      "DotBIM"
+      "XGF"
     ],
-    "topic": "import.ifc"
-  },
-  "convert_modelLoader_viewModel": {
-    "id": "convert_modelLoader_viewModel",
-    "title": "Loading Models with ModelLoader",
-    "description": "Use DemoHelper and ModelLoader to load a model into SceneModel/DataModel with selectable coordinate-system presets.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "tags": [
-      "Viewer",
-      "Loading"
-    ],
-    "categories": [
-      "Viewer",
-      "Loading"
-    ],
-    "topic": "viewer.loading"
+    "topic": "import.xgf"
   },
   "formats_cityjson_railway": {
     "id": "formats_cityjson_railway",
@@ -726,24 +631,6 @@
     ],
     "topic": "import.obj"
   },
-  "formats_pdf_barracks": {
-    "id": "formats_pdf_barracks",
-    "title": "Loading the Barracks PDF as a SceneModel",
-    "description": "Loads models/Barracks/pdf/model.pdf — a vector-heavy architectural plan (~92 k ops, 3456 × 2592 page) — into a SceneModel via the bare-metal PDFLoader path. Exercises the loader's per-stroke colour + line-weight buckets, filled-region tessellation (with containment-based hole resolution), and bezier path support at a much larger op-count than the Floorplan example.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "tags": [
-      "PDF",
-      "Drawings",
-      "AECO",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "Drawings"
-    ],
-    "topic": "import.pdf"
-  },
   "formats_pdf_duplexLevel1": {
     "id": "formats_pdf_duplexLevel1",
     "title": "Duplex Level 1 — vector PDF plan, IFC-aligned coordinates",
@@ -772,25 +659,6 @@
     "tags": [
       "PDF",
       "Drawings",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "Drawings"
-    ],
-    "topic": "import.pdf"
-  },
-  "formats_pdf_ifcOverlay": {
-    "id": "formats_pdf_ifcOverlay",
-    "title": "Duplex IFC × PDF plan overlay — aligned in a single scene",
-    "description": "Loads the classic Duplex Apartment IFC (as XGF) and the Duplex Level 1 vector-PDF plan into the same SceneModel-frame, aligned natively. The IFC is X-rayed so the floor-plan drawing reads through from a top-down view — the BIM ↔ drawing overlay workflow used for plan/model cross-checks in AECO.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "tags": [
-      "PDF",
-      "IFC",
-      "Drawings",
-      "AECO",
       "_Featured"
     ],
     "categories": [
@@ -835,101 +703,6 @@
     ],
     "topic": "import.pdf"
   },
-  "formats_rvm_sample": {
-    "id": "formats_rvm_sample",
-    "title": "AVEVA RVM + interactive PBR effects panel",
-    "description": "Loads an AVEVA RVM (plant-design) file through RVMLoader and exposes every renderer effect on top. Drop a .rvm at models/RVM_Sample/rvm/model.rvm and the example loads it directly; otherwise it synthesises a small plant skid (a base Box, four corner Cylinders, four valve-head Spheres) in-memory via the rvm module's ChunkWriter so the example always renders something.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "tags": [
-      "RVM",
-      "AVEVA",
-      "PBR",
-      "IBL",
-      "Shadows",
-      "SAO",
-      "Tonemap",
-      "Renderer"
-    ],
-    "categories": [
-      "Importing",
-      "RVM",
-      "Effects",
-      "Renderer"
-    ],
-    "topic": "import.rvm"
-  },
-  "formats_step_sample": {
-    "id": "formats_step_sample",
-    "title": "ISO 10303-21 STEP loader smoke test",
-    "description": "Loads an ISO 10303-21 STEP (`.step` / `.stp`) file through STEPLoader and renders one SceneObject per `PRODUCT` instance. Drop a real STEP at models/STEP_Sample/step/model.step and the example loads it directly; otherwise it synthesises a small AP214 fragment in-memory with six PRODUCTs so the example always renders something. Each SceneObject points at a single shared placeholder cube — a stand-in until the B-Rep tessellator that replaces those with real triangulated shapes lands.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "tags": [
-      "STEP",
-      "ISO 10303",
-      "AP214",
-      "AP203",
-      "AP242",
-      "Importing"
-    ],
-    "categories": [
-      "Importing",
-      "STEP"
-    ],
-    "topic": "import.step"
-  },
-  "formats_svg_floorPlan": {
-    "id": "formats_svg_floorPlan",
-    "title": "Loading the FloorPlan SVG drawing",
-    "description": "Loads the shipped `models/FloorPlan/svg/model.svg` AECO drawing via the injectable `SVGAdapter` pattern — same shape as `IFCLoader` / `PDFLoader`. The example wraps the browser's native `DOMParser` in a 10-line adapter (the SDK does not bundle an SVG parser), captures `<style>` text content so the loader's CSS-class pre-pass can resolve `class=\"cls-NN\"` styling, fetches the SVG file + its optional `coordSys.json` sidecar, applies the coordinate system to the SceneModel, and frames the camera on the resolved 2896 × 2048 viewBox. The loader walks the SVG tree, applies the CTM stack, parses `<path>` data, tessellates beziers and elliptical arcs, and emits one SceneObject per top-level `<g>` with strokes bucketed by (colour, line-width) and fills tessellated via earcut.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "tags": [
-      "SVG",
-      "Loader",
-      "Drawings",
-      "FloorPlan"
-    ],
-    "categories": [
-      "Formats",
-      "Drawings"
-    ],
-    "topic": "formats.svg"
-  },
-  "formats_xgf_floorPlan": {
-    "id": "formats_xgf_floorPlan",
-    "title": "Loading the FloorPlan XGF model",
-    "description": "Loads the shipped `models/FloorPlan/xgf/model.xgf` via `XGFLoader` — xeokit's native binary geometry format. Honours the model's `coordSys.json` sidecar (Y-up source → Z-up world basis), populates both a SceneModel and a DataModel so semantic metadata is available alongside the geometry, then auto-frames the camera on the loaded scene's AABB.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "tags": [
-      "XGF",
-      "Loader",
-      "FloorPlan"
-    ],
-    "categories": [
-      "Formats",
-      "Scene"
-    ],
-    "topic": "formats.xgf"
-  },
-  "formats_xgf_geometries": {
-    "id": "formats_xgf_geometries",
-    "title": "Viewing XGF using XGFLoader",
-    "description": "How to load an IFC model from XGF format directly into a xeokit web viewer.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "tags": [
-      "XGF",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "XGF"
-    ],
-    "topic": "import.xgf"
-  },
   "formats_xgf_holterTower": {
     "id": "formats_xgf_holterTower",
     "title": "Viewing XGF using XGFLoader",
@@ -962,22 +735,6 @@
     ],
     "topic": "import.xgf"
   },
-  "formats_xgf_meSampleBuilding": {
-    "id": "formats_xgf_meSampleBuilding",
-    "title": "Viewing XGF using XGFLoader",
-    "description": "How to load an IFC model from XGF format directly into a xeokit web viewer.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "tags": [
-      "XGF",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "XGF"
-    ],
-    "topic": "import.xgf"
-  },
   "formats_xgf_realistic_housePlan": {
     "id": "formats_xgf_realistic_housePlan",
     "title": "House Plan XKT2 + interactive PBR effects panel",
@@ -992,30 +749,6 @@
       "Shadows",
       "SAO",
       "Tonemap",
-      "Renderer"
-    ],
-    "categories": [
-      "Importing",
-      "XGF",
-      "Effects",
-      "Renderer"
-    ],
-    "topic": "import.xgf"
-  },
-  "formats_xgf_realistic_materialsTest": {
-    "id": "formats_xgf_realistic_materialsTest",
-    "title": "Materials Test XGF(2) + interactive PBR effects panel",
-    "description": "Loads the bundled MaterialsTest model as XGF v2 — the PBR/texture/normals/UVs-carrying form produced by the right-click context menu's \"Export XGF(2)\" action. The same effects panel as the HousePlan / Sponza demos exposes IBL, shadows, SAO, tonemap, bloom, AA, edges, and sun direction so you can stress every renderer pass against the materials suite.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "tags": [
-      "XGF",
-      "PBR",
-      "IBL",
-      "Shadows",
-      "SAO",
-      "Tonemap",
-      "Materials",
       "Renderer"
     ],
     "categories": [
@@ -1097,45 +830,6 @@
     ],
     "topic": "sceneModelInspector.interactive"
   },
-  "interop_bcf_saveAndLoad": {
-    "id": "interop_bcf_saveAndLoad",
-    "title": "BCF Viewpoint Save and Load",
-    "description": "How to use saveBCFViewpoint and loadBCFViewpoint to capture and restore a viewer state — including camera position, section planes, and per-object selection, x-ray, and visibility states.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "tags": [
-      "BCF",
-      "IFC",
-      "_Featured"
-    ],
-    "categories": [
-      "Interaction",
-      "BCF",
-      "IFC"
-    ],
-    "topic": "interaction.bcf"
-  },
-  "perf_loading_OTCConferenceCenter": {
-    "id": "perf_loading_OTCConferenceCenter",
-    "title": "Model load benchmark — OTC Conference Center (XGF + DataModel)",
-    "description": "End-to-end load benchmark for the canonical XGF + DataModel pipeline, sized on the 52 MB OTC Conference Center IFC export. Times each phase independently and disables HTTP cache so a reload measures a true cold load: studio init, parallel network fetch of the XGF binary and DataModel JSON, JSON.parse, parallel parse-into-SceneModel / parse-into-DataModel via direct loader calls on the pre-fetched buffers, then time-to-first-frame measured against the WebGLRenderer's onViewRendered event. Results render as a copyable table so optimisation runs can be compared apples-to-apples. Intended as the regression baseline for load-pipeline optimisation work — pick a target, hack on it, reload, compare.",
-    "isTutorial": false,
-    "isVisualTest": false,
-    "tags": [
-      "Performance",
-      "Loading",
-      "Benchmark",
-      "XGF",
-      "DataModel"
-    ],
-    "categories": [
-      "Performance",
-      "Loading",
-      "XGF",
-      "Optimization"
-    ],
-    "topic": "performance.loading"
-  },
   "presentations_cameraTour_OTCConferenceCenter": {
     "id": "presentations_cameraTour_OTCConferenceCenter",
     "title": "Automatic camera walkthrough of the OTC Conference Center IFC model",
@@ -1159,7 +853,7 @@
     "title": "Drawings — Duplex",
     "description": "Generates three drawing SceneModels (plan, front elevation, right elevation) from the Duplex IFC model via buildDrawing, with a live control panel for every major drawings API parameter — style (lines / fills), hidden-line elimination + resolution, frame margin, panel opacity, title block, plane offset, line width, and a per-plan section cut. When the section caps toggle is enabled, buildSectionCaps generates filled cap geometry at the cut depth, then buildDrawing is called a SECOND time onto the same plan-view target SceneModel — demonstrating multi-source composition (caller threads matching direction / aabb / offset, chrome only on the first call). Clicking any drawing selects the source ViewObject.",
     "isTutorial": false,
-    "isVisualTest": false,
+    "isVisualTest": true,
     "tags": [
       "Wireframe",
       "Projection",
@@ -1199,26 +893,6 @@
       "Materials",
       "Procedural",
       "HeatMap",
-      "IFC"
-    ],
-    "categories": [
-      "Materials",
-      "Demo Helpers"
-    ],
-    "topic": "materials.procedural"
-  },
-  "presentations_heatmaps_solar_ifcOpenHouse4": {
-    "id": "presentations_heatmaps_solar_ifcOpenHouse4",
-    "title": "Animated Solar Irradiance Heat Maps on IfcOpenHouse4",
-    "description": "Live daylight study on the IfcOpenHouse4 model: a synthetic sun arcs from sunrise to sunset, per-vertex Lambert irradiance is recomputed each tick, and the per-geometry heat-map textures are repainted in place. The renderer's atlas re-uploads only the affected sub-rects via texSubImage2D — no batch / mesh / material rebuild — so the southern facades light up in the morning, the gable shades the north wall after noon, and the surfaces darken into night without a single allocation in the hot path beyond the per-frame scalar arrays.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "tags": [
-      "Materials",
-      "Procedural",
-      "HeatMap",
-      "Animation",
-      "Daylight",
       "IFC"
     ],
     "categories": [
@@ -1282,42 +956,6 @@
     ],
     "topic": "materials.procedural"
   },
-  "presentations_materials_ifcAttach_schependomlaan": {
-    "id": "presentations_materials_ifcAttach_schependomlaan",
-    "title": "Attach Procedural IFC Materials to a Schependomlaan Model",
-    "description": "Loads the Schependomlaan SceneModel + DataModel (~1500 IFC objects spanning IfcWall, IfcSlab, IfcCovering, IfcDoor, IfcWindow, IfcRailing, IfcStair, IfcBeam, IfcColumn, IfcMember and more), then uses attachSceneModelMaterials to bind a procedurally-painted PBR material to every object based on its IFC type.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "tags": [
-      "Materials",
-      "Procedural",
-      "IFC"
-    ],
-    "categories": [
-      "Materials",
-      "Demo Helpers"
-    ],
-    "topic": "materials.procedural"
-  },
-  "presentations_materials_ifcHatchedCaps_duplex": {
-    "id": "presentations_materials_ifcHatchedCaps_duplex",
-    "title": "IFC Materials with Section Caps — Duplex",
-    "description": "Loads the Duplex IFC model, applies procedural PBR materials per IFC type (each tagged with the appropriate ANSI/ISO hatch convention for body shading), and slices the model with a horizontal section plane. Caps render via the stencil-based cap pass and fill each cross-section with a flat capColor. Toggle between DetailedRender (hatched-Lambert body) and RealisticRender (PBR body) — caps stay filled in both.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "tags": [
-      "Materials",
-      "Procedural",
-      "IFC",
-      "SectionPlane",
-      "Hatch"
-    ],
-    "categories": [
-      "Materials",
-      "Section Planes"
-    ],
-    "topic": "materials.procedural.section"
-  },
   "presentations_schedule_duplex": {
     "id": "presentations_schedule_duplex",
     "title": "4D Construction Scheduling — Duplex",
@@ -1336,45 +974,6 @@
       "Schedule"
     ],
     "topic": "presentations.schedule"
-  },
-  "presentations_sectionCaps_ifcMaterials_duplex": {
-    "id": "presentations_sectionCaps_ifcMaterials_duplex",
-    "title": "IFC Materials with Section Caps — Duplex",
-    "description": "Loads the Duplex IFC model, applies procedural PBR materials per IFC type (each tagged with the appropriate ANSI/ISO hatch convention), then uses xeokit.presentations.sectionCaps.createSectionCaps to build a second SceneModel of filled cap geometry that lies on the section plane. Cap meshes inherit each source material's hatchPattern, so in DetailedRender the caps draw with the same engineering hatch as the source body. The cap SceneModel's objects are marked non-clippable so the section plane that slices the building leaves the caps intact.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "tags": [
-      "Materials",
-      "Procedural",
-      "IFC",
-      "SectionPlane",
-      "Hatch",
-      "Caps"
-    ],
-    "categories": [
-      "Materials",
-      "Section Planes"
-    ],
-    "topic": "materials.procedural.section"
-  },
-  "presentations_sectionCaps_testGrid": {
-    "id": "presentations_sectionCaps_testGrid",
-    "title": "Section Caps — Generated Test Row",
-    "description": "Twelve minimal generated solids laid out in a single row along world +X, all sliced by one horizontal section plane. Designed as a visual regression harness for xeokit.presentations.sectionCaps.createSectionCaps. Each emitted cap renders twice: in-place at the cut plane (embedded in the source row) and again in a parallel cap-preview row lifted above the source row via the cap SceneModel's coordinateSystem.origin. The slider moves the cut up and down through the entire row, recomputing both placements every input event. Cases (left to right): cube, vertical cylinder, sphere, cone, hollow cylinder, hollow box, plate with 2 cylindrical holes, two disjoint cubes (one mesh), slab top coplanar with cut, cube above cut, cube below cut, open-sided non-watertight cube.",
-    "isTutorial": false,
-    "isVisualTest": true,
-    "tags": [
-      "SectionPlane",
-      "Caps",
-      "Procedural",
-      "Test",
-      "Regression"
-    ],
-    "categories": [
-      "Section Planes",
-      "Testing"
-    ],
-    "topic": "testing.section"
   },
   "presentations_sunStudy_duplex": {
     "id": "presentations_sunStudy_duplex",
@@ -1407,65 +1006,6 @@
       "Isosurface",
       "CFD",
       "HVAC"
-    ],
-    "categories": [
-      "Presentations",
-      "VolumeOverlay"
-    ],
-    "topic": "presentations.volumeOverlay"
-  },
-  "presentations_volumeOverlay_duplex": {
-    "id": "presentations_volumeOverlay_duplex",
-    "title": "Volume Overlay — Synthetic Temperature Field",
-    "description": "Visualise a 3D scalar field (here, a synthetic CFD-style temperature distribution stratified vertically with a warm plume near a heat source) as a movable slice plane across the Duplex. The VolumeOverlay panel lets you switch slice axis (X / Y / Z), drag a position slider to scrub through the field, pick from five colormaps (viridis, plasma, coolwarm, thermal, jet), and adjust opacity / value-range. Same pattern as DaylightAnalysis but for arbitrary 3D scalar fields — temperature, CO₂, SPL, smoke density, anything on a regular 3D grid.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "tags": [
-      "VolumeOverlay",
-      "CFD",
-      "HVAC",
-      "Heatmap",
-      "Duplex"
-    ],
-    "categories": [
-      "Presentations",
-      "VolumeOverlay"
-    ],
-    "topic": "presentations.volumeOverlay"
-  },
-  "presentations_volumeOverlay_duplexStairs": {
-    "id": "presentations_volumeOverlay_duplexStairs",
-    "title": "Volume Overlay — Stair Airflow (Duplex)",
-    "description": "Synthetic natural-ventilation field over the Duplex BIM model, focused on the two staircases. The vector field models the canonical stack-effect: cooler ground-floor air drawn toward each stair, accelerating upward through the stairwell as it warms, then spreading laterally at the upper-floor ceiling toward exfiltration points at the gables. Streamlines colour-coded by speed; the slice + iso-surface techniques on the companion temperature field show the same physics from different angles. Same VolumeOverlayPanel used elsewhere, this time against a real BIM model.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "tags": [
-      "VolumeOverlay",
-      "Streamlines",
-      "CFD",
-      "Stack Effect",
-      "Stairs",
-      "Duplex"
-    ],
-    "categories": [
-      "Presentations",
-      "VolumeOverlay"
-    ],
-    "topic": "presentations.volumeOverlay"
-  },
-  "presentations_volumeOverlay_loadVTI": {
-    "id": "presentations_volumeOverlay_loadVTI",
-    "title": "Volume Overlay — Load a .vti File",
-    "description": "Fetch a VTK XML ImageData (.vti) file at startup, parse it with loadVTI, and open the VolumeOverlayPanel against the resulting VoxelGrid + VectorGrid. The shipped sample (./models/AtriumCFD/atrium-cfd.vti) is a synthetic CFD-style dataset — 50×50×30 grid carrying both a temperature scalar field and a natural-convection velocity vector field — but the same code path works for any .vti produced by ParaView, VisIt, OpenFOAM, Ansys, FDS, etc. Try the panel's Load button to swap in your own.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "tags": [
-      "VolumeOverlay",
-      "VTI",
-      "VTK",
-      "ParaView",
-      "Load",
-      "CFD"
     ],
     "categories": [
       "Presentations",
@@ -1531,68 +1071,6 @@
     ],
     "topic": "collision.bvh"
   },
-  "spatial_picking_box": {
-    "id": "spatial_picking_box",
-    "title": "Picking objects in a simple table-shaped SceneModel",
-    "description": "In this example, we'll use the xeokit SDK to build and view a table-shaped SceneModel, from JSON, and then we'll use the WebGLRenderer's picking API to pick objects in the SceneModel.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "tags": [],
-    "categories": [
-      "Picking",
-      "Scene"
-    ],
-    "topic": "interaction.picking"
-  },
-  "spatial_picking_coordinateSystem": {
-    "id": "spatial_picking_coordinateSystem",
-    "title": "Programmatic pick test — SceneModel with non-default coordinate basis + unit scale",
-    "description": "Regression-style visual test for canvas picking on a SceneModel whose coordinateSystem rotates local axes (Y-up source → Z-up world) AND scales units (feet → metres). Five colour-coded boxes are placed at known local positions in feet. After first render, the example computes each box's expected world position by applying `basis · (local * scaleToMeters) + origin` itself, projects that point forward through the camera matrices to a canvas pixel, calls `renderer.pick(view, {canvasPos})` at that pixel, and verifies that the returned `sceneObject.id`, `sceneMesh.id`, and `worldPos` match. Each returned `worldPos` is also marked with a small white sphere. An on-screen panel summarises pass/fail per pick.",
-    "isTutorial": false,
-    "isVisualTest": true,
-    "tags": [
-      "Picking",
-      "CoordinateSystem",
-      "Units"
-    ],
-    "categories": [
-      "Picking",
-      "Scene"
-    ],
-    "topic": "interaction.picking"
-  },
-  "spatial_picking_rtcTiles": {
-    "id": "spatial_picking_rtcTiles",
-    "title": "Programmatic pick test — RTC-tiled SceneModel at large coordinates",
-    "description": "Regression-style visual test for canvas picking on a SceneModel whose origin is at million-metre scale, so its meshes are spread across multiple internal Relative-To-Centre (RTC) tiles. Five colour-coded boxes are placed at known world positions 150 m apart. After first render, the example projects each box centre forward through the camera matrices to a canvas pixel, calls `renderer.pick(view, {canvasPos})` at that pixel, and verifies that the returned `sceneObject.id`, `sceneMesh.id`, and `worldPos` match the expected values. Each returned `worldPos` is also marked with a small white sphere so the result is visually checkable. An on-screen panel summarises pass/fail per pick.",
-    "isTutorial": false,
-    "isVisualTest": true,
-    "tags": [
-      "Picking",
-      "RTC",
-      "DoublePrecision"
-    ],
-    "categories": [
-      "Picking",
-      "Scene"
-    ],
-    "topic": "interaction.picking"
-  },
-  "spatial_picking_table": {
-    "id": "spatial_picking_table",
-    "title": "Picking objects in a simple table-shaped SceneModel",
-    "description": "In this example, we'll use the xeokit SDK to build and view a table-shaped SceneModel, from JSON, and then we'll use the WebGLRenderer's picking API to pick objects in the SceneModel.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "tags": [
-      "_Featured"
-    ],
-    "categories": [
-      "Picking",
-      "Scene"
-    ],
-    "topic": "interaction.picking"
-  },
   "spatial_snapping_table": {
     "id": "spatial_snapping_table",
     "title": "Snap-to-vertex / snap-to-edge picking",
@@ -1630,45 +1108,6 @@
       "Picking"
     ],
     "topic": "picking.snap"
-  },
-  "studio_healthPanels": {
-    "id": "studio_healthPanels",
-    "title": "Scene Health × Data Health — Showcase",
-    "description": "Builds a small synthetic factory SceneModel + DataModel programmatically, with deliberate defects spanning both inspectors. SceneHealth opens on the right and surfaces duplicate wall geometries, a degenerate triangle, unused vertices, identity / orphan transforms, unused materials and textures, an NPOT texture, and a textured-material-on-no-UVs binding. DataHealth opens on the left and surfaces duplicate property-set refs, a schema-tag mismatch, an unknown type, an orphaned IfcSpace, walls aggregated under a storey instead of contained, plus a self-reference and an IfcRelAggregates cycle. Every flaw is annotated inline in the example's index.js so users can chase a panel highlight back to a single line.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "tags": [
-      "Inspect",
-      "SceneModelInspector",
-      "DataModelInspector",
-      "SceneHealthPanel",
-      "DataHealthPanel",
-      "DemoHelper"
-    ],
-    "categories": [
-      "Validation",
-      "Demo Helpers"
-    ],
-    "topic": "studio.healthPanels"
-  },
-  "ui_treeView_ifcOpenHouse4": {
-    "id": "ui_treeView_ifcOpenHouse4",
-    "title": "IFC Tree View and Scene Synchronization",
-    "description": "Load IFC with IFCLoader and synchronize object visibility and selection with a hierarchical tree view.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "tags": [
-      "IFC",
-      "XGF",
-      "webifc2xgf",
-      "_Featured"
-    ],
-    "categories": [
-      "Interaction",
-      "TreeView",
-      "IFC"
-    ],
-    "topic": "interaction.treeview"
   },
   "viewing_effects_cityscape": {
     "id": "viewing_effects_cityscape",
@@ -1731,19 +1170,6 @@
     ],
     "topic": "performance.gpuMemory"
   },
-  "viewing_multiView_alignedPointCloud": {
-    "id": "viewing_multiView_alignedPointCloud",
-    "title": "Multi-View with Aligned Point Cloud",
-    "description": "Render an aligned point cloud across multiple canvas views that share model data but maintain independent view state.",
-    "isTutorial": false,
-    "isVisualTest": true,
-    "tags": [],
-    "categories": [
-      "Viewer",
-      "Views"
-    ],
-    "topic": "viewer.multiview"
-  },
   "viewing_multiView_duplex": {
     "id": "viewing_multiView_duplex",
     "title": "Multi-View IFC Viewer (Duplex)",
@@ -1778,19 +1204,6 @@
     "id": "viewing_multiView_ifcOpenHouse4",
     "title": "Multi-View IFC Viewer (IfcOpenHouse4)",
     "description": "Render a single IFC model across multiple canvases with independent camera and interaction states.",
-    "isTutorial": false,
-    "isVisualTest": true,
-    "tags": [],
-    "categories": [
-      "Viewer",
-      "Views"
-    ],
-    "topic": "viewer.multiview"
-  },
-  "viewing_multiView_sportsCar": {
-    "id": "viewing_multiView_sportsCar",
-    "title": "Multi-View Model Viewer (SportsCar)",
-    "description": "Render a single model across multiple canvases with independent camera and interaction states.",
     "isTutorial": false,
     "isVisualTest": true,
     "tags": [],
@@ -1882,23 +1295,6 @@
     ],
     "topic": "rendering.shaderVariants"
   },
-  "viewing_transformControls_demo": {
-    "id": "viewing_transformControls_demo",
-    "title": "TransformControls — translate / rotate / scale gizmo",
-    "description": "Interactive demo of TransformControls. Click any coloured box to attach the controls. G / R / S switch translate / rotate / scale modes; Q toggles world vs local space; + / - resize the rig in pixels; X / Y / Z toggle axis visibility; T / U / V enable translation / rotation / scale snap; Esc detaches. Drag, hover, and onObjectChange events stream to the lower-left log.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "tags": [
-      "gizmo",
-      "transform",
-      "interactive"
-    ],
-    "categories": [
-      "Viewing",
-      "Interaction"
-    ],
-    "topic": "viewing.transformControls"
-  },
   "viewing_viewLayers_auto": {
     "id": "viewing_viewLayers_auto",
     "title": "Creating a Viewer with automatic ViewLayers",
@@ -1927,38 +1323,6 @@
     ],
     "topic": "viewer.view.viewlayer"
   },
-  "viewing_viewer_fromParams": {
-    "id": "viewing_viewer_fromParams",
-    "title": "Loading a Viewer Configuration",
-    "description": "This example demonstrates how to load a JSON snapshot of a xeokit Viewer's current runtime configuration.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "tags": [
-      "Viewer"
-    ],
-    "categories": [
-      "Viewer",
-      "Configuration"
-    ],
-    "topic": "viewer.configuration"
-  },
-  "viewing_viewer_ifcFallbackColors": {
-    "id": "viewing_viewer_ifcFallbackColors",
-    "title": "IFC Fallback Colors in Viewer",
-    "description": "Demonstrates fallback color behavior for IFC-derived model content across layered views.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "tags": [
-      "Viewer",
-      "IFC"
-    ],
-    "categories": [
-      "Viewer",
-      "IFC",
-      "Configuration"
-    ],
-    "topic": "viewer.configuration"
-  },
   "viewing_viewer_memoryConfigs": {
     "id": "viewing_viewer_memoryConfigs",
     "title": "Viewer Memory Configuration Presets",
@@ -1970,21 +1334,6 @@
       "Viewer",
       "Configuration",
       "Performance"
-    ],
-    "topic": "viewer.configuration"
-  },
-  "viewing_viewer_toParams": {
-    "id": "viewing_viewer_toParams",
-    "title": "Saving a Viewer Configuration",
-    "description": "Capture a JSON snapshot of a xeokit Viewer runtime configuration with Viewer.toParams().",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "tags": [
-      "Viewer"
-    ],
-    "categories": [
-      "Viewer",
-      "Configuration"
     ],
     "topic": "viewer.configuration"
   }

@@ -244,6 +244,42 @@ export interface PDFLoadOptions {
    * the caller's responsibility when injecting.
    */
   pdfjs?: any;
+
+  /**
+   * Encloses each emitted page in an inside-out thin 3D box so
+   * the drawing has a pickable surface behind it. Same chrome
+   * pattern the drawings module's `buildDrawingPanel` uses for
+   * 2D drawings: inside-out winding means the camera-facing wall
+   * is back-face-culled and the opposite wall shows through as a
+   * translucent backdrop, with the page geometry reading crisply
+   * against it.
+   *
+   * Useful when the host needs clicks in empty regions of the
+   * page to resolve to a pick (the box's SceneObject, with id
+   * `${pageObjectId}__box`) instead of missing into the
+   * background.
+   *
+   *  - `false` (default) — no box.
+   *  - `true` — emits a box with the defaults below.
+   *  - object — overrides individual fields:
+   *    - `color` (default `[0.96, 0.97, 0.99]` — matches the
+   *       drawings-panel default off-white)
+   *    - `opacity` (default `0.55`)
+   *    - `depth` — box half-thickness along Z, in scene units
+   *       post-{@link scale}. The box spans `z = ±depth` around
+   *       the page plane. Default `0.05`.
+   *    - `margin` — extra padding around the page extent in
+   *       scene units post-{@link scale}. Default `0`.
+   *    - `clippable` — whether section planes affect the box.
+   *       Default `false` (matches the drawings-panel chrome).
+   */
+  backingBox?: boolean | {
+    color?:     [number, number, number];
+    opacity?:   number;
+    depth?:     number;
+    margin?:    number;
+    clippable?: boolean;
+  };
 }
 
 
@@ -268,4 +304,5 @@ export const DEFAULT_PDF_LOAD_OPTIONS: Required<Omit<PDFLoadOptions, "pages" | "
   textPxPerUnit:    4,
   pdfjsEsmUrl:    "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.min.mjs",
   pdfjsWorkerSrc: "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.worker.min.mjs",
+  backingBox:     false,
 };

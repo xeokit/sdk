@@ -995,6 +995,132 @@ export async function parse(input: PDFLoadInput, options: PDFLoadOptions = {}): 
           }
         }
 
+        // Optional backing box — inside-out 3D box that gives the
+        // page a pickable surface behind the drawing. See
+        // `PDFLoadOptions.backingBox`. Mirrors the chrome pattern
+        // `buildDrawingPanel` uses: an inside-out thin box around
+        // the drawing plane, sized off the union of every emitted
+        // page mesh's geometry AABB (NOT the PDF's sheet
+        // dimensions, which commonly extend well beyond the
+        // content for margin / non-zero MediaBox origin).
+        //
+        // Emitted as its own SceneObject (id `${objectId}__box`)
+        // so the host can toggle / style / pick it independently
+        // of the page's drawn meshes.
+        if (opts.backingBox && pageObjectMeshIds.length > 0) {
+          const boxSpec = typeof opts.backingBox === "object" ? opts.backingBox : {};
+          const boxColor     = boxSpec.color     ?? [0.96, 0.97, 0.99];
+          const boxOpacity   = boxSpec.opacity   ?? 0.55;
+          const boxDepth     = boxSpec.depth     ?? 0.05;
+          const boxMargin    = boxSpec.margin    ?? 0;
+          const boxClippable = boxSpec.clippable ?? false;
+
+          // Union the local-space XY bounds of every page mesh's
+          // geometry. The aabb on each SceneGeometry was computed
+          // during createGeometry from its positions, so this
+          // exactly tracks where the emitted content actually
+          // lives — independent of any sheet-edge assumptions.
+          let cMinX =  Infinity, cMinY =  Infinity;
+          let cMaxX = -Infinity, cMaxY = -Infinity;
+          const meshes = (input.sceneModel as any).meshes;
+          for (const meshId of pageObjectMeshIds) {
+            const mesh = meshes[meshId];
+            if (!mesh || !mesh.geometry || !mesh.geometry.aabb) continue;
+            const a = mesh.geometry.aabb;
+            if (a[0] < cMinX) cMinX = a[0];
+            if (a[1] < cMinY) cMinY = a[1];
+            if (a[3] > cMaxX) cMaxX = a[3];
+            if (a[4] > cMaxY) cMaxY = a[4];
+          }
+
+          if (cMinX !== Infinity) {
+            const boxObjectId   = `${objectId}__box`;
+            const boxGeometryId = `${boxObjectId}-geom`;
+            const boxMaterialId = `${boxObjectId}-mat`;
+            const boxMeshId     = `${boxObjectId}-mesh`;
+
+            // 8 corners in page-local coords. The mesh's
+            // `position` carries the page-layout offset later,
+            // exactly as the drawn meshes do.
+            //
+            //   0..3 = bottom face (z = -depth, behind drawing)
+            //   4..7 = top    face (z = +depth, in front of drawing)
+            //
+            // bit 0 → x choice (0 → bx0, 1 → bx1)
+            // bit 1 → y choice
+            // bit 2 → z choice (0 → bz0, 1 → bz1)
+            const bx0 = cMinX - boxMargin, bx1 = cMaxX + boxMargin;
+            const by0 = cMinY - boxMargin, by1 = cMaxY + boxMargin;
+            const bz0 = -boxDepth,         bz1 =  boxDepth;
+            const boxPositions = new Float32Array([
+              bx0, by0, bz0,  bx1, by0, bz0,  bx1, by1, bz0,  bx0, by1, bz0,
+              bx0, by0, bz1,  bx1, by0, bz1,  bx1, by1, bz1,  bx0, by1, bz1,
+            ]);
+
+            // Inside-out winding — each triangle wound so its
+            // computed normal `(b-a)×(c-a)` points INTO the box.
+            // Verified per face (with bx1>bx0, by1>by0, bz1>bz0):
+            //   bottom (z=bz0):  cross = +Z (into box)
+            //   top    (z=bz1):  cross = -Z
+            //   y=by0:           cross = +Y
+            //   y=by1:           cross = -Y
+            //   x=bx0:           cross = +X
+            //   x=bx1:           cross = -X
+            // With the renderer's transparent pass (engaged by
+            // `opacity < 1`) enabling `gl.CULL_FACE`, the
+            // camera-facing wall's back face is culled and the
+            // opposite wall reads as a translucent backdrop —
+            // same effect `buildDrawingPanel` produces.
+            const boxIndices = new Uint32Array([
+              0, 1, 2,   0, 2, 3,   // bottom face (z=bz0)
+              4, 6, 5,   4, 7, 6,   // top    face (z=bz1)
+              0, 5, 1,   0, 4, 5,   // y=by0 face
+              3, 2, 6,   3, 6, 7,   // y=by1 face
+              0, 3, 7,   0, 7, 4,   // x=bx0 face
+              1, 6, 2,   1, 5, 6,   // x=bx1 face
+            ]);
+
+            const boxGRes = input.sceneModel.createGeometry({
+              id: boxGeometryId,
+              primitive: TrianglesPrimitive,
+              positions: boxPositions as any,
+              indices:   boxIndices as any,
+            });
+            if (boxGRes.ok === false) {
+              console.warn(`[PDFLoader] page ${pageNumber} backing box: ${boxGRes.error}`);
+            } else {
+              const boxMRes = input.sceneModel.createMaterial({
+                id:    boxMaterialId,
+                color: boxColor,
+              });
+              if (boxMRes.ok === false) {
+                console.warn(`[PDFLoader] page ${pageNumber} backing box: ${boxMRes.error}`);
+              } else {
+                const boxMeshRes = input.sceneModel.createMesh({
+                  id:         boxMeshId,
+                  geometryId: boxGeometryId,
+                  materialId: boxMaterialId,
+                  position:   [offX, offY, offZ],
+                  color:      boxColor,
+                  opacity:    boxOpacity,
+                });
+                if (boxMeshRes.ok === false) {
+                  console.warn(`[PDFLoader] page ${pageNumber} backing box: ${boxMeshRes.error}`);
+                } else {
+                  const boxORes = input.sceneModel.createObject({
+                    id:        boxObjectId,
+                    meshIds:   [boxMeshId],
+                    clippable: boxClippable,
+                  });
+                  if (boxORes.ok === false) {
+                    console.warn(`[PDFLoader] page ${pageNumber} backing box: ${boxORes.error}`);
+                  }
+                }
+              }
+            }
+          }
+        }
+
         pages.push({
           pageNumber,
           width:  pageWidth,

@@ -26,9 +26,13 @@
     "formats": ["datamodel", "scenemodel"],
     "dataset": ["datamodel, scenemodel", "scenemodel"]
   },
+  "Cityscape": {
+    "formats": ["xgf"],
+    "dataset": ["xgf"]
+  },
   "Duplex": {
     "coordSys": {
-      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
       "origin": [0, 0, 0],
       "units": "meters"
     },
@@ -79,6 +83,24 @@
     },
     "formats": ["datamodel", "scenemodel", "xgf"],
     "dataset": ["datamodel, scenemodel", "datamodel, xgf", "scenemodel", "xgf"]
+  },
+  "HolterTower": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["xgf"],
+    "dataset": ["xgf"]
+  },
+  "HousePlan": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["gltf", "xgf"],
+    "dataset": ["xgf", "gltf"]
   },
   "Ifc4_SampleHouse": {
     "coordSys": {
@@ -133,6 +155,15 @@
     "formats": ["dotbim", "gltf", "ifc", "xgf"],
     "dataset": ["xgf", "gltf", "ifc", "dotbim"]
   },
+  "MaterialsTest": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["xgf"],
+    "dataset": ["xgf"]
+  },
   "Nalls-Pumpkin-Hill": {
     "coordSys": {
       "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
@@ -149,6 +180,15 @@
       "units": "meters"
     }
   },
+  "RVM_Sample": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters",
+      "scaleToMeters": 1
+    },
+    "formats": ["rvm"]
+  },
   "SandDunes": {
     "coordSys": {
       "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
@@ -157,6 +197,10 @@
     },
     "formats": ["ifc", "xgf"],
     "dataset": ["xgf", "ifc"]
+  },
+  "Schependomlaan": {
+    "formats": ["xgf"],
+    "dataset": ["xgf"]
   },
   "SmallHouse": {
     "coordSys": {

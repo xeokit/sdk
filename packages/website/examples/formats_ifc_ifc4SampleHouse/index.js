@@ -21,9 +21,21 @@ studio.init().then(() => {
     // of the model once it has been loaded.
     studio.viewManager.createView({
         camera: {
-            eye: [24.40, 23.70, 27.04],
-            look: [4.39, 8.90, 2.54],
-            up: [-0.56, -0.41, 0.71]
+            "eye": [
+                -13.141660030273833,
+                3.4311164539069736,
+                2.7685643611972126
+            ],
+            "look": [
+                -7.672335979800191,
+                0.2209277473205562,
+                1.1672576240406844
+            ],
+            "up": [
+                0.2111338689358516,
+                -0.12392382975193127,
+                0.9695696848642663
+            ]
         }
     });
 
@@ -80,6 +92,7 @@ studio.init().then(() => {
 
                         // Signal that loading has completed so the demo can finalize
                         // its setup and hide any loading indicators.
+                        studio.openInfoPanelFromMeta();
                         studio.finished();
 
                     }).catch(e => {

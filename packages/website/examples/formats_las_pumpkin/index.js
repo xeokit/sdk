@@ -95,6 +95,7 @@ studio.init().then(() => {
             // Signal that loading has completed. At this point, the Scene and
             // SceneModel contain the rendered point cloud, while the Data and
             // DataModel contain the corresponding semantic representation.
+            studio.openInfoPanelFromMeta();
             studio.finished();
 
           }).catch(message => {

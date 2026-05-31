@@ -32,6 +32,7 @@ studio.init({logging: false}).then(async () => {
   });
 
   renderReport(report, dm);
+  studio.openInfoPanelFromMeta();
   studio.finished();
 
 }).catch((err) => {

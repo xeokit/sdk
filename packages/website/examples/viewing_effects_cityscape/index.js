@@ -43,12 +43,13 @@ studio.init().then(() => {
     .then(response => response.arrayBuffer())
     .then(fileData => xgfLoader.load({ fileData, sceneModel }))
     .then(() => {
-      studio.viewFit(view);
+      studio.viewManager.fitToAabb(view, studio.picking.collisionIndex.getSceneAABB());
       const status = document.getElementById("status");
       const panel  = document.getElementById("panel");
       if (status) status.style.display = "none";
       if (panel)  panel.style.display = "block";
       wireUpPanel(view);
+      studio.openInfoPanelFromMeta();
       studio.finished();
     })
     .catch(err => {

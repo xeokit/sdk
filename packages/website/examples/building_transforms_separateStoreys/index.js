@@ -152,6 +152,7 @@ async function main() {
 
   // Signal that loading and setup have completed before starting the
   // animation.
+  studio.openInfoPanelFromMeta();
   studio.finished();
 
   if (storeyTransforms.length === 0) {

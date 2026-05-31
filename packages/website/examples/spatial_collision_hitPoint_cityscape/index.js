@@ -512,5 +512,6 @@ studio.init().then(() => {
     statusT.textContent        = "—";
   });
 
+  studio.openInfoPanelFromMeta();
   studio.finished();
 });

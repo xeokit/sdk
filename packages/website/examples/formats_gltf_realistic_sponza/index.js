@@ -70,6 +70,7 @@ studio.init().then(() => {
       status.style.display = "none";
       panel.style.display = "block";
       wireUpPanel(view);
+      studio.openInfoPanelFromMeta();
       studio.finished();
     })
     .catch(err => {

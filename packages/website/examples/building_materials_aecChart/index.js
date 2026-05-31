@@ -121,6 +121,7 @@ studio.init().then(() => {
     buildScene();
     status.style.display = "none";
     document.getElementById("panel").style.display = "block";
+    studio.openInfoPanelFromMeta();
     studio.finished();
   } catch (err) {
     status.textContent = `Init failed: ${err.message || err}`;

@@ -6,25 +6,34 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Multi-View IFC Viewer (IfcOpenHouse4)</title>
+    <link href="../../css/example-page.css" rel="stylesheet"/>
     <style>
         body {
             background-color: white;
             overflow: hidden;
             margin: 0;
             user-select: none;
+            display: flex;
+            height: 100vh;
         }
 
-        #demoCanvas {
-            width: 100%;
+        canvas {
+            flex: 1 1 0;
+            min-width: 0;
             height: 100%;
-            position: absolute;
             background: white;
             border: 0;
+        }
+
+        canvas + canvas {
+            border-left: 1px solid #ddd;
         }
     </style>
 </head>
 <body>
-<canvas id="demoCanvas"></canvas>
+<canvas id="demoCanvas1"></canvas>
+<canvas id="demoCanvas2"></canvas>
+<canvas id="demoCanvas3"></canvas>
 </body>
 <script type="module" src="./index.js"></script>
 </html>

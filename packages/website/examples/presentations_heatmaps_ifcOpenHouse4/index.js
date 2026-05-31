@@ -90,7 +90,8 @@ async function main() {
         }
     });
 
-    studio.viewFit(view);
+    studio.viewManager.fitToAabb(view, studio.picking.collisionIndex.getSceneAABB());
+    studio.openInfoPanelFromMeta();
     studio.finished();
 
     // ── Interactive brush.

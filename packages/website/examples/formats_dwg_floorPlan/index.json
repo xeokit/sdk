@@ -1,0 +1,19 @@
+{
+  "id": "formats_dwg_floorPlan",
+  "title": "Loading the FloorPlan DWG via libredwg-web + DWGLoader",
+  "description": "Loads `models/FloorPlan/dwg/model.dwg` end-to-end via `DWGLoader` — the SDK's adapter-injected DWG pipeline. DWG is AutoCAD's proprietary binary format and the SDK doesn't bundle a parser; this example wires `@mlightcad/libredwg-web` (Emscripten port of GNU libredwg, GPL-3.0) from a CDN. The DWGAdapter parses the bytes with libredwg, walks the resulting `DwgDatabase.entities`, maps each entity to the SDK's `DWGDocument` shape (LINE → LINE, LWPOLYLINE → LWPOLYLINE, CIRCLE → CIRCLE, ARC → ARC with degree→radian conversion, ELLIPSE / POINT / 3DFACE / INSERT / TEXT / MTEXT pass through with similar normalisation), and hands the resulting document to DWGLoader for SceneModel emission. Layer name becomes the SceneObject id; AutoCAD Color Index maps through DWGLoader's ACI palette. Camera auto-fits to the loaded scene's AABB.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "DWG",
+    "AutoCAD",
+    "Loader",
+    "WASM",
+    "FloorPlan"
+  ],
+  "categories": [
+    "Formats",
+    "Drawings"
+  ],
+  "topic": "formats.dwg"
+}

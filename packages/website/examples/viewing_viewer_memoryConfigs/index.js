@@ -69,6 +69,7 @@ studio
             // Mark the demo as finished once loading succeeds.
             // At this point the model is ready for interaction.
 
+            studio.openInfoPanelFromMeta();
             studio.finished();
           });
         });

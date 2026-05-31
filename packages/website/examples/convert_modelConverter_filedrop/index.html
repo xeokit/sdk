@@ -1,0 +1,223 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Interactive ModelConverter — drop, convert, download</title>
+    <link href="../../css/example-page.css" rel="stylesheet"/>
+    <style>
+        body {
+            background-color: white;
+            overflow: hidden;
+            margin: 0;
+            user-select: none;
+        }
+
+        #demoCanvas {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            background: white;
+            border: 0;
+        }
+
+        #demoControls {
+            position: absolute;
+            top: 74px;
+            left: 14px;
+            z-index: 200000;
+            width: 280px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 12px 14px;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            font-size: 12.5px;
+            color: #1f2937;
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid #e6e6e6;
+            border-radius: 10px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.10);
+            user-select: none;
+        }
+
+        #demoControls .ctl-section {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ececec;
+        }
+
+        #demoControls .ctl-section:last-child {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        #demoControls .ctl-title {
+            font-weight: 650;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #2d5e8c;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        #demoControls .ctl-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #demoControls .ctl-row > label {
+            flex: 0 0 80px;
+        }
+
+        #demoControls .ctl-val {
+            flex: 1 1 auto;
+            color: #475569;
+            font-variant-numeric: tabular-nums;
+            text-align: right;
+            word-break: break-all;
+        }
+
+        #demoControls select {
+            flex: 1 1 auto;
+            font: inherit;
+            padding: 1px 4px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        #dropZone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 22px 10px;
+            text-align: center;
+            color: #64748b;
+            background: #fafbfc;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s;
+        }
+
+        #dropZone.hover {
+            border-color: #2d5e8c;
+            background: #eef4fa;
+            color: #2d5e8c;
+        }
+
+        #dropZone strong {
+            color: #1f2937;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        button {
+            font: inherit;
+            padding: 6px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            background: #2d5e8c;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background: #cbd5e1;
+            color: #f3f4f6;
+            cursor: not-allowed;
+        }
+
+        button.secondary {
+            background: #fff;
+            color: #2d5e8c;
+        }
+
+        button.secondary:disabled {
+            color: #cbd5e1;
+        }
+
+        #status {
+            font-size: 11.5px;
+            color: #475569;
+            min-height: 1.4em;
+        }
+
+        #status.error {
+            color: #b91c1c;
+        }
+
+        #status.ok {
+            color: #15803d;
+        }
+    </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="demoControls">
+
+    <div class="ctl-section">
+        <div class="ctl-title">Model Converter</div>
+        <div id="dropZone">
+            <strong>Drop a model file here</strong><br/>
+            or click to browse
+        </div>
+        <input type="file" id="fileInput"/>
+    </div>
+
+    <div class="ctl-section">
+        <div class="ctl-title">Input</div>
+        <div class="ctl-row">
+            <label>File</label>
+            <span class="ctl-val" id="inputFile">—</span>
+        </div>
+        <div class="ctl-row">
+            <label>Format</label>
+            <span class="ctl-val" id="inputFormat">—</span>
+        </div>
+        <div class="ctl-row">
+            <label>Size</label>
+            <span class="ctl-val" id="inputSize">—</span>
+        </div>
+        <div class="ctl-row">
+            <label for="inputBasis">Frame</label>
+            <select id="inputBasis"></select>
+        </div>
+    </div>
+
+    <div class="ctl-section">
+        <div class="ctl-title">Output</div>
+        <div class="ctl-row">
+            <label for="outputFormat">Format</label>
+            <select id="outputFormat">
+                <option value="dotbim" selected>.bim — DotBIM</option>
+                <option value="xgf">.xgf — XGF</option>
+                <option value="scenemodel">.json — SceneModelParams</option>
+                <option value="datamodel">.json — DataModelParams</option>
+                <option value="ifc">.ifc — IFC STEP</option>
+                <option value="rvm">.rvm — AVEVA RVM</option>
+            </select>
+        </div>
+        <div class="ctl-row">
+            <label for="outputBasis">Frame</label>
+            <select id="outputBasis"></select>
+        </div>
+    </div>
+
+    <div class="ctl-section">
+        <div class="ctl-row">
+            <button id="convertBtn" disabled>Convert</button>
+            <button id="downloadBtn" class="secondary" disabled>Download</button>
+        </div>
+        <div id="status">Drop or pick a model file to begin.</div>
+    </div>
+
+</div>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

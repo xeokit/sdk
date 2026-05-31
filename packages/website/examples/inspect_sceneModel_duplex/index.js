@@ -91,8 +91,9 @@ studio.init({logging: false}).then(async () => {
     const report = await panel.inspect("Inspecting model");
     if (!report) return;     // user cancelled the initial inspect
 
-    studio.viewFit(view);
+    studio.viewManager.fitToAabb(view, studio.picking.collisionIndex.getSceneAABB());
 
+    studio.openInfoPanelFromMeta();
     studio.finished();
   } catch (err) {
     status.textContent = `Failed to load ${modelId} (${formats.join(", ")}): ${err.message || err}`;

@@ -87,5 +87,6 @@ studio.init().then(() => {
   // view.setObjectsHighlighted(view.highlightedObjectIds, false);
 
   // Signal that the demo has finished initializing.
+  studio.openInfoPanelFromMeta();
   studio.finished();
 });

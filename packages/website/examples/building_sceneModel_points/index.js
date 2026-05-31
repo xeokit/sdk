@@ -101,6 +101,7 @@ studio.init().then(() => {
   });
 
   // Signal that setup has completed.
+  studio.openInfoPanelFromMeta();
   studio.finished();
 
   // Continuously orbit the camera to provide a simple animated view

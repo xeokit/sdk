@@ -168,6 +168,7 @@ studio
         throw new Error("Unable to populate SceneModel from params: " + fromParamsResult.error);
       }
 
+      studio.openInfoPanelFromMeta();
       studio.finished();
     });
 

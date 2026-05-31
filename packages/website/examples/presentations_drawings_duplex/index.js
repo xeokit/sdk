@@ -39,7 +39,11 @@ studio.init().then(() => {
       eye:  [55.0, -35.0, 35.0],
       look: [5.0,  5.0,   3.0],
       up:   [0,    0,     1]
-    }
+    },
+    // DetailedRender is the mode that actually rasterises the
+    // per-material `hatchPattern` set by `applyIFCMaterials` below.
+    // RealisticRender would render the same materials un-hatched.
+    renderMode: xeokit.base.constants.DetailedRender,
   });
 
   // Exercise the quad-expanded thick-line technique. Setting this
@@ -49,15 +53,56 @@ studio.init().then(() => {
   // LinesPrimitive geometry the demo renders all pick this up.
   view.linesMaterial.lineWidth = 3;
 
+  // 3D section plane that slices the source building at the
+  // current "Z cut" depth. `dir: [0, 0, 1]` discards the half-
+  // space above the plane (world-Z up), matching the plan-view
+  // convention the drawings panel uses for its 2D clip + caps.
+  // The plane stays inactive until the user toggles Clip; the
+  // initial pos.z just mirrors the slider's default so a later
+  // toggle without any slider interaction reads as expected.
+  // The drawing projection ViewObjects get `clippable = false`
+  // after each buildDrawing so this plane only ever affects the
+  // building.
+  const clipPlaneRes = view.createSectionPlane({
+    id: "duplex_clip",
+    pos: [0, 0, 2.5],
+    dir: [0, 0, 1],
+    active: false,
+  });
+  if (!clipPlaneRes.ok) {
+    console.error("createSectionPlane:", clipPlaneRes.error);
+  }
+  const clipPlane = clipPlaneRes.ok ? clipPlaneRes.value : null;
+
+  // Push the current Clip / Z-cut control values to the section
+  // plane. Called immediately from the input listeners below
+  // (no debounce) so toggling Clip feels instant — the drawings
+  // rebuild still rides the 120 ms debouncer.
+  const applyClipState = () => {
+    if (!clipPlane) return;
+    clipPlane.active = document.getElementById("cfgClip").checked;
+    clipPlane.pos = [0, 0, Number(document.getElementById("cfgClipDepth").value)];
+  };
+  document.getElementById("cfgClip").addEventListener("change", applyClipState);
+  document.getElementById("cfgClipDepth").addEventListener("input", applyClipState);
+  applyClipState();
+
   const sceneModelResult = scene.createModel({
     id: "duplex",
     coordinateSystem: {
-      // Column-major basis declaring the SceneModel as Y-up:
-      //   right   = (+1, 0, 0)   // X
-      //   up      = ( 0,+1, 0)   // Y       ← source vertical axis
-      //   forward = ( 0, 0,+1)   // Z
-      // Scene reads this and rotates source Y into world Z.
-      basis: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      // Left-handed Y-up declaration: same X-right and Y-up as the
+      // identity basis, but Z-forward is negated. Combined with the
+      // Scene's right-handed Z-up basis swap, the composite
+      // mesh.worldMatrix becomes a *rotation* (det=+1) — `(x, y, z)
+      // → (x, -z, y)` — rather than the reflection (det=-1) the
+      // identity basis produces. The rotation preserves triangle
+      // winding, which is what buildSectionCaps needs to classify
+      // outer rings correctly; the reflection silently produced
+      // all-hole loops and zero caps. The visible side effect: world Y
+      // is now the negation of the source's other horizontal axis, so
+      // the model is mirrored along world Y relative to the identity-
+      // basis rendering. World Z (vertical) is unchanged.
+      basis: [1, 0, 0, 0, 1, 0, 0, 0, -1],
       origin: [0, 0, 0],
       units: "meters",
       scaleToMeters: 1
@@ -83,7 +128,7 @@ studio.init().then(() => {
         // onto each of three AABB faces. Pass an explicit AABB taken
         // from the Studio's collision index so the three planes
         // sit on the model's true world-space extent.
-        const aabb = studio.collisionIndex.getSceneAABB();
+        const aabb = studio.picking.collisionIndex.getSceneAABB();
 
         // Skip projection entirely on sources with no
         // triangle-bearing geometry — point clouds, line-only
@@ -93,6 +138,7 @@ studio.init().then(() => {
         if (!xeokit.presentations.drawings.canBuildDrawing(
               sourceSceneModel, "either")) {
           console.warn("source has no projectable edges or fills");
+          studio.openInfoPanelFromMeta();
           studio.finished();
           return;
         }
@@ -264,6 +310,15 @@ studio.init().then(() => {
             // the viewer can click anywhere on the drawing.
             const frameVO = view.objects[`duplex__${face}__frame`];
             if (frameVO) frameVO.pickable = false;
+
+            // The 3D section plane is meant for the source building
+            // only — opt every projected SceneObject out of clipping
+            // so the drawing panels stay whole regardless of the
+            // current cut depth.
+            for (const id of Object.keys(targetModel.objects)) {
+              const vo = view.objects[id];
+              if (vo) vo.clippable = false;
+            }
           }
 
           // Compose section caps onto the plan view as a SECOND
@@ -301,10 +356,16 @@ studio.init().then(() => {
           }
           capsModel = capsRes.value;
 
+          // 3D cap colour — neutral light grey reads as a real cut
+          // surface against the building materials. Kept distinct
+          // from `capFillColor` below, which is the warmer drawing-
+          // convention fill used in the 2D plan-view projection.
+          const cap3DColor = [0.85, 0.85, 0.85];
           const capsBuild = await xeokit.presentations.sectionCaps.buildSectionCaps({
             sourceModel: sourceSceneModel,
             targetModel: capsModel,
             capPlanes:   [{dir: [0, 0, 1], dist: -cfg.clipDepth}],
+            capColor:    cap3DColor,
           });
           if (generation !== myGen) return;
           if (capsBuild.ok === false) {
@@ -316,14 +377,55 @@ studio.init().then(() => {
             return;
           }
 
-          // Hide the 3D caps from the View. The caps exist only to
-          // feed the drawing projection below; rendering them in 3D
-          // too would draw a horizontal slab floating inside the
-          // (unclipped) building.
+          // buildSectionCaps returns ok even when the cut plane
+          // didn't actually produce any caps — either the plane
+          // missed the model entirely or every straddling mesh
+          // was non-watertight (counted in numUnclosedMeshes).
+          // Projecting an empty source through buildDrawing would
+          // surface as the misleading "no projectable edges or
+          // fills" error, so bail here with a clearer log.
+          const {numObjectsWithCaps, numUnclosedMeshes} = capsBuild.value;
+          if (numObjectsWithCaps === 0) {
+            console.warn(
+              `[section caps] no caps generated at Z=${cfg.clipDepth}` +
+              (numUnclosedMeshes > 0
+                ? ` — ${numUnclosedMeshes} straddling mesh(es) were non-watertight`
+                : " — cut plane outside model extent")
+            );
+            xeokit.presentations.sectionCaps.clearSectionCaps(capsModel);
+            capsModel = null;
+            return;
+          }
+
+          // Show the caps in 3D as the cross-section fill, and opt
+          // them out of the section plane. The caps live exactly on
+          // the cut plane, so leaving them clippable lets per-
+          // fragment precision flip them on and off across the
+          // boundary — the visible shimmer the user was seeing.
+          // Same loop also stamps the engineering-drawing hatch
+          // onto each cap material — ANSI 31 (45° diagonal lines)
+          // is the universal "cut surface" pattern. The hatch only
+          // renders in DetailedRender mode (set on the View above);
+          // the source building's IFC-derived materials stay
+          // un-hatched, so only the cut faces read as engineering
+          // cross-sections.
           for (const id of Object.keys(capsModel.objects)) {
             const vo = view.objects[id];
-            if (vo) vo.visible = false;
+            if (vo) vo.clippable = false;
+            const obj = capsModel.objects[id];
+            if (obj) {
+              for (const m of obj.meshes) {
+                if (m.material) m.material.hatchPattern = "ansi31";
+              }
+            }
           }
+
+          // Cap fills in the drawing are gated on the Fill toggle —
+          // mirrors the building's own buildDrawing logic, which
+          // emits fills only when `cfg.fill` is on. The 3D caps
+          // remain regardless; we just don't compose them into the
+          // 2D drawing when the user has fills turned off.
+          if (!cfg.fill) return;
 
           // Project the caps SceneModel into the SAME plan-view
           // drawing target as the building's wireframe. Matching
@@ -413,7 +515,7 @@ studio.init().then(() => {
         const canvas = view.htmlElement;
         canvas.addEventListener("click", (ev) => {
           const rect = canvas.getBoundingClientRect();
-          const pick = studio.picker.pick({
+          const pick = studio.picking.picker.pick({
             view,
             canvasPos: [ev.clientX - rect.left, ev.clientY - rect.top]
           });

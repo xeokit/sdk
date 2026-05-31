@@ -1,7 +1,7 @@
 {
   "id": "viewing_effects_cityscape",
   "title": "Full Effects Stack on the Cityscape Model",
-  "description": "Every post-process and shading knob on one Cityscape XGF model \u2014 SAO, cascaded directional shadows, edges with depth fade, ACES tonemap with supersampling, hemispherical IBL, bloom, and FXAA. Collapsible sections let you tune each effect in isolation.",
+  "description": "Every post-process and shading knob on one Cityscape XGF model — SAO, cascaded directional shadows, edges with depth fade, ACES tonemap with supersampling, hemispherical IBL, bloom, and FXAA. Collapsible sections let you tune each effect in isolation.",
   "isTutorial": true,
   "isVisualTest": false,
   "tags": [

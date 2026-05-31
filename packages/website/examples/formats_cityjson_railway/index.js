@@ -77,6 +77,7 @@ studio.init().then(() => {
             // corresponding semantic objects. Each View also contains a
             // ViewObject for each SceneObject, allowing per-view appearance
             // control.
+            studio.openInfoPanelFromMeta();
             studio.finished();
 
           }).catch(message => {

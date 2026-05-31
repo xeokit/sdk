@@ -137,5 +137,6 @@ studio.init().then(() => {
     }
   });
 
+  studio.openInfoPanelFromMeta();
   studio.finished();
 });

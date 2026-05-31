@@ -5,6 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>WebGLRenderer — snap-to-vertex / snap-to-edge</title>
+  <link href="../../css/example-page.css" rel="stylesheet"/>
   <style>
     body {
       background-color: #f6f7f9;
@@ -22,52 +23,8 @@
       border: 0;
     }
 
-    /* Top-left intro card — explains the demo and what each marker
-       colour means. Sits below the demo chrome's "<< Index" button. */
-    #intro {
-      position: absolute;
-      top: 86px;
-      left: 12px;
-      max-width: 380px;
-      padding: 10px 14px;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      border: 1px solid rgba(0, 0, 0, 0.1);
-      border-radius: 6px;
-      color: #333;
-      font-size: 12px;
-      line-height: 1.45;
-      z-index: 300000;
-    }
-    #intro strong { color: #111; }
-    #intro .legend {
-      display: flex;
-      gap: 12px;
-      margin-top: 8px;
-      flex-wrap: wrap;
-    }
-    #intro .swatch {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-    }
-    #intro .swatch::before {
-      content: "";
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      border: 1px solid rgba(0, 0, 0, 0.2);
-    }
-    #intro .swatch.vertex::before  { background: #d04040; }
-    #intro .swatch.edge::before    { background: #d6a020; }
-    #intro .swatch.surface::before { background: #2c7e6f; }
-
     /* Top-right status badge — shows what kind of snap (if any) the
-       cursor is currently sitting on. Sits below the demo chrome
-       buttons that anchor at the top of the viewport. */
+       cursor is currently sitting on. */
     #status {
       position: absolute;
       top: 142px;
@@ -91,9 +48,7 @@
     #status[data-mode="surface"] { color: #fff; background: #2c7e6f; border-color: #1d5e52; }
 
     /* HTML snap marker. Positioned via top/left from JS each frame —
-       transform centres the dot on the snapped pixel. Pointer events
-       are disabled so the marker never steals mouse events from the
-       canvas underneath. */
+       transform centres the dot on the snapped pixel. */
     #marker {
       position: absolute;
       top: 0;
@@ -116,16 +71,6 @@
 <body>
 <canvas id="demoCanvas"></canvas>
 <div id="marker"></div>
-<div id="intro">
-  Move the cursor over the table — the marker snaps to the nearest
-  <strong>vertex</strong>, <strong>edge</strong>, or surface within
-  ~30 pixels.
-  <div class="legend">
-    <span class="swatch vertex">Vertex</span>
-    <span class="swatch edge">Edge</span>
-    <span class="swatch surface">Surface</span>
-  </div>
-</div>
 <div id="status" data-mode="none">No snap</div>
 <script type="module" src="./index.js"></script>
 </body>

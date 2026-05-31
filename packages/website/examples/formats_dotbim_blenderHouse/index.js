@@ -126,6 +126,7 @@ studio.init().then(() => {
                   view3.setObjectsXRayed(view3.objectIds, true);
 
                   // Signal that loading and setup have completed.
+                  studio.openInfoPanelFromMeta();
                   studio.finished();
 
                   // Optional: enable exploded view visualization using the
@@ -133,7 +134,7 @@ studio.init().then(() => {
                   // const exploder = new xeokit.studio.SceneModelExploder({
                   //   scene,
                   //   sceneModel,
-                  //   collisionIndex: studio.collisionIndex
+                  //   collisionIndex: studio.picking.collisionIndex
                   // });
                   // exploder.rebuild();
 

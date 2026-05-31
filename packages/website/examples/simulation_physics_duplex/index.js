@@ -101,7 +101,7 @@ studio.init().then(() => {
     // little margin, regardless of where the building lands in space.
     // -----------------------------------------------------------------
 
-    const buildingAABB = studio.collisionIndex.getSceneAABB();
+    const buildingAABB = studio.picking.collisionIndex.getSceneAABB();
     const slabModel = mustOK(scene.createModel({
       id: "slabModel",
       coordinateSystem: Z_UP_BASIS
@@ -284,6 +284,7 @@ studio.init().then(() => {
     status.textContent = "Click \"Initiate collapse\" to drop the building under gravity.";
     requestAnimationFrame(tick);
 
+    studio.openInfoPanelFromMeta();
     studio.finished();
 
   }).catch(err => {

@@ -119,6 +119,7 @@ studio.init().then(() => {
                 }
 
                 // Signal that loading and setup have completed.
+                studio.openInfoPanelFromMeta();
                 studio.finished();
 
               }).catch(e => {

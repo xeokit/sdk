@@ -1,0 +1,18 @@
+{
+  "id": "presentations_cameraTour_OTCConferenceCenter",
+  "title": "Automatic camera walkthrough of the OTC Conference Center IFC model",
+  "description": "Loads the Conference Center IFC model, plans a room-by-room camera walkthrough via presentations.cameraTour.planCameraTour, and drives the View's Camera through the resulting waypoints with playCameraTour. The planner walks the IfcSpace + IfcDoor graph, samples 8 visibility-scored viewpoint candidates per room, orders the visit with 2-opt-refined greedy nearest-neighbour, and inserts portal-transit waypoints at door centroids; the player dwells 2.5s at each room and eases between them over 2s. Inspired by Liu, Xu & Sun (2012), 'Automatic camera path planning for IFC building models'.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "tags": [
+    "IFC",
+    "CameraTour",
+    "Walkthrough",
+    "Presentations"
+  ],
+  "categories": [
+    "Presentations",
+    "Camera"
+  ],
+  "topic": "presentations.cameraTour"
+}

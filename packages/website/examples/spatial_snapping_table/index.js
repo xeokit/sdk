@@ -30,18 +30,6 @@ studio.init().then(() => {
     },
   });
 
-  // NavCube widget — mirrors the View camera and lets us click a
-  // face / edge / corner to fly to that canonical view. Wrapped
-  // in the floating-panel chrome (draggable header + close button
-  // + reopen pill + layout persistence) so it composes with the
-  // other demo panels.
-  new xeokit.studio.navCube.NavCube({
-    view,
-    cameraFlight: studio.views[view.id].cameraFlight,
-    cameraFly: false,
-    size: 110,
-  });
-
   // ── SceneModel: a 4-legged table built from one shared box
   //    geometry instanced as five meshes. Plenty of vertices and
   //    edges for the snap pipeline to land on.
@@ -90,8 +78,17 @@ studio.init().then(() => {
   const statusEl = document.getElementById("status");
 
   view.htmlElement.addEventListener("mousemove", (e) => {
+    // Canvas-relative coords via getBoundingClientRect — survives
+    // floating panels and any layout that shifts the canvas off the
+    // page origin. `e.offsetX/Y` is target-relative and goes wrong as
+    // soon as the event bubbles from a child or the canvas isn't at
+    // (0,0) on the page.
+    const rect = view.htmlElement.getBoundingClientRect();
+    const canvasX = e.clientX - rect.left;
+    const canvasY = e.clientY - rect.top;
+
     const result = renderer.pick(view, {
-      canvasPos:    [e.offsetX, e.offsetY],
+      canvasPos:    [canvasX, canvasY],
       snapToVertex: true,
       snapToEdge:   true,
       snapRadius:   SNAP_RADIUS_PX,
@@ -117,13 +114,15 @@ studio.init().then(() => {
     else                      { mode = "surface"; label = "Surface pick";  }
 
     // Snap hits give us a projected canvas position for the snapped
-    // point; surface picks don't, so fall back to the cursor.
-    const x = snappedCanvasPos ? snappedCanvasPos[0] : e.offsetX;
-    const y = snappedCanvasPos ? snappedCanvasPos[1] : e.offsetY;
+    // point; surface picks don't, so fall back to the cursor. Both
+    // are canvas-relative — convert back to viewport coords for the
+    // marker, which is position:absolute on <body>.
+    const x = snappedCanvasPos ? snappedCanvasPos[0] : canvasX;
+    const y = snappedCanvasPos ? snappedCanvasPos[1] : canvasY;
 
     markerEl.style.display = "block";
-    markerEl.style.left = `${x}px`;
-    markerEl.style.top  = `${y}px`;
+    markerEl.style.left = `${x + rect.left}px`;
+    markerEl.style.top  = `${y + rect.top}px`;
     markerEl.dataset.mode = mode;
 
     statusEl.textContent  = label;
@@ -138,6 +137,16 @@ studio.init().then(() => {
     statusEl.textContent = "No snap";
     statusEl.dataset.mode = "none";
   }
+
+  studio.openInfoPanel({
+    id:    "spatial_snapping_table",
+    title: "Snap to vertex / edge / surface",
+    description:
+      "<p>Move the cursor over the table — the marker snaps to the " +
+      "nearest <b>vertex</b> (red), <b>edge</b> (amber), or <b>surface</b> " +
+      "(teal) within ~30 pixels. The current snap mode is also shown in " +
+      "the badge at top-right.</p>",
+  });
 
   studio.finished();
 });

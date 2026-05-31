@@ -42,13 +42,6 @@ studio.init().then(() => {
     },
   });
 
-  new xeokit.studio.navCube.NavCube({
-    view,
-    cameraFlight: studio.views[view.id].cameraFlight,
-    cameraFly: false,
-    size: 110,
-  });
-
   // Thick lines on every WebGL2 backend. The quad-expanded
   // technique reads this value uniformly; legacy `gl.LINES`
   // would be clamped to 1 px on Windows/ANGLE.
@@ -180,27 +173,37 @@ studio.init().then(() => {
     statusEl.dataset.mode = "none";
   }
 
+  // ── Info panel ──────────────────────────────────────────────
+  const info = studio.openInfoPanel({
+    id:    "spatial_snapping_thickLines",
+    title: "Snap to thick lines",
+    description:
+      "<p>Six thick-line shapes — each with its own " +
+      "<code>linePattern</code>. Move the cursor over any of them " +
+      "and the marker snaps to the nearest vertex (red) or edge " +
+      "(amber) within ~30 px. Snap ignores dash gaps so dashed " +
+      "lines are still snappable along their full length.</p>" +
+      "<p>Per-material override: pentagram dashed · Z dotted · " +
+      "triangle dash-dot · plus dash-dot-dot · octagon " +
+      "<code>[5,1,1,1]</code>. The <b>box</b> has no per-material " +
+      "override and follows the view-level pattern below.</p>",
+  });
   // View-level linePattern picker. Only affects the box (which
   // has no per-material override). The five other shapes keep
   // their own per-material patterns — that's the per-material
   // override path being demonstrated.
-  const switcherEl = document.getElementById("styleSwitcher");
-  const buttons    = Array.from(switcherEl.querySelectorAll("button"));
-  function syncSwitcher() {
-    const current = view.linesMaterial.linePattern;
-    for (const btn of buttons) {
-      btn.setAttribute("aria-pressed", String(btn.dataset.style === current));
-    }
-  }
-  switcherEl.addEventListener("click", (e) => {
-    const target = e.target;
-    if (!(target instanceof HTMLButtonElement)) return;
-    const style = target.dataset.style;
-    if (!style) return;
-    view.linesMaterial.linePattern = style;
-    syncSwitcher();
+  info.addRadioGroup({
+    label:    "Box line pattern",
+    value:    view.linesMaterial.linePattern,
+    options:  [
+      {value: "solid",      label: "solid"},
+      {value: "dashed",     label: "dashed"},
+      {value: "dotted",     label: "dotted"},
+      {value: "dashDot",    label: "dash-dot"},
+      {value: "dashDotDot", label: "dash-dot-dot"},
+    ],
+    onChange: (v) => { view.linesMaterial.linePattern = v; },
   });
-  syncSwitcher();
 
   studio.finished();
 });

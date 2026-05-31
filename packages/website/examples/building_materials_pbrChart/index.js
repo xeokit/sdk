@@ -209,6 +209,7 @@ studio.init().then(() => {
 
   view.effects.tonemap.mode = "aces";
 
+  studio.openInfoPanelFromMeta();
   studio.finished();
 });
 

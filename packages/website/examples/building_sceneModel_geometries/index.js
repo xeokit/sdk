@@ -361,5 +361,6 @@ studio.init().then(() => {
   // studio.viewFit();
   // studio.orbit();
 
+  studio.openInfoPanelFromMeta();
   studio.finished();
 });

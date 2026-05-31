@@ -1,0 +1,19 @@
+{
+  "id": "presentations_heatmaps_solar_pipes",
+  "title": "Live Thermography on a Procgen Pipe-Rack",
+  "description": "Suggests a thermal-imaging use case for the dynamic heat-map pipeline. Builds an industrial-pipework ensemble from procgen.geometry — a hemispherical-capped pressure vessel, a valve body, a concentric reducer, a flanged spool (all buildLathe), an arched conduit run and a heat-exchanger coil (buildExtrude). A glowing orange sphere weaves through the rack and the per-vertex heat (Lambert × inverse-square falloff) is repainted into each part's heat-map texture every tick. Surfaces close to the source AND facing it light up; surfaces in the shadow of the rack stay cold.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "Materials",
+    "Procedural",
+    "HeatMap",
+    "Animation",
+    "Procgen"
+  ],
+  "categories": [
+    "Materials",
+    "Demo Helpers"
+  ],
+  "topic": "materials.procedural"
+}

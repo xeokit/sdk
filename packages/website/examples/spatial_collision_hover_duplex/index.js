@@ -180,6 +180,7 @@ studio.init().then(() => {
           statusHitCount.textContent = "0";
         });
 
+        studio.openInfoPanelFromMeta();
         studio.finished();
 
       }).catch(e => console.error(e));

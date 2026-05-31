@@ -1,0 +1,18 @@
+{
+  "id": "formats_dxf_floorPlan",
+  "title": "Importing a DXF drawing via the injectable adapter pattern",
+  "description": "Loads an AutoCAD DXF document via `DXFLoader` — same injection pattern as `PDFLoader` / `SVGLoader` / `DWGLoader`. DXF is the open ASCII sibling of DWG and is parseable in-browser without WASM; the SDK still doesn't bundle a parser since several mature npm packages exist (`dxf-parser`, `dxf`). This example ships a TINY hand-rolled DXF group-code reader (~150 lines, no dependencies) as the adapter — useful when bundle size matters more than feature coverage. The synthesised DXF text covers LINE / LWPOLYLINE / CIRCLE / ARC / 3DFACE / INSERT / TEXT entities plus a BLOCKS section so block expansion is exercised. `DXFLoader` reuses `DWGLoader`'s entity-walking pipeline internally, so DXF and DWG share their entire emission path; only the parsing layer differs.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "tags": [
+    "DXF",
+    "AutoCAD",
+    "Loader",
+    "Drawings"
+  ],
+  "categories": [
+    "Formats",
+    "Drawings"
+  ],
+  "topic": "formats.dxf"
+}

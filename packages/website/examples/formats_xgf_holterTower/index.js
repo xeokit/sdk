@@ -100,6 +100,7 @@ studio.init({
             //
             // view.setObjectsSelected(resultObjectIds, true);
 
+            studio.openInfoPanelFromMeta();
             studio.finished();
 
 

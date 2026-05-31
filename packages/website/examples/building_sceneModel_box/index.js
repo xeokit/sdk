@@ -141,6 +141,7 @@ studio.init().then(() => {
 
   // Signal that initialization is complete. This typically hides any
   // loading UI managed by the Studio.
+  studio.openInfoPanelFromMeta();
   studio.finished();
 
   // Continuously orbit the camera around the model to demonstrate the

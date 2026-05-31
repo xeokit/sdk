@@ -1,0 +1,18 @@
+{
+  "id": "viewing_sectionPlane_duplex",
+  "title": "SectionPlane through the centre of Duplex (XGF)",
+  "description": "Load the Duplex XGF model and place a single horizontal SectionPlane through its AABB centre. A slider nudges the plane along its normal.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "SectionPlane",
+    "Slicing",
+    "XGF",
+    "Duplex"
+  ],
+  "categories": [
+    "Viewing",
+    "Slicing"
+  ],
+  "topic": "viewing.sectionPlane"
+}

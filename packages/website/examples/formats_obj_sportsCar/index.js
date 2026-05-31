@@ -124,7 +124,7 @@ studio.init().then(() => {
       const exploder = new xeokit.presentations.exploder.SceneModelExploder({
         scene,
         sceneModel,
-        collisionIndex: studio.collisionIndex
+        collisionIndex: studio.picking.collisionIndex
       });
 
       exploder.rebuild();
@@ -133,6 +133,7 @@ studio.init().then(() => {
 
       view2.setObjectsXRayed(view2.objectIds.slice(30,40), false);
 
+      studio.openInfoPanelFromMeta();
       studio.finished();
     })
     .catch((message) => {

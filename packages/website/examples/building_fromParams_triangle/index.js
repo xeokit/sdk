@@ -72,6 +72,7 @@ studio
       // view.objects["triangleObject"].highlighted = true;
 
       // Signal that the demo has finished initializing.
+      studio.openInfoPanelFromMeta();
       studio.finished();
 
     });

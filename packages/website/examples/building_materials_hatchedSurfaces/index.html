@@ -5,6 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SceneMaterial — hatch patterns on triangle surfaces</title>
+  <link href="../../css/example-page.css" rel="stylesheet"/>
   <style>
     body {
       background-color: #f6f7f9;
@@ -20,88 +21,10 @@
       background: white;
       border: 0;
     }
-    #intro {
-      position: absolute;
-      top: 86px;
-      left: 12px;
-      max-width: 440px;
-      padding: 10px 14px;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      border: 1px solid rgba(0, 0, 0, 0.1);
-      border-radius: 6px;
-      color: #333;
-      font-size: 12px;
-      line-height: 1.45;
-      z-index: 300000;
-    }
-    #intro code {
-      background: rgba(0, 0, 0, 0.05);
-      padding: 0 4px;
-      border-radius: 3px;
-    }
-    #spacePicker {
-      display: flex;
-      gap: 4px;
-      margin-top: 10px;
-    }
-    #spacePicker button {
-      font: inherit;
-      font-size: 11px;
-      padding: 4px 10px;
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      background: rgba(255, 255, 255, 0.6);
-      border-radius: 4px;
-      cursor: pointer;
-      color: #333;
-    }
-    #spacePicker button:hover { background: rgba(0, 0, 0, 0.05); }
-    #spacePicker button[aria-pressed="true"] {
-      background: #2c7e6f;
-      border-color: #1d5e52;
-      color: #fff;
-    }
   </style>
 </head>
 <body>
 <canvas id="demoCanvas"></canvas>
-<div id="intro">
-  Six sphere-on-cube pairs — each pair shares a
-  <code>SceneMaterial</code> with a different
-  <code>hatchPattern</code> from the ANSI/ISO preset library:
-  <strong>solid</strong>,
-  <strong>ANSI32 steel</strong> (cross),
-  <strong>ANSI36 masonry</strong> (brick lattice),
-  <strong>ANSI37 insulation</strong> (wavy lines),
-  <strong>ANSI38 dots</strong>, and a custom three-family fill.
-  Brick / wavy / dots use dedicated SDF paths added beyond the
-  original parallel-line family model. The spheres show how the
-  hatch behaves on curved surfaces — particularly worth
-  comparing across the three coordinate-space modes below.
-
-  <div style="margin-top: 8px; font-size: 11px;">
-    Toggle the hatch <code>space</code> to compare modes:
-    <ul style="margin: 4px 0 0 18px; padding: 0;">
-      <li><strong>screen</strong>: units in pixels, camera-locked.
-        Zoom the canvas — lines stay at constant screen size.</li>
-      <li><strong>world</strong>: units in world coords, locked
-        to the world XY plane. Faces parallel to the hatch
-        normal show no ink for that family (the planes never
-        cross the face — try the box's vertical faces).</li>
-      <li><strong>tangent</strong>: units in world coords,
-        projected onto a per-fragment surface basis from
-        <code>dFdx/dFdy(vWorldPos)</code>. Every face shows the
-        hatch regardless of orientation, like printed material.</li>
-    </ul>
-  </div>
-
-  <div id="spacePicker" role="radiogroup" aria-label="Hatch coordinate space">
-    <button type="button" data-space="screen"  aria-pressed="false">screen-space</button>
-    <button type="button" data-space="world"   aria-pressed="false">world-space</button>
-    <button type="button" data-space="tangent" aria-pressed="false">tangent-space</button>
-  </div>
-</div>
 <script type="module" src="./index.js"></script>
 </body>
 </html>

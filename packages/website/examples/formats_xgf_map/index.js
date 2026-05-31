@@ -73,15 +73,12 @@ studio.init().then(() => {
         const exploder = new xeokit.presentations.exploder.SceneModelExploder({
           scene,
           sceneModel,
-          collisionIndex: studio.collisionIndex
+          collisionIndex: studio.picking.collisionIndex
         });
 
         exploder.rebuild();
 
-        // Fit the active View to the loaded model bounds, then signal
-        // that initialization has completed.
-        studio.viewFit(view);
-
+        studio.openInfoPanelFromMeta();
         studio.finished();
 
       }).catch(message => {

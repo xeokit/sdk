@@ -103,6 +103,7 @@ studio.init()
           }
 
           // Signal that setup and loading are complete.
+          studio.openInfoPanelFromMeta();
           studio.finished();
         });
       });

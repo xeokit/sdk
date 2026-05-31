@@ -94,6 +94,7 @@ studio.init().then(() => {
 
         view.renderMode = xeokit.base.constants.DetailedRender;
 
+        studio.openInfoPanelFromMeta();
         studio.finished();
 
       }).catch(message => {

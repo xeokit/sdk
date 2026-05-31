@@ -118,6 +118,7 @@ studio.init().then(() => {
 
       applyViewStates();
 
+      studio.openInfoPanelFromMeta();
       studio.finished();
     })
     .catch(err => {

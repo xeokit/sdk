@@ -1,7 +1,7 @@
 {
   "id": "spatial_collision_hover_duplex",
   "title": "Hover-to-Highlight via SceneCollisionIndex BVH",
-  "description": "Hover the mouse over the Duplex IFC model. Each move event casts a ray through the SceneCollisionIndex BVH, finds the nearest object whose world AABB is hit, and highlights it. No GPU pick \u2014 every hit test runs on the CPU through the self-maintaining bounding-volume hierarchy.",
+  "description": "Hover the mouse over the Duplex IFC model. Each move event casts a ray through the SceneCollisionIndex BVH, finds the nearest object whose world AABB is hit, and highlights it. No GPU pick — every hit test runs on the CPU through the self-maintaining bounding-volume hierarchy.",
   "isTutorial": true,
   "isVisualTest": false,
   "tags": [

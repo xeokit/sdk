@@ -1,0 +1,17 @@
+{
+  "id": "elevations",
+  "title": "Elevations — XGF viewer",
+  "description": "Minimal viewer for the elevations dataset. Loads the pre-converted dataset/model/model.xgf geometry and dataset/model/model.datamodel.json semantic graph, then frames the camera to the model's world AABB.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "tags": [
+    "XGF",
+    "DataModel",
+    "Elevations"
+  ],
+  "categories": [
+    "Importing",
+    "XGF"
+  ],
+  "topic": "import.xgf"
+}

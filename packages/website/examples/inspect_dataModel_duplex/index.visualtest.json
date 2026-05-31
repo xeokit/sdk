@@ -1,0 +1,34 @@
+{
+  "stats": {
+    "startTime": 14617,
+    "endTime": 14871.200000047684,
+    "elapsedTime": 254.20000004768372,
+    "aabb": [],
+    "scene": {
+      "numTransforms": 0,
+      "numObjects": 0,
+      "numMeshes": 0,
+      "numGeometries": 0,
+      "numTextures": 0,
+      "numMaterials": 0,
+      "numTriangles": 0,
+      "numLines": 0,
+      "numPoints": 0,
+      "numVertices": 0,
+      "textureBytes": 0
+    },
+    "data": {
+      "numObjects": 246,
+      "numRelationships": 245,
+      "numPropertySets": 398
+    },
+    "memory": {
+      "allocatedMB": 0.9765625,
+      "usedMB": 0
+    },
+    "renderer": {
+      "tiles": {},
+      "views": []
+    }
+  }
+}

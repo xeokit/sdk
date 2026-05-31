@@ -43,9 +43,9 @@ studio.init().then(() => {
     },
   });
 
-  new xeokit.studio.navCube.NavCube({
+  new xeokit.studio.panels.NavCube({
     view,
-    cameraFlight: studio.views[view.id].cameraFlight,
+    cameraFlight: studio.viewManager.views[view.id].cameraFlight,
     cameraFly: false,
     size: 110,
   });
@@ -181,54 +181,56 @@ studio.init().then(() => {
     };
   }
 
-  bindPicker("hatchPicker", () => currentHatchStyle, (value) => {
-    currentHatchStyle = value;
-    applyHatch();
-  });
-  bindPickerByAttr("hatchSpacePicker", "data-space", () => currentHatchSpace, (value) => {
-    currentHatchSpace = value;
-    applyHatch();
-  });
   applyHatch();
 
-  // ── Line-pattern picker (bottom row) ──
-  bindPicker("linePicker", () => wireMat.linePattern, (value) => {
-    wireMat.linePattern = value;
+  const info = studio.openInfoPanel({
+    id:    "building_materials_mutablePatterns",
+    title: "Mutable material patterns",
+    description:
+      "<p>Two rows of boxes — surface boxes (top) share one " +
+      "<code>SceneMaterial</code>, wireframe boxes (bottom) share " +
+      "another. Picking a preset below updates the material's " +
+      "<code>hatchPattern</code> or <code>linePattern</code> at " +
+      "runtime; the new texel data lands in the per-batch pattern " +
+      "table on the next frame, with no model rebuild and no " +
+      "mesh-side resync.</p>",
+  });
+  info.addRadioGroup({
+    label:    "Hatch pattern",
+    value:    currentHatchStyle,
+    options:  [
+      {value: "solid",         label: "solid"},
+      {value: "lines",         label: "lines"},
+      {value: "cross",         label: "cross"},
+      {value: "diagonalLines", label: "diagonal"},
+      {value: "diagonalCross", label: "diagonal-cross"},
+    ],
+    onChange: (v) => { currentHatchStyle = v; applyHatch(); },
+  });
+  info.addRadioGroup({
+    label:    "Hatch space",
+    value:    currentHatchSpace,
+    options:  [
+      {value: "screen", label: "Screen"},
+      {value: "world",  label: "World"},
+    ],
+    onChange: (v) => { currentHatchSpace = v; applyHatch(); },
+  });
+  info.addRadioGroup({
+    label:    "Line pattern",
+    value:    "solid",
+    options:  [
+      {value: "solid",      label: "solid"},
+      {value: "dashed",     label: "dashed"},
+      {value: "dotted",     label: "dotted"},
+      {value: "dashDot",    label: "dash-dot"},
+      {value: "dashDotDot", label: "dash-dot-dot"},
+    ],
+    onChange: (v) => { wireMat.linePattern = v; },
   });
 
   studio.finished();
 });
-
-
-// Wire one of the radio-style button rows in the intro card.
-// `get` returns the current value (preset name or array); `set`
-// applies a new value from the clicked button. The active
-// button reflects whichever preset is current after each click.
-function bindPicker(rowId, get, set) {
-  return bindPickerByAttr(rowId, "data-style", get, set);
-}
-
-// Generalised variant — used when the data attribute differs
-// from "data-style" (e.g. "data-space" on the hatch-space row).
-function bindPickerByAttr(rowId, attr, get, set) {
-  const row = document.getElementById(rowId);
-  const buttons = Array.from(row.querySelectorAll("button"));
-  function sync() {
-    const current = get();
-    for (const btn of buttons) {
-      btn.setAttribute("aria-pressed", String(btn.getAttribute(attr) === current));
-    }
-  }
-  row.addEventListener("click", (e) => {
-    const target = e.target;
-    if (!(target instanceof HTMLButtonElement)) return;
-    const value = target.getAttribute(attr);
-    if (!value) return;
-    set(value);
-    sync();
-  });
-  sync();
-}
 
 
 function mustCreate(result) {

@@ -1,0 +1,18 @@
+{
+  "id": "formats_pdf_vectorPlan",
+  "title": "Importing a vector PDF — strokes + fills",
+  "description": "Imports a generated vector floor plan PDF, exercising the loader's per-stroke colour + line-weight buckets, filled-region tessellation, and bezier path support.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "PDF",
+    "Drawings",
+    "Fills",
+    "_Featured"
+  ],
+  "categories": [
+    "Importing",
+    "Drawings"
+  ],
+  "topic": "import.pdf"
+}

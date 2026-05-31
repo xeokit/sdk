@@ -299,6 +299,7 @@ studio.init().then(() => {
       view2.htmlElement.addEventListener("contextmenu", e => tryPick(view2, e));
       view3.htmlElement.addEventListener("contextmenu", e => tryPick(view3, e));
 
+      studio.openInfoPanelFromMeta();
       studio.finished();
     })
     .catch((err) => {

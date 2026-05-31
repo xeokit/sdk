@@ -80,9 +80,9 @@ studio.init().then(async () => {
 
   // Place the plane at the centre of the loaded model, with its
   // normal pointing straight up — a horizontal slice through the
-  // building. `studio.collisionIndex` aggregates AABBs across
+  // building. `studio.picking.collisionIndex` aggregates AABBs across
   // every loaded SceneModel; it's the same source `viewFit` uses.
-  const aabb = studio.collisionIndex.getSceneAABB() || [0, 0, 0, 0, 0, 0];
+  const aabb = studio.picking.collisionIndex.getSceneAABB() || [0, 0, 0, 0, 0, 0];
   const centre = [
     (aabb[0] + aabb[3]) * 0.5,
     (aabb[1] + aabb[4]) * 0.5,
@@ -156,12 +156,21 @@ studio.init().then(async () => {
       controls.space === "world" ? "local" : "world");
   });
 
-  // ── Plane on/off toggle ────────────────────────────────────
-  const planeBtn = document.getElementById("planeToggle");
-  planeBtn.addEventListener("click", () => {
-    plane.active = !plane.active;
-    planeBtn.textContent = plane.active ? "on" : "off";
-    planeBtn.setAttribute("aria-pressed", String(plane.active));
+  // ── Info panel ──────────────────────────────────────────────
+  const info = studio.openInfoPanel({
+    id:    "viewing_sectionPlane_transformControls",
+    title: "SectionPlane × TransformControls",
+    description:
+      "<p>Drag the gizmo to slice the model. The gizmo's translation " +
+      "becomes <code>plane.pos</code>; its rotated +Z axis becomes " +
+      "<code>plane.dir</code>.</p>" +
+      "<p><b>G</b> translate &nbsp; <b>R</b> rotate &nbsp; " +
+      "<b>N</b> hide gizmo &nbsp; <b>Q</b> world/local space</p>",
+  });
+  info.addToggle({
+    label:    "Section plane",
+    value:    plane.active,
+    onChange: (on) => { plane.active = on; },
   });
 
   studio.finished();

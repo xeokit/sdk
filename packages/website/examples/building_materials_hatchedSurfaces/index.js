@@ -53,9 +53,9 @@ studio.init().then(() => {
     },
   });
 
-  new xeokit.studio.navCube.NavCube({
+  new xeokit.studio.panels.NavCube({
     view,
-    cameraFlight: studio.views[view.id].cameraFlight,
+    cameraFlight: studio.viewManager.views[view.id].cameraFlight,
     cameraFly: false,
     size: 110,
   });
@@ -216,8 +216,6 @@ studio.init().then(() => {
   // `onSceneMaterialPatternChanged`, and the renderer event
   // path re-encodes the slot in the per-batch
   // HatchPatternTexture — no model rebuild.
-  const picker = document.getElementById("spacePicker");
-  const buttons = Array.from(picker.querySelectorAll("button"));
   function applySpace(space) {
     currentSpace = space;
     for (const id of Object.keys(materialPresets)) {
@@ -225,18 +223,36 @@ studio.init().then(() => {
       if (!material) continue;
       material.hatchPattern = buildHatchPattern(id, space);
     }
-    for (const btn of buttons) {
-      btn.setAttribute("aria-pressed", String(btn.dataset.space === space));
-    }
   }
-  picker.addEventListener("click", (e) => {
-    const target = e.target;
-    if (!(target instanceof HTMLButtonElement)) return;
-    const space = target.dataset.space;
-    if (space !== "screen" && space !== "world" && space !== "tangent") return;
-    applySpace(space);
-  });
   applySpace(currentSpace);
+
+  const info = studio.openInfoPanel({
+    id:    "building_materials_hatchedSurfaces",
+    title: "Hatch patterns on surfaces",
+    description:
+      "<p>Six sphere-on-cube pairs — each pair shares a " +
+      "<code>SceneMaterial</code> with a different " +
+      "<code>hatchPattern</code> preset (solid, ANSI32 steel cross, " +
+      "ANSI36 masonry, ANSI37 insulation, ANSI38 dots, plus a custom " +
+      "three-family fill). Spheres show how the hatch behaves on " +
+      "curved surfaces.</p>" +
+      "<p>Compare the three coordinate-space modes:</p>" +
+      "<p><b>screen</b> — pixels, camera-locked. " +
+      "<b>world</b> — world coords, locked to world XY. Faces " +
+      "parallel to the hatch normal show no ink. " +
+      "<b>tangent</b> — world coords projected onto a per-fragment " +
+      "surface basis; every face shows the hatch like printed material.</p>",
+  });
+  info.addRadioGroup({
+    label:   "Hatch space",
+    value:   currentSpace,
+    options: [
+      {value: "screen",  label: "Screen"},
+      {value: "world",   label: "World"},
+      {value: "tangent", label: "Tangent"},
+    ],
+    onChange: applySpace,
+  });
 
   studio.finished();
 

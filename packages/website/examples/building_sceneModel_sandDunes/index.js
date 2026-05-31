@@ -170,11 +170,63 @@ studio.init().then(() => {
   const numVerts = V * V;
   const numTris  = TILE_CELLS * TILE_CELLS * 2;
 
+  // Brick texture — paint the PBR triple once, upload as three
+  // tileable textures, then bind into a single material that every
+  // tile mesh references. Planar UVs (computed per-vertex below)
+  // tile the brick pattern across the field at one repeat per
+  // BRICK_TILE_M world metres.
+  const TEX_SIZE      = 256;
+  const BRICK_TILE_M  = 6;
+  const brickMaps     = xeokit.model.procgen.paintMaterials.paintBrick(TEX_SIZE);
+
+  sceneModel.createTexture({
+    id: "brickColorTex",
+    imageData: brickMaps.color,
+    encoding:  xeokit.base.constants.sRGBEncoding,
+    minFilter: xeokit.base.constants.LinearFilter,
+    wrapS:     xeokit.base.constants.RepeatWrapping,
+    wrapT:     xeokit.base.constants.RepeatWrapping,
+    flipY:     false,
+    mipmap:    true
+  });
+  sceneModel.createTexture({
+    id: "brickNormalTex",
+    imageData: brickMaps.normal,
+    encoding:  xeokit.base.constants.LinearEncoding,
+    minFilter: xeokit.base.constants.LinearFilter,
+    wrapS:     xeokit.base.constants.RepeatWrapping,
+    wrapT:     xeokit.base.constants.RepeatWrapping,
+    flipY:     false,
+    mipmap:    true
+  });
+  sceneModel.createTexture({
+    id: "brickMRTex",
+    imageData: brickMaps.mr,
+    encoding:  xeokit.base.constants.LinearEncoding,
+    minFilter: xeokit.base.constants.LinearFilter,
+    wrapS:     xeokit.base.constants.RepeatWrapping,
+    wrapT:     xeokit.base.constants.RepeatWrapping,
+    flipY:     false,
+    mipmap:    true
+  });
+  sceneModel.createMaterial({
+    id: "brickMat",
+    colorTextureId:             "brickColorTex",
+    normalsTextureId:           "brickNormalTex",
+    metallicRoughnessTextureId: "brickMRTex",
+    // Diffuse-dominant materials render dimmer than the painted texel
+    // values because Lambert divides by π. The aecChart demo applies a
+    // ~1.6× tint multiplier to compensate; use the same here so the
+    // bricks read at their intended brightness.
+    color: [1.6, 1.6, 1.6]
+  });
+
   for (let ty = 0; ty < TILES; ty++) {
     for (let tx = 0; tx < TILES; tx++) {
 
       const positions = new Float32Array(numVerts * 3);
       const normals   = new Float32Array(numVerts * 3);
+      const uvs       = new Float32Array(numVerts * 2);
       const indices   = new Uint32Array(numTris * 3);
 
       for (let row = 0; row < V; row++) {
@@ -195,6 +247,13 @@ studio.init().then(() => {
           normals[vi    ] = -dzdx / len;
           normals[vi + 1] = -dzdy / len;
           normals[vi + 2] =  1    / len;
+
+          // Planar (XY) UVs. World-space coordinates are divided by the
+          // per-repeat tile size so adjacent SceneModel tiles line up
+          // along their shared edges without seams.
+          const ui = (row * V + col) * 2;
+          uvs[ui    ] = x / BRICK_TILE_M;
+          uvs[ui + 1] = y / BRICK_TILE_M;
         }
       }
 
@@ -226,15 +285,14 @@ studio.init().then(() => {
         primitive: xeokit.base.constants.TrianglesPrimitive,
         positions,
         normals,
+        uvs,
         indices
       });
 
-      // Warm sandy tan — the shading from smooth normals provides all the
-      // visual depth needed to distinguish windward from leeward slopes.
       sceneModel.createMesh({
         id: `${id}_mesh`,
         geometryId: `${id}_geom`,
-        color: [0.87, 0.76, 0.49]
+        materialId: "brickMat"
       });
 
       sceneModel.createObject({
@@ -256,5 +314,6 @@ studio.init().then(() => {
 
   view.effects.edges.enabled = false;
 
+  studio.openInfoPanelFromMeta();
   studio.finished();
 });

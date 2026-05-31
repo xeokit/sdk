@@ -1,7 +1,7 @@
 {
   "id": "presentations_heatmaps_ifcOpenHouse4",
   "title": "Paint Heat-Map Materials onto an IfcOpenHouse4 Model",
-  "description": "Loads the IfcOpenHouse4 SceneModel + DataModel, then uses applyHeatMapMaterials to paint a per-geometry heat-map texture (driven by vertex elevation along the worldUp axis) onto every triangle SceneObject \u2014 producing a smooth blue\u2192red vertical gradient across the whole house.",
+  "description": "Loads the IfcOpenHouse4 SceneModel + DataModel, then uses applyHeatMapMaterials to paint a per-geometry heat-map texture (driven by vertex elevation along the worldUp axis) onto every triangle SceneObject — producing a smooth blue→red vertical gradient across the whole house.",
   "isTutorial": true,
   "isVisualTest": false,
   "tags": [

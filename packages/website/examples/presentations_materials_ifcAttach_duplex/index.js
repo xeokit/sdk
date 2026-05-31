@@ -66,7 +66,7 @@ async function main() {
   // SDKResult check sees a resolved value (without await, the
   // returned Promise's `.ok` is undefined and the throw fires
   // every time, killing the createView call that follows).
-  const attachResult = await xeokit.studio.applyIFCMaterials.applyIFCMaterials({
+  const attachResult = await xeokit.studio.systems.applyIFCMaterials({
     sceneModel,
     dataModel,
     textureSize: 256
@@ -88,6 +88,7 @@ async function main() {
     }
   });
 
+  studio.openInfoPanelFromMeta();
   studio.finished();
 }
 

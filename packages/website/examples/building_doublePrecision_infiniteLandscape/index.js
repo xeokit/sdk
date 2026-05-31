@@ -28,6 +28,11 @@ import {
   createLandscapeSource,
   GEOM_BOX, GEOM_SLAB, GEOM_CYLINDER, GEOM_DOME
 } from "./landscape-source.js";
+// Building texture lives in the SDK's procgen painter library —
+// no example-local painter needed. Swap `paintGranite` for any
+// other entry in `xeokit.model.procgen.paintMaterials` (brick,
+// limestone, marble, etc.) to retint the city.
+const {paintGranite} = xeokit.model.procgen.paintMaterials;
 
 const SLOT_COUNT  = 1600;       // 100 groups × GROUP_SIZE(=16) members
 const WINDOW_W    = 320;        // ~32 m per group cell
@@ -35,7 +40,7 @@ const WINDOW_H    = 320;
 
 const studio = new xeokit.studio.Studio({});
 
-studio.init().then(() => {
+studio.init().then(async () => {
   const { scene } = studio;
 
   // ── Scene model ─────────────────────────────────────────────────
@@ -56,12 +61,21 @@ studio.init().then(() => {
   // ── Shared geometries ───────────────────────────────────────────
   // Four primitives, each unit-sized and centred at the origin. Per-
   // slot scale + rotation + position is applied via the mesh matrix.
+  //
+  // Note: UVs are intentionally omitted. The renderer keys on
+  // `hasUVs` per batch — when a batch has no UVs, the triplanar
+  // shader path takes over and samples the material's color /
+  // normal / MR textures by projecting from the three world axes
+  // weighted by the surface normal. That avoids the unit-cube's
+  // [0..1]² per-face UV stretching the stone texture differently
+  // on a 10 m × 2 m wall than on a 4 m × 4 m one — every face
+  // samples in the same world-space frequency regardless of
+  // per-mesh scale.
   const pushGeom = (id, g) => sceneModel.createGeometry({
     id,
     primitive: xeokit.base.constants.TrianglesPrimitive,
     positions: g.positions,
     normals:   g.normals,
-    uvs:       g.uv,
     indices:   g.indices
   });
   pushGeom("box",
@@ -85,7 +99,6 @@ studio.init().then(() => {
     primitive: xeokit.base.constants.TrianglesPrimitive,
     positions: cylPositions,
     normals:   cylNormals,
-    uvs:       cylRaw.uv,
     indices:   cylRaw.indices
   });
   pushGeom("dome",
@@ -108,6 +121,51 @@ studio.init().then(() => {
   // sees its edge regardless of how far they fly.
   mustCreate(sceneModel.createMaterial({
     id: "FLOOR", color: [0.20, 0.22, 0.22], roughness: 1.0, metallic: 0
+  }));
+
+  // ── Stone-block PBR material for the building bodies ───────────
+  // Three textures painted by `paintStoneBlock` (a custom procgen
+  // painter shaped like the SDK ones in `model/procgen/paintMaterials/`).
+  // 512×512 is the sweet spot between bump detail and GPU memory at
+  // this slot count. sRGB encoding for albedo only — normal + MR are
+  // linear-data textures. Mipmapped + LinearFilter to keep the stone
+  // grain stable when buildings recede into the distance during a
+  // flight.
+  const STONE_TEX_SIZE = 512;
+  const stoneMaps = paintGranite(STONE_TEX_SIZE);
+  mustCreate(sceneModel.createTexture({
+    id: "tex_stone_color",
+    imageData: stoneMaps.color,
+    encoding: xeokit.base.constants.sRGBEncoding,
+    minFilter: xeokit.base.constants.LinearFilter,
+    mipmap: true, flipY: false,
+  }));
+  mustCreate(sceneModel.createTexture({
+    id: "tex_stone_normal",
+    imageData: stoneMaps.normal,
+    encoding: xeokit.base.constants.LinearEncoding,
+    minFilter: xeokit.base.constants.LinearFilter,
+    mipmap: true, flipY: false,
+  }));
+  mustCreate(sceneModel.createTexture({
+    id: "tex_stone_mr",
+    imageData: stoneMaps.mr,
+    encoding: xeokit.base.constants.LinearEncoding,
+    minFilter: xeokit.base.constants.LinearFilter,
+    mipmap: true, flipY: false,
+  }));
+  // The material's own `color` is the texture-multiplier slot —
+  // pinned to white so the per-mesh `mesh.color` writes (one per
+  // slot per recycle frame) act as a tint over the stone albedo
+  // rather than crushing it to grey.
+  mustCreate(sceneModel.createMaterial({
+    id: "STONE",
+    color: [1.0, 1.0, 1.0],
+    roughness: 1.0,
+    metallic: 0,
+    colorTextureId:             "tex_stone_color",
+    normalsTextureId:           "tex_stone_normal",
+    metallicRoughnessTextureId: "tex_stone_mr",
   }));
   const FLOOR_SIZE = WINDOW_W * 6;
   sceneModel.createMesh({
@@ -147,11 +205,18 @@ studio.init().then(() => {
     const meshIds = [];
     for (const gt of ALL_GEOM_TYPES) {
       const meshId = `s${slot}_g${gt}`;
+      // Stone-block PBR for the prismatic geom types (box, slab);
+      // the rounded geoms (cylinder, dome) stay colour-only so the
+      // UV wrap doesn't smear the stone-block pattern across their
+      // continuous surface. Either branch still respects the
+      // per-mesh `mesh.color` tint written each recycle frame.
+      const useStone = gt === GEOM_BOX || gt === GEOM_SLAB;
       sceneModel.createMesh({
         id: meshId,
         geometryId: GEOM_TO_GEOMETRY_ID[gt],
         matrix: PARK_MATRIX,
-        color:  initialSlotColor(slot, gt)
+        color:  initialSlotColor(slot, gt),
+        ...(useStone ? {materialId: "STONE"} : {}),
       });
       meshIds.push(meshId);
     }
@@ -211,6 +276,25 @@ studio.init().then(() => {
   // recycles whatever slots are now outside a window centred on the
   // camera. Stand still, no flow. Move forward, the city flows past.
 
+  // Forward-fly state. Two triggers OR together — the InfoPanel's
+  // "Fly forward" toggle latches the motion on/off, and Space
+  // (held) does the same thing momentarily. The slider drives
+  // `flySpeed` (metres per frame at 60 fps); both triggers honour
+  // the current slider value. Per-frame translation runs inside
+  // the input-stage task below.
+  let flyActive = false;
+  let spaceHeld = false;
+  let flySpeed  = 3.0;
+  window.addEventListener("keydown", (ev) => {
+    if (ev.code === "Space" && !spaceHeld) {
+      spaceHeld = true;
+      ev.preventDefault();
+    }
+  });
+  window.addEventListener("keyup", (ev) => {
+    if (ev.code === "Space") spaceHeld = false;
+  });
+
   // ── External instruction source ─────────────────────────────────
   // The source has no xeokit dependency — index.js is the bridge.
   const source = createLandscapeSource({
@@ -231,7 +315,9 @@ studio.init().then(() => {
     `<div><b>Infinite landscape</b> — ${SLOT_COUNT} pool slots, ` +
     `window ${WINDOW_W} × ${WINDOW_H} m</div>` +
     `<div style="margin-top:4px;opacity:0.85">` +
-    `Camera: drag = orbit · right-drag = pan · scroll = zoom · arrow keys = pan/rotate` +
+    `Camera: drag = orbit · right-drag = pan · scroll = zoom · ` +
+    `arrow keys = pan/rotate · <b>Space (hold)</b> or info-panel ` +
+    `toggle = fly forward` +
     `</div>` +
     `<div style="margin-top:2px;opacity:0.85">` +
     `Move the camera — the city recycles around you, deterministically.` +
@@ -247,6 +333,27 @@ studio.init().then(() => {
     repeat: true,
     stage: xeokit.base.core.SDKTask.CollectInputStage,
     task: () => {
+      // Fly: when either the InfoPanel toggle is on or Space is
+      // held, translate eye + look along the camera's forward
+      // direction projected onto XY so altitude is preserved.
+      // Done before reading eye for the landscape source so the
+      // flow tracks the freshly-advanced position with no
+      // one-frame lag.
+      if ((flyActive || spaceHeld) && flySpeed > 0) {
+        const cam = view.camera;
+        const e = cam.eye;
+        const l = cam.look;
+        let fx = l[0] - e[0];
+        let fy = l[1] - e[1];
+        const flen = Math.hypot(fx, fy);
+        if (flen > 1e-6) {
+          fx = (fx / flen) * flySpeed;
+          fy = (fy / flen) * flySpeed;
+          cam.eye  = [e[0] + fx, e[1] + fy, e[2]];
+          cam.look = [l[0] + fx, l[1] + fy, l[2]];
+        }
+      }
+
       // Source is camera-driven: pass the camera's eye XY and it
       // returns instructions for the slots that should be visible
       // around that point. Moving the camera causes recycling;
@@ -316,6 +423,27 @@ studio.init().then(() => {
     }
   });
 
+
+  const info = await studio.openInfoPanelFromMeta();
+  info.addToggle({
+    label:    "Fly forward",
+    value:    flyActive,
+    onChange: (on) => { flyActive = on; },
+  });
+  // Slider is metres-per-frame so the units match the per-frame
+  // translation in the input-stage task. At 60 fps:
+  //   1.0 m/frame =  60 m/s
+  //   3.0 m/frame = 180 m/s (default)
+  //  10.0 m/frame = 600 m/s
+  info.addSlider({
+    label:    "Speed (m/frame)",
+    min:      0,
+    max:      10,
+    step:     0.1,
+    value:    flySpeed,
+    digits:   1,
+    onChange: (v) => { flySpeed = v; },
+  });
 
   studio.finished();
 });

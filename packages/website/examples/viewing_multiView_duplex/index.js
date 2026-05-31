@@ -327,6 +327,7 @@ async function main() {
     syncMarkers();
   });
 
+  studio.openInfoPanelFromMeta();
   studio.finished();
 }
 

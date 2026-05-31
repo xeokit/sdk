@@ -116,5 +116,6 @@ studio.init().then(() => {
 
   // Signal that the demo has finished initializing. This typically hides
   // any loading indicators managed by the Studio.
+  studio.openInfoPanelFromMeta();
   studio.finished();
 });

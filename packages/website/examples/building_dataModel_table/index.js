@@ -281,5 +281,6 @@ studio
 
         // Signal that setup has completed. At this point, both the semantic
         // and renderable representations of the table have been created.
+     //   studio.openInfoPanelFromMeta();
         studio.finished();
     });

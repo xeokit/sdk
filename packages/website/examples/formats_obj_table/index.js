@@ -98,6 +98,7 @@ studio.init().then(() => {
 
         // Signal that loading has completed. This typically hides any loading
         // indicators managed by the Studio.
+        studio.openInfoPanelFromMeta();
         studio.finished();
       })
       .catch((message) => {

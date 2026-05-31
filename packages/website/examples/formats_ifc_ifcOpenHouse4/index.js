@@ -84,6 +84,7 @@ studio.init().then(() => {
                         // is visible in the Scene, and the DataModel contains DataObject,
                         // Relationship, and PropertySet components representing the IFC
                         // entity-relationship structure.
+                        studio.openInfoPanelFromMeta();
                         studio.finished();
 
                     }).catch(e => {

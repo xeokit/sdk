@@ -263,6 +263,7 @@ studio.init().then(() => {
   //  - rotates the whole puzzle root slightly (shows hierarchy: children follow parent)
   let lastMoveTime = performance.now();
 
+  studio.openInfoPanelFromMeta();
   studio.finished();
 
   new xeokit.base.core.SDKTask({

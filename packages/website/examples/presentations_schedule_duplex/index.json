@@ -1,0 +1,19 @@
+{
+  "id": "presentations_schedule_duplex",
+  "title": "4D Construction Scheduling — Duplex",
+  "description": "Drive the Duplex through a synthetic 24-week construction schedule using SchedulePlayer. Each task is bound to a slice of the model's SceneObjects (foundations, ground-floor slab, ground-floor walls, first-floor walls + slab, roof, interior fit-out), and the player transitions each slice through Pending → InProgress → Complete by writing per-object state to data textures — so a per-frame state apply across hundreds of objects costs no geometry rebuild. Scrub the timeline or hit Play to watch the building assemble itself; the camera flies to each milestone's AABB as the cursor crosses it.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "4D",
+    "Schedule",
+    "Construction",
+    "SchedulePlayer",
+    "Duplex"
+  ],
+  "categories": [
+    "Presentations",
+    "Schedule"
+  ],
+  "topic": "presentations.schedule"
+}

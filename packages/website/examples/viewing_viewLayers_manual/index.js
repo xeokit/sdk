@@ -148,6 +148,7 @@ studio.init().then(() => {
       // Finish the demo.
       // The scene now has an IFC model and a generated grid in separate layers.
 
+      studio.openInfoPanelFromMeta();
       studio.finished();
     })
     .catch(error => {

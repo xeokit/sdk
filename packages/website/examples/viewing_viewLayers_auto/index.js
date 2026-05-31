@@ -62,6 +62,7 @@ studio
               // The View will contain a ViewObject corresponding to each SceneObject, through which the
               // appearance of the object can be controlled in the View.
 
+              studio.openInfoPanelFromMeta();
               studio.finished();
 
             }).catch(message => {

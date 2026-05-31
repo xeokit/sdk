@@ -92,6 +92,7 @@ studio.init().then(() => {
                     // renderable element in the model, and the DataModel contains the
                     // corresponding semantic structure.
 
+                    studio.openInfoPanelFromMeta();
                     studio.finished();
 
                 }).catch(message => {

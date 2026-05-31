@@ -98,6 +98,7 @@ async function main() {
         }
     });
 
+    studio.openInfoPanelFromMeta();
     studio.finished();
 
     // ── Interactive brush.

@@ -130,5 +130,6 @@ studio
 
     }, 10);
 
+    studio.openInfoPanelFromMeta();
     studio.finished();
   });

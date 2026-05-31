@@ -22,6 +22,7 @@ import {fitAll}              from "./fitAll";
 import {importModel}         from "./importModel";
 import {importSampleModel}   from "./importSampleModel";
 import {openCameraTour}        from "./openCameraTour";
+import {openCulling}           from "./openCulling";
 import {openDaylightAnalysis}  from "./openDaylightAnalysis";
 import {openDrawings}          from "./openDrawings";
 import {openExport}            from "./openExport";
@@ -54,6 +55,7 @@ export const TOOLBAR_ACTIONS: Partial<Record<ToolbarAction, ToolbarActionDescrip
   importModel,
   importSampleModel,
   openCameraTour,
+  openCulling,
   openDaylightAnalysis,
   openDrawings,
   openExport,

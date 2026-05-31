@@ -41,6 +41,7 @@ import {TasksPanel} from "../tasksPanel/TasksPanel";
 import {ShadersPanel} from "../shadersPanel/ShadersPanel";
 import {DataTexturesPanel} from "../dataTexturesPanel/DataTexturesPanel";
 import {RendererPanel} from "../rendererPanel/RendererPanel";
+import {CullingPanel} from "../cullingPanel/CullingPanel";
 import {CameraTourPanel} from "../cameraTour/CameraTourPanel";
 import {DrawingsPanel} from "../drawings/DrawingsPanel";
 import {SchemaMaterialsPanel} from "../schemaMaterialsPanel/SchemaMaterialsPanel";
@@ -93,6 +94,7 @@ export type ToolbarAction =
   | "importSampleModel"
   | "openExport"
   | "openCameraTour"
+  | "openCulling"
   | "openDrawings"
   | "openSchemaMaterials"
   | "openSunStudy"
@@ -813,6 +815,14 @@ export class Toolbar extends FloatingPanelBase {
       toggle: true,
     }));
     row1.appendChild(gCamera.wrap);
+
+    const gPerformance = this._mkGroup("Performance");
+    gPerformance.btns.appendChild(this._mkBtn({
+      action: "openCulling",
+      title:  "Culling",
+      svg:    CullingPanel.iconSvg(),
+    }));
+    row1.appendChild(gPerformance.wrap);
 
     // ── Row 2 — Tools · Transform · Measure · Inspect ──────────
     const gTools = this._mkGroup("Tools");

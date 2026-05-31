@@ -26,6 +26,7 @@ import {DataTexturesPanel} from "./dataTexturesPanel/DataTexturesPanel";
 import {CameraTourPanel} from "./cameraTour/CameraTourPanel";
 import {DrawingsPanel} from "./drawings/DrawingsPanel";
 import {RendererPanel} from "./rendererPanel/RendererPanel";
+import {CullingPanel} from "./cullingPanel/CullingPanel";
 import {PdfImportPanel} from "./pdfImport/PdfImportPanel";
 import {NavCube} from "./navCube/NavCube";
 import type {NavCubeParams} from "./navCube/NavCubeParams";
@@ -74,6 +75,7 @@ declare module "./PanelRegistry" {
     viewerConfig:              {panel: ViewerConfigPanel;          params: void};
     gpuMemory:                 {panel: GPUMemoryPanel;             params: void};
     rendererPanel:             {panel: RendererPanel;              params: void};
+    cullingPanel:              {panel: CullingPanel;               params: void};
     pdfImport:                 {panel: PdfImportPanel;             params: void};
     schemaMaterials:           {panel: SchemaMaterialsPanel;       params: {focusSceneModel?: SceneModel}};
     sampleModels:              {panel: SampleModelsPanel;          params: void};
@@ -344,6 +346,18 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
   registry.register("rendererPanel", {
     find:   (ctx) => RendererPanel.getFor(ctx.studio.renderer),
     create: (ctx) => RendererPanel.openFor({renderer: ctx.studio.renderer}),
+  });
+
+  registry.register("cullingPanel", {
+    find: (ctx) => ctx.studio.viewer ? CullingPanel.getFor(ctx.studio.viewer) : undefined,
+    create: (ctx) => {
+      const {viewer, renderer} = ctx.studio;
+      if (!viewer || !renderer) {
+        ctx.studio.reportWarning("[PanelRegistry/cullingPanel] Needs a Viewer and WebGLRenderer.");
+        return undefined;
+      }
+      return CullingPanel.openFor({viewer, renderer});
+    },
   });
 
   registry.register("pdfImport", {

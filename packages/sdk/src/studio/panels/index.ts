@@ -9,6 +9,7 @@ export * from "./infoPanel";
 export * from "./angleMeasurementsPanel";
 export * from "./boundariesPanel";
 export * from "./cameraTour";
+export * from "./cullingPanel";
 export * from "./dataHealthPanel";
 export * from "./dataStats";
 export * from "./dataTexturesPanel";

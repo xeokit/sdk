@@ -127525,7 +127525,8 @@ var DEFAULT_PDF_LOAD_OPTIONS = {
   textDefaultColor: [0.05, 0.05, 0.05],
   textPxPerUnit: 4,
   pdfjsEsmUrl: "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.min.mjs",
-  pdfjsWorkerSrc: "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.worker.min.mjs"
+  pdfjsWorkerSrc: "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.worker.min.mjs",
+  backingBox: false
 };
 
 // ../sdk/src/formats/pdf/versions/v1_0/parse.ts
@@ -128025,6 +128026,148 @@ async function parse18(input, options = {}) {
         });
         if (oRes.ok === false) {
           return { ok: false, type: oRes.type, error: `[pdf.parse] page ${pageNumber}: ${oRes.error}` };
+        }
+      }
+      if (opts.backingBox && pageObjectMeshIds.length > 0) {
+        const boxSpec = typeof opts.backingBox === "object" ? opts.backingBox : {};
+        const boxColor = boxSpec.color ?? [0.96, 0.97, 0.99];
+        const boxOpacity = boxSpec.opacity ?? 0.55;
+        const boxDepth = boxSpec.depth ?? 0.05;
+        const boxMargin = boxSpec.margin ?? 0;
+        const boxClippable = boxSpec.clippable ?? false;
+        let cMinX = Infinity, cMinY = Infinity;
+        let cMaxX = -Infinity, cMaxY = -Infinity;
+        const meshes = input.sceneModel.meshes;
+        for (const meshId of pageObjectMeshIds) {
+          const mesh = meshes[meshId];
+          if (!mesh || !mesh.geometry || !mesh.geometry.aabb)
+            continue;
+          const a2 = mesh.geometry.aabb;
+          if (a2[0] < cMinX)
+            cMinX = a2[0];
+          if (a2[1] < cMinY)
+            cMinY = a2[1];
+          if (a2[3] > cMaxX)
+            cMaxX = a2[3];
+          if (a2[4] > cMaxY)
+            cMaxY = a2[4];
+        }
+        if (cMinX !== Infinity) {
+          const boxObjectId = `${objectId}__box`;
+          const boxGeometryId = `${boxObjectId}-geom`;
+          const boxMaterialId = `${boxObjectId}-mat`;
+          const boxMeshId = `${boxObjectId}-mesh`;
+          const bx0 = cMinX - boxMargin, bx1 = cMaxX + boxMargin;
+          const by0 = cMinY - boxMargin, by1 = cMaxY + boxMargin;
+          const bz0 = -boxDepth, bz1 = boxDepth;
+          const boxPositions = new Float32Array([
+            bx0,
+            by0,
+            bz0,
+            bx1,
+            by0,
+            bz0,
+            bx1,
+            by1,
+            bz0,
+            bx0,
+            by1,
+            bz0,
+            bx0,
+            by0,
+            bz1,
+            bx1,
+            by0,
+            bz1,
+            bx1,
+            by1,
+            bz1,
+            bx0,
+            by1,
+            bz1
+          ]);
+          const boxIndices = new Uint32Array([
+            0,
+            1,
+            2,
+            0,
+            2,
+            3,
+            // bottom face (z=bz0)
+            4,
+            6,
+            5,
+            4,
+            7,
+            6,
+            // top    face (z=bz1)
+            0,
+            5,
+            1,
+            0,
+            4,
+            5,
+            // y=by0 face
+            3,
+            2,
+            6,
+            3,
+            6,
+            7,
+            // y=by1 face
+            0,
+            3,
+            7,
+            0,
+            7,
+            4,
+            // x=bx0 face
+            1,
+            6,
+            2,
+            1,
+            5,
+            6
+            // x=bx1 face
+          ]);
+          const boxGRes = input.sceneModel.createGeometry({
+            id: boxGeometryId,
+            primitive: TrianglesPrimitive,
+            positions: boxPositions,
+            indices: boxIndices
+          });
+          if (boxGRes.ok === false) {
+            console.warn(`[PDFLoader] page ${pageNumber} backing box: ${boxGRes.error}`);
+          } else {
+            const boxMRes = input.sceneModel.createMaterial({
+              id: boxMaterialId,
+              color: boxColor
+            });
+            if (boxMRes.ok === false) {
+              console.warn(`[PDFLoader] page ${pageNumber} backing box: ${boxMRes.error}`);
+            } else {
+              const boxMeshRes = input.sceneModel.createMesh({
+                id: boxMeshId,
+                geometryId: boxGeometryId,
+                materialId: boxMaterialId,
+                position: [offX, offY, offZ],
+                color: boxColor,
+                opacity: boxOpacity
+              });
+              if (boxMeshRes.ok === false) {
+                console.warn(`[PDFLoader] page ${pageNumber} backing box: ${boxMeshRes.error}`);
+              } else {
+                const boxORes = input.sceneModel.createObject({
+                  id: boxObjectId,
+                  meshIds: [boxMeshId],
+                  clippable: boxClippable
+                });
+                if (boxORes.ok === false) {
+                  console.warn(`[PDFLoader] page ${pageNumber} backing box: ${boxORes.error}`);
+                }
+              }
+            }
+          }
         }
       }
       pages.push({
@@ -137579,6 +137722,7 @@ function errInvalid2(message) {
 var spatial_exports = {};
 __export(spatial_exports, {
   collision: () => collision_exports,
+  culling: () => culling_exports,
   picking: () => picking_exports
 });
 
@@ -138811,6 +138955,589 @@ function keyEquals(a2, b4, tolerance) {
   }
   return true;
 }
+
+// ../sdk/src/spatial/culling/index.ts
+var culling_exports = {};
+__export(culling_exports, {
+  DEFAULT_CULL_PARAMS: () => DEFAULT_CULL_PARAMS,
+  SceneCuller: () => SceneCuller,
+  ViewCuller: () => ViewCuller,
+  getSceneCuller: () => getSceneCuller
+});
+
+// ../sdk/src/spatial/culling/CullParams.ts
+var DEFAULT_CULL_PARAMS = {
+  solidAngleLimit: 4e-3,
+  cullEveryNUpdates: 5
+};
+
+// ../sdk/src/spatial/culling/CullBoundsMirror.ts
+var CullBoundsMirror = class {
+  #collisionIndex;
+  // objectId ⇄ dense index, plus the cullable flag per index.
+  #indexOf = /* @__PURE__ */ new Map();
+  #objectIdOf = [];
+  #cullableOf = [];
+  // Recycled dense indices, and the change-sets pending the next flush.
+  #freeList = [];
+  #dirty = /* @__PURE__ */ new Set();
+  #removed = [];
+  constructor(collisionIndex) {
+    this.#collisionIndex = collisionIndex;
+  }
+  /**
+   * Registers or re-registers an object and marks it for the next flush.
+   *
+   * @param objectId - The {@link SceneObject.id}.
+   * @param cullable - Whether the object may be size-culled (false for
+   * screen-fixed-size geometry such as points).
+   * @returns The object's dense index.
+   */
+  put(objectId, cullable) {
+    let index = this.#indexOf.get(objectId);
+    if (index === void 0) {
+      index = this.#freeList.length > 0 ? this.#freeList.pop() : this.#objectIdOf.length;
+      this.#indexOf.set(objectId, index);
+      this.#objectIdOf[index] = objectId;
+      const r = this.#removed.indexOf(index);
+      if (r !== -1) {
+        this.#removed.splice(r, 1);
+      }
+    }
+    this.#cullableOf[index] = cullable;
+    this.#dirty.add(index);
+    return index;
+  }
+  /**
+   * Marks a known object's bounds as changed. No-op for unknown ids.
+   */
+  touch(objectId) {
+    const index = this.#indexOf.get(objectId);
+    if (index !== void 0) {
+      this.#dirty.add(index);
+    }
+  }
+  /**
+   * Removes an object and frees its index for reuse. No-op for unknown ids.
+   */
+  remove(objectId) {
+    const index = this.#indexOf.get(objectId);
+    if (index === void 0) {
+      return;
+    }
+    this.#indexOf.delete(objectId);
+    this.#objectIdOf[index] = null;
+    this.#dirty.delete(index);
+    this.#freeList.push(index);
+    this.#removed.push(index);
+  }
+  /**
+   * The object id at a dense index, or `undefined` if vacant. Used to
+   * translate worker cull results back into {@link SceneObject.id}s.
+   */
+  objectIdAt(index) {
+    return this.#objectIdOf[index] ?? void 0;
+  }
+  /**
+   * Whether there are pending adds/updates/removes to flush.
+   */
+  get pending() {
+    return this.#dirty.size > 0 || this.#removed.length > 0;
+  }
+  /**
+   * Packs all pending changes into an {@link UpdateItemsMessage}, clearing the
+   * pending sets. Returns `null` when there is nothing to send.
+   *
+   * Dirty objects without bounds yet (e.g. created but not populated) are kept
+   * dirty and retried on the next flush.
+   */
+  marshal() {
+    if (!this.pending) {
+      return null;
+    }
+    const indices = [];
+    const centers = [];
+    const radii = [];
+    const cullable = [];
+    const retry = [];
+    for (const index of this.#dirty) {
+      const objectId = this.#objectIdOf[index];
+      if (objectId == null) {
+        continue;
+      }
+      const aabb = this.#collisionIndex.getObjectAABB(objectId);
+      if (!aabb) {
+        retry.push(index);
+        continue;
+      }
+      const dx = aabb[3] - aabb[0];
+      const dy = aabb[4] - aabb[1];
+      const dz = aabb[5] - aabb[2];
+      indices.push(index);
+      centers.push((aabb[0] + aabb[3]) * 0.5, (aabb[1] + aabb[4]) * 0.5, (aabb[2] + aabb[5]) * 0.5);
+      radii.push(0.5 * Math.sqrt(dx * dx + dy * dy + dz * dz));
+      cullable.push(this.#cullableOf[index] ? 1 : 0);
+    }
+    this.#dirty.clear();
+    for (const index of retry) {
+      this.#dirty.add(index);
+    }
+    const removed = this.#removed;
+    this.#removed = [];
+    if (indices.length === 0 && removed.length === 0) {
+      return null;
+    }
+    return {
+      type: "UpdateItems",
+      indices,
+      centers: new Float64Array(centers),
+      radii: new Float64Array(radii),
+      cullable: new Uint8Array(cullable),
+      removed
+    };
+  }
+};
+
+// ../sdk/src/spatial/culling/CullKernel.ts
+function createCullKernel() {
+  const present = [];
+  const cx = [];
+  const cy = [];
+  const cz = [];
+  const radius = [];
+  const cullable = [];
+  const views = /* @__PURE__ */ new Map();
+  const getView = (viewId) => {
+    let view = views.get(viewId);
+    if (!view) {
+      view = { planes: null, eye: null, solidAngleLimit: 0, culled: [], ready: false };
+      views.set(viewId, view);
+    }
+    return view;
+  };
+  const shouldCull = (view, index) => {
+    const r = radius[index];
+    const ex = view.eye[0], ey = view.eye[1], ez = view.eye[2];
+    const dx = cx[index] - ex, dy = cy[index] - ey, dz = cz[index] - ez;
+    const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+    if (dist < r) {
+      return false;
+    }
+    if (view.solidAngleLimit > 0) {
+      const ratio = r / dist;
+      const solidAngle = Math.asin(ratio < 1 ? ratio : 1);
+      if (solidAngle < view.solidAngleLimit) {
+        return true;
+      }
+    }
+    const p = view.planes;
+    for (let i = 0; i < 6; i++) {
+      const o = i * 4;
+      const signedDist = p[o] * cx[index] + p[o + 1] * cy[index] + p[o + 2] * cz[index] + p[o + 3];
+      if (signedDist < -r) {
+        return true;
+      }
+    }
+    return false;
+  };
+  const recheck = (view, index, delta) => {
+    if (!present[index]) {
+      return;
+    }
+    const target = cullable[index] ? shouldCull(view, index) : false;
+    const current = view.culled[index] || false;
+    if (target === current) {
+      return;
+    }
+    view.culled[index] = target;
+    if (target) {
+      delta.newlyCulled.push(index);
+    } else {
+      delta.newlyUnCulled.push(index);
+    }
+  };
+  const emit2 = (post, delta) => {
+    if (delta.newlyCulled.length > 0 || delta.newlyUnCulled.length > 0) {
+      post(delta);
+    } else {
+      post({ type: "Done", viewId: delta.viewId });
+    }
+  };
+  const handleMessage = (message, post) => {
+    switch (message.type) {
+      case "UpdateItems": {
+        const { indices, centers, radii, cullable: cullableFlags, removed } = message;
+        for (let k = 0; k < removed.length; k++) {
+          const index = removed[k];
+          present[index] = false;
+          views.forEach((view) => {
+            view.culled[index] = false;
+          });
+        }
+        for (let k = 0; k < indices.length; k++) {
+          const index = indices[k];
+          present[index] = true;
+          cx[index] = centers[k * 3];
+          cy[index] = centers[k * 3 + 1];
+          cz[index] = centers[k * 3 + 2];
+          radius[index] = radii[k];
+          cullable[index] = cullableFlags[k] !== 0;
+        }
+        views.forEach((view, viewId) => {
+          if (!view.ready) {
+            return;
+          }
+          const delta = { type: "CullResults", viewId, newlyCulled: [], newlyUnCulled: [] };
+          for (let k = 0; k < indices.length; k++) {
+            recheck(view, indices[k], delta);
+          }
+          emit2(post, delta);
+        });
+        break;
+      }
+      case "ViewChanged": {
+        const view = getView(message.viewId);
+        view.planes = message.planes;
+        view.eye = message.eye;
+        view.solidAngleLimit = message.solidAngleLimit;
+        view.ready = true;
+        const delta = {
+          type: "CullResults",
+          viewId: message.viewId,
+          newlyCulled: [],
+          newlyUnCulled: []
+        };
+        for (let index = 0; index < present.length; index++) {
+          if (present[index]) {
+            recheck(view, index, delta);
+          }
+        }
+        emit2(post, delta);
+        break;
+      }
+      case "RemoveView": {
+        views.delete(message.viewId);
+        break;
+      }
+    }
+  };
+  return { handleMessage };
+}
+
+// ../sdk/src/spatial/culling/createCullingWorker.ts
+function createCullingWorker() {
+  if (typeof Worker === "undefined" || typeof Blob === "undefined") {
+    throw new Error("[culling] Web Workers are not available in this environment");
+  }
+  const source = `const kernel = (${createCullKernel.toString()})();
+self.onmessage = (e) => kernel.handleMessage(e.data, (m) => self.postMessage(m));
+`;
+  const url = URL.createObjectURL(new Blob([source], { type: "text/javascript" }));
+  const worker = new Worker(url);
+  URL.revokeObjectURL(url);
+  let handler = null;
+  worker.onmessage = (event) => {
+    if (handler) {
+      handler(event.data);
+    }
+  };
+  return {
+    post: (message) => worker.postMessage(message),
+    onMessage: (h) => {
+      handler = h;
+    },
+    terminate: () => worker.terminate()
+  };
+}
+
+// ../sdk/src/spatial/culling/SceneCuller.ts
+var SceneCuller = class {
+  /** The Scene this service culls. */
+  scene;
+  #mirror;
+  #worker;
+  #listeners = /* @__PURE__ */ new Map();
+  #unsubscribers = [];
+  #flushScheduled = false;
+  #destroyed = false;
+  constructor(scene) {
+    this.scene = scene;
+    this.#mirror = new CullBoundsMirror(getSceneCollisionIndex(scene));
+    this.#worker = createCullingWorker();
+    this.#worker.onMessage((message) => {
+      this.#listeners.get(message.viewId)?.(message);
+    });
+    for (const id in scene.objects) {
+      this.#addObject(scene.objects[id]);
+    }
+    const events = scene.events;
+    this.#unsubscribers.push(
+      events.onSceneObjectCreated.subscribe((_scene, object) => this.#addObject(object)),
+      events.onSceneObjectDestroyed.subscribe((_scene, object) => {
+        this.#mirror.remove(object.id);
+        this.#scheduleFlush();
+      }),
+      events.onSceneObjectMeshAdded.subscribe((object) => {
+        this.#mirror.touch(object.id);
+        this.#scheduleFlush();
+      }),
+      events.onSceneMeshMoved.subscribe((_scene, mesh) => this.#touchMeshOwner(mesh)),
+      events.onSceneMeshMatrixChanged.subscribe((_scene, mesh) => this.#touchMeshOwner(mesh))
+    );
+  }
+  /**
+   * Registers a view's cull-results listener. Call {@link postViewChanged} to
+   * drive culling for it.
+   */
+  registerView(viewId, listener) {
+    this.#listeners.set(viewId, listener);
+  }
+  /**
+   * Forgets a view and discards its cull state in the worker.
+   */
+  unregisterView(viewId) {
+    if (this.#listeners.delete(viewId) && !this.#destroyed) {
+      this.#worker.post({ type: "RemoveView", viewId });
+    }
+  }
+  /**
+   * Posts a fresh camera for a view, triggering a cull pass. Any pending bounds
+   * changes are flushed first so the pass sees current geometry.
+   */
+  postViewChanged(message) {
+    if (this.#destroyed) {
+      return;
+    }
+    this.#flushNow();
+    this.#worker.post(message);
+  }
+  /**
+   * Resolves a dense mirror index back to its {@link SceneObject.id}.
+   */
+  objectIdAt(index) {
+    return this.#mirror.objectIdAt(index);
+  }
+  /**
+   * Tears down the worker and unsubscribes from the Scene.
+   */
+  destroy() {
+    if (this.#destroyed) {
+      return;
+    }
+    this.#destroyed = true;
+    for (const unsubscribe of this.#unsubscribers) {
+      unsubscribe();
+    }
+    this.#unsubscribers.length = 0;
+    this.#listeners.clear();
+    this.#worker.terminate();
+  }
+  #addObject(object) {
+    this.#mirror.put(object.id, isCullable(object));
+    this.#scheduleFlush();
+  }
+  #touchMeshOwner(mesh) {
+    if (mesh.object) {
+      this.#mirror.touch(mesh.object.id);
+      this.#scheduleFlush();
+    }
+  }
+  // Coalesce a burst of Scene mutations into a single flush on the next
+  // microtask, after the synchronous event dispatch settles (so the collision
+  // index has the up-to-date AABBs when we read them).
+  #scheduleFlush() {
+    if (this.#flushScheduled || this.#destroyed) {
+      return;
+    }
+    this.#flushScheduled = true;
+    queueMicrotask(() => {
+      this.#flushScheduled = false;
+      this.#flushNow();
+    });
+  }
+  #flushNow() {
+    if (this.#destroyed) {
+      return;
+    }
+    const message = this.#mirror.marshal();
+    if (message) {
+      this.#worker.post(message);
+    }
+  }
+};
+function isCullable(_object) {
+  return true;
+}
+var services = {};
+function getSceneCuller(scene) {
+  let service = services[scene.id];
+  if (!service) {
+    service = services[scene.id] = new SceneCuller(scene);
+    scene.events.onSceneDestroyed.subscribe((destroyedScene) => {
+      services[destroyedScene.id]?.destroy();
+      delete services[destroyedScene.id];
+    });
+  }
+  return service;
+}
+
+// ../sdk/src/spatial/culling/ViewCuller.ts
+var TRAILING_MS = 100;
+var liveCullers = /* @__PURE__ */ new WeakMap();
+var ViewCuller = class {
+  /** The View this culler drives. */
+  view;
+  #service;
+  #solidAngleLimit;
+  #cullEveryNUpdates;
+  #frustum = new Frustum3();
+  #unsubscribers = [];
+  #tick = 0;
+  #workerReady = true;
+  #pending = false;
+  #trailingTimer = null;
+  #destroyed = false;
+  constructor(view, params) {
+    if (liveCullers.has(view)) {
+      throw new Error(
+        `[culling] View "${view.id}" already has a ViewCuller \u2014 destroy it before creating another`
+      );
+    }
+    this.view = view;
+    const resolved = { ...DEFAULT_CULL_PARAMS, ...params };
+    this.#solidAngleLimit = resolved.solidAngleLimit;
+    this.#cullEveryNUpdates = Math.max(1, resolved.cullEveryNUpdates);
+    this.#service = getSceneCuller(view.viewer.scene);
+    this.#service.registerView(view.id, (message) => this.#onWorkerMessage(message));
+    const events = view.viewer.events;
+    const onCamera = (changedView) => {
+      if (changedView === this.view) {
+        this.#onCameraChanged();
+      }
+    };
+    this.#unsubscribers.push(
+      events.onCameraViewMatrixUpdated.subscribe((v) => onCamera(v)),
+      events.onCameraProjMatrixUpdated.subscribe((v) => onCamera(v)),
+      events.onCameraProjectionTypeChanged.subscribe((v) => onCamera(v)),
+      // Self-destruct when the View is destroyed: the View has no knowledge of
+      // culling, so the culler is responsible for not outliving it.
+      events.onViewDestroyed.subscribe((_viewer, destroyedView) => {
+        if (destroyedView === this.view) {
+          this.destroy();
+        }
+      })
+    );
+    this.#cullNow();
+    liveCullers.set(view, this);
+  }
+  /**
+   * Stops culling, releases all subscriptions, and un-culls every object in the
+   * view so disabling culling restores full visibility.
+   */
+  destroy() {
+    if (this.#destroyed) {
+      return;
+    }
+    this.#destroyed = true;
+    liveCullers.delete(this.view);
+    if (this.#trailingTimer !== null) {
+      clearTimeout(this.#trailingTimer);
+    }
+    for (const unsubscribe of this.#unsubscribers) {
+      unsubscribe();
+    }
+    this.#unsubscribers.length = 0;
+    this.#service.unregisterView(this.view.id);
+    const allIds = Object.keys(this.view.objects);
+    if (allIds.length > 0 && this.view.setObjectsCulled(allIds, false)) {
+      this.view.needsRender();
+    }
+  }
+  #onCameraChanged() {
+    if (this.#destroyed) {
+      return;
+    }
+    if (this.#tick % this.#cullEveryNUpdates === 0) {
+      this.#cullNow();
+    }
+    this.#tick++;
+    if (this.#trailingTimer !== null) {
+      clearTimeout(this.#trailingTimer);
+    }
+    this.#trailingTimer = setTimeout(() => {
+      this.#trailingTimer = null;
+      this.#cullNow();
+    }, TRAILING_MS);
+  }
+  #cullNow() {
+    if (this.#destroyed) {
+      return;
+    }
+    if (!this.#workerReady) {
+      this.#pending = true;
+      return;
+    }
+    const camera = this.view.camera;
+    setFrustum3(camera.viewMatrix, camera.projMatrix, this.#frustum);
+    const planes = new Float64Array(24);
+    for (let i = 0; i < 6; i++) {
+      const plane = this.#frustum.planes[i];
+      const o = i * 4;
+      planes[o] = plane.normal[0];
+      planes[o + 1] = plane.normal[1];
+      planes[o + 2] = plane.normal[2];
+      planes[o + 3] = plane.offset;
+    }
+    const eye = camera.eye;
+    this.#workerReady = false;
+    this.#service.postViewChanged({
+      type: "ViewChanged",
+      viewId: this.view.id,
+      planes,
+      eye: new Float64Array([eye[0], eye[1], eye[2]]),
+      solidAngleLimit: this.#solidAngleLimit
+    });
+  }
+  #onWorkerMessage(message) {
+    this.#workerReady = true;
+    if (message.type === "CullResults") {
+      this.#applyResults(message);
+    }
+    if (this.#pending && !this.#destroyed) {
+      this.#pending = false;
+      this.#cullNow();
+    }
+  }
+  #applyResults(message) {
+    if (this.#destroyed) {
+      return;
+    }
+    const toCull = [];
+    const toShow = [];
+    for (const index of message.newlyCulled) {
+      const id = this.#service.objectIdAt(index);
+      if (id !== void 0) {
+        toCull.push(id);
+      }
+    }
+    for (const index of message.newlyUnCulled) {
+      const id = this.#service.objectIdAt(index);
+      if (id !== void 0) {
+        toShow.push(id);
+      }
+    }
+    let changed = false;
+    if (toCull.length > 0) {
+      changed = this.view.setObjectsCulled(toCull, true) || changed;
+    }
+    if (toShow.length > 0) {
+      changed = this.view.setObjectsCulled(toShow, false) || changed;
+    }
+    if (changed) {
+      this.view.needsRender();
+    }
+  }
+};
 
 // ../sdk/src/viewing/index.ts
 var viewing_exports = {};
@@ -144973,6 +145700,7 @@ var ViewObject = class _ViewObject {
       return;
     }
     this._setFlag(_ViewObject.CULLED, culled);
+    this.layer.view.objectCulledUpdated(this, culled);
   }
   /**
    * Gets if this ViewObject is clippable.
@@ -146751,6 +147479,16 @@ var View2 = class {
     this.needsRender();
   }
   /**
+   * Called by ViewObject.culled setter.
+   * @private
+   */
+  objectCulledUpdated(viewObject, culled, notify = true) {
+    if (notify) {
+      this.viewer.events.onViewObjectCulledChanged.dispatch(this, viewObject);
+    }
+    this.needsRender();
+  }
+  /**
    * Called by ViewObject.highlighted setter.
    * @private
    */
@@ -147805,6 +148543,13 @@ var ViewerEvents = class {
    */
   onViewObjectClippableChanged;
   /**
+   * Emits an event each time the culled state of a {@link viewing!viewer.ViewObject | ViewObject}
+   * changes within a {@link viewing!viewer.View | View}, via
+   * {@link ViewObject.culled}. The renderer subscribes to this to drop
+   * or restore the object's meshes in that view's GPU draw index.
+   */
+  onViewObjectCulledChanged;
+  /**
    * Emits an event each time the colorization of a {@link viewing!viewer.ViewObject | ViewObject} changes within a {@link viewing!viewer.View | View}.
    *
    * ViewObjects are colorized with {@link View.setObjectsColorized},
@@ -147929,6 +148674,7 @@ var ViewerEvents = class {
     this.onViewObjectHighlightedChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.onViewObjectXRayedChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.onViewObjectClippableChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onViewObjectCulledChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.onViewObjectColorizeChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.onViewObjectOpacityChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.onViewObjectPickableChanged = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
@@ -147970,6 +148716,7 @@ var ViewerEvents = class {
     this.onViewObjectVisibleChanged.clear();
     this.onViewObjectXRayedChanged.clear();
     this.onViewObjectClippableChanged.clear();
+    this.onViewObjectCulledChanged.clear();
     this.onViewObjectSelectedChanged.clear();
     this.onViewObjectHighlightedChanged.clear();
     this.onViewObjectColorizeChanged.clear();
@@ -160426,7 +161173,12 @@ var GPUMemoryBatch = class {
       sceneMesh,
       meshIndex,
       primitiveMeshIndexTextureHandles,
-      edgeMeshIndexTextureHandles
+      edgeMeshIndexTextureHandles,
+      // Meshes start visible and un-culled in every view; the index
+      // texture portions created above are already included in the
+      // draw list, so this matches the initial GPU state.
+      visible: new Array(numViews).fill(true),
+      culled: new Array(numViews).fill(false)
     };
     this._meshIndicesByUniqueId[sceneMesh.uniqueId] = meshIndex;
     this._sceneGeometries[geometryHandle.geometryIndex] = sceneGeometry;
@@ -160512,17 +161264,44 @@ var GPUMemoryBatch = class {
     if (!meshHandle) {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no meshHandle`);
     }
+    meshHandle.visible[viewIndex] = visible;
+    this._applyMeshDrawInclusion(meshHandle, viewIndex);
+  }
+  /**
+   * Sets per-view mesh cull state. Culling and visibility are
+   * independent inputs to the same draw-inclusion decision — a culled
+   * mesh is dropped from the view's draw index just like a hidden one,
+   * but without disturbing the user-set visibility, so toggling
+   * culling never reveals an object the app deliberately hid.
+   *
+   * @param viewIndex
+   * @param culled
+   */
+  setMeshCulled(meshIndex, viewIndex, culled) {
+    const meshHandle = this._meshHandles[meshIndex];
+    if (!meshHandle) {
+      throw new SDKInternalException(`GPUMemoryBatch.setMeshCulled: Mesh ${meshIndex} has no meshHandle`);
+    }
+    meshHandle.culled[viewIndex] = culled;
+    this._applyMeshDrawInclusion(meshHandle, viewIndex);
+  }
+  // Writes the effective draw-inclusion (visible AND not culled) for a
+  // mesh in a view to the primitive and edge index textures — the same
+  // mechanism plain visibility uses to add/remove a mesh from the
+  // view's compacted draw list.
+  _applyMeshDrawInclusion(meshHandle, viewIndex) {
+    const include = meshHandle.visible[viewIndex] && !meshHandle.culled[viewIndex];
     const primitiveMeshIndexTextureHandle = meshHandle.primitiveMeshIndexTextureHandles[viewIndex];
     if (!primitiveMeshIndexTextureHandle) {
-      throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no primitiveMeshIndexTextureHandle`);
+      throw new SDKInternalException(`GPUMemoryBatch._applyMeshDrawInclusion: Mesh ${meshHandle.meshIndex} has no primitiveMeshIndexTextureHandle`);
     }
-    this._primitiveMeshIndexTexture[viewIndex].setMeshVisible(primitiveMeshIndexTextureHandle, visible);
+    this._primitiveMeshIndexTexture[viewIndex].setMeshVisible(primitiveMeshIndexTextureHandle, include);
     if (meshHandle.edgeMeshIndexTextureHandles) {
       const edgeMeshIndexTextureHandle = meshHandle.edgeMeshIndexTextureHandles[viewIndex];
       if (!edgeMeshIndexTextureHandle) {
-        throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no edgeMeshIndexTextureHandle`);
+        throw new SDKInternalException(`GPUMemoryBatch._applyMeshDrawInclusion: Mesh ${meshHandle.meshIndex} has no edgeMeshIndexTextureHandle`);
       }
-      this._edgeMeshIndexTexture[viewIndex].setObjectVisible(edgeMeshIndexTextureHandle, visible);
+      this._edgeMeshIndexTexture[viewIndex].setObjectVisible(edgeMeshIndexTextureHandle, include);
     }
   }
   /**
@@ -161344,6 +162123,24 @@ var GPUMemoryManager = class {
     batch.setMeshVisible(meshHandle.meshIndex, viewIndex, visible);
   }
   /**
+   * Sets whether a mesh is culled in a given view. Independent of
+   * visibility — the batch draws a mesh only when it is visible and
+   * not culled.
+   *
+   * @param meshHandle - Mesh handle returned by {@link addMesh}.
+   * @param viewIndex - Target view index.
+   * @param culled - Cull flag.
+   *
+   * @throws {@link base!core.SDKInternalException | SDKInternalException} If the mesh handle references an invalid batch.
+   */
+  setMeshCulled(meshHandle, viewIndex, culled) {
+    const batch = this._batches[meshHandle.gpuMemoryBatchIndex];
+    if (!batch) {
+      throw new SDKInternalException("[GPUMemoryManager.setMeshCulled] Invalid batch index in mesh handle.");
+    }
+    batch.setMeshCulled(meshHandle.meshIndex, viewIndex, culled);
+  }
+  /**
    * Updates the per-view clippable bit for a mesh — written
    * into the MeshViewAttributeTexture's second texel
    * (`renderFlags.g`) so the FS clip loop honours the new
@@ -162103,9 +162900,12 @@ var MeshBatchImpl = class {
   // through to MeshViewAttributeTexture so the FS clip loop
   // honours the new state on the next frame.)
   /**
-   * Sets per-view mesh culling state.
+   * Sets per-view mesh culling state. Writes through to the GPU draw
+   * index (independent of visibility) so culled meshes are skipped at
+   * draw time, just like hidden ones.
    */
   setMeshCulled(viewIndex, meshHandle, culled) {
+    this._gpuMemoryManager.setMeshCulled(meshHandle, viewIndex, culled);
   }
   /**
    * Sets per-view mesh pickable state.
@@ -162641,6 +163441,15 @@ var MeshManager = class {
    */
   viewObjectClippableChanged(viewObject) {
     this._rendererObjects[viewObject.id]?.setClippable(viewObject.layer.view.viewIndex, viewObject.clippable);
+  }
+  /**
+   * Handles changes to a {@link viewing!viewer.ViewObject | ViewObject}'s culled state.
+   *
+   * Updates the per-view culled flag on the owning {@link RendererObject},
+   * which drops/restores the object's meshes in that view's GPU draw index.
+   */
+  viewObjectCulledChanged(viewObject) {
+    this._rendererObjects[viewObject.id]?.setCulled(viewObject.layer.view.viewIndex, viewObject.culled);
   }
   /**
    * Handles changes to a {@link viewing!viewer.ViewObject | ViewObject}'s highlighted state.
@@ -175060,6 +175869,16 @@ var ViewManager2 = class {
   viewObjectClippableChanged(viewObject) {
     this._meshManager.viewObjectClippableChanged(viewObject);
   }
+  /**
+   * Notifies that a {@link viewing!viewer.ViewObject | ViewObject}'s culled flag changed.
+   * Forwards to {@link MeshManager} to queue GPU updates.
+   */
+  viewObjectCulledChanged(viewObject) {
+    if (!this._rendererViewsList[viewObject.layer.view.viewIndex]) {
+      return;
+    }
+    this._meshManager.viewObjectCulledChanged(viewObject);
+  }
   viewObjectXRayedChanged(viewObject) {
     if (!this._rendererViewsList[viewObject.layer.view.viewIndex]) {
       return;
@@ -175491,6 +176310,36 @@ var WebGLRenderer3 = class {
     };
   }
   /**
+   * Returns submitted-geometry stats for a View's most recently
+   * completed frame: the total number of draw calls and primitives
+   * issued across all render passes (color, shadow cascades, SAO, …).
+   *
+   * `numPrimitives` is summed from the per-view packed draw ranges, so
+   * it reflects visibility and culling — culled meshes drop out of the
+   * count. It's the metric to watch to confirm culling is reducing GPU
+   * work, since it moves even while the display caps the frame rate.
+   * `numDrawCalls`, by contrast, barely changes with culling: this
+   * renderer draws a whole batch per call, so culling trims primitives
+   * within a draw rather than removing draws.
+   *
+   * Returns `null` when no Viewer is attached or the render inspector
+   * has not recorded a frame for this view yet. The inspector is
+   * enabled by {@link studio!Studio | Studio}; in a bare WebGLRenderer
+   * setup, enable it first via {@link getRenderInspector}.
+   *
+   * @param viewIndex - {@link viewing!viewer.View.viewIndex | View.viewIndex}.
+   */
+  getViewRenderStats(viewIndex) {
+    if (!this._viewManager) {
+      return null;
+    }
+    const frame = this._viewManager.getRenderInspector().renderStats.views?.[viewIndex];
+    if (!frame) {
+      return null;
+    }
+    return { numDrawCalls: frame.numDrawCalls, numPrimitives: frame.numPrims };
+  }
+  /**
    * Enables (or disables) opt-in step-level timing inside the
    * renderer's MeshManager, which fires synchronously on every
    * `SceneModel.createMesh` call. Use to attribute time across the
@@ -175698,6 +176547,7 @@ var WebGLRenderer3 = class {
       viewerEvents.onViewObjectVisibleChanged.subscribe((view, viewObject) => viewManager.viewObjectVisibilityChanged(viewObject)),
       viewerEvents.onViewObjectXRayedChanged.subscribe((view, viewObject) => viewManager.viewObjectXRayedChanged(viewObject)),
       viewerEvents.onViewObjectClippableChanged.subscribe((view, viewObject) => viewManager.viewObjectClippableChanged(viewObject)),
+      viewerEvents.onViewObjectCulledChanged.subscribe((view, viewObject) => viewManager.viewObjectCulledChanged(viewObject)),
       viewerEvents.onViewObjectHighlightedChanged.subscribe((view, viewObject) => viewManager.viewObjectHighlightedChanged(viewObject)),
       viewerEvents.onViewObjectSelectedChanged.subscribe((view, viewObject) => viewManager.viewObjectSelectedChanged(viewObject)),
       viewerEvents.onViewObjectColorizeChanged.subscribe((view, viewObject) => viewManager.viewObjectColorizeChanged(viewObject)),
@@ -192523,19 +193373,19 @@ var InfoPanel = class extends FloatingPanelBase {
     const group = el("div", "xkt-info-radios");
     const initial = params.value ?? params.options[0]?.value;
     for (const opt of params.options) {
-      const chip = el("button", "xkt-info-radio", {
+      const chip2 = el("button", "xkt-info-radio", {
         type: "button",
         textContent: opt.label,
         "aria-pressed": String(opt.value === initial)
       });
-      chip.dataset.value = opt.value;
-      chip.addEventListener("click", () => {
+      chip2.dataset.value = opt.value;
+      chip2.addEventListener("click", () => {
         for (const sib of Array.from(group.children)) {
-          sib.setAttribute("aria-pressed", String(sib === chip));
+          sib.setAttribute("aria-pressed", String(sib === chip2));
         }
         params.onChange?.(opt.value);
       });
-      group.appendChild(chip);
+      group.appendChild(chip2);
     }
     this._appendControl(row, group);
     return group;
@@ -195778,6 +196628,7 @@ __export(panels_exports, {
   BoundariesPanel: () => BoundariesPanel,
   CLOSE_ICON_SVG: () => CLOSE_ICON_SVG,
   CameraTourPanel: () => CameraTourPanel,
+  CullingPanel: () => CullingPanel,
   DataHealthPanel: () => DataHealthPanel,
   DataStatsPanel: () => DataStatsPanel,
   DataTexturesPanel: () => DataTexturesPanel,
@@ -211006,18 +211857,18 @@ var ExportDialog = class _ExportDialog extends FloatingPanelBase {
       }))
         continue;
       const compatible = this._isDatasetCompatible(desc);
-      const chip = el("button", "xkt-exp-chip", {
+      const chip2 = el("button", "xkt-exp-chip", {
         type: "button",
         title: compatible ? desc : `${desc} \u2014 incompatible with the selected model`
       });
-      chip.appendChild(el("span", void 0, { textContent: humanReadableDatasetLabel(desc, ids2) }));
-      chip.disabled = !compatible;
+      chip2.appendChild(el("span", void 0, { textContent: humanReadableDatasetLabel(desc, ids2) }));
+      chip2.disabled = !compatible;
       if (!compatible)
-        chip.classList.add("xkt-exp-chip-disabled");
-      const apply3 = () => chip.classList.toggle("xkt-exp-chip-on", this._selectedDatasets.has(desc));
+        chip2.classList.add("xkt-exp-chip-disabled");
+      const apply3 = () => chip2.classList.toggle("xkt-exp-chip-on", this._selectedDatasets.has(desc));
       apply3();
       if (compatible) {
-        chip.addEventListener("click", () => {
+        chip2.addEventListener("click", () => {
           if (this._selectedDatasets.has(desc))
             this._selectedDatasets.delete(desc);
           else
@@ -211027,7 +211878,7 @@ var ExportDialog = class _ExportDialog extends FloatingPanelBase {
           this._refreshExportEnabled();
         });
       }
-      this._datasetsEl.appendChild(chip);
+      this._datasetsEl.appendChild(chip2);
     }
   }
   /**
@@ -215803,8 +216654,8 @@ var PANEL_CSS20 = `
 .xkt-rp-panel .xkt-rp-dcsum::-webkit-details-marker { display: none; }
 `;
 
-// ../sdk/src/studio/panels/cameraTour/CameraTourPanel.ts
-var STYLE_TAG_ID23 = "xkt-ct-styles";
+// ../sdk/src/studio/panels/cullingPanel/CullingPanel.ts
+var STYLE_TAG_ID23 = "xkt-cull-styles";
 var _stylesInjected24 = false;
 function injectStylesOnce25() {
   if (_stylesInjected24)
@@ -215822,6 +216673,681 @@ function injectStylesOnce25() {
   _stylesInjected24 = true;
 }
 var PANEL_CSS21 = `
+.xkt-cull-panel {
+  position: fixed;
+  top: 115px;
+  right: 17px;
+  width: 380px;
+  height: auto;
+  max-height: calc(100vh - 32px);
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.14);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #111;
+  z-index: 200000000;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.xkt-cull-panel *, .xkt-cull-panel *::before, .xkt-cull-panel *::after {
+  box-sizing: border-box;
+}
+.xkt-cull-panel[hidden] { display: none; }
+
+.xkt-cull-panel .xkt-cull-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px 12px 16px;
+  border-bottom: 1px solid #ececec;
+  flex: 0 0 auto;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+.xkt-cull-panel .xkt-cull-header.xkt-cull-dragging { cursor: grabbing; }
+.xkt-cull-panel .xkt-cull-title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 20px;
+  font-weight: 650;
+  color: #111;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.xkt-cull-panel .xkt-cull-title-icon {
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 2px;
+  width: 24px;
+  height: 24px;
+  color: #2d5e8c;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.xkt-cull-panel .xkt-cull-title-icon svg { width: 100%; height: 100%; display: block; }
+.xkt-cull-panel .xkt-cull-title-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.xkt-cull-panel .xkt-cull-title-text {
+  flex-shrink: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.xkt-cull-panel .xkt-cull-subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  color: #475569;
+  line-height: 1.25;
+}
+.xkt-cull-panel .xkt-cull-pulse {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #c9d3df;
+  transition: background 120ms ease-out;
+}
+.xkt-cull-panel .xkt-cull-pulse.xkt-cull-pulse-active { background: #27ae60; }
+.xkt-cull-panel .xkt-cull-close {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font: inherit;
+  font-size: 22px;
+  line-height: 1;
+  color: #777;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.xkt-cull-panel .xkt-cull-close:hover { background: #f0f0f0; color: #222; border-color: #d0d0d0; }
+
+.xkt-cull-pill {
+  position: fixed;
+  bottom: 17px;
+  right: 438px;
+  z-index: 200000000;
+  padding: 9px 16px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: #fff;
+  background: #2d5e8c;
+  border: 1px solid #1f4669;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+.xkt-cull-pill:hover { background: #1f4669; }
+.xkt-cull-pill[hidden] { display: none; }
+
+.xkt-cull-panel .xkt-cull-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 10px 12px 14px;
+}
+
+/* Section \u2014 config + views. */
+.xkt-cull-panel .xkt-cull-section {
+  margin: 6px 0 10px;
+  background: #fff;
+  border: 1px solid #ececec;
+  border-left: 3px solid #2d5e8c;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.xkt-cull-panel .xkt-cull-section-title {
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: #2d5e8c;
+  background: #fafcff;
+  border-bottom: 1px solid #f0f0f0;
+}
+.xkt-cull-panel .xkt-cull-section-body { padding: 8px 12px 10px; }
+
+/* Config rows \u2014 label + slider + readout. */
+.xkt-cull-panel .xkt-cull-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+}
+.xkt-cull-panel .xkt-cull-row > label {
+  flex: 0 0 96px;
+  color: #333;
+  font-size: 11.5px;
+}
+.xkt-cull-panel .xkt-cull-row input[type="range"] { flex: 1 1 auto; min-width: 0; }
+.xkt-cull-panel .xkt-cull-val {
+  flex: 0 0 56px;
+  text-align: right;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  color: #475569;
+}
+
+/* Per-view rows. */
+.xkt-cull-panel .xkt-cull-empty {
+  padding: 18px 12px;
+  text-align: center;
+  color: #777;
+}
+.xkt-cull-panel .xkt-cull-view {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+  border-bottom: 1px solid #f4f4f4;
+}
+.xkt-cull-panel .xkt-cull-view:last-child { border-bottom: none; }
+.xkt-cull-panel .xkt-cull-toggle {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+.xkt-cull-panel .xkt-cull-toggle input { cursor: pointer; }
+.xkt-cull-panel .xkt-cull-view-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: 600;
+  color: #222;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.xkt-cull-panel .xkt-cull-stats {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 6px;
+}
+.xkt-cull-panel .xkt-cull-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #f3f5f8;
+  border: 1px solid #e3e8ee;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10.5px;
+  color: #334155;
+  white-space: nowrap;
+}
+.xkt-cull-panel .xkt-cull-chip .xkt-cull-chip-k {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+`;
+var CullingPanel = class _CullingPanel extends FloatingPanelBase {
+  /**
+   * Per-Viewer instance registry — one culling panel per Viewer.
+   * Lets {@link openFor} hand back the live panel instead of stacking
+   * duplicates, and {@link getFor} probe without disturbing it.
+   * WeakMap so a dropped Viewer doesn't keep the panel alive for GC.
+   */
+  static _instances = /* @__PURE__ */ new WeakMap();
+  /**
+   * SVG markup for the panel's title-bar / toolbar glyph: a camera
+   * frustum with one box kept inside and one dashed box culled
+   * outside. Strokes use `currentColor`.
+   */
+  static iconSvg() {
+    return `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="3.5" cy="12" r="1.3" fill="currentColor" stroke="none"/><path d="M3.5 12 L21 5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M3.5 12 L21 19" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="21" y1="5" x2="21" y2="19" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><rect x="10.5" y="10" width="4.4" height="4.4" rx="0.6" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="16.5" y="2.2" width="3.6" height="3.6" rx="0.6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="1.6 1.4"/></svg>`;
+  }
+  /**
+   * Returns the existing live panel bound to `viewer`, or `undefined`
+   * if none has been constructed (or the prior instance was destroyed).
+   */
+  static getFor(viewer) {
+    const inst = _CullingPanel._instances.get(viewer);
+    return inst && !inst._destroyed ? inst : void 0;
+  }
+  /**
+   * Reveal (or lazily mount) a panel for `params.viewer`. Idempotent —
+   * an existing live panel is brought to the foreground; otherwise a
+   * fresh one is constructed.
+   */
+  static openFor(params) {
+    let inst = _CullingPanel._instances.get(params.viewer);
+    if (inst && !inst._destroyed) {
+      inst.show();
+      return inst;
+    }
+    inst = new _CullingPanel(params);
+    return inst;
+  }
+  viewer;
+  renderer;
+  // Config — global to the panel, applied to every ViewCuller.
+  _solidAngleLimit = DEFAULT_CULL_PARAMS.solidAngleLimit;
+  _cullEveryNUpdates = DEFAULT_CULL_PARAMS.cullEveryNUpdates;
+  // One culler per enabled View, keyed by View.id.
+  _cullers = /* @__PURE__ */ new Map();
+  // DOM refs.
+  _bodyEl;
+  _viewsEl;
+  _pulseEl;
+  _solidAngleVal;
+  _cullEveryVal;
+  _viewRows = /* @__PURE__ */ new Map();
+  // Lifecycle state.
+  _statsListenersAttached = false;
+  _refreshScheduled = false;
+  _pulseTimer = null;
+  _onViewRenderedUnsub = null;
+  _viewLifecycleUnsubs = [];
+  constructor(params) {
+    if (!params || !params.viewer || !params.renderer) {
+      throw new Error("CullingPanel: viewer and renderer are required");
+    }
+    super({
+      container: params.container,
+      storageKey: params.storageKey || "xkt-cull-panel",
+      classPrefix: "xkt-cull",
+      minWidth: 320,
+      minHeight: 200
+    });
+    this.viewer = params.viewer;
+    this.renderer = params.renderer;
+    const prior = _CullingPanel._instances.get(params.viewer);
+    if (prior && !prior._destroyed)
+      prior.destroy();
+    _CullingPanel._instances.set(params.viewer, this);
+    injectStylesOnce25();
+    this._buildDom();
+    this._bindChrome();
+    this._renderConfig();
+    const ve = this.viewer.events;
+    this._viewLifecycleUnsubs.push(
+      ve.onViewCreated.subscribe(() => this._renderViews()),
+      ve.onViewDestroyed.subscribe((_viewer, view) => {
+        this._cullers.delete(view.id);
+        this._renderViews();
+      })
+    );
+    if (params.visible === false) {
+      this.hide();
+    } else {
+      this.show();
+    }
+  }
+  // ── Public lifecycle ──────────────────────────────────────────
+  get visible() {
+    return this._panel.style.display !== "none";
+  }
+  /** Reveal panel. Attaches per-frame listeners + paints fresh content. */
+  show() {
+    if (this._destroyed)
+      return;
+    super.show();
+    this._enableInspector();
+    this._attachStatsListeners();
+    this._renderViews();
+    this._renderStats();
+  }
+  /** Hide panel and detach the per-frame stat listener. */
+  hide() {
+    if (this._destroyed)
+      return;
+    super.hide();
+    this._detachStatsListeners();
+  }
+  /** Toggle visibility. */
+  toggle() {
+    if (this.visible)
+      this.hide();
+    else
+      this.show();
+  }
+  /** Tear down DOM, listeners, and every ViewCuller the panel owns. */
+  destroy() {
+    if (this._destroyed)
+      return;
+    this._detachStatsListeners();
+    for (const u of this._viewLifecycleUnsubs) {
+      try {
+        u();
+      } catch {
+      }
+    }
+    this._viewLifecycleUnsubs.length = 0;
+    for (const culler of this._cullers.values()) {
+      try {
+        culler.destroy();
+      } catch {
+      }
+    }
+    this._cullers.clear();
+    if (_CullingPanel._instances.get(this.viewer) === this) {
+      _CullingPanel._instances.delete(this.viewer);
+    }
+    super.destroy();
+  }
+  // ── Listener attach / detach ──────────────────────────────────
+  _attachStatsListeners() {
+    if (this._statsListenersAttached || this._destroyed)
+      return;
+    this._statsListenersAttached = true;
+    this._onViewRenderedUnsub = this.renderer.events.onViewRendered.subscribe(
+      () => this._scheduleRefresh()
+    );
+  }
+  _detachStatsListeners() {
+    if (!this._statsListenersAttached)
+      return;
+    if (this._onViewRenderedUnsub) {
+      try {
+        this._onViewRenderedUnsub();
+      } catch {
+      }
+      this._onViewRenderedUnsub = null;
+    }
+    if (this._pulseTimer) {
+      clearTimeout(this._pulseTimer);
+      this._pulseTimer = null;
+    }
+    this._statsListenersAttached = false;
+    this._refreshScheduled = false;
+  }
+  /**
+   * Coalesce the renderer's many `onViewRendered` events into at most
+   * one stat repaint per animation frame.
+   */
+  _scheduleRefresh() {
+    if (this._destroyed || !this._statsListenersAttached)
+      return;
+    if (this._refreshScheduled)
+      return;
+    this._refreshScheduled = true;
+    requestAnimationFrame(() => {
+      this._refreshScheduled = false;
+      if (this._destroyed || !this._statsListenersAttached)
+        return;
+      this._renderStats();
+      this._flashPulse();
+    });
+  }
+  // ── DOM construction ──────────────────────────────────────────
+  _buildDom() {
+    this._pill = el("button", "xkt-cull-pill", {
+      type: "button",
+      title: "Reopen the Culling panel",
+      hidden: true,
+      textContent: "Culling"
+    });
+    this._panel = el("div", "xkt-cull-panel");
+    this._header = el("div", "xkt-cull-header");
+    const title = el("h2", "xkt-cull-title");
+    title.innerHTML = `<span class="xkt-cull-title-icon">${_CullingPanel.iconSvg()}</span><span class="xkt-cull-title-stack"><span class="xkt-cull-title-text">Culling</span><span class="xkt-cull-subtitle">Worker-based frustum + solid-angle culling, per View.</span></span>`;
+    this._pulseEl = el("span", "xkt-cull-pulse", {
+      title: "Flashes each time the stats update from a render."
+    });
+    this._closeBtn = el("button", "xkt-cull-close", {
+      type: "button",
+      "aria-label": "Close panel",
+      title: "Close panel",
+      innerHTML: "\xD7"
+    });
+    this._header.append(title, this._pulseEl, this._closeBtn);
+    this._panel.appendChild(this._header);
+    this._bodyEl = el("div", "xkt-cull-body");
+    this._panel.appendChild(this._bodyEl);
+    this._container.appendChild(this._pill);
+    this._container.appendChild(this._panel);
+  }
+  /** Build the config sliders once. Wired to recreate active cullers. */
+  _renderConfig() {
+    const section = el("div", "xkt-cull-section");
+    section.appendChild(el("div", "xkt-cull-section-title", { textContent: "Settings" }));
+    const body = el("div", "xkt-cull-section-body");
+    {
+      const row = el("div", "xkt-cull-row");
+      row.appendChild(el("label", void 0, {
+        textContent: "Min size",
+        title: "Solid-angle limit (radians) \u2014 objects subtending less are culled."
+      }));
+      const slider = el("input", void 0, {
+        type: "range",
+        min: "0",
+        max: "0.05",
+        step: "0.001",
+        value: String(this._solidAngleLimit)
+      });
+      this._solidAngleVal = el("span", "xkt-cull-val", {
+        textContent: this._solidAngleLimit.toFixed(3)
+      });
+      slider.addEventListener("input", () => {
+        this._solidAngleLimit = parseFloat(slider.value);
+        this._solidAngleVal.textContent = this._solidAngleLimit.toFixed(3);
+        this._applyConfigToActiveCullers();
+      });
+      row.append(slider, this._solidAngleVal);
+      body.appendChild(row);
+    }
+    {
+      const row = el("div", "xkt-cull-row");
+      row.appendChild(el("label", void 0, {
+        textContent: "Every Nth",
+        title: "Run a cull pass only every Nth camera-movement event."
+      }));
+      const slider = el("input", void 0, {
+        type: "range",
+        min: "1",
+        max: "20",
+        step: "1",
+        value: String(this._cullEveryNUpdates)
+      });
+      this._cullEveryVal = el("span", "xkt-cull-val", {
+        textContent: String(this._cullEveryNUpdates)
+      });
+      slider.addEventListener("input", () => {
+        this._cullEveryNUpdates = parseInt(slider.value, 10);
+        this._cullEveryVal.textContent = String(this._cullEveryNUpdates);
+        this._applyConfigToActiveCullers();
+      });
+      row.append(slider, this._cullEveryVal);
+      body.appendChild(row);
+    }
+    section.appendChild(body);
+    this._bodyEl.appendChild(section);
+    const viewsSection = el("div", "xkt-cull-section");
+    viewsSection.appendChild(el("div", "xkt-cull-section-title", { textContent: "Views" }));
+    this._viewsEl = el("div", "xkt-cull-section-body");
+    viewsSection.appendChild(this._viewsEl);
+    this._bodyEl.appendChild(viewsSection);
+  }
+  /**
+   * Recreate every active ViewCuller with the current config. ViewCuller
+   * takes its params at construction and exposes no setters, so a config
+   * change destroys the existing culler and builds a fresh one (the
+   * destroy-then-create order also satisfies the one-culler-per-View
+   * guard).
+   */
+  _applyConfigToActiveCullers() {
+    for (const [viewId, culler] of this._cullers) {
+      const view = culler.view;
+      try {
+        culler.destroy();
+      } catch {
+      }
+      this._cullers.set(viewId, new ViewCuller(view, {
+        solidAngleLimit: this._solidAngleLimit,
+        cullEveryNUpdates: this._cullEveryNUpdates
+      }));
+    }
+  }
+  // ── Per-View rows ─────────────────────────────────────────────
+  /** Rebuild the per-View rows from the Viewer's current View list. */
+  _renderViews() {
+    if (this._destroyed)
+      return;
+    const liveIds = new Set(this.viewer.viewList.map((v) => v.id));
+    for (const id of [...this._cullers.keys()]) {
+      if (!liveIds.has(id)) {
+        try {
+          this._cullers.get(id).destroy();
+        } catch {
+        }
+        this._cullers.delete(id);
+      }
+    }
+    this._viewsEl.replaceChildren();
+    this._viewRows.clear();
+    const views = this.viewer.viewList;
+    if (views.length === 0) {
+      this._viewsEl.appendChild(el("div", "xkt-cull-empty", { textContent: "No Views." }));
+      return;
+    }
+    for (const view of views) {
+      this._viewsEl.appendChild(this._buildViewRow(view));
+    }
+    this._renderStats();
+  }
+  _buildViewRow(view) {
+    const row = el("div", "xkt-cull-view");
+    const toggleLabel = el("label", "xkt-cull-toggle", {
+      title: "Enable culling for this View."
+    });
+    const toggle = el("input", void 0, { type: "checkbox" });
+    toggle.checked = this._cullers.has(view.id);
+    toggle.addEventListener("change", () => this._setViewCulling(view, toggle.checked));
+    toggleLabel.appendChild(toggle);
+    const name12 = el("span", "xkt-cull-view-name", {
+      textContent: `View ${view.viewIndex} \xB7 ${view.id}`,
+      title: view.id
+    });
+    const stats = el("div", "xkt-cull-stats");
+    const fpsEl = chip(stats, "fps");
+    const frameEl = chip(stats, "ms");
+    const culledEl = chip(stats, "culled");
+    row.append(toggleLabel, name12, stats);
+    this._viewRows.set(view.id, { view, toggle, fpsEl, frameEl, culledEl });
+    return row;
+  }
+  /** Enable or disable culling for a single View. */
+  _setViewCulling(view, enabled) {
+    if (enabled) {
+      if (this._cullers.has(view.id))
+        return;
+      this._cullers.set(view.id, new ViewCuller(view, {
+        solidAngleLimit: this._solidAngleLimit,
+        cullEveryNUpdates: this._cullEveryNUpdates
+      }));
+    } else {
+      const culler = this._cullers.get(view.id);
+      if (culler) {
+        try {
+          culler.destroy();
+        } catch {
+        }
+        this._cullers.delete(view.id);
+      }
+    }
+    this._renderStats();
+  }
+  // ── Live stats ────────────────────────────────────────────────
+  _enableInspector() {
+    const res = this.renderer.getRenderInspector();
+    if (res.ok)
+      res.value.enabled = true;
+  }
+  /** Update FPS / frame time / culled count for every View row. */
+  _renderStats() {
+    if (this._destroyed)
+      return;
+    const res = this.renderer.getRenderInspector();
+    const inspector = res.ok ? res.value : null;
+    for (const { view, fpsEl, frameEl, culledEl } of this._viewRows.values()) {
+      const i = view.viewIndex;
+      const fps = inspector?.frameRates?.[i] ?? null;
+      const frame = inspector?.renderStats?.views?.[i] ?? null;
+      const duration = frame?.timeMs?.duration;
+      fpsEl.textContent = fps == null ? "\u2014" : fps.toFixed(0);
+      frameEl.textContent = Number.isFinite(duration) ? duration.toFixed(1) : "\u2014";
+      culledEl.textContent = countCulled(view);
+    }
+  }
+  /** Flicker the live-pulse dot after each coalesced stat repaint. */
+  _flashPulse() {
+    if (!this._pulseEl)
+      return;
+    this._pulseEl.classList.add("xkt-cull-pulse-active");
+    if (this._pulseTimer)
+      clearTimeout(this._pulseTimer);
+    this._pulseTimer = setTimeout(() => {
+      this._pulseEl.classList.remove("xkt-cull-pulse-active");
+      this._pulseTimer = null;
+    }, 500);
+  }
+};
+function chip(host, key) {
+  const c3 = el("span", "xkt-cull-chip");
+  c3.appendChild(el("span", "xkt-cull-chip-k", { textContent: key }));
+  const v = el("span", void 0, { textContent: "\u2014" });
+  c3.appendChild(v);
+  host.appendChild(c3);
+  return v;
+}
+function countCulled(view) {
+  const objects = view.objects;
+  const ids2 = Object.keys(objects);
+  let culled = 0;
+  for (let i = 0; i < ids2.length; i++) {
+    if (objects[ids2[i]]?.culled)
+      culled++;
+  }
+  return `${culled} / ${ids2.length}`;
+}
+
+// ../sdk/src/studio/panels/cameraTour/CameraTourPanel.ts
+var STYLE_TAG_ID24 = "xkt-ct-styles";
+var _stylesInjected25 = false;
+function injectStylesOnce26() {
+  if (_stylesInjected25)
+    return;
+  if (typeof document === "undefined")
+    return;
+  if (document.getElementById(STYLE_TAG_ID24)) {
+    _stylesInjected25 = true;
+    return;
+  }
+  const style = document.createElement("style");
+  style.id = STYLE_TAG_ID24;
+  style.textContent = PANEL_CSS22;
+  document.head.appendChild(style);
+  _stylesInjected25 = true;
+}
+var PANEL_CSS22 = `
 .xkt-ct-panel {
   position: fixed;
   top: 88px;
@@ -216174,7 +217700,7 @@ var CameraTourPanel = class _CameraTourPanel extends FloatingPanelBase {
     if (prior && !prior._destroyed)
       prior.destroy();
     _CameraTourPanel._instances.set(this.studio, this);
-    injectStylesOnce25();
+    injectStylesOnce26();
     this._buildDom();
     this._bindChrome();
     this._attachSubscriptions();
@@ -216778,24 +218304,24 @@ function countRoomsUpToIndex(tour, idx) {
 }
 
 // ../sdk/src/studio/panels/drawings/DrawingsPanel.ts
-var STYLE_TAG_ID24 = "xkt-bp-styles";
-var _stylesInjected25 = false;
-function injectStylesOnce26() {
-  if (_stylesInjected25)
+var STYLE_TAG_ID25 = "xkt-bp-styles";
+var _stylesInjected26 = false;
+function injectStylesOnce27() {
+  if (_stylesInjected26)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID24)) {
-    _stylesInjected25 = true;
+  if (document.getElementById(STYLE_TAG_ID25)) {
+    _stylesInjected26 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID24;
-  style.textContent = PANEL_CSS22;
+  style.id = STYLE_TAG_ID25;
+  style.textContent = PANEL_CSS23;
   document.head.appendChild(style);
-  _stylesInjected25 = true;
+  _stylesInjected26 = true;
 }
-var PANEL_CSS22 = `
+var PANEL_CSS23 = `
 .xkt-bp-panel {
   position: fixed;
   top: 88px;
@@ -217110,7 +218636,7 @@ var DrawingsPanel = class _DrawingsPanel extends FloatingPanelBase {
     if (prior && !prior._destroyed)
       prior.destroy();
     _DrawingsPanel._instances.set(this.studio, this);
-    injectStylesOnce26();
+    injectStylesOnce27();
     this._buildDom();
     this._bindChrome();
     this._attachSubscriptions();
@@ -218529,9 +220055,9 @@ function latLonToViewBox(latitude, longitude) {
 }
 
 // ../sdk/src/studio/panels/sunStudyPanel/SunStudyPanel.ts
-var STYLE_TAG_ID25 = "xkt-sun-styles";
-var _stylesInjected26 = false;
-var PANEL_CSS23 = `
+var STYLE_TAG_ID26 = "xkt-sun-styles";
+var _stylesInjected27 = false;
+var PANEL_CSS24 = `
 .xkt-sun-panel {
   position: fixed;
   top: 17px;
@@ -218745,20 +220271,20 @@ var PANEL_CSS23 = `
   box-shadow: 0 1px 2px rgba(0,0,0,0.08);
 }
 `;
-function injectStylesOnce27() {
-  if (_stylesInjected26)
+function injectStylesOnce28() {
+  if (_stylesInjected27)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID25)) {
-    _stylesInjected26 = true;
+  if (document.getElementById(STYLE_TAG_ID26)) {
+    _stylesInjected27 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID25;
-  style.textContent = PANEL_CSS23;
+  style.id = STYLE_TAG_ID26;
+  style.textContent = PANEL_CSS24;
   document.head.appendChild(style);
-  _stylesInjected26 = true;
+  _stylesInjected27 = true;
 }
 var SunStudyPanel = class _SunStudyPanel extends FloatingPanelBase {
   static _instances = /* @__PURE__ */ new WeakMap();
@@ -218853,7 +220379,7 @@ var SunStudyPanel = class _SunStudyPanel extends FloatingPanelBase {
       prior.destroy();
     _SunStudyPanel._instances.set(params.sunStudy, this);
     _SunStudyPanel._latest = this;
-    injectStylesOnce27();
+    injectStylesOnce28();
     this._buildDom();
     this._wireDomEvents();
     this._subscribeStudy();
@@ -219172,9 +220698,9 @@ var SunStudyPanel = class _SunStudyPanel extends FloatingPanelBase {
 
 // ../sdk/src/studio/panels/daylightAnalysisPanel/DaylightAnalysisPanel.ts
 var import_strongly_typed_events27 = __toESM(require_dist8());
-var STYLE_TAG_ID26 = "xkt-dla-styles";
-var _stylesInjected27 = false;
-var PANEL_CSS24 = `
+var STYLE_TAG_ID27 = "xkt-dla-styles";
+var _stylesInjected28 = false;
+var PANEL_CSS25 = `
 .xkt-dla-panel {
   position: fixed;
   top: 17px;
@@ -219394,20 +220920,20 @@ var PANEL_CSS24 = `
   color: #222;
 }
 `;
-function injectStylesOnce28() {
-  if (_stylesInjected27)
+function injectStylesOnce29() {
+  if (_stylesInjected28)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID26)) {
-    _stylesInjected27 = true;
+  if (document.getElementById(STYLE_TAG_ID27)) {
+    _stylesInjected28 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID26;
-  style.textContent = PANEL_CSS24;
+  style.id = STYLE_TAG_ID27;
+  style.textContent = PANEL_CSS25;
   document.head.appendChild(style);
-  _stylesInjected27 = true;
+  _stylesInjected28 = true;
 }
 var LEGEND_GRADIENT = [
   [0.05, 0.07, 0.3],
@@ -219512,7 +221038,7 @@ var DaylightAnalysisPanel = class _DaylightAnalysisPanel extends FloatingPanelBa
     _DaylightAnalysisPanel._instances.set(params.sunStudy, this);
     _DaylightAnalysisPanel._latest = this;
     this.onResult = new EventEmitter(new import_strongly_typed_events27.EventDispatcher());
-    injectStylesOnce28();
+    injectStylesOnce29();
     this._buildDom();
     this._wireDomEvents();
     if (params.initialGrid) {
@@ -219815,9 +221341,9 @@ var DaylightAnalysisPanel = class _DaylightAnalysisPanel extends FloatingPanelBa
 };
 
 // ../sdk/src/studio/panels/volumeOverlayPanel/VolumeOverlayPanel.ts
-var STYLE_TAG_ID27 = "xkt-vol-styles";
-var _stylesInjected28 = false;
-var PANEL_CSS25 = `
+var STYLE_TAG_ID28 = "xkt-vol-styles";
+var _stylesInjected29 = false;
+var PANEL_CSS26 = `
 .xkt-vol-panel {
   position: fixed;
   top: 17px;
@@ -220047,14 +221573,14 @@ var PANEL_CSS25 = `
   color: #5a6273;
 }
 `;
-function injectStylesOnce29() {
-  if (_stylesInjected28 || typeof document === "undefined")
+function injectStylesOnce30() {
+  if (_stylesInjected29 || typeof document === "undefined")
     return;
   const tag = document.createElement("style");
-  tag.id = STYLE_TAG_ID27;
-  tag.textContent = PANEL_CSS25;
+  tag.id = STYLE_TAG_ID28;
+  tag.textContent = PANEL_CSS26;
   document.head.appendChild(tag);
-  _stylesInjected28 = true;
+  _stylesInjected29 = true;
 }
 var VolumeOverlayPanel = class _VolumeOverlayPanel extends FloatingPanelBase {
   static _instances = /* @__PURE__ */ new WeakMap();
@@ -220165,7 +221691,7 @@ var VolumeOverlayPanel = class _VolumeOverlayPanel extends FloatingPanelBase {
     this._position = params.initialPosition ?? this._defaultPosition(this._axis);
     this._isovalue = params.initialIsovalue ?? (this._rangeMin + this._rangeMax) * 0.5;
     this._seedDensity = Math.max(2, Math.round(params.initialSeedDensity ?? 6));
-    injectStylesOnce29();
+    injectStylesOnce30();
     this._buildDom();
     this._wireDomEvents();
     this._refreshLegend();
@@ -220725,24 +222251,24 @@ var VolumeOverlayPanel = class _VolumeOverlayPanel extends FloatingPanelBase {
 };
 
 // ../sdk/src/studio/panels/distanceMeasurementsPanel/DistanceMeasurementsPanel.ts
-var STYLE_TAG_ID28 = "xkt-dm-panel-styles";
-var _stylesInjected29 = false;
-function injectStylesOnce30() {
-  if (_stylesInjected29)
+var STYLE_TAG_ID29 = "xkt-dm-panel-styles";
+var _stylesInjected30 = false;
+function injectStylesOnce31() {
+  if (_stylesInjected30)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID28)) {
-    _stylesInjected29 = true;
+  if (document.getElementById(STYLE_TAG_ID29)) {
+    _stylesInjected30 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID28;
-  style.textContent = PANEL_CSS26;
+  style.id = STYLE_TAG_ID29;
+  style.textContent = PANEL_CSS27;
   document.head.appendChild(style);
-  _stylesInjected29 = true;
+  _stylesInjected30 = true;
 }
-var PANEL_CSS26 = `
+var PANEL_CSS27 = `
 .xkt-dm-panel {
   position: fixed;
   top: 115px;
@@ -221036,7 +222562,7 @@ var DistanceMeasurementsPanel = class _DistanceMeasurementsPanel extends Floatin
     if (prior && !prior._destroyed)
       prior.destroy();
     _DistanceMeasurementsPanel._instances.set(this.view, this);
-    injectStylesOnce30();
+    injectStylesOnce31();
     this._buildDom();
     this._bindChrome();
     if (params.visible === false) {
@@ -221213,24 +222739,24 @@ function formatLength2(v) {
 }
 
 // ../sdk/src/studio/panels/angleMeasurementsPanel/AngleMeasurementsPanel.ts
-var STYLE_TAG_ID29 = "xkt-am-panel-styles";
-var _stylesInjected30 = false;
-function injectStylesOnce31() {
-  if (_stylesInjected30)
+var STYLE_TAG_ID30 = "xkt-am-panel-styles";
+var _stylesInjected31 = false;
+function injectStylesOnce32() {
+  if (_stylesInjected31)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID29)) {
-    _stylesInjected30 = true;
+  if (document.getElementById(STYLE_TAG_ID30)) {
+    _stylesInjected31 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID29;
-  style.textContent = PANEL_CSS27;
+  style.id = STYLE_TAG_ID30;
+  style.textContent = PANEL_CSS28;
   document.head.appendChild(style);
-  _stylesInjected30 = true;
+  _stylesInjected31 = true;
 }
-var PANEL_CSS27 = `
+var PANEL_CSS28 = `
 .xkt-am-panel {
   position: fixed;
   top: 115px;
@@ -221525,7 +223051,7 @@ var AngleMeasurementsPanel = class _AngleMeasurementsPanel extends FloatingPanel
     if (prior && !prior._destroyed)
       prior.destroy();
     _AngleMeasurementsPanel._instances.set(this.view, this);
-    injectStylesOnce31();
+    injectStylesOnce32();
     this._buildDom();
     this._bindChrome();
     if (params.visible === false) {
@@ -222091,24 +223617,24 @@ __export(sectionPlanesTool_exports, {
 });
 
 // ../sdk/src/studio/panels/sectionPlanesPanel/SectionPlanesPanel.ts
-var STYLE_TAG_ID30 = "xkt-sp-styles";
-var _stylesInjected31 = false;
-function injectStylesOnce32() {
-  if (_stylesInjected31)
+var STYLE_TAG_ID31 = "xkt-sp-styles";
+var _stylesInjected32 = false;
+function injectStylesOnce33() {
+  if (_stylesInjected32)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID30)) {
-    _stylesInjected31 = true;
+  if (document.getElementById(STYLE_TAG_ID31)) {
+    _stylesInjected32 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID30;
-  style.textContent = PANEL_CSS28;
+  style.id = STYLE_TAG_ID31;
+  style.textContent = PANEL_CSS29;
   document.head.appendChild(style);
-  _stylesInjected31 = true;
+  _stylesInjected32 = true;
 }
-var PANEL_CSS28 = `
+var PANEL_CSS29 = `
 .xkt-sp-panel {
   position: fixed;
   top: 88px;
@@ -222342,7 +223868,7 @@ var SectionPlanesPanel = class _SectionPlanesPanel extends FloatingPanelBase {
     if (prior && !prior._destroyed)
       prior.destroy();
     _SectionPlanesPanel._instances.set(params.view, this);
-    injectStylesOnce32();
+    injectStylesOnce33();
     this._buildDom();
     this._bindChrome();
     this._wireEvents();
@@ -222577,6 +224103,20 @@ var openCameraTour = {
       return;
     }
     ctx.studio.panels.open("cameraTourPanel");
+  }
+};
+
+// ../sdk/src/studio/panels/toolbar/actions/openCulling.ts
+var openCulling = {
+  id: "openCulling",
+  do(ctx) {
+    if (ctx.fireAction("openCulling"))
+      return;
+    if (!ctx.studio) {
+      console.warn("[Toolbar] openCulling \u2014 no Studio passed; nothing to drive the Culling panel from.");
+      return;
+    }
+    ctx.studio.panels.open("cullingPanel");
   }
 };
 
@@ -222906,6 +224446,7 @@ var TOOLBAR_ACTIONS = {
   importModel,
   importSampleModel,
   openCameraTour,
+  openCulling,
   openDaylightAnalysis,
   openDrawings,
   openExport,
@@ -222925,22 +224466,22 @@ var TOOLBAR_ACTIONS = {
 };
 
 // ../sdk/src/studio/panels/toolbar/Toolbar.ts
-var STYLE_TAG_ID31 = "xkt-tb-styles";
-var _stylesInjected32 = false;
-function injectStylesOnce33() {
-  if (_stylesInjected32)
+var STYLE_TAG_ID32 = "xkt-tb-styles";
+var _stylesInjected33 = false;
+function injectStylesOnce34() {
+  if (_stylesInjected33)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID31)) {
-    _stylesInjected32 = true;
+  if (document.getElementById(STYLE_TAG_ID32)) {
+    _stylesInjected33 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID31;
+  style.id = STYLE_TAG_ID32;
   style.textContent = TOOLBAR_CSS;
   document.head.appendChild(style);
-  _stylesInjected32 = true;
+  _stylesInjected33 = true;
 }
 var TOOLBAR_CSS = `
 .xkt-tb-toolbar {
@@ -223306,7 +224847,7 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
     if (prior && !prior._destroyed)
       prior.destroy();
     _Toolbar._instances.set(params.viewer, this);
-    injectStylesOnce33();
+    injectStylesOnce34();
     this._buildDom();
     this._bindChrome();
     this._wireDomEvents();
@@ -223482,6 +225023,13 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
       toggle: true
     }));
     row1.appendChild(gCamera.wrap);
+    const gPerformance = this._mkGroup("Performance");
+    gPerformance.btns.appendChild(this._mkBtn({
+      action: "openCulling",
+      title: "Culling",
+      svg: CullingPanel.iconSvg()
+    }));
+    row1.appendChild(gPerformance.wrap);
     const gTools = this._mkGroup("Tools");
     gTools.btns.appendChild(this._mkToolModeBtn("hide", "Hide Objects", ICONS.eraser));
     gTools.btns.appendChild(this._mkToolModeBtn("select", "Select Objects", ICONS.pointer));
@@ -224397,24 +225945,24 @@ var ICONS = {
 };
 
 // ../sdk/src/studio/panels/exportBCF/ExportBCFPanel.ts
-var STYLE_TAG_ID32 = "xkt-bcf-styles";
-var _stylesInjected33 = false;
-function injectStylesOnce34() {
-  if (_stylesInjected33)
+var STYLE_TAG_ID33 = "xkt-bcf-styles";
+var _stylesInjected34 = false;
+function injectStylesOnce35() {
+  if (_stylesInjected34)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID32)) {
-    _stylesInjected33 = true;
+  if (document.getElementById(STYLE_TAG_ID33)) {
+    _stylesInjected34 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID32;
-  style.textContent = PANEL_CSS29;
+  style.id = STYLE_TAG_ID33;
+  style.textContent = PANEL_CSS30;
   document.head.appendChild(style);
-  _stylesInjected33 = true;
+  _stylesInjected34 = true;
 }
-var PANEL_CSS29 = `
+var PANEL_CSS30 = `
 .xkt-bcf-panel {
   position: fixed;
   top: 115px;
@@ -224811,7 +226359,7 @@ var ExportBCFPanel = class _ExportBCFPanel extends FloatingPanelBase {
     if (prior && !prior._destroyed)
       prior.destroy();
     _ExportBCFPanel._instances.set(params.view, this);
-    injectStylesOnce34();
+    injectStylesOnce35();
     this._buildDom();
     this._bindChrome();
     this._wireDomEvents();
@@ -225157,24 +226705,24 @@ function escapeHtml9(s) {
 }
 
 // ../sdk/src/studio/panels/pdfImport/PdfImportPanel.ts
-var STYLE_TAG_ID33 = "xkt-pdfimp-styles";
-var _stylesInjected34 = false;
-function injectStylesOnce35() {
-  if (_stylesInjected34)
+var STYLE_TAG_ID34 = "xkt-pdfimp-styles";
+var _stylesInjected35 = false;
+function injectStylesOnce36() {
+  if (_stylesInjected35)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID33)) {
-    _stylesInjected34 = true;
+  if (document.getElementById(STYLE_TAG_ID34)) {
+    _stylesInjected35 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID33;
-  style.textContent = PANEL_CSS30;
+  style.id = STYLE_TAG_ID34;
+  style.textContent = PANEL_CSS31;
   document.head.appendChild(style);
-  _stylesInjected34 = true;
+  _stylesInjected35 = true;
 }
-var PANEL_CSS30 = `
+var PANEL_CSS31 = `
 .xkt-pdfimp-panel {
   position: fixed;
   top: 115px;
@@ -225358,7 +226906,7 @@ var PdfImportPanel = class _PdfImportPanel extends FloatingPanelBase {
     if (prior && !prior._destroyed)
       prior.destroy();
     _PdfImportPanel._instances.set(this.studio, this);
-    injectStylesOnce35();
+    injectStylesOnce36();
     this._buildDom();
     this._bindChrome();
     this._wireFileEvents();
@@ -225515,9 +227063,9 @@ var PdfImportPanel = class _PdfImportPanel extends FloatingPanelBase {
 
 // ../sdk/src/studio/panels/schedulePanel/SchedulePanel.ts
 var import_strongly_typed_events30 = __toESM(require_dist8());
-var STYLE_TAG_ID34 = "xkt-sch-styles";
-var _stylesInjected35 = false;
-var PANEL_CSS31 = `
+var STYLE_TAG_ID35 = "xkt-sch-styles";
+var _stylesInjected36 = false;
+var PANEL_CSS32 = `
 .xkt-sch-panel {
   position: fixed;
   bottom: 17px;
@@ -225689,20 +227237,20 @@ var PANEL_CSS31 = `
   cursor: ew-resize;
 }
 `;
-function injectStylesOnce36() {
-  if (_stylesInjected35)
+function injectStylesOnce37() {
+  if (_stylesInjected36)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID34)) {
-    _stylesInjected35 = true;
+  if (document.getElementById(STYLE_TAG_ID35)) {
+    _stylesInjected36 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID34;
-  style.textContent = PANEL_CSS31;
+  style.id = STYLE_TAG_ID35;
+  style.textContent = PANEL_CSS32;
   document.head.appendChild(style);
-  _stylesInjected35 = true;
+  _stylesInjected36 = true;
 }
 var SVG_NS5 = "http://www.w3.org/2000/svg";
 var LEFT_GUTTER_PX = 130;
@@ -225771,7 +227319,7 @@ var SchedulePanel = class _SchedulePanel extends FloatingPanelBase {
     if (prior && !prior._destroyed)
       prior.destroy();
     _SchedulePanel._instances.set(params.player, this);
-    injectStylesOnce36();
+    injectStylesOnce37();
     this._buildDom();
     this._wireDomEvents();
     this._subscribePlayer();
@@ -226301,6 +227849,17 @@ function registerBuiltinPanels(registry) {
     find: (ctx) => RendererPanel.getFor(ctx.studio.renderer),
     create: (ctx) => RendererPanel.openFor({ renderer: ctx.studio.renderer })
   });
+  registry.register("cullingPanel", {
+    find: (ctx) => ctx.studio.viewer ? CullingPanel.getFor(ctx.studio.viewer) : void 0,
+    create: (ctx) => {
+      const { viewer, renderer } = ctx.studio;
+      if (!viewer || !renderer) {
+        ctx.studio.reportWarning("[PanelRegistry/cullingPanel] Needs a Viewer and WebGLRenderer.");
+        return void 0;
+      }
+      return CullingPanel.openFor({ viewer, renderer });
+    }
+  });
   registry.register("pdfImport", {
     find: (ctx) => PdfImportPanel.getFor(ctx.studio),
     create: (ctx) => PdfImportPanel.openFor({ studio: ctx.studio })
@@ -226489,22 +228048,22 @@ function registerBuiltinPanels(registry) {
 }
 
 // ../sdk/src/studio/dialogs/ConfirmDialog.ts
-var STYLE_TAG_ID35 = "xkt-confirm-styles";
-var _stylesInjected36 = false;
-function injectStylesOnce37() {
-  if (_stylesInjected36)
+var STYLE_TAG_ID36 = "xkt-confirm-styles";
+var _stylesInjected37 = false;
+function injectStylesOnce38() {
+  if (_stylesInjected37)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID35)) {
-    _stylesInjected36 = true;
+  if (document.getElementById(STYLE_TAG_ID36)) {
+    _stylesInjected37 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID35;
+  style.id = STYLE_TAG_ID36;
   style.textContent = DIALOG_CSS3;
   document.head.appendChild(style);
-  _stylesInjected36 = true;
+  _stylesInjected37 = true;
 }
 var DIALOG_CSS3 = `
 .xkt-confirm-dialog {
@@ -226601,7 +228160,7 @@ function confirmDialog(params) {
   if (typeof document === "undefined") {
     return Promise.resolve(false);
   }
-  injectStylesOnce37();
+  injectStylesOnce38();
   return new Promise((resolve2) => {
     const container = params.container || document.body;
     const dialog = el("div", "xkt-confirm-dialog", {
@@ -226682,27 +228241,27 @@ var CLOSE_ICON_SVG = `<svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg
      <path d="M3 3l6 6"/>
      <path d="M9 3l-6 6"/>
    </svg>`;
-var STYLE_TAG_ID36 = "xkt-vp-styles";
-var _stylesInjected37 = false;
+var STYLE_TAG_ID37 = "xkt-vp-styles";
+var _stylesInjected38 = false;
 function ensureViewPanelStylesInjected() {
-  injectStylesOnce38();
+  injectStylesOnce39();
 }
-function injectStylesOnce38() {
-  if (_stylesInjected37)
+function injectStylesOnce39() {
+  if (_stylesInjected38)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID36)) {
-    _stylesInjected37 = true;
+  if (document.getElementById(STYLE_TAG_ID37)) {
+    _stylesInjected38 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID36;
-  style.textContent = PANEL_CSS32;
+  style.id = STYLE_TAG_ID37;
+  style.textContent = PANEL_CSS33;
   document.head.appendChild(style);
-  _stylesInjected37 = true;
+  _stylesInjected38 = true;
 }
-var PANEL_CSS32 = `
+var PANEL_CSS33 = `
 .xkt-vp-panel {
   position: fixed;
   top: 80px;
@@ -226965,7 +228524,7 @@ var ViewPanel = class extends FloatingPanelBase {
     });
     this._onCloseCallback = params.onClose;
     this._onDestroyCallback = params.onDestroy;
-    injectStylesOnce38();
+    injectStylesOnce39();
     this._buildDom(params);
     this._bindChrome();
     if (params.x !== void 0 || params.y !== void 0) {

@@ -20,7 +20,7 @@
         "website-sdk-docs": "rimraf packages/website/docs && mkdir packages/website/docs && pnpm --filter @xeokit/sdk website-sdk-docs && (cd packages/sdk && typedoc --entryPointStrategy merge \"../website/docs/json/*.json\" --tsconfig ../../tsconfig.typedoc.json --out ../website/docs/api)",
         "website-build-xeokit-lib": "pnpm --filter @xeokit/website website-build-xeokit-lib",
         "website-convert-models": "pnpm website-build-xeokit-lib && pnpm --filter @xeokit/website website-convert-models",
-        "website-example-snapshots": "pnpm website-convert-models && pnpm --filter @xeokit/website website-example-snapshots",
+        "website-example-snapshots": "pnpm --filter @xeokit/website website-example-snapshots",
         "website-build": "pnpm website-sdk-docs && pnpm --filter @xeokit/website website-build && pnpm website-example-snapshots",
         "website-build-local": "pnpm website-sdk-docs && pnpm --filter @xeokit/website website-build-local && pnpm website-example-snapshots",
         "website-build-local-nosnapshots": "pnpm website-sdk-docs && pnpm --filter @xeokit/website website-build-local"

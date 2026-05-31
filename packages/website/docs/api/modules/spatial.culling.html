@@ -1,0 +1,237 @@
+<!DOCTYPE html><html class="default" lang="en" data-base=".."><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>culling | @xeokit/sdk - v0.1.0</title><meta name="description" content="Documentation for @xeokit/sdk"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script>
+<style>
+:root.mermaid-enabled .mermaid-block > pre {
+  display: none;
+}
+:root:not(.mermaid-enabled) .mermaid-block > .mermaid {
+  display: none !important;
+}
+
+.mermaid-block > .mermaid[data-inserted].dark {
+  display: var(--mermaid-dark-display);
+}
+.mermaid-block > .mermaid[data-inserted].light {
+  display: var(--mermaid-light-display);
+}
+
+:root {
+  --mermaid-dark-display: none;
+  --mermaid-light-display: block;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --mermaid-dark-display: none;
+    --mermaid-light-display: block;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mermaid-dark-display: block;
+    --mermaid-light-display: none;
+  }
+}
+body.light, :root[data-theme="light"] {
+  --mermaid-dark-display: none;
+  --mermaid-light-display: block;
+}
+body.dark, :root[data-theme="dark"] {
+  --mermaid-dark-display: block;
+  --mermaid-light-display: none;
+}
+</style>
+</head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search"><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">@xeokit/sdk - v0.1.0</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb"><li><a href="../modules.html">@xeokit/sdk</a></li><li><a href="spatial.html">spatial</a></li><li><a href="spatial.culling.html">culling</a></li></ul><h1>Namespace culling</h1></div><section class="tsd-panel tsd-comment"><div class="tsd-comment tsd-typography"><a id="xeokit-view-culling" class="tsd-anchor"></a><h1 class="tsd-anchor-link">xeokit View Culling<a href="#xeokit-view-culling" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><hr>
+<p><strong>Off-thread frustum and solid-angle culling for a
+<a href="../classes/viewing.viewer.View.html" class="tsd-kind-class">View</a>. A bounding sphere per object is mirrored
+into a Web Worker, which flips <a href="../classes/viewing.viewer.ViewObject.html#culled" class="tsd-kind-accessor">viewing!viewer.ViewObject.culled</a> as the
+camera moves so the renderer skips what's off-screen or too small to see.</strong></p>
+<hr>
+<p>The <code>culling</code> module trims a <a href="../classes/viewing.viewer.View.html" class="tsd-kind-class">View</a>'s draw load
+without blocking the main thread. One bounding sphere per
+<a href="../classes/model.scene.SceneObject.html" class="tsd-kind-class">SceneObject</a> is mirrored into a worker; each
+camera change posts the view's frustum, and the worker returns only the
+objects whose state flipped since the last pass. Those deltas are written to
+<a href="../classes/viewing.viewer.ViewObject.html#culled" class="tsd-kind-accessor">ViewObject.culled</a>, and the renderer
+drops their meshes from the view's draw index.</p>
+<p>One worker and one bounds mirror serve a whole <a href="../classes/model.scene.Scene.html" class="tsd-kind-class">Scene</a>,
+retrieved via <a href="../functions/spatial.culling.getSceneCuller.html" class="tsd-kind-function">getSceneCuller</a>. The mirror — one sphere per object — is
+held once and shared by every <a href="../classes/viewing.viewer.View.html" class="tsd-kind-class">View</a>, while cull
+state is tracked per view, so each camera culls independently.</p>
+<p>The worker scans a <strong>flat list of spheres</strong> — <code>O(n)</code> per camera, with no
+spatial hierarchy. Bounds come from the collision index and stay current
+through the same scene-mutation events, but that index's BVH is never
+traversed: it lives on the main thread, beyond the worker's reach. The trade
+is deliberate — hierarchical <code>O(log n)</code> acceleration is given up so the scan
+never blocks the render loop. For BVH-accelerated frustum culling on the main
+thread instead, use <code>SceneCollisionIndex.intersectFrustum()</code>.</p>
+<br>
+<a id="shape" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Shape<a href="#shape" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><div class="mermaid-block"><div class="mermaid dark">%%{init:{"theme":"dark"}}%%
+classDiagram
+    direction TB
+    class View {
+      &lt;&lt;viewer&gt;&gt;
+    }
+    class ViewCuller {
+      +view : View
+      +destroy()
+    }
+    class getSceneCuller {
+      +(scene) SceneCuller
+    }
+    class SceneCuller {
+      +scene : Scene
+      +registerView(viewId, listener)
+      +unregisterView(viewId)
+      +postViewChanged(message)
+      +objectIdAt(index) string
+      +destroy()
+    }
+    class CullParams {
+      +solidAngleLimit?   : number
+      +cullEveryNUpdates? : number
+    }
+    class Scene {
+      &lt;&lt;scene&gt;&gt;
+    }
+    ViewCuller o-- View : drives
+    ViewCuller ..&gt; getSceneCuller : uses
+    getSceneCuller ..&gt; SceneCuller : caches per Scene
+    ViewCuller o-- SceneCuller : shares
+    ViewCuller ..&gt; CullParams : reads
+    SceneCuller o-- Scene : observes</div><div class="mermaid light">%%{init:{"theme":"default"}}%%
+classDiagram
+    direction TB
+    class View {
+      &lt;&lt;viewer&gt;&gt;
+    }
+    class ViewCuller {
+      +view : View
+      +destroy()
+    }
+    class getSceneCuller {
+      +(scene) SceneCuller
+    }
+    class SceneCuller {
+      +scene : Scene
+      +registerView(viewId, listener)
+      +unregisterView(viewId)
+      +postViewChanged(message)
+      +objectIdAt(index) string
+      +destroy()
+    }
+    class CullParams {
+      +solidAngleLimit?   : number
+      +cullEveryNUpdates? : number
+    }
+    class Scene {
+      &lt;&lt;scene&gt;&gt;
+    }
+    ViewCuller o-- View : drives
+    ViewCuller ..&gt; getSceneCuller : uses
+    getSceneCuller ..&gt; SceneCuller : caches per Scene
+    ViewCuller o-- SceneCuller : shares
+    ViewCuller ..&gt; CullParams : reads
+    SceneCuller o-- Scene : observes</div><pre><code class="language-mermaid">classDiagram
+    direction TB
+    class View {
+      &lt;&lt;viewer&gt;&gt;
+    }
+    class ViewCuller {
+      +view : View
+      +destroy()
+    }
+    class getSceneCuller {
+      +(scene) SceneCuller
+    }
+    class SceneCuller {
+      +scene : Scene
+      +registerView(viewId, listener)
+      +unregisterView(viewId)
+      +postViewChanged(message)
+      +objectIdAt(index) string
+      +destroy()
+    }
+    class CullParams {
+      +solidAngleLimit?   : number
+      +cullEveryNUpdates? : number
+    }
+    class Scene {
+      &lt;&lt;scene&gt;&gt;
+    }
+    ViewCuller o-- View : drives
+    ViewCuller ..&gt; getSceneCuller : uses
+    getSceneCuller ..&gt; SceneCuller : caches per Scene
+    ViewCuller o-- SceneCuller : shares
+    ViewCuller ..&gt; CullParams : reads
+    SceneCuller o-- Scene : observes</code></pre></div>
+<br>
+<a id="features" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Features<a href="#features" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li><strong>Off the main thread</strong> — the frustum and solid-angle tests run in a Web
+Worker. The main thread only posts frustums and applies the returned
+cull deltas.</li>
+<li><strong>Frustum + solid-angle</strong> — an object is culled when its bounding sphere
+falls outside the view frustum, or subtends less than <code>solidAngleLimit</code>
+on screen. The size test is resolution-independent.</li>
+<li><strong>One worker per Scene</strong> — <a href="../functions/spatial.culling.getSceneCuller.html" class="tsd-kind-function">getSceneCuller</a> is a cached singleton;
+the bounds mirror (one sphere per object) is held once and shared by
+every View. The culler auto-destroys on <code>onSceneDestroyed</code>.</li>
+<li><strong>Per-view cull state</strong> — each <a href="../classes/viewing.viewer.View.html" class="tsd-kind-class">View</a> culls its
+own camera against the shared mirror, so multi-view setups don't interfere.</li>
+<li><strong>Self-maintaining bounds</strong> — the mirror follows scene mutations (objects
+added, removed, or moved) through the same events the
+collision!SceneCollisionIndex | SceneCollisionIndex observes, and
+reads bounds back from that index on a coalesced flush.</li>
+<li><strong>Throttled</strong> — only every Nth camera change posts a pass, with a trailing
+&quot;settled&quot; pass once motion stops and at most one pass in flight at a time.</li>
+<li><strong>Independent of visibility</strong> — culling drops a mesh from the draw index
+without disturbing <a href="../classes/viewing.viewer.ViewObject.html#visible" class="tsd-kind-accessor">viewing!viewer.ViewObject.visible</a>, so toggling it
+never reveals an object the app deliberately hid.</li>
+</ul>
+<br>
+<a id="installation" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Installation<a href="#installation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><pre><code class="bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">install</span><span class="hl-1"> </span><span class="hl-2">@xeokit/sdk</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="quick-start" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Quick Start<a href="#quick-start" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><a id="1-cull-a-view" class="tsd-anchor"></a><h3 class="tsd-anchor-link">1) Cull a View<a href="#1-cull-a-view" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Construct a <a href="../classes/spatial.culling.ViewCuller.html" class="tsd-kind-class">ViewCuller</a> against the View. It starts culling at once and
+self-destroys when the View is destroyed.</p>
+<pre><code class="javascript"><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-4">ViewCuller</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@xeokit/sdk/spatial/culling&quot;</span><span class="hl-1">;</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">culler</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">ViewCuller</span><span class="hl-1">(</span><span class="hl-4">view</span><span class="hl-1">);</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="2-tune-the-thresholds" class="tsd-anchor"></a><h3 class="tsd-anchor-link">2) Tune the thresholds<a href="#2-tune-the-thresholds" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><pre><code class="javascript"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">culler</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">ViewCuller</span><span class="hl-1">(</span><span class="hl-4">view</span><span class="hl-1">, {</span><br/><span class="hl-1">  </span><span class="hl-4">solidAngleLimit:</span><span class="hl-1">   </span><span class="hl-7">0.01</span><span class="hl-1">,  </span><span class="hl-8">// cull small objects sooner</span><br/><span class="hl-1">  </span><span class="hl-4">cullEveryNUpdates:</span><span class="hl-1"> </span><span class="hl-7">5</span><span class="hl-1">      </span><span class="hl-8">// post a pass every 5th camera change</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="3-stop-culling" class="tsd-anchor"></a><h3 class="tsd-anchor-link">3) Stop culling<a href="#3-stop-culling" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Un-culls every object, restoring full visibility.</p>
+<pre><code class="javascript"><span class="hl-4">culler</span><span class="hl-1">.</span><span class="hl-0">destroy</span><span class="hl-1">();</span>
+</code><button type="button">Copy</button></pre>
+
+<br>
+<a id="4-multiple-views" class="tsd-anchor"></a><h3 class="tsd-anchor-link">4) Multiple Views<a href="#4-multiple-views" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>One <a href="../classes/spatial.culling.ViewCuller.html" class="tsd-kind-class">ViewCuller</a> per <a href="../classes/viewing.viewer.View.html" class="tsd-kind-class">View</a>. They share a
+single per-Scene worker and bounds mirror, reached internally through
+<a href="../functions/spatial.culling.getSceneCuller.html" class="tsd-kind-function">getSceneCuller</a>, but cull their own cameras independently.</p>
+<pre><code class="javascript"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">cullerA</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">ViewCuller</span><span class="hl-1">(</span><span class="hl-4">viewA</span><span class="hl-1">);</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">cullerB</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">ViewCuller</span><span class="hl-1">(</span><span class="hl-4">viewB</span><span class="hl-1">);   </span><span class="hl-8">// same Scene, independent camera</span>
+</code><button type="button">Copy</button></pre>
+
+</div><div class="tsd-comment tsd-typography"></div></section><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Classes"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Classes</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="sceneculler" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><a href="../classes/spatial.culling.SceneCuller.html">SceneCuller</a><a href="#sceneculler" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="viewculler" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><a href="../classes/spatial.culling.ViewCuller.html">ViewCuller</a><a href="#viewculler" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Interfaces"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Interfaces</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="cullparams" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/spatial.culling.CullParams.html">CullParams</a><a href="#cullparams" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Type Aliases"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Type Aliases</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="cullingresultlistener" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Type Alias"><use href="../assets/icons.svg#icon-2097152"></use></svg><a href="../types/spatial.culling.CullingResultListener.html">CullingResultListener</a><a href="#cullingresultlistener" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Variables"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Variables</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="default_cull_params" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><a href="../variables/spatial.culling.DEFAULT_CULL_PARAMS.html">DEFAULT_CULL_PARAMS</a><a href="#default_cull_params" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Functions"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Functions</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="getsceneculler" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><a href="../functions/spatial.culling.getSceneCuller.html">getSceneCuller</a><a href="#getsceneculler" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-alpha" name="alpha"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Alpha</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-beta" name="beta"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Beta</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#xeokit-view-culling"><span>xeokit <wbr/>View <wbr/>Culling</span></a><ul><li><a href="#shape"><span>Shape</span></a></li><li><a href="#features"><span>Features</span></a></li><li><a href="#installation"><span>Installation</span></a></li><li><a href="#quick-start"><span>Quick <wbr/>Start</span></a></li><li><ul><li><a href="#1-cull-a-view"><span>1) <wbr/>Cull a <wbr/>View</span></a></li><li><a href="#2-tune-the-thresholds"><span>2) <wbr/>Tune the thresholds</span></a></li><li><a href="#3-stop-culling"><span>3) <wbr/>Stop culling</span></a></li><li><a href="#4-multiple-views"><span>4) <wbr/>Multiple <wbr/>Views</span></a></li></ul></li></ul><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Classes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Classes</summary><div><a href="#sceneculler" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><span>Scene<wbr/>Culler</span></a><a href="#viewculler" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Class"><use href="../assets/icons.svg#icon-128"></use></svg><span>View<wbr/>Culler</span></a></div></details><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Interfaces"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Interfaces</summary><div><a href="#cullparams" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>Cull<wbr/>Params</span></a></div></details><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Type Aliases"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Type Aliases</summary><div><a href="#cullingresultlistener" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Type Alias"><use href="../assets/icons.svg#icon-2097152"></use></svg><span>Culling<wbr/>Result<wbr/>Listener</span></a></div></details><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Variables"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Variables</summary><div><a href="#default_cull_params" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><span>DEFAULT_<wbr/>CULL_<wbr/>PARAMS</span></a></div></details><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Functions"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Functions</summary><div><a href="#getsceneculler" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><span>get<wbr/>Scene<wbr/>Culler</span></a></div></details></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="../modules.html">@xeokit/sdk - v0.1.0</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div>
+<script type="module">
+import mermaid from "https://unpkg.com/mermaid@latest/dist/mermaid.esm.min.mjs";
+
+document.documentElement.classList.add("mermaid-enabled");
+
+mermaid.initialize({startOnLoad:true});
+
+requestAnimationFrame(function check() {
+  let some = false;
+  document.querySelectorAll("div.mermaid:not([data-inserted])").forEach(div => {
+    some = true;
+    if (div.querySelector("svg")) {
+      div.dataset.inserted = true;
+    }
+  });
+
+  if (some) {
+    requestAnimationFrame(check);
+  }
+});
+</script>
+</body></html>

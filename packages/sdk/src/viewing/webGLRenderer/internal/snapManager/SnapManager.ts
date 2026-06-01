@@ -7,7 +7,7 @@ import {
 } from "../../../../base/math/vector";
 import {ViewRenderState} from "../ViewRenderState";
 import {RenderContext} from "../RenderContext";
-import {WebGLSnapBufferCache, WebGLSnapBuffer} from "../../../../base/webGL/WebGLSnapBuffer";
+import {WebGLSnapBufferCache, WebGLSnapBuffer} from "../webGL/WebGLSnapBuffer";
 import {type GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
 import {MeshManager} from "../meshManager/MeshManager";
 import {GPUMemoryManager} from "../gpuMemoryManager/GPUMemoryManager";

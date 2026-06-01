@@ -1,4 +1,4 @@
-import {SDKErrorType, SDKInternalException, type SDKResult} from "../core";
+import {SDKErrorType, SDKInternalException, type SDKResult} from "../../../../base/core";
 
 /**
  * A WebGL framebuffer used for snap-to-vertex / snap-to-edge picking.

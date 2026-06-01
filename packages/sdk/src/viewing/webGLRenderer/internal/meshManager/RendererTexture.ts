@@ -1,5 +1,5 @@
 
-import type {WebGLTexture} from "../../../../base/webGL";
+import type {WebGLTexture} from "../webGL";
 import {SceneTexture} from "../../../../model/scene";
 
 /**

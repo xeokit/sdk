@@ -13,8 +13,7 @@
  *
  * Constants live in one place so loaders, exporters, the renderer,
  * and viewer wire-format all agree on the same integer codes. The
- * GL ↔ xeokit mapping is handled inside
- * {@link base!webGL.convertWebGLConstant | convertWebGLConstant}; the
+ * GL ↔ xeokit mapping is handled inside the WebGL renderer; the
  * external integer values exposed here are stable across SDK
  * versions and form part of the wire format for XGF / DataModel
  * payloads.

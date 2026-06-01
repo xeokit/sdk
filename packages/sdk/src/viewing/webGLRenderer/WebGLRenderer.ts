@@ -3,7 +3,7 @@ import type {Viewer} from "../viewer";
 import {View} from "../viewer";
 import {ViewManager} from "./internal/ViewManager";
 import {EventDispatcher} from "strongly-typed-events";
-import {getWebGLExtension} from "../../base/webGL";
+import {getWebGLExtension} from "./internal/webGL";
 import {type Capabilities} from "./Capabilities";
 import {type WebGLRendererEvents} from "./WebGLRendererEvents";
 import {type MemoryConfigs} from "./MemoryConfigs";
@@ -330,6 +330,37 @@ export class WebGLRenderer {
   }
 
   /**
+   * Returns submitted-geometry stats for a View's most recently
+   * completed frame: the total number of draw calls and primitives
+   * issued across all render passes (color, shadow cascades, SAO, …).
+   *
+   * `numPrimitives` is summed from the per-view packed draw ranges, so
+   * it reflects visibility and culling — culled meshes drop out of the
+   * count. It's the metric to watch to confirm culling is reducing GPU
+   * work, since it moves even while the display caps the frame rate.
+   * `numDrawCalls`, by contrast, barely changes with culling: this
+   * renderer draws a whole batch per call, so culling trims primitives
+   * within a draw rather than removing draws.
+   *
+   * Returns `null` when no Viewer is attached or the render inspector
+   * has not recorded a frame for this view yet. The inspector is
+   * enabled by {@link studio!Studio | Studio}; in a bare WebGLRenderer
+   * setup, enable it first via {@link getRenderInspector}.
+   *
+   * @param viewIndex - {@link viewing!viewer.View.viewIndex | View.viewIndex}.
+   */
+  public getViewRenderStats(viewIndex: number): { numDrawCalls: number; numPrimitives: number } | null {
+    if (!this._viewManager) {
+      return null;
+    }
+    const frame = this._viewManager.getRenderInspector().renderStats.views?.[viewIndex];
+    if (!frame) {
+      return null;
+    }
+    return {numDrawCalls: frame.numDrawCalls, numPrimitives: frame.numPrims};
+  }
+
+  /**
    * Enables (or disables) opt-in step-level timing inside the
    * renderer's MeshManager, which fires synchronously on every
    * `SceneModel.createMesh` call. Use to attribute time across the
@@ -564,6 +595,7 @@ export class WebGLRenderer {
       viewerEvents.onViewObjectVisibleChanged.subscribe((view, viewObject) => viewManager.viewObjectVisibilityChanged(viewObject)),
       viewerEvents.onViewObjectXRayedChanged.subscribe((view, viewObject) => viewManager.viewObjectXRayedChanged(viewObject)),
       viewerEvents.onViewObjectClippableChanged.subscribe((view, viewObject) => viewManager.viewObjectClippableChanged(viewObject)),
+      viewerEvents.onViewObjectCulledChanged.subscribe((view, viewObject) => viewManager.viewObjectCulledChanged(viewObject)),
       viewerEvents.onViewObjectHighlightedChanged.subscribe((view, viewObject) => viewManager.viewObjectHighlightedChanged(viewObject)),
       viewerEvents.onViewObjectSelectedChanged.subscribe((view, viewObject) => viewManager.viewObjectSelectedChanged(viewObject)),
       viewerEvents.onViewObjectColorizeChanged.subscribe((view, viewObject) => viewManager.viewObjectColorizeChanged(viewObject)),

@@ -1,7 +1,7 @@
 import type {RenderContext} from "../../RenderContext";
 import type {View} from "../../../../viewer";
 
-import {WebGLRenderBuffer} from "../../../../../base/webGL";
+import {WebGLRenderBuffer} from "../../webGL";
 import {type SDKResult} from "../../../../../base/core";
 
 import {HDRRenderTarget} from "../hdr/HDRRenderTarget";

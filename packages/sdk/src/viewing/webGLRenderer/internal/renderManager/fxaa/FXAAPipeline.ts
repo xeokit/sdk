@@ -1,7 +1,7 @@
 import type {RenderContext} from "../../RenderContext";
-import type {WebGLAbstractTexture} from "../../../../../base/webGL";
+import type {WebGLAbstractTexture} from "../../webGL";
 
-import {WebGLProgram} from "../../../../../base/webGL";
+import {WebGLProgram} from "../../webGL";
 import {SDKErrorType, type SDKResult} from "../../../../../base/core";
 
 /**

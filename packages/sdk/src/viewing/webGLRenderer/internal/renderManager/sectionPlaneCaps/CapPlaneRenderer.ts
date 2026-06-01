@@ -1,6 +1,6 @@
 import type {RenderContext} from "../../RenderContext";
 
-import {WebGLProgram} from "../../../../../base/webGL";
+import {WebGLProgram} from "../../webGL";
 import {SDKErrorType, type SDKResult} from "../../../../../base/core";
 import {MAX_SECTION_PLANES} from "../../drawOps/DrawTechnique";
 

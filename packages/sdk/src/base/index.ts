@@ -5,4 +5,3 @@ export * as io from "./io";
 export * as locale from "./locale";
 export * as math from "./math";
 export * as utils from "./utils";
-export * as webGL from "./webGL";

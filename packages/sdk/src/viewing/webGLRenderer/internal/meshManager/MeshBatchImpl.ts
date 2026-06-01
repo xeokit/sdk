@@ -373,10 +373,12 @@ export class MeshBatchImpl implements MeshBatch {
   // honours the new state on the next frame.)
 
   /**
-   * Sets per-view mesh culling state.
+   * Sets per-view mesh culling state. Writes through to the GPU draw
+   * index (independent of visibility) so culled meshes are skipped at
+   * draw time, just like hidden ones.
    */
   public setMeshCulled(viewIndex: number, meshHandle: MeshBatchMeshHandle, culled: boolean): void {
-
+    this._gpuMemoryManager.setMeshCulled(meshHandle as GPUMemoryMeshHandle, viewIndex, culled);
   }
 
   /**

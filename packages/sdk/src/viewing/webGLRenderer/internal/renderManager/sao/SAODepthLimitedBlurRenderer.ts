@@ -1,5 +1,5 @@
-import type {WebGLAttribute, WebGLRenderBuffer} from "../../../../../base/webGL";
-import {WebGLArrayBuf, WebGLProgram} from "../../../../../base/webGL";
+import type {WebGLAttribute, WebGLRenderBuffer} from "../../webGL";
+import {WebGLArrayBuf, WebGLProgram} from "../../webGL";
 import {PerspectiveProjectionType} from "../../../../../base/constants";
 import type {RenderContext} from "../../RenderContext";
 import type {View} from "../../../../viewer";

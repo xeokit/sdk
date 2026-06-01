@@ -10,7 +10,7 @@ import {
 } from "../../../../base/math/vector";
 import {ViewRenderState} from "../ViewRenderState";
 import {RenderContext} from "../RenderContext";
-import {WebGLPickBuffer} from "../../../../base/webGL/WebGLPickBuffer";
+import {WebGLPickBuffer} from "../webGL/WebGLPickBuffer";
 import {type GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
 import {MeshManager} from "../meshManager/MeshManager";
 import {ViewManager} from "../ViewManager";

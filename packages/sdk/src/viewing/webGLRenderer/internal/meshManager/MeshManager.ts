@@ -629,6 +629,16 @@ export class MeshManager {
   }
 
   /**
+   * Handles changes to a {@link viewing!viewer.ViewObject | ViewObject}'s culled state.
+   *
+   * Updates the per-view culled flag on the owning {@link RendererObject},
+   * which drops/restores the object's meshes in that view's GPU draw index.
+   */
+  public viewObjectCulledChanged(viewObject: ViewObject): void {
+    this._rendererObjects[viewObject.id]?.setCulled(viewObject.layer.view.viewIndex, viewObject.culled);
+  }
+
+  /**
    * Handles changes to a {@link viewing!viewer.ViewObject | ViewObject}'s highlighted state.
    *
    * Updates the per-view highlighted flag on the owning {@link RendererObject}.

@@ -1,4 +1,4 @@
-import {WEBGL_INFO} from "../../../../base/webGL";
+import {WEBGL_INFO} from "../webGL";
 import {LinesPrimitive, TrianglesPrimitive} from "../../../../base/constants";
 import {type RenderContext} from "../RenderContext";
 import {type MeshManager} from "../meshManager/MeshManager";

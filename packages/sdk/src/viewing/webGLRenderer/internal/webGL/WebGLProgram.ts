@@ -1,7 +1,7 @@
-import {Map} from "../utils";
+import {Map} from "../../../../base/utils";
 import {WebGLAttribute} from "./WebGLAttribute";
 import {WebGLShader} from "./WebGLShader";
-import {SDKErrorType, type SDKResult} from "../core";
+import {SDKErrorType, type SDKResult} from "../../../../base/core";
 import {type WebGLContextProvider} from "./WebGLContextProvider";
 
 const ids = new Map({}, "");

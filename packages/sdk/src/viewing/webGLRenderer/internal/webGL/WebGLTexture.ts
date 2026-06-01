@@ -1,17 +1,17 @@
-import type * as math from '../math';
+import type * as math from '../../../../base/math';
 import {
   NearestFilter,
   NearestMipmapLinearFilter, NearestMipmapNearestFilter,
   RepeatWrapping,
   RGBAFormat, sRGBEncoding,
   UnsignedByteType
-} from "../constants";
+} from "../../../../base/constants";
 
 
 import {convertWebGLConstant} from "./convertWebGLConstant";
 import {getWebGLExtension} from "./getWebGLExtension";
-import {isArray} from "../utils";
-import type {TextureCompressedParams} from "../core";
+import {isArray} from "../../../../base/utils";
+import type {TextureCompressedParams} from "../../../../base/core";
 import type {WebGLAbstractTexture} from "./WebGLAbstractTexture";
 
 const color = new Uint8Array([0, 0, 0, 1]);

@@ -1019,6 +1019,17 @@ export class ViewManager {
     this._meshManager.viewObjectClippableChanged(viewObject);
   }
 
+  /**
+   * Notifies that a {@link viewing!viewer.ViewObject | ViewObject}'s culled flag changed.
+   * Forwards to {@link MeshManager} to queue GPU updates.
+   */
+  public viewObjectCulledChanged(viewObject: ViewObject): void {
+    if (!this._rendererViewsList[viewObject.layer.view.viewIndex]) {
+      return;
+    }
+    this._meshManager.viewObjectCulledChanged(viewObject);
+  }
+
   public viewObjectXRayedChanged(viewObject: ViewObject): void {
     if (!this._rendererViewsList[viewObject.layer.view.viewIndex]) {
       return;

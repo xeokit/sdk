@@ -69,6 +69,15 @@ export interface GPUMemoryEditor {
   setMeshVisible(meshHandle: GPUMemoryMeshHandle, viewIndex: number, visible: boolean): void;
 
   /**
+   * Sets whether a mesh is culled in a specific view. Independent of
+   * visibility; the mesh is drawn only when visible and not culled.
+   * @param meshHandle
+   * @param viewIndex
+   * @param culled
+   */
+  setMeshCulled(meshHandle: GPUMemoryMeshHandle, viewIndex: number, culled: boolean): void;
+
+  /**
    * Sets the modeling transform matrix for a mesh.
    * The transform is relative to the center of the mesh's tile.
    * The matrix is stored in BatchDataTextures.meshMatrices.

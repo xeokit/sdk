@@ -1,4 +1,4 @@
-import {SDKErrorType, type SDKResult} from "../core";
+import {SDKErrorType, type SDKResult} from "../../../../base/core";
 import {type WebGLContextProvider} from "./WebGLContextProvider";
 
 /**

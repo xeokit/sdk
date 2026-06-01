@@ -57,7 +57,7 @@ import {
   UnsignedShort4444Type,
   UnsignedShort5551Type,
   UnsignedShortType
-} from "../constants";
+} from "../../../../base/constants";
 
 import {getWebGLExtension} from "./getWebGLExtension";
 

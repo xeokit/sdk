@@ -142,6 +142,14 @@ export class ViewerEvents {
   readonly onViewObjectClippableChanged: EventEmitter<View, ViewObject>;
 
   /**
+   * Emits an event each time the culled state of a {@link viewing!viewer.ViewObject | ViewObject}
+   * changes within a {@link viewing!viewer.View | View}, via
+   * {@link ViewObject.culled}. The renderer subscribes to this to drop
+   * or restore the object's meshes in that view's GPU draw index.
+   */
+  readonly onViewObjectCulledChanged: EventEmitter<View, ViewObject>;
+
+  /**
    * Emits an event each time the colorization of a {@link viewing!viewer.ViewObject | ViewObject} changes within a {@link viewing!viewer.View | View}.
    *
    * ViewObjects are colorized with {@link View.setObjectsColorized},
@@ -293,6 +301,7 @@ export class ViewerEvents {
     this.onViewObjectHighlightedChanged = new EventEmitter(new EventDispatcher<View, ViewObject>());
     this.onViewObjectXRayedChanged = new EventEmitter(new EventDispatcher<View, ViewObject>());
     this.onViewObjectClippableChanged = new EventEmitter(new EventDispatcher<View, ViewObject>());
+    this.onViewObjectCulledChanged = new EventEmitter(new EventDispatcher<View, ViewObject>());
     this.onViewObjectColorizeChanged = new EventEmitter(new EventDispatcher<View, ViewObject>());
     this.onViewObjectOpacityChanged = new EventEmitter(new EventDispatcher<View, ViewObject>());
     this.onViewObjectPickableChanged = new EventEmitter(new EventDispatcher<View, ViewObject>());
@@ -335,6 +344,7 @@ export class ViewerEvents {
     this.onViewObjectVisibleChanged.clear();
     this.onViewObjectXRayedChanged.clear();
     this.onViewObjectClippableChanged.clear();
+    this.onViewObjectCulledChanged.clear();
     this.onViewObjectSelectedChanged.clear();
     this.onViewObjectHighlightedChanged.clear();
     this.onViewObjectColorizeChanged.clear();

@@ -140,6 +140,11 @@ type MeshHandle = {
   meshIndex: number;
   primitiveMeshIndexTextureHandles: any[];
   edgeMeshIndexTextureHandles?: any[];
+  // Per-view inputs to draw inclusion. A mesh is drawn in a view only
+  // when it is visible AND not culled; both `setMeshVisible` and
+  // `setMeshCulled` recompute the effective flag from these.
+  visible: boolean[];
+  culled: boolean[];
 };
 
 /**
@@ -1155,7 +1160,12 @@ export class GPUMemoryBatch {
       sceneMesh,
       meshIndex,
       primitiveMeshIndexTextureHandles,
-      edgeMeshIndexTextureHandles
+      edgeMeshIndexTextureHandles,
+      // Meshes start visible and un-culled in every view; the index
+      // texture portions created above are already included in the
+      // draw list, so this matches the initial GPU state.
+      visible: new Array(numViews).fill(true),
+      culled: new Array(numViews).fill(false)
     };
 
     this._meshIndicesByUniqueId[sceneMesh.uniqueId] = meshIndex;
@@ -1269,17 +1279,49 @@ export class GPUMemoryBatch {
     if (!meshHandle) {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no meshHandle`);
     }
+    meshHandle.visible[viewIndex] = visible;
+    this._applyMeshDrawInclusion(meshHandle, viewIndex);
+  }
+
+  /**
+   * Sets per-view mesh cull state. Culling and visibility are
+   * independent inputs to the same draw-inclusion decision — a culled
+   * mesh is dropped from the view's draw index just like a hidden one,
+   * but without disturbing the user-set visibility, so toggling
+   * culling never reveals an object the app deliberately hid.
+   *
+   * @param viewIndex
+   * @param culled
+   */
+  setMeshCulled(
+    meshIndex: number,
+    viewIndex: number,
+    culled: boolean) {
+    const meshHandle = this._meshHandles[meshIndex];
+    if (!meshHandle) {
+      throw new SDKInternalException(`GPUMemoryBatch.setMeshCulled: Mesh ${meshIndex} has no meshHandle`);
+    }
+    meshHandle.culled[viewIndex] = culled;
+    this._applyMeshDrawInclusion(meshHandle, viewIndex);
+  }
+
+  // Writes the effective draw-inclusion (visible AND not culled) for a
+  // mesh in a view to the primitive and edge index textures — the same
+  // mechanism plain visibility uses to add/remove a mesh from the
+  // view's compacted draw list.
+  private _applyMeshDrawInclusion(meshHandle: MeshHandle, viewIndex: number): void {
+    const include = meshHandle.visible[viewIndex] && !meshHandle.culled[viewIndex];
     const primitiveMeshIndexTextureHandle = meshHandle.primitiveMeshIndexTextureHandles[viewIndex];
     if (!primitiveMeshIndexTextureHandle) {
-      throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no primitiveMeshIndexTextureHandle`);
+      throw new SDKInternalException(`GPUMemoryBatch._applyMeshDrawInclusion: Mesh ${meshHandle.meshIndex} has no primitiveMeshIndexTextureHandle`);
     }
-    this._primitiveMeshIndexTexture[viewIndex].setMeshVisible(primitiveMeshIndexTextureHandle, visible);
+    this._primitiveMeshIndexTexture[viewIndex].setMeshVisible(primitiveMeshIndexTextureHandle, include);
     if (meshHandle.edgeMeshIndexTextureHandles) {
       const edgeMeshIndexTextureHandle = meshHandle.edgeMeshIndexTextureHandles[viewIndex];
       if (!edgeMeshIndexTextureHandle) {
-        throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no edgeMeshIndexTextureHandle`);
+        throw new SDKInternalException(`GPUMemoryBatch._applyMeshDrawInclusion: Mesh ${meshHandle.meshIndex} has no edgeMeshIndexTextureHandle`);
       }
-      this._edgeMeshIndexTexture[viewIndex].setObjectVisible(edgeMeshIndexTextureHandle, visible);
+      this._edgeMeshIndexTexture[viewIndex].setObjectVisible(edgeMeshIndexTextureHandle, include);
     }
   }
 

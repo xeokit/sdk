@@ -989,6 +989,25 @@ class View {
   }
 
   /**
+   * Called by ViewObject.culled setter.
+   * @private
+   */
+  objectCulledUpdated(
+      viewObject: ViewObject,
+      culled: boolean,
+      notify: boolean = true
+  ) {
+    // Like clippable, the culled flag isn't tracked in a per-View
+    // collection — the renderer is its only consumer. Dispatch the
+    // event so the renderer drops/restores the object's meshes in
+    // this view's draw index.
+    if (notify) {
+      this.viewer.events.onViewObjectCulledChanged.dispatch(this, viewObject);
+    }
+    this.needsRender();
+  }
+
+  /**
    * Called by ViewObject.highlighted setter.
    * @private
    */

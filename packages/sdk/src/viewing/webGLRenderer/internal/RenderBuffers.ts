@@ -1,4 +1,4 @@
-import { WebGLRenderBuffer } from "../../../base/webGL";
+import { WebGLRenderBuffer } from "./webGL";
 import { RenderContext } from "./RenderContext";
 import {View} from "../../viewer";
 

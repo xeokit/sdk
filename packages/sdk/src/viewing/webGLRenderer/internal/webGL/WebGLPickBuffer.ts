@@ -1,4 +1,4 @@
-import {SDKErrorType, SDKInternalException, type SDKResult} from "../core";
+import {SDKErrorType, SDKInternalException, type SDKResult} from "../../../../base/core";
 
 /**
  * A utility class for managing a WebGL framebuffer used for picking. This framebuffer has 3 color attachments, and is

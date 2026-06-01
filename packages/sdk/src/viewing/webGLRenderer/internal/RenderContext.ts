@@ -1,8 +1,8 @@
 import type {View, Viewer} from "../../viewer";
-import { WEBGL_INFO, type WebGLAbstractTexture} from "../../../base/webGL";
+import { WEBGL_INFO, type WebGLAbstractTexture} from "./webGL";
 import type {FloatArrayParam} from "../../../base/math";
 import {SDKInternalException, SDKErrorType, type SDKResult} from "../../../base/core";
-import type {WebGLContextProvider} from "../../../base/webGL/WebGLContextProvider";
+import type {WebGLContextProvider} from "./webGL/WebGLContextProvider";
 import type {MemoryConfigs} from "../MemoryConfigs";
 import {RenderInspector} from "./inspectors/RenderInspector";
 

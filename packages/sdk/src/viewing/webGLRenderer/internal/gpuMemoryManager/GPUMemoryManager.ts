@@ -492,6 +492,25 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
   }
 
   /**
+   * Sets whether a mesh is culled in a given view. Independent of
+   * visibility — the batch draws a mesh only when it is visible and
+   * not culled.
+   *
+   * @param meshHandle - Mesh handle returned by {@link addMesh}.
+   * @param viewIndex - Target view index.
+   * @param culled - Cull flag.
+   *
+   * @throws {@link base!core.SDKInternalException | SDKInternalException} If the mesh handle references an invalid batch.
+   */
+  public setMeshCulled(meshHandle: GPUMemoryMeshHandle, viewIndex: number, culled: boolean) {
+    const batch = this._batches[meshHandle.gpuMemoryBatchIndex];
+    if (!batch) {
+      throw new SDKInternalException("[GPUMemoryManager.setMeshCulled] Invalid batch index in mesh handle.");
+    }
+    batch.setMeshCulled(meshHandle.meshIndex, viewIndex, culled);
+  }
+
+  /**
    * Updates the per-view clippable bit for a mesh — written
    * into the MeshViewAttributeTexture's second texel
    * (`renderFlags.g`) so the FS clip loop honours the new

@@ -303,6 +303,11 @@ export class ViewObject {
             return;
         }
         this._setFlag(ViewObject.CULLED, culled);
+        // Forward to the View so the renderer drops/restores this
+        // object's meshes in the view's draw index. Without this the
+        // flag would only flip the JS-side bit and culled objects
+        // would keep rendering.
+        this.layer.view.objectCulledUpdated(this, culled);
     }
 
     /**

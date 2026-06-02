@@ -5,6 +5,7 @@ import type {TonemapParams} from "./TonemapParams";
 import type {AntiAliasingParams} from "./AntiAliasingParams";
 import type {ShadowsParams} from "./ShadowsParams";
 import type {SkyParams} from "./SkyParams";
+import type {IBLParams} from "./IBLParams";
 
 
 /**
@@ -85,4 +86,15 @@ export interface EffectsParams {
    * dominates the body.
    */
   bodyHatch?: { renderModes?: number[] };
+
+  /**
+   * Parameters for the View's image-based lighting,
+   * {@link IBL} — accessible at {@link Effects.ibl} (alias of
+   * {@link Lights.ibl}). Surfaced under effects so reflective UIs
+   * group IBL with the other renderer-effect components whose
+   * look it drives, while the underlying instance still lives on
+   * {@link Lights}. {@link LightsParams.ibl} remains supported for
+   * construction-time configuration.
+   */
+  ibl?: IBLParams;
 }

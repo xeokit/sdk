@@ -479,6 +479,25 @@ const PANEL_CSS = `
   cursor: pointer;
 }
 .xkt-vcp-panel .xkt-vcp-arr { display: inline-flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+/* Slider + number-input pair for bounded numeric knobs. The slider
+   takes the remaining width; the number readout stays a fixed
+   monospace width so values right-align cleanly. */
+.xkt-vcp-panel .xkt-vcp-slider {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-width: 12ch;
+}
+.xkt-vcp-panel .xkt-vcp-input--slider {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0;
+}
+.xkt-vcp-panel .xkt-vcp-input--slider-num {
+  flex: 0 0 auto;
+  width: 8ch;
+}
 /* Render-mode controls — string labels for the three predefined
  * modes. Checkboxes for the per-effect renderModes list and a
  * native dropdown for the per-View renderMode field. */
@@ -1222,7 +1241,23 @@ export class ViewerConfigPanel extends FloatingPanelBase {
         liveGroup && typeof liveGroup.fromParams === "function"
           ? this._makeTargetApply(liveGroup)
           : this._nestedApply(viewApply, g.key);
-      sub.body.appendChild(this._renderObjectTable(g.obj, groupApply, liveGroup));
+
+      if (g.key === "effects") {
+        // Effects is a container of independent renderer-effect
+        // components, each with its own `fromParams`. Render each
+        // child as its own collapsible sub-section with a
+        // properly-cased label, so the section reads as a list of
+        // named effects rather than a flat key/value table.
+        this._renderEffectsGroup(
+          g.obj as Record<string, any>,
+          groupApply,
+          liveGroup,
+          `${viewKey}:${g.key}`,
+          sub.body,
+        );
+      } else {
+        sub.body.appendChild(this._renderObjectTable(g.obj, groupApply, liveGroup));
+      }
       section.body.appendChild(sub.section);
     }
 
@@ -1328,6 +1363,47 @@ export class ViewerConfigPanel extends FloatingPanelBase {
       table.appendChild(tr);
     }
     return table;
+  }
+
+  /**
+   * Render the Effects group as a list of collapsible sub-sections —
+   * one per effect, in {@link EFFECT_ORDER} order, with the
+   * properly-cased label from {@link EFFECT_LABELS}.
+   *
+   * Each sub-section's apply targets the live effect instance
+   * (`liveEffects[effectKey]`) so a single field edit hits exactly
+   * one `fromParams` call on the right instance — same routing the
+   * recursive panel renderer uses internally for any object with a
+   * `fromParams`, just bypassed up front because we know the shape.
+   */
+  private _renderEffectsGroup(
+    effects: Record<string, any>,
+    groupApply: ApplyFn,
+    liveEffects: any,
+    parentKey: string,
+    body: HTMLElement,
+  ): void {
+    const childKeys: string[] = [
+      ...EFFECT_ORDER.filter(k => k in effects),
+      ...Object.keys(effects).filter(k => !EFFECT_LABELS.has(k)).sort(),
+    ];
+    for (const key of childKeys) {
+      const val = effects[key];
+      if (val == null || typeof val !== "object") continue;
+      const sub = this._buildSection({
+        kind: "group",
+        label: EFFECT_LABELS.get(key) ?? key,
+        sectionKey: `${parentKey}:${key}`,
+        defaultOpen: false,
+      });
+      const liveChild = liveEffects ? liveEffects[key] : undefined;
+      const childApply: ApplyFn =
+        liveChild && typeof liveChild.fromParams === "function"
+          ? this._makeTargetApply(liveChild)
+          : this._nestedApply(groupApply, key);
+      sub.body.appendChild(this._renderObjectTable(val, childApply, liveChild));
+      body.appendChild(sub.section);
+    }
   }
 
   /**
@@ -1486,7 +1562,15 @@ export class ViewerConfigPanel extends FloatingPanelBase {
     return inp;
   }
 
-  private _mkNumberInput(parent: any, key: string | number, val: number, apply: ApplyFn): HTMLInputElement {
+  private _mkNumberInput(parent: any, key: string | number, val: number, apply: ApplyFn): HTMLElement {
+    // Known-range knob → slider + number-input pair, two-way bound.
+    // Drag the slider for quick eyeballing, type in the number for
+    // precision. Falls through to a plain number input for anything
+    // that has no defined range (camera positions, timestamps, etc).
+    const range = typeof key === "string" ? SLIDER_RANGES.get(key) : undefined;
+    if (range) {
+      return this._mkSliderInput(parent, key, val, apply, range);
+    }
     const inp = el("input", "xkt-vcp-input xkt-vcp-input--num", {type: "number", step: "any"}) as HTMLInputElement;
     inp.value = String(val);
     inp.addEventListener("change", () => {
@@ -1496,6 +1580,72 @@ export class ViewerConfigPanel extends FloatingPanelBase {
       apply(key, next);
     });
     return inp;
+  }
+
+  /**
+   * Slider + number-input pair, sharing a single backing value. The
+   * range slider provides quick drag-to-eyeball; the number input is
+   * the precise / out-of-range escape hatch. Both write through the
+   * same `apply` call so the live target only sees one update per
+   * change. Used when a key appears in {@link SLIDER_RANGES}.
+   */
+  private _mkSliderInput(
+    parent: any,
+    key: string | number,
+    val: number,
+    apply: ApplyFn,
+    range: [min: number, max: number, step: number],
+  ): HTMLElement {
+    const [min, max, step] = range;
+    const wrap = el("span", "xkt-vcp-slider");
+    const slider = el("input", "xkt-vcp-input xkt-vcp-input--slider", {
+      type: "range",
+      min:  String(min),
+      max:  String(max),
+      step: String(step),
+    }) as HTMLInputElement;
+    const num = el("input", "xkt-vcp-input xkt-vcp-input--num xkt-vcp-input--slider-num", {
+      type: "number",
+      step: String(step),
+    }) as HTMLInputElement;
+
+    const decimals = step < 1 ? Math.max(0, -Math.floor(Math.log10(step))) : 0;
+    const fmt = (n: number): string =>
+      decimals > 0 ? n.toFixed(decimals) : String(Math.round(n));
+
+    slider.value = String(Math.min(max, Math.max(min, val)));
+    num.value = fmt(val);
+
+    const commit = (n: number): void => {
+      const next = Number.isFinite(n) ? n : 0;
+      parent[key] = next;
+      apply(key, next);
+    };
+
+    // Slider drags fire `input` continuously — apply live so the user
+    // sees the effect tune in real time.
+    slider.addEventListener("input", () => {
+      const n = parseFloat(slider.value);
+      num.value = fmt(n);
+      commit(n);
+    });
+
+    // Number input commits on change (Enter / blur). Push the value
+    // back to the slider, clamped to the slider's range so we never
+    // visually de-sync — the underlying state keeps the out-of-range
+    // value the user typed.
+    num.addEventListener("change", () => {
+      const n = parseFloat(num.value);
+      if (!Number.isFinite(n)) {
+        num.value = fmt(slider.valueAsNumber);
+        return;
+      }
+      slider.value = String(Math.min(max, Math.max(min, n)));
+      commit(n);
+    });
+
+    wrap.append(slider, num);
+    return wrap;
   }
 
   private _mkTextInput(parent: any, key: string | number, val: string, apply: ApplyFn): HTMLInputElement {
@@ -1663,6 +1813,88 @@ const KNOWN_GROUPS_LABELS: Record<string, string> = {
   resolutionScale:   "Resolution Scale",
   sectionPlanes:     "Section Planes",
 };
+
+/**
+ * Effect keys in the order they're shown inside the Effects section.
+ * Roughly grouped: scene shading → post-processing → environment →
+ * mode-specific shading variants. Unknown effect keys (effects we
+ * haven't named here) trail in alphabetical order.
+ */
+const EFFECT_ORDER: string[] = [
+  "ibl",
+  "shadows",
+  "sao",
+  "bloom",
+  "tonemap",
+  "antiAliasing",
+  "edges",
+  "sky",
+  "sectionPlaneCaps",
+  "bodyHatch",
+];
+
+/**
+ * Numeric knobs whose range is well-bounded enough that a slider
+ * makes sense alongside the number input. Keyed by leaf property
+ * name (the same camelCase key the params object carries), so the
+ * range applies wherever the knob appears — `intensity` covers SAO,
+ * Bloom, IBL, and Shadows alike, etc.
+ *
+ * Tuple shape: `[min, max, step]`. The slider clamps to this range
+ * visually; the number input is the precise / out-of-range escape
+ * hatch and the panel never overwrites a value the user typed.
+ *
+ * Keys not in this table render as a plain number input, same as
+ * before — so anything we don't have a confident range for stays
+ * unbounded.
+ */
+const SLIDER_RANGES = new Map<string, [number, number, number]>([
+  // Effect intensities / mix coefficients — universal 0–1.
+  ["intensity",          [0, 1,   0.01]],
+  ["knee",               [0, 1,   0.01]],
+  ["edgeAlpha",          [0, 1,   0.01]],
+  ["horizonBlend",       [0, 1,   0.01]],
+  ["sunGlowIntensity",   [0, 1,   0.01]],
+  ["cascadeSplitLambda", [0, 1,   0.01]],
+  // Effect thresholds / exposure-like — small handful with HDR headroom.
+  ["threshold",          [0,  10, 0.05]],
+  ["exposure",           [0,  3,  0.01]],
+  // Edge / sun sizes — small integer-ish dials.
+  ["edgeWidth",          [1, 5,    1]],
+  ["sunAngularSize",     [0, 30,   0.1]],
+  ["sunGlowSize",        [0, 64,   1]],
+  // Resolution scales — 5–200 %.
+  ["renderScale",        [0.5, 2,  0.05]],
+  ["resolutionScale",    [0.05, 2, 0.05]],
+  // Shadow tuning — bias and cascade tuning sit in narrow ranges.
+  ["bias",               [0, 0.01,   0.0001]],
+  ["normalOffsetBias",   [0, 0.5,    0.001]],
+  ["slopeBias",          [0, 0.05,   0.0001]],
+  ["padding",            [1, 2,      0.01]],
+  ["maxDistance",        [0, 500,    1]],
+  ["projectionSize",     [1, 200,    0.5]],
+  ["lightDistance",      [1, 500,    1]],
+  ["cascadeCount",       [1, 6,      1]],
+  ["pcfKernelSize",      [1, 7,      2]],
+  ["resolution",         [256, 4096, 256]],
+]);
+
+/**
+ * Display labels for known effect keys. Keys not in this map fall
+ * through to the camelCase key as-is.
+ */
+const EFFECT_LABELS = new Map<string, string>([
+  ["ibl",              "IBL"],
+  ["sao",              "SAO"],
+  ["shadows",          "Shadows"],
+  ["bloom",            "Bloom"],
+  ["tonemap",          "Tonemap"],
+  ["antiAliasing",     "Anti-Aliasing"],
+  ["edges",            "Edges"],
+  ["sky",              "Sky"],
+  ["sectionPlaneCaps", "Section Plane Caps"],
+  ["bodyHatch",        "Body Hatch"],
+]);
 
 
 function isPlainObject(v: any): boolean {

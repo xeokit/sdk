@@ -1784,8 +1784,7 @@ __export(base_exports, {
   io: () => io_exports,
   locale: () => locale_exports,
   math: () => math_exports,
-  utils: () => utils_exports,
-  webGL: () => webGL_exports
+  utils: () => utils_exports
 });
 
 // ../sdk/src/base/constants/index.ts
@@ -6540,2452 +6539,6 @@ var createUUID = (() => {
     return `${lut[d0 & 255] + lut[d0 >> 8 & 255] + lut[d0 >> 16 & 255] + lut[d0 >> 24 & 255]}-${lut[d1 & 255]}${lut[d1 >> 8 & 255]}-${lut[d1 >> 16 & 15 | 64]}${lut[d1 >> 24 & 255]}-${lut[d2 & 63 | 128]}${lut[d2 >> 8 & 255]}-${lut[d2 >> 16 & 255]}${lut[d2 >> 24 & 255]}${lut[d3 & 255]}${lut[d3 >> 8 & 255]}${lut[d3 >> 16 & 255]}${lut[d3 >> 24 & 255]}`;
   };
 })();
-
-// ../sdk/src/base/webGL/index.ts
-var webGL_exports = {};
-__export(webGL_exports, {
-  Canvas2Image: () => Canvas2Image,
-  WEBGL_INFO: () => WEBGL_INFO,
-  WebGLArrayBuf: () => WebGLArrayBuf,
-  WebGLAttribute: () => WebGLAttribute,
-  WebGLPickBuffer: () => WebGLPickBuffer,
-  WebGLProgram: () => WebGLProgram,
-  WebGLRenderBuffer: () => WebGLRenderBuffer,
-  WebGLSampler: () => WebGLSampler,
-  WebGLShader: () => WebGLShader,
-  WebGLSnapBuffer: () => WebGLSnapBuffer,
-  WebGLSnapBufferCache: () => WebGLSnapBufferCache,
-  WebGLTexture: () => WebGLTexture,
-  convertWebGLConstant: () => convertWebGLConstant,
-  getWebGLExtension: () => getWebGLExtension
-});
-
-// ../sdk/src/base/webGL/WebGLArrayBuf.ts
-var WebGLArrayBuf = class {
-  /**
-   * WebGL2 rendering context.
-   */
-  gl;
-  /**
-   * The ArrayBuffer's item type.
-   */
-  itemType;
-  /**
-   * Byte size of each item.
-   */
-  itemByteSize;
-  /**
-   * The ArrayBuffer type.
-   */
-  type;
-  /**
-   * Allocated yet?
-   */
-  allocated;
-  /**
-   * A GLenum specifying the intended usage pattern of the data store for optimization purposes. Possible values:
-   *
-   * * gl.STATIC_DRAW : The contents are intended to be specified once by the application, and used many times as the source for WebGL drawing and image specification commands.
-   * * gl.DYNAMIC_DRAW : The contents are intended to be respecified repeatedly by the application, and used many times as the source for WebGL drawing and image specification commands.
-   * * gl.STREAM_DRAW : The contents are intended to be specified once by the application, and used at most a few times as the source for WebGL drawing and image specification commands.
-   * * gl.STATIC_READ : The contents are intended to be specified once by reading data from WebGL, and queried many times by the application.
-   * * gl.DYNAMIC_READ : The contents are intended to be respecified repeatedly by reading data from WebGL, and queried many times by the application.
-   * * gl.STREAM_READ : The contents are intended to be specified once by reading data from WebGL, and queried at most a few times by the application
-   * * gl.STATIC_COPY : The contents are intended to be specified once by reading data from WebGL, and used many times as the source for WebGL drawing and image specification commands.
-   * * gl.DYNAMIC_COPY : The contents are intended to be respecified repeatedly by reading data from WebGL, and used many times as the source for WebGL drawing and image specification commands.
-   * * gl.STREAM_COPY : The contents are intended to be specified once by reading data from WebGL, and used at most a few times as the source for WebGL drawing and image specification commands.
-   */
-  usage;
-  /**
-   * The ArrayBuffer type.
-   */
-  length;
-  /**
-   *
-   */
-  dataLength;
-  /**
-   * Number of items in the ArrayBuffer.
-   */
-  numItems;
-  /**
-   * Size of each item.
-   */
-  itemSize;
-  /**
-   * True when ArrayBuffer values are normalized.
-   */
-  normalized;
-  /**
-   * The ArrayBuffer stride.
-   */
-  stride;
-  /**
-   *
-   */
-  offset;
-  /**
-   * Hand to a WebGLBuffer.
-   */
-  handle;
-  /**
-   * True if the values are integers.
-   * Used to select vertexAttribIPointer vs vertexAttribPointer.
-   */
-  isInteger;
-  /**
-   * Creates a WebGL ArrayBuffer.
-   */
-  constructor(gl, type, data2, numItems, itemSize, usage, normalized, stride, offset) {
-    this.gl = gl;
-    this.type = type;
-    this.allocated = false;
-    switch (data2.constructor) {
-      case Uint8Array:
-        this.itemType = gl.UNSIGNED_BYTE;
-        this.itemByteSize = 1;
-        this.isInteger = true;
-        break;
-      case Int8Array:
-        this.itemType = gl.BYTE;
-        this.itemByteSize = 1;
-        this.isInteger = true;
-        break;
-      case Uint16Array:
-        this.itemType = gl.UNSIGNED_SHORT;
-        this.itemByteSize = 2;
-        this.isInteger = true;
-        break;
-      case Int16Array:
-        this.itemType = gl.SHORT;
-        this.itemByteSize = 2;
-        this.isInteger = true;
-        break;
-      case Uint32Array:
-        this.itemType = gl.UNSIGNED_INT;
-        this.itemByteSize = 4;
-        this.isInteger = true;
-        break;
-      case Int32Array:
-        this.itemType = gl.INT;
-        this.itemByteSize = 4;
-        this.isInteger = true;
-        break;
-      default:
-        this.itemType = gl.FLOAT;
-        this.itemByteSize = 4;
-        this.isInteger = false;
-    }
-    this.usage = usage;
-    this.length = 0;
-    this.dataLength = numItems;
-    this.numItems = 0;
-    this.itemSize = itemSize;
-    this.normalized = !!normalized;
-    this.stride = stride || 0;
-    this.offset = offset || 0;
-    this._allocate(data2);
-  }
-  _allocate(data2) {
-    this.allocated = false;
-    this.handle = this.gl.createBuffer();
-    if (!this.handle) {
-      throw new Error("Cannot allocate WebGL ArrayBuffer");
-    }
-    if (this.handle) {
-      this.gl.bindBuffer(this.type, this.handle);
-      this.gl.bufferData(this.type, data2.length > this.dataLength ? data2.slice(0, this.dataLength) : data2, this.usage);
-      this.gl.bindBuffer(this.type, null);
-      this.length = data2.length;
-      this.numItems = this.length / this.itemSize;
-      this.allocated = true;
-    }
-  }
-  /**
-   * Updates the contents of this ArrayBuffer.
-   * @param data
-   * @param offset
-   */
-  setData(data2, offset) {
-    if (!this.allocated) {
-      return;
-    }
-    if (data2.length + (offset || 0) > this.length) {
-      this.destroy();
-      this._allocate(data2);
-    } else {
-      this.gl.bindBuffer(this.type, this.handle);
-      if (offset && offset !== 0) {
-        this.gl.bufferSubData(this.type, offset * this.itemByteSize, data2);
-      } else {
-        this.gl.bufferData(this.type, data2, this.usage);
-      }
-      this.gl.bindBuffer(this.type, null);
-    }
-  }
-  /**
-   * Binds this ArrayBuffer to the WebGL rendering context.
-   */
-  bind() {
-    if (!this.allocated) {
-      return;
-    }
-    this.gl.bindBuffer(this.type, this.handle);
-  }
-  /**
-   * Unbinds this ArrayBuffer from the WebGL rendering context.
-   */
-  unbind() {
-    if (!this.allocated) {
-      return;
-    }
-    this.gl.bindBuffer(this.type, null);
-  }
-  /**
-   * Destroys this ArrayBuffer.
-   */
-  destroy() {
-    if (!this.allocated) {
-      return;
-    }
-    this.gl.deleteBuffer(this.handle);
-    this.allocated = false;
-  }
-};
-
-// ../sdk/src/base/webGL/WebGLAttribute.ts
-var WebGLAttribute = class {
-  gl;
-  location;
-  /**
-   * Creates a new vertex attribute.
-   * @param gl
-   * @param location
-   */
-  constructor(gl, location2) {
-    this.gl = gl;
-    this.location = location2;
-  }
-  /**
-   * Binds an array _buffer to this vertex attribute.
-   * @param arrayBuf
-   */
-  bindArrayBuffer(arrayBuf) {
-    if (!arrayBuf) {
-      return;
-    }
-    arrayBuf.bind();
-    this.gl.enableVertexAttribArray(this.location);
-    if (arrayBuf.isInteger) {
-      this.gl.vertexAttribIPointer(this.location, arrayBuf.itemSize, arrayBuf.itemType, arrayBuf.stride, arrayBuf.offset);
-    } else {
-      this.gl.vertexAttribPointer(this.location, arrayBuf.itemSize, arrayBuf.itemType, arrayBuf.normalized, arrayBuf.stride, arrayBuf.offset);
-    }
-  }
-};
-
-// ../sdk/src/base/webGL/WebGLShader.ts
-var WebGLShader = class {
-  /**
-   * True when this shader was successfully allocated.
-   */
-  allocated;
-  /**
-   * True when this shader was successfully compiled.
-   */
-  compiled;
-  /**
-   * Handle to GPU-resident WebGL2 shader.
-   */
-  handle;
-  _glSrc;
-  _type;
-  _source;
-  /**
-   * Creates a new shader.
-   * @param glSrc
-   * @param type
-   * @param source
-   */
-  constructor(glSrc, type, source) {
-    this._glSrc = glSrc;
-    this._type = type;
-    this.allocated = false;
-    this.compiled = false;
-    this._source = source;
-  }
-  /**
-   * Initializes this shader.
-   */
-  init() {
-    const gl = this._glSrc.gl;
-    this.handle = gl.createShader(this._type);
-    if (!this.handle) {
-      return {
-        ok: false,
-        type: 0 /* InitializationFailed */,
-        error: "Cannot allocate WebGL2 shader"
-      };
-    }
-    this.allocated = true;
-    gl.shaderSource(this.handle, this._source);
-    gl.compileShader(this.handle);
-    this.compiled = gl.getShaderParameter(this.handle, gl.COMPILE_STATUS);
-    if (!this.compiled) {
-      if (!gl.isContextLost()) {
-        const lines = this._source.split("\n");
-        const numberedLines = lines.map((line, index) => `${index + 1}: ${line}`);
-        const shaderInfoLog = gl.getShaderInfoLog(this.handle) || "Unknown error during shader compilation";
-        const errorDetails = [
-          "Shader Compilation Error:",
-          shaderInfoLog,
-          "Shader Source:",
-          numberedLines.join("\n")
-        ].join("\n");
-        this.destroy();
-        return {
-          ok: false,
-          type: 0 /* InitializationFailed */,
-          error: errorDetails
-        };
-      } else {
-        this.destroy();
-        return {
-          ok: false,
-          type: 7 /* WebGLContextLost */,
-          error: "WebGL context lost during shader compilation"
-        };
-      }
-    }
-    return {
-      ok: true,
-      value: void 0
-    };
-  }
-  /**
-   * Rebuilds the shader after WebGL context has been restored.
-   */
-  webglContextRestored() {
-    if (!this._glSrc.gl || !this._source || !this._type) {
-      return {
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "Cannot restore shader: Missing WebGL context, source, or type"
-      };
-    }
-    const result = this.init();
-    if (result.ok === false) {
-      return {
-        ok: false,
-        type: result.type,
-        error: `Failed to restore shader: ${result.error}`
-      };
-    }
-    return {
-      ok: true,
-      value: void 0
-    };
-  }
-  /**
-   * Destroys this shader, releasing its GPU resources.
-   */
-  destroy() {
-    if (this.allocated) {
-      this._glSrc.gl?.deleteShader(this.handle);
-      this.allocated = false;
-    }
-  }
-};
-
-// ../sdk/src/base/webGL/WebGLProgram.ts
-var ids = new Map2({}, "");
-var WebGLProgram = class {
-  /**
-   * Unique ID of this program.
-   */
-  id;
-  /**
-   * The vertex shader.
-   */
-  vertexShader;
-  /**
-   * The fragment shader.
-   */
-  fragmentShader;
-  /**
-   * Map of all attributes in this program.
-   */
-  attributes;
-  /**
-   * Map of all samplers in this program.
-   */
-  samplers;
-  /**
-   * Map of all uniforms in this program.
-   */
-  uniforms;
-  /**
-   * List of compilation errors for this program, if any.
-   */
-  errors;
-  /**
-   * Flag set true when program has been validated.
-   */
-  validated;
-  /**
-   * Flag set true when this program has been successfully linked.
-   */
-  linked;
-  /**
-   * Flag set true when this program has been successfully conpiled.
-   */
-  compiled;
-  /**
-   * Flag set true when this program has been successfully allocated.
-   */
-  allocated;
-  /**
-   * The WebGL2 rendering context.
-   */
-  _glSrc;
-  /**
-   * The source code from which the shaders are built.
-   */
-  source;
-  /**
-   * Handle to the WebGL program itself, which resides on the GPU.
-   */
-  handle;
-  /**
-   * Creates a new program.
-   * @param glSrc
-   * @param shaderSource
-   */
-  constructor(glSrc, shaderSource) {
-    this.id = ids.addItem();
-    this.source = shaderSource;
-    this._glSrc = glSrc;
-    this.allocated = false;
-    this.compiled = false;
-    this.linked = false;
-    this.validated = false;
-    this.errors = void 0;
-    this.uniforms = {};
-    this.samplers = {};
-    this.attributes = {};
-  }
-  /**
-   * Initializes this program.
-   */
-  init() {
-    const gl = this._glSrc.gl;
-    if (!gl) {
-      return {
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "Cannot initialize WebGL program: Missing WebGL context"
-      };
-    }
-    this.vertexShader = new WebGLShader(this._glSrc, gl.VERTEX_SHADER, this.source.vertex);
-    const resultVertex = this.vertexShader.init();
-    if (resultVertex.ok === false) {
-      this.vertexShader.destroy();
-      return {
-        ok: false,
-        type: resultVertex.type,
-        error: `WebGL vertex shader initialization failed: ${resultVertex.error}`
-      };
-    }
-    this.fragmentShader = new WebGLShader(this._glSrc, gl.FRAGMENT_SHADER, this.source.fragment);
-    const resultFragment = this.fragmentShader.init();
-    if (resultFragment.ok === false) {
-      this.vertexShader.destroy();
-      this.fragmentShader.destroy();
-      return {
-        ok: false,
-        type: resultFragment.type,
-        error: `WebGL fragment shader initialization failed: ${resultFragment.error}`
-      };
-    }
-    this.handle = gl.createProgram();
-    if (!this.handle) {
-      this.vertexShader.destroy();
-      this.fragmentShader.destroy();
-      return {
-        ok: false,
-        type: 0 /* InitializationFailed */,
-        error: "Cannot allocate WebGL program"
-      };
-    }
-    gl.attachShader(this.handle, this.vertexShader.handle);
-    gl.attachShader(this.handle, this.fragmentShader.handle);
-    gl.linkProgram(this.handle);
-    this.linked = gl.getProgramParameter(this.handle, gl.LINK_STATUS);
-    if (!this.linked) {
-      const programInfoLog = gl.getProgramInfoLog(this.handle) || "Unknown error during program linking";
-      const errorDetails = [
-        "Program Linking Error:",
-        programInfoLog,
-        "\nVertex Shader Source:",
-        this.source.vertex,
-        "\nFragment Shader Source:",
-        this.source.fragment
-      ].join("\n");
-      this.destroy();
-      return {
-        ok: false,
-        type: 0 /* InitializationFailed */,
-        error: errorDetails
-      };
-    }
-    this._extractUniformsAndAttributes();
-    this.allocated = true;
-    this.compiled = true;
-    return {
-      ok: true,
-      value: this
-    };
-  }
-  _extractUniformsAndAttributes() {
-    const gl = this._glSrc.gl;
-    const numUniforms = gl.getProgramParameter(this.handle, gl.ACTIVE_UNIFORMS);
-    for (let i = 0; i < numUniforms; ++i) {
-      const u = gl.getActiveUniform(this.handle, i);
-      if (u) {
-        let uName = u.name;
-        if (uName[uName.length - 1] === "\0") {
-          uName = uName.substr(0, uName.length - 1);
-        }
-        const location2 = gl.getUniformLocation(this.handle, uName);
-        if (u.type === gl.SAMPLER_2D || u.type === gl.SAMPLER_CUBE || u.type === 35682 || u.type === 36306) {
-          this.samplers[uName] = location2;
-        } else {
-          this.uniforms[uName] = location2;
-        }
-      }
-    }
-    const numAttribs = gl.getProgramParameter(this.handle, gl.ACTIVE_ATTRIBUTES);
-    for (let i = 0; i < numAttribs; i++) {
-      const a2 = gl.getActiveAttrib(this.handle, i);
-      if (a2) {
-        const location2 = gl.getAttribLocation(this.handle, a2.name);
-        this.attributes[a2.name] = new WebGLAttribute(gl, location2);
-      }
-    }
-  }
-  /**
-   * Binds this program.
-   */
-  bind() {
-    if (!this.allocated) {
-      return;
-    }
-    this._glSrc.gl.useProgram(this.handle);
-  }
-  /**
-   * Gets the location of the given uniform within this program.
-   * @param name
-   */
-  getLocation(name12) {
-    return this.uniforms[name12];
-  }
-  /**
-   * Gets an attribute within this program.
-   * @param name
-   */
-  getAttribute(name12) {
-    return this.attributes[name12];
-  }
-  /**
-   * Gets a sampler within this program.
-   * @param name
-   */
-  getSampler(name12) {
-    return this.samplers[name12];
-  }
-  /**
-   * Rebuilds the program after WebGL context has been restored.
-   */
-  webglContextRestored() {
-    if (!this._glSrc.gl || !this.source || !this.source.vertex || !this.source.fragment) {
-      return {
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "Cannot restore WebGL program: Missing WebGL context or shader source"
-      };
-    }
-    const vertexRestoreResult = this.vertexShader.webglContextRestored();
-    if (vertexRestoreResult.ok === false) {
-      return {
-        ok: false,
-        type: vertexRestoreResult.type,
-        error: `Failed to restore WebGL vertex shader: ${vertexRestoreResult.error}`
-      };
-    }
-    const fragmentRestoreResult = this.fragmentShader.webglContextRestored();
-    if (fragmentRestoreResult.ok === false) {
-      return {
-        ok: false,
-        type: fragmentRestoreResult.type,
-        error: `Failed to restore WebGL fragment shader: ${fragmentRestoreResult.error}`
-      };
-    }
-    const initResult = this.init();
-    if (initResult.ok === false) {
-      return {
-        ok: false,
-        type: initResult.type,
-        error: `Failed to restore WebGL program: ${initResult.error}`
-      };
-    }
-    return {
-      ok: true,
-      value: void 0
-    };
-  }
-  /**
-   * Destroys this program.
-   */
-  destroy() {
-    if (!this.allocated) {
-      return;
-    }
-    ids.removeItem(this.id);
-    const gl = this._glSrc.gl;
-    if (gl) {
-      gl.deleteProgram(this.handle);
-      gl.deleteShader(this.vertexShader.handle);
-      gl.deleteShader(this.fragmentShader.handle);
-    }
-    this.attributes = {};
-    this.uniforms = {};
-    this.samplers = {};
-    this.allocated = false;
-  }
-};
-
-// ../sdk/src/base/webGL/WebGLRenderBuffer.ts
-var WebGLRenderBuffer = class {
-  #gl;
-  canvas;
-  #buffer = null;
-  bound = false;
-  size;
-  #imageDataCache = null;
-  #texture = null;
-  #depthTexture = null;
-  #hasDepthTexture;
-  #depthTextureCompare;
-  #colorFilter;
-  #colorFilters;
-  #stencil;
-  /**
-   * Creates a WebGLRenderBuffer.
-   *
-   * @param canvas host canvas (for image-cache sizing only)
-   * @param gl    WebGL2 context
-   * @param options
-   * @param options.depthTexture create a sampleable depth attachment
-   * @param options.depthTextureCompare when `depthTexture` is true, set
-   *   TEXTURE_COMPARE_MODE on the depth texture so it can be sampled with
-   *   `sampler2DShadow` in GLSL — gets 2×2 hardware-bilinear comparison free
-   *   per tap. Also switches the depth texture to LINEAR filtering (only
-   *   valid with compare mode on).
-   * @param options.colorFilter `"nearest"` (default) for pixel-accurate
-   *   sampling (e.g. SAO depth), `"linear"` for bilinear-filtered reads
-   *   (e.g. supersampling downsample on the HDR scene target).
-   * @param options.size explicit buffer size (defaults to canvas size)
-   * @param options.stencil When `true`, pack a stencil channel alongside
-   *   depth. Allocates DEPTH24_STENCIL8 instead of DEPTH_COMPONENT24, and
-   *   attaches as DEPTH_STENCIL_ATTACHMENT. Mutually exclusive with
-   *   `depthTexture` (no sampleable depth+stencil texture here).
-   * @param options.colorFilters Optional per-attachment filter array
-   *   that overrides `colorFilter` for individual MRT slots. Use when
-   *   one attachment is an integer format (R8UI etc.) which requires
-   *   NEAREST while a neighbouring float attachment wants LINEAR.
-   *   Indices not in this array fall back to `colorFilter`.
-   */
-  constructor(canvas2, gl, options) {
-    this.#gl = gl;
-    this.canvas = canvas2;
-    this.size = options.size;
-    this.#hasDepthTexture = !!options.depthTexture;
-    this.#depthTextureCompare = !!options.depthTextureCompare;
-    this.#colorFilter = options.colorFilter === "linear" ? "linear" : "nearest";
-    this.#colorFilters = options.colorFilters ? options.colorFilters.slice() : null;
-    this.#stencil = !!options.stencil;
-  }
-  /** Whether GPU resources are currently allocated. */
-  get allocated() {
-    return !!this.#buffer;
-  }
-  /** Sets the desired size; actual allocation happens on next bind/touch. */
-  setSize(size) {
-    this.size = size;
-  }
-  /** Re-associate with a restored WebGL2 context. */
-  webglContextRestored(gl) {
-    this.#gl = gl;
-    this.#disposeGPUResources();
-    this.bound = false;
-  }
-  /** Bind the framebuffer, allocating or resizing as needed. */
-  bind(...internalformats) {
-    this.touch(...internalformats);
-    if (!this.#buffer)
-      return;
-    const gl = this.#gl;
-    gl.bindFramebuffer(gl.FRAMEBUFFER, this.#buffer.framebuf);
-    this.bound = true;
-  }
-  /** Ensure GPU resources exist and match the desired size. */
-  touch(...internalformats) {
-    const gl = this.#gl;
-    const [width, height] = this.size ? [this.size[0], this.size[1]] : [gl.drawingBufferWidth, gl.drawingBufferHeight];
-    const needsResize = !this.#buffer || this.#buffer.width !== width || this.#buffer.height !== height;
-    if (!needsResize)
-      return;
-    this.#disposeGPUResources();
-    const colorTextures = [];
-    if (internalformats.length > 0) {
-      for (let i = 0; i < internalformats.length; i++) {
-        colorTextures.push(this.#createColorTexture(width, height, internalformats[i], i));
-      }
-    } else {
-      colorTextures.push(this.#createColorTexture(width, height, null, 0));
-    }
-    let depthTex = null;
-    let depthRbo = null;
-    const framebuf = gl.createFramebuffer();
-    if (!framebuf) {
-      throw new Error("Failed to create framebuffer");
-    }
-    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuf);
-    for (let i = 0; i < colorTextures.length; i++) {
-      gl.framebufferTexture2D(
-        gl.FRAMEBUFFER,
-        gl.COLOR_ATTACHMENT0 + i,
-        gl.TEXTURE_2D,
-        colorTextures[i],
-        0
-      );
-    }
-    if (colorTextures.length > 1) {
-      gl.drawBuffers(colorTextures.map((_, i) => gl.COLOR_ATTACHMENT0 + i));
-    }
-    if (this.#hasDepthTexture) {
-      depthTex = gl.createTexture();
-      if (!depthTex) {
-        throw new Error("Failed to create depth texture");
-      }
-      gl.bindTexture(gl.TEXTURE_2D, depthTex);
-      const depthFilter = this.#depthTextureCompare ? gl.LINEAR : gl.NEAREST;
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, depthFilter);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, depthFilter);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      if (this.#depthTextureCompare) {
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_FUNC, gl.LESS);
-      }
-      gl.texImage2D(
-        gl.TEXTURE_2D,
-        0,
-        gl.DEPTH_COMPONENT24,
-        width,
-        height,
-        0,
-        gl.DEPTH_COMPONENT,
-        gl.UNSIGNED_INT,
-        null
-      );
-      gl.framebufferTexture2D(
-        gl.FRAMEBUFFER,
-        gl.DEPTH_ATTACHMENT,
-        gl.TEXTURE_2D,
-        depthTex,
-        0
-      );
-    } else {
-      depthRbo = gl.createRenderbuffer();
-      if (!depthRbo) {
-        throw new Error("Failed to create renderbuffer");
-      }
-      gl.bindRenderbuffer(gl.RENDERBUFFER, depthRbo);
-      if (this.#stencil) {
-        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH24_STENCIL8, width, height);
-        gl.framebufferRenderbuffer(
-          gl.FRAMEBUFFER,
-          gl.DEPTH_STENCIL_ATTACHMENT,
-          gl.RENDERBUFFER,
-          depthRbo
-        );
-      } else {
-        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, width, height);
-        gl.framebufferRenderbuffer(
-          gl.FRAMEBUFFER,
-          gl.DEPTH_ATTACHMENT,
-          gl.RENDERBUFFER,
-          depthRbo
-        );
-      }
-    }
-    const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
-    if (status !== gl.FRAMEBUFFER_COMPLETE) {
-      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-      for (const t of colorTextures)
-        gl.deleteTexture(t);
-      if (depthTex)
-        gl.deleteTexture(depthTex);
-      if (depthRbo)
-        gl.deleteRenderbuffer(depthRbo);
-      gl.deleteFramebuffer(framebuf);
-      const reason = framebufferStatusToString(gl, status);
-      throw new Error(`Incomplete framebuffer: ${reason}`);
-    }
-    gl.bindTexture(gl.TEXTURE_2D, null);
-    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    this.#buffer = {
-      framebuf,
-      renderbuf: depthRbo,
-      textures: colorTextures,
-      depthTexture: depthTex,
-      width,
-      height
-    };
-    this.bound = false;
-  }
-  /** Clear currently bound framebuffer. */
-  clear(mask = this.#gl.COLOR_BUFFER_BIT | this.#gl.DEPTH_BUFFER_BIT) {
-    if (!this.bound)
-      throw new Error("Render buffer not bound");
-    this.#gl.clear(mask);
-  }
-  /** Read a single pixel from the given color attachment (default 0). */
-  read(pickX, pickY, glFormat = null, glType = null, arrayType = Uint8Array, arrayMultiplier = 4, colorBufferIndex = 0) {
-    if (!this.#buffer)
-      throw new Error("No buffer allocated");
-    const gl = this.#gl;
-    const x = pickX;
-    const y = this.#buffer.height ? this.#buffer.height - pickY - 1 : gl.drawingBufferHeight - pickY;
-    const pix = new arrayType(arrayMultiplier);
-    gl.readBuffer(gl.COLOR_ATTACHMENT0 + colorBufferIndex);
-    gl.readPixels(
-      x,
-      y,
-      1,
-      1,
-      glFormat ?? gl.RGBA,
-      glType ?? gl.UNSIGNED_BYTE,
-      pix,
-      0
-    );
-    return pix;
-  }
-  /** Read the entire color attachment into a typed array. */
-  readArray(glFormat = null, glType = null, arrayType = Uint8Array, arrayMultiplier = 4, colorBufferIndex = 0) {
-    if (!this.#buffer)
-      throw new Error("No buffer allocated");
-    const { width, height } = this.#buffer;
-    const gl = this.#gl;
-    const pix = new arrayType(width * height * arrayMultiplier);
-    gl.readBuffer(gl.COLOR_ATTACHMENT0 + colorBufferIndex);
-    gl.readPixels(0, 0, width, height, glFormat ?? gl.RGBA, glType ?? gl.UNSIGNED_BYTE, pix, 0);
-    return pix;
-  }
-  /**
-   * Returns an HTMLCanvasElement containing the current contents.
-   * Also updates an internal CPU-side ImageData cache for reuse.
-   */
-  readImageAsCanvas() {
-    this.#updateImageCacheFromGPU();
-    if (!this.#imageDataCache)
-      throw new Error("Image cache unavailable");
-    return this.#imageDataCache.canvas;
-  }
-  /** Returns a data URL (png/jpeg/bmp) of the current contents. */
-  readImage(params = {}) {
-    this.#updateImageCacheFromGPU();
-    if (!this.#imageDataCache)
-      throw new Error("Image cache unavailable");
-    const format = params.format || "png";
-    return this.#imageDataCache.canvas.toDataURL(`image/${format}`);
-  }
-  /** Unbind the framebuffer. */
-  unbind() {
-    this.#gl.bindFramebuffer(this.#gl.FRAMEBUFFER, null);
-    this.bound = false;
-  }
-  /** Wrapper texture for sampling the first color target. */
-  getTexture() {
-    if (this.#texture)
-      return this.#texture;
-    this.#texture = {
-      bind: (unit) => {
-        const buf = this.#buffer;
-        if (buf && buf.textures[0]) {
-          const gl = this.#gl;
-          gl.activeTexture(gl["TEXTURE" + unit]);
-          gl.bindTexture(gl.TEXTURE_2D, buf.textures[0]);
-          return true;
-        }
-        return false;
-      },
-      unbind: (unit) => {
-        const buf = this.#buffer;
-        if (buf && buf.textures[0]) {
-          const gl = this.#gl;
-          gl.activeTexture(gl["TEXTURE" + unit]);
-          gl.bindTexture(gl.TEXTURE_2D, null);
-        }
-      }
-    };
-    return this.#texture;
-  }
-  /**
-   * Wrapper texture for sampling a specific MRT color target.
-   * Returns null when no attachment exists at the given index.
-   */
-  getTextureAt(index) {
-    const buf = this.#buffer;
-    if (!buf || !buf.textures[index])
-      return null;
-    const gl = this.#gl;
-    return {
-      bind: (unit) => {
-        const b22 = this.#buffer;
-        const tex = b22 ? b22.textures[index] : null;
-        if (!tex)
-          return false;
-        gl.activeTexture(gl["TEXTURE" + unit]);
-        gl.bindTexture(gl.TEXTURE_2D, tex);
-        return true;
-      },
-      unbind: (unit) => {
-        gl.activeTexture(gl["TEXTURE" + unit]);
-        gl.bindTexture(gl.TEXTURE_2D, null);
-      }
-    };
-  }
-  /** Number of allocated color attachments. */
-  getColorAttachmentCount() {
-    return this.#buffer ? this.#buffer.textures.length : 0;
-  }
-  /**
-   * Raw GL handle for the texture at the given color attachment
-   * index — needed by callers that have to detach / reattach the
-   * attachment manually (e.g. to break a feedback loop when the
-   * cap quad samples a previous pass's MRT output). Most consumers
-   * should prefer {@link getTextureAt}.
-   */
-  getRawTextureAt(index) {
-    return this.#buffer ? this.#buffer.textures[index] ?? null : null;
-  }
-  /** Whether this FBO has a depth texture attachment. */
-  hasDepthTexture() {
-    return this.#hasDepthTexture;
-  }
-  /** Wrapper texture for sampling the depth texture (if present). */
-  getDepthTexture() {
-    if (!this.#hasDepthTexture)
-      return null;
-    if (this.#depthTexture)
-      return this.#depthTexture;
-    this.#depthTexture = {
-      bind: (unit) => {
-        const buf = this.#buffer;
-        if (buf && buf.depthTexture) {
-          const gl = this.#gl;
-          gl.activeTexture(gl["TEXTURE" + unit]);
-          gl.bindTexture(gl.TEXTURE_2D, buf.depthTexture);
-          return true;
-        }
-        return false;
-      },
-      unbind: (unit) => {
-        const buf = this.#buffer;
-        if (buf && buf.depthTexture) {
-          const gl = this.#gl;
-          gl.activeTexture(gl["TEXTURE" + unit]);
-          gl.bindTexture(gl.TEXTURE_2D, null);
-        }
-      }
-    };
-    return this.#depthTexture;
-  }
-  /** Destroy GPU resources and caches. */
-  destroy() {
-    this.#disposeGPUResources();
-    this.bound = false;
-    this.#imageDataCache = null;
-    this.#texture = null;
-    this.#depthTexture = null;
-  }
-  // ---------- Internals ----------
-  #createColorTexture(width, height, internalformat, slot = 0) {
-    const gl = this.#gl;
-    const tex = gl.createTexture();
-    if (!tex)
-      throw new Error("Failed to create texture");
-    gl.bindTexture(gl.TEXTURE_2D, tex);
-    const filterName = this.#colorFilters && this.#colorFilters[slot] ? this.#colorFilters[slot] : this.#colorFilter;
-    const colorFilter = filterName === "linear" ? gl.LINEAR : gl.NEAREST;
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, colorFilter);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, colorFilter);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    if (internalformat != null) {
-      gl.texStorage2D(gl.TEXTURE_2D, 1, internalformat, width, height);
-    } else {
-      gl.texImage2D(
-        gl.TEXTURE_2D,
-        0,
-        gl.RGBA,
-        width,
-        height,
-        0,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
-        null
-      );
-    }
-    gl.bindTexture(gl.TEXTURE_2D, null);
-    return tex;
-  }
-  #disposeGPUResources() {
-    const buf = this.#buffer;
-    if (!buf)
-      return;
-    const gl = this.#gl;
-    for (const t of buf.textures)
-      gl.deleteTexture(t);
-    if (buf.depthTexture)
-      gl.deleteTexture(buf.depthTexture);
-    if (buf.renderbuf)
-      gl.deleteRenderbuffer(buf.renderbuf);
-    gl.deleteFramebuffer(buf.framebuf);
-    this.#buffer = null;
-  }
-  #updateImageCacheFromGPU() {
-    if (!this.#buffer)
-      throw new Error("No buffer allocated");
-    const gl = this.#gl;
-    const { width, height } = this.#buffer;
-    const cache2 = this.#getImageDataCache(Uint8Array, 4);
-    gl.readBuffer(gl.COLOR_ATTACHMENT0);
-    gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, cache2.pixelData, 0);
-    const bytesPerRow = width * 4;
-    for (let y = 0; y < height; y++) {
-      const srcOffset = (height - 1 - y) * bytesPerRow;
-      const dstOffset = y * bytesPerRow;
-      cache2.imageData.data.set(cache2.pixelData.subarray(srcOffset, srcOffset + bytesPerRow), dstOffset);
-    }
-    cache2.context.putImageData(cache2.imageData, 0, 0);
-  }
-  #getImageDataCache(type, multiplier) {
-    if (!this.#buffer)
-      throw new Error("No buffer allocated");
-    const bufferWidth = this.#buffer.width;
-    const bufferHeight = this.#buffer.height;
-    let cache2 = this.#imageDataCache;
-    if (cache2 && (cache2.width !== bufferWidth || cache2.height !== bufferHeight)) {
-      this.#imageDataCache = null;
-      cache2 = null;
-    }
-    if (!cache2) {
-      const canvas2 = document.createElement("canvas");
-      const context = canvas2.getContext("2d");
-      if (!context)
-        throw new Error("2D context unavailable");
-      canvas2.width = bufferWidth;
-      canvas2.height = bufferHeight;
-      cache2 = {
-        pixelData: new type(bufferWidth * bufferHeight * multiplier),
-        canvas: canvas2,
-        context,
-        imageData: context.createImageData(bufferWidth, bufferHeight),
-        width: bufferWidth,
-        height: bufferHeight
-      };
-      this.#imageDataCache = cache2;
-    }
-    cache2.context.resetTransform();
-    return cache2;
-  }
-};
-function framebufferStatusToString(gl, status) {
-  switch (status) {
-    case gl.FRAMEBUFFER_COMPLETE:
-      return "FRAMEBUFFER_COMPLETE";
-    case gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-      return "FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
-    case gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-      return "FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
-    case gl.FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
-      return "FRAMEBUFFER_INCOMPLETE_DIMENSIONS";
-    case gl.FRAMEBUFFER_UNSUPPORTED:
-      return "FRAMEBUFFER_UNSUPPORTED";
-    default:
-      return String(status);
-  }
-}
-
-// ../sdk/src/base/webGL/WebGLPickBuffer.ts
-var WebGLPickBuffer = class {
-  #gl;
-  #framebuffer = null;
-  #colorTextures = [];
-  #depthBuffer = null;
-  bound = false;
-  /**
-   * Creates a new WebGLPickBuffer instance. Note that this does not allocate the framebuffer or its attachments;
-   * you must call {@link WebGLPickBuffer.init} to do so.
-   * @param gl
-   */
-  constructor(gl) {
-    this.#gl = gl;
-  }
-  /**
-   * Initializes the framebuffer and its attachments. This must be called before using the pick buffer.
-   * If initialization fails, an error result is returned.
-   */
-  init() {
-    const gl = this.#gl;
-    const framebuffer = gl.createFramebuffer();
-    if (!framebuffer) {
-      return {
-        ok: false,
-        error: "[WebGLPickBuffer] Failed to create framebuffer",
-        type: 0 /* InitializationFailed */
-      };
-    }
-    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-    const colorTextures = [];
-    for (let i = 0; i < 3; i++) {
-      const tex = gl.createTexture();
-      if (!tex) {
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        gl.deleteFramebuffer(framebuffer);
-        return {
-          ok: false,
-          error: "[WebGLPickBuffer] Failed to create color texture",
-          type: 0 /* InitializationFailed */
-        };
-      }
-      gl.bindTexture(gl.TEXTURE_2D, tex);
-      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, 1, 1);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.framebufferTexture2D(
-        gl.FRAMEBUFFER,
-        gl.COLOR_ATTACHMENT0 + i,
-        gl.TEXTURE_2D,
-        tex,
-        0
-      );
-      colorTextures.push(tex);
-      this.#framebuffer = framebuffer;
-    }
-    const depthBuffer = gl.createRenderbuffer();
-    if (!depthBuffer) {
-      for (const tex of colorTextures) {
-        gl.deleteTexture(tex);
-      }
-      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-      gl.deleteFramebuffer(framebuffer);
-      return {
-        ok: false,
-        error: "[WebGLPickBuffer] Failed to create depth renderbuffer",
-        type: 0 /* InitializationFailed */
-      };
-    }
-    gl.bindRenderbuffer(gl.RENDERBUFFER, depthBuffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, 1, 1);
-    gl.framebufferRenderbuffer(
-      gl.FRAMEBUFFER,
-      gl.DEPTH_ATTACHMENT,
-      gl.RENDERBUFFER,
-      depthBuffer
-    );
-    gl.drawBuffers([
-      gl.COLOR_ATTACHMENT0,
-      gl.COLOR_ATTACHMENT1,
-      gl.COLOR_ATTACHMENT2
-    ]);
-    const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
-    if (status !== gl.FRAMEBUFFER_COMPLETE) {
-      for (const tex of colorTextures) {
-        gl.deleteTexture(tex);
-      }
-      gl.deleteRenderbuffer(depthBuffer);
-      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-      gl.deleteFramebuffer(framebuffer);
-      return {
-        ok: false,
-        error: `[WebGLPickBuffer] Incomplete framebuffer: ${framebufferStatusToString2(gl, status)}`,
-        type: 0 /* InitializationFailed */
-      };
-    }
-    gl.bindTexture(gl.TEXTURE_2D, null);
-    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    this.#framebuffer = framebuffer;
-    this.#colorTextures = colorTextures;
-    this.#depthBuffer = depthBuffer;
-    this.bound = false;
-    return {
-      ok: true,
-      value: void 0
-    };
-  }
-  /**
-   * Returns true if the pick buffer has been successfully allocated and initialized, false otherwise.
-   */
-  get allocated() {
-    return !!this.#framebuffer;
-  }
-  /**
-   * Handles WebGL context restoration by reinitializing the framebuffer and its attachments. This should be
-   * called when a WebGL context is restored after being lost.
-   * @param gl
-   */
-  webglContextRestored(gl) {
-    this.#gl = gl;
-    return this.init();
-  }
-  /**
-   * Binds the pick buffer's framebuffer for rendering.
-   */
-  bind() {
-    if (!this.#framebuffer) {
-      throw new SDKInternalException("Pick buffer not allocated");
-    }
-    if (this.bound) {
-      return;
-    }
-    const gl = this.#gl;
-    gl.bindFramebuffer(gl.FRAMEBUFFER, this.#framebuffer);
-    gl.viewport(0, 0, 1, 1);
-    this.bound = true;
-  }
-  /**
-   * Unbinds the pick buffer's framebuffer, restoring rendering to the default framebuffer. After calling this, the pick
-   * buffer will no longer be bound and cannot be read from until {@link WebGLPickBuffer.bind} is called again.
-   */
-  unbind() {
-    if (!this.bound) {
-      throw new SDKInternalException("Pick buffer not bound");
-    }
-    this.#gl.bindFramebuffer(this.#gl.FRAMEBUFFER, null);
-    this.bound = false;
-  }
-  /**
-   * Clears the pick buffer's framebuffer. This should be called after {@link WebGLPickBuffer.bind} and before rendering to the
-   * pick buffer. After calling this, the color attachments will be cleared to (0, 0, 0, 0).
-   */
-  clear() {
-    if (!this.bound) {
-      throw new SDKInternalException("Pick buffer not bound");
-    }
-    const gl = this.#gl;
-    gl.disable(gl.BLEND);
-    gl.disable(gl.DITHER);
-    gl.clearColor(0, 0, 0, 0);
-    gl.clearDepth(1);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  }
-  /**
-   * Reads the pixel data from the pick buffer's color attachments. This should be called after rendering to the pick
-   * buffer and before unbinding it.
-   */
-  read() {
-    if (!this.#framebuffer) {
-      throw new SDKInternalException("Pick buffer not allocated");
-    }
-    if (!this.bound) {
-      throw new SDKInternalException("Pick buffer not bound");
-    }
-    const gl = this.#gl;
-    const target0 = new Uint8Array(4);
-    const target1 = new Uint8Array(4);
-    const target2 = new Uint8Array(4);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, this.#framebuffer);
-    const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
-    if (status !== gl.FRAMEBUFFER_COMPLETE) {
-      if (!this.bound) {
-        throw new SDKInternalException("Pick buffer not complete - did not initialize OK: status = " + status);
-      }
-    }
-    gl.readBuffer(gl.COLOR_ATTACHMENT0);
-    gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, target0);
-    gl.readBuffer(gl.COLOR_ATTACHMENT1);
-    gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, target1);
-    gl.readBuffer(gl.COLOR_ATTACHMENT2);
-    gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, target2);
-    return {
-      target0,
-      target1,
-      target2
-    };
-  }
-  destroy() {
-    const gl = this.#gl;
-    for (const tex of this.#colorTextures) {
-      gl.deleteTexture(tex);
-    }
-    this.#colorTextures = [];
-    if (this.#depthBuffer) {
-      gl.deleteRenderbuffer(this.#depthBuffer);
-      this.#depthBuffer = null;
-    }
-    if (this.#framebuffer) {
-      gl.deleteFramebuffer(this.#framebuffer);
-      this.#framebuffer = null;
-    }
-    this.bound = false;
-  }
-};
-function framebufferStatusToString2(gl, status) {
-  switch (status) {
-    case gl.FRAMEBUFFER_COMPLETE:
-      return "FRAMEBUFFER_COMPLETE";
-    case gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-      return "FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
-    case gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-      return "FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
-    case gl.FRAMEBUFFER_UNSUPPORTED:
-      return "FRAMEBUFFER_UNSUPPORTED";
-    default:
-      return String(status);
-  }
-}
-
-// ../sdk/src/base/webGL/WebGLSnapBuffer.ts
-var WebGLSnapBuffer = class {
-  #gl;
-  #framebuffer = null;
-  #colorTexture = null;
-  #depthBuffer = null;
-  #size = [1, 1];
-  bound = false;
-  /**
-   * Creates a new snap framebuffer wrapper. Does NOT allocate GL
-   * objects; call {@link init} first.
-   */
-  constructor(gl) {
-    this.#gl = gl;
-  }
-  /**
-   * Allocates the framebuffer + RGBA32F colour attachment + depth
-   * renderbuffer at `1 × 1` (resize via {@link setSize} before use).
-   * Returns `NotSupported` if `EXT_color_buffer_float` isn't
-   * available — `RGBA32F` is not a colour-renderable format under
-   * WebGL 2 without it.
-   */
-  init() {
-    const gl = this.#gl;
-    if (!gl.getExtension("EXT_color_buffer_float")) {
-      return {
-        ok: false,
-        type: 6 /* NotSupported */,
-        error: "[WebGLSnapBuffer] EXT_color_buffer_float not available \u2014 cannot allocate RGBA32F snap target"
-      };
-    }
-    const framebuffer = gl.createFramebuffer();
-    if (!framebuffer) {
-      return {
-        ok: false,
-        type: 0 /* InitializationFailed */,
-        error: "[WebGLSnapBuffer] Failed to create framebuffer"
-      };
-    }
-    const colorTexture = gl.createTexture();
-    if (!colorTexture) {
-      gl.deleteFramebuffer(framebuffer);
-      return {
-        ok: false,
-        type: 0 /* InitializationFailed */,
-        error: "[WebGLSnapBuffer] Failed to create color texture"
-      };
-    }
-    const depthBuffer = gl.createRenderbuffer();
-    if (!depthBuffer) {
-      gl.deleteTexture(colorTexture);
-      gl.deleteFramebuffer(framebuffer);
-      return {
-        ok: false,
-        type: 0 /* InitializationFailed */,
-        error: "[WebGLSnapBuffer] Failed to create depth renderbuffer"
-      };
-    }
-    this.#framebuffer = framebuffer;
-    this.#colorTexture = colorTexture;
-    this.#depthBuffer = depthBuffer;
-    this.#size = [1, 1];
-    return this._allocateAttachments(1, 1);
-  }
-  /** True once {@link init} has succeeded. */
-  get allocated() {
-    return !!this.#framebuffer;
-  }
-  /** Current `(width, height)` of the colour + depth attachments. */
-  get size() {
-    return this.#size;
-  }
-  /** Underlying RGBA32F colour texture — exposed for inspectors. */
-  get colorTexture() {
-    return this.#colorTexture;
-  }
-  /**
-   * Resize the colour + depth attachments to the requested dimensions.
-   * No-op when the size is already a match. Idempotent and cheap so
-   * a snap-pick caller can recompute the radius per click.
-   */
-  setSize(width, height) {
-    if (!this.#framebuffer) {
-      throw new SDKInternalException("Snap buffer not allocated");
-    }
-    width = Math.max(1, width | 0);
-    height = Math.max(1, height | 0);
-    if (this.#size[0] === width && this.#size[1] === height) {
-      return { ok: true, value: void 0 };
-    }
-    return this._allocateAttachments(width, height);
-  }
-  /**
-   * (Re-)allocate the colour texture (RGBA32F + nearest filter +
-   * clamp-to-edge) and the depth renderbuffer to `width × height`,
-   * and re-attach them to the framebuffer. Verifies completeness
-   * before returning.
-   */
-  _allocateAttachments(width, height) {
-    const gl = this.#gl;
-    const framebuffer = this.#framebuffer;
-    const colorTexture = this.#colorTexture;
-    const depthBuffer = this.#depthBuffer;
-    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-    gl.bindTexture(gl.TEXTURE_2D, colorTexture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, width, height, 0, gl.RGBA, gl.FLOAT, null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, colorTexture, 0);
-    gl.bindRenderbuffer(gl.RENDERBUFFER, depthBuffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, width, height);
-    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthBuffer);
-    gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
-    const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
-    gl.bindTexture(gl.TEXTURE_2D, null);
-    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    if (status !== gl.FRAMEBUFFER_COMPLETE) {
-      return {
-        ok: false,
-        type: 0 /* InitializationFailed */,
-        error: `[WebGLSnapBuffer] Incomplete framebuffer at ${width}\xD7${height}: ${framebufferStatusToString3(gl, status)}`
-      };
-    }
-    this.#size = [width, height];
-    return { ok: true, value: void 0 };
-  }
-  /**
-   * Re-allocate after WebGL context loss. Caller is responsible for
-   * supplying the new (restored) `WebGL2RenderingContext`.
-   */
-  webglContextRestored(gl) {
-    this.#gl = gl;
-    this.#framebuffer = null;
-    this.#colorTexture = null;
-    this.#depthBuffer = null;
-    return this.init();
-  }
-  /**
-   * Bind the snap framebuffer for rendering. Sets the viewport to the
-   * current attachment size; caller still owns depth-test / blend
-   * state (see `SnapManager` for the canonical setup).
-   */
-  bind() {
-    if (!this.#framebuffer) {
-      throw new SDKInternalException("Snap buffer not allocated");
-    }
-    if (this.bound)
-      return;
-    const gl = this.#gl;
-    gl.bindFramebuffer(gl.FRAMEBUFFER, this.#framebuffer);
-    gl.viewport(0, 0, this.#size[0], this.#size[1]);
-    this.bound = true;
-  }
-  /** Release the framebuffer binding back to the default canvas. */
-  unbind() {
-    if (!this.bound) {
-      throw new SDKInternalException("Snap buffer not bound");
-    }
-    this.#gl.bindFramebuffer(this.#gl.FRAMEBUFFER, null);
-    this.bound = false;
-  }
-  /**
-   * Clear colour to `(0, 0, 0, 0)` and depth to `1.0`. Empty texels
-   * are detected on read-back via `alpha === 0`, so clearing alpha
-   * to zero is structurally important.
-   */
-  clear() {
-    if (!this.bound) {
-      throw new SDKInternalException("Snap buffer not bound");
-    }
-    const gl = this.#gl;
-    gl.disable(gl.BLEND);
-    gl.disable(gl.DITHER);
-    gl.clearColor(0, 0, 0, 0);
-    gl.clearDepth(1);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  }
-  /**
-   * Read the entire colour attachment as a `Float32Array` of length
-   * `width * height * 4`. Layout is row-major bottom-to-top (WebGL
-   * convention); each texel is `(viewX, viewY, viewZ, written)`
-   * where `written = 1.0` if any pass touched the texel and `0.0`
-   * otherwise.
-   *
-   * Pass `outBuffer` of the right size to avoid a fresh allocation
-   * on every snap-pick.
-   */
-  read(outBuffer) {
-    if (!this.#framebuffer) {
-      throw new SDKInternalException("Snap buffer not allocated");
-    }
-    if (!this.bound) {
-      throw new SDKInternalException("Snap buffer not bound");
-    }
-    const [w, h] = this.#size;
-    const len = w * h * 4;
-    const target = outBuffer && outBuffer.length >= len ? outBuffer : new Float32Array(len);
-    const gl = this.#gl;
-    gl.readBuffer(gl.COLOR_ATTACHMENT0);
-    gl.readPixels(0, 0, w, h, gl.RGBA, gl.FLOAT, target);
-    return target;
-  }
-  /** Release every GL object owned by this buffer. */
-  destroy() {
-    const gl = this.#gl;
-    if (this.#colorTexture) {
-      gl.deleteTexture(this.#colorTexture);
-      this.#colorTexture = null;
-    }
-    if (this.#depthBuffer) {
-      gl.deleteRenderbuffer(this.#depthBuffer);
-      this.#depthBuffer = null;
-    }
-    if (this.#framebuffer) {
-      gl.deleteFramebuffer(this.#framebuffer);
-      this.#framebuffer = null;
-    }
-    this.bound = false;
-  }
-};
-var WebGLSnapBufferCache = class {
-  #gl;
-  #cache = /* @__PURE__ */ new Map();
-  constructor(gl) {
-    this.#gl = gl;
-  }
-  /**
-   * Get (or lazily allocate) the snap buffer sized for the given
-   * radius. The buffer is `(2 · radius + 1) × (2 · radius + 1)`.
-   */
-  get(radius) {
-    const key = Math.max(1, radius | 0);
-    let buf = this.#cache.get(key);
-    if (buf && buf.allocated) {
-      return { ok: true, value: buf };
-    }
-    buf = new WebGLSnapBuffer(this.#gl);
-    const initRes = buf.init();
-    if (initRes.ok === false)
-      return initRes;
-    const dim = 2 * key + 1;
-    const sizeRes = buf.setSize(dim, dim);
-    if (sizeRes.ok === false) {
-      buf.destroy();
-      return sizeRes;
-    }
-    this.#cache.set(key, buf);
-    return { ok: true, value: buf };
-  }
-  webglContextRestored(gl) {
-    this.#gl = gl;
-    for (const buf of this.#cache.values()) {
-      const r = buf.webglContextRestored(gl);
-      if (r.ok === false)
-        return r;
-    }
-    return { ok: true, value: void 0 };
-  }
-  destroy() {
-    for (const buf of this.#cache.values())
-      buf.destroy();
-    this.#cache.clear();
-  }
-};
-function framebufferStatusToString3(gl, status) {
-  switch (status) {
-    case gl.FRAMEBUFFER_COMPLETE:
-      return "FRAMEBUFFER_COMPLETE";
-    case gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-      return "FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
-    case gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-      return "FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
-    case gl.FRAMEBUFFER_UNSUPPORTED:
-      return "FRAMEBUFFER_UNSUPPORTED";
-    default:
-      return String(status);
-  }
-}
-
-// ../sdk/src/base/webGL/WebGLSampler.ts
-var WebGLSampler = class {
-  location;
-  gl;
-  /**
-   * Creates a new sampler.
-   * @param gl
-   * @param location
-   */
-  constructor(gl, location2) {
-    this.gl = gl;
-    this.location = location2;
-  }
-  /**
-   * Binds a texture to this sampler.
-   * @param texture
-   * @param unit
-   */
-  bindTexture(texture, unit) {
-    if (texture.bind(unit)) {
-      this.gl.uniform1i(this.location, unit);
-      return true;
-    }
-    return false;
-  }
-};
-
-// ../sdk/src/base/webGL/getWebGLExtension.ts
-function getWebGLExtension(gl, name12) {
-  if (gl._cachedExtensions === void 0) {
-    gl._cachedExtensions = {};
-  }
-  if (gl._cachedExtensions[name12] !== void 0) {
-    return gl._cachedExtensions[name12];
-  }
-  let extension;
-  switch (name12) {
-    case "WEBGL_depth_texture":
-      extension = gl.getExtension("WEBGL_depth_texture") || gl.getExtension("MOZ_WEBGL_depth_texture") || gl.getExtension("WEBKIT_WEBGL_depth_texture");
-      break;
-    case "EXT_texture_filter_anisotropic":
-      extension = gl.getExtension("EXT_texture_filter_anisotropic") || gl.getExtension("MOZ_EXT_texture_filter_anisotropic") || gl.getExtension("WEBKIT_EXT_texture_filter_anisotropic");
-      break;
-    case "WEBGL_compressed_texture_s3tc":
-      extension = gl.getExtension("WEBGL_compressed_texture_s3tc") || gl.getExtension("MOZ_WEBGL_compressed_texture_s3tc") || gl.getExtension("WEBKIT_WEBGL_compressed_texture_s3tc");
-      break;
-    case "WEBGL_compressed_texture_pvrtc":
-      extension = gl.getExtension("WEBGL_compressed_texture_pvrtc") || gl.getExtension("WEBKIT_WEBGL_compressed_texture_pvrtc");
-      break;
-    default:
-      extension = gl.getExtension(name12);
-  }
-  gl._cachedExtensions[name12] = extension;
-  return extension;
-}
-
-// ../sdk/src/base/webGL/convertWebGLConstant.ts
-function convertWebGLConstant(gl, constantVal, encoding) {
-  let extension;
-  const p = constantVal;
-  if (p === UnsignedByteType)
-    return gl.UNSIGNED_BYTE;
-  if (p === UnsignedShort4444Type)
-    return gl.UNSIGNED_SHORT_4_4_4_4;
-  if (p === UnsignedShort5551Type)
-    return gl.UNSIGNED_SHORT_5_5_5_1;
-  if (p === ByteType)
-    return gl.BYTE;
-  if (p === ShortType)
-    return gl.SHORT;
-  if (p === UnsignedShortType)
-    return gl.UNSIGNED_SHORT;
-  if (p === IntType)
-    return gl.INT;
-  if (p === UnsignedIntType)
-    return gl.UNSIGNED_INT;
-  if (p === FloatType)
-    return gl.FLOAT;
-  if (p === HalfFloatType) {
-    return gl.HALF_FLOAT;
-  }
-  if (p === AlphaFormat)
-    return gl.ALPHA;
-  if (p === RGBAFormat)
-    return gl.RGBA;
-  if (p === LuminanceFormat)
-    return gl.LUMINANCE;
-  if (p === LuminanceAlphaFormat)
-    return gl.LUMINANCE_ALPHA;
-  if (p === DepthFormat)
-    return gl.DEPTH_COMPONENT;
-  if (p === DepthStencilFormat)
-    return gl.DEPTH_STENCIL;
-  if (p === RedFormat)
-    return gl.RED;
-  if (p === RGBFormat) {
-    return gl.RGBA;
-  }
-  if (p === RedIntegerFormat)
-    return gl.RED_INTEGER;
-  if (p === RGFormat)
-    return gl.RG;
-  if (p === RGIntegerFormat)
-    return gl.RG_INTEGER;
-  if (p === RGBAIntegerFormat)
-    return gl.RGBA_INTEGER;
-  if (p === RGB_S3TC_DXT1_Format || p === RGBA_S3TC_DXT1_Format || p === RGBA_S3TC_DXT3_Format || p === RGBA_S3TC_DXT5_Format) {
-    if (encoding === sRGBEncoding) {
-      const extension2 = getWebGLExtension(gl, "WEBGL_compressed_texture_s3tc_srgb");
-      if (extension2 !== null) {
-        if (p === RGB_S3TC_DXT1_Format)
-          return extension2.COMPRESSED_SRGB_S3TC_DXT1_EXT;
-        if (p === RGBA_S3TC_DXT1_Format)
-          return extension2.COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT;
-        if (p === RGBA_S3TC_DXT3_Format)
-          return extension2.COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT;
-        if (p === RGBA_S3TC_DXT5_Format)
-          return extension2.COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
-      } else {
-        return null;
-      }
-    } else {
-      extension = getWebGLExtension(gl, "WEBGL_compressed_texture_s3tc");
-      if (extension !== null) {
-        if (p === RGB_S3TC_DXT1_Format)
-          return extension.COMPRESSED_RGB_S3TC_DXT1_EXT;
-        if (p === RGBA_S3TC_DXT1_Format)
-          return extension.COMPRESSED_RGBA_S3TC_DXT1_EXT;
-        if (p === RGBA_S3TC_DXT3_Format)
-          return extension.COMPRESSED_RGBA_S3TC_DXT3_EXT;
-        if (p === RGBA_S3TC_DXT5_Format)
-          return extension.COMPRESSED_RGBA_S3TC_DXT5_EXT;
-      } else {
-        return null;
-      }
-    }
-  }
-  if (p === RGB_PVRTC_4BPPV1_Format || p === RGB_PVRTC_2BPPV1_Format || p === RGBA_PVRTC_4BPPV1_Format || p === RGBA_PVRTC_2BPPV1_Format) {
-    const extension2 = getWebGLExtension(gl, "WEBGL_compressed_texture_pvrtc");
-    if (extension2 !== null) {
-      if (p === RGB_PVRTC_4BPPV1_Format)
-        return extension2.COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
-      if (p === RGB_PVRTC_2BPPV1_Format)
-        return extension2.COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
-      if (p === RGBA_PVRTC_4BPPV1_Format)
-        return extension2.COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
-      if (p === RGBA_PVRTC_2BPPV1_Format)
-        return extension2.COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
-    } else {
-      return null;
-    }
-  }
-  if (p === RGB_ETC1_Format) {
-    const extension2 = getWebGLExtension(gl, "WEBGL_compressed_texture_etc1");
-    if (extension2 !== null) {
-      return extension2.COMPRESSED_RGB_ETC1_WEBGL;
-    } else {
-      return null;
-    }
-  }
-  if (p === RGB_ETC2_Format || p === RGBA_ETC2_EAC_Format) {
-    const extension2 = getWebGLExtension(gl, "WEBGL_compressed_texture_etc");
-    if (extension2 !== null) {
-      if (p === RGB_ETC2_Format)
-        return encoding === sRGBEncoding ? extension2.COMPRESSED_SRGB8_ETC2 : extension2.COMPRESSED_RGB8_ETC2;
-      if (p === RGBA_ETC2_EAC_Format)
-        return encoding === sRGBEncoding ? extension2.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC : extension2.COMPRESSED_RGBA8_ETC2_EAC;
-    } else {
-      return null;
-    }
-  }
-  if (p === RGBA_ASTC_4x4_Format || p === RGBA_ASTC_5x4_Format || p === RGBA_ASTC_5x5_Format || p === RGBA_ASTC_6x5_Format || p === RGBA_ASTC_6x6_Format || p === RGBA_ASTC_8x5_Format || p === RGBA_ASTC_8x6_Format || p === RGBA_ASTC_8x8_Format || p === RGBA_ASTC_10x5_Format || p === RGBA_ASTC_10x6_Format || p === RGBA_ASTC_10x8_Format || p === RGBA_ASTC_10x10_Format || p === RGBA_ASTC_12x10_Format || p === RGBA_ASTC_12x12_Format) {
-    const extension2 = getWebGLExtension(gl, "WEBGL_compressed_texture_astc");
-    if (extension2 !== null) {
-      if (p === RGBA_ASTC_4x4_Format)
-        return encoding === sRGBEncoding ? extension2.COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR : extension2.COMPRESSED_RGBA_ASTC_4x4_KHR;
-      if (p === RGBA_ASTC_5x4_Format)
-        return encoding === sRGBEncoding ? extension2.COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR : extension2.COMPRESSED_RGBA_ASTC_5x4_KHR;
-      if (p === RGBA_ASTC_5x5_Format)
-        return encoding === sRGBEncoding ? extension2.COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR : extension2.COMPRESSED_RGBA_ASTC_5x5_KHR;
-      if (p === RGBA_ASTC_6x5_Format)
-        return encoding === sRGBEncoding ? extension2.COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR : extension2.COMPRESSED_RGBA_ASTC_6x5_KHR;
-      if (p === RGBA_ASTC_6x6_Format)
-        return encoding === sRGBEncoding ? extension2.COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR : extension2.COMPRESSED_RGBA_ASTC_6x6_KHR;
-      if (p === RGBA_ASTC_8x5_Format)
-        return encoding === sRGBEncoding ? extension2.COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR : extension2.COMPRESSED_RGBA_ASTC_8x5_KHR;
-      if (p === RGBA_ASTC_8x6_Format)
-        return encoding === sRGBEncoding ? extension2.COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR : extension2.COMPRESSED_RGBA_ASTC_8x6_KHR;
-      if (p === RGBA_ASTC_8x8_Format)
-        return encoding === sRGBEncoding ? extension2.COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR : extension2.COMPRESSED_RGBA_ASTC_8x8_KHR;
-      if (p === RGBA_ASTC_10x5_Format)
-        return encoding === sRGBEncoding ? extension2.COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR : extension2.COMPRESSED_RGBA_ASTC_10x5_KHR;
-      if (p === RGBA_ASTC_10x6_Format)
-        return encoding === sRGBEncoding ? extension2.COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR : extension2.COMPRESSED_RGBA_ASTC_10x6_KHR;
-      if (p === RGBA_ASTC_10x8_Format)
-        return encoding === sRGBEncoding ? extension2.COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR : extension2.COMPRESSED_RGBA_ASTC_10x8_KHR;
-      if (p === RGBA_ASTC_10x10_Format)
-        return encoding === sRGBEncoding ? extension2.COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR : extension2.COMPRESSED_RGBA_ASTC_10x10_KHR;
-      if (p === RGBA_ASTC_12x10_Format)
-        return encoding === sRGBEncoding ? extension2.COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR : extension2.COMPRESSED_RGBA_ASTC_12x10_KHR;
-      if (p === RGBA_ASTC_12x12_Format)
-        return encoding === sRGBEncoding ? extension2.COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR : extension2.COMPRESSED_RGBA_ASTC_12x12_KHR;
-    } else {
-      return null;
-    }
-  }
-  if (p === RGBA_BPTC_Format) {
-    const extension2 = getWebGLExtension(gl, "EXT_texture_compression_bptc");
-    if (extension2 !== null) {
-      if (p === RGBA_BPTC_Format) {
-        return encoding === sRGBEncoding ? extension2.COMPRESSED_SRGB_ALPHA_BPTC_UNORM_EXT : extension2.COMPRESSED_RGBA_BPTC_UNORM_EXT;
-      }
-    } else {
-      return null;
-    }
-  }
-  if (p === UnsignedInt248Type) {
-    return gl.UNSIGNED_INT_24_8;
-  }
-  if (p === RepeatWrapping) {
-    return gl.REPEAT;
-  }
-  if (p === ClampToEdgeWrapping) {
-    return gl.CLAMP_TO_EDGE;
-  }
-  if (p === NearestMipMapNearestFilter) {
-    return gl.NEAREST_MIPMAP_LINEAR;
-  }
-  if (p === NearestMipMapLinearFilter) {
-    return gl.NEAREST_MIPMAP_LINEAR;
-  }
-  if (p === LinearMipMapNearestFilter) {
-    return gl.LINEAR_MIPMAP_NEAREST;
-  }
-  if (p === LinearMipMapLinearFilter) {
-    return gl.LINEAR_MIPMAP_LINEAR;
-  }
-  if (p === NearestFilter) {
-    return gl.NEAREST;
-  }
-  if (p === LinearFilter) {
-    return gl.LINEAR;
-  }
-  return null;
-}
-
-// ../sdk/src/base/webGL/WebGLTexture.ts
-var color = new Uint8Array([0, 0, 0, 1]);
-var WebGLTexture = class {
-  gl;
-  target;
-  format;
-  type;
-  internalFormat;
-  premultiplyAlpha;
-  flipY;
-  unpackAlignment;
-  wrapS;
-  wrapT;
-  wrapR;
-  texture;
-  allocated;
-  minFilter;
-  magFilter;
-  encoding;
-  constructor(params) {
-    this.gl = params.gl;
-    this.target = params.target || params.gl.TEXTURE_2D;
-    this.format = params.format || RGBAFormat;
-    this.type = params.type || UnsignedByteType;
-    this.internalFormat = -1;
-    this.premultiplyAlpha = !!params.premultiplyAlpha;
-    this.flipY = !!params.flipY;
-    this.unpackAlignment = 4;
-    this.wrapS = params.wrapS || RepeatWrapping;
-    this.wrapT = params.wrapT || RepeatWrapping;
-    this.wrapR = params.wrapR || RepeatWrapping;
-    this.texture = params.gl.createTexture();
-    if (params.preloadColor) {
-      this.setPreloadColor(params.preloadColor);
-    }
-    this.allocated = true;
-  }
-  setPreloadColor(value) {
-    if (!value) {
-      color[0] = 0;
-      color[1] = 0;
-      color[2] = 0;
-      color[3] = 255;
-    } else {
-      color[0] = Math.floor(value[0] * 255);
-      color[1] = Math.floor(value[1] * 255);
-      color[2] = Math.floor(value[2] * 255);
-      color[3] = Math.floor((value[3] !== void 0 ? value[3] : 1) * 255);
-    }
-    const gl = this.gl;
-    gl.bindTexture(this.target, this.texture);
-    if (this.target === gl.TEXTURE_CUBE_MAP) {
-      const faces2 = [
-        gl.TEXTURE_CUBE_MAP_POSITIVE_X,
-        gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
-        gl.TEXTURE_CUBE_MAP_POSITIVE_Y,
-        gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
-        gl.TEXTURE_CUBE_MAP_POSITIVE_Z,
-        gl.TEXTURE_CUBE_MAP_NEGATIVE_Z
-      ];
-      for (let i = 0, len = faces2.length; i < len; i++) {
-        gl.texImage2D(faces2[i], 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, color);
-      }
-    } else {
-      gl.texImage2D(this.target, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, color);
-    }
-    gl.bindTexture(this.target, null);
-  }
-  setTarget(target) {
-    this.target = target || this.gl.TEXTURE_2D;
-  }
-  setImage(image, props = {}) {
-    const gl = this.gl;
-    if (props.format !== void 0) {
-      this.format = props.format;
-    }
-    if (props.internalFormat !== void 0) {
-      this.internalFormat = props.internalFormat;
-    }
-    if (props.encoding !== void 0) {
-      this.encoding = props.encoding;
-    }
-    if (props.type !== void 0) {
-      this.type = props.type;
-    }
-    if (props.flipY !== void 0) {
-      this.flipY = props.flipY;
-    }
-    if (props.premultiplyAlpha !== void 0) {
-      this.premultiplyAlpha = props.premultiplyAlpha;
-    }
-    if (props.unpackAlignment !== void 0) {
-      this.unpackAlignment = props.unpackAlignment;
-    }
-    if (props.minFilter !== void 0) {
-      this.minFilter = props.minFilter;
-    }
-    if (props.magFilter !== void 0) {
-      this.magFilter = props.magFilter;
-    }
-    if (props.wrapS !== void 0) {
-      this.wrapS = props.wrapS;
-    }
-    if (props.wrapT !== void 0) {
-      this.wrapT = props.wrapT;
-    }
-    if (props.wrapR !== void 0) {
-      this.wrapR = props.wrapR;
-    }
-    let generateMipMap = false;
-    gl.bindTexture(this.target, this.texture);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, this.flipY);
-    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, this.premultiplyAlpha);
-    gl.pixelStorei(gl.UNPACK_ALIGNMENT, this.unpackAlignment);
-    gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE);
-    const minFilter = convertWebGLConstant(gl, this.minFilter);
-    gl.texParameteri(this.target, gl.TEXTURE_MIN_FILTER, minFilter);
-    if (minFilter === gl.NEAREST_MIPMAP_NEAREST || minFilter === gl.LINEAR_MIPMAP_NEAREST || minFilter === gl.NEAREST_MIPMAP_LINEAR || minFilter === gl.LINEAR_MIPMAP_LINEAR) {
-      generateMipMap = true;
-    }
-    const magFilter = convertWebGLConstant(gl, this.magFilter);
-    if (magFilter) {
-      gl.texParameteri(this.target, gl.TEXTURE_MAG_FILTER, magFilter);
-    }
-    const wrapS = convertWebGLConstant(gl, this.wrapS);
-    if (wrapS) {
-      gl.texParameteri(this.target, gl.TEXTURE_WRAP_S, wrapS);
-    }
-    const wrapT = convertWebGLConstant(gl, this.wrapT);
-    if (wrapT) {
-      gl.texParameteri(this.target, gl.TEXTURE_WRAP_T, wrapT);
-    }
-    const glFormat = convertWebGLConstant(gl, this.format, this.encoding);
-    const glType = convertWebGLConstant(gl, this.type);
-    const glInternalFormat = getInternalFormat(gl, this.internalFormat, glFormat, glType, this.encoding, false);
-    if (this.target === gl.TEXTURE_CUBE_MAP) {
-      if (isArray(image)) {
-        const images = image;
-        const faces2 = [
-          gl.TEXTURE_CUBE_MAP_POSITIVE_X,
-          gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
-          gl.TEXTURE_CUBE_MAP_POSITIVE_Y,
-          gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
-          gl.TEXTURE_CUBE_MAP_POSITIVE_Z,
-          gl.TEXTURE_CUBE_MAP_NEGATIVE_Z
-        ];
-        for (let i = 0, len = faces2.length; i < len; i++) {
-          gl.texImage2D(faces2[i], 0, glInternalFormat, glFormat, glType, images[i]);
-        }
-      }
-    } else {
-      gl.texImage2D(gl.TEXTURE_2D, 0, glInternalFormat, glFormat, glType, image);
-    }
-    gl.bindTexture(this.target, null);
-  }
-  setCompressedData(params) {
-    const gl = this.gl;
-    const mipmaps = params.mipmaps || [];
-    const levels = mipmaps.length;
-    const props = params.props;
-    if (props.format !== void 0) {
-      this.format = props.format;
-    }
-    if (props.internalFormat !== void 0) {
-      this.internalFormat = props.internalFormat;
-    }
-    if (props.encoding !== void 0) {
-      this.encoding = props.encoding;
-    }
-    if (props.type !== void 0) {
-      this.type = props.type;
-    }
-    if (props.flipY !== void 0) {
-      this.flipY = props.flipY;
-    }
-    if (props.premultiplyAlpha !== void 0) {
-      this.premultiplyAlpha = props.premultiplyAlpha;
-    }
-    if (props.unpackAlignment !== void 0) {
-      this.unpackAlignment = props.unpackAlignment;
-    }
-    if (props.minFilter !== void 0) {
-      this.minFilter = props.minFilter;
-    }
-    if (props.magFilter !== void 0) {
-      this.magFilter = props.magFilter;
-    }
-    if (props.wrapS !== void 0) {
-      this.wrapS = props.wrapS;
-    }
-    if (props.wrapT !== void 0) {
-      this.wrapT = props.wrapT;
-    }
-    if (props.wrapR !== void 0) {
-      this.wrapR = props.wrapR;
-    }
-    gl.activeTexture(gl.TEXTURE0 + 0);
-    gl.bindTexture(this.target, this.texture);
-    const supportsMips = mipmaps.length > 1;
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, this.flipY);
-    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, this.premultiplyAlpha);
-    gl.pixelStorei(gl.UNPACK_ALIGNMENT, this.unpackAlignment);
-    gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE);
-    const wrapS = convertWebGLConstant(gl, this.wrapS);
-    if (wrapS) {
-      gl.texParameteri(this.target, gl.TEXTURE_WRAP_S, wrapS);
-    }
-    const wrapT = convertWebGLConstant(gl, this.wrapT);
-    if (wrapT) {
-      gl.texParameteri(this.target, gl.TEXTURE_WRAP_T, wrapT);
-    }
-    if (this.type === gl.TEXTURE_3D || this.type === gl.TEXTURE_2D_ARRAY) {
-      const wrapR = convertWebGLConstant(gl, this.wrapR);
-      if (wrapR) {
-        gl.texParameteri(this.target, gl.TEXTURE_WRAP_R, wrapR);
-      }
-      gl.texParameteri(this.type, gl.TEXTURE_WRAP_R, wrapR);
-    }
-    if (supportsMips) {
-      gl.texParameteri(this.target, gl.TEXTURE_MIN_FILTER, filterFallback(gl, this.minFilter));
-      gl.texParameteri(this.target, gl.TEXTURE_MAG_FILTER, filterFallback(gl, this.magFilter));
-    } else {
-      gl.texParameteri(this.target, gl.TEXTURE_MIN_FILTER, convertWebGLConstant(gl, this.minFilter));
-      gl.texParameteri(this.target, gl.TEXTURE_MAG_FILTER, convertWebGLConstant(gl, this.magFilter));
-    }
-    const glFormat = convertWebGLConstant(gl, this.format, this.encoding);
-    const glType = convertWebGLConstant(gl, this.type);
-    const glInternalFormat = getInternalFormat(gl, this.internalFormat, glFormat, glType, this.encoding, false);
-    gl.texStorage2D(gl.TEXTURE_2D, levels, glInternalFormat, mipmaps[0].width, mipmaps[0].height);
-    for (let i = 0, len = mipmaps.length; i < len; i++) {
-      const mipmap = mipmaps[i];
-      if (this.format !== RGBAFormat) {
-        if (glFormat !== null) {
-          gl.compressedTexSubImage2D(gl.TEXTURE_2D, i, 0, 0, mipmap.width, mipmap.height, glFormat, mipmap.data);
-        } else {
-          console.warn("Attempt to load unsupported compressed texture format in .setCompressedData()");
-        }
-      } else {
-        gl.texSubImage2D(gl.TEXTURE_2D, i, 0, 0, mipmap.width, mipmap.height, glFormat, glType, mipmap.data);
-      }
-    }
-    gl.bindTexture(this.target, null);
-  }
-  setProps(props) {
-    const gl = this.gl;
-    gl.bindTexture(this.target, this.texture);
-    this._uploadProps(props);
-    gl.bindTexture(this.target, null);
-  }
-  _uploadProps(props) {
-    const gl = this.gl;
-    if (props.format !== void 0) {
-      this.format = props.format;
-    }
-    if (props.internalFormat !== void 0) {
-      this.internalFormat = props.internalFormat;
-    }
-    if (props.encoding !== void 0) {
-      this.encoding = props.encoding;
-    }
-    if (props.type !== void 0) {
-      this.type = props.type;
-    }
-    if (props.minFilter !== void 0) {
-      const minFilter = convertWebGLConstant(gl, props.minFilter);
-      if (minFilter) {
-        this.minFilter = props.minFilter;
-        gl.texParameteri(this.target, gl.TEXTURE_MIN_FILTER, minFilter);
-        if (minFilter === gl.NEAREST_MIPMAP_NEAREST || minFilter === gl.LINEAR_MIPMAP_NEAREST || minFilter === gl.NEAREST_MIPMAP_LINEAR || minFilter === gl.LINEAR_MIPMAP_LINEAR) {
-          gl.generateMipmap(this.target);
-        }
-      }
-    }
-    if (props.magFilter !== void 0) {
-      const magFilter = convertWebGLConstant(gl, props.magFilter);
-      if (magFilter) {
-        this.magFilter = props.magFilter;
-        gl.texParameteri(this.target, gl.TEXTURE_MAG_FILTER, magFilter);
-      }
-    }
-    if (props.wrapS !== void 0) {
-      const wrapS = convertWebGLConstant(gl, props.wrapS);
-      if (wrapS) {
-        this.wrapS = props.wrapS;
-        gl.texParameteri(this.target, gl.TEXTURE_WRAP_S, wrapS);
-      }
-    }
-    if (props.wrapT !== void 0) {
-      const wrapT = convertWebGLConstant(gl, props.wrapT);
-      if (wrapT) {
-        this.wrapT = props.wrapT;
-        gl.texParameteri(this.target, gl.TEXTURE_WRAP_T, wrapT);
-      }
-    }
-  }
-  bind(unit) {
-    if (!this.allocated) {
-      return false;
-    }
-    if (this.texture) {
-      const gl = this.gl;
-      gl.activeTexture(gl[`TEXTURE${unit}`]);
-      gl.bindTexture(this.target, this.texture);
-      return true;
-    }
-    return false;
-  }
-  unbind(unit) {
-    if (!this.allocated) {
-      return;
-    }
-    if (this.texture) {
-      const gl = this.gl;
-      gl.activeTexture(gl[`TEXTURE${unit}`]);
-      gl.bindTexture(this.target, null);
-    }
-  }
-  destroy() {
-    if (!this.allocated) {
-      return;
-    }
-    if (this.texture) {
-      this.gl.deleteTexture(this.texture);
-      this.texture = null;
-    }
-  }
-};
-function getInternalFormat(gl, internalFormatName, glFormat, glType, encoding, isVideoTexture = false) {
-  if (internalFormatName !== null) {
-    if (gl[internalFormatName] !== void 0) {
-      return gl[internalFormatName];
-    }
-    console.warn("Attempt to use non-existing WebGL internal format '" + internalFormatName + "'");
-  }
-  let internalFormat = glFormat;
-  if (glFormat === gl.RED) {
-    if (glType === gl.FLOAT)
-      internalFormat = gl.R32F;
-    if (glType === gl.HALF_FLOAT)
-      internalFormat = gl.R16F;
-    if (glType === gl.UNSIGNED_BYTE)
-      internalFormat = gl.R8;
-  }
-  if (glFormat === gl.RG) {
-    if (glType === gl.FLOAT)
-      internalFormat = gl.RG32F;
-    if (glType === gl.HALF_FLOAT)
-      internalFormat = gl.RG16F;
-    if (glType === gl.UNSIGNED_BYTE)
-      internalFormat = gl.RG8;
-  }
-  if (glFormat === gl.RGBA) {
-    if (glType === gl.FLOAT)
-      internalFormat = gl.RGBA32F;
-    if (glType === gl.HALF_FLOAT)
-      internalFormat = gl.RGBA16F;
-    if (glType === gl.UNSIGNED_BYTE)
-      internalFormat = encoding === sRGBEncoding && isVideoTexture === false ? gl.SRGB8_ALPHA8 : gl.RGBA8;
-    if (glType === gl.UNSIGNED_SHORT_4_4_4_4)
-      internalFormat = gl.RGBA4;
-    if (glType === gl.UNSIGNED_SHORT_5_5_5_1)
-      internalFormat = gl.RGB5_A1;
-  }
-  if (internalFormat === gl.R16F || internalFormat === gl.R32F || internalFormat === gl.RG16F || internalFormat === gl.RG32F || internalFormat === gl.RGBA16F || internalFormat === gl.RGBA32F) {
-    getWebGLExtension(gl, "EXT_color_buffer_float");
-  }
-  return internalFormat;
-}
-function filterFallback(gl, f) {
-  if (f === NearestFilter || f === NearestMipmapNearestFilter || f === NearestMipmapLinearFilter) {
-    return gl.NEAREST;
-  }
-  return gl.LINEAR;
-}
-
-// ../sdk/src/base/webGL/canvas2image.ts
-var Canvas2Image = function() {
-  const oCanvas = document.createElement("canvas"), sc = String.fromCharCode, strDownloadMime = "image/octet-stream", bReplaceDownloadMime = false;
-  if (!oCanvas.getContext) {
-    return {
-      saveAsBMP: function() {
-      },
-      saveAsPNG: function() {
-      },
-      saveAsJPEG: function() {
-      }
-    };
-  }
-  const bHasImageData = !!oCanvas.getContext("2d").getImageData, bHasDataURL = !!oCanvas.toDataURL, bHasBase64 = !!window.btoa;
-  const readCanvasData = function(oCanvas2) {
-    const iWidth = parseInt(oCanvas2.width), iHeight = parseInt(oCanvas2.height);
-    return oCanvas2.getContext("2d").getImageData(0, 0, iWidth, iHeight);
-  };
-  const encodeData = function(data2) {
-    let i, aData, strData = "";
-    if (typeof data2 == "string") {
-      strData = data2;
-    } else {
-      aData = data2;
-      for (i = 0; i < aData.length; i++) {
-        strData += sc(aData[i]);
-      }
-    }
-    return btoa(strData);
-  };
-  const createBMP = function(oData) {
-    let strHeader = "";
-    const iWidth = oData.width;
-    const iHeight = oData.height;
-    strHeader += "BM";
-    let iFileSize = iWidth * iHeight * 4 + 54;
-    strHeader += sc(iFileSize % 256);
-    iFileSize = Math.floor(iFileSize / 256);
-    strHeader += sc(iFileSize % 256);
-    iFileSize = Math.floor(iFileSize / 256);
-    strHeader += sc(iFileSize % 256);
-    iFileSize = Math.floor(iFileSize / 256);
-    strHeader += sc(iFileSize % 256);
-    strHeader += sc(0, 0, 0, 0, 54, 0, 0, 0);
-    strHeader += sc(40, 0, 0, 0);
-    let iImageWidth = iWidth;
-    strHeader += sc(iImageWidth % 256);
-    iImageWidth = Math.floor(iImageWidth / 256);
-    strHeader += sc(iImageWidth % 256);
-    iImageWidth = Math.floor(iImageWidth / 256);
-    strHeader += sc(iImageWidth % 256);
-    iImageWidth = Math.floor(iImageWidth / 256);
-    strHeader += sc(iImageWidth % 256);
-    let iImageHeight = iHeight;
-    strHeader += sc(iImageHeight % 256);
-    iImageHeight = Math.floor(iImageHeight / 256);
-    strHeader += sc(iImageHeight % 256);
-    iImageHeight = Math.floor(iImageHeight / 256);
-    strHeader += sc(iImageHeight % 256);
-    iImageHeight = Math.floor(iImageHeight / 256);
-    strHeader += sc(iImageHeight % 256);
-    strHeader += sc(1, 0, 32, 0);
-    strHeader += sc(0, 0, 0, 0);
-    let iDataSize = iWidth * iHeight * 4;
-    strHeader += sc(iDataSize % 256);
-    iDataSize = Math.floor(iDataSize / 256);
-    strHeader += sc(iDataSize % 256);
-    iDataSize = Math.floor(iDataSize / 256);
-    strHeader += sc(iDataSize % 256);
-    iDataSize = Math.floor(iDataSize / 256);
-    strHeader += sc(iDataSize % 256);
-    strHeader += sc(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-    const aImgData = oData.data;
-    let strPixelData = "";
-    let c3;
-    let x;
-    let y = iHeight;
-    let iOffsetX;
-    let iOffsetY;
-    let strPixelRow;
-    do {
-      iOffsetY = iWidth * (y - 1) * 4;
-      strPixelRow = "";
-      for (x = 0; x < iWidth; x++) {
-        iOffsetX = 4 * x;
-        strPixelRow += sc(
-          aImgData[iOffsetY + iOffsetX + 2],
-          // B
-          aImgData[iOffsetY + iOffsetX + 1],
-          // G
-          aImgData[iOffsetY + iOffsetX],
-          // R
-          aImgData[iOffsetY + iOffsetX + 3]
-          // A
-        );
-      }
-      strPixelData += strPixelRow;
-    } while (--y);
-    return encodeData(strHeader + strPixelData);
-  };
-  const saveFile = function(strData) {
-    if (!window.open(strData)) {
-      document.location.href = strData;
-    }
-  };
-  const makeDataURI = function(strData, strMime) {
-    return "data:" + strMime + ";base64," + strData;
-  };
-  const makeImageObject = function(strSource) {
-    const oImgElement = document.createElement("img");
-    oImgElement.src = strSource;
-    return oImgElement;
-  };
-  const scaleCanvas = function(oCanvas2, iWidth, iHeight, flipy) {
-    if (iWidth && iHeight) {
-      const oSaveCanvas = document.createElement("canvas");
-      oSaveCanvas.width = iWidth;
-      oSaveCanvas.height = iHeight;
-      oSaveCanvas.style.width = iWidth + "px";
-      oSaveCanvas.style.height = iHeight + "px";
-      const oSaveCtx = oSaveCanvas.getContext("2d");
-      if (flipy) {
-        oSaveCtx.save();
-        oSaveCtx.scale(1, -1);
-        oSaveCtx.imageSmoothingEnabled = true;
-        oSaveCtx.drawImage(oCanvas2, 0, 0, oCanvas2.width, oCanvas2.height, 0, 0, iWidth, -iHeight);
-        oSaveCtx.restore();
-      } else {
-        oSaveCtx.imageSmoothingEnabled = true;
-        oSaveCtx.drawImage(oCanvas2, 0, 0, oCanvas2.width, oCanvas2.height, 0, 0, iWidth, iHeight);
-      }
-      return oSaveCanvas;
-    }
-    return oCanvas2;
-  };
-  return {
-    saveAsPNG: function(oCanvas2, bReturnImg, iWidth, iHeight, flipy) {
-      if (!bHasDataURL)
-        return false;
-      const oScaledCanvas = scaleCanvas(oCanvas2, iWidth, iHeight, flipy);
-      const strMime = "image/png";
-      const strData = oScaledCanvas.toDataURL(strMime);
-      if (bReturnImg) {
-        return makeImageObject(strData);
-      } else {
-        saveFile(bReplaceDownloadMime ? strData.replace(strMime, strDownloadMime) : strData);
-      }
-      return true;
-    },
-    saveAsJPEG: function(oCanvas2, bReturnImg, iWidth, iHeight, flipy) {
-      if (!bHasDataURL)
-        return false;
-      const oScaledCanvas = scaleCanvas(oCanvas2, iWidth, iHeight, flipy);
-      const strMime = "image/jpeg";
-      const strData = oScaledCanvas.toDataURL(strMime);
-      if (strData.indexOf(strMime) != 5)
-        return false;
-      if (bReturnImg) {
-        return makeImageObject(strData);
-      } else {
-        saveFile(bReplaceDownloadMime ? strData.replace(strMime, strDownloadMime) : strData);
-      }
-      return true;
-    },
-    saveAsBMP: function(oCanvas2, bReturnImg, iWidth, iHeight, flipy) {
-      if (!(bHasDataURL && bHasImageData && bHasBase64))
-        return false;
-      const oScaledCanvas = scaleCanvas(oCanvas2, iWidth, iHeight, flipy);
-      const strMime = "image/bmp";
-      const oData = readCanvasData(oScaledCanvas), strImgData = createBMP(oData);
-      if (bReturnImg) {
-        return makeImageObject(makeDataURI(strImgData, strMime));
-      } else {
-        saveFile(makeDataURI(strImgData, strMime));
-      }
-      return true;
-    }
-  };
-}();
-
-// ../sdk/src/base/webGL/WEBGL_INFO.ts
-var WEBGL_INFO = {
-  WEBGL: false,
-  SUPPORTED_EXTENSIONS: {}
-};
-var canvas = document.createElement("canvas");
-if (canvas) {
-  const gl = canvas.getContext("webgl2", { antialias: true });
-  WEBGL_INFO.WEBGL = !!gl;
-  if (WEBGL_INFO.WEBGL) {
-    WEBGL_INFO.ANTIALIAS = gl.getContextAttributes().antialias;
-    if (gl.getShaderPrecisionFormat) {
-      if (gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT).precision > 0) {
-        WEBGL_INFO.FS_MAX_FLOAT_PRECISION = "highp";
-      } else {
-        if (gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.MEDIUM_FLOAT).precision > 0) {
-          WEBGL_INFO.FS_MAX_FLOAT_PRECISION = "mediump";
-        } else {
-          WEBGL_INFO.FS_MAX_FLOAT_PRECISION = "lowp";
-        }
-      }
-    } else {
-      WEBGL_INFO.FS_MAX_FLOAT_PRECISION = "mediump";
-    }
-    WEBGL_INFO.DEPTH_BUFFER_BITS = gl.getParameter(gl.DEPTH_BITS);
-    WEBGL_INFO.MAX_TEXTURE_SIZE = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-    WEBGL_INFO.MAX_CUBE_MAP_SIZE = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
-    WEBGL_INFO.MAX_RENDERBUFFER_SIZE = gl.getParameter(gl.MAX_RENDERBUFFER_SIZE);
-    WEBGL_INFO.MAX_TEXTURE_UNITS = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
-    WEBGL_INFO.MAX_TEXTURE_IMAGE_UNITS = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
-    WEBGL_INFO.MAX_VERTEX_ATTRIBS = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
-    WEBGL_INFO.MAX_VERTEX_UNIFORM_VECTORS = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
-    WEBGL_INFO.MAX_FRAGMENT_UNIFORM_VECTORS = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
-    WEBGL_INFO.MAX_VARYING_VECTORS = gl.getParameter(gl.MAX_VARYING_VECTORS);
-    gl.getSupportedExtensions().forEach(function(ext) {
-      WEBGL_INFO.SUPPORTED_EXTENSIONS[ext] = true;
-    });
-    WEBGL_INFO.depthTexturesSupported = WEBGL_INFO.SUPPORTED_EXTENSIONS["WEBGL_depth_texture"];
-  }
-}
 
 // ../sdk/src/model/index.ts
 var model_exports = {};
@@ -139542,12 +137095,97 @@ var ViewCuller = class {
 // ../sdk/src/viewing/index.ts
 var viewing_exports = {};
 __export(viewing_exports, {
+  adaptiveQuality: () => adaptiveQuality_exports,
   cameraFlight: () => cameraFlight_exports,
   transformControls: () => transformControls_exports,
   viewController: () => viewController_exports,
   viewer: () => viewer_exports,
   webGLRenderer: () => webGLRenderer_exports
 });
+
+// ../sdk/src/viewing/adaptiveQuality/index.ts
+var adaptiveQuality_exports = {};
+__export(adaptiveQuality_exports, {
+  AdaptiveQuality: () => AdaptiveQuality
+});
+
+// ../sdk/src/viewing/adaptiveQuality/AdaptiveQuality.ts
+var DEFAULT_REST_MS = 150;
+var liveAdapters = /* @__PURE__ */ new WeakMap();
+var AdaptiveQuality = class {
+  /** The View this adapter drives. */
+  view;
+  #fastMode;
+  #restMode;
+  #restMs;
+  #unsubscribers = [];
+  #restTimer = null;
+  #destroyed = false;
+  constructor(params) {
+    const { view } = params;
+    if (liveAdapters.has(view)) {
+      throw new Error(
+        `[adaptiveQuality] View "${view.id}" already has an AdaptiveQuality \u2014 destroy it before creating another`
+      );
+    }
+    this.view = view;
+    this.#fastMode = params.fastMode ?? NavigationRender;
+    this.#restMode = params.restMode ?? RealisticRender;
+    this.#restMs = Math.max(0, params.restMs ?? DEFAULT_REST_MS);
+    const events = view.viewer.events;
+    const onCamera = (changedView) => {
+      if (changedView === this.view)
+        this.#onCameraChanged();
+    };
+    this.#unsubscribers.push(
+      events.onCameraViewMatrixUpdated.subscribe((v) => onCamera(v)),
+      events.onCameraProjMatrixUpdated.subscribe((v) => onCamera(v)),
+      events.onCameraProjectionTypeChanged.subscribe((v) => onCamera(v)),
+      // Self-destruct when the View is destroyed.
+      events.onViewDestroyed.subscribe((_viewer, destroyedView) => {
+        if (destroyedView === this.view)
+          this.destroy();
+      })
+    );
+    liveAdapters.set(view, this);
+  }
+  /**
+   * Stops the adapter, restores `restMode`, and releases subscriptions.
+   */
+  destroy() {
+    if (this.#destroyed)
+      return;
+    this.#destroyed = true;
+    liveAdapters.delete(this.view);
+    if (this.#restTimer !== null) {
+      clearTimeout(this.#restTimer);
+      this.#restTimer = null;
+    }
+    for (const unsubscribe of this.#unsubscribers)
+      unsubscribe();
+    this.#unsubscribers.length = 0;
+    if (this.view.renderMode !== this.#restMode) {
+      this.view.renderMode = this.#restMode;
+    }
+  }
+  #onCameraChanged() {
+    if (this.#destroyed)
+      return;
+    if (this.view.renderMode !== this.#fastMode) {
+      this.view.renderMode = this.#fastMode;
+    }
+    if (this.#restTimer !== null)
+      clearTimeout(this.#restTimer);
+    this.#restTimer = setTimeout(() => {
+      this.#restTimer = null;
+      if (this.#destroyed)
+        return;
+      if (this.view.renderMode !== this.#restMode) {
+        this.view.renderMode = this.#restMode;
+      }
+    }, this.#restMs);
+  }
+};
 
 // ../sdk/src/viewing/cameraFlight/index.ts
 var cameraFlight_exports = {};
@@ -143718,6 +141356,7 @@ function normalizeInPlace(v) {
 var DEFAULT_SUN_DIRECTION = [0.577, 0.577, 0.577];
 var Sky = class {
   view;
+  _renderModes;
   _enabled;
   _skyColor;
   _horizonColor;
@@ -143734,6 +141373,7 @@ var Sky = class {
   /** @private */
   constructor(view, params) {
     this.view = view;
+    this._renderModes = params.renderModes !== void 0 ? params.renderModes.slice() : [NavigationRender, DetailedRender, RealisticRender];
     this._enabled = params.enabled ?? true;
     this._skyColor = copy3(params.skyColor, [0.74, 0.8, 0.88]);
     this._horizonColor = copy3(params.horizonColor, [0.66, 0.72, 0.74]);
@@ -143757,6 +141397,36 @@ var Sky = class {
       return;
     this._enabled = v;
     this.view.needsRender();
+  }
+  /**
+   * {@link View.renderMode | Render modes} the sky background fires in.
+   * Default: all three predefined modes.
+   *
+   * The renderer ANDs this with {@link Sky.enabled}, so flipping a mode
+   * out skips the sky pass for that mode without disturbing the global
+   * enable flag — useful for hiding the procedural sky in
+   * NavigationRender while keeping it in Detailed / Realistic.
+   */
+  get renderModes() {
+    return this._renderModes;
+  }
+  set renderModes(v) {
+    this._renderModes = v ? v.slice() : [];
+    this.view.needsRender();
+  }
+  /**
+   * `true` iff the sky pass will run this frame — `enabled && renderModes`
+   * includes {@link View.renderMode}.
+   */
+  get applied() {
+    if (!this._enabled)
+      return false;
+    const mode = this.view.renderMode;
+    for (let i = 0, len = this._renderModes.length; i < len; i++) {
+      if (this._renderModes[i] === mode)
+        return true;
+    }
+    return false;
   }
   get skyColor() {
     return this._skyColor;
@@ -143853,6 +141523,64 @@ var Sky = class {
     writeColor(this._worldUp, v);
     this.view.needsRender();
   }
+  /** Gets this Sky as JSON. */
+  toParams() {
+    return {
+      ok: true,
+      value: {
+        renderModes: this._renderModes.slice(),
+        enabled: this._enabled,
+        skyColor: [this._skyColor[0], this._skyColor[1], this._skyColor[2]],
+        horizonColor: [this._horizonColor[0], this._horizonColor[1], this._horizonColor[2]],
+        groundColor: [this._groundColor[0], this._groundColor[1], this._groundColor[2]],
+        horizonBlend: this._horizonBlend,
+        sunEnabled: this._sunEnabled,
+        sunDirection: [this._sunDirection[0], this._sunDirection[1], this._sunDirection[2]],
+        sunColor: [this._sunColor[0], this._sunColor[1], this._sunColor[2]],
+        sunAngularSize: this._sunAngularSize,
+        sunGlowSize: this._sunGlowSize,
+        sunGlowIntensity: this._sunGlowIntensity,
+        worldUp: [this._worldUp[0], this._worldUp[1], this._worldUp[2]]
+      }
+    };
+  }
+  /** Configures this Sky. */
+  fromParams(params) {
+    if (this._destroyed) {
+      return this.view.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[Sky.fromParams] Sky has been destroyed."
+      });
+    }
+    if (params.renderModes !== void 0)
+      this.renderModes = params.renderModes;
+    if (params.enabled !== void 0)
+      this.enabled = params.enabled;
+    if (params.skyColor !== void 0)
+      this.skyColor = params.skyColor;
+    if (params.horizonColor !== void 0)
+      this.horizonColor = params.horizonColor;
+    if (params.groundColor !== void 0)
+      this.groundColor = params.groundColor;
+    if (params.horizonBlend !== void 0)
+      this.horizonBlend = params.horizonBlend;
+    if (params.sunEnabled !== void 0)
+      this.sunEnabled = params.sunEnabled;
+    if (params.sunDirection !== void 0)
+      this.sunDirection = params.sunDirection;
+    if (params.sunColor !== void 0)
+      this.sunColor = params.sunColor;
+    if (params.sunAngularSize !== void 0)
+      this.sunAngularSize = params.sunAngularSize;
+    if (params.sunGlowSize !== void 0)
+      this.sunGlowSize = params.sunGlowSize;
+    if (params.sunGlowIntensity !== void 0)
+      this.sunGlowIntensity = params.sunGlowIntensity;
+    if (params.worldUp !== void 0)
+      this.worldUp = params.worldUp;
+    return { ok: true, value: void 0 };
+  }
   /** @private */
   destroy() {
     this._destroyed = true;
@@ -143919,6 +141647,23 @@ var SectionPlaneCaps = class {
     }
     return false;
   }
+  /** Gets this SectionPlaneCaps as JSON. */
+  toParams() {
+    return { ok: true, value: { renderModes: this._renderModes.slice() } };
+  }
+  /** Configures this SectionPlaneCaps. */
+  fromParams(params) {
+    if (this._destroyed) {
+      return this.view.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[SectionPlaneCaps.fromParams] SectionPlaneCaps has been destroyed."
+      });
+    }
+    if (params.renderModes !== void 0)
+      this.renderModes = params.renderModes;
+    return { ok: true, value: void 0 };
+  }
   /** @private */
   destroy() {
     this._destroyed = true;
@@ -143969,6 +141714,23 @@ var BodyHatch = class {
         return true;
     }
     return false;
+  }
+  /** Gets this BodyHatch as JSON. */
+  toParams() {
+    return { ok: true, value: { renderModes: this._renderModes.slice() } };
+  }
+  /** Configures this BodyHatch. */
+  fromParams(params) {
+    if (this._destroyed) {
+      return this.view.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[BodyHatch.fromParams] BodyHatch has been destroyed."
+      });
+    }
+    if (params.renderModes !== void 0)
+      this.renderModes = params.renderModes;
+    return { ok: true, value: void 0 };
   }
   /** @private */
   destroy() {
@@ -144034,6 +141796,16 @@ var Effects = class {
    */
   bodyHatch;
   /**
+   * Image-Based Lighting for this View.
+   *
+   * Alias of {@link Lights.ibl | view.lights.ibl} — same instance,
+   * surfaced here so reflective UIs (the Studio View Panel) can
+   * group it with the renderer effects whose look it controls.
+   */
+  get ibl() {
+    return this.view.lights.ibl;
+  }
+  /**
    * @private
    */
   constructor(view, params = {}) {
@@ -144072,7 +141844,7 @@ var HemisphereAmbient = class {
    */
   constructor(view, params = {}) {
     this.view = view;
-    this.#renderModes = params.renderModes ?? [NavigationRender, DetailedRender];
+    this.#renderModes = params.renderModes ?? [NavigationRender, DetailedRender, RealisticRender];
     this.#intensity = params.intensity !== void 0 ? params.intensity : 1;
     this.#skyColor = createVec3Float64(params.skyColor || [0.62, 0.72, 0.86]);
     this.#groundColor = createVec3Float64(params.groundColor || [0.42, 0.36, 0.3]);
@@ -148325,6 +146097,39 @@ var View2 = class {
           return result;
         }
       }
+      if (e.sky) {
+        const result = this.effects.sky.fromParams(e.sky);
+        if (result.ok === false) {
+          return result;
+        }
+      }
+      if (e.sectionPlaneCaps) {
+        const result = this.effects.sectionPlaneCaps.fromParams(e.sectionPlaneCaps);
+        if (result.ok === false) {
+          return result;
+        }
+      }
+      if (e.bodyHatch) {
+        const result = this.effects.bodyHatch.fromParams(e.bodyHatch);
+        if (result.ok === false) {
+          return result;
+        }
+      }
+      if (e.ibl) {
+        const result = this.effects.ibl.fromParams(e.ibl);
+        if (result.ok === false) {
+          return result;
+        }
+      }
+    }
+    if (viewParams.lights) {
+      const l = viewParams.lights;
+      if (l.ibl) {
+        const result = this.lights.ibl.fromParams(l.ibl);
+        if (result.ok === false) {
+          return result;
+        }
+      }
     }
     if (viewParams.highlightMaterial) {
       const result = this.highlightMaterial.fromParams(viewParams.highlightMaterial);
@@ -148374,7 +146179,14 @@ var View2 = class {
           tonemap: this.effects.tonemap.toParams().value,
           antiAliasing: this.effects.antiAliasing.toParams().value,
           bloom: this.effects.bloom.toParams().value,
-          edges: this.effects.edges.toParams().value
+          edges: this.effects.edges.toParams().value,
+          sky: this.effects.sky.toParams().value,
+          sectionPlaneCaps: this.effects.sectionPlaneCaps.toParams().value,
+          bodyHatch: this.effects.bodyHatch.toParams().value,
+          // IBL is anchored on `Lights` but surfaced through `effects`
+          // so reflective UIs (the Studio View Panel) group it with the
+          // renderer-effect components whose look it drives.
+          ibl: this.effects.ibl.toParams().value
         },
         highlightMaterial: this.highlightMaterial.toParams().value,
         selectedMaterial: this.selectedMaterial.toParams().value,
@@ -156326,6 +154138,1844 @@ __export(webGLRenderer_exports, {
   internal: () => internal_exports
 });
 
+// ../sdk/src/viewing/webGLRenderer/internal/webGL/WebGLArrayBuf.ts
+var WebGLArrayBuf = class {
+  /**
+   * WebGL2 rendering context.
+   */
+  gl;
+  /**
+   * The ArrayBuffer's item type.
+   */
+  itemType;
+  /**
+   * Byte size of each item.
+   */
+  itemByteSize;
+  /**
+   * The ArrayBuffer type.
+   */
+  type;
+  /**
+   * Allocated yet?
+   */
+  allocated;
+  /**
+   * A GLenum specifying the intended usage pattern of the data store for optimization purposes. Possible values:
+   *
+   * * gl.STATIC_DRAW : The contents are intended to be specified once by the application, and used many times as the source for WebGL drawing and image specification commands.
+   * * gl.DYNAMIC_DRAW : The contents are intended to be respecified repeatedly by the application, and used many times as the source for WebGL drawing and image specification commands.
+   * * gl.STREAM_DRAW : The contents are intended to be specified once by the application, and used at most a few times as the source for WebGL drawing and image specification commands.
+   * * gl.STATIC_READ : The contents are intended to be specified once by reading data from WebGL, and queried many times by the application.
+   * * gl.DYNAMIC_READ : The contents are intended to be respecified repeatedly by reading data from WebGL, and queried many times by the application.
+   * * gl.STREAM_READ : The contents are intended to be specified once by reading data from WebGL, and queried at most a few times by the application
+   * * gl.STATIC_COPY : The contents are intended to be specified once by reading data from WebGL, and used many times as the source for WebGL drawing and image specification commands.
+   * * gl.DYNAMIC_COPY : The contents are intended to be respecified repeatedly by reading data from WebGL, and used many times as the source for WebGL drawing and image specification commands.
+   * * gl.STREAM_COPY : The contents are intended to be specified once by reading data from WebGL, and used at most a few times as the source for WebGL drawing and image specification commands.
+   */
+  usage;
+  /**
+   * The ArrayBuffer type.
+   */
+  length;
+  /**
+   *
+   */
+  dataLength;
+  /**
+   * Number of items in the ArrayBuffer.
+   */
+  numItems;
+  /**
+   * Size of each item.
+   */
+  itemSize;
+  /**
+   * True when ArrayBuffer values are normalized.
+   */
+  normalized;
+  /**
+   * The ArrayBuffer stride.
+   */
+  stride;
+  /**
+   *
+   */
+  offset;
+  /**
+   * Hand to a WebGLBuffer.
+   */
+  handle;
+  /**
+   * True if the values are integers.
+   * Used to select vertexAttribIPointer vs vertexAttribPointer.
+   */
+  isInteger;
+  /**
+   * Creates a WebGL ArrayBuffer.
+   */
+  constructor(gl, type, data2, numItems, itemSize, usage, normalized, stride, offset) {
+    this.gl = gl;
+    this.type = type;
+    this.allocated = false;
+    switch (data2.constructor) {
+      case Uint8Array:
+        this.itemType = gl.UNSIGNED_BYTE;
+        this.itemByteSize = 1;
+        this.isInteger = true;
+        break;
+      case Int8Array:
+        this.itemType = gl.BYTE;
+        this.itemByteSize = 1;
+        this.isInteger = true;
+        break;
+      case Uint16Array:
+        this.itemType = gl.UNSIGNED_SHORT;
+        this.itemByteSize = 2;
+        this.isInteger = true;
+        break;
+      case Int16Array:
+        this.itemType = gl.SHORT;
+        this.itemByteSize = 2;
+        this.isInteger = true;
+        break;
+      case Uint32Array:
+        this.itemType = gl.UNSIGNED_INT;
+        this.itemByteSize = 4;
+        this.isInteger = true;
+        break;
+      case Int32Array:
+        this.itemType = gl.INT;
+        this.itemByteSize = 4;
+        this.isInteger = true;
+        break;
+      default:
+        this.itemType = gl.FLOAT;
+        this.itemByteSize = 4;
+        this.isInteger = false;
+    }
+    this.usage = usage;
+    this.length = 0;
+    this.dataLength = numItems;
+    this.numItems = 0;
+    this.itemSize = itemSize;
+    this.normalized = !!normalized;
+    this.stride = stride || 0;
+    this.offset = offset || 0;
+    this._allocate(data2);
+  }
+  _allocate(data2) {
+    this.allocated = false;
+    this.handle = this.gl.createBuffer();
+    if (!this.handle) {
+      throw new Error("Cannot allocate WebGL ArrayBuffer");
+    }
+    if (this.handle) {
+      this.gl.bindBuffer(this.type, this.handle);
+      this.gl.bufferData(this.type, data2.length > this.dataLength ? data2.slice(0, this.dataLength) : data2, this.usage);
+      this.gl.bindBuffer(this.type, null);
+      this.length = data2.length;
+      this.numItems = this.length / this.itemSize;
+      this.allocated = true;
+    }
+  }
+  /**
+   * Updates the contents of this ArrayBuffer.
+   * @param data
+   * @param offset
+   */
+  setData(data2, offset) {
+    if (!this.allocated) {
+      return;
+    }
+    if (data2.length + (offset || 0) > this.length) {
+      this.destroy();
+      this._allocate(data2);
+    } else {
+      this.gl.bindBuffer(this.type, this.handle);
+      if (offset && offset !== 0) {
+        this.gl.bufferSubData(this.type, offset * this.itemByteSize, data2);
+      } else {
+        this.gl.bufferData(this.type, data2, this.usage);
+      }
+      this.gl.bindBuffer(this.type, null);
+    }
+  }
+  /**
+   * Binds this ArrayBuffer to the WebGL rendering context.
+   */
+  bind() {
+    if (!this.allocated) {
+      return;
+    }
+    this.gl.bindBuffer(this.type, this.handle);
+  }
+  /**
+   * Unbinds this ArrayBuffer from the WebGL rendering context.
+   */
+  unbind() {
+    if (!this.allocated) {
+      return;
+    }
+    this.gl.bindBuffer(this.type, null);
+  }
+  /**
+   * Destroys this ArrayBuffer.
+   */
+  destroy() {
+    if (!this.allocated) {
+      return;
+    }
+    this.gl.deleteBuffer(this.handle);
+    this.allocated = false;
+  }
+};
+
+// ../sdk/src/viewing/webGLRenderer/internal/webGL/WebGLAttribute.ts
+var WebGLAttribute = class {
+  gl;
+  location;
+  /**
+   * Creates a new vertex attribute.
+   * @param gl
+   * @param location
+   */
+  constructor(gl, location2) {
+    this.gl = gl;
+    this.location = location2;
+  }
+  /**
+   * Binds an array _buffer to this vertex attribute.
+   * @param arrayBuf
+   */
+  bindArrayBuffer(arrayBuf) {
+    if (!arrayBuf) {
+      return;
+    }
+    arrayBuf.bind();
+    this.gl.enableVertexAttribArray(this.location);
+    if (arrayBuf.isInteger) {
+      this.gl.vertexAttribIPointer(this.location, arrayBuf.itemSize, arrayBuf.itemType, arrayBuf.stride, arrayBuf.offset);
+    } else {
+      this.gl.vertexAttribPointer(this.location, arrayBuf.itemSize, arrayBuf.itemType, arrayBuf.normalized, arrayBuf.stride, arrayBuf.offset);
+    }
+  }
+};
+
+// ../sdk/src/viewing/webGLRenderer/internal/webGL/WebGLShader.ts
+var WebGLShader = class {
+  /**
+   * True when this shader was successfully allocated.
+   */
+  allocated;
+  /**
+   * True when this shader was successfully compiled.
+   */
+  compiled;
+  /**
+   * Handle to GPU-resident WebGL2 shader.
+   */
+  handle;
+  _glSrc;
+  _type;
+  _source;
+  /**
+   * Creates a new shader.
+   * @param glSrc
+   * @param type
+   * @param source
+   */
+  constructor(glSrc, type, source) {
+    this._glSrc = glSrc;
+    this._type = type;
+    this.allocated = false;
+    this.compiled = false;
+    this._source = source;
+  }
+  /**
+   * Initializes this shader.
+   */
+  init() {
+    const gl = this._glSrc.gl;
+    this.handle = gl.createShader(this._type);
+    if (!this.handle) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "Cannot allocate WebGL2 shader"
+      };
+    }
+    this.allocated = true;
+    gl.shaderSource(this.handle, this._source);
+    gl.compileShader(this.handle);
+    this.compiled = gl.getShaderParameter(this.handle, gl.COMPILE_STATUS);
+    if (!this.compiled) {
+      if (!gl.isContextLost()) {
+        const lines = this._source.split("\n");
+        const numberedLines = lines.map((line, index) => `${index + 1}: ${line}`);
+        const shaderInfoLog = gl.getShaderInfoLog(this.handle) || "Unknown error during shader compilation";
+        const errorDetails = [
+          "Shader Compilation Error:",
+          shaderInfoLog,
+          "Shader Source:",
+          numberedLines.join("\n")
+        ].join("\n");
+        this.destroy();
+        return {
+          ok: false,
+          type: 0 /* InitializationFailed */,
+          error: errorDetails
+        };
+      } else {
+        this.destroy();
+        return {
+          ok: false,
+          type: 7 /* WebGLContextLost */,
+          error: "WebGL context lost during shader compilation"
+        };
+      }
+    }
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  /**
+   * Rebuilds the shader after WebGL context has been restored.
+   */
+  webglContextRestored() {
+    if (!this._glSrc.gl || !this._source || !this._type) {
+      return {
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "Cannot restore shader: Missing WebGL context, source, or type"
+      };
+    }
+    const result = this.init();
+    if (result.ok === false) {
+      return {
+        ok: false,
+        type: result.type,
+        error: `Failed to restore shader: ${result.error}`
+      };
+    }
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  /**
+   * Destroys this shader, releasing its GPU resources.
+   */
+  destroy() {
+    if (this.allocated) {
+      this._glSrc.gl?.deleteShader(this.handle);
+      this.allocated = false;
+    }
+  }
+};
+
+// ../sdk/src/viewing/webGLRenderer/internal/webGL/WebGLProgram.ts
+var ids = new Map2({}, "");
+var WebGLProgram = class {
+  /**
+   * Unique ID of this program.
+   */
+  id;
+  /**
+   * The vertex shader.
+   */
+  vertexShader;
+  /**
+   * The fragment shader.
+   */
+  fragmentShader;
+  /**
+   * Map of all attributes in this program.
+   */
+  attributes;
+  /**
+   * Map of all samplers in this program.
+   */
+  samplers;
+  /**
+   * Map of all uniforms in this program.
+   */
+  uniforms;
+  /**
+   * List of compilation errors for this program, if any.
+   */
+  errors;
+  /**
+   * Flag set true when program has been validated.
+   */
+  validated;
+  /**
+   * Flag set true when this program has been successfully linked.
+   */
+  linked;
+  /**
+   * Flag set true when this program has been successfully conpiled.
+   */
+  compiled;
+  /**
+   * Flag set true when this program has been successfully allocated.
+   */
+  allocated;
+  /**
+   * The WebGL2 rendering context.
+   */
+  _glSrc;
+  /**
+   * The source code from which the shaders are built.
+   */
+  source;
+  /**
+   * Handle to the WebGL program itself, which resides on the GPU.
+   */
+  handle;
+  /**
+   * Creates a new program.
+   * @param glSrc
+   * @param shaderSource
+   */
+  constructor(glSrc, shaderSource) {
+    this.id = ids.addItem();
+    this.source = shaderSource;
+    this._glSrc = glSrc;
+    this.allocated = false;
+    this.compiled = false;
+    this.linked = false;
+    this.validated = false;
+    this.errors = void 0;
+    this.uniforms = {};
+    this.samplers = {};
+    this.attributes = {};
+  }
+  /**
+   * Initializes this program.
+   */
+  init() {
+    const gl = this._glSrc.gl;
+    if (!gl) {
+      return {
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "Cannot initialize WebGL program: Missing WebGL context"
+      };
+    }
+    this.vertexShader = new WebGLShader(this._glSrc, gl.VERTEX_SHADER, this.source.vertex);
+    const resultVertex = this.vertexShader.init();
+    if (resultVertex.ok === false) {
+      this.vertexShader.destroy();
+      return {
+        ok: false,
+        type: resultVertex.type,
+        error: `WebGL vertex shader initialization failed: ${resultVertex.error}`
+      };
+    }
+    this.fragmentShader = new WebGLShader(this._glSrc, gl.FRAGMENT_SHADER, this.source.fragment);
+    const resultFragment = this.fragmentShader.init();
+    if (resultFragment.ok === false) {
+      this.vertexShader.destroy();
+      this.fragmentShader.destroy();
+      return {
+        ok: false,
+        type: resultFragment.type,
+        error: `WebGL fragment shader initialization failed: ${resultFragment.error}`
+      };
+    }
+    this.handle = gl.createProgram();
+    if (!this.handle) {
+      this.vertexShader.destroy();
+      this.fragmentShader.destroy();
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "Cannot allocate WebGL program"
+      };
+    }
+    gl.attachShader(this.handle, this.vertexShader.handle);
+    gl.attachShader(this.handle, this.fragmentShader.handle);
+    gl.linkProgram(this.handle);
+    this.linked = gl.getProgramParameter(this.handle, gl.LINK_STATUS);
+    if (!this.linked) {
+      const programInfoLog = gl.getProgramInfoLog(this.handle) || "Unknown error during program linking";
+      const errorDetails = [
+        "Program Linking Error:",
+        programInfoLog,
+        "\nVertex Shader Source:",
+        this.source.vertex,
+        "\nFragment Shader Source:",
+        this.source.fragment
+      ].join("\n");
+      this.destroy();
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: errorDetails
+      };
+    }
+    this._extractUniformsAndAttributes();
+    this.allocated = true;
+    this.compiled = true;
+    return {
+      ok: true,
+      value: this
+    };
+  }
+  _extractUniformsAndAttributes() {
+    const gl = this._glSrc.gl;
+    const numUniforms = gl.getProgramParameter(this.handle, gl.ACTIVE_UNIFORMS);
+    for (let i = 0; i < numUniforms; ++i) {
+      const u = gl.getActiveUniform(this.handle, i);
+      if (u) {
+        let uName = u.name;
+        if (uName[uName.length - 1] === "\0") {
+          uName = uName.substr(0, uName.length - 1);
+        }
+        const location2 = gl.getUniformLocation(this.handle, uName);
+        if (u.type === gl.SAMPLER_2D || u.type === gl.SAMPLER_CUBE || u.type === 35682 || u.type === 36306) {
+          this.samplers[uName] = location2;
+        } else {
+          this.uniforms[uName] = location2;
+        }
+      }
+    }
+    const numAttribs = gl.getProgramParameter(this.handle, gl.ACTIVE_ATTRIBUTES);
+    for (let i = 0; i < numAttribs; i++) {
+      const a2 = gl.getActiveAttrib(this.handle, i);
+      if (a2) {
+        const location2 = gl.getAttribLocation(this.handle, a2.name);
+        this.attributes[a2.name] = new WebGLAttribute(gl, location2);
+      }
+    }
+  }
+  /**
+   * Binds this program.
+   */
+  bind() {
+    if (!this.allocated) {
+      return;
+    }
+    this._glSrc.gl.useProgram(this.handle);
+  }
+  /**
+   * Gets the location of the given uniform within this program.
+   * @param name
+   */
+  getLocation(name12) {
+    return this.uniforms[name12];
+  }
+  /**
+   * Gets an attribute within this program.
+   * @param name
+   */
+  getAttribute(name12) {
+    return this.attributes[name12];
+  }
+  /**
+   * Gets a sampler within this program.
+   * @param name
+   */
+  getSampler(name12) {
+    return this.samplers[name12];
+  }
+  /**
+   * Rebuilds the program after WebGL context has been restored.
+   */
+  webglContextRestored() {
+    if (!this._glSrc.gl || !this.source || !this.source.vertex || !this.source.fragment) {
+      return {
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "Cannot restore WebGL program: Missing WebGL context or shader source"
+      };
+    }
+    const vertexRestoreResult = this.vertexShader.webglContextRestored();
+    if (vertexRestoreResult.ok === false) {
+      return {
+        ok: false,
+        type: vertexRestoreResult.type,
+        error: `Failed to restore WebGL vertex shader: ${vertexRestoreResult.error}`
+      };
+    }
+    const fragmentRestoreResult = this.fragmentShader.webglContextRestored();
+    if (fragmentRestoreResult.ok === false) {
+      return {
+        ok: false,
+        type: fragmentRestoreResult.type,
+        error: `Failed to restore WebGL fragment shader: ${fragmentRestoreResult.error}`
+      };
+    }
+    const initResult = this.init();
+    if (initResult.ok === false) {
+      return {
+        ok: false,
+        type: initResult.type,
+        error: `Failed to restore WebGL program: ${initResult.error}`
+      };
+    }
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  /**
+   * Destroys this program.
+   */
+  destroy() {
+    if (!this.allocated) {
+      return;
+    }
+    ids.removeItem(this.id);
+    const gl = this._glSrc.gl;
+    if (gl) {
+      gl.deleteProgram(this.handle);
+      gl.deleteShader(this.vertexShader.handle);
+      gl.deleteShader(this.fragmentShader.handle);
+    }
+    this.attributes = {};
+    this.uniforms = {};
+    this.samplers = {};
+    this.allocated = false;
+  }
+};
+
+// ../sdk/src/viewing/webGLRenderer/internal/webGL/WebGLRenderBuffer.ts
+var WebGLRenderBuffer = class {
+  #gl;
+  canvas;
+  #buffer = null;
+  bound = false;
+  size;
+  #imageDataCache = null;
+  #texture = null;
+  #depthTexture = null;
+  #hasDepthTexture;
+  #depthTextureCompare;
+  #colorFilter;
+  #colorFilters;
+  #stencil;
+  /**
+   * Creates a WebGLRenderBuffer.
+   *
+   * @param canvas host canvas (for image-cache sizing only)
+   * @param gl    WebGL2 context
+   * @param options
+   * @param options.depthTexture create a sampleable depth attachment
+   * @param options.depthTextureCompare when `depthTexture` is true, set
+   *   TEXTURE_COMPARE_MODE on the depth texture so it can be sampled with
+   *   `sampler2DShadow` in GLSL — gets 2×2 hardware-bilinear comparison free
+   *   per tap. Also switches the depth texture to LINEAR filtering (only
+   *   valid with compare mode on).
+   * @param options.colorFilter `"nearest"` (default) for pixel-accurate
+   *   sampling (e.g. SAO depth), `"linear"` for bilinear-filtered reads
+   *   (e.g. supersampling downsample on the HDR scene target).
+   * @param options.size explicit buffer size (defaults to canvas size)
+   * @param options.stencil When `true`, pack a stencil channel alongside
+   *   depth. Allocates DEPTH24_STENCIL8 instead of DEPTH_COMPONENT24, and
+   *   attaches as DEPTH_STENCIL_ATTACHMENT. Mutually exclusive with
+   *   `depthTexture` (no sampleable depth+stencil texture here).
+   * @param options.colorFilters Optional per-attachment filter array
+   *   that overrides `colorFilter` for individual MRT slots. Use when
+   *   one attachment is an integer format (R8UI etc.) which requires
+   *   NEAREST while a neighbouring float attachment wants LINEAR.
+   *   Indices not in this array fall back to `colorFilter`.
+   */
+  constructor(canvas2, gl, options) {
+    this.#gl = gl;
+    this.canvas = canvas2;
+    this.size = options.size;
+    this.#hasDepthTexture = !!options.depthTexture;
+    this.#depthTextureCompare = !!options.depthTextureCompare;
+    this.#colorFilter = options.colorFilter === "linear" ? "linear" : "nearest";
+    this.#colorFilters = options.colorFilters ? options.colorFilters.slice() : null;
+    this.#stencil = !!options.stencil;
+  }
+  /** Whether GPU resources are currently allocated. */
+  get allocated() {
+    return !!this.#buffer;
+  }
+  /** Sets the desired size; actual allocation happens on next bind/touch. */
+  setSize(size) {
+    this.size = size;
+  }
+  /** Re-associate with a restored WebGL2 context. */
+  webglContextRestored(gl) {
+    this.#gl = gl;
+    this.#disposeGPUResources();
+    this.bound = false;
+  }
+  /** Bind the framebuffer, allocating or resizing as needed. */
+  bind(...internalformats) {
+    this.touch(...internalformats);
+    if (!this.#buffer)
+      return;
+    const gl = this.#gl;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.#buffer.framebuf);
+    this.bound = true;
+  }
+  /** Ensure GPU resources exist and match the desired size. */
+  touch(...internalformats) {
+    const gl = this.#gl;
+    const [width, height] = this.size ? [this.size[0], this.size[1]] : [gl.drawingBufferWidth, gl.drawingBufferHeight];
+    const needsResize = !this.#buffer || this.#buffer.width !== width || this.#buffer.height !== height;
+    if (!needsResize)
+      return;
+    this.#disposeGPUResources();
+    const colorTextures = [];
+    if (internalformats.length > 0) {
+      for (let i = 0; i < internalformats.length; i++) {
+        colorTextures.push(this.#createColorTexture(width, height, internalformats[i], i));
+      }
+    } else {
+      colorTextures.push(this.#createColorTexture(width, height, null, 0));
+    }
+    let depthTex = null;
+    let depthRbo = null;
+    const framebuf = gl.createFramebuffer();
+    if (!framebuf) {
+      throw new Error("Failed to create framebuffer");
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuf);
+    for (let i = 0; i < colorTextures.length; i++) {
+      gl.framebufferTexture2D(
+        gl.FRAMEBUFFER,
+        gl.COLOR_ATTACHMENT0 + i,
+        gl.TEXTURE_2D,
+        colorTextures[i],
+        0
+      );
+    }
+    if (colorTextures.length > 1) {
+      gl.drawBuffers(colorTextures.map((_, i) => gl.COLOR_ATTACHMENT0 + i));
+    }
+    if (this.#hasDepthTexture) {
+      depthTex = gl.createTexture();
+      if (!depthTex) {
+        throw new Error("Failed to create depth texture");
+      }
+      gl.bindTexture(gl.TEXTURE_2D, depthTex);
+      const depthFilter = this.#depthTextureCompare ? gl.LINEAR : gl.NEAREST;
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, depthFilter);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, depthFilter);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      if (this.#depthTextureCompare) {
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_FUNC, gl.LESS);
+      }
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.DEPTH_COMPONENT24,
+        width,
+        height,
+        0,
+        gl.DEPTH_COMPONENT,
+        gl.UNSIGNED_INT,
+        null
+      );
+      gl.framebufferTexture2D(
+        gl.FRAMEBUFFER,
+        gl.DEPTH_ATTACHMENT,
+        gl.TEXTURE_2D,
+        depthTex,
+        0
+      );
+    } else {
+      depthRbo = gl.createRenderbuffer();
+      if (!depthRbo) {
+        throw new Error("Failed to create renderbuffer");
+      }
+      gl.bindRenderbuffer(gl.RENDERBUFFER, depthRbo);
+      if (this.#stencil) {
+        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH24_STENCIL8, width, height);
+        gl.framebufferRenderbuffer(
+          gl.FRAMEBUFFER,
+          gl.DEPTH_STENCIL_ATTACHMENT,
+          gl.RENDERBUFFER,
+          depthRbo
+        );
+      } else {
+        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, width, height);
+        gl.framebufferRenderbuffer(
+          gl.FRAMEBUFFER,
+          gl.DEPTH_ATTACHMENT,
+          gl.RENDERBUFFER,
+          depthRbo
+        );
+      }
+    }
+    const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    if (status !== gl.FRAMEBUFFER_COMPLETE) {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      for (const t of colorTextures)
+        gl.deleteTexture(t);
+      if (depthTex)
+        gl.deleteTexture(depthTex);
+      if (depthRbo)
+        gl.deleteRenderbuffer(depthRbo);
+      gl.deleteFramebuffer(framebuf);
+      const reason = framebufferStatusToString(gl, status);
+      throw new Error(`Incomplete framebuffer: ${reason}`);
+    }
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    this.#buffer = {
+      framebuf,
+      renderbuf: depthRbo,
+      textures: colorTextures,
+      depthTexture: depthTex,
+      width,
+      height
+    };
+    this.bound = false;
+  }
+  /** Clear currently bound framebuffer. */
+  clear(mask = this.#gl.COLOR_BUFFER_BIT | this.#gl.DEPTH_BUFFER_BIT) {
+    if (!this.bound)
+      throw new Error("Render buffer not bound");
+    this.#gl.clear(mask);
+  }
+  /** Read a single pixel from the given color attachment (default 0). */
+  read(pickX, pickY, glFormat = null, glType = null, arrayType = Uint8Array, arrayMultiplier = 4, colorBufferIndex = 0) {
+    if (!this.#buffer)
+      throw new Error("No buffer allocated");
+    const gl = this.#gl;
+    const x = pickX;
+    const y = this.#buffer.height ? this.#buffer.height - pickY - 1 : gl.drawingBufferHeight - pickY;
+    const pix = new arrayType(arrayMultiplier);
+    gl.readBuffer(gl.COLOR_ATTACHMENT0 + colorBufferIndex);
+    gl.readPixels(
+      x,
+      y,
+      1,
+      1,
+      glFormat ?? gl.RGBA,
+      glType ?? gl.UNSIGNED_BYTE,
+      pix,
+      0
+    );
+    return pix;
+  }
+  /** Read the entire color attachment into a typed array. */
+  readArray(glFormat = null, glType = null, arrayType = Uint8Array, arrayMultiplier = 4, colorBufferIndex = 0) {
+    if (!this.#buffer)
+      throw new Error("No buffer allocated");
+    const { width, height } = this.#buffer;
+    const gl = this.#gl;
+    const pix = new arrayType(width * height * arrayMultiplier);
+    gl.readBuffer(gl.COLOR_ATTACHMENT0 + colorBufferIndex);
+    gl.readPixels(0, 0, width, height, glFormat ?? gl.RGBA, glType ?? gl.UNSIGNED_BYTE, pix, 0);
+    return pix;
+  }
+  /**
+   * Returns an HTMLCanvasElement containing the current contents.
+   * Also updates an internal CPU-side ImageData cache for reuse.
+   */
+  readImageAsCanvas() {
+    this.#updateImageCacheFromGPU();
+    if (!this.#imageDataCache)
+      throw new Error("Image cache unavailable");
+    return this.#imageDataCache.canvas;
+  }
+  /** Returns a data URL (png/jpeg/bmp) of the current contents. */
+  readImage(params = {}) {
+    this.#updateImageCacheFromGPU();
+    if (!this.#imageDataCache)
+      throw new Error("Image cache unavailable");
+    const format = params.format || "png";
+    return this.#imageDataCache.canvas.toDataURL(`image/${format}`);
+  }
+  /** Unbind the framebuffer. */
+  unbind() {
+    this.#gl.bindFramebuffer(this.#gl.FRAMEBUFFER, null);
+    this.bound = false;
+  }
+  /** Wrapper texture for sampling the first color target. */
+  getTexture() {
+    if (this.#texture)
+      return this.#texture;
+    this.#texture = {
+      bind: (unit) => {
+        const buf = this.#buffer;
+        if (buf && buf.textures[0]) {
+          const gl = this.#gl;
+          gl.activeTexture(gl["TEXTURE" + unit]);
+          gl.bindTexture(gl.TEXTURE_2D, buf.textures[0]);
+          return true;
+        }
+        return false;
+      },
+      unbind: (unit) => {
+        const buf = this.#buffer;
+        if (buf && buf.textures[0]) {
+          const gl = this.#gl;
+          gl.activeTexture(gl["TEXTURE" + unit]);
+          gl.bindTexture(gl.TEXTURE_2D, null);
+        }
+      }
+    };
+    return this.#texture;
+  }
+  /**
+   * Wrapper texture for sampling a specific MRT color target.
+   * Returns null when no attachment exists at the given index.
+   */
+  getTextureAt(index) {
+    const buf = this.#buffer;
+    if (!buf || !buf.textures[index])
+      return null;
+    const gl = this.#gl;
+    return {
+      bind: (unit) => {
+        const b22 = this.#buffer;
+        const tex = b22 ? b22.textures[index] : null;
+        if (!tex)
+          return false;
+        gl.activeTexture(gl["TEXTURE" + unit]);
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        return true;
+      },
+      unbind: (unit) => {
+        gl.activeTexture(gl["TEXTURE" + unit]);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+      }
+    };
+  }
+  /** Number of allocated color attachments. */
+  getColorAttachmentCount() {
+    return this.#buffer ? this.#buffer.textures.length : 0;
+  }
+  /**
+   * Raw GL handle for the texture at the given color attachment
+   * index — needed by callers that have to detach / reattach the
+   * attachment manually (e.g. to break a feedback loop when the
+   * cap quad samples a previous pass's MRT output). Most consumers
+   * should prefer {@link getTextureAt}.
+   */
+  getRawTextureAt(index) {
+    return this.#buffer ? this.#buffer.textures[index] ?? null : null;
+  }
+  /** Whether this FBO has a depth texture attachment. */
+  hasDepthTexture() {
+    return this.#hasDepthTexture;
+  }
+  /** Wrapper texture for sampling the depth texture (if present). */
+  getDepthTexture() {
+    if (!this.#hasDepthTexture)
+      return null;
+    if (this.#depthTexture)
+      return this.#depthTexture;
+    this.#depthTexture = {
+      bind: (unit) => {
+        const buf = this.#buffer;
+        if (buf && buf.depthTexture) {
+          const gl = this.#gl;
+          gl.activeTexture(gl["TEXTURE" + unit]);
+          gl.bindTexture(gl.TEXTURE_2D, buf.depthTexture);
+          return true;
+        }
+        return false;
+      },
+      unbind: (unit) => {
+        const buf = this.#buffer;
+        if (buf && buf.depthTexture) {
+          const gl = this.#gl;
+          gl.activeTexture(gl["TEXTURE" + unit]);
+          gl.bindTexture(gl.TEXTURE_2D, null);
+        }
+      }
+    };
+    return this.#depthTexture;
+  }
+  /** Destroy GPU resources and caches. */
+  destroy() {
+    this.#disposeGPUResources();
+    this.bound = false;
+    this.#imageDataCache = null;
+    this.#texture = null;
+    this.#depthTexture = null;
+  }
+  // ---------- Internals ----------
+  #createColorTexture(width, height, internalformat, slot = 0) {
+    const gl = this.#gl;
+    const tex = gl.createTexture();
+    if (!tex)
+      throw new Error("Failed to create texture");
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    const filterName = this.#colorFilters && this.#colorFilters[slot] ? this.#colorFilters[slot] : this.#colorFilter;
+    const colorFilter = filterName === "linear" ? gl.LINEAR : gl.NEAREST;
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, colorFilter);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, colorFilter);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    if (internalformat != null) {
+      gl.texStorage2D(gl.TEXTURE_2D, 1, internalformat, width, height);
+    } else {
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA,
+        width,
+        height,
+        0,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        null
+      );
+    }
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    return tex;
+  }
+  #disposeGPUResources() {
+    const buf = this.#buffer;
+    if (!buf)
+      return;
+    const gl = this.#gl;
+    for (const t of buf.textures)
+      gl.deleteTexture(t);
+    if (buf.depthTexture)
+      gl.deleteTexture(buf.depthTexture);
+    if (buf.renderbuf)
+      gl.deleteRenderbuffer(buf.renderbuf);
+    gl.deleteFramebuffer(buf.framebuf);
+    this.#buffer = null;
+  }
+  #updateImageCacheFromGPU() {
+    if (!this.#buffer)
+      throw new Error("No buffer allocated");
+    const gl = this.#gl;
+    const { width, height } = this.#buffer;
+    const cache2 = this.#getImageDataCache(Uint8Array, 4);
+    gl.readBuffer(gl.COLOR_ATTACHMENT0);
+    gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, cache2.pixelData, 0);
+    const bytesPerRow = width * 4;
+    for (let y = 0; y < height; y++) {
+      const srcOffset = (height - 1 - y) * bytesPerRow;
+      const dstOffset = y * bytesPerRow;
+      cache2.imageData.data.set(cache2.pixelData.subarray(srcOffset, srcOffset + bytesPerRow), dstOffset);
+    }
+    cache2.context.putImageData(cache2.imageData, 0, 0);
+  }
+  #getImageDataCache(type, multiplier) {
+    if (!this.#buffer)
+      throw new Error("No buffer allocated");
+    const bufferWidth = this.#buffer.width;
+    const bufferHeight = this.#buffer.height;
+    let cache2 = this.#imageDataCache;
+    if (cache2 && (cache2.width !== bufferWidth || cache2.height !== bufferHeight)) {
+      this.#imageDataCache = null;
+      cache2 = null;
+    }
+    if (!cache2) {
+      const canvas2 = document.createElement("canvas");
+      const context = canvas2.getContext("2d");
+      if (!context)
+        throw new Error("2D context unavailable");
+      canvas2.width = bufferWidth;
+      canvas2.height = bufferHeight;
+      cache2 = {
+        pixelData: new type(bufferWidth * bufferHeight * multiplier),
+        canvas: canvas2,
+        context,
+        imageData: context.createImageData(bufferWidth, bufferHeight),
+        width: bufferWidth,
+        height: bufferHeight
+      };
+      this.#imageDataCache = cache2;
+    }
+    cache2.context.resetTransform();
+    return cache2;
+  }
+};
+function framebufferStatusToString(gl, status) {
+  switch (status) {
+    case gl.FRAMEBUFFER_COMPLETE:
+      return "FRAMEBUFFER_COMPLETE";
+    case gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+      return "FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+    case gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+      return "FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+    case gl.FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
+      return "FRAMEBUFFER_INCOMPLETE_DIMENSIONS";
+    case gl.FRAMEBUFFER_UNSUPPORTED:
+      return "FRAMEBUFFER_UNSUPPORTED";
+    default:
+      return String(status);
+  }
+}
+
+// ../sdk/src/viewing/webGLRenderer/internal/webGL/WebGLPickBuffer.ts
+var WebGLPickBuffer = class {
+  #gl;
+  #framebuffer = null;
+  #colorTextures = [];
+  #depthBuffer = null;
+  bound = false;
+  /**
+   * Creates a new WebGLPickBuffer instance. Note that this does not allocate the framebuffer or its attachments;
+   * you must call {@link WebGLPickBuffer.init} to do so.
+   * @param gl
+   */
+  constructor(gl) {
+    this.#gl = gl;
+  }
+  /**
+   * Initializes the framebuffer and its attachments. This must be called before using the pick buffer.
+   * If initialization fails, an error result is returned.
+   */
+  init() {
+    const gl = this.#gl;
+    const framebuffer = gl.createFramebuffer();
+    if (!framebuffer) {
+      return {
+        ok: false,
+        error: "[WebGLPickBuffer] Failed to create framebuffer",
+        type: 0 /* InitializationFailed */
+      };
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+    const colorTextures = [];
+    for (let i = 0; i < 3; i++) {
+      const tex = gl.createTexture();
+      if (!tex) {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.deleteFramebuffer(framebuffer);
+        return {
+          ok: false,
+          error: "[WebGLPickBuffer] Failed to create color texture",
+          type: 0 /* InitializationFailed */
+        };
+      }
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, 1, 1);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.framebufferTexture2D(
+        gl.FRAMEBUFFER,
+        gl.COLOR_ATTACHMENT0 + i,
+        gl.TEXTURE_2D,
+        tex,
+        0
+      );
+      colorTextures.push(tex);
+      this.#framebuffer = framebuffer;
+    }
+    const depthBuffer = gl.createRenderbuffer();
+    if (!depthBuffer) {
+      for (const tex of colorTextures) {
+        gl.deleteTexture(tex);
+      }
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.deleteFramebuffer(framebuffer);
+      return {
+        ok: false,
+        error: "[WebGLPickBuffer] Failed to create depth renderbuffer",
+        type: 0 /* InitializationFailed */
+      };
+    }
+    gl.bindRenderbuffer(gl.RENDERBUFFER, depthBuffer);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, 1, 1);
+    gl.framebufferRenderbuffer(
+      gl.FRAMEBUFFER,
+      gl.DEPTH_ATTACHMENT,
+      gl.RENDERBUFFER,
+      depthBuffer
+    );
+    gl.drawBuffers([
+      gl.COLOR_ATTACHMENT0,
+      gl.COLOR_ATTACHMENT1,
+      gl.COLOR_ATTACHMENT2
+    ]);
+    const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    if (status !== gl.FRAMEBUFFER_COMPLETE) {
+      for (const tex of colorTextures) {
+        gl.deleteTexture(tex);
+      }
+      gl.deleteRenderbuffer(depthBuffer);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.deleteFramebuffer(framebuffer);
+      return {
+        ok: false,
+        error: `[WebGLPickBuffer] Incomplete framebuffer: ${framebufferStatusToString2(gl, status)}`,
+        type: 0 /* InitializationFailed */
+      };
+    }
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    this.#framebuffer = framebuffer;
+    this.#colorTextures = colorTextures;
+    this.#depthBuffer = depthBuffer;
+    this.bound = false;
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  /**
+   * Returns true if the pick buffer has been successfully allocated and initialized, false otherwise.
+   */
+  get allocated() {
+    return !!this.#framebuffer;
+  }
+  /**
+   * Handles WebGL context restoration by reinitializing the framebuffer and its attachments. This should be
+   * called when a WebGL context is restored after being lost.
+   * @param gl
+   */
+  webglContextRestored(gl) {
+    this.#gl = gl;
+    return this.init();
+  }
+  /**
+   * Binds the pick buffer's framebuffer for rendering.
+   */
+  bind() {
+    if (!this.#framebuffer) {
+      throw new SDKInternalException("Pick buffer not allocated");
+    }
+    if (this.bound) {
+      return;
+    }
+    const gl = this.#gl;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.#framebuffer);
+    gl.viewport(0, 0, 1, 1);
+    this.bound = true;
+  }
+  /**
+   * Unbinds the pick buffer's framebuffer, restoring rendering to the default framebuffer. After calling this, the pick
+   * buffer will no longer be bound and cannot be read from until {@link WebGLPickBuffer.bind} is called again.
+   */
+  unbind() {
+    if (!this.bound) {
+      throw new SDKInternalException("Pick buffer not bound");
+    }
+    this.#gl.bindFramebuffer(this.#gl.FRAMEBUFFER, null);
+    this.bound = false;
+  }
+  /**
+   * Clears the pick buffer's framebuffer. This should be called after {@link WebGLPickBuffer.bind} and before rendering to the
+   * pick buffer. After calling this, the color attachments will be cleared to (0, 0, 0, 0).
+   */
+  clear() {
+    if (!this.bound) {
+      throw new SDKInternalException("Pick buffer not bound");
+    }
+    const gl = this.#gl;
+    gl.disable(gl.BLEND);
+    gl.disable(gl.DITHER);
+    gl.clearColor(0, 0, 0, 0);
+    gl.clearDepth(1);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  }
+  /**
+   * Reads the pixel data from the pick buffer's color attachments. This should be called after rendering to the pick
+   * buffer and before unbinding it.
+   */
+  read() {
+    if (!this.#framebuffer) {
+      throw new SDKInternalException("Pick buffer not allocated");
+    }
+    if (!this.bound) {
+      throw new SDKInternalException("Pick buffer not bound");
+    }
+    const gl = this.#gl;
+    const target0 = new Uint8Array(4);
+    const target1 = new Uint8Array(4);
+    const target2 = new Uint8Array(4);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.#framebuffer);
+    const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    if (status !== gl.FRAMEBUFFER_COMPLETE) {
+      if (!this.bound) {
+        throw new SDKInternalException("Pick buffer not complete - did not initialize OK: status = " + status);
+      }
+    }
+    gl.readBuffer(gl.COLOR_ATTACHMENT0);
+    gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, target0);
+    gl.readBuffer(gl.COLOR_ATTACHMENT1);
+    gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, target1);
+    gl.readBuffer(gl.COLOR_ATTACHMENT2);
+    gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, target2);
+    return {
+      target0,
+      target1,
+      target2
+    };
+  }
+  destroy() {
+    const gl = this.#gl;
+    for (const tex of this.#colorTextures) {
+      gl.deleteTexture(tex);
+    }
+    this.#colorTextures = [];
+    if (this.#depthBuffer) {
+      gl.deleteRenderbuffer(this.#depthBuffer);
+      this.#depthBuffer = null;
+    }
+    if (this.#framebuffer) {
+      gl.deleteFramebuffer(this.#framebuffer);
+      this.#framebuffer = null;
+    }
+    this.bound = false;
+  }
+};
+function framebufferStatusToString2(gl, status) {
+  switch (status) {
+    case gl.FRAMEBUFFER_COMPLETE:
+      return "FRAMEBUFFER_COMPLETE";
+    case gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+      return "FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+    case gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+      return "FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+    case gl.FRAMEBUFFER_UNSUPPORTED:
+      return "FRAMEBUFFER_UNSUPPORTED";
+    default:
+      return String(status);
+  }
+}
+
+// ../sdk/src/viewing/webGLRenderer/internal/webGL/WebGLSnapBuffer.ts
+var WebGLSnapBuffer = class {
+  #gl;
+  #framebuffer = null;
+  #colorTexture = null;
+  #depthBuffer = null;
+  #size = [1, 1];
+  bound = false;
+  /**
+   * Creates a new snap framebuffer wrapper. Does NOT allocate GL
+   * objects; call {@link init} first.
+   */
+  constructor(gl) {
+    this.#gl = gl;
+  }
+  /**
+   * Allocates the framebuffer + RGBA32F colour attachment + depth
+   * renderbuffer at `1 × 1` (resize via {@link setSize} before use).
+   * Returns `NotSupported` if `EXT_color_buffer_float` isn't
+   * available — `RGBA32F` is not a colour-renderable format under
+   * WebGL 2 without it.
+   */
+  init() {
+    const gl = this.#gl;
+    if (!gl.getExtension("EXT_color_buffer_float")) {
+      return {
+        ok: false,
+        type: 6 /* NotSupported */,
+        error: "[WebGLSnapBuffer] EXT_color_buffer_float not available \u2014 cannot allocate RGBA32F snap target"
+      };
+    }
+    const framebuffer = gl.createFramebuffer();
+    if (!framebuffer) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[WebGLSnapBuffer] Failed to create framebuffer"
+      };
+    }
+    const colorTexture = gl.createTexture();
+    if (!colorTexture) {
+      gl.deleteFramebuffer(framebuffer);
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[WebGLSnapBuffer] Failed to create color texture"
+      };
+    }
+    const depthBuffer = gl.createRenderbuffer();
+    if (!depthBuffer) {
+      gl.deleteTexture(colorTexture);
+      gl.deleteFramebuffer(framebuffer);
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: "[WebGLSnapBuffer] Failed to create depth renderbuffer"
+      };
+    }
+    this.#framebuffer = framebuffer;
+    this.#colorTexture = colorTexture;
+    this.#depthBuffer = depthBuffer;
+    this.#size = [1, 1];
+    return this._allocateAttachments(1, 1);
+  }
+  /** True once {@link init} has succeeded. */
+  get allocated() {
+    return !!this.#framebuffer;
+  }
+  /** Current `(width, height)` of the colour + depth attachments. */
+  get size() {
+    return this.#size;
+  }
+  /** Underlying RGBA32F colour texture — exposed for inspectors. */
+  get colorTexture() {
+    return this.#colorTexture;
+  }
+  /**
+   * Resize the colour + depth attachments to the requested dimensions.
+   * No-op when the size is already a match. Idempotent and cheap so
+   * a snap-pick caller can recompute the radius per click.
+   */
+  setSize(width, height) {
+    if (!this.#framebuffer) {
+      throw new SDKInternalException("Snap buffer not allocated");
+    }
+    width = Math.max(1, width | 0);
+    height = Math.max(1, height | 0);
+    if (this.#size[0] === width && this.#size[1] === height) {
+      return { ok: true, value: void 0 };
+    }
+    return this._allocateAttachments(width, height);
+  }
+  /**
+   * (Re-)allocate the colour texture (RGBA32F + nearest filter +
+   * clamp-to-edge) and the depth renderbuffer to `width × height`,
+   * and re-attach them to the framebuffer. Verifies completeness
+   * before returning.
+   */
+  _allocateAttachments(width, height) {
+    const gl = this.#gl;
+    const framebuffer = this.#framebuffer;
+    const colorTexture = this.#colorTexture;
+    const depthBuffer = this.#depthBuffer;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+    gl.bindTexture(gl.TEXTURE_2D, colorTexture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, width, height, 0, gl.RGBA, gl.FLOAT, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, colorTexture, 0);
+    gl.bindRenderbuffer(gl.RENDERBUFFER, depthBuffer);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, width, height);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthBuffer);
+    gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+    const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    if (status !== gl.FRAMEBUFFER_COMPLETE) {
+      return {
+        ok: false,
+        type: 0 /* InitializationFailed */,
+        error: `[WebGLSnapBuffer] Incomplete framebuffer at ${width}\xD7${height}: ${framebufferStatusToString3(gl, status)}`
+      };
+    }
+    this.#size = [width, height];
+    return { ok: true, value: void 0 };
+  }
+  /**
+   * Re-allocate after WebGL context loss. Caller is responsible for
+   * supplying the new (restored) `WebGL2RenderingContext`.
+   */
+  webglContextRestored(gl) {
+    this.#gl = gl;
+    this.#framebuffer = null;
+    this.#colorTexture = null;
+    this.#depthBuffer = null;
+    return this.init();
+  }
+  /**
+   * Bind the snap framebuffer for rendering. Sets the viewport to the
+   * current attachment size; caller still owns depth-test / blend
+   * state (see `SnapManager` for the canonical setup).
+   */
+  bind() {
+    if (!this.#framebuffer) {
+      throw new SDKInternalException("Snap buffer not allocated");
+    }
+    if (this.bound)
+      return;
+    const gl = this.#gl;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.#framebuffer);
+    gl.viewport(0, 0, this.#size[0], this.#size[1]);
+    this.bound = true;
+  }
+  /** Release the framebuffer binding back to the default canvas. */
+  unbind() {
+    if (!this.bound) {
+      throw new SDKInternalException("Snap buffer not bound");
+    }
+    this.#gl.bindFramebuffer(this.#gl.FRAMEBUFFER, null);
+    this.bound = false;
+  }
+  /**
+   * Clear colour to `(0, 0, 0, 0)` and depth to `1.0`. Empty texels
+   * are detected on read-back via `alpha === 0`, so clearing alpha
+   * to zero is structurally important.
+   */
+  clear() {
+    if (!this.bound) {
+      throw new SDKInternalException("Snap buffer not bound");
+    }
+    const gl = this.#gl;
+    gl.disable(gl.BLEND);
+    gl.disable(gl.DITHER);
+    gl.clearColor(0, 0, 0, 0);
+    gl.clearDepth(1);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  }
+  /**
+   * Read the entire colour attachment as a `Float32Array` of length
+   * `width * height * 4`. Layout is row-major bottom-to-top (WebGL
+   * convention); each texel is `(viewX, viewY, viewZ, written)`
+   * where `written = 1.0` if any pass touched the texel and `0.0`
+   * otherwise.
+   *
+   * Pass `outBuffer` of the right size to avoid a fresh allocation
+   * on every snap-pick.
+   */
+  read(outBuffer) {
+    if (!this.#framebuffer) {
+      throw new SDKInternalException("Snap buffer not allocated");
+    }
+    if (!this.bound) {
+      throw new SDKInternalException("Snap buffer not bound");
+    }
+    const [w, h] = this.#size;
+    const len = w * h * 4;
+    const target = outBuffer && outBuffer.length >= len ? outBuffer : new Float32Array(len);
+    const gl = this.#gl;
+    gl.readBuffer(gl.COLOR_ATTACHMENT0);
+    gl.readPixels(0, 0, w, h, gl.RGBA, gl.FLOAT, target);
+    return target;
+  }
+  /** Release every GL object owned by this buffer. */
+  destroy() {
+    const gl = this.#gl;
+    if (this.#colorTexture) {
+      gl.deleteTexture(this.#colorTexture);
+      this.#colorTexture = null;
+    }
+    if (this.#depthBuffer) {
+      gl.deleteRenderbuffer(this.#depthBuffer);
+      this.#depthBuffer = null;
+    }
+    if (this.#framebuffer) {
+      gl.deleteFramebuffer(this.#framebuffer);
+      this.#framebuffer = null;
+    }
+    this.bound = false;
+  }
+};
+var WebGLSnapBufferCache = class {
+  #gl;
+  #cache = /* @__PURE__ */ new Map();
+  constructor(gl) {
+    this.#gl = gl;
+  }
+  /**
+   * Get (or lazily allocate) the snap buffer sized for the given
+   * radius. The buffer is `(2 · radius + 1) × (2 · radius + 1)`.
+   */
+  get(radius) {
+    const key = Math.max(1, radius | 0);
+    let buf = this.#cache.get(key);
+    if (buf && buf.allocated) {
+      return { ok: true, value: buf };
+    }
+    buf = new WebGLSnapBuffer(this.#gl);
+    const initRes = buf.init();
+    if (initRes.ok === false)
+      return initRes;
+    const dim = 2 * key + 1;
+    const sizeRes = buf.setSize(dim, dim);
+    if (sizeRes.ok === false) {
+      buf.destroy();
+      return sizeRes;
+    }
+    this.#cache.set(key, buf);
+    return { ok: true, value: buf };
+  }
+  webglContextRestored(gl) {
+    this.#gl = gl;
+    for (const buf of this.#cache.values()) {
+      const r = buf.webglContextRestored(gl);
+      if (r.ok === false)
+        return r;
+    }
+    return { ok: true, value: void 0 };
+  }
+  destroy() {
+    for (const buf of this.#cache.values())
+      buf.destroy();
+    this.#cache.clear();
+  }
+};
+function framebufferStatusToString3(gl, status) {
+  switch (status) {
+    case gl.FRAMEBUFFER_COMPLETE:
+      return "FRAMEBUFFER_COMPLETE";
+    case gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+      return "FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+    case gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+      return "FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+    case gl.FRAMEBUFFER_UNSUPPORTED:
+      return "FRAMEBUFFER_UNSUPPORTED";
+    default:
+      return String(status);
+  }
+}
+
+// ../sdk/src/viewing/webGLRenderer/internal/webGL/getWebGLExtension.ts
+function getWebGLExtension(gl, name12) {
+  if (gl._cachedExtensions === void 0) {
+    gl._cachedExtensions = {};
+  }
+  if (gl._cachedExtensions[name12] !== void 0) {
+    return gl._cachedExtensions[name12];
+  }
+  let extension;
+  switch (name12) {
+    case "WEBGL_depth_texture":
+      extension = gl.getExtension("WEBGL_depth_texture") || gl.getExtension("MOZ_WEBGL_depth_texture") || gl.getExtension("WEBKIT_WEBGL_depth_texture");
+      break;
+    case "EXT_texture_filter_anisotropic":
+      extension = gl.getExtension("EXT_texture_filter_anisotropic") || gl.getExtension("MOZ_EXT_texture_filter_anisotropic") || gl.getExtension("WEBKIT_EXT_texture_filter_anisotropic");
+      break;
+    case "WEBGL_compressed_texture_s3tc":
+      extension = gl.getExtension("WEBGL_compressed_texture_s3tc") || gl.getExtension("MOZ_WEBGL_compressed_texture_s3tc") || gl.getExtension("WEBKIT_WEBGL_compressed_texture_s3tc");
+      break;
+    case "WEBGL_compressed_texture_pvrtc":
+      extension = gl.getExtension("WEBGL_compressed_texture_pvrtc") || gl.getExtension("WEBKIT_WEBGL_compressed_texture_pvrtc");
+      break;
+    default:
+      extension = gl.getExtension(name12);
+  }
+  gl._cachedExtensions[name12] = extension;
+  return extension;
+}
+
+// ../sdk/src/viewing/webGLRenderer/internal/webGL/WebGLTexture.ts
+var color = new Uint8Array([0, 0, 0, 1]);
+
+// ../sdk/src/viewing/webGLRenderer/internal/webGL/canvas2image.ts
+var Canvas2Image = function() {
+  const oCanvas = document.createElement("canvas"), sc = String.fromCharCode, strDownloadMime = "image/octet-stream", bReplaceDownloadMime = false;
+  if (!oCanvas.getContext) {
+    return {
+      saveAsBMP: function() {
+      },
+      saveAsPNG: function() {
+      },
+      saveAsJPEG: function() {
+      }
+    };
+  }
+  const bHasImageData = !!oCanvas.getContext("2d").getImageData, bHasDataURL = !!oCanvas.toDataURL, bHasBase64 = !!window.btoa;
+  const readCanvasData = function(oCanvas2) {
+    const iWidth = parseInt(oCanvas2.width), iHeight = parseInt(oCanvas2.height);
+    return oCanvas2.getContext("2d").getImageData(0, 0, iWidth, iHeight);
+  };
+  const encodeData = function(data2) {
+    let i, aData, strData = "";
+    if (typeof data2 == "string") {
+      strData = data2;
+    } else {
+      aData = data2;
+      for (i = 0; i < aData.length; i++) {
+        strData += sc(aData[i]);
+      }
+    }
+    return btoa(strData);
+  };
+  const createBMP = function(oData) {
+    let strHeader = "";
+    const iWidth = oData.width;
+    const iHeight = oData.height;
+    strHeader += "BM";
+    let iFileSize = iWidth * iHeight * 4 + 54;
+    strHeader += sc(iFileSize % 256);
+    iFileSize = Math.floor(iFileSize / 256);
+    strHeader += sc(iFileSize % 256);
+    iFileSize = Math.floor(iFileSize / 256);
+    strHeader += sc(iFileSize % 256);
+    iFileSize = Math.floor(iFileSize / 256);
+    strHeader += sc(iFileSize % 256);
+    strHeader += sc(0, 0, 0, 0, 54, 0, 0, 0);
+    strHeader += sc(40, 0, 0, 0);
+    let iImageWidth = iWidth;
+    strHeader += sc(iImageWidth % 256);
+    iImageWidth = Math.floor(iImageWidth / 256);
+    strHeader += sc(iImageWidth % 256);
+    iImageWidth = Math.floor(iImageWidth / 256);
+    strHeader += sc(iImageWidth % 256);
+    iImageWidth = Math.floor(iImageWidth / 256);
+    strHeader += sc(iImageWidth % 256);
+    let iImageHeight = iHeight;
+    strHeader += sc(iImageHeight % 256);
+    iImageHeight = Math.floor(iImageHeight / 256);
+    strHeader += sc(iImageHeight % 256);
+    iImageHeight = Math.floor(iImageHeight / 256);
+    strHeader += sc(iImageHeight % 256);
+    iImageHeight = Math.floor(iImageHeight / 256);
+    strHeader += sc(iImageHeight % 256);
+    strHeader += sc(1, 0, 32, 0);
+    strHeader += sc(0, 0, 0, 0);
+    let iDataSize = iWidth * iHeight * 4;
+    strHeader += sc(iDataSize % 256);
+    iDataSize = Math.floor(iDataSize / 256);
+    strHeader += sc(iDataSize % 256);
+    iDataSize = Math.floor(iDataSize / 256);
+    strHeader += sc(iDataSize % 256);
+    iDataSize = Math.floor(iDataSize / 256);
+    strHeader += sc(iDataSize % 256);
+    strHeader += sc(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    const aImgData = oData.data;
+    let strPixelData = "";
+    let c3;
+    let x;
+    let y = iHeight;
+    let iOffsetX;
+    let iOffsetY;
+    let strPixelRow;
+    do {
+      iOffsetY = iWidth * (y - 1) * 4;
+      strPixelRow = "";
+      for (x = 0; x < iWidth; x++) {
+        iOffsetX = 4 * x;
+        strPixelRow += sc(
+          aImgData[iOffsetY + iOffsetX + 2],
+          // B
+          aImgData[iOffsetY + iOffsetX + 1],
+          // G
+          aImgData[iOffsetY + iOffsetX],
+          // R
+          aImgData[iOffsetY + iOffsetX + 3]
+          // A
+        );
+      }
+      strPixelData += strPixelRow;
+    } while (--y);
+    return encodeData(strHeader + strPixelData);
+  };
+  const saveFile = function(strData) {
+    if (!window.open(strData)) {
+      document.location.href = strData;
+    }
+  };
+  const makeDataURI = function(strData, strMime) {
+    return "data:" + strMime + ";base64," + strData;
+  };
+  const makeImageObject = function(strSource) {
+    const oImgElement = document.createElement("img");
+    oImgElement.src = strSource;
+    return oImgElement;
+  };
+  const scaleCanvas = function(oCanvas2, iWidth, iHeight, flipy) {
+    if (iWidth && iHeight) {
+      const oSaveCanvas = document.createElement("canvas");
+      oSaveCanvas.width = iWidth;
+      oSaveCanvas.height = iHeight;
+      oSaveCanvas.style.width = iWidth + "px";
+      oSaveCanvas.style.height = iHeight + "px";
+      const oSaveCtx = oSaveCanvas.getContext("2d");
+      if (flipy) {
+        oSaveCtx.save();
+        oSaveCtx.scale(1, -1);
+        oSaveCtx.imageSmoothingEnabled = true;
+        oSaveCtx.drawImage(oCanvas2, 0, 0, oCanvas2.width, oCanvas2.height, 0, 0, iWidth, -iHeight);
+        oSaveCtx.restore();
+      } else {
+        oSaveCtx.imageSmoothingEnabled = true;
+        oSaveCtx.drawImage(oCanvas2, 0, 0, oCanvas2.width, oCanvas2.height, 0, 0, iWidth, iHeight);
+      }
+      return oSaveCanvas;
+    }
+    return oCanvas2;
+  };
+  return {
+    saveAsPNG: function(oCanvas2, bReturnImg, iWidth, iHeight, flipy) {
+      if (!bHasDataURL)
+        return false;
+      const oScaledCanvas = scaleCanvas(oCanvas2, iWidth, iHeight, flipy);
+      const strMime = "image/png";
+      const strData = oScaledCanvas.toDataURL(strMime);
+      if (bReturnImg) {
+        return makeImageObject(strData);
+      } else {
+        saveFile(bReplaceDownloadMime ? strData.replace(strMime, strDownloadMime) : strData);
+      }
+      return true;
+    },
+    saveAsJPEG: function(oCanvas2, bReturnImg, iWidth, iHeight, flipy) {
+      if (!bHasDataURL)
+        return false;
+      const oScaledCanvas = scaleCanvas(oCanvas2, iWidth, iHeight, flipy);
+      const strMime = "image/jpeg";
+      const strData = oScaledCanvas.toDataURL(strMime);
+      if (strData.indexOf(strMime) != 5)
+        return false;
+      if (bReturnImg) {
+        return makeImageObject(strData);
+      } else {
+        saveFile(bReplaceDownloadMime ? strData.replace(strMime, strDownloadMime) : strData);
+      }
+      return true;
+    },
+    saveAsBMP: function(oCanvas2, bReturnImg, iWidth, iHeight, flipy) {
+      if (!(bHasDataURL && bHasImageData && bHasBase64))
+        return false;
+      const oScaledCanvas = scaleCanvas(oCanvas2, iWidth, iHeight, flipy);
+      const strMime = "image/bmp";
+      const oData = readCanvasData(oScaledCanvas), strImgData = createBMP(oData);
+      if (bReturnImg) {
+        return makeImageObject(makeDataURI(strImgData, strMime));
+      } else {
+        saveFile(makeDataURI(strImgData, strMime));
+      }
+      return true;
+    }
+  };
+}();
+
+// ../sdk/src/viewing/webGLRenderer/internal/webGL/WEBGL_INFO.ts
+var WEBGL_INFO = {
+  WEBGL: false,
+  SUPPORTED_EXTENSIONS: {}
+};
+var canvas = document.createElement("canvas");
+if (canvas) {
+  const gl = canvas.getContext("webgl2", { antialias: true });
+  WEBGL_INFO.WEBGL = !!gl;
+  if (WEBGL_INFO.WEBGL) {
+    WEBGL_INFO.ANTIALIAS = gl.getContextAttributes().antialias;
+    if (gl.getShaderPrecisionFormat) {
+      if (gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT).precision > 0) {
+        WEBGL_INFO.FS_MAX_FLOAT_PRECISION = "highp";
+      } else {
+        if (gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.MEDIUM_FLOAT).precision > 0) {
+          WEBGL_INFO.FS_MAX_FLOAT_PRECISION = "mediump";
+        } else {
+          WEBGL_INFO.FS_MAX_FLOAT_PRECISION = "lowp";
+        }
+      }
+    } else {
+      WEBGL_INFO.FS_MAX_FLOAT_PRECISION = "mediump";
+    }
+    WEBGL_INFO.DEPTH_BUFFER_BITS = gl.getParameter(gl.DEPTH_BITS);
+    WEBGL_INFO.MAX_TEXTURE_SIZE = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+    WEBGL_INFO.MAX_CUBE_MAP_SIZE = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
+    WEBGL_INFO.MAX_RENDERBUFFER_SIZE = gl.getParameter(gl.MAX_RENDERBUFFER_SIZE);
+    WEBGL_INFO.MAX_TEXTURE_UNITS = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
+    WEBGL_INFO.MAX_TEXTURE_IMAGE_UNITS = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+    WEBGL_INFO.MAX_VERTEX_ATTRIBS = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
+    WEBGL_INFO.MAX_VERTEX_UNIFORM_VECTORS = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
+    WEBGL_INFO.MAX_FRAGMENT_UNIFORM_VECTORS = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
+    WEBGL_INFO.MAX_VARYING_VECTORS = gl.getParameter(gl.MAX_VARYING_VECTORS);
+    gl.getSupportedExtensions().forEach(function(ext) {
+      WEBGL_INFO.SUPPORTED_EXTENSIONS[ext] = true;
+    });
+    WEBGL_INFO.depthTexturesSupported = WEBGL_INFO.SUPPORTED_EXTENSIONS["WEBGL_depth_texture"];
+  }
+}
+
 // ../sdk/src/viewing/webGLRenderer/internal/RENDER_PASSES.ts
 var RENDER_PASSES = {
   /**
@@ -156439,6 +156089,8 @@ var nowMs = () => {
   const p = globalThis?.performance;
   return p?.now ? p.now() : Date.now();
 };
+var TIME_ELAPSED_EXT = 35007;
+var GPU_DISJOINT_EXT = 36795;
 var RenderInspector = class _RenderInspector {
   /**
    * Whether the inspector is enabled.
@@ -156460,6 +156112,18 @@ var RenderInspector = class _RenderInspector {
   _activeViewIndex = null;
   _includedRenderBins;
   _excludedRenderBins;
+  // GPU timer state. Attached lazily via attachGL() because RenderInspector is
+  // constructed before WebGL is created.
+  _gl = null;
+  _timerSupported = false;
+  _freeQueries = [];
+  _pendingQueries = [];
+  _activeQuery = null;
+  // Capture-frames support: when non-null, push every completed frame here and
+  // resolve once we have enough frames and all their queries have landed.
+  _captureBuf = null;
+  _captureTarget = 0;
+  _captureResolve = null;
   /**
    * Creates a RenderInspector.
    * @param opts
@@ -156472,6 +156136,17 @@ var RenderInspector = class _RenderInspector {
       tiles: {},
       views: []
     };
+  }
+  /**
+   * Attaches a WebGL2 context to enable per-bin GPU timing.
+   *
+   * Must be called once GL is available (RenderContext does this in init()).
+   * No-ops when `EXT_disjoint_timer_query_webgl2` is unavailable; per-bin
+   * `gpuTimeMs` simply stays undefined.
+   */
+  attachGL(gl) {
+    this._gl = gl;
+    this._timerSupported = !!gl.getExtension("EXT_disjoint_timer_query_webgl2");
   }
   /**
    * Determines if logging is enabled for the given render bin.
@@ -156589,6 +156264,7 @@ var RenderInspector = class _RenderInspector {
     };
     s.currentPass = pass;
     s.currentFrame.renderBins.push(pass);
+    this._beginGpuTimer(pass, s.currentFrame);
   }
   /**
    * Logs a draw call for the currently active view.
@@ -156677,6 +156353,7 @@ var RenderInspector = class _RenderInspector {
     s.currentFrame.timeMs.end = t;
     s.currentFrame.timeMs.duration = t - s.currentFrame.timeMs.start;
     this.renderStats.views[viewIndex] = s.currentFrame;
+    const finishedFrame = s.currentFrame;
     if (s.lastFrameEndMs != null) {
       const dt = t - s.lastFrameEndMs;
       this.frameRates[viewIndex] = dt > 0 ? 1e3 / dt : null;
@@ -156687,6 +156364,9 @@ var RenderInspector = class _RenderInspector {
     s.currentFrame = null;
     s.currentPass = null;
     s.currentDraw = null;
+    this._pollGpuTimers();
+    this._captureMaybePush(finishedFrame);
+    this._captureMaybeResolve();
   }
   // ----------------- internals -----------------
   getActiveState() {
@@ -156727,6 +156407,7 @@ var RenderInspector = class _RenderInspector {
     const t = nowMs();
     s.currentPass.timeMs.end = t;
     s.currentPass.timeMs.duration = t - s.currentPass.timeMs.start;
+    this._endGpuTimer(s.currentPass);
     const frame = s.currentFrame;
     if (frame && s.currentPass.drawCalls.length === 0) {
       const i = frame.renderBins.lastIndexOf(s.currentPass);
@@ -156734,6 +156415,100 @@ var RenderInspector = class _RenderInspector {
         frame.renderBins.splice(i, 1);
     }
     s.currentPass = null;
+  }
+  // ─────────── GPU timer ───────────
+  _beginGpuTimer(bin, frame) {
+    const gl = this._gl;
+    if (!this._timerSupported || !gl || this._activeQuery)
+      return;
+    const query = this._freeQueries.pop() ?? gl.createQuery();
+    if (!query)
+      return;
+    gl.beginQuery(TIME_ELAPSED_EXT, query);
+    this._activeQuery = { query, bin, frame };
+  }
+  _endGpuTimer(bin) {
+    const gl = this._gl;
+    const active = this._activeQuery;
+    if (!gl || !active || active.bin !== bin)
+      return;
+    gl.endQuery(TIME_ELAPSED_EXT);
+    this._pendingQueries.push(active);
+    this._activeQuery = null;
+  }
+  // Walks pending queries, writing gpuTimeMs onto each bin/frame whose result
+  // is available. Drops everything if the GPU went disjoint mid-flight.
+  // Called from frameEnded once per frame.
+  _pollGpuTimers() {
+    const gl = this._gl;
+    if (!gl || this._pendingQueries.length === 0)
+      return;
+    if (gl.getParameter(GPU_DISJOINT_EXT)) {
+      for (const p of this._pendingQueries)
+        this._freeQueries.push(p.query);
+      this._pendingQueries.length = 0;
+      return;
+    }
+    const stillPending = [];
+    for (const p of this._pendingQueries) {
+      if (gl.getQueryParameter(p.query, gl.QUERY_RESULT_AVAILABLE)) {
+        const ns = gl.getQueryParameter(p.query, gl.QUERY_RESULT);
+        const ms = ns * 1e-6;
+        p.bin.gpuTimeMs = ms;
+        p.frame.gpuTimeMs = (p.frame.gpuTimeMs ?? 0) + ms;
+        this._freeQueries.push(p.query);
+      } else {
+        stillPending.push(p);
+      }
+    }
+    this._pendingQueries = stillPending;
+  }
+  /**
+   * Captures the next `n` frames' stats, waiting until every GPU query has
+   * landed before resolving. Use to take a clean profile snapshot.
+   *
+   * Enables the inspector for the duration of the capture; restores prior
+   * `enabled` state on resolve.
+   */
+  captureFrames(n) {
+    if (this._captureBuf) {
+      return Promise.reject(new Error("captureFrames already in progress"));
+    }
+    const wasEnabled = this.enabled;
+    this.enabled = true;
+    this._captureBuf = [];
+    this._captureTarget = n;
+    return new Promise((resolve2) => {
+      this._captureResolve = (frames) => {
+        this.enabled = wasEnabled;
+        resolve2(frames);
+      };
+    });
+  }
+  // Called from frameEnded after the frame stats are finalised.
+  _captureMaybePush(frame) {
+    if (!this._captureBuf || !frame)
+      return;
+    if (this._captureBuf.length < this._captureTarget) {
+      this._captureBuf.push(frame);
+    }
+    this._captureMaybeResolve();
+  }
+  _captureMaybeResolve() {
+    const buf = this._captureBuf;
+    if (!buf || buf.length < this._captureTarget)
+      return;
+    const anyPendingForCapture = this._pendingQueries.some(
+      (p) => buf.indexOf(p.frame) !== -1
+    );
+    if (anyPendingForCapture)
+      return;
+    const resolve2 = this._captureResolve;
+    const frames = buf;
+    this._captureBuf = null;
+    this._captureResolve = null;
+    this._captureTarget = 0;
+    resolve2?.(frames);
   }
 };
 
@@ -156967,6 +156742,7 @@ var RenderContext = class {
     this.gl = gl;
     this.webglCanvasElement = webglCanvasElement;
     this.renderInspector = new RenderInspector();
+    this.renderInspector.attachGL(gl);
     this.debugging = false;
     this._allocatePlaceholderTextures();
     this.initialized = true;
@@ -169435,7 +169211,7 @@ var SkyRenderer = class {
     const view = viewRenderState.view;
     const camera = view.camera;
     const cfg = view.effects?.sky;
-    if (cfg && cfg.enabled === false)
+    if (cfg && cfg.applied === false)
       return;
     const skyColor = cfg ? cfg.skyColor : this.skyColor;
     const horizonColor = cfg ? cfg.horizonColor : this.horizonColor;
@@ -173507,12 +173283,20 @@ var RenderManager = class _RenderManager {
     if (options.clear !== false) {
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     }
-    this.skyRenderer?.render(rendererView);
-    this.infiniteGrid?.render(rendererView);
+    const ri = this._inspector();
+    if (this.skyRenderer) {
+      ri?.renderBinStarted("sky");
+      this.skyRenderer.render(rendererView);
+    }
+    if (this.infiniteGrid) {
+      ri?.renderBinStarted("grid");
+      this.infiniteGrid.render(rendererView);
+    }
     this._prepareIBL(view);
     const needSAO = bins.normalDrawSAO.length > 0 || bins.normalDrawSAOShadow.length > 0;
     const needShadow = bins.normalDrawShadow.length > 0 || bins.normalDrawSAOShadow.length > 0;
     if (needSAO) {
+      ri?.renderBinStarted("saoPrep");
       this._saoPipeline.render({
         rendererView,
         drawOps: this.drawOps.prims,
@@ -173521,6 +173305,7 @@ var RenderManager = class _RenderManager {
       });
     }
     if (needShadow) {
+      ri?.renderBinStarted("shadowPrep");
       this._shadowPipeline.render({
         rendererView,
         drawOps: this.drawOps.prims,
@@ -173537,9 +173322,9 @@ var RenderManager = class _RenderManager {
       renderContext.lastProgramId = -1;
     }
     this._drawBin(bins.normalDrawOpaque, "opaque", RENDER_BINS.OPAQUE);
-    this._drawBin(bins.normalDrawSAO, "opaqueSAO");
-    this._drawBin(bins.normalDrawShadow, "opaqueShadow");
-    this._drawBin(bins.normalDrawSAOShadow, "opaqueSAOShadow");
+    this._drawBin(bins.normalDrawSAO, "opaqueSAO", "opaqueSAO");
+    this._drawBin(bins.normalDrawShadow, "opaqueShadow", "opaqueShadow");
+    this._drawBin(bins.normalDrawSAOShadow, "opaqueSAOShadow", "opaqueSAOShadow");
     this._renderCaps(rendererView);
     for (let i = 0; i < renderContext.shadowMapTextures.length; i++) {
       renderContext.shadowMapTextures[i] = null;
@@ -193373,19 +193158,19 @@ var InfoPanel = class extends FloatingPanelBase {
     const group = el("div", "xkt-info-radios");
     const initial = params.value ?? params.options[0]?.value;
     for (const opt of params.options) {
-      const chip2 = el("button", "xkt-info-radio", {
+      const chip3 = el("button", "xkt-info-radio", {
         type: "button",
         textContent: opt.label,
         "aria-pressed": String(opt.value === initial)
       });
-      chip2.dataset.value = opt.value;
-      chip2.addEventListener("click", () => {
+      chip3.dataset.value = opt.value;
+      chip3.addEventListener("click", () => {
         for (const sib of Array.from(group.children)) {
-          sib.setAttribute("aria-pressed", String(sib === chip2));
+          sib.setAttribute("aria-pressed", String(sib === chip3));
         }
         params.onChange?.(opt.value);
       });
-      group.appendChild(chip2);
+      group.appendChild(chip3);
     }
     this._appendControl(row, group);
     return group;
@@ -196624,6 +196409,7 @@ function createDefaultLoaderRegistry() {
 // ../sdk/src/studio/panels/index.ts
 var panels_exports = {};
 __export(panels_exports, {
+  AdaptiveQualityPanel: () => AdaptiveQualityPanel,
   AngleMeasurementsPanel: () => AngleMeasurementsPanel,
   BoundariesPanel: () => BoundariesPanel,
   CLOSE_ICON_SVG: () => CLOSE_ICON_SVG,
@@ -207752,6 +207538,25 @@ var PANEL_CSS12 = `
   cursor: pointer;
 }
 .xkt-vcp-panel .xkt-vcp-arr { display: inline-flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+/* Slider + number-input pair for bounded numeric knobs. The slider
+   takes the remaining width; the number readout stays a fixed
+   monospace width so values right-align cleanly. */
+.xkt-vcp-panel .xkt-vcp-slider {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-width: 12ch;
+}
+.xkt-vcp-panel .xkt-vcp-input--slider {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0;
+}
+.xkt-vcp-panel .xkt-vcp-input--slider-num {
+  flex: 0 0 auto;
+  width: 8ch;
+}
 /* Render-mode controls \u2014 string labels for the three predefined
  * modes. Checkboxes for the per-effect renderModes list and a
  * native dropdown for the per-View renderMode field. */
@@ -208388,7 +208193,17 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
       });
       const liveGroup = liveView?.[g.key];
       const groupApply = liveGroup && typeof liveGroup.fromParams === "function" ? this._makeTargetApply(liveGroup) : this._nestedApply(viewApply, g.key);
-      sub.body.appendChild(this._renderObjectTable(g.obj, groupApply, liveGroup));
+      if (g.key === "effects") {
+        this._renderEffectsGroup(
+          g.obj,
+          groupApply,
+          liveGroup,
+          `${viewKey}:${g.key}`,
+          sub.body
+        );
+      } else {
+        sub.body.appendChild(this._renderObjectTable(g.obj, groupApply, liveGroup));
+      }
       section.body.appendChild(sub.section);
     }
     if (layers) {
@@ -208468,6 +208283,38 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
       table.appendChild(tr);
     }
     return table;
+  }
+  /**
+   * Render the Effects group as a list of collapsible sub-sections —
+   * one per effect, in {@link EFFECT_ORDER} order, with the
+   * properly-cased label from {@link EFFECT_LABELS}.
+   *
+   * Each sub-section's apply targets the live effect instance
+   * (`liveEffects[effectKey]`) so a single field edit hits exactly
+   * one `fromParams` call on the right instance — same routing the
+   * recursive panel renderer uses internally for any object with a
+   * `fromParams`, just bypassed up front because we know the shape.
+   */
+  _renderEffectsGroup(effects, groupApply, liveEffects, parentKey, body) {
+    const childKeys = [
+      ...EFFECT_ORDER.filter((k) => k in effects),
+      ...Object.keys(effects).filter((k) => !EFFECT_LABELS.has(k)).sort()
+    ];
+    for (const key of childKeys) {
+      const val = effects[key];
+      if (val == null || typeof val !== "object")
+        continue;
+      const sub = this._buildSection({
+        kind: "group",
+        label: EFFECT_LABELS.get(key) ?? key,
+        sectionKey: `${parentKey}:${key}`,
+        defaultOpen: false
+      });
+      const liveChild = liveEffects ? liveEffects[key] : void 0;
+      const childApply = liveChild && typeof liveChild.fromParams === "function" ? this._makeTargetApply(liveChild) : this._nestedApply(groupApply, key);
+      sub.body.appendChild(this._renderObjectTable(val, childApply, liveChild));
+      body.appendChild(sub.section);
+    }
   }
   /**
    * Recursive object renderer — used for nested groups (Camera,
@@ -208608,6 +208455,10 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
     return inp;
   }
   _mkNumberInput(parent, key, val, apply3) {
+    const range = typeof key === "string" ? SLIDER_RANGES.get(key) : void 0;
+    if (range) {
+      return this._mkSliderInput(parent, key, val, apply3, range);
+    }
     const inp = el("input", "xkt-vcp-input xkt-vcp-input--num", { type: "number", step: "any" });
     inp.value = String(val);
     inp.addEventListener("change", () => {
@@ -208617,6 +208468,52 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
       apply3(key, next);
     });
     return inp;
+  }
+  /**
+   * Slider + number-input pair, sharing a single backing value. The
+   * range slider provides quick drag-to-eyeball; the number input is
+   * the precise / out-of-range escape hatch. Both write through the
+   * same `apply` call so the live target only sees one update per
+   * change. Used when a key appears in {@link SLIDER_RANGES}.
+   */
+  _mkSliderInput(parent, key, val, apply3, range) {
+    const [min, max, step2] = range;
+    const wrap = el("span", "xkt-vcp-slider");
+    const slider = el("input", "xkt-vcp-input xkt-vcp-input--slider", {
+      type: "range",
+      min: String(min),
+      max: String(max),
+      step: String(step2)
+    });
+    const num3 = el("input", "xkt-vcp-input xkt-vcp-input--num xkt-vcp-input--slider-num", {
+      type: "number",
+      step: String(step2)
+    });
+    const decimals = step2 < 1 ? Math.max(0, -Math.floor(Math.log10(step2))) : 0;
+    const fmt = (n) => decimals > 0 ? n.toFixed(decimals) : String(Math.round(n));
+    slider.value = String(Math.min(max, Math.max(min, val)));
+    num3.value = fmt(val);
+    const commit = (n) => {
+      const next = Number.isFinite(n) ? n : 0;
+      parent[key] = next;
+      apply3(key, next);
+    };
+    slider.addEventListener("input", () => {
+      const n = parseFloat(slider.value);
+      num3.value = fmt(n);
+      commit(n);
+    });
+    num3.addEventListener("change", () => {
+      const n = parseFloat(num3.value);
+      if (!Number.isFinite(n)) {
+        num3.value = fmt(slider.valueAsNumber);
+        return;
+      }
+      slider.value = String(Math.min(max, Math.max(min, n)));
+      commit(n);
+    });
+    wrap.append(slider, num3);
+    return wrap;
   }
   _mkTextInput(parent, key, val, apply3) {
     const inp = el("input", "xkt-vcp-input xkt-vcp-input--str", { type: "text" });
@@ -208750,6 +208647,60 @@ var KNOWN_GROUPS_LABELS = {
   resolutionScale: "Resolution Scale",
   sectionPlanes: "Section Planes"
 };
+var EFFECT_ORDER = [
+  "ibl",
+  "shadows",
+  "sao",
+  "bloom",
+  "tonemap",
+  "antiAliasing",
+  "edges",
+  "sky",
+  "sectionPlaneCaps",
+  "bodyHatch"
+];
+var SLIDER_RANGES = /* @__PURE__ */ new Map([
+  // Effect intensities / mix coefficients — universal 0–1.
+  ["intensity", [0, 1, 0.01]],
+  ["knee", [0, 1, 0.01]],
+  ["edgeAlpha", [0, 1, 0.01]],
+  ["horizonBlend", [0, 1, 0.01]],
+  ["sunGlowIntensity", [0, 1, 0.01]],
+  ["cascadeSplitLambda", [0, 1, 0.01]],
+  // Effect thresholds / exposure-like — small handful with HDR headroom.
+  ["threshold", [0, 10, 0.05]],
+  ["exposure", [0, 3, 0.01]],
+  // Edge / sun sizes — small integer-ish dials.
+  ["edgeWidth", [1, 5, 1]],
+  ["sunAngularSize", [0, 30, 0.1]],
+  ["sunGlowSize", [0, 64, 1]],
+  // Resolution scales — 5–200 %.
+  ["renderScale", [0.5, 2, 0.05]],
+  ["resolutionScale", [0.05, 2, 0.05]],
+  // Shadow tuning — bias and cascade tuning sit in narrow ranges.
+  ["bias", [0, 0.01, 1e-4]],
+  ["normalOffsetBias", [0, 0.5, 1e-3]],
+  ["slopeBias", [0, 0.05, 1e-4]],
+  ["padding", [1, 2, 0.01]],
+  ["maxDistance", [0, 500, 1]],
+  ["projectionSize", [1, 200, 0.5]],
+  ["lightDistance", [1, 500, 1]],
+  ["cascadeCount", [1, 6, 1]],
+  ["pcfKernelSize", [1, 7, 2]],
+  ["resolution", [256, 4096, 256]]
+]);
+var EFFECT_LABELS = /* @__PURE__ */ new Map([
+  ["ibl", "IBL"],
+  ["sao", "SAO"],
+  ["shadows", "Shadows"],
+  ["bloom", "Bloom"],
+  ["tonemap", "Tonemap"],
+  ["antiAliasing", "Anti-Aliasing"],
+  ["edges", "Edges"],
+  ["sky", "Sky"],
+  ["sectionPlaneCaps", "Section Plane Caps"],
+  ["bodyHatch", "Body Hatch"]
+]);
 function isPlainObject2(v) {
   return !!v && typeof v === "object" && !Array.isArray(v);
 }
@@ -211857,18 +211808,18 @@ var ExportDialog = class _ExportDialog extends FloatingPanelBase {
       }))
         continue;
       const compatible = this._isDatasetCompatible(desc);
-      const chip2 = el("button", "xkt-exp-chip", {
+      const chip3 = el("button", "xkt-exp-chip", {
         type: "button",
         title: compatible ? desc : `${desc} \u2014 incompatible with the selected model`
       });
-      chip2.appendChild(el("span", void 0, { textContent: humanReadableDatasetLabel(desc, ids2) }));
-      chip2.disabled = !compatible;
+      chip3.appendChild(el("span", void 0, { textContent: humanReadableDatasetLabel(desc, ids2) }));
+      chip3.disabled = !compatible;
       if (!compatible)
-        chip2.classList.add("xkt-exp-chip-disabled");
-      const apply3 = () => chip2.classList.toggle("xkt-exp-chip-on", this._selectedDatasets.has(desc));
+        chip3.classList.add("xkt-exp-chip-disabled");
+      const apply3 = () => chip3.classList.toggle("xkt-exp-chip-on", this._selectedDatasets.has(desc));
       apply3();
       if (compatible) {
-        chip2.addEventListener("click", () => {
+        chip3.addEventListener("click", () => {
           if (this._selectedDatasets.has(desc))
             this._selectedDatasets.delete(desc);
           else
@@ -211878,7 +211829,7 @@ var ExportDialog = class _ExportDialog extends FloatingPanelBase {
           this._refreshExportEnabled();
         });
       }
-      this._datasetsEl.appendChild(chip2);
+      this._datasetsEl.appendChild(chip3);
     }
   }
   /**
@@ -217329,8 +217280,8 @@ function countCulled(view) {
   return `${culled} / ${ids2.length}`;
 }
 
-// ../sdk/src/studio/panels/cameraTour/CameraTourPanel.ts
-var STYLE_TAG_ID24 = "xkt-ct-styles";
+// ../sdk/src/studio/panels/adaptiveQualityPanel/AdaptiveQualityPanel.ts
+var STYLE_TAG_ID24 = "xkt-aq-styles";
 var _stylesInjected25 = false;
 function injectStylesOnce26() {
   if (_stylesInjected25)
@@ -217347,7 +217298,629 @@ function injectStylesOnce26() {
   document.head.appendChild(style);
   _stylesInjected25 = true;
 }
+var ACCENT = "#7c3aed";
+var ACCENT_DARK = "#5b21b6";
 var PANEL_CSS22 = `
+.xkt-aq-panel {
+  position: fixed;
+  top: 115px;
+  right: 17px;
+  width: 380px;
+  height: auto;
+  max-height: calc(100vh - 32px);
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.14);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #111;
+  z-index: 200000000;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.xkt-aq-panel *, .xkt-aq-panel *::before, .xkt-aq-panel *::after {
+  box-sizing: border-box;
+}
+.xkt-aq-panel[hidden] { display: none; }
+
+.xkt-aq-panel .xkt-aq-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px 12px 16px;
+  border-bottom: 1px solid #ececec;
+  flex: 0 0 auto;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+.xkt-aq-panel .xkt-aq-header.xkt-aq-dragging { cursor: grabbing; }
+.xkt-aq-panel .xkt-aq-title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 20px;
+  font-weight: 650;
+  color: #111;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.xkt-aq-panel .xkt-aq-title-icon {
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 2px;
+  width: 24px;
+  height: 24px;
+  color: ${ACCENT};
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.xkt-aq-panel .xkt-aq-title-icon svg { width: 100%; height: 100%; display: block; }
+.xkt-aq-panel .xkt-aq-title-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.xkt-aq-panel .xkt-aq-title-text {
+  flex-shrink: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.xkt-aq-panel .xkt-aq-subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  color: #475569;
+  line-height: 1.25;
+}
+.xkt-aq-panel .xkt-aq-pulse {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #c9d3df;
+  transition: background 120ms ease-out;
+}
+.xkt-aq-panel .xkt-aq-pulse.xkt-aq-pulse-active { background: ${ACCENT}; }
+.xkt-aq-panel .xkt-aq-close {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font: inherit;
+  font-size: 22px;
+  line-height: 1;
+  color: #777;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.xkt-aq-panel .xkt-aq-close:hover { background: #f0f0f0; color: #222; border-color: #d0d0d0; }
+
+.xkt-aq-pill {
+  position: fixed;
+  bottom: 17px;
+  right: 438px;
+  z-index: 200000000;
+  padding: 9px 16px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: #fff;
+  background: ${ACCENT};
+  border: 1px solid ${ACCENT_DARK};
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+.xkt-aq-pill:hover { background: ${ACCENT_DARK}; }
+.xkt-aq-pill[hidden] { display: none; }
+
+.xkt-aq-panel .xkt-aq-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 10px 12px 14px;
+}
+
+.xkt-aq-panel .xkt-aq-section {
+  margin: 6px 0 10px;
+  background: #fff;
+  border: 1px solid #ececec;
+  border-left: 3px solid ${ACCENT};
+  border-radius: 6px;
+  overflow: hidden;
+}
+.xkt-aq-panel .xkt-aq-section-title {
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: ${ACCENT_DARK};
+  background: #faf7ff;
+  border-bottom: 1px solid #f0f0f0;
+}
+.xkt-aq-panel .xkt-aq-section-body { padding: 8px 12px 10px; }
+
+.xkt-aq-panel .xkt-aq-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+}
+.xkt-aq-panel .xkt-aq-row > label {
+  flex: 0 0 96px;
+  color: #333;
+  font-size: 11.5px;
+}
+.xkt-aq-panel .xkt-aq-row input[type="range"] { flex: 1 1 auto; min-width: 0; }
+.xkt-aq-panel .xkt-aq-val {
+  flex: 0 0 56px;
+  text-align: right;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  color: #475569;
+}
+
+.xkt-aq-panel .xkt-aq-empty {
+  padding: 18px 12px;
+  text-align: center;
+  color: #777;
+}
+.xkt-aq-panel .xkt-aq-view {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+  border-bottom: 1px solid #f4f4f4;
+}
+.xkt-aq-panel .xkt-aq-view:last-child { border-bottom: none; }
+.xkt-aq-panel .xkt-aq-toggle {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+.xkt-aq-panel .xkt-aq-toggle input { cursor: pointer; }
+.xkt-aq-panel .xkt-aq-view-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: 600;
+  color: #222;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.xkt-aq-panel .xkt-aq-stats {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 6px;
+}
+.xkt-aq-panel .xkt-aq-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #f3f0fa;
+  border: 1px solid #e3def0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10.5px;
+  color: #334155;
+  white-space: nowrap;
+}
+.xkt-aq-panel .xkt-aq-chip .xkt-aq-chip-k {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+/* Mode-aware chip: shifts colour when the View is in NavigationRender so the
+   user can see at a glance which side of the flip each View is on. */
+.xkt-aq-panel .xkt-aq-chip.xkt-aq-chip-nav {
+  background: ${ACCENT};
+  color: #fff;
+  border-color: ${ACCENT_DARK};
+}
+.xkt-aq-panel .xkt-aq-chip.xkt-aq-chip-nav .xkt-aq-chip-k { color: rgba(255, 255, 255, 0.7); }
+`;
+var DEFAULT_REST_MS2 = 150;
+var AdaptiveQualityPanel = class _AdaptiveQualityPanel extends FloatingPanelBase {
+  static _instances = /* @__PURE__ */ new WeakMap();
+  /** SVG: a tachometer needle, suggesting "speed switch". Strokes use `currentColor`. */
+  static iconSvg() {
+    return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 17 A 9 9 0 0 1 20.5 17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M5 17 L 12 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/><circle cx="12" cy="17" r="1.5" fill="currentColor"/><line x1="6.5" y1="14.5" x2="7.3" y2="13.7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="12"  y1="11"   x2="12"  y2="12"   stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="17.5" y1="14.5" x2="16.7" y2="13.7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`;
+  }
+  static getFor(viewer) {
+    const inst = _AdaptiveQualityPanel._instances.get(viewer);
+    return inst && !inst._destroyed ? inst : void 0;
+  }
+  static openFor(params) {
+    let inst = _AdaptiveQualityPanel._instances.get(params.viewer);
+    if (inst && !inst._destroyed) {
+      inst.show();
+      return inst;
+    }
+    inst = new _AdaptiveQualityPanel(params);
+    return inst;
+  }
+  viewer;
+  renderer;
+  _restMs = DEFAULT_REST_MS2;
+  _adapters = /* @__PURE__ */ new Map();
+  // DOM refs.
+  _bodyEl;
+  _viewsEl;
+  _pulseEl;
+  _restMsVal;
+  _viewRows = /* @__PURE__ */ new Map();
+  // Lifecycle state.
+  _statsListenersAttached = false;
+  _refreshScheduled = false;
+  _pulseTimer = null;
+  _onViewRenderedUnsub = null;
+  _viewLifecycleUnsubs = [];
+  constructor(params) {
+    if (!params || !params.viewer || !params.renderer) {
+      throw new Error("AdaptiveQualityPanel: viewer and renderer are required");
+    }
+    super({
+      container: params.container,
+      storageKey: params.storageKey || "xkt-aq-panel",
+      classPrefix: "xkt-aq",
+      minWidth: 320,
+      minHeight: 200
+    });
+    this.viewer = params.viewer;
+    this.renderer = params.renderer;
+    const prior = _AdaptiveQualityPanel._instances.get(params.viewer);
+    if (prior && !prior._destroyed)
+      prior.destroy();
+    _AdaptiveQualityPanel._instances.set(params.viewer, this);
+    injectStylesOnce26();
+    this._buildDom();
+    this._bindChrome();
+    this._renderConfig();
+    const ve = this.viewer.events;
+    this._viewLifecycleUnsubs.push(
+      ve.onViewCreated.subscribe(() => this._renderViews()),
+      ve.onViewDestroyed.subscribe((_viewer, view) => {
+        this._adapters.delete(view.id);
+        this._renderViews();
+      })
+    );
+    if (params.visible === false)
+      this.hide();
+    else
+      this.show();
+  }
+  // ── Public lifecycle ──────────────────────────────────────────
+  get visible() {
+    return this._panel.style.display !== "none";
+  }
+  show() {
+    if (this._destroyed)
+      return;
+    super.show();
+    this._enableInspector();
+    this._attachStatsListeners();
+    this._renderViews();
+    this._renderStats();
+  }
+  hide() {
+    if (this._destroyed)
+      return;
+    super.hide();
+    this._detachStatsListeners();
+  }
+  toggle() {
+    if (this.visible)
+      this.hide();
+    else
+      this.show();
+  }
+  destroy() {
+    if (this._destroyed)
+      return;
+    this._detachStatsListeners();
+    for (const u of this._viewLifecycleUnsubs) {
+      try {
+        u();
+      } catch {
+      }
+    }
+    this._viewLifecycleUnsubs.length = 0;
+    for (const aq of this._adapters.values()) {
+      try {
+        aq.destroy();
+      } catch {
+      }
+    }
+    this._adapters.clear();
+    if (_AdaptiveQualityPanel._instances.get(this.viewer) === this) {
+      _AdaptiveQualityPanel._instances.delete(this.viewer);
+    }
+    super.destroy();
+  }
+  // ── Listener attach / detach ──────────────────────────────────
+  _attachStatsListeners() {
+    if (this._statsListenersAttached || this._destroyed)
+      return;
+    this._statsListenersAttached = true;
+    this._onViewRenderedUnsub = this.renderer.events.onViewRendered.subscribe(
+      () => this._scheduleRefresh()
+    );
+  }
+  _detachStatsListeners() {
+    if (!this._statsListenersAttached)
+      return;
+    if (this._onViewRenderedUnsub) {
+      try {
+        this._onViewRenderedUnsub();
+      } catch {
+      }
+      this._onViewRenderedUnsub = null;
+    }
+    if (this._pulseTimer) {
+      clearTimeout(this._pulseTimer);
+      this._pulseTimer = null;
+    }
+    this._statsListenersAttached = false;
+    this._refreshScheduled = false;
+  }
+  _scheduleRefresh() {
+    if (this._destroyed || !this._statsListenersAttached)
+      return;
+    if (this._refreshScheduled)
+      return;
+    this._refreshScheduled = true;
+    requestAnimationFrame(() => {
+      this._refreshScheduled = false;
+      if (this._destroyed || !this._statsListenersAttached)
+        return;
+      this._renderStats();
+      this._flashPulse();
+    });
+  }
+  // ── DOM construction ──────────────────────────────────────────
+  _buildDom() {
+    this._pill = el("button", "xkt-aq-pill", {
+      type: "button",
+      title: "Reopen the Adaptive Quality panel",
+      hidden: true,
+      textContent: "Adaptive"
+    });
+    this._panel = el("div", "xkt-aq-panel");
+    this._header = el("div", "xkt-aq-header");
+    const title = el("h2", "xkt-aq-title");
+    title.innerHTML = `<span class="xkt-aq-title-icon">${_AdaptiveQualityPanel.iconSvg()}</span><span class="xkt-aq-title-stack"><span class="xkt-aq-title-text">Adaptive Quality</span><span class="xkt-aq-subtitle">Switches View into NavigationRender while the camera moves; back at rest.</span></span>`;
+    this._pulseEl = el("span", "xkt-aq-pulse", {
+      title: "Flashes each time the stats update from a render."
+    });
+    this._closeBtn = el("button", "xkt-aq-close", {
+      type: "button",
+      "aria-label": "Close panel",
+      title: "Close panel",
+      innerHTML: "\xD7"
+    });
+    this._header.append(title, this._pulseEl, this._closeBtn);
+    this._panel.appendChild(this._header);
+    this._bodyEl = el("div", "xkt-aq-body");
+    this._panel.appendChild(this._bodyEl);
+    this._container.appendChild(this._pill);
+    this._container.appendChild(this._panel);
+  }
+  _renderConfig() {
+    const section = el("div", "xkt-aq-section");
+    section.appendChild(el("div", "xkt-aq-section-title", { textContent: "Settings" }));
+    const body = el("div", "xkt-aq-section-body");
+    {
+      const row = el("div", "xkt-aq-row");
+      row.appendChild(el("label", void 0, {
+        textContent: "Rest delay",
+        title: "Milliseconds the camera must be still before switching back to RealisticRender."
+      }));
+      const slider = el("input", void 0, {
+        type: "range",
+        min: "0",
+        max: "500",
+        step: "10",
+        value: String(this._restMs)
+      });
+      this._restMsVal = el("span", "xkt-aq-val", {
+        textContent: `${this._restMs} ms`
+      });
+      slider.addEventListener("input", () => {
+        this._restMs = parseInt(slider.value, 10);
+        this._restMsVal.textContent = `${this._restMs} ms`;
+        this._applyConfigToActiveAdapters();
+      });
+      row.append(slider, this._restMsVal);
+      body.appendChild(row);
+    }
+    section.appendChild(body);
+    this._bodyEl.appendChild(section);
+    const viewsSection = el("div", "xkt-aq-section");
+    viewsSection.appendChild(el("div", "xkt-aq-section-title", { textContent: "Views" }));
+    this._viewsEl = el("div", "xkt-aq-section-body");
+    viewsSection.appendChild(this._viewsEl);
+    this._bodyEl.appendChild(viewsSection);
+  }
+  /**
+   * Recreate every live AdaptiveQuality with the current config —
+   * the class takes its params at construction and exposes no setters,
+   * so a slider change destroys the existing adapter and builds a fresh
+   * one (mirrors how `CullingPanel` handles its sliders).
+   */
+  _applyConfigToActiveAdapters() {
+    for (const [viewId, aq] of this._adapters) {
+      const view = aq.view;
+      try {
+        aq.destroy();
+      } catch {
+      }
+      this._adapters.set(viewId, new AdaptiveQuality({ view, restMs: this._restMs }));
+    }
+  }
+  // ── Per-View rows ─────────────────────────────────────────────
+  _renderViews() {
+    if (this._destroyed)
+      return;
+    const liveIds = new Set(this.viewer.viewList.map((v) => v.id));
+    for (const id of [...this._adapters.keys()]) {
+      if (!liveIds.has(id)) {
+        try {
+          this._adapters.get(id).destroy();
+        } catch {
+        }
+        this._adapters.delete(id);
+      }
+    }
+    this._viewsEl.replaceChildren();
+    this._viewRows.clear();
+    const views = this.viewer.viewList;
+    if (views.length === 0) {
+      this._viewsEl.appendChild(el("div", "xkt-aq-empty", { textContent: "No Views." }));
+      return;
+    }
+    for (const view of views) {
+      this._viewsEl.appendChild(this._buildViewRow(view));
+    }
+    this._renderStats();
+  }
+  _buildViewRow(view) {
+    const row = el("div", "xkt-aq-view");
+    const toggleLabel = el("label", "xkt-aq-toggle", {
+      title: "Enable adaptive quality for this View."
+    });
+    const toggle = el("input", void 0, { type: "checkbox" });
+    toggle.checked = this._adapters.has(view.id);
+    toggle.addEventListener("change", () => this._setViewAdaptive(view, toggle.checked));
+    toggleLabel.appendChild(toggle);
+    const name12 = el("span", "xkt-aq-view-name", {
+      textContent: `View ${view.viewIndex} \xB7 ${view.id}`,
+      title: view.id
+    });
+    const stats = el("div", "xkt-aq-stats");
+    const fpsEl = chip2(stats, "fps");
+    const frameEl = chip2(stats, "ms");
+    const { chipEl: modeChip, valEl: modeEl } = chipWithRef(stats, "mode");
+    row.append(toggleLabel, name12, stats);
+    this._viewRows.set(view.id, { view, toggle, fpsEl, frameEl, modeChip, modeEl });
+    return row;
+  }
+  _setViewAdaptive(view, enabled) {
+    if (enabled) {
+      if (this._adapters.has(view.id))
+        return;
+      this._adapters.set(view.id, new AdaptiveQuality({ view, restMs: this._restMs }));
+    } else {
+      const aq = this._adapters.get(view.id);
+      if (aq) {
+        try {
+          aq.destroy();
+        } catch {
+        }
+        this._adapters.delete(view.id);
+      }
+    }
+    this._renderStats();
+  }
+  // ── Live stats ────────────────────────────────────────────────
+  _enableInspector() {
+    const res = this.renderer.getRenderInspector();
+    if (res.ok)
+      res.value.enabled = true;
+  }
+  _renderStats() {
+    if (this._destroyed)
+      return;
+    const res = this.renderer.getRenderInspector();
+    const inspector = res.ok ? res.value : null;
+    for (const { view, fpsEl, frameEl, modeChip, modeEl } of this._viewRows.values()) {
+      const i = view.viewIndex;
+      const fps = inspector?.frameRates?.[i] ?? null;
+      const frame = inspector?.renderStats?.views?.[i] ?? null;
+      const duration = frame?.timeMs?.duration;
+      fpsEl.textContent = fps == null ? "\u2014" : fps.toFixed(0);
+      frameEl.textContent = Number.isFinite(duration) ? duration.toFixed(1) : "\u2014";
+      const label = modeLabel(view.renderMode);
+      modeEl.textContent = label;
+      modeChip.classList.toggle("xkt-aq-chip-nav", view.renderMode === NavigationRender);
+    }
+  }
+  _flashPulse() {
+    if (!this._pulseEl)
+      return;
+    this._pulseEl.classList.add("xkt-aq-pulse-active");
+    if (this._pulseTimer)
+      clearTimeout(this._pulseTimer);
+    this._pulseTimer = setTimeout(() => {
+      this._pulseEl.classList.remove("xkt-aq-pulse-active");
+      this._pulseTimer = null;
+    }, 500);
+  }
+};
+function chip2(host, key) {
+  return chipWithRef(host, key).valEl;
+}
+function chipWithRef(host, key) {
+  const c3 = el("span", "xkt-aq-chip");
+  c3.appendChild(el("span", "xkt-aq-chip-k", { textContent: key }));
+  const v = el("span", void 0, { textContent: "\u2014" });
+  c3.appendChild(v);
+  host.appendChild(c3);
+  return { chipEl: c3, valEl: v };
+}
+function modeLabel(mode) {
+  switch (mode) {
+    case NavigationRender:
+      return "Nav";
+    case DetailedRender:
+      return "Detail";
+    case RealisticRender:
+      return "Real";
+    default:
+      return String(mode);
+  }
+}
+
+// ../sdk/src/studio/panels/cameraTour/CameraTourPanel.ts
+var STYLE_TAG_ID25 = "xkt-ct-styles";
+var _stylesInjected26 = false;
+function injectStylesOnce27() {
+  if (_stylesInjected26)
+    return;
+  if (typeof document === "undefined")
+    return;
+  if (document.getElementById(STYLE_TAG_ID25)) {
+    _stylesInjected26 = true;
+    return;
+  }
+  const style = document.createElement("style");
+  style.id = STYLE_TAG_ID25;
+  style.textContent = PANEL_CSS23;
+  document.head.appendChild(style);
+  _stylesInjected26 = true;
+}
+var PANEL_CSS23 = `
 .xkt-ct-panel {
   position: fixed;
   top: 88px;
@@ -217700,7 +218273,7 @@ var CameraTourPanel = class _CameraTourPanel extends FloatingPanelBase {
     if (prior && !prior._destroyed)
       prior.destroy();
     _CameraTourPanel._instances.set(this.studio, this);
-    injectStylesOnce26();
+    injectStylesOnce27();
     this._buildDom();
     this._bindChrome();
     this._attachSubscriptions();
@@ -218304,24 +218877,24 @@ function countRoomsUpToIndex(tour, idx) {
 }
 
 // ../sdk/src/studio/panels/drawings/DrawingsPanel.ts
-var STYLE_TAG_ID25 = "xkt-bp-styles";
-var _stylesInjected26 = false;
-function injectStylesOnce27() {
-  if (_stylesInjected26)
+var STYLE_TAG_ID26 = "xkt-bp-styles";
+var _stylesInjected27 = false;
+function injectStylesOnce28() {
+  if (_stylesInjected27)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID25)) {
-    _stylesInjected26 = true;
+  if (document.getElementById(STYLE_TAG_ID26)) {
+    _stylesInjected27 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID25;
-  style.textContent = PANEL_CSS23;
+  style.id = STYLE_TAG_ID26;
+  style.textContent = PANEL_CSS24;
   document.head.appendChild(style);
-  _stylesInjected26 = true;
+  _stylesInjected27 = true;
 }
-var PANEL_CSS23 = `
+var PANEL_CSS24 = `
 .xkt-bp-panel {
   position: fixed;
   top: 88px;
@@ -218636,7 +219209,7 @@ var DrawingsPanel = class _DrawingsPanel extends FloatingPanelBase {
     if (prior && !prior._destroyed)
       prior.destroy();
     _DrawingsPanel._instances.set(this.studio, this);
-    injectStylesOnce27();
+    injectStylesOnce28();
     this._buildDom();
     this._bindChrome();
     this._attachSubscriptions();
@@ -220055,9 +220628,9 @@ function latLonToViewBox(latitude, longitude) {
 }
 
 // ../sdk/src/studio/panels/sunStudyPanel/SunStudyPanel.ts
-var STYLE_TAG_ID26 = "xkt-sun-styles";
-var _stylesInjected27 = false;
-var PANEL_CSS24 = `
+var STYLE_TAG_ID27 = "xkt-sun-styles";
+var _stylesInjected28 = false;
+var PANEL_CSS25 = `
 .xkt-sun-panel {
   position: fixed;
   top: 17px;
@@ -220271,20 +220844,20 @@ var PANEL_CSS24 = `
   box-shadow: 0 1px 2px rgba(0,0,0,0.08);
 }
 `;
-function injectStylesOnce28() {
-  if (_stylesInjected27)
+function injectStylesOnce29() {
+  if (_stylesInjected28)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID26)) {
-    _stylesInjected27 = true;
+  if (document.getElementById(STYLE_TAG_ID27)) {
+    _stylesInjected28 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID26;
-  style.textContent = PANEL_CSS24;
+  style.id = STYLE_TAG_ID27;
+  style.textContent = PANEL_CSS25;
   document.head.appendChild(style);
-  _stylesInjected27 = true;
+  _stylesInjected28 = true;
 }
 var SunStudyPanel = class _SunStudyPanel extends FloatingPanelBase {
   static _instances = /* @__PURE__ */ new WeakMap();
@@ -220379,7 +220952,7 @@ var SunStudyPanel = class _SunStudyPanel extends FloatingPanelBase {
       prior.destroy();
     _SunStudyPanel._instances.set(params.sunStudy, this);
     _SunStudyPanel._latest = this;
-    injectStylesOnce28();
+    injectStylesOnce29();
     this._buildDom();
     this._wireDomEvents();
     this._subscribeStudy();
@@ -220698,9 +221271,9 @@ var SunStudyPanel = class _SunStudyPanel extends FloatingPanelBase {
 
 // ../sdk/src/studio/panels/daylightAnalysisPanel/DaylightAnalysisPanel.ts
 var import_strongly_typed_events27 = __toESM(require_dist8());
-var STYLE_TAG_ID27 = "xkt-dla-styles";
-var _stylesInjected28 = false;
-var PANEL_CSS25 = `
+var STYLE_TAG_ID28 = "xkt-dla-styles";
+var _stylesInjected29 = false;
+var PANEL_CSS26 = `
 .xkt-dla-panel {
   position: fixed;
   top: 17px;
@@ -220920,20 +221493,20 @@ var PANEL_CSS25 = `
   color: #222;
 }
 `;
-function injectStylesOnce29() {
-  if (_stylesInjected28)
+function injectStylesOnce30() {
+  if (_stylesInjected29)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID27)) {
-    _stylesInjected28 = true;
+  if (document.getElementById(STYLE_TAG_ID28)) {
+    _stylesInjected29 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID27;
-  style.textContent = PANEL_CSS25;
+  style.id = STYLE_TAG_ID28;
+  style.textContent = PANEL_CSS26;
   document.head.appendChild(style);
-  _stylesInjected28 = true;
+  _stylesInjected29 = true;
 }
 var LEGEND_GRADIENT = [
   [0.05, 0.07, 0.3],
@@ -221038,7 +221611,7 @@ var DaylightAnalysisPanel = class _DaylightAnalysisPanel extends FloatingPanelBa
     _DaylightAnalysisPanel._instances.set(params.sunStudy, this);
     _DaylightAnalysisPanel._latest = this;
     this.onResult = new EventEmitter(new import_strongly_typed_events27.EventDispatcher());
-    injectStylesOnce29();
+    injectStylesOnce30();
     this._buildDom();
     this._wireDomEvents();
     if (params.initialGrid) {
@@ -221341,9 +221914,9 @@ var DaylightAnalysisPanel = class _DaylightAnalysisPanel extends FloatingPanelBa
 };
 
 // ../sdk/src/studio/panels/volumeOverlayPanel/VolumeOverlayPanel.ts
-var STYLE_TAG_ID28 = "xkt-vol-styles";
-var _stylesInjected29 = false;
-var PANEL_CSS26 = `
+var STYLE_TAG_ID29 = "xkt-vol-styles";
+var _stylesInjected30 = false;
+var PANEL_CSS27 = `
 .xkt-vol-panel {
   position: fixed;
   top: 17px;
@@ -221573,14 +222146,14 @@ var PANEL_CSS26 = `
   color: #5a6273;
 }
 `;
-function injectStylesOnce30() {
-  if (_stylesInjected29 || typeof document === "undefined")
+function injectStylesOnce31() {
+  if (_stylesInjected30 || typeof document === "undefined")
     return;
   const tag = document.createElement("style");
-  tag.id = STYLE_TAG_ID28;
-  tag.textContent = PANEL_CSS26;
+  tag.id = STYLE_TAG_ID29;
+  tag.textContent = PANEL_CSS27;
   document.head.appendChild(tag);
-  _stylesInjected29 = true;
+  _stylesInjected30 = true;
 }
 var VolumeOverlayPanel = class _VolumeOverlayPanel extends FloatingPanelBase {
   static _instances = /* @__PURE__ */ new WeakMap();
@@ -221691,7 +222264,7 @@ var VolumeOverlayPanel = class _VolumeOverlayPanel extends FloatingPanelBase {
     this._position = params.initialPosition ?? this._defaultPosition(this._axis);
     this._isovalue = params.initialIsovalue ?? (this._rangeMin + this._rangeMax) * 0.5;
     this._seedDensity = Math.max(2, Math.round(params.initialSeedDensity ?? 6));
-    injectStylesOnce30();
+    injectStylesOnce31();
     this._buildDom();
     this._wireDomEvents();
     this._refreshLegend();
@@ -222251,24 +222824,24 @@ var VolumeOverlayPanel = class _VolumeOverlayPanel extends FloatingPanelBase {
 };
 
 // ../sdk/src/studio/panels/distanceMeasurementsPanel/DistanceMeasurementsPanel.ts
-var STYLE_TAG_ID29 = "xkt-dm-panel-styles";
-var _stylesInjected30 = false;
-function injectStylesOnce31() {
-  if (_stylesInjected30)
+var STYLE_TAG_ID30 = "xkt-dm-panel-styles";
+var _stylesInjected31 = false;
+function injectStylesOnce32() {
+  if (_stylesInjected31)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID29)) {
-    _stylesInjected30 = true;
+  if (document.getElementById(STYLE_TAG_ID30)) {
+    _stylesInjected31 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID29;
-  style.textContent = PANEL_CSS27;
+  style.id = STYLE_TAG_ID30;
+  style.textContent = PANEL_CSS28;
   document.head.appendChild(style);
-  _stylesInjected30 = true;
+  _stylesInjected31 = true;
 }
-var PANEL_CSS27 = `
+var PANEL_CSS28 = `
 .xkt-dm-panel {
   position: fixed;
   top: 115px;
@@ -222562,7 +223135,7 @@ var DistanceMeasurementsPanel = class _DistanceMeasurementsPanel extends Floatin
     if (prior && !prior._destroyed)
       prior.destroy();
     _DistanceMeasurementsPanel._instances.set(this.view, this);
-    injectStylesOnce31();
+    injectStylesOnce32();
     this._buildDom();
     this._bindChrome();
     if (params.visible === false) {
@@ -222739,24 +223312,24 @@ function formatLength2(v) {
 }
 
 // ../sdk/src/studio/panels/angleMeasurementsPanel/AngleMeasurementsPanel.ts
-var STYLE_TAG_ID30 = "xkt-am-panel-styles";
-var _stylesInjected31 = false;
-function injectStylesOnce32() {
-  if (_stylesInjected31)
+var STYLE_TAG_ID31 = "xkt-am-panel-styles";
+var _stylesInjected32 = false;
+function injectStylesOnce33() {
+  if (_stylesInjected32)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID30)) {
-    _stylesInjected31 = true;
+  if (document.getElementById(STYLE_TAG_ID31)) {
+    _stylesInjected32 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID30;
-  style.textContent = PANEL_CSS28;
+  style.id = STYLE_TAG_ID31;
+  style.textContent = PANEL_CSS29;
   document.head.appendChild(style);
-  _stylesInjected31 = true;
+  _stylesInjected32 = true;
 }
-var PANEL_CSS28 = `
+var PANEL_CSS29 = `
 .xkt-am-panel {
   position: fixed;
   top: 115px;
@@ -223051,7 +223624,7 @@ var AngleMeasurementsPanel = class _AngleMeasurementsPanel extends FloatingPanel
     if (prior && !prior._destroyed)
       prior.destroy();
     _AngleMeasurementsPanel._instances.set(this.view, this);
-    injectStylesOnce32();
+    injectStylesOnce33();
     this._buildDom();
     this._bindChrome();
     if (params.visible === false) {
@@ -223617,24 +224190,24 @@ __export(sectionPlanesTool_exports, {
 });
 
 // ../sdk/src/studio/panels/sectionPlanesPanel/SectionPlanesPanel.ts
-var STYLE_TAG_ID31 = "xkt-sp-styles";
-var _stylesInjected32 = false;
-function injectStylesOnce33() {
-  if (_stylesInjected32)
+var STYLE_TAG_ID32 = "xkt-sp-styles";
+var _stylesInjected33 = false;
+function injectStylesOnce34() {
+  if (_stylesInjected33)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID31)) {
-    _stylesInjected32 = true;
+  if (document.getElementById(STYLE_TAG_ID32)) {
+    _stylesInjected33 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID31;
-  style.textContent = PANEL_CSS29;
+  style.id = STYLE_TAG_ID32;
+  style.textContent = PANEL_CSS30;
   document.head.appendChild(style);
-  _stylesInjected32 = true;
+  _stylesInjected33 = true;
 }
-var PANEL_CSS29 = `
+var PANEL_CSS30 = `
 .xkt-sp-panel {
   position: fixed;
   top: 88px;
@@ -223868,7 +224441,7 @@ var SectionPlanesPanel = class _SectionPlanesPanel extends FloatingPanelBase {
     if (prior && !prior._destroyed)
       prior.destroy();
     _SectionPlanesPanel._instances.set(params.view, this);
-    injectStylesOnce33();
+    injectStylesOnce34();
     this._buildDom();
     this._bindChrome();
     this._wireEvents();
@@ -224117,6 +224690,20 @@ var openCulling = {
       return;
     }
     ctx.studio.panels.open("cullingPanel");
+  }
+};
+
+// ../sdk/src/studio/panels/toolbar/actions/openAdaptiveQuality.ts
+var openAdaptiveQuality = {
+  id: "openAdaptiveQuality",
+  do(ctx) {
+    if (ctx.fireAction("openAdaptiveQuality"))
+      return;
+    if (!ctx.studio) {
+      console.warn("[Toolbar] openAdaptiveQuality \u2014 no Studio passed; nothing to drive the Adaptive Quality panel from.");
+      return;
+    }
+    ctx.studio.panels.open("adaptiveQualityPanel");
   }
 };
 
@@ -224447,6 +225034,7 @@ var TOOLBAR_ACTIONS = {
   importSampleModel,
   openCameraTour,
   openCulling,
+  openAdaptiveQuality,
   openDaylightAnalysis,
   openDrawings,
   openExport,
@@ -224466,22 +225054,22 @@ var TOOLBAR_ACTIONS = {
 };
 
 // ../sdk/src/studio/panels/toolbar/Toolbar.ts
-var STYLE_TAG_ID32 = "xkt-tb-styles";
-var _stylesInjected33 = false;
-function injectStylesOnce34() {
-  if (_stylesInjected33)
+var STYLE_TAG_ID33 = "xkt-tb-styles";
+var _stylesInjected34 = false;
+function injectStylesOnce35() {
+  if (_stylesInjected34)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID32)) {
-    _stylesInjected33 = true;
+  if (document.getElementById(STYLE_TAG_ID33)) {
+    _stylesInjected34 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID32;
+  style.id = STYLE_TAG_ID33;
   style.textContent = TOOLBAR_CSS;
   document.head.appendChild(style);
-  _stylesInjected33 = true;
+  _stylesInjected34 = true;
 }
 var TOOLBAR_CSS = `
 .xkt-tb-toolbar {
@@ -224847,7 +225435,7 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
     if (prior && !prior._destroyed)
       prior.destroy();
     _Toolbar._instances.set(params.viewer, this);
-    injectStylesOnce34();
+    injectStylesOnce35();
     this._buildDom();
     this._bindChrome();
     this._wireDomEvents();
@@ -225028,6 +225616,11 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
       action: "openCulling",
       title: "Culling",
       svg: CullingPanel.iconSvg()
+    }));
+    gPerformance.btns.appendChild(this._mkBtn({
+      action: "openAdaptiveQuality",
+      title: "Adaptive Quality",
+      svg: AdaptiveQualityPanel.iconSvg()
     }));
     row1.appendChild(gPerformance.wrap);
     const gTools = this._mkGroup("Tools");
@@ -225945,24 +226538,24 @@ var ICONS = {
 };
 
 // ../sdk/src/studio/panels/exportBCF/ExportBCFPanel.ts
-var STYLE_TAG_ID33 = "xkt-bcf-styles";
-var _stylesInjected34 = false;
-function injectStylesOnce35() {
-  if (_stylesInjected34)
+var STYLE_TAG_ID34 = "xkt-bcf-styles";
+var _stylesInjected35 = false;
+function injectStylesOnce36() {
+  if (_stylesInjected35)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID33)) {
-    _stylesInjected34 = true;
+  if (document.getElementById(STYLE_TAG_ID34)) {
+    _stylesInjected35 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID33;
-  style.textContent = PANEL_CSS30;
+  style.id = STYLE_TAG_ID34;
+  style.textContent = PANEL_CSS31;
   document.head.appendChild(style);
-  _stylesInjected34 = true;
+  _stylesInjected35 = true;
 }
-var PANEL_CSS30 = `
+var PANEL_CSS31 = `
 .xkt-bcf-panel {
   position: fixed;
   top: 115px;
@@ -226359,7 +226952,7 @@ var ExportBCFPanel = class _ExportBCFPanel extends FloatingPanelBase {
     if (prior && !prior._destroyed)
       prior.destroy();
     _ExportBCFPanel._instances.set(params.view, this);
-    injectStylesOnce35();
+    injectStylesOnce36();
     this._buildDom();
     this._bindChrome();
     this._wireDomEvents();
@@ -226705,24 +227298,24 @@ function escapeHtml9(s) {
 }
 
 // ../sdk/src/studio/panels/pdfImport/PdfImportPanel.ts
-var STYLE_TAG_ID34 = "xkt-pdfimp-styles";
-var _stylesInjected35 = false;
-function injectStylesOnce36() {
-  if (_stylesInjected35)
+var STYLE_TAG_ID35 = "xkt-pdfimp-styles";
+var _stylesInjected36 = false;
+function injectStylesOnce37() {
+  if (_stylesInjected36)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID34)) {
-    _stylesInjected35 = true;
+  if (document.getElementById(STYLE_TAG_ID35)) {
+    _stylesInjected36 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID34;
-  style.textContent = PANEL_CSS31;
+  style.id = STYLE_TAG_ID35;
+  style.textContent = PANEL_CSS32;
   document.head.appendChild(style);
-  _stylesInjected35 = true;
+  _stylesInjected36 = true;
 }
-var PANEL_CSS31 = `
+var PANEL_CSS32 = `
 .xkt-pdfimp-panel {
   position: fixed;
   top: 115px;
@@ -226906,7 +227499,7 @@ var PdfImportPanel = class _PdfImportPanel extends FloatingPanelBase {
     if (prior && !prior._destroyed)
       prior.destroy();
     _PdfImportPanel._instances.set(this.studio, this);
-    injectStylesOnce36();
+    injectStylesOnce37();
     this._buildDom();
     this._bindChrome();
     this._wireFileEvents();
@@ -227063,9 +227656,9 @@ var PdfImportPanel = class _PdfImportPanel extends FloatingPanelBase {
 
 // ../sdk/src/studio/panels/schedulePanel/SchedulePanel.ts
 var import_strongly_typed_events30 = __toESM(require_dist8());
-var STYLE_TAG_ID35 = "xkt-sch-styles";
-var _stylesInjected36 = false;
-var PANEL_CSS32 = `
+var STYLE_TAG_ID36 = "xkt-sch-styles";
+var _stylesInjected37 = false;
+var PANEL_CSS33 = `
 .xkt-sch-panel {
   position: fixed;
   bottom: 17px;
@@ -227237,20 +227830,20 @@ var PANEL_CSS32 = `
   cursor: ew-resize;
 }
 `;
-function injectStylesOnce37() {
-  if (_stylesInjected36)
+function injectStylesOnce38() {
+  if (_stylesInjected37)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID35)) {
-    _stylesInjected36 = true;
+  if (document.getElementById(STYLE_TAG_ID36)) {
+    _stylesInjected37 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID35;
-  style.textContent = PANEL_CSS32;
+  style.id = STYLE_TAG_ID36;
+  style.textContent = PANEL_CSS33;
   document.head.appendChild(style);
-  _stylesInjected36 = true;
+  _stylesInjected37 = true;
 }
 var SVG_NS5 = "http://www.w3.org/2000/svg";
 var LEFT_GUTTER_PX = 130;
@@ -227319,7 +227912,7 @@ var SchedulePanel = class _SchedulePanel extends FloatingPanelBase {
     if (prior && !prior._destroyed)
       prior.destroy();
     _SchedulePanel._instances.set(params.player, this);
-    injectStylesOnce37();
+    injectStylesOnce38();
     this._buildDom();
     this._wireDomEvents();
     this._subscribePlayer();
@@ -227860,6 +228453,17 @@ function registerBuiltinPanels(registry) {
       return CullingPanel.openFor({ viewer, renderer });
     }
   });
+  registry.register("adaptiveQualityPanel", {
+    find: (ctx) => ctx.studio.viewer ? AdaptiveQualityPanel.getFor(ctx.studio.viewer) : void 0,
+    create: (ctx) => {
+      const { viewer, renderer } = ctx.studio;
+      if (!viewer || !renderer) {
+        ctx.studio.reportWarning("[PanelRegistry/adaptiveQualityPanel] Needs a Viewer and WebGLRenderer.");
+        return void 0;
+      }
+      return AdaptiveQualityPanel.openFor({ viewer, renderer });
+    }
+  });
   registry.register("pdfImport", {
     find: (ctx) => PdfImportPanel.getFor(ctx.studio),
     create: (ctx) => PdfImportPanel.openFor({ studio: ctx.studio })
@@ -228048,22 +228652,22 @@ function registerBuiltinPanels(registry) {
 }
 
 // ../sdk/src/studio/dialogs/ConfirmDialog.ts
-var STYLE_TAG_ID36 = "xkt-confirm-styles";
-var _stylesInjected37 = false;
-function injectStylesOnce38() {
-  if (_stylesInjected37)
+var STYLE_TAG_ID37 = "xkt-confirm-styles";
+var _stylesInjected38 = false;
+function injectStylesOnce39() {
+  if (_stylesInjected38)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID36)) {
-    _stylesInjected37 = true;
+  if (document.getElementById(STYLE_TAG_ID37)) {
+    _stylesInjected38 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID36;
+  style.id = STYLE_TAG_ID37;
   style.textContent = DIALOG_CSS3;
   document.head.appendChild(style);
-  _stylesInjected37 = true;
+  _stylesInjected38 = true;
 }
 var DIALOG_CSS3 = `
 .xkt-confirm-dialog {
@@ -228160,7 +228764,7 @@ function confirmDialog(params) {
   if (typeof document === "undefined") {
     return Promise.resolve(false);
   }
-  injectStylesOnce38();
+  injectStylesOnce39();
   return new Promise((resolve2) => {
     const container = params.container || document.body;
     const dialog = el("div", "xkt-confirm-dialog", {
@@ -228241,27 +228845,27 @@ var CLOSE_ICON_SVG = `<svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg
      <path d="M3 3l6 6"/>
      <path d="M9 3l-6 6"/>
    </svg>`;
-var STYLE_TAG_ID37 = "xkt-vp-styles";
-var _stylesInjected38 = false;
+var STYLE_TAG_ID38 = "xkt-vp-styles";
+var _stylesInjected39 = false;
 function ensureViewPanelStylesInjected() {
-  injectStylesOnce39();
+  injectStylesOnce40();
 }
-function injectStylesOnce39() {
-  if (_stylesInjected38)
+function injectStylesOnce40() {
+  if (_stylesInjected39)
     return;
   if (typeof document === "undefined")
     return;
-  if (document.getElementById(STYLE_TAG_ID37)) {
-    _stylesInjected38 = true;
+  if (document.getElementById(STYLE_TAG_ID38)) {
+    _stylesInjected39 = true;
     return;
   }
   const style = document.createElement("style");
-  style.id = STYLE_TAG_ID37;
-  style.textContent = PANEL_CSS33;
+  style.id = STYLE_TAG_ID38;
+  style.textContent = PANEL_CSS34;
   document.head.appendChild(style);
-  _stylesInjected38 = true;
+  _stylesInjected39 = true;
 }
-var PANEL_CSS33 = `
+var PANEL_CSS34 = `
 .xkt-vp-panel {
   position: fixed;
   top: 80px;
@@ -228524,7 +229128,7 @@ var ViewPanel = class extends FloatingPanelBase {
     });
     this._onCloseCallback = params.onClose;
     this._onDestroyCallback = params.onDestroy;
-    injectStylesOnce39();
+    injectStylesOnce40();
     this._buildDom(params);
     this._bindChrome();
     if (params.x !== void 0 || params.y !== void 0) {

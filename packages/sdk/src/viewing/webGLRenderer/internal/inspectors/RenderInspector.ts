@@ -24,6 +24,23 @@ type ActiveState = {
   lastFrameEndMs: number | null;
 };
 
+// One TIME_ELAPSED query in flight per render bin. Held until the GPU reports
+// it as available (typically 1–2 frames later), at which point we write the
+// result back to the bin's stats. The frame ref lets us accumulate into the
+// frame total without re-walking the bins list.
+type PendingQuery = {
+  query: WebGLQuery;
+  bin: RenderBinStats;
+  frame: ViewRenderStats;
+};
+
+// EXT_disjoint_timer_query_webgl2 — the only WebGL2 path to per-bin GPU time.
+// gl.beginQuery(TIME_ELAPSED_EXT, q) / gl.endQuery(TIME_ELAPSED_EXT) bracket
+// the GPU work; GPU_DISJOINT_EXT means the GPU got reset and pending results
+// must be dropped.
+const TIME_ELAPSED_EXT = 0x88BF;
+const GPU_DISJOINT_EXT = 0x8FBB;
+
 /**
  * Logs draw calls and their timings for performance analysis.
  *
@@ -58,6 +75,20 @@ export class RenderInspector {
   private _includedRenderBins: Set<string>;
   private _excludedRenderBins: Set<string>;
 
+  // GPU timer state. Attached lazily via attachGL() because RenderInspector is
+  // constructed before WebGL is created.
+  private _gl: WebGL2RenderingContext | null = null;
+  private _timerSupported = false;
+  private _freeQueries: WebGLQuery[] = [];
+  private _pendingQueries: PendingQuery[] = [];
+  private _activeQuery: PendingQuery | null = null;
+
+  // Capture-frames support: when non-null, push every completed frame here and
+  // resolve once we have enough frames and all their queries have landed.
+  private _captureBuf: ViewRenderStats[] | null = null;
+  private _captureTarget = 0;
+  private _captureResolve: ((frames: ViewRenderStats[]) => void) | null = null;
+
   /**
    * Creates a RenderInspector.
    * @param opts
@@ -74,6 +105,18 @@ export class RenderInspector {
       tiles: {},
       views: []
     };
+  }
+
+  /**
+   * Attaches a WebGL2 context to enable per-bin GPU timing.
+   *
+   * Must be called once GL is available (RenderContext does this in init()).
+   * No-ops when `EXT_disjoint_timer_query_webgl2` is unavailable; per-bin
+   * `gpuTimeMs` simply stays undefined.
+   */
+  public attachGL(gl: WebGL2RenderingContext): void {
+    this._gl = gl;
+    this._timerSupported = !!gl.getExtension("EXT_disjoint_timer_query_webgl2");
   }
 
   /**
@@ -205,6 +248,7 @@ export class RenderInspector {
 
     s.currentPass = pass;
     s.currentFrame.renderBins.push(pass);
+    this._beginGpuTimer(pass, s.currentFrame);
   }
 
   /**
@@ -303,6 +347,7 @@ export class RenderInspector {
 
     // Replace per-view frame log reference
     this.renderStats.views[viewIndex] = s.currentFrame;
+    const finishedFrame = s.currentFrame;
 
     // Update fps (end-to-end delta between frame ends)
     if (s.lastFrameEndMs != null) {
@@ -316,6 +361,10 @@ export class RenderInspector {
     s.currentFrame = null;
     s.currentPass = null;
     s.currentDraw = null;
+
+    this._pollGpuTimers();
+    this._captureMaybePush(finishedFrame);
+    this._captureMaybeResolve();
   }
 
   // ----------------- internals -----------------
@@ -359,6 +408,8 @@ export class RenderInspector {
     s.currentPass.timeMs.end = t;
     s.currentPass.timeMs.duration = t - s.currentPass.timeMs.start;
 
+    this._endGpuTimer(s.currentPass);
+
     // Drop empty passes
     const frame = s.currentFrame;
     if (frame && s.currentPass.drawCalls.length === 0) {
@@ -367,5 +418,103 @@ export class RenderInspector {
     }
 
     s.currentPass = null;
+  }
+
+  // ─────────── GPU timer ───────────
+
+  private _beginGpuTimer(bin: RenderBinStats, frame: ViewRenderStats): void {
+    const gl = this._gl;
+    if (!this._timerSupported || !gl || this._activeQuery) return;
+    const query = this._freeQueries.pop() ?? gl.createQuery();
+    if (!query) return;
+    gl.beginQuery(TIME_ELAPSED_EXT, query);
+    this._activeQuery = {query, bin, frame};
+  }
+
+  private _endGpuTimer(bin: RenderBinStats): void {
+    const gl = this._gl;
+    const active = this._activeQuery;
+    if (!gl || !active || active.bin !== bin) return;
+    gl.endQuery(TIME_ELAPSED_EXT);
+    this._pendingQueries.push(active);
+    this._activeQuery = null;
+  }
+
+  // Walks pending queries, writing gpuTimeMs onto each bin/frame whose result
+  // is available. Drops everything if the GPU went disjoint mid-flight.
+  // Called from frameEnded once per frame.
+  private _pollGpuTimers(): void {
+    const gl = this._gl;
+    if (!gl || this._pendingQueries.length === 0) return;
+
+    if (gl.getParameter(GPU_DISJOINT_EXT)) {
+      // GPU was reset — all in-flight results are bogus. Recycle and skip.
+      for (const p of this._pendingQueries) this._freeQueries.push(p.query);
+      this._pendingQueries.length = 0;
+      return;
+    }
+
+    const stillPending: PendingQuery[] = [];
+    for (const p of this._pendingQueries) {
+      if (gl.getQueryParameter(p.query, gl.QUERY_RESULT_AVAILABLE)) {
+        const ns = gl.getQueryParameter(p.query, gl.QUERY_RESULT) as number;
+        const ms = ns * 1e-6;
+        p.bin.gpuTimeMs = ms;
+        p.frame.gpuTimeMs = (p.frame.gpuTimeMs ?? 0) + ms;
+        this._freeQueries.push(p.query);
+      } else {
+        stillPending.push(p);
+      }
+    }
+    this._pendingQueries = stillPending;
+  }
+
+  /**
+   * Captures the next `n` frames' stats, waiting until every GPU query has
+   * landed before resolving. Use to take a clean profile snapshot.
+   *
+   * Enables the inspector for the duration of the capture; restores prior
+   * `enabled` state on resolve.
+   */
+  public captureFrames(n: number): Promise<ViewRenderStats[]> {
+    if (this._captureBuf) {
+      return Promise.reject(new Error("captureFrames already in progress"));
+    }
+    const wasEnabled = this.enabled;
+    this.enabled = true;
+    this._captureBuf = [];
+    this._captureTarget = n;
+    return new Promise<ViewRenderStats[]>((resolve) => {
+      this._captureResolve = (frames) => {
+        this.enabled = wasEnabled;
+        resolve(frames);
+      };
+    });
+  }
+
+  // Called from frameEnded after the frame stats are finalised.
+  private _captureMaybePush(frame: ViewRenderStats | null): void {
+    if (!this._captureBuf || !frame) return;
+    if (this._captureBuf.length < this._captureTarget) {
+      this._captureBuf.push(frame);
+    }
+    this._captureMaybeResolve();
+  }
+
+  private _captureMaybeResolve(): void {
+    const buf = this._captureBuf;
+    if (!buf || buf.length < this._captureTarget) return;
+    // Wait for every captured frame's queries to resolve before handing the
+    // buffer back, so consumers see complete gpuTimeMs values.
+    const anyPendingForCapture = this._pendingQueries.some(
+      (p) => buf.indexOf(p.frame) !== -1
+    );
+    if (anyPendingForCapture) return;
+    const resolve = this._captureResolve;
+    const frames = buf;
+    this._captureBuf = null;
+    this._captureResolve = null;
+    this._captureTarget = 0;
+    resolve?.(frames);
   }
 }

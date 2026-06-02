@@ -1,5 +1,6 @@
 import {DetailedRender} from "../../base/constants";
 import type {View} from "./View";
+import {SDKErrorType, type SDKResult} from "../../base/core";
 
 /**
  * Configures whether the View renders surfaces with the
@@ -77,6 +78,24 @@ export class BodyHatch {
       if (mode === this._renderModes[i]) return true;
     }
     return false;
+  }
+
+  /** Gets this BodyHatch as JSON. */
+  toParams(): SDKResult<{ renderModes: number[] }> {
+    return {ok: true, value: {renderModes: this._renderModes.slice()}};
+  }
+
+  /** Configures this BodyHatch. */
+  fromParams(params: { renderModes?: number[] }): SDKResult<void> {
+    if (this._destroyed) {
+      return this.view.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[BodyHatch.fromParams] BodyHatch has been destroyed.",
+      });
+    }
+    if (params.renderModes !== undefined) this.renderModes = params.renderModes;
+    return {ok: true, value: undefined};
   }
 
   /** @private */

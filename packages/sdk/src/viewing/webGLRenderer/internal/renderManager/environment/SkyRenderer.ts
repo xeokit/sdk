@@ -273,6 +273,7 @@ export class SkyRenderer {
     // (e.g. unit tests or downstream consumers using the renderer
     // outside the Viewer pipeline).
     const cfg = (view as any).effects?.sky as {
+      applied: boolean;
       enabled: boolean;
       skyColor: [number, number, number];
       horizonColor: [number, number, number];
@@ -287,7 +288,10 @@ export class SkyRenderer {
       worldUp: [number, number, number];
     } | undefined;
 
-    if (cfg && cfg.enabled === false) return;
+    // Gate on `applied` so the renderModes list takes effect alongside
+    // the existing `enabled` flag. `applied` returns false when either
+    // is false, so this is a strict superset of the prior check.
+    if (cfg && cfg.applied === false) return;
 
     const skyColor         = cfg ? cfg.skyColor         : this.skyColor;
     const horizonColor     = cfg ? cfg.horizonColor     : this.horizonColor;

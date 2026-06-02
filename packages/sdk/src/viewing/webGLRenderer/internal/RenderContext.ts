@@ -290,6 +290,7 @@ export class RenderContext implements WebGLContextProvider {
     this.gl = gl;
     this.webglCanvasElement = webglCanvasElement;
     this.renderInspector = new RenderInspector();
+    this.renderInspector.attachGL(gl);
     this.debugging = false;
     this._allocatePlaceholderTextures();
     this.initialized = true;

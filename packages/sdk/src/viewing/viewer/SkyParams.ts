@@ -12,6 +12,17 @@
 export interface SkyParams {
 
   /**
+   * {@link View.renderMode | Render modes} the sky background fires in.
+   * The renderer ANDs this with {@link SkyParams.enabled}.
+   *
+   * Default: `[NavigationRender, DetailedRender, RealisticRender]` —
+   * sky renders in every mode when `enabled` is true. Restrict the list
+   * to suppress the sky in specific modes (for example, drop
+   * `NavigationRender` to skip the sky pass during camera motion).
+   */
+  renderModes?: number[];
+
+  /**
    * Whether to draw the procedural sky background at all. When
    * `false`, the renderer falls through to whatever was already in
    * the clear buffer. Default `true`.

@@ -717,8 +717,19 @@ export class RenderManager {
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     }
 
-    this.skyRenderer?.render(rendererView);
-    this.infiniteGrid?.render(rendererView);
+    // Each prep-phase draw goes through inspector.drawMeshBatch, which
+    // bootstraps "UnnamedPass" if no preceding renderBinStarted ran.
+    // Front-load the names so SAO/shadow prep and sky/grid cost is
+    // attributed to its own bin in the inspector's per-frame report.
+    const ri = this._inspector();
+    if (this.skyRenderer) {
+      ri?.renderBinStarted("sky");
+      this.skyRenderer.render(rendererView);
+    }
+    if (this.infiniteGrid) {
+      ri?.renderBinStarted("grid");
+      this.infiniteGrid.render(rendererView);
+    }
 
     // IBL prefilter — refreshes the per-view sky cubemap + irradiance +
     // prefiltered specular mip chain when params change. Runs before the
@@ -730,6 +741,7 @@ export class RenderManager {
     const needSAO = bins.normalDrawSAO.length > 0 || bins.normalDrawSAOShadow.length > 0;
     const needShadow = bins.normalDrawShadow.length > 0 || bins.normalDrawSAOShadow.length > 0;
     if (needSAO) {
+      ri?.renderBinStarted("saoPrep");
       this._saoPipeline.render({
         rendererView,
         drawOps: this.drawOps.prims,
@@ -738,6 +750,7 @@ export class RenderManager {
       });
     }
     if (needShadow) {
+      ri?.renderBinStarted("shadowPrep");
       this._shadowPipeline.render({
         rendererView,
         drawOps: this.drawOps.prims,
@@ -759,10 +772,12 @@ export class RenderManager {
     }
 
     // Opaque colour passes — every batch routes to one of these four bins.
+    // Each variant gets its own inspector bin so adaptive-quality decisions
+    // can see SAO vs shadow vs combined cost separately.
     this._drawBin(bins.normalDrawOpaque, "opaque", RENDER_BINS.OPAQUE);
-    this._drawBin(bins.normalDrawSAO, "opaqueSAO");
-    this._drawBin(bins.normalDrawShadow, "opaqueShadow");
-    this._drawBin(bins.normalDrawSAOShadow, "opaqueSAOShadow");
+    this._drawBin(bins.normalDrawSAO, "opaqueSAO", "opaqueSAO");
+    this._drawBin(bins.normalDrawShadow, "opaqueShadow", "opaqueShadow");
+    this._drawBin(bins.normalDrawSAOShadow, "opaqueSAOShadow", "opaqueSAOShadow");
 
     // Section-plane caps. Runs after opaque colour (so the cap
     // draws on top of the cleanly-clipped model) and before edges

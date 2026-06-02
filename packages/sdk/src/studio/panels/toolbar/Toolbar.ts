@@ -42,6 +42,7 @@ import {ShadersPanel} from "../shadersPanel/ShadersPanel";
 import {DataTexturesPanel} from "../dataTexturesPanel/DataTexturesPanel";
 import {RendererPanel} from "../rendererPanel/RendererPanel";
 import {CullingPanel} from "../cullingPanel/CullingPanel";
+import {AdaptiveQualityPanel} from "../adaptiveQualityPanel/AdaptiveQualityPanel";
 import {CameraTourPanel} from "../cameraTour/CameraTourPanel";
 import {DrawingsPanel} from "../drawings/DrawingsPanel";
 import {SchemaMaterialsPanel} from "../schemaMaterialsPanel/SchemaMaterialsPanel";
@@ -95,6 +96,7 @@ export type ToolbarAction =
   | "openExport"
   | "openCameraTour"
   | "openCulling"
+  | "openAdaptiveQuality"
   | "openDrawings"
   | "openSchemaMaterials"
   | "openSunStudy"
@@ -821,6 +823,11 @@ export class Toolbar extends FloatingPanelBase {
       action: "openCulling",
       title:  "Culling",
       svg:    CullingPanel.iconSvg(),
+    }));
+    gPerformance.btns.appendChild(this._mkBtn({
+      action: "openAdaptiveQuality",
+      title:  "Adaptive Quality",
+      svg:    AdaptiveQualityPanel.iconSvg(),
     }));
     row1.appendChild(gPerformance.wrap);
 

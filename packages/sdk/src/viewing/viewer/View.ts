@@ -31,6 +31,8 @@ import type {TonemapParams} from "./TonemapParams";
 import type {AntiAliasingParams} from "./AntiAliasingParams";
 import type {BloomParams} from "./BloomParams";
 import type {EdgesParams} from "./EdgesParams";
+import type {IBLParams} from "./IBLParams";
+import type {SkyParams} from "./SkyParams";
 import type {EffectParams} from "./EffectParams";
 import type {PointsMaterialParams} from "./PointsMaterialParams";
 import type {ResolutionScaleParams} from "./ResolutionScaleParams";
@@ -1949,6 +1951,42 @@ class View {
           return result;
         }
       }
+      if (e.sky) {
+        const result = this.effects.sky.fromParams(e.sky);
+        if (result.ok === false) {
+          return result;
+        }
+      }
+      if (e.sectionPlaneCaps) {
+        const result = this.effects.sectionPlaneCaps.fromParams(e.sectionPlaneCaps);
+        if (result.ok === false) {
+          return result;
+        }
+      }
+      if (e.bodyHatch) {
+        const result = this.effects.bodyHatch.fromParams(e.bodyHatch);
+        if (result.ok === false) {
+          return result;
+        }
+      }
+      if (e.ibl) {
+        const result = this.effects.ibl.fromParams(e.ibl);
+        if (result.ok === false) {
+          return result;
+        }
+      }
+    }
+    // Back-compat: also accept IBL under `lights.ibl` for construction-time
+    // configuration and any callers that wrote to that shape before IBL was
+    // surfaced under `effects`.
+    if (viewParams.lights) {
+      const l = viewParams.lights;
+      if (l.ibl) {
+        const result = this.lights.ibl.fromParams(l.ibl);
+        if (result.ok === false) {
+          return result;
+        }
+      }
     }
     if (viewParams.highlightMaterial) {
       const result = this.highlightMaterial.fromParams(viewParams.highlightMaterial);
@@ -1995,12 +2033,19 @@ class View {
         // sectionPlanes: Object.values(this.sectionPlanes).map(sectionPlane => (<{ value: SectionPlaneParams }>sectionPlane.toParams()).value),
         // lights: Object.values(this.lightSources).map(light => light.toParams()),
         effects: {
-          sao:          (<{ value: SAOParams          }>this.effects.sao.toParams()).value,
-          shadows:      (<{ value: ShadowsParams      }>this.effects.shadows.toParams()).value,
-          tonemap:      (<{ value: TonemapParams      }>this.effects.tonemap.toParams()).value,
-          antiAliasing: (<{ value: AntiAliasingParams }>this.effects.antiAliasing.toParams()).value,
-          bloom:        (<{ value: BloomParams        }>this.effects.bloom.toParams()).value,
-          edges:        (<{ value: EdgesParams        }>this.effects.edges.toParams()).value,
+          sao:              (<{ value: SAOParams          }>this.effects.sao.toParams()).value,
+          shadows:          (<{ value: ShadowsParams      }>this.effects.shadows.toParams()).value,
+          tonemap:          (<{ value: TonemapParams      }>this.effects.tonemap.toParams()).value,
+          antiAliasing:     (<{ value: AntiAliasingParams }>this.effects.antiAliasing.toParams()).value,
+          bloom:            (<{ value: BloomParams        }>this.effects.bloom.toParams()).value,
+          edges:            (<{ value: EdgesParams        }>this.effects.edges.toParams()).value,
+          sky:              (<{ value: SkyParams          }>this.effects.sky.toParams()).value,
+          sectionPlaneCaps: (<{ value: { renderModes: number[] } }>this.effects.sectionPlaneCaps.toParams()).value,
+          bodyHatch:        (<{ value: { renderModes: number[] } }>this.effects.bodyHatch.toParams()).value,
+          // IBL is anchored on `Lights` but surfaced through `effects`
+          // so reflective UIs (the Studio View Panel) group it with the
+          // renderer-effect components whose look it drives.
+          ibl:              (<{ value: IBLParams          }>this.effects.ibl.toParams()).value,
         },
         highlightMaterial: (<{ value: EffectParams }>this.highlightMaterial.toParams()).value,
         selectedMaterial: (<{ value: EffectParams }>this.selectedMaterial.toParams()).value,

@@ -1,5 +1,6 @@
 import {DetailedRender, RealisticRender} from "../../base/constants";
 import type {View} from "./View";
+import {SDKErrorType, type SDKResult} from "../../base/core";
 
 /**
  * Configures stencil-based section-plane caps for a {@link viewing!viewer.View | View}.
@@ -84,6 +85,24 @@ export class SectionPlaneCaps {
       if (mode === this._renderModes[i]) return true;
     }
     return false;
+  }
+
+  /** Gets this SectionPlaneCaps as JSON. */
+  toParams(): SDKResult<{ renderModes: number[] }> {
+    return {ok: true, value: {renderModes: this._renderModes.slice()}};
+  }
+
+  /** Configures this SectionPlaneCaps. */
+  fromParams(params: { renderModes?: number[] }): SDKResult<void> {
+    if (this._destroyed) {
+      return this.view.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[SectionPlaneCaps.fromParams] SectionPlaneCaps has been destroyed.",
+      });
+    }
+    if (params.renderModes !== undefined) this.renderModes = params.renderModes;
+    return {ok: true, value: undefined};
   }
 
   /** @private */

@@ -9,6 +9,7 @@ import {Shadows} from "./Shadows";
 import {Sky} from "./Sky";
 import {SectionPlaneCaps} from "./SectionPlaneCaps";
 import {BodyHatch} from "./BodyHatch";
+import type {IBL} from "./IBL";
 import {DetailedRender, RealisticRender} from "../../base/constants";
 
 
@@ -102,6 +103,17 @@ class Effects {
    * Realistic stays PBR.
    */
   public readonly bodyHatch: BodyHatch;
+
+  /**
+   * Image-Based Lighting for this View.
+   *
+   * Alias of {@link Lights.ibl | view.lights.ibl} — same instance,
+   * surfaced here so reflective UIs (the Studio View Panel) can
+   * group it with the renderer effects whose look it controls.
+   */
+  get ibl(): IBL {
+    return this.view.lights.ibl;
+  }
 
   /**
    * @private

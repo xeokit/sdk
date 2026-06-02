@@ -35,4 +35,11 @@ export interface ViewRenderStats {
    * Total number of primitives rendered during this frame.
    */
   numPrims: number;
+
+  /**
+   * Sum of per-bin GPU time (ms) for this frame. Filled in after every bin's query has
+   * resolved; undefined when the timer-query extension is unavailable or any bin is
+   * still pending.
+   */
+  gpuTimeMs?: number;
 }

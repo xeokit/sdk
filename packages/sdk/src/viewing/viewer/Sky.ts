@@ -1,6 +1,8 @@
 import type {SkyParams} from "./SkyParams";
 import type {View} from "./View";
 import type {FloatArrayParam} from "../../base/math";
+import {SDKErrorType, type SDKResult} from "../../base/core";
+import {DetailedRender, NavigationRender, RealisticRender} from "../../base/constants";
 
 
 const DEFAULT_SUN_DIRECTION: [number, number, number] = [0.577, 0.577, 0.577];
@@ -28,6 +30,7 @@ export class Sky {
 
   public readonly view: View;
 
+  private _renderModes:       number[];
   private _enabled:           boolean;
   private _skyColor:          [number, number, number];
   private _horizonColor:      [number, number, number];
@@ -45,6 +48,12 @@ export class Sky {
   /** @private */
   constructor(view: View, params: SkyParams) {
     this.view = view;
+    // Default mode list covers all three predefined modes so existing
+    // callers (who never set renderModes) see no behaviour change — sky
+    // remains on whenever enabled=true.
+    this._renderModes      = params.renderModes !== undefined
+      ? params.renderModes.slice()
+      : [NavigationRender, DetailedRender, RealisticRender];
     this._enabled          = params.enabled          ?? true;
     this._skyColor         = copy3(params.skyColor,         [0.74, 0.80, 0.88]);
     this._horizonColor     = copy3(params.horizonColor,     [0.66, 0.72, 0.74]);
@@ -66,6 +75,34 @@ export class Sky {
     if (this._enabled === v) return;
     this._enabled = v;
     this.view.needsRender();
+  }
+
+  /**
+   * {@link View.renderMode | Render modes} the sky background fires in.
+   * Default: all three predefined modes.
+   *
+   * The renderer ANDs this with {@link Sky.enabled}, so flipping a mode
+   * out skips the sky pass for that mode without disturbing the global
+   * enable flag — useful for hiding the procedural sky in
+   * NavigationRender while keeping it in Detailed / Realistic.
+   */
+  get renderModes(): number[] { return this._renderModes; }
+  set renderModes(v: number[]) {
+    this._renderModes = v ? v.slice() : [];
+    this.view.needsRender();
+  }
+
+  /**
+   * `true` iff the sky pass will run this frame — `enabled && renderModes`
+   * includes {@link View.renderMode}.
+   */
+  get applied(): boolean {
+    if (!this._enabled) return false;
+    const mode = this.view.renderMode;
+    for (let i = 0, len = this._renderModes.length; i < len; i++) {
+      if (this._renderModes[i] === mode) return true;
+    }
+    return false;
   }
 
   get skyColor(): [number, number, number] { return this._skyColor; }
@@ -128,6 +165,53 @@ export class Sky {
 
   get worldUp(): [number, number, number] { return this._worldUp; }
   set worldUp(v: FloatArrayParam) { writeColor(this._worldUp, v); this.view.needsRender(); }
+
+  /** Gets this Sky as JSON. */
+  toParams(): SDKResult<SkyParams> {
+    return {
+      ok: true,
+      value: {
+        renderModes:      this._renderModes.slice(),
+        enabled:          this._enabled,
+        skyColor:         [this._skyColor[0],         this._skyColor[1],         this._skyColor[2]],
+        horizonColor:     [this._horizonColor[0],     this._horizonColor[1],     this._horizonColor[2]],
+        groundColor:      [this._groundColor[0],      this._groundColor[1],      this._groundColor[2]],
+        horizonBlend:     this._horizonBlend,
+        sunEnabled:       this._sunEnabled,
+        sunDirection:     [this._sunDirection[0],     this._sunDirection[1],     this._sunDirection[2]],
+        sunColor:         [this._sunColor[0],         this._sunColor[1],         this._sunColor[2]],
+        sunAngularSize:   this._sunAngularSize,
+        sunGlowSize:      this._sunGlowSize,
+        sunGlowIntensity: this._sunGlowIntensity,
+        worldUp:          [this._worldUp[0],          this._worldUp[1],          this._worldUp[2]],
+      },
+    };
+  }
+
+  /** Configures this Sky. */
+  fromParams(params: SkyParams): SDKResult<void> {
+    if (this._destroyed) {
+      return this.view.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[Sky.fromParams] Sky has been destroyed.",
+      });
+    }
+    if (params.renderModes      !== undefined) this.renderModes      = params.renderModes;
+    if (params.enabled          !== undefined) this.enabled          = params.enabled;
+    if (params.skyColor         !== undefined) this.skyColor         = params.skyColor;
+    if (params.horizonColor     !== undefined) this.horizonColor     = params.horizonColor;
+    if (params.groundColor      !== undefined) this.groundColor      = params.groundColor;
+    if (params.horizonBlend     !== undefined) this.horizonBlend     = params.horizonBlend;
+    if (params.sunEnabled       !== undefined) this.sunEnabled       = params.sunEnabled;
+    if (params.sunDirection     !== undefined) this.sunDirection     = params.sunDirection;
+    if (params.sunColor         !== undefined) this.sunColor         = params.sunColor;
+    if (params.sunAngularSize   !== undefined) this.sunAngularSize   = params.sunAngularSize;
+    if (params.sunGlowSize      !== undefined) this.sunGlowSize      = params.sunGlowSize;
+    if (params.sunGlowIntensity !== undefined) this.sunGlowIntensity = params.sunGlowIntensity;
+    if (params.worldUp          !== undefined) this.worldUp          = params.worldUp;
+    return {ok: true, value: undefined};
+  }
 
   /** @private */
   destroy(): void {

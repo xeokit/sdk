@@ -50,7 +50,7 @@ class HemisphereAmbient {
    */
   constructor(view: View, params: HemisphereAmbientParams = {}) {
     this.view = view;
-    this.#renderModes = params.renderModes ?? [NavigationRender, DetailedRender];
+    this.#renderModes = params.renderModes ?? [NavigationRender, DetailedRender, RealisticRender];
     this.#intensity = params.intensity !== undefined ? params.intensity : 1.0;
     this.#skyColor = createVec3Float64(params.skyColor || [0.62, 0.72, 0.86]);
     this.#groundColor = createVec3Float64(params.groundColor || [0.42, 0.36, 0.30]);

@@ -6,6 +6,7 @@ export * from "./builtinPanels";
 export * from "./floatingPanelBase";
 export * from "./infoPanel";
 
+export * from "./adaptiveQualityPanel";
 export * from "./angleMeasurementsPanel";
 export * from "./boundariesPanel";
 export * from "./cameraTour";

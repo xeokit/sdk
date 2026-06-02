@@ -27,6 +27,7 @@ import {CameraTourPanel} from "./cameraTour/CameraTourPanel";
 import {DrawingsPanel} from "./drawings/DrawingsPanel";
 import {RendererPanel} from "./rendererPanel/RendererPanel";
 import {CullingPanel} from "./cullingPanel/CullingPanel";
+import {AdaptiveQualityPanel} from "./adaptiveQualityPanel/AdaptiveQualityPanel";
 import {PdfImportPanel} from "./pdfImport/PdfImportPanel";
 import {NavCube} from "./navCube/NavCube";
 import type {NavCubeParams} from "./navCube/NavCubeParams";
@@ -76,6 +77,7 @@ declare module "./PanelRegistry" {
     gpuMemory:                 {panel: GPUMemoryPanel;             params: void};
     rendererPanel:             {panel: RendererPanel;              params: void};
     cullingPanel:              {panel: CullingPanel;               params: void};
+    adaptiveQualityPanel:      {panel: AdaptiveQualityPanel;       params: void};
     pdfImport:                 {panel: PdfImportPanel;             params: void};
     schemaMaterials:           {panel: SchemaMaterialsPanel;       params: {focusSceneModel?: SceneModel}};
     sampleModels:              {panel: SampleModelsPanel;          params: void};
@@ -357,6 +359,18 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
         return undefined;
       }
       return CullingPanel.openFor({viewer, renderer});
+    },
+  });
+
+  registry.register("adaptiveQualityPanel", {
+    find: (ctx) => ctx.studio.viewer ? AdaptiveQualityPanel.getFor(ctx.studio.viewer) : undefined,
+    create: (ctx) => {
+      const {viewer, renderer} = ctx.studio;
+      if (!viewer || !renderer) {
+        ctx.studio.reportWarning("[PanelRegistry/adaptiveQualityPanel] Needs a Viewer and WebGLRenderer.");
+        return undefined;
+      }
+      return AdaptiveQualityPanel.openFor({viewer, renderer});
     },
   });
 

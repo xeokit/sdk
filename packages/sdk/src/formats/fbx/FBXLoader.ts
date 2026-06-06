@@ -9,10 +9,11 @@
  * ```
  *
  * v1 handles **binary** FBX: mesh geometry (positions, triangulated polygons,
- * normals, UVs), each Model's local TRS transform, and basic diffuse material
- * colour. ASCII FBX, animation, skinning, textures, and NURBS are not yet
- * supported. FBX is Y-up or Z-up per its GlobalSettings — set the SceneModel's
- * `coordinateSystem` to orient the result for your scene.
+ * normals, UVs), each Model's local TRS transform, basic diffuse material
+ * colour, and embedded diffuse textures. ASCII FBX, animation, skinning,
+ * external-file textures, and NURBS are not yet supported. FBX is Y-up or Z-up
+ * per its GlobalSettings — set the SceneModel's `coordinateSystem` to orient
+ * the result for your scene.
  */
 import {ModelLoader} from "../ModelLoader";
 import {isBinaryFBX} from "./fbxBinaryReader";

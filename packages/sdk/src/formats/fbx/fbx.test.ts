@@ -10,12 +10,13 @@ describe("FBXLoader (binary)", () => {
     const fbx = buildFixtureFBX();
     expect(isBinaryFBX(fbx)).toBe(true);
 
-    const calls: {geom: any[]; mesh: any[]; object: any[]; material: any[]} = {
-      geom: [], mesh: [], object: [], material: [],
+    const calls: {geom: any[]; mesh: any[]; object: any[]; material: any[]; texture: any[]} = {
+      geom: [], mesh: [], object: [], material: [], texture: [],
     };
     const sceneModel: any = {
       destroyed: false,
       createGeometry: (p: any) => { calls.geom.push(p);     return {ok: true, value: {}}; },
+      createTexture:  (p: any) => { calls.texture.push(p);  return {ok: true, value: {}}; },
       createMaterial: (p: any) => { calls.material.push(p); return {ok: true, value: {}}; },
       createMesh:     (p: any) => { calls.mesh.push(p);     return {ok: true, value: {}}; },
       createObject:   (p: any) => { calls.object.push(p);   return {ok: true, value: {}}; },
@@ -36,6 +37,13 @@ describe("FBXLoader (binary)", () => {
 
     expect(calls.material).toHaveLength(1);
     expect(Array.from(calls.material[0].color)).toEqual([0.5, 0.6, 0.7]);
+
+    // Embedded diffuse texture: created from the Video's Content bytes and
+    // wired to the material's colorTextureId.
+    expect(calls.texture).toHaveLength(1);
+    expect(calls.texture[0].buffers).toBeDefined();
+    expect(calls.texture[0].buffers[0].byteLength).toBe(4);
+    expect(calls.material[0].colorTextureId).toBe(calls.texture[0].id);
 
     expect(calls.mesh).toHaveLength(1);
     expect(calls.mesh[0].geometryId).toBe(calls.geom[0].id);
@@ -59,7 +67,7 @@ describe("FBXLoader (binary)", () => {
 // ── Minimal binary-FBX encoder (test fixture) ─────────────────────
 // Produces version-7400 binary FBX matching the reader's layout.
 
-type Prop = {t: "L" | "I" | "D" | "S" | "d" | "i"; v: any};
+type Prop = {t: "L" | "I" | "D" | "S" | "R" | "d" | "i"; v: any};
 interface ENode {name: string; props: Prop[]; children: ENode[]}
 
 function buildFixtureFBX(): ArrayBuffer {
@@ -107,13 +115,27 @@ function buildFixtureFBX(): ArrayBuffer {
     children: [{name: "Properties70", props: [], children: [p70("DiffuseColor", "Color", [0.5, 0.6, 0.7])]}],
   };
 
-  const objects: ENode = {name: "Objects", props: [], children: [geometry, model, material]};
+  const videoId = 4000, texId = 5000;
+  const video: ENode = {
+    name: "Video",
+    props: [{t: "L", v: videoId}, {t: "S", v: "clip" + SEP + "Video"}, {t: "S", v: "Clip"}],
+    children: [leaf("Content", [{t: "R", v: [0x89, 0x50, 0x4e, 0x47]}])],   // 4 dummy image bytes
+  };
+  const texture: ENode = {
+    name: "Texture",
+    props: [{t: "L", v: texId}, {t: "S", v: "tex" + SEP + "Texture"}, {t: "S", v: ""}],
+    children: [leaf("RelativeFilename", [{t: "S", v: "tex.png"}])],
+  };
+
+  const objects: ENode = {name: "Objects", props: [], children: [geometry, model, material, video, texture]};
   const connections: ENode = {
     name: "Connections", props: [],
     children: [
       conn(geomId, modelId),
       conn(matId, modelId),
       conn(modelId, 0),
+      connOP(texId, matId, "DiffuseColor"),   // texture → material's diffuse slot
+      conn(videoId, texId),                    // embedded media → texture
     ],
   };
 
@@ -128,6 +150,9 @@ function buildFixtureFBX(): ArrayBuffer {
 function leaf(name: string, props: Prop[]): ENode { return {name, props, children: []}; }
 function conn(childId: number, parentId: number): ENode {
   return {name: "C", props: [{t: "S", v: "OO"}, {t: "L", v: childId}, {t: "L", v: parentId}], children: []};
+}
+function connOP(childId: number, parentId: number, prop: string): ENode {
+  return {name: "C", props: [{t: "S", v: "OP"}, {t: "L", v: childId}, {t: "L", v: parentId}, {t: "S", v: prop}], children: []};
 }
 function p70(name: string, type: string, vals: number[]): ENode {
   return {
@@ -183,6 +208,13 @@ function encodeProp(p: Prop): Uint8Array {
       const b = new Uint8Array(5 + s.length); const d = new DataView(b.buffer);
       d.setUint8(0, 0x53); d.setUint32(1, s.length, true);
       for (let i = 0; i < s.length; i++) b[5 + i] = s.charCodeAt(i);
+      return b;
+    }
+    case "R": {
+      const a: number[] = p.v;
+      const b = new Uint8Array(5 + a.length); const d = new DataView(b.buffer);
+      d.setUint8(0, 0x52); d.setUint32(1, a.length, true);
+      for (let i = 0; i < a.length; i++) b[5 + i] = a[i];
       return b;
     }
     case "d": {

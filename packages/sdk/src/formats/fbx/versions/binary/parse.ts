@@ -3,13 +3,16 @@
  *
  * v1 scope: mesh geometry (control points + polygon triangulation, per-vertex
  * normals and UVs), each `Model`'s local transform (`Lcl Translation /
- * Rotation / Scaling`), and a basic diffuse `Material` colour. The
- * Geometry↔Model↔Material wiring comes from the FBX `Connections` graph.
+ * Rotation / Scaling`), a basic diffuse `Material` colour, and embedded diffuse
+ * textures (image bytes carried in a connected `Video`'s `Content`). The
+ * Geometry↔Model↔Material↔Texture wiring comes from the FBX `Connections` graph.
  *
  * Not handled (yet): ASCII FBX, animation, skinning / deformers, NURBS,
- * textures / embedded media, and the full pivot / pre-post-rotation transform
- * chain (only TRS is applied). Geometry is emitted expanded (non-indexed) per
- * triangle corner — simple and correct; vertex sharing is a later optimisation.
+ * external-file textures (`RelativeFilename` with no embedded data — needs a
+ * base URL the parser isn't given), non-colour texture slots, and the full
+ * pivot / pre-post-rotation transform chain (only TRS is applied). Geometry is
+ * emitted expanded (non-indexed) per triangle corner — simple and correct;
+ * vertex sharing is a later optimisation.
  *
  * @internal
  */
@@ -38,37 +41,44 @@ export async function parse(params: ModelParseParams, _options?: any): Promise<v
   const geometries = new Map<number, FBXNode>();
   const models = new Map<number, FBXNode>();
   const materials = new Map<number, FBXNode>();
+  const textures = new Map<number, FBXNode>();
+  const videos = new Map<number, FBXNode>();        // embedded media (Content bytes)
   for (const child of objectsNode.children) {
     const id = child.props[0] as number;
     if (child.name === "Geometry") geometries.set(id, child);
     else if (child.name === "Model") models.set(id, child);
     else if (child.name === "Material") materials.set(id, child);
+    else if (child.name === "Texture") textures.set(id, child);
+    else if (child.name === "Video") videos.set(id, child);
   }
 
-  // Connection graph: parentId -> [childId, ...]. Each `C` is
-  // [relType, childId, parentId, (propName)].
-  const childIdsOf = new Map<number, number[]>();
+  // Connection graph: parentId -> [{id, prop}, ...]. Each `C` is
+  // [relType, childId, parentId, (propName)]; `OP` connections (e.g. a Texture
+  // into a Material's "DiffuseColor") carry the property name as a 4th field.
+  const childrenOf = new Map<number, Array<{id: number; prop: string | null}>>();
   if (connectionsNode) {
     for (const c of connectionsNode.children) {
       if (c.name !== "C") continue;
       const childId = c.props[1] as number;
       const parentId = c.props[2] as number;
-      let arr = childIdsOf.get(parentId);
-      if (!arr) childIdsOf.set(parentId, arr = []);
-      arr.push(childId);
+      const prop = (c.props[0] === "OP" && c.props.length > 3) ? String(c.props[3]) : null;
+      let arr = childrenOf.get(parentId);
+      if (!arr) childrenOf.set(parentId, arr = []);
+      arr.push({id: childId, prop});
     }
   }
 
   const emittedGeom = new Map<number, string>();    // fbx geom id -> SceneModel geometry id
   const emittedMat = new Map<number, string>();     // fbx material id -> SceneModel material id
+  const emittedTex = new Map<number, string>();     // fbx texture id -> SceneModel texture id
   const usedObjectIds = new Set<string>();
   let emitted = 0, geomFails = 0, meshFails = 0;
 
   for (const [modelId, modelNode] of models) {
-    const children = childIdsOf.get(modelId) || [];
+    const children = childrenOf.get(modelId) || [];
     let geomId: number | null = null;
     let matId: number | null = null;
-    for (const cid of children) {
+    for (const {id: cid} of children) {
       if (geometries.has(cid)) geomId = cid;
       else if (materials.has(cid)) matId = cid;
     }
@@ -103,7 +113,12 @@ export async function parse(params: ModelParseParams, _options?: any): Promise<v
       materialId = emittedMat.get(matId);
       if (materialId === undefined) {
         const id = `fbx-mat-${matId}`;
-        const mr = sceneModel.createMaterial({id, color: extractDiffuse(materials.get(matId)!)});
+        const colorTextureId = await emitDiffuseTexture(matId, sceneModel, childrenOf, textures, videos, emittedTex);
+        const mr = sceneModel.createMaterial({
+          id,
+          color: extractDiffuse(materials.get(matId)!),
+          colorTextureId,
+        });
         if ((mr as any).ok === false) {
           materialId = undefined;
         } else {
@@ -138,10 +153,10 @@ export async function parse(params: ModelParseParams, _options?: any): Promise<v
 // ── Geometry extraction ───────────────────────────────────────────
 
 interface ExtractedGeometry {
-  positions: Float32Array;
-  normals?: Float32Array;
-  uvs?: Float32Array;
-  indices: Uint32Array;
+  positions: Float32Array<any>;
+  normals?: Float32Array<any>;
+  uvs?: Float32Array<any>;
+  indices: Uint32Array<any>;
 }
 
 function extractGeometry(geomNode: FBXNode): ExtractedGeometry | null {
@@ -238,7 +253,7 @@ function lookupVec(layer: Layer, pvi: number, cp: number, size: number): number[
 
 // ── Transform & material ──────────────────────────────────────────
 
-function extractModelMatrix(modelNode: FBXNode): Float64Array {
+function extractModelMatrix(modelNode: FBXNode): Float64Array<any> {
   const t = prop70(modelNode, "Lcl Translation") || [0, 0, 0];
   const r = prop70(modelNode, "Lcl Rotation") || [0, 0, 0];
   const s = prop70(modelNode, "Lcl Scaling") || [1, 1, 1];
@@ -258,7 +273,7 @@ function composeTRS(
   tx: number, ty: number, tz: number,
   rx: number, ry: number, rz: number,
   sx: number, sy: number, sz: number,
-): Float64Array {
+): Float64Array<any> {
   const cx = Math.cos(rx), sxr = Math.sin(rx);
   const cy = Math.cos(ry), syr = Math.sin(ry);
   const cz = Math.cos(rz), szr = Math.sin(rz);
@@ -286,6 +301,73 @@ function extractDiffuse(matNode: FBXNode): [number, number, number] {
   const c = prop70(matNode, "DiffuseColor") || prop70(matNode, "Diffuse");
   if (c && c.length >= 3) return [c[0], c[1], c[2]];
   return [0.7, 0.7, 0.7];
+}
+
+/** Colour-slot property names an FBX Texture may be connected to a Material on. */
+function isColorProp(prop: string | null): boolean {
+  return prop !== null && /diffusecolor|basecolor|^color$|\|basecolor/i.test(prop);
+}
+
+/**
+ * Resolves a material's diffuse/colour texture from the connection graph and
+ * emits it. v1 handles **embedded** textures only — the image bytes carried in a
+ * connected Video's `Content`. External-file references (`RelativeFilename` with
+ * no embedded data) are skipped, since resolving them needs a base URL the
+ * parser isn't given. Returns the SceneModel texture id, or undefined.
+ */
+async function emitDiffuseTexture(
+  matId: number,
+  sceneModel: any,
+  childrenOf: Map<number, Array<{id: number; prop: string | null}>>,
+  textures: Map<number, FBXNode>,
+  videos: Map<number, FBXNode>,
+  emittedTex: Map<number, string>,
+): Promise<string | undefined> {
+  const conns = childrenOf.get(matId) || [];
+  // Prefer a texture wired to a colour slot; fall back to any texture child.
+  let texId: number | undefined;
+  for (const c of conns) if (textures.has(c.id) && isColorProp(c.prop)) { texId = c.id; break; }
+  if (texId === undefined) for (const c of conns) if (textures.has(c.id)) { texId = c.id; break; }
+  if (texId === undefined) return undefined;
+
+  const existing = emittedTex.get(texId);
+  if (existing) return existing;
+
+  // Embedded image bytes via a connected Video's Content property.
+  let content: any = null;
+  for (const c of childrenOf.get(texId) || []) {
+    const video = videos.get(c.id);
+    if (!video) continue;
+    const v = findChild(video, "Content")?.props[0];
+    if (v instanceof Uint8Array && v.length > 0) { content = v; break; }
+  }
+  if (!content) {
+    console.warn(`[FBXLoader] texture ${texId} has no embedded data (external file ref); skipping.`);
+    return undefined;
+  }
+
+  const id = `fbx-tex-${texId}`;
+  const buf = content.buffer.slice(content.byteOffset, content.byteOffset + content.byteLength);
+
+  // The renderer uploads `image`/`imageData`, not raw encoded bytes — so decode
+  // the PNG/JPEG to an ImageBitmap (texSubImage2D-native) when we can. Outside a
+  // browser (e.g. tests) fall back to `buffers` so the data still round-trips.
+  let textureParams: any = {id, buffers: [buf]};
+  if (typeof createImageBitmap === "function" && typeof Blob !== "undefined") {
+    try {
+      textureParams = {id, image: await createImageBitmap(new Blob([buf]))};
+    } catch (e) {
+      console.warn(`[FBXLoader] failed to decode embedded texture ${texId}:`, e);
+    }
+  }
+
+  const r = sceneModel.createTexture(textureParams);
+  if ((r as any).ok === false) {
+    console.warn(`[FBXLoader] createTexture failed:`, (r as any).error);
+    return undefined;
+  }
+  emittedTex.set(texId, id);
+  return id;
 }
 
 /** Reads a `Properties70` `P` entry's numeric values (those after the 4 tags). */

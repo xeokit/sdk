@@ -5,9 +5,10 @@
  * {@link model!scene.SceneModel | SceneModel} via {@link FBXLoader}.
  *
  * v1 covers binary FBX: mesh geometry (positions, polygon triangulation,
- * normals, UVs), per-Model local transforms, and basic diffuse materials,
- * wired from the FBX object/connection graph. ASCII FBX, animation, skinning,
- * textures, and NURBS are not yet supported.
+ * normals, UVs), per-Model local transforms, basic diffuse materials, and
+ * embedded diffuse textures, wired from the FBX object/connection graph. ASCII
+ * FBX, animation, skinning, external-file textures, and NURBS are not yet
+ * supported.
  *
  * Drive {@link FBXLoader} directly — fetch the bytes, create a SceneModel, and
  * hand both to the loader:

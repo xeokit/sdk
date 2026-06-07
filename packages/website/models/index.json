@@ -1,4 +1,7 @@
 {
+  "AppartmentPlan": {
+    "formats": ["dwg"]
+  },
   "Archicad-Demoprojekt": {
     "coordSys": {
       "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
@@ -7,6 +10,13 @@
     },
     "formats": ["gltf", "ifc", "xgf"],
     "dataset": ["xgf", "gltf", "ifc"]
+  },
+  "Archipeligo": {
+    "formats": ["xgf"],
+    "dataset": ["xgf"]
+  },
+  "Barracks": {
+    "formats": ["pdf"]
   },
   "BlenderHouse": {
     "coordSys": {
@@ -36,12 +46,16 @@
       "origin": [0, 0, 0],
       "units": "meters"
     },
-    "formats": ["datamodel", "gltf", "ifc", "metamodel", "scenemodel", "xgf"],
-    "dataset": ["datamodel, scenemodel", "datamodel, xgf", "datamodel, gltf", "scenemodel", "xgf", "gltf", "ifc"]
+    "formats": ["datamodel", "fbx", "gltf", "ifc", "metamodel", "scenemodel", "xgf", "xkt"],
+    "dataset": ["datamodel, scenemodel", "datamodel, xgf", "datamodel, gltf", "scenemodel", "xgf", "gltf", "fbx", "ifc"]
+  },
+  "E3D_Plant": {
+    "formats": ["fbx"],
+    "dataset": ["fbx"]
   },
   "FM_ARC": {
     "coordSys": {
-      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
       "origin": [0, 0, 0],
       "units": "meters"
     },
@@ -75,6 +89,24 @@
     "formats": ["datamodel", "gltf", "ifc", "metamodel", "scenemodel", "xgf"],
     "dataset": ["datamodel, scenemodel", "datamodel, xgf", "datamodel, gltf", "scenemodel", "xgf", "gltf", "ifc"]
   },
+  "Ferry": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["gltf"],
+    "dataset": ["gltf"]
+  },
+  "FloorPlan": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["dwg", "dxf", "pdf", "svg", "xgf"],
+    "dataset": ["xgf"]
+  },
   "Geometries": {
     "coordSys": {
       "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
@@ -95,7 +127,7 @@
   },
   "HousePlan": {
     "coordSys": {
-      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
       "origin": [0, 0, 0],
       "units": "meters"
     },
@@ -173,6 +205,15 @@
     "formats": ["laz", "xgf"],
     "dataset": ["xgf", "laz"]
   },
+  "OTCConferenceCenter": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["datamodel", "ifc", "xgf"],
+    "dataset": ["datamodel, xgf", "xgf", "ifc"]
+  },
   "RAC": {
     "coordSys": {
       "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
@@ -188,6 +229,9 @@
       "scaleToMeters": 1
     },
     "formats": ["rvm"]
+  },
+  "STEP_Sample": {
+    "formats": ["stp"]
   },
   "SandDunes": {
     "coordSys": {

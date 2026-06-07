@@ -152,6 +152,7 @@ export * as obj from "./obj";
 export * as mtl from "./mtl";
 export * as rvm from "./rvm";
 export * as fbx from "./fbx";
+export * as usdz from "./usdz";
 export * as step from "./step";
 export * as pdf from "./pdf";
 export * as svg from "./svg";

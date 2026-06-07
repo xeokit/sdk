@@ -461,9 +461,10 @@ export class Studio {
    * - `"xgf"` → {@link XGFLoader} (binary)
    * - `"ifc"` → {@link IFCLoader} (binary)
    * - `"gltf"` → {@link GLTFLoader} (binary, `.glb`)
+   * - `"fbx"` → {@link FBXLoader} (binary, `.fbx`)
    * - `"metamodel"` → {@link MetaModelLoader} (JSON, data-only)
-   * - `"datamodel"` → {@link DataModelParamsLoader} (JSON, data-only)
-   * - `"scenemodel"` → {@link SceneModelParamsLoader} (JSON, scene-only)
+   * - `"datamodel"` → {@link DataModelImporter} (JSON, data-only)
+   * - `"scenemodel"` → {@link SceneModelImporter} (JSON, scene-only)
    *
    * Default source resolution:
    * If `params.src` is not provided, the source path is inferred as:

@@ -96,7 +96,7 @@
  *   walks every chunk in parallel.
  * - **Pluggable per-chunk loaders** — pass an
  *   {@link formats!XGFLoader | XGFLoader} for geometry,
- *   {@link formats!datamodel.DataModelParamsLoader | DataModelParamsLoader}
+ *   {@link formats!datamodel.DataModelImporter | DataModelImporter}
  *   for semantics, or any other loader that implements
  *   {@link formats!ModelLoader | ModelLoader}.
  * - **Geometry + semantics in lockstep** — chunks share an ordering
@@ -123,7 +123,7 @@
  * ```javascript
  * import { ModelChunksLoader } from "@xeokit/sdk/model/streaming";
  * import { XGFLoader }         from "@xeokit/sdk/formats/xgf";
- * import { DataModelParamsLoader } from "@xeokit/sdk/formats/datamodel";
+ * import { DataModelImporter } from "@xeokit/sdk/formats/datamodel";
  * ```
  *
  * <br>
@@ -133,7 +133,7 @@
  * ```javascript
  * const modelChunksLoader = new ModelChunksLoader({
  *   sceneModelLoader: new XGFLoader(),
- *   dataModelLoader:  new DataModelParamsLoader()
+ *   dataModelLoader:  new DataModelImporter()
  * });
  * ```
  *

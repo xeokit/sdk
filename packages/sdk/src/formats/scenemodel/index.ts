@@ -25,13 +25,13 @@
  * ```mermaid
  * classDiagram
  *     direction TB
- *     class SceneModelParamsLoader {
+ *     class SceneModelImporter {
  *       +format : "SceneModelParams"
  *       +load(params, options?) Promise~void~
  *     }
- *     class SceneModelParamsExporter {
+ *     class SceneModelExporter {
  *       +format : "SceneModelParams"
- *       +write(params, options?) Promise~string~
+ *       +write(params, options?) Promise~SceneModelParams~
  *     }
  *     class SceneModelParams {
  *       <<scene>>
@@ -42,10 +42,10 @@
  *     class ModelExporter {
  *       <<formats>>
  *     }
- *     ModelLoader <|-- SceneModelParamsLoader
- *     ModelExporter <|-- SceneModelParamsExporter
- *     SceneModelParamsLoader ..> SceneModelParams : reads
- *     SceneModelParamsExporter ..> SceneModelParams : writes
+ *     ModelLoader <|-- SceneModelImporter
+ *     ModelExporter <|-- SceneModelExporter
+ *     SceneModelImporter ..> SceneModelParams : reads
+ *     SceneModelExporter ..> SceneModelParams : writes
  * ```
  *
  * <br>
@@ -75,51 +75,46 @@
  *
  * ### Exporting a SceneModel to JSON
  *
- * Use {@link SceneModelParamsExporter} to serialize a {@link model!scene.SceneModel | SceneModel} into a
+ * Use {@link SceneModelExporter} to serialize a {@link model!scene.SceneModel | SceneModel} into a
  * {@link model!scene.SceneModelParams | SceneModelParams} object, which can then be stored or transmitted as JSON.
  *
+ * `write` resolves with the `SceneModelParams` object itself — stringify it yourself to persist it.
+ *
  * ```ts
- * import { SceneModelParamsExporter } from "@xeokit/sdk/scenemodel";
+ * import { SceneModelExporter } from "@xeokit/sdk/scenemodel";
  *
- * const exporter = new SceneModelParamsExporter();
+ * const exporter = new SceneModelExporter();
  *
- * const paramsResult = exporter.write({
+ * const sceneModelParams = await exporter.write({
  *   sceneModel
  * });
  *
- * if (!paramsResult.ok) {
- *   console.error(paramsResult.error);
- * } else {
- *   const sceneModelParams = paramsResult.value;
- *   const json = JSON.stringify(sceneModelParams, null, 2);
- *   // persist or transmit `json`
- * }
+ * const json = JSON.stringify(sceneModelParams, null, 2);
+ * // persist or transmit `json`
  * ```
  *
  * ### Importing a SceneModel from JSON
  *
- * Use {@link SceneModelParamsLoader} to reconstruct a {@link model!scene.SceneModel | SceneModel} from a previously
- * serialized {@link model!scene.SceneModelParams | SceneModelParams} object.
+ * Use {@link SceneModelImporter} to reconstruct a {@link model!scene.SceneModel | SceneModel} from a previously
+ * serialized {@link model!scene.SceneModelParams | SceneModelParams} object. Create the target SceneModel first,
+ * pass the params as `fileData`, then `build` it once loaded — `load` resolves with no value.
  *
  * ```ts
- * import { SceneModelParamsLoader } from "@xeokit/sdk/scenemodel";
+ * import { SceneModelImporter } from "@xeokit/sdk/scenemodel";
  * import { Scene } from "@xeokit/sdk/model/scene";
  *
  * const scene = new Scene();
+ * const sceneModel = scene.createModel({ id: "myModel" }).value;
  *
- * const loader = new SceneModelParamsLoader();
+ * const loader = new SceneModelImporter();
  *
- * const result = loader.load({
- *   sceneModelParams,
- *   scene
+ * await loader.load({
+ *   fileData: sceneModelParams,
+ *   sceneModel
  * });
  *
- * if (!result.ok) {
- *   console.error(result.error);
- * } else {
- *   const sceneModel = result.value;
- *   console.log("SceneModel loaded:", sceneModel.id);
- * }
+ * sceneModel.build();
+ * console.log("SceneModel loaded:", sceneModel.id);
  * ```
  *
  * ### Round-tripping SceneModels
@@ -132,6 +127,7 @@
  * ---
  *
  * @module scenemodel
+ * @document ./README.md
  */
-export * from "./SceneModelParamsLoader";
-export * from "./SceneModelParamsExporter";
+export * from "./SceneModelImporter";
+export * from "./SceneModelExporter";

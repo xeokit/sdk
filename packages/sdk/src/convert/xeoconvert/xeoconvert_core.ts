@@ -2,10 +2,9 @@ import '@loaders.gl/polyfills';/**/
 import {ModelConverter} from "../modelConverter";
 import {GLTFLoader, GLTFExporter} from "../../formats/gltf";
 import {DotBIMLoader, DotBIMExporter} from "../../formats/dotbim";
-import {DataModelParamsLoader, DataModelParamsExporter} from "../../formats/datamodel";
-import {SceneModelParamsLoader, SceneModelParamsExporter} from "../../formats/scenemodel";
+import {DataModelImporter, DataModelExporter} from "../../formats/datamodel";
+import {SceneModelImporter, SceneModelExporter} from "../../formats/scenemodel";
 import {CityJSONLoader} from "../../formats/cityjson";
-import {XKTLoader} from "../../formats/xkt";
 import {XGFLoader, XGFExporter} from "../../formats/xgf";
 import {LASLoader} from "../../formats/las";
 import {IFCExporter, IFCLoader} from "../../formats/ifc";
@@ -64,12 +63,11 @@ export const modelConverter = new ModelConverter({
     "dotbim": new DotBIMLoader(),
     "glb": new GLTFLoader(),
     "cityjson": new CityJSONLoader(),
-    "xkt": new XKTLoader(),
     "xgf": new XGFLoader(),
     "las": new LASLoader(),
     "step": new STEPLoader(),
-    "datamodel": new DataModelParamsLoader(),
-    "scenemodel": new SceneModelParamsLoader()
+    "datamodel": new DataModelImporter(),
+    "scenemodel": new SceneModelImporter()
   },
 
   exporters: {
@@ -77,8 +75,8 @@ export const modelConverter = new ModelConverter({
     "xgf": new XGFExporter(),
     "dotbim": new DotBIMExporter(),
     "glb": new GLTFExporter(),
-    "datamodel": new DataModelParamsExporter(),
-    "scenemodel": new SceneModelParamsExporter()
+    "datamodel": new DataModelExporter(),
+    "scenemodel": new SceneModelExporter()
   },
 
   // coordinateSystems: {

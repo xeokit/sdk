@@ -1,5 +1,5 @@
 import type {DataModel} from "../data/DataModel";
-import {DataModelParamsLoader} from "../../formats/datamodel/DataModelParamsLoader";
+import {DataModelImporter} from "../../formats/datamodel/DataModelImporter";
 import type {ModelChunksManifestParams} from "../../base/core";
 import type {ModelLoader} from "../../formats/ModelLoader";
 import type {SceneModel} from "../scene/SceneModel";
@@ -23,7 +23,7 @@ export class ModelChunksLoader {
   }) {
     const {sceneModelLoader, dataModelLoader} = params;
     this.#sceneModelLoader = sceneModelLoader;
-    this.#dataModelLoader = dataModelLoader || new DataModelParamsLoader();
+    this.#dataModelLoader = dataModelLoader || new DataModelImporter();
     this.#cancelled = false;
   }
 

@@ -71,6 +71,7 @@ export const DEFAULT_EXTENSIONS: Record<string, string> = {
   xgf: "xgf",
   ifc: "ifc",
   gltf: "glb",
+  fbx: "fbx",
   mtl: "mtl",
   obj: "obj",
   dotbim: "bim",

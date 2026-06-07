@@ -121,7 +121,7 @@
  * import { ModelConverter, type ModelConverterRequest } from "@xeokit/sdk/convert/modelConverter";
  * import { DotBIMLoader } from "@xeokit/sdk/formats/dotbim";
  * import { XGFExporter } from "@xeokit/sdk/formats/xgf";
- * import { DataModelParamsExporter } from "@xeokit/sdk/model/data";
+ * import { DataModelExporter } from "@xeokit/sdk/model/data";
  * ````
  *
  * ### 2) Set up the converter
@@ -130,7 +130,7 @@
  *
  * - {@link DotBIMLoader} loads `.bim`
  * - {@link XGFExporter} exports `.xgf`
- * - {@link DataModelParamsExporter} exports semantic JSON
+ * - {@link DataModelExporter} exports semantic JSON
  *
  * ````ts
  * const modelConverter = new ModelConverter({
@@ -139,7 +139,7 @@
  *   },
  *   exporters: {
  *     xgf: new XGFExporter(),
- *     datamodel: new DataModelParamsExporter()
+ *     datamodel: new DataModelExporter()
  *   },
  *   pipelines: {
  *     dotbim2xgf: {
@@ -207,7 +207,7 @@
  * import { ModelConverter, type ModelConverterRequest } from "@xeokit/sdk/convert/modelConverter";
  * import { DotBIMExporter } from "@xeokit/sdk/formats/dotbim";
  * import { XGFLoader } from "@xeokit/sdk/formats/xgf";
- * import { DataModelParamsLoader } from "@xeokit/sdk/model/data";
+ * import { DataModelImporter } from "@xeokit/sdk/model/data";
  * ````
  *
  * ### 2) Set up the converter
@@ -218,7 +218,7 @@
  * const modelConverter = new ModelConverter({
  *   loaders: {
  *     xgf: new XGFLoader(),
- *     datamodel: new DataModelParamsLoader()
+ *     datamodel: new DataModelImporter()
  *   },
  *   exporters: {
  *     dotbim: new DotBIMExporter()
@@ -285,11 +285,11 @@
  * const modelConverter = new ModelConverter({
  *   loaders: {
  *     xgf: new XGFLoader(),
- *     datamodel: new DataModelParamsLoader()
+ *     datamodel: new DataModelImporter()
  *   },
  *   exporters: {
  *     xgf: new XGFExporter(),
- *     datamodel: new DataModelParamsExporter()
+ *     datamodel: new DataModelExporter()
  *   },
  *   pipelines: {
  *     roundTripLike: {

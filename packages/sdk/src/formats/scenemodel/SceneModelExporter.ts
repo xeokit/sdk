@@ -4,10 +4,10 @@ import {ModelExporter} from "../ModelExporter";
 /**
  * Writes a {@link model!scene.SceneModel | SceneModel} to {@link model!scene.SceneModelParams | SceneModelParams} as JSON.
  */
-export class SceneModelParamsExporter extends ModelExporter {
+export class SceneModelExporter extends ModelExporter {
 
   /**
-   * Constructs a SceneModelParamsExporter.
+   * Constructs a SceneModelExporter.
    */
   constructor() {
     super({

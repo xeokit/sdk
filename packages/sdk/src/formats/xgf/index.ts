@@ -45,12 +45,6 @@
  *       +format : "XGF"
  *       +write(params, options?) Promise~ArrayBuffer~
  *     }
- *     class XGFData_v1 {
- *       <<wire format>>
- *     }
- *     class XGFData_v2 {
- *       <<wire format>>
- *     }
  *     class ModelLoader {
  *       <<formats>>
  *     }
@@ -59,9 +53,6 @@
  *     }
  *     ModelLoader <|-- XGFLoader
  *     ModelExporter <|-- XGFExporter
- *     XGFLoader ..> XGFData_v1 : reads
- *     XGFLoader ..> XGFData_v2 : reads
- *     XGFExporter ..> XGFData_v2 : writes
  * ```
  *
  * <br>
@@ -171,8 +162,7 @@
  * ```
  *
  * @module xgf
+ * @document ./README.md
  */
 export * from "./XGFLoader";
 export * from "./XGFExporter";
-export * from "./versions/v1/XGFData_v1";
-export * from "./versions/v2/XGFData_v2";

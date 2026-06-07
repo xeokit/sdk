@@ -1,13 +1,15 @@
 import {XGFLoader} from "../../formats/xgf";
 import {IFCLoader} from "../../formats/ifc";
 import {GLTFLoader} from "../../formats/gltf";
+import {FBXLoader} from "../../formats/fbx";
 import {MTLLoader} from "../../formats/mtl";
 import {OBJLoader} from "../../formats/obj";
 import {DotBIMLoader} from "../../formats/dotbim";
 import {CityJSONLoader} from "../../formats/cityjson";
+import {FDSLoader} from "../../formats/fds";
 import {MetaModelLoader} from "../../formats/metamodel";
-import {DataModelParamsLoader} from "../../formats/datamodel";
-import {SceneModelParamsLoader} from "../../formats/scenemodel";
+import {DataModelImporter} from "../../formats/datamodel";
+import {SceneModelImporter} from "../../formats/scenemodel";
 
 import {LoaderRegistry} from "./LoaderRegistry";
 
@@ -45,6 +47,13 @@ export function createDefaultLoaderRegistry(): LoaderRegistry {
     load: (input, options) => new GLTFLoader().load(input, options),
   });
 
+  r.register("fbx", {
+    fetch: "arrayBuffer",
+    needsScene: true,
+    needsData: false,
+    load: (input, options) => new FBXLoader().load(input, options),
+  });
+
   r.register("mtl", {
     fetch: "text",
     needsScene: true,
@@ -77,6 +86,13 @@ export function createDefaultLoaderRegistry(): LoaderRegistry {
     load: (input, options) => new CityJSONLoader().load(input, options),
   });
 
+  r.register("fds", {
+    fetch: "text",
+    needsScene: true,
+    needsData: true,
+    load: (input, options) => new FDSLoader().load(input, options),
+  });
+
   r.register("metamodel", {
     fetch: "json",
     needsScene: false,
@@ -88,14 +104,14 @@ export function createDefaultLoaderRegistry(): LoaderRegistry {
     fetch: "json",
     needsScene: false,
     needsData: true,
-    load: (input, options) => new DataModelParamsLoader().load(input, options),
+    load: (input, options) => new DataModelImporter().load(input, options),
   });
 
   r.register("scenemodel", {
     fetch: "json",
     needsScene: true,
     needsData: false,
-    load: (input, options) => new SceneModelParamsLoader().load(input, options),
+    load: (input, options) => new SceneModelImporter().load(input, options),
   });
 
   return r;

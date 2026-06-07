@@ -23,6 +23,15 @@ export const IMPORT_DATA_SETS: ImportDataSet[] = [
     ],
   },
   {
+    id: "fbx",
+    label: "FBX",
+    defaultBasisId: "y-up",
+    loadsDataSemantics: false,
+    files: [
+      {key: "fbx", label: "FBX file", accept: ".fbx", loadFormat: "fbx", required: true},
+    ],
+  },
+  {
     id: "gltf+datamodel",
     label: "glTF + DataModel JSON",
     defaultBasisId: "y-up",

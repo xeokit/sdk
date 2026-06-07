@@ -168,7 +168,7 @@
  * import { Data } from "@xeokit/sdk/model/data";
  * import { ModelChunksLoader } from "@xeokit/sdk/model/streaming";
  * import { XGFLoader } from "@xeokit/sdk/formats/xgf";
- * import { DataModelParamsLoader } from "@xeokit/sdk/model/data";
+ * import { DataModelImporter } from "@xeokit/sdk/model/data";
  *
  * const scene = new Scene();
  * const data = new Data();
@@ -181,7 +181,7 @@
  *
  * const modelChunksLoader = new ModelChunksLoader({
  *     sceneModelLoader: new XGFLoader(),
- *     dataModelLoader: new DataModelParamsLoader()
+ *     dataModelLoader: new DataModelImporter()
  * });
  *
  * fetch("xgfManifest.json").then(response => {

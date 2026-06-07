@@ -1853,6 +1853,7 @@ const SLIDER_RANGES = new Map<string, [number, number, number]>([
   ["intensity",          [0, 1,   0.01]],
   ["knee",               [0, 1,   0.01]],
   ["edgeAlpha",          [0, 1,   0.01]],
+  ["edgeDarken",         [0, 1,   0.01]],
   ["horizonBlend",       [0, 1,   0.01]],
   ["sunGlowIntensity",   [0, 1,   0.01]],
   ["cascadeSplitLambda", [0, 1,   0.01]],

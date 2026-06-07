@@ -25,6 +25,7 @@ import type {DataModel} from "../../../model/data";
 import type {Studio} from "../../Studio";
 import {XGFExporter}              from "../../../formats/xgf/XGFExporter";
 import {GLTFExporter}             from "../../../formats/gltf/GLTFExporter";
+import {FBXExporter}              from "../../../formats/fbx/FBXExporter";
 import {OBJExporter}              from "../../../formats/obj/OBJExporter";
 import {MTLExporter}              from "../../../formats/mtl/MTLExporter";
 import {IFCExporter}              from "../../../formats/ifc/IFCExporter";
@@ -32,8 +33,8 @@ import {DotBIMExporter}           from "../../../formats/dotbim/DotBIMExporter";
 import {RVMExporter}              from "../../../formats/rvm/RVMExporter";
 import {DXFExporter}              from "../../../formats/dxf/DXFExporter";
 import {SVGExporter}              from "../../../formats/svg/SVGExporter";
-import {SceneModelParamsExporter} from "../../../formats/scenemodel/SceneModelParamsExporter";
-import {DataModelParamsExporter}  from "../../../formats/datamodel/DataModelParamsExporter";
+import {SceneModelExporter} from "../../../formats/scenemodel/SceneModelExporter";
+import {DataModelExporter}  from "../../../formats/datamodel/DataModelExporter";
 
 
 import {el} from "../../utils/el";
@@ -137,6 +138,11 @@ const FORMAT_REGISTRY: Record<string, FormatEntry> = {
     build:   () => new GLTFExporter(),
     toBytes: (raw) => raw as ArrayBuffer,
   },
+  fbx: {
+    id: "fbx", label: "FBX", ext: "fbx", mime: "application/octet-stream",
+    build:   () => new FBXExporter(),
+    toBytes: (raw) => raw as ArrayBuffer,
+  },
   obj: {
     id: "obj", label: "OBJ", ext: "obj", mime: "model/obj",
     build:   () => new OBJExporter(),
@@ -174,12 +180,12 @@ const FORMAT_REGISTRY: Record<string, FormatEntry> = {
   },
   scenemodel: {
     id: "scenemodel", label: "SceneModel JSON", ext: "scenemodel.json", mime: "application/json",
-    build:   () => new SceneModelParamsExporter(),
+    build:   () => new SceneModelExporter(),
     toBytes: (raw) => JSON.stringify(raw, null, 2),
   },
   datamodel: {
     id: "datamodel", label: "DataModel JSON", ext: "datamodel.json", mime: "application/json",
-    build:   () => new DataModelParamsExporter(),
+    build:   () => new DataModelExporter(),
     toBytes: (raw) => JSON.stringify(raw, null, 2),
     needsDataModel:  true,
     needsSceneModel: false,
@@ -200,6 +206,7 @@ const DEFAULT_DATASET_TYPES: string[] = [
   "xgf",
   "scenemodel",
   "gltf",
+  "fbx",
   "obj,mtl",
   "ifc",
   "dotbim",

@@ -17,7 +17,7 @@ export async function encode(params: ModelEncodeParams, options?: any): Promise<
   if (params.sceneModel) {
     const result = params.sceneModel.toParams();
     if (result.ok === false) {
-      throw new Error(`[SceneModelParamsExporter.export] Failed to encode scene model -> ${result.error}`);
+      throw new Error(`[SceneModelExporter.export] Failed to encode scene model -> ${result.error}`);
     }
     sceneModelParams = result.value;
   }

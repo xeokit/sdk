@@ -5,10 +5,10 @@ import {SceneModel} from "../../model/scene/SceneModel";
 /**
  * Reads {@link model!scene.SceneModelParams | SceneModelParams} into a {@link model!scene.SceneModel | SceneModel}.
  */
- export class SceneModelParamsLoader extends ModelLoader {
+ export class SceneModelImporter extends ModelLoader {
 
   /**
-   * Constructs a SceneModelParamsLoader.
+   * Constructs a SceneModelImporter.
    */
   constructor() {
     super({

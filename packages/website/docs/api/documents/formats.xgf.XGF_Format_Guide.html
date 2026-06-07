@@ -1,0 +1,434 @@
+<!DOCTYPE html><html class="default" lang="en" data-base=".."><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>XGF Format Guide | @xeokit/sdk - v0.1.0</title><meta name="description" content="Documentation for @xeokit/sdk"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search"><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">@xeokit/sdk - v0.1.0</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb"><li><a href="../modules.html">@xeokit/sdk</a></li><li><a href="../modules/formats.html">formats</a></li><li><a href="../modules/formats.xgf.html">xgf</a></li><li><a href="formats.xgf.XGF_Format_Guide.html">XGF Format Guide</a></li></ul></div><div class="tsd-panel tsd-typography"><a id="xgf-xeokit-geometry-format-loader--exporter" class="tsd-anchor"></a><h1 class="tsd-anchor-link">XGF (xeokit Geometry Format) Loader / Exporter<a href="#xgf-xeokit-geometry-format-loader--exporter" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><p><code>XGFLoader</code> reads xeokit's native binary geometry format (<code>.xgf</code>) into a
+<code>SceneModel</code>, and <code>XGFExporter</code> writes a <code>SceneModel</code> back out as XGF.</p>
+<p>This document describes the binary container, the two on-disk schema
+versions, and the pipelines a file follows from bytes to a live scene
+(and back).</p>
+<hr>
+<a id="1-what-xgf-is" class="tsd-anchor"></a><h2 class="tsd-anchor-link">1. What XGF is<a href="#1-what-xgf-is" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>XGF is xeokit's compact binary format for <strong>geometry, materials, and
+textures</strong> — the visual half of a model. It's positional, length-
+prefixed, and designed to be loaded in one fetch + a handful of
+typed-array views.</p>
+<p>Two roles:</p>
+<ul>
+<li><strong>Visual half</strong> — the SceneModel — lives in <code>.xgf</code>.</li>
+<li><strong>Semantic half</strong> — the DataModel — typically lives in a separate
+<code>.json</code> sidecar (one of the xeokit <code>datamodel</code> / <code>metamodel</code>
+formats). Pair them by id and load them together.</li>
+</ul>
+<p>The XGF loader's DataModel output is intentionally minimal: every
+SceneObject id also becomes a <code>BasicEntity</code> DataObject so the
+SceneModel ↔ DataModel pair is always queryable. Richer semantics
+come from a paired DataModel JSON.</p>
+<a id="trade-offs" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Trade-offs<a href="#trade-offs" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li>Positions are <strong>quantised to 16-bit</strong> against per-geometry AABBs —
+no precision loss for typical model scales (mm precision at world
+sizes up to ~65 m per geometry; rescale your AABBs for bigger
+scenes).</li>
+<li>Normals are <strong>oct-encoded</strong> into two <code>uint16</code>s per vertex, decoded
+in the vertex shader.</li>
+<li>UVs are <code>float32</code> so tiling values outside <code>[0, 1]</code> survive intact.</li>
+<li>Edge indices ride alongside triangle indices so the renderer's
+wireframe overlay is free.</li>
+<li>The format intentionally has <strong>no compression layer of its own</strong> —
+use HTTP transport-level compression (gzip / brotli) at delivery
+time.</li>
+</ul>
+<hr>
+<a id="2-binary-container" class="tsd-anchor"></a><h2 class="tsd-anchor-link">2. Binary container<a href="#2-binary-container" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Every XGF file (v1 or v2) is the same outer container — a version
+tag, an <code>(offset, length)</code> table, and a sequence of typed-array
+payloads laid out at those offsets:</p>
+<pre><code><span class="hl-1">   ┌──────────────────────────────────────────────────────────────┐</span><br/><span class="hl-1">   │ </span><span class="hl-7">0..3</span><span class="hl-1">        </span><span class="hl-4">uint32</span><span class="hl-1"> </span><span class="hl-0">version</span><span class="hl-1">              (</span><span class="hl-7">1</span><span class="hl-1"> </span><span class="hl-4">or</span><span class="hl-1"> </span><span class="hl-7">2</span><span class="hl-1">)             │</span><br/><span class="hl-1">   ├──────────────────────────────────────────────────────────────┤</span><br/><span class="hl-1">   │ </span><span class="hl-7">4..7</span><span class="hl-1">        </span><span class="hl-4">uint32</span><span class="hl-1"> </span><span class="hl-4">entry</span><span class="hl-1">[</span><span class="hl-7">0</span><span class="hl-1">].</span><span class="hl-4">byteOffset</span><span class="hl-1">                       │</span><br/><span class="hl-1">   │ </span><span class="hl-7">8..11</span><span class="hl-1">       </span><span class="hl-4">uint32</span><span class="hl-1"> </span><span class="hl-4">entry</span><span class="hl-1">[</span><span class="hl-7">0</span><span class="hl-1">].</span><span class="hl-4">byteLength</span><span class="hl-1">                       │</span><br/><span class="hl-1">   │ </span><span class="hl-7">12..15</span><span class="hl-1">      </span><span class="hl-4">uint32</span><span class="hl-1"> </span><span class="hl-4">entry</span><span class="hl-1">[</span><span class="hl-7">1</span><span class="hl-1">].</span><span class="hl-4">byteOffset</span><span class="hl-1">                       │</span><br/><span class="hl-1">   │ </span><span class="hl-7">16..19</span><span class="hl-1">      </span><span class="hl-4">uint32</span><span class="hl-1"> </span><span class="hl-4">entry</span><span class="hl-1">[</span><span class="hl-7">1</span><span class="hl-1">].</span><span class="hl-4">byteLength</span><span class="hl-1">                       │</span><br/><span class="hl-1">   │ ...         (</span><span class="hl-0">one</span><span class="hl-1"> (</span><span class="hl-4">offset</span><span class="hl-1">, </span><span class="hl-4">length</span><span class="hl-1">) </span><span class="hl-4">pair</span><span class="hl-1"> </span><span class="hl-4">per</span><span class="hl-1"> </span><span class="hl-4">entry</span><span class="hl-1">)            │</span><br/><span class="hl-1">   ├──────────────────────────────────────────────────────────────┤</span><br/><span class="hl-1">   │ </span><span class="hl-4">entry</span><span class="hl-1">[</span><span class="hl-7">0</span><span class="hl-1">]    </span><span class="hl-4">typed</span><span class="hl-1">-</span><span class="hl-4">array</span><span class="hl-1"> </span><span class="hl-0">payload</span><span class="hl-1">  (</span><span class="hl-4">padded</span><span class="hl-1"> </span><span class="hl-4">to</span><span class="hl-1"> </span><span class="hl-4">its</span><span class="hl-1"> </span><span class="hl-6">BPE</span><span class="hl-1"> </span><span class="hl-4">align</span><span class="hl-1">)   │</span><br/><span class="hl-1">   │ </span><span class="hl-4">entry</span><span class="hl-1">[</span><span class="hl-7">1</span><span class="hl-1">]    </span><span class="hl-4">typed</span><span class="hl-1">-</span><span class="hl-4">array</span><span class="hl-1"> </span><span class="hl-4">payload</span><span class="hl-1">                              │</span><br/><span class="hl-1">   │ ...                                                          │</span><br/><span class="hl-1">   └──────────────────────────────────────────────────────────────┘</span>
+</code><button>Copy</button></pre>
+
+<ul>
+<li><strong>Little-endian.</strong> The reader byte-swaps on big-endian hosts (a
+one-time <code>Uint16Array[0] === 1</code> probe decides whether swapping is
+needed).</li>
+<li><strong>Position alignment.</strong> Each payload starts at the smallest offset
+≥ the running cursor that's an integer multiple of the payload's
+<code>BYTES_PER_ELEMENT</code>. Padding bytes between payloads are unused.</li>
+<li><strong>Positional layout.</strong> The reader and writer walk the same fixed
+list of entries in the same order. There's no name dictionary —
+adding or removing an entry is a schema-version-breaking change.</li>
+<li><strong>JSON-as-bytes.</strong> A handful of entries (e.g. <code>eachObjectId</code>,
+<code>eachMaterialId</code>) are JSON arrays of strings; they ride in the
+container as <code>Uint8Array</code> blobs the reader <code>JSON.parse</code>s on
+demand.</li>
+</ul>
+<hr>
+<a id="3-the-two-versions" class="tsd-anchor"></a><h2 class="tsd-anchor-link">3. The two versions<a href="#3-the-two-versions" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>XGF has shipped two schema revisions. The loader handles both; the
+exporter writes either via its <code>version</code> parameter.</p>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Adds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>v1</strong> (<code>1.0.0</code>)</td>
+<td>base — geometry (positions, colors, indices, edge indices), per-geometry AABBs, modelling matrices, meshes referencing per-mesh inline RGBA colours, objects referencing meshes.</td>
+</tr>
+<tr>
+<td><strong>v2</strong> (<code>1.1.0</code>, &quot;XKT2&quot;)</td>
+<td>adds <strong>per-geometry normals + UVs</strong>; <strong>textures</strong> (image bytes + sampler params); <strong>materials</strong> with full PBR + alpha mode / cutoff; <strong>per-mesh material references</strong> (with inline RGBA as the fallback when no material is set).</td>
+</tr>
+</tbody>
+</table>
+<p>The v1 reader is still in the codebase so existing <code>.xgf</code> files keep
+loading; new exports should target v2 unless you have a v1-only
+consumer.</p>
+<p>The default exporter version is <code>1.0.0</code>. Pass <code>version: &quot;1.1.0&quot;</code> to
+the writer to emit v2.</p>
+<hr>
+<a id="4-v2-payload" class="tsd-anchor"></a><h2 class="tsd-anchor-link">4. v2 payload<a href="#4-v2-payload" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Field order = pack order = read order. See
+<a href="../media/XGFData_v2.ts"><code>versions/v2/XGFData_v2.ts</code></a> for the
+authoritative TypeScript shape.</p>
+<a id="geometry-per-vertex-blobs" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Geometry (per-vertex blobs)<a href="#geometry-per-vertex-blobs" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><table>
+<thead>
+<tr>
+<th>Entry</th>
+<th>Type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>positions</code></td>
+<td><code>Uint16Array</code></td>
+<td>Quantised positions (R G B 16-bit per vertex). Decode against the geometry's AABB: <code>p = uint * (max - min) / 65535 + min</code>.</td>
+</tr>
+<tr>
+<td><code>colors</code></td>
+<td><code>Uint8Array</code></td>
+<td>Per-vertex RGBA (4 bytes/vertex).</td>
+</tr>
+<tr>
+<td><code>indices</code></td>
+<td><code>Uint32Array</code></td>
+<td>Triangle / line indices.</td>
+</tr>
+<tr>
+<td><code>edgeIndices</code></td>
+<td><code>Uint32Array</code></td>
+<td>Wireframe edge indices.</td>
+</tr>
+<tr>
+<td><code>aabbs</code></td>
+<td><code>Float32Array</code></td>
+<td>Per-geometry AABBs (six floats: <code>minX minY minZ maxX maxY maxZ</code>). Multiple geometries may share an AABB by pointing at the same base.</td>
+</tr>
+<tr>
+<td><code>normals</code></td>
+<td><code>Uint16Array</code></td>
+<td><strong>v2 only.</strong> Octahedral RG16UI normals, two values per vertex. Geometries without normals occupy zero range.</td>
+</tr>
+<tr>
+<td><code>uvs</code></td>
+<td><code>Float32Array</code></td>
+<td><strong>v2 only.</strong> RG32F UVs, two values per vertex. Floats (not quantised) so tiling values round-trip.</td>
+</tr>
+</tbody>
+</table>
+<a id="per-geometry-pointers" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Per-geometry pointers<a href="#per-geometry-pointers" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p><code>eachGeometry*</code> is a per-geometry array; each entry is the <strong>base
+index</strong> into the global blob it points to. The geometry's slice runs
+from its base to (the next geometry's base) or (the global blob's
+length).</p>
+<table>
+<thead>
+<tr>
+<th>Entry</th>
+<th>Type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>eachGeometryPositionsBase</code></td>
+<td><code>Uint32Array</code></td>
+<td>Base into <code>positions</code>.</td>
+</tr>
+<tr>
+<td><code>eachGeometryColorsBase</code></td>
+<td><code>Uint32Array</code></td>
+<td>Base into <code>colors</code>.</td>
+</tr>
+<tr>
+<td><code>eachGeometryIndicesBase</code></td>
+<td><code>Uint32Array</code></td>
+<td>Base into <code>indices</code>.</td>
+</tr>
+<tr>
+<td><code>eachGeometryEdgeIndicesBase</code></td>
+<td><code>Uint32Array</code></td>
+<td>Base into <code>edgeIndices</code>.</td>
+</tr>
+<tr>
+<td><code>eachGeometryNormalsBase</code></td>
+<td><code>Uint32Array</code></td>
+<td>Base into <code>normals</code>, or <code>0xffffffff</code> if this geometry has no normals.</td>
+</tr>
+<tr>
+<td><code>eachGeometryUVsBase</code></td>
+<td><code>Uint32Array</code></td>
+<td>Base into <code>uvs</code>, or <code>0xffffffff</code> if no UVs.</td>
+</tr>
+<tr>
+<td><code>eachGeometryPrimitiveType</code></td>
+<td><code>Uint8Array</code></td>
+<td><code>0</code> Triangles, <code>1</code> Solid, <code>2</code> Surface, <code>3</code> Lines, <code>4</code> Points.</td>
+</tr>
+<tr>
+<td><code>eachGeometryAABBBase</code></td>
+<td><code>Uint32Array</code></td>
+<td>Base into <code>aabbs</code> (multiple of 6).</td>
+</tr>
+</tbody>
+</table>
+<a id="modelling-matrices" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Modelling matrices<a href="#modelling-matrices" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><table>
+<thead>
+<tr>
+<th>Entry</th>
+<th>Type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>matrices</code></td>
+<td><code>Float64Array</code></td>
+<td>Concatenated 4×4 column-major modelling matrices. Each mesh points at one.</td>
+</tr>
+</tbody>
+</table>
+<a id="textures-v2-only" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Textures (v2 only)<a href="#textures-v2-only" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><table>
+<thead>
+<tr>
+<th>Entry</th>
+<th>Type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>textureData</code></td>
+<td><code>Uint8Array</code></td>
+<td>Concatenated encoded image bytes (PNG / JPEG / GIF or opaque transcoded buffer).</td>
+</tr>
+<tr>
+<td><code>eachTextureDataBase</code></td>
+<td><code>Uint32Array</code></td>
+<td>Base into <code>textureData</code>.</td>
+</tr>
+<tr>
+<td><code>eachTextureMediaType</code></td>
+<td><code>Uint8Array</code></td>
+<td><code>0</code> PNG, <code>1</code> JPEG, <code>2</code> GIF, <code>255</code> opaque transcoded buffer (treat as raw bytes; not decoded at load time).</td>
+</tr>
+<tr>
+<td><code>eachTextureWidth</code></td>
+<td><code>Uint16Array</code></td>
+<td>Per-texture pixel width.</td>
+</tr>
+<tr>
+<td><code>eachTextureHeight</code></td>
+<td><code>Uint16Array</code></td>
+<td>Per-texture pixel height.</td>
+</tr>
+<tr>
+<td><code>eachTextureSampler</code></td>
+<td><code>Uint8Array</code></td>
+<td>Five bytes per texture: <code>minFilter, magFilter, wrapS, wrapT, wrapR</code>. Each is a small-integer code (1–9) matching the <code>xeokit/base/constants</code> sampler enums.</td>
+</tr>
+<tr>
+<td><code>eachTextureId</code></td>
+<td><code>string[]</code></td>
+<td>Per-texture string ID (JSON blob).</td>
+</tr>
+</tbody>
+</table>
+<a id="materials-v2-only" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Materials (v2 only)<a href="#materials-v2-only" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><table>
+<thead>
+<tr>
+<th>Entry</th>
+<th>Type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>eachMaterialPBR</code></td>
+<td><code>Uint8Array</code></td>
+<td>Eight bytes per material: <code>R, G, B, opacity, roughness, metallic, alphaMode, alphaCutoff</code>. All values quantised to <code>[0, 255]</code> from <code>[0, 1]</code>. <code>alphaMode</code> is <code>0</code> OPAQUE, <code>1</code> MASK, <code>2</code> BLEND.</td>
+</tr>
+<tr>
+<td><code>eachMaterialTextures</code></td>
+<td><code>Int32Array</code></td>
+<td>Five entries per material: <code>colorTextureIndex, metallicRoughnessTextureIndex, normalsTextureIndex, occlusionTextureIndex, emissiveTextureIndex</code>. Each is a 0-based index into <code>eachTextureId</code>, or <code>-1</code> for &quot;no texture&quot;.</td>
+</tr>
+<tr>
+<td><code>eachMaterialId</code></td>
+<td><code>string[]</code></td>
+<td>Per-material string ID (JSON blob).</td>
+</tr>
+</tbody>
+</table>
+<a id="per-mesh" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Per-mesh<a href="#per-mesh" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><table>
+<thead>
+<tr>
+<th>Entry</th>
+<th>Type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>eachMeshGeometriesBase</code></td>
+<td><code>Uint32Array</code></td>
+<td>Index into the geometry list (each mesh references exactly one geometry).</td>
+</tr>
+<tr>
+<td><code>eachMeshMatricesBase</code></td>
+<td><code>Uint32Array</code></td>
+<td>Index into <code>matrices</code> (multiple of 16).</td>
+</tr>
+<tr>
+<td><code>eachMeshMaterialAttributes</code></td>
+<td><code>Uint8Array</code></td>
+<td>Inline RGBA fallback (4 bytes/mesh: R, G, B, opacity). Used when <code>eachMeshMaterial</code> is <code>-1</code>.</td>
+</tr>
+<tr>
+<td><code>eachMeshMaterial</code></td>
+<td><code>Int32Array</code></td>
+<td>Index into the material array, or <code>-1</code> to fall back to <code>eachMeshMaterialAttributes</code>. <strong>v1 has no materials; always falls back.</strong></td>
+</tr>
+</tbody>
+</table>
+<a id="per-object" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Per-object<a href="#per-object" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><table>
+<thead>
+<tr>
+<th>Entry</th>
+<th>Type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>eachObjectId</code></td>
+<td><code>string[]</code></td>
+<td>Per-object string ID (JSON blob).</td>
+</tr>
+<tr>
+<td><code>eachObjectMeshesBase</code></td>
+<td><code>Uint32Array</code></td>
+<td>Base into the per-mesh arrays. The object's meshes run from its base to (the next object's base) or (mesh count).</td>
+</tr>
+</tbody>
+</table>
+<a id="v1-payload" class="tsd-anchor"></a><h3 class="tsd-anchor-link">v1 payload<a href="#v1-payload" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>v1 is the same shape as v2 minus <code>normals</code>, <code>uvs</code>,
+<code>eachGeometryNormalsBase</code>, <code>eachGeometryUVsBase</code>, <code>eachGeometryPrimitiveType</code>,
+all texture entries, and all material entries. The v1 reader treats
+every mesh as inline-RGBA and emits <code>TrianglesPrimitive</code> geometries by
+default. See <a href="../media/XGFData_v1.ts"><code>versions/v1/XGFData_v1.ts</code></a>.</p>
+<hr>
+<a id="5-load-pipeline" class="tsd-anchor"></a><h2 class="tsd-anchor-link">5. Load pipeline<a href="#5-load-pipeline" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><pre><code><span class="hl-1">   .</span><span class="hl-4">xgf</span><span class="hl-1"> </span><span class="hl-0">bytes</span><span class="hl-1"> (</span><span class="hl-4">ArrayBuffer</span><span class="hl-1">)</span><br/><span class="hl-1">        │</span><br/><span class="hl-1">        ▼</span><br/><span class="hl-1">   </span><span class="hl-4">XGFLoader</span><span class="hl-1">.</span><span class="hl-4">getVersion</span><span class="hl-1">       ←  </span><span class="hl-4">read</span><span class="hl-1"> </span><span class="hl-4">uint32</span><span class="hl-1"> [</span><span class="hl-7">0</span><span class="hl-1">]: </span><span class="hl-2">&quot;1&quot;</span><span class="hl-1"> </span><span class="hl-4">or</span><span class="hl-1"> </span><span class="hl-2">&quot;2&quot;</span><br/><span class="hl-1">        │</span><br/><span class="hl-1">        ▼</span><br/><span class="hl-1">   </span><span class="hl-4">versions</span><span class="hl-1">/</span><span class="hl-4">v</span><span class="hl-1">{</span><span class="hl-6">N</span><span class="hl-1">}/</span><span class="hl-4">parse</span><span class="hl-1">.</span><span class="hl-4">ts</span><br/><span class="hl-1">        │</span><br/><span class="hl-1">        ├─ </span><span class="hl-4">unpackXGF</span><span class="hl-1">              ←  </span><span class="hl-4">walk</span><span class="hl-1"> </span><span class="hl-0">the</span><span class="hl-1"> (</span><span class="hl-4">offset</span><span class="hl-1">, </span><span class="hl-4">length</span><span class="hl-1">) </span><span class="hl-4">table</span><span class="hl-1">,</span><br/><span class="hl-1">        │                            </span><span class="hl-4">byte</span><span class="hl-1">-</span><span class="hl-4">swap</span><span class="hl-1"> </span><span class="hl-4">on</span><span class="hl-1"> </span><span class="hl-4">big</span><span class="hl-1">-</span><span class="hl-4">endian</span><span class="hl-1"> </span><span class="hl-4">hosts</span><span class="hl-1">,</span><br/><span class="hl-1">        │                            </span><span class="hl-4">create</span><span class="hl-1"> </span><span class="hl-4">typed</span><span class="hl-1">-</span><span class="hl-4">array</span><span class="hl-1"> </span><span class="hl-4">views</span><span class="hl-1"> </span><span class="hl-5">in</span><span class="hl-1"> </span><span class="hl-4">place</span><br/><span class="hl-1">        │                            (</span><span class="hl-4">zero</span><span class="hl-1"> </span><span class="hl-4">copies</span><span class="hl-1">)</span><br/><span class="hl-1">        │</span><br/><span class="hl-1">        ▼</span><br/><span class="hl-1">   </span><span class="hl-4">XGFData_v</span><span class="hl-1">{</span><span class="hl-6">N</span><span class="hl-1">}  </span><span class="hl-4">payload</span><br/><span class="hl-1">        │</span><br/><span class="hl-1">        ▼</span><br/><span class="hl-1">   </span><span class="hl-4">xgfToModel</span><span class="hl-1">              ←  </span><span class="hl-4">walks</span><span class="hl-1"> </span><span class="hl-4">objects</span><span class="hl-1"> → </span><span class="hl-4">meshes</span><span class="hl-1"> → </span><span class="hl-4">geometries</span><br/><span class="hl-1">        │</span><br/><span class="hl-1">        ├─ </span><span class="hl-4">decode</span><span class="hl-1"> </span><span class="hl-0">textures</span><span class="hl-1"> (</span><span class="hl-4">v2</span><span class="hl-1">)</span><br/><span class="hl-1">        │     </span><span class="hl-6">PNG</span><span class="hl-1">/</span><span class="hl-6">JPEG</span><span class="hl-1">/</span><span class="hl-6">GIF</span><span class="hl-1"> → </span><span class="hl-4">createImageBitmap</span><span class="hl-1"> → </span><span class="hl-4">sceneModel</span><span class="hl-1">.</span><span class="hl-4">createTexture</span><br/><span class="hl-1">        │     </span><span class="hl-4">opaque</span><span class="hl-1">       → </span><span class="hl-4">pass</span><span class="hl-1"> </span><span class="hl-4">raw</span><span class="hl-1"> </span><span class="hl-4">bytes</span><span class="hl-1"> </span><span class="hl-4">through</span><span class="hl-1"> </span><span class="hl-3">with</span><span class="hl-1"> </span><span class="hl-2">`compressed: true`</span><br/><span class="hl-1">        │     </span><span class="hl-4">empty</span><span class="hl-1">        → </span><span class="hl-4">register</span><span class="hl-1"> </span><span class="hl-4">a</span><span class="hl-1"> </span><span class="hl-7">1</span><span class="hl-1">×</span><span class="hl-7">1</span><span class="hl-1"> </span><span class="hl-4">white</span><span class="hl-1"> </span><span class="hl-4">pixel</span><span class="hl-1"> </span><span class="hl-4">placeholder</span><br/><span class="hl-1">        │</span><br/><span class="hl-1">        ├─ </span><span class="hl-4">build</span><span class="hl-1"> </span><span class="hl-0">materials</span><span class="hl-1"> (</span><span class="hl-4">v2</span><span class="hl-1">)</span><br/><span class="hl-1">        │     </span><span class="hl-6">PBR</span><span class="hl-1"> + </span><span class="hl-4">alpha</span><span class="hl-1"> + </span><span class="hl-4">texture</span><span class="hl-1"> </span><span class="hl-4">references</span><span class="hl-1"> → </span><span class="hl-4">sceneModel</span><span class="hl-1">.</span><span class="hl-4">createMaterial</span><br/><span class="hl-1">        │</span><br/><span class="hl-1">        ├─ </span><span class="hl-4">for</span><span class="hl-1"> </span><span class="hl-4">each</span><span class="hl-1"> </span><span class="hl-11">object</span><span class="hl-1">:</span><br/><span class="hl-1">        │     </span><span class="hl-4">for</span><span class="hl-1"> </span><span class="hl-4">each</span><span class="hl-1"> </span><span class="hl-11">mesh</span><span class="hl-1">:</span><br/><span class="hl-1">        │       </span><span class="hl-4">ensure</span><span class="hl-1"> </span><span class="hl-4">geometry</span><span class="hl-1"> </span><span class="hl-4">created</span><span class="hl-1"> </span><span class="hl-4">once</span><span class="hl-1"> → </span><span class="hl-4">sceneModel</span><span class="hl-1">.</span><span class="hl-4">createGeometryCompressed</span><br/><span class="hl-1">        │           (</span><span class="hl-4">per</span><span class="hl-1">-</span><span class="hl-4">vertex</span><span class="hl-1"> </span><span class="hl-4">slices</span><span class="hl-1"> </span><span class="hl-4">come</span><span class="hl-1"> </span><span class="hl-4">from</span><span class="hl-1"> </span><span class="hl-2">`eachGeometry*Base`</span><span class="hl-1"> </span><span class="hl-4">arrays</span><span class="hl-1">;</span><br/><span class="hl-1">        │            </span><span class="hl-4">normals</span><span class="hl-1">/</span><span class="hl-4">UVs</span><span class="hl-1"> </span><span class="hl-4">slices</span><span class="hl-1"> </span><span class="hl-4">end</span><span class="hl-1"> </span><span class="hl-4">at</span><span class="hl-1"> </span><span class="hl-4">the</span><span class="hl-1"> *</span><span class="hl-4">next</span><span class="hl-1">* </span><span class="hl-4">geometry</span><span class="hl-1"> </span><span class="hl-4">with</span><br/><span class="hl-1">        │            </span><span class="hl-4">non</span><span class="hl-1">-</span><span class="hl-4">sentinel</span><span class="hl-1"> </span><span class="hl-4">base</span><span class="hl-1">, </span><span class="hl-4">since</span><span class="hl-1"> </span><span class="hl-4">geometries</span><span class="hl-1"> </span><span class="hl-4">without</span><br/><span class="hl-1">        │            </span><span class="hl-4">normals</span><span class="hl-1">/</span><span class="hl-4">UVs</span><span class="hl-1"> </span><span class="hl-4">are</span><span class="hl-1"> </span><span class="hl-4">sparsely</span><span class="hl-1"> </span><span class="hl-4">indexed</span><span class="hl-1">)</span><br/><span class="hl-1">        │       </span><span class="hl-4">resolve</span><span class="hl-1"> </span><span class="hl-4">mesh</span><span class="hl-1"> </span><span class="hl-4">transform</span><span class="hl-1"> </span><span class="hl-4">from</span><span class="hl-1"> </span><span class="hl-4">matrices</span><span class="hl-1">[</span><span class="hl-4">base</span><span class="hl-1">..</span><span class="hl-4">base</span><span class="hl-1">+</span><span class="hl-7">16</span><span class="hl-1">]</span><br/><span class="hl-1">        │       </span><span class="hl-4">resolve</span><span class="hl-1"> </span><span class="hl-0">material</span><span class="hl-1"> (</span><span class="hl-4">v2</span><span class="hl-1">) </span><span class="hl-4">or</span><span class="hl-1"> </span><span class="hl-4">inline</span><span class="hl-1"> </span><span class="hl-0">RGBA</span><span class="hl-1"> (</span><span class="hl-4">v1</span><span class="hl-1"> / </span><span class="hl-4">unset</span><span class="hl-1">)</span><br/><span class="hl-1">        │       </span><span class="hl-4">sceneModel</span><span class="hl-1">.</span><span class="hl-4">createMesh</span><br/><span class="hl-1">        │     </span><span class="hl-4">sceneModel</span><span class="hl-1">.</span><span class="hl-0">createObject</span><span class="hl-1">({</span><span class="hl-4">id</span><span class="hl-1">, </span><span class="hl-4">meshIds</span><span class="hl-1">, </span><span class="hl-4">layerId</span><span class="hl-1">})</span><br/><span class="hl-1">        │     </span><span class="hl-4">dataModel</span><span class="hl-1">.</span><span class="hl-0">createObject</span><span class="hl-1">({</span><span class="hl-4">id</span><span class="hl-1">, </span><span class="hl-4">type:</span><span class="hl-1"> </span><span class="hl-2">&quot;BasicEntity&quot;</span><span class="hl-1">})</span><br/><span class="hl-1">        │     </span><span class="hl-4">dataModel</span><span class="hl-1">.</span><span class="hl-0">createRelationship</span><span class="hl-1">({</span><span class="hl-4">type:</span><span class="hl-1"> </span><span class="hl-2">&quot;BasicAggregation&quot;</span><span class="hl-1">, …})</span><br/><span class="hl-1">        │</span><br/><span class="hl-1">        ▼</span><br/><span class="hl-1">   </span><span class="hl-4">SceneModel</span><span class="hl-1"> + </span><span class="hl-4">DataModel</span><span class="hl-1"> </span><span class="hl-4">populated</span>
+</code><button>Copy</button></pre>
+
+<a id="cancellation--progress" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Cancellation + progress<a href="#cancellation--progress" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Every async-loop site calls <code>yieldToHost(signal)</code> at a coarse cadence
+(every 4 textures, every 32 objects). Two effects:</p>
+<ul>
+<li><strong>Progress</strong> — <code>options.onProgress</code> fires with <code>{phase, current, total}</code> at the same cadence.</li>
+<li><strong>AbortSignal</strong> — <code>yieldToHost</code> checks <code>signal.aborted</code> and throws
+<code>DOMException(&quot;Aborted&quot;, &quot;AbortError&quot;)</code> on cancel. Worst-case
+abort latency is one yield interval (≈16 ms).</li>
+</ul>
+<a id="texture-decoding" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Texture decoding<a href="#texture-decoding" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>PNG/JPEG/GIF blobs are decoded through <code>createImageBitmap</code> so the GPU
+atlas can sample them directly. Outside a browser (Node test runs,
+worker contexts without <code>createImageBitmap</code>) the loader will throw —
+the path assumes a browser. For pre-decoded (&quot;opaque transcoded&quot;)
+textures the bytes pass through unchanged as a SceneTexture buffer; the
+runtime / transcoder pipeline handles upload.</p>
+<hr>
+<a id="6-export-pipeline" class="tsd-anchor"></a><h2 class="tsd-anchor-link">6. Export pipeline<a href="#6-export-pipeline" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><pre><code><span class="hl-1">   </span><span class="hl-4">SceneModel</span><br/><span class="hl-1">        │</span><br/><span class="hl-1">        ▼</span><br/><span class="hl-1">   </span><span class="hl-0">modelToXGF</span><span class="hl-1"> (</span><span class="hl-4">v1</span><span class="hl-1"> </span><span class="hl-4">or</span><span class="hl-1"> </span><span class="hl-4">v2</span><span class="hl-1">)</span><br/><span class="hl-1">        │</span><br/><span class="hl-1">        ├─ </span><span class="hl-4">flatten</span><span class="hl-1"> </span><span class="hl-4">geometries</span><span class="hl-1"> → </span><span class="hl-4">concatenated</span><span class="hl-1"> </span><span class="hl-4">positions</span><span class="hl-1"> / </span><span class="hl-4">colors</span><span class="hl-1"> /</span><br/><span class="hl-1">        │                       </span><span class="hl-4">indices</span><span class="hl-1"> / </span><span class="hl-4">edge</span><span class="hl-1"> </span><span class="hl-4">indices</span><span class="hl-1">, </span><span class="hl-4">build</span><span class="hl-1"> </span><span class="hl-4">base</span><span class="hl-1"> </span><span class="hl-4">arrays</span><br/><span class="hl-1">        ├─ </span><span class="hl-4">flatten</span><span class="hl-1"> </span><span class="hl-4">matrices</span><span class="hl-1">  ← </span><span class="hl-4">one</span><span class="hl-1"> </span><span class="hl-4">per</span><span class="hl-1"> </span><span class="hl-4">mesh</span><br/><span class="hl-1">        ├─ </span><span class="hl-4">encode</span><span class="hl-1"> </span><span class="hl-0">textures</span><span class="hl-1"> (</span><span class="hl-4">v2</span><span class="hl-1">)</span><br/><span class="hl-1">        │     </span><span class="hl-4">imageBitmap</span><span class="hl-1"> → </span><span class="hl-4">canvas</span><span class="hl-1">.</span><span class="hl-0">toBlob</span><span class="hl-1">(</span><span class="hl-2">&quot;image/png&quot;</span><span class="hl-1">) → </span><span class="hl-4">bytes</span><br/><span class="hl-1">        │     </span><span class="hl-4">buffers</span><span class="hl-1">     → </span><span class="hl-4">passed</span><span class="hl-1"> </span><span class="hl-4">through</span><span class="hl-1"> </span><span class="hl-4">unchanged</span><br/><span class="hl-1">        ├─ </span><span class="hl-4">build</span><span class="hl-1"> </span><span class="hl-4">per</span><span class="hl-1">-</span><span class="hl-4">material</span><span class="hl-1"> </span><span class="hl-6">PBR</span><span class="hl-1"> </span><span class="hl-4">bytes</span><span class="hl-1"> + </span><span class="hl-4">texture</span><span class="hl-1">-</span><span class="hl-4">index</span><span class="hl-1"> </span><span class="hl-0">references</span><span class="hl-1"> (</span><span class="hl-4">v2</span><span class="hl-1">)</span><br/><span class="hl-1">        ├─ </span><span class="hl-4">build</span><span class="hl-1"> </span><span class="hl-4">per</span><span class="hl-1">-</span><span class="hl-4">mesh</span><span class="hl-1"> </span><span class="hl-4">material</span><span class="hl-1"> </span><span class="hl-4">index</span><span class="hl-1"> </span><span class="hl-6">OR</span><span class="hl-1"> </span><span class="hl-4">inline</span><span class="hl-1"> </span><span class="hl-6">RGBA</span><span class="hl-1"> </span><span class="hl-4">fallback</span><br/><span class="hl-1">        └─ </span><span class="hl-4">build</span><span class="hl-1"> </span><span class="hl-4">per</span><span class="hl-1">-</span><span class="hl-4">object</span><span class="hl-1"> </span><span class="hl-4">id</span><span class="hl-1"> + </span><span class="hl-4">mesh</span><span class="hl-1">-</span><span class="hl-4">base</span><span class="hl-1"> </span><span class="hl-4">arrays</span><br/><span class="hl-1">        │</span><br/><span class="hl-1">        ▼</span><br/><span class="hl-1">   </span><span class="hl-4">XGFData_v</span><span class="hl-1">{</span><span class="hl-6">N</span><span class="hl-1">}  </span><span class="hl-4">payload</span><br/><span class="hl-1">        │</span><br/><span class="hl-1">        ▼</span><br/><span class="hl-1">   </span><span class="hl-4">packXGF</span><span class="hl-1">                  ←  </span><span class="hl-4">positional</span><span class="hl-1"> </span><span class="hl-4">pack</span><span class="hl-1">; </span><span class="hl-4">byte</span><span class="hl-1">-</span><span class="hl-4">swap</span><span class="hl-1"> </span><span class="hl-4">on</span><span class="hl-1"> </span><span class="hl-4">big</span><span class="hl-1">-</span><span class="hl-4">endian</span><span class="hl-1">,</span><br/><span class="hl-1">        │                      </span><span class="hl-4">pad</span><span class="hl-1"> </span><span class="hl-4">each</span><span class="hl-1"> </span><span class="hl-4">payload</span><span class="hl-1"> </span><span class="hl-4">to</span><span class="hl-1"> </span><span class="hl-4">its</span><span class="hl-1"> </span><span class="hl-6">BPE</span><span class="hl-1"> </span><span class="hl-4">alignment</span><span class="hl-1">,</span><br/><span class="hl-1">        │                      </span><span class="hl-4">embed</span><span class="hl-1"> </span><span class="hl-6">JSON</span><span class="hl-1"> </span><span class="hl-4">arrays</span><span class="hl-1"> </span><span class="hl-3">as</span><span class="hl-1"> </span><span class="hl-13">Uint8</span><span class="hl-1"> </span><span class="hl-13">blobs</span><br/><span class="hl-1">        ▼</span><br/><span class="hl-1">   .</span><span class="hl-4">xgf</span><span class="hl-1"> </span><span class="hl-0">bytes</span><span class="hl-1">  (</span><span class="hl-4">ArrayBuffer</span><span class="hl-1">)</span>
+</code><button>Copy</button></pre>
+
+<a id="round-trip" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Round-trip<a href="#round-trip" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>The <code>pack ↔ unpack</code> halves walk the same positional list in the same
+order — adding, removing, or reordering an entry is a
+schema-version-breaking change that requires bumping the version tag
+in <code>XGF_INFO.xgfVersion</code> and a matching reader.</p>
+<p>Geometry data round-trips through <code>createGeometryCompressed</code> (load
+side) and the corresponding v2 packer (write side) without
+re-decompressing. Per-vertex positions, normals, UVs and indices are
+already quantised in the SceneModel, so the writer mostly concatenates
+buffers and emits base arrays.</p>
+<a id="coordinate-system-transform" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Coordinate-system transform<a href="#coordinate-system-transform" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>If <code>options.coordinateSystem</code> is passed to the exporter,
+<code>getMeshWorldMatrix</code> bakes the SceneModel-space → target-space
+transform into each mesh's modelling matrix before pack. The XGF
+container itself doesn't carry a coordinate-system field — the caller
+specifies it at load time via the SceneModel.</p>
+<a id="texture-encoding" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Texture encoding<a href="#texture-encoding" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p><code>imageBitmap</code>-backed SceneTextures are re-encoded to PNG bytes via an
+<code>OffscreenCanvas</code> (or a <code>&lt;canvas&gt;</code> fallback). <code>buffers</code>-backed
+SceneTextures pass through verbatim, with <code>mediaType: 255</code> flagging
+the opaque-transcoded case.</p>
+<hr>
+<a id="7-quantisation-conventions" class="tsd-anchor"></a><h2 class="tsd-anchor-link">7. Quantisation conventions<a href="#7-quantisation-conventions" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><a id="positions-uint16-against-per-geometry-aabb" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Positions (Uint16 against per-geometry AABB)<a href="#positions-uint16-against-per-geometry-aabb" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><pre><code><span class="hl-1">   </span><span class="hl-4">uint16</span><span class="hl-1"> = </span><span class="hl-0">round</span><span class="hl-1">((</span><span class="hl-4">double</span><span class="hl-1"> - </span><span class="hl-4">min</span><span class="hl-1">) * </span><span class="hl-7">65535</span><span class="hl-1"> / (</span><span class="hl-4">max</span><span class="hl-1"> - </span><span class="hl-4">min</span><span class="hl-1">))</span><br/><span class="hl-1">   </span><span class="hl-4">double</span><span class="hl-1"> = </span><span class="hl-4">uint16</span><span class="hl-1"> * (</span><span class="hl-4">max</span><span class="hl-1"> - </span><span class="hl-4">min</span><span class="hl-1">) / </span><span class="hl-7">65535</span><span class="hl-1"> + </span><span class="hl-4">min</span>
+</code><button>Copy</button></pre>
+
+<p>Applied per axis, per geometry. The AABB ships in <code>aabbs</code> and is
+referenced by <code>eachGeometryAABBBase</code>. Multiple geometries can share
+an AABB to save space when they cover the same volume.</p>
+<p>Practical implication: keep each geometry's AABB tight to its actual
+extent. At a 1-metre AABB you get ~15 µm precision; at a 100-metre
+AABB you get ~1.5 mm.</p>
+<a id="normals-oct-encoded-uint16-rg" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Normals (oct-encoded Uint16 RG)<a href="#normals-oct-encoded-uint16-rg" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Each normal is folded to the unit-octahedron's 2D parameterisation,
+then quantised to two 16-bit unsigned ints. Decoded in the vertex
+shader — the renderer's <code>unoctEncodedVec3</code> does the inverse. Cost:
+2 bytes/normal vs 12 bytes for raw float3.</p>
+<a id="uvs-float32-rg" class="tsd-anchor"></a><h3 class="tsd-anchor-link">UVs (Float32 RG)<a href="#uvs-float32-rg" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Floats, not quantised. Tiling values outside <code>[0, 1]</code> (e.g. for
+repeat-mapping a brick texture across a wall) need to survive intact,
+which they wouldn't through a <code>0..1</code>-clamped quantisation.</p>
+<hr>
+<a id="8-usage" class="tsd-anchor"></a><h2 class="tsd-anchor-link">8. Usage<a href="#8-usage" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><a id="loader" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Loader<a href="#loader" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><pre><code class="ts"><span class="hl-3">import</span><span class="hl-1"> {</span><span class="hl-4">Scene</span><span class="hl-1">} </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@xeokit/sdk/model/scene&quot;</span><span class="hl-1">;</span><br/><span class="hl-3">import</span><span class="hl-1"> {</span><span class="hl-4">Data</span><span class="hl-1">}  </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@xeokit/sdk/model/data&quot;</span><span class="hl-1">;</span><br/><span class="hl-3">import</span><span class="hl-1"> {</span><span class="hl-4">XGFLoader</span><span class="hl-1">} </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@xeokit/sdk/formats/xgf&quot;</span><span class="hl-1">;</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">scene</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">Scene</span><span class="hl-1">();</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">data</span><span class="hl-1">  = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">Data</span><span class="hl-1">();</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">sceneModel</span><span class="hl-1"> = </span><span class="hl-4">scene</span><span class="hl-1">.</span><span class="hl-0">createModel</span><span class="hl-1">({</span><span class="hl-4">id:</span><span class="hl-1"> </span><span class="hl-2">&quot;myModel&quot;</span><span class="hl-1">}).</span><span class="hl-4">value</span><span class="hl-1">!;</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">dataModel</span><span class="hl-1">  = </span><span class="hl-4">data</span><span class="hl-1">.</span><span class="hl-0">createModel</span><span class="hl-1">({</span><span class="hl-4">id:</span><span class="hl-1"> </span><span class="hl-2">&quot;myModel&quot;</span><span class="hl-1">}).</span><span class="hl-4">value</span><span class="hl-1">!;</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">fileData</span><span class="hl-1"> = </span><span class="hl-3">await</span><span class="hl-1"> (</span><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">fetch</span><span class="hl-1">(</span><span class="hl-2">&quot;./model.xgf&quot;</span><span class="hl-1">)).</span><span class="hl-0">arrayBuffer</span><span class="hl-1">();</span><br/><br/><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">XGFLoader</span><span class="hl-1">().</span><span class="hl-0">load</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">fileData</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">sceneModel</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">dataModel</span><span class="hl-1">,</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<p>The loader's <code>fileDataType</code> is <code>&quot;arraybuffer&quot;</code>. Pass a <code>DataModel</code> to
+also receive the loader's minimal <code>BasicEntity</code> graph keyed by
+SceneObject id; omit it if you'll pair the SceneModel with a
+hand-authored DataModel from a JSON sidecar.</p>
+<a id="exporter" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Exporter<a href="#exporter" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><pre><code class="ts"><span class="hl-3">import</span><span class="hl-1"> {</span><span class="hl-4">XGFExporter</span><span class="hl-1">} </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@xeokit/sdk/formats/xgf&quot;</span><span class="hl-1">;</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">arrayBuffer</span><span class="hl-1"> = </span><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">XGFExporter</span><span class="hl-1">().</span><span class="hl-0">write</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">sceneModel</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">version:</span><span class="hl-1"> </span><span class="hl-2">&quot;1.1.0&quot;</span><span class="hl-1">,   </span><span class="hl-8">// omit for default &quot;1.0.0&quot;</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<p>The exporter's <code>fileDataType</code> is <code>&quot;arraybuffer&quot;</code>. The <code>dataModel</code>
+parameter is accepted by the base <code>ModelExporter</code> API but XGF is a
+geometry-only format — semantic data should be written separately
+through the <code>datamodel</code> JSON exporter.</p>
+<a id="pairing-with-datamodel-json" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Pairing with DataModel JSON<a href="#pairing-with-datamodel-json" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>The canonical streamed-model payload is <strong><code>.xgf</code> + <code>.json</code></strong> loaded
+together:</p>
+<pre><code class="ts"><span class="hl-3">import</span><span class="hl-1"> {</span><span class="hl-4">DataModelImporter</span><span class="hl-1">} </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@xeokit/sdk/formats/datamodel&quot;</span><span class="hl-1">;</span><br/><span class="hl-3">import</span><span class="hl-1"> {</span><span class="hl-4">XGFLoader</span><span class="hl-1">}             </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@xeokit/sdk/formats/xgf&quot;</span><span class="hl-1">;</span><br/><br/><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-13">Promise</span><span class="hl-1">.</span><span class="hl-0">all</span><span class="hl-1">([</span><br/><span class="hl-1">  </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">DataModelImporter</span><span class="hl-1">().</span><span class="hl-0">load</span><span class="hl-1">({</span><br/><span class="hl-1">    </span><span class="hl-4">fileData:</span><span class="hl-1"> </span><span class="hl-3">await</span><span class="hl-1"> (</span><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">fetch</span><span class="hl-1">(</span><span class="hl-2">&quot;./model.json&quot;</span><span class="hl-1">)).</span><span class="hl-0">json</span><span class="hl-1">(),</span><br/><span class="hl-1">    </span><span class="hl-4">dataModel</span><span class="hl-1">,</span><br/><span class="hl-1">  }),</span><br/><span class="hl-1">  </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">XGFLoader</span><span class="hl-1">().</span><span class="hl-0">load</span><span class="hl-1">({</span><br/><span class="hl-1">    </span><span class="hl-4">fileData:</span><span class="hl-1"> </span><span class="hl-3">await</span><span class="hl-1"> (</span><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">fetch</span><span class="hl-1">(</span><span class="hl-2">&quot;./model.xgf&quot;</span><span class="hl-1">)).</span><span class="hl-0">arrayBuffer</span><span class="hl-1">(),</span><br/><span class="hl-1">    </span><span class="hl-4">sceneModel</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-4">dataModel</span><span class="hl-1">,  </span><span class="hl-8">// safe to share — the XGF BasicEntity graph merges</span><br/><span class="hl-1">                </span><span class="hl-8">// with the JSON-authored DataObjects by id</span><br/><span class="hl-1">  }),</span><br/><span class="hl-1">]);</span>
+</code><button type="button">Copy</button></pre>
+
+<hr>
+<a id="9-what-xgf-does-not-carry" class="tsd-anchor"></a><h2 class="tsd-anchor-link">9. What XGF does not carry<a href="#9-what-xgf-does-not-carry" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li><strong>Animation / skinning.</strong> XGF is a static-geometry format. Time-
+varying transforms aren't representable.</li>
+<li><strong>Cameras, lights.</strong> The format describes meshes + materials, not
+the surrounding scene.</li>
+<li><strong>NURBS / B-rep / parametric primitives.</strong> Geometry must be
+tessellated to triangles (or lines / points) before export.</li>
+<li><strong>Section planes.</strong> A runtime view-side concept; not in the file.</li>
+<li><strong>Semantic structure.</strong> DataObjects / Relationships /
+PropertySets live in the paired DataModel JSON; XGF only carries
+object IDs so the two halves can pair up.</li>
+<li><strong>Coordinate system metadata.</strong> The runtime caller specifies the
+coordinate system via <code>SceneModel.coordinateSystem</code>; the file
+itself is coordinate-system-agnostic.</li>
+<li><strong>Pre-encoded compression layer.</strong> No built-in zstd / draco /
+meshopt step. Use HTTP-layer compression (gzip / brotli) for wire
+efficiency.</li>
+</ul>
+<hr>
+<a id="10-file-map" class="tsd-anchor"></a><h2 class="tsd-anchor-link">10. File map<a href="#10-file-map" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><pre><code><span class="hl-4">formats</span><span class="hl-1">/</span><span class="hl-4">xgf</span><span class="hl-1">/</span><br/><span class="hl-1">├── </span><span class="hl-6">README</span><span class="hl-1">.</span><span class="hl-0">md</span><span class="hl-1">                              (</span><span class="hl-5">this</span><span class="hl-1"> </span><span class="hl-4">file</span><span class="hl-1">)</span><br/><span class="hl-1">├── </span><span class="hl-4">XGFLoader</span><span class="hl-1">.</span><span class="hl-4">ts</span><span class="hl-1">                           </span><span class="hl-4">ModelLoader</span><span class="hl-1"> </span><span class="hl-4">subclass</span><span class="hl-1"> — </span><span class="hl-4">version</span><span class="hl-1"> </span><span class="hl-4">dispatch</span><br/><span class="hl-1">├── </span><span class="hl-4">XGFExporter</span><span class="hl-1">.</span><span class="hl-4">ts</span><span class="hl-1">                         </span><span class="hl-4">ModelExporter</span><span class="hl-1"> </span><span class="hl-4">subclass</span><span class="hl-1"> — </span><span class="hl-4">version</span><span class="hl-1"> </span><span class="hl-4">dispatch</span><br/><span class="hl-1">├── </span><span class="hl-4">index</span><span class="hl-1">.</span><span class="hl-4">ts</span><span class="hl-1">                               </span><span class="hl-5">module</span><span class="hl-1"> </span><span class="hl-13">re</span><span class="hl-1">-</span><span class="hl-13">exports</span><br/><span class="hl-1">└── </span><span class="hl-13">versions</span><span class="hl-1">/</span><br/><span class="hl-1">    ├── </span><span class="hl-13">v1</span><span class="hl-1">/</span><br/><span class="hl-1">    │   ├── </span><span class="hl-13">XGF_INFO</span><span class="hl-1">.</span><span class="hl-13">ts</span><span class="hl-1">                    {</span><span class="hl-11">xgfVersion</span><span class="hl-1">: </span><span class="hl-7">1</span><span class="hl-1">}</span><br/><span class="hl-1">    │   ├── </span><span class="hl-4">XGFData_v1</span><span class="hl-1">.</span><span class="hl-4">ts</span><span class="hl-1">                  </span><span class="hl-4">v1</span><span class="hl-1"> </span><span class="hl-4">payload</span><span class="hl-1"> </span><span class="hl-4">type</span><br/><span class="hl-1">    │   ├── </span><span class="hl-4">parse</span><span class="hl-1">.</span><span class="hl-4">ts</span><span class="hl-1">                       </span><span class="hl-4">load</span><span class="hl-1"> </span><span class="hl-4">pipeline</span><span class="hl-1"> </span><span class="hl-4">entry</span><span class="hl-1"> — </span><span class="hl-4">unpack</span><span class="hl-1"> → </span><span class="hl-4">xgfToModel</span><br/><span class="hl-1">    │   ├── </span><span class="hl-4">encode</span><span class="hl-1">.</span><span class="hl-4">ts</span><span class="hl-1">                      </span><span class="hl-4">write</span><span class="hl-1"> </span><span class="hl-4">pipeline</span><span class="hl-1"> </span><span class="hl-4">entry</span><span class="hl-1"> — </span><span class="hl-4">modelToXGF</span><span class="hl-1"> → </span><span class="hl-4">pack</span><br/><span class="hl-1">    │   ├── </span><span class="hl-4">unpackXGF</span><span class="hl-1">.</span><span class="hl-4">ts</span><span class="hl-1">                   </span><span class="hl-4">ArrayBuffer</span><span class="hl-1"> → </span><span class="hl-0">XGFData_v1</span><span class="hl-1"> (</span><span class="hl-4">positional</span><span class="hl-1">, </span><span class="hl-6">BE</span><span class="hl-1">-</span><span class="hl-4">aware</span><span class="hl-1">)</span><br/><span class="hl-1">    │   ├── </span><span class="hl-4">packXGF</span><span class="hl-1">.</span><span class="hl-4">ts</span><span class="hl-1">                     </span><span class="hl-4">XGFData_v1</span><span class="hl-1"> → </span><span class="hl-4">ArrayBuffer</span><br/><span class="hl-1">    │   ├── </span><span class="hl-4">xgfToModel</span><span class="hl-1">.</span><span class="hl-4">ts</span><span class="hl-1">                  </span><span class="hl-4">XGFData_v1</span><span class="hl-1"> → </span><span class="hl-4">SceneModel</span><span class="hl-1"> + </span><span class="hl-4">DataModel</span><br/><span class="hl-1">    │   └── </span><span class="hl-4">modelToXGF</span><span class="hl-1">.</span><span class="hl-4">ts</span><span class="hl-1">                  </span><span class="hl-4">SceneModel</span><span class="hl-1"> → </span><span class="hl-4">XGFData_v1</span><br/><span class="hl-1">    └── </span><span class="hl-4">v2</span><span class="hl-1">/</span><br/><span class="hl-1">        ├── </span><span class="hl-6">XGF_INFO</span><span class="hl-1">.</span><span class="hl-4">ts</span><span class="hl-1">                    {</span><span class="hl-11">xgfVersion</span><span class="hl-1">: </span><span class="hl-7">2</span><span class="hl-1">}</span><br/><span class="hl-1">        ├── </span><span class="hl-4">XGFData_v2</span><span class="hl-1">.</span><span class="hl-4">ts</span><span class="hl-1">                  </span><span class="hl-4">v2</span><span class="hl-1"> </span><span class="hl-4">payload</span><span class="hl-1"> </span><span class="hl-0">type</span><span class="hl-1"> (</span><span class="hl-4">adds</span><span class="hl-1"> </span><span class="hl-4">normals</span><span class="hl-1">, </span><span class="hl-4">UVs</span><span class="hl-1">, </span><span class="hl-4">textures</span><span class="hl-1">, </span><span class="hl-4">materials</span><span class="hl-1">)</span><br/><span class="hl-1">        ├── </span><span class="hl-4">parse</span><span class="hl-1">.</span><span class="hl-4">ts</span><span class="hl-1">                       </span><span class="hl-4">load</span><span class="hl-1"> </span><span class="hl-4">pipeline</span><span class="hl-1"> </span><span class="hl-4">entry</span><br/><span class="hl-1">        ├── </span><span class="hl-4">encode</span><span class="hl-1">.</span><span class="hl-4">ts</span><span class="hl-1">                      </span><span class="hl-4">write</span><span class="hl-1"> </span><span class="hl-4">pipeline</span><span class="hl-1"> </span><span class="hl-4">entry</span><br/><span class="hl-1">        ├── </span><span class="hl-4">unpackXGF</span><span class="hl-1">.</span><span class="hl-4">ts</span><span class="hl-1">                   </span><span class="hl-4">ArrayBuffer</span><span class="hl-1"> → </span><span class="hl-4">XGFData_v2</span><br/><span class="hl-1">        ├── </span><span class="hl-4">packXGF</span><span class="hl-1">.</span><span class="hl-4">ts</span><span class="hl-1">                     </span><span class="hl-4">XGFData_v2</span><span class="hl-1"> → </span><span class="hl-4">ArrayBuffer</span><br/><span class="hl-1">        ├── </span><span class="hl-4">xgfToModel</span><span class="hl-1">.</span><span class="hl-4">ts</span><span class="hl-1">                  </span><span class="hl-4">XGFData_v2</span><span class="hl-1"> → </span><span class="hl-4">SceneModel</span><span class="hl-1"> + </span><span class="hl-4">DataModel</span><br/><span class="hl-1">        └── </span><span class="hl-4">modelToXGF</span><span class="hl-1">.</span><span class="hl-4">ts</span><span class="hl-1">                  </span><span class="hl-4">SceneModel</span><span class="hl-1"> → </span><span class="hl-4">XGFData_v2</span>
+</code><button>Copy</button></pre>
+
+</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-alpha" name="alpha"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Alpha</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-beta" name="beta"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Beta</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#xgf-xeokit-geometry-format-loader--exporter"><span>XGF (xeokit <wbr/>Geometry <wbr/>Format) <wbr/>Loader / <wbr/>Exporter</span></a><ul><li><a href="#1-what-xgf-is"><span>1. <wbr/>What XGF is</span></a></li><li><ul><li><a href="#trade-offs"><span>Trade-<wbr/>offs</span></a></li></ul></li><li><a href="#2-binary-container"><span>2. <wbr/>Binary container</span></a></li><li><a href="#3-the-two-versions"><span>3. <wbr/>The two versions</span></a></li><li><a href="#4-v2-payload"><span>4. v2 payload</span></a></li><li><ul><li><a href="#geometry-per-vertex-blobs"><span>Geometry (per-<wbr/>vertex blobs)</span></a></li><li><a href="#per-geometry-pointers"><span>Per-<wbr/>geometry pointers</span></a></li><li><a href="#modelling-matrices"><span>Modelling matrices</span></a></li><li><a href="#textures-v2-only"><span>Textures (v2 only)</span></a></li><li><a href="#materials-v2-only"><span>Materials (v2 only)</span></a></li><li><a href="#per-mesh"><span>Per-<wbr/>mesh</span></a></li><li><a href="#per-object"><span>Per-<wbr/>object</span></a></li><li><a href="#v1-payload"><span>v1 payload</span></a></li></ul></li><li><a href="#5-load-pipeline"><span>5. <wbr/>Load pipeline</span></a></li><li><ul><li><a href="#cancellation--progress"><span>Cancellation + progress</span></a></li><li><a href="#texture-decoding"><span>Texture decoding</span></a></li></ul></li><li><a href="#6-export-pipeline"><span>6. <wbr/>Export pipeline</span></a></li><li><ul><li><a href="#round-trip"><span>Round-<wbr/>trip</span></a></li><li><a href="#coordinate-system-transform"><span>Coordinate-<wbr/>system transform</span></a></li><li><a href="#texture-encoding"><span>Texture encoding</span></a></li></ul></li><li><a href="#7-quantisation-conventions"><span>7. <wbr/>Quantisation conventions</span></a></li><li><ul><li><a href="#positions-uint16-against-per-geometry-aabb"><span>Positions (<wbr/>Uint16 against per-<wbr/>geometry AABB)</span></a></li><li><a href="#normals-oct-encoded-uint16-rg"><span>Normals (oct-<wbr/>encoded <wbr/>Uint16 RG)</span></a></li><li><a href="#uvs-float32-rg"><span>UVs (<wbr/>Float32 RG)</span></a></li></ul></li><li><a href="#8-usage"><span>8. <wbr/>Usage</span></a></li><li><ul><li><a href="#loader"><span>Loader</span></a></li><li><a href="#exporter"><span>Exporter</span></a></li><li><a href="#pairing-with-datamodel-json"><span>Pairing with <wbr/>Data<wbr/>Model JSON</span></a></li></ul></li><li><a href="#9-what-xgf-does-not-carry"><span>9. <wbr/>What XGF does not carry</span></a></li><li><a href="#10-file-map"><span>10. <wbr/>File map</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="../modules.html">@xeokit/sdk - v0.1.0</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>

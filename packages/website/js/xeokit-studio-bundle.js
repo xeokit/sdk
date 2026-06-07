@@ -2614,8 +2614,8 @@ var LocaleService = class {
    *
    * @param messages The new translations.
    */
-  set messages(messages) {
-    this.#messages = messages || {};
+  set messages(messages2) {
+    this.#messages = messages2 || {};
     this.#locales = Object.keys(this.#messages);
     this.onUpdated.dispatch(this, this.#locale);
   }
@@ -2682,9 +2682,9 @@ var LocaleService = class {
    *
    * @param messages The new translations.
    */
-  loadMessages(messages = {}) {
-    for (const locale in messages) {
-      this.#messages[locale] = messages[locale];
+  loadMessages(messages2 = {}) {
+    for (const locale in messages2) {
+      this.#messages[locale] = messages2[locale];
     }
     this.messages = this.#messages;
   }
@@ -6294,9 +6294,9 @@ function _abortError() {
   if (typeof DOMException !== "undefined") {
     return new DOMException("Aborted", "AbortError");
   }
-  const err5 = new Error("Aborted");
-  err5.name = "AbortError";
-  return err5;
+  const err6 = new Error("Aborted");
+  err6.name = "AbortError";
+  return err6;
 }
 
 // ../sdk/src/base/utils/index.ts
@@ -6365,10 +6365,10 @@ function httpRequest(args) {
     xhr.send(null);
   });
 }
-function loadJSON(url, ok, err5) {
+function loadJSON(url, ok, err6) {
   const defaultCallback = (_value) => void 0;
   ok = ok || defaultCallback;
-  err5 = err5 || defaultCallback;
+  err6 = err6 || defaultCallback;
   const request = new XMLHttpRequest();
   request.overrideMimeType("application/json");
   request.open("GET", url, true);
@@ -6379,7 +6379,7 @@ function loadJSON(url, ok, err5) {
       try {
         json = JSON.parse(response);
       } catch (e) {
-        err5(`utils.loadJSON(): Cannot parse JSON response - ${e}`);
+        err6(`utils.loadJSON(): Cannot parse JSON response - ${e}`);
       }
       ok(json);
     } else if (this.status === 0) {
@@ -6387,21 +6387,21 @@ function loadJSON(url, ok, err5) {
       try {
         ok(JSON.parse(response));
       } catch (e) {
-        err5(`utils.loadJSON(): Cannot parse JSON response - ${e}`);
+        err6(`utils.loadJSON(): Cannot parse JSON response - ${e}`);
       }
     } else {
-      err5(event);
+      err6(event);
     }
   }, false);
   request.addEventListener("error", function(event) {
-    err5(event);
+    err6(event);
   }, false);
   request.send(null);
 }
-function loadArraybuffer(url, ok, err5) {
+function loadArraybuffer(url, ok, err6) {
   const defaultCallback = (_value) => void 0;
   ok = ok || defaultCallback;
-  err5 = err5 || defaultCallback;
+  err6 = err6 || defaultCallback;
   const dataUriRegex = /^data:(.*?)(;base64)?,(.*)$/;
   const dataUriRegexResult = url.match(dataUriRegex);
   if (dataUriRegexResult) {
@@ -6422,7 +6422,7 @@ function loadArraybuffer(url, ok, err5) {
       }, 0);
     } catch (error) {
       window.setTimeout(function() {
-        err5(error);
+        err6(error);
       }, 0);
     }
   } else {
@@ -6434,7 +6434,7 @@ function loadArraybuffer(url, ok, err5) {
         if (request.status === 200) {
           ok(request.response);
         } else {
-          err5("loadArrayBuffer error : " + request.response);
+          err6("loadArrayBuffer error : " + request.response);
         }
       }
     };
@@ -17965,9 +17965,9 @@ var ModelLoader = class {
           parser({ fileData: fileData2, sceneModel, dataModel }, options).then(() => {
             restoreYieldOverride();
             resolve2();
-          }).catch((err5) => {
+          }).catch((err6) => {
             restoreYieldOverride();
-            reject(err5);
+            reject(err6);
           });
         } else {
           return resolve2();
@@ -17976,8 +17976,8 @@ var ModelLoader = class {
       if (filePath) {
         fileIO.load(filePath).then((fileData2) => {
           loadFileData(fileData2);
-        }).catch((err5) => {
-          reject(`[${className}.load] Cannot load glTF -> ${err5}`);
+        }).catch((err6) => {
+          reject(`[${className}.load] Cannot load glTF -> ${err6}`);
         });
       } else {
         loadFileData(fileData);
@@ -17999,10 +17999,10 @@ function parse(params, options) {
   });
 }
 
-// ../sdk/src/formats/datamodel/DataModelParamsLoader.ts
-var DataModelParamsLoader = class extends ModelLoader {
+// ../sdk/src/formats/datamodel/DataModelImporter.ts
+var DataModelImporter = class extends ModelLoader {
   /**
-   * Constructs a DataModelParamsLoader.
+   * Constructs a DataModelImporter.
    */
   constructor() {
     super({
@@ -18026,7 +18026,7 @@ var ModelChunksLoader = class {
   constructor(params) {
     const { sceneModelLoader, dataModelLoader } = params;
     this.#sceneModelLoader = sceneModelLoader;
-    this.#dataModelLoader = dataModelLoader || new DataModelParamsLoader();
+    this.#dataModelLoader = dataModelLoader || new DataModelImporter();
     this.#cancelled = false;
   }
   cancel() {
@@ -18147,6 +18147,8 @@ __export(formats_exports, {
   dotbim: () => dotbim_exports,
   dwg: () => dwg_exports,
   dxf: () => dxf_exports,
+  fbx: () => fbx_exports,
+  fds: () => fds_exports,
   gltf: () => gltf_exports,
   ifc: () => ifc_exports,
   las: () => las_exports,
@@ -18158,8 +18160,7 @@ __export(formats_exports, {
   scenemodel: () => scenemodel_exports,
   step: () => step_exports,
   svg: () => svg_exports,
-  xgf: () => xgf_exports,
-  xkt: () => xkt_exports
+  xgf: () => xgf_exports
 });
 
 // ../sdk/src/formats/gltf/index.ts
@@ -20267,8 +20268,8 @@ var GLTFScenegraph = class {
     return data2;
   }
   getExtraData(key) {
-    const extras = this.json.extras || {};
-    return extras[key];
+    const extras2 = this.json.extras || {};
+    return extras2[key];
   }
   hasExtension(extensionName) {
     const isUsedExtension = this.getUsedExtensions().find((name12) => name12 === extensionName);
@@ -21445,16 +21446,16 @@ function createPropertyTable(propertyAttributes, classId, schema) {
   return table;
 }
 function createPropertyTableProperty(values, classProperty, scenegraph) {
-  const prop = { values: 0 };
+  const prop2 = { values: 0 };
   if (classProperty.type === "STRING") {
     const { stringData, stringOffsets } = createPropertyDataString(values);
-    prop.stringOffsets = createBufferView(stringOffsets, scenegraph);
-    prop.values = createBufferView(stringData, scenegraph);
+    prop2.stringOffsets = createBufferView(stringOffsets, scenegraph);
+    prop2.values = createBufferView(stringData, scenegraph);
   } else if (classProperty.type === "SCALAR" && classProperty.componentType) {
     const data2 = createPropertyDataScalar(values, classProperty.componentType);
-    prop.values = createBufferView(data2, scenegraph);
+    prop2.values = createBufferView(data2, scenegraph);
   }
-  return prop;
+  return prop2;
 }
 var COMPONENT_TYPE_TO_ARRAY_CONSTRUCTOR = {
   INT8: Int8Array,
@@ -21479,11 +21480,11 @@ function createPropertyDataScalar(array, componentType) {
   }
   return new Construct(numberArray);
 }
-function createPropertyDataString(strings) {
+function createPropertyDataString(strings2) {
   const utf8Encode = new TextEncoder();
   const arr = [];
   let len = 0;
-  for (const str of strings) {
+  for (const str of strings2) {
     const uint8Array = utf8Encode.encode(str);
     len += uint8Array.length;
     arr.push(uint8Array);
@@ -27276,9 +27277,9 @@ var ModelExporter = class {
       encoder({ sceneModel, dataModel }, options).then((fileData) => {
         restoreYieldOverride();
         resolve2(fileData);
-      }).catch((err5) => {
+      }).catch((err6) => {
         restoreYieldOverride();
-        reject(`Cannot export target file -> ${err5}`);
+        reject(`Cannot export target file -> ${err6}`);
       });
     });
   }
@@ -28789,8 +28790,8 @@ var Property2 = class extends GraphNode {
    * Updates the Extras object, containing application-specific data for this Property. Extras
    * should be an Object, not a primitive value, for best portability.
    */
-  setExtras(extras) {
-    return this.set("extras", extras);
+  setExtras(extras2) {
+    return this.set("extras", extras2);
   }
   /**********************************************************************************************
    * Graph state.
@@ -34073,13 +34074,13 @@ var __hasOwnProp2 = Object.prototype.hasOwnProperty;
 var __propIsEnum = Object.prototype.propertyIsEnumerable;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __spreadValues = (a2, b4) => {
-  for (var prop in b4 || (b4 = {}))
-    if (__hasOwnProp2.call(b4, prop))
-      __defNormalProp(a2, prop, b4[prop]);
+  for (var prop2 in b4 || (b4 = {}))
+    if (__hasOwnProp2.call(b4, prop2))
+      __defNormalProp(a2, prop2, b4[prop2]);
   if (__getOwnPropSymbols)
-    for (var prop of __getOwnPropSymbols(b4)) {
-      if (__propIsEnum.call(b4, prop))
-        __defNormalProp(a2, prop, b4[prop]);
+    for (var prop2 of __getOwnPropSymbols(b4)) {
+      if (__propIsEnum.call(b4, prop2))
+        __defNormalProp(a2, prop2, b4[prop2]);
     }
   return a2;
 };
@@ -34233,7 +34234,7 @@ var require_web_ifc_mt = __commonJS2({
         } else {
         }
         var out = Module2["print"] || console.log.bind(console);
-        var err5 = Module2["printErr"] || console.error.bind(console);
+        var err6 = Module2["printErr"] || console.error.bind(console);
         Object.assign(Module2, moduleOverrides);
         moduleOverrides = null;
         if (Module2["arguments"])
@@ -34281,9 +34282,9 @@ var require_web_ifc_mt = __commonJS2({
           } else {
             wasmMemory = new WebAssembly.Memory({ "initial": INITIAL_MEMORY / 65536, "maximum": 4294967296 / 65536, "shared": true });
             if (!(wasmMemory.buffer instanceof SharedArrayBuffer)) {
-              err5("requested a shared WebAssembly.Memory but the returned buffer is not a SharedArrayBuffer, indicating that while the browser has SharedArrayBuffer it does not have WebAssembly threads support - you may need to set a flag");
+              err6("requested a shared WebAssembly.Memory but the returned buffer is not a SharedArrayBuffer, indicating that while the browser has SharedArrayBuffer it does not have WebAssembly threads support - you may need to set a flag");
               if (ENVIRONMENT_IS_NODE) {
-                err5("(on node you may need: --experimental-wasm-threads --experimental-wasm-bulk-memory and/or recent version)");
+                err6("(on node you may need: --experimental-wasm-threads --experimental-wasm-bulk-memory and/or recent version)");
               }
               throw Error("bad memory");
             }
@@ -34375,7 +34376,7 @@ var require_web_ifc_mt = __commonJS2({
             Module2["onAbort"](what);
           }
           what = "Aborted(" + what + ")";
-          err5(what);
+          err6(what);
           ABORT = true;
           EXITSTATUS = 1;
           what += ". Build with -sASSERTIONS for more info.";
@@ -34416,7 +34417,7 @@ var require_web_ifc_mt = __commonJS2({
         }
         function instantiateArrayBuffer(binaryFile, imports, receiver) {
           return getBinaryPromise(binaryFile).then((binary) => WebAssembly.instantiate(binary, imports)).then((instance) => instance).then(receiver, (reason) => {
-            err5("failed to asynchronously prepare wasm: " + reason);
+            err6("failed to asynchronously prepare wasm: " + reason);
             abort(reason);
           });
         }
@@ -34425,8 +34426,8 @@ var require_web_ifc_mt = __commonJS2({
             return fetch(binaryFile, { credentials: "same-origin" }).then((response) => {
               var result = WebAssembly.instantiateStreaming(response, imports);
               return result.then(callback, function(reason) {
-                err5("wasm streaming compile failed: " + reason);
-                err5("falling back to ArrayBuffer instantiation");
+                err6("wasm streaming compile failed: " + reason);
+                err6("falling back to ArrayBuffer instantiation");
                 return instantiateArrayBuffer(binaryFile, imports, callback);
               });
             });
@@ -34454,7 +34455,7 @@ var require_web_ifc_mt = __commonJS2({
             try {
               return Module2["instantiateWasm"](info, receiveInstance);
             } catch (e) {
-              err5("Module.instantiateWasm callback failed with error: " + e);
+              err6("Module.instantiateWasm callback failed with error: " + e);
               readyPromiseReject(e);
             }
           }
@@ -34814,7 +34815,7 @@ var require_web_ifc_mt = __commonJS2({
           return [24, 80];
         } }, default_tty1_ops: { put_char: function(tty, val) {
           if (val === null || val === 10) {
-            err5(UTF8ArrayToString(tty.output, 0));
+            err6(UTF8ArrayToString(tty.output, 0));
             tty.output = [];
           } else {
             if (val != 0)
@@ -34822,7 +34823,7 @@ var require_web_ifc_mt = __commonJS2({
           }
         }, fsync: function(tty) {
           if (tty.output && tty.output.length > 0) {
-            err5(UTF8ArrayToString(tty.output, 0));
+            err6(UTF8ArrayToString(tty.output, 0));
             tty.output = [];
           }
         } } };
@@ -35381,7 +35382,7 @@ var require_web_ifc_mt = __commonJS2({
           }
           FS.syncFSRequests++;
           if (FS.syncFSRequests > 1) {
-            err5(`warning: ${FS.syncFSRequests} FS.syncfs operations in flight at once, probably just doing extra work`);
+            err6(`warning: ${FS.syncFSRequests} FS.syncfs operations in flight at once, probably just doing extra work`);
           }
           var mounts = FS.getMounts(FS.root.mount);
           var completed = 0;
@@ -36466,7 +36467,7 @@ var require_web_ifc_mt = __commonJS2({
               if (targetWorker) {
                 targetWorker.postMessage(d, d["transferList"]);
               } else {
-                err5('Internal error! Worker sent a message "' + cmd + '" to target pthread ' + d["targetThread"] + ", but that thread no longer exists!");
+                err6('Internal error! Worker sent a message "' + cmd + '" to target pthread ' + d["targetThread"] + ", but that thread no longer exists!");
               }
               return;
             }
@@ -36490,12 +36491,12 @@ var require_web_ifc_mt = __commonJS2({
             } else if (cmd === "callHandler") {
               Module2[d["handler"]](...d["args"]);
             } else if (cmd) {
-              err5("worker sent an unknown command " + cmd);
+              err6("worker sent an unknown command " + cmd);
             }
           };
           worker.onerror = (e) => {
             var message = "worker sent an error!";
-            err5(message + " " + e.filename + ":" + e.lineno + ": " + e.message);
+            err6(message + " " + e.filename + ":" + e.lineno + ": " + e.message);
             throw e;
           };
           var handlers = [];
@@ -38409,7 +38410,7 @@ var require_web_ifc_mt = __commonJS2({
             warnOnce.shown = {};
           if (!warnOnce.shown[text]) {
             warnOnce.shown[text] = 1;
-            err5(text);
+            err6(text);
           }
         };
         function _emscripten_check_blocking_allowed() {
@@ -38504,11 +38505,11 @@ var require_web_ifc_mt = __commonJS2({
               else
                 env[x] = ENV[x];
             }
-            var strings = [];
+            var strings2 = [];
             for (var x in env) {
-              strings.push(`${x}=${env[x]}`);
+              strings2.push(`${x}=${env[x]}`);
             }
-            getEnvStrings.strings = strings;
+            getEnvStrings.strings = strings2;
           }
           return getEnvStrings.strings;
         };
@@ -38537,10 +38538,10 @@ var require_web_ifc_mt = __commonJS2({
             return proxyToMainThread(4, 1, penviron_count, penviron_buf_size);
           penviron_count >>>= 0;
           penviron_buf_size >>>= 0;
-          var strings = getEnvStrings();
-          GROWABLE_HEAP_U32()[penviron_count >>> 2] = strings.length;
+          var strings2 = getEnvStrings();
+          GROWABLE_HEAP_U32()[penviron_count >>> 2] = strings2.length;
           var bufSize = 0;
-          strings.forEach(function(string) {
+          strings2.forEach(function(string) {
             bufSize += string.length + 1;
           });
           GROWABLE_HEAP_U32()[penviron_buf_size >>> 2] = bufSize;
@@ -39076,7 +39077,7 @@ var require_web_ifc = __commonJS2({
         } else {
         }
         var out = Module2["print"] || console.log.bind(console);
-        var err5 = Module2["printErr"] || console.error.bind(console);
+        var err6 = Module2["printErr"] || console.error.bind(console);
         Object.assign(Module2, moduleOverrides);
         moduleOverrides = null;
         if (Module2["arguments"])
@@ -39189,7 +39190,7 @@ var require_web_ifc = __commonJS2({
             Module2["onAbort"](what);
           }
           what = "Aborted(" + what + ")";
-          err5(what);
+          err6(what);
           ABORT = true;
           EXITSTATUS = 1;
           what += ". Build with -sASSERTIONS for more info.";
@@ -39230,7 +39231,7 @@ var require_web_ifc = __commonJS2({
         }
         function instantiateArrayBuffer(binaryFile, imports, receiver) {
           return getBinaryPromise(binaryFile).then((binary) => WebAssembly.instantiate(binary, imports)).then((instance) => instance).then(receiver, (reason) => {
-            err5("failed to asynchronously prepare wasm: " + reason);
+            err6("failed to asynchronously prepare wasm: " + reason);
             abort(reason);
           });
         }
@@ -39239,8 +39240,8 @@ var require_web_ifc = __commonJS2({
             return fetch(binaryFile, { credentials: "same-origin" }).then((response) => {
               var result = WebAssembly.instantiateStreaming(response, imports);
               return result.then(callback, function(reason) {
-                err5("wasm streaming compile failed: " + reason);
-                err5("falling back to ArrayBuffer instantiation");
+                err6("wasm streaming compile failed: " + reason);
+                err6("falling back to ArrayBuffer instantiation");
                 return instantiateArrayBuffer(binaryFile, imports, callback);
               });
             });
@@ -39268,7 +39269,7 @@ var require_web_ifc = __commonJS2({
             try {
               return Module2["instantiateWasm"](info, receiveInstance);
             } catch (e) {
-              err5("Module.instantiateWasm callback failed with error: " + e);
+              err6("Module.instantiateWasm callback failed with error: " + e);
               readyPromiseReject(e);
             }
           }
@@ -41201,11 +41202,11 @@ var require_web_ifc = __commonJS2({
               else
                 env[x] = ENV[x];
             }
-            var strings = [];
+            var strings2 = [];
             for (var x in env) {
-              strings.push(`${x}=${env[x]}`);
+              strings2.push(`${x}=${env[x]}`);
             }
-            getEnvStrings.strings = strings;
+            getEnvStrings.strings = strings2;
           }
           return getEnvStrings.strings;
         };
@@ -41434,7 +41435,7 @@ var require_web_ifc = __commonJS2({
           return [24, 80];
         } }, default_tty1_ops: { put_char: function(tty, val) {
           if (val === null || val === 10) {
-            err5(UTF8ArrayToString(tty.output, 0));
+            err6(UTF8ArrayToString(tty.output, 0));
             tty.output = [];
           } else {
             if (val != 0)
@@ -41442,7 +41443,7 @@ var require_web_ifc = __commonJS2({
           }
         }, fsync: function(tty) {
           if (tty.output && tty.output.length > 0) {
-            err5(UTF8ArrayToString(tty.output, 0));
+            err6(UTF8ArrayToString(tty.output, 0));
             tty.output = [];
           }
         } } };
@@ -42001,7 +42002,7 @@ var require_web_ifc = __commonJS2({
           }
           FS.syncFSRequests++;
           if (FS.syncFSRequests > 1) {
-            err5(`warning: ${FS.syncFSRequests} FS.syncfs operations in flight at once, probably just doing extra work`);
+            err6(`warning: ${FS.syncFSRequests} FS.syncfs operations in flight at once, probably just doing extra work`);
           }
           var mounts = FS.getMounts(FS.root.mount);
           var completed = 0;
@@ -43022,10 +43023,10 @@ var require_web_ifc = __commonJS2({
         function _environ_sizes_get(penviron_count, penviron_buf_size) {
           penviron_count >>>= 0;
           penviron_buf_size >>>= 0;
-          var strings = getEnvStrings();
-          HEAPU32[penviron_count >>> 2] = strings.length;
+          var strings2 = getEnvStrings();
+          HEAPU32[penviron_count >>> 2] = strings2.length;
           var bufSize = 0;
-          strings.forEach(function(string) {
+          strings2.forEach(function(string) {
             bufSize += string.length + 1;
           });
           HEAPU32[penviron_buf_size >>> 2] = bufSize;
@@ -98415,7 +98416,7 @@ var Properties = class {
       const children = treeChunks[node.expressID];
       if (children == void 0)
         return;
-      const prop = propNames.key;
+      const prop2 = propNames.key;
       const nodes = [];
       for (let i = 0; i < children.length; i++) {
         const child = children[i];
@@ -98427,7 +98428,7 @@ var Properties = class {
         yield this.getSpatialNode(modelID, node2, treeChunks, includeProperties);
         nodes.push(node2);
       }
-      node[prop] = nodes;
+      node[prop2] = nodes;
     });
   }
   newNode(id, type) {
@@ -99202,12 +99203,12 @@ async function parsePropertySets(ctx) {
     const propertySetId = def.GlobalId?.value;
     if (!propertySetId)
       continue;
-    const properties = (def.HasProperties || []).map((prop) => ({
-      name: prop.Name?.value,
-      type: prop.NominalValue?.type,
-      value: prop.NominalValue?.value,
-      valueType: prop.NominalValue?.valueType,
-      description: prop.Description?.value || prop.NominalValue?.description || ""
+    const properties = (def.HasProperties || []).map((prop2) => ({
+      name: prop2.Name?.value,
+      type: prop2.NominalValue?.type,
+      value: prop2.NominalValue?.value,
+      valueType: prop2.NominalValue?.valueType,
+      description: prop2.Description?.value || prop2.NominalValue?.description || ""
     }));
     ctx.dataModel.createPropertySet({
       id: propertySetId,
@@ -99420,8 +99421,8 @@ async function parse7(params, options) {
   try {
     const ifcAPI = await getInitializedIFCAPI();
     return await parse6(ifcAPI, params, options);
-  } catch (err5) {
-    return Promise.reject("[IFCLoader] " + err5);
+  } catch (err6) {
+    return Promise.reject("[IFCLoader] " + err6);
   }
 }
 
@@ -99955,8 +99956,8 @@ async function encode8(params, options) {
   try {
     const ifcAPI = await getInitializedIFCAPI();
     return await encode7(ifcAPI, params, options);
-  } catch (err5) {
-    return Promise.reject("[IFCExporter] " + err5);
+  } catch (err6) {
+    return Promise.reject("[IFCExporter] " + err6);
   }
 }
 
@@ -100906,7 +100907,7 @@ async function modelToXGF2(params) {
     if (geometry.uvsCompressed)
       sizeUVs += geometry.uvsCompressed.length;
   }
-  const textureBytes = [];
+  const textureBytes2 = [];
   const textureMediaTypes = [];
   const textureWidths = [];
   const textureHeights = [];
@@ -100932,7 +100933,7 @@ async function modelToXGF2(params) {
       console.warn(`[xgf v2] Texture '${tex.id}' has neither buffers nor imageData \u2014 encoded as empty`);
       bytes = new Uint8Array(0);
     }
-    textureBytes.push(bytes);
+    textureBytes2.push(bytes);
     textureMediaTypes.push(mediaCode);
     textureWidths.push(tex.width || (tex.imageData?.width ?? 0));
     textureHeights.push(tex.height || (tex.imageData?.height ?? 0));
@@ -100945,7 +100946,7 @@ async function modelToXGF2(params) {
     );
   }
   let textureDataSize = 0;
-  for (const b4 of textureBytes)
+  for (const b4 of textureBytes2)
     textureDataSize += b4.length;
   const textureData = new Uint8Array(textureDataSize);
   const eachTextureDataBase = new Uint32Array(numTextures);
@@ -100953,8 +100954,8 @@ async function modelToXGF2(params) {
     let cursor = 0;
     for (let i = 0; i < numTextures; i++) {
       eachTextureDataBase[i] = cursor;
-      textureData.set(textureBytes[i], cursor);
-      cursor += textureBytes[i].length;
+      textureData.set(textureBytes2[i], cursor);
+      cursor += textureBytes2[i].length;
     }
   }
   const materialIndexById = {};
@@ -101305,769 +101306,6 @@ var XGFExporter = class extends ModelExporter {
   }
 };
 
-// ../sdk/src/formats/xkt/index.ts
-var xkt_exports = {};
-__export(xkt_exports, {
-  XKTLoader: () => XKTLoader,
-  loadXKTManifest: () => loadXKTManifest
-});
-
-// ../sdk/src/formats/xkt/versions/v10/inflateXKT.ts
-function inflateXKT(xktDataDeflated) {
-  return {
-    metadata: JSON.parse(xktDataDeflated.metadata),
-    textureData: new Uint8Array(xktDataDeflated.textureData),
-    // <<----------------------------- ??? ZIPPing to blame?
-    eachTextureDataPortion: new Uint32Array(xktDataDeflated.eachTextureDataPortion),
-    eachTextureAttributes: new Uint16Array(xktDataDeflated.eachTextureAttributes),
-    positions: new Uint16Array(xktDataDeflated.positions),
-    normals: new Int8Array(xktDataDeflated.normals),
-    colors: new Uint8Array(xktDataDeflated.colors),
-    uvs: new Float32Array(xktDataDeflated.uvs),
-    indices: new Uint32Array(xktDataDeflated.indices),
-    edgeIndices: new Uint32Array(xktDataDeflated.edgeIndices),
-    eachMaterialTextures: new Int32Array(xktDataDeflated.eachMaterialTextures),
-    matrices: new Float32Array(xktDataDeflated.matrices),
-    reusedGeometriesDecodeMatrix: new Float32Array(xktDataDeflated.reusedGeometriesDecodeMatrix),
-    eachGeometryPrimitiveType: new Uint8Array(xktDataDeflated.eachGeometryPrimitiveType),
-    eachGeometryPositionsPortion: new Uint32Array(xktDataDeflated.eachGeometryPositionsPortion),
-    eachGeometryNormalsPortion: new Uint32Array(xktDataDeflated.eachGeometryNormalsPortion),
-    eachGeometryColorsPortion: new Uint32Array(xktDataDeflated.eachGeometryColorsPortion),
-    eachGeometryUVsPortion: new Uint32Array(xktDataDeflated.eachGeometryUVsPortion),
-    eachGeometryIndicesPortion: new Uint32Array(xktDataDeflated.eachGeometryIndicesPortion),
-    eachGeometryEdgeIndicesPortion: new Uint32Array(xktDataDeflated.eachGeometryEdgeIndicesPortion),
-    eachMeshGeometriesPortion: new Uint32Array(xktDataDeflated.eachMeshGeometriesPortion),
-    eachMeshMatricesPortion: new Uint32Array(xktDataDeflated.eachMeshMatricesPortion),
-    eachMeshMaterial: new Int32Array(xktDataDeflated.eachMeshMaterial),
-    // Can be -1
-    eachMeshMaterialAttributes: new Uint8Array(xktDataDeflated.eachMeshMaterialAttributes),
-    eachEntityId: JSON.parse(xktDataDeflated.eachEntityId),
-    eachEntityMeshesPortion: new Uint32Array(xktDataDeflated.eachEntityMeshesPortion),
-    eachTileAABB: new Float64Array(xktDataDeflated.eachTileAABB),
-    eachTileEntitiesPortion: new Uint32Array(xktDataDeflated.eachTileEntitiesPortion)
-  };
-}
-
-// ../sdk/src/formats/xkt/versions/v10/unpackXKT.ts
-function unpackXKT(arrayBuffer) {
-  const dataView = new DataView(arrayBuffer);
-  const dataArray = new Uint8Array(arrayBuffer);
-  const xktVersion = dataView.getUint32(0, true);
-  const numElements = dataView.getUint32(4, true);
-  console.log(`Parsing XKT v${xktVersion}`);
-  const elements = [];
-  let byteOffset = (numElements + 2) * 4;
-  for (let i2 = 0; i2 < numElements; i2++) {
-    const elementSize = dataView.getUint32((i2 + 2) * 4, true);
-    elements.push(dataArray.subarray(byteOffset, byteOffset + elementSize));
-    byteOffset += elementSize;
-  }
-  let i = 0;
-  return {
-    metadata: elements[i++],
-    textureData: elements[i++],
-    eachTextureDataPortion: elements[i++],
-    eachTextureAttributes: elements[i++],
-    positions: elements[i++],
-    normals: elements[i++],
-    colors: elements[i++],
-    uvs: elements[i++],
-    indices: elements[i++],
-    edgeIndices: elements[i++],
-    eachMaterialTextures: elements[i++],
-    matrices: elements[i++],
-    reusedGeometriesDecodeMatrix: elements[i++],
-    eachGeometryPrimitiveType: elements[i++],
-    eachGeometryPositionsPortion: elements[i++],
-    eachGeometryNormalsPortion: elements[i++],
-    eachGeometryColorsPortion: elements[i++],
-    eachGeometryUVsPortion: elements[i++],
-    eachGeometryIndicesPortion: elements[i++],
-    eachGeometryEdgeIndicesPortion: elements[i++],
-    eachMeshGeometriesPortion: elements[i++],
-    eachMeshMatricesPortion: elements[i++],
-    eachMeshMaterial: elements[i++],
-    eachMeshMaterialAttributes: elements[i++],
-    eachEntityId: elements[i++],
-    eachEntityMeshesPortion: elements[i++],
-    eachTileAABB: elements[i++],
-    eachTileEntitiesPortion: elements[i++]
-  };
-}
-
-// ../sdk/src/formats/xkt/versions/v10/xktToModel.ts
-var tempVec4a3 = createVec4Float64();
-var tempVec4b3 = createVec4Float64();
-var NUM_TEXTURE_ATTRIBUTES = 9;
-function lineStripToLines(positions, indices) {
-  const linesIndices = [];
-  if (indices.length > 1) {
-    for (let i = 0, len = indices.length - 1; i < len; i++) {
-      linesIndices.push(indices[i]);
-      linesIndices.push(indices[i + 1]);
-    }
-  } else if (positions.length > 1) {
-    for (let i = 0, len = positions.length / 3 - 1; i < len; i++) {
-      linesIndices.push(i);
-      linesIndices.push(i + 1);
-    }
-  }
-  return linesIndices;
-}
-var decompressColor = function() {
-  const floatColor = createVec3Float32();
-  return function(intColor) {
-    floatColor[0] = intColor[0] / 255;
-    floatColor[1] = intColor[1] / 255;
-    floatColor[2] = intColor[2] / 255;
-    return floatColor;
-  };
-}();
-async function xktToModel(params) {
-  const options = params.options || {};
-  const onProgress = options.onProgress;
-  const signal = options.signal;
-  const progress = { phase: "", current: 0, total: 0 };
-  const step2 = async (phase, current, total) => {
-    if (onProgress) {
-      progress.phase = phase;
-      progress.current = current;
-      progress.total = total;
-      onProgress(progress);
-    }
-    await yieldToHost(signal);
-  };
-  let nextId = 0;
-  const getNextId = () => {
-    return `${nextId++}`;
-  };
-  const xktData = params.xktData;
-  const sceneModel = params.sceneModel;
-  const modelPartId = getNextId();
-  const textureData = xktData.textureData;
-  const eachTextureDataPortion = xktData.eachTextureDataPortion;
-  const eachTextureAttributes = xktData.eachTextureAttributes;
-  const positions = xktData.positions;
-  const normals = xktData.normals;
-  const colors = xktData.colors;
-  const uvs = xktData.uvs;
-  const indices = xktData.indices;
-  const edgeIndices = xktData.edgeIndices;
-  const eachMaterialTextures = xktData.eachMaterialTextures;
-  const matrices = xktData.matrices;
-  const reusedGeometriesDecodeMatrix = xktData.reusedGeometriesDecodeMatrix;
-  const eachGeometryPrimitiveType = xktData.eachGeometryPrimitiveType;
-  const eachGeometryPositionsPortion = xktData.eachGeometryPositionsPortion;
-  const eachGeometryNormalsPortion = xktData.eachGeometryNormalsPortion;
-  const eachGeometryColorsPortion = xktData.eachGeometryColorsPortion;
-  const eachGeometryUVsPortion = xktData.eachGeometryUVsPortion;
-  const eachGeometryIndicesPortion = xktData.eachGeometryIndicesPortion;
-  const eachGeometryEdgeIndicesPortion = xktData.eachGeometryEdgeIndicesPortion;
-  const eachMeshGeometriesPortion = xktData.eachMeshGeometriesPortion;
-  const eachMeshMatricesPortion = xktData.eachMeshMatricesPortion;
-  const eachMeshMaterial = xktData.eachMeshMaterial;
-  const eachMeshMaterialAttributes = xktData.eachMeshMaterialAttributes;
-  const eachEntityId = xktData.eachEntityId;
-  const eachEntityMeshesPortion = xktData.eachEntityMeshesPortion;
-  const eachTileAABB = xktData.eachTileAABB;
-  const eachTileEntitiesPortion = xktData.eachTileEntitiesPortion;
-  const numTextures = eachTextureDataPortion.length;
-  const numMaterials = eachMaterialTextures.length / 5;
-  const numGeometries = eachGeometryPositionsPortion.length;
-  const numMeshes = eachMeshGeometriesPortion.length;
-  const numEntities = eachEntityMeshesPortion.length;
-  const numTiles = eachTileEntitiesPortion.length;
-  for (let textureIndex = 0; textureIndex < numTextures; textureIndex++) {
-    if ((textureIndex & 3) === 0)
-      await step2("Decoding textures", textureIndex, numTextures);
-    const atLastTexture = textureIndex === numTextures - 1;
-    const textureDataPortionStart = eachTextureDataPortion[textureIndex];
-    const textureDataPortionEnd = atLastTexture ? textureData.length : eachTextureDataPortion[textureIndex + 1];
-    const textureDataPortionSize = textureDataPortionEnd - textureDataPortionStart;
-    const textureDataPortionExists = textureDataPortionSize > 0;
-    const textureAttrBaseIdx = textureIndex * NUM_TEXTURE_ATTRIBUTES;
-    const compressed = eachTextureAttributes[textureAttrBaseIdx + 0] === 1;
-    const mediaType = eachTextureAttributes[textureAttrBaseIdx + 1];
-    const width = eachTextureAttributes[textureAttrBaseIdx + 2];
-    const height = eachTextureAttributes[textureAttrBaseIdx + 3];
-    const minFilter = eachTextureAttributes[textureAttrBaseIdx + 4];
-    const magFilter = eachTextureAttributes[textureAttrBaseIdx + 5];
-    const wrapS = eachTextureAttributes[textureAttrBaseIdx + 6];
-    const wrapT = eachTextureAttributes[textureAttrBaseIdx + 7];
-    const wrapR = eachTextureAttributes[textureAttrBaseIdx + 8];
-    if (textureDataPortionExists) {
-      const imageDataSubarray = new Uint8Array(textureData.subarray(textureDataPortionStart, textureDataPortionEnd));
-      const arrayBuffer = imageDataSubarray.buffer;
-      const textureId = `${modelPartId}-texture-${textureIndex}`;
-      if (compressed) {
-        sceneModel.createTexture({
-          id: textureId,
-          buffers: [arrayBuffer],
-          minFilter,
-          magFilter,
-          wrapS,
-          wrapT,
-          wrapR
-        });
-      } else {
-        const mimeType = mediaType === JPEGMediaType ? "image/jpeg" : mediaType === PNGMediaType ? "image/png" : "image/gif";
-        const blob = new Blob([arrayBuffer], { type: mimeType });
-        const urlCreator = window.URL || window.webkitURL;
-        const imageUrl = urlCreator.createObjectURL(blob);
-        const img = document.createElement("img");
-        img.src = imageUrl;
-        sceneModel.createTexture({
-          id: textureId,
-          image: img,
-          //mediaType,
-          minFilter,
-          magFilter,
-          wrapS,
-          wrapT,
-          wrapR
-        });
-      }
-    }
-  }
-  for (let materialIndex = 0; materialIndex < numMaterials; materialIndex++) {
-    const eachMaterialTexturesIndex = materialIndex * 5;
-    const materialId = `${modelPartId}-material-${materialIndex}`;
-    const colorTextureIndex = eachMaterialTextures[eachMaterialTexturesIndex + 0];
-    const metallicRoughnessTextureIndex = eachMaterialTextures[eachMaterialTexturesIndex + 1];
-    const normalsTextureIndex = eachMaterialTextures[eachMaterialTexturesIndex + 2];
-    const emissiveTextureIndex = eachMaterialTextures[eachMaterialTexturesIndex + 3];
-    const occlusionTextureIndex = eachMaterialTextures[eachMaterialTexturesIndex + 4];
-    sceneModel.createMaterial({
-      id: materialId,
-      colorTextureId: colorTextureIndex >= 0 ? `${modelPartId}-texture-${colorTextureIndex}` : null,
-      normalsTextureId: normalsTextureIndex >= 0 ? `${modelPartId}-texture-${normalsTextureIndex}` : null,
-      metallicRoughnessTextureId: metallicRoughnessTextureIndex >= 0 ? `${modelPartId}-texture-${metallicRoughnessTextureIndex}` : null,
-      emissiveTextureId: emissiveTextureIndex >= 0 ? `${modelPartId}-texture-${emissiveTextureIndex}` : null,
-      occlusionTextureId: occlusionTextureIndex >= 0 ? `${modelPartId}-texture-${occlusionTextureIndex}` : null
-    });
-  }
-  const geometryReuseCounts = new Uint32Array(numGeometries);
-  for (let meshIndex = 0; meshIndex < numMeshes; meshIndex++) {
-    const geometryIndex = eachMeshGeometriesPortion[meshIndex];
-    if (geometryReuseCounts[geometryIndex] !== void 0) {
-      geometryReuseCounts[geometryIndex]++;
-    } else {
-      geometryReuseCounts[geometryIndex] = 1;
-    }
-  }
-  const tileCenter = createVec3Float64();
-  const rtcAABB = createAABB3Float64();
-  const geometryArraysCache = {};
-  for (let tileIndex = 0; tileIndex < numTiles; tileIndex++) {
-    if ((tileIndex & 7) === 0) {
-      await step2("Building tiles", tileIndex, numTiles);
-    }
-    const lastTileIndex = numTiles - 1;
-    const atLastTile = tileIndex === lastTileIndex;
-    const firstTileEntityIndex = eachTileEntitiesPortion[tileIndex];
-    const lastTileEntityIndex = atLastTile ? numEntities - 1 : eachTileEntitiesPortion[tileIndex + 1] - 1;
-    const tileAABBIndex = tileIndex * 6;
-    const tileAABB = eachTileAABB.subarray(tileAABBIndex, tileAABBIndex + 6);
-    getAABB3Center(tileAABB, tileCenter);
-    rtcAABB[0] = tileAABB[0] - tileCenter[0];
-    rtcAABB[1] = tileAABB[1] - tileCenter[1];
-    rtcAABB[2] = tileAABB[2] - tileCenter[2];
-    rtcAABB[3] = tileAABB[3] - tileCenter[0];
-    rtcAABB[4] = tileAABB[4] - tileCenter[1];
-    rtcAABB[5] = tileAABB[5] - tileCenter[2];
-    const geometryCreatedInTile = {};
-    let i = 0;
-    for (let tileEntityIndex = firstTileEntityIndex; tileEntityIndex <= lastTileEntityIndex; tileEntityIndex++) {
-      const xktEntityId = eachEntityId[tileEntityIndex];
-      const entityId = xktEntityId;
-      const finalTileEntityIndex = numEntities - 1;
-      const atLastTileEntity = tileEntityIndex === finalTileEntityIndex;
-      const firstMeshIndex = eachEntityMeshesPortion[tileEntityIndex];
-      const lastMeshIndex = atLastTileEntity ? eachMeshGeometriesPortion.length - 1 : eachEntityMeshesPortion[tileEntityIndex + 1] - 1;
-      const meshIds = [];
-      for (let meshIndex = firstMeshIndex; meshIndex <= lastMeshIndex; meshIndex++) {
-        const geometryIndex = eachMeshGeometriesPortion[meshIndex];
-        const geometryReuseCount = geometryReuseCounts[geometryIndex];
-        const isReusedGeometry = geometryReuseCount > 1;
-        const atLastGeometry = geometryIndex === numGeometries - 1;
-        const materialIndex = eachMeshMaterial[meshIndex];
-        const materialId = materialIndex >= 0 ? `${modelPartId}-material-${materialIndex}` : null;
-        const meshColor = decompressColor(eachMeshMaterialAttributes.subarray(meshIndex * 6, meshIndex * 6 + 3));
-        const meshOpacity = eachMeshMaterialAttributes[meshIndex * 6 + 3] / 255;
-        const meshMetallic = eachMeshMaterialAttributes[meshIndex * 6 + 4] / 255;
-        const meshRoughness = eachMeshMaterialAttributes[meshIndex * 6 + 5] / 255;
-        const meshId = getNextId();
-        if (isReusedGeometry) {
-          const meshMatrixIndex = eachMeshMatricesPortion[meshIndex];
-          const meshMatrix = matrices.slice(meshMatrixIndex, meshMatrixIndex + 16);
-          const geometryId = `${modelPartId}-geometry.${tileIndex}.${geometryIndex}`;
-          let geometryArrays = geometryArraysCache[geometryId];
-          if (!geometryArrays) {
-            geometryArrays = {};
-            const primitiveType = eachGeometryPrimitiveType[geometryIndex];
-            let geometryValid = false;
-            switch (primitiveType) {
-              case 0:
-                geometryArrays.primitiveName = SolidPrimitive;
-                geometryArrays.geometryPositions = positions.subarray(eachGeometryPositionsPortion[geometryIndex], atLastGeometry ? positions.length : eachGeometryPositionsPortion[geometryIndex + 1]);
-                geometryArrays.geometryNormals = normals.subarray(eachGeometryNormalsPortion[geometryIndex], atLastGeometry ? normals.length : eachGeometryNormalsPortion[geometryIndex + 1]);
-                geometryArrays.geometryUVs = uvs.subarray(eachGeometryUVsPortion[geometryIndex], atLastGeometry ? uvs.length : eachGeometryUVsPortion[geometryIndex + 1]);
-                geometryArrays.geometryIndices = indices.subarray(eachGeometryIndicesPortion[geometryIndex], atLastGeometry ? indices.length : eachGeometryIndicesPortion[geometryIndex + 1]);
-                geometryArrays.geometryEdgeIndices = edgeIndices.subarray(eachGeometryEdgeIndicesPortion[geometryIndex], atLastGeometry ? edgeIndices.length : eachGeometryEdgeIndicesPortion[geometryIndex + 1]);
-                geometryValid = geometryArrays.geometryPositions.length > 0 && geometryArrays.geometryIndices.length > 0;
-                break;
-              case 1:
-                geometryArrays.primitiveName = SurfacePrimitive;
-                geometryArrays.geometryPositions = positions.subarray(eachGeometryPositionsPortion[geometryIndex], atLastGeometry ? positions.length : eachGeometryPositionsPortion[geometryIndex + 1]);
-                geometryArrays.geometryNormals = normals.subarray(eachGeometryNormalsPortion[geometryIndex], atLastGeometry ? normals.length : eachGeometryNormalsPortion[geometryIndex + 1]);
-                geometryArrays.geometryUVs = uvs.subarray(eachGeometryUVsPortion[geometryIndex], atLastGeometry ? uvs.length : eachGeometryUVsPortion[geometryIndex + 1]);
-                geometryArrays.geometryIndices = indices.subarray(eachGeometryIndicesPortion[geometryIndex], atLastGeometry ? indices.length : eachGeometryIndicesPortion[geometryIndex + 1]);
-                geometryArrays.geometryEdgeIndices = edgeIndices.subarray(eachGeometryEdgeIndicesPortion[geometryIndex], atLastGeometry ? edgeIndices.length : eachGeometryEdgeIndicesPortion[geometryIndex + 1]);
-                geometryValid = geometryArrays.geometryPositions.length > 0 && geometryArrays.geometryIndices.length > 0;
-                break;
-              case 2:
-                geometryArrays.primitiveName = PointsPrimitive;
-                geometryArrays.geometryPositions = positions.subarray(eachGeometryPositionsPortion[geometryIndex], atLastGeometry ? positions.length : eachGeometryPositionsPortion[geometryIndex + 1]);
-                geometryArrays.geometryColors = colors.subarray(eachGeometryColorsPortion[geometryIndex], atLastGeometry ? colors.length : eachGeometryColorsPortion[geometryIndex + 1]);
-                geometryValid = geometryArrays.geometryPositions.length > 0;
-                break;
-              case 3:
-                geometryArrays.primitiveName = LinesPrimitive;
-                geometryArrays.geometryPositions = positions.subarray(eachGeometryPositionsPortion[geometryIndex], atLastGeometry ? positions.length : eachGeometryPositionsPortion[geometryIndex + 1]);
-                geometryArrays.geometryIndices = indices.subarray(eachGeometryIndicesPortion[geometryIndex], atLastGeometry ? indices.length : eachGeometryIndicesPortion[geometryIndex + 1]);
-                geometryValid = geometryArrays.geometryPositions.length > 0 && geometryArrays.geometryIndices.length > 0;
-                break;
-              case 4:
-                geometryArrays.primitiveName = LinesPrimitive;
-                geometryArrays.geometryPositions = positions.subarray(eachGeometryPositionsPortion[geometryIndex], atLastGeometry ? positions.length : eachGeometryPositionsPortion[geometryIndex + 1]);
-                geometryArrays.geometryIndices = lineStripToLines(
-                  geometryArrays.geometryPositions,
-                  indices.subarray(
-                    eachGeometryIndicesPortion[geometryIndex],
-                    atLastGeometry ? indices.length : eachGeometryIndicesPortion[geometryIndex + 1]
-                  )
-                );
-                geometryValid = geometryArrays.geometryPositions.length > 0 && geometryArrays.geometryIndices.length > 0;
-                break;
-              default:
-                continue;
-            }
-            if (!geometryValid) {
-              geometryArrays = null;
-            }
-          }
-          if (geometryArrays) {
-            if (!geometryCreatedInTile[geometryId]) {
-              sceneModel.createGeometryCompressed({
-                id: geometryId,
-                primitive: geometryArrays.primitiveName,
-                positionsCompressed: geometryArrays.geometryPositions,
-                uvsCompressed: geometryArrays.geometryUVs,
-                colorsCompressed: geometryArrays.geometryColors,
-                indices: geometryArrays.geometryIndices,
-                edgeIndices: geometryArrays.geometryEdgeIndices,
-                aabb: rtcAABB
-              });
-              geometryCreatedInTile[geometryId] = true;
-            }
-            sceneModel.createMesh({
-              id: meshId,
-              geometryId,
-              materialId,
-              matrix: meshMatrix,
-              color: meshColor,
-              opacity: meshOpacity,
-              ///////////////////////////////////
-              // Adjust matrix?
-              /////////////////////////////////////
-              origin: [tileCenter[0], tileCenter[1] + i++ * 10, tileCenter[2]]
-            });
-            meshIds.push(meshId);
-          }
-        } else {
-          const primitiveType = eachGeometryPrimitiveType[geometryIndex];
-          let primitiveName;
-          let geometryPositions;
-          let geometryNormals;
-          let geometryUVs;
-          let geometryColors;
-          let geometryIndices;
-          let geometryEdgeIndices;
-          let geometryValid = false;
-          switch (primitiveType) {
-            case 0:
-              primitiveName = SolidPrimitive;
-              geometryPositions = positions.subarray(eachGeometryPositionsPortion[geometryIndex], atLastGeometry ? positions.length : eachGeometryPositionsPortion[geometryIndex + 1]);
-              geometryNormals = normals.subarray(eachGeometryNormalsPortion[geometryIndex], atLastGeometry ? normals.length : eachGeometryNormalsPortion[geometryIndex + 1]);
-              geometryUVs = uvs.subarray(eachGeometryUVsPortion[geometryIndex], atLastGeometry ? uvs.length : eachGeometryUVsPortion[geometryIndex + 1]);
-              geometryIndices = indices.subarray(eachGeometryIndicesPortion[geometryIndex], atLastGeometry ? indices.length : eachGeometryIndicesPortion[geometryIndex + 1]);
-              geometryEdgeIndices = edgeIndices.subarray(eachGeometryEdgeIndicesPortion[geometryIndex], atLastGeometry ? edgeIndices.length : eachGeometryEdgeIndicesPortion[geometryIndex + 1]);
-              geometryValid = geometryPositions.length > 0 && geometryIndices.length > 0;
-              break;
-            case 1:
-              primitiveName = SurfacePrimitive;
-              geometryPositions = positions.subarray(eachGeometryPositionsPortion[geometryIndex], atLastGeometry ? positions.length : eachGeometryPositionsPortion[geometryIndex + 1]);
-              geometryNormals = normals.subarray(eachGeometryNormalsPortion[geometryIndex], atLastGeometry ? normals.length : eachGeometryNormalsPortion[geometryIndex + 1]);
-              geometryUVs = uvs.subarray(eachGeometryUVsPortion[geometryIndex], atLastGeometry ? uvs.length : eachGeometryUVsPortion[geometryIndex + 1]);
-              geometryIndices = indices.subarray(eachGeometryIndicesPortion[geometryIndex], atLastGeometry ? indices.length : eachGeometryIndicesPortion[geometryIndex + 1]);
-              geometryEdgeIndices = edgeIndices.subarray(eachGeometryEdgeIndicesPortion[geometryIndex], atLastGeometry ? edgeIndices.length : eachGeometryEdgeIndicesPortion[geometryIndex + 1]);
-              geometryValid = geometryPositions.length > 0 && geometryIndices.length > 0;
-              break;
-            case 2:
-              primitiveName = PointsPrimitive;
-              geometryPositions = positions.subarray(eachGeometryPositionsPortion[geometryIndex], atLastGeometry ? positions.length : eachGeometryPositionsPortion[geometryIndex + 1]);
-              geometryColors = colors.subarray(eachGeometryColorsPortion[geometryIndex], atLastGeometry ? colors.length : eachGeometryColorsPortion[geometryIndex + 1]);
-              geometryValid = geometryPositions.length > 0;
-              break;
-            case 3:
-              primitiveName = LinesPrimitive;
-              geometryPositions = positions.subarray(eachGeometryPositionsPortion[geometryIndex], atLastGeometry ? positions.length : eachGeometryPositionsPortion[geometryIndex + 1]);
-              geometryIndices = indices.subarray(eachGeometryIndicesPortion[geometryIndex], atLastGeometry ? indices.length : eachGeometryIndicesPortion[geometryIndex + 1]);
-              geometryValid = geometryPositions.length > 0 && geometryIndices.length > 0;
-              break;
-            case 4:
-              primitiveName = LinesPrimitive;
-              geometryPositions = positions.subarray(eachGeometryPositionsPortion[geometryIndex], atLastGeometry ? positions.length : eachGeometryPositionsPortion[geometryIndex + 1]);
-              geometryIndices = lineStripToLines(
-                geometryPositions,
-                indices.subarray(eachGeometryIndicesPortion[geometryIndex], atLastGeometry ? indices.length : eachGeometryIndicesPortion[geometryIndex + 1])
-              );
-              geometryValid = geometryPositions.length > 0 && geometryIndices.length > 0;
-              break;
-            default:
-              continue;
-          }
-          if (geometryValid) {
-            const geometryId = getNextId();
-            sceneModel.createGeometryCompressed({
-              id: geometryId,
-              primitive: primitiveName,
-              positionsCompressed: geometryPositions,
-              uvsCompressed: geometryUVs && geometryUVs.length > 0 ? geometryUVs : null,
-              colorsCompressed: geometryColors,
-              indices: geometryIndices,
-              edgeIndices: geometryEdgeIndices,
-              aabb: rtcAABB
-            });
-            sceneModel.createMesh({
-              id: meshId,
-              geometryId,
-              materialId,
-              //   origin: tileCenter,
-              origin: [tileCenter[0], tileCenter[1] + i++ * 10, tileCenter[2]],
-              color: meshColor,
-              opacity: meshOpacity
-            });
-            meshIds.push(meshId);
-          }
-        }
-      }
-      if (meshIds.length > 0) {
-        sceneModel.createObject({
-          id: entityId,
-          meshIds
-        });
-      }
-    }
-  }
-  if (onProgress) {
-    progress.phase = "Building tiles";
-    progress.current = numTiles;
-    progress.total = numTiles;
-    onProgress(progress);
-  }
-}
-
-// ../sdk/src/formats/xkt/versions/v10/parse.ts
-async function parse10(params, options = {}) {
-  const { fileData, sceneModel } = params;
-  if (sceneModel) {
-    await xktToModel({
-      xktData: inflateXKT(unpackXKT(fileData)),
-      sceneModel,
-      options
-    });
-  }
-}
-
-// ../sdk/src/formats/xkt/XKTLoader.ts
-var XKTLoader = class extends ModelLoader {
-  /**
-   * Constructs an XKTLoader.
-   */
-  constructor() {
-    super({
-      format: "XKT",
-      fileDataType: "arraybuffer",
-      parsers: {
-        "10": parse10
-      },
-      getVersion: (fileData) => {
-        return "" + new DataView(fileData).getUint32(0, true);
-      }
-    });
-  }
-};
-
-// ../sdk/src/formats/metamodel/index.ts
-var metamodel_exports = {};
-__export(metamodel_exports, {
-  MetaModelLoader: () => MetaModelLoader,
-  convertMetaModel: () => convertMetaModel
-});
-
-// ../sdk/src/formats/metamodel/MetaModelLoader.ts
-var MetaModelLoader = class extends ModelLoader {
-  /**
-   * Constructs a MetaModelLoader.
-   */
-  constructor() {
-    super({
-      format: "MetaModelParams",
-      fileDataType: "json",
-      parsers: {
-        "1.0": parseMetaModel
-      },
-      getVersion: (fileData) => {
-        return fileData.version || "1.0";
-      }
-    });
-  }
-};
-async function parseMetaModel(params, options = {}) {
-  const { fileData, dataModel } = params;
-  const onProgress = options.onProgress;
-  const signal = options.signal;
-  const progress = { phase: "", current: 0, total: 0 };
-  const step2 = async (phase, current, total) => {
-    if (onProgress) {
-      progress.phase = phase;
-      progress.current = current;
-      progress.total = total;
-      onProgress(progress);
-    }
-    await yieldToHost(signal);
-  };
-  if (fileData.propertySets) {
-    for (let i = 0, len = fileData.propertySets.length; i < len; i++) {
-      if ((i & 63) === 0)
-        await step2("Parsing property sets", i, len);
-      const propertySetData = fileData.propertySets[i];
-      if (!propertySetData.properties) {
-        propertySetData.properties = [];
-      }
-      const propertySet = dataModel.propertySets[propertySetData.id];
-      if (!propertySet) {
-        const properties = [];
-        for (let j = 0, len2 = propertySetData.properties.length; j < len2; j++) {
-          const propertyItem = propertySetData.properties[j];
-          let propertyData = propertyItem;
-          if (propertyItem.id === void 0) {
-            const propertyId = propertyItem;
-            propertyData = fileData.properties ? fileData.properties[propertyId] : void 0;
-          }
-          if (propertyData) {
-            if (propertyItem.value === void 0) {
-              propertyData.value = null;
-            }
-            properties.push(propertyData);
-          }
-        }
-        const result = dataModel.createPropertySet({
-          id: propertySetData.id,
-          type: propertySetData.type,
-          name: propertySetData.name,
-          properties
-        });
-        if (result.ok === false) {
-          throw new Error(`[MetaModelLoader.load]: Could not create PropertySet -> ${result.error}`);
-        }
-      }
-    }
-  }
-  if (fileData.metaObjects) {
-    for (let i = 0, len = fileData.metaObjects.length; i < len; i++) {
-      if ((i & 63) === 0)
-        await step2("Parsing meta objects", i, len);
-      const metaObjectData = fileData.metaObjects[i];
-      const id = metaObjectData.id;
-      const dataObject = dataModel.objects[id];
-      if (!dataObject) {
-        const originalSystemId = metaObjectData.originalSystemId;
-        const propertySetIds = metaObjectData.propertySets || metaObjectData.propertySetIds;
-        const type = metaObjectData.type;
-        const result2 = dataModel.createObject({
-          id,
-          originalSystemId,
-          type,
-          name: metaObjectData.name,
-          propertySetIds
-        });
-        if (result2.ok === false) {
-          throw new Error(`[MetaModelLoader.load]: Could not create DataObject -> ${result2.error}`);
-        }
-      }
-    }
-    for (let i = 0, len = fileData.metaObjects.length; i < len; i++) {
-      if ((i & 63) === 0)
-        await step2("Building relationships", i, len);
-      const metaObjectData = fileData.metaObjects[i];
-      const id = metaObjectData.id;
-      const dataObject = dataModel.objects[id];
-      if (dataObject) {
-        if (metaObjectData.parent) {
-          const result3 = dataModel.createRelationship({
-            relatingObjectId: metaObjectData.parent,
-            relatedObjectId: id,
-            type: "IfcRelAggregates"
-          });
-          if (result3.ok === false) {
-            throw new Error(`[MetaModelLoader.load]: Could not create Relationship -> ${result3.error}`);
-          }
-        }
-      }
-    }
-    await step2("Building relationships", fileData.metaObjects.length, fileData.metaObjects.length);
-  }
-}
-
-// ../sdk/src/formats/metamodel/convertMetaModel.ts
-function convertMetaModel(metaModelParams) {
-  const dataModelParams = {
-    id: "",
-    objects: [],
-    relationships: [],
-    propertySets: []
-  };
-  if (metaModelParams.propertySets) {
-    for (let i = 0, len = metaModelParams.propertySets.length; i < len; i++) {
-      const propertySetParams = metaModelParams.propertySets[i];
-      if (!propertySetParams.properties) {
-        propertySetParams.properties = [];
-      }
-      dataModelParams.propertySets.push(propertySetParams);
-    }
-  }
-  if (metaModelParams.metaObjects) {
-    for (let i = 0, len = metaModelParams.metaObjects.length; i < len; i++) {
-      const metaObject = metaModelParams.metaObjects[i];
-      dataModelParams.objects.push({
-        id: metaObject.id,
-        name: metaObject.name,
-        type: metaObject.type
-      });
-      if (metaObject.parent) {
-        dataModelParams.relationships.push({
-          relatingObjectId: metaObject.parent,
-          relatedObjectId: metaObject.id,
-          type: "IfcRelAggregates"
-        });
-      }
-    }
-  }
-  return dataModelParams;
-}
-
-// ../sdk/src/formats/xkt/loadXKTManifest.ts
-function loadXKTManifest(params) {
-  return new Promise((resolve2, reject) => {
-    if (!params) {
-      return reject("[loadXKTManifest] Argument expected: params");
-    }
-    const sceneModel = params.sceneModel;
-    if (!sceneModel) {
-      return reject("[loadXKTManifest] Parameter expected: sceneModel");
-    }
-    const dataModel = params.dataModel;
-    if (!params.manifest && !params.src) {
-      return reject("[loadXKTManifest] Parameter expected: manifest or src");
-    }
-    const metaModelReader = new MetaModelLoader();
-    if (params.src) {
-      const xktReader = new XKTLoader();
-      const baseDir = getBaseDirectory(params.src);
-      fetch(params.src).then((response) => {
-        response.json().then((manifest) => {
-          const xktFiles = manifest.xktFiles;
-          const metaModelFiles = manifest.metaModelFiles;
-          const loadXKTFiles = (done) => {
-            let i = 0;
-            const loadNextXKT = () => {
-              if (sceneModel.destroyed) {
-                done();
-              } else if (i >= xktFiles.length) {
-                done();
-              } else {
-                fetch(`${baseDir}${xktFiles[i]}`).then((response2) => {
-                  response2.arrayBuffer().then((fileData) => {
-                    xktReader.load({
-                      fileData,
-                      sceneModel
-                    }).then(() => {
-                      i++;
-                      loadNextXKT();
-                    }).catch((error) => {
-                      reject(`[loadXKTManifest] Error loading XKT file -> ${error}`);
-                    });
-                  });
-                });
-              }
-            };
-            loadNextXKT();
-          };
-          const loadMetaModelFiles = (done) => {
-            let i = 0;
-            const loadNextMetaModelFile = () => {
-              if (dataModel.destroyed) {
-                done();
-              } else if (i >= metaModelFiles.length) {
-                done();
-              } else {
-                fetch(`${baseDir}${metaModelFiles[i]}`).then((response2) => {
-                  response2.json().then((fileData) => {
-                    metaModelReader.load({
-                      fileData,
-                      dataModel
-                    }).then(() => {
-                      i++;
-                      loadNextMetaModelFile();
-                    }).catch((error) => {
-                      reject(`[loadXKTManifest] Error loading XKT metadata file -> ${error}`);
-                    });
-                  });
-                });
-              }
-            };
-            loadNextMetaModelFile();
-          };
-          if (xktFiles && metaModelFiles) {
-            loadXKTFiles(() => {
-              loadMetaModelFiles(() => {
-                resolve2();
-              });
-            });
-          } else if (xktFiles) {
-            loadXKTFiles(() => {
-              resolve2();
-            });
-          } else if (metaModelFiles) {
-            loadMetaModelFiles(() => {
-              resolve2();
-            });
-          } else {
-            resolve2();
-          }
-        });
-      });
-    }
-  });
-}
-function getBaseDirectory(filePath) {
-  const pathArray = filePath.split("/");
-  pathArray.pop();
-  return pathArray.join("/") + "/";
-}
-
 // ../sdk/src/formats/las/index.ts
 var las_exports = {};
 __export(las_exports, {
@@ -102237,12 +101475,12 @@ function getModule() {
           xhr.open("GET", url, false);
           xhr.send(null);
           return xhr.responseText;
-        } catch (err6) {
+        } catch (err7) {
           var data3 = tryParseAsDataURI(url);
           if (data3) {
             return intArrayToString(data3);
           }
-          throw err6;
+          throw err7;
         }
       };
       if (ENVIRONMENT_IS_WORKER) {
@@ -102253,12 +101491,12 @@ function getModule() {
             xhr.responseType = "arraybuffer";
             xhr.send(null);
             return new Uint8Array(xhr.response);
-          } catch (err6) {
+          } catch (err7) {
             var data3 = tryParseAsDataURI(url);
             if (data3) {
               return data3;
             }
-            throw err6;
+            throw err7;
           }
         };
       }
@@ -102288,7 +101526,7 @@ function getModule() {
   } else {
   }
   var out = Module2["print"] || console.log.bind(console);
-  var err5 = Module2["printErr"] || console.warn.bind(console);
+  var err6 = Module2["printErr"] || console.warn.bind(console);
   for (key in moduleOverrides) {
     if (moduleOverrides.hasOwnProperty(key)) {
       Module2[key] = moduleOverrides[key];
@@ -102341,7 +101579,7 @@ function getModule() {
       warnOnce.shown = {};
     if (!warnOnce.shown[text]) {
       warnOnce.shown[text] = 1;
-      err5(text);
+      err6(text);
     }
   }
   var jsCallStartIndex = 1;
@@ -102779,7 +102017,7 @@ function getModule() {
     }
     what += "";
     out(what);
-    err5(what);
+    err6(what);
     ABORT = true;
     EXITSTATUS = 1;
     what = "abort(" + what + "). Build with -s ASSERTIONS=1 for more info.";
@@ -102814,18 +102052,18 @@ function getModule() {
     });
   }
   function jsStackTrace() {
-    var err6 = new Error();
-    if (!err6.stack) {
+    var err7 = new Error();
+    if (!err7.stack) {
       try {
         throw new Error();
       } catch (e) {
-        err6 = e;
+        err7 = e;
       }
-      if (!err6.stack) {
+      if (!err7.stack) {
         return "(no stack trace available)";
       }
     }
-    return err6.stack.toString();
+    return err7.stack.toString();
   }
   function ___cxa_allocate_exception(size) {
     return _malloc(size);
@@ -121339,7 +120577,7 @@ __export(dotbim_exports, {
 
 // ../sdk/src/formats/dotbim/versions/1_0_0/parse.ts
 var SCHEMA3 = "IFC4";
-var parse11 = async (params, options) => {
+var parse10 = async (params, options) => {
   const fileData = params.fileData;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -121431,7 +120669,7 @@ var parse11 = async (params, options) => {
 
 // ../sdk/src/formats/dotbim/versions/1_1_0/parse.ts
 var SCHEMA4 = "IFC4";
-var parse12 = async (params, options) => {
+var parse11 = async (params, options) => {
   const fileData = params.fileData;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -121527,8 +120765,8 @@ var DotBIMLoader = class extends ModelLoader {
       format: "DotBIM",
       fileDataType: "json",
       parsers: {
-        "1.0.0": parse11,
-        "1.1.0": parse12
+        "1.0.0": parse10,
+        "1.1.0": parse11
       },
       getVersion: (sourceFileData) => {
         return sourceFileData.schema_version || "1.0.0";
@@ -121836,34 +121074,34 @@ var DotBIMExporter = class extends ModelExporter {
 // ../sdk/src/formats/scenemodel/index.ts
 var scenemodel_exports = {};
 __export(scenemodel_exports, {
-  SceneModelParamsExporter: () => SceneModelParamsExporter,
-  SceneModelParamsLoader: () => SceneModelParamsLoader
+  SceneModelExporter: () => SceneModelExporter,
+  SceneModelImporter: () => SceneModelImporter
 });
 
 // ../sdk/src/formats/scenemodel/versions/1_0/parse.ts
-function parse13(params, options) {
+function parse12(params, options) {
   return new Promise(function(resolve2, reject) {
     if (params.sceneModel && params.fileData) {
       const result = params.sceneModel.fromParams(params.fileData);
       if (result.ok === false) {
-        return reject(new Error(`[SceneModelParamsLoader.loader] Failed to parse scene model -> ${result.error}`));
+        return reject(new Error(`[SceneModelImporter.loader] Failed to parse scene model -> ${result.error}`));
       }
     }
     return resolve2();
   });
 }
 
-// ../sdk/src/formats/scenemodel/SceneModelParamsLoader.ts
-var SceneModelParamsLoader = class extends ModelLoader {
+// ../sdk/src/formats/scenemodel/SceneModelImporter.ts
+var SceneModelImporter = class extends ModelLoader {
   /**
-   * Constructs a SceneModelParamsLoader.
+   * Constructs a SceneModelImporter.
    */
   constructor() {
     super({
       format: "SceneModelParams",
       fileDataType: "json",
       parsers: {
-        "1.0": parse13
+        "1.0": parse12
       },
       getVersion: (fileData) => {
         return fileData.version || "1.0";
@@ -121885,7 +121123,7 @@ async function encode13(params, options) {
   if (params.sceneModel) {
     const result = params.sceneModel.toParams();
     if (result.ok === false) {
-      throw new Error(`[SceneModelParamsExporter.export] Failed to encode scene model -> ${result.error}`);
+      throw new Error(`[SceneModelExporter.export] Failed to encode scene model -> ${result.error}`);
     }
     sceneModelParams = result.value;
   }
@@ -121895,10 +121133,10 @@ async function encode13(params, options) {
   return sceneModelParams;
 }
 
-// ../sdk/src/formats/scenemodel/SceneModelParamsExporter.ts
-var SceneModelParamsExporter = class extends ModelExporter {
+// ../sdk/src/formats/scenemodel/SceneModelExporter.ts
+var SceneModelExporter = class extends ModelExporter {
   /**
-   * Constructs a SceneModelParamsExporter.
+   * Constructs a SceneModelExporter.
    */
   constructor() {
     super({
@@ -121915,8 +121153,8 @@ var SceneModelParamsExporter = class extends ModelExporter {
 // ../sdk/src/formats/datamodel/index.ts
 var datamodel_exports = {};
 __export(datamodel_exports, {
-  DataModelParamsExporter: () => DataModelParamsExporter,
-  DataModelParamsLoader: () => DataModelParamsLoader
+  DataModelExporter: () => DataModelExporter,
+  DataModelImporter: () => DataModelImporter
 });
 
 // ../sdk/src/formats/datamodel/versions/1_0/encode.ts
@@ -121940,10 +121178,10 @@ async function encode14(params, options) {
   return dataModelParams;
 }
 
-// ../sdk/src/formats/datamodel/DataModelParamsExporter.ts
-var DataModelParamsExporter = class extends ModelExporter {
+// ../sdk/src/formats/datamodel/DataModelExporter.ts
+var DataModelExporter = class extends ModelExporter {
   /**
-   * Constructs a DataModelParamsExporter.
+   * Constructs a DataModelExporter.
    */
   constructor() {
     super({
@@ -121957,6 +121195,165 @@ var DataModelParamsExporter = class extends ModelExporter {
   }
 };
 
+// ../sdk/src/formats/metamodel/index.ts
+var metamodel_exports = {};
+__export(metamodel_exports, {
+  MetaModelLoader: () => MetaModelLoader,
+  convertMetaModel: () => convertMetaModel
+});
+
+// ../sdk/src/formats/metamodel/MetaModelLoader.ts
+var MetaModelLoader = class extends ModelLoader {
+  /**
+   * Constructs a MetaModelLoader.
+   */
+  constructor() {
+    super({
+      format: "MetaModelParams",
+      fileDataType: "json",
+      parsers: {
+        "1.0": parseMetaModel
+      },
+      getVersion: (fileData) => {
+        return fileData.version || "1.0";
+      }
+    });
+  }
+};
+async function parseMetaModel(params, options = {}) {
+  const { fileData, dataModel } = params;
+  const onProgress = options.onProgress;
+  const signal = options.signal;
+  const progress = { phase: "", current: 0, total: 0 };
+  const step2 = async (phase, current, total) => {
+    if (onProgress) {
+      progress.phase = phase;
+      progress.current = current;
+      progress.total = total;
+      onProgress(progress);
+    }
+    await yieldToHost(signal);
+  };
+  if (fileData.propertySets) {
+    for (let i = 0, len = fileData.propertySets.length; i < len; i++) {
+      if ((i & 63) === 0)
+        await step2("Parsing property sets", i, len);
+      const propertySetData = fileData.propertySets[i];
+      if (!propertySetData.properties) {
+        propertySetData.properties = [];
+      }
+      const propertySet = dataModel.propertySets[propertySetData.id];
+      if (!propertySet) {
+        const properties = [];
+        for (let j = 0, len2 = propertySetData.properties.length; j < len2; j++) {
+          const propertyItem = propertySetData.properties[j];
+          let propertyData = propertyItem;
+          if (propertyItem.id === void 0) {
+            const propertyId = propertyItem;
+            propertyData = fileData.properties ? fileData.properties[propertyId] : void 0;
+          }
+          if (propertyData) {
+            if (propertyItem.value === void 0) {
+              propertyData.value = null;
+            }
+            properties.push(propertyData);
+          }
+        }
+        const result = dataModel.createPropertySet({
+          id: propertySetData.id,
+          type: propertySetData.type,
+          name: propertySetData.name,
+          properties
+        });
+        if (result.ok === false) {
+          throw new Error(`[MetaModelLoader.load]: Could not create PropertySet -> ${result.error}`);
+        }
+      }
+    }
+  }
+  if (fileData.metaObjects) {
+    for (let i = 0, len = fileData.metaObjects.length; i < len; i++) {
+      if ((i & 63) === 0)
+        await step2("Parsing meta objects", i, len);
+      const metaObjectData = fileData.metaObjects[i];
+      const id = metaObjectData.id;
+      const dataObject = dataModel.objects[id];
+      if (!dataObject) {
+        const originalSystemId = metaObjectData.originalSystemId;
+        const propertySetIds = metaObjectData.propertySets || metaObjectData.propertySetIds;
+        const type = metaObjectData.type;
+        const result2 = dataModel.createObject({
+          id,
+          originalSystemId,
+          type,
+          name: metaObjectData.name,
+          propertySetIds
+        });
+        if (result2.ok === false) {
+          throw new Error(`[MetaModelLoader.load]: Could not create DataObject -> ${result2.error}`);
+        }
+      }
+    }
+    for (let i = 0, len = fileData.metaObjects.length; i < len; i++) {
+      if ((i & 63) === 0)
+        await step2("Building relationships", i, len);
+      const metaObjectData = fileData.metaObjects[i];
+      const id = metaObjectData.id;
+      const dataObject = dataModel.objects[id];
+      if (dataObject) {
+        if (metaObjectData.parent) {
+          const result3 = dataModel.createRelationship({
+            relatingObjectId: metaObjectData.parent,
+            relatedObjectId: id,
+            type: "IfcRelAggregates"
+          });
+          if (result3.ok === false) {
+            throw new Error(`[MetaModelLoader.load]: Could not create Relationship -> ${result3.error}`);
+          }
+        }
+      }
+    }
+    await step2("Building relationships", fileData.metaObjects.length, fileData.metaObjects.length);
+  }
+}
+
+// ../sdk/src/formats/metamodel/convertMetaModel.ts
+function convertMetaModel(metaModelParams) {
+  const dataModelParams = {
+    id: "",
+    objects: [],
+    relationships: [],
+    propertySets: []
+  };
+  if (metaModelParams.propertySets) {
+    for (let i = 0, len = metaModelParams.propertySets.length; i < len; i++) {
+      const propertySetParams = metaModelParams.propertySets[i];
+      if (!propertySetParams.properties) {
+        propertySetParams.properties = [];
+      }
+      dataModelParams.propertySets.push(propertySetParams);
+    }
+  }
+  if (metaModelParams.metaObjects) {
+    for (let i = 0, len = metaModelParams.metaObjects.length; i < len; i++) {
+      const metaObject = metaModelParams.metaObjects[i];
+      dataModelParams.objects.push({
+        id: metaObject.id,
+        name: metaObject.name,
+        type: metaObject.type
+      });
+      if (metaObject.parent) {
+        dataModelParams.relationships.push({
+          relatingObjectId: metaObject.parent,
+          relatedObjectId: metaObject.id,
+          type: "IfcRelAggregates"
+        });
+      }
+    }
+  }
+  return dataModelParams;
+}
+
 // ../sdk/src/formats/obj/index.ts
 var obj_exports = {};
 __export(obj_exports, {
@@ -121965,7 +121362,7 @@ __export(obj_exports, {
 });
 
 // ../sdk/src/formats/obj/versions/v1_0/parse.ts
-var parse14 = async (params, options) => {
+var parse13 = async (params, options) => {
   const { fileData, sceneModel, dataModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -122376,7 +121773,7 @@ var OBJLoader = class extends ModelLoader {
       format: "OBJ",
       fileDataType: "text",
       parsers: {
-        "1.0": parse14
+        "1.0": parse13
       },
       getVersion: (fileData) => {
         return fileData.version || "1.0";
@@ -122508,7 +121905,7 @@ __export(mtl_exports, {
 });
 
 // ../sdk/src/formats/mtl/versions/v1_0/parse.ts
-var parse15 = async (params, options) => {
+var parse14 = async (params, options) => {
   const { fileData, sceneModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -122618,7 +122015,7 @@ var MTLLoader = class extends ModelLoader {
       format: "MTL",
       fileDataType: "text",
       parsers: {
-        "1.0": parse15
+        "1.0": parse14
       },
       getVersion: (fileData) => {
         return fileData.version || "1.0";
@@ -122760,11 +122157,8 @@ var MTLExporter = class extends ModelExporter {
 // ../sdk/src/formats/rvm/index.ts
 var rvm_exports = {};
 __export(rvm_exports, {
-  ChunkReader: () => ChunkReader,
-  ChunkWriter: () => ChunkWriter,
   RVMExporter: () => RVMExporter,
-  RVMLoader: () => RVMLoader,
-  RVMPrimitive: () => RVMPrimitive
+  RVMLoader: () => RVMLoader
 });
 
 // ../sdk/src/formats/rvm/versions/v2/chunkReader.ts
@@ -122855,22 +122249,6 @@ var ChunkReader = class {
     return this.readUint32();
   }
 };
-
-// ../sdk/src/formats/rvm/versions/v2/RVMPrimitive.ts
-var RVMPrimitive = /* @__PURE__ */ ((RVMPrimitive3) => {
-  RVMPrimitive3[RVMPrimitive3["Pyramid"] = 1] = "Pyramid";
-  RVMPrimitive3[RVMPrimitive3["Box"] = 2] = "Box";
-  RVMPrimitive3[RVMPrimitive3["RectTorus"] = 3] = "RectTorus";
-  RVMPrimitive3[RVMPrimitive3["CircTorus"] = 4] = "CircTorus";
-  RVMPrimitive3[RVMPrimitive3["EllipDish"] = 5] = "EllipDish";
-  RVMPrimitive3[RVMPrimitive3["SpherDish"] = 6] = "SpherDish";
-  RVMPrimitive3[RVMPrimitive3["Snout"] = 7] = "Snout";
-  RVMPrimitive3[RVMPrimitive3["Cylinder"] = 8] = "Cylinder";
-  RVMPrimitive3[RVMPrimitive3["Sphere"] = 9] = "Sphere";
-  RVMPrimitive3[RVMPrimitive3["Line"] = 10] = "Line";
-  RVMPrimitive3[RVMPrimitive3["FacetGroup"] = 11] = "FacetGroup";
-  return RVMPrimitive3;
-})(RVMPrimitive || {});
 
 // ../sdk/src/formats/rvm/versions/v2/buildMeshes.ts
 var TAU = Math.PI * 2;
@@ -123224,7 +122602,7 @@ function parsePrimitive(reader, primitiveKind) {
       });
       if (!built.ok)
         return null;
-      return paramsFromProcgen(built.value);
+      return paramsFromProcgen(zAxisFromYAxis(built.value));
     }
     case 8 /* Cylinder */: {
       const radius = reader.readFloat32() * 1e-3;
@@ -123238,7 +122616,7 @@ function parsePrimitive(reader, primitiveKind) {
       });
       if (!built.ok)
         return null;
-      return paramsFromProcgen(built.value);
+      return paramsFromProcgen(zAxisFromYAxis(built.value));
     }
     case 9 /* Sphere */: {
       const diameter = reader.readFloat32() * 1e-3;
@@ -123265,6 +122643,20 @@ function parsePrimitive(reader, primitiveKind) {
       throw new Error(`[RVMLoader] unknown primitive type ${primitiveKind} \u2014 cannot resync without size field`);
   }
 }
+function zAxisFromYAxis(geom) {
+  const { positions, normals } = geom;
+  for (let i = 0; i < positions.length; i += 3) {
+    const y = positions[i + 1], z = positions[i + 2];
+    positions[i + 1] = -z;
+    positions[i + 2] = y;
+  }
+  for (let i = 0; i < normals.length; i += 3) {
+    const y = normals[i + 1], z = normals[i + 2];
+    normals[i + 1] = -z;
+    normals[i + 2] = y;
+  }
+  return geom;
+}
 function paramsFromProcgen(geom) {
   return {
     id: "",
@@ -123286,7 +122678,7 @@ function paramsFromBuilt(built) {
 }
 
 // ../sdk/src/formats/rvm/versions/v2/parse.ts
-async function parse16(params, options) {
+async function parse15(params, options) {
   const { fileData, sceneModel } = params;
   if (!sceneModel)
     return;
@@ -123536,7 +122928,7 @@ var RVMLoader = class extends ModelLoader {
       format: "RVM",
       fileDataType: "arraybuffer",
       parsers: {
-        "2": parse16
+        "2": parse15
       },
       // RVM v1, v2, and v3 share the same chunk frame; this loader
       // routes everything through the v2 parser, which is forgiving
@@ -123733,6 +123125,5132 @@ var RVMExporter = class extends ModelExporter {
         "2.0.0": encode17
       },
       defaultVersion: "2.0.0"
+    });
+  }
+};
+
+// ../sdk/src/formats/fbx/index.ts
+var fbx_exports = {};
+__export(fbx_exports, {
+  FBXExporter: () => FBXExporter,
+  FBXLoader: () => FBXLoader
+});
+
+// ../../node_modules/.pnpm/pako@2.1.0/node_modules/pako/dist/pako.esm.mjs
+var Z_FIXED$1 = 4;
+var Z_BINARY = 0;
+var Z_TEXT = 1;
+var Z_UNKNOWN$1 = 2;
+function zero$1(buf) {
+  let len = buf.length;
+  while (--len >= 0) {
+    buf[len] = 0;
+  }
+}
+var STORED_BLOCK = 0;
+var STATIC_TREES = 1;
+var DYN_TREES = 2;
+var MIN_MATCH$1 = 3;
+var MAX_MATCH$1 = 258;
+var LENGTH_CODES$1 = 29;
+var LITERALS$1 = 256;
+var L_CODES$1 = LITERALS$1 + 1 + LENGTH_CODES$1;
+var D_CODES$1 = 30;
+var BL_CODES$1 = 19;
+var HEAP_SIZE$1 = 2 * L_CODES$1 + 1;
+var MAX_BITS$1 = 15;
+var Buf_size = 16;
+var MAX_BL_BITS = 7;
+var END_BLOCK = 256;
+var REP_3_6 = 16;
+var REPZ_3_10 = 17;
+var REPZ_11_138 = 18;
+var extra_lbits = (
+  /* extra bits for each length code */
+  new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0])
+);
+var extra_dbits = (
+  /* extra bits for each distance code */
+  new Uint8Array([0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13])
+);
+var extra_blbits = (
+  /* extra bits for each bit length code */
+  new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 7])
+);
+var bl_order = new Uint8Array([16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15]);
+var DIST_CODE_LEN = 512;
+var static_ltree = new Array((L_CODES$1 + 2) * 2);
+zero$1(static_ltree);
+var static_dtree = new Array(D_CODES$1 * 2);
+zero$1(static_dtree);
+var _dist_code = new Array(DIST_CODE_LEN);
+zero$1(_dist_code);
+var _length_code = new Array(MAX_MATCH$1 - MIN_MATCH$1 + 1);
+zero$1(_length_code);
+var base_length = new Array(LENGTH_CODES$1);
+zero$1(base_length);
+var base_dist = new Array(D_CODES$1);
+zero$1(base_dist);
+function StaticTreeDesc(static_tree, extra_bits, extra_base, elems, max_length) {
+  this.static_tree = static_tree;
+  this.extra_bits = extra_bits;
+  this.extra_base = extra_base;
+  this.elems = elems;
+  this.max_length = max_length;
+  this.has_stree = static_tree && static_tree.length;
+}
+var static_l_desc;
+var static_d_desc;
+var static_bl_desc;
+function TreeDesc(dyn_tree, stat_desc) {
+  this.dyn_tree = dyn_tree;
+  this.max_code = 0;
+  this.stat_desc = stat_desc;
+}
+var d_code = (dist) => {
+  return dist < 256 ? _dist_code[dist] : _dist_code[256 + (dist >>> 7)];
+};
+var put_short = (s, w) => {
+  s.pending_buf[s.pending++] = w & 255;
+  s.pending_buf[s.pending++] = w >>> 8 & 255;
+};
+var send_bits = (s, value, length2) => {
+  if (s.bi_valid > Buf_size - length2) {
+    s.bi_buf |= value << s.bi_valid & 65535;
+    put_short(s, s.bi_buf);
+    s.bi_buf = value >> Buf_size - s.bi_valid;
+    s.bi_valid += length2 - Buf_size;
+  } else {
+    s.bi_buf |= value << s.bi_valid & 65535;
+    s.bi_valid += length2;
+  }
+};
+var send_code = (s, c3, tree) => {
+  send_bits(
+    s,
+    tree[c3 * 2],
+    tree[c3 * 2 + 1]
+    /*.Len*/
+  );
+};
+var bi_reverse = (code, len) => {
+  let res = 0;
+  do {
+    res |= code & 1;
+    code >>>= 1;
+    res <<= 1;
+  } while (--len > 0);
+  return res >>> 1;
+};
+var bi_flush = (s) => {
+  if (s.bi_valid === 16) {
+    put_short(s, s.bi_buf);
+    s.bi_buf = 0;
+    s.bi_valid = 0;
+  } else if (s.bi_valid >= 8) {
+    s.pending_buf[s.pending++] = s.bi_buf & 255;
+    s.bi_buf >>= 8;
+    s.bi_valid -= 8;
+  }
+};
+var gen_bitlen = (s, desc) => {
+  const tree = desc.dyn_tree;
+  const max_code = desc.max_code;
+  const stree = desc.stat_desc.static_tree;
+  const has_stree = desc.stat_desc.has_stree;
+  const extra = desc.stat_desc.extra_bits;
+  const base = desc.stat_desc.extra_base;
+  const max_length = desc.stat_desc.max_length;
+  let h;
+  let n, m;
+  let bits;
+  let xbits;
+  let f;
+  let overflow = 0;
+  for (bits = 0; bits <= MAX_BITS$1; bits++) {
+    s.bl_count[bits] = 0;
+  }
+  tree[s.heap[s.heap_max] * 2 + 1] = 0;
+  for (h = s.heap_max + 1; h < HEAP_SIZE$1; h++) {
+    n = s.heap[h];
+    bits = tree[tree[n * 2 + 1] * 2 + 1] + 1;
+    if (bits > max_length) {
+      bits = max_length;
+      overflow++;
+    }
+    tree[n * 2 + 1] = bits;
+    if (n > max_code) {
+      continue;
+    }
+    s.bl_count[bits]++;
+    xbits = 0;
+    if (n >= base) {
+      xbits = extra[n - base];
+    }
+    f = tree[n * 2];
+    s.opt_len += f * (bits + xbits);
+    if (has_stree) {
+      s.static_len += f * (stree[n * 2 + 1] + xbits);
+    }
+  }
+  if (overflow === 0) {
+    return;
+  }
+  do {
+    bits = max_length - 1;
+    while (s.bl_count[bits] === 0) {
+      bits--;
+    }
+    s.bl_count[bits]--;
+    s.bl_count[bits + 1] += 2;
+    s.bl_count[max_length]--;
+    overflow -= 2;
+  } while (overflow > 0);
+  for (bits = max_length; bits !== 0; bits--) {
+    n = s.bl_count[bits];
+    while (n !== 0) {
+      m = s.heap[--h];
+      if (m > max_code) {
+        continue;
+      }
+      if (tree[m * 2 + 1] !== bits) {
+        s.opt_len += (bits - tree[m * 2 + 1]) * tree[m * 2];
+        tree[m * 2 + 1] = bits;
+      }
+      n--;
+    }
+  }
+};
+var gen_codes = (tree, max_code, bl_count) => {
+  const next_code = new Array(MAX_BITS$1 + 1);
+  let code = 0;
+  let bits;
+  let n;
+  for (bits = 1; bits <= MAX_BITS$1; bits++) {
+    code = code + bl_count[bits - 1] << 1;
+    next_code[bits] = code;
+  }
+  for (n = 0; n <= max_code; n++) {
+    let len = tree[n * 2 + 1];
+    if (len === 0) {
+      continue;
+    }
+    tree[n * 2] = bi_reverse(next_code[len]++, len);
+  }
+};
+var tr_static_init = () => {
+  let n;
+  let bits;
+  let length2;
+  let code;
+  let dist;
+  const bl_count = new Array(MAX_BITS$1 + 1);
+  length2 = 0;
+  for (code = 0; code < LENGTH_CODES$1 - 1; code++) {
+    base_length[code] = length2;
+    for (n = 0; n < 1 << extra_lbits[code]; n++) {
+      _length_code[length2++] = code;
+    }
+  }
+  _length_code[length2 - 1] = code;
+  dist = 0;
+  for (code = 0; code < 16; code++) {
+    base_dist[code] = dist;
+    for (n = 0; n < 1 << extra_dbits[code]; n++) {
+      _dist_code[dist++] = code;
+    }
+  }
+  dist >>= 7;
+  for (; code < D_CODES$1; code++) {
+    base_dist[code] = dist << 7;
+    for (n = 0; n < 1 << extra_dbits[code] - 7; n++) {
+      _dist_code[256 + dist++] = code;
+    }
+  }
+  for (bits = 0; bits <= MAX_BITS$1; bits++) {
+    bl_count[bits] = 0;
+  }
+  n = 0;
+  while (n <= 143) {
+    static_ltree[n * 2 + 1] = 8;
+    n++;
+    bl_count[8]++;
+  }
+  while (n <= 255) {
+    static_ltree[n * 2 + 1] = 9;
+    n++;
+    bl_count[9]++;
+  }
+  while (n <= 279) {
+    static_ltree[n * 2 + 1] = 7;
+    n++;
+    bl_count[7]++;
+  }
+  while (n <= 287) {
+    static_ltree[n * 2 + 1] = 8;
+    n++;
+    bl_count[8]++;
+  }
+  gen_codes(static_ltree, L_CODES$1 + 1, bl_count);
+  for (n = 0; n < D_CODES$1; n++) {
+    static_dtree[n * 2 + 1] = 5;
+    static_dtree[n * 2] = bi_reverse(n, 5);
+  }
+  static_l_desc = new StaticTreeDesc(static_ltree, extra_lbits, LITERALS$1 + 1, L_CODES$1, MAX_BITS$1);
+  static_d_desc = new StaticTreeDesc(static_dtree, extra_dbits, 0, D_CODES$1, MAX_BITS$1);
+  static_bl_desc = new StaticTreeDesc(new Array(0), extra_blbits, 0, BL_CODES$1, MAX_BL_BITS);
+};
+var init_block = (s) => {
+  let n;
+  for (n = 0; n < L_CODES$1; n++) {
+    s.dyn_ltree[n * 2] = 0;
+  }
+  for (n = 0; n < D_CODES$1; n++) {
+    s.dyn_dtree[n * 2] = 0;
+  }
+  for (n = 0; n < BL_CODES$1; n++) {
+    s.bl_tree[n * 2] = 0;
+  }
+  s.dyn_ltree[END_BLOCK * 2] = 1;
+  s.opt_len = s.static_len = 0;
+  s.sym_next = s.matches = 0;
+};
+var bi_windup = (s) => {
+  if (s.bi_valid > 8) {
+    put_short(s, s.bi_buf);
+  } else if (s.bi_valid > 0) {
+    s.pending_buf[s.pending++] = s.bi_buf;
+  }
+  s.bi_buf = 0;
+  s.bi_valid = 0;
+};
+var smaller = (tree, n, m, depth) => {
+  const _n2 = n * 2;
+  const _m2 = m * 2;
+  return tree[_n2] < tree[_m2] || tree[_n2] === tree[_m2] && depth[n] <= depth[m];
+};
+var pqdownheap = (s, tree, k) => {
+  const v = s.heap[k];
+  let j = k << 1;
+  while (j <= s.heap_len) {
+    if (j < s.heap_len && smaller(tree, s.heap[j + 1], s.heap[j], s.depth)) {
+      j++;
+    }
+    if (smaller(tree, v, s.heap[j], s.depth)) {
+      break;
+    }
+    s.heap[k] = s.heap[j];
+    k = j;
+    j <<= 1;
+  }
+  s.heap[k] = v;
+};
+var compress_block = (s, ltree, dtree) => {
+  let dist;
+  let lc;
+  let sx = 0;
+  let code;
+  let extra;
+  if (s.sym_next !== 0) {
+    do {
+      dist = s.pending_buf[s.sym_buf + sx++] & 255;
+      dist += (s.pending_buf[s.sym_buf + sx++] & 255) << 8;
+      lc = s.pending_buf[s.sym_buf + sx++];
+      if (dist === 0) {
+        send_code(s, lc, ltree);
+      } else {
+        code = _length_code[lc];
+        send_code(s, code + LITERALS$1 + 1, ltree);
+        extra = extra_lbits[code];
+        if (extra !== 0) {
+          lc -= base_length[code];
+          send_bits(s, lc, extra);
+        }
+        dist--;
+        code = d_code(dist);
+        send_code(s, code, dtree);
+        extra = extra_dbits[code];
+        if (extra !== 0) {
+          dist -= base_dist[code];
+          send_bits(s, dist, extra);
+        }
+      }
+    } while (sx < s.sym_next);
+  }
+  send_code(s, END_BLOCK, ltree);
+};
+var build_tree = (s, desc) => {
+  const tree = desc.dyn_tree;
+  const stree = desc.stat_desc.static_tree;
+  const has_stree = desc.stat_desc.has_stree;
+  const elems = desc.stat_desc.elems;
+  let n, m;
+  let max_code = -1;
+  let node;
+  s.heap_len = 0;
+  s.heap_max = HEAP_SIZE$1;
+  for (n = 0; n < elems; n++) {
+    if (tree[n * 2] !== 0) {
+      s.heap[++s.heap_len] = max_code = n;
+      s.depth[n] = 0;
+    } else {
+      tree[n * 2 + 1] = 0;
+    }
+  }
+  while (s.heap_len < 2) {
+    node = s.heap[++s.heap_len] = max_code < 2 ? ++max_code : 0;
+    tree[node * 2] = 1;
+    s.depth[node] = 0;
+    s.opt_len--;
+    if (has_stree) {
+      s.static_len -= stree[node * 2 + 1];
+    }
+  }
+  desc.max_code = max_code;
+  for (n = s.heap_len >> 1; n >= 1; n--) {
+    pqdownheap(s, tree, n);
+  }
+  node = elems;
+  do {
+    n = s.heap[
+      1
+      /*SMALLEST*/
+    ];
+    s.heap[
+      1
+      /*SMALLEST*/
+    ] = s.heap[s.heap_len--];
+    pqdownheap(
+      s,
+      tree,
+      1
+      /*SMALLEST*/
+    );
+    m = s.heap[
+      1
+      /*SMALLEST*/
+    ];
+    s.heap[--s.heap_max] = n;
+    s.heap[--s.heap_max] = m;
+    tree[node * 2] = tree[n * 2] + tree[m * 2];
+    s.depth[node] = (s.depth[n] >= s.depth[m] ? s.depth[n] : s.depth[m]) + 1;
+    tree[n * 2 + 1] = tree[m * 2 + 1] = node;
+    s.heap[
+      1
+      /*SMALLEST*/
+    ] = node++;
+    pqdownheap(
+      s,
+      tree,
+      1
+      /*SMALLEST*/
+    );
+  } while (s.heap_len >= 2);
+  s.heap[--s.heap_max] = s.heap[
+    1
+    /*SMALLEST*/
+  ];
+  gen_bitlen(s, desc);
+  gen_codes(tree, max_code, s.bl_count);
+};
+var scan_tree = (s, tree, max_code) => {
+  let n;
+  let prevlen = -1;
+  let curlen;
+  let nextlen = tree[0 * 2 + 1];
+  let count = 0;
+  let max_count = 7;
+  let min_count = 4;
+  if (nextlen === 0) {
+    max_count = 138;
+    min_count = 3;
+  }
+  tree[(max_code + 1) * 2 + 1] = 65535;
+  for (n = 0; n <= max_code; n++) {
+    curlen = nextlen;
+    nextlen = tree[(n + 1) * 2 + 1];
+    if (++count < max_count && curlen === nextlen) {
+      continue;
+    } else if (count < min_count) {
+      s.bl_tree[curlen * 2] += count;
+    } else if (curlen !== 0) {
+      if (curlen !== prevlen) {
+        s.bl_tree[curlen * 2]++;
+      }
+      s.bl_tree[REP_3_6 * 2]++;
+    } else if (count <= 10) {
+      s.bl_tree[REPZ_3_10 * 2]++;
+    } else {
+      s.bl_tree[REPZ_11_138 * 2]++;
+    }
+    count = 0;
+    prevlen = curlen;
+    if (nextlen === 0) {
+      max_count = 138;
+      min_count = 3;
+    } else if (curlen === nextlen) {
+      max_count = 6;
+      min_count = 3;
+    } else {
+      max_count = 7;
+      min_count = 4;
+    }
+  }
+};
+var send_tree = (s, tree, max_code) => {
+  let n;
+  let prevlen = -1;
+  let curlen;
+  let nextlen = tree[0 * 2 + 1];
+  let count = 0;
+  let max_count = 7;
+  let min_count = 4;
+  if (nextlen === 0) {
+    max_count = 138;
+    min_count = 3;
+  }
+  for (n = 0; n <= max_code; n++) {
+    curlen = nextlen;
+    nextlen = tree[(n + 1) * 2 + 1];
+    if (++count < max_count && curlen === nextlen) {
+      continue;
+    } else if (count < min_count) {
+      do {
+        send_code(s, curlen, s.bl_tree);
+      } while (--count !== 0);
+    } else if (curlen !== 0) {
+      if (curlen !== prevlen) {
+        send_code(s, curlen, s.bl_tree);
+        count--;
+      }
+      send_code(s, REP_3_6, s.bl_tree);
+      send_bits(s, count - 3, 2);
+    } else if (count <= 10) {
+      send_code(s, REPZ_3_10, s.bl_tree);
+      send_bits(s, count - 3, 3);
+    } else {
+      send_code(s, REPZ_11_138, s.bl_tree);
+      send_bits(s, count - 11, 7);
+    }
+    count = 0;
+    prevlen = curlen;
+    if (nextlen === 0) {
+      max_count = 138;
+      min_count = 3;
+    } else if (curlen === nextlen) {
+      max_count = 6;
+      min_count = 3;
+    } else {
+      max_count = 7;
+      min_count = 4;
+    }
+  }
+};
+var build_bl_tree = (s) => {
+  let max_blindex;
+  scan_tree(s, s.dyn_ltree, s.l_desc.max_code);
+  scan_tree(s, s.dyn_dtree, s.d_desc.max_code);
+  build_tree(s, s.bl_desc);
+  for (max_blindex = BL_CODES$1 - 1; max_blindex >= 3; max_blindex--) {
+    if (s.bl_tree[bl_order[max_blindex] * 2 + 1] !== 0) {
+      break;
+    }
+  }
+  s.opt_len += 3 * (max_blindex + 1) + 5 + 5 + 4;
+  return max_blindex;
+};
+var send_all_trees = (s, lcodes, dcodes, blcodes) => {
+  let rank2;
+  send_bits(s, lcodes - 257, 5);
+  send_bits(s, dcodes - 1, 5);
+  send_bits(s, blcodes - 4, 4);
+  for (rank2 = 0; rank2 < blcodes; rank2++) {
+    send_bits(s, s.bl_tree[bl_order[rank2] * 2 + 1], 3);
+  }
+  send_tree(s, s.dyn_ltree, lcodes - 1);
+  send_tree(s, s.dyn_dtree, dcodes - 1);
+};
+var detect_data_type = (s) => {
+  let block_mask = 4093624447;
+  let n;
+  for (n = 0; n <= 31; n++, block_mask >>>= 1) {
+    if (block_mask & 1 && s.dyn_ltree[n * 2] !== 0) {
+      return Z_BINARY;
+    }
+  }
+  if (s.dyn_ltree[9 * 2] !== 0 || s.dyn_ltree[10 * 2] !== 0 || s.dyn_ltree[13 * 2] !== 0) {
+    return Z_TEXT;
+  }
+  for (n = 32; n < LITERALS$1; n++) {
+    if (s.dyn_ltree[n * 2] !== 0) {
+      return Z_TEXT;
+    }
+  }
+  return Z_BINARY;
+};
+var static_init_done = false;
+var _tr_init$1 = (s) => {
+  if (!static_init_done) {
+    tr_static_init();
+    static_init_done = true;
+  }
+  s.l_desc = new TreeDesc(s.dyn_ltree, static_l_desc);
+  s.d_desc = new TreeDesc(s.dyn_dtree, static_d_desc);
+  s.bl_desc = new TreeDesc(s.bl_tree, static_bl_desc);
+  s.bi_buf = 0;
+  s.bi_valid = 0;
+  init_block(s);
+};
+var _tr_stored_block$1 = (s, buf, stored_len, last) => {
+  send_bits(s, (STORED_BLOCK << 1) + (last ? 1 : 0), 3);
+  bi_windup(s);
+  put_short(s, stored_len);
+  put_short(s, ~stored_len);
+  if (stored_len) {
+    s.pending_buf.set(s.window.subarray(buf, buf + stored_len), s.pending);
+  }
+  s.pending += stored_len;
+};
+var _tr_align$1 = (s) => {
+  send_bits(s, STATIC_TREES << 1, 3);
+  send_code(s, END_BLOCK, static_ltree);
+  bi_flush(s);
+};
+var _tr_flush_block$1 = (s, buf, stored_len, last) => {
+  let opt_lenb, static_lenb;
+  let max_blindex = 0;
+  if (s.level > 0) {
+    if (s.strm.data_type === Z_UNKNOWN$1) {
+      s.strm.data_type = detect_data_type(s);
+    }
+    build_tree(s, s.l_desc);
+    build_tree(s, s.d_desc);
+    max_blindex = build_bl_tree(s);
+    opt_lenb = s.opt_len + 3 + 7 >>> 3;
+    static_lenb = s.static_len + 3 + 7 >>> 3;
+    if (static_lenb <= opt_lenb) {
+      opt_lenb = static_lenb;
+    }
+  } else {
+    opt_lenb = static_lenb = stored_len + 5;
+  }
+  if (stored_len + 4 <= opt_lenb && buf !== -1) {
+    _tr_stored_block$1(s, buf, stored_len, last);
+  } else if (s.strategy === Z_FIXED$1 || static_lenb === opt_lenb) {
+    send_bits(s, (STATIC_TREES << 1) + (last ? 1 : 0), 3);
+    compress_block(s, static_ltree, static_dtree);
+  } else {
+    send_bits(s, (DYN_TREES << 1) + (last ? 1 : 0), 3);
+    send_all_trees(s, s.l_desc.max_code + 1, s.d_desc.max_code + 1, max_blindex + 1);
+    compress_block(s, s.dyn_ltree, s.dyn_dtree);
+  }
+  init_block(s);
+  if (last) {
+    bi_windup(s);
+  }
+};
+var _tr_tally$1 = (s, dist, lc) => {
+  s.pending_buf[s.sym_buf + s.sym_next++] = dist;
+  s.pending_buf[s.sym_buf + s.sym_next++] = dist >> 8;
+  s.pending_buf[s.sym_buf + s.sym_next++] = lc;
+  if (dist === 0) {
+    s.dyn_ltree[lc * 2]++;
+  } else {
+    s.matches++;
+    dist--;
+    s.dyn_ltree[(_length_code[lc] + LITERALS$1 + 1) * 2]++;
+    s.dyn_dtree[d_code(dist) * 2]++;
+  }
+  return s.sym_next === s.sym_end;
+};
+var _tr_init_1 = _tr_init$1;
+var _tr_stored_block_1 = _tr_stored_block$1;
+var _tr_flush_block_1 = _tr_flush_block$1;
+var _tr_tally_1 = _tr_tally$1;
+var _tr_align_1 = _tr_align$1;
+var trees = {
+  _tr_init: _tr_init_1,
+  _tr_stored_block: _tr_stored_block_1,
+  _tr_flush_block: _tr_flush_block_1,
+  _tr_tally: _tr_tally_1,
+  _tr_align: _tr_align_1
+};
+var adler32 = (adler, buf, len, pos) => {
+  let s1 = adler & 65535 | 0, s2 = adler >>> 16 & 65535 | 0, n = 0;
+  while (len !== 0) {
+    n = len > 2e3 ? 2e3 : len;
+    len -= n;
+    do {
+      s1 = s1 + buf[pos++] | 0;
+      s2 = s2 + s1 | 0;
+    } while (--n);
+    s1 %= 65521;
+    s2 %= 65521;
+  }
+  return s1 | s2 << 16 | 0;
+};
+var adler32_1 = adler32;
+var makeTable = () => {
+  let c3, table = [];
+  for (var n = 0; n < 256; n++) {
+    c3 = n;
+    for (var k = 0; k < 8; k++) {
+      c3 = c3 & 1 ? 3988292384 ^ c3 >>> 1 : c3 >>> 1;
+    }
+    table[n] = c3;
+  }
+  return table;
+};
+var crcTable = new Uint32Array(makeTable());
+var crc32 = (crc, buf, len, pos) => {
+  const t = crcTable;
+  const end = pos + len;
+  crc ^= -1;
+  for (let i = pos; i < end; i++) {
+    crc = crc >>> 8 ^ t[(crc ^ buf[i]) & 255];
+  }
+  return crc ^ -1;
+};
+var crc32_1 = crc32;
+var messages = {
+  2: "need dictionary",
+  /* Z_NEED_DICT       2  */
+  1: "stream end",
+  /* Z_STREAM_END      1  */
+  0: "",
+  /* Z_OK              0  */
+  "-1": "file error",
+  /* Z_ERRNO         (-1) */
+  "-2": "stream error",
+  /* Z_STREAM_ERROR  (-2) */
+  "-3": "data error",
+  /* Z_DATA_ERROR    (-3) */
+  "-4": "insufficient memory",
+  /* Z_MEM_ERROR     (-4) */
+  "-5": "buffer error",
+  /* Z_BUF_ERROR     (-5) */
+  "-6": "incompatible version"
+  /* Z_VERSION_ERROR (-6) */
+};
+var constants$2 = {
+  /* Allowed flush values; see deflate() and inflate() below for details */
+  Z_NO_FLUSH: 0,
+  Z_PARTIAL_FLUSH: 1,
+  Z_SYNC_FLUSH: 2,
+  Z_FULL_FLUSH: 3,
+  Z_FINISH: 4,
+  Z_BLOCK: 5,
+  Z_TREES: 6,
+  /* Return codes for the compression/decompression functions. Negative values
+  * are errors, positive values are used for special but normal events.
+  */
+  Z_OK: 0,
+  Z_STREAM_END: 1,
+  Z_NEED_DICT: 2,
+  Z_ERRNO: -1,
+  Z_STREAM_ERROR: -2,
+  Z_DATA_ERROR: -3,
+  Z_MEM_ERROR: -4,
+  Z_BUF_ERROR: -5,
+  //Z_VERSION_ERROR: -6,
+  /* compression levels */
+  Z_NO_COMPRESSION: 0,
+  Z_BEST_SPEED: 1,
+  Z_BEST_COMPRESSION: 9,
+  Z_DEFAULT_COMPRESSION: -1,
+  Z_FILTERED: 1,
+  Z_HUFFMAN_ONLY: 2,
+  Z_RLE: 3,
+  Z_FIXED: 4,
+  Z_DEFAULT_STRATEGY: 0,
+  /* Possible values of the data_type field (though see inflate()) */
+  Z_BINARY: 0,
+  Z_TEXT: 1,
+  //Z_ASCII:                1, // = Z_TEXT (deprecated)
+  Z_UNKNOWN: 2,
+  /* The deflate compression method */
+  Z_DEFLATED: 8
+  //Z_NULL:                 null // Use -1 or null inline, depending on var type
+};
+var { _tr_init, _tr_stored_block, _tr_flush_block, _tr_tally, _tr_align } = trees;
+var {
+  Z_NO_FLUSH: Z_NO_FLUSH$2,
+  Z_PARTIAL_FLUSH,
+  Z_FULL_FLUSH: Z_FULL_FLUSH$1,
+  Z_FINISH: Z_FINISH$3,
+  Z_BLOCK: Z_BLOCK$1,
+  Z_OK: Z_OK$3,
+  Z_STREAM_END: Z_STREAM_END$3,
+  Z_STREAM_ERROR: Z_STREAM_ERROR$2,
+  Z_DATA_ERROR: Z_DATA_ERROR$2,
+  Z_BUF_ERROR: Z_BUF_ERROR$1,
+  Z_DEFAULT_COMPRESSION: Z_DEFAULT_COMPRESSION$1,
+  Z_FILTERED,
+  Z_HUFFMAN_ONLY,
+  Z_RLE,
+  Z_FIXED,
+  Z_DEFAULT_STRATEGY: Z_DEFAULT_STRATEGY$1,
+  Z_UNKNOWN,
+  Z_DEFLATED: Z_DEFLATED$2
+} = constants$2;
+var MAX_MEM_LEVEL = 9;
+var MAX_WBITS$1 = 15;
+var DEF_MEM_LEVEL = 8;
+var LENGTH_CODES = 29;
+var LITERALS = 256;
+var L_CODES = LITERALS + 1 + LENGTH_CODES;
+var D_CODES = 30;
+var BL_CODES = 19;
+var HEAP_SIZE = 2 * L_CODES + 1;
+var MAX_BITS = 15;
+var MIN_MATCH = 3;
+var MAX_MATCH = 258;
+var MIN_LOOKAHEAD = MAX_MATCH + MIN_MATCH + 1;
+var PRESET_DICT = 32;
+var INIT_STATE = 42;
+var GZIP_STATE = 57;
+var EXTRA_STATE = 69;
+var NAME_STATE = 73;
+var COMMENT_STATE = 91;
+var HCRC_STATE = 103;
+var BUSY_STATE = 113;
+var FINISH_STATE = 666;
+var BS_NEED_MORE = 1;
+var BS_BLOCK_DONE = 2;
+var BS_FINISH_STARTED = 3;
+var BS_FINISH_DONE = 4;
+var OS_CODE = 3;
+var err = (strm, errorCode) => {
+  strm.msg = messages[errorCode];
+  return errorCode;
+};
+var rank = (f) => {
+  return f * 2 - (f > 4 ? 9 : 0);
+};
+var zero = (buf) => {
+  let len = buf.length;
+  while (--len >= 0) {
+    buf[len] = 0;
+  }
+};
+var slide_hash = (s) => {
+  let n, m;
+  let p;
+  let wsize = s.w_size;
+  n = s.hash_size;
+  p = n;
+  do {
+    m = s.head[--p];
+    s.head[p] = m >= wsize ? m - wsize : 0;
+  } while (--n);
+  n = wsize;
+  p = n;
+  do {
+    m = s.prev[--p];
+    s.prev[p] = m >= wsize ? m - wsize : 0;
+  } while (--n);
+};
+var HASH_ZLIB = (s, prev, data2) => (prev << s.hash_shift ^ data2) & s.hash_mask;
+var HASH = HASH_ZLIB;
+var flush_pending = (strm) => {
+  const s = strm.state;
+  let len = s.pending;
+  if (len > strm.avail_out) {
+    len = strm.avail_out;
+  }
+  if (len === 0) {
+    return;
+  }
+  strm.output.set(s.pending_buf.subarray(s.pending_out, s.pending_out + len), strm.next_out);
+  strm.next_out += len;
+  s.pending_out += len;
+  strm.total_out += len;
+  strm.avail_out -= len;
+  s.pending -= len;
+  if (s.pending === 0) {
+    s.pending_out = 0;
+  }
+};
+var flush_block_only = (s, last) => {
+  _tr_flush_block(s, s.block_start >= 0 ? s.block_start : -1, s.strstart - s.block_start, last);
+  s.block_start = s.strstart;
+  flush_pending(s.strm);
+};
+var put_byte = (s, b4) => {
+  s.pending_buf[s.pending++] = b4;
+};
+var putShortMSB = (s, b4) => {
+  s.pending_buf[s.pending++] = b4 >>> 8 & 255;
+  s.pending_buf[s.pending++] = b4 & 255;
+};
+var read_buf = (strm, buf, start, size) => {
+  let len = strm.avail_in;
+  if (len > size) {
+    len = size;
+  }
+  if (len === 0) {
+    return 0;
+  }
+  strm.avail_in -= len;
+  buf.set(strm.input.subarray(strm.next_in, strm.next_in + len), start);
+  if (strm.state.wrap === 1) {
+    strm.adler = adler32_1(strm.adler, buf, len, start);
+  } else if (strm.state.wrap === 2) {
+    strm.adler = crc32_1(strm.adler, buf, len, start);
+  }
+  strm.next_in += len;
+  strm.total_in += len;
+  return len;
+};
+var longest_match = (s, cur_match) => {
+  let chain_length = s.max_chain_length;
+  let scan = s.strstart;
+  let match;
+  let len;
+  let best_len = s.prev_length;
+  let nice_match = s.nice_match;
+  const limit = s.strstart > s.w_size - MIN_LOOKAHEAD ? s.strstart - (s.w_size - MIN_LOOKAHEAD) : 0;
+  const _win = s.window;
+  const wmask = s.w_mask;
+  const prev = s.prev;
+  const strend = s.strstart + MAX_MATCH;
+  let scan_end1 = _win[scan + best_len - 1];
+  let scan_end = _win[scan + best_len];
+  if (s.prev_length >= s.good_match) {
+    chain_length >>= 2;
+  }
+  if (nice_match > s.lookahead) {
+    nice_match = s.lookahead;
+  }
+  do {
+    match = cur_match;
+    if (_win[match + best_len] !== scan_end || _win[match + best_len - 1] !== scan_end1 || _win[match] !== _win[scan] || _win[++match] !== _win[scan + 1]) {
+      continue;
+    }
+    scan += 2;
+    match++;
+    do {
+    } while (_win[++scan] === _win[++match] && _win[++scan] === _win[++match] && _win[++scan] === _win[++match] && _win[++scan] === _win[++match] && _win[++scan] === _win[++match] && _win[++scan] === _win[++match] && _win[++scan] === _win[++match] && _win[++scan] === _win[++match] && scan < strend);
+    len = MAX_MATCH - (strend - scan);
+    scan = strend - MAX_MATCH;
+    if (len > best_len) {
+      s.match_start = cur_match;
+      best_len = len;
+      if (len >= nice_match) {
+        break;
+      }
+      scan_end1 = _win[scan + best_len - 1];
+      scan_end = _win[scan + best_len];
+    }
+  } while ((cur_match = prev[cur_match & wmask]) > limit && --chain_length !== 0);
+  if (best_len <= s.lookahead) {
+    return best_len;
+  }
+  return s.lookahead;
+};
+var fill_window = (s) => {
+  const _w_size = s.w_size;
+  let n, more, str;
+  do {
+    more = s.window_size - s.lookahead - s.strstart;
+    if (s.strstart >= _w_size + (_w_size - MIN_LOOKAHEAD)) {
+      s.window.set(s.window.subarray(_w_size, _w_size + _w_size - more), 0);
+      s.match_start -= _w_size;
+      s.strstart -= _w_size;
+      s.block_start -= _w_size;
+      if (s.insert > s.strstart) {
+        s.insert = s.strstart;
+      }
+      slide_hash(s);
+      more += _w_size;
+    }
+    if (s.strm.avail_in === 0) {
+      break;
+    }
+    n = read_buf(s.strm, s.window, s.strstart + s.lookahead, more);
+    s.lookahead += n;
+    if (s.lookahead + s.insert >= MIN_MATCH) {
+      str = s.strstart - s.insert;
+      s.ins_h = s.window[str];
+      s.ins_h = HASH(s, s.ins_h, s.window[str + 1]);
+      while (s.insert) {
+        s.ins_h = HASH(s, s.ins_h, s.window[str + MIN_MATCH - 1]);
+        s.prev[str & s.w_mask] = s.head[s.ins_h];
+        s.head[s.ins_h] = str;
+        str++;
+        s.insert--;
+        if (s.lookahead + s.insert < MIN_MATCH) {
+          break;
+        }
+      }
+    }
+  } while (s.lookahead < MIN_LOOKAHEAD && s.strm.avail_in !== 0);
+};
+var deflate_stored = (s, flush) => {
+  let min_block = s.pending_buf_size - 5 > s.w_size ? s.w_size : s.pending_buf_size - 5;
+  let len, left, have, last = 0;
+  let used = s.strm.avail_in;
+  do {
+    len = 65535;
+    have = s.bi_valid + 42 >> 3;
+    if (s.strm.avail_out < have) {
+      break;
+    }
+    have = s.strm.avail_out - have;
+    left = s.strstart - s.block_start;
+    if (len > left + s.strm.avail_in) {
+      len = left + s.strm.avail_in;
+    }
+    if (len > have) {
+      len = have;
+    }
+    if (len < min_block && (len === 0 && flush !== Z_FINISH$3 || flush === Z_NO_FLUSH$2 || len !== left + s.strm.avail_in)) {
+      break;
+    }
+    last = flush === Z_FINISH$3 && len === left + s.strm.avail_in ? 1 : 0;
+    _tr_stored_block(s, 0, 0, last);
+    s.pending_buf[s.pending - 4] = len;
+    s.pending_buf[s.pending - 3] = len >> 8;
+    s.pending_buf[s.pending - 2] = ~len;
+    s.pending_buf[s.pending - 1] = ~len >> 8;
+    flush_pending(s.strm);
+    if (left) {
+      if (left > len) {
+        left = len;
+      }
+      s.strm.output.set(s.window.subarray(s.block_start, s.block_start + left), s.strm.next_out);
+      s.strm.next_out += left;
+      s.strm.avail_out -= left;
+      s.strm.total_out += left;
+      s.block_start += left;
+      len -= left;
+    }
+    if (len) {
+      read_buf(s.strm, s.strm.output, s.strm.next_out, len);
+      s.strm.next_out += len;
+      s.strm.avail_out -= len;
+      s.strm.total_out += len;
+    }
+  } while (last === 0);
+  used -= s.strm.avail_in;
+  if (used) {
+    if (used >= s.w_size) {
+      s.matches = 2;
+      s.window.set(s.strm.input.subarray(s.strm.next_in - s.w_size, s.strm.next_in), 0);
+      s.strstart = s.w_size;
+      s.insert = s.strstart;
+    } else {
+      if (s.window_size - s.strstart <= used) {
+        s.strstart -= s.w_size;
+        s.window.set(s.window.subarray(s.w_size, s.w_size + s.strstart), 0);
+        if (s.matches < 2) {
+          s.matches++;
+        }
+        if (s.insert > s.strstart) {
+          s.insert = s.strstart;
+        }
+      }
+      s.window.set(s.strm.input.subarray(s.strm.next_in - used, s.strm.next_in), s.strstart);
+      s.strstart += used;
+      s.insert += used > s.w_size - s.insert ? s.w_size - s.insert : used;
+    }
+    s.block_start = s.strstart;
+  }
+  if (s.high_water < s.strstart) {
+    s.high_water = s.strstart;
+  }
+  if (last) {
+    return BS_FINISH_DONE;
+  }
+  if (flush !== Z_NO_FLUSH$2 && flush !== Z_FINISH$3 && s.strm.avail_in === 0 && s.strstart === s.block_start) {
+    return BS_BLOCK_DONE;
+  }
+  have = s.window_size - s.strstart;
+  if (s.strm.avail_in > have && s.block_start >= s.w_size) {
+    s.block_start -= s.w_size;
+    s.strstart -= s.w_size;
+    s.window.set(s.window.subarray(s.w_size, s.w_size + s.strstart), 0);
+    if (s.matches < 2) {
+      s.matches++;
+    }
+    have += s.w_size;
+    if (s.insert > s.strstart) {
+      s.insert = s.strstart;
+    }
+  }
+  if (have > s.strm.avail_in) {
+    have = s.strm.avail_in;
+  }
+  if (have) {
+    read_buf(s.strm, s.window, s.strstart, have);
+    s.strstart += have;
+    s.insert += have > s.w_size - s.insert ? s.w_size - s.insert : have;
+  }
+  if (s.high_water < s.strstart) {
+    s.high_water = s.strstart;
+  }
+  have = s.bi_valid + 42 >> 3;
+  have = s.pending_buf_size - have > 65535 ? 65535 : s.pending_buf_size - have;
+  min_block = have > s.w_size ? s.w_size : have;
+  left = s.strstart - s.block_start;
+  if (left >= min_block || (left || flush === Z_FINISH$3) && flush !== Z_NO_FLUSH$2 && s.strm.avail_in === 0 && left <= have) {
+    len = left > have ? have : left;
+    last = flush === Z_FINISH$3 && s.strm.avail_in === 0 && len === left ? 1 : 0;
+    _tr_stored_block(s, s.block_start, len, last);
+    s.block_start += len;
+    flush_pending(s.strm);
+  }
+  return last ? BS_FINISH_STARTED : BS_NEED_MORE;
+};
+var deflate_fast = (s, flush) => {
+  let hash_head;
+  let bflush;
+  for (; ; ) {
+    if (s.lookahead < MIN_LOOKAHEAD) {
+      fill_window(s);
+      if (s.lookahead < MIN_LOOKAHEAD && flush === Z_NO_FLUSH$2) {
+        return BS_NEED_MORE;
+      }
+      if (s.lookahead === 0) {
+        break;
+      }
+    }
+    hash_head = 0;
+    if (s.lookahead >= MIN_MATCH) {
+      s.ins_h = HASH(s, s.ins_h, s.window[s.strstart + MIN_MATCH - 1]);
+      hash_head = s.prev[s.strstart & s.w_mask] = s.head[s.ins_h];
+      s.head[s.ins_h] = s.strstart;
+    }
+    if (hash_head !== 0 && s.strstart - hash_head <= s.w_size - MIN_LOOKAHEAD) {
+      s.match_length = longest_match(s, hash_head);
+    }
+    if (s.match_length >= MIN_MATCH) {
+      bflush = _tr_tally(s, s.strstart - s.match_start, s.match_length - MIN_MATCH);
+      s.lookahead -= s.match_length;
+      if (s.match_length <= s.max_lazy_match && s.lookahead >= MIN_MATCH) {
+        s.match_length--;
+        do {
+          s.strstart++;
+          s.ins_h = HASH(s, s.ins_h, s.window[s.strstart + MIN_MATCH - 1]);
+          hash_head = s.prev[s.strstart & s.w_mask] = s.head[s.ins_h];
+          s.head[s.ins_h] = s.strstart;
+        } while (--s.match_length !== 0);
+        s.strstart++;
+      } else {
+        s.strstart += s.match_length;
+        s.match_length = 0;
+        s.ins_h = s.window[s.strstart];
+        s.ins_h = HASH(s, s.ins_h, s.window[s.strstart + 1]);
+      }
+    } else {
+      bflush = _tr_tally(s, 0, s.window[s.strstart]);
+      s.lookahead--;
+      s.strstart++;
+    }
+    if (bflush) {
+      flush_block_only(s, false);
+      if (s.strm.avail_out === 0) {
+        return BS_NEED_MORE;
+      }
+    }
+  }
+  s.insert = s.strstart < MIN_MATCH - 1 ? s.strstart : MIN_MATCH - 1;
+  if (flush === Z_FINISH$3) {
+    flush_block_only(s, true);
+    if (s.strm.avail_out === 0) {
+      return BS_FINISH_STARTED;
+    }
+    return BS_FINISH_DONE;
+  }
+  if (s.sym_next) {
+    flush_block_only(s, false);
+    if (s.strm.avail_out === 0) {
+      return BS_NEED_MORE;
+    }
+  }
+  return BS_BLOCK_DONE;
+};
+var deflate_slow = (s, flush) => {
+  let hash_head;
+  let bflush;
+  let max_insert;
+  for (; ; ) {
+    if (s.lookahead < MIN_LOOKAHEAD) {
+      fill_window(s);
+      if (s.lookahead < MIN_LOOKAHEAD && flush === Z_NO_FLUSH$2) {
+        return BS_NEED_MORE;
+      }
+      if (s.lookahead === 0) {
+        break;
+      }
+    }
+    hash_head = 0;
+    if (s.lookahead >= MIN_MATCH) {
+      s.ins_h = HASH(s, s.ins_h, s.window[s.strstart + MIN_MATCH - 1]);
+      hash_head = s.prev[s.strstart & s.w_mask] = s.head[s.ins_h];
+      s.head[s.ins_h] = s.strstart;
+    }
+    s.prev_length = s.match_length;
+    s.prev_match = s.match_start;
+    s.match_length = MIN_MATCH - 1;
+    if (hash_head !== 0 && s.prev_length < s.max_lazy_match && s.strstart - hash_head <= s.w_size - MIN_LOOKAHEAD) {
+      s.match_length = longest_match(s, hash_head);
+      if (s.match_length <= 5 && (s.strategy === Z_FILTERED || s.match_length === MIN_MATCH && s.strstart - s.match_start > 4096)) {
+        s.match_length = MIN_MATCH - 1;
+      }
+    }
+    if (s.prev_length >= MIN_MATCH && s.match_length <= s.prev_length) {
+      max_insert = s.strstart + s.lookahead - MIN_MATCH;
+      bflush = _tr_tally(s, s.strstart - 1 - s.prev_match, s.prev_length - MIN_MATCH);
+      s.lookahead -= s.prev_length - 1;
+      s.prev_length -= 2;
+      do {
+        if (++s.strstart <= max_insert) {
+          s.ins_h = HASH(s, s.ins_h, s.window[s.strstart + MIN_MATCH - 1]);
+          hash_head = s.prev[s.strstart & s.w_mask] = s.head[s.ins_h];
+          s.head[s.ins_h] = s.strstart;
+        }
+      } while (--s.prev_length !== 0);
+      s.match_available = 0;
+      s.match_length = MIN_MATCH - 1;
+      s.strstart++;
+      if (bflush) {
+        flush_block_only(s, false);
+        if (s.strm.avail_out === 0) {
+          return BS_NEED_MORE;
+        }
+      }
+    } else if (s.match_available) {
+      bflush = _tr_tally(s, 0, s.window[s.strstart - 1]);
+      if (bflush) {
+        flush_block_only(s, false);
+      }
+      s.strstart++;
+      s.lookahead--;
+      if (s.strm.avail_out === 0) {
+        return BS_NEED_MORE;
+      }
+    } else {
+      s.match_available = 1;
+      s.strstart++;
+      s.lookahead--;
+    }
+  }
+  if (s.match_available) {
+    bflush = _tr_tally(s, 0, s.window[s.strstart - 1]);
+    s.match_available = 0;
+  }
+  s.insert = s.strstart < MIN_MATCH - 1 ? s.strstart : MIN_MATCH - 1;
+  if (flush === Z_FINISH$3) {
+    flush_block_only(s, true);
+    if (s.strm.avail_out === 0) {
+      return BS_FINISH_STARTED;
+    }
+    return BS_FINISH_DONE;
+  }
+  if (s.sym_next) {
+    flush_block_only(s, false);
+    if (s.strm.avail_out === 0) {
+      return BS_NEED_MORE;
+    }
+  }
+  return BS_BLOCK_DONE;
+};
+var deflate_rle = (s, flush) => {
+  let bflush;
+  let prev;
+  let scan, strend;
+  const _win = s.window;
+  for (; ; ) {
+    if (s.lookahead <= MAX_MATCH) {
+      fill_window(s);
+      if (s.lookahead <= MAX_MATCH && flush === Z_NO_FLUSH$2) {
+        return BS_NEED_MORE;
+      }
+      if (s.lookahead === 0) {
+        break;
+      }
+    }
+    s.match_length = 0;
+    if (s.lookahead >= MIN_MATCH && s.strstart > 0) {
+      scan = s.strstart - 1;
+      prev = _win[scan];
+      if (prev === _win[++scan] && prev === _win[++scan] && prev === _win[++scan]) {
+        strend = s.strstart + MAX_MATCH;
+        do {
+        } while (prev === _win[++scan] && prev === _win[++scan] && prev === _win[++scan] && prev === _win[++scan] && prev === _win[++scan] && prev === _win[++scan] && prev === _win[++scan] && prev === _win[++scan] && scan < strend);
+        s.match_length = MAX_MATCH - (strend - scan);
+        if (s.match_length > s.lookahead) {
+          s.match_length = s.lookahead;
+        }
+      }
+    }
+    if (s.match_length >= MIN_MATCH) {
+      bflush = _tr_tally(s, 1, s.match_length - MIN_MATCH);
+      s.lookahead -= s.match_length;
+      s.strstart += s.match_length;
+      s.match_length = 0;
+    } else {
+      bflush = _tr_tally(s, 0, s.window[s.strstart]);
+      s.lookahead--;
+      s.strstart++;
+    }
+    if (bflush) {
+      flush_block_only(s, false);
+      if (s.strm.avail_out === 0) {
+        return BS_NEED_MORE;
+      }
+    }
+  }
+  s.insert = 0;
+  if (flush === Z_FINISH$3) {
+    flush_block_only(s, true);
+    if (s.strm.avail_out === 0) {
+      return BS_FINISH_STARTED;
+    }
+    return BS_FINISH_DONE;
+  }
+  if (s.sym_next) {
+    flush_block_only(s, false);
+    if (s.strm.avail_out === 0) {
+      return BS_NEED_MORE;
+    }
+  }
+  return BS_BLOCK_DONE;
+};
+var deflate_huff = (s, flush) => {
+  let bflush;
+  for (; ; ) {
+    if (s.lookahead === 0) {
+      fill_window(s);
+      if (s.lookahead === 0) {
+        if (flush === Z_NO_FLUSH$2) {
+          return BS_NEED_MORE;
+        }
+        break;
+      }
+    }
+    s.match_length = 0;
+    bflush = _tr_tally(s, 0, s.window[s.strstart]);
+    s.lookahead--;
+    s.strstart++;
+    if (bflush) {
+      flush_block_only(s, false);
+      if (s.strm.avail_out === 0) {
+        return BS_NEED_MORE;
+      }
+    }
+  }
+  s.insert = 0;
+  if (flush === Z_FINISH$3) {
+    flush_block_only(s, true);
+    if (s.strm.avail_out === 0) {
+      return BS_FINISH_STARTED;
+    }
+    return BS_FINISH_DONE;
+  }
+  if (s.sym_next) {
+    flush_block_only(s, false);
+    if (s.strm.avail_out === 0) {
+      return BS_NEED_MORE;
+    }
+  }
+  return BS_BLOCK_DONE;
+};
+function Config(good_length, max_lazy, nice_length, max_chain, func) {
+  this.good_length = good_length;
+  this.max_lazy = max_lazy;
+  this.nice_length = nice_length;
+  this.max_chain = max_chain;
+  this.func = func;
+}
+var configuration_table = [
+  /*      good lazy nice chain */
+  new Config(0, 0, 0, 0, deflate_stored),
+  /* 0 store only */
+  new Config(4, 4, 8, 4, deflate_fast),
+  /* 1 max speed, no lazy matches */
+  new Config(4, 5, 16, 8, deflate_fast),
+  /* 2 */
+  new Config(4, 6, 32, 32, deflate_fast),
+  /* 3 */
+  new Config(4, 4, 16, 16, deflate_slow),
+  /* 4 lazy matches */
+  new Config(8, 16, 32, 32, deflate_slow),
+  /* 5 */
+  new Config(8, 16, 128, 128, deflate_slow),
+  /* 6 */
+  new Config(8, 32, 128, 256, deflate_slow),
+  /* 7 */
+  new Config(32, 128, 258, 1024, deflate_slow),
+  /* 8 */
+  new Config(32, 258, 258, 4096, deflate_slow)
+  /* 9 max compression */
+];
+var lm_init = (s) => {
+  s.window_size = 2 * s.w_size;
+  zero(s.head);
+  s.max_lazy_match = configuration_table[s.level].max_lazy;
+  s.good_match = configuration_table[s.level].good_length;
+  s.nice_match = configuration_table[s.level].nice_length;
+  s.max_chain_length = configuration_table[s.level].max_chain;
+  s.strstart = 0;
+  s.block_start = 0;
+  s.lookahead = 0;
+  s.insert = 0;
+  s.match_length = s.prev_length = MIN_MATCH - 1;
+  s.match_available = 0;
+  s.ins_h = 0;
+};
+function DeflateState() {
+  this.strm = null;
+  this.status = 0;
+  this.pending_buf = null;
+  this.pending_buf_size = 0;
+  this.pending_out = 0;
+  this.pending = 0;
+  this.wrap = 0;
+  this.gzhead = null;
+  this.gzindex = 0;
+  this.method = Z_DEFLATED$2;
+  this.last_flush = -1;
+  this.w_size = 0;
+  this.w_bits = 0;
+  this.w_mask = 0;
+  this.window = null;
+  this.window_size = 0;
+  this.prev = null;
+  this.head = null;
+  this.ins_h = 0;
+  this.hash_size = 0;
+  this.hash_bits = 0;
+  this.hash_mask = 0;
+  this.hash_shift = 0;
+  this.block_start = 0;
+  this.match_length = 0;
+  this.prev_match = 0;
+  this.match_available = 0;
+  this.strstart = 0;
+  this.match_start = 0;
+  this.lookahead = 0;
+  this.prev_length = 0;
+  this.max_chain_length = 0;
+  this.max_lazy_match = 0;
+  this.level = 0;
+  this.strategy = 0;
+  this.good_match = 0;
+  this.nice_match = 0;
+  this.dyn_ltree = new Uint16Array(HEAP_SIZE * 2);
+  this.dyn_dtree = new Uint16Array((2 * D_CODES + 1) * 2);
+  this.bl_tree = new Uint16Array((2 * BL_CODES + 1) * 2);
+  zero(this.dyn_ltree);
+  zero(this.dyn_dtree);
+  zero(this.bl_tree);
+  this.l_desc = null;
+  this.d_desc = null;
+  this.bl_desc = null;
+  this.bl_count = new Uint16Array(MAX_BITS + 1);
+  this.heap = new Uint16Array(2 * L_CODES + 1);
+  zero(this.heap);
+  this.heap_len = 0;
+  this.heap_max = 0;
+  this.depth = new Uint16Array(2 * L_CODES + 1);
+  zero(this.depth);
+  this.sym_buf = 0;
+  this.lit_bufsize = 0;
+  this.sym_next = 0;
+  this.sym_end = 0;
+  this.opt_len = 0;
+  this.static_len = 0;
+  this.matches = 0;
+  this.insert = 0;
+  this.bi_buf = 0;
+  this.bi_valid = 0;
+}
+var deflateStateCheck = (strm) => {
+  if (!strm) {
+    return 1;
+  }
+  const s = strm.state;
+  if (!s || s.strm !== strm || s.status !== INIT_STATE && //#ifdef GZIP
+  s.status !== GZIP_STATE && //#endif
+  s.status !== EXTRA_STATE && s.status !== NAME_STATE && s.status !== COMMENT_STATE && s.status !== HCRC_STATE && s.status !== BUSY_STATE && s.status !== FINISH_STATE) {
+    return 1;
+  }
+  return 0;
+};
+var deflateResetKeep = (strm) => {
+  if (deflateStateCheck(strm)) {
+    return err(strm, Z_STREAM_ERROR$2);
+  }
+  strm.total_in = strm.total_out = 0;
+  strm.data_type = Z_UNKNOWN;
+  const s = strm.state;
+  s.pending = 0;
+  s.pending_out = 0;
+  if (s.wrap < 0) {
+    s.wrap = -s.wrap;
+  }
+  s.status = //#ifdef GZIP
+  s.wrap === 2 ? GZIP_STATE : (
+    //#endif
+    s.wrap ? INIT_STATE : BUSY_STATE
+  );
+  strm.adler = s.wrap === 2 ? 0 : 1;
+  s.last_flush = -2;
+  _tr_init(s);
+  return Z_OK$3;
+};
+var deflateReset = (strm) => {
+  const ret = deflateResetKeep(strm);
+  if (ret === Z_OK$3) {
+    lm_init(strm.state);
+  }
+  return ret;
+};
+var deflateSetHeader = (strm, head) => {
+  if (deflateStateCheck(strm) || strm.state.wrap !== 2) {
+    return Z_STREAM_ERROR$2;
+  }
+  strm.state.gzhead = head;
+  return Z_OK$3;
+};
+var deflateInit2 = (strm, level, method, windowBits, memLevel, strategy) => {
+  if (!strm) {
+    return Z_STREAM_ERROR$2;
+  }
+  let wrap = 1;
+  if (level === Z_DEFAULT_COMPRESSION$1) {
+    level = 6;
+  }
+  if (windowBits < 0) {
+    wrap = 0;
+    windowBits = -windowBits;
+  } else if (windowBits > 15) {
+    wrap = 2;
+    windowBits -= 16;
+  }
+  if (memLevel < 1 || memLevel > MAX_MEM_LEVEL || method !== Z_DEFLATED$2 || windowBits < 8 || windowBits > 15 || level < 0 || level > 9 || strategy < 0 || strategy > Z_FIXED || windowBits === 8 && wrap !== 1) {
+    return err(strm, Z_STREAM_ERROR$2);
+  }
+  if (windowBits === 8) {
+    windowBits = 9;
+  }
+  const s = new DeflateState();
+  strm.state = s;
+  s.strm = strm;
+  s.status = INIT_STATE;
+  s.wrap = wrap;
+  s.gzhead = null;
+  s.w_bits = windowBits;
+  s.w_size = 1 << s.w_bits;
+  s.w_mask = s.w_size - 1;
+  s.hash_bits = memLevel + 7;
+  s.hash_size = 1 << s.hash_bits;
+  s.hash_mask = s.hash_size - 1;
+  s.hash_shift = ~~((s.hash_bits + MIN_MATCH - 1) / MIN_MATCH);
+  s.window = new Uint8Array(s.w_size * 2);
+  s.head = new Uint16Array(s.hash_size);
+  s.prev = new Uint16Array(s.w_size);
+  s.lit_bufsize = 1 << memLevel + 6;
+  s.pending_buf_size = s.lit_bufsize * 4;
+  s.pending_buf = new Uint8Array(s.pending_buf_size);
+  s.sym_buf = s.lit_bufsize;
+  s.sym_end = (s.lit_bufsize - 1) * 3;
+  s.level = level;
+  s.strategy = strategy;
+  s.method = method;
+  return deflateReset(strm);
+};
+var deflateInit = (strm, level) => {
+  return deflateInit2(strm, level, Z_DEFLATED$2, MAX_WBITS$1, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY$1);
+};
+var deflate$2 = (strm, flush) => {
+  if (deflateStateCheck(strm) || flush > Z_BLOCK$1 || flush < 0) {
+    return strm ? err(strm, Z_STREAM_ERROR$2) : Z_STREAM_ERROR$2;
+  }
+  const s = strm.state;
+  if (!strm.output || strm.avail_in !== 0 && !strm.input || s.status === FINISH_STATE && flush !== Z_FINISH$3) {
+    return err(strm, strm.avail_out === 0 ? Z_BUF_ERROR$1 : Z_STREAM_ERROR$2);
+  }
+  const old_flush = s.last_flush;
+  s.last_flush = flush;
+  if (s.pending !== 0) {
+    flush_pending(strm);
+    if (strm.avail_out === 0) {
+      s.last_flush = -1;
+      return Z_OK$3;
+    }
+  } else if (strm.avail_in === 0 && rank(flush) <= rank(old_flush) && flush !== Z_FINISH$3) {
+    return err(strm, Z_BUF_ERROR$1);
+  }
+  if (s.status === FINISH_STATE && strm.avail_in !== 0) {
+    return err(strm, Z_BUF_ERROR$1);
+  }
+  if (s.status === INIT_STATE && s.wrap === 0) {
+    s.status = BUSY_STATE;
+  }
+  if (s.status === INIT_STATE) {
+    let header = Z_DEFLATED$2 + (s.w_bits - 8 << 4) << 8;
+    let level_flags = -1;
+    if (s.strategy >= Z_HUFFMAN_ONLY || s.level < 2) {
+      level_flags = 0;
+    } else if (s.level < 6) {
+      level_flags = 1;
+    } else if (s.level === 6) {
+      level_flags = 2;
+    } else {
+      level_flags = 3;
+    }
+    header |= level_flags << 6;
+    if (s.strstart !== 0) {
+      header |= PRESET_DICT;
+    }
+    header += 31 - header % 31;
+    putShortMSB(s, header);
+    if (s.strstart !== 0) {
+      putShortMSB(s, strm.adler >>> 16);
+      putShortMSB(s, strm.adler & 65535);
+    }
+    strm.adler = 1;
+    s.status = BUSY_STATE;
+    flush_pending(strm);
+    if (s.pending !== 0) {
+      s.last_flush = -1;
+      return Z_OK$3;
+    }
+  }
+  if (s.status === GZIP_STATE) {
+    strm.adler = 0;
+    put_byte(s, 31);
+    put_byte(s, 139);
+    put_byte(s, 8);
+    if (!s.gzhead) {
+      put_byte(s, 0);
+      put_byte(s, 0);
+      put_byte(s, 0);
+      put_byte(s, 0);
+      put_byte(s, 0);
+      put_byte(s, s.level === 9 ? 2 : s.strategy >= Z_HUFFMAN_ONLY || s.level < 2 ? 4 : 0);
+      put_byte(s, OS_CODE);
+      s.status = BUSY_STATE;
+      flush_pending(strm);
+      if (s.pending !== 0) {
+        s.last_flush = -1;
+        return Z_OK$3;
+      }
+    } else {
+      put_byte(
+        s,
+        (s.gzhead.text ? 1 : 0) + (s.gzhead.hcrc ? 2 : 0) + (!s.gzhead.extra ? 0 : 4) + (!s.gzhead.name ? 0 : 8) + (!s.gzhead.comment ? 0 : 16)
+      );
+      put_byte(s, s.gzhead.time & 255);
+      put_byte(s, s.gzhead.time >> 8 & 255);
+      put_byte(s, s.gzhead.time >> 16 & 255);
+      put_byte(s, s.gzhead.time >> 24 & 255);
+      put_byte(s, s.level === 9 ? 2 : s.strategy >= Z_HUFFMAN_ONLY || s.level < 2 ? 4 : 0);
+      put_byte(s, s.gzhead.os & 255);
+      if (s.gzhead.extra && s.gzhead.extra.length) {
+        put_byte(s, s.gzhead.extra.length & 255);
+        put_byte(s, s.gzhead.extra.length >> 8 & 255);
+      }
+      if (s.gzhead.hcrc) {
+        strm.adler = crc32_1(strm.adler, s.pending_buf, s.pending, 0);
+      }
+      s.gzindex = 0;
+      s.status = EXTRA_STATE;
+    }
+  }
+  if (s.status === EXTRA_STATE) {
+    if (s.gzhead.extra) {
+      let beg = s.pending;
+      let left = (s.gzhead.extra.length & 65535) - s.gzindex;
+      while (s.pending + left > s.pending_buf_size) {
+        let copy2 = s.pending_buf_size - s.pending;
+        s.pending_buf.set(s.gzhead.extra.subarray(s.gzindex, s.gzindex + copy2), s.pending);
+        s.pending = s.pending_buf_size;
+        if (s.gzhead.hcrc && s.pending > beg) {
+          strm.adler = crc32_1(strm.adler, s.pending_buf, s.pending - beg, beg);
+        }
+        s.gzindex += copy2;
+        flush_pending(strm);
+        if (s.pending !== 0) {
+          s.last_flush = -1;
+          return Z_OK$3;
+        }
+        beg = 0;
+        left -= copy2;
+      }
+      let gzhead_extra = new Uint8Array(s.gzhead.extra);
+      s.pending_buf.set(gzhead_extra.subarray(s.gzindex, s.gzindex + left), s.pending);
+      s.pending += left;
+      if (s.gzhead.hcrc && s.pending > beg) {
+        strm.adler = crc32_1(strm.adler, s.pending_buf, s.pending - beg, beg);
+      }
+      s.gzindex = 0;
+    }
+    s.status = NAME_STATE;
+  }
+  if (s.status === NAME_STATE) {
+    if (s.gzhead.name) {
+      let beg = s.pending;
+      let val;
+      do {
+        if (s.pending === s.pending_buf_size) {
+          if (s.gzhead.hcrc && s.pending > beg) {
+            strm.adler = crc32_1(strm.adler, s.pending_buf, s.pending - beg, beg);
+          }
+          flush_pending(strm);
+          if (s.pending !== 0) {
+            s.last_flush = -1;
+            return Z_OK$3;
+          }
+          beg = 0;
+        }
+        if (s.gzindex < s.gzhead.name.length) {
+          val = s.gzhead.name.charCodeAt(s.gzindex++) & 255;
+        } else {
+          val = 0;
+        }
+        put_byte(s, val);
+      } while (val !== 0);
+      if (s.gzhead.hcrc && s.pending > beg) {
+        strm.adler = crc32_1(strm.adler, s.pending_buf, s.pending - beg, beg);
+      }
+      s.gzindex = 0;
+    }
+    s.status = COMMENT_STATE;
+  }
+  if (s.status === COMMENT_STATE) {
+    if (s.gzhead.comment) {
+      let beg = s.pending;
+      let val;
+      do {
+        if (s.pending === s.pending_buf_size) {
+          if (s.gzhead.hcrc && s.pending > beg) {
+            strm.adler = crc32_1(strm.adler, s.pending_buf, s.pending - beg, beg);
+          }
+          flush_pending(strm);
+          if (s.pending !== 0) {
+            s.last_flush = -1;
+            return Z_OK$3;
+          }
+          beg = 0;
+        }
+        if (s.gzindex < s.gzhead.comment.length) {
+          val = s.gzhead.comment.charCodeAt(s.gzindex++) & 255;
+        } else {
+          val = 0;
+        }
+        put_byte(s, val);
+      } while (val !== 0);
+      if (s.gzhead.hcrc && s.pending > beg) {
+        strm.adler = crc32_1(strm.adler, s.pending_buf, s.pending - beg, beg);
+      }
+    }
+    s.status = HCRC_STATE;
+  }
+  if (s.status === HCRC_STATE) {
+    if (s.gzhead.hcrc) {
+      if (s.pending + 2 > s.pending_buf_size) {
+        flush_pending(strm);
+        if (s.pending !== 0) {
+          s.last_flush = -1;
+          return Z_OK$3;
+        }
+      }
+      put_byte(s, strm.adler & 255);
+      put_byte(s, strm.adler >> 8 & 255);
+      strm.adler = 0;
+    }
+    s.status = BUSY_STATE;
+    flush_pending(strm);
+    if (s.pending !== 0) {
+      s.last_flush = -1;
+      return Z_OK$3;
+    }
+  }
+  if (strm.avail_in !== 0 || s.lookahead !== 0 || flush !== Z_NO_FLUSH$2 && s.status !== FINISH_STATE) {
+    let bstate = s.level === 0 ? deflate_stored(s, flush) : s.strategy === Z_HUFFMAN_ONLY ? deflate_huff(s, flush) : s.strategy === Z_RLE ? deflate_rle(s, flush) : configuration_table[s.level].func(s, flush);
+    if (bstate === BS_FINISH_STARTED || bstate === BS_FINISH_DONE) {
+      s.status = FINISH_STATE;
+    }
+    if (bstate === BS_NEED_MORE || bstate === BS_FINISH_STARTED) {
+      if (strm.avail_out === 0) {
+        s.last_flush = -1;
+      }
+      return Z_OK$3;
+    }
+    if (bstate === BS_BLOCK_DONE) {
+      if (flush === Z_PARTIAL_FLUSH) {
+        _tr_align(s);
+      } else if (flush !== Z_BLOCK$1) {
+        _tr_stored_block(s, 0, 0, false);
+        if (flush === Z_FULL_FLUSH$1) {
+          zero(s.head);
+          if (s.lookahead === 0) {
+            s.strstart = 0;
+            s.block_start = 0;
+            s.insert = 0;
+          }
+        }
+      }
+      flush_pending(strm);
+      if (strm.avail_out === 0) {
+        s.last_flush = -1;
+        return Z_OK$3;
+      }
+    }
+  }
+  if (flush !== Z_FINISH$3) {
+    return Z_OK$3;
+  }
+  if (s.wrap <= 0) {
+    return Z_STREAM_END$3;
+  }
+  if (s.wrap === 2) {
+    put_byte(s, strm.adler & 255);
+    put_byte(s, strm.adler >> 8 & 255);
+    put_byte(s, strm.adler >> 16 & 255);
+    put_byte(s, strm.adler >> 24 & 255);
+    put_byte(s, strm.total_in & 255);
+    put_byte(s, strm.total_in >> 8 & 255);
+    put_byte(s, strm.total_in >> 16 & 255);
+    put_byte(s, strm.total_in >> 24 & 255);
+  } else {
+    putShortMSB(s, strm.adler >>> 16);
+    putShortMSB(s, strm.adler & 65535);
+  }
+  flush_pending(strm);
+  if (s.wrap > 0) {
+    s.wrap = -s.wrap;
+  }
+  return s.pending !== 0 ? Z_OK$3 : Z_STREAM_END$3;
+};
+var deflateEnd = (strm) => {
+  if (deflateStateCheck(strm)) {
+    return Z_STREAM_ERROR$2;
+  }
+  const status = strm.state.status;
+  strm.state = null;
+  return status === BUSY_STATE ? err(strm, Z_DATA_ERROR$2) : Z_OK$3;
+};
+var deflateSetDictionary = (strm, dictionary) => {
+  let dictLength = dictionary.length;
+  if (deflateStateCheck(strm)) {
+    return Z_STREAM_ERROR$2;
+  }
+  const s = strm.state;
+  const wrap = s.wrap;
+  if (wrap === 2 || wrap === 1 && s.status !== INIT_STATE || s.lookahead) {
+    return Z_STREAM_ERROR$2;
+  }
+  if (wrap === 1) {
+    strm.adler = adler32_1(strm.adler, dictionary, dictLength, 0);
+  }
+  s.wrap = 0;
+  if (dictLength >= s.w_size) {
+    if (wrap === 0) {
+      zero(s.head);
+      s.strstart = 0;
+      s.block_start = 0;
+      s.insert = 0;
+    }
+    let tmpDict = new Uint8Array(s.w_size);
+    tmpDict.set(dictionary.subarray(dictLength - s.w_size, dictLength), 0);
+    dictionary = tmpDict;
+    dictLength = s.w_size;
+  }
+  const avail = strm.avail_in;
+  const next = strm.next_in;
+  const input = strm.input;
+  strm.avail_in = dictLength;
+  strm.next_in = 0;
+  strm.input = dictionary;
+  fill_window(s);
+  while (s.lookahead >= MIN_MATCH) {
+    let str = s.strstart;
+    let n = s.lookahead - (MIN_MATCH - 1);
+    do {
+      s.ins_h = HASH(s, s.ins_h, s.window[str + MIN_MATCH - 1]);
+      s.prev[str & s.w_mask] = s.head[s.ins_h];
+      s.head[s.ins_h] = str;
+      str++;
+    } while (--n);
+    s.strstart = str;
+    s.lookahead = MIN_MATCH - 1;
+    fill_window(s);
+  }
+  s.strstart += s.lookahead;
+  s.block_start = s.strstart;
+  s.insert = s.lookahead;
+  s.lookahead = 0;
+  s.match_length = s.prev_length = MIN_MATCH - 1;
+  s.match_available = 0;
+  strm.next_in = next;
+  strm.input = input;
+  strm.avail_in = avail;
+  s.wrap = wrap;
+  return Z_OK$3;
+};
+var deflateInit_1 = deflateInit;
+var deflateInit2_1 = deflateInit2;
+var deflateReset_1 = deflateReset;
+var deflateResetKeep_1 = deflateResetKeep;
+var deflateSetHeader_1 = deflateSetHeader;
+var deflate_2$1 = deflate$2;
+var deflateEnd_1 = deflateEnd;
+var deflateSetDictionary_1 = deflateSetDictionary;
+var deflateInfo = "pako deflate (from Nodeca project)";
+var deflate_1$2 = {
+  deflateInit: deflateInit_1,
+  deflateInit2: deflateInit2_1,
+  deflateReset: deflateReset_1,
+  deflateResetKeep: deflateResetKeep_1,
+  deflateSetHeader: deflateSetHeader_1,
+  deflate: deflate_2$1,
+  deflateEnd: deflateEnd_1,
+  deflateSetDictionary: deflateSetDictionary_1,
+  deflateInfo
+};
+var _has = (obj, key) => {
+  return Object.prototype.hasOwnProperty.call(obj, key);
+};
+var assign = function(obj) {
+  const sources = Array.prototype.slice.call(arguments, 1);
+  while (sources.length) {
+    const source = sources.shift();
+    if (!source) {
+      continue;
+    }
+    if (typeof source !== "object") {
+      throw new TypeError(source + "must be non-object");
+    }
+    for (const p in source) {
+      if (_has(source, p)) {
+        obj[p] = source[p];
+      }
+    }
+  }
+  return obj;
+};
+var flattenChunks = (chunks) => {
+  let len = 0;
+  for (let i = 0, l = chunks.length; i < l; i++) {
+    len += chunks[i].length;
+  }
+  const result = new Uint8Array(len);
+  for (let i = 0, pos = 0, l = chunks.length; i < l; i++) {
+    let chunk = chunks[i];
+    result.set(chunk, pos);
+    pos += chunk.length;
+  }
+  return result;
+};
+var common = {
+  assign,
+  flattenChunks
+};
+var STR_APPLY_UIA_OK = true;
+try {
+  String.fromCharCode.apply(null, new Uint8Array(1));
+} catch (__) {
+  STR_APPLY_UIA_OK = false;
+}
+var _utf8len = new Uint8Array(256);
+for (let q = 0; q < 256; q++) {
+  _utf8len[q] = q >= 252 ? 6 : q >= 248 ? 5 : q >= 240 ? 4 : q >= 224 ? 3 : q >= 192 ? 2 : 1;
+}
+_utf8len[254] = _utf8len[254] = 1;
+var string2buf = (str) => {
+  if (typeof TextEncoder === "function" && TextEncoder.prototype.encode) {
+    return new TextEncoder().encode(str);
+  }
+  let buf, c3, c22, m_pos, i, str_len = str.length, buf_len = 0;
+  for (m_pos = 0; m_pos < str_len; m_pos++) {
+    c3 = str.charCodeAt(m_pos);
+    if ((c3 & 64512) === 55296 && m_pos + 1 < str_len) {
+      c22 = str.charCodeAt(m_pos + 1);
+      if ((c22 & 64512) === 56320) {
+        c3 = 65536 + (c3 - 55296 << 10) + (c22 - 56320);
+        m_pos++;
+      }
+    }
+    buf_len += c3 < 128 ? 1 : c3 < 2048 ? 2 : c3 < 65536 ? 3 : 4;
+  }
+  buf = new Uint8Array(buf_len);
+  for (i = 0, m_pos = 0; i < buf_len; m_pos++) {
+    c3 = str.charCodeAt(m_pos);
+    if ((c3 & 64512) === 55296 && m_pos + 1 < str_len) {
+      c22 = str.charCodeAt(m_pos + 1);
+      if ((c22 & 64512) === 56320) {
+        c3 = 65536 + (c3 - 55296 << 10) + (c22 - 56320);
+        m_pos++;
+      }
+    }
+    if (c3 < 128) {
+      buf[i++] = c3;
+    } else if (c3 < 2048) {
+      buf[i++] = 192 | c3 >>> 6;
+      buf[i++] = 128 | c3 & 63;
+    } else if (c3 < 65536) {
+      buf[i++] = 224 | c3 >>> 12;
+      buf[i++] = 128 | c3 >>> 6 & 63;
+      buf[i++] = 128 | c3 & 63;
+    } else {
+      buf[i++] = 240 | c3 >>> 18;
+      buf[i++] = 128 | c3 >>> 12 & 63;
+      buf[i++] = 128 | c3 >>> 6 & 63;
+      buf[i++] = 128 | c3 & 63;
+    }
+  }
+  return buf;
+};
+var buf2binstring = (buf, len) => {
+  if (len < 65534) {
+    if (buf.subarray && STR_APPLY_UIA_OK) {
+      return String.fromCharCode.apply(null, buf.length === len ? buf : buf.subarray(0, len));
+    }
+  }
+  let result = "";
+  for (let i = 0; i < len; i++) {
+    result += String.fromCharCode(buf[i]);
+  }
+  return result;
+};
+var buf2string = (buf, max) => {
+  const len = max || buf.length;
+  if (typeof TextDecoder === "function" && TextDecoder.prototype.decode) {
+    return new TextDecoder().decode(buf.subarray(0, max));
+  }
+  let i, out;
+  const utf16buf = new Array(len * 2);
+  for (out = 0, i = 0; i < len; ) {
+    let c3 = buf[i++];
+    if (c3 < 128) {
+      utf16buf[out++] = c3;
+      continue;
+    }
+    let c_len = _utf8len[c3];
+    if (c_len > 4) {
+      utf16buf[out++] = 65533;
+      i += c_len - 1;
+      continue;
+    }
+    c3 &= c_len === 2 ? 31 : c_len === 3 ? 15 : 7;
+    while (c_len > 1 && i < len) {
+      c3 = c3 << 6 | buf[i++] & 63;
+      c_len--;
+    }
+    if (c_len > 1) {
+      utf16buf[out++] = 65533;
+      continue;
+    }
+    if (c3 < 65536) {
+      utf16buf[out++] = c3;
+    } else {
+      c3 -= 65536;
+      utf16buf[out++] = 55296 | c3 >> 10 & 1023;
+      utf16buf[out++] = 56320 | c3 & 1023;
+    }
+  }
+  return buf2binstring(utf16buf, out);
+};
+var utf8border = (buf, max) => {
+  max = max || buf.length;
+  if (max > buf.length) {
+    max = buf.length;
+  }
+  let pos = max - 1;
+  while (pos >= 0 && (buf[pos] & 192) === 128) {
+    pos--;
+  }
+  if (pos < 0) {
+    return max;
+  }
+  if (pos === 0) {
+    return max;
+  }
+  return pos + _utf8len[buf[pos]] > max ? pos : max;
+};
+var strings = {
+  string2buf,
+  buf2string,
+  utf8border
+};
+function ZStream() {
+  this.input = null;
+  this.next_in = 0;
+  this.avail_in = 0;
+  this.total_in = 0;
+  this.output = null;
+  this.next_out = 0;
+  this.avail_out = 0;
+  this.total_out = 0;
+  this.msg = "";
+  this.state = null;
+  this.data_type = 2;
+  this.adler = 0;
+}
+var zstream = ZStream;
+var toString$1 = Object.prototype.toString;
+var {
+  Z_NO_FLUSH: Z_NO_FLUSH$1,
+  Z_SYNC_FLUSH,
+  Z_FULL_FLUSH,
+  Z_FINISH: Z_FINISH$2,
+  Z_OK: Z_OK$2,
+  Z_STREAM_END: Z_STREAM_END$2,
+  Z_DEFAULT_COMPRESSION,
+  Z_DEFAULT_STRATEGY,
+  Z_DEFLATED: Z_DEFLATED$1
+} = constants$2;
+function Deflate$1(options) {
+  this.options = common.assign({
+    level: Z_DEFAULT_COMPRESSION,
+    method: Z_DEFLATED$1,
+    chunkSize: 16384,
+    windowBits: 15,
+    memLevel: 8,
+    strategy: Z_DEFAULT_STRATEGY
+  }, options || {});
+  let opt = this.options;
+  if (opt.raw && opt.windowBits > 0) {
+    opt.windowBits = -opt.windowBits;
+  } else if (opt.gzip && opt.windowBits > 0 && opt.windowBits < 16) {
+    opt.windowBits += 16;
+  }
+  this.err = 0;
+  this.msg = "";
+  this.ended = false;
+  this.chunks = [];
+  this.strm = new zstream();
+  this.strm.avail_out = 0;
+  let status = deflate_1$2.deflateInit2(
+    this.strm,
+    opt.level,
+    opt.method,
+    opt.windowBits,
+    opt.memLevel,
+    opt.strategy
+  );
+  if (status !== Z_OK$2) {
+    throw new Error(messages[status]);
+  }
+  if (opt.header) {
+    deflate_1$2.deflateSetHeader(this.strm, opt.header);
+  }
+  if (opt.dictionary) {
+    let dict;
+    if (typeof opt.dictionary === "string") {
+      dict = strings.string2buf(opt.dictionary);
+    } else if (toString$1.call(opt.dictionary) === "[object ArrayBuffer]") {
+      dict = new Uint8Array(opt.dictionary);
+    } else {
+      dict = opt.dictionary;
+    }
+    status = deflate_1$2.deflateSetDictionary(this.strm, dict);
+    if (status !== Z_OK$2) {
+      throw new Error(messages[status]);
+    }
+    this._dict_set = true;
+  }
+}
+Deflate$1.prototype.push = function(data2, flush_mode) {
+  const strm = this.strm;
+  const chunkSize = this.options.chunkSize;
+  let status, _flush_mode;
+  if (this.ended) {
+    return false;
+  }
+  if (flush_mode === ~~flush_mode)
+    _flush_mode = flush_mode;
+  else
+    _flush_mode = flush_mode === true ? Z_FINISH$2 : Z_NO_FLUSH$1;
+  if (typeof data2 === "string") {
+    strm.input = strings.string2buf(data2);
+  } else if (toString$1.call(data2) === "[object ArrayBuffer]") {
+    strm.input = new Uint8Array(data2);
+  } else {
+    strm.input = data2;
+  }
+  strm.next_in = 0;
+  strm.avail_in = strm.input.length;
+  for (; ; ) {
+    if (strm.avail_out === 0) {
+      strm.output = new Uint8Array(chunkSize);
+      strm.next_out = 0;
+      strm.avail_out = chunkSize;
+    }
+    if ((_flush_mode === Z_SYNC_FLUSH || _flush_mode === Z_FULL_FLUSH) && strm.avail_out <= 6) {
+      this.onData(strm.output.subarray(0, strm.next_out));
+      strm.avail_out = 0;
+      continue;
+    }
+    status = deflate_1$2.deflate(strm, _flush_mode);
+    if (status === Z_STREAM_END$2) {
+      if (strm.next_out > 0) {
+        this.onData(strm.output.subarray(0, strm.next_out));
+      }
+      status = deflate_1$2.deflateEnd(this.strm);
+      this.onEnd(status);
+      this.ended = true;
+      return status === Z_OK$2;
+    }
+    if (strm.avail_out === 0) {
+      this.onData(strm.output);
+      continue;
+    }
+    if (_flush_mode > 0 && strm.next_out > 0) {
+      this.onData(strm.output.subarray(0, strm.next_out));
+      strm.avail_out = 0;
+      continue;
+    }
+    if (strm.avail_in === 0)
+      break;
+  }
+  return true;
+};
+Deflate$1.prototype.onData = function(chunk) {
+  this.chunks.push(chunk);
+};
+Deflate$1.prototype.onEnd = function(status) {
+  if (status === Z_OK$2) {
+    this.result = common.flattenChunks(this.chunks);
+  }
+  this.chunks = [];
+  this.err = status;
+  this.msg = this.strm.msg;
+};
+function deflate$1(input, options) {
+  const deflator = new Deflate$1(options);
+  deflator.push(input, true);
+  if (deflator.err) {
+    throw deflator.msg || messages[deflator.err];
+  }
+  return deflator.result;
+}
+function deflateRaw$1(input, options) {
+  options = options || {};
+  options.raw = true;
+  return deflate$1(input, options);
+}
+function gzip$1(input, options) {
+  options = options || {};
+  options.gzip = true;
+  return deflate$1(input, options);
+}
+var Deflate_1$1 = Deflate$1;
+var deflate_2 = deflate$1;
+var deflateRaw_1$1 = deflateRaw$1;
+var gzip_1$1 = gzip$1;
+var constants$1 = constants$2;
+var deflate_1$1 = {
+  Deflate: Deflate_1$1,
+  deflate: deflate_2,
+  deflateRaw: deflateRaw_1$1,
+  gzip: gzip_1$1,
+  constants: constants$1
+};
+var BAD$1 = 16209;
+var TYPE$1 = 16191;
+var inffast = function inflate_fast(strm, start) {
+  let _in;
+  let last;
+  let _out;
+  let beg;
+  let end;
+  let dmax;
+  let wsize;
+  let whave;
+  let wnext;
+  let s_window;
+  let hold;
+  let bits;
+  let lcode;
+  let dcode;
+  let lmask;
+  let dmask;
+  let here;
+  let op;
+  let len;
+  let dist;
+  let from;
+  let from_source;
+  let input, output;
+  const state = strm.state;
+  _in = strm.next_in;
+  input = strm.input;
+  last = _in + (strm.avail_in - 5);
+  _out = strm.next_out;
+  output = strm.output;
+  beg = _out - (start - strm.avail_out);
+  end = _out + (strm.avail_out - 257);
+  dmax = state.dmax;
+  wsize = state.wsize;
+  whave = state.whave;
+  wnext = state.wnext;
+  s_window = state.window;
+  hold = state.hold;
+  bits = state.bits;
+  lcode = state.lencode;
+  dcode = state.distcode;
+  lmask = (1 << state.lenbits) - 1;
+  dmask = (1 << state.distbits) - 1;
+  top:
+    do {
+      if (bits < 15) {
+        hold += input[_in++] << bits;
+        bits += 8;
+        hold += input[_in++] << bits;
+        bits += 8;
+      }
+      here = lcode[hold & lmask];
+      dolen:
+        for (; ; ) {
+          op = here >>> 24;
+          hold >>>= op;
+          bits -= op;
+          op = here >>> 16 & 255;
+          if (op === 0) {
+            output[_out++] = here & 65535;
+          } else if (op & 16) {
+            len = here & 65535;
+            op &= 15;
+            if (op) {
+              if (bits < op) {
+                hold += input[_in++] << bits;
+                bits += 8;
+              }
+              len += hold & (1 << op) - 1;
+              hold >>>= op;
+              bits -= op;
+            }
+            if (bits < 15) {
+              hold += input[_in++] << bits;
+              bits += 8;
+              hold += input[_in++] << bits;
+              bits += 8;
+            }
+            here = dcode[hold & dmask];
+            dodist:
+              for (; ; ) {
+                op = here >>> 24;
+                hold >>>= op;
+                bits -= op;
+                op = here >>> 16 & 255;
+                if (op & 16) {
+                  dist = here & 65535;
+                  op &= 15;
+                  if (bits < op) {
+                    hold += input[_in++] << bits;
+                    bits += 8;
+                    if (bits < op) {
+                      hold += input[_in++] << bits;
+                      bits += 8;
+                    }
+                  }
+                  dist += hold & (1 << op) - 1;
+                  if (dist > dmax) {
+                    strm.msg = "invalid distance too far back";
+                    state.mode = BAD$1;
+                    break top;
+                  }
+                  hold >>>= op;
+                  bits -= op;
+                  op = _out - beg;
+                  if (dist > op) {
+                    op = dist - op;
+                    if (op > whave) {
+                      if (state.sane) {
+                        strm.msg = "invalid distance too far back";
+                        state.mode = BAD$1;
+                        break top;
+                      }
+                    }
+                    from = 0;
+                    from_source = s_window;
+                    if (wnext === 0) {
+                      from += wsize - op;
+                      if (op < len) {
+                        len -= op;
+                        do {
+                          output[_out++] = s_window[from++];
+                        } while (--op);
+                        from = _out - dist;
+                        from_source = output;
+                      }
+                    } else if (wnext < op) {
+                      from += wsize + wnext - op;
+                      op -= wnext;
+                      if (op < len) {
+                        len -= op;
+                        do {
+                          output[_out++] = s_window[from++];
+                        } while (--op);
+                        from = 0;
+                        if (wnext < len) {
+                          op = wnext;
+                          len -= op;
+                          do {
+                            output[_out++] = s_window[from++];
+                          } while (--op);
+                          from = _out - dist;
+                          from_source = output;
+                        }
+                      }
+                    } else {
+                      from += wnext - op;
+                      if (op < len) {
+                        len -= op;
+                        do {
+                          output[_out++] = s_window[from++];
+                        } while (--op);
+                        from = _out - dist;
+                        from_source = output;
+                      }
+                    }
+                    while (len > 2) {
+                      output[_out++] = from_source[from++];
+                      output[_out++] = from_source[from++];
+                      output[_out++] = from_source[from++];
+                      len -= 3;
+                    }
+                    if (len) {
+                      output[_out++] = from_source[from++];
+                      if (len > 1) {
+                        output[_out++] = from_source[from++];
+                      }
+                    }
+                  } else {
+                    from = _out - dist;
+                    do {
+                      output[_out++] = output[from++];
+                      output[_out++] = output[from++];
+                      output[_out++] = output[from++];
+                      len -= 3;
+                    } while (len > 2);
+                    if (len) {
+                      output[_out++] = output[from++];
+                      if (len > 1) {
+                        output[_out++] = output[from++];
+                      }
+                    }
+                  }
+                } else if ((op & 64) === 0) {
+                  here = dcode[(here & 65535) + (hold & (1 << op) - 1)];
+                  continue dodist;
+                } else {
+                  strm.msg = "invalid distance code";
+                  state.mode = BAD$1;
+                  break top;
+                }
+                break;
+              }
+          } else if ((op & 64) === 0) {
+            here = lcode[(here & 65535) + (hold & (1 << op) - 1)];
+            continue dolen;
+          } else if (op & 32) {
+            state.mode = TYPE$1;
+            break top;
+          } else {
+            strm.msg = "invalid literal/length code";
+            state.mode = BAD$1;
+            break top;
+          }
+          break;
+        }
+    } while (_in < last && _out < end);
+  len = bits >> 3;
+  _in -= len;
+  bits -= len << 3;
+  hold &= (1 << bits) - 1;
+  strm.next_in = _in;
+  strm.next_out = _out;
+  strm.avail_in = _in < last ? 5 + (last - _in) : 5 - (_in - last);
+  strm.avail_out = _out < end ? 257 + (end - _out) : 257 - (_out - end);
+  state.hold = hold;
+  state.bits = bits;
+  return;
+};
+var MAXBITS = 15;
+var ENOUGH_LENS$1 = 852;
+var ENOUGH_DISTS$1 = 592;
+var CODES$1 = 0;
+var LENS$1 = 1;
+var DISTS$1 = 2;
+var lbase = new Uint16Array([
+  /* Length codes 257..285 base */
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  13,
+  15,
+  17,
+  19,
+  23,
+  27,
+  31,
+  35,
+  43,
+  51,
+  59,
+  67,
+  83,
+  99,
+  115,
+  131,
+  163,
+  195,
+  227,
+  258,
+  0,
+  0
+]);
+var lext = new Uint8Array([
+  /* Length codes 257..285 extra */
+  16,
+  16,
+  16,
+  16,
+  16,
+  16,
+  16,
+  16,
+  17,
+  17,
+  17,
+  17,
+  18,
+  18,
+  18,
+  18,
+  19,
+  19,
+  19,
+  19,
+  20,
+  20,
+  20,
+  20,
+  21,
+  21,
+  21,
+  21,
+  16,
+  72,
+  78
+]);
+var dbase = new Uint16Array([
+  /* Distance codes 0..29 base */
+  1,
+  2,
+  3,
+  4,
+  5,
+  7,
+  9,
+  13,
+  17,
+  25,
+  33,
+  49,
+  65,
+  97,
+  129,
+  193,
+  257,
+  385,
+  513,
+  769,
+  1025,
+  1537,
+  2049,
+  3073,
+  4097,
+  6145,
+  8193,
+  12289,
+  16385,
+  24577,
+  0,
+  0
+]);
+var dext = new Uint8Array([
+  /* Distance codes 0..29 extra */
+  16,
+  16,
+  16,
+  16,
+  17,
+  17,
+  18,
+  18,
+  19,
+  19,
+  20,
+  20,
+  21,
+  21,
+  22,
+  22,
+  23,
+  23,
+  24,
+  24,
+  25,
+  25,
+  26,
+  26,
+  27,
+  27,
+  28,
+  28,
+  29,
+  29,
+  64,
+  64
+]);
+var inflate_table = (type, lens, lens_index, codes, table, table_index, work, opts) => {
+  const bits = opts.bits;
+  let len = 0;
+  let sym = 0;
+  let min = 0, max = 0;
+  let root = 0;
+  let curr = 0;
+  let drop = 0;
+  let left = 0;
+  let used = 0;
+  let huff = 0;
+  let incr;
+  let fill;
+  let low;
+  let mask;
+  let next;
+  let base = null;
+  let match;
+  const count = new Uint16Array(MAXBITS + 1);
+  const offs = new Uint16Array(MAXBITS + 1);
+  let extra = null;
+  let here_bits, here_op, here_val;
+  for (len = 0; len <= MAXBITS; len++) {
+    count[len] = 0;
+  }
+  for (sym = 0; sym < codes; sym++) {
+    count[lens[lens_index + sym]]++;
+  }
+  root = bits;
+  for (max = MAXBITS; max >= 1; max--) {
+    if (count[max] !== 0) {
+      break;
+    }
+  }
+  if (root > max) {
+    root = max;
+  }
+  if (max === 0) {
+    table[table_index++] = 1 << 24 | 64 << 16 | 0;
+    table[table_index++] = 1 << 24 | 64 << 16 | 0;
+    opts.bits = 1;
+    return 0;
+  }
+  for (min = 1; min < max; min++) {
+    if (count[min] !== 0) {
+      break;
+    }
+  }
+  if (root < min) {
+    root = min;
+  }
+  left = 1;
+  for (len = 1; len <= MAXBITS; len++) {
+    left <<= 1;
+    left -= count[len];
+    if (left < 0) {
+      return -1;
+    }
+  }
+  if (left > 0 && (type === CODES$1 || max !== 1)) {
+    return -1;
+  }
+  offs[1] = 0;
+  for (len = 1; len < MAXBITS; len++) {
+    offs[len + 1] = offs[len] + count[len];
+  }
+  for (sym = 0; sym < codes; sym++) {
+    if (lens[lens_index + sym] !== 0) {
+      work[offs[lens[lens_index + sym]]++] = sym;
+    }
+  }
+  if (type === CODES$1) {
+    base = extra = work;
+    match = 20;
+  } else if (type === LENS$1) {
+    base = lbase;
+    extra = lext;
+    match = 257;
+  } else {
+    base = dbase;
+    extra = dext;
+    match = 0;
+  }
+  huff = 0;
+  sym = 0;
+  len = min;
+  next = table_index;
+  curr = root;
+  drop = 0;
+  low = -1;
+  used = 1 << root;
+  mask = used - 1;
+  if (type === LENS$1 && used > ENOUGH_LENS$1 || type === DISTS$1 && used > ENOUGH_DISTS$1) {
+    return 1;
+  }
+  for (; ; ) {
+    here_bits = len - drop;
+    if (work[sym] + 1 < match) {
+      here_op = 0;
+      here_val = work[sym];
+    } else if (work[sym] >= match) {
+      here_op = extra[work[sym] - match];
+      here_val = base[work[sym] - match];
+    } else {
+      here_op = 32 + 64;
+      here_val = 0;
+    }
+    incr = 1 << len - drop;
+    fill = 1 << curr;
+    min = fill;
+    do {
+      fill -= incr;
+      table[next + (huff >> drop) + fill] = here_bits << 24 | here_op << 16 | here_val | 0;
+    } while (fill !== 0);
+    incr = 1 << len - 1;
+    while (huff & incr) {
+      incr >>= 1;
+    }
+    if (incr !== 0) {
+      huff &= incr - 1;
+      huff += incr;
+    } else {
+      huff = 0;
+    }
+    sym++;
+    if (--count[len] === 0) {
+      if (len === max) {
+        break;
+      }
+      len = lens[lens_index + work[sym]];
+    }
+    if (len > root && (huff & mask) !== low) {
+      if (drop === 0) {
+        drop = root;
+      }
+      next += min;
+      curr = len - drop;
+      left = 1 << curr;
+      while (curr + drop < max) {
+        left -= count[curr + drop];
+        if (left <= 0) {
+          break;
+        }
+        curr++;
+        left <<= 1;
+      }
+      used += 1 << curr;
+      if (type === LENS$1 && used > ENOUGH_LENS$1 || type === DISTS$1 && used > ENOUGH_DISTS$1) {
+        return 1;
+      }
+      low = huff & mask;
+      table[low] = root << 24 | curr << 16 | next - table_index | 0;
+    }
+  }
+  if (huff !== 0) {
+    table[next + huff] = len - drop << 24 | 64 << 16 | 0;
+  }
+  opts.bits = root;
+  return 0;
+};
+var inftrees = inflate_table;
+var CODES = 0;
+var LENS = 1;
+var DISTS = 2;
+var {
+  Z_FINISH: Z_FINISH$1,
+  Z_BLOCK,
+  Z_TREES,
+  Z_OK: Z_OK$1,
+  Z_STREAM_END: Z_STREAM_END$1,
+  Z_NEED_DICT: Z_NEED_DICT$1,
+  Z_STREAM_ERROR: Z_STREAM_ERROR$1,
+  Z_DATA_ERROR: Z_DATA_ERROR$1,
+  Z_MEM_ERROR: Z_MEM_ERROR$1,
+  Z_BUF_ERROR,
+  Z_DEFLATED
+} = constants$2;
+var HEAD = 16180;
+var FLAGS = 16181;
+var TIME = 16182;
+var OS = 16183;
+var EXLEN = 16184;
+var EXTRA = 16185;
+var NAME = 16186;
+var COMMENT = 16187;
+var HCRC = 16188;
+var DICTID = 16189;
+var DICT = 16190;
+var TYPE = 16191;
+var TYPEDO = 16192;
+var STORED = 16193;
+var COPY_ = 16194;
+var COPY = 16195;
+var TABLE = 16196;
+var LENLENS = 16197;
+var CODELENS = 16198;
+var LEN_ = 16199;
+var LEN = 16200;
+var LENEXT = 16201;
+var DIST = 16202;
+var DISTEXT = 16203;
+var MATCH = 16204;
+var LIT = 16205;
+var CHECK = 16206;
+var LENGTH = 16207;
+var DONE = 16208;
+var BAD = 16209;
+var MEM = 16210;
+var SYNC = 16211;
+var ENOUGH_LENS = 852;
+var ENOUGH_DISTS = 592;
+var MAX_WBITS = 15;
+var DEF_WBITS = MAX_WBITS;
+var zswap32 = (q) => {
+  return (q >>> 24 & 255) + (q >>> 8 & 65280) + ((q & 65280) << 8) + ((q & 255) << 24);
+};
+function InflateState() {
+  this.strm = null;
+  this.mode = 0;
+  this.last = false;
+  this.wrap = 0;
+  this.havedict = false;
+  this.flags = 0;
+  this.dmax = 0;
+  this.check = 0;
+  this.total = 0;
+  this.head = null;
+  this.wbits = 0;
+  this.wsize = 0;
+  this.whave = 0;
+  this.wnext = 0;
+  this.window = null;
+  this.hold = 0;
+  this.bits = 0;
+  this.length = 0;
+  this.offset = 0;
+  this.extra = 0;
+  this.lencode = null;
+  this.distcode = null;
+  this.lenbits = 0;
+  this.distbits = 0;
+  this.ncode = 0;
+  this.nlen = 0;
+  this.ndist = 0;
+  this.have = 0;
+  this.next = null;
+  this.lens = new Uint16Array(320);
+  this.work = new Uint16Array(288);
+  this.lendyn = null;
+  this.distdyn = null;
+  this.sane = 0;
+  this.back = 0;
+  this.was = 0;
+}
+var inflateStateCheck = (strm) => {
+  if (!strm) {
+    return 1;
+  }
+  const state = strm.state;
+  if (!state || state.strm !== strm || state.mode < HEAD || state.mode > SYNC) {
+    return 1;
+  }
+  return 0;
+};
+var inflateResetKeep = (strm) => {
+  if (inflateStateCheck(strm)) {
+    return Z_STREAM_ERROR$1;
+  }
+  const state = strm.state;
+  strm.total_in = strm.total_out = state.total = 0;
+  strm.msg = "";
+  if (state.wrap) {
+    strm.adler = state.wrap & 1;
+  }
+  state.mode = HEAD;
+  state.last = 0;
+  state.havedict = 0;
+  state.flags = -1;
+  state.dmax = 32768;
+  state.head = null;
+  state.hold = 0;
+  state.bits = 0;
+  state.lencode = state.lendyn = new Int32Array(ENOUGH_LENS);
+  state.distcode = state.distdyn = new Int32Array(ENOUGH_DISTS);
+  state.sane = 1;
+  state.back = -1;
+  return Z_OK$1;
+};
+var inflateReset = (strm) => {
+  if (inflateStateCheck(strm)) {
+    return Z_STREAM_ERROR$1;
+  }
+  const state = strm.state;
+  state.wsize = 0;
+  state.whave = 0;
+  state.wnext = 0;
+  return inflateResetKeep(strm);
+};
+var inflateReset2 = (strm, windowBits) => {
+  let wrap;
+  if (inflateStateCheck(strm)) {
+    return Z_STREAM_ERROR$1;
+  }
+  const state = strm.state;
+  if (windowBits < 0) {
+    wrap = 0;
+    windowBits = -windowBits;
+  } else {
+    wrap = (windowBits >> 4) + 5;
+    if (windowBits < 48) {
+      windowBits &= 15;
+    }
+  }
+  if (windowBits && (windowBits < 8 || windowBits > 15)) {
+    return Z_STREAM_ERROR$1;
+  }
+  if (state.window !== null && state.wbits !== windowBits) {
+    state.window = null;
+  }
+  state.wrap = wrap;
+  state.wbits = windowBits;
+  return inflateReset(strm);
+};
+var inflateInit2 = (strm, windowBits) => {
+  if (!strm) {
+    return Z_STREAM_ERROR$1;
+  }
+  const state = new InflateState();
+  strm.state = state;
+  state.strm = strm;
+  state.window = null;
+  state.mode = HEAD;
+  const ret = inflateReset2(strm, windowBits);
+  if (ret !== Z_OK$1) {
+    strm.state = null;
+  }
+  return ret;
+};
+var inflateInit = (strm) => {
+  return inflateInit2(strm, DEF_WBITS);
+};
+var virgin = true;
+var lenfix;
+var distfix;
+var fixedtables = (state) => {
+  if (virgin) {
+    lenfix = new Int32Array(512);
+    distfix = new Int32Array(32);
+    let sym = 0;
+    while (sym < 144) {
+      state.lens[sym++] = 8;
+    }
+    while (sym < 256) {
+      state.lens[sym++] = 9;
+    }
+    while (sym < 280) {
+      state.lens[sym++] = 7;
+    }
+    while (sym < 288) {
+      state.lens[sym++] = 8;
+    }
+    inftrees(LENS, state.lens, 0, 288, lenfix, 0, state.work, { bits: 9 });
+    sym = 0;
+    while (sym < 32) {
+      state.lens[sym++] = 5;
+    }
+    inftrees(DISTS, state.lens, 0, 32, distfix, 0, state.work, { bits: 5 });
+    virgin = false;
+  }
+  state.lencode = lenfix;
+  state.lenbits = 9;
+  state.distcode = distfix;
+  state.distbits = 5;
+};
+var updatewindow = (strm, src, end, copy2) => {
+  let dist;
+  const state = strm.state;
+  if (state.window === null) {
+    state.wsize = 1 << state.wbits;
+    state.wnext = 0;
+    state.whave = 0;
+    state.window = new Uint8Array(state.wsize);
+  }
+  if (copy2 >= state.wsize) {
+    state.window.set(src.subarray(end - state.wsize, end), 0);
+    state.wnext = 0;
+    state.whave = state.wsize;
+  } else {
+    dist = state.wsize - state.wnext;
+    if (dist > copy2) {
+      dist = copy2;
+    }
+    state.window.set(src.subarray(end - copy2, end - copy2 + dist), state.wnext);
+    copy2 -= dist;
+    if (copy2) {
+      state.window.set(src.subarray(end - copy2, end), 0);
+      state.wnext = copy2;
+      state.whave = state.wsize;
+    } else {
+      state.wnext += dist;
+      if (state.wnext === state.wsize) {
+        state.wnext = 0;
+      }
+      if (state.whave < state.wsize) {
+        state.whave += dist;
+      }
+    }
+  }
+  return 0;
+};
+var inflate$2 = (strm, flush) => {
+  let state;
+  let input, output;
+  let next;
+  let put;
+  let have, left;
+  let hold;
+  let bits;
+  let _in, _out;
+  let copy2;
+  let from;
+  let from_source;
+  let here = 0;
+  let here_bits, here_op, here_val;
+  let last_bits, last_op, last_val;
+  let len;
+  let ret;
+  const hbuf = new Uint8Array(4);
+  let opts;
+  let n;
+  const order = (
+    /* permutation of code lengths */
+    new Uint8Array([16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15])
+  );
+  if (inflateStateCheck(strm) || !strm.output || !strm.input && strm.avail_in !== 0) {
+    return Z_STREAM_ERROR$1;
+  }
+  state = strm.state;
+  if (state.mode === TYPE) {
+    state.mode = TYPEDO;
+  }
+  put = strm.next_out;
+  output = strm.output;
+  left = strm.avail_out;
+  next = strm.next_in;
+  input = strm.input;
+  have = strm.avail_in;
+  hold = state.hold;
+  bits = state.bits;
+  _in = have;
+  _out = left;
+  ret = Z_OK$1;
+  inf_leave:
+    for (; ; ) {
+      switch (state.mode) {
+        case HEAD:
+          if (state.wrap === 0) {
+            state.mode = TYPEDO;
+            break;
+          }
+          while (bits < 16) {
+            if (have === 0) {
+              break inf_leave;
+            }
+            have--;
+            hold += input[next++] << bits;
+            bits += 8;
+          }
+          if (state.wrap & 2 && hold === 35615) {
+            if (state.wbits === 0) {
+              state.wbits = 15;
+            }
+            state.check = 0;
+            hbuf[0] = hold & 255;
+            hbuf[1] = hold >>> 8 & 255;
+            state.check = crc32_1(state.check, hbuf, 2, 0);
+            hold = 0;
+            bits = 0;
+            state.mode = FLAGS;
+            break;
+          }
+          if (state.head) {
+            state.head.done = false;
+          }
+          if (!(state.wrap & 1) || /* check if zlib header allowed */
+          (((hold & 255) << 8) + (hold >> 8)) % 31) {
+            strm.msg = "incorrect header check";
+            state.mode = BAD;
+            break;
+          }
+          if ((hold & 15) !== Z_DEFLATED) {
+            strm.msg = "unknown compression method";
+            state.mode = BAD;
+            break;
+          }
+          hold >>>= 4;
+          bits -= 4;
+          len = (hold & 15) + 8;
+          if (state.wbits === 0) {
+            state.wbits = len;
+          }
+          if (len > 15 || len > state.wbits) {
+            strm.msg = "invalid window size";
+            state.mode = BAD;
+            break;
+          }
+          state.dmax = 1 << state.wbits;
+          state.flags = 0;
+          strm.adler = state.check = 1;
+          state.mode = hold & 512 ? DICTID : TYPE;
+          hold = 0;
+          bits = 0;
+          break;
+        case FLAGS:
+          while (bits < 16) {
+            if (have === 0) {
+              break inf_leave;
+            }
+            have--;
+            hold += input[next++] << bits;
+            bits += 8;
+          }
+          state.flags = hold;
+          if ((state.flags & 255) !== Z_DEFLATED) {
+            strm.msg = "unknown compression method";
+            state.mode = BAD;
+            break;
+          }
+          if (state.flags & 57344) {
+            strm.msg = "unknown header flags set";
+            state.mode = BAD;
+            break;
+          }
+          if (state.head) {
+            state.head.text = hold >> 8 & 1;
+          }
+          if (state.flags & 512 && state.wrap & 4) {
+            hbuf[0] = hold & 255;
+            hbuf[1] = hold >>> 8 & 255;
+            state.check = crc32_1(state.check, hbuf, 2, 0);
+          }
+          hold = 0;
+          bits = 0;
+          state.mode = TIME;
+        case TIME:
+          while (bits < 32) {
+            if (have === 0) {
+              break inf_leave;
+            }
+            have--;
+            hold += input[next++] << bits;
+            bits += 8;
+          }
+          if (state.head) {
+            state.head.time = hold;
+          }
+          if (state.flags & 512 && state.wrap & 4) {
+            hbuf[0] = hold & 255;
+            hbuf[1] = hold >>> 8 & 255;
+            hbuf[2] = hold >>> 16 & 255;
+            hbuf[3] = hold >>> 24 & 255;
+            state.check = crc32_1(state.check, hbuf, 4, 0);
+          }
+          hold = 0;
+          bits = 0;
+          state.mode = OS;
+        case OS:
+          while (bits < 16) {
+            if (have === 0) {
+              break inf_leave;
+            }
+            have--;
+            hold += input[next++] << bits;
+            bits += 8;
+          }
+          if (state.head) {
+            state.head.xflags = hold & 255;
+            state.head.os = hold >> 8;
+          }
+          if (state.flags & 512 && state.wrap & 4) {
+            hbuf[0] = hold & 255;
+            hbuf[1] = hold >>> 8 & 255;
+            state.check = crc32_1(state.check, hbuf, 2, 0);
+          }
+          hold = 0;
+          bits = 0;
+          state.mode = EXLEN;
+        case EXLEN:
+          if (state.flags & 1024) {
+            while (bits < 16) {
+              if (have === 0) {
+                break inf_leave;
+              }
+              have--;
+              hold += input[next++] << bits;
+              bits += 8;
+            }
+            state.length = hold;
+            if (state.head) {
+              state.head.extra_len = hold;
+            }
+            if (state.flags & 512 && state.wrap & 4) {
+              hbuf[0] = hold & 255;
+              hbuf[1] = hold >>> 8 & 255;
+              state.check = crc32_1(state.check, hbuf, 2, 0);
+            }
+            hold = 0;
+            bits = 0;
+          } else if (state.head) {
+            state.head.extra = null;
+          }
+          state.mode = EXTRA;
+        case EXTRA:
+          if (state.flags & 1024) {
+            copy2 = state.length;
+            if (copy2 > have) {
+              copy2 = have;
+            }
+            if (copy2) {
+              if (state.head) {
+                len = state.head.extra_len - state.length;
+                if (!state.head.extra) {
+                  state.head.extra = new Uint8Array(state.head.extra_len);
+                }
+                state.head.extra.set(
+                  input.subarray(
+                    next,
+                    // extra field is limited to 65536 bytes
+                    // - no need for additional size check
+                    next + copy2
+                  ),
+                  /*len + copy > state.head.extra_max - len ? state.head.extra_max : copy,*/
+                  len
+                );
+              }
+              if (state.flags & 512 && state.wrap & 4) {
+                state.check = crc32_1(state.check, input, copy2, next);
+              }
+              have -= copy2;
+              next += copy2;
+              state.length -= copy2;
+            }
+            if (state.length) {
+              break inf_leave;
+            }
+          }
+          state.length = 0;
+          state.mode = NAME;
+        case NAME:
+          if (state.flags & 2048) {
+            if (have === 0) {
+              break inf_leave;
+            }
+            copy2 = 0;
+            do {
+              len = input[next + copy2++];
+              if (state.head && len && state.length < 65536) {
+                state.head.name += String.fromCharCode(len);
+              }
+            } while (len && copy2 < have);
+            if (state.flags & 512 && state.wrap & 4) {
+              state.check = crc32_1(state.check, input, copy2, next);
+            }
+            have -= copy2;
+            next += copy2;
+            if (len) {
+              break inf_leave;
+            }
+          } else if (state.head) {
+            state.head.name = null;
+          }
+          state.length = 0;
+          state.mode = COMMENT;
+        case COMMENT:
+          if (state.flags & 4096) {
+            if (have === 0) {
+              break inf_leave;
+            }
+            copy2 = 0;
+            do {
+              len = input[next + copy2++];
+              if (state.head && len && state.length < 65536) {
+                state.head.comment += String.fromCharCode(len);
+              }
+            } while (len && copy2 < have);
+            if (state.flags & 512 && state.wrap & 4) {
+              state.check = crc32_1(state.check, input, copy2, next);
+            }
+            have -= copy2;
+            next += copy2;
+            if (len) {
+              break inf_leave;
+            }
+          } else if (state.head) {
+            state.head.comment = null;
+          }
+          state.mode = HCRC;
+        case HCRC:
+          if (state.flags & 512) {
+            while (bits < 16) {
+              if (have === 0) {
+                break inf_leave;
+              }
+              have--;
+              hold += input[next++] << bits;
+              bits += 8;
+            }
+            if (state.wrap & 4 && hold !== (state.check & 65535)) {
+              strm.msg = "header crc mismatch";
+              state.mode = BAD;
+              break;
+            }
+            hold = 0;
+            bits = 0;
+          }
+          if (state.head) {
+            state.head.hcrc = state.flags >> 9 & 1;
+            state.head.done = true;
+          }
+          strm.adler = state.check = 0;
+          state.mode = TYPE;
+          break;
+        case DICTID:
+          while (bits < 32) {
+            if (have === 0) {
+              break inf_leave;
+            }
+            have--;
+            hold += input[next++] << bits;
+            bits += 8;
+          }
+          strm.adler = state.check = zswap32(hold);
+          hold = 0;
+          bits = 0;
+          state.mode = DICT;
+        case DICT:
+          if (state.havedict === 0) {
+            strm.next_out = put;
+            strm.avail_out = left;
+            strm.next_in = next;
+            strm.avail_in = have;
+            state.hold = hold;
+            state.bits = bits;
+            return Z_NEED_DICT$1;
+          }
+          strm.adler = state.check = 1;
+          state.mode = TYPE;
+        case TYPE:
+          if (flush === Z_BLOCK || flush === Z_TREES) {
+            break inf_leave;
+          }
+        case TYPEDO:
+          if (state.last) {
+            hold >>>= bits & 7;
+            bits -= bits & 7;
+            state.mode = CHECK;
+            break;
+          }
+          while (bits < 3) {
+            if (have === 0) {
+              break inf_leave;
+            }
+            have--;
+            hold += input[next++] << bits;
+            bits += 8;
+          }
+          state.last = hold & 1;
+          hold >>>= 1;
+          bits -= 1;
+          switch (hold & 3) {
+            case 0:
+              state.mode = STORED;
+              break;
+            case 1:
+              fixedtables(state);
+              state.mode = LEN_;
+              if (flush === Z_TREES) {
+                hold >>>= 2;
+                bits -= 2;
+                break inf_leave;
+              }
+              break;
+            case 2:
+              state.mode = TABLE;
+              break;
+            case 3:
+              strm.msg = "invalid block type";
+              state.mode = BAD;
+          }
+          hold >>>= 2;
+          bits -= 2;
+          break;
+        case STORED:
+          hold >>>= bits & 7;
+          bits -= bits & 7;
+          while (bits < 32) {
+            if (have === 0) {
+              break inf_leave;
+            }
+            have--;
+            hold += input[next++] << bits;
+            bits += 8;
+          }
+          if ((hold & 65535) !== (hold >>> 16 ^ 65535)) {
+            strm.msg = "invalid stored block lengths";
+            state.mode = BAD;
+            break;
+          }
+          state.length = hold & 65535;
+          hold = 0;
+          bits = 0;
+          state.mode = COPY_;
+          if (flush === Z_TREES) {
+            break inf_leave;
+          }
+        case COPY_:
+          state.mode = COPY;
+        case COPY:
+          copy2 = state.length;
+          if (copy2) {
+            if (copy2 > have) {
+              copy2 = have;
+            }
+            if (copy2 > left) {
+              copy2 = left;
+            }
+            if (copy2 === 0) {
+              break inf_leave;
+            }
+            output.set(input.subarray(next, next + copy2), put);
+            have -= copy2;
+            next += copy2;
+            left -= copy2;
+            put += copy2;
+            state.length -= copy2;
+            break;
+          }
+          state.mode = TYPE;
+          break;
+        case TABLE:
+          while (bits < 14) {
+            if (have === 0) {
+              break inf_leave;
+            }
+            have--;
+            hold += input[next++] << bits;
+            bits += 8;
+          }
+          state.nlen = (hold & 31) + 257;
+          hold >>>= 5;
+          bits -= 5;
+          state.ndist = (hold & 31) + 1;
+          hold >>>= 5;
+          bits -= 5;
+          state.ncode = (hold & 15) + 4;
+          hold >>>= 4;
+          bits -= 4;
+          if (state.nlen > 286 || state.ndist > 30) {
+            strm.msg = "too many length or distance symbols";
+            state.mode = BAD;
+            break;
+          }
+          state.have = 0;
+          state.mode = LENLENS;
+        case LENLENS:
+          while (state.have < state.ncode) {
+            while (bits < 3) {
+              if (have === 0) {
+                break inf_leave;
+              }
+              have--;
+              hold += input[next++] << bits;
+              bits += 8;
+            }
+            state.lens[order[state.have++]] = hold & 7;
+            hold >>>= 3;
+            bits -= 3;
+          }
+          while (state.have < 19) {
+            state.lens[order[state.have++]] = 0;
+          }
+          state.lencode = state.lendyn;
+          state.lenbits = 7;
+          opts = { bits: state.lenbits };
+          ret = inftrees(CODES, state.lens, 0, 19, state.lencode, 0, state.work, opts);
+          state.lenbits = opts.bits;
+          if (ret) {
+            strm.msg = "invalid code lengths set";
+            state.mode = BAD;
+            break;
+          }
+          state.have = 0;
+          state.mode = CODELENS;
+        case CODELENS:
+          while (state.have < state.nlen + state.ndist) {
+            for (; ; ) {
+              here = state.lencode[hold & (1 << state.lenbits) - 1];
+              here_bits = here >>> 24;
+              here_op = here >>> 16 & 255;
+              here_val = here & 65535;
+              if (here_bits <= bits) {
+                break;
+              }
+              if (have === 0) {
+                break inf_leave;
+              }
+              have--;
+              hold += input[next++] << bits;
+              bits += 8;
+            }
+            if (here_val < 16) {
+              hold >>>= here_bits;
+              bits -= here_bits;
+              state.lens[state.have++] = here_val;
+            } else {
+              if (here_val === 16) {
+                n = here_bits + 2;
+                while (bits < n) {
+                  if (have === 0) {
+                    break inf_leave;
+                  }
+                  have--;
+                  hold += input[next++] << bits;
+                  bits += 8;
+                }
+                hold >>>= here_bits;
+                bits -= here_bits;
+                if (state.have === 0) {
+                  strm.msg = "invalid bit length repeat";
+                  state.mode = BAD;
+                  break;
+                }
+                len = state.lens[state.have - 1];
+                copy2 = 3 + (hold & 3);
+                hold >>>= 2;
+                bits -= 2;
+              } else if (here_val === 17) {
+                n = here_bits + 3;
+                while (bits < n) {
+                  if (have === 0) {
+                    break inf_leave;
+                  }
+                  have--;
+                  hold += input[next++] << bits;
+                  bits += 8;
+                }
+                hold >>>= here_bits;
+                bits -= here_bits;
+                len = 0;
+                copy2 = 3 + (hold & 7);
+                hold >>>= 3;
+                bits -= 3;
+              } else {
+                n = here_bits + 7;
+                while (bits < n) {
+                  if (have === 0) {
+                    break inf_leave;
+                  }
+                  have--;
+                  hold += input[next++] << bits;
+                  bits += 8;
+                }
+                hold >>>= here_bits;
+                bits -= here_bits;
+                len = 0;
+                copy2 = 11 + (hold & 127);
+                hold >>>= 7;
+                bits -= 7;
+              }
+              if (state.have + copy2 > state.nlen + state.ndist) {
+                strm.msg = "invalid bit length repeat";
+                state.mode = BAD;
+                break;
+              }
+              while (copy2--) {
+                state.lens[state.have++] = len;
+              }
+            }
+          }
+          if (state.mode === BAD) {
+            break;
+          }
+          if (state.lens[256] === 0) {
+            strm.msg = "invalid code -- missing end-of-block";
+            state.mode = BAD;
+            break;
+          }
+          state.lenbits = 9;
+          opts = { bits: state.lenbits };
+          ret = inftrees(LENS, state.lens, 0, state.nlen, state.lencode, 0, state.work, opts);
+          state.lenbits = opts.bits;
+          if (ret) {
+            strm.msg = "invalid literal/lengths set";
+            state.mode = BAD;
+            break;
+          }
+          state.distbits = 6;
+          state.distcode = state.distdyn;
+          opts = { bits: state.distbits };
+          ret = inftrees(DISTS, state.lens, state.nlen, state.ndist, state.distcode, 0, state.work, opts);
+          state.distbits = opts.bits;
+          if (ret) {
+            strm.msg = "invalid distances set";
+            state.mode = BAD;
+            break;
+          }
+          state.mode = LEN_;
+          if (flush === Z_TREES) {
+            break inf_leave;
+          }
+        case LEN_:
+          state.mode = LEN;
+        case LEN:
+          if (have >= 6 && left >= 258) {
+            strm.next_out = put;
+            strm.avail_out = left;
+            strm.next_in = next;
+            strm.avail_in = have;
+            state.hold = hold;
+            state.bits = bits;
+            inffast(strm, _out);
+            put = strm.next_out;
+            output = strm.output;
+            left = strm.avail_out;
+            next = strm.next_in;
+            input = strm.input;
+            have = strm.avail_in;
+            hold = state.hold;
+            bits = state.bits;
+            if (state.mode === TYPE) {
+              state.back = -1;
+            }
+            break;
+          }
+          state.back = 0;
+          for (; ; ) {
+            here = state.lencode[hold & (1 << state.lenbits) - 1];
+            here_bits = here >>> 24;
+            here_op = here >>> 16 & 255;
+            here_val = here & 65535;
+            if (here_bits <= bits) {
+              break;
+            }
+            if (have === 0) {
+              break inf_leave;
+            }
+            have--;
+            hold += input[next++] << bits;
+            bits += 8;
+          }
+          if (here_op && (here_op & 240) === 0) {
+            last_bits = here_bits;
+            last_op = here_op;
+            last_val = here_val;
+            for (; ; ) {
+              here = state.lencode[last_val + ((hold & (1 << last_bits + last_op) - 1) >> last_bits)];
+              here_bits = here >>> 24;
+              here_op = here >>> 16 & 255;
+              here_val = here & 65535;
+              if (last_bits + here_bits <= bits) {
+                break;
+              }
+              if (have === 0) {
+                break inf_leave;
+              }
+              have--;
+              hold += input[next++] << bits;
+              bits += 8;
+            }
+            hold >>>= last_bits;
+            bits -= last_bits;
+            state.back += last_bits;
+          }
+          hold >>>= here_bits;
+          bits -= here_bits;
+          state.back += here_bits;
+          state.length = here_val;
+          if (here_op === 0) {
+            state.mode = LIT;
+            break;
+          }
+          if (here_op & 32) {
+            state.back = -1;
+            state.mode = TYPE;
+            break;
+          }
+          if (here_op & 64) {
+            strm.msg = "invalid literal/length code";
+            state.mode = BAD;
+            break;
+          }
+          state.extra = here_op & 15;
+          state.mode = LENEXT;
+        case LENEXT:
+          if (state.extra) {
+            n = state.extra;
+            while (bits < n) {
+              if (have === 0) {
+                break inf_leave;
+              }
+              have--;
+              hold += input[next++] << bits;
+              bits += 8;
+            }
+            state.length += hold & (1 << state.extra) - 1;
+            hold >>>= state.extra;
+            bits -= state.extra;
+            state.back += state.extra;
+          }
+          state.was = state.length;
+          state.mode = DIST;
+        case DIST:
+          for (; ; ) {
+            here = state.distcode[hold & (1 << state.distbits) - 1];
+            here_bits = here >>> 24;
+            here_op = here >>> 16 & 255;
+            here_val = here & 65535;
+            if (here_bits <= bits) {
+              break;
+            }
+            if (have === 0) {
+              break inf_leave;
+            }
+            have--;
+            hold += input[next++] << bits;
+            bits += 8;
+          }
+          if ((here_op & 240) === 0) {
+            last_bits = here_bits;
+            last_op = here_op;
+            last_val = here_val;
+            for (; ; ) {
+              here = state.distcode[last_val + ((hold & (1 << last_bits + last_op) - 1) >> last_bits)];
+              here_bits = here >>> 24;
+              here_op = here >>> 16 & 255;
+              here_val = here & 65535;
+              if (last_bits + here_bits <= bits) {
+                break;
+              }
+              if (have === 0) {
+                break inf_leave;
+              }
+              have--;
+              hold += input[next++] << bits;
+              bits += 8;
+            }
+            hold >>>= last_bits;
+            bits -= last_bits;
+            state.back += last_bits;
+          }
+          hold >>>= here_bits;
+          bits -= here_bits;
+          state.back += here_bits;
+          if (here_op & 64) {
+            strm.msg = "invalid distance code";
+            state.mode = BAD;
+            break;
+          }
+          state.offset = here_val;
+          state.extra = here_op & 15;
+          state.mode = DISTEXT;
+        case DISTEXT:
+          if (state.extra) {
+            n = state.extra;
+            while (bits < n) {
+              if (have === 0) {
+                break inf_leave;
+              }
+              have--;
+              hold += input[next++] << bits;
+              bits += 8;
+            }
+            state.offset += hold & (1 << state.extra) - 1;
+            hold >>>= state.extra;
+            bits -= state.extra;
+            state.back += state.extra;
+          }
+          if (state.offset > state.dmax) {
+            strm.msg = "invalid distance too far back";
+            state.mode = BAD;
+            break;
+          }
+          state.mode = MATCH;
+        case MATCH:
+          if (left === 0) {
+            break inf_leave;
+          }
+          copy2 = _out - left;
+          if (state.offset > copy2) {
+            copy2 = state.offset - copy2;
+            if (copy2 > state.whave) {
+              if (state.sane) {
+                strm.msg = "invalid distance too far back";
+                state.mode = BAD;
+                break;
+              }
+            }
+            if (copy2 > state.wnext) {
+              copy2 -= state.wnext;
+              from = state.wsize - copy2;
+            } else {
+              from = state.wnext - copy2;
+            }
+            if (copy2 > state.length) {
+              copy2 = state.length;
+            }
+            from_source = state.window;
+          } else {
+            from_source = output;
+            from = put - state.offset;
+            copy2 = state.length;
+          }
+          if (copy2 > left) {
+            copy2 = left;
+          }
+          left -= copy2;
+          state.length -= copy2;
+          do {
+            output[put++] = from_source[from++];
+          } while (--copy2);
+          if (state.length === 0) {
+            state.mode = LEN;
+          }
+          break;
+        case LIT:
+          if (left === 0) {
+            break inf_leave;
+          }
+          output[put++] = state.length;
+          left--;
+          state.mode = LEN;
+          break;
+        case CHECK:
+          if (state.wrap) {
+            while (bits < 32) {
+              if (have === 0) {
+                break inf_leave;
+              }
+              have--;
+              hold |= input[next++] << bits;
+              bits += 8;
+            }
+            _out -= left;
+            strm.total_out += _out;
+            state.total += _out;
+            if (state.wrap & 4 && _out) {
+              strm.adler = state.check = /*UPDATE_CHECK(state.check, put - _out, _out);*/
+              state.flags ? crc32_1(state.check, output, _out, put - _out) : adler32_1(state.check, output, _out, put - _out);
+            }
+            _out = left;
+            if (state.wrap & 4 && (state.flags ? hold : zswap32(hold)) !== state.check) {
+              strm.msg = "incorrect data check";
+              state.mode = BAD;
+              break;
+            }
+            hold = 0;
+            bits = 0;
+          }
+          state.mode = LENGTH;
+        case LENGTH:
+          if (state.wrap && state.flags) {
+            while (bits < 32) {
+              if (have === 0) {
+                break inf_leave;
+              }
+              have--;
+              hold += input[next++] << bits;
+              bits += 8;
+            }
+            if (state.wrap & 4 && hold !== (state.total & 4294967295)) {
+              strm.msg = "incorrect length check";
+              state.mode = BAD;
+              break;
+            }
+            hold = 0;
+            bits = 0;
+          }
+          state.mode = DONE;
+        case DONE:
+          ret = Z_STREAM_END$1;
+          break inf_leave;
+        case BAD:
+          ret = Z_DATA_ERROR$1;
+          break inf_leave;
+        case MEM:
+          return Z_MEM_ERROR$1;
+        case SYNC:
+        default:
+          return Z_STREAM_ERROR$1;
+      }
+    }
+  strm.next_out = put;
+  strm.avail_out = left;
+  strm.next_in = next;
+  strm.avail_in = have;
+  state.hold = hold;
+  state.bits = bits;
+  if (state.wsize || _out !== strm.avail_out && state.mode < BAD && (state.mode < CHECK || flush !== Z_FINISH$1)) {
+    if (updatewindow(strm, strm.output, strm.next_out, _out - strm.avail_out))
+      ;
+  }
+  _in -= strm.avail_in;
+  _out -= strm.avail_out;
+  strm.total_in += _in;
+  strm.total_out += _out;
+  state.total += _out;
+  if (state.wrap & 4 && _out) {
+    strm.adler = state.check = /*UPDATE_CHECK(state.check, strm.next_out - _out, _out);*/
+    state.flags ? crc32_1(state.check, output, _out, strm.next_out - _out) : adler32_1(state.check, output, _out, strm.next_out - _out);
+  }
+  strm.data_type = state.bits + (state.last ? 64 : 0) + (state.mode === TYPE ? 128 : 0) + (state.mode === LEN_ || state.mode === COPY_ ? 256 : 0);
+  if ((_in === 0 && _out === 0 || flush === Z_FINISH$1) && ret === Z_OK$1) {
+    ret = Z_BUF_ERROR;
+  }
+  return ret;
+};
+var inflateEnd = (strm) => {
+  if (inflateStateCheck(strm)) {
+    return Z_STREAM_ERROR$1;
+  }
+  let state = strm.state;
+  if (state.window) {
+    state.window = null;
+  }
+  strm.state = null;
+  return Z_OK$1;
+};
+var inflateGetHeader = (strm, head) => {
+  if (inflateStateCheck(strm)) {
+    return Z_STREAM_ERROR$1;
+  }
+  const state = strm.state;
+  if ((state.wrap & 2) === 0) {
+    return Z_STREAM_ERROR$1;
+  }
+  state.head = head;
+  head.done = false;
+  return Z_OK$1;
+};
+var inflateSetDictionary = (strm, dictionary) => {
+  const dictLength = dictionary.length;
+  let state;
+  let dictid;
+  let ret;
+  if (inflateStateCheck(strm)) {
+    return Z_STREAM_ERROR$1;
+  }
+  state = strm.state;
+  if (state.wrap !== 0 && state.mode !== DICT) {
+    return Z_STREAM_ERROR$1;
+  }
+  if (state.mode === DICT) {
+    dictid = 1;
+    dictid = adler32_1(dictid, dictionary, dictLength, 0);
+    if (dictid !== state.check) {
+      return Z_DATA_ERROR$1;
+    }
+  }
+  ret = updatewindow(strm, dictionary, dictLength, dictLength);
+  if (ret) {
+    state.mode = MEM;
+    return Z_MEM_ERROR$1;
+  }
+  state.havedict = 1;
+  return Z_OK$1;
+};
+var inflateReset_1 = inflateReset;
+var inflateReset2_1 = inflateReset2;
+var inflateResetKeep_1 = inflateResetKeep;
+var inflateInit_1 = inflateInit;
+var inflateInit2_1 = inflateInit2;
+var inflate_2$1 = inflate$2;
+var inflateEnd_1 = inflateEnd;
+var inflateGetHeader_1 = inflateGetHeader;
+var inflateSetDictionary_1 = inflateSetDictionary;
+var inflateInfo = "pako inflate (from Nodeca project)";
+var inflate_1$2 = {
+  inflateReset: inflateReset_1,
+  inflateReset2: inflateReset2_1,
+  inflateResetKeep: inflateResetKeep_1,
+  inflateInit: inflateInit_1,
+  inflateInit2: inflateInit2_1,
+  inflate: inflate_2$1,
+  inflateEnd: inflateEnd_1,
+  inflateGetHeader: inflateGetHeader_1,
+  inflateSetDictionary: inflateSetDictionary_1,
+  inflateInfo
+};
+function GZheader() {
+  this.text = 0;
+  this.time = 0;
+  this.xflags = 0;
+  this.os = 0;
+  this.extra = null;
+  this.extra_len = 0;
+  this.name = "";
+  this.comment = "";
+  this.hcrc = 0;
+  this.done = false;
+}
+var gzheader = GZheader;
+var toString = Object.prototype.toString;
+var {
+  Z_NO_FLUSH,
+  Z_FINISH,
+  Z_OK,
+  Z_STREAM_END,
+  Z_NEED_DICT,
+  Z_STREAM_ERROR,
+  Z_DATA_ERROR,
+  Z_MEM_ERROR
+} = constants$2;
+function Inflate$1(options) {
+  this.options = common.assign({
+    chunkSize: 1024 * 64,
+    windowBits: 15,
+    to: ""
+  }, options || {});
+  const opt = this.options;
+  if (opt.raw && opt.windowBits >= 0 && opt.windowBits < 16) {
+    opt.windowBits = -opt.windowBits;
+    if (opt.windowBits === 0) {
+      opt.windowBits = -15;
+    }
+  }
+  if (opt.windowBits >= 0 && opt.windowBits < 16 && !(options && options.windowBits)) {
+    opt.windowBits += 32;
+  }
+  if (opt.windowBits > 15 && opt.windowBits < 48) {
+    if ((opt.windowBits & 15) === 0) {
+      opt.windowBits |= 15;
+    }
+  }
+  this.err = 0;
+  this.msg = "";
+  this.ended = false;
+  this.chunks = [];
+  this.strm = new zstream();
+  this.strm.avail_out = 0;
+  let status = inflate_1$2.inflateInit2(
+    this.strm,
+    opt.windowBits
+  );
+  if (status !== Z_OK) {
+    throw new Error(messages[status]);
+  }
+  this.header = new gzheader();
+  inflate_1$2.inflateGetHeader(this.strm, this.header);
+  if (opt.dictionary) {
+    if (typeof opt.dictionary === "string") {
+      opt.dictionary = strings.string2buf(opt.dictionary);
+    } else if (toString.call(opt.dictionary) === "[object ArrayBuffer]") {
+      opt.dictionary = new Uint8Array(opt.dictionary);
+    }
+    if (opt.raw) {
+      status = inflate_1$2.inflateSetDictionary(this.strm, opt.dictionary);
+      if (status !== Z_OK) {
+        throw new Error(messages[status]);
+      }
+    }
+  }
+}
+Inflate$1.prototype.push = function(data2, flush_mode) {
+  const strm = this.strm;
+  const chunkSize = this.options.chunkSize;
+  const dictionary = this.options.dictionary;
+  let status, _flush_mode, last_avail_out;
+  if (this.ended)
+    return false;
+  if (flush_mode === ~~flush_mode)
+    _flush_mode = flush_mode;
+  else
+    _flush_mode = flush_mode === true ? Z_FINISH : Z_NO_FLUSH;
+  if (toString.call(data2) === "[object ArrayBuffer]") {
+    strm.input = new Uint8Array(data2);
+  } else {
+    strm.input = data2;
+  }
+  strm.next_in = 0;
+  strm.avail_in = strm.input.length;
+  for (; ; ) {
+    if (strm.avail_out === 0) {
+      strm.output = new Uint8Array(chunkSize);
+      strm.next_out = 0;
+      strm.avail_out = chunkSize;
+    }
+    status = inflate_1$2.inflate(strm, _flush_mode);
+    if (status === Z_NEED_DICT && dictionary) {
+      status = inflate_1$2.inflateSetDictionary(strm, dictionary);
+      if (status === Z_OK) {
+        status = inflate_1$2.inflate(strm, _flush_mode);
+      } else if (status === Z_DATA_ERROR) {
+        status = Z_NEED_DICT;
+      }
+    }
+    while (strm.avail_in > 0 && status === Z_STREAM_END && strm.state.wrap > 0 && data2[strm.next_in] !== 0) {
+      inflate_1$2.inflateReset(strm);
+      status = inflate_1$2.inflate(strm, _flush_mode);
+    }
+    switch (status) {
+      case Z_STREAM_ERROR:
+      case Z_DATA_ERROR:
+      case Z_NEED_DICT:
+      case Z_MEM_ERROR:
+        this.onEnd(status);
+        this.ended = true;
+        return false;
+    }
+    last_avail_out = strm.avail_out;
+    if (strm.next_out) {
+      if (strm.avail_out === 0 || status === Z_STREAM_END) {
+        if (this.options.to === "string") {
+          let next_out_utf8 = strings.utf8border(strm.output, strm.next_out);
+          let tail = strm.next_out - next_out_utf8;
+          let utf8str = strings.buf2string(strm.output, next_out_utf8);
+          strm.next_out = tail;
+          strm.avail_out = chunkSize - tail;
+          if (tail)
+            strm.output.set(strm.output.subarray(next_out_utf8, next_out_utf8 + tail), 0);
+          this.onData(utf8str);
+        } else {
+          this.onData(strm.output.length === strm.next_out ? strm.output : strm.output.subarray(0, strm.next_out));
+        }
+      }
+    }
+    if (status === Z_OK && last_avail_out === 0)
+      continue;
+    if (status === Z_STREAM_END) {
+      status = inflate_1$2.inflateEnd(this.strm);
+      this.onEnd(status);
+      this.ended = true;
+      return true;
+    }
+    if (strm.avail_in === 0)
+      break;
+  }
+  return true;
+};
+Inflate$1.prototype.onData = function(chunk) {
+  this.chunks.push(chunk);
+};
+Inflate$1.prototype.onEnd = function(status) {
+  if (status === Z_OK) {
+    if (this.options.to === "string") {
+      this.result = this.chunks.join("");
+    } else {
+      this.result = common.flattenChunks(this.chunks);
+    }
+  }
+  this.chunks = [];
+  this.err = status;
+  this.msg = this.strm.msg;
+};
+function inflate$1(input, options) {
+  const inflator = new Inflate$1(options);
+  inflator.push(input);
+  if (inflator.err)
+    throw inflator.msg || messages[inflator.err];
+  return inflator.result;
+}
+function inflateRaw$1(input, options) {
+  options = options || {};
+  options.raw = true;
+  return inflate$1(input, options);
+}
+var Inflate_1$1 = Inflate$1;
+var inflate_2 = inflate$1;
+var inflateRaw_1$1 = inflateRaw$1;
+var ungzip$1 = inflate$1;
+var constants = constants$2;
+var inflate_1$1 = {
+  Inflate: Inflate_1$1,
+  inflate: inflate_2,
+  inflateRaw: inflateRaw_1$1,
+  ungzip: ungzip$1,
+  constants
+};
+var { Deflate, deflate, deflateRaw, gzip } = deflate_1$1;
+var { Inflate, inflate, inflateRaw, ungzip } = inflate_1$1;
+var inflate_1 = inflate;
+
+// ../sdk/src/formats/fbx/fbxBinaryReader.ts
+var MAGIC = [
+  75,
+  97,
+  121,
+  100,
+  97,
+  114,
+  97,
+  32,
+  70,
+  66,
+  88,
+  32,
+  66,
+  105,
+  110,
+  97,
+  114,
+  121
+];
+function isBinaryFBX(fileData) {
+  if (fileData.byteLength < 27)
+    return false;
+  const view = new DataView(fileData);
+  for (let i = 0; i < MAGIC.length; i++) {
+    if (view.getUint8(i) !== MAGIC[i])
+      return false;
+  }
+  return true;
+}
+function readFBXBinary(fileData) {
+  if (!isBinaryFBX(fileData)) {
+    throw new Error("Not a binary FBX file (bad magic header)");
+  }
+  const view = new DataView(fileData);
+  const version2 = view.getUint32(23, true);
+  const is64 = version2 >= 7500;
+  const nullLen = is64 ? 25 : 13;
+  const root = { name: "", props: [], children: [] };
+  let offset = 27;
+  while (offset < view.byteLength - nullLen) {
+    const r = readNode(view, offset, is64, nullLen);
+    if (!r)
+      break;
+    root.children.push(r.node);
+    offset = r.end;
+  }
+  return root;
+}
+function readNode(view, offset, is64, nullLen) {
+  let p = offset;
+  let endOffset, numProps, propLen;
+  if (is64) {
+    endOffset = Number(view.getBigUint64(p, true));
+    p += 8;
+    numProps = Number(view.getBigUint64(p, true));
+    p += 8;
+    propLen = Number(view.getBigUint64(p, true));
+    p += 8;
+  } else {
+    endOffset = view.getUint32(p, true);
+    p += 4;
+    numProps = view.getUint32(p, true);
+    p += 4;
+    propLen = view.getUint32(p, true);
+    p += 4;
+  }
+  const nameLen = view.getUint8(p);
+  p += 1;
+  if (endOffset === 0 && numProps === 0 && propLen === 0 && nameLen === 0) {
+    return null;
+  }
+  const name12 = readLatin1(view, p, nameLen);
+  p += nameLen;
+  const props = [];
+  for (let i = 0; i < numProps; i++) {
+    const r = readProperty(view, p);
+    props.push(r.value);
+    p = r.next;
+  }
+  const node = { name: name12, props, children: [] };
+  while (p < endOffset - nullLen) {
+    const child = readNode(view, p, is64, nullLen);
+    if (!child)
+      break;
+    node.children.push(child.node);
+    p = child.end;
+  }
+  return { node, end: endOffset };
+}
+function readProperty(view, p) {
+  const type = String.fromCharCode(view.getUint8(p));
+  p += 1;
+  switch (type) {
+    case "Y":
+      return { value: view.getInt16(p, true), next: p + 2 };
+    case "C":
+      return { value: view.getUint8(p) !== 0, next: p + 1 };
+    case "I":
+      return { value: view.getInt32(p, true), next: p + 4 };
+    case "F":
+      return { value: view.getFloat32(p, true), next: p + 4 };
+    case "D":
+      return { value: view.getFloat64(p, true), next: p + 8 };
+    case "L":
+      return { value: Number(view.getBigInt64(p, true)), next: p + 8 };
+    case "S":
+    case "R": {
+      const len = view.getUint32(p, true);
+      p += 4;
+      if (type === "S")
+        return { value: readLatin1(view, p, len), next: p + len };
+      return { value: new Uint8Array(view.buffer.slice(view.byteOffset + p, view.byteOffset + p + len)), next: p + len };
+    }
+    case "f":
+    case "d":
+    case "l":
+    case "i":
+    case "b": {
+      const arrayLen = view.getUint32(p, true);
+      p += 4;
+      const encoding = view.getUint32(p, true);
+      p += 4;
+      const compLen = view.getUint32(p, true);
+      p += 4;
+      const elemSize = type === "d" || type === "l" ? 8 : type === "b" ? 1 : 4;
+      let raw;
+      if (encoding === 1) {
+        raw = inflate_1(new Uint8Array(view.buffer, view.byteOffset + p, compLen));
+      } else {
+        raw = new Uint8Array(view.buffer, view.byteOffset + p, arrayLen * elemSize);
+      }
+      const aligned = new Uint8Array(raw).buffer;
+      let value;
+      switch (type) {
+        case "f":
+          value = new Float32Array(aligned, 0, arrayLen);
+          break;
+        case "d":
+          value = new Float64Array(aligned, 0, arrayLen);
+          break;
+        case "i":
+          value = new Int32Array(aligned, 0, arrayLen);
+          break;
+        case "l": {
+          const big = new BigInt64Array(aligned, 0, arrayLen);
+          value = new Float64Array(arrayLen);
+          for (let k = 0; k < arrayLen; k++)
+            value[k] = Number(big[k]);
+          break;
+        }
+        default:
+          value = new Uint8Array(aligned, 0, arrayLen);
+          break;
+      }
+      return { value, next: p + compLen };
+    }
+    default:
+      throw new Error(`Unknown FBX property type code '${type}' (0x${view.getUint8(p - 1).toString(16)})`);
+  }
+}
+function readLatin1(view, p, len) {
+  let s = "";
+  for (let i = 0; i < len; i++)
+    s += String.fromCharCode(view.getUint8(p + i));
+  return s;
+}
+
+// ../sdk/src/formats/fbx/FBXNode.ts
+function findChild(node, name12) {
+  if (!node)
+    return void 0;
+  for (const c3 of node.children) {
+    if (c3.name === name12)
+      return c3;
+  }
+  return void 0;
+}
+
+// ../sdk/src/formats/fbx/versions/binary/parse.ts
+var DEG2RAD = Math.PI / 180;
+async function parse16(params, _options) {
+  const sceneModel = params.sceneModel;
+  if (!sceneModel) {
+    return;
+  }
+  const root = readFBXBinary(params.fileData);
+  const objectsNode = findChild(root, "Objects");
+  if (!objectsNode) {
+    console.warn("[FBXLoader] No Objects node \u2014 nothing to load.");
+    return;
+  }
+  const connectionsNode = findChild(root, "Connections");
+  const geometries = /* @__PURE__ */ new Map();
+  const models = /* @__PURE__ */ new Map();
+  const materials = /* @__PURE__ */ new Map();
+  const textures = /* @__PURE__ */ new Map();
+  const videos = /* @__PURE__ */ new Map();
+  for (const child of objectsNode.children) {
+    const id = child.props[0];
+    if (child.name === "Geometry")
+      geometries.set(id, child);
+    else if (child.name === "Model")
+      models.set(id, child);
+    else if (child.name === "Material")
+      materials.set(id, child);
+    else if (child.name === "Texture")
+      textures.set(id, child);
+    else if (child.name === "Video")
+      videos.set(id, child);
+  }
+  const childrenOf = /* @__PURE__ */ new Map();
+  if (connectionsNode) {
+    for (const c3 of connectionsNode.children) {
+      if (c3.name !== "C")
+        continue;
+      const childId = c3.props[1];
+      const parentId = c3.props[2];
+      const prop2 = c3.props[0] === "OP" && c3.props.length > 3 ? String(c3.props[3]) : null;
+      let arr = childrenOf.get(parentId);
+      if (!arr)
+        childrenOf.set(parentId, arr = []);
+      arr.push({ id: childId, prop: prop2 });
+    }
+  }
+  const emittedGeom = /* @__PURE__ */ new Map();
+  const emittedMat = /* @__PURE__ */ new Map();
+  const emittedTex = /* @__PURE__ */ new Map();
+  const usedObjectIds = /* @__PURE__ */ new Set();
+  let emitted = 0, geomFails = 0, meshFails = 0;
+  for (const [modelId, modelNode] of models) {
+    const children = childrenOf.get(modelId) || [];
+    let geomId = null;
+    let matId = null;
+    for (const { id: cid } of children) {
+      if (geometries.has(cid))
+        geomId = cid;
+      else if (materials.has(cid))
+        matId = cid;
+    }
+    if (geomId === null) {
+      continue;
+    }
+    let geometryId = emittedGeom.get(geomId);
+    if (geometryId === void 0) {
+      const geo = extractGeometry(geometries.get(geomId));
+      if (!geo)
+        continue;
+      geometryId = `fbx-geom-${geomId}`;
+      const gr = sceneModel.createGeometry({
+        id: geometryId,
+        primitive: TrianglesPrimitive,
+        positions: geo.positions,
+        normals: geo.normals,
+        uvs: geo.uvs,
+        indices: geo.indices
+      });
+      if (gr.ok === false) {
+        if (++geomFails <= 3)
+          console.warn("[FBXLoader] createGeometry failed:", gr.error);
+        continue;
+      }
+      emittedGeom.set(geomId, geometryId);
+    }
+    let materialId;
+    if (matId !== null) {
+      materialId = emittedMat.get(matId);
+      if (materialId === void 0) {
+        const id = `fbx-mat-${matId}`;
+        const colorTextureId = await emitDiffuseTexture(matId, sceneModel, childrenOf, textures, videos, emittedTex);
+        const mr2 = sceneModel.createMaterial({
+          id,
+          color: extractDiffuse(materials.get(matId)),
+          colorTextureId
+        });
+        if (mr2.ok === false) {
+          materialId = void 0;
+        } else {
+          materialId = id;
+          emittedMat.set(matId, id);
+        }
+      }
+    }
+    const meshId = `fbx-mesh-${modelId}`;
+    const mr = sceneModel.createMesh({
+      id: meshId,
+      geometryId,
+      materialId,
+      matrix: extractModelMatrix(modelNode)
+    });
+    if (mr.ok === false) {
+      if (++meshFails <= 3)
+        console.warn("[FBXLoader] createMesh failed:", mr.error);
+      continue;
+    }
+    sceneModel.createObject({ id: modelObjectId(modelNode, modelId, usedObjectIds), meshIds: [meshId] });
+    emitted++;
+  }
+  if (emitted === 0) {
+    console.warn("[FBXLoader] No mesh models were emitted from the FBX.");
+  }
+}
+function extractGeometry(geomNode) {
+  const verts = arrayProp(findChild(geomNode, "Vertices"));
+  const polys = arrayProp(findChild(geomNode, "PolygonVertexIndex"));
+  if (!verts || !polys || verts.length === 0 || polys.length === 0) {
+    return null;
+  }
+  const normLayer = readLayer(geomNode, "LayerElementNormal", "Normals", "NormalsIndex");
+  const uvLayer = readLayer(geomNode, "LayerElementUV", "UV", "UVIndex");
+  const positions = [];
+  const normals = normLayer ? [] : null;
+  const uvs = uvLayer ? [] : null;
+  let i = 0;
+  while (i < polys.length) {
+    const corners = [];
+    let j = i;
+    for (; j < polys.length; j++) {
+      const raw = polys[j];
+      const cp = raw < 0 ? -raw - 1 : raw;
+      corners.push({ cp, pvi: j });
+      if (raw < 0) {
+        j++;
+        break;
+      }
+    }
+    for (let k = 1; k + 1 < corners.length; k++) {
+      for (const c3 of [corners[0], corners[k], corners[k + 1]]) {
+        positions.push(verts[c3.cp * 3], verts[c3.cp * 3 + 1], verts[c3.cp * 3 + 2]);
+        if (normals) {
+          const nrm = lookupVec(normLayer, c3.pvi, c3.cp, 3) || [0, 0, 1];
+          normals.push(nrm[0], nrm[1], nrm[2]);
+        }
+        if (uvs) {
+          const uv = lookupVec(uvLayer, c3.pvi, c3.cp, 2) || [0, 0];
+          uvs.push(uv[0], uv[1]);
+        }
+      }
+    }
+    i = j;
+  }
+  const count = positions.length / 3;
+  if (count === 0) {
+    return null;
+  }
+  const indices = new Uint32Array(count);
+  for (let k = 0; k < count; k++)
+    indices[k] = k;
+  return {
+    positions: new Float32Array(positions),
+    normals: normals ? new Float32Array(normals) : void 0,
+    uvs: uvs ? new Float32Array(uvs) : void 0,
+    indices
+  };
+}
+function readLayer(geomNode, layerName, dataName, indexName) {
+  const layer = findChild(geomNode, layerName);
+  if (!layer)
+    return null;
+  const data2 = arrayProp(findChild(layer, dataName));
+  if (!data2)
+    return null;
+  return {
+    data: data2,
+    mapping: String(scalarProp(findChild(layer, "MappingInformationType")) ?? "ByPolygonVertex"),
+    reference: String(scalarProp(findChild(layer, "ReferenceInformationType")) ?? "Direct"),
+    index: arrayProp(findChild(layer, indexName))
+  };
+}
+function lookupVec(layer, pvi, cp, size) {
+  let i;
+  const m = layer.mapping;
+  if (m === "ByControlPoint" || m === "ByVertex" || m === "ByVertice")
+    i = cp;
+  else if (m === "AllSame")
+    i = 0;
+  else
+    i = pvi;
+  if ((layer.reference === "IndexToDirect" || layer.reference === "Index") && layer.index) {
+    i = layer.index[i];
+  }
+  const out = new Array(size);
+  for (let k = 0; k < size; k++)
+    out[k] = layer.data[i * size + k];
+  return out;
+}
+function extractModelMatrix(modelNode) {
+  const t = prop70(modelNode, "Lcl Translation") || [0, 0, 0];
+  const r = prop70(modelNode, "Lcl Rotation") || [0, 0, 0];
+  const s = prop70(modelNode, "Lcl Scaling") || [1, 1, 1];
+  return composeTRS(
+    t[0] || 0,
+    t[1] || 0,
+    t[2] || 0,
+    (r[0] || 0) * DEG2RAD,
+    (r[1] || 0) * DEG2RAD,
+    (r[2] || 0) * DEG2RAD,
+    s[0] ?? 1,
+    s[1] ?? 1,
+    s[2] ?? 1
+  );
+}
+function composeTRS(tx, ty, tz, rx, ry, rz, sx, sy, sz) {
+  const cx = Math.cos(rx), sxr = Math.sin(rx);
+  const cy = Math.cos(ry), syr = Math.sin(ry);
+  const cz = Math.cos(rz), szr = Math.sin(rz);
+  const r00 = cy * cz;
+  const r01 = sxr * syr * cz - cx * szr;
+  const r02 = cx * syr * cz + sxr * szr;
+  const r10 = cy * szr;
+  const r11 = sxr * syr * szr + cx * cz;
+  const r12 = cx * syr * szr - sxr * cz;
+  const r20 = -syr;
+  const r21 = sxr * cy;
+  const r22 = cx * cy;
+  const m = new Float64Array(16);
+  m[0] = r00 * sx;
+  m[1] = r10 * sx;
+  m[2] = r20 * sx;
+  m[3] = 0;
+  m[4] = r01 * sy;
+  m[5] = r11 * sy;
+  m[6] = r21 * sy;
+  m[7] = 0;
+  m[8] = r02 * sz;
+  m[9] = r12 * sz;
+  m[10] = r22 * sz;
+  m[11] = 0;
+  m[12] = tx;
+  m[13] = ty;
+  m[14] = tz;
+  m[15] = 1;
+  return m;
+}
+function extractDiffuse(matNode) {
+  const c3 = prop70(matNode, "DiffuseColor") || prop70(matNode, "Diffuse");
+  if (c3 && c3.length >= 3)
+    return [c3[0], c3[1], c3[2]];
+  return [0.7, 0.7, 0.7];
+}
+function isColorProp(prop2) {
+  return prop2 !== null && /diffusecolor|basecolor|^color$|\|basecolor/i.test(prop2);
+}
+async function emitDiffuseTexture(matId, sceneModel, childrenOf, textures, videos, emittedTex) {
+  const conns = childrenOf.get(matId) || [];
+  let texId;
+  for (const c3 of conns)
+    if (textures.has(c3.id) && isColorProp(c3.prop)) {
+      texId = c3.id;
+      break;
+    }
+  if (texId === void 0) {
+    for (const c3 of conns)
+      if (textures.has(c3.id)) {
+        texId = c3.id;
+        break;
+      }
+  }
+  if (texId === void 0)
+    return void 0;
+  const existing = emittedTex.get(texId);
+  if (existing)
+    return existing;
+  let content = null;
+  for (const c3 of childrenOf.get(texId) || []) {
+    const video = videos.get(c3.id);
+    if (!video)
+      continue;
+    const v = findChild(video, "Content")?.props[0];
+    if (v instanceof Uint8Array && v.length > 0) {
+      content = v;
+      break;
+    }
+  }
+  if (!content) {
+    console.warn(`[FBXLoader] texture ${texId} has no embedded data (external file ref); skipping.`);
+    return void 0;
+  }
+  const id = `fbx-tex-${texId}`;
+  const buf = content.buffer.slice(content.byteOffset, content.byteOffset + content.byteLength);
+  let textureParams = { id, buffers: [buf] };
+  if (typeof createImageBitmap === "function" && typeof Blob !== "undefined") {
+    try {
+      textureParams = { id, image: await createImageBitmap(new Blob([buf])) };
+    } catch (e) {
+      console.warn(`[FBXLoader] failed to decode embedded texture ${texId}:`, e);
+    }
+  }
+  const r = sceneModel.createTexture(textureParams);
+  if (r.ok === false) {
+    console.warn(`[FBXLoader] createTexture failed:`, r.error);
+    return void 0;
+  }
+  emittedTex.set(texId, id);
+  return id;
+}
+function prop70(node, name12) {
+  const props70 = findChild(node, "Properties70");
+  if (!props70)
+    return null;
+  for (const p of props70.children) {
+    if (p.name === "P" && p.props[0] === name12) {
+      return p.props.slice(4).map(Number);
+    }
+  }
+  return null;
+}
+function modelObjectId(modelNode, modelId, used) {
+  const raw = String(modelNode.props[1] ?? "");
+  let name12 = (raw.split("\0")[0] || "").trim() || `fbx-obj-${modelId}`;
+  let id = name12;
+  let n = 1;
+  while (used.has(id))
+    id = `${name12}_${n++}`;
+  used.add(id);
+  return id;
+}
+function arrayProp(node) {
+  if (!node || node.props.length === 0)
+    return null;
+  const v = node.props[0];
+  return v && typeof v.length === "number" && typeof v !== "string" ? v : null;
+}
+function scalarProp(node) {
+  return node && node.props.length > 0 ? node.props[0] : void 0;
+}
+
+// ../sdk/src/formats/fbx/FBXLoader.ts
+var FBXLoader = class extends ModelLoader {
+  constructor() {
+    super({
+      format: "fbx",
+      fileDataType: "arraybuffer",
+      parsers: {
+        binary: parse16
+      },
+      // The only "version" we recognise is the binary variant; ASCII FBX (and
+      // anything else) returns "" → the base loader reports it as unsupported.
+      getVersion: (fileData) => fileData instanceof ArrayBuffer && isBinaryFBX(fileData) ? "binary" : ""
+    });
+  }
+};
+
+// ../sdk/src/formats/fbx/fbxBinaryWriter.ts
+var FBX_VERSION = 7400;
+var fbxI = (v) => ({ t: "I", v });
+var fbxL = (v) => ({ t: "L", v });
+var fbxD = (v) => ({ t: "D", v });
+var fbxS = (v) => ({ t: "S", v });
+var fbxR = (v) => ({ t: "R", v });
+var fbxDArr = (v) => ({ t: "d", v });
+var fbxIArr = (v) => ({ t: "i", v });
+var fbxNode = (name12, props = [], children = []) => ({ name: name12, props, children });
+var fbxLeaf = (name12, prop2) => ({ name: name12, props: [prop2], children: [] });
+function writeFBXBinary(nodes) {
+  const parts = [makeHeader(FBX_VERSION)];
+  let offset = 27;
+  for (const node of nodes) {
+    const b4 = encodeNode(node, offset);
+    parts.push(b4);
+    offset += b4.length;
+  }
+  parts.push(new Uint8Array(13));
+  const out = concat2(parts);
+  return out.buffer.slice(out.byteOffset, out.byteOffset + out.byteLength);
+}
+function makeHeader(version2) {
+  const b4 = new Uint8Array(27);
+  const magic = "Kaydara FBX Binary  ";
+  for (let i = 0; i < magic.length; i++)
+    b4[i] = magic.charCodeAt(i);
+  b4[20] = 0;
+  b4[21] = 26;
+  b4[22] = 0;
+  new DataView(b4.buffer).setUint32(23, version2, true);
+  return b4;
+}
+function encodeNode(node, start) {
+  const propBytes = concat2(node.props.map(encodeProp));
+  let childStart = start + 13 + node.name.length + propBytes.length;
+  const childBuffers = [];
+  for (const ch of node.children) {
+    const cb2 = encodeNode(ch, childStart);
+    childBuffers.push(cb2);
+    childStart += cb2.length;
+  }
+  const childrenBytes = node.children.length > 0 ? concat2([...childBuffers, new Uint8Array(13)]) : new Uint8Array(0);
+  const endOffset = start + 13 + node.name.length + propBytes.length + childrenBytes.length;
+  const header = new Uint8Array(13 + node.name.length);
+  const dv = new DataView(header.buffer);
+  dv.setUint32(0, endOffset, true);
+  dv.setUint32(4, node.props.length, true);
+  dv.setUint32(8, propBytes.length, true);
+  dv.setUint8(12, node.name.length);
+  for (let i = 0; i < node.name.length; i++)
+    header[13 + i] = node.name.charCodeAt(i);
+  return concat2([header, propBytes, childrenBytes]);
+}
+function encodeProp(p) {
+  switch (p.t) {
+    case "I": {
+      const b4 = new Uint8Array(5);
+      const d = new DataView(b4.buffer);
+      d.setUint8(0, 73);
+      d.setInt32(1, p.v, true);
+      return b4;
+    }
+    case "L": {
+      const b4 = new Uint8Array(9);
+      const d = new DataView(b4.buffer);
+      d.setUint8(0, 76);
+      d.setBigInt64(1, BigInt(Math.trunc(p.v)), true);
+      return b4;
+    }
+    case "D": {
+      const b4 = new Uint8Array(9);
+      const d = new DataView(b4.buffer);
+      d.setUint8(0, 68);
+      d.setFloat64(1, p.v, true);
+      return b4;
+    }
+    case "S": {
+      const s = p.v;
+      const b4 = new Uint8Array(5 + s.length);
+      const d = new DataView(b4.buffer);
+      d.setUint8(0, 83);
+      d.setUint32(1, s.length, true);
+      for (let i = 0; i < s.length; i++)
+        b4[5 + i] = s.charCodeAt(i) & 255;
+      return b4;
+    }
+    case "R": {
+      const a2 = p.v;
+      const b4 = new Uint8Array(5 + a2.length);
+      const d = new DataView(b4.buffer);
+      d.setUint8(0, 82);
+      d.setUint32(1, a2.length, true);
+      b4.set(a2, 5);
+      return b4;
+    }
+    case "d": {
+      const a2 = p.v;
+      const n = a2.length;
+      const b4 = new Uint8Array(13 + n * 8);
+      const d = new DataView(b4.buffer);
+      d.setUint8(0, 100);
+      d.setUint32(1, n, true);
+      d.setUint32(5, 0, true);
+      d.setUint32(9, n * 8, true);
+      for (let i = 0; i < n; i++)
+        d.setFloat64(13 + i * 8, a2[i], true);
+      return b4;
+    }
+    case "i": {
+      const a2 = p.v;
+      const n = a2.length;
+      const b4 = new Uint8Array(13 + n * 4);
+      const d = new DataView(b4.buffer);
+      d.setUint8(0, 105);
+      d.setUint32(1, n, true);
+      d.setUint32(5, 0, true);
+      d.setUint32(9, n * 4, true);
+      for (let i = 0; i < n; i++)
+        d.setInt32(13 + i * 4, a2[i], true);
+      return b4;
+    }
+  }
+}
+function concat2(parts) {
+  let len = 0;
+  for (const p of parts)
+    len += p.length;
+  const out = new Uint8Array(len);
+  let o = 0;
+  for (const p of parts) {
+    out.set(p, o);
+    o += p.length;
+  }
+  return out;
+}
+
+// ../sdk/src/formats/fbx/versions/binary/encode.ts
+var RAD2DEG = 180 / Math.PI;
+var SEP = "\0";
+async function encode18(params, _options) {
+  const sceneModel = params.sceneModel;
+  if (!sceneModel) {
+    throw "FBXExporter requires params.sceneModel";
+  }
+  let nextId = 1e3;
+  const newId = () => ++nextId;
+  const objectsChildren = [];
+  const connections = [];
+  const geomFbxId = /* @__PURE__ */ new Map();
+  const matFbxId = /* @__PURE__ */ new Map();
+  const texFbxId = /* @__PURE__ */ new Map();
+  const usedNames = /* @__PURE__ */ new Set();
+  function geometryId(geom) {
+    const existing = geomFbxId.get(geom.id);
+    if (existing !== void 0)
+      return existing;
+    const node = buildGeometryNode(geom, newId());
+    if (!node)
+      return null;
+    geomFbxId.set(geom.id, node.props[0].v);
+    objectsChildren.push(node);
+    return node.props[0].v;
+  }
+  async function materialId(mat) {
+    const existing = matFbxId.get(mat.id);
+    if (existing !== void 0)
+      return existing;
+    const id = newId();
+    matFbxId.set(mat.id, id);
+    const c3 = mat.color || [1, 1, 1];
+    objectsChildren.push(fbxNode(
+      "Material",
+      [fbxL(id), fbxS(`${mat.id}${SEP}Material`), fbxS("")],
+      [fbxNode("Properties70", [], [pNode("DiffuseColor", "Color", [c3[0], c3[1], c3[2]])])]
+    ));
+    await emitTexture(mat, id);
+    return id;
+  }
+  async function emitTexture(mat, matFbx) {
+    const tex = mat.colorTexture;
+    if (!tex)
+      return;
+    let texId = texFbxId.get(tex.id);
+    if (texId === void 0) {
+      const bytes = await textureBytes(tex);
+      if (!bytes) {
+        console.warn(`[FBXExporter] texture '${tex.id}' has no encodable image data; skipping.`);
+        texFbxId.set(tex.id, -1);
+        return;
+      }
+      texId = newId();
+      const videoId = newId();
+      const name12 = `${tex.id}.png`;
+      objectsChildren.push(fbxNode(
+        "Video",
+        [fbxL(videoId), fbxS(`${tex.id}${SEP}Video`), fbxS("Clip")],
+        [fbxLeaf("Content", fbxR(bytes)), fbxLeaf("RelativeFilename", fbxS(name12))]
+      ));
+      objectsChildren.push(fbxNode(
+        "Texture",
+        [fbxL(texId), fbxS(`${tex.id}${SEP}Texture`), fbxS("")],
+        [fbxLeaf("RelativeFilename", fbxS(name12))]
+      ));
+      connections.push(connOO(videoId, texId));
+      texFbxId.set(tex.id, texId);
+    }
+    if (texId < 0)
+      return;
+    connections.push(connOP(texId, matFbx, "DiffuseColor"));
+  }
+  for (const objectId in sceneModel.objects) {
+    const sceneObject = sceneModel.objects[objectId];
+    for (const mesh of sceneObject.meshes) {
+      const geom = mesh.geometry;
+      if (!geom)
+        continue;
+      const gId = geometryId(geom);
+      if (gId === null)
+        continue;
+      const modelId = newId();
+      let name12 = objectId;
+      while (usedNames.has(name12))
+        name12 = `${objectId}_${modelId}`;
+      usedNames.add(name12);
+      const { t, r, s } = decomposeTRS(mesh.matrix);
+      objectsChildren.push(fbxNode(
+        "Model",
+        [fbxL(modelId), fbxS(`${name12}${SEP}Model`), fbxS("Mesh")],
+        [fbxNode("Properties70", [], [
+          pNode("Lcl Translation", "Lcl Translation", t),
+          pNode("Lcl Rotation", "Lcl Rotation", r),
+          pNode("Lcl Scaling", "Lcl Scaling", s)
+        ])]
+      ));
+      connections.push(connOO(gId, modelId));
+      if (mesh.material) {
+        connections.push(connOO(await materialId(mesh.material), modelId));
+      }
+      connections.push(connOO(modelId, 0));
+    }
+  }
+  return writeFBXBinary([
+    fbxNode("Objects", [], objectsChildren),
+    fbxNode("Connections", [], connections)
+  ]);
+}
+function buildGeometryNode(geom, id) {
+  const pc = geom.positionsCompressed;
+  const aabb = geom.aabb;
+  if (!pc || !aabb || pc.length === 0)
+    return null;
+  const positions = new Float64Array(pc.length);
+  const tmp = [0, 0, 0];
+  const out = [0, 0, 0];
+  for (let i = 0; i < pc.length; i += 3) {
+    tmp[0] = pc[i];
+    tmp[1] = pc[i + 1];
+    tmp[2] = pc[i + 2];
+    decompressPoint3WithAABB32(tmp, aabb, out);
+    positions[i] = out[0];
+    positions[i + 1] = out[1];
+    positions[i + 2] = out[2];
+  }
+  const numVerts = pc.length / 3;
+  const idx = geom.indices ?? sequential(numVerts);
+  const poly = new Int32Array(idx.length);
+  for (let i = 0; i + 2 < idx.length; i += 3) {
+    poly[i] = idx[i];
+    poly[i + 1] = idx[i + 1];
+    poly[i + 2] = -(idx[i + 2] + 1);
+  }
+  const children = [
+    fbxLeaf("Vertices", fbxDArr(positions)),
+    fbxLeaf("PolygonVertexIndex", fbxIArr(poly))
+  ];
+  if (geom.normalsCompressed) {
+    const normals = new Float32Array(geom.normalsCompressed.length / 2 * 3);
+    decompressNormals2(geom.normalsCompressed, normals);
+    children.push(layerNode("LayerElementNormal", "Normals", normals));
+  }
+  if (geom.uvsCompressed && geom.uvsCompressed.length) {
+    children.push(layerNode("LayerElementUV", "UV", geom.uvsCompressed));
+  }
+  return fbxNode("Geometry", [fbxL(id), fbxS(`${geom.id}${SEP}Geometry`), fbxS("Mesh")], children);
+}
+function layerNode(layerName, dataName, data2) {
+  return fbxNode(layerName, [fbxI(0)], [
+    fbxLeaf("MappingInformationType", fbxS("ByVertice")),
+    fbxLeaf("ReferenceInformationType", fbxS("Direct")),
+    fbxLeaf(dataName, fbxDArr(data2))
+  ]);
+}
+function pNode(name12, type, vals) {
+  const props = [fbxS(name12), fbxS(type), fbxS(""), fbxS("A")];
+  for (let i = 0; i < vals.length; i++)
+    props.push(fbxD(vals[i]));
+  return fbxNode("P", props);
+}
+function connOO(childId, parentId) {
+  return fbxNode("C", [fbxS("OO"), fbxL(childId), fbxL(parentId)]);
+}
+function connOP(childId, parentId, prop2) {
+  return fbxNode("C", [fbxS("OP"), fbxL(childId), fbxL(parentId), fbxS(prop2)]);
+}
+function sequential(n) {
+  const a2 = new Int32Array(n);
+  for (let i = 0; i < n; i++)
+    a2[i] = i;
+  return a2;
+}
+function decompressPoint3WithAABB32(p, aabb, dest) {
+  dest[0] = p[0] * ((aabb[3] - aabb[0]) / 65535) + aabb[0];
+  dest[1] = p[1] * ((aabb[4] - aabb[1]) / 65535) + aabb[1];
+  dest[2] = p[2] * ((aabb[5] - aabb[2]) / 65535) + aabb[2];
+}
+function decompressNormals2(octs, result) {
+  for (let i = 0, j = 0, len = octs.length; i < len; i += 2, j += 3) {
+    let x = (2 * octs[i] + 1) / 255;
+    let y = (2 * octs[i + 1] + 1) / 255;
+    const z = 1 - Math.abs(x) - Math.abs(y);
+    if (z < 0) {
+      const tx = (1 - Math.abs(y)) * Math.sign(x);
+      const ty = (1 - Math.abs(x)) * Math.sign(y);
+      x = tx;
+      y = ty;
+    }
+    const len2 = Math.sqrt(x * x + y * y + z * z) || 1;
+    result[j] = x / len2;
+    result[j + 1] = y / len2;
+    result[j + 2] = z / len2;
+  }
+}
+function decomposeTRS(m) {
+  const sx = Math.hypot(m[0], m[1], m[2]) || 1;
+  const sy = Math.hypot(m[4], m[5], m[6]) || 1;
+  const sz = Math.hypot(m[8], m[9], m[10]) || 1;
+  const r00 = m[0] / sx, r10 = m[1] / sx, r20 = m[2] / sx;
+  const r21 = m[6] / sy;
+  const r22 = m[10] / sz;
+  const ry = Math.asin(Math.max(-1, Math.min(1, -r20)));
+  let rx, rz;
+  if (Math.abs(r20) < 0.9999999) {
+    rx = Math.atan2(r21, r22);
+    rz = Math.atan2(r10, r00);
+  } else {
+    rx = Math.atan2(-m[9] / sz, m[5] / sy);
+    rz = 0;
+  }
+  return {
+    t: [m[12], m[13], m[14]],
+    r: [rx * RAD2DEG, ry * RAD2DEG, rz * RAD2DEG],
+    s: [sx, sy, sz]
+  };
+}
+async function textureBytes(tex) {
+  if (tex.buffers && tex.buffers[0]) {
+    return new Uint8Array(tex.buffers[0]);
+  }
+  if (typeof tex.src === "string" && tex.src.startsWith("data:")) {
+    const comma = tex.src.indexOf(",");
+    if (comma >= 0)
+      return base64ToBytes(tex.src.slice(comma + 1));
+  }
+  const source = tex.image ?? tex.imageData;
+  if (source && typeof document !== "undefined") {
+    try {
+      return await canvasEncodePNG(source);
+    } catch {
+    }
+  }
+  return null;
+}
+function base64ToBytes(b642) {
+  if (typeof atob === "function") {
+    const bin = atob(b642);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++)
+      bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  }
+  return new Uint8Array(globalThis.Buffer.from(b642, "base64"));
+}
+async function canvasEncodePNG(source) {
+  const w = source.width, h = source.height;
+  const canvas2 = document.createElement("canvas");
+  canvas2.width = w;
+  canvas2.height = h;
+  const ctx = canvas2.getContext("2d");
+  if (typeof ImageData !== "undefined" && source instanceof ImageData) {
+    ctx.putImageData(source, 0, 0);
+  } else {
+    ctx.drawImage(source, 0, 0);
+  }
+  const blob = await new Promise((res, rej) => canvas2.toBlob((b4) => b4 ? res(b4) : rej("toBlob failed"), "image/png"));
+  return new Uint8Array(await blob.arrayBuffer());
+}
+
+// ../sdk/src/formats/fbx/FBXExporter.ts
+var FBXExporter = class extends ModelExporter {
+  constructor() {
+    super({
+      format: "fbx",
+      fileDataType: "arraybuffer",
+      encoders: {
+        binary: encode18
+      },
+      defaultVersion: "binary"
     });
   }
 };
@@ -125451,8 +129969,8 @@ async function parse18(input, options = {}) {
               if (ctx) {
                 pixelData = ctx.getImageData(0, 0, atlasDims.width, atlasDims.height).data;
               }
-            } catch (err5) {
-              console.warn(`[PDFLoader] page ${pageNumber} text atlas: getImageData failed: ${err5}`);
+            } catch (err6) {
+              console.warn(`[PDFLoader] page ${pageNumber} text atlas: getImageData failed: ${err6}`);
             }
             const tRes = pixelData ? input.sceneModel.createTexture({
               id: texId,
@@ -125737,11 +130255,11 @@ async function parse18(input, options = {}) {
       options.onPageProgress?.(i + 1, pageIndices.length);
     }
     return { ok: true, value: { sceneModel: input.sceneModel, pages } };
-  } catch (err5) {
+  } catch (err6) {
     return {
       ok: false,
       type: 5 /* Unknown */,
-      error: `[pdf.parse] ${err5?.message ?? String(err5)}`
+      error: `[pdf.parse] ${err6?.message ?? String(err6)}`
     };
   } finally {
     if (pdf) {
@@ -126439,16 +130957,16 @@ var DEFAULT_SVG_LOAD_OPTIONS = {
 // ../sdk/src/formats/svg/versions/v1_0/parse.ts
 async function parse19(input, options = {}) {
   if (!input || !input.sceneModel) {
-    return err(2 /* InvalidInput */, "[svg.parse] sceneModel is required");
+    return err2(2 /* InvalidInput */, "[svg.parse] sceneModel is required");
   }
   if (input.sceneModel.destroyed) {
-    return err(1 /* InvalidOperation */, "[svg.parse] SceneModel already destroyed");
+    return err2(1 /* InvalidOperation */, "[svg.parse] SceneModel already destroyed");
   }
   if (typeof input.fileData !== "string" || input.fileData.length === 0) {
-    return err(2 /* InvalidInput */, "[svg.parse] fileData must be a non-empty SVG string");
+    return err2(2 /* InvalidInput */, "[svg.parse] fileData must be a non-empty SVG string");
   }
   if (typeof DOMParser === "undefined") {
-    return err(
+    return err2(
       1 /* InvalidOperation */,
       "[svg.parse] DOMParser is not available \u2014 running outside a browser? Install a DOMParser polyfill onto globalThis (e.g. `linkedom` or `xmldom`) before calling."
     );
@@ -126461,10 +130979,10 @@ async function parse19(input, options = {}) {
       throw new Error(perr.textContent?.trim() || "DOMParser reported a parsererror");
     root = domToSVGNode(doc.documentElement);
   } catch (e) {
-    return err(2 /* InvalidInput */, `[svg.parse] SVG parse failed: ${e?.message ?? e}`);
+    return err2(2 /* InvalidInput */, `[svg.parse] SVG parse failed: ${e?.message ?? e}`);
   }
   if (!root || !root.name) {
-    return err(2 /* InvalidInput */, "[svg.parse] No <svg> element found in parsed tree");
+    return err2(2 /* InvalidInput */, "[svg.parse] No <svg> element found in parsed tree");
   }
   const { viewBox, buckets, resolvedOpts: opts } = parseSVGTree(root, options);
   const sceneObjectIds = [];
@@ -126510,10 +131028,10 @@ async function parse19(input, options = {}) {
         indices
       });
       if (gRes.ok === false)
-        return err(gRes.type, `[svg.parse] ${objectId} fill: ${gRes.error}`);
+        return err2(gRes.type, `[svg.parse] ${objectId} fill: ${gRes.error}`);
       const mRes = input.sceneModel.createMaterial({ id: matId, color: fb.color });
       if (mRes.ok === false)
-        return err(mRes.type, `[svg.parse] ${objectId} fill: ${mRes.error}`);
+        return err2(mRes.type, `[svg.parse] ${objectId} fill: ${mRes.error}`);
       const meshRes = input.sceneModel.createMesh({
         id: meshId,
         geometryId: geomId,
@@ -126526,7 +131044,7 @@ async function parse19(input, options = {}) {
         ...fb.opacity < 1 ? { opacity: fb.opacity } : {}
       });
       if (meshRes.ok === false)
-        return err(meshRes.type, `[svg.parse] ${objectId} fill: ${meshRes.error}`);
+        return err2(meshRes.type, `[svg.parse] ${objectId} fill: ${meshRes.error}`);
       meshIds.push(meshId);
       triangleCount += tris.length;
     }
@@ -126561,7 +131079,7 @@ async function parse19(input, options = {}) {
         indices
       });
       if (gRes.ok === false)
-        return err(gRes.type, `[svg.parse] ${objectId} strokes: ${gRes.error}`);
+        return err2(gRes.type, `[svg.parse] ${objectId} strokes: ${gRes.error}`);
       const lineWidth = Math.max(opts.minLineWidth, sb.lineWidth * opts.lineWidthScale);
       let linePattern;
       if (sb.dasharray && sb.dasharray.length > 0 && sb.lineWidth > 0) {
@@ -126575,7 +131093,7 @@ async function parse19(input, options = {}) {
         ...linePattern ? { linePattern } : {}
       });
       if (mRes.ok === false)
-        return err(mRes.type, `[svg.parse] ${objectId} strokes: ${mRes.error}`);
+        return err2(mRes.type, `[svg.parse] ${objectId} strokes: ${mRes.error}`);
       const meshRes = input.sceneModel.createMesh({
         id: meshId,
         geometryId: geomId,
@@ -126584,7 +131102,7 @@ async function parse19(input, options = {}) {
         ...sb.opacity < 1 ? { opacity: sb.opacity } : {}
       });
       if (meshRes.ok === false)
-        return err(meshRes.type, `[svg.parse] ${objectId} strokes: ${meshRes.error}`);
+        return err2(meshRes.type, `[svg.parse] ${objectId} strokes: ${meshRes.error}`);
       meshIds.push(meshId);
       segmentCount += segs.length;
     }
@@ -126676,7 +131194,7 @@ async function parse19(input, options = {}) {
       continue;
     const oRes = input.sceneModel.createObject({ id: objectId, meshIds });
     if (oRes.ok === false)
-      return err(oRes.type, `[svg.parse] ${objectId}: ${oRes.error}`);
+      return err2(oRes.type, `[svg.parse] ${objectId}: ${oRes.error}`);
     sceneObjectIds.push(objectId);
     opts.onProgress?.(bIdx + 1, buckets.length);
   }
@@ -126692,7 +131210,7 @@ async function parse19(input, options = {}) {
     }
   };
 }
-function err(type, message) {
+function err2(type, message) {
   return { ok: false, type, error: message };
 }
 function parseSVGTree(root, options = {}) {
@@ -126897,7 +131415,7 @@ function mergeStyle(parent, attrs, opts, classMap) {
     }
   }
   const inlineStyle = parseStyleString(attrs.style);
-  const pick = (prop) => inlineStyle[prop] ?? attrs[prop] ?? classDecls[prop];
+  const pick = (prop2) => inlineStyle[prop2] ?? attrs[prop2] ?? classDecls[prop2];
   const strokeStr = pick("stroke");
   const fillStr = pick("fill");
   const strokeWidthStr = pick("stroke-width");
@@ -127731,7 +132249,7 @@ var DEFAULT_SVG_EXPORT_OPTIONS = {
 var tempVec3a9 = createVec3Float64();
 var tempVec3b9 = createVec3Float64();
 var tempVec3c5 = createVec3Float64();
-async function encode18(params, options) {
+async function encode19(params, options) {
   const { sceneModel } = params;
   if (!sceneModel)
     throw new Error("[SVGExporter] sceneModel is required");
@@ -127957,7 +132475,7 @@ var SVGExporter = class extends ModelExporter {
     super({
       format: "SVG",
       fileDataType: "text",
-      encoders: { "1.0": encode18 },
+      encoders: { "1.0": encode19 },
       defaultVersion: "1.0"
     });
   }
@@ -128016,13 +132534,13 @@ async function loadLibredwg(opts) {
 }
 async function parse20(input, options = {}) {
   if (!input || !input.sceneModel) {
-    return err2(2 /* InvalidInput */, "[dwg.parse] sceneModel is required");
+    return err3(2 /* InvalidInput */, "[dwg.parse] sceneModel is required");
   }
   if (input.sceneModel.destroyed) {
-    return err2(1 /* InvalidOperation */, "[dwg.parse] SceneModel already destroyed");
+    return err3(1 /* InvalidOperation */, "[dwg.parse] SceneModel already destroyed");
   }
   if (!input.fileData) {
-    return err2(2 /* InvalidInput */, "[dwg.parse] fileData is required");
+    return err3(2 /* InvalidInput */, "[dwg.parse] fileData is required");
   }
   let lib, fileType;
   try {
@@ -128030,7 +132548,7 @@ async function parse20(input, options = {}) {
     lib = got.lib;
     fileType = got.fileType;
   } catch (e) {
-    return err2(1 /* InvalidOperation */, `[dwg.parse] libredwg-web init failed: ${e?.message ?? e}`);
+    return err3(1 /* InvalidOperation */, `[dwg.parse] libredwg-web init failed: ${e?.message ?? e}`);
   }
   let document2;
   let warnings = 0;
@@ -128046,18 +132564,18 @@ async function parse20(input, options = {}) {
     dwgPtr = lib.dwg_read_data(input.fileData, fileType.DWG);
   } catch (e) {
     console.log = origLog;
-    return err2(2 /* InvalidInput */, `[dwg.parse] libredwg.dwg_read_data threw: ${e?.message ?? e}`);
+    return err3(2 /* InvalidInput */, `[dwg.parse] libredwg.dwg_read_data threw: ${e?.message ?? e}`);
   } finally {
     console.log = origLog;
   }
   if (!dwgPtr) {
-    return err2(2 /* InvalidInput */, `[dwg.parse] libredwg.dwg_read_data returned no pointer (warnings=${warnings})`);
+    return err3(2 /* InvalidInput */, `[dwg.parse] libredwg.dwg_read_data returned no pointer (warnings=${warnings})`);
   }
   try {
     const database = lib.convert(dwgPtr);
     document2 = mapDwgDatabaseToDocument(database);
   } catch (e) {
-    return err2(2 /* InvalidInput */, `[dwg.parse] DwgDatabase \u2192 DWGDocument mapping failed: ${e?.message ?? e}`);
+    return err3(2 /* InvalidInput */, `[dwg.parse] DwgDatabase \u2192 DWGDocument mapping failed: ${e?.message ?? e}`);
   } finally {
     try {
       lib.dwg_free(dwgPtr);
@@ -128071,13 +132589,13 @@ async function parse20(input, options = {}) {
 }
 async function emit(input, options = {}) {
   if (!input || !input.sceneModel) {
-    return err2(2 /* InvalidInput */, "[dwg.emit] sceneModel is required");
+    return err3(2 /* InvalidInput */, "[dwg.emit] sceneModel is required");
   }
   if (input.sceneModel.destroyed) {
-    return err2(1 /* InvalidOperation */, "[dwg.emit] SceneModel already destroyed");
+    return err3(1 /* InvalidOperation */, "[dwg.emit] SceneModel already destroyed");
   }
   if (!input.document || !Array.isArray(input.document.entities)) {
-    return err2(2 /* InvalidInput */, "[dwg.emit] document is missing entities array");
+    return err3(2 /* InvalidInput */, "[dwg.emit] document is missing entities array");
   }
   const opts = {
     ...DEFAULT_DWG_LOAD_OPTIONS,
@@ -128157,10 +132675,10 @@ async function emit(input, options = {}) {
         indices
       });
       if (gRes.ok === false)
-        return err2(gRes.type, `[dwg.emit] ${objectId} fill: ${gRes.error}`);
+        return err3(gRes.type, `[dwg.emit] ${objectId} fill: ${gRes.error}`);
       const mRes = input.sceneModel.createMaterial({ id: matId, color: fb.color });
       if (mRes.ok === false)
-        return err2(mRes.type, `[dwg.emit] ${objectId} fill: ${mRes.error}`);
+        return err3(mRes.type, `[dwg.emit] ${objectId} fill: ${mRes.error}`);
       const meshRes = input.sceneModel.createMesh({
         id: meshId,
         geometryId: geomId,
@@ -128168,7 +132686,7 @@ async function emit(input, options = {}) {
         color: fb.color
       });
       if (meshRes.ok === false)
-        return err2(meshRes.type, `[dwg.emit] ${objectId} fill: ${meshRes.error}`);
+        return err3(meshRes.type, `[dwg.emit] ${objectId} fill: ${meshRes.error}`);
       meshIds.push(meshId);
       triangleCount += tris.length;
     }
@@ -128203,7 +132721,7 @@ async function emit(input, options = {}) {
         indices
       });
       if (gRes.ok === false)
-        return err2(gRes.type, `[dwg.emit] ${objectId} strokes: ${gRes.error}`);
+        return err3(gRes.type, `[dwg.emit] ${objectId} strokes: ${gRes.error}`);
       const lineWidth = Math.max(opts.minLineWidth, sb.lineWidth * opts.lineWidthScale);
       const mRes = input.sceneModel.createMaterial({
         id: matId,
@@ -128211,7 +132729,7 @@ async function emit(input, options = {}) {
         lineWidth
       });
       if (mRes.ok === false)
-        return err2(mRes.type, `[dwg.emit] ${objectId} strokes: ${mRes.error}`);
+        return err3(mRes.type, `[dwg.emit] ${objectId} strokes: ${mRes.error}`);
       const meshRes = input.sceneModel.createMesh({
         id: meshId,
         geometryId: geomId,
@@ -128219,7 +132737,7 @@ async function emit(input, options = {}) {
         color: sb.color
       });
       if (meshRes.ok === false)
-        return err2(meshRes.type, `[dwg.emit] ${objectId} strokes: ${meshRes.error}`);
+        return err3(meshRes.type, `[dwg.emit] ${objectId} strokes: ${meshRes.error}`);
       meshIds.push(meshId);
       segmentCount += segs.length;
     }
@@ -128300,7 +132818,7 @@ async function emit(input, options = {}) {
       continue;
     const oRes = input.sceneModel.createObject({ id: objectId, meshIds });
     if (oRes.ok === false)
-      return err2(oRes.type, `[dwg.emit] ${objectId}: ${oRes.error}`);
+      return err3(oRes.type, `[dwg.emit] ${objectId}: ${oRes.error}`);
     sceneObjectIds.push(objectId);
   }
   return {
@@ -128335,23 +132853,23 @@ function pt(p) {
     return [0, 0, 0];
   return [p.x || 0, p.y || 0, p.z || 0];
 }
-var DEG2RAD = Math.PI / 180;
+var DEG2RAD2 = Math.PI / 180;
 function mapEntity(e) {
   if (!e || !e.type)
     return null;
-  const common = {
+  const common2 = {
     layer: e.layer || "0",
     ...e.colorIndex !== void 0 ? { color: e.colorIndex } : {}
   };
   switch (String(e.type).toUpperCase()) {
     case "LINE":
-      return { ...common, type: "LINE", start: pt(e.startPoint), end: pt(e.endPoint) };
+      return { ...common2, type: "LINE", start: pt(e.startPoint), end: pt(e.endPoint) };
     case "LWPOLYLINE": {
       const flat = [];
       for (const v of e.vertices || [])
         flat.push(v.x || 0, v.y || 0);
       return {
-        ...common,
+        ...common2,
         type: "LWPOLYLINE",
         vertices: flat,
         elevation: e.elevation || 0,
@@ -128362,71 +132880,71 @@ function mapEntity(e) {
     case "POLYLINE_2D":
     case "POLYLINE_3D":
       return {
-        ...common,
+        ...common2,
         type: "POLYLINE",
         vertices: (e.vertices || []).map(pt),
         closed: ((e.flag || 0) & 1) !== 0
       };
     case "CIRCLE":
-      return { ...common, type: "CIRCLE", center: pt(e.center), radius: e.radius || 0 };
+      return { ...common2, type: "CIRCLE", center: pt(e.center), radius: e.radius || 0 };
     case "ARC":
       return {
-        ...common,
+        ...common2,
         type: "ARC",
         center: pt(e.center),
         radius: e.radius || 0,
-        startAngle: (e.startAngle || 0) * DEG2RAD,
-        endAngle: (e.endAngle || 0) * DEG2RAD
+        startAngle: (e.startAngle || 0) * DEG2RAD2,
+        endAngle: (e.endAngle || 0) * DEG2RAD2
       };
     case "ELLIPSE": {
       const majorAxis = pt(e.majorAxisEndpoint || e.majorAxis);
       return {
-        ...common,
+        ...common2,
         type: "ELLIPSE",
         center: pt(e.center),
         majorAxis,
         ratio: e.minorAxisRatio ?? e.ratio ?? 1,
-        startAngle: (e.startAngle ?? 0) * DEG2RAD,
-        endAngle: (e.endAngle ?? 360) * DEG2RAD
+        startAngle: (e.startAngle ?? 0) * DEG2RAD2,
+        endAngle: (e.endAngle ?? 360) * DEG2RAD2
       };
     }
     case "POINT":
-      return { ...common, type: "POINT", position: pt(e.position || e.point) };
+      return { ...common2, type: "POINT", position: pt(e.position || e.point) };
     case "3DFACE": {
       const c3 = e.corners || [e.corner1, e.corner2, e.corner3, e.corner4];
       return {
-        ...common,
+        ...common2,
         type: "3DFACE",
         corners: [pt(c3[0]), pt(c3[1]), pt(c3[2]), pt(c3[3])]
       };
     }
     case "INSERT":
       return {
-        ...common,
+        ...common2,
         type: "INSERT",
         blockName: e.name || e.blockName || "",
         position: pt(e.insertPoint || e.position),
         scale: pt(e.scaleFactor),
         // pt() defaults missing components to 0, but…
-        rotation: (e.rotation || 0) * DEG2RAD
+        rotation: (e.rotation || 0) * DEG2RAD2
       };
     case "TEXT":
       return {
-        ...common,
+        ...common2,
         type: "TEXT",
         text: e.text || "",
         position: pt(e.position || e.insertionPoint),
         height: e.textHeight || e.height || 1,
-        rotation: (e.rotation || 0) * DEG2RAD
+        rotation: (e.rotation || 0) * DEG2RAD2
       };
     case "MTEXT":
       return {
-        ...common,
+        ...common2,
         type: "MTEXT",
         text: e.text || e.contents || "",
         position: pt(e.position || e.insertionPoint),
         height: e.textHeight || e.height || e.initialTextHeight || 1,
-        rotation: (e.rotation || 0) * DEG2RAD
+        rotation: (e.rotation || 0) * DEG2RAD2
       };
     default:
       return null;
@@ -128829,7 +133347,7 @@ var ACI_PALETTE = {
 function aciToRgb(index) {
   return ACI_PALETTE[index] ?? null;
 }
-function err2(type, message) {
+function err3(type, message) {
   return { ok: false, type, error: message };
 }
 
@@ -128853,19 +133371,19 @@ __export(dxf_exports, {
 // ../sdk/src/formats/dxf/versions/v1_0/parse.ts
 async function parse21(input, options = {}) {
   if (!input || !input.sceneModel) {
-    return err3(2 /* InvalidInput */, "[dxf.parse] sceneModel is required");
+    return err4(2 /* InvalidInput */, "[dxf.parse] sceneModel is required");
   }
   if (input.sceneModel.destroyed) {
-    return err3(1 /* InvalidOperation */, "[dxf.parse] SceneModel already destroyed");
+    return err4(1 /* InvalidOperation */, "[dxf.parse] SceneModel already destroyed");
   }
   if (typeof input.fileData !== "string" || input.fileData.length === 0) {
-    return err3(2 /* InvalidInput */, "[dxf.parse] fileData must be a non-empty DXF string");
+    return err4(2 /* InvalidInput */, "[dxf.parse] fileData must be a non-empty DXF string");
   }
   let document2;
   try {
     document2 = parseDXFText(input.fileData);
   } catch (e) {
-    return err3(2 /* InvalidInput */, `[dxf.parse] DXF parse failed: ${e?.message ?? e}`);
+    return err4(2 /* InvalidInput */, `[dxf.parse] DXF parse failed: ${e?.message ?? e}`);
   }
   return emit({ document: document2, sceneModel: input.sceneModel }, options);
 }
@@ -128991,38 +133509,38 @@ function findNextEntity(pairs, start, end) {
   return end;
 }
 function parseEntityBody(type, pairs, start, end) {
-  const common = { layer: "0" };
+  const common2 = { layer: "0" };
   for (let i = start; i < end; i++) {
     const [c3, v] = pairs[i];
     if (c3 === 8)
-      common.layer = v;
+      common2.layer = v;
     else if (c3 === 62)
-      common.color = parseInt(v, 10);
+      common2.color = parseInt(v, 10);
   }
   switch (type) {
     case "LINE":
-      return parseLine(pairs, start, end, common);
+      return parseLine(pairs, start, end, common2);
     case "LWPOLYLINE":
-      return parseLwPolyline(pairs, start, end, common);
+      return parseLwPolyline(pairs, start, end, common2);
     case "POLYLINE":
-      return parsePolyline(pairs, start, end, common);
+      return parsePolyline(pairs, start, end, common2);
     case "CIRCLE":
-      return parseCircle(pairs, start, end, common);
+      return parseCircle(pairs, start, end, common2);
     case "ARC":
-      return parseArc(pairs, start, end, common);
+      return parseArc(pairs, start, end, common2);
     case "3DFACE":
-      return parse3DFace(pairs, start, end, common);
+      return parse3DFace(pairs, start, end, common2);
     case "INSERT":
-      return parseInsert(pairs, start, end, common);
+      return parseInsert(pairs, start, end, common2);
     case "TEXT":
     case "MTEXT":
-      return parseText(pairs, start, end, common, type);
+      return parseText(pairs, start, end, common2, type);
     default:
       return null;
   }
 }
-function parseLine(pairs, s, e, common) {
-  const ent = { ...common, type: "LINE", start: [0, 0, 0], end: [0, 0, 0] };
+function parseLine(pairs, s, e, common2) {
+  const ent = { ...common2, type: "LINE", start: [0, 0, 0], end: [0, 0, 0] };
   for (let i = s; i < e; i++) {
     const [c3, v] = pairs[i];
     const n = parseFloat(v);
@@ -129041,8 +133559,8 @@ function parseLine(pairs, s, e, common) {
   }
   return ent;
 }
-function parseLwPolyline(pairs, s, e, common) {
-  const ent = { ...common, type: "LWPOLYLINE", vertices: [], closed: false, elevation: 0 };
+function parseLwPolyline(pairs, s, e, common2) {
+  const ent = { ...common2, type: "LWPOLYLINE", vertices: [], closed: false, elevation: 0 };
   let curX = null;
   for (let i = s; i < e; i++) {
     const [c3, v] = pairs[i];
@@ -129063,11 +133581,11 @@ function parseLwPolyline(pairs, s, e, common) {
     ent.vertices.push(curX, 0);
   return ent;
 }
-function parsePolyline(_pairs, _s, _e, common) {
-  return { ...common, type: "POLYLINE", vertices: [], closed: false };
+function parsePolyline(_pairs, _s, _e, common2) {
+  return { ...common2, type: "POLYLINE", vertices: [], closed: false };
 }
-function parseCircle(pairs, s, e, common) {
-  const ent = { ...common, type: "CIRCLE", center: [0, 0, 0], radius: 0 };
+function parseCircle(pairs, s, e, common2) {
+  const ent = { ...common2, type: "CIRCLE", center: [0, 0, 0], radius: 0 };
   for (let i = s; i < e; i++) {
     const [c3, v] = pairs[i];
     const n = parseFloat(v);
@@ -129082,8 +133600,8 @@ function parseCircle(pairs, s, e, common) {
   }
   return ent;
 }
-function parseArc(pairs, s, e, common) {
-  const ent = { ...common, type: "ARC", center: [0, 0, 0], radius: 0, startAngle: 0, endAngle: 0 };
+function parseArc(pairs, s, e, common2) {
+  const ent = { ...common2, type: "ARC", center: [0, 0, 0], radius: 0, startAngle: 0, endAngle: 0 };
   for (let i = s; i < e; i++) {
     const [c3, v] = pairs[i];
     const n = parseFloat(v);
@@ -129102,7 +133620,7 @@ function parseArc(pairs, s, e, common) {
   }
   return ent;
 }
-function parse3DFace(pairs, s, e, common) {
+function parse3DFace(pairs, s, e, common2) {
   const corners = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]];
   for (let i = s; i < e; i++) {
     const [c3, v] = pairs[i];
@@ -129114,11 +133632,11 @@ function parse3DFace(pairs, s, e, common) {
     else if (c3 >= 30 && c3 <= 33)
       corners[c3 - 30][2] = n;
   }
-  return { ...common, type: "3DFACE", corners };
+  return { ...common2, type: "3DFACE", corners };
 }
-function parseInsert(pairs, s, e, common) {
+function parseInsert(pairs, s, e, common2) {
   const ent = {
-    ...common,
+    ...common2,
     type: "INSERT",
     blockName: "",
     position: [0, 0, 0],
@@ -129146,8 +133664,8 @@ function parseInsert(pairs, s, e, common) {
   }
   return ent;
 }
-function parseText(pairs, s, e, common, type) {
-  const ent = { ...common, type, text: "", position: [0, 0, 0], height: 1, rotation: 0 };
+function parseText(pairs, s, e, common2, type) {
+  const ent = { ...common2, type, text: "", position: [0, 0, 0], height: 1, rotation: 0 };
   for (let i = s; i < e; i++) {
     const [c3, v] = pairs[i];
     const n = parseFloat(v);
@@ -129166,7 +133684,7 @@ function parseText(pairs, s, e, common, type) {
   }
   return ent;
 }
-function err3(type, message) {
+function err4(type, message) {
   return { ok: false, type, error: message };
 }
 
@@ -129185,7 +133703,7 @@ var tempVec3a10 = createVec3Float64();
 var tempVec3b10 = createVec3Float64();
 var tempVec3c6 = createVec3Float64();
 var _scratch = createVec4Float64();
-async function encode19(params, options) {
+async function encode20(params, options) {
   const { sceneModel } = params;
   if (!sceneModel)
     throw new Error("[DXFExporter] sceneModel is required");
@@ -129377,8 +133895,1306 @@ var DXFExporter = class extends ModelExporter {
     super({
       format: "DXF",
       fileDataType: "text",
-      encoders: { "1.0": encode19 },
+      encoders: { "1.0": encode20 },
       defaultVersion: "1.0"
+    });
+  }
+};
+
+// ../sdk/src/formats/fds/index.ts
+var fds_exports = {};
+__export(fds_exports, {
+  FDSExporter: () => FDSExporter,
+  FDSLoader: () => FDSLoader
+});
+
+// ../sdk/src/formats/fds/versions/v6/tokenize.ts
+function tokenize(input) {
+  const records = [];
+  const stripped = stripComments(input);
+  let i = 0;
+  let line = 1;
+  const len = stripped.length;
+  while (i < len) {
+    while (i < len && stripped[i] !== "&") {
+      if (stripped[i] === "\n")
+        line++;
+      i++;
+    }
+    if (i >= len)
+      break;
+    const recordLine = line;
+    i++;
+    const groupStart = i;
+    while (i < len && isIdent(stripped[i]))
+      i++;
+    const group = stripped.slice(groupStart, i).toUpperCase();
+    if (!group) {
+      continue;
+    }
+    const params = /* @__PURE__ */ new Map();
+    while (i < len) {
+      while (i < len && (isSpace(stripped[i]) || stripped[i] === ",")) {
+        if (stripped[i] === "\n")
+          line++;
+        i++;
+      }
+      if (i >= len)
+        break;
+      if (stripped[i] === "/") {
+        i++;
+        break;
+      }
+      const nameStart = i;
+      while (i < len && (isIdent(stripped[i]) || stripped[i] === "(" || stripped[i] === ")" || isDigit2(stripped[i]))) {
+        i++;
+      }
+      const name12 = stripped.slice(nameStart, i).toUpperCase();
+      if (!name12) {
+        while (i < len && stripped[i] !== "&" && stripped[i] !== "/") {
+          if (stripped[i] === "\n")
+            line++;
+          i++;
+        }
+        break;
+      }
+      while (i < len && isSpace(stripped[i])) {
+        if (stripped[i] === "\n")
+          line++;
+        i++;
+      }
+      if (i >= len || stripped[i] !== "=") {
+        continue;
+      }
+      i++;
+      const values = [];
+      let firstTokenLine = line;
+      while (i < len && isSpace(stripped[i])) {
+        if (stripped[i] === "\n")
+          line++;
+        i++;
+      }
+      readValues:
+        while (i < len) {
+          if (stripped[i] === "/")
+            break readValues;
+          if (isIdentStart2(stripped[i])) {
+            const save = i;
+            let j = i;
+            while (j < len && (isIdent(stripped[j]) || stripped[j] === "(" || stripped[j] === ")" || isDigit2(stripped[j])))
+              j++;
+            let k = j;
+            while (k < len && isSpace(stripped[k]))
+              k++;
+            if (k < len && stripped[k] === "=") {
+              i = save;
+              break readValues;
+            }
+          }
+          const v = readOneValue(stripped, i, len);
+          if (!v)
+            break readValues;
+          values.push(v.value);
+          for (let p = i; p < v.next; p++)
+            if (stripped[p] === "\n")
+              line++;
+          i = v.next;
+          while (i < len && isSpace(stripped[i])) {
+            if (stripped[i] === "\n")
+              line++;
+            i++;
+          }
+          if (i < len && stripped[i] === ",") {
+            i++;
+            while (i < len && isSpace(stripped[i])) {
+              if (stripped[i] === "\n")
+                line++;
+              i++;
+            }
+            continue;
+          }
+          break readValues;
+        }
+      const stored = values.length === 1 ? values[0] : values;
+      params.set(name12, stored);
+    }
+    records.push({ group, line: recordLine, params });
+  }
+  return records;
+}
+function stripComments(src) {
+  let out = "";
+  let inSingle = false;
+  let inDouble = false;
+  for (let i = 0; i < src.length; i++) {
+    const c3 = src[i];
+    if (!inSingle && !inDouble && c3 === "!") {
+      while (i < src.length && src[i] !== "\n")
+        i++;
+      out += src[i] ?? "";
+      continue;
+    }
+    if (!inDouble && c3 === "'")
+      inSingle = !inSingle;
+    else if (!inSingle && c3 === '"')
+      inDouble = !inDouble;
+    out += c3;
+  }
+  return out;
+}
+function isSpace(c3) {
+  return c3 === " " || c3 === "	" || c3 === "\n" || c3 === "\r";
+}
+function isDigit2(c3) {
+  return c3 >= "0" && c3 <= "9";
+}
+function isIdentStart2(c3) {
+  return c3 >= "A" && c3 <= "Z" || c3 >= "a" && c3 <= "z" || c3 === "_" || c3 === ".";
+}
+function isIdent(c3) {
+  return isIdentStart2(c3) || isDigit2(c3) || c3 === "_";
+}
+function readOneValue(src, start, end) {
+  const c3 = src[start];
+  if (c3 === "'" || c3 === '"') {
+    const quote2 = c3;
+    let i2 = start + 1;
+    let out = "";
+    while (i2 < end) {
+      if (src[i2] === quote2) {
+        return { value: out, next: i2 + 1 };
+      }
+      out += src[i2];
+      i2++;
+    }
+    return { value: out, next: end };
+  }
+  const upper = src.slice(start, Math.min(end, start + 8)).toUpperCase();
+  if (upper.startsWith(".TRUE."))
+    return { value: true, next: start + 6 };
+  if (upper.startsWith(".T."))
+    return { value: true, next: start + 3 };
+  if (upper.startsWith(".FALSE."))
+    return { value: false, next: start + 7 };
+  if (upper.startsWith(".F."))
+    return { value: false, next: start + 3 };
+  let i = start;
+  if (src[i] === "+" || src[i] === "-")
+    i++;
+  let hasDigit = false;
+  while (i < end && isDigit2(src[i])) {
+    i++;
+    hasDigit = true;
+  }
+  if (i < end && src[i] === ".") {
+    i++;
+    while (i < end && isDigit2(src[i])) {
+      i++;
+      hasDigit = true;
+    }
+  }
+  if (hasDigit && i < end && (src[i] === "E" || src[i] === "e" || src[i] === "D" || src[i] === "d")) {
+    i++;
+    if (i < end && (src[i] === "+" || src[i] === "-"))
+      i++;
+    while (i < end && isDigit2(src[i]))
+      i++;
+  }
+  if (hasDigit) {
+    const raw = src.slice(start, i).replace(/[dD]/, "e");
+    const n = parseFloat(raw);
+    return { value: n, next: i };
+  }
+  if (isIdentStart2(c3)) {
+    let j = start;
+    while (j < end && isIdent(src[j]))
+      j++;
+    return { value: src.slice(start, j), next: j };
+  }
+  return null;
+}
+
+// ../sdk/src/formats/fds/versions/v6/applyHoles.ts
+function applyHoles(obsts, holes) {
+  const out = [];
+  for (const obst of obsts) {
+    let remainders = [normalise(obst.xb)];
+    for (const hole of holes) {
+      const h = normalise(hole.xb);
+      const next = [];
+      for (const r of remainders) {
+        for (const piece of subtract(r, h))
+          next.push(piece);
+      }
+      remainders = next;
+      if (remainders.length === 0)
+        break;
+    }
+    for (let i = 0; i < remainders.length; i++) {
+      out.push({ obst, index: i, xb: remainders[i] });
+    }
+  }
+  return out;
+}
+function subtract(r, h) {
+  if (!overlaps(r, h))
+    return [r];
+  const cx1 = Math.max(r[0], h[0]);
+  const cx2 = Math.min(r[1], h[1]);
+  const cy1 = Math.max(r[2], h[2]);
+  const cy2 = Math.min(r[3], h[3]);
+  const cz1 = Math.max(r[4], h[4]);
+  const cz2 = Math.min(r[5], h[5]);
+  if (cx1 <= r[0] && cx2 >= r[1] && cy1 <= r[2] && cy2 >= r[3] && cz1 <= r[4] && cz2 >= r[5]) {
+    return [];
+  }
+  const out = [];
+  if (cx1 > r[0])
+    out.push([r[0], cx1, r[2], r[3], r[4], r[5]]);
+  if (cx2 < r[1])
+    out.push([cx2, r[1], r[2], r[3], r[4], r[5]]);
+  if (cy1 > r[2])
+    out.push([cx1, cx2, r[2], cy1, r[4], r[5]]);
+  if (cy2 < r[3])
+    out.push([cx1, cx2, cy2, r[3], r[4], r[5]]);
+  if (cz1 > r[4])
+    out.push([cx1, cx2, cy1, cy2, r[4], cz1]);
+  if (cz2 < r[5])
+    out.push([cx1, cx2, cy1, cy2, cz2, r[5]]);
+  return out.filter((b4) => b4[1] > b4[0] && b4[3] > b4[2] && b4[5] > b4[4]);
+}
+function overlaps(a2, b4) {
+  return a2[0] < b4[1] && a2[1] > b4[0] && a2[2] < b4[3] && a2[3] > b4[2] && a2[4] < b4[5] && a2[5] > b4[4];
+}
+function normalise(xb) {
+  return [
+    Math.min(xb[0], xb[1]),
+    Math.max(xb[0], xb[1]),
+    Math.min(xb[2], xb[3]),
+    Math.max(xb[2], xb[3]),
+    Math.min(xb[4], xb[5]),
+    Math.max(xb[4], xb[5])
+  ];
+}
+
+// ../sdk/src/formats/fds/versions/v6/schema.ts
+var FDS_SCHEMA_ID = "fds6";
+
+// ../sdk/src/formats/fds/versions/v6/buildDataModel.ts
+function buildDataModel(model, dataModel, modelId) {
+  const projectId = idProject();
+  dataModel.createObject({
+    id: projectId,
+    type: "FDSProject",
+    schema: FDS_SCHEMA_ID,
+    name: model.head?.title ?? model.head?.chid ?? modelId
+  });
+  for (const surf of model.surfs.values()) {
+    const sid = idSurf(surf.id);
+    const props = [];
+    if (surf.rgb)
+      props.push({ name: "RGB", value: [...surf.rgb], valueType: "array" });
+    if (surf.color !== void 0)
+      props.push({ name: "COLOR", value: surf.color, valueType: "string" });
+    if (surf.transparency !== void 0)
+      props.push({ name: "TRANSPARENCY", value: surf.transparency, valueType: "real" });
+    for (const p of extrasProps(surf.extras))
+      props.push(p);
+    dataModel.createObject({
+      id: sid,
+      type: "FDSSurface",
+      schema: FDS_SCHEMA_ID,
+      name: surf.id,
+      propertySetIds: [createPropSet(dataModel, sid + ":fds", "FDS", "FDS", props)]
+    });
+  }
+  for (let i = 0; i < model.meshes.length; i++) {
+    const mesh = model.meshes[i];
+    const mid2 = idMesh(i);
+    const pset2 = createPropSet(
+      dataModel,
+      mid2 + ":geom",
+      "Geometry",
+      "Geometry",
+      xbProps(mesh.xb).concat(meshIjkProps(mesh))
+    );
+    dataModel.createObject({
+      id: mid2,
+      type: "FDSMesh",
+      schema: FDS_SCHEMA_ID,
+      name: mesh.id ?? `Mesh ${i + 1}`,
+      propertySetIds: [pset2]
+    });
+    dataModel.createRelationship({
+      type: "contains",
+      schema: FDS_SCHEMA_ID,
+      relatingObjectId: projectId,
+      relatedObjectId: mid2
+    });
+  }
+  for (let i = 0; i < model.obsts.length; i++) {
+    const o = model.obsts[i];
+    const oid = idObst(i);
+    const psetIds = [
+      createPropSet(dataModel, oid + ":geom", "Geometry", "Geometry", xbProps(o.xb))
+    ];
+    const fdsProps = [];
+    if (o.rgb)
+      fdsProps.push({ name: "RGB", value: [...o.rgb], valueType: "array" });
+    if (o.color !== void 0)
+      fdsProps.push({ name: "COLOR", value: o.color, valueType: "string" });
+    for (const p of extrasProps(o.extras))
+      fdsProps.push(p);
+    if (fdsProps.length > 0) {
+      psetIds.push(createPropSet(dataModel, oid + ":fds", "FDS", "FDS", fdsProps));
+    }
+    dataModel.createObject({
+      id: oid,
+      type: "FDSObstruction",
+      schema: FDS_SCHEMA_ID,
+      name: o.id ?? `Obstruction ${i + 1}`,
+      propertySetIds: psetIds
+    });
+    relateToOwningMesh(dataModel, model, o.xb, oid);
+    if (o.surfId && model.surfs.has(o.surfId)) {
+      dataModel.createRelationship({
+        type: "usesSurface",
+        schema: FDS_SCHEMA_ID,
+        relatingObjectId: oid,
+        relatedObjectId: idSurf(o.surfId)
+      });
+    }
+  }
+  for (let i = 0; i < model.vents.length; i++) {
+    const v = model.vents[i];
+    const vid = idVent(i);
+    const geomProps = v.xb ? xbProps(v.xb) : [];
+    if (v.mb)
+      geomProps.push({ name: "MB", value: v.mb, valueType: "string" });
+    if (v.ior !== void 0)
+      geomProps.push({ name: "IOR", value: v.ior, valueType: "integer" });
+    const psetIds = [
+      createPropSet(dataModel, vid + ":geom", "Geometry", "Geometry", geomProps)
+    ];
+    const fdsProps = [];
+    if (v.rgb)
+      fdsProps.push({ name: "RGB", value: [...v.rgb], valueType: "array" });
+    if (v.color !== void 0)
+      fdsProps.push({ name: "COLOR", value: v.color, valueType: "string" });
+    for (const p of extrasProps(v.extras))
+      fdsProps.push(p);
+    if (fdsProps.length > 0) {
+      psetIds.push(createPropSet(dataModel, vid + ":fds", "FDS", "FDS", fdsProps));
+    }
+    dataModel.createObject({
+      id: vid,
+      type: "FDSVent",
+      schema: FDS_SCHEMA_ID,
+      name: v.id ?? `Vent ${i + 1}`,
+      propertySetIds: psetIds
+    });
+    if (v.xb)
+      relateToOwningMesh(dataModel, model, v.xb, vid);
+    if (v.surfId && model.surfs.has(v.surfId)) {
+      dataModel.createRelationship({
+        type: "usesSurface",
+        schema: FDS_SCHEMA_ID,
+        relatingObjectId: vid,
+        relatedObjectId: idSurf(v.surfId)
+      });
+    }
+  }
+  for (let i = 0; i < model.holes.length; i++) {
+    const h = model.holes[i];
+    const hid = idHole(i);
+    const psetIds = [
+      createPropSet(dataModel, hid + ":geom", "Geometry", "Geometry", xbProps(h.xb))
+    ];
+    if (h.extras.size > 0) {
+      psetIds.push(createPropSet(dataModel, hid + ":fds", "FDS", "FDS", extrasProps(h.extras)));
+    }
+    dataModel.createObject({
+      id: hid,
+      type: "FDSHole",
+      schema: FDS_SCHEMA_ID,
+      name: h.id ?? `Hole ${i + 1}`,
+      propertySetIds: psetIds
+    });
+    relateToOwningMesh(dataModel, model, h.xb, hid);
+  }
+}
+function createPropSet(dataModel, id, name12, type, properties) {
+  if (properties.length === 0) {
+    properties = [{ name: "_", value: "", valueType: "string" }];
+  }
+  dataModel.createPropertySet({ id, name: name12, type, schema: FDS_SCHEMA_ID, properties });
+  return id;
+}
+function xbProps(xb) {
+  return [
+    { name: "XMIN", value: xb[0], valueType: "real" },
+    { name: "XMAX", value: xb[1], valueType: "real" },
+    { name: "YMIN", value: xb[2], valueType: "real" },
+    { name: "YMAX", value: xb[3], valueType: "real" },
+    { name: "ZMIN", value: xb[4], valueType: "real" },
+    { name: "ZMAX", value: xb[5], valueType: "real" }
+  ];
+}
+function meshIjkProps(mesh) {
+  if (!mesh.ijk)
+    return [];
+  return [
+    { name: "I", value: mesh.ijk[0], valueType: "integer" },
+    { name: "J", value: mesh.ijk[1], valueType: "integer" },
+    { name: "K", value: mesh.ijk[2], valueType: "integer" }
+  ];
+}
+function extrasProps(extras2) {
+  const out = [];
+  for (const [k, v] of extras2) {
+    out.push({ name: k, value: v, valueType: typeofProp(v) });
+  }
+  return out;
+}
+function typeofProp(v) {
+  if (typeof v === "number")
+    return "real";
+  if (typeof v === "boolean")
+    return "boolean";
+  if (typeof v === "string")
+    return "string";
+  if (Array.isArray(v))
+    return "array";
+  return "string";
+}
+function relateToOwningMesh(dataModel, model, xb, elementId) {
+  const cx = (xb[0] + xb[1]) * 0.5;
+  const cy = (xb[2] + xb[3]) * 0.5;
+  const cz = (xb[4] + xb[5]) * 0.5;
+  let owner = idProject();
+  for (let i = 0; i < model.meshes.length; i++) {
+    const m = model.meshes[i].xb;
+    if (cx >= Math.min(m[0], m[1]) && cx <= Math.max(m[0], m[1]) && cy >= Math.min(m[2], m[3]) && cy <= Math.max(m[2], m[3]) && cz >= Math.min(m[4], m[5]) && cz <= Math.max(m[4], m[5])) {
+      owner = idMesh(i);
+      break;
+    }
+  }
+  dataModel.createRelationship({
+    type: "contains",
+    schema: FDS_SCHEMA_ID,
+    relatingObjectId: owner,
+    relatedObjectId: elementId
+  });
+}
+function idProject() {
+  return "FDS::project";
+}
+function idMesh(i) {
+  return `FDS::mesh:${i}`;
+}
+function idSurf(name12) {
+  return `FDS::surf:${name12}`;
+}
+function idObst(i) {
+  return `FDS::obst:${i}`;
+}
+function idVent(i) {
+  return `FDS::vent:${i}`;
+}
+function idHole(i) {
+  return `FDS::hole:${i}`;
+}
+
+// ../sdk/src/formats/fds/versions/v6/buildGeometry.ts
+var GEOM_CUBE = "FDS::geom::cube";
+var GEOM_QUAD = "FDS::geom::quad";
+var GEOM_WIRE = "FDS::geom::wireBox";
+var DEFAULT_OBST_COLOR = [0.78, 0.78, 0.78];
+var VENT_DEFAULT_COLOR = [0.55, 0.75, 0.95];
+var MESH_WIRE_COLOR = [0.45, 0.45, 0.45];
+function buildGeometry(model, sceneModel) {
+  const cube = sceneModel.createGeometry(unitCube(GEOM_CUBE));
+  if (cube.ok === false)
+    return cube;
+  const quad = sceneModel.createGeometry(unitQuad(GEOM_QUAD));
+  if (quad.ok === false)
+    return quad;
+  const wire = sceneModel.createGeometry(unitWireBox(GEOM_WIRE));
+  if (wire.ok === false)
+    return wire;
+  for (let i = 0; i < model.meshes.length; i++) {
+    const xb = model.meshes[i].xb;
+    const oid = idMesh(i);
+    const meshId = `${oid}:wire`;
+    const r = sceneModel.createMesh({
+      id: meshId,
+      geometryId: GEOM_WIRE,
+      color: [...MESH_WIRE_COLOR],
+      ...xbToTransform(xb)
+    });
+    if (r.ok === false)
+      return r;
+    const obj = sceneModel.createObject({ id: oid, meshIds: [meshId] });
+    if (obj.ok === false)
+      return obj;
+  }
+  const remainders = applyHoles(model.obsts, model.holes);
+  const obstMeshIds = /* @__PURE__ */ new Map();
+  for (const r of remainders) {
+    const obstIdx = model.obsts.indexOf(r.obst);
+    const oid = idObst(obstIdx);
+    const meshId = `${oid}:${r.index}`;
+    const color2 = resolveColor2(model, r.obst.surfId, r.obst.rgb, DEFAULT_OBST_COLOR);
+    const res = sceneModel.createMesh({
+      id: meshId,
+      geometryId: GEOM_CUBE,
+      color: color2,
+      ...xbToTransform(r.xb)
+    });
+    if (res.ok === false)
+      return res;
+    let arr = obstMeshIds.get(obstIdx);
+    if (!arr) {
+      arr = [];
+      obstMeshIds.set(obstIdx, arr);
+    }
+    arr.push(meshId);
+  }
+  for (const [i, meshIds] of obstMeshIds) {
+    if (meshIds.length === 0)
+      continue;
+    const obj = sceneModel.createObject({ id: idObst(i), meshIds });
+    if (obj.ok === false)
+      return obj;
+  }
+  for (let i = 0; i < model.vents.length; i++) {
+    const v = model.vents[i];
+    const xb = v.xb;
+    if (!xb)
+      continue;
+    const oid = idVent(i);
+    const meshId = `${oid}:quad`;
+    const color2 = resolveColor2(model, v.surfId, v.rgb, VENT_DEFAULT_COLOR);
+    const res = sceneModel.createMesh({
+      id: meshId,
+      geometryId: GEOM_QUAD,
+      color: color2,
+      ...xbToTransform(xb)
+    });
+    if (res.ok === false)
+      return res;
+    const obj = sceneModel.createObject({ id: oid, meshIds: [meshId] });
+    if (obj.ok === false)
+      return obj;
+  }
+  return { ok: true, value: void 0 };
+}
+function xbToTransform(xb) {
+  const x1 = Math.min(xb[0], xb[1]);
+  const x2 = Math.max(xb[0], xb[1]);
+  const y1 = Math.min(xb[2], xb[3]);
+  const y2 = Math.max(xb[2], xb[3]);
+  const z1 = Math.min(xb[4], xb[5]);
+  const z2 = Math.max(xb[4], xb[5]);
+  return {
+    position: [x1, y1, z1],
+    scale: [Math.max(x2 - x1, 0), Math.max(y2 - y1, 0), Math.max(z2 - z1, 0)]
+  };
+}
+function resolveColor2(model, surfId, rgb, fallback) {
+  if (rgb)
+    return [rgb[0] / 255, rgb[1] / 255, rgb[2] / 255];
+  if (surfId) {
+    const surf = model.surfs.get(surfId);
+    if (surf?.rgb)
+      return [surf.rgb[0] / 255, surf.rgb[1] / 255, surf.rgb[2] / 255];
+    if (surf?.color) {
+      const named = NAMED_COLORS2[surf.color.toUpperCase()];
+      if (named)
+        return [...named];
+    }
+  }
+  return [fallback[0], fallback[1], fallback[2]];
+}
+var NAMED_COLORS2 = {
+  WHITE: [1, 1, 1],
+  BLACK: [0, 0, 0],
+  RED: [1, 0, 0],
+  GREEN: [0, 0.8, 0],
+  BLUE: [0, 0, 1],
+  YELLOW: [1, 1, 0],
+  ORANGE: [1, 0.55, 0],
+  CYAN: [0, 1, 1],
+  MAGENTA: [1, 0, 1],
+  GRAY: [0.5, 0.5, 0.5],
+  GREY: [0.5, 0.5, 0.5],
+  BROWN: [0.55, 0.27, 0.07],
+  TAN: [0.82, 0.71, 0.55],
+  STEEL: [0.45, 0.55, 0.6],
+  CONCRETE: [0.78, 0.78, 0.74],
+  WOOD: [0.55, 0.4, 0.2]
+};
+function unitCube(id) {
+  const positions = new Float32Array([
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    1,
+    0,
+    0,
+    1,
+    0,
+    // bottom z=0
+    0,
+    0,
+    1,
+    1,
+    0,
+    1,
+    1,
+    1,
+    1,
+    0,
+    1,
+    1
+    // top    z=1
+  ]);
+  const indices = new Uint32Array([
+    0,
+    1,
+    2,
+    0,
+    2,
+    3,
+    // bottom (Z-min)
+    4,
+    6,
+    5,
+    4,
+    7,
+    6,
+    // top    (Z-max)
+    0,
+    4,
+    5,
+    0,
+    5,
+    1,
+    // front  (Y-min)
+    2,
+    6,
+    7,
+    2,
+    7,
+    3,
+    // back   (Y-max)
+    0,
+    3,
+    7,
+    0,
+    7,
+    4,
+    // left   (X-min)
+    1,
+    5,
+    6,
+    1,
+    6,
+    2
+    // right  (X-max)
+  ]);
+  return { id, primitive: TrianglesPrimitive, positions, indices };
+}
+function unitQuad(id) {
+  const positions = new Float32Array([
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    1,
+    0,
+    0,
+    1,
+    0
+  ]);
+  const indices = new Uint32Array([0, 1, 2, 0, 2, 3]);
+  return { id, primitive: TrianglesPrimitive, positions, indices };
+}
+function unitWireBox(id) {
+  const positions = new Float32Array([
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1,
+    1,
+    0,
+    1,
+    1,
+    1,
+    1,
+    0,
+    1,
+    1
+  ]);
+  const indices = new Uint32Array([
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    0,
+    // bottom loop
+    4,
+    5,
+    5,
+    6,
+    6,
+    7,
+    7,
+    4,
+    // top loop
+    0,
+    4,
+    1,
+    5,
+    2,
+    6,
+    3,
+    7
+    // verticals
+  ]);
+  return { id, primitive: LinesPrimitive, positions, indices };
+}
+
+// ../sdk/src/formats/fds/versions/v6/parse.ts
+var parse22 = async (params) => {
+  const { fileData, sceneModel, dataModel } = params;
+  if (typeof fileData !== "string") {
+    throw new Error("[FDS/v6/parse] expected fileData to be a string");
+  }
+  const records = tokenize(fileData);
+  const model = dispatch(records);
+  if (sceneModel) {
+    const r = buildGeometry(model, sceneModel);
+    if (r.ok === false)
+      throw new Error(r.error);
+  }
+  if (dataModel) {
+    buildDataModel(model, dataModel, "fds");
+  }
+  return { warnings: model.warnings };
+};
+function dispatch(records) {
+  const model = {
+    head: null,
+    meshes: [],
+    surfs: /* @__PURE__ */ new Map(),
+    obsts: [],
+    vents: [],
+    holes: [],
+    warnings: []
+  };
+  for (const rec of records) {
+    switch (rec.group) {
+      case "HEAD":
+        model.head = parseHead(rec);
+        break;
+      case "MESH":
+        pushIf(model.meshes, parseMesh2(rec, model));
+        break;
+      case "SURF":
+        pushSurf(model, rec);
+        break;
+      case "OBST":
+        pushIf(model.obsts, parseObst(rec, model));
+        break;
+      case "VENT":
+        pushIf(model.vents, parseVent(rec, model));
+        break;
+      case "HOLE":
+        pushIf(model.holes, parseHole(rec, model));
+        break;
+      case "DEVC":
+      case "REAC":
+      case "CTRL":
+      case "MULT":
+      case "GEOM":
+      case "PART":
+      case "RAMP":
+      case "MATL":
+      case "TIME":
+      case "DUMP":
+      case "MISC":
+      case "INIT":
+      case "PROP":
+      case "RADI":
+      case "SPEC":
+        break;
+      default:
+        model.warnings.push(`Ignored unknown namelist group '${rec.group}' at line ${rec.line}`);
+    }
+  }
+  return model;
+}
+function pushIf(arr, item) {
+  if (item !== null)
+    arr.push(item);
+}
+function parseHead(rec) {
+  return {
+    chid: asString(rec.params.get("CHID")),
+    title: asString(rec.params.get("TITLE"))
+  };
+}
+function parseMesh2(rec, model) {
+  const xb = asXB(rec.params.get("XB"));
+  if (!xb) {
+    model.warnings.push(`MESH at line ${rec.line} missing/invalid XB; skipped`);
+    return null;
+  }
+  const ijk = asTriple(rec.params.get("IJK"));
+  return {
+    id: asString(rec.params.get("ID")),
+    xb,
+    ijk: ijk ?? void 0
+  };
+}
+function pushSurf(model, rec) {
+  const id = asString(rec.params.get("ID"));
+  if (!id) {
+    model.warnings.push(`SURF at line ${rec.line} missing ID; skipped`);
+    return;
+  }
+  const surf = {
+    id,
+    rgb: asRGB(rec.params.get("RGB")),
+    color: asString(rec.params.get("COLOR")),
+    transparency: asNumber(rec.params.get("TRANSPARENCY")),
+    extras: extras(rec.params, ["ID", "RGB", "COLOR", "TRANSPARENCY"])
+  };
+  model.surfs.set(id, surf);
+}
+function parseObst(rec, model) {
+  const xb = asXB(rec.params.get("XB"));
+  if (!xb) {
+    model.warnings.push(`OBST at line ${rec.line} missing/invalid XB; skipped`);
+    return null;
+  }
+  return {
+    id: asString(rec.params.get("ID")),
+    xb,
+    surfId: asString(rec.params.get("SURF_ID")),
+    rgb: asRGB(rec.params.get("RGB")),
+    color: asString(rec.params.get("COLOR")),
+    extras: extras(rec.params, ["ID", "XB", "SURF_ID", "RGB", "COLOR"])
+  };
+}
+function parseVent(rec, model) {
+  const xb = asXB(rec.params.get("XB"));
+  const mb = asString(rec.params.get("MB"));
+  if (!xb && !mb) {
+    model.warnings.push(`VENT at line ${rec.line} missing XB and MB; skipped`);
+    return null;
+  }
+  return {
+    id: asString(rec.params.get("ID")),
+    xb: xb ?? void 0,
+    mb: mb ?? void 0,
+    ior: asNumber(rec.params.get("IOR")),
+    surfId: asString(rec.params.get("SURF_ID")),
+    rgb: asRGB(rec.params.get("RGB")),
+    color: asString(rec.params.get("COLOR")),
+    extras: extras(rec.params, ["ID", "XB", "MB", "IOR", "SURF_ID", "RGB", "COLOR"])
+  };
+}
+function parseHole(rec, model) {
+  const xb = asXB(rec.params.get("XB"));
+  if (!xb) {
+    model.warnings.push(`HOLE at line ${rec.line} missing/invalid XB; skipped`);
+    return null;
+  }
+  return {
+    id: asString(rec.params.get("ID")),
+    xb,
+    extras: extras(rec.params, ["ID", "XB"])
+  };
+}
+function asString(v) {
+  return typeof v === "string" ? v : void 0;
+}
+function asNumber(v) {
+  return typeof v === "number" && Number.isFinite(v) ? v : void 0;
+}
+function asXB(v) {
+  if (!Array.isArray(v) || v.length < 6)
+    return void 0;
+  const out = [];
+  for (let i = 0; i < 6; i++) {
+    const n = v[i];
+    if (typeof n !== "number" || !Number.isFinite(n))
+      return void 0;
+    out.push(n);
+  }
+  return out;
+}
+function asTriple(v) {
+  if (!Array.isArray(v) || v.length < 3)
+    return void 0;
+  const out = [];
+  for (let i = 0; i < 3; i++) {
+    const n = v[i];
+    if (typeof n !== "number" || !Number.isFinite(n))
+      return void 0;
+    out.push(n);
+  }
+  return [out[0], out[1], out[2]];
+}
+function asRGB(v) {
+  if (!Array.isArray(v) || v.length < 3)
+    return void 0;
+  const out = [];
+  for (let i = 0; i < 3; i++) {
+    const n = v[i];
+    if (typeof n !== "number" || !Number.isFinite(n))
+      return void 0;
+    out.push(n);
+  }
+  return [out[0], out[1], out[2]];
+}
+function extras(params, consumed) {
+  const skip = new Set(consumed);
+  const out = /* @__PURE__ */ new Map();
+  for (const [k, v] of params) {
+    if (skip.has(k))
+      continue;
+    out.set(k, v);
+  }
+  return out;
+}
+
+// ../sdk/src/formats/fds/FDSLoader.ts
+var FDSLoader = class extends ModelLoader {
+  /**
+   * Constructs an FDSLoader.
+   */
+  constructor() {
+    super({
+      format: "FDS",
+      fileDataType: "text",
+      parsers: {
+        "6": parse22
+      },
+      // FDS input files don't carry an in-band version tag. The
+      // current shipping line is FDS-6.x; downstream changes to the
+      // namelist are forward-compatible at the parser level.
+      getVersion: (_fileData) => "6"
+    });
+  }
+};
+
+// ../sdk/src/formats/fds/versions/v6/encode.ts
+async function encode21(params, _options) {
+  const { dataModel } = params;
+  if (!dataModel) {
+    throw new Error("[FDS/v6/encode] expected dataModel in params");
+  }
+  const lines = [];
+  const project = findFirstOfType(dataModel, "FDSProject");
+  if (project) {
+    const head = headFromProject(project);
+    if (head.length > 0) {
+      lines.push(`&HEAD ${head.join(", ")} /`);
+    }
+    lines.push("");
+  }
+  const surfs = collectByType(dataModel, "FDSSurface");
+  if (surfs.length > 0) {
+    for (const s of surfs)
+      lines.push(emitSurf(s));
+    lines.push("");
+  }
+  const meshes = collectByType(dataModel, "FDSMesh");
+  if (meshes.length > 0) {
+    for (const m of meshes)
+      lines.push(emitMesh(m));
+    lines.push("");
+  }
+  const obsts = collectByType(dataModel, "FDSObstruction");
+  for (const o of obsts)
+    lines.push(emitObst(o));
+  if (obsts.length > 0)
+    lines.push("");
+  const vents = collectByType(dataModel, "FDSVent");
+  for (const v of vents)
+    lines.push(emitVent(v));
+  if (vents.length > 0)
+    lines.push("");
+  const holes = collectByType(dataModel, "FDSHole");
+  for (const h of holes)
+    lines.push(emitHole(h));
+  if (holes.length > 0)
+    lines.push("");
+  return lines.join("\n") + "\n";
+}
+function headFromProject(project) {
+  const out = [];
+  if (project.name)
+    out.push(`TITLE=${quote(project.name)}`);
+  return out;
+}
+function emitSurf(surf) {
+  const fds = pset(surf, "FDS");
+  const parts = [`ID=${quote(surf.name ?? surf.id)}`];
+  emitIfNumberArray(parts, fds, "RGB");
+  emitIfString(parts, fds, "COLOR");
+  emitIfReal(parts, fds, "TRANSPARENCY");
+  emitExtras(parts, fds, ["RGB", "COLOR", "TRANSPARENCY"]);
+  return `&SURF ${parts.join(", ")} /`;
+}
+function emitMesh(mesh) {
+  const geom = pset(mesh, "Geometry");
+  const parts = [];
+  if (mesh.name)
+    parts.push(`ID=${quote(mesh.name)}`);
+  const ijk = readIJK(geom);
+  if (ijk)
+    parts.push(`IJK=${ijk.join(",")}`);
+  const xb = readXB(geom);
+  if (xb)
+    parts.push(`XB=${xb.map(formatReal).join(",")}`);
+  return `&MESH ${parts.join(", ")} /`;
+}
+function emitObst(obst) {
+  const geom = pset(obst, "Geometry");
+  const fds = pset(obst, "FDS");
+  const parts = [];
+  if (obst.name && !isSyntheticName(obst.name, "Obstruction")) {
+    parts.push(`ID=${quote(obst.name)}`);
+  }
+  const xb = readXB(geom);
+  if (xb)
+    parts.push(`XB=${xb.map(formatReal).join(",")}`);
+  emitIfNumberArray(parts, fds, "RGB");
+  emitIfString(parts, fds, "COLOR");
+  const surfId = surfIdOf(obst);
+  if (surfId)
+    parts.push(`SURF_ID=${quote(surfId)}`);
+  emitExtras(parts, fds, ["RGB", "COLOR"]);
+  return `&OBST ${parts.join(", ")} /`;
+}
+function emitVent(vent) {
+  const geom = pset(vent, "Geometry");
+  const fds = pset(vent, "FDS");
+  const parts = [];
+  if (vent.name && !isSyntheticName(vent.name, "Vent")) {
+    parts.push(`ID=${quote(vent.name)}`);
+  }
+  const xb = readXB(geom);
+  if (xb)
+    parts.push(`XB=${xb.map(formatReal).join(",")}`);
+  const mb = readString(geom, "MB");
+  if (mb !== void 0)
+    parts.push(`MB=${quote(mb)}`);
+  const ior = readReal(geom, "IOR");
+  if (ior !== void 0)
+    parts.push(`IOR=${ior}`);
+  emitIfNumberArray(parts, fds, "RGB");
+  emitIfString(parts, fds, "COLOR");
+  const surfId = surfIdOf(vent);
+  if (surfId)
+    parts.push(`SURF_ID=${quote(surfId)}`);
+  emitExtras(parts, fds, ["RGB", "COLOR"]);
+  return `&VENT ${parts.join(", ")} /`;
+}
+function emitHole(hole) {
+  const geom = pset(hole, "Geometry");
+  const fds = pset(hole, "FDS");
+  const parts = [];
+  if (hole.name && !isSyntheticName(hole.name, "Hole")) {
+    parts.push(`ID=${quote(hole.name)}`);
+  }
+  const xb = readXB(geom);
+  if (xb)
+    parts.push(`XB=${xb.map(formatReal).join(",")}`);
+  emitExtras(parts, fds, []);
+  return `&HOLE ${parts.join(", ")} /`;
+}
+function collectByType(dataModel, type) {
+  const out = [];
+  for (const id in dataModel.objects) {
+    const obj = dataModel.objects[id];
+    if (obj.type === type)
+      out.push(obj);
+  }
+  return out;
+}
+function findFirstOfType(dataModel, type) {
+  for (const id in dataModel.objects) {
+    const obj = dataModel.objects[id];
+    if (obj.type === type)
+      return obj;
+  }
+  return void 0;
+}
+function pset(obj, name12) {
+  if (!obj.propertySets)
+    return void 0;
+  for (const ps of obj.propertySets) {
+    if (ps.name === name12)
+      return ps;
+  }
+  return void 0;
+}
+function prop(ps, name12) {
+  if (!ps)
+    return void 0;
+  for (const p of ps.properties) {
+    if (p.name === name12)
+      return p;
+  }
+  return void 0;
+}
+function readReal(ps, name12) {
+  const p = prop(ps, name12);
+  return p && typeof p.value === "number" && Number.isFinite(p.value) ? p.value : void 0;
+}
+function readString(ps, name12) {
+  const p = prop(ps, name12);
+  return p && typeof p.value === "string" ? p.value : void 0;
+}
+function readXB(ps) {
+  const xmin = readReal(ps, "XMIN");
+  const xmax = readReal(ps, "XMAX");
+  const ymin = readReal(ps, "YMIN");
+  const ymax = readReal(ps, "YMAX");
+  const zmin = readReal(ps, "ZMIN");
+  const zmax = readReal(ps, "ZMAX");
+  if (xmin === void 0 || xmax === void 0 || ymin === void 0 || ymax === void 0 || zmin === void 0 || zmax === void 0)
+    return void 0;
+  return [xmin, xmax, ymin, ymax, zmin, zmax];
+}
+function readIJK(ps) {
+  const i = readReal(ps, "I");
+  const j = readReal(ps, "J");
+  const k = readReal(ps, "K");
+  if (i === void 0 || j === void 0 || k === void 0)
+    return void 0;
+  return [i, j, k];
+}
+function surfIdOf(element) {
+  const rels = element.related?.usesSurface;
+  if (!rels)
+    return void 0;
+  const list = Array.isArray(rels) ? rels : [rels];
+  for (const rel of list) {
+    const tgt = rel?.relatedObject;
+    if (tgt?.type === "FDSSurface")
+      return tgt.name ?? void 0;
+  }
+  return void 0;
+}
+function quote(s) {
+  return `'${s.replace(/'/g, "_")}'`;
+}
+function formatReal(n) {
+  if (!Number.isFinite(n))
+    return "0";
+  if (Number.isInteger(n))
+    return `${n}.0`;
+  return String(n);
+}
+function emitIfNumberArray(parts, ps, name12) {
+  const p = prop(ps, name12);
+  if (!p || !Array.isArray(p.value))
+    return;
+  const arr = p.value;
+  if (arr.length === 0)
+    return;
+  const nums = arr.map((v) => typeof v === "number" ? v : NaN);
+  if (nums.some(Number.isNaN))
+    return;
+  parts.push(`${name12}=${nums.join(",")}`);
+}
+function emitIfString(parts, ps, name12) {
+  const v = readString(ps, name12);
+  if (v !== void 0)
+    parts.push(`${name12}=${quote(v)}`);
+}
+function emitIfReal(parts, ps, name12) {
+  const v = readReal(ps, name12);
+  if (v !== void 0)
+    parts.push(`${name12}=${v}`);
+}
+function emitExtras(parts, ps, consumed) {
+  if (!ps)
+    return;
+  const skip = new Set(consumed);
+  for (const p of ps.properties) {
+    if (skip.has(p.name))
+      continue;
+    if (p.name === "_")
+      continue;
+    parts.push(formatExtra(p));
+  }
+}
+function formatExtra(p) {
+  const v = p.value;
+  if (typeof v === "string")
+    return `${p.name}=${quote(v)}`;
+  if (typeof v === "boolean")
+    return `${p.name}=${v ? ".TRUE." : ".FALSE."}`;
+  if (typeof v === "number")
+    return `${p.name}=${v}`;
+  if (Array.isArray(v))
+    return `${p.name}=${v.map(serialiseScalar).join(",")}`;
+  return `${p.name}=${quote(String(v))}`;
+}
+function serialiseScalar(v) {
+  if (typeof v === "number")
+    return String(v);
+  if (typeof v === "boolean")
+    return v ? ".TRUE." : ".FALSE.";
+  if (typeof v === "string")
+    return `'${v.replace(/'/g, "_")}'`;
+  return `'${String(v).replace(/'/g, "_")}'`;
+}
+function isSyntheticName(name12, kind) {
+  return new RegExp(`^${kind} \\d+$`).test(name12);
+}
+
+// ../sdk/src/formats/fds/FDSExporter.ts
+var FDSExporter = class extends ModelExporter {
+  /**
+   * Constructs an FDSExporter.
+   */
+  constructor() {
+    super({
+      format: "FDS",
+      fileDataType: "text",
+      encoders: {
+        "6": encode21
+      },
+      defaultVersion: "6"
     });
   }
 };
@@ -130258,9 +136074,9 @@ function throwAborted() {
   if (typeof DOMException !== "undefined") {
     throw new DOMException("Inspection aborted", "AbortError");
   }
-  const err5 = new Error("Inspection aborted");
-  err5.name = "AbortError";
-  throw err5;
+  const err6 = new Error("Inspection aborted");
+  err6.name = "AbortError";
+  throw err6;
 }
 
 // ../sdk/src/inspect/dataModel/labels/labelForCode.ts
@@ -137335,8 +143151,8 @@ var AmbientLight = class {
 
 // ../sdk/src/viewing/viewer/CustomProjection.ts
 var import_strongly_typed_events5 = __toESM(require_dist8());
-var tempVec4a4 = createVec4Float64();
-var tempVec4b4 = createVec4Float64();
+var tempVec4a3 = createVec4Float64();
+var tempVec4b3 = createVec4Float64();
 var tempVec4c = createVec4Float64();
 var CustomProjection = class {
   /**
@@ -137434,18 +143250,18 @@ var CustomProjection = class {
     screenPos2[0] = (canvasPos2[0] - halfViewWidth) / halfViewWidth;
     screenPos2[1] = (canvasPos2[1] - halfViewHeight) / halfViewHeight;
     screenPos2[2] = screenZ;
-    tempVec4a4[0] = screenPos2[0];
-    tempVec4a4[1] = screenPos2[1];
-    tempVec4a4[2] = screenPos2[2];
-    tempVec4a4[3] = 1;
-    transformPoint4(this.inverseProjMatrix, tempVec4a4, tempVec4b4);
-    mulVec3Scalar(tempVec4b4, 1 / tempVec4b4[3]);
-    viewPos2[0] = tempVec4b4[0];
-    viewPos2[1] = tempVec4b4[1];
-    viewPos2[2] = tempVec4b4[2];
-    tempVec4b4[1] *= -1;
-    tempVec4b4[3] = 1;
-    transformPoint4(this.camera.inverseViewMatrix, tempVec4b4, tempVec4c);
+    tempVec4a3[0] = screenPos2[0];
+    tempVec4a3[1] = screenPos2[1];
+    tempVec4a3[2] = screenPos2[2];
+    tempVec4a3[3] = 1;
+    transformPoint4(this.inverseProjMatrix, tempVec4a3, tempVec4b3);
+    mulVec3Scalar(tempVec4b3, 1 / tempVec4b3[3]);
+    viewPos2[0] = tempVec4b3[0];
+    viewPos2[1] = tempVec4b3[1];
+    viewPos2[2] = tempVec4b3[2];
+    tempVec4b3[1] *= -1;
+    tempVec4b3[3] = 1;
+    transformPoint4(this.camera.inverseViewMatrix, tempVec4b3, tempVec4c);
     worldPos[0] = tempVec4c[0];
     worldPos[1] = tempVec4c[1];
     worldPos[2] = tempVec4c[2];
@@ -137500,8 +143316,8 @@ var CustomProjection = class {
 
 // ../sdk/src/viewing/viewer/FrustumProjection.ts
 var import_strongly_typed_events6 = __toESM(require_dist8());
-var tempVec4a5 = createVec4Float64();
-var tempVec4b5 = createVec4Float64();
+var tempVec4a4 = createVec4Float64();
+var tempVec4b4 = createVec4Float64();
 var tempVec4c2 = createVec4Float64();
 var FrustumProjection = class {
   /**
@@ -137733,18 +143549,18 @@ var FrustumProjection = class {
     screenPos2[0] = (canvasPos2[0] - halfViewWidth) / halfViewWidth;
     screenPos2[1] = (canvasPos2[1] - halfViewHeight) / halfViewHeight;
     screenPos2[2] = screenZ;
-    tempVec4a5[0] = screenPos2[0];
-    tempVec4a5[1] = screenPos2[1];
-    tempVec4a5[2] = screenPos2[2];
-    tempVec4a5[3] = 1;
-    transformPoint4(this.inverseProjMatrix, tempVec4a5, tempVec4b5);
-    mulVec3Scalar(tempVec4b5, 1 / tempVec4b5[3]);
-    viewPos2[0] = tempVec4b5[0];
-    viewPos2[1] = tempVec4b5[1];
-    viewPos2[2] = tempVec4b5[2];
-    tempVec4b5[1] *= -1;
-    tempVec4b5[3] = 1;
-    transformPoint4(this.camera.inverseViewMatrix, tempVec4b5, tempVec4c2);
+    tempVec4a4[0] = screenPos2[0];
+    tempVec4a4[1] = screenPos2[1];
+    tempVec4a4[2] = screenPos2[2];
+    tempVec4a4[3] = 1;
+    transformPoint4(this.inverseProjMatrix, tempVec4a4, tempVec4b4);
+    mulVec3Scalar(tempVec4b4, 1 / tempVec4b4[3]);
+    viewPos2[0] = tempVec4b4[0];
+    viewPos2[1] = tempVec4b4[1];
+    viewPos2[2] = tempVec4b4[2];
+    tempVec4b4[1] *= -1;
+    tempVec4b4[3] = 1;
+    transformPoint4(this.camera.inverseViewMatrix, tempVec4b4, tempVec4c2);
     worldPos[0] = tempVec4c2[0];
     worldPos[1] = tempVec4c2[1];
     worldPos[2] = tempVec4c2[2];
@@ -137822,8 +143638,8 @@ var FrustumProjection = class {
 
 // ../sdk/src/viewing/viewer/OrthoProjection.ts
 var import_strongly_typed_events7 = __toESM(require_dist8());
-var tempVec4a6 = createVec4Float64();
-var tempVec4b6 = createVec4Float64();
+var tempVec4a5 = createVec4Float64();
+var tempVec4b5 = createVec4Float64();
 var tempVec4c3 = createVec4Float64();
 var OrthoProjection = class {
   /**
@@ -138041,18 +143857,18 @@ var OrthoProjection = class {
     screenPos2[0] = (canvasPos2[0] - halfViewWidth) / halfViewWidth;
     screenPos2[1] = (canvasPos2[1] - halfViewHeight) / halfViewHeight;
     screenPos2[2] = screenZ;
-    tempVec4a6[0] = screenPos2[0];
-    tempVec4a6[1] = screenPos2[1];
-    tempVec4a6[2] = screenPos2[2];
-    tempVec4a6[3] = 1;
-    transformPoint4(this.inverseProjMatrix, tempVec4a6, tempVec4b6);
-    mulVec3Scalar(tempVec4b6, 1 / tempVec4b6[3]);
-    viewPos2[0] = tempVec4b6[0];
-    viewPos2[1] = tempVec4b6[1];
-    viewPos2[2] = tempVec4b6[2];
-    tempVec4b6[1] *= -1;
-    tempVec4b6[3] = 1;
-    transformPoint4(this.camera.inverseViewMatrix, tempVec4b6, tempVec4c3);
+    tempVec4a5[0] = screenPos2[0];
+    tempVec4a5[1] = screenPos2[1];
+    tempVec4a5[2] = screenPos2[2];
+    tempVec4a5[3] = 1;
+    transformPoint4(this.inverseProjMatrix, tempVec4a5, tempVec4b5);
+    mulVec3Scalar(tempVec4b5, 1 / tempVec4b5[3]);
+    viewPos2[0] = tempVec4b5[0];
+    viewPos2[1] = tempVec4b5[1];
+    viewPos2[2] = tempVec4b5[2];
+    tempVec4b5[1] *= -1;
+    tempVec4b5[3] = 1;
+    transformPoint4(this.camera.inverseViewMatrix, tempVec4b5, tempVec4c3);
     worldPos[0] = tempVec4c3[0];
     worldPos[1] = tempVec4c3[1];
     worldPos[2] = tempVec4c3[2];
@@ -138118,8 +143934,8 @@ var OrthoProjection = class {
 
 // ../sdk/src/viewing/viewer/PerspectiveProjection.ts
 var import_strongly_typed_events8 = __toESM(require_dist8());
-var tempVec4a7 = createVec4Float64();
-var tempVec4b7 = createVec4Float64();
+var tempVec4a6 = createVec4Float64();
+var tempVec4b6 = createVec4Float64();
 var tempVec4c4 = createVec4Float64();
 var PerspectiveProjection = class {
   /**
@@ -138348,18 +144164,18 @@ var PerspectiveProjection = class {
     screenPos2[0] = (canvasPos2[0] - halfViewWidth) / halfViewWidth;
     screenPos2[1] = (canvasPos2[1] - halfViewHeight) / halfViewHeight;
     screenPos2[2] = screenZ;
-    tempVec4a7[0] = screenPos2[0];
-    tempVec4a7[1] = screenPos2[1];
-    tempVec4a7[2] = screenPos2[2];
-    tempVec4a7[3] = 1;
-    transformPoint4(this.inverseProjMatrix, tempVec4a7, tempVec4b7);
-    mulVec3Scalar(tempVec4b7, 1 / tempVec4b7[3]);
-    viewPos2[0] = tempVec4b7[0];
-    viewPos2[1] = tempVec4b7[1];
-    viewPos2[2] = tempVec4b7[2];
-    tempVec4b7[1] *= -1;
-    tempVec4b7[3] = 1;
-    transformPoint4(this.camera.inverseViewMatrix, tempVec4b7, tempVec4c4);
+    tempVec4a6[0] = screenPos2[0];
+    tempVec4a6[1] = screenPos2[1];
+    tempVec4a6[2] = screenPos2[2];
+    tempVec4a6[3] = 1;
+    transformPoint4(this.inverseProjMatrix, tempVec4a6, tempVec4b6);
+    mulVec3Scalar(tempVec4b6, 1 / tempVec4b6[3]);
+    viewPos2[0] = tempVec4b6[0];
+    viewPos2[1] = tempVec4b6[1];
+    viewPos2[2] = tempVec4b6[2];
+    tempVec4b6[1] *= -1;
+    tempVec4b6[3] = 1;
+    transformPoint4(this.camera.inverseViewMatrix, tempVec4b6, tempVec4c4);
     worldPos[0] = tempVec4c4[0];
     worldPos[1] = tempVec4c4[1];
     worldPos[2] = tempVec4c4[2];
@@ -140310,6 +146126,8 @@ var Edges = class {
    */
   view;
   _edgeColor;
+  _useMeshColor;
+  _edgeDarken;
   _edgeWidth;
   _edgeAlpha;
   _edgeFadeStart;
@@ -140323,6 +146141,8 @@ var Edges = class {
     this.view = view;
     this._renderModes = options.renderModes || [DetailedRender];
     this._edgeColor = createVec3Float64(options.edgeColor || [0.35, 0.35, 0.35]);
+    this._useMeshColor = options.useMeshColor === true;
+    this._edgeDarken = options.edgeDarken !== void 0 && options.edgeDarken !== null ? options.edgeDarken : 0.5;
     this._edgeAlpha = options.edgeAlpha !== void 0 && options.edgeAlpha !== null ? options.edgeAlpha : 0.5;
     this._edgeWidth = options.edgeWidth !== void 0 && options.edgeWidth !== null ? options.edgeWidth : 1;
     this._edgeFadeStart = options.edgeFadeStart !== void 0 && options.edgeFadeStart !== null ? options.edgeFadeStart : 0.4;
@@ -140379,6 +146199,56 @@ var Edges = class {
    */
   get edgeColor() {
     return this._edgeColor;
+  }
+  /**
+   * Sets whether the base edges effect colours each edge with its own mesh's
+   * colour darkened by {@link Edges.edgeDarken | edgeDarken}, instead of the
+   * fixed {@link Edges.edgeColor | edgeColor}.
+   *
+   * Only affects the base edges effect — x-ray / highlight / selected edges
+   * always use their emphasis material's colour.
+   *
+   * Default value is ````false````.
+   */
+  set useMeshColor(value) {
+    if (this._useMeshColor === value) {
+      return;
+    }
+    this._useMeshColor = value;
+    this.view.needsRender();
+  }
+  /**
+   * Gets whether the base edges effect uses each mesh's darkened colour
+   * instead of the fixed {@link Edges.edgeColor | edgeColor}.
+   *
+   * Default value is ````false````.
+   */
+  get useMeshColor() {
+    return this._useMeshColor;
+  }
+  /**
+   * Sets the multiplier applied to each mesh's colour when
+   * {@link Edges.useMeshColor | useMeshColor} is `true`.
+   *
+   * `0` yields black edges, `1` leaves the mesh colour unchanged.
+   *
+   * Default value is ````0.5````.
+   */
+  set edgeDarken(value) {
+    if (this._edgeDarken === value) {
+      return;
+    }
+    this._edgeDarken = value;
+    this.view.needsRender();
+  }
+  /**
+   * Gets the multiplier applied to each mesh's colour when
+   * {@link Edges.useMeshColor | useMeshColor} is `true`.
+   *
+   * Default value is ````0.5````.
+   */
+  get edgeDarken() {
+    return this._edgeDarken;
   }
   /**
    * Sets edge transparency for {@link ViewObject | ViewObjects}.
@@ -140498,6 +146368,8 @@ var Edges = class {
       value: {
         renderModes: this.renderModes,
         edgeColor: Array.from(this.edgeColor),
+        useMeshColor: this.useMeshColor,
+        edgeDarken: this.edgeDarken,
         edgeWidth: this.edgeWidth,
         edgeAlpha: this.edgeAlpha,
         edgeFadeStart: this.edgeFadeStart,
@@ -140518,10 +146390,24 @@ var Edges = class {
         error: "[Edges.fromParams] Edges has been destroyed."
       });
     }
-    this.renderModes = edgesParams.renderModes;
-    this.edgeColor = Array.from(edgesParams.edgeColor);
-    this.edgeWidth = edgesParams.edgeWidth;
-    this.edgeAlpha = edgesParams.edgeAlpha;
+    if (edgesParams.renderModes !== void 0) {
+      this.renderModes = edgesParams.renderModes;
+    }
+    if (edgesParams.edgeColor !== void 0) {
+      this.edgeColor = Array.from(edgesParams.edgeColor);
+    }
+    if (edgesParams.useMeshColor !== void 0) {
+      this.useMeshColor = edgesParams.useMeshColor;
+    }
+    if (edgesParams.edgeDarken !== void 0) {
+      this.edgeDarken = edgesParams.edgeDarken;
+    }
+    if (edgesParams.edgeWidth !== void 0) {
+      this.edgeWidth = edgesParams.edgeWidth;
+    }
+    if (edgesParams.edgeAlpha !== void 0) {
+      this.edgeAlpha = edgesParams.edgeAlpha;
+    }
     if (edgesParams.edgeFadeStart !== void 0) {
       this.edgeFadeStart = edgesParams.edgeFadeStart;
     }
@@ -149055,7 +154941,7 @@ var ONE = [1, 1, 1];
 function localMatrix(q) {
   return composeMat4(ZERO2, q, ONE, createMat4Float64());
 }
-function buildGeometry(sceneModel, layerId) {
+function buildGeometry2(sceneModel, layerId) {
   const tShaftLen = 0.85;
   const tShaftR = 0.018;
   const tConeLen = 0.18;
@@ -149465,7 +155351,7 @@ var TransformControls = class _TransformControls {
     if (modelRes.ok !== true)
       throw new Error("[TransformControls] Failed to create SceneModel");
     this.sceneModel = modelRes.value;
-    const built = buildGeometry(this.sceneModel, this.id);
+    const built = buildGeometry2(this.sceneModel, this.id);
     this._meshLocals = built.meshLocals;
     this._meshNormalColor = built.meshNormalColor;
     for (const id of HELPER_IDS) {
@@ -151281,10 +157167,25 @@ var KeyboardAxisViewHandler = class {
       const center = getAABB3Center(sceneAABB, tempVec3a12);
       const camera = view.camera;
       const worldUp = view.viewer.scene.coordinateSystem.worldUp;
-      const perspectiveDist = Math.abs(diag / Math.tan(controllers.cameraFlight.fitFOV * Math.PI / 180));
-      const orthoScale = diag * 1.1;
+      const safeDiag = Number.isFinite(diag) && diag > 1e-6 ? diag : 1;
+      const perspectiveDist = Math.abs(safeDiag / Math.tan(controllers.cameraFlight.fitFOV * Math.PI / 180));
+      const orthoScale = safeDiag * 1.1;
       const forward = normalizeVec3(subVec3(camera.look, camera.eye, tempVec3b12), tempVec3b12);
-      const right = normalizeVec3(cross3Vec3(forward, worldUp, tempVec3c8), tempVec3c8);
+      const right = cross3Vec3(forward, worldUp, tempVec3c8);
+      if (lenVec3(right) < 1e-6) {
+        const ref = Math.abs(worldUp[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0];
+        cross3Vec3(worldUp, ref, right);
+      }
+      normalizeVec3(right, right);
+      const horizontalHeading = (sign) => {
+        const d = dotVec3(forward, worldUp);
+        const h = [
+          (forward[0] - d * worldUp[0]) * sign,
+          (forward[1] - d * worldUp[1]) * sign,
+          (forward[2] - d * worldUp[2]) * sign
+        ];
+        return lenVec3(h) < 1e-6 ? right : normalizeVec3(h, h);
+      };
       tempCameraTarget.orthoScale = orthoScale;
       const setVec3 = (dest, src) => {
         dest[0] = src[0];
@@ -151310,12 +157211,11 @@ var KeyboardAxisViewHandler = class {
       } else if (axisViewTop) {
         setVec3(tempCameraTarget.eye, addVec3(center, mulVec3Scalar(worldUp, perspectiveDist, tempVec3d3), tempVec3d3));
         setVec3(tempCameraTarget.look, center);
-        setVec3(tempCameraTarget.up, normalizeVec3(forward, tempVec3d3));
+        setVec3(tempCameraTarget.up, horizontalHeading(1));
       } else if (axisViewBottom) {
         setVec3(tempCameraTarget.eye, addVec3(center, mulVec3Scalar(worldUp, -perspectiveDist, tempVec3d3), tempVec3d3));
         setVec3(tempCameraTarget.look, center);
-        const negForward = mulVec3Scalar(forward, -1, tempVec3d3);
-        setVec3(tempCameraTarget.up, normalizeVec3(negForward, negForward));
+        setVec3(tempCameraTarget.up, horizontalHeading(-1));
       }
       if (!configs.firstPerson && configs.followPointer) {
         controllers.pivotController.setPivotPos(center);
@@ -153380,12 +159280,15 @@ var ViewController2 = class _ViewController {
    */
   set keyMap(value) {
     value = value || QWERTYLayout;
-    if (isString(value)) {
+    if (typeof value === "object") {
+      this._keyMap = value;
+    } else {
       const keyMap = {};
       switch (value) {
         default:
-          console.error("Unsupported value for 'keyMap': " + value + " defaulting to 'qwerty'");
+          console.error("Unsupported value for 'keyMap': " + value + " - defaulting to QWERTY layout");
         case QWERTYLayout:
+        case "qwerty":
           keyMap[_ViewController.PAN_LEFT] = [KEY_A];
           keyMap[_ViewController.PAN_RIGHT] = [KEY_D];
           keyMap[_ViewController.PAN_UP] = [KEY_Z];
@@ -153405,6 +159308,7 @@ var ViewController2 = class _ViewController {
           keyMap[_ViewController.AXIS_VIEW_TOP] = [KEY_NUM_5];
           keyMap[_ViewController.AXIS_VIEW_BOTTOM] = [KEY_NUM_6];
           break;
+        case AZERTYLayout:
         case "azerty":
           keyMap[_ViewController.PAN_LEFT] = [KEY_Q];
           keyMap[_ViewController.PAN_RIGHT] = [KEY_D];
@@ -153426,9 +159330,6 @@ var ViewController2 = class _ViewController {
           keyMap[_ViewController.AXIS_VIEW_BOTTOM] = [KEY_NUM_6];
           break;
       }
-      this._keyMap = keyMap;
-    } else {
-      const keyMap = value;
       this._keyMap = keyMap;
     }
   }
@@ -162128,7 +168029,7 @@ var GPUMemoryManager = class {
 // ../sdk/src/viewing/webGLRenderer/internal/meshManager/RendererMesh.ts
 var tempIdentityMat4 = identityMat4(createMat4Float64());
 var identityVec4 = createVec4Float64([0, 0, 0, 1]);
-var tempVec4a8 = createVec4Float64();
+var tempVec4a7 = createVec4Float64();
 var tempQuantizedRGB = [0, 0, 0];
 var RendererMesh = class {
   gpuTile;
@@ -162170,7 +168071,7 @@ var RendererMesh = class {
    */
   setMatrix(matrix) {
     matrix = matrix || tempIdentityMat4;
-    const center = transformPoint4(matrix, identityVec4, tempVec4a8);
+    const center = transformPoint4(matrix, identityVec4, tempVec4a7);
     const oldTile = this.gpuTile;
     this.gpuTile = oldTile ? this._gpuMemoryManager.moveTile(oldTile, center) : this._gpuMemoryManager.getTile(center);
     if (!oldTile || oldTile.id !== this.gpuTile.id) {
@@ -163695,6 +169596,8 @@ var DrawTechnique = class {
       linePatternLen: program.getLocation("uLinePatternLen"),
       linePatternPeriod: program.getLocation("uLinePatternPeriod"),
       silhouetteColor: program.getLocation("uSilhouetteColor"),
+      edgeColorMode: program.getLocation("uEdgeColorMode"),
+      edgeDarken: program.getLocation("uEdgeDarken"),
       sectionPlanes: program.getLocation("uSectionPlanes[0]"),
       sectionPlaneCount: program.getLocation("uSectionPlaneCount"),
       lightColor: [
@@ -163887,6 +169790,8 @@ var DrawTechnique = class {
       case TrianglesPrimitive:
         if (this.snap === 1) {
           gl.drawArrays(gl.POINTS, drawRange.firstPrim * 2, drawRange.numPrims * 2);
+        } else if (this.edges && this.thickLines) {
+          gl.drawArrays(gl.TRIANGLES, drawRange.firstPrim * 6, drawRange.numPrims * 6);
         } else if (this.snap === 2 || this.edges) {
           gl.drawArrays(gl.LINES, drawRange.firstPrim * 2, drawRange.numPrims * 2);
         } else {
@@ -164328,6 +170233,9 @@ vec4 packUintToRGBA8(uint v) {
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 
 uniform vec4 uSilhouetteColor;
+// Base-edges colour mode: 1.0 = darken each mesh's own colour, 0.0 = use uSilhouetteColor.
+uniform float uEdgeColorMode;
+uniform float uEdgeDarken;
 flat out vec4 vColor;`);
   }
   /**
@@ -164832,8 +170740,14 @@ void main(void) {`);
    */
   vsSilhouetteLogic() {
     this._vertSrcBuf.push(`
-    // Output constant silhouette color
-    vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, uSilhouetteColor.a);`);
+    // Edge / silhouette colour. In "darkenedMesh" mode (base edges only, set
+    // via uEdgeColorMode) each edge takes its own mesh's colour scaled by
+    // uEdgeDarken, keeping the silhouette uniform's alpha (edgeAlpha).
+    if (uEdgeColorMode > 0.5) {
+      vColor = vec4(vec3(meshViewAttributes.color.rgb) / 255.0 * uEdgeDarken, uSilhouetteColor.a);
+    } else {
+      vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, uSilhouetteColor.a);
+    }`);
   }
   /**
    * Declares the thick-line uniforms (`uLineWidth`,
@@ -164983,12 +170897,13 @@ void main(void) {
   QuantRange quantRange = getGeometryQuantRange( geometryIndex );
 
   // Fetch *both* endpoint vertex indices into the geometry's
-  // vertex table. The lines path uses indicesBase (not
-  // edgeIndicesBase): edges live in a separate index buffer the
-  // triangle-edge techniques consult.
+  // vertex table. Line primitives index through indicesBase;
+  // triangle-mesh edges (this.edges) through edgeIndicesBase \u2014
+  // the same buffer the thin edge techniques consult, so the
+  // quad expansion thickens those exact segments.
   uint baseOffset = primOffset * 2u;
-  uint idxA = getVertexIndex( geometryAttributes.indicesBase + baseOffset );
-  uint idxB = getVertexIndex( geometryAttributes.indicesBase + baseOffset + 1u );
+  uint idxA = getVertexIndex( geometryAttributes.${this.edges ? "edgeIndicesBase" : "indicesBase"} + baseOffset );
+  uint idxB = getVertexIndex( geometryAttributes.${this.edges ? "edgeIndicesBase" : "indicesBase"} + baseOffset + 1u );
 
   // \u2500\u2500 Polyline-adjacency detection \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
   //
@@ -165008,8 +170923,8 @@ void main(void) {
     uvec2 prevPrimData = getPrimData( primIndex - 1u );
     if (prevPrimData.r == meshIndex && prevPrimData.g + 1u == primOffset) {
       uint prevBase = (primOffset - 1u) * 2u;
-      uint prevSegA = getVertexIndex( geometryAttributes.indicesBase + prevBase );
-      uint prevSegB = getVertexIndex( geometryAttributes.indicesBase + prevBase + 1u );
+      uint prevSegA = getVertexIndex( geometryAttributes.${this.edges ? "edgeIndicesBase" : "indicesBase"} + prevBase );
+      uint prevSegB = getVertexIndex( geometryAttributes.${this.edges ? "edgeIndicesBase" : "indicesBase"} + prevBase + 1u );
       if (prevSegB == idxA) {
         hasPrevJoin = true;
         idxP = prevSegA;
@@ -165022,8 +170937,8 @@ void main(void) {
     uvec2 nextPrimData = getPrimData( primIndex + 1u );
     if (nextPrimData.r == meshIndex && nextPrimData.g == primOffset + 1u) {
       uint nextBase = (primOffset + 1u) * 2u;
-      uint nextSegA = getVertexIndex( geometryAttributes.indicesBase + nextBase );
-      uint nextSegB = getVertexIndex( geometryAttributes.indicesBase + nextBase + 1u );
+      uint nextSegA = getVertexIndex( geometryAttributes.${this.edges ? "edgeIndicesBase" : "indicesBase"} + nextBase );
+      uint nextSegB = getVertexIndex( geometryAttributes.${this.edges ? "edgeIndicesBase" : "indicesBase"} + nextBase + 1u );
       if (nextSegA == idxB) {
         hasNextJoin = true;
         idxN = nextSegB;
@@ -167042,7 +172957,8 @@ ${this.triplanar ? `
       gl.uniform2f(uniforms.drawingBufferSize, gl.drawingBufferWidth, gl.drawingBufferHeight);
     }
     if (uniforms.lineWidth) {
-      gl.uniform1f(uniforms.lineWidth, view.linesMaterial?.lineWidth ?? 1);
+      const width = this.edges ? view.effects.edges?.edgeWidth ?? 1 : view.linesMaterial?.lineWidth ?? 1;
+      gl.uniform1f(uniforms.lineWidth, width);
     }
     if (uniforms.lineJoinRound) {
       gl.uniform1i(
@@ -167197,6 +173113,14 @@ ${this.triplanar ? `
         } else {
           gl.uniform4fv(uniforms.silhouetteColor, defaultColor);
         }
+      }
+    }
+    if (uniforms.edgeColorMode) {
+      const e = view.effects.edges;
+      const baseEdgesPass = this.edges && renderPass !== RENDER_PASSES.XRAYED && renderPass !== RENDER_PASSES.HIGHLIGHTED && renderPass !== RENDER_PASSES.SELECTED;
+      gl.uniform1f(uniforms.edgeColorMode, baseEdgesPass && e.useMeshColor ? 1 : 0);
+      if (uniforms.edgeDarken) {
+        gl.uniform1f(uniforms.edgeDarken, e.edgeDarken);
       }
     }
     if (uniforms.saoParams) {
@@ -167923,6 +173847,52 @@ var TrianglesDrawEdgeColorTechnique = class extends DrawTechnique {
   }
 };
 
+// ../sdk/src/viewing/webGLRenderer/internal/drawOps/techniques/triangles/TrianglesDrawEdgeColorThickTechnique.ts
+var TrianglesDrawEdgeColorThickTechnique = class extends DrawTechnique {
+  vertsPerPrim = 6;
+  // each edge expands to a 2-triangle quad
+  constructor(renderContext, gpuMemoryReader, opts = {}) {
+    super(renderContext, gpuMemoryReader, {
+      edges: true,
+      thickLines: true,
+      logDepth: opts.logDepth === true
+    });
+  }
+  buildVertexShader() {
+    this.vsHeader();
+    this.vsCommonDeclarations();
+    this.vsSlicingDeclarations();
+    this.vsSilhouetteDeclarations();
+    this.vsEdgeFadeDeclarations();
+    this.vsThickLineDeclarations();
+    this.vsLogDepthDeclarations();
+    this.vsThickLineMain();
+    this.vsSilhouetteLogic();
+    this.vsEdgeFadeLogic();
+    this.vsSlicingLogic();
+    this.vsLogDepthLogic();
+    this.vsMainEnd();
+  }
+  buildFragmentShader() {
+    this.fsHeader();
+    this.fsPrecisionDeclarations();
+    this.fsColorDeclarations();
+    this.fsSlicingDeclarations();
+    this.fsSilhouetteDeclarations();
+    this.fsEdgeFadeDeclarations();
+    this.fsThickLineDeclarations();
+    this.fsLogDepthDeclarations();
+    this.fsMainBegin();
+    this.fsSlicingLogic();
+    this.fsSilhouetteLogic();
+    this.fsThickLineLogic();
+    this.fsEdgeFadeLogic();
+    this.fsOutputColor();
+    this.fsLogDepthLogic();
+    this.fsMainEnd();
+  }
+};
+
 // ../sdk/src/viewing/webGLRenderer/internal/drawOps/techniques/triangles/TrianglesDrawSilhouetteTechnique.ts
 var TrianglesDrawSilhouetteTechnique = class extends DrawTechnique {
   vertsPerPrim = 3;
@@ -168201,6 +174171,7 @@ var DrawOps = class {
     const trianglesShadowDepth = saveForCleanup(new TrianglesShadowDepthTechnique(renderContext, gpuMemoryReader));
     const trianglesDrawEdgeSilhouette = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
     const trianglesDrawEdgeColor = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
+    const trianglesDrawEdgeColorThick = saveForCleanup(new TrianglesDrawEdgeColorThickTechnique(renderContext, gpuMemoryReader, { logDepth: LOG_DEPTH }));
     const trianglesPickMesh = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 3));
     const linesPickMesh = saveForCleanup(new ThickLinesPickMeshTechnique(renderContext, gpuMemoryReader));
     const pointsPickMesh = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 1));
@@ -168234,8 +174205,10 @@ var DrawOps = class {
         flatColorTransparent: new DrawOp(trianglesDrawColorFlat, TRANSPARENT),
         shadowDepth: new DrawOp(trianglesShadowDepth, OPAQUE),
         opaqueEdges: new DrawOp(trianglesDrawEdgeColor, OPAQUE),
+        opaqueEdgesThick: new DrawOp(trianglesDrawEdgeColorThick, OPAQUE),
         transparent: new DrawOp(trianglesDrawColor, TRANSPARENT),
         transparentEdges: new DrawOp(trianglesDrawEdgeColor, TRANSPARENT),
+        transparentEdgesThick: new DrawOp(trianglesDrawEdgeColorThick, TRANSPARENT),
         highlighted: new DrawOp(trianglesSilhouette, HIGHLIGHTED),
         highlightedEdges: new DrawOp(trianglesDrawEdgeSilhouette, HIGHLIGHTED),
         selected: new DrawOp(trianglesSilhouette, SELECTED),
@@ -168341,8 +174314,8 @@ function putDrawOps(drawOps) {
 var tempVec3a17 = createVec3Float64();
 var tempVec3b15 = createVec3Float64();
 var tempVec3c11 = createVec3Float64();
-var tempVec4a9 = createVec4Float64();
-var tempVec4b8 = createVec4Float64();
+var tempVec4a8 = createVec4Float64();
+var tempVec4b7 = createVec4Float64();
 var tempVec4c5 = createVec4Float64();
 var tempVec4d = createVec4Float64();
 var tempVec4e = createVec4Float64();
@@ -168572,17 +174545,17 @@ var PickManager = class {
     const coordSysMatrix = sceneMesh.model.coordinateSystemMatrix;
     const pvmMat = mulMat4(mulMat4(pickProjMatrix, viewMatrix, tempMat4b2), coordSysMatrix, tempMat4d);
     const pvMatInverse = inverseMat4(pvmMat, tempMat4c);
-    tempVec4a9[0] = x;
-    tempVec4a9[1] = y;
-    tempVec4a9[2] = -1;
-    tempVec4a9[3] = 1;
-    let world1 = transformVec4(pvMatInverse, tempVec4a9);
+    tempVec4a8[0] = x;
+    tempVec4a8[1] = y;
+    tempVec4a8[2] = -1;
+    tempVec4a8[3] = 1;
+    let world1 = transformVec4(pvMatInverse, tempVec4a8);
     mulVec4Scalar(world1, 1 / world1[3], world1);
-    tempVec4b8[0] = x;
-    tempVec4b8[1] = y;
-    tempVec4b8[2] = 1;
-    tempVec4b8[3] = 1;
-    let world2 = transformVec4(pvMatInverse, tempVec4b8);
+    tempVec4b7[0] = x;
+    tempVec4b7[1] = y;
+    tempVec4b7[2] = 1;
+    tempVec4b7[3] = 1;
+    let world2 = transformVec4(pvMatInverse, tempVec4b7);
     mulVec4Scalar(world2, 1 / world2[3], world2);
     const dir = subVec3(world2, world1, tempVec3a17);
     const offset = mulVec3Scalar(dir, depth, tempVec3b15);
@@ -173131,6 +179104,44 @@ var RenderManager = class _RenderManager {
     }
   }
   /**
+   * Draws a base-edges bin, choosing the thin `gl.LINES` technique (default)
+   * or the thick quad-expanded one when `edges.edgeWidth > 1` — `gl.lineWidth`
+   * can't widen lines on most WebGL stacks, so wide edges expand to triangles.
+   *
+   * Thick edges are TRIANGLES, so two pieces of GL state the thin path got for
+   * free are set here and restored after:
+   * - Polygon offset biased *toward* the camera — thin `gl.LINES` are immune to
+   *   polygon offset, so they win z-ties at true depth while the scene pushes
+   *   filled surfaces back. Thick edge triangles are subject to it and would
+   *   z-fight the coplanar surface, so they get a slope-scaled negative offset
+   *   (`polygonOffset(-1, -1)`): the standard coplanar-outline/decal fix, robust
+   *   at grazing angles because the bias tracks the surface's depth slope (a
+   *   constant NDC bias can't), yet small enough to only break coplanar ties —
+   *   it won't punch through genuinely-closer geometry. The scene's surface
+   *   offset (`polygonOffset(1, 1)`) pushes the other way, so they compound.
+   * - BLEND on (premultiplied) — for the round-rect SDF antialiasing fringe.
+   */
+  _drawEdgeBin(batches, baseOpKey, thickOpKey, renderBinName, view) {
+    if (view.effects.edges.edgeWidth > 1 && batches.length > 0) {
+      const gl = this._renderContext.gl;
+      const offsetWas = gl.isEnabled(gl.POLYGON_OFFSET_FILL);
+      const blendWas = gl.isEnabled(gl.BLEND);
+      gl.enable(gl.POLYGON_OFFSET_FILL);
+      gl.polygonOffset(-1, -1);
+      gl.enable(gl.BLEND);
+      gl.blendEquation(gl.FUNC_ADD);
+      gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+      this._drawBin(batches, thickOpKey, renderBinName);
+      if (!blendWas)
+        gl.disable(gl.BLEND);
+      gl.polygonOffset(1, 1);
+      if (!offsetWas)
+        gl.disable(gl.POLYGON_OFFSET_FILL);
+    } else {
+      this._drawBin(batches, baseOpKey, renderBinName);
+    }
+  }
+  /**
    * Returns the active render inspector iff one is attached and currently
    * enabled — otherwise `null`. Centralises the `?.enabled &&` check that
    * every inspector call site previously had to repeat.
@@ -173330,10 +179341,10 @@ var RenderManager = class _RenderManager {
       renderContext.shadowMapTextures[i] = null;
     }
     renderContext.shadowCascadeCount = 0;
-    this._drawBin(bins.normalEdgesOpaque, "opaqueEdges", RENDER_BINS.EDGES_OPAQUE);
+    this._drawEdgeBin(bins.normalEdgesOpaque, "opaqueEdges", "opaqueEdgesThick", RENDER_BINS.EDGES_OPAQUE, view);
     this._drawBin(bins.xrayedSilhouetteOpaque, "xrayed", RENDER_BINS.XRAYED_SILHOUETTE_OPAQUE);
     this._drawBin(bins.xrayEdgesOpaque, "xrayedEdges", RENDER_BINS.XRAYED_EDGES_OPAQUE);
-    this._renderTransparents();
+    this._renderTransparents(view);
     gl.disable(gl.CULL_FACE);
     gl.clear(gl.DEPTH_BUFFER_BIT);
     this._drawBin(bins.highlightedSilhouetteOpaque, "highlighted", RENDER_BINS.HIGHLIGHTED_SILHOUETTE_OPAQUE);
@@ -173552,7 +179563,7 @@ var RenderManager = class _RenderManager {
    * Transparent block — sets up premultiplied-alpha blending, draws the four
    * transparent bins, then restores depth-write state.
    */
-  _renderTransparents() {
+  _renderTransparents(view) {
     const renderContext = this._renderContext;
     const gl = renderContext.gl;
     const bins = this._bins;
@@ -173570,7 +179581,7 @@ var RenderManager = class _RenderManager {
     if (bins.normalEdgesTransparent.length || bins.normalFillTransparent.length) {
       gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     }
-    this._drawBin(bins.normalEdgesTransparent, "transparentEdges", RENDER_BINS.EDGES_TRANSPARENT);
+    this._drawEdgeBin(bins.normalEdgesTransparent, "transparentEdges", "transparentEdgesThick", RENDER_BINS.EDGES_TRANSPARENT, view);
     this._drawBin(bins.normalFillTransparent, "transparent", RENDER_BINS.TRANSPARENT);
     gl.disable(gl.BLEND);
     gl.depthMask(true);
@@ -173736,8 +179747,8 @@ __export(snapManager_exports, {
 
 // ../sdk/src/viewing/webGLRenderer/internal/snapManager/SnapManager.ts
 var tempVec3a18 = createVec3Float64();
-var tempVec4a10 = createVec4Float64();
-var tempVec4b9 = createVec4Float64();
+var tempVec4a9 = createVec4Float64();
+var tempVec4b8 = createVec4Float64();
 var tempMat4a7 = createMat4Float64();
 var DEFAULT_SNAP_RADIUS = 30;
 var SnapManager = class {
@@ -173882,22 +179893,22 @@ var SnapManager = class {
     }
     const viewMat = view.camera.viewMatrix;
     const invView = inverseMat4(viewMat, tempMat4a7);
-    tempVec4a10[0] = hit[0];
-    tempVec4a10[1] = hit[1];
-    tempVec4a10[2] = hit[2];
-    tempVec4a10[3] = 1;
-    const worldHomog = transformVec4(invView, tempVec4a10, tempVec4b9);
+    tempVec4a9[0] = hit[0];
+    tempVec4a9[1] = hit[1];
+    tempVec4a9[2] = hit[2];
+    tempVec4a9[3] = 1;
+    const worldHomog = transformVec4(invView, tempVec4a9, tempVec4b8);
     const w = worldHomog[3] || 1;
     tempVec3a18[0] = worldHomog[0] / w;
     tempVec3a18[1] = worldHomog[1] / w;
     tempVec3a18[2] = worldHomog[2] / w;
     const snappedCanvasPos = createVec2Float64();
-    tempVec4a10[0] = tempVec3a18[0];
-    tempVec4a10[1] = tempVec3a18[1];
-    tempVec4a10[2] = tempVec3a18[2];
-    tempVec4a10[3] = 1;
-    const viewHomog = transformVec4(viewMat, tempVec4a10, tempVec4b9);
-    const clipHomog = transformVec4(view.camera.projMatrix, viewHomog, tempVec4a10);
+    tempVec4a9[0] = tempVec3a18[0];
+    tempVec4a9[1] = tempVec3a18[1];
+    tempVec4a9[2] = tempVec3a18[2];
+    tempVec4a9[3] = 1;
+    const viewHomog = transformVec4(viewMat, tempVec4a9, tempVec4b8);
+    const clipHomog = transformVec4(view.camera.projMatrix, viewHomog, tempVec4a9);
     const wClip = clipHomog[3] || 1;
     const ndcX = clipHomog[0] / wClip;
     const ndcY = clipHomog[1] / wClip;
@@ -177360,13 +183371,13 @@ var DEFAULTS = {
 };
 async function planCameraTour(params) {
   if (!params || !params.sceneModel) {
-    return err4(
+    return err5(
       2 /* InvalidInput */,
       "[planCameraTour] sceneModel is required"
     );
   }
   if (params.sceneModel.destroyed) {
-    return err4(
+    return err5(
       1 /* InvalidOperation */,
       "[planCameraTour] sceneModel is destroyed"
     );
@@ -177388,7 +183399,7 @@ async function planCameraTour(params) {
     return spaceRes;
   const spaceGraph = spaceRes.value;
   if (spaceGraph.nodes.length === 0) {
-    return err4(
+    return err5(
       2 /* InvalidInput */,
       "[planCameraTour] Extractor returned no spaces. For non-IFC sources pass `params.extractor = extractSpacesFromGeometry`."
     );
@@ -177425,7 +183436,7 @@ async function planCameraTour(params) {
   });
   options.onProgress?.("smooth", 1);
   if (smoothed.waypoints.length === 0) {
-    return err4(
+    return err5(
       2 /* InvalidInput */,
       "[planCameraTour] Planner returned no usable stops (all spaces had unresolved viewpoints)."
     );
@@ -177439,7 +183450,7 @@ async function planCameraTour(params) {
     }
   };
 }
-function err4(type, message) {
+function err5(type, message) {
   return { ok: false, type, error: message };
 }
 
@@ -177841,40 +183852,40 @@ __export(daylightAnalysis_exports, {
 });
 
 // ../sdk/src/presentations/sunStudy/SunPosition.ts
-var DEG2RAD2 = Math.PI / 180;
-var RAD2DEG = 180 / Math.PI;
+var DEG2RAD3 = Math.PI / 180;
+var RAD2DEG2 = 180 / Math.PI;
 function computeSunPosition(date, latitudeDegrees, longitudeDegrees) {
   const julianDay = date.getTime() / 864e5 + 24405875e-1;
   const T = (julianDay - 2451545) / 36525;
   let L0 = 280.46646 + T * (36000.76983 + T * 3032e-7);
   L0 = (L0 % 360 + 360) % 360;
-  const M = (357.52911 + T * (35999.05029 - 1537e-7 * T)) * DEG2RAD2;
+  const M = (357.52911 + T * (35999.05029 - 1537e-7 * T)) * DEG2RAD3;
   const e = 0.016708634 - T * (42037e-9 + 1267e-10 * T);
   const C = Math.sin(M) * (1.914602 - T * (4817e-6 + 14e-6 * T)) + Math.sin(2 * M) * (0.019993 - 101e-6 * T) + Math.sin(3 * M) * 289e-6;
   const trueLong = L0 + C;
-  const omega = (125.04 - 1934.136 * T) * DEG2RAD2;
-  const appLong = (trueLong - 569e-5 - 478e-5 * Math.sin(omega)) * DEG2RAD2;
+  const omega = (125.04 - 1934.136 * T) * DEG2RAD3;
+  const appLong = (trueLong - 569e-5 - 478e-5 * Math.sin(omega)) * DEG2RAD3;
   const e0 = 23 + (26 + (21.448 - T * (46.815 + T * (59e-5 - T * 1813e-6))) / 60) / 60;
-  const epsilon = (e0 + 256e-5 * Math.cos(omega)) * DEG2RAD2;
+  const epsilon = (e0 + 256e-5 * Math.cos(omega)) * DEG2RAD3;
   const declination = Math.asin(Math.sin(epsilon) * Math.sin(appLong));
   const y = Math.tan(epsilon / 2) ** 2;
-  const L0r = L0 * DEG2RAD2;
-  const eot = 4 * RAD2DEG * (y * Math.sin(2 * L0r) - 2 * e * Math.sin(M) + 4 * e * y * Math.sin(M) * Math.cos(2 * L0r) - 0.5 * y * y * Math.sin(4 * L0r) - 1.25 * e * e * Math.sin(2 * M));
+  const L0r = L0 * DEG2RAD3;
+  const eot = 4 * RAD2DEG2 * (y * Math.sin(2 * L0r) - 2 * e * Math.sin(M) + 4 * e * y * Math.sin(M) * Math.cos(2 * L0r) - 0.5 * y * y * Math.sin(4 * L0r) - 1.25 * e * e * Math.sin(2 * M));
   const utcMinutes = date.getUTCHours() * 60 + date.getUTCMinutes() + date.getUTCSeconds() / 60 + date.getUTCMilliseconds() / 6e4;
   let tst = utcMinutes + eot + 4 * longitudeDegrees;
   tst = (tst % 1440 + 1440) % 1440;
   const hourAngleDeg = tst / 4 - 180;
-  const H = hourAngleDeg * DEG2RAD2;
-  const latR = latitudeDegrees * DEG2RAD2;
+  const H = hourAngleDeg * DEG2RAD3;
+  const latR = latitudeDegrees * DEG2RAD3;
   const cosZ = Math.sin(latR) * Math.sin(declination) + Math.cos(latR) * Math.cos(declination) * Math.cos(H);
   const zenith = Math.acos(Math.max(-1, Math.min(1, cosZ)));
-  const altitude = 90 - zenith * RAD2DEG;
+  const altitude = 90 - zenith * RAD2DEG2;
   const tanDecl = Math.tan(declination);
   const azFromSouthRad = Math.atan2(
     Math.sin(H),
     Math.cos(H) * Math.sin(latR) - tanDecl * Math.cos(latR)
   );
-  const azimuth = (azFromSouthRad * RAD2DEG + 180 + 360) % 360;
+  const azimuth = (azFromSouthRad * RAD2DEG2 + 180 + 360) % 360;
   return {
     altitude,
     azimuth,
@@ -177883,8 +183894,8 @@ function computeSunPosition(date, latitudeDegrees, longitudeDegrees) {
 }
 function sunDirection(position, northAngleRadians = 0, out) {
   const dst = out ?? new Float32Array(3);
-  const azR = position.azimuth * DEG2RAD2 - northAngleRadians;
-  const altR = position.altitude * DEG2RAD2;
+  const azR = position.azimuth * DEG2RAD3 - northAngleRadians;
+  const altR = position.altitude * DEG2RAD3;
   const cosAlt = Math.cos(altR);
   dst[0] = -cosAlt * Math.sin(azR);
   dst[1] = -cosAlt * Math.cos(azR);
@@ -179611,8 +185622,8 @@ async function buildDrawing(params) {
       ...params.color ? { color: params.color } : {}
     });
     if (matRes.ok === false) {
-      const err5 = { ok: false, type: matRes.type, error: matRes.error };
-      return err5;
+      const err6 = { ok: false, type: matRes.type, error: matRes.error };
+      return err6;
     }
     lineMaterialId = matId;
   }
@@ -179630,16 +185641,16 @@ async function buildDrawing(params) {
       layerId: params.layerId
     });
     if (panelRes.ok === false) {
-      const err5 = { ok: false, type: panelRes.type, error: panelRes.error };
-      return err5;
+      const err6 = { ok: false, type: panelRes.type, error: panelRes.error };
+      return err6;
     }
   }
   if (params.frame !== void 0 && params.frame !== false) {
     const frameColor = params.frameColor ?? params.color;
     const frameRes = emitFrame(target, basis, aabb, planeDepth, frameMargin, frameColor, origin2, lineMaterialId, params.layerId);
     if (frameRes.ok === false) {
-      const err5 = { ok: false, type: frameRes.type, error: frameRes.error };
-      return err5;
+      const err6 = { ok: false, type: frameRes.type, error: frameRes.error };
+      return err6;
     }
   }
   if (params.titleBlock) {
@@ -179655,8 +185666,8 @@ async function buildDrawing(params) {
       params.layerId
     );
     if (tbRes.ok === false) {
-      const err5 = { ok: false, type: tbRes.type, error: tbRes.error };
-      return err5;
+      const err6 = { ok: false, type: tbRes.type, error: tbRes.error };
+      return err6;
     }
   }
   const v0 = new Float32Array(3);
@@ -179952,8 +185963,8 @@ async function buildDrawing(params) {
           indices
         });
         if (gRes.ok === false) {
-          const err5 = { ok: false, type: gRes.type, error: gRes.error };
-          return err5;
+          const err6 = { ok: false, type: gRes.type, error: gRes.error };
+          return err6;
         }
         const srcLineColor = mesh.effectiveColor;
         const lineColor = params.color ? [params.color[0], params.color[1], params.color[2]] : [srcLineColor[0], srcLineColor[1], srcLineColor[2]];
@@ -179965,8 +185976,8 @@ async function buildDrawing(params) {
           ...lineMaterialId ? { materialId: lineMaterialId } : {}
         });
         if (mRes.ok === false) {
-          const err5 = { ok: false, type: mRes.type, error: mRes.error };
-          return err5;
+          const err6 = { ok: false, type: mRes.type, error: mRes.error };
+          return err6;
         }
         meshIds.push(lineMeshId);
       }
@@ -179986,8 +185997,8 @@ async function buildDrawing(params) {
           indices: fill.indices
         });
         if (fgRes.ok === false) {
-          const err5 = { ok: false, type: fgRes.type, error: fgRes.error };
-          return err5;
+          const err6 = { ok: false, type: fgRes.type, error: fgRes.error };
+          return err6;
         }
         const srcMesh = srcMeshById.get(fill.sourceMeshId);
         const srcFillColor = srcMesh?.effectiveColor;
@@ -180002,8 +186013,8 @@ async function buildDrawing(params) {
           opacity: fillOpacity
         });
         if (fmRes.ok === false) {
-          const err5 = { ok: false, type: fmRes.type, error: fmRes.error };
-          return err5;
+          const err6 = { ok: false, type: fmRes.type, error: fmRes.error };
+          return err6;
         }
         meshIds.push(fillMeshId);
         fillCount++;
@@ -180018,8 +186029,8 @@ async function buildDrawing(params) {
       ...params.layerId ? { layerId: params.layerId } : {}
     });
     if (oRes.ok === false) {
-      const err5 = { ok: false, type: oRes.type, error: oRes.error };
-      return err5;
+      const err6 = { ok: false, type: oRes.type, error: oRes.error };
+      return err6;
     }
     if (progressiveSpec) {
       objectsSinceYield++;
@@ -184378,9 +190389,9 @@ function loadVTI(text) {
   } catch (e) {
     return { ok: false, error: `[loadVTI] XML parse exception: ${e.message}`, type: 2 /* InvalidInput */ };
   }
-  const err5 = doc.querySelector("parsererror");
-  if (err5) {
-    return { ok: false, error: `[loadVTI] XML parse error: ${err5.textContent}`, type: 2 /* InvalidInput */ };
+  const err6 = doc.querySelector("parsererror");
+  if (err6) {
+    return { ok: false, error: `[loadVTI] XML parse error: ${err6.textContent}`, type: 2 /* InvalidInput */ };
   }
   const root = doc.querySelector("VTKFile");
   if (!root) {
@@ -184506,7 +190517,7 @@ function decodeDataArray(arr, headerWidth, expectedFloats) {
     return { ok: true, value: new Float32Array(numbers) };
   }
   if (format === "binary") {
-    const bytesR = base64ToBytes(text);
+    const bytesR = base64ToBytes2(text);
     if (bytesR.ok !== true)
       return bytesR;
     const bytes = bytesR.value;
@@ -184535,7 +190546,7 @@ function decodeDataArray(arr, headerWidth, expectedFloats) {
   }
   return { ok: false, error: `[loadVTI] ${name12}: unknown format "${format}". Skipping.`, type: 6 /* NotSupported */ };
 }
-function base64ToBytes(s) {
+function base64ToBytes2(s) {
   const clean2 = s.replace(/\s+/g, "");
   if (typeof atob !== "undefined") {
     const bin = atob(clean2);
@@ -187380,8 +193391,8 @@ var ModelConverter = class {
                 warnings: [],
                 errors: []
               };
-            } catch (err5) {
-              const errorMsg = `[ModelConverter.convert] Failed to load file data: ${err5}`;
+            } catch (err6) {
+              const errorMsg = `[ModelConverter.convert] Failed to load file data: ${err6}`;
               modelConverterResult.errors.push(errorMsg);
               modelConverterResult.inputs[pipelineInputId] = {
                 fileData: fileData2,
@@ -187401,8 +193412,8 @@ var ModelConverter = class {
           if (filePath) {
             fileIO2.load(filePath).then((fileData2) => {
               loadFileData(fileData2);
-            }).catch((err5) => {
-              reject(`[ModelConverter.convert] Failed to load source file: ${err5}`);
+            }).catch((err6) => {
+              reject(`[ModelConverter.convert] Failed to load source file: ${err6}`);
             });
           } else {
             await loadFileData(fileData);
@@ -187467,8 +193478,8 @@ var ModelConverter = class {
               warnings: [],
               errors: []
             };
-          } catch (err5) {
-            const errorMsg = `[ModelConverter.convert] Failed to export fileData: ${err5}`;
+          } catch (err6) {
+            const errorMsg = `[ModelConverter.convert] Failed to export fileData: ${err6}`;
             modelConverterResult.errors.push(errorMsg);
             modelConverterResult.outputs[pipelineOutputId] = {
               fileData: null,
@@ -192510,15 +198521,15 @@ var IssuesPanel = class _IssuesPanel extends FloatingPanelBase {
         this._copyLogBtn.textContent = restoreLabel || "Copy log";
       }, 1600);
     };
-    const fail = (err5) => {
-      console.warn("[IssuesPanel] copy log failed:", err5?.message ?? err5);
+    const fail = (err6) => {
+      console.warn("[IssuesPanel] copy log failed:", err6?.message ?? err6);
     };
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(ok).catch((err5) => {
+      navigator.clipboard.writeText(text).then(ok).catch((err6) => {
         if (this._copyViaTextarea(text))
           ok();
         else
-          fail(err5);
+          fail(err6);
       });
       return;
     }
@@ -192544,15 +198555,15 @@ var IssuesPanel = class _IssuesPanel extends FloatingPanelBase {
         button.innerHTML = COPY_ICON_SVG;
       }, 1100);
     };
-    const fail = (err5) => {
-      console.warn("[IssuesPanel] copy failed:", err5?.message ?? err5);
+    const fail = (err6) => {
+      console.warn("[IssuesPanel] copy failed:", err6?.message ?? err6);
     };
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(ok).catch((err5) => {
+      navigator.clipboard.writeText(text).then(ok).catch((err6) => {
         if (this._copyViaTextarea(text))
           ok();
         else
-          fail(err5);
+          fail(err6);
       });
       return;
     }
@@ -193569,13 +199580,13 @@ var LoaderProgressDialog = class _LoaderProgressDialog {
       const result = await run(onProgress, this._abortController.signal);
       await this.hide();
       return result;
-    } catch (err5) {
-      if (err5 && err5.name === "AbortError") {
+    } catch (err6) {
+      if (err6 && err6.name === "AbortError") {
         await this.hide();
-        throw err5;
+        throw err6;
       }
-      this._showError(err5 && err5.message || String(err5));
-      throw err5;
+      this._showError(err6 && err6.message || String(err6));
+      throw err6;
     }
   }
   _showError(message) {
@@ -195792,15 +201803,15 @@ function schemaOrder(a2, b4) {
     return 1;
   if (b4 === "unknown")
     return -1;
-  const rank = (s) => {
+  const rank2 = (s) => {
     if (s.startsWith("IFC"))
       return 0;
     if (s.startsWith("ifc"))
       return 0;
     return 1;
   };
-  const ra = rank(a2);
-  const rb = rank(b4);
+  const ra = rank2(a2);
+  const rb = rank2(b4);
   if (ra !== rb)
     return ra - rb;
   return a2.localeCompare(b4);
@@ -195861,13 +201872,13 @@ function getDataProperty(dataObject, propertySetType, propertyName) {
   if (!psets) {
     return void 0;
   }
-  for (const pset of psets) {
-    if (pset.type !== propertySetType) {
+  for (const pset2 of psets) {
+    if (pset2.type !== propertySetType) {
       continue;
     }
-    for (const prop of pset.properties) {
-      if (prop.name === propertyName) {
-        return prop.value;
+    for (const prop2 of pset2.properties) {
+      if (prop2.name === propertyName) {
+        return prop2.value;
       }
     }
   }
@@ -196327,6 +202338,7 @@ var DEFAULT_EXTENSIONS = {
   xgf: "xgf",
   ifc: "ifc",
   gltf: "glb",
+  fbx: "fbx",
   mtl: "mtl",
   obj: "obj",
   dotbim: "bim",
@@ -196361,6 +202373,12 @@ function createDefaultLoaderRegistry() {
     needsData: false,
     load: (input, options) => new GLTFLoader2().load(input, options)
   });
+  r.register("fbx", {
+    fetch: "arrayBuffer",
+    needsScene: true,
+    needsData: false,
+    load: (input, options) => new FBXLoader().load(input, options)
+  });
   r.register("mtl", {
     fetch: "text",
     needsScene: true,
@@ -196385,6 +202403,12 @@ function createDefaultLoaderRegistry() {
     needsData: true,
     load: (input, options) => new CityJSONLoader().load(input, options)
   });
+  r.register("fds", {
+    fetch: "text",
+    needsScene: true,
+    needsData: true,
+    load: (input, options) => new FDSLoader().load(input, options)
+  });
   r.register("metamodel", {
     fetch: "json",
     needsScene: false,
@@ -196395,13 +202419,13 @@ function createDefaultLoaderRegistry() {
     fetch: "json",
     needsScene: false,
     needsData: true,
-    load: (input, options) => new DataModelParamsLoader().load(input, options)
+    load: (input, options) => new DataModelImporter().load(input, options)
   });
   r.register("scenemodel", {
     fetch: "json",
     needsScene: true,
     needsData: false,
-    load: (input, options) => new SceneModelParamsLoader().load(input, options)
+    load: (input, options) => new SceneModelImporter().load(input, options)
   });
   return r;
 }
@@ -199328,10 +205352,10 @@ var SceneHealthPanel = class _SceneHealthPanel extends FloatingPanelBase {
           }
         }
       });
-    } catch (err5) {
-      if (err5 && err5.name === "AbortError")
+    } catch (err6) {
+      if (err6 && err6.name === "AbortError")
         return null;
-      console.error(err5);
+      console.error(err6);
       return null;
     } finally {
       this._hideProgress();
@@ -199385,8 +205409,8 @@ var SceneHealthPanel = class _SceneHealthPanel extends FloatingPanelBase {
         }
       });
       this._renderReport(after);
-    } catch (err5) {
-      if (err5 && err5.name === "AbortError") {
+    } catch (err6) {
+      if (err6 && err6.name === "AbortError") {
         this._logFixError(actionLabel, "Cancelled by user \u2014 model state may be partially mutated", codes);
         try {
           const after = inspectSceneModel({
@@ -199397,7 +205421,7 @@ var SceneHealthPanel = class _SceneHealthPanel extends FloatingPanelBase {
         } catch {
         }
       } else {
-        this._logFixError(actionLabel, err5 && err5.message || String(err5), codes);
+        this._logFixError(actionLabel, err6 && err6.message || String(err6), codes);
       }
     } finally {
       this._hideProgress();
@@ -199447,11 +205471,11 @@ var SceneHealthPanel = class _SceneHealthPanel extends FloatingPanelBase {
         }
       });
       this._renderReport(after);
-    } catch (err5) {
-      if (err5 && err5.name === "AbortError") {
+    } catch (err6) {
+      if (err6 && err6.name === "AbortError") {
         this._logFixError(actionLabel, "Cancelled by user", [issue.code]);
       } else {
-        this._logFixError(actionLabel, err5 && err5.message || String(err5), [issue.code]);
+        this._logFixError(actionLabel, err6 && err6.message || String(err6), [issue.code]);
       }
     } finally {
       this._hideProgress();
@@ -201739,10 +207763,10 @@ var DataHealthPanel = class _DataHealthPanel extends FloatingPanelBase {
       this._cacheModelSummary(this.dataModel.id, report);
       this._renderModelTabs();
       return report;
-    } catch (err5) {
-      if (err5 && err5.name === "AbortError") {
+    } catch (err6) {
+      if (err6 && err6.name === "AbortError") {
       } else {
-        console.error("[DataHealthPanel] inspect failed:", err5);
+        console.error("[DataHealthPanel] inspect failed:", err6);
       }
       return null;
     } finally {
@@ -203462,10 +209486,10 @@ function renderSVGView(aabbs, sceneAABB, ax0, ax1, camEye, camLook, onPlaneClick
     r.setAttribute("stroke-width", "1.5");
     svg.appendChild(r);
   });
-  {
-    const axOther = 3 - ax0 - ax1;
-    const eye0 = camEye[ax0], eye1 = camEye[ax1];
-    const [svgEyeX, svgEyeY] = toSvg(eye0, eye1);
+  const axOther = 3 - ax0 - ax1;
+  const eye0 = camEye[ax0], eye1 = camEye[ax1];
+  const [svgEyeX, svgEyeY] = toSvg(eye0, eye1);
+  if (Number.isFinite(svgEyeX) && Number.isFinite(svgEyeY) && camEye.every((c3) => Number.isFinite(c3)) && camLook.every((c3) => Number.isFinite(c3))) {
     let fx = camLook[0] - camEye[0];
     let fy = camLook[1] - camEye[1];
     let fz = camLook[2] - camEye[2];
@@ -206755,11 +212779,11 @@ var SampleModelsPanel = class _SampleModelsPanel extends FloatingPanelBase {
         return;
       this._sampleModels = json;
       this._renderSampleModels();
-    } catch (err5) {
+    } catch (err6) {
       if (this._destroyed)
         return;
       this._setBodyError(
-        `Couldn't load catalog from ${this._sampleModelsUrl}: ${err5 && err5.message || err5}`
+        `Couldn't load catalog from ${this._sampleModelsUrl}: ${err6 && err6.message || err6}`
       );
     } finally {
       this._fetchInFlight = false;
@@ -206975,10 +212999,10 @@ var SampleModelsPanel = class _SampleModelsPanel extends FloatingPanelBase {
         entry.loadedSceneModelId = sceneModelId;
         this._rowsBySceneModelId.set(sceneModelId, entry);
       }
-    } catch (err5) {
-      const msg = err5 && err5.message ? err5.message : String(err5);
+    } catch (err6) {
+      const msg = err6 && err6.message ? err6.message : String(err6);
       this._showLoadError(modelId, formats2, msg);
-      this.studio.reportError(`${`[SampleModelsPanel] Load failed for '${modelId}' (${formats2.join(", ")}):`}: ${err5}`);
+      this.studio.reportError(`${`[SampleModelsPanel] Load failed for '${modelId}' (${formats2.join(", ")}):`}: ${err6}`);
     } finally {
       this._loadInFlight = false;
       this._panel.classList.remove("xkt-sam-loading");
@@ -207817,8 +213841,8 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
       this._params = r.value;
     } else {
       this._params = {};
-      const err5 = r && r.error ? String(r.error) : "Viewer.toParams returned no value";
-      this._setStatus(`Failed to read Viewer params: ${err5}`, "error");
+      const err6 = r && r.error ? String(r.error) : "Viewer.toParams returned no value";
+      this._setStatus(`Failed to read Viewer params: ${err6}`, "error");
     }
     this._renderBody();
   }
@@ -207966,8 +213990,8 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
       return;
     const result = this.viewer.toParams?.();
     if (!result || result.ok === false) {
-      const err5 = result && result.error ? String(result.error) : "Viewer.toParams returned no value";
-      this._setStatus(`Save failed: ${err5}`, "error");
+      const err6 = result && result.error ? String(result.error) : "Viewer.toParams returned no value";
+      this._setStatus(`Save failed: ${err6}`, "error");
       return;
     }
     const json = JSON.stringify(result.value, null, 2);
@@ -208436,11 +214460,11 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
       lbl.append(inp, document.createTextNode(" " + label));
       wrap.appendChild(lbl);
     }
-    const extras = arr.filter((n) => !RENDER_MODE_LABELS.has(n));
-    if (extras.length) {
+    const extras2 = arr.filter((n) => !RENDER_MODE_LABELS.has(n));
+    if (extras2.length) {
       wrap.appendChild(el("span", "xkt-vcp-render-mode-extras", {
-        textContent: `+${extras.length} other`,
-        title: extras.join(", ")
+        textContent: `+${extras2.length} other`,
+        title: extras2.join(", ")
       }));
     }
     return wrap;
@@ -208664,6 +214688,7 @@ var SLIDER_RANGES = /* @__PURE__ */ new Map([
   ["intensity", [0, 1, 0.01]],
   ["knee", [0, 1, 0.01]],
   ["edgeAlpha", [0, 1, 0.01]],
+  ["edgeDarken", [0, 1, 0.01]],
   ["horizonBlend", [0, 1, 0.01]],
   ["sunGlowIntensity", [0, 1, 0.01]],
   ["cascadeSplitLambda", [0, 1, 0.01]],
@@ -210021,6 +216046,15 @@ var IMPORT_DATA_SETS = [
     ]
   },
   {
+    id: "fbx",
+    label: "FBX",
+    defaultBasisId: "y-up",
+    loadsDataSemantics: false,
+    files: [
+      { key: "fbx", label: "FBX file", accept: ".fbx", loadFormat: "fbx", required: true }
+    ]
+  },
+  {
     id: "gltf+datamodel",
     label: "glTF + DataModel JSON",
     defaultBasisId: "y-up",
@@ -210824,6 +216858,14 @@ var FORMAT_REGISTRY = {
     build: () => new GLTFExporter(),
     toBytes: (raw) => raw
   },
+  fbx: {
+    id: "fbx",
+    label: "FBX",
+    ext: "fbx",
+    mime: "application/octet-stream",
+    build: () => new FBXExporter(),
+    toBytes: (raw) => raw
+  },
   obj: {
     id: "obj",
     label: "OBJ",
@@ -210885,7 +216927,7 @@ var FORMAT_REGISTRY = {
     label: "SceneModel JSON",
     ext: "scenemodel.json",
     mime: "application/json",
-    build: () => new SceneModelParamsExporter(),
+    build: () => new SceneModelExporter(),
     toBytes: (raw) => JSON.stringify(raw, null, 2)
   },
   datamodel: {
@@ -210893,7 +216935,7 @@ var FORMAT_REGISTRY = {
     label: "DataModel JSON",
     ext: "datamodel.json",
     mime: "application/json",
-    build: () => new DataModelParamsExporter(),
+    build: () => new DataModelExporter(),
     toBytes: (raw) => JSON.stringify(raw, null, 2),
     needsDataModel: true,
     needsSceneModel: false
@@ -210903,6 +216945,7 @@ var DEFAULT_DATASET_TYPES = [
   "xgf",
   "scenemodel",
   "gltf",
+  "fbx",
   "obj,mtl",
   "ifc",
   "dotbim",
@@ -215318,10 +221361,10 @@ var DataTexturesPanel = class _DataTexturesPanel extends FloatingPanelBase {
     try {
       const payload = typeof obj?.getItems === "function" ? obj.getItems() : obj;
       jsonText = JSON.stringify(payload, null, 2);
-    } catch (err5) {
+    } catch (err6) {
       jsonText = JSON.stringify({
         error: "getItems() / JSON.stringify failed",
-        message: String(err5?.message ?? err5)
+        message: String(err6?.message ?? err6)
       }, null, 2);
     }
     const backdrop = el("div", "xkt-dtx-json-backdrop");
@@ -221179,14 +227222,14 @@ var SunStudyPanel = class _SunStudyPanel extends FloatingPanelBase {
         this._locateStatus.textContent = "";
         this.sunStudy.setLocation(pos.coords.latitude, pos.coords.longitude);
       },
-      (err5) => {
+      (err6) => {
         this._locateBtn.disabled = false;
         const map = {
           1: "Permission denied",
           2: "Position unavailable",
           3: "Timed out"
         };
-        this._locateStatus.textContent = map[err5.code] ?? "Failed";
+        this._locateStatus.textContent = map[err6.code] ?? "Failed";
       },
       { enableHighAccuracy: false, timeout: 1e4, maximumAge: 6e4 }
     );
@@ -221854,8 +227897,8 @@ var DaylightAnalysisPanel = class _DaylightAnalysisPanel extends FloatingPanelBa
       const skyTag = result.skyModel === "none" ? "direct only" : `+ ${result.skyModel} sky`;
       this._setProgress(1, `Done \u2014 ${result.daysEvaluated} days \xD7 ${result.hoursPerDay} h (${skyTag})`);
       this.onResult.dispatch(this, result);
-    } catch (err5) {
-      this._setProgress(0, `Failed: ${err5?.message ?? err5}`);
+    } catch (err6) {
+      this._setProgress(0, `Failed: ${err6?.message ?? err6}`);
     } finally {
       this._running = false;
       this._runBtn.disabled = false;
@@ -222481,9 +228524,9 @@ var VolumeOverlayPanel = class _VolumeOverlayPanel extends FloatingPanelBase {
       try {
         const text = await file.text();
         this._loadVtiText(text, file.name);
-      } catch (err5) {
+      } catch (err6) {
         this._studio?.reportError(
-          `[VolumeOverlayPanel] .vti read failed: ${err5?.message ?? err5}`,
+          `[VolumeOverlayPanel] .vti read failed: ${err6?.message ?? err6}`,
           2 /* InvalidInput */
         );
       } finally {
@@ -227638,8 +233681,8 @@ var PdfImportPanel = class _PdfImportPanel extends FloatingPanelBase {
         `Loaded ${file.name} \u2014 ${pages.length} page${pages.length === 1 ? "" : "s"}: ${totals.segs} segments, ${totals.tris} fills, ${totals.imgs} images, ${totals.txt} labels`,
         "ok"
       );
-    } catch (err5) {
-      this._setStatus(`Error: ${err5?.message ?? String(err5)}`, "error");
+    } catch (err6) {
+      this._setStatus(`Error: ${err6?.message ?? String(err6)}`, "error");
     }
   }
   _setStatus(text, kind = "info") {
@@ -230722,9 +236765,10 @@ var Studio = class _Studio {
    * - `"xgf"` → {@link XGFLoader} (binary)
    * - `"ifc"` → {@link IFCLoader} (binary)
    * - `"gltf"` → {@link GLTFLoader} (binary, `.glb`)
+   * - `"fbx"` → {@link FBXLoader} (binary, `.fbx`)
    * - `"metamodel"` → {@link MetaModelLoader} (JSON, data-only)
-   * - `"datamodel"` → {@link DataModelParamsLoader} (JSON, data-only)
-   * - `"scenemodel"` → {@link SceneModelParamsLoader} (JSON, scene-only)
+   * - `"datamodel"` → {@link DataModelImporter} (JSON, data-only)
+   * - `"scenemodel"` → {@link SceneModelImporter} (JSON, scene-only)
    *
    * Default source resolution:
    * If `params.src` is not provided, the source path is inferred as:
@@ -230758,11 +236802,11 @@ var Studio = class _Studio {
     }
     const descriptor = this.loaders.get(params.format);
     if (!descriptor) {
-      const err5 = this._reportAndReturn(
+      const err6 = this._reportAndReturn(
         `[Studio.loadModel] Unsupported model format: ${params.format}`,
         2 /* InvalidInput */
       );
-      return err5;
+      return err6;
     }
     let sceneModel;
     if (descriptor.needsScene) {
@@ -231259,7 +237303,7 @@ var Studio = class _Studio {
         return innerFailure;
       }
       return { ok: true, value: { sceneModel, dataModel } };
-    } catch (err5) {
+    } catch (err6) {
       try {
         sceneModel.destroy();
       } catch {
@@ -231268,11 +237312,11 @@ var Studio = class _Studio {
         dataModel.destroy();
       } catch {
       }
-      const isAbort = err5 && err5.name === "AbortError";
+      const isAbort = err6 && err6.name === "AbortError";
       return {
         ok: false,
         type: 5 /* Unknown */,
-        error: isAbort ? "[Studio.loadDataset] cancelled by user" : `[Studio.loadDataset] ${err5 && err5.message || err5}`
+        error: isAbort ? "[Studio.loadDataset] cancelled by user" : `[Studio.loadDataset] ${err6 && err6.message || err6}`
       };
     }
   }
@@ -231538,5 +237582,8 @@ strongly-typed-events/dist/index.js:
    * Copyright Kees C. Bakker / KeesTalksTech
    * Released under the MIT license
    *)
+
+pako/dist/pako.esm.mjs:
+  (*! pako 2.1.0 https://github.com/nodeca/pako @license (MIT AND Zlib) *)
 */
 //# sourceMappingURL=xeokit-studio-bundle.js.map

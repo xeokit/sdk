@@ -2,7 +2,8 @@
  * # FBX
  *
  * Loads binary Autodesk FBX (`.fbx`) files into a
- * {@link model!scene.SceneModel | SceneModel} via {@link FBXLoader}.
+ * {@link model!scene.SceneModel | SceneModel} via {@link FBXLoader}, and writes
+ * a SceneModel back out via {@link FBXExporter}.
  *
  * v1 covers binary FBX: mesh geometry (positions, polygon triangulation,
  * normals, UVs), per-Model local transforms, basic diffuse materials, and
@@ -21,8 +22,16 @@
  * await new FBXLoader().load({fileData, sceneModel});
  * ```
  *
+ * Export a SceneModel back to FBX with {@link FBXExporter}:
+ *
+ * ```javascript
+ * import {FBXExporter} from "@xeokit/sdk/formats/fbx";
+ *
+ * const arrayBuffer = await new FBXExporter().write({sceneModel});
+ * ```
+ *
  * @module fbx
+ * @document ./README.md
  */
 export {FBXLoader} from "./FBXLoader";
-export {isBinaryFBX, readFBXBinary} from "./fbxBinaryReader";
-export type {FBXNode} from "./FBXNode";
+export {FBXExporter} from "./FBXExporter";

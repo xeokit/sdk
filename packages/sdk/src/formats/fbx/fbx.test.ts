@@ -1,4 +1,5 @@
 import {parse} from "./versions/binary/parse";
+import {encode} from "./versions/binary/encode";
 import {isBinaryFBX} from "./fbxBinaryReader";
 
 // FBX name property separator: "Name" + \0\x01 + "Class".
@@ -54,6 +55,69 @@ describe("FBXLoader (binary)", () => {
     expect(calls.object).toHaveLength(1);
     expect(calls.object[0].id).toBe("Cube");
     expect(calls.object[0].meshIds).toEqual([calls.mesh[0].id]);
+  });
+
+  it("round-trips a SceneModel through FBXExporter → FBXLoader", async () => {
+    // A quad (2 triangles), a diffuse material with an embedded texture, one
+    // mesh translated by (2,3,4), grouped under object "myObject".
+    const aabb = [0, 0, 0, 1, 1, 1];
+    const positions = [0, 0, 0,  1, 0, 0,  1, 1, 0,  0, 1, 0];
+    const geom = {
+      id: "g1",
+      positionsCompressed: quantize(positions, aabb),
+      aabb,
+      indices: new Uint32Array([0, 1, 2, 0, 2, 3]),
+    };
+    const tex = {id: "tex1", buffers: [new Uint8Array([0x89, 0x50, 0x4e, 0x47]).buffer]};
+    const mat = {id: "m1", color: [0.5, 0.6, 0.7], colorTexture: tex};
+    const mesh = {
+      id: "mesh1", geometry: geom, material: mat,
+      matrix: [1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0,  2, 3, 4, 1],
+    };
+    const srcModel: any = {
+      geometries: {g1: geom}, materials: {m1: mat}, textures: {tex1: tex},
+      meshes: {mesh1: mesh}, objects: {myObject: {id: "myObject", meshes: [mesh]}},
+    };
+
+    const fbx = await encode({sceneModel: srcModel});
+    expect(isBinaryFBX(fbx)).toBe(true);
+
+    // Re-import the exported bytes into a capturing stub.
+    const calls: {geom: any[]; mesh: any[]; object: any[]; material: any[]; texture: any[]} = {
+      geom: [], mesh: [], object: [], material: [], texture: [],
+    };
+    const dstModel: any = {
+      destroyed: false,
+      createGeometry: (p: any) => { calls.geom.push(p);     return {ok: true, value: {}}; },
+      createTexture:  (p: any) => { calls.texture.push(p);  return {ok: true, value: {}}; },
+      createMaterial: (p: any) => { calls.material.push(p); return {ok: true, value: {}}; },
+      createMesh:     (p: any) => { calls.mesh.push(p);     return {ok: true, value: {}}; },
+      createObject:   (p: any) => { calls.object.push(p);   return {ok: true, value: {}}; },
+    };
+    await parse({fileData: fbx, sceneModel: dstModel});
+
+    // Geometry: 2 triangles → 6 expanded corners; first corner is (0,0,0).
+    expect(calls.geom).toHaveLength(1);
+    expect(calls.geom[0].positions).toHaveLength(18);
+    expect(Array.from(calls.geom[0].positions.slice(0, 3))).toEqual([0, 0, 0]);
+    expect(calls.geom[0].positions[3]).toBeCloseTo(1, 3);   // control point 1 = (1,0,0)
+
+    // Material colour survives exactly (written as float64).
+    expect(calls.material).toHaveLength(1);
+    expect(Array.from(calls.material[0].color)).toEqual([0.5, 0.6, 0.7]);
+
+    // Embedded texture re-imported and wired to the material.
+    expect(calls.texture).toHaveLength(1);
+    expect(calls.material[0].colorTextureId).toBe(calls.texture[0].id);
+
+    // Transform: translation (2,3,4) survives the matrix→TRS→matrix round-trip.
+    expect(calls.mesh).toHaveLength(1);
+    expect(Array.from(calls.mesh[0].matrix.slice(12, 15)).map((v: any) => Math.round(v)))
+      .toEqual([2, 3, 4]);
+
+    // Object id recovered from the Model name.
+    expect(calls.object).toHaveLength(1);
+    expect(calls.object[0].id).toBe("myObject");
   });
 
   it("rejects non-binary input", () => {
@@ -145,6 +209,19 @@ function buildFixtureFBX(): ArrayBuffer {
   const conBytes = encodeNode(connections, offset); offset += conBytes.length;
   const out = concat([header, objBytes, conBytes, new Uint8Array(13)]);   // + top-level null record
   return out.buffer.slice(out.byteOffset, out.byteOffset + out.byteLength);
+}
+
+// Quantise positions to uint16 the way SceneGeometry stores them — the inverse
+// of the exporter's decompressPoint3WithAABB3.
+function quantize(positions: number[], aabb: number[]): Uint16Array {
+  const q = new Uint16Array(positions.length);
+  for (let i = 0; i < positions.length; i += 3) {
+    for (let k = 0; k < 3; k++) {
+      const min = aabb[k], max = aabb[k + 3];
+      q[i + k] = Math.round(((positions[i + k] - min) / (max - min)) * 65535);
+    }
+  }
+  return q;
 }
 
 function leaf(name: string, props: Prop[]): ENode { return {name, props, children: []}; }

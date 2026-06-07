@@ -4,8 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Elevations — IFC viewer</title>
-    <link href="../../css/example-page.css" rel="stylesheet"/>
+    <title>Loading an Autodesk FBX File</title>
     <style>
         body {
             background-color: white;
@@ -21,10 +20,23 @@
             background: white;
             border: 0;
         }
+
+        #status {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            padding: 6px 12px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            font-size: 13px;
+            border-radius: 6px;
+        }
     </style>
 </head>
 <body>
 <canvas id="demoCanvas"></canvas>
+<div id="status">Loading…</div>
 </body>
 <script type="module" src="./index.js"></script>
 </html>

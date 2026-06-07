@@ -41,7 +41,6 @@ studio.init().then(() => {
     rvm:        {id: "rvm",        readAs: "arraybuffer", LoaderClass: xeokit.formats.rvm.RVMLoader},
     step:       {id: "step",       readAs: "text",        LoaderClass: xeokit.formats.step.STEPLoader},
     stp:        {id: "step",       readAs: "text",        LoaderClass: xeokit.formats.step.STEPLoader},
-    xkt:        {id: "xkt",        readAs: "arraybuffer", LoaderClass: xeokit.formats.xkt.XKTLoader},
     scenemodel: {id: "scenemodel", readAs: "json",        LoaderClass: xeokit.formats.scenemodel.SceneModelParamsLoader},
     datamodel:  {id: "datamodel",  readAs: "json",        LoaderClass: xeokit.formats.datamodel.DataModelParamsLoader}
   };

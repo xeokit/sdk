@@ -380,23 +380,6 @@
     ],
     "topic": "conversion.interactive"
   },
-  "elevations": {
-    "id": "elevations",
-    "title": "Elevations — XGF viewer",
-    "description": "Minimal viewer for the elevations dataset. Loads the pre-converted dataset/model/model.xgf geometry and dataset/model/model.datamodel.json semantic graph, then frames the camera to the model's world AABB.",
-    "isTutorial": false,
-    "isVisualTest": false,
-    "tags": [
-      "XGF",
-      "DataModel",
-      "Elevations"
-    ],
-    "categories": [
-      "Importing",
-      "XGF"
-    ],
-    "topic": "import.xgf"
-  },
   "formats_cityjson_railway": {
     "id": "formats_cityjson_railway",
     "title": "Viewing CityJSON using CityJSONLoader",
@@ -465,6 +448,41 @@
       "Drawings"
     ],
     "topic": "formats.dxf"
+  },
+  "formats_fbx_embeddedTextures": {
+    "id": "formats_fbx_embeddedTextures",
+    "title": "Loading an FBX File with Embedded Textures",
+    "description": "Loads a binary Autodesk FBX file whose diffuse texture is embedded inline (carried as a Video node's Content bytes rather than referenced as an external file), and views it. FBXLoader decodes the embedded image, creates a SceneModel texture, and wires it to each material. The sample is four cubes sharing one geometry and one embedded checkerboard texture, each cube tinted by its own material colour.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "tags": [
+      "FBX",
+      "Autodesk",
+      "Importing",
+      "Textures"
+    ],
+    "categories": [
+      "Importing",
+      "FBX"
+    ],
+    "topic": "import.fbx"
+  },
+  "formats_fbx_sample": {
+    "id": "formats_fbx_sample",
+    "title": "Loading an Autodesk FBX File",
+    "description": "Loads a binary Autodesk FBX file and views it. FBX isn't one of the formats the loader registry recognises, so the example fetches the .fbx bytes, creates a SceneModel, and drives FBXLoader directly, then frames the camera. The sample is four cubes sharing one geometry, each with its own transform and material.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "tags": [
+      "FBX",
+      "Autodesk",
+      "Importing"
+    ],
+    "categories": [
+      "Importing",
+      "FBX"
+    ],
+    "topic": "import.fbx"
   },
   "formats_gltf_map": {
     "id": "formats_gltf_map",
@@ -1012,6 +1030,26 @@
       "VolumeOverlay"
     ],
     "topic": "presentations.volumeOverlay"
+  },
+  "profile_renderer_OTCConferenceCenter": {
+    "id": "profile_renderer_OTCConferenceCenter",
+    "title": "Profile the WebGL renderer on the OTC Conference Center model",
+    "description": "Loads the OTC Conference Center as XGF, slowly orbits the camera to keep the renderer busy, and captures 60 frames of per-bin GPU + CPU time via RenderInspector.captureFrames. Captures twice: once at the canvas's natural size, then with the canvas resized to 32x32 px. If GPU time barely changes between the two runs, the workload is not fragment-bound and LOD work will not pay off; a steep drop at 32x32 means it is fragment-bound and LOD is the right next bet. Results are printed to the devtools console as two console.table blocks plus the GL renderer string.",
+    "isTutorial": false,
+    "isVisualTest": false,
+    "tags": [
+      "Profiling",
+      "Performance",
+      "WebGLRenderer",
+      "RenderInspector",
+      "IFC",
+      "XGF"
+    ],
+    "categories": [
+      "Performance",
+      "Renderer"
+    ],
+    "topic": "viewing.webGLRenderer"
   },
   "simulation_physics_duplex": {
     "id": "simulation_physics_duplex",

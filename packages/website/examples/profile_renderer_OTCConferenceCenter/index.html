@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Profile WebGL renderer on OTC Conference Center</title>
+    <link href="../../css/example-page.css" rel="stylesheet"/>
+    <style>
+        body {
+            background-color: white;
+            overflow: hidden;
+            margin: 0;
+            user-select: none;
+        }
+        #info {
+            position: absolute;
+            top: 120px;
+            left: 14px;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #1f2937;
+            font: 12px/1.45 ui-monospace, Menlo, Consolas, monospace;
+            border-radius: 6px;
+            max-width: 480px;
+            pointer-events: none;
+            z-index: 200000;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+            white-space: pre-wrap;
+        }
+        #info b      { color: #15803d; }
+        #info .muted { color: #6b7280; }
+        #info .fail  { color: #b91c1c; }
+    </style>
+</head>
+<body>
+<div id="info">Loading OTC Conference Center…</div>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

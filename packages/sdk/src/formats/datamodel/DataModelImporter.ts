@@ -5,10 +5,10 @@ import {parse as parse_1_0} from "./versions/1_0/parse"
 /**
  * Reads {@link model!data.DataModelParams | DataModelParams} into a {@link model!data.DataModel | DataModel}.
  */
-export class DataModelParamsLoader extends ModelLoader {
+export class DataModelImporter extends ModelLoader {
 
   /**
-   * Constructs a DataModelParamsLoader.
+   * Constructs a DataModelImporter.
    */
   constructor() {
     super({

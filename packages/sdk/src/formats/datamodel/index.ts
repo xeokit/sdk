@@ -24,13 +24,13 @@
  * ```mermaid
  * classDiagram
  *     direction TB
- *     class DataModelParamsLoader {
+ *     class DataModelImporter {
  *       +format : "DataModelParams"
  *       +load(params, options?) Promise~void~
  *     }
- *     class DataModelParamsExporter {
+ *     class DataModelExporter {
  *       +format : "DataModelParams"
- *       +write(params, options?) Promise~string~
+ *       +write(params, options?) Promise~DataModelParams~
  *     }
  *     class DataModelParams {
  *       <<data>>
@@ -41,10 +41,10 @@
  *     class ModelExporter {
  *       <<formats>>
  *     }
- *     ModelLoader <|-- DataModelParamsLoader
- *     ModelExporter <|-- DataModelParamsExporter
- *     DataModelParamsLoader ..> DataModelParams : reads
- *     DataModelParamsExporter ..> DataModelParams : writes
+ *     ModelLoader <|-- DataModelImporter
+ *     ModelExporter <|-- DataModelExporter
+ *     DataModelImporter ..> DataModelParams : reads
+ *     DataModelExporter ..> DataModelParams : writes
  * ```
  *
  * <br>
@@ -73,51 +73,45 @@
  *
  * ### Exporting a DataModel to JSON
  *
- * Use {@link DataModelParamsExporter} to serialize a {@link model!data.DataModel | DataModel} into a
+ * Use {@link DataModelExporter} to serialize a {@link model!data.DataModel | DataModel} into a
  * {@link model!data.DataModelParams | DataModelParams} object, which can then be stored or transmitted as JSON.
  *
+ * `write` resolves with the `DataModelParams` object itself — stringify it yourself to persist it.
+ *
  * ```ts
- * import { DataModelParamsExporter } from "@xeokit/sdk/datamodel";
+ * import { DataModelExporter } from "@xeokit/sdk/datamodel";
  *
- * const exporter = new DataModelParamsExporter();
+ * const exporter = new DataModelExporter();
  *
- * const paramsResult = exporter.write({
+ * const dataModelParams = await exporter.write({
  *   dataModel
  * });
  *
- * if (!paramsResult.ok) {
- *   console.error(paramsResult.error);
- * } else {
- *   const dataModelParams = paramsResult.value;
- *   const json = JSON.stringify(dataModelParams, null, 2);
- *   // persist or transmit `json`
- * }
+ * const json = JSON.stringify(dataModelParams, null, 2);
+ * // persist or transmit `json`
  * ```
  *
  * ### Importing a DataModel from JSON
  *
- * Use {@link DataModelParamsLoader} to reconstruct a {@link model!data.DataModel | DataModel} from a previously
- * serialized {@link model!data.DataModelParams | DataModelParams} object.
+ * Use {@link DataModelImporter} to reconstruct a {@link model!data.DataModel | DataModel} from a previously
+ * serialized {@link model!data.DataModelParams | DataModelParams} object. Create the target DataModel first,
+ * then pass the params as `fileData` — `load` resolves with no value.
  *
  * ```ts
- * import { DataModelParamsLoader } from "@xeokit/sdk/datamodel";
+ * import { DataModelImporter } from "@xeokit/sdk/datamodel";
  * import { Data } from "@xeokit/sdk/model/data";
  *
  * const data = new Data();
+ * const dataModel = data.createModel({ id: "myModel" }).value;
  *
- * const loader = new DataModelParamsLoader();
+ * const loader = new DataModelImporter();
  *
- * const result = loader.load({
- *   dataModelParams,
- *   data
+ * await loader.load({
+ *   fileData: dataModelParams,
+ *   dataModel
  * });
  *
- * if (!result.ok) {
- *   console.error(result.error);
- * } else {
- *   const dataModel = result.value;
- *   console.log("DataModel loaded:", dataModel.id);
- * }
+ * console.log("DataModel loaded:", dataModel.id);
  * ```
  *
  * ### Round-tripping DataModels
@@ -129,6 +123,7 @@
  * ---
  *
  * @module datamodel
+ * @document ./README.md
  */
-export * from "./DataModelParamsLoader";
-export * from "./DataModelParamsExporter";
+export * from "./DataModelImporter";
+export * from "./DataModelExporter";

@@ -4,10 +4,10 @@ import {ModelExporter} from "../ModelExporter";
 /**
  * Writes a {@link model!data.DataModel | DataModel} to {@link model!data.DataModelParams | DataModelParams} as JSON.
  */
-export class DataModelParamsExporter extends ModelExporter {
+export class DataModelExporter extends ModelExporter {
 
   /**
-   * Constructs a DataModelParamsExporter.
+   * Constructs a DataModelExporter.
    */
   constructor() {
     super({

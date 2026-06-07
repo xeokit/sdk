@@ -78,7 +78,7 @@
  *   `xeokit-convert` outputs.
  * - **Convert-then-load** — {@link convertMetaModel} adapts the
  *   V2 shape to V3 {@link model!data.DataModelParams | DataModelParams};
- *   feed the result to {@link formats!datamodel.DataModelParamsLoader | DataModelParamsLoader}
+ *   feed the result to {@link formats!datamodel.DataModelImporter | DataModelImporter}
  *   for a single-format pipeline.
  *
  * ---

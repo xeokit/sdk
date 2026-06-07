@@ -265,6 +265,8 @@ export abstract class DrawTechnique {
     pointCloudIntensityRange: WebGLUniformLocation; // Intensity range for point cloud rendering
     nearPlaneHeight: WebGLUniformLocation; // Near plane height for perspective point size calculation
     silhouetteColor: WebGLUniformLocation; // Color used for silhouette rendering
+    edgeColorMode: WebGLUniformLocation; // 1.0 = base edges use darkened mesh colour; 0.0 = use uSilhouetteColor
+    edgeDarken: WebGLUniformLocation; // Multiplier on mesh colour when edgeColorMode is on
     gammaFactor: WebGLUniformLocation; // Gamma correction factor
     pickZNear: WebGLUniformLocation; // Near plane for pick rendering
     batchIndex: WebGLUniformLocation; // Batch index for pick rendering
@@ -539,6 +541,8 @@ export abstract class DrawTechnique {
       linePatternLen: program.getLocation("uLinePatternLen"),
       linePatternPeriod: program.getLocation("uLinePatternPeriod"),
       silhouetteColor: program.getLocation("uSilhouetteColor"),
+      edgeColorMode:     program.getLocation("uEdgeColorMode"),
+      edgeDarken:        program.getLocation("uEdgeDarken"),
       sectionPlanes:     program.getLocation("uSectionPlanes[0]"),
       sectionPlaneCount: program.getLocation("uSectionPlaneCount"),
       lightColor: [
@@ -834,6 +838,10 @@ export abstract class DrawTechnique {
           // endpoints, but each duplicate lands on the same FBO
           // texel, so it's harmless.
           gl.drawArrays(gl.POINTS, drawRange.firstPrim * 2, drawRange.numPrims * 2);
+        } else if (this.edges && this.thickLines) {
+          // Thick edges: each edge segment expands to a 2-triangle quad
+          // (6 verts) in vsThickLineMain, reading the edge index buffer.
+          gl.drawArrays(gl.TRIANGLES, drawRange.firstPrim * 6, drawRange.numPrims * 6);
         } else if (this.snap === 2 || this.edges) {
           gl.drawArrays(gl.LINES, drawRange.firstPrim * 2, drawRange.numPrims * 2); // Edges / edge-snap draw range
         } else {
@@ -1330,6 +1338,9 @@ vec4 packUintToRGBA8(uint v) {
 // ─────────────────────────────────────────────────────────────
 
 uniform vec4 uSilhouetteColor;
+// Base-edges colour mode: 1.0 = darken each mesh's own colour, 0.0 = use uSilhouetteColor.
+uniform float uEdgeColorMode;
+uniform float uEdgeDarken;
 flat out vec4 vColor;`);
   }
 
@@ -1862,8 +1873,14 @@ void main(void) {`);
    */
   protected vsSilhouetteLogic() {
     this._vertSrcBuf.push(`
-    // Output constant silhouette color
-    vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, uSilhouetteColor.a);`);
+    // Edge / silhouette colour. In "darkenedMesh" mode (base edges only, set
+    // via uEdgeColorMode) each edge takes its own mesh's colour scaled by
+    // uEdgeDarken, keeping the silhouette uniform's alpha (edgeAlpha).
+    if (uEdgeColorMode > 0.5) {
+      vColor = vec4(vec3(meshViewAttributes.color.rgb) / 255.0 * uEdgeDarken, uSilhouetteColor.a);
+    } else {
+      vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, uSilhouetteColor.a);
+    }`);
   }
 
   /**
@@ -2015,12 +2032,13 @@ void main(void) {
   QuantRange quantRange = getGeometryQuantRange( geometryIndex );
 
   // Fetch *both* endpoint vertex indices into the geometry's
-  // vertex table. The lines path uses indicesBase (not
-  // edgeIndicesBase): edges live in a separate index buffer the
-  // triangle-edge techniques consult.
+  // vertex table. Line primitives index through indicesBase;
+  // triangle-mesh edges (this.edges) through edgeIndicesBase —
+  // the same buffer the thin edge techniques consult, so the
+  // quad expansion thickens those exact segments.
   uint baseOffset = primOffset * 2u;
-  uint idxA = getVertexIndex( geometryAttributes.indicesBase + baseOffset );
-  uint idxB = getVertexIndex( geometryAttributes.indicesBase + baseOffset + 1u );
+  uint idxA = getVertexIndex( geometryAttributes.${this.edges ? "edgeIndicesBase" : "indicesBase"} + baseOffset );
+  uint idxB = getVertexIndex( geometryAttributes.${this.edges ? "edgeIndicesBase" : "indicesBase"} + baseOffset + 1u );
 
   // ── Polyline-adjacency detection ────────────────────────────
   //
@@ -2040,8 +2058,8 @@ void main(void) {
     uvec2 prevPrimData = getPrimData( primIndex - 1u );
     if (prevPrimData.r == meshIndex && prevPrimData.g + 1u == primOffset) {
       uint prevBase = (primOffset - 1u) * 2u;
-      uint prevSegA = getVertexIndex( geometryAttributes.indicesBase + prevBase );
-      uint prevSegB = getVertexIndex( geometryAttributes.indicesBase + prevBase + 1u );
+      uint prevSegA = getVertexIndex( geometryAttributes.${this.edges ? "edgeIndicesBase" : "indicesBase"} + prevBase );
+      uint prevSegB = getVertexIndex( geometryAttributes.${this.edges ? "edgeIndicesBase" : "indicesBase"} + prevBase + 1u );
       if (prevSegB == idxA) {
         hasPrevJoin = true;
         idxP = prevSegA;
@@ -2054,8 +2072,8 @@ void main(void) {
     uvec2 nextPrimData = getPrimData( primIndex + 1u );
     if (nextPrimData.r == meshIndex && nextPrimData.g == primOffset + 1u) {
       uint nextBase = (primOffset + 1u) * 2u;
-      uint nextSegA = getVertexIndex( geometryAttributes.indicesBase + nextBase );
-      uint nextSegB = getVertexIndex( geometryAttributes.indicesBase + nextBase + 1u );
+      uint nextSegA = getVertexIndex( geometryAttributes.${this.edges ? "edgeIndicesBase" : "indicesBase"} + nextBase );
+      uint nextSegB = getVertexIndex( geometryAttributes.${this.edges ? "edgeIndicesBase" : "indicesBase"} + nextBase + 1u );
       if (nextSegA == idxB) {
         hasNextJoin = true;
         idxN = nextSegB;
@@ -4210,11 +4228,14 @@ ${this.triplanar ? `
     }
 
     if (uniforms.lineWidth) {
-      // The View's `linesMaterial.lineWidth` is the user-facing knob.
-      // Default 1 keeps thick-line techniques visually close to
-      // the legacy `gl.LINES` path (single-pixel core + 1-pixel
+      // Thick *edges* take their width from the edges effect; thick
+      // *lines* from `linesMaterial`. Default 1 keeps both visually
+      // close to the legacy `gl.LINES` path (single-pixel core + 1-pixel
       // smoothstep AA at the edges).
-      gl.uniform1f(uniforms.lineWidth, view.linesMaterial?.lineWidth ?? 1.0);
+      const width = this.edges
+        ? (view.effects.edges?.edgeWidth ?? 1.0)
+        : (view.linesMaterial?.lineWidth ?? 1.0);
+      gl.uniform1f(uniforms.lineWidth, width);
     }
 
     if (uniforms.lineJoinRound) {
@@ -4438,6 +4459,22 @@ ${this.triplanar ? `
         } else {
           gl.uniform4fv(uniforms.silhouetteColor, defaultColor);
         }
+      }
+    }
+
+    // Base-edges "use mesh colour" mode. Only the base edges pass honours it —
+    // x-ray / highlight / selected edges keep their emphasis colour, and every
+    // fill pass keeps mode off — so the shader's mesh-colour branch is gated to
+    // exactly that one case.
+    if (uniforms.edgeColorMode) {
+      const e = view.effects.edges;
+      const baseEdgesPass = this.edges
+        && renderPass !== RENDER_PASSES.XRAYED
+        && renderPass !== RENDER_PASSES.HIGHLIGHTED
+        && renderPass !== RENDER_PASSES.SELECTED;
+      gl.uniform1f(uniforms.edgeColorMode, (baseEdgesPass && e.useMeshColor) ? 1 : 0);
+      if (uniforms.edgeDarken) {
+        gl.uniform1f(uniforms.edgeDarken, e.edgeDarken);
       }
     }
 

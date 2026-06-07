@@ -43,6 +43,13 @@ export interface RenderPassDrawOps {
   opaqueEdges?: DrawOp;
 
   /**
+   * Thick (quad-expanded) variant of {@link opaqueEdges}, used when
+   * `View.effects.edges.edgeWidth > 1` (wide edges, since `gl.lineWidth`
+   * can't thicken `gl.LINES` on most WebGL stacks).
+   */
+  opaqueEdgesThick?: DrawOp;
+
+  /**
    * Unlit pure-colour opaque draw operation. The fragment colour comes
    * straight from the mesh's stored colour — no Lambert / PBR, no SAO,
    * no shadow. Used by the renderer's overlay-bin pass so gizmo handles,
@@ -68,6 +75,12 @@ export interface RenderPassDrawOps {
    * Draw operation for rendering transparent edges.
    */
   transparentEdges?: DrawOp;
+
+  /**
+   * Thick (quad-expanded) variant of {@link transparentEdges}, used when
+   * `View.effects.edges.edgeWidth > 1`.
+   */
+  transparentEdgesThick?: DrawOp;
 
   /**
    * Draw operation for rendering highlighted silhouettes.

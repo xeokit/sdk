@@ -19,6 +19,7 @@ import {RENDER_PASSES} from "../RENDER_PASSES";
 import {TrianglesDrawEdgeSilhouetteTechnique} from "./techniques/triangles/TrianglesDrawEdgeSilhouetteTechnique";
 import {DrawTechnique} from "./DrawTechnique";
 import {TrianglesDrawEdgeColorTechnique} from "./techniques/triangles/TrianglesDrawEdgeColorTechnique";
+import {TrianglesDrawEdgeColorThickTechnique} from "./techniques/triangles/TrianglesDrawEdgeColorThickTechnique";
 import {SDKInternalException} from "../../../../base/core";
 import {TrianglesDrawSilhouetteTechnique} from "./techniques/triangles/TrianglesDrawSilhouetteTechnique";
 import {GenericPickMeshTechnique} from "./techniques/generic";
@@ -197,6 +198,7 @@ export class DrawOps {
     const trianglesShadowDepth = saveForCleanup(new TrianglesShadowDepthTechnique(renderContext, gpuMemoryReader));
     const trianglesDrawEdgeSilhouette = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH}));
     const trianglesDrawEdgeColor = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH}));
+    const trianglesDrawEdgeColorThick = saveForCleanup(new TrianglesDrawEdgeColorThickTechnique(renderContext, gpuMemoryReader, {logDepth: LOG_DEPTH}));
     const trianglesPickMesh = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader, 3));
     // Thick-line pick — same quad-expansion as the colour pass,
     // so the pickable region matches what the user sees as the
@@ -250,8 +252,10 @@ export class DrawOps {
         flatColorTransparent: new DrawOp(trianglesDrawColorFlat, TRANSPARENT),
         shadowDepth: new DrawOp(trianglesShadowDepth, OPAQUE),
         opaqueEdges: new DrawOp(trianglesDrawEdgeColor, OPAQUE),
+        opaqueEdgesThick: new DrawOp(trianglesDrawEdgeColorThick, OPAQUE),
         transparent: new DrawOp(trianglesDrawColor, TRANSPARENT),
         transparentEdges: new DrawOp(trianglesDrawEdgeColor, TRANSPARENT),
+        transparentEdgesThick: new DrawOp(trianglesDrawEdgeColorThick, TRANSPARENT),
         highlighted: new DrawOp(trianglesSilhouette, HIGHLIGHTED),
         highlightedEdges: new DrawOp(trianglesDrawEdgeSilhouette, HIGHLIGHTED),
         selected: new DrawOp(trianglesSilhouette, SELECTED),

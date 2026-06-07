@@ -12,9 +12,35 @@ export interface EdgesParams {
   /**
    * RGB edge color for {@link Edges | Edges}.
    *
+   * Used unless {@link EdgesParams.useMeshColor | useMeshColor} is set.
+   *
    * Default value is ````[0.2, 0.2, 0.2]````.
    */
   edgeColor?: Vec3;
+
+  /**
+   * When `true`, the base edges effect colours each edge with its own mesh's
+   * colour darkened by {@link EdgesParams.edgeDarken | edgeDarken}, instead of
+   * the fixed {@link EdgesParams.edgeColor | edgeColor} — so edges read as a
+   * shaded outline of each object rather than one uniform colour.
+   *
+   * Only affects the base edges effect — x-ray / highlight / selected edges
+   * always use their emphasis material's colour.
+   *
+   * Default value is ````false````.
+   */
+  useMeshColor?: boolean;
+
+  /**
+   * Multiplier applied to each mesh's colour when
+   * {@link EdgesParams.useMeshColor | useMeshColor} is `true`.
+   *
+   * `0` yields black edges, `1` leaves the mesh colour unchanged. Range
+   * `[0, 1]`.
+   *
+   * Default value is ````0.5````.
+   */
+  edgeDarken?: number;
 
   /**
    * Line width for {@link Edges | Edges}.

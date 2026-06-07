@@ -22,6 +22,8 @@ class Edges {
     public readonly view: View;
 
     private _edgeColor: Vec3;
+    private _useMeshColor: boolean;
+    private _edgeDarken: number;
     private _edgeWidth: number;
     private _edgeAlpha: number;
     private _edgeFadeStart: number;
@@ -38,6 +40,8 @@ class Edges {
 
         this._renderModes = options.renderModes || [DetailedRender];
         this._edgeColor = createVec3Float64(options.edgeColor || [0.35, 0.35, 0.35]);
+        this._useMeshColor = options.useMeshColor === true;
+        this._edgeDarken = (options.edgeDarken !== undefined && options.edgeDarken !== null) ? options.edgeDarken : 0.5;
         this._edgeAlpha = (options.edgeAlpha !== undefined && options.edgeAlpha !== null) ? options.edgeAlpha : 0.5;
         this._edgeWidth = (options.edgeWidth !== undefined && options.edgeWidth !== null) ? options.edgeWidth : 1;
         this._edgeFadeStart = (options.edgeFadeStart !== undefined && options.edgeFadeStart !== null) ? options.edgeFadeStart : 0.4;
@@ -98,6 +102,60 @@ class Edges {
      */
     get edgeColor(): Vec3 {
         return this._edgeColor;
+    }
+
+    /**
+     * Sets whether the base edges effect colours each edge with its own mesh's
+     * colour darkened by {@link Edges.edgeDarken | edgeDarken}, instead of the
+     * fixed {@link Edges.edgeColor | edgeColor}.
+     *
+     * Only affects the base edges effect — x-ray / highlight / selected edges
+     * always use their emphasis material's colour.
+     *
+     * Default value is ````false````.
+     */
+    set useMeshColor(value: boolean) {
+        if (this._useMeshColor === value) {
+            return;
+        }
+        this._useMeshColor = value;
+        this.view.needsRender();
+    }
+
+    /**
+     * Gets whether the base edges effect uses each mesh's darkened colour
+     * instead of the fixed {@link Edges.edgeColor | edgeColor}.
+     *
+     * Default value is ````false````.
+     */
+    get useMeshColor(): boolean {
+        return this._useMeshColor;
+    }
+
+    /**
+     * Sets the multiplier applied to each mesh's colour when
+     * {@link Edges.useMeshColor | useMeshColor} is `true`.
+     *
+     * `0` yields black edges, `1` leaves the mesh colour unchanged.
+     *
+     * Default value is ````0.5````.
+     */
+    set edgeDarken(value: number) {
+        if (this._edgeDarken === value) {
+            return;
+        }
+        this._edgeDarken = value;
+        this.view.needsRender();
+    }
+
+    /**
+     * Gets the multiplier applied to each mesh's colour when
+     * {@link Edges.useMeshColor | useMeshColor} is `true`.
+     *
+     * Default value is ````0.5````.
+     */
+    get edgeDarken(): number {
+        return this._edgeDarken;
     }
 
     /**
@@ -227,6 +285,8 @@ class Edges {
           value:{
             renderModes: this.renderModes,
             edgeColor: <Vec3> Array.from(this.edgeColor),
+            useMeshColor: this.useMeshColor,
+            edgeDarken: this.edgeDarken,
             edgeWidth: this.edgeWidth,
             edgeAlpha: this.edgeAlpha,
             edgeFadeStart: this.edgeFadeStart,
@@ -248,10 +308,27 @@ class Edges {
                 error: "[Edges.fromParams] Edges has been destroyed."
             });
         }
-        this.renderModes = edgesParams.renderModes;
-        this.edgeColor = <Vec3>Array.from(edgesParams.edgeColor);
-        this.edgeWidth = edgesParams.edgeWidth;
-        this.edgeAlpha = edgesParams.edgeAlpha;
+        // Each field is applied only when present, so single-key patches
+        // (e.g. from the Studio config panel's `fromParams({useMeshColor})`)
+        // don't clobber — or throw on — the fields they omit.
+        if (edgesParams.renderModes !== undefined) {
+            this.renderModes = edgesParams.renderModes;
+        }
+        if (edgesParams.edgeColor !== undefined) {
+            this.edgeColor = <Vec3>Array.from(edgesParams.edgeColor);
+        }
+        if (edgesParams.useMeshColor !== undefined) {
+            this.useMeshColor = edgesParams.useMeshColor;
+        }
+        if (edgesParams.edgeDarken !== undefined) {
+            this.edgeDarken = edgesParams.edgeDarken;
+        }
+        if (edgesParams.edgeWidth !== undefined) {
+            this.edgeWidth = edgesParams.edgeWidth;
+        }
+        if (edgesParams.edgeAlpha !== undefined) {
+            this.edgeAlpha = edgesParams.edgeAlpha;
+        }
         if (edgesParams.edgeFadeStart !== undefined) {
             this.edgeFadeStart = edgesParams.edgeFadeStart;
         }

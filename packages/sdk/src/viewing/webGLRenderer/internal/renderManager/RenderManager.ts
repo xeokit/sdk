@@ -528,6 +528,49 @@ export class RenderManager {
   }
 
   /**
+   * Draws a base-edges bin, choosing the thin `gl.LINES` technique (default)
+   * or the thick quad-expanded one when `edges.edgeWidth > 1` — `gl.lineWidth`
+   * can't widen lines on most WebGL stacks, so wide edges expand to triangles.
+   *
+   * Thick edges are TRIANGLES, so two pieces of GL state the thin path got for
+   * free are set here and restored after:
+   * - Polygon offset biased *toward* the camera — thin `gl.LINES` are immune to
+   *   polygon offset, so they win z-ties at true depth while the scene pushes
+   *   filled surfaces back. Thick edge triangles are subject to it and would
+   *   z-fight the coplanar surface, so they get a slope-scaled negative offset
+   *   (`polygonOffset(-1, -1)`): the standard coplanar-outline/decal fix, robust
+   *   at grazing angles because the bias tracks the surface's depth slope (a
+   *   constant NDC bias can't), yet small enough to only break coplanar ties —
+   *   it won't punch through genuinely-closer geometry. The scene's surface
+   *   offset (`polygonOffset(1, 1)`) pushes the other way, so they compound.
+   * - BLEND on (premultiplied) — for the round-rect SDF antialiasing fringe.
+   */
+  private _drawEdgeBin(
+      batches: ReadonlyArray<MeshBatch>,
+      baseOpKey: keyof RenderPassDrawOps,
+      thickOpKey: keyof RenderPassDrawOps,
+      renderBinName: string,
+      view: import("../../../viewer").View,
+  ): void {
+    if (view.effects.edges.edgeWidth > 1 && batches.length > 0) {
+      const gl = this._renderContext.gl;
+      const offsetWas = gl.isEnabled(gl.POLYGON_OFFSET_FILL);
+      const blendWas = gl.isEnabled(gl.BLEND);
+      gl.enable(gl.POLYGON_OFFSET_FILL);
+      gl.polygonOffset(-1.0, -1.0);
+      gl.enable(gl.BLEND);
+      gl.blendEquation(gl.FUNC_ADD);
+      gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+      this._drawBin(batches, thickOpKey, renderBinName);
+      if (!blendWas) gl.disable(gl.BLEND);
+      gl.polygonOffset(1.0, 1.0);   // restore the scene's surface offset
+      if (!offsetWas) gl.disable(gl.POLYGON_OFFSET_FILL);
+    } else {
+      this._drawBin(batches, baseOpKey, renderBinName);
+    }
+  }
+
+  /**
    * Returns the active render inspector iff one is attached and currently
    * enabled — otherwise `null`. Centralises the `?.enabled &&` check that
    * every inspector call site previously had to repeat.
@@ -791,11 +834,11 @@ export class RenderManager {
     }
     renderContext.shadowCascadeCount = 0;
 
-    this._drawBin(bins.normalEdgesOpaque, "opaqueEdges", RENDER_BINS.EDGES_OPAQUE);
+    this._drawEdgeBin(bins.normalEdgesOpaque, "opaqueEdges", "opaqueEdgesThick", RENDER_BINS.EDGES_OPAQUE, view);
     this._drawBin(bins.xrayedSilhouetteOpaque, "xrayed", RENDER_BINS.XRAYED_SILHOUETTE_OPAQUE);
     this._drawBin(bins.xrayEdgesOpaque, "xrayedEdges", RENDER_BINS.XRAYED_EDGES_OPAQUE);
 
-    this._renderTransparents();
+    this._renderTransparents(view);
 
     gl.disable(gl.CULL_FACE);
     gl.clear(gl.DEPTH_BUFFER_BIT);
@@ -1088,7 +1131,7 @@ export class RenderManager {
    * Transparent block — sets up premultiplied-alpha blending, draws the four
    * transparent bins, then restores depth-write state.
    */
-  private _renderTransparents(): void {
+  private _renderTransparents(view: import("../../../viewer").View): void {
     const renderContext = this._renderContext;
     const gl = renderContext.gl;
     const bins = this._bins;
@@ -1118,7 +1161,7 @@ export class RenderManager {
       gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     }
 
-    this._drawBin(bins.normalEdgesTransparent, "transparentEdges", RENDER_BINS.EDGES_TRANSPARENT);
+    this._drawEdgeBin(bins.normalEdgesTransparent, "transparentEdges", "transparentEdgesThick", RENDER_BINS.EDGES_TRANSPARENT, view);
     this._drawBin(bins.normalFillTransparent, "transparent", RENDER_BINS.TRANSPARENT);
 
     gl.disable(gl.BLEND);

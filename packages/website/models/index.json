@@ -40,6 +40,15 @@
     "formats": ["xgf"],
     "dataset": ["xgf"]
   },
+  "DamagedHelmet": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["gltf"],
+    "dataset": ["gltf"]
+  },
   "Duplex": {
     "coordSys": {
       "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
@@ -230,6 +239,15 @@
     },
     "formats": ["rvm"]
   },
+  "ResidentialBuilding": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["gltf", "usdz"],
+    "dataset": ["gltf", "usdz"]
+  },
   "STEP_Sample": {
     "formats": ["stp"]
   },
@@ -270,7 +288,7 @@
       "origin": [0, 0, 0],
       "units": "meters"
     },
-    "formats": ["datamodel", "mtl", "obj", "scenemodel"],
-    "dataset": ["mtl, obj", "datamodel, scenemodel", "scenemodel"]
+    "formats": ["datamodel", "mtl", "obj", "scenemodel", "usdz"],
+    "dataset": ["mtl, obj", "datamodel, scenemodel", "scenemodel", "usdz"]
   }
 }

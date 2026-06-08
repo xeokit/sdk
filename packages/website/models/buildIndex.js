@@ -22,7 +22,8 @@ const DATASET_COMBINATIONS = {
   "fbx": ["fbx"],
   "ifc": ["ifc"],
   "laz": ["laz"],
-  "dotbim": ["dotbim"]
+  "dotbim": ["dotbim"],
+  "usdz": ["usdz"]
 };
 
 async function findModelFiles(dir) {

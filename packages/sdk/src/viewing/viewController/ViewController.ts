@@ -1,5 +1,5 @@
 import { EventEmitter} from "../../base/core";
-import {FirstPersonNavigationMode, OrbitNavigationMode, PlanViewNavigationMode, QWERTYLayout} from "../../base/constants";
+import {AZERTYLayout, FirstPersonNavigationMode, OrbitNavigationMode, PlanViewNavigationMode, QWERTYLayout} from "../../base/constants";
 import {
   KEY_A,
   KEY_ADD,
@@ -28,7 +28,6 @@ import {CameraFlightAnimation} from "../cameraFlight";
 import {CameraUpdater} from "./CameraUpdater";
 import {createVec2Float64, type Vec3} from "../../base/math/vector";
 import {EventDispatcher} from "strongly-typed-events";
-import {isString} from "../../base/utils";
 import {KeyboardAxisViewHandler} from "./KeyboardAxisViewHandler";
 import {KeyboardPanRotateDollyHandler} from "./KeyboardPanRotateDollyHandler";
 import {MouseMiscHandler} from "./MouseMiscHandler";
@@ -402,17 +401,24 @@ export class ViewController {
    * @param {{Number:Number}|String} value Either a set of new key mappings, or a string to select a keyboard layout,
    * which causes ````ViewController```` to use the default key mappings for that layout.
    */
-  set keyMap(value: { Number: number } | number) {
+  set keyMap(value: { Number: number } | number | string) {
     value = value || QWERTYLayout;
-    if (isString(value)) {
+    if (typeof value === "object") {
+      // Custom mapping of actions → key codes.
+      this._keyMap = value;
+    } else {
+      // Layout selector — a QWERTYLayout / AZERTYLayout constant (or the
+      // equivalent legacy "qwerty" / "azerty" string). Build the default
+      // mapping for that layout.
       const keyMap = {};
 
       switch (value) {
 
         default:
-          console.error("Unsupported value for 'keyMap': " + value + " defaulting to 'qwerty'");
+          console.error("Unsupported value for 'keyMap': " + value + " - defaulting to QWERTY layout");
         // Intentional fall-through to QWERTYLayout
         case QWERTYLayout:
+        case "qwerty":
           keyMap[ViewController.PAN_LEFT] = [KEY_A];
           keyMap[ViewController.PAN_RIGHT] = [KEY_D];
           keyMap[ViewController.PAN_UP] = [KEY_Z];
@@ -433,6 +439,7 @@ export class ViewController {
           keyMap[ViewController.AXIS_VIEW_BOTTOM] = [KEY_NUM_6];
           break;
 
+        case AZERTYLayout:
         case "azerty":
           keyMap[ViewController.PAN_LEFT] = [KEY_Q];
           keyMap[ViewController.PAN_RIGHT] = [KEY_D];
@@ -455,9 +462,6 @@ export class ViewController {
           break;
       }
 
-      this._keyMap = keyMap;
-    } else {
-      const keyMap = value;
       this._keyMap = keyMap;
     }
   }

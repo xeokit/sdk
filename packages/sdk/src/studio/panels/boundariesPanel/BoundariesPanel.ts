@@ -1303,10 +1303,18 @@ function renderSVGView(
   // aimed away (along -axOther). That's the cue that
   // distinguishes "camera looking up at me" from "camera
   // looking down at the floor" in the Top view.
-  {
-    const axOther = 3 - ax0 - ax1;     // ax0, ax1 ∈ {0,1,2} → other axis
-    const eye0 = camEye[ax0],  eye1 = camEye[ax1];
-    const [svgEyeX, svgEyeY] = toSvg(eye0, eye1);
+  const axOther = 3 - ax0 - ax1;     // ax0, ax1 ∈ {0,1,2} → other axis
+  const eye0 = camEye[ax0],  eye1 = camEye[ax1];
+  const [svgEyeX, svgEyeY] = toSvg(eye0, eye1);
+
+  // Skip the glyph unless every value feeding an SVG numeric attribute is
+  // finite. A NaN camera pose OR a degenerate scene AABB (which makes the
+  // projection NaN even for a finite camera) would otherwise emit
+  // "translate(NaN,NaN)" and flood the console with "transform: Expected
+  // number" errors. Guarding the projected coords covers both causes.
+  if (Number.isFinite(svgEyeX) && Number.isFinite(svgEyeY) &&
+      camEye.every((c: number) => Number.isFinite(c)) &&
+      camLook.every((c: number) => Number.isFinite(c))) {
 
     // Forward direction in world space, normalised. Using world
     // coords (not projected) so we can read off the

@@ -26,6 +26,7 @@ import type {Studio} from "../../Studio";
 import {XGFExporter}              from "../../../formats/xgf/XGFExporter";
 import {GLTFExporter}             from "../../../formats/gltf/GLTFExporter";
 import {FBXExporter}              from "../../../formats/fbx/FBXExporter";
+import {USDZExporter}             from "../../../formats/usdz/USDZExporter";
 import {OBJExporter}              from "../../../formats/obj/OBJExporter";
 import {MTLExporter}              from "../../../formats/mtl/MTLExporter";
 import {IFCExporter}              from "../../../formats/ifc/IFCExporter";
@@ -143,6 +144,11 @@ const FORMAT_REGISTRY: Record<string, FormatEntry> = {
     build:   () => new FBXExporter(),
     toBytes: (raw) => raw as ArrayBuffer,
   },
+  usdz: {
+    id: "usdz", label: "USDZ", ext: "usdz", mime: "model/vnd.usdz+zip",
+    build:   () => new USDZExporter(),
+    toBytes: (raw) => raw as ArrayBuffer,
+  },
   obj: {
     id: "obj", label: "OBJ", ext: "obj", mime: "model/obj",
     build:   () => new OBJExporter(),
@@ -207,6 +213,7 @@ const DEFAULT_DATASET_TYPES: string[] = [
   "scenemodel",
   "gltf",
   "fbx",
+  "usdz",
   "obj,mtl",
   "ifc",
   "dotbim",

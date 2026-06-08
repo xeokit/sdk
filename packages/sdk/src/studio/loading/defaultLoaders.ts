@@ -2,6 +2,7 @@ import {XGFLoader} from "../../formats/xgf";
 import {IFCLoader} from "../../formats/ifc";
 import {GLTFLoader} from "../../formats/gltf";
 import {FBXLoader} from "../../formats/fbx";
+import {USDZLoader} from "../../formats/usdz";
 import {MTLLoader} from "../../formats/mtl";
 import {OBJLoader} from "../../formats/obj";
 import {DotBIMLoader} from "../../formats/dotbim";
@@ -52,6 +53,13 @@ export function createDefaultLoaderRegistry(): LoaderRegistry {
     needsScene: true,
     needsData: false,
     load: (input, options) => new FBXLoader().load(input, options),
+  });
+
+  r.register("usdz", {
+    fetch: "arrayBuffer",
+    needsScene: true,
+    needsData: false,
+    load: (input, options) => new USDZLoader().load(input, options),
   });
 
   r.register("mtl", {

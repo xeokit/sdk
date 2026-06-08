@@ -1,15 +1,16 @@
 ---
 title: USDZ Format Guide
 ---
-# USDZ (Pixar) Loader
+# USDZ (Pixar) Loader / Exporter
 
-`USDZLoader` loads Pixar USDZ (`.usdz`) packages into a `SceneModel`.
+`USDZLoader` loads Pixar USDZ (`.usdz`) packages into a `SceneModel`, and
+`USDZExporter` writes a `SceneModel` back out as USDZ.
 
 USDZ is the format behind ARKit AR Quick Look; it's what Sketchfab,
-Blender and Reality Composer export for AR. This loader handles the
-common real-world case — a binary USD layer inside the package — by
-decoding it with the [`tinyusdz`](https://github.com/lighttransport/tinyusdz)
-wasm reader.
+Blender and Reality Composer export for AR. The loader handles the common
+real-world case — a binary USD layer inside the package — by decoding it
+with the [`tinyusdz`](https://github.com/lighttransport/tinyusdz) wasm
+reader. The exporter writes an ASCII `.usda` layer (pure JS, no wasm).
 
 ---
 
@@ -79,6 +80,8 @@ meshes, so face indices are used as-is.
 
 ## 4. Usage
 
+### Loader (browser only)
+
 ```ts
 import {Scene} from "@xeokit/sdk/model/scene";
 import {USDZLoader} from "@xeokit/sdk/formats/usdz";
@@ -98,6 +101,20 @@ USD is Y-up by default. Orient the result for your scene by setting the
 `SceneModel.coordinateSystem` at `createModel` time, as for the FBX
 loader.
 
+### Exporter (runs anywhere)
+
+```ts
+import {USDZExporter} from "@xeokit/sdk/formats/usdz";
+
+const usdzBytes = await new USDZExporter().write({sceneModel}); // ArrayBuffer
+```
+
+The exporter writes an ASCII `.usda` root layer wrapped in a stored,
+64-byte-aligned ZIP — pure JS, so unlike the loader it works under Node
+too. It serialises mesh geometry (points, triangles, normals), per-mesh
+transforms, and UsdPreviewSurface materials (base colour, opacity,
+metallic, roughness).
+
 ---
 
 ## 5. What v1 does not cover
@@ -109,7 +126,9 @@ loader.
 - **Animation / skinning** (`UsdSkel`), **subdivision surfaces**,
   **variants / payload composition**, **point instancers**, **lights /
   cameras**, and **external (non-packaged) references**.
-- **Export** — there is no USDZ writer.
+- **Export specifics** — the exporter writes ASCII `.usda` (not binary
+  `.usdc`), inlines geometry per mesh (no USD reference-instancing), and
+  does not write textures.
 
 ---
 
@@ -118,13 +137,17 @@ loader.
 ```
 formats/usdz/
 ├── README.md                     (this file)
-├── USDZLoader.ts                 ModelLoader subclass — entry point
+├── USDZLoader.ts                 ModelLoader subclass — read entry point
+├── USDZExporter.ts               ModelExporter subclass — write entry point
 ├── usdzArchive.ts                dependency-free stored-ZIP unpack + isUSDZ
+├── usdzWriter.ts                 dependency-free stored-ZIP pack (aligned, CRC)
 ├── usdLayer.ts                   crate-vs-ascii detection
 ├── getTinyUSDZ.ts                lazy, cached, browser-only wasm initialiser
 ├── tinyusdz.d.ts                 ambient types for the untyped tinyusdz package
 ├── index.ts                      module re-exports
 └── versions/v1/
     ├── parse.ts                  unpack → tinyusdz → buildSceneModel
-    └── buildSceneModel.ts        USD scenegraph → SceneModel (pure, tested)
+    ├── buildSceneModel.ts        USD scenegraph → SceneModel (pure, tested)
+    ├── encode.ts                 SceneModel → USDA scene → packUSDZ
+    └── buildUSDA.ts              scene description → .usda text (pure, tested)
 ```

@@ -38,17 +38,10 @@
  *       +fileDataType   : string
  *       +write(params, options?) Promise~fileData~
  *     }
- *     class ModelParser {
- *       <<abstract>>
- *       +parse(params) Promise~void~
- *     }
- *     class ModelEncoder {
- *       <<abstract>>
- *       +encode(params) Promise~fileData~
- *     }
  *     class GeometryFormats {
- *       gltf / ifc / dotbim / las / xgf / xkt
+ *       gltf / ifc / dotbim / las / xgf
  *       cityjson / obj / mtl / rvm / step
+ *       fbx / usdz / dwg / dxf / pdf / svg / fds
  *     }
  *     class XeokitNativeFormats {
  *       scenemodel / datamodel / metamodel
@@ -66,7 +59,7 @@
  * - **Uniform loader / exporter interface** — every format
  *   subclasses {@link ModelLoader} or {@link ModelExporter} so
  *   callers can swap formats without changing call shape.
- * - **Multi-version per format** — many formats (XGF, XKT, glTF)
+ * - **Multi-version per format** — several formats (XGF, glTF)
  *   ship multiple readers / writers under one class; `version`
  *   selects which one to use, defaulting to the latest.
  * - **Cooperative yields** — every loader / exporter honours the
@@ -91,17 +84,23 @@
  * - {@link formats!gltf | gltf} – glTF and GLB
  * - {@link formats!ifc | ifc} – Industry Foundation Classes (IFC)
  * - {@link formats!cityjson | cityjson} – CityJSON
- * - {@link formats!dotbim | dotbim} – DotBIM
+ * - {@link formats!dotbim | dotbim} – dotbim
  * - {@link formats!las | las} – LAS / LAZ point cloud formats
- * - {@link formats!xkt | xkt} – xeokit XKT
- * - {@link formats!xgf | xgf} – xeokit Geometry Format
+ * - {@link formats!fbx | fbx} – Autodesk FBX (binary)
+ * - {@link formats!usdz | usdz} – Pixar USDZ
+ * - {@link formats!rvm | rvm} – AVEVA RVM
  * - {@link formats!obj | obj} – Wavefront OBJ
  * - {@link formats!mtl | mtl} – Wavefront MTL
- * - {@link formats!rvm | rvm} – AVEVA RVM
  * - {@link formats!step | step} – ISO 10303-21 STEP (`.step` / `.stp`)
+ * - {@link formats!dwg | dwg} – AutoCAD DWG
+ * - {@link formats!dxf | dxf} – AutoCAD DXF
+ * - {@link formats!pdf | pdf} – PDF
+ * - {@link formats!svg | svg} – SVG
+ * - {@link formats!fds | fds} – Fire Dynamics Simulator (FDS)
+ * - {@link formats!xgf | xgf} – xeokit Geometry Format
  * - {@link formats!scenemodel | scenemodel} – xeokit SceneModel
  * - {@link formats!datamodel | datamodel} – xeokit DataModel
- * - {@link formats!metamodel | metamodel} – xeokit Metadata and schema-level information (legacy support)
+ * - {@link formats!metamodel | metamodel} – xeokit metadata / schema (legacy support)
  *
  * Each format's namespace typically provides one or more of the following:
  *
@@ -130,8 +129,6 @@
  * The module defines generic base types that are shared across format implementations:
  *
  * - {@link ModelLoader} / {@link ModelLoaderParams}
- * - {@link ModelParser} / {@link ModelParseParams}
- * - {@link ModelEncoder} / {@link ModelEncodeParams}
  * - {@link ModelExporter} / {@link ModelExporterParams}
  *
  * These abstractions allow tooling and applications to work with multiple formats
@@ -160,8 +157,6 @@ export * as dwg from "./dwg";
 export * as dxf from "./dxf";
 export * as fds from "./fds";
 
-export * from "./ModelEncodeParams";
-export * from "./ModelEncoder";
 export * from "./ModelExporter";
 export * from "./ModelExporterParams";
 export * from "./ModelExportParams";
@@ -170,6 +165,4 @@ export * from "./ModelLoader";
 export * from "./ModelLoaderParams";
 export * from "./ModelLoadOptions";
 export * from "./ModelLoadParams";
-export * from "./ModelParseParams";
-export * from "./ModelParser";
 export * from "./ModelExportOptions";

@@ -342,13 +342,11 @@ const dataModel  = data.createModel({id: "myFire"}).value!;
 
 const text = await (await fetch("./compartment.fds")).text();
 
-const result = await new FDSLoader().load({
+await new FDSLoader().load({
   fileData: text,
   sceneModel,
   dataModel,
 });
-
-console.log(result.warnings);    // any non-honoured groups, by line
 ```
 
 The loader's `fileDataType` is `"text"`, so application code must read

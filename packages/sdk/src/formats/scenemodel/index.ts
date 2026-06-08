@@ -113,7 +113,6 @@
  *   sceneModel
  * });
  *
- * sceneModel.build();
  * console.log("SceneModel loaded:", sceneModel.id);
  * ```
  *

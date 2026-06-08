@@ -94,7 +94,6 @@ const sceneModel = scene.createModel({id: "myModel"}).value;
 const fileData = await (await fetch("model.json")).json();
 
 await new SceneModelImporter().load({fileData, sceneModel});
-sceneModel.build();
 ```
 
 ### Exporter

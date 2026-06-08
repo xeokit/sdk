@@ -422,6 +422,16 @@ export class MeshBatchImpl implements MeshBatch {
   }
 
   /**
+   * Re-packs a mesh's emissive colour factor into its shared MeshAttributeTexture
+   * record — used when a material's `emissiveColor` is edited at runtime.
+   */
+  public setMeshEmissiveColor(meshHandle: MeshBatchMeshHandle, emissiveColor: [number, number, number]): void {
+    this._gpuMemoryManager.setMeshAttribs(meshHandle as GPUMemoryMeshHandle, {
+      emissiveColor
+    });
+  }
+
+  /**
    * Destroys this MeshBatchImpl instance.
    */
   public destroy(): void {

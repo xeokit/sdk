@@ -104,6 +104,7 @@ export class Viewer {
   private _onSceneGeometryDestroyed?: () => void;
   private _onSceneGeometryUpdated?: () => void;
   private _onSceneMaterialColorChanged?: () => void;
+  private _onSceneMaterialEmissiveColorChanged?: () => void;
   private _onSceneMaterialOpacityChanged?: () => void;
   private _onSceneMaterialPatternChanged?: () => void;
 
@@ -221,6 +222,7 @@ export class Viewer {
     this._onSceneGeometryDestroyed       = sub(events.onSceneGeometryDestroyed,       nudgeAllViews);
     this._onSceneGeometryUpdated         = sub(events.onSceneGeometryUpdated,         nudgeAllViews);
     this._onSceneMaterialColorChanged    = sub(events.onSceneMaterialColorChanged,    nudgeAllViews);
+    this._onSceneMaterialEmissiveColorChanged = sub(events.onSceneMaterialEmissiveColorChanged, nudgeAllViews);
     this._onSceneMaterialOpacityChanged  = sub(events.onSceneMaterialOpacityChanged,  nudgeAllViews);
     this._onSceneMaterialPatternChanged  = sub(events.onSceneMaterialPatternChanged,  nudgeAllViews);
 
@@ -301,6 +303,7 @@ export class Viewer {
       this._onSceneGeometryDestroyed,
       this._onSceneGeometryUpdated,
       this._onSceneMaterialColorChanged,
+      this._onSceneMaterialEmissiveColorChanged,
       this._onSceneMaterialOpacityChanged,
       this._onSceneMaterialPatternChanged,
     ];
@@ -323,6 +326,7 @@ export class Viewer {
     this._onSceneGeometryDestroyed        = undefined;
     this._onSceneGeometryUpdated          = undefined;
     this._onSceneMaterialColorChanged     = undefined;
+    this._onSceneMaterialEmissiveColorChanged = undefined;
     this._onSceneMaterialOpacityChanged   = undefined;
     this._onSceneMaterialPatternChanged   = undefined;
 

@@ -227,6 +227,8 @@ export class GPUMemoryBatch {
   private _albedoAtlasTexture: TextureAtlas | null;
   private _metallicRoughnessAtlasTexture: TextureAtlas | null;
   private _normalMapAtlasTexture: TextureAtlas | null;
+  private _emissiveAtlasTexture: TextureAtlas | null;
+  private _occlusionAtlasTexture: TextureAtlas | null;
   private _meshMatrixTexture: MatrixTexture;
   private _meshIndicesUsed: boolean[];
   private _meshes: {};
@@ -310,6 +312,8 @@ export class GPUMemoryBatch {
     this._albedoAtlasTexture = null;
     this._metallicRoughnessAtlasTexture = null;
     this._normalMapAtlasTexture = null;
+    this._emissiveAtlasTexture = null;
+    this._occlusionAtlasTexture = null;
 
     this._numGeometries = 0;
     this._numMeshes = 0;
@@ -506,6 +510,23 @@ export class GPUMemoryBatch {
         sentinelColor: [128, 128, 255, 255],
         mipmap: atlasMipmap
       });
+      // Emissive atlas — sRGB like albedo (emissive textures are colour data,
+      // glTF channel = sRGB). Sentinel = white; untextured meshes carry a
+      // `[0,0,0]` emissive factor, so the white sentinel × 0 = no glow.
+      this._emissiveAtlasTexture = new TextureAtlas({
+        gl,
+        description: `[Batch ${this.index}] - emissive atlas (sRGB 2D, shelf-packed${atlasMipmap ? ", mipmapped" : ""})`,
+        // internalFormat defaults to SRGB8_ALPHA8.
+        mipmap: atlasMipmap
+      });
+      // Ambient-occlusion atlas — linear RGBA8 (AO in R). Sentinel = white,
+      // so `R = 1` for untextured meshes = no occlusion.
+      this._occlusionAtlasTexture = new TextureAtlas({
+        gl,
+        description: `[Batch ${this.index}] - occlusion atlas (linear 2D, shelf-packed${atlasMipmap ? ", mipmapped" : ""})`,
+        internalFormat: gl.RGBA8,
+        mipmap: atlasMipmap
+      });
     }
 
     const textures: {
@@ -530,7 +551,9 @@ export class GPUMemoryBatch {
       ...(this._vertexUVTexture ? [this._vertexUVTexture] : []),
       ...(this._albedoAtlasTexture ? [this._albedoAtlasTexture] : []),
       ...(this._metallicRoughnessAtlasTexture ? [this._metallicRoughnessAtlasTexture] : []),
-      ...(this._normalMapAtlasTexture ? [this._normalMapAtlasTexture] : [])
+      ...(this._normalMapAtlasTexture ? [this._normalMapAtlasTexture] : []),
+      ...(this._emissiveAtlasTexture ? [this._emissiveAtlasTexture] : []),
+      ...(this._occlusionAtlasTexture ? [this._occlusionAtlasTexture] : [])
     ];
 
     for (let i = 0, leni = textures.length; i < leni; i++) {
@@ -575,7 +598,9 @@ export class GPUMemoryBatch {
       vertexUVTexture: this._vertexUVTexture ?? undefined,
       albedoAtlasTexture: this._albedoAtlasTexture ?? undefined,
       metallicRoughnessAtlasTexture: this._metallicRoughnessAtlasTexture ?? undefined,
-      normalMapAtlasTexture: this._normalMapAtlasTexture ?? undefined
+      normalMapAtlasTexture: this._normalMapAtlasTexture ?? undefined,
+      emissiveAtlasTexture: this._emissiveAtlasTexture ?? undefined,
+      occlusionAtlasTexture: this._occlusionAtlasTexture ?? undefined
     };
 
     // this.structSpecs = {
@@ -618,6 +643,8 @@ export class GPUMemoryBatch {
     if (this._albedoAtlasTexture)            updated = this._albedoAtlasTexture.updateTexture(sceneTexture.id, source) || updated;
     if (this._metallicRoughnessAtlasTexture) updated = this._metallicRoughnessAtlasTexture.updateTexture(sceneTexture.id, source) || updated;
     if (this._normalMapAtlasTexture)         updated = this._normalMapAtlasTexture.updateTexture(sceneTexture.id, source) || updated;
+    if (this._emissiveAtlasTexture)          updated = this._emissiveAtlasTexture.updateTexture(sceneTexture.id, source) || updated;
+    if (this._occlusionAtlasTexture)         updated = this._occlusionAtlasTexture.updateTexture(sceneTexture.id, source) || updated;
     return updated;
   }
 
@@ -630,6 +657,8 @@ export class GPUMemoryBatch {
     if (this._albedoAtlasTexture)  total += this._albedoAtlasTexture.getAllocatedBytes();
     if (this._metallicRoughnessAtlasTexture) total += this._metallicRoughnessAtlasTexture.getAllocatedBytes();
     if (this._normalMapAtlasTexture) total += this._normalMapAtlasTexture.getAllocatedBytes();
+    if (this._emissiveAtlasTexture)  total += this._emissiveAtlasTexture.getAllocatedBytes();
+    if (this._occlusionAtlasTexture) total += this._occlusionAtlasTexture.getAllocatedBytes();
     total += this._indexTexture.getAllocatedBytes();
     total += this._edgeIndexTexture.getAllocatedBytes();
     total += this._meshAttributeTexture.getAllocatedBytes();
@@ -661,6 +690,8 @@ export class GPUMemoryBatch {
     if (this._albedoAtlasTexture)  total += this._albedoAtlasTexture.getUsedBytes();
     if (this._metallicRoughnessAtlasTexture) total += this._metallicRoughnessAtlasTexture.getUsedBytes();
     if (this._normalMapAtlasTexture) total += this._normalMapAtlasTexture.getUsedBytes();
+    if (this._emissiveAtlasTexture)  total += this._emissiveAtlasTexture.getUsedBytes();
+    if (this._occlusionAtlasTexture) total += this._occlusionAtlasTexture.getUsedBytes();
     total += this._indexTexture.getUsedBytes();
     total += this._edgeIndexTexture.getUsedBytes();
     total += this._meshAttributeTexture.getUsedBytes();
@@ -750,7 +781,9 @@ export class GPUMemoryBatch {
     // on the sentinel at upload time.
     if (atlasOverflow(this._albedoAtlasTexture, sceneMesh.effectiveColorTexture)
       || atlasOverflow(this._metallicRoughnessAtlasTexture, sceneMesh.effectiveMetallicRoughnessTexture)
-      || atlasOverflow(this._normalMapAtlasTexture, sceneMesh.effectiveNormalsTexture)) {
+      || atlasOverflow(this._normalMapAtlasTexture, sceneMesh.effectiveNormalsTexture)
+      || atlasOverflow(this._emissiveAtlasTexture, sceneMesh.effectiveEmissiveTexture)
+      || atlasOverflow(this._occlusionAtlasTexture, sceneMesh.effectiveOcclusionTexture)) {
       return GPUMemoryCheckResult.NotEnoughAtlasSpace;
     }
     return GPUMemoryCheckResult.OK;
@@ -1053,6 +1086,16 @@ export class GPUMemoryBatch {
       sceneMesh.effectiveNormalsTexture,
       "normal-map"
     );
+    const emXform = resolveAtlasTransform(
+      this._emissiveAtlasTexture,
+      sceneMesh.effectiveEmissiveTexture,
+      "emissive"
+    );
+    const aoXform = resolveAtlasTransform(
+      this._occlusionAtlasTexture,
+      sceneMesh.effectiveOcclusionTexture,
+      "occlusion"
+    );
 
     this._meshAttributeTexture.setItem(meshIndex, {
       tileIndex: 0, // Set by setMeshAttribs()
@@ -1075,6 +1118,14 @@ export class GPUMemoryBatch {
       metallicRoughnessUVScale:  [mrXform.uScale,  mrXform.vScale],
       normalMapUVOffset: [nmXform.uOffset, nmXform.vOffset],
       normalMapUVScale:  [nmXform.uScale,  nmXform.vScale],
+      emissiveUVOffset: [emXform.uOffset, emXform.vOffset],
+      emissiveUVScale:  [emXform.uScale,  emXform.vScale],
+      occlusionUVOffset: [aoXform.uOffset, aoXform.vOffset],
+      occlusionUVScale:  [aoXform.uScale,  aoXform.vScale],
+      // Emissive colour factor — `[0,0,0]` for materials with no emissive
+      // texture suppresses the white sentinel; auto-`[1,1,1]` (set in
+      // createMaterial) when textured so emissive = factor × texture.
+      emissiveColor: sceneMesh.effectiveEmissiveColor,
       // Sampled by the triplanar shader variant; UV-bearing batches
       // ignore the slot. Stored at full Float32 precision so users
       // can pick an arbitrary world-units-per-repeat without
@@ -1207,6 +1258,7 @@ export class GPUMemoryBatch {
     meshIndex: number,
     params: {
       tileIndex?: number;
+      emissiveColor?: [number, number, number];
     }) {
     this._meshAttributeTexture.setItem(meshIndex, params);
   }
@@ -1600,7 +1652,9 @@ export class GPUMemoryBatch {
       ...(this._vertexUVTexture ? [this._vertexUVTexture] : []),
       ...(this._albedoAtlasTexture ? [this._albedoAtlasTexture] : []),
       ...(this._metallicRoughnessAtlasTexture ? [this._metallicRoughnessAtlasTexture] : []),
-      ...(this._normalMapAtlasTexture ? [this._normalMapAtlasTexture] : [])
+      ...(this._normalMapAtlasTexture ? [this._normalMapAtlasTexture] : []),
+      ...(this._emissiveAtlasTexture ? [this._emissiveAtlasTexture] : []),
+      ...(this._occlusionAtlasTexture ? [this._occlusionAtlasTexture] : [])
     ];
 
     for (const dataTexture of dataTextures) {

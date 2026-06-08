@@ -311,4 +311,23 @@ export interface BatchDataTextures {
    * uses the smooth `vViewNormal` unchanged.
    */
   normalMapAtlasTexture?: TextureAtlas;
+
+  /**
+   * Emissive texture atlas (optional).
+   *
+   * sRGB atlas mirroring the albedo atlas (emissive is colour data). The
+   * shader multiplies the sample by the per-mesh emissive colour factor and
+   * adds the result to the lit colour. Sentinel = white; untextured meshes
+   * carry a `[0,0,0]` factor, so the sentinel contributes no glow.
+   */
+  emissiveAtlasTexture?: TextureAtlas;
+
+  /**
+   * Ambient-occlusion texture atlas (optional).
+   *
+   * Linear RGBA8; AO in the `R` channel, multiplied into the indirect
+   * (ambient + IBL) lighting term. Sentinel = white (`R = 1`), so untextured
+   * meshes get no occlusion.
+   */
+  occlusionAtlasTexture?: TextureAtlas;
 }

@@ -203,6 +203,11 @@ export class SceneEvents {
   public readonly onSceneMaterialColorChanged: EventEmitter<Scene, SceneMaterial>;
 
   /**
+   * Emits an event each time the emissive color of a {@link model!scene.SceneMaterial | SceneMaterial} is updated within the {@link model!scene.Scene | Scene}.
+   */
+  public readonly onSceneMaterialEmissiveColorChanged: EventEmitter<Scene, SceneMaterial>;
+
+  /**
    * Emits an event each time the opacity of a {@link model!scene.SceneMaterial | SceneMaterial} is updated within the {@link model!scene.Scene | Scene}.
    */
   public readonly onSceneMaterialOpacityChanged: EventEmitter<Scene, SceneMaterial>;
@@ -269,6 +274,7 @@ export class SceneEvents {
     this.onSceneTextureImageDataChanged = new EventEmitter(new EventDispatcher<Scene, SceneTexture>());
     this.onSceneMaterialCreated = new EventEmitter(new EventDispatcher<Scene, SceneMaterial>());
     this.onSceneMaterialColorChanged = new EventEmitter(new EventDispatcher<Scene, SceneMaterial>());
+    this.onSceneMaterialEmissiveColorChanged = new EventEmitter(new EventDispatcher<Scene, SceneMaterial>());
     this.onSceneMaterialOpacityChanged = new EventEmitter(new EventDispatcher<Scene, SceneMaterial>());
     this.onSceneMaterialPatternChanged = new EventEmitter(new EventDispatcher<Scene, SceneMaterial>());
     this.onSceneMaterialDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneMaterial>());
@@ -312,6 +318,7 @@ export class SceneEvents {
     this.onSceneTextureImageDataChanged.clear();
     this.onSceneMaterialCreated.clear();
     this.onSceneMaterialColorChanged.clear();
+    this.onSceneMaterialEmissiveColorChanged.clear();
     this.onSceneMaterialOpacityChanged.clear();
     this.onSceneMaterialPatternChanged.clear();
     this.onSceneMaterialDestroyed.clear();

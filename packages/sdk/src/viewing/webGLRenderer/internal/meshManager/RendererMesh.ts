@@ -136,6 +136,14 @@ export class RendererMesh {
   }
 
   /**
+   * Re-uploads this mesh's emissive colour factor — the shared (view-independent)
+   * MeshAttributeTexture record — when its material's `emissiveColor` changes.
+   */
+  setEmissiveColor(emissiveColor: Vec3) {
+    this._meshBatch.setMeshEmissiveColor(this._meshHandle, [emissiveColor[0], emissiveColor[1], emissiveColor[2]]);
+  }
+
+  /**
    * Sets the opacity of the mesh, updating the transparent state as needed.
    * @param opacity
    */

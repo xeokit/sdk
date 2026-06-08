@@ -374,6 +374,37 @@ export class SceneMesh {
   }
 
   /**
+   * Effective emissive texture — the material's `emissiveTexture` if a
+   * material is attached, otherwise `undefined`. sRGB; the shader multiplies
+   * it by {@link SceneMesh.effectiveEmissiveColor} and adds the result to the
+   * lit colour. Untextured meshes sample the emissive atlas's white sentinel,
+   * which the `[0,0,0]` factor suppresses.
+   */
+  get effectiveEmissiveTexture(): SceneTexture | undefined {
+    return this.material ? this.material.emissiveTexture : undefined;
+  }
+
+  /**
+   * Effective ambient-occlusion texture — the material's `occlusionTexture`
+   * if a material is attached, otherwise `undefined`. AO in the `R` channel,
+   * multiplied into the indirect lighting term. Untextured meshes sample the
+   * occlusion atlas's white sentinel (`R = 1` → no occlusion).
+   */
+  get effectiveOcclusionTexture(): SceneTexture | undefined {
+    return this.material ? this.material.occlusionTexture : undefined;
+  }
+
+  /**
+   * Effective emissive colour factor — the material's `emissiveColor` if a
+   * material is attached, otherwise `[0,0,0]` (no emission).
+   */
+  get effectiveEmissiveColor(): [number, number, number] {
+    return this.material
+      ? (Array.from(this.material.emissiveColor) as [number, number, number])
+      : [0, 0, 0];
+  }
+
+  /**
    * Effective alpha-handling mode: `0 = OPAQUE`, `1 = MASK`, `2 = BLEND`.
    * Defaults to `OPAQUE` when no material is attached.
    */

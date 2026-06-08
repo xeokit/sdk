@@ -552,7 +552,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    *
    * @throws {@link base!core.SDKInternalException | SDKInternalException} If the mesh handle references an invalid batch.
    */
-  public setMeshAttribs(meshHandle: GPUMemoryMeshHandle, params: { tileIndex?: number }) {
+  public setMeshAttribs(meshHandle: GPUMemoryMeshHandle, params: { tileIndex?: number; emissiveColor?: [number, number, number] }) {
     const batch = this._batches[meshHandle.gpuMemoryBatchIndex];
     if (!batch) {
       throw new SDKInternalException("[GPUMemoryManager.setMeshAttribs] Invalid batch index in mesh handle.");

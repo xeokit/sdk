@@ -4,7 +4,7 @@ import { ItemDataTexture } from "./ItemDataTexture";
  * Stores per-mesh attributes shared across views — tile + geometry indices,
  * Cook-Torrance material parameters, and one UV transform per PBR-map type.
  *
- * Three texels per mesh, twelve u32 slots total (linearised — `base` is
+ * Five texels per mesh, twenty u32 slots total (linearised — `base` is
  * `itemIndex * elementsPerItem`):
  *   - `base + 0`  tileIndex
  *   - `base + 1`  geometryIndex
@@ -36,6 +36,17 @@ import { ItemDataTexture } from "./ItemDataTexture";
  *                 bit pattern reinterpret. Consumed by the thick-line
  *                 draw technique; `0` falls back to the View's
  *                 `linesMaterial.lineWidth`.
+ *   - `base + 12` packed emissive `(uOffset, vOffset)`
+ *   - `base + 13` packed emissive `(uScale,  vScale)`
+ *   - `base + 14` packed occlusion `(uOffset, vOffset)`
+ *   - `base + 15` packed occlusion `(uScale,  vScale)`
+ *   - `base + 16` emissive colour factor — RGB8 (`r | g<<8 | b<<16`). The
+ *                 emissive atlas's white sentinel means untextured meshes
+ *                 would otherwise glow; a `[0,0,0]` factor here (the default
+ *                 for materials with no emissive texture) zeroes that out,
+ *                 while textured materials carry `[1,1,1]` (or an explicit
+ *                 factor), so emissive = factor × texture.
+ *   - `base + 17..19` reserved
  *
  * Each UV transform takes per-vertex `vUV ∈ [0, 1]` to atlas-space:
  * `atlasUV = vUV * (uScale, vScale) + (uOffset, vOffset)`. Different
@@ -54,7 +65,7 @@ import { ItemDataTexture } from "./ItemDataTexture";
  * lookup entirely.
  */
 export class MeshAttributeTexture extends ItemDataTexture {
-  static readonly itemSizeInBytes = 48; // 3 × uvec4 per mesh
+  static readonly itemSizeInBytes = 80; // 5 × uvec4 per mesh
 
   constructor(options: {
     gl: WebGL2RenderingContext;
@@ -72,7 +83,7 @@ export class MeshAttributeTexture extends ItemDataTexture {
       getNumItems: options.getNumItems,
       width: 4096,
       itemSizeInBytes: MeshAttributeTexture.itemSizeInBytes,
-      texelsPerItem: 3,
+      texelsPerItem: 5,
       elementsPerTexel: 4,
       useBuffer: true
     });
@@ -91,6 +102,14 @@ setItem(itemIndex: number, item: {
   metallicRoughnessUVScale?:  [number, number];
   normalMapUVOffset?: [number, number];
   normalMapUVScale?:  [number, number];
+  emissiveUVOffset?: [number, number];
+  emissiveUVScale?:  [number, number];
+  occlusionUVOffset?: [number, number];
+  occlusionUVScale?:  [number, number];
+  // Emissive colour factor in [0, 1] per channel. Multiplied against the
+  // emissive texture sample in the shader. `[0,0,0]` (the default for
+  // materials with no emissive texture) suppresses the white-sentinel glow.
+  emissiveColor?: [number, number, number];
   triplanarScale?: number;
   lineWidth?: number;
   // Index of the slot in this batch's LinePatternTexture that
@@ -171,6 +190,24 @@ setItem(itemIndex: number, item: {
     // Same float-as-u32 trick as triplanarScale — pixel widths
     // are user-picked and have no sensible quantisation grid.
     this.buffer[base + 11] = floatBitsToU32(item.lineWidth);
+  }
+  if (item.emissiveUVOffset !== undefined) {
+    this.buffer[base + 12] = packUV2(item.emissiveUVOffset);
+  }
+  if (item.emissiveUVScale !== undefined) {
+    this.buffer[base + 13] = packUV2(item.emissiveUVScale);
+  }
+  if (item.occlusionUVOffset !== undefined) {
+    this.buffer[base + 14] = packUV2(item.occlusionUVOffset);
+  }
+  if (item.occlusionUVScale !== undefined) {
+    this.buffer[base + 15] = packUV2(item.occlusionUVScale);
+  }
+  if (item.emissiveColor !== undefined) {
+    const r8 = clampU8(item.emissiveColor[0] * 255);
+    const g8 = clampU8(item.emissiveColor[1] * 255);
+    const b8 = clampU8(item.emissiveColor[2] * 255);
+    this.buffer[base + 16] = (r8 | (g8 << 8) | (b8 << 16)) >>> 0;
   }
   this.setItemDirty(itemIndex);
 }

@@ -49,6 +49,9 @@ export class SceneMaterial {
 
   _color: Vec3;
 
+  /** @internal Emissive color factor (RGB, [0..1]). */
+  _emissiveColor: Vec3;
+
   _opacity: number;
 
   _roughness: number;
@@ -238,6 +241,12 @@ export class SceneMaterial {
     this.normalsTexture = textures.normalsTexture;
     this.occlusionTexture = textures.occlusionTexture;
     this.emissiveTexture = textures.emissiveTexture;
+    // Auto-default the emissive factor to white when a material has an
+    // emissive texture but no explicit factor — so it glows without the
+    // caller restating `[1,1,1]`. No texture → `[0,0,0]` (no emission).
+    this._emissiveColor = createVec3Float32(
+      materialParams.emissiveColor || (textures.emissiveTexture ? [1, 1, 1] : [0, 0, 0])
+    );
     this.numMeshes = 0;
   }
 
@@ -249,6 +258,45 @@ export class SceneMaterial {
    */
   get color(): Vec3 {
     return this._color;
+  }
+
+  /**
+   * Gets the emissive color factor for this SceneMaterial, as *RGB* in
+   * `[0..1]`. Multiplied against {@link SceneMaterial.emissiveTexture}.
+   */
+  get emissiveColor(): Vec3 {
+    return this._emissiveColor;
+  }
+
+  /**
+   * Sets the emissive color factor for this SceneMaterial.
+   *
+   * - Multiplied against {@link SceneMaterial.emissiveTexture}.
+   * - Fires an {@link SceneEvents.onSceneMaterialEmissiveColorChanged | SceneEvents.onSceneMaterialEmissiveColorChanged} event on the Scene.
+   * - Each element of the color is in range ````[0..1]````.
+   */
+  set emissiveColor(value: Vec3) {
+    if (this.destroyed) {
+      this.model.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneMaterial.emissiveColor] Cannot set emissiveColor on destroyed SceneMaterial ${this.id}`
+      });
+      return;
+    }
+    if (!value || value.length !== 3) {
+      this.model.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[SceneMaterial.emissiveColor] Invalid emissiveColor for SceneMaterial ${this.id}`
+      });
+      return;
+    }
+    const emissiveColor = this._emissiveColor;
+    emissiveColor[0] = value[0];
+    emissiveColor[1] = value[1];
+    emissiveColor[2] = value[2];
+    this.model.scene.events.onSceneMaterialEmissiveColorChanged.dispatch(this.model.scene, this);
   }
 
   /**
@@ -492,6 +540,7 @@ export class SceneMaterial {
     const materialParams = <SceneMaterialParams>{
       id: this.id,
       color: Array.from(this._color),
+      emissiveColor: Array.from(this._emissiveColor),
       opacity: this._opacity,
       roughness: this._roughness,
       metallic: this._metallic,

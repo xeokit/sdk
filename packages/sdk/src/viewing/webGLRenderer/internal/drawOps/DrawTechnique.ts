@@ -353,6 +353,8 @@ export abstract class DrawTechnique {
     albedoAtlas: WebGLUniformLocation | null; // sRGB 2D albedo atlas (only when hasUVs)
     metallicRoughnessAtlas: WebGLUniformLocation | null; // Linear 2D metallic-roughness atlas (only when hasUVs)
     normalMapAtlas: WebGLUniformLocation | null; // Linear 2D tangent-space normal-map atlas (only when hasUVs)
+    emissiveAtlas: WebGLUniformLocation | null; // sRGB 2D emissive atlas (only when hasUVs)
+    occlusionAtlas: WebGLUniformLocation | null; // Linear 2D ambient-occlusion atlas (only when hasUVs)
     iblIrradianceCubemap: WebGLUniformLocation | null; // Diffuse-convolved cubemap (only when hasNormals)
     iblPrefilteredCubemap: WebGLUniformLocation | null; // GGX-prefiltered cubemap (only when hasNormals)
     iblBRDFLUT: WebGLUniformLocation | null; // 2D split-sum BRDF LUT (only when hasNormals)
@@ -637,6 +639,8 @@ export abstract class DrawTechnique {
       albedoAtlas:            (this.hasUVs || this.triplanar) ? program.getSampler("uAlbedoAtlas") : null,
       metallicRoughnessAtlas: (this.hasUVs || this.triplanar) ? program.getSampler("uMetallicRoughnessAtlas") : null,
       normalMapAtlas:         (this.hasUVs || this.triplanar) ? program.getSampler("uNormalMapAtlas") : null,
+      emissiveAtlas:          (this.hasUVs || this.triplanar) ? program.getSampler("uEmissiveAtlas") : null,
+      occlusionAtlas:         (this.hasUVs || this.triplanar) ? program.getSampler("uOcclusionAtlas") : null,
       iblIrradianceCubemap: this.hasNormals ? program.getSampler("uIBLIrradianceCubemap") : null,
       iblPrefilteredCubemap: this.hasNormals ? program.getSampler("uIBLPrefilteredCubemap") : null,
       iblBRDFLUT: this.hasNormals ? program.getSampler("uIBLBRDFLUT") : null,
@@ -783,6 +787,14 @@ export abstract class DrawTechnique {
     if (_bindAtlases && batchDataTextures.normalMapAtlasTexture && batchDataTextures.normalMapAtlasTexture.texture) {
       batchDataTextures.normalMapAtlasTexture.flushMipmaps();
       this._bindTexture(samplers.normalMapAtlas, batchDataTextures.normalMapAtlasTexture);
+    }
+    if (_bindAtlases && batchDataTextures.emissiveAtlasTexture && batchDataTextures.emissiveAtlasTexture.texture) {
+      batchDataTextures.emissiveAtlasTexture.flushMipmaps();
+      this._bindTexture(samplers.emissiveAtlas, batchDataTextures.emissiveAtlasTexture);
+    }
+    if (_bindAtlases && batchDataTextures.occlusionAtlasTexture && batchDataTextures.occlusionAtlasTexture.texture) {
+      batchDataTextures.occlusionAtlasTexture.flushMipmaps();
+      this._bindTexture(samplers.occlusionAtlas, batchDataTextures.occlusionAtlasTexture);
     }
     // IBL Layer-2 cubemaps + BRDF LUT — populated on RenderContext by
     // RenderManager._prepareIBL once per view. Only the smooth-shaded
@@ -1003,6 +1015,14 @@ struct MeshAttribTable {
   uint mrUVScalePacked;
   uint normalUVOffsetPacked;
   uint normalUVScalePacked;
+  uint emissiveUVOffsetPacked;
+  uint emissiveUVScalePacked;
+  uint occlusionUVOffsetPacked;
+  uint occlusionUVScalePacked;
+  // Emissive colour factor packed RGB8 (r | g<<8 | b<<16). Multiplied
+  // against the emissive texture sample; [0,0,0] (no emissive texture)
+  // suppresses the atlas's white sentinel so untextured meshes don't glow.
+  uint emissiveColorPacked;
   // World-units-per-repeat for triplanar texture sampling. Stored
   // CPU-side as the IEEE-754 Float32 bit pattern of
   // SceneMaterial.triplanarScale; recovered here with
@@ -1146,16 +1166,19 @@ GeometryAttributes getGeometryAttributeTexture(uint geometryIndex) {
 }
 
 MeshAttribTable getMeshAttribTable(uint meshIndex) {
-  // Three texels per mesh — texel 0 holds tile/geometry/material/flags;
+  // Five texels per mesh — texel 0 holds tile/geometry/material/flags;
   // texel 1 holds the albedo + MR UV transforms; texel 2 holds the
-  // normal-map UV transform + triplanarScale + lineWidth.
-  // Layout matches MeshAttributeTexture's setItem.
+  // normal-map UV transform + triplanarScale + lineWidth; texel 3 holds
+  // the emissive + occlusion UV transforms; texel 4 holds the packed
+  // emissive colour factor. Layout matches MeshAttributeTexture's setItem.
   const uint texWidth = 4096u;
-  const uint texelsPerItem = 3u;
+  const uint texelsPerItem = 5u;
   uint base = meshIndex * texelsPerItem;
   uvec4 t0 = texelFetch(uMeshAttributeTexture, texCoord(base + 0u, texWidth), 0);
   uvec4 t1 = texelFetch(uMeshAttributeTexture, texCoord(base + 1u, texWidth), 0);
   uvec4 t2 = texelFetch(uMeshAttributeTexture, texCoord(base + 2u, texWidth), 0);
+  uvec4 t3 = texelFetch(uMeshAttributeTexture, texCoord(base + 3u, texWidth), 0);
+  uvec4 t4 = texelFetch(uMeshAttributeTexture, texCoord(base + 4u, texWidth), 0);
   MeshAttribTable s;
   s.tileIndex            = t0.r;
   s.geometryIndex        = t0.g;
@@ -1169,6 +1192,11 @@ MeshAttribTable getMeshAttribTable(uint meshIndex) {
   s.normalUVScalePacked  = t2.g;
   s.triplanarScale       = uintBitsToFloat(t2.b);
   s.lineWidth            = uintBitsToFloat(t2.a);
+  s.emissiveUVOffsetPacked  = t3.r;
+  s.emissiveUVScalePacked   = t3.g;
+  s.occlusionUVOffsetPacked = t3.b;
+  s.occlusionUVScalePacked  = t3.a;
+  s.emissiveColorPacked     = t4.r;
   // Unpack the 16-bit line-pattern slot from bits 16..31 of
   // the alpha slot. Bytes 0/1 carry alphaMode/alphaCutoff;
   // bytes 2-3 carry the slot index into uLinePatternTexture.
@@ -1321,6 +1349,11 @@ vec4 packUintToRGBA8(uint v) {
         "flat out vec2 vMRUVScale;",
         "flat out vec2 vNormalUVOffset;",
         "flat out vec2 vNormalUVScale;",
+        "flat out vec2 vEmissiveUVOffset;",
+        "flat out vec2 vEmissiveUVScale;",
+        "flat out vec2 vOcclusionUVOffset;",
+        "flat out vec2 vOcclusionUVScale;",
+        "flat out vec3 vEmissiveColor;",
         // Per-mesh alpha mode (0=OPAQUE, 1=MASK, 2=BLEND) and the MASK
         // cutoff threshold. Both flat — uniform across the mesh.
         "flat out uint  vAlphaMode;",
@@ -1860,6 +1893,15 @@ void main(void) {`);
     vMRUVScale       = unpackUnorm2x16FromU32(meshAttributeTexture.mrUVScalePacked);
     vNormalUVOffset  = unpackUnorm2x16FromU32(meshAttributeTexture.normalUVOffsetPacked);
     vNormalUVScale   = unpackUnorm2x16FromU32(meshAttributeTexture.normalUVScalePacked);
+    vEmissiveUVOffset  = unpackUnorm2x16FromU32(meshAttributeTexture.emissiveUVOffsetPacked);
+    vEmissiveUVScale   = unpackUnorm2x16FromU32(meshAttributeTexture.emissiveUVScalePacked);
+    vOcclusionUVOffset = unpackUnorm2x16FromU32(meshAttributeTexture.occlusionUVOffsetPacked);
+    vOcclusionUVScale  = unpackUnorm2x16FromU32(meshAttributeTexture.occlusionUVScalePacked);
+    vEmissiveColor   = vec3(
+      float( meshAttributeTexture.emissiveColorPacked        & 0xFFu),
+      float((meshAttributeTexture.emissiveColorPacked >> 8u) & 0xFFu),
+      float((meshAttributeTexture.emissiveColorPacked >> 16u)& 0xFFu)
+    ) / 255.0;
     // Alpha-mode unpack: byte 0 = mode (0=OPAQUE/1=MASK/2=BLEND),
     // byte 1 = cutoff in 0..255 mapped from [0, 1].
     vAlphaMode       = meshAttributeTexture.alpha & 0xFFu;
@@ -3088,6 +3130,11 @@ flat out int  vHatchSpace;
         "flat in vec2 vMRUVScale;",
         "flat in vec2 vNormalUVOffset;",
         "flat in vec2 vNormalUVScale;",
+        "flat in vec2 vEmissiveUVOffset;",
+        "flat in vec2 vEmissiveUVScale;",
+        "flat in vec2 vOcclusionUVOffset;",
+        "flat in vec2 vOcclusionUVScale;",
+        "flat in vec3 vEmissiveColor;",
         // Per-mesh alpha mode + cutoff. Used by the discard test for
         // MASK-mode materials below.
         "flat in uint  vAlphaMode;",
@@ -3106,7 +3153,13 @@ flat out int  vHatchSpace;
         // tangent-space normal as (x*0.5+0.5, y*0.5+0.5, z*0.5+0.5).
         // Sentinel sample is (0.5, 0.5, 1.0) → decodes to (0, 0, 1) so
         // untextured meshes use the smooth normal unchanged.
-        "uniform sampler2D uNormalMapAtlas;"
+        "uniform sampler2D uNormalMapAtlas;",
+        // Emissive atlas — sRGB-decoded by the GPU (SRGB8_ALPHA8). Multiplied
+        // by vEmissiveColor and added to the lit colour.
+        "uniform sampler2D uEmissiveAtlas;",
+        // Ambient-occlusion atlas — linear RGBA8, AO in R. Multiplies the
+        // indirect lighting term. Sentinel white → R = 1 → no occlusion.
+        "uniform sampler2D uOcclusionAtlas;"
       ] : []),
       "uniform vec4 uLightAmbient;",
       "uniform vec3 uLightDir1;",
@@ -3156,7 +3209,12 @@ flat out int  vHatchSpace;
       // `g_ambient` is the resolved per-fragment ambient (flat or IBL)
       // declared at main-scope so the shadow stage can clamp shadowed
       // fragments to the same floor without recomputing.
-      "vec3 g_ambient;");
+      "vec3 g_ambient;",
+      // Emissive contribution (added to the lit colour) and ambient-occlusion
+      // factor (multiplies the indirect term). Defaults mean "no emission /
+      // no occlusion"; the UV-bearing variants overwrite them per fragment.
+      "vec3 g_emissive = vec3(0.0);",
+      "float g_ao = 1.0;");
     if (this.hasNormals) {
       // Cook-Torrance microfacet BRDF helpers. Standard real-time PBR set:
       // GGX normal distribution, Smith-GGX geometry term, Schlick Fresnel.
@@ -3270,7 +3328,10 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     vec2 mrAtlasUV = wrappedUV * vMRUVScale + vMRUVOffset;
     vec4 mrSample = texture(uMetallicRoughnessAtlas, mrAtlasUV);
     float mrRoughnessFactor = mrSample.g;
-    float mrMetallicFactor  = mrSample.b;`
+    float mrMetallicFactor  = mrSample.b;
+    // Emissive (sRGB atlas) × per-mesh factor; ambient occlusion (R channel).
+    g_emissive = texture(uEmissiveAtlas, wrappedUV * vEmissiveUVScale + vEmissiveUVOffset).rgb * vEmissiveColor;
+    g_ao = texture(uOcclusionAtlas, wrappedUV * vOcclusionUVScale + vOcclusionUVOffset).r;`
         : this.triplanar
         ? `// Triplanar (world-space) sampling. Built per-fragment from
     // vWorldPos and the world-space normal — independent of any vertex
@@ -3335,7 +3396,15 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     vec4 mrZ = textureGrad(uMetallicRoughnessAtlas, wrappedZ * vMRUVScale + vMRUVOffset, dxZ * vMRUVScale, dyZ * vMRUVScale);
     vec4 mrSample = mrX * triW.x + mrY * triW.y + mrZ * triW.z;
     float mrRoughnessFactor = mrSample.g;
-    float mrMetallicFactor  = mrSample.b;`
+    float mrMetallicFactor  = mrSample.b;
+    vec3 emX = textureGrad(uEmissiveAtlas, wrappedX * vEmissiveUVScale + vEmissiveUVOffset, dxX * vEmissiveUVScale, dyX * vEmissiveUVScale).rgb;
+    vec3 emY = textureGrad(uEmissiveAtlas, wrappedY * vEmissiveUVScale + vEmissiveUVOffset, dxY * vEmissiveUVScale, dyY * vEmissiveUVScale).rgb;
+    vec3 emZ = textureGrad(uEmissiveAtlas, wrappedZ * vEmissiveUVScale + vEmissiveUVOffset, dxZ * vEmissiveUVScale, dyZ * vEmissiveUVScale).rgb;
+    g_emissive = (emX * triW.x + emY * triW.y + emZ * triW.z) * vEmissiveColor;
+    float aoX = textureGrad(uOcclusionAtlas, wrappedX * vOcclusionUVScale + vOcclusionUVOffset, dxX * vOcclusionUVScale, dyX * vOcclusionUVScale).r;
+    float aoY = textureGrad(uOcclusionAtlas, wrappedY * vOcclusionUVScale + vOcclusionUVOffset, dxY * vOcclusionUVScale, dyY * vOcclusionUVScale).r;
+    float aoZ = textureGrad(uOcclusionAtlas, wrappedZ * vOcclusionUVScale + vOcclusionUVOffset, dxZ * vOcclusionUVScale, dyZ * vOcclusionUVScale).r;
+    g_ao = aoX * triW.x + aoY * triW.y + aoZ * triW.z;`
         : `// No UVs on this batch — vColor is the only source of albedo,
     // and the material's roughness/metallic pass through unchanged.
     vec3 albedo = vColor.rgb;
@@ -3540,9 +3609,11 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     float iblScale = max(uIBLIntensity, 0.0);
     g_ambient = flatAmbient + hemiAmbient * hemiScale + iblDiffuseEnv * iblScale;
 
-    vec3 lit = directContrib
-             + (flatAmbient + hemiAmbient * hemiScale) * albedo
-             + iblContrib * iblScale;
+    // Ambient occlusion multiplies the indirect (ambient + IBL) term only —
+    // direct light is unoccluded. Emissive is added on top, unlit.
+    vec3 indirect = (flatAmbient + hemiAmbient * hemiScale) * albedo
+                  + iblContrib * iblScale;
+    vec3 lit = directContrib + indirect * g_ao + g_emissive;
     color = vec4(lit, albedoAlpha);`);
       return;
     }
@@ -3568,7 +3639,9 @@ vec3 F_Schlick(vec3 F0, float cosTheta) {
     if (vAlphaMode == 1u) {
       float aaAlpha = (albedoAlpha - vAlphaCutoff) / max(fwidth(albedoAlpha), 1e-4) + 0.5;
       if (aaAlpha < 0.5) discard;
-    }`
+    }
+    g_emissive = texture(uEmissiveAtlas, wrappedUV * vEmissiveUVScale + vEmissiveUVOffset).rgb * vEmissiveColor;
+    g_ao = texture(uOcclusionAtlas, wrappedUV * vOcclusionUVScale + vOcclusionUVOffset).r;`
       : this.triplanar
       ? `// World-space face normal from screen-space derivatives.
     vec3 triNorm = normalize(cross(dFdx(vWorldPos), dFdy(vWorldPos)));
@@ -3674,9 +3747,9 @@ ${this.triplanar ? `
     float hemiScale = max(uHemisphereIntensity, 0.0);
     g_ambient = flatAmbient + hemiAmbient * hemiScale;
 
-    // Combine ambient + diffuse lighting.
-    // Ambient is applied to base color, diffuse multiplies base color as well.
-    vec3 lit = (g_ambient * albedo) + (albedo * reflectedColor);
+    // Combine ambient + diffuse lighting. Occlusion multiplies the ambient
+    // term only (direct diffuse is unoccluded); emissive adds on top, unlit.
+    vec3 lit = (g_ambient * albedo) * g_ao + (albedo * reflectedColor) + g_emissive;
 
     color = vec4(lit, albedoAlpha);`);
   }

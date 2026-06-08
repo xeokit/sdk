@@ -978,6 +978,24 @@ export class ViewManager {
   }
 
   /**
+   * Notifies that a {@link model!scene.SceneMaterial | SceneMaterial}'s base
+   * `color` was updated at runtime. Re-uploads every mesh that uses it so the
+   * change shows live.
+   */
+  public sceneMaterialColorChanged(sceneMaterial: SceneMaterial): void {
+    this._meshManager.sceneMaterialColorChanged(sceneMaterial);
+  }
+
+  /**
+   * Notifies that a {@link model!scene.SceneMaterial | SceneMaterial}'s
+   * `emissiveColor` was updated at runtime. Re-packs the emissive factor for
+   * every mesh that uses it so the change shows live.
+   */
+  public sceneMaterialEmissiveColorChanged(sceneMaterial: SceneMaterial): void {
+    this._meshManager.sceneMaterialEmissiveColorChanged(sceneMaterial);
+  }
+
+  /**
    * Notifies that a {@link SceneTexture}'s `imageData` was mutated in
    * place (e.g. heat-map brush painting). Routes to
    * {@link GPUMemoryManager} which re-uploads the pixels into every

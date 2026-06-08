@@ -1,6 +1,6 @@
 import {RenderContext} from "../RenderContext";
 import {SDKErrorType, type SDKResult} from "../../../../base/core";
-import type {SceneMesh, SceneModel, SceneObject} from "../../../../model/scene";
+import type {SceneMaterial, SceneMesh, SceneModel, SceneObject} from "../../../../model/scene";
 import {RendererObject} from "./RendererObject";
 import {RendererMesh} from "./RendererMesh";
 import {MeshBatchImpl} from "./MeshBatchImpl";
@@ -587,6 +587,35 @@ export class MeshManager {
    */
   public sceneMeshColorChanged(sceneMesh: SceneMesh): void {
     this._rendererMeshes[sceneMesh.uniqueId]?.setColor(sceneMesh.effectiveColor);
+  }
+
+  /**
+   * Handles a runtime change to a {@link model!scene.SceneMaterial | SceneMaterial}'s
+   * base color. Re-uploads every mesh that uses the material — its rendered
+   * colour is `mesh.effectiveColor`, which resolves to the material's color.
+   */
+  public sceneMaterialColorChanged(sceneMaterial: SceneMaterial): void {
+    const meshes = sceneMaterial.model.meshes;
+    for (const id in meshes) {
+      const mesh = meshes[id];
+      if (mesh.material === sceneMaterial) {
+        this._rendererMeshes[mesh.uniqueId]?.setColor(mesh.effectiveColor);
+      }
+    }
+  }
+
+  /**
+   * Handles a runtime change to a {@link model!scene.SceneMaterial | SceneMaterial}'s
+   * emissive color. Re-packs the emissive factor for every mesh that uses it.
+   */
+  public sceneMaterialEmissiveColorChanged(sceneMaterial: SceneMaterial): void {
+    const meshes = sceneMaterial.model.meshes;
+    for (const id in meshes) {
+      const mesh = meshes[id];
+      if (mesh.material === sceneMaterial) {
+        this._rendererMeshes[mesh.uniqueId]?.setEmissiveColor(sceneMaterial.emissiveColor);
+      }
+    }
   }
 
   /**

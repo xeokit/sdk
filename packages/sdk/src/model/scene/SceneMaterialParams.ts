@@ -18,6 +18,17 @@ export interface SceneMaterialParams {
   color?: Vec3;
 
   /**
+   * Emissive color factor, as *RGB* components in the range 0.0 to 1.0.
+   *
+   * Multiplied against {@link SceneMaterialParams.emissiveTextureId | the
+   * emissive texture} (glTF `emissiveFactor` semantics). Defaults to
+   * `[0, 0, 0]` (no emission) — except that {@link SceneModel.createMaterial}
+   * auto-defaults it to `[1, 1, 1]` when an emissive texture is present, so a
+   * textured material glows without restating the factor.
+   */
+  emissiveColor?: Vec3;
+
+  /**
    * Opacity of the material, in the range 0.0 to 1.0.
    */
   opacity?: number;

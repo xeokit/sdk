@@ -582,6 +582,8 @@ export class WebGLRenderer {
 
       sceneEvents.onSceneMeshMatrixChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshMatrixChanged(sceneMesh)),
       sceneEvents.onSceneMaterialPatternChanged.subscribe((_, sceneMaterial) => viewManager.sceneMaterialPatternChanged(sceneMaterial)),
+      sceneEvents.onSceneMaterialColorChanged.subscribe((_, sceneMaterial) => viewManager.sceneMaterialColorChanged(sceneMaterial)),
+      sceneEvents.onSceneMaterialEmissiveColorChanged.subscribe((_, sceneMaterial) => viewManager.sceneMaterialEmissiveColorChanged(sceneMaterial)),
       sceneEvents.onSceneMeshColorChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshColorChanged(sceneMesh)),
       sceneEvents.onSceneMeshOpacityChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshOpacityChanged(sceneMesh)),
       sceneEvents.onSceneTextureImageDataChanged.subscribe((_, sceneTexture) => viewManager.sceneTextureImageDataChanged(sceneTexture)),

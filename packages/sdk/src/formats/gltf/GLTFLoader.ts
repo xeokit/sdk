@@ -345,6 +345,19 @@ function parseMaterial(ctx: ParsingContext, material: any): SceneMaterialParams 
   if (material.emissiveTexture) {
     materialCfg.emissiveTextureId = resolveTextureId(ctx, material.emissiveTexture);
   }
+  // Emissive factor (glTF `emissiveFactor`, RGB), scaled by
+  // KHR_materials_emissive_strength when present. When the factor is omitted,
+  // we leave `emissiveColor` unset so createMaterial auto-defaults it to
+  // `[1,1,1]` for textured materials (glow without restating the factor).
+  // The per-mesh slot is RGB8, so HDR strengths > 1 clamp to white.
+  if (material.emissiveFactor) {
+    const strength = material.extensions?.KHR_materials_emissive_strength?.emissiveStrength ?? 1;
+    materialCfg.emissiveColor = [
+      Math.min(1, material.emissiveFactor[0] * strength),
+      Math.min(1, material.emissiveFactor[1] * strength),
+      Math.min(1, material.emissiveFactor[2] * strength),
+    ];
+  }
 
   // ── Legacy KHR_materials_pbrSpecularGlossiness fallback ────────────────
   // Older glTFs (especially exported from Substance) still ship this

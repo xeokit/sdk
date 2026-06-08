@@ -344,6 +344,10 @@ function buildGltfMaterial(
   // side, so they're already safe for glTF.
   mat.setMetallicFactor(sceneMat.metallic ?? 0);
   mat.setRoughnessFactor(sceneMat.roughness ?? 1);
+  const em = sceneMat.emissiveColor;
+  if (em) {
+    mat.setEmissiveFactor([em[0], em[1], em[2]]);
+  }
 
   // Alpha mode (matches glTF semantics 1:1).
   const alphaMode = sceneMat.alphaMode === 1 ? "MASK"

@@ -1,5 +1,5 @@
 /**
- * <img style="padding:0px; padding-top:20px; padding-bottom:30px;" src="https://xeokit.github.io/sdk/docs/assets/xeokit_viewer_logo.png"/>
+ * <img style="padding:0px; padding-top:20px; padding-bottom:30px;" src="../../assets/xeokit_viewer_logo.png"/>
  *
  * # xeokit Viewer
  *

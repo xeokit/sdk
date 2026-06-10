@@ -5,6 +5,10 @@
  * index.ts files for what's inside each. The flat names that used to
  * live here (scene, data, viewer, etc.) now live under their
  * topical bucket: `model/scene`, `model/data`, `viewing/viewer`, …
+ *
+ * @module @xeokit/sdk
+ * @document ../../../WHITEPAPER.md
+ * @document ../../../WHITEPAPER_EXEC.md
  */
 export * as base          from "./base";
 export * as model         from "./model";

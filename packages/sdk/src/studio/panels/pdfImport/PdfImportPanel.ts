@@ -7,8 +7,9 @@
  * from being on screen.
  *
  * pdf.js itself is fetched by PDFLoader on first use (CDN-by-default,
- * overridable via {@link PDFLoadOptions.pdfjsEsmUrl} for self-hosting
- * or pre-init injection); the panel takes no adapter parameter.
+ * overridable via {@link PDFLoaderParams.pdfjsEsmUrl} on the loader
+ * constructor for self-hosting or pre-init injection); the panel
+ * takes no adapter parameter.
  *
  * Same chrome / lifecycle as the other floating panels (drag header,
  * close + pill, layout persistence, per-Studio WeakMap registry,

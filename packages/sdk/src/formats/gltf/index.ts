@@ -1,6 +1,6 @@
 /**
  * <img style="padding:0; padding-top:20px; padding-bottom:30px; height:130px;"
- *      src="https://xeokit.github.io/sdk/docs/assets/xeokit_gltf_logo.svg"/>
+ *      src="../../assets/xeokit_gltf_logo.svg"/>
  *
  * # gltf — glTF Importer
  *

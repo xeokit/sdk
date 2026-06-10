@@ -9,7 +9,14 @@ import {type ModelLoadOptions} from "./ModelLoadOptions";
 
 const MIN_YIELD_INTERVAL_MS = 16;
 
-const fileIO = createFileIO();
+// Lazily created so merely importing this module doesn't construct a
+// FileIO — `createFileIO()` throws in Node, and the module graph is
+// pulled into Node-side tooling (e.g. the xeoconvert CLI bundle) that
+// never reaches the filePath branch.
+let _fileIO: ReturnType<typeof createFileIO> | null = null;
+function getFileIO(): ReturnType<typeof createFileIO> {
+  return _fileIO ?? (_fileIO = createFileIO());
+}
 
 
 /**
@@ -145,7 +152,7 @@ export class ModelLoader {
         }
       }
       if (filePath) {
-        fileIO.load(filePath).then((fileData) => {
+        getFileIO().load(filePath).then((fileData) => {
           loadFileData(fileData);
         }).catch(err => {
           reject(`[${className}.load] Cannot load glTF -> ${err}`);

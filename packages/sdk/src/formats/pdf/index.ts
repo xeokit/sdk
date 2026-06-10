@@ -1,5 +1,5 @@
 /**
- * <img style="padding:10px" src="https://xeokit.github.io/sdk/docs/assets/xeokit_components_icon.png"/>
+ * <img style="padding:10px" src="../../assets/pdf_hero.jpg"/>
  *
  * # xeokit PDF Drawing Loader
  *
@@ -9,11 +9,12 @@
  * drawings produced by the presentations/drawings system.
  *
  * PDF parsing uses `pdfjs-dist` dynamically imported from a CDN on
- * first call and cached. The CDN URLs are configurable via
- * {@link PDFLoadOptions.pdfjsEsmUrl} /
- * {@link PDFLoadOptions.pdfjsWorkerSrc} for self-hosting / CSP /
- * version pinning; a pre-initialised pdf.js namespace can be
- * injected via {@link PDFLoadOptions.pdfjs} (essential for Node).
+ * first call and cached. The CDN URLs are configured on the
+ * constructor via {@link PDFLoaderParams.pdfjsEsmUrl} /
+ * {@link PDFLoaderParams.pdfjsWorkerSrc} for self-hosting / CSP /
+ * version pinning; a pre-initialised pdf.js namespace can instead be
+ * injected on the constructor via {@link PDFLoaderParams.pdfjs}
+ * (essential for Node).
  *
  * ## Usage
  *
@@ -39,21 +40,23 @@
  * ## Self-hosting
  *
  * ```ts
- * await loader.load({fileData, sceneModel}, {
+ * const loader = new PDFLoader({
  *   pdfjsEsmUrl:    "/static/pdfjs/pdf.min.mjs",
  *   pdfjsWorkerSrc: "/static/pdfjs/pdf.worker.min.mjs",
  * });
+ * await loader.load({fileData, sceneModel});
  * ```
  *
  * ## Node hosts
  *
  * Dynamic CDN imports don't work in Node without polyfills —
- * pre-initialise pdf.js and pass it through:
+ * pre-initialise pdf.js and inject it on the constructor:
  *
  * ```ts
  * import * as pdfjsLib from "pdfjs-dist";
  * pdfjsLib.GlobalWorkerOptions.workerSrc = "...";
- * await loader.load({fileData, sceneModel}, {pdfjs: pdfjsLib});
+ * const loader = new PDFLoader({pdfjs: pdfjsLib});
+ * await loader.load({fileData, sceneModel});
  * ```
  *
  * See {@link PDFLoadOptions} for per-call tuning (scale, page list,

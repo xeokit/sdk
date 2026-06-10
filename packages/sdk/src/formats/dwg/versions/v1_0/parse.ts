@@ -4,9 +4,9 @@
  * Owns the entire DWG → SceneModel pipeline for v1.0:
  *
  *  1. Dynamically imports `@mlightcad/libredwg-web` from a CDN (URL
- *     configurable via {@link DWGLoadOptions.libredwgEsmUrl}; pinned
- *     instance accepted via {@link DWGLoadOptions.libredwg} to skip
- *     the import).
+ *     configured on the loader via {@link DWGLoaderParams.libredwgEsmUrl};
+ *     pinned instance accepted via {@link DWGLoaderParams.libredwg} to
+ *     skip the import).
  *  2. Reads the raw DWG bytes through libredwg
  *     (`dwg_read_data` → `convert`).
  *  3. Maps libredwg's `DwgDatabase` entity shapes into the SDK's
@@ -69,8 +69,12 @@ import type {DWGBlock} from "../../lib/DWGBlock";
 import type {DWGDocument} from "../../lib/DWGDocument";
 import type {DWGEntity} from "../../lib/DWGEntity";
 import type {Vec3} from "../../lib/Vec3";
-import {DEFAULT_DWG_LOAD_OPTIONS} from "../../lib/DWGLoadOptions";
-import type {DWGLoadOptions} from "../../lib/DWGLoadOptions";
+import {
+  DEFAULT_DWG_LOAD_OPTIONS,
+  DEFAULT_LIBREDWG_ESM_URL,
+  DEFAULT_LIBREDWG_WASM_DIR,
+} from "../../lib/DWGLoadOptions";
+import type {DWGLoadOptions, DWGLoaderParams} from "../../lib/DWGLoadOptions";
 import type {DWGLoadResult} from "../../lib/DWGLoadResult";
 
 
@@ -103,12 +107,12 @@ export interface DWGEmitInput {
 // — URLs are strings, not objects.
 const _libredwgCache = new Map<string, Promise<{lib: any; fileType: any}>>();
 
-async function loadLibredwg(opts: DWGLoadOptions): Promise<{lib: any; fileType: any}> {
+async function loadLibredwg(opts: DWGLoadOptions & DWGLoaderParams): Promise<{lib: any; fileType: any}> {
   if (opts.libredwg && opts.libredwg.lib && opts.libredwg.fileType) {
     return opts.libredwg;
   }
-  const esmUrl = opts.libredwgEsmUrl  ?? DEFAULT_DWG_LOAD_OPTIONS.libredwgEsmUrl;
-  const wasm   = opts.libredwgWasmDir ?? DEFAULT_DWG_LOAD_OPTIONS.libredwgWasmDir;
+  const esmUrl = opts.libredwgEsmUrl  ?? DEFAULT_LIBREDWG_ESM_URL;
+  const wasm   = opts.libredwgWasmDir ?? DEFAULT_LIBREDWG_WASM_DIR;
   const key = `${esmUrl}|${wasm}`;
   let p = _libredwgCache.get(key);
   if (!p) {
@@ -140,7 +144,7 @@ async function loadLibredwg(opts: DWGLoadOptions): Promise<{lib: any; fileType: 
  *
  * @internal
  */
-export async function parse(input: DWGParseInput, options: DWGLoadOptions = {}): Promise<SDKResult<DWGLoadResult>> {
+export async function parse(input: DWGParseInput, options: DWGLoadOptions & DWGLoaderParams = {}): Promise<SDKResult<DWGLoadResult>> {
 
   if (!input || !input.sceneModel) {
     return err(SDKErrorType.InvalidInput, "[dwg.parse] sceneModel is required");

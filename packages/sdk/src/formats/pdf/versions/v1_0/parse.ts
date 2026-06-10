@@ -2,10 +2,10 @@
  * PDF parser + SceneModel emitter — v1.0.
  *
  * Owns the entire PDF → SceneModel pipeline for v1.0: dynamically
- * imports `pdfjs-dist` from a CDN (URL configurable via
- * {@link PDFLoadOptions.pdfjsEsmUrl} / `pdfjsWorkerSrc`; a
+ * imports `pdfjs-dist` from a CDN (URL configured on the loader via
+ * {@link PDFLoaderParams.pdfjsEsmUrl} / `pdfjsWorkerSrc`; a
  * pre-initialised pdf.js namespace can be injected via
- * {@link PDFLoadOptions.pdfjs} to skip the CDN), walks each page's
+ * {@link PDFLoaderParams.pdfjs} to skip the CDN), walks each page's
  * operator list + text content, and emits SceneModel entities.
  * {@link PDFLoader} is a one-line façade that delegates here.
  *
@@ -70,7 +70,10 @@ import {earcut} from "../../../cityjson/versions/v1_0/earcut";
 
 import {
   DEFAULT_PDF_LOAD_OPTIONS,
+  DEFAULT_PDFJS_ESM_URL,
+  DEFAULT_PDFJS_WORKER_SRC,
   type PDFLoadOptions,
+  type PDFLoaderParams,
 } from "../../PDFLoadOptions";
 
 
@@ -78,7 +81,7 @@ import {
 //
 // Subset of the `pdfjs-dist` namespace consumed below. The SDK
 // fetches pdf.js itself (CDN-by-default, overridable via
-// `PDFLoadOptions.pdfjsEsmUrl`); these types describe what we expect
+// `PDFLoaderParams.pdfjsEsmUrl`); these types describe what we expect
 // to receive back from `pdfjs.getDocument(...).promise` and the
 // resulting page handles. External callers don't need to know about
 // them.
@@ -344,12 +347,12 @@ interface PdfJsHandle {
   OPS: PDFOperatorCodes;
 }
 
-async function loadPdfJs(opts: PDFLoadOptions): Promise<PdfJsHandle> {
+async function loadPdfJs(opts: PDFLoadOptions & PDFLoaderParams): Promise<PdfJsHandle> {
   if (opts.pdfjs && typeof opts.pdfjs.getDocument === "function" && opts.pdfjs.OPS) {
     return opts.pdfjs as PdfJsHandle;
   }
-  const esmUrl    = opts.pdfjsEsmUrl    ?? DEFAULT_PDF_LOAD_OPTIONS.pdfjsEsmUrl;
-  const workerSrc = opts.pdfjsWorkerSrc ?? DEFAULT_PDF_LOAD_OPTIONS.pdfjsWorkerSrc;
+  const esmUrl    = opts.pdfjsEsmUrl    ?? DEFAULT_PDFJS_ESM_URL;
+  const workerSrc = opts.pdfjsWorkerSrc ?? DEFAULT_PDFJS_WORKER_SRC;
   const key = `${esmUrl}|${workerSrc}`;
   let p = _pdfjsCache.get(key);
   if (!p) {
@@ -425,7 +428,7 @@ export interface PDFLoadInput {
  * and emits the SceneModel entities. Returns an `SDKResult` so the
  * wrapping {@link PDFLoader} can pass it through unchanged.
  */
-export async function parse(input: PDFLoadInput, options: PDFLoadOptions = {}): Promise<SDKResult<PDFLoadResult>> {
+export async function parse(input: PDFLoadInput, options: PDFLoadOptions & PDFLoaderParams = {}): Promise<SDKResult<PDFLoadResult>> {
 
     if (!input || !input.sceneModel) {
       return {ok: false, type: SDKErrorType.InvalidInput, error: "[pdf.parse] sceneModel is required"};

@@ -8,7 +8,7 @@ import {OBJLoader} from "../../formats/obj";
 import {DotBIMLoader} from "../../formats/dotbim";
 import {CityJSONLoader} from "../../formats/cityjson";
 import {FDSLoader} from "../../formats/fds";
-import {MetaModelLoader} from "../../formats/metamodel";
+import {MetaModelLoader} from "../../formats/legacy/metamodel";
 import {DataModelImporter} from "../../formats/datamodel";
 import {SceneModelImporter} from "../../formats/scenemodel";
 

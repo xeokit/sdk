@@ -1,5 +1,5 @@
 /**
- * <img style="padding:0px; padding-top:20px; padding-bottom:20px;  height:270px" src="https://xeokit.github.io/sdk/docs/assets/3D-Cart.svg"/>
+ * <img style="padding:0px; padding-top:20px; padding-bottom:20px;  height:270px" src="../../assets/3D-Cart.svg"/>
  *
  * # xeokit Vector Math Utilities
  *
@@ -207,8 +207,7 @@ export type Vec9 = Vec9Float;
  * @param values
  */
 export function createVec2Float64(values?: Vec2): Vec2Float64 {
-  // @ts-ignore
-  return new Float64Array(values || 2);
+  return values ? new Float64Array(values) : new Float64Array(2);
 }
 
 /**
@@ -216,8 +215,7 @@ export function createVec2Float64(values?: Vec2): Vec2Float64 {
  * @param values
  */
 export function createVec2Float32(values?: Vec2): Vec2Float32 {
-  // @ts-ignore
-  return new Float32Array(values || 2);
+  return values ? new Float32Array(values) : new Float32Array(2);
 }
 
 /**
@@ -225,8 +223,7 @@ export function createVec2Float32(values?: Vec2): Vec2Float32 {
  * @param values
  */
 export function createVec2Int32(values?: Vec2): Vec2Int {
-  // @ts-ignore
-  return new Int32Array(values || 2);
+  return values ? new Int32Array(values) : new Int32Array(2);
 }
 
 /**
@@ -234,33 +231,27 @@ export function createVec2Int32(values?: Vec2): Vec2Int {
  * @param values
  */
 export function createVec3Float64(values?: Vec3): Vec3Float64 {
-  // @ts-ignore
-  return new Float64Array(values || 3);
+  return values ? new Float64Array(values) : new Float64Array(3);
 }
 
 export function createVec3Float32(values?: Vec3): Vec3Float32 {
-  // @ts-ignore
-  return new Float32Array(values || 3);
+  return values ? new Float32Array(values) : new Float32Array(3);
 }
 
 export function createVec3Int32(values?: Vec3): Vec3Int {
-  // @ts-ignore
-  return new Int32Array(values || 3);
+  return values ? new Int32Array(values) : new Int32Array(3);
 }
 
 export function createVec3Int16(values?: Vec3): Vec3Int {
-  // @ts-ignore
-  return new Int16Array(values || 3);
+  return values ? new Int16Array(values) : new Int16Array(3);
 }
 
 export function createVec2Int16(values?: Vec2): Vec2Int {
-  // @ts-ignore
-  return new Int16Array(values || 2);
+  return values ? new Int16Array(values) : new Int16Array(2);
 }
 
 export function createVec2Uint16(values?: Vec2): Vec2Int {
-  // @ts-ignore
-  return new Uint16Array(values || 2);
+  return values ? new Uint16Array(values) : new Uint16Array(2);
 }
 
 
@@ -268,8 +259,7 @@ export function createVec2Uint16(values?: Vec2): Vec2Int {
  * Creates a new 4D double-precision float vector.
  */
 export function createVec4Float64(values?: Vec4): Vec4Float {
-  // @ts-ignore
-  return new Float64Array(values || 4);
+  return values ? new Float64Array(values) : new Float64Array(4);
 }
 
 /**
@@ -277,8 +267,7 @@ export function createVec4Float64(values?: Vec4): Vec4Float {
  * @param values
  */
 export function createVec4Float32(values?: Vec4): Vec4Float32 {
-  // @ts-ignore
-  return new Float32Array(values || 4);
+  return values ? new Float32Array(values) : new Float32Array(4);
 }
 
 /**
@@ -286,8 +275,7 @@ export function createVec4Float32(values?: Vec4): Vec4Float32 {
  * @param values
  */
 export function createVec4Int32(values?: Vec4): Vec4Int {
-  // @ts-ignore
-  return new Int32Array(values || 4);
+  return values ? new Int32Array(values) : new Int32Array(4);
 }
 
 /**
@@ -295,24 +283,21 @@ export function createVec4Int32(values?: Vec4): Vec4Int {
  * @param values
  */
 export function createVec4Int16(values?: Vec4): Vec4Int {
-  // @ts-ignore
-  return new Int16Array(values || 4);
+  return values ? new Int16Array(values) : new Int16Array(4);
 }
 
 /**
  * Creates a new 9-element double-precision float vector.
  */
 export function createVec9Float64(values?: Vec9): Vec9 {
-  // @ts-ignore
-  return new Float64Array(values || 9);
+  return values ? new Float64Array(values) : new Float64Array(9);
 }
 
 /**
  * Creates a new 9-element single-precision float vector.
  */
 export function createVec9Float32(values?: Vec9): Vec9 {
-  // @ts-ignore
-  return new Float32Array(values || 9);
+  return values ? new Float32Array(values) : new Float32Array(9);
 }
 
 /**

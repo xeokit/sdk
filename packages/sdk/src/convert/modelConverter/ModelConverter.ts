@@ -25,7 +25,14 @@ import {
   type InspectionReport,
 } from "../../inspect/sceneModel";
 
-const fileIO = createFileIO();
+// Lazily created so merely importing this module doesn't construct a
+// FileIO — `createFileIO()` throws in Node, and ModelConverter is
+// bundled into the Node-side xeoconvert CLI where the filePath branch
+// (the only consumer) is never hit.
+let _fileIO: ReturnType<typeof createFileIO> | null = null;
+function getFileIO(): ReturnType<typeof createFileIO> {
+  return _fileIO ?? (_fileIO = createFileIO());
+}
 
 /**
  * Transforms 3D model data between different file formats.
@@ -285,7 +292,7 @@ export class ModelConverter {
           };
 
           if (filePath) {
-            fileIO.load(filePath).then((fileData) => {
+            getFileIO().load(filePath).then((fileData) => {
               loadFileData(fileData);
             }).catch(err => {
               reject(`[ModelConverter.convert] Failed to load source file: ${err}`);

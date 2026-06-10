@@ -343,6 +343,11 @@ export class DataModel  {
 
       this.data.objects[id] = dataObject;
 
+      // A freshly created object has no relationships yet, so it starts life as
+      // a traversal root. createRelationship de-roots it once it gains an
+      // incoming relationship.
+      this.data.rootObjects[id] = dataObject;
+
       if (!this.data.objectsByType[type]) {
         this.data.objectsByType[type] = {};
       }
@@ -355,6 +360,13 @@ export class DataModel  {
 
     this.objects[id] = dataObject;
 
+    // Mirror the root into this model's own root set, but only while the object
+    // is genuinely a root (no incoming relationship) — i.e. still present in
+    // Data.rootObjects. Covers both new objects and shared ones still rootless.
+    if (this.data.rootObjects[id]) {
+      this.rootObjects[id] = dataObject;
+    }
+
     if (!this.objectsByType[type]) {
       this.objectsByType[type] = {};
     }
@@ -362,7 +374,13 @@ export class DataModel  {
 
     this.typeCounts[type] = (this.typeCounts[type] === undefined) ? 1 : this.typeCounts[type] + 1;
 
-    dataObject.models.push(this);
+    // Register this model as an owner only if it isn't already — the
+    // DataObject constructor seeds models with its creating model, so a
+    // freshly created object would otherwise be listed twice and never
+    // purge from Data.objects on destroy (its models.length stays > 1).
+    if (dataObject.models.indexOf(this) < 0) {
+      dataObject.models.push(this);
+    }
 
     this.stats.numObjects++;
 
@@ -436,6 +454,13 @@ export class DataModel  {
       relatedObject.relating[relationshipParams.type] = [];
     }
     relatedObject.relating[relationshipParams.type].push(relation);
+    // The related object now has an incoming relationship, so it is no longer a
+    // traversal root — remove it from the root sets of Data and every model
+    // that owns it.
+    delete this.data.rootObjects[relatedObject.id];
+    for (let i = 0, len = relatedObject.models.length; i < len; i++) {
+      delete relatedObject.models[i].rootObjects[relatedObject.id];
+    }
     if (!relatingObject.related[relationshipParams.type]) {
       relatingObject.related[relationshipParams.type] = [];
     }
@@ -605,31 +630,47 @@ export class DataModel  {
         error: "[DataModel.destroy] DataModel already destroyed"
       });
     }
+    // 1) Unwire every relationship this model created, from BOTH endpoints'
+    //    relating/related maps. (The Relationship objects are discarded with
+    //    the model.) Done first and ungated, so it runs for every object — not
+    //    only the last one of each type, as the previous code did.
+    for (let i = 0, len = this.relationships.length; i < len; i++) {
+      const relation = this.relationships[i];
+      const type = relation.type;
+      this.#removeRelation(relation.relatingObject.related[type], relation);
+      this.#removeRelation(relation.relatedObject.relating[type], relation);
+    }
+
+    // 2) Remove this model's objects from Data — or just detach this model
+    //    from objects that are shared with other DataModels.
     for (const id in this.objects) {
       const dataObject = this.objects[id];
       if (dataObject.models.length > 1) {
         this.#removeObjectFromModels(dataObject);
       } else {
         delete this.data.objects[id];
+        delete this.data.rootObjects[id];
         const type = dataObject.type;
+        const bucket = this.data.objectsByType[type];
+        if (bucket) {
+          delete bucket[id];
+        }
         if ((--this.data.typeCounts[type]) === 0) {
           delete this.data.typeCounts[type];
           delete this.data.objectsByType[type];
-          this.data.events.onDataObjectDestroyed.dispatch(this.data, dataObject);
-          for (const type in dataObject.relating) {
-            const relations = dataObject.relating[type];
-            for (let i = 0, len = relations.length; i < len; i++) {
-              const relation = relations[i];
-              const related = relation.relatedObject;
-              const list = related.relating[type];
-              for (let j = 0, k = 0, lenj = list.length; j < lenj; j++) {
-                if (list[k].relatingObject === dataObject) {
-                  list.splice(j, 1);
-                  break;
-                }
-              }
-            }
-          }
+        }
+        this.data.events.onDataObjectDestroyed.dispatch(this.data, dataObject);
+      }
+    }
+
+    // 3) A surviving (shared) object that lost its last incoming relationship
+    //    is a traversal root again — restore it to the root sets.
+    for (let i = 0, len = this.relationships.length; i < len; i++) {
+      const related = this.relationships[i].relatedObject;
+      if (this.data.objects[related.id] && !this.#hasIncomingRelationship(related)) {
+        this.data.rootObjects[related.id] = related;
+        for (let j = 0, lenj = related.models.length; j < lenj; j++) {
+          related.models[j].rootObjects[related.id] = related;
         }
       }
     }
@@ -657,6 +698,26 @@ export class DataModel  {
         break;
       }
     }
+  }
+
+  #removeRelation(list: Relationship[] | undefined, relation: Relationship) {
+    if (!list) {
+      return;
+    }
+    const i = list.indexOf(relation);
+    if (i >= 0) {
+      list.splice(i, 1);
+    }
+  }
+
+  #hasIncomingRelationship(dataObject: DataObject): boolean {
+    const relating = dataObject.relating;
+    for (const type in relating) {
+      if (relating[type].length > 0) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 

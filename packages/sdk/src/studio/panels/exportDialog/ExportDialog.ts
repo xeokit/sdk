@@ -31,7 +31,7 @@ import {OBJExporter}              from "../../../formats/obj/OBJExporter";
 import {MTLExporter}              from "../../../formats/mtl/MTLExporter";
 import {IFCExporter}              from "../../../formats/ifc/IFCExporter";
 import {DotBIMExporter}           from "../../../formats/dotbim/DotBIMExporter";
-import {RVMExporter}              from "../../../formats/rvm/RVMExporter";
+import {CityJSONExporter}         from "../../../formats/cityjson/CityJSONExporter";
 import {DXFExporter}              from "../../../formats/dxf/DXFExporter";
 import {SVGExporter}              from "../../../formats/svg/SVGExporter";
 import {SceneModelExporter} from "../../../formats/scenemodel/SceneModelExporter";
@@ -169,10 +169,10 @@ const FORMAT_REGISTRY: Record<string, FormatEntry> = {
     build:   () => new DotBIMExporter(),
     toBytes: (raw) => JSON.stringify(raw, null, 2),
   },
-  rvm: {
-    id: "rvm", label: "RVM", ext: "rvm", mime: "application/octet-stream",
-    build:   () => new RVMExporter(),
-    toBytes: (raw) => raw as ArrayBuffer,
+  cityjson: {
+    id: "cityjson", label: "CityJSON", ext: "json", mime: "application/json",
+    build:   () => new CityJSONExporter(),
+    toBytes: (raw) => JSON.stringify(raw, null, 2),
   },
   dxf: {
     id: "dxf", label: "DXF", ext: "dxf", mime: "application/dxf",
@@ -217,7 +217,7 @@ const DEFAULT_DATASET_TYPES: string[] = [
   "obj,mtl",
   "ifc",
   "dotbim",
-  "rvm",
+  "cityjson",
   "dxf",
   "svg",
   "datamodel",
@@ -326,11 +326,11 @@ const DATASET_PARAMS: Record<string, ParamDef[]> = {
       help: "Filename for the .bim download.",
     },
   ],
-  "rvm": [
+  "cityjson": [
     {
-      id: "rvmFileName", label: "RVM Filename", type: "string",
-      default: "{id}.rvm", applyTo: [], filenameFor: "rvm",
-      help: "Filename for the RVM download.",
+      id: "cityJSONFileName", label: "CityJSON Filename", type: "string",
+      default: "{id}.city.json", applyTo: [], filenameFor: "cityjson",
+      help: "Filename for the CityJSON download. Each SceneObject becomes a CityObject; DataModel types and relationships, when present, populate the city object hierarchy.",
     },
   ],
   "dxf": [

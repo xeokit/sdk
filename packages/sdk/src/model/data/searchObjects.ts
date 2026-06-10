@@ -63,10 +63,13 @@ export function searchObjects(data: Data, searchParams: SearchParams): SDKResult
       if (relations) {
         for (let i = 0, len = relations.length; i < len; i++) {
           let includeRelation = true;
-          if (excludeRelating && excludeRelating[dataObject.type]) {
+          // Filter by the RELATIONSHIP type (the `related` map key), per the
+          // documented "types of Relationships to follow/exclude" — not the
+          // relating object's own type.
+          if (excludeRelating && excludeRelating[type]) {
             includeRelation = false;
           } else {
-            if (includeRelating && (!includeRelating[dataObject.type])) {
+            if (includeRelating && (!includeRelating[type])) {
               includeRelation = false;
             }
           }

@@ -1,6 +1,6 @@
 /**
  *
- * <img style="padding:0px; padding-top:20px; padding-bottom:20px;  height:270px" src="https://xeokit.github.io/sdk/docs/assets/3D-Cart.svg"/>
+ * <img style="padding:0px; padding-top:20px; padding-bottom:20px;  height:270px" src="../../assets/3D-Cart.svg"/>
  *
  * # xeokit Matrix Math Utilities
  *
@@ -56,7 +56,7 @@ import {
   type Vec3,
   type Vec4
 } from "./vector";
-import {clamp, type FloatArrayParam} from "./index";
+import {clamp, type FloatArrayParam, newFloatArray} from "./index";
 import {eulerToQuat, identityQuat, mat4ToQuat, type Quat, quatToRotationMat4} from "./quat";
 
 /**
@@ -143,8 +143,7 @@ export function perspectiveMat4(
  * @returns A new 4x4 matrix.
  */
 export function createMat4Float32(values?: Mat4): Mat4 {
-  // @ts-ignore
-  return new Float32Array(values || 16);
+  return values ? new Float32Array(values) : new Float32Array(16);
 }
 
 /**
@@ -163,8 +162,7 @@ const tempVec4b = createVec4Float64();
  * @returns A new 3x3 matrix.
  */
 export function createMat3(values?: Mat3): Mat3 {
-  // @ts-ignore
-  return new newFloatArray(values || 9);
+  return newFloatArray(values || 9) as Mat3;
 }
 
 
@@ -174,8 +172,7 @@ export function createMat3(values?: Mat3): Mat3 {
  * @returns A new 4x4 matrix.
  */
 export function createMat4Float64(values?: Mat4): Mat4 {
-  // @ts-ignore
-  return new Float64Array(values || 16);
+  return values ? new Float64Array(values) : new Float64Array(16);
 }
 
 
@@ -1092,7 +1089,7 @@ export function composeMat4Euler(
  */
 export const decomposeMat4 = (() => {
   const vec = createVec3Float64(); // Temporary vector
-  const matrix = createMat4Float64(); // Temporary matrix
+  const matrix: Float64Array = createMat4Float64() as Float64Array; // Temporary matrix
   return function decompose(
     mat: Mat4,
     position: Vec3,
@@ -1124,7 +1121,6 @@ export const decomposeMat4 = (() => {
     position[2] = mat[14];
 
     // Scale the rotation part of the matrix
-    // @ts-ignore
     matrix.set(mat);
     const invSX = 1 / sx;
     const invSY = 1 / sy;

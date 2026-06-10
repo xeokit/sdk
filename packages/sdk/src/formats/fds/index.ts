@@ -1,4 +1,6 @@
 /**
+ * <img style="padding:10px" src="../../assets/xeokit_components_icon.png"/>
+ *
  * # fds — NIST Fire Dynamics Simulator Importer
  *
  * Import the geometry of NIST FDS-6 input files into xeokit.

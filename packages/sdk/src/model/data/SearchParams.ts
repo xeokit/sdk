@@ -41,14 +41,18 @@ export interface SearchParams {
   excludeObjects?: string[];
 
   /**
-   * The types of {@link Relationship | Relationships} to exclusively follow in each
-   * {@link DataObject.relating | DataObject.relating} during the search.
+   * The {@link Relationship.type | Relationship types} to exclusively follow during the traversal.
+   *
+   * When set, only relationships whose `type` is in this list are descended; relationships of any
+   * other type are skipped. Matched against the relationship type, not the object type.
    */
   includeRelating?: string[];
 
   /**
-   * The types of {@link Relationship | Relationships} to exclude from being followed in each
-   * {@link DataObject.related | DataObject.related} during the search.
+   * The {@link Relationship.type | Relationship types} to skip during the traversal.
+   *
+   * Relationships whose `type` is in this list are not descended. Takes precedence over
+   * {@link SearchParams.includeRelating}.
    */
   excludeRelating?: string[];
 

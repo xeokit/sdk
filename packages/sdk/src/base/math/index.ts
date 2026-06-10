@@ -1,5 +1,5 @@
 /**
- * <img style="padding:0px; padding-top:30px; padding-bottom:10px; height:130px;" src="https://xeokit.github.io/sdk/docs/assets/xeokit_logo_mesh.png"/>
+ * <img style="padding:0px; padding-top:30px; padding-bottom:10px; height:130px;" src="../../assets/xeokit_logo_mesh.png"/>
  *
  * # xeokit SDK Math Libraries
  *
@@ -143,8 +143,13 @@ export function clamp01(value: number): number {
  * @returns A new `Float64Array` containing the provided values.
  */
 export function newFloatArray(values?: number | FloatArrayParam): FloatArrayParam {
-  // @ts-ignore
-  return new Float64Array(values);
+  // Split the union so each call hits a single Float64Array constructor
+  // overload (length vs array-copy); undefined preserves the original
+  // zero-length-array behaviour.
+  if (values === undefined) {
+    return new Float64Array(0);
+  }
+  return typeof values === "number" ? new Float64Array(values) : new Float64Array(values);
 }
 
 /**

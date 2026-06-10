@@ -1,5 +1,5 @@
 /**
- * <img style="padding:10px" src="https://xeokit.github.io/sdk/docs/assets/xeokit_components_icon.png"/>
+ * <img style="padding:10px" src="../../assets/dwg_hero.jpg"/>
  *
  * # xeokit AutoCAD DWG Loader
  *
@@ -34,29 +34,32 @@
  *
  * See {@link DWGLoadOptions} for per-call tuning (scale, colour
  * overrides, circle tessellation, INSERT recursion limit, text
- * rasterisation knobs, libredwg CDN URLs).
+ * rasterisation knobs). The libredwg CDN URLs are configured once on
+ * the constructor — see {@link DWGLoaderParams}.
  *
  * ## Self-hosting / Node usage
  *
- * Override the CDN URLs to self-host the WASM blob (CSP / offline
- * / version pinning):
+ * Configure the CDN URLs on the constructor to self-host the WASM blob
+ * (CSP / offline / version pinning):
  *
  * ```ts
- * await loader.load({fileData, sceneModel}, {
+ * const loader = new DWGLoader({
  *   libredwgEsmUrl:  "/static/libredwg-web/index.js",
  *   libredwgWasmDir: "/static/libredwg-web/wasm",
  * });
+ * await loader.load({fileData, sceneModel});
  * ```
  *
  * For Node, dynamic CDN imports don't work without polyfills —
- * pre-initialise libredwg and pass it through:
+ * pre-initialise libredwg and inject it on the constructor:
  *
  * ```ts
  * import {LibreDwg, Dwg_File_Type} from "@mlightcad/libredwg-web";
  * const lib = await LibreDwg.create();
- * await loader.load({fileData, sceneModel}, {
+ * const loader = new DWGLoader({
  *   libredwg: {lib, fileType: Dwg_File_Type},
  * });
+ * await loader.load({fileData, sceneModel});
  * ```
  *
  * @module dwg

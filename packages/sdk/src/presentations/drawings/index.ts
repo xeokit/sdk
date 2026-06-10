@@ -192,7 +192,7 @@
  * along the projection direction. Pass an {@link hle.HLEOptions | HLEOptions} object to
  * tune resolution, per-edge sample count, and depth bias.
  *
- * <img style="padding: 8px 0" src="../../assets/buildDrawing-hle.svg" alt="HLE pipeline — triangles rasterise into a depth buffer, then each edge's samples are tested against the buffer to split it into visible and occluded sub-segments"/>
+ * <img style="padding: 8px 0" src="https://xeokit.github.io/sdk/docs/assets/buildDrawing-hle.svg" alt="HLE pipeline — triangles rasterise into a depth buffer, then each edge's samples are tested against the buffer to split it into visible and occluded sub-segments"/>
  *
  ```javascript
  * const targetModel = scene.createModel({ id: "myModel__front" }).value;
@@ -268,7 +268,7 @@
  * around the projected geometry; the panel is a translucent backing quad;
  * the title block is a standard cartouche in the bottom-right corner.
  *
- * <img style="padding: 8px 0" src="../../assets/buildDrawing-sheet.svg" alt="Composed drawing sheet showing the layering of panel, fills, wireframe, frame, and title block emitted by one buildDrawing call"/>
+ * <img style="padding: 8px 0" src="https://xeokit.github.io/sdk/docs/assets/buildDrawing-sheet.svg" alt="Composed drawing sheet showing the layering of panel, fills, wireframe, frame, and title block emitted by one buildDrawing call"/>
  *
  * ```javascript
  * const targetModel = scene.createModel({ id: "myModel__sheet" }).value;

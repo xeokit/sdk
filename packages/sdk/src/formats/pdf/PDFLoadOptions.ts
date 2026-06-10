@@ -211,41 +211,6 @@ export interface PDFLoadOptions {
   textPxPerUnit?: number;
 
   /**
-   * Optional override for the pdfjs-dist ESM URL the loader
-   * dynamically imports. Defaults to the jsdelivr-hosted build of
-   * `pdfjs-dist@4.0.379`. Override to self-host (CSP / offline /
-   * specific version pin) or to point at a different distribution.
-   *
-   * @default `https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.min.mjs`
-   */
-  pdfjsEsmUrl?: string;
-
-  /**
-   * URL of the pdf.js worker script (`pdf.worker.min.mjs`). Pdf.js
-   * spins up a Web Worker for parsing; the worker URL must match
-   * the main module's version exactly (mismatched versions are
-   * pdf.js's #1 runtime failure mode). The default points at the
-   * same jsdelivr origin / version stem as {@link pdfjsEsmUrl}; if
-   * you override either, override BOTH to keep them aligned.
-   *
-   * @default `https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.worker.min.mjs`
-   */
-  pdfjsWorkerSrc?: string;
-
-  /**
-   * Pre-initialised pdf.js namespace — when supplied, the loader
-   * skips its built-in CDN fetch + worker wiring and uses this
-   * object directly. Useful in Node hosts (where dynamic CDN
-   * import doesn't work without polyfills) or apps that already
-   * host pdf.js themselves.
-   *
-   * Must expose `getDocument` + `OPS`. Setting
-   * `GlobalWorkerOptions.workerSrc` on the supplied namespace is
-   * the caller's responsibility when injecting.
-   */
-  pdfjs?: any;
-
-  /**
    * Encloses each emitted page in an inside-out thin 3D box so
    * the drawing has a pickable surface behind it. Same chrome
    * pattern the drawings module's `buildDrawingPanel` uses for
@@ -284,9 +249,73 @@ export interface PDFLoadOptions {
 
 
 /**
+ * Constructor options for {@link PDFLoader} — how the loader obtains the
+ * `pdfjs-dist` parser. Loader-instance scope (set once at construction),
+ * not per-call: the loader resolves pdf.js on first `load()` and caches
+ * it across calls. Either point at custom CDN URLs (self-host / CSP /
+ * version pin) or inject a pre-initialised namespace.
+ *
+ * Per-load tuning (scale, layout, colours, text) stays in
+ * {@link PDFLoadOptions}.
+ *
  * @private
  */
-export const DEFAULT_PDF_LOAD_OPTIONS: Required<Omit<PDFLoadOptions, "pages" | "onPageProgress" | "color" | "fillColor" | "textColor" | "pdfjs">> = {
+export interface PDFLoaderParams {
+
+  /**
+   * Override for the pdfjs-dist ESM URL the loader dynamically
+   * imports. Override to self-host (CSP / offline / specific version
+   * pin) or to point at a different distribution.
+   *
+   * @default {@link DEFAULT_PDFJS_ESM_URL}
+   */
+  pdfjsEsmUrl?: string;
+
+  /**
+   * URL of the pdf.js worker script (`pdf.worker.min.mjs`). Pdf.js
+   * spins up a Web Worker for parsing; the worker URL must match
+   * the main module's version exactly (mismatched versions are
+   * pdf.js's #1 runtime failure mode). The default points at the
+   * same jsdelivr origin / version stem as {@link pdfjsEsmUrl}; if
+   * you override either, override BOTH to keep them aligned.
+   *
+   * @default {@link DEFAULT_PDFJS_WORKER_SRC}
+   */
+  pdfjsWorkerSrc?: string;
+
+  /**
+   * Pre-initialised pdf.js namespace — when supplied, the loader
+   * skips its built-in CDN fetch + worker wiring (ignoring
+   * {@link pdfjsEsmUrl} / {@link pdfjsWorkerSrc}) and uses this
+   * object directly. Essential in Node hosts (where dynamic CDN
+   * import doesn't work without polyfills) or apps that already
+   * host pdf.js themselves.
+   *
+   * Must expose `getDocument` + `OPS`. Setting
+   * `GlobalWorkerOptions.workerSrc` on the supplied namespace is
+   * the caller's responsibility when injecting.
+   */
+  pdfjs?: any;
+}
+
+/**
+ * Default CDN URL for the pdfjs-dist ESM module.
+ * @private
+ */
+export const DEFAULT_PDFJS_ESM_URL =
+  "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.min.mjs";
+
+/**
+ * Default CDN URL for the pdf.js worker script.
+ * @private
+ */
+export const DEFAULT_PDFJS_WORKER_SRC =
+  "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.worker.min.mjs";
+
+/**
+ * @private
+ */
+export const DEFAULT_PDF_LOAD_OPTIONS: Required<Omit<PDFLoadOptions, "pages" | "onPageProgress" | "color" | "fillColor" | "textColor">> = {
   scale:            1,
   layout:           "row",
   gridColumns:      4,
@@ -302,7 +331,5 @@ export const DEFAULT_PDF_LOAD_OPTIONS: Required<Omit<PDFLoadOptions, "pages" | "
   textFont:         "Arial, Helvetica, sans-serif",
   textDefaultColor: [0.05, 0.05, 0.05],
   textPxPerUnit:    4,
-  pdfjsEsmUrl:    "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.min.mjs",
-  pdfjsWorkerSrc: "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.worker.min.mjs",
   backingBox:     false,
 };

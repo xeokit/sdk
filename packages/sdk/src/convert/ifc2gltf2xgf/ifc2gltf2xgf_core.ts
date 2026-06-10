@@ -3,7 +3,7 @@
 import '@loaders.gl/polyfills';
 import type {SceneModel} from "../../model/scene/SceneModel";
 import {Scene} from "../../model/scene";
-import {convertMetaModel} from "../../formats/metamodel";
+import {convertMetaModel} from "../../formats/legacy/metamodel";
 import {GLTFLoader} from "../../formats/gltf";
 import {XGFExporter} from "../../formats/xgf";
 

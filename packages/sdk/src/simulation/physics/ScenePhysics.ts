@@ -97,7 +97,7 @@ interface BodyRecord {
  *   `"ball"` per-object when needed. Trimesh / convex hull is doable but
  *   not enabled here; AABB is enough for the demo cases this is built for.
  * - **Lazy + event-driven** — bodies created on first call to
- *   {@link formats!step | step} (so a freshly-loaded city doesn't pay the body-creation
+ *   {@link ScenePhysics.step | step} (so a freshly-loaded city doesn't pay the body-creation
  *   cost until the simulation actually starts), then refreshed
  *   incrementally as the scene mutates.
  * - **No allocations per step** — temp matrices and the body-iteration

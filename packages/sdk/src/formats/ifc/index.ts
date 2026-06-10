@@ -1,10 +1,10 @@
 /**
  * <img style="padding:0; padding-top:20px; padding-bottom:30px; width:180px;"
- *      src="https://xeokit.github.io/sdk/docs/assets/ifc_logo.png"/>
+ *      src="../../assets/ifc_logo.png"/>
  *
- * # ifc — IFC Importer
+ * # ifc — IFC Importer / Exporter
  *
- * Import models using the
+ * Import and export models using the
  * {@link https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ifc | IFC}
  * (Industry Foundation Classes) open standard.
  *
@@ -17,6 +17,10 @@
  * IFC represents both **geometry** and **rich semantic structure**, enabling
  * querying, classification, and analysis workflows after import.
  *
+ * The SDK can also write a SceneModel + DataModel back out to an
+ * **IFC4 STEP** file via {@link IFCExporter}, completing the
+ * round-trip.
+ *
  * ---
  *
  * ## Importing IFC
@@ -25,6 +29,15 @@
  *
  * - a {@link model!scene.SceneModel | SceneModel} for geometry and materials
  * - a {@link model!data.DataModel | DataModel} for IFC semantics and relationships
+ *
+ * <br>
+ *
+ * ## Exporting IFC
+ *
+ * Use {@link IFCExporter} to write a {@link model!scene.SceneModel | SceneModel}
+ * and/or {@link model!data.DataModel | DataModel} back out to IFC. The
+ * exporter targets the **IFC4** schema and resolves to the IFC STEP
+ * file as a text string.
  *
  * <br>
  *
@@ -37,15 +50,18 @@
  *       +format / versions / fileDataType
  *       +load(params, options?) Promise~void~
  *     }
- *     class ifctypes_4_0_2_1 {
- *       <<sub-module>>
- *       IFC4 ObjectType / RelationshipType id constants
+ *     class IFCExporter {
+ *       +format / versions / fileDataType
+ *       +write(params, options?) Promise~string~
  *     }
  *     class ModelLoader {
  *       <<formats>>
  *     }
+ *     class ModelExporter {
+ *       <<formats>>
+ *     }
  *     ModelLoader <|-- IFCLoader
- *     IFCLoader ..> ifctypes_4_0_2_1 : uses
+ *     ModelExporter <|-- IFCExporter
  * ```
  *
  * <br>
@@ -64,6 +80,9 @@
  * - **Property-set passthrough** — every IfcPropertySet attached
  *   to an IfcObject becomes a {@link model!data.PropertySet | PropertySet}
  *   on the matching DataObject.
+ * - **IFC4 export** — {@link IFCExporter} writes a SceneModel +
+ *   DataModel back out to an IFC4 STEP file, for round-tripping or
+ *   handing geometry + semantics to other BIM tools.
  *
  * ---
  *
@@ -145,6 +164,29 @@
  *   dataModel.destroy();
  *   console.error(String(err));
  * });
+ * ```
+ *
+ * ---
+ *
+ * ## Example: exporting an IFC model
+ *
+ * {@link IFCExporter.write | IFCExporter.write} resolves to the IFC4
+ * STEP file as a text string, which you can save or upload:
+ *
+ * ```ts
+ * import { IFCExporter } from "@xeokit/sdk/formats/ifc";
+ *
+ * // Given a populated `sceneModel` and `dataModel`:
+ * const ifcText = await new IFCExporter().write({ sceneModel, dataModel });
+ *
+ * // e.g. trigger a browser download
+ * const blob = new Blob([ifcText], { type: "application/x-step" });
+ * const url  = URL.createObjectURL(blob);
+ * const a    = document.createElement("a");
+ * a.href = url;
+ * a.download = "model.ifc";
+ * a.click();
+ * URL.revokeObjectURL(url);
  * ```
  *
  * ---

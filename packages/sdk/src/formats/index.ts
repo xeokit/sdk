@@ -1,5 +1,5 @@
 /**
- * <img style="padding:0px; padding-top:30px; padding-bottom:10px; height:130px;" src="https://xeokit.github.io/sdk/docs/assets/xeokit_logo_mesh.png"/>
+ * <img style="padding:0px; padding-top:30px; padding-bottom:10px; height:130px;" src="../../assets/xeokit_logo_mesh.png"/>
  *
  * # xeokit Model Formats
  *
@@ -40,7 +40,7 @@
  *     }
  *     class GeometryFormats {
  *       gltf / ifc / dotbim / las / xgf
- *       cityjson / obj / mtl / rvm / step
+ *       cityjson / obj / mtl
  *       fbx / usdz / dwg / dxf / pdf / svg / fds
  *     }
  *     class XeokitNativeFormats {
@@ -88,10 +88,8 @@
  * - {@link formats!las | las} – LAS / LAZ point cloud formats
  * - {@link formats!fbx | fbx} – Autodesk FBX (binary)
  * - {@link formats!usdz | usdz} – Pixar USDZ
- * - {@link formats!rvm | rvm} – AVEVA RVM
  * - {@link formats!obj | obj} – Wavefront OBJ
  * - {@link formats!mtl | mtl} – Wavefront MTL
- * - {@link formats!step | step} – ISO 10303-21 STEP (`.step` / `.stp`)
  * - {@link formats!dwg | dwg} – AutoCAD DWG
  * - {@link formats!dxf | dxf} – AutoCAD DXF
  * - {@link formats!pdf | pdf} – PDF
@@ -144,13 +142,11 @@ export * as las from "./las";
 export * as dotbim from "./dotbim";
 export * as scenemodel from "./scenemodel";
 export * as datamodel from "./datamodel";
-export * as metamodel from "./metamodel";
+export * as metamodel from "./legacy/metamodel";
 export * as obj from "./obj";
 export * as mtl from "./mtl";
-export * as rvm from "./rvm";
 export * as fbx from "./fbx";
 export * as usdz from "./usdz";
-export * as step from "./step";
 export * as pdf from "./pdf";
 export * as svg from "./svg";
 export * as dwg from "./dwg";

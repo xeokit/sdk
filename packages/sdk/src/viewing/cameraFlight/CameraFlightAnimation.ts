@@ -165,7 +165,7 @@ export class CameraFlightAnimation {
   easing: boolean;
   _flyingEyeLookUp: boolean;
   _fitFOV: number;
-  _projection2: number;
+  _projection2: number | null;
   _projMatrix1: Mat4;
   _projMatrix2: Mat4;
 
@@ -267,8 +267,7 @@ export class CameraFlightAnimation {
           return;
         }
         const time = Date.now();
-        // @ts-ignore
-        let t = (time - this._time1) / (this._time2 - this._time1);
+        let t = (time - this._time1!) / (this._time2! - this._time1!);
         const stopping = (t >= 1);
         if (t > 1) {
           t = 1;
@@ -383,20 +382,17 @@ export class CameraFlightAnimation {
     this._orthoScale1 = camera.orthoProjection.scale;
     this._orthoScale2 = params.orthoScale || this._orthoScale1;
 
-    let aabb: AABB3;
-    let eye: Vec3;
-    let look: Vec3;
-    let up: Vec3;
+    let aabb: AABB3 | undefined;
+    let eye: Vec3 | undefined;
+    let look: Vec3 | undefined;
+    let up: Vec3 | undefined;
 
     if (params.aabb) {
       aabb = params.aabb;
 
     } else if ((params.eye && params.look) || params.up) {
-      // @ts-ignore
       eye = params.eye;
-      // @ts-ignore
       look = params.look;
-      // @ts-ignore
       up = params.up;
 
     } else if (params.eye) {
@@ -412,7 +408,6 @@ export class CameraFlightAnimation {
     }
 
     const poi = params.poi;
-    // @ts-ignore
     if (aabb) {
 
       if (aabb[3] < aabb[0] || aabb[4] < aabb[1] || aabb[5] < aabb[2]) { // Don't fly to an inverted boundary
@@ -446,27 +441,20 @@ export class CameraFlightAnimation {
 
       this._flyingEyeLookUp = true;
 
-      // @ts-ignore
     } else if (eye || look || up) {
-      // @ts-ignore
       this._flyingEyeLookUp = !!eye && !!look && !!up;
-      // @ts-ignore
       this._flyingEye = !!eye && !look;
-      // @ts-ignore
       this._flyingLook = !!look && !eye;
-      // @ts-ignore
       if (eye) {
         this._eye2[0] = eye[0];
         this._eye2[1] = eye[1];
         this._eye2[2] = eye[2];
       }
-      // @ts-ignore
       if (look) {
         this._look2[0] = look[0];
         this._look2[1] = look[1];
         this._look2[2] = look[2];
       }
-      // @ts-ignore
       if (up) {
         this._up2[0] = up[0];
         this._up2[1] = up[1];
@@ -490,7 +478,6 @@ export class CameraFlightAnimation {
         camera.projectionType = CustomProjectionType;
       }
     } else {
-      // @ts-ignore
       this._projection2 = null;
     }
 
@@ -559,10 +546,10 @@ export class CameraFlightAnimation {
 
     const camera = this.camera;
 
-    let aabb: AABB3;
-    let newEye: Vec3;
-    let newLook: Vec3;
-    let newUp: Vec3;
+    let aabb: AABB3 | undefined;
+    let newEye: Vec3 | undefined;
+    let newLook: Vec3 | undefined;
+    let newUp: Vec3 | undefined;
 
     if (params.aabb) { // Boundary3D
       aabb = params.aabb;
@@ -575,7 +562,6 @@ export class CameraFlightAnimation {
     }
 
     const poi = params.poi;
-    // @ts-ignore
     if (aabb) {
 
       if (aabb[3] <= aabb[0] || aabb[4] <= aabb[1] || aabb[5] <= aabb[2]) { // Don't fly to an empty boundary
@@ -583,7 +569,6 @@ export class CameraFlightAnimation {
       }
 
       const diag = poi ? getAABB3DiagPoint(aabb, poi) : getAABB3Diag(aabb);
-      // @ts-ignore
       newLook = poi || getAABB3Center(aabb, newLook);
 
       if (this._trail) {
@@ -609,15 +594,13 @@ export class CameraFlightAnimation {
       camera.look = newLook;
 
       this.camera.orthoProjection.scale = diag * 1.1;
-      // @ts-ignore
     } else if (newEye || newLook || newUp) {
-      // @ts-ignore
       if (newEye) {
         camera.eye = newEye;
-      } // @ts-ignore
+      }
       if (newLook) {
         camera.look = newLook;
-      } // @ts-ignore
+      }
       if (newUp) {
         camera.up = newUp;
       }

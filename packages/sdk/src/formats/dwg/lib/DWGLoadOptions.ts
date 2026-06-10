@@ -132,33 +132,47 @@ export interface DWGLoadOptions {
    * INSERT's tick).
    */
   onProgress?: (entityIndex: number, totalEntities: number) => void;
+}
+
+
+/**
+ * Constructor options for {@link DWGLoader} — how the loader obtains the
+ * `@mlightcad/libredwg-web` parser. Loader-instance scope (set once at
+ * construction), not per-call: the loader resolves the parser on first
+ * `load()` and caches it across calls. Either point at custom CDN URLs
+ * (self-host / CSP / version pin) or inject a pre-initialised instance.
+ *
+ * Per-load tuning (scale, colours, tessellation, text) stays in
+ * {@link DWGLoadOptions}.
+ *
+ * @private
+ */
+export interface DWGLoaderParams {
 
   /**
-   * Optional override for the libredwg-web ESM URL the loader
-   * dynamically imports. Defaults to the jsdelivr-hosted build of
-   * `@mlightcad/libredwg-web@0.7.1`. Override to self-host (CSP /
-   * offline / specific version pin) or to point at a different
-   * libredwg distribution.
+   * Override for the libredwg-web ESM URL the loader dynamically
+   * imports. Override to self-host (CSP / offline / specific version
+   * pin) or to point at a different libredwg distribution.
    *
-   * @default `https://cdn.jsdelivr.net/npm/@mlightcad/libredwg-web@0.7.1/+esm`
+   * @default {@link DEFAULT_LIBREDWG_ESM_URL}
    */
   libredwgEsmUrl?: string;
 
   /**
    * Directory containing the libredwg-web `.wasm` blob (and its
    * companion `.js` glue). Passed through to libredwg's
-   * `LibreDwg.create(filepath)` as the WASM-locate base URL.
-   * Defaults to the same jsdelivr origin as the ESM module. Pair
+   * `LibreDwg.create(filepath)` as the WASM-locate base URL. Pair
    * with {@link libredwgEsmUrl} when self-hosting.
    *
-   * @default `https://cdn.jsdelivr.net/npm/@mlightcad/libredwg-web@0.7.1/wasm`
+   * @default {@link DEFAULT_LIBREDWG_WASM_DIR}
    */
   libredwgWasmDir?: string;
 
   /**
    * Pre-initialised libredwg-web instance — when supplied, the
-   * loader skips its built-in CDN fetch + WASM init and uses this
-   * object directly. Useful in Node hosts (where dynamic CDN
+   * loader skips its built-in CDN fetch + WASM init (ignoring
+   * {@link libredwgEsmUrl} / {@link libredwgWasmDir}) and uses this
+   * object directly. Essential in Node hosts (where dynamic CDN
    * import doesn't work without polyfills) or apps that already
    * host libredwg themselves.
    *
@@ -170,12 +184,25 @@ export interface DWGLoadOptions {
   libredwg?: {lib: any; fileType: any};
 }
 
+/**
+ * Default CDN URL for the libredwg-web ESM module.
+ * @private
+ */
+export const DEFAULT_LIBREDWG_ESM_URL =
+  "https://cdn.jsdelivr.net/npm/@mlightcad/libredwg-web@0.7.1/+esm";
+
+/**
+ * Default CDN directory for the libredwg-web `.wasm` blob.
+ * @private
+ */
+export const DEFAULT_LIBREDWG_WASM_DIR =
+  "https://cdn.jsdelivr.net/npm/@mlightcad/libredwg-web@0.7.1/wasm";
 
 /**
  * @private
  */
 export const DEFAULT_DWG_LOAD_OPTIONS: Required<
-  Omit<DWGLoadOptions, "color" | "textColor" | "onProgress" | "libredwg">
+  Omit<DWGLoadOptions, "color" | "textColor" | "onProgress">
 > = {
   scale:             1,
   minLineWidth:      1.0,
@@ -188,6 +215,4 @@ export const DEFAULT_DWG_LOAD_OPTIONS: Required<
   textDefaultColor:  [0.05, 0.05, 0.05],
   textFont:          "Arial, Helvetica, sans-serif",
   textPxPerUnit:     4,
-  libredwgEsmUrl:    "https://cdn.jsdelivr.net/npm/@mlightcad/libredwg-web@0.7.1/+esm",
-  libredwgWasmDir:   "https://cdn.jsdelivr.net/npm/@mlightcad/libredwg-web@0.7.1/wasm",
 };

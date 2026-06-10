@@ -1,4 +1,6 @@
 /**
+ * <img style="padding:10px" src="../../assets/xeokit_components_icon.png"/>
+ *
  * # FBX
  *
  * Loads binary Autodesk FBX (`.fbx`) files into a

@@ -1,6 +1,6 @@
 /**
  * <img style="padding:0; padding-top:20px; padding-bottom:30px; height:130px;"
- *      src="https://xeokit.github.io/sdk/docs/assets/obj_logo.png"/>
+ *      src="../../assets/obj_logo.png"/>
  *
  * # obj — OBJ Importer
  *

@@ -8,7 +8,6 @@ import {CityJSONLoader} from "../../formats/cityjson";
 import {XGFLoader, XGFExporter} from "../../formats/xgf";
 import {LASLoader} from "../../formats/las";
 import {IFCExporter, IFCLoader} from "../../formats/ifc";
-import {STEPLoader} from "../../formats/step";
 
 import {createStatsReport} from "../modelConverter/reporters/stats/createStatsReport";
 import {createManifestReport} from "../modelConverter/reporters/manifest/createManifestReport";
@@ -65,7 +64,6 @@ export const modelConverter = new ModelConverter({
     "cityjson": new CityJSONLoader(),
     "xgf": new XGFLoader(),
     "las": new LASLoader(),
-    "step": new STEPLoader(),
     "datamodel": new DataModelImporter(),
     "scenemodel": new SceneModelImporter()
   },
@@ -425,39 +423,6 @@ export const modelConverter = new ModelConverter({
             colorDepth: "auto",
             coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
           }
-        }
-      }
-    },
-
-    "step": {
-      inputs: {
-        "step": {
-          loader: "step",
-          options: {
-            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
-          }
-        }
-      }
-    },
-
-    "step2xgf": {
-      inputs: {
-        "step": {
-          loader: "step",
-          options: {
-            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
-          }
-        }
-      },
-      outputs: {
-        "xgf": {
-          exporter: "xgf",
-          options: {
-            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
-          }
-        },
-        "datamodel": {
-          exporter: "datamodel"
         }
       }
     },

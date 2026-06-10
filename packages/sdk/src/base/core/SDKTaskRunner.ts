@@ -65,7 +65,7 @@ export class SDKTaskRunner {
     // Start loop if needed
     if (!this.running && this.hasTasks()) {
       this.running = true;
-      requestAnimationFrame(() => this.runTasks());
+      this.scheduleRun();
     }
   }
 
@@ -92,7 +92,7 @@ export class SDKTaskRunner {
     this.tasksByStage.get(stage)!.add(task);
     if (!this.running) {
       this.running = true;
-      requestAnimationFrame(() => this.runTasks());
+      this.scheduleRun();
     }
   }
 
@@ -136,9 +136,26 @@ export class SDKTaskRunner {
     ].some(stage => this.tasksByStage.get(stage)!.size > 0);
 
     if (tasksRemain) {
-      requestAnimationFrame(() => this.runTasks());
+      this.scheduleRun();
     } else {
       this.running = false;
+    }
+  }
+
+  /**
+   * Schedules the next {@link runTasks} pass.
+   *
+   * Uses `requestAnimationFrame` in the browser; on a non-browser host
+   * (node / SSR / worker) it falls back to a `setTimeout` macrotask. Without
+   * this, any `SDKTask` scheduled outside a browser (e.g. a CoordinateSystem
+   * update during headless model loading) would throw on the missing global.
+   * The ~16ms fallback approximates a 60fps frame for repeating tasks.
+   */
+  private scheduleRun(): void {
+    if (typeof requestAnimationFrame === "function") {
+      requestAnimationFrame(() => this.runTasks());
+    } else {
+      setTimeout(() => this.runTasks(), 16);
     }
   }
 

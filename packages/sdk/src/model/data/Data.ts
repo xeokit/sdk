@@ -223,6 +223,7 @@ export class Data {
     }
     this.events.onDataDestroyed.dispatch(this, undefined);
     this.events.destroy();
+    this.destroyed = true;
     return {
       ok: true,
       value: undefined

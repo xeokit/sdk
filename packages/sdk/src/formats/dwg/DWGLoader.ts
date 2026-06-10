@@ -10,11 +10,13 @@
  *
  * The DWG parser ({@link https://github.com/mlightcad/libredwg-web | @mlightcad/libredwg-web})
  * is dynamically imported from a CDN on first load and cached. CDN
- * URLs are configurable via {@link DWGLoadOptions.libredwgEsmUrl} /
- * {@link DWGLoadOptions.libredwgWasmDir} for self-hosting / CSP /
- * version pinning. Pre-initialised parser instances can be injected
- * via {@link DWGLoadOptions.libredwg} (essential for Node hosts
- * where dynamic CDN import doesn't work without polyfills).
+ * URLs are configured on the constructor via
+ * {@link DWGLoaderParams.libredwgEsmUrl} /
+ * {@link DWGLoaderParams.libredwgWasmDir} for self-hosting / CSP /
+ * version pinning. A pre-initialised parser instance can instead be
+ * injected on the constructor via {@link DWGLoaderParams.libredwg}
+ * (essential for Node hosts where dynamic CDN import doesn't work
+ * without polyfills).
  *
  * Format coverage, INSERT recursion, ACI colour resolution, text
  * rasterisation rules are all documented at {@link parse} in
@@ -27,7 +29,7 @@
 import type {SDKResult} from "../../base/core";
 import type {SceneModel} from "../../model/scene";
 
-import type {DWGLoadOptions} from "./lib/DWGLoadOptions";
+import type {DWGLoadOptions, DWGLoaderParams} from "./lib/DWGLoadOptions";
 import type {DWGLoadResult} from "./lib/DWGLoadResult";
 import {parse as parse_v1_0} from "./versions/v1_0/parse";
 
@@ -42,10 +44,31 @@ export interface DWGLoadInput {
 
 export class DWGLoader {
 
+  readonly #libredwgEsmUrl?: string;
+  readonly #libredwgWasmDir?: string;
+  readonly #libredwg?: {lib: any; fileType: any};
+
+  /**
+   * @param params How to obtain the libredwg-web parser. Omit to fetch
+   * from the jsdelivr defaults; override the CDN URLs to self-host (CSP /
+   * offline / version pinning), or inject a pre-initialised instance via
+   * `libredwg` (e.g. for Node). See {@link DWGLoaderParams}.
+   */
+  constructor(params: DWGLoaderParams = {}) {
+    this.#libredwgEsmUrl  = params.libredwgEsmUrl;
+    this.#libredwgWasmDir = params.libredwgWasmDir;
+    this.#libredwg        = params.libredwg;
+  }
+
   load(input: DWGLoadInput, options: DWGLoadOptions = {}): Promise<SDKResult<DWGLoadResult>> {
     return parse_v1_0(
       {fileData: input.fileData, sceneModel: input.sceneModel},
-      options,
+      {
+        ...options,
+        libredwgEsmUrl:  this.#libredwgEsmUrl,
+        libredwgWasmDir: this.#libredwgWasmDir,
+        libredwg:        this.#libredwg,
+      },
     );
   }
 }

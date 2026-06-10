@@ -1,8 +1,8 @@
 /**
  * <img style="padding:0; padding-top:20px; padding-bottom:30px; height:130px;"
- *      src="https://xeokit.github.io/sdk/docs/assets/cityJSONLogo.svg"/>
+ *      src="../../assets/cityJSONLogo.svg"/>
  *
- * # cityjson — CityJSON Importer
+ * # cityjson — CityJSON Importer / Exporter
  *
  * Import and visualize 3D urban models using the
  * {@link https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#cityjson | CityJSON}
@@ -38,6 +38,20 @@
  *
  * ---
  *
+ * ## Exporting CityJSON
+ *
+ * Use {@link CityJSONExporter} to serialize a
+ * {@link model!scene.SceneModel | SceneModel} (and optional
+ * {@link model!data.DataModel | DataModel}) back out to CityJSON — the inverse
+ * of {@link CityJSONLoader}.
+ *
+ * Each {@link model!scene.SceneObject | SceneObject} becomes a CityObject with
+ * a `MultiSurface` geometry referencing a shared, quantized vertex array; mesh
+ * colour + opacity become `appearance.materials`, and DataModel types and
+ * relationships supply each CityObject's `type` and parent/child links.
+ *
+ * ---
+ *
  *
  * <br>
  *
@@ -50,10 +64,18 @@
  *       +format : "CityJSON"
  *       +load(params, options?) Promise~void~
  *     }
+ *     class CityJSONExporter {
+ *       +format : "CityJSON"
+ *       +write(params, options?) Promise~any~
+ *     }
  *     class ModelLoader {
  *       <<formats>>
  *     }
+ *     class ModelExporter {
+ *       <<formats>>
+ *     }
  *     ModelLoader <|-- CityJSONLoader
+ *     ModelExporter <|-- CityJSONExporter
  * ```
  *
  * <br>
@@ -179,3 +201,4 @@
  * @module cityjson
  */
 export * from "./CityJSONLoader";
+export * from "./CityJSONExporter";

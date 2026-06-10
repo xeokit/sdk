@@ -1,4 +1,6 @@
 /**
+ * <img style="padding:10px" src="../../assets/xeokit_components_icon.png"/>
+ *
  * # USDZ
  *
  * Imports and exports Pixar USDZ (`.usdz`) packages — {@link USDZLoader}

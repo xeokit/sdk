@@ -64,15 +64,9 @@ class MouseMiscHandler {
 }
 
 function getCanvasPosFromEvent(event, htmlElement, canvasPos) {
-  if (!event) {
-    event = window.event;
-    canvasPos[0] = event.x;
-    canvasPos[1] = event.y;
-  } else {
-    const {left, top} = htmlElement.getBoundingClientRect();
-    canvasPos[0] = event.clientX - left;
-    canvasPos[1] = event.clientY - top;
-  }
+  const {left, top} = htmlElement.getBoundingClientRect();
+  canvasPos[0] = event.clientX - left;
+  canvasPos[1] = event.clientY - top;
   return canvasPos;
 }
 

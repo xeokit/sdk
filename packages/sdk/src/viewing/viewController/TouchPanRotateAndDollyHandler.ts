@@ -4,22 +4,16 @@ import type {View} from "../viewer";
 import {getSceneCollisionIndex, SceneCollisionIndex} from "../../spatial/collision";
 
 const getCanvasPosFromEvent = function (event, canvasPos) {
-  if (!event) {
-    event = window.event;
-    canvasPos[0] = event.x;
-    canvasPos[1] = event.y;
-  } else {
-    let element = event.target;
-    let totalOffsetLeft = 0;
-    let totalOffsetTop = 0;
-    while (element.offsetParent) {
-      totalOffsetLeft += element.offsetLeft;
-      totalOffsetTop += element.offsetTop;
-      element = element.offsetParent;
-    }
-    canvasPos[0] = event.pageX - totalOffsetLeft;
-    canvasPos[1] = event.pageY - totalOffsetTop;
+  let element = event.target;
+  let totalOffsetLeft = 0;
+  let totalOffsetTop = 0;
+  while (element.offsetParent) {
+    totalOffsetLeft += element.offsetLeft;
+    totalOffsetTop += element.offsetTop;
+    element = element.offsetParent;
   }
+  canvasPos[0] = event.pageX - totalOffsetLeft;
+  canvasPos[1] = event.pageY - totalOffsetTop;
   return canvasPos;
 };
 

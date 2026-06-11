@@ -41,26 +41,19 @@ const TAP_DISTANCE_THRESHOLD = 4;
  * @returns canvasPos for chaining/reuse.
  */
 const getCanvasPosFromEvent = function (event, canvasPos) {
-  if (!event) {
-    // Legacy fallback path. Preserved for compatibility with older event models.
-    event = window.event;
-    canvasPos[0] = event.x;
-    canvasPos[1] = event.y;
-  } else {
-    let element = event.target;
-    let totalOffsetLeft = 0;
-    let totalOffsetTop = 0;
+  let element = event.target;
+  let totalOffsetLeft = 0;
+  let totalOffsetTop = 0;
 
-    // Accumulate element offsets to map page coordinates into element-local coordinates.
-    while (element.offsetParent) {
-      totalOffsetLeft += element.offsetLeft;
-      totalOffsetTop += element.offsetTop;
-      element = element.offsetParent;
-    }
-
-    canvasPos[0] = event.pageX - totalOffsetLeft;
-    canvasPos[1] = event.pageY - totalOffsetTop;
+  // Accumulate element offsets to map page coordinates into element-local coordinates.
+  while (element.offsetParent) {
+    totalOffsetLeft += element.offsetLeft;
+    totalOffsetTop += element.offsetTop;
+    element = element.offsetParent;
   }
+
+  canvasPos[0] = event.pageX - totalOffsetLeft;
+  canvasPos[1] = event.pageY - totalOffsetTop;
   return canvasPos;
 };
 

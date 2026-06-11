@@ -7,6 +7,7 @@
   "module": "dist/index.js",
   "scripts": {
     "sdk-test": "jest --passWithNoTests",
+    "sdk-test:formats": "jest src/formats",
     "sdk-dist": "rm -Rf tsconfig.tsbuildinfo;  tsc; node ./scripts/build-cli-tools.js",
     "sdk-publish": "npm publish --access public",
     "website-sdk-docs": "typedoc --json ../website/docs/json/sdk.json --options typedoc.json --validation.invalidLink false && cp -Rf ./assets ../website/docs/."
@@ -44,6 +45,7 @@
     "commander": "^11.0.0",
     "pako": "^2.0.4",
     "strongly-typed-events": "3.0.7",
+    "tinyusdz": "^0.9.1",
     "web-ifc": "^0.0.50",
     "yargs": "17.7.2"
   },

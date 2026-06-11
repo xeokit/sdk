@@ -68,12 +68,6 @@ export interface DataHealthPanelParams {
   focusDataModel?: DataModel;
 
   /**
-   * Backwards-compatible alias for {@link focusDataModel}.
-   * @deprecated Prefer `focusDataModel`.
-   */
-  dataModel?: DataModel;
-
-  /**
    * Optional {@link DataFormatSchema} the DataModel is expected to
    * conform to. When supplied, schema-aware inspections light up;
    * otherwise only structural always-on inspections fire.
@@ -1229,7 +1223,7 @@ export class DataHealthPanel extends FloatingPanelBase {
    * returns the existing instance.
    */
   static openFor(params: DataHealthPanelParams): DataHealthPanel {
-    const focus = params.focusDataModel ?? params.dataModel;
+    const focus = params.focusDataModel;
     const data = params.data ?? (focus ? focus.data : undefined);
     if (!data) {
       throw new Error("DataHealthPanel.openFor: data or focusDataModel is required");
@@ -1296,7 +1290,7 @@ export class DataHealthPanel extends FloatingPanelBase {
       storageKey:  params.storageKey || "xkt-dh-panel",
       classPrefix: "xkt-dh",
     });
-    const focus = params.focusDataModel ?? params.dataModel;
+    const focus = params.focusDataModel;
     const data  = params.data ?? (focus ? focus.data : undefined);
     if (!data) throw new Error("DataHealthPanel: data or focusDataModel is required");
     this.data    = data;

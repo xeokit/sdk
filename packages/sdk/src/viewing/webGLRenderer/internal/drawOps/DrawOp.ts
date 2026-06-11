@@ -82,22 +82,16 @@ export class DrawOp {
    * Two constructor forms are accepted for convenience:
    *   1. `new DrawOp(technique, renderPass)` — single-variant op
    *   2. `new DrawOp(variants, renderPass)` — multi-variant op
-   *
-   * The legacy positional form `new DrawOp(technique, renderPass, withNormals)`
-   * also still works for backward compatibility with call sites that haven't
-   * been migrated to the variants object.
    */
   constructor(
     techniqueOrVariants: DrawTechnique | DrawOpVariants,
-    renderPass: RenderPassValue,
-    legacyWithNormals: DrawTechnique | null = null
+    renderPass: RenderPassValue
   ) {
     this.renderPass = renderPass;
     if (techniqueOrVariants instanceof DrawTechnique) {
-      // Legacy positional form — single technique plus optional smooth/no-UV
-      // sibling. Kept so existing single-variant call sites don't break.
+      // Single-technique form — only the base technique slot is populated.
       this.technique = techniqueOrVariants;
-      this.techniqueWithNormals             = legacyWithNormals;
+      this.techniqueWithNormals             = null;
       this.techniqueWithUVs                 = null;
       this.techniqueWithNormalsAndUVs       = null;
       this.techniqueWithTriplanar           = null;

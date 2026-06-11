@@ -224,11 +224,6 @@ export interface ContextMenuItemConfig {
   doAction?: ItemAction;
 
   /**
-   * Legacy alias for {@link doAction}.
-   */
-  callback?: ItemAction;
-
-  /**
    * Optional action invoked when the pointer enters the item.
    */
   doHover?: ItemAction;
@@ -772,7 +767,7 @@ class ContextMenu {
             itemCfg.getTitle || (() => itemCfg.title || "");
 
           const doAction: ItemAction =
-            itemCfg.doAction || itemCfg.callback || (() => {});
+            itemCfg.doAction || (() => {});
 
           const getEnabled: ItemStateGetter =
             itemCfg.getEnabled || (() => true);

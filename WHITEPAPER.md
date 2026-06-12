@@ -1,3 +1,7 @@
+---
+title: xeokit SDK — Technical Whitepaper
+---
+
 # xeokit SDK — Technical Whitepaper
 
 *A developer's guide to what's actually different about this SDK, and why those differences matter for building AECO applications.*

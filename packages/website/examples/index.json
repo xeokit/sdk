@@ -396,6 +396,24 @@
     ],
     "topic": "import.cityjson"
   },
+  "formats_cityjson_roundTrip": {
+    "id": "formats_cityjson_roundTrip",
+    "title": "CityJSON Round-Trip — Load, Export, Re-Import",
+    "description": "End-to-end check of the CityJSON exporter. Loads the LoD3 Railway CityJSON into a temporary SceneModel + DataModel, writes it back out with CityJSONExporter (each SceneObject a CityObject with a MultiSurface geometry, shared quantised vertices, materials, and the DataModel-derived city-object hierarchy), then re-imports the exported document into the displayed models. If geometry, transforms, materials and semantics survive the cycle, the re-imported model renders identically to the original.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "CityJSON",
+      "Importing",
+      "Exporting"
+    ],
+    "categories": [
+      "Importing",
+      "Exporting",
+      "CityJSON"
+    ],
+    "topic": "import.cityjson"
+  },
   "formats_dotbim_blenderHouse": {
     "id": "formats_dotbim_blenderHouse",
     "title": "Viewing DotBIM using DotBIMLoader",
@@ -449,6 +467,23 @@
     ],
     "topic": "formats.dxf"
   },
+  "formats_fbx_E3DPlant": {
+    "id": "formats_fbx_E3DPlant",
+    "title": "Loading an Autodesk FBX File",
+    "description": "Loads a binary Autodesk FBX file and views it. FBX isn't one of the formats the loader registry recognises, so the example fetches the .fbx bytes, creates a SceneModel, and drives FBXLoader directly, then frames the camera. The sample is four cubes sharing one geometry, each with its own transform and material.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "tags": [
+      "FBX",
+      "Autodesk",
+      "Importing"
+    ],
+    "categories": [
+      "Importing",
+      "FBX"
+    ],
+    "topic": "import.fbx"
+  },
   "formats_fbx_embeddedTextures": {
     "id": "formats_fbx_embeddedTextures",
     "title": "Loading an FBX File with Embedded Textures",
@@ -467,22 +502,23 @@
     ],
     "topic": "import.fbx"
   },
-  "formats_fbx_sample": {
-    "id": "formats_fbx_sample",
-    "title": "Loading an Autodesk FBX File",
-    "description": "Loads a binary Autodesk FBX file and views it. FBX isn't one of the formats the loader registry recognises, so the example fetches the .fbx bytes, creates a SceneModel, and drives FBXLoader directly, then frames the camera. The sample is four cubes sharing one geometry, each with its own transform and material.",
+  "formats_gltf_damagedHelmet": {
+    "id": "formats_gltf_damagedHelmet",
+    "title": "Loading a glTF Model (Damaged Helmet)",
+    "description": "Loads the classic Khronos 'Damaged Helmet' glTF 2.0 PBR asset from a self-contained binary .glb (geometry, metallic-roughness materials, and textures all embedded), creates a SceneModel, drives GLTFLoader directly, and frames the camera. Rendered with RealisticRender + sRGB tonemap to show the PBR shading as authored.",
     "isTutorial": true,
     "isVisualTest": false,
     "tags": [
-      "FBX",
-      "Autodesk",
+      "glTF",
+      "glb",
+      "PBR",
       "Importing"
     ],
     "categories": [
       "Importing",
-      "FBX"
+      "glTF"
     ],
-    "topic": "import.fbx"
+    "topic": "import.gltf"
   },
   "formats_gltf_map": {
     "id": "formats_gltf_map",
@@ -544,6 +580,25 @@
       "glTF",
       "Effects",
       "Renderer"
+    ],
+    "topic": "import.gltf"
+  },
+  "formats_gltf_residentialBuilding": {
+    "id": "formats_gltf_residentialBuilding",
+    "title": "Loading a glTF Model (Residential Building)",
+    "description": "Loads a glTF 2.0 model of a residential building from a self-contained binary .glb (geometry, materials, and textures all embedded), creates a SceneModel, drives GLTFLoader directly, and frames the camera. Rendered with RealisticRender + sRGB tonemap for PBR shading, sun and shadows.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "tags": [
+      "glTF",
+      "glb",
+      "PBR",
+      "Building",
+      "Importing"
+    ],
+    "categories": [
+      "Importing",
+      "glTF"
     ],
     "topic": "import.gltf"
   },
@@ -720,6 +775,44 @@
       "Drawings"
     ],
     "topic": "import.pdf"
+  },
+  "formats_usdz_residentialBuilding": {
+    "id": "formats_usdz_residentialBuilding",
+    "title": "Loading a Pixar USDZ File",
+    "description": "Loads a Pixar USDZ package and views it. USDZ is a ZIP wrapping a binary USD Crate (.usdc); the example fetches the .usdz bytes, creates a SceneModel, and drives USDZLoader directly (which unpacks the ZIP and decodes the crate with the tinyusdz wasm reader), then frames the camera. The sample is a Sketchfab residential-building export of ~140 meshes. Browser only.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "tags": [
+      "USDZ",
+      "USD",
+      "Pixar",
+      "Importing"
+    ],
+    "categories": [
+      "Importing",
+      "USDZ"
+    ],
+    "topic": "import.usdz"
+  },
+  "formats_usdz_roundTrip": {
+    "id": "formats_usdz_roundTrip",
+    "title": "USDZ Round-Trip — Load, Export, Re-Import",
+    "description": "End-to-end check of the USDZ exporter. Loads the ResidentialBuilding USDZ into a temporary SceneModel, writes it back out with USDZExporter (ASCII .usda in a stored, aligned ZIP), then re-imports the exported bytes into the displayed SceneModel. If geometry, per-mesh transforms and UsdPreviewSurface materials survive the cycle, the re-imported model renders identically to the original. Browser only.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "tags": [
+      "USDZ",
+      "USD",
+      "Pixar",
+      "Importing",
+      "Exporting"
+    ],
+    "categories": [
+      "Importing",
+      "Exporting",
+      "USDZ"
+    ],
+    "topic": "import.usdz"
   },
   "formats_xgf_holterTower": {
     "id": "formats_xgf_holterTower",

@@ -59,9 +59,9 @@ studio.init().then(async () => {
       `${Object.keys(sceneModel.geometries).length} geometries`,
     );
 
-    const aabb = computeWorldAABB(sceneModel);
+    const aabb = studio.picking.collisionIndex.getSceneAABB();
     if (aabb) {
-      frameCameraTo(view, aabb);
+      studio.viewManager.fitToAabb(view, aabb);
     }
 
     if (status) status.style.display = "none";
@@ -72,43 +72,3 @@ studio.init().then(async () => {
     console.error(err);
   }
 });
-
-// Unions every mesh's geometry AABB transformed into world space.
-function computeWorldAABB(sceneModel) {
-  let minX = +Infinity, minY = +Infinity, minZ = +Infinity;
-  let maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
-  let any = false;
-  for (const meshId in sceneModel.meshes) {
-    const mesh = sceneModel.meshes[meshId];
-    const g = mesh.geometry;
-    if (!g || !g.aabb) continue;
-    const m = mesh.matrix;
-    for (let i = 0; i < 8; i++) {
-      const x = (i & 1) ? g.aabb[3] : g.aabb[0];
-      const y = (i & 2) ? g.aabb[4] : g.aabb[1];
-      const z = (i & 4) ? g.aabb[5] : g.aabb[2];
-      const wx = m[0]*x + m[4]*y + m[8] *z + m[12];
-      const wy = m[1]*x + m[5]*y + m[9] *z + m[13];
-      const wz = m[2]*x + m[6]*y + m[10]*z + m[14];
-      if (wx < minX) minX = wx; if (wx > maxX) maxX = wx;
-      if (wy < minY) minY = wy; if (wy > maxY) maxY = wy;
-      if (wz < minZ) minZ = wz; if (wz > maxZ) maxZ = wz;
-      any = true;
-    }
-  }
-  return any ? [minX, minY, minZ, maxX, maxY, maxZ] : null;
-}
-
-// Pulls the camera back to a 3/4 view that comfortably frames the AABB.
-function frameCameraTo(view, aabb) {
-  const cx = (aabb[0] + aabb[3]) * 0.5;
-  const cy = (aabb[1] + aabb[4]) * 0.5;
-  const cz = (aabb[2] + aabb[5]) * 0.5;
-  const dx = aabb[3] - aabb[0];
-  const dy = aabb[4] - aabb[1];
-  const dz = aabb[5] - aabb[2];
-  const r  = Math.max(1, 0.5 * Math.hypot(dx, dy, dz));
-  view.camera.eye  = [cx + r * 1.3, cy + r * 1.0, cz + r * 1.3];
-  view.camera.look = [cx, cy, cz];
-  view.camera.up   = [0, 0, 1];
-}

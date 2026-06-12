@@ -74,7 +74,7 @@ studio.init().then(async () => {
     }
     const sceneModel = sceneModelRes.value;
 
-    const fileData = await fetch("../../models/FloorPlan/pdf/model.pdf")
+    const fileData = await fetch("../../packages/website/models/ArchDrawing/pdf/model.pdf")
         .then(r => r.arrayBuffer());
 
     const loader = new PDFLoader();

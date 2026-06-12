@@ -8,18 +8,18 @@
 //     await new DWGLoader().load({fileData, sceneModel});
 //
 // libredwg-web (GPL-3.0) is fetched from a CDN on first use; URLs
-// are overridable via `DWGLoadOptions.libredwgEsmUrl` /
+// are configured on the constructor via `DWGLoaderParams.libredwgEsmUrl` /
 // `libredwgWasmDir` for self-hosting / CSP / version pinning.
-// Pre-initialised parser instances can be injected via
-// `DWGLoadOptions.libredwg` for Node hosts where CDN dynamic
-// imports don't work.
+// Pre-initialised parser instances can be injected on the
+// constructor via `DWGLoaderParams.libredwg` for Node hosts where
+// CDN dynamic imports don't work.
 // ─────────────────────────────────────────────────────────────────
 
 import * as xeokit from "../../js/xeokit-studio-bundle.js";
 
 const {DWGLoader} = xeokit.formats.dwg;
 
-const MODEL_URL = "../../models/FloorPlan/dwg/model.dwg";
+const MODEL_URL = "../../models/ArchDrawing/dwg/model.dwg";
 
 
 const studio = new xeokit.studio.Studio({});

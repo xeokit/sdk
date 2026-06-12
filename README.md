@@ -16,7 +16,7 @@ Built with **TypeScript**, xeokit is designed for **extreme performance**: it st
 * **Multi‑canvas, multi‑view viewers** with floating-panel and tiled layouts.
 * **Full precision (64‑bit) coordinate system**, so georeferenced and city-scale models render without jitter.
 * **Pluggable renderer backends** (WebGL today, WebGPU ready).
-* **Import, export & convert** industry‑standard AECO formats (IFC, glTF, LAS, CityJSON, XKT, XGF, DotBIM, OBJ, MTL, RVM, STEP).
+* **Import, export & convert** industry‑standard AECO formats (IFC, glTF, LAS, CityJSON, XKT, XGF, DotBIM, OBJ, MTL).
 * **BIM collaboration** via BCF Viewpoints.
 * **Procedural content** (materials, geometry, environments) for scaffolding and tests.
 * **Open‑source** with a permissive AGPL‑3.0 license.
@@ -132,8 +132,6 @@ Import / export modules for the AECO file formats xeokit supports. Each loader p
 | [`@xeokit/sdk/formats/cityjson`](https://xeokit.github.io/sdk/docs/api/modules/formats.cityjson.html)        | Import CityJSON.                  |
 | [`@xeokit/sdk/formats/obj`](https://xeokit.github.io/sdk/docs/api/modules/formats.obj.html)                  | Import OBJ.                       |
 | [`@xeokit/sdk/formats/mtl`](https://xeokit.github.io/sdk/docs/api/modules/formats.mtl.html)                  | Import MTL material definitions.  |
-| [`@xeokit/sdk/formats/rvm`](https://xeokit.github.io/sdk/docs/api/modules/formats.rvm.html)                  | Import / export RVM.              |
-| [`@xeokit/sdk/formats/step`](https://xeokit.github.io/sdk/docs/api/modules/formats.step.html)                | Import STEP (AP214).              |
 | [`@xeokit/sdk/formats/datamodel`](https://xeokit.github.io/sdk/docs/api/modules/formats.datamodel.html)      | Native data-model JSON.           |
 | [`@xeokit/sdk/formats/scenemodel`](https://xeokit.github.io/sdk/docs/api/modules/formats.scenemodel.html)    | Native scene-model JSON.          |
 | [`@xeokit/sdk/formats/metamodel`](https://xeokit.github.io/sdk/docs/api/modules/formats.metamodel.html)      | Legacy metamodel JSON.            |

@@ -1,0 +1,21 @@
+{
+  "id": "formats_usdz_roundTrip",
+  "title": "USDZ Round-Trip — Load, Export, Re-Import",
+  "description": "End-to-end check of the USDZ exporter. Loads the ResidentialBuilding USDZ into a temporary SceneModel, writes it back out with USDZExporter (ASCII .usda in a stored, aligned ZIP), then re-imports the exported bytes into the displayed SceneModel. If geometry, per-mesh transforms and UsdPreviewSurface materials survive the cycle, the re-imported model renders identically to the original. Browser only.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "snapshotTimeoutMs": 120000,
+  "tags": [
+    "USDZ",
+    "USD",
+    "Pixar",
+    "Importing",
+    "Exporting"
+  ],
+  "categories": [
+    "Importing",
+    "Exporting",
+    "USDZ"
+  ],
+  "topic": "import.usdz"
+}

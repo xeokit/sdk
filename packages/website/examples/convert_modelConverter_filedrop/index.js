@@ -38,9 +38,6 @@ studio.init().then(() => {
     las:      {id: "las",        readAs: "arraybuffer", LoaderClass: xeokit.formats.las.LASLoader},
     laz:      {id: "las",        readAs: "arraybuffer", LoaderClass: xeokit.formats.las.LASLoader},
     obj:      {id: "obj",        readAs: "text",        LoaderClass: xeokit.formats.obj.OBJLoader},
-    rvm:        {id: "rvm",        readAs: "arraybuffer", LoaderClass: xeokit.formats.rvm.RVMLoader},
-    step:       {id: "step",       readAs: "text",        LoaderClass: xeokit.formats.step.STEPLoader},
-    stp:        {id: "step",       readAs: "text",        LoaderClass: xeokit.formats.step.STEPLoader},
     scenemodel: {id: "scenemodel", readAs: "json",        LoaderClass: xeokit.formats.scenemodel.SceneModelParamsLoader},
     datamodel:  {id: "datamodel",  readAs: "json",        LoaderClass: xeokit.formats.datamodel.DataModelParamsLoader}
   };
@@ -82,13 +79,6 @@ studio.init().then(() => {
       extension:     "ifc",
       mime:          "text/plain",
       payloadKind:   "text"
-    },
-    rvm: {
-      ExporterClass: xeokit.formats.rvm.RVMExporter,
-      LoaderClass:   xeokit.formats.rvm.RVMLoader,
-      extension:     "rvm",
-      mime:          "application/octet-stream",
-      payloadKind:   "arraybuffer"
     }
   };
 

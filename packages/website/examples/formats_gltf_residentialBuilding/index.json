@@ -1,0 +1,19 @@
+{
+  "id": "formats_gltf_residentialBuilding",
+  "title": "Loading a glTF Model (Residential Building)",
+  "description": "Loads a glTF 2.0 model of a residential building from a self-contained binary .glb (geometry, materials, and textures all embedded), creates a SceneModel, drives GLTFLoader directly, and frames the camera. Rendered with RealisticRender + sRGB tonemap for PBR shading, sun and shadows.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "glTF",
+    "glb",
+    "PBR",
+    "Building",
+    "Importing"
+  ],
+  "categories": [
+    "Importing",
+    "glTF"
+  ],
+  "topic": "import.gltf"
+}

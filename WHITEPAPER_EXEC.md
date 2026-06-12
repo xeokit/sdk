@@ -1,3 +1,7 @@
+---
+title: xeokit SDK — Executive Whitepaper
+---
+
 # xeokit SDK — Executive Overview
 
 *A non-technical guide for understanding what the SDK does, why it matters, and where it creates business value.*

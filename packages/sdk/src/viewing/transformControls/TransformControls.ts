@@ -5,13 +5,11 @@ import {
   inverseMat4,
   type Mat4,
   mulMat4,
-  transformPoint4,
   translationMat4v,
 } from "../../base/math/matrix";
 import {
   addVec3,
   createVec3Float64,
-  createVec4Float64,
   cross3Vec3,
   dotVec3,
   lenVec3,
@@ -19,7 +17,6 @@ import {
   normalizeVec3,
   subVec3,
   type Vec3,
-  type Vec4,
 } from "../../base/math/vector";
 import {angleAxisToQuaternion, type Quat, quatToMat4} from "../../base/math/quat";
 import type {SceneMesh, SceneModel, SceneObject} from "../../model/scene";
@@ -45,10 +42,9 @@ import type {TransformControlsMode} from "./TransformControlsMode";
 import type {TransformControlsParams} from "./TransformControlsParams";
 import type {TransformControlsSpace} from "./TransformControlsSpace";
 import type {TransformControlsTarget} from "./TransformControlsTarget";
-
-const X_AXIS: Vec3 = [1, 0, 0];
-const Y_AXIS: Vec3 = [0, 1, 0];
-const Z_AXIS: Vec3 = [0, 0, 1];
+import {composeRotateAroundPivot, composeScaleAroundPivot} from "./math/pivotTransforms";
+import {canvasPosToRay, closestPointOnLineToRay, rayPlane} from "./math/rayGeometry";
+import {axisFromLabel} from "./math/axes";
 
 interface NormalisedTarget {
   /**
@@ -430,7 +426,7 @@ export class TransformControls {
     // over host geometry like the rest of the rig.
     for (const id of HELPER_IDS) {
       const obj = this.viewLayer.objects[id];
-      if (obj) (obj as any).visible = false;
+      if (obj) obj.visible = false;
     }
 
     // Pointer events. Registered in the capture phase so a handle drag
@@ -454,7 +450,7 @@ export class TransformControls {
       if (!this._dragHandle) return;
       e.preventDefault();
       e.stopPropagation();
-      (e as any).stopImmediatePropagation?.();
+      e.stopImmediatePropagation();
     };
     const winDoc = (typeof document !== "undefined") ? document : null;
     el.addEventListener("mousedown", this._onMouseDuringDrag, true);
@@ -476,7 +472,7 @@ export class TransformControls {
     // orbit, which makes it visibly snap to the correct pixel size
     // on the next event that does fire `_syncTransform` (typically
     // the first pointermove of a drag).
-    const viewerEvents: any = (this.view as any).viewer?.events;
+    const viewerEvents = this.view.viewer.events;
     const subs: Array<() => void> = [];
     if (viewerEvents?.onCameraViewMatrixUpdated?.subscribe) {
       const sub = viewerEvents.onCameraViewMatrixUpdated.subscribe(() => this._syncTransform());
@@ -493,7 +489,7 @@ export class TransformControls {
     // for unrelated destructions (single identity check) and only
     // does work when the destroyed mesh is the one this gizmo is
     // currently driving.
-    const sceneEvents: any = (this.view as any).viewer?.scene?.events;
+    const sceneEvents = this.view.viewer.scene.events;
     if (sceneEvents?.onSceneMeshDestroyed?.subscribe) {
       const sub = sceneEvents.onSceneMeshDestroyed.subscribe(
         (_scene: unknown, mesh: SceneMesh) => this._onSceneMeshDestroyed(mesh)
@@ -558,10 +554,10 @@ export class TransformControls {
       this._explicitPivot = false;
     }
     if (this._debug) {
-      const kind = (target as any).meshes
-          ? `SceneObject id="${(target as any).id}" meshes.length=${(target as any).meshes?.length ?? 0}`
-          : (target as any).matrix !== undefined && (target as any).geometry !== undefined
-            ? `SceneMesh id="${(target as any).id}"`
+      const kind = "meshes" in target
+          ? `SceneObject id="${target.id}" meshes.length=${target.meshes?.length ?? 0}`
+          : "geometry" in target
+            ? `SceneMesh id="${target.id}"`
             : "adapter";
       const f = (n: number) => n.toFixed(3);
       console.log(
@@ -898,8 +894,8 @@ export class TransformControls {
   private _normalise(t: TransformControlsTarget): NormalisedTarget {
     // SceneMesh: a single fixed mesh; snapshot captures one
     // world matrix; ownership is identity.
-    if ((t as SceneMesh).matrix !== undefined && typeof (t as any).geometry !== "undefined") {
-      const mesh = t as SceneMesh;
+    if ("geometry" in t) {
+      const mesh = t;
       return this._normaliseMeshGroup({
         listLiveMeshes: () => mesh.destroyed ? [] : [mesh],
         owns: (m) => m === mesh,
@@ -1009,10 +1005,10 @@ export class TransformControls {
      * offset from where the user actually clicked.
      */
     const baseMatrix = (mesh: SceneMesh): Mat4 | null => {
-      if ((mesh as any).parentTransform) {
-        return (mesh as any).parentTransform.worldMatrix as Mat4;
+      if (mesh.parentTransform) {
+        return mesh.parentTransform.worldMatrix as Mat4;
       }
-      const model = (mesh as any).model as SceneModel | undefined;
+      const model = mesh.model;
       return model ? model.coordinateSystemMatrix : null;
     };
 
@@ -1224,7 +1220,7 @@ export class TransformControls {
       if (!local) return;
       const composed = createMat4Float64();
       mulMat4(m, local, composed);
-      (mesh as any).matrix = composed;
+      mesh.matrix = composed;
     };
     for (const handleId of ALL_HANDLES) {
       const obj = this.sceneModel.objects[handleId];
@@ -1233,12 +1229,12 @@ export class TransformControls {
       if (handleId === R_E) {
         const eRoot = this._composeViewAlignedRingRoot(this._pivotWorld, scale, eye);
         for (const mesh of obj.meshes) {
-          if (mesh) (mesh as any).matrix = eRoot;
+          if (mesh) mesh.matrix = eRoot;
         }
         const ePicker = this.sceneModel.objects[`${handleId}.picker`];
         if (ePicker) {
           for (const mesh of ePicker.meshes) {
-            if (mesh) (mesh as any).matrix = eRoot;
+            if (mesh) mesh.matrix = eRoot;
           }
         }
         continue;
@@ -1314,7 +1310,7 @@ export class TransformControls {
       for (const id of ids) {
         const on = v && inAxis(id);
         const obj = this.viewLayer.objects[id];
-        if (obj) (obj as any).visible = on;
+        if (obj) obj.visible = on;
         // Companion picker is bin-segregated out of the colour pass, so
         // it doesn't need a `visible` toggle; its `pickable` flag
         // tracks the visible handle's visibility, redundant alongside
@@ -1322,7 +1318,7 @@ export class TransformControls {
         // (e.g. if a host adds extra PickStrategies that don't apply
         // our filter).
         const pick = this.viewLayer.objects[`${id}.picker`];
-        if (pick) (pick as any).pickable = on;
+        if (pick) pick.pickable = on;
       }
     };
     set(TRANSLATE_HANDLES, showT);
@@ -1393,7 +1389,7 @@ export class TransformControls {
     // camera orbit.
     e.preventDefault();
     e.stopPropagation();
-    (e as any).stopImmediatePropagation?.();
+    e.stopImmediatePropagation();
   }
 
   private _handlePointerMove(e: PointerEvent): void {
@@ -1408,7 +1404,7 @@ export class TransformControls {
       // off screen" and the canvas clear-colour show through.
       e.preventDefault();
       e.stopPropagation();
-      (e as any).stopImmediatePropagation?.();
+      e.stopImmediatePropagation();
       return;
     }
 
@@ -1439,7 +1435,7 @@ export class TransformControls {
     // controller doesn't see a stray click after the drag ends.
     e.preventDefault();
     e.stopPropagation();
-    (e as any).stopImmediatePropagation?.();
+    e.stopImmediatePropagation();
   }
 
   /**
@@ -1462,13 +1458,13 @@ export class TransformControls {
   private _setHover(handleId: string | null): void {
     if (this._hoveredHandleId) {
       const prev = this.viewLayer.objects[this._hoveredHandleId];
-      if (prev) (prev as any).colorize = null;
+      if (prev) prev.colorize = null;
     }
     this._hoveredHandleId = handleId;
     this.hoveredAxis = handleId ? (axisOf(handleId) as TransformControlsAxis) : null;
     if (handleId) {
       const next = this.viewLayer.objects[handleId];
-      if (next) (next as any).colorize = COLOR_HIGHLIGHT;
+      if (next) next.colorize = COLOR_HIGHLIGHT;
     }
     this._updateHoverHelpers();
     this.events.onChange.dispatch(this, undefined);
@@ -1487,7 +1483,7 @@ export class TransformControls {
     for (const id of HELPER_IDS) {
       const obj = this.viewLayer.objects[id];
       if (!obj) continue;
-      (obj as any).visible = !!wanted && wanted.has(id);
+      obj.visible = !!wanted && wanted.has(id);
     }
   }
 
@@ -1597,7 +1593,7 @@ export class TransformControls {
       const len = Math.sqrt(dx * dx + dy * dy);
       if (len < 1e-3) return;
       // Build screen-space axis (right=+x, up=-y); convert to world by camera basis.
-      const up: Vec3 = [(this.view.camera as any).up[0], (this.view.camera as any).up[1], (this.view.camera as any).up[2]];
+      const up: Vec3 = [this.view.camera.up[0], this.view.camera.up[1], this.view.camera.up[2]];
       const right = cross3Vec3(fwd, up, createVec3Float64());
       normalizeVec3(right, right);
       const upTrue = cross3Vec3(right, fwd, createVec3Float64());
@@ -1664,14 +1660,7 @@ export class TransformControls {
     //   T = T(pivot) × R(axis, angle) × T(-pivot)
     // and apply it to every backing mesh's start matrix. With
     // SceneObject groups this rotates all member meshes as one.
-    const q = angleAxisToQuaternion([axis[0], axis[1], axis[2], angle], [0, 0, 0, 1] as Quat);
-    const R = quatToMat4(q, identityMat4(createMat4Float64()));
-    const Tneg = translationMat4v([-this._dragPivot[0], -this._dragPivot[1], -this._dragPivot[2]]);
-    const Tpos = translationMat4v(this._dragPivot);
-    const tmp = createMat4Float64();
-    mulMat4(R, Tneg, tmp);
-    const T = createMat4Float64();
-    mulMat4(Tpos, tmp, T);
+    const T = composeRotateAroundPivot(axis, angle, this._dragPivot);
     if (this._debug) {
       const f = (n: number) => n.toFixed(3);
       console.log(
@@ -1689,14 +1678,7 @@ export class TransformControls {
     // Build the world-space "scale around pivot" transform
     //   T = T(pivot) × S(s) × T(-pivot)
     // and apply it to every backing mesh's start matrix.
-    const S = identityMat4(createMat4Float64());
-    S[0] = s[0]; S[5] = s[1]; S[10] = s[2];
-    const Tneg = translationMat4v([-this._dragPivot[0], -this._dragPivot[1], -this._dragPivot[2]]);
-    const Tpos = translationMat4v(this._dragPivot);
-    const tmp = createMat4Float64();
-    mulMat4(S, Tneg, tmp);
-    const T = createMat4Float64();
-    mulMat4(Tpos, tmp, T);
+    const T = composeScaleAroundPivot(s, this._dragPivot);
     if (this._debug) {
       const f = (n: number) => n.toFixed(3);
       console.log(
@@ -1778,20 +1760,7 @@ export class TransformControls {
   // -------------------------------------------------------------
 
   private _axisFromLabel(label: string): Vec3 {
-    let base: Vec3;
-    switch (label) {
-      case "X": base = X_AXIS; break;
-      case "Y": base = Y_AXIS; break;
-      case "Z": base = Z_AXIS; break;
-      default: return [0, 0, 0];
-    }
-    if (this._space === "world") return [base[0], base[1], base[2]];
-    const r = this._rotationWorld;
-    return [
-      r[0] * base[0] + r[4] * base[1] + r[8]  * base[2],
-      r[1] * base[0] + r[5] * base[1] + r[9]  * base[2],
-      r[2] * base[0] + r[6] * base[1] + r[10] * base[2],
-    ];
+    return axisFromLabel(label, this._space, this._rotationWorld);
   }
 
   private _inSet(id: string, set: string[]): boolean {
@@ -1799,14 +1768,14 @@ export class TransformControls {
   }
 
   private _cameraEye(): Vec3 {
-    const c = this.view.camera as any;
+    const c = this.view.camera;
     return [c.eye[0], c.eye[1], c.eye[2]];
   }
 
   private _canvasSize(): [number, number] {
     const el = this.view.htmlElement as HTMLElement;
     const rect = (el.getBoundingClientRect ? el.getBoundingClientRect() : {width: 1, height: 1}) as DOMRect;
-    return [(rect as any).width || 1, (rect as any).height || 1];
+    return [rect.width || 1, rect.height || 1];
   }
 
   /**
@@ -1866,76 +1835,14 @@ export class TransformControls {
    */
   private _canvasPosToRay(canvasPos: [number, number]): {origin: Vec3, dir: Vec3} | null {
     const [w, h] = this._canvasSize();
-    const ndcX =  (canvasPos[0] / w) * 2 - 1;
-    const ndcY = -(canvasPos[1] / h) * 2 + 1;
     const cam: any = this.view.camera;
-    const vp = mulMat4(cam.projMatrix, cam.viewMatrix, createMat4Float64());
-    const inv = inverseMat4(vp, createMat4Float64());
-    if (!inv) return null;
-    const tmp = createVec4Float64();
-    transformPoint4(inv, [ndcX, ndcY, -1, 1] as Vec4, tmp);
-    if (Math.abs(tmp[3]) < 1e-12) return null;
-    const near: Vec3 = [tmp[0] / tmp[3], tmp[1] / tmp[3], tmp[2] / tmp[3]];
-    transformPoint4(inv, [ndcX, ndcY,  1, 1] as Vec4, tmp);
-    if (Math.abs(tmp[3]) < 1e-12) return null;
-    const far: Vec3 = [tmp[0] / tmp[3], tmp[1] / tmp[3], tmp[2] / tmp[3]];
-    const dir = normalizeVec3(subVec3(far, near, createVec3Float64()), createVec3Float64());
-    return {origin: near, dir};
+    return canvasPosToRay(canvasPos, w, h, cam.projMatrix, cam.viewMatrix);
   }
 
   private _eventCanvasPos(e: PointerEvent): [number, number] {
     const el = this.view.htmlElement as HTMLElement;
     const rect = (el.getBoundingClientRect ? el.getBoundingClientRect() : {left: 0, top: 0}) as DOMRect;
-    return [e.clientX - (rect as any).left, e.clientY - (rect as any).top];
+    return [e.clientX - rect.left, e.clientY - rect.top];
   }
 }
 
-// -------------------------------------------------------------
-// Geometry helpers (off-class for clarity).
-// -------------------------------------------------------------
-
-function rayPlane(origin: Vec3, dir: Vec3, planePoint: Vec3, planeNormal: Vec3): Vec3 | null {
-  const denom = dotVec3(dir, planeNormal);
-  if (Math.abs(denom) < 1e-8) return null;
-  const t = dotVec3(subVec3(planePoint, origin, createVec3Float64()), planeNormal) / denom;
-  if (!isFinite(t)) return null;
-  return addVec3(origin, mulVec3Scalar(dir, t, createVec3Float64()), createVec3Float64());
-}
-
-function closestPointOnLineToRay(linePoint: Vec3, lineDir: Vec3, rayOrigin: Vec3, rayDir: Vec3): Vec3 | null {
-  const u = lineDir;
-  const v = rayDir;
-  const w0 = subVec3(linePoint, rayOrigin, createVec3Float64());
-  const a = dotVec3(u, u);
-  const b = dotVec3(u, v);
-  const c = dotVec3(v, v);
-  const d = dotVec3(u, w0);
-  const e = dotVec3(v, w0);
-  const denom = a * c - b * b;
-  if (Math.abs(denom) < 1e-8) return null;
-  const sc = (b * e - c * d) / denom;
-  return addVec3(linePoint, mulVec3Scalar(u, sc, createVec3Float64()), createVec3Float64());
-}
-
-function rayAABB(origin: Vec3, dir: Vec3, aabb: number[]): number | null {
-  let tmin = -Infinity;
-  let tmax = Infinity;
-  for (let i = 0; i < 3; i++) {
-    const o = origin[i];
-    const d = dir[i];
-    const lo = aabb[i];
-    const hi = aabb[i + 3];
-    if (Math.abs(d) < 1e-8) {
-      if (o < lo || o > hi) return null;
-    } else {
-      const t1 = (lo - o) / d;
-      const t2 = (hi - o) / d;
-      const tNear = Math.min(t1, t2);
-      const tFar  = Math.max(t1, t2);
-      tmin = Math.max(tmin, tNear);
-      tmax = Math.min(tmax, tFar);
-      if (tmin > tmax) return null;
-    }
-  }
-  return tmin >= 0 ? tmin : (tmax >= 0 ? tmax : null);
-}

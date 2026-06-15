@@ -142,6 +142,7 @@ export * as las from "./las";
 export * as dotbim from "./dotbim";
 export * as scenemodel from "./scenemodel";
 export * as datamodel from "./datamodel";
+export * as gaussiansplat from "./gaussiansplat";
 export * as metamodel from "./legacy/metamodel";
 export * as obj from "./obj";
 export * as mtl from "./mtl";

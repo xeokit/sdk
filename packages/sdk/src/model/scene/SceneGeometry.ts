@@ -100,6 +100,18 @@ export class SceneGeometry {
   readonly edgeIndices?: IntArrayParam;
 
   /**
+   * Per-splat scales — 3 floats per splat. Only present for
+   * {@link base!constants.GaussianSplatsPrimitive | GaussianSplatsPrimitive} geometry.
+   */
+  readonly scales?: FloatArrayParam;
+
+  /**
+   * Per-splat rotation quaternions — 4 floats per splat, `xyzw`. Only present for
+   * {@link base!constants.GaussianSplatsPrimitive | GaussianSplatsPrimitive} geometry.
+   */
+  readonly rotations?: FloatArrayParam;
+
+  /**
    * The count of {@link SceneMesh | SceneMeshes} that reference this SceneGeometry.
    */
   numMeshes: number;
@@ -123,6 +135,8 @@ export class SceneGeometry {
     this.normalsCompressed = params.normalsCompressed;
     this.indices = params.indices;
     this.edgeIndices = params.edgeIndices;
+    this.scales = params.scales;
+    this.rotations = params.rotations;
     this.aabb = createAABB3Float32(params.aabb);
     this.numMeshes = 0;
   }
@@ -161,6 +175,12 @@ export class SceneGeometry {
     }
     if (this.edgeIndices) {
       params.edgeIndices = Array.from(this.edgeIndices);
+    }
+    if (this.scales) {
+      params.scales = Array.from(this.scales);
+    }
+    if (this.rotations) {
+      params.rotations = Array.from(this.rotations);
     }
     return {
       ok: true,

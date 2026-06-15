@@ -221,6 +221,7 @@ xeokit supports:
 - PDF
 - SVG
 - point clouds
+- 3D Gaussian Splatting (reality capture)
 - CityJSON
 - STEP
 - OBJ

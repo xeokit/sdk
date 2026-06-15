@@ -1,7 +1,7 @@
 import {collapseAABB3, expandAABB3Points3, createAABB3Float32} from "../../base/math/boundaries";
 import {compressRGBColors, octEncodeNormalsToU16, packUVsToFloat32, quantizePositions3} from "../../base/math/compression";
 import {createVec3Float64} from "../../base/math/vector";
-import {LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../../base/constants";
+import {GaussianSplatsPrimitive, LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../../base/constants";
 import {buildEdgeIndices} from "./buildEdgeIndices";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
 import type {SceneGeometryParams} from "./SceneGeometryParams";
@@ -35,6 +35,20 @@ export function compressGeometryParams(geometryParams: SceneGeometryParams): Sce
       uvsDecompressMatrix: undefined,
       positionsCompressed,
       colorsCompressed: geometryParams.colorsCompressed ? geometryParams.colorsCompressed : (geometryParams.colors ? compressRGBColors(geometryParams.colors) : null),
+      origin: rtcNeeded ? rtcCenter : null
+    };
+  }
+  if (geometryParams.primitive === GaussianSplatsPrimitive) {
+    // Splats: quantize centres + carry baked RGBA like points, plus the per-splat
+    // scales/rotations (uncompressed in P1). Covariance is derived GPU-side.
+    return {
+      id: geometryParams.id,
+      primitive: GaussianSplatsPrimitive,
+      aabb,
+      positionsCompressed,
+      colorsCompressed: geometryParams.colorsCompressed ? geometryParams.colorsCompressed : (geometryParams.colors ? compressRGBColors(geometryParams.colors) : null),
+      scales: geometryParams.scales,
+      rotations: geometryParams.rotations,
       origin: rtcNeeded ? rtcCenter : null
     };
   }

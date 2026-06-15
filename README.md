@@ -16,7 +16,7 @@ Built with **TypeScript**, xeokit is designed for **extreme performance**: it st
 * **Multi‑canvas, multi‑view viewers** with floating-panel and tiled layouts.
 * **Full precision (64‑bit) coordinate system**, so georeferenced and city-scale models render without jitter.
 * **Pluggable renderer backends** (WebGL today, WebGPU ready).
-* **Import, export & convert** industry‑standard AECO formats (IFC, glTF, LAS, CityJSON, XKT, XGF, DotBIM, OBJ, MTL).
+* **Import, export & convert** industry‑standard AECO formats (IFC, glTF, LAS, CityJSON, XKT, XGF, DotBIM, OBJ, MTL, 3D Gaussian Splatting).
 * **BIM collaboration** via BCF Viewpoints.
 * **Procedural content** (materials, geometry, environments) for scaffolding and tests.
 * **Open‑source** with a permissive AGPL‑3.0 license.
@@ -123,18 +123,26 @@ Import / export modules for the AECO file formats xeokit supports. Each loader p
 
 | Module                                                                                                       | Description                       |
 |--------------------------------------------------------------------------------------------------------------|-----------------------------------|
-| [`@xeokit/sdk/formats/ifc`](https://xeokit.github.io/sdk/docs/api/modules/formats.ifc.html)                  | Import IFC.                       |
-| [`@xeokit/sdk/formats/gltf`](https://xeokit.github.io/sdk/docs/api/modules/formats.gltf.html)                | Import glTF / GLB.                |
-| [`@xeokit/sdk/formats/dotbim`](https://xeokit.github.io/sdk/docs/api/modules/formats.dotbim.html)            | Import / export DotBIM.           |
+| [`@xeokit/sdk/formats/ifc`](https://xeokit.github.io/sdk/docs/api/modules/formats.ifc.html)                  | Import / export IFC.              |
+| [`@xeokit/sdk/formats/gltf`](https://xeokit.github.io/sdk/docs/api/modules/formats.gltf.html)                | Import / export glTF / GLB.       |
 | [`@xeokit/sdk/formats/xgf`](https://xeokit.github.io/sdk/docs/api/modules/formats.xgf.html)                  | Import / export XGF.              |
 | [`@xeokit/sdk/formats/xkt`](https://xeokit.github.io/sdk/docs/api/modules/formats.xkt.html)                  | Import XKT.                       |
-| [`@xeokit/sdk/formats/las`](https://xeokit.github.io/sdk/docs/api/modules/formats.las.html)                  | Import LAS point clouds.          |
-| [`@xeokit/sdk/formats/cityjson`](https://xeokit.github.io/sdk/docs/api/modules/formats.cityjson.html)        | Import CityJSON.                  |
-| [`@xeokit/sdk/formats/obj`](https://xeokit.github.io/sdk/docs/api/modules/formats.obj.html)                  | Import OBJ.                       |
-| [`@xeokit/sdk/formats/mtl`](https://xeokit.github.io/sdk/docs/api/modules/formats.mtl.html)                  | Import MTL material definitions.  |
-| [`@xeokit/sdk/formats/datamodel`](https://xeokit.github.io/sdk/docs/api/modules/formats.datamodel.html)      | Native data-model JSON.           |
-| [`@xeokit/sdk/formats/scenemodel`](https://xeokit.github.io/sdk/docs/api/modules/formats.scenemodel.html)    | Native scene-model JSON.          |
-| [`@xeokit/sdk/formats/metamodel`](https://xeokit.github.io/sdk/docs/api/modules/formats.metamodel.html)      | Legacy metamodel JSON.            |
+| [`@xeokit/sdk/formats/dotbim`](https://xeokit.github.io/sdk/docs/api/modules/formats.dotbim.html)            | Import / export DotBIM.           |
+| [`@xeokit/sdk/formats/cityjson`](https://xeokit.github.io/sdk/docs/api/modules/formats.cityjson.html)        | Import / export CityJSON.         |
+| [`@xeokit/sdk/formats/las`](https://xeokit.github.io/sdk/docs/api/modules/formats.las.html)                  | Import LAS / LAZ point clouds.    |
+| [`@xeokit/sdk/formats/gaussiansplat`](https://xeokit.github.io/sdk/docs/api/modules/formats.gaussiansplat.html) | Import / export 3D Gaussian Splatting (`.splat`). |
+| [`@xeokit/sdk/formats/fbx`](https://xeokit.github.io/sdk/docs/api/modules/formats.fbx.html)                  | Import / export FBX.              |
+| [`@xeokit/sdk/formats/usdz`](https://xeokit.github.io/sdk/docs/api/modules/formats.usdz.html)                | Import / export USDZ.             |
+| [`@xeokit/sdk/formats/obj`](https://xeokit.github.io/sdk/docs/api/modules/formats.obj.html)                  | Import / export OBJ.              |
+| [`@xeokit/sdk/formats/mtl`](https://xeokit.github.io/sdk/docs/api/modules/formats.mtl.html)                  | Import / export MTL material definitions. |
+| [`@xeokit/sdk/formats/pdf`](https://xeokit.github.io/sdk/docs/api/modules/formats.pdf.html)                  | Import PDF drawing sheets.        |
+| [`@xeokit/sdk/formats/dwg`](https://xeokit.github.io/sdk/docs/api/modules/formats.dwg.html)                  | Import DWG drawings.              |
+| [`@xeokit/sdk/formats/dxf`](https://xeokit.github.io/sdk/docs/api/modules/formats.dxf.html)                  | Import / export DXF drawings.     |
+| [`@xeokit/sdk/formats/svg`](https://xeokit.github.io/sdk/docs/api/modules/formats.svg.html)                  | Import / export SVG drawings.     |
+| [`@xeokit/sdk/formats/fds`](https://xeokit.github.io/sdk/docs/api/modules/formats.fds.html)                  | Import / export Fire Dynamics Simulator (FDS). |
+| [`@xeokit/sdk/formats/scenemodel`](https://xeokit.github.io/sdk/docs/api/modules/formats.scenemodel.html)    | Import / export native scene-model JSON. |
+| [`@xeokit/sdk/formats/datamodel`](https://xeokit.github.io/sdk/docs/api/modules/formats.datamodel.html)      | Import / export native data-model JSON. |
+| [`@xeokit/sdk/formats/metamodel`](https://xeokit.github.io/sdk/docs/api/modules/formats.metamodel.html)      | Import legacy metamodel JSON.     |
 
 ---
 

@@ -472,6 +472,14 @@ export const SolidPrimitive = 20003;
 export const SurfacePrimitive = 20004;
 
 /**
+ * Indicates that a {@link scene!SceneGeometry} contains 3D Gaussian Splats — oriented,
+ * anisotropic gaussian "blobs" each defined by a position, per-axis scale, rotation
+ * quaternion and baked RGBA colour (no spherical harmonics). Rendered as depth-sorted,
+ * alpha-blended billboards.
+ */
+export const GaussianSplatsPrimitive = 20005;
+
+/**
  * Navigation rendering preset — prioritises frame rate during user
  * interaction (orbiting, panning, zooming).
  *

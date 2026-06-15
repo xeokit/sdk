@@ -96,7 +96,7 @@ The SDK is organised into **topical buckets**. Every import path begins with one
 | `base/` | Math (Float32 + Float64 vec/mat/quat/AABB, compression, curves), core infrastructure (`SDKResult`, `SDKErrorType`, `EventEmitter`, `SDKTask`), WebGL primitives, file I/O, locale, constants. |
 | `model/` | `scene/` (3D scene graph: `Scene`, `SceneModel`, `SceneObject`, `SceneMesh`, `SceneGeometry`, materials, hatch patterns). `data/` (semantic graph: `Data`, `DataModel`, `DataObject`, relationships, property sets). `procgen/` (procedural geometry + PBR material painters). `streaming/` (chunked model streaming + cache). |
 | `viewing/` | `viewer/` (`Viewer`, `View`, `Camera`, `SectionPlane`, lights, effects). `webGLRenderer/` (the WebGL backend, behind a pluggable `Renderer` interface — WebGPU work is anticipated). `viewController/` (pointer / touch camera controllers). `cameraFlight/` (camera flight animations and bookmarks). `transformControls/` (in-scene gizmo). |
-| `formats/` | Import / export for IFC, glTF, XGF, XKT, LAS, CityJSON, OBJ + MTL, DotBIM, plus the 2D drawing formats (PDF, DWG, DXF, SVG) and native scene-model and data-model JSON. |
+| `formats/` | Import / export for IFC, glTF, XGF, XKT, LAS, CityJSON, OBJ + MTL, DotBIM, 3D Gaussian Splatting (`.splat`), plus the 2D drawing formats (PDF, DWG, DXF, SVG) and native scene-model and data-model JSON. |
 | `spatial/` | `collision/` (KdTree / BVH indices over scene geometry). `picking/` (ray and canvas-position picking, snap-to-vertex, snap-to-edge). |
 | `inspect/` | Read-only inspectors that report on the integrity and statistics of scene and data models, with a fixes pipeline for resolving common issues. |
 | `presentations/` | Scene processors that consume a `SceneModel` and emit a new one or mutate presentation state: `drawings/` (orthographic 2D plans / elevations / sections, with HLE, fills, room labels, title-block chrome), `sectionCaps/`, `exploder/`, `heatmaps/`, `materials/`. |
@@ -226,7 +226,7 @@ The non-renderable side: BIM entity types, properties, and the typed relationshi
 
 ### Format support
 
-End-to-end import and export coverage for the formats AECO workflows actually exchange — IFC for source-of-truth BIM, glTF / XGF for delivery, dotbim / OBJ / STEP for interop, the 2D drawing formats (PDF / DWG / DXF / SVG) for AECO sheet exchange, plus point-cloud and city-scale options.
+End-to-end import and export coverage for the formats AECO workflows actually exchange — IFC for source-of-truth BIM, glTF / XGF for delivery, dotbim / OBJ / STEP for interop, the 2D drawing formats (PDF / DWG / DXF / SVG) for AECO sheet exchange, plus point-cloud, reality-capture (3D Gaussian Splatting) and city-scale options.
 
 | Format                                                | Import | Export | Module               |
 | ----------------------------------------------------- | :----: | :----: | -------------------- |
@@ -237,6 +237,7 @@ End-to-end import and export coverage for the formats AECO workflows actually ex
 | **dotbim** (`.bim` JSON-LD)                           |   ✓    |   ✓    | `formats/dotbim`     |
 | **CityJSON** (LOD 0–3)                                |   ✓    |   —    | `formats/cityjson`   |
 | **LAS / LAZ** point clouds                            |   ✓    |   —    | `formats/las`        |
+| **3D Gaussian Splatting** (`.splat`; baked RGB, no SH)|   ✓    |   ✓    | `formats/gaussiansplat` |
 | **OBJ**                                               |   ✓    |   ✓    | `formats/obj`        |
 | **MTL**                                               |   ✓    |   ✓    | `formats/mtl`        |
 | **PDF** drawing sheets (vector + raster, via pdf.js)  |   ✓    |   —    | `formats/pdf`        |

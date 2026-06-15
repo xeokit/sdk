@@ -1,7 +1,7 @@
 import {SDKErrorType, SDKInternalException, type SDKResult} from "../../base/core";
 import {composeMat4, createMat4Float64, identityMat4, type  Mat4} from "../../base/math/matrix";
 import {eulerToQuat, identityQuat} from "../../base/math/quat";
-import {LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../../base/constants";
+import {GaussianSplatsPrimitive, LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../../base/constants";
 import {compressGeometryParams} from "./compressGeometryParams";
 import type {Scene} from "./Scene";
 import {SceneGeometry} from "./SceneGeometry";
@@ -865,7 +865,7 @@ export class SceneModel {
       });
     }
 
-    if (primitive !== PointsPrimitive && (!indices || indices.length===0)) {
+    if (primitive !== PointsPrimitive && primitive !== GaussianSplatsPrimitive && (!indices || indices.length===0)) {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
@@ -878,14 +878,15 @@ export class SceneModel {
       primitive !== LinesPrimitive &&
       primitive !== TrianglesPrimitive &&
       primitive !== SolidPrimitive &&
-      primitive !== SurfacePrimitive
+      primitive !== SurfacePrimitive &&
+      primitive !== GaussianSplatsPrimitive
     ) {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
         error:
           `[SceneModel.createGeometry] Unsupported value for geometryParams.primitive: '${primitive}' - ` +
-          "supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive"
+          "supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive, SurfacePrimitive and GaussianSplatsPrimitive"
       });
     }
 
@@ -1061,7 +1062,7 @@ export class SceneModel {
       });
     }
 
-    if (!indices && primitive !== PointsPrimitive) {
+    if (!indices && primitive !== PointsPrimitive && primitive !== GaussianSplatsPrimitive) {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
@@ -1128,14 +1129,15 @@ export class SceneModel {
       primitive !== LinesPrimitive &&
       primitive !== TrianglesPrimitive &&
       primitive !== SolidPrimitive &&
-      primitive !== SurfacePrimitive
+      primitive !== SurfacePrimitive &&
+      primitive !== GaussianSplatsPrimitive
     ) {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
         error:
           `[SceneModel.createGeometryCompressed] Unsupported value for parameter 'primitive': '${primitive}' - ` +
-          "supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive"
+          "supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive, SurfacePrimitive and GaussianSplatsPrimitive"
       });
     }
 

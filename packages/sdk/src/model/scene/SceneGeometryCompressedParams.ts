@@ -94,6 +94,18 @@ export interface SceneGeometryCompressedParams {
   edgeIndices?: IntArrayParam;
 
   /**
+   * Per-splat scales — 3 floats per splat. Only used for
+   * {@link base!constants.GaussianSplatsPrimitive | GaussianSplatsPrimitive}. Carried uncompressed in P1.
+   */
+  scales?: FloatArrayParam;
+
+  /**
+   * Per-splat rotation quaternions — 4 floats per splat, `xyzw`. Only used for
+   * {@link base!constants.GaussianSplatsPrimitive | GaussianSplatsPrimitive}. Carried uncompressed in P1.
+   */
+  rotations?: FloatArrayParam;
+
+  /**
    * TODO
    */
   origin?: Vec3;

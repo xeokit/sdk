@@ -67,4 +67,16 @@ export interface SceneGeometryParams {
    * Ignored for primitive type {@link base!constants.PointsPrimitive | PointsPrimitive}, which does not need indices.
    */
   indices?: IntArrayParam;
+
+  /**
+   * Flat array of per-splat scales — 3 floats per splat (the per-axis gaussian
+   * std-devs). Only used for {@link base!constants.GaussianSplatsPrimitive | GaussianSplatsPrimitive}.
+   */
+  scales?: FloatArrayParam;
+
+  /**
+   * Flat array of per-splat rotation quaternions — 4 floats per splat, `xyzw`.
+   * Only used for {@link base!constants.GaussianSplatsPrimitive | GaussianSplatsPrimitive}.
+   */
+  rotations?: FloatArrayParam;
 }

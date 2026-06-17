@@ -178,7 +178,7 @@ flowchart TD
     emit --&gt; tgt[Target SceneModel]</code></pre></div>
 <p>The orchestrating entry point is <a href="../functions/presentations.drawings.buildDrawing.html" class="tsd-kind-function">buildDrawing</a>, which accepts a
 <a href="../interfaces/presentations.drawings.DrawingProjectionParams.html" class="tsd-kind-interface">DrawingProjectionParams</a> bundle and returns the new SceneModel
-inside an <a href="../types/base.core.SDKResult.html" class="tsd-kind-type-alias">SDKResult</a>. Under the hood the pipeline
+inside an <a href="../types/base.core.SDKResult.html" class="tsd-kind-type-alias">SDKResult</a>. Internally the pipeline
 composes three independent stages, each exposed as a submodule:</p>
 <ul>
 <li><a href="presentations.drawings.hle.html" class="tsd-kind-namespace">hle</a> — CPU-side orthographic depth-buffer
@@ -193,7 +193,7 @@ standard title-cartouche metadata.</li>
 <li><strong>Wireframe projection</strong> — projected crease and boundary edges as
 <code>LinesPrimitive</code> meshes, with optional hidden-line elimination.</li>
 <li><strong>Solid fills</strong> — per-source-object filled silhouettes with
-hidden-surface removal baked in.</li>
+hidden-surface removal built in.</li>
 <li><strong>Section cut-aways</strong> — clip the source against an arbitrary plane to
 render plans, sections, and oblique slices.</li>
 <li><strong>Six face presets</strong> plus arbitrary <code>{forward, up}</code> rays for diagonal

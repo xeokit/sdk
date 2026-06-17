@@ -63,7 +63,7 @@ classDiagram
     direction TB
     class XGFLoader {
       +format : &quot;XGF&quot;
-      +versions : [&quot;v1&quot;..&quot;v2&quot;]
+      +versions : [&quot;v1&quot;..&quot;v3&quot;]
       +load(params, options?) Promise~void~
     }
     class XGFExporter {
@@ -82,7 +82,7 @@ classDiagram
     direction TB
     class XGFLoader {
       +format : &quot;XGF&quot;
-      +versions : [&quot;v1&quot;..&quot;v2&quot;]
+      +versions : [&quot;v1&quot;..&quot;v3&quot;]
       +load(params, options?) Promise~void~
     }
     class XGFExporter {
@@ -100,7 +100,7 @@ classDiagram
     direction TB
     class XGFLoader {
       +format : &quot;XGF&quot;
-      +versions : [&quot;v1&quot;..&quot;v2&quot;]
+      +versions : [&quot;v1&quot;..&quot;v3&quot;]
       +load(params, options?) Promise~void~
     }
     class XGFExporter {
@@ -119,9 +119,9 @@ classDiagram
 <a id="features" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Features<a href="#features" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
 <li><strong>Compact binary</strong> — xeokit-native geometry format; ~5–10×
 smaller than equivalent glTF, ~10× faster to load.</li>
-<li><strong>Multi-version</strong> — v1 (legacy) and v2 (current) supported in
-the same loader/exporter pair; <code>version</code> parameter selects
-which writer to use.</li>
+<li><strong>Multi-version</strong> — v1 (legacy), v2 (PBR + textures) and v3 (adds
+3D Gaussian Splatting) supported in the same loader/exporter pair;
+the <code>version</code> parameter selects which writer to use.</li>
 <li><strong>Quantised positions</strong> — vertex positions stored as 16-bit
 integers against per-geometry AABBs; no precision loss for
 typical model scales.</li>

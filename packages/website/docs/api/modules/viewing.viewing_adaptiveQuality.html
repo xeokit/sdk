@@ -8,7 +8,7 @@ effect (SAO, shadows, bloom, FXAA, ACES tonemap, edges, IBL, section
 caps) declares its own <code>renderModes</code> list and gates its activation on
 <code>view.renderMode</code> being in that list. Flipping the View's mode
 therefore toggles every effect whose list doesn't include the new mode
-— no per-effect plumbing needed here.</p>
+— no per-effect setup needed here.</p>
 <p><code>AdaptiveQuality</code> listens for camera changes and drives that flip:
 the first change in a burst switches the View into a low-cost mode
 (default <a href="../variables/base.constants.NavigationRender.html" class="tsd-kind-variable">NavigationRender</a>),

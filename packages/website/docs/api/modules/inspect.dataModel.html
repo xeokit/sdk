@@ -45,13 +45,13 @@ body.dark, :root[data-theme="dark"] {
 — catches structural defects (dangling references, missing types,
 cyclic containment) and schema-level violations (unknown types,
 forbidden type pairings, missing required property sets) and
-surfaces them as a structured <a href="../interfaces/inspect.dataModel.InspectionReport.html" class="tsd-kind-interface">InspectionReport</a>.</strong></p>
+reports them as a structured <a href="../interfaces/inspect.dataModel.InspectionReport.html" class="tsd-kind-interface">InspectionReport</a>.</strong></p>
 <hr>
 <p>Same shape as
 <a href="inspect.sceneModel.html" class="tsd-kind-namespace">@xeokit/sdk/inspect/sceneModel</a> —
 pluggable inspections + a default registry — minus the auto-fix
 half. <strong>No fixes ship for DataModel issues</strong>: SDK policy is to
-surface defects in user data rather than silently rewrite it.
+report defects in user data rather than silently rewrite it.
 Triage is human work. Unlike geometry — where glitches
 (degenerate triangles, duplicate vertices) are clearly mechanical
 artefacts safe to clean up automatically — defects in the data
@@ -208,7 +208,7 @@ flowchart LR
     D -. errors block downstream optimisation .-&gt; E[caller triages]</code></pre></div>
 <br>
 <a id="features" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Features<a href="#features" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
-<li><strong>Inspection-only</strong> — no auto-fix half. Defects surface as
+<li><strong>Inspection-only</strong> — no auto-fix half. Defects are reported as
 issues; the caller decides how (and whether) to remediate.</li>
 <li><strong>Schema-aware</strong> — supply a <a href="../interfaces/inspect.dataModel.DataFormatSchema.html" class="tsd-kind-interface">DataFormatSchema</a> and the
 schema-tagged inspections fire (unknown types, forbidden type

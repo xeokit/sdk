@@ -167,7 +167,7 @@
  *
  * <br>
  *
- * ### 4) Wire up mouse-driven creation
+ * ### 4) Connect mouse-driven creation
  *
  * `tool.mouseControl` is lazy — first access constructs the helper.
  * `activate()` starts listening for clicks on the View canvas;

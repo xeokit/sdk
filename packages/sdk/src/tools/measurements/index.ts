@@ -13,7 +13,7 @@
  * tool is a long-lived overlay attached to a single
  * {@link viewing!viewer.View | View}, owning a keyed collection of measurement
  * instances. Optional mouse-control helpers turn canvas clicks into
- * measurements without the caller having to wire up pickers.
+ * measurements without the caller having to connect pickers.
  *
  * <br>
  *

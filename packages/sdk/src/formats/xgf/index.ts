@@ -38,7 +38,7 @@
  *     direction TB
  *     class XGFLoader {
  *       +format : "XGF"
- *       +versions : ["v1".."v2"]
+ *       +versions : ["v1".."v3"]
  *       +load(params, options?) Promise~void~
  *     }
  *     class XGFExporter {
@@ -61,9 +61,9 @@
  *
  * - **Compact binary** — xeokit-native geometry format; ~5–10×
  *   smaller than equivalent glTF, ~10× faster to load.
- * - **Multi-version** — v1 (legacy) and v2 (current) supported in
- *   the same loader/exporter pair; `version` parameter selects
- *   which writer to use.
+ * - **Multi-version** — v1 (legacy), v2 (PBR + textures) and v3 (adds
+ *   3D Gaussian Splatting) supported in the same loader/exporter pair;
+ *   the `version` parameter selects which writer to use.
  * - **Quantised positions** — vertex positions stored as 16-bit
  *   integers against per-geometry AABBs; no precision loss for
  *   typical model scales.

@@ -174,7 +174,7 @@ export async function encode(ifcAPI: WebIFC.IfcAPI, params: ModelEncodeParams, o
     );
     ifcAPI.WriteLine(modelId, proj);
 
-    // Map objectId → written IFC element (for relationship wiring)
+    // Map objectId → written IFC element (for relationship linking)
     const ifcElementMap: { [id: string]: any } = {};
     if (projectDataObject) {
       ifcElementMap[projectDataObject.id] = proj;
@@ -206,7 +206,7 @@ export async function encode(ifcAPI: WebIFC.IfcAPI, params: ModelEncodeParams, o
           : null;
 
         // --- Geometry ---------------------------------------------------------
-        // Vertices are baked into world space using each mesh's worldMatrix so
+        // Vertices are transformed into world space using each mesh's worldMatrix so
         // the element can use an identity IfcLocalPlacement.
 
         let representation: any = null;

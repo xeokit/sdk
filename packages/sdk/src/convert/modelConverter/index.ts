@@ -97,7 +97,7 @@
  *
  * - **{@link formats!ModelLoader | ModelLoaders}**: parse/ingest input formats into a {@link model!scene.Scene | Scene} / {@link model!data.Data | Data}
  * - **{@link formats!ModelExporter | ModelExporters}**: generate output formats from those models
- * - **Pipelines**: declarative workflows wiring inputs to outputs
+ * - **Pipelines**: declarative workflows connecting inputs to outputs
  *
  * You configure the converter with {@link ModelConverterParams | ModelConverterParams}:
  *

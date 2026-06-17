@@ -153,6 +153,7 @@ export * as svg from "./svg";
 export * as dwg from "./dwg";
 export * as dxf from "./dxf";
 export * as fds from "./fds";
+export * as threedxml from "./threedxml";
 
 export * from "./ModelExporter";
 export * from "./ModelExporterParams";

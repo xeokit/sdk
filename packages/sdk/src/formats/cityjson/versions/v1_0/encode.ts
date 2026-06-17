@@ -14,7 +14,7 @@ const PRECISION = 0.001;
  * Each SceneObject becomes a CityObject carrying a single `MultiSurface`
  * geometry: every triangle of the object's meshes is emitted as one surface
  * referencing the shared, quantised `vertices` array (the mesh world matrix is
- * baked in, since CityJSON surfaces reference absolute vertices). Mesh colour +
+ * embedded, since CityJSON surfaces reference absolute vertices). Mesh colour +
  * opacity become `appearance.materials` (`transparency = 1 - opacity`); the
  * DataModel supplies each CityObject's `type` and the parent/child links.
  *

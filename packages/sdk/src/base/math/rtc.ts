@@ -220,7 +220,7 @@ export function getRTCTileSize(worldPos: Vec3): number {
   // Your existing default near origin
   if (mag === 0) return 1000;
 
-  // --- knobs (pick once, keep stable) ---
+  // --- parameters (pick once, keep stable) ---
   const baseTile = 200;        // tile size around mag ~ 1m
   const bucketDecades = 4;     // 3 => size changes every 1000x magnitude
   const allowedError = 0.0005; // 0.5mm target worst-case at half tile (sub-mm)

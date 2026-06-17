@@ -176,7 +176,7 @@ interface PDFImageObjectLike {
 }
 
 /**
- * Optional knobs for {@link PDFPageLike.getTextContent}.
+ * Optional settings for {@link PDFPageLike.getTextContent}.
  *
  * @internal
  */
@@ -337,7 +337,7 @@ interface PDFOperatorCodes {
 
 // ─── pdf.js loader (cached) ───────────────────────────────────────
 //
-// Dynamic ESM import + worker-URL wiring is expensive (network +
+// Dynamic ESM import + worker-URL setup is expensive (network +
 // worker spin-up). Cache by `(esmUrl, workerSrc)` so repeated loads
 // against the same source don't redo the work.
 const _pdfjsCache = new Map<string, Promise<PdfJsHandle>>();
@@ -1690,7 +1690,7 @@ function extractDrawables(
     if (op === OPS.setDash) {
       // PDF `d` op: args = [dashArray, dashPhase]. We honour the array
       // and ignore the phase (SceneMaterial.linePattern has no phase
-      // knob — patterns always restart at each segment).
+      // control — patterns always restart at each segment).
       const a = args[i] as [ReadonlyArray<number>, number];
       const arr = a[0];
       // Reference-fresh copy so later setDash calls swap (not mutate)

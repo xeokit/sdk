@@ -47,7 +47,7 @@ describe("FDS encode round-trip", () => {
     expect(get("YMIN")).toBeCloseTo(0); expect(get("YMAX")).toBeCloseTo(2);
     expect(get("ZMIN")).toBeCloseTo(0); expect(get("ZMAX")).toBeCloseTo(3);
 
-    // SURF_ID wiring survives the round-trip as a usesSurface
+    // SURF_ID linking survives the round-trip as a usesSurface
     // relationship to the FDSSurface DataObject. See encode.ts:surfIdOf
     // for why the relationship lives on `related`, not `relating`.
     const rels = (obst.related as any).usesSurface;

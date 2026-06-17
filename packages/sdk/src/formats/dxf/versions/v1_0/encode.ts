@@ -9,7 +9,7 @@
  *     SceneModel: triangle → 3DFACE, line pair → LINE, point → POINT.
  *   EOF
  *
- * Per-mesh transforms are baked into each emitted vertex via
+ * Per-mesh transforms are embedded into each emitted vertex via
  * `getMeshWorldMatrix` (same approach as the OBJ exporter) — DXF
  * has no per-entity transform we can use to round-trip
  * SceneTransform chains. Positions are decompressed from the

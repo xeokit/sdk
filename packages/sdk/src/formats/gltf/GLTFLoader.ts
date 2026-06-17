@@ -254,9 +254,8 @@ function parseMaterials(ctx: ParsingContext): boolean {
       // Always-create: every glTF material maps to one SceneMaterial,
       // even ones without textures, so meshes referencing them get
       // their PBR factors via `materialId` rather than via a
-      // per-mesh fallback. Drops the legacy `_attributes`/null-return
-      // dance — color/opacity/roughness/metallic are now baked into
-      // the SceneMaterial up front.
+      // per-mesh fallback. color/opacity/roughness/metallic are baked
+      // into the SceneMaterial up front.
       const materialCfg = parseMaterial(ctx, material);
       const materialResult = ctx.sceneModel.createMaterial(materialCfg);
       if (materialResult.ok === false) {

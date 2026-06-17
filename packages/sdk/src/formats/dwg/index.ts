@@ -34,7 +34,7 @@
  *
  * See {@link DWGLoadOptions} for per-call tuning (scale, colour
  * overrides, circle tessellation, INSERT recursion limit, text
- * rasterisation knobs). The libredwg CDN URLs are configured once on
+ * rasterisation options). The libredwg CDN URLs are configured once on
  * the constructor — see {@link DWGLoaderParams}.
  *
  * ## Self-hosting / Node usage

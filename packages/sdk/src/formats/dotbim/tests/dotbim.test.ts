@@ -121,7 +121,7 @@ describe("DotBIMExporter", () => {
       expect(calls.object[0].id).toBe("Building1");
       // Loader divides r/g/b by 255 → recovers the original 0..1 colour.
       expect(Array.from(calls.mesh[0].color).map((v: any) => +v.toFixed(2))).toEqual([0.2, 0.4, 0.6]);
-      // Translation baked into the element's vector and recovered as the mesh position.
+      // Translation embedded into the element's vector and recovered as the mesh position.
       expect(calls.mesh[0].position).toEqual([10, 20, 30]);
 
       // CityObject came back as a DataObject carrying the original type.

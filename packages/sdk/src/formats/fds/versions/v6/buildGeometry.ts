@@ -23,7 +23,7 @@ const MESH_WIRE_COLOR:    readonly [number, number, number] = [0.45, 0.45, 0.45]
  * SceneObject IDs match the DataObject IDs the
  * {@link buildDataModel} step produces so the renderer's
  * {@link viewing!viewer.ViewObject | ViewObject}s pair up with
- * semantics out of the box.
+ * semantics by default.
  *
  * @internal
  */

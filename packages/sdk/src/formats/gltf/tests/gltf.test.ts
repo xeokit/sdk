@@ -118,7 +118,7 @@ describe("GLTFExporter / GLTFLoader", () => {
     expect(Array.from(geom.indices)).toEqual([0, 1, 2, 0, 2, 3]);
 
     // Positions recover the source quad corners (mesh-local; the world
-    // translation lives on the node matrix, not baked into positions).
+    // translation lives on the node matrix, not embedded into positions).
     const positions = Array.from(geom.positions as Float32Array).map(v => +v.toFixed(4));
     expect(positions).toEqual([0, 0, 0,  1, 0, 0,  1, 1, 0,  0, 1, 0]);
 

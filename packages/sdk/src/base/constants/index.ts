@@ -483,7 +483,7 @@ export const GaussianSplatsPrimitive = 20005;
  * Navigation rendering preset — prioritises frame rate during user
  * interaction (orbiting, panning, zooming).
  *
- * Out of the box no effect's `renderModes` list contains this value, so
+ * By default no effect's `renderModes` list contains this value, so
  * the renderer skips every post-process and ambient embellishment when
  * `View.renderMode === NavigationRender`. Effects can still be opted in
  * per-application by adding this value to their `renderModes`.

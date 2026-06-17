@@ -197,7 +197,7 @@ export class ModelConverter {
           // Request-level signal wins over any per-step signal
           // already on the pipeline-config options — cancelling
           // the convert should cancel every step, regardless of
-          // what the pipeline author wired up.
+          // what the pipeline author set up.
           const options = <ModelLoadOptions>{
             ...(pipelineInput.options || {}),
             ...(requestSignal ? {signal: requestSignal} : {}),

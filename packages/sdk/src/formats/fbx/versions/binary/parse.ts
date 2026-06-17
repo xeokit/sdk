@@ -5,7 +5,7 @@
  * normals and UVs), each `Model`'s local transform (`Lcl Translation /
  * Rotation / Scaling`), a basic diffuse `Material` colour, and embedded diffuse
  * textures (image bytes carried in a connected `Video`'s `Content`). The
- * Geometry↔Model↔Material↔Texture wiring comes from the FBX `Connections` graph.
+ * Geometry↔Model↔Material↔Texture linking comes from the FBX `Connections` graph.
  *
  * Not handled (yet): ASCII FBX, animation, skinning / deformers, NURBS,
  * external-file textures (`RelativeFilename` with no embedded data — needs a

@@ -56,7 +56,7 @@ payloads laid out at those offsets:
 
 ```
    ┌──────────────────────────────────────────────────────────────┐
-   │ 0..3        uint32 version              (1 or 2)             │
+   │ 0..3        uint32 version              (1, 2 or 3)          │
    ├──────────────────────────────────────────────────────────────┤
    │ 4..7        uint32 entry[0].byteOffset                       │
    │ 8..11       uint32 entry[0].byteLength                       │
@@ -86,22 +86,23 @@ payloads laid out at those offsets:
 
 ---
 
-## 3. The two versions
+## 3. The three versions
 
-XGF has shipped two schema revisions. The loader handles both; the
-exporter writes either via its `version` parameter.
+XGF has shipped three schema revisions. The loader handles all of them;
+the exporter writes any via its `version` parameter.
 
 | Version | Adds |
 |---|---|
 | **v1** (`1.0.0`) | base — geometry (positions, colors, indices, edge indices), per-geometry AABBs, modelling matrices, meshes referencing per-mesh inline RGBA colours, objects referencing meshes. |
 | **v2** (`1.1.0`, "XKT2") | adds **per-geometry normals + UVs**; **textures** (image bytes + sampler params); **materials** with full PBR + alpha mode / cutoff; **per-mesh material references** (with inline RGBA as the fallback when no material is set). |
+| **v3** (`1.2.0`) | adds **3D Gaussian Splatting** geometry — per-splat scales (float xyz) and rotation quaternions (xyzw, byte-quantised, the `.splat` convention), plus the `GaussianSplatsPrimitive` type (`5`). Also restores per-vertex `colorsCompressed` on decode, which splats need for baked colour. |
 
-The v1 reader is still in the codebase so existing `.xgf` files keep
-loading; new exports should target v2 unless you have a v1-only
-consumer.
+The older readers stay in the codebase so existing `.xgf` files keep
+loading.
 
-The default exporter version is `1.0.0`. Pass `version: "1.1.0"` to
-the writer to emit v2.
+The default exporter version is `1.0.0`. Pass `version: "1.1.0"` to emit
+v2 (PBR / textures), or `version: "1.2.0"` to emit v3 — **required to
+preserve Gaussian-splat geometry**, since v1/v2 have no splat buffers.
 
 ---
 

@@ -285,7 +285,7 @@ export interface PDFLoaderParams {
 
   /**
    * Pre-initialised pdf.js namespace — when supplied, the loader
-   * skips its built-in CDN fetch + worker wiring (ignoring
+   * skips its built-in CDN fetch + worker setup (ignoring
    * {@link pdfjsEsmUrl} / {@link pdfjsWorkerSrc}) and uses this
    * object directly. Essential in Node hosts (where dynamic CDN
    * import doesn't work without polyfills) or apps that already

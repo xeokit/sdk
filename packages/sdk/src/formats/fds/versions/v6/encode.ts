@@ -10,7 +10,7 @@ import type {Property} from "../../../../model/data/Property";
  * The encoder walks the typed FDS DataObjects produced by
  * {@link buildDataModel} — `FDSProject`, `FDSSurface`, `FDSMesh`,
  * `FDSObstruction`, `FDSVent`, `FDSHole` — and emits one namelist
- * record per object. Element ↔ surface wiring comes from the
+ * record per object. Element ↔ surface linking comes from the
  * `usesSurface` Relationship; XB / IJK / MB / IOR come from the
  * `Geometry` PropertySet; every other parameter comes from the
  * `FDS` PropertySet, which preserves the original namelist

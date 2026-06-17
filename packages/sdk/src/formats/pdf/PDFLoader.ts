@@ -4,7 +4,7 @@
  * per-page texture atlas). One SceneObject per page, laid out per
  * {@link PDFLoadOptions.layout}.
  *
- * Thin façade — all pdf.js wiring, operator-list walking, image /
+ * Thin façade — all pdf.js setup, operator-list walking, image /
  * text emission, and SceneModel calls live in version-keyed parsers
  * under `./versions/vN_0/parse.ts`. The constructor picks the
  * parser; `load()` delegates verbatim. Adding a future schema

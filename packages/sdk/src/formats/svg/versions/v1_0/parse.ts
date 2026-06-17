@@ -274,7 +274,7 @@ export async function parse(
         // for the same observation). Canvas row 0 ends up at
         // texture V=0; the UV layout below maps TL→V=0 and BL→V=1
         // accordingly. Kept `flipY: true` here so a future renderer
-        // wiring of the flag would invert the texture cleanly —
+        // linking of the flag would invert the texture cleanly —
         // re-test by flipping the V values below.
         flipY: true,
         imageData: {data: imgData.data, width: imgData.width, height: imgData.height},

@@ -46,9 +46,14 @@ V3 is the forward path.
 | Renderer                 | WebGL 2 (VBO + optional data-texture `dtxEnabled`)        | WebGL 2 behind a pluggable **`Renderer` interface** (WebGPU anticipated) |
 | Semantic model           | `MetaScene` / `MetaModel` / `MetaObject`                  | Separated **`Data`** graph (`DataModel` / `DataObject` / `Relationship`), paired by id |
 | Views per scene          | One `Viewer` → one `Scene` → one canvas                   | **Many `View`s per `Scene`**, each its own camera / state / effects / canvas |
+| Headless / Node.js       | Viewer-centric (canvas + WebGL required); conversion via separate Node tools | Viewer + renderer are **opt-in**; `Scene` / `Data` + loaders / exporters run **headless in Node** |
 | Coordinate precision      | Full precision via **RTC** tiles (anchored in XKT)        | Full precision via RTC **plus** per-model `coordinateSystem` (basis / origin / units) |
+| Dynamic transforms        | Robust only **within an object's RTC tile**; moving across the full space is buggy | RTC tiles **fully hidden**; objects move freely and robustly across the whole coordinate space |
+| Memory control            | Fixed internal allocation                                 | **Configurable GPU memory budget** + live **usage tracking** (`getMemoryUsage`) |
+| Diagnostics               | Console warnings (ad hoc)                                 | **Complete logging** of every error / warning via typed `onError` event channels |
 | Format I/O               | **Import-focused** (export limited to BCF / snapshots)    | **Symmetric import + export** across most formats                       |
 | Native model format      | **XKT** (offline-converted)                               | **XGF** (in-SDK + CLI conversion); XKT still imported                   |
+| Conversion tooling       | Separate `xeokit-convert` package/CLI (→ XKT)             | In-SDK `convert/` (`ModelConverter`, `xeoconvert` CLI, `ifc2gltf2xgf`), multi-format, with validation + reports |
 | 2D drawings              | StoreyViews (2D plan images)                              | Full **drawings pipeline** (plan / section / elevation, HLE, fills, labels) + PDF/DWG/DXF/SVG import |
 | Reality capture          | LAS/LAZ point clouds                                       | LAS/LAZ **+ 3D Gaussian Splatting** (`.splat`)                           |
 | Maturity                 | **Production-proven, large install base**                 | Newer architecture, broader scope                                       |
@@ -125,12 +130,31 @@ uniformly **result-monadic**: every fallible operation returns
 
 ```ts
 type SDKResult<T> =
-  | { ok: true;  value: T }
-  | { ok: false; type: SDKErrorType; error: string };
+        | { ok: true;  value: T }
+        | { ok: false; type: SDKErrorType; error: string };
 ```
 
 Id collisions, malformed geometry, bad coordinate systems, and IO errors are values,
 not exceptions, and the type system forces a branch-and-narrow at each call site.
+
+### Headless and Node.js operation
+
+A direct consequence of the bucketed architecture is that the **viewer and renderer are
+opt-in**. The `Scene` and `Data` graphs, and every format loader and exporter, have no
+dependency on `Viewer` or `WebGLRenderer` — they carry no reference to a canvas, a WebGL
+context, or the DOM. An application brings in `viewing/` only when it needs to draw
+pixels.
+
+This means the data side of the SDK runs unchanged in a **headless environment such as
+Node.js**: build a `Scene` + `Data`, load a model with a format loader, query or
+transform the graphs, validate them, and write the result out through an exporter — all
+without a browser. Server-side conversion (IFC → glTF → XGF), batch validation, geometry
+preprocessing, and automated tests need no rendering context.
+
+In V2 the `Scene` is owned by the `Viewer` and the SDK is built around a live canvas, so
+offline work is handled by separate Node-side tools (for example XKT conversion). V3
+folds that capability into the same SDK: the identical `model/` and `formats/` code path
+serves both the browser viewer and a headless pipeline.
 
 ---
 
@@ -178,6 +202,31 @@ scene.createModel({
 Both render a model 10 km from the origin at sub-millimetre stability. V3 simply makes
 the coordinate declaration a per-model API rather than a property of the converted file.
 
+### Dynamic transforms across the full coordinate space
+
+Static placement is only half the problem. The harder case is **moving an object at
+runtime** — dragging a component, animating an exploded view, replaying a construction
+sequence — while keeping double precision intact.
+
+In V2, RTC is exposed as part of the model: each object belongs to an RTC tile, and its
+transform is expressed relative to that tile's centre. Dynamic transforms are robust
+**only within the object's own tile**. Moving an object an arbitrary distance — across
+tile boundaries, into another region of the coordinate space — is not fully robust; the
+object is effectively confined to the neighbourhood of its original RTC anchor, and
+transforms that cross tiles can produce incorrect placement.
+
+V3 **completely hides the RTC tiling** behind the scene API. An object's transform is a
+plain double-precision matrix in world space; the renderer re-derives the correct RTC
+anchor internally whenever the object moves, so the tiling is an implementation detail
+the application never sees. The result is that objects can be **translated, rotated, and
+scaled freely and robustly across the entire coordinate space** — full-precision
+animation works the same a kilometre from the origin as it does at it, with no per-tile
+restriction and no jitter on the moved geometry.
+
+This matters directly for AECO interactions that move geometry at full precision:
+component drag-and-drop on a georeferenced site, exploded and phased assembly views,
+4D construction sequencing, and clash-resolution nudges.
+
 ---
 
 ## Renderer
@@ -197,6 +246,57 @@ hatch / line patterns, and a per-`DrawOps` selectable depth scheme.
 Both support SAO, edges, x-ray, highlight, selection, and PBR materials. V3 adds bloom,
 configurable tonemapping (ACES / Reinhard / linear), MSAA/FXAA selection, and an
 independent render-resolution scale as per-`View` settings.
+
+---
+
+## Memory control and diagnostics
+
+Two operational concerns that V3 promotes to first-class API, where V2 leaves them
+internal.
+
+### Configurable memory budget + usage tracking
+
+V3's `WebGLRenderer` accepts an explicit GPU memory budget and allocation shape:
+
+```ts
+new WebGLRenderer({
+  viewer,
+  memoryConfigs: {            // Partial<MemoryConfigs> — all fields optional
+    maxBatches: 128,
+    maxTiles: 512,
+    maxBatchVertices: 4_000_000,
+    // …
+  },
+});
+```
+
+A companion helper, `createMemoryConfigs({ grossMemoryMB, device, utilization, user })`,
+derives sensible per-batch / per-tile / per-geometry limits from a target megabyte
+budget and a device tier (`"low" | "medium" | "high"`), so an application can tune for an
+integrated GPU versus a workstation without hand-computing texture sizes.
+
+Usage is observable at runtime: `renderer.getMemoryUsage()` returns a `MemoryUsage`
+(`{ allocatedMB, usedMB }`), and the Studio runtime ships a live **GPU Memory Usage**
+panel built on top of it. This makes memory pressure measurable rather than guessed at —
+useful when sizing how much model fits on constrained hardware.
+
+### Complete logging of errors and warnings
+
+V3's result-monad error model is paired with a logging layer. Every observable subsystem
+exposes typed event channels — including a dedicated **`onError`** emitter (`Scene`,
+`Viewer`, and others) — and the `EventsLogger` utility binds *all* of an event hub's
+emitters at once, routing error events to `console.error` and the rest to `console.log`
+with a configurable prefix and an optional custom sink:
+
+```ts
+const unsub = scene.events.onError.subscribe((source, result) => {
+  /* result is an SDKResult — { ok:false, type, error } */
+});
+```
+
+The effect is that every error condition and warning the SDK raises is surfaced through a
+uniform, subscribable channel rather than scattered ad-hoc console output — straightforward
+to forward into an application's own logging or telemetry.
 
 ---
 
@@ -224,12 +324,85 @@ support as **symmetric import + export** and pulls conversion into the SDK and a
 | BCF Viewpoints                         |    ✓      |    ✓      |    ✓      |    ✓      |
 | SceneModel / DataModel JSON            |    —      |    —      |    ✓      |    ✓      |
 
-V3 also ships in-SDK conversion pipelines (`convert/ifc2gltf2xgf`, `convert/xeoconvert`,
-`convert/modelConverter`) so IFC → glTF → XGF can run end-to-end without a separate
-toolchain.
+V3 also ships in-SDK conversion pipelines so format-to-format conversion runs without a
+separate toolchain — see [Conversion](#conversion-pipelines-and-the-xeoconvert-cli) below.
 
 > Note: V2 retains STL import, which V3 does not currently provide; teams relying on
 > STL should account for that gap.
+
+---
+
+## Conversion: pipelines and the `xeoconvert` CLI
+
+Conversion is where the headless core (the `Scene` / `Data` graphs plus loaders and
+exporters that run without a viewer) pays off as a product feature. V3 makes it a
+first-class part of the SDK rather than a separate tool.
+
+In **V2**, model conversion lives outside the viewer SDK: `xeokit-convert` is a separate
+Node package and CLI whose job is to produce the native **XKT** format from IFC, glTF,
+and similar sources, ahead of time. It is mature and widely used, but it is a distinct
+codebase, single-target (XKT out), and does not share the viewer SDK's loader/exporter
+surface.
+
+In **V3** the converter is part of the same SDK and reuses the very same
+`ModelLoader` / `ModelExporter` implementations the viewer uses, under `convert/`:
+
+- **`convert/modelConverter`** — the programmatic core. A `ModelConverter` is configured
+  with a map of **loaders**, a map of **exporters**, and a set of **declarative
+  pipelines** (`pipelines.X = { inputs, outputs }`) that pre-bind a named conversion to
+  the loader/exporter ids it needs. Because it is built from the format modules, any
+  supported input can be converted to any supported output — `dotbim2xgf`, `ifc2xgf`,
+  `xgf2dotbim`, and so on — including emitting the semantic `DataModel` JSON alongside
+  the geometry. Conversion runs headless in Node; the converted bytes come back on the
+  result object for the caller to persist.
+
+  ```ts
+  import { ModelConverter } from "@xeokit/sdk/convert/modelConverter";
+  import { DotBIMLoader } from "@xeokit/sdk/formats/dotbim";
+  import { XGFExporter } from "@xeokit/sdk/formats/xgf";
+  import { DataModelExporter } from "@xeokit/sdk/model/data";
+
+  const converter = new ModelConverter({
+    loaders:   { dotbim: new DotBIMLoader() },
+    exporters: { xgf: new XGFExporter(), datamodel: new DataModelExporter() },
+    pipelines: {
+      dotbim2xgf: {
+        inputs:  { dotbim: { loader: "dotbim", options: {} } },
+        outputs: {
+          xgf:       { exporter: "xgf", version: "1.0", options: {} },
+          datamodel: { exporter: "datamodel", version: "1.0", options: {} },
+        },
+      },
+    },
+  });
+  ```
+
+- **`convert/xeoconvert`** — a CLI binary wrapping `ModelConverter`, for build scripts and
+  CI rather than application code. It is driven by the chosen pipeline:
+
+  ```bash
+  node xeoconvert.js --pipeline ifc2xgf \
+    --ifc model.ifc --xgf sceneModel.xgf --datamodel dataModel.json \
+    --stats-report manifest.json --log
+  ```
+
+  Inputs and outputs are named by the pipeline (`--ifc`, `--xgf`, `--datamodel`, …), and
+  the CLI exposes the SDK's validation pipeline inline: `--inspect`, `--inspect-fix`,
+  `--inspect-checks <list>`, `--inspect-async`, `--inspection-report <file>`, and
+  `--no-fail-on-inspect-errors` to control whether conversion aborts on validation
+  failure. `--log` enables verbose logging.
+
+- **`convert/ifc2gltf2xgf`** — the end-to-end **IFC → glTF → XGF** path. It consumes an
+  `ifc2gltf` manifest (the multi-file glTF output of the IFC tessellation step) and
+  assembles it into XGF, so a full IFC delivery pipeline runs from a single entry point.
+
+Three classes of **report** are emitted alongside the outputs for downstream tooling
+(`convert/modelConverter/reporters`): an **inspection** report (validation findings), a
+**manifest** report (file inventory), and a **stats** report (timings, counts, sizes).
+
+The practical difference: V2 conversion is a separate, XKT-targeted utility; V3
+conversion is the same loaders and exporters the viewer ships, composed into multi-format
+pipelines with built-in validation and reporting, runnable from code or a CLI.
 
 ---
 
@@ -265,6 +438,16 @@ Capabilities that V3 introduces or substantially generalises beyond V2:
 - **Multiple `View`s per `Scene`** — split-pane, picture-in-picture, before/after, and
   orthographic plan/elevation alongside 3D perspective, at zero geometry duplication.
   Each `View` has its own camera, per-object state, section planes, and effects.
+- **Headless, Node.js-capable core** — viewer and renderer are opt-in; the `Scene` /
+  `Data` graphs and all loaders / exporters run without a browser, so the same code path
+  serves the in-browser viewer and server-side conversion, validation, and preprocessing.
+- **Robust dynamic transforms in double-precision space** — RTC tiling is fully hidden,
+  so objects move freely and accurately across the entire coordinate space, not just
+  within their original RTC tile (a case V2 does not handle robustly).
+- **Configurable GPU memory budget + usage tracking** — `memoryConfigs` / `createMemoryConfigs`
+  to size allocation for the target device, and `getMemoryUsage()` to observe it live.
+- **Complete error / warning logging** — uniform, subscribable `onError` event channels
+  across subsystems, with an `EventsLogger` that captures every event hub at once.
 - **Symmetric format export** — glTF, OBJ/MTL, dotbim, XGF, 3DXML, DXF/SVG, splats,
   and round-trippable scene/data JSON.
 - **2D drawings pipeline** — orthographic plan / section / elevation generation with

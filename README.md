@@ -140,6 +140,7 @@ Import / export modules for the AECO file formats xeokit supports. Each loader p
 | [`@xeokit/sdk/formats/dxf`](https://xeokit.github.io/sdk/docs/api/modules/formats.dxf.html)                  | Import / export DXF drawings.     |
 | [`@xeokit/sdk/formats/svg`](https://xeokit.github.io/sdk/docs/api/modules/formats.svg.html)                  | Import / export SVG drawings.     |
 | [`@xeokit/sdk/formats/fds`](https://xeokit.github.io/sdk/docs/api/modules/formats.fds.html)                  | Import / export Fire Dynamics Simulator (FDS). |
+| [`@xeokit/sdk/formats/threedxml`](https://xeokit.github.io/sdk/docs/api/modules/formats.threedxml.html)      | Import / export 3DXML (Dassault Systèmes). |
 | [`@xeokit/sdk/formats/scenemodel`](https://xeokit.github.io/sdk/docs/api/modules/formats.scenemodel.html)    | Import / export native scene-model JSON. |
 | [`@xeokit/sdk/formats/datamodel`](https://xeokit.github.io/sdk/docs/api/modules/formats.datamodel.html)      | Import / export native data-model JSON. |
 | [`@xeokit/sdk/formats/metamodel`](https://xeokit.github.io/sdk/docs/api/modules/formats.metamodel.html)      | Import legacy metamodel JSON.     |

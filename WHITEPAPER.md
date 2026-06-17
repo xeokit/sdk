@@ -105,7 +105,7 @@ The SDK is organised into **topical buckets**. Every import path begins with one
 | `interop/` | `bcf/` — BCF Viewpoint load / save. |
 | `convert/` | Format-conversion pipelines and the `xeoconvert` CLI. |
 | `ui/` | Plain-DOM UI primitives (context menus, floating panels, button bars, dialogs). |
-| `studio/` | Higher-level glue used by the demo site: `DemoHelper`, the toolbar, panel registry, IFC-material auto-application, drawings panel, section-plane tooling. |
+| `studio/` | Higher-level integration code used by the demo site: `DemoHelper`, the toolbar, panel registry, IFC-material auto-application, drawings panel, section-plane tooling. |
 
 The same buckets are also exposed at runtime as namespaces on the root `xeokit` object (e.g. `xeokit.model.scene`, `xeokit.viewing.viewer`).
 
@@ -186,7 +186,7 @@ The pattern is consistent across the SDK: pick a `Scene` and a `Data`, create a 
 
 ## Feature inventory
 
-Enumeration of the SDK's feature surface, grouped by topic. Every entry corresponds to a module under `packages/sdk/src/` and is exposed through that module's index.
+Enumeration of the SDK's feature set, grouped by topic. Every entry corresponds to a module under `packages/sdk/src/` and is exposed through that module's index.
 
 ### Coordinate system & numerical precision
 
@@ -220,7 +220,7 @@ The non-renderable side: BIM entity types, properties, and the typed relationshi
 
 - `Data` / `DataModel` / `DataObject` / `Property` / `PropertySet` / `Relationship` hierarchy, paired by `id` with the Scene graph.
 - **Property sets and properties** — IFC-style key/value/unit triples.
-- **Typed relationships** (`IfcRelAggregates`, `IfcRelContainedInSpatialStructure`, etc.) — first-class edges in the data graph.
+- **Typed relationships** (`IfcRelAggregates`, `IfcRelContainedInSpatialStructure`, etc.) — explicit, typed edges in the data graph.
 - **Traversal queries** via `searchObjects` — start from any object, walk by relationship type, filter by object type, collect ids back. Pairs with Scene-side bulk operations through shared `id`s.
 - **Schema-aware ingest** — IFC4, IFC2x3, IFC4x3 entity types preserved end-to-end through loaders.
 
@@ -243,6 +243,7 @@ End-to-end import and export coverage for the formats AECO workflows actually ex
 | **PDF** drawing sheets (vector + raster, via pdf.js)  |   ✓    |   —    | `formats/pdf`        |
 | **DWG** AutoCAD drawings (via `libredwg-web` WASM)    |   ✓    |   —    | `formats/dwg`        |
 | **DXF** AutoCAD interchange (in-tree ASCII parser)    |   ✓    |   ✓    | `formats/dxf`        |
+| **3DXML** (Dassault Systèmes; tessellated + assembly) |   ✓    |   ✓    | `formats/threedxml`  |
 | **SVG** 2D vector drawings (browser-native `DOMParser`)|  ✓    |   ✓    | `formats/svg`        |
 | **MetaModel** (legacy JSON)                           |   ✓    |   —    | `formats/metamodel`  |
 | **SceneModelParams** (round-trippable JSON)           |   ✓    |   ✓    | `formats/scenemodel` |
@@ -376,7 +377,7 @@ Support for running several independent views of the same scene at once — usef
 
 ### Inspection & validation
 
-Static-analysis-style validators for both halves of a model — surface schema issues, broken relationships, malformed geometry, and other defects before they reach an end user.
+Static-analysis-style validators for both halves of a model — flag schema issues, broken relationships, malformed geometry, and other defects before they reach an end user.
 
 - **`inspect/dataModel`** — schema-driven validation of a `DataModel` against a `DataFormatSchema`: schema tagging, relationship type bindings, cycle detection, IFC spatial hierarchy, IFC element containment, with severity-coded report output.
 - **`inspect/sceneModel`** — geometry / mesh / object / material / texture validators with per-issue codes and human descriptions.
@@ -406,7 +407,7 @@ An optional rigid-body binding for prototypes that need basic collision or gravi
 
 ### Localisation
 
-A small string-catalog layer used by the bundled UI surfaces, so applications can translate the SDK's built-in widgets without forking the source.
+A small string-catalog layer used by the bundled UI components, so applications can translate the SDK's built-in widgets without forking the source.
 
 - **`base/locale`** — string catalog + `LocaleService` for translating UI strings; the bundled Studio panels read through it.
 
@@ -418,6 +419,14 @@ A handful of cross-cutting conventions show up across the entire SDK — they're
 - **`destroyed` flag + `destroy()`** on every long-lived object; idempotent.
 - **Event emitters** with typed payloads on every observable (Camera / View / Scene / Data / SceneModel / Picking) — wired through `EventEmitter` + `EventDispatcher` from strongly-typed-events.
 - **TSDoc on every public API** — the generated API reference at `https://xeokit.github.io/sdk/docs/api/` reflects what's exported, not what's documented separately.
+
+---
+
+## How this SDK was built
+
+The core — Scene, Data, Viewer, WebGLRenderer, and the architecture connecting them — was designed and built by hand, from prior experience building WebGL-based SDKs and engines. The coordinate system, the scene / data split, the data-texture batching strategy, and the error-handling conventions described above were all established up front.
+
+Once that core was proven with a couple of hand-written loaders, AI assistance (Claude) was used to accelerate implementation within it: additional format loaders and exporters written against the established Scene/Data API, plus some renderer effects. The existing xeokit V2 codebase served as the reference, so the work carried established approaches onto the new architecture rather than inventing them. Every AI contribution was read, tested, code-inspected, and revised before it was kept.
 
 ---
 

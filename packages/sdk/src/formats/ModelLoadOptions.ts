@@ -77,4 +77,19 @@ export interface ModelLoadOptions {
    * this field; passing it is safe in either case.
    */
   yieldIntervalMs?: number;
+
+  /**
+   * When `false` (the default), the SceneModel is marked
+   * {@link model!scene.SceneModel.building | building} for the duration of the
+   * load, so a connected renderer suspends per-frame uploads + draws until the
+   * model is fully assembled and then renders it once — fastest time to the
+   * first frame showing the whole model, but the view is static during the load
+   * (no progressive reveal, no camera interaction).
+   *
+   * Set `true` to render the model incrementally as it loads (progressive
+   * reveal), at the cost of redundant mid-load frames.
+   *
+   * Has no effect when no renderer is attached.
+   */
+  progressiveRender?: boolean;
 }

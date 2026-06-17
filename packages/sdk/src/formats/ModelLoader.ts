@@ -138,12 +138,27 @@ export class ModelLoader {
               pushedYieldOverride = false;
             }
           };
+          // Mark the model "building" so a connected renderer suspends per-frame
+          // work until the whole model is assembled, then flushes once. Cleared
+          // on both success and failure so a thrown parser can't leave the view
+          // frozen. Opt out with options.progressiveRender for incremental reveal.
+          const buildScoped = !!sceneModel && options.progressiveRender !== true;
+          if (buildScoped) {
+            sceneModel.building = true;
+          }
+          const endBuild = (): void => {
+            if (buildScoped) {
+              sceneModel.building = false;
+            }
+          };
           parser({fileData, sceneModel, dataModel}, options)
             .then(() => {
+              endBuild();
               restoreYieldOverride();
               resolve();
             })
             .catch(err => {
+              endBuild();
               restoreYieldOverride();
               reject(err); // We expect the parser to prefix its errors
             });

@@ -61,7 +61,7 @@ describe("Scene + SceneModel build lifecycle", () => {
 
     expect(model.meshes["mesh1"]).toBeDefined();
     expect(model.meshes["mesh1"].id).toBe("mesh1");
-    // The mesh wired up to its geometry and carries the supplied color.
+    // The mesh is linked to its geometry and carries the supplied color.
     expect(model.meshes["mesh1"].geometry).toBe(model.geometries["geom1"]);
     expect(Array.from(model.meshes["mesh1"].color)).toEqual([1, 0, 0]);
 

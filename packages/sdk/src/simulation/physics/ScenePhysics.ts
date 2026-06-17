@@ -43,16 +43,17 @@ type RapierRigidBody = any;
  * Internal record kept per object that has a body in the world.
  *
  * `meshRelMatrices` is the per-mesh "rest pose" relative to the body's
- * initial transform — at every step we just multiply by the body's current
- * world transform to get each mesh's new world matrix, with no decompose /
- * recompose cycle.
+ * initial transform — at every step we multiply by the body's current
+ * world transform to get each mesh's new *world* matrix, then by `invParent`
+ * to bring it back into the mesh's local frame (`SceneMesh.matrix` is local;
+ * `worldMatrix = parentWorld · matrix`). No decompose / recompose cycle.
  *
  * @internal
  */
 interface BodyRecord {
   body: RapierRigidBody;
   collider: any;
-  meshRelMatrices: { mesh: SceneMesh; rel: Mat4 }[];
+  meshRelMatrices: { mesh: SceneMesh; rel: Mat4; invParent: Mat4 }[];
   isDynamic: boolean;
   isKinematic: boolean;
 }
@@ -91,8 +92,9 @@ interface BodyRecord {
  *
  * - **Body per SceneObject** — multi-mesh objects move rigidly together.
  *   Each mesh's world matrix at body-creation time is recorded relative to
- *   the body's starting transform, and reproduced post-step by one matrix
- *   multiply.
+ *   the body's starting transform, reproduced post-step by a matrix multiply,
+ *   then mapped back into the mesh's local frame (`SceneMesh.worldMatrix`
+ *   re-applies the model's coordinate-system / parent transform on top).
  * - **Cuboid AABB colliders by default** — cheap, fits BIM blocks, swap to
  *   `"ball"` per-object when needed. Trimesh / convex hull is doable but
  *   not enabled here; AABB is enough for the demo cases this is built for.
@@ -322,7 +324,11 @@ export class ScenePhysics {
 
       for (let i = 0, n = record.meshRelMatrices.length; i < n; i++) {
         const entry = record.meshRelMatrices[i];
+        // bodyMat · rel = the mesh's new *world* matrix; invParent brings it
+        // back into the mesh's local frame, since SceneMesh.matrix is local
+        // and SceneMesh.worldMatrix is parentWorld · matrix.
         mulMat4(bodyMat, entry.rel, meshMat);
+        mulMat4(entry.invParent, meshMat, meshMat);
         // SceneMesh.matrix takes a Mat4 by value; we pass the scratch and
         // the setter copies it. The scratch is safe to reuse next iter.
         entry.mesh.matrix = meshMat;
@@ -351,7 +357,7 @@ export class ScenePhysics {
    * Triggered by `onSceneObjectMeshRemoved` so the per-step writeback
    * stops touching meshes that are no longer part of the SceneObject
    * (which would either NPE on a destroyed mesh or move an orphan
-   * the renderer is no longer bothering to draw).
+   * no longer attached to the Scene).
    */
   #detachMeshFromBody(objectId: string, mesh: SceneMesh): void {
     const record = this.#bodies.get(objectId);
@@ -401,8 +407,22 @@ export class ScenePhysics {
     inverseMat4(this.#scratchBodyMat, this.#scratchInvMat);
 
     const rel = createMat4Float64();
-    mulMat4(this.#scratchInvMat, mesh.matrix as Mat4, rel);
-    list.push({mesh, rel});
+    mulMat4(this.#scratchInvMat, mesh.worldMatrix as Mat4, rel);
+    list.push({mesh, rel, invParent: this.#computeInvParent(mesh)});
+  }
+
+  /**
+   * Inverse of the mesh's parent-world transform — the matrix that maps a
+   * world matrix back to `SceneMesh.matrix`'s local frame. Derived purely
+   * from public API: `worldMatrix = parentWorld · matrix`, so
+   * `parentWorld = worldMatrix · inv(matrix)` and
+   * `inv(parentWorld) = matrix · inv(worldMatrix)`. Identity when the model's
+   * coordinate-system matrix (and any parent transform) is identity, in which
+   * case the world-space body transform is written straight to the local matrix.
+   */
+  #computeInvParent(mesh: SceneMesh): Mat4 {
+    const invWorld = inverseMat4(mesh.worldMatrix as Mat4, createMat4Float64());
+    return mulMat4(mesh.matrix as Mat4, invWorld, createMat4Float64());
   }
 
   #createBody(sceneObject: SceneObject, params: PhysicsBodyParams): RapierRigidBody | null {
@@ -460,13 +480,13 @@ export class ScenePhysics {
     initialBodyMat[14] = cz;
     inverseMat4(initialBodyMat, this.#scratchInvMat);
 
-    const meshRelMatrices: { mesh: SceneMesh; rel: Mat4 }[] = [];
+    const meshRelMatrices: { mesh: SceneMesh; rel: Mat4; invParent: Mat4 }[] = [];
     const meshes = sceneObject.meshes;
     for (let i = 0, n = meshes.length; i < n; i++) {
       const mesh = meshes[i];
       const rel = createMat4Float64();
-      mulMat4(this.#scratchInvMat, mesh.matrix as Mat4, rel);
-      meshRelMatrices.push({mesh, rel});
+      mulMat4(this.#scratchInvMat, mesh.worldMatrix as Mat4, rel);
+      meshRelMatrices.push({mesh, rel, invParent: this.#computeInvParent(mesh)});
     }
 
     const record: BodyRecord = {

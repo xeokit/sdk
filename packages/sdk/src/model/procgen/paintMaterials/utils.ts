@@ -32,7 +32,7 @@ import type {MaterialPixelBuffer} from "./MaterialPixelBuffer";
 export {clamp01};
 
 // ---------------------------------------------------------------------
-// Pixel-buffer plumbing
+// Pixel-buffer setup
 // ---------------------------------------------------------------------
 
 /**

@@ -9,7 +9,7 @@
  * sketch outlines, contour fills, hologram glow…).
  *
  * The base shape carries `id` and a discriminator `type`; each
- * technique type extends with its own knobs. Use the
+ * technique type extends with its own parameters. Use the
  * discriminated-union {@link SceneTechniqueParams} type as the
  * parameter form for `createTechnique`.
  */

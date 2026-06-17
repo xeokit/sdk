@@ -153,6 +153,22 @@ export class Scene {
   }
 
   /**
+   * Returns `true` if any {@link model!scene.SceneModel | SceneModel} in this
+   * Scene currently holds at least one {@link model!scene.SceneGeometry | SceneGeometry}
+   * of the given primitive type — e.g. `scene.containsPrimitive(GaussianSplatsPrimitive)`.
+   *
+   * Backed by per-model live counts, so this is cheap to call (no geometry scan).
+   */
+  containsPrimitive(primitive: number): boolean {
+    for (const id in this.models) {
+      if (this.models[id].containsPrimitive(primitive)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Called internally when a {@link model!scene.SceneModel | SceneModel} is destroyed.
    *
    * Removes the model from the registry and dispatches its destruction event.

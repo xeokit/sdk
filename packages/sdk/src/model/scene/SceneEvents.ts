@@ -68,6 +68,21 @@ export class SceneEvents {
   public readonly onSceneModelDestroyed: EventEmitter<Scene, SceneModel>;
 
   /**
+   * Emits an event when a {@link model!scene.SceneModel | SceneModel} enters its "building" state — i.e. a
+   * loader has begun populating it. Consumers (e.g. the renderer) can use this to
+   * suspend per-frame work until the model is fully assembled. Paired with
+   * {@link onSceneModelBuildFinished}.
+   */
+  public readonly onSceneModelBuildStarted: EventEmitter<Scene, SceneModel>;
+
+  /**
+   * Emits an event when a {@link model!scene.SceneModel | SceneModel} leaves its "building" state — the
+   * loader has finished (or failed). Always fires to match a preceding
+   * {@link onSceneModelBuildStarted}, so consumers can rely on balanced pairs.
+   */
+  public readonly onSceneModelBuildFinished: EventEmitter<Scene, SceneModel>;
+
+  /**
    * Emits an event when the {@link CoordinateSystem.basis} of a {@link model!scene.SceneModel | SceneModel} is updated.
    */
   public readonly onSceneModelCoordSystemBasisChanged: EventEmitter<SceneModel, CoordinateSystem>;
@@ -254,6 +269,8 @@ export class SceneEvents {
     this.onSceneCoordSystemUpdated = new EventEmitter(new EventDispatcher<Scene, CoordinateSystem>());
     this.onSceneModelCreated = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
     this.onSceneModelDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
+    this.onSceneModelBuildStarted = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
+    this.onSceneModelBuildFinished = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
     this.onSceneModelCoordSystemBasisChanged = new EventEmitter(new EventDispatcher<SceneModel, CoordinateSystem>());
     this.onSceneModelCoordSystemOriginChanged = new EventEmitter(new EventDispatcher<SceneModel, CoordinateSystem>());
     this.onSceneModelCoordSystemUnitsChanged = new EventEmitter(new EventDispatcher<SceneModel, CoordinateSystem>());
@@ -301,6 +318,8 @@ export class SceneEvents {
     this.onSceneCoordSystemUpdated.clear();
     this.onSceneModelCreated.clear();
     this.onSceneModelDestroyed.clear();
+    this.onSceneModelBuildStarted.clear();
+    this.onSceneModelBuildFinished.clear();
     this.onSceneModelCoordSystemBasisChanged.clear();
     this.onSceneModelCoordSystemOriginChanged.clear();
     this.onSceneModelCoordSystemUnitsChanged.clear();

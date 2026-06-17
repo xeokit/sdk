@@ -32,7 +32,7 @@ export type SceneTechniqueMode = "substitutive" | "additive";
  *     opacity, textures.)
  *   - {@link SceneTechnique} answers: *how is it drawn?*
  *     (which shader family runs, which extra passes
- *     participate, what style-specific knobs apply.)
+ *     participate, what style-specific options apply.)
  *
  * The two are orthogonal — a SceneMesh may carry neither,
  * either, or both. The most common pairing is a colour

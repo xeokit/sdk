@@ -176,6 +176,12 @@ export class SceneModel {
   public readonly geometries: { [key: string]: SceneGeometry };
 
   /**
+   * Live count of resident geometries per primitive type, maintained as
+   * geometries are created/destroyed. Backs {@link containsPrimitive}.
+   */
+  private readonly _primitiveCounts: Map<number, number> = new Map();
+
+  /**
    * {@link SceneTexture | Textures} within this SceneModel, each mapped to {@link SceneTexture.id | SceneTexture.id}.
    *
    * - Created by {@link SceneModel.createTexture | SceneModel.createTexture}.
@@ -229,6 +235,38 @@ export class SceneModel {
    * - Don't create anything more in this SceneModel once it's destroyed.
    */
   public destroyed: boolean = false;
+
+  private _building: boolean = false;
+
+  /**
+   * Whether this SceneModel is currently being populated by a loader.
+   *
+   * {@link ModelLoader} sets this `true` for the duration of a load and `false`
+   * when it finishes (or fails). The renderer observes the paired
+   * {@link model!scene.SceneEvents.onSceneModelBuildStarted | onSceneModelBuildStarted} /
+   * {@link model!scene.SceneEvents.onSceneModelBuildFinished | onSceneModelBuildFinished}
+   * events to suspend per-frame uploads + draws until the model is fully
+   * assembled, then renders it once — avoiding redundant mid-load frames.
+   *
+   * Setting the same value twice is a no-op (no event fired), so it's safe for
+   * a loader to clear it in a `finally` even on the error path.
+   */
+  get building(): boolean {
+    return this._building;
+  }
+
+  set building(building: boolean) {
+    building = !!building;
+    if (building === this._building) {
+      return;
+    }
+    this._building = building;
+    if (building) {
+      this.scene.events.onSceneModelBuildStarted.dispatch(this.scene, this);
+    } else {
+      this.scene.events.onSceneModelBuildFinished.dispatch(this.scene, this);
+    }
+  }
 
   /**
    * Constructs a new {@link model!scene.SceneModel | SceneModel}.
@@ -951,6 +989,7 @@ export class SceneModel {
 
     this.geometries[id] = sceneGeometry;
     this.stats.numGeometries++;
+    this._bumpPrimitiveCount(sceneGeometry.primitive, 1);
 
     if (indices) {
       if (sceneGeometry.primitive === TrianglesPrimitive) {
@@ -1144,6 +1183,7 @@ export class SceneModel {
     const sceneGeometry = new SceneGeometry(this, geometryCompressedParams);
     this.geometries[geometryId] = sceneGeometry;
     this.stats.numGeometries++;
+    this._bumpPrimitiveCount(sceneGeometry.primitive, 1);
 
 
     if (indices) {
@@ -1165,10 +1205,30 @@ export class SceneModel {
     };
   }
 
+
   /**
-   * @private
-   * Destroys a {@link model!scene.SceneGeometry | SceneGeometry} previously created in this model.
+   * Returns `true` if this SceneModel currently holds at least one
+   * {@link SceneGeometry} of the given primitive type — e.g.
+   * `model.containsPrimitive(GaussianSplatsPrimitive)`.
+   *
+   * Backed by a live per-primitive count maintained as geometries are created
+   * and destroyed, so it is O(1) and correct regardless of when geometries were
+   * added relative to the model's creation event.
    */
+  containsPrimitive(primitive: number): boolean {
+    return (this._primitiveCounts.get(primitive) ?? 0) > 0;
+  }
+
+  /** Adjusts the per-primitive geometry count, clearing zeroed entries. */
+  private _bumpPrimitiveCount(primitive: number, delta: number): void {
+    const next = (this._primitiveCounts.get(primitive) ?? 0) + delta;
+    if (next > 0) {
+      this._primitiveCounts.set(primitive, next);
+    } else {
+      this._primitiveCounts.delete(primitive);
+    }
+  }
+
   _destroyGeometry(sceneGeometry: SceneGeometry) {
     const geometryId = sceneGeometry.id;
     if (this.destroyed) {
@@ -1183,6 +1243,7 @@ export class SceneModel {
     }
     delete this.geometries[geometryId];
     this.stats.numGeometries--;
+    this._bumpPrimitiveCount(sceneGeometry.primitive, -1);
     if (sceneGeometry.indices) {
       if (sceneGeometry.primitive === TrianglesPrimitive) {
         this.stats.numTriangles -= sceneGeometry.indices.length / 3;

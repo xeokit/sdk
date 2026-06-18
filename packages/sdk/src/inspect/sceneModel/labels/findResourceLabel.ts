@@ -3,7 +3,7 @@ import type {SceneModel} from "../../../model/scene";
 
 /**
  * Kind of resource a {@link Issue.resourceId | resourceId} refers
- * to. Surfaced by {@link findResourceLabel} so a UI can pick the
+ * to. Exposed by {@link findResourceLabel} so a UI can pick the
  * right icon / category colour for the row without parsing the
  * issue's code prefix.
  */

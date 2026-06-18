@@ -99,7 +99,7 @@ export class InspectionRegistry {
   /**
    * Iterator over every distinct code declared by any registered
    * inspection. Useful for building a "codes this report could
-   * surface" summary alongside the actual report.
+   * report" summary alongside the actual report.
    */
   codes(): IterableIterator<string> {
     const seen = new Set<string>();

@@ -40,7 +40,7 @@ export interface Issue {
 
   /**
    * Optional short, formatted summary of this issue's specifics —
-   * the few numbers / ids a UI wants to surface alongside the
+   * the few numbers / ids a UI wants to display alongside the
    * resource id without parsing {@link Issue.message}. Examples:
    *
    *   - `"89,500 verts · 41,200 tris"` (`GEOMETRY_OVER_BUDGET`)

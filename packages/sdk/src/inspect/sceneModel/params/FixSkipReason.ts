@@ -1,6 +1,6 @@
 /**
  * Why a {@link Fix.apply} call resulted in `{fixed: false}` (or
- * why the orchestrator never invoked a strategy at all). Surfaces
+ * why the orchestrator never invoked a strategy at all). Appears
  * in {@link ApplyFixesIssueOutcome.reason} so UIs can render more
  * specific feedback than a flat "skipped".
  *

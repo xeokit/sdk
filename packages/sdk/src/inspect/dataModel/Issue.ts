@@ -16,7 +16,7 @@ export interface Issue {
   message: string;
 
   /** Optional one-line summary for UI rendering — the few ids /
-   *  type names worth surfacing without parsing `message`. */
+   *  type names worth reporting without parsing `message`. */
   summary?: string;
 
   /**

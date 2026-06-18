@@ -131,8 +131,8 @@ export class FixRegistry {
   // Keyed by primary code (`fix.codes[0]`). When one strategy
   // handles multiple codes, the primary code is the single
   // identity used for config lookups — same value the strategy
-  // would surface in any UI that walks the registry. Serializes
-  // to a plain code-keyed JSON blob; the caller wires that to
+  // would expose in any UI that walks the registry. Serializes
+  // to a plain code-keyed JSON blob; the caller links that to
   // localStorage / a file / a settings endpoint.
 
   /**

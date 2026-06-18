@@ -27,7 +27,7 @@ export interface Inspection {
 
   /**
    * Issue codes this inspection can emit. Used by the registry as
-   * the "what does this rule contribute?" map and surfaced to UI
+   * the "what does this rule contribute?" map and exposed to UI
    * code that wants to enumerate every possible code even when no
    * issues have fired yet. The codes a `run` actually produces on a
    * given SceneModel are a subset of this list.
@@ -60,7 +60,7 @@ export interface Inspection {
    * `run` reads `params[paramsKey]` to decide whether to do work;
    * the orchestrator never reads it.
    *
-   * Purely metadata — surfaced for UIs that want to render a
+   * Purely metadata — provided for UIs that want to render a
    * checkbox per inspection without hardcoding the param mapping.
    * Always-on inspections leave this `undefined`.
    */
@@ -86,7 +86,7 @@ export interface Inspection {
    * Optional plain-English descriptions of what each
    * {@link Inspection.codes | code} means — a sentence or two
    * explaining why the issue matters and what's wrong, suitable
-   * for surfacing in a "What is this?" pane next to a list of
+   * for displaying in a "What is this?" pane next to a list of
    * issues sharing one code.
    *
    * Keyed by code. Resolve via {@link descriptionForCode}, which
@@ -98,7 +98,7 @@ export interface Inspection {
 
   /**
    * Optional declarative configuration schema — the list of
-   * tunable knobs (opt-in toggle, numeric thresholds, enumerated
+   * tunable options (opt-in toggle, numeric thresholds, enumerated
    * choices) this inspection exposes. When present, `run` is
    * expected to consume `resolveConfig(this.config, params)`
    * instead of pulling individual fields off `params`.
@@ -117,7 +117,7 @@ export interface Inspection {
 
   /**
    * Walk the SceneModel and produce zero or more issues. Read any
-   * inspection-specific knobs (thresholds, opt-in flags) directly
+   * inspection-specific options (thresholds, opt-in flags) directly
    * from `params`. Pure with respect to `sceneModel` —
    * {@link inspectSceneModel} guarantees the model is never mutated
    * during the inspection pass.

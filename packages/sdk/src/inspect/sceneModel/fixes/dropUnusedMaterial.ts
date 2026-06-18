@@ -10,7 +10,7 @@ import type {Issue} from "../Issue";
  * if any mesh still binds the material, so the inspection's "no
  * referencing mesh" precondition is also the destroy guard's
  * precondition; failure here means the inspection emitted a stale
- * issue (raced with another fix) and we surface the SDK error.
+ * issue (raced with another fix) and we report the SDK error.
  *
  * Idempotent: returns `{fixed: false}` when the material is
  * already destroyed or absent.

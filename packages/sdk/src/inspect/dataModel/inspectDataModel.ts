@@ -11,7 +11,7 @@ import {DEFAULT_INSPECTION_REGISTRY} from "./DEFAULT_INSPECTION_REGISTRY";
  * Walks every {@link Inspection} in the configured
  * {@link InspectionRegistry}, returns an {@link InspectionReport}
  * bucketed by severity and by code. **Never mutates the
- * DataModel.** No auto-fix counterpart — SDK policy is to surface
+ * DataModel.** No auto-fix counterpart — SDK policy is to report
  * defects rather than rewrite user data.
  *
  * Inspections that need a schema no-op silently when one isn't

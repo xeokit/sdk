@@ -191,7 +191,7 @@ export interface SceneModelInspectionIndex {
   /** Drop the per-scene reverse-reference tables. */
   invalidateReferences(): void;
 
-  /** Nuke every cached row in the index. */
+  /** Clear every cached row in the index. */
   invalidateAll(): void;
 
   /**

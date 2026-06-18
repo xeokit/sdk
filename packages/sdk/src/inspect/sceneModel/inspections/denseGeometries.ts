@@ -15,7 +15,7 @@ import {resolveConfig} from "../Config";
  *
  * Pairs with {@link splitDenseGeometry}, which splits
  * the geometry in half. Pieces still over the budget after the
- * split surface as new issues on the next inspection pass — the
+ * split appear as new issues on the next inspection pass — the
  * user (or {@link optimizeSceneModel}) re-runs inspect → applyFixes
  * until the report converges.
  */

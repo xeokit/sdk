@@ -45,7 +45,7 @@ export interface ApplyFixesParams {
    * {@link ConfigSchema} reads its keys from here — in the
    * current shape, that's a single `enable<FixName>` boolean per
    * fix that flips the strategy off (default: on). Future
-   * per-fix knobs (a degeneracy epsilon, a split-axis choice) get
+   * per-fix options (a degeneracy epsilon, a split-axis choice) get
    * added to the same flat bag with whatever keys those fix
    * schemas declare.
    *
@@ -61,10 +61,10 @@ export interface ApplyFixesParams {
    * ```
    *
    * Mirrors how
-   * {@link InspectSceneModelParams | inspection params} surface
+   * {@link InspectSceneModelParams | inspection params} expose
    * inspection-side overrides as flat fields on the params bag.
    * Unknown keys are ignored — the schema is the list of
-   * recognised knobs.
+   * recognised options.
    */
   fixOverrides?: Record<string, unknown>;
 

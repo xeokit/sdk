@@ -10,11 +10,11 @@
  * ---
  *
  * Catches data-integrity errors and performance / correctness
- * warnings, surfaces them as a structured report, and dispatches
+ * warnings, presents them as a structured report, and dispatches
  * each finding to a pluggable {@link Fix} that knows how to
- * remediate it. Mental model is `eslint`'s rule registry +
+ * remediate it. Design follows `eslint`'s rule registry +
  * IntelliJ's "fix all problems" — bring your own rules and your
- * own remediations; the framework wires them together.
+ * own remediations; the framework links them together.
  *
  * <br>
  *
@@ -273,7 +273,7 @@
  *
  * if (report.errors.length > 0) {
  *   // Errors block downstream optimisation — auto-fixing them
- *   // would mask data corruption. Surface to the user instead.
+ *   // would mask data corruption. Report to the user instead.
  *   for (const e of report.errors) {
  *     console.error(`[${e.code}] ${e.message}`);
  *   }

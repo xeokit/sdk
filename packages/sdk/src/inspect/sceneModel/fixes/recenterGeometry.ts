@@ -40,7 +40,7 @@ const RECENTER_EPS = 1e-6;
  * Sibling fix considered: stash the offset in a new
  * SceneTransform parented to every referencing mesh. Heavier
  * (one new transform allocation, plus parent-transform
- * re-wiring) but instances would share the offset rather than
+ * re-linking) but instances would share the offset rather than
  * repeating it on every mesh. Out of scope for this iteration.
  */
 export const recenterGeometry: Fix = {

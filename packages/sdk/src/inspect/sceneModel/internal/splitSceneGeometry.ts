@@ -17,7 +17,7 @@ import {SDKErrorType, type SDKResult} from "../../../base/core";
  * re-encode normals against a fresh tight AABB.
  *
  * The source geometry is left in place — the caller decides whether
- * to destroy it after wiring up meshes against the two new
+ * to destroy it after linking meshes against the two new
  * geometries.
  *
  * @module inspect/sceneModel/internal/splitSceneGeometry

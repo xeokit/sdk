@@ -69,7 +69,7 @@ export interface InspectSceneModelParams {
    * in half via {@link splitSceneGeometry}.
    *
    * Off by default — even though the check itself is cheap,
-   * having every load surface a warning per heavy geometry is
+   * having every load report a warning per heavy geometry is
    * noisy unless the caller is actively budgeting for the split
    * pipeline.
    */
@@ -196,7 +196,7 @@ export interface InspectSceneModelParams {
    * `[0, 65535]` range. The check fires when the smallest-axis
    * fill is below this fraction. Default `0.5`.
    *
-   * Lower values surface fewer warnings but miss real precision
+   * Lower values report fewer warnings but miss real precision
    * waste; higher values flag mildly-sized AABBs that would
    * benefit only marginally from re-tightening.
    */

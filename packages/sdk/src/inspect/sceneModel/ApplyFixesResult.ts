@@ -20,7 +20,7 @@ export interface ApplyFixesIssueOutcome {
   /**
    * Short trace string returned by the strategy — peripheral ids
    * destroyed / created / re-parented, new pieces a split
-   * produced, etc. UIs surface this as a debugging aid; the
+   * produced, etc. UIs display this as a debugging aid; the
    * framework never inspects it. May be present alongside
    * {@link reason} on a declined fix when the strategy wants to
    * say more than the reason category alone conveys.
@@ -46,7 +46,7 @@ export interface ApplyFixesResult {
    * Issues that couldn't be auto-fixed — either no registered
    * strategy matched the code, or the strategy returned
    * `{fixed: false}` without raising an error. Callers typically
-   * surface these to a user with the issue list, the way an IDE
+   * present these to a user with the issue list, the way an IDE
    * shows "could not auto-fix N problems".
    */
   skipped: ApplyFixesIssueOutcome[];

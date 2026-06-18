@@ -33,7 +33,7 @@ import {resolveConfig} from "../Config";
  * ahead of time.
  *
  * Pairs with {@link splitOversizedGeometry}. Pieces that still
- * exceed any threshold after the split surface as new issues on
+ * exceed any threshold after the split appear as new issues on
  * the next inspection pass — the user (or
  * {@link optimizeSceneModel}) re-runs inspect → applyFixes until
  * the report converges.

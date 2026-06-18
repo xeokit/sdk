@@ -64,7 +64,7 @@ export interface InspectionReportJson {
 
 
 /**
- * Optional knobs for {@link inspectionReportToJson}.
+ * Optional settings for {@link inspectionReportToJson}.
  */
 export interface InspectionReportToJsonParams {
   /**

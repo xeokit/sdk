@@ -5,7 +5,7 @@ import {clamp} from "../../base/math";
  * {@link Fix}.
  *
  * Each {@link Inspection} declares a {@link ConfigSchema} listing
- * the knobs the user can tune (opt-in toggle, numeric thresholds,
+ * the options the user can tune (opt-in toggle, numeric thresholds,
  * enumerated choices). The orchestrator (or the inspection
  * itself) calls {@link resolveConfig} to layer:
  *
@@ -30,7 +30,7 @@ import {clamp} from "../../base/math";
  * and complicate "give me a list of fields to render".
  */
 
-/** One tunable knob in an {@link Inspection}'s {@link ConfigSchema}. */
+/** One tunable option in an {@link Inspection}'s {@link ConfigSchema}. */
 export type ConfigField =
   | {
     kind: "boolean";
@@ -76,7 +76,7 @@ export type ConfigField =
  *
  * `enabled` is the opt-in toggle — present on opt-in inspections,
  * omitted on always-run inspections. `fields` is the rest of the
- * tunable knobs.
+ * tunable options.
  */
 export interface ConfigSchema {
   enabled?: Extract<ConfigField, { kind: "boolean" }>;
@@ -110,7 +110,7 @@ export interface ResolvedConfig {
  * - `select` fields fall back to the default when the override
  *   isn't one of the declared `options`.
  * - Unknown keys on `overrides` are ignored — the schema is the
- *   list of recognised knobs.
+ *   list of recognised options.
  *
  * Pure — does not mutate `schema` or `overrides`.
  */

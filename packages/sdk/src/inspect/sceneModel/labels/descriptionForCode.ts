@@ -9,7 +9,7 @@ import type {InspectionRegistry} from "../InspectionRegistry";
  * {@link Inspection} registered in `registry` (default
  * {@link DEFAULT_INSPECTION_REGISTRY}).
  *
- * UIs use this to surface a "What is this?" sentence above a
+ * UIs use this to display a "What is this?" sentence above a
  * panel of issues that share a code — describing the underlying
  * problem rather than what the registered Fix would do about it.
  *

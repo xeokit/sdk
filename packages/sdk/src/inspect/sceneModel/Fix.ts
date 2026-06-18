@@ -49,7 +49,7 @@ export interface Fix {
 
   /**
    * Short human-readable label — what an IDE would render next to
-   * the lightbulb. Useful for surfacing in custom UIs.
+   * the lightbulb. Useful for displaying in custom UIs.
    */
   description: string;
 
@@ -84,9 +84,9 @@ export interface Fix {
    * {@link ApplyFixesParams.fixOverrides | fixOverrides} and skips
    * the strategy with `reason: "disabled"` when it lands on
    * `false`. Fields beyond `enabled` are reserved for future
-   * per-fix knobs (e.g. a `splitAxis` choice on
+   * per-fix options (e.g. a `splitAxis` choice on
    * {@link splitDenseGeometry}); strategies are responsible for
-   * resolving and consuming any such knobs from inside `apply`.
+   * resolving and consuming any such options from inside `apply`.
    *
    * Carries enough metadata for a settings panel to walk the
    * registry and render a per-fix on/off toggle without any
@@ -110,7 +110,7 @@ export interface Fix {
    * Optionally, a successful strategy returns a short `trace`
    * string describing exactly what it did — peripheral resource
    * ids destroyed / created / re-parented, the new pieces a split
-   * produced, etc. UIs surface this as a debugging aid; the
+   * produced, etc. UIs display this as a debugging aid; the
    * framework itself never inspects it.
    *
    * @param issue The issue to fix.

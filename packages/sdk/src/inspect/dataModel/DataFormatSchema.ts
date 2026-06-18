@@ -30,11 +30,11 @@ export interface ObjectTypeSpec {
    *  {@link DataFormatSchema.objectTypes}. */
   superType?: string;
 
-  /** PropertySet ids the type must include. Missing surfaces as
+  /** PropertySet ids the type must include. Missing reported as
    *  `OBJECT_REQUIRED_PROPERTY_SET_MISSING`. */
   requiredPropertySets?: string[];
 
-  /** PropertySet ids the type must not include. Surfaces as
+  /** PropertySet ids the type must not include. Reported as
    *  `OBJECT_FORBIDDEN_PROPERTY_SET`. */
   forbiddenPropertySets?: string[];
 

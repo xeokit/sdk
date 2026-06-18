@@ -13,7 +13,7 @@ import {resolveConfig} from "../Config";
  * 100; SceneModel coordinate-system units).
  *
  * Pairs with {@link splitLargeGeometry}. As with the
- * over-budget pass, pieces that remain over-extent surface as new
+ * over-budget pass, pieces that remain over-extent appear as new
  * issues on the next inspection pass.
  */
 export const largeGeometries: Inspection = {

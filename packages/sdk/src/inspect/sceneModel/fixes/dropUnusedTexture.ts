@@ -8,7 +8,7 @@ import type {Issue} from "../Issue";
  * Auto-fix for `TEXTURE_UNUSED` — destroys a SceneTexture that no
  * SceneMaterial binds. {@link SceneTexture.destroy} guards against
  * destruction while `numMaterials > 0`, so a stale issue (raced
- * with concurrent material reattachment) surfaces as the
+ * with concurrent material reattachment) appears as the
  * underlying SDK error rather than a corruption.
  *
  * Idempotent: returns `{fixed: false}` when the texture is already

@@ -11,7 +11,7 @@ import type {InspectionRegistry} from "../InspectionRegistry";
  * UIs use this when rendering codes: instead of showing
  * `GEOMETRY_DUPLICATE`, they show "Duplicate geometry"
  * (the friendly form), and a glance at any inspection's `labels`
- * map tells you which strings will surface.
+ * map tells you which strings will appear.
  *
  * Falls back to the code itself when no label is registered —
  * codes added by external plugins that don't ship a label still

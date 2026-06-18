@@ -9,7 +9,7 @@
  * — catches structural defects (dangling references, missing types,
  * cyclic containment) and schema-level violations (unknown types,
  * forbidden type pairings, missing required property sets) and
- * surfaces them as a structured {@link InspectionReport}.**
+ * reports them as a structured {@link InspectionReport}.**
  *
  * ---
  *
@@ -17,7 +17,7 @@
  * {@link inspect!sceneModel | @xeokit/sdk/inspect/sceneModel} —
  * pluggable inspections + a default registry — minus the auto-fix
  * half. **No fixes ship for DataModel issues**: SDK policy is to
- * surface defects in user data rather than silently rewrite it.
+ * report defects in user data rather than silently rewrite it.
  * Triage is human work. Unlike geometry — where glitches
  * (degenerate triangles, duplicate vertices) are clearly mechanical
  * artefacts safe to clean up automatically — defects in the data
@@ -91,7 +91,7 @@
  *
  * ## Features
  *
- * - **Inspection-only** — no auto-fix half. Defects surface as
+ * - **Inspection-only** — no auto-fix half. Defects are reported as
  *   issues; the caller decides how (and whether) to remediate.
  * - **Schema-aware** — supply a {@link DataFormatSchema} and the
  *   schema-tagged inspections fire (unknown types, forbidden type

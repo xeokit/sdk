@@ -25,7 +25,7 @@ import {getInspectionIndex} from "./internal/getInspectionIndex";
  *   - Every inspection that has {@link Inspection.optIn | optIn}
  *     `true` reads its own `check…` flag from `params` and
  *     returns an empty array when the flag is unset, so this
- *     orchestrator stays oblivious to per-inspection knobs.
+ *     orchestrator stays oblivious to per-inspection options.
  *
  * ## Custom inspections
  *

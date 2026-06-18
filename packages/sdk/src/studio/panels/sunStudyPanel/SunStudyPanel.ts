@@ -393,7 +393,7 @@ export class SunStudyPanel extends FloatingPanelBase {
     // Auto-construct a default player when the caller didn't pass
     // one — the Playback section should always be available
     // (cold-start through the toolbar, demo apps that just want
-    // a Sun Study panel without wiring playback themselves).
+    // a Sun Study panel without connecting playback themselves).
     if (params.player) {
       this.player     = params.player;
       this._ownsPlayer = false;
@@ -554,7 +554,7 @@ export class SunStudyPanel extends FloatingPanelBase {
     azRow.appendChild(this._azReadout);
     body.appendChild(azRow);
 
-    // Night exposure factor — the "how dark at night" knob that
+    // Night exposure factor — the "how dark at night" control that
     // multiplies `view.effects.tonemap.exposure` at the deep-night
     // end of the twilight lerp. Live-driven through the SunStudy
     // setter so dragging the slider updates exposure on the next

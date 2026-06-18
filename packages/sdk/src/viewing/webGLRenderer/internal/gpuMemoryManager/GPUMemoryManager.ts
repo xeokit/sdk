@@ -297,7 +297,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    */
   static get itemSizesInBytes(): { [key: string]: number } {
     //const numViews = this._renderContext.memoryConfigs.maxViews;
-    const numViews = 4; // TODO - remove hardcoded 4 views assumption; currently baked into shader logic and tile manager behavior, but should be decoupled for flexibility.
+    const numViews = 4; // TODO - remove hardcoded 4 views assumption; currently built into shader logic and tile manager behavior, but should be decoupled for flexibility.
     return Object.assign(
       {
         tile:

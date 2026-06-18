@@ -399,7 +399,7 @@ export class IBLPrefilter {
 
       // Diffuse irradiance cubemap — small, single mip. Same internal
       // format as the source so the convolution preserves HDR sun
-      // contribution baked into the irradiance signal.
+      // contribution embedded into the irradiance signal.
       const irr = gl.createTexture();
       if (!irr) throw new Error("createTexture (irradiance) failed");
       this.irradianceCubemap = irr;

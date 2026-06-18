@@ -19,6 +19,7 @@ import {getDrawOps, DrawOps, putDrawOps} from "../drawOps/DrawOps";
 import {SceneMesh} from "../../../../model/scene";
 import {RENDER_PASSES} from "../RENDER_PASSES";
 import {createRTCViewMat} from "../../../../base/math/rtc";
+import {GaussianSplatPickTechnique, SPLAT_PICK_SENTINEL} from "../drawOps/techniques/splats/GaussianSplatPickTechnique";
 
 const tempVec3a = createVec3Float64();
 const tempVec3b = createVec3Float64();
@@ -58,6 +59,7 @@ export class PickManager {
   private _gpuMemoryManager: GPUMemoryManager;
   private _meshBatchManager: MeshManager;
   private _drawOps: DrawOps = null;
+  private _splatPick: GaussianSplatPickTechnique | null = null;
 
   constructor(cfg: {
     renderContext: RenderContext;
@@ -87,6 +89,12 @@ export class PickManager {
       this._pickBuffer = null;
       return pickBufferResult;
     }
+    this._splatPick = new GaussianSplatPickTechnique(this._renderContext.gl);
+    const splatPickResult = this._splatPick.init();
+    if (splatPickResult.ok === false) {
+      this._splatPick = null;
+      return splatPickResult;
+    }
     return {ok: true, value: undefined};
   }
 
@@ -101,6 +109,13 @@ export class PickManager {
     const result2 = this._pickBuffer.webglContextRestored(this._renderContext.gl);
     if (result2.ok === false) {
       return result2;
+    }
+    this._splatPick?.destroy();
+    this._splatPick = new GaussianSplatPickTechnique(this._renderContext.gl);
+    const result3 = this._splatPick.init();
+    if (result3.ok === false) {
+      this._splatPick = null;
+      return result3;
     }
     return {ok: true, value: undefined};
   }
@@ -323,6 +338,24 @@ export class PickManager {
       }
       this._drawOps.prims[meshBatch.primitive]?.pick?.drawBatch(meshBatch);
     }
+
+    // Splats live outside the mesh-batch system; draw them into the same pick
+    // buffer so they occlude / are occluded by mesh geometry (shared depth).
+    const splatBatch = this._meshBatchManager.getSplatBatch();
+    if (splatBatch && this._splatPick && pickViewMatrix && pickProjMatrix) {
+      this._splatPick.drawPick({
+        view: pickViewMatrix,
+        proj: pickProjMatrix,
+        viewportWidth: gl.drawingBufferWidth,
+        viewportHeight: gl.drawingBufferHeight,
+        pickClipPos: renderContext.pickClipPos,
+        pickZNear: renderContext.pickZNear,
+        pickZFar: renderContext.pickZFar,
+        splatBatch,
+        sectionPlanes: view.sectionPlanesList,
+      });
+    }
+
     if (overlayPending) {
       // Force-on-top picking: depthFunc(ALWAYS) means overlay pick
       // fragments always pass the depth test, so a handle visually in
@@ -350,6 +383,30 @@ export class PickManager {
     const batchIndex = unpackRGBA8ToUint(target0);
     const meshIndex = unpackRGBA8ToUint(target1);
     const depth = this._unpackDepth(target2);
+
+    // Splat hit: splats are stored in world space (no coordinate-system matrix
+    // and no RTC tile), so unproject straight through proj × view.
+    if (batchIndex === SPLAT_PICK_SENTINEL) {
+      const splatMesh = this._meshBatchManager.getSplatMeshAtPickIndex(meshIndex);
+      if (!splatMesh) {
+        return null;
+      }
+      const canvas = view.htmlElement;
+      const sx = (pickCanvasPos[0] - canvas.clientWidth / 2) / (canvas.clientWidth / 2);
+      const sy = -(pickCanvasPos[1] - canvas.clientHeight / 2) / (canvas.clientHeight / 2);
+      const splatPvm = mulMat4(pickProjMatrix, pickViewMatrix, tempMat4b);
+      const splatPvmInv = inverseMat4(splatPvm, tempMat4c);
+      tempVec4a[0] = sx; tempVec4a[1] = sy; tempVec4a[2] = -1; tempVec4a[3] = 1;
+      let near = transformVec4(splatPvmInv, tempVec4a);
+      mulVec4Scalar(near, 1 / near[3], near);
+      tempVec4b[0] = sx; tempVec4b[1] = sy; tempVec4b[2] = 1; tempVec4b[3] = 1;
+      let far = transformVec4(splatPvmInv, tempVec4b);
+      mulVec4Scalar(far, 1 / far[3], far);
+      const splatDir = subVec3(far as Vec3, near as Vec3, tempVec3a);
+      const splatOffset = mulVec3Scalar(splatDir as Vec3, depth, tempVec3b);
+      const splatWorldPos = addVec3(near as Vec3, splatOffset, tempVec3c);
+      return {sceneMesh: splatMesh, batchIndex, meshIndex, worldPos: splatWorldPos};
+    }
 
     const sceneMesh = this._meshBatchManager.getMeshAtIndex(batchIndex, meshIndex);
     if (!sceneMesh) {
@@ -446,7 +503,8 @@ export class PickManager {
       this._pickBuffer.destroy();
       this._pickBuffer = null;
       this._drawOps = null;
-
+      this._splatPick?.destroy();
+      this._splatPick = null;
     }
   }
 }

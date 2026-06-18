@@ -49,7 +49,7 @@ const NIGHT_COLOR:        [number, number, number] = [0.04, 0.07, 0.14]; // moon
  *
  * - The sun is **a DirLight** registered through `View.registerLight`,
  *   same as any application-supplied directional light. Existing
- *   shadow / PBR pipelines pick it up with no extra wiring.
+ *   shadow / PBR pipelines pick it up with no extra setup.
  * - The {@link onDateChanged} event fires after every cursor change,
  *   so a heatmap-analysis runner, a sky shader, or a date-readout UI
  *   stay in lockstep.
@@ -150,7 +150,7 @@ export class SunStudy {
     // Construct a fresh DirLight on the view in world space so the
     // sun stays anchored as the camera moves. The DirLight constructor
     // self-registers via `view.registerLight`, so the existing
-    // shadow / PBR pipelines find it without any extra wiring.
+    // shadow / PBR pipelines find it without any extra setup.
     this.sunLight = new DirLight(this.view, {
       dir:       [0, 0, -1],            // overwritten by first apply
       color:     [...this._sunColor],

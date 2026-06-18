@@ -6,13 +6,13 @@ import {SceneCollisionIndex} from "../../spatial/collision";
 import {MemoisingPickStrategy, RoutingPickStrategy, type PickStrategy} from "../../spatial/picking";
 
 /**
- * Owns the picking infrastructure Studio used to carry inline: the
- * BVH-backed {@link SceneCollisionIndex} and the unified
- * {@link PickStrategy} (a memoising router over BVH + GPU paths).
+ * Owns Studio's picking infrastructure: the BVH-backed
+ * {@link SceneCollisionIndex} and the unified {@link PickStrategy}
+ * (a memoising router over BVH + GPU paths).
  *
  * Both members are lazily constructed on first access so that demos
  * that never pick anything — converters, headless tests — don't pay
- * for the BVH build or the renderer wiring.
+ * for the BVH build or the renderer setup.
  *
  * Scene and Renderer are pulled through callback refs because Studio
  * sets them in `init()`, not in the constructor. The PickingService

@@ -351,9 +351,8 @@ export class CameraFlightAnimation {
     };
 
     // Resolve the easing curve for this flight. `FlyToParams.easing`
-    // wins over the class-level `this.easing`; falling back to the
-    // legacy boolean flag preserves the existing default behaviour
-    // for callers that don't supply the new param.
+    // wins over the class-level `this.easing`, which is consulted only
+    // when the per-flight param is absent.
     if (params.easing === "inThenOut") {
       this._easingMode = "inThenOut";
     } else if (params.easing === false) {

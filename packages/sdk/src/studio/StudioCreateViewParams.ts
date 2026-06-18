@@ -4,7 +4,7 @@ import type {ViewPanelParams} from "./panels/viewPanel";
 
 /**
  * Parameters for {@link studio.viewManager.createView}. Extends the SDK's
- * {@link viewing!viewer.ViewParams | ViewParams} with demo-specific knobs.
+ * {@link viewing!viewer.ViewParams | ViewParams} with demo-specific options.
  */
 export interface StudioCreateViewParams extends ViewParams {
 
@@ -15,7 +15,7 @@ export interface StudioCreateViewParams extends ViewParams {
    *
    * - `false` / omitted — append the View's canvas to the shared
    *   layout container, tiled alongside any other auto-laid-out
-   *   Views (the legacy behaviour).
+   *   Views.
    * - `true` — wrap the canvas in a `ViewPanel` using default panel
    *   parameters (title `"View — {id}"`, 480 × 360 initial size).
    * - {@link ViewPanelParams} — wrap and forward the supplied panel

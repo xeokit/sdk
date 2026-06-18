@@ -5,7 +5,7 @@ import type {Vec3} from "../../../base/math/vector";
  * One discrete stop on a {@link CameraTour}. The full Camera
  * state (`position` / `look` / `up`), plus tour-level metadata
  * (dwell time, label, source space) so playback narration and
- * pickback to the source model work out of the box.
+ * pickback to the source model work by default.
  *
  * Waypoints alternate between two roles in a played tour:
  *  - **In-space stops** — `spaceId` populated, camera dwells for

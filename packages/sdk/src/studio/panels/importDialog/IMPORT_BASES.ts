@@ -21,6 +21,11 @@ export const IMPORT_BASES: ImportCoordSysBasis[] = [
     basis: [1, 0, 0,   0, 0, 1,   0, 1, 0],
   },
   {
+    id:    "y-down",
+    label: "Y-down (3D Gaussian Splatting, COLMAP, .splat)",
+    basis: [1, 0, 0,   0, 0, -1,   0, 1, 0],
+  },
+  {
     id:    "z-up-y-forward",
     label: "Z-up, Y-forward (Blender native)",
     basis: [1, 0, 0,   0, 1, 0,   0, 0, 1],

@@ -352,7 +352,7 @@ export class SectionPlanesController {
   }
 
 
-  // ── Gizmo wiring ───────────────────────────────────────────────
+  // ── Gizmo setup ───────────────────────────────────────────────
 
   /**
    * Attach the gizmo to `plane` and configure its mode + the

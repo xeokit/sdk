@@ -65,7 +65,7 @@ import {
  *   source meshes from the projection direction.
  * - **Solid fill** — per-source-mesh filled silhouettes as
  *   `TrianglesPrimitive` meshes, with hidden-surface removal
- *   baked in: each pixel's "frontmost" owner is rasterised
+ *   built in: each pixel's "frontmost" owner is rasterised
  *   into a depth buffer, then per-owner masks are contour-
  *   traced and triangulated (see the `fills` submodule).
  *

@@ -16,7 +16,7 @@ const TONEMAP_MODE_ACES = 2;
  *
  * Initial retrofit ships an identity copy — i.e. the tonemap maths is the
  * conceptual no-op `out = in`. That keeps the visible result unchanged from
- * the pre-HDR renderer while the plumbing lands. The shader is the right
+ * the pre-HDR renderer while the infrastructure lands. The shader is the right
  * place to plug in ACES (or similar) once bright-value sources like bloom
  * start arriving in the HDR target.
  *

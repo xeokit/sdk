@@ -77,8 +77,8 @@ type PanelEntry<K extends keyof PanelMap> = PanelMap[K] extends {
 
 /**
  * Single dispatch point for opening, hiding, and toggling every panel
- * and tool surfaced by Studio. Replaces the ~40 `openX`/`hideX`/
- * `toggleX` methods that used to live directly on Studio.
+ * and tool Studio exposes, keyed by panel id rather than a dedicated
+ * `openX`/`hideX`/`toggleX` method per panel.
  *
  * Add a new panel by:
  *   1. Module-augmenting {@link PanelMap} with its id, panel type, params type.
@@ -106,9 +106,8 @@ export class PanelRegistry {
   /**
    * Open (or reveal) the panel registered under `id`.
    *
-   * Behaviour mirrors the legacy `openX` methods: if the panel is
-   * already mounted, ensures it's visible and runs the provider's
-   * `onReveal` hook; otherwise constructs a new one via the
+   * If the panel is already mounted, ensures it's visible and runs the
+   * provider's `onReveal` hook; otherwise constructs a new one via the
    * provider's `create`. Returns `undefined` when a provider's
    * preconditions reject construction.
    */
@@ -146,7 +145,8 @@ export class PanelRegistry {
 
   /**
    * Toggle the panel registered under `id`. Constructs the panel on
-   * first call (matching legacy `toggleX` behaviour).
+   * first call; once mounted, flips its visibility via the panel's
+   * own `toggle`.
    */
   toggle<K extends keyof PanelMap>(
     id: K,

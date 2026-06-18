@@ -50,7 +50,7 @@ import type {ProjectionBasis} from "../ProjectionBasis";
  *   to bound the buffer. Eight corners of this AABB are
  *   transformed into basis space to derive the buffer's u/v
  *   extents.
- * @param options Tuning knobs.
+ * @param options Tuning parameters.
  */
 export async function buildHLEDepthBuffer(
   sourceModel: SceneModel,

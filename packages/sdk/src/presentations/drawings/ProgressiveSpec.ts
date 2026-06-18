@@ -1,5 +1,5 @@
 /**
- * Progressive-rendering tuning knobs for {@link DrawingProjectionParams.progressive}.
+ * Progressive-rendering tuning parameters for {@link DrawingProjectionParams.progressive}.
  */
 export interface ProgressiveSpec {
   /**

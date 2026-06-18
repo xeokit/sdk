@@ -21,12 +21,14 @@
  */
 import type {SceneModel} from "../../../model/scene";
 import {isDefaultLayerModel} from "../../../model/scene";
+import {GaussianSplatsPrimitive} from "../../../base/constants";
 import type {DataModel} from "../../../model/data";
 import type {Studio} from "../../Studio";
 import {XGFExporter}              from "../../../formats/xgf/XGFExporter";
 import {GLTFExporter}             from "../../../formats/gltf/GLTFExporter";
 import {FBXExporter}              from "../../../formats/fbx/FBXExporter";
 import {USDZExporter}             from "../../../formats/usdz/USDZExporter";
+import {GaussianSplatExporter}    from "../../../formats/gaussiansplat/GaussianSplatExporter";
 import {OBJExporter}              from "../../../formats/obj/OBJExporter";
 import {MTLExporter}              from "../../../formats/mtl/MTLExporter";
 import {IFCExporter}              from "../../../formats/ifc/IFCExporter";
@@ -34,6 +36,7 @@ import {DotBIMExporter}           from "../../../formats/dotbim/DotBIMExporter";
 import {CityJSONExporter}         from "../../../formats/cityjson/CityJSONExporter";
 import {DXFExporter}              from "../../../formats/dxf/DXFExporter";
 import {SVGExporter}              from "../../../formats/svg/SVGExporter";
+import {ThreeDXMLExporter}        from "../../../formats/threedxml/ThreeDXMLExporter";
 import {SceneModelExporter} from "../../../formats/scenemodel/SceneModelExporter";
 import {DataModelExporter}  from "../../../formats/datamodel/DataModelExporter";
 
@@ -126,6 +129,16 @@ interface FormatEntry {
    * the caller might not have wired. Defaults to "always available".
    */
   requiresStudio?: (studio?: Studio) => boolean;
+  /**
+   * Optional per-SceneModel compatibility check, run against the
+   * selected model's actual content. When present and it returns
+   * `false`, the dataset chip is disabled (greyed) for that model —
+   * used by formats that only apply to a geometry subset (e.g. splat
+   * export needs GaussianSplats geometry, so it stays off for plain
+   * triangle/point models rather than emitting an empty file).
+   * Defaults to "compatible with any SceneModel".
+   */
+  sceneModelCompatible?: (sceneModel: SceneModel) => boolean;
 }
 
 const FORMAT_REGISTRY: Record<string, FormatEntry> = {
@@ -148,6 +161,12 @@ const FORMAT_REGISTRY: Record<string, FormatEntry> = {
     id: "usdz", label: "USDZ", ext: "usdz", mime: "model/vnd.usdz+zip",
     build:   () => new USDZExporter(),
     toBytes: (raw) => raw as ArrayBuffer,
+  },
+  splat: {
+    id: "splat", label: "Gaussian Splat", ext: "splat", mime: "application/octet-stream",
+    build:   () => new GaussianSplatExporter(),
+    toBytes: (raw) => raw as ArrayBuffer,
+    sceneModelCompatible: modelHasSplats,
   },
   obj: {
     id: "obj", label: "OBJ", ext: "obj", mime: "model/obj",
@@ -184,6 +203,11 @@ const FORMAT_REGISTRY: Record<string, FormatEntry> = {
     build:   () => new SVGExporter(),
     toBytes: (raw) => String(raw),
   },
+  threedxml: {
+    id: "threedxml", label: "3DXML", ext: "3dxml", mime: "application/octet-stream",
+    build:   () => new ThreeDXMLExporter(),
+    toBytes: (raw) => raw as ArrayBuffer,
+  },
   scenemodel: {
     id: "scenemodel", label: "SceneModel JSON", ext: "scenemodel.json", mime: "application/json",
     build:   () => new SceneModelExporter(),
@@ -214,12 +238,14 @@ const DEFAULT_DATASET_TYPES: string[] = [
   "gltf",
   "fbx",
   "usdz",
+  "splat",
   "obj,mtl",
   "ifc",
   "dotbim",
   "cityjson",
   "dxf",
   "svg",
+  "threedxml",
   "datamodel",
 ];
 
@@ -300,6 +326,13 @@ const DATASET_PARAMS: Record<string, ParamDef[]> = {
       help: "Filename for the glTF binary (.glb) download.",
     },
   ],
+  "splat": [
+    {
+      id: "splatFileName", label: "Splat Filename", type: "string",
+      default: "{id}.splat", applyTo: [], filenameFor: "splat",
+      help: "Filename for the .splat download. Exports the model's Gaussian-splat geometries (baked RGB, no SH).",
+    },
+  ],
   "obj,mtl": [
     {
       id: "objFileName", label: "OBJ Filename", type: "string",
@@ -345,6 +378,13 @@ const DATASET_PARAMS: Record<string, ParamDef[]> = {
       id: "svgFileName", label: "SVG Filename", type: "string",
       default: "{id}.svg", applyTo: [], filenameFor: "svg",
       help: "Filename for the SVG download. SVG is 2D — the world XY plane is projected by default (Y-flipped so +Y reads up); pass options through `SVGExportOptions` if you need an XZ or YZ projection.",
+    },
+  ],
+  "threedxml": [
+    {
+      id: "threedxmlFileName", label: "3DXML Filename", type: "string",
+      default: "{id}.3dxml", applyTo: [], filenameFor: "threedxml",
+      help: "Filename for the 3DXML download. Exports triangle geometry as a Dassault Systèmes 3DXML (ZIP of XML); one representation per mesh, flat per-mesh colour.",
     },
   ],
   "datamodel": [
@@ -1271,6 +1311,7 @@ export class ExportDialog extends FloatingPanelBase {
       if (!entry) return false;
       if (entry.needsSceneModel !== false && !hasScene) return false;
       if (entry.needsDataModel  && !hasData)             return false;
+      if (entry.sceneModelCompatible && sm && !entry.sceneModelCompatible(sm)) return false;
     }
     return true;
   }
@@ -1590,6 +1631,12 @@ export class ExportDialog extends FloatingPanelBase {
 
 function hasContent(objects: unknown): boolean {
   return !!objects && typeof objects === "object" && Object.keys(objects as Record<string, unknown>).length > 0;
+}
+
+/** True when the SceneModel has at least one GaussianSplats geometry — the only content the splat exporter writes. */
+function modelHasSplats(sceneModel: SceneModel): boolean {
+  const geometries = (sceneModel as any).geometries as Record<string, {primitive: number}> | undefined;
+  return !!geometries && Object.values(geometries).some(g => g.primitive === GaussianSplatsPrimitive);
 }
 
 function resolveIdPlaceholder(value: unknown, modelId: string | null): unknown {

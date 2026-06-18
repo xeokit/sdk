@@ -479,7 +479,7 @@ const PANEL_CSS = `
   cursor: pointer;
 }
 .xkt-vcp-panel .xkt-vcp-arr { display: inline-flex; gap: 4px; flex-wrap: wrap; align-items: center; }
-/* Slider + number-input pair for bounded numeric knobs. The slider
+/* Slider + number-input pair for bounded numeric options. The slider
    takes the remaining width; the number readout stays a fixed
    monospace width so values right-align cleanly. */
 .xkt-vcp-panel .xkt-vcp-slider {
@@ -1413,7 +1413,7 @@ export class ViewerConfigPanel extends FloatingPanelBase {
    * {@link _renderKVTable}.
    */
   private _renderObjectTable(obj: any, apply: ApplyFn, liveTarget?: any): HTMLElement {
-    // `renderModes` is the single most load-bearing knob on every
+    // `renderModes` is the single most load-bearing option on every
     // effect — it decides whether the effect even runs for the
     // current View render mode — so it leads the row order. Every
     // other field stays alphabetical.
@@ -1563,7 +1563,7 @@ export class ViewerConfigPanel extends FloatingPanelBase {
   }
 
   private _mkNumberInput(parent: any, key: string | number, val: number, apply: ApplyFn): HTMLElement {
-    // Known-range knob → slider + number-input pair, two-way bound.
+    // Known-range option → slider + number-input pair, two-way bound.
     // Drag the slider for quick eyeballing, type in the number for
     // precision. Falls through to a plain number input for anything
     // that has no defined range (camera positions, timestamps, etc).
@@ -1585,7 +1585,7 @@ export class ViewerConfigPanel extends FloatingPanelBase {
   /**
    * Slider + number-input pair, sharing a single backing value. The
    * range slider provides quick drag-to-eyeball; the number input is
-   * the precise / out-of-range escape hatch. Both write through the
+   * the precise / out-of-range fallback. Both write through the
    * same `apply` call so the live target only sees one update per
    * change. Used when a key appears in {@link SLIDER_RANGES}.
    */
@@ -1834,10 +1834,10 @@ const EFFECT_ORDER: string[] = [
 ];
 
 /**
- * Numeric knobs whose range is well-bounded enough that a slider
+ * Numeric options whose range is well-bounded enough that a slider
  * makes sense alongside the number input. Keyed by leaf property
  * name (the same camelCase key the params object carries), so the
- * range applies wherever the knob appears — `intensity` covers SAO,
+ * range applies wherever the option appears — `intensity` covers SAO,
  * Bloom, IBL, and Shadows alike, etc.
  *
  * Tuple shape: `[min, max, step]`. The slider clamps to this range

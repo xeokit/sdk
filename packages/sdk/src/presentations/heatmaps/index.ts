@@ -157,7 +157,7 @@
  *
  * Walks the SceneModel and paints every triangle-bearing geometry
  * with a per-vertex elevation gradient (world-space height along
- * `worldUp`). Useful as a smoke test before wiring a real field.
+ * `worldUp`). Useful as a smoke test before connecting a real field.
  *
  * ```javascript
  * const result = applyHeatMapMaterials({

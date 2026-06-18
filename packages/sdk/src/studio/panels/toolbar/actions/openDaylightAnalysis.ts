@@ -5,7 +5,7 @@
  * Drawings, Camera Tours, and Schema Materials. The panel is
  * per-(SunStudy, Scene) pair and the Toolbar has no direct
  * reference to either, so the action toggles whichever panel
- * the application has already wired up via
+ * the application has already set up via
  * `studio.panels.open("daylightAnalysisPanel", {sunStudy, scene})`.
  * If no panel has been opened yet, the click is a no-op + warn.
  *
@@ -25,7 +25,7 @@ export const openDaylightAnalysis: ToolbarActionDescriptor = {
     // The registry's `create` provider auto-constructs a default
     // SunStudy on the first available View when none exists, and
     // pulls the Scene off Studio — so the toolbar always works
-    // without app-side wiring. A null here means no View yet,
+    // without app-side setup. A null here means no View yet,
     // which the registry has already warned about.
     const panel = ctx.studio.panels.toggle("daylightAnalysisPanel");
     if (panel) ctx.bindPanelSync(panel, "openDaylightAnalysis");

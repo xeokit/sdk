@@ -19,7 +19,7 @@ import {SDKErrorType, type SDKResult} from "../../base/core";
  *
  * Default: `[`{@link base!constants.DetailedRender | DetailedRender}`]` —
  * engineering / inspection presentation gets the hatched body
- * out of the box; Realistic and Navigation stay PBR/textured.
+ * by default; Realistic and Navigation stay PBR/textured.
  *
  * Section-plane caps are unaffected. The cap's appearance comes
  * from {@link SectionPlane.capColor} and the material's hatch

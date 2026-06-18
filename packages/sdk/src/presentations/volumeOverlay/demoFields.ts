@@ -68,7 +68,7 @@ export function makeDemoScalarField(
  * floor inflow + ceiling outflow).
  *
  * Used by the Toolbar's Volume Overlay button so streamlines work
- * out of the box; useful as a quick demo generator otherwise.
+ * by default; useful as a quick demo generator otherwise.
  */
 export function makeDemoVectorField(
   min: [number, number, number],

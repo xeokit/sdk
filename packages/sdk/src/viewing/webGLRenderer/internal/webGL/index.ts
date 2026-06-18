@@ -1,5 +1,5 @@
 /**
- * Internal WebGL2 plumbing for the renderer: typed wrappers around array
+ * Internal WebGL2 infrastructure for the renderer: typed wrappers around array
  * buffers, attributes, programs, shaders, samplers, textures, and the
  * render / pick / snap buffers, plus extension lookup
  * ({@link getWebGLExtension}), capability info ({@link WEBGL_INFO}),

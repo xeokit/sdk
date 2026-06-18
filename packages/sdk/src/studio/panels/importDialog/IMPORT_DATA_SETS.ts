@@ -32,6 +32,15 @@ export const IMPORT_DATA_SETS: ImportDataSet[] = [
     ],
   },
   {
+    id: "splat",
+    label: "3D Gaussian Splatting (.splat)",
+    defaultBasisId: "y-down",
+    loadsDataSemantics: false,
+    files: [
+      {key: "splat", label: "Splat file", accept: ".splat", loadFormat: "splat", required: true},
+    ],
+  },
+  {
     id: "gltf+datamodel",
     label: "glTF + DataModel JSON",
     defaultBasisId: "y-up",

@@ -1008,14 +1008,14 @@ export class DrawingsPanel extends FloatingPanelBase {
       const targetId = projectionTargetId(modelId, spec.label);
       // Two mutually-exclusive output styles: wireframe lines
       // (with optional HLE) or filled silhouette triangles
-      // (with HSR baked in). The per-model "Solid fill" toggle
+      // (with HSR built in). The per-model "Solid fill" toggle
       // picks one and the projection gets either lines or fills
       // — never both — to keep the drawing look consistent
       // per source model.
       const styleParams = cfg.solid
         ? {
             // Solid mode: opaque per-source-mesh silhouettes
-            // with hidden-surface removal baked in. Per-pixel
+            // with hidden-surface removal built in. Per-pixel
             // ownership is rasterised tile-by-tile inside the
             // fill extractor, so `cfg.resolution` can scale
             // freely while peak memory stays bounded by
@@ -1056,7 +1056,7 @@ export class DrawingsPanel extends FloatingPanelBase {
       // Assemble the clip-plane set. Two sources combine here:
       //
       //   1. The panel's own `clipEnabled` + `clipDepth` cut,
-      //      kept as the headline "section depth" knob the panel
+      //      kept as the headline "section depth" control the panel
       //      has always exposed.
       //   2. Every *active* SectionPlane on the first View
       //      registered with the helper. SectionPlane carries a
@@ -1105,7 +1105,7 @@ export class DrawingsPanel extends FloatingPanelBase {
         // paints progressively instead of locking up the UI on
         // models with thousands of source objects.
         progressive: true,
-        // Optional cut-away — combines the panel's depth knob
+        // Optional cut-away — combines the panel's depth control
         // with every active SectionPlane on the first View (see
         // assembly block above). The kept region is the
         // intersection of every plane's kept half-space.

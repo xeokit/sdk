@@ -1,5 +1,5 @@
 /**
- * Optional knobs on {@link intersectSceneRayTriangle}.
+ * Optional settings on {@link intersectSceneRayTriangle}.
  */
 export interface SceneRayTriangleOptions {
   /** Minimum parametric distance along the ray. Defaults to `0`. */

@@ -1,5 +1,5 @@
 /**
- * Tuning knobs for hidden-line elimination. All optional;
+ * Tuning parameters for hidden-line elimination. All optional;
  * defaults work well for typical BIM geometry.
  */
 export interface HLEOptions {

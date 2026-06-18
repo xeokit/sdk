@@ -2,8 +2,7 @@
  * @xeokit/sdk root entry point.
  *
  * Top-level buckets group modules by topical aim — see the per-bucket
- * index.ts files for what's inside each. The flat names that used to
- * live here (scene, data, viewer, etc.) now live under their
+ * index.ts files for what's inside each. Each module lives under its
  * topical bucket: `model/scene`, `model/data`, `viewing/viewer`, …
  *
  * @module @xeokit/sdk

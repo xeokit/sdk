@@ -788,7 +788,7 @@ export class SampleModelsPanel extends FloatingPanelBase {
   }
 
 
-  // ── Scene lifecycle wiring ────────────────────────────────────
+  // ── Scene lifecycle setup ────────────────────────────────────
 
   /**
    * Subscribe to the Scene's `onSceneModelDestroyed` so the
@@ -1099,9 +1099,9 @@ export class SampleModelsPanel extends FloatingPanelBase {
         this._rowsBySceneModelId.set(sceneModelId, entry);
       }
     } catch (err: any) {
-      // Recover gracefully — surface the error in the banner and
+      // Recover gracefully — report the error in the banner and
       // keep the catalog list intact so the user can try another
-      // dataset. The previous _setBodyError(...) path nuked the
+      // dataset. The previous _setBodyError(...) path cleared the
       // body, which trapped the user with no recovery path.
       const msg = err && err.message ? err.message : String(err);
       this._showLoadError(modelId, formats, msg);

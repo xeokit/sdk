@@ -588,7 +588,7 @@ export class Toolbar extends FloatingPanelBase {
 
     injectStylesOnce();
     this._buildDom();
-    // Chrome wiring (close, drag, pill registration, layout
+    // Chrome setup (close, drag, pill registration, layout
     // persistence) is owned by the base class.
     this._bindChrome();
     this._wireDomEvents();
@@ -976,7 +976,7 @@ export class Toolbar extends FloatingPanelBase {
 
   /**
    * Build a {@link ToolbarActionContext} bound to this Toolbar's
-   * Viewer / Studio / button-state plumbing. The context is
+   * Viewer / Studio / button-state infrastructure. The context is
    * the only surface action implementations see — they never
    * reach back into Toolbar internals.
    */
@@ -1018,7 +1018,7 @@ export class Toolbar extends FloatingPanelBase {
    *
    * The visual is two adjacent buttons sharing a wrapper. They
    * both register against the relevant `ToolbarToolMode` keys in
-   * {@link _btns} so the existing pressed-state plumbing still
+   * {@link _btns} so the existing pressed-state setup still
    * applies — the main slot's pressed state is composed in
    * {@link toolMode}'s setter from the union of the two
    * sub-modes.
@@ -1043,7 +1043,7 @@ export class Toolbar extends FloatingPanelBase {
     });
     this._measureMainBtn = main;
     // Both sub-modes register the main slot too — used by the
-    // pressed-state plumbing in toolMode's setter.
+    // pressed-state setup in toolMode's setter.
     this._btns["measureDistance"] = main;
     this._btns["measureAngle"] = main;
     wrapper.appendChild(main);

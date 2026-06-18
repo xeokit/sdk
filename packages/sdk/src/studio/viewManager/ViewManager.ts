@@ -18,9 +18,8 @@ import {confirmDialog} from "../dialogs/ConfirmDialog";
 import type {StudioCreateViewParams} from "../StudioCreateViewParams";
 
 /**
- * One record per live View. Mirrors what the old `studio.views[id]`
- * map carried — every consumer reads `cameraFlight` and/or
- * `viewController` off it.
+ * One record per live View. Every consumer reads `cameraFlight`
+ * and/or `viewController` off it.
  */
 export interface ViewRecord {
   view: View;
@@ -46,8 +45,8 @@ export interface ViewManagerContext {
 
 /**
  * Per-event hooks the manager fires while it owns view lifecycle.
- * Studio uses these to layer on the context-menu wiring and HDR-sky
- * setup that used to live inline in the old `createView`.
+ * Studio uses these to layer on the context-menu setup and HDR-sky
+ * setup for each View.
  */
 export interface ViewManagerHooks {
   /**
@@ -71,7 +70,7 @@ export interface ViewManagerHooks {
  * pass `floating: true`.
  *
  * The pre-extraction `createView` ran ~70 lines on Studio and pulled
- * in context-menu wiring, HDR setup, CameraFlight construction,
+ * in context-menu setup, HDR setup, CameraFlight construction,
  * ViewController construction, and DOM hosting all at once. Splitting
  * those concerns: the manager handles DOM + records + lifecycle,
  * Studio handles the rest via {@link ViewManagerHooks.onViewCreated}.
@@ -86,9 +85,9 @@ export class ViewManager {
   public readonly views: { [viewId: string]: ViewRecord } = {};
 
   /**
-   * Cap on the number of Views the manager will create. Mirrors the
-   * old `studio.maxViews` knob — drives the WebGL renderer's memory
-   * configuration in Studio, and is enforced here as well.
+   * Cap on the number of Views the manager will create. Drives the
+   * WebGL renderer's memory configuration in Studio, and is enforced
+   * here as well.
    */
   public readonly maxViews: number;
 
@@ -154,7 +153,7 @@ export class ViewManager {
     const floatingOpt = viewParams.floating;
     const wantsFloating = floatingOpt === true || (typeof floatingOpt === "object" && floatingOpt !== null);
 
-    // `floating` is the demo's own knob — strip it off before forwarding
+    // `floating` is the demo's own option — strip it off before forwarding
     // to viewer.createView so the SDK doesn't see an unknown field.
     const {floating: _drop, ...sdkViewParams} = viewParams;
 
@@ -438,7 +437,7 @@ export class ViewManager {
     const panel = new ViewPanel(panelParams);
     panel.body.appendChild(canvas);
     this._floatingPanelByViewId[viewId] = panel;
-    // Same panel-drag → no descendant-resize plumbing as createView.
+    // Same panel-drag → no descendant-resize setup as createView.
     panel.onLayoutChanged.subscribe(() => record.view.needsRender());
     // Drag-to-dock works on re-floated panels too, so a panel
     // can round-trip docked → floating → docked freely.

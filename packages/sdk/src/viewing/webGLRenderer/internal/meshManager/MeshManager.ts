@@ -9,6 +9,16 @@ import type {Camera, ViewObject} from "../../../viewer";
 import type {SceneTransform} from "../../../../model/scene/SceneTransform";
 import {GPUMemoryCheckResult, GPUMemoryManager, type GPUTile} from "../gpuMemoryManager";
 import {SceneGeometry} from "../../../../model/scene";
+import {GaussianSplatsPrimitive} from "../../../../base/constants";
+import {SplatBatch} from "../gpuMemoryManager/SplatBatch";
+import {RendererSplatMesh} from "./RendererSplatMesh";
+
+/**
+ * Per-batch splat capacity for the (single) {@link SplatBatch}. Sizes the splat
+ * data texture's GPU budget — ~1.5M splats × 64 B ≈ 96 MB. P1 uses one fixed
+ * batch; multiple / dynamically-sized splat batches are a later optimization.
+ */
+const MAX_SPLATS_PER_BATCH = 1_500_000;
 
 /**
  * Bridges scene/view state changes into GPU-ready render state for the renderer.
@@ -48,6 +58,15 @@ export class MeshManager {
    * Renderer meshes keyed by {@link SceneMesh.uniqueId}.
    */
   private _rendererMeshes: Record<string, RendererMesh> = {};
+
+  /** Renderer-side handles for gaussian-splat meshes (kept out of {@link _rendererMeshes}). */
+  private _rendererSplatMeshes: Record<string, RendererSplatMesh> = {};
+  /** Splat meshes keyed by their pick id (written into the pick buffer). */
+  private _splatPickMeshes: Map<number, RendererSplatMesh> = new Map();
+  private _nextSplatPickId = 0;
+
+  /** Lazily-created shared GPU storage for all gaussian splats. */
+  private _splatBatch: SplatBatch | null = null;
 
   /** Shared render context used for device resources and viewer access. */
   private _renderContext: RenderContext;
@@ -191,6 +210,9 @@ export class MeshManager {
    * @returns {@link base!core.SDKResult | SDKResult} indicating success, or `ok:false` if registration fails.
    */
   sceneMeshCreated(sceneMesh: SceneMesh): SDKResult<any> {
+    if (sceneMesh.geometry.primitive === GaussianSplatsPrimitive) {
+      return this._addSplatMesh(sceneMesh);
+    }
     return this._addMesh(sceneMesh);
   }
 
@@ -200,8 +222,17 @@ export class MeshManager {
    * @returns {@link base!core.SDKResult | SDKResult} indicating success, or `ok:false` if unregistration fails.
    */
   sceneMeshDestroyed(sceneMesh: SceneMesh): SDKResult<any> {
+    if (sceneMesh.geometry.primitive === GaussianSplatsPrimitive) {
+      this._removeSplatMesh(sceneMesh);
+      return {ok: true, value: undefined};
+    }
     this._removeMesh(sceneMesh);
     return {ok: true, value: undefined};
+  }
+
+  /** The shared gaussian-splat batch, or null if no splats have been added. */
+  public getSplatBatch(): SplatBatch | null {
+    return this._splatBatch;
   }
 
   /**
@@ -228,6 +259,11 @@ export class MeshManager {
 
     const rendererMeshes: RendererMesh[] = [];
     for (const sceneMesh of sceneObject.meshes) {
+      // Splat meshes live in the SplatBatch, not as RendererMeshes — skip them
+      // here; the RendererObject only tracks regular (mesh-batch) meshes.
+      if (sceneMesh.geometry.primitive === GaussianSplatsPrimitive) {
+        continue;
+      }
       const rendererMesh = this._rendererMeshes[sceneMesh.uniqueId];
 
       if (!rendererMesh) {
@@ -332,6 +368,79 @@ export class MeshManager {
     }
 
     return {ok: true, value: rendererMesh};
+  }
+
+  /**
+   * Registers a gaussian-splat {@link SceneMesh} into the dedicated
+   * {@link SplatBatch} (lazily created). Splats stream in/out as freeable
+   * texture portions; they never touch the mesh {@link GPUMemoryBatch} path.
+   */
+  private _addSplatMesh(sceneMesh: SceneMesh): SDKResult<RendererSplatMesh> {
+    const meshGlobalId = sceneMesh.uniqueId;
+    if (this._rendererSplatMeshes[meshGlobalId]) {
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[MeshManager._addSplatMesh] Splat mesh already added with this globalId: ${meshGlobalId}`
+      };
+    }
+    const geom = sceneMesh.geometry;
+    if (!geom.scales || !geom.rotations || !geom.aabb) {
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[MeshManager._addSplatMesh] GaussianSplats geometry '${geom.id}' is missing scales/rotations/aabb.`
+      };
+    }
+    const batchResult = this._ensureSplatBatch();
+    if (batchResult.ok === false) {
+      return batchResult;
+    }
+    const splatBatch = batchResult.value;
+    const pickId = this._nextSplatPickId++;
+    const addResult = splatBatch.addSplats({
+      positionsCompressed: geom.positionsCompressed,
+      aabb: geom.aabb,
+      scales: geom.scales,
+      rotations: geom.rotations,
+      colorsCompressed: geom.colorsCompressed,
+    }, sceneMesh.worldMatrix, pickId);  // bake the mesh world matrix (incl. model coordinate system) + pick id
+    if (addResult.ok === false) {
+      return addResult;
+    }
+    const rendererSplatMesh = new RendererSplatMesh(sceneMesh, splatBatch, addResult.value, pickId);
+    this._rendererSplatMeshes[meshGlobalId] = rendererSplatMesh;
+    this._splatPickMeshes.set(pickId, rendererSplatMesh);
+    return {ok: true, value: rendererSplatMesh};
+  }
+
+  /** Lazily creates + allocates the shared {@link SplatBatch}. */
+  private _ensureSplatBatch(): SDKResult<SplatBatch> {
+    if (this._splatBatch) {
+      return {ok: true, value: this._splatBatch};
+    }
+    const batch = new SplatBatch(this._renderContext.gl, MAX_SPLATS_PER_BATCH);
+    const allocResult = batch.allocate();
+    if (allocResult.ok === false) {
+      return allocResult;
+    }
+    this._splatBatch = batch;
+    return {ok: true, value: batch};
+  }
+
+  /** Streams a gaussian-splat mesh out of the {@link SplatBatch}. */
+  private _removeSplatMesh(sceneMesh: SceneMesh): void {
+    const rendererSplatMesh = this._rendererSplatMeshes[sceneMesh.uniqueId];
+    if (rendererSplatMesh) {
+      this._splatPickMeshes.delete(rendererSplatMesh.pickId);
+      rendererSplatMesh.destroy();
+      delete this._rendererSplatMeshes[sceneMesh.uniqueId];
+    }
+  }
+
+  /** Resolves a splat-pick `pickId` (read from the pick buffer) to its SceneMesh. */
+  public getSplatMeshAtPickIndex(pickId: number): SceneMesh | null {
+    return this._splatPickMeshes.get(pickId)?.sceneMesh ?? null;
   }
 
   /**
@@ -577,6 +686,10 @@ export class MeshManager {
    * Forwards to the corresponding {@link RendererMesh} (if registered).
    */
   public sceneMeshMatrixChanged(sceneMesh: SceneMesh): void {
+    if (sceneMesh.geometry.primitive === GaussianSplatsPrimitive) {
+      this._rendererSplatMeshes[sceneMesh.uniqueId]?.setMatrix(sceneMesh.worldMatrix);
+      return;
+    }
     this._rendererMeshes[sceneMesh.uniqueId]?.setMatrix(sceneMesh.worldMatrix);
   }
 
@@ -817,6 +930,10 @@ export class MeshManager {
       }
     }
 
+    this._splatBatch?.destroy();
+    this._splatBatch = null;
+    this._rendererSplatMeshes = {};
+    this._splatPickMeshes.clear();
     this._batches = [];
     this._rendererObjects = {};
     this._rendererMeshes = {};

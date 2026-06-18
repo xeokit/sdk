@@ -4,7 +4,7 @@
  * level plus a per-{@link model!scene.SceneModel | SceneModel} breakdown, kept in sync via
  * {@link SceneEvents}.
  *
- * ## Lazy event wiring
+ * ## Lazy event setup
  *
  * Listeners attach **only while the panel is visible**, so a
  * page that constructs the panel hidden, or where the user has

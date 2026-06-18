@@ -69,7 +69,7 @@
  *
  * The orchestrating entry point is {@link buildDrawing}, which accepts a
  * {@link DrawingProjectionParams} bundle and returns the new SceneModel
- * inside an {@link base!core.SDKResult | SDKResult}. Under the hood the pipeline
+ * inside an {@link base!core.SDKResult | SDKResult}. Internally the pipeline
  * composes three independent stages, each exposed as a submodule:
  *
  * - {@link hle | hle} — CPU-side orthographic depth-buffer
@@ -86,7 +86,7 @@
  * - **Wireframe projection** — projected crease and boundary edges as
  *   `LinesPrimitive` meshes, with optional hidden-line elimination.
  * - **Solid fills** — per-source-object filled silhouettes with
- *   hidden-surface removal baked in.
+ *   hidden-surface removal built in.
  * - **Section cut-aways** — clip the source against an arbitrary plane to
  *   render plans, sections, and oblique slices.
  * - **Six face presets** plus arbitrary `{forward, up}` rays for diagonal

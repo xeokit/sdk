@@ -202,7 +202,7 @@ export abstract class FloatingPanelBase {
   protected abstract _buildDom(): void;
 
 
-  // ── Chrome wiring ─────────────────────────────────────────────
+  // ── Chrome setup ─────────────────────────────────────────────
 
   /**
    * Wire the shared chrome behaviour onto the DOM the subclass
@@ -365,7 +365,7 @@ export abstract class FloatingPanelBase {
         startX = ev.clientX; startY = ev.clientY;
         startW = rect.width; startH = rect.height;
         startL = rect.left;  startT = rect.top;
-        // Pin to absolute pixels — same dance _bindChrome's drag-start
+        // Pin to absolute pixels — same procedure _bindChrome's drag-start
         // performs — so subsequent left / top / width / height writes
         // are not fought by CSS using right / bottom / transform.
         const ps = this._panel.style;

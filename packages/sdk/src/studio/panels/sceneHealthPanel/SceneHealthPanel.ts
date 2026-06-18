@@ -1664,7 +1664,7 @@ export class SceneHealthPanel extends FloatingPanelBase {
    *
    * Built for the `ViewObjectContextMenu` "Inspect Model" entry,
    * which works in *every* example regardless of whether the
-   * host has wired up its own SceneHealthPanel — clicking
+   * host has set up its own SceneHealthPanel — clicking
    * the menu item always opens a panel.
    */
   static openFor(params: SceneHealthPanelParams): SceneHealthPanel {

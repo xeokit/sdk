@@ -417,7 +417,7 @@ export class SchedulePanel extends FloatingPanelBase {
 
     controls.append(this._playBtn, prevBtn, nextBtn, speedWrap, this._currentEl);
 
-    // Buttons retained on the instance for later wiring.
+    // Buttons retained on the instance for later setup.
     (this as any)._prevBtn = prevBtn;
     (this as any)._nextBtn = nextBtn;
 

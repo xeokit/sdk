@@ -11,7 +11,7 @@ import {SDKErrorType, type SDKResult} from "../../base/core";
  *   {@link SectionPlaneCaps.renderModes} **and** at least one
  *   active {@link SectionPlane} carries a {@link SectionPlane.capColor}.
  *
- * The renderer implementation uses a per-plane stencil dance —
+ * The renderer implementation uses a per-plane stencil technique —
  * front-cull pass and back-cull pass write to the stencil
  * counter; a quad on the cut plane is then drawn with the cap
  * colour wherever stencil != 0. The cap surface therefore

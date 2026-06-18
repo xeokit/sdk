@@ -15,7 +15,7 @@
  * render inspector and each View's object set, the same numbers the
  * `building_doublePrecision_archipelago` example surfaces.
  *
- * ## Lazy event wiring
+ * ## Lazy event setup
  *
  * Per-frame stat listeners attach **only while the panel is visible**.
  * While hidden, the panel costs nothing per render. The View-lifecycle

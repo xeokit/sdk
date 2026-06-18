@@ -2,7 +2,7 @@ import type {CameraTourWaypoint} from "../plan/CameraTourWaypoint";
 
 
 /**
- * Optional playback knobs for {@link playCameraTour}.
+ * Optional playback settings for {@link playCameraTour}.
  */
 export interface PlayCameraTourOptions {
 

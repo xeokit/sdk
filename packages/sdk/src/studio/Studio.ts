@@ -87,7 +87,7 @@ export interface StudioConfig {
    * When `true`, exposes engineer-only entries in the context
    * menus (currently a Debug ▶ submenu with the WebGL
    * context-loss simulator). Default `false` — production demos
-   * keep the surface area free of debug affordances.
+   * keep the interface free of debug affordances.
    */
   debug?: boolean;
 
@@ -178,9 +178,8 @@ export class Studio {
   /**
    * Single dispatch point for opening, hiding, and toggling every
    * built-in panel and tool — `studio.panels.open("modelsPanel")`,
-   * `studio.panels.toggle("navCube", {view})`, etc. Replaces the
-   * 40 dedicated `openX`/`hideX`/`toggleX` methods that used to
-   * live directly on Studio.
+   * `studio.panels.toggle("navCube", {view})`, etc. — keyed by panel
+   * id instead of a dedicated method per panel.
    *
    * Register custom panels with `studio.panels.register("myId", ...)`
    * and augment {@link PanelMap} from your own module so the call
@@ -192,7 +191,7 @@ export class Studio {
    * Per-Studio event hub — currently just `onError` / `onWarning`.
    * Mirrors the `*.events` shape on Scene, Data, Viewer, and
    * WebGLRenderer; the {@link panels!issuesPanel.IssuesPanel | IssuesPanel}
-   * subscribes here alongside those four to surface Studio-side
+   * subscribes here alongside those four to report Studio-side
    * failures in the same list.
    */
   public readonly events: StudioEvents = new StudioEvents();
@@ -266,7 +265,7 @@ export class Studio {
    * is the canonical subscriber — every dispatch lands as a row in
    * its log, with severity = `"error"`. Panels and host code use
    * this in place of `throw` / `console.error` so the IssuesPanel
-   * is the single place to surface Studio-side failures.
+   * is the single place to report Studio-side failures.
    *
    * Accepts either an `SDKResult<any>` (an `ok: false` outcome
    * coming back from a downstream call) or a plain message string.
@@ -284,7 +283,7 @@ export class Studio {
   /**
    * Dispatch a recoverable warning through this Studio's
    * {@link StudioEvents.onWarning} channel. Same payload shape and
-   * routing as {@link reportError}; the IssuesPanel surfaces these
+   * routing as {@link reportError}; the IssuesPanel reports these
    * with severity = `"warning"`.
    */
   public reportWarning(warning: SDKResult<any> | string, type?: SDKErrorType): void {
@@ -321,7 +320,7 @@ export class Studio {
             pickFn: (view, pickParams) => this.picking.pickForViewController(view, pickParams),
           },
           {
-            // Studio layers context-menu wiring + IBL on top of the
+            // Studio layers context-menu setup + IBL on top of the
             // bare View record the manager produces.
             onViewCreated: (view, record) => this._onViewCreated(view, record),
           },
@@ -561,7 +560,7 @@ export class Studio {
       {fileData, sceneModel, dataModel},
       options,
     );
-    // Surface loader-side failures through the same channel so the
+    // Report loader-side failures through the same channel so the
     // IssuesPanel sees them alongside Studio-side ones. The result
     // still flows back to the caller unchanged.
     if (loadRes && (loadRes as any).ok === false) {
@@ -624,7 +623,7 @@ export class Studio {
     const {cameraFlight} = record;
 
     // Right-click context menu — routes through the unified picker
-    // for object id (no snap requested → cheap BVH path) and surfaces
+    // for object id (no snap requested → cheap BVH path) and displays
     // ViewObjectContextMenu / CanvasContextMenu accordingly.
     //
     // NOTE — does NOT call `e.preventDefault()` here. The native
@@ -758,7 +757,7 @@ export class Studio {
 
   /**
    * Record where a freshly-loaded model came from. The ModelsPanel
-   * reads this back via {@link getModelOrigin} to surface "loaded
+   * reads this back via {@link getModelOrigin} to display "loaded
    * via …" details. Cleared by {@link destroyModel}.
    */
   public recordModelOrigin(modelId: string, provenance: ImportProvenance): void {

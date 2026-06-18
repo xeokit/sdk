@@ -1,4 +1,5 @@
 import type {Scene} from "../../model/scene";
+import {GaussianSplatsPrimitive} from "../../base/constants";
 import type {WebGLRenderer} from "../../viewing/webGLRenderer";
 import {BVHPickStrategy} from "./BVHPickStrategy";
 import type {PickParams} from "./PickParams";
@@ -41,6 +42,7 @@ import {RendererPickStrategy} from "./RendererPickStrategy";
  */
 export class RoutingPickStrategy implements PickStrategy {
 
+  private readonly _scene: Scene;
   private readonly _bvh: BVHPickStrategy;
   private readonly _gpu: RendererPickStrategy | null;
   private readonly _renderer: WebGLRenderer | null;
@@ -71,6 +73,7 @@ export class RoutingPickStrategy implements PickStrategy {
    *   silently degrade).
    */
   constructor(scene: Scene, renderer?: WebGLRenderer) {
+    this._scene    = scene;
     this._bvh      = new BVHPickStrategy(scene);
     this._renderer = renderer ?? null;
     this._gpu      = renderer ? new RendererPickStrategy(renderer) : null;
@@ -100,14 +103,19 @@ export class RoutingPickStrategy implements PickStrategy {
     const wantSnap   = !!(params.snapToVertex || params.snapToEdge);
     const hasFilter  = !!params.filter;
     const isRayPick  = !!(params.ray || params.matrix);
+    // Splats have no BVH triangles, so they're only pickable via the GPU pass.
+    // When the scene holds splats, canvas picks must go to the GPU (which picks
+    // mesh geometry correctly too, so triangle picks are unaffected). Splat
+    // presence is scene state, so we ask the Scene — not the renderer.
+    const hasSplats  = this._scene.containsPrimitive(GaussianSplatsPrimitive);
 
     // GPU branch eligibility — the routing rule, condensed.
     const useGpu =
-      this._gpuReady &&        // GPU available
-      this._gpu &&             // renderer was supplied
-      wantSnap &&              // only reason to choose GPU today
-      !hasFilter &&            // GPU has no filter callback
-      !isRayPick;              // GPU snap is canvas-only
+      this._gpuReady &&            // GPU available
+      this._gpu &&                 // renderer was supplied
+      (wantSnap || hasSplats) &&   // snap request, or splats only the GPU can pick
+      !hasFilter &&                // GPU has no filter callback
+      !isRayPick;                  // GPU pick is canvas-only
 
     const result = useGpu
       ? this._gpu!.pick(params)

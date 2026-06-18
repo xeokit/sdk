@@ -10,6 +10,7 @@ import {SDKInternalException, type SDKResult} from "../../../../base/core";
 import {RENDER_BINS} from "../RENDER_BINS";
 import {type RenderPassDrawOps} from "../drawOps/RenderPassDrawOps";
 import {InfiniteGridRenderer} from "./environment/InfiniteGridRenderer";
+import {GaussianSplatTechnique} from "../drawOps/techniques/splats/GaussianSplatTechnique";
 import {SkyRenderer} from "./environment/SkyRenderer";
 import {SAOPipeline} from "./sao/SAOPipeline";
 import {ShadowPipeline} from "./shadows/ShadowPipeline";
@@ -96,6 +97,12 @@ export class RenderManager {
    * Infinite ground grid renderer. Set {@link InfiniteGridRenderer.enabled} to true to activate.
    */
   public infiniteGrid: InfiniteGridRenderer;
+
+  /**
+   * 3D Gaussian Splatting draw pass. Renders the {@link MeshManager}'s splat
+   * batch after opaque geometry, depth-sorted + alpha-blended. Null until init.
+   */
+  public gaussianSplats: GaussianSplatTechnique | null = null;
 
   /** Pre-allocated render bins, reused every frame to avoid per-frame array allocation. */
   private readonly _bins: RenderBins = {
@@ -231,6 +238,15 @@ export class RenderManager {
       if (gridResult.ok === false) {
         this.infiniteGrid = null;
         return gridResult;
+      }
+    }
+
+    if (!this.gaussianSplats) {
+      this.gaussianSplats = new GaussianSplatTechnique(this._renderContext.gl);
+      const splatResult = this.gaussianSplats.init();
+      if (splatResult.ok === false) {
+        this.gaussianSplats = null;
+        return splatResult;
       }
     }
 
@@ -602,6 +618,8 @@ export class RenderManager {
     this.skyRenderer = null;
     this.infiniteGrid?.destroy();
     this.infiniteGrid = null;
+    this.gaussianSplats?.destroy();
+    this.gaussianSplats = null;
     this._saoPipeline?.destroy();
     this._saoPipeline = null;
     this._shadowPipeline?.destroy();
@@ -837,6 +855,13 @@ export class RenderManager {
     this._drawEdgeBin(bins.normalEdgesOpaque, "opaqueEdges", "opaqueEdgesThick", RENDER_BINS.EDGES_OPAQUE, view);
     this._drawBin(bins.xrayedSilhouetteOpaque, "xrayed", RENDER_BINS.XRAYED_SILHOUETTE_OPAQUE);
     this._drawBin(bins.xrayEdgesOpaque, "xrayedEdges", RENDER_BINS.XRAYED_EDGES_OPAQUE);
+
+    // Gaussian splats: after opaque (so they depth-test against it), before the
+    // transparent mesh pass. Self-contained blended pass; no-op when no splats.
+    if (this.gaussianSplats) {
+      ri?.renderBinStarted("gaussianSplats");
+      this.gaussianSplats.render(rendererView, this._meshManager.getSplatBatch());
+    }
 
     this._renderTransparents(view);
 
@@ -1212,6 +1237,10 @@ export class RenderManager {
     if (this.infiniteGrid) {
       this.infiniteGrid.destroy();
       this.infiniteGrid = null;
+    }
+    if (this.gaussianSplats) {
+      this.gaussianSplats.destroy();
+      this.gaussianSplats = null;
     }
     for (const pipeline of this._iblPrefilters.values()) {
       pipeline.destroy();

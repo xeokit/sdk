@@ -11,7 +11,7 @@
  * (at rest). The renderer side is fully driven by the View's
  * `renderMode` — every effect (SAO, shadows, bloom, FXAA, ACES tonemap,
  * edges, IBL, section caps) gates its own activation on it via the
- * `renderModes` list, so no per-effect plumbing lives in the panel.
+ * `renderModes` list, so no per-effect setup lives in the panel.
  *
  * The `restMs` slider is panel-global (it applies to every adapter the
  * panel owns); changing it re-creates any live adapter with the new

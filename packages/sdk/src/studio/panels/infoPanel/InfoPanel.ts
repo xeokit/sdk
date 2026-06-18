@@ -22,7 +22,7 @@
  * ```
  *
  * For one-off widgets that don't fit the builders, {@link body}
- * is the escape hatch.
+ * is the fallback.
  *
  */
 
@@ -431,7 +431,7 @@ export interface InfoPanelParams {
  * caller owns the panel reference and uses the imperative
  * `addToggle` / `addSlider` / `addStat` / etc. builders to grow
  * the control list, and `setStat(id, value)` to update read-only
- * fields. `body` is the escape hatch for one-off DOM that doesn't
+ * fields. `body` is the fallback for one-off DOM that doesn't
  * fit the builders.
  */
 export class InfoPanel extends FloatingPanelBase {

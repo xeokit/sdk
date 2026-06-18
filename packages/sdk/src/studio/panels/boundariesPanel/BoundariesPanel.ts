@@ -8,7 +8,7 @@
  * {@link studio/dataStats!DataStatsPanel | DataStatsPanel} — same floating chrome,
  * same colour palette, same drag / close / reopen-pill mechanics.
  *
- * ## Lazy event wiring
+ * ## Lazy event setup
  *
  * Listeners attach **only while the panel is visible**. While
  * hidden, the panel costs nothing per-event. A constructor-time
@@ -1041,7 +1041,7 @@ export class BoundariesPanel extends FloatingPanelBase {
    *     camera follows, preserving lateral position +
    *     orientation.
    *
-   * Best-effort wiring:
+   * Best-effort setup:
    *   1. `view.cameraFlight.flyTo({eye, look})` when the View
    *      exposes one (Studio-mounted views do).
    *   2. Fall back to setting `camera.eye` / `camera.look`

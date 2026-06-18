@@ -2,7 +2,7 @@ import type {Vec3} from "../../../base/math/vector";
 
 
 /**
- * Tuning knobs for {@link planCameraTour}. Every field is
+ * Tuning parameters for {@link planCameraTour}. Every field is
  * optional; defaults target a typical AECO walkthrough at
  * metre-scale.
  *

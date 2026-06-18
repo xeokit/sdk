@@ -11,7 +11,7 @@
  * one page; their reopen pills park in different spots along the
  * bottom edge so closing one doesn't hide its neighbour.
  *
- * ## Lazy event wiring
+ * ## Lazy event setup
  *
  * Listeners attach **only while the panel is visible**. A
  * constructor-time `onDataDestroyed` watcher is the one

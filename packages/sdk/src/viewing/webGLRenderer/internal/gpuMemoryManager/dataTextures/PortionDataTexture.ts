@@ -347,79 +347,53 @@ export abstract class PortionDataTexture extends DataTexture {
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
-    // if (this.uploadAllOnFlush) {
-    //   gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.width, this.height, this.format, this.type, this.buffer);
-    //   this.dirtyPortionIds.clear();
-    //   this.uploadAllOnFlush = false;
-    //   gl.bindTexture(gl.TEXTURE_2D, null);
-    //   if (this.debugging) {
-    //     this.lastUploadTimeMS = performance.now() - startTimeMs;
-    //   }
-    //   this.notifyUpdated();
-    //   return true;
-    // }
-    //
-    // // Gather segments to upload
-    // const itemsPerRow = this.width;
-    // const segments: Portion[] = [];
-    // for (const id of this.dirtyPortionIds) {
-    //   const portion = this.usedPortions.get(id);
-    //   if (portion) {
-    //     segments.push({ base: portion.base, size: portion.size });
-    //   }
-    // }
-    // this.dirtyPortionIds.clear();
-    //
-    // // Sort and coalesce adjacent segments
-    // segments.sort((a, b) => a.base - b.base);
-    // const coalesced: Portion[] = [];
-    // for (const seg of segments) {
-    //   const last = coalesced[coalesced.length - 1];
-    //   if (last && (last.base + last.size) === seg.base) {
-    //     last.size += seg.size;
-    //   } else {
-    //     coalesced.push({ base: seg.base, size: seg.size });
-    //   }
-    // }
-    //
-    // // Upload row-split chunks
-    // for (const portion of coalesced) {
-    //   let base = portion.base;
-    //   let remaining = portion.size;
-    //   while (remaining > 0) {
-    //     const xOffset = base % itemsPerRow;
-    //     const yOffset = Math.floor(base / itemsPerRow);
-    //     const chunkSize = Math.min(remaining, itemsPerRow - xOffset);
-    //     const bufferStart = base * this.elementsPerItem;
-    //     const bufferEnd = (base + chunkSize) * this.elementsPerItem;
-    //     const pixelData = this.buffer.subarray(bufferStart, bufferEnd);
-    //     gl.texSubImage2D(
-    //       gl.TEXTURE_2D,
-    //       0,
-    //       xOffset,
-    //       yOffset,
-    //       chunkSize,
-    //       1,
-    //       this.format,
-    //       this.type,
-    //       pixelData
-    //     );
-    //     base += chunkSize;
-    //     remaining -= chunkSize;
-    //   }
-    // }
+    if (this.uploadAllOnFlush) {
+      // Full reupload — used after pack() moved portions around, so every
+      // texel may have changed.
+      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.width, this.height, this.format, this.type, this.buffer);
+    } else {
+      // Upload only the dirty portions: gather them, coalesce adjacent runs,
+      // then split each run at texture-row boundaries (one texSubImage2D per
+      // row-span). One item maps to one texel of `elementsPerItem` channels.
+      const itemsPerRow = this.width;
+      const segments: Portion[] = [];
+      for (const id of this.dirtyPortionIds) {
+        const portion = this.usedPortions.get(id);
+        if (portion) {
+          segments.push({base: portion.base, size: portion.size});
+        }
+      }
+      segments.sort((a, b) => a.base - b.base);
+      const coalesced: Portion[] = [];
+      for (const seg of segments) {
+        const last = coalesced[coalesced.length - 1];
+        if (last && (last.base + last.size) === seg.base) {
+          last.size += seg.size;
+        } else {
+          coalesced.push({base: seg.base, size: seg.size});
+        }
+      }
+      for (const portion of coalesced) {
+        let base = portion.base;
+        let remaining = portion.size;
+        while (remaining > 0) {
+          const xOffset = base % itemsPerRow;
+          const yOffset = Math.floor(base / itemsPerRow);
+          const chunkSize = Math.min(remaining, itemsPerRow - xOffset);
+          const bufferStart = base * this.elementsPerItem;
+          const bufferEnd = (base + chunkSize) * this.elementsPerItem;
+          const pixelData = this.buffer.subarray(bufferStart, bufferEnd);
+          gl.texSubImage2D(gl.TEXTURE_2D, 0, xOffset, yOffset, chunkSize, 1, this.format, this.type, pixelData);
+          base += chunkSize;
+          remaining -= chunkSize;
+        }
+      }
+    }
 
-    gl.texSubImage2D(
-      gl.TEXTURE_2D,
-      0,
-      0,
-      0,
-      this.width,
-      this.height,
-      this.format,
-      this.type,
-      this.buffer
-    );
+    // Clear the dirty state in BOTH branches — the previous code path uploaded
+    // the whole buffer but never cleared, so every frame re-uploaded everything.
+    this.dirtyPortionIds.clear();
+    this.uploadAllOnFlush = false;
 
     gl.bindTexture(gl.TEXTURE_2D, null);
 

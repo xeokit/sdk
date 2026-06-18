@@ -74,6 +74,7 @@ export const DEFAULT_EXTENSIONS: Record<string, string> = {
   fbx: "fbx",
   mtl: "mtl",
   obj: "obj",
+  splat: "splat",
   dotbim: "bim",
   cityjson: "json",
   metamodel: "json",
@@ -83,4 +84,5 @@ export const DEFAULT_EXTENSIONS: Record<string, string> = {
   svg: "svg",
   dwg: "dwg",
   dxf: "dxf",
+  threedxml: "3dxml",
 };

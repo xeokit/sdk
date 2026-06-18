@@ -43,7 +43,7 @@ import type {ExtractFillsOptions} from "./ExtractFillsOptions";
  *   `basis.forward` plus the user-supplied offset, and the
  *   extractor uses it to lift each pixel back to a 3D world
  *   point on the plane.
- * @param options Tuning knobs.
+ * @param options Tuning parameters.
  */
 export function extractFills(
   buffer: HLEDepthBuffer,
@@ -177,7 +177,7 @@ export function extractFills(
       // Emit world-space positions. Each pixel (px, py) lifts to
       // basis-space (u, v, planeDepth), then to world via
       // `u*right + v*up + planeDepth*forward`. The depth-axis
-      // contribution `planeDepth*forward` is pre-baked into
+      // contribution `planeDepth*forward` is pre-computed into
       // (fx, fy, fz) above so each vertex only pays for the
       // u- and v-axis multiply-adds.
       const base = positions.length / 3;

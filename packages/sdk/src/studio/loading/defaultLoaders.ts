@@ -3,11 +3,13 @@ import {IFCLoader} from "../../formats/ifc";
 import {GLTFLoader} from "../../formats/gltf";
 import {FBXLoader} from "../../formats/fbx";
 import {USDZLoader} from "../../formats/usdz";
+import {GaussianSplatLoader} from "../../formats/gaussiansplat";
 import {MTLLoader} from "../../formats/mtl";
 import {OBJLoader} from "../../formats/obj";
 import {DotBIMLoader} from "../../formats/dotbim";
 import {CityJSONLoader} from "../../formats/cityjson";
 import {FDSLoader} from "../../formats/fds";
+import {ThreeDXMLLoader} from "../../formats/threedxml";
 import {MetaModelLoader} from "../../formats/legacy/metamodel";
 import {DataModelImporter} from "../../formats/datamodel";
 import {SceneModelImporter} from "../../formats/scenemodel";
@@ -16,7 +18,7 @@ import {LoaderRegistry} from "./LoaderRegistry";
 
 /**
  * Returns a {@link LoaderRegistry} pre-populated with the built-in
- * formats Studio supports out of the box.
+ * formats Studio supports by default.
  *
  * Studio uses this by default; callers wanting a slimmer bundle or a
  * different set construct their own registry and pass it via
@@ -62,6 +64,13 @@ export function createDefaultLoaderRegistry(): LoaderRegistry {
     load: (input, options) => new USDZLoader().load(input, options),
   });
 
+  r.register("splat", {
+    fetch: "arrayBuffer",
+    needsScene: true,
+    needsData: false,
+    load: (input, options) => new GaussianSplatLoader().load(input, options),
+  });
+
   r.register("mtl", {
     fetch: "text",
     needsScene: true,
@@ -99,6 +108,13 @@ export function createDefaultLoaderRegistry(): LoaderRegistry {
     needsScene: true,
     needsData: true,
     load: (input, options) => new FDSLoader().load(input, options),
+  });
+
+  r.register("threedxml", {
+    fetch: "arrayBuffer",
+    needsScene: true,
+    needsData: false,
+    load: (input, options) => new ThreeDXMLLoader().load(input, options),
   });
 
   r.register("metamodel", {

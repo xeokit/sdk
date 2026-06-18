@@ -13,7 +13,7 @@
  * {@link viewing!viewer.SectionPlane | SectionPlane}-style clipping: where a
  * SectionPlane hides everything on the clipped side of a plane,
  * `sectionCaps` *fills the hole* the plane leaves behind. Output is
- * baked into a caller-owned target {@link model!scene.SceneModel | SceneModel}
+ * embedded into a caller-owned target {@link model!scene.SceneModel | SceneModel}
  * as flat `TrianglesPrimitive` meshes lying on the cut planes, one
  * {@link model!scene.SceneObject | SceneObject} per source object that
  * contributed at least one cap.

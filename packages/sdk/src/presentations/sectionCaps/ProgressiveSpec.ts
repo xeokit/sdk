@@ -1,5 +1,5 @@
 /**
- * Progressive-emission tuning knobs for
+ * Progressive-emission tuning parameters for
  * {@link BuildSectionCapsParams.progressive}.
  */
 export interface ProgressiveSpec {

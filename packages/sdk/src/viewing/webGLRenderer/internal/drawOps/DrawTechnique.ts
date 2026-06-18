@@ -11,7 +11,7 @@ const defaultColor = new Float32Array([1, 1, 1, 1]);
 
 /**
  * Maximum number of section (clipping) planes that can be
- * active in a single View. Baked into the fragment shader as
+ * active in a single View. Embedded into the fragment shader as
  * a compile-time `MAX_SECTION_PLANES` constant so the program
  * never recompiles when planes are created or destroyed at
  * runtime; the renderer just updates `uSectionPlaneCount` +
@@ -23,6 +23,55 @@ const defaultColor = new Float32Array([1, 1, 1, 1]);
  * change here plus the GLSL constant.
  */
 export const MAX_SECTION_PLANES = 8;
+
+/**
+ * The minimal shape {@link packSectionPlanes} needs from a section plane: its
+ * enabled flag, world-space normal, and the precomputed plane constant
+ * `dist = -dot(normal, pos)`. Matches {@link viewing!viewer.SectionPlane}.
+ */
+export interface SectionPlaneLike {
+  readonly active: boolean;
+  readonly dir: ArrayLike<number>;
+  readonly dist: number;
+}
+
+/**
+ * Packs a View's active section planes into a flat uniform buffer as
+ * `(normal.xyz, dist)` per plane, ready for upload via `gl.uniform4fv`.
+ *
+ * Active planes densely fill `out[0 .. count*4 - 1]` so a clipping shader's loop
+ * bound (`uSectionPlaneCount`) stays uniform and inactive planes cost nothing;
+ * the shader evaluates each plane as a single `dot(normal, p) + dist > 0` test.
+ * At most {@link MAX_SECTION_PLANES} planes are packed — extras are ignored.
+ *
+ * Shared by the mesh ({@link _bind}), splat and splat-pick passes so the clip
+ * convention can't drift between them.
+ *
+ * @param planes - The View's section planes (e.g. `view.sectionPlanesList`), or `undefined`.
+ * @param out - Scratch buffer of length `MAX_SECTION_PLANES * 4`, filled in place.
+ * @returns The number of active planes packed (`0 .. MAX_SECTION_PLANES`).
+ */
+export function packSectionPlanes(
+  planes: ReadonlyArray<SectionPlaneLike> | undefined,
+  out: Float32Array<any>,
+): number {
+  let count = 0;
+  if (planes) {
+    for (let i = 0; i < planes.length && count < MAX_SECTION_PLANES; i++) {
+      const plane = planes[i];
+      if (!plane.active) {
+        continue;
+      }
+      const dir = plane.dir;
+      out[count * 4 + 0] = dir[0];
+      out[count * 4 + 1] = dir[1];
+      out[count * 4 + 2] = dir[2];
+      out[count * 4 + 3] = plane.dist;
+      count++;
+    }
+  }
+  return count;
+}
 
 /**
  * Reusable scratch buffer for packing the active section
@@ -1717,7 +1766,7 @@ void main(void) {`);
    *
    * `uEdgeFadeRange` is `vec2(startDist, endDist)` in view-space units. The
    * CPU side derives both values from the active camera's far plane and the
-   * view's `Edges.edgeFadeStart` / `edgeFadeEnd` knobs.
+   * view's `Edges.edgeFadeStart` / `edgeFadeEnd` parameters.
    */
   protected fsEdgeFadeDeclarations() {
     this._fragSrcBuf.push(
@@ -2727,7 +2776,7 @@ flat out int  vHatchSpace;
         // coordinate system). Y-up scenes are rotated to Z-up
         // by the Scene's coord-system transform before
         // reaching the renderer, so this stays correct without
-        // an extra uniform plumbing.
+        // an extra uniform setup.
         //
         // Degenerate case — surface normal parallel to world
         // up (floors, ceilings): swap in world +X as the
@@ -4341,32 +4390,16 @@ ${this.triplanar ? `
     }
 
     if (uniforms.sectionPlaneCount) {
-      // Pack the View's active section planes into the
-      // uniform array as (normal.xyz, dist) per plane —
-      // dist = -dot(normal, pos) so the FS evaluates the
-      // plane equation as a single dot+add. Active planes
-      // densely fill `uSectionPlanes[0..count-1]` so the FS
-      // loop bound is uniform; inactive entries leave stale
-      // memory the shader never reads.
+      // Pack the View's active section planes into the uniform array as
+      // (normal.xyz, dist) per plane (see packSectionPlanes). Active planes
+      // densely fill `uSectionPlanes[0..count-1]` so the FS loop bound is
+      // uniform; inactive entries leave stale memory the shader never reads.
       //
-      // Per-frame cost: at most MAX_SECTION_PLANES (8) × 4
-      // floats = 128 bytes of upload, plus one int upload.
-      // Scenes with no clipping pay just the int compare.
-      const planes = view.sectionPlanesList;
+      // Per-frame cost: at most MAX_SECTION_PLANES (8) × 4 floats = 128 bytes
+      // of upload, plus one int upload. Scenes with no clipping pay just the
+      // int compare.
       const buf = SECTION_PLANE_SCRATCH;
-      let count = 0;
-      if (planes) {
-        for (let i = 0; i < planes.length && count < MAX_SECTION_PLANES; i++) {
-          const plane = planes[i];
-          if (!plane.active) continue;
-          const dir = plane.dir;
-          buf[count * 4 + 0] = dir[0];
-          buf[count * 4 + 1] = dir[1];
-          buf[count * 4 + 2] = dir[2];
-          buf[count * 4 + 3] = plane.dist;
-          count++;
-        }
-      }
+      const count = packSectionPlanes(view.sectionPlanesList, buf);
       gl.uniform1i(uniforms.sectionPlaneCount, count);
       if (count > 0 && uniforms.sectionPlanes) {
         gl.uniform4fv(uniforms.sectionPlanes, buf);

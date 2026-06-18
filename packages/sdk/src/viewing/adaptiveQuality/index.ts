@@ -14,7 +14,7 @@
  * caps) declares its own `renderModes` list and gates its activation on
  * `view.renderMode` being in that list. Flipping the View's mode
  * therefore toggles every effect whose list doesn't include the new mode
- * — no per-effect plumbing needed here.
+ * — no per-effect setup needed here.
  *
  * `AdaptiveQuality` listens for camera changes and drives that flip:
  * the first change in a burst switches the View into a low-cost mode

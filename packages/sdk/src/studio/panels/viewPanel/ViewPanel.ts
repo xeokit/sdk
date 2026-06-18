@@ -586,7 +586,7 @@ export class ViewPanel extends FloatingPanelBase {
     // Functionally a minimize button: hides the panel and surfaces
     // the reopen pill so the user can bring it back. The class is
     // still `xkt-vp-close` for backwards-compat with the base
-    // class's `_closeBtn` plumbing — only the user-facing labels
+    // class's `_closeBtn` setup — only the user-facing labels
     // and glyph have moved to minimize-style.
     this._closeBtn = el("button", "xkt-vp-close", {
       type:         "button",

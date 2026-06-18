@@ -160,7 +160,7 @@ export class PostProcessChain {
   }
 
   // ------------------------------------------------------------------
-  // Private init plumbing — three layers, each gracefully degrades.
+  // Private init setup — three layers, each gracefully degrades.
   // ------------------------------------------------------------------
 
   private _initHDR(): void {

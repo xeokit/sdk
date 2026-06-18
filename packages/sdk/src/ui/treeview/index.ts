@@ -90,7 +90,7 @@
  *   grouping via `groupTypes`).
  * - **IFC-native** — `linkType: IfcRelAggregates` plus
  *   `groupTypes: [IfcBuilding, IfcBuildingStorey]` is the standard
- *   IFC navigation tree out of the box.
+ *   IFC navigation tree by default.
  * - **Schema-agnostic** — works with any ER graph with
  *   aggregation-style relationships; pass any relationship type id
  *   for `linkType`.

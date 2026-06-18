@@ -51,6 +51,11 @@ export class WebGLRenderer {
   private _viewManagerSubs: (() => void)[];
   private _destroyed = false; // Indicates if the renderer has been destroyed
 
+  // Number of SceneModels currently building (loading). While > 0, per-view
+  // renders are suspended so a load doesn't repaint + re-upload the partial
+  // model on every mid-load frame; one render runs when it returns to 0.
+  private _renderSuspendCount = 0;
+
   /**
    * Enables or disables logging of errors to the console.
    */
@@ -262,6 +267,7 @@ export class WebGLRenderer {
     }
     return this._viewManager.getMemoryUsage();
   }
+
 
   /**
    * Returns a read-only view of GPU-resident data used by the renderer.
@@ -555,6 +561,25 @@ export class WebGLRenderer {
       sceneEvents.onSceneModelCreated.subscribe((_, sceneModel) => this.logError(viewManager.sceneModelCreated(sceneModel))),
       sceneEvents.onSceneModelDestroyed.subscribe((_, sceneModel) => this.logError(viewManager.sceneModelDestroyed(sceneModel))),
 
+      // A SceneModel is being populated by a loader — suspend per-view renders
+      // until every concurrently-building model finishes, then render once.
+      sceneEvents.onSceneModelBuildStarted.subscribe(() => {
+        this._renderSuspendCount++;
+      }),
+      sceneEvents.onSceneModelBuildFinished.subscribe(() => {
+        if (this._renderSuspendCount > 0) {
+          this._renderSuspendCount--;
+        }
+        if (this._renderSuspendCount === 0 && this._viewer) {
+          // Re-enter the normal render path once per view (now unsuspended):
+          // one uploadChanges + draw showing the fully-assembled model.
+          const views = this._viewer.viewList;
+          for (let i = 0, len = views.length; i < len; i++) {
+            views[i]?.needsRender();
+          }
+        }
+      }),
+
       sceneEvents.onSceneGeometryCreated.subscribe((_, sceneGeometry) => this.logError(viewManager.sceneGeometryCreated(sceneGeometry))),
       sceneEvents.onSceneGeometryDestroyed.subscribe((_, sceneGeometry) => this.logError(viewManager.sceneGeometryDestroyed(sceneGeometry))),
 
@@ -572,6 +597,12 @@ export class WebGLRenderer {
 
       viewerEvents.onViewCreated.subscribe((_, view) => this.logError(viewManager.viewCreated(view))),
       viewerEvents.onViewUpdated.subscribe((_, view) => {  // View ready to re-render
+        if (this._renderSuspendCount > 0) {
+          // A model is still building — skip the upload + draw. The View keeps
+          // its dirty flag (we never called viewUpdated), so the render fires
+          // when the build finishes and re-nudges it.
+          return;
+        }
         if (this.logError(viewManager.viewUpdated(view)).ok !== false) { // Re-render the View
           rendererEvents.onViewRendered.dispatch(this, view); // Emit event after successful render
         }

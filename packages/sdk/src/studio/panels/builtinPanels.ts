@@ -97,7 +97,7 @@ declare module "./PanelRegistry" {
 
     // per-VoxelGrid entry — slice-plane visualisation of a 3D
     // scalar field. The panel takes the grid by reference, the
-    // scene as the SceneModel host. No application-side wiring
+    // scene as the SceneModel host. No application-side setup
     // is mandatory: there's no toolbar button for this one (yet),
     // and creating one without a grid wouldn't have anything to
     // visualise.
@@ -425,7 +425,7 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
     // `find` falls back to the latest-opened panel when no
     // sunStudy is in params — that's the Toolbar "Sun Study"
     // button toggling whichever panel the application has
-    // already wired up. With a sunStudy in params, find the
+    // already set up. With a sunStudy in params, find the
     // specific per-SunStudy instance as usual.
     find: (_ctx, params) => params?.sunStudy
       ? SunStudyPanel.getFor(params.sunStudy)
@@ -436,7 +436,7 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
       //   construct a default one on the first available View.
       // The auto-construct path lets the Toolbar's Sun Study button
       // open the panel from a completely cold scene, with no
-      // application-side SunStudy wiring required. Defaults to
+      // application-side SunStudy setup required. Defaults to
       // Greenwich (51.48°N, 0°) — a recognisable solar-reference
       // site — and the SunStudy's own default solstice-noon cursor.
       // Both are user-editable through the panel inputs.
@@ -468,7 +468,7 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
   registry.register("daylightAnalysisPanel", {
     // Same latest-fallback shape as sunStudyPanel — lets the
     // Toolbar's Daylight Analysis button toggle whichever panel
-    // the application has already wired up, without needing to
+    // the application has already set up, without needing to
     // carry direct SunStudy / Scene references through the Toolbar.
     find: (_ctx, params) => params?.sunStudy
       ? DaylightAnalysisPanel.getFor(params.sunStudy)
@@ -479,7 +479,7 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
       //   on the first View with Greenwich defaults. Scene falls
       //   back to the Studio's own. Both paths make the Toolbar
       //   "Daylight Analysis" button work from a completely cold
-      //   scene with zero application-side wiring.
+      //   scene with zero application-side setup.
       const scene = params?.scene ?? ctx.studio.scene;
       if (!scene) {
         ctx.studio.reportWarning("[PanelRegistry/daylightAnalysisPanel] No Scene available.");
@@ -532,7 +532,7 @@ export function registerBuiltinPanels(registry: PanelRegistry): void {
       // a demo thermal field (+ matching natural-convection vector
       // field) covering the scene's AABB. The toolbar uses this path
       // so a click on "Volume Overlay" always produces something
-      // visible, even when the application hasn't wired up a real
+      // visible, even when the application hasn't set up a real
       // CFD result. Padded slightly outside the scene's bounds so
       // the field surrounds the model rather than clipping it.
       let grid       = params?.grid;

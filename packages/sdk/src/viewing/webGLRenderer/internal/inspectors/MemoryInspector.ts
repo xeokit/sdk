@@ -6,7 +6,7 @@ import type { View } from "../../../viewer";
  * Read-only view of GPU-related memory owned by a {@link WebGLRenderer}.
  * Provides structured, immutable access to the renderer’s GPU-resident data for inspection and debugging.
  *
- * ### Mental model
+ * ### Structure
  *
  * The renderer’s data is organized roughly as:
  *

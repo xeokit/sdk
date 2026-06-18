@@ -7,7 +7,7 @@
  * {@link studio/boundariesPanel!BoundariesPanel | BoundariesPanel} — same floating
  * chrome, same colour palette, same per-section lazy refresh.
  *
- * ## Lazy event wiring
+ * ## Lazy event setup
  *
  * Listeners attach **only while the panel is visible**.
  * Constructor subscribes a single `onSceneDestroyed` watcher so

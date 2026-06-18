@@ -149,7 +149,7 @@ class Effects {
     this.sectionPlaneCaps = new SectionPlaneCaps(view, params.sectionPlaneCaps || {});
 
     // Body hatch defaults to [DetailedRender] — engineering /
-    // schematic body shading without the caller wiring anything.
+    // schematic body shading without the caller connecting anything.
     // Override per-view by passing `bodyHatch` here or via
     // `view.effects.bodyHatch.renderModes`.
     this.bodyHatch = new BodyHatch(view, params.bodyHatch || {});

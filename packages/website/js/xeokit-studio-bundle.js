@@ -5835,8 +5835,8 @@ ${invokerFnBody}`;
         function _fd_read(fd, iov, iovcnt, pnum) {
           try {
             var stream = SYSCALLS.getStreamFromFD(fd);
-            var num4 = doReadv(stream, iov, iovcnt);
-            HEAPU32[pnum >> 2] = num4;
+            var num6 = doReadv(stream, iov, iovcnt);
+            HEAPU32[pnum >> 2] = num6;
             return 0;
           } catch (e) {
             if (typeof FS == "undefined" || !(e.name === "ErrnoError"))
@@ -5846,7 +5846,7 @@ ${invokerFnBody}`;
         }
         var INT53_MAX = 9007199254740992;
         var INT53_MIN = -9007199254740992;
-        var bigintToI53Checked = (num4) => num4 < INT53_MIN || num4 > INT53_MAX ? NaN : Number(num4);
+        var bigintToI53Checked = (num6) => num6 < INT53_MIN || num6 > INT53_MAX ? NaN : Number(num6);
         function _fd_seek(fd, offset, whence, newOffset) {
           offset = bigintToI53Checked(offset);
           try {
@@ -5886,8 +5886,8 @@ ${invokerFnBody}`;
         function _fd_write(fd, iov, iovcnt, pnum) {
           try {
             var stream = SYSCALLS.getStreamFromFD(fd);
-            var num4 = doWritev(stream, iov, iovcnt);
-            HEAPU32[pnum >> 2] = num4;
+            var num6 = doWritev(stream, iov, iovcnt);
+            HEAPU32[pnum >> 2] = num6;
             return 0;
           } catch (e) {
             if (typeof FS == "undefined" || !(e.name === "ErrnoError"))
@@ -6050,6 +6050,7 @@ __export(constants_exports, {
   FloatType: () => FloatType,
   FrustumProjectionType: () => FrustumProjectionType,
   GIFMediaType: () => GIFMediaType,
+  GaussianSplatsPrimitive: () => GaussianSplatsPrimitive,
   HalfFloatType: () => HalfFloatType,
   InchesUnit: () => InchesUnit,
   IntType: () => IntType,
@@ -6200,6 +6201,7 @@ var LinesPrimitive = 20001;
 var TrianglesPrimitive = 20002;
 var SolidPrimitive = 20003;
 var SurfacePrimitive = 20004;
+var GaussianSplatsPrimitive = 20005;
 var NavigationRender = 30001;
 var DetailedRender = 30002;
 var RealisticRender = 30003;
@@ -9025,7 +9027,7 @@ function quantizePositions3AndCreateMat4(positions, aabb, positionsDecompressMat
   const xMultiplier = maxInt / xwid;
   const yMultiplier = maxInt / ywid;
   const zMultiplier = maxInt / zwid;
-  const verify = (num4) => Math.max(0, num4);
+  const verify = (num6) => Math.max(0, num6);
   for (let i = 0; i < lenPositions; i += 3) {
     positionsCompressed[i] = Math.floor(verify(positions[i] - xmin) * xMultiplier);
     positionsCompressed[i + 1] = Math.floor(verify(positions[i + 1] - ymin) * yMultiplier);
@@ -9051,7 +9053,7 @@ function quantizePositions3(positions, aabb) {
   const xMultiplier = maxInt / xwid;
   const yMultiplier = maxInt / ywid;
   const zMultiplier = maxInt / zwid;
-  const verify = (num4) => Math.max(0, num4);
+  const verify = (num6) => Math.max(0, num6);
   for (let i = 0; i < lenPositions; i += 3) {
     positionsCompressed[i] = Math.floor(verify(positions[i] - xmin) * xMultiplier);
     positionsCompressed[i + 1] = Math.floor(verify(positions[i + 1] - ymin) * yMultiplier);
@@ -17192,6 +17194,18 @@ function compressGeometryParams(geometryParams) {
       origin: rtcNeeded ? rtcCenter : null
     };
   }
+  if (geometryParams.primitive === GaussianSplatsPrimitive) {
+    return {
+      id: geometryParams.id,
+      primitive: GaussianSplatsPrimitive,
+      aabb,
+      positionsCompressed,
+      colorsCompressed: geometryParams.colorsCompressed ? geometryParams.colorsCompressed : geometryParams.colors ? compressRGBColors(geometryParams.colors) : null,
+      scales: geometryParams.scales,
+      rotations: geometryParams.rotations,
+      origin: rtcNeeded ? rtcCenter : null
+    };
+  }
   if (geometryParams.primitive === LinesPrimitive) {
     return {
       id: geometryParams.id,
@@ -17298,6 +17312,16 @@ var SceneGeometry = class {
    */
   edgeIndices;
   /**
+   * Per-splat scales — 3 floats per splat. Only present for
+   * {@link base!constants.GaussianSplatsPrimitive | GaussianSplatsPrimitive} geometry.
+   */
+  scales;
+  /**
+   * Per-splat rotation quaternions — 4 floats per splat, `xyzw`. Only present for
+   * {@link base!constants.GaussianSplatsPrimitive | GaussianSplatsPrimitive} geometry.
+   */
+  rotations;
+  /**
    * The count of {@link SceneMesh | SceneMeshes} that reference this SceneGeometry.
    */
   numMeshes;
@@ -17319,6 +17343,8 @@ var SceneGeometry = class {
     this.normalsCompressed = params.normalsCompressed;
     this.indices = params.indices;
     this.edgeIndices = params.edgeIndices;
+    this.scales = params.scales;
+    this.rotations = params.rotations;
     this.aabb = createAABB3Float32(params.aabb);
     this.numMeshes = 0;
   }
@@ -17356,6 +17382,12 @@ var SceneGeometry = class {
     }
     if (this.edgeIndices) {
       params.edgeIndices = Array.from(this.edgeIndices);
+    }
+    if (this.scales) {
+      params.scales = Array.from(this.scales);
+    }
+    if (this.rotations) {
+      params.rotations = Array.from(this.rotations);
     }
     return {
       ok: true,
@@ -20236,6 +20268,11 @@ var SceneModel2 = class {
    */
   geometries;
   /**
+   * Live count of resident geometries per primitive type, maintained as
+   * geometries are created/destroyed. Backs {@link containsPrimitive}.
+   */
+  _primitiveCounts = /* @__PURE__ */ new Map();
+  /**
    * {@link SceneTexture | Textures} within this SceneModel, each mapped to {@link SceneTexture.id | SceneTexture.id}.
    *
    * - Created by {@link SceneModel.createTexture | SceneModel.createTexture}.
@@ -20283,6 +20320,35 @@ var SceneModel2 = class {
    * - Don't create anything more in this SceneModel once it's destroyed.
    */
   destroyed = false;
+  _building = false;
+  /**
+   * Whether this SceneModel is currently being populated by a loader.
+   *
+   * {@link ModelLoader} sets this `true` for the duration of a load and `false`
+   * when it finishes (or fails). The renderer observes the paired
+   * {@link model!scene.SceneEvents.onSceneModelBuildStarted | onSceneModelBuildStarted} /
+   * {@link model!scene.SceneEvents.onSceneModelBuildFinished | onSceneModelBuildFinished}
+   * events to suspend per-frame uploads + draws until the model is fully
+   * assembled, then renders it once — avoiding redundant mid-load frames.
+   *
+   * Setting the same value twice is a no-op (no event fired), so it's safe for
+   * a loader to clear it in a `finally` even on the error path.
+   */
+  get building() {
+    return this._building;
+  }
+  set building(building) {
+    building = !!building;
+    if (building === this._building) {
+      return;
+    }
+    this._building = building;
+    if (building) {
+      this.scene.events.onSceneModelBuildStarted.dispatch(this.scene, this);
+    } else {
+      this.scene.events.onSceneModelBuildFinished.dispatch(this.scene, this);
+    }
+  }
   /**
    * Constructs a new {@link model!scene.SceneModel | SceneModel}.
    *
@@ -20867,18 +20933,18 @@ var SceneModel2 = class {
         error: "[SceneModel.createGeometry] The length of 'positions' in geometryParams must be a multiple of 3."
       });
     }
-    if (primitive !== PointsPrimitive && (!indices || indices.length === 0)) {
+    if (primitive !== PointsPrimitive && primitive !== GaussianSplatsPrimitive && (!indices || indices.length === 0)) {
       return this.scene.logError({
         ok: false,
         type: 2 /* InvalidInput */,
         error: "[SceneModel.createGeometry] Missing/empty required 'indices' for the specified primitive type."
       });
     }
-    if (primitive !== PointsPrimitive && primitive !== LinesPrimitive && primitive !== TrianglesPrimitive && primitive !== SolidPrimitive && primitive !== SurfacePrimitive) {
+    if (primitive !== PointsPrimitive && primitive !== LinesPrimitive && primitive !== TrianglesPrimitive && primitive !== SolidPrimitive && primitive !== SurfacePrimitive && primitive !== GaussianSplatsPrimitive) {
       return this.scene.logError({
         ok: false,
         type: 2 /* InvalidInput */,
-        error: `[SceneModel.createGeometry] Unsupported value for geometryParams.primitive: '${primitive}' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive`
+        error: `[SceneModel.createGeometry] Unsupported value for geometryParams.primitive: '${primitive}' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive, SurfacePrimitive and GaussianSplatsPrimitive`
       });
     }
     if (colors && colors.length > 0) {
@@ -20937,6 +21003,7 @@ var SceneModel2 = class {
     );
     this.geometries[id] = sceneGeometry;
     this.stats.numGeometries++;
+    this._bumpPrimitiveCount(sceneGeometry.primitive, 1);
     if (indices) {
       if (sceneGeometry.primitive === TrianglesPrimitive) {
         this.stats.numTriangles += indices.length / 3;
@@ -21035,7 +21102,7 @@ var SceneModel2 = class {
         error: "[SceneModel.createGeometryCompressed] Parameter expected: 'positionsCompressed'"
       });
     }
-    if (!indices && primitive !== PointsPrimitive) {
+    if (!indices && primitive !== PointsPrimitive && primitive !== GaussianSplatsPrimitive) {
       return this.scene.logError({
         ok: false,
         type: 2 /* InvalidInput */,
@@ -21091,16 +21158,17 @@ var SceneModel2 = class {
         error: `[SceneModel.createGeometryCompressed] SceneGeometry with this ID already exists: '${geometryId}'`
       });
     }
-    if (primitive !== PointsPrimitive && primitive !== LinesPrimitive && primitive !== TrianglesPrimitive && primitive !== SolidPrimitive && primitive !== SurfacePrimitive) {
+    if (primitive !== PointsPrimitive && primitive !== LinesPrimitive && primitive !== TrianglesPrimitive && primitive !== SolidPrimitive && primitive !== SurfacePrimitive && primitive !== GaussianSplatsPrimitive) {
       return this.scene.logError({
         ok: false,
         type: 2 /* InvalidInput */,
-        error: `[SceneModel.createGeometryCompressed] Unsupported value for parameter 'primitive': '${primitive}' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive`
+        error: `[SceneModel.createGeometryCompressed] Unsupported value for parameter 'primitive': '${primitive}' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive, SurfacePrimitive and GaussianSplatsPrimitive`
       });
     }
     const sceneGeometry = new SceneGeometry(this, geometryCompressedParams);
     this.geometries[geometryId] = sceneGeometry;
     this.stats.numGeometries++;
+    this._bumpPrimitiveCount(sceneGeometry.primitive, 1);
     if (indices) {
       if (sceneGeometry.primitive === TrianglesPrimitive) {
         this.stats.numTriangles += indices.length / 3;
@@ -21118,9 +21186,26 @@ var SceneModel2 = class {
     };
   }
   /**
-   * @private
-   * Destroys a {@link model!scene.SceneGeometry | SceneGeometry} previously created in this model.
+   * Returns `true` if this SceneModel currently holds at least one
+   * {@link SceneGeometry} of the given primitive type — e.g.
+   * `model.containsPrimitive(GaussianSplatsPrimitive)`.
+   *
+   * Backed by a live per-primitive count maintained as geometries are created
+   * and destroyed, so it is O(1) and correct regardless of when geometries were
+   * added relative to the model's creation event.
    */
+  containsPrimitive(primitive) {
+    return (this._primitiveCounts.get(primitive) ?? 0) > 0;
+  }
+  /** Adjusts the per-primitive geometry count, clearing zeroed entries. */
+  _bumpPrimitiveCount(primitive, delta) {
+    const next = (this._primitiveCounts.get(primitive) ?? 0) + delta;
+    if (next > 0) {
+      this._primitiveCounts.set(primitive, next);
+    } else {
+      this._primitiveCounts.delete(primitive);
+    }
+  }
   _destroyGeometry(sceneGeometry) {
     const geometryId = sceneGeometry.id;
     if (this.destroyed) {
@@ -21134,6 +21219,7 @@ var SceneModel2 = class {
     }
     delete this.geometries[geometryId];
     this.stats.numGeometries--;
+    this._bumpPrimitiveCount(sceneGeometry.primitive, -1);
     if (sceneGeometry.indices) {
       if (sceneGeometry.primitive === TrianglesPrimitive) {
         this.stats.numTriangles -= sceneGeometry.indices.length / 3;
@@ -21725,6 +21811,19 @@ var SceneEvents = class {
    */
   onSceneModelDestroyed;
   /**
+   * Emits an event when a {@link model!scene.SceneModel | SceneModel} enters its "building" state — i.e. a
+   * loader has begun populating it. Consumers (e.g. the renderer) can use this to
+   * suspend per-frame work until the model is fully assembled. Paired with
+   * {@link onSceneModelBuildFinished}.
+   */
+  onSceneModelBuildStarted;
+  /**
+   * Emits an event when a {@link model!scene.SceneModel | SceneModel} leaves its "building" state — the
+   * loader has finished (or failed). Always fires to match a preceding
+   * {@link onSceneModelBuildStarted}, so consumers can rely on balanced pairs.
+   */
+  onSceneModelBuildFinished;
+  /**
    * Emits an event when the {@link CoordinateSystem.basis} of a {@link model!scene.SceneModel | SceneModel} is updated.
    */
   onSceneModelCoordSystemBasisChanged;
@@ -21878,6 +21977,8 @@ var SceneEvents = class {
     this.onSceneCoordSystemUpdated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneModelCreated = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneModelDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneModelBuildStarted = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
+    this.onSceneModelBuildFinished = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneModelCoordSystemBasisChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneModelCoordSystemOriginChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
     this.onSceneModelCoordSystemUnitsChanged = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
@@ -21924,6 +22025,8 @@ var SceneEvents = class {
     this.onSceneCoordSystemUpdated.clear();
     this.onSceneModelCreated.clear();
     this.onSceneModelDestroyed.clear();
+    this.onSceneModelBuildStarted.clear();
+    this.onSceneModelBuildFinished.clear();
     this.onSceneModelCoordSystemBasisChanged.clear();
     this.onSceneModelCoordSystemOriginChanged.clear();
     this.onSceneModelCoordSystemUnitsChanged.clear();
@@ -22065,6 +22168,21 @@ var Scene = class {
       return this.logError(populated);
     }
     return { ok: true, value: sceneModel };
+  }
+  /**
+   * Returns `true` if any {@link model!scene.SceneModel | SceneModel} in this
+   * Scene currently holds at least one {@link model!scene.SceneGeometry | SceneGeometry}
+   * of the given primitive type — e.g. `scene.containsPrimitive(GaussianSplatsPrimitive)`.
+   *
+   * Backed by per-model live counts, so this is cheap to call (no geometry scan).
+   */
+  containsPrimitive(primitive) {
+    for (const id in this.models) {
+      if (this.models[id].containsPrimitive(primitive)) {
+        return true;
+      }
+    }
+    return false;
   }
   /**
    * Called internally when a {@link model!scene.SceneModel | SceneModel} is destroyed.
@@ -22337,10 +22455,21 @@ var ModelLoader = class {
               pushedYieldOverride = false;
             }
           };
+          const buildScoped = !!sceneModel && options.progressiveRender !== true;
+          if (buildScoped) {
+            sceneModel.building = true;
+          }
+          const endBuild = () => {
+            if (buildScoped) {
+              sceneModel.building = false;
+            }
+          };
           parser({ fileData: fileData2, sceneModel, dataModel }, options).then(() => {
+            endBuild();
             restoreYieldOverride();
             resolve2();
           }).catch((err6) => {
+            endBuild();
             restoreYieldOverride();
             reject(err6);
           });
@@ -22524,6 +22653,7 @@ __export(formats_exports, {
   dxf: () => dxf_exports,
   fbx: () => fbx_exports,
   fds: () => fds_exports,
+  gaussiansplat: () => gaussiansplat_exports,
   gltf: () => gltf_exports,
   ifc: () => ifc_exports,
   las: () => las_exports,
@@ -22533,6 +22663,7 @@ __export(formats_exports, {
   pdf: () => pdf_exports,
   scenemodel: () => scenemodel_exports,
   svg: () => svg_exports,
+  threedxml: () => threedxml_exports,
   usdz: () => usdz_exports,
   xgf: () => xgf_exports
 });
@@ -24115,8 +24246,8 @@ function isSVG(url) {
 }
 function getBlobOrSVGDataUrl(arrayBuffer, url) {
   if (isSVG(url)) {
-    const textDecoder2 = new TextDecoder();
-    let xmlText = textDecoder2.decode(arrayBuffer);
+    const textDecoder3 = new TextDecoder();
+    let xmlText = textDecoder3.decode(arrayBuffer);
     try {
       if (typeof unescape === "function" && typeof encodeURIComponent === "function") {
         xmlText = unescape(encodeURIComponent(xmlText));
@@ -25314,13 +25445,13 @@ function getPropertyDataString(numberOfElements, valuesDataBytes, arrayOffsets, 
   }
   if (stringOffsets) {
     const stringsArray = [];
-    const textDecoder2 = new TextDecoder("utf8");
+    const textDecoder3 = new TextDecoder("utf8");
     let stringOffset = 0;
     for (let index = 0; index < numberOfElements; index++) {
       const stringByteSize = stringOffsets[index + 1] - stringOffsets[index];
       if (stringByteSize + stringOffset <= valuesDataBytes.length) {
         const stringData = valuesDataBytes.subarray(stringOffset, stringByteSize + stringOffset);
-        const stringAttribute = textDecoder2.decode(stringData);
+        const stringAttribute = textDecoder3.decode(stringData);
         stringsArray.push(stringAttribute);
         stringOffset += stringByteSize;
       }
@@ -26627,8 +26758,8 @@ function parseGLBChunksSync(glb, dataView, byteOffset, options) {
 }
 function parseJSONChunk(glb, dataView, byteOffset, chunkLength) {
   const jsonChunk = new Uint8Array(dataView.buffer, byteOffset, chunkLength);
-  const textDecoder2 = new TextDecoder("utf8");
-  const jsonText = textDecoder2.decode(jsonChunk);
+  const textDecoder3 = new TextDecoder("utf8");
+  const jsonText = textDecoder3.decode(jsonChunk);
   glb.json = JSON.parse(jsonText);
   return padToNBytes(chunkLength, 4);
 }
@@ -29251,10 +29382,10 @@ async function encode6(gltfData, options) {
 }
 function resolveTechniques(techniquesExtension, gltfScenegraph) {
   const { programs = [], shaders = [], techniques = [] } = techniquesExtension;
-  const textDecoder2 = new TextDecoder();
+  const textDecoder3 = new TextDecoder();
   shaders.forEach((shader) => {
     if (Number.isFinite(shader.bufferView)) {
-      shader.code = textDecoder2.decode(gltfScenegraph.getTypedArrayForBufferView(shader.bufferView));
+      shader.code = textDecoder3.decode(gltfScenegraph.getTypedArrayForBufferView(shader.bufferView));
     } else {
       throw new Error("KHR_techniques_webgl: no shader code");
     }
@@ -29569,8 +29700,8 @@ function parseGLTFContainerSync(gltf, data2, byteOffset, options) {
     gltf.baseUri = options.uri;
   }
   if (data2 instanceof ArrayBuffer && !isGLB(data2, byteOffset, options)) {
-    const textDecoder2 = new TextDecoder();
-    data2 = textDecoder2.decode(data2);
+    const textDecoder3 = new TextDecoder();
+    data2 = textDecoder3.decode(data2);
   }
   if (typeof data2 === "string") {
     gltf.json = parseJSON(data2);
@@ -30754,12 +30885,12 @@ var DEFAULT_CHUNK_SIZE = 256 * 1024;
 function* makeStringIterator(string, options) {
   const chunkSize = options?.chunkSize || DEFAULT_CHUNK_SIZE;
   let offset = 0;
-  const textEncoder2 = new TextEncoder();
+  const textEncoder3 = new TextEncoder();
   while (offset < string.length) {
     const chunkLength = Math.min(string.length - offset, chunkSize);
     const chunk = string.slice(offset, offset + chunkLength);
     offset += chunkLength;
-    yield textEncoder2.encode(chunk);
+    yield textEncoder3.encode(chunk);
   }
 }
 
@@ -30854,15 +30985,15 @@ function getArrayBufferOrStringFromDataSync(data2, loader, options) {
   if (data2 instanceof ArrayBuffer) {
     const arrayBuffer = data2;
     if (loader.text && !loader.binary) {
-      const textDecoder2 = new TextDecoder("utf8");
-      return textDecoder2.decode(arrayBuffer);
+      const textDecoder3 = new TextDecoder("utf8");
+      return textDecoder3.decode(arrayBuffer);
     }
     return arrayBuffer;
   }
   if (ArrayBuffer.isView(data2)) {
     if (loader.text && !loader.binary) {
-      const textDecoder2 = new TextDecoder("utf8");
-      return textDecoder2.decode(data2);
+      const textDecoder3 = new TextDecoder("utf8");
+      return textDecoder3.decode(data2);
     }
     let arrayBuffer = data2.buffer;
     const byteLength = data2.byteLength || data2.length;
@@ -37903,8 +38034,8 @@ var earcut = /* @__PURE__ */ (() => {
   const onSegment = (p, q, r) => {
     return q.x <= Math.max(p.x, r.x) && q.x >= Math.min(p.x, r.x) && q.y <= Math.max(p.y, r.y) && q.y >= Math.min(p.y, r.y);
   };
-  const sign = (num4) => {
-    return num4 > 0 ? 1 : num4 < 0 ? -1 : 0;
+  const sign = (num6) => {
+    return num6 > 0 ? 1 : num6 < 0 ? -1 : 0;
   };
   const intersectsPolygon = (a2, b4) => {
     let p = a2;
@@ -43186,8 +43317,8 @@ var require_web_ifc_mt = __commonJS2({
           pnum >>>= 0;
           try {
             var stream = SYSCALLS.getStreamFromFD(fd);
-            var num4 = doReadv(stream, iov, iovcnt);
-            GROWABLE_HEAP_U32()[pnum >>> 2] = num4;
+            var num6 = doReadv(stream, iov, iovcnt);
+            GROWABLE_HEAP_U32()[pnum >>> 2] = num6;
             return 0;
           } catch (e) {
             if (typeof FS == "undefined" || !(e.name === "ErrnoError"))
@@ -43239,8 +43370,8 @@ var require_web_ifc_mt = __commonJS2({
           pnum >>>= 0;
           try {
             var stream = SYSCALLS.getStreamFromFD(fd);
-            var num4 = doWritev(stream, iov, iovcnt);
-            GROWABLE_HEAP_U32()[pnum >>> 2] = num4;
+            var num6 = doWritev(stream, iov, iovcnt);
+            GROWABLE_HEAP_U32()[pnum >>> 2] = num6;
             return 0;
           } catch (e) {
             if (typeof FS == "undefined" || !(e.name === "ErrnoError"))
@@ -45731,11 +45862,11 @@ var require_web_ifc = __commonJS2({
         }
         var _emscripten_get_now;
         _emscripten_get_now = () => performance.now();
-        function _emscripten_memcpy_big(dest, src, num4) {
+        function _emscripten_memcpy_big(dest, src, num6) {
           dest >>>= 0;
           src >>>= 0;
-          num4 >>>= 0;
-          return HEAPU8.copyWithin(dest >>> 0, src >>> 0, src + num4 >>> 0);
+          num6 >>>= 0;
+          return HEAPU8.copyWithin(dest >>> 0, src >>> 0, src + num6 >>> 0);
         }
         var getHeapMax = () => 4294901760;
         var growMemory = (size) => {
@@ -47665,8 +47796,8 @@ var require_web_ifc = __commonJS2({
           pnum >>>= 0;
           try {
             var stream = SYSCALLS.getStreamFromFD(fd);
-            var num4 = doReadv(stream, iov, iovcnt);
-            HEAPU32[pnum >>> 2] = num4;
+            var num6 = doReadv(stream, iov, iovcnt);
+            HEAPU32[pnum >>> 2] = num6;
             return 0;
           } catch (e) {
             if (typeof FS == "undefined" || !(e.name === "ErrnoError"))
@@ -47714,8 +47845,8 @@ var require_web_ifc = __commonJS2({
           pnum >>>= 0;
           try {
             var stream = SYSCALLS.getStreamFromFD(fd);
-            var num4 = doWritev(stream, iov, iovcnt);
-            HEAPU32[pnum >>> 2] = num4;
+            var num6 = doWritev(stream, iov, iovcnt);
+            HEAPU32[pnum >>> 2] = num6;
             return 0;
           } catch (e) {
             if (typeof FS == "undefined" || !(e.name === "ErrnoError"))
@@ -105140,6 +105271,412 @@ async function parse9(params, options) {
   });
 }
 
+// ../sdk/src/formats/xgf/versions/v3/unpackXGF.ts
+function unpackXGF3(arrayBuffer) {
+  const requiresSwapFromLittleEndian = function() {
+    const b4 = new ArrayBuffer(2);
+    new Uint16Array(b4)[0] = 1;
+    return new Uint8Array(b4)[0] !== 1;
+  }();
+  const nextArray = function() {
+    let i = 0;
+    const dataView = new DataView(arrayBuffer);
+    return function(type) {
+      const idx = 1 + 2 * i++;
+      const byteOffset = dataView.getUint32(idx * 4, true);
+      const byteLength = dataView.getUint32((idx + 1) * 4, true);
+      const BPE = type.BYTES_PER_ELEMENT;
+      if (requiresSwapFromLittleEndian && BPE > 1) {
+        const subarray = new Uint8Array(arrayBuffer, byteOffset, byteLength);
+        const swaps = BPE / 2;
+        const cnt = subarray.length / BPE;
+        for (let b4 = 0; b4 < cnt; b4++) {
+          const offset = b4 * BPE;
+          for (let j = 0; j < swaps; j++) {
+            const i1 = offset + j;
+            const i2 = offset - j + BPE - 1;
+            const tmp = subarray[i1];
+            subarray[i1] = subarray[i2];
+            subarray[i2] = tmp;
+          }
+        }
+      }
+      return new type(arrayBuffer, byteOffset, byteLength / BPE);
+    };
+  }();
+  const nextObject = function() {
+    const decoder = new TextDecoder();
+    return () => JSON.parse(decoder.decode(nextArray(Uint8Array)));
+  }();
+  return {
+    positions: nextArray(Uint16Array),
+    colors: nextArray(Uint8Array),
+    indices: nextArray(Uint32Array),
+    edgeIndices: nextArray(Uint32Array),
+    aabbs: nextArray(Float32Array),
+    normals: nextArray(Uint16Array),
+    uvs: nextArray(Float32Array),
+    scales: nextArray(Float32Array),
+    rotations: nextArray(Uint8Array),
+    eachGeometryPositionsBase: nextArray(Uint32Array),
+    eachGeometryColorsBase: nextArray(Uint32Array),
+    eachGeometryIndicesBase: nextArray(Uint32Array),
+    eachGeometryEdgeIndicesBase: nextArray(Uint32Array),
+    eachGeometryNormalsBase: nextArray(Uint32Array),
+    eachGeometryUVsBase: nextArray(Uint32Array),
+    eachGeometryScalesBase: nextArray(Uint32Array),
+    eachGeometryRotationsBase: nextArray(Uint32Array),
+    eachGeometryPrimitiveType: nextArray(Uint8Array),
+    eachGeometryAABBBase: nextArray(Uint32Array),
+    matrices: nextArray(Float64Array),
+    textureData: nextArray(Uint8Array),
+    eachTextureDataBase: nextArray(Uint32Array),
+    eachTextureMediaType: nextArray(Uint8Array),
+    eachTextureWidth: nextArray(Uint16Array),
+    eachTextureHeight: nextArray(Uint16Array),
+    eachTextureSampler: nextArray(Uint8Array),
+    eachTextureId: nextObject(),
+    eachMaterialPBR: nextArray(Uint8Array),
+    eachMaterialTextures: nextArray(Int32Array),
+    eachMaterialId: nextObject(),
+    eachMeshGeometriesBase: nextArray(Uint32Array),
+    eachMeshMatricesBase: nextArray(Uint32Array),
+    eachMeshMaterialAttributes: nextArray(Uint8Array),
+    eachMeshMaterial: nextArray(Int32Array),
+    eachObjectId: nextObject(),
+    eachObjectMeshesBase: nextArray(Uint32Array)
+  };
+}
+
+// ../sdk/src/formats/xgf/versions/v3/xgfToModel.ts
+var NUM_MATERIAL_ATTRIBUTES2 = 4;
+var NUM_MATERIAL_TEXTURE_REFS2 = 5;
+var NUM_MATERIAL_PBR_BYTES2 = 8;
+var NUM_TEXTURE_SAMPLER_BYTES2 = 5;
+var NO_INDEX2 = 4294967295;
+var SAMPLER_DECODE2 = {
+  1: RepeatWrapping,
+  2: ClampToEdgeWrapping,
+  3: MirroredRepeatWrapping,
+  4: NearestFilter,
+  5: LinearFilter,
+  6: NearestMipMapNearestFilter,
+  7: LinearMipMapNearestFilter,
+  8: NearestMipMapLinearFilter,
+  9: LinearMipMapLinearFilter
+};
+var MEDIA_TYPE_DECODE2 = {
+  0: PNGMediaType,
+  1: JPEGMediaType,
+  2: GIFMediaType
+};
+var ALPHA_MODE_NAMES2 = ["OPAQUE", "MASK", "BLEND"];
+async function xgfToModel3(params) {
+  const { xgfData, sceneModel, dataModel, options } = params;
+  const layerId = options?.layerId || "default";
+  const defaultId = sceneModel ? sceneModel.id : createUUID();
+  const progress = { phase: "", current: 0, total: 0 };
+  const step2 = async (phase, current, total) => {
+    if (options.onProgress) {
+      progress.phase = phase;
+      progress.current = current;
+      progress.total = total;
+      options.onProgress(progress);
+    }
+    await yieldToHost(options.signal);
+  };
+  if (dataModel) {
+    dataModel.createObject({
+      id: defaultId,
+      name: defaultId,
+      type: "BasicEntity"
+    });
+  }
+  const {
+    positions,
+    colors,
+    indices,
+    edgeIndices,
+    aabbs,
+    normals,
+    uvs,
+    scales,
+    rotations,
+    eachGeometryPositionsBase,
+    eachGeometryColorsBase,
+    eachGeometryIndicesBase,
+    eachGeometryEdgeIndicesBase,
+    eachGeometryNormalsBase,
+    eachGeometryUVsBase,
+    eachGeometryScalesBase,
+    eachGeometryRotationsBase,
+    eachGeometryAABBBase,
+    eachGeometryPrimitiveType,
+    matrices,
+    textureData,
+    eachTextureDataBase,
+    eachTextureMediaType,
+    eachTextureWidth,
+    eachTextureHeight,
+    eachTextureSampler,
+    eachTextureId,
+    eachMaterialPBR,
+    eachMaterialTextures,
+    eachMaterialId,
+    eachMeshGeometriesBase,
+    eachMeshMatricesBase,
+    eachMeshMaterialAttributes,
+    eachMeshMaterial,
+    eachObjectId,
+    eachObjectMeshesBase
+  } = xgfData;
+  const numGeometries = eachGeometryPositionsBase.length;
+  const numMeshes = eachMeshGeometriesBase.length;
+  const numObjects = eachObjectMeshesBase.length;
+  const numTextures = eachTextureDataBase.length;
+  const numMaterials = eachMaterialId.length;
+  const createdTextureIds = [];
+  if (sceneModel) {
+    for (let i = 0; i < numTextures; i++) {
+      if ((i & 3) === 0)
+        await step2("Decoding textures", i, numTextures);
+      const id = eachTextureId[i] || `texture-${i}`;
+      createdTextureIds.push(id);
+      const sliceStart = eachTextureDataBase[i];
+      const sliceEnd = i === numTextures - 1 ? textureData.length : eachTextureDataBase[i + 1];
+      const bytes = textureData.subarray(sliceStart, sliceEnd);
+      const mediaCode = eachTextureMediaType[i];
+      const sBase = i * NUM_TEXTURE_SAMPLER_BYTES2;
+      const samplerParams = {
+        minFilter: SAMPLER_DECODE2[eachTextureSampler[sBase]] || LinearMipMapLinearFilter,
+        magFilter: SAMPLER_DECODE2[eachTextureSampler[sBase + 1]] || LinearFilter,
+        wrapS: SAMPLER_DECODE2[eachTextureSampler[sBase + 2]] || RepeatWrapping,
+        wrapT: SAMPLER_DECODE2[eachTextureSampler[sBase + 3]] || RepeatWrapping,
+        wrapR: SAMPLER_DECODE2[eachTextureSampler[sBase + 4]] || RepeatWrapping,
+        width: eachTextureWidth[i],
+        height: eachTextureHeight[i]
+      };
+      if (bytes.length === 0) {
+        const onePx = new Uint8ClampedArray([255, 255, 255, 255]);
+        const imageData = typeof ImageData !== "undefined" ? new ImageData(onePx, 1, 1) : { data: onePx, width: 1, height: 1 };
+        sceneModel.createTexture({
+          id,
+          imageData,
+          mediaType: PNGMediaType,
+          ...samplerParams,
+          width: 1,
+          height: 1,
+          flipY: false
+        });
+        continue;
+      }
+      const standardMedia = MEDIA_TYPE_DECODE2[mediaCode];
+      if (standardMedia !== void 0) {
+        const blob = new Blob([bytes], {
+          type: standardMedia === PNGMediaType ? "image/png" : standardMedia === JPEGMediaType ? "image/jpeg" : "image/gif"
+        });
+        const imageBitmap = await createImageBitmap(blob);
+        sceneModel.createTexture({
+          id,
+          image: imageBitmap,
+          mediaType: standardMedia,
+          ...samplerParams,
+          width: imageBitmap.width,
+          height: imageBitmap.height,
+          flipY: false
+        });
+      } else {
+        sceneModel.createTexture({
+          id,
+          buffers: [bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)],
+          ...samplerParams,
+          flipY: false,
+          compressed: true
+        });
+      }
+    }
+  }
+  if (sceneModel) {
+    for (let i = 0; i < numMaterials; i++) {
+      if ((i & 63) === 0)
+        await step2("Building materials", i, numMaterials);
+      const id = eachMaterialId[i];
+      const base = i * NUM_MATERIAL_PBR_BYTES2;
+      const tBase = i * NUM_MATERIAL_TEXTURE_REFS2;
+      const params2 = {
+        id,
+        color: [
+          eachMaterialPBR[base] / 255,
+          eachMaterialPBR[base + 1] / 255,
+          eachMaterialPBR[base + 2] / 255
+        ],
+        opacity: eachMaterialPBR[base + 3] / 255,
+        roughness: eachMaterialPBR[base + 4] / 255,
+        metallic: eachMaterialPBR[base + 5] / 255,
+        alphaMode: ALPHA_MODE_NAMES2[eachMaterialPBR[base + 6]] || "OPAQUE",
+        alphaCutoff: eachMaterialPBR[base + 7] / 255
+      };
+      const colorIdx = eachMaterialTextures[tBase];
+      const mrIdx = eachMaterialTextures[tBase + 1];
+      const normalsIdx = eachMaterialTextures[tBase + 2];
+      const occlusionIdx = eachMaterialTextures[tBase + 3];
+      const emissiveIdx = eachMaterialTextures[tBase + 4];
+      if (colorIdx >= 0)
+        params2.colorTextureId = createdTextureIds[colorIdx];
+      if (mrIdx >= 0)
+        params2.metallicRoughnessTextureId = createdTextureIds[mrIdx];
+      if (normalsIdx >= 0)
+        params2.normalsTextureId = createdTextureIds[normalsIdx];
+      if (occlusionIdx >= 0)
+        params2.occlusionTextureId = createdTextureIds[occlusionIdx];
+      if (emissiveIdx >= 0)
+        params2.emissiveTextureId = createdTextureIds[emissiveIdx];
+      sceneModel.createMaterial(params2);
+    }
+  }
+  let nextMeshId = 0;
+  const floatColor = createVec3Float32();
+  for (let objectIdx = 0; objectIdx < numObjects; objectIdx++) {
+    if ((objectIdx & 31) === 0) {
+      await step2("Building meshes", objectIdx, numObjects);
+    }
+    const objectId = eachObjectId[objectIdx];
+    const atLastObject = objectIdx === numObjects - 1;
+    const firstMeshIdx = eachObjectMeshesBase[objectIdx];
+    const lastMeshIdx = atLastObject ? numMeshes - 1 : eachObjectMeshesBase[objectIdx + 1] - 1;
+    const meshIds = [];
+    for (let meshIdx = firstMeshIdx; meshIdx <= lastMeshIdx; meshIdx++) {
+      const meshId = `${nextMeshId++}`;
+      if (sceneModel) {
+        const geometryIdx = eachMeshGeometriesBase[meshIdx];
+        const geometryId = `${geometryIdx}`;
+        if (!sceneModel.geometries[geometryId]) {
+          const params2 = { id: geometryId };
+          switch (eachGeometryPrimitiveType[geometryIdx]) {
+            case 0:
+              params2.primitive = TrianglesPrimitive;
+              break;
+            case 1:
+              params2.primitive = SolidPrimitive;
+              break;
+            case 2:
+              params2.primitive = SurfacePrimitive;
+              break;
+            case 3:
+              params2.primitive = LinesPrimitive;
+              break;
+            case 4:
+              params2.primitive = PointsPrimitive;
+              break;
+            case 5:
+              params2.primitive = GaussianSplatsPrimitive;
+              break;
+          }
+          const aabbsBase = eachGeometryAABBBase[geometryIdx];
+          params2.aabb = aabbs.subarray(aabbsBase, aabbsBase + 6);
+          const atLastGeometry = geometryIdx === numGeometries - 1;
+          const posStart = eachGeometryPositionsBase[geometryIdx];
+          const posEnd = atLastGeometry ? positions.length : eachGeometryPositionsBase[geometryIdx + 1];
+          const indStart = eachGeometryIndicesBase[geometryIdx];
+          const indEnd = atLastGeometry ? indices.length : eachGeometryIndicesBase[geometryIdx + 1];
+          const edgeStart = eachGeometryEdgeIndicesBase[geometryIdx];
+          const edgeEnd = atLastGeometry ? edgeIndices.length : eachGeometryEdgeIndicesBase[geometryIdx + 1];
+          params2.positionsCompressed = positions.subarray(posStart, posEnd);
+          if (params2.primitive !== PointsPrimitive && params2.primitive !== GaussianSplatsPrimitive) {
+            params2.indices = indices.subarray(indStart, indEnd);
+          }
+          const edgeSlice = edgeIndices.subarray(edgeStart, edgeEnd);
+          if (edgeSlice.length > 0)
+            params2.edgeIndices = edgeSlice;
+          const colStart = eachGeometryColorsBase[geometryIdx];
+          const colEnd = atLastGeometry ? colors.length : eachGeometryColorsBase[geometryIdx + 1];
+          const colSlice = colors.subarray(colStart, colEnd);
+          if (colSlice.length > 0)
+            params2.colorsCompressed = colSlice;
+          const normalsBaseI = eachGeometryNormalsBase[geometryIdx];
+          if (normalsBaseI !== NO_INDEX2) {
+            const normalsEnd = nextNonSentinelBase2(eachGeometryNormalsBase, geometryIdx, normals.length);
+            params2.normalsCompressed = normals.subarray(normalsBaseI, normalsEnd);
+          }
+          const uvsBaseI = eachGeometryUVsBase[geometryIdx];
+          if (uvsBaseI !== NO_INDEX2) {
+            const uvsEnd = nextNonSentinelBase2(eachGeometryUVsBase, geometryIdx, uvs.length);
+            params2.uvsCompressed = uvs.subarray(uvsBaseI, uvsEnd);
+          }
+          const scalesBaseI = eachGeometryScalesBase[geometryIdx];
+          if (scalesBaseI !== NO_INDEX2) {
+            const scalesEnd = nextNonSentinelBase2(eachGeometryScalesBase, geometryIdx, scales.length);
+            params2.scales = scales.subarray(scalesBaseI, scalesEnd);
+          }
+          const rotationsBaseI = eachGeometryRotationsBase[geometryIdx];
+          if (rotationsBaseI !== NO_INDEX2) {
+            const rotationsEnd = nextNonSentinelBase2(eachGeometryRotationsBase, geometryIdx, rotations.length);
+            const decoded = new Float32Array(rotationsEnd - rotationsBaseI);
+            for (let i = 0; i < decoded.length; i++) {
+              decoded[i] = (rotations[rotationsBaseI + i] - 128) / 128;
+            }
+            params2.rotations = decoded;
+          }
+          sceneModel.createGeometryCompressed(params2);
+        }
+        const matricesBase = eachMeshMatricesBase[meshIdx];
+        const matrix = matrices.subarray(matricesBase, matricesBase + 16);
+        const meshParams = { id: meshId, geometryId, matrix };
+        const materialIdx = eachMeshMaterial[meshIdx];
+        if (materialIdx >= 0 && materialIdx < numMaterials) {
+          meshParams.materialId = eachMaterialId[materialIdx];
+        } else {
+          const colorBase = meshIdx * NUM_MATERIAL_ATTRIBUTES2;
+          floatColor[0] = eachMeshMaterialAttributes[colorBase] / 255;
+          floatColor[1] = eachMeshMaterialAttributes[colorBase + 1] / 255;
+          floatColor[2] = eachMeshMaterialAttributes[colorBase + 2] / 255;
+          meshParams.color = floatColor.slice(0, 3);
+          meshParams.opacity = eachMeshMaterialAttributes[colorBase + 3] / 255;
+        }
+        sceneModel.createMesh(meshParams);
+      }
+      meshIds.push(meshId);
+    }
+    if (meshIds.length > 0) {
+      if (sceneModel) {
+        sceneModel.createObject({ id: objectId, meshIds, layerId });
+      }
+      if (dataModel) {
+        dataModel.createObject({ id: objectId, name: objectId, type: "BasicEntity" });
+        dataModel.createRelationship({
+          type: "BasicAggregation",
+          relatingObjectId: defaultId,
+          relatedObjectId: objectId
+        });
+      }
+    }
+  }
+  if (options.onProgress) {
+    progress.phase = "Building meshes";
+    progress.current = numObjects;
+    progress.total = numObjects;
+    options.onProgress(progress);
+  }
+}
+function nextNonSentinelBase2(bases, startIdx, arrayLength) {
+  for (let i = startIdx + 1; i < bases.length; i++) {
+    if (bases[i] !== NO_INDEX2)
+      return bases[i];
+  }
+  return arrayLength;
+}
+
+// ../sdk/src/formats/xgf/versions/v3/parse.ts
+async function parse10(params, options) {
+  const { fileData, sceneModel, dataModel } = params;
+  await xgfToModel3({
+    xgfData: unpackXGF3(fileData),
+    sceneModel,
+    dataModel,
+    options
+  });
+}
+
 // ../sdk/src/formats/xgf/XGFLoader.ts
 var XGFLoader = class extends ModelLoader {
   constructor() {
@@ -105148,7 +105685,8 @@ var XGFLoader = class extends ModelLoader {
       fileDataType: "arraybuffer",
       parsers: {
         "1": parse8,
-        "2": parse9
+        "2": parse9,
+        "3": parse10
       },
       getVersion: (fileData) => {
         return "" + new DataView(fileData).getUint32(0, true);
@@ -105158,7 +105696,7 @@ var XGFLoader = class extends ModelLoader {
 };
 
 // ../sdk/src/formats/xgf/versions/v1/modelToXGF.ts
-var NUM_MATERIAL_ATTRIBUTES2 = 4;
+var NUM_MATERIAL_ATTRIBUTES3 = 4;
 function modelToXGF(params) {
   const sceneModel = params.sceneModel;
   const options = params.options;
@@ -105217,7 +105755,7 @@ function modelToXGF(params) {
     // For each mesh, an index into the eachGeometry* arrays
     eachMeshMatricesBase: new Uint32Array(numMeshes),
     // For each mesh that shares its geometry, the index of its first element in xgfData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
-    eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES2),
+    eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES3),
     // For each mesh, an RGBA integer color of format [0..255, 0..255, 0..255, 0..255], and PBR metallic and roughness factors, of format [0..255, 0..255]
     eachObjectId: [],
     // For each object, an ID string
@@ -105414,10 +105952,10 @@ function encode10(params, options) {
 }
 
 // ../sdk/src/formats/xgf/versions/v2/modelToXGF.ts
-var NUM_MATERIAL_ATTRIBUTES3 = 4;
-var NUM_MATERIAL_TEXTURE_REFS2 = 5;
-var NUM_MATERIAL_PBR_BYTES2 = 8;
-var NO_INDEX2 = 4294967295;
+var NUM_MATERIAL_ATTRIBUTES4 = 4;
+var NUM_MATERIAL_TEXTURE_REFS3 = 5;
+var NUM_MATERIAL_PBR_BYTES3 = 8;
+var NO_INDEX3 = 4294967295;
 var SAMPLER_CODE = {
   [RepeatWrapping]: 1,
   [ClampToEdgeWrapping]: 2,
@@ -105536,8 +106074,8 @@ async function modelToXGF2(params) {
     }
   }
   const materialIndexById = {};
-  const eachMaterialPBR = new Uint8Array(numMaterials * NUM_MATERIAL_PBR_BYTES2);
-  const eachMaterialTextures = new Int32Array(numMaterials * NUM_MATERIAL_TEXTURE_REFS2);
+  const eachMaterialPBR = new Uint8Array(numMaterials * NUM_MATERIAL_PBR_BYTES3);
+  const eachMaterialTextures = new Int32Array(numMaterials * NUM_MATERIAL_TEXTURE_REFS3);
   const eachMaterialId = [];
   for (let i = 0; i < numMaterials; i++) {
     if ((i & 63) === 0)
@@ -105545,7 +106083,7 @@ async function modelToXGF2(params) {
     const mat = materialsList[i];
     materialIndexById[mat.id] = i;
     eachMaterialId.push(mat.id);
-    const base = i * NUM_MATERIAL_PBR_BYTES2;
+    const base = i * NUM_MATERIAL_PBR_BYTES3;
     eachMaterialPBR[base] = clampU8(mat.color[0] * 255);
     eachMaterialPBR[base + 1] = clampU8(mat.color[1] * 255);
     eachMaterialPBR[base + 2] = clampU8(mat.color[2] * 255);
@@ -105554,7 +106092,7 @@ async function modelToXGF2(params) {
     eachMaterialPBR[base + 5] = clampU8(mat.metallic * 255);
     eachMaterialPBR[base + 6] = clampU8(mat.alphaMode);
     eachMaterialPBR[base + 7] = clampU8(mat.alphaCutoff * 255);
-    const tBase = i * NUM_MATERIAL_TEXTURE_REFS2;
+    const tBase = i * NUM_MATERIAL_TEXTURE_REFS3;
     eachMaterialTextures[tBase] = textureIndexOrNone(mat.colorTexture?.id, textureIndexById);
     eachMaterialTextures[tBase + 1] = textureIndexOrNone(mat.metallicRoughnessTexture?.id, textureIndexById);
     eachMaterialTextures[tBase + 2] = textureIndexOrNone(mat.normalsTexture?.id, textureIndexById);
@@ -105592,7 +106130,7 @@ async function modelToXGF2(params) {
     eachMaterialId,
     eachMeshGeometriesBase: new Uint32Array(numMeshes),
     eachMeshMatricesBase: new Uint32Array(numMeshes),
-    eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES3),
+    eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES4),
     eachMeshMaterial: new Int32Array(numMeshes),
     eachObjectId: [],
     eachObjectMeshesBase: new Uint32Array(numObjects)
@@ -105662,14 +106200,14 @@ async function modelToXGF2(params) {
       xgfData.normals.set(geometry.normalsCompressed, normalsBase);
       normalsBase += geometry.normalsCompressed.length;
     } else {
-      xgfData.eachGeometryNormalsBase[geometryIdx] = NO_INDEX2;
+      xgfData.eachGeometryNormalsBase[geometryIdx] = NO_INDEX3;
     }
     if (geometry.uvsCompressed) {
       xgfData.eachGeometryUVsBase[geometryIdx] = uvsBase;
       xgfData.uvs.set(geometry.uvsCompressed, uvsBase);
       uvsBase += geometry.uvsCompressed.length;
     } else {
-      xgfData.eachGeometryUVsBase[geometryIdx] = NO_INDEX2;
+      xgfData.eachGeometryUVsBase[geometryIdx] = NO_INDEX3;
     }
     geometryIndices[geometry.id] = geometryIdx;
   }
@@ -105868,7 +106406,497 @@ async function encode11(params, options) {
   return packXGF2(xgfData);
 }
 
+// ../sdk/src/formats/xgf/versions/v3/modelToXGF.ts
+var NUM_MATERIAL_ATTRIBUTES5 = 4;
+var NUM_MATERIAL_TEXTURE_REFS4 = 5;
+var NUM_MATERIAL_PBR_BYTES4 = 8;
+var NO_INDEX4 = 4294967295;
+var clampByte = (v) => v < 0 ? 0 : v > 255 ? 255 : v;
+var SAMPLER_CODE2 = {
+  [RepeatWrapping]: 1,
+  [ClampToEdgeWrapping]: 2,
+  [MirroredRepeatWrapping]: 3,
+  [NearestFilter]: 4,
+  [LinearFilter]: 5,
+  [NearestMipMapNearestFilter]: 6,
+  [LinearMipMapNearestFilter]: 7,
+  [NearestMipMapLinearFilter]: 8,
+  [LinearMipMapLinearFilter]: 9
+};
+var MEDIA_TYPE_CODE2 = {
+  [PNGMediaType]: 0,
+  [JPEGMediaType]: 1,
+  [GIFMediaType]: 2
+};
+var samplerCode2 = (v) => v !== void 0 && SAMPLER_CODE2[v] !== void 0 ? SAMPLER_CODE2[v] : 0;
+async function modelToXGF3(params) {
+  const sceneModel = params.sceneModel;
+  const options = params.options || {};
+  const onProgress = options.onProgress;
+  const signal = options.signal;
+  const progress = { phase: "", current: 0, total: 0 };
+  const step2 = async (phase, current, total) => {
+    if (onProgress) {
+      progress.phase = phase;
+      progress.current = current;
+      progress.total = total;
+      onProgress(progress);
+    }
+    await yieldToHost(signal);
+  };
+  if (options.coordinateSystem) {
+    createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4Float64());
+  }
+  const geometriesList = Object.values(sceneModel.geometries);
+  const meshesList = Object.values(sceneModel.meshes);
+  const objectsList = Object.values(sceneModel.objects);
+  const texturesList = Object.values(sceneModel.textures);
+  const materialsList = Object.values(sceneModel.materials);
+  const numGeometries = geometriesList.length;
+  const numMeshes = meshesList.length;
+  const numObjects = objectsList.length;
+  const numTextures = texturesList.length;
+  const numMaterials = materialsList.length;
+  let sizePositions = 0;
+  let sizeColors = 0;
+  let sizeIndices = 0;
+  let sizeEdgeIndices = 0;
+  let sizeNormals = 0;
+  let sizeUVs = 0;
+  let sizeScales = 0;
+  let sizeRotations = 0;
+  for (const geometry of geometriesList) {
+    if (!geometry || !geometry.positionsCompressed)
+      continue;
+    sizePositions += geometry.positionsCompressed.length;
+    if (geometry.indices)
+      sizeIndices += geometry.indices.length;
+    if (geometry.edgeIndices)
+      sizeEdgeIndices += geometry.edgeIndices.length;
+    if (geometry.colorsCompressed)
+      sizeColors += geometry.colorsCompressed.length;
+    if (geometry.normalsCompressed)
+      sizeNormals += geometry.normalsCompressed.length;
+    if (geometry.uvsCompressed)
+      sizeUVs += geometry.uvsCompressed.length;
+    if (geometry.scales)
+      sizeScales += geometry.scales.length;
+    if (geometry.rotations)
+      sizeRotations += geometry.rotations.length;
+  }
+  const textureBytes2 = [];
+  const textureMediaTypes = [];
+  const textureWidths = [];
+  const textureHeights = [];
+  const textureSamplers = [];
+  const textureIds = [];
+  const textureIndexById = {};
+  for (let i = 0; i < numTextures; i++) {
+    if ((i & 3) === 0)
+      await step2("Encoding textures", i, numTextures);
+    const tex = texturesList[i];
+    textureIds.push(tex.id);
+    textureIndexById[tex.id] = i;
+    let bytes = null;
+    let mediaCode = 255;
+    if (tex.buffers && tex.buffers.length > 0 && tex.buffers[0]) {
+      bytes = new Uint8Array(tex.buffers[0]);
+      mediaCode = tex.mediaType !== void 0 && MEDIA_TYPE_CODE2[tex.mediaType] !== void 0 ? MEDIA_TYPE_CODE2[tex.mediaType] : 255;
+    } else if (tex.imageData && tex.imageData.width && tex.imageData.height) {
+      bytes = await encodeImageToPNG2(tex.imageData);
+      mediaCode = MEDIA_TYPE_CODE2[PNGMediaType];
+    }
+    if (!bytes) {
+      console.warn(`[xgf v2] Texture '${tex.id}' has neither buffers nor imageData \u2014 encoded as empty`);
+      bytes = new Uint8Array(0);
+    }
+    textureBytes2.push(bytes);
+    textureMediaTypes.push(mediaCode);
+    textureWidths.push(tex.width || (tex.imageData?.width ?? 0));
+    textureHeights.push(tex.height || (tex.imageData?.height ?? 0));
+    textureSamplers.push(
+      samplerCode2(tex.minFilter),
+      samplerCode2(tex.magFilter),
+      samplerCode2(tex.wrapS),
+      samplerCode2(tex.wrapT),
+      samplerCode2(tex.wrapR)
+    );
+  }
+  let textureDataSize = 0;
+  for (const b4 of textureBytes2)
+    textureDataSize += b4.length;
+  const textureData = new Uint8Array(textureDataSize);
+  const eachTextureDataBase = new Uint32Array(numTextures);
+  {
+    let cursor = 0;
+    for (let i = 0; i < numTextures; i++) {
+      eachTextureDataBase[i] = cursor;
+      textureData.set(textureBytes2[i], cursor);
+      cursor += textureBytes2[i].length;
+    }
+  }
+  const materialIndexById = {};
+  const eachMaterialPBR = new Uint8Array(numMaterials * NUM_MATERIAL_PBR_BYTES4);
+  const eachMaterialTextures = new Int32Array(numMaterials * NUM_MATERIAL_TEXTURE_REFS4);
+  const eachMaterialId = [];
+  for (let i = 0; i < numMaterials; i++) {
+    if ((i & 63) === 0)
+      await step2("Encoding materials", i, numMaterials);
+    const mat = materialsList[i];
+    materialIndexById[mat.id] = i;
+    eachMaterialId.push(mat.id);
+    const base = i * NUM_MATERIAL_PBR_BYTES4;
+    eachMaterialPBR[base] = clampU82(mat.color[0] * 255);
+    eachMaterialPBR[base + 1] = clampU82(mat.color[1] * 255);
+    eachMaterialPBR[base + 2] = clampU82(mat.color[2] * 255);
+    eachMaterialPBR[base + 3] = clampU82(mat.opacity * 255);
+    eachMaterialPBR[base + 4] = clampU82(mat.roughness * 255);
+    eachMaterialPBR[base + 5] = clampU82(mat.metallic * 255);
+    eachMaterialPBR[base + 6] = clampU82(mat.alphaMode);
+    eachMaterialPBR[base + 7] = clampU82(mat.alphaCutoff * 255);
+    const tBase = i * NUM_MATERIAL_TEXTURE_REFS4;
+    eachMaterialTextures[tBase] = textureIndexOrNone2(mat.colorTexture?.id, textureIndexById);
+    eachMaterialTextures[tBase + 1] = textureIndexOrNone2(mat.metallicRoughnessTexture?.id, textureIndexById);
+    eachMaterialTextures[tBase + 2] = textureIndexOrNone2(mat.normalsTexture?.id, textureIndexById);
+    eachMaterialTextures[tBase + 3] = textureIndexOrNone2(mat.occlusionTexture?.id, textureIndexById);
+    eachMaterialTextures[tBase + 4] = textureIndexOrNone2(mat.emissiveTexture?.id, textureIndexById);
+  }
+  const xgfData = {
+    positions: new Uint16Array(sizePositions),
+    colors: new Uint8Array(sizeColors),
+    indices: new Uint32Array(sizeIndices),
+    edgeIndices: new Uint32Array(sizeEdgeIndices),
+    aabbs: new Float32Array(0),
+    // populated below
+    normals: new Uint16Array(sizeNormals),
+    uvs: new Float32Array(sizeUVs),
+    scales: new Float32Array(sizeScales),
+    rotations: new Uint8Array(sizeRotations),
+    eachGeometryPositionsBase: new Uint32Array(numGeometries),
+    eachGeometryColorsBase: new Uint32Array(numGeometries),
+    eachGeometryIndicesBase: new Uint32Array(numGeometries),
+    eachGeometryEdgeIndicesBase: new Uint32Array(numGeometries),
+    eachGeometryNormalsBase: new Uint32Array(numGeometries),
+    eachGeometryUVsBase: new Uint32Array(numGeometries),
+    eachGeometryScalesBase: new Uint32Array(numGeometries),
+    eachGeometryRotationsBase: new Uint32Array(numGeometries),
+    eachGeometryPrimitiveType: new Uint8Array(numGeometries),
+    eachGeometryAABBBase: new Uint32Array(numGeometries),
+    matrices: new Float64Array(0),
+    // populated below
+    textureData,
+    eachTextureDataBase,
+    eachTextureMediaType: new Uint8Array(textureMediaTypes),
+    eachTextureWidth: new Uint16Array(textureWidths),
+    eachTextureHeight: new Uint16Array(textureHeights),
+    eachTextureSampler: new Uint8Array(textureSamplers),
+    eachTextureId: textureIds,
+    eachMaterialPBR,
+    eachMaterialTextures,
+    eachMaterialId,
+    eachMeshGeometriesBase: new Uint32Array(numMeshes),
+    eachMeshMatricesBase: new Uint32Array(numMeshes),
+    eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES5),
+    eachMeshMaterial: new Int32Array(numMeshes),
+    eachObjectId: [],
+    eachObjectMeshesBase: new Uint32Array(numObjects)
+  };
+  let positionsBase = 0;
+  let colorsBase = 0;
+  let indicesBase = 0;
+  let edgeIndicesBase = 0;
+  let normalsBase = 0;
+  let uvsBase = 0;
+  let scalesBase = 0;
+  let rotationsBase = 0;
+  let aabbsBase = 0;
+  const aabbIdxMap = {};
+  const aabbs = [];
+  const matrices = [];
+  const geometryIndices = {};
+  for (let geometryIdx = 0; geometryIdx < numGeometries; geometryIdx++) {
+    const geometry = geometriesList[geometryIdx];
+    let primitiveType = 0;
+    switch (geometry.primitive) {
+      case TrianglesPrimitive:
+        primitiveType = 0;
+        break;
+      case SolidPrimitive:
+        primitiveType = 1;
+        break;
+      case SurfacePrimitive:
+        primitiveType = 2;
+        break;
+      case LinesPrimitive:
+        primitiveType = 3;
+        break;
+      case PointsPrimitive:
+        primitiveType = 4;
+        break;
+      case GaussianSplatsPrimitive:
+        primitiveType = 5;
+        break;
+    }
+    xgfData.eachGeometryPrimitiveType[geometryIdx] = primitiveType;
+    const aabb = geometry.aabb;
+    const aabbHash = `${aabb[0]}-${aabb[1]}-${aabb[2]}-${aabb[3]}-${aabb[4]}-${aabb[5]}`;
+    let aabbIdx = aabbIdxMap[aabbHash];
+    if (aabbIdx === void 0) {
+      aabbIdx = aabbsBase;
+      aabbIdxMap[aabbHash] = aabbIdx;
+      aabbs.push(...aabb);
+      aabbsBase += 6;
+    }
+    xgfData.eachGeometryAABBBase[geometryIdx] = aabbIdx;
+    xgfData.eachGeometryPositionsBase[geometryIdx] = positionsBase;
+    xgfData.positions.set(geometry.positionsCompressed, positionsBase);
+    positionsBase += geometry.positionsCompressed.length;
+    xgfData.eachGeometryColorsBase[geometryIdx] = colorsBase;
+    if (geometry.colorsCompressed) {
+      xgfData.colors.set(geometry.colorsCompressed, colorsBase);
+      colorsBase += geometry.colorsCompressed.length;
+    }
+    xgfData.eachGeometryIndicesBase[geometryIdx] = indicesBase;
+    if (geometry.indices) {
+      xgfData.indices.set(geometry.indices, indicesBase);
+      indicesBase += geometry.indices.length;
+    }
+    xgfData.eachGeometryEdgeIndicesBase[geometryIdx] = edgeIndicesBase;
+    if (geometry.edgeIndices) {
+      xgfData.edgeIndices.set(geometry.edgeIndices, edgeIndicesBase);
+      edgeIndicesBase += geometry.edgeIndices.length;
+    }
+    if (geometry.normalsCompressed) {
+      xgfData.eachGeometryNormalsBase[geometryIdx] = normalsBase;
+      xgfData.normals.set(geometry.normalsCompressed, normalsBase);
+      normalsBase += geometry.normalsCompressed.length;
+    } else {
+      xgfData.eachGeometryNormalsBase[geometryIdx] = NO_INDEX4;
+    }
+    if (geometry.uvsCompressed) {
+      xgfData.eachGeometryUVsBase[geometryIdx] = uvsBase;
+      xgfData.uvs.set(geometry.uvsCompressed, uvsBase);
+      uvsBase += geometry.uvsCompressed.length;
+    } else {
+      xgfData.eachGeometryUVsBase[geometryIdx] = NO_INDEX4;
+    }
+    if (geometry.scales && geometry.rotations) {
+      xgfData.eachGeometryScalesBase[geometryIdx] = scalesBase;
+      xgfData.scales.set(geometry.scales, scalesBase);
+      scalesBase += geometry.scales.length;
+      xgfData.eachGeometryRotationsBase[geometryIdx] = rotationsBase;
+      const rotations = geometry.rotations;
+      for (let i = 0, len = rotations.length; i < len; i++) {
+        xgfData.rotations[rotationsBase + i] = clampByte(Math.round(rotations[i] * 128 + 128));
+      }
+      rotationsBase += rotations.length;
+    } else {
+      xgfData.eachGeometryScalesBase[geometryIdx] = NO_INDEX4;
+      xgfData.eachGeometryRotationsBase[geometryIdx] = NO_INDEX4;
+    }
+    geometryIndices[geometry.id] = geometryIdx;
+  }
+  let identityMatrixAdded = false;
+  let identityMatrixBase = 0;
+  let matricesBase = 0;
+  let meshesBase = 0;
+  let materialAttrBase = 0;
+  for (let objectIdx = 0; objectIdx < numObjects; objectIdx++) {
+    if ((objectIdx & 31) === 0) {
+      await step2("Encoding objects", objectIdx, numObjects);
+    }
+    const object = objectsList[objectIdx];
+    xgfData.eachObjectId[objectIdx] = object.id;
+    xgfData.eachObjectMeshesBase[objectIdx] = meshesBase;
+    for (let i = 0; i < object.meshes.length; i++) {
+      const mesh = object.meshes[i];
+      xgfData.eachMeshGeometriesBase[meshesBase] = geometryIndices[mesh.geometry.id];
+      const matrix = getMeshWorldMatrix(mesh, options.coordinateSystem);
+      if (isIdentityMat4(matrix)) {
+        if (!identityMatrixAdded) {
+          matrices.push(...matrix);
+          xgfData.eachMeshMatricesBase[meshesBase] = matricesBase;
+          identityMatrixBase = matricesBase;
+          matricesBase += 16;
+          identityMatrixAdded = true;
+        } else {
+          xgfData.eachMeshMatricesBase[meshesBase] = identityMatrixBase;
+        }
+      } else {
+        matrices.push(...matrix);
+        xgfData.eachMeshMatricesBase[meshesBase] = matricesBase;
+        matricesBase += 16;
+      }
+      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU82(mesh.effectiveColor[0] * 255);
+      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU82(mesh.effectiveColor[1] * 255);
+      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU82(mesh.effectiveColor[2] * 255);
+      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU82(mesh.effectiveOpacity * 255);
+      xgfData.eachMeshMaterial[meshesBase] = mesh.material ? materialIndexById[mesh.material.id] ?? -1 : -1;
+      meshesBase++;
+    }
+  }
+  xgfData.aabbs = new Float32Array(aabbs);
+  xgfData.matrices = new Float64Array(matrices);
+  if (onProgress) {
+    progress.phase = "Encoding objects";
+    progress.current = numObjects;
+    progress.total = numObjects;
+    onProgress(progress);
+  }
+  return xgfData;
+}
+function clampU82(v) {
+  v = Math.round(v);
+  return v < 0 ? 0 : v > 255 ? 255 : v;
+}
+function textureIndexOrNone2(id, indexById) {
+  if (!id)
+    return -1;
+  const idx = indexById[id];
+  return idx === void 0 ? -1 : idx;
+}
+async function encodeImageToPNG2(imageData) {
+  const w = imageData.width, h = imageData.height;
+  const isPixelBuffer = imageData && imageData.data && imageData.data.length === w * h * 4;
+  const paint = (ctx2) => {
+    if (isPixelBuffer) {
+      const bytes = imageData.data instanceof Uint8ClampedArray ? imageData.data : new Uint8ClampedArray(imageData.data);
+      const id = typeof ImageData !== "undefined" && imageData instanceof ImageData ? imageData : new ImageData(bytes, w, h);
+      ctx2.putImageData(id, 0, 0);
+    } else {
+      ctx2.drawImage(imageData, 0, 0);
+    }
+  };
+  if (typeof OffscreenCanvas !== "undefined") {
+    const canvas3 = new OffscreenCanvas(w, h);
+    const ctx2 = canvas3.getContext("2d");
+    if (!ctx2)
+      return new Uint8Array(0);
+    paint(ctx2);
+    const blob = await canvas3.convertToBlob({ type: "image/png" });
+    return new Uint8Array(await blob.arrayBuffer());
+  }
+  const canvas2 = document.createElement("canvas");
+  canvas2.width = w;
+  canvas2.height = h;
+  const ctx = canvas2.getContext("2d");
+  if (!ctx)
+    return new Uint8Array(0);
+  paint(ctx);
+  return await new Promise((resolve2) => {
+    canvas2.toBlob(async (blob) => {
+      if (!blob)
+        return resolve2(new Uint8Array(0));
+      resolve2(new Uint8Array(await blob.arrayBuffer()));
+    }, "image/png");
+  });
+}
+
+// ../sdk/src/formats/xgf/versions/v3/XGF_INFO.ts
+var XGF_INFO3 = {
+  xgfVersion: 3
+};
+
+// ../sdk/src/formats/xgf/versions/v3/packXGF.ts
+var object2Array3 = function() {
+  const encoder = new TextEncoder();
+  return (obj) => encoder.encode(JSON.stringify(obj));
+}();
+function toArrayBuffer5(arrays) {
+  const arraysCnt = arrays.length;
+  const dataView = new DataView(new ArrayBuffer((1 + 2 * arraysCnt) * 4));
+  dataView.setUint32(0, XGF_INFO3.xgfVersion, true);
+  let byteOffset = dataView.byteLength;
+  const offsets = [];
+  for (let i = 0; i < arraysCnt; i++) {
+    const arr = arrays[i];
+    const BPE = arr.BYTES_PER_ELEMENT;
+    byteOffset = Math.ceil(byteOffset / BPE) * BPE;
+    const byteLength = arr.byteLength;
+    const idx = 1 + 2 * i;
+    dataView.setUint32(idx * 4, byteOffset, true);
+    dataView.setUint32((idx + 1) * 4, byteLength, true);
+    offsets.push(byteOffset);
+    byteOffset += byteLength;
+  }
+  const dataArray = new Uint8Array(byteOffset);
+  dataArray.set(new Uint8Array(dataView.buffer), 0);
+  const requiresSwapToLittleEndian = function() {
+    const b4 = new ArrayBuffer(2);
+    new Uint16Array(b4)[0] = 1;
+    return new Uint8Array(b4)[0] !== 1;
+  }();
+  for (let i = 0; i < arraysCnt; i++) {
+    const arr = arrays[i];
+    const subarray = new Uint8Array(arr.buffer, arr.byteOffset, arr.byteLength);
+    const BPE = arr.BYTES_PER_ELEMENT;
+    if (requiresSwapToLittleEndian && BPE > 1) {
+      const swaps = BPE / 2;
+      const cnt = subarray.length / BPE;
+      for (let b4 = 0; b4 < cnt; b4++) {
+        const offset = b4 * BPE;
+        for (let j = 0; j < swaps; j++) {
+          const i1 = offset + j;
+          const i2 = offset - j + BPE - 1;
+          const tmp = subarray[i1];
+          subarray[i1] = subarray[i2];
+          subarray[i2] = tmp;
+        }
+      }
+    }
+    dataArray.set(subarray, offsets[i]);
+  }
+  return dataArray.buffer;
+}
+function packXGF3(xgfData) {
+  return toArrayBuffer5([
+    xgfData.positions,
+    xgfData.colors,
+    xgfData.indices,
+    xgfData.edgeIndices,
+    xgfData.aabbs,
+    xgfData.normals,
+    xgfData.uvs,
+    xgfData.scales,
+    xgfData.rotations,
+    xgfData.eachGeometryPositionsBase,
+    xgfData.eachGeometryColorsBase,
+    xgfData.eachGeometryIndicesBase,
+    xgfData.eachGeometryEdgeIndicesBase,
+    xgfData.eachGeometryNormalsBase,
+    xgfData.eachGeometryUVsBase,
+    xgfData.eachGeometryScalesBase,
+    xgfData.eachGeometryRotationsBase,
+    xgfData.eachGeometryPrimitiveType,
+    xgfData.eachGeometryAABBBase,
+    xgfData.matrices,
+    xgfData.textureData,
+    xgfData.eachTextureDataBase,
+    xgfData.eachTextureMediaType,
+    xgfData.eachTextureWidth,
+    xgfData.eachTextureHeight,
+    xgfData.eachTextureSampler,
+    object2Array3(xgfData.eachTextureId),
+    xgfData.eachMaterialPBR,
+    xgfData.eachMaterialTextures,
+    object2Array3(xgfData.eachMaterialId),
+    xgfData.eachMeshGeometriesBase,
+    xgfData.eachMeshMatricesBase,
+    xgfData.eachMeshMaterialAttributes,
+    xgfData.eachMeshMaterial,
+    object2Array3(xgfData.eachObjectId),
+    xgfData.eachObjectMeshesBase
+  ]);
+}
+
+// ../sdk/src/formats/xgf/versions/v3/encode.ts
+async function encode12(params, options) {
+  const xgfData = await modelToXGF3({ sceneModel: params.sceneModel, options });
+  return packXGF3(xgfData);
+}
+
 // ../sdk/src/formats/xgf/XGFExporter.ts
+var SPLAT_CAPABLE_VERSION = "1.2.0";
 var XGFExporter = class extends ModelExporter {
   constructor() {
     super({
@@ -105876,10 +106904,24 @@ var XGFExporter = class extends ModelExporter {
       fileDataType: "arraybuffer",
       encoders: {
         "1.0.0": encode10,
-        "1.1.0": encode11
+        "1.1.0": encode11,
+        "1.2.0": encode12
       },
       defaultVersion: "1.0.0"
     });
+  }
+  /**
+   * Exports the SceneModel to XGF. Promotes the target version to
+   * {@link SPLAT_CAPABLE_VERSION | v3} when the model contains Gaussian-splat
+   * geometry and the caller didn't pin a `version` — older versions have no
+   * splat buffers, so this prevents splats being silently dropped. An explicit
+   * `version` always wins (so callers can still force v1/v2 deliberately).
+   */
+  write(params, options = {}) {
+    if (params && !params.version && params.sceneModel?.containsPrimitive(GaussianSplatsPrimitive)) {
+      params = { ...params, version: SPLAT_CAPABLE_VERSION };
+    }
+    return super.write(params, options);
   }
 };
 
@@ -108028,8 +109070,8 @@ function getModule() {
   function _llvm_trap() {
     abort("trap!");
   }
-  function _emscripten_memcpy_big(dest, src, num4) {
-    HEAPU8.copyWithin(dest, src, src + num4);
+  function _emscripten_memcpy_big(dest, src, num6) {
+    HEAPU8.copyWithin(dest, src, src + num6);
   }
   embind_init_charCodes();
   BindingError = Module3["BindingError"] = extendError(Error, "BindingError");
@@ -125154,7 +126196,7 @@ __export(dotbim_exports, {
 
 // ../sdk/src/formats/dotbim/versions/1_0_0/parse.ts
 var SCHEMA3 = "IFC4";
-var parse10 = async (params, options) => {
+var parse11 = async (params, options) => {
   const fileData = params.fileData;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -125246,7 +126288,7 @@ var parse10 = async (params, options) => {
 
 // ../sdk/src/formats/dotbim/versions/1_1_0/parse.ts
 var SCHEMA4 = "IFC4";
-var parse11 = async (params, options) => {
+var parse12 = async (params, options) => {
   const fileData = params.fileData;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -125342,8 +126384,8 @@ var DotBIMLoader = class extends ModelLoader {
       format: "DotBIM",
       fileDataType: "json",
       parsers: {
-        "1.0.0": parse10,
-        "1.1.0": parse11
+        "1.0.0": parse11,
+        "1.1.0": parse12
       },
       getVersion: (sourceFileData) => {
         return sourceFileData.schema_version || "1.0.0";
@@ -125356,7 +126398,7 @@ var DotBIMLoader = class extends ModelLoader {
 var tempVec3a6 = createVec3Float64();
 var tempVec3b6 = createVec3Float64();
 var tempMat4a4 = createMat4Float64();
-async function encode12(params, options) {
+async function encode13(params, options) {
   const { sceneModel, dataModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -125496,7 +126538,7 @@ async function encode12(params, options) {
 var tempVec3a7 = createVec3Float64();
 var tempVec3b7 = createVec3Float64();
 var tempMat4a5 = createMat4Float64();
-async function encode13(params, options) {
+async function encode14(params, options) {
   const { sceneModel, dataModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -125640,8 +126682,8 @@ var DotBIMExporter = class extends ModelExporter {
       format: "DotBIM",
       fileDataType: "json",
       encoders: {
-        "1.0.0": encode12,
-        "1.1.0": encode13
+        "1.0.0": encode13,
+        "1.1.0": encode14
       },
       defaultVersion: "1.1.0"
     });
@@ -125656,7 +126698,7 @@ __export(scenemodel_exports, {
 });
 
 // ../sdk/src/formats/scenemodel/versions/1_0/parse.ts
-function parse12(params, options) {
+function parse13(params, options) {
   return new Promise(function(resolve2, reject) {
     if (params.sceneModel && params.fileData) {
       const result = params.sceneModel.fromParams(params.fileData);
@@ -125678,7 +126720,7 @@ var SceneModelImporter = class extends ModelLoader {
       format: "SceneModelParams",
       fileDataType: "json",
       parsers: {
-        "1.0": parse12
+        "1.0": parse13
       },
       getVersion: (fileData) => {
         return fileData.version || "1.0";
@@ -125688,7 +126730,7 @@ var SceneModelImporter = class extends ModelLoader {
 };
 
 // ../sdk/src/formats/scenemodel/versions/1_0/encode.ts
-async function encode14(params, options) {
+async function encode15(params, options) {
   const opts = options || {};
   const onProgress = opts.onProgress;
   const signal = opts.signal;
@@ -125720,7 +126762,7 @@ var SceneModelExporter = class extends ModelExporter {
       format: "SceneModelParams",
       fileDataType: "json",
       encoders: {
-        "1.0": encode14
+        "1.0": encode15
       },
       defaultVersion: "1.0"
     });
@@ -125735,7 +126777,7 @@ __export(datamodel_exports, {
 });
 
 // ../sdk/src/formats/datamodel/versions/1_0/encode.ts
-async function encode15(params, options) {
+async function encode16(params, options) {
   const opts = options || {};
   const onProgress = opts.onProgress;
   const signal = opts.signal;
@@ -125765,12 +126807,197 @@ var DataModelExporter = class extends ModelExporter {
       format: "DataModelParams",
       fileDataType: "json",
       encoders: {
-        "1.0": encode15
+        "1.0": encode16
       },
       defaultVersion: "1.0"
     });
   }
 };
+
+// ../sdk/src/formats/gaussiansplat/index.ts
+var gaussiansplat_exports = {};
+__export(gaussiansplat_exports, {
+  GaussianSplatExporter: () => GaussianSplatExporter,
+  GaussianSplatLoader: () => GaussianSplatLoader
+});
+
+// ../sdk/src/formats/gaussiansplat/versions/v1/parseSplat.ts
+var SPLAT_RECORD_BYTES = 32;
+function parseSplat(data2) {
+  const bytes = data2 instanceof Uint8Array ? data2 : new Uint8Array(data2);
+  if (bytes.byteLength % SPLAT_RECORD_BYTES !== 0) {
+    throw new Error(
+      `[parseSplat] buffer length ${bytes.byteLength} is not a multiple of ${SPLAT_RECORD_BYTES}`
+    );
+  }
+  const count = bytes.byteLength / SPLAT_RECORD_BYTES;
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const positions = new Float32Array(count * 3);
+  const scales = new Float32Array(count * 3);
+  const colors = new Uint8Array(count * 4);
+  const rotations = new Float32Array(count * 4);
+  for (let i = 0; i < count; i++) {
+    const base = i * SPLAT_RECORD_BYTES;
+    positions[i * 3] = view.getFloat32(base, true);
+    positions[i * 3 + 1] = view.getFloat32(base + 4, true);
+    positions[i * 3 + 2] = view.getFloat32(base + 8, true);
+    scales[i * 3] = view.getFloat32(base + 12, true);
+    scales[i * 3 + 1] = view.getFloat32(base + 16, true);
+    scales[i * 3 + 2] = view.getFloat32(base + 20, true);
+    colors[i * 4] = bytes[base + 24];
+    colors[i * 4 + 1] = bytes[base + 25];
+    colors[i * 4 + 2] = bytes[base + 26];
+    colors[i * 4 + 3] = bytes[base + 27];
+    rotations[i * 4] = (bytes[base + 28] - 128) / 128;
+    rotations[i * 4 + 1] = (bytes[base + 29] - 128) / 128;
+    rotations[i * 4 + 2] = (bytes[base + 30] - 128) / 128;
+    rotations[i * 4 + 3] = (bytes[base + 31] - 128) / 128;
+  }
+  return { count, positions, scales, colors, rotations };
+}
+
+// ../sdk/src/formats/gaussiansplat/GaussianSplatLoader.ts
+var GaussianSplatLoader = class extends ModelLoader {
+  constructor() {
+    super({
+      format: "splat",
+      fileDataType: "arraybuffer",
+      getVersion: () => "*",
+      parsers: { "*": parseSplatModel }
+    });
+  }
+};
+async function parseSplatModel(params) {
+  const sceneModel = params.sceneModel;
+  if (!sceneModel) {
+    throw new Error("[GaussianSplatLoader] params.sceneModel is required");
+  }
+  const { positions, scales, colors, rotations } = parseSplat(params.fileData);
+  const rotationsXYZW = new Float32Array(rotations.length);
+  for (let i = 0; i < rotations.length; i += 4) {
+    rotationsXYZW[i] = rotations[i + 1];
+    rotationsXYZW[i + 1] = rotations[i + 2];
+    rotationsXYZW[i + 2] = rotations[i + 3];
+    rotationsXYZW[i + 3] = rotations[i];
+  }
+  const geom = sceneModel.createGeometry({
+    id: "splats",
+    primitive: GaussianSplatsPrimitive,
+    positions,
+    scales,
+    rotations: rotationsXYZW,
+    colorsCompressed: colors
+  });
+  if (geom.ok === false) {
+    throw new Error(geom.error);
+  }
+  const mesh = sceneModel.createMesh({ id: "splatMesh", geometryId: "splats" });
+  if (mesh.ok === false) {
+    throw new Error(mesh.error);
+  }
+  const obj = sceneModel.createObject({ id: "splatObject", meshIds: ["splatMesh"] });
+  if (obj.ok === false) {
+    throw new Error(obj.error);
+  }
+}
+
+// ../sdk/src/formats/gaussiansplat/versions/v1/encodeSplat.ts
+function clampByte2(v) {
+  return v < 0 ? 0 : v > 255 ? 255 : v;
+}
+function encodeSplat(buffers) {
+  const { count, positions, scales, rotations, colors } = buffers;
+  const buffer = new ArrayBuffer(count * SPLAT_RECORD_BYTES);
+  const view = new DataView(buffer);
+  const u8 = new Uint8Array(buffer);
+  for (let i = 0; i < count; i++) {
+    const base = i * SPLAT_RECORD_BYTES;
+    view.setFloat32(base, positions[i * 3], true);
+    view.setFloat32(base + 4, positions[i * 3 + 1], true);
+    view.setFloat32(base + 8, positions[i * 3 + 2], true);
+    view.setFloat32(base + 12, scales[i * 3], true);
+    view.setFloat32(base + 16, scales[i * 3 + 1], true);
+    view.setFloat32(base + 20, scales[i * 3 + 2], true);
+    if (colors) {
+      u8[base + 24] = clampByte2(colors[i * 4]);
+      u8[base + 25] = clampByte2(colors[i * 4 + 1]);
+      u8[base + 26] = clampByte2(colors[i * 4 + 2]);
+      u8[base + 27] = clampByte2(colors[i * 4 + 3]);
+    } else {
+      u8[base + 24] = u8[base + 25] = u8[base + 26] = u8[base + 27] = 255;
+    }
+    u8[base + 28] = clampByte2(Math.round(rotations[i * 4] * 128 + 128));
+    u8[base + 29] = clampByte2(Math.round(rotations[i * 4 + 1] * 128 + 128));
+    u8[base + 30] = clampByte2(Math.round(rotations[i * 4 + 2] * 128 + 128));
+    u8[base + 31] = clampByte2(Math.round(rotations[i * 4 + 3] * 128 + 128));
+  }
+  return buffer;
+}
+
+// ../sdk/src/formats/gaussiansplat/GaussianSplatExporter.ts
+var GaussianSplatExporter = class extends ModelExporter {
+  constructor() {
+    super({
+      format: "splat",
+      fileDataType: "arraybuffer",
+      encoders: { "*": encodeSplatModel },
+      defaultVersion: "*"
+    });
+  }
+};
+async function encodeSplatModel(params) {
+  const sceneModel = params.sceneModel;
+  if (!sceneModel) {
+    throw new Error("[GaussianSplatExporter] params.sceneModel is required");
+  }
+  const geometries = Object.values(sceneModel.geometries).filter(
+    (geom) => geom.primitive === GaussianSplatsPrimitive
+  );
+  let count = 0;
+  for (const geom of geometries) {
+    count += geom.positionsCompressed.length / 3;
+  }
+  const positions = new Float32Array(count * 3);
+  const scales = new Float32Array(count * 3);
+  const colors = new Uint8Array(count * 4);
+  const rotations = new Float32Array(count * 4);
+  let offset = 0;
+  for (const geom of geometries) {
+    const n = geom.positionsCompressed.length / 3;
+    decompressPositions3WithAABB3(
+      geom.positionsCompressed,
+      geom.aabb,
+      positions.subarray(offset * 3, (offset + n) * 3)
+    );
+    const geomScales = geom.scales;
+    const geomRotations = geom.rotations;
+    const geomColors = geom.colorsCompressed;
+    for (let i = 0; i < n; i++) {
+      const s = offset + i;
+      scales[s * 3] = geomScales ? geomScales[i * 3] : 0;
+      scales[s * 3 + 1] = geomScales ? geomScales[i * 3 + 1] : 0;
+      scales[s * 3 + 2] = geomScales ? geomScales[i * 3 + 2] : 0;
+      if (geomColors) {
+        colors[s * 4] = geomColors[i * 4];
+        colors[s * 4 + 1] = geomColors[i * 4 + 1];
+        colors[s * 4 + 2] = geomColors[i * 4 + 2];
+        colors[s * 4 + 3] = geomColors[i * 4 + 3];
+      } else {
+        colors[s * 4] = colors[s * 4 + 1] = colors[s * 4 + 2] = colors[s * 4 + 3] = 255;
+      }
+      const x = geomRotations ? geomRotations[i * 4] : 0;
+      const y = geomRotations ? geomRotations[i * 4 + 1] : 0;
+      const z = geomRotations ? geomRotations[i * 4 + 2] : 0;
+      const w = geomRotations ? geomRotations[i * 4 + 3] : 1;
+      rotations[s * 4] = w;
+      rotations[s * 4 + 1] = x;
+      rotations[s * 4 + 2] = y;
+      rotations[s * 4 + 3] = z;
+    }
+    offset += n;
+  }
+  return encodeSplat({ count, positions, scales, rotations, colors });
+}
 
 // ../sdk/src/formats/legacy/metamodel/index.ts
 var metamodel_exports = {};
@@ -125939,7 +127166,7 @@ __export(obj_exports, {
 });
 
 // ../sdk/src/formats/obj/versions/v1_0/parse.ts
-var parse13 = async (params, options) => {
+var parse14 = async (params, options) => {
   const { fileData, sceneModel, dataModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -126350,7 +127577,7 @@ var OBJLoader = class extends ModelLoader {
       format: "OBJ",
       fileDataType: "text",
       parsers: {
-        "1.0": parse13
+        "1.0": parse14
       },
       getVersion: (fileData) => {
         return fileData.version || "1.0";
@@ -126363,7 +127590,7 @@ var OBJLoader = class extends ModelLoader {
 var tempVec3a8 = createVec3Float64();
 var tempVec3b8 = createVec3Float64();
 var tempVec3c4 = createVec3Float64();
-async function encode16(params, options) {
+async function encode17(params, options) {
   const { sceneModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -126467,7 +127694,7 @@ var OBJExporter = class extends ModelExporter {
       format: "OBJ",
       fileDataType: "text",
       encoders: {
-        "1.0": encode16
+        "1.0": encode17
       },
       defaultVersion: "1.0"
     });
@@ -126482,7 +127709,7 @@ __export(mtl_exports, {
 });
 
 // ../sdk/src/formats/mtl/versions/v1_0/parse.ts
-var parse14 = async (params, options) => {
+var parse15 = async (params, options) => {
   const { fileData, sceneModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -126592,7 +127819,7 @@ var MTLLoader = class extends ModelLoader {
       format: "MTL",
       fileDataType: "text",
       parsers: {
-        "1.0": parse14
+        "1.0": parse15
       },
       getVersion: (fileData) => {
         return fileData.version || "1.0";
@@ -126602,7 +127829,7 @@ var MTLLoader = class extends ModelLoader {
 };
 
 // ../sdk/src/formats/mtl/versions/v1_0/encode.ts
-async function encode17(params, options) {
+async function encode18(params, options) {
   const { sceneModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -126724,7 +127951,7 @@ var MTLExporter = class extends ModelExporter {
       format: "MTL",
       fileDataType: "text",
       encoders: {
-        "1.0": encode17
+        "1.0": encode18
       },
       defaultVersion: "1.0"
     });
@@ -131083,7 +132310,7 @@ function findChild(node, name12) {
 
 // ../sdk/src/formats/fbx/versions/binary/parse.ts
 var DEG2RAD = Math.PI / 180;
-async function parse15(params, _options) {
+async function parse16(params, _options) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     return;
@@ -131436,7 +132663,7 @@ var FBXLoader = class extends ModelLoader {
       format: "fbx",
       fileDataType: "arraybuffer",
       parsers: {
-        binary: parse15
+        binary: parse16
       },
       // The only "version" we recognise is the binary variant; ASCII FBX (and
       // anything else) returns "" → the base loader reports it as unsupported.
@@ -131586,7 +132813,7 @@ function concat2(parts) {
 // ../sdk/src/formats/fbx/versions/binary/encode.ts
 var RAD2DEG = 180 / Math.PI;
 var SEP = "\0";
-async function encode18(params, _options) {
+async function encode19(params, _options) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     throw "FBXExporter requires params.sceneModel";
@@ -131851,7 +133078,7 @@ var FBXExporter = class extends ModelExporter {
       format: "fbx",
       fileDataType: "arraybuffer",
       encoders: {
-        binary: encode18
+        binary: encode19
       },
       defaultVersion: "binary"
     });
@@ -132128,7 +133355,7 @@ function mulMat45(a2, b4) {
 }
 
 // ../sdk/src/formats/usdz/versions/v1/parse.ts
-async function parse16(params, options) {
+async function parse17(params, options) {
   const { fileData, sceneModel } = params;
   if (!sceneModel) {
     return;
@@ -132168,7 +133395,7 @@ var USDZLoader = class extends ModelLoader {
       format: "usdz",
       fileDataType: "arraybuffer",
       parsers: {
-        "1.0": parse16
+        "1.0": parse17
       },
       getVersion: (fileData) => isUSDZ(fileData) ? "1.0" : ""
     });
@@ -132364,7 +133591,7 @@ function crc322(data2) {
 
 // ../sdk/src/formats/usdz/versions/v1/encode.ts
 var ROOT_LAYER = "model.usda";
-async function encode19(params, options) {
+async function encode20(params, options) {
   const onProgress = options?.onProgress;
   const signal = options?.signal;
   onProgress?.({ phase: "Encoding USDZ", current: 0, total: 1 });
@@ -132507,7 +133734,7 @@ var USDZExporter = class extends ModelExporter {
       format: "usdz",
       fileDataType: "arraybuffer",
       encoders: {
-        "1.0": encode19
+        "1.0": encode20
       },
       defaultVersion: "1.0"
     });
@@ -132574,7 +133801,7 @@ async function loadPdfJs(opts) {
   }
   return p;
 }
-async function parse17(input, options = {}) {
+async function parse18(input, options = {}) {
   if (!input || !input.sceneModel) {
     return { ok: false, type: 2 /* InvalidInput */, error: "[pdf.parse] sceneModel is required" };
   }
@@ -133882,7 +135109,7 @@ var PDFLoader = class {
     this.#pdfjs = params.pdfjs;
   }
   load(input, options = {}) {
-    return parse17(input, {
+    return parse18(input, {
       ...options,
       pdfjsEsmUrl: this.#pdfjsEsmUrl,
       pdfjsWorkerSrc: this.#pdfjsWorkerSrc,
@@ -133919,7 +135146,7 @@ var DEFAULT_SVG_LOAD_OPTIONS = {
 };
 
 // ../sdk/src/formats/svg/versions/v1_0/parse.ts
-async function parse18(input, options = {}) {
+async function parse19(input, options = {}) {
   if (!input || !input.sceneModel) {
     return err2(2 /* InvalidInput */, "[svg.parse] sceneModel is required");
   }
@@ -134089,7 +135316,7 @@ async function parse18(input, options = {}) {
         // for the same observation). Canvas row 0 ends up at
         // texture V=0; the UV layout below maps TL→V=0 and BL→V=1
         // accordingly. Kept `flipY: true` here so a future renderer
-        // wiring of the flag would invert the texture cleanly —
+        // linking of the flag would invert the texture cleanly —
         // re-test by flipping the V values below.
         flipY: true,
         imageData: { data: imgData.data, width: imgData.width, height: imgData.height }
@@ -134860,7 +136087,7 @@ function parsePathToSubpaths(d, bezierSteps, arcSteps) {
     runCmd(implicit);
   }
   return subpaths;
-  function num4() {
+  function num6() {
     const v = tokens[i++];
     return typeof v === "number" ? v : NaN;
   }
@@ -134869,7 +136096,7 @@ function parsePathToSubpaths(d, bezierSteps, arcSteps) {
       case "M":
       case "m": {
         const rel = cmd === "m";
-        let x = num4(), y = num4();
+        let x = num6(), y = num6();
         if (rel) {
           x += cx;
           y += cy;
@@ -134887,7 +136114,7 @@ function parsePathToSubpaths(d, bezierSteps, arcSteps) {
       case "L":
       case "l": {
         const rel = cmd === "l";
-        let x = num4(), y = num4();
+        let x = num6(), y = num6();
         if (rel) {
           x += cx;
           y += cy;
@@ -134901,7 +136128,7 @@ function parsePathToSubpaths(d, bezierSteps, arcSteps) {
       case "H":
       case "h": {
         const rel = cmd === "h";
-        let x = num4();
+        let x = num6();
         if (rel)
           x += cx;
         push(x, cy);
@@ -134912,7 +136139,7 @@ function parsePathToSubpaths(d, bezierSteps, arcSteps) {
       case "V":
       case "v": {
         const rel = cmd === "v";
-        let y = num4();
+        let y = num6();
         if (rel)
           y += cy;
         push(cx, y);
@@ -134923,7 +136150,7 @@ function parsePathToSubpaths(d, bezierSteps, arcSteps) {
       case "C":
       case "c": {
         const rel = cmd === "c";
-        let x1 = num4(), y1 = num4(), x2 = num4(), y2 = num4(), x = num4(), y = num4();
+        let x1 = num6(), y1 = num6(), x2 = num6(), y2 = num6(), x = num6(), y = num6();
         if (rel) {
           x1 += cx;
           y1 += cy;
@@ -134943,7 +136170,7 @@ function parsePathToSubpaths(d, bezierSteps, arcSteps) {
       case "S":
       case "s": {
         const rel = cmd === "s";
-        let x2 = num4(), y2 = num4(), x = num4(), y = num4();
+        let x2 = num6(), y2 = num6(), x = num6(), y = num6();
         if (rel) {
           x2 += cx;
           y2 += cy;
@@ -134964,7 +136191,7 @@ function parsePathToSubpaths(d, bezierSteps, arcSteps) {
       case "Q":
       case "q": {
         const rel = cmd === "q";
-        let x1 = num4(), y1 = num4(), x = num4(), y = num4();
+        let x1 = num6(), y1 = num6(), x = num6(), y = num6();
         if (rel) {
           x1 += cx;
           y1 += cy;
@@ -134982,7 +136209,7 @@ function parsePathToSubpaths(d, bezierSteps, arcSteps) {
       case "T":
       case "t": {
         const rel = cmd === "t";
-        let x = num4(), y = num4();
+        let x = num6(), y = num6();
         if (rel) {
           x += cx;
           y += cy;
@@ -135001,9 +136228,9 @@ function parsePathToSubpaths(d, bezierSteps, arcSteps) {
       case "A":
       case "a": {
         const rel = cmd === "a";
-        const rx = num4(), ry = num4(), rot = num4();
-        const largeArc = num4() !== 0, sweep = num4() !== 0;
-        let x = num4(), y = num4();
+        const rx = num6(), ry = num6(), rot = num6();
+        const largeArc = num6() !== 0, sweep = num6() !== 0;
+        let x = num6(), y = num6();
         if (rel) {
           x += cx;
           y += cy;
@@ -135190,7 +136417,7 @@ function domToSVGNode(el2) {
 // ../sdk/src/formats/svg/SVGLoader.ts
 var SVGLoader = class {
   load(input, options = {}) {
-    return parse18(
+    return parse19(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       options
     );
@@ -135213,7 +136440,7 @@ var DEFAULT_SVG_EXPORT_OPTIONS = {
 var tempVec3a9 = createVec3Float64();
 var tempVec3b9 = createVec3Float64();
 var tempVec3c5 = createVec3Float64();
-async function encode20(params, options) {
+async function encode21(params, options) {
   const { sceneModel } = params;
   if (!sceneModel)
     throw new Error("[SVGExporter] sceneModel is required");
@@ -135439,7 +136666,7 @@ var SVGExporter = class extends ModelExporter {
     super({
       format: "SVG",
       fileDataType: "text",
-      encoders: { "1.0": encode20 },
+      encoders: { "1.0": encode21 },
       defaultVersion: "1.0"
     });
   }
@@ -135498,7 +136725,7 @@ async function loadLibredwg(opts) {
   }
   return p;
 }
-async function parse19(input, options = {}) {
+async function parse20(input, options = {}) {
   if (!input || !input.sceneModel) {
     return err3(2 /* InvalidInput */, "[dwg.parse] sceneModel is required");
   }
@@ -136334,7 +137561,7 @@ var DWGLoader = class {
     this.#libredwg = params.libredwg;
   }
   load(input, options = {}) {
-    return parse19(
+    return parse20(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       {
         ...options,
@@ -136354,7 +137581,7 @@ __export(dxf_exports, {
 });
 
 // ../sdk/src/formats/dxf/versions/v1_0/parse.ts
-async function parse20(input, options = {}) {
+async function parse21(input, options = {}) {
   if (!input || !input.sceneModel) {
     return err4(2 /* InvalidInput */, "[dxf.parse] sceneModel is required");
   }
@@ -136676,7 +137903,7 @@ function err4(type, message) {
 // ../sdk/src/formats/dxf/DXFLoader.ts
 var DXFLoader = class {
   load(input, options = {}) {
-    return parse20(
+    return parse21(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       options
     );
@@ -136688,7 +137915,7 @@ var tempVec3a10 = createVec3Float64();
 var tempVec3b10 = createVec3Float64();
 var tempVec3c6 = createVec3Float64();
 var _scratch = createVec4Float64();
-async function encode21(params, options) {
+async function encode23(params, options) {
   const { sceneModel } = params;
   if (!sceneModel)
     throw new Error("[DXFExporter] sceneModel is required");
@@ -136880,7 +138107,7 @@ var DXFExporter = class extends ModelExporter {
     super({
       format: "DXF",
       fileDataType: "text",
-      encoders: { "1.0": encode21 },
+      encoders: { "1.0": encode23 },
       defaultVersion: "1.0"
     });
   }
@@ -137672,7 +138899,7 @@ function unitWireBox(id) {
 }
 
 // ../sdk/src/formats/fds/versions/v6/parse.ts
-var parse21 = async (params) => {
+var parse22 = async (params) => {
   const { fileData, sceneModel, dataModel } = params;
   if (typeof fileData !== "string") {
     throw new Error("[FDS/v6/parse] expected fileData to be a string");
@@ -137887,7 +139114,7 @@ var FDSLoader = class extends ModelLoader {
       format: "FDS",
       fileDataType: "text",
       parsers: {
-        "6": parse21
+        "6": parse22
       },
       // FDS input files don't carry an in-band version tag. The
       // current shipping line is FDS-6.x; downstream changes to the
@@ -137898,7 +139125,7 @@ var FDSLoader = class extends ModelLoader {
 };
 
 // ../sdk/src/formats/fds/versions/v6/encode.ts
-async function encode23(params, _options) {
+async function encode24(params, _options) {
   const { dataModel } = params;
   if (!dataModel) {
     throw new Error("[FDS/v6/encode] expected dataModel in params");
@@ -138177,9 +139404,655 @@ var FDSExporter = class extends ModelExporter {
       format: "FDS",
       fileDataType: "text",
       encoders: {
-        "6": encode23
+        "6": encode24
       },
       defaultVersion: "6"
+    });
+  }
+};
+
+// ../sdk/src/formats/threedxml/index.ts
+var threedxml_exports = {};
+__export(threedxml_exports, {
+  ThreeDXMLExporter: () => ThreeDXMLExporter,
+  ThreeDXMLLoader: () => ThreeDXMLLoader
+});
+
+// ../sdk/src/formats/threedxml/unzip.ts
+var SIG_EOCD3 = 101010256;
+var SIG_CDFH3 = 33639248;
+var SIG_LFH3 = 67324752;
+var textDecoder2 = new TextDecoder();
+function isZip(fileData) {
+  if (!(fileData instanceof ArrayBuffer) || fileData.byteLength < 4) {
+    return false;
+  }
+  return new DataView(fileData).getUint32(0, true) === SIG_LFH3;
+}
+function unzip(fileData) {
+  const view = new DataView(fileData);
+  const bytes = new Uint8Array(fileData);
+  const eocd = findEOCD2(view);
+  if (eocd < 0) {
+    throw new Error("[3DXMLLoader] not a ZIP archive (no end-of-central-directory record)");
+  }
+  const cdCount = view.getUint16(eocd + 10, true);
+  const cdOffset = view.getUint32(eocd + 16, true);
+  const names = [];
+  const byName = /* @__PURE__ */ new Map();
+  let p = cdOffset;
+  for (let i = 0; i < cdCount; i++) {
+    if (view.getUint32(p, true) !== SIG_CDFH3) {
+      throw new Error(`[3DXMLLoader] corrupt central directory at byte ${p}`);
+    }
+    const method = view.getUint16(p + 10, true);
+    const compSize = view.getUint32(p + 20, true);
+    const nameLen = view.getUint16(p + 28, true);
+    const extraLen = view.getUint16(p + 30, true);
+    const commentLen = view.getUint16(p + 32, true);
+    const localOffset = view.getUint32(p + 42, true);
+    const name12 = textDecoder2.decode(bytes.subarray(p + 46, p + 46 + nameLen));
+    p += 46 + nameLen + extraLen + commentLen;
+    if (name12.endsWith("/")) {
+      continue;
+    }
+    names.push(name12);
+    byName.set(name12, readLocalEntry2(view, bytes, localOffset, method, compSize, name12));
+  }
+  return { names, byName };
+}
+function readLocalEntry2(view, bytes, localOffset, method, compSize, name12) {
+  if (view.getUint32(localOffset, true) !== SIG_LFH3) {
+    throw new Error(`[3DXMLLoader] corrupt local header for '${name12}' at byte ${localOffset}`);
+  }
+  const nameLen = view.getUint16(localOffset + 26, true);
+  const extraLen = view.getUint16(localOffset + 28, true);
+  const dataStart = localOffset + 30 + nameLen + extraLen;
+  const raw = bytes.subarray(dataStart, dataStart + compSize);
+  if (method === 0) {
+    return raw;
+  }
+  if (method === 8) {
+    return inflateRaw_1(raw);
+  }
+  throw new Error(`[3DXMLLoader] unsupported ZIP compression method ${method} for '${name12}'`);
+}
+function findEOCD2(view) {
+  const len = view.byteLength;
+  if (len < 22) {
+    return -1;
+  }
+  const minPos = Math.max(0, len - 22 - 65535);
+  for (let p = len - 22; p >= minPos; p--) {
+    if (view.getUint32(p, true) === SIG_EOCD3) {
+      return p;
+    }
+  }
+  return -1;
+}
+function entryText(archive, name12) {
+  const data2 = archive.byName.get(name12);
+  return data2 ? textDecoder2.decode(data2) : null;
+}
+
+// ../sdk/src/formats/threedxml/versions/v1/xml.ts
+function parseXML(text) {
+  if (typeof DOMParser === "undefined") {
+    throw new Error("[3DXMLLoader] DOMParser is not available \u2014 run in a browser, or install a DOMParser polyfill (e.g. linkedom / @xmldom/xmldom) onto globalThis");
+  }
+  const doc = new DOMParser().parseFromString(text, "application/xml");
+  const err6 = doc.getElementsByTagName("parsererror")[0];
+  if (err6) {
+    throw new Error(`[3DXMLLoader] malformed XML: ${(err6.textContent || "").trim().slice(0, 200)}`);
+  }
+  return doc;
+}
+function descendants(root, localName) {
+  return Array.from(root.getElementsByTagNameNS("*", localName));
+}
+function firstDescendant(root, localName) {
+  return root.getElementsByTagNameNS("*", localName)[0] ?? null;
+}
+function childrenByLocalName(el2, localName) {
+  const out = [];
+  for (let n = el2.firstElementChild; n; n = n.nextElementSibling) {
+    if (n.localName === localName) {
+      out.push(n);
+    }
+  }
+  return out;
+}
+function textOf(root, localName) {
+  const el2 = firstDescendant(root, localName);
+  const t = el2?.textContent;
+  return t == null ? null : t.trim();
+}
+function numbersIn(text) {
+  if (!text) {
+    return [];
+  }
+  const matches3 = text.match(/-?\d*\.?\d+(?:[eE][-+]?\d+)?/g);
+  if (!matches3) {
+    return [];
+  }
+  const out = new Array(matches3.length);
+  for (let i = 0; i < matches3.length; i++) {
+    out[i] = parseFloat(matches3[i]);
+  }
+  return out;
+}
+
+// ../sdk/src/formats/threedxml/versions/v1/parseProductStructure.ts
+var IDENTITY = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+function parseProductStructure(doc) {
+  const references = /* @__PURE__ */ new Map();
+  const referenceReps = /* @__PURE__ */ new Map();
+  const instance3Ds = [];
+  const instanceReps = [];
+  for (const el2 of descendants(doc, "Reference3D")) {
+    const id = el2.getAttribute("id");
+    if (id) {
+      references.set(id, { id, name: el2.getAttribute("name") || void 0 });
+    }
+  }
+  for (const el2 of descendants(doc, "ReferenceRep")) {
+    const id = el2.getAttribute("id");
+    if (id) {
+      referenceReps.set(id, {
+        id,
+        name: el2.getAttribute("name") || void 0,
+        associatedFile: el2.getAttribute("associatedFile") || void 0
+      });
+    }
+  }
+  for (const el2 of descendants(doc, "Instance3D")) {
+    const id = el2.getAttribute("id");
+    const aggregatedBy = idRef(el2, "IsAggregatedBy");
+    const instanceOf = idRef(el2, "IsInstanceOf");
+    if (!id || !aggregatedBy || !instanceOf) {
+      continue;
+    }
+    instance3Ds.push({
+      id,
+      name: el2.getAttribute("name") || void 0,
+      aggregatedBy,
+      instanceOf,
+      matrix: relativeMatrix(el2)
+    });
+  }
+  for (const el2 of descendants(doc, "InstanceRep")) {
+    const id = el2.getAttribute("id");
+    const aggregatedBy = idRef(el2, "IsAggregatedBy");
+    const instanceOf = idRef(el2, "IsInstanceOf");
+    if (!id || !aggregatedBy || !instanceOf) {
+      continue;
+    }
+    instanceReps.push({ id, name: el2.getAttribute("name") || void 0, aggregatedBy, instanceOf });
+  }
+  return { rootRef: findRoot(doc, references, instance3Ds), references, referenceReps, instance3Ds, instanceReps };
+}
+function idRef(instance, tag) {
+  const raw = textOf(instance, tag);
+  if (!raw) {
+    return null;
+  }
+  const hash = raw.lastIndexOf("#");
+  const colon = raw.lastIndexOf(":");
+  const cut = Math.max(hash, colon);
+  return cut >= 0 ? raw.slice(cut + 1).trim() : raw;
+}
+function relativeMatrix(instance) {
+  const m = childrenByLocalName(instance, "RelativeMatrix")[0];
+  const v = numbersIn(m?.textContent);
+  if (v.length < 12) {
+    return IDENTITY.slice();
+  }
+  return [
+    v[0],
+    v[1],
+    v[2],
+    0,
+    v[3],
+    v[4],
+    v[5],
+    0,
+    v[6],
+    v[7],
+    v[8],
+    0,
+    v[9],
+    v[10],
+    v[11],
+    1
+  ];
+}
+function findRoot(doc, references, instance3Ds) {
+  const ps = descendants(doc, "ProductStructure")[0];
+  const declared = ps?.getAttribute("root");
+  if (declared && references.has(declared)) {
+    return declared;
+  }
+  const instanced = new Set(instance3Ds.map((i) => i.instanceOf));
+  for (const id of references.keys()) {
+    if (!instanced.has(id)) {
+      return id;
+    }
+  }
+  return references.keys().next().value ?? "";
+}
+
+// ../sdk/src/formats/threedxml/versions/v1/parseRepresentation.ts
+function parseRepresentation(doc) {
+  const out = [];
+  for (const rep of descendants(doc, "Rep")) {
+    const vb = nearestOwned(rep, "VertexBuffer");
+    if (!vb) {
+      continue;
+    }
+    const positions = floats(textOfChild(vb, "Positions"));
+    if (positions.length < 9) {
+      continue;
+    }
+    const vertexCount = positions.length / 3 | 0;
+    const normalsRaw = floats(textOfChild(vb, "Normals"));
+    const normals = normalsRaw.length === positions.length ? normalsRaw : void 0;
+    const indices = [];
+    for (const face of descendants(rep, "Face")) {
+      if (nearestRep(face) !== rep) {
+        continue;
+      }
+      const tri = face.getAttribute("triangles");
+      if (!tri) {
+        continue;
+      }
+      const idx = numbersIn(tri);
+      for (let i = 0; i + 2 < idx.length; i += 3) {
+        const a2 = idx[i] | 0, b4 = idx[i + 1] | 0, c2 = idx[i + 2] | 0;
+        if (a2 < vertexCount && b4 < vertexCount && c2 < vertexCount && a2 >= 0 && b4 >= 0 && c2 >= 0) {
+          indices.push(a2, b4, c2);
+        }
+      }
+    }
+    if (indices.length === 0) {
+      continue;
+    }
+    out.push({
+      positions,
+      normals,
+      indices: new Uint32Array(indices),
+      color: repColor(rep)
+    });
+  }
+  return out;
+}
+function nearestOwned(rep, localName) {
+  for (const el2 of descendants(rep, localName)) {
+    if (nearestRep(el2) === rep) {
+      return el2;
+    }
+  }
+  return null;
+}
+function nearestRep(el2) {
+  for (let p = el2.parentElement; p; p = p.parentElement) {
+    if (p.localName === "Rep") {
+      return p;
+    }
+  }
+  return null;
+}
+function textOfChild(parent, localName) {
+  return descendants(parent, localName)[0]?.textContent ?? null;
+}
+function floats(text) {
+  return Float32Array.from(numbersIn(text));
+}
+function repColor(rep) {
+  let color2 = null;
+  for (const c2 of descendants(rep, "Color")) {
+    if (nearestRep(c2) === rep) {
+      color2 = c2;
+      break;
+    }
+  }
+  if (!color2) {
+    return void 0;
+  }
+  const r = num4(color2, "red"), g = num4(color2, "green"), b4 = num4(color2, "blue");
+  if (r == null || g == null || b4 == null) {
+    return void 0;
+  }
+  const a2 = num4(color2, "alpha");
+  return [r, g, b4, a2 == null ? 1 : a2];
+}
+function num4(el2, attr) {
+  const v = el2.getAttribute(attr);
+  if (v == null || v === "") {
+    return null;
+  }
+  const n = parseFloat(v);
+  return Number.isFinite(n) ? n : null;
+}
+
+// ../sdk/src/formats/threedxml/versions/v1/parse.ts
+var IDENTITY2 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+var MAX_DEPTH = 512;
+async function parse23(params, _options) {
+  const sceneModel = params.sceneModel;
+  if (!sceneModel) {
+    return;
+  }
+  const fileData = params.fileData;
+  if (!(fileData instanceof ArrayBuffer) || !isZip(fileData)) {
+    throw new Error("[3DXMLLoader] fileData is not a .3dxml ZIP archive");
+  }
+  const archive = unzip(fileData);
+  const manifestName = findEntry(archive, "Manifest.xml");
+  if (!manifestName) {
+    throw new Error("[3DXMLLoader] archive has no Manifest.xml");
+  }
+  const root = textOf(parseXML(entryText(archive, manifestName)), "Root");
+  const modelName = root ? resolveEntry(archive, root) : null;
+  if (!modelName) {
+    throw new Error(`[3DXMLLoader] manifest Root '${root ?? ""}' not found in archive`);
+  }
+  const structure = parseProductStructure(parseXML(entryText(archive, modelName)));
+  const instances = flattenInstances(structure);
+  const repGeomCache = /* @__PURE__ */ new Map();
+  let objectCount = 0;
+  for (const inst of instances) {
+    const geoms = ensureRepGeometries(inst.refRepId, structure, archive, sceneModel, repGeomCache);
+    if (geoms.length === 0) {
+      continue;
+    }
+    const objectId = `object-${objectCount++}`;
+    const meshIds = [];
+    for (let i = 0; i < geoms.length; i++) {
+      const meshId = `${objectId}-mesh-${i}`;
+      const meshParams = { id: meshId, geometryId: geoms[i].geometryId, matrix: inst.matrix };
+      const color2 = geoms[i].color;
+      if (color2) {
+        meshParams.color = [color2[0], color2[1], color2[2]];
+        meshParams.opacity = color2[3];
+      }
+      if (sceneModel.createMesh(meshParams).ok !== false) {
+        meshIds.push(meshId);
+      }
+    }
+    if (meshIds.length > 0) {
+      sceneModel.createObject({ id: objectId, originalSystemId: inst.path, meshIds });
+    }
+  }
+}
+function flattenInstances(structure) {
+  const instRepsByRef = groupBy(structure.instanceReps, (ir) => ir.aggregatedBy);
+  const inst3DsByRef = groupBy(structure.instance3Ds, (i) => i.aggregatedBy);
+  const instances = [];
+  const visit = (refId, world, path, onPath, depth) => {
+    if (depth > MAX_DEPTH || onPath.has(refId)) {
+      return;
+    }
+    onPath.add(refId);
+    for (const ir of instRepsByRef.get(refId) ?? []) {
+      instances.push({ refRepId: ir.instanceOf, matrix: world, path: `${path}/${ir.id}` });
+    }
+    for (const i3 of inst3DsByRef.get(refId) ?? []) {
+      const childWorld = mulMat4(world, i3.matrix, createMat4Float64());
+      visit(i3.instanceOf, childWorld, `${path}/${i3.id}`, onPath, depth + 1);
+    }
+    onPath.delete(refId);
+  };
+  visit(structure.rootRef, IDENTITY2, "root", /* @__PURE__ */ new Set(), 0);
+  return instances;
+}
+function ensureRepGeometries(refRepId, structure, archive, sceneModel, cache2) {
+  const cached = cache2.get(refRepId);
+  if (cached) {
+    return cached;
+  }
+  const out = [];
+  cache2.set(refRepId, out);
+  const refRep = structure.referenceReps.get(refRepId);
+  const entry = refRep?.associatedFile ? resolveEntry(archive, refRep.associatedFile) : null;
+  if (!entry) {
+    return out;
+  }
+  const text = entryText(archive, entry);
+  if (!text) {
+    return out;
+  }
+  const geoms = parseRepresentation(parseXML(text));
+  for (let i = 0; i < geoms.length; i++) {
+    const g = geoms[i];
+    const geometryId = `geom-${refRepId}-${i}`;
+    const res = sceneModel.createGeometry({
+      id: geometryId,
+      primitive: TrianglesPrimitive,
+      positions: g.positions,
+      normals: g.normals,
+      indices: g.indices
+    });
+    if (res.ok !== false) {
+      out.push({ geometryId, color: g.color });
+    }
+  }
+  return out;
+}
+function groupBy(items, key) {
+  const map = /* @__PURE__ */ new Map();
+  for (const item of items) {
+    const k = key(item);
+    const arr = map.get(k);
+    if (arr) {
+      arr.push(item);
+    } else {
+      map.set(k, [item]);
+    }
+  }
+  return map;
+}
+function findEntry(archive, basename) {
+  const lower = basename.toLowerCase();
+  for (const n of archive.names) {
+    if (n.toLowerCase() === lower || n.toLowerCase().endsWith(`/${lower}`)) {
+      return n;
+    }
+  }
+  return null;
+}
+function resolveEntry(archive, ref) {
+  if (archive.byName.has(ref)) {
+    return ref;
+  }
+  const base = lastSegment(ref);
+  if (archive.byName.has(base)) {
+    return base;
+  }
+  for (const n of archive.names) {
+    if (n.endsWith(`/${base}`) || lastSegment(n) === base) {
+      return n;
+    }
+  }
+  const lb = base.toLowerCase();
+  for (const n of archive.names) {
+    if (lastSegment(n).toLowerCase() === lb) {
+      return n;
+    }
+  }
+  return null;
+}
+function lastSegment(s) {
+  const cut = Math.max(s.lastIndexOf("/"), s.lastIndexOf("\\"), s.lastIndexOf(":"));
+  return cut >= 0 ? s.slice(cut + 1) : s;
+}
+
+// ../sdk/src/formats/threedxml/ThreeDXMLLoader.ts
+var ThreeDXMLLoader = class extends ModelLoader {
+  constructor() {
+    super({
+      format: "3dxml",
+      fileDataType: "arraybuffer",
+      parsers: { "*": parse23 },
+      getVersion: (fileData) => isZip(fileData) ? "*" : ""
+    });
+  }
+};
+
+// ../sdk/src/formats/threedxml/versions/v1/encode.ts
+var textEncoder2 = new TextEncoder();
+async function encode25(params, _options) {
+  const sceneModel = params.sceneModel;
+  if (!sceneModel) {
+    throw new Error("[3DXMLExporter] params.sceneModel is required");
+  }
+  const structure = [`<Reference3D id="1" name="${esc(sceneModel.id)}"/>`];
+  const repFiles = [];
+  let nextId = 2;
+  let repIndex = 0;
+  for (const mesh of Object.values(sceneModel.meshes)) {
+    const geom = mesh.geometry;
+    if (!isTriangleFamily(geom.primitive) || !geom.indices || geom.indices.length === 0) {
+      continue;
+    }
+    const positions = decompressPositions3WithAABB3(geom.positionsCompressed, geom.aabb);
+    const normals = geom.normalsCompressed ? decompressNormals(geom.normalsCompressed, new Float32Array(geom.normalsCompressed.length / 2 * 3)) : null;
+    const repName = `Rep_${repIndex}.3DRep`;
+    repFiles.push({ name: repName, data: textEncoder2.encode(repDocument(positions, normals, geom.indices, mesh)) });
+    const partRefId = nextId++;
+    const instId = nextId++;
+    const repRefId = nextId++;
+    const instRepId = nextId++;
+    const name12 = esc(mesh.object?.id ?? mesh.id);
+    structure.push(
+      `<Reference3D id="${partRefId}" name="${name12}"/>`,
+      `<Instance3D id="${instId}" name="${name12}"><IsAggregatedBy>1</IsAggregatedBy><IsInstanceOf>${partRefId}</IsInstanceOf><RelativeMatrix>${relativeMatrix2(mesh.matrix)}</RelativeMatrix></Instance3D>`,
+      `<ReferenceRep id="${repRefId}" associatedFile="urn:3DXML:${repName}" format="TESSELLATED"/>`,
+      `<InstanceRep id="${instRepId}"><IsAggregatedBy>${partRefId}</IsAggregatedBy><IsInstanceOf>${repRefId}</IsInstanceOf></InstanceRep>`
+    );
+    repIndex++;
+  }
+  const model = `<?xml version="1.0" encoding="UTF-8"?><Model_3dxml xmlns="http://www.3ds.com/xsd/3DXML"><ProductStructure root="1">${structure.join("")}</ProductStructure></Model_3dxml>`;
+  const manifest = `<?xml version="1.0" encoding="UTF-8"?><Manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Manifest.xsd"><Root>model.3dxml</Root></Manifest>`;
+  return makeZip([
+    { name: "Manifest.xml", data: textEncoder2.encode(manifest) },
+    { name: "model.3dxml", data: textEncoder2.encode(model) },
+    ...repFiles
+  ]);
+}
+function isTriangleFamily(primitive) {
+  return primitive === TrianglesPrimitive || primitive === SolidPrimitive || primitive === SurfacePrimitive;
+}
+function repDocument(positions, normals, indices, mesh) {
+  const c2 = mesh.color;
+  const color2 = `<SurfaceAttributes><Color red="${num5(c2[0])}" green="${num5(c2[1])}" blue="${num5(c2[2])}" alpha="${num5(mesh.opacity)}"/></SurfaceAttributes>`;
+  const faces2 = `<Faces><Face triangles="${ints(indices)}"/></Faces>`;
+  const normalsXml = normals ? `<Normals>${floats2(normals)}</Normals>` : "";
+  return `<?xml version="1.0" encoding="UTF-8"?><XMLRepresentation xmlns="http://www.3ds.com/xsd/3DXML"><Rep>${color2}${faces2}<VertexBuffer><Positions>${floats2(positions)}</Positions>${normalsXml}</VertexBuffer></Rep></XMLRepresentation>`;
+}
+function relativeMatrix2(m) {
+  return [m[0], m[1], m[2], m[4], m[5], m[6], m[8], m[9], m[10], m[12], m[13], m[14]].map(num5).join(" ");
+}
+function floats2(arr) {
+  let s = "";
+  for (let i = 0; i < arr.length; i++) {
+    s += (i ? " " : "") + num5(arr[i]);
+  }
+  return s;
+}
+function ints(arr) {
+  let s = "";
+  for (let i = 0; i < arr.length; i++) {
+    s += (i ? " " : "") + (arr[i] | 0);
+  }
+  return s;
+}
+function num5(v) {
+  return String(+v.toFixed(6));
+}
+function esc(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+var crcTable3 = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c2 = n;
+    for (let k = 0; k < 8; k++) {
+      c2 = c2 & 1 ? 3988292384 ^ c2 >>> 1 : c2 >>> 1;
+    }
+    t[n] = c2 >>> 0;
+  }
+  return t;
+})();
+function crc323(bytes) {
+  let c2 = 4294967295;
+  for (let i = 0; i < bytes.length; i++) {
+    c2 = crcTable3[(c2 ^ bytes[i]) & 255] ^ c2 >>> 8;
+  }
+  return (c2 ^ 4294967295) >>> 0;
+}
+function makeZip(files) {
+  const parts = [];
+  const centrals = [];
+  let offset = 0;
+  for (const f of files) {
+    const name12 = textEncoder2.encode(f.name);
+    const data2 = f.data;
+    const crc = crc323(data2);
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 67324752, true);
+    lh.setUint16(4, 20, true);
+    lh.setUint16(8, 0, true);
+    lh.setUint32(14, crc, true);
+    lh.setUint32(18, data2.length, true);
+    lh.setUint32(22, data2.length, true);
+    lh.setUint16(26, name12.length, true);
+    parts.push(new Uint8Array(lh.buffer), name12, data2);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 33639248, true);
+    ch.setUint16(4, 20, true);
+    ch.setUint16(6, 20, true);
+    ch.setUint16(10, 0, true);
+    ch.setUint32(16, crc, true);
+    ch.setUint32(20, data2.length, true);
+    ch.setUint32(24, data2.length, true);
+    ch.setUint16(28, name12.length, true);
+    ch.setUint32(42, offset, true);
+    centrals.push(new Uint8Array(ch.buffer), name12);
+    offset += 30 + name12.length + data2.length;
+  }
+  const cdStart = offset;
+  let cdSize = 0;
+  for (const c2 of centrals) {
+    cdSize += c2.length;
+  }
+  const eocd = new DataView(new ArrayBuffer(22));
+  eocd.setUint32(0, 101010256, true);
+  eocd.setUint16(8, files.length, true);
+  eocd.setUint16(10, files.length, true);
+  eocd.setUint32(12, cdSize, true);
+  eocd.setUint32(16, cdStart, true);
+  const all = [...parts, ...centrals, new Uint8Array(eocd.buffer)];
+  let total = 0;
+  for (const a2 of all) {
+    total += a2.length;
+  }
+  const out = new Uint8Array(total);
+  let p = 0;
+  for (const a2 of all) {
+    out.set(a2, p);
+    p += a2.length;
+  }
+  return out.buffer;
+}
+
+// ../sdk/src/formats/threedxml/ThreeDXMLExporter.ts
+var ThreeDXMLExporter = class extends ModelExporter {
+  constructor() {
+    super({
+      format: "3dxml",
+      fileDataType: "arraybuffer",
+      encoders: { "*": encode25 },
+      defaultVersion: "*"
     });
   }
 };
@@ -139266,7 +141139,7 @@ var InspectionRegistry2 = class {
   /**
    * Iterator over every distinct code declared by any registered
    * inspection. Useful for building a "codes this report could
-   * surface" summary alongside the actual report.
+   * report" summary alongside the actual report.
    */
   codes() {
     const seen = /* @__PURE__ */ new Set();
@@ -141707,8 +143580,8 @@ var FixRegistry = class {
   // Keyed by primary code (`fix.codes[0]`). When one strategy
   // handles multiple codes, the primary code is the single
   // identity used for config lookups — same value the strategy
-  // would surface in any UI that walks the registry. Serializes
-  // to a plain code-keyed JSON blob; the caller wires that to
+  // would expose in any UI that walks the registry. Serializes
+  // to a plain code-keyed JSON blob; the caller links that to
   // localStorage / a file / a settings endpoint.
   /**
    * Per-fix override bag, keyed by primary code (`codes[0]`).
@@ -145108,6 +146981,7 @@ function missResult(params) {
 
 // ../sdk/src/spatial/picking/RoutingPickStrategy.ts
 var RoutingPickStrategy = class {
+  _scene;
   _bvh;
   _gpu;
   _renderer;
@@ -145134,6 +147008,7 @@ var RoutingPickStrategy = class {
    *   silently degrade).
    */
   constructor(scene, renderer) {
+    this._scene = scene;
     this._bvh = new BVHPickStrategy(scene);
     this._renderer = renderer ?? null;
     this._gpu = renderer ? new RendererPickStrategy(renderer) : null;
@@ -145155,9 +147030,10 @@ var RoutingPickStrategy = class {
     const wantSnap = !!(params.snapToVertex || params.snapToEdge);
     const hasFilter = !!params.filter;
     const isRayPick = !!(params.ray || params.matrix);
+    const hasSplats = this._scene.containsPrimitive(GaussianSplatsPrimitive);
     const useGpu = this._gpuReady && // GPU available
     this._gpu && // renderer was supplied
-    wantSnap && // only reason to choose GPU today
+    (wantSnap || hasSplats) && // snap request, or splats only the GPU can pick
     !hasFilter && // GPU has no filter callback
     !isRayPick;
     const result = useGpu ? this._gpu.pick(params) : this._bvh.pick(params);
@@ -158132,10 +160008,107 @@ var TransformControlsEvents = class {
   onTargetLost = new EventEmitter(new import_strongly_typed_events12.EventDispatcher());
 };
 
-// ../sdk/src/viewing/transformControls/TransformControls.ts
+// ../sdk/src/viewing/transformControls/math/pivotTransforms.ts
+function composeRotateAroundPivot(axis, angle2, pivot) {
+  const q = angleAxisToQuaternion([axis[0], axis[1], axis[2], angle2], [0, 0, 0, 1]);
+  const R2 = quatToMat4(q, identityMat4(createMat4Float64()));
+  const Tneg = translationMat4v([-pivot[0], -pivot[1], -pivot[2]]);
+  const Tpos = translationMat4v(pivot);
+  const tmp = createMat4Float64();
+  mulMat4(R2, Tneg, tmp);
+  const T = createMat4Float64();
+  mulMat4(Tpos, tmp, T);
+  return T;
+}
+function composeScaleAroundPivot(scale3, pivot) {
+  const S = identityMat4(createMat4Float64());
+  S[0] = scale3[0];
+  S[5] = scale3[1];
+  S[10] = scale3[2];
+  const Tneg = translationMat4v([-pivot[0], -pivot[1], -pivot[2]]);
+  const Tpos = translationMat4v(pivot);
+  const tmp = createMat4Float64();
+  mulMat4(S, Tneg, tmp);
+  const T = createMat4Float64();
+  mulMat4(Tpos, tmp, T);
+  return T;
+}
+
+// ../sdk/src/viewing/transformControls/math/rayGeometry.ts
+function rayPlane(origin2, dir, planePoint, planeNormal) {
+  const denom = dotVec3(dir, planeNormal);
+  if (Math.abs(denom) < 1e-8)
+    return null;
+  const t = dotVec3(subVec3(planePoint, origin2, createVec3Float64()), planeNormal) / denom;
+  if (!isFinite(t))
+    return null;
+  return addVec3(origin2, mulVec3Scalar(dir, t, createVec3Float64()), createVec3Float64());
+}
+function closestPointOnLineToRay(linePoint, lineDir, rayOrigin, rayDir) {
+  const u = lineDir;
+  const v = rayDir;
+  const w0 = subVec3(linePoint, rayOrigin, createVec3Float64());
+  const a2 = dotVec3(u, u);
+  const b4 = dotVec3(u, v);
+  const c2 = dotVec3(v, v);
+  const d = dotVec3(u, w0);
+  const e = dotVec3(v, w0);
+  const denom = a2 * c2 - b4 * b4;
+  if (Math.abs(denom) < 1e-8)
+    return null;
+  const sc = (b4 * e - c2 * d) / denom;
+  return addVec3(linePoint, mulVec3Scalar(u, sc, createVec3Float64()), createVec3Float64());
+}
+function canvasPosToRay(canvasPos2, width, height, projMatrix, viewMatrix) {
+  const ndcX = canvasPos2[0] / width * 2 - 1;
+  const ndcY = -(canvasPos2[1] / height) * 2 + 1;
+  const vp = mulMat4(projMatrix, viewMatrix, createMat4Float64());
+  const inv = inverseMat4(vp, createMat4Float64());
+  if (!inv)
+    return null;
+  const tmp = createVec4Float64();
+  transformPoint4(inv, [ndcX, ndcY, -1, 1], tmp);
+  if (Math.abs(tmp[3]) < 1e-12)
+    return null;
+  const near = [tmp[0] / tmp[3], tmp[1] / tmp[3], tmp[2] / tmp[3]];
+  transformPoint4(inv, [ndcX, ndcY, 1, 1], tmp);
+  if (Math.abs(tmp[3]) < 1e-12)
+    return null;
+  const far = [tmp[0] / tmp[3], tmp[1] / tmp[3], tmp[2] / tmp[3]];
+  const dir = normalizeVec3(subVec3(far, near, createVec3Float64()), createVec3Float64());
+  return { origin: near, dir };
+}
+
+// ../sdk/src/viewing/transformControls/math/axes.ts
 var X_AXIS = [1, 0, 0];
 var Y_AXIS = [0, 1, 0];
 var Z_AXIS = [0, 0, 1];
+function axisFromLabel(label, space, rotationWorld) {
+  let base;
+  switch (label) {
+    case "X":
+      base = X_AXIS;
+      break;
+    case "Y":
+      base = Y_AXIS;
+      break;
+    case "Z":
+      base = Z_AXIS;
+      break;
+    default:
+      return [0, 0, 0];
+  }
+  if (space === "world")
+    return [base[0], base[1], base[2]];
+  const r = rotationWorld;
+  return [
+    r[0] * base[0] + r[4] * base[1] + r[8] * base[2],
+    r[1] * base[0] + r[5] * base[1] + r[9] * base[2],
+    r[2] * base[0] + r[6] * base[1] + r[10] * base[2]
+  ];
+}
+
+// ../sdk/src/viewing/transformControls/TransformControls.ts
 var TransformControls = class _TransformControls {
   /** Per-View instance registry. */
   static _instances = /* @__PURE__ */ new WeakMap();
@@ -158361,7 +160334,7 @@ var TransformControls = class _TransformControls {
         return;
       e.preventDefault();
       e.stopPropagation();
-      e.stopImmediatePropagation?.();
+      e.stopImmediatePropagation();
     };
     const winDoc = typeof document !== "undefined" ? document : null;
     el2.addEventListener("mousedown", this._onMouseDuringDrag, true);
@@ -158372,7 +160345,7 @@ var TransformControls = class _TransformControls {
       winDoc.addEventListener("mousemove", this._onMouseDuringDrag, true);
       winDoc.addEventListener("mouseup", this._onMouseDuringDrag, true);
     }
-    const viewerEvents = this.view.viewer?.events;
+    const viewerEvents = this.view.viewer.events;
     const subs = [];
     if (viewerEvents?.onCameraViewMatrixUpdated?.subscribe) {
       const sub = viewerEvents.onCameraViewMatrixUpdated.subscribe(() => this._syncTransform());
@@ -158386,7 +160359,7 @@ var TransformControls = class _TransformControls {
       for (const u of subs)
         u();
     };
-    const sceneEvents = this.view.viewer?.scene?.events;
+    const sceneEvents = this.view.viewer.scene.events;
     if (sceneEvents?.onSceneMeshDestroyed?.subscribe) {
       const sub = sceneEvents.onSceneMeshDestroyed.subscribe(
         (_scene, mesh) => this._onSceneMeshDestroyed(mesh)
@@ -158445,7 +160418,7 @@ var TransformControls = class _TransformControls {
       this._explicitPivot = false;
     }
     if (this._debug) {
-      const kind = target.meshes ? `SceneObject id="${target.id}" meshes.length=${target.meshes?.length ?? 0}` : target.matrix !== void 0 && target.geometry !== void 0 ? `SceneMesh id="${target.id}"` : "adapter";
+      const kind = "meshes" in target ? `SceneObject id="${target.id}" meshes.length=${target.meshes?.length ?? 0}` : "geometry" in target ? `SceneMesh id="${target.id}"` : "adapter";
       const f = (n) => n.toFixed(3);
       console.log(
         `[TransformControls ${this.id}] attach target="${kind}" pivotWorld=[${f(this._pivotWorld[0])}, ${f(this._pivotWorld[1])}, ${f(this._pivotWorld[2])}] explicit=${this._explicitPivot}`
@@ -158781,7 +160754,7 @@ var TransformControls = class _TransformControls {
   // Internal: target normalisation
   // -------------------------------------------------------------
   _normalise(t) {
-    if (t.matrix !== void 0 && typeof t.geometry !== "undefined") {
+    if ("geometry" in t) {
       const mesh = t;
       return this._normaliseMeshGroup({
         listLiveMeshes: () => mesh.destroyed ? [] : [mesh],
@@ -159197,7 +161170,7 @@ var TransformControls = class _TransformControls {
     });
     e.preventDefault();
     e.stopPropagation();
-    e.stopImmediatePropagation?.();
+    e.stopImmediatePropagation();
   }
   _handlePointerMove(e) {
     if (!this._enabled)
@@ -159207,7 +161180,7 @@ var TransformControls = class _TransformControls {
       this._updateDrag(this._dragHandle, canvasPos2);
       e.preventDefault();
       e.stopPropagation();
-      e.stopImmediatePropagation?.();
+      e.stopImmediatePropagation();
       return;
     }
     const picked = this._target && this._mode !== "none" ? this._pick(canvasPos2) : null;
@@ -159233,7 +161206,7 @@ var TransformControls = class _TransformControls {
     });
     e.preventDefault();
     e.stopPropagation();
-    e.stopImmediatePropagation?.();
+    e.stopImmediatePropagation();
   }
   /**
    * Highlights the hovered handle via the per-view
@@ -159453,14 +161426,7 @@ var TransformControls = class _TransformControls {
   _applyRotationAroundAxis(axis, angle2) {
     if (!this._target)
       return;
-    const q = angleAxisToQuaternion([axis[0], axis[1], axis[2], angle2], [0, 0, 0, 1]);
-    const R2 = quatToMat4(q, identityMat4(createMat4Float64()));
-    const Tneg = translationMat4v([-this._dragPivot[0], -this._dragPivot[1], -this._dragPivot[2]]);
-    const Tpos = translationMat4v(this._dragPivot);
-    const tmp = createMat4Float64();
-    mulMat4(R2, Tneg, tmp);
-    const T = createMat4Float64();
-    mulMat4(Tpos, tmp, T);
+    const T = composeRotateAroundPivot(axis, angle2, this._dragPivot);
     if (this._debug) {
       const f = (n) => n.toFixed(3);
       console.log(
@@ -159472,16 +161438,7 @@ var TransformControls = class _TransformControls {
   _applyScaleFactors(s) {
     if (!this._target)
       return;
-    const S = identityMat4(createMat4Float64());
-    S[0] = s[0];
-    S[5] = s[1];
-    S[10] = s[2];
-    const Tneg = translationMat4v([-this._dragPivot[0], -this._dragPivot[1], -this._dragPivot[2]]);
-    const Tpos = translationMat4v(this._dragPivot);
-    const tmp = createMat4Float64();
-    mulMat4(S, Tneg, tmp);
-    const T = createMat4Float64();
-    mulMat4(Tpos, tmp, T);
+    const T = composeScaleAroundPivot(s, this._dragPivot);
     if (this._debug) {
       const f = (n) => n.toFixed(3);
       console.log(
@@ -159555,28 +161512,7 @@ var TransformControls = class _TransformControls {
   // Internal: misc helpers
   // -------------------------------------------------------------
   _axisFromLabel(label) {
-    let base;
-    switch (label) {
-      case "X":
-        base = X_AXIS;
-        break;
-      case "Y":
-        base = Y_AXIS;
-        break;
-      case "Z":
-        base = Z_AXIS;
-        break;
-      default:
-        return [0, 0, 0];
-    }
-    if (this._space === "world")
-      return [base[0], base[1], base[2]];
-    const r = this._rotationWorld;
-    return [
-      r[0] * base[0] + r[4] * base[1] + r[8] * base[2],
-      r[1] * base[0] + r[5] * base[1] + r[9] * base[2],
-      r[2] * base[0] + r[6] * base[1] + r[10] * base[2]
-    ];
+    return axisFromLabel(label, this._space, this._rotationWorld);
   }
   _inSet(id, set) {
     return set.indexOf(id) >= 0;
@@ -159630,24 +161566,8 @@ var TransformControls = class _TransformControls {
    */
   _canvasPosToRay(canvasPos2) {
     const [w, h] = this._canvasSize();
-    const ndcX = canvasPos2[0] / w * 2 - 1;
-    const ndcY = -(canvasPos2[1] / h) * 2 + 1;
     const cam = this.view.camera;
-    const vp = mulMat4(cam.projMatrix, cam.viewMatrix, createMat4Float64());
-    const inv = inverseMat4(vp, createMat4Float64());
-    if (!inv)
-      return null;
-    const tmp = createVec4Float64();
-    transformPoint4(inv, [ndcX, ndcY, -1, 1], tmp);
-    if (Math.abs(tmp[3]) < 1e-12)
-      return null;
-    const near = [tmp[0] / tmp[3], tmp[1] / tmp[3], tmp[2] / tmp[3]];
-    transformPoint4(inv, [ndcX, ndcY, 1, 1], tmp);
-    if (Math.abs(tmp[3]) < 1e-12)
-      return null;
-    const far = [tmp[0] / tmp[3], tmp[1] / tmp[3], tmp[2] / tmp[3]];
-    const dir = normalizeVec3(subVec3(far, near, createVec3Float64()), createVec3Float64());
-    return { origin: near, dir };
+    return canvasPosToRay(canvasPos2, w, h, cam.projMatrix, cam.viewMatrix);
   }
   _eventCanvasPos(e) {
     const el2 = this.view.htmlElement;
@@ -159655,30 +161575,6 @@ var TransformControls = class _TransformControls {
     return [e.clientX - rect.left, e.clientY - rect.top];
   }
 };
-function rayPlane(origin2, dir, planePoint, planeNormal) {
-  const denom = dotVec3(dir, planeNormal);
-  if (Math.abs(denom) < 1e-8)
-    return null;
-  const t = dotVec3(subVec3(planePoint, origin2, createVec3Float64()), planeNormal) / denom;
-  if (!isFinite(t))
-    return null;
-  return addVec3(origin2, mulVec3Scalar(dir, t, createVec3Float64()), createVec3Float64());
-}
-function closestPointOnLineToRay(linePoint, lineDir, rayOrigin, rayDir) {
-  const u = lineDir;
-  const v = rayDir;
-  const w0 = subVec3(linePoint, rayOrigin, createVec3Float64());
-  const a2 = dotVec3(u, u);
-  const b4 = dotVec3(u, v);
-  const c2 = dotVec3(v, v);
-  const d = dotVec3(u, w0);
-  const e = dotVec3(v, w0);
-  const denom = a2 * c2 - b4 * b4;
-  if (Math.abs(denom) < 1e-8)
-    return null;
-  const sc = (b4 * e - c2 * d) / denom;
-  return addVec3(linePoint, mulVec3Scalar(u, sc, createVec3Float64()), createVec3Float64());
-}
 
 // ../sdk/src/viewing/viewController/index.ts
 var viewController_exports = {};
@@ -166701,15 +168597,15 @@ var MeshAttributeTexture = class _MeshAttributeTexture extends ItemDataTexture {
       this.buffer[base + 1] = this.toU32(item.geometryIndex);
     if (item.roughness !== void 0 || item.metallic !== void 0 || item.hatchPatternSlot !== void 0) {
       const existing = this.buffer[base + 2] >>> 0;
-      const r8 = item.roughness !== void 0 ? clampU82(item.roughness * 255) : existing & 255;
-      const m8 = item.metallic !== void 0 ? clampU82(item.metallic * 255) : existing >>> 8 & 255;
+      const r8 = item.roughness !== void 0 ? clampU83(item.roughness * 255) : existing & 255;
+      const m8 = item.metallic !== void 0 ? clampU83(item.metallic * 255) : existing >>> 8 & 255;
       const hatch16 = item.hatchPatternSlot !== void 0 ? clampU16(item.hatchPatternSlot) : existing >>> 16 & 65535;
       this.buffer[base + 2] = (r8 | m8 << 8 | hatch16 << 16) >>> 0;
     }
     if (item.alphaMode !== void 0 || item.alphaCutoff !== void 0 || item.linePatternSlot !== void 0) {
       const existing = this.buffer[base + 3] >>> 0;
-      const mode8 = item.alphaMode !== void 0 ? clampU82(item.alphaMode) : existing & 255;
-      const cutoff8 = item.alphaCutoff !== void 0 ? clampU82(item.alphaCutoff * 255) : existing >>> 8 & 255;
+      const mode8 = item.alphaMode !== void 0 ? clampU83(item.alphaMode) : existing & 255;
+      const cutoff8 = item.alphaCutoff !== void 0 ? clampU83(item.alphaCutoff * 255) : existing >>> 8 & 255;
       const slot16 = item.linePatternSlot !== void 0 ? clampU16(item.linePatternSlot) : existing >>> 16 & 65535;
       this.buffer[base + 3] = (mode8 | cutoff8 << 8 | slot16 << 16) >>> 0;
     }
@@ -166750,9 +168646,9 @@ var MeshAttributeTexture = class _MeshAttributeTexture extends ItemDataTexture {
       this.buffer[base + 15] = packUV2(item.occlusionUVScale);
     }
     if (item.emissiveColor !== void 0) {
-      const r8 = clampU82(item.emissiveColor[0] * 255);
-      const g8 = clampU82(item.emissiveColor[1] * 255);
-      const b8 = clampU82(item.emissiveColor[2] * 255);
+      const r8 = clampU83(item.emissiveColor[0] * 255);
+      const g8 = clampU83(item.emissiveColor[1] * 255);
+      const b8 = clampU83(item.emissiveColor[2] * 255);
       this.buffer[base + 16] = (r8 | g8 << 8 | b8 << 16) >>> 0;
     }
     this.setItemDirty(itemIndex);
@@ -166777,7 +168673,7 @@ var MeshAttributeTexture = class _MeshAttributeTexture extends ItemDataTexture {
     return typeof x === "bigint" ? Number(x & 0xFFFFFFFFn) : x >>> 0;
   }
 };
-function clampU82(v) {
+function clampU83(v) {
   v = Math.round(v);
   return v < 0 ? 0 : v > 255 ? 255 : v;
 }
@@ -167213,17 +169109,45 @@ var PortionDataTexture = class extends DataTexture {
     const gl = this.gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-    gl.texSubImage2D(
-      gl.TEXTURE_2D,
-      0,
-      0,
-      0,
-      this.width,
-      this.height,
-      this.format,
-      this.type,
-      this.buffer
-    );
+    if (this.uploadAllOnFlush) {
+      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.width, this.height, this.format, this.type, this.buffer);
+    } else {
+      const itemsPerRow = this.width;
+      const segments = [];
+      for (const id of this.dirtyPortionIds) {
+        const portion = this.usedPortions.get(id);
+        if (portion) {
+          segments.push({ base: portion.base, size: portion.size });
+        }
+      }
+      segments.sort((a2, b4) => a2.base - b4.base);
+      const coalesced = [];
+      for (const seg of segments) {
+        const last = coalesced[coalesced.length - 1];
+        if (last && last.base + last.size === seg.base) {
+          last.size += seg.size;
+        } else {
+          coalesced.push({ base: seg.base, size: seg.size });
+        }
+      }
+      for (const portion of coalesced) {
+        let base = portion.base;
+        let remaining = portion.size;
+        while (remaining > 0) {
+          const xOffset = base % itemsPerRow;
+          const yOffset = Math.floor(base / itemsPerRow);
+          const chunkSize = Math.min(remaining, itemsPerRow - xOffset);
+          const bufferStart = base * this.elementsPerItem;
+          const bufferEnd = (base + chunkSize) * this.elementsPerItem;
+          const pixelData = this.buffer.subarray(bufferStart, bufferEnd);
+          gl.texSubImage2D(gl.TEXTURE_2D, 0, xOffset, yOffset, chunkSize, 1, this.format, this.type, pixelData);
+          base += chunkSize;
+          remaining -= chunkSize;
+        }
+      }
+    }
+    this.dirtyPortionIds.clear();
+    this.uploadAllOnFlush = false;
     gl.bindTexture(gl.TEXTURE_2D, null);
     if (this.debugging) {
       this.lastUploadTimeMS = performance.now() - startTimeMs;
@@ -171112,9 +173036,9 @@ var RendererMesh = class {
     if (!oldTile || oldTile.id !== this.gpuTile.id) {
       this._meshBatch.setMeshTile(this._meshHandle, this.gpuTile.tileIndex);
     }
-    const relativeMatrix = createMat4Float64(matrix);
-    relativeMatrix.set(subVec3(center, this.gpuTile.center), 12);
-    this._meshBatch.setMeshMatrix(this._meshHandle, relativeMatrix);
+    const relativeMatrix3 = createMat4Float64(matrix);
+    relativeMatrix3.set(subVec3(center, this.gpuTile.center), 12);
+    this._meshBatch.setMeshMatrix(this._meshHandle, relativeMatrix3);
   }
   /**
    * Sets the color of the mesh, updating the color in all views that are not currently overridden by view-specific colorization.
@@ -171680,7 +173604,246 @@ var MeshBatchImpl = class {
   }
 };
 
+// ../sdk/src/formats/gaussiansplat/utils/computeCovariance3D.ts
+function computeCovariance3D(scale3, quat) {
+  const n = Math.hypot(quat[0], quat[1], quat[2], quat[3]) || 1;
+  const x = quat[0] / n, y = quat[1] / n, z = quat[2] / n, w = quat[3] / n;
+  const R2 = [
+    1 - 2 * (y * y + z * z),
+    2 * (x * y + z * w),
+    2 * (x * z - y * w),
+    2 * (x * y - z * w),
+    1 - 2 * (x * x + z * z),
+    2 * (y * z + x * w),
+    2 * (x * z + y * w),
+    2 * (y * z - x * w),
+    1 - 2 * (x * x + y * y)
+  ];
+  const sx = scale3[0], sy = scale3[1], sz = scale3[2];
+  const M = [
+    sx * R2[0],
+    sx * R2[1],
+    sx * R2[2],
+    sy * R2[3],
+    sy * R2[4],
+    sy * R2[5],
+    sz * R2[6],
+    sz * R2[7],
+    sz * R2[8]
+  ];
+  const sxx = M[0] * M[0] + M[3] * M[3] + M[6] * M[6];
+  const sxy = M[0] * M[1] + M[3] * M[4] + M[6] * M[7];
+  const sxz = M[0] * M[2] + M[3] * M[5] + M[6] * M[8];
+  const syy = M[1] * M[1] + M[4] * M[4] + M[7] * M[7];
+  const syz = M[1] * M[2] + M[4] * M[5] + M[7] * M[8];
+  const szz = M[2] * M[2] + M[5] * M[5] + M[8] * M[8];
+  return [sxx, sxy, sxz, syy, syz, szz];
+}
+
+// ../sdk/src/formats/gaussiansplat/utils/packSplats.ts
+var SPLAT_FLOATS_PER_ITEM = 16;
+function packSplats(attrs, worldMatrix, meshPickId = 0) {
+  const count = attrs.positionsCompressed.length / 3 | 0;
+  const centres = decompressPositions3WithAABB3(attrs.positionsCompressed, attrs.aabb);
+  const colors = attrs.colorsCompressed;
+  const out = new Float32Array(count * SPLAT_FLOATS_PER_ITEM);
+  const m = worldMatrix;
+  for (let i = 0; i < count; i++) {
+    let cov = computeCovariance3D(
+      [attrs.scales[i * 3], attrs.scales[i * 3 + 1], attrs.scales[i * 3 + 2]],
+      [attrs.rotations[i * 4], attrs.rotations[i * 4 + 1], attrs.rotations[i * 4 + 2], attrs.rotations[i * 4 + 3]]
+    );
+    let cx = centres[i * 3], cy = centres[i * 3 + 1], cz = centres[i * 3 + 2];
+    if (m) {
+      const wx = m[0] * cx + m[4] * cy + m[8] * cz + m[12];
+      const wy = m[1] * cx + m[5] * cy + m[9] * cz + m[13];
+      const wz = m[2] * cx + m[6] * cy + m[10] * cz + m[14];
+      cx = wx;
+      cy = wy;
+      cz = wz;
+      cov = transformCovariance(cov, m);
+    }
+    const o = i * SPLAT_FLOATS_PER_ITEM;
+    out[o] = cx;
+    out[o + 1] = cy;
+    out[o + 2] = cz;
+    out[o + 3] = colors ? colors[i * 4 + 3] / 255 : 1;
+    out[o + 4] = colors ? colors[i * 4] / 255 : 1;
+    out[o + 5] = colors ? colors[i * 4 + 1] / 255 : 1;
+    out[o + 6] = colors ? colors[i * 4 + 2] / 255 : 1;
+    out[o + 7] = meshPickId;
+    out[o + 8] = cov[0];
+    out[o + 9] = cov[1];
+    out[o + 10] = cov[2];
+    out[o + 11] = 0;
+    out[o + 12] = cov[3];
+    out[o + 13] = cov[4];
+    out[o + 14] = cov[5];
+    out[o + 15] = 0;
+  }
+  return out;
+}
+function transformCovariance(cov, m) {
+  const a2 = m[0], b4 = m[4], c2 = m[8];
+  const d = m[1], e = m[5], f = m[9];
+  const g = m[2], h = m[6], i = m[10];
+  const [sxx, sxy, sxz, syy, syz, szz] = cov;
+  const u0x = a2 * sxx + b4 * sxy + c2 * sxz, u0y = a2 * sxy + b4 * syy + c2 * syz, u0z = a2 * sxz + b4 * syz + c2 * szz;
+  const u1x = d * sxx + e * sxy + f * sxz, u1y = d * sxy + e * syy + f * syz, u1z = d * sxz + e * syz + f * szz;
+  const u2x = g * sxx + h * sxy + i * sxz, u2y = g * sxy + h * syy + i * syz, u2z = g * sxz + h * syz + i * szz;
+  return [
+    u0x * a2 + u0y * b4 + u0z * c2,
+    // xx
+    u0x * d + u0y * e + u0z * f,
+    // xy
+    u0x * g + u0y * h + u0z * i,
+    // xz
+    u1x * d + u1y * e + u1z * f,
+    // yy
+    u1x * g + u1y * h + u1z * i,
+    // yz
+    u2x * g + u2y * h + u2z * i
+    // zz
+  ];
+}
+
+// ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/dataTextures/SplatDataTexture.ts
+var SplatDataTexture = class _SplatDataTexture extends PortionDataTexture {
+  /** 16 float32 = 64 bytes per splat (4 RGBA32F texels). */
+  static itemSizeInBytes = SPLAT_FLOATS_PER_ITEM * 4;
+  constructor(options) {
+    super({
+      gl: options.gl,
+      description: options.description,
+      format: options.gl.RGBA,
+      type: options.gl.FLOAT,
+      internalFormat: options.gl.RGBA32F,
+      maxItems: options.maxItems,
+      getNumItems: () => this.numItems,
+      width: 4096,
+      itemSizeInBytes: _SplatDataTexture.itemSizeInBytes,
+      texelsPerItem: 4,
+      // 4 RGBA32F texels per splat
+      elementsPerTexel: 4
+      // RGBA
+    });
+  }
+  /** Returns the packed 16-float record for the splat at `itemIndex`. */
+  getItem(itemIndex) {
+    const offset = itemIndex * this.elementsPerItem;
+    const out = new Array(SPLAT_FLOATS_PER_ITEM);
+    for (let i = 0; i < SPLAT_FLOATS_PER_ITEM; i++) {
+      out[i] = this.buffer[offset + i];
+    }
+    return out;
+  }
+};
+
+// ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/SplatBatch.ts
+var SplatBatch = class {
+  /** The shared splat-record texture (read by the GaussianSplatTechnique). */
+  texture;
+  _portions = /* @__PURE__ */ new Map();
+  /** Bumped on every add/remove, so consumers (the sort worker) know to re-read. */
+  _revision = 0;
+  constructor(gl, maxSplats) {
+    this.texture = new SplatDataTexture({ gl, maxItems: maxSplats, description: "SplatBatch" });
+  }
+  /** Allocates the GPU texture. Call once before the first {@link addSplats}. */
+  allocate() {
+    return this.texture.allocate();
+  }
+  /** Streams a splat geometry in. Returns its portion handle (`base`, `size`). */
+  addSplats(attrs, worldMatrix, meshPickId = 0) {
+    const packed = packSplats(attrs, worldMatrix, meshPickId);
+    const count = packed.length / SPLAT_FLOATS_PER_ITEM | 0;
+    const portion = { base: 0, count };
+    const handle = this.texture.getPortion(packed, (newBase) => {
+      portion.base = newBase;
+    });
+    if (!handle) {
+      return {
+        ok: false,
+        type: 8 /* MemoryAllocationFailed */,
+        error: "[SplatBatch.addSplats] Out of splat texture memory."
+      };
+    }
+    portion.base = handle.base;
+    this._portions.set(handle, portion);
+    this._revision++;
+    return { ok: true, value: handle };
+  }
+  /**
+   * Re-packs an existing portion with a new world matrix (live re-transform).
+   * In-place (same splat count) and bumps the revision so the sort re-runs.
+   */
+  updateSplats(handle, attrs, worldMatrix, meshPickId = 0) {
+    if (!this._portions.has(handle))
+      return;
+    const packed = packSplats(attrs, worldMatrix, meshPickId);
+    this.texture.setPortionData(handle, packed);
+    this._revision++;
+  }
+  /** Streams a splat geometry out, freeing its portion back to the texture. */
+  removeSplats(handle) {
+    if (this._portions.delete(handle)) {
+      this.texture.putPortion(handle);
+      this._revision++;
+    }
+  }
+  /** Flushes dirty portions to the GPU. Call after add/remove, before draw. */
+  uploadChanges() {
+    this.texture.uploadChanges();
+  }
+  /** Live portions, each carrying `{base, count}` for the sort/draw. */
+  get portions() {
+    return this._portions.values();
+  }
+  /** Total splats currently resident. */
+  get numSplats() {
+    return this.texture.numItems;
+  }
+  /** Increments whenever splats are added/removed (for sort-worker invalidation). */
+  get revision() {
+    return this._revision;
+  }
+  destroy() {
+    this.texture.destroy();
+  }
+};
+
+// ../sdk/src/viewing/webGLRenderer/internal/meshManager/RendererSplatMesh.ts
+var RendererSplatMesh = class {
+  constructor(sceneMesh, _splatBatch, _handle, pickId) {
+    this.sceneMesh = sceneMesh;
+    this._splatBatch = _splatBatch;
+    this._handle = _handle;
+    this.pickId = pickId;
+  }
+  /**
+   * Re-bakes this mesh's splats with a new world matrix (live re-transform).
+   * Called when the SceneMesh's matrix changes.
+   */
+  setMatrix(worldMatrix) {
+    const geom = this.sceneMesh.geometry;
+    if (!geom.scales || !geom.rotations || !geom.aabb)
+      return;
+    this._splatBatch.updateSplats(this._handle, {
+      positionsCompressed: geom.positionsCompressed,
+      aabb: geom.aabb,
+      scales: geom.scales,
+      rotations: geom.rotations,
+      colorsCompressed: geom.colorsCompressed
+    }, worldMatrix, this.pickId);
+  }
+  /** Streams this mesh's splats out of the batch. */
+  destroy() {
+    this._splatBatch.removeSplats(this._handle);
+  }
+};
+
 // ../sdk/src/viewing/webGLRenderer/internal/meshManager/MeshManager.ts
+var MAX_SPLATS_PER_BATCH = 15e5;
 var MeshManager = class {
   /**
    * Renderer objects keyed by {@link SceneObject.id}.
@@ -171693,6 +173856,13 @@ var MeshManager = class {
    * Renderer meshes keyed by {@link SceneMesh.uniqueId}.
    */
   _rendererMeshes = {};
+  /** Renderer-side handles for gaussian-splat meshes (kept out of {@link _rendererMeshes}). */
+  _rendererSplatMeshes = {};
+  /** Splat meshes keyed by their pick id (written into the pick buffer). */
+  _splatPickMeshes = /* @__PURE__ */ new Map();
+  _nextSplatPickId = 0;
+  /** Lazily-created shared GPU storage for all gaussian splats. */
+  _splatBatch = null;
   /** Shared render context used for device resources and viewer access. */
   _renderContext;
   /** Allocates/updates GPU memory for batches, meshes, and per-frame state. */
@@ -171820,6 +173990,9 @@ var MeshManager = class {
    * @returns {@link base!core.SDKResult | SDKResult} indicating success, or `ok:false` if registration fails.
    */
   sceneMeshCreated(sceneMesh) {
+    if (sceneMesh.geometry.primitive === GaussianSplatsPrimitive) {
+      return this._addSplatMesh(sceneMesh);
+    }
     return this._addMesh(sceneMesh);
   }
   /**
@@ -171828,8 +174001,16 @@ var MeshManager = class {
    * @returns {@link base!core.SDKResult | SDKResult} indicating success, or `ok:false` if unregistration fails.
    */
   sceneMeshDestroyed(sceneMesh) {
+    if (sceneMesh.geometry.primitive === GaussianSplatsPrimitive) {
+      this._removeSplatMesh(sceneMesh);
+      return { ok: true, value: void 0 };
+    }
     this._removeMesh(sceneMesh);
     return { ok: true, value: void 0 };
+  }
+  /** The shared gaussian-splat batch, or null if no splats have been added. */
+  getSplatBatch() {
+    return this._splatBatch;
   }
   /**
    * Registers a newly created {@link model!scene.SceneObject | SceneObject}.
@@ -171853,6 +174034,9 @@ var MeshManager = class {
     }
     const rendererMeshes = [];
     for (const sceneMesh of sceneObject.meshes) {
+      if (sceneMesh.geometry.primitive === GaussianSplatsPrimitive) {
+        continue;
+      }
       const rendererMesh = this._rendererMeshes[sceneMesh.uniqueId];
       if (!rendererMesh) {
         return {
@@ -171928,6 +174112,75 @@ var MeshManager = class {
       stats.rendererMeshCtorCalls++;
     }
     return { ok: true, value: rendererMesh };
+  }
+  /**
+   * Registers a gaussian-splat {@link SceneMesh} into the dedicated
+   * {@link SplatBatch} (lazily created). Splats stream in/out as freeable
+   * texture portions; they never touch the mesh {@link GPUMemoryBatch} path.
+   */
+  _addSplatMesh(sceneMesh) {
+    const meshGlobalId = sceneMesh.uniqueId;
+    if (this._rendererSplatMeshes[meshGlobalId]) {
+      return {
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[MeshManager._addSplatMesh] Splat mesh already added with this globalId: ${meshGlobalId}`
+      };
+    }
+    const geom = sceneMesh.geometry;
+    if (!geom.scales || !geom.rotations || !geom.aabb) {
+      return {
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[MeshManager._addSplatMesh] GaussianSplats geometry '${geom.id}' is missing scales/rotations/aabb.`
+      };
+    }
+    const batchResult = this._ensureSplatBatch();
+    if (batchResult.ok === false) {
+      return batchResult;
+    }
+    const splatBatch = batchResult.value;
+    const pickId = this._nextSplatPickId++;
+    const addResult = splatBatch.addSplats({
+      positionsCompressed: geom.positionsCompressed,
+      aabb: geom.aabb,
+      scales: geom.scales,
+      rotations: geom.rotations,
+      colorsCompressed: geom.colorsCompressed
+    }, sceneMesh.worldMatrix, pickId);
+    if (addResult.ok === false) {
+      return addResult;
+    }
+    const rendererSplatMesh = new RendererSplatMesh(sceneMesh, splatBatch, addResult.value, pickId);
+    this._rendererSplatMeshes[meshGlobalId] = rendererSplatMesh;
+    this._splatPickMeshes.set(pickId, rendererSplatMesh);
+    return { ok: true, value: rendererSplatMesh };
+  }
+  /** Lazily creates + allocates the shared {@link SplatBatch}. */
+  _ensureSplatBatch() {
+    if (this._splatBatch) {
+      return { ok: true, value: this._splatBatch };
+    }
+    const batch = new SplatBatch(this._renderContext.gl, MAX_SPLATS_PER_BATCH);
+    const allocResult = batch.allocate();
+    if (allocResult.ok === false) {
+      return allocResult;
+    }
+    this._splatBatch = batch;
+    return { ok: true, value: batch };
+  }
+  /** Streams a gaussian-splat mesh out of the {@link SplatBatch}. */
+  _removeSplatMesh(sceneMesh) {
+    const rendererSplatMesh = this._rendererSplatMeshes[sceneMesh.uniqueId];
+    if (rendererSplatMesh) {
+      this._splatPickMeshes.delete(rendererSplatMesh.pickId);
+      rendererSplatMesh.destroy();
+      delete this._rendererSplatMeshes[sceneMesh.uniqueId];
+    }
+  }
+  /** Resolves a splat-pick `pickId` (read from the pick buffer) to its SceneMesh. */
+  getSplatMeshAtPickIndex(pickId) {
+    return this._splatPickMeshes.get(pickId)?.sceneMesh ?? null;
   }
   /**
    * Returns an existing compatible {@link MeshBatchImpl} for the mesh or creates a new one.
@@ -172125,6 +174378,10 @@ var MeshManager = class {
    * Forwards to the corresponding {@link RendererMesh} (if registered).
    */
   sceneMeshMatrixChanged(sceneMesh) {
+    if (sceneMesh.geometry.primitive === GaussianSplatsPrimitive) {
+      this._rendererSplatMeshes[sceneMesh.uniqueId]?.setMatrix(sceneMesh.worldMatrix);
+      return;
+    }
     this._rendererMeshes[sceneMesh.uniqueId]?.setMatrix(sceneMesh.worldMatrix);
   }
   /**
@@ -172336,6 +174593,10 @@ var MeshManager = class {
         this._batches[i].destroy();
       }
     }
+    this._splatBatch?.destroy();
+    this._splatBatch = null;
+    this._rendererSplatMeshes = {};
+    this._splatPickMeshes.clear();
     this._batches = [];
     this._rendererObjects = {};
     this._rendererMeshes = {};
@@ -172398,6 +174659,24 @@ function _materialHasMippedTexture(sceneMesh) {
 // ../sdk/src/viewing/webGLRenderer/internal/drawOps/DrawTechnique.ts
 var defaultColor = new Float32Array([1, 1, 1, 1]);
 var MAX_SECTION_PLANES = 8;
+function packSectionPlanes(planes, out) {
+  let count = 0;
+  if (planes) {
+    for (let i = 0; i < planes.length && count < MAX_SECTION_PLANES; i++) {
+      const plane = planes[i];
+      if (!plane.active) {
+        continue;
+      }
+      const dir = plane.dir;
+      out[count * 4 + 0] = dir[0];
+      out[count * 4 + 1] = dir[1];
+      out[count * 4 + 2] = dir[2];
+      out[count * 4 + 3] = plane.dist;
+      count++;
+    }
+  }
+  return count;
+}
 var SECTION_PLANE_SCRATCH = new Float32Array(MAX_SECTION_PLANES * 4);
 var DEBUG_VISUALIZE_NORMAL_MAP = false;
 var DrawTechnique = class {
@@ -173666,7 +175945,7 @@ void main(void) {`);
    *
    * `uEdgeFadeRange` is `vec2(startDist, endDist)` in view-space units. The
    * CPU side derives both values from the active camera's far plane and the
-   * view's `Edges.edgeFadeStart` / `edgeFadeEnd` knobs.
+   * view's `Edges.edgeFadeStart` / `edgeFadeEnd` parameters.
    */
   fsEdgeFadeDeclarations() {
     this._fragSrcBuf.push(
@@ -174661,7 +176940,7 @@ flat out int  vHatchSpace;
         // coordinate system). Y-up scenes are rotated to Z-up
         // by the Scene's coord-system transform before
         // reaching the renderer, so this stays correct without
-        // an extra uniform plumbing.
+        // an extra uniform setup.
         //
         // Degenerate case \u2014 surface normal parallel to world
         // up (floors, ceilings): swap in world +X as the
@@ -176129,22 +178408,8 @@ ${this.triplanar ? `
       }
     }
     if (uniforms.sectionPlaneCount) {
-      const planes = view.sectionPlanesList;
       const buf = SECTION_PLANE_SCRATCH;
-      let count = 0;
-      if (planes) {
-        for (let i = 0; i < planes.length && count < MAX_SECTION_PLANES; i++) {
-          const plane = planes[i];
-          if (!plane.active)
-            continue;
-          const dir = plane.dir;
-          buf[count * 4 + 0] = dir[0];
-          buf[count * 4 + 1] = dir[1];
-          buf[count * 4 + 2] = dir[2];
-          buf[count * 4 + 3] = plane.dist;
-          count++;
-        }
-      }
+      const count = packSectionPlanes(view.sectionPlanesList, buf);
       gl.uniform1i(uniforms.sectionPlaneCount, count);
       if (count > 0 && uniforms.sectionPlanes) {
         gl.uniform4fv(uniforms.sectionPlanes, buf);
@@ -177455,6 +179720,358 @@ function putDrawOps(drawOps) {
   }
 }
 
+// ../sdk/src/viewing/webGLRenderer/internal/drawOps/techniques/splats/GaussianSplatPickTechnique.ts
+var SECTION_PLANE_SCRATCH2 = new Float32Array(MAX_SECTION_PLANES * 4);
+var SPLAT_PICK_SENTINEL = 16777214;
+var PICK_ALPHA_THRESHOLD = 0.3;
+var FOCAL_Y_SIGN = 1;
+var VERTEX_SHADER_SOURCE = `#version 300 es
+precision highp float;
+precision highp int;
+
+uniform sampler2D uTex;     // RGBA32F, 4 texels/splat
+uniform int uTexW;
+uniform mat4 uView;
+uniform mat4 uProj;
+uniform vec2 uFocal;
+uniform vec2 uViewport;
+uniform vec2 uPickClipPos;  // cursor in NDC [-1, 1]
+
+// Section-plane bank \u2014 must match GaussianSplatTechnique so a clipped splat is
+// unpickable, not just invisible. Plane equation packed as (normal.xyz, d).
+uniform vec4 uSectionPlanes[${MAX_SECTION_PLANES}];
+uniform int uSectionPlaneCount;
+
+in vec2 aCorner;            // quad corner [-2, 2]
+in uint aIndex;             // live splat item-index in the batch texture
+
+flat out uint vMeshPickId;
+flat out float vViewZ;
+out vec4 vColor;
+out vec2 vCorner;
+
+vec4 fetchTexel(int i) {
+    int idx = int(aIndex) * 4 + i;
+    return texelFetch(uTex, ivec2(idx % uTexW, idx / uTexW), 0);
+}
+
+// Shift the splat's clip position so the cursor neighbourhood lands in the
+// 1\xD71 pick viewport (mirrors DrawTechnique's mesh-pick remapPickClipPos).
+vec4 remapPickClipPos(vec4 clipPos) {
+    clipPos.xy /= clipPos.w;
+    clipPos.xy = (clipPos.xy - uPickClipPos) * uViewport;
+    clipPos.xy *= clipPos.w;
+    return clipPos;
+}
+
+void main() {
+    vec4 t0 = fetchTexel(0);
+    vec4 t1 = fetchTexel(1);
+    vec4 t2 = fetchTexel(2);
+    vec4 t3 = fetchTexel(3);
+
+    vColor = vec4(t1.rgb, t0.w);
+    vMeshPickId = uint(t1.w + 0.5);
+
+    // Section-plane clipping, per splat centre (world space) \u2014 identical to the
+    // colour pass so picking and rendering agree. Cull off-screen before the
+    // fragment shader can write any pick MRT.
+    for (int i = 0; i < uSectionPlaneCount; i++) {
+        if (dot(uSectionPlanes[i].xyz, t0.xyz) + uSectionPlanes[i].w > 0.0) {
+            gl_Position = vec4(0.0, 0.0, 2.0, 1.0);
+            return;
+        }
+    }
+
+    vec4 cam = uView * vec4(t0.xyz, 1.0);
+    if (cam.z > -0.01) {
+        gl_Position = vec4(0.0, 0.0, 2.0, 1.0);   // behind the camera: cull off-screen
+        return;
+    }
+    vViewZ = cam.z;
+
+    mat3 Vrk = mat3(t2.x, t2.y, t2.z,
+                    t2.y, t3.x, t3.y,
+                    t2.z, t3.y, t3.z);
+    float z = cam.z;
+    mat3 J = mat3(uFocal.x / z, 0.0, -(uFocal.x * cam.x) / (z * z),
+                  0.0, ${FOCAL_Y_SIGN.toFixed(1)} * uFocal.y / z, ${(-FOCAL_Y_SIGN).toFixed(1)} * (uFocal.y * cam.y) / (z * z),
+                  0.0, 0.0, 0.0);
+    mat3 W = transpose(mat3(uView));
+    mat3 T = W * J;
+    mat3 cov2d = transpose(T) * Vrk * T;
+
+    float a = cov2d[0][0] + 0.3;
+    float b = cov2d[0][1];
+    float c = cov2d[1][1] + 0.3;
+    float mid = 0.5 * (a + c);
+    float radius = length(vec2(0.5 * (a - c), b));
+    float l1 = mid + radius;
+    float l2 = mid - radius;
+    if (l2 <= 0.0) {
+        gl_Position = vec4(0.0, 0.0, 2.0, 1.0);   // degenerate footprint: cull
+        return;
+    }
+
+    vec2 e1 = normalize(vec2(b, l1 - a));
+    vec2 e2 = vec2(e1.y, -e1.x);
+    vec2 major = min(sqrt(2.0 * l1), 1024.0) * e1;
+    vec2 minor = min(sqrt(2.0 * l2), 1024.0) * e2;
+
+    vec4 clip = uProj * cam;
+    vec2 off = (aCorner.x * major + aCorner.y * minor) / uViewport * 2.0 * clip.w;
+    gl_Position = remapPickClipPos(vec4(clip.xy + off, clip.zw));
+    vCorner = aCorner;
+}
+`;
+var FRAGMENT_SHADER_SOURCE = `#version 300 es
+precision highp float;
+precision highp int;
+
+flat in uint vMeshPickId;
+flat in float vViewZ;
+in vec4 vColor;
+in vec2 vCorner;
+
+uniform float uPickZNear;
+uniform float uPickZFar;
+
+layout(location = 0) out vec4 outBatchIndex;
+layout(location = 1) out vec4 outMeshIndex;
+layout(location = 2) out vec4 outDepth;
+
+// Packs a 32-bit uint into 4 normalized 8-bit channels (R = least-significant).
+vec4 packUintToRGBA8(uint v) {
+    return vec4(
+        float( v         & 0xFFu),
+        float((v >> 8u)  & 0xFFu),
+        float((v >> 16u) & 0xFFu),
+        float((v >> 24u) & 0xFFu)
+    ) / 255.0;
+}
+
+// Packs a normalized [0,1] depth into RGBA8.
+vec4 packDepth(const in float depth) {
+    const vec4 bitShift = vec4(256.0 * 256.0 * 256.0, 256.0 * 256.0, 256.0, 1.0);
+    const vec4 bitMask  = vec4(0.0, 1.0 / 256.0, 1.0 / 256.0, 1.0 / 256.0);
+    vec4 res = fract(depth * bitShift);
+    res -= res.xxyz * bitMask;
+    return res;
+}
+
+void main() {
+    float alpha = exp(-dot(vCorner, vCorner)) * vColor.a;
+    if (alpha < ${PICK_ALPHA_THRESHOLD.toFixed(3)}) {
+        discard;   // pick the solid core, not the faint fringe
+    }
+    outBatchIndex = packUintToRGBA8(${SPLAT_PICK_SENTINEL}u);
+    outMeshIndex = packUintToRGBA8(vMeshPickId);
+    float zNormalized = abs((uPickZNear + vViewZ) / (uPickZFar - uPickZNear));
+    outDepth = packDepth(zNormalized);
+}
+`;
+var QUAD_CORNERS = new Float32Array([-2, -2, 2, -2, -2, 2, 2, 2]);
+var GaussianSplatPickTechnique = class {
+  gl;
+  program = null;
+  cornerBuf = null;
+  idxBuf = null;
+  aCorner = -1;
+  aIndex = -1;
+  uTex = null;
+  uTexW = null;
+  uView = null;
+  uProj = null;
+  uFocal = null;
+  uViewport = null;
+  uPickClipPos = null;
+  uPickZNear = null;
+  uPickZFar = null;
+  uSectionPlanes = null;
+  uSectionPlaneCount = null;
+  initialized = false;
+  _revision = -1;
+  // batch revision the idxBuf was built for
+  _count = 0;
+  // live splats in the idxBuf
+  _view = new Float32Array(16);
+  _proj = new Float32Array(16);
+  constructor(gl) {
+    this.gl = gl;
+  }
+  init() {
+    if (this.initialized) {
+      return { ok: true, value: void 0 };
+    }
+    try {
+      const gl = this.gl;
+      this.program = this.createProgram(VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+      this.cornerBuf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.cornerBuf);
+      gl.bufferData(gl.ARRAY_BUFFER, QUAD_CORNERS, gl.STATIC_DRAW);
+      gl.bindBuffer(gl.ARRAY_BUFFER, null);
+      this.idxBuf = gl.createBuffer();
+      this.aCorner = gl.getAttribLocation(this.program, "aCorner");
+      this.aIndex = gl.getAttribLocation(this.program, "aIndex");
+      this.uTex = this.getUniformLocation("uTex");
+      this.uTexW = this.getUniformLocation("uTexW");
+      this.uView = this.getUniformLocation("uView");
+      this.uProj = this.getUniformLocation("uProj");
+      this.uFocal = this.getUniformLocation("uFocal");
+      this.uViewport = this.getUniformLocation("uViewport");
+      this.uPickClipPos = this.getUniformLocation("uPickClipPos");
+      this.uPickZNear = this.getUniformLocation("uPickZNear");
+      this.uPickZFar = this.getUniformLocation("uPickZFar");
+      this.uSectionPlanes = this.getUniformLocation("uSectionPlanes[0]");
+      this.uSectionPlaneCount = this.getUniformLocation("uSectionPlaneCount");
+      this.initialized = true;
+      return { ok: true, value: void 0 };
+    } catch (e) {
+      this.destroy();
+      return { ok: false, type: 0 /* InitializationFailed */, error: e instanceof Error ? e.message : String(e) };
+    }
+  }
+  /**
+   * Draws the whole splat batch into the currently-bound pick framebuffer (1×1
+   * viewport already set by PickManager) in a single instanced call. `view`/
+   * `proj` are the pick view + projection matrices; `pickClipPos` is the cursor
+   * in NDC; `pickZNear`/`pickZFar` the pick depth range.
+   */
+  drawPick(opts) {
+    if (!this.initialized || !this.program) {
+      return;
+    }
+    const splatBatch = opts.splatBatch;
+    if (!splatBatch || splatBatch.numSplats === 0) {
+      return;
+    }
+    const gl = this.gl;
+    const w = opts.viewportWidth;
+    const h = opts.viewportHeight;
+    splatBatch.uploadChanges();
+    if (splatBatch.revision !== this._revision) {
+      this._revision = splatBatch.revision;
+      const indices = this._buildIndices(splatBatch);
+      this._count = indices.length;
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.idxBuf);
+      gl.bufferData(gl.ARRAY_BUFFER, indices, gl.DYNAMIC_DRAW);
+      gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    }
+    if (this._count === 0) {
+      return;
+    }
+    this._view.set(opts.view);
+    this._proj.set(opts.proj);
+    gl.useProgram(this.program);
+    const fx = this._proj[0] * w * 0.5;
+    const fy = this._proj[5] * h * 0.5;
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, splatBatch.texture.texture);
+    gl.uniform1i(this.uTex, 0);
+    gl.uniform1i(this.uTexW, splatBatch.texture.width);
+    gl.uniformMatrix4fv(this.uView, false, this._view);
+    gl.uniformMatrix4fv(this.uProj, false, this._proj);
+    gl.uniform2f(this.uFocal, fx, fy);
+    gl.uniform2f(this.uViewport, w, h);
+    gl.uniform2f(this.uPickClipPos, opts.pickClipPos[0], opts.pickClipPos[1]);
+    gl.uniform1f(this.uPickZNear, opts.pickZNear);
+    gl.uniform1f(this.uPickZFar, opts.pickZFar);
+    const planeCount = packSectionPlanes(opts.sectionPlanes, SECTION_PLANE_SCRATCH2);
+    gl.uniform1i(this.uSectionPlaneCount, planeCount);
+    if (planeCount > 0) {
+      gl.uniform4fv(this.uSectionPlanes, SECTION_PLANE_SCRATCH2);
+    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.cornerBuf);
+    gl.enableVertexAttribArray(this.aCorner);
+    gl.vertexAttribPointer(this.aCorner, 2, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribDivisor(this.aCorner, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.idxBuf);
+    gl.enableVertexAttribArray(this.aIndex);
+    gl.vertexAttribIPointer(this.aIndex, 1, gl.UNSIGNED_INT, 0, 0);
+    gl.vertexAttribDivisor(this.aIndex, 1);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthMask(true);
+    gl.disable(gl.BLEND);
+    gl.disable(gl.CULL_FACE);
+    gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, this._count);
+    gl.vertexAttribDivisor(this.aIndex, 0);
+    gl.disableVertexAttribArray(this.aCorner);
+    gl.disableVertexAttribArray(this.aIndex);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+  }
+  /** All live splat item-indices across the batch's portions, for the draw. */
+  _buildIndices(splatBatch) {
+    const indices = new Uint32Array(splatBatch.numSplats);
+    let k = 0;
+    for (const portion of splatBatch.portions) {
+      for (let i = 0; i < portion.count; i++) {
+        indices[k++] = portion.base + i;
+      }
+    }
+    return indices;
+  }
+  destroy() {
+    const gl = this.gl;
+    if (this.program) {
+      gl.deleteProgram(this.program);
+    }
+    if (this.cornerBuf) {
+      gl.deleteBuffer(this.cornerBuf);
+    }
+    if (this.idxBuf) {
+      gl.deleteBuffer(this.idxBuf);
+    }
+    this.program = null;
+    this.cornerBuf = null;
+    this.idxBuf = null;
+    this.initialized = false;
+  }
+  createProgram(vertexSource, fragmentSource) {
+    const gl = this.gl;
+    const vertexShader = this.createShader(gl.VERTEX_SHADER, vertexSource);
+    const fragmentShader = this.createShader(gl.FRAGMENT_SHADER, fragmentSource);
+    const program = gl.createProgram();
+    if (!program) {
+      gl.deleteShader(vertexShader);
+      gl.deleteShader(fragmentShader);
+      throw new Error("[GaussianSplatPickTechnique] Failed to create WebGL program");
+    }
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+    gl.deleteShader(vertexShader);
+    gl.deleteShader(fragmentShader);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      const info = gl.getProgramInfoLog(program) || "Program link failed";
+      gl.deleteProgram(program);
+      throw new Error(`[GaussianSplatPickTechnique] ${info}`);
+    }
+    return program;
+  }
+  createShader(type, source) {
+    const gl = this.gl;
+    const shader = gl.createShader(type);
+    if (!shader) {
+      throw new Error("[GaussianSplatPickTechnique] Failed to create shader");
+    }
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      const info = gl.getShaderInfoLog(shader) || "Shader compile failed";
+      gl.deleteShader(shader);
+      throw new Error(`[GaussianSplatPickTechnique] ${info}`);
+    }
+    return shader;
+  }
+  getUniformLocation(name12) {
+    const location2 = this.gl.getUniformLocation(this.program, name12);
+    if (location2 === null) {
+      throw new Error(`[GaussianSplatPickTechnique] Uniform not found: ${name12}`);
+    }
+    return location2;
+  }
+};
+
 // ../sdk/src/viewing/webGLRenderer/internal/pickManager/PickManager.ts
 var tempVec3a17 = createVec3Float64();
 var tempVec3b15 = createVec3Float64();
@@ -177482,6 +180099,7 @@ var PickManager = class {
   _gpuMemoryManager;
   _meshBatchManager;
   _drawOps = null;
+  _splatPick = null;
   constructor(cfg) {
     this._gpuMemoryManager = cfg.gpuMemoryManager;
     this._meshBatchManager = cfg.meshManager;
@@ -177505,6 +180123,12 @@ var PickManager = class {
       this._pickBuffer = null;
       return pickBufferResult;
     }
+    this._splatPick = new GaussianSplatPickTechnique(this._renderContext.gl);
+    const splatPickResult = this._splatPick.init();
+    if (splatPickResult.ok === false) {
+      this._splatPick = null;
+      return splatPickResult;
+    }
     return { ok: true, value: void 0 };
   }
   webglContextRestored() {
@@ -177518,6 +180142,13 @@ var PickManager = class {
     const result2 = this._pickBuffer.webglContextRestored(this._renderContext.gl);
     if (result2.ok === false) {
       return result2;
+    }
+    this._splatPick?.destroy();
+    this._splatPick = new GaussianSplatPickTechnique(this._renderContext.gl);
+    const result3 = this._splatPick.init();
+    if (result3.ok === false) {
+      this._splatPick = null;
+      return result3;
     }
     return { ok: true, value: void 0 };
   }
@@ -177653,6 +180284,20 @@ var PickManager = class {
       }
       this._drawOps.prims[meshBatch.primitive]?.pick?.drawBatch(meshBatch);
     }
+    const splatBatch = this._meshBatchManager.getSplatBatch();
+    if (splatBatch && this._splatPick && pickViewMatrix && pickProjMatrix) {
+      this._splatPick.drawPick({
+        view: pickViewMatrix,
+        proj: pickProjMatrix,
+        viewportWidth: gl.drawingBufferWidth,
+        viewportHeight: gl.drawingBufferHeight,
+        pickClipPos: renderContext.pickClipPos,
+        pickZNear: renderContext.pickZNear,
+        pickZFar: renderContext.pickZFar,
+        splatBatch,
+        sectionPlanes: view.sectionPlanesList
+      });
+    }
     if (overlayPending) {
       gl.depthMask(true);
       gl.enable(gl.DEPTH_TEST);
@@ -177673,6 +180318,33 @@ var PickManager = class {
     const batchIndex = unpackRGBA8ToUint(target0);
     const meshIndex = unpackRGBA8ToUint(target1);
     const depth = this._unpackDepth(target2);
+    if (batchIndex === SPLAT_PICK_SENTINEL) {
+      const splatMesh = this._meshBatchManager.getSplatMeshAtPickIndex(meshIndex);
+      if (!splatMesh) {
+        return null;
+      }
+      const canvas3 = view.htmlElement;
+      const sx = (pickCanvasPos[0] - canvas3.clientWidth / 2) / (canvas3.clientWidth / 2);
+      const sy = -(pickCanvasPos[1] - canvas3.clientHeight / 2) / (canvas3.clientHeight / 2);
+      const splatPvm = mulMat4(pickProjMatrix, pickViewMatrix, tempMat4b2);
+      const splatPvmInv = inverseMat4(splatPvm, tempMat4c);
+      tempVec4a8[0] = sx;
+      tempVec4a8[1] = sy;
+      tempVec4a8[2] = -1;
+      tempVec4a8[3] = 1;
+      let near = transformVec4(splatPvmInv, tempVec4a8);
+      mulVec4Scalar(near, 1 / near[3], near);
+      tempVec4b7[0] = sx;
+      tempVec4b7[1] = sy;
+      tempVec4b7[2] = 1;
+      tempVec4b7[3] = 1;
+      let far = transformVec4(splatPvmInv, tempVec4b7);
+      mulVec4Scalar(far, 1 / far[3], far);
+      const splatDir = subVec3(far, near, tempVec3a17);
+      const splatOffset = mulVec3Scalar(splatDir, depth, tempVec3b15);
+      const splatWorldPos = addVec3(near, splatOffset, tempVec3c11);
+      return { sceneMesh: splatMesh, batchIndex, meshIndex, worldPos: splatWorldPos };
+    }
     const sceneMesh = this._meshBatchManager.getMeshAtIndex(batchIndex, meshIndex);
     if (!sceneMesh) {
       return null;
@@ -177733,6 +180405,8 @@ var PickManager = class {
       this._pickBuffer.destroy();
       this._pickBuffer = null;
       this._drawOps = null;
+      this._splatPick?.destroy();
+      this._splatPick = null;
     }
   }
 };
@@ -177869,7 +180543,7 @@ var InfiniteGridRenderer = class {
     }
     try {
       const gl = this.gl;
-      this.program = this.createProgram(VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+      this.program = this.createProgram(VERTEX_SHADER_SOURCE2, FRAGMENT_SHADER_SOURCE2);
       const vao = gl.createVertexArray();
       const vbo = gl.createBuffer();
       if (!vao || !vbo) {
@@ -178077,7 +180751,7 @@ var InfiniteGridRenderer = class {
     return location2;
   }
 };
-var VERTEX_SHADER_SOURCE = `#version 300 es
+var VERTEX_SHADER_SOURCE2 = `#version 300 es
 precision highp float;
 
 layout(location = 0) in vec2 aPosition;
@@ -178101,7 +180775,7 @@ void main() {
   gl_Position = uViewProj * vec4(worldPos, 1.0);
 }
 `;
-var FRAGMENT_SHADER_SOURCE = `#version 300 es
+var FRAGMENT_SHADER_SOURCE2 = `#version 300 es
 precision highp float;
 
 in vec3 vWorldPos;
@@ -178173,6 +180847,470 @@ void main() {
   outColor = vec4(color, alpha);
 }
 `;
+
+// ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/sortSplats.ts
+function sortSplatsByDepth(positions, itemIndices, view) {
+  const count = itemIndices.length;
+  const sorted = new Uint32Array(count);
+  if (count === 0) {
+    return sorted;
+  }
+  const depth = new Float32Array(count);
+  let dmin = Infinity;
+  let dmax = -Infinity;
+  for (let i = 0; i < count; i++) {
+    const o = i * 3;
+    const dz = view[2] * positions[o] + view[6] * positions[o + 1] + view[10] * positions[o + 2] + view[14];
+    depth[i] = dz;
+    if (dz < dmin)
+      dmin = dz;
+    if (dz > dmax)
+      dmax = dz;
+  }
+  const counts = new Uint32Array(65536);
+  const keys = new Uint16Array(count);
+  const scale3 = 65535 / (dmax - dmin || 1);
+  for (let i = 0; i < count; i++) {
+    const k = (depth[i] - dmin) * scale3 | 0;
+    keys[i] = k;
+    counts[k]++;
+  }
+  for (let i = 1; i < 65536; i++) {
+    counts[i] += counts[i - 1];
+  }
+  for (let i = 0; i < count; i++) {
+    sorted[--counts[keys[i]]] = itemIndices[i];
+  }
+  return sorted;
+}
+
+// ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/SplatSortWorker.ts
+function buildWorkerSource() {
+  return `
+const sortFn = ${sortSplatsByDepth.toString()};
+let positions = null, itemIndices = null;
+self.onmessage = function (e) {
+  const d = e.data;
+  if (d.t === 0) { positions = d.positions; itemIndices = d.itemIndices; return; }
+  if (d.t === 1) {
+    if (!positions || itemIndices.length === 0) { return; }
+    const sorted = sortFn(positions, itemIndices, d.view);
+    self.postMessage({ sorted: sorted, rev: d.rev }, [sorted.buffer]);
+  }
+};`;
+}
+var SplatSortWorker = class {
+  _worker = null;
+  _latest = null;
+  _busy = false;
+  _pendingView = null;
+  _rev = 0;
+  // positions revision; results for stale revs are dropped
+  _latestRev = -1;
+  constructor() {
+    try {
+      const src = buildWorkerSource();
+      const url = URL.createObjectURL(new Blob([src], { type: "text/javascript" }));
+      this._worker = new Worker(url);
+      URL.revokeObjectURL(url);
+      this._worker.onmessage = (e) => {
+        this._busy = false;
+        if (e.data.rev === this._rev) {
+          this._latest = e.data.sorted;
+          this._latestRev = e.data.rev;
+        }
+        if (this._pendingView) {
+          const v = this._pendingView;
+          this._pendingView = null;
+          this._dispatch(v);
+        }
+      };
+    } catch {
+      this._worker = null;
+    }
+  }
+  /** Feed the splat centres (compact) + their texture item-indices. Invalidates latest. */
+  setPositions(positions, itemIndices) {
+    if (!this._worker)
+      return;
+    this._rev++;
+    this._latest = null;
+    this._latestRev = -1;
+    const p = positions.slice();
+    const idx = itemIndices.slice();
+    this._worker.postMessage({ t: 0, positions: p, itemIndices: idx }, [p.buffer, idx.buffer]);
+  }
+  /** Request a sort for `view`. Coalesces to the newest view while one is in flight. */
+  requestSort(view) {
+    if (!this._worker)
+      return;
+    if (this._busy) {
+      this._pendingView = view.slice();
+      return;
+    }
+    this._dispatch(view);
+  }
+  _dispatch(view) {
+    const v = view.slice();
+    this._busy = true;
+    this._worker.postMessage({ t: 1, view: v, rev: this._rev }, [v.buffer]);
+  }
+  /** Most recent sorted texture item-indices, or null if none computed yet. */
+  get latest() {
+    return this._latest;
+  }
+  /** Whether {@link latest} reflects the current positions revision. */
+  get latestIsCurrent() {
+    return this._latestRev === this._rev;
+  }
+  destroy() {
+    this._worker?.terminate();
+    this._worker = null;
+    this._latest = null;
+  }
+};
+
+// ../sdk/src/viewing/webGLRenderer/internal/drawOps/techniques/splats/GaussianSplatTechnique.ts
+var SECTION_PLANE_SCRATCH3 = new Float32Array(MAX_SECTION_PLANES * 4);
+function viewChanged(a2, b4) {
+  for (let i = 0; i < 16; i++) {
+    if (a2[i] !== b4[i]) {
+      return true;
+    }
+  }
+  return false;
+}
+var FOCAL_Y_SIGN2 = 1;
+var VERTEX_SHADER_SOURCE3 = `#version 300 es
+precision highp float;
+precision highp int;
+
+uniform sampler2D uTex;     // RGBA32F, 4 texels/splat
+uniform int uTexW;
+uniform mat4 uView;
+uniform mat4 uProj;
+uniform vec2 uFocal;
+uniform vec2 uViewport;
+
+// Section-plane bank \u2014 plane equation packed as (normal.xyz, d), with
+// dot(normal, worldPos) + d > 0 meaning "clipped side". t0.xyz is the splat's
+// world-space centre, so the whole splat is culled per-centre (see comment in
+// main). Compiled with a fixed array size; the renderer just updates the count.
+uniform vec4 uSectionPlanes[${MAX_SECTION_PLANES}];
+uniform int uSectionPlaneCount;
+
+in vec2 aCorner;            // quad corner [-2, 2]
+in uint aIndex;             // sorted splat item-index
+
+out vec4 vColor;
+out vec2 vCorner;
+
+vec4 fetchTexel(int i) {
+    int idx = int(aIndex) * 4 + i;
+    return texelFetch(uTex, ivec2(idx % uTexW, idx / uTexW), 0);
+}
+
+void main() {
+    vec4 t0 = fetchTexel(0);
+    vec4 t1 = fetchTexel(1);
+    vec4 t2 = fetchTexel(2);
+    vec4 t3 = fetchTexel(3);
+
+    vColor = vec4(t1.rgb, t0.w);
+
+    // Section-plane clipping, per splat centre in world space. Cull the whole
+    // splat off-screen when its centre is on the clipped side of any active
+    // plane. Centre-granularity (the soft footprint can bleed ~one radius past
+    // the cut); a per-fragment clean cut would need 3D ray/gaussian work.
+    for (int i = 0; i < uSectionPlaneCount; i++) {
+        if (dot(uSectionPlanes[i].xyz, t0.xyz) + uSectionPlanes[i].w > 0.0) {
+            gl_Position = vec4(0.0, 0.0, 2.0, 1.0);
+            return;
+        }
+    }
+
+    vec4 cam = uView * vec4(t0.xyz, 1.0);
+    if (cam.z > -0.01) {
+        gl_Position = vec4(0.0, 0.0, 2.0, 1.0);   // behind the camera: cull off-screen
+        return;
+    }
+
+    mat3 Vrk = mat3(t2.x, t2.y, t2.z,
+                    t2.y, t3.x, t3.y,
+                    t2.z, t3.y, t3.z);
+    float z = cam.z;
+    mat3 J = mat3(uFocal.x / z, 0.0, -(uFocal.x * cam.x) / (z * z),
+                  0.0, ${FOCAL_Y_SIGN2.toFixed(1)} * uFocal.y / z, ${(-FOCAL_Y_SIGN2).toFixed(1)} * (uFocal.y * cam.y) / (z * z),
+                  0.0, 0.0, 0.0);
+    mat3 W = transpose(mat3(uView));
+    mat3 T = W * J;
+    mat3 cov2d = transpose(T) * Vrk * T;
+
+    float a = cov2d[0][0] + 0.3;
+    float b = cov2d[0][1];
+    float c = cov2d[1][1] + 0.3;
+    float mid = 0.5 * (a + c);
+    float radius = length(vec2(0.5 * (a - c), b));
+    float l1 = mid + radius;
+    float l2 = mid - radius;
+    if (l2 <= 0.0) {
+        gl_Position = vec4(0.0, 0.0, 2.0, 1.0);   // degenerate footprint: cull
+        return;
+    }
+
+    vec2 e1 = normalize(vec2(b, l1 - a));
+    vec2 e2 = vec2(e1.y, -e1.x);
+    vec2 major = min(sqrt(2.0 * l1), 1024.0) * e1;
+    vec2 minor = min(sqrt(2.0 * l2), 1024.0) * e2;
+
+    vec4 clip = uProj * cam;
+    vec2 off = (aCorner.x * major + aCorner.y * minor) / uViewport * 2.0 * clip.w;
+    gl_Position = vec4(clip.xy + off, clip.zw);
+    vCorner = aCorner;
+}
+`;
+var FRAGMENT_SHADER_SOURCE3 = `#version 300 es
+precision highp float;
+
+in vec4 vColor;
+in vec2 vCorner;
+out vec4 outColor;
+
+void main() {
+    float alpha = exp(-dot(vCorner, vCorner)) * vColor.a;
+    if (alpha < 0.004) {
+        discard;
+    }
+    outColor = vec4(vColor.rgb * alpha, alpha);   // premultiplied for blendFunc(ONE, 1 - SRC_A)
+}
+`;
+var QUAD_CORNERS2 = new Float32Array([-2, -2, 2, -2, -2, 2, 2, 2]);
+var GaussianSplatTechnique = class {
+  gl;
+  program = null;
+  cornerBuf = null;
+  idxBuf = null;
+  aCorner = -1;
+  aIndex = -1;
+  uTex = null;
+  uTexW = null;
+  uView = null;
+  uProj = null;
+  uFocal = null;
+  uViewport = null;
+  uSectionPlanes = null;
+  uSectionPlaneCount = null;
+  initialized = false;
+  destroyed = false;
+  _sortWorker = null;
+  _revision = -1;
+  _count = 0;
+  _fallbackIdx = new Uint32Array(0);
+  // unsorted order, until first sort lands
+  _uploaded = null;
+  // what's currently in idxBuf
+  _lastView = null;
+  constructor(gl) {
+    this.gl = gl;
+  }
+  init() {
+    if (this.initialized) {
+      return { ok: true, value: void 0 };
+    }
+    try {
+      const gl = this.gl;
+      this.program = this.createProgram(VERTEX_SHADER_SOURCE3, FRAGMENT_SHADER_SOURCE3);
+      this.cornerBuf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.cornerBuf);
+      gl.bufferData(gl.ARRAY_BUFFER, QUAD_CORNERS2, gl.STATIC_DRAW);
+      this.idxBuf = gl.createBuffer();
+      this._sortWorker = new SplatSortWorker();
+      this.aCorner = gl.getAttribLocation(this.program, "aCorner");
+      this.aIndex = gl.getAttribLocation(this.program, "aIndex");
+      this.uTex = this.getUniformLocation("uTex");
+      this.uTexW = this.getUniformLocation("uTexW");
+      this.uView = this.getUniformLocation("uView");
+      this.uProj = this.getUniformLocation("uProj");
+      this.uFocal = this.getUniformLocation("uFocal");
+      this.uViewport = this.getUniformLocation("uViewport");
+      this.uSectionPlanes = this.getUniformLocation("uSectionPlanes[0]");
+      this.uSectionPlaneCount = this.getUniformLocation("uSectionPlaneCount");
+      gl.bindBuffer(gl.ARRAY_BUFFER, null);
+      this.initialized = true;
+      return { ok: true, value: void 0 };
+    } catch (e) {
+      this.destroy();
+      return { ok: false, type: 0 /* InitializationFailed */, error: e instanceof Error ? e.message : String(e) };
+    }
+  }
+  render(viewRenderState, splatBatch) {
+    if (!this.initialized || !this.program || !splatBatch || splatBatch.numSplats === 0) {
+      return;
+    }
+    const gl = this.gl;
+    const camera = viewRenderState.view.camera;
+    const view = camera.viewMatrix;
+    const proj = camera.projMatrix;
+    const w = gl.drawingBufferWidth;
+    const h = gl.drawingBufferHeight;
+    splatBatch.uploadChanges();
+    if (splatBatch.revision !== this._revision) {
+      this._revision = splatBatch.revision;
+      const { positions, itemIndices } = this._extractCentres(splatBatch);
+      this._count = itemIndices.length;
+      this._fallbackIdx = itemIndices;
+      this._uploaded = null;
+      this._lastView = null;
+      this._sortWorker?.setPositions(positions, itemIndices);
+    }
+    if (this._count === 0) {
+      return;
+    }
+    if (!this._lastView || viewChanged(view, this._lastView)) {
+      this._sortWorker?.requestSort(view);
+      this._lastView = view.slice();
+    }
+    const order = this._sortWorker?.latest ?? this._fallbackIdx;
+    if (order !== this._uploaded) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.idxBuf);
+      gl.bufferData(gl.ARRAY_BUFFER, order, gl.DYNAMIC_DRAW);
+      this._uploaded = order;
+    }
+    const prevProgram = gl.getParameter(gl.CURRENT_PROGRAM);
+    const blendOn = gl.isEnabled(gl.BLEND);
+    const cullOn = gl.isEnabled(gl.CULL_FACE);
+    const depthMask = gl.getParameter(gl.DEPTH_WRITEMASK);
+    gl.useProgram(this.program);
+    const fx = proj[0] * w * 0.5;
+    const fy = proj[5] * h * 0.5;
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, splatBatch.texture.texture);
+    gl.uniform1i(this.uTex, 0);
+    gl.uniform1i(this.uTexW, splatBatch.texture.width);
+    gl.uniformMatrix4fv(this.uView, false, view);
+    gl.uniformMatrix4fv(this.uProj, false, proj);
+    gl.uniform2f(this.uFocal, fx, fy);
+    gl.uniform2f(this.uViewport, w, h);
+    const planeCount = packSectionPlanes(viewRenderState.view.sectionPlanesList, SECTION_PLANE_SCRATCH3);
+    gl.uniform1i(this.uSectionPlaneCount, planeCount);
+    if (planeCount > 0) {
+      gl.uniform4fv(this.uSectionPlanes, SECTION_PLANE_SCRATCH3);
+    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.cornerBuf);
+    gl.enableVertexAttribArray(this.aCorner);
+    gl.vertexAttribPointer(this.aCorner, 2, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribDivisor(this.aCorner, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.idxBuf);
+    gl.enableVertexAttribArray(this.aIndex);
+    gl.vertexAttribIPointer(this.aIndex, 1, gl.UNSIGNED_INT, 0, 0);
+    gl.vertexAttribDivisor(this.aIndex, 1);
+    gl.depthMask(false);
+    gl.disable(gl.CULL_FACE);
+    gl.enable(gl.BLEND);
+    gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, this._count);
+    gl.vertexAttribDivisor(this.aIndex, 0);
+    gl.depthMask(depthMask);
+    if (!blendOn) {
+      gl.disable(gl.BLEND);
+    }
+    if (cullOn) {
+      gl.enable(gl.CULL_FACE);
+    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    gl.useProgram(prevProgram);
+  }
+  /**
+   * Extracts live splat centres (compact, world-space) + their texture
+   * item-indices from the batch texture's CPU buffer, for the sort worker.
+   */
+  _extractCentres(splatBatch) {
+    const buf = splatBatch.texture.buffer;
+    const epi = splatBatch.texture.elementsPerItem;
+    const n = splatBatch.numSplats;
+    const positions = new Float32Array(n * 3);
+    const itemIndices = new Uint32Array(n);
+    let k = 0;
+    for (const p of splatBatch.portions) {
+      for (let i = 0; i < p.count; i++) {
+        const item = p.base + i;
+        const o = item * epi;
+        positions[k * 3] = buf[o];
+        positions[k * 3 + 1] = buf[o + 1];
+        positions[k * 3 + 2] = buf[o + 2];
+        itemIndices[k] = item;
+        k++;
+      }
+    }
+    return { positions, itemIndices };
+  }
+  destroy() {
+    if (this.destroyed) {
+      return;
+    }
+    const gl = this.gl;
+    this._sortWorker?.destroy();
+    this._sortWorker = null;
+    if (this.program) {
+      gl.deleteProgram(this.program);
+    }
+    if (this.cornerBuf) {
+      gl.deleteBuffer(this.cornerBuf);
+    }
+    if (this.idxBuf) {
+      gl.deleteBuffer(this.idxBuf);
+    }
+    this.program = null;
+    this.cornerBuf = null;
+    this.idxBuf = null;
+    this.destroyed = true;
+    this.initialized = false;
+  }
+  createProgram(vertexSource, fragmentSource) {
+    const gl = this.gl;
+    const vertexShader = this.createShader(gl.VERTEX_SHADER, vertexSource);
+    const fragmentShader = this.createShader(gl.FRAGMENT_SHADER, fragmentSource);
+    const program = gl.createProgram();
+    if (!program) {
+      gl.deleteShader(vertexShader);
+      gl.deleteShader(fragmentShader);
+      throw new Error("[GaussianSplatTechnique] Failed to create WebGL program");
+    }
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+    gl.deleteShader(vertexShader);
+    gl.deleteShader(fragmentShader);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      const info = gl.getProgramInfoLog(program) || "Program link failed";
+      gl.deleteProgram(program);
+      throw new Error(`[GaussianSplatTechnique] ${info}`);
+    }
+    return program;
+  }
+  createShader(type, source) {
+    const gl = this.gl;
+    const shader = gl.createShader(type);
+    if (!shader) {
+      throw new Error("[GaussianSplatTechnique] Failed to create shader");
+    }
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      const info = gl.getShaderInfoLog(shader) || "Shader compile failed";
+      gl.deleteShader(shader);
+      throw new Error(`[GaussianSplatTechnique] ${info}`);
+    }
+    return shader;
+  }
+  getUniformLocation(name12) {
+    const location2 = this.gl.getUniformLocation(this.program, name12);
+    if (location2 === null) {
+      throw new Error(`[GaussianSplatTechnique] Uniform not found: ${name12}`);
+    }
+    return location2;
+  }
+};
 
 // ../sdk/src/viewing/webGLRenderer/internal/renderManager/environment/SkyRenderer.ts
 var SkyRenderer = class {
@@ -178281,7 +181419,7 @@ var SkyRenderer = class {
       return { ok: true, value: void 0 };
     try {
       const gl = this.gl;
-      this.program = this.createProgram(VERTEX_SHADER_SOURCE2, FRAGMENT_SHADER_SOURCE2);
+      this.program = this.createProgram(VERTEX_SHADER_SOURCE4, FRAGMENT_SHADER_SOURCE4);
       const vao = gl.createVertexArray();
       const vbo = gl.createBuffer();
       if (!vao || !vbo)
@@ -178477,7 +181615,7 @@ var SkyRenderer = class {
     return loc;
   }
 };
-var VERTEX_SHADER_SOURCE2 = `#version 300 es
+var VERTEX_SHADER_SOURCE4 = `#version 300 es
 precision highp float;
 
 layout(location = 0) in vec2 aPosition;
@@ -178496,7 +181634,7 @@ void main() {
   gl_Position = vec4(aPosition, 1.0, 1.0);
 }
 `;
-var FRAGMENT_SHADER_SOURCE2 = `#version 300 es
+var FRAGMENT_SHADER_SOURCE4 = `#version 300 es
 precision highp float;
 
 in vec3 vRayDir;
@@ -180373,7 +183511,7 @@ var PostProcessChain = class {
     this._ldrIntermediate = null;
   }
   // ------------------------------------------------------------------
-  // Private init plumbing — three layers, each gracefully degrades.
+  // Private init setup — three layers, each gracefully degrades.
   // ------------------------------------------------------------------
   _initHDR() {
     this._hdrTarget = new HDRRenderTarget(this._renderContext);
@@ -181920,6 +185058,11 @@ var RenderManager = class _RenderManager {
    * Infinite ground grid renderer. Set {@link InfiniteGridRenderer.enabled} to true to activate.
    */
   infiniteGrid;
+  /**
+   * 3D Gaussian Splatting draw pass. Renders the {@link MeshManager}'s splat
+   * batch after opaque geometry, depth-sorted + alpha-blended. Null until init.
+   */
+  gaussianSplats = null;
   /** Pre-allocated render bins, reused every frame to avoid per-frame array allocation. */
   _bins = {
     normalDrawOpaque: [],
@@ -182030,6 +185173,14 @@ var RenderManager = class _RenderManager {
       if (gridResult.ok === false) {
         this.infiniteGrid = null;
         return gridResult;
+      }
+    }
+    if (!this.gaussianSplats) {
+      this.gaussianSplats = new GaussianSplatTechnique(this._renderContext.gl);
+      const splatResult = this.gaussianSplats.init();
+      if (splatResult.ok === false) {
+        this.gaussianSplats = null;
+        return splatResult;
       }
     }
     if (!this.skyRenderer) {
@@ -182317,6 +185468,8 @@ var RenderManager = class _RenderManager {
     this.skyRenderer = null;
     this.infiniteGrid?.destroy();
     this.infiniteGrid = null;
+    this.gaussianSplats?.destroy();
+    this.gaussianSplats = null;
     this._saoPipeline?.destroy();
     this._saoPipeline = null;
     this._shadowPipeline?.destroy();
@@ -182489,6 +185642,10 @@ var RenderManager = class _RenderManager {
     this._drawEdgeBin(bins.normalEdgesOpaque, "opaqueEdges", "opaqueEdgesThick", RENDER_BINS.EDGES_OPAQUE, view);
     this._drawBin(bins.xrayedSilhouetteOpaque, "xrayed", RENDER_BINS.XRAYED_SILHOUETTE_OPAQUE);
     this._drawBin(bins.xrayEdgesOpaque, "xrayedEdges", RENDER_BINS.XRAYED_EDGES_OPAQUE);
+    if (this.gaussianSplats) {
+      ri?.renderBinStarted("gaussianSplats");
+      this.gaussianSplats.render(rendererView, this._meshManager.getSplatBatch());
+    }
     this._renderTransparents(view);
     gl.disable(gl.CULL_FACE);
     gl.clear(gl.DEPTH_BUFFER_BIT);
@@ -182773,6 +185930,10 @@ var RenderManager = class _RenderManager {
     if (this.infiniteGrid) {
       this.infiniteGrid.destroy();
       this.infiniteGrid = null;
+    }
+    if (this.gaussianSplats) {
+      this.gaussianSplats.destroy();
+      this.gaussianSplats = null;
     }
     for (const pipeline of this._iblPrefilters.values()) {
       pipeline.destroy();
@@ -183815,6 +186976,7 @@ __export(drawOps_exports, {
   DrawTechnique: () => DrawTechnique,
   MAX_SECTION_PLANES: () => MAX_SECTION_PLANES,
   getDrawOps: () => getDrawOps,
+  packSectionPlanes: () => packSectionPlanes,
   putDrawOps: () => putDrawOps,
   techniques: () => techniques_exports
 });
@@ -185019,6 +188181,10 @@ var WebGLRenderer3 = class {
   _viewManagerSubs;
   _destroyed = false;
   // Indicates if the renderer has been destroyed
+  // Number of SceneModels currently building (loading). While > 0, per-view
+  // renders are suspended so a load doesn't repaint + re-upload the partial
+  // model on every mid-load frame; one render runs when it returns to 0.
+  _renderSuspendCount = 0;
   /**
    * Enables or disables logging of errors to the console.
    */
@@ -185474,6 +188640,22 @@ var WebGLRenderer3 = class {
       // Log errors from these calls
       sceneEvents.onSceneModelCreated.subscribe((_, sceneModel) => this.logError(viewManager.sceneModelCreated(sceneModel))),
       sceneEvents.onSceneModelDestroyed.subscribe((_, sceneModel) => this.logError(viewManager.sceneModelDestroyed(sceneModel))),
+      // A SceneModel is being populated by a loader — suspend per-view renders
+      // until every concurrently-building model finishes, then render once.
+      sceneEvents.onSceneModelBuildStarted.subscribe(() => {
+        this._renderSuspendCount++;
+      }),
+      sceneEvents.onSceneModelBuildFinished.subscribe(() => {
+        if (this._renderSuspendCount > 0) {
+          this._renderSuspendCount--;
+        }
+        if (this._renderSuspendCount === 0 && this._viewer) {
+          const views = this._viewer.viewList;
+          for (let i = 0, len = views.length; i < len; i++) {
+            views[i]?.needsRender();
+          }
+        }
+      }),
       sceneEvents.onSceneGeometryCreated.subscribe((_, sceneGeometry) => this.logError(viewManager.sceneGeometryCreated(sceneGeometry))),
       sceneEvents.onSceneGeometryDestroyed.subscribe((_, sceneGeometry) => this.logError(viewManager.sceneGeometryDestroyed(sceneGeometry))),
       sceneEvents.onSceneMeshCreated.subscribe((_, sceneMesh) => this.logError(viewManager.sceneMeshCreated(sceneMesh))),
@@ -185486,6 +188668,9 @@ var WebGLRenderer3 = class {
       // Log errors from these calls
       viewerEvents.onViewCreated.subscribe((_, view) => this.logError(viewManager.viewCreated(view))),
       viewerEvents.onViewUpdated.subscribe((_, view) => {
+        if (this._renderSuspendCount > 0) {
+          return;
+        }
         if (this.logError(viewManager.viewUpdated(view)).ok !== false) {
           rendererEvents.onViewRendered.dispatch(this, view);
         }
@@ -195585,6 +198770,7 @@ var ScenePhysics = class {
       for (let i = 0, n = record.meshRelMatrices.length; i < n; i++) {
         const entry = record.meshRelMatrices[i];
         mulMat4(bodyMat, entry.rel, meshMat);
+        mulMat4(entry.invParent, meshMat, meshMat);
         entry.mesh.matrix = meshMat;
       }
     }
@@ -195610,7 +198796,7 @@ var ScenePhysics = class {
    * Triggered by `onSceneObjectMeshRemoved` so the per-step writeback
    * stops touching meshes that are no longer part of the SceneObject
    * (which would either NPE on a destroyed mesh or move an orphan
-   * the renderer is no longer bothering to draw).
+   * no longer attached to the Scene).
    */
   #detachMeshFromBody(objectId, mesh) {
     const record = this.#bodies.get(objectId);
@@ -195655,8 +198841,21 @@ var ScenePhysics = class {
     );
     inverseMat4(this.#scratchBodyMat, this.#scratchInvMat);
     const rel = createMat4Float64();
-    mulMat4(this.#scratchInvMat, mesh.matrix, rel);
-    list.push({ mesh, rel });
+    mulMat4(this.#scratchInvMat, mesh.worldMatrix, rel);
+    list.push({ mesh, rel, invParent: this.#computeInvParent(mesh) });
+  }
+  /**
+   * Inverse of the mesh's parent-world transform — the matrix that maps a
+   * world matrix back to `SceneMesh.matrix`'s local frame. Derived purely
+   * from public API: `worldMatrix = parentWorld · matrix`, so
+   * `parentWorld = worldMatrix · inv(matrix)` and
+   * `inv(parentWorld) = matrix · inv(worldMatrix)`. Identity when the model's
+   * coordinate-system matrix (and any parent transform) is identity, in which
+   * case the world-space body transform is written straight to the local matrix.
+   */
+  #computeInvParent(mesh) {
+    const invWorld = inverseMat4(mesh.worldMatrix, createMat4Float64());
+    return mulMat4(mesh.matrix, invWorld, createMat4Float64());
   }
   #createBody(sceneObject, params) {
     const aabb = this.#computeObjectAABB(sceneObject);
@@ -195712,8 +198911,8 @@ var ScenePhysics = class {
     for (let i = 0, n = meshes.length; i < n; i++) {
       const mesh = meshes[i];
       const rel = createMat4Float64();
-      mulMat4(this.#scratchInvMat, mesh.matrix, rel);
-      meshRelMatrices.push({ mesh, rel });
+      mulMat4(this.#scratchInvMat, mesh.worldMatrix, rel);
+      meshRelMatrices.push({ mesh, rel, invParent: this.#computeInvParent(mesh) });
     }
     const record = {
       body,
@@ -200342,7 +203541,7 @@ var FloatingPanelBase = class {
     this._minHeight = params.minHeight ?? 200;
     this._tier = params.tier ?? "default";
   }
-  // ── Chrome wiring ─────────────────────────────────────────────
+  // ── Chrome setup ─────────────────────────────────────────────
   /**
    * Wire the shared chrome behaviour onto the DOM the subclass
    * built. Idempotent — calling twice is a no-op.
@@ -205507,6 +208706,7 @@ var DEFAULT_EXTENSIONS = {
   fbx: "fbx",
   mtl: "mtl",
   obj: "obj",
+  splat: "splat",
   dotbim: "bim",
   cityjson: "json",
   metamodel: "json",
@@ -205515,7 +208715,8 @@ var DEFAULT_EXTENSIONS = {
   pdf: "pdf",
   svg: "svg",
   dwg: "dwg",
-  dxf: "dxf"
+  dxf: "dxf",
+  threedxml: "3dxml"
 };
 
 // ../sdk/src/studio/loading/defaultLoaders.ts
@@ -205551,6 +208752,12 @@ function createDefaultLoaderRegistry() {
     needsData: false,
     load: (input, options) => new USDZLoader().load(input, options)
   });
+  r.register("splat", {
+    fetch: "arrayBuffer",
+    needsScene: true,
+    needsData: false,
+    load: (input, options) => new GaussianSplatLoader().load(input, options)
+  });
   r.register("mtl", {
     fetch: "text",
     needsScene: true,
@@ -205580,6 +208787,12 @@ function createDefaultLoaderRegistry() {
     needsScene: true,
     needsData: true,
     load: (input, options) => new FDSLoader().load(input, options)
+  });
+  r.register("threedxml", {
+    fetch: "arrayBuffer",
+    needsScene: true,
+    needsData: false,
+    load: (input, options) => new ThreeDXMLLoader().load(input, options)
   });
   r.register("metamodel", {
     fetch: "json",
@@ -205670,9 +208883,8 @@ var PanelRegistry = class {
   /**
    * Open (or reveal) the panel registered under `id`.
    *
-   * Behaviour mirrors the legacy `openX` methods: if the panel is
-   * already mounted, ensures it's visible and runs the provider's
-   * `onReveal` hook; otherwise constructs a new one via the
+   * If the panel is already mounted, ensures it's visible and runs the
+   * provider's `onReveal` hook; otherwise constructs a new one via the
    * provider's `create`. Returns `undefined` when a provider's
    * preconditions reject construction.
    */
@@ -205706,7 +208918,8 @@ var PanelRegistry = class {
   }
   /**
    * Toggle the panel registered under `id`. Constructs the panel on
-   * first call (matching legacy `toggleX` behaviour).
+   * first call; once mounted, flips its visibility via the panel's
+   * own `toggle`.
    */
   toggle(id, params) {
     const provider = this.providers.get(id);
@@ -207896,7 +211109,7 @@ var SceneHealthPanel = class _SceneHealthPanel extends FloatingPanelBase {
    *
    * Built for the `ViewObjectContextMenu` "Inspect Model" entry,
    * which works in *every* example regardless of whether the
-   * host has wired up its own SceneHealthPanel — clicking
+   * host has set up its own SceneHealthPanel — clicking
    * the menu item always opens a panel.
    */
   static openFor(params) {
@@ -212489,7 +215702,7 @@ var BoundariesPanel = class _BoundariesPanel extends FloatingPanelBase {
    *     camera follows, preserving lateral position +
    *     orientation.
    *
-   * Best-effort wiring:
+   * Best-effort setup:
    *   1. `view.cameraFlight.flyTo({eye, look})` when the View
    *      exposes one (Studio-mounted views do).
    *   2. Fall back to setting `camera.eye` / `camera.look`
@@ -215906,7 +219119,7 @@ var SampleModelsPanel = class _SampleModelsPanel extends FloatingPanelBase {
     }
     super.destroy();
   }
-  // ── Scene lifecycle wiring ────────────────────────────────────
+  // ── Scene lifecycle setup ────────────────────────────────────
   /**
    * Subscribe to the Scene's `onSceneModelDestroyed` so the
    * panel can revert a row's "Unload" button back to "Load" —
@@ -216734,7 +219947,7 @@ var PANEL_CSS12 = `
   cursor: pointer;
 }
 .xkt-vcp-panel .xkt-vcp-arr { display: inline-flex; gap: 4px; flex-wrap: wrap; align-items: center; }
-/* Slider + number-input pair for bounded numeric knobs. The slider
+/* Slider + number-input pair for bounded numeric options. The slider
    takes the remaining width; the number readout stays a fixed
    monospace width so values right-align cleanly. */
 .xkt-vcp-panel .xkt-vcp-slider {
@@ -217668,7 +220881,7 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
   /**
    * Slider + number-input pair, sharing a single backing value. The
    * range slider provides quick drag-to-eyeball; the number input is
-   * the precise / out-of-range escape hatch. Both write through the
+   * the precise / out-of-range fallback. Both write through the
    * same `apply` call so the live target only sees one update per
    * change. Used when a key appears in {@link SLIDER_RANGES}.
    */
@@ -217681,14 +220894,14 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
       max: String(max),
       step: String(step2)
     });
-    const num4 = el("input", "xkt-vcp-input xkt-vcp-input--num xkt-vcp-input--slider-num", {
+    const num6 = el("input", "xkt-vcp-input xkt-vcp-input--num xkt-vcp-input--slider-num", {
       type: "number",
       step: String(step2)
     });
     const decimals = step2 < 1 ? Math.max(0, -Math.floor(Math.log10(step2))) : 0;
     const fmt = (n) => decimals > 0 ? n.toFixed(decimals) : String(Math.round(n));
     slider.value = String(Math.min(max, Math.max(min, val)));
-    num4.value = fmt(val);
+    num6.value = fmt(val);
     const commit = (n) => {
       const next = Number.isFinite(n) ? n : 0;
       parent[key] = next;
@@ -217696,19 +220909,19 @@ var ViewerConfigPanel = class _ViewerConfigPanel extends FloatingPanelBase {
     };
     slider.addEventListener("input", () => {
       const n = parseFloat(slider.value);
-      num4.value = fmt(n);
+      num6.value = fmt(n);
       commit(n);
     });
-    num4.addEventListener("change", () => {
-      const n = parseFloat(num4.value);
+    num6.addEventListener("change", () => {
+      const n = parseFloat(num6.value);
       if (!Number.isFinite(n)) {
-        num4.value = fmt(slider.valueAsNumber);
+        num6.value = fmt(slider.valueAsNumber);
         return;
       }
       slider.value = String(Math.min(max, Math.max(min, n)));
       commit(n);
     });
-    wrap.append(slider, num4);
+    wrap.append(slider, num6);
     return wrap;
   }
   _mkTextInput(parent, key, val, apply3) {
@@ -219227,6 +222440,15 @@ var IMPORT_DATA_SETS = [
     ]
   },
   {
+    id: "splat",
+    label: "3D Gaussian Splatting (.splat)",
+    defaultBasisId: "y-down",
+    loadsDataSemantics: false,
+    files: [
+      { key: "splat", label: "Splat file", accept: ".splat", loadFormat: "splat", required: true }
+    ]
+  },
+  {
     id: "gltf+datamodel",
     label: "glTF + DataModel JSON",
     defaultBasisId: "y-up",
@@ -219331,6 +222553,11 @@ var IMPORT_BASES = [
     id: "y-up",
     label: "Y-up (glTF, Three.js, Unity, Maya, Blender export)",
     basis: [1, 0, 0, 0, 0, 1, 0, 1, 0]
+  },
+  {
+    id: "y-down",
+    label: "Y-down (3D Gaussian Splatting, COLMAP, .splat)",
+    basis: [1, 0, 0, 0, 0, -1, 0, 1, 0]
   },
   {
     id: "z-up-y-forward",
@@ -220046,6 +223273,15 @@ var FORMAT_REGISTRY = {
     build: () => new USDZExporter(),
     toBytes: (raw) => raw
   },
+  splat: {
+    id: "splat",
+    label: "Gaussian Splat",
+    ext: "splat",
+    mime: "application/octet-stream",
+    build: () => new GaussianSplatExporter(),
+    toBytes: (raw) => raw,
+    sceneModelCompatible: modelHasSplats
+  },
   obj: {
     id: "obj",
     label: "OBJ",
@@ -220102,6 +223338,14 @@ var FORMAT_REGISTRY = {
     build: () => new SVGExporter(),
     toBytes: (raw) => String(raw)
   },
+  threedxml: {
+    id: "threedxml",
+    label: "3DXML",
+    ext: "3dxml",
+    mime: "application/octet-stream",
+    build: () => new ThreeDXMLExporter(),
+    toBytes: (raw) => raw
+  },
   scenemodel: {
     id: "scenemodel",
     label: "SceneModel JSON",
@@ -220127,12 +223371,14 @@ var DEFAULT_DATASET_TYPES = [
   "gltf",
   "fbx",
   "usdz",
+  "splat",
   "obj,mtl",
   "ifc",
   "dotbim",
   "cityjson",
   "dxf",
   "svg",
+  "threedxml",
   "datamodel"
 ];
 var DATASET_PARAMS = {
@@ -220167,6 +223413,17 @@ var DATASET_PARAMS = {
       applyTo: [],
       filenameFor: "gltf",
       help: "Filename for the glTF binary (.glb) download."
+    }
+  ],
+  "splat": [
+    {
+      id: "splatFileName",
+      label: "Splat Filename",
+      type: "string",
+      default: "{id}.splat",
+      applyTo: [],
+      filenameFor: "splat",
+      help: "Filename for the .splat download. Exports the model's Gaussian-splat geometries (baked RGB, no SH)."
     }
   ],
   "obj,mtl": [
@@ -220242,6 +223499,17 @@ var DATASET_PARAMS = {
       applyTo: [],
       filenameFor: "svg",
       help: "Filename for the SVG download. SVG is 2D \u2014 the world XY plane is projected by default (Y-flipped so +Y reads up); pass options through `SVGExportOptions` if you need an XZ or YZ projection."
+    }
+  ],
+  "threedxml": [
+    {
+      id: "threedxmlFileName",
+      label: "3DXML Filename",
+      type: "string",
+      default: "{id}.3dxml",
+      applyTo: [],
+      filenameFor: "threedxml",
+      help: "Filename for the 3DXML download. Exports triangle geometry as a Dassault Syst\xE8mes 3DXML (ZIP of XML); one representation per mesh, flat per-mesh colour."
     }
   ],
   "datamodel": [
@@ -221082,6 +224350,8 @@ var ExportDialog = class _ExportDialog extends FloatingPanelBase {
         return false;
       if (entry.needsDataModel && !hasData)
         return false;
+      if (entry.sceneModelCompatible && sm && !entry.sceneModelCompatible(sm))
+        return false;
     }
     return true;
   }
@@ -221347,6 +224617,10 @@ var ExportDialog = class _ExportDialog extends FloatingPanelBase {
 };
 function hasContent(objects) {
   return !!objects && typeof objects === "object" && Object.keys(objects).length > 0;
+}
+function modelHasSplats(sceneModel) {
+  const geometries = sceneModel.geometries;
+  return !!geometries && Object.values(geometries).some((g) => g.primitive === GaussianSplatsPrimitive);
 }
 function resolveIdPlaceholder(value, modelId) {
   if (typeof value !== "string" || !modelId)
@@ -228867,7 +232141,7 @@ var DrawingsPanel = class _DrawingsPanel extends FloatingPanelBase {
       const targetId = projectionTargetId(modelId, spec.label);
       const styleParams = cfg.solid ? {
         // Solid mode: opaque per-source-mesh silhouettes
-        // with hidden-surface removal baked in. Per-pixel
+        // with hidden-surface removal built in. Per-pixel
         // ownership is rasterised tile-by-tile inside the
         // fill extractor, so `cfg.resolution` can scale
         // freely while peak memory stays bounded by
@@ -228927,7 +232201,7 @@ var DrawingsPanel = class _DrawingsPanel extends FloatingPanelBase {
         // paints progressively instead of locking up the UI on
         // models with thousands of source objects.
         progressive: true,
-        // Optional cut-away — combines the panel's depth knob
+        // Optional cut-away — combines the panel's depth control
         // with every active SectionPlane on the first View (see
         // assembly block above). The kept region is the
         // intersection of every plane's kept half-space.
@@ -233372,7 +236646,7 @@ var SectionPlanesController = class _SectionPlanesController {
   _objectIdForMesh(meshId) {
     return meshId.replace("__sp.mesh.", "__sp.obj.");
   }
-  // ── Gizmo wiring ───────────────────────────────────────────────
+  // ── Gizmo setup ───────────────────────────────────────────────
   /**
    * Attach the gizmo to `plane` and configure its mode + the
    * synced-proxy update path. The adapter writes through to
@@ -234968,7 +238242,7 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
   }
   /**
    * Build a {@link ToolbarActionContext} bound to this Toolbar's
-   * Viewer / Studio / button-state plumbing. The context is
+   * Viewer / Studio / button-state infrastructure. The context is
    * the only surface action implementations see — they never
    * reach back into Toolbar internals.
    */
@@ -235007,7 +238281,7 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
    *
    * The visual is two adjacent buttons sharing a wrapper. They
    * both register against the relevant `ToolbarToolMode` keys in
-   * {@link _btns} so the existing pressed-state plumbing still
+   * {@link _btns} so the existing pressed-state setup still
    * applies — the main slot's pressed state is composed in
    * {@link toolMode}'s setter from the union of the two
    * sub-modes.
@@ -237723,7 +240997,7 @@ function registerBuiltinPanels(registry) {
     // `find` falls back to the latest-opened panel when no
     // sunStudy is in params — that's the Toolbar "Sun Study"
     // button toggling whichever panel the application has
-    // already wired up. With a sunStudy in params, find the
+    // already set up. With a sunStudy in params, find the
     // specific per-SunStudy instance as usual.
     find: (_ctx, params) => params?.sunStudy ? SunStudyPanel.getFor(params.sunStudy) : SunStudyPanel.getLatest(),
     create: (ctx, params) => {
@@ -237748,7 +241022,7 @@ function registerBuiltinPanels(registry) {
   registry.register("daylightAnalysisPanel", {
     // Same latest-fallback shape as sunStudyPanel — lets the
     // Toolbar's Daylight Analysis button toggle whichever panel
-    // the application has already wired up, without needing to
+    // the application has already set up, without needing to
     // carry direct SunStudy / Scene references through the Toolbar.
     find: (_ctx, params) => params?.sunStudy ? DaylightAnalysisPanel.getFor(params.sunStudy) : DaylightAnalysisPanel.getLatest(),
     create: (ctx, params) => {
@@ -238959,9 +242233,9 @@ var ViewManager3 = class _ViewManager {
    */
   views = {};
   /**
-   * Cap on the number of Views the manager will create. Mirrors the
-   * old `studio.maxViews` knob — drives the WebGL renderer's memory
-   * configuration in Studio, and is enforced here as well.
+   * Cap on the number of Views the manager will create. Drives the
+   * WebGL renderer's memory configuration in Studio, and is enforced
+   * here as well.
    */
   maxViews;
   _viewLayoutContainer = null;
@@ -239726,9 +243000,8 @@ var Studio = class _Studio {
   /**
    * Single dispatch point for opening, hiding, and toggling every
    * built-in panel and tool — `studio.panels.open("modelsPanel")`,
-   * `studio.panels.toggle("navCube", {view})`, etc. Replaces the
-   * 40 dedicated `openX`/`hideX`/`toggleX` methods that used to
-   * live directly on Studio.
+   * `studio.panels.toggle("navCube", {view})`, etc. — keyed by panel
+   * id instead of a dedicated method per panel.
    *
    * Register custom panels with `studio.panels.register("myId", ...)`
    * and augment {@link PanelMap} from your own module so the call
@@ -239739,7 +243012,7 @@ var Studio = class _Studio {
    * Per-Studio event hub — currently just `onError` / `onWarning`.
    * Mirrors the `*.events` shape on Scene, Data, Viewer, and
    * WebGLRenderer; the {@link panels!issuesPanel.IssuesPanel | IssuesPanel}
-   * subscribes here alongside those four to surface Studio-side
+   * subscribes here alongside those four to report Studio-side
    * failures in the same list.
    */
   events = new StudioEvents();
@@ -239795,7 +243068,7 @@ var Studio = class _Studio {
    * is the canonical subscriber — every dispatch lands as a row in
    * its log, with severity = `"error"`. Panels and host code use
    * this in place of `throw` / `console.error` so the IssuesPanel
-   * is the single place to surface Studio-side failures.
+   * is the single place to report Studio-side failures.
    *
    * Accepts either an `SDKResult<any>` (an `ok: false` outcome
    * coming back from a downstream call) or a plain message string.
@@ -239810,7 +243083,7 @@ var Studio = class _Studio {
   /**
    * Dispatch a recoverable warning through this Studio's
    * {@link StudioEvents.onWarning} channel. Same payload shape and
-   * routing as {@link reportError}; the IssuesPanel surfaces these
+   * routing as {@link reportError}; the IssuesPanel reports these
    * with severity = `"warning"`.
    */
   reportWarning(warning, type) {
@@ -239838,7 +243111,7 @@ var Studio = class _Studio {
             pickFn: (view, pickParams) => this.picking.pickForViewController(view, pickParams)
           },
           {
-            // Studio layers context-menu wiring + IBL on top of the
+            // Studio layers context-menu setup + IBL on top of the
             // bare View record the manager produces.
             onViewCreated: (view, record) => this._onViewCreated(view, record)
           },
@@ -240183,7 +243456,7 @@ var Studio = class _Studio {
   _modelOrigins = /* @__PURE__ */ new Map();
   /**
    * Record where a freshly-loaded model came from. The ModelsPanel
-   * reads this back via {@link getModelOrigin} to surface "loaded
+   * reads this back via {@link getModelOrigin} to display "loaded
    * via …" details. Cleared by {@link destroyModel}.
    */
   recordModelOrigin(modelId, provenance) {

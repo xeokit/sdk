@@ -56,5 +56,8 @@ describe("XKTExporter — XKT v12", () => {
     expect(Object.keys(dstScene.objects).length).toBe(Object.keys(srcScene.objects).length);
     expect(Object.keys(dstScene.meshes).length).toBe(Object.keys(srcScene.meshes).length);
     expect(Object.keys(dstData.objects).length).toBe(Object.keys(srcData.objects).length);
+    // Parent aggregation relationships survive the round-trip (metaObject parents).
+    expect(srcData.relationships.length).toBeGreaterThan(0);
+    expect(dstData.relationships.length).toBe(srcData.relationships.length);
   });
 });

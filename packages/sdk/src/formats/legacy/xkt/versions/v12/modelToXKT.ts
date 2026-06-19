@@ -226,7 +226,7 @@ function buildMetadata(sceneModel: SceneModel, dataModel?: DataModel): any {
   if (dataModel) {
     const parentOf: Record<string, string> = {};
     for (const rel of (dataModel as any).relationships || []) {
-      if (rel.type === "BasicAggregation") parentOf[rel.relatedObjectId] = rel.relatingObjectId;
+      if (rel.relatedObject && rel.relatingObject) parentOf[rel.relatedObject.id] = rel.relatingObject.id;
     }
     for (const o of Object.values((dataModel as any).objects) as any[]) {
       metaObjects.push({

@@ -6,17 +6,19 @@
  *
  * ---
  *
- * **Utilities for importing and migrating semantic data from xeokit's legacy MetaModel format.**
+ * **Utilities for importing, exporting, and migrating semantic data between
+ * xeokit's legacy MetaModel format and the modern DataModel.**
  *
  * ---
  *
- * This module helps you move from xeokit's older `MetaModel` format to the newer
- * `DataModel`, which represents semantic information as an entity–relationship
- * graph with property sets.
+ * This module helps you move between xeokit's older `MetaModel` format and the
+ * newer `DataModel`, which represents semantic information as an
+ * entity–relationship graph with property sets.
  *
- * You can either:
+ * You can:
  * - Load legacy MetaModel data directly into a `DataModel`, or
- * - Convert MetaModel data into `DataModelParams` first, then load it explicitly
+ * - Convert MetaModel data into `DataModelParams` first, then load it explicitly, or
+ * - Export a `DataModel` back out as legacy `MetaModelParams`
  *
  * ---
  *
@@ -37,6 +39,10 @@
  *   Converts a `MetaModelParams` object into a `DataModelParams` object.
  * - {@link MetaModelLoader | MetaModelLoader}
  *   Loads a `MetaModelParams` object directly into an existing `DataModel`.
+ * - {@link MetaModelExporter | MetaModelExporter}
+ *   Exports a `DataModel` back out as legacy `MetaModelParams` JSON.
+ * - {@link convertDataModel | convertDataModel}
+ *   Converts a `DataModelParams` object into a `MetaModelParams` object.
  * - {@link model!data.DataModel | DataModel}
  *   The modern semantic data model used by xeokit, based on entity–relationship graphs.
  * - {@link model!data.DataModelParams | DataModelParams}
@@ -177,7 +183,9 @@
  * @module metamodel
  */
 export * from "./MetaModelLoader";
+export * from "./MetaModelExporter";
 export * from "./convertMetaModel";
+export * from "./convertDataModel";
 export * from "./MetaModelParams";
 export * from "./MetaObjectParams";
 export * from "./MetaPropertySetParams";

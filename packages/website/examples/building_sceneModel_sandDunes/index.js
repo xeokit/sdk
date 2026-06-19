@@ -172,9 +172,9 @@ studio.init().then(() => {
 
   // Brick texture — paint the PBR triple once, upload as three
   // tileable textures, then bind into a single material that every
-  // tile mesh references. Planar UVs (computed per-vertex below)
-  // tile the brick pattern across the field at one repeat per
-  // BRICK_TILE_M world metres.
+  // tile mesh references. The tile geometries carry no UVs, so the
+  // material's triplanarScale drives world-space (triplanar) sampling:
+  // the brick pattern repeats once per BRICK_TILE_M world metres.
   const TEX_SIZE      = 256;
   const BRICK_TILE_M  = 6;
   const brickMaps     = xeokit.model.procgen.paintMaterials.paintBrick(TEX_SIZE);
@@ -218,7 +218,12 @@ studio.init().then(() => {
     // values because Lambert divides by π. The aecChart demo applies a
     // ~1.6× tint multiplier to compensate; use the same here so the
     // bricks read at their intended brightness.
-    color: [1.6, 1.6, 1.6]
+    color: [1.6, 1.6, 1.6],
+    // World-space repeat distance. With no per-vertex UVs on the tile
+    // geometries, this engages the renderer's triplanar sampling, which
+    // uses textureGrad with the un-wrapped gradient — so the tiled texture
+    // doesn't seam at every repeat the way the UV (fract) path does.
+    triplanarScale: BRICK_TILE_M
   });
 
   for (let ty = 0; ty < TILES; ty++) {
@@ -226,7 +231,6 @@ studio.init().then(() => {
 
       const positions = new Float32Array(numVerts * 3);
       const normals   = new Float32Array(numVerts * 3);
-      const uvs       = new Float32Array(numVerts * 2);
       const indices   = new Uint32Array(numTris * 3);
 
       for (let row = 0; row < V; row++) {
@@ -247,13 +251,6 @@ studio.init().then(() => {
           normals[vi    ] = -dzdx / len;
           normals[vi + 1] = -dzdy / len;
           normals[vi + 2] =  1    / len;
-
-          // Planar (XY) UVs. World-space coordinates are divided by the
-          // per-repeat tile size so adjacent SceneModel tiles line up
-          // along their shared edges without seams.
-          const ui = (row * V + col) * 2;
-          uvs[ui    ] = x / BRICK_TILE_M;
-          uvs[ui + 1] = y / BRICK_TILE_M;
         }
       }
 
@@ -280,12 +277,15 @@ studio.init().then(() => {
 
       const id = `tile_${ty}_${tx}`;
 
+      // No UVs: the brick material's triplanarScale makes the renderer sample
+      // the textures by world-space position (triplanar) instead of vertex UVs.
+      // Adjacent tiles sample continuously in world space, and the triplanar
+      // path uses textureGrad so the tiled pattern doesn't seam at every repeat.
       sceneModel.createGeometry({
         id: `${id}_geom`,
         primitive: xeokit.base.constants.TrianglesPrimitive,
         positions,
         normals,
-        uvs,
         indices
       });
 

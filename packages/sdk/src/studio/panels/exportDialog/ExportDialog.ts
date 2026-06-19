@@ -40,6 +40,7 @@ import {ThreeDXMLExporter}        from "../../../formats/threedxml/ThreeDXMLExpo
 import {XKTExporter}              from "../../../formats/legacy/xkt/XKTExporter";
 import {SceneModelExporter} from "../../../formats/scenemodel/SceneModelExporter";
 import {DataModelExporter}  from "../../../formats/datamodel/DataModelExporter";
+import {MetaModelExporter}  from "../../../formats/legacy/metamodel/MetaModelExporter";
 
 
 import {el} from "../../utils/el";
@@ -226,6 +227,13 @@ const FORMAT_REGISTRY: Record<string, FormatEntry> = {
     needsDataModel:  true,
     needsSceneModel: false,
   },
+  metamodel: {
+    id: "metamodel", label: "MetaModel JSON", ext: "metamodel.json", mime: "application/json",
+    build:   () => new MetaModelExporter(),
+    toBytes: (raw) => JSON.stringify(raw, null, 2),
+    needsDataModel:  true,
+    needsSceneModel: false,
+  },
 };
 
 /**
@@ -254,6 +262,7 @@ const DEFAULT_DATASET_TYPES: string[] = [
   "svg",
   "threedxml",
   "datamodel",
+  "metamodel",
 ];
 
 

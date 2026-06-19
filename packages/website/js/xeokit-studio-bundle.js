@@ -171132,7 +171132,9 @@ var PortionDataTexture = class extends DataTexture {
     if (this.uploadAllOnFlush) {
       gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.width, this.height, this.format, this.type, this.buffer);
     } else {
-      const itemsPerRow = this.width;
+      const texelsPerItem = this.texelsPerItem;
+      const texelsPerRow = this.width;
+      const elementsPerTexel = this.elementsPerTexel;
       const segments = [];
       for (const id of this.dirtyPortionIds) {
         const portion = this.usedPortions.get(id);
@@ -171151,18 +171153,18 @@ var PortionDataTexture = class extends DataTexture {
         }
       }
       for (const portion of coalesced) {
-        let base = portion.base;
-        let remaining = portion.size;
-        while (remaining > 0) {
-          const xOffset = base % itemsPerRow;
-          const yOffset = Math.floor(base / itemsPerRow);
-          const chunkSize = Math.min(remaining, itemsPerRow - xOffset);
-          const bufferStart = base * this.elementsPerItem;
-          const bufferEnd = (base + chunkSize) * this.elementsPerItem;
+        let texelBase = portion.base * texelsPerItem;
+        let remainingTexels = portion.size * texelsPerItem;
+        while (remainingTexels > 0) {
+          const xOffset = texelBase % texelsPerRow;
+          const yOffset = Math.floor(texelBase / texelsPerRow);
+          const chunkTexels = Math.min(remainingTexels, texelsPerRow - xOffset);
+          const bufferStart = texelBase * elementsPerTexel;
+          const bufferEnd = (texelBase + chunkTexels) * elementsPerTexel;
           const pixelData = this.buffer.subarray(bufferStart, bufferEnd);
-          gl.texSubImage2D(gl.TEXTURE_2D, 0, xOffset, yOffset, chunkSize, 1, this.format, this.type, pixelData);
-          base += chunkSize;
-          remaining -= chunkSize;
+          gl.texSubImage2D(gl.TEXTURE_2D, 0, xOffset, yOffset, chunkTexels, 1, this.format, this.type, pixelData);
+          texelBase += chunkTexels;
+          remainingTexels -= chunkTexels;
         }
       }
     }

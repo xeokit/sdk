@@ -84,6 +84,7 @@
  * - {@link formats!gltf | gltf} – glTF and GLB
  * - {@link formats!ifc | ifc} – Industry Foundation Classes (IFC)
  * - {@link formats!cityjson | cityjson} – CityJSON
+ * - {@link formats!threedtiles | threedtiles} – 3D Tiles
  * - {@link formats!dotbim | dotbim} – dotbim
  * - {@link formats!las | las} – LAS / LAZ point cloud formats
  * - {@link formats!fbx | fbx} – Autodesk FBX (binary)
@@ -99,6 +100,7 @@
  * - {@link formats!scenemodel | scenemodel} – xeokit SceneModel
  * - {@link formats!datamodel | datamodel} – xeokit DataModel
  * - {@link formats!metamodel | metamodel} – xeokit metadata / schema (legacy support)
+ * - {@link formats!xkt | xkt} – xeokit v2 XKT binary (legacy support)
  *
  * Each format's namespace typically provides one or more of the following:
  *
@@ -144,6 +146,7 @@ export * as scenemodel from "./scenemodel";
 export * as datamodel from "./datamodel";
 export * as gaussiansplat from "./gaussiansplat";
 export * as metamodel from "./legacy/metamodel";
+export * as xkt from "./legacy/xkt";
 export * as obj from "./obj";
 export * as mtl from "./mtl";
 export * as fbx from "./fbx";
@@ -154,6 +157,7 @@ export * as dwg from "./dwg";
 export * as dxf from "./dxf";
 export * as fds from "./fds";
 export * as threedxml from "./threedxml";
+export * as threedtiles from "./threedtiles";
 
 export * from "./ModelExporter";
 export * from "./ModelExporterParams";

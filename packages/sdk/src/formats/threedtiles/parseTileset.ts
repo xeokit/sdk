@@ -16,7 +16,7 @@
 import {createMat4Float64, type Mat4, mulMat4} from "../../base/math/matrix";
 import {yieldToHost} from "../../base/utils";
 import type {ModelLoadParams} from "../ModelLoadParams";
-import type {ModelLoadOptions} from "../ModelLoadOptions";
+import type {ThreeDTilesLoadOptions} from "./ThreeDTilesLoadOptions";
 import {decodeTileContent, type TileContentCtx} from "./content/decodeContent";
 import {traverseImplicit} from "./implicit/traverseImplicit";
 import {applyTileMetadata, applyTilesetMetadata} from "./tilesetMetadata";
@@ -30,7 +30,7 @@ function defaultFetchArrayBuffer(url: string): Promise<ArrayBuffer> {
   });
 }
 
-export async function parseTileset(params: ModelLoadParams, options: ModelLoadOptions = {}): Promise<void> {
+export async function parseTileset(params: ModelLoadParams, options: ThreeDTilesLoadOptions = {}): Promise<void> {
   const {fileData, sceneModel, dataModel} = params;
   if (!sceneModel) return;
 

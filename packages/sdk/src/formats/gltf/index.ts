@@ -181,3 +181,4 @@
  */
 export * from "./GLTFLoader";
 export * from "./GLTFExporter";
+export type {GLTFLoadOptions} from "./GLTFLoadOptions";

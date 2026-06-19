@@ -15,7 +15,7 @@
 
 import type {Scene, SceneModel} from "../../../model/scene";
 import type {View} from "../../../viewing/viewer";
-import type {ModelLoadOptions} from "../../ModelLoadOptions";
+import type {ThreeDTilesLoadOptions} from "../ThreeDTilesLoadOptions";
 import type {SubtreeAvailability} from "../implicit/parseSubtree";
 import {decodeTileContent, type TileContentCtx} from "../content/decodeContent";
 import {resolveUrl} from "../parseTileset";
@@ -44,7 +44,7 @@ export class TilesetStreamer {
   readonly #maxSSE: number;
   readonly #maxLoadedTiles: number;
   readonly #concurrency: number;
-  readonly #options: ModelLoadOptions;
+  readonly #options: ThreeDTilesLoadOptions;
 
   readonly #loaded = new Map<string, SceneModel>();
   readonly #inFlight = new Set<string>();

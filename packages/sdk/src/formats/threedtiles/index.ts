@@ -52,6 +52,7 @@
  * @document ./README.md
  */
 export {ThreeDTilesLoader} from "./ThreeDTilesLoader";
+export type {ThreeDTilesLoadOptions} from "./ThreeDTilesLoadOptions";
 export {
   buildTileTree,
   type TileNode,

@@ -1,8 +1,13 @@
-import type {CoordinateSystemParams, SceneObject} from "../model/scene";
+import type {CoordinateSystemParams} from "../model/scene";
 import type {LoaderProgress} from "./LoaderProgress";
 
 /**
- * Options for {@link ModelLoader.load | ModelLoader.load}.
+ * Options shared by all {@link ModelLoader.load | ModelLoader.load} calls.
+ *
+ * Format-specific options (e.g. glTF's `dracoModule`, 3D Tiles' `maxDepth`)
+ * live in per-format interfaces that extend this one — see `GLTFLoadOptions`
+ * and `ThreeDTilesLoadOptions` — so this base stays free of any one format's
+ * concerns.
  */
 export interface ModelLoadOptions {
 

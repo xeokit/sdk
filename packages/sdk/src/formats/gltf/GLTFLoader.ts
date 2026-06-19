@@ -16,6 +16,7 @@ import {createMat4Float64, identityMat4, type Mat4, mulMat4, scalingMat4v, trans
 import {createUUID, yieldToHost} from "../../base/utils";
 import {GLTFLoader as glGLTFLoader, postProcessGLTF} from '@loaders.gl/gltf';
 import type {ModelLoadParams} from "../ModelLoadParams";
+import type {GLTFLoadOptions} from "./GLTFLoadOptions";
 import {ModelLoader} from "../ModelLoader";
 import type {SceneGeometryParams, SceneMeshParams, SceneModel, SceneMaterialParams} from "../../model/scene";
 import type {DataModel} from "../../model/data/DataModel";
@@ -40,6 +41,10 @@ export class GLTFLoader extends ModelLoader {
         return "*";
       }
     });
+  }
+
+  load(params: ModelLoadParams, options: GLTFLoadOptions = {}): Promise<any> {
+    return super.load(params, options);
   }
 }
 
@@ -69,6 +74,12 @@ async function parseGLTF(params: ModelLoadParams, options: any): Promise<any> {
   const parseOptions: any = {};
   if (options && options.baseUri) {
     parseOptions.baseUri = options.baseUri;
+  }
+  // Caller-injected Draco decoder for KHR_draco_mesh_compression. The glTF
+  // decoder decompresses meshes by default; it just needs the draco3d module,
+  // which the SDK does not bundle.
+  if (options && options.dracoModule) {
+    parseOptions.modules = {draco3d: options.dracoModule};
   }
 
   const onProgress: ((p: LoaderProgress) => void) | undefined = options?.onProgress;
@@ -132,6 +143,81 @@ async function parseGLTF(params: ModelLoadParams, options: any): Promise<any> {
     throw new Error(ctx.errors.length > 0 ? ctx.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
   }
   emit("Building scene", 1, 1);
+
+  parseStructuralMetadata(ctx);
+}
+
+const METADATA_COMPONENTS: Record<string, number> = {
+  VEC2: 2, VEC3: 3, VEC4: 4, MAT2: 4, MAT3: 9, MAT4: 16,
+};
+
+/**
+ * Value of property row `i` from a decoded `EXT_structural_metadata` column.
+ * loaders.gl returns fixed-size numeric vectors / matrices as one flat typed
+ * array, so a `VEC*` / `MAT*` row is the matching slice; SCALAR and everything
+ * else is indexed directly.
+ */
+function featureMetadataValue(data: any, i: number, type: string | undefined): any {
+  if (data == null) return undefined;
+  const components = type ? METADATA_COMPONENTS[type] : undefined;
+  if (components && typeof data[i * components] === "number") {
+    return Array.from(data.slice(i * components, i * components + components));
+  }
+  return data[i];
+}
+
+/**
+ * Stable id shared between a feature's DataObject (from an
+ * `EXT_structural_metadata` property table) and the SceneObject holding that
+ * feature's geometry (split out per `EXT_mesh_features` feature id). A
+ * SceneObject and DataObject with the same id are the same logical object, so
+ * matching ids is what links a picked feature to its metadata.
+ */
+function featureObjectId(baseId: string, tableIndex: number, featureIndex: number): string {
+  return `${baseId}-pt${tableIndex}-f${featureIndex}`;
+}
+
+/**
+ * Maps `EXT_structural_metadata` property tables onto the DataModel: one
+ * DataObject (with a property set) per feature row, typed by the table's
+ * schema class. loaders.gl decodes each property column into
+ * `propertyTableProperty.data`, indexed by feature. When `dataParentId` is
+ * set, each feature aggregates under that DataObject (the 3D Tiles loader
+ * passes the tileset's root). Feature ids are shared with the geometry split in
+ * {@link splitPrimitiveByFeature}, so a feature's DataObject and SceneObject
+ * carry the same id.
+ */
+function parseStructuralMetadata(ctx: ParsingContext): void {
+  const dataModel = ctx.dataModel;
+  const sm = ctx.gltfData?.extensions?.EXT_structural_metadata;
+  if (!dataModel || !sm?.propertyTables) {
+    return;
+  }
+  const parentId: string | undefined = ctx.options.dataParentId;
+  for (let t = 0; t < sm.propertyTables.length; t++) {
+    const table = sm.propertyTables[t];
+    const count = table.count || 0;
+    const className = table.class || "Feature";
+    const schemaClass = sm.schema?.classes?.[className];
+    const propNames = Object.keys(table.properties || {});
+    for (let i = 0; i < count; i++) {
+      const objectId = featureObjectId(ctx.baseId, t, i);
+      const propertySetId = `${objectId}-props`;
+      dataModel.createPropertySet({
+        id: propertySetId,
+        name: className,
+        type: className,
+        properties: propNames.map(name => ({
+          name,
+          value: featureMetadataValue(table.properties[name]?.data, i, schemaClass?.properties?.[name]?.type),
+        })),
+      });
+      dataModel.createObject({id: objectId, type: className, name: `${className} ${i}`, propertySetIds: [propertySetId]});
+      if (parentId) {
+        dataModel.createRelationship({type: "BasicAggregation", relatingObjectId: parentId, relatedObjectId: objectId});
+      }
+    }
+  }
 }
 
 function parseTextures(ctx: any): boolean {
@@ -155,7 +241,7 @@ function parseTexture(ctx: any, texture: any): boolean {
     ctx.errors.push(`[GLTFLoader.load] Texture has no image source`);
     return false;
   }
-  const textureId = `texture-${ctx.nextId++}`;
+  const textureId = `texture-${ctx.baseId}-${ctx.nextId++}`;
   let minFilter = NearestMipMapLinearFilter;
   switch (texture.sampler.minFilter) {
     case 9728:
@@ -292,7 +378,7 @@ function parseMaterials(ctx: ParsingContext): boolean {
  */
 function parseMaterial(ctx: ParsingContext, material: any): SceneMaterialParams {
   const materialCfg: SceneMaterialParams = {
-    id: `material-${ctx.nextId++}`,
+    id: `material-${ctx.baseId}-${ctx.nextId++}`,
     color: [1, 1, 1],
     opacity: 1,
     roughness: 1,
@@ -423,18 +509,24 @@ function parseScene(ctx: ParsingContext, scene: any): boolean {
       ctx.nodesHaveNames = true;
     }
   }
+  // Optional root transform pre-multiplied into every node's world matrix.
+  // Used by the 3D Tiles loader to place a tile's glTF content with the tile's
+  // composed world transform without baking it into the geometry.
+  const rootMatrix = ctx.options.rootMatrix || null;
   if (!ctx.nodesHaveNames) {
     //   ctx.log(`Warning: No "name" attributes found on glTF scene nodes - objects in XKT may not be what you expect`);
+    ctx.meshIds = [];
     for (let i = 0, len = nodes.length; i < len; i++) {
       const node = nodes[i];
-      if (!parseNodesWithoutNames(ctx, node, 0, null)) {
+      if (!parseNodesWithoutNames(ctx, node, 0, rootMatrix)) {
         return false;
       }
     }
   } else {
+    ctx.meshIds = null;
     for (let i = 0, len = nodes.length; i < len; i++) {
       const node = nodes[i];
-      if (!parseNodesWithNames(ctx, node, 0, null)) {
+      if (!parseNodesWithNames(ctx, node, 0, rootMatrix)) {
         return false;
       }
     }
@@ -482,43 +574,41 @@ function testIfNodesHaveNames(node, level = 0): boolean {
  * Parses a glTF node hierarchy that is known to NOT contain "name" attributes on the nodes.
  * Create a XKTMesh for each mesh primitive, and a single XKTEntity.
  */
-const parseNodesWithoutNames = (function () {
-
-  const meshIds = [];
-
-  return function (ctx, node, depth, matrix): boolean {
-    if (!node) {
-      return true;
-    }
-    matrix = parseNodeMatrix(node, matrix);
-    if (node.mesh) {
-      parseMesh(node, ctx, matrix, meshIds);
-    }
-    if (node.children) {
-      const children = node.children;
-      for (let i = 0, len = children.length; i < len; i++) {
-        const childNode = children[i];
-        parseNodesWithoutNames(ctx, childNode, depth + 1, matrix);
-      }
-    }
-    if (depth === 0) {
-      const objectId = "entity-" + ctx.nextId++;
-      if (meshIds && meshIds.length > 0) {
-        const result = ctx.sceneModel.createObject({
-          id: objectId,
-          meshIds,
-          layerId: ctx.options.layerId
-        });
-        if (result.ok === false) {
-          ctx.errors.push(`[GLTFLoader.load] Failed to create SceneObject -> ${result.error}`);
-          return false;
-        }
-        meshIds.length = 0;
-      }
-    }
+// State lives on `ctx` (not in a closure) so concurrent glTF loads — e.g. the
+// 3D Tiles streamer decoding several tiles at once — don't corrupt each other.
+function parseNodesWithoutNames(ctx, node, depth, matrix): boolean {
+  if (!node) {
     return true;
   }
-})();
+  const meshIds = ctx.meshIds;
+  matrix = parseNodeMatrix(node, matrix);
+  if (node.mesh) {
+    parseMesh(node, ctx, matrix, meshIds);
+  }
+  if (node.children) {
+    const children = node.children;
+    for (let i = 0, len = children.length; i < len; i++) {
+      const childNode = children[i];
+      parseNodesWithoutNames(ctx, childNode, depth + 1, matrix);
+    }
+  }
+  if (depth === 0) {
+    const objectId = `entity-${ctx.baseId}-${ctx.nextId++}`;
+    if (meshIds && meshIds.length > 0) {
+      const result = ctx.sceneModel.createObject({
+        id: objectId,
+        meshIds,
+        layerId: ctx.options.layerId
+      });
+      if (result.ok === false) {
+        ctx.errors.push(`[GLTFLoader.load] Failed to create SceneObject -> ${result.error}`);
+        return false;
+      }
+      meshIds.length = 0;
+    }
+  }
+  return true;
+}
 
 
 /**
@@ -529,19 +619,17 @@ const parseNodesWithoutNames = (function () {
  * Following a depth-first traversal, each XKTEntity is created on post-visit of each named node,
  * and gets all the XKTMeshes created since the last XKTEntity created.
  */
-const parseNodesWithNames = (function () {
-
-  const objectIdStack = [];
-  const meshIdsStack = [];
-  let meshIds = null;
-
-  return function (ctx, node, depth, matrix): boolean {
+// State lives on `ctx` (not in a closure) so concurrent glTF loads don't
+// corrupt each other (see parseNodesWithoutNames).
+function parseNodesWithNames(ctx, node, depth, matrix): boolean {
+    const objectIdStack = ctx.objectIdStack;
+    const meshIdsStack = ctx.meshIdsStack;
     if (!node) {
       return true;
     }
     matrix = parseNodeMatrix(node, matrix);
     if (node.name) {
-      meshIds = [];
+      ctx.meshIds = [];
       let objectId = node.name;
       // Some exporters (notably 3DS Max) emit duplicate node names like
       // `3DSMeshMatrix` across many nodes. We can't fail the whole load
@@ -552,13 +640,13 @@ const parseNodesWithNames = (function () {
         objectId = "";
       }
       while (!objectId || ctx.sceneModel.objects[objectId]) {
-        objectId = "entity-" + ctx.nextId++;
+        objectId = `entity-${ctx.baseId}-${ctx.nextId++}`;
       }
       objectIdStack.push(objectId);
-      meshIdsStack.push(meshIds);
+      meshIdsStack.push(ctx.meshIds);
     }
-    if (meshIds && node.mesh) {
-      if (!parseMesh(node, ctx, matrix, meshIds)) {
+    if (ctx.meshIds && node.mesh) {
+      if (!parseMesh(node, ctx, matrix, ctx.meshIds)) {
         return false;
       }
     }
@@ -575,10 +663,10 @@ const parseNodesWithNames = (function () {
     if ((nodeName !== undefined && nodeName !== null) || depth === 0) {
       let objectId = objectIdStack.pop();
       if (!objectId) { // For when there are no nodes with names
-        objectId = "entity-" + ctx.nextId++;
+        objectId = `entity-${ctx.baseId}-${ctx.nextId++}`;
       }
       const entityMeshIds = meshIdsStack.pop();
-      if (meshIds && meshIds.length > 0) {
+      if (ctx.meshIds && ctx.meshIds.length > 0) {
         const result = ctx.sceneModel.createObject({
           id: objectId,
           meshIds: entityMeshIds
@@ -588,11 +676,10 @@ const parseNodesWithNames = (function () {
           return false;
         }
       }
-      meshIds = meshIdsStack.length > 0 ? meshIdsStack[meshIdsStack.length - 1] : null;
+      ctx.meshIds = meshIdsStack.length > 0 ? meshIdsStack[meshIdsStack.length - 1] : null;
     }
     return true;
-  }
-})();
+}
 
 function parseNodeMatrix(node, matrix) {
   if (!node) {
@@ -643,6 +730,13 @@ function parseMesh(node: any, ctx: ParsingContext, matrix: Mat4, meshIds: string
 
     for (let i = 0; i < numPrimitives; i++) {
       const primitive = mesh.primitives[i];
+
+      // A primitive whose EXT_mesh_features feature id is a per-vertex attribute
+      // bound to a property table is split into one SceneObject per feature, so
+      // each feature is an individually pickable object linked to its metadata.
+      if (splitPrimitiveByFeature(ctx, primitive, matrix)) {
+        continue;
+      }
 
       const geometryId = createPrimitiveHash(ctx, primitive);
 
@@ -705,7 +799,7 @@ function parseMesh(node: any, ctx: ParsingContext, matrix: Mat4, meshIds: string
         }
       }
 
-      const meshId = `${ctx.nextId++}`;
+      const meshId = `${ctx.baseId}-${ctx.nextId++}`;
       const meshParams: SceneMeshParams = {
         id: meshId,
         geometryId,
@@ -729,5 +823,110 @@ function parseMesh(node: any, ctx: ParsingContext, matrix: Mat4, meshIds: string
     }
   }
 
+  return true;
+}
+
+/**
+ * If `primitive` is a triangle mesh whose `EXT_mesh_features` declares a feature
+ * id carried by a per-vertex attribute (`_FEATURE_ID_n`) and bound to a property
+ * table, splits it into one geometry + mesh + SceneObject per distinct feature
+ * value and returns `true` (the caller then skips its normal per-primitive
+ * path). Each SceneObject's id is {@link featureObjectId}, matching the feature's
+ * property-table DataObject so the two are the same logical object. Returns
+ * `false` for any primitive without that structure, leaving it to the normal
+ * path.
+ *
+ * Triangles by feature: a triangle belongs to the feature of its first corner
+ * (feature regions don't straddle triangles in well-formed assets). Feature
+ * id textures, non-triangle primitives, and vertex colours are not split.
+ */
+function splitPrimitiveByFeature(ctx: ParsingContext, primitive: any, matrix: Mat4): boolean {
+  if (primitive.mode != null && primitive.mode !== 4) {
+    return false;
+  }
+  const featureId = primitive.extensions?.EXT_mesh_features?.featureIds?.find(
+    (f: any) => f.attribute != null && f.propertyTable != null,
+  );
+  if (!featureId) {
+    return false;
+  }
+  const featureValues = primitive.attributes[`_FEATURE_ID_${featureId.attribute}`]?.value;
+  const positions = primitive.attributes.POSITION?.value;
+  if (!featureValues || !positions) {
+    return false;
+  }
+  const normals = primitive.attributes.NORMAL?.value;
+  const uvs = primitive.attributes.TEXCOORD_0?.value;
+  const srcIndices = primitive.indices?.value;
+  const triangleCount = srcIndices ? srcIndices.length / 3 : positions.length / 9;
+
+  const cornersByFeature = new Map<number, number[]>();
+  for (let t = 0; t < triangleCount; t++) {
+    const a = srcIndices ? srcIndices[t * 3] : t * 3;
+    const b = srcIndices ? srcIndices[t * 3 + 1] : t * 3 + 1;
+    const c = srcIndices ? srcIndices[t * 3 + 2] : t * 3 + 2;
+    const feature = featureValues[a];
+    let corners = cornersByFeature.get(feature);
+    if (!corners) {
+      corners = [];
+      cornersByFeature.set(feature, corners);
+    }
+    corners.push(a, b, c);
+  }
+
+  let materialId: string | undefined;
+  const material = primitive.material;
+  if (material && material._materialId) {
+    materialId = material._materialId;
+  }
+
+  for (const [feature, corners] of cornersByFeature) {
+    const remap = new Map<number, number>();
+    const outPositions: number[] = [];
+    const outNormals: number[] | null = normals ? [] : null;
+    const outUvs: number[] | null = uvs ? [] : null;
+    const outIndices: number[] = [];
+    for (const v of corners) {
+      let local = remap.get(v);
+      if (local === undefined) {
+        local = remap.size;
+        remap.set(v, local);
+        outPositions.push(positions[v * 3], positions[v * 3 + 1], positions[v * 3 + 2]);
+        if (outNormals) outNormals.push(normals[v * 3], normals[v * 3 + 1], normals[v * 3 + 2]);
+        if (outUvs) outUvs.push(uvs[v * 2], uvs[v * 2 + 1]);
+      }
+      outIndices.push(local);
+    }
+
+    const objectId = featureObjectId(ctx.baseId, featureId.propertyTable, feature);
+    const geometryId = `${objectId}-geometry`;
+    const geometryParams: SceneGeometryParams = {
+      id: geometryId,
+      primitive: TrianglesPrimitive,
+      positions: new Float32Array(outPositions),
+      indices: new Uint32Array(outIndices),
+    };
+    if (outNormals) geometryParams.normals = new Float32Array(outNormals);
+    if (outUvs) geometryParams.uvs = new Float32Array(outUvs);
+    if (ctx.sceneModel.createGeometry(geometryParams).ok === false) {
+      continue;
+    }
+
+    const meshId = `${objectId}-mesh`;
+    const meshParams: SceneMeshParams = {
+      id: meshId,
+      geometryId,
+      matrix: matrix ? createMat4Float64(matrix) : identityMat4(createMat4Float64()),
+      materialId,
+    };
+    if (!materialId) {
+      meshParams.color = [1.0, 1.0, 1.0];
+      meshParams.opacity = 1.0;
+    }
+    if (ctx.sceneModel.createMesh(meshParams).ok === false) {
+      continue;
+    }
+    ctx.sceneModel.createObject({id: objectId, meshIds: [meshId], layerId: ctx.options.layerId});
+  }
   return true;
 }

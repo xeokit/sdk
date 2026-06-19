@@ -19,7 +19,7 @@ import {
 import {PointsPrimitive} from "../../../base/constants";
 import type {DataModel} from "../../../model/data/DataModel";
 import type {SceneModel} from "../../../model/scene";
-import type {ModelLoadOptions} from "../../ModelLoadOptions";
+import type {ThreeDTilesLoadOptions} from "../ThreeDTilesLoadOptions";
 import {GLTFLoader} from "../../gltf";
 import {decodeTableJSON, readBatchTable, readFeatureValue} from "./binaryTables";
 
@@ -39,7 +39,7 @@ export interface TileContentCtx {
   /** Unique prefix for generated geometry/mesh/object ids. */
   idPrefix: string;
   baseUri?: string;
-  options: ModelLoadOptions;
+  options: ThreeDTilesLoadOptions;
   fetchArrayBuffer: (url: string) => Promise<ArrayBuffer>;
   resolveUrl: (uri: string, baseUri: string | undefined) => string;
   /** Parent DataObject that per-feature objects aggregate under, if any. */

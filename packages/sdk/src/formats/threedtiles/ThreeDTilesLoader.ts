@@ -1,4 +1,6 @@
+import type {ModelLoadParams} from "../ModelLoadParams";
 import {ModelLoader} from "../ModelLoader";
+import type {ThreeDTilesLoadOptions} from "./ThreeDTilesLoadOptions";
 import {parseTileset} from "./parseTileset";
 
 /**
@@ -18,5 +20,9 @@ export class ThreeDTilesLoader extends ModelLoader {
       },
       getVersion: (fileData: any): string => (fileData?.asset?.version === "1.1" ? "1.1" : "1.0"),
     });
+  }
+
+  load(params: ModelLoadParams, options: ThreeDTilesLoadOptions = {}): Promise<any> {
+    return super.load(params, options);
   }
 }

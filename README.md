@@ -16,7 +16,7 @@ Built with **TypeScript**, xeokit is designed for **extreme performance**: it st
 * **Multi‑canvas, multi‑view viewers** with floating-panel and tiled layouts.
 * **Full precision (64‑bit) coordinate system**, so georeferenced and city-scale models render without jitter.
 * **Pluggable renderer backends** (WebGL today, WebGPU ready).
-* **Import, export & convert** industry‑standard AECO formats (IFC, glTF, LAS, CityJSON, XKT, XGF, DotBIM, OBJ, MTL, 3D Gaussian Splatting).
+* **Import, export & convert** industry‑standard AECO formats (IFC, glTF, LAS, CityJSON, 3D Tiles, XKT, XGF, DotBIM, OBJ, MTL, 3D Gaussian Splatting).
 * **BIM collaboration** via BCF Viewpoints.
 * **Procedural content** (materials, geometry, environments) for scaffolding and tests.
 * **Open‑source** with a permissive AGPL‑3.0 license.
@@ -126,9 +126,10 @@ Import / export modules for the AECO file formats xeokit supports. Each loader p
 | [`@xeokit/sdk/formats/ifc`](https://xeokit.github.io/sdk/docs/api/modules/formats.ifc.html)                  | Import / export IFC.              |
 | [`@xeokit/sdk/formats/gltf`](https://xeokit.github.io/sdk/docs/api/modules/formats.gltf.html)                | Import / export glTF / GLB.       |
 | [`@xeokit/sdk/formats/xgf`](https://xeokit.github.io/sdk/docs/api/modules/formats.xgf.html)                  | Import / export XGF.              |
-| [`@xeokit/sdk/formats/xkt`](https://xeokit.github.io/sdk/docs/api/modules/formats.xkt.html)                  | Import XKT.                       |
+| [`@xeokit/sdk/formats/xkt`](https://xeokit.github.io/sdk/docs/api/modules/formats.xkt.html)                  | Import / export XKT (v12).        |
 | [`@xeokit/sdk/formats/dotbim`](https://xeokit.github.io/sdk/docs/api/modules/formats.dotbim.html)            | Import / export DotBIM.           |
 | [`@xeokit/sdk/formats/cityjson`](https://xeokit.github.io/sdk/docs/api/modules/formats.cityjson.html)        | Import / export CityJSON.         |
+| [`@xeokit/sdk/formats/threedtiles`](https://xeokit.github.io/sdk/docs/api/modules/formats.threedtiles.html)  | Import / stream 3D Tiles (`tileset.json`). |
 | [`@xeokit/sdk/formats/las`](https://xeokit.github.io/sdk/docs/api/modules/formats.las.html)                  | Import LAS / LAZ point clouds.    |
 | [`@xeokit/sdk/formats/gaussiansplat`](https://xeokit.github.io/sdk/docs/api/modules/formats.gaussiansplat.html) | Import / export 3D Gaussian Splatting (`.splat`). |
 | [`@xeokit/sdk/formats/fbx`](https://xeokit.github.io/sdk/docs/api/modules/formats.fbx.html)                  | Import / export FBX.              |

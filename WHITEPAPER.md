@@ -226,16 +226,17 @@ The non-renderable side: BIM entity types, properties, and the typed relationshi
 
 ### Format support
 
-End-to-end import and export coverage for the formats AECO workflows actually exchange — IFC for source-of-truth BIM, glTF / XGF for delivery, dotbim / OBJ / STEP for interop, the 2D drawing formats (PDF / DWG / DXF / SVG) for AECO sheet exchange, plus point-cloud, reality-capture (3D Gaussian Splatting) and city-scale options.
+End-to-end import and export coverage for the formats AECO workflows actually exchange — IFC for source-of-truth BIM, glTF / XGF for delivery, dotbim / OBJ for interop, the 2D drawing formats (PDF / DWG / DXF / SVG) for AECO sheet exchange, plus point-cloud, reality-capture (3D Gaussian Splatting) and city-scale options (CityJSON, 3D Tiles).
 
 | Format                                                | Import | Export | Module               |
 | ----------------------------------------------------- | :----: | :----: | -------------------- |
 | **IFC** (`.ifc` text + STEP), via `web-ifc`           |   ✓    |   ✓    | `formats/ifc`        |
 | **glTF / GLB** (PBR + textures + DataModel hooks)     |   ✓    |   ✓    | `formats/gltf`       |
 | **XGF** (native binary; v1.0 geometry / v1.1 PBR)     |   ✓    |   ✓    | `formats/xgf`        |
-| **XKT** (legacy xeokit v1)                            |   ✓    |   —    | `formats/xkt`        |
+| **XKT** (xeokit v2 native binary; v12)                |   ✓    |   ✓    | `formats/xkt`        |
 | **dotbim** (`.bim` JSON-LD)                           |   ✓    |   ✓    | `formats/dotbim`     |
 | **CityJSON** (LOD 0–3)                                |   ✓    |   —    | `formats/cityjson`   |
+| **3D Tiles** (`tileset.json`; b3dm/pnts/i3dm/cmpt/glTF)|   ✓    |   —    | `formats/threedtiles`|
 | **LAS / LAZ** point clouds                            |   ✓    |   —    | `formats/las`        |
 | **3D Gaussian Splatting** (`.splat`; baked RGB, no SH)|   ✓    |   ✓    | `formats/gaussiansplat` |
 | **OBJ**                                               |   ✓    |   ✓    | `formats/obj`        |
@@ -250,6 +251,8 @@ End-to-end import and export coverage for the formats AECO workflows actually ex
 | **DataModelParams** (round-trippable JSON)            |   ✓    |   ✓    | `formats/datamodel`  |
 
 The four drawing formats share a common ingest pattern: each parser walks the source and emits geometry into a `SceneModel` — strokes as line meshes bucketed by `(colour, lineWidth, dash)`, fills as triangle meshes via earcut, text rasterised to textured quads. PDF additionally lays multi-page documents out per `PDFLoadOptions.layout` (`"row"`, `"column"`, `"grid"`, `"stack"`). They sit alongside the 3D BIM loaders so an AECO viewer can drop a 2D plan sheet into the same scene as the model it documents. DWG and DXF share their entire SceneModel-emit pipeline (DXF parses to the same `DWGDocument` shape and hands off to `dwg.emit`); libredwg-web is GPL-3.0, which apps shipping the DWG loader must honour.
+
+3D Tiles is import-only and comes in two modes. A **static one-shot import** loads the selected tiles in a single pass: `b3dm` / `pnts` / `i3dm` / `cmpt` and bare glTF / GLB content, external tilesets, implicit tiling (1.1 `.subtree`, QUADTREE and OCTREE), Draco-compressed geometry, and tileset-level plus per-feature `EXT_structural_metadata` mapped to the DataModel. A glTF mesh whose `EXT_mesh_features` feature ids are a per-vertex attribute bound to a property table is split into one SceneObject per feature, each sharing its id with the feature's DataObject so a picked feature resolves to its metadata. For datasets too large to load whole, `formats/threedtiles/streaming` (`TilesetStreamer`) streams tiles by camera: each camera change selects tiles by screen-space error, frustum-culls those outside the view, and loads / unloads per-tile SceneModels so the scene holds exactly the visible set — for explicit and implicit (lazy `.subtree` expansion) tile trees, a perspective camera, and `box` / `sphere` / `region` (geodetic → ECEF) bounding volumes. Out of scope: export, KTX2 / Basis textures (the renderer has no compressed-texture path), and feature-id textures.
 
 Conversion pipelines:
 

@@ -240,7 +240,7 @@ xeokit supports:
 - point clouds
 - 3D Gaussian Splatting (reality capture)
 - CityJSON
-- STEP
+- 3D Tiles
 - OBJ
 
 This allows combining:
@@ -262,7 +262,6 @@ The SDK supports industry workflows and standards such as:
 - IFC
 - BCF
 - glTF
-- STEP
 - CAD formats
 - point cloud formats
 

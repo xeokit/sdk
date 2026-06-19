@@ -56,6 +56,7 @@ V3 is the forward path.
 | Conversion tooling       | Separate `xeokit-convert` package/CLI (→ XKT)             | In-SDK `convert/` (`ModelConverter`, `xeoconvert` CLI, `ifc2gltf2xgf`), multi-format, with validation + reports |
 | 2D drawings              | StoreyViews (2D plan images)                              | Full **drawings pipeline** (plan / section / elevation, HLE, fills, labels) + PDF/DWG/DXF/SVG import |
 | Reality capture          | LAS/LAZ point clouds                                       | LAS/LAZ **+ 3D Gaussian Splatting** (`.splat`)                           |
+| City-scale / tiled       | XKT whole-model streaming                                 | XKT **+ 3D Tiles** import and camera-driven streaming (explicit + implicit tiling, SSE + frustum) |
 | Maturity                 | **Production-proven, large install base**                 | Newer architecture, broader scope                                       |
 | License                  | AGPL-3.0 / commercial (Creoox AG)                         | AGPL-3.0 / commercial (Creoox AG)                                       |
 

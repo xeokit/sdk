@@ -2,19 +2,20 @@
  * <img style="padding:0px; padding-top:30px; padding-bottom:10px; height:130px;"
  *      src="../../assets/xeokit_logo_mesh.png"/>
  *
- * # xeokit Legacy XKT Importer
+ * # xeokit Legacy XKT Importer / Exporter
  *
  * ---
  *
- * **Imports xeokit's legacy XKT binary format into a SceneModel and DataModel.**
+ * **Imports and exports xeokit's legacy XKT binary format.**
  *
  * ---
  *
  * XKT is the native binary format of xeokit v2, produced by `xeokit-convert`. It
- * has been superseded by {@link xgf | XGF} in v3, but is still imported for
+ * has been superseded by {@link xgf | XGF} in v3, but is still supported for
  * compatibility with existing XKT assets. {@link XKTLoader} reads the geometry,
  * meshes, and objects into a {@link model!scene.SceneModel | SceneModel}, and the
- * embedded model / object metadata into a {@link model!data.DataModel | DataModel}.
+ * embedded model / object metadata into a {@link model!data.DataModel | DataModel};
+ * {@link XKTExporter} writes a SceneModel + DataModel back out as XKT.
  *
  * An XKT file pools all geometry into shared arrays of 16-bit quantised
  * positions, indices, and per-mesh material attributes, grouped into spatial
@@ -32,13 +33,15 @@
  * - Triangle (`solid` / `surface`), line, and point primitives.
  * - Per-mesh colour and opacity; metallic / roughness, textures, and texture
  *   sets are not applied.
+ * - The exporter writes a single tile and one geometry per mesh (geometry is
+ *   not re-instanced) with no textures — a valid uncompressed XKT v12 file.
  *
  * ## Usage
  *
  * ```ts
  * import {Scene} from "@xeokit/sdk/model/scene";
  * import {Data} from "@xeokit/sdk/model/data";
- * import {XKTLoader} from "@xeokit/sdk/formats/xkt";
+ * import {XKTLoader, XKTExporter} from "@xeokit/sdk/formats/xkt";
  *
  * const sceneModel = new Scene().createModel({id: "myModel"}).value;
  * const dataModel = new Data().createModel({id: "myModel"}).value;
@@ -46,13 +49,14 @@
  * const fileData = await (await fetch("model.xkt")).arrayBuffer();
  * await new XKTLoader().load({fileData, sceneModel, dataModel});
  *
- * sceneModel.build();
- * dataModel.build();
+ * // …and back out:
+ * const xkt = await new XKTExporter().write({sceneModel, dataModel}); // ArrayBuffer
  * ```
  *
- * The loader's `fileDataType` is `"arraybuffer"`, so read the `.xkt` as an
- * `ArrayBuffer` first.
+ * The loader's / exporter's `fileDataType` is `"arraybuffer"`, so read the
+ * `.xkt` as an `ArrayBuffer` first, and the exporter resolves to one.
  *
  * @module xkt
  */
 export * from "./XKTLoader";
+export * from "./XKTExporter";

@@ -171,7 +171,7 @@
 <li><strong>Traversal queries</strong> via <code>searchObjects</code> — start from any object, walk by relationship type, filter by object type, collect ids back. Pairs with Scene-side bulk operations through shared <code>id</code>s.</li>
 <li><strong>Schema-aware ingest</strong> — IFC4, IFC2x3, IFC4x3 entity types preserved end-to-end through loaders.</li>
 </ul>
-<a id="format-support" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Format support<a href="#format-support" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>End-to-end import and export coverage for the formats AECO workflows actually exchange — IFC for source-of-truth BIM, glTF / XGF for delivery, dotbim / OBJ / STEP for interop, the 2D drawing formats (PDF / DWG / DXF / SVG) for AECO sheet exchange, plus point-cloud, reality-capture (3D Gaussian Splatting) and city-scale options.</p>
+<a id="format-support" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Format support<a href="#format-support" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>End-to-end import and export coverage for the formats AECO workflows actually exchange — IFC for source-of-truth BIM, glTF / XGF for delivery, dotbim / OBJ for interop, the 2D drawing formats (PDF / DWG / DXF / SVG) for AECO sheet exchange, plus point-cloud, reality-capture (3D Gaussian Splatting) and city-scale options (CityJSON, 3D Tiles).</p>
 <table>
 <thead>
 <tr>
@@ -201,9 +201,9 @@
 <td><code>formats/xgf</code></td>
 </tr>
 <tr>
-<td><strong>XKT</strong> (legacy xeokit v1)</td>
+<td><strong>XKT</strong> (xeokit v2 native binary; v12)</td>
 <td style="text-align:center">✓</td>
-<td style="text-align:center">—</td>
+<td style="text-align:center">✓</td>
 <td><code>formats/xkt</code></td>
 </tr>
 <tr>
@@ -217,6 +217,12 @@
 <td style="text-align:center">✓</td>
 <td style="text-align:center">—</td>
 <td><code>formats/cityjson</code></td>
+</tr>
+<tr>
+<td><strong>3D Tiles</strong> (<code>tileset.json</code>; b3dm/pnts/i3dm/cmpt/glTF)</td>
+<td style="text-align:center">✓</td>
+<td style="text-align:center">—</td>
+<td><code>formats/threedtiles</code></td>
 </tr>
 <tr>
 <td><strong>LAS / LAZ</strong> point clouds</td>
@@ -293,6 +299,7 @@
 </tbody>
 </table>
 <p>The four drawing formats share a common ingest pattern: each parser walks the source and emits geometry into a <code>SceneModel</code> — strokes as line meshes bucketed by <code>(colour, lineWidth, dash)</code>, fills as triangle meshes via earcut, text rasterised to textured quads. PDF additionally lays multi-page documents out per <code>PDFLoadOptions.layout</code> (<code>&quot;row&quot;</code>, <code>&quot;column&quot;</code>, <code>&quot;grid&quot;</code>, <code>&quot;stack&quot;</code>). They sit alongside the 3D BIM loaders so an AECO viewer can drop a 2D plan sheet into the same scene as the model it documents. DWG and DXF share their entire SceneModel-emit pipeline (DXF parses to the same <code>DWGDocument</code> shape and hands off to <code>dwg.emit</code>); libredwg-web is GPL-3.0, which apps shipping the DWG loader must honour.</p>
+<p>3D Tiles is import-only and comes in two modes. A <strong>static one-shot import</strong> loads the selected tiles in a single pass: <code>b3dm</code> / <code>pnts</code> / <code>i3dm</code> / <code>cmpt</code> and bare glTF / GLB content, external tilesets, implicit tiling (1.1 <code>.subtree</code>, QUADTREE and OCTREE), Draco-compressed geometry, and tileset-level plus per-feature <code>EXT_structural_metadata</code> mapped to the DataModel. A glTF mesh whose <code>EXT_mesh_features</code> feature ids are a per-vertex attribute bound to a property table is split into one SceneObject per feature, each sharing its id with the feature's DataObject so a picked feature resolves to its metadata. For datasets too large to load whole, <code>formats/threedtiles/streaming</code> (<code>TilesetStreamer</code>) streams tiles by camera: each camera change selects tiles by screen-space error, frustum-culls those outside the view, and loads / unloads per-tile SceneModels so the scene holds exactly the visible set — for explicit and implicit (lazy <code>.subtree</code> expansion) tile trees, a perspective camera, and <code>box</code> / <code>sphere</code> / <code>region</code> (geodetic → ECEF) bounding volumes. Out of scope: export, KTX2 / Basis textures (the renderer has no compressed-texture path), and feature-id textures.</p>
 <p>Conversion pipelines:</p>
 <ul>
 <li><strong>IFC → glTF → XGF</strong> end-to-end converter — <code>convert/ifc2gltf2xgf</code>.</li>

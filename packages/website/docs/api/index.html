@@ -11,7 +11,7 @@
 <li><strong>Multi‑canvas, multi‑view viewers</strong> with floating-panel and tiled layouts.</li>
 <li><strong>Full precision (64‑bit) coordinate system</strong>, so georeferenced and city-scale models render without jitter.</li>
 <li><strong>Pluggable renderer backends</strong> (WebGL today, WebGPU ready).</li>
-<li><strong>Import, export &amp; convert</strong> industry‑standard AECO formats (IFC, glTF, LAS, CityJSON, XKT, XGF, DotBIM, OBJ, MTL, 3D Gaussian Splatting).</li>
+<li><strong>Import, export &amp; convert</strong> industry‑standard AECO formats (IFC, glTF, LAS, CityJSON, 3D Tiles, XKT, XGF, DotBIM, OBJ, MTL, 3D Gaussian Splatting).</li>
 <li><strong>BIM collaboration</strong> via BCF Viewpoints.</li>
 <li><strong>Procedural content</strong> (materials, geometry, environments) for scaffolding and tests.</li>
 <li><strong>Open‑source</strong> with a permissive AGPL‑3.0 license.</li>
@@ -184,7 +184,7 @@
 </tr>
 <tr>
 <td><a href="https://xeokit.github.io/sdk/docs/api/modules/formats.xkt.html"><code>@xeokit/sdk/formats/xkt</code></a></td>
-<td>Import XKT.</td>
+<td>Import / export XKT (v12).</td>
 </tr>
 <tr>
 <td><a href="https://xeokit.github.io/sdk/docs/api/modules/formats.dotbim.html"><code>@xeokit/sdk/formats/dotbim</code></a></td>
@@ -193,6 +193,10 @@
 <tr>
 <td><a href="https://xeokit.github.io/sdk/docs/api/modules/formats.cityjson.html"><code>@xeokit/sdk/formats/cityjson</code></a></td>
 <td>Import / export CityJSON.</td>
+</tr>
+<tr>
+<td><a href="https://xeokit.github.io/sdk/docs/api/modules/formats.threedtiles.html"><code>@xeokit/sdk/formats/threedtiles</code></a></td>
+<td>Import / stream 3D Tiles (<code>tileset.json</code>).</td>
 </tr>
 <tr>
 <td><a href="https://xeokit.github.io/sdk/docs/api/modules/formats.las.html"><code>@xeokit/sdk/formats/las</code></a></td>

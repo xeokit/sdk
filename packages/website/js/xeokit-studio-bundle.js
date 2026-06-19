@@ -22663,9 +22663,11 @@ __export(formats_exports, {
   pdf: () => pdf_exports,
   scenemodel: () => scenemodel_exports,
   svg: () => svg_exports,
+  threedtiles: () => threedtiles_exports,
   threedxml: () => threedxml_exports,
   usdz: () => usdz_exports,
-  xgf: () => xgf_exports
+  xgf: () => xgf_exports,
+  xkt: () => xkt_exports
 });
 
 // ../sdk/src/formats/gltf/index.ts
@@ -29265,8 +29267,8 @@ function makeTransformationMatrix(extensionData) {
   const { offset = [0, 0], rotation = 0, scale: scale3 = [1, 1] } = extensionData;
   const translationMatrix = new Matrix3().set(1, 0, 0, 0, 1, 0, offset[0], offset[1], 1);
   const rotationMatrix = scratchRotationMatrix.set(Math.cos(rotation), Math.sin(rotation), 0, -Math.sin(rotation), Math.cos(rotation), 0, 0, 0, 1);
-  const scaleMatrix = scratchScaleMatrix.set(scale3[0], 0, 0, 0, scale3[1], 0, 0, 0, 1);
-  return translationMatrix.multiplyRight(rotationMatrix).multiplyRight(scaleMatrix);
+  const scaleMatrix2 = scratchScaleMatrix.set(scale3[0], 0, 0, 0, scale3[1], 0, 0, 0, 1);
+  return translationMatrix.multiplyRight(rotationMatrix).multiplyRight(scaleMatrix2);
 }
 
 // ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/deprecated/KHR_lights_punctual.js
@@ -31144,6 +31146,9 @@ var GLTFLoader2 = class extends ModelLoader {
       }
     });
   }
+  load(params, options = {}) {
+    return super.load(params, options);
+  }
 };
 async function parseGLTF2(params, options) {
   const { fileData, sceneModel, dataModel } = params;
@@ -31153,6 +31158,9 @@ async function parseGLTF2(params, options) {
   const parseOptions = {};
   if (options && options.baseUri) {
     parseOptions.baseUri = options.baseUri;
+  }
+  if (options && options.dracoModule) {
+    parseOptions.modules = { draco3d: options.dracoModule };
   }
   const onProgress = options?.onProgress;
   const signal = options?.signal;
@@ -31204,6 +31212,59 @@ async function parseGLTF2(params, options) {
     throw new Error(ctx.errors.length > 0 ? ctx.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
   }
   emit2("Building scene", 1, 1);
+  parseStructuralMetadata(ctx);
+}
+var METADATA_COMPONENTS = {
+  VEC2: 2,
+  VEC3: 3,
+  VEC4: 4,
+  MAT2: 4,
+  MAT3: 9,
+  MAT4: 16
+};
+function featureMetadataValue(data2, i, type) {
+  if (data2 == null)
+    return void 0;
+  const components = type ? METADATA_COMPONENTS[type] : void 0;
+  if (components && typeof data2[i * components] === "number") {
+    return Array.from(data2.slice(i * components, i * components + components));
+  }
+  return data2[i];
+}
+function featureObjectId(baseId, tableIndex, featureIndex) {
+  return `${baseId}-pt${tableIndex}-f${featureIndex}`;
+}
+function parseStructuralMetadata(ctx) {
+  const dataModel = ctx.dataModel;
+  const sm = ctx.gltfData?.extensions?.EXT_structural_metadata;
+  if (!dataModel || !sm?.propertyTables) {
+    return;
+  }
+  const parentId = ctx.options.dataParentId;
+  for (let t = 0; t < sm.propertyTables.length; t++) {
+    const table = sm.propertyTables[t];
+    const count = table.count || 0;
+    const className = table.class || "Feature";
+    const schemaClass = sm.schema?.classes?.[className];
+    const propNames = Object.keys(table.properties || {});
+    for (let i = 0; i < count; i++) {
+      const objectId = featureObjectId(ctx.baseId, t, i);
+      const propertySetId = `${objectId}-props`;
+      dataModel.createPropertySet({
+        id: propertySetId,
+        name: className,
+        type: className,
+        properties: propNames.map((name12) => ({
+          name: name12,
+          value: featureMetadataValue(table.properties[name12]?.data, i, schemaClass?.properties?.[name12]?.type)
+        }))
+      });
+      dataModel.createObject({ id: objectId, type: className, name: `${className} ${i}`, propertySetIds: [propertySetId] });
+      if (parentId) {
+        dataModel.createRelationship({ type: "BasicAggregation", relatingObjectId: parentId, relatedObjectId: objectId });
+      }
+    }
+  }
 }
 function parseTextures(ctx) {
   if (!ctx.sceneModel) {
@@ -31225,7 +31286,7 @@ function parseTexture(ctx, texture) {
     ctx.errors.push(`[GLTFLoader.load] Texture has no image source`);
     return false;
   }
-  const textureId = `texture-${ctx.nextId++}`;
+  const textureId = `texture-${ctx.baseId}-${ctx.nextId++}`;
   let minFilter = NearestMipMapLinearFilter;
   switch (texture.sampler.minFilter) {
     case 9728:
@@ -31333,7 +31394,7 @@ function parseMaterials(ctx) {
 }
 function parseMaterial(ctx, material) {
   const materialCfg = {
-    id: `material-${ctx.nextId++}`,
+    id: `material-${ctx.baseId}-${ctx.nextId++}`,
     color: [1, 1, 1],
     opacity: 1,
     roughness: 1,
@@ -31432,17 +31493,20 @@ function parseScene(ctx, scene) {
       ctx.nodesHaveNames = true;
     }
   }
+  const rootMatrix = ctx.options.rootMatrix || null;
   if (!ctx.nodesHaveNames) {
+    ctx.meshIds = [];
     for (let i = 0, len = nodes.length; i < len; i++) {
       const node = nodes[i];
-      if (!parseNodesWithoutNames(ctx, node, 0, null)) {
+      if (!parseNodesWithoutNames(ctx, node, 0, rootMatrix)) {
         return false;
       }
     }
   } else {
+    ctx.meshIds = null;
     for (let i = 0, len = nodes.length; i < len; i++) {
       const node = nodes[i];
-      if (!parseNodesWithNames(ctx, node, 0, null)) {
+      if (!parseNodesWithNames(ctx, node, 0, rootMatrix)) {
         return false;
       }
     }
@@ -31483,99 +31547,94 @@ function testIfNodesHaveNames(node, level = 0) {
   }
   return false;
 }
-var parseNodesWithoutNames = /* @__PURE__ */ function() {
-  const meshIds = [];
-  return function(ctx, node, depth, matrix) {
-    if (!node) {
-      return true;
-    }
-    matrix = parseNodeMatrix(node, matrix);
-    if (node.mesh) {
-      parseMesh(node, ctx, matrix, meshIds);
-    }
-    if (node.children) {
-      const children = node.children;
-      for (let i = 0, len = children.length; i < len; i++) {
-        const childNode = children[i];
-        parseNodesWithoutNames(ctx, childNode, depth + 1, matrix);
-      }
-    }
-    if (depth === 0) {
-      const objectId = "entity-" + ctx.nextId++;
-      if (meshIds && meshIds.length > 0) {
-        const result = ctx.sceneModel.createObject({
-          id: objectId,
-          meshIds,
-          layerId: ctx.options.layerId
-        });
-        if (result.ok === false) {
-          ctx.errors.push(`[GLTFLoader.load] Failed to create SceneObject -> ${result.error}`);
-          return false;
-        }
-        meshIds.length = 0;
-      }
-    }
+function parseNodesWithoutNames(ctx, node, depth, matrix) {
+  if (!node) {
     return true;
-  };
-}();
-var parseNodesWithNames = /* @__PURE__ */ function() {
-  const objectIdStack = [];
-  const meshIdsStack = [];
-  let meshIds = null;
-  return function(ctx, node, depth, matrix) {
-    if (!node) {
-      return true;
+  }
+  const meshIds = ctx.meshIds;
+  matrix = parseNodeMatrix(node, matrix);
+  if (node.mesh) {
+    parseMesh(node, ctx, matrix, meshIds);
+  }
+  if (node.children) {
+    const children = node.children;
+    for (let i = 0, len = children.length; i < len; i++) {
+      const childNode = children[i];
+      parseNodesWithoutNames(ctx, childNode, depth + 1, matrix);
     }
-    matrix = parseNodeMatrix(node, matrix);
-    if (node.name) {
-      meshIds = [];
-      let objectId = node.name;
-      if (objectId && ctx.sceneModel.objects[objectId]) {
-        console.warn(`[GLTFLoader.load] Duplicate glTF node 'name' attribute: '${objectId}' \u2014 assigning a synthetic ID`);
-        objectId = "";
+  }
+  if (depth === 0) {
+    const objectId = `entity-${ctx.baseId}-${ctx.nextId++}`;
+    if (meshIds && meshIds.length > 0) {
+      const result = ctx.sceneModel.createObject({
+        id: objectId,
+        meshIds,
+        layerId: ctx.options.layerId
+      });
+      if (result.ok === false) {
+        ctx.errors.push(`[GLTFLoader.load] Failed to create SceneObject -> ${result.error}`);
+        return false;
       }
-      while (!objectId || ctx.sceneModel.objects[objectId]) {
-        objectId = "entity-" + ctx.nextId++;
-      }
-      objectIdStack.push(objectId);
-      meshIdsStack.push(meshIds);
+      meshIds.length = 0;
     }
-    if (meshIds && node.mesh) {
-      if (!parseMesh(node, ctx, matrix, meshIds)) {
+  }
+  return true;
+}
+function parseNodesWithNames(ctx, node, depth, matrix) {
+  const objectIdStack = ctx.objectIdStack;
+  const meshIdsStack = ctx.meshIdsStack;
+  if (!node) {
+    return true;
+  }
+  matrix = parseNodeMatrix(node, matrix);
+  if (node.name) {
+    ctx.meshIds = [];
+    let objectId = node.name;
+    if (objectId && ctx.sceneModel.objects[objectId]) {
+      console.warn(`[GLTFLoader.load] Duplicate glTF node 'name' attribute: '${objectId}' \u2014 assigning a synthetic ID`);
+      objectId = "";
+    }
+    while (!objectId || ctx.sceneModel.objects[objectId]) {
+      objectId = `entity-${ctx.baseId}-${ctx.nextId++}`;
+    }
+    objectIdStack.push(objectId);
+    meshIdsStack.push(ctx.meshIds);
+  }
+  if (ctx.meshIds && node.mesh) {
+    if (!parseMesh(node, ctx, matrix, ctx.meshIds)) {
+      return false;
+    }
+  }
+  if (node.children) {
+    const children = node.children;
+    for (let i = 0, len = children.length; i < len; i++) {
+      const childNode = children[i];
+      if (!parseNodesWithNames(ctx, childNode, depth + 1, matrix)) {
         return false;
       }
     }
-    if (node.children) {
-      const children = node.children;
-      for (let i = 0, len = children.length; i < len; i++) {
-        const childNode = children[i];
-        if (!parseNodesWithNames(ctx, childNode, depth + 1, matrix)) {
-          return false;
-        }
+  }
+  const nodeName = node.name;
+  if (nodeName !== void 0 && nodeName !== null || depth === 0) {
+    let objectId = objectIdStack.pop();
+    if (!objectId) {
+      objectId = `entity-${ctx.baseId}-${ctx.nextId++}`;
+    }
+    const entityMeshIds = meshIdsStack.pop();
+    if (ctx.meshIds && ctx.meshIds.length > 0) {
+      const result = ctx.sceneModel.createObject({
+        id: objectId,
+        meshIds: entityMeshIds
+      });
+      if (result.ok === false) {
+        ctx.errors.push(`[GLTFLoader.load] Failed to create SceneObject -> ${result.error}`);
+        return false;
       }
     }
-    const nodeName = node.name;
-    if (nodeName !== void 0 && nodeName !== null || depth === 0) {
-      let objectId = objectIdStack.pop();
-      if (!objectId) {
-        objectId = "entity-" + ctx.nextId++;
-      }
-      const entityMeshIds = meshIdsStack.pop();
-      if (meshIds && meshIds.length > 0) {
-        const result = ctx.sceneModel.createObject({
-          id: objectId,
-          meshIds: entityMeshIds
-        });
-        if (result.ok === false) {
-          ctx.errors.push(`[GLTFLoader.load] Failed to create SceneObject -> ${result.error}`);
-          return false;
-        }
-      }
-      meshIds = meshIdsStack.length > 0 ? meshIdsStack[meshIdsStack.length - 1] : null;
-    }
-    return true;
-  };
-}();
+    ctx.meshIds = meshIdsStack.length > 0 ? meshIdsStack[meshIdsStack.length - 1] : null;
+  }
+  return true;
+}
 function parseNodeMatrix(node, matrix) {
   if (!node) {
     return;
@@ -31621,6 +31680,9 @@ function parseMesh(node, ctx, matrix, meshIds) {
     const numPrimitives = mesh.primitives.length;
     for (let i = 0; i < numPrimitives; i++) {
       const primitive = mesh.primitives[i];
+      if (splitPrimitiveByFeature(ctx, primitive, matrix)) {
+        continue;
+      }
       const geometryId = createPrimitiveHash(ctx, primitive);
       if (!ctx.sceneModel.geometries[geometryId]) {
         const POSITION = primitive.attributes.POSITION;
@@ -31678,7 +31740,7 @@ function parseMesh(node, ctx, matrix, meshIds) {
           return false;
         }
       }
-      const meshId = `${ctx.nextId++}`;
+      const meshId = `${ctx.baseId}-${ctx.nextId++}`;
       const meshParams = {
         id: meshId,
         geometryId,
@@ -31699,6 +31761,95 @@ function parseMesh(node, ctx, matrix, meshIds) {
       }
       meshIds.push(meshId);
     }
+  }
+  return true;
+}
+function splitPrimitiveByFeature(ctx, primitive, matrix) {
+  if (primitive.mode != null && primitive.mode !== 4) {
+    return false;
+  }
+  const featureId = primitive.extensions?.EXT_mesh_features?.featureIds?.find(
+    (f) => f.attribute != null && f.propertyTable != null
+  );
+  if (!featureId) {
+    return false;
+  }
+  const featureValues = primitive.attributes[`_FEATURE_ID_${featureId.attribute}`]?.value;
+  const positions = primitive.attributes.POSITION?.value;
+  if (!featureValues || !positions) {
+    return false;
+  }
+  const normals = primitive.attributes.NORMAL?.value;
+  const uvs = primitive.attributes.TEXCOORD_0?.value;
+  const srcIndices = primitive.indices?.value;
+  const triangleCount = srcIndices ? srcIndices.length / 3 : positions.length / 9;
+  const cornersByFeature = /* @__PURE__ */ new Map();
+  for (let t = 0; t < triangleCount; t++) {
+    const a2 = srcIndices ? srcIndices[t * 3] : t * 3;
+    const b4 = srcIndices ? srcIndices[t * 3 + 1] : t * 3 + 1;
+    const c2 = srcIndices ? srcIndices[t * 3 + 2] : t * 3 + 2;
+    const feature = featureValues[a2];
+    let corners = cornersByFeature.get(feature);
+    if (!corners) {
+      corners = [];
+      cornersByFeature.set(feature, corners);
+    }
+    corners.push(a2, b4, c2);
+  }
+  let materialId;
+  const material = primitive.material;
+  if (material && material._materialId) {
+    materialId = material._materialId;
+  }
+  for (const [feature, corners] of cornersByFeature) {
+    const remap = /* @__PURE__ */ new Map();
+    const outPositions = [];
+    const outNormals = normals ? [] : null;
+    const outUvs = uvs ? [] : null;
+    const outIndices = [];
+    for (const v of corners) {
+      let local = remap.get(v);
+      if (local === void 0) {
+        local = remap.size;
+        remap.set(v, local);
+        outPositions.push(positions[v * 3], positions[v * 3 + 1], positions[v * 3 + 2]);
+        if (outNormals)
+          outNormals.push(normals[v * 3], normals[v * 3 + 1], normals[v * 3 + 2]);
+        if (outUvs)
+          outUvs.push(uvs[v * 2], uvs[v * 2 + 1]);
+      }
+      outIndices.push(local);
+    }
+    const objectId = featureObjectId(ctx.baseId, featureId.propertyTable, feature);
+    const geometryId = `${objectId}-geometry`;
+    const geometryParams = {
+      id: geometryId,
+      primitive: TrianglesPrimitive,
+      positions: new Float32Array(outPositions),
+      indices: new Uint32Array(outIndices)
+    };
+    if (outNormals)
+      geometryParams.normals = new Float32Array(outNormals);
+    if (outUvs)
+      geometryParams.uvs = new Float32Array(outUvs);
+    if (ctx.sceneModel.createGeometry(geometryParams).ok === false) {
+      continue;
+    }
+    const meshId = `${objectId}-mesh`;
+    const meshParams = {
+      id: meshId,
+      geometryId,
+      matrix: matrix ? createMat4Float64(matrix) : identityMat4(createMat4Float64()),
+      materialId
+    };
+    if (!materialId) {
+      meshParams.color = [1, 1, 1];
+      meshParams.opacity = 1;
+    }
+    if (ctx.sceneModel.createMesh(meshParams).ok === false) {
+      continue;
+    }
+    ctx.sceneModel.createObject({ id: objectId, meshIds: [meshId], layerId: ctx.options.layerId });
   }
   return true;
 }
@@ -127002,7 +127153,9 @@ async function encodeSplatModel(params) {
 // ../sdk/src/formats/legacy/metamodel/index.ts
 var metamodel_exports = {};
 __export(metamodel_exports, {
+  MetaModelExporter: () => MetaModelExporter,
   MetaModelLoader: () => MetaModelLoader,
+  convertDataModel: () => convertDataModel,
   convertMetaModel: () => convertMetaModel
 });
 
@@ -127121,6 +127274,80 @@ async function parseMetaModel(params, options = {}) {
   }
 }
 
+// ../sdk/src/formats/legacy/metamodel/convertDataModel.ts
+function convertDataModel(dataModelParams) {
+  const parentOf = {};
+  for (const rel of dataModelParams.relationships || []) {
+    parentOf[rel.relatedObjectId] = rel.relatingObjectId;
+  }
+  const metaObjects = (dataModelParams.objects || []).map((object) => ({
+    id: object.id,
+    name: object.name ?? object.id,
+    type: object.type ?? "",
+    parent: parentOf[object.id] ?? "",
+    propertySetIds: object.propertySetIds ?? [],
+    originalSystemId: object.originalSystemId
+  }));
+  const propertySets = (dataModelParams.propertySets || []).map((propertySet) => ({
+    id: propertySet.id,
+    name: propertySet.name ?? propertySet.id,
+    type: propertySet.type ?? "",
+    originalSystemId: propertySet.originalSystemId ?? "",
+    properties: (propertySet.properties || []).map((property) => ({
+      name: property.name,
+      type: property.type ?? "",
+      value: property.value,
+      valueType: property.valueType ?? "",
+      description: property.description ?? ""
+    }))
+  }));
+  return {
+    projectId: String(dataModelParams.projectId ?? ""),
+    author: dataModelParams.author ?? "",
+    createdAt: dataModelParams.createdAt ?? "",
+    schema: dataModelParams.schema ?? "",
+    creatingApplication: dataModelParams.creatingApplication ?? "",
+    metaObjects,
+    propertySets
+  };
+}
+
+// ../sdk/src/formats/legacy/metamodel/MetaModelExporter.ts
+var MetaModelExporter = class extends ModelExporter {
+  /**
+   * Constructs a MetaModelExporter.
+   */
+  constructor() {
+    super({
+      format: "MetaModelParams",
+      fileDataType: "json",
+      encoders: {
+        "1.0": encodeMetaModel
+      },
+      defaultVersion: "1.0"
+    });
+  }
+};
+async function encodeMetaModel(params, options = {}) {
+  await yieldToHost(options.signal);
+  if (!params.dataModel) {
+    return {
+      projectId: "",
+      author: "",
+      createdAt: "",
+      schema: "",
+      creatingApplication: "",
+      metaObjects: [],
+      propertySets: []
+    };
+  }
+  const result = params.dataModel.toParams();
+  if (result.ok === false) {
+    throw new Error(`[MetaModelExporter] Could not read DataModel -> ${result.error}`);
+  }
+  return convertDataModel(result.value);
+}
+
 // ../sdk/src/formats/legacy/metamodel/convertMetaModel.ts
 function convertMetaModel(metaModelParams) {
   const dataModelParams = {
@@ -127158,6 +127385,640 @@ function convertMetaModel(metaModelParams) {
   return dataModelParams;
 }
 
+// ../sdk/src/formats/legacy/xkt/index.ts
+var xkt_exports = {};
+__export(xkt_exports, {
+  XKTExporter: () => XKTExporter,
+  XKTLoader: () => XKTLoader
+});
+
+// ../sdk/src/formats/legacy/xkt/versions/v12/unpackXKT.ts
+function unpackXKT(arrayBuffer) {
+  const requiresSwapFromLittleEndian = function() {
+    const b4 = new ArrayBuffer(2);
+    new Uint16Array(b4)[0] = 1;
+    return new Uint8Array(b4)[0] !== 1;
+  }();
+  const nextArray = function() {
+    let i = 0;
+    const dataView = new DataView(arrayBuffer);
+    return function(type) {
+      const idx = 1 + 2 * i++;
+      const byteOffset = dataView.getUint32(idx * 4, true);
+      const byteLength = dataView.getUint32((idx + 1) * 4, true);
+      const BPE = type.BYTES_PER_ELEMENT;
+      if (requiresSwapFromLittleEndian && BPE > 1) {
+        const subarray = new Uint8Array(arrayBuffer, byteOffset, byteLength);
+        const swaps = BPE / 2;
+        const cnt = subarray.length / BPE;
+        for (let b4 = 0; b4 < cnt; b4++) {
+          const offset = b4 * BPE;
+          for (let j = 0; j < swaps; j++) {
+            const i1 = offset + j;
+            const i2 = offset - j + BPE - 1;
+            const tmp = subarray[i1];
+            subarray[i1] = subarray[i2];
+            subarray[i2] = tmp;
+          }
+        }
+      }
+      return new type(arrayBuffer, byteOffset, byteLength / BPE);
+    };
+  }();
+  const nextObject = function() {
+    const decoder = new TextDecoder();
+    return () => JSON.parse(decoder.decode(nextArray(Uint8Array)));
+  }();
+  return {
+    metadata: nextObject(),
+    textureData: nextArray(Uint8Array),
+    eachTextureDataPortion: nextArray(Uint32Array),
+    eachTextureAttributes: nextArray(Uint16Array),
+    positions: nextArray(Uint16Array),
+    normals: nextArray(Int8Array),
+    colors: nextArray(Uint8Array),
+    uvs: nextArray(Float32Array),
+    indices: nextArray(Uint32Array),
+    edgeIndices: nextArray(Uint32Array),
+    eachTextureSetTextures: nextArray(Int32Array),
+    matrices: nextArray(Float32Array),
+    reusedGeometriesDecodeMatrix: nextArray(Float32Array),
+    eachGeometryPrimitiveType: nextArray(Uint8Array),
+    eachGeometryAxisLabel: nextObject(),
+    eachGeometryPositionsPortion: nextArray(Uint32Array),
+    eachGeometryNormalsPortion: nextArray(Uint32Array),
+    eachGeometryColorsPortion: nextArray(Uint32Array),
+    eachGeometryUVsPortion: nextArray(Uint32Array),
+    eachGeometryIndicesPortion: nextArray(Uint32Array),
+    eachGeometryEdgeIndicesPortion: nextArray(Uint32Array),
+    eachMeshGeometriesPortion: nextArray(Uint32Array),
+    eachMeshMatricesPortion: nextArray(Uint32Array),
+    eachMeshTextureSet: nextArray(Int32Array),
+    eachMeshMaterialAttributes: nextArray(Uint8Array),
+    eachEntityId: nextObject(),
+    eachEntityMeshesPortion: nextArray(Uint32Array),
+    eachTileAABB: nextArray(Float64Array),
+    eachTileEntitiesPortion: nextArray(Uint32Array)
+  };
+}
+
+// ../sdk/src/formats/legacy/xkt/versions/v12/xktToModel.ts
+var MESH_ATTRIBUTES = 6;
+async function xktToModel(params) {
+  const { xktData, sceneModel, dataModel, options } = params;
+  const layerId = options?.layerId || "default";
+  const {
+    positions,
+    colors,
+    indices,
+    matrices,
+    reusedGeometriesDecodeMatrix,
+    eachGeometryPrimitiveType,
+    eachGeometryPositionsPortion,
+    eachGeometryColorsPortion,
+    eachGeometryIndicesPortion,
+    eachMeshGeometriesPortion,
+    eachMeshMatricesPortion,
+    eachMeshMaterialAttributes,
+    eachEntityId,
+    eachEntityMeshesPortion,
+    eachTileAABB,
+    eachTileEntitiesPortion
+  } = xktData;
+  const numGeometries = eachGeometryPrimitiveType.length;
+  const numMeshes = eachMeshGeometriesPortion.length;
+  const numEntities = eachEntityId.length;
+  const numTiles = eachTileEntitiesPortion.length;
+  if (dataModel) {
+    buildDataModel(dataModel, xktData.metadata);
+  }
+  if (!sceneModel) {
+    return;
+  }
+  const reuseCount = new Uint32Array(numGeometries);
+  for (let i = 0; i < numMeshes; i++)
+    reuseCount[eachMeshGeometriesPortion[i]]++;
+  const geometryValid = /* @__PURE__ */ new Map();
+  let nextMeshId = 0;
+  for (let tileIndex = 0; tileIndex < numTiles; tileIndex++) {
+    if ((tileIndex & 7) === 0)
+      await yieldToHost(options.signal);
+    const aabbBase = tileIndex * 6;
+    const tileCenter = [
+      (eachTileAABB[aabbBase] + eachTileAABB[aabbBase + 3]) / 2,
+      (eachTileAABB[aabbBase + 1] + eachTileAABB[aabbBase + 4]) / 2,
+      (eachTileAABB[aabbBase + 2] + eachTileAABB[aabbBase + 5]) / 2
+    ];
+    const rtcAABB = [
+      eachTileAABB[aabbBase] - tileCenter[0],
+      eachTileAABB[aabbBase + 1] - tileCenter[1],
+      eachTileAABB[aabbBase + 2] - tileCenter[2],
+      eachTileAABB[aabbBase + 3] - tileCenter[0],
+      eachTileAABB[aabbBase + 4] - tileCenter[1],
+      eachTileAABB[aabbBase + 5] - tileCenter[2]
+    ];
+    const tileDecodeMatrix = decodeMatrixFromAABB(rtcAABB);
+    const lastEntityInTile = tileIndex === numTiles - 1 ? numEntities - 1 : eachTileEntitiesPortion[tileIndex + 1] - 1;
+    for (let entityIndex = eachTileEntitiesPortion[tileIndex]; entityIndex <= lastEntityInTile; entityIndex++) {
+      const lastMeshInEntity = entityIndex === numEntities - 1 ? numMeshes - 1 : eachEntityMeshesPortion[entityIndex + 1] - 1;
+      const meshIds = [];
+      for (let meshIndex = eachEntityMeshesPortion[entityIndex]; meshIndex <= lastMeshInEntity; meshIndex++) {
+        const geometryIndex = eachMeshGeometriesPortion[meshIndex];
+        const reused = reuseCount[geometryIndex] > 1;
+        const primitive = scenePrimitive(eachGeometryPrimitiveType[geometryIndex]);
+        if (primitive === void 0)
+          continue;
+        const geometryId = `geometry-${geometryIndex}`;
+        let valid = geometryValid.get(geometryIndex);
+        if (valid === void 0) {
+          const decodeMatrix = reused ? reusedGeometriesDecodeMatrix : tileDecodeMatrix;
+          const last = geometryIndex === numGeometries - 1;
+          const posSlice = positions.subarray(
+            eachGeometryPositionsPortion[geometryIndex],
+            last ? positions.length : eachGeometryPositionsPortion[geometryIndex + 1]
+          );
+          const geometryParams = {
+            id: geometryId,
+            primitive,
+            positions: decompressPositions(posSlice, decodeMatrix)
+          };
+          if (primitive === PointsPrimitive) {
+            const colSlice = colors.subarray(
+              eachGeometryColorsPortion[geometryIndex],
+              last ? colors.length : eachGeometryColorsPortion[geometryIndex + 1]
+            );
+            if (colSlice.length > 0)
+              geometryParams.colorsCompressed = colSlice;
+          } else {
+            const indSlice = indices.subarray(
+              eachGeometryIndicesPortion[geometryIndex],
+              last ? indices.length : eachGeometryIndicesPortion[geometryIndex + 1]
+            );
+            geometryParams.indices = eachGeometryPrimitiveType[geometryIndex] === 4 ? lineStripToLines(indSlice) : indSlice;
+          }
+          const hasGeometry = geometryParams.positions.length > 0 && (primitive === PointsPrimitive || geometryParams.indices && geometryParams.indices.length > 0);
+          valid = hasGeometry && sceneModel.createGeometry(geometryParams).ok !== false;
+          geometryValid.set(geometryIndex, valid);
+        }
+        if (!valid)
+          continue;
+        const meshId = `mesh-${nextMeshId++}`;
+        const attrBase = meshIndex * MESH_ATTRIBUTES;
+        const meshParams = {
+          id: meshId,
+          geometryId,
+          origin: tileCenter,
+          color: [
+            eachMeshMaterialAttributes[attrBase] / 255,
+            eachMeshMaterialAttributes[attrBase + 1] / 255,
+            eachMeshMaterialAttributes[attrBase + 2] / 255
+          ],
+          opacity: eachMeshMaterialAttributes[attrBase + 3] / 255
+        };
+        if (reused) {
+          const matrixBase = eachMeshMatricesPortion[meshIndex];
+          meshParams.matrix = createMat4Float64(
+            Array.from(matrices.subarray(matrixBase, matrixBase + 16))
+          );
+        }
+        if (sceneModel.createMesh(meshParams).ok !== false) {
+          meshIds.push(meshId);
+        }
+      }
+      if (meshIds.length > 0) {
+        sceneModel.createObject({ id: eachEntityId[entityIndex], meshIds, layerId });
+      }
+    }
+  }
+}
+function scenePrimitive(code) {
+  switch (code) {
+    case 0:
+      return TrianglesPrimitive;
+    case 1:
+      return TrianglesPrimitive;
+    case 2:
+      return PointsPrimitive;
+    case 3:
+      return LinesPrimitive;
+    case 4:
+      return LinesPrimitive;
+    default:
+      return void 0;
+  }
+}
+function decodeMatrixFromAABB(aabb) {
+  const m = createMat4Float64();
+  m[0] = (aabb[3] - aabb[0]) / 65535;
+  m[5] = (aabb[4] - aabb[1]) / 65535;
+  m[10] = (aabb[5] - aabb[2]) / 65535;
+  m[12] = aabb[0];
+  m[13] = aabb[1];
+  m[14] = aabb[2];
+  return m;
+}
+function decompressPositions(compressed, m) {
+  const out = new Float32Array(compressed.length);
+  for (let i = 0, len = compressed.length; i < len; i += 3) {
+    out[i] = compressed[i] * m[0] + m[12];
+    out[i + 1] = compressed[i + 1] * m[5] + m[13];
+    out[i + 2] = compressed[i + 2] * m[10] + m[14];
+  }
+  return out;
+}
+function lineStripToLines(strip) {
+  if (strip.length < 2)
+    return new Uint32Array(0);
+  const lines = new Uint32Array((strip.length - 1) * 2);
+  for (let i = 0, j = 0; i < strip.length - 1; i++) {
+    lines[j++] = strip[i];
+    lines[j++] = strip[i + 1];
+  }
+  return lines;
+}
+function buildDataModel(dataModel, metadata) {
+  const propertySets = metadata?.propertySets || [];
+  for (const ps of propertySets) {
+    dataModel.createPropertySet({
+      id: ps.id,
+      name: ps.name || ps.id,
+      type: ps.type || "Default",
+      properties: (ps.properties || []).map((p) => ({ name: p.name, value: p.value }))
+    });
+  }
+  const metaObjects = metadata?.metaObjects || [];
+  const objectIds = new Set(metaObjects.map((mo) => mo.id));
+  for (const mo of metaObjects) {
+    dataModel.createObject({
+      id: mo.id,
+      name: mo.name ?? mo.id,
+      type: mo.type ?? "Default",
+      propertySetIds: mo.propertySetIds
+    });
+  }
+  for (const mo of metaObjects) {
+    if (mo.parent && mo.parent !== mo.id && objectIds.has(mo.parent)) {
+      dataModel.createRelationship({
+        type: "BasicAggregation",
+        relatingObjectId: mo.parent,
+        relatedObjectId: mo.id
+      });
+    }
+  }
+}
+
+// ../sdk/src/formats/legacy/xkt/versions/v12/parse.ts
+async function parse14(params, options) {
+  const { fileData, sceneModel, dataModel } = params;
+  await xktToModel({
+    xktData: unpackXKT(fileData),
+    sceneModel,
+    dataModel,
+    options: options || {}
+  });
+}
+
+// ../sdk/src/formats/legacy/xkt/XKTLoader.ts
+var XKTLoader = class extends ModelLoader {
+  constructor() {
+    super({
+      format: "XKT",
+      fileDataType: "arraybuffer",
+      parsers: {
+        "12": parse14
+      },
+      getVersion: (fileData) => {
+        return "" + new DataView(fileData).getUint32(0, true);
+      }
+    });
+  }
+};
+
+// ../sdk/src/formats/legacy/xkt/versions/v12/modelToXKT.ts
+var MESH_ATTRIBUTES2 = 6;
+var IDENTITY16 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+function xktPrimitiveCode(primitive) {
+  switch (primitive) {
+    case SolidPrimitive:
+      return 0;
+    case TrianglesPrimitive:
+      return 1;
+    case SurfacePrimitive:
+      return 1;
+    case PointsPrimitive:
+      return 2;
+    case LinesPrimitive:
+      return 3;
+    default:
+      return void 0;
+  }
+}
+async function modelToXKT(params) {
+  const { sceneModel, dataModel, options } = params;
+  const coordinateSystem = options?.coordinateSystem;
+  const items = [];
+  const eachEntityId = [];
+  const entityMeshBase = [];
+  const worldAABB = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity];
+  const objects = Object.values(sceneModel.objects);
+  for (let o = 0; o < objects.length; o++) {
+    if ((o & 31) === 0)
+      await yieldToHost(options?.signal);
+    const object = objects[o];
+    const base = items.length;
+    for (const mesh of object.meshes) {
+      const geometry = mesh.geometry;
+      const code = xktPrimitiveCode(geometry.primitive);
+      if (code === void 0 || !geometry.positionsCompressed)
+        continue;
+      const local = decompressPositions3WithAABB3(
+        geometry.positionsCompressed,
+        geometry.aabb,
+        new Float32Array(geometry.positionsCompressed.length)
+      );
+      const m = getMeshWorldMatrix(mesh, coordinateSystem);
+      const world = new Float32Array(local.length);
+      for (let i = 0; i < local.length; i += 3) {
+        const x = local[i], y = local[i + 1], z = local[i + 2];
+        const wx = m[0] * x + m[4] * y + m[8] * z + m[12];
+        const wy = m[1] * x + m[5] * y + m[9] * z + m[13];
+        const wz = m[2] * x + m[6] * y + m[10] * z + m[14];
+        world[i] = wx;
+        world[i + 1] = wy;
+        world[i + 2] = wz;
+        if (wx < worldAABB[0])
+          worldAABB[0] = wx;
+        if (wy < worldAABB[1])
+          worldAABB[1] = wy;
+        if (wz < worldAABB[2])
+          worldAABB[2] = wz;
+        if (wx > worldAABB[3])
+          worldAABB[3] = wx;
+        if (wy > worldAABB[4])
+          worldAABB[4] = wy;
+        if (wz > worldAABB[5])
+          worldAABB[5] = wz;
+      }
+      const material = mesh.material;
+      items.push({
+        world,
+        indices: code === 2 ? void 0 : geometry.indices ? new Uint32Array(geometry.indices) : void 0,
+        colors: code === 2 && geometry.colorsCompressed ? new Uint8Array(geometry.colorsCompressed) : void 0,
+        code,
+        color: mesh.effectiveColor,
+        opacity: mesh.effectiveOpacity,
+        metallic: material?.metallic ?? 0,
+        roughness: material?.roughness ?? 1
+      });
+    }
+    if (items.length > base) {
+      eachEntityId.push(object.id);
+      entityMeshBase.push(base);
+    }
+  }
+  const numGeometries = items.length;
+  if (numGeometries === 0) {
+    for (let i = 0; i < 6; i++)
+      worldAABB[i] = 0;
+  }
+  let totalPositions = 0, totalIndices = 0, totalColors = 0;
+  for (const it of items) {
+    totalPositions += it.world.length;
+    if (it.indices)
+      totalIndices += it.indices.length;
+    if (it.colors)
+      totalColors += it.colors.length;
+  }
+  const positions = new Uint16Array(totalPositions);
+  const indices = new Uint32Array(totalIndices);
+  const colors = new Uint8Array(totalColors);
+  const eachGeometryPrimitiveType = new Uint8Array(numGeometries);
+  const eachGeometryPositionsPortion = new Uint32Array(numGeometries);
+  const eachGeometryNormalsPortion = new Uint32Array(numGeometries);
+  const eachGeometryColorsPortion = new Uint32Array(numGeometries);
+  const eachGeometryUVsPortion = new Uint32Array(numGeometries);
+  const eachGeometryIndicesPortion = new Uint32Array(numGeometries);
+  const eachGeometryEdgeIndicesPortion = new Uint32Array(numGeometries);
+  const eachMeshGeometriesPortion = new Uint32Array(numGeometries);
+  const eachMeshMatricesPortion = new Uint32Array(numGeometries);
+  const eachMeshTextureSet = new Int32Array(numGeometries).fill(-1);
+  const eachMeshMaterialAttributes = new Uint8Array(numGeometries * MESH_ATTRIBUTES2);
+  const sx = worldAABB[3] - worldAABB[0] || 1;
+  const sy = worldAABB[4] - worldAABB[1] || 1;
+  const sz = worldAABB[5] - worldAABB[2] || 1;
+  const quant = (v, min, span) => {
+    const q = Math.round((v - min) / span * 65535);
+    return q < 0 ? 0 : q > 65535 ? 65535 : q;
+  };
+  let posBase = 0, indBase = 0, colBase = 0;
+  for (let g = 0; g < numGeometries; g++) {
+    const it = items[g];
+    eachGeometryPrimitiveType[g] = it.code;
+    eachGeometryPositionsPortion[g] = posBase;
+    for (let i = 0; i < it.world.length; i += 3) {
+      positions[posBase + i] = quant(it.world[i], worldAABB[0], sx);
+      positions[posBase + i + 1] = quant(it.world[i + 1], worldAABB[1], sy);
+      positions[posBase + i + 2] = quant(it.world[i + 2], worldAABB[2], sz);
+    }
+    posBase += it.world.length;
+    eachGeometryIndicesPortion[g] = indBase;
+    if (it.indices) {
+      indices.set(it.indices, indBase);
+      indBase += it.indices.length;
+    }
+    eachGeometryColorsPortion[g] = colBase;
+    if (it.colors) {
+      colors.set(it.colors, colBase);
+      colBase += it.colors.length;
+    }
+    eachMeshGeometriesPortion[g] = g;
+    const a2 = g * MESH_ATTRIBUTES2;
+    eachMeshMaterialAttributes[a2] = clampByte3(it.color[0] * 255);
+    eachMeshMaterialAttributes[a2 + 1] = clampByte3(it.color[1] * 255);
+    eachMeshMaterialAttributes[a2 + 2] = clampByte3(it.color[2] * 255);
+    eachMeshMaterialAttributes[a2 + 3] = clampByte3(it.opacity * 255);
+    eachMeshMaterialAttributes[a2 + 4] = clampByte3(it.metallic * 255);
+    eachMeshMaterialAttributes[a2 + 5] = clampByte3(it.roughness * 255);
+  }
+  return {
+    metadata: buildMetadata(sceneModel, dataModel),
+    textureData: new Uint8Array(0),
+    eachTextureDataPortion: new Uint32Array(0),
+    eachTextureAttributes: new Uint16Array(0),
+    positions,
+    normals: new Int8Array(0),
+    colors,
+    uvs: new Float32Array(0),
+    indices,
+    edgeIndices: new Uint32Array(0),
+    eachTextureSetTextures: new Int32Array(0),
+    matrices: new Float32Array(IDENTITY16),
+    reusedGeometriesDecodeMatrix: new Float32Array(IDENTITY16),
+    eachGeometryPrimitiveType,
+    eachGeometryAxisLabel: {},
+    eachGeometryPositionsPortion,
+    eachGeometryNormalsPortion,
+    eachGeometryColorsPortion,
+    eachGeometryUVsPortion,
+    eachGeometryIndicesPortion,
+    eachGeometryEdgeIndicesPortion,
+    eachMeshGeometriesPortion,
+    eachMeshMatricesPortion,
+    eachMeshTextureSet,
+    eachMeshMaterialAttributes,
+    eachEntityId,
+    eachEntityMeshesPortion: new Uint32Array(entityMeshBase),
+    eachTileAABB: new Float64Array(worldAABB),
+    eachTileEntitiesPortion: new Uint32Array([0])
+  };
+}
+function clampByte3(v) {
+  v = Math.round(v);
+  return v < 0 ? 0 : v > 255 ? 255 : v;
+}
+function buildMetadata(sceneModel, dataModel) {
+  const metaObjects = [];
+  const propertySets = [];
+  if (dataModel) {
+    const parentOf = {};
+    for (const rel of dataModel.relationships || []) {
+      if (rel.relatedObject && rel.relatingObject)
+        parentOf[rel.relatedObject.id] = rel.relatingObject.id;
+    }
+    for (const o of Object.values(dataModel.objects)) {
+      metaObjects.push({
+        id: o.id,
+        name: o.name ?? o.id,
+        type: o.type ?? "Default",
+        parent: parentOf[o.id] ?? null,
+        propertySetIds: o.propertySetIds
+      });
+    }
+    for (const ps of Object.values(dataModel.propertySets)) {
+      propertySets.push({
+        id: ps.id,
+        name: ps.name ?? ps.id,
+        type: ps.type ?? "Default",
+        properties: (ps.properties || []).map((p) => ({ name: p.name, value: p.value }))
+      });
+    }
+  }
+  return { id: sceneModel.id, metaObjects, propertySets };
+}
+
+// ../sdk/src/formats/legacy/xkt/versions/v12/XKT_INFO.ts
+var XKT_INFO = {
+  xktVersion: 12
+};
+
+// ../sdk/src/formats/legacy/xkt/versions/v12/packXKT.ts
+var object2Array4 = function() {
+  const encoder = new TextEncoder();
+  return (obj) => encoder.encode(JSON.stringify(obj));
+}();
+function toArrayBuffer6(arrays) {
+  const arraysCnt = arrays.length;
+  const dataView = new DataView(new ArrayBuffer((1 + 2 * arraysCnt) * 4));
+  dataView.setUint32(0, XKT_INFO.xktVersion, true);
+  let byteOffset = dataView.byteLength;
+  const offsets = [];
+  for (let i = 0; i < arraysCnt; i++) {
+    const arr = arrays[i];
+    const BPE = arr.BYTES_PER_ELEMENT;
+    byteOffset = Math.ceil(byteOffset / BPE) * BPE;
+    const idx = 1 + 2 * i;
+    dataView.setUint32(idx * 4, byteOffset, true);
+    dataView.setUint32((idx + 1) * 4, arr.byteLength, true);
+    offsets.push(byteOffset);
+    byteOffset += arr.byteLength;
+  }
+  const dataArray = new Uint8Array(byteOffset);
+  dataArray.set(new Uint8Array(dataView.buffer), 0);
+  const requiresSwapToLittleEndian = function() {
+    const b4 = new ArrayBuffer(2);
+    new Uint16Array(b4)[0] = 1;
+    return new Uint8Array(b4)[0] !== 1;
+  }();
+  for (let i = 0; i < arraysCnt; i++) {
+    const arr = arrays[i];
+    const subarray = new Uint8Array(arr.buffer, arr.byteOffset, arr.byteLength);
+    const BPE = arr.BYTES_PER_ELEMENT;
+    if (requiresSwapToLittleEndian && BPE > 1) {
+      const swaps = BPE / 2;
+      const cnt = subarray.length / BPE;
+      for (let b4 = 0; b4 < cnt; b4++) {
+        const offset = b4 * BPE;
+        for (let j = 0; j < swaps; j++) {
+          const i1 = offset + j;
+          const i2 = offset - j + BPE - 1;
+          const tmp = subarray[i1];
+          subarray[i1] = subarray[i2];
+          subarray[i2] = tmp;
+        }
+      }
+    }
+    dataArray.set(subarray, offsets[i]);
+  }
+  return dataArray.buffer;
+}
+function packXKT(xktData) {
+  return toArrayBuffer6([
+    object2Array4(xktData.metadata),
+    xktData.textureData,
+    xktData.eachTextureDataPortion,
+    xktData.eachTextureAttributes,
+    xktData.positions,
+    xktData.normals,
+    xktData.colors,
+    xktData.uvs,
+    xktData.indices,
+    xktData.edgeIndices,
+    xktData.eachTextureSetTextures,
+    xktData.matrices,
+    xktData.reusedGeometriesDecodeMatrix,
+    xktData.eachGeometryPrimitiveType,
+    object2Array4(xktData.eachGeometryAxisLabel),
+    xktData.eachGeometryPositionsPortion,
+    xktData.eachGeometryNormalsPortion,
+    xktData.eachGeometryColorsPortion,
+    xktData.eachGeometryUVsPortion,
+    xktData.eachGeometryIndicesPortion,
+    xktData.eachGeometryEdgeIndicesPortion,
+    xktData.eachMeshGeometriesPortion,
+    xktData.eachMeshMatricesPortion,
+    xktData.eachMeshTextureSet,
+    xktData.eachMeshMaterialAttributes,
+    object2Array4(xktData.eachEntityId),
+    xktData.eachEntityMeshesPortion,
+    xktData.eachTileAABB,
+    xktData.eachTileEntitiesPortion
+  ]);
+}
+
+// ../sdk/src/formats/legacy/xkt/versions/v12/encode.ts
+async function encode17(params, options) {
+  const xktData = await modelToXKT({
+    sceneModel: params.sceneModel,
+    dataModel: params.dataModel,
+    options
+  });
+  return packXKT(xktData);
+}
+
+// ../sdk/src/formats/legacy/xkt/XKTExporter.ts
+var XKTExporter = class extends ModelExporter {
+  constructor() {
+    super({
+      format: "XKT",
+      fileDataType: "arraybuffer",
+      encoders: {
+        "12": encode17
+      },
+      defaultVersion: "12"
+    });
+  }
+};
+
 // ../sdk/src/formats/obj/index.ts
 var obj_exports = {};
 __export(obj_exports, {
@@ -127166,7 +128027,7 @@ __export(obj_exports, {
 });
 
 // ../sdk/src/formats/obj/versions/v1_0/parse.ts
-var parse14 = async (params, options) => {
+var parse15 = async (params, options) => {
   const { fileData, sceneModel, dataModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -127577,7 +128438,7 @@ var OBJLoader = class extends ModelLoader {
       format: "OBJ",
       fileDataType: "text",
       parsers: {
-        "1.0": parse14
+        "1.0": parse15
       },
       getVersion: (fileData) => {
         return fileData.version || "1.0";
@@ -127590,7 +128451,7 @@ var OBJLoader = class extends ModelLoader {
 var tempVec3a8 = createVec3Float64();
 var tempVec3b8 = createVec3Float64();
 var tempVec3c4 = createVec3Float64();
-async function encode17(params, options) {
+async function encode18(params, options) {
   const { sceneModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -127694,7 +128555,7 @@ var OBJExporter = class extends ModelExporter {
       format: "OBJ",
       fileDataType: "text",
       encoders: {
-        "1.0": encode17
+        "1.0": encode18
       },
       defaultVersion: "1.0"
     });
@@ -127709,7 +128570,7 @@ __export(mtl_exports, {
 });
 
 // ../sdk/src/formats/mtl/versions/v1_0/parse.ts
-var parse15 = async (params, options) => {
+var parse16 = async (params, options) => {
   const { fileData, sceneModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -127819,7 +128680,7 @@ var MTLLoader = class extends ModelLoader {
       format: "MTL",
       fileDataType: "text",
       parsers: {
-        "1.0": parse15
+        "1.0": parse16
       },
       getVersion: (fileData) => {
         return fileData.version || "1.0";
@@ -127829,7 +128690,7 @@ var MTLLoader = class extends ModelLoader {
 };
 
 // ../sdk/src/formats/mtl/versions/v1_0/encode.ts
-async function encode18(params, options) {
+async function encode19(params, options) {
   const { sceneModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -127951,7 +128812,7 @@ var MTLExporter = class extends ModelExporter {
       format: "MTL",
       fileDataType: "text",
       encoders: {
-        "1.0": encode18
+        "1.0": encode19
       },
       defaultVersion: "1.0"
     });
@@ -132310,7 +133171,7 @@ function findChild(node, name12) {
 
 // ../sdk/src/formats/fbx/versions/binary/parse.ts
 var DEG2RAD = Math.PI / 180;
-async function parse16(params, _options) {
+async function parse17(params, _options) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     return;
@@ -132663,7 +133524,7 @@ var FBXLoader = class extends ModelLoader {
       format: "fbx",
       fileDataType: "arraybuffer",
       parsers: {
-        binary: parse16
+        binary: parse17
       },
       // The only "version" we recognise is the binary variant; ASCII FBX (and
       // anything else) returns "" → the base loader reports it as unsupported.
@@ -132813,7 +133674,7 @@ function concat2(parts) {
 // ../sdk/src/formats/fbx/versions/binary/encode.ts
 var RAD2DEG = 180 / Math.PI;
 var SEP = "\0";
-async function encode19(params, _options) {
+async function encode20(params, _options) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     throw "FBXExporter requires params.sceneModel";
@@ -133078,7 +133939,7 @@ var FBXExporter = class extends ModelExporter {
       format: "fbx",
       fileDataType: "arraybuffer",
       encoders: {
-        binary: encode19
+        binary: encode20
       },
       defaultVersion: "binary"
     });
@@ -133355,7 +134216,7 @@ function mulMat45(a2, b4) {
 }
 
 // ../sdk/src/formats/usdz/versions/v1/parse.ts
-async function parse17(params, options) {
+async function parse18(params, options) {
   const { fileData, sceneModel } = params;
   if (!sceneModel) {
     return;
@@ -133395,7 +134256,7 @@ var USDZLoader = class extends ModelLoader {
       format: "usdz",
       fileDataType: "arraybuffer",
       parsers: {
-        "1.0": parse17
+        "1.0": parse18
       },
       getVersion: (fileData) => isUSDZ(fileData) ? "1.0" : ""
     });
@@ -133591,7 +134452,7 @@ function crc322(data2) {
 
 // ../sdk/src/formats/usdz/versions/v1/encode.ts
 var ROOT_LAYER = "model.usda";
-async function encode20(params, options) {
+async function encode21(params, options) {
   const onProgress = options?.onProgress;
   const signal = options?.signal;
   onProgress?.({ phase: "Encoding USDZ", current: 0, total: 1 });
@@ -133734,7 +134595,7 @@ var USDZExporter = class extends ModelExporter {
       format: "usdz",
       fileDataType: "arraybuffer",
       encoders: {
-        "1.0": encode20
+        "1.0": encode21
       },
       defaultVersion: "1.0"
     });
@@ -133801,7 +134662,7 @@ async function loadPdfJs(opts) {
   }
   return p;
 }
-async function parse18(input, options = {}) {
+async function parse19(input, options = {}) {
   if (!input || !input.sceneModel) {
     return { ok: false, type: 2 /* InvalidInput */, error: "[pdf.parse] sceneModel is required" };
   }
@@ -135109,7 +135970,7 @@ var PDFLoader = class {
     this.#pdfjs = params.pdfjs;
   }
   load(input, options = {}) {
-    return parse18(input, {
+    return parse19(input, {
       ...options,
       pdfjsEsmUrl: this.#pdfjsEsmUrl,
       pdfjsWorkerSrc: this.#pdfjsWorkerSrc,
@@ -135146,7 +136007,7 @@ var DEFAULT_SVG_LOAD_OPTIONS = {
 };
 
 // ../sdk/src/formats/svg/versions/v1_0/parse.ts
-async function parse19(input, options = {}) {
+async function parse20(input, options = {}) {
   if (!input || !input.sceneModel) {
     return err2(2 /* InvalidInput */, "[svg.parse] sceneModel is required");
   }
@@ -136417,7 +137278,7 @@ function domToSVGNode(el2) {
 // ../sdk/src/formats/svg/SVGLoader.ts
 var SVGLoader = class {
   load(input, options = {}) {
-    return parse19(
+    return parse20(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       options
     );
@@ -136440,7 +137301,7 @@ var DEFAULT_SVG_EXPORT_OPTIONS = {
 var tempVec3a9 = createVec3Float64();
 var tempVec3b9 = createVec3Float64();
 var tempVec3c5 = createVec3Float64();
-async function encode21(params, options) {
+async function encode23(params, options) {
   const { sceneModel } = params;
   if (!sceneModel)
     throw new Error("[SVGExporter] sceneModel is required");
@@ -136666,7 +137527,7 @@ var SVGExporter = class extends ModelExporter {
     super({
       format: "SVG",
       fileDataType: "text",
-      encoders: { "1.0": encode21 },
+      encoders: { "1.0": encode23 },
       defaultVersion: "1.0"
     });
   }
@@ -136725,7 +137586,7 @@ async function loadLibredwg(opts) {
   }
   return p;
 }
-async function parse20(input, options = {}) {
+async function parse21(input, options = {}) {
   if (!input || !input.sceneModel) {
     return err3(2 /* InvalidInput */, "[dwg.parse] sceneModel is required");
   }
@@ -137561,7 +138422,7 @@ var DWGLoader = class {
     this.#libredwg = params.libredwg;
   }
   load(input, options = {}) {
-    return parse20(
+    return parse21(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       {
         ...options,
@@ -137581,7 +138442,7 @@ __export(dxf_exports, {
 });
 
 // ../sdk/src/formats/dxf/versions/v1_0/parse.ts
-async function parse21(input, options = {}) {
+async function parse22(input, options = {}) {
   if (!input || !input.sceneModel) {
     return err4(2 /* InvalidInput */, "[dxf.parse] sceneModel is required");
   }
@@ -137903,7 +138764,7 @@ function err4(type, message) {
 // ../sdk/src/formats/dxf/DXFLoader.ts
 var DXFLoader = class {
   load(input, options = {}) {
-    return parse21(
+    return parse22(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       options
     );
@@ -137915,7 +138776,7 @@ var tempVec3a10 = createVec3Float64();
 var tempVec3b10 = createVec3Float64();
 var tempVec3c6 = createVec3Float64();
 var _scratch = createVec4Float64();
-async function encode23(params, options) {
+async function encode24(params, options) {
   const { sceneModel } = params;
   if (!sceneModel)
     throw new Error("[DXFExporter] sceneModel is required");
@@ -138107,7 +138968,7 @@ var DXFExporter = class extends ModelExporter {
     super({
       format: "DXF",
       fileDataType: "text",
-      encoders: { "1.0": encode23 },
+      encoders: { "1.0": encode24 },
       defaultVersion: "1.0"
     });
   }
@@ -138393,7 +139254,7 @@ function normalise(xb) {
 var FDS_SCHEMA_ID = "fds6";
 
 // ../sdk/src/formats/fds/versions/v6/buildDataModel.ts
-function buildDataModel(model, dataModel, modelId) {
+function buildDataModel2(model, dataModel, modelId) {
   const projectId = idProject();
   dataModel.createObject({
     id: projectId,
@@ -138899,7 +139760,7 @@ function unitWireBox(id) {
 }
 
 // ../sdk/src/formats/fds/versions/v6/parse.ts
-var parse22 = async (params) => {
+var parse23 = async (params) => {
   const { fileData, sceneModel, dataModel } = params;
   if (typeof fileData !== "string") {
     throw new Error("[FDS/v6/parse] expected fileData to be a string");
@@ -138912,7 +139773,7 @@ var parse22 = async (params) => {
       throw new Error(r.error);
   }
   if (dataModel) {
-    buildDataModel(model, dataModel, "fds");
+    buildDataModel2(model, dataModel, "fds");
   }
   return { warnings: model.warnings };
 };
@@ -139114,7 +139975,7 @@ var FDSLoader = class extends ModelLoader {
       format: "FDS",
       fileDataType: "text",
       parsers: {
-        "6": parse22
+        "6": parse23
       },
       // FDS input files don't carry an in-band version tag. The
       // current shipping line is FDS-6.x; downstream changes to the
@@ -139125,7 +139986,7 @@ var FDSLoader = class extends ModelLoader {
 };
 
 // ../sdk/src/formats/fds/versions/v6/encode.ts
-async function encode24(params, _options) {
+async function encode25(params, _options) {
   const { dataModel } = params;
   if (!dataModel) {
     throw new Error("[FDS/v6/encode] expected dataModel in params");
@@ -139404,7 +140265,7 @@ var FDSExporter = class extends ModelExporter {
       format: "FDS",
       fileDataType: "text",
       encoders: {
-        "6": encode24
+        "6": encode25
       },
       defaultVersion: "6"
     });
@@ -139737,7 +140598,7 @@ function num4(el2, attr) {
 // ../sdk/src/formats/threedxml/versions/v1/parse.ts
 var IDENTITY2 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 var MAX_DEPTH = 512;
-async function parse23(params, _options) {
+async function parse24(params, _options) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     return;
@@ -139892,7 +140753,7 @@ var ThreeDXMLLoader = class extends ModelLoader {
     super({
       format: "3dxml",
       fileDataType: "arraybuffer",
-      parsers: { "*": parse23 },
+      parsers: { "*": parse24 },
       getVersion: (fileData) => isZip(fileData) ? "*" : ""
     });
   }
@@ -139900,7 +140761,7 @@ var ThreeDXMLLoader = class extends ModelLoader {
 
 // ../sdk/src/formats/threedxml/versions/v1/encode.ts
 var textEncoder2 = new TextEncoder();
-async function encode25(params, _options) {
+async function encode26(params, _options) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     throw new Error("[3DXMLExporter] params.sceneModel is required");
@@ -140051,11 +140912,1170 @@ var ThreeDXMLExporter = class extends ModelExporter {
     super({
       format: "3dxml",
       fileDataType: "arraybuffer",
-      encoders: { "*": encode25 },
+      encoders: { "*": encode26 },
       defaultVersion: "*"
     });
   }
 };
+
+// ../sdk/src/formats/threedtiles/index.ts
+var threedtiles_exports = {};
+__export(threedtiles_exports, {
+  ThreeDTilesLoader: () => ThreeDTilesLoader,
+  TilesetStreamer: () => TilesetStreamer,
+  buildTileTree: () => buildTileTree,
+  distanceToTile: () => distanceToTile,
+  screenSpaceError: () => screenSpaceError,
+  selectStreaming: () => selectStreaming,
+  selectTiles: () => selectTiles,
+  streamTilesetInView: () => streamTilesetInView
+});
+
+// ../sdk/src/formats/threedtiles/content/binaryTables.ts
+var COMPONENT_ARRAYS = {
+  BYTE: Int8Array,
+  UNSIGNED_BYTE: Uint8Array,
+  SHORT: Int16Array,
+  UNSIGNED_SHORT: Uint16Array,
+  INT: Int32Array,
+  UNSIGNED_INT: Uint32Array,
+  FLOAT: Float32Array,
+  DOUBLE: Float64Array
+};
+var COMPONENTS_PER_TYPE = {
+  SCALAR: 1,
+  VEC2: 2,
+  VEC3: 3,
+  VEC4: 4
+};
+function decodeTableJSON(bytes) {
+  if (bytes.length === 0)
+    return {};
+  const text = new TextDecoder().decode(bytes).trim();
+  return text.length ? JSON.parse(text) : {};
+}
+function readFeatureValue(json, binary, key, ArrayType = Float32Array, components = 1, count = 1) {
+  const prop2 = json[key];
+  if (prop2 == null)
+    return null;
+  if (typeof prop2 === "number" || Array.isArray(prop2))
+    return prop2;
+  if (typeof prop2.byteOffset === "number") {
+    return new ArrayType(binary.buffer, binary.byteOffset + prop2.byteOffset, components * count);
+  }
+  return null;
+}
+function readBatchTable(json, binary, count) {
+  const out = {};
+  for (const key in json) {
+    const prop2 = json[key];
+    if (Array.isArray(prop2)) {
+      out[key] = prop2;
+      continue;
+    }
+    if (prop2 && typeof prop2.byteOffset === "number") {
+      const ArrayType = COMPONENT_ARRAYS[prop2.componentType] || Float32Array;
+      const comps = COMPONENTS_PER_TYPE[prop2.type] || 1;
+      const typed = new ArrayType(binary.buffer, binary.byteOffset + prop2.byteOffset, comps * count);
+      const rows = [];
+      for (let i = 0; i < count; i++) {
+        rows.push(comps === 1 ? typed[i] : Array.from(typed.subarray(i * comps, i * comps + comps)));
+      }
+      out[key] = rows;
+    }
+  }
+  return out;
+}
+
+// ../sdk/src/formats/threedtiles/content/decodeContent.ts
+var Y_UP_TO_Z_UP = createMat4Float64([
+  1,
+  0,
+  0,
+  0,
+  0,
+  0,
+  1,
+  0,
+  0,
+  -1,
+  0,
+  0,
+  0,
+  0,
+  0,
+  1
+]);
+async function decodeTileContent(buffer, ctx) {
+  const magic = magicOf(buffer);
+  switch (magic) {
+    case "b3dm":
+      return decodeB3DM(buffer, ctx);
+    case "pnts":
+      return decodePNTS(buffer, ctx);
+    case "i3dm":
+      return decodeI3DM(buffer, ctx);
+    case "cmpt":
+      return decodeCMPT(buffer, ctx);
+    case "glTF":
+      return decodeGLTFContent(buffer, ctx, contentMatrix(ctx.worldMatrix, null, true));
+    default:
+      if (isJSONGLTF(buffer)) {
+        return decodeGLTFContent(buffer, ctx, contentMatrix(ctx.worldMatrix, null, true));
+      }
+      throw new Error(`[ThreeDTilesLoader] Unsupported tile content magic "${magic}"`);
+  }
+}
+function magicOf(buffer) {
+  const b4 = new Uint8Array(buffer, 0, 4);
+  return String.fromCharCode(b4[0], b4[1], b4[2], b4[3]);
+}
+function isJSONGLTF(buffer) {
+  const b4 = new Uint8Array(buffer);
+  let i = 0;
+  if (b4.length >= 3 && b4[0] === 239 && b4[1] === 187 && b4[2] === 191)
+    i = 3;
+  while (i < b4.length && (b4[i] === 32 || b4[i] === 9 || b4[i] === 10 || b4[i] === 13))
+    i++;
+  return b4[i] === 123;
+}
+function contentMatrix(world, rtcCenter2, gltf) {
+  let m = createMat4Float64(world);
+  if (rtcCenter2) {
+    m = mulMat4(m, translationMat4v(rtcCenter2), createMat4Float64());
+  }
+  if (gltf) {
+    m = mulMat4(m, Y_UP_TO_Z_UP, createMat4Float64());
+  }
+  return m;
+}
+async function decodeGLTFContent(content, ctx, rootMatrix) {
+  if (!ctx.sceneModel)
+    return;
+  await new GLTFLoader2().load(
+    { fileData: content, sceneModel: ctx.sceneModel, dataModel: ctx.dataModel },
+    {
+      rootMatrix,
+      baseUri: ctx.baseUri,
+      signal: ctx.options.signal,
+      layerId: ctx.options.layerId,
+      dracoModule: ctx.options.dracoModule,
+      dataParentId: ctx.rootDataObjectId
+    }
+  );
+}
+function readTables28(buffer) {
+  const dv = new DataView(buffer);
+  const byteLength = dv.getUint32(8, true);
+  const ftJSONLen = dv.getUint32(12, true);
+  const ftBinLen = dv.getUint32(16, true);
+  const btJSONLen = dv.getUint32(20, true);
+  const btBinLen = dv.getUint32(24, true);
+  let offset = 28;
+  const ftJSON = decodeTableJSON(new Uint8Array(buffer, offset, ftJSONLen));
+  offset += ftJSONLen;
+  const ftBin = new Uint8Array(buffer, offset, ftBinLen);
+  offset += ftBinLen;
+  const btJSONBytes = new Uint8Array(buffer, offset, btJSONLen);
+  offset += btJSONLen;
+  const btBin = new Uint8Array(buffer, offset, btBinLen);
+  offset += btBinLen;
+  return { ftJSON, ftBin, btJSONBytes, btBin, bodyOffset: offset, byteLength };
+}
+async function decodeB3DM(buffer, ctx) {
+  const t = readTables28(buffer);
+  const glb = buffer.slice(t.bodyOffset, t.byteLength);
+  const rtc = t.ftJSON.RTC_CENTER || null;
+  await decodeGLTFContent(glb, ctx, contentMatrix(ctx.worldMatrix, rtc, true));
+  if (ctx.dataModel && t.btJSONBytes.length > 0) {
+    const batchLength = t.ftJSON.BATCH_LENGTH || 0;
+    const btJSON = decodeTableJSON(t.btJSONBytes);
+    addBatchTableToDataModel(ctx, btJSON, t.btBin, batchLength);
+  }
+}
+async function decodePNTS(buffer, ctx) {
+  if (!ctx.sceneModel)
+    return;
+  const t = readTables28(buffer);
+  const count = t.ftJSON.POINTS_LENGTH || 0;
+  if (count === 0)
+    return;
+  const positions = readPntsPositions(t.ftJSON, t.ftBin, count);
+  if (!positions)
+    return;
+  const colors = readPntsColors(t.ftJSON, t.ftBin, count);
+  const rtc = t.ftJSON.RTC_CENTER || null;
+  const geometryId = `${ctx.idPrefix}-pts-geom`;
+  const meshId = `${ctx.idPrefix}-pts-mesh`;
+  const objectId = `${ctx.idPrefix}-pts`;
+  ctx.sceneModel.createGeometry({ id: geometryId, primitive: PointsPrimitive, positions, colors });
+  ctx.sceneModel.createMesh({
+    id: meshId,
+    geometryId,
+    matrix: contentMatrix(ctx.worldMatrix, rtc, false)
+  });
+  ctx.sceneModel.createObject({ id: objectId, meshIds: [meshId], layerId: ctx.options.layerId });
+}
+function readPntsPositions(ftJSON, ftBin, count) {
+  if (ftJSON.POSITION) {
+    return readFeatureValue(ftJSON, ftBin, "POSITION", Float32Array, 3, count);
+  }
+  if (ftJSON.POSITION_QUANTIZED) {
+    const offset = ftJSON.QUANTIZED_VOLUME_OFFSET;
+    const scale3 = ftJSON.QUANTIZED_VOLUME_SCALE;
+    if (!offset || !scale3)
+      return null;
+    const q = readFeatureValue(ftJSON, ftBin, "POSITION_QUANTIZED", Uint16Array, 3, count);
+    const out = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      for (let c2 = 0; c2 < 3; c2++) {
+        out[i * 3 + c2] = offset[c2] + q[i * 3 + c2] / 65535 * scale3[c2];
+      }
+    }
+    return out;
+  }
+  return null;
+}
+function readPntsColors(ftJSON, ftBin, count) {
+  if (ftJSON.RGBA) {
+    const rgba = readFeatureValue(ftJSON, ftBin, "RGBA", Uint8Array, 4, count);
+    const out = new Float32Array(count * 4);
+    for (let i = 0; i < rgba.length; i++)
+      out[i] = rgba[i] / 255;
+    return out;
+  }
+  if (ftJSON.RGB) {
+    const rgb = readFeatureValue(ftJSON, ftBin, "RGB", Uint8Array, 3, count);
+    const out = new Float32Array(count * 4);
+    for (let i = 0; i < count; i++) {
+      out[i * 4] = rgb[i * 3] / 255;
+      out[i * 4 + 1] = rgb[i * 3 + 1] / 255;
+      out[i * 4 + 2] = rgb[i * 3 + 2] / 255;
+      out[i * 4 + 3] = 1;
+    }
+    return out;
+  }
+  return null;
+}
+async function decodeI3DM(buffer, ctx) {
+  if (!ctx.sceneModel)
+    return;
+  const dv = new DataView(buffer);
+  const byteLength = dv.getUint32(8, true);
+  const ftJSONLen = dv.getUint32(12, true);
+  const ftBinLen = dv.getUint32(16, true);
+  const btJSONLen = dv.getUint32(20, true);
+  const btBinLen = dv.getUint32(24, true);
+  const gltfFormat = dv.getUint32(28, true);
+  let offset = 32;
+  const ftJSON = decodeTableJSON(new Uint8Array(buffer, offset, ftJSONLen));
+  offset += ftJSONLen;
+  const ftBin = new Uint8Array(buffer, offset, ftBinLen);
+  offset += ftBinLen + btJSONLen + btBinLen;
+  const instanceCount = ftJSON.INSTANCES_LENGTH || 0;
+  if (instanceCount === 0)
+    return;
+  const glb = await resolveI3DMGlb(buffer, offset, byteLength, gltfFormat, ctx);
+  if (!glb)
+    return;
+  const rtc = ftJSON.RTC_CENTER || null;
+  const attrs = readInstanceAttrs(ftJSON, ftBin, instanceCount);
+  if (!attrs.positions)
+    return;
+  const meshesBefore = Object.keys(ctx.sceneModel.meshes);
+  const instance0 = instanceMatrix(ctx, rtc, attrs, 0);
+  await decodeGLTFContent(glb, ctx, mulMat4(instance0, Y_UP_TO_Z_UP, createMat4Float64()));
+  const baseMeshes = Object.keys(ctx.sceneModel.meshes).filter((id) => meshesBefore.indexOf(id) === -1);
+  if (baseMeshes.length === 0)
+    return;
+  const inv0 = inverseMat4(instance0, createMat4Float64());
+  for (let i = 1; i < instanceCount; i++) {
+    const delta = mulMat4(instanceMatrix(ctx, rtc, attrs, i), inv0, createMat4Float64());
+    const meshIds = [];
+    for (let m = 0; m < baseMeshes.length; m++) {
+      const base = ctx.sceneModel.meshes[baseMeshes[m]];
+      const meshId = `${ctx.idPrefix}-i${i}-${m}`;
+      ctx.sceneModel.createMesh({
+        id: meshId,
+        geometryId: base.geometryId,
+        matrix: mulMat4(delta, base.matrix, createMat4Float64())
+      });
+      meshIds.push(meshId);
+    }
+    ctx.sceneModel.createObject({ id: `${ctx.idPrefix}-i${i}`, meshIds, layerId: ctx.options.layerId });
+  }
+}
+async function resolveI3DMGlb(buffer, offset, byteLength, gltfFormat, ctx) {
+  if (gltfFormat === 1) {
+    return buffer.slice(offset, byteLength);
+  }
+  const uri = new TextDecoder().decode(new Uint8Array(buffer, offset, byteLength - offset)).trim();
+  if (!uri || !ctx.baseUri)
+    return null;
+  return ctx.fetchArrayBuffer(ctx.resolveUrl(uri, ctx.baseUri));
+}
+function readInstanceAttrs(ftJSON, ftBin, count) {
+  return {
+    positions: readFeatureValue(ftJSON, ftBin, "POSITION", Float32Array, 3, count),
+    normalUp: readFeatureValue(ftJSON, ftBin, "NORMAL_UP", Float32Array, 3, count),
+    normalRight: readFeatureValue(ftJSON, ftBin, "NORMAL_RIGHT", Float32Array, 3, count),
+    scale: readFeatureValue(ftJSON, ftBin, "SCALE", Float32Array, 1, count),
+    scaleNonUniform: readFeatureValue(ftJSON, ftBin, "SCALE_NON_UNIFORM", Float32Array, 3, count)
+  };
+}
+function instanceMatrix(ctx, rtc, attrs, i) {
+  let m = contentMatrix(ctx.worldMatrix, rtc, false);
+  const p = attrs.positions;
+  m = mulMat4(m, translationMat4v([p[i * 3], p[i * 3 + 1], p[i * 3 + 2]]), createMat4Float64());
+  if (attrs.normalUp && attrs.normalRight) {
+    const u = attrs.normalUp, r = attrs.normalRight;
+    const rot = rotationFromAxes(
+      [r[i * 3], r[i * 3 + 1], r[i * 3 + 2]],
+      [u[i * 3], u[i * 3 + 1], u[i * 3 + 2]]
+    );
+    m = mulMat4(m, rot, createMat4Float64());
+  }
+  const scale3 = instanceScaleMatrix(attrs, i);
+  if (scale3) {
+    m = mulMat4(m, scale3, createMat4Float64());
+  }
+  return m;
+}
+function instanceScaleMatrix(attrs, i) {
+  if (attrs.scaleNonUniform) {
+    const s = attrs.scaleNonUniform;
+    return scaleMatrix(s[i * 3], s[i * 3 + 1], s[i * 3 + 2]);
+  }
+  if (attrs.scale) {
+    const s = attrs.scale[i];
+    return scaleMatrix(s, s, s);
+  }
+  return null;
+}
+function scaleMatrix(x, y, z) {
+  return createMat4Float64([x, 0, 0, 0, 0, y, 0, 0, 0, 0, z, 0, 0, 0, 0, 1]);
+}
+function rotationFromAxes(right, up) {
+  const r = normalize3(right);
+  const u = normalize3(up);
+  const f = cross3(r, u);
+  return createMat4Float64([
+    r[0],
+    r[1],
+    r[2],
+    0,
+    u[0],
+    u[1],
+    u[2],
+    0,
+    f[0],
+    f[1],
+    f[2],
+    0,
+    0,
+    0,
+    0,
+    1
+  ]);
+}
+function normalize3(v) {
+  const len = Math.hypot(v[0], v[1], v[2]) || 1;
+  return [v[0] / len, v[1] / len, v[2] / len];
+}
+function cross3(a2, b4) {
+  return [
+    a2[1] * b4[2] - a2[2] * b4[1],
+    a2[2] * b4[0] - a2[0] * b4[2],
+    a2[0] * b4[1] - a2[1] * b4[0]
+  ];
+}
+async function decodeCMPT(buffer, ctx) {
+  const dv = new DataView(buffer);
+  const tilesLength = dv.getUint32(12, true);
+  let offset = 16;
+  for (let i = 0; i < tilesLength; i++) {
+    const innerLength = dv.getUint32(offset + 8, true);
+    await decodeTileContent(buffer.slice(offset, offset + innerLength), {
+      ...ctx,
+      idPrefix: `${ctx.idPrefix}-c${i}`
+    });
+    offset += innerLength;
+  }
+}
+function addBatchTableToDataModel(ctx, btJSON, btBin, batchLength) {
+  const dataModel = ctx.dataModel;
+  const table = readBatchTable(btJSON, btBin, batchLength);
+  const keys = Object.keys(table);
+  if (keys.length === 0)
+    return;
+  for (let i = 0; i < batchLength; i++) {
+    const propertySetId = `${ctx.idPrefix}-f${i}-props`;
+    dataModel.createPropertySet({
+      id: propertySetId,
+      name: "3D Tiles feature properties",
+      type: "Default",
+      properties: keys.map((key) => ({ name: key, value: table[key][i] }))
+    });
+    const objectId = `${ctx.idPrefix}-f${i}`;
+    dataModel.createObject({
+      id: objectId,
+      type: "Feature",
+      name: `Feature ${i}`,
+      propertySetIds: [propertySetId]
+    });
+    if (ctx.rootDataObjectId) {
+      dataModel.createRelationship({
+        type: "BasicAggregation",
+        relatingObjectId: ctx.rootDataObjectId,
+        relatedObjectId: objectId
+      });
+    }
+  }
+}
+
+// ../sdk/src/formats/threedtiles/implicit/morton.ts
+function subdivisionOf(scheme) {
+  return scheme === "OCTREE" ? { branch: 8, dims: 3 } : { branch: 4, dims: 2 };
+}
+function tilesBeforeLevel(branch, level) {
+  return (Math.pow(branch, level) - 1) / (branch - 1);
+}
+
+// ../sdk/src/formats/threedtiles/implicit/parseSubtree.ts
+async function parseSubtree(buffer, branch, fetchBuffer) {
+  const dv = new DataView(buffer);
+  const magic = String.fromCharCode(dv.getUint8(0), dv.getUint8(1), dv.getUint8(2), dv.getUint8(3));
+  if (magic !== "subt") {
+    throw new Error(`[ThreeDTilesLoader] Invalid subtree magic "${magic}"`);
+  }
+  const jsonByteLength = Number(dv.getBigUint64(8, true));
+  const json = JSON.parse(new TextDecoder().decode(new Uint8Array(buffer, 24, jsonByteLength)).trim());
+  const binaryChunk = new Uint8Array(buffer, 24 + jsonByteLength);
+  const buffers = await Promise.all(
+    (json.buffers || []).map(async (b4) => b4.uri ? new Uint8Array(await fetchBuffer(b4.uri)) : binaryChunk)
+  );
+  const bufferViews = (json.bufferViews || []).map((bv) => {
+    const buf = buffers[bv.buffer];
+    return new Uint8Array(buf.buffer, buf.byteOffset + bv.byteOffset, bv.byteLength);
+  });
+  const predicate = (spec) => {
+    if (!spec)
+      return () => false;
+    if (typeof spec.constant === "number") {
+      const value = spec.constant === 1;
+      return () => value;
+    }
+    const bvIndex = spec.bitstream ?? spec.bufferView;
+    const bytes = bufferViews[bvIndex];
+    return (index) => (bytes[index >> 3] >> (index & 7) & 1) === 1;
+  };
+  const tileAvail = predicate(json.tileAvailability);
+  const contentSpec = Array.isArray(json.contentAvailability) ? json.contentAvailability[0] : json.contentAvailability;
+  const contentAvail = predicate(contentSpec);
+  const childAvail = predicate(json.childSubtreeAvailability);
+  const indexOf = (localLevel, morton) => tilesBeforeLevel(branch, localLevel) + morton;
+  return {
+    isTileAvailable: (localLevel, morton) => tileAvail(indexOf(localLevel, morton)),
+    isContentAvailable: (localLevel, morton) => contentAvail(indexOf(localLevel, morton)),
+    isChildSubtreeAvailable: (morton) => childAvail(morton)
+  };
+}
+
+// ../sdk/src/formats/threedtiles/implicit/traverseImplicit.ts
+async function traverseImplicit(p) {
+  const sub = subdivisionOf(p.implicitTiling.subdivisionScheme);
+  const subtreeLevels = p.implicitTiling.subtreeLevels;
+  const availableLevels = p.implicitTiling.availableLevels ?? (p.implicitTiling.maximumLevel ?? Infinity) + 1;
+  const subtreeTemplate = p.implicitTiling.subtrees.uri;
+  const dims = sub.dims;
+  const fetchSubtree = async (level, coords) => {
+    const url = p.resolveUrl(templateUri(subtreeTemplate, level, coords), p.baseUri);
+    const buffer = await p.fetchArrayBuffer(url);
+    return parseSubtree(buffer, sub.branch, (bufUri) => p.fetchArrayBuffer(p.resolveUrl(bufUri, dirOf(url))));
+  };
+  const walk = async (avail, localLevel, morton, globalLevel, coords) => {
+    if (p.signal?.aborted)
+      throw new DOMException("Aborted", "AbortError");
+    if (!avail.isTileAvailable(localLevel, morton))
+      return;
+    const atDepthCap = p.maxDepth != null && globalLevel >= p.maxDepth || globalLevel >= availableLevels - 1;
+    const childLocalLevel = localLevel + 1;
+    const children = [];
+    if (!atDepthCap) {
+      for (let c2 = 0; c2 < sub.branch; c2++) {
+        const childMorton = morton << dims | c2;
+        const childCoords = coords.map((v, axis) => v * 2 + (c2 >> axis & 1));
+        if (childLocalLevel < subtreeLevels) {
+          if (avail.isTileAvailable(childLocalLevel, childMorton)) {
+            children.push({ morton: childMorton, coords: childCoords, viaChildSubtree: false });
+          }
+        } else if (avail.isChildSubtreeAvailable(childMorton)) {
+          children.push({ morton: childMorton, coords: childCoords, viaChildSubtree: true });
+        }
+      }
+    }
+    const loadHere = p.refine === "ADD" || children.length === 0 || atDepthCap;
+    if (loadHere && p.contentTemplate && avail.isContentAvailable(localLevel, morton)) {
+      await p.loadContent(templateUri(p.contentTemplate, globalLevel, coords), p.baseUri, p.worldMatrix);
+    }
+    for (const child of children) {
+      if (child.viaChildSubtree) {
+        const childAvail = await fetchSubtree(globalLevel + 1, child.coords);
+        await walk(childAvail, 0, 0, globalLevel + 1, child.coords);
+      } else {
+        await walk(avail, childLocalLevel, child.morton, globalLevel + 1, child.coords);
+      }
+    }
+  };
+  const origin2 = new Array(dims).fill(0);
+  const root = await fetchSubtree(0, origin2);
+  await walk(root, 0, 0, 0, origin2);
+}
+function templateUri(template, level, coords) {
+  return template.replace(/\{level\}/g, String(level)).replace(/\{x\}/g, String(coords[0])).replace(/\{y\}/g, String(coords[1])).replace(/\{z\}/g, String(coords[2] ?? 0));
+}
+function dirOf(url) {
+  const i = url.lastIndexOf("/");
+  return i >= 0 ? url.slice(0, i + 1) : url;
+}
+
+// ../sdk/src/formats/threedtiles/tilesetMetadata.ts
+function toProperties(props) {
+  return Object.keys(props || {}).map((name12) => ({ name: name12, value: props[name12] }));
+}
+function applyTilesetMetadata(dataModel, tileset) {
+  const rootDataObjectId = "tileset";
+  const propertySetIds = [];
+  const tilesetMeta = tileset.metadata;
+  if (tilesetMeta?.properties) {
+    const psId = "tileset-metadata";
+    dataModel.createPropertySet({
+      id: psId,
+      name: tilesetMeta.class || "Tileset",
+      type: tilesetMeta.class || "Tileset",
+      properties: toProperties(tilesetMeta.properties)
+    });
+    propertySetIds.push(psId);
+  }
+  dataModel.createObject({ id: rootDataObjectId, type: "Tileset", name: "3D Tiles", propertySetIds });
+  const groupObjectIds = [];
+  const groups = tileset.groups || [];
+  for (let i = 0; i < groups.length; i++) {
+    const group = groups[i];
+    const psId = `group-${i}-metadata`;
+    dataModel.createPropertySet({
+      id: psId,
+      name: group.class || "Group",
+      type: group.class || "Group",
+      properties: toProperties(group.properties)
+    });
+    const objId = `group-${i}`;
+    dataModel.createObject({ id: objId, type: group.class || "Group", name: `Group ${i}`, propertySetIds: [psId] });
+    dataModel.createRelationship({ type: "BasicAggregation", relatingObjectId: rootDataObjectId, relatedObjectId: objId });
+    groupObjectIds.push(objId);
+  }
+  return { rootDataObjectId, groupObjectIds };
+}
+function applyTileMetadata(dataModel, tile, rootDataObjectId, groupObjectIds, index) {
+  const tileMeta = tile.metadata;
+  const content = tile.content || tile.contents && tile.contents[0];
+  const contentMeta = content && content.metadata;
+  if (!tileMeta?.properties && !contentMeta?.properties)
+    return;
+  const propertySetIds = [];
+  if (tileMeta?.properties) {
+    const psId = `tile-${index}-metadata`;
+    dataModel.createPropertySet({
+      id: psId,
+      name: tileMeta.class || "Tile",
+      type: tileMeta.class || "Tile",
+      properties: toProperties(tileMeta.properties)
+    });
+    propertySetIds.push(psId);
+  }
+  if (contentMeta?.properties) {
+    const psId = `tile-${index}-content-metadata`;
+    dataModel.createPropertySet({
+      id: psId,
+      name: contentMeta.class || "Content",
+      type: contentMeta.class || "Content",
+      properties: toProperties(contentMeta.properties)
+    });
+    propertySetIds.push(psId);
+  }
+  const objId = `tile-${index}`;
+  dataModel.createObject({ id: objId, type: tileMeta?.class || "Tile", name: `Tile ${index}`, propertySetIds });
+  dataModel.createRelationship({ type: "BasicAggregation", relatingObjectId: rootDataObjectId, relatedObjectId: objId });
+  const group = content && content.group;
+  if (typeof group === "number" && groupObjectIds[group]) {
+    dataModel.createRelationship({ type: "BasicAggregation", relatingObjectId: groupObjectIds[group], relatedObjectId: objId });
+  }
+}
+
+// ../sdk/src/formats/threedtiles/parseTileset.ts
+var IDENTITY3 = createMat4Float64([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+function defaultFetchArrayBuffer(url) {
+  return fetch(url).then((response) => {
+    if (!response.ok)
+      throw new Error(`[ThreeDTilesLoader] HTTP ${response.status} fetching ${url}`);
+    return response.arrayBuffer();
+  });
+}
+async function parseTileset(params, options = {}) {
+  const { fileData, sceneModel, dataModel } = params;
+  if (!sceneModel)
+    return;
+  const tileset = fileData;
+  if (!tileset || !tileset.root) {
+    throw new Error("[ThreeDTilesLoader] tileset.json has no root tile");
+  }
+  const fetchArrayBuffer = options.fetchArrayBuffer || defaultFetchArrayBuffer;
+  const signal = options.signal;
+  let nextId = 0;
+  let rootDataObjectId;
+  let groupObjectIds = [];
+  let metaIndex = 0;
+  if (dataModel) {
+    const roots = applyTilesetMetadata(dataModel, tileset);
+    rootDataObjectId = roots.rootDataObjectId;
+    groupObjectIds = roots.groupObjectIds;
+  }
+  async function loadContentUri(uri, baseUri, worldMatrix) {
+    const url = resolveUrl2(uri, baseUri);
+    const buffer = await fetchArrayBuffer(url);
+    if (uri.split("?")[0].toLowerCase().endsWith(".json")) {
+      const sub = JSON.parse(new TextDecoder().decode(new Uint8Array(buffer)));
+      if (sub && sub.root) {
+        await traverse(sub.root, worldMatrix, 0, "REPLACE", dirOf2(url));
+      }
+      return;
+    }
+    const ctx = {
+      sceneModel,
+      dataModel,
+      worldMatrix,
+      idPrefix: `tile-${nextId++}`,
+      baseUri: dirOf2(url),
+      options,
+      fetchArrayBuffer,
+      resolveUrl: resolveUrl2,
+      rootDataObjectId
+    };
+    await decodeTileContent(buffer, ctx);
+  }
+  async function traverse(tile, parentWorld, depth, inheritedRefine, baseUri) {
+    if (signal?.aborted)
+      throw new DOMException("Aborted", "AbortError");
+    const world = tile.transform ? mulMat4(createMat4Float64(parentWorld), createMat4Float64(tile.transform), createMat4Float64()) : parentWorld;
+    const refine = (tile.refine || inheritedRefine || "REPLACE").toUpperCase();
+    if (dataModel && rootDataObjectId) {
+      applyTileMetadata(dataModel, tile, rootDataObjectId, groupObjectIds, metaIndex++);
+    }
+    if (tile.implicitTiling) {
+      await traverseImplicit({
+        implicitTiling: tile.implicitTiling,
+        contentTemplate: tile.content && (tile.content.uri || tile.content.url),
+        worldMatrix: world,
+        refine,
+        baseUri,
+        maxDepth: options.maxDepth,
+        signal,
+        fetchArrayBuffer,
+        resolveUrl: resolveUrl2,
+        loadContent: loadContentUri
+      });
+      return;
+    }
+    const children = tile.children || [];
+    const hasChildren = children.length > 0;
+    const stop = options.maxDepth != null && depth >= options.maxDepth || options.maxGeometricError != null && typeof tile.geometricError === "number" && tile.geometricError <= options.maxGeometricError;
+    const loadHere = refine === "ADD" || !hasChildren || stop;
+    const content = tile.content;
+    const uri = content && (content.uri || content.url);
+    if (loadHere && uri) {
+      await loadContentUri(uri, baseUri, world);
+      await yieldToHost(signal);
+    }
+    if (hasChildren && !stop) {
+      for (let i = 0; i < children.length; i++) {
+        await traverse(children[i], world, depth + 1, refine, baseUri);
+      }
+    }
+  }
+  await traverse(tileset.root, IDENTITY3, 0, "REPLACE", options.baseUri);
+}
+function dirOf2(url) {
+  const i = url.lastIndexOf("/");
+  return i >= 0 ? url.slice(0, i + 1) : url;
+}
+function resolveUrl2(uri, baseUri) {
+  if (!baseUri)
+    return uri;
+  if (/^([a-z]+:)?\/\//i.test(uri) || uri.startsWith("/"))
+    return uri;
+  try {
+    return new URL(uri, baseUri).toString();
+  } catch {
+    return baseUri.endsWith("/") ? baseUri + uri : `${baseUri}/${uri}`;
+  }
+}
+
+// ../sdk/src/formats/threedtiles/ThreeDTilesLoader.ts
+var ThreeDTilesLoader = class extends ModelLoader {
+  constructor() {
+    super({
+      format: "3D Tiles",
+      fileDataType: "json",
+      parsers: {
+        "1.0": parseTileset,
+        "1.1": parseTileset
+      },
+      getVersion: (fileData) => fileData?.asset?.version === "1.1" ? "1.1" : "1.0"
+    });
+  }
+  load(params, options = {}) {
+    return super.load(params, options);
+  }
+};
+
+// ../sdk/src/formats/threedtiles/streaming/TileTree.ts
+var IDENTITY4 = createMat4Float64([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+function buildTileTree(tileset, baseUri) {
+  if (!tileset?.root) {
+    throw new Error("[TilesetStreamer] tileset.json has no root tile");
+  }
+  let nextId = 0;
+  const build = (tile, parentWorld, inheritedRefine) => {
+    const worldMatrix = tile.transform ? mulMat4(createMat4Float64(parentWorld), createMat4Float64(tile.transform), createMat4Float64()) : createMat4Float64(parentWorld);
+    const refine = (tile.refine || inheritedRefine || "REPLACE").toUpperCase() === "ADD" ? "ADD" : "REPLACE";
+    const content = tile.content || tile.contents && tile.contents[0];
+    const { center, radius } = boundingSphere(tile.boundingVolume, worldMatrix);
+    const implicitTiling = tile.implicitTiling || tile.extensions?.["3DTILES_implicit_tiling"];
+    const implicit = implicitTiling && tile.boundingVolume?.box ? {
+      subdivisionScheme: implicitTiling.subdivisionScheme,
+      subtreeLevels: implicitTiling.subtreeLevels,
+      availableLevels: implicitTiling.availableLevels ?? (implicitTiling.maximumLevel ?? Infinity) + 1,
+      subtreeTemplate: implicitTiling.subtrees.uri,
+      contentTemplate: content && (content.uri || content.url),
+      rootBox: tile.boundingVolume.box
+    } : void 0;
+    return {
+      id: `t${nextId++}`,
+      worldMatrix,
+      geometricError: typeof tile.geometricError === "number" ? tile.geometricError : 0,
+      refine,
+      // Implicit nodes expose no literal content URI — selection emits content
+      // tiles with templated URIs; an explicit node's URI loads directly.
+      contentUri: implicit ? void 0 : content && (content.uri || content.url),
+      baseUri,
+      center,
+      radius,
+      children: implicit ? [] : (tile.children || []).map((c2) => build(c2, worldMatrix, refine)),
+      implicit
+    };
+  };
+  return build(tileset.root, IDENTITY4, "REPLACE");
+}
+function boundingSphere(volume, world) {
+  if (volume?.box) {
+    const b4 = volume.box;
+    const center = transformPoint(world, [b4[0], b4[1], b4[2]]);
+    const radius = vecLength(transformDir(world, [b4[3], b4[4], b4[5]])) + vecLength(transformDir(world, [b4[6], b4[7], b4[8]])) + vecLength(transformDir(world, [b4[9], b4[10], b4[11]]));
+    return { center, radius };
+  }
+  if (volume?.sphere) {
+    const s = volume.sphere;
+    const center = transformPoint(world, [s[0], s[1], s[2]]);
+    return { center, radius: s[3] * maxAxisScale(world) };
+  }
+  if (volume?.region) {
+    return regionSphere(volume.region);
+  }
+  return { center: transformPoint(world, [0, 0, 0]), radius: 0 };
+}
+var WGS84_A = 6378137;
+var WGS84_E2 = 0.00669437999014;
+function geodeticToEcef(longitude, latitude, height) {
+  const cosLat = Math.cos(latitude);
+  const sinLat = Math.sin(latitude);
+  const n = WGS84_A / Math.sqrt(1 - WGS84_E2 * sinLat * sinLat);
+  return [
+    (n + height) * cosLat * Math.cos(longitude),
+    (n + height) * cosLat * Math.sin(longitude),
+    (n * (1 - WGS84_E2) + height) * sinLat
+  ];
+}
+function regionSphere(region) {
+  const [west, south, east, north, minHeight, maxHeight] = region;
+  const center = geodeticToEcef((west + east) / 2, (south + north) / 2, (minHeight + maxHeight) / 2);
+  let radius = 0;
+  for (const lon of [west, east]) {
+    for (const lat of [south, north]) {
+      for (const h of [minHeight, maxHeight]) {
+        const corner = geodeticToEcef(lon, lat, h);
+        radius = Math.max(radius, Math.hypot(corner[0] - center[0], corner[1] - center[1], corner[2] - center[2]));
+      }
+    }
+  }
+  return { center, radius };
+}
+function transformPoint(m, p) {
+  return [
+    m[0] * p[0] + m[4] * p[1] + m[8] * p[2] + m[12],
+    m[1] * p[0] + m[5] * p[1] + m[9] * p[2] + m[13],
+    m[2] * p[0] + m[6] * p[1] + m[10] * p[2] + m[14]
+  ];
+}
+function transformDir(m, v) {
+  return [
+    m[0] * v[0] + m[4] * v[1] + m[8] * v[2],
+    m[1] * v[0] + m[5] * v[1] + m[9] * v[2],
+    m[2] * v[0] + m[6] * v[1] + m[10] * v[2]
+  ];
+}
+function vecLength(v) {
+  return Math.hypot(v[0], v[1], v[2]);
+}
+function maxAxisScale(m) {
+  return Math.max(
+    vecLength([m[0], m[1], m[2]]),
+    vecLength([m[4], m[5], m[6]]),
+    vecLength([m[8], m[9], m[10]])
+  );
+}
+
+// ../sdk/src/formats/threedtiles/streaming/screenSpaceError.ts
+function distanceToTile(eye, sphere2) {
+  const d = Math.hypot(eye[0] - sphere2.center[0], eye[1] - sphere2.center[1], eye[2] - sphere2.center[2]);
+  return Math.max(0, d - sphere2.radius);
+}
+function screenSpaceError(geometricError, distance, viewportHeight, fovDegrees) {
+  if (distance <= 0)
+    return Infinity;
+  const fovRad = fovDegrees * Math.PI / 180;
+  return geometricError * viewportHeight / (distance * 2 * Math.tan(fovRad / 2));
+}
+function selectTiles(root, camera, maxScreenSpaceError) {
+  const out = [];
+  const frustum = camera.viewMatrix && camera.projMatrix ? setFrustum3(camera.viewMatrix, camera.projMatrix, new Frustum3()) : null;
+  const culled = (node) => {
+    if (!frustum)
+      return false;
+    const r = node.radius;
+    const c2 = node.center;
+    return intersectFrustum3AABB3(frustum, [c2[0] - r, c2[1] - r, c2[2] - r, c2[0] + r, c2[1] + r, c2[2] + r]) === OUTSIDE;
+  };
+  const visit = (node) => {
+    if (culled(node))
+      return;
+    const distance = distanceToTile(camera.eye, node);
+    const sse = screenSpaceError(node.geometricError, distance, camera.viewportHeight, camera.fov);
+    const refine = node.children.length > 0 && sse > maxScreenSpaceError;
+    if (node.refine === "ADD") {
+      if (node.contentUri)
+        out.push(node);
+      if (refine)
+        node.children.forEach(visit);
+    } else {
+      if (refine) {
+        node.children.forEach(visit);
+      } else if (node.contentUri) {
+        out.push(node);
+      }
+    }
+  };
+  visit(root);
+  return out;
+}
+
+// ../sdk/src/formats/threedtiles/implicit/boxSubdivision.ts
+function subdividedSphere(rootBox, dims, level, coords, world) {
+  const n = Math.pow(2, level);
+  const c2 = [rootBox[0], rootBox[1], rootBox[2]];
+  const axes = [
+    [rootBox[3], rootBox[4], rootBox[5]],
+    [rootBox[6], rootBox[7], rootBox[8]],
+    [rootBox[9], rootBox[10], rootBox[11]]
+  ];
+  const localCenter = [c2[0], c2[1], c2[2]];
+  const halfAxes = axes.map((a2) => [a2[0], a2[1], a2[2]]);
+  for (let axis = 0; axis < dims; axis++) {
+    const t = (2 * coords[axis] + 1) / n - 1;
+    localCenter[0] += axes[axis][0] * t;
+    localCenter[1] += axes[axis][1] * t;
+    localCenter[2] += axes[axis][2] * t;
+    halfAxes[axis] = [axes[axis][0] / n, axes[axis][1] / n, axes[axis][2] / n];
+  }
+  const center = transformPoint(world, localCenter);
+  const radius = vecLength(transformDir(world, halfAxes[0])) + vecLength(transformDir(world, halfAxes[1])) + vecLength(transformDir(world, halfAxes[2]));
+  return { center, radius };
+}
+function geometricErrorAtLevel(rootGeometricError, level) {
+  return rootGeometricError / Math.pow(2, level);
+}
+
+// ../sdk/src/formats/threedtiles/streaming/selectStreaming.ts
+async function selectStreaming(root, camera, opts) {
+  const out = [];
+  const frustum = camera.viewMatrix && camera.projMatrix ? setFrustum3(camera.viewMatrix, camera.projMatrix, new Frustum3()) : null;
+  const culled = (center, radius) => {
+    if (!frustum)
+      return false;
+    return intersectFrustum3AABB3(
+      frustum,
+      [
+        center[0] - radius,
+        center[1] - radius,
+        center[2] - radius,
+        center[0] + radius,
+        center[1] + radius,
+        center[2] + radius
+      ]
+    ) === OUTSIDE;
+  };
+  const sseAt = (geometricError, center, radius) => {
+    const distance = distanceToTile(camera.eye, { center, radius });
+    return screenSpaceError(geometricError, distance, camera.viewportHeight, camera.fov);
+  };
+  const visit = async (node) => {
+    if (culled(node.center, node.radius))
+      return;
+    if (node.implicit) {
+      await visitImplicit(node, node.implicit);
+      return;
+    }
+    const refine = node.children.length > 0 && sseAt(node.geometricError, node.center, node.radius) > opts.maxScreenSpaceError;
+    if (node.refine === "ADD") {
+      if (node.contentUri)
+        out.push(node);
+      if (refine)
+        for (const child of node.children)
+          await visit(child);
+    } else if (refine) {
+      for (const child of node.children)
+        await visit(child);
+    } else if (node.contentUri) {
+      out.push(node);
+    }
+  };
+  const visitImplicit = async (node, spec) => {
+    const sub = subdivisionOf(spec.subdivisionScheme);
+    const dims = sub.dims;
+    const subtreeFor = async (level, coords) => {
+      const key = `${level}/${coords.join("/")}`;
+      let avail = opts.subtreeCache.get(key);
+      if (!avail) {
+        const url = opts.resolveUrl(templateUri(spec.subtreeTemplate, level, coords), node.baseUri);
+        const buffer = await opts.fetchArrayBuffer(url);
+        avail = await parseSubtree(buffer, sub.branch, (bufUri) => opts.fetchArrayBuffer(opts.resolveUrl(bufUri, dirOf(url))));
+        opts.subtreeCache.set(key, avail);
+      }
+      return avail;
+    };
+    const emitContent = (globalLevel, coords, center, radius) => {
+      if (!spec.contentTemplate)
+        return;
+      out.push({
+        id: `${node.id}-imp-${globalLevel}-${coords.join("-")}`,
+        worldMatrix: node.worldMatrix,
+        geometricError: geometricErrorAtLevel(node.geometricError, globalLevel),
+        refine: node.refine,
+        contentUri: templateUri(spec.contentTemplate, globalLevel, coords),
+        baseUri: node.baseUri,
+        center,
+        radius,
+        children: []
+      });
+    };
+    const walk = async (avail, localLevel, morton, globalLevel, coords) => {
+      if (!avail.isTileAvailable(localLevel, morton))
+        return;
+      const { center, radius } = subdividedSphere(spec.rootBox, dims, globalLevel, coords, node.worldMatrix);
+      if (culled(center, radius))
+        return;
+      const atDeepest = globalLevel >= spec.availableLevels - 1;
+      const refine = !atDeepest && sseAt(geometricErrorAtLevel(node.geometricError, globalLevel), center, radius) > opts.maxScreenSpaceError;
+      const childLocalLevel = localLevel + 1;
+      const children = [];
+      if (refine) {
+        for (let c2 = 0; c2 < sub.branch; c2++) {
+          const childMorton = morton << dims | c2;
+          const childCoords = coords.map((v, axis) => v * 2 + (c2 >> axis & 1));
+          if (childLocalLevel < spec.subtreeLevels) {
+            if (avail.isTileAvailable(childLocalLevel, childMorton)) {
+              children.push({ morton: childMorton, coords: childCoords, viaChildSubtree: false });
+            }
+          } else if (avail.isChildSubtreeAvailable(childMorton)) {
+            children.push({ morton: childMorton, coords: childCoords, viaChildSubtree: true });
+          }
+        }
+      }
+      if (node.refine === "ADD") {
+        if (avail.isContentAvailable(localLevel, morton))
+          emitContent(globalLevel, coords, center, radius);
+      } else if (children.length === 0) {
+        if (avail.isContentAvailable(localLevel, morton))
+          emitContent(globalLevel, coords, center, radius);
+      }
+      for (const child of children) {
+        if (child.viaChildSubtree) {
+          const childAvail = await subtreeFor(globalLevel + 1, child.coords);
+          await walk(childAvail, 0, 0, globalLevel + 1, child.coords);
+        } else {
+          await walk(avail, childLocalLevel, child.morton, globalLevel + 1, child.coords);
+        }
+      }
+    };
+    const origin2 = new Array(dims).fill(0);
+    const rootAvail = await subtreeFor(0, origin2);
+    await walk(rootAvail, 0, 0, 0, origin2);
+  };
+  await visit(root);
+  return out;
+}
+
+// ../sdk/src/formats/threedtiles/streaming/TilesetStreamer.ts
+var TilesetStreamer = class {
+  #scene;
+  #tree;
+  #fetchArrayBuffer;
+  #maxSSE;
+  #maxLoadedTiles;
+  #concurrency;
+  #options;
+  #loaded = /* @__PURE__ */ new Map();
+  #inFlight = /* @__PURE__ */ new Set();
+  // Implicit `.subtree` availability, parsed once and reused across updates.
+  #subtreeCache = /* @__PURE__ */ new Map();
+  #destroyed = false;
+  constructor(params) {
+    this.#scene = params.scene;
+    this.#tree = params.tree;
+    this.#fetchArrayBuffer = params.fetchArrayBuffer || defaultFetch;
+    this.#maxSSE = params.maxScreenSpaceError ?? 16;
+    this.#maxLoadedTiles = params.maxLoadedTiles ?? 512;
+    this.#concurrency = params.concurrency ?? 6;
+    this.#options = { signal: params.signal, dracoModule: params.dracoModule };
+  }
+  /** Number of tiles currently loaded into the scene. */
+  get loadedCount() {
+    return this.#loaded.size;
+  }
+  /**
+   * Re-selects the tiles to render for `camera` and makes the scene hold
+   * exactly that set: loads newly-selected tiles, then destroys any loaded tile
+   * that is no longer selected (so a coarse tile and the finer tiles that
+   * replace it never render at once). When the selection exceeds the budget,
+   * only the nearest `maxLoadedTiles` are kept. Resolves once loads settle.
+   */
+  async update(camera) {
+    if (this.#destroyed)
+      return;
+    let selected = (await selectStreaming(this.#tree, camera, {
+      maxScreenSpaceError: this.#maxSSE,
+      fetchArrayBuffer: this.#fetchArrayBuffer,
+      resolveUrl: resolveUrl2,
+      subtreeCache: this.#subtreeCache
+    })).filter((n) => n.contentUri);
+    if (this.#destroyed)
+      return;
+    if (selected.length > this.#maxLoadedTiles) {
+      selected = selected.sort((a2, b4) => distanceToTile(camera.eye, a2) - distanceToTile(camera.eye, b4)).slice(0, this.#maxLoadedTiles);
+    }
+    const keep = new Set(selected.map((n) => n.id));
+    const toLoad = selected.filter((n) => !this.#loaded.has(n.id) && !this.#inFlight.has(n.id));
+    await this.#runPool(toLoad, (node) => this.#loadTile(node));
+    if (this.#destroyed)
+      return;
+    for (const [id, sceneModel] of [...this.#loaded]) {
+      if (!keep.has(id)) {
+        sceneModel.destroy();
+        this.#loaded.delete(id);
+      }
+    }
+  }
+  destroy() {
+    this.#destroyed = true;
+    for (const sceneModel of this.#loaded.values())
+      sceneModel.destroy();
+    this.#loaded.clear();
+  }
+  async #loadTile(node) {
+    this.#inFlight.add(node.id);
+    let sceneModel;
+    try {
+      const buffer = await this.#fetchArrayBuffer(resolveUrl2(node.contentUri, node.baseUri));
+      if (this.#destroyed)
+        return;
+      const res = this.#scene.createModel({ id: `tilestream-${node.id}`, globalizedIds: true });
+      if (!res.ok || !res.value)
+        return;
+      sceneModel = res.value;
+      const ctx = {
+        sceneModel,
+        worldMatrix: node.worldMatrix,
+        idPrefix: node.id,
+        baseUri: node.baseUri,
+        options: this.#options,
+        fetchArrayBuffer: this.#fetchArrayBuffer,
+        resolveUrl: resolveUrl2
+      };
+      await decodeTileContent(buffer, ctx);
+      if (this.#destroyed) {
+        sceneModel.destroy();
+        return;
+      }
+      this.#loaded.set(node.id, sceneModel);
+    } finally {
+      this.#inFlight.delete(node.id);
+    }
+  }
+  async #runPool(items, worker) {
+    const queue = items.slice();
+    const runners = Array.from({ length: Math.min(this.#concurrency, queue.length) }, async () => {
+      while (queue.length && !this.#destroyed) {
+        await worker(queue.shift());
+      }
+    });
+    await Promise.all(runners);
+  }
+};
+function defaultFetch(url) {
+  return fetch(url).then((r) => {
+    if (!r.ok)
+      throw new Error(`[TilesetStreamer] HTTP ${r.status} fetching ${url}`);
+    return r.arrayBuffer();
+  });
+}
+function streamTilesetInView(view, tree, params = {}) {
+  const streamer = new TilesetStreamer({ scene: view.viewer.scene, tree, ...params });
+  const run = () => {
+    void streamer.update({
+      eye: view.camera.eye,
+      viewportHeight: view.boundary[3],
+      fov: view.camera.perspectiveProjection.fov,
+      viewMatrix: view.camera.viewMatrix,
+      projMatrix: view.camera.projMatrix
+    });
+  };
+  const forThisView = (changedView) => {
+    if (changedView === view)
+      run();
+  };
+  const events = view.viewer.events;
+  const unsubscribers = [
+    events.onCameraViewMatrixUpdated.subscribe((v) => forThisView(v)),
+    events.onCameraProjMatrixUpdated.subscribe((v) => forThisView(v)),
+    events.onViewDestroyed.subscribe((_viewer, destroyed) => {
+      if (destroyed === view) {
+        unsubscribers.forEach((u) => u());
+        streamer.destroy();
+      }
+    })
+  ];
+  run();
+  return streamer;
+}
 
 // ../sdk/src/inspect/index.ts
 var inspect_exports = {};
@@ -144417,7 +146437,7 @@ function splitSceneGeometry(params) {
       `[splitSceneGeometry] Predicate routed every triangle to one side (A=${trisA.length}, B=${trisB.length}); both outputs must end up with at least one triangle`
     );
   }
-  const positions = decompressPositions(positionsCompressed, aabb);
+  const positions = decompressPositions2(positionsCompressed, aabb);
   const normals = src.normalsCompressed ? octDecodeU16(src.normalsCompressed) : null;
   const uvs = src.uvsCompressed ?? null;
   const aRes = buildSide(sceneModel, src.primitive, params.geometryIdA, trisA, indices, positions, normals, uvs);
@@ -144480,7 +146500,7 @@ function buildSide(sceneModel, primitive, newId, tris, indices, positions, norma
     indices: newIndices
   });
 }
-function decompressPositions(positionsCompressed, aabb) {
+function decompressPositions2(positionsCompressed, aabb) {
   const minX = aabb[0], minY = aabb[1], minZ = aabb[2];
   const rngX = aabb[3] - minX, rngY = aabb[4] - minY, rngZ = aabb[5] - minZ;
   const v = positionsCompressed.length / 3 | 0;
@@ -192561,7 +194581,7 @@ function resolveBasis(direction, worldUp) {
   if (typeof direction === "string") {
     return FACE_BASES[direction];
   }
-  const f = normalize3(direction.forward);
+  const f = normalize32(direction.forward);
   let up = direction.up ?? worldUp ?? [0, 0, 1];
   let proj = up[0] * f[0] + up[1] * f[1] + up[2] * f[2];
   if (Math.abs(proj) > 0.9995) {
@@ -192574,7 +194594,7 @@ function resolveBasis(direction, worldUp) {
     up[1] - f[1] * proj,
     up[2] - f[2] * proj
   ];
-  const uN = normalize3(upPerp);
+  const uN = normalize32(upPerp);
   const r = [
     f[1] * uN[2] - f[2] * uN[1],
     f[2] * uN[0] - f[0] * uN[2],
@@ -192590,7 +194610,7 @@ var FACE_BASES = {
   left: { right: [0, 0, 1], up: [0, 1, 0], forward: [1, 0, 0] },
   right: { right: [0, 0, -1], up: [0, 1, 0], forward: [-1, 0, 0] }
 };
-function normalize3(v) {
+function normalize32(v) {
   const len = Math.hypot(v[0], v[1], v[2]) || 1;
   return [v[0] / len, v[1] / len, v[2] / len];
 }
@@ -208716,7 +210736,9 @@ var DEFAULT_EXTENSIONS = {
   svg: "svg",
   dwg: "dwg",
   dxf: "dxf",
-  threedxml: "3dxml"
+  threedxml: "3dxml",
+  threedtiles: "json",
+  xkt: "xkt"
 };
 
 // ../sdk/src/studio/loading/defaultLoaders.ts
@@ -208793,6 +210815,18 @@ function createDefaultLoaderRegistry() {
     needsScene: true,
     needsData: false,
     load: (input, options) => new ThreeDXMLLoader().load(input, options)
+  });
+  r.register("threedtiles", {
+    fetch: "json",
+    needsScene: true,
+    needsData: true,
+    load: (input, options) => new ThreeDTilesLoader().load(input, options)
+  });
+  r.register("xkt", {
+    fetch: "arrayBuffer",
+    needsScene: true,
+    needsData: true,
+    load: (input, options) => new XKTLoader().load(input, options)
   });
   r.register("metamodel", {
     fetch: "json",
@@ -215077,6 +217111,9 @@ var PANEL_CSS7 = `
 
 /* Scene-AABB extents readout \u2014 sits at the top of the body. */
 .xkt-bnd-panel .xkt-bnd-extents {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin: 6px 0 10px;
   padding: 8px 12px;
   background: #fcfcfc;
@@ -215086,7 +217123,6 @@ var PANEL_CSS7 = `
   font-size: 11px;
   color: #444;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  word-break: break-all;
 }
 .xkt-bnd-panel .xkt-bnd-extents-label {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -215095,7 +217131,32 @@ var PANEL_CSS7 = `
   font-size: 9.5px;
   font-weight: 600;
   color: #666;
-  margin-right: 8px;
+  flex-shrink: 0;
+}
+.xkt-bnd-panel .xkt-bnd-extents-value {
+  flex: 1 1 auto;
+  min-width: 0;
+  word-break: break-all;
+}
+.xkt-bnd-panel .xkt-bnd-json-btn {
+  margin-left: auto;
+  flex-shrink: 0;
+  padding: 2px 8px;
+  font: inherit;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: #2d5e8c;
+  background: transparent;
+  border: 1px solid #b6cadb;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.xkt-bnd-panel .xkt-bnd-json-btn:hover {
+  background: #e7eef5;
+  border-color: #2d5e8c;
 }
 
 /* Layer-filter pip row \u2014 one pip per observed SceneObject.layerId
@@ -215286,6 +217347,8 @@ var BoundariesPanel = class _BoundariesPanel extends FloatingPanelBase {
   // DOM refs.
   _bodyEl;
   _extentsEl = null;
+  _extentsValueEl = null;
+  _jsonBtn = null;
   _layersEl = null;
   /**
    * Set of `layerId` values the user has *disabled* via the
@@ -215485,6 +217548,8 @@ var BoundariesPanel = class _BoundariesPanel extends FloatingPanelBase {
     if (!data2) {
       this._bodyEl.innerHTML = `<div class="xkt-bnd-empty">No object boundaries to display.</div>`;
       this._extentsEl = null;
+      this._extentsValueEl = null;
+      this._jsonBtn = null;
       this._layersEl = null;
       this._sections = [];
       return;
@@ -215492,8 +217557,8 @@ var BoundariesPanel = class _BoundariesPanel extends FloatingPanelBase {
     if (this._sections.length === 0) {
       this._buildSectionShell();
     }
-    if (this._extentsEl) {
-      this._extentsEl.innerHTML = `<span class="xkt-bnd-extents-label">Scene AABB</span>` + escapeHtml4(formatAABB(data2.sceneAABB));
+    if (this._extentsValueEl) {
+      this._extentsValueEl.textContent = formatAABB(data2.sceneAABB);
     }
     this._renderLayerPips(data2.layers);
     for (const ref of this._sections) {
@@ -215572,6 +217637,25 @@ var BoundariesPanel = class _BoundariesPanel extends FloatingPanelBase {
     };
   }
   /**
+   * Debug snapshot of the current boundaries as a plain JSON-serialisable
+   * object: the filtered Scene AABB plus every contributing object's AABB
+   * (and the layer filter state). Typed-array AABBs are converted to plain
+   * arrays so they serialise as `[…]` rather than `{0:…}`.
+   */
+  _boundariesJson() {
+    const data2 = this._collectFrameData();
+    if (!data2) {
+      return { sceneAABB: null, objectCount: 0, layers: [], objects: [] };
+    }
+    return {
+      sceneAABB: Array.from(data2.sceneAABB),
+      objectCount: data2.aabbs.length,
+      layers: data2.layers,
+      disabledLayers: Array.from(this._disabledLayers),
+      objects: data2.aabbs.map((o) => ({ id: o.id, aabb: Array.from(o.aabb) }))
+    };
+  }
+  /**
    * Build the body shell on first render — extents readout +
    * three collapsible sections. Each section's `<details>` gets
    * a `toggle` handler that does a one-shot render when the user
@@ -215581,6 +217665,18 @@ var BoundariesPanel = class _BoundariesPanel extends FloatingPanelBase {
   _buildSectionShell() {
     this._bodyEl.innerHTML = "";
     this._extentsEl = el("div", "xkt-bnd-extents");
+    const extentsLabel = el("span", "xkt-bnd-extents-label", { textContent: "Scene AABB" });
+    this._extentsValueEl = el("span", "xkt-bnd-extents-value");
+    this._jsonBtn = el("button", "xkt-bnd-json-btn", {
+      type: "button",
+      textContent: "JSON",
+      title: "Open the scene boundaries as JSON in a new tab"
+    });
+    this._jsonBtn.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      openJsonInNewTab2(this._boundariesJson(), "Scene Boundaries JSON");
+    });
+    this._extentsEl.append(extentsLabel, this._extentsValueEl, this._jsonBtn);
     this._bodyEl.appendChild(this._extentsEl);
     this._layersEl = el("div", "xkt-bnd-layers");
     this._bodyEl.appendChild(this._layersEl);
@@ -215762,6 +217858,34 @@ function escapeHtml4(s) {
     '"': "&quot;",
     "'": "&#39;"
   })[c2]);
+}
+function openJsonInNewTab2(obj, title = "JSON") {
+  const json = JSON.stringify(obj, null, 2);
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>${escapeHtml4(title)}</title>
+  <meta charset="utf-8"/>
+  <style>
+    body { background: #0f1116; color: #e7e7e7; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; margin: 0; padding: 0; }
+    .json-pre { background: #0f1116; border-radius: 10px; margin: 24px 0 24px 24px; padding: 24px 32px; max-width: 900px; font-size: 15px; box-shadow: 0 4px 24px #0001; color: #e7e7e7; }
+    h1 { color: #fff; font-size: 20px; font-weight: 650; margin: 24px 24px 12px 24px; }
+    .meta { color: #aaa; font-size: 13px; margin: 0 24px 18px 24px; }
+  </style>
+</head>
+<body>
+  <h1>${escapeHtml4(title)}</h1>
+  <div class="meta">Serialized to JSON</div>
+  <pre class="json-pre">${escapeHtml4(json)}</pre>
+</body>
+</html>
+  `.trim();
+  const win = window.open();
+  if (!win)
+    return;
+  win.document.write(html);
+  win.document.close();
 }
 function renderSVGView(aabbs, sceneAABB, ax0, ax1, camEye, camLook, onPlaneClick, flipV1 = false) {
   const W = 480, H = 480, PAD = 36;
@@ -216562,7 +218686,7 @@ var TilesPanel = class _TilesPanel extends FloatingPanelBase {
     });
     this._jsonBtn.addEventListener("click", () => {
       const tiles = Object.values(this.renderStats.tiles || {});
-      openJsonInNewTab2(tiles, "GPUTiles JSON");
+      openJsonInNewTab3(tiles, "GPUTiles JSON");
     });
     this._extentsEl.append(extentsLabel, this._extentsValueEl, this._jsonBtn);
     this._bodyEl.appendChild(this._extentsEl);
@@ -216782,7 +218906,7 @@ function escapeHtml5(s) {
     "'": "&#39;"
   })[c2]);
 }
-function openJsonInNewTab2(obj, title = "JSON") {
+function openJsonInNewTab3(obj, title = "JSON") {
   const json = JSON.stringify(obj, null, 2);
   const html = `
 <!DOCTYPE html>
@@ -217528,7 +219652,7 @@ var SceneStatsPanel = class _SceneStatsPanel extends FloatingPanelBase {
       ev.preventDefault();
       const result = model.toParams?.();
       if (result && result.ok !== false) {
-        openJsonInNewTab3(result.value, `SceneModel ${id}`);
+        openJsonInNewTab4(result.value, `SceneModel ${id}`);
       }
     });
     summary.append(label, idBadge, jsonBtn);
@@ -217690,7 +219814,7 @@ function escapeHtml6(s) {
     "'": "&#39;"
   })[c2]);
 }
-function openJsonInNewTab3(obj, title = "JSON") {
+function openJsonInNewTab4(obj, title = "JSON") {
   const json = JSON.stringify(obj, null, 2);
   const html = `
 <!DOCTYPE html>
@@ -218354,7 +220478,7 @@ var DataStatsPanel = class _DataStatsPanel extends FloatingPanelBase {
       ev.preventDefault();
       const result = model.toParams?.();
       if (result && result.ok !== false) {
-        openJsonInNewTab4(result.value, `DataModel ${id}`);
+        openJsonInNewTab5(result.value, `DataModel ${id}`);
       }
     });
     summary.append(label, idBadge, jsonBtn);
@@ -218444,7 +220568,7 @@ function escapeHtml7(s) {
     "'": "&#39;"
   })[c2]);
 }
-function openJsonInNewTab4(obj, title = "JSON") {
+function openJsonInNewTab5(obj, title = "JSON") {
   const json = JSON.stringify(obj, null, 2);
   const html = `
 <!DOCTYPE html>
@@ -222321,8 +224445,8 @@ var NavCube = class _NavCube extends FloatingPanelBase {
     const look = cam.look;
     const up = cam.up;
     const fwd = norm3([look[0] - eye[0], look[1] - eye[1], look[2] - eye[2]]);
-    const r = norm3(cross3(fwd, up));
-    const u = cross3(r, fwd);
+    const r = norm3(cross32(fwd, up));
+    const u = cross32(r, fwd);
     const m = this._zUp ? [
       r[0],
       -u[0],
@@ -222394,7 +224518,7 @@ function norm3(v) {
   const n = Math.hypot(v[0], v[1], v[2]) || 1;
   return [v[0] / n, v[1] / n, v[2] / n];
 }
-function cross3(a2, b4) {
+function cross32(a2, b4) {
   return [
     a2[1] * b4[2] - a2[2] * b4[1],
     a2[2] * b4[0] - a2[0] * b4[2],
@@ -222446,6 +224570,22 @@ var IMPORT_DATA_SETS = [
     loadsDataSemantics: false,
     files: [
       { key: "splat", label: "Splat file", accept: ".splat", loadFormat: "splat", required: true }
+    ]
+  },
+  {
+    id: "threedtiles",
+    label: "3D Tiles (tileset.json)",
+    defaultBasisId: "z-up",
+    files: [
+      { key: "tileset", label: "Tileset JSON", accept: ".json", loadFormat: "threedtiles", required: true }
+    ]
+  },
+  {
+    id: "xkt",
+    label: "XKT (xeokit v2)",
+    defaultBasisId: "z-up",
+    files: [
+      { key: "xkt", label: "XKT file", accept: ".xkt", loadFormat: "xkt", required: true }
     ]
   },
   {
@@ -223346,6 +225486,14 @@ var FORMAT_REGISTRY = {
     build: () => new ThreeDXMLExporter(),
     toBytes: (raw) => raw
   },
+  xkt: {
+    id: "xkt",
+    label: "XKT",
+    ext: "xkt",
+    mime: "application/octet-stream",
+    build: () => new XKTExporter(),
+    toBytes: (raw) => raw
+  },
   scenemodel: {
     id: "scenemodel",
     label: "SceneModel JSON",
@@ -223363,10 +225511,21 @@ var FORMAT_REGISTRY = {
     toBytes: (raw) => JSON.stringify(raw, null, 2),
     needsDataModel: true,
     needsSceneModel: false
+  },
+  metamodel: {
+    id: "metamodel",
+    label: "MetaModel JSON",
+    ext: "metamodel.json",
+    mime: "application/json",
+    build: () => new MetaModelExporter(),
+    toBytes: (raw) => JSON.stringify(raw, null, 2),
+    needsDataModel: true,
+    needsSceneModel: false
   }
 };
 var DEFAULT_DATASET_TYPES = [
   "xgf",
+  "xkt",
   "scenemodel",
   "gltf",
   "fbx",
@@ -223379,7 +225538,8 @@ var DEFAULT_DATASET_TYPES = [
   "dxf",
   "svg",
   "threedxml",
-  "datamodel"
+  "datamodel",
+  "metamodel"
 ];
 var DATASET_PARAMS = {
   "xgf": [
@@ -243016,8 +245176,13 @@ var Studio = class _Studio {
    * failures in the same list.
    */
   events = new StudioEvents();
-  makeComponents;
+  makeComponents = true;
   debug = false;
+  /**
+   * Config passed to the constructor, retained so {@link init} can merge it
+   * with any config passed to `init()` — settings apply from either entry point.
+   */
+  _config = {};
   _viewObjectContextMenu;
   _canvasContextMenu;
   _loadingSpinner;
@@ -243041,16 +245206,11 @@ var Studio = class _Studio {
    * @param cfg
    */
   constructor(cfg = {}) {
-    if (cfg.modelsDir) {
-      this.modelsDir = cfg.modelsDir;
-    }
-    this.loaders = cfg.loaders ?? createDefaultLoaderRegistry();
-    this.locator = cfg.locator ?? new DefaultModelLocator(this.modelsDir);
+    this._config = cfg;
+    this._applyConfig(cfg);
     this.picking = new PickingService(() => this.scene, () => this.renderer);
     this.panels = new PanelRegistry({ studio: this });
     registerBuiltinPanels(this.panels);
-    this.makeComponents = cfg.makeComponents !== false;
-    this.debug = cfg.debug === true;
     this.stats = {
       startTime: 0,
       endTime: 0,
@@ -243061,6 +245221,19 @@ var Studio = class _Studio {
       memory: null,
       renderer: null
     };
+  }
+  /**
+   * Applies the config fields that can be set from either the constructor or
+   * {@link init}. Provided fields win; omitted ones keep their current /
+   * default values. The default model locator is rebuilt from `modelsDir`
+   * unless a custom locator is supplied.
+   */
+  _applyConfig(cfg) {
+    this.modelsDir = cfg.modelsDir ?? this.modelsDir;
+    this.loaders = cfg.loaders ?? this.loaders ?? createDefaultLoaderRegistry();
+    this.locator = cfg.locator ?? new DefaultModelLocator(this.modelsDir);
+    this.makeComponents = cfg.makeComponents !== false;
+    this.debug = cfg.debug === true;
   }
   /**
    * Dispatch an error through this Studio's {@link StudioEvents.onError}
@@ -243097,6 +245270,8 @@ var Studio = class _Studio {
    * @returns A promise that resolves when initialization is complete.
    */
   init(cfg = {}) {
+    const merged = { ...this._config, ...cfg };
+    this._applyConfig(merged);
     return new Promise((resolve2, reject) => {
       this.stats.startTime = performance.now();
       if (this.makeComponents) {
@@ -243115,11 +245290,10 @@ var Studio = class _Studio {
             // bare View record the manager produces.
             onViewCreated: (view, record) => this._onViewCreated(view, record)
           },
-          { maxViews: cfg.maxViews ?? 4 }
+          { maxViews: merged.maxViews ?? 4 }
         );
         this.renderer = new WebGLRenderer3({
           memoryConfigs: {
-            maxViews: this.viewManager.maxViews,
             tileSize: 200,
             maxTiles: 2e3,
             maxBatches: 300,
@@ -243127,13 +245301,15 @@ var Studio = class _Studio {
             maxBatchIndices: 9e4,
             maxBatchGeometries: 6e4,
             maxBatchMeshes: 1e4,
-            maxBatchPrims: 7e4
+            maxBatchPrims: 7e4,
+            ...merged.memoryConfigs || {},
+            maxViews: this.viewManager.maxViews
           }
         });
         const log2 = (eventName, sender, args) => {
           console.log(`[${sender.constructor.name.padEnd(14)}] ${eventName}`, args);
         };
-        if (cfg.logging) {
+        if (merged.logging) {
           new EventsLogger(this.scene.events, { prefix: "[Scene        ]", log: log2 });
           new EventsLogger(this.data.events, { prefix: "[Data         ]", log: log2 });
           new EventsLogger(this.viewer.events, { prefix: "[Viewer       ]", log: log2 });
@@ -243290,9 +245466,11 @@ var Studio = class _Studio {
     }
     const src = params.src ?? this.locator.resolve(params.modelId, params.format);
     const fileData = await _Studio._fetchAs(src, descriptor.fetch);
+    const slash = src.lastIndexOf("/");
+    const baseUri = options?.baseUri ?? (slash >= 0 ? src.slice(0, slash + 1) : void 0);
     const loadRes = await descriptor.load(
       { fileData, sceneModel, dataModel },
-      options
+      { ...options, baseUri }
     );
     if (loadRes && loadRes.ok === false) {
       this.reportError(loadRes);

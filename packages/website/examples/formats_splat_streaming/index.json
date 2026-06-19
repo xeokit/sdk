@@ -1,0 +1,17 @@
+{
+  "id": "formats_splat_streaming",
+  "title": "Streaming 3D Gaussian Splats (dynamic load / unload)",
+  "description": "Demonstrates dynamic streaming of 3D Gaussian Splatting content: a grid of procedurally-generated, distinctly-coloured splat tiles is loaded and unloaded on demand as the camera walks through it. Each tile is its own SceneModel, so creating it streams its splats into the renderer's shared SplatBatch and destroying it frees the GPU texture portion for reuse — the same path GaussianSplatLoader drives. Verifies the on-demand / load-as-you-go behaviour a streamed walkthrough needs, keeping resident splats bounded regardless of grid size.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "Splat",
+    "GaussianSplatting",
+    "Streaming"
+  ],
+  "categories": [
+    "Importing",
+    "Splat"
+  ],
+  "topic": "import.splat"
+}

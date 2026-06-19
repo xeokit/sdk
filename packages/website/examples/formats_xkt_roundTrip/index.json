@@ -1,0 +1,20 @@
+{
+  "id": "formats_xkt_roundTrip",
+  "title": "Round-tripping a Model through XKT v12",
+  "description": "Imports an XKT v12 model into an offscreen SceneModel + DataModel with XKTLoader, exports it straight back to XKT with XKTExporter, then re-imports the exported bytes into the rendered scene. The displayed model is the result of a full XKTLoader → XKTExporter → XKTLoader cycle, demonstrating import/export fidelity.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "XKT",
+    "BIM",
+    "Importing",
+    "Exporting",
+    "DataModel"
+  ],
+  "categories": [
+    "Importing",
+    "Exporting",
+    "XKT"
+  ],
+  "topic": "export.xkt"
+}

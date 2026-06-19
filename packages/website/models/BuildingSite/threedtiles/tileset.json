@@ -1,0 +1,36 @@
+{
+  "asset": {"version": "1.1"},
+  "geometricError": 100,
+  "root": {
+    "boundingVolume": {"box": [12, 12, 0, 30, 0, 0, 0, 30, 0, 0, 0, 20]},
+    "geometricError": 8,
+    "refine": "REPLACE",
+    "content": {"uri": "house.glb"},
+    "children": [
+      {
+        "boundingVolume": {"box": [0, 0, 0, 12, 0, 0, 0, 12, 0, 0, 0, 12]},
+        "geometricError": 0,
+        "transform": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        "content": {"uri": "house.glb"}
+      },
+      {
+        "boundingVolume": {"box": [0, 0, 0, 12, 0, 0, 0, 12, 0, 0, 0, 12]},
+        "geometricError": 0,
+        "transform": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 24, 0, 0, 1],
+        "content": {"uri": "house.glb"}
+      },
+      {
+        "boundingVolume": {"box": [0, 0, 0, 12, 0, 0, 0, 12, 0, 0, 0, 12]},
+        "geometricError": 0,
+        "transform": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 24, 0, 1],
+        "content": {"uri": "house.glb"}
+      },
+      {
+        "boundingVolume": {"box": [0, 0, 0, 12, 0, 0, 0, 12, 0, 0, 0, 12]},
+        "geometricError": 0,
+        "transform": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 24, 24, 0, 1],
+        "content": {"uri": "house.glb"}
+      }
+    ]
+  }
+}

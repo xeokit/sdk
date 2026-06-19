@@ -1,0 +1,17 @@
+{
+  "id": "formats_splat_room",
+  "title": "BIM / Archviz Reality Capture with 3D Gaussian Splatting (.splat)",
+  "description": "Loads a captured building interior as a 3D Gaussian Splatting scene (.splat, baked RGB, no spherical harmonics) using GaussianSplatLoader. Splats are a first-class SceneModel primitive, so this photoreal as-built capture loads, streams and renders like any other model — the reality-capture point-of-truth you can orbit alongside CAD geometry in a BIM / archviz workflow.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "Splat",
+    "GaussianSplatting",
+    "BIM"
+  ],
+  "categories": [
+    "Importing",
+    "Splat"
+  ],
+  "topic": "import.splat"
+}

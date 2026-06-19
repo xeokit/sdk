@@ -1,0 +1,18 @@
+{
+  "id": "formats_xkt_model",
+  "title": "Loading a xeokit XKT v12 Model",
+  "description": "Loads a model from xeokit's native XKT v12 binary (uncompressed container) with XKTLoader, reconstructing the SceneModel geometry (pooled, quantised, instanced) and mapping the embedded BIM metadata into a DataModel that shares object ids with the scene. Frames the camera to the loaded model.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "XKT",
+    "BIM",
+    "Importing",
+    "DataModel"
+  ],
+  "categories": [
+    "Importing",
+    "XKT"
+  ],
+  "topic": "import.xkt"
+}

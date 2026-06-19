@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Streaming a BIM 3D Tiles tileset by screen-space error</title>
+    <style>
+        body { background-color: #202830; overflow: hidden; margin: 0; user-select: none; }
+        #demoCanvas { width: 100%; height: 100%; position: absolute; background: #202830; border: 0; }
+        #status {
+            position: absolute; top: 12px; left: 12px; padding: 6px 12px;
+            background: rgba(0, 0, 0, 0.6); color: #fff;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            font-size: 13px; border-radius: 6px; max-width: 64ch;
+        }
+    </style>
+</head>
+<body>
+<canvas id="demoCanvas"></canvas>
+<div id="status">Loading…</div>
+</body>
+<script type="module" src="./index.js"></script>
+</html>

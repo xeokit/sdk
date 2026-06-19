@@ -1,0 +1,18 @@
+{
+  "id": "formats_threedtiles_streamingBuilding",
+  "title": "Streaming a BIM 3D Tiles Tileset",
+  "description": "Streams an explicit 3D Tiles tileset by screen-space error with TilesetStreamer: a coarse single-building overview tile that refines, as the camera approaches, into a denser four-building site. Each selected tile loads into its own SceneModel and coarser tiles unload once the loaded-tile budget is exceeded.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "3D Tiles",
+    "Streaming",
+    "BIM",
+    "Importing"
+  ],
+  "categories": [
+    "Importing",
+    "3D Tiles"
+  ],
+  "topic": "import.threedtiles"
+}

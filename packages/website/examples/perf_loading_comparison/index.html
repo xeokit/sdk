@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Loading Performance — IFC vs glTF vs XGF vs .splat</title>
+    <style>
+        body {
+            margin: 0; padding: 24px;
+            background: #0f1115; color: #e6e6e6;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            font-size: 14px; line-height: 1.5;
+        }
+        h1 { font-size: 18px; margin: 0 0 4px; }
+        #status { color: #f0c674; min-height: 20px; margin: 10px 0; font-variant-numeric: tabular-nums; }
+        table { border-collapse: collapse; width: 100%; max-width: 880px; margin-top: 8px; }
+        th, td { text-align: left; padding: 7px 12px; border-bottom: 1px solid #2a2e37; }
+        th { color: #9aa4b2; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; }
+        td { font-variant-numeric: tabular-nums; }
+        tr.splat td { color: #7cc7ff; }
+        td.err { color: #ff7c7c; }
+        .note { max-width: 880px; color: #9aa4b2; font-size: 12.5px; }
+        .env { color: #6b7280; font-size: 12px; font-family: ui-monospace, Menlo, monospace; }
+        .splat { color: #7cc7ff; }
+        .dim { color: #6b7280; }
+        b { color: #fff; }
+        /* Small live canvas the GPU-timing pass renders into (real GPU only). */
+        #demoCanvas {
+            width: 320px; height: 200px; margin-top: 16px;
+            background: #000; border: 1px solid #2a2e37; border-radius: 6px; display: block;
+        }
+    </style>
+</head>
+<body>
+<h1>Loading Performance — IFC · glTF · XGF · .splat</h1>
+<div>CPU decode → live <code>SceneModel</code>, renderer-less. Median of repeated in-memory loads. Keep this tab in the foreground while it runs.</div>
+<div id="status">Starting…</div>
+<div id="results"></div>
+<canvas id="demoCanvas"></canvas>
+<script type="module" src="./index.js"></script>
+</body>
+</html>

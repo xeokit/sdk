@@ -1,0 +1,17 @@
+{
+  "id": "formats_fbx_e3dPlant",
+  "title": "Loading an Autodesk FBX File",
+  "description": "Loads a binary Autodesk FBX file and views it. FBX isn't one of the formats the loader registry recognises, so the example fetches the .fbx bytes, creates a SceneModel, and drives FBXLoader directly, then frames the camera. The sample is four cubes sharing one geometry, each with its own transform and material.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "FBX",
+    "Autodesk",
+    "Importing"
+  ],
+  "categories": [
+    "Importing",
+    "FBX"
+  ],
+  "topic": "import.fbx"
+}

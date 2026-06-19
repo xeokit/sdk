@@ -1,0 +1,20 @@
+{
+  "id": "formats_splat_roundTrip",
+  "title": "3D Gaussian Splatting Round-Trip — Load, Export, Re-Import (.splat)",
+  "description": "End-to-end check of the .splat exporter. Loads a captured interior (3D Gaussian Splatting, baked RGB, no spherical harmonics) into a temporary SceneModel, writes it back out with GaussianSplatExporter, then re-imports the exported bytes into the displayed SceneModel. Per-splat scales, colours and rotations survive exactly and centres survive to within 16-bit position quantisation, so the re-imported scene renders identically to the original. Browser only.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "snapshotTimeoutMs": 120000,
+  "tags": [
+    "Splat",
+    "GaussianSplatting",
+    "Importing",
+    "Exporting"
+  ],
+  "categories": [
+    "Importing",
+    "Exporting",
+    "Splat"
+  ],
+  "topic": "import.splat"
+}

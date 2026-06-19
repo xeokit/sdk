@@ -127,6 +127,21 @@ export function buildModelsMenu(params) {
         color: #666;
         padding: 8px 0;
       }
+
+      .model-attribution {
+        margin-top: 8px;
+        font-size: 12px;
+        color: #666;
+      }
+
+      .model-attribution-link {
+        color: #1d4ed8;
+        text-decoration: none;
+      }
+
+      .model-attribution-link:hover {
+        text-decoration: underline;
+      }
     `;
     document.head.appendChild(style);
   }
@@ -236,11 +251,22 @@ export function buildModelsMenu(params) {
           </button>
         `).join("");
 
+        const attribution = modelsIndex[modelId]?.attribution;
+        let attributionHtml = "";
+        if (attribution?.source) {
+          const label = escapeHtml(attribution.source);
+          const source = attribution.url
+            ? `<a class="model-attribution-link" href="${escapeHtml(attribution.url)}" target="_blank" rel="noopener">${label}</a>`
+            : label;
+          attributionHtml = `<div class="model-attribution">Source: ${source}</div>`;
+        }
+
         html.push(`
           <div class="model-group">
             <button class="model-header" type="button">${escapeHtml(modelId)}</button>
             <div class="model-details">
               <div class="model-actions">${buttons}</div>
+              ${attributionHtml}
             </div>
           </div>
         `);

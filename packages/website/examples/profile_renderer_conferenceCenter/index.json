@@ -1,0 +1,20 @@
+{
+  "id": "profile_renderer_conferenceCenter",
+  "title": "Profile the WebGL renderer on the OTC Conference Center model",
+  "description": "Loads the OTC Conference Center as XGF, slowly orbits the camera to keep the renderer busy, and captures 60 frames of per-bin GPU + CPU time via RenderInspector.captureFrames. Captures twice: once at the canvas's natural size, then with the canvas resized to 32x32 px. If GPU time barely changes between the two runs, the workload is not fragment-bound and LOD work will not pay off; a steep drop at 32x32 means it is fragment-bound and LOD is the right next bet. Results are printed to the devtools console as two console.table blocks plus the GL renderer string.",
+  "isTutorial": false,
+  "isVisualTest": false,
+  "tags": [
+    "Profiling",
+    "Performance",
+    "WebGLRenderer",
+    "RenderInspector",
+    "IFC",
+    "XGF"
+  ],
+  "categories": [
+    "Performance",
+    "Renderer"
+  ],
+  "topic": "viewing.webGLRenderer"
+}

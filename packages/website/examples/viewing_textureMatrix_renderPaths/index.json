@@ -1,0 +1,13 @@
+{
+  "id": "viewing_textureMatrix_renderPaths",
+  "title": "Rendering Paths Matrix — normals × uvs × triplanarScale × mipmap",
+  "description": "A 4×4 grid of brick-textured spheres that exercises every shader variant the renderer ships: smooth vs flat shading (per-vertex normals on/off), UV-attribute vs triplanar texture sampling (UVs on/off), per-material triplanarScale (small vs large world-units-per-repeat), and per-texture mipmap opt-in (sharp vs aliased at grazing angles). Use it as a visual reference when reasoning about which path a given material/geometry combination will land on.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "tags": [],
+  "categories": [
+    "Rendering",
+    "Materials"
+  ],
+  "topic": "rendering.shaderVariants"
+}

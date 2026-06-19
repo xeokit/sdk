@@ -1,0 +1,174 @@
+{
+  "stats": {
+    "startTime": 1641.7999999523163,
+    "endTime": 6505.200000047684,
+    "elapsedTime": 4863.400000095367,
+    "aabb": [
+      -1,
+      -1,
+      -1,
+      1,
+      1,
+      1
+    ],
+    "scene": {
+      "numTransforms": 0,
+      "numObjects": 1,
+      "numMeshes": 1,
+      "numGeometries": 1,
+      "numTextures": 0,
+      "numMaterials": 0,
+      "numTriangles": 12,
+      "numLines": 0,
+      "numPoints": 0,
+      "numVertices": 24,
+      "textureBytes": 0
+    },
+    "data": {
+      "numObjects": 0,
+      "numRelationships": 0,
+      "numPropertySets": 0
+    },
+    "memory": {
+      "allocatedMB": 11.877059936523438,
+      "usedMB": 0.0018157958984375
+    },
+    "renderer": {
+      "tiles": {
+        "0-0-0": {
+          "id": "0-0-0",
+          "rtcCenter": [
+            0,
+            0,
+            0
+          ],
+          "size": 1000,
+          "tileIndex": 0,
+          "numMeshes": 1
+        }
+      },
+      "views": [
+        {
+          "viewId": "c4d02d83-6eb6-4217-9d3b-c53a9901bfe0",
+          "canvasSize": [
+            0,
+            0
+          ],
+          "renderBins": [
+            {
+              "name": "UnnamedPass",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 12
+                  },
+                  "timeMs": {
+                    "start": 99513.5,
+                    "end": 99513.89999985695,
+                    "duration": 0.39999985694885254
+                  }
+                },
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 12
+                  },
+                  "timeMs": {
+                    "start": 99513.89999985695,
+                    "end": 99513.89999985695,
+                    "duration": 0
+                  }
+                },
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 12
+                  },
+                  "timeMs": {
+                    "start": 99513.89999985695,
+                    "end": 99514.29999995232,
+                    "duration": 0.40000009536743164
+                  }
+                },
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 12
+                  },
+                  "timeMs": {
+                    "start": 99514.29999995232,
+                    "end": 99514.39999985695,
+                    "duration": 0.09999990463256836
+                  }
+                },
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 12
+                  },
+                  "timeMs": {
+                    "start": 99514.39999985695,
+                    "end": 99514.5,
+                    "duration": 0.10000014305114746
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 99513.5,
+                "end": 99514.5,
+                "duration": 1
+              }
+            },
+            {
+              "name": "opaque",
+              "drawCalls": [
+                {
+                  "batchIndex": 0,
+                  "renderPass": "OPAQUE",
+                  "primitive": "TRIANGLES",
+                  "primRange": {
+                    "firstPrim": 0,
+                    "numPrims": 12
+                  },
+                  "timeMs": {
+                    "start": 99514.70000004768,
+                    "end": 99514.70000004768,
+                    "duration": 0
+                  }
+                }
+              ],
+              "timeMs": {
+                "start": 99514.5,
+                "end": 99514.70000004768,
+                "duration": 0.20000004768371582
+              }
+            }
+          ],
+          "timeMs": {
+            "start": 99451.89999985695,
+            "end": 99515,
+            "duration": 63.10000014305115
+          },
+          "numDrawCalls": 6,
+          "numPrims": 72
+        }
+      ]
+    }
+  }
+}

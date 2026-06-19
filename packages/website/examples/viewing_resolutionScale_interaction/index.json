@@ -1,0 +1,16 @@
+{
+  "id": "viewing_resolutionScale_interaction",
+  "title": "Downscaling Resolution while Interacting with the Model",
+  "description": "This sample demonstrates how to use ResolutionScale to downscale the resolution of the view while interacting with the model, and restore it when the interaction is complete. This technique can improve performance during interactions by reducing the rendering workload.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "XGF",
+    "_Featured"
+  ],
+  "categories": [
+    "Performance",
+    "XGF"
+  ],
+  "topic": "performance.resolutionScale"
+}

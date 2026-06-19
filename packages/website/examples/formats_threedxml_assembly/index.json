@@ -1,0 +1,19 @@
+{
+  "id": "formats_threedxml_assembly",
+  "title": "Loading a 3DXML Assembly (Dassault Systèmes)",
+  "description": "Loads a Dassault Systèmes 3DXML file — a SolidWorks-exported tooling assembly (3DXML 4.2) — and views it. 3DXML is a ZIP of XML: a Manifest, a product-structure document (the assembly tree of Reference3D / Instance3D / ReferenceRep nodes), and tessellated representation files. The example drives ThreeDXMLLoader directly: it unzips the package, walks the product structure baking each instance's RelativeMatrix into its mesh transform, and emits one geometry per representation (reused across instances), one mesh per instance, and one object per instance, then frames the camera. Browser only.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "3DXML",
+    "Dassault",
+    "CATIA",
+    "SolidWorks",
+    "Importing"
+  ],
+  "categories": [
+    "Importing",
+    "3DXML"
+  ],
+  "topic": "import.threedxml"
+}

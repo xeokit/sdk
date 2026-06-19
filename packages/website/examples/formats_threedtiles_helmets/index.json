@@ -1,0 +1,17 @@
+{
+  "id": "formats_threedtiles_helmets",
+  "title": "Loading a 3D Tiles Tileset (Helmets)",
+  "description": "Loads a 3D Tiles tileset.json with ThreeDTilesLoader: a 2x2 grid of four tiles, each referencing the same Y-up glTF model placed by the tile's transform. The loader fetches each tile's content relative to baseUri, applies the Y-up to Z-up rotation, and bakes each tile transform into the per-mesh matrices of one SceneModel.",
+  "isTutorial": true,
+  "isVisualTest": false,
+  "tags": [
+    "3D Tiles",
+    "glTF",
+    "Importing"
+  ],
+  "categories": [
+    "Importing",
+    "3D Tiles"
+  ],
+  "topic": "import.threedtiles"
+}

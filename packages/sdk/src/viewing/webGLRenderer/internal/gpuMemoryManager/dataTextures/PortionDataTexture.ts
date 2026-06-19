@@ -354,8 +354,13 @@ export abstract class PortionDataTexture extends DataTexture {
     } else {
       // Upload only the dirty portions: gather them, coalesce adjacent runs,
       // then split each run at texture-row boundaries (one texSubImage2D per
-      // row-span). One item maps to one texel of `elementsPerItem` channels.
-      const itemsPerRow = this.width;
+      // row-span). An item spans `texelsPerItem` consecutive texels, and the
+      // texture is `width` texels wide, so all row/column maths is done in
+      // texels (not items) — otherwise textures with texelsPerItem > 1 (e.g.
+      // the 4-texel splat record) land at the wrong texels.
+      const texelsPerItem = this.texelsPerItem;
+      const texelsPerRow = this.width;
+      const elementsPerTexel = this.elementsPerTexel;
       const segments: Portion[] = [];
       for (const id of this.dirtyPortionIds) {
         const portion = this.usedPortions.get(id);
@@ -374,18 +379,18 @@ export abstract class PortionDataTexture extends DataTexture {
         }
       }
       for (const portion of coalesced) {
-        let base = portion.base;
-        let remaining = portion.size;
-        while (remaining > 0) {
-          const xOffset = base % itemsPerRow;
-          const yOffset = Math.floor(base / itemsPerRow);
-          const chunkSize = Math.min(remaining, itemsPerRow - xOffset);
-          const bufferStart = base * this.elementsPerItem;
-          const bufferEnd = (base + chunkSize) * this.elementsPerItem;
+        let texelBase = portion.base * texelsPerItem;
+        let remainingTexels = portion.size * texelsPerItem;
+        while (remainingTexels > 0) {
+          const xOffset = texelBase % texelsPerRow;
+          const yOffset = Math.floor(texelBase / texelsPerRow);
+          const chunkTexels = Math.min(remainingTexels, texelsPerRow - xOffset);
+          const bufferStart = texelBase * elementsPerTexel;
+          const bufferEnd = (texelBase + chunkTexels) * elementsPerTexel;
           const pixelData = this.buffer.subarray(bufferStart, bufferEnd);
-          gl.texSubImage2D(gl.TEXTURE_2D, 0, xOffset, yOffset, chunkSize, 1, this.format, this.type, pixelData);
-          base += chunkSize;
-          remaining -= chunkSize;
+          gl.texSubImage2D(gl.TEXTURE_2D, 0, xOffset, yOffset, chunkTexels, 1, this.format, this.type, pixelData);
+          texelBase += chunkTexels;
+          remainingTexels -= chunkTexels;
         }
       }
     }

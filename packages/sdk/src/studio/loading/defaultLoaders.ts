@@ -10,6 +10,8 @@ import {DotBIMLoader} from "../../formats/dotbim";
 import {CityJSONLoader} from "../../formats/cityjson";
 import {FDSLoader} from "../../formats/fds";
 import {ThreeDXMLLoader} from "../../formats/threedxml";
+import {ThreeDTilesLoader} from "../../formats/threedtiles";
+import {XKTLoader} from "../../formats/legacy/xkt";
 import {MetaModelLoader} from "../../formats/legacy/metamodel";
 import {DataModelImporter} from "../../formats/datamodel";
 import {SceneModelImporter} from "../../formats/scenemodel";
@@ -115,6 +117,20 @@ export function createDefaultLoaderRegistry(): LoaderRegistry {
     needsScene: true,
     needsData: false,
     load: (input, options) => new ThreeDXMLLoader().load(input, options),
+  });
+
+  r.register("threedtiles", {
+    fetch: "json",
+    needsScene: true,
+    needsData: true,
+    load: (input, options) => new ThreeDTilesLoader().load(input, options),
+  });
+
+  r.register("xkt", {
+    fetch: "arrayBuffer",
+    needsScene: true,
+    needsData: true,
+    load: (input, options) => new XKTLoader().load(input, options),
   });
 
   r.register("metamodel", {

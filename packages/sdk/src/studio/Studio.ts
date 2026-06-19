@@ -1,7 +1,7 @@
 import {Scene, SceneModel, type SceneModelStats, type CoordinateSystemParams} from "../model/scene";
 import {Data, DataModel, type DataModelStats} from "../model/data";
 import {View, Viewer, ViewObject, type ViewParams} from "../viewing/viewer";
-import {type MemoryUsage, WebGLRenderer} from "../viewing/webGLRenderer";
+import {type MemoryConfigs, type MemoryUsage, WebGLRenderer} from "../viewing/webGLRenderer";
 import {EventsLogger, getGlobalTaskRunner, sdkProgress, SDKErrorType, type SDKResult, SDKTask} from "../base/core";
 import {type RenderStats} from "../viewing/webGLRenderer/internal/inspectors";
 import type {ImportProvenance} from "./panels/modelsPanel/ImportProvenance";
@@ -72,6 +72,14 @@ export interface StudioConfig {
    * and also limits the number of views that can be created via `createView()`. Defaults to `4`.
    */
   maxViews?: number;
+
+  /**
+   * Overrides for the WebGLRenderer's GPU memory budget (merged over Studio's
+   * defaults). Raise `maxBatchVertices` / `maxBatchIndices` / `maxBatchPrims`
+   * when loading models or 3D Tiles whose individual meshes exceed the default
+   * per-batch capacity (the default `maxBatchVertices` is 70000).
+   */
+  memoryConfigs?: Partial<MemoryConfigs>;
 
 
   makeComponents?: boolean;
@@ -196,8 +204,14 @@ export class Studio {
    */
   public readonly events: StudioEvents = new StudioEvents();
 
-  private makeComponents: boolean;
+  private makeComponents: boolean = true;
   private debug: boolean = false;
+
+  /**
+   * Config passed to the constructor, retained so {@link init} can merge it
+   * with any config passed to `init()` — settings apply from either entry point.
+   */
+  private _config: StudioConfig = {};
 
   private _viewObjectContextMenu: ViewObjectContextMenu;
 
@@ -237,16 +251,11 @@ export class Studio {
    * @param cfg
    */
   constructor(cfg: StudioConfig = {}) {
-    if (cfg.modelsDir) {
-      this.modelsDir = cfg.modelsDir;
-    }
-    this.loaders = cfg.loaders ?? createDefaultLoaderRegistry();
-    this.locator = cfg.locator ?? new DefaultModelLocator(this.modelsDir);
+    this._config = cfg;
+    this._applyConfig(cfg);
     this.picking = new PickingService(() => this.scene, () => this.renderer);
     this.panels  = new PanelRegistry({studio: this});
     registerBuiltinPanels(this.panels);
-    this.makeComponents = cfg.makeComponents !== false;
-    this.debug = cfg.debug === true;
     this.stats = {
       startTime: 0,
       endTime: 0,
@@ -257,6 +266,20 @@ export class Studio {
       memory: null,
       renderer: null
     };
+  }
+
+  /**
+   * Applies the config fields that can be set from either the constructor or
+   * {@link init}. Provided fields win; omitted ones keep their current /
+   * default values. The default model locator is rebuilt from `modelsDir`
+   * unless a custom locator is supplied.
+   */
+  private _applyConfig(cfg: StudioConfig): void {
+    this.modelsDir = cfg.modelsDir ?? this.modelsDir;
+    this.loaders = cfg.loaders ?? this.loaders ?? createDefaultLoaderRegistry();
+    this.locator = cfg.locator ?? new DefaultModelLocator(this.modelsDir);
+    this.makeComponents = cfg.makeComponents !== false;
+    this.debug = cfg.debug === true;
   }
 
   /**
@@ -301,6 +324,11 @@ export class Studio {
    */
   public init(cfg: StudioConfig = {}): Promise<any> {
 
+    // Merge config from the constructor and from init() (init wins), so every
+    // setting applies regardless of which entry point it was passed to.
+    const merged: StudioConfig = {...this._config, ...cfg};
+    this._applyConfig(merged);
+
     return new Promise((resolve, reject) => {
 
       this.stats.startTime = performance.now();
@@ -324,12 +352,11 @@ export class Studio {
             // bare View record the manager produces.
             onViewCreated: (view, record) => this._onViewCreated(view, record),
           },
-          {maxViews: cfg.maxViews ?? 4},
+          {maxViews: merged.maxViews ?? 4},
         );
 
         this.renderer = new WebGLRenderer({
           memoryConfigs: {
-            maxViews: this.viewManager.maxViews,
             tileSize: 200,
             maxTiles: 2000,
             maxBatches: 300,
@@ -337,7 +364,9 @@ export class Studio {
             maxBatchIndices: 90000,
             maxBatchGeometries: 60000,
             maxBatchMeshes: 10000,
-            maxBatchPrims: 70000
+            maxBatchPrims: 70000,
+            ...(merged.memoryConfigs || {}),
+            maxViews: this.viewManager.maxViews,
           }
         });
 
@@ -345,7 +374,7 @@ export class Studio {
           console.log(`[${sender.constructor.name.padEnd(14)}] ${eventName}`, args);
         };
 
-        if (cfg.logging) {
+        if (merged.logging) {
           new EventsLogger(this.scene.events, {prefix: "[Scene        ]", log});
           new EventsLogger(this.data.events, {prefix: "[Data         ]", log});
           new EventsLogger(this.viewer.events, {prefix: "[Viewer       ]", log});
@@ -556,9 +585,14 @@ export class Studio {
     const src = params.src ?? this.locator.resolve(params.modelId, params.format);
     const fileData = await Studio._fetchAs(src, descriptor.fetch);
 
+    // Resolve referenced files (e.g. a 3D Tiles tileset's content) against the
+    // directory the model was fetched from, unless the caller set a baseUri.
+    const slash = src.lastIndexOf("/");
+    const baseUri = options?.baseUri ?? (slash >= 0 ? src.slice(0, slash + 1) : undefined);
+
     const loadRes = await descriptor.load(
       {fileData, sceneModel, dataModel},
-      options,
+      {...options, baseUri},
     );
     // Report loader-side failures through the same channel so the
     // IssuesPanel sees them alongside Studio-side ones. The result

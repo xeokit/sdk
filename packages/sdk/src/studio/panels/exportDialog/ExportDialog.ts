@@ -37,6 +37,7 @@ import {CityJSONExporter}         from "../../../formats/cityjson/CityJSONExport
 import {DXFExporter}              from "../../../formats/dxf/DXFExporter";
 import {SVGExporter}              from "../../../formats/svg/SVGExporter";
 import {ThreeDXMLExporter}        from "../../../formats/threedxml/ThreeDXMLExporter";
+import {XKTExporter}              from "../../../formats/legacy/xkt/XKTExporter";
 import {SceneModelExporter} from "../../../formats/scenemodel/SceneModelExporter";
 import {DataModelExporter}  from "../../../formats/datamodel/DataModelExporter";
 
@@ -208,6 +209,11 @@ const FORMAT_REGISTRY: Record<string, FormatEntry> = {
     build:   () => new ThreeDXMLExporter(),
     toBytes: (raw) => raw as ArrayBuffer,
   },
+  xkt: {
+    id: "xkt", label: "XKT", ext: "xkt", mime: "application/octet-stream",
+    build:   () => new XKTExporter(),
+    toBytes: (raw) => raw as ArrayBuffer,
+  },
   scenemodel: {
     id: "scenemodel", label: "SceneModel JSON", ext: "scenemodel.json", mime: "application/json",
     build:   () => new SceneModelExporter(),
@@ -234,6 +240,7 @@ const FORMAT_REGISTRY: Record<string, FormatEntry> = {
  */
 const DEFAULT_DATASET_TYPES: string[] = [
   "xgf",
+  "xkt",
   "scenemodel",
   "gltf",
   "fbx",

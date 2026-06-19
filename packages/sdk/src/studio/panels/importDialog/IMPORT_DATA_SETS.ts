@@ -41,6 +41,22 @@ export const IMPORT_DATA_SETS: ImportDataSet[] = [
     ],
   },
   {
+    id: "threedtiles",
+    label: "3D Tiles (tileset.json)",
+    defaultBasisId: "z-up",
+    files: [
+      {key: "tileset", label: "Tileset JSON", accept: ".json", loadFormat: "threedtiles", required: true},
+    ],
+  },
+  {
+    id: "xkt",
+    label: "XKT (xeokit v2)",
+    defaultBasisId: "z-up",
+    files: [
+      {key: "xkt", label: "XKT file", accept: ".xkt", loadFormat: "xkt", required: true},
+    ],
+  },
+  {
     id: "gltf+datamodel",
     label: "glTF + DataModel JSON",
     defaultBasisId: "y-up",

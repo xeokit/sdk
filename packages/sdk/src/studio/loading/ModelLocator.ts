@@ -85,4 +85,6 @@ export const DEFAULT_EXTENSIONS: Record<string, string> = {
   dwg: "dwg",
   dxf: "dxf",
   threedxml: "3dxml",
+  threedtiles: "json",
+  xkt: "xkt",
 };

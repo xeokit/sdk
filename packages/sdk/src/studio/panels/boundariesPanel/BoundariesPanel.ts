@@ -278,6 +278,9 @@ const PANEL_CSS = `
 
 /* Scene-AABB extents readout — sits at the top of the body. */
 .xkt-bnd-panel .xkt-bnd-extents {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin: 6px 0 10px;
   padding: 8px 12px;
   background: #fcfcfc;
@@ -287,7 +290,6 @@ const PANEL_CSS = `
   font-size: 11px;
   color: #444;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  word-break: break-all;
 }
 .xkt-bnd-panel .xkt-bnd-extents-label {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -296,7 +298,32 @@ const PANEL_CSS = `
   font-size: 9.5px;
   font-weight: 600;
   color: #666;
-  margin-right: 8px;
+  flex-shrink: 0;
+}
+.xkt-bnd-panel .xkt-bnd-extents-value {
+  flex: 1 1 auto;
+  min-width: 0;
+  word-break: break-all;
+}
+.xkt-bnd-panel .xkt-bnd-json-btn {
+  margin-left: auto;
+  flex-shrink: 0;
+  padding: 2px 8px;
+  font: inherit;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: #2d5e8c;
+  background: transparent;
+  border: 1px solid #b6cadb;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.xkt-bnd-panel .xkt-bnd-json-btn:hover {
+  background: #e7eef5;
+  border-color: #2d5e8c;
 }
 
 /* Layer-filter pip row — one pip per observed SceneObject.layerId
@@ -522,6 +549,8 @@ export class BoundariesPanel extends FloatingPanelBase {
   // DOM refs.
   private _bodyEl!: HTMLElement;
   private _extentsEl: HTMLElement | null = null;
+  private _extentsValueEl: HTMLElement | null = null;
+  private _jsonBtn: HTMLButtonElement | null = null;
   private _layersEl: HTMLElement | null = null;
   /**
    * Set of `layerId` values the user has *disabled* via the
@@ -769,6 +798,8 @@ export class BoundariesPanel extends FloatingPanelBase {
     if (!data) {
       this._bodyEl.innerHTML = `<div class="xkt-bnd-empty">No object boundaries to display.</div>`;
       this._extentsEl = null;
+      this._extentsValueEl = null;
+      this._jsonBtn = null;
       this._layersEl = null;
       this._sections = [];
       return;
@@ -781,11 +812,10 @@ export class BoundariesPanel extends FloatingPanelBase {
       this._buildSectionShell();
     }
 
-    // Extents readout always paints — it's not collapsible.
-    if (this._extentsEl) {
-      this._extentsEl.innerHTML =
-        `<span class="xkt-bnd-extents-label">Scene AABB</span>` +
-        escapeHtml(formatAABB(data.sceneAABB));
+    // Extents readout always paints — it's not collapsible. Only the value
+    // text updates; the label + JSON button persist from the shell build.
+    if (this._extentsValueEl) {
+      this._extentsValueEl.textContent = formatAABB(data.sceneAABB);
     }
 
     // Layer-filter pips — refreshed on every paint so new
@@ -885,6 +915,26 @@ export class BoundariesPanel extends FloatingPanelBase {
   }
 
   /**
+   * Debug snapshot of the current boundaries as a plain JSON-serialisable
+   * object: the filtered Scene AABB plus every contributing object's AABB
+   * (and the layer filter state). Typed-array AABBs are converted to plain
+   * arrays so they serialise as `[…]` rather than `{0:…}`.
+   */
+  private _boundariesJson(): unknown {
+    const data = this._collectFrameData();
+    if (!data) {
+      return {sceneAABB: null, objectCount: 0, layers: [], objects: []};
+    }
+    return {
+      sceneAABB: Array.from(data.sceneAABB),
+      objectCount: data.aabbs.length,
+      layers: data.layers,
+      disabledLayers: Array.from(this._disabledLayers),
+      objects: data.aabbs.map(o => ({id: o.id, aabb: Array.from(o.aabb)})),
+    };
+  }
+
+  /**
    * Build the body shell on first render — extents readout +
    * three collapsible sections. Each section's `<details>` gets
    * a `toggle` handler that does a one-shot render when the user
@@ -895,6 +945,18 @@ export class BoundariesPanel extends FloatingPanelBase {
     this._bodyEl.innerHTML = "";
 
     this._extentsEl = el("div", "xkt-bnd-extents");
+    const extentsLabel = el("span", "xkt-bnd-extents-label", {textContent: "Scene AABB"});
+    this._extentsValueEl = el("span", "xkt-bnd-extents-value");
+    this._jsonBtn = el("button", "xkt-bnd-json-btn", {
+      type: "button",
+      textContent: "JSON",
+      title: "Open the scene boundaries as JSON in a new tab",
+    }) as HTMLButtonElement;
+    this._jsonBtn.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      openJsonInNewTab(this._boundariesJson(), "Scene Boundaries JSON");
+    });
+    this._extentsEl.append(extentsLabel, this._extentsValueEl, this._jsonBtn);
     this._bodyEl.appendChild(this._extentsEl);
 
     // Per-layer toggle row. The pip list is rebuilt on every
@@ -1127,6 +1189,35 @@ function escapeHtml(s: string | number): string {
     "\"": "&quot;",
     "'": "&#39;",
   }[c] as string));
+}
+
+/** Serialise `obj` to pretty JSON and open it as a styled page in a new tab. */
+function openJsonInNewTab(obj: unknown, title = "JSON"): void {
+  const json = JSON.stringify(obj, null, 2);
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>${escapeHtml(title)}</title>
+  <meta charset="utf-8"/>
+  <style>
+    body { background: #0f1116; color: #e7e7e7; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; margin: 0; padding: 0; }
+    .json-pre { background: #0f1116; border-radius: 10px; margin: 24px 0 24px 24px; padding: 24px 32px; max-width: 900px; font-size: 15px; box-shadow: 0 4px 24px #0001; color: #e7e7e7; }
+    h1 { color: #fff; font-size: 20px; font-weight: 650; margin: 24px 24px 12px 24px; }
+    .meta { color: #aaa; font-size: 13px; margin: 0 24px 18px 24px; }
+  </style>
+</head>
+<body>
+  <h1>${escapeHtml(title)}</h1>
+  <div class="meta">Serialized to JSON</div>
+  <pre class="json-pre">${escapeHtml(json)}</pre>
+</body>
+</html>
+  `.trim();
+  const win = window.open();
+  if (!win) return;
+  win.document.write(html);
+  win.document.close();
 }
 
 /**

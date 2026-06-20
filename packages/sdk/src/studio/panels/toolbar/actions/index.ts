@@ -24,6 +24,7 @@ import {importSampleModel}   from "./importSampleModel";
 import {openCameraTour}        from "./openCameraTour";
 import {openCulling}           from "./openCulling";
 import {openAdaptiveQuality}   from "./openAdaptiveQuality";
+import {loseContext}           from "./loseContext";
 import {openDaylightAnalysis}  from "./openDaylightAnalysis";
 import {openDrawings}          from "./openDrawings";
 import {openExport}            from "./openExport";
@@ -58,6 +59,7 @@ export const TOOLBAR_ACTIONS: Partial<Record<ToolbarAction, ToolbarActionDescrip
   openCameraTour,
   openCulling,
   openAdaptiveQuality,
+  loseContext,
   openDaylightAnalysis,
   openDrawings,
   openExport,

@@ -97,6 +97,7 @@ export type ToolbarAction =
   | "openCameraTour"
   | "openCulling"
   | "openAdaptiveQuality"
+  | "loseContext"
   | "openDrawings"
   | "openSchemaMaterials"
   | "openSunStudy"
@@ -828,6 +829,11 @@ export class Toolbar extends FloatingPanelBase {
       action: "openAdaptiveQuality",
       title:  "Adaptive Quality",
       svg:    AdaptiveQualityPanel.iconSvg(),
+    }));
+    gPerformance.btns.appendChild(this._mkBtn({
+      action: "loseContext",
+      title:  "Lose & Restore WebGL Context",
+      svg:    ICONS.loseContext,
     }));
     row1.appendChild(gPerformance.wrap);
 
@@ -1853,6 +1859,12 @@ const ICONS = {
       `<rect x="3"  y="9"  width="6" height="6" rx="0.6" fill="none" stroke="currentColor" stroke-width="1.6"/>` +
       `<rect x="14" y="6"  width="7" height="12" rx="0.8" fill="none" stroke="currentColor" stroke-width="1.6"/>` +
       `<path d="M9 9 L14 6 M9 15 L14 18" fill="none" stroke="currentColor" stroke-width="1.4"/>` +
+    `</svg>`,
+
+  // Lightning bolt — force a WebGL context loss / restore (debug).
+  loseContext:
+    `<svg viewBox="0 0 24 24" aria-hidden="true">` +
+      `<path d="M13 2 L4 13 L11 13 L9 22 L20 10 L13 10 Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>` +
     `</svg>`,
 
   // Four corner brackets — fit all.

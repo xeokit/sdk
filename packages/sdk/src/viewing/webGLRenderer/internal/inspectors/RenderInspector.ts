@@ -120,6 +120,32 @@ export class RenderInspector {
   }
 
   /**
+   * Drops the GPU timer-query objects when the WebGL context is lost. They
+   * belong to the dead context, so their references are simply discarded (no
+   * `deleteQuery`); polling or reusing them would error against the restored
+   * context.
+   */
+  public webglContextLost(): void {
+    this._freeQueries = [];
+    this._pendingQueries = [];
+    this._activeQuery = null;
+  }
+
+  /**
+   * Re-enables GPU timing after the context is restored: discards any
+   * query objects from the dead context and re-fetches the timer extension
+   * (extension handles do not survive a context loss).
+   */
+  public webglContextRestored(): void {
+    this._freeQueries = [];
+    this._pendingQueries = [];
+    this._activeQuery = null;
+    if (this._gl) {
+      this._timerSupported = !!this._gl.getExtension("EXT_disjoint_timer_query_webgl2");
+    }
+  }
+
+  /**
    * Determines if logging is enabled for the given render bin.
    * @private
    */

@@ -98,6 +98,16 @@ export class PickManager {
     return {ok: true, value: undefined};
   }
 
+  /**
+   * Releases the splat pick technique while the context is lost, so its
+   * `gl.delete*` calls are no-ops rather than errors against the restored
+   * context. {@link webglContextRestored} rebuilds it.
+   */
+  webglContextLost(): void {
+    this._splatPick?.destroy();
+    this._splatPick = null;
+  }
+
   webglContextRestored(): SDKResult<void> {
     if (!this._drawOps) {
       return {ok: true, value: undefined};
@@ -110,7 +120,6 @@ export class PickManager {
     if (result2.ok === false) {
       return result2;
     }
-    this._splatPick?.destroy();
     this._splatPick = new GaussianSplatPickTechnique(this._renderContext.gl);
     const result3 = this._splatPick.init();
     if (result3.ok === false) {

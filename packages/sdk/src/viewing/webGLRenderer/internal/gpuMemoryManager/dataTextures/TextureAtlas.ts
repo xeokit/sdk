@@ -737,19 +737,31 @@ export class TextureAtlas {
     if (!re.ok) return re;
     const gl = this.gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture!);
-    for (const entry of this._entries.values()) {
+    // Re-stamp every entry exactly as addTexture/updateTexture do — same
+    // edge-extruded gutter and UNPACK pixel-store state. The previous version
+    // skipped both, so restored atlas slices were mis-aligned / un-flipped and
+    // their gutters left at the sentinel colour, surfacing as wrong or missing
+    // textures (and white samples blowing out HDR bloom).
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    for (const [id, entry] of this._entries) {
+      const extruded = this._extrudeWithGutter(entry.source, entry.width, entry.height);
+      const uploadX = extruded ? entry.x - this.padding : entry.x;
+      const uploadY = extruded ? entry.y - this.padding : entry.y;
+      const finalUpload = extruded ?? entry.source;
       try {
         gl.texSubImage2D(
           gl.TEXTURE_2D,
           0,
-          entry.x,
-          entry.y,
+          uploadX,
+          uploadY,
           gl.RGBA,
           gl.UNSIGNED_BYTE,
-          entry.source as any
+          finalUpload as any
         );
       } catch (e) {
-        console.warn(`[TextureAtlas] context-restore re-stamp failed: ${e}`);
+        console.warn(`[TextureAtlas] context-restore re-stamp failed for id='${id}': ${e}`);
       }
     }
     // Mark dirty rather than regenerating directly. The next

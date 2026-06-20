@@ -35,7 +35,11 @@ export class GeometryQuantRangeTexture extends ItemDataTexture {
       itemSizeInBytes: GeometryQuantRangeTexture.itemSizeInBytes,
       texelsPerItem: 2,
       elementsPerTexel: 4,
-      useBuffer: false
+      // Keep a CPU mirror: these per-geometry quant ranges decode every vertex
+      // position, and a GPU-only texture cannot be rebuilt after a WebGL context
+      // loss (there is no source to re-derive it from), leaving all geometry
+      // collapsed at the origin. The mirror lets _allocateTexture re-upload it.
+      useBuffer: true
     });
     this.dirty = false;
   }
@@ -53,6 +57,9 @@ export class GeometryQuantRangeTexture extends ItemDataTexture {
     data[5] = +item.scale[1];
     data[6] = +item.scale[2];
     data[7] = 0.0;
+
+    // Mirror into the CPU buffer so the data survives a context-loss/restore.
+    this.buffer?.set(data, itemIndex * this.elementsPerItem);
 
     const gl = this.gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
@@ -73,8 +80,15 @@ export class GeometryQuantRangeTexture extends ItemDataTexture {
     this.dirty = true;
   }
 
-  getItem(_itemIndex: number): { offset: Vec3; scale: Vec3 } {
-    throw new Error("[GeometryQuantRangeTexture.getItem] Not supported without a backing buffer");
+  getItem(itemIndex: number): { offset: Vec3; scale: Vec3 } {
+    if (!this.buffer) {
+      throw new Error("[GeometryQuantRangeTexture.getItem] Not supported without a backing buffer");
+    }
+    const base = itemIndex * this.elementsPerItem;
+    return {
+      offset: [this.buffer[base], this.buffer[base + 1], this.buffer[base + 2]],
+      scale: [this.buffer[base + 4], this.buffer[base + 5], this.buffer[base + 6]],
+    };
   }
 
   public uploadChanges(): boolean {

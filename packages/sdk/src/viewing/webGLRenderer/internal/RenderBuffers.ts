@@ -75,6 +75,20 @@ export class RenderBuffers {
   }
 
   /**
+   * Forgets the GPU resources of all managed render buffers after a WebGL
+   * context loss, without deleting them (the handles belong to the dead
+   * context). Each buffer reallocates lazily on its next bind after restore.
+   */
+  webglContextLost(): void {
+    for (const buffer of Object.values(this._renderBuffersBasic)) {
+      buffer.webglContextLost();
+    }
+    for (const buffer of Object.values(this._renderBuffersScaled)) {
+      buffer.webglContextLost();
+    }
+  }
+
+  /**
    * Destroys all managed render buffers, releasing their WebGL resources.
    */
   destroy(): void {

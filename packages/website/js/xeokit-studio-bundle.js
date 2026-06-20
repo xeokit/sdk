@@ -167583,10 +167583,20 @@ var WebGLRenderBuffer = class {
   setSize(size) {
     this.size = size;
   }
+  /**
+   * Forget the GPU resources after a context loss. They belong to the dead
+   * context, so the handles are dropped WITHOUT `gl.delete*` (which would
+   * error against the restored context); `touch()` recreates them lazily on
+   * the next bind.
+   */
+  webglContextLost() {
+    this.#buffer = null;
+    this.bound = false;
+  }
   /** Re-associate with a restored WebGL2 context. */
   webglContextRestored(gl) {
     this.#gl = gl;
-    this.#disposeGPUResources();
+    this.#buffer = null;
     this.bound = false;
   }
   /** Bind the framebuffer, allocating or resizing as needed. */
@@ -168931,6 +168941,30 @@ var RenderInspector = class _RenderInspector {
     this._timerSupported = !!gl.getExtension("EXT_disjoint_timer_query_webgl2");
   }
   /**
+   * Drops the GPU timer-query objects when the WebGL context is lost. They
+   * belong to the dead context, so their references are simply discarded (no
+   * `deleteQuery`); polling or reusing them would error against the restored
+   * context.
+   */
+  webglContextLost() {
+    this._freeQueries = [];
+    this._pendingQueries = [];
+    this._activeQuery = null;
+  }
+  /**
+   * Re-enables GPU timing after the context is restored: discards any
+   * query objects from the dead context and re-fetches the timer extension
+   * (extension handles do not survive a context loss).
+   */
+  webglContextRestored() {
+    this._freeQueries = [];
+    this._pendingQueries = [];
+    this._activeQuery = null;
+    if (this._gl) {
+      this._timerSupported = !!this._gl.getExtension("EXT_disjoint_timer_query_webgl2");
+    }
+  }
+  /**
    * Determines if logging is enabled for the given render bin.
    * @private
    */
@@ -169317,6 +169351,14 @@ var RenderContext = class {
    * The WebGL rendering context.
    */
   gl;
+  /**
+   * True while the WebGL context is lost (between `webglcontextlost` and the
+   * completion of `webglcontextrestored`). GL resources are invalid in this
+   * window, so all rendering, GPU uploads and resource deletion must be skipped.
+   */
+  get contextLost() {
+    return !this.gl || this.gl.isContextLost();
+  }
   /**
    * The HTML canvas element used for WebGL rendering.
    */
@@ -169719,6 +169761,19 @@ var RenderBuffers = class {
     );
     this._renderBuffersBasic[id] = newBuffer;
     return newBuffer;
+  }
+  /**
+   * Forgets the GPU resources of all managed render buffers after a WebGL
+   * context loss, without deleting them (the handles belong to the dead
+   * context). Each buffer reallocates lazily on its next bind after restore.
+   */
+  webglContextLost() {
+    for (const buffer of Object.values(this._renderBuffersBasic)) {
+      buffer.webglContextLost();
+    }
+    for (const buffer of Object.values(this._renderBuffersScaled)) {
+      buffer.webglContextLost();
+    }
   }
   /**
    * Destroys all managed render buffers, releasing their WebGL resources.
@@ -171390,7 +171445,11 @@ var GeometryQuantRangeTexture = class _GeometryQuantRangeTexture extends ItemDat
       itemSizeInBytes: _GeometryQuantRangeTexture.itemSizeInBytes,
       texelsPerItem: 2,
       elementsPerTexel: 4,
-      useBuffer: false
+      // Keep a CPU mirror: these per-geometry quant ranges decode every vertex
+      // position, and a GPU-only texture cannot be rebuilt after a WebGL context
+      // loss (there is no source to re-derive it from), leaving all geometry
+      // collapsed at the origin. The mirror lets _allocateTexture re-upload it.
+      useBuffer: true
     });
     this.dirty = false;
   }
@@ -171406,6 +171465,7 @@ var GeometryQuantRangeTexture = class _GeometryQuantRangeTexture extends ItemDat
     data[5] = +item.scale[1];
     data[6] = +item.scale[2];
     data[7] = 0;
+    this.buffer?.set(data, itemIndex * this.elementsPerItem);
     const gl = this.gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
@@ -171422,8 +171482,15 @@ var GeometryQuantRangeTexture = class _GeometryQuantRangeTexture extends ItemDat
     );
     this.dirty = true;
   }
-  getItem(_itemIndex) {
-    throw new Error("[GeometryQuantRangeTexture.getItem] Not supported without a backing buffer");
+  getItem(itemIndex) {
+    if (!this.buffer) {
+      throw new Error("[GeometryQuantRangeTexture.getItem] Not supported without a backing buffer");
+    }
+    const base = itemIndex * this.elementsPerItem;
+    return {
+      offset: [this.buffer[base], this.buffer[base + 1], this.buffer[base + 2]],
+      scale: [this.buffer[base + 4], this.buffer[base + 5], this.buffer[base + 6]]
+    };
   }
   uploadChanges() {
     if (!this.dirty) {
@@ -172097,19 +172164,26 @@ var TextureAtlas = class _TextureAtlas {
       return re;
     const gl = this.gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
-    for (const entry of this._entries.values()) {
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    for (const [id, entry] of this._entries) {
+      const extruded = this._extrudeWithGutter(entry.source, entry.width, entry.height);
+      const uploadX = extruded ? entry.x - this.padding : entry.x;
+      const uploadY = extruded ? entry.y - this.padding : entry.y;
+      const finalUpload = extruded ?? entry.source;
       try {
         gl.texSubImage2D(
           gl.TEXTURE_2D,
           0,
-          entry.x,
-          entry.y,
+          uploadX,
+          uploadY,
           gl.RGBA,
           gl.UNSIGNED_BYTE,
-          entry.source
+          finalUpload
         );
       } catch (e) {
-        console.warn(`[TextureAtlas] context-restore re-stamp failed: ${e}`);
+        console.warn(`[TextureAtlas] context-restore re-stamp failed for id='${id}': ${e}`);
       }
     }
     if (this.mipmap) {
@@ -174540,12 +174614,13 @@ var GPUMemoryManager = class {
     if (!this._viewTileCameraMatrixTexture || !this._viewTilePickMatrixTexture) {
       throw new SDKInternalException("[GPUMemoryManager.webglContextRestored] GPUMemoryManager is not initialized.");
     }
-    for (const contextUsers in [
+    const contextUsers = [
       ...this._viewTileCameraMatrixTexture,
       ...this._viewTilePickMatrixTexture,
-      this._batches
-    ]) {
-      const result = contextUsers.webglContextRestored();
+      ...this._batches
+    ];
+    for (const contextUser of contextUsers) {
+      const result = contextUser.webglContextRestored();
       if (!result.ok) {
         return result;
       }
@@ -174624,6 +174699,9 @@ var GPUMemoryManager = class {
    * been queued by higher-level managers.
    */
   uploadChanges() {
+    if (this._renderContext.contextLost) {
+      return;
+    }
     const numViews = this._renderContext.memoryConfigs.maxViews;
     for (let i = 0; i < numViews; i++) {
       this._viewTileCameraMatrixTexture[i].uploadChanges();
@@ -175817,6 +175895,19 @@ var SplatBatch = class {
   uploadChanges() {
     this.texture.uploadChanges();
   }
+  /**
+   * Recreates the splat texture after a WebGL context restore, re-uploading the
+   * packed splat records from the texture's CPU mirror. Bumps the revision so
+   * the draw technique re-feeds its sort worker.
+   */
+  webglContextRestored() {
+    const result = this.texture.webglContextRestored();
+    if (result.ok === false) {
+      return result;
+    }
+    this._revision++;
+    return { ok: true, value: void 0 };
+  }
   /** Live portions, each carrying `{base, count}` for the sort/draw. */
   get portions() {
     return this._portions.values();
@@ -176033,6 +176124,17 @@ var MeshManager = class {
   /** The shared gaussian-splat batch, or null if no splats have been added. */
   getSplatBatch() {
     return this._splatBatch;
+  }
+  /**
+   * Recreates GPU resources after a WebGL context restore. The mesh batches are
+   * owned by the GPUMemoryManager (restored there); only the splat batch is
+   * owned here, so re-upload its texture from the CPU mirror.
+   */
+  webglContextRestored() {
+    if (this._splatBatch) {
+      return this._splatBatch.webglContextRestored();
+    }
+    return { ok: true, value: void 0 };
   }
   /**
    * Registers a newly created {@link model!scene.SceneObject | SceneObject}.
@@ -182153,6 +182255,15 @@ var PickManager = class {
     }
     return { ok: true, value: void 0 };
   }
+  /**
+   * Releases the splat pick technique while the context is lost, so its
+   * `gl.delete*` calls are no-ops rather than errors against the restored
+   * context. {@link webglContextRestored} rebuilds it.
+   */
+  webglContextLost() {
+    this._splatPick?.destroy();
+    this._splatPick = null;
+  }
   webglContextRestored() {
     if (!this._drawOps) {
       return { ok: true, value: void 0 };
@@ -182165,7 +182276,6 @@ var PickManager = class {
     if (result2.ok === false) {
       return result2;
     }
-    this._splatPick?.destroy();
     this._splatPick = new GaussianSplatPickTechnique(this._renderContext.gl);
     const result3 = this._splatPick.init();
     if (result3.ok === false) {
@@ -187469,23 +187579,16 @@ var RenderManager = class _RenderManager {
     return ri && ri.enabled ? ri : null;
   }
   /**
-   * Reinitializes everything that holds GL state after a context restore.
+   * Releases GL-backed resources when the WebGL context is lost.
    *
-   * Context loss invalidates every GPU resource — programs, textures,
-   * framebuffers, renderbuffers — across the whole renderer. `drawOps`
-   * has its own in-place restore hook (the program pool is shared, so it
-   * needs to recompile rather than be reconstructed); everything else
-   * (sky, grid, SAO pipeline, shadow pipeline, post-process chain) is
-   * torn down and re-initialised through {@link init} so each owner
-   * walks back through its own lazy-construction path with a fresh GL
-   * context.
+   * Runs while the context is still flagged lost, so the `destroy()` calls'
+   * `gl.delete*` operations are no-ops rather than errors issued against the
+   * later-restored context. The lazily-constructed subsystems (sky, grid,
+   * SAO/shadow pipelines, post-process chain) are nulled so {@link init}
+   * recreates them on restore; `drawOps` keeps its shared program pool and
+   * recompiles in {@link webglContextRestored}.
    */
-  webglContextRestored() {
-    if (this.drawOps) {
-      const result = this.drawOps.webglContextRestored();
-      if (result.ok === false)
-        return result;
-    }
+  webglContextLost() {
     this.skyRenderer?.destroy();
     this.skyRenderer = null;
     this.infiniteGrid?.destroy();
@@ -187498,6 +187601,33 @@ var RenderManager = class _RenderManager {
     this._shadowPipeline = null;
     this._postProcess?.destroy();
     this._postProcess = null;
+    this._capPlaneRenderer?.destroy();
+    this._capPlaneRenderer = null;
+    for (const pipeline of this._iblPrefilters.values()) {
+      pipeline.destroy();
+    }
+    this._iblPrefilters.clear();
+    this._iblParamSignatures.clear();
+    this._iblEnvVersions.clear();
+    this._brdfLUT?.destroy();
+    this._brdfLUT = null;
+    this._renderContext.renderInspector?.webglContextLost();
+  }
+  /**
+   * Reinitializes everything that holds GL state after a context restore.
+   *
+   * The subsystems invalidated by the loss were nulled in
+   * {@link webglContextLost}; here `drawOps` recompiles its shared program
+   * pool in place and {@link init} walks each nulled subsystem back through
+   * its lazy-construction path against the restored context.
+   */
+  webglContextRestored() {
+    this._renderContext.renderInspector?.webglContextRestored();
+    if (this.drawOps) {
+      const result = this.drawOps.webglContextRestored();
+      if (result.ok === false)
+        return result;
+    }
     return this.init();
   }
   _activateExtensions() {
@@ -187530,6 +187660,9 @@ var RenderManager = class _RenderManager {
   render(rendererView, options) {
     if (!this.drawOps) {
       throw new SDKInternalException("[RenderManager.render] RenderManager not initialized");
+    }
+    if (this._renderContext.contextLost) {
+      return { ok: true, value: void 0 };
     }
     const { view } = rendererView;
     const inspector = this._inspector();
@@ -189432,6 +189565,10 @@ var ViewManager2 = class {
     if (resultGPU.ok === false) {
       return resultGPU;
     }
+    const resultMesh = this._meshManager.webglContextRestored();
+    if (resultMesh.ok === false) {
+      return resultMesh;
+    }
     const resultRender = this._renderManager.webglContextRestored();
     if (resultRender.ok === false) {
       return resultRender;
@@ -189456,6 +189593,20 @@ var ViewManager2 = class {
       ok: true,
       value: void 0
     };
+  }
+  /**
+   * Releases GL-backed resources when the WebGL context is lost.
+   *
+   * Called synchronously from the `webglcontextlost` handler, while the context
+   * is still flagged lost, so each subsystem's `gl.delete*` calls are no-ops
+   * rather than errors against the later-restored context.
+   */
+  webglContextLost() {
+    this._renderManager?.webglContextLost();
+    this._pickManager?.webglContextLost();
+    for (const rendererView of this._rendererViewsList) {
+      rendererView.renderBuffers?.webglContextLost();
+    }
   }
   /**
    * Returns current GPU memory usage statistics for the renderer.
@@ -189632,6 +189783,9 @@ var ViewManager2 = class {
   viewUpdated(view) {
     const rendererView = this._rendererViews[view.id];
     if (!rendererView) {
+      return { ok: true, value: void 0 };
+    }
+    if (this._renderContext.contextLost) {
       return { ok: true, value: void 0 };
     }
     this._gpuMemoryManager.uploadChanges();
@@ -190392,6 +190546,37 @@ var WebGLRenderer3 = class {
     return this._viewManager.getMemoryUsage();
   }
   /**
+   * Forces a WebGL context loss and automatic restore, for testing the
+   * renderer's context-restore path.
+   *
+   * Uses the `WEBGL_lose_context` debug extension to drop the context (firing
+   * `webglcontextlost` → resource teardown) and, after `restoreDelayMs`,
+   * restore it (firing `webglcontextrestored` → GPU resources rebuilt from the
+   * scene). No-op when the extension is unavailable.
+   *
+   * @param restoreDelayMs Milliseconds to stay lost before restoring. Default 1000.
+   * @returns `true` if the loss was triggered, `false` if unsupported.
+   */
+  loseContext(restoreDelayMs = 1e3) {
+    if (!this._viewManager) {
+      return false;
+    }
+    const canvas2 = this._viewManager.getWebGLCanvasElement();
+    const gl = canvas2.getContext("webgl2");
+    const ext = gl && gl.getExtension("WEBGL_lose_context");
+    if (!ext) {
+      this.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[WebGLRenderer.loseContext] WEBGL_lose_context extension unavailable"
+      });
+      return false;
+    }
+    ext.loseContext();
+    setTimeout(() => ext.restoreContext(), restoreDelayMs);
+    return true;
+  }
+  /**
    * Returns a read-only view of GPU-resident data used by the renderer.
    *
    * This API is intended for diagnostics, debugging tools, and monitoring UIs.
@@ -190726,6 +190911,7 @@ var WebGLRenderer3 = class {
     this._shaderInspector = this._viewManager.shaderInspector;
     this._viewManager.getWebGLCanvasElement().addEventListener("webglcontextlost", (event) => {
       event.preventDefault();
+      this._viewManager.webglContextLost();
       this.events.webglContextLost.dispatch(this, event);
     });
     this._viewManager.getWebGLCanvasElement().addEventListener("webglcontextrestored", (event) => {
@@ -190739,6 +190925,12 @@ var WebGLRenderer3 = class {
           error: `[WebGLRenderer] WebGL context restoration failed - ${result2.error}`
         });
         return;
+      }
+      if (this._viewer) {
+        const views = this._viewer.viewList;
+        for (let i = 0, len = views.length; i < len; i++) {
+          views[i]?.needsRender();
+        }
       }
       this.events.webglContextRestored.dispatch(this);
     });
@@ -239367,6 +239559,21 @@ var openAdaptiveQuality = {
   }
 };
 
+// ../sdk/src/studio/panels/toolbar/actions/loseContext.ts
+var loseContext = {
+  id: "loseContext",
+  do(ctx) {
+    if (ctx.fireAction("loseContext"))
+      return;
+    const renderer = ctx.studio?.renderer;
+    if (!renderer) {
+      console.warn("[Toolbar] loseContext \u2014 no Studio renderer available.");
+      return;
+    }
+    renderer.loseContext();
+  }
+};
+
 // ../sdk/src/studio/panels/toolbar/actions/openDaylightAnalysis.ts
 var openDaylightAnalysis = {
   id: "openDaylightAnalysis",
@@ -239695,6 +239902,7 @@ var TOOLBAR_ACTIONS = {
   openCameraTour,
   openCulling,
   openAdaptiveQuality,
+  loseContext,
   openDaylightAnalysis,
   openDrawings,
   openExport,
@@ -240281,6 +240489,11 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
       action: "openAdaptiveQuality",
       title: "Adaptive Quality",
       svg: AdaptiveQualityPanel.iconSvg()
+    }));
+    gPerformance.btns.appendChild(this._mkBtn({
+      action: "loseContext",
+      title: "Lose & Restore WebGL Context",
+      svg: ICONS.loseContext
     }));
     row1.appendChild(gPerformance.wrap);
     const gTools = this._mkGroup("Tools");
@@ -241165,6 +241378,8 @@ var ICONS = {
   cube: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 L21 8 L21 17 L12 22 L3 17 L3 8 Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M3 8 L12 13 L21 8 M12 13 L12 22" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>`,
   // Frustum trapezoid — toggle perspective / ortho.
   frustum: `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3"  y="9"  width="6" height="6" rx="0.6" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="14" y="6"  width="7" height="12" rx="0.8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 9 L14 6 M9 15 L14 18" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>`,
+  // Lightning bolt — force a WebGL context loss / restore (debug).
+  loseContext: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 L4 13 L11 13 L9 22 L20 10 L13 10 Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>`,
   // Four corner brackets — fit all.
   fitAll: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9 L4 4 L9 4"   fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M15 4 L20 4 L20 9"  fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M20 15 L20 20 L15 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M9 20 L4 20 L4 15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
   // Standing person — first-person nav.

@@ -84,10 +84,21 @@ class WebGLRenderBuffer {
     this.size = size;
   }
 
+  /**
+   * Forget the GPU resources after a context loss. They belong to the dead
+   * context, so the handles are dropped WITHOUT `gl.delete*` (which would
+   * error against the restored context); `touch()` recreates them lazily on
+   * the next bind.
+   */
+  webglContextLost() {
+    this.#buffer = null;
+    this.bound = false;
+  }
+
   /** Re-associate with a restored WebGL2 context. */
   webglContextRestored(gl: WebGL2RenderingContext) {
     this.#gl = gl;
-    this.#disposeGPUResources();
+    this.#buffer = null;
     this.bound = false;
   }
 

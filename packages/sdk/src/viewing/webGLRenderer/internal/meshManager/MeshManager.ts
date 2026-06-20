@@ -236,6 +236,18 @@ export class MeshManager {
   }
 
   /**
+   * Recreates GPU resources after a WebGL context restore. The mesh batches are
+   * owned by the GPUMemoryManager (restored there); only the splat batch is
+   * owned here, so re-upload its texture from the CPU mirror.
+   */
+  public webglContextRestored(): SDKResult<void> {
+    if (this._splatBatch) {
+      return this._splatBatch.webglContextRestored();
+    }
+    return {ok: true, value: undefined};
+  }
+
+  /**
    * Registers a newly created {@link model!scene.SceneObject | SceneObject}.
    *
    * Creates a {@link RendererObject}, expects that all its meshes are pre-registered

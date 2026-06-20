@@ -50,6 +50,15 @@ export class RenderContext implements WebGLContextProvider {
   public gl: WebGL2RenderingContext;
 
   /**
+   * True while the WebGL context is lost (between `webglcontextlost` and the
+   * completion of `webglcontextrestored`). GL resources are invalid in this
+   * window, so all rendering, GPU uploads and resource deletion must be skipped.
+   */
+  get contextLost(): boolean {
+    return !this.gl || this.gl.isContextLost();
+  }
+
+  /**
    * The HTML canvas element used for WebGL rendering.
    */
   public webglCanvasElement: HTMLCanvasElement;

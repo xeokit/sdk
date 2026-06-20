@@ -311,6 +311,10 @@ export class ViewManager {
     if (resultGPU.ok === false) {
       return resultGPU;
     }
+    const resultMesh = this._meshManager.webglContextRestored();
+    if (resultMesh.ok === false) {
+      return resultMesh;
+    }
     const resultRender = this._renderManager.webglContextRestored();
     if (resultRender.ok === false) {
       return resultRender;
@@ -337,6 +341,21 @@ export class ViewManager {
       ok: true,
       value: undefined
     };
+  }
+
+  /**
+   * Releases GL-backed resources when the WebGL context is lost.
+   *
+   * Called synchronously from the `webglcontextlost` handler, while the context
+   * is still flagged lost, so each subsystem's `gl.delete*` calls are no-ops
+   * rather than errors against the later-restored context.
+   */
+  webglContextLost(): void {
+    this._renderManager?.webglContextLost();
+    this._pickManager?.webglContextLost();
+    for (const rendererView of this._rendererViewsList) {
+      rendererView.renderBuffers?.webglContextLost();
+    }
   }
 
   /**
@@ -529,6 +548,11 @@ export class ViewManager {
 
     const rendererView = this._rendererViews[view.id];
     if (!rendererView) {
+      return { ok: true, value: undefined };
+    }
+
+    // No GPU work while the context is lost; resumes after restoration.
+    if (this._renderContext.contextLost) {
       return { ok: true, value: undefined };
     }
 

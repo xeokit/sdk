@@ -268,6 +268,38 @@ export class WebGLRenderer {
     return this._viewManager.getMemoryUsage();
   }
 
+  /**
+   * Forces a WebGL context loss and automatic restore, for testing the
+   * renderer's context-restore path.
+   *
+   * Uses the `WEBGL_lose_context` debug extension to drop the context (firing
+   * `webglcontextlost` → resource teardown) and, after `restoreDelayMs`,
+   * restore it (firing `webglcontextrestored` → GPU resources rebuilt from the
+   * scene). No-op when the extension is unavailable.
+   *
+   * @param restoreDelayMs Milliseconds to stay lost before restoring. Default 1000.
+   * @returns `true` if the loss was triggered, `false` if unsupported.
+   */
+  public loseContext(restoreDelayMs = 1000): boolean {
+    if (!this._viewManager) {
+      return false;
+    }
+    const canvas = this._viewManager.getWebGLCanvasElement();
+    const gl = canvas.getContext("webgl2") as WebGL2RenderingContext | null;
+    const ext = gl && gl.getExtension("WEBGL_lose_context");
+    if (!ext) {
+      this.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[WebGLRenderer.loseContext] WEBGL_lose_context extension unavailable"
+      });
+      return false;
+    }
+    ext.loseContext();
+    setTimeout(() => ext.restoreContext(), restoreDelayMs);
+    return true;
+  }
+
 
   /**
    * Returns a read-only view of GPU-resident data used by the renderer.
@@ -645,7 +677,12 @@ export class WebGLRenderer {
     this._shaderInspector = this._viewManager.shaderInspector;
 
     this._viewManager.getWebGLCanvasElement().addEventListener("webglcontextlost", (event) => {
+      // preventDefault is required for the browser to fire webglcontextrestored.
       event.preventDefault();
+      // Release GL-backed resources now, while the context is still flagged
+      // lost, so their gl.delete* calls are no-ops instead of errors against
+      // the restored context.
+      this._viewManager.webglContextLost();
       this.events.webglContextLost.dispatch(this, event as WebGLContextEvent);
     });
 
@@ -659,6 +696,15 @@ export class WebGLRenderer {
           error: `[WebGLRenderer] WebGL context restoration failed - ${result.error}`
         });
         return;
+      }
+      // The lost context cleared the canvas; rebuilt GPU resources won't be
+      // shown until a frame is drawn. Mark every view dirty so the render path
+      // redraws them (a static scene wouldn't otherwise re-render).
+      if (this._viewer) {
+        const views = this._viewer.viewList;
+        for (let i = 0, len = views.length; i < len; i++) {
+          views[i]?.needsRender();
+        }
       }
       this.events.webglContextRestored.dispatch(this);
     });

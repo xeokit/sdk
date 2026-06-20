@@ -84,6 +84,20 @@ export class SplatBatch {
     this.texture.uploadChanges();
   }
 
+  /**
+   * Recreates the splat texture after a WebGL context restore, re-uploading the
+   * packed splat records from the texture's CPU mirror. Bumps the revision so
+   * the draw technique re-feeds its sort worker.
+   */
+  webglContextRestored(): SDKResult<void> {
+    const result = this.texture.webglContextRestored();
+    if (result.ok === false) {
+      return result;
+    }
+    this._revision++;
+    return {ok: true, value: undefined};
+  }
+
   /** Live portions, each carrying `{base, count}` for the sort/draw. */
   get portions(): Iterable<SplatPortion> {
     return this._portions.values();

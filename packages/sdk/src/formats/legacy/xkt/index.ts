@@ -57,6 +57,7 @@
  * `.xkt` as an `ArrayBuffer` first, and the exporter resolves to one.
  *
  * @module xkt
+ * @document ./README.md
  */
 export * from "./XKTLoader";
 export * from "./XKTExporter";

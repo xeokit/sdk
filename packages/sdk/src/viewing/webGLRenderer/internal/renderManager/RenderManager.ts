@@ -597,23 +597,16 @@ export class RenderManager {
   }
 
   /**
-   * Reinitializes everything that holds GL state after a context restore.
+   * Releases GL-backed resources when the WebGL context is lost.
    *
-   * Context loss invalidates every GPU resource — programs, textures,
-   * framebuffers, renderbuffers — across the whole renderer. `drawOps`
-   * has its own in-place restore hook (the program pool is shared, so it
-   * needs to recompile rather than be reconstructed); everything else
-   * (sky, grid, SAO pipeline, shadow pipeline, post-process chain) is
-   * torn down and re-initialised through {@link init} so each owner
-   * walks back through its own lazy-construction path with a fresh GL
-   * context.
+   * Runs while the context is still flagged lost, so the `destroy()` calls'
+   * `gl.delete*` operations are no-ops rather than errors issued against the
+   * later-restored context. The lazily-constructed subsystems (sky, grid,
+   * SAO/shadow pipelines, post-process chain) are nulled so {@link init}
+   * recreates them on restore; `drawOps` keeps its shared program pool and
+   * recompiles in {@link webglContextRestored}.
    */
-  webglContextRestored(): SDKResult<void> {
-    if (this.drawOps) {
-      const result = this.drawOps.webglContextRestored();
-      if (result.ok === false) return result;
-    }
-
+  webglContextLost(): void {
     this.skyRenderer?.destroy();
     this.skyRenderer = null;
     this.infiniteGrid?.destroy();
@@ -626,6 +619,38 @@ export class RenderManager {
     this._shadowPipeline = null;
     this._postProcess?.destroy();
     this._postProcess = null;
+    this._capPlaneRenderer?.destroy();
+    this._capPlaneRenderer = null;
+    for (const pipeline of this._iblPrefilters.values()) {
+      pipeline.destroy();
+    }
+    this._iblPrefilters.clear();
+    this._iblParamSignatures.clear();
+    // Also reset the env-version cache: a recreated prefilter pipeline must
+    // re-receive the environment image, which `_prepareIBL` only re-uploads on
+    // a version mismatch — leaving this stale skips the upload and the helmet
+    // gets an empty/wrong IBL environment (over-bright, blown-out bloom).
+    this._iblEnvVersions.clear();
+    this._brdfLUT?.destroy();
+    this._brdfLUT = null;
+    this._renderContext.renderInspector?.webglContextLost();
+  }
+
+  /**
+   * Reinitializes everything that holds GL state after a context restore.
+   *
+   * The subsystems invalidated by the loss were nulled in
+   * {@link webglContextLost}; here `drawOps` recompiles its shared program
+   * pool in place and {@link init} walks each nulled subsystem back through
+   * its lazy-construction path against the restored context.
+   */
+  webglContextRestored(): SDKResult<void> {
+    this._renderContext.renderInspector?.webglContextRestored();
+
+    if (this.drawOps) {
+      const result = this.drawOps.webglContextRestored();
+      if (result.ok === false) return result;
+    }
 
     return this.init();
   }
@@ -668,6 +693,12 @@ export class RenderManager {
 
     if (!this.drawOps) {
       throw new SDKInternalException("[RenderManager.render] RenderManager not initialized");
+    }
+
+    // GPU resources are invalid while the context is lost; skip the frame
+    // entirely until restoration rebuilds them.
+    if (this._renderContext.contextLost) {
+      return {ok: true, value: undefined};
     }
 
     const {view} = rendererView;

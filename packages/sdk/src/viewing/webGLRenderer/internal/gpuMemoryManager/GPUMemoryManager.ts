@@ -219,13 +219,13 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
       throw new SDKInternalException("[GPUMemoryManager.webglContextRestored] GPUMemoryManager is not initialized.");
     }
 
-    // NOTE: Keep the existing (odd) iteration pattern out of behavior changes; just document intent.
-    for (const contextUsers in [
+    const contextUsers = [
       ...this._viewTileCameraMatrixTexture,
       ...this._viewTilePickMatrixTexture,
-      this._batches
-    ]) {
-      const result = (<any>contextUsers).webglContextRestored();
+      ...this._batches,
+    ];
+    for (const contextUser of contextUsers) {
+      const result = contextUser.webglContextRestored();
       if (!result.ok) {
         return result;
       }
@@ -315,6 +315,9 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * been queued by higher-level managers.
    */
   public uploadChanges(): void {
+    if (this._renderContext.contextLost) {
+      return;
+    }
     const numViews = this._renderContext.memoryConfigs.maxViews;
     for (let i = 0; i < numViews; i++) {
       this._viewTileCameraMatrixTexture[i].uploadChanges();

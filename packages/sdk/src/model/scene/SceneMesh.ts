@@ -18,7 +18,7 @@ import type {SceneMaterial} from "./SceneMaterial";
 import type {SceneModel} from "./SceneModel";
 import type {SceneTexture} from "./SceneTexture";
 import {SceneTransform} from "./SceneTransform";
-import {SDKErrorType, type SDKResult, SDKTask} from "../../base/core";
+import {SDKErrorType, type SDKResult} from "../../base/core";
 
 const DEFAULT_ROUGHNESS       = 0.6;
 const DEFAULT_METALLIC        = 0.0;
@@ -111,11 +111,6 @@ export class SceneMesh {
   private _worldMatrixDirty: boolean = true;
 
   destroyed: boolean = false;
-
-  // Created lazily on the first matrix change (see setWorldMatrixDirty) rather
-  // than per construction — a freshly loaded, never-transformed mesh never needs
-  // it, so this avoids one task + closure allocation per mesh at load.
-  private _emitMatrixChangedEventTask: SDKTask | null = null;
 
   /**
    * @private
@@ -527,20 +522,13 @@ export class SceneMesh {
    * @internal
    */
   setWorldMatrixDirty(): void {
-    // if (this._worldMatrixDirty) {
-    //   return;
-    // }
     this._worldMatrixDirty = true;
-    if (!this._emitMatrixChangedEventTask) {
-      this._emitMatrixChangedEventTask = new SDKTask({
-        name: "SceneMesh._emitMatrixChangedEventTask",
-        task: () => {
-          this.model.scene.events.onSceneMeshMatrixChanged.dispatch(this.model.scene, this);
-        },
-        stage: SDKTask.ComputeStage2 // Emit after transforms have been updated but before rendering
-      });
-    }
-    this._emitMatrixChangedEventTask.schedule();
+    // Dispatched synchronously so spatial structures (collision index, culler)
+    // are fresh for a fit/pick issued right after a transform. worldMatrix is
+    // computed lazily on read, so subscribers always observe the current value
+    // regardless of dispatch timing; the UI panels self-debounce to one paint
+    // per frame, and the renderer's per-mesh GPU update is idempotent.
+    this.model.scene.events.onSceneMeshMatrixChanged.dispatch(this.model.scene, this);
   }
 
   /**

@@ -763,10 +763,10 @@ export class GPUMemoryBatch {
     const primCount = isPoints
       ? vertCount
       : geometry.primitive === LinesPrimitive
-        ? geometry.indices.length / 2
-        : geometry.indices.length / 3;
+        ? (geometry.indices.length / 2) | 0
+        : (geometry.indices.length / 3) | 0;
     if (geometry.primitive === TrianglesPrimitive && geometry.edgeIndices) {
-      const edgePrimCount = geometry.edgeIndices.length / 2;
+      const edgePrimCount = (geometry.edgeIndices.length / 2) | 0;
       if (edgePrimCount > 0 && this._edgeMeshIndexTexture[0].canGetPortion(edgePrimCount) === false) { // FIXME: Only defined for View 0
         return GPUMemoryCheckResult.NotEnoughEdgeIndexSpace;
       }
@@ -1172,11 +1172,15 @@ export class GPUMemoryBatch {
     // any parent-transform chain.
     this._meshMatrixTexture.setItem(meshIndex, new Float32Array(sceneMesh.worldMatrix));
 
+    // Floor: a primitive count is a whole number. A malformed index buffer
+    // (length not a clean multiple of the primitive's index stride) would
+    // otherwise yield a fractional count that propagates into the index
+    // texture's run lengths and surfaces as a half-count in render stats.
     const primitiveCount = sceneGeometry.primitive === PointsPrimitive
-      ? sceneGeometry.positionsCompressed.length / 3
+      ? (sceneGeometry.positionsCompressed.length / 3) | 0
       : sceneGeometry.primitive === LinesPrimitive
-        ? sceneGeometry.indices.length / 2
-        : sceneGeometry.indices.length / 3;
+        ? (sceneGeometry.indices.length / 2) | 0
+        : (sceneGeometry.indices.length / 3) | 0;
 
     const primitiveMeshIndexTextureHandles = [];
 
@@ -1188,7 +1192,7 @@ export class GPUMemoryBatch {
     let edgeMeshIndexTextureHandles: any[] | undefined;
 
     if (sceneGeometry.primitive === TrianglesPrimitive) {
-      const edgeCount = sceneGeometry.edgeIndices ? sceneGeometry.edgeIndices.length / 2 : 0;
+      const edgeCount = sceneGeometry.edgeIndices ? (sceneGeometry.edgeIndices.length / 2) | 0 : 0;
       edgeMeshIndexTextureHandles = [];
       // Skip the per-view edge portion when the geometry has no
       // feature edges (typical of fully-coplanar earcut output from

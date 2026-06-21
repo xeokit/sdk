@@ -502,6 +502,10 @@ export class RenderManager {
     }
     const drawOps = this.drawOps.prims;
     const gl = this._renderContext.gl;
+    // Start of an uninterrupted batch-draw run — clear the per-unit
+    // bound-texture tracking so the draw path's redundant-bind skip can't act
+    // on state left by a sub-pipeline, the splat pass, or a previous frame.
+    this._renderContext.resetTextureBindings();
     // Lines need blending for the thick-line SDF AA — without it
     // the AA fringe pixels write `lineColor * alpha` as
     // premultiplied colours straight into the framebuffer

@@ -344,6 +344,8 @@ export class PickManager {
       b === "overlay" || b === "overlayPicker";
     const meshBatches = this._meshBatchManager.sortedBatches;
     let overlayPending = false;
+    // Start of a batch-draw run — clear the per-unit bound-texture tracking.
+    renderContext.resetTextureBindings();
     for (let i = 0, len = meshBatches.length; i < len; i++) {
       const meshBatch = meshBatches[i];
       if (!meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.PICK)) continue;
@@ -382,6 +384,9 @@ export class PickManager {
       gl.enable(gl.DEPTH_TEST);
       gl.clear(gl.DEPTH_BUFFER_BIT);
       gl.depthFunc(gl.ALWAYS);
+      // The splat pick above binds textures outside the tracking — clear it
+      // before this second batch-draw run.
+      renderContext.resetTextureBindings();
       for (let i = 0, len = meshBatches.length; i < len; i++) {
         const meshBatch = meshBatches[i];
         if (!isOverlayBin(meshBatch.bin)) continue;

@@ -78,6 +78,11 @@ export class SAOPipeline {
     const rc = this._renderContext;
     const gl = rc.gl;
 
+    // Start of a batch-draw run (the depth pass) — clear the per-unit
+    // bound-texture tracking so the redundant-bind skip starts from a known
+    // state.
+    rc.resetTextureBindings();
+
     // Match the scene's render resolution — supersampling (Tonemap.renderScale)
     // makes `sceneRenderWidth` larger than the canvas, and all SAO textures
     // need to match so the opaqueSAO fragment shader's UV math lines up.

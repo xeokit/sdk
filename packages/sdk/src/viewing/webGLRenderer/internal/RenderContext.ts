@@ -96,6 +96,20 @@ export class RenderContext implements WebGLContextProvider {
   public textureUnit: number;
 
   /**
+   * Which texture is currently bound to each texture unit, indexed by unit.
+   *
+   * Lets the draw path skip a redundant `gl.bindTexture` when the unit already
+   * holds the texture about to be bound — saving the repeated binds of
+   * frame-wide textures (camera matrix, IBL maps) across a bin's batches.
+   *
+   * Only valid within one uninterrupted batch-draw sequence. Cleared by
+   * {@link resetTextureBindings} at the start of every such sequence (each draw
+   * bin, pick, snap, and the SAO/shadow/cap prep passes), because sub-pipelines
+   * and atlas mipmap refreshes bind textures outside this tracking.
+   */
+  public boundTextureUnits: (WebGLTexture | null)[];
+
+  /**
    * Statistic that counts how many times ````gl.bindTexture()```` has been called so far within the current frame.
    */
   public bindTexture: number;
@@ -301,6 +315,7 @@ export class RenderContext implements WebGLContextProvider {
     this.renderInspector = new RenderInspector();
     this.renderInspector.attachGL(gl);
     this.debugging = false;
+    this.boundTextureUnits = new Array(WEBGL_INFO.MAX_TEXTURE_UNITS).fill(null);
     this._allocatePlaceholderTextures();
     this.initialized = true;
     this.reset();
@@ -420,6 +435,21 @@ export class RenderContext implements WebGLContextProvider {
     this.iblBRDFLUT = this._placeholderTexture2D;
     this.iblMaxSpecularMipLevel = 0;
     this.rayPicking = false;
+    this.resetTextureBindings();
+  }
+
+  /**
+   * Clears the per-unit bound-texture tracking ({@link boundTextureUnits}).
+   *
+   * Call at the start of every uninterrupted batch-draw sequence so the draw
+   * path's redundant-bind skip can't act on stale state left by a sub-pipeline,
+   * a splat pass, or a previous frame.
+   */
+  resetTextureBindings(): void {
+    const bound = this.boundTextureUnits;
+    for (let i = 0, len = bound.length; i < len; i++) {
+      bound[i] = null;
+    }
   }
 
   /**

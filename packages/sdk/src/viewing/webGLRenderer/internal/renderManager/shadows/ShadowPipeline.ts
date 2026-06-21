@@ -77,6 +77,12 @@ export class ShadowPipeline {
     const view = rendererView.view;
     const rc = this._renderContext;
     const gl = rc.gl;
+
+    // Start of a batch-draw run (the shadow depth passes) — clear the per-unit
+    // bound-texture tracking so the redundant-bind skip starts from a known
+    // state.
+    rc.resetTextureBindings();
+
     const shadowsCfg = view.effects.shadows;
     const resolution = shadowsCfg.resolution;
     const cascadeCount = Math.min(MAX_SHADOW_CASCADES, Math.max(1, shadowsCfg.cascadeCount));

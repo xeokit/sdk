@@ -788,14 +788,20 @@ export class TextureAtlas {
    * frame regardless of how many slices were written since the
    * previous draw.
    */
-  public flushMipmaps(): void {
-    if (!this._mipsDirty) return;
+  /**
+   * @returns `true` when a mip pyramid was actually regenerated. Regeneration
+   * binds/unbinds the atlas on the active texture unit, so the caller must
+   * treat any per-unit bound-texture tracking as invalid afterwards.
+   */
+  public flushMipmaps(): boolean {
+    if (!this._mipsDirty) return false;
     if (!this.mipmap || !this.allocated || !this.texture) {
       this._mipsDirty = false;
-      return;
+      return false;
     }
     this._regenerateMipmaps();
     this._mipsDirty = false;
+    return true;
   }
 
   /** Frees the GPU texture and clears all CPU-side state. */

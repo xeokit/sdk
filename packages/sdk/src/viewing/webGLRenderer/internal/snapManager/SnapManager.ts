@@ -195,6 +195,10 @@ export class SnapManager {
     const triOps = this._drawOps.prims[trianglePrim];
     void triOps; // placate TS — we look up per-batch below
 
+    // Start of the snap batch-draw run (init + vertex + edge passes, no external
+    // texture binds between them) — clear the per-unit bound-texture tracking.
+    renderContext.resetTextureBindings();
+
     // ── Snap-init pass — triangles populate depth so subsequent
     //    vertex/edge passes z-test against real surface geometry.
     //    Init's fragment shader writes alpha=2.0; the snap passes

@@ -862,28 +862,31 @@ export abstract class DrawTechnique {
     // pays one `gl.generateMipmap` per atlas per frame when it
     // is — independent of how many `addTexture` / `updateTexture`
     // calls landed since the previous draw.
+    // A mip refresh (only while a model is loading) binds the atlas on the
+    // active unit outside the per-unit tracking, so clear the tracking whenever
+    // flushMipmaps reports it ran.
     const _bindAtlases = (this.hasUVs || this.triplanar);
     if (_bindAtlases && batchDataTextures.albedoAtlasTexture && batchDataTextures.albedoAtlasTexture.texture) {
-      batchDataTextures.albedoAtlasTexture.flushMipmaps();
+      if (batchDataTextures.albedoAtlasTexture.flushMipmaps()) renderContext.resetTextureBindings();
       // The atlas isn't a DataTexture (no CPU buffer, no texelFetch — it's
       // a real sampler2D), but its `.texture` field is shape-compatible
       // with `_bindTexture`'s expectations.
       this._bindTexture(samplers.albedoAtlas, batchDataTextures.albedoAtlasTexture);
     }
     if (_bindAtlases && batchDataTextures.metallicRoughnessAtlasTexture && batchDataTextures.metallicRoughnessAtlasTexture.texture) {
-      batchDataTextures.metallicRoughnessAtlasTexture.flushMipmaps();
+      if (batchDataTextures.metallicRoughnessAtlasTexture.flushMipmaps()) renderContext.resetTextureBindings();
       this._bindTexture(samplers.metallicRoughnessAtlas, batchDataTextures.metallicRoughnessAtlasTexture);
     }
     if (_bindAtlases && batchDataTextures.normalMapAtlasTexture && batchDataTextures.normalMapAtlasTexture.texture) {
-      batchDataTextures.normalMapAtlasTexture.flushMipmaps();
+      if (batchDataTextures.normalMapAtlasTexture.flushMipmaps()) renderContext.resetTextureBindings();
       this._bindTexture(samplers.normalMapAtlas, batchDataTextures.normalMapAtlasTexture);
     }
     if (_bindAtlases && batchDataTextures.emissiveAtlasTexture && batchDataTextures.emissiveAtlasTexture.texture) {
-      batchDataTextures.emissiveAtlasTexture.flushMipmaps();
+      if (batchDataTextures.emissiveAtlasTexture.flushMipmaps()) renderContext.resetTextureBindings();
       this._bindTexture(samplers.emissiveAtlas, batchDataTextures.emissiveAtlasTexture);
     }
     if (_bindAtlases && batchDataTextures.occlusionAtlasTexture && batchDataTextures.occlusionAtlasTexture.texture) {
-      batchDataTextures.occlusionAtlasTexture.flushMipmaps();
+      if (batchDataTextures.occlusionAtlasTexture.flushMipmaps()) renderContext.resetTextureBindings();
       this._bindTexture(samplers.occlusionAtlas, batchDataTextures.occlusionAtlasTexture);
     }
     // IBL Layer-2 cubemaps + BRDF LUT — populated on RenderContext by
@@ -4285,10 +4288,19 @@ ${this.triplanar ? `
     if (!sampler || !dataTexture) return;
     const rc = this._renderContext;
     const gl = rc.gl;
-    gl.activeTexture(gl.TEXTURE0 + rc.textureUnit);
-    gl.bindTexture(gl.TEXTURE_2D, dataTexture.texture);
-    gl.uniform1i(sampler, rc.textureUnit);
-    rc.textureUnit = (rc.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
+    const unit = rc.textureUnit;
+    const texture = dataTexture.texture;
+    // Skip the physical bind when this unit already holds this texture (a
+    // frame-wide texture re-requested by every batch in the bin). The sampler
+    // uniform is still pointed at the unit — cheap, and keeps a program whose
+    // sampler hasn't been set this run correct.
+    if (rc.boundTextureUnits[unit] !== texture) {
+      gl.activeTexture(gl.TEXTURE0 + unit);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      rc.boundTextureUnits[unit] = texture;
+    }
+    gl.uniform1i(sampler, unit);
+    rc.textureUnit = (unit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
   }
 
   /**
@@ -4301,10 +4313,17 @@ ${this.triplanar ? `
     if (!sampler || !texture) return;
     const rc = this._renderContext;
     const gl = rc.gl;
-    gl.activeTexture(gl.TEXTURE0 + rc.textureUnit);
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-    gl.uniform1i(sampler, rc.textureUnit);
-    rc.textureUnit = (rc.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
+    const unit = rc.textureUnit;
+    // Same redundant-bind skip as _bindTexture. A cubemap and a 2D texture are
+    // distinct objects, so the per-unit comparison stays correct even though
+    // they occupy separate binding points on the unit.
+    if (rc.boundTextureUnits[unit] !== texture) {
+      gl.activeTexture(gl.TEXTURE0 + unit);
+      gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+      rc.boundTextureUnits[unit] = texture;
+    }
+    gl.uniform1i(sampler, unit);
+    rc.textureUnit = (unit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
   }
 
   /**
@@ -4698,6 +4717,10 @@ ${this.triplanar ? `
     const unit = renderContext.textureUnit;
     renderContext.saoOcclusionTexture.bind(unit);
     renderContext.gl.uniform1i(this._samplers.saoOcclusionTexture, unit);
+    // Bound through a wrapper without going via _bindTexture, so the per-unit
+    // tracking can't know the handle — mark the slot unknown to force any later
+    // bind to this unit to re-issue.
+    renderContext.boundTextureUnits[unit] = null;
     renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
   }
 
@@ -4727,6 +4750,8 @@ ${this.triplanar ? `
       const unit = renderContext.textureUnit;
       tex.bind(unit);
       gl.uniform1i(sampler, unit);
+      // Wrapper bind, handle unknown to the per-unit tracking — mark unknown.
+      renderContext.boundTextureUnits[unit] = null;
       renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
     }
   }

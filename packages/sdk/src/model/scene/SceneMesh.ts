@@ -112,7 +112,10 @@ export class SceneMesh {
 
   destroyed: boolean = false;
 
-  private _emitMatrixChangedEventTask: SDKTask;
+  // Created lazily on the first matrix change (see setWorldMatrixDirty) rather
+  // than per construction — a freshly loaded, never-transformed mesh never needs
+  // it, so this avoids one task + closure allocation per mesh at load.
+  private _emitMatrixChangedEventTask: SDKTask | null = null;
 
   /**
    * @private
@@ -130,7 +133,10 @@ export class SceneMesh {
     this.id = meshParams.id;
     this.uniqueId = `${meshParams.model.id}__${meshParams.id}`;
     this.model = meshParams.model;
-    this._localMatrix = meshParams.matrix ? createMat4Float64(meshParams.matrix) : identityMat4();
+    // Take ownership of the supplied matrix — SceneModel.createMesh (the only
+    // caller) already hands over a freshly-built/cloned matrix, so cloning again
+    // here would double the per-mesh allocation on large models.
+    this._localMatrix = meshParams.matrix ?? identityMat4();
     this._worldMatrix = createMat4Float64();
     this._worldMatrixDirty = true;
     this.geometry = meshParams.geometry;
@@ -139,15 +145,6 @@ export class SceneMesh {
     this._color = createVec3Float32(meshParams.color || [1, 1, 1]);
     this._opacity = (meshParams.opacity !== undefined && meshParams.opacity !== null) ? meshParams.opacity : 1.0;
     this.object = null;
-
-    this._emitMatrixChangedEventTask = new SDKTask({
-      name: "SceneMesh._emitMatrixChangedEventTask",
-      task: () => {
-        this.model.scene.events.onSceneMeshMatrixChanged.dispatch(this.model.scene, this);
-      },
-      stage: SDKTask.ComputeStage2 // Emit after transforms have been updated but before rendering
-    });
-
 
   }
 
@@ -534,6 +531,15 @@ export class SceneMesh {
     //   return;
     // }
     this._worldMatrixDirty = true;
+    if (!this._emitMatrixChangedEventTask) {
+      this._emitMatrixChangedEventTask = new SDKTask({
+        name: "SceneMesh._emitMatrixChangedEventTask",
+        task: () => {
+          this.model.scene.events.onSceneMeshMatrixChanged.dispatch(this.model.scene, this);
+        },
+        stage: SDKTask.ComputeStage2 // Emit after transforms have been updated but before rendering
+      });
+    }
     this._emitMatrixChangedEventTask.schedule();
   }
 

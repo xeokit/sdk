@@ -286,9 +286,19 @@ interface ParamDef {
   /** Label shown next to the input. */
   label:    string;
   /** Input control type. */
-  type:     "string" | "number" | "boolean";
+  type:     "string" | "number" | "boolean" | "select";
   /** Default value rendered into the input on first show. */
   default:  any;
+  /**
+   * Choices for a `"select"` control. Ignored for other types.
+   */
+  options?: { value: string; label: string }[];
+  /**
+   * When set, this option only applies (and only renders) while the
+   * format's selected version is one of these — i.e. a per-version
+   * option. Omit for options that apply to every version.
+   */
+  versions?: string[];
   /**
    * Format ids (within the dataset descriptor) the value should
    * be passed to as an exporter option. Empty array = no
@@ -340,6 +350,20 @@ const DATASET_PARAMS: Record<string, ParamDef[]> = {
       id: "gltfFileName", label: "glTF Filename", type: "string",
       default: "{id}.glb", applyTo: [], filenameFor: "gltf",
       help: "Filename for the glTF binary (.glb) download.",
+    },
+  ],
+  "fbx": [
+    {
+      id: "fbxFileName", label: "FBX Filename", type: "string",
+      default: "{id}.fbx", applyTo: [], filenameFor: "fbx",
+      help: "Filename for the FBX download. `{id}` substitutes the SceneModel id.",
+    },
+  ],
+  "usdz": [
+    {
+      id: "usdzFileName", label: "USDZ Filename", type: "string",
+      default: "{id}.usdz", applyTo: [], filenameFor: "usdz",
+      help: "Filename for the USDZ download. `{id}` substitutes the SceneModel id.",
     },
   ],
   "splat": [
@@ -410,6 +434,72 @@ const DATASET_PARAMS: Record<string, ParamDef[]> = {
       help: "Filename for the DataModel JSON download.",
     },
   ],
+  "xkt": [
+    {
+      id: "xktFileName", label: "XKT Filename", type: "string",
+      default: "{id}.xkt", applyTo: [], filenameFor: "xkt",
+      help: "Filename for the XKT download. `{id}` substitutes the SceneModel id.",
+    },
+  ],
+  "metamodel": [
+    {
+      id: "metaModelFileName", label: "MetaModel JSON Filename", type: "string",
+      default: "{id}.metamodel.json", applyTo: [], filenameFor: "metamodel",
+      help: "Filename for the legacy MetaModel JSON download.",
+    },
+  ],
+};
+
+/**
+ * Per-format exporter options, keyed by format id (not dataset).
+ *
+ * These render in the Parameters section beneath the format's version
+ * selector and feed straight into the exporter's `options` object at
+ * export time. A `versions` field on an option gates it to specific
+ * schema versions (a per-version option); options without it apply to
+ * every version.
+ *
+ * Only options the exporter actually consumes are listed — the version
+ * selector itself is generated from each exporter's registered versions
+ * (see {@link ExportDialog._formatVersionsFor}), not declared here.
+ */
+const FORMAT_OPTIONS: Record<string, ParamDef[]> = {
+  svg: [
+    {
+      id: "projectionPlane", label: "Projection Plane", type: "select", default: "XY",
+      options: [
+        { value: "XY", label: "XY — drop world Z (plan/drawing)" },
+        { value: "XZ", label: "XZ — drop world Y (plan, Y-up scenes)" },
+        { value: "YZ", label: "YZ — drop world X (elevation)" },
+      ],
+      applyTo: ["svg"],
+      help: "World plane projected onto the 2D SVG. The first axis maps to SVG X, the second to SVG Y.",
+    },
+    {
+      id: "flipY", label: "Flip Y", type: "boolean", default: true, applyTo: ["svg"],
+      help: "Negate the projected Y so world +Y reads up. Turn off to keep SVG's native +Y-down.",
+    },
+    {
+      id: "scale", label: "Scale", type: "number", default: 1, applyTo: ["svg"],
+      help: "Scene-units → SVG user-units multiplier (e.g. 0.02 for 1:50).",
+    },
+    {
+      id: "padding", label: "Padding", type: "number", default: 5, applyTo: ["svg"],
+      help: "Margin (scene units, pre-scale) around the model's bounds in the viewBox.",
+    },
+  ],
+};
+
+/**
+ * Human-readable summary of what each schema version carries, shown as
+ * help text under the version selector. Keyed by format id → version.
+ */
+const VERSION_HELP: Record<string, Record<string, string>> = {
+  xgf: {
+    "1.0.0": "Geometry + per-mesh vertex colour only — no materials or textures.",
+    "1.1.0": "Adds PBR materials, textures (image bytes + samplers), normals and UVs.",
+    "1.2.0": "Adds 3D Gaussian-splat geometry (per-splat scale + rotation).",
+  },
 };
 
 
@@ -841,6 +931,7 @@ const DIALOG_CSS = `
 }
 .xkt-exp-dialog .xkt-exp-param-control--str { width: 100%; min-width: 8ch; }
 .xkt-exp-dialog .xkt-exp-param-control--num { width: 14ch; font-variant-numeric: tabular-nums; }
+.xkt-exp-dialog .xkt-exp-param-control--select { width: 100%; min-width: 12ch; cursor: pointer; background: #fff; }
 .xkt-exp-dialog .xkt-exp-param-control--bool {
   appearance: auto;
   width: 14px;
@@ -928,6 +1019,26 @@ export class ExportDialog extends FloatingPanelBase {
    * doesn't reset the user's parameter edits.
    */
   private _datasetParamValues: Record<string, Record<string, any>> = {};
+
+  /**
+   * Per-format selected schema version, keyed by format id. Populated
+   * lazily with the exporter's default when a multi-version format is
+   * first shown; persists across chip/model changes.
+   */
+  private _formatVersions: Record<string, string> = {};
+
+  /**
+   * Per-format exporter-option values, keyed by format id → option id.
+   * Feeds {@link FORMAT_OPTIONS} values into the exporter's `options`.
+   */
+  private _formatOptionValues: Record<string, Record<string, any>> = {};
+
+  /**
+   * Cache of `{versions, defaultVersion}` per format id, read once from
+   * a throwaway exporter instance so the version selector doesn't rebuild
+   * one on every render.
+   */
+  private _formatVersionsCache: Record<string, { versions: string[]; defaultVersion: string }> = {};
 
   // Lifecycle state.
   private _listenersAttached = false;
@@ -1355,16 +1466,12 @@ export class ExportDialog extends FloatingPanelBase {
     // jitter as the user toggles chips off and back on.
     for (const desc of DEFAULT_DATASET_TYPES) {
       if (!this._selectedDatasets.has(desc)) continue;
-      const defs = DATASET_PARAMS[desc];
-      if (!defs || defs.length === 0) continue;
-
-      const block = el("div", "xkt-exp-param-block");
-      block.appendChild(el("div", "xkt-exp-param-block-label", {
-        textContent: humanReadableDatasetLabel(desc, parseDatasetFormats(desc)),
-        title: desc,
-      }));
+      const defs = DATASET_PARAMS[desc] || [];
 
       const grid = el("div", "xkt-exp-param-grid");
+      let rows = 0;
+
+      // Filename params (per dataset).
       for (const def of defs) {
         const valueRow = (this._datasetParamValues[desc] ||= {});
         if (!(def.id in valueRow)) {
@@ -1378,13 +1485,26 @@ export class ExportDialog extends FloatingPanelBase {
 
         const labelCell = el("label", "xkt-exp-param-label", {textContent: def.label});
         const inputCell = el("div", "xkt-exp-param-input");
-        inputCell.appendChild(this._mkParamInput(desc, def));
+        inputCell.appendChild(this._mkParamInput(valueRow, def));
         if (def.help) {
           inputCell.appendChild(el("div", "xkt-exp-param-help", {textContent: def.help}));
         }
         grid.append(labelCell, inputCell);
+        rows++;
       }
 
+      // Per-format version selector + exporter options.
+      for (const formatId of parseDatasetFormats(desc)) {
+        rows += this._renderFormatControls(grid, formatId);
+      }
+
+      if (rows === 0) continue;
+
+      const block = el("div", "xkt-exp-param-block");
+      block.appendChild(el("div", "xkt-exp-param-block-label", {
+        textContent: humanReadableDatasetLabel(desc, parseDatasetFormats(desc)),
+        title: desc,
+      }));
       block.appendChild(grid);
       this._paramsListEl.appendChild(block);
       blocks++;
@@ -1393,13 +1513,26 @@ export class ExportDialog extends FloatingPanelBase {
     this._paramsSectionEl.style.display = blocks > 0 ? "" : "none";
   }
 
-  private _mkParamInput(desc: string, def: ParamDef): HTMLElement {
-    const valueRow = this._datasetParamValues[desc];
+  private _mkParamInput(valueRow: Record<string, any>, def: ParamDef, onChange?: () => void): HTMLElement {
+
+    if (def.type === "select") {
+      const sel = el("select", "xkt-exp-param-control xkt-exp-param-control--select") as HTMLSelectElement;
+      for (const opt of def.options || []) {
+        const o = el("option", "", {value: opt.value, textContent: opt.label}) as HTMLOptionElement;
+        sel.appendChild(o);
+      }
+      sel.value = String(valueRow[def.id] ?? def.default ?? "");
+      sel.addEventListener("change", () => {
+        valueRow[def.id] = sel.value;
+        onChange?.();
+      });
+      return sel;
+    }
 
     if (def.type === "boolean") {
       const inp = el("input", "xkt-exp-param-control xkt-exp-param-control--bool", {type: "checkbox"}) as HTMLInputElement;
       inp.checked = !!valueRow[def.id];
-      inp.addEventListener("change", () => { valueRow[def.id] = inp.checked; });
+      inp.addEventListener("change", () => { valueRow[def.id] = inp.checked; onChange?.(); });
       return inp;
     }
 
@@ -1412,6 +1545,7 @@ export class ExportDialog extends FloatingPanelBase {
       inp.addEventListener("change", () => {
         const n = parseFloat(inp.value);
         valueRow[def.id] = Number.isFinite(n) ? n : null;
+        onChange?.();
       });
       return inp;
     }
@@ -1419,8 +1553,105 @@ export class ExportDialog extends FloatingPanelBase {
     // string (default)
     const inp = el("input", "xkt-exp-param-control xkt-exp-param-control--str", {type: "text"}) as HTMLInputElement;
     inp.value = String(valueRow[def.id] ?? "");
-    inp.addEventListener("input", () => { valueRow[def.id] = inp.value; });
+    inp.addEventListener("input", () => { valueRow[def.id] = inp.value; onChange?.(); });
     return inp;
+  }
+
+  /**
+   * Returns the registered schema versions + default for a format id,
+   * cached. Reads them from a throwaway exporter instance.
+   */
+  private _formatVersionsFor(formatId: string): { versions: string[]; defaultVersion: string } {
+    let cached = this._formatVersionsCache[formatId];
+    if (!cached) {
+      const entry = FORMAT_REGISTRY[formatId];
+      let versions: string[] = [];
+      let defaultVersion = "";
+      try {
+        const exporter = entry?.build(this.studio);
+        versions = (exporter?.versions as string[]) || [];
+        defaultVersion = (exporter?.defaultVersion as string) || versions[0] || "";
+      } catch {
+        // Exporter that needs Studio state we don't have — no versions.
+      }
+      cached = {versions, defaultVersion};
+      this._formatVersionsCache[formatId] = cached;
+    }
+    return cached;
+  }
+
+  /**
+   * Selected version for a format id, or `""` for Auto (unpinned — let the
+   * exporter decide / auto-promote).
+   */
+  private _versionForFormat(formatId: string): string {
+    return this._formatVersions[formatId] ?? "";
+  }
+
+  /**
+   * Append version selector + per-format option controls for one format
+   * id into `grid`. Returns the number of rows added so the caller knows
+   * whether the block has any content.
+   */
+  private _renderFormatControls(grid: HTMLElement, formatId: string): number {
+    let rows = 0;
+    const label = FORMAT_REGISTRY[formatId]?.label || formatId.toUpperCase();
+
+    // Version selector — only when the exporter has more than one version.
+    // The default "" (Auto) leaves the version unpinned so the exporter's own
+    // default / auto-promotion applies (e.g. XGF promotes textured models to a
+    // texture-capable version). Picking an explicit version overrides that.
+    const {versions, defaultVersion} = this._formatVersionsFor(formatId);
+    if (versions.length > 1) {
+      if (this._formatVersions[formatId] === undefined) {
+        this._formatVersions[formatId] = "";
+      }
+      const selected = this._versionForFormat(formatId);
+      const def: ParamDef = {
+        id: formatId,
+        label: `${label} Version`,
+        type: "select",
+        default: "",
+        options: [
+          {value: "", label: `Auto (recommended) — ${defaultVersion} or newer if needed`},
+          ...versions.map(v => ({value: v, label: v === defaultVersion ? `${v} (default)` : v})),
+        ],
+        applyTo: [],
+        help: selected
+          ? VERSION_HELP[formatId]?.[selected]
+          : "Lets the exporter choose the version, promoting to a newer one when the model needs it (e.g. textures, splats).",
+      };
+      grid.append(
+        el("label", "xkt-exp-param-label", {textContent: def.label}),
+        this._mkFormatInputCell(def, this._formatVersions, () => this._renderParams()),
+      );
+      rows++;
+    }
+
+    // Per-format options, gated by the selected version.
+    const optionDefs = FORMAT_OPTIONS[formatId] || [];
+    const version = this._versionForFormat(formatId);
+    const valueRow = (this._formatOptionValues[formatId] ||= {});
+    for (const def of optionDefs) {
+      if (def.versions && !def.versions.includes(version)) continue;
+      if (!(def.id in valueRow)) valueRow[def.id] = def.default;
+      grid.append(
+        el("label", "xkt-exp-param-label", {textContent: def.label}),
+        this._mkFormatInputCell(def, valueRow),
+      );
+      rows++;
+    }
+    return rows;
+  }
+
+  /** Builds the input + help cell for a format-level param. */
+  private _mkFormatInputCell(def: ParamDef, valueRow: Record<string, any>, onChange?: () => void): HTMLElement {
+    const inputCell = el("div", "xkt-exp-param-input");
+    inputCell.appendChild(this._mkParamInput(valueRow, def, onChange));
+    if (def.help) {
+      inputCell.appendChild(el("div", "xkt-exp-param-help", {textContent: def.help}));
+    }
+    return inputCell;
   }
 
 
@@ -1467,8 +1698,9 @@ export class ExportDialog extends FloatingPanelBase {
    */
   private _buildOptionsForFormatId(desc: string, formatId: string, subjectId: string): Record<string, any> {
     const out: Record<string, any> = {};
-    const defs = DATASET_PARAMS[desc];
-    if (!defs || defs.length === 0) return out;
+
+    // Dataset filename/cross-format params with applyTo.
+    const defs = DATASET_PARAMS[desc] || [];
     const valueRow = this._datasetParamValues[desc] || {};
     for (const def of defs) {
       if (!def.applyTo.includes(formatId)) continue;
@@ -1480,6 +1712,19 @@ export class ExportDialog extends FloatingPanelBase {
       if (typeof v === "string" && v.length === 0) continue;
       out[def.id] = v;
     }
+
+    // Per-format exporter options, gated by the selected version.
+    const optionDefs = FORMAT_OPTIONS[formatId] || [];
+    const optionRow = this._formatOptionValues[formatId] || {};
+    const version = this._versionForFormat(formatId);
+    for (const def of optionDefs) {
+      if (def.versions && !def.versions.includes(version)) continue;
+      let v = optionRow[def.id];
+      if (v === undefined || v === null) v = def.default;
+      if (v === undefined || v === null) continue;
+      out[def.id] = v;
+    }
+
     return out;
   }
 
@@ -1546,6 +1791,7 @@ export class ExportDialog extends FloatingPanelBase {
       modelId:     string;
       entry:       FormatEntry;
       options:     Record<string, any>;
+      version?:    string;
       filename:    string;
     };
     const tasks: Task[] = [];
@@ -1585,6 +1831,9 @@ export class ExportDialog extends FloatingPanelBase {
             modelId,
             entry,
             options:    this._buildOptionsForFormatId(desc, id, subjectId),
+            // "" (Auto) → undefined, so the exporter's default / auto-promotion
+            // applies; an explicit choice pins that version.
+            version:    this._versionForFormat(id) || undefined,
             filename,
           });
         }
@@ -1611,6 +1860,7 @@ export class ExportDialog extends FloatingPanelBase {
         const raw = await exporter.write({
           sceneModel: t.sceneModel,
           dataModel:  t.dataModel,
+          version:    t.version,
         }, t.options);
         const bytes = t.entry.toBytes(raw);
         downloadBlob(new Blob([bytes], {type: t.entry.mime}), filename);

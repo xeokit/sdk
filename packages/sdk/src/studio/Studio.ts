@@ -356,6 +356,7 @@ export class Studio {
         );
 
         this.renderer = new WebGLRenderer({
+          debugging: this.debug,
           memoryConfigs: {
             tileSize: 200,
             maxTiles: 2000,

@@ -106,9 +106,25 @@ export class WebGLProgram {
   }
 
   /**
-   * Initializes this program.
+   * Initializes this program (single-phase: {@link link} then {@link finalize}).
    */
   public init(): SDKResult<any> {
+    const linkResult = this.link();
+    if (linkResult.ok === false) {
+      return linkResult;
+    }
+    return this.finalize();
+  }
+
+  /**
+   * Compiles both shaders and issues the program link — **without** reading back
+   * any compile/link status. The status queries
+   * (`getShaderParameter`/`getProgramParameter`) block until the driver finishes,
+   * so reading them here would serialize a batch of programs. Drive a batch by
+   * calling {@link link} on all programs first, then {@link finalize} on each:
+   * the driver compiles/links them concurrently in between.
+   */
+  public link(): SDKResult<any> {
 
     const gl = this._glSrc.gl;
 
@@ -121,7 +137,7 @@ export class WebGLProgram {
     }
 
     this.vertexShader = new WebGLShader(this._glSrc, gl.VERTEX_SHADER, this.source.vertex);
-    const resultVertex = this.vertexShader.init();
+    const resultVertex = this.vertexShader.compile();
     if (resultVertex.ok===false) {
       this.vertexShader.destroy();
       return {
@@ -132,7 +148,7 @@ export class WebGLProgram {
     }
 
     this.fragmentShader = new WebGLShader(this._glSrc, gl.FRAGMENT_SHADER, this.source.fragment);
-    const resultFragment = this.fragmentShader.init();
+    const resultFragment = this.fragmentShader.compile();
     if (resultFragment.ok===false) {
       this.vertexShader.destroy();
       this.fragmentShader.destroy();
@@ -158,6 +174,52 @@ export class WebGLProgram {
     gl.attachShader(this.handle, this.fragmentShader.handle);
     gl.linkProgram(this.handle);
 
+    return {ok: true, value: this};
+  }
+
+  /**
+   * Reads back compile/link status (blocking) and extracts uniform/attribute
+   * locations. Call after {@link link}.
+   */
+  public finalize(): SDKResult<any> {
+    const waitResult = this.waitLinked();
+    if (waitResult.ok === false) {
+      return waitResult;
+    }
+    return this.extractLocations();
+  }
+
+  /**
+   * Reads back compile/link status. This is the **compile-wait**: the status
+   * queries block until the driver has finished compiling/linking, so the time
+   * spent here reflects driver compilation (concurrent across a batch when
+   * {@link link} was issued for all programs first). Call after {@link link}.
+   */
+  public waitLinked(): SDKResult<any> {
+
+    const gl = this._glSrc.gl;
+
+    // Shader compile status first — gives the precise per-shader error when a
+    // link fails because a shader didn't compile.
+    const vertexCheck = this.vertexShader.checkCompiled();
+    if (vertexCheck.ok === false) {
+      this.destroy();
+      return {
+        ok: false,
+        type: vertexCheck.type,
+        error: `WebGL vertex shader initialization failed: ${vertexCheck.error}`
+      };
+    }
+    const fragmentCheck = this.fragmentShader.checkCompiled();
+    if (fragmentCheck.ok === false) {
+      this.destroy();
+      return {
+        ok: false,
+        type: fragmentCheck.type,
+        error: `WebGL fragment shader initialization failed: ${fragmentCheck.error}`
+      };
+    }
+
     this.linked = gl.getProgramParameter(this.handle, gl.LINK_STATUS);
     if (!this.linked) {
       const programInfoLog = gl.getProgramInfoLog(this.handle) || "Unknown error during program linking";
@@ -179,18 +241,15 @@ export class WebGLProgram {
       };
     }
 
-    // gl.validateProgram(this.handle);
-    // this.validated = gl.getProgramParameter(this.handle, gl.VALIDATE_STATUS);
-    // if (!this.validated) {
-    //   const validationLog = gl.getProgramInfoLog(this.handle) || "Unknown error during program validation";
-    //   this.destroy();
-    //   return {
-    //     ok: false,
-    //     type: SDKErrorType.InvalidOperation,
-    //     error: `WebGL program validation failed: ${validationLog}`
-    //   };
-    // }
+    return {ok: true, value: this};
+  }
 
+  /**
+   * Extracts uniform/attribute locations from the linked program. These are
+   * synchronous GL queries — they don't block on compilation, so this is the
+   * **extraction** cost, separate from the {@link waitLinked} compile-wait.
+   */
+  public extractLocations(): SDKResult<any> {
     this._extractUniformsAndAttributes();
 
     this.allocated = true;

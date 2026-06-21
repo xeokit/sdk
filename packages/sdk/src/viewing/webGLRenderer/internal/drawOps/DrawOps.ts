@@ -98,6 +98,27 @@ export class DrawOps {
   private _techniques: DrawTechnique[];
 
   /**
+   * Set after {@link init} issues the program links but before the blocking
+   * compile-wait runs. {@link ensureFinalized} clears it. Lets the driver
+   * compile the program batch in the background while the rest of startup
+   * (model fetch / decode / GPU upload) runs, instead of blocking init on it.
+   *
+   * @private
+   */
+  private _finalizePending: boolean;
+
+  /**
+   * Time spent issuing the program links in {@link init} (no status read-back),
+   * carried so {@link ensureFinalized} can log the full compile breakdown.
+   *
+   * @private
+   */
+  private _linkMs: number;
+
+  /** Whether KHR_parallel_shader_compile was available at link time. @private */
+  private _parallelCompile: boolean;
+
+  /**
    * Draw operations indexed first by primitive type, then by render pass.
    *
    * Each entry is a {@link DrawOp}, which applies a {@link DrawTechnique}
@@ -225,16 +246,36 @@ export class DrawOps {
     // active plane the FS is computing the mask for.
     const trianglesStencilMask = saveForCleanup(new TrianglesStencilMaskTechnique(renderContext, gpuMemoryReader));
 
+    // Two-phase shader build so the driver compiles the whole batch
+    // concurrently instead of one technique at a time. Pass 1 issues every
+    // compile + link without reading status back; pass 2 reads status and
+    // caches locations. The blocking status read-backs that would otherwise
+    // serialize each technique now all happen after every compile is in flight.
+    // KHR_parallel_shader_compile, when present, lets the driver compile off the
+    // main thread; requesting it is a hint and a no-op where unsupported.
+    const cleanupOnFail = (result: SDKResult<any>): SDKResult<null> => {
+      for (let j = 0, n = this._techniques.length; j < n; j++) {
+        this._techniques[j].destroy();
+      }
+      this._techniques = [];
+      return result;
+    };
+
+    this._parallelCompile = !!renderContext.gl.getExtension("KHR_parallel_shader_compile");
+
+    // Issue every compile + link, but don't read status back here — the blocking
+    // compile-wait is deferred to ensureFinalized() so the driver can compile the
+    // batch in the background during the rest of startup (model fetch / decode /
+    // upload), instead of blocking this synchronous init path on it.
+    const tStart = performance.now();
     for (let i = 0, len = this._techniques.length; i < len; i++) {
-      const result = this._techniques[i].init();
+      const result = this._techniques[i].linkProgram();
       if (!result.ok) {
-        for (let j = i; j >= 0; j--) {
-          this._techniques[j].destroy();
-        }
-        this._techniques = [];
-        return result;
+        return cleanupOnFail(result);
       }
     }
+    this._linkMs = performance.now() - tStart;
+    this._finalizePending = true;
 
     const {OPAQUE, TRANSPARENT, HIGHLIGHTED, SELECTED, XRAYED, PICK, SNAP_INIT, SNAP} = RENDER_PASSES;
 
@@ -304,6 +345,64 @@ export class DrawOps {
       ok: true,
       value: null
     };
+  }
+
+  /**
+   * Completes the deferred shader build: reads back the program compile/link
+   * status (the blocking compile-wait) and caches uniform/attribute locations.
+   *
+   * Idempotent — a no-op once the batch has been finalized. Must be called
+   * before any technique is used to draw, pick, or snap; the render, pick, and
+   * snap entry points call it. By the time the first frame reaches here the
+   * driver has typically finished compiling in the background, so the wait is
+   * short or zero.
+   *
+   * @returns {@link base!core.SDKResult | SDKResult} carrying any shader
+   * compile/link error surfaced by the deferred status read-back.
+   */
+  public ensureFinalized(): SDKResult<void> {
+    if (!this._finalizePending) {
+      return {ok: true, value: undefined};
+    }
+    this._finalizePending = false;
+
+    const tStart = performance.now();
+    for (let i = 0, len = this._techniques.length; i < len; i++) {
+      const result = this._techniques[i].waitLinked();
+      if (!result.ok) {
+        this._destroy();
+        this._techniques = [];
+        return result;
+      }
+    }
+    const tWaited = performance.now();
+    for (let i = 0, len = this._techniques.length; i < len; i++) {
+      const result = this._techniques[i].extractLocations();
+      if (!result.ok) {
+        this._destroy();
+        this._techniques = [];
+        return result;
+      }
+    }
+    const tDone = performance.now();
+
+    if (this._renderContext.debugging) {
+      const ms = (a: number) => a.toFixed(1);
+      // Most of the wall-clock should land in "compile-wait" — the blocking
+      // status read-backs waiting on the concurrently-compiling batch. A small
+      // compile-wait here means the driver finished while startup ran in
+      // parallel. "extract" is the synchronous uniform/attribute location
+      // queries. A large "link" share would indicate compilation isn't being
+      // parallelized (no KHR ext, or a driver that compiles synchronously).
+      console.log(
+        `[shader-compile] ${this._techniques.length} programs in ${ms(this._linkMs + (tDone - tStart))}ms ` +
+        `(link ${ms(this._linkMs)}ms, compile-wait ${ms(tWaited - tStart)}ms, ` +
+        `extract ${ms(tDone - tWaited)}ms), ` +
+        `KHR_parallel_shader_compile=${this._parallelCompile}`,
+      );
+    }
+
+    return {ok: true, value: undefined};
   }
 
   /**

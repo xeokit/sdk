@@ -124,6 +124,13 @@ export class SnapManager {
     if (!this._drawOps || !this._snapBufferCache) {
       throw new SDKInternalException("[SnapManager.snapPick] SnapManager not initialized");
     }
+
+    // Complete the deferred shader build if a snap runs before the first frame.
+    const finalizeResult = this._drawOps.ensureFinalized();
+    if (finalizeResult.ok === false) {
+      return finalizeResult;
+    }
+
     if (!params.canvasPos) {
       // Snap requires a cursor position — no canvasPos means the
       // caller is doing a ray-pick, which doesn't have a snap concept.

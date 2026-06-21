@@ -500,6 +500,21 @@ export abstract class DrawTechnique {
    * then compiles the program and retrieves uniform/sampler locations.
    */
   public init(): SDKResult<any> {
+    const linkResult = this.linkProgram();
+    if (linkResult.ok === false) {
+      return linkResult;
+    }
+    return this.finalizeProgram();
+  }
+
+  /**
+   * Phase 1: build the shader sources, create the program, and issue the
+   * compile/link — **without** reading back compile/link status. Driving a
+   * batch of techniques through `linkProgram()` first, then `finalizeProgram()`,
+   * lets the driver compile them concurrently instead of one at a time (the
+   * status read-backs in {@link finalizeProgram} are what would serialize them).
+   */
+  public linkProgram(): SDKResult<any> {
 
     this._vertSrcBuf = [];
     this._fragSrcBuf = [];
@@ -530,7 +545,36 @@ export abstract class DrawTechnique {
     this._vertSrcBuf = [];
     this._fragSrcBuf = [];
 
-    return this._initProgram();
+    return this._program.link();
+  }
+
+  /**
+   * Phase 2: read back compile/link status and cache uniform/sampler locations.
+   * Call after {@link linkProgram}. Split into {@link waitLinked} (compile-wait)
+   * and {@link extractLocations} (synchronous location queries) so a batch can
+   * be measured / driven in those two sub-phases.
+   */
+  public finalizeProgram(): SDKResult<any> {
+    const waitResult = this.waitLinked();
+    if (waitResult.ok === false) {
+      return waitResult;
+    }
+    return this.extractLocations();
+  }
+
+  /** Phase 2a — block on the program's compile/link status (compile-wait). */
+  public waitLinked(): SDKResult<any> {
+    return this._program.waitLinked();
+  }
+
+  /** Phase 2b — read program + technique uniform/sampler locations (synchronous). */
+  public extractLocations(): SDKResult<any> {
+    const result = this._program.extractLocations();
+    if (result.ok === false) {
+      return result;
+    }
+    this._extractTechniqueLocations();
+    return {ok: true, value: null};
   }
 
   /**
@@ -548,20 +592,22 @@ export abstract class DrawTechnique {
         error: "[DrawTechnique.webglContextRestored] Shader program is not initialized."
       };
     }
-    return this._initProgram();
-  }
-
-  /**
-   * Initializes the shader program by compiling/linking and retrieving uniform/sampler locations.
-   * @private
-   */
-  private _initProgram(): SDKResult<any> {
-
+    // Restore re-links the existing program (single-phase) then re-caches its
+    // uniform/sampler locations.
     const result = this._program.init();
-
     if (result.ok === false) {
       return result;
     }
+    this._extractTechniqueLocations();
+    return {ok: true, value: undefined};
+  }
+
+  /**
+   * Caches this technique's uniform and sampler locations off the linked
+   * program. Call after the program is linked + finalized.
+   * @private
+   */
+  private _extractTechniqueLocations(): void {
 
     const program = this._program;
 
@@ -703,11 +749,6 @@ export abstract class DrawTechnique {
       shadowMap3: program.getSampler("uShadowMap3"),
       shadowMap4: program.getSampler("uShadowMap4"),
       shadowMap5: program.getSampler("uShadowMap5")
-    };
-
-    return {
-      ok: true,
-      value: null
     };
   }
 

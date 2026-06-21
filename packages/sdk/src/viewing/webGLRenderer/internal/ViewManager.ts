@@ -192,12 +192,14 @@ export class ViewManager {
 
     this._renderContext = new RenderContext(params.memoryConfigs);
 
-    this._renderContext.debugging = !!params.debugging;
-
     const resultCtx = this._renderContext.init(viewer);
     if (resultCtx.ok === false) {
       return resultCtx;
     }
+
+    // After init() — it resets `debugging` while setting up the GL context, so
+    // the caller's value must be applied afterwards (and before DrawOps compiles).
+    this._renderContext.debugging = !!params.debugging;
 
     const webglCanvasElement = this._renderContext.webglCanvasElement;
     webglCanvasElement.style.position = "fixed";

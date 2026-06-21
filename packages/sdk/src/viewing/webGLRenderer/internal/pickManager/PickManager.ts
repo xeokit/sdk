@@ -139,6 +139,12 @@ export class PickManager {
       throw new SDKInternalException("[PickManager.pick] PickManager not initialized");
     }
 
+    // Complete the deferred shader build if a pick runs before the first frame.
+    const finalizeResult = this._drawOps.ensureFinalized();
+    if (finalizeResult.ok === false) {
+      return finalizeResult;
+    }
+
     const view = rendererView.view;
     const camera = view.camera;
 

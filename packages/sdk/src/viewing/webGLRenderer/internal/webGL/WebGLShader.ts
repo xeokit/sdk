@@ -40,14 +40,29 @@ export class WebGLShader {
     }
 
     /**
-     * Initializes this shader.
+     * Initializes this shader (compile + status check).
      */
     init(): SDKResult<any> {
+        const compileResult = this.compile();
+        if (compileResult.ok === false) {
+            return compileResult;
+        }
+        return this.checkCompiled();
+    }
 
+    /**
+     * Issues the compile without reading back its status.
+     *
+     * `getShaderParameter(COMPILE_STATUS)` blocks until the driver has finished
+     * compiling, so reading it here would serialize a batch of shaders. Callers
+     * that compile many shaders should call {@link compile} on all of them first,
+     * then {@link checkCompiled} on each — the driver compiles them concurrently
+     * in between (see {@link WebGLProgram.link}).
+     */
+    compile(): SDKResult<any> {
         const gl = this._glSrc.gl;
 
         this.handle = gl.createShader(this._type);
-
         if (!this.handle) {
             return {
                 ok: false,
@@ -57,10 +72,17 @@ export class WebGLShader {
         }
 
         this.allocated = true;
-
         gl.shaderSource(this.handle, this._source);
-
         gl.compileShader(this.handle);
+
+        return {ok: true, value: undefined};
+    }
+
+    /**
+     * Reads back the compile status (blocking) — call after {@link compile}.
+     */
+    checkCompiled(): SDKResult<any> {
+        const gl = this._glSrc.gl;
 
         this.compiled = gl.getShaderParameter(this.handle, gl.COMPILE_STATUS);
 

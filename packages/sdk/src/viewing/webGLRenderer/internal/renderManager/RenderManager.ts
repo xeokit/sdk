@@ -701,6 +701,13 @@ export class RenderManager {
       return {ok: true, value: undefined};
     }
 
+    // Complete the deferred shader build before the first draw. No-op after the
+    // first frame.
+    const finalizeResult = this.drawOps.ensureFinalized();
+    if (finalizeResult.ok === false) {
+      return finalizeResult;
+    }
+
     const {view} = rendererView;
     const inspector = this._inspector();
 

@@ -151,15 +151,21 @@ export async function modelToXGF(params: {
     } else if (tex.imageData && tex.imageData.width && tex.imageData.height) {
       bytes = await encodeImageToPNG(tex.imageData);
       mediaCode = MEDIA_TYPE_CODE[PNGMediaType];
+    } else if (tex.image && (tex.image as any).width && (tex.image as any).height) {
+      // Decoded image source (e.g. an ImageBitmap from GLTFLoader, which
+      // populates `image` rather than `imageData`/`buffers`). encodeImageToPNG
+      // draws it to a canvas and re-encodes to PNG.
+      bytes = await encodeImageToPNG(tex.image);
+      mediaCode = MEDIA_TYPE_CODE[PNGMediaType];
     }
     if (!bytes) {
-      console.warn(`[xgf v2] Texture '${tex.id}' has neither buffers nor imageData — encoded as empty`);
+      console.warn(`[xgf v2] Texture '${tex.id}' has no buffers, imageData or image — encoded as empty`);
       bytes = new Uint8Array(0);
     }
     textureBytes.push(bytes);
     textureMediaTypes.push(mediaCode);
-    textureWidths.push(tex.width || (tex.imageData?.width ?? 0));
-    textureHeights.push(tex.height || (tex.imageData?.height ?? 0));
+    textureWidths.push(tex.width || (tex.imageData?.width ?? (tex.image as any)?.width ?? 0));
+    textureHeights.push(tex.height || (tex.imageData?.height ?? (tex.image as any)?.height ?? 0));
     textureSamplers.push(
       samplerCode(tex.minFilter),
       samplerCode(tex.magFilter),

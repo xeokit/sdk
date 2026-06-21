@@ -140,21 +140,20 @@ export async function xgfToModel(params: {
   // Textures need to exist before materials can reference them.
   const createdTextureIds: string[] = [];
   if (sceneModel) {
-    for (let i = 0; i < numTextures; i++) {
-      // Step every 4 textures — texture decoding is heavy
-      // (createImageBitmap), so keep the step cadence tight to
-      // catch cancellations + emit smooth progress.
-      if ((i & 0x03) === 0) await step("Decoding textures", i, numTextures);
-      const id = eachTextureId[i] || `texture-${i}`;
-      createdTextureIds.push(id);
+    // Decode in small concurrent chunks: createImageBitmap runs off the main
+    // thread, so issuing several at once lets the browser decode them in
+    // parallel instead of one-at-a-time. Chunked rather than all-at-once to
+    // bound peak decoded-image memory — a decoded 4K RGBA bitmap is ~64 MB, so
+    // only a handful are ever held in flight.
+    const DECODE_CHUNK = 4;
 
-      const sliceStart = eachTextureDataBase[i];
-      const sliceEnd   = (i === numTextures - 1) ? textureData.length : eachTextureDataBase[i + 1];
-      const bytes = textureData.subarray(sliceStart, sliceEnd);
-      const mediaCode = eachTextureMediaType[i];
+    const sliceFor = (i: number) => textureData.subarray(
+      eachTextureDataBase[i],
+      (i === numTextures - 1) ? textureData.length : eachTextureDataBase[i + 1]);
+
+    const samplerParamsFor = (i: number) => {
       const sBase = i * NUM_TEXTURE_SAMPLER_BYTES;
-
-      const samplerParams: any = {
+      return {
         minFilter: SAMPLER_DECODE[eachTextureSampler[sBase]]     || LinearMipMapLinearFilter,
         magFilter: SAMPLER_DECODE[eachTextureSampler[sBase + 1]] || LinearFilter,
         wrapS:     SAMPLER_DECODE[eachTextureSampler[sBase + 2]] || RepeatWrapping,
@@ -162,54 +161,65 @@ export async function xgfToModel(params: {
         wrapR:     SAMPLER_DECODE[eachTextureSampler[sBase + 4]] || RepeatWrapping,
         width:  eachTextureWidth[i],
         height: eachTextureHeight[i]
-      };
+      } as any;
+    };
 
-      if (bytes.length === 0) {
-        // Empty placeholder — register a 1×1 white pixel so material
-        // lookups don't fail. The mesh just won't show this texture.
-        const onePx = new Uint8ClampedArray([255, 255, 255, 255]);
-        const imageData = (typeof ImageData !== "undefined")
-          ? new ImageData(onePx, 1, 1)
-          : { data: onePx, width: 1, height: 1 };
-        sceneModel.createTexture({
-          id, imageData,
-          mediaType: PNGMediaType,
-          ...samplerParams,
-          width: 1, height: 1,
-          flipY: false
-        });
-        continue;
+    for (let chunkStart = 0; chunkStart < numTextures; chunkStart += DECODE_CHUNK) {
+      await step("Decoding textures", chunkStart, numTextures);
+      const chunkEnd = Math.min(chunkStart + DECODE_CHUNK, numTextures);
+
+      // Issue every decodable texture in this chunk concurrently.
+      const decoding: Array<Promise<ImageBitmap> | null> = [];
+      for (let i = chunkStart; i < chunkEnd; i++) {
+        const bytes = sliceFor(i);
+        const standardMedia = MEDIA_TYPE_DECODE[eachTextureMediaType[i]];
+        if (bytes.length > 0 && standardMedia !== undefined) {
+          const blob = new Blob([bytes], {
+            type: standardMedia === PNGMediaType ? "image/png"
+                : standardMedia === JPEGMediaType ? "image/jpeg"
+                : "image/gif"
+          });
+          decoding.push(createImageBitmap(blob));
+        } else {
+          decoding.push(null);
+        }
       }
+      const bitmaps = await Promise.all(decoding.map(p => p ?? Promise.resolve(null)));
 
-      const standardMedia = MEDIA_TYPE_DECODE[mediaCode];
-      if (standardMedia !== undefined) {
-        // PNG/JPEG/GIF — round-trip via createImageBitmap to a decoded
-        // ImageBitmap that the GPU atlas can sample directly.
-        const blob = new Blob([bytes], {
-          type: standardMedia === PNGMediaType ? "image/png"
-              : standardMedia === JPEGMediaType ? "image/jpeg"
-              : "image/gif"
-        });
-        const imageBitmap = await createImageBitmap(blob);
-        sceneModel.createTexture({
-          id,
-          image: imageBitmap,
-          mediaType: standardMedia,
-          ...samplerParams,
-          width: imageBitmap.width,
-          height: imageBitmap.height,
-          flipY: false
-        });
-      } else {
-        // Opaque/transcoded — pass the bytes through as a SceneTexture
-        // buffer; the runtime/transcoder pipeline handles upload.
-        sceneModel.createTexture({
-          id,
-          buffers: [bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)],
-          ...samplerParams,
-          flipY: false,
-          compressed: true
-        });
+      // Register the chunk's textures in index order (materials reference by id).
+      for (let i = chunkStart; i < chunkEnd; i++) {
+        const id = eachTextureId[i] || `texture-${i}`;
+        createdTextureIds.push(id);
+        const samplerParams = samplerParamsFor(i);
+        const bytes = sliceFor(i);
+        const bitmap = bitmaps[i - chunkStart];
+
+        if (bytes.length === 0) {
+          // Empty placeholder — register a 1×1 white pixel so material
+          // lookups don't fail. The mesh just won't show this texture.
+          const onePx = new Uint8ClampedArray([255, 255, 255, 255]);
+          const imageData = (typeof ImageData !== "undefined")
+            ? new ImageData(onePx, 1, 1)
+            : { data: onePx, width: 1, height: 1 };
+          sceneModel.createTexture({
+            id, imageData, mediaType: PNGMediaType,
+            ...samplerParams, width: 1, height: 1, flipY: false
+          });
+        } else if (bitmap) {
+          // PNG/JPEG/GIF — decoded ImageBitmap the GPU atlas samples directly.
+          sceneModel.createTexture({
+            id, image: bitmap, mediaType: MEDIA_TYPE_DECODE[eachTextureMediaType[i]],
+            ...samplerParams, width: bitmap.width, height: bitmap.height, flipY: false
+          });
+        } else {
+          // Opaque/transcoded — pass the bytes through as a SceneTexture
+          // buffer; the runtime/transcoder pipeline handles upload.
+          sceneModel.createTexture({
+            id,
+            buffers: [bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)],
+            ...samplerParams, flipY: false, compressed: true
+          });
+        }
       }
     }
   }

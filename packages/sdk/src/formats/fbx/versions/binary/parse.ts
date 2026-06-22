@@ -74,6 +74,12 @@ export async function parse(params: ModelParseParams, _options?: any): Promise<v
   const usedObjectIds = new Set<string>();
   let emitted = 0, geomFails = 0, meshFails = 0;
 
+  // Decode embedded diffuse textures up front, concurrently. createImageBitmap
+  // runs off the main thread, so issuing several at once decodes them in
+  // parallel rather than one-per-material in the loop below — which then just
+  // looks each up by id.
+  await predecodeDiffuseTextures(materials, childrenOf, textures, videos, sceneModel, emittedTex);
+
   for (const [modelId, modelNode] of models) {
     const children = childrenOf.get(modelId) || [];
     let geomId: number | null = null;
@@ -113,7 +119,7 @@ export async function parse(params: ModelParseParams, _options?: any): Promise<v
       materialId = emittedMat.get(matId);
       if (materialId === undefined) {
         const id = `fbx-mat-${matId}`;
-        const colorTextureId = await emitDiffuseTexture(matId, sceneModel, childrenOf, textures, videos, emittedTex);
+        const colorTextureId = emitDiffuseTexture(matId, childrenOf, textures, emittedTex);
         const mr = sceneModel.createMaterial({
           id,
           color: extractDiffuse(materials.get(matId)!),
@@ -315,59 +321,113 @@ function isColorProp(prop: string | null): boolean {
  * no embedded data) are skipped, since resolving them needs a base URL the
  * parser isn't given. Returns the SceneModel texture id, or undefined.
  */
-async function emitDiffuseTexture(
+/** The diffuse texture wired to a material — a colour slot if present, else any. */
+function diffuseTexId(
   matId: number,
-  sceneModel: any,
   childrenOf: Map<number, Array<{id: number; prop: string | null}>>,
   textures: Map<number, FBXNode>,
-  videos: Map<number, FBXNode>,
-  emittedTex: Map<number, string>,
-): Promise<string | undefined> {
+): number | undefined {
   const conns = childrenOf.get(matId) || [];
-  // Prefer a texture wired to a colour slot; fall back to any texture child.
-  let texId: number | undefined;
-  for (const c of conns) if (textures.has(c.id) && isColorProp(c.prop)) { texId = c.id; break; }
-  if (texId === undefined) for (const c of conns) if (textures.has(c.id)) { texId = c.id; break; }
-  if (texId === undefined) return undefined;
+  for (const c of conns) if (textures.has(c.id) && isColorProp(c.prop)) return c.id;
+  for (const c of conns) if (textures.has(c.id)) return c.id;
+  return undefined;
+}
 
-  const existing = emittedTex.get(texId);
-  if (existing) return existing;
-
-  // Embedded image bytes via a connected Video's Content property.
-  let content: any = null;
+/** Embedded image bytes for a texture, via a connected Video's Content property. */
+function embeddedTextureBytes(
+  texId: number,
+  childrenOf: Map<number, Array<{id: number; prop: string | null}>>,
+  videos: Map<number, FBXNode>,
+): Uint8Array | null {
   for (const c of childrenOf.get(texId) || []) {
     const video = videos.get(c.id);
     if (!video) continue;
     const v = findChild(video, "Content")?.props[0];
-    if (v instanceof Uint8Array && v.length > 0) { content = v; break; }
+    if (v instanceof Uint8Array && v.length > 0) return v;
   }
-  if (!content) {
-    console.warn(`[FBXLoader] texture ${texId} has no embedded data (external file ref); skipping.`);
-    return undefined;
+  return null;
+}
+
+/**
+ * Decodes every embedded diffuse texture referenced by a material, in small
+ * concurrent chunks, and registers each on the SceneModel keyed by FBX texture
+ * id. createImageBitmap runs off the main thread, so a chunk decodes in
+ * parallel instead of one-at-a-time. Chunked to bound peak decoded-image
+ * memory. After this, {@link emitDiffuseTexture} is a plain lookup.
+ */
+async function predecodeDiffuseTextures(
+  materials: Map<number, FBXNode>,
+  childrenOf: Map<number, Array<{id: number; prop: string | null}>>,
+  textures: Map<number, FBXNode>,
+  videos: Map<number, FBXNode>,
+  sceneModel: any,
+  emittedTex: Map<number, string>,
+): Promise<void> {
+  // Unique diffuse texture ids referenced across all materials.
+  const texIds: number[] = [];
+  const seen = new Set<number>();
+  for (const matId of materials.keys()) {
+    const texId = diffuseTexId(matId, childrenOf, textures);
+    if (texId !== undefined && !seen.has(texId)) { seen.add(texId); texIds.push(texId); }
   }
 
-  const id = `fbx-tex-${texId}`;
-  const buf = content.buffer.slice(content.byteOffset, content.byteOffset + content.byteLength);
+  const DECODE_CHUNK = 4;
+  const canDecode = typeof createImageBitmap === "function" && typeof Blob !== "undefined";
 
-  // The renderer uploads `image`/`imageData`, not raw encoded bytes — so decode
-  // the PNG/JPEG to an ImageBitmap (texSubImage2D-native) when we can. Outside a
-  // browser (e.g. tests) fall back to `buffers` so the data still round-trips.
-  let textureParams: any = {id, buffers: [buf]};
-  if (typeof createImageBitmap === "function" && typeof Blob !== "undefined") {
-    try {
-      textureParams = {id, image: await createImageBitmap(new Blob([buf]))};
-    } catch (e) {
-      console.warn(`[FBXLoader] failed to decode embedded texture ${texId}:`, e);
+  for (let chunkStart = 0; chunkStart < texIds.length; chunkStart += DECODE_CHUNK) {
+    const chunkEnd = Math.min(chunkStart + DECODE_CHUNK, texIds.length);
+
+    // Issue every decodable texture in this chunk concurrently.
+    const bufs: Array<ArrayBuffer | null> = [];
+    const decoding: Array<Promise<ImageBitmap | null>> = [];
+    for (let i = chunkStart; i < chunkEnd; i++) {
+      const bytes = embeddedTextureBytes(texIds[i], childrenOf, videos);
+      if (!bytes) {
+        bufs.push(null);
+        decoding.push(Promise.resolve(null));
+        continue;
+      }
+      const buf = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+      bufs.push(buf);
+      // Fall back to `buffers` (null bitmap) when decoding is unavailable
+      // (e.g. tests) or fails, so the data still round-trips.
+      decoding.push(canDecode
+        ? createImageBitmap(new Blob([buf])).catch((e) => {
+            console.warn(`[FBXLoader] failed to decode embedded texture ${texIds[i]}:`, e);
+            return null;
+          })
+        : Promise.resolve(null));
+    }
+    const bitmaps = await Promise.all(decoding);
+
+    for (let i = chunkStart; i < chunkEnd; i++) {
+      const buf = bufs[i - chunkStart];
+      if (!buf) {
+        console.warn(`[FBXLoader] texture ${texIds[i]} has no embedded data (external file ref); skipping.`);
+        continue;
+      }
+      const id = `fbx-tex-${texIds[i]}`;
+      const bitmap = bitmaps[i - chunkStart];
+      const textureParams = bitmap ? { id, image: bitmap } : { id, buffers: [buf] };
+      const r = sceneModel.createTexture(textureParams);
+      if ((r as any).ok === false) {
+        console.warn(`[FBXLoader] createTexture failed:`, (r as any).error);
+        continue;
+      }
+      emittedTex.set(texIds[i], id);
     }
   }
+}
 
-  const r = sceneModel.createTexture(textureParams);
-  if ((r as any).ok === false) {
-    console.warn(`[FBXLoader] createTexture failed:`, (r as any).error);
-    return undefined;
-  }
-  emittedTex.set(texId, id);
-  return id;
+/** Looks up a material's diffuse texture, decoded up front by {@link predecodeDiffuseTextures}. */
+function emitDiffuseTexture(
+  matId: number,
+  childrenOf: Map<number, Array<{id: number; prop: string | null}>>,
+  textures: Map<number, FBXNode>,
+  emittedTex: Map<number, string>,
+): string | undefined {
+  const texId = diffuseTexId(matId, childrenOf, textures);
+  return texId === undefined ? undefined : emittedTex.get(texId);
 }
 
 /** Reads a `Properties70` `P` entry's numeric values (those after the 4 tags). */

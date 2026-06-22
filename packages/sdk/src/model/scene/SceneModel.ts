@@ -1408,9 +1408,9 @@ export class SceneModel {
           scale || [1, 1, 1],
           matrix
         );
-      } else {
-        matrix = identityMat4();
       }
+      // No transform params at all: leave `matrix` undefined so the SceneMesh
+      // shares its identity sentinel instead of allocating a per-mesh identity.
     } else {
       if (matrix.length !== 16) {
         return this.scene.logError({

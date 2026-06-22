@@ -1,5 +1,7 @@
 import {buildMat4} from "../buildMat4";
 import {getMeshWorldMatrix} from "../getMeshWorldMatrix";
+import {Scene} from "../Scene";
+import {TrianglesPrimitive} from "../../../base/constants";
 
 // A right-handed Z-up basis (column-major), matching CoordinateSystem's default.
 const Z_UP_BASIS = [1, 0, 0, 0, 0, 1, 0, 1, 0];
@@ -83,5 +85,68 @@ describe("getMeshWorldMatrix", () => {
     for (let i = 0; i < 16; i++) {
       expect(result[i]).toBeCloseTo(translation[i], 6);
     }
+  });
+});
+
+describe("SceneMesh lazy world matrix + shared identity", () => {
+
+  const QUAD_POSITIONS = [0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0];
+  const QUAD_INDICES = [0, 1, 2, 0, 2, 3];
+  const TRANSLATE = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 5, 6, 7, 1];
+
+  function model() {
+    const m = new Scene().createModel({id: "m"}).value!;
+    m.createGeometry({id: "g", primitive: TrianglesPrimitive, positions: QUAD_POSITIONS, indices: QUAD_INDICES});
+    return m;
+  }
+
+  it("does not allocate _worldMatrix when world equals local (identity coord system, no parent)", () => {
+    const m = model();
+    m.createMesh({id: "plain", geometryId: "g"});
+    m.createMesh({id: "instanced", geometryId: "g", matrix: TRANSLATE as any});
+    const plain = m.meshes["plain"] as any;
+    const instanced = m.meshes["instanced"] as any;
+
+    // Reading worldMatrix must not allocate the redundant copy...
+    expect(plain.worldMatrix).toBe(plain.matrix);
+    expect(instanced.worldMatrix).toBe(instanced.matrix);
+    // ...and it must equal the local matrix value.
+    expect(Array.from(instanced.worldMatrix)).toEqual(TRANSLATE);
+    expect(plain._worldMatrix).toBeNull();
+    expect(instanced._worldMatrix).toBeNull();
+  });
+
+  it("shares one identity matrix across untransformed meshes without cross-contamination", () => {
+    const m = model();
+    m.createMesh({id: "a", geometryId: "g"});
+    m.createMesh({id: "b", geometryId: "g"});
+    const a = m.meshes["a"] as any;
+    const b = m.meshes["b"] as any;
+
+    // Both untransformed meshes share the single identity sentinel.
+    expect(a._localMatrix).toBe(b._localMatrix);
+
+    // Writing a matrix to one must give it a private copy, leaving the other identity.
+    a.matrix = TRANSLATE as any;
+    expect(a._localMatrix).not.toBe(b._localMatrix);
+    expect(Array.from(a.matrix)).toEqual(TRANSLATE);
+    expect(Array.from(b.matrix)).toEqual([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+  });
+
+  it("allocates and uses _worldMatrix when a parent transform makes world != local", () => {
+    const m = model();
+    m.createTransform({id: "t", matrix: TRANSLATE as any}); // translation (5,6,7)
+    m.createMesh({id: "x", geometryId: "g"});               // identity local
+    const mesh = m.meshes["x"] as any;
+    mesh.setParentTransformId("t");
+
+    const world = mesh.worldMatrix;
+    // Non-fast-path: the cache is allocated and returned.
+    expect(mesh._worldMatrix).not.toBeNull();
+    expect(world).toBe(mesh._worldMatrix);
+    // parent translation composed with identity local.
+    expect(world[12]).toBeCloseTo(5, 6);
+    expect(world[13]).toBeCloseTo(6, 6);
+    expect(world[14]).toBeCloseTo(7, 6);
   });
 });

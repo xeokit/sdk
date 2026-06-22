@@ -26,6 +26,14 @@ const DEFAULT_TRIPLANAR_SCALE = 1.0;
 const DEFAULT_LINE_WIDTH      = 0.0;  // 0 = fall back to View linesMaterial.lineWidth
 
 /**
+ * Shared local matrix for untransformed meshes. A mesh created without a
+ * `matrix` references this single instance instead of allocating its own
+ * identity matrix; on the first matrix write it allocates a private one
+ * (see {@link SceneMesh._ownLocalMatrix}). Never mutated in place.
+ */
+const SHARED_IDENTITY_MATRIX: Mat4 = identityMat4();
+
+/**
  * A mesh in a {@link SceneModel | SceneModel}.
  *
  * * Stored in {@link SceneModel.meshes | SceneModel.meshes}
@@ -106,7 +114,10 @@ export class SceneMesh {
   private _color: Vec3;
   private _opacity: number;
   private _localMatrix: Mat4;
-  private _worldMatrix: Mat4;
+  // Lazily allocated: only when world != local (a parent transform exists or
+  // the model's coordinate system is non-identity). When world == local the
+  // getter returns `_localMatrix` directly, so most meshes never allocate this.
+  private _worldMatrix: Mat4 | null;
   private _parentTransform: SceneTransform | null = null;
   private _worldMatrixDirty: boolean = true;
 
@@ -130,9 +141,10 @@ export class SceneMesh {
     this.model = meshParams.model;
     // Take ownership of the supplied matrix — SceneModel.createMesh (the only
     // caller) already hands over a freshly-built/cloned matrix, so cloning again
-    // here would double the per-mesh allocation on large models.
-    this._localMatrix = meshParams.matrix ?? identityMat4();
-    this._worldMatrix = createMat4Float64();
+    // here would double the per-mesh allocation on large models. An untransformed
+    // mesh shares the identity sentinel rather than allocating its own.
+    this._localMatrix = meshParams.matrix ?? SHARED_IDENTITY_MATRIX;
+    this._worldMatrix = null;
     this._worldMatrixDirty = true;
     this.geometry = meshParams.geometry;
     this.material = meshParams.material;
@@ -241,14 +253,22 @@ export class SceneMesh {
       });
       return;
     }
-    if (matrix) {
-      // @ts-ignore
-      this._localMatrix.set(matrix);
-    } else {
-      identityMat4(this._localMatrix);
-    }
+    // @ts-ignore
+    this._ownLocalMatrix().set(matrix);
     this.setWorldMatrixDirty();
 
+  }
+
+  /**
+   * Returns a private, writable `_localMatrix`, replacing the shared identity
+   * sentinel with a fresh copy on first write so in-place mutation never
+   * corrupts the matrix shared by every untransformed mesh.
+   */
+  private _ownLocalMatrix(): Mat4 {
+    if (this._localMatrix === SHARED_IDENTITY_MATRIX) {
+      this._localMatrix = createMat4Float64(SHARED_IDENTITY_MATRIX);
+    }
+    return this._localMatrix;
   }
 
   /**
@@ -264,9 +284,19 @@ export class SceneMesh {
    * Gets the global transform matrix for this SceneMesh.
    */
   get worldMatrix(): Mat4 {
-    if (this._worldMatrixDirty) {
+    // Common case: no parent transform and an identity model coordinate system,
+    // so the world matrix equals the local matrix. Return it directly rather
+    // than maintaining a redundant per-mesh copy — this avoids allocating
+    // `_worldMatrix` for the great majority of meshes.
+    if (!this._parentTransform && isIdentityMat4(this.model.coordinateSystemMatrix)) {
+      return this._localMatrix;
+    }
+    if (this._worldMatrixDirty || !this._worldMatrix) {
+      if (!this._worldMatrix) {
+        this._worldMatrix = createMat4Float64();
+      }
       if (this._parentTransform) {
-        mulMat4( this._parentTransform.worldMatrix, this._localMatrix, this._worldMatrix);
+        mulMat4(this._parentTransform.worldMatrix, this._localMatrix, this._worldMatrix);
       } else {
         mulMat4(this.model.coordinateSystemMatrix, this._localMatrix, this._worldMatrix);
       }
@@ -586,14 +616,14 @@ export class SceneMesh {
     const preserve = !!opts?.preserveWorld;
     if (preserve) {
       this.setWorldMatrixDirty();
-      const currentWorld = createMat4Float64(this._worldMatrix);
+      const currentWorld = createMat4Float64(this.worldMatrix as Mat4);
       this._attachParentTransform(parentTransform);
       if (this._parentTransform) {
         const invParent = inverseMat4(this._parentTransform._worldMatrix, createMat4Float64());
         mulMat4(this._localMatrix, invParent, currentWorld);
       } else {
         // @ts-ignore
-        this._localMatrix.set(currentWorld);
+        this._ownLocalMatrix().set(currentWorld);
       }
       this.setWorldMatrixDirty();
     } else {

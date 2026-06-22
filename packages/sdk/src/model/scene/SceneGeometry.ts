@@ -6,6 +6,43 @@ import {SDKErrorType, type SDKResult} from "../../base/core";
 import type {Mat4} from "../../base/math/matrix";
 
 /**
+ * Stores an index array in the smallest integer type that can hold its values.
+ *
+ * Indices address a geometry's own vertices, so they fit `Uint8` when every
+ * value is < 256 and `Uint16` when < 65536 — the common case, since most
+ * geometries have few vertices. Loaders typically hand over `Uint32`, so this
+ * halves (or quarters) the retained index/edge memory. The renderer copies
+ * these into its 32-bit index texture on upload (widening as needed), and CPU
+ * picking reads them as plain integers, so a narrower type is transparent to
+ * both.
+ *
+ * The type is chosen from the actual maximum value (not the vertex count), so
+ * it is correct regardless of how the caller sized the array. Returns the input
+ * unchanged when absent, empty, or already no wider than required.
+ */
+function narrowIndexArray(indices?: IntArrayParam): IntArrayParam | undefined {
+  if (!indices || indices.length === 0) {
+    return indices;
+  }
+  let max = 0;
+  for (let i = 0, len = indices.length; i < len; i++) {
+    if (indices[i] > max) {
+      max = indices[i];
+    }
+  }
+  const targetBytes = max < 256 ? 1 : max < 65536 ? 2 : 4;
+  if (ArrayBuffer.isView(indices) && (indices as {BYTES_PER_ELEMENT?: number}).BYTES_PER_ELEMENT! <= targetBytes) {
+    return indices; // already as narrow as (or narrower than) needed — no copy
+  }
+  const src = indices as ArrayLike<number>;
+  const narrowed: IntArrayParam =
+    targetBytes === 1 ? new Uint8Array(src)
+      : targetBytes === 2 ? new Uint16Array(src)
+        : new Uint32Array(src);
+  return narrowed;
+}
+
+/**
  * A geometry in a {@link SceneModel | SceneModel}.
  *
  * * Contains triangles, lines or points
@@ -133,8 +170,8 @@ export class SceneGeometry {
     this.uvsCompressed = params.uvsCompressed;
     this.colorsCompressed = params.colorsCompressed;
     this.normalsCompressed = params.normalsCompressed;
-    this.indices = params.indices;
-    this.edgeIndices = params.edgeIndices;
+    this.indices = narrowIndexArray(params.indices);
+    this.edgeIndices = narrowIndexArray(params.edgeIndices);
     this.scales = params.scales;
     this.rotations = params.rotations;
     this.aabb = createAABB3Float32(params.aabb);

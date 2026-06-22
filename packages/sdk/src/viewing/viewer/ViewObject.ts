@@ -56,7 +56,12 @@ export class ViewObject {
     public viewTransform: ViewTransform;
 
     private _flags: number;
-    private _colorize: Vec3;
+    // RGBA: [0..2] colorize, [3] opacity. Lazily allocated — most ViewObjects
+    // are never colorized or opacity-overridden, and a Float32Array(4) costs
+    // ~230 B in V8 (object + ArrayBuffer overhead), dwarfing its 16 B of data.
+    // Null means the defaults [1, 1, 1, 1]; gated by the COLORIZED /
+    // OPACITY_UPDATED flags.
+    private _colorize: Vec3 | null = null;
 
     /**
      * True if this ViewObject has been destroyed.
@@ -99,8 +104,6 @@ export class ViewObject {
             initialFlags |= ViewObject.CLIPPABLE;
         }
         this._flags = initialFlags;
-
-        this._colorize = new Float32Array(4);
 
         this.layer.objectVisibilityUpdated(this, this.visible, false);
     }
@@ -419,7 +422,19 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
      */
     get colorize(): Vec3 | null{
-        return this.colorized ? this._colorize : null;
+        return (this.colorized && this._colorize) ? this._colorize : null;
+    }
+
+    /**
+     * Returns the RGBA colorize/opacity store, allocating it (default
+     * [1, 1, 1, 1]) on first use. Only called from the colorize/opacity
+     * setters when a real override is applied.
+     */
+    private _ownColorize(): Vec3 {
+        if (!this._colorize) {
+            this._colorize = new Float32Array([1, 1, 1, 1]);
+        }
+        return this._colorize;
     }
 
     /**
@@ -439,15 +454,16 @@ export class ViewObject {
             });
             return;
         }
-        const colorize = this._colorize;
         if (value) {
+            const colorize = this._ownColorize();
             colorize[0] = value[0];
             colorize[1] = value[1];
             colorize[2] = value[2];
-        } else {
-            colorize[0] = 1;
-            colorize[1] = 1;
-            colorize[2] = 1;
+        } else if (this._colorize) {
+            // Reset RGB to the default; keep alpha (any opacity override).
+            this._colorize[0] = 1;
+            this._colorize[1] = 1;
+            this._colorize[2] = 1;
         }
         this._setFlag(ViewObject.COLORIZED, !!value);
         this.layer.objectColorizeUpdated(this, this.colorized);
@@ -460,7 +476,7 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsOpacity} to batch-update the opacities of ViewObjects.
      */
     get opacity(): number {
-        return this._colorize[3];
+        return this._colorize ? this._colorize[3] : 1.0;
     }
 
     /**
@@ -481,8 +497,11 @@ export class ViewObject {
         }
         const opacityUpdated = opacity !== null && opacity !== undefined;
         this._setFlag(ViewObject.OPACITY_UPDATED, opacityUpdated);
-        // @ts-ignore
-        this._colorize[3] = opacityUpdated ? opacity : 1.0;
+        if (opacityUpdated) {
+            this._ownColorize()[3] = opacity as number;
+        } else if (this._colorize) {
+            this._colorize[3] = 1.0; // clear override; keep any colorize RGB
+        }
         this.layer.objectOpacityUpdated(this, this.opacityUpdated);
     }
 

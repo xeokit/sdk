@@ -1564,6 +1564,11 @@ export class GPUMemoryBatch {
     for (let i = this._lastFreeMeshIndex; ; i = (i + 1) % maxMeshes) {
       if (!this._meshIndicesUsed[i]) {
         this._meshIndicesUsed[i] = true;
+        // Advance the scan hint past the slot just taken so the next allocation
+        // doesn't re-scan the run of used slots — without this the scan is O(N)
+        // per call, O(N^2) over a model load. Frees reset the hint to the freed
+        // slot (see _putFreeMeshIndex), so slot reuse still works.
+        this._lastFreeMeshIndex = (i + 1) % maxMeshes;
         return i;
       }
     }
@@ -1581,6 +1586,8 @@ export class GPUMemoryBatch {
     for (let i = this._lastFreeGeometryIndex; ; i = (i + 1) % maxGeometries) {
       if (!this._geometryIndicesUsed[i]) {
         this._geometryIndicesUsed[i] = true;
+        // See _getFreeMeshIndex — advance the hint to keep allocation O(1).
+        this._lastFreeGeometryIndex = (i + 1) % maxGeometries;
         return i;
       }
     }

@@ -11,10 +11,16 @@ interface Portion {
 
 /**
  * Handle representing an allocated portion in the PortionDataTexture.
+ *
+ * Carries the portion's `size` and optional `onMove` callback directly, so the
+ * hot allocation path needs no separate per-id side maps — callers already hold
+ * the handle and pass it back for every operation.
  */
 export interface PortionHandle {
   id: number;
   base: number;
+  size: number;
+  onMove?: (newBase: number) => void;
 }
 
 /**
@@ -29,9 +35,12 @@ export interface PortionHandle {
 export abstract class PortionDataTexture extends DataTexture {
 
   private readonly freePortions: Portion[] = [];
-  private usedPortions: Map<number, Portion> = new Map();
-  private readonly portionHandles: Map<number, PortionHandle> = new Map();
-  private readonly portionCallbacks: Map<number, (newBase: number) => void> = new Map();
+  /**
+   * Live portions keyed by id. Used only for {@link pack} / flush enumeration
+   * and id lookup; per-handle operations read the handle directly (it carries
+   * `base`/`size`/`onMove`), so the hot path does no map lookups.
+   */
+  private portionsById: Map<number, PortionHandle> = new Map();
   private readonly dirtyPortionIds: Set<number> = new Set<number>();
   private nextPortionId: number = 1;
   private uploadAllOnFlush: boolean = false;
@@ -94,13 +103,9 @@ export abstract class PortionDataTexture extends DataTexture {
    * @param handle Portion handle.
    */
   public getPortionView(handle: PortionHandle): ArrayLike<number> {
-    const portion = this.usedPortions.get(handle.id);
-    if (!portion) {
-      throw new SDKInternalException("Invalid handle ID");
-    }
     return this.buffer.subarray(
-      portion.base * this.elementsPerItem,
-      (portion.base + portion.size) * this.elementsPerItem
+      handle.base * this.elementsPerItem,
+      (handle.base + handle.size) * this.elementsPerItem
     );
   }
 
@@ -110,15 +115,10 @@ export abstract class PortionDataTexture extends DataTexture {
    * @param data Data to set.
    */
   private _setPortionData(handle: PortionHandle, data: ArrayLike<number>): void {
-    const portion = this.usedPortions.get(handle.id);
-    if (!portion) {
-      throw new SDKInternalException("Invalid handle ID");
-    }
-    const expectedItems = portion.size;
-    if ((data.length / this.elementsPerItem) !== expectedItems) {
+    if ((data.length / this.elementsPerItem) !== handle.size) {
       throw new SDKInternalException("Mismatched data length");
     }
-    const offset = portion.base * this.elementsPerItem;
+    const offset = handle.base * this.elementsPerItem;
     this.buffer.set(data as ArrayLike<number>, offset);
     this.dirtyPortionIds.add(handle.id);
   }
@@ -132,48 +132,47 @@ export abstract class PortionDataTexture extends DataTexture {
    * @returns SDKResult with updated PortionHandle.
    */
   public setPortionData(handle: PortionHandle, data: ArrayLike<number>): SDKResult<PortionHandle> {
-    const portion = this.usedPortions.get(handle.id);
-    if (!portion) {
-      throw new SDKInternalException("Invalid handle ID");
-    }
     const newSize = (data.length / this.elementsPerItem) | 0;
     if (newSize <= 0) {
       throw new SDKInternalException("New portion size must be > 0");
     }
-    if (newSize === portion.size) {
+    if (newSize === handle.size) {
       // In-place update
       this._setPortionData(handle, data);
       return { ok: true, value: handle};
     }
     // Try to grow/shrink in-place if possible
     const canGrowInPlace =
-      newSize > portion.size &&
+      newSize > handle.size &&
       this.freePortions.length > 0 &&
       this.freePortions.some(f =>
-        f.base === portion.base + portion.size && f.size >= (newSize - portion.size)
+        f.base === handle.base + handle.size && f.size >= (newSize - handle.size)
       );
     if (canGrowInPlace) {
       // Extend into adjacent free block
-      const growBy = newSize - portion.size;
+      const growBy = newSize - handle.size;
       const freeIdx = this.freePortions.findIndex(f =>
-        f.base === portion.base + portion.size && f.size >= growBy
+        f.base === handle.base + handle.size && f.size >= growBy
       );
       if (freeIdx !== -1) {
         const free = this.freePortions[freeIdx];
         free.base += growBy;
         free.size -= growBy;
         if (free.size === 0) this.freePortions.splice(freeIdx, 1);
-        portion.size = newSize;
+        handle.size = newSize;
         this._setPortionData(handle, data);
         this.dirtyPortionIds.add(handle.id);
-        this._numItems += (newSize - portion.size);
+        this._numItems += growBy;
         return { ok: true, value: handle  };
       }
     }
-    // Otherwise, allocate a new portion, copy data, free old
+    // Otherwise, allocate a new portion, copy data, free old, then alias the
+    // caller's handle onto the new portion in place (so the caller's reference
+    // stays valid).
+    const onMove = handle.onMove;
     let newHandle: PortionHandle;
     try {
-      newHandle = this.getPortion(data, this.portionCallbacks.get(handle.id));
+      newHandle = this.getPortion(data, onMove);
     } catch (e) {
       return {
         ok: false,
@@ -183,10 +182,12 @@ export abstract class PortionDataTexture extends DataTexture {
     }
     this._setPortionData(newHandle, data);
     this.putPortion(handle);
-    // Update handle in-place
-    handle.base = newHandle.base;
+    this.portionsById.delete(newHandle.id);
     handle.id = newHandle.id;
-    this.portionHandles.set(handle.id, handle);
+    handle.base = newHandle.base;
+    handle.size = newHandle.size;
+    handle.onMove = onMove;
+    this.portionsById.set(handle.id, handle);
     return { ok: true, value: handle  };
   }
 
@@ -195,16 +196,13 @@ export abstract class PortionDataTexture extends DataTexture {
    * @param handle Portion handle.
    */
   public putPortion(handle: PortionHandle): void {
-    const portion = this.usedPortions.get(handle.id);
-    if (!portion) {
+    if (!this.portionsById.has(handle.id)) {
       return;
     }
-    this._numItems -= portion.size;
+    this._numItems -= handle.size;
     this.isPacked = false;
-    this.usedPortions.delete(handle.id);
-    this.portionHandles.delete(handle.id);
-    this.portionCallbacks.delete(handle.id);
-    this.insertFreePortionSorted(portion);
+    this.portionsById.delete(handle.id);
+    this.insertFreePortionSorted({base: handle.base, size: handle.size});
     this.coalesceFree();
   }
 
@@ -222,30 +220,24 @@ export abstract class PortionDataTexture extends DataTexture {
     if (this.isPacked) {
       return;
     }
-    const sorted = Array.from(this.usedPortions.entries()).sort(([, a], [, b]) => a.base - b.base);
+    const sorted = Array.from(this.portionsById.values()).sort((a, b) => a.base - b.base);
     let writeHead = 0;
-    const newUsed = new Map<number, Portion>();
     const elementsPerItem = this.elementsPerItem;
-    for (const [id, portion] of sorted) {
-      if (portion.base !== writeHead) {
-        const from = portion.base * elementsPerItem;
+    for (const handle of sorted) {
+      if (handle.base !== writeHead) {
+        const from = handle.base * elementsPerItem;
         const to = writeHead * elementsPerItem;
-        const count = portion.size * elementsPerItem;
+        const count = handle.size * elementsPerItem;
         this.buffer.copyWithin(to, from, from + count);
-        const callback = this.portionCallbacks.get(id);
-        if (callback) {
-          callback(writeHead);
+        if (handle.onMove) {
+          handle.onMove(writeHead);
         }
         this.uploadAllOnFlush = true;
       }
-      newUsed.set(id, { base: writeHead, size: portion.size });
-      const handle = this.portionHandles.get(id);
-      if (handle) {
-        handle.base = writeHead;
-      }
-      writeHead += portion.size;
+      // Handles are mutated in place, so portionsById stays valid as-is.
+      handle.base = writeHead;
+      writeHead += handle.size;
     }
-    this.usedPortions = newUsed;
     this.freePortions.length = 0;
     if (writeHead < this.maxItems) {
       this.freePortions.push({ base: writeHead, size: this.maxItems - writeHead });
@@ -266,19 +258,15 @@ export abstract class PortionDataTexture extends DataTexture {
   ): PortionHandle {
     const block = this.freePortions[index];
     const id = ++this.nextPortionId;
-    const portion: Portion = { base: block.base, size };
-    this.usedPortions.set(id, portion);
+    const base = block.base;
     if (size === block.size) {
       this.freePortions.splice(index, 1);
     } else {
       block.base += size;
       block.size -= size;
     }
-    const handle: PortionHandle = { id, base: portion.base };
-    this.portionHandles.set(id, handle);
-    if (onMove) {
-      this.portionCallbacks.set(id, onMove);
-    }
+    const handle: PortionHandle = { id, base, size, onMove };
+    this.portionsById.set(id, handle);
     return handle;
   }
 
@@ -363,9 +351,9 @@ export abstract class PortionDataTexture extends DataTexture {
       const elementsPerTexel = this.elementsPerTexel;
       const segments: Portion[] = [];
       for (const id of this.dirtyPortionIds) {
-        const portion = this.usedPortions.get(id);
-        if (portion) {
-          segments.push({base: portion.base, size: portion.size});
+        const handle = this.portionsById.get(id);
+        if (handle) {
+          segments.push({base: handle.base, size: handle.size});
         }
       }
       segments.sort((a, b) => a.base - b.base);

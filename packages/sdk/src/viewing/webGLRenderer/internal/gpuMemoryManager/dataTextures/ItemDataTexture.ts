@@ -51,72 +51,53 @@ export abstract class ItemDataTexture extends DataTexture {
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
-    // const texelsPerItem = this.texelsPerItem;
-    // const elementsPerItem = this.elementsPerItem;
-    // const itemsPerRow = this.width / texelsPerItem;
-    // const sortedItemIndices = Array.from(this.dirtyItemIndices).sort((a, b) => a - b);
-    //
-    // let runStartIdx = -1;
-    // let prevIdx = -2;
-    //
-    // const uploadRun = (startIdx: number, endIdx: number): void => {
-    //   let currentIdx = startIdx;
-    //   while (currentIdx <= endIdx) {
-    //     const xOffset = currentIdx % itemsPerRow;
-    //     const yOffset = Math.floor(currentIdx / texelsPerItem);
-    //     const rowItemsLeft = itemsPerRow - xOffset;
-    //     const maxChunkItems = endIdx - currentIdx + 1;
-    //     const chunkItemCount = Math.min(rowItemsLeft, maxChunkItems);
-    //     const bufferStartIdx = currentIdx * elementsPerItem;
-    //     const bufferEndIdx = bufferStartIdx + chunkItemCount * elementsPerItem;
-    //     const pixelData = this.buffer.subarray(bufferStartIdx, bufferEndIdx);
-    //     gl.texSubImage2D(
-    //       gl.TEXTURE_2D,
-    //       0,
-    //       xOffset,
-    //       yOffset,
-    //       chunkItemCount,
-    //       1,
-    //       this.format,
-    //       this.type,
-    //       pixelData
-    //     );
-    //     currentIdx += chunkItemCount;
-    //   }
-    // };
-    //
-    // for (const itemIdx of sortedItemIndices) {
-    //   if (itemIdx !== prevIdx + 1) {
-    //     if (runStartIdx >= 0) {
-    //       uploadRun(runStartIdx, prevIdx);
-    //     }
-    //     runStartIdx = itemIdx;
-    //   }
-    //   prevIdx = itemIdx;
-    // }
-    //
-    // if (runStartIdx >= 0) {
-    //   uploadRun(runStartIdx, prevIdx);
-    // }
-    //
-    // if (this.debugging) {
-    //   this.lastUploadTimeMS = performance.now() - startTimeMs;
-    // }
+    // Upload only the dirty items, not the whole texture. Each item occupies
+    // `texelsPerItem` consecutive texels starting at `itemIndex * texelsPerItem`;
+    // coalesce contiguous dirty items into runs, then split each run at texture
+    // row boundaries (one texSubImage2D per row-span). All row/column maths is in
+    // TEXELS, not items — otherwise textures with texelsPerItem > 1 land at the
+    // wrong texels.
+    const texelsPerItem = this.texelsPerItem;
+    const texelsPerRow = this.width;
+    const elementsPerTexel = this.elementsPerTexel;
+    const buffer = this.buffer;
 
-    gl.texSubImage2D(
-      gl.TEXTURE_2D,
-      0,
-      0,
-      0,
-      this.width,
-      this.height,
-      this.format,
-      this.type,
-      this.buffer
-    );
+    const uploadRun = (startItem: number, count: number): void => {
+      let texelBase = startItem * texelsPerItem;
+      let remainingTexels = count * texelsPerItem;
+      while (remainingTexels > 0) {
+        const xOffset = texelBase % texelsPerRow;
+        const yOffset = Math.floor(texelBase / texelsPerRow);
+        const chunkTexels = Math.min(remainingTexels, texelsPerRow - xOffset);
+        const bufferStart = texelBase * elementsPerTexel;
+        const bufferEnd = (texelBase + chunkTexels) * elementsPerTexel;
+        gl.texSubImage2D(gl.TEXTURE_2D, 0, xOffset, yOffset, chunkTexels, 1,
+          this.format, this.type, buffer.subarray(bufferStart, bufferEnd));
+        texelBase += chunkTexels;
+        remainingTexels -= chunkTexels;
+      }
+    };
+
+    const sorted = Array.from(this.dirtyItemIndices).sort((a, b) => a - b);
+    let runStart = sorted[0];
+    let runCount = 1;
+    for (let i = 1; i < sorted.length; i++) {
+      if (sorted[i] === runStart + runCount) {
+        runCount++;
+      } else {
+        uploadRun(runStart, runCount);
+        runStart = sorted[i];
+        runCount = 1;
+      }
+    }
+    uploadRun(runStart, runCount);
 
     this.dirtyItemIndices.clear();
     gl.bindTexture(gl.TEXTURE_2D, null);
+
+    if (this.debugging) {
+      this.lastUploadTimeMS = performance.now() - startTimeMs;
+    }
 
     this.notifyUpdated();
 

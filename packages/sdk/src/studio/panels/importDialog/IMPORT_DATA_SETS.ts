@@ -32,6 +32,24 @@ export const IMPORT_DATA_SETS: ImportDataSet[] = [
     ],
   },
   {
+    id: "usdz",
+    label: "USDZ (Pixar)",
+    defaultBasisId: "z-up",
+    loadsDataSemantics: false,
+    files: [
+      {key: "usdz", label: "USDZ file", accept: ".usdz", loadFormat: "usdz", required: true},
+    ],
+  },
+  {
+    id: "threedxml",
+    label: "3DXML (Dassault)",
+    defaultBasisId: "y-up",
+    loadsDataSemantics: false,
+    files: [
+      {key: "threedxml", label: "3DXML file", accept: ".3dxml", loadFormat: "threedxml", required: true},
+    ],
+  },
+  {
     id: "splat",
     label: "3D Gaussian Splatting (.splat)",
     defaultBasisId: "y-down",
@@ -141,6 +159,14 @@ export const IMPORT_DATA_SETS: ImportDataSet[] = [
     defaultBasisId: "z-up",
     files: [
       {key: "cityjson", label: "CityJSON file", accept: ".json", loadFormat: "cityjson", required: true},
+    ],
+  },
+  {
+    id: "fds",
+    label: "FDS (Fire Dynamics Simulator)",
+    defaultBasisId: "z-up",
+    files: [
+      {key: "fds", label: "FDS file", accept: ".fds", loadFormat: "fds", required: true},
     ],
   },
 ];

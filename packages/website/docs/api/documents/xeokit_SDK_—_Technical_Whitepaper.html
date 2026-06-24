@@ -79,7 +79,7 @@
 </tr>
 <tr>
 <td><code>formats/</code></td>
-<td>Import / export for IFC, glTF, XGF, XKT, LAS, CityJSON, OBJ + MTL, DotBIM, 3D Gaussian Splatting (<code>.splat</code>), plus the 2D drawing formats (PDF, DWG, DXF, SVG) and native scene-model and data-model JSON.</td>
+<td>Import / export for IFC, glTF, XGF, XKT, LAS, E57, CityJSON, 3D Tiles, OBJ + MTL, FBX, USDZ, DotBIM, 3DXML, FDS, 3D Gaussian Splatting (<code>.splat</code>), plus the 2D drawing formats (PDF, DWG, DXF, SVG) and native scene-model and data-model JSON.</td>
 </tr>
 <tr>
 <td><code>spatial/</code></td>
@@ -171,7 +171,7 @@
 <li><strong>Traversal queries</strong> via <code>searchObjects</code> — start from any object, walk by relationship type, filter by object type, collect ids back. Pairs with Scene-side bulk operations through shared <code>id</code>s.</li>
 <li><strong>Schema-aware ingest</strong> — IFC4, IFC2x3, IFC4x3 entity types preserved end-to-end through loaders.</li>
 </ul>
-<a id="format-support" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Format support<a href="#format-support" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>End-to-end import and export coverage for the formats AECO workflows actually exchange — IFC for source-of-truth BIM, glTF / XGF for delivery, dotbim / OBJ for interop, the 2D drawing formats (PDF / DWG / DXF / SVG) for AECO sheet exchange, plus point-cloud, reality-capture (3D Gaussian Splatting) and city-scale options (CityJSON, 3D Tiles).</p>
+<a id="format-support" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Format support<a href="#format-support" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>End-to-end import and export coverage for the formats AECO workflows actually exchange — IFC for source-of-truth BIM, glTF / XGF for delivery, dotbim / OBJ for interop, the 2D drawing formats (PDF / DWG / DXF / SVG) for AECO sheet exchange, plus point-cloud and reality-capture (LAS, E57, 3D Gaussian Splatting) and city-scale options (CityJSON, 3D Tiles).</p>
 <table>
 <thead>
 <tr>
@@ -231,6 +231,12 @@
 <td><code>formats/las</code></td>
 </tr>
 <tr>
+<td><strong>E57</strong> (ASTM E2807 laser-scan point clouds)</td>
+<td style="text-align:center">✓</td>
+<td style="text-align:center">✓</td>
+<td><code>formats/e57</code></td>
+</tr>
+<tr>
 <td><strong>3D Gaussian Splatting</strong> (<code>.splat</code>; baked RGB, no SH)</td>
 <td style="text-align:center">✓</td>
 <td style="text-align:center">✓</td>
@@ -247,6 +253,24 @@
 <td style="text-align:center">✓</td>
 <td style="text-align:center">✓</td>
 <td><code>formats/mtl</code></td>
+</tr>
+<tr>
+<td><strong>FBX</strong> (Autodesk; binary)</td>
+<td style="text-align:center">✓</td>
+<td style="text-align:center">✓</td>
+<td><code>formats/fbx</code></td>
+</tr>
+<tr>
+<td><strong>USDZ</strong> (Pixar)</td>
+<td style="text-align:center">✓</td>
+<td style="text-align:center">✓</td>
+<td><code>formats/usdz</code></td>
+</tr>
+<tr>
+<td><strong>FDS</strong> (Fire Dynamics Simulator)</td>
+<td style="text-align:center">✓</td>
+<td style="text-align:center">✓</td>
+<td><code>formats/fds</code></td>
 </tr>
 <tr>
 <td><strong>PDF</strong> drawing sheets (vector + raster, via pdf.js)</td>

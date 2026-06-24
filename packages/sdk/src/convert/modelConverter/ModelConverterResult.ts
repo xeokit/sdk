@@ -1,6 +1,7 @@
 import {type ModelConverterResultInput} from "./ModelConverterResultInput";
 import {type ModelConverterResultOutput} from "./ModelConverterResultOutput";
 import {type ModelConverterResultInspection} from "./ModelConverterResultInspection";
+import {type ModelConverterResultDataInspection} from "./ModelConverterResultDataInspection";
 import {type Scene} from "../../model/scene";
 import {type Data} from "../../model/data";
 import {type ModelConverter} from "./ModelConverter";
@@ -57,6 +58,12 @@ export interface ModelConverterResult {
   inspection?: {
     bySceneModel: {
       [sceneModelId: string]: ModelConverterResultInspection;
+    };
+    /** Per-DataModel validation records. Present when the inspect step ran and
+     *  the conversion produced DataModels. DataModel inspection is
+     *  validation-only (no fixes). */
+    byDataModel?: {
+      [dataModelId: string]: ModelConverterResultDataInspection;
     };
   };
 

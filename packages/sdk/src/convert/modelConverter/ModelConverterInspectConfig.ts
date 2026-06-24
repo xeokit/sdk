@@ -1,4 +1,5 @@
 import type {InspectSceneModelParams} from "../../inspect/sceneModel";
+import type {InspectDataModelParams} from "../../inspect/dataModel";
 
 /**
  * Optional inspect/fix step that runs after loading and before
@@ -20,6 +21,12 @@ export interface ModelConverterInspectConfig {
    * else (the opt-in `checkXxx` flags, thresholds, custom
    * registry) is forwarded verbatim. */
   checks?: Omit<InspectSceneModelParams, "sceneModel">;
+
+  /** Pass-through to {@link InspectDataModelParams} for DataModel validation.
+   * The `dataModel` field is supplied by the converter; the schema, opt-in
+   * `checkXxx` flags and custom registry are forwarded verbatim. DataModel
+   * inspection is validation-only (no fixes). */
+  dataChecks?: Omit<InspectDataModelParams, "dataModel">;
 
   /**
    * `false` (default) — report only.

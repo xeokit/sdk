@@ -4,14 +4,36 @@ import {GLTFLoader, GLTFExporter} from "../../formats/gltf";
 import {DotBIMLoader, DotBIMExporter} from "../../formats/dotbim";
 import {DataModelImporter, DataModelExporter} from "../../formats/datamodel";
 import {SceneModelImporter, SceneModelExporter} from "../../formats/scenemodel";
-import {CityJSONLoader} from "../../formats/cityjson";
+import {CityJSONLoader, CityJSONExporter} from "../../formats/cityjson";
 import {XGFLoader, XGFExporter} from "../../formats/xgf";
 import {LASLoader} from "../../formats/las";
 import {IFCExporter, IFCLoader} from "../../formats/ifc";
+import {FBXLoader, FBXExporter} from "../../formats/fbx";
+import {OBJLoader, OBJExporter} from "../../formats/obj";
+import {MTLLoader, MTLExporter} from "../../formats/mtl";
+import {DXFExporter} from "../../formats/dxf";
+import {SVGExporter} from "../../formats/svg";
+import {USDZLoader, USDZExporter} from "../../formats/usdz";
+import {E57Loader, E57Exporter} from "../../formats/e57";
+import {ThreeDTilesLoader} from "../../formats/threedtiles";
+import {ThreeDXMLLoader, ThreeDXMLExporter} from "../../formats/threedxml";
+import {FDSLoader, FDSExporter} from "../../formats/fds";
+import {GaussianSplatLoader, GaussianSplatExporter} from "../../formats/gaussiansplat";
+import {XKTLoader, XKTExporter} from "../../formats/legacy/xkt";
+import {MetaModelLoader, MetaModelExporter} from "../../formats/legacy/metamodel";
 
 import {createStatsReport} from "../modelConverter/reporters/stats/createStatsReport";
 import {createManifestReport} from "../modelConverter/reporters/manifest/createManifestReport";
 import {createInspectionReport} from "../modelConverter/reporters/inspection/createInspectionReport";
+import {createOptimizationReport} from "../modelConverter/reporters/optimization/createOptimizationReport";
+
+// Extension-based format resolution for the CLI's generic `--in/--out` mode.
+export {resolveLoaderId, resolveExporterId, FORMAT_BY_EXTENSION} from "./resolveFormat";
+
+// Config-file-driven inspection/optimization rule loading.
+export {
+  applyRuleConfig, applyInspectionConfig, applyOptimizationConfig, serializeRuleConfig,
+} from "./loadRuleConfig";
 
 /**
  * Available Reporters
@@ -19,7 +41,8 @@ import {createInspectionReport} from "../modelConverter/reporters/inspection/cre
 export const reporters = {
   "stats-report": createStatsReport,
   "manifest-report": createManifestReport,
-  "inspection-report": createInspectionReport
+  "inspection-report": createInspectionReport,
+  "optimization-report": createOptimizationReport
 };
 
 export const CoordinateSystems = {
@@ -54,6 +77,14 @@ export const CoordinateSystems = {
 /**
  * A ModelConverter configured to support various
  * conversion pipelines. Add more pipelines as neccessary.
+ *
+ * Registers every loader/exporter that implements the `ModelLoader` /
+ * `ModelExporter` contract the converter drives. The DWG, DXF, SVG and
+ * PDF *importers* are intentionally NOT registered: they are standalone
+ * loaders with a bespoke `load(input): Promise<SDKResult<XLoadResult>>` shape
+ * rather than `ModelLoader.load(params, options)`, so the pipeline can't drive
+ * them. (Their DXF/SVG *exporters* do conform and are registered, so the
+ * converter can write those formats even though it can't read them.)
  */
 export const modelConverter = new ModelConverter({
 
@@ -65,7 +96,18 @@ export const modelConverter = new ModelConverter({
     "xgf": new XGFLoader(),
     "las": new LASLoader(),
     "datamodel": new DataModelImporter(),
-    "scenemodel": new SceneModelImporter()
+    "scenemodel": new SceneModelImporter(),
+    "fbx": new FBXLoader(),
+    "obj": new OBJLoader(),
+    "mtl": new MTLLoader(),
+    "usdz": new USDZLoader(),
+    "e57": new E57Loader(),
+    "threedtiles": new ThreeDTilesLoader(),
+    "threedxml": new ThreeDXMLLoader(),
+    "fds": new FDSLoader(),
+    "gaussiansplat": new GaussianSplatLoader(),
+    "xkt": new XKTLoader(),
+    "metamodel": new MetaModelLoader()
   },
 
   exporters: {
@@ -74,7 +116,20 @@ export const modelConverter = new ModelConverter({
     "dotbim": new DotBIMExporter(),
     "glb": new GLTFExporter(),
     "datamodel": new DataModelExporter(),
-    "scenemodel": new SceneModelExporter()
+    "scenemodel": new SceneModelExporter(),
+    "cityjson": new CityJSONExporter(),
+    "fbx": new FBXExporter(),
+    "obj": new OBJExporter(),
+    "mtl": new MTLExporter(),
+    "dxf": new DXFExporter(),
+    "svg": new SVGExporter(),
+    "usdz": new USDZExporter(),
+    "e57": new E57Exporter(),
+    "threedxml": new ThreeDXMLExporter(),
+    "fds": new FDSExporter(),
+    "gaussiansplat": new GaussianSplatExporter(),
+    "xkt": new XKTExporter(),
+    "metamodel": new MetaModelExporter()
   },
 
   // coordinateSystems: {

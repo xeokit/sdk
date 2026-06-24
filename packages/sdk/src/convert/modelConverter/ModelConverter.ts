@@ -24,6 +24,10 @@ import {
   type ApplyFixesResult,
   type InspectionReport,
 } from "../../inspect/sceneModel";
+import {
+  inspectDataModel,
+  inspectDataModelAsync,
+} from "../../inspect/dataModel";
 
 // Lazily created so merely importing this module doesn't construct a
 // FileIO — `createFileIO()` throws in Node, and ModelConverter is
@@ -244,8 +248,11 @@ export class ModelConverter {
                 fileDataSizeBytes = (new TextEncoder()).encode(JSON.stringify(fileData)).length;
                 break;
               default:
-                //   fileData = await fileIO.load(filePath);
-                fileDataSizeBytes = fileData.buffer ? fileData.buffer.byteLength : 0;
+                // Binary inputs are an ArrayBuffer (or an ArrayBufferView):
+                // both expose `byteLength` directly — `.buffer` only exists on
+                // views, so the previous `fileData.buffer.byteLength` read 0
+                // for the common ArrayBuffer case.
+                fileDataSizeBytes = typeof fileData?.byteLength === "number" ? fileData.byteLength : 0;
                 break;
             }
 
@@ -450,6 +457,37 @@ export class ModelConverter {
               `[ModelConverter.convert] Inspection found ${report.errors.length} ` +
               `error(s) in SceneModel "${sceneModelId}"; skipping export.`);
             aborted = true;
+          }
+        }
+
+        // DataModel validation (validation-only — no fixes). Errors here block
+        // export the same way SceneModel errors do, so the converter doubles as
+        // a semantic/schema validator.
+        const dataModelIds = Object.keys(data.models);
+        if (dataModelIds.length > 0) {
+          modelConverterResult.inspection.byDataModel = {};
+          for (const dataModelId of dataModelIds) {
+            throwIfAborted();
+            await yieldToHost(requestSignal);
+
+            const dataModel = data.models[dataModelId];
+            const t0 = Date.now();
+            const dataReport = await (cfg.async
+              ? inspectDataModelAsync({dataModel, ...(cfg.dataChecks ?? {})})
+              : inspectDataModel({dataModel, ...(cfg.dataChecks ?? {})}));
+
+            modelConverterResult.inspection.byDataModel[dataModelId] = {
+              dataModel: dataModelId,
+              report: dataReport,
+              durationMs: Date.now() - t0,
+            };
+
+            if ((cfg.failOnErrors !== false) && dataReport.errors.length > 0) {
+              modelConverterResult.errors.push(
+                `[ModelConverter.convert] Inspection found ${dataReport.errors.length} ` +
+                `error(s) in DataModel "${dataModelId}"; skipping export.`);
+              aborted = true;
+            }
           }
         }
         return aborted;

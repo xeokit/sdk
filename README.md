@@ -16,7 +16,7 @@ Built with **TypeScript**, xeokit is designed for **extreme performance**: it st
 * **Multi‑canvas, multi‑view viewers** with floating-panel and tiled layouts.
 * **Full precision (64‑bit) coordinate system**, so georeferenced and city-scale models render without jitter.
 * **Pluggable renderer backends** (WebGL today, WebGPU ready).
-* **Import, export & convert** industry‑standard AECO formats (IFC, glTF, LAS, CityJSON, 3D Tiles, XKT, XGF, DotBIM, OBJ, MTL, 3D Gaussian Splatting).
+* **Import, export & convert** industry‑standard AECO formats (IFC, glTF, LAS, E57, CityJSON, 3D Tiles, XKT, XGF, DotBIM, OBJ, MTL, FBX, USDZ, 3D Gaussian Splatting, and 2D drawings — PDF, DWG, DXF, SVG).
 * **BIM collaboration** via BCF Viewpoints.
 * **Procedural content** (materials, geometry, environments) for scaffolding and tests.
 * **Open‑source** with a permissive AGPL‑3.0 license.
@@ -131,6 +131,7 @@ Import / export modules for the AECO file formats xeokit supports. Each loader p
 | [`@xeokit/sdk/formats/cityjson`](https://xeokit.github.io/sdk/docs/api/modules/formats.cityjson.html)        | Import / export CityJSON.         |
 | [`@xeokit/sdk/formats/threedtiles`](https://xeokit.github.io/sdk/docs/api/modules/formats.threedtiles.html)  | Import / stream 3D Tiles (`tileset.json`). |
 | [`@xeokit/sdk/formats/las`](https://xeokit.github.io/sdk/docs/api/modules/formats.las.html)                  | Import LAS / LAZ point clouds.    |
+| [`@xeokit/sdk/formats/e57`](https://xeokit.github.io/sdk/docs/api/modules/formats.e57.html)                  | Import / export E57 (ASTM) laser-scan point clouds. |
 | [`@xeokit/sdk/formats/gaussiansplat`](https://xeokit.github.io/sdk/docs/api/modules/formats.gaussiansplat.html) | Import / export 3D Gaussian Splatting (`.splat`). |
 | [`@xeokit/sdk/formats/fbx`](https://xeokit.github.io/sdk/docs/api/modules/formats.fbx.html)                  | Import / export FBX.              |
 | [`@xeokit/sdk/formats/usdz`](https://xeokit.github.io/sdk/docs/api/modules/formats.usdz.html)                | Import / export USDZ.             |

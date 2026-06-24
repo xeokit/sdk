@@ -237,11 +237,13 @@ xeokit supports:
 - DXF
 - PDF
 - SVG
-- point clouds
+- point clouds (LAS / LAZ, E57)
 - 3D Gaussian Splatting (reality capture)
 - CityJSON
 - 3D Tiles
 - OBJ
+- FBX
+- USDZ
 
 This allows combining:
 

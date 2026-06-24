@@ -77,10 +77,16 @@ export const mergeDuplicateVertices: Fix = {
 
     // Old canonical slot → new slot in the compacted array. Two
     // passes: first assign new ids in original-order, then remap.
+    // Compacted arrays keep each source attribute's element type:
+    // positions/normals are quantised uint16, but UVs are float
+    // (RG32F) — allocating them as uint16 would truncate the tiling
+    // UVs and scramble the texture mapping.
     const newSlot = new Int32Array(vertCount).fill(-1);
-    const newPositions = new Uint16Array(unique * 3);
-    const newNormals = oldNormals ? new Uint16Array(unique * 2) : undefined;
-    const newUVs = oldUVs ? new Uint16Array(unique * 2) : undefined;
+    const sameType = (src: {constructor: any}, length: number): any =>
+      new src.constructor(length);
+    const newPositions = sameType(oldPositions, unique * 3);
+    const newNormals = oldNormals ? sameType(oldNormals, unique * 2) : undefined;
+    const newUVs = oldUVs ? sameType(oldUVs, unique * 2) : undefined;
     let w = 0;
     for (let v = 0; v < vertCount; v++) {
       if (canonical[v] !== v) continue;     // not canonical

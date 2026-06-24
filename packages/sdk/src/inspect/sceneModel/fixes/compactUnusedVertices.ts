@@ -73,14 +73,19 @@ export const compactUnusedVertices: Fix = {
     if (kept === vertCount) return {ok: true, value: {fixed: false, reason: "no-op"}};
     if (kept === 0)         return {ok: true, value: {fixed: false, reason: "precondition-failed"}};   // nothing references anything; leave it for triage
 
-    // Build the old→new remap and the compacted attribute arrays.
+    // Build the old→new remap and the compacted attribute arrays. Each
+    // compacted array keeps its source attribute's element type: positions /
+    // normals are quantised uint16, but UVs are float (RG32F) — allocating
+    // them as uint16 would truncate tiling UVs and scramble texture mapping.
     const remap = new Int32Array(vertCount).fill(-1);
-    const newPositions = new Uint16Array(kept * 3);
-    const oldNormals = geom.normalsCompressed;
-    const newNormals = oldNormals ? new Uint16Array(kept * 2) : undefined;
-    const oldUVs = geom.uvsCompressed;
-    const newUVs = oldUVs ? new Uint16Array(kept * 2) : undefined;
     const oldPositions = geom.positionsCompressed;
+    const oldNormals = geom.normalsCompressed;
+    const oldUVs = geom.uvsCompressed;
+    const sameType = (src: {constructor: any}, length: number): any =>
+      new src.constructor(length);
+    const newPositions = sameType(oldPositions, kept * 3);
+    const newNormals = oldNormals ? sameType(oldNormals, kept * 2) : undefined;
+    const newUVs = oldUVs ? sameType(oldUVs, kept * 2) : undefined;
     let w = 0;
     for (let v = 0; v < vertCount; v++) {
       if (!used[v]) continue;

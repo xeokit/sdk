@@ -1385,4 +1385,43 @@ export function octEncodeNormalsToU16(normals: FloatArrayParam): Uint16Array {
   return out;
 }
 
+/**
+ * Decodes 16-bit octahedral normals produced by
+ * {@link octEncodeNormalsToU16} back to unit 3D vectors — the exact inverse of
+ * that encoder (range `[0, 65535]` mapped to oct coordinates `[-1, 1]`).
+ *
+ * Distinct from {@link decompressNormals}, which decodes a different oct format
+ * (signed `[-128, 127]` via `(2v+1)/255`); pairing that decoder with this
+ * encoder yields garbage normals.
+ *
+ * @param octs Two `[0, 65535]` oct components per normal.
+ * @param result Destination — three floats per normal (`octs.length / 2 * 3`).
+ */
+export function octDecodeNormalsU16(
+  octs: FloatArrayParam,
+  result: FloatArrayParam = new Float32Array((octs.length / 2) * 3)
+): FloatArrayParam {
+  if (octs.length % 2 !== 0) {
+    throw new Error("Invalid input: octs must contain an even number of elements.");
+  }
+  for (let i = 0, j = 0, len = octs.length; i < len; i += 2, j += 3) {
+    let x = (octs[i] / 65535) * 2 - 1;
+    let y = (octs[i + 1] / 65535) * 2 - 1;
+    const z = 1 - Math.abs(x) - Math.abs(y);
+
+    if (z < 0) {
+      const tempx = (1 - Math.abs(y)) * Math.sign(x);
+      const tempy = (1 - Math.abs(x)) * Math.sign(y);
+      x = tempx;
+      y = tempy;
+    }
+
+    const length = Math.sqrt(x * x + y * y + z * z) || 1;
+    result[j]     = x / length;
+    result[j + 1] = y / length;
+    result[j + 2] = z / length;
+  }
+  return result;
+}
+
 

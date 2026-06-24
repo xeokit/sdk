@@ -41,6 +41,15 @@ export const IMPORT_DATA_SETS: ImportDataSet[] = [
     ],
   },
   {
+    id: "e57",
+    label: "E57 point cloud (ASTM)",
+    defaultBasisId: "z-up",
+    loadsDataSemantics: false,
+    files: [
+      {key: "e57", label: "E57 file", accept: ".e57", loadFormat: "e57", required: true},
+    ],
+  },
+  {
     id: "threedxml",
     label: "3DXML (Dassault)",
     defaultBasisId: "y-up",

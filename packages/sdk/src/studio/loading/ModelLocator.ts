@@ -22,6 +22,14 @@ export interface ModelLocator {
    * future per-model metadata).
    */
   resolveSidecar(modelId: string, fileName: string): string;
+
+  /**
+   * Optional one-time async setup, awaited by `Studio.loadModel` before
+   * {@link resolve}. Lets a locator load whatever catalog it needs to make
+   * resolution decisions (e.g. which models have optimized variants). Must be
+   * idempotent and must not throw — a failure leaves resolution at its default.
+   */
+  preload?(): Promise<void>;
 }
 
 /**
@@ -40,11 +48,21 @@ export class DefaultModelLocator implements ModelLocator {
    */
   private readonly extensions: Map<string, string>;
 
+  /**
+   * `${modelId}/${format}` pairs that have an optimized variant
+   * (`model.optimized.{ext}`) beside the original. `null` until learned —
+   * supplied via the constructor, or loaded from the catalog by {@link preload}.
+   */
+  private optimized: Set<string> | null;
+  private preloaded = false;
+
   constructor(
     private readonly modelsDir: string,
     extensions?: Record<string, string>,
+    optimized?: Set<string>,
   ) {
     this.extensions = new Map(Object.entries(extensions ?? DEFAULT_EXTENSIONS));
+    this.optimized = optimized ?? null;
   }
 
   resolve(modelId: string, format: string): string {
@@ -54,12 +72,61 @@ export class DefaultModelLocator implements ModelLocator {
         `[DefaultModelLocator] No filename extension registered for format '${format}'`,
       );
     }
-    return `${this.modelsDir}/${modelId}/${format}/model.${ext}`;
+    // Prefer the optimized variant when the catalog says one exists; otherwise
+    // fall back to the original.
+    const file = this.optimized && this.optimized.has(`${modelId}/${format}`)
+      ? `model.optimized.${ext}`
+      : `model.${ext}`;
+    return `${this.modelsDir}/${modelId}/${format}/${file}`;
   }
 
   resolveSidecar(modelId: string, fileName: string): string {
     return `${this.modelsDir}/${modelId}/${fileName}`;
   }
+
+  /**
+   * Learn which `(modelId, format)` pairs have an optimized variant by reading
+   * the demo catalog `{modelsDir}/index.json` (written by the website's
+   * `buildIndex.js`, which records an `optimized: string[]` of formats per
+   * model). Runs once; never throws — if the catalog or `fetch` is unavailable,
+   * resolution simply stays on the originals. Skipped when an optimized set was
+   * supplied explicitly via the constructor.
+   */
+  async preload(): Promise<void> {
+    if (this.preloaded) {
+      return;
+    }
+    this.preloaded = true;
+    if (this.optimized || typeof fetch !== "function") {
+      return;
+    }
+    try {
+      const res = await fetch(`${this.modelsDir}/index.json`, {cache: "no-cache"});
+      if (!res.ok) {
+        return;
+      }
+      this.optimized = optimizedSetFromIndex(await res.json());
+    } catch {
+      // No catalog (or no fetch) — keep resolving to the original files.
+    }
+  }
+}
+
+/**
+ * Builds the set of `${modelId}/${format}` pairs that have an optimized variant,
+ * from a parsed models `index.json`. Each model entry may carry
+ * `optimized: string[]` — the format keys whose `model.optimized.{ext}` exists.
+ */
+export function optimizedSetFromIndex(
+  index: Record<string, {optimized?: string[]}>,
+): Set<string> {
+  const set = new Set<string>();
+  for (const modelId of Object.keys(index ?? {})) {
+    for (const format of index[modelId]?.optimized ?? []) {
+      set.add(`${modelId}/${format}`);
+    }
+  }
+  return set;
 }
 
 /**
@@ -72,6 +139,9 @@ export const DEFAULT_EXTENSIONS: Record<string, string> = {
   ifc: "ifc",
   gltf: "glb",
   fbx: "fbx",
+  usdz: "usdz",
+  e57: "e57",
+  fds: "fds",
   mtl: "mtl",
   obj: "obj",
   splat: "splat",

@@ -3,6 +3,7 @@ import {IFCLoader} from "../../formats/ifc";
 import {GLTFLoader} from "../../formats/gltf";
 import {FBXLoader} from "../../formats/fbx";
 import {USDZLoader} from "../../formats/usdz";
+import {E57Loader} from "../../formats/e57";
 import {GaussianSplatLoader} from "../../formats/gaussiansplat";
 import {MTLLoader} from "../../formats/mtl";
 import {OBJLoader} from "../../formats/obj";
@@ -64,6 +65,13 @@ export function createDefaultLoaderRegistry(): LoaderRegistry {
     needsScene: true,
     needsData: false,
     load: (input, options) => new USDZLoader().load(input, options),
+  });
+
+  r.register("e57", {
+    fetch: "arrayBuffer",
+    needsScene: true,
+    needsData: true,
+    load: (input, options) => new E57Loader().load(input, options),
   });
 
   r.register("splat", {

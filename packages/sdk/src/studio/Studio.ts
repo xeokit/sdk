@@ -360,7 +360,7 @@ export class Studio {
           memoryConfigs: {
             tileSize: 200,
             maxTiles: 2000,
-            maxBatches: 300,
+            maxBatches: 1000,
             maxBatchVertices: 70000,
             maxBatchIndices: 90000,
             maxBatchGeometries: 60000,
@@ -583,6 +583,12 @@ export class Studio {
       }
     }
 
+    // Give the locator a chance to load its catalog (e.g. which models have
+    // optimized variants) before it resolves — only when we're actually
+    // resolving (no explicit src). Idempotent and non-throwing by contract.
+    if (!params.src && this.locator.preload) {
+      await this.locator.preload();
+    }
     const src = params.src ?? this.locator.resolve(params.modelId, params.format);
     const fileData = await Studio._fetchAs(src, descriptor.fetch);
 

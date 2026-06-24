@@ -22,7 +22,7 @@
  */
 import type {ModelEncodeParams} from "../../../ModelEncodeParams";
 import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../../../../base/constants";
-import {decompressNormals, decompressPositions3WithAABB3} from "../../../../base/math/compression";
+import {octDecodeNormalsU16, decompressPositions3WithAABB3} from "../../../../base/math/compression";
 
 const textEncoder = new TextEncoder();
 
@@ -46,7 +46,7 @@ export async function encode(params: ModelEncodeParams, _options?: any): Promise
 
     const positions = decompressPositions3WithAABB3(geom.positionsCompressed, geom.aabb as any);
     const normals = geom.normalsCompressed
-      ? decompressNormals(geom.normalsCompressed, new Float32Array((geom.normalsCompressed.length / 2) * 3))
+      ? octDecodeNormalsU16(geom.normalsCompressed, new Float32Array((geom.normalsCompressed.length / 2) * 3))
       : null;
 
     const repName = `Rep_${repIndex}.3DRep`;

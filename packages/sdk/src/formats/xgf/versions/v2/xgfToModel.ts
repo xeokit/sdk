@@ -147,6 +147,12 @@ export async function xgfToModel(params: {
     // only a handful are ever held in flight.
     const DECODE_CHUNK = 4;
 
+    // `createImageBitmap` is browser-only; in Node/headless (e.g. the convert
+    // CLI) it's undefined. Guard it so textured models still load — undecoded
+    // standard images pass through as encoded bytes (see below) rather than
+    // throwing and aborting the whole load.
+    const canDecode = typeof createImageBitmap === "function" && typeof Blob !== "undefined";
+
     const sliceFor = (i: number) => textureData.subarray(
       eachTextureDataBase[i],
       (i === numTextures - 1) ? textureData.length : eachTextureDataBase[i + 1]);
@@ -179,7 +185,9 @@ export async function xgfToModel(params: {
                 : standardMedia === JPEGMediaType ? "image/jpeg"
                 : "image/gif"
           });
-          decoding.push(createImageBitmap(blob));
+          // Fall back to a null bitmap (pass-through bytes) when decoding is
+          // unavailable or fails, so the load never throws over a texture.
+          decoding.push(canDecode ? createImageBitmap(blob).catch(() => null) : null);
         } else {
           decoding.push(null);
         }
@@ -193,6 +201,7 @@ export async function xgfToModel(params: {
         const samplerParams = samplerParamsFor(i);
         const bytes = sliceFor(i);
         const bitmap = bitmaps[i - chunkStart];
+        const standardMedia = MEDIA_TYPE_DECODE[eachTextureMediaType[i]];
 
         if (bytes.length === 0) {
           // Empty placeholder — register a 1×1 white pixel so material
@@ -211,9 +220,21 @@ export async function xgfToModel(params: {
             id, image: bitmap, mediaType: MEDIA_TYPE_DECODE[eachTextureMediaType[i]],
             ...samplerParams, width: bitmap.width, height: bitmap.height, flipY: false
           });
+        } else if (standardMedia !== undefined) {
+          // Standard image (PNG/JPEG/GIF) we couldn't decode in this
+          // environment (no createImageBitmap, or decode failed). Pass the
+          // encoded bytes through WITH their media type so the texture
+          // round-trips losslessly and a browser decodes it on load. (Not
+          // `compressed` — it isn't GPU-compressed.)
+          sceneModel.createTexture({
+            id,
+            buffers: [bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)],
+            mediaType: standardMedia,
+            ...samplerParams, flipY: false
+          });
         } else {
-          // Opaque/transcoded — pass the bytes through as a SceneTexture
-          // buffer; the runtime/transcoder pipeline handles upload.
+          // Opaque/transcoded (KTX2/Basis) — pass the bytes through as a
+          // compressed SceneTexture buffer; the transcoder handles upload.
           sceneModel.createTexture({
             id,
             buffers: [bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)],

@@ -31,4 +31,13 @@ export interface GLTFLoadOptions extends ModelLoadOptions {
    * (from `EXT_structural_metadata`) are aggregated.
    */
   dataParentId?: string;
+
+  /**
+   * Retain each texture's original encoded image bytes (the source PNG/JPEG)
+   * on the SceneTexture so exporters can re-emit them losslessly without
+   * re-encoding via a 2D canvas (which is unavailable under Node). Off by
+   * default — the viewer renders from the decoded image and the extra bytes
+   * are wasted memory. Conversion tools that re-export the model set this.
+   */
+  retainTextureBytes?: boolean;
 }

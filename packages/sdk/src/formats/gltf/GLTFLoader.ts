@@ -1,5 +1,7 @@
 import {
   ClampToEdgeWrapping,
+  GIFMediaType,
+  JPEGMediaType,
   LinearFilter,
   LinearMipMapLinearFilter,
   LinearMipMapNearestFilter,
@@ -8,6 +10,7 @@ import {
   NearestFilter,
   NearestMipMapLinearFilter,
   NearestMipMapNearestFilter,
+  PNGMediaType,
   PointsPrimitive,
   RepeatWrapping,
   TrianglesPrimitive
@@ -62,11 +65,47 @@ interface ParsingContext {
   options: any;
 }
 
+/**
+ * Fail fast with a clear message on a corrupt binary GLB whose 12-byte header
+ * declares a total length larger than the actual file. Without this guard,
+ * loaders.gl trusts the bogus length, reads chunks/accessors past the end of
+ * the buffer, and throws a cryptic `RangeError: Offset is outside the bounds of
+ * the DataView`. Only inspects binary GLB input (magic `glTF`); JSON `.gltf`
+ * (string/object) and non-buffer inputs are left for loaders.gl to handle.
+ *
+ * @internal
+ */
+export function assertValidGLBHeader(fileData: any): void {
+  let dv: DataView | null = null;
+  if (fileData instanceof ArrayBuffer) {
+    dv = new DataView(fileData);
+  } else if (ArrayBuffer.isView(fileData)) {
+    dv = new DataView(fileData.buffer, fileData.byteOffset, fileData.byteLength);
+  }
+  if (!dv || dv.byteLength < 12) {
+    return; // not a binary buffer, or too small to be a GLB — let parse() decide
+  }
+  const GLB_MAGIC = 0x46546c67; // "glTF" little-endian
+  if (dv.getUint32(0, true) !== GLB_MAGIC) {
+    return; // JSON .gltf or some other input — not a binary GLB
+  }
+  const declaredLength = dv.getUint32(8, true);
+  if (declaredLength > dv.byteLength) {
+    throw new Error(
+      `[GLTFLoader.load] Corrupt GLB: the header declares a total length of ` +
+      `${declaredLength} bytes but the file is only ${dv.byteLength} bytes — ` +
+      `the model is truncated or its GLB length field is invalid.`);
+  }
+}
+
 async function parseGLTF(params: ModelLoadParams, options: any): Promise<any> {
   const {fileData, sceneModel, dataModel} = params;
   if (!sceneModel && !dataModel) {
     return;
   }
+  // Clear error on a corrupt GLB length header, before loaders.gl overruns the
+  // buffer with an opaque DataView RangeError.
+  assertValidGLBHeader(fileData);
   // baseUri lets loaders.gl resolve external buffers + textures (`.bin`,
   // `.jpg`, etc.) referenced by relative URIs in the .gltf JSON. Without
   // it, multi-file models can only be loaded once their resources have
@@ -308,11 +347,19 @@ function parseTexture(ctx: any, texture: any): boolean {
       wrapR = RepeatWrapping;
       break;
   }
+  // loaders.gl decodes the image for rendering but retains the original
+  // encoded PNG/JPEG bytes on the source's bufferView. When the caller asks to
+  // retain them, carry those through as `buffers` so exporters re-emit them
+  // losslessly without re-encoding (which needs a 2D canvas, unavailable under
+  // Node).
+  const encodedBytes = ctx.options.retainTextureBytes
+    ? extractEncodedImageBytes(texture.source)
+    : null;
   const result = ctx.sceneModel.createTexture({
     id: textureId,
     image: texture.source.image,
-    mediaType: texture.source.mediaType,
-    compressed: true,
+    buffers: encodedBytes ? [encodedBytes] : undefined,
+    mediaType: encodedBytes ? mimeTypeToMediaType(texture.source.mimeType) : undefined,
     width: texture.source.image.width,
     height: texture.source.image.height,
     minFilter,
@@ -329,6 +376,29 @@ function parseTexture(ctx: any, texture: any): boolean {
   }
   texture._textureId = textureId;
   return true;
+}
+
+/**
+ * Original encoded image bytes for a glTF image source, as a standalone
+ * ArrayBuffer, or `null` when none are present. loaders.gl keeps the source
+ * bytes on `source.bufferView.data` (a view into the GLB binary chunk) even
+ * after decoding the image for rendering.
+ */
+function extractEncodedImageBytes(source: any): ArrayBuffer | null {
+  const data: Uint8Array | undefined = source?.bufferView?.data;
+  if (!data || data.byteLength === 0) {
+    return null;
+  }
+  return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+}
+
+function mimeTypeToMediaType(mimeType: string | undefined): number | undefined {
+  switch (mimeType) {
+    case "image/png":  return PNGMediaType;
+    case "image/jpeg": return JPEGMediaType;
+    case "image/gif":  return GIFMediaType;
+    default:           return undefined;
+  }
 }
 
 function parseMaterials(ctx: ParsingContext): boolean {

@@ -12,7 +12,7 @@ import {
 } from '@gltf-transform/core';
 
 import {
-  decompressNormals,
+  octDecodeNormalsU16,
   decompressPoint3WithAABB3,
   decompressUVs
 } from "../../base/math/compression";
@@ -197,18 +197,22 @@ async function encode2(params: ModelEncodeParams, options?: any): Promise<Uint8A
     const bundle: AccessorBundle = {position: positionAccessor};
 
     if (geom.normalsCompressed) {
-      // Oct-encoded → 3D unit vectors.
+      // 16-bit oct-encoded (octEncodeNormalsToU16) → 3D unit vectors. Must use
+      // the matching U16 decoder; decompressNormals decodes a different format.
       const normals = new Float32Array((geom.normalsCompressed.length / 2) * 3);
-      decompressNormals(geom.normalsCompressed, normals);
+      octDecodeNormalsU16(geom.normalsCompressed, normals);
       bundle.normal = doc.createAccessor()
         .setType('VEC3').setArray(normals).setBuffer(buffer);
     }
 
-    if (geom.uvsCompressed && geom.uvsDecompressMatrix) {
-      const uvs = new Float32Array(geom.uvsCompressed.length);
-      decompressUVs(geom.uvsCompressed, geom.uvsDecompressMatrix, uvs);
+    if (geom.uvsCompressed) {
+      // UVs live in `uvsCompressed` as plain float RG32F; a decompress matrix
+      // is present only for quantised UVs and must be applied when it is.
+      const uvs = geom.uvsDecompressMatrix
+        ? decompressUVs(geom.uvsCompressed, geom.uvsDecompressMatrix, new Float32Array(geom.uvsCompressed.length))
+        : new Float32Array(geom.uvsCompressed);
       bundle.uv = doc.createAccessor()
-        .setType('VEC2').setArray(uvs).setBuffer(buffer);
+        .setType('VEC2').setArray(uvs as Float32Array).setBuffer(buffer);
     }
 
     if (geom.colorsCompressed) {

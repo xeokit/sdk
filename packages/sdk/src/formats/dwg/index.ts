@@ -64,5 +64,9 @@
  *
  * @module dwg
  */
-export * from "./lib";
-export * from "./DWGLoader";
+export * from "./DWGLoader";                                      // DWGLoader + DWGLoadInput
+export type {DWGLoadOptions, DWGLoaderParams} from "./lib/DWGLoadOptions";
+export type {DWGLoadResult} from "./lib/DWGLoadResult";
+// The rest of `./lib` (the parsed DWG entity model — DWGDocument, DWGArc,
+// DWGHeader, Vec2/Vec3, … — and the libredwg default constants) is internal
+// implementation, deliberately NOT part of the public API.

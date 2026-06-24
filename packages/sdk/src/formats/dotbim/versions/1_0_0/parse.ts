@@ -76,8 +76,12 @@ export const parse: ModelParser = async (params, options) => {
           position: [vector.x, vector.y, vector.z]
         });
 
+        // Skip elements whose geometry is missing or invalid (a dangling
+        // mesh_id, or a mesh whose createGeometry was rejected) rather than
+        // aborting the whole model — one bad element shouldn't lose the rest.
+        // (Matches the 1.1.0 parser.)
         if (meshRes.ok === false) {
-          throw new Error(`[DotBIMLoader.load] Failed to create scene mesh -> ${meshRes.error}`);
+          continue;
         }
 
         const sceneObjectRes = params.sceneModel.createObject({
@@ -86,7 +90,7 @@ export const parse: ModelParser = async (params, options) => {
         });
 
         if (sceneObjectRes.ok === false) {
-          throw new Error(`[DotBIMLoader.load] Failed to create scene object -> ${sceneObjectRes.error}`);
+          continue;
         }
       }
 
@@ -101,7 +105,8 @@ export const parse: ModelParser = async (params, options) => {
           });
 
           if (dataObjectRes.ok === false) {
-            throw new Error(`[DotBIMLoader.load] Failed to create data object -> ${dataObjectRes.error}`);
+            // Error is logged via Scene.events.onError; skip this element's
+            // data object rather than failing the whole load.
           }
         }
       }

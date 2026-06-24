@@ -87,6 +87,7 @@
  * - {@link formats!threedtiles | threedtiles} – 3D Tiles
  * - {@link formats!dotbim | dotbim} – dotbim
  * - {@link formats!las | las} – LAS / LAZ point cloud formats
+ * - {@link formats!e57 | e57} – E57 (ASTM) laser-scan point clouds
  * - {@link formats!fbx | fbx} – Autodesk FBX (binary)
  * - {@link formats!usdz | usdz} – Pixar USDZ
  * - {@link formats!obj | obj} – Wavefront OBJ
@@ -96,6 +97,8 @@
  * - {@link formats!pdf | pdf} – PDF
  * - {@link formats!svg | svg} – SVG
  * - {@link formats!fds | fds} – Fire Dynamics Simulator (FDS)
+ * - {@link formats!gaussiansplat | gaussiansplat} – 3D Gaussian Splatting (`.splat`)
+ * - {@link formats!threedxml | threedxml} – 3DXML (Dassault Systèmes)
  * - {@link formats!xgf | xgf} – xeokit Geometry Format
  * - {@link formats!scenemodel | scenemodel} – xeokit SceneModel
  * - {@link formats!datamodel | datamodel} – xeokit DataModel
@@ -141,6 +144,7 @@ export * as cityjson from "./cityjson";
 export * as ifc from "./ifc";
 export * as xgf from "./xgf";
 export * as las from "./las";
+export * as e57 from "./e57";
 export * as dotbim from "./dotbim";
 export * as scenemodel from "./scenemodel";
 export * as datamodel from "./datamodel";

@@ -17,6 +17,7 @@
  * @internal
  */
 import type {ModelEncodeParams} from "../../../ModelEncodeParams";
+import {octDecodeNormalsU16} from "../../../../base/math/compression";
 import {
   writeFBXBinary, fbxI, fbxL, fbxD, fbxS, fbxR, fbxDArr, fbxIArr, fbxNode, fbxLeaf,
   type FBXProp, type FBXWriteNode,
@@ -175,7 +176,7 @@ function buildGeometryNode(geom: any, id: number): FBXWriteNode | null {
 
   if (geom.normalsCompressed) {
     const normals = new Float32Array((geom.normalsCompressed.length / 2) * 3);
-    decompressNormals(geom.normalsCompressed, normals);
+    octDecodeNormalsU16(geom.normalsCompressed, normals);
     children.push(layerNode("LayerElementNormal", "Normals", normals));
   }
   if (geom.uvsCompressed && geom.uvsCompressed.length) {
@@ -225,23 +226,6 @@ function decompressPoint3WithAABB3(p: ArrayLike<number>, aabb: ArrayLike<number>
   dest[1] = p[1] * ((aabb[4] - aabb[1]) / 65535) + aabb[1];
   dest[2] = p[2] * ((aabb[5] - aabb[2]) / 65535) + aabb[2];
 }
-
-/** Oct-encoded pairs → unit 3D normals (2 components in → 3 out). */
-function decompressNormals(octs: ArrayLike<number>, result: Float32Array): void {
-  for (let i = 0, j = 0, len = octs.length; i < len; i += 2, j += 3) {
-    let x = (2 * octs[i] + 1) / 255;
-    let y = (2 * octs[i + 1] + 1) / 255;
-    const z = 1 - Math.abs(x) - Math.abs(y);
-    if (z < 0) {
-      const tx = (1 - Math.abs(y)) * Math.sign(x);
-      const ty = (1 - Math.abs(x)) * Math.sign(y);
-      x = tx; y = ty;
-    }
-    const len2 = Math.sqrt(x * x + y * y + z * z) || 1;
-    result[j] = x / len2; result[j + 1] = y / len2; result[j + 2] = z / len2;
-  }
-}
-
 
 
 // ── Transform decomposition ───────────────────────────────────────

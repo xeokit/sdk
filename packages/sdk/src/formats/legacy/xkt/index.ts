@@ -27,14 +27,17 @@
  *
  * ## Scope
  *
- * - **XKT version 12 only** (the latest), in the uncompressed offset-table
- *   container emitted by current `xeokit-convert`. Older versions and the
- *   legacy zlib-deflated container are not handled.
+ * - **Loading: XKT versions 7 through 12.** Versions 7-10 use the legacy
+ *   zlib-deflated container; versions 11-12 use the uncompressed offset-table
+ *   container emitted by current `xeokit-convert`. Versions 1-6 are not handled.
  * - Triangle (`solid` / `surface`), line, and point primitives.
- * - Per-mesh colour and opacity; metallic / roughness, textures, and texture
- *   sets are not applied.
- * - The exporter writes a single tile and one geometry per mesh (geometry is
- *   not re-instanced) with no textures — a valid uncompressed XKT v12 file.
+ * - Per-mesh colour and opacity; metallic / roughness, textures, texture sets,
+ *   and UVs are not applied.
+ * - Metadata is mapped to a DataModel from version 8 onwards (v8 stores it as
+ *   parallel arrays; v9+ as a JSON document); versions 7 and earlier carried
+ *   metadata in a separate file.
+ * - **Export writes XKT version 12 only:** a single tile and one geometry per
+ *   mesh (geometry is not re-instanced) with no textures.
  *
  * ## Usage
  *

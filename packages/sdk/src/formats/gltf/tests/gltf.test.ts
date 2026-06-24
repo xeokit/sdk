@@ -138,4 +138,49 @@ describe("GLTFExporter / GLTFLoader", () => {
     expect(mat.opacity).toBeCloseTo(0.5, 2);
     expect(calls.mesh[0].materialId).toBe(mat.id);
   });
+
+  it("round-trips UVs (TEXCOORD_0) — textures are useless without them", async () => {
+    // SceneGeometry stores UVs as plain float in `uvsCompressed` with NO
+    // `uvsDecompressMatrix` (the matrix exists only for quantised UVs). The
+    // exporter must emit those directly; a regression that gated UV export on
+    // the matrix silently dropped TEXCOORD_0 and broke every texture.
+    const UVS = new Float32Array([0, 0,  1, 0,  1, 1,  0, 1]);
+    const geom = {
+      id: "g1",
+      primitive: TrianglesPrimitive,
+      positionsCompressed: quantize(QUAD_POSITIONS, QUAD_AABB),
+      aabb: QUAD_AABB,
+      indices: QUAD_INDICES,
+      uvsCompressed: UVS, // plain float, no decompress matrix
+    };
+    const mesh = {id: "mesh1", geometry: geom, color: [1, 1, 1], opacity: 1, matrix: IDENTITY};
+    const sceneModel: any = {
+      id: "model1",
+      scene: {coordinateSystem: {}},
+      textures: {},
+      materials: {},
+      geometries: {g1: geom},
+      objects: {Building1: {id: "Building1", meshes: [mesh]}},
+    };
+
+    const glb = await new GLTFExporter().write({sceneModel} as any);
+    const fileData = toArrayBuffer(glb);
+
+    const geomCalls: any[] = [];
+    const dstScene: any = {
+      objects: {}, geometries: {},
+      createGeometry: (p: any) => { geomCalls.push(p); dstScene.geometries[p.id] = p; return {ok: true, value: {id: p.id}}; },
+      createMesh:     (p: any) => ({ok: true, value: {id: p.id}}),
+      createObject:   (p: any) => { dstScene.objects[p.id] = p; return {ok: true, value: {id: p.id}}; },
+      createMaterial: (p: any) => ({ok: true, value: {id: p.id}}),
+    };
+
+    await new GLTFLoader().load({fileData, sceneModel: dstScene} as any);
+
+    expect(geomCalls).toHaveLength(1);
+    const uvs = geomCalls[0].uvs;
+    expect(uvs).toBeDefined();
+    expect(uvs).toHaveLength(8);
+    expect(Array.from(uvs as Float32Array).map(v => +v.toFixed(4))).toEqual([0, 0,  1, 0,  1, 1,  0, 1]);
+  });
 });

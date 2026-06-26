@@ -1,7 +1,5 @@
-import  {ModelLoader} from "../ModelLoader";
-import {parse as parse_v1} from "./versions/v1/parse"
-import {parse as parse_v2} from "./versions/v2/parse"
-import {parse as parse_v3} from "./versions/v3/parse"
+import {ModelLoader} from "../ModelLoader";
+import {parse} from "./versions/v1/parse";
 
 /**
  * Loads an XGF file into a {@link model!scene.SceneModel | SceneModel} and/or a {@link model!data.DataModel | DataModel}.
@@ -14,14 +12,10 @@ export class XGFLoader extends ModelLoader {
       format: "XGF",
       fileDataType: "arraybuffer",
       parsers: {
-        "1": parse_v1,
-        "2": parse_v2,
-        "3": parse_v3
+        "1": parse
       },
-      getVersion: (fileData: any): string => {
-        return "" + (new DataView(fileData)).getUint32(0, true);
-      }
+      // Current XGF files carry version 1.
+      getVersion: (): string => "1"
     });
   }
 }
-

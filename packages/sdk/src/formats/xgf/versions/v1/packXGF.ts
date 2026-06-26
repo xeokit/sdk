@@ -3,31 +3,40 @@ import type {XGFData_v1} from "./XGFData_v1";
 
 const object2Array = (function () {
   const encoder = new TextEncoder();
-  return obj => encoder.encode(JSON.stringify(obj));
+  return (obj: any) => encoder.encode(JSON.stringify(obj));
 })();
 
-function toArrayBuffer(arrays: Buffer[]): ArrayBuffer {
-
+/**
+ * Packs a heterogeneous list of typed-arrays + JSON-encoded blobs into
+ * one ArrayBuffer with a per-entry (offset, length) table.
+ *
+ * Layout:
+ *   - u32 [0]               version tag ({@link XGF_INFO.xgfVersion})
+ *   - u32 [1, 3, 5, ...]    per-entry byte offset
+ *   - u32 [2, 4, 6, ...]    per-entry byte length
+ *   - bytes                 each entry's payload, padded to its
+ *                           BYTES_PER_ELEMENT alignment
+ *
+ * The reader (`unpackXGF`) walks the same positional list to
+ * recover each typed-array view.
+ */
+function toArrayBuffer(arrays: any[]): ArrayBuffer {
   const arraysCnt = arrays.length;
   const dataView = new DataView(new ArrayBuffer((1 + 2 * arraysCnt) * 4));
 
   dataView.setUint32(0, XGF_INFO.xgfVersion, true);
 
   let byteOffset = dataView.byteLength;
-  const offsets = [];
+  const offsets: number[] = [];
 
-  // Store arrays' offsets and lengths
   for (let i = 0; i < arraysCnt; i++) {
     const arr = arrays[i];
     const BPE = arr.BYTES_PER_ELEMENT;
-    // align to BPE, so the arrayBuffer can be used for a typed array
     byteOffset = Math.ceil(byteOffset / BPE) * BPE;
     const byteLength = arr.byteLength;
-
     const idx = 1 + 2 * i;
     dataView.setUint32(idx * 4, byteOffset, true);
     dataView.setUint32((idx + 1) * 4, byteLength, true);
-
     offsets.push(byteOffset);
     byteOffset += byteLength;
   }
@@ -36,18 +45,16 @@ function toArrayBuffer(arrays: Buffer[]): ArrayBuffer {
   dataArray.set(new Uint8Array(dataView.buffer), 0);
 
   const requiresSwapToLittleEndian = (function () {
-    const buffer = new ArrayBuffer(2);
-    new Uint16Array(buffer)[0] = 1;
-    return new Uint8Array(buffer)[0] !== 1;
+    const b = new ArrayBuffer(2);
+    new Uint16Array(b)[0] = 1;
+    return new Uint8Array(b)[0] !== 1;
   })();
 
-  // Store arrays themselves
   for (let i = 0; i < arraysCnt; i++) {
     const arr = arrays[i];
     const subarray = new Uint8Array(arr.buffer, arr.byteOffset, arr.byteLength);
-
     const BPE = arr.BYTES_PER_ELEMENT;
-    if (requiresSwapToLittleEndian && (BPE > 1)) {
+    if (requiresSwapToLittleEndian && BPE > 1) {
       const swaps = BPE / 2;
       const cnt = subarray.length / BPE;
       for (let b = 0; b < cnt; b++) {
@@ -61,7 +68,6 @@ function toArrayBuffer(arrays: Buffer[]): ArrayBuffer {
         }
       }
     }
-
     dataArray.set(subarray, offsets[i]);
   }
 
@@ -69,27 +75,51 @@ function toArrayBuffer(arrays: Buffer[]): ArrayBuffer {
 }
 
 /**
+ * Pack the XGF v1 payload into the binary file format. The order of
+ * entries below MUST match `unpackXGF`.
+ *
  * @private
  */
 export function packXGF(xgfData: XGFData_v1): ArrayBuffer {
-  return toArrayBuffer(<Buffer[]>[
+  return toArrayBuffer([
     xgfData.positions,
     xgfData.colors,
     xgfData.indices,
     xgfData.edgeIndices,
     xgfData.aabbs,
+    xgfData.normals,
+    xgfData.uvs,
+    xgfData.scales,
+    xgfData.rotations,
     xgfData.eachGeometryPositionsBase,
     xgfData.eachGeometryColorsBase,
     xgfData.eachGeometryIndicesBase,
     xgfData.eachGeometryEdgeIndicesBase,
+    xgfData.eachGeometryNormalsBase,
+    xgfData.eachGeometryUVsBase,
+    xgfData.eachGeometryScalesBase,
+    xgfData.eachGeometryRotationsBase,
     xgfData.eachGeometryPrimitiveType,
     xgfData.eachGeometryAABBBase,
     xgfData.matrices,
+    xgfData.textureData,
+    xgfData.eachTextureDataBase,
+    xgfData.eachTextureMediaType,
+    xgfData.eachTextureWidth,
+    xgfData.eachTextureHeight,
+    xgfData.eachTextureSampler,
+    xgfData.eachTextureEncoding,
+    object2Array(xgfData.eachTextureId),
+    xgfData.eachMaterialPBR,
+    xgfData.eachMaterialColor,
+    xgfData.eachMaterialTextures,
+    object2Array(xgfData.eachMaterialId),
+    xgfData.eachMaterialTriplanarScale,
     xgfData.eachMeshGeometriesBase,
     xgfData.eachMeshMatricesBase,
     xgfData.eachMeshMaterialAttributes,
+    xgfData.eachMeshMaterial,
     object2Array(xgfData.eachObjectId),
     xgfData.eachObjectMeshesBase
   ]);
 }
-

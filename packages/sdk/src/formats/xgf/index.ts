@@ -38,7 +38,7 @@
  *     direction TB
  *     class XGFLoader {
  *       +format : "XGF"
- *       +versions : ["v1".."v3"]
+ *       +version : "1.0.0"
  *       +load(params, options?) Promise~void~
  *     }
  *     class XGFExporter {
@@ -61,9 +61,10 @@
  *
  * - **Compact binary** — xeokit-native geometry format; ~5–10×
  *   smaller than equivalent glTF, ~10× faster to load.
- * - **Multi-version** — v1 (legacy), v2 (PBR + textures) and v3 (adds
- *   3D Gaussian Splatting) supported in the same loader/exporter pair;
- *   the `version` parameter selects which writer to use.
+ * - **Full visual model** — one container carries geometry,
+ *   per-vertex colours, PBR materials with textures (and colour-space
+ *   encoding), per-material `triplanarScale` for world-projected
+ *   texturing, and 3D Gaussian Splatting geometry.
  * - **Quantised positions** — vertex positions stored as 16-bit
  *   integers against per-geometry AABBs; no precision loss for
  *   typical model scales.
@@ -153,7 +154,6 @@
  * xgfExporter.write({
  *     sceneModel,
  *     dataModel,
- *     version: "1.0.0", // Optional, defaults to latest
  * }).then(fileData => {
  *     // Use fileData as needed
  * }).catch(err => {

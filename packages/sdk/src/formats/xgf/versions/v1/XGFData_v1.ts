@@ -1,162 +1,239 @@
 /**
- *  The elements of a [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf) v1.0 file,
- *  unpacked into a set of arrays for parsing.
+ *  XGF v1 file-format payload — geometry, PBR materials, textures, and 3D
+ *  Gaussian Splatting geometry (per-splat scales and rotation quaternions,
+ *  plus the `GaussianSplatsPrimitive` primitive type).
  *
- *  This interface represents the structure of the XGF v1.0 file format. Although this interface is used
- *  internally, we include it in the API documentation so that it can also serve as a reference to the file format.
+ *  Pack order in the binary form is the field-declaration order below;
+ *  `packXGF` and `unpackXGF` read/write it positionally.
  *
  *  @internal
  */
 export interface XGFData_v1 {
 
-  /**
-   * Flat array containing all quantized 3D geometry vertex positions.
-   *
-   * These positions are quantized to 16-bit unsigned integers.
-   */
+  // ── v1-compatible geometry payload ──────────────────────────────────
+
+  /** Quantised vertex positions (RGB16UI per vertex × 3). */
   positions: Uint16Array<any>;
 
-  /**
-   * Flat array containing all RGBA geometry vertex colors.
-   *
-   * Each element is in range `[0..255]`.
-   */
+  /** Vertex RGBA colours (Uint8 × 4 per vertex). */
   colors: Uint8Array<any>;
 
-  /**
-   * Flat array containing all 32-bit geometry indices.
-   */
+  /** 32-bit triangle / line indices. */
   indices: Uint32Array<any>;
 
-  /**
-   * Flat array cotaining all 32-bit geometry edge indices.
-   */
+  /** 32-bit edge-line indices. */
   edgeIndices: Uint32Array<any>;
 
-  /**
-   * Flat array containing 3D axis-aligned boundary (AABB) of each geometry's vertex positions.
-   *
-   * Each AABB is the double-precision axis-aligned 3D boundary
-   * of its geometry's 3D vertex positions in {@link XGFData_v1.positions}.
-   *
-   * Each AABB has the layout `[minX, minY, minZ, maxX, maxY, maxZ]`.
-   *
-   * To decompress a quantized vertex `pUint` (unsigned 16-bit integers) to get `pDouble` (64-bit floats), we do this:
-   *
-   * ````
-   * pDouble[0] = (pUint[0] * (maxX - minX) / 65535) + minX
-   * pDouble[1] = (pUint[1] * (maxY - minY) / 65535) + minY
-   * pDouble[2] = (pUint[2] * (maxZ - minZ) / 65535) + minZ
-   * ````
-   *
-   * Multiple geometries can share the same AABB, in which case they will have the same pointer to the start
-   * of their portion in `XGFData_v1.aabbs`.
-   */
-  aabbs: null | Float32Array<any>;
+  /** Geometry AABBs (six floats each: minX, minY, minZ, maxX, maxY, maxZ). */
+  aabbs: Float32Array<any>;
+
+  // ── v2 geometry additions ───────────────────────────────────────────
 
   /**
-   * For each geometry, a pointer to the start of its portion in {@link XGFData_v1.positions}.
+   * Octahedral RG16UI vertex normals — one (x, y) pair per vertex.
+   * Geometries that don't carry normals occupy zero range.
    */
+  normals: Uint16Array<any>;
+
+  /**
+   * RG32F vertex UVs — one (u, v) pair per vertex. Floats (not
+   * quantised) so tiling values outside `[0, 1]` round-trip through
+   * the file intact, mirroring the runtime VertexUVTexture format.
+   */
+  uvs: Float32Array<any>;
+
+  // ── v3 geometry additions (3D Gaussian Splatting) ───────────────────
+
+  /**
+   * Per-splat scales — three floats (x, y, z) per splat. Only occupied
+   * by {@link base!constants.GaussianSplatsPrimitive | GaussianSplatsPrimitive}
+   * geometries; others occupy zero range.
+   */
+  scales: Float32Array<any>;
+
+  /**
+   * Per-splat rotation quaternions — four bytes (x, y, z, w) per splat,
+   * quantised as `round(q · 128 + 128)` and decoded `(b − 128) / 128`
+   * (the antimatter15 `.splat` convention). Only occupied by splat
+   * geometries; others occupy zero range.
+   */
+  rotations: Uint8Array<any>;
+
+  // ── Per-geometry pointers ──────────────────────────────────────────
+
   eachGeometryPositionsBase: Uint32Array<any>;
-
-  /**
-   * For each geometry, a pointer to the start of its portion in {@link XGFData_v1.colors}.
-   */
   eachGeometryColorsBase: Uint32Array<any>;
-
-  /**
-   * For each geometry, a pointer to the start of its portion in {@link XGFData_v1.indices}.
-   */
   eachGeometryIndicesBase: Uint32Array<any>;
-
-  /**
-   * For each geometry, a pointer to the start of its portion in {@link XGFData_v1.edgeIndices}.
-   */
   eachGeometryEdgeIndicesBase: Uint32Array<any>;
 
   /**
-   * For each geometry, the primitive type.
-   *
-   * Supported types are:
-   *
-   * * 0: Triangle mesh (same as 2)
-   * * 1: Solid, closed triangle mesh
-   * * 2: Triangle surface (same as 0)
-   * * 3: Lines
-   * * 4: Points
+   * Per-geometry base into {@link normals}. `0xffffffff` (UINT32_MAX)
+   * indicates the geometry has no normals.
+   */
+  eachGeometryNormalsBase: Uint32Array<any>;
+
+  /**
+   * Per-geometry base into {@link uvs}. `0xffffffff` indicates the
+   * geometry has no UVs.
+   */
+  eachGeometryUVsBase: Uint32Array<any>;
+
+  /**
+   * Per-geometry base into {@link scales} (three floats per splat).
+   * `0xffffffff` indicates the geometry carries no per-splat scales
+   * (i.e. it isn't a splat geometry).
+   */
+  eachGeometryScalesBase: Uint32Array<any>;
+
+  /**
+   * Per-geometry base into {@link rotations} (four bytes per splat).
+   * `0xffffffff` indicates the geometry carries no per-splat rotations.
+   */
+  eachGeometryRotationsBase: Uint32Array<any>;
+
+  /**
+   * Per-geometry primitive type:
+   *   0 — TrianglesPrimitive
+   *   1 — SolidPrimitive
+   *   2 — SurfacePrimitive
+   *   3 — LinesPrimitive
+   *   4 — PointsPrimitive
+   *   5 — GaussianSplatsPrimitive
    */
   eachGeometryPrimitiveType: Uint8Array<any>;
 
-  /**
-   * For each geometry, a pointer to the start of its portion in `XGFData_v1.aabbs`.
-   *
-   * Each portion is six elements of `XGFData_v1.aabbs`, containing `[minX, minY, minZ, maxX, maxY, maxZ]`.
-   *
-   * Each AABB is the boundary of the geometry's unquantized, double-precision vertex positions, which is used
-   * in the Viewer to decompress them from 16-bit integers to double-precision floats.
-   *
-   * Multiple geometries can share the same AABB, in which case they will have the same pointer to the start of
-   * their portion in `XGFData_v1.aabbs`.
-   */
+  /** Per-geometry base into {@link aabbs} (six floats). */
   eachGeometryAABBBase: Uint32Array<any>;
 
-  /**
-   * Flat array containing all modeling transform matrices.
-   *
-   * Each matrix has sixteen elements. These are 64-bit precision, and may contain huge full-precision translations that are
-   * absolute and relative to the World-space origin.
-   *
-   * Multiple meshes can share the same matrix, in which case they will have the same pointer to the start of their
-   * portion in `XGFData_v1.matrices`.
-   */
+  // ── Modelling matrices ─────────────────────────────────────────────
+
   matrices: Float64Array<any>;
 
-  /**
-   * For each mesh, a pointer to the start of its portion in {@link XGFData_v1.eachGeometryPositionsBase},
-   * {@link XGFData_v1.eachGeometryColorsBase}, {@link XGFData_v1.eachGeometryIndicesBase} and
-   * {@link XGFData_v1.eachGeometryEdgeIndicesBase}.
-   *
-   * Multiple meshes can share the same geometry, in which case they will have the same pointer to the start of their
-   * portion in the eachGeometry* arrays.
-   */
-  eachMeshGeometriesBase: Uint32Array<any>;
+  // ── Textures (v2 only) ─────────────────────────────────────────────
 
   /**
-   * For each mesh, a pointer to its matrix in {@link XGFData_v1.matrices}.
-   *
-   * Each portion is sixteen elements, comprising a 4x4 matrix.
-   *
-   * Multiple meshes can share the same matrix, in which case they will have the same pointer to the start of their
-   * portion in `XGFData_v1.matrices`.
+   * Concatenated encoded image bytes for every texture in the model
+   * (typically PNG / JPEG / GIF). The {@link eachTextureMediaType} and
+   * {@link eachTextureDataBase} arrays describe how to slice and decode.
    */
+  textureData: Uint8Array<any>;
+
+  /** Per-texture base into {@link textureData}. */
+  eachTextureDataBase: Uint32Array<any>;
+
+  /**
+   * Per-texture media type, matching {@link base!constants.PNGMediaType | PNGMediaType}
+   * etc. Stored as a small integer:
+   *   0 — PNG
+   *   1 — JPEG
+   *   2 — GIF
+   * 255 — opaque transcoded buffer (treat as raw bytes; not decoded
+   *        at load time)
+   */
+  eachTextureMediaType: Uint8Array<any>;
+
+  /** Per-texture pixel width. */
+  eachTextureWidth: Uint16Array<any>;
+
+  /** Per-texture pixel height. */
+  eachTextureHeight: Uint16Array<any>;
+
+  /**
+   * Per-texture sampler params, five bytes each (in order):
+   *   minFilter, magFilter, wrapS, wrapT, wrapR
+   *
+   * Each is the small-integer code from {@link base!constants | constants}:
+   *   1 — RepeatWrapping
+   *   2 — ClampToEdgeWrapping
+   *   3 — MirroredRepeatWrapping
+   *   4 — NearestFilter
+   *   5 — LinearFilter
+   *   6 — NearestMipMapNearestFilter
+   *   7 — LinearMipMapNearestFilter
+   *   8 — NearestMipMapLinearFilter
+   *   9 — LinearMipMapLinearFilter
+   */
+  eachTextureSampler: Uint8Array<any>;
+
+  /**
+   * Per-texture colour-space encoding, as the raw {@link base!constants | constants}
+   * value (e.g. 3000 LinearEncoding, 3001 sRGBEncoding). Required so an sRGB
+   * colour/albedo map reloads as sRGB rather than linear (which renders washed out).
+   */
+  eachTextureEncoding: Uint16Array<any>;
+
+  /** Per-texture string ID. */
+  eachTextureId: string[];
+
+  // ── Materials (v2 only) ────────────────────────────────────────────
+
+  /**
+   * Per-material PBR + alpha attributes, eight bytes each (in order):
+   *   color R, color G, color B, opacity,
+   *   roughness, metallic,
+   *   alphaMode (0=OPAQUE, 1=MASK, 2=BLEND), alphaCutoff
+   *
+   * All values quantised to `[0, 255]` from `[0, 1]`. The colour bytes here
+   * are clamped to `[0, 1]`; read the full-precision colour from
+   * {@link eachMaterialColor} instead (SceneMaterial.color is an unclamped
+   * multiplier that can exceed 1.0).
+   */
+  eachMaterialPBR: Uint8Array<any>;
+
+  /**
+   * Per-material RGB colour factor, full-precision float (three per material).
+   * SceneMaterial.color is an unclamped multiplier — values above 1.0 (a common
+   * brightness boost) would clamp to 1.0 in the u8 {@link eachMaterialPBR} and
+   * render washed out, so the colour is carried here as float.
+   */
+  eachMaterialColor: Float32Array<any>;
+
+  /**
+   * Per-material texture references, five Int32 entries each (in order):
+   *   colorTextureIndex,
+   *   metallicRoughnessTextureIndex,
+   *   normalsTextureIndex,
+   *   occlusionTextureIndex,
+   *   emissiveTextureIndex
+   *
+   * Each entry is a 0-based index into the texture array, or `-1` to
+   * indicate "no texture".
+   */
+  eachMaterialTextures: Int32Array<any>;
+
+  /** Per-material string ID. */
+  eachMaterialId: string[];
+
+  /**
+   * Per-material triplanar texture scale (one Float32 each) — the world-space
+   * repeat distance for the renderer's triplanar (world-projected) texture
+   * sampling. `1.0` is the default / no-op. Stored as a float because, unlike
+   * the other PBR factors, it is a world distance rather than a `[0, 1]` value.
+   * New in v4.
+   */
+  eachMaterialTriplanarScale: Float32Array<any>;
+
+  // ── Per-mesh ───────────────────────────────────────────────────────
+
+  eachMeshGeometriesBase: Uint32Array<any>;
   eachMeshMatricesBase: Uint32Array<any>;
 
   /**
-   * Flat array containing four material attributes for each mesh.
-   *
-   * The attributes for each mesh are:
-   *
-   * * Color R [0..255]
-   * * Color G [0..255]
-   * * Color B [0..255]
-   * * Opacity [0..255]
-   *
-   * Each set of attributes belongs exclusively to a single mesh, and is not shared between meshes.
+   * Per-mesh inline RGBA colour fallback (4 bytes/mesh: R, G, B,
+   * opacity). Used when {@link eachMeshMaterial} for that mesh is `-1`
+   * — i.e. the mesh has no material reference and renders as a flat
+   * colour.
    */
   eachMeshMaterialAttributes: Uint8Array<any>;
 
   /**
-   * For each object, a unique string ID.
+   * Per-mesh material reference: index into the material array, or
+   * `-1` to fall back to {@link eachMeshMaterialAttributes}.
    */
-  eachObjectId: string[];
+  eachMeshMaterial: Int32Array<any>;
 
-  /**
-   * For each object, a pointer to its first mesh in {@link XGFData_v1.eachMeshGeometriesBase},
-   * {@link XGFData_v1.eachMeshMatricesBase} and {@link XGFData_v1.eachMeshMaterialAttributes}.
-   *
-   * Each mesh belongs to exactly one object. Meshes that belong to the same object are stored in contiguous runs
-   * in the eachMesh* arrays, and the start of each run is indicated by this array. The end of each run is indicated
-   * by the next element in this array, or the end of the eachMesh* arrays for the last object.
-   */
+  // ── Per-object ─────────────────────────────────────────────────────
+
+  eachObjectId: string[];
   eachObjectMeshesBase: Uint32Array<any>;
 }

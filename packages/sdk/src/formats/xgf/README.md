@@ -6,9 +6,8 @@ title: XGF Format Guide
 `XGFLoader` reads xeokit's native binary geometry format (`.xgf`) into a
 `SceneModel`, and `XGFExporter` writes a `SceneModel` back out as XGF.
 
-This document describes the binary container, the two on-disk schema
-versions, and the pipelines a file follows from bytes to a live scene
-(and back).
+This document describes the binary container, the on-disk schema, and the
+pipelines a file follows from bytes to a live scene (and back).
 
 ---
 
@@ -50,13 +49,13 @@ come from a paired DataModel JSON.
 
 ## 2. Binary container
 
-Every XGF file (v1 or v2) is the same outer container — a version
-tag, an `(offset, length)` table, and a sequence of typed-array
-payloads laid out at those offsets:
+Every XGF file is the same outer container — a version tag, an
+`(offset, length)` table, and a sequence of typed-array payloads laid
+out at those offsets:
 
 ```
    ┌──────────────────────────────────────────────────────────────┐
-   │ 0..3        uint32 version              (1, 2 or 3)          │
+   │ 0..3        uint32 version              (1)                  │
    ├──────────────────────────────────────────────────────────────┤
    │ 4..7        uint32 entry[0].byteOffset                       │
    │ 8..11       uint32 entry[0].byteLength                       │
@@ -86,31 +85,29 @@ payloads laid out at those offsets:
 
 ---
 
-## 3. The three versions
+## 3. The format
 
-XGF has shipped three schema revisions. The loader handles all of them;
-the exporter writes any via its `version` parameter.
+One container (header tag `1`) carries the full visual model:
 
-| Version | Adds |
-|---|---|
-| **v1** (`1.0.0`) | base — geometry (positions, colors, indices, edge indices), per-geometry AABBs, modelling matrices, meshes referencing per-mesh inline RGBA colours, objects referencing meshes. |
-| **v2** (`1.1.0`, "XKT2") | adds **per-geometry normals + UVs**; **textures** (image bytes + sampler params); **materials** with full PBR + alpha mode / cutoff; **per-mesh material references** (with inline RGBA as the fallback when no material is set). |
-| **v3** (`1.2.0`) | adds **3D Gaussian Splatting** geometry — per-splat scales (float xyz) and rotation quaternions (xyzw, byte-quantised, the `.splat` convention), plus the `GaussianSplatsPrimitive` type (`5`). Also restores per-vertex `colorsCompressed` on decode, which splats need for baked colour. |
-
-The older readers stay in the codebase so existing `.xgf` files keep
-loading.
-
-The default exporter version is `1.0.0`. Pass `version: "1.1.0"` to emit
-v2 (PBR / textures), or `version: "1.2.0"` to emit v3 — **required to
-preserve Gaussian-splat geometry**, since v1/v2 have no splat buffers.
+- **Geometry** — quantised positions, octahedral normals, UVs, per-vertex
+  RGBA colours, indices, edge indices, per-geometry AABBs, modelling matrices.
+- **3D Gaussian Splatting** — per-splat scales (float xyz) and rotation
+  quaternions (xyzw, byte-quantised), plus the `GaussianSplatsPrimitive` type.
+- **Materials** — full PBR + alpha mode / cutoff, with the RGB colour factor
+  stored as **float** (an unclamped multiplier that can exceed 1.0), per-mesh
+  material references (inline RGBA as the fallback when no material is set), and
+  per-material `triplanarScale` for world-projected texturing.
+- **Textures** — image bytes + sampler params + per-texture colour-space
+  encoding (sRGB vs linear).
 
 ---
 
-## 4. v2 payload
+## 4. Payload
 
 Field order = pack order = read order. See
-[`versions/v2/XGFData_v2.ts`](versions/v2/XGFData_v2.ts) for the
-authoritative TypeScript shape.
+[`versions/v1/XGFData_v1.ts`](versions/v1/XGFData_v1.ts) for the authoritative
+TypeScript shape — including the splat, material-colour-float, `triplanarScale`,
+and texture-encoding entries not enumerated in the core tables below.
 
 ### Geometry (per-vertex blobs)
 
@@ -121,8 +118,8 @@ authoritative TypeScript shape.
 | `indices` | `Uint32Array` | Triangle / line indices. |
 | `edgeIndices` | `Uint32Array` | Wireframe edge indices. |
 | `aabbs` | `Float32Array` | Per-geometry AABBs (six floats: `minX minY minZ maxX maxY maxZ`). Multiple geometries may share an AABB by pointing at the same base. |
-| `normals` | `Uint16Array` | **v2 only.** Octahedral RG16UI normals, two values per vertex. Geometries without normals occupy zero range. |
-| `uvs` | `Float32Array` | **v2 only.** RG32F UVs, two values per vertex. Floats (not quantised) so tiling values round-trip. |
+| `normals` | `Uint16Array` | Octahedral RG16UI normals, two values per vertex. Geometries without normals occupy zero range. |
+| `uvs` | `Float32Array` | RG32F UVs, two values per vertex. Floats (not quantised) so tiling values round-trip. |
 
 ### Per-geometry pointers
 
@@ -148,7 +145,7 @@ length).
 |---|---|---|
 | `matrices` | `Float64Array` | Concatenated 4×4 column-major modelling matrices. Each mesh points at one. |
 
-### Textures (v2 only)
+### Textures
 
 | Entry | Type | Meaning |
 |---|---|---|
@@ -160,7 +157,7 @@ length).
 | `eachTextureSampler` | `Uint8Array` | Five bytes per texture: `minFilter, magFilter, wrapS, wrapT, wrapR`. Each is a small-integer code (1–9) matching the `xeokit/base/constants` sampler enums. |
 | `eachTextureId` | `string[]` | Per-texture string ID (JSON blob). |
 
-### Materials (v2 only)
+### Materials
 
 | Entry | Type | Meaning |
 |---|---|---|
@@ -175,7 +172,7 @@ length).
 | `eachMeshGeometriesBase` | `Uint32Array` | Index into the geometry list (each mesh references exactly one geometry). |
 | `eachMeshMatricesBase` | `Uint32Array` | Index into `matrices` (multiple of 16). |
 | `eachMeshMaterialAttributes` | `Uint8Array` | Inline RGBA fallback (4 bytes/mesh: R, G, B, opacity). Used when `eachMeshMaterial` is `-1`. |
-| `eachMeshMaterial` | `Int32Array` | Index into the material array, or `-1` to fall back to `eachMeshMaterialAttributes`. **v1 has no materials; always falls back.** |
+| `eachMeshMaterial` | `Int32Array` | Index into the material array, or `-1` to fall back to `eachMeshMaterialAttributes`. |
 
 ### Per-object
 
@@ -184,13 +181,8 @@ length).
 | `eachObjectId` | `string[]` | Per-object string ID (JSON blob). |
 | `eachObjectMeshesBase` | `Uint32Array` | Base into the per-mesh arrays. The object's meshes run from its base to (the next object's base) or (mesh count). |
 
-### v1 payload
-
-v1 is the same shape as v2 minus `normals`, `uvs`,
-`eachGeometryNormalsBase`, `eachGeometryUVsBase`, `eachGeometryPrimitiveType`,
-all texture entries, and all material entries. The v1 reader treats
-every mesh as inline-RGBA and emits `TrianglesPrimitive` geometries by
-default. See [`versions/v1/XGFData_v1.ts`](versions/v1/XGFData_v1.ts).
+A mesh with no material reference falls back to its inline RGBA (the same
+per-mesh colour the geometry-only path uses).
 
 ---
 
@@ -200,10 +192,10 @@ default. See [`versions/v1/XGFData_v1.ts`](versions/v1/XGFData_v1.ts).
    .xgf bytes (ArrayBuffer)
         │
         ▼
-   XGFLoader.getVersion       ←  read uint32 [0]: "1" or "2"
+   XGFLoader.getVersion       ←  read uint32 [0]: "1"
         │
         ▼
-   versions/v{N}/parse.ts
+   versions/v1/parse.ts
         │
         ├─ unpackXGF              ←  walk the (offset, length) table,
         │                            byte-swap on big-endian hosts,
@@ -211,17 +203,17 @@ default. See [`versions/v1/XGFData_v1.ts`](versions/v1/XGFData_v1.ts).
         │                            (zero copies)
         │
         ▼
-   XGFData_v{N}  payload
+   XGFData_v1  payload
         │
         ▼
    xgfToModel              ←  walks objects → meshes → geometries
         │
-        ├─ decode textures (v2)
+        ├─ decode textures
         │     PNG/JPEG/GIF → createImageBitmap → sceneModel.createTexture
         │     opaque       → pass raw bytes through with `compressed: true`
         │     empty        → register a 1×1 white pixel placeholder
         │
-        ├─ build materials (v2)
+        ├─ build materials
         │     PBR + alpha + texture references → sceneModel.createMaterial
         │
         ├─ for each object:
@@ -232,7 +224,7 @@ default. See [`versions/v1/XGFData_v1.ts`](versions/v1/XGFData_v1.ts).
         │            non-sentinel base, since geometries without
         │            normals/UVs are sparsely indexed)
         │       resolve mesh transform from matrices[base..base+16]
-        │       resolve material (v2) or inline RGBA (v1 / unset)
+        │       resolve material or inline RGBA (unset)
         │       sceneModel.createMesh
         │     sceneModel.createObject({id, meshIds, layerId})
         │     dataModel.createObject({id, type: "BasicEntity"})
@@ -270,20 +262,20 @@ runtime / transcoder pipeline handles upload.
    SceneModel
         │
         ▼
-   modelToXGF (v1 or v2)
+   modelToXGF
         │
         ├─ flatten geometries → concatenated positions / colors /
         │                       indices / edge indices, build base arrays
         ├─ flatten matrices  ← one per mesh
-        ├─ encode textures (v2)
+        ├─ encode textures
         │     imageBitmap → canvas.toBlob("image/png") → bytes
         │     buffers     → passed through unchanged
-        ├─ build per-material PBR bytes + texture-index references (v2)
+        ├─ build per-material PBR bytes + texture-index references
         ├─ build per-mesh material index OR inline RGBA fallback
         └─ build per-object id + mesh-base arrays
         │
         ▼
-   XGFData_v{N}  payload
+   XGFData_v1  payload
         │
         ▼
    packXGF                  ←  positional pack; byte-swap on big-endian,
@@ -301,7 +293,7 @@ schema-version-breaking change that requires bumping the version tag
 in `XGF_INFO.xgfVersion` and a matching reader.
 
 Geometry data round-trips through `createGeometryCompressed` (load
-side) and the corresponding v2 packer (write side) without
+side) and the packer (write side) without
 re-decompressing. Per-vertex positions, normals, UVs and indices are
 already quantised in the SceneModel, so the writer mostly concatenates
 buffers and emits base arrays.
@@ -391,7 +383,6 @@ import {XGFExporter} from "@xeokit/sdk/formats/xgf";
 
 const arrayBuffer = await new XGFExporter().write({
   sceneModel,
-  version: "1.1.0",   // omit for default "1.0.0"
 });
 ```
 
@@ -451,26 +442,17 @@ await Promise.all([
 ```
 formats/xgf/
 ├── README.md                              (this file)
-├── XGFLoader.ts                           ModelLoader subclass — version dispatch
-├── XGFExporter.ts                         ModelExporter subclass — version dispatch
+├── XGFLoader.ts                           ModelLoader subclass
+├── XGFExporter.ts                         ModelExporter subclass
 ├── index.ts                               module re-exports
 └── versions/
-    ├── v1/
-    │   ├── XGF_INFO.ts                    {xgfVersion: 1}
-    │   ├── XGFData_v1.ts                  v1 payload type
-    │   ├── parse.ts                       load pipeline entry — unpack → xgfToModel
-    │   ├── encode.ts                      write pipeline entry — modelToXGF → pack
-    │   ├── unpackXGF.ts                   ArrayBuffer → XGFData_v1 (positional, BE-aware)
-    │   ├── packXGF.ts                     XGFData_v1 → ArrayBuffer
-    │   ├── xgfToModel.ts                  XGFData_v1 → SceneModel + DataModel
-    │   └── modelToXGF.ts                  SceneModel → XGFData_v1
-    └── v2/
-        ├── XGF_INFO.ts                    {xgfVersion: 2}
-        ├── XGFData_v2.ts                  v2 payload type (adds normals, UVs, textures, materials)
-        ├── parse.ts                       load pipeline entry
-        ├── encode.ts                      write pipeline entry
-        ├── unpackXGF.ts                   ArrayBuffer → XGFData_v2
-        ├── packXGF.ts                     XGFData_v2 → ArrayBuffer
-        ├── xgfToModel.ts                  XGFData_v2 → SceneModel + DataModel
-        └── modelToXGF.ts                  SceneModel → XGFData_v2
+    └── v1/
+        ├── XGF_INFO.ts                    {xgfVersion: 1}
+        ├── XGFData_v1.ts                  payload type (geometry, splats, materials, textures, triplanar)
+        ├── parse.ts                       load pipeline entry — unpack → xgfToModel
+        ├── encode.ts                      write pipeline entry — modelToXGF → pack
+        ├── unpackXGF.ts                   ArrayBuffer → XGFData_v1 (positional, BE-aware)
+        ├── packXGF.ts                     XGFData_v1 → ArrayBuffer
+        ├── xgfToModel.ts                  XGFData_v1 → SceneModel + DataModel
+        └── modelToXGF.ts                  SceneModel → XGFData_v1
 ```

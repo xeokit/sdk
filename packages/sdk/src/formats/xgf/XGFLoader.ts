@@ -14,8 +14,7 @@ export class XGFLoader extends ModelLoader {
       parsers: {
         "1": parse
       },
-      // Current XGF files carry version 1.
-      getVersion: (): string => "1"
+      getVersion: (fileData: any): string => "" + new DataView(fileData).getUint32(0, true)
     });
   }
 }

@@ -488,15 +488,43 @@ async function encodeImageToPNG(imageData: any): Promise<Uint8Array<any>> {
     const blob = await canvas.convertToBlob({ type: "image/png" });
     return new Uint8Array(await blob.arrayBuffer());
   }
-  const canvas = document.createElement("canvas");
-  canvas.width = w; canvas.height = h;
+  if (typeof document !== "undefined") {
+    const canvas = document.createElement("canvas");
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return new Uint8Array(0);
+    paint(ctx);
+    return await new Promise<Uint8Array>((resolve) => {
+      canvas.toBlob(async (blob) => {
+        if (!blob) return resolve(new Uint8Array(0));
+        resolve(new Uint8Array(await blob.arrayBuffer()));
+      }, "image/png");
+    });
+  }
+  // Headless (Node) — no browser canvas. Encode via @napi-rs/canvas.
+  return encodeImageToPNGNode(imageData, w, h, isPixelBuffer);
+}
+
+/**
+ * Node fallback for {@link encodeImageToPNG} using `@napi-rs/canvas`, so the
+ * XGF exporter can encode textures headlessly (CLI / conversion pipelines).
+ *
+ * The native module is loaded through a non-analyzable `require` so neither the
+ * browser nor the CLI esbuild bundle inlines its `.node` binary; this function
+ * only runs when no browser canvas is present.
+ */
+function encodeImageToPNGNode(imageData: any, w: number, h: number, isPixelBuffer: boolean): Uint8Array {
+  const requireFn: (id: string) => any = eval("require");
+  const {createCanvas, ImageData: NodeImageData} = requireFn("@napi-rs/canvas");
+  const canvas = createCanvas(w, h);
   const ctx = canvas.getContext("2d");
-  if (!ctx) return new Uint8Array(0);
-  paint(ctx);
-  return await new Promise<Uint8Array>((resolve) => {
-    canvas.toBlob(async (blob) => {
-      if (!blob) return resolve(new Uint8Array(0));
-      resolve(new Uint8Array(await blob.arrayBuffer()));
-    }, "image/png");
-  });
+  if (isPixelBuffer) {
+    const bytes = imageData.data instanceof Uint8ClampedArray
+      ? imageData.data
+      : new Uint8ClampedArray(imageData.data);
+    ctx.putImageData(new NodeImageData(bytes, w, h), 0, 0);
+  } else {
+    ctx.drawImage(imageData, 0, 0);
+  }
+  return new Uint8Array(canvas.toBuffer("image/png"));
 }

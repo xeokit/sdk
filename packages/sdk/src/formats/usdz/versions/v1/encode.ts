@@ -3,6 +3,7 @@ import type {LoaderProgress} from "../../../LoaderProgress";
 import {yieldToHost} from "../../../../base/utils";
 import {buildUSDA, type USDAScene, type USDAObject, type USDAMesh, type USDAMaterial} from "./buildUSDA";
 import {packUSDZ} from "../../usdzWriter";
+import {findTriplanarTextureSkip, triplanarSkipWarning} from "../../../findTriplanarTextureSkip";
 
 /**
  * v1 USDZ encoder — writes a SceneModel to a USDZ package.
@@ -27,6 +28,18 @@ export async function encode(params: ModelEncodeParams, options?: any): Promise<
   onProgress?.({phase: "Encoding USDZ", current: 0, total: 1});
 
   const sceneModel: any = params.sceneModel;
+
+  // USDZ materials here are colour-only (no texture maps), so triplanar
+  // (world-projected) textures aren't exported regardless; warn so the loss
+  // is visible. (Other textures are also dropped — a separate limitation.)
+  if (sceneModel) {
+    const triplanarSkip = findTriplanarTextureSkip(sceneModel);
+    if (triplanarSkip.any) {
+      const warn = options?.onWarning ?? ((m: string) => console.warn(m));
+      warn(triplanarSkipWarning("USDZ", triplanarSkip));
+    }
+  }
+
   const objects: USDAObject[] = [];
   const materials: USDAMaterial[] = [];
   const materialNameById = new Map<string, string>();

@@ -2860,7 +2860,7 @@ var require_LZWEncoder = __commonJS({
         output(ent, outs);
         output(EOFCode, outs);
       }
-      function encode28(outs) {
+      function encode26(outs) {
         outs.writeByte(initCodeSize);
         remaining = width * height;
         curPixel = 0;
@@ -2917,7 +2917,7 @@ var require_LZWEncoder = __commonJS({
           flush_char(outs);
         }
       }
-      this.encode = encode28;
+      this.encode = encode26;
     }
     module2.exports = LZWEncoder;
   }
@@ -3016,8 +3016,8 @@ var require_GIFEncoder = __commonJS({
     GIFEncoder.prototype.setTransparent = function(color) {
       this.transparent = color;
     };
-    GIFEncoder.prototype.analyzeImage = function(imageData) {
-      this.setImagePixels(this.removeAlphaChannel(imageData));
+    GIFEncoder.prototype.analyzeImage = function(imageData2) {
+      this.setImagePixels(this.removeAlphaChannel(imageData2));
       this.analyzePixels();
     };
     GIFEncoder.prototype.writeImageInfo = function() {
@@ -3037,9 +3037,9 @@ var require_GIFEncoder = __commonJS({
     GIFEncoder.prototype.outputImage = function() {
       this.writePixels();
     };
-    GIFEncoder.prototype.addFrame = function(imageData) {
+    GIFEncoder.prototype.addFrame = function(imageData2) {
       this.emit("frame#start");
-      this.analyzeImage(imageData);
+      this.analyzeImage(imageData2);
       this.writeImageInfo();
       this.outputImage();
       this.emit("frame#stop");
@@ -3107,13 +3107,13 @@ var require_GIFEncoder = __commonJS({
       return minpos;
     };
     GIFEncoder.prototype.removeAlphaChannel = function(data) {
-      var w2 = this.width;
-      var h2 = this.height;
-      var pixels = new Uint8Array(w2 * h2 * 3);
+      var w3 = this.width;
+      var h3 = this.height;
+      var pixels = new Uint8Array(w3 * h3 * 3);
       var count = 0;
-      for (var i2 = 0; i2 < h2; i2++) {
-        for (var j2 = 0; j2 < w2; j2++) {
-          var b5 = i2 * w2 * 4 + j2 * 4;
+      for (var i2 = 0; i2 < h3; i2++) {
+        for (var j2 = 0; j2 < w3; j2++) {
+          var b5 = i2 * w3 * 4 + j2 * 4;
           pixels[count++] = data[b5];
           pixels[count++] = data[b5 + 1];
           pixels[count++] = data[b5 + 2];
@@ -4195,7 +4195,7 @@ var require_encoder = __commonJS({
         bytenew = 0;
         bytepos = 7;
         this.encode.displayName = "_encode_";
-        var imageData = image.data;
+        var imageData2 = image.data;
         var width = image.width;
         var height = image.height;
         var quadWidth = width * 4;
@@ -4220,9 +4220,9 @@ var require_encoder = __commonJS({
               if (x2 + col >= quadWidth) {
                 p2 -= x2 + col - quadWidth + 4;
               }
-              r2 = imageData[p2++];
-              g2 = imageData[p2++];
-              b5 = imageData[p2++];
+              r2 = imageData2[p2++];
+              g2 = imageData2[p2++];
+              b5 = imageData2[p2++];
               YDU[pos] = (RGB_YUV_TABLE[r2] + RGB_YUV_TABLE[g2 + 256 >> 0] + RGB_YUV_TABLE[b5 + 512 >> 0] >> 16) - 128;
               UDU[pos] = (RGB_YUV_TABLE[r2 + 768 >> 0] + RGB_YUV_TABLE[g2 + 1024 >> 0] + RGB_YUV_TABLE[b5 + 1280 >> 0] >> 16) - 128;
               VDU[pos] = (RGB_YUV_TABLE[r2 + 1280 >> 0] + RGB_YUV_TABLE[g2 + 1536 >> 0] + RGB_YUV_TABLE[b5 + 1792 >> 0] >> 16) - 128;
@@ -4281,12 +4281,12 @@ var require_encoder = __commonJS({
       init2();
     }
     if (typeof module2 !== "undefined") {
-      module2.exports = encode28;
+      module2.exports = encode26;
     } else if (typeof window !== "undefined") {
       window["jpeg-js"] = window["jpeg-js"] || {};
-      window["jpeg-js"].encode = encode28;
+      window["jpeg-js"].encode = encode26;
     }
-    function encode28(imgData, qu) {
+    function encode26(imgData, qu) {
       if (typeof qu === "undefined")
         qu = 50;
       var encoder = new JPEGEncoder(qu);
@@ -4608,7 +4608,7 @@ var require_decoder = __commonJS({
         }
         if (!resetInterval)
           resetInterval = mcuExpected;
-        var h2, v2;
+        var h3, v2;
         while (mcu < mcuExpected) {
           for (i2 = 0; i2 < componentsLength; i2++)
             components[i2].pred = 0;
@@ -4623,10 +4623,10 @@ var require_decoder = __commonJS({
             for (n2 = 0; n2 < resetInterval; n2++) {
               for (i2 = 0; i2 < componentsLength; i2++) {
                 component = components[i2];
-                h2 = component.h;
+                h3 = component.h;
                 v2 = component.v;
                 for (j2 = 0; j2 < v2; j2++) {
-                  for (k2 = 0; k2 < h2; k2++) {
+                  for (k2 = 0; k2 < h3; k2++) {
                     decodeMcu(component, decodeFn, mcu, j2, k2);
                   }
                 }
@@ -4820,7 +4820,7 @@ var require_decoder = __commonJS({
           }.bind(this);
           xhr.send(null);
         },
-        parse: function parse31(data) {
+        parse: function parse29(data) {
           var maxResolutionInPixels = this.opts.maxResolutionInMP * 1e3 * 1e3;
           var offset = 0, length2 = data.length;
           function readUint16() {
@@ -4986,15 +4986,15 @@ var require_decoder = __commonJS({
                 var maxH = 0, maxV = 0;
                 for (i2 = 0; i2 < componentsCount; i2++) {
                   componentId = data[offset];
-                  var h2 = data[offset + 1] >> 4;
+                  var h3 = data[offset + 1] >> 4;
                   var v2 = data[offset + 1] & 15;
                   var qId = data[offset + 2];
-                  if (h2 <= 0 || v2 <= 0) {
+                  if (h3 <= 0 || v2 <= 0) {
                     throw new Error("Invalid sampling factor, expected values above 0");
                   }
                   frame.componentsOrder.push(componentId);
                   frame.components[componentId] = {
-                    h: h2,
+                    h: h3,
                     v: v2,
                     quantizationIdx: qId
                   };
@@ -5215,9 +5215,9 @@ var require_decoder = __commonJS({
           }
           return data;
         },
-        copyToImageData: function copyToImageData(imageData, formatAsRGBA) {
-          var width = imageData.width, height = imageData.height;
-          var imageDataArray = imageData.data;
+        copyToImageData: function copyToImageData(imageData2, formatAsRGBA) {
+          var width = imageData2.width, height = imageData2.height;
+          var imageDataArray = imageData2.data;
           var data = this.getData(width, height);
           var i2 = 0, j2 = 0, x2, y2;
           var Y2, K2, C2, M2, R3, G3, B3;
@@ -5351,10 +5351,10 @@ var require_decoder = __commonJS({
 // ../../node_modules/.pnpm/jpeg-js@0.4.4/node_modules/jpeg-js/index.js
 var require_jpeg_js = __commonJS({
   "../../node_modules/.pnpm/jpeg-js@0.4.4/node_modules/jpeg-js/index.js"(exports2, module2) {
-    var encode28 = require_encoder();
+    var encode26 = require_encoder();
     var decode12 = require_decoder();
     module2.exports = {
-      encode: encode28,
+      encode: encode26,
       decode: decode12
     };
   }
@@ -6293,13 +6293,13 @@ var require_format_normaliser = __commonJS({
         }
       }
     }
-    module2.exports = function(indata, imageData) {
-      var depth = imageData.depth;
-      var width = imageData.width;
-      var height = imageData.height;
-      var colorType = imageData.colorType;
-      var transColor = imageData.transColor;
-      var palette = imageData.palette;
+    module2.exports = function(indata, imageData2) {
+      var depth = imageData2.depth;
+      var width = imageData2.width;
+      var height = imageData2.height;
+      var colorType = imageData2.colorType;
+      var transColor = imageData2.transColor;
+      var palette = imageData2.palette;
       var outdata = indata;
       if (colorType === 3) {
         dePalette(indata, outdata, width, height, palette);
@@ -6890,10 +6890,10 @@ var require_packer_sync = __commonJS({
 var require_png_sync = __commonJS({
   "../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/png-sync.js"(exports2) {
     "use strict";
-    var parse31 = require_parser_sync();
+    var parse29 = require_parser_sync();
     var pack = require_packer_sync();
     exports2.read = function(buffer, options) {
-      return parse31(buffer, options || {});
+      return parse29(buffer, options || {});
     };
     exports2.write = function(png) {
       return pack(png);
@@ -8564,17 +8564,17 @@ var require_save_pixels = __commonJS({
           png.data = data;
           return png.pack();
         case "CANVAS":
-          var canvas = document.createElement("canvas");
-          var context = canvas.getContext("2d");
-          canvas.width = array.shape[0];
-          canvas.height = array.shape[1];
-          var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-          var data = imageData.data;
+          var canvas2 = document.createElement("canvas");
+          var context = canvas2.getContext("2d");
+          canvas2.width = array.shape[0];
+          canvas2.height = array.shape[1];
+          var imageData2 = context.getImageData(0, 0, canvas2.width, canvas2.height);
+          var data = imageData2.data;
           data = handleData(array, data);
           if (typeof data === "Error")
             return haderror(data);
-          context.putImageData(imageData, 0, 0);
-          return canvas;
+          context.putImageData(imageData2, 0, 0);
+          return canvas2;
         default:
           return haderror(new Error("Unsupported file type: " + type));
       }
@@ -9574,13 +9574,13 @@ var require_format_normaliser2 = __commonJS({
         }
       }
     }
-    module2.exports = function(indata, imageData) {
-      var depth = imageData.depth;
-      var width = imageData.width;
-      var height = imageData.height;
-      var colorType = imageData.colorType;
-      var transColor = imageData.transColor;
-      var palette = imageData.palette;
+    module2.exports = function(indata, imageData2) {
+      var depth = imageData2.depth;
+      var width = imageData2.width;
+      var height = imageData2.height;
+      var colorType = imageData2.colorType;
+      var transColor = imageData2.transColor;
+      var palette = imageData2.palette;
       var outdata = indata;
       if (colorType === 3) {
         dePalette(indata, outdata, width, height, palette);
@@ -10453,10 +10453,10 @@ var require_packer_sync2 = __commonJS({
 var require_png_sync2 = __commonJS({
   "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/png-sync.js"(exports2) {
     "use strict";
-    var parse31 = require_parser_sync2();
+    var parse29 = require_parser_sync2();
     var pack = require_packer_sync2();
     exports2.read = function(buffer, options) {
-      return parse31(buffer, options || {});
+      return parse29(buffer, options || {});
     };
     exports2.write = function(png, options) {
       return pack(png, options);
@@ -10710,7 +10710,7 @@ var require_omggif = __commonJS({
         buf[p2++] = 0;
       }
       var ended = false;
-      this.addFrame = function(x2, y2, w2, h2, indexed_pixels, opts) {
+      this.addFrame = function(x2, y2, w3, h3, indexed_pixels, opts) {
         if (ended === true) {
           --p2;
           ended = false;
@@ -10718,9 +10718,9 @@ var require_omggif = __commonJS({
         opts = opts === void 0 ? {} : opts;
         if (x2 < 0 || y2 < 0 || x2 > 65535 || y2 > 65535)
           throw new Error("x/y invalid.");
-        if (w2 <= 0 || h2 <= 0 || w2 > 65535 || h2 > 65535)
+        if (w3 <= 0 || h3 <= 0 || w3 > 65535 || h3 > 65535)
           throw new Error("Width/Height invalid.");
-        if (indexed_pixels.length < w2 * h2)
+        if (indexed_pixels.length < w3 * h3)
           throw new Error("Not enough pixels for the frame size.");
         var using_local_palette = true;
         var palette = opts.palette;
@@ -10762,10 +10762,10 @@ var require_omggif = __commonJS({
         buf[p2++] = x2 >> 8 & 255;
         buf[p2++] = y2 & 255;
         buf[p2++] = y2 >> 8 & 255;
-        buf[p2++] = w2 & 255;
-        buf[p2++] = w2 >> 8 & 255;
-        buf[p2++] = h2 & 255;
-        buf[p2++] = h2 >> 8 & 255;
+        buf[p2++] = w3 & 255;
+        buf[p2++] = w3 >> 8 & 255;
+        buf[p2++] = h3 & 255;
+        buf[p2++] = h3 >> 8 & 255;
         buf[p2++] = using_local_palette === true ? 128 | min_code_size - 1 : 0;
         if (using_local_palette === true) {
           for (var i3 = 0, il2 = palette.length; i3 < il2; ++i3) {
@@ -10956,8 +10956,8 @@ var require_omggif = __commonJS({
           case 44:
             var x2 = buf[p2++] | buf[p2++] << 8;
             var y2 = buf[p2++] | buf[p2++] << 8;
-            var w2 = buf[p2++] | buf[p2++] << 8;
-            var h2 = buf[p2++] | buf[p2++] << 8;
+            var w3 = buf[p2++] | buf[p2++] << 8;
+            var h3 = buf[p2++] | buf[p2++] << 8;
             var pf2 = buf[p2++];
             var local_palette_flag = pf2 >> 7;
             var interlace_flag = pf2 >> 6 & 1;
@@ -10985,8 +10985,8 @@ var require_omggif = __commonJS({
             frames.push({
               x: x2,
               y: y2,
-              width: w2,
-              height: h2,
+              width: w3,
+              height: h3,
               has_local_palette,
               palette_offset,
               palette_size,
@@ -11701,11 +11701,11 @@ var require_bitmap = __commonJS({
     Bitmap.prototype.mapRGBA = function(r2, g2, b5, a3) {
       var hex = [];
       var padHex = function(value) {
-        var h2 = value.toString(16);
+        var h3 = value.toString(16);
         if (value < 15) {
-          return "0" + h2;
+          return "0" + h3;
         }
-        return h2;
+        return h3;
       };
       hex.push(padHex(r2));
       hex.push(padHex(g2));
@@ -11894,7 +11894,7 @@ var require_psl = __commonJS({
       if (F2)
         return O2;
       F2 = 1;
-      const e2 = 2147483647, s2 = 36, c3 = 1, o2 = 26, t2 = 38, d2 = 700, z2 = 72, y2 = 128, g2 = "-", P2 = /^xn--/, V2 = /[^\0-\x7F]/, G3 = /[\x2E\u3002\uFF0E\uFF61]/g, W2 = { overflow: "Overflow: input needs wider integers to process", "not-basic": "Illegal input >= 0x80 (not a basic code point)", "invalid-input": "Invalid input" }, C2 = s2 - c3, h2 = Math.floor, I2 = String.fromCharCode;
+      const e2 = 2147483647, s2 = 36, c3 = 1, o2 = 26, t2 = 38, d2 = 700, z2 = 72, y2 = 128, g2 = "-", P2 = /^xn--/, V2 = /[^\0-\x7F]/, G3 = /[\x2E\u3002\uFF0E\uFF61]/g, W2 = { overflow: "Overflow: input needs wider integers to process", "not-basic": "Illegal input >= 0x80 (not a basic code point)", "invalid-input": "Invalid input" }, C2 = s2 - c3, h3 = Math.floor, I2 = String.fromCharCode;
       function v2(a3) {
         throw new RangeError(W2[a3]);
       }
@@ -11932,9 +11932,9 @@ var require_psl = __commonJS({
         return a3 + 22 + 75 * (a3 < 26) - ((i2 != 0) << 5);
       }, T2 = function(a3, i2, m2) {
         let n2 = 0;
-        for (a3 = m2 ? h2(a3 / d2) : a3 >> 1, a3 += h2(a3 / i2); a3 > C2 * o2 >> 1; n2 += s2)
-          a3 = h2(a3 / C2);
-        return h2(n2 + (C2 + 1) * a3 / (a3 + t2));
+        for (a3 = m2 ? h3(a3 / d2) : a3 >> 1, a3 += h3(a3 / i2); a3 > C2 * o2 >> 1; n2 += s2)
+          a3 = h3(a3 / C2);
+        return h3(n2 + (C2 + 1) * a3 / (a3 + t2));
       }, E2 = function(a3) {
         const i2 = [], m2 = a3.length;
         let n2 = 0, r2 = y2, p2 = z2, j2 = a3.lastIndexOf(g2);
@@ -11945,16 +11945,16 @@ var require_psl = __commonJS({
           const k2 = n2;
           for (let l2 = 1, b5 = s2; ; b5 += s2) {
             u2 >= m2 && v2("invalid-input");
-            const w2 = J2(a3.charCodeAt(u2++));
-            w2 >= s2 && v2("invalid-input"), w2 > h2((e2 - n2) / l2) && v2("overflow"), n2 += w2 * l2;
+            const w3 = J2(a3.charCodeAt(u2++));
+            w3 >= s2 && v2("invalid-input"), w3 > h3((e2 - n2) / l2) && v2("overflow"), n2 += w3 * l2;
             const x2 = b5 <= p2 ? c3 : b5 >= p2 + o2 ? o2 : b5 - p2;
-            if (w2 < x2)
+            if (w3 < x2)
               break;
             const q3 = s2 - x2;
-            l2 > h2(e2 / q3) && v2("overflow"), l2 *= q3;
+            l2 > h3(e2 / q3) && v2("overflow"), l2 *= q3;
           }
           const f2 = i2.length + 1;
-          p2 = T2(n2 - k2, f2, k2 == 0), h2(n2 / f2) > e2 - r2 && v2("overflow"), r2 += h2(n2 / f2), n2 %= f2, i2.splice(n2++, 0, r2);
+          p2 = T2(n2 - k2, f2, k2 == 0), h3(n2 / f2) > e2 - r2 && v2("overflow"), r2 += h3(n2 / f2), n2 %= f2, i2.splice(n2++, 0, r2);
         }
         return String.fromCodePoint(...i2);
       }, B3 = function(a3) {
@@ -11971,16 +11971,16 @@ var require_psl = __commonJS({
           for (const l2 of a3)
             l2 >= n2 && l2 < k2 && (k2 = l2);
           const f2 = u2 + 1;
-          k2 - n2 > h2((e2 - r2) / f2) && v2("overflow"), r2 += (k2 - n2) * f2, n2 = k2;
+          k2 - n2 > h3((e2 - r2) / f2) && v2("overflow"), r2 += (k2 - n2) * f2, n2 = k2;
           for (const l2 of a3)
             if (l2 < n2 && ++r2 > e2 && v2("overflow"), l2 === n2) {
               let b5 = r2;
-              for (let w2 = s2; ; w2 += s2) {
-                const x2 = w2 <= p2 ? c3 : w2 >= p2 + o2 ? o2 : w2 - p2;
+              for (let w3 = s2; ; w3 += s2) {
+                const x2 = w3 <= p2 ? c3 : w3 >= p2 + o2 ? o2 : w3 - p2;
                 if (b5 < x2)
                   break;
                 const q3 = b5 - x2, M2 = s2 - x2;
-                i2.push(I2(D2(x2 + q3 % M2, 0))), b5 = h2(q3 / M2);
+                i2.push(I2(D2(x2 + q3 % M2, 0))), b5 = h3(q3 / M2);
               }
               i2.push(I2(D2(b5, 0))), p2 = T2(r2, f2, u2 === j2), r2 = 0, ++u2;
             }
@@ -12462,13 +12462,13 @@ var require_cookie = __commonJS({
     function formatDate(date) {
       var d2 = date.getUTCDate();
       d2 = d2 >= 10 ? d2 : "0" + d2;
-      var h2 = date.getUTCHours();
-      h2 = h2 >= 10 ? h2 : "0" + h2;
+      var h3 = date.getUTCHours();
+      h3 = h3 >= 10 ? h3 : "0" + h3;
       var m2 = date.getUTCMinutes();
       m2 = m2 >= 10 ? m2 : "0" + m2;
       var s2 = date.getUTCSeconds();
       s2 = s2 >= 10 ? s2 : "0" + s2;
-      return NUM_TO_DAY[date.getUTCDay()] + ", " + d2 + " " + NUM_TO_MONTH[date.getUTCMonth()] + " " + date.getUTCFullYear() + " " + h2 + ":" + m2 + ":" + s2 + " GMT";
+      return NUM_TO_DAY[date.getUTCDay()] + ", " + d2 + " " + NUM_TO_MONTH[date.getUTCMonth()] + " " + date.getUTCFullYear() + " " + h3 + ":" + m2 + ":" + s2 + " GMT";
     }
     function canonicalDomain(str) {
       if (str == null) {
@@ -12557,7 +12557,7 @@ var require_cookie = __commonJS({
       c3.value = cookieValue;
       return c3;
     }
-    function parse31(str, options) {
+    function parse29(str, options) {
       if (!options || typeof options !== "object") {
         options = {};
       }
@@ -12739,7 +12739,7 @@ var require_cookie = __commonJS({
       });
     }
     Cookie.cookiesCreated = 0;
-    Cookie.parse = parse31;
+    Cookie.parse = parse29;
     Cookie.fromJSON = fromJSON;
     Cookie.prototype.key = "";
     Cookie.prototype.value = "";
@@ -13296,7 +13296,7 @@ var require_cookie = __commonJS({
     exports2.MemoryCookieStore = MemoryCookieStore;
     exports2.parseDate = parseDate;
     exports2.formatDate = formatDate;
-    exports2.parse = parse31;
+    exports2.parse = parse29;
     exports2.fromJSON = fromJSON;
     exports2.domainMatch = domainMatch;
     exports2.defaultPath = defaultPath;
@@ -13495,7 +13495,7 @@ var require_helpers = __commonJS({
 var require_aws_sign2 = __commonJS({
   "../../node_modules/.pnpm/aws-sign2@0.7.0/node_modules/aws-sign2/index.js"(exports2, module2) {
     var crypto3 = require("crypto");
-    var parse31 = require("url").parse;
+    var parse29 = require("url").parse;
     var keys = [
       "acl",
       "location",
@@ -13561,7 +13561,7 @@ var require_aws_sign2 = __commonJS({
     }
     module2.exports.canonicalizeHeaders = canonicalizeHeaders;
     function canonicalizeResource(resource) {
-      var url = parse31(resource, true), path2 = url.pathname, buf = [];
+      var url = parse29(resource, true), path2 = url.pathname, buf = [];
       Object.keys(url.query).forEach(function(key) {
         if (!~keys.indexOf(key))
           return;
@@ -14907,35 +14907,35 @@ var require_jsbn = __commonJS({
       function nbi() {
         return new BigInteger(null);
       }
-      function am1(i2, x2, w2, j2, c3, n2) {
+      function am1(i2, x2, w3, j2, c3, n2) {
         while (--n2 >= 0) {
-          var v2 = x2 * this[i2++] + w2[j2] + c3;
+          var v2 = x2 * this[i2++] + w3[j2] + c3;
           c3 = Math.floor(v2 / 67108864);
-          w2[j2++] = v2 & 67108863;
+          w3[j2++] = v2 & 67108863;
         }
         return c3;
       }
-      function am2(i2, x2, w2, j2, c3, n2) {
+      function am2(i2, x2, w3, j2, c3, n2) {
         var xl = x2 & 32767, xh = x2 >> 15;
         while (--n2 >= 0) {
           var l2 = this[i2] & 32767;
-          var h2 = this[i2++] >> 15;
-          var m2 = xh * l2 + h2 * xl;
-          l2 = xl * l2 + ((m2 & 32767) << 15) + w2[j2] + (c3 & 1073741823);
-          c3 = (l2 >>> 30) + (m2 >>> 15) + xh * h2 + (c3 >>> 30);
-          w2[j2++] = l2 & 1073741823;
+          var h3 = this[i2++] >> 15;
+          var m2 = xh * l2 + h3 * xl;
+          l2 = xl * l2 + ((m2 & 32767) << 15) + w3[j2] + (c3 & 1073741823);
+          c3 = (l2 >>> 30) + (m2 >>> 15) + xh * h3 + (c3 >>> 30);
+          w3[j2++] = l2 & 1073741823;
         }
         return c3;
       }
-      function am3(i2, x2, w2, j2, c3, n2) {
+      function am3(i2, x2, w3, j2, c3, n2) {
         var xl = x2 & 16383, xh = x2 >> 14;
         while (--n2 >= 0) {
           var l2 = this[i2] & 16383;
-          var h2 = this[i2++] >> 14;
-          var m2 = xh * l2 + h2 * xl;
-          l2 = xl * l2 + ((m2 & 16383) << 14) + w2[j2] + c3;
-          c3 = (l2 >> 28) + (m2 >> 14) + xh * h2;
-          w2[j2++] = l2 & 268435455;
+          var h3 = this[i2++] >> 14;
+          var m2 = xh * l2 + h3 * xl;
+          l2 = xl * l2 + ((m2 & 16383) << 14) + w3[j2] + c3;
+          c3 = (l2 >> 28) + (m2 >> 14) + xh * h3;
+          w3[j2++] = l2 & 268435455;
         }
         return c3;
       }
@@ -15523,7 +15523,7 @@ var require_jsbn = __commonJS({
         if (b5 == null)
           b5 = 10;
         var cs = this.chunkSize(b5);
-        var d2 = Math.pow(b5, cs), mi = false, j2 = 0, w2 = 0;
+        var d2 = Math.pow(b5, cs), mi = false, j2 = 0, w3 = 0;
         for (var i2 = 0; i2 < s2.length; ++i2) {
           var x2 = intAt(s2, i2);
           if (x2 < 0) {
@@ -15531,17 +15531,17 @@ var require_jsbn = __commonJS({
               mi = true;
             continue;
           }
-          w2 = b5 * w2 + x2;
+          w3 = b5 * w3 + x2;
           if (++j2 >= cs) {
             this.dMultiply(d2);
-            this.dAddOffset(w2, 0);
+            this.dAddOffset(w3, 0);
             j2 = 0;
-            w2 = 0;
+            w3 = 0;
           }
         }
         if (j2 > 0) {
           this.dMultiply(Math.pow(b5, j2));
-          this.dAddOffset(w2, 0);
+          this.dAddOffset(w3, 0);
         }
         if (mi)
           BigInteger.ZERO.subTo(this, this);
@@ -15822,17 +15822,17 @@ var require_jsbn = __commonJS({
         ++this.t;
         this.clamp();
       }
-      function bnpDAddOffset(n2, w2) {
+      function bnpDAddOffset(n2, w3) {
         if (n2 == 0)
           return;
-        while (this.t <= w2)
+        while (this.t <= w3)
           this[this.t++] = 0;
-        this[w2] += n2;
-        while (this[w2] >= this.DV) {
-          this[w2] -= this.DV;
-          if (++w2 >= this.t)
+        this[w3] += n2;
+        while (this[w3] >= this.DV) {
+          this[w3] -= this.DV;
+          if (++w3 >= this.t)
             this[this.t++] = 0;
-          ++this[w2];
+          ++this[w3];
         }
       }
       function NullExp() {
@@ -15957,19 +15957,19 @@ var require_jsbn = __commonJS({
             n2 += 2;
           }
         }
-        var j2 = e2.t - 1, w2, is1 = true, r22 = nbi(), t3;
+        var j2 = e2.t - 1, w3, is1 = true, r22 = nbi(), t3;
         i2 = nbits(e2[j2]) - 1;
         while (j2 >= 0) {
           if (i2 >= k1)
-            w2 = e2[j2] >> i2 - k1 & km;
+            w3 = e2[j2] >> i2 - k1 & km;
           else {
-            w2 = (e2[j2] & (1 << i2 + 1) - 1) << k1 - i2;
+            w3 = (e2[j2] & (1 << i2 + 1) - 1) << k1 - i2;
             if (j2 > 0)
-              w2 |= e2[j2 - 1] >> this.DB + i2 - k1;
+              w3 |= e2[j2 - 1] >> this.DB + i2 - k1;
           }
           n2 = k2;
-          while ((w2 & 1) == 0) {
-            w2 >>= 1;
+          while ((w3 & 1) == 0) {
+            w3 >>= 1;
             --n2;
           }
           if ((i2 -= n2) < 0) {
@@ -15977,7 +15977,7 @@ var require_jsbn = __commonJS({
             --j2;
           }
           if (is1) {
-            g2[w2].copyTo(r2);
+            g2[w3].copyTo(r2);
             is1 = false;
           } else {
             while (n2 > 1) {
@@ -15992,7 +15992,7 @@ var require_jsbn = __commonJS({
               r2 = r22;
               r22 = t3;
             }
-            z3.mulTo(r22, g2[w2], r2);
+            z3.mulTo(r22, g2[w3], r2);
           }
           while (j2 >= 0 && (e2[j2] & 1 << i2) == 0) {
             z3.sqrTo(r2, r22);
@@ -16440,13 +16440,13 @@ var require_ec = __commonJS({
       var y1z1 = y1.multiply(this.z);
       var y1sqz1 = y1z1.multiply(y1).mod(this.curve.q);
       var a3 = this.curve.a.toBigInteger();
-      var w2 = x1.square().multiply(THREE);
+      var w3 = x1.square().multiply(THREE);
       if (!BigInteger.ZERO.equals(a3)) {
-        w2 = w2.add(this.z.square().multiply(a3));
+        w3 = w3.add(this.z.square().multiply(a3));
       }
-      w2 = w2.mod(this.curve.q);
-      var x3 = w2.square().subtract(x1.shiftLeft(3).multiply(y1sqz1)).shiftLeft(1).multiply(y1z1).mod(this.curve.q);
-      var y3 = w2.multiply(THREE).multiply(x1).subtract(y1sqz1.shiftLeft(1)).shiftLeft(2).multiply(y1sqz1).subtract(w2.square().multiply(w2)).mod(this.curve.q);
+      w3 = w3.mod(this.curve.q);
+      var x3 = w3.square().subtract(x1.shiftLeft(3).multiply(y1sqz1)).shiftLeft(1).multiply(y1z1).mod(this.curve.q);
+      var y3 = w3.multiply(THREE).multiply(x1).subtract(y1sqz1.shiftLeft(1)).shiftLeft(2).multiply(y1sqz1).subtract(w3.square().multiply(w3)).mod(this.curve.q);
       var z3 = y1z1.square().multiply(y1z1).shiftLeft(3).mod(this.curve.q);
       return new ECPointFp(this.curve, this.curve.fromBigInteger(x3), this.curve.fromBigInteger(y3), z3);
     }
@@ -16456,13 +16456,13 @@ var require_ec = __commonJS({
       if (k2.signum() == 0)
         return this.curve.getInfinity();
       var e2 = k2;
-      var h2 = e2.multiply(new BigInteger("3"));
+      var h3 = e2.multiply(new BigInteger("3"));
       var neg = this.negate();
       var R3 = this;
       var i2;
-      for (i2 = h2.bitLength() - 2; i2 > 0; --i2) {
+      for (i2 = h3.bitLength() - 2; i2 > 0; --i2) {
         R3 = R3.twice();
-        var hBit = h2.testBit(i2);
+        var hBit = h3.testBit(i2);
         var eBit = e2.testBit(i2);
         if (hBit != eBit) {
           R3 = R3.add(hBit ? this : neg);
@@ -16743,11 +16743,11 @@ var require_nacl_fast = __commonJS({
       var _9 = new Uint8Array(32);
       _9[0] = 9;
       var gf0 = gf(), gf1 = gf([1]), _121665 = gf([56129, 1]), D2 = gf([30883, 4953, 19914, 30187, 55467, 16705, 2637, 112, 59544, 30585, 16505, 36039, 65139, 11119, 27886, 20995]), D22 = gf([61785, 9906, 39828, 60374, 45398, 33411, 5274, 224, 53552, 61171, 33010, 6542, 64743, 22239, 55772, 9222]), X2 = gf([54554, 36645, 11616, 51542, 42930, 38181, 51040, 26924, 56412, 64982, 57905, 49316, 21502, 52590, 14035, 8553]), Y2 = gf([26200, 26214, 26214, 26214, 26214, 26214, 26214, 26214, 26214, 26214, 26214, 26214, 26214, 26214, 26214, 26214]), I2 = gf([41136, 18958, 6951, 50414, 58488, 44335, 6150, 12099, 55207, 15867, 153, 11085, 57099, 20417, 9344, 11139]);
-      function ts64(x2, i2, h2, l2) {
-        x2[i2] = h2 >> 24 & 255;
-        x2[i2 + 1] = h2 >> 16 & 255;
-        x2[i2 + 2] = h2 >> 8 & 255;
-        x2[i2 + 3] = h2 & 255;
+      function ts64(x2, i2, h3, l2) {
+        x2[i2] = h3 >> 24 & 255;
+        x2[i2 + 1] = h3 >> 16 & 255;
+        x2[i2 + 2] = h3 >> 8 & 255;
+        x2[i2 + 3] = h3 & 255;
         x2[i2 + 4] = l2 >> 24 & 255;
         x2[i2 + 5] = l2 >> 16 & 255;
         x2[i2 + 6] = l2 >> 8 & 255;
@@ -17134,7 +17134,7 @@ var require_nacl_fast = __commonJS({
         var hibit = this.fin ? 0 : 1 << 11;
         var t0, t1, t2, t3, t4, t5, t6, t7, c3;
         var d0, d1, d2, d3, d4, d5, d6, d7, d8, d9;
-        var h0 = this.h[0], h1 = this.h[1], h2 = this.h[2], h3 = this.h[3], h4 = this.h[4], h5 = this.h[5], h6 = this.h[6], h7 = this.h[7], h8 = this.h[8], h9 = this.h[9];
+        var h0 = this.h[0], h1 = this.h[1], h22 = this.h[2], h3 = this.h[3], h4 = this.h[4], h5 = this.h[5], h6 = this.h[6], h7 = this.h[7], h8 = this.h[8], h9 = this.h[9];
         var r0 = this.r[0], r1 = this.r[1], r2 = this.r[2], r3 = this.r[3], r4 = this.r[4], r5 = this.r[5], r6 = this.r[6], r7 = this.r[7], r8 = this.r[8], r9 = this.r[9];
         while (bytes >= 16) {
           t0 = m2[mpos + 0] & 255 | (m2[mpos + 1] & 255) << 8;
@@ -17142,7 +17142,7 @@ var require_nacl_fast = __commonJS({
           t1 = m2[mpos + 2] & 255 | (m2[mpos + 3] & 255) << 8;
           h1 += (t0 >>> 13 | t1 << 3) & 8191;
           t2 = m2[mpos + 4] & 255 | (m2[mpos + 5] & 255) << 8;
-          h2 += (t1 >>> 10 | t2 << 6) & 8191;
+          h22 += (t1 >>> 10 | t2 << 6) & 8191;
           t3 = m2[mpos + 6] & 255 | (m2[mpos + 7] & 255) << 8;
           h3 += (t2 >>> 7 | t3 << 9) & 8191;
           t4 = m2[mpos + 8] & 255 | (m2[mpos + 9] & 255) << 8;
@@ -17159,7 +17159,7 @@ var require_nacl_fast = __commonJS({
           d0 = c3;
           d0 += h0 * r0;
           d0 += h1 * (5 * r9);
-          d0 += h2 * (5 * r8);
+          d0 += h22 * (5 * r8);
           d0 += h3 * (5 * r7);
           d0 += h4 * (5 * r6);
           c3 = d0 >>> 13;
@@ -17174,7 +17174,7 @@ var require_nacl_fast = __commonJS({
           d1 = c3;
           d1 += h0 * r1;
           d1 += h1 * r0;
-          d1 += h2 * (5 * r9);
+          d1 += h22 * (5 * r9);
           d1 += h3 * (5 * r8);
           d1 += h4 * (5 * r7);
           c3 = d1 >>> 13;
@@ -17189,7 +17189,7 @@ var require_nacl_fast = __commonJS({
           d2 = c3;
           d2 += h0 * r2;
           d2 += h1 * r1;
-          d2 += h2 * r0;
+          d2 += h22 * r0;
           d2 += h3 * (5 * r9);
           d2 += h4 * (5 * r8);
           c3 = d2 >>> 13;
@@ -17204,7 +17204,7 @@ var require_nacl_fast = __commonJS({
           d3 = c3;
           d3 += h0 * r3;
           d3 += h1 * r2;
-          d3 += h2 * r1;
+          d3 += h22 * r1;
           d3 += h3 * r0;
           d3 += h4 * (5 * r9);
           c3 = d3 >>> 13;
@@ -17219,7 +17219,7 @@ var require_nacl_fast = __commonJS({
           d4 = c3;
           d4 += h0 * r4;
           d4 += h1 * r3;
-          d4 += h2 * r2;
+          d4 += h22 * r2;
           d4 += h3 * r1;
           d4 += h4 * r0;
           c3 = d4 >>> 13;
@@ -17234,7 +17234,7 @@ var require_nacl_fast = __commonJS({
           d5 = c3;
           d5 += h0 * r5;
           d5 += h1 * r4;
-          d5 += h2 * r3;
+          d5 += h22 * r3;
           d5 += h3 * r2;
           d5 += h4 * r1;
           c3 = d5 >>> 13;
@@ -17249,7 +17249,7 @@ var require_nacl_fast = __commonJS({
           d6 = c3;
           d6 += h0 * r6;
           d6 += h1 * r5;
-          d6 += h2 * r4;
+          d6 += h22 * r4;
           d6 += h3 * r3;
           d6 += h4 * r2;
           c3 = d6 >>> 13;
@@ -17264,7 +17264,7 @@ var require_nacl_fast = __commonJS({
           d7 = c3;
           d7 += h0 * r7;
           d7 += h1 * r6;
-          d7 += h2 * r5;
+          d7 += h22 * r5;
           d7 += h3 * r4;
           d7 += h4 * r3;
           c3 = d7 >>> 13;
@@ -17279,7 +17279,7 @@ var require_nacl_fast = __commonJS({
           d8 = c3;
           d8 += h0 * r8;
           d8 += h1 * r7;
-          d8 += h2 * r6;
+          d8 += h22 * r6;
           d8 += h3 * r5;
           d8 += h4 * r4;
           c3 = d8 >>> 13;
@@ -17294,7 +17294,7 @@ var require_nacl_fast = __commonJS({
           d9 = c3;
           d9 += h0 * r9;
           d9 += h1 * r8;
-          d9 += h2 * r7;
+          d9 += h22 * r7;
           d9 += h3 * r6;
           d9 += h4 * r5;
           c3 = d9 >>> 13;
@@ -17313,7 +17313,7 @@ var require_nacl_fast = __commonJS({
           d1 += c3;
           h0 = d0;
           h1 = d1;
-          h2 = d2;
+          h22 = d2;
           h3 = d3;
           h4 = d4;
           h5 = d5;
@@ -17326,7 +17326,7 @@ var require_nacl_fast = __commonJS({
         }
         this.h[0] = h0;
         this.h[1] = h1;
-        this.h[2] = h2;
+        this.h[2] = h22;
         this.h[3] = h3;
         this.h[4] = h4;
         this.h[5] = h5;
@@ -17440,10 +17440,10 @@ var require_nacl_fast = __commonJS({
         s2.finish(out, outpos);
         return 0;
       }
-      function crypto_onetimeauth_verify(h2, hpos, m2, mpos, n2, k2) {
+      function crypto_onetimeauth_verify(h3, hpos, m2, mpos, n2, k2) {
         var x2 = new Uint8Array(16);
         crypto_onetimeauth(x2, 0, m2, mpos, n2, k2);
-        return crypto_verify_16(h2, hpos, x2, 0);
+        return crypto_verify_16(h3, hpos, x2, 0);
       }
       function crypto_secretbox(c3, m2, d2, n2, k2) {
         var i2;
@@ -18213,7 +18213,7 @@ var require_nacl_fast = __commonJS({
         1246189591
       ];
       function crypto_hashblocks_hl(hh, hl, m2, n2) {
-        var wh = new Int32Array(16), wl = new Int32Array(16), bh0, bh1, bh2, bh3, bh4, bh5, bh6, bh7, bl0, bl1, bl2, bl3, bl4, bl5, bl6, bl7, th, tl, i2, j2, h2, l2, a3, b5, c3, d2;
+        var wh = new Int32Array(16), wl = new Int32Array(16), bh0, bh1, bh2, bh3, bh4, bh5, bh6, bh7, bl0, bl1, bl2, bl3, bl4, bl5, bl6, bl7, th, tl, i2, j2, h3, l2, a3, b5, c3, d2;
         var ah0 = hh[0], ah1 = hh[1], ah2 = hh[2], ah3 = hh[3], ah4 = hh[4], ah5 = hh[5], ah6 = hh[6], ah7 = hh[7], al0 = hl[0], al1 = hl[1], al2 = hl[2], al3 = hl[3], al4 = hl[4], al5 = hl[5], al6 = hl[6], al7 = hl[7];
         var pos = 0;
         while (n2 >= 128) {
@@ -18239,76 +18239,76 @@ var require_nacl_fast = __commonJS({
             bl5 = al5;
             bl6 = al6;
             bl7 = al7;
-            h2 = ah7;
+            h3 = ah7;
             l2 = al7;
             a3 = l2 & 65535;
             b5 = l2 >>> 16;
-            c3 = h2 & 65535;
-            d2 = h2 >>> 16;
-            h2 = (ah4 >>> 14 | al4 << 32 - 14) ^ (ah4 >>> 18 | al4 << 32 - 18) ^ (al4 >>> 41 - 32 | ah4 << 32 - (41 - 32));
+            c3 = h3 & 65535;
+            d2 = h3 >>> 16;
+            h3 = (ah4 >>> 14 | al4 << 32 - 14) ^ (ah4 >>> 18 | al4 << 32 - 18) ^ (al4 >>> 41 - 32 | ah4 << 32 - (41 - 32));
             l2 = (al4 >>> 14 | ah4 << 32 - 14) ^ (al4 >>> 18 | ah4 << 32 - 18) ^ (ah4 >>> 41 - 32 | al4 << 32 - (41 - 32));
             a3 += l2 & 65535;
             b5 += l2 >>> 16;
-            c3 += h2 & 65535;
-            d2 += h2 >>> 16;
-            h2 = ah4 & ah5 ^ ~ah4 & ah6;
+            c3 += h3 & 65535;
+            d2 += h3 >>> 16;
+            h3 = ah4 & ah5 ^ ~ah4 & ah6;
             l2 = al4 & al5 ^ ~al4 & al6;
             a3 += l2 & 65535;
             b5 += l2 >>> 16;
-            c3 += h2 & 65535;
-            d2 += h2 >>> 16;
-            h2 = K2[i2 * 2];
+            c3 += h3 & 65535;
+            d2 += h3 >>> 16;
+            h3 = K2[i2 * 2];
             l2 = K2[i2 * 2 + 1];
             a3 += l2 & 65535;
             b5 += l2 >>> 16;
-            c3 += h2 & 65535;
-            d2 += h2 >>> 16;
-            h2 = wh[i2 % 16];
+            c3 += h3 & 65535;
+            d2 += h3 >>> 16;
+            h3 = wh[i2 % 16];
             l2 = wl[i2 % 16];
             a3 += l2 & 65535;
             b5 += l2 >>> 16;
-            c3 += h2 & 65535;
-            d2 += h2 >>> 16;
+            c3 += h3 & 65535;
+            d2 += h3 >>> 16;
             b5 += a3 >>> 16;
             c3 += b5 >>> 16;
             d2 += c3 >>> 16;
             th = c3 & 65535 | d2 << 16;
             tl = a3 & 65535 | b5 << 16;
-            h2 = th;
+            h3 = th;
             l2 = tl;
             a3 = l2 & 65535;
             b5 = l2 >>> 16;
-            c3 = h2 & 65535;
-            d2 = h2 >>> 16;
-            h2 = (ah0 >>> 28 | al0 << 32 - 28) ^ (al0 >>> 34 - 32 | ah0 << 32 - (34 - 32)) ^ (al0 >>> 39 - 32 | ah0 << 32 - (39 - 32));
+            c3 = h3 & 65535;
+            d2 = h3 >>> 16;
+            h3 = (ah0 >>> 28 | al0 << 32 - 28) ^ (al0 >>> 34 - 32 | ah0 << 32 - (34 - 32)) ^ (al0 >>> 39 - 32 | ah0 << 32 - (39 - 32));
             l2 = (al0 >>> 28 | ah0 << 32 - 28) ^ (ah0 >>> 34 - 32 | al0 << 32 - (34 - 32)) ^ (ah0 >>> 39 - 32 | al0 << 32 - (39 - 32));
             a3 += l2 & 65535;
             b5 += l2 >>> 16;
-            c3 += h2 & 65535;
-            d2 += h2 >>> 16;
-            h2 = ah0 & ah1 ^ ah0 & ah2 ^ ah1 & ah2;
+            c3 += h3 & 65535;
+            d2 += h3 >>> 16;
+            h3 = ah0 & ah1 ^ ah0 & ah2 ^ ah1 & ah2;
             l2 = al0 & al1 ^ al0 & al2 ^ al1 & al2;
             a3 += l2 & 65535;
             b5 += l2 >>> 16;
-            c3 += h2 & 65535;
-            d2 += h2 >>> 16;
+            c3 += h3 & 65535;
+            d2 += h3 >>> 16;
             b5 += a3 >>> 16;
             c3 += b5 >>> 16;
             d2 += c3 >>> 16;
             bh7 = c3 & 65535 | d2 << 16;
             bl7 = a3 & 65535 | b5 << 16;
-            h2 = bh3;
+            h3 = bh3;
             l2 = bl3;
             a3 = l2 & 65535;
             b5 = l2 >>> 16;
-            c3 = h2 & 65535;
-            d2 = h2 >>> 16;
-            h2 = th;
+            c3 = h3 & 65535;
+            d2 = h3 >>> 16;
+            h3 = th;
             l2 = tl;
             a3 += l2 & 65535;
             b5 += l2 >>> 16;
-            c3 += h2 & 65535;
-            d2 += h2 >>> 16;
+            c3 += h3 & 65535;
+            d2 += h3 >>> 16;
             b5 += a3 >>> 16;
             c3 += b5 >>> 16;
             d2 += c3 >>> 16;
@@ -18332,34 +18332,34 @@ var require_nacl_fast = __commonJS({
             al0 = bl7;
             if (i2 % 16 === 15) {
               for (j2 = 0; j2 < 16; j2++) {
-                h2 = wh[j2];
+                h3 = wh[j2];
                 l2 = wl[j2];
                 a3 = l2 & 65535;
                 b5 = l2 >>> 16;
-                c3 = h2 & 65535;
-                d2 = h2 >>> 16;
-                h2 = wh[(j2 + 9) % 16];
+                c3 = h3 & 65535;
+                d2 = h3 >>> 16;
+                h3 = wh[(j2 + 9) % 16];
                 l2 = wl[(j2 + 9) % 16];
                 a3 += l2 & 65535;
                 b5 += l2 >>> 16;
-                c3 += h2 & 65535;
-                d2 += h2 >>> 16;
+                c3 += h3 & 65535;
+                d2 += h3 >>> 16;
                 th = wh[(j2 + 1) % 16];
                 tl = wl[(j2 + 1) % 16];
-                h2 = (th >>> 1 | tl << 32 - 1) ^ (th >>> 8 | tl << 32 - 8) ^ th >>> 7;
+                h3 = (th >>> 1 | tl << 32 - 1) ^ (th >>> 8 | tl << 32 - 8) ^ th >>> 7;
                 l2 = (tl >>> 1 | th << 32 - 1) ^ (tl >>> 8 | th << 32 - 8) ^ (tl >>> 7 | th << 32 - 7);
                 a3 += l2 & 65535;
                 b5 += l2 >>> 16;
-                c3 += h2 & 65535;
-                d2 += h2 >>> 16;
+                c3 += h3 & 65535;
+                d2 += h3 >>> 16;
                 th = wh[(j2 + 14) % 16];
                 tl = wl[(j2 + 14) % 16];
-                h2 = (th >>> 19 | tl << 32 - 19) ^ (tl >>> 61 - 32 | th << 32 - (61 - 32)) ^ th >>> 6;
+                h3 = (th >>> 19 | tl << 32 - 19) ^ (tl >>> 61 - 32 | th << 32 - (61 - 32)) ^ th >>> 6;
                 l2 = (tl >>> 19 | th << 32 - 19) ^ (th >>> 61 - 32 | tl << 32 - (61 - 32)) ^ (tl >>> 6 | th << 32 - 6);
                 a3 += l2 & 65535;
                 b5 += l2 >>> 16;
-                c3 += h2 & 65535;
-                d2 += h2 >>> 16;
+                c3 += h3 & 65535;
+                d2 += h3 >>> 16;
                 b5 += a3 >>> 16;
                 c3 += b5 >>> 16;
                 d2 += c3 >>> 16;
@@ -18368,137 +18368,137 @@ var require_nacl_fast = __commonJS({
               }
             }
           }
-          h2 = ah0;
+          h3 = ah0;
           l2 = al0;
           a3 = l2 & 65535;
           b5 = l2 >>> 16;
-          c3 = h2 & 65535;
-          d2 = h2 >>> 16;
-          h2 = hh[0];
+          c3 = h3 & 65535;
+          d2 = h3 >>> 16;
+          h3 = hh[0];
           l2 = hl[0];
           a3 += l2 & 65535;
           b5 += l2 >>> 16;
-          c3 += h2 & 65535;
-          d2 += h2 >>> 16;
+          c3 += h3 & 65535;
+          d2 += h3 >>> 16;
           b5 += a3 >>> 16;
           c3 += b5 >>> 16;
           d2 += c3 >>> 16;
           hh[0] = ah0 = c3 & 65535 | d2 << 16;
           hl[0] = al0 = a3 & 65535 | b5 << 16;
-          h2 = ah1;
+          h3 = ah1;
           l2 = al1;
           a3 = l2 & 65535;
           b5 = l2 >>> 16;
-          c3 = h2 & 65535;
-          d2 = h2 >>> 16;
-          h2 = hh[1];
+          c3 = h3 & 65535;
+          d2 = h3 >>> 16;
+          h3 = hh[1];
           l2 = hl[1];
           a3 += l2 & 65535;
           b5 += l2 >>> 16;
-          c3 += h2 & 65535;
-          d2 += h2 >>> 16;
+          c3 += h3 & 65535;
+          d2 += h3 >>> 16;
           b5 += a3 >>> 16;
           c3 += b5 >>> 16;
           d2 += c3 >>> 16;
           hh[1] = ah1 = c3 & 65535 | d2 << 16;
           hl[1] = al1 = a3 & 65535 | b5 << 16;
-          h2 = ah2;
+          h3 = ah2;
           l2 = al2;
           a3 = l2 & 65535;
           b5 = l2 >>> 16;
-          c3 = h2 & 65535;
-          d2 = h2 >>> 16;
-          h2 = hh[2];
+          c3 = h3 & 65535;
+          d2 = h3 >>> 16;
+          h3 = hh[2];
           l2 = hl[2];
           a3 += l2 & 65535;
           b5 += l2 >>> 16;
-          c3 += h2 & 65535;
-          d2 += h2 >>> 16;
+          c3 += h3 & 65535;
+          d2 += h3 >>> 16;
           b5 += a3 >>> 16;
           c3 += b5 >>> 16;
           d2 += c3 >>> 16;
           hh[2] = ah2 = c3 & 65535 | d2 << 16;
           hl[2] = al2 = a3 & 65535 | b5 << 16;
-          h2 = ah3;
+          h3 = ah3;
           l2 = al3;
           a3 = l2 & 65535;
           b5 = l2 >>> 16;
-          c3 = h2 & 65535;
-          d2 = h2 >>> 16;
-          h2 = hh[3];
+          c3 = h3 & 65535;
+          d2 = h3 >>> 16;
+          h3 = hh[3];
           l2 = hl[3];
           a3 += l2 & 65535;
           b5 += l2 >>> 16;
-          c3 += h2 & 65535;
-          d2 += h2 >>> 16;
+          c3 += h3 & 65535;
+          d2 += h3 >>> 16;
           b5 += a3 >>> 16;
           c3 += b5 >>> 16;
           d2 += c3 >>> 16;
           hh[3] = ah3 = c3 & 65535 | d2 << 16;
           hl[3] = al3 = a3 & 65535 | b5 << 16;
-          h2 = ah4;
+          h3 = ah4;
           l2 = al4;
           a3 = l2 & 65535;
           b5 = l2 >>> 16;
-          c3 = h2 & 65535;
-          d2 = h2 >>> 16;
-          h2 = hh[4];
+          c3 = h3 & 65535;
+          d2 = h3 >>> 16;
+          h3 = hh[4];
           l2 = hl[4];
           a3 += l2 & 65535;
           b5 += l2 >>> 16;
-          c3 += h2 & 65535;
-          d2 += h2 >>> 16;
+          c3 += h3 & 65535;
+          d2 += h3 >>> 16;
           b5 += a3 >>> 16;
           c3 += b5 >>> 16;
           d2 += c3 >>> 16;
           hh[4] = ah4 = c3 & 65535 | d2 << 16;
           hl[4] = al4 = a3 & 65535 | b5 << 16;
-          h2 = ah5;
+          h3 = ah5;
           l2 = al5;
           a3 = l2 & 65535;
           b5 = l2 >>> 16;
-          c3 = h2 & 65535;
-          d2 = h2 >>> 16;
-          h2 = hh[5];
+          c3 = h3 & 65535;
+          d2 = h3 >>> 16;
+          h3 = hh[5];
           l2 = hl[5];
           a3 += l2 & 65535;
           b5 += l2 >>> 16;
-          c3 += h2 & 65535;
-          d2 += h2 >>> 16;
+          c3 += h3 & 65535;
+          d2 += h3 >>> 16;
           b5 += a3 >>> 16;
           c3 += b5 >>> 16;
           d2 += c3 >>> 16;
           hh[5] = ah5 = c3 & 65535 | d2 << 16;
           hl[5] = al5 = a3 & 65535 | b5 << 16;
-          h2 = ah6;
+          h3 = ah6;
           l2 = al6;
           a3 = l2 & 65535;
           b5 = l2 >>> 16;
-          c3 = h2 & 65535;
-          d2 = h2 >>> 16;
-          h2 = hh[6];
+          c3 = h3 & 65535;
+          d2 = h3 >>> 16;
+          h3 = hh[6];
           l2 = hl[6];
           a3 += l2 & 65535;
           b5 += l2 >>> 16;
-          c3 += h2 & 65535;
-          d2 += h2 >>> 16;
+          c3 += h3 & 65535;
+          d2 += h3 >>> 16;
           b5 += a3 >>> 16;
           c3 += b5 >>> 16;
           d2 += c3 >>> 16;
           hh[6] = ah6 = c3 & 65535 | d2 << 16;
           hl[6] = al6 = a3 & 65535 | b5 << 16;
-          h2 = ah7;
+          h3 = ah7;
           l2 = al7;
           a3 = l2 & 65535;
           b5 = l2 >>> 16;
-          c3 = h2 & 65535;
-          d2 = h2 >>> 16;
-          h2 = hh[7];
+          c3 = h3 & 65535;
+          d2 = h3 >>> 16;
+          h3 = hh[7];
           l2 = hl[7];
           a3 += l2 & 65535;
           b5 += l2 >>> 16;
-          c3 += h2 & 65535;
-          d2 += h2 >>> 16;
+          c3 += h3 & 65535;
+          d2 += h3 >>> 16;
           b5 += a3 >>> 16;
           c3 += b5 >>> 16;
           d2 += c3 >>> 16;
@@ -18541,7 +18541,7 @@ var require_nacl_fast = __commonJS({
         return 0;
       }
       function add(p2, q3) {
-        var a3 = gf(), b5 = gf(), c3 = gf(), d2 = gf(), e2 = gf(), f2 = gf(), g2 = gf(), h2 = gf(), t2 = gf();
+        var a3 = gf(), b5 = gf(), c3 = gf(), d2 = gf(), e2 = gf(), f2 = gf(), g2 = gf(), h3 = gf(), t2 = gf();
         Z2(a3, p2[1], p2[0]);
         Z2(t2, q3[1], q3[0]);
         M2(a3, a3, t2);
@@ -18555,11 +18555,11 @@ var require_nacl_fast = __commonJS({
         Z2(e2, b5, a3);
         Z2(f2, d2, c3);
         A3(g2, d2, c3);
-        A3(h2, b5, a3);
+        A3(h3, b5, a3);
         M2(p2[0], e2, f2);
-        M2(p2[1], h2, g2);
+        M2(p2[1], h3, g2);
         M2(p2[2], g2, f2);
-        M2(p2[3], e2, h2);
+        M2(p2[3], e2, h3);
       }
       function cswap(p2, q3, b5) {
         var i2;
@@ -18648,7 +18648,7 @@ var require_nacl_fast = __commonJS({
         modL(r2, x2);
       }
       function crypto_sign(sm, m2, n2, sk) {
-        var d2 = new Uint8Array(64), h2 = new Uint8Array(64), r2 = new Uint8Array(64);
+        var d2 = new Uint8Array(64), h3 = new Uint8Array(64), r2 = new Uint8Array(64);
         var i2, j2, x2 = new Float64Array(64);
         var p2 = [gf(), gf(), gf(), gf()];
         crypto_hash(d2, sk, 32);
@@ -18666,15 +18666,15 @@ var require_nacl_fast = __commonJS({
         pack(sm, p2);
         for (i2 = 32; i2 < 64; i2++)
           sm[i2] = sk[i2];
-        crypto_hash(h2, sm, n2 + 64);
-        reduce(h2);
+        crypto_hash(h3, sm, n2 + 64);
+        reduce(h3);
         for (i2 = 0; i2 < 64; i2++)
           x2[i2] = 0;
         for (i2 = 0; i2 < 32; i2++)
           x2[i2] = r2[i2];
         for (i2 = 0; i2 < 32; i2++) {
           for (j2 = 0; j2 < 32; j2++) {
-            x2[i2 + j2] += h2[i2] * d2[j2];
+            x2[i2 + j2] += h3[i2] * d2[j2];
           }
         }
         modL(sm.subarray(32), x2);
@@ -18713,7 +18713,7 @@ var require_nacl_fast = __commonJS({
       }
       function crypto_sign_open(m2, sm, n2, pk) {
         var i2, mlen;
-        var t2 = new Uint8Array(32), h2 = new Uint8Array(64);
+        var t2 = new Uint8Array(32), h3 = new Uint8Array(64);
         var p2 = [gf(), gf(), gf(), gf()], q3 = [gf(), gf(), gf(), gf()];
         mlen = -1;
         if (n2 < 64)
@@ -18724,9 +18724,9 @@ var require_nacl_fast = __commonJS({
           m2[i2] = sm[i2];
         for (i2 = 0; i2 < 32; i2++)
           m2[i2 + 32] = pk[i2];
-        crypto_hash(h2, m2, n2);
-        reduce(h2);
-        scalarmult(p2, q3, h2);
+        crypto_hash(h3, m2, n2);
+        reduce(h3);
+        scalarmult(p2, q3, h3);
         scalarbase(q3, sm.subarray(32));
         add(p2, q3);
         pack(t2, p2);
@@ -18976,9 +18976,9 @@ var require_nacl_fast = __commonJS({
       nacl.sign.signatureLength = crypto_sign_BYTES;
       nacl.hash = function(msg) {
         checkArrayTypes(msg);
-        var h2 = new Uint8Array(crypto_hash_BYTES);
-        crypto_hash(h2, msg, msg.length);
-        return h2;
+        var h3 = new Uint8Array(crypto_hash_BYTES);
+        crypto_hash(h3, msg, msg.length);
+        return h3;
       };
       nacl.hash.hashLength = crypto_hash_BYTES;
       nacl.verify = function(x2, y2) {
@@ -19797,11 +19797,11 @@ var require_sec = __commonJS({
   "../../node_modules/.pnpm/ecc-jsbn@0.1.2/node_modules/ecc-jsbn/lib/sec.js"(exports2, module2) {
     var BigInteger = require_jsbn().BigInteger;
     var ECCurveFp = require_ec().ECCurveFp;
-    function X9ECParameters(curve, g2, n2, h2) {
+    function X9ECParameters(curve, g2, n2, h3) {
       this.curve = curve;
       this.g = g2;
       this.n = n2;
-      this.h = h2;
+      this.h = h3;
     }
     function x9getCurve() {
       return this.curve;
@@ -19827,70 +19827,70 @@ var require_sec = __commonJS({
       var a3 = fromHex("FFFFFFFDFFFFFFFFFFFFFFFFFFFFFFFC");
       var b5 = fromHex("E87579C11079F43DD824993C2CEE5ED3");
       var n2 = fromHex("FFFFFFFE0000000075A30D1B9038A115");
-      var h2 = BigInteger.ONE;
+      var h3 = BigInteger.ONE;
       var curve = new ECCurveFp(p2, a3, b5);
       var G3 = curve.decodePointHex("04161FF7528B899B2D0C28607CA52C5B86CF5AC8395BAFEB13C02DA292DDED7A83");
-      return new X9ECParameters(curve, G3, n2, h2);
+      return new X9ECParameters(curve, G3, n2, h3);
     }
     function secp160k1() {
       var p2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFAC73");
       var a3 = BigInteger.ZERO;
       var b5 = fromHex("7");
       var n2 = fromHex("0100000000000000000001B8FA16DFAB9ACA16B6B3");
-      var h2 = BigInteger.ONE;
+      var h3 = BigInteger.ONE;
       var curve = new ECCurveFp(p2, a3, b5);
       var G3 = curve.decodePointHex("043B4C382CE37AA192A4019E763036F4F5DD4D7EBB938CF935318FDCED6BC28286531733C3F03C4FEE");
-      return new X9ECParameters(curve, G3, n2, h2);
+      return new X9ECParameters(curve, G3, n2, h3);
     }
     function secp160r1() {
       var p2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7FFFFFFF");
       var a3 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7FFFFFFC");
       var b5 = fromHex("1C97BEFC54BD7A8B65ACF89F81D4D4ADC565FA45");
       var n2 = fromHex("0100000000000000000001F4C8F927AED3CA752257");
-      var h2 = BigInteger.ONE;
+      var h3 = BigInteger.ONE;
       var curve = new ECCurveFp(p2, a3, b5);
       var G3 = curve.decodePointHex("044A96B5688EF573284664698968C38BB913CBFC8223A628553168947D59DCC912042351377AC5FB32");
-      return new X9ECParameters(curve, G3, n2, h2);
+      return new X9ECParameters(curve, G3, n2, h3);
     }
     function secp192k1() {
       var p2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFEE37");
       var a3 = BigInteger.ZERO;
       var b5 = fromHex("3");
       var n2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFE26F2FC170F69466A74DEFD8D");
-      var h2 = BigInteger.ONE;
+      var h3 = BigInteger.ONE;
       var curve = new ECCurveFp(p2, a3, b5);
       var G3 = curve.decodePointHex("04DB4FF10EC057E9AE26B07D0280B7F4341DA5D1B1EAE06C7D9B2F2F6D9C5628A7844163D015BE86344082AA88D95E2F9D");
-      return new X9ECParameters(curve, G3, n2, h2);
+      return new X9ECParameters(curve, G3, n2, h3);
     }
     function secp192r1() {
       var p2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFFF");
       var a3 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFFC");
       var b5 = fromHex("64210519E59C80E70FA7E9AB72243049FEB8DEECC146B9B1");
       var n2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFF99DEF836146BC9B1B4D22831");
-      var h2 = BigInteger.ONE;
+      var h3 = BigInteger.ONE;
       var curve = new ECCurveFp(p2, a3, b5);
       var G3 = curve.decodePointHex("04188DA80EB03090F67CBF20EB43A18800F4FF0AFD82FF101207192B95FFC8DA78631011ED6B24CDD573F977A11E794811");
-      return new X9ECParameters(curve, G3, n2, h2);
+      return new X9ECParameters(curve, G3, n2, h3);
     }
     function secp224r1() {
       var p2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000000000000000000001");
       var a3 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFE");
       var b5 = fromHex("B4050A850C04B3ABF54132565044B0B7D7BFD8BA270B39432355FFB4");
       var n2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFF16A2E0B8F03E13DD29455C5C2A3D");
-      var h2 = BigInteger.ONE;
+      var h3 = BigInteger.ONE;
       var curve = new ECCurveFp(p2, a3, b5);
       var G3 = curve.decodePointHex("04B70E0CBD6BB4BF7F321390B94A03C1D356C21122343280D6115C1D21BD376388B5F723FB4C22DFE6CD4375A05A07476444D5819985007E34");
-      return new X9ECParameters(curve, G3, n2, h2);
+      return new X9ECParameters(curve, G3, n2, h3);
     }
     function secp256r1() {
       var p2 = fromHex("FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFF");
       var a3 = fromHex("FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFC");
       var b5 = fromHex("5AC635D8AA3A93E7B3EBBD55769886BC651D06B0CC53B0F63BCE3C3E27D2604B");
       var n2 = fromHex("FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551");
-      var h2 = BigInteger.ONE;
+      var h3 = BigInteger.ONE;
       var curve = new ECCurveFp(p2, a3, b5);
       var G3 = curve.decodePointHex("046B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C2964FE342E2FE1A7F9B8EE7EB4A7C0F9E162BCE33576B315ECECBB6406837BF51F5");
-      return new X9ECParameters(curve, G3, n2, h2);
+      return new X9ECParameters(curve, G3, n2, h3);
     }
     module2.exports = {
       "secp128r1": secp128r1,
@@ -20207,13 +20207,13 @@ var require_dhe = __commonJS({
       var a3 = new jsbn(params.a);
       var b5 = new jsbn(params.b);
       var n2 = new jsbn(params.n);
-      var h2 = jsbn.ONE;
+      var h3 = jsbn.ONE;
       var curve = new ec.ECCurveFp(p2, a3, b5);
       var G3 = curve.decodePointHex(params.G.toString("hex"));
       this.curve = curve;
       this.g = G3;
       this.n = n2;
-      this.h = h2;
+      this.h = h3;
     }
     X9ECParameters.prototype.getCurve = function() {
       return this.curve;
@@ -20869,11 +20869,11 @@ var require_pkcs8 = __commonJS({
         der.endSequence();
         der.writeBuffer(curve.G, asn1.Ber.OctetString);
         der.writeBuffer(curve.n, asn1.Ber.Integer);
-        var h2 = curve.h;
-        if (!h2) {
-          h2 = Buffer2.from([1]);
+        var h3 = curve.h;
+        if (!h3) {
+          h3 = Buffer2.from([1]);
         }
-        der.writeBuffer(h2, asn1.Ber.Integer);
+        der.writeBuffer(h3, asn1.Ber.Integer);
         der.endSequence();
       }
     }
@@ -25790,8 +25790,8 @@ var require_fingerprint = __commonJS({
     function base64Strip(s2) {
       return s2.replace(/=*$/, "");
     }
-    function sshBase64Format(alg, h2) {
-      return alg.toUpperCase() + ":" + base64Strip(h2);
+    function sshBase64Format(alg, h3) {
+      return alg.toUpperCase() + ":" + base64Strip(h3);
     }
     Fingerprint.isFingerprint = function(obj, ver) {
       return utils.isCompatible(obj, Fingerprint, ver);
@@ -26372,21 +26372,21 @@ var require_parser3 = __commonJS({
             throw e2;
         }
         for (i2 = 0; i2 < parsed.params.headers.length; i2++) {
-          var h2 = parsed.params.headers[i2].toLowerCase();
-          parsed.params.headers[i2] = h2;
-          if (h2 === "request-line") {
+          var h3 = parsed.params.headers[i2].toLowerCase();
+          parsed.params.headers[i2] = h3;
+          if (h3 === "request-line") {
             if (!options.strict) {
               parsed.signingString += request.method + " " + request.url + " HTTP/" + request.httpVersion;
             } else {
               throw new StrictParsingError("request-line is not a valid header with strict parsing enabled.");
             }
-          } else if (h2 === "(request-target)") {
+          } else if (h3 === "(request-target)") {
             parsed.signingString += "(request-target): " + request.method.toLowerCase() + " " + request.url;
           } else {
-            var value = request.headers[h2];
+            var value = request.headers[h3];
             if (value === void 0)
-              throw new MissingHeaderError(h2 + " was not in the request");
-            parsed.signingString += h2 + ": " + value;
+              throw new MissingHeaderError(h3 + " was not in the request");
+            parsed.signingString += h3 + ": " + value;
           }
           if (i2 + 1 < parsed.params.headers.length)
             parsed.signingString += "\n";
@@ -27811,21 +27811,21 @@ var require_signer = __commonJS({
         for (i2 = 0; i2 < options.headers.length; i2++) {
           if (typeof options.headers[i2] !== "string")
             throw new TypeError("options.headers must be an array of Strings");
-          var h2 = options.headers[i2].toLowerCase();
-          if (h2 === "request-line") {
+          var h3 = options.headers[i2].toLowerCase();
+          if (h3 === "request-line") {
             if (!options.strict) {
               stringToSign += request.method + " " + request.path + " HTTP/" + options.httpVersion;
             } else {
               throw new StrictParsingError("request-line is not a valid header with strict parsing enabled.");
             }
-          } else if (h2 === "(request-target)") {
+          } else if (h3 === "(request-target)") {
             stringToSign += "(request-target): " + request.method.toLowerCase() + " " + request.path;
           } else {
-            var value = request.getHeader(h2);
+            var value = request.getHeader(h3);
             if (value === void 0 || value === "") {
-              throw new MissingHeaderError(h2 + " was not in the request");
+              throw new MissingHeaderError(h3 + " was not in the request");
             }
-            stringToSign += h2 + ": " + value;
+            stringToSign += h3 + ": " + value;
           }
           if (i2 + 1 < options.headers.length)
             stringToSign += "\n";
@@ -27935,14 +27935,14 @@ var require_verify = __commonJS({
         var h1 = crypto3.createHmac(hashAlg, secret);
         h1.update(hmac.digest());
         h1 = h1.digest();
-        var h2 = crypto3.createHmac(hashAlg, secret);
-        h2.update(new Buffer(parsedSignature.params.signature, "base64"));
-        h2 = h2.digest();
+        var h22 = crypto3.createHmac(hashAlg, secret);
+        h22.update(new Buffer(parsedSignature.params.signature, "base64"));
+        h22 = h22.digest();
         if (typeof h1 === "string")
-          return h1 === h2;
+          return h1 === h22;
         if (Buffer.isBuffer(h1) && !h1.equals)
-          return h1.toString("binary") === h2.toString("binary");
-        return h1.equals(h2);
+          return h1.toString("binary") === h22.toString("binary");
+        return h1.equals(h22);
       }
     };
   }
@@ -37758,7 +37758,7 @@ var require_utils3 = __commonJS({
         return str;
       }
     };
-    var encode28 = function encode29(str) {
+    var encode26 = function encode27(str) {
       if (str.length === 0) {
         return str;
       }
@@ -37820,7 +37820,7 @@ var require_utils3 = __commonJS({
       assign: assign2,
       compact,
       decode: decode12,
-      encode: encode28,
+      encode: encode26,
       isBuffer: isBuffer5,
       isRegExp,
       merge
@@ -37963,7 +37963,7 @@ var require_stringify2 = __commonJS({
       var delimiter = typeof options.delimiter === "undefined" ? defaults.delimiter : options.delimiter;
       var strictNullHandling = typeof options.strictNullHandling === "boolean" ? options.strictNullHandling : defaults.strictNullHandling;
       var skipNulls = typeof options.skipNulls === "boolean" ? options.skipNulls : defaults.skipNulls;
-      var encode28 = typeof options.encode === "boolean" ? options.encode : defaults.encode;
+      var encode26 = typeof options.encode === "boolean" ? options.encode : defaults.encode;
       var encoder = typeof options.encoder === "function" ? options.encoder : defaults.encoder;
       var sort = typeof options.sort === "function" ? options.sort : null;
       var allowDots = typeof options.allowDots === "undefined" ? false : options.allowDots;
@@ -38014,7 +38014,7 @@ var require_stringify2 = __commonJS({
           generateArrayPrefix,
           strictNullHandling,
           skipNulls,
-          encode28 ? encoder : null,
+          encode26 ? encoder : null,
           filter,
           sort,
           allowDots,
@@ -38166,11 +38166,11 @@ var require_lib4 = __commonJS({
   "../../node_modules/.pnpm/qs@6.5.3/node_modules/qs/lib/index.js"(exports2, module2) {
     "use strict";
     var stringify = require_stringify2();
-    var parse31 = require_parse();
+    var parse29 = require_parse();
     var formats2 = require_formats();
     module2.exports = {
       formats: formats2,
-      parse: parse31,
+      parse: parse29,
       stringify
     };
   }
@@ -38448,7 +38448,7 @@ var require_uri_all = __commonJS({
         for (var index2 = basic > 0 ? basic + 1 : 0; index2 < inputLength; ) {
           var oldi = i2;
           for (
-            var w2 = 1, k2 = base;
+            var w3 = 1, k2 = base;
             ;
             /* no condition */
             k2 += base
@@ -38457,19 +38457,19 @@ var require_uri_all = __commonJS({
               error$1("invalid-input");
             }
             var digit = basicToDigit(input.charCodeAt(index2++));
-            if (digit >= base || digit > floor2((maxInt - i2) / w2)) {
+            if (digit >= base || digit > floor2((maxInt - i2) / w3)) {
               error$1("overflow");
             }
-            i2 += digit * w2;
+            i2 += digit * w3;
             var t2 = k2 <= bias ? tMin : k2 >= bias + tMax ? tMax : k2 - bias;
             if (digit < t2) {
               break;
             }
             var baseMinusT = base - t2;
-            if (w2 > floor2(maxInt / baseMinusT)) {
+            if (w3 > floor2(maxInt / baseMinusT)) {
               error$1("overflow");
             }
-            w2 *= baseMinusT;
+            w3 *= baseMinusT;
           }
           var out = output.length + 1;
           bias = adapt(i2 - oldi, out, oldi == 0);
@@ -38482,7 +38482,7 @@ var require_uri_all = __commonJS({
         }
         return String.fromCodePoint.apply(String, output);
       };
-      var encode28 = function encode29(input) {
+      var encode26 = function encode27(input) {
         var output = [];
         input = ucs2decode(input);
         var inputLength = input.length;
@@ -38608,7 +38608,7 @@ var require_uri_all = __commonJS({
       };
       var toASCII = function toASCII2(input) {
         return mapDomain(input, function(string) {
-          return regexNonASCII.test(string) ? "xn--" + encode28(string) : string;
+          return regexNonASCII.test(string) ? "xn--" + encode26(string) : string;
         });
       };
       var punycode = {
@@ -38630,7 +38630,7 @@ var require_uri_all = __commonJS({
           "encode": ucs2encode
         },
         "decode": decode12,
-        "encode": encode28,
+        "encode": encode26,
         "toASCII": toASCII,
         "toUnicode": toUnicode
       };
@@ -38761,7 +38761,7 @@ var require_uri_all = __commonJS({
       }
       var URI_PARSE = /^(?:([^:\/?#]+):)?(?:\/\/((?:([^\/?#@]*)@)?(\[[^\/?#\]]+\]|[^\/?#:]*)(?:\:(\d*))?))?([^?#]*)(?:\?([^#]*))?(?:#((?:.|\n|\r)*))?/i;
       var NO_MATCH_IS_UNDEFINED = "".match(/(){0}/)[1] === void 0;
-      function parse31(uriString) {
+      function parse29(uriString) {
         var options = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
         var components = {};
         var protocol = options.iri !== false ? IRI_PROTOCOL : URI_PROTOCOL;
@@ -38932,8 +38932,8 @@ var require_uri_all = __commonJS({
         var skipNormalization = arguments[3];
         var target = {};
         if (!skipNormalization) {
-          base2 = parse31(serialize(base2, options), options);
-          relative = parse31(serialize(relative, options), options);
+          base2 = parse29(serialize(base2, options), options);
+          relative = parse29(serialize(relative, options), options);
         }
         options = options || {};
         if (!options.tolerant && relative.scheme) {
@@ -38984,24 +38984,24 @@ var require_uri_all = __commonJS({
       }
       function resolve3(baseURI, relativeURI, options) {
         var schemelessOptions = assign2({ scheme: "null" }, options);
-        return serialize(resolveComponents(parse31(baseURI, schemelessOptions), parse31(relativeURI, schemelessOptions), schemelessOptions, true), schemelessOptions);
+        return serialize(resolveComponents(parse29(baseURI, schemelessOptions), parse29(relativeURI, schemelessOptions), schemelessOptions, true), schemelessOptions);
       }
       function normalize(uri, options) {
         if (typeof uri === "string") {
-          uri = serialize(parse31(uri, options), options);
+          uri = serialize(parse29(uri, options), options);
         } else if (typeOf(uri) === "object") {
-          uri = parse31(serialize(uri, options), options);
+          uri = parse29(serialize(uri, options), options);
         }
         return uri;
       }
       function equal(uriA, uriB, options) {
         if (typeof uriA === "string") {
-          uriA = serialize(parse31(uriA, options), options);
+          uriA = serialize(parse29(uriA, options), options);
         } else if (typeOf(uriA) === "object") {
           uriA = serialize(uriA, options);
         }
         if (typeof uriB === "string") {
-          uriB = serialize(parse31(uriB, options), options);
+          uriB = serialize(parse29(uriB, options), options);
         } else if (typeOf(uriB) === "object") {
           uriB = serialize(uriB, options);
         }
@@ -39016,7 +39016,7 @@ var require_uri_all = __commonJS({
       var handler = {
         scheme: "http",
         domainHost: true,
-        parse: function parse32(components, options) {
+        parse: function parse30(components, options) {
           if (!components.host) {
             components.error = components.error || "HTTP URIs must have a host.";
           }
@@ -39045,7 +39045,7 @@ var require_uri_all = __commonJS({
       var handler$2 = {
         scheme: "ws",
         domainHost: true,
-        parse: function parse32(components, options) {
+        parse: function parse30(components, options) {
           var wsComponents = components;
           wsComponents.secure = isSecure(wsComponents);
           wsComponents.resourceName = (wsComponents.path || "/") + (wsComponents.query ? "?" + wsComponents.query : "");
@@ -39221,7 +39221,7 @@ var require_uri_all = __commonJS({
       var UUID = /^[0-9A-Fa-f]{8}(?:\-[0-9A-Fa-f]{4}){3}\-[0-9A-Fa-f]{12}$/;
       var handler$6 = {
         scheme: "urn:uuid",
-        parse: function parse32(urnComponents, options) {
+        parse: function parse30(urnComponents, options) {
           var uuidComponents = urnComponents;
           uuidComponents.uuid = uuidComponents.nss;
           uuidComponents.nss = void 0;
@@ -39246,7 +39246,7 @@ var require_uri_all = __commonJS({
       exports3.SCHEMES = SCHEMES;
       exports3.pctEncChar = pctEncChar;
       exports3.pctDecChars = pctDecChars;
-      exports3.parse = parse31;
+      exports3.parse = parse29;
       exports3.removeDotSegments = removeDotSegments;
       exports3.serialize = serialize;
       exports3.resolveComponents = resolveComponents;
@@ -124634,7 +124634,7 @@ function f(e2, t2, r2) {
 function b(e2, t2, o2) {
   f(f(e2, t2, o2), void 0, r);
 }
-function h(e2, t2) {
+function h2(e2, t2) {
   b(e2, t2);
 }
 function m(e2, t2) {
@@ -124697,7 +124697,7 @@ var v = class {
     return e2._elements[t2];
   }
 };
-var w = Symbol("[[AbortSteps]]");
+var w2 = Symbol("[[AbortSteps]]");
 var R = Symbol("[[ErrorSteps]]");
 var T = Symbol("[[CancelSteps]]");
 var C = Symbol("[[PullSteps]]");
@@ -125628,7 +125628,7 @@ function Pt(e2) {
   const r2 = e2._pendingAbortRequest;
   if (e2._pendingAbortRequest = void 0, r2._wasAlreadyErroring)
     return r2._reject(t2), void Et(e2);
-  b(e2._writableStreamController[w](r2._reason), () => (r2._resolve(), Et(e2), null), (t3) => (r2._reject(t3), Et(e2), null));
+  b(e2._writableStreamController[w2](r2._reason), () => (r2._resolve(), Et(e2), null), (t3) => (r2._reject(t3), Et(e2), null));
 }
 function qt(e2) {
   return void 0 !== e2._closeRequest || void 0 !== e2._inFlightCloseRequest;
@@ -125784,7 +125784,7 @@ var WritableStreamDefaultController = class {
       throw Ht("error");
     "writable" === this._controlledWritableStream._state && Qt(this, e2);
   }
-  [w](e2) {
+  [w2](e2) {
     const t2 = this._abortAlgorithm(e2);
     return It(this), t2;
   }
@@ -125943,11 +125943,11 @@ function ir(t2, r2, o2, n2, a3, i2) {
         return void v2();
       i2.addEventListener("abort", v2);
     }
-    var w2, R3, T2;
-    if (P2(t2, l2._closedPromise, (e2) => (n2 ? E2(true, e2) : q3(() => wt(r2, e2), true, e2), null)), P2(r2, s2._closedPromise, (e2) => (a3 ? E2(true, e2) : q3(() => Or(t2, e2), true, e2), null)), w2 = t2, R3 = l2._closedPromise, T2 = () => (o2 ? E2() : q3(() => function(e2) {
+    var w3, R3, T2;
+    if (P2(t2, l2._closedPromise, (e2) => (n2 ? E2(true, e2) : q3(() => wt(r2, e2), true, e2), null)), P2(r2, s2._closedPromise, (e2) => (a3 ? E2(true, e2) : q3(() => Or(t2, e2), true, e2), null)), w3 = t2, R3 = l2._closedPromise, T2 = () => (o2 ? E2() : q3(() => function(e2) {
       const t3 = e2._ownerWritableStream, r3 = t3._state;
       return qt(t3) || "closed" === r3 ? c(void 0) : "errored" === r3 ? d(t3._storedError) : Bt(e2);
-    }(s2)), null), "closed" === w2._state ? T2() : h(R3, T2), qt(r2) || "closed" === r2._state) {
+    }(s2)), null), "closed" === w3._state ? T2() : h2(R3, T2), qt(r2) || "closed" === r2._state) {
       const e2 = new TypeError("the destination writable stream closed before all data could be piped to it");
       a3 ? E2(true, e2) : q3(() => Or(t2, e2), true, e2);
     }
@@ -125962,10 +125962,10 @@ function ir(t2, r2, o2, n2, a3, i2) {
       function n3() {
         return b(e2(), () => O2(t3, o3), (e3) => O2(true, e3)), null;
       }
-      _2 || (_2 = true, "writable" !== r2._state || qt(r2) ? n3() : h(C2(), n3));
+      _2 || (_2 = true, "writable" !== r2._state || qt(r2) ? n3() : h2(C2(), n3));
     }
     function E2(e2, t3) {
-      _2 || (_2 = true, "writable" !== r2._state || qt(r2) ? O2(e2, t3) : h(C2(), () => O2(e2, t3)));
+      _2 || (_2 = true, "writable" !== r2._state || qt(r2) ? O2(e2, t3) : h2(C2(), () => O2(e2, t3)));
     }
     function O2(e2, t3) {
       return At(s2), W(l2), void 0 !== i2 && i2.removeEventListener("abort", v2), e2 ? g2(t3) : S2(void 0), null;
@@ -126098,7 +126098,7 @@ function pr(e2) {
 function yr(e2, t2) {
   return Te(e2._readableStreamController) ? function(e3) {
     let t3, r2, o2, n2, a3, i2 = H(e3), l2 = false, s2 = false, d2 = false, f2 = false, b5 = false;
-    const h2 = u((e4) => {
+    const h3 = u((e4) => {
       a3 = e4;
     });
     function _2(e4) {
@@ -126167,30 +126167,30 @@ function yr(e2, t2) {
       const e4 = Ve(n2._readableStreamController);
       return null === e4 ? p2() : S2(e4._view, true), c(void 0);
     }
-    function w2(o3) {
+    function w3(o3) {
       if (f2 = true, t3 = o3, b5) {
         const o4 = ne([t3, r2]), n3 = Or(e3, o4);
         a3(n3);
       }
-      return h2;
+      return h3;
     }
     function R3(o3) {
       if (b5 = true, r2 = o3, f2) {
         const o4 = ne([t3, r2]), n3 = Or(e3, o4);
         a3(n3);
       }
-      return h2;
+      return h3;
     }
     function T2() {
     }
-    return o2 = Pr(T2, g2, w2), n2 = Pr(T2, v2, R3), _2(i2), [o2, n2];
+    return o2 = Pr(T2, g2, w3), n2 = Pr(T2, v2, R3), _2(i2), [o2, n2];
   }(e2) : function(e3) {
     const t3 = H(e3);
     let r2, o2, n2, a3, i2, l2 = false, s2 = false, d2 = false, f2 = false;
     const b5 = u((e4) => {
       i2 = e4;
     });
-    function h2() {
+    function h3() {
       if (l2)
         return s2 = true, c(void 0);
       l2 = true;
@@ -126198,7 +126198,7 @@ function yr(e2, t2) {
         y(() => {
           s2 = false;
           const t4 = e4, r3 = e4;
-          d2 || fr(n2._readableStreamController, t4), f2 || fr(a3._readableStreamController, r3), l2 = false, s2 && h2();
+          d2 || fr(n2._readableStreamController, t4), f2 || fr(a3._readableStreamController, r3), l2 = false, s2 && h3();
         });
       }, _closeSteps: () => {
         l2 = false, d2 || dr(n2._readableStreamController), f2 || dr(a3._readableStreamController), d2 && f2 || i2(void 0);
@@ -126222,7 +126222,7 @@ function yr(e2, t2) {
     }
     function S2() {
     }
-    return n2 = Cr(S2, h2, _2), a3 = Cr(S2, h2, p2), m(t3._closedPromise, (e4) => (br(n2._readableStreamController, e4), br(a3._readableStreamController, e4), d2 && f2 || i2(void 0), null)), [n2, a3];
+    return n2 = Cr(S2, h3, _2), a3 = Cr(S2, h3, p2), m(t3._closedPromise, (e4) => (br(n2._readableStreamController, e4), br(a3._readableStreamController, e4), d2 && f2 || i2(void 0), null)), [n2, a3];
   }(e2);
 }
 function Sr(r2) {
@@ -126560,7 +126560,7 @@ var TransformStream = class {
     if (void 0 !== a3.writableType)
       throw new RangeError("Invalid writableType specified");
     const i2 = ut(n2, 0), l2 = ct(n2), s2 = ut(o2, 1), f2 = ct(o2);
-    let h2;
+    let h3;
     !function(e3, t3, r3, o3, n3, a4) {
       function i3() {
         return t3;
@@ -126628,7 +126628,7 @@ var TransformStream = class {
         return St(i4), Ft(i4, Object.create(WritableStreamDefaultController.prototype), e4, t4, r4, o4, n4, a5), i4;
       }(i3, l3, c3, s3, r3, o3), e3._readable = Cr(i3, d2, f3, n3, a4), e3._backpressure = void 0, e3._backpressureChangePromise = void 0, e3._backpressureChangePromise_resolve = void 0, Gr(e3, true), e3._transformStreamController = void 0;
     }(this, u((e3) => {
-      h2 = e3;
+      h3 = e3;
     }), s2, f2, i2, l2), function(e3, t3) {
       const r3 = Object.create(TransformStreamDefaultController.prototype);
       let o3, n3, a4;
@@ -126644,7 +126644,7 @@ var TransformStream = class {
       !function(e4, t4, r4, o4, n4) {
         t4._controlledTransformStream = e4, e4._transformStreamController = t4, t4._transformAlgorithm = r4, t4._flushAlgorithm = o4, t4._cancelAlgorithm = n4, t4._finishPromise = void 0, t4._finishPromise_resolve = void 0, t4._finishPromise_reject = void 0;
       }(e3, r3, o3, n3, a4);
-    }(this, a3), void 0 !== a3.start ? h2(a3.start(this._transformStreamController)) : h2(void 0);
+    }(this, a3), void 0 !== a3.start ? h3(a3.start(this._transformStreamController)) : h3(void 0);
   }
   get readable() {
     if (!Nr(this))
@@ -129552,7 +129552,7 @@ function lenVec3(v2) {
 }
 var distVec3 = (() => {
   const vec = createVec3Float64();
-  return (v2, w2) => lenVec3(subVec3(v2, w2, vec));
+  return (v2, w3) => lenVec3(subVec3(v2, w3, vec));
 })();
 function lenVec2(v2) {
   return Math.sqrt(sqLenVec2(v2));
@@ -129567,7 +129567,7 @@ function lerpVec3(t2, t1, t22, p1, p2, dest) {
 }
 var distVec2 = (() => {
   const vec = createVec2Float64();
-  return (v2, w2) => lenVec2(subVec2(v2, w2, vec));
+  return (v2, w3) => lenVec2(subVec2(v2, w3, vec));
 })();
 function rcpVec3(v2, dest) {
   return divScalarVec3(1, v2, dest);
@@ -129584,8 +129584,8 @@ function normalizeVec2(v2, dest) {
   const f2 = 1 / lenVec2(v2);
   return mulVec2Scalar(v2, f2, dest);
 }
-function angleVec3(v2, w2) {
-  let theta = dotVec3(v2, w2) / Math.sqrt(sqLenVec3(v2) * sqLenVec3(w2));
+function angleVec3(v2, w3) {
+  let theta = dotVec3(v2, w3) / Math.sqrt(sqLenVec3(v2) * sqLenVec3(w3));
   theta = theta < -1 ? -1 : theta > 1 ? 1 : theta;
   return Math.acos(theta);
 }
@@ -129826,7 +129826,7 @@ function quatToRotationMat4(q3, m2) {
   const x2 = q3[0];
   const y2 = q3[1];
   const z2 = q3[2];
-  const w2 = q3[3];
+  const w3 = q3[3];
   const x22 = x2 + x2;
   const y22 = y2 + y2;
   const z22 = z2 + z2;
@@ -129836,9 +129836,9 @@ function quatToRotationMat4(q3, m2) {
   const yy = y2 * y22;
   const yz = y2 * z22;
   const zz = z2 * z22;
-  const wx = w2 * x22;
-  const wy = w2 * y22;
-  const wz = w2 * z22;
+  const wx = w3 * x22;
+  const wy = w3 * y22;
+  const wz = w3 * z22;
   m2[0] = 1 - (yy + zz);
   m2[4] = xy - wz;
   m2[8] = xz + wy;
@@ -129915,12 +129915,12 @@ var canvasPosToWorldRay = (() => {
       mulVec4Scalar(outVec4, 1 / outVec4[3], outVec4);
     }
   };
-  return (canvas, viewMatrix, projMatrix, projection, canvasPos, worldRayOrigin, worldRayDir) => {
+  return (canvas2, viewMatrix, projMatrix, projection, canvasPos, worldRayOrigin, worldRayDir) => {
     const isOrtho = projection === "ortho";
     mulMat4(projMatrix, viewMatrix, pvMatInv);
     inverseMat4(pvMatInv, pvMatInv);
-    const clipX = 2 * canvasPos[0] / canvas.width - 1;
-    const clipY = 1 - 2 * canvasPos[1] / canvas.height;
+    const clipX = 2 * canvasPos[0] / canvas2.width - 1;
+    const clipY = 1 - 2 * canvasPos[1] / canvas2.height;
     clipToWorld(clipX, clipY, -1, isOrtho, vec4Near);
     clipToWorld(clipX, clipY, 1, isOrtho, vec4Far);
     worldRayOrigin[0] = vec4Near[0];
@@ -134810,14 +134810,14 @@ function normalizeImageData(input) {
     return void 0;
   }
 }
-function serializeImageData(imageData) {
-  if (!imageData) {
+function serializeImageData(imageData2) {
+  if (!imageData2) {
     return void 0;
   }
   return {
-    data: Array.from(imageData.data),
-    width: imageData.width,
-    height: imageData.height
+    data: Array.from(imageData2.data),
+    width: imageData2.width,
+    height: imageData2.height
   };
 }
 function serializeImageToDataURL(image) {
@@ -134834,21 +134834,21 @@ function serializeImageToDataURL(image) {
       return void 0;
     }
   }
-  const w2 = image.width || image.naturalWidth || 0;
-  const h2 = image.height || image.naturalHeight || 0;
-  if (w2 <= 0 || h2 <= 0) {
+  const w3 = image.width || image.naturalWidth || 0;
+  const h3 = image.height || image.naturalHeight || 0;
+  if (w3 <= 0 || h3 <= 0) {
     return void 0;
   }
-  const canvas = document.createElement("canvas");
-  canvas.width = w2;
-  canvas.height = h2;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) {
+  const canvas2 = document.createElement("canvas");
+  canvas2.width = w3;
+  canvas2.height = h3;
+  const ctx2 = canvas2.getContext("2d");
+  if (!ctx2) {
     return void 0;
   }
   try {
-    ctx.drawImage(image, 0, 0);
-    return canvas.toDataURL("image/png");
+    ctx2.drawImage(image, 0, 0);
+    return canvas2.toDataURL("image/png");
   } catch {
     return void 0;
   }
@@ -135193,8 +135193,8 @@ var SceneMaterial = class {
       this._triplanarScale = t2 !== void 0 && t2 !== null && t2 > 1e-4 ? t2 : 1;
     }
     {
-      const w2 = materialParams.lineWidth;
-      this._lineWidth = w2 !== void 0 && w2 !== null && w2 > 0 ? w2 : 0;
+      const w3 = materialParams.lineWidth;
+      this._lineWidth = w3 !== void 0 && w3 !== null && w3 > 0 ? w3 : 0;
     }
     this._linePattern = emptyLinePattern();
     this._linePatternUserValue = "solid";
@@ -135633,8 +135633,8 @@ var ThickLinesTechnique = class extends SceneTechnique {
      * plane" and falls off with depth.
      */
     __publicField(this, "widthMode");
-    const w2 = params.lineWidth;
-    this.lineWidth = w2 !== void 0 && w2 !== null && w2 > 0 ? w2 : 0;
+    const w3 = params.lineWidth;
+    this.lineWidth = w3 !== void 0 && w3 !== null && w3 > 0 ? w3 : 0;
     this.widthMode = params.widthMode === "perspective" ? "perspective" : "screen";
   }
 };
@@ -137833,13 +137833,13 @@ function getImageData(image) {
       return image;
     case "image":
     case "imagebitmap":
-      const canvas = document.createElement("canvas");
-      const context = canvas.getContext("2d");
+      const canvas2 = document.createElement("canvas");
+      const context = canvas2.getContext("2d");
       if (!context) {
         throw new Error("getImageData");
       }
-      canvas.width = image.width;
-      canvas.height = image.height;
+      canvas2.width = image.width;
+      canvas2.height = image.height;
       context.drawImage(image, 0, 0);
       return context.getImageData(0, 0, image.width, image.height);
     default:
@@ -138677,10 +138677,10 @@ var GLTFScenegraph = class {
    * @param imageData
    * @param mimeType
    */
-  addImage(imageData, mimeTypeOpt) {
-    const metadata = getBinaryImageMetadata(imageData);
+  addImage(imageData2, mimeTypeOpt) {
+    const metadata = getBinaryImageMetadata(imageData2);
     const mimeType = mimeTypeOpt || (metadata == null ? void 0 : metadata.mimeType);
-    const bufferViewIndex = this.addBufferView(imageData);
+    const bufferViewIndex = this.addBufferView(imageData2);
     const glTFImage = {
       bufferView: bufferViewIndex,
       mimeType
@@ -139024,24 +139024,24 @@ function getImageValueByCoordinates(parsedImage, mimeType, textureCoordinates, i
   for (const c3 of channels) {
     const map = typeof c3 === "number" ? Object.values(CHANNELS_MAP)[c3] : CHANNELS_MAP[c3];
     const imageOffset = offset + map.offset;
-    const imageData = getImageData(parsedImage);
-    if (imageData.data.length <= imageOffset) {
-      throw new Error(`${imageData.data.length} <= ${imageOffset}`);
+    const imageData2 = getImageData(parsedImage);
+    if (imageData2.data.length <= imageOffset) {
+      throw new Error(`${imageData2.data.length} <= ${imageOffset}`);
     }
-    const imageValue = imageData.data[imageOffset];
+    const imageValue = imageData2.data[imageOffset];
     value |= imageValue << map.shift;
   }
   return value;
 }
 function coordinatesToOffset(u2, v2, parsedImage, componentsCount = 1) {
-  const w2 = parsedImage.width;
-  const iX = emod(u2) * (w2 - 1);
+  const w3 = parsedImage.width;
+  const iX = emod(u2) * (w3 - 1);
   const indX = Math.round(iX);
-  const h2 = parsedImage.height;
-  const iY = emod(v2) * (h2 - 1);
+  const h3 = parsedImage.height;
+  const iY = emod(v2) * (h3 - 1);
   const indY = Math.round(iY);
   const components = parsedImage.components ? parsedImage.components : componentsCount;
-  const offset = (indY * w2 + indX) * components;
+  const offset = (indY * w3 + indX) * components;
   return offset;
 }
 function parseVariableLengthArrayNumeric(valuesData, numberOfElements, arrayOffsets, valuesDataBytesLength, valueSize) {
@@ -140041,8 +140041,8 @@ function getSupportedGPUTextureFormats(gl) {
 }
 function getWebGLContext() {
   try {
-    const canvas = document.createElement("canvas");
-    return canvas.getContext("webgl");
+    const canvas2 = document.createElement("canvas");
+    return canvas2.getContext("webgl");
   } catch (error) {
     return null;
   }
@@ -142036,10 +142036,10 @@ function vec3_transformMat4AsVector(out, a3, m2) {
   const x2 = a3[0];
   const y2 = a3[1];
   const z2 = a3[2];
-  const w2 = m2[3] * x2 + m2[7] * y2 + m2[11] * z2 || 1;
-  out[0] = (m2[0] * x2 + m2[4] * y2 + m2[8] * z2) / w2;
-  out[1] = (m2[1] * x2 + m2[5] * y2 + m2[9] * z2) / w2;
-  out[2] = (m2[2] * x2 + m2[6] * y2 + m2[10] * z2) / w2;
+  const w3 = m2[3] * x2 + m2[7] * y2 + m2[11] * z2 || 1;
+  out[0] = (m2[0] * x2 + m2[4] * y2 + m2[8] * z2) / w3;
+  out[1] = (m2[1] * x2 + m2[5] * y2 + m2[9] * z2) / w3;
+  out[2] = (m2[2] * x2 + m2[6] * y2 + m2[10] * z2) / w3;
   return out;
 }
 function vec3_transformMat2(out, a3, m2) {
@@ -142090,11 +142090,11 @@ function transformMat4(out, a3, m2) {
   const x2 = a3[0];
   const y2 = a3[1];
   const z2 = a3[2];
-  let w2 = m2[3] * x2 + m2[7] * y2 + m2[11] * z2 + m2[15];
-  w2 = w2 || 1;
-  out[0] = (m2[0] * x2 + m2[4] * y2 + m2[8] * z2 + m2[12]) / w2;
-  out[1] = (m2[1] * x2 + m2[5] * y2 + m2[9] * z2 + m2[13]) / w2;
-  out[2] = (m2[2] * x2 + m2[6] * y2 + m2[10] * z2 + m2[14]) / w2;
+  let w3 = m2[3] * x2 + m2[7] * y2 + m2[11] * z2 + m2[15];
+  w3 = w3 || 1;
+  out[0] = (m2[0] * x2 + m2[4] * y2 + m2[8] * z2 + m2[12]) / w3;
+  out[1] = (m2[1] * x2 + m2[5] * y2 + m2[9] * z2 + m2[13]) / w3;
+  out[2] = (m2[2] * x2 + m2[6] * y2 + m2[10] * z2 + m2[14]) / w3;
   return out;
 }
 function transformMat32(out, a3, m2) {
@@ -142120,10 +142120,10 @@ function transformQuat(out, a3, q3) {
   let uuvx = qy * uvz - qz * uvy;
   let uuvy = qz * uvx - qx * uvz;
   let uuvz = qx * uvy - qy * uvx;
-  const w2 = qw * 2;
-  uvx *= w2;
-  uvy *= w2;
-  uvz *= w2;
+  const w22 = qw * 2;
+  uvx *= w22;
+  uvy *= w22;
+  uvz *= w22;
   uuvx *= 2;
   uuvy *= 2;
   uuvz *= 2;
@@ -142553,7 +142553,7 @@ function fromQuat(out, q3) {
   const x2 = q3[0];
   const y2 = q3[1];
   const z2 = q3[2];
-  const w2 = q3[3];
+  const w3 = q3[3];
   const x22 = x2 + x2;
   const y22 = y2 + y2;
   const z22 = z2 + z2;
@@ -142563,9 +142563,9 @@ function fromQuat(out, q3) {
   const zx = z2 * x22;
   const zy = z2 * y22;
   const zz = z2 * z22;
-  const wx = w2 * x22;
-  const wy = w2 * y22;
-  const wz = w2 * z22;
+  const wx = w3 * x22;
+  const wy = w3 * y22;
+  const wz = w3 * z22;
   out[0] = 1 - yy - zz;
   out[3] = yx - wz;
   out[6] = zx + wy;
@@ -145023,6 +145023,10 @@ async function parseGLTF2(params, options) {
   if (options && options.dracoModule) {
     parseOptions.modules = { draco3d: options.dracoModule };
   }
+  const headless = typeof OffscreenCanvas === "undefined" && typeof document === "undefined";
+  if (headless) {
+    parseOptions.gltf = { ...parseOptions.gltf || {}, loadImages: false, loadBuffers: true };
+  }
   const onProgress = options == null ? void 0 : options.onProgress;
   const signal = options == null ? void 0 : options.signal;
   const progress = { phase: "Decoding glTF", current: 0, total: 0 };
@@ -145044,7 +145048,7 @@ async function parseGLTF2(params, options) {
     throw new Error(`[GLTFLoader.load] Error parsing glTF -> ${errMsg}`);
   }
   await yieldToHost(signal);
-  const ctx = {
+  const ctx2 = {
     nodesHaveNames: false,
     // determined in testIfNodesHaveNames()
     meshIds: [],
@@ -145059,21 +145063,21 @@ async function parseGLTF2(params, options) {
     options: options || {}
   };
   emit2("Decoding textures", 0, 0);
-  if (!parseTextures(ctx)) {
-    throw new Error(ctx.errors.length > 0 ? ctx.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
+  if (!parseTextures(ctx2)) {
+    throw new Error(ctx2.errors.length > 0 ? ctx2.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
   }
   await yieldToHost(signal);
   emit2("Building materials", 0, 0);
-  if (!parseMaterials(ctx)) {
-    throw new Error(ctx.errors.length > 0 ? ctx.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
+  if (!parseMaterials(ctx2)) {
+    throw new Error(ctx2.errors.length > 0 ? ctx2.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
   }
   await yieldToHost(signal);
   emit2("Building scene", 0, 0);
-  if (!parseDefaultScene(ctx)) {
-    throw new Error(ctx.errors.length > 0 ? ctx.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
+  if (!parseDefaultScene(ctx2)) {
+    throw new Error(ctx2.errors.length > 0 ? ctx2.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
   }
   emit2("Building scene", 1, 1);
-  parseStructuralMetadata(ctx);
+  parseStructuralMetadata(ctx2);
 }
 var METADATA_COMPONENTS = {
   VEC2: 2,
@@ -145095,14 +145099,14 @@ function featureMetadataValue(data, i2, type) {
 function featureObjectId(baseId, tableIndex, featureIndex) {
   return `${baseId}-pt${tableIndex}-f${featureIndex}`;
 }
-function parseStructuralMetadata(ctx) {
+function parseStructuralMetadata(ctx2) {
   var _a2, _b, _c, _d;
-  const dataModel = ctx.dataModel;
-  const sm = (_b = (_a2 = ctx.gltfData) == null ? void 0 : _a2.extensions) == null ? void 0 : _b.EXT_structural_metadata;
+  const dataModel = ctx2.dataModel;
+  const sm = (_b = (_a2 = ctx2.gltfData) == null ? void 0 : _a2.extensions) == null ? void 0 : _b.EXT_structural_metadata;
   if (!dataModel || !(sm == null ? void 0 : sm.propertyTables)) {
     return;
   }
-  const parentId = ctx.options.dataParentId;
+  const parentId = ctx2.options.dataParentId;
   for (let t2 = 0; t2 < sm.propertyTables.length; t2++) {
     const table = sm.propertyTables[t2];
     const count = table.count || 0;
@@ -145110,7 +145114,7 @@ function parseStructuralMetadata(ctx) {
     const schemaClass = (_d = (_c = sm.schema) == null ? void 0 : _c.classes) == null ? void 0 : _d[className];
     const propNames = Object.keys(table.properties || {});
     for (let i2 = 0; i2 < count; i2++) {
-      const objectId = featureObjectId(ctx.baseId, t2, i2);
+      const objectId = featureObjectId(ctx2.baseId, t2, i2);
       const propertySetId = `${objectId}-props`;
       dataModel.createPropertySet({
         id: propertySetId,
@@ -145131,27 +145135,27 @@ function parseStructuralMetadata(ctx) {
     }
   }
 }
-function parseTextures(ctx) {
-  if (!ctx.sceneModel) {
+function parseTextures(ctx2) {
+  if (!ctx2.sceneModel) {
     return true;
   }
-  const gltfData = ctx.gltfData;
+  const gltfData = ctx2.gltfData;
   const textures = gltfData.textures;
   if (textures) {
     for (let i2 = 0, len = textures.length; i2 < len; i2++) {
-      if (!parseTexture(ctx, textures[i2])) {
+      if (!parseTexture(ctx2, textures[i2])) {
         return false;
       }
     }
   }
   return true;
 }
-function parseTexture(ctx, texture) {
-  if (!texture.source || !texture.source.image) {
-    ctx.errors.push(`[GLTFLoader.load] Texture has no image source`);
+function parseTexture(ctx2, texture) {
+  if (!texture.source) {
+    ctx2.errors.push(`[GLTFLoader.load] Texture has no image source`);
     return false;
   }
-  const textureId = `texture-${ctx.baseId}-${ctx.nextId++}`;
+  const textureId = `texture-${ctx2.baseId}-${ctx2.nextId++}`;
   let minFilter = NearestMipMapLinearFilter;
   switch (texture.sampler.minFilter) {
     case 9728:
@@ -145218,14 +145222,20 @@ function parseTexture(ctx, texture) {
       wrapR = RepeatWrapping;
       break;
   }
-  const encodedBytes = ctx.options.retainTextureBytes ? extractEncodedImageBytes(texture.source) : null;
-  const result = ctx.sceneModel.createTexture({
+  const decodedImage = texture.source.image;
+  const encodedBytes = ctx2.options.retainTextureBytes || !decodedImage ? extractEncodedImageBytes(texture.source) : null;
+  if (!decodedImage && !encodedBytes) {
+    ctx2.errors.push(`[GLTFLoader.load] Texture has no image source`);
+    return false;
+  }
+  const dims = decodedImage ? { width: decodedImage.width, height: decodedImage.height } : imageSizeFromBytes(new Uint8Array(encodedBytes), texture.source.mimeType);
+  const result = ctx2.sceneModel.createTexture({
     id: textureId,
-    image: texture.source.image,
+    image: decodedImage || void 0,
     buffers: encodedBytes ? [encodedBytes] : void 0,
     mediaType: encodedBytes ? mimeTypeToMediaType(texture.source.mimeType) : void 0,
-    width: texture.source.image.width,
-    height: texture.source.image.height,
+    width: dims.width,
+    height: dims.height,
     minFilter,
     magFilter,
     wrapS,
@@ -145235,7 +145245,7 @@ function parseTexture(ctx, texture) {
     //     encoding: "sRGB"
   });
   if (result.ok === false) {
-    ctx.errors.push(`[GLTFLoader.load] Failed to create texture -> ${result.error}`);
+    ctx2.errors.push(`[GLTFLoader.load] Failed to create texture -> ${result.error}`);
     return false;
   }
   texture._textureId = textureId;
@@ -145249,6 +145259,30 @@ function extractEncodedImageBytes(source) {
   }
   return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
 }
+function imageSizeFromBytes(bytes, mimeType) {
+  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  if (bytes.length >= 24 && bytes[0] === 137 && bytes[1] === 80 && bytes[2] === 78 && bytes[3] === 71) {
+    return { width: dv.getUint32(16, false), height: dv.getUint32(20, false) };
+  }
+  if (bytes.length >= 4 && bytes[0] === 255 && bytes[1] === 216) {
+    let off = 2;
+    while (off + 9 < bytes.length) {
+      if (bytes[off] !== 255) {
+        off++;
+        continue;
+      }
+      const marker = bytes[off + 1];
+      if (marker >= 192 && marker <= 207 && marker !== 196 && marker !== 200 && marker !== 204) {
+        return { height: dv.getUint16(off + 5, false), width: dv.getUint16(off + 7, false) };
+      }
+      const segLen = dv.getUint16(off + 2, false);
+      if (segLen < 2)
+        break;
+      off += 2 + segLen;
+    }
+  }
+  return { width: 0, height: 0 };
+}
 function mimeTypeToMediaType(mimeType) {
   switch (mimeType) {
     case "image/png":
@@ -145261,16 +145295,16 @@ function mimeTypeToMediaType(mimeType) {
       return void 0;
   }
 }
-function parseMaterials(ctx) {
-  const gltfData = ctx.gltfData;
+function parseMaterials(ctx2) {
+  const gltfData = ctx2.gltfData;
   const materials = gltfData.materials;
   if (materials) {
     for (let i2 = 0, len = materials.length; i2 < len; i2++) {
       const material = materials[i2];
-      const materialCfg = parseMaterial(ctx, material);
-      const materialResult = ctx.sceneModel.createMaterial(materialCfg);
+      const materialCfg = parseMaterial(ctx2, material);
+      const materialResult = ctx2.sceneModel.createMaterial(materialCfg);
       if (materialResult.ok === false) {
-        ctx.errors.push(`Failed to create SceneMaterial set -> ${materialResult.error}`);
+        ctx2.errors.push(`Failed to create SceneMaterial set -> ${materialResult.error}`);
         return false;
       }
       material._materialId = materialResult.value.id;
@@ -145278,10 +145312,10 @@ function parseMaterials(ctx) {
   }
   return true;
 }
-function parseMaterial(ctx, material) {
+function parseMaterial(ctx2, material) {
   var _a2, _b, _c, _d, _e2;
   const materialCfg = {
-    id: `material-${ctx.baseId}-${ctx.nextId++}`,
+    id: `material-${ctx2.baseId}-${ctx2.nextId++}`,
     color: [1, 1, 1],
     opacity: 1,
     roughness: 1,
@@ -145303,10 +145337,10 @@ function parseMaterial(ctx, material) {
     }
     const baseColorTexture = metallicPBR.baseColorTexture || metallicPBR.colorTexture;
     if (baseColorTexture) {
-      materialCfg.colorTextureId = resolveTextureId(ctx, baseColorTexture);
+      materialCfg.colorTextureId = resolveTextureId(ctx2, baseColorTexture);
     }
     if (metallicPBR.metallicRoughnessTexture) {
-      materialCfg.metallicRoughnessTextureId = resolveTextureId(ctx, metallicPBR.metallicRoughnessTexture);
+      materialCfg.metallicRoughnessTextureId = resolveTextureId(ctx2, metallicPBR.metallicRoughnessTexture);
     }
   }
   if (material.alphaMode === "MASK" || material.alphaMode === "BLEND") {
@@ -145316,13 +145350,13 @@ function parseMaterial(ctx, material) {
     materialCfg.alphaCutoff = material.alphaCutoff;
   }
   if (material.normalTexture) {
-    materialCfg.normalsTextureId = resolveTextureId(ctx, material.normalTexture);
+    materialCfg.normalsTextureId = resolveTextureId(ctx2, material.normalTexture);
   }
   if (material.occlusionTexture) {
-    materialCfg.occlusionTextureId = resolveTextureId(ctx, material.occlusionTexture);
+    materialCfg.occlusionTextureId = resolveTextureId(ctx2, material.occlusionTexture);
   }
   if (material.emissiveTexture) {
-    materialCfg.emissiveTextureId = resolveTextureId(ctx, material.emissiveTexture);
+    materialCfg.emissiveTextureId = resolveTextureId(ctx2, material.emissiveTexture);
   }
   if (material.emissiveFactor) {
     const strength = (_d = (_c = (_b = material.extensions) == null ? void 0 : _b.KHR_materials_emissive_strength) == null ? void 0 : _c.emissiveStrength) != null ? _d : 1;
@@ -145342,66 +145376,66 @@ function parseMaterial(ctx, material) {
         materialCfg.opacity = (_e2 = diffuseFactor[3]) != null ? _e2 : materialCfg.opacity;
       }
       if (specularPBR.diffuseTexture && !materialCfg.colorTextureId) {
-        materialCfg.colorTextureId = resolveTextureId(ctx, specularPBR.diffuseTexture);
+        materialCfg.colorTextureId = resolveTextureId(ctx2, specularPBR.diffuseTexture);
       }
     }
   }
   return materialCfg;
 }
-function resolveTextureId(ctx, textureInfo) {
+function resolveTextureId(ctx2, textureInfo) {
   if (!textureInfo)
     return void 0;
   if (textureInfo.texture && textureInfo.texture._textureId) {
     return textureInfo.texture._textureId;
   }
-  if (typeof textureInfo.index === "number" && ctx.gltfData.textures) {
-    const entry = ctx.gltfData.textures[textureInfo.index];
+  if (typeof textureInfo.index === "number" && ctx2.gltfData.textures) {
+    const entry = ctx2.gltfData.textures[textureInfo.index];
     return entry && entry._textureId;
   }
   return void 0;
 }
-function parseDefaultScene(ctx) {
-  const gltfData = ctx.gltfData;
+function parseDefaultScene(ctx2) {
+  const gltfData = ctx2.gltfData;
   const scene = gltfData.scene || gltfData.scenes[0];
   if (!scene) {
-    ctx.errors.push("[GLTFLoader.load] Cannot load glTF - glTF has no default scene");
+    ctx2.errors.push("[GLTFLoader.load] Cannot load glTF - glTF has no default scene");
     return false;
   }
-  return parseScene(ctx, scene);
+  return parseScene(ctx2, scene);
 }
-function parseScene(ctx, scene) {
+function parseScene(ctx2, scene) {
   const nodes = scene.nodes;
   if (!nodes) {
     return true;
   }
-  for (let i2 = 0, len = nodes.length; i2 < len && !ctx.nodesHaveNames; i2++) {
+  for (let i2 = 0, len = nodes.length; i2 < len && !ctx2.nodesHaveNames; i2++) {
     const node = nodes[i2];
     if (testIfNodesHaveNames(node)) {
-      ctx.nodesHaveNames = true;
+      ctx2.nodesHaveNames = true;
     }
   }
-  const rootMatrix = ctx.options.rootMatrix || null;
-  if (!ctx.nodesHaveNames) {
-    ctx.meshIds = [];
+  const rootMatrix = ctx2.options.rootMatrix || null;
+  if (!ctx2.nodesHaveNames) {
+    ctx2.meshIds = [];
     for (let i2 = 0, len = nodes.length; i2 < len; i2++) {
       const node = nodes[i2];
-      if (!parseNodesWithoutNames(ctx, node, 0, rootMatrix)) {
+      if (!parseNodesWithoutNames(ctx2, node, 0, rootMatrix)) {
         return false;
       }
     }
   } else {
-    ctx.meshIds = null;
+    ctx2.meshIds = null;
     for (let i2 = 0, len = nodes.length; i2 < len; i2++) {
       const node = nodes[i2];
-      if (!parseNodesWithNames(ctx, node, 0, rootMatrix)) {
+      if (!parseNodesWithNames(ctx2, node, 0, rootMatrix)) {
         return false;
       }
     }
   }
   return true;
 }
-function createPrimitiveHash(ctx, primitive) {
-  const hash = [ctx.baseId];
+function createPrimitiveHash(ctx2, primitive) {
+  const hash = [ctx2.baseId];
   const attributes = primitive.attributes;
   if (attributes) {
     for (const key in attributes) {
@@ -145434,32 +145468,32 @@ function testIfNodesHaveNames(node, level = 0) {
   }
   return false;
 }
-function parseNodesWithoutNames(ctx, node, depth, matrix) {
+function parseNodesWithoutNames(ctx2, node, depth, matrix) {
   if (!node) {
     return true;
   }
-  const meshIds = ctx.meshIds;
+  const meshIds = ctx2.meshIds;
   matrix = parseNodeMatrix(node, matrix);
   if (node.mesh) {
-    parseMesh(node, ctx, matrix, meshIds);
+    parseMesh(node, ctx2, matrix, meshIds);
   }
   if (node.children) {
     const children = node.children;
     for (let i2 = 0, len = children.length; i2 < len; i2++) {
       const childNode = children[i2];
-      parseNodesWithoutNames(ctx, childNode, depth + 1, matrix);
+      parseNodesWithoutNames(ctx2, childNode, depth + 1, matrix);
     }
   }
   if (depth === 0) {
-    const objectId = `entity-${ctx.baseId}-${ctx.nextId++}`;
+    const objectId = `entity-${ctx2.baseId}-${ctx2.nextId++}`;
     if (meshIds && meshIds.length > 0) {
-      const result = ctx.sceneModel.createObject({
+      const result = ctx2.sceneModel.createObject({
         id: objectId,
         meshIds,
-        layerId: ctx.options.layerId
+        layerId: ctx2.options.layerId
       });
       if (result.ok === false) {
-        ctx.errors.push(`[GLTFLoader.load] Failed to create SceneObject -> ${result.error}`);
+        ctx2.errors.push(`[GLTFLoader.load] Failed to create SceneObject -> ${result.error}`);
         return false;
       }
       meshIds.length = 0;
@@ -145467,28 +145501,28 @@ function parseNodesWithoutNames(ctx, node, depth, matrix) {
   }
   return true;
 }
-function parseNodesWithNames(ctx, node, depth, matrix) {
-  const objectIdStack = ctx.objectIdStack;
-  const meshIdsStack = ctx.meshIdsStack;
+function parseNodesWithNames(ctx2, node, depth, matrix) {
+  const objectIdStack = ctx2.objectIdStack;
+  const meshIdsStack = ctx2.meshIdsStack;
   if (!node) {
     return true;
   }
   matrix = parseNodeMatrix(node, matrix);
   if (node.name) {
-    ctx.meshIds = [];
+    ctx2.meshIds = [];
     let objectId = node.name;
-    if (objectId && ctx.sceneModel.objects[objectId]) {
+    if (objectId && ctx2.sceneModel.objects[objectId]) {
       console.warn(`[GLTFLoader.load] Duplicate glTF node 'name' attribute: '${objectId}' \u2014 assigning a synthetic ID`);
       objectId = "";
     }
-    while (!objectId || ctx.sceneModel.objects[objectId]) {
-      objectId = `entity-${ctx.baseId}-${ctx.nextId++}`;
+    while (!objectId || ctx2.sceneModel.objects[objectId]) {
+      objectId = `entity-${ctx2.baseId}-${ctx2.nextId++}`;
     }
     objectIdStack.push(objectId);
-    meshIdsStack.push(ctx.meshIds);
+    meshIdsStack.push(ctx2.meshIds);
   }
-  if (ctx.meshIds && node.mesh) {
-    if (!parseMesh(node, ctx, matrix, ctx.meshIds)) {
+  if (ctx2.meshIds && node.mesh) {
+    if (!parseMesh(node, ctx2, matrix, ctx2.meshIds)) {
       return false;
     }
   }
@@ -145496,7 +145530,7 @@ function parseNodesWithNames(ctx, node, depth, matrix) {
     const children = node.children;
     for (let i2 = 0, len = children.length; i2 < len; i2++) {
       const childNode = children[i2];
-      if (!parseNodesWithNames(ctx, childNode, depth + 1, matrix)) {
+      if (!parseNodesWithNames(ctx2, childNode, depth + 1, matrix)) {
         return false;
       }
     }
@@ -145505,20 +145539,20 @@ function parseNodesWithNames(ctx, node, depth, matrix) {
   if (nodeName !== void 0 && nodeName !== null || depth === 0) {
     let objectId = objectIdStack.pop();
     if (!objectId) {
-      objectId = `entity-${ctx.baseId}-${ctx.nextId++}`;
+      objectId = `entity-${ctx2.baseId}-${ctx2.nextId++}`;
     }
     const entityMeshIds = meshIdsStack.pop();
-    if (ctx.meshIds && ctx.meshIds.length > 0) {
-      const result = ctx.sceneModel.createObject({
+    if (ctx2.meshIds && ctx2.meshIds.length > 0) {
+      const result = ctx2.sceneModel.createObject({
         id: objectId,
         meshIds: entityMeshIds
       });
       if (result.ok === false) {
-        ctx.errors.push(`[GLTFLoader.load] Failed to create SceneObject -> ${result.error}`);
+        ctx2.errors.push(`[GLTFLoader.load] Failed to create SceneObject -> ${result.error}`);
         return false;
       }
     }
-    ctx.meshIds = meshIdsStack.length > 0 ? meshIdsStack[meshIdsStack.length - 1] : null;
+    ctx2.meshIds = meshIdsStack.length > 0 ? meshIdsStack[meshIdsStack.length - 1] : null;
   }
   return true;
 }
@@ -145561,20 +145595,20 @@ function parseNodeMatrix(node, matrix) {
   }
   return matrix;
 }
-function parseMesh(node, ctx, matrix, meshIds) {
+function parseMesh(node, ctx2, matrix, meshIds) {
   if (node.mesh) {
     const mesh = node.mesh;
     const numPrimitives = mesh.primitives.length;
     for (let i2 = 0; i2 < numPrimitives; i2++) {
       const primitive = mesh.primitives[i2];
-      if (splitPrimitiveByFeature(ctx, primitive, matrix)) {
+      if (splitPrimitiveByFeature(ctx2, primitive, matrix)) {
         continue;
       }
-      const geometryId = createPrimitiveHash(ctx, primitive);
-      if (!ctx.sceneModel.geometries[geometryId]) {
+      const geometryId = createPrimitiveHash(ctx2, primitive);
+      if (!ctx2.sceneModel.geometries[geometryId]) {
         const POSITION = primitive.attributes.POSITION;
         if (!POSITION) {
-          ctx.errors.push(`[GLTFLoader.load] Primitive has no POSITION attribute`);
+          ctx2.errors.push(`[GLTFLoader.load] Primitive has no POSITION attribute`);
           return false;
         }
         const geometryParams = {
@@ -145621,13 +145655,13 @@ function parseMesh(node, ctx, matrix, meshIds) {
         if (primitive.indices) {
           geometryParams.indices = primitive.indices.value;
         }
-        const result2 = ctx.sceneModel.createGeometry(geometryParams);
+        const result2 = ctx2.sceneModel.createGeometry(geometryParams);
         if (result2.ok === false) {
-          ctx.errors.push(`[GLTFLoader.load] Failed to create SceneGeometry -> ${result2.error}`);
+          ctx2.errors.push(`[GLTFLoader.load] Failed to create SceneGeometry -> ${result2.error}`);
           return false;
         }
       }
-      const meshId = `${ctx.baseId}-${ctx.nextId++}`;
+      const meshId = `${ctx2.baseId}-${ctx2.nextId++}`;
       const meshParams = {
         id: meshId,
         geometryId,
@@ -145641,9 +145675,9 @@ function parseMesh(node, ctx, matrix, meshIds) {
         meshParams.color = [1, 1, 1];
         meshParams.opacity = 1;
       }
-      const result = ctx.sceneModel.createMesh(meshParams);
+      const result = ctx2.sceneModel.createMesh(meshParams);
       if (result.ok === false) {
-        ctx.errors.push(`[GLTFLoader.load] Failed to create SceneMesh -> ${result.error}`);
+        ctx2.errors.push(`[GLTFLoader.load] Failed to create SceneMesh -> ${result.error}`);
         return false;
       }
       meshIds.push(meshId);
@@ -145651,7 +145685,7 @@ function parseMesh(node, ctx, matrix, meshIds) {
   }
   return true;
 }
-function splitPrimitiveByFeature(ctx, primitive, matrix) {
+function splitPrimitiveByFeature(ctx2, primitive, matrix) {
   var _a2, _b, _c, _d, _e2, _f, _g, _h;
   if (primitive.mode != null && primitive.mode !== 4) {
     return false;
@@ -145708,7 +145742,7 @@ function splitPrimitiveByFeature(ctx, primitive, matrix) {
       }
       outIndices.push(local);
     }
-    const objectId = featureObjectId(ctx.baseId, featureId.propertyTable, feature);
+    const objectId = featureObjectId(ctx2.baseId, featureId.propertyTable, feature);
     const geometryId = `${objectId}-geometry`;
     const geometryParams = {
       id: geometryId,
@@ -145720,7 +145754,7 @@ function splitPrimitiveByFeature(ctx, primitive, matrix) {
       geometryParams.normals = new Float32Array(outNormals);
     if (outUvs)
       geometryParams.uvs = new Float32Array(outUvs);
-    if (ctx.sceneModel.createGeometry(geometryParams).ok === false) {
+    if (ctx2.sceneModel.createGeometry(geometryParams).ok === false) {
       continue;
     }
     const meshId = `${objectId}-mesh`;
@@ -145734,10 +145768,10 @@ function splitPrimitiveByFeature(ctx, primitive, matrix) {
       meshParams.color = [1, 1, 1];
       meshParams.opacity = 1;
     }
-    if (ctx.sceneModel.createMesh(meshParams).ok === false) {
+    if (ctx2.sceneModel.createMesh(meshParams).ok === false) {
       continue;
     }
-    ctx.sceneModel.createObject({ id: objectId, meshIds: [meshId], layerId: ctx.options.layerId });
+    ctx2.sceneModel.createObject({ id: objectId, meshIds: [meshId], layerId: ctx2.options.layerId });
   }
   return true;
 }
@@ -147131,11 +147165,11 @@ var MathUtils = class _MathUtils {
    */
   static compose(srcTranslation, srcRotation, srcScale, dstMat) {
     const te2 = dstMat;
-    const x2 = srcRotation[0], y2 = srcRotation[1], z2 = srcRotation[2], w2 = srcRotation[3];
+    const x2 = srcRotation[0], y2 = srcRotation[1], z2 = srcRotation[2], w3 = srcRotation[3];
     const x22 = x2 + x2, y22 = y2 + y2, z22 = z2 + z2;
     const xx = x2 * x22, xy = x2 * y22, xz = x2 * z22;
     const yy = y2 * y22, yz = y2 * z22, zz = z2 * z22;
-    const wx = w2 * x22, wy = w2 * y22, wz = w2 * z22;
+    const wx = w3 * x22, wy = w3 * y22, wz = w3 * z22;
     const sx = srcScale[0], sy = srcScale[1], sz = srcScale[2];
     te2[0] = (1 - (yy + zz)) * sx;
     te2[1] = (xy + wz) * sx;
@@ -149826,8 +149860,8 @@ var GLTFReader = class {
         const bufferData = bufferDef.uri ? jsonDoc.resources[bufferDef.uri] : jsonDoc.resources[GLB_BUFFER];
         const byteOffset = bufferViewDef.byteOffset || 0;
         const byteLength = bufferViewDef.byteLength;
-        const imageData = bufferData.slice(byteOffset, byteOffset + byteLength);
-        texture.setImage(imageData);
+        const imageData2 = bufferData.slice(byteOffset, byteOffset + byteLength);
+        texture.setImage(imageData2);
       } else if (imageDef.uri !== void 0) {
         texture.setImage(jsonDoc.resources[imageDef.uri]);
         if (imageDef.uri.indexOf("__") !== 0) {
@@ -151268,6 +151302,64 @@ var WebIO = class extends PlatformIO {
   }
 };
 
+// src/formats/findTriplanarTextureSkip.ts
+var TEXTURE_REFS = [
+  "colorTexture",
+  "metallicRoughnessTexture",
+  "normalsTexture",
+  "occlusionTexture",
+  "emissiveTexture"
+];
+function materialTextureIds(material) {
+  const ids = [];
+  for (const key of TEXTURE_REFS) {
+    if (material[key])
+      ids.push(material[key].id);
+  }
+  return ids;
+}
+function findTriplanarTextureSkip(sceneModel) {
+  var _a2, _b, _c, _d, _e2;
+  const usedOnUV = /* @__PURE__ */ new Set();
+  const usedOnUVless = /* @__PURE__ */ new Set();
+  for (const objectId of Object.keys(sceneModel.objects)) {
+    for (const mesh of sceneModel.objects[objectId].meshes) {
+      const materialId = (_a2 = mesh.material) == null ? void 0 : _a2.id;
+      if (!materialId)
+        continue;
+      if ((_b = mesh.geometry) == null ? void 0 : _b.uvsCompressed)
+        usedOnUV.add(materialId);
+      else
+        usedOnUVless.add(materialId);
+    }
+  }
+  const materialIds = /* @__PURE__ */ new Set();
+  const texRefTotal = /* @__PURE__ */ new Map();
+  const texRefTriplanar = /* @__PURE__ */ new Map();
+  for (const materialId of Object.keys(sceneModel.materials)) {
+    const material = sceneModel.materials[materialId];
+    const texIds = materialTextureIds(material);
+    for (const t2 of texIds)
+      texRefTotal.set(t2, ((_c = texRefTotal.get(t2)) != null ? _c : 0) + 1);
+    const triplanarOnly = texIds.length > 0 && usedOnUVless.has(materialId) && !usedOnUV.has(materialId);
+    if (triplanarOnly) {
+      materialIds.add(materialId);
+      for (const t2 of texIds)
+        texRefTriplanar.set(t2, ((_d = texRefTriplanar.get(t2)) != null ? _d : 0) + 1);
+    }
+  }
+  const textureIds = /* @__PURE__ */ new Set();
+  for (const [textureId, total] of texRefTotal) {
+    if (total > 0 && ((_e2 = texRefTriplanar.get(textureId)) != null ? _e2 : 0) === total) {
+      textureIds.add(textureId);
+    }
+  }
+  return { materialIds, textureIds, any: materialIds.size > 0 };
+}
+function triplanarSkipWarning(format, skip) {
+  return `[${format}] Dropped ${skip.textureIds.size} texture(s) on ${skip.materialIds.size} material(s): they are sampled via triplanar (world-projected) texturing, which ${format} cannot represent \u2014 those materials are exported as flat colour. Export to XGF to keep them.`;
+}
+
 // src/formats/gltf/GLTFExporter.ts
 var tempVec3a4 = createVec3Float64();
 var tempVec3b4 = createVec3Float64();
@@ -151284,6 +151376,7 @@ var GLTFExporter = class extends ModelExporter {
   }
 };
 async function encode22(params, options) {
+  var _a2;
   const { sceneModel } = params;
   options = options != null ? options : {};
   const onProgress = options.onProgress;
@@ -151307,12 +151400,19 @@ async function encode22(params, options) {
   const doc = new Document();
   const gltfScene = doc.createScene();
   const buffer = doc.createBuffer();
+  const triplanarSkip = findTriplanarTextureSkip(sceneModel);
+  if (triplanarSkip.any) {
+    const warn = (_a2 = options.onWarning) != null ? _a2 : (m2) => console.warn(m2);
+    warn(triplanarSkipWarning("glTF", triplanarSkip));
+  }
   const textureMap = /* @__PURE__ */ new Map();
   const textureIds = Object.keys(sceneModel.textures);
   for (let ti = 0; ti < textureIds.length; ti++) {
     if ((ti & 7) === 0)
       await step2("Encoding textures", ti, textureIds.length);
     const id = textureIds[ti];
+    if (triplanarSkip.textureIds.has(id))
+      continue;
     const sceneTex = sceneModel.textures[id];
     if (sceneTex.compressed) {
       console.warn(`[GLTFExporter] Skipping compressed texture '${sceneTex.id}' (no KHR_texture_basisu support).`);
@@ -151339,7 +151439,7 @@ async function encode22(params, options) {
     if ((mi & 63) === 0)
       await step2("Encoding materials", mi, materialIds.length);
     const sceneMat = sceneModel.materials[materialIds[mi]];
-    materialMap.set(sceneMat.id, buildGltfMaterial(doc, sceneMat, textureMap));
+    materialMap.set(sceneMat.id, buildGltfMaterial(doc, sceneMat, textureMap, triplanarSkip.materialIds.has(sceneMat.id)));
   }
   const accessorCache = /* @__PURE__ */ new Map();
   function getAccessors(geom) {
@@ -151388,7 +151488,7 @@ async function encode22(params, options) {
   }
   const primitiveCache = /* @__PURE__ */ new Map();
   function getPrimitive(geom, sceneMesh) {
-    var _a2;
+    var _a3;
     const matKey = sceneMesh.material ? `mat:${sceneMesh.material.id}` : `mesh:${sceneMesh.id}`;
     const cacheKey = `${geom.id}__${matKey}`;
     const cached = primitiveCache.get(cacheKey);
@@ -151412,7 +151512,7 @@ async function encode22(params, options) {
         prim.setMaterial(mat);
     } else {
       const c3 = sceneMesh.color || [1, 1, 1];
-      const a3 = c3.length > 3 ? c3[3] : (_a2 = sceneMesh.opacity) != null ? _a2 : 1;
+      const a3 = c3.length > 3 ? c3[3] : (_a3 = sceneMesh.opacity) != null ? _a3 : 1;
       const fallback = doc.createMaterial(`${sceneMesh.id}__inline`).setBaseColorFactor([c3[0], c3[1], c3[2], a3]).setMetallicFactor(0).setRoughnessFactor(1).setAlphaMode(a3 < 1 ? "BLEND" : "OPAQUE");
       prim.setMaterial(fallback);
     }
@@ -151445,7 +151545,7 @@ async function encode22(params, options) {
   await step2("Writing glTF binary", objectIds.length, objectIds.length);
   return await io.writeBinary(doc);
 }
-function buildGltfMaterial(doc, sceneMat, textureMap) {
+function buildGltfMaterial(doc, sceneMat, textureMap, skipTextures) {
   var _a2, _b, _c;
   const mat = doc.createMaterial(sceneMat.id);
   const c3 = sceneMat.color;
@@ -151462,11 +151562,13 @@ function buildGltfMaterial(doc, sceneMat, textureMap) {
   if (alphaMode === "MASK") {
     mat.setAlphaCutoff((_c = sceneMat.alphaCutoff) != null ? _c : 0.5);
   }
-  bindTexture(mat, "BaseColor", sceneMat.colorTexture, textureMap);
-  bindTexture(mat, "MetallicRoughness", sceneMat.metallicRoughnessTexture, textureMap);
-  bindTexture(mat, "Normal", sceneMat.normalsTexture, textureMap);
-  bindTexture(mat, "Occlusion", sceneMat.occlusionTexture, textureMap);
-  bindTexture(mat, "Emissive", sceneMat.emissiveTexture, textureMap);
+  if (!skipTextures) {
+    bindTexture(mat, "BaseColor", sceneMat.colorTexture, textureMap);
+    bindTexture(mat, "MetallicRoughness", sceneMat.metallicRoughnessTexture, textureMap);
+    bindTexture(mat, "Normal", sceneMat.normalsTexture, textureMap);
+    bindTexture(mat, "Occlusion", sceneMat.occlusionTexture, textureMap);
+    bindTexture(mat, "Emissive", sceneMat.emissiveTexture, textureMap);
+  }
   return mat;
 }
 function bindTexture(mat, slot, sceneTex, textureMap) {
@@ -151536,19 +151638,19 @@ async function encodeSceneTextureBytes(tex) {
     return { bytes, mime };
   }
   if (tex.image) {
-    const w2 = tex.image.naturalWidth || tex.image.width || 0;
-    const h2 = tex.image.naturalHeight || tex.image.height || 0;
-    if (w2 <= 0 || h2 <= 0)
+    const w3 = tex.image.naturalWidth || tex.image.width || 0;
+    const h3 = tex.image.naturalHeight || tex.image.height || 0;
+    if (w3 <= 0 || h3 <= 0)
       throw new Error("image has zero dimensions");
-    const bytes = await canvasToPNG(w2, h2, (ctx) => {
-      ctx.drawImage(tex.image, 0, 0);
+    const bytes = await canvasToPNG(w3, h3, (ctx2) => {
+      ctx2.drawImage(tex.image, 0, 0);
     });
     return { bytes, mime: "image/png" };
   }
   if (tex.imageData) {
     const { width, height } = tex.imageData;
-    const bytes = await canvasToPNG(width, height, (ctx) => {
-      ctx.putImageData(tex.imageData, 0, 0);
+    const bytes = await canvasToPNG(width, height, (ctx2) => {
+      ctx2.putImageData(tex.imageData, 0, 0);
     });
     return { bytes, mime: "image/png" };
   }
@@ -151590,15 +151692,15 @@ function detectImageMime(bytes, mediaType) {
   return "application/octet-stream";
 }
 async function canvasToPNG(width, height, draw) {
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext("2d");
-  if (!ctx)
+  const canvas2 = document.createElement("canvas");
+  canvas2.width = width;
+  canvas2.height = height;
+  const ctx2 = canvas2.getContext("2d");
+  if (!ctx2)
     throw new Error("2D canvas context unavailable");
-  draw(ctx);
+  draw(ctx2);
   const blob = await new Promise(
-    (resolve3, reject) => canvas.toBlob((b5) => b5 ? resolve3(b5) : reject(new Error("canvas.toBlob failed")), "image/png")
+    (resolve3, reject) => canvas2.toBlob((b5) => b5 ? resolve3(b5) : reject(new Error("canvas.toBlob failed")), "image/png")
   );
   return new Uint8Array(await blob.arrayBuffer());
 }
@@ -152172,7 +152274,7 @@ var parse4 = async (params, options) => {
     await yieldToHost(signal);
   };
   if (sceneModel || dataModel) {
-    const ctx = {
+    const ctx2 = {
       fileData,
       errors: [],
       warnings: [],
@@ -152182,10 +152284,10 @@ var parse4 = async (params, options) => {
       nextId: 0,
       options: opts
     };
-    const ok = await parseCityJSON(ctx, step2);
+    const ok = await parseCityJSON(ctx2, step2);
     if (!ok) {
       throw new Error(
-        ctx.errors.length > 0 ? `[CityJSONLoader] Failed to parse CityJSON file:${ctx.errors[0]}` : `[CityJSONLoader] Failed to parse CityJSON file: Unknown error`
+        ctx2.errors.length > 0 ? `[CityJSONLoader] Failed to parse CityJSON file:${ctx2.errors[0]}` : `[CityJSONLoader] Failed to parse CityJSON file: Unknown error`
       );
     }
   }
@@ -152202,8 +152304,8 @@ function transformVertices(vertices, transform) {
   }
   return transformedVertices;
 }
-async function parseCityJSON(ctx, step2) {
-  const fileData = ctx.fileData;
+async function parseCityJSON(ctx2, step2) {
+  const fileData = ctx2.fileData;
   const cityObjects = fileData.CityObjects;
   const ids = Object.keys(cityObjects);
   const total = ids.length;
@@ -152211,16 +152313,16 @@ async function parseCityJSON(ctx, step2) {
     if ((i2 & 31) === 0)
       await step2("Parsing city objects", i2, total);
     const objectId = ids[i2];
-    if (!parseCityObject(ctx, cityObjects[objectId], objectId)) {
+    if (!parseCityObject(ctx2, cityObjects[objectId], objectId)) {
       return false;
     }
   }
-  if (ctx.dataModel) {
+  if (ctx2.dataModel) {
     for (let i2 = 0; i2 < total; i2++) {
       if ((i2 & 63) === 0)
         await step2("Building relationships", i2, total);
       const objectId = ids[i2];
-      if (!parseRelationship(ctx, cityObjects[objectId], objectId)) {
+      if (!parseRelationship(ctx2, cityObjects[objectId], objectId)) {
         return false;
       }
     }
@@ -152228,9 +152330,9 @@ async function parseCityJSON(ctx, step2) {
   await step2("Parsing city objects", total, total);
   return true;
 }
-function parseCityObject(ctx, cityObject, objectId) {
-  if (ctx.dataModel) {
-    const result = ctx.dataModel.createObject({
+function parseCityObject(ctx2, cityObject, objectId) {
+  if (ctx2.dataModel) {
+    const result = ctx2.dataModel.createObject({
       id: objectId,
       name: cityObject.type + " : " + objectId,
       type: cityObject.type,
@@ -152238,13 +152340,13 @@ function parseCityObject(ctx, cityObject, objectId) {
       parent: cityObject.parents ? cityObject.parents[0] : null
     });
     if (!result.ok) {
-      ctx.errors.push(`[CityJSONLoader] Failed to create data object for CityJSON object ${objectId} -> ${result.error}`);
+      ctx2.errors.push(`[CityJSONLoader] Failed to create data object for CityJSON object ${objectId} -> ${result.error}`);
       return false;
     }
   }
-  if (ctx.sceneModel) {
+  if (ctx2.sceneModel) {
     if (!(cityObject.geometry && cityObject.geometry.length > 0)) {
-      ctx.warnings.push(`[CityJSONLoader] CityJSON object ${objectId} has no geometry`);
+      ctx2.warnings.push(`[CityJSONLoader] CityJSON object ${objectId} has no geometry`);
       return true;
     }
     const meshIds = [];
@@ -152252,7 +152354,7 @@ function parseCityObject(ctx, cityObject, objectId) {
       const geometry = cityObject.geometry[i2];
       let objectMaterial;
       let surfaceMaterials;
-      const appearance = ctx.fileData.appearance;
+      const appearance = ctx2.fileData.appearance;
       if (appearance) {
         const materials = appearance.materials;
         if (materials) {
@@ -152280,44 +152382,44 @@ function parseCityObject(ctx, cityObject, objectId) {
         }
       }
       if (surfaceMaterials) {
-        if (!parseGeometrySurfacesWithOwnMaterials(ctx, geometry, surfaceMaterials, meshIds)) {
+        if (!parseGeometrySurfacesWithOwnMaterials(ctx2, geometry, surfaceMaterials, meshIds)) {
           return false;
         }
       } else {
-        if (!parseGeometrySurfacesWithSharedMaterial(ctx, geometry, objectMaterial, meshIds)) {
+        if (!parseGeometrySurfacesWithSharedMaterial(ctx2, geometry, objectMaterial, meshIds)) {
           return false;
         }
       }
     }
     if (meshIds.length > 0) {
-      const result = ctx.sceneModel.createObject({
+      const result = ctx2.sceneModel.createObject({
         id: objectId,
         schema: SCHEMA,
         meshIds
       });
       if (!result.ok) {
-        ctx.errors.push(`[CityJSONLoader] Failed to create scene object for CityJSON object ${objectId} -> ${result.error}`);
+        ctx2.errors.push(`[CityJSONLoader] Failed to create scene object for CityJSON object ${objectId} -> ${result.error}`);
         return false;
       }
     }
   }
   return true;
 }
-function parseRelationship(ctx, cityObject, objectId) {
+function parseRelationship(ctx2, cityObject, objectId) {
   if (cityObject.parents) {
-    const result = ctx.dataModel.createRelationship({
+    const result = ctx2.dataModel.createRelationship({
       relatingObjectId: cityObject.parents[0],
       relatedObjectId: objectId,
       type: "BasicAggregation"
     });
     if (!result.ok) {
-      ctx.errors.push(`[CityJSONLoader] Failed to create relationship for CityJSON object ${objectId} -> ${result.error}`);
+      ctx2.errors.push(`[CityJSONLoader] Failed to create relationship for CityJSON object ${objectId} -> ${result.error}`);
       return false;
     }
   }
   return true;
 }
-function parseGeometrySurfacesWithOwnMaterials(ctx, geometry, surfaceMaterials, meshIds) {
+function parseGeometrySurfacesWithOwnMaterials(ctx2, geometry, surfaceMaterials, meshIds) {
   const geomType = geometry.type;
   switch (geomType) {
     case "MultiPoint":
@@ -152327,12 +152429,12 @@ function parseGeometrySurfacesWithOwnMaterials(ctx, geometry, surfaceMaterials, 
     case "MultiSurface":
     case "CompositeSurface":
       const surfaces = geometry.boundaries;
-      return parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces, meshIds);
+      return parseSurfacesWithOwnMaterials(ctx2, surfaceMaterials, surfaces, meshIds);
     case "Solid":
       const shells = geometry.boundaries;
       for (let j2 = 0; j2 < shells.length; j2++) {
         const surfaces2 = shells[j2];
-        return parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces2, meshIds);
+        return parseSurfacesWithOwnMaterials(ctx2, surfaceMaterials, surfaces2, meshIds);
       }
       break;
     case "MultiSolid":
@@ -152341,7 +152443,7 @@ function parseGeometrySurfacesWithOwnMaterials(ctx, geometry, surfaceMaterials, 
       for (let j2 = 0; j2 < solids.length; j2++) {
         for (let k2 = 0; k2 < solids[j2].length; k2++) {
           const surfaces2 = solids[j2][k2];
-          return parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces2, meshIds);
+          return parseSurfacesWithOwnMaterials(ctx2, surfaceMaterials, surfaces2, meshIds);
         }
       }
       break;
@@ -152350,9 +152452,9 @@ function parseGeometrySurfacesWithOwnMaterials(ctx, geometry, surfaceMaterials, 
   }
   return true;
 }
-function parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces, meshIds) {
-  const vertices = ctx.vertices;
-  const sceneModel = ctx.sceneModel;
+function parseSurfacesWithOwnMaterials(ctx2, surfaceMaterials, surfaces, meshIds) {
+  const vertices = ctx2.vertices;
+  const sceneModel = ctx2.sceneModel;
   for (let i2 = 0; i2 < surfaces.length; i2++) {
     const surface = surfaces[i2];
     const surfaceMaterial = surfaceMaterials[i2] || { diffuseColor: [0.8, 0.8, 0.8], transparency: 1 };
@@ -152367,7 +152469,7 @@ function parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces, meshIds)
       if (face.length > 0) {
         holes.push(face.length);
       }
-      const newFace = extractLocalIndices(ctx, surface[j2], sharedIndices, geometryCfg);
+      const newFace = extractLocalIndices(ctx2, surface[j2], sharedIndices, geometryCfg);
       face.push(...newFace);
     }
     if (face.length === 3) {
@@ -152397,7 +152499,7 @@ function parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces, meshIds)
         geometryCfg.indices.unshift(face[tr2[k2 + 2]]);
       }
     }
-    const geometryId = "" + ctx.nextId++;
+    const geometryId = "" + ctx2.nextId++;
     const result = sceneModel.createGeometry({
       id: geometryId,
       primitive: TrianglesPrimitive,
@@ -152405,10 +152507,10 @@ function parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces, meshIds)
       indices: geometryCfg.indices
     });
     if (!result.ok) {
-      ctx.errors.push(`[CityJSONLoader] Failed to create geometry for CityJSON surface -> ${result.error}`);
+      ctx2.errors.push(`[CityJSONLoader] Failed to create geometry for CityJSON surface -> ${result.error}`);
       return false;
     }
-    const meshId = "" + ctx.nextId++;
+    const meshId = "" + ctx2.nextId++;
     const result2 = sceneModel.createMesh({
       id: meshId,
       geometryId,
@@ -152416,15 +152518,15 @@ function parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces, meshIds)
       opacity: surfaceMaterial && surfaceMaterial.transparency !== void 0 ? 1 - surfaceMaterial.transparency : 1
     });
     if (!result2.ok) {
-      ctx.errors.push(`[CityJSONLoader] Failed to create mesh for CityJSON surface -> ${result2.error}`);
+      ctx2.errors.push(`[CityJSONLoader] Failed to create mesh for CityJSON surface -> ${result2.error}`);
       return false;
     }
     meshIds.push(meshId);
   }
   return true;
 }
-function parseGeometrySurfacesWithSharedMaterial(ctx, geometry, objectMaterial, meshIds) {
-  const sceneModel = ctx.sceneModel;
+function parseGeometrySurfacesWithSharedMaterial(ctx2, geometry, objectMaterial, meshIds) {
+  const sceneModel = ctx2.sceneModel;
   const sharedIndices = [];
   const geometryCfg = {
     positions: [],
@@ -152439,7 +152541,7 @@ function parseGeometrySurfacesWithSharedMaterial(ctx, geometry, objectMaterial, 
     case "MultiSurface":
     case "CompositeSurface":
       const surfaces = geometry.boundaries;
-      if (!parseSurfacesWithSharedMaterial(ctx, surfaces, sharedIndices, geometryCfg)) {
+      if (!parseSurfacesWithSharedMaterial(ctx2, surfaces, sharedIndices, geometryCfg)) {
         return false;
       }
       break;
@@ -152447,7 +152549,7 @@ function parseGeometrySurfacesWithSharedMaterial(ctx, geometry, objectMaterial, 
       const shells = geometry.boundaries;
       for (let j2 = 0; j2 < shells.length; j2++) {
         const surfaces2 = shells[j2];
-        if (!parseSurfacesWithSharedMaterial(ctx, surfaces2, sharedIndices, geometryCfg)) {
+        if (!parseSurfacesWithSharedMaterial(ctx2, surfaces2, sharedIndices, geometryCfg)) {
           return false;
         }
       }
@@ -152458,7 +152560,7 @@ function parseGeometrySurfacesWithSharedMaterial(ctx, geometry, objectMaterial, 
       for (let j2 = 0; j2 < solids.length; j2++) {
         for (let k2 = 0; k2 < solids[j2].length; k2++) {
           const surfaces2 = solids[j2][k2];
-          if (!parseSurfacesWithSharedMaterial(ctx, surfaces2, sharedIndices, geometryCfg)) {
+          if (!parseSurfacesWithSharedMaterial(ctx2, surfaces2, sharedIndices, geometryCfg)) {
             return false;
           }
         }
@@ -152468,7 +152570,7 @@ function parseGeometrySurfacesWithSharedMaterial(ctx, geometry, objectMaterial, 
       break;
   }
   if (geometryCfg.positions.length > 0 && geometryCfg.indices.length > 0) {
-    const geometryId = "" + ctx.nextId++;
+    const geometryId = "" + ctx2.nextId++;
     const geometryResult = sceneModel.createGeometry({
       id: geometryId,
       primitive: TrianglesPrimitive,
@@ -152476,10 +152578,10 @@ function parseGeometrySurfacesWithSharedMaterial(ctx, geometry, objectMaterial, 
       indices: geometryCfg.indices
     });
     if (!geometryResult.ok) {
-      ctx.errors.push(`[CityJSONLoader] Failed to create geometry for CityJSON object -> ${geometryResult.error}`);
+      ctx2.errors.push(`[CityJSONLoader] Failed to create geometry for CityJSON object -> ${geometryResult.error}`);
       return false;
     }
-    const meshId = "" + ctx.nextId++;
+    const meshId = "" + ctx2.nextId++;
     const meshResult = sceneModel.createMesh({
       id: meshId,
       geometryId,
@@ -152487,15 +152589,15 @@ function parseGeometrySurfacesWithSharedMaterial(ctx, geometry, objectMaterial, 
       opacity: 1
     });
     if (!meshResult.ok) {
-      ctx.errors.push(`[CityJSONLoader] Failed to create mesh for CityJSON object -> ${meshResult.error}`);
+      ctx2.errors.push(`[CityJSONLoader] Failed to create mesh for CityJSON object -> ${meshResult.error}`);
       return false;
     }
     meshIds.push(meshId);
   }
   return true;
 }
-function parseSurfacesWithSharedMaterial(ctx, surfaces, sharedIndices, primitiveCfg) {
-  const vertices = ctx.vertices;
+function parseSurfacesWithSharedMaterial(ctx2, surfaces, sharedIndices, primitiveCfg) {
+  const vertices = ctx2.vertices;
   for (let i2 = 0; i2 < surfaces.length; i2++) {
     const boundary = [];
     const holes = [];
@@ -152503,7 +152605,7 @@ function parseSurfacesWithSharedMaterial(ctx, surfaces, sharedIndices, primitive
       if (boundary.length > 0) {
         holes.push(boundary.length);
       }
-      const newBoundary = extractLocalIndices(ctx, surfaces[i2][j2], sharedIndices, primitiveCfg);
+      const newBoundary = extractLocalIndices(ctx2, surfaces[i2][j2], sharedIndices, primitiveCfg);
       boundary.push(...newBoundary);
     }
     if (boundary.length === 3) {
@@ -152536,8 +152638,8 @@ function parseSurfacesWithSharedMaterial(ctx, surfaces, sharedIndices, primitive
   }
   return true;
 }
-function extractLocalIndices(ctx, boundary, sharedIndices, geometryCfg) {
-  const vertices = ctx.vertices;
+function extractLocalIndices(ctx2, boundary, sharedIndices, geometryCfg) {
+  const vertices = ctx2.vertices;
   const newBoundary = [];
   for (let i2 = 0, len = boundary.length; i2 < len; i2++) {
     const index2 = boundary[i2];
@@ -152820,15 +152922,15 @@ var SCHEMA2 = "IFC4";
 async function parse5(ifcAPI, params, options) {
   await parseWebIFC(ifcAPI, params, options);
 }
-async function step(ctx, phase, current, total) {
-  const cb2 = ctx.options.onProgress;
+async function step(ctx2, phase, current, total) {
+  const cb2 = ctx2.options.onProgress;
   if (cb2) {
-    ctx.progress.phase = phase;
-    ctx.progress.current = current;
-    ctx.progress.total = total;
-    cb2(ctx.progress);
+    ctx2.progress.phase = phase;
+    ctx2.progress.current = current;
+    ctx2.progress.total = total;
+    cb2(ctx2.progress);
   }
-  await yieldToHost(ctx.options.signal);
+  await yieldToHost(ctx2.options.signal);
 }
 async function parseWebIFC(ifcAPI, params, options) {
   const { sceneModel, dataModel, fileData } = params;
@@ -152838,7 +152940,7 @@ async function parseWebIFC(ifcAPI, params, options) {
   await yieldToHost(options.signal);
   const lines = ifcAPI.GetLineIDsWithType(modelId, WebIFC.IFCPROJECT);
   const ifcProjectId = lines.get(0);
-  const ctx = {
+  const ctx2 = {
     options: options || {},
     fileData,
     modelId,
@@ -152852,31 +152954,31 @@ async function parseWebIFC(ifcAPI, params, options) {
     progress: { phase: "", current: 0, total: 0 },
     visitedRelations: /* @__PURE__ */ new Set()
   };
-  await parseIFC(ctx);
+  await parseIFC(ctx2);
 }
-async function parseIFC(ctx) {
-  if (ctx.dataModel)
-    await parseDataModel(ctx);
-  if (ctx.sceneModel)
-    await parseSceneModel(ctx);
+async function parseIFC(ctx2) {
+  if (ctx2.dataModel)
+    await parseDataModel(ctx2);
+  if (ctx2.sceneModel)
+    await parseSceneModel(ctx2);
 }
-async function parseDataModel(ctx) {
-  await parsePropertySets(ctx);
-  const lines = ctx.ifcAPI.GetLineIDsWithType(ctx.modelId, WebIFC.IFCPROJECT);
+async function parseDataModel(ctx2) {
+  await parsePropertySets(ctx2);
+  const lines = ctx2.ifcAPI.GetLineIDsWithType(ctx2.modelId, WebIFC.IFCPROJECT);
   const ifcProjectId = lines.get(0);
-  const ifcProject = ctx.ifcAPI.GetLine(ctx.modelId, ifcProjectId);
-  await parseDataObjectAggregation(ctx, ifcProject, void 0, "IfcRelAggregates");
+  const ifcProject = ctx2.ifcAPI.GetLine(ctx2.modelId, ifcProjectId);
+  await parseDataObjectAggregation(ctx2, ifcProject, void 0, "IfcRelAggregates");
 }
-async function parsePropertySets(ctx) {
+async function parsePropertySets(ctx2) {
   var _a2, _b;
-  const lines = ctx.ifcAPI.GetLineIDsWithType(ctx.modelId, WebIFC.IFCRELDEFINESBYPROPERTIES);
+  const lines = ctx2.ifcAPI.GetLineIDsWithType(ctx2.modelId, WebIFC.IFCRELDEFINESBYPROPERTIES);
   const total = lines.size();
   for (let i2 = 0; i2 < total; i2++) {
     if ((i2 & 63) === 0) {
-      await step(ctx, "Parsing property sets", i2, total);
+      await step(ctx2, "Parsing property sets", i2, total);
     }
     const relID = lines.get(i2);
-    const rel = ctx.ifcAPI.GetLine(ctx.modelId, relID, true);
+    const rel = ctx2.ifcAPI.GetLine(ctx2.modelId, relID, true);
     if (!rel || !rel.RelatingPropertyDefinition)
       continue;
     const def = rel.RelatingPropertyDefinition;
@@ -152893,7 +152995,7 @@ async function parsePropertySets(ctx) {
         description: ((_e2 = prop2.Description) == null ? void 0 : _e2.value) || ((_f = prop2.NominalValue) == null ? void 0 : _f.description) || ""
       };
     });
-    ctx.dataModel.createPropertySet({
+    ctx2.dataModel.createPropertySet({
       id: propertySetId,
       type: "Default",
       schema: SCHEMA2,
@@ -152902,27 +153004,27 @@ async function parsePropertySets(ctx) {
     });
     for (const relatedObject of rel.RelatedObjects || []) {
       const expId = relatedObject.value;
-      if (!ctx.propertySetsByObjectExpressId[expId]) {
-        ctx.propertySetsByObjectExpressId[expId] = [];
+      if (!ctx2.propertySetsByObjectExpressId[expId]) {
+        ctx2.propertySetsByObjectExpressId[expId] = [];
       }
-      ctx.propertySetsByObjectExpressId[expId].push(propertySetId);
+      ctx2.propertySetsByObjectExpressId[expId].push(propertySetId);
     }
   }
 }
-async function parseDataObjectAggregation(ctx, element, parentId, relType) {
-  createDataObject(ctx, element, parentId, relType);
+async function parseDataObjectAggregation(ctx2, element, parentId, relType) {
+  createDataObject(ctx2, element, parentId, relType);
   const elementId = element.GlobalId.value;
-  await parseRelatedItemsOfType(ctx, element.expressID, "RelatingObject", "RelatedObjects", WebIFC.IFCRELAGGREGATES, elementId, "IfcRelAggregates");
-  await parseRelatedItemsOfType(ctx, element.expressID, "RelatingStructure", "RelatedElements", WebIFC.IFCRELCONTAINEDINSPATIALSTRUCTURE, elementId, "IfcRelContainedInSpatialStructure");
+  await parseRelatedItemsOfType(ctx2, element.expressID, "RelatingObject", "RelatedObjects", WebIFC.IFCRELAGGREGATES, elementId, "IfcRelAggregates");
+  await parseRelatedItemsOfType(ctx2, element.expressID, "RelatingStructure", "RelatedElements", WebIFC.IFCRELCONTAINEDINSPATIALSTRUCTURE, elementId, "IfcRelContainedInSpatialStructure");
 }
-function createDataObject(ctx, element, parentId, relType) {
+function createDataObject(ctx2, element, parentId, relType) {
   var _a2;
   const id = element.GlobalId.value;
   const typeName = element.__proto__.constructor.name;
   const name12 = ((_a2 = element.Name) == null ? void 0 : _a2.value) || typeName;
   const typeCode = typeName != null ? typeName : "IfcElement";
-  const propertySetIds = ctx.propertySetsByObjectExpressId[element.expressID];
-  ctx.dataModel.createObject({
+  const propertySetIds = ctx2.propertySetsByObjectExpressId[element.expressID];
+  ctx2.dataModel.createObject({
     id,
     name: name12,
     type: typeCode,
@@ -152930,7 +153032,7 @@ function createDataObject(ctx, element, parentId, relType) {
     ...propertySetIds && propertySetIds.length > 0 ? { propertySetIds } : {}
   });
   if (parentId) {
-    ctx.dataModel.createRelationship({
+    ctx2.dataModel.createRelationship({
       type: relType || "IfcRelAggregates",
       schema: SCHEMA2,
       relatingObjectId: parentId,
@@ -152938,15 +153040,15 @@ function createDataObject(ctx, element, parentId, relType) {
     });
   }
 }
-async function parseRelatedItemsOfType(ctx, id, relationKey, relatedKey, type, parentId, relTypeName) {
+async function parseRelatedItemsOfType(ctx2, id, relationKey, relatedKey, type, parentId, relTypeName) {
   var _a2;
-  const lines = ctx.ifcAPI.GetLineIDsWithType(ctx.modelId, type);
+  const lines = ctx2.ifcAPI.GetLineIDsWithType(ctx2.modelId, type);
   const total = lines.size();
   for (let i2 = 0; i2 < total; i2++) {
     if ((i2 & 63) === 0) {
-      await step(ctx, "Parsing data objects", i2, total);
+      await step(ctx2, "Parsing data objects", i2, total);
     }
-    const rel = ctx.ifcAPI.GetLine(ctx.modelId, lines.get(i2));
+    const rel = ctx2.ifcAPI.GetLine(ctx2.modelId, lines.get(i2));
     const relatedItems = rel[relationKey];
     const isMatch = Array.isArray(relatedItems) ? relatedItems.some((item) => item.value === id) : (relatedItems == null ? void 0 : relatedItems.value) === id;
     if (!isMatch)
@@ -152954,28 +153056,28 @@ async function parseRelatedItemsOfType(ctx, id, relationKey, relatedKey, type, p
     const targets = rel[relatedKey];
     const relatedElements = Array.isArray(targets) ? targets : [targets];
     for (const target of relatedElements) {
-      const element = ctx.ifcAPI.GetLine(ctx.modelId, target.value);
+      const element = ctx2.ifcAPI.GetLine(ctx2.modelId, target.value);
       const childId = (_a2 = element == null ? void 0 : element.GlobalId) == null ? void 0 : _a2.value;
       if (!childId)
         continue;
       const visitKey = `${parentId}|${childId}|${relTypeName}`;
-      if (ctx.visitedRelations.has(visitKey))
+      if (ctx2.visitedRelations.has(visitKey))
         continue;
-      ctx.visitedRelations.add(visitKey);
-      await parseDataObjectAggregation(ctx, element, parentId, relTypeName);
+      ctx2.visitedRelations.add(visitKey);
+      await parseDataObjectAggregation(ctx2, element, parentId, relTypeName);
     }
   }
 }
-async function parseSceneModel(ctx) {
+async function parseSceneModel(ctx2) {
   const staged = [];
-  ctx.ifcAPI.StreamAllMeshes(ctx.modelId, (flatMesh) => {
-    const objectId = ctx.ifcAPI.GetLine(ctx.modelId, flatMesh.expressID).GlobalId.value;
+  ctx2.ifcAPI.StreamAllMeshes(ctx2.modelId, (flatMesh) => {
+    const objectId = ctx2.ifcAPI.GetLine(ctx2.modelId, flatMesh.expressID).GlobalId.value;
     const geoms = [];
     for (let j2 = 0; j2 < flatMesh.geometries.size(); j2++) {
       const placedGeometry = flatMesh.geometries.get(j2);
-      const geometry = ctx.ifcAPI.GetGeometry(ctx.modelId, placedGeometry.geometryExpressID);
-      const vertexData = ctx.ifcAPI.GetVertexArray(geometry.GetVertexData(), geometry.GetVertexDataSize());
-      const indicesView = ctx.ifcAPI.GetIndexArray(geometry.GetIndexData(), geometry.GetIndexDataSize());
+      const geometry = ctx2.ifcAPI.GetGeometry(ctx2.modelId, placedGeometry.geometryExpressID);
+      const vertexData = ctx2.ifcAPI.GetVertexArray(geometry.GetVertexData(), geometry.GetVertexDataSize());
+      const indicesView = ctx2.ifcAPI.GetIndexArray(geometry.GetIndexData(), geometry.GetIndexDataSize());
       if (vertexData.length === 0 || indicesView.length === 0) {
         continue;
       }
@@ -152996,8 +153098,8 @@ async function parseSceneModel(ctx) {
       ];
       const opacity = placedGeometry.color.w;
       geoms.push({
-        geometryId: `${ctx.nextId++}`,
-        meshId: `${ctx.nextId++}`,
+        geometryId: `${ctx2.nextId++}`,
+        meshId: `${ctx2.nextId++}`,
         positions,
         indices,
         matrix,
@@ -153012,12 +153114,12 @@ async function parseSceneModel(ctx) {
   const total = staged.length;
   for (let i2 = 0; i2 < total; i2++) {
     if ((i2 & 7) === 0) {
-      await step(ctx, "Building meshes", i2, total);
+      await step(ctx2, "Building meshes", i2, total);
     }
     const { objectId, geoms } = staged[i2];
     const meshIds = [];
     for (const g2 of geoms) {
-      const geometryResult = ctx.sceneModel.createGeometry({
+      const geometryResult = ctx2.sceneModel.createGeometry({
         id: g2.geometryId,
         primitive: TrianglesPrimitive,
         positions: g2.positions,
@@ -153026,7 +153128,7 @@ async function parseSceneModel(ctx) {
       if (!geometryResult.ok) {
         continue;
       }
-      const meshResult = ctx.sceneModel.createMesh({
+      const meshResult = ctx2.sceneModel.createMesh({
         id: g2.meshId,
         geometryId: g2.geometryId,
         matrix: g2.matrix,
@@ -153039,14 +153141,14 @@ async function parseSceneModel(ctx) {
       meshIds.push(g2.meshId);
     }
     if (meshIds.length > 0) {
-      ctx.sceneModel.createObject({
+      ctx2.sceneModel.createObject({
         id: objectId,
         meshIds,
-        layerId: ctx.options.layerId
+        layerId: ctx2.options.layerId
       });
     }
   }
-  await step(ctx, "Building meshes", total, total);
+  await step(ctx2, "Building meshes", total, total);
 }
 
 // src/formats/ifc/getInitializedIFCAPI.ts
@@ -153663,626 +153765,6 @@ __export(xgf_exports, {
 // src/formats/xgf/versions/v1/unpackXGF.ts
 function unpackXGF(arrayBuffer) {
   const requiresSwapFromLittleEndian = function() {
-    const buffer = new ArrayBuffer(2);
-    new Uint16Array(buffer)[0] = 1;
-    return new Uint8Array(buffer)[0] !== 1;
-  }();
-  const nextArray = function() {
-    let i2 = 0;
-    const dataView = new DataView(arrayBuffer);
-    return function(type) {
-      const idx = 1 + 2 * i2++;
-      const byteOffset = dataView.getUint32(idx * 4, true);
-      const byteLength = dataView.getUint32((idx + 1) * 4, true);
-      const BPE = type.BYTES_PER_ELEMENT;
-      if (requiresSwapFromLittleEndian && BPE > 1) {
-        const subarray = new Uint8Array(arrayBuffer, byteOffset, byteLength);
-        const swaps = BPE / 2;
-        const cnt = subarray.length / BPE;
-        for (let b5 = 0; b5 < cnt; b5++) {
-          const offset = b5 * BPE;
-          for (let j2 = 0; j2 < swaps; j2++) {
-            const i1 = offset + j2;
-            const i22 = offset - j2 + BPE - 1;
-            const tmp = subarray[i1];
-            subarray[i1] = subarray[i22];
-            subarray[i22] = tmp;
-          }
-        }
-      }
-      return new type(arrayBuffer, byteOffset, byteLength / BPE);
-    };
-  }();
-  const nextObject = function() {
-    const decoder = new TextDecoder();
-    return () => JSON.parse(decoder.decode(nextArray(Uint8Array)));
-  }();
-  return {
-    positions: nextArray(Uint16Array),
-    colors: nextArray(Uint8Array),
-    indices: nextArray(Uint32Array),
-    edgeIndices: nextArray(Uint32Array),
-    aabbs: nextArray(Float32Array),
-    eachGeometryPositionsBase: nextArray(Uint32Array),
-    eachGeometryColorsBase: nextArray(Uint32Array),
-    eachGeometryIndicesBase: nextArray(Uint32Array),
-    eachGeometryEdgeIndicesBase: nextArray(Uint32Array),
-    eachGeometryPrimitiveType: nextArray(Uint8Array),
-    eachGeometryAABBBase: nextArray(Uint32Array),
-    matrices: nextArray(Float64Array),
-    eachMeshGeometriesBase: nextArray(Uint32Array),
-    eachMeshMatricesBase: nextArray(Uint32Array),
-    eachMeshMaterialAttributes: nextArray(Uint8Array),
-    eachObjectId: nextObject(),
-    eachObjectMeshesBase: nextArray(Uint32Array)
-  };
-}
-
-// src/formats/xgf/versions/v1/xgfToModel.ts
-function xgfToModel(params) {
-  const { xgfData, sceneModel, dataModel, options } = params;
-  const layerId = (options == null ? void 0 : options.layerId) || "default";
-  const defaultId = sceneModel ? sceneModel.id : createUUID();
-  if (dataModel) {
-    dataModel.createObject({
-      id: defaultId,
-      name: defaultId,
-      type: "BasicEntity"
-    });
-  }
-  const {
-    eachGeometryPositionsBase,
-    eachGeometryIndicesBase,
-    eachGeometryEdgeIndicesBase,
-    eachGeometryAABBBase,
-    eachGeometryPrimitiveType,
-    eachMeshGeometriesBase,
-    eachMeshMaterialAttributes,
-    eachMeshMatricesBase,
-    eachObjectMeshesBase,
-    eachObjectId,
-    positions,
-    indices,
-    edgeIndices,
-    aabbs,
-    matrices
-  } = xgfData;
-  const numGeometries = eachGeometryPositionsBase.length;
-  const numMeshes = eachMeshGeometriesBase.length;
-  const numObjects = eachObjectMeshesBase.length;
-  let nextMeshId = 0;
-  const floatColor = createVec3Float32();
-  for (let objectIdx = 0; objectIdx < numObjects; objectIdx++) {
-    const objectId = eachObjectId[objectIdx];
-    const lastObjectIdx = numObjects - 1;
-    const atLastObject = objectIdx === lastObjectIdx;
-    const firstMeshIdx = eachObjectMeshesBase[objectIdx];
-    const lastMeshIdx = atLastObject ? numMeshes - 1 : eachObjectMeshesBase[objectIdx + 1] - 1;
-    const meshIds = [];
-    for (let meshIdx = firstMeshIdx; meshIdx <= lastMeshIdx; meshIdx++) {
-      const meshId = `${nextMeshId++}`;
-      if (sceneModel) {
-        const geometryIdx = eachMeshGeometriesBase[meshIdx];
-        const colorBase = meshIdx * 4;
-        floatColor[0] = eachMeshMaterialAttributes[colorBase] / 255;
-        floatColor[1] = eachMeshMaterialAttributes[colorBase + 1] / 255;
-        floatColor[2] = eachMeshMaterialAttributes[colorBase + 2] / 255;
-        const opacity = eachMeshMaterialAttributes[colorBase + 3] / 255;
-        const matricesBase = eachMeshMatricesBase[meshIdx];
-        const matrix = matrices.subarray(matricesBase, matricesBase + 16);
-        const geometryId = `${geometryIdx}`;
-        if (!sceneModel.geometries[geometryId]) {
-          const geometryCompressedParams = { id: geometryId };
-          switch (eachGeometryPrimitiveType[geometryIdx]) {
-            case 0:
-              geometryCompressedParams.primitive = TrianglesPrimitive;
-              break;
-            case 1:
-              geometryCompressedParams.primitive = SolidPrimitive;
-              break;
-            case 2:
-              geometryCompressedParams.primitive = SurfacePrimitive;
-              break;
-            case 3:
-              geometryCompressedParams.primitive = LinesPrimitive;
-              break;
-            case 5:
-              geometryCompressedParams.primitive = PointsPrimitive;
-              break;
-          }
-          const aabbsBase = eachGeometryAABBBase[geometryIdx];
-          geometryCompressedParams.aabb = aabbs.subarray(aabbsBase, aabbsBase + 6);
-          let geometryValid = false;
-          const atLastGeometry = geometryIdx === numGeometries - 1;
-          const posStart = eachGeometryPositionsBase[geometryIdx];
-          const posEnd = atLastGeometry ? positions.length : eachGeometryPositionsBase[geometryIdx + 1];
-          const indStart = eachGeometryIndicesBase[geometryIdx];
-          const indEnd = atLastGeometry ? indices.length : eachGeometryIndicesBase[geometryIdx + 1];
-          const edgeStart = eachGeometryEdgeIndicesBase[geometryIdx];
-          const edgeEnd = atLastGeometry ? edgeIndices.length : eachGeometryEdgeIndicesBase[geometryIdx + 1];
-          switch (geometryCompressedParams.primitive) {
-            case TrianglesPrimitive:
-            case SurfacePrimitive:
-            case SolidPrimitive:
-              geometryCompressedParams.positionsCompressed = positions.subarray(posStart, posEnd);
-              geometryCompressedParams.indices = indices.subarray(indStart, indEnd);
-              const edgeIndicesSubArray = edgeIndices.subarray(edgeStart, edgeEnd);
-              if (edgeIndicesSubArray.length > 0) {
-                geometryCompressedParams.edgeIndices = edgeIndicesSubArray;
-                geometryValid = geometryCompressedParams.positionsCompressed.length > 0 && geometryCompressedParams.indices.length > 0;
-              } else {
-                geometryValid = false;
-              }
-              break;
-            case PointsPrimitive:
-              geometryCompressedParams.positionsCompressed = positions.subarray(posStart, posEnd);
-              geometryValid = geometryCompressedParams.positionsCompressed.length > 0;
-              break;
-            case LinesPrimitive:
-              geometryCompressedParams.positionsCompressed = positions.subarray(posStart, posEnd);
-              geometryCompressedParams.indices = indices.subarray(indStart, indEnd);
-              geometryValid = geometryCompressedParams.positionsCompressed.length > 0 && geometryCompressedParams.indices.length > 0;
-              break;
-            default:
-              continue;
-          }
-          if (geometryValid) {
-            sceneModel.createGeometryCompressed(geometryCompressedParams);
-          }
-        }
-        sceneModel.createMesh({
-          id: meshId,
-          geometryId,
-          matrix,
-          color: floatColor.slice(0, 3),
-          // Copy to avoid mutation
-          opacity
-        });
-      }
-      meshIds.push(meshId);
-    }
-    if (meshIds.length > 0) {
-      if (sceneModel) {
-        sceneModel.createObject({
-          id: objectId,
-          meshIds,
-          layerId
-        });
-      }
-      if (dataModel) {
-        dataModel.createObject({
-          id: objectId,
-          name: objectId,
-          type: "BasicEntity"
-        });
-        dataModel.createRelationship({
-          type: "BasicAggregation",
-          relatingObjectId: defaultId,
-          relatedObjectId: objectId
-        });
-      }
-    }
-  }
-}
-
-// src/formats/xgf/versions/v1/parse.ts
-function parse7(params, options) {
-  return new Promise(function(resolve3, reject) {
-    const { fileData, sceneModel, dataModel } = params;
-    xgfToModel({
-      xgfData: unpackXGF(fileData),
-      sceneModel,
-      dataModel,
-      options
-    });
-    resolve3();
-  });
-}
-
-// src/formats/xgf/versions/v2/unpackXGF.ts
-function unpackXGF2(arrayBuffer) {
-  const requiresSwapFromLittleEndian = function() {
-    const b5 = new ArrayBuffer(2);
-    new Uint16Array(b5)[0] = 1;
-    return new Uint8Array(b5)[0] !== 1;
-  }();
-  const nextArray = function() {
-    let i2 = 0;
-    const dataView = new DataView(arrayBuffer);
-    return function(type) {
-      const idx = 1 + 2 * i2++;
-      const byteOffset = dataView.getUint32(idx * 4, true);
-      const byteLength = dataView.getUint32((idx + 1) * 4, true);
-      const BPE = type.BYTES_PER_ELEMENT;
-      if (requiresSwapFromLittleEndian && BPE > 1) {
-        const subarray = new Uint8Array(arrayBuffer, byteOffset, byteLength);
-        const swaps = BPE / 2;
-        const cnt = subarray.length / BPE;
-        for (let b5 = 0; b5 < cnt; b5++) {
-          const offset = b5 * BPE;
-          for (let j2 = 0; j2 < swaps; j2++) {
-            const i1 = offset + j2;
-            const i22 = offset - j2 + BPE - 1;
-            const tmp = subarray[i1];
-            subarray[i1] = subarray[i22];
-            subarray[i22] = tmp;
-          }
-        }
-      }
-      return new type(arrayBuffer, byteOffset, byteLength / BPE);
-    };
-  }();
-  const nextObject = function() {
-    const decoder = new TextDecoder();
-    return () => JSON.parse(decoder.decode(nextArray(Uint8Array)));
-  }();
-  return {
-    positions: nextArray(Uint16Array),
-    colors: nextArray(Uint8Array),
-    indices: nextArray(Uint32Array),
-    edgeIndices: nextArray(Uint32Array),
-    aabbs: nextArray(Float32Array),
-    normals: nextArray(Uint16Array),
-    uvs: nextArray(Float32Array),
-    eachGeometryPositionsBase: nextArray(Uint32Array),
-    eachGeometryColorsBase: nextArray(Uint32Array),
-    eachGeometryIndicesBase: nextArray(Uint32Array),
-    eachGeometryEdgeIndicesBase: nextArray(Uint32Array),
-    eachGeometryNormalsBase: nextArray(Uint32Array),
-    eachGeometryUVsBase: nextArray(Uint32Array),
-    eachGeometryPrimitiveType: nextArray(Uint8Array),
-    eachGeometryAABBBase: nextArray(Uint32Array),
-    matrices: nextArray(Float64Array),
-    textureData: nextArray(Uint8Array),
-    eachTextureDataBase: nextArray(Uint32Array),
-    eachTextureMediaType: nextArray(Uint8Array),
-    eachTextureWidth: nextArray(Uint16Array),
-    eachTextureHeight: nextArray(Uint16Array),
-    eachTextureSampler: nextArray(Uint8Array),
-    eachTextureId: nextObject(),
-    eachMaterialPBR: nextArray(Uint8Array),
-    eachMaterialTextures: nextArray(Int32Array),
-    eachMaterialId: nextObject(),
-    eachMeshGeometriesBase: nextArray(Uint32Array),
-    eachMeshMatricesBase: nextArray(Uint32Array),
-    eachMeshMaterialAttributes: nextArray(Uint8Array),
-    eachMeshMaterial: nextArray(Int32Array),
-    eachObjectId: nextObject(),
-    eachObjectMeshesBase: nextArray(Uint32Array)
-  };
-}
-
-// src/formats/xgf/versions/v2/xgfToModel.ts
-var NUM_MATERIAL_ATTRIBUTES = 4;
-var NUM_MATERIAL_TEXTURE_REFS = 5;
-var NUM_MATERIAL_PBR_BYTES = 8;
-var NUM_TEXTURE_SAMPLER_BYTES = 5;
-var NO_INDEX = 4294967295;
-var SAMPLER_DECODE = {
-  1: RepeatWrapping,
-  2: ClampToEdgeWrapping,
-  3: MirroredRepeatWrapping,
-  4: NearestFilter,
-  5: LinearFilter,
-  6: NearestMipMapNearestFilter,
-  7: LinearMipMapNearestFilter,
-  8: NearestMipMapLinearFilter,
-  9: LinearMipMapLinearFilter
-};
-var MEDIA_TYPE_DECODE = {
-  0: PNGMediaType,
-  1: JPEGMediaType,
-  2: GIFMediaType
-};
-var ALPHA_MODE_NAMES = ["OPAQUE", "MASK", "BLEND"];
-async function xgfToModel2(params) {
-  const { xgfData, sceneModel, dataModel, options } = params;
-  const layerId = (options == null ? void 0 : options.layerId) || "default";
-  const defaultId = sceneModel ? sceneModel.id : createUUID();
-  const progress = { phase: "", current: 0, total: 0 };
-  const step2 = async (phase, current, total) => {
-    if (options.onProgress) {
-      progress.phase = phase;
-      progress.current = current;
-      progress.total = total;
-      options.onProgress(progress);
-    }
-    await yieldToHost(options.signal);
-  };
-  if (dataModel) {
-    dataModel.createObject({
-      id: defaultId,
-      name: defaultId,
-      type: "BasicEntity"
-    });
-  }
-  const {
-    positions,
-    colors,
-    indices,
-    edgeIndices,
-    aabbs,
-    normals,
-    uvs,
-    eachGeometryPositionsBase,
-    eachGeometryColorsBase,
-    eachGeometryIndicesBase,
-    eachGeometryEdgeIndicesBase,
-    eachGeometryNormalsBase,
-    eachGeometryUVsBase,
-    eachGeometryAABBBase,
-    eachGeometryPrimitiveType,
-    matrices,
-    textureData,
-    eachTextureDataBase,
-    eachTextureMediaType,
-    eachTextureWidth,
-    eachTextureHeight,
-    eachTextureSampler,
-    eachTextureId,
-    eachMaterialPBR,
-    eachMaterialTextures,
-    eachMaterialId,
-    eachMeshGeometriesBase,
-    eachMeshMatricesBase,
-    eachMeshMaterialAttributes,
-    eachMeshMaterial,
-    eachObjectId,
-    eachObjectMeshesBase
-  } = xgfData;
-  const numGeometries = eachGeometryPositionsBase.length;
-  const numMeshes = eachMeshGeometriesBase.length;
-  const numObjects = eachObjectMeshesBase.length;
-  const numTextures = eachTextureDataBase.length;
-  const numMaterials = eachMaterialId.length;
-  const createdTextureIds = [];
-  if (sceneModel) {
-    const DECODE_CHUNK = 4;
-    const canDecode = typeof createImageBitmap === "function" && typeof Blob !== "undefined";
-    const sliceFor = (i2) => textureData.subarray(
-      eachTextureDataBase[i2],
-      i2 === numTextures - 1 ? textureData.length : eachTextureDataBase[i2 + 1]
-    );
-    const samplerParamsFor = (i2) => {
-      const sBase = i2 * NUM_TEXTURE_SAMPLER_BYTES;
-      return {
-        minFilter: SAMPLER_DECODE[eachTextureSampler[sBase]] || LinearMipMapLinearFilter,
-        magFilter: SAMPLER_DECODE[eachTextureSampler[sBase + 1]] || LinearFilter,
-        wrapS: SAMPLER_DECODE[eachTextureSampler[sBase + 2]] || RepeatWrapping,
-        wrapT: SAMPLER_DECODE[eachTextureSampler[sBase + 3]] || RepeatWrapping,
-        wrapR: SAMPLER_DECODE[eachTextureSampler[sBase + 4]] || RepeatWrapping,
-        width: eachTextureWidth[i2],
-        height: eachTextureHeight[i2]
-      };
-    };
-    for (let chunkStart = 0; chunkStart < numTextures; chunkStart += DECODE_CHUNK) {
-      await step2("Decoding textures", chunkStart, numTextures);
-      const chunkEnd = Math.min(chunkStart + DECODE_CHUNK, numTextures);
-      const decoding = [];
-      for (let i2 = chunkStart; i2 < chunkEnd; i2++) {
-        const bytes = sliceFor(i2);
-        const standardMedia = MEDIA_TYPE_DECODE[eachTextureMediaType[i2]];
-        if (bytes.length > 0 && standardMedia !== void 0) {
-          const blob = new Blob([bytes], {
-            type: standardMedia === PNGMediaType ? "image/png" : standardMedia === JPEGMediaType ? "image/jpeg" : "image/gif"
-          });
-          decoding.push(canDecode ? createImageBitmap(blob).catch(() => null) : null);
-        } else {
-          decoding.push(null);
-        }
-      }
-      const bitmaps = await Promise.all(decoding.map((p2) => p2 != null ? p2 : Promise.resolve(null)));
-      for (let i2 = chunkStart; i2 < chunkEnd; i2++) {
-        const id = eachTextureId[i2] || `texture-${i2}`;
-        createdTextureIds.push(id);
-        const samplerParams = samplerParamsFor(i2);
-        const bytes = sliceFor(i2);
-        const bitmap = bitmaps[i2 - chunkStart];
-        const standardMedia = MEDIA_TYPE_DECODE[eachTextureMediaType[i2]];
-        if (bytes.length === 0) {
-          const onePx = new Uint8ClampedArray([255, 255, 255, 255]);
-          const imageData = typeof ImageData !== "undefined" ? new ImageData(onePx, 1, 1) : { data: onePx, width: 1, height: 1 };
-          sceneModel.createTexture({
-            id,
-            imageData,
-            mediaType: PNGMediaType,
-            ...samplerParams,
-            width: 1,
-            height: 1,
-            flipY: false
-          });
-        } else if (bitmap) {
-          sceneModel.createTexture({
-            id,
-            image: bitmap,
-            mediaType: MEDIA_TYPE_DECODE[eachTextureMediaType[i2]],
-            ...samplerParams,
-            width: bitmap.width,
-            height: bitmap.height,
-            flipY: false
-          });
-        } else if (standardMedia !== void 0) {
-          sceneModel.createTexture({
-            id,
-            buffers: [bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)],
-            mediaType: standardMedia,
-            ...samplerParams,
-            flipY: false
-          });
-        } else {
-          sceneModel.createTexture({
-            id,
-            buffers: [bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)],
-            ...samplerParams,
-            flipY: false,
-            compressed: true
-          });
-        }
-      }
-    }
-  }
-  if (sceneModel) {
-    for (let i2 = 0; i2 < numMaterials; i2++) {
-      if ((i2 & 63) === 0)
-        await step2("Building materials", i2, numMaterials);
-      const id = eachMaterialId[i2];
-      const base = i2 * NUM_MATERIAL_PBR_BYTES;
-      const tBase = i2 * NUM_MATERIAL_TEXTURE_REFS;
-      const params2 = {
-        id,
-        color: [
-          eachMaterialPBR[base] / 255,
-          eachMaterialPBR[base + 1] / 255,
-          eachMaterialPBR[base + 2] / 255
-        ],
-        opacity: eachMaterialPBR[base + 3] / 255,
-        roughness: eachMaterialPBR[base + 4] / 255,
-        metallic: eachMaterialPBR[base + 5] / 255,
-        alphaMode: ALPHA_MODE_NAMES[eachMaterialPBR[base + 6]] || "OPAQUE",
-        alphaCutoff: eachMaterialPBR[base + 7] / 255
-      };
-      const colorIdx = eachMaterialTextures[tBase];
-      const mrIdx = eachMaterialTextures[tBase + 1];
-      const normalsIdx = eachMaterialTextures[tBase + 2];
-      const occlusionIdx = eachMaterialTextures[tBase + 3];
-      const emissiveIdx = eachMaterialTextures[tBase + 4];
-      if (colorIdx >= 0)
-        params2.colorTextureId = createdTextureIds[colorIdx];
-      if (mrIdx >= 0)
-        params2.metallicRoughnessTextureId = createdTextureIds[mrIdx];
-      if (normalsIdx >= 0)
-        params2.normalsTextureId = createdTextureIds[normalsIdx];
-      if (occlusionIdx >= 0)
-        params2.occlusionTextureId = createdTextureIds[occlusionIdx];
-      if (emissiveIdx >= 0)
-        params2.emissiveTextureId = createdTextureIds[emissiveIdx];
-      sceneModel.createMaterial(params2);
-    }
-  }
-  let nextMeshId = 0;
-  const floatColor = createVec3Float32();
-  for (let objectIdx = 0; objectIdx < numObjects; objectIdx++) {
-    if ((objectIdx & 31) === 0) {
-      await step2("Building meshes", objectIdx, numObjects);
-    }
-    const objectId = eachObjectId[objectIdx];
-    const atLastObject = objectIdx === numObjects - 1;
-    const firstMeshIdx = eachObjectMeshesBase[objectIdx];
-    const lastMeshIdx = atLastObject ? numMeshes - 1 : eachObjectMeshesBase[objectIdx + 1] - 1;
-    const meshIds = [];
-    for (let meshIdx = firstMeshIdx; meshIdx <= lastMeshIdx; meshIdx++) {
-      const meshId = `${nextMeshId++}`;
-      if (sceneModel) {
-        const geometryIdx = eachMeshGeometriesBase[meshIdx];
-        const geometryId = `${geometryIdx}`;
-        if (!sceneModel.geometries[geometryId]) {
-          const params2 = { id: geometryId };
-          switch (eachGeometryPrimitiveType[geometryIdx]) {
-            case 0:
-              params2.primitive = TrianglesPrimitive;
-              break;
-            case 1:
-              params2.primitive = SolidPrimitive;
-              break;
-            case 2:
-              params2.primitive = SurfacePrimitive;
-              break;
-            case 3:
-              params2.primitive = LinesPrimitive;
-              break;
-            case 4:
-              params2.primitive = PointsPrimitive;
-              break;
-          }
-          const aabbsBase = eachGeometryAABBBase[geometryIdx];
-          params2.aabb = aabbs.subarray(aabbsBase, aabbsBase + 6);
-          const atLastGeometry = geometryIdx === numGeometries - 1;
-          const posStart = eachGeometryPositionsBase[geometryIdx];
-          const posEnd = atLastGeometry ? positions.length : eachGeometryPositionsBase[geometryIdx + 1];
-          const indStart = eachGeometryIndicesBase[geometryIdx];
-          const indEnd = atLastGeometry ? indices.length : eachGeometryIndicesBase[geometryIdx + 1];
-          const edgeStart = eachGeometryEdgeIndicesBase[geometryIdx];
-          const edgeEnd = atLastGeometry ? edgeIndices.length : eachGeometryEdgeIndicesBase[geometryIdx + 1];
-          params2.positionsCompressed = positions.subarray(posStart, posEnd);
-          if (params2.primitive !== PointsPrimitive) {
-            params2.indices = indices.subarray(indStart, indEnd);
-          }
-          const edgeSlice = edgeIndices.subarray(edgeStart, edgeEnd);
-          if (edgeSlice.length > 0)
-            params2.edgeIndices = edgeSlice;
-          const normalsBaseI = eachGeometryNormalsBase[geometryIdx];
-          if (normalsBaseI !== NO_INDEX) {
-            const normalsEnd = nextNonSentinelBase(eachGeometryNormalsBase, geometryIdx, normals.length);
-            params2.normalsCompressed = normals.subarray(normalsBaseI, normalsEnd);
-          }
-          const uvsBaseI = eachGeometryUVsBase[geometryIdx];
-          if (uvsBaseI !== NO_INDEX) {
-            const uvsEnd = nextNonSentinelBase(eachGeometryUVsBase, geometryIdx, uvs.length);
-            params2.uvsCompressed = uvs.subarray(uvsBaseI, uvsEnd);
-          }
-          sceneModel.createGeometryCompressed(params2);
-        }
-        const matricesBase = eachMeshMatricesBase[meshIdx];
-        const matrix = matrices.subarray(matricesBase, matricesBase + 16);
-        const meshParams = { id: meshId, geometryId, matrix };
-        const materialIdx = eachMeshMaterial[meshIdx];
-        if (materialIdx >= 0 && materialIdx < numMaterials) {
-          meshParams.materialId = eachMaterialId[materialIdx];
-        } else {
-          const colorBase = meshIdx * NUM_MATERIAL_ATTRIBUTES;
-          floatColor[0] = eachMeshMaterialAttributes[colorBase] / 255;
-          floatColor[1] = eachMeshMaterialAttributes[colorBase + 1] / 255;
-          floatColor[2] = eachMeshMaterialAttributes[colorBase + 2] / 255;
-          meshParams.color = floatColor.slice(0, 3);
-          meshParams.opacity = eachMeshMaterialAttributes[colorBase + 3] / 255;
-        }
-        sceneModel.createMesh(meshParams);
-      }
-      meshIds.push(meshId);
-    }
-    if (meshIds.length > 0) {
-      if (sceneModel) {
-        sceneModel.createObject({ id: objectId, meshIds, layerId });
-      }
-      if (dataModel) {
-        dataModel.createObject({ id: objectId, name: objectId, type: "BasicEntity" });
-        dataModel.createRelationship({
-          type: "BasicAggregation",
-          relatingObjectId: defaultId,
-          relatedObjectId: objectId
-        });
-      }
-    }
-  }
-  if (options.onProgress) {
-    progress.phase = "Building meshes";
-    progress.current = numObjects;
-    progress.total = numObjects;
-    options.onProgress(progress);
-  }
-}
-function nextNonSentinelBase(bases, startIdx, arrayLength) {
-  for (let i2 = startIdx + 1; i2 < bases.length; i2++) {
-    if (bases[i2] !== NO_INDEX)
-      return bases[i2];
-  }
-  return arrayLength;
-}
-
-// src/formats/xgf/versions/v2/parse.ts
-async function parse8(params, options) {
-  const { fileData, sceneModel, dataModel } = params;
-  await xgfToModel2({
-    xgfData: unpackXGF2(fileData),
-    sceneModel,
-    dataModel,
-    options
-  });
-}
-
-// src/formats/xgf/versions/v3/unpackXGF.ts
-function unpackXGF3(arrayBuffer) {
-  const requiresSwapFromLittleEndian = function() {
     const b5 = new ArrayBuffer(2);
     new Uint16Array(b5)[0] = 1;
     return new Uint8Array(b5)[0] !== 1;
@@ -154344,10 +153826,13 @@ function unpackXGF3(arrayBuffer) {
     eachTextureWidth: nextArray(Uint16Array),
     eachTextureHeight: nextArray(Uint16Array),
     eachTextureSampler: nextArray(Uint8Array),
+    eachTextureEncoding: nextArray(Uint16Array),
     eachTextureId: nextObject(),
     eachMaterialPBR: nextArray(Uint8Array),
+    eachMaterialColor: nextArray(Float32Array),
     eachMaterialTextures: nextArray(Int32Array),
     eachMaterialId: nextObject(),
+    eachMaterialTriplanarScale: nextArray(Float32Array),
     eachMeshGeometriesBase: nextArray(Uint32Array),
     eachMeshMatricesBase: nextArray(Uint32Array),
     eachMeshMaterialAttributes: nextArray(Uint8Array),
@@ -154357,13 +153842,13 @@ function unpackXGF3(arrayBuffer) {
   };
 }
 
-// src/formats/xgf/versions/v3/xgfToModel.ts
-var NUM_MATERIAL_ATTRIBUTES2 = 4;
-var NUM_MATERIAL_TEXTURE_REFS2 = 5;
-var NUM_MATERIAL_PBR_BYTES2 = 8;
-var NUM_TEXTURE_SAMPLER_BYTES2 = 5;
-var NO_INDEX2 = 4294967295;
-var SAMPLER_DECODE2 = {
+// src/formats/xgf/versions/v1/xgfToModel.ts
+var NUM_MATERIAL_ATTRIBUTES = 4;
+var NUM_MATERIAL_TEXTURE_REFS = 5;
+var NUM_MATERIAL_PBR_BYTES = 8;
+var NUM_TEXTURE_SAMPLER_BYTES = 5;
+var NO_INDEX = 4294967295;
+var SAMPLER_DECODE = {
   1: RepeatWrapping,
   2: ClampToEdgeWrapping,
   3: MirroredRepeatWrapping,
@@ -154374,13 +153859,13 @@ var SAMPLER_DECODE2 = {
   8: NearestMipMapLinearFilter,
   9: LinearMipMapLinearFilter
 };
-var MEDIA_TYPE_DECODE2 = {
+var MEDIA_TYPE_DECODE = {
   0: PNGMediaType,
   1: JPEGMediaType,
   2: GIFMediaType
 };
-var ALPHA_MODE_NAMES2 = ["OPAQUE", "MASK", "BLEND"];
-async function xgfToModel3(params) {
+var ALPHA_MODE_NAMES = ["OPAQUE", "MASK", "BLEND"];
+async function xgfToModel(params) {
   const { xgfData, sceneModel, dataModel, options } = params;
   const layerId = (options == null ? void 0 : options.layerId) || "default";
   const defaultId = sceneModel ? sceneModel.id : createUUID();
@@ -154428,10 +153913,13 @@ async function xgfToModel3(params) {
     eachTextureWidth,
     eachTextureHeight,
     eachTextureSampler,
+    eachTextureEncoding,
     eachTextureId,
     eachMaterialPBR,
+    eachMaterialColor,
     eachMaterialTextures,
     eachMaterialId,
+    eachMaterialTriplanarScale,
     eachMeshGeometriesBase,
     eachMeshMatricesBase,
     eachMeshMaterialAttributes,
@@ -154453,13 +153941,13 @@ async function xgfToModel3(params) {
       i2 === numTextures - 1 ? textureData.length : eachTextureDataBase[i2 + 1]
     );
     const samplerParamsFor = (i2) => {
-      const sBase = i2 * NUM_TEXTURE_SAMPLER_BYTES2;
+      const sBase = i2 * NUM_TEXTURE_SAMPLER_BYTES;
       return {
-        minFilter: SAMPLER_DECODE2[eachTextureSampler[sBase]] || LinearMipMapLinearFilter,
-        magFilter: SAMPLER_DECODE2[eachTextureSampler[sBase + 1]] || LinearFilter,
-        wrapS: SAMPLER_DECODE2[eachTextureSampler[sBase + 2]] || RepeatWrapping,
-        wrapT: SAMPLER_DECODE2[eachTextureSampler[sBase + 3]] || RepeatWrapping,
-        wrapR: SAMPLER_DECODE2[eachTextureSampler[sBase + 4]] || RepeatWrapping,
+        minFilter: SAMPLER_DECODE[eachTextureSampler[sBase]] || LinearMipMapLinearFilter,
+        magFilter: SAMPLER_DECODE[eachTextureSampler[sBase + 1]] || LinearFilter,
+        wrapS: SAMPLER_DECODE[eachTextureSampler[sBase + 2]] || RepeatWrapping,
+        wrapT: SAMPLER_DECODE[eachTextureSampler[sBase + 3]] || RepeatWrapping,
+        wrapR: SAMPLER_DECODE[eachTextureSampler[sBase + 4]] || RepeatWrapping,
         width: eachTextureWidth[i2],
         height: eachTextureHeight[i2]
       };
@@ -154470,7 +153958,7 @@ async function xgfToModel3(params) {
       const decoding = [];
       for (let i2 = chunkStart; i2 < chunkEnd; i2++) {
         const bytes = sliceFor(i2);
-        const standardMedia = MEDIA_TYPE_DECODE2[eachTextureMediaType[i2]];
+        const standardMedia = MEDIA_TYPE_DECODE[eachTextureMediaType[i2]];
         if (bytes.length > 0 && standardMedia !== void 0) {
           const blob = new Blob([bytes], {
             type: standardMedia === PNGMediaType ? "image/png" : standardMedia === JPEGMediaType ? "image/jpeg" : "image/gif"
@@ -154487,14 +153975,15 @@ async function xgfToModel3(params) {
         const samplerParams = samplerParamsFor(i2);
         const bytes = sliceFor(i2);
         const bitmap = bitmaps[i2 - chunkStart];
-        const standardMedia = MEDIA_TYPE_DECODE2[eachTextureMediaType[i2]];
+        const standardMedia = MEDIA_TYPE_DECODE[eachTextureMediaType[i2]];
         if (bytes.length === 0) {
           const onePx = new Uint8ClampedArray([255, 255, 255, 255]);
-          const imageData = typeof ImageData !== "undefined" ? new ImageData(onePx, 1, 1) : { data: onePx, width: 1, height: 1 };
+          const imageData2 = typeof ImageData !== "undefined" ? new ImageData(onePx, 1, 1) : { data: onePx, width: 1, height: 1 };
           sceneModel.createTexture({
             id,
-            imageData,
+            imageData: imageData2,
             mediaType: PNGMediaType,
+            encoding: eachTextureEncoding[i2],
             ...samplerParams,
             width: 1,
             height: 1,
@@ -154504,7 +153993,8 @@ async function xgfToModel3(params) {
           sceneModel.createTexture({
             id,
             image: bitmap,
-            mediaType: MEDIA_TYPE_DECODE2[eachTextureMediaType[i2]],
+            mediaType: MEDIA_TYPE_DECODE[eachTextureMediaType[i2]],
+            encoding: eachTextureEncoding[i2],
             ...samplerParams,
             width: bitmap.width,
             height: bitmap.height,
@@ -154515,6 +154005,7 @@ async function xgfToModel3(params) {
             id,
             buffers: [bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)],
             mediaType: standardMedia,
+            encoding: eachTextureEncoding[i2],
             ...samplerParams,
             flipY: false
           });
@@ -154522,6 +154013,7 @@ async function xgfToModel3(params) {
           sceneModel.createTexture({
             id,
             buffers: [bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)],
+            encoding: eachTextureEncoding[i2],
             ...samplerParams,
             flipY: false,
             compressed: true
@@ -154535,20 +154027,21 @@ async function xgfToModel3(params) {
       if ((i2 & 63) === 0)
         await step2("Building materials", i2, numMaterials);
       const id = eachMaterialId[i2];
-      const base = i2 * NUM_MATERIAL_PBR_BYTES2;
-      const tBase = i2 * NUM_MATERIAL_TEXTURE_REFS2;
+      const base = i2 * NUM_MATERIAL_PBR_BYTES;
+      const tBase = i2 * NUM_MATERIAL_TEXTURE_REFS;
       const params2 = {
         id,
         color: [
-          eachMaterialPBR[base] / 255,
-          eachMaterialPBR[base + 1] / 255,
-          eachMaterialPBR[base + 2] / 255
+          eachMaterialColor[i2 * 3],
+          eachMaterialColor[i2 * 3 + 1],
+          eachMaterialColor[i2 * 3 + 2]
         ],
         opacity: eachMaterialPBR[base + 3] / 255,
         roughness: eachMaterialPBR[base + 4] / 255,
         metallic: eachMaterialPBR[base + 5] / 255,
-        alphaMode: ALPHA_MODE_NAMES2[eachMaterialPBR[base + 6]] || "OPAQUE",
-        alphaCutoff: eachMaterialPBR[base + 7] / 255
+        alphaMode: ALPHA_MODE_NAMES[eachMaterialPBR[base + 6]] || "OPAQUE",
+        alphaCutoff: eachMaterialPBR[base + 7] / 255,
+        triplanarScale: eachMaterialTriplanarScale[i2]
       };
       const colorIdx = eachMaterialTextures[tBase];
       const mrIdx = eachMaterialTextures[tBase + 1];
@@ -154628,23 +154121,23 @@ async function xgfToModel3(params) {
           if (colSlice.length > 0)
             params2.colorsCompressed = colSlice;
           const normalsBaseI = eachGeometryNormalsBase[geometryIdx];
-          if (normalsBaseI !== NO_INDEX2) {
-            const normalsEnd = nextNonSentinelBase2(eachGeometryNormalsBase, geometryIdx, normals.length);
+          if (normalsBaseI !== NO_INDEX) {
+            const normalsEnd = nextNonSentinelBase(eachGeometryNormalsBase, geometryIdx, normals.length);
             params2.normalsCompressed = normals.subarray(normalsBaseI, normalsEnd);
           }
           const uvsBaseI = eachGeometryUVsBase[geometryIdx];
-          if (uvsBaseI !== NO_INDEX2) {
-            const uvsEnd = nextNonSentinelBase2(eachGeometryUVsBase, geometryIdx, uvs.length);
+          if (uvsBaseI !== NO_INDEX) {
+            const uvsEnd = nextNonSentinelBase(eachGeometryUVsBase, geometryIdx, uvs.length);
             params2.uvsCompressed = uvs.subarray(uvsBaseI, uvsEnd);
           }
           const scalesBaseI = eachGeometryScalesBase[geometryIdx];
-          if (scalesBaseI !== NO_INDEX2) {
-            const scalesEnd = nextNonSentinelBase2(eachGeometryScalesBase, geometryIdx, scales.length);
+          if (scalesBaseI !== NO_INDEX) {
+            const scalesEnd = nextNonSentinelBase(eachGeometryScalesBase, geometryIdx, scales.length);
             params2.scales = scales.subarray(scalesBaseI, scalesEnd);
           }
           const rotationsBaseI = eachGeometryRotationsBase[geometryIdx];
-          if (rotationsBaseI !== NO_INDEX2) {
-            const rotationsEnd = nextNonSentinelBase2(eachGeometryRotationsBase, geometryIdx, rotations.length);
+          if (rotationsBaseI !== NO_INDEX) {
+            const rotationsEnd = nextNonSentinelBase(eachGeometryRotationsBase, geometryIdx, rotations.length);
             const decoded = new Float32Array(rotationsEnd - rotationsBaseI);
             for (let i2 = 0; i2 < decoded.length; i2++) {
               decoded[i2] = (rotations[rotationsBaseI + i2] - 128) / 128;
@@ -154660,7 +154153,7 @@ async function xgfToModel3(params) {
         if (materialIdx >= 0 && materialIdx < numMaterials) {
           meshParams.materialId = eachMaterialId[materialIdx];
         } else {
-          const colorBase = meshIdx * NUM_MATERIAL_ATTRIBUTES2;
+          const colorBase = meshIdx * NUM_MATERIAL_ATTRIBUTES;
           floatColor[0] = eachMeshMaterialAttributes[colorBase] / 255;
           floatColor[1] = eachMeshMaterialAttributes[colorBase + 1] / 255;
           floatColor[2] = eachMeshMaterialAttributes[colorBase + 2] / 255;
@@ -154692,19 +154185,19 @@ async function xgfToModel3(params) {
     options.onProgress(progress);
   }
 }
-function nextNonSentinelBase2(bases, startIdx, arrayLength) {
+function nextNonSentinelBase(bases, startIdx, arrayLength) {
   for (let i2 = startIdx + 1; i2 < bases.length; i2++) {
-    if (bases[i2] !== NO_INDEX2)
+    if (bases[i2] !== NO_INDEX)
       return bases[i2];
   }
   return arrayLength;
 }
 
-// src/formats/xgf/versions/v3/parse.ts
-async function parse9(params, options) {
+// src/formats/xgf/versions/v1/parse.ts
+async function parse7(params, options) {
   const { fileData, sceneModel, dataModel } = params;
-  await xgfToModel3({
-    xgfData: unpackXGF3(fileData),
+  await xgfToModel({
+    xgfData: unpackXGF(fileData),
     sceneModel,
     dataModel,
     options
@@ -154718,278 +154211,20 @@ var XGFLoader = class extends ModelLoader {
       format: "XGF",
       fileDataType: "arraybuffer",
       parsers: {
-        "1": parse7,
-        "2": parse8,
-        "3": parse9
+        "1": parse7
       },
-      getVersion: (fileData) => {
-        return "" + new DataView(fileData).getUint32(0, true);
-      }
+      getVersion: (fileData) => "" + new DataView(fileData).getUint32(0, true)
     });
   }
 };
 
 // src/formats/xgf/versions/v1/modelToXGF.ts
-var NUM_MATERIAL_ATTRIBUTES3 = 4;
-function modelToXGF(params) {
-  const sceneModel = params.sceneModel;
-  const options = params.options;
-  const coordinateSystemMatrix = options.coordinateSystem ? createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4Float64()) : null;
-  const geometriesList = Object.values(sceneModel.geometries);
-  const meshesList = Object.values(sceneModel.meshes);
-  const objectsList = Object.values(sceneModel.objects);
-  const numGeometries = geometriesList.length;
-  const numMeshes = meshesList.length;
-  const numObjects = objectsList.length;
-  let identityMatrixAdded = false;
-  let identityMatrixBase = 0;
-  let sizePositions = 0;
-  let sizeColors = 0;
-  let sizeIndices = 0;
-  let sizeEdgeIndices = 0;
-  const geometryIndices = {};
-  for (let geometryIdx = 0; geometryIdx < numGeometries; geometryIdx++) {
-    const geometry = geometriesList[geometryIdx];
-    if (geometry) {
-      if (geometry.positionsCompressed) {
-        sizePositions += geometry.positionsCompressed.length;
-        if (geometry.indices) {
-          sizeIndices += geometry.indices.length;
-        }
-        if (geometry.edgeIndices) {
-          sizeEdgeIndices += geometry.edgeIndices.length;
-        }
-        if (geometry.colorsCompressed) {
-          sizeColors += geometry.colorsCompressed.length;
-        }
-      }
-    }
-  }
-  const xgfData = {
-    positions: new Uint16Array(sizePositions),
-    colors: new Uint8Array(sizeColors),
-    indices: new Uint32Array(sizeIndices),
-    edgeIndices: new Uint32Array(sizeEdgeIndices),
-    aabbs: null,
-    eachGeometryPositionsBase: new Uint32Array(numGeometries),
-    // For each geometry, the index of its first element in xgfData.positions. Every primitive type has positions.
-    eachGeometryColorsBase: new Uint32Array(numGeometries),
-    // For each geometry, the index of its first element in xgfData.colors. If the next geometry has the same index, then this geometry has no colors.
-    eachGeometryIndicesBase: new Uint32Array(numGeometries),
-    // For each geometry, the index of its first element in xgfData.indices. If the next geometry has the same index, then this geometry has no indices.
-    eachGeometryEdgeIndicesBase: new Uint32Array(numGeometries),
-    // For each geometry, the index of its first element in xgfData.edgeIndices. If the next geometry has the same index, then this geometry has no edge indices.
-    eachGeometryPrimitiveType: new Uint8Array(numGeometries),
-    // Primitive type for each geometry (0=solid triangles, 1=surface triangles, 2=lines, 3=points)
-    eachGeometryAABBBase: new Uint32Array(numGeometries),
-    // Positions dequantization matrices
-    matrices: null,
-    // Modeling matrices
-    eachMeshGeometriesBase: new Uint32Array(numMeshes),
-    // For each mesh, an index into the eachGeometry* arrays
-    eachMeshMatricesBase: new Uint32Array(numMeshes),
-    // For each mesh that shares its geometry, the index of its first element in xgfData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
-    eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES3),
-    // For each mesh, an RGBA integer color of format [0..255, 0..255, 0..255, 0..255], and PBR metallic and roughness factors, of format [0..255, 0..255]
-    eachObjectId: [],
-    // For each object, an ID string
-    eachObjectMeshesBase: new Uint32Array(numObjects)
-    // For each object, the index of the first element of meshes used by the object
-  };
-  let positionsBase = 0;
-  let colorsBase = 0;
-  let indicesBase = 0;
-  let edgeIndicesBase = 0;
-  let aabbsBase = 0;
-  const aabbIdxMap = {};
-  const aabbs = [];
-  const matrices = [];
-  for (let geometryIdx = 0; geometryIdx < numGeometries; geometryIdx++) {
-    const geometry = geometriesList[geometryIdx];
-    let primitiveType;
-    switch (geometry.primitive) {
-      case TrianglesPrimitive:
-        primitiveType = 0;
-        break;
-      case SolidPrimitive:
-        primitiveType = 1;
-        break;
-      case SurfacePrimitive:
-        primitiveType = 2;
-        break;
-      case LinesPrimitive:
-        primitiveType = 3;
-        break;
-      case PointsPrimitive:
-        primitiveType = 4;
-        break;
-    }
-    xgfData.eachGeometryPrimitiveType[geometryIdx] = primitiveType;
-    const aabb = geometry.aabb;
-    const aabbHash = `${aabb[0]}-${aabb[1]}-${aabb[2]}-${aabb[3]}-${aabb[4]}-${aabb[5]}`;
-    let aabbIdx = aabbIdxMap[aabbHash];
-    if (aabbIdx === void 0) {
-      aabbIdx = aabbsBase;
-      aabbIdxMap[aabbHash] = aabbIdx;
-      aabbs.push(...aabb);
-      aabbsBase += 6;
-    }
-    xgfData.eachGeometryAABBBase[geometryIdx] = aabbIdx;
-    xgfData.eachGeometryPositionsBase[geometryIdx] = positionsBase;
-    xgfData.eachGeometryColorsBase[geometryIdx] = colorsBase;
-    xgfData.positions.set(geometry.positionsCompressed, positionsBase);
-    positionsBase += geometry.positionsCompressed.length;
-    if (geometry.indices) {
-      xgfData.indices.set(geometry.indices, indicesBase);
-      xgfData.eachGeometryIndicesBase[geometryIdx] = indicesBase;
-      indicesBase += geometry.indices.length;
-    }
-    if (geometry.edgeIndices) {
-      xgfData.edgeIndices.set(geometry.edgeIndices, edgeIndicesBase);
-      xgfData.eachGeometryEdgeIndicesBase[geometryIdx] = edgeIndicesBase;
-      edgeIndicesBase += geometry.edgeIndices.length;
-    }
-    if (geometry.colorsCompressed) {
-      xgfData.colors.set(geometry.colorsCompressed, colorsBase);
-      xgfData.eachGeometryColorsBase[geometryIdx] = colorsBase;
-      colorsBase += geometry.colorsCompressed.length;
-    }
-    geometryIndices[geometry.id] = geometryIdx;
-  }
-  let eachMeshMaterialAttributesBase = 0;
-  let matricesBase = 0;
-  let meshesBase = 0;
-  for (let objectIdx = 0; objectIdx < numObjects; objectIdx++) {
-    const object = objectsList[objectIdx];
-    xgfData.eachObjectId[objectIdx] = object.id;
-    xgfData.eachObjectMeshesBase[objectIdx] = meshesBase;
-    for (let objectMeshIdx = 0; objectMeshIdx < object.meshes.length; objectMeshIdx++) {
-      const mesh = object.meshes[objectMeshIdx];
-      xgfData.eachMeshGeometriesBase[meshesBase] = geometryIndices[mesh.geometry.id];
-      const matrix = getMeshWorldMatrix(mesh, options.coordinateSystem);
-      if (isIdentityMat4(matrix)) {
-        if (!identityMatrixAdded) {
-          matrices.push(...matrix);
-          xgfData.eachMeshMatricesBase[meshesBase] = matricesBase;
-          identityMatrixBase = matricesBase;
-          matricesBase += 16;
-          identityMatrixAdded = true;
-        } else {
-          xgfData.eachMeshMatricesBase[meshesBase] = identityMatrixBase;
-        }
-      } else {
-        matrices.push(...matrix);
-        xgfData.eachMeshMatricesBase[meshesBase] = matricesBase;
-        matricesBase += 16;
-      }
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.effectiveColor[0] * 255;
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.effectiveColor[1] * 255;
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.effectiveColor[2] * 255;
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.effectiveOpacity * 255;
-      meshesBase++;
-    }
-  }
-  xgfData.aabbs = new Float32Array(aabbs);
-  xgfData.matrices = new Float64Array(matrices);
-  return xgfData;
-}
-
-// src/formats/xgf/versions/v1/XGF_INFO.ts
-var XGF_INFO = {
-  /**
-   * The [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf) version generated by {@link formats!xgf.XKFWriter | XKFWriter}.
-   *
-   * @property xgfVersion
-   * @type {number}
-   */
-  xgfVersion: 1
-};
-
-// src/formats/xgf/versions/v1/packXGF.ts
-var object2Array = function() {
-  const encoder = new TextEncoder();
-  return (obj) => encoder.encode(JSON.stringify(obj));
-}();
-function toArrayBuffer5(arrays) {
-  const arraysCnt = arrays.length;
-  const dataView = new DataView(new ArrayBuffer((1 + 2 * arraysCnt) * 4));
-  dataView.setUint32(0, XGF_INFO.xgfVersion, true);
-  let byteOffset = dataView.byteLength;
-  const offsets = [];
-  for (let i2 = 0; i2 < arraysCnt; i2++) {
-    const arr = arrays[i2];
-    const BPE = arr.BYTES_PER_ELEMENT;
-    byteOffset = Math.ceil(byteOffset / BPE) * BPE;
-    const byteLength = arr.byteLength;
-    const idx = 1 + 2 * i2;
-    dataView.setUint32(idx * 4, byteOffset, true);
-    dataView.setUint32((idx + 1) * 4, byteLength, true);
-    offsets.push(byteOffset);
-    byteOffset += byteLength;
-  }
-  const dataArray = new Uint8Array(byteOffset);
-  dataArray.set(new Uint8Array(dataView.buffer), 0);
-  const requiresSwapToLittleEndian = function() {
-    const buffer = new ArrayBuffer(2);
-    new Uint16Array(buffer)[0] = 1;
-    return new Uint8Array(buffer)[0] !== 1;
-  }();
-  for (let i2 = 0; i2 < arraysCnt; i2++) {
-    const arr = arrays[i2];
-    const subarray = new Uint8Array(arr.buffer, arr.byteOffset, arr.byteLength);
-    const BPE = arr.BYTES_PER_ELEMENT;
-    if (requiresSwapToLittleEndian && BPE > 1) {
-      const swaps = BPE / 2;
-      const cnt = subarray.length / BPE;
-      for (let b5 = 0; b5 < cnt; b5++) {
-        const offset = b5 * BPE;
-        for (let j2 = 0; j2 < swaps; j2++) {
-          const i1 = offset + j2;
-          const i22 = offset - j2 + BPE - 1;
-          const tmp = subarray[i1];
-          subarray[i1] = subarray[i22];
-          subarray[i22] = tmp;
-        }
-      }
-    }
-    dataArray.set(subarray, offsets[i2]);
-  }
-  return dataArray.buffer;
-}
-function packXGF(xgfData) {
-  return toArrayBuffer5([
-    xgfData.positions,
-    xgfData.colors,
-    xgfData.indices,
-    xgfData.edgeIndices,
-    xgfData.aabbs,
-    xgfData.eachGeometryPositionsBase,
-    xgfData.eachGeometryColorsBase,
-    xgfData.eachGeometryIndicesBase,
-    xgfData.eachGeometryEdgeIndicesBase,
-    xgfData.eachGeometryPrimitiveType,
-    xgfData.eachGeometryAABBBase,
-    xgfData.matrices,
-    xgfData.eachMeshGeometriesBase,
-    xgfData.eachMeshMatricesBase,
-    xgfData.eachMeshMaterialAttributes,
-    object2Array(xgfData.eachObjectId),
-    xgfData.eachObjectMeshesBase
-  ]);
-}
-
-// src/formats/xgf/versions/v1/encode.ts
-function encode11(params, options) {
-  return new Promise(function(resolve3, reject) {
-    resolve3(packXGF(modelToXGF({ sceneModel: params.sceneModel, options })));
-  });
-}
-
-// src/formats/xgf/versions/v2/modelToXGF.ts
-var NUM_MATERIAL_ATTRIBUTES4 = 4;
-var NUM_MATERIAL_TEXTURE_REFS3 = 5;
-var NUM_MATERIAL_PBR_BYTES3 = 8;
-var NO_INDEX3 = 4294967295;
+var NUM_MATERIAL_ATTRIBUTES2 = 4;
+var NUM_MATERIAL_TEXTURE_REFS2 = 5;
+var NUM_MATERIAL_PBR_BYTES2 = 8;
+var NUM_TEXTURE_SAMPLER_BYTES2 = 5;
+var NO_INDEX2 = 4294967295;
+var clampByte = (v2) => v2 < 0 ? 0 : v2 > 255 ? 255 : v2;
 var SAMPLER_CODE = {
   [RepeatWrapping]: 1,
   [ClampToEdgeWrapping]: 2,
@@ -155007,467 +154242,7 @@ var MEDIA_TYPE_CODE = {
   [GIFMediaType]: 2
 };
 var samplerCode = (v2) => v2 !== void 0 && SAMPLER_CODE[v2] !== void 0 ? SAMPLER_CODE[v2] : 0;
-async function modelToXGF2(params) {
-  var _a2, _b, _c, _d, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n;
-  const sceneModel = params.sceneModel;
-  const options = params.options || {};
-  const onProgress = options.onProgress;
-  const signal = options.signal;
-  const progress = { phase: "", current: 0, total: 0 };
-  const step2 = async (phase, current, total) => {
-    if (onProgress) {
-      progress.phase = phase;
-      progress.current = current;
-      progress.total = total;
-      onProgress(progress);
-    }
-    await yieldToHost(signal);
-  };
-  if (options.coordinateSystem) {
-    createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4Float64());
-  }
-  const geometriesList = Object.values(sceneModel.geometries);
-  const meshesList = Object.values(sceneModel.meshes);
-  const objectsList = Object.values(sceneModel.objects);
-  const texturesList = Object.values(sceneModel.textures);
-  const materialsList = Object.values(sceneModel.materials);
-  const numGeometries = geometriesList.length;
-  const numMeshes = meshesList.length;
-  const numObjects = objectsList.length;
-  const numTextures = texturesList.length;
-  const numMaterials = materialsList.length;
-  let sizePositions = 0;
-  let sizeColors = 0;
-  let sizeIndices = 0;
-  let sizeEdgeIndices = 0;
-  let sizeNormals = 0;
-  let sizeUVs = 0;
-  for (const geometry of geometriesList) {
-    if (!geometry || !geometry.positionsCompressed)
-      continue;
-    sizePositions += geometry.positionsCompressed.length;
-    if (geometry.indices)
-      sizeIndices += geometry.indices.length;
-    if (geometry.edgeIndices)
-      sizeEdgeIndices += geometry.edgeIndices.length;
-    if (geometry.colorsCompressed)
-      sizeColors += geometry.colorsCompressed.length;
-    if (geometry.normalsCompressed)
-      sizeNormals += geometry.normalsCompressed.length;
-    if (geometry.uvsCompressed)
-      sizeUVs += geometry.uvsCompressed.length;
-  }
-  const textureBytes2 = [];
-  const textureMediaTypes = [];
-  const textureWidths = [];
-  const textureHeights = [];
-  const textureSamplers = [];
-  const textureIds = [];
-  const textureIndexById = {};
-  for (let i2 = 0; i2 < numTextures; i2++) {
-    if ((i2 & 3) === 0)
-      await step2("Encoding textures", i2, numTextures);
-    const tex = texturesList[i2];
-    textureIds.push(tex.id);
-    textureIndexById[tex.id] = i2;
-    let bytes = null;
-    let mediaCode = 255;
-    if (tex.buffers && tex.buffers.length > 0 && tex.buffers[0]) {
-      bytes = new Uint8Array(tex.buffers[0]);
-      mediaCode = tex.mediaType !== void 0 && MEDIA_TYPE_CODE[tex.mediaType] !== void 0 ? MEDIA_TYPE_CODE[tex.mediaType] : 255;
-    } else if (tex.imageData && tex.imageData.width && tex.imageData.height) {
-      bytes = await encodeImageToPNG(tex.imageData);
-      mediaCode = MEDIA_TYPE_CODE[PNGMediaType];
-    } else if (tex.image && tex.image.width && tex.image.height) {
-      bytes = await encodeImageToPNG(tex.image);
-      mediaCode = MEDIA_TYPE_CODE[PNGMediaType];
-    }
-    if (!bytes) {
-      console.warn(`[xgf v2] Texture '${tex.id}' has no buffers, imageData or image \u2014 encoded as empty`);
-      bytes = new Uint8Array(0);
-    }
-    textureBytes2.push(bytes);
-    textureMediaTypes.push(mediaCode);
-    textureWidths.push(tex.width || ((_d = (_c = (_a2 = tex.imageData) == null ? void 0 : _a2.width) != null ? _c : (_b = tex.image) == null ? void 0 : _b.width) != null ? _d : 0));
-    textureHeights.push(tex.height || ((_h = (_g = (_e2 = tex.imageData) == null ? void 0 : _e2.height) != null ? _g : (_f = tex.image) == null ? void 0 : _f.height) != null ? _h : 0));
-    textureSamplers.push(
-      samplerCode(tex.minFilter),
-      samplerCode(tex.magFilter),
-      samplerCode(tex.wrapS),
-      samplerCode(tex.wrapT),
-      samplerCode(tex.wrapR)
-    );
-  }
-  let textureDataSize = 0;
-  for (const b5 of textureBytes2)
-    textureDataSize += b5.length;
-  const textureData = new Uint8Array(textureDataSize);
-  const eachTextureDataBase = new Uint32Array(numTextures);
-  {
-    let cursor = 0;
-    for (let i2 = 0; i2 < numTextures; i2++) {
-      eachTextureDataBase[i2] = cursor;
-      textureData.set(textureBytes2[i2], cursor);
-      cursor += textureBytes2[i2].length;
-    }
-  }
-  const materialIndexById = {};
-  const eachMaterialPBR = new Uint8Array(numMaterials * NUM_MATERIAL_PBR_BYTES3);
-  const eachMaterialTextures = new Int32Array(numMaterials * NUM_MATERIAL_TEXTURE_REFS3);
-  const eachMaterialId = [];
-  for (let i2 = 0; i2 < numMaterials; i2++) {
-    if ((i2 & 63) === 0)
-      await step2("Encoding materials", i2, numMaterials);
-    const mat = materialsList[i2];
-    materialIndexById[mat.id] = i2;
-    eachMaterialId.push(mat.id);
-    const base = i2 * NUM_MATERIAL_PBR_BYTES3;
-    eachMaterialPBR[base] = clampU8(mat.color[0] * 255);
-    eachMaterialPBR[base + 1] = clampU8(mat.color[1] * 255);
-    eachMaterialPBR[base + 2] = clampU8(mat.color[2] * 255);
-    eachMaterialPBR[base + 3] = clampU8(mat.opacity * 255);
-    eachMaterialPBR[base + 4] = clampU8(mat.roughness * 255);
-    eachMaterialPBR[base + 5] = clampU8(mat.metallic * 255);
-    eachMaterialPBR[base + 6] = clampU8(mat.alphaMode);
-    eachMaterialPBR[base + 7] = clampU8(mat.alphaCutoff * 255);
-    const tBase = i2 * NUM_MATERIAL_TEXTURE_REFS3;
-    eachMaterialTextures[tBase] = textureIndexOrNone((_i = mat.colorTexture) == null ? void 0 : _i.id, textureIndexById);
-    eachMaterialTextures[tBase + 1] = textureIndexOrNone((_j = mat.metallicRoughnessTexture) == null ? void 0 : _j.id, textureIndexById);
-    eachMaterialTextures[tBase + 2] = textureIndexOrNone((_k = mat.normalsTexture) == null ? void 0 : _k.id, textureIndexById);
-    eachMaterialTextures[tBase + 3] = textureIndexOrNone((_l = mat.occlusionTexture) == null ? void 0 : _l.id, textureIndexById);
-    eachMaterialTextures[tBase + 4] = textureIndexOrNone((_m = mat.emissiveTexture) == null ? void 0 : _m.id, textureIndexById);
-  }
-  const xgfData = {
-    positions: new Uint16Array(sizePositions),
-    colors: new Uint8Array(sizeColors),
-    indices: new Uint32Array(sizeIndices),
-    edgeIndices: new Uint32Array(sizeEdgeIndices),
-    aabbs: new Float32Array(0),
-    // populated below
-    normals: new Uint16Array(sizeNormals),
-    uvs: new Float32Array(sizeUVs),
-    eachGeometryPositionsBase: new Uint32Array(numGeometries),
-    eachGeometryColorsBase: new Uint32Array(numGeometries),
-    eachGeometryIndicesBase: new Uint32Array(numGeometries),
-    eachGeometryEdgeIndicesBase: new Uint32Array(numGeometries),
-    eachGeometryNormalsBase: new Uint32Array(numGeometries),
-    eachGeometryUVsBase: new Uint32Array(numGeometries),
-    eachGeometryPrimitiveType: new Uint8Array(numGeometries),
-    eachGeometryAABBBase: new Uint32Array(numGeometries),
-    matrices: new Float64Array(0),
-    // populated below
-    textureData,
-    eachTextureDataBase,
-    eachTextureMediaType: new Uint8Array(textureMediaTypes),
-    eachTextureWidth: new Uint16Array(textureWidths),
-    eachTextureHeight: new Uint16Array(textureHeights),
-    eachTextureSampler: new Uint8Array(textureSamplers),
-    eachTextureId: textureIds,
-    eachMaterialPBR,
-    eachMaterialTextures,
-    eachMaterialId,
-    eachMeshGeometriesBase: new Uint32Array(numMeshes),
-    eachMeshMatricesBase: new Uint32Array(numMeshes),
-    eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES4),
-    eachMeshMaterial: new Int32Array(numMeshes),
-    eachObjectId: [],
-    eachObjectMeshesBase: new Uint32Array(numObjects)
-  };
-  let positionsBase = 0;
-  let colorsBase = 0;
-  let indicesBase = 0;
-  let edgeIndicesBase = 0;
-  let normalsBase = 0;
-  let uvsBase = 0;
-  let aabbsBase = 0;
-  const aabbIdxMap = {};
-  const aabbs = [];
-  const matrices = [];
-  const geometryIndices = {};
-  for (let geometryIdx = 0; geometryIdx < numGeometries; geometryIdx++) {
-    const geometry = geometriesList[geometryIdx];
-    let primitiveType = 0;
-    switch (geometry.primitive) {
-      case TrianglesPrimitive:
-        primitiveType = 0;
-        break;
-      case SolidPrimitive:
-        primitiveType = 1;
-        break;
-      case SurfacePrimitive:
-        primitiveType = 2;
-        break;
-      case LinesPrimitive:
-        primitiveType = 3;
-        break;
-      case PointsPrimitive:
-        primitiveType = 4;
-        break;
-    }
-    xgfData.eachGeometryPrimitiveType[geometryIdx] = primitiveType;
-    const aabb = geometry.aabb;
-    const aabbHash = `${aabb[0]}-${aabb[1]}-${aabb[2]}-${aabb[3]}-${aabb[4]}-${aabb[5]}`;
-    let aabbIdx = aabbIdxMap[aabbHash];
-    if (aabbIdx === void 0) {
-      aabbIdx = aabbsBase;
-      aabbIdxMap[aabbHash] = aabbIdx;
-      aabbs.push(...aabb);
-      aabbsBase += 6;
-    }
-    xgfData.eachGeometryAABBBase[geometryIdx] = aabbIdx;
-    xgfData.eachGeometryPositionsBase[geometryIdx] = positionsBase;
-    xgfData.positions.set(geometry.positionsCompressed, positionsBase);
-    positionsBase += geometry.positionsCompressed.length;
-    xgfData.eachGeometryColorsBase[geometryIdx] = colorsBase;
-    if (geometry.colorsCompressed) {
-      xgfData.colors.set(geometry.colorsCompressed, colorsBase);
-      colorsBase += geometry.colorsCompressed.length;
-    }
-    xgfData.eachGeometryIndicesBase[geometryIdx] = indicesBase;
-    if (geometry.indices) {
-      xgfData.indices.set(geometry.indices, indicesBase);
-      indicesBase += geometry.indices.length;
-    }
-    xgfData.eachGeometryEdgeIndicesBase[geometryIdx] = edgeIndicesBase;
-    if (geometry.edgeIndices) {
-      xgfData.edgeIndices.set(geometry.edgeIndices, edgeIndicesBase);
-      edgeIndicesBase += geometry.edgeIndices.length;
-    }
-    if (geometry.normalsCompressed) {
-      xgfData.eachGeometryNormalsBase[geometryIdx] = normalsBase;
-      xgfData.normals.set(geometry.normalsCompressed, normalsBase);
-      normalsBase += geometry.normalsCompressed.length;
-    } else {
-      xgfData.eachGeometryNormalsBase[geometryIdx] = NO_INDEX3;
-    }
-    if (geometry.uvsCompressed) {
-      xgfData.eachGeometryUVsBase[geometryIdx] = uvsBase;
-      xgfData.uvs.set(geometry.uvsCompressed, uvsBase);
-      uvsBase += geometry.uvsCompressed.length;
-    } else {
-      xgfData.eachGeometryUVsBase[geometryIdx] = NO_INDEX3;
-    }
-    geometryIndices[geometry.id] = geometryIdx;
-  }
-  let identityMatrixAdded = false;
-  let identityMatrixBase = 0;
-  let matricesBase = 0;
-  let meshesBase = 0;
-  let materialAttrBase = 0;
-  for (let objectIdx = 0; objectIdx < numObjects; objectIdx++) {
-    if ((objectIdx & 31) === 0) {
-      await step2("Encoding objects", objectIdx, numObjects);
-    }
-    const object = objectsList[objectIdx];
-    xgfData.eachObjectId[objectIdx] = object.id;
-    xgfData.eachObjectMeshesBase[objectIdx] = meshesBase;
-    for (let i2 = 0; i2 < object.meshes.length; i2++) {
-      const mesh = object.meshes[i2];
-      xgfData.eachMeshGeometriesBase[meshesBase] = geometryIndices[mesh.geometry.id];
-      const matrix = getMeshWorldMatrix(mesh, options.coordinateSystem);
-      if (isIdentityMat4(matrix)) {
-        if (!identityMatrixAdded) {
-          matrices.push(...matrix);
-          xgfData.eachMeshMatricesBase[meshesBase] = matricesBase;
-          identityMatrixBase = matricesBase;
-          matricesBase += 16;
-          identityMatrixAdded = true;
-        } else {
-          xgfData.eachMeshMatricesBase[meshesBase] = identityMatrixBase;
-        }
-      } else {
-        matrices.push(...matrix);
-        xgfData.eachMeshMatricesBase[meshesBase] = matricesBase;
-        matricesBase += 16;
-      }
-      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU8(mesh.effectiveColor[0] * 255);
-      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU8(mesh.effectiveColor[1] * 255);
-      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU8(mesh.effectiveColor[2] * 255);
-      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU8(mesh.effectiveOpacity * 255);
-      xgfData.eachMeshMaterial[meshesBase] = mesh.material ? (_n = materialIndexById[mesh.material.id]) != null ? _n : -1 : -1;
-      meshesBase++;
-    }
-  }
-  xgfData.aabbs = new Float32Array(aabbs);
-  xgfData.matrices = new Float64Array(matrices);
-  if (onProgress) {
-    progress.phase = "Encoding objects";
-    progress.current = numObjects;
-    progress.total = numObjects;
-    onProgress(progress);
-  }
-  return xgfData;
-}
-function clampU8(v2) {
-  v2 = Math.round(v2);
-  return v2 < 0 ? 0 : v2 > 255 ? 255 : v2;
-}
-function textureIndexOrNone(id, indexById) {
-  if (!id)
-    return -1;
-  const idx = indexById[id];
-  return idx === void 0 ? -1 : idx;
-}
-async function encodeImageToPNG(imageData) {
-  const w2 = imageData.width, h2 = imageData.height;
-  const isPixelBuffer = imageData && imageData.data && imageData.data.length === w2 * h2 * 4;
-  const paint = (ctx2) => {
-    if (isPixelBuffer) {
-      const bytes = imageData.data instanceof Uint8ClampedArray ? imageData.data : new Uint8ClampedArray(imageData.data);
-      const id = typeof ImageData !== "undefined" && imageData instanceof ImageData ? imageData : new ImageData(bytes, w2, h2);
-      ctx2.putImageData(id, 0, 0);
-    } else {
-      ctx2.drawImage(imageData, 0, 0);
-    }
-  };
-  if (typeof OffscreenCanvas !== "undefined") {
-    const canvas2 = new OffscreenCanvas(w2, h2);
-    const ctx2 = canvas2.getContext("2d");
-    if (!ctx2)
-      return new Uint8Array(0);
-    paint(ctx2);
-    const blob = await canvas2.convertToBlob({ type: "image/png" });
-    return new Uint8Array(await blob.arrayBuffer());
-  }
-  const canvas = document.createElement("canvas");
-  canvas.width = w2;
-  canvas.height = h2;
-  const ctx = canvas.getContext("2d");
-  if (!ctx)
-    return new Uint8Array(0);
-  paint(ctx);
-  return await new Promise((resolve3) => {
-    canvas.toBlob(async (blob) => {
-      if (!blob)
-        return resolve3(new Uint8Array(0));
-      resolve3(new Uint8Array(await blob.arrayBuffer()));
-    }, "image/png");
-  });
-}
-
-// src/formats/xgf/versions/v2/XGF_INFO.ts
-var XGF_INFO2 = {
-  xgfVersion: 2
-};
-
-// src/formats/xgf/versions/v2/packXGF.ts
-var object2Array2 = function() {
-  const encoder = new TextEncoder();
-  return (obj) => encoder.encode(JSON.stringify(obj));
-}();
-function toArrayBuffer6(arrays) {
-  const arraysCnt = arrays.length;
-  const dataView = new DataView(new ArrayBuffer((1 + 2 * arraysCnt) * 4));
-  dataView.setUint32(0, XGF_INFO2.xgfVersion, true);
-  let byteOffset = dataView.byteLength;
-  const offsets = [];
-  for (let i2 = 0; i2 < arraysCnt; i2++) {
-    const arr = arrays[i2];
-    const BPE = arr.BYTES_PER_ELEMENT;
-    byteOffset = Math.ceil(byteOffset / BPE) * BPE;
-    const byteLength = arr.byteLength;
-    const idx = 1 + 2 * i2;
-    dataView.setUint32(idx * 4, byteOffset, true);
-    dataView.setUint32((idx + 1) * 4, byteLength, true);
-    offsets.push(byteOffset);
-    byteOffset += byteLength;
-  }
-  const dataArray = new Uint8Array(byteOffset);
-  dataArray.set(new Uint8Array(dataView.buffer), 0);
-  const requiresSwapToLittleEndian = function() {
-    const b5 = new ArrayBuffer(2);
-    new Uint16Array(b5)[0] = 1;
-    return new Uint8Array(b5)[0] !== 1;
-  }();
-  for (let i2 = 0; i2 < arraysCnt; i2++) {
-    const arr = arrays[i2];
-    const subarray = new Uint8Array(arr.buffer, arr.byteOffset, arr.byteLength);
-    const BPE = arr.BYTES_PER_ELEMENT;
-    if (requiresSwapToLittleEndian && BPE > 1) {
-      const swaps = BPE / 2;
-      const cnt = subarray.length / BPE;
-      for (let b5 = 0; b5 < cnt; b5++) {
-        const offset = b5 * BPE;
-        for (let j2 = 0; j2 < swaps; j2++) {
-          const i1 = offset + j2;
-          const i22 = offset - j2 + BPE - 1;
-          const tmp = subarray[i1];
-          subarray[i1] = subarray[i22];
-          subarray[i22] = tmp;
-        }
-      }
-    }
-    dataArray.set(subarray, offsets[i2]);
-  }
-  return dataArray.buffer;
-}
-function packXGF2(xgfData) {
-  return toArrayBuffer6([
-    xgfData.positions,
-    xgfData.colors,
-    xgfData.indices,
-    xgfData.edgeIndices,
-    xgfData.aabbs,
-    xgfData.normals,
-    xgfData.uvs,
-    xgfData.eachGeometryPositionsBase,
-    xgfData.eachGeometryColorsBase,
-    xgfData.eachGeometryIndicesBase,
-    xgfData.eachGeometryEdgeIndicesBase,
-    xgfData.eachGeometryNormalsBase,
-    xgfData.eachGeometryUVsBase,
-    xgfData.eachGeometryPrimitiveType,
-    xgfData.eachGeometryAABBBase,
-    xgfData.matrices,
-    xgfData.textureData,
-    xgfData.eachTextureDataBase,
-    xgfData.eachTextureMediaType,
-    xgfData.eachTextureWidth,
-    xgfData.eachTextureHeight,
-    xgfData.eachTextureSampler,
-    object2Array2(xgfData.eachTextureId),
-    xgfData.eachMaterialPBR,
-    xgfData.eachMaterialTextures,
-    object2Array2(xgfData.eachMaterialId),
-    xgfData.eachMeshGeometriesBase,
-    xgfData.eachMeshMatricesBase,
-    xgfData.eachMeshMaterialAttributes,
-    xgfData.eachMeshMaterial,
-    object2Array2(xgfData.eachObjectId),
-    xgfData.eachObjectMeshesBase
-  ]);
-}
-
-// src/formats/xgf/versions/v2/encode.ts
-async function encode12(params, options) {
-  const xgfData = await modelToXGF2({ sceneModel: params.sceneModel, options });
-  return packXGF2(xgfData);
-}
-
-// src/formats/xgf/versions/v3/modelToXGF.ts
-var NUM_MATERIAL_ATTRIBUTES5 = 4;
-var NUM_MATERIAL_TEXTURE_REFS4 = 5;
-var NUM_MATERIAL_PBR_BYTES4 = 8;
-var NO_INDEX4 = 4294967295;
-var clampByte = (v2) => v2 < 0 ? 0 : v2 > 255 ? 255 : v2;
-var SAMPLER_CODE2 = {
-  [RepeatWrapping]: 1,
-  [ClampToEdgeWrapping]: 2,
-  [MirroredRepeatWrapping]: 3,
-  [NearestFilter]: 4,
-  [LinearFilter]: 5,
-  [NearestMipMapNearestFilter]: 6,
-  [LinearMipMapNearestFilter]: 7,
-  [NearestMipMapLinearFilter]: 8,
-  [LinearMipMapLinearFilter]: 9
-};
-var MEDIA_TYPE_CODE2 = {
-  [PNGMediaType]: 0,
-  [JPEGMediaType]: 1,
-  [GIFMediaType]: 2
-};
-var samplerCode2 = (v2) => v2 !== void 0 && SAMPLER_CODE2[v2] !== void 0 ? SAMPLER_CODE2[v2] : 0;
-async function modelToXGF3(params) {
+async function modelToXGF(params) {
   var _a2, _b, _c, _d, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n;
   const sceneModel = params.sceneModel;
   const options = params.options || {};
@@ -155528,6 +154303,7 @@ async function modelToXGF3(params) {
   const textureWidths = [];
   const textureHeights = [];
   const textureSamplers = [];
+  const textureEncodings = [];
   const textureIds = [];
   const textureIndexById = {};
   for (let i2 = 0; i2 < numTextures; i2++) {
@@ -155540,16 +154316,16 @@ async function modelToXGF3(params) {
     let mediaCode = 255;
     if (tex.buffers && tex.buffers.length > 0 && tex.buffers[0]) {
       bytes = new Uint8Array(tex.buffers[0]);
-      mediaCode = tex.mediaType !== void 0 && MEDIA_TYPE_CODE2[tex.mediaType] !== void 0 ? MEDIA_TYPE_CODE2[tex.mediaType] : 255;
+      mediaCode = tex.mediaType !== void 0 && MEDIA_TYPE_CODE[tex.mediaType] !== void 0 ? MEDIA_TYPE_CODE[tex.mediaType] : 255;
     } else if (tex.imageData && tex.imageData.width && tex.imageData.height) {
-      bytes = await encodeImageToPNG2(tex.imageData);
-      mediaCode = MEDIA_TYPE_CODE2[PNGMediaType];
+      bytes = await encodeImageToPNG(tex.imageData);
+      mediaCode = MEDIA_TYPE_CODE[PNGMediaType];
     } else if (tex.image && tex.image.width && tex.image.height) {
-      bytes = await encodeImageToPNG2(tex.image);
-      mediaCode = MEDIA_TYPE_CODE2[PNGMediaType];
+      bytes = await encodeImageToPNG(tex.image);
+      mediaCode = MEDIA_TYPE_CODE[PNGMediaType];
     }
     if (!bytes) {
-      console.warn(`[xgf v3] Texture '${tex.id}' has no buffers, imageData or image \u2014 encoded as empty`);
+      console.warn(`[xgf] Texture '${tex.id}' has no buffers, imageData or image \u2014 encoded as empty`);
       bytes = new Uint8Array(0);
     }
     textureBytes2.push(bytes);
@@ -155557,12 +154333,13 @@ async function modelToXGF3(params) {
     textureWidths.push(tex.width || ((_d = (_c = (_a2 = tex.imageData) == null ? void 0 : _a2.width) != null ? _c : (_b = tex.image) == null ? void 0 : _b.width) != null ? _d : 0));
     textureHeights.push(tex.height || ((_h = (_g = (_e2 = tex.imageData) == null ? void 0 : _e2.height) != null ? _g : (_f = tex.image) == null ? void 0 : _f.height) != null ? _h : 0));
     textureSamplers.push(
-      samplerCode2(tex.minFilter),
-      samplerCode2(tex.magFilter),
-      samplerCode2(tex.wrapS),
-      samplerCode2(tex.wrapT),
-      samplerCode2(tex.wrapR)
+      samplerCode(tex.minFilter),
+      samplerCode(tex.magFilter),
+      samplerCode(tex.wrapS),
+      samplerCode(tex.wrapT),
+      samplerCode(tex.wrapR)
     );
+    textureEncodings.push(tex.encoding);
   }
   let textureDataSize = 0;
   for (const b5 of textureBytes2)
@@ -155578,8 +154355,10 @@ async function modelToXGF3(params) {
     }
   }
   const materialIndexById = {};
-  const eachMaterialPBR = new Uint8Array(numMaterials * NUM_MATERIAL_PBR_BYTES4);
-  const eachMaterialTextures = new Int32Array(numMaterials * NUM_MATERIAL_TEXTURE_REFS4);
+  const eachMaterialPBR = new Uint8Array(numMaterials * NUM_MATERIAL_PBR_BYTES2);
+  const eachMaterialColor = new Float32Array(numMaterials * 3);
+  const eachMaterialTextures = new Int32Array(numMaterials * NUM_MATERIAL_TEXTURE_REFS2);
+  const eachMaterialTriplanarScale = new Float32Array(numMaterials);
   const eachMaterialId = [];
   for (let i2 = 0; i2 < numMaterials; i2++) {
     if ((i2 & 63) === 0)
@@ -155587,21 +154366,25 @@ async function modelToXGF3(params) {
     const mat = materialsList[i2];
     materialIndexById[mat.id] = i2;
     eachMaterialId.push(mat.id);
-    const base = i2 * NUM_MATERIAL_PBR_BYTES4;
-    eachMaterialPBR[base] = clampU82(mat.color[0] * 255);
-    eachMaterialPBR[base + 1] = clampU82(mat.color[1] * 255);
-    eachMaterialPBR[base + 2] = clampU82(mat.color[2] * 255);
-    eachMaterialPBR[base + 3] = clampU82(mat.opacity * 255);
-    eachMaterialPBR[base + 4] = clampU82(mat.roughness * 255);
-    eachMaterialPBR[base + 5] = clampU82(mat.metallic * 255);
-    eachMaterialPBR[base + 6] = clampU82(mat.alphaMode);
-    eachMaterialPBR[base + 7] = clampU82(mat.alphaCutoff * 255);
-    const tBase = i2 * NUM_MATERIAL_TEXTURE_REFS4;
-    eachMaterialTextures[tBase] = textureIndexOrNone2((_i = mat.colorTexture) == null ? void 0 : _i.id, textureIndexById);
-    eachMaterialTextures[tBase + 1] = textureIndexOrNone2((_j = mat.metallicRoughnessTexture) == null ? void 0 : _j.id, textureIndexById);
-    eachMaterialTextures[tBase + 2] = textureIndexOrNone2((_k = mat.normalsTexture) == null ? void 0 : _k.id, textureIndexById);
-    eachMaterialTextures[tBase + 3] = textureIndexOrNone2((_l = mat.occlusionTexture) == null ? void 0 : _l.id, textureIndexById);
-    eachMaterialTextures[tBase + 4] = textureIndexOrNone2((_m = mat.emissiveTexture) == null ? void 0 : _m.id, textureIndexById);
+    const base = i2 * NUM_MATERIAL_PBR_BYTES2;
+    eachMaterialColor[i2 * 3] = mat.color[0];
+    eachMaterialColor[i2 * 3 + 1] = mat.color[1];
+    eachMaterialColor[i2 * 3 + 2] = mat.color[2];
+    eachMaterialPBR[base] = clampU8(mat.color[0] * 255);
+    eachMaterialPBR[base + 1] = clampU8(mat.color[1] * 255);
+    eachMaterialPBR[base + 2] = clampU8(mat.color[2] * 255);
+    eachMaterialPBR[base + 3] = clampU8(mat.opacity * 255);
+    eachMaterialPBR[base + 4] = clampU8(mat.roughness * 255);
+    eachMaterialPBR[base + 5] = clampU8(mat.metallic * 255);
+    eachMaterialPBR[base + 6] = clampU8(mat.alphaMode);
+    eachMaterialPBR[base + 7] = clampU8(mat.alphaCutoff * 255);
+    const tBase = i2 * NUM_MATERIAL_TEXTURE_REFS2;
+    eachMaterialTextures[tBase] = textureIndexOrNone((_i = mat.colorTexture) == null ? void 0 : _i.id, textureIndexById);
+    eachMaterialTextures[tBase + 1] = textureIndexOrNone((_j = mat.metallicRoughnessTexture) == null ? void 0 : _j.id, textureIndexById);
+    eachMaterialTextures[tBase + 2] = textureIndexOrNone((_k = mat.normalsTexture) == null ? void 0 : _k.id, textureIndexById);
+    eachMaterialTextures[tBase + 3] = textureIndexOrNone((_l = mat.occlusionTexture) == null ? void 0 : _l.id, textureIndexById);
+    eachMaterialTextures[tBase + 4] = textureIndexOrNone((_m = mat.emissiveTexture) == null ? void 0 : _m.id, textureIndexById);
+    eachMaterialTriplanarScale[i2] = mat.triplanarScale;
   }
   const xgfData = {
     positions: new Uint16Array(sizePositions),
@@ -155632,13 +154415,16 @@ async function modelToXGF3(params) {
     eachTextureWidth: new Uint16Array(textureWidths),
     eachTextureHeight: new Uint16Array(textureHeights),
     eachTextureSampler: new Uint8Array(textureSamplers),
+    eachTextureEncoding: new Uint16Array(textureEncodings),
     eachTextureId: textureIds,
     eachMaterialPBR,
+    eachMaterialColor,
     eachMaterialTextures,
     eachMaterialId,
+    eachMaterialTriplanarScale,
     eachMeshGeometriesBase: new Uint32Array(numMeshes),
     eachMeshMatricesBase: new Uint32Array(numMeshes),
-    eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES5),
+    eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES2),
     eachMeshMaterial: new Int32Array(numMeshes),
     eachObjectId: [],
     eachObjectMeshesBase: new Uint32Array(numObjects)
@@ -155713,14 +154499,14 @@ async function modelToXGF3(params) {
       xgfData.normals.set(geometry.normalsCompressed, normalsBase);
       normalsBase += geometry.normalsCompressed.length;
     } else {
-      xgfData.eachGeometryNormalsBase[geometryIdx] = NO_INDEX4;
+      xgfData.eachGeometryNormalsBase[geometryIdx] = NO_INDEX2;
     }
     if (geometry.uvsCompressed) {
       xgfData.eachGeometryUVsBase[geometryIdx] = uvsBase;
       xgfData.uvs.set(geometry.uvsCompressed, uvsBase);
       uvsBase += geometry.uvsCompressed.length;
     } else {
-      xgfData.eachGeometryUVsBase[geometryIdx] = NO_INDEX4;
+      xgfData.eachGeometryUVsBase[geometryIdx] = NO_INDEX2;
     }
     if (geometry.scales && geometry.rotations) {
       xgfData.eachGeometryScalesBase[geometryIdx] = scalesBase;
@@ -155733,8 +154519,8 @@ async function modelToXGF3(params) {
       }
       rotationsBase += rotations.length;
     } else {
-      xgfData.eachGeometryScalesBase[geometryIdx] = NO_INDEX4;
-      xgfData.eachGeometryRotationsBase[geometryIdx] = NO_INDEX4;
+      xgfData.eachGeometryScalesBase[geometryIdx] = NO_INDEX2;
+      xgfData.eachGeometryRotationsBase[geometryIdx] = NO_INDEX2;
     }
     geometryIndices[geometry.id] = geometryIdx;
   }
@@ -155769,10 +154555,10 @@ async function modelToXGF3(params) {
         xgfData.eachMeshMatricesBase[meshesBase] = matricesBase;
         matricesBase += 16;
       }
-      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU82(mesh.effectiveColor[0] * 255);
-      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU82(mesh.effectiveColor[1] * 255);
-      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU82(mesh.effectiveColor[2] * 255);
-      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU82(mesh.effectiveOpacity * 255);
+      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU8(mesh.effectiveColor[0] * 255);
+      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU8(mesh.effectiveColor[1] * 255);
+      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU8(mesh.effectiveColor[2] * 255);
+      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU8(mesh.effectiveOpacity * 255);
       xgfData.eachMeshMaterial[meshesBase] = mesh.material ? (_n = materialIndexById[mesh.material.id]) != null ? _n : -1 : -1;
       meshesBase++;
     }
@@ -155787,30 +154573,30 @@ async function modelToXGF3(params) {
   }
   return xgfData;
 }
-function clampU82(v2) {
+function clampU8(v2) {
   v2 = Math.round(v2);
   return v2 < 0 ? 0 : v2 > 255 ? 255 : v2;
 }
-function textureIndexOrNone2(id, indexById) {
+function textureIndexOrNone(id, indexById) {
   if (!id)
     return -1;
   const idx = indexById[id];
   return idx === void 0 ? -1 : idx;
 }
-async function encodeImageToPNG2(imageData) {
-  const w2 = imageData.width, h2 = imageData.height;
-  const isPixelBuffer = imageData && imageData.data && imageData.data.length === w2 * h2 * 4;
+async function encodeImageToPNG(imageData2) {
+  const w3 = imageData2.width, h3 = imageData2.height;
+  const isPixelBuffer2 = imageData2 && imageData2.data && imageData2.data.length === w3 * h3 * 4;
   const paint = (ctx2) => {
-    if (isPixelBuffer) {
-      const bytes = imageData.data instanceof Uint8ClampedArray ? imageData.data : new Uint8ClampedArray(imageData.data);
-      const id = typeof ImageData !== "undefined" && imageData instanceof ImageData ? imageData : new ImageData(bytes, w2, h2);
+    if (isPixelBuffer2) {
+      const bytes = imageData2.data instanceof Uint8ClampedArray ? imageData2.data : new Uint8ClampedArray(imageData2.data);
+      const id = typeof ImageData !== "undefined" && imageData2 instanceof ImageData ? imageData2 : new ImageData(bytes, w3, h3);
       ctx2.putImageData(id, 0, 0);
     } else {
-      ctx2.drawImage(imageData, 0, 0);
+      ctx2.drawImage(imageData2, 0, 0);
     }
   };
   if (typeof OffscreenCanvas !== "undefined") {
-    const canvas2 = new OffscreenCanvas(w2, h2);
+    const canvas2 = new OffscreenCanvas(w3, h3);
     const ctx2 = canvas2.getContext("2d");
     if (!ctx2)
       return new Uint8Array(0);
@@ -155818,36 +154604,52 @@ async function encodeImageToPNG2(imageData) {
     const blob = await canvas2.convertToBlob({ type: "image/png" });
     return new Uint8Array(await blob.arrayBuffer());
   }
-  const canvas = document.createElement("canvas");
-  canvas.width = w2;
-  canvas.height = h2;
+  if (typeof document !== "undefined") {
+    const canvas2 = document.createElement("canvas");
+    canvas2.width = w3;
+    canvas2.height = h3;
+    const ctx2 = canvas2.getContext("2d");
+    if (!ctx2)
+      return new Uint8Array(0);
+    paint(ctx2);
+    return await new Promise((resolve3) => {
+      canvas2.toBlob(async (blob) => {
+        if (!blob)
+          return resolve3(new Uint8Array(0));
+        resolve3(new Uint8Array(await blob.arrayBuffer()));
+      }, "image/png");
+    });
+  }
+  return encodeImageToPNGNode(imageData2, w3, h3, isPixelBuffer2);
+}
+function encodeImageToPNGNode(imageData, w, h, isPixelBuffer) {
+  const requireFn = eval("require");
+  const { createCanvas, ImageData: NodeImageData } = requireFn("@napi-rs/canvas");
+  const canvas = createCanvas(w, h);
   const ctx = canvas.getContext("2d");
-  if (!ctx)
-    return new Uint8Array(0);
-  paint(ctx);
-  return await new Promise((resolve3) => {
-    canvas.toBlob(async (blob) => {
-      if (!blob)
-        return resolve3(new Uint8Array(0));
-      resolve3(new Uint8Array(await blob.arrayBuffer()));
-    }, "image/png");
-  });
+  if (isPixelBuffer) {
+    const bytes = imageData.data instanceof Uint8ClampedArray ? imageData.data : new Uint8ClampedArray(imageData.data);
+    ctx.putImageData(new NodeImageData(bytes, w, h), 0, 0);
+  } else {
+    ctx.drawImage(imageData, 0, 0);
+  }
+  return new Uint8Array(canvas.toBuffer("image/png"));
 }
 
-// src/formats/xgf/versions/v3/XGF_INFO.ts
-var XGF_INFO3 = {
-  xgfVersion: 3
+// src/formats/xgf/versions/v1/XGF_INFO.ts
+var XGF_INFO = {
+  xgfVersion: 1
 };
 
-// src/formats/xgf/versions/v3/packXGF.ts
-var object2Array3 = function() {
+// src/formats/xgf/versions/v1/packXGF.ts
+var object2Array = function() {
   const encoder = new TextEncoder();
   return (obj) => encoder.encode(JSON.stringify(obj));
 }();
-function toArrayBuffer7(arrays) {
+function toArrayBuffer5(arrays) {
   const arraysCnt = arrays.length;
   const dataView = new DataView(new ArrayBuffer((1 + 2 * arraysCnt) * 4));
-  dataView.setUint32(0, XGF_INFO3.xgfVersion, true);
+  dataView.setUint32(0, XGF_INFO.xgfVersion, true);
   let byteOffset = dataView.byteLength;
   const offsets = [];
   for (let i2 = 0; i2 < arraysCnt; i2++) {
@@ -155890,8 +154692,8 @@ function toArrayBuffer7(arrays) {
   }
   return dataArray.buffer;
 }
-function packXGF3(xgfData) {
-  return toArrayBuffer7([
+function packXGF(xgfData) {
+  return toArrayBuffer5([
     xgfData.positions,
     xgfData.colors,
     xgfData.indices,
@@ -155918,59 +154720,39 @@ function packXGF3(xgfData) {
     xgfData.eachTextureWidth,
     xgfData.eachTextureHeight,
     xgfData.eachTextureSampler,
-    object2Array3(xgfData.eachTextureId),
+    xgfData.eachTextureEncoding,
+    object2Array(xgfData.eachTextureId),
     xgfData.eachMaterialPBR,
+    xgfData.eachMaterialColor,
     xgfData.eachMaterialTextures,
-    object2Array3(xgfData.eachMaterialId),
+    object2Array(xgfData.eachMaterialId),
+    xgfData.eachMaterialTriplanarScale,
     xgfData.eachMeshGeometriesBase,
     xgfData.eachMeshMatricesBase,
     xgfData.eachMeshMaterialAttributes,
     xgfData.eachMeshMaterial,
-    object2Array3(xgfData.eachObjectId),
+    object2Array(xgfData.eachObjectId),
     xgfData.eachObjectMeshesBase
   ]);
 }
 
-// src/formats/xgf/versions/v3/encode.ts
-async function encode13(params, options) {
-  const xgfData = await modelToXGF3({ sceneModel: params.sceneModel, options });
-  return packXGF3(xgfData);
+// src/formats/xgf/versions/v1/encode.ts
+async function encode11(params, options) {
+  const xgfData = await modelToXGF({ sceneModel: params.sceneModel, options });
+  return packXGF(xgfData);
 }
 
 // src/formats/xgf/XGFExporter.ts
-var SPLAT_CAPABLE_VERSION = "1.2.0";
-var TEXTURE_CAPABLE_VERSION = "1.1.0";
 var XGFExporter = class extends ModelExporter {
   constructor() {
     super({
       format: "XGF",
       fileDataType: "arraybuffer",
       encoders: {
-        "1.0.0": encode11,
-        "1.1.0": encode12,
-        "1.2.0": encode13
+        "1.0.0": encode11
       },
       defaultVersion: "1.0.0"
     });
-  }
-  /**
-   * Exports the SceneModel to XGF. When the caller didn't pin a `version`,
-   * promotes the target version so the model's data is never silently dropped:
-   * {@link SPLAT_CAPABLE_VERSION | v3} when the model contains Gaussian-splat
-   * geometry, or {@link TEXTURE_CAPABLE_VERSION | v2} when it has textures (v1
-   * carries geometry + per-mesh RGBA only — no materials or textures). An
-   * explicit `version` always wins (so callers can still force v1 deliberately).
-   */
-  write(params, options = {}) {
-    const sceneModel = params == null ? void 0 : params.sceneModel;
-    if (params && !params.version && sceneModel) {
-      if (sceneModel.containsPrimitive(GaussianSplatsPrimitive)) {
-        params = { ...params, version: SPLAT_CAPABLE_VERSION };
-      } else if (Object.keys(sceneModel.textures).length > 0) {
-        params = { ...params, version: TEXTURE_CAPABLE_VERSION };
-      }
-    }
-    return super.write(params, options);
   }
 };
 
@@ -158243,7 +157025,7 @@ function getModule() {
     /** @suppress {uselessCode} */
     function(global2, env, buffer2) {
       ;
-      var a3 = new global2.Int8Array(buffer2), b5 = new global2.Int16Array(buffer2), c3 = new global2.Int32Array(buffer2), d2 = new global2.Uint8Array(buffer2), e2 = new global2.Uint16Array(buffer2), f2 = new global2.Float32Array(buffer2), g2 = new global2.Float64Array(buffer2), h2 = env.D | 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q3 = global2.Math.imul, r2 = global2.Math.clz32, s2 = env.a, t2 = env.b, u2 = env.c, v2 = env.d, w2 = env.e, x2 = env.f, y2 = env.g, z2 = env.h, A3 = env.i, B3 = env.j, C2 = env.k, D2 = env.l, E2 = env.m, F2 = env.n, G3 = env.o, H2 = env.p, I2 = env.q, J2 = env.r, K2 = env.s, L2 = env.t, M2 = env.u, N2 = env.v, O2 = env.w, P2 = env.x, Q2 = env.y, R3 = env.z, S2 = env.A, T2 = env.B, U2 = env.C, V2 = 22384, W2 = 5265264, X2 = 0;
+      var a3 = new global2.Int8Array(buffer2), b5 = new global2.Int16Array(buffer2), c3 = new global2.Int32Array(buffer2), d2 = new global2.Uint8Array(buffer2), e2 = new global2.Uint16Array(buffer2), f2 = new global2.Float32Array(buffer2), g2 = new global2.Float64Array(buffer2), h3 = env.D | 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q3 = global2.Math.imul, r2 = global2.Math.clz32, s2 = env.a, t2 = env.b, u2 = env.c, v2 = env.d, w3 = env.e, x2 = env.f, y2 = env.g, z2 = env.h, A3 = env.i, B3 = env.j, C2 = env.k, D2 = env.l, E2 = env.m, F2 = env.n, G3 = env.o, H2 = env.p, I2 = env.q, J2 = env.r, K2 = env.s, L2 = env.t, M2 = env.u, N2 = env.v, O2 = env.w, P2 = env.x, Q2 = env.y, R3 = env.z, S2 = env.A, T2 = env.B, U2 = env.C, V2 = 22384, W2 = 5265264, X2 = 0;
       function ia() {
         em();
         fm();
@@ -158254,7 +157036,7 @@ function getModule() {
       }
       function ka(a4) {
         a4 = a4 | 0;
-        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0;
+        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0;
         a4 = V2;
         V2 = V2 + 16 | 0;
         b6 = a4 + 8 | 0;
@@ -158263,13 +157045,13 @@ function getModule() {
         m3 = xk() | 0;
         g3 = yk() | 0;
         f3 = Ak() | 0;
-        h3 = Bk() | 0;
+        h4 = Bk() | 0;
         i3 = Ck() | 0;
         j3 = Dk() | 0;
         k3 = Jk() | 0;
         l3 = Kk() | 0;
         e3 = Kk() | 0;
-        D2(f3 | 0, h3 | 0, i3 | 0, j3 | 0, k3 | 0, 9, l3 | 0, m3 | 0, e3 | 0, g3 | 0, 6204, Lk() | 0, 138);
+        D2(f3 | 0, h4 | 0, i3 | 0, j3 | 0, k3 | 0, 9, l3 | 0, m3 | 0, e3 | 0, g3 | 0, 6204, Lk() | 0, 138);
         Nk(1);
         c3[d3 >> 2] = 5;
         c3[d3 + 4 >> 2] = 0;
@@ -158294,9 +157076,9 @@ function getModule() {
         k3 = zl() | 0;
         j3 = Dk() | 0;
         i3 = Jk() | 0;
-        h3 = Kk() | 0;
+        h4 = Kk() | 0;
         f3 = Kk() | 0;
-        D2(m3 | 0, l3 | 0, k3 | 0, j3 | 0, i3 | 0, 11, h3 | 0, g3 | 0, f3 | 0, e3 | 0, 6234, Lk() | 0, 139);
+        D2(m3 | 0, l3 | 0, k3 | 0, j3 | 0, i3 | 0, 11, h4 | 0, g3 | 0, f3 | 0, e3 | 0, 6234, Lk() | 0, 139);
         Gl(2);
         c3[d3 >> 2] = 6;
         c3[d3 + 4 >> 2] = 0;
@@ -158330,17 +157112,17 @@ function getModule() {
         a4 = a4 | 0;
         b6 = b6 | 0;
         d3 = d3 | 0;
-        var e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0;
+        var e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0;
         e3 = V2;
         V2 = V2 + 32 | 0;
-        h3 = e3 + 16 | 0;
+        h4 = e3 + 16 | 0;
         f3 = e3 + 8 | 0;
         i3 = e3;
         g3 = eq(20) | 0;
         ta(g3, b6, d3);
         c3[i3 >> 2] = 0;
-        c3[h3 >> 2] = c3[i3 >> 2];
-        va(f3, g3, h3);
+        c3[h4 >> 2] = c3[i3 >> 2];
+        va(f3, g3, h4);
         b6 = c3[f3 >> 2] | 0;
         c3[f3 >> 2] = c3[a4 >> 2];
         c3[a4 >> 2] = b6;
@@ -158354,8 +157136,8 @@ function getModule() {
         ua(d3, c3[a4 >> 2] | 0);
         g3 = a4 + 8 | 0;
         c3[i3 >> 2] = 0;
-        c3[h3 >> 2] = c3[i3 >> 2];
-        Fa(f3, d3, h3);
+        c3[h4 >> 2] = c3[i3 >> 2];
+        Fa(f3, d3, h4);
         d3 = c3[f3 >> 2] | 0;
         c3[f3 >> 2] = c3[g3 >> 2];
         c3[g3 >> 2] = d3;
@@ -158383,16 +157165,16 @@ function getModule() {
         a4 = a4 | 0;
         b6 = b6 | 0;
         d3 = d3 | 0;
-        var e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0;
+        var e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0;
         e3 = V2;
         V2 = V2 + 32 | 0;
         g3 = e3 + 16 | 0;
         f3 = e3 + 8 | 0;
-        h3 = e3;
+        h4 = e3;
         i3 = eq(12) | 0;
         Rh(i3, b6, d3);
-        c3[h3 >> 2] = 0;
-        c3[g3 >> 2] = c3[h3 >> 2];
+        c3[h4 >> 2] = 0;
+        c3[g3 >> 2] = c3[h4 >> 2];
         Vh(f3, i3, g3);
         i3 = c3[f3 >> 2] | 0;
         c3[f3 >> 2] = c3[a4 >> 2];
@@ -158406,27 +157188,27 @@ function getModule() {
         d3 = a4 + 8 | 0;
         b6 = eq(12) | 0;
         Sh(b6, c3[a4 >> 2] | 0);
-        c3[h3 >> 2] = 0;
-        c3[g3 >> 2] = c3[h3 >> 2];
+        c3[h4 >> 2] = 0;
+        c3[g3 >> 2] = c3[h4 >> 2];
         ai(f3, b6, g3);
         b6 = c3[f3 >> 2] | 0;
         c3[f3 >> 2] = c3[d3 >> 2];
         c3[d3 >> 2] = b6;
         b6 = f3 + 4 | 0;
-        h3 = a4 + 12 | 0;
+        h4 = a4 + 12 | 0;
         i3 = c3[b6 >> 2] | 0;
-        c3[b6 >> 2] = c3[h3 >> 2];
-        c3[h3 >> 2] = i3;
+        c3[b6 >> 2] = c3[h4 >> 2];
+        c3[h4 >> 2] = i3;
         bi(f3);
         Th(f3, c3[d3 >> 2] | 0);
         d3 = a4 + 16 | 0;
-        h3 = c3[f3 >> 2] | 0;
+        h4 = c3[f3 >> 2] | 0;
         i3 = f3 + 4 | 0;
         b6 = c3[i3 >> 2] | 0;
         c3[f3 >> 2] = 0;
         c3[i3 >> 2] = 0;
         c3[g3 >> 2] = c3[d3 >> 2];
-        c3[d3 >> 2] = h3;
+        c3[d3 >> 2] = h4;
         d3 = a4 + 20 | 0;
         c3[g3 + 4 >> 2] = c3[d3 >> 2];
         c3[d3 >> 2] = b6;
@@ -158603,7 +157385,7 @@ function getModule() {
       }
       function ya(a4) {
         a4 = a4 | 0;
-        w2(a4 | 0) | 0;
+        w3(a4 | 0) | 0;
         lp();
       }
       function za(a4) {
@@ -158818,13 +157600,13 @@ function getModule() {
       }
       function Za(b6) {
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0;
         i3 = V2;
         V2 = V2 + 64 | 0;
         g3 = i3 + 32 | 0;
         e3 = i3 + 56 | 0;
         d3 = i3 + 16 | 0;
-        h3 = i3;
+        h4 = i3;
         $a(c3[b6 >> 2] | 0, e3, 4);
         mb(g3, e3, e3 + 4 | 0);
         e3 = lb(6693) | 0;
@@ -158861,16 +157643,16 @@ function getModule() {
             jb(c3[b6 >> 2] | 0);
             f3 = c3[b6 >> 2] | 0;
             d3 = (c3[b6 + 116 >> 2] | 0) + 8 | 0;
-            e3 = h3;
+            e3 = h4;
             c3[e3 >> 2] = 0;
             c3[e3 + 4 >> 2] = 0;
-            e3 = h3 + 8 | 0;
+            e3 = h4 + 8 | 0;
             c3[e3 >> 2] = d3;
             c3[e3 + 4 >> 2] = 0;
-            c3[g3 >> 2] = c3[h3 >> 2];
-            c3[g3 + 4 >> 2] = c3[h3 + 4 >> 2];
-            c3[g3 + 8 >> 2] = c3[h3 + 8 >> 2];
-            c3[g3 + 12 >> 2] = c3[h3 + 12 >> 2];
+            c3[g3 >> 2] = c3[h4 >> 2];
+            c3[g3 + 4 >> 2] = c3[h4 + 4 >> 2];
+            c3[g3 + 8 >> 2] = c3[h4 + 8 >> 2];
+            c3[g3 + 12 >> 2] = c3[h4 + 12 >> 2];
             bb(f3, g3);
             kb(b6 + 4 | 0);
             V2 = i3;
@@ -158894,11 +157676,11 @@ function getModule() {
         b6 = b6 | 0;
         d3 = d3 | 0;
         e3 = e3 | 0;
-        var f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0;
+        var f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0;
         i3 = b6 + 13 | 0;
         if (!(a3[i3 >> 0] | 0)) {
-          h3 = b6 + 4 | 0;
-          f3 = c3[h3 >> 2] | 0;
+          h4 = b6 + 4 | 0;
+          f3 = c3[h4 >> 2] | 0;
           j3 = b6 + 8 | 0;
           g3 = c3[j3 >> 2] | 0;
           k3 = f3 - g3 | 0;
@@ -158906,7 +157688,7 @@ function getModule() {
           if (e3) {
             vr2(d3 | 0, (c3[b6 >> 2] | 0) + g3 | 0, e3 | 0) | 0;
             g3 = c3[j3 >> 2] | 0;
-            f3 = c3[h3 >> 2] | 0;
+            f3 = c3[h4 >> 2] | 0;
           }
           k3 = g3 + e3 | 0;
           c3[j3 >> 2] = k3;
@@ -158943,123 +157725,123 @@ function getModule() {
         c4 = c4 | 0;
         var d3 = 0, e3 = 0, f3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0;
         n3 = c4 + 179 | 0;
-        a3[h2 >> 0] = a3[n3 >> 0];
-        a3[h2 + 1 >> 0] = a3[n3 + 1 >> 0];
-        a3[h2 + 2 >> 0] = a3[n3 + 2 >> 0];
-        a3[h2 + 3 >> 0] = a3[n3 + 3 >> 0];
-        a3[h2 + 4 >> 0] = a3[n3 + 4 >> 0];
-        a3[h2 + 5 >> 0] = a3[n3 + 5 >> 0];
-        a3[h2 + 6 >> 0] = a3[n3 + 6 >> 0];
-        a3[h2 + 7 >> 0] = a3[n3 + 7 >> 0];
-        m3 = +g2[h2 >> 3];
+        a3[h3 >> 0] = a3[n3 >> 0];
+        a3[h3 + 1 >> 0] = a3[n3 + 1 >> 0];
+        a3[h3 + 2 >> 0] = a3[n3 + 2 >> 0];
+        a3[h3 + 3 >> 0] = a3[n3 + 3 >> 0];
+        a3[h3 + 4 >> 0] = a3[n3 + 4 >> 0];
+        a3[h3 + 5 >> 0] = a3[n3 + 5 >> 0];
+        a3[h3 + 6 >> 0] = a3[n3 + 6 >> 0];
+        a3[h3 + 7 >> 0] = a3[n3 + 7 >> 0];
+        m3 = +g2[h3 >> 3];
         j3 = c4 + 187 | 0;
-        a3[h2 >> 0] = a3[j3 >> 0];
-        a3[h2 + 1 >> 0] = a3[j3 + 1 >> 0];
-        a3[h2 + 2 >> 0] = a3[j3 + 2 >> 0];
-        a3[h2 + 3 >> 0] = a3[j3 + 3 >> 0];
-        a3[h2 + 4 >> 0] = a3[j3 + 4 >> 0];
-        a3[h2 + 5 >> 0] = a3[j3 + 5 >> 0];
-        a3[h2 + 6 >> 0] = a3[j3 + 6 >> 0];
-        a3[h2 + 7 >> 0] = a3[j3 + 7 >> 0];
-        o3 = +g2[h2 >> 3];
+        a3[h3 >> 0] = a3[j3 >> 0];
+        a3[h3 + 1 >> 0] = a3[j3 + 1 >> 0];
+        a3[h3 + 2 >> 0] = a3[j3 + 2 >> 0];
+        a3[h3 + 3 >> 0] = a3[j3 + 3 >> 0];
+        a3[h3 + 4 >> 0] = a3[j3 + 4 >> 0];
+        a3[h3 + 5 >> 0] = a3[j3 + 5 >> 0];
+        a3[h3 + 6 >> 0] = a3[j3 + 6 >> 0];
+        a3[h3 + 7 >> 0] = a3[j3 + 7 >> 0];
+        o3 = +g2[h3 >> 3];
         b6 = c4 + 195 | 0;
-        a3[h2 >> 0] = a3[b6 >> 0];
-        a3[h2 + 1 >> 0] = a3[b6 + 1 >> 0];
-        a3[h2 + 2 >> 0] = a3[b6 + 2 >> 0];
-        a3[h2 + 3 >> 0] = a3[b6 + 3 >> 0];
-        a3[h2 + 4 >> 0] = a3[b6 + 4 >> 0];
-        a3[h2 + 5 >> 0] = a3[b6 + 5 >> 0];
-        a3[h2 + 6 >> 0] = a3[b6 + 6 >> 0];
-        a3[h2 + 7 >> 0] = a3[b6 + 7 >> 0];
-        i3 = +g2[h2 >> 3];
+        a3[h3 >> 0] = a3[b6 >> 0];
+        a3[h3 + 1 >> 0] = a3[b6 + 1 >> 0];
+        a3[h3 + 2 >> 0] = a3[b6 + 2 >> 0];
+        a3[h3 + 3 >> 0] = a3[b6 + 3 >> 0];
+        a3[h3 + 4 >> 0] = a3[b6 + 4 >> 0];
+        a3[h3 + 5 >> 0] = a3[b6 + 5 >> 0];
+        a3[h3 + 6 >> 0] = a3[b6 + 6 >> 0];
+        a3[h3 + 7 >> 0] = a3[b6 + 7 >> 0];
+        i3 = +g2[h3 >> 3];
         l3 = c4 + 203 | 0;
-        a3[h2 >> 0] = a3[l3 >> 0];
-        a3[h2 + 1 >> 0] = a3[l3 + 1 >> 0];
-        a3[h2 + 2 >> 0] = a3[l3 + 2 >> 0];
-        a3[h2 + 3 >> 0] = a3[l3 + 3 >> 0];
-        a3[h2 + 4 >> 0] = a3[l3 + 4 >> 0];
-        a3[h2 + 5 >> 0] = a3[l3 + 5 >> 0];
-        a3[h2 + 6 >> 0] = a3[l3 + 6 >> 0];
-        a3[h2 + 7 >> 0] = a3[l3 + 7 >> 0];
-        k3 = +g2[h2 >> 3];
+        a3[h3 >> 0] = a3[l3 >> 0];
+        a3[h3 + 1 >> 0] = a3[l3 + 1 >> 0];
+        a3[h3 + 2 >> 0] = a3[l3 + 2 >> 0];
+        a3[h3 + 3 >> 0] = a3[l3 + 3 >> 0];
+        a3[h3 + 4 >> 0] = a3[l3 + 4 >> 0];
+        a3[h3 + 5 >> 0] = a3[l3 + 5 >> 0];
+        a3[h3 + 6 >> 0] = a3[l3 + 6 >> 0];
+        a3[h3 + 7 >> 0] = a3[l3 + 7 >> 0];
+        k3 = +g2[h3 >> 3];
         f3 = c4 + 211 | 0;
-        a3[h2 >> 0] = a3[f3 >> 0];
-        a3[h2 + 1 >> 0] = a3[f3 + 1 >> 0];
-        a3[h2 + 2 >> 0] = a3[f3 + 2 >> 0];
-        a3[h2 + 3 >> 0] = a3[f3 + 3 >> 0];
-        a3[h2 + 4 >> 0] = a3[f3 + 4 >> 0];
-        a3[h2 + 5 >> 0] = a3[f3 + 5 >> 0];
-        a3[h2 + 6 >> 0] = a3[f3 + 6 >> 0];
-        a3[h2 + 7 >> 0] = a3[f3 + 7 >> 0];
-        d3 = +g2[h2 >> 3];
+        a3[h3 >> 0] = a3[f3 >> 0];
+        a3[h3 + 1 >> 0] = a3[f3 + 1 >> 0];
+        a3[h3 + 2 >> 0] = a3[f3 + 2 >> 0];
+        a3[h3 + 3 >> 0] = a3[f3 + 3 >> 0];
+        a3[h3 + 4 >> 0] = a3[f3 + 4 >> 0];
+        a3[h3 + 5 >> 0] = a3[f3 + 5 >> 0];
+        a3[h3 + 6 >> 0] = a3[f3 + 6 >> 0];
+        a3[h3 + 7 >> 0] = a3[f3 + 7 >> 0];
+        d3 = +g2[h3 >> 3];
         c4 = c4 + 219 | 0;
-        a3[h2 >> 0] = a3[c4 >> 0];
-        a3[h2 + 1 >> 0] = a3[c4 + 1 >> 0];
-        a3[h2 + 2 >> 0] = a3[c4 + 2 >> 0];
-        a3[h2 + 3 >> 0] = a3[c4 + 3 >> 0];
-        a3[h2 + 4 >> 0] = a3[c4 + 4 >> 0];
-        a3[h2 + 5 >> 0] = a3[c4 + 5 >> 0];
-        a3[h2 + 6 >> 0] = a3[c4 + 6 >> 0];
-        a3[h2 + 7 >> 0] = a3[c4 + 7 >> 0];
-        e3 = +g2[h2 >> 3];
-        g2[h2 >> 3] = o3;
-        a3[n3 >> 0] = a3[h2 >> 0];
-        a3[n3 + 1 >> 0] = a3[h2 + 1 >> 0];
-        a3[n3 + 2 >> 0] = a3[h2 + 2 >> 0];
-        a3[n3 + 3 >> 0] = a3[h2 + 3 >> 0];
-        a3[n3 + 4 >> 0] = a3[h2 + 4 >> 0];
-        a3[n3 + 5 >> 0] = a3[h2 + 5 >> 0];
-        a3[n3 + 6 >> 0] = a3[h2 + 6 >> 0];
-        a3[n3 + 7 >> 0] = a3[h2 + 7 >> 0];
-        g2[h2 >> 3] = m3;
-        a3[l3 >> 0] = a3[h2 >> 0];
-        a3[l3 + 1 >> 0] = a3[h2 + 1 >> 0];
-        a3[l3 + 2 >> 0] = a3[h2 + 2 >> 0];
-        a3[l3 + 3 >> 0] = a3[h2 + 3 >> 0];
-        a3[l3 + 4 >> 0] = a3[h2 + 4 >> 0];
-        a3[l3 + 5 >> 0] = a3[h2 + 5 >> 0];
-        a3[l3 + 6 >> 0] = a3[h2 + 6 >> 0];
-        a3[l3 + 7 >> 0] = a3[h2 + 7 >> 0];
-        g2[h2 >> 3] = k3;
-        a3[j3 >> 0] = a3[h2 >> 0];
-        a3[j3 + 1 >> 0] = a3[h2 + 1 >> 0];
-        a3[j3 + 2 >> 0] = a3[h2 + 2 >> 0];
-        a3[j3 + 3 >> 0] = a3[h2 + 3 >> 0];
-        a3[j3 + 4 >> 0] = a3[h2 + 4 >> 0];
-        a3[j3 + 5 >> 0] = a3[h2 + 5 >> 0];
-        a3[j3 + 6 >> 0] = a3[h2 + 6 >> 0];
-        a3[j3 + 7 >> 0] = a3[h2 + 7 >> 0];
-        g2[h2 >> 3] = i3;
-        a3[f3 >> 0] = a3[h2 >> 0];
-        a3[f3 + 1 >> 0] = a3[h2 + 1 >> 0];
-        a3[f3 + 2 >> 0] = a3[h2 + 2 >> 0];
-        a3[f3 + 3 >> 0] = a3[h2 + 3 >> 0];
-        a3[f3 + 4 >> 0] = a3[h2 + 4 >> 0];
-        a3[f3 + 5 >> 0] = a3[h2 + 5 >> 0];
-        a3[f3 + 6 >> 0] = a3[h2 + 6 >> 0];
-        a3[f3 + 7 >> 0] = a3[h2 + 7 >> 0];
-        g2[h2 >> 3] = e3;
-        a3[b6 >> 0] = a3[h2 >> 0];
-        a3[b6 + 1 >> 0] = a3[h2 + 1 >> 0];
-        a3[b6 + 2 >> 0] = a3[h2 + 2 >> 0];
-        a3[b6 + 3 >> 0] = a3[h2 + 3 >> 0];
-        a3[b6 + 4 >> 0] = a3[h2 + 4 >> 0];
-        a3[b6 + 5 >> 0] = a3[h2 + 5 >> 0];
-        a3[b6 + 6 >> 0] = a3[h2 + 6 >> 0];
-        a3[b6 + 7 >> 0] = a3[h2 + 7 >> 0];
-        g2[h2 >> 3] = d3;
-        a3[c4 >> 0] = a3[h2 >> 0];
-        a3[c4 + 1 >> 0] = a3[h2 + 1 >> 0];
-        a3[c4 + 2 >> 0] = a3[h2 + 2 >> 0];
-        a3[c4 + 3 >> 0] = a3[h2 + 3 >> 0];
-        a3[c4 + 4 >> 0] = a3[h2 + 4 >> 0];
-        a3[c4 + 5 >> 0] = a3[h2 + 5 >> 0];
-        a3[c4 + 6 >> 0] = a3[h2 + 6 >> 0];
-        a3[c4 + 7 >> 0] = a3[h2 + 7 >> 0];
+        a3[h3 >> 0] = a3[c4 >> 0];
+        a3[h3 + 1 >> 0] = a3[c4 + 1 >> 0];
+        a3[h3 + 2 >> 0] = a3[c4 + 2 >> 0];
+        a3[h3 + 3 >> 0] = a3[c4 + 3 >> 0];
+        a3[h3 + 4 >> 0] = a3[c4 + 4 >> 0];
+        a3[h3 + 5 >> 0] = a3[c4 + 5 >> 0];
+        a3[h3 + 6 >> 0] = a3[c4 + 6 >> 0];
+        a3[h3 + 7 >> 0] = a3[c4 + 7 >> 0];
+        e3 = +g2[h3 >> 3];
+        g2[h3 >> 3] = o3;
+        a3[n3 >> 0] = a3[h3 >> 0];
+        a3[n3 + 1 >> 0] = a3[h3 + 1 >> 0];
+        a3[n3 + 2 >> 0] = a3[h3 + 2 >> 0];
+        a3[n3 + 3 >> 0] = a3[h3 + 3 >> 0];
+        a3[n3 + 4 >> 0] = a3[h3 + 4 >> 0];
+        a3[n3 + 5 >> 0] = a3[h3 + 5 >> 0];
+        a3[n3 + 6 >> 0] = a3[h3 + 6 >> 0];
+        a3[n3 + 7 >> 0] = a3[h3 + 7 >> 0];
+        g2[h3 >> 3] = m3;
+        a3[l3 >> 0] = a3[h3 >> 0];
+        a3[l3 + 1 >> 0] = a3[h3 + 1 >> 0];
+        a3[l3 + 2 >> 0] = a3[h3 + 2 >> 0];
+        a3[l3 + 3 >> 0] = a3[h3 + 3 >> 0];
+        a3[l3 + 4 >> 0] = a3[h3 + 4 >> 0];
+        a3[l3 + 5 >> 0] = a3[h3 + 5 >> 0];
+        a3[l3 + 6 >> 0] = a3[h3 + 6 >> 0];
+        a3[l3 + 7 >> 0] = a3[h3 + 7 >> 0];
+        g2[h3 >> 3] = k3;
+        a3[j3 >> 0] = a3[h3 >> 0];
+        a3[j3 + 1 >> 0] = a3[h3 + 1 >> 0];
+        a3[j3 + 2 >> 0] = a3[h3 + 2 >> 0];
+        a3[j3 + 3 >> 0] = a3[h3 + 3 >> 0];
+        a3[j3 + 4 >> 0] = a3[h3 + 4 >> 0];
+        a3[j3 + 5 >> 0] = a3[h3 + 5 >> 0];
+        a3[j3 + 6 >> 0] = a3[h3 + 6 >> 0];
+        a3[j3 + 7 >> 0] = a3[h3 + 7 >> 0];
+        g2[h3 >> 3] = i3;
+        a3[f3 >> 0] = a3[h3 >> 0];
+        a3[f3 + 1 >> 0] = a3[h3 + 1 >> 0];
+        a3[f3 + 2 >> 0] = a3[h3 + 2 >> 0];
+        a3[f3 + 3 >> 0] = a3[h3 + 3 >> 0];
+        a3[f3 + 4 >> 0] = a3[h3 + 4 >> 0];
+        a3[f3 + 5 >> 0] = a3[h3 + 5 >> 0];
+        a3[f3 + 6 >> 0] = a3[h3 + 6 >> 0];
+        a3[f3 + 7 >> 0] = a3[h3 + 7 >> 0];
+        g2[h3 >> 3] = e3;
+        a3[b6 >> 0] = a3[h3 >> 0];
+        a3[b6 + 1 >> 0] = a3[h3 + 1 >> 0];
+        a3[b6 + 2 >> 0] = a3[h3 + 2 >> 0];
+        a3[b6 + 3 >> 0] = a3[h3 + 3 >> 0];
+        a3[b6 + 4 >> 0] = a3[h3 + 4 >> 0];
+        a3[b6 + 5 >> 0] = a3[h3 + 5 >> 0];
+        a3[b6 + 6 >> 0] = a3[h3 + 6 >> 0];
+        a3[b6 + 7 >> 0] = a3[h3 + 7 >> 0];
+        g2[h3 >> 3] = d3;
+        a3[c4 >> 0] = a3[h3 >> 0];
+        a3[c4 + 1 >> 0] = a3[h3 + 1 >> 0];
+        a3[c4 + 2 >> 0] = a3[h3 + 2 >> 0];
+        a3[c4 + 3 >> 0] = a3[h3 + 3 >> 0];
+        a3[c4 + 4 >> 0] = a3[h3 + 4 >> 0];
+        a3[c4 + 5 >> 0] = a3[h3 + 5 >> 0];
+        a3[c4 + 6 >> 0] = a3[h3 + 6 >> 0];
+        a3[c4 + 7 >> 0] = a3[h3 + 7 >> 0];
         return;
       }
       function db() {
-        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0;
+        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0;
         g3 = V2;
         V2 = V2 + 48 | 0;
         e3 = g3 + 24 | 0;
@@ -159086,10 +157868,10 @@ function getModule() {
                 if (d3 >>> 0 < b6 >>> 0)
                   cr2(21496);
                 else {
-                  h3 = c3[5374] | 0;
-                  j3 = ((c3[5376] | 0) - h3 | 0) / 24 | 0;
+                  h4 = c3[5374] | 0;
+                  j3 = ((c3[5376] | 0) - h4 | 0) / 24 | 0;
                   i3 = j3 << 1;
-                  ub(e3, j3 >>> 0 < d3 >>> 1 >>> 0 ? i3 >>> 0 < b6 >>> 0 ? b6 : i3 : d3, ((c3[5375] | 0) - h3 | 0) / 24 | 0, 21504);
+                  ub(e3, j3 >>> 0 < d3 >>> 1 >>> 0 ? i3 >>> 0 < b6 >>> 0 ? b6 : i3 : d3, ((c3[5375] | 0) - h4 | 0) / 24 | 0, 21504);
                   d3 = e3 + 8 | 0;
                   sb(c3[d3 >> 2] | 0, f3);
                   c3[d3 >> 2] = (c3[d3 >> 2] | 0) + 24;
@@ -159162,7 +157944,7 @@ function getModule() {
       }
       function hb(b6) {
         b6 = b6 | 0;
-        var f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0;
+        var f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0;
         q4 = V2;
         V2 = V2 + 96 | 0;
         i3 = q4 + 16 | 0;
@@ -159197,12 +157979,12 @@ function getModule() {
                   break a;
                 $a(c3[b6 >> 2] | 0, i3, 54);
                 f3 = 7277;
-                h3 = k3;
+                h4 = k3;
                 while (1) {
-                  if ((a3[h3 >> 0] | 0) != (a3[f3 >> 0] | 0))
+                  if ((a3[h4 >> 0] | 0) != (a3[f3 >> 0] | 0))
                     break;
-                  h3 = h3 + 1 | 0;
-                  if ((h3 | 0) == (m3 | 0)) {
+                  h4 = h4 + 1 | 0;
+                  if ((h4 | 0) == (m3 | 0)) {
                     p3 = 8;
                     break;
                   } else
@@ -159234,11 +158016,11 @@ function getModule() {
       }
       function ib(a4) {
         a4 = a4 | 0;
-        var b6 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0;
+        var b6 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0;
         n3 = V2;
         V2 = V2 + 176 | 0;
         g3 = n3 + 40 | 0;
-        h3 = n3 + 24 | 0;
+        h4 = n3 + 24 | 0;
         b6 = n3 + 16 | 0;
         f3 = n3;
         k3 = n3 + 152 | 0;
@@ -159247,16 +158029,16 @@ function getModule() {
         j3 = c3[a4 >> 2] | 0;
         i3 = a4 + 116 | 0;
         o3 = c3[i3 >> 2] | 0;
-        e3 = h3;
+        e3 = h4;
         c3[e3 >> 2] = 0;
         c3[e3 + 4 >> 2] = 0;
-        e3 = h3 + 8 | 0;
+        e3 = h4 + 8 | 0;
         c3[e3 >> 2] = o3;
         c3[e3 + 4 >> 2] = 0;
-        c3[g3 >> 2] = c3[h3 >> 2];
-        c3[g3 + 4 >> 2] = c3[h3 + 4 >> 2];
-        c3[g3 + 8 >> 2] = c3[h3 + 8 >> 2];
-        c3[g3 + 12 >> 2] = c3[h3 + 12 >> 2];
+        c3[g3 >> 2] = c3[h4 >> 2];
+        c3[g3 + 4 >> 2] = c3[h4 + 4 >> 2];
+        c3[g3 + 8 >> 2] = c3[h4 + 8 >> 2];
+        c3[g3 + 12 >> 2] = c3[h4 + 12 >> 2];
         bb(j3, g3);
         j3 = b6;
         c3[j3 >> 2] = 0;
@@ -159303,9 +158085,9 @@ function getModule() {
           jc(o3);
           x2(o3 | 0, 2736, 8);
         }
-        h3 = a4 + 288 | 0;
+        h4 = a4 + 288 | 0;
         j3 = a4 + 292 | 0;
-        c3[j3 >> 2] = c3[h3 >> 2];
+        c3[j3 >> 2] = c3[h4 >> 2];
         o3 = a4 + 259 | 0;
         if ((d2[o3 >> 0] | d2[o3 + 1 >> 0] << 8 | d2[o3 + 2 >> 0] << 16 | d2[o3 + 3 >> 0] << 24 | 0) == -1) {
           o3 = v2(8) | 0;
@@ -159313,8 +158095,8 @@ function getModule() {
           x2(o3 | 0, 2720, 8);
         }
         f3 = g3 + 4 | 0;
-        kc(h3, (c3[f3 >> 2] | 0) + 1 | 0);
-        o3 = c3[h3 >> 2] | 0;
+        kc(h4, (c3[f3 >> 2] | 0) + 1 | 0);
+        o3 = c3[h4 >> 2] | 0;
         c3[o3 >> 2] = (c3[i3 >> 2] | 0) + 8;
         c3[o3 + 4 >> 2] = 0;
         if ((c3[f3 >> 2] | 0) >>> 0 > 1) {
@@ -159324,34 +158106,34 @@ function getModule() {
           nc(l3);
           oc(m3);
           if (!(c3[f3 >> 2] | 0)) {
-            h3 = c3[h3 >> 2] | 0;
-            e3 = h3;
+            h4 = c3[h4 >> 2] | 0;
+            e3 = h4;
           } else {
             e3 = 1;
             do {
               if (e3 >>> 0 > 1)
-                b6 = c3[(c3[h3 >> 2] | 0) + (e3 + -1 << 3) >> 2] | 0;
+                b6 = c3[(c3[h4 >> 2] | 0) + (e3 + -1 << 3) >> 2] | 0;
               else
                 b6 = 0;
               i3 = pc(m3, l3, b6, 1) | 0;
-              b6 = c3[h3 >> 2] | 0;
+              b6 = c3[h4 >> 2] | 0;
               o3 = b6 + (e3 << 3) | 0;
               c3[o3 >> 2] = i3;
               c3[o3 + 4 >> 2] = ((i3 | 0) < 0) << 31 >> 31;
               e3 = e3 + 1 | 0;
             } while (e3 >>> 0 <= (c3[f3 >> 2] | 0) >>> 0);
             e3 = b6;
-            h3 = b6;
+            h4 = b6;
           }
           b6 = c3[j3 >> 2] | 0;
           if (b6 - e3 >> 3 >>> 0 > 1) {
-            g3 = b6 - h3 >> 3;
-            f3 = h3;
+            g3 = b6 - h4 >> 3;
+            f3 = h4;
             b6 = 1;
             e3 = c3[f3 >> 2] | 0;
             f3 = c3[f3 + 4 >> 2] | 0;
             do {
-              o3 = h3 + (b6 << 3) | 0;
+              o3 = h4 + (b6 << 3) | 0;
               j3 = o3;
               e3 = lr2(c3[j3 >> 2] | 0, c3[j3 + 4 >> 2] | 0, e3 | 0, f3 | 0) | 0;
               f3 = u2() | 0;
@@ -159387,11 +158169,11 @@ function getModule() {
         b6 = b6 | 0;
         d3 = d3 | 0;
         e3 = e3 | 0;
-        var f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0;
+        var f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0;
         i3 = V2;
         V2 = V2 + 16 | 0;
         g3 = d3;
-        h3 = i3;
+        h4 = i3;
         f3 = e3 - g3 | 0;
         if (f3 >>> 0 > 4294967279)
           yq(b6);
@@ -159418,8 +158200,8 @@ function getModule() {
           }
           b6 = b6 + g3 | 0;
         }
-        a3[h3 >> 0] = 0;
-        nb(b6, h3);
+        a3[h4 >> 0] = 0;
+        nb(b6, h4);
         V2 = i3;
         return;
       }
@@ -159518,34 +158300,34 @@ function getModule() {
       function vb(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0;
         i3 = c3[a4 >> 2] | 0;
         j3 = a4 + 4 | 0;
         d3 = c3[j3 >> 2] | 0;
-        h3 = b6 + 4 | 0;
+        h4 = b6 + 4 | 0;
         if ((d3 | 0) == (i3 | 0)) {
-          f3 = h3;
+          f3 = h4;
           g3 = a4;
-          e3 = c3[h3 >> 2] | 0;
+          e3 = c3[h4 >> 2] | 0;
           d3 = i3;
         } else {
-          e3 = c3[h3 >> 2] | 0;
+          e3 = c3[h4 >> 2] | 0;
           do {
             d3 = d3 + -24 | 0;
             sb(e3 + -24 | 0, d3);
-            e3 = (c3[h3 >> 2] | 0) + -24 | 0;
-            c3[h3 >> 2] = e3;
+            e3 = (c3[h4 >> 2] | 0) + -24 | 0;
+            c3[h4 >> 2] = e3;
           } while ((d3 | 0) != (i3 | 0));
-          f3 = h3;
+          f3 = h4;
           g3 = a4;
           d3 = c3[a4 >> 2] | 0;
         }
         c3[g3 >> 2] = e3;
         c3[f3 >> 2] = d3;
         i3 = b6 + 8 | 0;
-        h3 = c3[j3 >> 2] | 0;
+        h4 = c3[j3 >> 2] | 0;
         c3[j3 >> 2] = c3[i3 >> 2];
-        c3[i3 >> 2] = h3;
+        c3[i3 >> 2] = h4;
         i3 = a4 + 8 | 0;
         j3 = b6 + 12 | 0;
         a4 = c3[i3 >> 2] | 0;
@@ -159708,7 +158490,7 @@ function getModule() {
         d3 = d3 | 0;
         e3 = e3 | 0;
         f3 = f3 | 0;
-        var g3 = 0, h3 = 0;
+        var g3 = 0, h4 = 0;
         switch (f3 | 0) {
           case 0:
             break;
@@ -159730,9 +158512,9 @@ function getModule() {
           }
         }
         g3 = c3[b6 + 4 >> 2] | 0;
-        h3 = ((g3 | 0) < 0) << 31 >> 31;
+        h4 = ((g3 | 0) < 0) << 31 >> 31;
         f3 = b6 + 12 | 0;
-        if ((e3 | 0) < 0 | ((e3 | 0) > (h3 | 0) | (e3 | 0) == (h3 | 0) & d3 >>> 0 >= g3 >>> 0))
+        if ((e3 | 0) < 0 | ((e3 | 0) > (h4 | 0) | (e3 | 0) == (h4 | 0) & d3 >>> 0 >= g3 >>> 0))
           a3[f3 >> 0] = 1;
         else {
           a3[f3 >> 0] = 0;
@@ -159750,10 +158532,10 @@ function getModule() {
         a4 = a4 | 0;
         b6 = b6 | 0;
         c4 = c4 | 0;
-        var e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0;
-        h3 = V2;
+        var e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0;
+        h4 = V2;
         V2 = V2 + 16 | 0;
-        g3 = h3;
+        g3 = h4;
         Xa(a4);
         f3 = b6 + 32 | 0;
         if ((d2[f3 >> 0] | d2[f3 + 1 >> 0] << 8) << 16 >> 16) {
@@ -159779,7 +158561,7 @@ function getModule() {
           _b(g3, 0, c4, 2);
           Zb(a4, g3);
         }
-        V2 = h3;
+        V2 = h4;
         return;
       }
       function Ub(b6, c4) {
@@ -159797,41 +158579,41 @@ function getModule() {
       function Vb(b6, c4) {
         b6 = b6 | 0;
         c4 = c4 | 0;
-        var e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0;
+        var e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0;
         f3 = c4 + 2 | 0;
-        h3 = d2[c4 >> 0] | d2[c4 + 1 >> 0] << 8;
-        a3[b6 >> 0] = h3;
-        a3[b6 + 1 >> 0] = h3 >> 8;
-        h3 = b6 + 2 | 0;
+        h4 = d2[c4 >> 0] | d2[c4 + 1 >> 0] << 8;
+        a3[b6 >> 0] = h4;
+        a3[b6 + 1 >> 0] = h4 >> 8;
+        h4 = b6 + 2 | 0;
         f3 = d2[f3 >> 0] | d2[f3 + 1 >> 0] << 8;
-        a3[h3 >> 0] = f3;
-        a3[h3 + 1 >> 0] = f3 >> 8;
+        a3[h4 >> 0] = f3;
+        a3[h4 + 1 >> 0] = f3 >> 8;
         a3[b6 + 4 >> 0] = a3[c4 + 4 >> 0] | 0;
-        h3 = c4 + 6 | 0;
+        h4 = c4 + 6 | 0;
         a3[b6 + 5 >> 0] = a3[c4 + 5 >> 0] | 0;
         f3 = c4 + 8 | 0;
         e3 = b6 + 6 | 0;
-        h3 = d2[h3 >> 0] | d2[h3 + 1 >> 0] << 8;
-        a3[e3 >> 0] = h3;
-        a3[e3 + 1 >> 0] = h3 >> 8;
+        h4 = d2[h4 >> 0] | d2[h4 + 1 >> 0] << 8;
+        a3[e3 >> 0] = h4;
+        a3[e3 + 1 >> 0] = h4 >> 8;
         e3 = c4 + 12 | 0;
-        h3 = b6 + 8 | 0;
+        h4 = b6 + 8 | 0;
         f3 = d2[f3 >> 0] | d2[f3 + 1 >> 0] << 8 | d2[f3 + 2 >> 0] << 16 | d2[f3 + 3 >> 0] << 24;
-        a3[h3 >> 0] = f3;
-        a3[h3 + 1 >> 0] = f3 >> 8;
-        a3[h3 + 2 >> 0] = f3 >> 16;
-        a3[h3 + 3 >> 0] = f3 >> 24;
-        h3 = b6 + 12 | 0;
+        a3[h4 >> 0] = f3;
+        a3[h4 + 1 >> 0] = f3 >> 8;
+        a3[h4 + 2 >> 0] = f3 >> 16;
+        a3[h4 + 3 >> 0] = f3 >> 24;
+        h4 = b6 + 12 | 0;
         e3 = d2[e3 >> 0] | d2[e3 + 1 >> 0] << 8 | d2[e3 + 2 >> 0] << 16 | d2[e3 + 3 >> 0] << 24;
-        a3[h3 >> 0] = e3;
-        a3[h3 + 1 >> 0] = e3 >> 8;
-        a3[h3 + 2 >> 0] = e3 >> 16;
-        a3[h3 + 3 >> 0] = e3 >> 24;
-        h3 = c4 + 16 | 0;
-        e3 = h3;
+        a3[h4 >> 0] = e3;
+        a3[h4 + 1 >> 0] = e3 >> 8;
+        a3[h4 + 2 >> 0] = e3 >> 16;
+        a3[h4 + 3 >> 0] = e3 >> 24;
+        h4 = c4 + 16 | 0;
+        e3 = h4;
         e3 = d2[e3 >> 0] | d2[e3 + 1 >> 0] << 8 | d2[e3 + 2 >> 0] << 16 | d2[e3 + 3 >> 0] << 24;
-        h3 = h3 + 4 | 0;
-        h3 = d2[h3 >> 0] | d2[h3 + 1 >> 0] << 8 | d2[h3 + 2 >> 0] << 16 | d2[h3 + 3 >> 0] << 24;
+        h4 = h4 + 4 | 0;
+        h4 = d2[h4 >> 0] | d2[h4 + 1 >> 0] << 8 | d2[h4 + 2 >> 0] << 16 | d2[h4 + 3 >> 0] << 24;
         f3 = b6 + 16 | 0;
         i3 = f3;
         a3[i3 >> 0] = e3;
@@ -159839,16 +158621,16 @@ function getModule() {
         a3[i3 + 2 >> 0] = e3 >> 16;
         a3[i3 + 3 >> 0] = e3 >> 24;
         f3 = f3 + 4 | 0;
-        a3[f3 >> 0] = h3;
-        a3[f3 + 1 >> 0] = h3 >> 8;
-        a3[f3 + 2 >> 0] = h3 >> 16;
-        a3[f3 + 3 >> 0] = h3 >> 24;
+        a3[f3 >> 0] = h4;
+        a3[f3 + 1 >> 0] = h4 >> 8;
+        a3[f3 + 2 >> 0] = h4 >> 16;
+        a3[f3 + 3 >> 0] = h4 >> 24;
         f3 = c4 + 32 | 0;
-        h3 = c4 + 24 | 0;
-        i3 = h3;
+        h4 = c4 + 24 | 0;
+        i3 = h4;
         i3 = d2[i3 >> 0] | d2[i3 + 1 >> 0] << 8 | d2[i3 + 2 >> 0] << 16 | d2[i3 + 3 >> 0] << 24;
-        h3 = h3 + 4 | 0;
-        h3 = d2[h3 >> 0] | d2[h3 + 1 >> 0] << 8 | d2[h3 + 2 >> 0] << 16 | d2[h3 + 3 >> 0] << 24;
+        h4 = h4 + 4 | 0;
+        h4 = d2[h4 >> 0] | d2[h4 + 1 >> 0] << 8 | d2[h4 + 2 >> 0] << 16 | d2[h4 + 3 >> 0] << 24;
         e3 = b6 + 24 | 0;
         g3 = e3;
         a3[g3 >> 0] = i3;
@@ -159856,29 +158638,29 @@ function getModule() {
         a3[g3 + 2 >> 0] = i3 >> 16;
         a3[g3 + 3 >> 0] = i3 >> 24;
         e3 = e3 + 4 | 0;
-        a3[e3 >> 0] = h3;
-        a3[e3 + 1 >> 0] = h3 >> 8;
-        a3[e3 + 2 >> 0] = h3 >> 16;
-        a3[e3 + 3 >> 0] = h3 >> 24;
+        a3[e3 >> 0] = h4;
+        a3[e3 + 1 >> 0] = h4 >> 8;
+        a3[e3 + 2 >> 0] = h4 >> 16;
+        a3[e3 + 3 >> 0] = h4 >> 24;
         e3 = c4 + 34 | 0;
-        h3 = b6 + 32 | 0;
+        h4 = b6 + 32 | 0;
         f3 = d2[f3 >> 0] | d2[f3 + 1 >> 0] << 8;
-        a3[h3 >> 0] = f3;
-        a3[h3 + 1 >> 0] = f3 >> 8;
+        a3[h4 >> 0] = f3;
+        a3[h4 + 1 >> 0] = f3 >> 8;
         g3 = b6 + 34 | 0;
         b6 = d2[g3 >> 0] | d2[g3 + 1 >> 0] << 8 | d2[g3 + 2 >> 0] << 16 | d2[g3 + 3 >> 0] << 24;
         if (!b6)
           b6 = f3;
         else {
           gq(b6);
-          b6 = d2[h3 >> 0] | d2[h3 + 1 >> 0] << 8;
+          b6 = d2[h4 >> 0] | d2[h4 + 1 >> 0] << 8;
         }
         f3 = fq((b6 & 65535) * 6 | 0) | 0;
         a3[g3 >> 0] = f3;
         a3[g3 + 1 >> 0] = f3 >> 8;
         a3[g3 + 2 >> 0] = f3 >> 16;
         a3[g3 + 3 >> 0] = f3 >> 24;
-        if (b6 << 16 >> 16 ? (b6 = c4 + 36 | 0, i3 = d2[e3 >> 0] | d2[e3 + 1 >> 0] << 8, a3[f3 >> 0] = i3, a3[f3 + 1 >> 0] = i3 >> 8, c4 = c4 + 38 | 0, i3 = f3 + 2 | 0, b6 = d2[b6 >> 0] | d2[b6 + 1 >> 0] << 8, a3[i3 >> 0] = b6, a3[i3 + 1 >> 0] = b6 >> 8, i3 = f3 + 4 | 0, c4 = d2[c4 >> 0] | d2[c4 + 1 >> 0] << 8, a3[i3 >> 0] = c4, a3[i3 + 1 >> 0] = c4 >> 8, ((d2[h3 >> 0] | d2[h3 + 1 >> 0] << 8) & 65535) > 1) : 0) {
+        if (b6 << 16 >> 16 ? (b6 = c4 + 36 | 0, i3 = d2[e3 >> 0] | d2[e3 + 1 >> 0] << 8, a3[f3 >> 0] = i3, a3[f3 + 1 >> 0] = i3 >> 8, c4 = c4 + 38 | 0, i3 = f3 + 2 | 0, b6 = d2[b6 >> 0] | d2[b6 + 1 >> 0] << 8, a3[i3 >> 0] = b6, a3[i3 + 1 >> 0] = b6 >> 8, i3 = f3 + 4 | 0, c4 = d2[c4 >> 0] | d2[c4 + 1 >> 0] << 8, a3[i3 >> 0] = c4, a3[i3 + 1 >> 0] = c4 >> 8, ((d2[h4 >> 0] | d2[h4 + 1 >> 0] << 8) & 65535) > 1) : 0) {
           b6 = 1;
           do {
             c4 = e3;
@@ -159899,7 +158681,7 @@ function getModule() {
             a3[i3 >> 0] = c4;
             a3[i3 + 1 >> 0] = c4 >> 8;
             b6 = b6 + 1 | 0;
-          } while (b6 >>> 0 < ((d2[h3 >> 0] | d2[h3 + 1 >> 0] << 8) & 65535) >>> 0);
+          } while (b6 >>> 0 < ((d2[h4 >> 0] | d2[h4 + 1 >> 0] << 8) & 65535) >>> 0);
         }
         return;
       }
@@ -159924,30 +158706,30 @@ function getModule() {
       function Zb(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0;
         i3 = V2;
         V2 = V2 + 32 | 0;
         f3 = i3;
         g3 = a4 + 4 | 0;
         d3 = c3[g3 >> 2] | 0;
-        h3 = a4 + 8 | 0;
+        h4 = a4 + 8 | 0;
         do
-          if ((d3 | 0) == (c3[h3 >> 2] | 0)) {
+          if ((d3 | 0) == (c3[h4 >> 2] | 0)) {
             d3 = ((d3 - (c3[a4 >> 2] | 0) | 0) / 12 | 0) + 1 | 0;
             e3 = ec(a4) | 0;
             if (e3 >>> 0 < d3 >>> 0)
               cr2(a4);
             else {
               j3 = c3[a4 >> 2] | 0;
-              k3 = ((c3[h3 >> 2] | 0) - j3 | 0) / 12 | 0;
-              h3 = k3 << 1;
-              bc(f3, k3 >>> 0 < e3 >>> 1 >>> 0 ? h3 >>> 0 < d3 >>> 0 ? d3 : h3 : e3, ((c3[g3 >> 2] | 0) - j3 | 0) / 12 | 0, a4 + 8 | 0);
-              h3 = f3 + 8 | 0;
-              g3 = c3[h3 >> 2] | 0;
+              k3 = ((c3[h4 >> 2] | 0) - j3 | 0) / 12 | 0;
+              h4 = k3 << 1;
+              bc(f3, k3 >>> 0 < e3 >>> 1 >>> 0 ? h4 >>> 0 < d3 >>> 0 ? d3 : h4 : e3, ((c3[g3 >> 2] | 0) - j3 | 0) / 12 | 0, a4 + 8 | 0);
+              h4 = f3 + 8 | 0;
+              g3 = c3[h4 >> 2] | 0;
               c3[g3 >> 2] = c3[b6 >> 2];
               c3[g3 + 4 >> 2] = c3[b6 + 4 >> 2];
               c3[g3 + 8 >> 2] = c3[b6 + 8 >> 2];
-              c3[h3 >> 2] = (c3[h3 >> 2] | 0) + 12;
+              c3[h4 >> 2] = (c3[h4 >> 2] | 0) + 12;
               cc(a4, f3);
               dc(f3);
               break;
@@ -160024,11 +158806,11 @@ function getModule() {
       function cc(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0;
         e3 = c3[a4 >> 2] | 0;
-        h3 = a4 + 4 | 0;
+        h4 = a4 + 4 | 0;
         g3 = b6 + 4 | 0;
-        f3 = (c3[h3 >> 2] | 0) - e3 | 0;
+        f3 = (c3[h4 >> 2] | 0) - e3 | 0;
         d3 = (c3[g3 >> 2] | 0) + (((f3 | 0) / -12 | 0) * 12 | 0) | 0;
         c3[g3 >> 2] = d3;
         if ((f3 | 0) > 0) {
@@ -160041,14 +158823,14 @@ function getModule() {
         c3[a4 >> 2] = d3;
         c3[e3 >> 2] = g3;
         g3 = b6 + 8 | 0;
-        f3 = c3[h3 >> 2] | 0;
-        c3[h3 >> 2] = c3[g3 >> 2];
+        f3 = c3[h4 >> 2] | 0;
+        c3[h4 >> 2] = c3[g3 >> 2];
         c3[g3 >> 2] = f3;
         g3 = a4 + 8 | 0;
-        h3 = b6 + 12 | 0;
+        h4 = b6 + 12 | 0;
         a4 = c3[g3 >> 2] | 0;
-        c3[g3 >> 2] = c3[h3 >> 2];
-        c3[h3 >> 2] = a4;
+        c3[g3 >> 2] = c3[h4 >> 2];
+        c3[h4 >> 2] = a4;
         c3[b6 >> 2] = c3[e3 >> 2];
         return;
       }
@@ -160213,7 +158995,7 @@ function getModule() {
       }
       function oc(a4) {
         a4 = a4 | 0;
-        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0, r3 = 0, s3 = 0, t3 = 0;
+        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0, r3 = 0, s3 = 0, t3 = 0;
         q4 = V2;
         V2 = V2 + 64 | 0;
         o3 = q4 + 44 | 0;
@@ -160231,7 +159013,7 @@ function getModule() {
                   else {
                     f3 = a4 + 20 | 0;
                     g3 = a4 + 44 | 0;
-                    h3 = o3 + 4 | 0;
+                    h4 = o3 + 4 | 0;
                     i3 = a4 + 44 | 0;
                     j3 = o3 + 8 | 0;
                     e3 = 0;
@@ -160240,8 +159022,8 @@ function getModule() {
                       b6 = c3[l3 >> 2] | 0;
                       if (b6 >>> 0 < (c3[g3 >> 2] | 0) >>> 0) {
                         Pc(o3, k3, 1);
-                        Rc(c3[h3 >> 2] | 0, p3);
-                        c3[h3 >> 2] = (c3[h3 >> 2] | 0) + 44;
+                        Rc(c3[h4 >> 2] | 0, p3);
+                        c3[h4 >> 2] = (c3[h4 >> 2] | 0) + 44;
                         Qc(o3);
                       } else {
                         b6 = ((b6 - (c3[k3 >> 2] | 0) | 0) / 44 | 0) + 1 | 0;
@@ -160268,7 +159050,7 @@ function getModule() {
                   }
                 while (0);
               if (c3[n3 >> 2] | 0) {
-                h3 = a4 + 12 | 0;
+                h4 = a4 + 12 | 0;
                 i3 = a4 + 68 | 0;
                 j3 = a4 + 72 | 0;
                 k3 = a4 + 76 | 0;
@@ -160277,7 +159059,7 @@ function getModule() {
                 g3 = o3 + 8 | 0;
                 e3 = 1;
                 while (1) {
-                  b6 = c3[h3 >> 2] | 0;
+                  b6 = c3[h4 >> 2] | 0;
                   Oc(p3, 1 << (e3 >>> 0 > b6 >>> 0 ? b6 : e3), 0, 0);
                   b6 = c3[j3 >> 2] | 0;
                   if (b6 >>> 0 < (c3[k3 >> 2] | 0) >>> 0) {
@@ -160355,13 +159137,13 @@ function getModule() {
       function vc(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0;
         i3 = V2;
         V2 = V2 + 32 | 0;
         f3 = i3;
         g3 = a4 + 8 | 0;
-        h3 = a4 + 4 | 0;
-        d3 = c3[h3 >> 2] | 0;
+        h4 = a4 + 4 | 0;
+        d3 = c3[h4 >> 2] | 0;
         do
           if ((c3[g3 >> 2] | 0) - d3 >> 3 >>> 0 < b6 >>> 0) {
             d3 = (d3 - (c3[a4 >> 2] | 0) >> 3) + b6 | 0;
@@ -160372,7 +159154,7 @@ function getModule() {
               j3 = c3[a4 >> 2] | 0;
               k3 = (c3[g3 >> 2] | 0) - j3 | 0;
               g3 = k3 >> 2;
-              xc(f3, k3 >> 3 >>> 0 < e3 >>> 1 >>> 0 ? g3 >>> 0 < d3 >>> 0 ? d3 : g3 : e3, (c3[h3 >> 2] | 0) - j3 >> 3, a4 + 8 | 0);
+              xc(f3, k3 >> 3 >>> 0 < e3 >>> 1 >>> 0 ? g3 >>> 0 < d3 >>> 0 ? d3 : g3 : e3, (c3[h4 >> 2] | 0) - j3 >> 3, a4 + 8 | 0);
               yc(f3, b6);
               zc(a4, f3);
               Ac(f3);
@@ -160456,11 +159238,11 @@ function getModule() {
       function zc(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0;
         e3 = c3[a4 >> 2] | 0;
-        h3 = a4 + 4 | 0;
+        h4 = a4 + 4 | 0;
         g3 = b6 + 4 | 0;
-        f3 = (c3[h3 >> 2] | 0) - e3 | 0;
+        f3 = (c3[h4 >> 2] | 0) - e3 | 0;
         d3 = (c3[g3 >> 2] | 0) + (0 - (f3 >> 3) << 3) | 0;
         c3[g3 >> 2] = d3;
         if ((f3 | 0) > 0) {
@@ -160473,14 +159255,14 @@ function getModule() {
         c3[a4 >> 2] = d3;
         c3[e3 >> 2] = g3;
         g3 = b6 + 8 | 0;
-        f3 = c3[h3 >> 2] | 0;
-        c3[h3 >> 2] = c3[g3 >> 2];
+        f3 = c3[h4 >> 2] | 0;
+        c3[h4 >> 2] = c3[g3 >> 2];
         c3[g3 >> 2] = f3;
         g3 = a4 + 8 | 0;
-        h3 = b6 + 12 | 0;
+        h4 = b6 + 12 | 0;
         a4 = c3[g3 >> 2] | 0;
-        c3[g3 >> 2] = c3[h3 >> 2];
-        c3[h3 >> 2] = a4;
+        c3[g3 >> 2] = c3[h4 >> 2];
+        c3[h4 >> 2] = a4;
         c3[b6 >> 2] = c3[e3 >> 2];
         return;
       }
@@ -160622,11 +159404,11 @@ function getModule() {
         d3 = d3 | 0;
         e3 = e3 | 0;
         f3 = f3 | 0;
-        var g3 = 0, h3 = 0, i3 = 0;
+        var g3 = 0, h4 = 0, i3 = 0;
         c3[b6 >> 2] = d3;
         a3[b6 + 4 >> 0] = e3 & 1;
-        h3 = b6 + 8 | 0;
-        c3[h3 >> 2] = 0;
+        h4 = b6 + 8 | 0;
+        c3[h4 >> 2] = 0;
         i3 = b6 + 12 | 0;
         c3[i3 >> 2] = 0;
         g3 = b6 + 16 | 0;
@@ -160654,7 +159436,7 @@ function getModule() {
           c3[b6 + 40 >> 2] = 0;
           c3[b6 + 36 >> 2] = 0;
         }
-        c3[h3 >> 2] = _a2(d3 << 2) | 0;
+        c3[h4 >> 2] = _a2(d3 << 2) | 0;
         g3 = _a2(c3[b6 >> 2] << 2) | 0;
         c3[i3 >> 2] = g3;
         c3[b6 + 20 >> 2] = 0;
@@ -160752,34 +159534,34 @@ function getModule() {
       function Tc(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0;
         i3 = c3[a4 >> 2] | 0;
         j3 = a4 + 4 | 0;
         d3 = c3[j3 >> 2] | 0;
-        h3 = b6 + 4 | 0;
+        h4 = b6 + 4 | 0;
         if ((d3 | 0) == (i3 | 0)) {
-          f3 = h3;
+          f3 = h4;
           g3 = a4;
-          e3 = c3[h3 >> 2] | 0;
+          e3 = c3[h4 >> 2] | 0;
           d3 = i3;
         } else {
-          e3 = c3[h3 >> 2] | 0;
+          e3 = c3[h4 >> 2] | 0;
           do {
             d3 = d3 + -44 | 0;
             Wc(e3 + -44 | 0, d3);
-            e3 = (c3[h3 >> 2] | 0) + -44 | 0;
-            c3[h3 >> 2] = e3;
+            e3 = (c3[h4 >> 2] | 0) + -44 | 0;
+            c3[h4 >> 2] = e3;
           } while ((d3 | 0) != (i3 | 0));
-          f3 = h3;
+          f3 = h4;
           g3 = a4;
           d3 = c3[a4 >> 2] | 0;
         }
         c3[g3 >> 2] = e3;
         c3[f3 >> 2] = d3;
         i3 = b6 + 8 | 0;
-        h3 = c3[j3 >> 2] | 0;
+        h4 = c3[j3 >> 2] | 0;
         c3[j3 >> 2] = c3[i3 >> 2];
-        c3[i3 >> 2] = h3;
+        c3[i3 >> 2] = h4;
         i3 = a4 + 8 | 0;
         j3 = b6 + 12 | 0;
         a4 = c3[i3 >> 2] | 0;
@@ -160813,7 +159595,7 @@ function getModule() {
       function Wc(b6, d3) {
         b6 = b6 | 0;
         d3 = d3 | 0;
-        var e3 = 0, f3 = 0, g3 = 0, h3 = 0;
+        var e3 = 0, f3 = 0, g3 = 0, h4 = 0;
         e3 = c3[d3 >> 2] | 0;
         c3[b6 >> 2] = e3;
         a3[b6 + 4 >> 0] = a3[d3 + 4 >> 0] | 0;
@@ -160821,8 +159603,8 @@ function getModule() {
         c3[b6 + 24 >> 2] = c3[d3 + 24 >> 2];
         c3[b6 + 28 >> 2] = c3[d3 + 28 >> 2];
         c3[b6 + 32 >> 2] = c3[d3 + 32 >> 2];
-        h3 = b6 + 36 | 0;
-        c3[h3 >> 2] = c3[d3 + 36 >> 2];
+        h4 = b6 + 36 | 0;
+        c3[h4 >> 2] = c3[d3 + 36 >> 2];
         c3[b6 + 40 >> 2] = c3[d3 + 40 >> 2];
         e3 = e3 << 2;
         f3 = _a2(e3) | 0;
@@ -160835,11 +159617,11 @@ function getModule() {
         f3 = c3[b6 >> 2] | 0;
         if (f3 | 0)
           vr2(e3 | 0, c3[d3 + 12 >> 2] | 0, f3 << 2 | 0) | 0;
-        e3 = c3[h3 >> 2] | 0;
+        e3 = c3[h4 >> 2] | 0;
         if (e3) {
           f3 = _a2((e3 << 2) + 8 | 0) | 0;
           c3[b6 + 16 >> 2] = f3;
-          e3 = (c3[h3 >> 2] << 2) + 8 | 0;
+          e3 = (c3[h4 >> 2] << 2) + 8 | 0;
           if (e3 | 0)
             vr2(f3 | 0, c3[d3 + 16 >> 2] | 0, e3 | 0) | 0;
         } else
@@ -160848,7 +159630,7 @@ function getModule() {
       }
       function Xc(b6) {
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, r3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, r3 = 0;
         r3 = b6 + 24 | 0;
         g3 = b6 + 20 | 0;
         d3 = (c3[g3 >> 2] | 0) + (c3[r3 >> 2] | 0) | 0;
@@ -160879,12 +159661,12 @@ function getModule() {
               l3 = b6 + 40 | 0;
               m3 = b6 + 16 | 0;
               d3 = 0;
-              h3 = 0;
+              h4 = 0;
               i3 = 0;
               do {
-                e3 = (q3(h3, n3) | 0) >>> 16;
+                e3 = (q3(h4, n3) | 0) >>> 16;
                 c3[j3 + (i3 << 2) >> 2] = e3;
-                h3 = (c3[k3 + (i3 << 2) >> 2] | 0) + h3 | 0;
+                h4 = (c3[k3 + (i3 << 2) >> 2] | 0) + h4 | 0;
                 e3 = e3 >>> (c3[l3 >> 2] | 0);
                 if (d3 >>> 0 < e3 >>> 0) {
                   f3 = i3 + -1 | 0;
@@ -160974,7 +159756,7 @@ function getModule() {
       function Zc(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0;
         n3 = a4 + 8 | 0;
         m3 = c3[n3 >> 2] | 0;
         f3 = c3[b6 + 16 >> 2] | 0;
@@ -160987,25 +159769,25 @@ function getModule() {
           i3 = j3 >>> (c3[b6 + 40 >> 2] | 0);
           g3 = c3[f3 + (i3 << 2) >> 2] | 0;
           i3 = (c3[f3 + (i3 + 1 << 2) >> 2] | 0) + 1 | 0;
-          h3 = g3 + 1 | 0;
+          h4 = g3 + 1 | 0;
           k3 = c3[b6 + 8 >> 2] | 0;
-          if (i3 >>> 0 > h3 >>> 0) {
+          if (i3 >>> 0 > h4 >>> 0) {
             f3 = g3;
             g3 = i3;
             do {
-              h3 = (g3 + f3 | 0) >>> 1;
-              i3 = (c3[k3 + (h3 << 2) >> 2] | 0) >>> 0 > j3 >>> 0;
-              f3 = i3 ? f3 : h3;
-              g3 = i3 ? h3 : g3;
-              h3 = f3 + 1 | 0;
-            } while (g3 >>> 0 > h3 >>> 0);
+              h4 = (g3 + f3 | 0) >>> 1;
+              i3 = (c3[k3 + (h4 << 2) >> 2] | 0) >>> 0 > j3 >>> 0;
+              f3 = i3 ? f3 : h4;
+              g3 = i3 ? h4 : g3;
+              h4 = f3 + 1 | 0;
+            } while (g3 >>> 0 > h4 >>> 0);
             g3 = f3;
           }
           f3 = q3(c3[k3 + (g3 << 2) >> 2] | 0, l3) | 0;
           if ((g3 | 0) == (c3[b6 + 32 >> 2] | 0))
-            h3 = m3;
+            h4 = m3;
           else
-            h3 = q3(c3[k3 + (h3 << 2) >> 2] | 0, l3) | 0;
+            h4 = q3(c3[k3 + (h4 << 2) >> 2] | 0, l3) | 0;
         } else {
           k3 = m3 >>> 15;
           c3[n3 >> 2] = k3;
@@ -161015,12 +159797,12 @@ function getModule() {
           d3 = c3[e3 >> 2] | 0;
           j3 = i3 >>> 1;
           f3 = 0;
-          h3 = m3;
+          h4 = m3;
           g3 = 0;
           do {
             o3 = q3(c3[l3 + (j3 << 2) >> 2] | 0, k3) | 0;
             m3 = o3 >>> 0 > d3 >>> 0;
-            h3 = m3 ? o3 : h3;
+            h4 = m3 ? o3 : h4;
             f3 = m3 ? f3 : o3;
             g3 = m3 ? g3 : j3;
             i3 = m3 ? j3 : i3;
@@ -161028,7 +159810,7 @@ function getModule() {
           } while ((j3 | 0) != (g3 | 0));
         }
         c3[e3 >> 2] = d3 - f3;
-        o3 = h3 - f3 | 0;
+        o3 = h4 - f3 | 0;
         c3[n3 >> 2] = o3;
         if (o3 >>> 0 < 16777216)
           ad(a4);
@@ -161063,27 +159845,27 @@ function getModule() {
       function $c(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0;
         e3 = a4 + 8 | 0;
         f3 = c3[e3 >> 2] | 0;
         d3 = q3(f3 >>> 13, c3[b6 + 8 >> 2] | 0) | 0;
         g3 = a4 + 4 | 0;
-        h3 = c3[g3 >> 2] | 0;
-        i3 = h3 >>> 0 >= d3 >>> 0;
+        h4 = c3[g3 >> 2] | 0;
+        i3 = h4 >>> 0 >= d3 >>> 0;
         if (i3) {
-          c3[g3 >> 2] = h3 - d3;
+          c3[g3 >> 2] = h4 - d3;
           d3 = f3 - d3 | 0;
           c3[e3 >> 2] = d3;
         } else {
           c3[e3 >> 2] = d3;
-          h3 = b6 + 12 | 0;
-          c3[h3 >> 2] = (c3[h3 >> 2] | 0) + 1;
+          h4 = b6 + 12 | 0;
+          c3[h4 >> 2] = (c3[h4 >> 2] | 0) + 1;
         }
         if (d3 >>> 0 < 16777216)
           ad(a4);
-        h3 = b6 + 4 | 0;
-        a4 = (c3[h3 >> 2] | 0) + -1 | 0;
-        c3[h3 >> 2] = a4;
+        h4 = b6 + 4 | 0;
+        a4 = (c3[h4 >> 2] | 0) + -1 | 0;
+        c3[h4 >> 2] = a4;
         if (!a4)
           cd(b6);
         return i3 & 1 | 0;
@@ -161149,10 +159931,10 @@ function getModule() {
       function dd(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0;
+        var e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0;
         m3 = V2;
         V2 = V2 + 32 | 0;
-        h3 = m3 + 16 | 0;
+        h4 = m3 + 16 | 0;
         i3 = m3 + 8 | 0;
         j3 = m3;
         k3 = a4 + 336 | 0;
@@ -161173,24 +159955,24 @@ function getModule() {
         }
         if ((l3 | 0) == 5) {
           l3 = a4 + 320 | 0;
-          c3[h3 >> 2] = e3;
+          c3[h4 >> 2] = e3;
           c3[l3 >> 2] = 0;
           e3 = a4 + 324 | 0;
-          c3[h3 + 4 >> 2] = c3[e3 >> 2];
+          c3[h4 + 4 >> 2] = c3[e3 >> 2];
           c3[e3 >> 2] = 0;
-          Na(h3);
+          Na(h4);
           g3 = a4 + 312 | 0;
-          c3[h3 >> 2] = c3[g3 >> 2];
+          c3[h4 >> 2] = c3[g3 >> 2];
           c3[g3 >> 2] = 0;
           n3 = a4 + 316 | 0;
-          c3[h3 + 4 >> 2] = c3[n3 >> 2];
+          c3[h4 + 4 >> 2] = c3[n3 >> 2];
           c3[n3 >> 2] = 0;
-          Oa(h3);
+          Oa(h4);
           o3 = eq(12) | 0;
           lc(o3, a4 + 4 | 0);
           c3[j3 >> 2] = 0;
-          c3[h3 >> 2] = c3[j3 >> 2];
-          fd(i3, o3, h3);
+          c3[h4 >> 2] = c3[j3 >> 2];
+          fd(i3, o3, h4);
           o3 = c3[i3 >> 2] | 0;
           c3[i3 >> 2] = c3[g3 >> 2];
           c3[g3 >> 2] = o3;
@@ -161205,11 +159987,11 @@ function getModule() {
           j3 = c3[n3 >> 2] | 0;
           c3[i3 >> 2] = 0;
           c3[n3 >> 2] = 0;
-          c3[h3 >> 2] = c3[l3 >> 2];
+          c3[h4 >> 2] = c3[l3 >> 2];
           c3[l3 >> 2] = g3;
-          c3[h3 + 4 >> 2] = c3[e3 >> 2];
+          c3[h4 + 4 >> 2] = c3[e3 >> 2];
           c3[e3 >> 2] = j3;
-          Na(h3);
+          Na(h4);
           Na(i3);
           e3 = a4 + 328 | 0;
           j3 = e3;
@@ -161236,16 +160018,16 @@ function getModule() {
         a4 = a4 | 0;
         b6 = b6 | 0;
         d3 = d3 | 0;
-        var e3 = 0, f3 = 0, g3 = 0, h3 = 0;
-        h3 = V2;
+        var e3 = 0, f3 = 0, g3 = 0, h4 = 0;
+        h4 = V2;
         V2 = V2 + 64 | 0;
-        e3 = h3 + 56 | 0;
-        f3 = h3;
+        e3 = h4 + 56 | 0;
+        f3 = h4;
         g3 = ld(d3) | 0;
         if ((g3 | 0) == -1) {
-          h3 = v2(8) | 0;
-          md(h3);
-          x2(h3 | 0, 2784, 8);
+          h4 = v2(8) | 0;
+          md(h4);
+          x2(h4 | 0, 2784, 8);
         }
         d3 = nd(d3) | 0;
         a:
@@ -161301,7 +160083,7 @@ function getModule() {
               vd(e3);
             }
           while (0);
-        V2 = h3;
+        V2 = h4;
         return;
       }
       function fd(a4, b6, d3) {
@@ -161428,20 +160210,20 @@ function getModule() {
       }
       function pd(a4) {
         a4 = a4 | 0;
-        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0;
+        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0;
         j3 = V2;
         V2 = V2 + 32 | 0;
         e3 = j3 + 12 | 0;
         f3 = j3;
         b6 = j3 + 8 | 0;
-        h3 = eq(4792) | 0;
-        Zd(h3, c3[a4 + 4 >> 2] | 0);
+        h4 = eq(4792) | 0;
+        Zd(h4, c3[a4 + 4 >> 2] | 0);
         g3 = a4 + 8 | 0;
         c3[b6 >> 2] = 0;
         c3[e3 >> 2] = c3[b6 >> 2];
-        _d(f3, h3, e3);
-        h3 = a4 + 12 | 0;
-        b6 = c3[h3 >> 2] | 0;
+        _d(f3, h4, e3);
+        h4 = a4 + 12 | 0;
+        b6 = c3[h4 >> 2] | 0;
         i3 = a4 + 16 | 0;
         do
           if (b6 >>> 0 >= (c3[i3 >> 2] | 0) >>> 0) {
@@ -161453,15 +160235,15 @@ function getModule() {
               k3 = c3[g3 >> 2] | 0;
               l3 = (c3[i3 >> 2] | 0) - k3 | 0;
               i3 = l3 >> 2;
-              be2(e3, l3 >> 3 >>> 0 < d3 >>> 1 >>> 0 ? i3 >>> 0 < b6 >>> 0 ? b6 : i3 : d3, (c3[h3 >> 2] | 0) - k3 >> 3, a4 + 16 | 0);
+              be2(e3, l3 >> 3 >>> 0 < d3 >>> 1 >>> 0 ? i3 >>> 0 < b6 >>> 0 ? b6 : i3 : d3, (c3[h4 >> 2] | 0) - k3 >> 3, a4 + 16 | 0);
               i3 = e3 + 8 | 0;
-              h3 = c3[i3 >> 2] | 0;
-              c3[h3 >> 2] = c3[f3 >> 2];
+              h4 = c3[i3 >> 2] | 0;
+              c3[h4 >> 2] = c3[f3 >> 2];
               a4 = f3 + 4 | 0;
-              c3[h3 + 4 >> 2] = c3[a4 >> 2];
+              c3[h4 + 4 >> 2] = c3[a4 >> 2];
               c3[f3 >> 2] = 0;
               c3[a4 >> 2] = 0;
-              c3[i3 >> 2] = h3 + 8;
+              c3[i3 >> 2] = h4 + 8;
               ce2(g3, e3);
               de2(e3);
               break;
@@ -161485,20 +160267,20 @@ function getModule() {
       }
       function qd(a4) {
         a4 = a4 | 0;
-        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0;
+        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0;
         j3 = V2;
         V2 = V2 + 32 | 0;
         e3 = j3 + 12 | 0;
         f3 = j3;
         b6 = j3 + 8 | 0;
-        h3 = eq(336) | 0;
-        af(h3, c3[a4 + 4 >> 2] | 0);
+        h4 = eq(336) | 0;
+        af(h4, c3[a4 + 4 >> 2] | 0);
         g3 = a4 + 8 | 0;
         c3[b6 >> 2] = 0;
         c3[e3 >> 2] = c3[b6 >> 2];
-        bf(f3, h3, e3);
-        h3 = a4 + 12 | 0;
-        b6 = c3[h3 >> 2] | 0;
+        bf(f3, h4, e3);
+        h4 = a4 + 12 | 0;
+        b6 = c3[h4 >> 2] | 0;
         i3 = a4 + 16 | 0;
         do
           if (b6 >>> 0 >= (c3[i3 >> 2] | 0) >>> 0) {
@@ -161510,15 +160292,15 @@ function getModule() {
               k3 = c3[g3 >> 2] | 0;
               l3 = (c3[i3 >> 2] | 0) - k3 | 0;
               i3 = l3 >> 2;
-              be2(e3, l3 >> 3 >>> 0 < d3 >>> 1 >>> 0 ? i3 >>> 0 < b6 >>> 0 ? b6 : i3 : d3, (c3[h3 >> 2] | 0) - k3 >> 3, a4 + 16 | 0);
+              be2(e3, l3 >> 3 >>> 0 < d3 >>> 1 >>> 0 ? i3 >>> 0 < b6 >>> 0 ? b6 : i3 : d3, (c3[h4 >> 2] | 0) - k3 >> 3, a4 + 16 | 0);
               i3 = e3 + 8 | 0;
-              h3 = c3[i3 >> 2] | 0;
-              c3[h3 >> 2] = c3[f3 >> 2];
+              h4 = c3[i3 >> 2] | 0;
+              c3[h4 >> 2] = c3[f3 >> 2];
               a4 = f3 + 4 | 0;
-              c3[h3 + 4 >> 2] = c3[a4 >> 2];
+              c3[h4 + 4 >> 2] = c3[a4 >> 2];
               c3[f3 >> 2] = 0;
               c3[a4 >> 2] = 0;
-              c3[i3 >> 2] = h3 + 8;
+              c3[i3 >> 2] = h4 + 8;
               ce2(g3, e3);
               de2(e3);
               break;
@@ -161542,20 +160324,20 @@ function getModule() {
       }
       function rd(a4) {
         a4 = a4 | 0;
-        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0;
+        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0;
         j3 = V2;
         V2 = V2 + 32 | 0;
         e3 = j3 + 12 | 0;
         f3 = j3;
         b6 = j3 + 8 | 0;
-        h3 = eq(324) | 0;
-        Af(h3, c3[a4 + 4 >> 2] | 0);
+        h4 = eq(324) | 0;
+        Af(h4, c3[a4 + 4 >> 2] | 0);
         g3 = a4 + 8 | 0;
         c3[b6 >> 2] = 0;
         c3[e3 >> 2] = c3[b6 >> 2];
-        Bf(f3, h3, e3);
-        h3 = a4 + 12 | 0;
-        b6 = c3[h3 >> 2] | 0;
+        Bf(f3, h4, e3);
+        h4 = a4 + 12 | 0;
+        b6 = c3[h4 >> 2] | 0;
         i3 = a4 + 16 | 0;
         do
           if (b6 >>> 0 >= (c3[i3 >> 2] | 0) >>> 0) {
@@ -161567,15 +160349,15 @@ function getModule() {
               k3 = c3[g3 >> 2] | 0;
               l3 = (c3[i3 >> 2] | 0) - k3 | 0;
               i3 = l3 >> 2;
-              be2(e3, l3 >> 3 >>> 0 < d3 >>> 1 >>> 0 ? i3 >>> 0 < b6 >>> 0 ? b6 : i3 : d3, (c3[h3 >> 2] | 0) - k3 >> 3, a4 + 16 | 0);
+              be2(e3, l3 >> 3 >>> 0 < d3 >>> 1 >>> 0 ? i3 >>> 0 < b6 >>> 0 ? b6 : i3 : d3, (c3[h4 >> 2] | 0) - k3 >> 3, a4 + 16 | 0);
               i3 = e3 + 8 | 0;
-              h3 = c3[i3 >> 2] | 0;
-              c3[h3 >> 2] = c3[f3 >> 2];
+              h4 = c3[i3 >> 2] | 0;
+              c3[h4 >> 2] = c3[f3 >> 2];
               a4 = f3 + 4 | 0;
-              c3[h3 + 4 >> 2] = c3[a4 >> 2];
+              c3[h4 + 4 >> 2] = c3[a4 >> 2];
               c3[f3 >> 2] = 0;
               c3[a4 >> 2] = 0;
-              c3[i3 >> 2] = h3 + 8;
+              c3[i3 >> 2] = h4 + 8;
               ce2(g3, e3);
               de2(e3);
               break;
@@ -161600,18 +160382,18 @@ function getModule() {
       function sd(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0;
         j3 = V2;
         V2 = V2 + 32 | 0;
-        h3 = j3 + 12 | 0;
+        h4 = j3 + 12 | 0;
         i3 = j3;
         e3 = j3 + 8 | 0;
         g3 = eq(64) | 0;
         Qf(g3, c3[a4 + 4 >> 2] | 0, b6);
         f3 = a4 + 8 | 0;
         c3[e3 >> 2] = 0;
-        c3[h3 >> 2] = c3[e3 >> 2];
-        Rf(i3, g3, h3);
+        c3[h4 >> 2] = c3[e3 >> 2];
+        Rf(i3, g3, h4);
         g3 = a4 + 12 | 0;
         b6 = c3[g3 >> 2] | 0;
         e3 = a4 + 16 | 0;
@@ -161625,8 +160407,8 @@ function getModule() {
               k3 = c3[f3 >> 2] | 0;
               l3 = (c3[e3 >> 2] | 0) - k3 | 0;
               e3 = l3 >> 2;
-              be2(h3, l3 >> 3 >>> 0 < d3 >>> 1 >>> 0 ? e3 >>> 0 < b6 >>> 0 ? b6 : e3 : d3, (c3[g3 >> 2] | 0) - k3 >> 3, a4 + 16 | 0);
-              a4 = h3 + 8 | 0;
+              be2(h4, l3 >> 3 >>> 0 < d3 >>> 1 >>> 0 ? e3 >>> 0 < b6 >>> 0 ? b6 : e3 : d3, (c3[g3 >> 2] | 0) - k3 >> 3, a4 + 16 | 0);
+              a4 = h4 + 8 | 0;
               g3 = c3[a4 >> 2] | 0;
               c3[g3 >> 2] = c3[i3 >> 2];
               e3 = i3 + 4 | 0;
@@ -161634,13 +160416,13 @@ function getModule() {
               c3[i3 >> 2] = 0;
               c3[e3 >> 2] = 0;
               c3[a4 >> 2] = g3 + 8;
-              ce2(f3, h3);
-              de2(h3);
+              ce2(f3, h4);
+              de2(h4);
               break;
             }
           } else {
-            $d(h3, f3, 1);
-            l3 = h3 + 4 | 0;
+            $d(h4, f3, 1);
+            l3 = h4 + 4 | 0;
             k3 = c3[l3 >> 2] | 0;
             c3[k3 >> 2] = c3[i3 >> 2];
             a4 = i3 + 4 | 0;
@@ -161648,7 +160430,7 @@ function getModule() {
             c3[i3 >> 2] = 0;
             c3[a4 >> 2] = 0;
             c3[l3 >> 2] = k3 + 8;
-            ae2(h3);
+            ae2(h4);
           }
         while (0);
         Sd(i3);
@@ -161693,15 +160475,15 @@ function getModule() {
         a4 = a4 | 0;
         b6 = b6 | 0;
         d3 = d3 | 0;
-        var e3 = 0, f3 = 0, g3 = 0, h3 = 0;
+        var e3 = 0, f3 = 0, g3 = 0, h4 = 0;
         e3 = V2;
         V2 = V2 + 16 | 0;
         f3 = e3 + 4 | 0;
-        h3 = e3;
+        h4 = e3;
         g3 = eq(12) | 0;
         Og(g3, b6, d3);
-        c3[h3 >> 2] = 0;
-        c3[f3 >> 2] = c3[h3 >> 2];
+        c3[h4 >> 2] = 0;
+        c3[f3 >> 2] = c3[h4 >> 2];
         Pg(a4, g3, f3);
         V2 = e3;
         return;
@@ -161716,15 +160498,15 @@ function getModule() {
         a4 = a4 | 0;
         b6 = b6 | 0;
         d3 = d3 | 0;
-        var e3 = 0, f3 = 0, g3 = 0, h3 = 0;
+        var e3 = 0, f3 = 0, g3 = 0, h4 = 0;
         e3 = V2;
         V2 = V2 + 16 | 0;
         f3 = e3 + 4 | 0;
-        h3 = e3;
+        h4 = e3;
         g3 = eq(12) | 0;
         ah(g3, b6, d3);
-        c3[h3 >> 2] = 0;
-        c3[f3 >> 2] = c3[h3 >> 2];
+        c3[h4 >> 2] = 0;
+        c3[f3 >> 2] = c3[h4 >> 2];
         bh(a4, g3, f3);
         V2 = e3;
         return;
@@ -161739,15 +160521,15 @@ function getModule() {
         a4 = a4 | 0;
         b6 = b6 | 0;
         d3 = d3 | 0;
-        var e3 = 0, f3 = 0, g3 = 0, h3 = 0;
+        var e3 = 0, f3 = 0, g3 = 0, h4 = 0;
         e3 = V2;
         V2 = V2 + 16 | 0;
         f3 = e3 + 4 | 0;
-        h3 = e3;
+        h4 = e3;
         g3 = eq(12) | 0;
         oh(g3, b6, d3);
-        c3[h3 >> 2] = 0;
-        c3[f3 >> 2] = c3[h3 >> 2];
+        c3[h4 >> 2] = 0;
+        c3[f3 >> 2] = c3[h4 >> 2];
         ph(a4, g3, f3);
         V2 = e3;
         return;
@@ -161762,15 +160544,15 @@ function getModule() {
         a4 = a4 | 0;
         b6 = b6 | 0;
         d3 = d3 | 0;
-        var e3 = 0, f3 = 0, g3 = 0, h3 = 0;
+        var e3 = 0, f3 = 0, g3 = 0, h4 = 0;
         e3 = V2;
         V2 = V2 + 16 | 0;
         f3 = e3 + 4 | 0;
-        h3 = e3;
+        h4 = e3;
         g3 = eq(12) | 0;
         Ch(g3, b6, d3);
-        c3[h3 >> 2] = 0;
-        c3[f3 >> 2] = c3[h3 >> 2];
+        c3[h4 >> 2] = 0;
+        c3[f3 >> 2] = c3[h4 >> 2];
         Dh(a4, g3, f3);
         V2 = e3;
         return;
@@ -161863,17 +160645,17 @@ function getModule() {
       function Nd(b6, d3) {
         b6 = b6 | 0;
         d3 = d3 | 0;
-        var e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0;
+        var e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0;
         k3 = V2;
         V2 = V2 + 16 | 0;
-        h3 = k3;
+        h4 = k3;
         e3 = c3[b6 + 8 >> 2] | 0;
         i3 = c3[b6 + 12 >> 2] | 0;
         if ((e3 | 0) != (i3 | 0)) {
-          j3 = h3 + 4 | 0;
+          j3 = h4 + 4 | 0;
           do {
             f3 = c3[e3 >> 2] | 0;
-            c3[h3 >> 2] = f3;
+            c3[h4 >> 2] = f3;
             g3 = c3[e3 + 4 >> 2] | 0;
             c3[j3 >> 2] = g3;
             if (g3 | 0) {
@@ -161881,7 +160663,7 @@ function getModule() {
               c3[g3 >> 2] = (c3[g3 >> 2] | 0) + 1;
             }
             d3 = $2[c3[(c3[f3 >> 2] | 0) + 12 >> 2] & 63](f3, d3) | 0;
-            Sd(h3);
+            Sd(h4);
             e3 = e3 + 8 | 0;
           } while ((e3 | 0) != (i3 | 0));
         }
@@ -162051,18 +160833,18 @@ function getModule() {
       function ce2(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0;
         i3 = c3[a4 >> 2] | 0;
         j3 = a4 + 4 | 0;
         d3 = c3[j3 >> 2] | 0;
-        h3 = b6 + 4 | 0;
+        h4 = b6 + 4 | 0;
         if ((d3 | 0) == (i3 | 0)) {
-          f3 = h3;
+          f3 = h4;
           g3 = a4;
-          e3 = c3[h3 >> 2] | 0;
+          e3 = c3[h4 >> 2] | 0;
           d3 = i3;
         } else {
-          e3 = c3[h3 >> 2] | 0;
+          e3 = c3[h4 >> 2] | 0;
           do {
             g3 = d3;
             d3 = d3 + -8 | 0;
@@ -162071,19 +160853,19 @@ function getModule() {
             c3[e3 + -4 >> 2] = c3[g3 >> 2];
             c3[d3 >> 2] = 0;
             c3[g3 >> 2] = 0;
-            e3 = (c3[h3 >> 2] | 0) + -8 | 0;
-            c3[h3 >> 2] = e3;
+            e3 = (c3[h4 >> 2] | 0) + -8 | 0;
+            c3[h4 >> 2] = e3;
           } while ((d3 | 0) != (i3 | 0));
-          f3 = h3;
+          f3 = h4;
           g3 = a4;
           d3 = c3[a4 >> 2] | 0;
         }
         c3[g3 >> 2] = e3;
         c3[f3 >> 2] = d3;
         i3 = b6 + 8 | 0;
-        h3 = c3[j3 >> 2] | 0;
+        h4 = c3[j3 >> 2] | 0;
         c3[j3 >> 2] = c3[i3 >> 2];
-        c3[i3 >> 2] = h3;
+        c3[i3 >> 2] = h4;
         i3 = a4 + 8 | 0;
         j3 = b6 + 12 | 0;
         a4 = c3[i3 >> 2] | 0;
@@ -162425,10 +161207,10 @@ function getModule() {
         qc(a4);
         return;
       }
-      function Be2(f3, g3, h3) {
+      function Be2(f3, g3, h4) {
         f3 = f3 | 0;
         g3 = g3 | 0;
-        h3 = h3 | 0;
+        h4 = h4 | 0;
         var i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0;
         p3 = V2;
         V2 = V2 + 32 | 0;
@@ -162441,8 +161223,8 @@ function getModule() {
         i3 = f3 + 3976 | 0;
         if (!(a3[i3 >> 0] | 0)) {
           a3[i3 >> 0] = 1;
-          Ee2(De2(g3) | 0, h3, 20);
-          Fe2(o3, h3);
+          Ee2(De2(g3) | 0, h4, 20);
+          Fe2(o3, h4);
           k3 = f3;
           i3 = o3;
           j3 = k3 + 20 | 0;
@@ -162518,10 +161300,10 @@ function getModule() {
           o3 = pc(f3 + 4700 | 0, g3, c3[q4 >> 2] | 0, (o3 >>> 0 < 36 ? o3 >>> 1 & 2147483646 : 18) | n3) | 0;
           c3[f3 + 8 >> 2] = o3;
           c3[q4 >> 2] = o3;
-          Me2(f3, h3);
+          Me2(f3, h4);
         }
         V2 = p3;
-        return h3 + 20 | 0;
+        return h4 + 20 | 0;
       }
       function Ce2(a4) {
         a4 = a4 | 0;
@@ -162540,21 +161322,21 @@ function getModule() {
         b6 = b6 | 0;
         d3 = d3 | 0;
         e3 = e3 | 0;
-        var f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0;
+        var f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0;
         k3 = b6 + 4 | 0;
         f3 = c3[k3 >> 2] | 0;
         j3 = (c3[b6 + 8 >> 2] | 0) - f3 | 0;
         j3 = j3 >>> 0 > e3 >>> 0 ? e3 : j3;
         i3 = b6 + 12 | 0;
         g3 = (c3[i3 >> 2] | 0) + f3 | 0;
-        h3 = g3 + j3 | 0;
+        h4 = g3 + j3 | 0;
         if (j3) {
           f3 = g3;
           g3 = d3;
           while (1) {
             a3[g3 >> 0] = a3[f3 >> 0] | 0;
             f3 = f3 + 1 | 0;
-            if ((f3 | 0) == (h3 | 0))
+            if ((f3 | 0) == (h4 | 0))
               break;
             else
               g3 = g3 + 1 | 0;
@@ -162566,12 +161348,12 @@ function getModule() {
         if (e3 | 0) {
           Kc(b6);
           g3 = (c3[i3 >> 2] | 0) + (c3[k3 >> 2] | 0) | 0;
-          h3 = g3 + e3 | 0;
+          h4 = g3 + e3 | 0;
           f3 = d3 + j3 | 0;
           while (1) {
             a3[f3 >> 0] = a3[g3 >> 0] | 0;
             g3 = g3 + 1 | 0;
-            if ((g3 | 0) == (h3 | 0))
+            if ((g3 | 0) == (h4 | 0))
               break;
             else
               f3 = f3 + 1 | 0;
@@ -162616,7 +161398,7 @@ function getModule() {
       function Ke2(b6, d3) {
         b6 = b6 | 0;
         d3 = d3 | 0;
-        var e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0;
+        var e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0;
         k3 = b6 + 20 | 0;
         do
           if (!(a3[k3 >> 0] | 0)) {
@@ -162624,26 +161406,26 @@ function getModule() {
             e3 = c3[j3 >> 2] | 0;
             f3 = c3[d3 >> 2] | 0;
             g3 = b6 + 4 | 0;
-            h3 = c3[g3 >> 2] | 0;
+            h4 = c3[g3 >> 2] | 0;
             if ((e3 | 0) >= (f3 | 0)) {
-              if ((h3 | 0) < (f3 | 0)) {
-                c3[b6 >> 2] = h3;
+              if ((h4 | 0) < (f3 | 0)) {
+                c3[b6 >> 2] = h4;
                 c3[g3 >> 2] = c3[d3 >> 2];
               } else
                 c3[b6 >> 2] = f3;
               a3[k3 >> 0] = 1;
               break;
             }
-            c3[b6 >> 2] = h3;
+            c3[b6 >> 2] = h4;
             c3[g3 >> 2] = e3;
             g3 = b6 + 16 | 0;
-            h3 = c3[g3 >> 2] | 0;
+            h4 = c3[g3 >> 2] | 0;
             i3 = c3[d3 >> 2] | 0;
             e3 = b6 + 12 | 0;
             f3 = c3[e3 >> 2] | 0;
-            if ((h3 | 0) < (i3 | 0)) {
+            if ((h4 | 0) < (i3 | 0)) {
               c3[j3 >> 2] = f3;
-              c3[e3 >> 2] = h3;
+              c3[e3 >> 2] = h4;
               c3[g3 >> 2] = c3[d3 >> 2];
               break;
             }
@@ -162659,32 +161441,32 @@ function getModule() {
             g3 = c3[d3 >> 2] | 0;
             i3 = b6 + 8 | 0;
             e3 = c3[i3 >> 2] | 0;
-            h3 = b6 + 12 | 0;
-            f3 = c3[h3 >> 2] | 0;
+            h4 = b6 + 12 | 0;
+            f3 = c3[h4 >> 2] | 0;
             if ((g3 | 0) >= (e3 | 0)) {
               e3 = b6 + 16 | 0;
               if ((g3 | 0) < (f3 | 0)) {
                 c3[e3 >> 2] = f3;
-                c3[h3 >> 2] = c3[d3 >> 2];
+                c3[h4 >> 2] = c3[d3 >> 2];
               } else
                 c3[e3 >> 2] = g3;
               a3[k3 >> 0] = 0;
               break;
             }
             c3[b6 + 16 >> 2] = f3;
-            c3[h3 >> 2] = e3;
+            c3[h4 >> 2] = e3;
             e3 = c3[d3 >> 2] | 0;
             f3 = c3[b6 >> 2] | 0;
             g3 = b6 + 4 | 0;
-            h3 = c3[g3 >> 2] | 0;
+            h4 = c3[g3 >> 2] | 0;
             if ((e3 | 0) < (f3 | 0)) {
-              c3[i3 >> 2] = h3;
+              c3[i3 >> 2] = h4;
               c3[g3 >> 2] = f3;
               c3[b6 >> 2] = c3[d3 >> 2];
               break;
             }
-            if ((e3 | 0) < (h3 | 0)) {
-              c3[i3 >> 2] = h3;
+            if ((e3 | 0) < (h4 | 0)) {
+              c3[i3 >> 2] = h4;
               c3[g3 >> 2] = c3[d3 >> 2];
               break;
             } else {
@@ -162859,10 +161641,10 @@ function getModule() {
       }
       function gf(b6) {
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0;
-        h3 = V2;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0;
+        h4 = V2;
         V2 = V2 + 16 | 0;
-        f3 = h3;
+        f3 = h4;
         a3[b6 >> 0] = 0;
         Oc(b6 + 4 | 0, 516, 0, 0);
         Oc(b6 + 48 | 0, 6, 0, 0);
@@ -162901,7 +161683,7 @@ function getModule() {
         c3[j3 + 20 >> 2] = 0;
         c3[j3 + 24 >> 2] = 0;
         c3[j3 + 28 >> 2] = 0;
-        V2 = h3;
+        V2 = h4;
         return;
       }
       function hf(a4) {
@@ -162966,7 +161748,7 @@ function getModule() {
         b6 = b6 | 0;
         e3 = e3 | 0;
         f3 = f3 | 0;
-        var g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0;
+        var g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0;
         g3 = b6 + 325 | 0;
         if (!(a3[g3 >> 0] | 0)) {
           rf(b6 + 244 | 0);
@@ -163001,21 +161783,21 @@ function getModule() {
                     e3 = c3[j3 >> 2] | 0;
                     k3 = c3[b6 + 132 + (e3 << 2) >> 2] | 0;
                     i3 = b6 + 100 + (e3 << 3) | 0;
-                    h3 = i3;
-                    g3 = h3;
-                    h3 = h3 + 4 | 0;
-                    k3 = lr2(d2[g3 >> 0] | d2[g3 + 1 >> 0] << 8 | d2[g3 + 2 >> 0] << 16 | d2[g3 + 3 >> 0] << 24 | 0, d2[h3 >> 0] | d2[h3 + 1 >> 0] << 8 | d2[h3 + 2 >> 0] << 16 | d2[h3 + 3 >> 0] << 24 | 0, k3 | 0, ((k3 | 0) < 0) << 31 >> 31 | 0) | 0;
-                    h3 = u2() | 0;
+                    h4 = i3;
+                    g3 = h4;
+                    h4 = h4 + 4 | 0;
+                    k3 = lr2(d2[g3 >> 0] | d2[g3 + 1 >> 0] << 8 | d2[g3 + 2 >> 0] << 16 | d2[g3 + 3 >> 0] << 24 | 0, d2[h4 >> 0] | d2[h4 + 1 >> 0] << 8 | d2[h4 + 2 >> 0] << 16 | d2[h4 + 3 >> 0] << 24 | 0, k3 | 0, ((k3 | 0) < 0) << 31 >> 31 | 0) | 0;
+                    h4 = u2() | 0;
                     g3 = i3;
                     a3[g3 >> 0] = k3;
                     a3[g3 + 1 >> 0] = k3 >> 8;
                     a3[g3 + 2 >> 0] = k3 >> 16;
                     a3[g3 + 3 >> 0] = k3 >> 24;
                     i3 = i3 + 4 | 0;
-                    a3[i3 >> 0] = h3;
-                    a3[i3 + 1 >> 0] = h3 >> 8;
-                    a3[i3 + 2 >> 0] = h3 >> 16;
-                    a3[i3 + 3 >> 0] = h3 >> 24;
+                    a3[i3 >> 0] = h4;
+                    a3[i3 + 1 >> 0] = h4 >> 8;
+                    a3[i3 + 2 >> 0] = h4 >> 16;
+                    a3[i3 + 3 >> 0] = h4 >> 24;
                     c3[b6 + 148 + (e3 << 2) >> 2] = 0;
                     break a;
                   }
@@ -163025,11 +161807,11 @@ function getModule() {
                     i3 = b6 + 100 + (c3[j3 >> 2] << 3) + 4 | 0;
                     i3 = pc(b6 + 244 | 0, e3, d2[i3 >> 0] | d2[i3 + 1 >> 0] << 8 | d2[i3 + 2 >> 0] << 16 | d2[i3 + 3 >> 0] << 24, 8) | 0;
                     g3 = b6 + 100 + (c3[k3 >> 2] << 3) | 0;
-                    h3 = g3;
-                    a3[h3 >> 0] = 0;
-                    a3[h3 + 1 >> 0] = 0;
-                    a3[h3 + 2 >> 0] = 0;
-                    a3[h3 + 3 >> 0] = 0;
+                    h4 = g3;
+                    a3[h4 >> 0] = 0;
+                    a3[h4 + 1 >> 0] = 0;
+                    a3[h4 + 2 >> 0] = 0;
+                    a3[h4 + 3 >> 0] = 0;
                     g3 = g3 + 4 | 0;
                     a3[g3 >> 0] = i3;
                     a3[g3 + 1 >> 0] = i3 >> 8;
@@ -163039,15 +161821,15 @@ function getModule() {
                     k3 = c3[k3 >> 2] | 0;
                     e3 = b6 + 100 + (k3 << 3) | 0;
                     i3 = e3;
-                    h3 = i3;
+                    h4 = i3;
                     i3 = i3 + 4 | 0;
                     i3 = d2[i3 >> 0] | d2[i3 + 1 >> 0] << 8 | d2[i3 + 2 >> 0] << 16 | d2[i3 + 3 >> 0] << 24;
-                    g3 = d2[h3 >> 0] | d2[h3 + 1 >> 0] << 8 | d2[h3 + 2 >> 0] << 16 | d2[h3 + 3 >> 0] << 24 | g3;
-                    h3 = e3;
-                    a3[h3 >> 0] = g3;
-                    a3[h3 + 1 >> 0] = g3 >> 8;
-                    a3[h3 + 2 >> 0] = g3 >> 16;
-                    a3[h3 + 3 >> 0] = g3 >> 24;
+                    g3 = d2[h4 >> 0] | d2[h4 + 1 >> 0] << 8 | d2[h4 + 2 >> 0] << 16 | d2[h4 + 3 >> 0] << 24 | g3;
+                    h4 = e3;
+                    a3[h4 >> 0] = g3;
+                    a3[h4 + 1 >> 0] = g3 >> 8;
+                    a3[h4 + 2 >> 0] = g3 >> 16;
+                    a3[h4 + 3 >> 0] = g3 >> 24;
                     e3 = e3 + 4 | 0;
                     a3[e3 >> 0] = i3;
                     a3[e3 + 1 >> 0] = i3 >> 8;
@@ -163073,15 +161855,15 @@ function getModule() {
                   k3 = c3[j3 >> 2] | 0;
                   e3 = b6 + 100 + (k3 << 3) | 0;
                   i3 = e3;
-                  h3 = i3;
+                  h4 = i3;
                   i3 = i3 + 4 | 0;
-                  g3 = lr2(d2[h3 >> 0] | d2[h3 + 1 >> 0] << 8 | d2[h3 + 2 >> 0] << 16 | d2[h3 + 3 >> 0] << 24 | 0, d2[i3 >> 0] | d2[i3 + 1 >> 0] << 8 | d2[i3 + 2 >> 0] << 16 | d2[i3 + 3 >> 0] << 24 | 0, g3 | 0, ((g3 | 0) < 0) << 31 >> 31 | 0) | 0;
+                  g3 = lr2(d2[h4 >> 0] | d2[h4 + 1 >> 0] << 8 | d2[h4 + 2 >> 0] << 16 | d2[h4 + 3 >> 0] << 24 | 0, d2[i3 >> 0] | d2[i3 + 1 >> 0] << 8 | d2[i3 + 2 >> 0] << 16 | d2[i3 + 3 >> 0] << 24 | 0, g3 | 0, ((g3 | 0) < 0) << 31 >> 31 | 0) | 0;
                   i3 = u2() | 0;
-                  h3 = e3;
-                  a3[h3 >> 0] = g3;
-                  a3[h3 + 1 >> 0] = g3 >> 8;
-                  a3[h3 + 2 >> 0] = g3 >> 16;
-                  a3[h3 + 3 >> 0] = g3 >> 24;
+                  h4 = e3;
+                  a3[h4 >> 0] = g3;
+                  a3[h4 + 1 >> 0] = g3 >> 8;
+                  a3[h4 + 2 >> 0] = g3 >> 16;
+                  a3[h4 + 3 >> 0] = g3 >> 24;
                   e3 = e3 + 4 | 0;
                   a3[e3 >> 0] = i3;
                   a3[e3 + 1 >> 0] = i3 >> 8;
@@ -163097,11 +161879,11 @@ function getModule() {
                     i3 = b6 + 100 + (c3[j3 >> 2] << 3) + 4 | 0;
                     i3 = pc(b6 + 244 | 0, e3, d2[i3 >> 0] | d2[i3 + 1 >> 0] << 8 | d2[i3 + 2 >> 0] << 16 | d2[i3 + 3 >> 0] << 24, 8) | 0;
                     g3 = b6 + 100 + (c3[k3 >> 2] << 3) | 0;
-                    h3 = g3;
-                    a3[h3 >> 0] = 0;
-                    a3[h3 + 1 >> 0] = 0;
-                    a3[h3 + 2 >> 0] = 0;
-                    a3[h3 + 3 >> 0] = 0;
+                    h4 = g3;
+                    a3[h4 >> 0] = 0;
+                    a3[h4 + 1 >> 0] = 0;
+                    a3[h4 + 2 >> 0] = 0;
+                    a3[h4 + 3 >> 0] = 0;
                     g3 = g3 + 4 | 0;
                     a3[g3 >> 0] = i3;
                     a3[g3 + 1 >> 0] = i3 >> 8;
@@ -163111,15 +161893,15 @@ function getModule() {
                     k3 = c3[k3 >> 2] | 0;
                     e3 = b6 + 100 + (k3 << 3) | 0;
                     i3 = e3;
-                    h3 = i3;
+                    h4 = i3;
                     i3 = i3 + 4 | 0;
                     i3 = d2[i3 >> 0] | d2[i3 + 1 >> 0] << 8 | d2[i3 + 2 >> 0] << 16 | d2[i3 + 3 >> 0] << 24;
-                    g3 = d2[h3 >> 0] | d2[h3 + 1 >> 0] << 8 | d2[h3 + 2 >> 0] << 16 | d2[h3 + 3 >> 0] << 24 | g3;
-                    h3 = e3;
-                    a3[h3 >> 0] = g3;
-                    a3[h3 + 1 >> 0] = g3 >> 8;
-                    a3[h3 + 2 >> 0] = g3 >> 16;
-                    a3[h3 + 3 >> 0] = g3 >> 24;
+                    g3 = d2[h4 >> 0] | d2[h4 + 1 >> 0] << 8 | d2[h4 + 2 >> 0] << 16 | d2[h4 + 3 >> 0] << 24 | g3;
+                    h4 = e3;
+                    a3[h4 >> 0] = g3;
+                    a3[h4 + 1 >> 0] = g3 >> 8;
+                    a3[h4 + 2 >> 0] = g3 >> 16;
+                    a3[h4 + 3 >> 0] = g3 >> 24;
                     e3 = e3 + 4 | 0;
                     a3[e3 >> 0] = i3;
                     a3[e3 + 1 >> 0] = i3 >> 8;
@@ -163139,64 +161921,64 @@ function getModule() {
                 do
                   if (!i3) {
                     g3 = pc(b6 + 244 | 0, e3, 0, 7) | 0;
-                    h3 = b6 + 148 + (c3[j3 >> 2] << 2) | 0;
-                    c3[h3 >> 2] = (c3[h3 >> 2] | 0) + 1;
-                    h3 = c3[j3 >> 2] | 0;
-                    if ((c3[b6 + 148 + (h3 << 2) >> 2] | 0) > 3) {
-                      c3[b6 + 132 + (h3 << 2) >> 2] = g3;
+                    h4 = b6 + 148 + (c3[j3 >> 2] << 2) | 0;
+                    c3[h4 >> 2] = (c3[h4 >> 2] | 0) + 1;
+                    h4 = c3[j3 >> 2] | 0;
+                    if ((c3[b6 + 148 + (h4 << 2) >> 2] | 0) > 3) {
+                      c3[b6 + 132 + (h4 << 2) >> 2] = g3;
                       c3[b6 + 148 + (c3[j3 >> 2] << 2) >> 2] = 0;
                     }
                   } else {
                     if ((i3 | 0) < 500) {
                       g3 = b6 + 244 | 0;
-                      h3 = q3(c3[b6 + 132 + (c3[j3 >> 2] << 2) >> 2] | 0, i3) | 0;
+                      h4 = q3(c3[b6 + 132 + (c3[j3 >> 2] << 2) >> 2] | 0, i3) | 0;
                       if ((i3 | 0) < 10) {
-                        g3 = pc(g3, e3, h3, 2) | 0;
+                        g3 = pc(g3, e3, h4, 2) | 0;
                         break;
                       } else {
-                        g3 = pc(g3, e3, h3, 3) | 0;
+                        g3 = pc(g3, e3, h4, 3) | 0;
                         break;
                       }
                     }
                     if ((i3 | 0) == 500) {
                       g3 = pc(b6 + 244 | 0, e3, (c3[b6 + 132 + (c3[j3 >> 2] << 2) >> 2] | 0) * 500 | 0, 4) | 0;
-                      h3 = b6 + 148 + (c3[j3 >> 2] << 2) | 0;
-                      c3[h3 >> 2] = (c3[h3 >> 2] | 0) + 1;
-                      h3 = c3[j3 >> 2] | 0;
-                      if ((c3[b6 + 148 + (h3 << 2) >> 2] | 0) <= 3)
+                      h4 = b6 + 148 + (c3[j3 >> 2] << 2) | 0;
+                      c3[h4 >> 2] = (c3[h4 >> 2] | 0) + 1;
+                      h4 = c3[j3 >> 2] | 0;
+                      if ((c3[b6 + 148 + (h4 << 2) >> 2] | 0) <= 3)
                         break;
-                      c3[b6 + 132 + (h3 << 2) >> 2] = g3;
+                      c3[b6 + 132 + (h4 << 2) >> 2] = g3;
                       c3[b6 + 148 + (c3[j3 >> 2] << 2) >> 2] = 0;
                       break;
                     }
                     g3 = 500 - i3 | 0;
-                    h3 = b6 + 244 | 0;
+                    h4 = b6 + 244 | 0;
                     i3 = c3[b6 + 132 + (c3[j3 >> 2] << 2) >> 2] | 0;
                     if ((g3 | 0) > -10) {
-                      g3 = pc(h3, e3, q3(i3, g3) | 0, 5) | 0;
+                      g3 = pc(h4, e3, q3(i3, g3) | 0, 5) | 0;
                       break;
                     }
-                    g3 = pc(h3, e3, q3(i3, -10) | 0, 6) | 0;
-                    h3 = b6 + 148 + (c3[j3 >> 2] << 2) | 0;
-                    c3[h3 >> 2] = (c3[h3 >> 2] | 0) + 1;
-                    h3 = c3[j3 >> 2] | 0;
-                    if ((c3[b6 + 148 + (h3 << 2) >> 2] | 0) > 3) {
-                      c3[b6 + 132 + (h3 << 2) >> 2] = g3;
+                    g3 = pc(h4, e3, q3(i3, -10) | 0, 6) | 0;
+                    h4 = b6 + 148 + (c3[j3 >> 2] << 2) | 0;
+                    c3[h4 >> 2] = (c3[h4 >> 2] | 0) + 1;
+                    h4 = c3[j3 >> 2] | 0;
+                    if ((c3[b6 + 148 + (h4 << 2) >> 2] | 0) > 3) {
+                      c3[b6 + 132 + (h4 << 2) >> 2] = g3;
                       c3[b6 + 148 + (c3[j3 >> 2] << 2) >> 2] = 0;
                     }
                   }
                 while (0);
                 k3 = b6 + 100 + (c3[j3 >> 2] << 3) | 0;
-                h3 = k3;
-                e3 = h3;
-                h3 = h3 + 4 | 0;
-                h3 = lr2(d2[e3 >> 0] | d2[e3 + 1 >> 0] << 8 | d2[e3 + 2 >> 0] << 16 | d2[e3 + 3 >> 0] << 24 | 0, d2[h3 >> 0] | d2[h3 + 1 >> 0] << 8 | d2[h3 + 2 >> 0] << 16 | d2[h3 + 3 >> 0] << 24 | 0, g3 | 0, ((g3 | 0) < 0) << 31 >> 31 | 0) | 0;
+                h4 = k3;
+                e3 = h4;
+                h4 = h4 + 4 | 0;
+                h4 = lr2(d2[e3 >> 0] | d2[e3 + 1 >> 0] << 8 | d2[e3 + 2 >> 0] << 16 | d2[e3 + 3 >> 0] << 24 | 0, d2[h4 >> 0] | d2[h4 + 1 >> 0] << 8 | d2[h4 + 2 >> 0] << 16 | d2[h4 + 3 >> 0] << 24 | 0, g3 | 0, ((g3 | 0) < 0) << 31 >> 31 | 0) | 0;
                 e3 = u2() | 0;
                 i3 = k3;
-                a3[i3 >> 0] = h3;
-                a3[i3 + 1 >> 0] = h3 >> 8;
-                a3[i3 + 2 >> 0] = h3 >> 16;
-                a3[i3 + 3 >> 0] = h3 >> 24;
+                a3[i3 >> 0] = h4;
+                a3[i3 + 1 >> 0] = h4 >> 8;
+                a3[i3 + 2 >> 0] = h4 >> 16;
+                a3[i3 + 3 >> 0] = h4 >> 24;
                 k3 = k3 + 4 | 0;
                 a3[k3 >> 0] = e3;
                 a3[k3 + 1 >> 0] = e3 >> 8;
@@ -163371,7 +162153,7 @@ function getModule() {
         c4 = c4 | 0;
         f3 = f3 | 0;
         g3 = g3 | 0;
-        var h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0;
+        var h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0;
         o3 = V2;
         V2 = V2 + 16 | 0;
         m3 = o3;
@@ -163390,59 +162172,59 @@ function getModule() {
           n3 = Zc(f3, c4 + 8 | 0) | 0;
           Gf(m3);
           if (!(n3 & 1)) {
-            h3 = c4 + 1 | 0;
-            h3 = (d2[h3 >> 0] | d2[h3 + 1 >> 0] << 8) & 255;
+            h4 = c4 + 1 | 0;
+            h4 = (d2[h4 >> 0] | d2[h4 + 1 >> 0] << 8) & 255;
           } else {
             l3 = (Zc(f3, c4 + 52 | 0) | 0) & 255;
-            h3 = c4 + 1 | 0;
-            h3 = (Ie2(l3 + ((d2[h3 >> 0] | d2[h3 + 1 >> 0] << 8) & 255) | 0) | 0) & 255;
+            h4 = c4 + 1 | 0;
+            h4 = (Ie2(l3 + ((d2[h4 >> 0] | d2[h4 + 1 >> 0] << 8) & 255) | 0) | 0) & 255;
           }
-          b5[m3 >> 1] = h3;
+          b5[m3 >> 1] = h4;
           if (!(n3 & 2)) {
             l3 = c4 + 1 | 0;
-            h3 = h3 | (d2[l3 >> 0] | d2[l3 + 1 >> 0] << 8) & -256;
+            h4 = h4 | (d2[l3 >> 0] | d2[l3 + 1 >> 0] << 8) & -256;
           } else {
-            h3 = (Zc(f3, c4 + 96 | 0) | 0) & 255;
+            h4 = (Zc(f3, c4 + 96 | 0) | 0) & 255;
             l3 = c4 + 1 | 0;
-            h3 = ((Ie2((((d2[l3 >> 0] | d2[l3 + 1 >> 0] << 8) & 65535) >>> 8) + h3 | 0) | 0) & 255) << 8;
-            h3 = (h3 | e2[m3 >> 1]) & 65535;
+            h4 = ((Ie2((((d2[l3 >> 0] | d2[l3 + 1 >> 0] << 8) & 65535) >>> 8) + h4 | 0) | 0) & 255) << 8;
+            h4 = (h4 | e2[m3 >> 1]) & 65535;
           }
-          b5[m3 >> 1] = h3;
+          b5[m3 >> 1] = h4;
           do
             if (n3 & 64) {
               k3 = c4 + 1 | 0;
-              i3 = (h3 & 255) - ((d2[k3 >> 0] | d2[k3 + 1 >> 0] << 8) & 255) | 0;
+              i3 = (h4 & 255) - ((d2[k3 >> 0] | d2[k3 + 1 >> 0] << 8) & 255) | 0;
               if (!(n3 & 4)) {
-                h3 = c4 + 3 | 0;
-                h3 = (d2[h3 >> 0] | d2[h3 + 1 >> 0] << 8) & 255;
+                h4 = c4 + 3 | 0;
+                h4 = (d2[h4 >> 0] | d2[h4 + 1 >> 0] << 8) & 255;
               } else {
-                h3 = (Zc(f3, c4 + 140 | 0) | 0) & 255;
+                h4 = (Zc(f3, c4 + 140 | 0) | 0) & 255;
                 l3 = c4 + 3 | 0;
                 l3 = i3 + ((d2[l3 >> 0] | d2[l3 + 1 >> 0] << 8) & 255) | 0;
-                h3 = (Ie2(((l3 | 0) < 1 ? 0 : (l3 | 0) > 254 ? 255 : l3 & 255) + h3 | 0) | 0) & 255;
+                h4 = (Ie2(((l3 | 0) < 1 ? 0 : (l3 | 0) > 254 ? 255 : l3 & 255) + h4 | 0) | 0) & 255;
               }
               l3 = m3 + 2 | 0;
-              b5[l3 >> 1] = h3;
+              b5[l3 >> 1] = h4;
               if (!(n3 & 16)) {
-                h3 = c4 + 5 | 0;
-                h3 = (d2[h3 >> 0] | d2[h3 + 1 >> 0] << 8) & 255;
+                h4 = c4 + 5 | 0;
+                h4 = (d2[h4 >> 0] | d2[h4 + 1 >> 0] << 8) & 255;
               } else {
-                h3 = Zc(f3, c4 + 228 | 0) | 0;
+                h4 = Zc(f3, c4 + 228 | 0) | 0;
                 p3 = c4 + 3 | 0;
                 j3 = c4 + 5 | 0;
                 j3 = ((i3 + (b5[l3 >> 1] & 255) - ((d2[p3 >> 0] | d2[p3 + 1 >> 0] << 8) & 255) | 0) / 2 | 0) + ((d2[j3 >> 0] | d2[j3 + 1 >> 0] << 8) & 255) | 0;
-                h3 = (Ie2(((j3 | 0) < 1 ? 0 : (j3 | 0) > 254 ? 255 : j3 & 255) + (h3 & 255) | 0) | 0) & 255;
+                h4 = (Ie2(((j3 | 0) < 1 ? 0 : (j3 | 0) > 254 ? 255 : j3 & 255) + (h4 & 255) | 0) | 0) & 255;
               }
               j3 = m3 + 4 | 0;
-              b5[j3 >> 1] = h3;
-              h3 = ((e2[m3 >> 1] | 0) >>> 8) - (((d2[k3 >> 0] | d2[k3 + 1 >> 0] << 8) & 65535) >>> 8) | 0;
+              b5[j3 >> 1] = h4;
+              h4 = ((e2[m3 >> 1] | 0) >>> 8) - (((d2[k3 >> 0] | d2[k3 + 1 >> 0] << 8) & 65535) >>> 8) | 0;
               if (!(n3 & 8)) {
                 i3 = c4 + 3 | 0;
                 i3 = b5[l3 >> 1] | (d2[i3 >> 0] | d2[i3 + 1 >> 0] << 8) & -256;
               } else {
                 i3 = (Zc(f3, c4 + 184 | 0) | 0) & 255;
                 p3 = c4 + 3 | 0;
-                p3 = (((d2[p3 >> 0] | d2[p3 + 1 >> 0] << 8) & 65535) >>> 8) + h3 | 0;
+                p3 = (((d2[p3 >> 0] | d2[p3 + 1 >> 0] << 8) & 65535) >>> 8) + h4 | 0;
                 i3 = ((Ie2(((p3 | 0) < 1 ? 0 : (p3 | 0) > 254 ? 255 : p3 & 255) + i3 | 0) | 0) & 255) << 8;
                 i3 = (i3 | e2[l3 >> 1]) & 65535;
               }
@@ -163455,14 +162237,14 @@ function getModule() {
                 p3 = Zc(f3, c4 + 272 | 0) | 0;
                 f3 = c4 + 3 | 0;
                 n3 = c4 + 5 | 0;
-                n3 = ((((e2[l3 >> 1] | 0) >>> 8) + h3 - (((d2[f3 >> 0] | d2[f3 + 1 >> 0] << 8) & 65535) >>> 8) | 0) / 2 | 0) + (((d2[n3 >> 0] | d2[n3 + 1 >> 0] << 8) & 65535) >>> 8) | 0;
+                n3 = ((((e2[l3 >> 1] | 0) >>> 8) + h4 - (((d2[f3 >> 0] | d2[f3 + 1 >> 0] << 8) & 65535) >>> 8) | 0) / 2 | 0) + (((d2[n3 >> 0] | d2[n3 + 1 >> 0] << 8) & 65535) >>> 8) | 0;
                 p3 = ((Ie2(((n3 | 0) < 1 ? 0 : (n3 | 0) > 254 ? 255 : n3 & 255) + (p3 & 255) | 0) | 0) & 255) << 8;
                 b5[j3 >> 1] = p3 | e2[j3 >> 1];
                 break;
               }
             } else {
-              b5[m3 + 2 >> 1] = h3;
-              b5[m3 + 4 >> 1] = h3;
+              b5[m3 + 2 >> 1] = h4;
+              b5[m3 + 4 >> 1] = h4;
             }
           while (0);
           p3 = c4 + 1 | 0;
@@ -163612,12 +162394,12 @@ function getModule() {
       function Xf(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0;
         d3 = V2;
         V2 = V2 + 32 | 0;
         e3 = d3 + 24 | 0;
         f3 = d3 + 16 | 0;
-        h3 = d3 + 8 | 0;
+        h4 = d3 + 8 | 0;
         g3 = d3;
         c3[a4 >> 2] = 0;
         c3[a4 + 4 >> 2] = 0;
@@ -163625,10 +162407,10 @@ function getModule() {
         c3[a4 + 12 >> 2] = 0;
         c3[a4 + 16 >> 2] = 0;
         c3[a4 + 20 >> 2] = 0;
-        zg(h3, b6);
+        zg(h4, b6);
         Ag(g3, b6);
-        c3[f3 >> 2] = c3[h3 >> 2];
-        c3[f3 + 4 >> 2] = c3[h3 + 4 >> 2];
+        c3[f3 >> 2] = c3[h4 >> 2];
+        c3[f3 + 4 >> 2] = c3[h4 + 4 >> 2];
         c3[e3 >> 2] = c3[g3 >> 2];
         c3[e3 + 4 >> 2] = c3[g3 + 4 >> 2];
         cg(a4, f3, e3, 0);
@@ -163704,7 +162486,7 @@ function getModule() {
         b6 = b6 | 0;
         d3 = d3 | 0;
         e3 = e3 | 0;
-        var f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0;
+        var f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0;
         q4 = V2;
         V2 = V2 + 96 | 0;
         p3 = q4 + 80 | 0;
@@ -163715,21 +162497,21 @@ function getModule() {
         i3 = q4;
         n3 = q4 + 32 | 0;
         o3 = q4 + 16 | 0;
-        h3 = b6;
-        g3 = c3[h3 >> 2] | 0;
-        h3 = c3[h3 + 4 >> 2] | 0;
+        h4 = b6;
+        g3 = c3[h4 >> 2] | 0;
+        h4 = c3[h4 + 4 >> 2] | 0;
         f3 = d3;
         d3 = c3[f3 >> 2] | 0;
         f3 = c3[f3 + 4 >> 2] | 0;
         e3 = g3;
-        if ((f3 | 0) == (h3 | 0))
-          h3 = 0;
+        if ((f3 | 0) == (h4 | 0))
+          h4 = 0;
         else
-          h3 = ((f3 - (c3[d3 >> 2] | 0) | 0) / 44 | 0) + ((d3 - g3 >> 2) * 93 | 0) + ((h3 - (c3[g3 >> 2] | 0) | 0) / -44 | 0) | 0;
+          h4 = ((f3 - (c3[d3 >> 2] | 0) | 0) / 44 | 0) + ((d3 - g3 >> 2) * 93 | 0) + ((h4 - (c3[g3 >> 2] | 0) | 0) / -44 | 0) | 0;
         d3 = (c3[a4 + 8 >> 2] | 0) - (c3[a4 + 4 >> 2] | 0) | 0;
         d3 = ((d3 | 0) == 0 ? 0 : ((d3 >> 2) * 93 | 0) + -1 | 0) - ((c3[a4 + 20 >> 2] | 0) + (c3[a4 + 16 >> 2] | 0)) | 0;
-        if (h3 >>> 0 > d3 >>> 0)
-          eg(a4, h3 - d3 | 0);
+        if (h4 >>> 0 > d3 >>> 0)
+          eg(a4, h4 - d3 | 0);
         fg(k3, a4);
         fg(i3, a4);
         f3 = i3;
@@ -163739,13 +162521,13 @@ function getModule() {
         c3[g3 >> 2] = d3;
         c3[g3 + 4 >> 2] = f3;
         g3 = d3;
-        if (h3 | 0) {
-          d3 = ((f3 - (c3[d3 >> 2] | 0) | 0) / 44 | 0) + h3 | 0;
+        if (h4 | 0) {
+          d3 = ((f3 - (c3[d3 >> 2] | 0) | 0) / 44 | 0) + h4 | 0;
           if ((d3 | 0) > 0) {
             i3 = (d3 >>> 0) / 93 | 0;
-            h3 = g3 + (i3 << 2) | 0;
-            c3[l3 >> 2] = h3;
-            d3 = (c3[h3 >> 2] | 0) + ((d3 - (i3 * 93 | 0) | 0) * 44 | 0) | 0;
+            h4 = g3 + (i3 << 2) | 0;
+            c3[l3 >> 2] = h4;
+            d3 = (c3[h4 >> 2] | 0) + ((d3 - (i3 * 93 | 0) | 0) * 44 | 0) | 0;
           } else {
             d3 = 92 - d3 | 0;
             i3 = g3 + (((d3 | 0) / -93 | 0) << 2) | 0;
@@ -163763,24 +162545,24 @@ function getModule() {
         ig(m3, j3);
         if (jg(p3, m3) | 0) {
           g3 = o3 + 4 | 0;
-          h3 = b6 + 4 | 0;
+          h4 = b6 + 4 | 0;
           do {
             kg(n3, p3);
             lg(o3, a4, n3);
             d3 = c3[o3 >> 2] | 0;
             if ((d3 | 0) != (c3[g3 >> 2] | 0)) {
-              f3 = c3[h3 >> 2] | 0;
+              f3 = c3[h4 >> 2] | 0;
               do {
                 Wc(d3, f3);
                 d3 = (c3[o3 >> 2] | 0) + 44 | 0;
                 c3[o3 >> 2] = d3;
                 f3 = f3 + 44 | 0;
-                c3[h3 >> 2] = f3;
+                c3[h4 >> 2] = f3;
                 if ((f3 - (c3[e3 >> 2] | 0) | 0) == 4092) {
                   e3 = e3 + 4 | 0;
                   c3[b6 >> 2] = e3;
                   f3 = c3[e3 >> 2] | 0;
-                  c3[h3 >> 2] = f3;
+                  c3[h4 >> 2] = f3;
                 }
               } while ((d3 | 0) != (c3[g3 >> 2] | 0));
             }
@@ -163807,12 +162589,12 @@ function getModule() {
       function eg(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, r3 = 0, s3 = 0, t3 = 0, u3 = 0, v3 = 0, w3 = 0, x3 = 0, y3 = 0, z3 = 0, A4 = 0, B4 = 0, C3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, r3 = 0, s3 = 0, t3 = 0, u3 = 0, v3 = 0, w4 = 0, x3 = 0, y3 = 0, z3 = 0, A4 = 0, B4 = 0, C3 = 0;
         B4 = V2;
         V2 = V2 + 64 | 0;
         v3 = B4 + 52 | 0;
         u3 = B4 + 48 | 0;
-        w3 = B4 + 28 | 0;
+        w4 = B4 + 28 | 0;
         x3 = B4 + 24 | 0;
         y3 = B4 + 20 | 0;
         p3 = B4;
@@ -163821,13 +162603,13 @@ function getModule() {
         A4 = a4 + 4 | 0;
         j3 = c3[A4 >> 2] | 0;
         s3 = ((d3 | 0) == (j3 | 0) & 1) + b6 | 0;
-        h3 = (s3 >>> 0) / 93 | 0;
-        h3 = h3 + ((s3 - (h3 * 93 | 0) | 0) != 0 & 1) | 0;
+        h4 = (s3 >>> 0) / 93 | 0;
+        h4 = h4 + ((s3 - (h4 * 93 | 0) | 0) != 0 & 1) | 0;
         s3 = a4 + 16 | 0;
         e3 = c3[s3 >> 2] | 0;
         i3 = (e3 >>> 0) / 93 | 0;
-        r3 = h3 >>> 0 < i3 >>> 0 ? h3 : i3;
-        b6 = h3 - r3 | 0;
+        r3 = h4 >>> 0 < i3 >>> 0 ? h4 : i3;
+        b6 = h4 - r3 | 0;
         g3 = d3;
         a:
           do
@@ -163836,13 +162618,13 @@ function getModule() {
               if (r3 | 0) {
                 i3 = a4 + 12 | 0;
                 k3 = a4 + 12 | 0;
-                l3 = w3 + 4 | 0;
-                m3 = w3 + 8 | 0;
-                n3 = w3 + 12 | 0;
+                l3 = w4 + 4 | 0;
+                m3 = w4 + 8 | 0;
+                n3 = w4 + 12 | 0;
                 b6 = r3;
                 e3 = j3;
                 while (1) {
-                  h3 = c3[e3 >> 2] | 0;
+                  h4 = c3[e3 >> 2] | 0;
                   g3 = e3 + 4 | 0;
                   c3[A4 >> 2] = g3;
                   t3 = c3[i3 >> 2] | 0;
@@ -163854,15 +162636,15 @@ function getModule() {
                       if (g3 >>> 0 <= t3 >>> 0) {
                         d3 = e3 - d3 | 0;
                         d3 = (d3 | 0) == 0 ? 1 : d3 >> 1;
-                        qg(w3, d3, d3 >>> 2, k3);
+                        qg(w4, d3, d3 >>> 2, k3);
                         c3[x3 >> 2] = c3[A4 >> 2];
                         c3[y3 >> 2] = c3[z3 >> 2];
                         c3[u3 >> 2] = c3[x3 >> 2];
                         c3[v3 >> 2] = c3[y3 >> 2];
-                        ug(w3, u3, v3);
+                        ug(w4, u3, v3);
                         d3 = c3[a4 >> 2] | 0;
-                        c3[a4 >> 2] = c3[w3 >> 2];
-                        c3[w3 >> 2] = d3;
+                        c3[a4 >> 2] = c3[w4 >> 2];
+                        c3[w4 >> 2] = d3;
                         d3 = c3[A4 >> 2] | 0;
                         c3[A4 >> 2] = c3[l3 >> 2];
                         c3[l3 >> 2] = d3;
@@ -163872,7 +162654,7 @@ function getModule() {
                         d3 = c3[i3 >> 2] | 0;
                         c3[i3 >> 2] = c3[n3 >> 2];
                         c3[n3 >> 2] = d3;
-                        tg(w3);
+                        tg(w4);
                         d3 = c3[z3 >> 2] | 0;
                         break;
                       }
@@ -163892,7 +162674,7 @@ function getModule() {
                       d3 = t3;
                     }
                   while (0);
-                  c3[d3 >> 2] = h3;
+                  c3[d3 >> 2] = h4;
                   d3 = (c3[z3 >> 2] | 0) + 4 | 0;
                   c3[z3 >> 2] = d3;
                   b6 = b6 + -1 | 0;
@@ -163922,10 +162704,10 @@ function getModule() {
                   j3 = p3 + 12 | 0;
                   k3 = p3 + 4 | 0;
                   l3 = p3 + 16 | 0;
-                  m3 = w3 + 4 | 0;
-                  n3 = w3 + 8 | 0;
-                  o3 = w3 + 12 | 0;
-                  h3 = r3;
+                  m3 = w4 + 4 | 0;
+                  n3 = w4 + 8 | 0;
+                  o3 = w4 + 12 | 0;
+                  h4 = r3;
                   b6 = c3[i3 >> 2] | 0;
                   d3 = c3[A4 >> 2] | 0;
                   do {
@@ -163939,15 +162721,15 @@ function getModule() {
                         if (f3 >>> 0 <= g3 >>> 0) {
                           b6 = e3 - b6 | 0;
                           b6 = (b6 | 0) == 0 ? 1 : b6 >> 1;
-                          qg(w3, b6, b6 >>> 2, c3[l3 >> 2] | 0);
+                          qg(w4, b6, b6 >>> 2, c3[l3 >> 2] | 0);
                           c3[x3 >> 2] = c3[k3 >> 2];
                           c3[y3 >> 2] = c3[i3 >> 2];
                           c3[u3 >> 2] = c3[x3 >> 2];
                           c3[v3 >> 2] = c3[y3 >> 2];
-                          ug(w3, u3, v3);
+                          ug(w4, u3, v3);
                           b6 = c3[p3 >> 2] | 0;
-                          c3[p3 >> 2] = c3[w3 >> 2];
-                          c3[w3 >> 2] = b6;
+                          c3[p3 >> 2] = c3[w4 >> 2];
+                          c3[w4 >> 2] = b6;
                           b6 = c3[k3 >> 2] | 0;
                           c3[k3 >> 2] = c3[m3 >> 2];
                           c3[m3 >> 2] = b6;
@@ -163957,7 +162739,7 @@ function getModule() {
                           b6 = c3[j3 >> 2] | 0;
                           c3[j3 >> 2] = c3[o3 >> 2];
                           c3[o3 >> 2] = b6;
-                          tg(w3);
+                          tg(w4);
                           b6 = c3[i3 >> 2] | 0;
                           break;
                         }
@@ -163982,8 +162764,8 @@ function getModule() {
                     c3[i3 >> 2] = b6;
                     d3 = (c3[A4 >> 2] | 0) + 4 | 0;
                     c3[A4 >> 2] = d3;
-                    h3 = h3 + -1 | 0;
-                  } while ((h3 | 0) != 0);
+                    h4 = h4 + -1 | 0;
+                  } while ((h4 | 0) != 0);
                 }
                 b6 = c3[z3 >> 2] | 0;
                 if ((b6 | 0) != (d3 | 0)) {
@@ -164032,7 +162814,7 @@ function getModule() {
                     }
                   while (0);
                 if ((k3 | 0) == 18) {
-                  e3 = ~(h3 >>> 0 > i3 >>> 0 ? i3 : h3);
+                  e3 = ~(h4 >>> 0 > i3 >>> 0 ? i3 : h4);
                   d3 = b6;
                   do {
                     c3[v3 >> 2] = eq(4092) | 0;
@@ -164048,13 +162830,13 @@ function getModule() {
                 if (!d3)
                   break;
                 i3 = a4 + 12 | 0;
-                j3 = w3 + 4 | 0;
-                k3 = w3 + 8 | 0;
-                l3 = w3 + 12 | 0;
+                j3 = w4 + 4 | 0;
+                k3 = w4 + 8 | 0;
+                l3 = w4 + 12 | 0;
                 b6 = c3[z3 >> 2] | 0;
                 do {
                   g3 = c3[A4 >> 2] | 0;
-                  h3 = c3[g3 >> 2] | 0;
+                  h4 = c3[g3 >> 2] | 0;
                   g3 = g3 + 4 | 0;
                   c3[A4 >> 2] = g3;
                   C3 = c3[t3 >> 2] | 0;
@@ -164066,15 +162848,15 @@ function getModule() {
                       if (g3 >>> 0 <= C3 >>> 0) {
                         b6 = e3 - b6 | 0;
                         b6 = (b6 | 0) == 0 ? 1 : b6 >> 1;
-                        qg(w3, b6, b6 >>> 2, i3);
+                        qg(w4, b6, b6 >>> 2, i3);
                         c3[x3 >> 2] = c3[A4 >> 2];
                         c3[y3 >> 2] = c3[z3 >> 2];
                         c3[u3 >> 2] = c3[x3 >> 2];
                         c3[v3 >> 2] = c3[y3 >> 2];
-                        ug(w3, u3, v3);
+                        ug(w4, u3, v3);
                         b6 = c3[a4 >> 2] | 0;
-                        c3[a4 >> 2] = c3[w3 >> 2];
-                        c3[w3 >> 2] = b6;
+                        c3[a4 >> 2] = c3[w4 >> 2];
+                        c3[w4 >> 2] = b6;
                         b6 = c3[A4 >> 2] | 0;
                         c3[A4 >> 2] = c3[j3 >> 2];
                         c3[j3 >> 2] = b6;
@@ -164084,7 +162866,7 @@ function getModule() {
                         b6 = c3[t3 >> 2] | 0;
                         c3[t3 >> 2] = c3[l3 >> 2];
                         c3[l3 >> 2] = b6;
-                        tg(w3);
+                        tg(w4);
                         b6 = c3[z3 >> 2] | 0;
                         break;
                       }
@@ -164104,7 +162886,7 @@ function getModule() {
                       b6 = C3;
                     }
                   while (0);
-                  c3[b6 >> 2] = h3;
+                  c3[b6 >> 2] = h4;
                   b6 = (c3[z3 >> 2] | 0) + 4 | 0;
                   c3[z3 >> 2] = b6;
                   d3 = d3 + -1 | 0;
@@ -164160,24 +162942,24 @@ function getModule() {
       function ig(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0;
         d3 = V2;
         V2 = V2 + 32 | 0;
         e3 = d3 + 24 | 0;
         f3 = d3 + 16 | 0;
-        h3 = d3 + 8 | 0;
+        h4 = d3 + 8 | 0;
         g3 = d3;
         i3 = b6 + 8 | 0;
         j3 = c3[i3 >> 2] | 0;
         i3 = c3[i3 + 4 >> 2] | 0;
-        b6 = h3;
+        b6 = h4;
         c3[b6 >> 2] = j3;
         c3[b6 + 4 >> 2] = i3;
         b6 = g3;
         c3[b6 >> 2] = j3;
         c3[b6 + 4 >> 2] = i3;
-        c3[f3 >> 2] = c3[h3 >> 2];
-        c3[f3 + 4 >> 2] = c3[h3 + 4 >> 2];
+        c3[f3 >> 2] = c3[h4 >> 2];
+        c3[f3 + 4 >> 2] = c3[h4 + 4 >> 2];
         c3[e3 >> 2] = c3[g3 >> 2];
         c3[e3 + 4 >> 2] = c3[g3 + 4 >> 2];
         gg(a4, f3, e3);
@@ -164241,7 +163023,7 @@ function getModule() {
       function og(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0;
         p3 = V2;
         V2 = V2 + 48 | 0;
         f3 = p3 + 32 | 0;
@@ -164259,9 +163041,9 @@ function getModule() {
             n3 = a4 + 4 | 0;
             m3 = c3[n3 >> 2] | 0;
             q4 = c3[a4 >> 2] | 0;
-            h3 = q4;
+            h4 = q4;
             if (m3 >>> 0 <= q4 >>> 0) {
-              d3 = g3 - h3 | 0;
+              d3 = g3 - h4 | 0;
               d3 = (d3 | 0) == 0 ? 1 : d3 >> 1;
               qg(i3, d3, d3 >>> 2, a4 + 12 | 0);
               c3[j3 >> 2] = c3[n3 >> 2];
@@ -164289,7 +163071,7 @@ function getModule() {
               break;
             }
             f3 = m3;
-            e3 = ((f3 - h3 >> 2) + 1 | 0) / -2 | 0;
+            e3 = ((f3 - h4 >> 2) + 1 | 0) / -2 | 0;
             a4 = m3 + (e3 << 2) | 0;
             f3 = d3 - f3 | 0;
             if (!f3)
@@ -164312,12 +163094,12 @@ function getModule() {
       function pg(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0;
         p3 = V2;
         V2 = V2 + 48 | 0;
         e3 = p3 + 32 | 0;
         d3 = p3 + 28 | 0;
-        h3 = p3 + 8 | 0;
+        h4 = p3 + 8 | 0;
         i3 = p3 + 4 | 0;
         j3 = p3;
         o3 = a4 + 4 | 0;
@@ -164334,28 +163116,28 @@ function getModule() {
             if (l3 >>> 0 >= q4 >>> 0) {
               q4 = f3 - k3 | 0;
               q4 = (q4 | 0) == 0 ? 1 : q4 >> 1;
-              qg(h3, q4, (q4 + 3 | 0) >>> 2, a4 + 12 | 0);
+              qg(h4, q4, (q4 + 3 | 0) >>> 2, a4 + 12 | 0);
               c3[i3 >> 2] = c3[o3 >> 2];
               c3[j3 >> 2] = c3[n3 >> 2];
               c3[d3 >> 2] = c3[i3 >> 2];
               c3[e3 >> 2] = c3[j3 >> 2];
-              ug(h3, d3, e3);
+              ug(h4, d3, e3);
               d3 = c3[a4 >> 2] | 0;
-              c3[a4 >> 2] = c3[h3 >> 2];
-              c3[h3 >> 2] = d3;
-              d3 = h3 + 4 | 0;
+              c3[a4 >> 2] = c3[h4 >> 2];
+              c3[h4 >> 2] = d3;
+              d3 = h4 + 4 | 0;
               q4 = c3[o3 >> 2] | 0;
               c3[o3 >> 2] = c3[d3 >> 2];
               c3[d3 >> 2] = q4;
-              d3 = h3 + 8 | 0;
+              d3 = h4 + 8 | 0;
               q4 = c3[n3 >> 2] | 0;
               c3[n3 >> 2] = c3[d3 >> 2];
               c3[d3 >> 2] = q4;
-              d3 = h3 + 12 | 0;
+              d3 = h4 + 12 | 0;
               q4 = c3[g3 >> 2] | 0;
               c3[g3 >> 2] = c3[d3 >> 2];
               c3[d3 >> 2] = q4;
-              tg(h3);
+              tg(h4);
               d3 = c3[o3 >> 2] | 0;
               break;
             }
@@ -164414,7 +163196,7 @@ function getModule() {
       function rg(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0;
         p3 = V2;
         V2 = V2 + 48 | 0;
         f3 = p3 + 32 | 0;
@@ -164432,9 +163214,9 @@ function getModule() {
             n3 = a4 + 4 | 0;
             m3 = c3[n3 >> 2] | 0;
             q4 = c3[a4 >> 2] | 0;
-            h3 = q4;
+            h4 = q4;
             if (m3 >>> 0 <= q4 >>> 0) {
-              d3 = g3 - h3 | 0;
+              d3 = g3 - h4 | 0;
               d3 = (d3 | 0) == 0 ? 1 : d3 >> 1;
               qg(i3, d3, d3 >>> 2, c3[a4 + 16 >> 2] | 0);
               c3[j3 >> 2] = c3[n3 >> 2];
@@ -164462,7 +163244,7 @@ function getModule() {
               break;
             }
             f3 = m3;
-            e3 = ((f3 - h3 >> 2) + 1 | 0) / -2 | 0;
+            e3 = ((f3 - h4 >> 2) + 1 | 0) / -2 | 0;
             a4 = m3 + (e3 << 2) | 0;
             f3 = d3 - f3 | 0;
             if (!f3)
@@ -164485,12 +163267,12 @@ function getModule() {
       function sg(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0;
         p3 = V2;
         V2 = V2 + 48 | 0;
         e3 = p3 + 32 | 0;
         d3 = p3 + 28 | 0;
-        h3 = p3 + 8 | 0;
+        h4 = p3 + 8 | 0;
         i3 = p3 + 4 | 0;
         j3 = p3;
         o3 = a4 + 4 | 0;
@@ -164507,28 +163289,28 @@ function getModule() {
             if (l3 >>> 0 >= q4 >>> 0) {
               q4 = f3 - k3 | 0;
               q4 = (q4 | 0) == 0 ? 1 : q4 >> 1;
-              qg(h3, q4, (q4 + 3 | 0) >>> 2, c3[a4 + 16 >> 2] | 0);
+              qg(h4, q4, (q4 + 3 | 0) >>> 2, c3[a4 + 16 >> 2] | 0);
               c3[i3 >> 2] = c3[o3 >> 2];
               c3[j3 >> 2] = c3[n3 >> 2];
               c3[d3 >> 2] = c3[i3 >> 2];
               c3[e3 >> 2] = c3[j3 >> 2];
-              ug(h3, d3, e3);
+              ug(h4, d3, e3);
               d3 = c3[a4 >> 2] | 0;
-              c3[a4 >> 2] = c3[h3 >> 2];
-              c3[h3 >> 2] = d3;
-              d3 = h3 + 4 | 0;
+              c3[a4 >> 2] = c3[h4 >> 2];
+              c3[h4 >> 2] = d3;
+              d3 = h4 + 4 | 0;
               q4 = c3[o3 >> 2] | 0;
               c3[o3 >> 2] = c3[d3 >> 2];
               c3[d3 >> 2] = q4;
-              d3 = h3 + 8 | 0;
+              d3 = h4 + 8 | 0;
               q4 = c3[n3 >> 2] | 0;
               c3[n3 >> 2] = c3[d3 >> 2];
               c3[d3 >> 2] = q4;
-              d3 = h3 + 12 | 0;
+              d3 = h4 + 12 | 0;
               q4 = c3[g3 >> 2] | 0;
               c3[g3 >> 2] = c3[d3 >> 2];
               c3[d3 >> 2] = q4;
-              tg(h3);
+              tg(h4);
               d3 = c3[o3 >> 2] | 0;
               break;
             }
@@ -164571,10 +163353,10 @@ function getModule() {
         a4 = a4 | 0;
         b6 = b6 | 0;
         d3 = d3 | 0;
-        var e3 = 0, f3 = 0, g3 = 0, h3 = 0;
-        h3 = V2;
+        var e3 = 0, f3 = 0, g3 = 0, h4 = 0;
+        h4 = V2;
         V2 = V2 + 16 | 0;
-        g3 = h3;
+        g3 = h4;
         f3 = c3[b6 >> 2] | 0;
         vg(g3, a4 + 8 | 0, (c3[d3 >> 2] | 0) - f3 >> 2);
         a4 = c3[g3 >> 2] | 0;
@@ -164590,7 +163372,7 @@ function getModule() {
           c3[b6 >> 2] = d3;
         }
         wg(g3);
-        V2 = h3;
+        V2 = h4;
         return;
       }
       function vg(a4, b6, d3) {
@@ -164654,7 +163436,7 @@ function getModule() {
       }
       function Bg(a4) {
         a4 = a4 | 0;
-        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0;
+        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0;
         i3 = V2;
         V2 = V2 + 16 | 0;
         e3 = i3 + 8 | 0;
@@ -164692,18 +163474,18 @@ function getModule() {
         switch (b6 | 0) {
           case 1: {
             b6 = 46;
-            h3 = 11;
+            h4 = 11;
             break;
           }
           case 2: {
             b6 = 93;
-            h3 = 11;
+            h4 = 11;
             break;
           }
           default: {
           }
         }
-        if ((h3 | 0) == 11)
+        if ((h4 | 0) == 11)
           c3[a4 + 16 >> 2] = b6;
         V2 = i3;
         return;
@@ -164728,7 +163510,7 @@ function getModule() {
         b6 = b6 | 0;
         e3 = e3 | 0;
         f3 = f3 | 0;
-        var g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0;
+        var g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0;
         m3 = V2;
         V2 = V2 + 16 | 0;
         l3 = m3;
@@ -164742,42 +163524,42 @@ function getModule() {
             g3 = 0;
           else {
             g3 = f3;
-            h3 = c3[b6 + 8 >> 2] | 0;
+            h4 = c3[b6 + 8 >> 2] | 0;
             while (1) {
-              a3[h3 >> 0] = a3[g3 >> 0] | 0;
+              a3[h4 >> 0] = a3[g3 >> 0] | 0;
               g3 = g3 + 1 | 0;
               if ((g3 | 0) == (i3 | 0))
                 break;
               else
-                h3 = h3 + 1 | 0;
+                h4 = h4 + 1 | 0;
             }
             g3 = c3[b6 >> 2] | 0;
           }
           a3[j3 >> 0] = 1;
           f3 = f3 + g3 | 0;
         } else {
-          h3 = c3[b6 + 20 >> 2] | 0;
+          h4 = c3[b6 + 20 >> 2] | 0;
           g3 = c3[b6 + 8 >> 2] | 0;
           Cg(l3, b6 + 32 | 0);
           b6 = b6 + 12 | 0;
           if ((g3 | 0) != (c3[b6 >> 2] | 0)) {
             k3 = l3 + 4 | 0;
             j3 = g3;
-            i3 = h3;
+            i3 = h4;
             g3 = c3[k3 >> 2] | 0;
             while (1) {
-              h3 = d2[j3 >> 0] | 0;
-              h3 = Eg((Zc(e3, g3) | 0) + h3 | 0) | 0;
-              a3[i3 >> 0] = h3;
-              a3[f3 >> 0] = h3;
-              a3[j3 >> 0] = h3;
+              h4 = d2[j3 >> 0] | 0;
+              h4 = Eg((Zc(e3, g3) | 0) + h4 | 0) | 0;
+              a3[i3 >> 0] = h4;
+              a3[f3 >> 0] = h4;
+              a3[j3 >> 0] = h4;
               j3 = j3 + 1 | 0;
               f3 = f3 + 1 | 0;
-              h3 = c3[l3 >> 2] | 0;
+              h4 = c3[l3 >> 2] | 0;
               g3 = (c3[k3 >> 2] | 0) + 44 | 0;
               c3[k3 >> 2] = g3;
-              if ((g3 - (c3[h3 >> 2] | 0) | 0) == 4092) {
-                g3 = h3 + 4 | 0;
+              if ((g3 - (c3[h4 >> 2] | 0) | 0) == 4092) {
+                g3 = h4 + 4 | 0;
                 c3[l3 >> 2] = g3;
                 g3 = c3[g3 >> 2] | 0;
                 c3[k3 >> 2] = g3;
@@ -164870,12 +163652,12 @@ function getModule() {
         a4 = a4 | 0;
         b6 = b6 | 0;
         d3 = d3 | 0;
-        var e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0;
+        var e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0;
         o3 = V2;
         V2 = V2 + 96 | 0;
         n3 = o3 + 80 | 0;
         k3 = o3 + 64 | 0;
-        h3 = o3 + 48 | 0;
+        h4 = o3 + 48 | 0;
         i3 = o3 + 40 | 0;
         j3 = o3 + 8 | 0;
         f3 = o3;
@@ -164912,9 +163694,9 @@ function getModule() {
         c3[k3 + 4 >> 2] = c3[i3 + 4 >> 2];
         c3[n3 >> 2] = c3[j3 >> 2];
         c3[n3 + 4 >> 2] = c3[j3 + 4 >> 2];
-        gg(h3, k3, n3);
-        hg(n3, h3);
-        ig(k3, h3);
+        gg(h4, k3, n3);
+        hg(n3, h4);
+        ig(k3, h4);
         if (jg(n3, k3) | 0) {
           f3 = m3 + 4 | 0;
           do {
@@ -165590,17 +164372,17 @@ function getModule() {
       function ki(b6, d3) {
         b6 = b6 | 0;
         d3 = d3 | 0;
-        var e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0;
+        var e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0;
         k3 = V2;
         V2 = V2 + 16 | 0;
-        h3 = k3;
+        h4 = k3;
         e3 = c3[b6 + 8 >> 2] | 0;
         i3 = c3[b6 + 12 >> 2] | 0;
         if ((e3 | 0) != (i3 | 0)) {
-          j3 = h3 + 4 | 0;
+          j3 = h4 + 4 | 0;
           do {
             f3 = c3[e3 >> 2] | 0;
-            c3[h3 >> 2] = f3;
+            c3[h4 >> 2] = f3;
             g3 = c3[e3 + 4 >> 2] | 0;
             c3[j3 >> 2] = g3;
             if (g3 | 0) {
@@ -165608,7 +164390,7 @@ function getModule() {
               c3[g3 >> 2] = (c3[g3 >> 2] | 0) + 1;
             }
             d3 = $2[c3[(c3[f3 >> 2] | 0) + 12 >> 2] & 63](f3, d3) | 0;
-            Sd(h3);
+            Sd(h4);
             e3 = e3 + 8 | 0;
           } while ((e3 | 0) != (i3 | 0));
         }
@@ -165681,20 +164463,20 @@ function getModule() {
       }
       function ui(a4) {
         a4 = a4 | 0;
-        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0;
+        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0;
         j3 = V2;
         V2 = V2 + 32 | 0;
         e3 = j3 + 12 | 0;
         f3 = j3;
         b6 = j3 + 8 | 0;
-        h3 = eq(180) | 0;
-        wi(h3, c3[a4 + 4 >> 2] | 0);
+        h4 = eq(180) | 0;
+        wi(h4, c3[a4 + 4 >> 2] | 0);
         g3 = a4 + 8 | 0;
         c3[b6 >> 2] = 0;
         c3[e3 >> 2] = c3[b6 >> 2];
-        xi(f3, h3, e3);
-        h3 = a4 + 12 | 0;
-        b6 = c3[h3 >> 2] | 0;
+        xi(f3, h4, e3);
+        h4 = a4 + 12 | 0;
+        b6 = c3[h4 >> 2] | 0;
         i3 = a4 + 16 | 0;
         do
           if (b6 >>> 0 >= (c3[i3 >> 2] | 0) >>> 0) {
@@ -165706,15 +164488,15 @@ function getModule() {
               k3 = c3[g3 >> 2] | 0;
               l3 = (c3[i3 >> 2] | 0) - k3 | 0;
               i3 = l3 >> 2;
-              be2(e3, l3 >> 3 >>> 0 < d3 >>> 1 >>> 0 ? i3 >>> 0 < b6 >>> 0 ? b6 : i3 : d3, (c3[h3 >> 2] | 0) - k3 >> 3, a4 + 16 | 0);
+              be2(e3, l3 >> 3 >>> 0 < d3 >>> 1 >>> 0 ? i3 >>> 0 < b6 >>> 0 ? b6 : i3 : d3, (c3[h4 >> 2] | 0) - k3 >> 3, a4 + 16 | 0);
               i3 = e3 + 8 | 0;
-              h3 = c3[i3 >> 2] | 0;
-              c3[h3 >> 2] = c3[f3 >> 2];
+              h4 = c3[i3 >> 2] | 0;
+              c3[h4 >> 2] = c3[f3 >> 2];
               a4 = f3 + 4 | 0;
-              c3[h3 + 4 >> 2] = c3[a4 >> 2];
+              c3[h4 + 4 >> 2] = c3[a4 >> 2];
               c3[f3 >> 2] = 0;
               c3[a4 >> 2] = 0;
-              c3[i3 >> 2] = h3 + 8;
+              c3[i3 >> 2] = h4 + 8;
               ce2(g3, e3);
               de2(e3);
               break;
@@ -165738,20 +164520,20 @@ function getModule() {
       }
       function vi(a4) {
         a4 = a4 | 0;
-        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0;
+        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0;
         j3 = V2;
         V2 = V2 + 32 | 0;
         e3 = j3 + 12 | 0;
         f3 = j3;
         b6 = j3 + 8 | 0;
-        h3 = eq(180) | 0;
-        Ui(h3, c3[a4 + 4 >> 2] | 0);
+        h4 = eq(180) | 0;
+        Ui(h4, c3[a4 + 4 >> 2] | 0);
         g3 = a4 + 8 | 0;
         c3[b6 >> 2] = 0;
         c3[e3 >> 2] = c3[b6 >> 2];
-        Vi(f3, h3, e3);
-        h3 = a4 + 12 | 0;
-        b6 = c3[h3 >> 2] | 0;
+        Vi(f3, h4, e3);
+        h4 = a4 + 12 | 0;
+        b6 = c3[h4 >> 2] | 0;
         i3 = a4 + 16 | 0;
         do
           if (b6 >>> 0 >= (c3[i3 >> 2] | 0) >>> 0) {
@@ -165763,15 +164545,15 @@ function getModule() {
               k3 = c3[g3 >> 2] | 0;
               l3 = (c3[i3 >> 2] | 0) - k3 | 0;
               i3 = l3 >> 2;
-              be2(e3, l3 >> 3 >>> 0 < d3 >>> 1 >>> 0 ? i3 >>> 0 < b6 >>> 0 ? b6 : i3 : d3, (c3[h3 >> 2] | 0) - k3 >> 3, a4 + 16 | 0);
+              be2(e3, l3 >> 3 >>> 0 < d3 >>> 1 >>> 0 ? i3 >>> 0 < b6 >>> 0 ? b6 : i3 : d3, (c3[h4 >> 2] | 0) - k3 >> 3, a4 + 16 | 0);
               i3 = e3 + 8 | 0;
-              h3 = c3[i3 >> 2] | 0;
-              c3[h3 >> 2] = c3[f3 >> 2];
+              h4 = c3[i3 >> 2] | 0;
+              c3[h4 >> 2] = c3[f3 >> 2];
               a4 = f3 + 4 | 0;
-              c3[h3 + 4 >> 2] = c3[a4 >> 2];
+              c3[h4 + 4 >> 2] = c3[a4 >> 2];
               c3[f3 >> 2] = 0;
               c3[a4 >> 2] = 0;
-              c3[i3 >> 2] = h3 + 8;
+              c3[i3 >> 2] = h4 + 8;
               ce2(g3, e3);
               de2(e3);
               break;
@@ -165865,10 +164647,10 @@ function getModule() {
         b6 = b6 | 0;
         d3 = d3 | 0;
         e3 = e3 | 0;
-        var f3 = 0, g3 = 0, h3 = 0;
-        h3 = V2;
+        var f3 = 0, g3 = 0, h4 = 0;
+        h4 = V2;
         V2 = V2 + 16 | 0;
-        f3 = h3;
+        f3 = h4;
         if (!(a3[b6 + 161 >> 0] | 0))
           oc(b6 + 80 | 0);
         g3 = b6 + 164 | 0;
@@ -165881,7 +164663,7 @@ function getModule() {
           c3[f3 >> 2] = Ne2(e3) | 0;
         }
         Ji(g3, f3);
-        V2 = h3;
+        V2 = h4;
         return e3 + 4 | 0;
       }
       function Fi(b6) {
@@ -165965,7 +164747,7 @@ function getModule() {
       function Li(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0;
         n3 = a4 + 8 | 0;
         m3 = c3[n3 >> 2] | 0;
         f3 = c3[b6 + 16 >> 2] | 0;
@@ -165978,25 +164760,25 @@ function getModule() {
           i3 = j3 >>> (c3[b6 + 40 >> 2] | 0);
           g3 = c3[f3 + (i3 << 2) >> 2] | 0;
           i3 = (c3[f3 + (i3 + 1 << 2) >> 2] | 0) + 1 | 0;
-          h3 = g3 + 1 | 0;
+          h4 = g3 + 1 | 0;
           k3 = c3[b6 + 8 >> 2] | 0;
-          if (i3 >>> 0 > h3 >>> 0) {
+          if (i3 >>> 0 > h4 >>> 0) {
             f3 = g3;
             g3 = i3;
             do {
-              h3 = (g3 + f3 | 0) >>> 1;
-              i3 = (c3[k3 + (h3 << 2) >> 2] | 0) >>> 0 > j3 >>> 0;
-              f3 = i3 ? f3 : h3;
-              g3 = i3 ? h3 : g3;
-              h3 = f3 + 1 | 0;
-            } while (g3 >>> 0 > h3 >>> 0);
+              h4 = (g3 + f3 | 0) >>> 1;
+              i3 = (c3[k3 + (h4 << 2) >> 2] | 0) >>> 0 > j3 >>> 0;
+              f3 = i3 ? f3 : h4;
+              g3 = i3 ? h4 : g3;
+              h4 = f3 + 1 | 0;
+            } while (g3 >>> 0 > h4 >>> 0);
             g3 = f3;
           }
           f3 = q3(c3[k3 + (g3 << 2) >> 2] | 0, l3) | 0;
           if ((g3 | 0) == (c3[b6 + 32 >> 2] | 0))
-            h3 = m3;
+            h4 = m3;
           else
-            h3 = q3(c3[k3 + (h3 << 2) >> 2] | 0, l3) | 0;
+            h4 = q3(c3[k3 + (h4 << 2) >> 2] | 0, l3) | 0;
         } else {
           k3 = m3 >>> 15;
           c3[n3 >> 2] = k3;
@@ -166006,12 +164788,12 @@ function getModule() {
           d3 = c3[e3 >> 2] | 0;
           j3 = i3 >>> 1;
           f3 = 0;
-          h3 = m3;
+          h4 = m3;
           g3 = 0;
           do {
             o3 = q3(c3[l3 + (j3 << 2) >> 2] | 0, k3) | 0;
             m3 = o3 >>> 0 > d3 >>> 0;
-            h3 = m3 ? o3 : h3;
+            h4 = m3 ? o3 : h4;
             f3 = m3 ? f3 : o3;
             g3 = m3 ? g3 : j3;
             i3 = m3 ? j3 : i3;
@@ -166019,7 +164801,7 @@ function getModule() {
           } while ((j3 | 0) != (g3 | 0));
         }
         c3[e3 >> 2] = d3 - f3;
-        o3 = h3 - f3 | 0;
+        o3 = h4 - f3 | 0;
         c3[n3 >> 2] = o3;
         if (o3 >>> 0 < 16777216)
           Oi(a4);
@@ -166054,27 +164836,27 @@ function getModule() {
       function Ni(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0;
         e3 = a4 + 8 | 0;
         f3 = c3[e3 >> 2] | 0;
         d3 = q3(f3 >>> 13, c3[b6 + 8 >> 2] | 0) | 0;
         g3 = a4 + 4 | 0;
-        h3 = c3[g3 >> 2] | 0;
-        i3 = h3 >>> 0 >= d3 >>> 0;
+        h4 = c3[g3 >> 2] | 0;
+        i3 = h4 >>> 0 >= d3 >>> 0;
         if (i3) {
-          c3[g3 >> 2] = h3 - d3;
+          c3[g3 >> 2] = h4 - d3;
           d3 = f3 - d3 | 0;
           c3[e3 >> 2] = d3;
         } else {
           c3[e3 >> 2] = d3;
-          h3 = b6 + 12 | 0;
-          c3[h3 >> 2] = (c3[h3 >> 2] | 0) + 1;
+          h4 = b6 + 12 | 0;
+          c3[h4 >> 2] = (c3[h4 >> 2] | 0) + 1;
         }
         if (d3 >>> 0 < 16777216)
           Oi(a4);
-        h3 = b6 + 4 | 0;
-        a4 = (c3[h3 >> 2] | 0) + -1 | 0;
-        c3[h3 >> 2] = a4;
+        h4 = b6 + 4 | 0;
+        a4 = (c3[h4 >> 2] | 0) + -1 | 0;
+        c3[h4 >> 2] = a4;
         if (!a4)
           cd(b6);
         return i3 & 1 | 0;
@@ -166201,10 +164983,10 @@ function getModule() {
         b6 = b6 | 0;
         d3 = d3 | 0;
         e3 = e3 | 0;
-        var f3 = 0, g3 = 0, h3 = 0;
-        h3 = V2;
+        var f3 = 0, g3 = 0, h4 = 0;
+        h4 = V2;
         V2 = V2 + 16 | 0;
-        f3 = h3;
+        f3 = h4;
         if (!(a3[b6 + 161 >> 0] | 0))
           oc(b6 + 80 | 0);
         g3 = b6 + 164 | 0;
@@ -166217,7 +164999,7 @@ function getModule() {
           c3[f3 >> 2] = Re2(e3) | 0;
         }
         cj(g3, f3);
-        V2 = h3;
+        V2 = h4;
         return e3 + 4 | 0;
       }
       function bj(b6) {
@@ -166259,20 +165041,20 @@ function getModule() {
       }
       function hj(a4) {
         a4 = a4 | 0;
-        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0;
+        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0;
         j3 = V2;
         V2 = V2 + 32 | 0;
         e3 = j3 + 12 | 0;
         f3 = j3;
         b6 = j3 + 8 | 0;
-        h3 = eq(172) | 0;
-        jj(h3, c3[a4 + 4 >> 2] | 0);
+        h4 = eq(172) | 0;
+        jj(h4, c3[a4 + 4 >> 2] | 0);
         g3 = a4 + 8 | 0;
         c3[b6 >> 2] = 0;
         c3[e3 >> 2] = c3[b6 >> 2];
-        kj(f3, h3, e3);
-        h3 = a4 + 12 | 0;
-        b6 = c3[h3 >> 2] | 0;
+        kj(f3, h4, e3);
+        h4 = a4 + 12 | 0;
+        b6 = c3[h4 >> 2] | 0;
         i3 = a4 + 16 | 0;
         do
           if (b6 >>> 0 >= (c3[i3 >> 2] | 0) >>> 0) {
@@ -166284,15 +165066,15 @@ function getModule() {
               k3 = c3[g3 >> 2] | 0;
               l3 = (c3[i3 >> 2] | 0) - k3 | 0;
               i3 = l3 >> 2;
-              be2(e3, l3 >> 3 >>> 0 < d3 >>> 1 >>> 0 ? i3 >>> 0 < b6 >>> 0 ? b6 : i3 : d3, (c3[h3 >> 2] | 0) - k3 >> 3, a4 + 16 | 0);
+              be2(e3, l3 >> 3 >>> 0 < d3 >>> 1 >>> 0 ? i3 >>> 0 < b6 >>> 0 ? b6 : i3 : d3, (c3[h4 >> 2] | 0) - k3 >> 3, a4 + 16 | 0);
               i3 = e3 + 8 | 0;
-              h3 = c3[i3 >> 2] | 0;
-              c3[h3 >> 2] = c3[f3 >> 2];
+              h4 = c3[i3 >> 2] | 0;
+              c3[h4 >> 2] = c3[f3 >> 2];
               a4 = f3 + 4 | 0;
-              c3[h3 + 4 >> 2] = c3[a4 >> 2];
+              c3[h4 + 4 >> 2] = c3[a4 >> 2];
               c3[f3 >> 2] = 0;
               c3[a4 >> 2] = 0;
-              c3[i3 >> 2] = h3 + 8;
+              c3[i3 >> 2] = h4 + 8;
               ce2(g3, e3);
               de2(e3);
               break;
@@ -166316,20 +165098,20 @@ function getModule() {
       }
       function ij(a4) {
         a4 = a4 | 0;
-        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0;
+        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0;
         j3 = V2;
         V2 = V2 + 32 | 0;
         e3 = j3 + 12 | 0;
         f3 = j3;
         b6 = j3 + 8 | 0;
-        h3 = eq(176) | 0;
-        Aj(h3, c3[a4 + 4 >> 2] | 0);
+        h4 = eq(176) | 0;
+        Aj(h4, c3[a4 + 4 >> 2] | 0);
         g3 = a4 + 8 | 0;
         c3[b6 >> 2] = 0;
         c3[e3 >> 2] = c3[b6 >> 2];
-        Bj(f3, h3, e3);
-        h3 = a4 + 12 | 0;
-        b6 = c3[h3 >> 2] | 0;
+        Bj(f3, h4, e3);
+        h4 = a4 + 12 | 0;
+        b6 = c3[h4 >> 2] | 0;
         i3 = a4 + 16 | 0;
         do
           if (b6 >>> 0 >= (c3[i3 >> 2] | 0) >>> 0) {
@@ -166341,15 +165123,15 @@ function getModule() {
               k3 = c3[g3 >> 2] | 0;
               l3 = (c3[i3 >> 2] | 0) - k3 | 0;
               i3 = l3 >> 2;
-              be2(e3, l3 >> 3 >>> 0 < d3 >>> 1 >>> 0 ? i3 >>> 0 < b6 >>> 0 ? b6 : i3 : d3, (c3[h3 >> 2] | 0) - k3 >> 3, a4 + 16 | 0);
+              be2(e3, l3 >> 3 >>> 0 < d3 >>> 1 >>> 0 ? i3 >>> 0 < b6 >>> 0 ? b6 : i3 : d3, (c3[h4 >> 2] | 0) - k3 >> 3, a4 + 16 | 0);
               i3 = e3 + 8 | 0;
-              h3 = c3[i3 >> 2] | 0;
-              c3[h3 >> 2] = c3[f3 >> 2];
+              h4 = c3[i3 >> 2] | 0;
+              c3[h4 >> 2] = c3[f3 >> 2];
               a4 = f3 + 4 | 0;
-              c3[h3 + 4 >> 2] = c3[a4 >> 2];
+              c3[h4 + 4 >> 2] = c3[a4 >> 2];
               c3[f3 >> 2] = 0;
               c3[a4 >> 2] = 0;
-              c3[i3 >> 2] = h3 + 8;
+              c3[i3 >> 2] = h4 + 8;
               ce2(g3, e3);
               de2(e3);
               break;
@@ -166581,10 +165363,10 @@ function getModule() {
         c4 = c4 | 0;
         d3 = d3 | 0;
         e3 = e3 | 0;
-        var f3 = 0, g3 = 0, h3 = 0;
-        h3 = V2;
+        var f3 = 0, g3 = 0, h4 = 0;
+        h4 = V2;
         V2 = V2 + 16 | 0;
-        f3 = h3;
+        f3 = h4;
         if (!(a3[c4 + 161 >> 0] | 0))
           oc(c4 + 80 | 0);
         g3 = c4 + 162 | 0;
@@ -166597,7 +165379,7 @@ function getModule() {
           b5[f3 >> 1] = Lj(e3) | 0;
         }
         Mj(g3, f3);
-        V2 = h3;
+        V2 = h4;
         return e3 + 2 | 0;
       }
       function Jj(b6) {
@@ -166649,20 +165431,20 @@ function getModule() {
       }
       function Rj(a4) {
         a4 = a4 | 0;
-        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0;
+        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0;
         j3 = V2;
         V2 = V2 + 32 | 0;
         e3 = j3 + 12 | 0;
         f3 = j3;
         b6 = j3 + 8 | 0;
-        h3 = eq(172) | 0;
-        Tj(h3, c3[a4 + 4 >> 2] | 0);
+        h4 = eq(172) | 0;
+        Tj(h4, c3[a4 + 4 >> 2] | 0);
         g3 = a4 + 8 | 0;
         c3[b6 >> 2] = 0;
         c3[e3 >> 2] = c3[b6 >> 2];
-        Uj(f3, h3, e3);
-        h3 = a4 + 12 | 0;
-        b6 = c3[h3 >> 2] | 0;
+        Uj(f3, h4, e3);
+        h4 = a4 + 12 | 0;
+        b6 = c3[h4 >> 2] | 0;
         i3 = a4 + 16 | 0;
         do
           if (b6 >>> 0 >= (c3[i3 >> 2] | 0) >>> 0) {
@@ -166674,15 +165456,15 @@ function getModule() {
               k3 = c3[g3 >> 2] | 0;
               l3 = (c3[i3 >> 2] | 0) - k3 | 0;
               i3 = l3 >> 2;
-              be2(e3, l3 >> 3 >>> 0 < d3 >>> 1 >>> 0 ? i3 >>> 0 < b6 >>> 0 ? b6 : i3 : d3, (c3[h3 >> 2] | 0) - k3 >> 3, a4 + 16 | 0);
+              be2(e3, l3 >> 3 >>> 0 < d3 >>> 1 >>> 0 ? i3 >>> 0 < b6 >>> 0 ? b6 : i3 : d3, (c3[h4 >> 2] | 0) - k3 >> 3, a4 + 16 | 0);
               i3 = e3 + 8 | 0;
-              h3 = c3[i3 >> 2] | 0;
-              c3[h3 >> 2] = c3[f3 >> 2];
+              h4 = c3[i3 >> 2] | 0;
+              c3[h4 >> 2] = c3[f3 >> 2];
               a4 = f3 + 4 | 0;
-              c3[h3 + 4 >> 2] = c3[a4 >> 2];
+              c3[h4 + 4 >> 2] = c3[a4 >> 2];
               c3[f3 >> 2] = 0;
               c3[a4 >> 2] = 0;
-              c3[i3 >> 2] = h3 + 8;
+              c3[i3 >> 2] = h4 + 8;
               ce2(g3, e3);
               de2(e3);
               break;
@@ -166706,20 +165488,20 @@ function getModule() {
       }
       function Sj(a4) {
         a4 = a4 | 0;
-        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0;
+        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0;
         j3 = V2;
         V2 = V2 + 32 | 0;
         e3 = j3 + 12 | 0;
         f3 = j3;
         b6 = j3 + 8 | 0;
-        h3 = eq(176) | 0;
-        gk(h3, c3[a4 + 4 >> 2] | 0);
+        h4 = eq(176) | 0;
+        gk(h4, c3[a4 + 4 >> 2] | 0);
         g3 = a4 + 8 | 0;
         c3[b6 >> 2] = 0;
         c3[e3 >> 2] = c3[b6 >> 2];
-        hk(f3, h3, e3);
-        h3 = a4 + 12 | 0;
-        b6 = c3[h3 >> 2] | 0;
+        hk(f3, h4, e3);
+        h4 = a4 + 12 | 0;
+        b6 = c3[h4 >> 2] | 0;
         i3 = a4 + 16 | 0;
         do
           if (b6 >>> 0 >= (c3[i3 >> 2] | 0) >>> 0) {
@@ -166731,15 +165513,15 @@ function getModule() {
               k3 = c3[g3 >> 2] | 0;
               l3 = (c3[i3 >> 2] | 0) - k3 | 0;
               i3 = l3 >> 2;
-              be2(e3, l3 >> 3 >>> 0 < d3 >>> 1 >>> 0 ? i3 >>> 0 < b6 >>> 0 ? b6 : i3 : d3, (c3[h3 >> 2] | 0) - k3 >> 3, a4 + 16 | 0);
+              be2(e3, l3 >> 3 >>> 0 < d3 >>> 1 >>> 0 ? i3 >>> 0 < b6 >>> 0 ? b6 : i3 : d3, (c3[h4 >> 2] | 0) - k3 >> 3, a4 + 16 | 0);
               i3 = e3 + 8 | 0;
-              h3 = c3[i3 >> 2] | 0;
-              c3[h3 >> 2] = c3[f3 >> 2];
+              h4 = c3[i3 >> 2] | 0;
+              c3[h4 >> 2] = c3[f3 >> 2];
               a4 = f3 + 4 | 0;
-              c3[h3 + 4 >> 2] = c3[a4 >> 2];
+              c3[h4 + 4 >> 2] = c3[a4 >> 2];
               c3[f3 >> 2] = 0;
               c3[a4 >> 2] = 0;
-              c3[i3 >> 2] = h3 + 8;
+              c3[i3 >> 2] = h4 + 8;
               ce2(g3, e3);
               de2(e3);
               break;
@@ -166833,10 +165615,10 @@ function getModule() {
         b6 = b6 | 0;
         c4 = c4 | 0;
         e3 = e3 | 0;
-        var f3 = 0, g3 = 0, h3 = 0;
-        h3 = V2;
+        var f3 = 0, g3 = 0, h4 = 0;
+        h4 = V2;
         V2 = V2 + 16 | 0;
-        f3 = h3;
+        f3 = h4;
         if (!(a3[b6 + 161 >> 0] | 0))
           oc(b6 + 80 | 0);
         g3 = b6 + 162 | 0;
@@ -166849,7 +165631,7 @@ function getModule() {
           a3[f3 >> 0] = Pe2(e3) | 0;
         }
         bk(g3, f3);
-        V2 = h3;
+        V2 = h4;
         return e3 + 1 | 0;
       }
       function ak(b6) {
@@ -166961,22 +165743,22 @@ function getModule() {
         c4 = c4 | 0;
         d3 = d3 | 0;
         f3 = f3 | 0;
-        var g3 = 0, h3 = 0, i3 = 0;
+        var g3 = 0, h4 = 0, i3 = 0;
         i3 = V2;
         V2 = V2 + 16 | 0;
         g3 = i3;
         if (!(a3[c4 + 161 >> 0] | 0))
           oc(c4 + 80 | 0);
-        h3 = c4 + 162 | 0;
-        if (pk(h3) | 0) {
-          d3 = (Gi(c4 + 80 | 0, d3, e2[h3 >> 1] | 0, 0) | 0) & 65535;
+        h4 = c4 + 162 | 0;
+        if (pk(h4) | 0) {
+          d3 = (Gi(c4 + 80 | 0, d3, e2[h4 >> 1] | 0, 0) | 0) & 65535;
           b5[g3 >> 1] = d3;
           Te2(d3, f3);
         } else {
           Ii(Hi(d3) | 0, f3, 2);
           b5[g3 >> 1] = Oe2(f3) | 0;
         }
-        qk(h3, g3);
+        qk(h4, g3);
         V2 = i3;
         return f3 + 2 | 0;
       }
@@ -167145,19 +165927,19 @@ function getModule() {
       function Uk(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0;
         d3 = V2;
         V2 = V2 + 16 | 0;
         e3 = d3;
         f3 = d3 + 8 | 0;
-        h3 = c3[b6 + 4 >> 2] | 0;
+        h4 = c3[b6 + 4 >> 2] | 0;
         c3[e3 >> 2] = c3[b6 >> 2];
-        c3[e3 + 4 >> 2] = h3;
-        h3 = Ak() | 0;
+        c3[e3 + 4 >> 2] = h4;
+        h4 = Ak() | 0;
         g3 = Wk(f3) | 0;
         f3 = Xk(f3) | 0;
         b6 = bl() | 0;
-        F2(h3 | 0, a4 | 0, g3 | 0, f3 | 0, b6 | 0, 4, Yk(e3) | 0, 0);
+        F2(h4 | 0, a4 | 0, g3 | 0, f3 | 0, b6 | 0, 4, Yk(e3) | 0, 0);
         V2 = d3;
         return;
       }
@@ -167216,19 +165998,19 @@ function getModule() {
       function cl(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0;
         d3 = V2;
         V2 = V2 + 16 | 0;
         e3 = d3;
         f3 = d3 + 8 | 0;
-        h3 = c3[b6 + 4 >> 2] | 0;
+        h4 = c3[b6 + 4 >> 2] | 0;
         c3[e3 >> 2] = c3[b6 >> 2];
-        c3[e3 + 4 >> 2] = h3;
-        h3 = Ak() | 0;
+        c3[e3 + 4 >> 2] = h4;
+        h4 = Ak() | 0;
         g3 = el(f3) | 0;
         f3 = fl(f3) | 0;
         b6 = jl() | 0;
-        F2(h3 | 0, a4 | 0, g3 | 0, f3 | 0, b6 | 0, 7, gl(e3) | 0, 0);
+        F2(h4 | 0, a4 | 0, g3 | 0, f3 | 0, b6 | 0, 7, gl(e3) | 0, 0);
         V2 = d3;
         return;
       }
@@ -167277,19 +166059,19 @@ function getModule() {
       function kl(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0;
         d3 = V2;
         V2 = V2 + 16 | 0;
         e3 = d3;
         f3 = d3 + 8 | 0;
-        h3 = c3[b6 + 4 >> 2] | 0;
+        h4 = c3[b6 + 4 >> 2] | 0;
         c3[e3 >> 2] = c3[b6 >> 2];
-        c3[e3 + 4 >> 2] = h3;
-        h3 = Ak() | 0;
+        c3[e3 + 4 >> 2] = h4;
+        h4 = Ak() | 0;
         g3 = ml(f3) | 0;
         f3 = nl(f3) | 0;
         b6 = rl() | 0;
-        F2(h3 | 0, a4 | 0, g3 | 0, f3 | 0, b6 | 0, 41, ol(e3) | 0, 0);
+        F2(h4 | 0, a4 | 0, g3 | 0, f3 | 0, b6 | 0, 41, ol(e3) | 0, 0);
         V2 = d3;
         return;
       }
@@ -167462,19 +166244,19 @@ function getModule() {
       function Nl(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0;
         d3 = V2;
         V2 = V2 + 16 | 0;
         e3 = d3;
         f3 = d3 + 8 | 0;
-        h3 = c3[b6 + 4 >> 2] | 0;
+        h4 = c3[b6 + 4 >> 2] | 0;
         c3[e3 >> 2] = c3[b6 >> 2];
-        c3[e3 + 4 >> 2] = h3;
-        h3 = xl() | 0;
+        c3[e3 + 4 >> 2] = h4;
+        h4 = xl() | 0;
         g3 = Pl(f3) | 0;
         f3 = Ql(f3) | 0;
         b6 = bl() | 0;
-        F2(h3 | 0, a4 | 0, g3 | 0, f3 | 0, b6 | 0, 5, Rl(e3) | 0, 0);
+        F2(h4 | 0, a4 | 0, g3 | 0, f3 | 0, b6 | 0, 5, Rl(e3) | 0, 0);
         V2 = d3;
         return;
       }
@@ -167522,19 +166304,19 @@ function getModule() {
       function Ul(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0;
         d3 = V2;
         V2 = V2 + 16 | 0;
         e3 = d3;
         f3 = d3 + 8 | 0;
-        h3 = c3[b6 + 4 >> 2] | 0;
+        h4 = c3[b6 + 4 >> 2] | 0;
         c3[e3 >> 2] = c3[b6 >> 2];
-        c3[e3 + 4 >> 2] = h3;
-        h3 = xl() | 0;
+        c3[e3 + 4 >> 2] = h4;
+        h4 = xl() | 0;
         g3 = Wl(f3) | 0;
         f3 = Xl(f3) | 0;
         b6 = jl() | 0;
-        F2(h3 | 0, a4 | 0, g3 | 0, f3 | 0, b6 | 0, 8, Yl(e3) | 0, 0);
+        F2(h4 | 0, a4 | 0, g3 | 0, f3 | 0, b6 | 0, 8, Yl(e3) | 0, 0);
         V2 = d3;
         return;
       }
@@ -167576,19 +166358,19 @@ function getModule() {
       function _l(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0;
         d3 = V2;
         V2 = V2 + 16 | 0;
         e3 = d3;
         f3 = d3 + 8 | 0;
-        h3 = c3[b6 + 4 >> 2] | 0;
+        h4 = c3[b6 + 4 >> 2] | 0;
         c3[e3 >> 2] = c3[b6 >> 2];
-        c3[e3 + 4 >> 2] = h3;
-        h3 = xl() | 0;
+        c3[e3 + 4 >> 2] = h4;
+        h4 = xl() | 0;
         g3 = am(f3) | 0;
         f3 = bm(f3) | 0;
         b6 = jl() | 0;
-        F2(h3 | 0, a4 | 0, g3 | 0, f3 | 0, b6 | 0, 9, cm(e3) | 0, 0);
+        F2(h4 | 0, a4 | 0, g3 | 0, f3 | 0, b6 | 0, 9, cm(e3) | 0, 0);
         V2 = d3;
         return;
       }
@@ -168315,20 +167097,20 @@ function getModule() {
         b6 = b6 | 0;
         d3 = d3 | 0;
         e3 = e3 | 0;
-        var f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0;
+        var f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0;
         f3 = e3 + 16 | 0;
         g3 = c3[f3 >> 2] | 0;
         if (!g3)
           if (!(io(e3) | 0)) {
             g3 = c3[f3 >> 2] | 0;
-            h3 = 5;
+            h4 = 5;
           } else
             f3 = 0;
         else
-          h3 = 5;
+          h4 = 5;
         a:
           do
-            if ((h3 | 0) == 5) {
+            if ((h4 | 0) == 5) {
               j3 = e3 + 20 | 0;
               i3 = c3[j3 >> 2] | 0;
               f3 = i3;
@@ -168339,7 +167121,7 @@ function getModule() {
               b:
                 do
                   if ((a3[e3 + 75 >> 0] | 0) < 0 | (d3 | 0) == 0) {
-                    h3 = 0;
+                    h4 = 0;
                     g3 = b6;
                   } else {
                     i3 = d3;
@@ -168348,7 +167130,7 @@ function getModule() {
                       if ((a3[b6 + g3 >> 0] | 0) == 10)
                         break;
                       if (!g3) {
-                        h3 = 0;
+                        h4 = 0;
                         g3 = b6;
                         break b;
                       } else
@@ -168357,7 +167139,7 @@ function getModule() {
                     f3 = aa[c3[e3 + 36 >> 2] & 7](e3, b6, i3) | 0;
                     if (f3 >>> 0 < i3 >>> 0)
                       break a;
-                    h3 = i3;
+                    h4 = i3;
                     g3 = b6 + i3 | 0;
                     d3 = d3 - i3 | 0;
                     f3 = c3[j3 >> 2] | 0;
@@ -168365,7 +167147,7 @@ function getModule() {
                 while (0);
               ur2(f3 | 0, g3 | 0, d3 | 0) | 0;
               c3[j3 >> 2] = (c3[j3 >> 2] | 0) + d3;
-              f3 = h3 + d3 | 0;
+              f3 = h4 + d3 | 0;
             }
           while (0);
         return f3 | 0;
@@ -168383,19 +167165,19 @@ function getModule() {
         b6 = b6 | 0;
         d3 = d3 | 0;
         e3 = e3 | 0;
-        var f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0;
+        var f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0;
         o3 = (c3[b6 >> 2] | 0) + 1794895138 | 0;
-        h3 = mo(c3[b6 + 8 >> 2] | 0, o3) | 0;
+        h4 = mo(c3[b6 + 8 >> 2] | 0, o3) | 0;
         f3 = mo(c3[b6 + 12 >> 2] | 0, o3) | 0;
         g3 = mo(c3[b6 + 16 >> 2] | 0, o3) | 0;
         a:
           do
-            if ((h3 >>> 0 < d3 >>> 2 >>> 0 ? (n3 = d3 - (h3 << 2) | 0, f3 >>> 0 < n3 >>> 0 & g3 >>> 0 < n3 >>> 0) : 0) ? ((g3 | f3) & 3 | 0) == 0 : 0) {
+            if ((h4 >>> 0 < d3 >>> 2 >>> 0 ? (n3 = d3 - (h4 << 2) | 0, f3 >>> 0 < n3 >>> 0 & g3 >>> 0 < n3 >>> 0) : 0) ? ((g3 | f3) & 3 | 0) == 0 : 0) {
               n3 = f3 >>> 2;
               m3 = g3 >>> 2;
               l3 = 0;
               while (1) {
-                j3 = h3 >>> 1;
+                j3 = h4 >>> 1;
                 k3 = l3 + j3 | 0;
                 i3 = k3 << 1;
                 g3 = i3 + n3 | 0;
@@ -168413,12 +167195,12 @@ function getModule() {
                 if (!f3)
                   break;
                 f3 = (f3 | 0) < 0;
-                if ((h3 | 0) == 1) {
+                if ((h4 | 0) == 1) {
                   f3 = 0;
                   break a;
                 }
                 l3 = f3 ? l3 : k3;
-                h3 = f3 ? j3 : h3 - j3 | 0;
+                h4 = f3 ? j3 : h4 - j3 | 0;
               }
               f3 = i3 + m3 | 0;
               g3 = mo(c3[b6 + (f3 << 2) >> 2] | 0, o3) | 0;
@@ -168443,8 +167225,8 @@ function getModule() {
         b6 = b6 | 0;
         d3 = d3 | 0;
         e3 = e3 | 0;
-        var f3 = 0, g3 = 0, h3 = 0;
-        h3 = d3 & 255;
+        var f3 = 0, g3 = 0, h4 = 0;
+        h4 = d3 & 255;
         f3 = (e3 | 0) != 0;
         a:
           do
@@ -168475,13 +167257,13 @@ function getModule() {
           do
             if ((g3 | 0) == 6) {
               if ((a3[b6 >> 0] | 0) != (d3 & 255) << 24 >> 24) {
-                f3 = q3(h3, 16843009) | 0;
+                f3 = q3(h4, 16843009) | 0;
                 c:
                   do
                     if (e3 >>> 0 > 3)
                       do {
-                        h3 = c3[b6 >> 2] ^ f3;
-                        if ((h3 & -2139062144 ^ -2139062144) & h3 + -16843009 | 0)
+                        h4 = c3[b6 >> 2] ^ f3;
+                        if ((h4 & -2139062144 ^ -2139062144) & h4 + -16843009 | 0)
                           break c;
                         b6 = b6 + 4 | 0;
                         e3 = e3 + -4 | 0;
@@ -168513,22 +167295,22 @@ function getModule() {
         c4 = c4 | 0;
         return ro2(a4, b6, c4, 1, 8) | 0;
       }
-      function po(b6, e3, f3, g3, h3, i3) {
+      function po(b6, e3, f3, g3, h4, i3) {
         b6 = b6 | 0;
         e3 = +e3;
         f3 = f3 | 0;
         g3 = g3 | 0;
-        h3 = h3 | 0;
+        h4 = h4 | 0;
         i3 = i3 | 0;
-        var j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, r3 = 0, s3 = 0, t3 = 0, v3 = 0, w3 = 0, x3 = 0, y3 = 0, z3 = 0, A4 = 0, B4 = 0, C3 = 0, D3 = 0, E3 = 0, F3 = 0, G4 = 0, H3 = 0;
+        var j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, r3 = 0, s3 = 0, t3 = 0, v3 = 0, w4 = 0, x3 = 0, y3 = 0, z3 = 0, A4 = 0, B4 = 0, C3 = 0, D3 = 0, E3 = 0, F3 = 0, G4 = 0, H3 = 0;
         H3 = V2;
         V2 = V2 + 560 | 0;
         l3 = H3 + 32 | 0;
-        w3 = H3 + 536 | 0;
+        w4 = H3 + 536 | 0;
         G4 = H3;
         F3 = G4;
         m3 = H3 + 540 | 0;
-        c3[w3 >> 2] = 0;
+        c3[w4 >> 2] = 0;
         E3 = m3 + 12 | 0;
         Do(e3) | 0;
         j3 = u2() | 0;
@@ -168539,22 +167321,22 @@ function getModule() {
           C3 = 20247;
           j3 = u2() | 0;
         } else {
-          D3 = (h3 & 2049 | 0) != 0 & 1;
-          C3 = (h3 & 2048 | 0) == 0 ? (h3 & 1 | 0) == 0 ? 20248 : 20253 : 20250;
+          D3 = (h4 & 2049 | 0) != 0 & 1;
+          C3 = (h4 & 2048 | 0) == 0 ? (h4 & 1 | 0) == 0 ? 20248 : 20253 : 20250;
         }
         do
           if (true & (j3 & 2146435072 | 0) == 2146435072) {
             G4 = (i3 & 32 | 0) != 0;
             j3 = D3 + 3 | 0;
-            zo(b6, 32, f3, j3, h3 & -65537);
+            zo(b6, 32, f3, j3, h4 & -65537);
             to2(b6, C3, D3);
             to2(b6, e3 != e3 | false ? G4 ? 20274 : 20278 : G4 ? 20266 : 20270, 3);
-            zo(b6, 32, f3, j3, h3 ^ 8192);
+            zo(b6, 32, f3, j3, h4 ^ 8192);
           } else {
-            r3 = +Eo(e3, w3) * 2;
+            r3 = +Eo(e3, w4) * 2;
             j3 = r3 != 0;
             if (j3)
-              c3[w3 >> 2] = (c3[w3 >> 2] | 0) + -1;
+              c3[w4 >> 2] = (c3[w4 >> 2] | 0) + -1;
             v3 = i3 | 32;
             if ((v3 | 0) == 97) {
               o3 = i3 & 32;
@@ -168578,7 +167360,7 @@ function getModule() {
                 } else
                   e3 = r3;
               while (0);
-              k3 = c3[w3 >> 2] | 0;
+              k3 = c3[w4 >> 2] | 0;
               j3 = (k3 | 0) < 0 ? 0 - k3 | 0 : k3;
               j3 = yo(j3, ((j3 | 0) < 0) << 31 >> 31, E3) | 0;
               if ((j3 | 0) == (E3 | 0)) {
@@ -168589,7 +167371,7 @@ function getModule() {
               n3 = j3 + -2 | 0;
               a3[n3 >> 0] = i3 + 15;
               k3 = (g3 | 0) < 1;
-              l3 = (h3 & 8 | 0) == 0;
+              l3 = (h4 & 8 | 0) == 0;
               m3 = G4;
               do {
                 D3 = ~~e3;
@@ -168612,26 +167394,26 @@ function getModule() {
                 j3 = k3 - F3 - l3 + m3 | 0;
               }
               E3 = j3 + p3 | 0;
-              zo(b6, 32, f3, E3, h3);
+              zo(b6, 32, f3, E3, h4);
               to2(b6, s3, p3);
-              zo(b6, 48, f3, E3, h3 ^ 65536);
+              zo(b6, 48, f3, E3, h4 ^ 65536);
               F3 = m3 - F3 | 0;
               to2(b6, G4, F3);
               G4 = k3 - l3 | 0;
               zo(b6, 48, j3 - (F3 + G4) | 0, 0, 0);
               to2(b6, n3, G4);
-              zo(b6, 32, f3, E3, h3 ^ 8192);
+              zo(b6, 32, f3, E3, h4 ^ 8192);
               j3 = E3;
               break;
             }
             k3 = (g3 | 0) < 0 ? 6 : g3;
             if (j3) {
-              j3 = (c3[w3 >> 2] | 0) + -28 | 0;
-              c3[w3 >> 2] = j3;
+              j3 = (c3[w4 >> 2] | 0) + -28 | 0;
+              c3[w4 >> 2] = j3;
               e3 = r3 * 268435456;
             } else {
               e3 = r3;
-              j3 = c3[w3 >> 2] | 0;
+              j3 = c3[w4 >> 2] | 0;
             }
             B4 = (j3 | 0) < 0 ? l3 : l3 + 288 | 0;
             l3 = B4;
@@ -168685,8 +167467,8 @@ function getModule() {
                       }
                     }
                   while (0);
-                j3 = (c3[w3 >> 2] | 0) - n3 | 0;
-                c3[w3 >> 2] = j3;
+                j3 = (c3[w4 >> 2] | 0) - n3 | 0;
+                c3[w4 >> 2] = j3;
                 if ((j3 | 0) > 0)
                   o3 = m3;
                 else
@@ -168720,8 +167502,8 @@ function getModule() {
                   m3 = (c3[m3 >> 2] | 0) == 0 ? m3 + 4 | 0 : m3;
                 j3 = t3 ? B4 : m3;
                 l3 = (l3 - j3 >> 2 | 0) > (g3 | 0) ? j3 + (g3 << 2) | 0 : l3;
-                j3 = (c3[w3 >> 2] | 0) + s3 | 0;
-                c3[w3 >> 2] = j3;
+                j3 = (c3[w4 >> 2] | 0) + s3 | 0;
+                c3[w4 >> 2] = j3;
               } while ((j3 | 0) < 0);
               t3 = m3;
             } else
@@ -168742,10 +167524,10 @@ function getModule() {
             y3 = (k3 | 0) != 0;
             m3 = k3 - ((v3 | 0) == 102 ? 0 : j3) + ((y3 & x3) << 31 >> 31) | 0;
             if ((m3 | 0) < (((l3 - z3 >> 2) * 9 | 0) + -9 | 0)) {
-              w3 = m3 + 9216 | 0;
-              m3 = (w3 | 0) / 9 | 0;
+              w4 = m3 + 9216 | 0;
+              m3 = (w4 | 0) / 9 | 0;
               g3 = B4 + 4 + (m3 + -1024 << 2) | 0;
-              m3 = w3 - (m3 * 9 | 0) | 0;
+              m3 = w4 - (m3 * 9 | 0) | 0;
               if ((m3 | 0) < 8) {
                 n3 = 10;
                 while (1) {
@@ -168763,19 +167545,19 @@ function getModule() {
               o3 = (g3 + 4 | 0) == (l3 | 0);
               if (!(o3 & (s3 | 0) == 0)) {
                 r3 = (m3 & 1 | 0) == 0 ? 9007199254740992 : 9007199254740994;
-                w3 = n3 >>> 1;
-                e3 = s3 >>> 0 < w3 >>> 0 ? 0.5 : o3 & (s3 | 0) == (w3 | 0) ? 1 : 1.5;
+                w4 = n3 >>> 1;
+                e3 = s3 >>> 0 < w4 >>> 0 ? 0.5 : o3 & (s3 | 0) == (w4 | 0) ? 1 : 1.5;
                 if (D3) {
-                  w3 = (a3[C3 >> 0] | 0) == 45;
-                  e3 = w3 ? -e3 : e3;
-                  r3 = w3 ? -r3 : r3;
+                  w4 = (a3[C3 >> 0] | 0) == 45;
+                  e3 = w4 ? -e3 : e3;
+                  r3 = w4 ? -r3 : r3;
                 }
                 m3 = p3 - s3 | 0;
                 c3[g3 >> 2] = m3;
                 if (r3 + e3 != r3) {
-                  w3 = m3 + n3 | 0;
-                  c3[g3 >> 2] = w3;
-                  if (w3 >>> 0 > 999999999) {
+                  w4 = m3 + n3 | 0;
+                  c3[g3 >> 2] = w4;
+                  if (w4 >>> 0 > 999999999) {
                     n3 = g3;
                     j3 = t3;
                     while (1) {
@@ -168785,9 +167567,9 @@ function getModule() {
                         j3 = j3 + -4 | 0;
                         c3[j3 >> 2] = 0;
                       }
-                      w3 = (c3[m3 >> 2] | 0) + 1 | 0;
-                      c3[m3 >> 2] = w3;
-                      if (w3 >>> 0 > 999999999)
+                      w4 = (c3[m3 >> 2] | 0) + 1 | 0;
+                      c3[m3 >> 2] = w4;
+                      if (w4 >>> 0 > 999999999)
                         n3 = m3;
                       else {
                         n3 = j3;
@@ -168815,8 +167597,8 @@ function getModule() {
                 m3 = g3;
                 n3 = t3;
               }
-              w3 = m3 + 4 | 0;
-              l3 = l3 >>> 0 > w3 >>> 0 ? w3 : l3;
+              w4 = m3 + 4 | 0;
+              l3 = l3 >>> 0 > w4 >>> 0 ? w4 : l3;
             } else
               n3 = t3;
             g3 = 0 - j3 | 0;
@@ -168826,20 +167608,20 @@ function getModule() {
                   while (1) {
                     m3 = l3 + -4 | 0;
                     if (c3[m3 >> 2] | 0) {
-                      w3 = l3;
+                      w4 = l3;
                       v3 = 1;
                       break b;
                     }
                     if (m3 >>> 0 > n3 >>> 0)
                       l3 = m3;
                     else {
-                      w3 = m3;
+                      w4 = m3;
                       v3 = 0;
                       break;
                     }
                   }
                 else {
-                  w3 = l3;
+                  w4 = l3;
                   v3 = 0;
                 }
               while (0);
@@ -168853,8 +167635,8 @@ function getModule() {
                   o3 = i3 + -2 | 0;
                   k3 = k3 + -1 | 0;
                 }
-                if (!(h3 & 8)) {
-                  if (v3 ? (A4 = c3[w3 + -4 >> 2] | 0, (A4 | 0) != 0) : 0)
+                if (!(h4 & 8)) {
+                  if (v3 ? (A4 = c3[w4 + -4 >> 2] | 0, (A4 | 0) != 0) : 0)
                     if (!((A4 >>> 0) % 10 | 0)) {
                       m3 = 0;
                       l3 = 10;
@@ -168866,7 +167648,7 @@ function getModule() {
                       m3 = 0;
                   else
                     m3 = 9;
-                  l3 = ((w3 - z3 >> 2) * 9 | 0) + -9 | 0;
+                  l3 = ((w4 - z3 >> 2) * 9 | 0) + -9 | 0;
                   if ((o3 | 32 | 0) == 102) {
                     i3 = l3 - m3 | 0;
                     i3 = (i3 | 0) > 0 ? i3 : 0;
@@ -168883,7 +167665,7 @@ function getModule() {
                 o3 = i3;
             while (0);
             t3 = (k3 | 0) != 0;
-            p3 = t3 ? 1 : h3 >>> 3 & 1;
+            p3 = t3 ? 1 : h4 >>> 3 & 1;
             s3 = (o3 | 32 | 0) == 102;
             if (s3) {
               x3 = 0;
@@ -168904,9 +167686,9 @@ function getModule() {
               j3 = m3 - j3 | 0;
             }
             j3 = D3 + 1 + k3 + p3 + j3 | 0;
-            zo(b6, 32, f3, j3, h3);
+            zo(b6, 32, f3, j3, h4);
             to2(b6, C3, D3);
-            zo(b6, 48, f3, j3, h3 ^ 65536);
+            zo(b6, 48, f3, j3, h4 ^ 65536);
             if (s3) {
               p3 = n3 >>> 0 > B4 >>> 0 ? B4 : n3;
               s3 = G4 + 9 | 0;
@@ -168929,9 +167711,9 @@ function getModule() {
                 to2(b6, l3, n3 - l3 | 0);
                 m3 = m3 + 4 | 0;
               } while (m3 >>> 0 <= B4 >>> 0);
-              if (!((h3 & 8 | 0) == 0 & (t3 ^ 1)))
+              if (!((h4 & 8 | 0) == 0 & (t3 ^ 1)))
                 to2(b6, 20282, 1);
-              if (m3 >>> 0 < w3 >>> 0 & (k3 | 0) > 0)
+              if (m3 >>> 0 < w4 >>> 0 & (k3 | 0) > 0)
                 while (1) {
                   l3 = yo(c3[m3 >> 2] | 0, 0, s3) | 0;
                   if (l3 >>> 0 > G4 >>> 0) {
@@ -168943,7 +167725,7 @@ function getModule() {
                   to2(b6, l3, (k3 | 0) < 9 ? k3 : 9);
                   m3 = m3 + 4 | 0;
                   l3 = k3 + -9 | 0;
-                  if (!(m3 >>> 0 < w3 >>> 0 & (k3 | 0) > 9)) {
+                  if (!(m3 >>> 0 < w4 >>> 0 & (k3 | 0) > 9)) {
                     k3 = l3;
                     break;
                   } else
@@ -168951,10 +167733,10 @@ function getModule() {
                 }
               zo(b6, 48, k3 + 9 | 0, 9, 0);
             } else {
-              w3 = v3 ? w3 : n3 + 4 | 0;
-              if (n3 >>> 0 < w3 >>> 0 & (k3 | 0) > -1) {
+              w4 = v3 ? w4 : n3 + 4 | 0;
+              if (n3 >>> 0 < w4 >>> 0 & (k3 | 0) > -1) {
                 g3 = G4 + 9 | 0;
-                t3 = (h3 & 8 | 0) == 0;
+                t3 = (h4 & 8 | 0) == 0;
                 v3 = g3;
                 p3 = 0 - F3 | 0;
                 s3 = G4 + 8 | 0;
@@ -168988,12 +167770,12 @@ function getModule() {
                   to2(b6, l3, (k3 | 0) > (F3 | 0) ? F3 : k3);
                   k3 = k3 - F3 | 0;
                   o3 = o3 + 4 | 0;
-                } while (o3 >>> 0 < w3 >>> 0 & (k3 | 0) > -1);
+                } while (o3 >>> 0 < w4 >>> 0 & (k3 | 0) > -1);
               }
               zo(b6, 48, k3 + 18 | 0, 18, 0);
               to2(b6, x3, E3 - x3 | 0);
             }
-            zo(b6, 32, f3, j3, h3 ^ 8192);
+            zo(b6, 32, f3, j3, h4 ^ 8192);
           }
         while (0);
         V2 = H3;
@@ -169015,19 +167797,19 @@ function getModule() {
         e3 = e3 | 0;
         f3 = f3 | 0;
         g3 = g3 | 0;
-        var h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0, r3 = 0, s3 = 0, t3 = 0;
+        var h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0, r3 = 0, s3 = 0, t3 = 0;
         t3 = V2;
         V2 = V2 + 224 | 0;
         p3 = t3 + 208 | 0;
         q4 = t3 + 160 | 0;
         r3 = t3 + 80 | 0;
         s3 = t3;
-        h3 = q4;
-        i3 = h3 + 40 | 0;
+        h4 = q4;
+        i3 = h4 + 40 | 0;
         do {
-          c3[h3 >> 2] = 0;
-          h3 = h3 + 4 | 0;
-        } while ((h3 | 0) < (i3 | 0));
+          c3[h4 >> 2] = 0;
+          h4 = h4 + 4 | 0;
+        } while ((h4 | 0) < (i3 | 0));
         c3[p3 >> 2] = c3[e3 >> 2];
         if ((so(0, d3, p3, r3, q4, f3, g3) | 0) < 0)
           e3 = -1;
@@ -169040,8 +167822,8 @@ function getModule() {
           n3 = e3 & 32;
           if ((a3[b6 + 74 >> 0] | 0) < 1)
             c3[b6 >> 2] = e3 & -33;
-          h3 = b6 + 48 | 0;
-          if (!(c3[h3 >> 2] | 0)) {
+          h4 = b6 + 48 | 0;
+          if (!(c3[h4 >> 2] | 0)) {
             i3 = b6 + 44 | 0;
             j3 = c3[i3 >> 2] | 0;
             c3[i3 >> 2] = s3;
@@ -169049,7 +167831,7 @@ function getModule() {
             c3[k3 >> 2] = s3;
             l3 = b6 + 20 | 0;
             c3[l3 >> 2] = s3;
-            c3[h3 >> 2] = 80;
+            c3[h4 >> 2] = 80;
             m3 = b6 + 16 | 0;
             c3[m3 >> 2] = s3 + 80;
             e3 = so(b6, d3, p3, r3, q4, f3, g3) | 0;
@@ -169057,31 +167839,31 @@ function getModule() {
               aa[c3[b6 + 36 >> 2] & 7](b6, 0, 0) | 0;
               e3 = (c3[l3 >> 2] | 0) == 0 ? -1 : e3;
               c3[i3 >> 2] = j3;
-              c3[h3 >> 2] = 0;
+              c3[h4 >> 2] = 0;
               c3[m3 >> 2] = 0;
               c3[k3 >> 2] = 0;
               c3[l3 >> 2] = 0;
             }
           } else
             e3 = so(b6, d3, p3, r3, q4, f3, g3) | 0;
-          h3 = c3[b6 >> 2] | 0;
-          c3[b6 >> 2] = h3 | n3;
+          h4 = c3[b6 >> 2] | 0;
+          c3[b6 >> 2] = h4 | n3;
           if (o3 | 0)
             go(b6);
-          e3 = (h3 & 32 | 0) == 0 ? e3 : -1;
+          e3 = (h4 & 32 | 0) == 0 ? e3 : -1;
         }
         V2 = t3;
         return e3 | 0;
       }
-      function so(d3, e3, f3, h3, i3, j3, k3) {
+      function so(d3, e3, f3, h4, i3, j3, k3) {
         d3 = d3 | 0;
         e3 = e3 | 0;
         f3 = f3 | 0;
-        h3 = h3 | 0;
+        h4 = h4 | 0;
         i3 = i3 | 0;
         j3 = j3 | 0;
         k3 = k3 | 0;
-        var l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0, r3 = 0, s3 = 0, t3 = 0, v3 = 0, w3 = 0, x3 = 0, y3 = 0, z3 = 0, A4 = 0, B4 = 0, C3 = 0, D3 = 0, E3 = 0, F3 = 0, G4 = 0, H3 = 0, I3 = 0, J3 = 0, K3 = 0;
+        var l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0, r3 = 0, s3 = 0, t3 = 0, v3 = 0, w4 = 0, x3 = 0, y3 = 0, z3 = 0, A4 = 0, B4 = 0, C3 = 0, D3 = 0, E3 = 0, F3 = 0, G4 = 0, H3 = 0, I3 = 0, J3 = 0, K3 = 0;
         J3 = V2;
         V2 = V2 + 64 | 0;
         G4 = J3 + 56 | 0;
@@ -169133,10 +167915,10 @@ function getModule() {
                     default: {
                     }
                   }
-                  w3 = m3 + 1 | 0;
-                  c3[G4 >> 2] = w3;
-                  l3 = a3[w3 >> 0] | 0;
-                  m3 = w3;
+                  w4 = m3 + 1 | 0;
+                  c3[G4 >> 2] = w4;
+                  l3 = a3[w4 >> 0] | 0;
+                  m3 = w4;
                 }
               c:
                 do
@@ -169156,9 +167938,9 @@ function getModule() {
               if (y3)
                 to2(d3, r3, l3);
             } while ((l3 | 0) != 0);
-            w3 = (bo(a3[(c3[G4 >> 2] | 0) + 1 >> 0] | 0) | 0) == 0;
+            w4 = (bo(a3[(c3[G4 >> 2] | 0) + 1 >> 0] | 0) | 0) == 0;
             m3 = c3[G4 >> 2] | 0;
-            if (!w3 ? (a3[m3 + 2 >> 0] | 0) == 36 : 0) {
+            if (!w4 ? (a3[m3 + 2 >> 0] | 0) == 36 : 0) {
               t3 = (a3[m3 + 1 >> 0] | 0) + -48 | 0;
               p3 = 1;
               l3 = 3;
@@ -169187,7 +167969,7 @@ function getModule() {
               if ((bo(a3[l3 + 1 >> 0] | 0) | 0) != 0 ? (H3 = c3[G4 >> 2] | 0, (a3[H3 + 2 >> 0] | 0) == 36) : 0) {
                 l3 = H3 + 1 | 0;
                 c3[i3 + ((a3[l3 >> 0] | 0) + -48 << 2) >> 2] = 10;
-                l3 = c3[h3 + ((a3[l3 >> 0] | 0) + -48 << 3) >> 2] | 0;
+                l3 = c3[h4 + ((a3[l3 >> 0] | 0) + -48 << 3) >> 2] | 0;
                 n3 = 1;
                 m3 = H3 + 3 | 0;
               } else {
@@ -169196,19 +167978,19 @@ function getModule() {
                   break;
                 }
                 if (y3) {
-                  w3 = (c3[f3 >> 2] | 0) + (4 - 1) & ~(4 - 1);
-                  l3 = c3[w3 >> 2] | 0;
-                  c3[f3 >> 2] = w3 + 4;
+                  w4 = (c3[f3 >> 2] | 0) + (4 - 1) & ~(4 - 1);
+                  l3 = c3[w4 >> 2] | 0;
+                  c3[f3 >> 2] = w4 + 4;
                 } else
                   l3 = 0;
                 n3 = 0;
                 m3 = (c3[G4 >> 2] | 0) + 1 | 0;
               }
               c3[G4 >> 2] = m3;
-              w3 = (l3 | 0) < 0;
-              v3 = w3 ? 0 - l3 | 0 : l3;
-              o3 = w3 ? o3 | 8192 : o3;
-              w3 = n3;
+              w4 = (l3 | 0) < 0;
+              v3 = w4 ? 0 - l3 | 0 : l3;
+              o3 = w4 ? o3 | 8192 : o3;
+              w4 = n3;
             } else {
               l3 = uo(G4) | 0;
               if ((l3 | 0) < 0) {
@@ -169216,7 +167998,7 @@ function getModule() {
                 break;
               }
               v3 = l3;
-              w3 = p3;
+              w4 = p3;
               m3 = c3[G4 >> 2] | 0;
             }
             do
@@ -169231,12 +168013,12 @@ function getModule() {
                 if (bo(a3[m3 + 2 >> 0] | 0) | 0 ? (F3 = c3[G4 >> 2] | 0, (a3[F3 + 3 >> 0] | 0) == 36) : 0) {
                   l3 = F3 + 2 | 0;
                   c3[i3 + ((a3[l3 >> 0] | 0) + -48 << 2) >> 2] = 10;
-                  l3 = c3[h3 + ((a3[l3 >> 0] | 0) + -48 << 3) >> 2] | 0;
+                  l3 = c3[h4 + ((a3[l3 >> 0] | 0) + -48 << 3) >> 2] | 0;
                   m3 = F3 + 4 | 0;
                   c3[G4 >> 2] = m3;
                   break;
                 }
-                if (w3 | 0) {
+                if (w4 | 0) {
                   e3 = -1;
                   break a;
                 }
@@ -169282,7 +168064,7 @@ function getModule() {
               else {
                 if (q4) {
                   c3[i3 + (t3 << 2) >> 2] = p3;
-                  q4 = h3 + (t3 << 3) | 0;
+                  q4 = h4 + (t3 << 3) | 0;
                   t3 = c3[q4 + 4 >> 2] | 0;
                   x3 = I3;
                   c3[x3 >> 2] = c3[q4 >> 2];
@@ -169578,7 +168360,7 @@ function getModule() {
                   zo(d3, 32, l3, K3, m3 ^ 8192);
                 }
               while (0);
-            n3 = w3;
+            n3 = w4;
           }
         g:
           do
@@ -169592,7 +168374,7 @@ function getModule() {
                     l3 = c3[i3 + (e3 << 2) >> 2] | 0;
                     if (!l3)
                       break;
-                    vo(h3 + (e3 << 3) | 0, l3, f3, k3);
+                    vo(h4 + (e3 << 3) | 0, l3, f3, k3);
                     e3 = e3 + 1 | 0;
                     if (e3 >>> 0 >= 10) {
                       e3 = 1;
@@ -169645,7 +168427,7 @@ function getModule() {
         b6 = b6 | 0;
         d3 = d3 | 0;
         e3 = e3 | 0;
-        var f3 = 0, h3 = 0;
+        var f3 = 0, h4 = 0;
         a:
           do
             if (b6 >>> 0 <= 20)
@@ -169727,9 +168509,9 @@ function getModule() {
                   }
                   case 17: {
                     f3 = (c3[d3 >> 2] | 0) + (8 - 1) & ~(8 - 1);
-                    h3 = +g2[f3 >> 3];
+                    h4 = +g2[f3 >> 3];
                     c3[d3 >> 2] = f3 + 8;
-                    g2[a4 >> 3] = h3;
+                    g2[a4 >> 3] = h4;
                     break a;
                   }
                   case 18: {
@@ -169891,18 +168673,18 @@ function getModule() {
       function Do(a4) {
         a4 = +a4;
         var b6 = 0;
-        g2[h2 >> 3] = a4;
-        b6 = c3[h2 >> 2] | 0;
-        t2(c3[h2 + 4 >> 2] | 0);
+        g2[h3 >> 3] = a4;
+        b6 = c3[h3 >> 2] | 0;
+        t2(c3[h3 + 4 >> 2] | 0);
         return b6 | 0;
       }
       function Eo(a4, b6) {
         a4 = +a4;
         b6 = b6 | 0;
         var d3 = 0, e3 = 0, f3 = 0;
-        g2[h2 >> 3] = a4;
-        d3 = c3[h2 >> 2] | 0;
-        e3 = c3[h2 + 4 >> 2] | 0;
+        g2[h3 >> 3] = a4;
+        d3 = c3[h3 >> 2] | 0;
+        e3 = c3[h3 + 4 >> 2] | 0;
         f3 = qr2(d3 | 0, e3 | 0, 52) | 0;
         u2() | 0;
         switch (f3 & 2047) {
@@ -169919,9 +168701,9 @@ function getModule() {
             break;
           default: {
             c3[b6 >> 2] = (f3 & 2047) + -1022;
-            c3[h2 >> 2] = d3;
-            c3[h2 + 4 >> 2] = e3 & -2146435073 | 1071644672;
-            a4 = +g2[h2 >> 3];
+            c3[h3 >> 2] = d3;
+            c3[h3 + 4 >> 2] = e3 & -2146435073 | 1071644672;
+            a4 = +g2[h3 >> 3];
           }
         }
         return +a4;
@@ -169974,7 +168756,7 @@ function getModule() {
         d3 = d3 | 0;
         e3 = e3 | 0;
         f3 = f3 | 0;
-        var g3 = 0, h3 = 0, i3 = 0, j3 = 0;
+        var g3 = 0, h4 = 0, i3 = 0, j3 = 0;
         j3 = V2;
         V2 = V2 + 160 | 0;
         g3 = j3 + 144 | 0;
@@ -169984,26 +168766,26 @@ function getModule() {
           if (!d3) {
             b6 = g3;
             d3 = 1;
-            h3 = 4;
+            h4 = 4;
           } else {
             c3[(ao() | 0) >> 2] = 61;
             d3 = -1;
           }
         else
-          h3 = 4;
-        if ((h3 | 0) == 4) {
-          h3 = -2 - b6 | 0;
-          h3 = d3 >>> 0 > h3 >>> 0 ? h3 : d3;
-          c3[i3 + 48 >> 2] = h3;
+          h4 = 4;
+        if ((h4 | 0) == 4) {
+          h4 = -2 - b6 | 0;
+          h4 = d3 >>> 0 > h4 >>> 0 ? h4 : d3;
+          c3[i3 + 48 >> 2] = h4;
           g3 = i3 + 20 | 0;
           c3[g3 >> 2] = b6;
           c3[i3 + 44 >> 2] = b6;
-          d3 = b6 + h3 | 0;
+          d3 = b6 + h4 | 0;
           b6 = i3 + 16 | 0;
           c3[b6 >> 2] = d3;
           c3[i3 + 28 >> 2] = d3;
           d3 = oo2(i3, e3, f3) | 0;
-          if (h3) {
+          if (h4) {
             i3 = c3[g3 >> 2] | 0;
             a3[i3 + (((i3 | 0) == (c3[b6 >> 2] | 0)) << 31 >> 31) >> 0] = 0;
           }
@@ -170106,12 +168888,12 @@ function getModule() {
         return b6 | 0;
       }
       function Po() {
-        var a4 = 0, b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0;
+        var a4 = 0, b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0;
         e3 = V2;
         V2 = V2 + 48 | 0;
         g3 = e3 + 32 | 0;
         b6 = e3 + 24 | 0;
-        h3 = e3 + 16 | 0;
+        h4 = e3 + 16 | 0;
         f3 = e3;
         e3 = e3 + 36 | 0;
         a4 = Qo() | 0;
@@ -170130,16 +168912,16 @@ function getModule() {
           d3 = c3[d3 >> 2] | 0;
           a4 = c3[d3 + 4 >> 2] | 0;
           if (aa[c3[(c3[954] | 0) + 16 >> 2] & 7](3816, d3, e3) | 0) {
-            h3 = c3[e3 >> 2] | 0;
-            h3 = Z2[c3[(c3[h3 >> 2] | 0) + 8 >> 2] & 15](h3) | 0;
+            h4 = c3[e3 >> 2] | 0;
+            h4 = Z2[c3[(c3[h4 >> 2] | 0) + 8 >> 2] & 15](h4) | 0;
             c3[f3 >> 2] = 20420;
             c3[f3 + 4 >> 2] = a4;
-            c3[f3 + 8 >> 2] = h3;
+            c3[f3 + 8 >> 2] = h4;
             To(20284, f3);
           } else {
-            c3[h3 >> 2] = 20420;
-            c3[h3 + 4 >> 2] = a4;
-            To(20329, h3);
+            c3[h4 >> 2] = 20420;
+            c3[h4 + 4 >> 2] = a4;
+            To(20329, h4);
           }
         }
         To(20408, g3);
@@ -170187,7 +168969,7 @@ function getModule() {
         d3 = d3 | 0;
         e3 = e3 | 0;
         f3 = f3 | 0;
-        var g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0;
+        var g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0;
         l3 = V2;
         V2 = V2 + 64 | 0;
         j3 = l3;
@@ -170200,12 +168982,12 @@ function getModule() {
             d3 = j3 + 16 | 0;
             e3 = j3 + 24 | 0;
             g3 = j3 + 48 | 0;
-            h3 = d3;
-            i3 = h3 + 36 | 0;
+            h4 = d3;
+            i3 = h4 + 36 | 0;
             do {
-              c3[h3 >> 2] = 0;
-              h3 = h3 + 4 | 0;
-            } while ((h3 | 0) < (i3 | 0));
+              c3[h4 >> 2] = 0;
+              h4 = h4 + 4 | 0;
+            } while ((h4 | 0) < (i3 | 0));
             b5[d3 + 36 >> 1] = 0;
             a3[d3 + 38 >> 0] = 0;
             c3[g3 >> 2] = 1;
@@ -170239,13 +169021,13 @@ function getModule() {
         e3 = e3 | 0;
         f3 = f3 | 0;
         g3 = g3 | 0;
-        var h3 = 0;
+        var h4 = 0;
         do
           if (!(ap(b6, c3[d3 + 8 >> 2] | 0, g3) | 0)) {
             if (ap(b6, c3[d3 >> 2] | 0, g3) | 0) {
-              if ((c3[d3 + 16 >> 2] | 0) != (e3 | 0) ? (h3 = d3 + 20 | 0, (c3[h3 >> 2] | 0) != (e3 | 0)) : 0) {
+              if ((c3[d3 + 16 >> 2] | 0) != (e3 | 0) ? (h4 = d3 + 20 | 0, (c3[h4 >> 2] | 0) != (e3 | 0)) : 0) {
                 c3[d3 + 32 >> 2] = f3;
-                c3[h3 >> 2] = e3;
+                c3[h4 >> 2] = e3;
                 g3 = d3 + 40 | 0;
                 c3[g3 >> 2] = (c3[g3 >> 2] | 0) + 1;
                 if ((c3[d3 + 36 >> 2] | 0) == 1 ? (c3[d3 + 24 >> 2] | 0) == 2 : 0)
@@ -170365,7 +169147,7 @@ function getModule() {
         e3 = e3 | 0;
         f3 = f3 | 0;
         g3 = g3 | 0;
-        var h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0;
+        var h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0;
         p3 = V2;
         V2 = V2 + 64 | 0;
         n3 = p3;
@@ -170379,7 +169161,7 @@ function getModule() {
         d3 = n3 + 16 | 0;
         e3 = n3 + 20 | 0;
         g3 = n3 + 24 | 0;
-        h3 = n3 + 28 | 0;
+        h4 = n3 + 28 | 0;
         i3 = n3 + 32 | 0;
         j3 = n3 + 40 | 0;
         k3 = d3;
@@ -170400,7 +169182,7 @@ function getModule() {
               ga[c3[(c3[m3 >> 2] | 0) + 24 >> 2] & 3](m3, n3, o3, 1, 0);
               switch (c3[n3 + 36 >> 2] | 0) {
                 case 0: {
-                  d3 = (c3[j3 >> 2] | 0) == 1 & (c3[h3 >> 2] | 0) == 1 & (c3[i3 >> 2] | 0) == 1 ? c3[e3 >> 2] | 0 : 0;
+                  d3 = (c3[j3 >> 2] | 0) == 1 & (c3[h4 >> 2] | 0) == 1 & (c3[i3 >> 2] | 0) == 1 ? c3[e3 >> 2] | 0 : 0;
                   break a;
                 }
                 case 1:
@@ -170410,7 +169192,7 @@ function getModule() {
                   break a;
                 }
               }
-              if ((c3[g3 >> 2] | 0) != 1 ? !((c3[j3 >> 2] | 0) == 0 & (c3[h3 >> 2] | 0) == 1 & (c3[i3 >> 2] | 0) == 1) : 0) {
+              if ((c3[g3 >> 2] | 0) != 1 ? !((c3[j3 >> 2] | 0) == 0 & (c3[h4 >> 2] | 0) == 1 & (c3[i3 >> 2] | 0) == 1) : 0) {
                 d3 = 0;
                 break;
               }
@@ -170447,7 +169229,7 @@ function getModule() {
         e3 = e3 | 0;
         f3 = f3 | 0;
         g3 = g3 | 0;
-        var h3 = 0, i3 = 0, j3 = 0;
+        var h4 = 0, i3 = 0, j3 = 0;
         a:
           do
             if (!(ap(b6, c3[d3 + 8 >> 2] | 0, g3) | 0)) {
@@ -170461,14 +169243,14 @@ function getModule() {
                 f3 = d3 + 44 | 0;
                 do
                   if ((c3[f3 >> 2] | 0) != 4) {
-                    h3 = d3 + 52 | 0;
-                    a3[h3 >> 0] = 0;
+                    h4 = d3 + 52 | 0;
+                    a3[h4 >> 0] = 0;
                     j3 = d3 + 53 | 0;
                     a3[j3 >> 0] = 0;
                     b6 = c3[b6 + 8 >> 2] | 0;
                     ha[c3[(c3[b6 >> 2] | 0) + 20 >> 2] & 3](b6, d3, e3, e3, 1, g3);
                     if (a3[j3 >> 0] | 0) {
-                      j3 = (a3[h3 >> 0] | 0) == 0;
+                      j3 = (a3[h4 >> 0] | 0) == 0;
                       c3[f3 >> 2] = 3;
                       if (j3)
                         break;
@@ -170641,7 +169423,7 @@ function getModule() {
         d3 = d3 | 0;
         e3 = e3 | 0;
         f3 = f3 | 0;
-        var g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0;
+        var g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0;
         n3 = V2;
         V2 = V2 + 64 | 0;
         l3 = n3;
@@ -170663,10 +169445,10 @@ function getModule() {
                 c3[f3 >> 2] = c3[e3 >> 2];
               e3 = c3[g3 + 8 >> 2] | 0;
               i3 = d3 + 8 | 0;
-              h3 = c3[i3 >> 2] | 0;
-              if ((e3 & 7 & (h3 ^ 7) | 0) == 0 ? ((e3 & 96 ^ 96) & h3 | 0) == 0 : 0) {
-                h3 = d3 + 12 | 0;
-                d3 = c3[h3 >> 2] | 0;
+              h4 = c3[i3 >> 2] | 0;
+              if ((e3 & 7 & (h4 ^ 7) | 0) == 0 ? ((e3 & 96 ^ 96) & h4 | 0) == 0 : 0) {
+                h4 = d3 + 12 | 0;
+                d3 = c3[h4 >> 2] | 0;
                 g3 = g3 + 12 | 0;
                 e3 = c3[g3 >> 2] | 0;
                 if (!(ap(d3, e3, 0) | 0)) {
@@ -170688,7 +169470,7 @@ function getModule() {
                       e3 = Jp(e3, c3[g3 >> 2] | 0) | 0;
                       break;
                     }
-                    e3 = c3[h3 >> 2] | 0;
+                    e3 = c3[h4 >> 2] | 0;
                     if (e3) {
                       e3 = ep(e3, 3840, 4008, 0) | 0;
                       if (e3 | 0) {
@@ -170699,7 +169481,7 @@ function getModule() {
                         e3 = Kp(e3, c3[g3 >> 2] | 0) | 0;
                         break;
                       }
-                      e3 = c3[h3 >> 2] | 0;
+                      e3 = c3[h4 >> 2] | 0;
                       if ((((e3 | 0) != 0 ? (j3 = ep(e3, 3840, 3824, 0) | 0, (j3 | 0) != 0) : 0) ? (k3 = c3[g3 >> 2] | 0, (k3 | 0) != 0) : 0) ? (m3 = ep(k3, 3840, 3824, 0) | 0, (m3 | 0) != 0) : 0) {
                         c3[l3 >> 2] = m3;
                         c3[l3 + 4 >> 2] = 0;
@@ -170708,12 +169490,12 @@ function getModule() {
                         e3 = l3 + 16 | 0;
                         d3 = l3 + 24 | 0;
                         g3 = l3 + 48 | 0;
-                        h3 = e3;
-                        i3 = h3 + 36 | 0;
+                        h4 = e3;
+                        i3 = h4 + 36 | 0;
                         do {
-                          c3[h3 >> 2] = 0;
-                          h3 = h3 + 4 | 0;
-                        } while ((h3 | 0) < (i3 | 0));
+                          c3[h4 >> 2] = 0;
+                          h4 = h4 + 4 | 0;
+                        } while ((h4 | 0) < (i3 | 0));
                         b5[e3 + 36 >> 1] = 0;
                         a3[e3 + 38 >> 0] = 0;
                         c3[g3 >> 2] = 1;
@@ -170771,7 +169553,7 @@ function getModule() {
       function Jp(a4, b6) {
         a4 = a4 | 0;
         b6 = b6 | 0;
-        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0;
+        var d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0;
         while (1) {
           if (!b6) {
             b6 = 0;
@@ -170800,12 +169582,12 @@ function getModule() {
           }
           a4 = ep(b6, 3840, 3976, 0) | 0;
           if (!a4) {
-            h3 = 9;
+            h4 = 9;
             break;
           }
           b6 = c3[d3 >> 2] | 0;
         }
-        if ((h3 | 0) == 9) {
+        if ((h4 | 0) == 9) {
           b6 = c3[e3 >> 2] | 0;
           if ((b6 | 0) != 0 ? (g3 = ep(b6, 3840, 4008, 0) | 0, (g3 | 0) != 0) : 0)
             b6 = Kp(g3, c3[d3 >> 2] | 0) | 0;
@@ -170830,15 +169612,15 @@ function getModule() {
         jp(a4);
         return;
       }
-      function Mp(b6, d3, e3, f3, g3, h3) {
+      function Mp(b6, d3, e3, f3, g3, h4) {
         b6 = b6 | 0;
         d3 = d3 | 0;
         e3 = e3 | 0;
         f3 = f3 | 0;
         g3 = g3 | 0;
-        h3 = h3 | 0;
+        h4 = h4 | 0;
         var i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0, r3 = 0;
-        if (ap(b6, c3[d3 + 8 >> 2] | 0, h3) | 0)
+        if (ap(b6, c3[d3 + 8 >> 2] | 0, h4) | 0)
           dp(0, d3, e3, f3, g3);
         else {
           r3 = d3 + 52 | 0;
@@ -170849,7 +169631,7 @@ function getModule() {
           m3 = b6 + 16 + (p3 << 3) | 0;
           a3[r3 >> 0] = 0;
           a3[q4 >> 0] = 0;
-          Qp(b6 + 16 | 0, d3, e3, f3, g3, h3);
+          Qp(b6 + 16 | 0, d3, e3, f3, g3, h4);
           k3 = a3[r3 >> 0] | 0;
           j3 = k3 | j3;
           l3 = a3[q4 >> 0] | 0;
@@ -170877,7 +169659,7 @@ function getModule() {
                   }
                   a3[r3 >> 0] = 0;
                   a3[q4 >> 0] = 0;
-                  Qp(b6, d3, e3, f3, g3, h3);
+                  Qp(b6, d3, e3, f3, g3, h4);
                   k3 = a3[r3 >> 0] | 0;
                   j3 = k3 | j3;
                   l3 = a3[q4 >> 0] | 0;
@@ -170897,7 +169679,7 @@ function getModule() {
         e3 = e3 | 0;
         f3 = f3 | 0;
         g3 = g3 | 0;
-        var h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0;
+        var h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0;
         a:
           do
             if (!(ap(b6, c3[d3 + 8 >> 2] | 0, g3) | 0)) {
@@ -170905,7 +169687,7 @@ function getModule() {
                 p3 = c3[b6 + 12 >> 2] | 0;
                 k3 = b6 + 16 + (p3 << 3) | 0;
                 Rp(b6 + 16 | 0, d3, e3, f3, g3);
-                h3 = b6 + 24 | 0;
+                h4 = b6 + 24 | 0;
                 if ((p3 | 0) <= 1)
                   break;
                 b6 = c3[b6 + 8 >> 2] | 0;
@@ -170917,9 +169699,9 @@ function getModule() {
                         break a;
                       if ((c3[j3 >> 2] | 0) == 1)
                         break a;
-                      Rp(h3, d3, e3, f3, g3);
-                      h3 = h3 + 8 | 0;
-                      if (h3 >>> 0 >= k3 >>> 0)
+                      Rp(h4, d3, e3, f3, g3);
+                      h4 = h4 + 8 | 0;
+                      if (h4 >>> 0 >= k3 >>> 0)
                         break a;
                     }
                   }
@@ -170930,9 +169712,9 @@ function getModule() {
                       break a;
                     if ((c3[j3 >> 2] | 0) == 1 ? (c3[b6 >> 2] | 0) == 1 : 0)
                       break a;
-                    Rp(h3, d3, e3, f3, g3);
-                    h3 = h3 + 8 | 0;
-                    if (h3 >>> 0 >= k3 >>> 0)
+                    Rp(h4, d3, e3, f3, g3);
+                    h4 = h4 + 8 | 0;
+                    if (h4 >>> 0 >= k3 >>> 0)
                       break a;
                   }
                 }
@@ -170940,9 +169722,9 @@ function getModule() {
                 while (1) {
                   if (a3[b6 >> 0] | 0)
                     break a;
-                  Rp(h3, d3, e3, f3, g3);
-                  h3 = h3 + 8 | 0;
-                  if (h3 >>> 0 >= k3 >>> 0)
+                  Rp(h4, d3, e3, f3, g3);
+                  h4 = h4 + 8 | 0;
+                  if (h4 >>> 0 >= k3 >>> 0)
                     break a;
                 }
               }
@@ -170956,7 +169738,7 @@ function getModule() {
                   l3 = d3 + 54 | 0;
                   m3 = b6 + 8 | 0;
                   n3 = d3 + 24 | 0;
-                  h3 = 0;
+                  h4 = 0;
                   i3 = b6 + 16 | 0;
                   b6 = 0;
                   b:
@@ -170983,16 +169765,16 @@ function getModule() {
                               break;
                             }
                           if ((c3[n3 >> 2] | 0) == 1) {
-                            h3 = 1;
+                            h4 = 1;
                             i3 = 19;
                             break b;
                           }
                           if (!(c3[m3 >> 2] & 2)) {
-                            h3 = 1;
+                            h4 = 1;
                             i3 = 19;
                             break b;
                           } else {
-                            h3 = 1;
+                            h4 = 1;
                             b6 = 1;
                           }
                         }
@@ -171007,7 +169789,7 @@ function getModule() {
                   if ((i3 | 0) == 19)
                     b6 = 3;
                   c3[o3 >> 2] = b6;
-                  if (h3 & 1)
+                  if (h4 & 1)
                     break;
                 }
                 c3[p3 >> 2] = e3;
@@ -171032,19 +169814,19 @@ function getModule() {
         d3 = d3 | 0;
         e3 = e3 | 0;
         f3 = f3 | 0;
-        var g3 = 0, h3 = 0;
+        var g3 = 0, h4 = 0;
         a:
           do
             if (!(ap(b6, c3[d3 + 8 >> 2] | 0, 0) | 0)) {
-              h3 = c3[b6 + 12 >> 2] | 0;
-              g3 = b6 + 16 + (h3 << 3) | 0;
+              h4 = c3[b6 + 12 >> 2] | 0;
+              g3 = b6 + 16 + (h4 << 3) | 0;
               Pp(b6 + 16 | 0, d3, e3, f3);
-              if ((h3 | 0) > 1) {
-                h3 = d3 + 54 | 0;
+              if ((h4 | 0) > 1) {
+                h4 = d3 + 54 | 0;
                 b6 = b6 + 24 | 0;
                 do {
                   Pp(b6, d3, e3, f3);
-                  if (a3[h3 >> 0] | 0)
+                  if (a3[h4 >> 0] | 0)
                     break a;
                   b6 = b6 + 8 | 0;
                 } while (b6 >>> 0 < g3 >>> 0);
@@ -171078,13 +169860,13 @@ function getModule() {
         e3 = e3 | 0;
         f3 = f3 | 0;
         g3 = g3 | 0;
-        var h3 = 0, i3 = 0;
+        var h4 = 0, i3 = 0;
         i3 = c3[a4 + 4 >> 2] | 0;
-        h3 = i3 >> 8;
+        h4 = i3 >> 8;
         if (i3 & 1)
-          h3 = c3[(c3[e3 >> 2] | 0) + h3 >> 2] | 0;
+          h4 = c3[(c3[e3 >> 2] | 0) + h4 >> 2] | 0;
         a4 = c3[a4 >> 2] | 0;
-        ha[c3[(c3[a4 >> 2] | 0) + 20 >> 2] & 3](a4, b6, d3, e3 + h3 | 0, (i3 & 2 | 0) == 0 ? 2 : f3, g3);
+        ha[c3[(c3[a4 >> 2] | 0) + 20 >> 2] & 3](a4, b6, d3, e3 + h4 | 0, (i3 & 2 | 0) == 0 ? 2 : f3, g3);
         return;
       }
       function Rp(a4, b6, d3, e3, f3) {
@@ -171093,13 +169875,13 @@ function getModule() {
         d3 = d3 | 0;
         e3 = e3 | 0;
         f3 = f3 | 0;
-        var g3 = 0, h3 = 0;
-        h3 = c3[a4 + 4 >> 2] | 0;
-        g3 = h3 >> 8;
-        if (h3 & 1)
+        var g3 = 0, h4 = 0;
+        h4 = c3[a4 + 4 >> 2] | 0;
+        g3 = h4 >> 8;
+        if (h4 & 1)
           g3 = c3[(c3[d3 >> 2] | 0) + g3 >> 2] | 0;
         a4 = c3[a4 >> 2] | 0;
-        ga[c3[(c3[a4 >> 2] | 0) + 24 >> 2] & 3](a4, b6, d3 + g3 | 0, (h3 & 2 | 0) == 0 ? 2 : e3, f3);
+        ga[c3[(c3[a4 >> 2] | 0) + 24 >> 2] & 3](a4, b6, d3 + g3 | 0, (h4 & 2 | 0) == 0 ? 2 : e3, f3);
         return;
       }
       function Sp(a4) {
@@ -171381,7 +170163,7 @@ function getModule() {
         b6 = b6 | 0;
         d3 = d3 | 0;
         e3 = e3 | 0;
-        var f3 = 0, g3 = 0, h3 = 0, i3 = 0;
+        var f3 = 0, g3 = 0, h4 = 0, i3 = 0;
         g3 = V2;
         V2 = V2 + 16 | 0;
         f3 = g3;
@@ -171391,11 +170173,11 @@ function getModule() {
           a3[b6 + 11 >> 0] = e3;
         else {
           i3 = e3 + 16 & -16;
-          h3 = eq(i3) | 0;
-          c3[b6 >> 2] = h3;
+          h4 = eq(i3) | 0;
+          c3[b6 >> 2] = h4;
           c3[b6 + 8 >> 2] = i3 | -2147483648;
           c3[b6 + 4 >> 2] = e3;
-          b6 = h3;
+          b6 = h4;
         }
         Bq(b6, d3, e3) | 0;
         a3[f3 >> 0] = 0;
@@ -171417,13 +170199,13 @@ function getModule() {
           Da(c3[b6 >> 2] | 0, c3[b6 + 8 >> 2] & 2147483647);
         return;
       }
-      function Dq(b6, d3, e3, f3, g3, h3, i3, j3) {
+      function Dq(b6, d3, e3, f3, g3, h4, i3, j3) {
         b6 = b6 | 0;
         d3 = d3 | 0;
         e3 = e3 | 0;
         f3 = f3 | 0;
         g3 = g3 | 0;
-        h3 = h3 | 0;
+        h4 = h4 | 0;
         i3 = i3 | 0;
         j3 = j3 | 0;
         var k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0;
@@ -171448,10 +170230,10 @@ function getModule() {
           Bq(l3, m3, g3) | 0;
         if (i3 | 0)
           Bq(l3 + g3 | 0, j3, i3) | 0;
-        f3 = f3 - h3 | 0;
+        f3 = f3 - h4 | 0;
         e3 = f3 - g3 | 0;
         if (e3 | 0)
-          Bq(l3 + g3 + i3 | 0, m3 + g3 + h3 | 0, e3) | 0;
+          Bq(l3 + g3 + i3 | 0, m3 + g3 + h4 | 0, e3) | 0;
         e3 = d3 + 1 | 0;
         if ((e3 | 0) != 11)
           Da(m3, e3);
@@ -171468,14 +170250,14 @@ function getModule() {
         b6 = b6 | 0;
         d3 = d3 | 0;
         e3 = e3 | 0;
-        var f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0;
+        var f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0;
         k3 = V2;
         V2 = V2 + 16 | 0;
         i3 = k3;
         j3 = b6 + 11 | 0;
         f3 = a3[j3 >> 0] | 0;
-        h3 = f3 << 24 >> 24 < 0;
-        if (h3) {
+        h4 = f3 << 24 >> 24 < 0;
+        if (h4) {
           g3 = (c3[b6 + 8 >> 2] & 2147483647) + -1 | 0;
           f3 = c3[b6 + 4 >> 2] | 0;
         } else {
@@ -171484,7 +170266,7 @@ function getModule() {
         }
         if ((g3 - f3 | 0) >>> 0 >= e3 >>> 0) {
           if (e3 | 0) {
-            if (h3)
+            if (h4)
               g3 = c3[b6 >> 2] | 0;
             else
               g3 = b6;
@@ -171523,23 +170305,23 @@ function getModule() {
         e3 = e3 | 0;
         f3 = f3 | 0;
         g3 = g3 | 0;
-        var h3 = 0, i3 = 0;
-        h3 = a3[b6 + 11 >> 0] | 0;
-        i3 = h3 << 24 >> 24 < 0;
+        var h4 = 0, i3 = 0;
+        h4 = a3[b6 + 11 >> 0] | 0;
+        i3 = h4 << 24 >> 24 < 0;
         if (i3)
-          h3 = c3[b6 + 4 >> 2] | 0;
+          h4 = c3[b6 + 4 >> 2] | 0;
         else
-          h3 = h3 & 255;
-        if ((g3 | 0) == -1 | h3 >>> 0 < d3 >>> 0)
+          h4 = h4 & 255;
+        if ((g3 | 0) == -1 | h4 >>> 0 < d3 >>> 0)
           zq(b6);
-        h3 = h3 - d3 | 0;
-        e3 = h3 >>> 0 < e3 >>> 0 ? h3 : e3;
+        h4 = h4 - d3 | 0;
+        e3 = h4 >>> 0 < e3 >>> 0 ? h4 : e3;
         if (i3)
           b6 = c3[b6 >> 2] | 0;
-        h3 = e3 >>> 0 > g3 >>> 0;
-        b6 = Gq(b6 + d3 | 0, f3, h3 ? g3 : e3) | 0;
+        h4 = e3 >>> 0 > g3 >>> 0;
+        b6 = Gq(b6 + d3 | 0, f3, h4 ? g3 : e3) | 0;
         if (!b6)
-          return (e3 >>> 0 < g3 >>> 0 ? -1 : h3 & 1) | 0;
+          return (e3 >>> 0 < g3 >>> 0 ? -1 : h4 & 1) | 0;
         else
           return b6 | 0;
         return 0;
@@ -171607,19 +170389,19 @@ function getModule() {
       function Qq(b6, d3) {
         b6 = b6 | 0;
         d3 = d3 | 0;
-        var e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0;
+        var e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0;
         i3 = V2;
         V2 = V2 + 1040 | 0;
         g3 = i3 + 1024 | 0;
         e3 = i3;
-        h3 = c3[(ao() | 0) >> 2] | 0;
+        h4 = c3[(ao() | 0) >> 2] | 0;
         f3 = Rq(Oo(d3, e3, 1024) | 0, e3) | 0;
         if (!(a3[f3 >> 0] | 0)) {
           c3[g3 >> 2] = d3;
           Go(e3, 1024, 21211, g3) | 0;
         } else
           e3 = f3;
-        c3[(ao() | 0) >> 2] = h3;
+        c3[(ao() | 0) >> 2] = h4;
         Aq(b6, e3, lb(e3) | 0);
         V2 = i3;
         return;
@@ -171715,10 +170497,10 @@ function getModule() {
         b6 = b6 | 0;
         d3 = d3 | 0;
         e3 = e3 | 0;
-        var f3 = 0, g3 = 0, h3 = 0;
-        h3 = V2;
+        var f3 = 0, g3 = 0, h4 = 0;
+        h4 = V2;
         V2 = V2 + 16 | 0;
-        g3 = h3;
+        g3 = h4;
         if (c3[d3 >> 2] | 0) {
           f3 = a3[e3 + 11 >> 0] | 0;
           if (f3 << 24 >> 24 < 0)
@@ -171743,7 +170525,7 @@ function getModule() {
           c3[e3 + (f3 << 2) >> 2] = 0;
           f3 = f3 + 1 | 0;
         }
-        V2 = h3;
+        V2 = h4;
         return;
       }
       function ar2(a4, b6, d3) {
@@ -171794,10 +170576,10 @@ function getModule() {
       }
       function dr2(a4) {
         a4 = a4 | 0;
-        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0, r3 = 0, s3 = 0, t3 = 0, u3 = 0, v3 = 0, w3 = 0;
-        w3 = V2;
+        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0, q4 = 0, r3 = 0, s3 = 0, t3 = 0, u3 = 0, v3 = 0, w4 = 0;
+        w4 = V2;
         V2 = V2 + 16 | 0;
-        n3 = w3;
+        n3 = w4;
         do
           if (a4 >>> 0 < 245) {
             k3 = a4 >>> 0 < 11 ? 16 : a4 + 11 & -8;
@@ -171822,7 +170604,7 @@ function getModule() {
               v3 = e3 + v3 + 4 | 0;
               c3[v3 >> 2] = c3[v3 >> 2] | 1;
               v3 = f3;
-              V2 = w3;
+              V2 = w4;
               return v3 | 0;
             }
             l3 = c3[5414] | 0;
@@ -171855,11 +170637,11 @@ function getModule() {
                   a4 = m3;
                 }
                 v3 = e3 << 3;
-                h3 = v3 - k3 | 0;
+                h4 = v3 - k3 | 0;
                 c3[g3 + 4 >> 2] = k3 | 3;
                 f3 = g3 + k3 | 0;
-                c3[f3 + 4 >> 2] = h3 | 1;
-                c3[g3 + v3 >> 2] = h3;
+                c3[f3 + 4 >> 2] = h4 | 1;
+                c3[g3 + v3 >> 2] = h4;
                 if (l3 | 0) {
                   e3 = c3[5417] | 0;
                   b6 = l3 >>> 3;
@@ -171878,10 +170660,10 @@ function getModule() {
                   c3[e3 + 8 >> 2] = b6;
                   c3[e3 + 12 >> 2] = d3;
                 }
-                c3[5414] = h3;
+                c3[5414] = h4;
                 c3[5417] = f3;
                 v3 = i3;
-                V2 = w3;
+                V2 = w4;
                 return v3 | 0;
               }
               g3 = c3[5413] | 0;
@@ -171891,12 +170673,12 @@ function getModule() {
                 d3 = d3 >>> f3;
                 e3 = d3 >>> 5 & 8;
                 d3 = d3 >>> e3;
-                h3 = d3 >>> 2 & 4;
-                d3 = d3 >>> h3;
+                h4 = d3 >>> 2 & 4;
+                d3 = d3 >>> h4;
                 i3 = d3 >>> 1 & 2;
                 d3 = d3 >>> i3;
                 j3 = d3 >>> 1 & 1;
-                j3 = c3[21952 + ((e3 | f3 | h3 | i3 | j3) + (d3 >>> j3) << 2) >> 2] | 0;
+                j3 = c3[21952 + ((e3 | f3 | h4 | i3 | j3) + (d3 >>> j3) << 2) >> 2] | 0;
                 d3 = j3;
                 i3 = j3;
                 j3 = (c3[j3 + 4 >> 2] & -8) - k3 | 0;
@@ -171907,14 +170689,14 @@ function getModule() {
                     if (!a4)
                       break;
                   }
-                  h3 = (c3[a4 + 4 >> 2] & -8) - k3 | 0;
-                  f3 = h3 >>> 0 < j3 >>> 0;
+                  h4 = (c3[a4 + 4 >> 2] & -8) - k3 | 0;
+                  f3 = h4 >>> 0 < j3 >>> 0;
                   d3 = a4;
                   i3 = f3 ? a4 : i3;
-                  j3 = f3 ? h3 : j3;
+                  j3 = f3 ? h4 : j3;
                 }
-                h3 = i3 + k3 | 0;
-                if (h3 >>> 0 > i3 >>> 0) {
+                h4 = i3 + k3 | 0;
+                if (h4 >>> 0 > i3 >>> 0) {
                   f3 = c3[i3 + 24 >> 2] | 0;
                   b6 = c3[i3 + 12 >> 2] | 0;
                   do
@@ -171991,8 +170773,8 @@ function getModule() {
                     c3[v3 >> 2] = c3[v3 >> 2] | 1;
                   } else {
                     c3[i3 + 4 >> 2] = k3 | 3;
-                    c3[h3 + 4 >> 2] = j3 | 1;
-                    c3[h3 + j3 >> 2] = j3;
+                    c3[h4 + 4 >> 2] = j3 | 1;
+                    c3[h4 + j3 >> 2] = j3;
                     if (l3 | 0) {
                       e3 = c3[5417] | 0;
                       b6 = l3 >>> 3;
@@ -172012,10 +170794,10 @@ function getModule() {
                       c3[e3 + 12 >> 2] = d3;
                     }
                     c3[5414] = j3;
-                    c3[5417] = h3;
+                    c3[5417] = h4;
                   }
                   v3 = i3 + 8 | 0;
-                  V2 = w3;
+                  V2 = w4;
                   return v3 | 0;
                 } else
                   m3 = k3;
@@ -172056,16 +170838,16 @@ function getModule() {
                     i3 = k3 << ((j3 | 0) == 31 ? 0 : 25 - (j3 >>> 1) | 0);
                     g3 = 0;
                     while (1) {
-                      h3 = (c3[d3 + 4 >> 2] & -8) - k3 | 0;
-                      if (h3 >>> 0 < f3 >>> 0)
-                        if (!h3) {
+                      h4 = (c3[d3 + 4 >> 2] & -8) - k3 | 0;
+                      if (h4 >>> 0 < f3 >>> 0)
+                        if (!h4) {
                           a4 = d3;
                           f3 = 0;
                           q4 = 65;
                           break a;
                         } else {
                           a4 = d3;
-                          f3 = h3;
+                          f3 = h4;
                         }
                       q4 = c3[d3 + 20 >> 2] | 0;
                       d3 = c3[d3 + 16 + (i3 >>> 31 << 2) >> 2] | 0;
@@ -172088,8 +170870,8 @@ function getModule() {
                     break;
                   }
                   m3 = (a4 & 0 - a4) + -1 | 0;
-                  h3 = m3 >>> 12 & 16;
-                  m3 = m3 >>> h3;
+                  h4 = m3 >>> 12 & 16;
+                  m3 = m3 >>> h4;
                   g3 = m3 >>> 5 & 8;
                   m3 = m3 >>> g3;
                   i3 = m3 >>> 2 & 4;
@@ -172098,11 +170880,11 @@ function getModule() {
                   m3 = m3 >>> j3;
                   d3 = m3 >>> 1 & 1;
                   a4 = 0;
-                  d3 = c3[21952 + ((g3 | h3 | i3 | j3 | d3) + (m3 >>> d3) << 2) >> 2] | 0;
+                  d3 = c3[21952 + ((g3 | h4 | i3 | j3 | d3) + (m3 >>> d3) << 2) >> 2] | 0;
                 }
                 if (!d3) {
                   i3 = a4;
-                  h3 = f3;
+                  h4 = f3;
                 } else
                   q4 = 65;
               }
@@ -172118,13 +170900,13 @@ function getModule() {
                     d3 = c3[g3 + 20 >> 2] | 0;
                   if (!d3) {
                     i3 = a4;
-                    h3 = f3;
+                    h4 = f3;
                     break;
                   } else
                     g3 = d3;
                 }
               }
-              if (((i3 | 0) != 0 ? h3 >>> 0 < ((c3[5414] | 0) - k3 | 0) >>> 0 : 0) ? (l3 = i3 + k3 | 0, l3 >>> 0 > i3 >>> 0) : 0) {
+              if (((i3 | 0) != 0 ? h4 >>> 0 < ((c3[5414] | 0) - k3 | 0) >>> 0 : 0) ? (l3 = i3 + k3 | 0, l3 >>> 0 > i3 >>> 0) : 0) {
                 g3 = c3[i3 + 24 >> 2] | 0;
                 b6 = c3[i3 + 12 >> 2] | 0;
                 do
@@ -172195,17 +170977,17 @@ function getModule() {
                 while (0);
                 b:
                   do
-                    if (h3 >>> 0 < 16) {
-                      v3 = h3 + k3 | 0;
+                    if (h4 >>> 0 < 16) {
+                      v3 = h4 + k3 | 0;
                       c3[i3 + 4 >> 2] = v3 | 3;
                       v3 = i3 + v3 + 4 | 0;
                       c3[v3 >> 2] = c3[v3 >> 2] | 1;
                     } else {
                       c3[i3 + 4 >> 2] = k3 | 3;
-                      c3[l3 + 4 >> 2] = h3 | 1;
-                      c3[l3 + h3 >> 2] = h3;
-                      b6 = h3 >>> 3;
-                      if (h3 >>> 0 < 256) {
+                      c3[l3 + 4 >> 2] = h4 | 1;
+                      c3[l3 + h4 >> 2] = h4;
+                      b6 = h4 >>> 3;
+                      if (h4 >>> 0 < 256) {
                         d3 = 21688 + (b6 << 1 << 2) | 0;
                         a4 = c3[5412] | 0;
                         b6 = 1 << b6;
@@ -172223,9 +171005,9 @@ function getModule() {
                         c3[l3 + 12 >> 2] = d3;
                         break;
                       }
-                      b6 = h3 >>> 8;
+                      b6 = h4 >>> 8;
                       if (b6)
-                        if (h3 >>> 0 > 16777215)
+                        if (h4 >>> 0 > 16777215)
                           d3 = 31;
                         else {
                           u3 = (b6 + 1048320 | 0) >>> 16 & 8;
@@ -172234,7 +171016,7 @@ function getModule() {
                           v3 = v3 << t3;
                           d3 = (v3 + 245760 | 0) >>> 16 & 2;
                           d3 = 14 - (t3 | u3 | d3) + (v3 << d3 >>> 15) | 0;
-                          d3 = h3 >>> (d3 + 7 | 0) & 1 | d3 << 1;
+                          d3 = h4 >>> (d3 + 7 | 0) & 1 | d3 << 1;
                         }
                       else
                         d3 = 0;
@@ -172255,14 +171037,14 @@ function getModule() {
                       b6 = c3[b6 >> 2] | 0;
                       c:
                         do
-                          if ((c3[b6 + 4 >> 2] & -8 | 0) != (h3 | 0)) {
-                            e3 = h3 << ((d3 | 0) == 31 ? 0 : 25 - (d3 >>> 1) | 0);
+                          if ((c3[b6 + 4 >> 2] & -8 | 0) != (h4 | 0)) {
+                            e3 = h4 << ((d3 | 0) == 31 ? 0 : 25 - (d3 >>> 1) | 0);
                             while (1) {
                               d3 = b6 + 16 + (e3 >>> 31 << 2) | 0;
                               a4 = c3[d3 >> 2] | 0;
                               if (!a4)
                                 break;
-                              if ((c3[a4 + 4 >> 2] & -8 | 0) == (h3 | 0)) {
+                              if ((c3[a4 + 4 >> 2] & -8 | 0) == (h4 | 0)) {
                                 b6 = a4;
                                 break c;
                               } else {
@@ -172287,7 +171069,7 @@ function getModule() {
                     }
                   while (0);
                 v3 = i3 + 8 | 0;
-                V2 = w3;
+                V2 = w4;
                 return v3 | 0;
               } else
                 m3 = k3;
@@ -172315,12 +171097,12 @@ function getModule() {
             c3[v3 >> 2] = c3[v3 >> 2] | 1;
           }
           v3 = a4 + 8 | 0;
-          V2 = w3;
+          V2 = w4;
           return v3 | 0;
         }
-        h3 = c3[5415] | 0;
-        if (h3 >>> 0 > m3 >>> 0) {
-          t3 = h3 - m3 | 0;
+        h4 = c3[5415] | 0;
+        if (h4 >>> 0 > m3 >>> 0) {
+          t3 = h4 - m3 | 0;
           c3[5415] = t3;
           v3 = c3[5418] | 0;
           u3 = v3 + m3 | 0;
@@ -172328,7 +171110,7 @@ function getModule() {
           c3[u3 + 4 >> 2] = t3 | 1;
           c3[v3 + 4 >> 2] = m3 | 3;
           v3 = v3 + 8 | 0;
-          V2 = w3;
+          V2 = w4;
           return v3 | 0;
         }
         if (!(c3[5530] | 0)) {
@@ -172349,13 +171131,13 @@ function getModule() {
         k3 = g3 & f3;
         if (k3 >>> 0 <= m3 >>> 0) {
           v3 = 0;
-          V2 = w3;
+          V2 = w4;
           return v3 | 0;
         }
         a4 = c3[5522] | 0;
         if (a4 | 0 ? (l3 = c3[5520] | 0, n3 = l3 + k3 | 0, n3 >>> 0 <= l3 >>> 0 | n3 >>> 0 > a4 >>> 0) : 0) {
           v3 = 0;
-          V2 = w3;
+          V2 = w4;
           return v3 | 0;
         }
         d:
@@ -172377,12 +171159,12 @@ function getModule() {
                       } else
                         e3 = a4;
                     }
-                    b6 = g3 - h3 & f3;
+                    b6 = g3 - h4 & f3;
                     if (b6 >>> 0 < 2147483647) {
                       a4 = fr2(b6) | 0;
                       if ((a4 | 0) == ((c3[e3 >> 2] | 0) + (c3[e3 + 4 >> 2] | 0) | 0)) {
                         if ((a4 | 0) != (-1 | 0)) {
-                          h3 = b6;
+                          h4 = b6;
                           g3 = a4;
                           q4 = 145;
                           break d;
@@ -172407,7 +171189,7 @@ function getModule() {
                     }
                     a4 = fr2(b6) | 0;
                     if ((a4 | 0) == (d3 | 0)) {
-                      h3 = b6;
+                      h4 = b6;
                       g3 = d3;
                       q4 = 145;
                       break d;
@@ -172427,7 +171209,7 @@ function getModule() {
                       b6 = 0;
                       break;
                     } else {
-                      h3 = b6;
+                      h4 = b6;
                       g3 = e3;
                       q4 = 145;
                       break d;
@@ -172435,7 +171217,7 @@ function getModule() {
                   a4 = c3[5532] | 0;
                   a4 = j3 - b6 + a4 & 0 - a4;
                   if (a4 >>> 0 >= 2147483647) {
-                    h3 = b6;
+                    h4 = b6;
                     g3 = e3;
                     q4 = 145;
                     break d;
@@ -172445,7 +171227,7 @@ function getModule() {
                     b6 = 0;
                     break;
                   } else {
-                    h3 = a4 + b6 | 0;
+                    h4 = a4 + b6 | 0;
                     g3 = e3;
                     q4 = 145;
                     break d;
@@ -172460,12 +171242,12 @@ function getModule() {
             }
           while (0);
         if (((q4 | 0) == 143 ? k3 >>> 0 < 2147483647 : 0) ? (t3 = fr2(k3) | 0, p3 = fr2(0) | 0, r3 = p3 - t3 | 0, s3 = r3 >>> 0 > (m3 + 40 | 0) >>> 0, !((t3 | 0) == (-1 | 0) | s3 ^ 1 | t3 >>> 0 < p3 >>> 0 & ((t3 | 0) != (-1 | 0) & (p3 | 0) != (-1 | 0)) ^ 1)) : 0) {
-          h3 = s3 ? r3 : b6;
+          h4 = s3 ? r3 : b6;
           g3 = t3;
           q4 = 145;
         }
         if ((q4 | 0) == 145) {
-          b6 = (c3[5520] | 0) + h3 | 0;
+          b6 = (c3[5520] | 0) + h4 | 0;
           c3[5520] = b6;
           if (b6 >>> 0 > (c3[5521] | 0) >>> 0)
             c3[5521] = b6;
@@ -172488,8 +171270,8 @@ function getModule() {
                     b6 = e3;
                 }
                 if (((q4 | 0) == 154 ? (u3 = b6 + 4 | 0, (c3[b6 + 12 >> 2] & 8 | 0) == 0) : 0) ? g3 >>> 0 > j3 >>> 0 & a4 >>> 0 <= j3 >>> 0 : 0) {
-                  c3[u3 >> 2] = d3 + h3;
-                  v3 = (c3[5415] | 0) + h3 | 0;
+                  c3[u3 >> 2] = d3 + h4;
+                  v3 = (c3[5415] | 0) + h4 | 0;
                   t3 = j3 + 8 | 0;
                   t3 = (t3 & 7 | 0) == 0 ? 0 : 0 - t3 & 7;
                   u3 = j3 + t3 | 0;
@@ -172503,7 +171285,7 @@ function getModule() {
                 }
                 if (g3 >>> 0 < (c3[5416] | 0) >>> 0)
                   c3[5416] = g3;
-                d3 = g3 + h3 | 0;
+                d3 = g3 + h4 | 0;
                 b6 = 22096;
                 while (1) {
                   if ((c3[b6 >> 2] | 0) == (d3 | 0)) {
@@ -172519,7 +171301,7 @@ function getModule() {
                 if ((q4 | 0) == 162 ? (c3[b6 + 12 >> 2] & 8 | 0) == 0 : 0) {
                   c3[b6 >> 2] = g3;
                   l3 = b6 + 4 | 0;
-                  c3[l3 >> 2] = (c3[l3 >> 2] | 0) + h3;
+                  c3[l3 >> 2] = (c3[l3 >> 2] | 0) + h4;
                   l3 = g3 + 8 | 0;
                   l3 = g3 + ((l3 & 7 | 0) == 0 ? 0 : 0 - l3 & 7) | 0;
                   b6 = d3 + 8 | 0;
@@ -172545,7 +171327,7 @@ function getModule() {
                         }
                         a4 = c3[b6 + 4 >> 2] | 0;
                         if ((a4 & 3 | 0) == 1) {
-                          h3 = a4 & -8;
+                          h4 = a4 & -8;
                           e3 = a4 >>> 3;
                           h:
                             do
@@ -172632,8 +171414,8 @@ function getModule() {
                                 c3[d3 + 24 >> 2] = a4;
                               }
                             while (0);
-                          b6 = b6 + h3 | 0;
-                          f3 = h3 + i3 | 0;
+                          b6 = b6 + h4 | 0;
+                          f3 = h4 + i3 | 0;
                         } else
                           f3 = i3;
                         b6 = b6 + 4 | 0;
@@ -172727,7 +171509,7 @@ function getModule() {
                       }
                     while (0);
                   v3 = l3 + 8 | 0;
-                  V2 = w3;
+                  V2 = w4;
                   return v3 | 0;
                 }
                 b6 = 22096;
@@ -172743,7 +171525,7 @@ function getModule() {
                 f3 = j3 + 16 | 0;
                 a4 = a4 >>> 0 < f3 >>> 0 ? j3 : a4;
                 b6 = a4 + 8 | 0;
-                d3 = h3 + -40 | 0;
+                d3 = h4 + -40 | 0;
                 t3 = g3 + 8 | 0;
                 t3 = (t3 & 7 | 0) == 0 ? 0 : 0 - t3 & 7;
                 u3 = g3 + t3 | 0;
@@ -172760,7 +171542,7 @@ function getModule() {
                 c3[b6 + 8 >> 2] = c3[5526];
                 c3[b6 + 12 >> 2] = c3[5527];
                 c3[5524] = g3;
-                c3[5525] = h3;
+                c3[5525] = h4;
                 c3[5527] = 0;
                 c3[5526] = b6;
                 b6 = a4 + 24 | 0;
@@ -172860,7 +171642,7 @@ function getModule() {
                 if ((v3 | 0) == 0 | g3 >>> 0 < v3 >>> 0)
                   c3[5416] = g3;
                 c3[5524] = g3;
-                c3[5525] = h3;
+                c3[5525] = h4;
                 c3[5527] = 0;
                 c3[5421] = c3[5530];
                 c3[5420] = -1;
@@ -172928,7 +171710,7 @@ function getModule() {
                 c3[5484] = 21928;
                 c3[5487] = 21936;
                 c3[5486] = 21936;
-                v3 = h3 + -40 | 0;
+                v3 = h4 + -40 | 0;
                 t3 = g3 + 8 | 0;
                 t3 = (t3 & 7 | 0) == 0 ? 0 : 0 - t3 & 7;
                 u3 = g3 + t3 | 0;
@@ -172950,18 +171732,18 @@ function getModule() {
             c3[u3 + 4 >> 2] = t3 | 1;
             c3[v3 + 4 >> 2] = m3 | 3;
             v3 = v3 + 8 | 0;
-            V2 = w3;
+            V2 = w4;
             return v3 | 0;
           }
         }
         c3[(ao() | 0) >> 2] = 48;
         v3 = 0;
-        V2 = w3;
+        V2 = w4;
         return v3 | 0;
       }
       function er2(a4) {
         a4 = a4 | 0;
-        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h3 = 0, i3 = 0, j3 = 0;
+        var b6 = 0, d3 = 0, e3 = 0, f3 = 0, g3 = 0, h4 = 0, i3 = 0, j3 = 0;
         if (!a4)
           return;
         d3 = a4 + -8 | 0;
@@ -172974,46 +171756,46 @@ function getModule() {
             e3 = c3[d3 >> 2] | 0;
             if (!(a4 & 3))
               return;
-            h3 = d3 + (0 - e3) | 0;
+            h4 = d3 + (0 - e3) | 0;
             g3 = e3 + b6 | 0;
-            if (h3 >>> 0 < f3 >>> 0)
+            if (h4 >>> 0 < f3 >>> 0)
               return;
-            if ((c3[5417] | 0) == (h3 | 0)) {
+            if ((c3[5417] | 0) == (h4 | 0)) {
               a4 = j3 + 4 | 0;
               b6 = c3[a4 >> 2] | 0;
               if ((b6 & 3 | 0) != 3) {
-                i3 = h3;
+                i3 = h4;
                 b6 = g3;
                 break;
               }
               c3[5414] = g3;
               c3[a4 >> 2] = b6 & -2;
-              c3[h3 + 4 >> 2] = g3 | 1;
-              c3[h3 + g3 >> 2] = g3;
+              c3[h4 + 4 >> 2] = g3 | 1;
+              c3[h4 + g3 >> 2] = g3;
               return;
             }
             d3 = e3 >>> 3;
             if (e3 >>> 0 < 256) {
-              a4 = c3[h3 + 8 >> 2] | 0;
-              b6 = c3[h3 + 12 >> 2] | 0;
+              a4 = c3[h4 + 8 >> 2] | 0;
+              b6 = c3[h4 + 12 >> 2] | 0;
               if ((b6 | 0) == (a4 | 0)) {
                 c3[5412] = c3[5412] & ~(1 << d3);
-                i3 = h3;
+                i3 = h4;
                 b6 = g3;
                 break;
               } else {
                 c3[a4 + 12 >> 2] = b6;
                 c3[b6 + 8 >> 2] = a4;
-                i3 = h3;
+                i3 = h4;
                 b6 = g3;
                 break;
               }
             }
-            f3 = c3[h3 + 24 >> 2] | 0;
-            a4 = c3[h3 + 12 >> 2] | 0;
+            f3 = c3[h4 + 24 >> 2] | 0;
+            a4 = c3[h4 + 12 >> 2] | 0;
             do
-              if ((a4 | 0) == (h3 | 0)) {
-                b6 = h3 + 16 | 0;
+              if ((a4 | 0) == (h4 | 0)) {
+                b6 = h4 + 16 | 0;
                 d3 = b6 + 4 | 0;
                 a4 = c3[d3 >> 2] | 0;
                 if (!a4) {
@@ -173043,33 +171825,33 @@ function getModule() {
                 }
                 c3[b6 >> 2] = 0;
               } else {
-                i3 = c3[h3 + 8 >> 2] | 0;
+                i3 = c3[h4 + 8 >> 2] | 0;
                 c3[i3 + 12 >> 2] = a4;
                 c3[a4 + 8 >> 2] = i3;
               }
             while (0);
             if (f3) {
-              b6 = c3[h3 + 28 >> 2] | 0;
+              b6 = c3[h4 + 28 >> 2] | 0;
               d3 = 21952 + (b6 << 2) | 0;
-              if ((c3[d3 >> 2] | 0) == (h3 | 0)) {
+              if ((c3[d3 >> 2] | 0) == (h4 | 0)) {
                 c3[d3 >> 2] = a4;
                 if (!a4) {
                   c3[5413] = c3[5413] & ~(1 << b6);
-                  i3 = h3;
+                  i3 = h4;
                   b6 = g3;
                   break;
                 }
               } else {
                 i3 = f3 + 16 | 0;
-                c3[((c3[i3 >> 2] | 0) == (h3 | 0) ? i3 : f3 + 20 | 0) >> 2] = a4;
+                c3[((c3[i3 >> 2] | 0) == (h4 | 0) ? i3 : f3 + 20 | 0) >> 2] = a4;
                 if (!a4) {
-                  i3 = h3;
+                  i3 = h4;
                   b6 = g3;
                   break;
                 }
               }
               c3[a4 + 24 >> 2] = f3;
-              b6 = h3 + 16 | 0;
+              b6 = h4 + 16 | 0;
               d3 = c3[b6 >> 2] | 0;
               if (d3 | 0) {
                 c3[a4 + 16 >> 2] = d3;
@@ -173079,22 +171861,22 @@ function getModule() {
               if (b6) {
                 c3[a4 + 20 >> 2] = b6;
                 c3[b6 + 24 >> 2] = a4;
-                i3 = h3;
+                i3 = h4;
                 b6 = g3;
               } else {
-                i3 = h3;
+                i3 = h4;
                 b6 = g3;
               }
             } else {
-              i3 = h3;
+              i3 = h4;
               b6 = g3;
             }
           } else {
             i3 = d3;
-            h3 = d3;
+            h4 = d3;
           }
         while (0);
-        if (h3 >>> 0 >= j3 >>> 0)
+        if (h4 >>> 0 >= j3 >>> 0)
           return;
         a4 = j3 + 4 | 0;
         e3 = c3[a4 >> 2] | 0;
@@ -173115,9 +171897,9 @@ function getModule() {
           if ((c3[5417] | 0) == (j3 | 0)) {
             j3 = (c3[5414] | 0) + b6 | 0;
             c3[5414] = j3;
-            c3[5417] = h3;
+            c3[5417] = h4;
             c3[i3 + 4 >> 2] = j3 | 1;
-            c3[h3 + j3 >> 2] = j3;
+            c3[h4 + j3 >> 2] = j3;
             return;
           }
           f3 = (e3 & -8) + b6 | 0;
@@ -173207,7 +171989,7 @@ function getModule() {
             }
           while (0);
           c3[i3 + 4 >> 2] = f3 | 1;
-          c3[h3 + f3 >> 2] = f3;
+          c3[h4 + f3 >> 2] = f3;
           if ((i3 | 0) == (c3[5417] | 0)) {
             c3[5414] = f3;
             return;
@@ -173215,7 +171997,7 @@ function getModule() {
         } else {
           c3[a4 >> 2] = e3 & -2;
           c3[i3 + 4 >> 2] = b6 | 1;
-          c3[h3 + b6 >> 2] = b6;
+          c3[h4 + b6 >> 2] = b6;
           f3 = b6;
         }
         a4 = f3 >>> 3;
@@ -173242,12 +172024,12 @@ function getModule() {
           if (f3 >>> 0 > 16777215)
             e3 = 31;
           else {
-            h3 = (a4 + 1048320 | 0) >>> 16 & 8;
-            j3 = a4 << h3;
+            h4 = (a4 + 1048320 | 0) >>> 16 & 8;
+            j3 = a4 << h4;
             g3 = (j3 + 520192 | 0) >>> 16 & 4;
             j3 = j3 << g3;
             e3 = (j3 + 245760 | 0) >>> 16 & 2;
-            e3 = 14 - (g3 | h3 | e3) + (j3 << e3 >>> 15) | 0;
+            e3 = 14 - (g3 | h4 | e3) + (j3 << e3 >>> 15) | 0;
             e3 = f3 >>> (e3 + 7 | 0) & 1 | e3 << 1;
           }
         else
@@ -173292,10 +172074,10 @@ function getModule() {
                     break a;
                   }
                 while (0);
-              h3 = a4 + 8 | 0;
-              j3 = c3[h3 >> 2] | 0;
+              h4 = a4 + 8 | 0;
+              j3 = c3[h4 >> 2] | 0;
               c3[j3 + 12 >> 2] = i3;
-              c3[h3 >> 2] = i3;
+              c3[h4 >> 2] = i3;
               c3[i3 + 8 >> 2] = j3;
               c3[i3 + 12 >> 2] = a4;
               c3[i3 + 24 >> 2] = 0;
@@ -173402,22 +172184,22 @@ function getModule() {
         d3 = d3 | 0;
         e3 = e3 | 0;
         f3 = f3 | 0;
-        var g3 = 0, h3 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0;
+        var g3 = 0, h4 = 0, i3 = 0, j3 = 0, k3 = 0, l3 = 0, m3 = 0, n3 = 0, o3 = 0, p3 = 0;
         l3 = a4;
         j3 = b6;
         k3 = j3;
-        h3 = d3;
+        h4 = d3;
         n3 = e3;
         i3 = n3;
         if (!k3) {
           g3 = (f3 | 0) != 0;
           if (!i3) {
             if (g3) {
-              c3[f3 >> 2] = (l3 >>> 0) % (h3 >>> 0);
+              c3[f3 >> 2] = (l3 >>> 0) % (h4 >>> 0);
               c3[f3 + 4 >> 2] = 0;
             }
             n3 = 0;
-            f3 = (l3 >>> 0) / (h3 >>> 0) >>> 0;
+            f3 = (l3 >>> 0) / (h4 >>> 0) >>> 0;
             return (t2(n3 | 0), f3) | 0;
           } else {
             if (!g3) {
@@ -173434,14 +172216,14 @@ function getModule() {
         }
         g3 = (i3 | 0) == 0;
         do
-          if (h3) {
+          if (h4) {
             if (!g3) {
               g3 = (r2(i3 | 0) | 0) - (r2(k3 | 0) | 0) | 0;
               if (g3 >>> 0 <= 31) {
                 m3 = g3 + 1 | 0;
                 i3 = 31 - g3 | 0;
                 b6 = g3 - 31 >> 31;
-                h3 = m3;
+                h4 = m3;
                 a4 = l3 >>> (m3 >>> 0) & b6 | k3 << i3;
                 b6 = k3 >>> (m3 >>> 0) & b6;
                 g3 = 0;
@@ -173459,15 +172241,15 @@ function getModule() {
               f3 = 0;
               return (t2(n3 | 0), f3) | 0;
             }
-            g3 = h3 - 1 | 0;
-            if (g3 & h3 | 0) {
-              i3 = (r2(h3 | 0) | 0) + 33 - (r2(k3 | 0) | 0) | 0;
+            g3 = h4 - 1 | 0;
+            if (g3 & h4 | 0) {
+              i3 = (r2(h4 | 0) | 0) + 33 - (r2(k3 | 0) | 0) | 0;
               p3 = 64 - i3 | 0;
               m3 = 32 - i3 | 0;
               j3 = m3 >> 31;
               o3 = i3 - 32 | 0;
               b6 = o3 >> 31;
-              h3 = i3;
+              h4 = i3;
               a4 = m3 - 1 >> 31 & k3 >>> (o3 >>> 0) | (k3 << m3 | l3 >>> (i3 >>> 0)) & b6;
               b6 = b6 & k3 >>> (i3 >>> 0);
               g3 = l3 << p3 & j3;
@@ -173478,12 +172260,12 @@ function getModule() {
               c3[f3 >> 2] = g3 & l3;
               c3[f3 + 4 >> 2] = 0;
             }
-            if ((h3 | 0) == 1) {
+            if ((h4 | 0) == 1) {
               o3 = j3 | b6 & 0;
               p3 = a4 | 0 | 0;
               return (t2(o3 | 0), p3) | 0;
             } else {
-              p3 = nr2(h3 | 0) | 0;
+              p3 = nr2(h4 | 0) | 0;
               o3 = k3 >>> (p3 >>> 0) | 0;
               p3 = k3 << 32 - p3 | l3 >>> (p3 >>> 0) | 0;
               return (t2(o3 | 0), p3) | 0;
@@ -173491,11 +172273,11 @@ function getModule() {
           } else {
             if (g3) {
               if (f3 | 0) {
-                c3[f3 >> 2] = (k3 >>> 0) % (h3 >>> 0);
+                c3[f3 >> 2] = (k3 >>> 0) % (h4 >>> 0);
                 c3[f3 + 4 >> 2] = 0;
               }
               o3 = 0;
-              p3 = (k3 >>> 0) / (h3 >>> 0) >>> 0;
+              p3 = (k3 >>> 0) / (h4 >>> 0) >>> 0;
               return (t2(o3 | 0), p3) | 0;
             }
             if (!l3) {
@@ -173521,7 +172303,7 @@ function getModule() {
             if (g3 >>> 0 <= 30) {
               b6 = g3 + 1 | 0;
               i3 = 31 - g3 | 0;
-              h3 = b6;
+              h4 = b6;
               a4 = k3 << i3 | l3 >>> (b6 >>> 0);
               b6 = k3 >>> (b6 >>> 0);
               g3 = 0;
@@ -173540,7 +172322,7 @@ function getModule() {
             return (t2(o3 | 0), p3) | 0;
           }
         while (0);
-        if (!h3) {
+        if (!h4) {
           k3 = i3;
           j3 = 0;
           i3 = 0;
@@ -173563,17 +172345,17 @@ function getModule() {
             i3 = o3 & 1;
             a4 = mr2(e3 | 0, n3 | 0, o3 & m3 | 0, (((p3 | 0) < 0 ? -1 : 0) >> 31 | ((p3 | 0) < 0 ? -1 : 0) << 1) & l3 | 0) | 0;
             b6 = u2() | 0;
-            h3 = h3 - 1 | 0;
-          } while ((h3 | 0) != 0);
+            h4 = h4 - 1 | 0;
+          } while ((h4 | 0) != 0);
           k3 = j3;
           j3 = 0;
         }
-        h3 = 0;
+        h4 = 0;
         if (f3 | 0) {
           c3[f3 >> 2] = a4;
           c3[f3 + 4 >> 2] = b6;
         }
-        o3 = (g3 | 0) >>> 31 | (k3 | h3) << 1 | (h3 << 1 | g3 >>> 31) & 0 | j3;
+        o3 = (g3 | 0) >>> 31 | (k3 | h4) << 1 | (h4 << 1 | g3 >>> 31) & 0 | j3;
         p3 = (g3 << 1 | 0 >>> 31) & -2 | i3;
         return (t2(o3 | 0), p3) | 0;
       }
@@ -173617,17 +172399,17 @@ function getModule() {
         b6 = b6 | 0;
         d3 = d3 | 0;
         e3 = e3 | 0;
-        var f3 = 0, g3 = 0, h3 = 0;
+        var f3 = 0, g3 = 0, h4 = 0;
         if ((e3 | 0) >= 512) {
           S2(b6 | 0, d3 | 0, e3 | 0) | 0;
           return b6 | 0;
         }
-        h3 = b6 | 0;
+        h4 = b6 | 0;
         g3 = b6 + e3 | 0;
         if ((b6 & 3) == (d3 & 3)) {
           while (b6 & 3) {
             if (!e3)
-              return h3 | 0;
+              return h4 | 0;
             a3[b6 >> 0] = a3[d3 >> 0] | 0;
             b6 = b6 + 1 | 0;
             d3 = d3 + 1 | 0;
@@ -173676,7 +172458,7 @@ function getModule() {
           b6 = b6 + 1 | 0;
           d3 = d3 + 1 | 0;
         }
-        return h3 | 0;
+        return h4 | 0;
       }
       function vr2(b6, c4, d3) {
         b6 = b6 | 0;
@@ -173702,15 +172484,15 @@ function getModule() {
         b6 = b6 | 0;
         d3 = d3 | 0;
         e3 = e3 | 0;
-        var f3 = 0, g3 = 0, h3 = 0, i3 = 0;
-        h3 = b6 + e3 | 0;
+        var f3 = 0, g3 = 0, h4 = 0, i3 = 0;
+        h4 = b6 + e3 | 0;
         d3 = d3 & 255;
         if ((e3 | 0) >= 67) {
           while (b6 & 3) {
             a3[b6 >> 0] = d3;
             b6 = b6 + 1 | 0;
           }
-          f3 = h3 & -4 | 0;
+          f3 = h4 & -4 | 0;
           i3 = d3 | d3 << 8 | d3 << 16 | d3 << 24;
           g3 = f3 - 64 | 0;
           while ((b6 | 0) <= (g3 | 0)) {
@@ -173737,11 +172519,11 @@ function getModule() {
             b6 = b6 + 4 | 0;
           }
         }
-        while ((b6 | 0) < (h3 | 0)) {
+        while ((b6 | 0) < (h4 | 0)) {
           a3[b6 >> 0] = d3;
           b6 = b6 + 1 | 0;
         }
-        return h3 - e3 | 0;
+        return h4 - e3 | 0;
       }
       function xr2(a4) {
         a4 = a4 | 0;
@@ -175242,16 +174024,7 @@ async function parseLAS2(params, options = {}) {
 var e57_exports = {};
 __export(e57_exports, {
   E57Exporter: () => E57Exporter,
-  E57Loader: () => E57Loader,
-  E57_HEADER_LENGTH: () => E57_HEADER_LENGTH,
-  buildLogicalStream: () => buildLogicalStream,
-  crc32c: () => crc32c,
-  decodeCompressedVector: () => decodeCompressedVector,
-  logicalToPhysical: () => logicalToPhysical,
-  parseE57Header: () => parseE57Header,
-  parseE57Xml: () => parseE57Xml,
-  physicalToLogical: () => physicalToLogical,
-  readE57: () => readE57
+  E57Loader: () => E57Loader
 });
 
 // src/formats/e57/parser/parseE57Header.ts
@@ -175293,14 +174066,14 @@ function buildLogicalStream(fileData, pageSize) {
   const dataPerPage = pageSize - 4;
   const pageCount = Math.ceil(data.length / pageSize);
   const out = new Uint8Array(pageCount * dataPerPage);
-  let w2 = 0;
+  let w3 = 0;
   for (let p2 = 0; p2 < pageCount; p2++) {
     const start = p2 * pageSize;
     const end = Math.min(start + dataPerPage, data.length);
-    out.set(data.subarray(start, end), w2);
-    w2 += end - start;
+    out.set(data.subarray(start, end), w3);
+    w3 += end - start;
   }
-  return out.subarray(0, w2);
+  return out.subarray(0, w3);
 }
 function physicalToLogical(physicalOffset, pageSize) {
   const dataPerPage = pageSize - 4;
@@ -175498,7 +174271,7 @@ function decodeCompressedVector(logical, scan, pageSize) {
       p2 += bsLengths[i2];
     }
     off += packetLength + (4 - (packetLength & 3) & 3);
-    if (have.every((h2, i2) => h2 >= required[i2]))
+    if (have.every((h3, i2) => h3 >= required[i2]))
       break;
   }
   const columns = /* @__PURE__ */ new Map();
@@ -175546,10 +174319,10 @@ function concat(chunks) {
   for (const c3 of chunks)
     total += c3.length;
   const out = new Uint8Array(total);
-  let w2 = 0;
+  let w3 = 0;
   for (const c3 of chunks) {
-    out.set(c3, w2);
-    w2 += c3.length;
+    out.set(c3, w3);
+    w3 += c3.length;
   }
   return out;
 }
@@ -175929,10 +174702,10 @@ function concat2(parts) {
   for (const c3 of parts)
     total += c3.length;
   const out = new Uint8Array(total);
-  let w2 = 0;
+  let w3 = 0;
   for (const c3 of parts) {
-    out.set(c3, w2);
-    w2 += c3.length;
+    out.set(c3, w3);
+    w3 += c3.length;
   }
   return out;
 }
@@ -175946,7 +174719,7 @@ __export(dotbim_exports, {
 
 // src/formats/dotbim/versions/1_0_0/parse.ts
 var SCHEMA3 = "IFC4";
-var parse10 = async (params, options) => {
+var parse8 = async (params, options) => {
   const fileData = params.fileData;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -176037,7 +174810,7 @@ var parse10 = async (params, options) => {
 
 // src/formats/dotbim/versions/1_1_0/parse.ts
 var SCHEMA4 = "IFC4";
-var parse11 = async (params, options) => {
+var parse9 = async (params, options) => {
   const fileData = params.fileData;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -176133,8 +174906,8 @@ var DotBIMLoader = class extends ModelLoader {
       format: "DotBIM",
       fileDataType: "json",
       parsers: {
-        "1.0.0": parse10,
-        "1.1.0": parse11
+        "1.0.0": parse8,
+        "1.1.0": parse9
       },
       getVersion: (sourceFileData) => {
         return sourceFileData.schema_version || "1.0.0";
@@ -176147,7 +174920,7 @@ var DotBIMLoader = class extends ModelLoader {
 var tempVec3a6 = createVec3Float64();
 var tempVec3b6 = createVec3Float64();
 var tempMat4a4 = createMat4Float64();
-async function encode14(params, options) {
+async function encode12(params, options) {
   const { sceneModel, dataModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -176287,7 +175060,7 @@ async function encode14(params, options) {
 var tempVec3a7 = createVec3Float64();
 var tempVec3b7 = createVec3Float64();
 var tempMat4a5 = createMat4Float64();
-async function encode15(params, options) {
+async function encode13(params, options) {
   const { sceneModel, dataModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -176431,8 +175204,8 @@ var DotBIMExporter = class extends ModelExporter {
       format: "DotBIM",
       fileDataType: "json",
       encoders: {
-        "1.0.0": encode14,
-        "1.1.0": encode15
+        "1.0.0": encode12,
+        "1.1.0": encode13
       },
       defaultVersion: "1.1.0"
     });
@@ -176447,7 +175220,7 @@ __export(scenemodel_exports, {
 });
 
 // src/formats/scenemodel/versions/1_0/parse.ts
-function parse12(params, options) {
+function parse10(params, options) {
   return new Promise(function(resolve3, reject) {
     if (params.sceneModel && params.fileData) {
       const result = params.sceneModel.fromParams(params.fileData);
@@ -176469,7 +175242,7 @@ var SceneModelImporter = class extends ModelLoader {
       format: "SceneModelParams",
       fileDataType: "json",
       parsers: {
-        "1.0": parse12
+        "1.0": parse10
       },
       getVersion: (fileData) => {
         return fileData.version || "1.0";
@@ -176479,7 +175252,7 @@ var SceneModelImporter = class extends ModelLoader {
 };
 
 // src/formats/scenemodel/versions/1_0/encode.ts
-async function encode16(params, options) {
+async function encode14(params, options) {
   const opts = options || {};
   const onProgress = opts.onProgress;
   const signal = opts.signal;
@@ -176511,7 +175284,7 @@ var SceneModelExporter = class extends ModelExporter {
       format: "SceneModelParams",
       fileDataType: "json",
       encoders: {
-        "1.0": encode16
+        "1.0": encode14
       },
       defaultVersion: "1.0"
     });
@@ -176526,7 +175299,7 @@ __export(datamodel_exports, {
 });
 
 // src/formats/datamodel/versions/1_0/parse.ts
-function parse13(params, options) {
+function parse11(params, options) {
   return new Promise(function(resolve3, reject) {
     if (params.dataModel && params.fileData) {
       const result = params.dataModel.fromParams(params.fileData);
@@ -176548,7 +175321,7 @@ var DataModelImporter = class extends ModelLoader {
       format: "DataModelParams",
       fileDataType: "json",
       parsers: {
-        "1.0": parse13
+        "1.0": parse11
       },
       getVersion: (fileData) => {
         return fileData.version || "1.0";
@@ -176558,7 +175331,7 @@ var DataModelImporter = class extends ModelLoader {
 };
 
 // src/formats/datamodel/versions/1_0/encode.ts
-async function encode17(params, options) {
+async function encode15(params, options) {
   const opts = options || {};
   const onProgress = opts.onProgress;
   const signal = opts.signal;
@@ -176588,7 +175361,7 @@ var DataModelExporter = class extends ModelExporter {
       format: "DataModelParams",
       fileDataType: "json",
       encoders: {
-        "1.0": encode17
+        "1.0": encode15
       },
       defaultVersion: "1.0"
     });
@@ -176769,8 +175542,8 @@ async function encodeSplatModel(params) {
       const x2 = geomRotations ? geomRotations[i2 * 4] : 0;
       const y2 = geomRotations ? geomRotations[i2 * 4 + 1] : 0;
       const z2 = geomRotations ? geomRotations[i2 * 4 + 2] : 0;
-      const w2 = geomRotations ? geomRotations[i2 * 4 + 3] : 1;
-      rotations[s2 * 4] = w2;
+      const w3 = geomRotations ? geomRotations[i2 * 4 + 3] : 1;
+      rotations[s2 * 4] = w3;
       rotations[s2 * 4 + 1] = x2;
       rotations[s2 * 4 + 2] = y2;
       rotations[s2 * 4 + 3] = z2;
@@ -177121,9 +175894,9 @@ function TreeDesc(dyn_tree, stat_desc) {
 var d_code = (dist) => {
   return dist < 256 ? _dist_code[dist] : _dist_code[256 + (dist >>> 7)];
 };
-var put_short = (s2, w2) => {
-  s2.pending_buf[s2.pending++] = w2 & 255;
-  s2.pending_buf[s2.pending++] = w2 >>> 8 & 255;
+var put_short = (s2, w3) => {
+  s2.pending_buf[s2.pending++] = w3 & 255;
+  s2.pending_buf[s2.pending++] = w3 >>> 8 & 255;
 };
 var send_bits = (s2, value, length2) => {
   if (s2.bi_valid > Buf_size - length2) {
@@ -177172,7 +175945,7 @@ var gen_bitlen = (s2, desc) => {
   const extra = desc.stat_desc.extra_bits;
   const base = desc.stat_desc.extra_base;
   const max_length = desc.stat_desc.max_length;
-  let h2;
+  let h3;
   let n2, m2;
   let bits;
   let xbits;
@@ -177182,8 +175955,8 @@ var gen_bitlen = (s2, desc) => {
     s2.bl_count[bits] = 0;
   }
   tree[s2.heap[s2.heap_max] * 2 + 1] = 0;
-  for (h2 = s2.heap_max + 1; h2 < HEAP_SIZE$1; h2++) {
-    n2 = s2.heap[h2];
+  for (h3 = s2.heap_max + 1; h3 < HEAP_SIZE$1; h3++) {
+    n2 = s2.heap[h3];
     bits = tree[tree[n2 * 2 + 1] * 2 + 1] + 1;
     if (bits > max_length) {
       bits = max_length;
@@ -177220,7 +175993,7 @@ var gen_bitlen = (s2, desc) => {
   for (bits = max_length; bits !== 0; bits--) {
     n2 = s2.bl_count[bits];
     while (n2 !== 0) {
-      m2 = s2.heap[--h2];
+      m2 = s2.heap[--h3];
       if (m2 > max_code) {
         continue;
       }
@@ -181437,7 +180210,7 @@ function buildDataModel(dataModel, metadata) {
 }
 
 // src/formats/legacy/xkt/versions/v7/parse.ts
-async function parse14(params, options) {
+async function parse12(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e2 = splitElements(fileData);
   const xktData = {
@@ -181463,7 +180236,7 @@ async function parse14(params, options) {
 }
 
 // src/formats/legacy/xkt/versions/v8/parse.ts
-async function parse15(params, options) {
+async function parse13(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e2 = splitElements(fileData);
   const types = JSON.parse(inflateString(e2[0]));
@@ -181506,7 +180279,7 @@ async function parse15(params, options) {
 }
 
 // src/formats/legacy/xkt/versions/v9/parse.ts
-async function parse16(params, options) {
+async function parse14(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e2 = splitElements(fileData);
   const xktData = {
@@ -181533,7 +180306,7 @@ async function parse16(params, options) {
 }
 
 // src/formats/legacy/xkt/versions/v10/parse.ts
-async function parse17(params, options) {
+async function parse15(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e2 = splitElements(fileData);
   const xktData = {
@@ -181560,7 +180333,7 @@ async function parse17(params, options) {
 }
 
 // src/formats/legacy/xkt/versions/v11/parse.ts
-async function parse18(params, options) {
+async function parse16(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const requiresSwapFromLittleEndian = function() {
     const b5 = new ArrayBuffer(2);
@@ -181921,7 +180694,7 @@ function buildDataModel2(dataModel, metadata) {
 }
 
 // src/formats/legacy/xkt/versions/v12/parse.ts
-async function parse19(params, options) {
+async function parse17(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   await xktToModel({
     xktData: unpackXKT(fileData),
@@ -181932,7 +180705,7 @@ async function parse19(params, options) {
 }
 
 // src/formats/legacy/xkt/versions/v12/parseCompressed.ts
-async function parse20(params, options) {
+async function parse18(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   const e2 = splitElements(fileData);
   const xktData = {
@@ -181965,13 +180738,13 @@ var XKTLoader = class extends ModelLoader {
       format: "XKT",
       fileDataType: "arraybuffer",
       parsers: {
-        "7": parse14,
-        "8": parse15,
-        "9": parse16,
-        "10": parse17,
-        "11": parse18,
-        "12": parse19,
-        "12z": parse20
+        "7": parse12,
+        "8": parse13,
+        "9": parse14,
+        "10": parse15,
+        "11": parse16,
+        "12": parse17,
+        "12z": parse18
       },
       getVersion: (fileData) => {
         const word = new DataView(fileData).getUint32(0, true);
@@ -182202,11 +180975,11 @@ var XKT_INFO = {
 };
 
 // src/formats/legacy/xkt/versions/v12/packXKT.ts
-var object2Array4 = function() {
+var object2Array2 = function() {
   const encoder = new TextEncoder();
   return (obj) => encoder.encode(JSON.stringify(obj));
 }();
-function toArrayBuffer8(arrays) {
+function toArrayBuffer6(arrays) {
   const arraysCnt = arrays.length;
   const dataView = new DataView(new ArrayBuffer((1 + 2 * arraysCnt) * 4));
   dataView.setUint32(0, XKT_INFO.xktVersion, true);
@@ -182252,8 +181025,8 @@ function toArrayBuffer8(arrays) {
   return dataArray.buffer;
 }
 function packXKT(xktData) {
-  return toArrayBuffer8([
-    object2Array4(xktData.metadata),
+  return toArrayBuffer6([
+    object2Array2(xktData.metadata),
     xktData.textureData,
     xktData.eachTextureDataPortion,
     xktData.eachTextureAttributes,
@@ -182267,7 +181040,7 @@ function packXKT(xktData) {
     xktData.matrices,
     xktData.reusedGeometriesDecodeMatrix,
     xktData.eachGeometryPrimitiveType,
-    object2Array4(xktData.eachGeometryAxisLabel),
+    object2Array2(xktData.eachGeometryAxisLabel),
     xktData.eachGeometryPositionsPortion,
     xktData.eachGeometryNormalsPortion,
     xktData.eachGeometryColorsPortion,
@@ -182278,7 +181051,7 @@ function packXKT(xktData) {
     xktData.eachMeshMatricesPortion,
     xktData.eachMeshTextureSet,
     xktData.eachMeshMaterialAttributes,
-    object2Array4(xktData.eachEntityId),
+    object2Array2(xktData.eachEntityId),
     xktData.eachEntityMeshesPortion,
     xktData.eachTileAABB,
     xktData.eachTileEntitiesPortion
@@ -182286,7 +181059,15 @@ function packXKT(xktData) {
 }
 
 // src/formats/legacy/xkt/versions/v12/encode.ts
-async function encode18(params, options) {
+async function encode16(params, options) {
+  var _a2;
+  if (params.sceneModel) {
+    const triplanarSkip = findTriplanarTextureSkip(params.sceneModel);
+    if (triplanarSkip.any) {
+      const warn = (_a2 = options == null ? void 0 : options.onWarning) != null ? _a2 : (m2) => console.warn(m2);
+      warn(triplanarSkipWarning("XKT", triplanarSkip));
+    }
+  }
   const xktData = await modelToXKT({
     sceneModel: params.sceneModel,
     dataModel: params.dataModel,
@@ -182302,7 +181083,7 @@ var XKTExporter = class extends ModelExporter {
       format: "XKT",
       fileDataType: "arraybuffer",
       encoders: {
-        "12": encode18
+        "12": encode16
       },
       defaultVersion: "12"
     });
@@ -182317,7 +181098,7 @@ __export(obj_exports, {
 });
 
 // src/formats/obj/versions/v1_0/parse.ts
-var parse21 = async (params, options) => {
+var parse19 = async (params, options) => {
   const { fileData, sceneModel, dataModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -182333,7 +181114,7 @@ var parse21 = async (params, options) => {
     await yieldToHost(signal);
   };
   if (sceneModel || dataModel) {
-    const ctx = {
+    const ctx2 = {
       fileData,
       errors: [],
       warnings: [],
@@ -182347,15 +181128,15 @@ var parse21 = async (params, options) => {
       materials: {},
       currentObject: null
     };
-    await parseOBJDirect(ctx, step2);
-    if (ctx.currentObject) {
-      flushCurrentObject(ctx);
+    await parseOBJDirect(ctx2, step2);
+    if (ctx2.currentObject) {
+      flushCurrentObject(ctx2);
     }
-    if (ctx.errors.length > 0) {
-      throw new Error(`[OBJLoader] Failed to parse OBJ file: ${ctx.errors[0]}`);
+    if (ctx2.errors.length > 0) {
+      throw new Error(`[OBJLoader] Failed to parse OBJ file: ${ctx2.errors[0]}`);
     }
-    if (ctx.warnings.length > 0) {
-      console.warn(`[OBJLoader] Warning while parsing OBJ file: ${ctx.warnings[0]}`);
+    if (ctx2.warnings.length > 0) {
+      console.warn(`[OBJLoader] Warning while parsing OBJ file: ${ctx2.warnings[0]}`);
     }
   }
 };
@@ -182368,9 +181149,9 @@ var regexp = {
   material_library_pattern: /^mtllib /,
   material_use_pattern: /^usemtl /
 };
-async function parseOBJDirect(ctx, step2) {
-  let fileData = ctx.fileData;
-  startObject(ctx, "", false);
+async function parseOBJDirect(ctx2, step2) {
+  let fileData = ctx2.fileData;
+  startObject(ctx2, "", false);
   if (fileData.indexOf("\r\n") !== -1) {
     fileData = fileData.replace(/\r\n/g, "\n");
   }
@@ -182392,50 +181173,50 @@ async function parseOBJDirect(ctx, step2) {
     if (lineFirstChar === "v") {
       const lineSecondChar = line.charAt(1);
       if (lineSecondChar === " " && (result = regexp.vertex_pattern.exec(line)) !== null) {
-        ctx.srcPositions.push(
+        ctx2.srcPositions.push(
           parseFloat(result[1]),
           parseFloat(result[2]),
           parseFloat(result[3])
         );
       } else if (lineSecondChar === "n" && (result = regexp.normal_pattern.exec(line)) !== null) {
-        ctx.srcNormals.push(
+        ctx2.srcNormals.push(
           parseFloat(result[1]),
           parseFloat(result[2]),
           parseFloat(result[3])
         );
       } else if (lineSecondChar === "t" && (result = regexp.uv_pattern.exec(line)) !== null) {
-        ctx.srcUVs.push(
+        ctx2.srcUVs.push(
           parseFloat(result[1]),
           parseFloat(result[2])
         );
       } else {
-        ctx.errors.push(`Unexpected vertex/normal/uv line: '${line}'`);
+        ctx2.errors.push(`Unexpected vertex/normal/uv line: '${line}'`);
         return;
       }
       continue;
     }
     if (lineFirstChar === "f") {
-      parseFaceLine(ctx, line);
-      if (ctx.errors.length > 0) {
+      parseFaceLine(ctx2, line);
+      if (ctx2.errors.length > 0) {
         return;
       }
       continue;
     }
     if (lineFirstChar === "l") {
-      addLineGeometry(ctx, line);
+      addLineGeometry(ctx2, line);
       continue;
     }
     if ((result = regexp.object_pattern.exec(line)) !== null) {
       const id = result[0].substring(1).trim();
-      if (ctx.currentObject && ctx.currentObject.geometry.indices.length > 0) {
-        flushCurrentObject(ctx);
+      if (ctx2.currentObject && ctx2.currentObject.geometry.indices.length > 0) {
+        flushCurrentObject(ctx2);
       }
-      startObject(ctx, id, true);
+      startObject(ctx2, id, true);
       continue;
     }
     if (regexp.material_use_pattern.test(line)) {
-      if (ctx.currentObject) {
-        ctx.currentObject.material.id = line.substring(7).trim();
+      if (ctx2.currentObject) {
+        ctx2.currentObject.material.id = line.substring(7).trim();
       }
       continue;
     }
@@ -182443,27 +181224,27 @@ async function parseOBJDirect(ctx, step2) {
       continue;
     }
     if ((result = regexp.smoothing_pattern.exec(line)) !== null) {
-      if (ctx.currentObject) {
+      if (ctx2.currentObject) {
         const value = result[1].trim().toLowerCase();
-        ctx.currentObject.material.smooth = value === "1" || value === "on";
+        ctx2.currentObject.material.smooth = value === "1" || value === "on";
       }
       continue;
     }
     if (line === "\0") {
       continue;
     }
-    ctx.errors.push(`Unexpected line: '${line}'`);
+    ctx2.errors.push(`Unexpected line: '${line}'`);
     return;
   }
   await step2("Parsing OBJ lines", lines.length, lines.length);
 }
-function startObject(ctx, id, fromDeclaration) {
-  if (ctx.currentObject && ctx.currentObject.fromDeclaration === false) {
-    ctx.currentObject.id = id;
-    ctx.currentObject.fromDeclaration = fromDeclaration !== false;
+function startObject(ctx2, id, fromDeclaration) {
+  if (ctx2.currentObject && ctx2.currentObject.fromDeclaration === false) {
+    ctx2.currentObject.id = id;
+    ctx2.currentObject.fromDeclaration = fromDeclaration !== false;
     return;
   }
-  ctx.currentObject = {
+  ctx2.currentObject = {
     id: id || "",
     geometry: {
       positions: [],
@@ -182479,9 +181260,9 @@ function startObject(ctx, id, fromDeclaration) {
     vertexMap: /* @__PURE__ */ new Map()
   };
 }
-function flushCurrentObject(ctx) {
+function flushCurrentObject(ctx2) {
   var _a2, _b;
-  const object = ctx.currentObject;
+  const object = ctx2.currentObject;
   if (!object) {
     return;
   }
@@ -182490,7 +181271,7 @@ function flushCurrentObject(ctx) {
     return;
   }
   if (geometry.type === "Line") {
-    ctx.warnings.push(`Skipping line geometry object '${object.id}'`);
+    ctx2.warnings.push(`Skipping line geometry object '${object.id}'`);
     return;
   }
   const geometryId = createUUID();
@@ -182507,17 +181288,17 @@ function flushCurrentObject(ctx) {
   if (geometry.uv.length === vertexCount * 2) {
     geometryCfg.uvs = geometry.uv.slice();
   }
-  const createGeometryResult = ctx.sceneModel.createGeometry(geometryCfg);
+  const createGeometryResult = ctx2.sceneModel.createGeometry(geometryCfg);
   if (createGeometryResult.ok !== true) {
-    ctx.errors.push(`Failed to create geometry for object '${object.id}'`);
+    ctx2.errors.push(`Failed to create geometry for object '${object.id}'`);
     return;
   }
   const meshId = createUUID();
   const materialId = object.material.id;
-  const mat = ctx.materials[materialId];
+  const mat = ctx2.materials[materialId];
   const color = (_a2 = mat == null ? void 0 : mat.color) != null ? _a2 : [0.8, 0.8, 0.8];
   const opacity = (_b = mat == null ? void 0 : mat.opacity) != null ? _b : 1;
-  const createMeshResult = ctx.sceneModel.createMesh({
+  const createMeshResult = ctx2.sceneModel.createMesh({
     id: meshId,
     geometryId,
     materialId,
@@ -182525,17 +181306,17 @@ function flushCurrentObject(ctx) {
     opacity
   });
   if (createMeshResult.ok !== true) {
-    ctx.errors.push(`Failed to create mesh for object '${object.id}'`);
+    ctx2.errors.push(`Failed to create mesh for object '${object.id}'`);
     return;
   }
   const objectId = createUUID();
-  const createObjectResult = ctx.sceneModel.createObject({
+  const createObjectResult = ctx2.sceneModel.createObject({
     id: objectId,
     meshIds: [meshId],
-    layerId: ctx.options.layerId
+    layerId: ctx2.options.layerId
   });
   if (createObjectResult.ok !== true) {
-    ctx.errors.push(`Failed to create object for object '${object.id}'`);
+    ctx2.errors.push(`Failed to create object for object '${object.id}'`);
     return;
   }
   geometry.positions.length = 0;
@@ -182556,12 +181337,12 @@ function parseUVIndex(value, len) {
   const index2 = parseInt(value, 10);
   return (index2 >= 0 ? index2 - 1 : index2 + len / 2) * 2;
 }
-function getOrCreateVertex(ctx, v2, uv, n2) {
-  const object = ctx.currentObject;
+function getOrCreateVertex(ctx2, v2, uv, n2) {
+  const object = ctx2.currentObject;
   const geometry = object.geometry;
-  const vIndex = parseVertexIndex(v2, ctx.srcPositions.length);
-  const uvIndex = uv !== void 0 ? parseUVIndex(uv, ctx.srcUVs.length) : -1;
-  const nIndex = n2 !== void 0 ? parseNormalIndex(n2, ctx.srcNormals.length) : -1;
+  const vIndex = parseVertexIndex(v2, ctx2.srcPositions.length);
+  const uvIndex = uv !== void 0 ? parseUVIndex(uv, ctx2.srcUVs.length) : -1;
+  const nIndex = n2 !== void 0 ? parseNormalIndex(n2, ctx2.srcNormals.length) : -1;
   const key = `${vIndex}/${uvIndex}/${nIndex}`;
   const existing = object.vertexMap.get(key);
   if (existing !== void 0) {
@@ -182570,39 +181351,39 @@ function getOrCreateVertex(ctx, v2, uv, n2) {
   const dstIndex = geometry.positions.length / 3;
   object.vertexMap.set(key, dstIndex);
   geometry.positions.push(
-    ctx.srcPositions[vIndex],
-    ctx.srcPositions[vIndex + 1],
-    ctx.srcPositions[vIndex + 2]
+    ctx2.srcPositions[vIndex],
+    ctx2.srcPositions[vIndex + 1],
+    ctx2.srcPositions[vIndex + 2]
   );
   if (uvIndex !== -1) {
     geometry.uv.push(
-      ctx.srcUVs[uvIndex],
-      ctx.srcUVs[uvIndex + 1]
+      ctx2.srcUVs[uvIndex],
+      ctx2.srcUVs[uvIndex + 1]
     );
   }
   if (nIndex !== -1) {
     geometry.normals.push(
-      ctx.srcNormals[nIndex],
-      ctx.srcNormals[nIndex + 1],
-      ctx.srcNormals[nIndex + 2]
+      ctx2.srcNormals[nIndex],
+      ctx2.srcNormals[nIndex + 1],
+      ctx2.srcNormals[nIndex + 2]
     );
   }
   return dstIndex;
 }
-function addFace(ctx, a3, b5, c3, d2, ua, ub, uc, ud, na, nb, nc, nd) {
-  const geometry = ctx.currentObject.geometry;
-  const ia = getOrCreateVertex(ctx, a3, ua, na);
-  const ib = getOrCreateVertex(ctx, b5, ub, nb);
-  const ic = getOrCreateVertex(ctx, c3, uc, nc);
+function addFace(ctx2, a3, b5, c3, d2, ua, ub, uc, ud, na, nb, nc, nd) {
+  const geometry = ctx2.currentObject.geometry;
+  const ia = getOrCreateVertex(ctx2, a3, ua, na);
+  const ib = getOrCreateVertex(ctx2, b5, ub, nb);
+  const ic = getOrCreateVertex(ctx2, c3, uc, nc);
   if (d2 === void 0) {
     geometry.indices.push(ia, ib, ic);
     return;
   }
-  const id = getOrCreateVertex(ctx, d2, ud, nd);
+  const id = getOrCreateVertex(ctx2, d2, ud, nd);
   geometry.indices.push(ia, ib, id);
   geometry.indices.push(ib, ic, id);
 }
-function parseFaceLine(ctx, line) {
+function parseFaceLine(ctx2, line) {
   const refs = [];
   const body = line.substring(1).trim();
   let tokenStart = 0;
@@ -182618,21 +181399,21 @@ function parseFaceLine(ctx, line) {
     const token = body.substring(tokenStart, i2);
     const ref = parseFaceToken(token);
     if (!ref || ref.v === "") {
-      ctx.errors.push(`Unexpected face line: '${line}'`);
+      ctx2.errors.push(`Unexpected face line: '${line}'`);
       return;
     }
     refs.push(ref);
     tokenStart = i2 + 1;
   }
   if (refs.length < 3) {
-    ctx.errors.push(`Unexpected face line: '${line}'`);
+    ctx2.errors.push(`Unexpected face line: '${line}'`);
     return;
   }
   if (refs.length === 3) {
     const a4 = refs[0];
     const b5 = refs[1];
     const c3 = refs[2];
-    addFace(ctx, a4.v, b5.v, c3.v, void 0, a4.vt, b5.vt, c3.vt, void 0, a4.vn, b5.vn, c3.vn, void 0);
+    addFace(ctx2, a4.v, b5.v, c3.v, void 0, a4.vt, b5.vt, c3.vt, void 0, a4.vn, b5.vn, c3.vn, void 0);
     return;
   }
   if (refs.length === 4) {
@@ -182640,14 +181421,14 @@ function parseFaceLine(ctx, line) {
     const b5 = refs[1];
     const c3 = refs[2];
     const d2 = refs[3];
-    addFace(ctx, a4.v, b5.v, c3.v, d2.v, a4.vt, b5.vt, c3.vt, d2.vt, a4.vn, b5.vn, c3.vn, d2.vn);
+    addFace(ctx2, a4.v, b5.v, c3.v, d2.v, a4.vt, b5.vt, c3.vt, d2.vt, a4.vn, b5.vn, c3.vn, d2.vn);
     return;
   }
   const a3 = refs[0];
   for (let i2 = 1; i2 < refs.length - 1; i2++) {
     const b5 = refs[i2];
     const c3 = refs[i2 + 1];
-    addFace(ctx, a3.v, b5.v, c3.v, void 0, a3.vt, b5.vt, c3.vt, void 0, a3.vn, b5.vn, c3.vn, void 0);
+    addFace(ctx2, a3.v, b5.v, c3.v, void 0, a3.vt, b5.vt, c3.vt, void 0, a3.vn, b5.vn, c3.vn, void 0);
   }
 }
 function parseFaceToken(token) {
@@ -182673,21 +181454,21 @@ function parseFaceToken(token) {
     vn: vn !== "" ? vn : void 0
   };
 }
-function addVertexLine(ctx, a3) {
-  const dst = ctx.currentObject.geometry.positions;
-  const src = ctx.srcPositions;
+function addVertexLine(ctx2, a3) {
+  const dst = ctx2.currentObject.geometry.positions;
+  const src = ctx2.srcPositions;
   dst.push(src[a3], src[a3 + 1], src[a3 + 2]);
 }
-function addUVLine(ctx, a3) {
-  const dst = ctx.currentObject.geometry.uv;
-  const src = ctx.srcUVs;
+function addUVLine(ctx2, a3) {
+  const dst = ctx2.currentObject.geometry.uv;
+  const src = ctx2.srcUVs;
   dst.push(src[a3], src[a3 + 1]);
 }
-function addLineGeometry(ctx, line) {
-  const object = ctx.currentObject;
+function addLineGeometry(ctx2, line) {
+  const object = ctx2.currentObject;
   object.geometry.type = "Line";
-  const vLen = ctx.srcPositions.length;
-  const uvLen = ctx.srcUVs.length;
+  const vLen = ctx2.srcPositions.length;
+  const uvLen = ctx2.srcUVs.length;
   const body = line.substring(1).trim();
   let tokenStart = 0;
   for (let i2 = 0, len = body.length; i2 <= len; i2++) {
@@ -182702,17 +181483,17 @@ function addLineGeometry(ctx, line) {
     const token = body.substring(tokenStart, i2);
     const slash0 = token.indexOf("/");
     if (slash0 === -1) {
-      addVertexLine(ctx, parseVertexIndex(token, vLen));
+      addVertexLine(ctx2, parseVertexIndex(token, vLen));
     } else {
       const v2 = token.substring(0, slash0);
       const rest = token.substring(slash0 + 1);
       const slash1 = rest.indexOf("/");
       const uv = slash1 === -1 ? rest : rest.substring(0, slash1);
       if (v2) {
-        addVertexLine(ctx, parseVertexIndex(v2, vLen));
+        addVertexLine(ctx2, parseVertexIndex(v2, vLen));
       }
       if (uv) {
-        addUVLine(ctx, parseUVIndex(uv, uvLen));
+        addUVLine(ctx2, parseUVIndex(uv, uvLen));
       }
     }
     tokenStart = i2 + 1;
@@ -182729,7 +181510,7 @@ var OBJLoader = class extends ModelLoader {
       format: "OBJ",
       fileDataType: "text",
       parsers: {
-        "1.0": parse21
+        "1.0": parse19
       },
       getVersion: (fileData) => {
         return fileData.version || "1.0";
@@ -182742,7 +181523,7 @@ var OBJLoader = class extends ModelLoader {
 var tempVec3a8 = createVec3Float64();
 var tempVec3b8 = createVec3Float64();
 var tempVec3c4 = createVec3Float64();
-async function encode19(params, options) {
+async function encode17(params, options) {
   const { sceneModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -182847,7 +181628,7 @@ var OBJExporter = class extends ModelExporter {
       format: "OBJ",
       fileDataType: "text",
       encoders: {
-        "1.0": encode19
+        "1.0": encode17
       },
       defaultVersion: "1.0"
     });
@@ -182862,7 +181643,7 @@ __export(mtl_exports, {
 });
 
 // src/formats/mtl/versions/v1_0/parse.ts
-var parse22 = async (params, options) => {
+var parse20 = async (params, options) => {
   const { fileData, sceneModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -182878,23 +181659,23 @@ var parse22 = async (params, options) => {
     await yieldToHost(signal);
   };
   if (sceneModel) {
-    const ctx = {
+    const ctx2 = {
       fileData,
       errors: [],
       warnings: [],
       sceneModel,
       options: opts
     };
-    await parseMTL(ctx, fileData || "", step2);
-    if (ctx.errors.length > 0) {
-      throw new Error(`[MTLLoader] Failed to parse MTL file: ${ctx.errors[0]}`);
+    await parseMTL(ctx2, fileData || "", step2);
+    if (ctx2.errors.length > 0) {
+      throw new Error(`[MTLLoader] Failed to parse MTL file: ${ctx2.errors[0]}`);
     }
-    if (ctx.warnings.length > 0) {
-      console.warn(`[MTLLoader] Warning while parsing MTL file: ${ctx.warnings[0]}`);
+    if (ctx2.warnings.length > 0) {
+      console.warn(`[MTLLoader] Warning while parsing MTL file: ${ctx2.warnings[0]}`);
     }
   }
 };
-async function parseMTL(ctx, text, step2) {
+async function parseMTL(ctx2, text, step2) {
   const lines = text.split("\n");
   let current = null;
   let currentId = "";
@@ -182911,7 +181692,7 @@ async function parseMTL(ctx, text, step2) {
     switch (key) {
       case "newmtl":
         if (current && currentId) {
-          ctx.sceneModel.createMaterial({
+          ctx2.sceneModel.createMaterial({
             id: currentId,
             color: current.color,
             opacity: current.opacity
@@ -182953,7 +181734,7 @@ async function parseMTL(ctx, text, step2) {
     }
   }
   if (current && currentId) {
-    ctx.sceneModel.createMaterial({
+    ctx2.sceneModel.createMaterial({
       id: currentId,
       color: current.color,
       opacity: current.opacity
@@ -182972,7 +181753,7 @@ var MTLLoader = class extends ModelLoader {
       format: "MTL",
       fileDataType: "text",
       parsers: {
-        "1.0": parse22
+        "1.0": parse20
       },
       getVersion: (fileData) => {
         return fileData.version || "1.0";
@@ -182982,7 +181763,7 @@ var MTLLoader = class extends ModelLoader {
 };
 
 // src/formats/mtl/versions/v1_0/encode.ts
-async function encode20(params, options) {
+async function encode18(params, options) {
   var _a2;
   const { sceneModel } = params;
   const opts = options || {};
@@ -183107,7 +181888,7 @@ var MTLExporter = class extends ModelExporter {
       format: "MTL",
       fileDataType: "text",
       encoders: {
-        "1.0": encode20
+        "1.0": encode18
       },
       defaultVersion: "1.0"
     });
@@ -183303,7 +182084,7 @@ function findChild(node, name12) {
 
 // src/formats/fbx/versions/binary/parse.ts
 var DEG2RAD = Math.PI / 180;
-async function parse23(params, _options2) {
+async function parse21(params, _options2) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     return;
@@ -183682,7 +182463,7 @@ var FBXLoader = class extends ModelLoader {
       format: "fbx",
       fileDataType: "arraybuffer",
       parsers: {
-        binary: parse23
+        binary: parse21
       },
       // The only "version" we recognise is the binary variant; ASCII FBX (and
       // anything else) returns "" → the base loader reports it as unsupported.
@@ -183832,10 +182613,16 @@ function concat3(parts) {
 // src/formats/fbx/versions/binary/encode.ts
 var RAD2DEG = 180 / Math.PI;
 var SEP = "\0";
-async function encode21(params, _options2) {
+async function encode19(params, options) {
+  var _a2;
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     throw "FBXExporter requires params.sceneModel";
+  }
+  const triplanarSkip = findTriplanarTextureSkip(sceneModel);
+  if (triplanarSkip.any) {
+    const warn = (_a2 = options == null ? void 0 : options.onWarning) != null ? _a2 : (m2) => console.warn(m2);
+    warn(triplanarSkipWarning("FBX", triplanarSkip));
   }
   let nextId = 1e3;
   const newId = () => ++nextId;
@@ -183872,6 +182659,8 @@ async function encode21(params, _options2) {
     return id;
   }
   async function emitTexture(mat, matFbx) {
+    if (triplanarSkip.materialIds.has(mat.id))
+      return;
     const tex = mat.colorTexture;
     if (!tex)
       return;
@@ -184061,17 +182850,17 @@ function base64ToBytes(b64) {
   return new Uint8Array(globalThis.Buffer.from(b64, "base64"));
 }
 async function canvasEncodePNG(source) {
-  const w2 = source.width, h2 = source.height;
-  const canvas = document.createElement("canvas");
-  canvas.width = w2;
-  canvas.height = h2;
-  const ctx = canvas.getContext("2d");
+  const w3 = source.width, h3 = source.height;
+  const canvas2 = document.createElement("canvas");
+  canvas2.width = w3;
+  canvas2.height = h3;
+  const ctx2 = canvas2.getContext("2d");
   if (typeof ImageData !== "undefined" && source instanceof ImageData) {
-    ctx.putImageData(source, 0, 0);
+    ctx2.putImageData(source, 0, 0);
   } else {
-    ctx.drawImage(source, 0, 0);
+    ctx2.drawImage(source, 0, 0);
   }
-  const blob = await new Promise((res, rej) => canvas.toBlob((b5) => b5 ? res(b5) : rej("toBlob failed"), "image/png"));
+  const blob = await new Promise((res, rej) => canvas2.toBlob((b5) => b5 ? res(b5) : rej("toBlob failed"), "image/png"));
   return new Uint8Array(await blob.arrayBuffer());
 }
 
@@ -184082,7 +182871,7 @@ var FBXExporter = class extends ModelExporter {
       format: "fbx",
       fileDataType: "arraybuffer",
       encoders: {
-        binary: encode21
+        binary: encode19
       },
       defaultVersion: "binary"
     });
@@ -184305,7 +183094,7 @@ function buildSceneModel(scene, sceneModel) {
   };
   const walk = (node, parentWorld) => {
     const local = node.localMatrix && node.localMatrix.length === 16 ? toMat4(node.localMatrix) : identity();
-    const world = mulMat45(parentWorld, local);
+    const world = mulMat44(parentWorld, local);
     emitMesh3(node, world);
     for (const child of childArray(node.children)) {
       walk(child, world);
@@ -184348,7 +183137,7 @@ function toMat4(m2) {
     out[i2] = m2[i2];
   return out;
 }
-function mulMat45(a3, b5) {
+function mulMat44(a3, b5) {
   const out = new Array(16);
   for (let col = 0; col < 4; col++) {
     for (let row = 0; row < 4; row++) {
@@ -184359,7 +183148,7 @@ function mulMat45(a3, b5) {
 }
 
 // src/formats/usdz/versions/v1/parse.ts
-async function parse24(params, options) {
+async function parse22(params, options) {
   const { fileData, sceneModel } = params;
   if (!sceneModel) {
     return;
@@ -184399,7 +183188,7 @@ var USDZLoader = class extends ModelLoader {
       format: "usdz",
       fileDataType: "arraybuffer",
       parsers: {
-        "1.0": parse24
+        "1.0": parse22
       },
       getVersion: (fileData) => isUSDZ(fileData) ? "1.0" : ""
     });
@@ -184595,11 +183384,19 @@ function crc322(data) {
 
 // src/formats/usdz/versions/v1/encode.ts
 var ROOT_LAYER = "model.usda";
-async function encode23(params, options) {
+async function encode20(params, options) {
+  var _a2;
   const onProgress = options == null ? void 0 : options.onProgress;
   const signal = options == null ? void 0 : options.signal;
   onProgress == null ? void 0 : onProgress({ phase: "Encoding USDZ", current: 0, total: 1 });
   const sceneModel = params.sceneModel;
+  if (sceneModel) {
+    const triplanarSkip = findTriplanarTextureSkip(sceneModel);
+    if (triplanarSkip.any) {
+      const warn = (_a2 = options == null ? void 0 : options.onWarning) != null ? _a2 : (m2) => console.warn(m2);
+      warn(triplanarSkipWarning("USDZ", triplanarSkip));
+    }
+  }
   const objects = [];
   const materials = [];
   const materialNameById = /* @__PURE__ */ new Map();
@@ -184738,7 +183535,7 @@ var USDZExporter = class extends ModelExporter {
       format: "usdz",
       fileDataType: "arraybuffer",
       encoders: {
-        "1.0": encode23
+        "1.0": encode20
       },
       defaultVersion: "1.0"
     });
@@ -184806,7 +183603,7 @@ async function loadPdfJs(opts) {
   }
   return p2;
 }
-async function parse25(input, options = {}) {
+async function parse23(input, options = {}) {
   var _a2, _b, _c, _d, _e2, _f, _g, _h, _i, _j, _k, _l;
   if (!input || !input.sceneModel) {
     return { ok: false, type: 2 /* InvalidInput */, error: "[pdf.parse] sceneModel is required" };
@@ -185143,9 +183940,9 @@ async function parse25(input, options = {}) {
             const meshId = `${objectId}-text-atlas-mesh`;
             let pixelData = null;
             try {
-              const ctx = atlas.getContext("2d");
-              if (ctx) {
-                pixelData = ctx.getImageData(0, 0, atlasDims.width, atlasDims.height).data;
+              const ctx2 = atlas.getContext("2d");
+              if (ctx2) {
+                pixelData = ctx2.getImageData(0, 0, atlasDims.width, atlasDims.height).data;
               }
             } catch (err5) {
               console.warn(`[PDFLoader] page ${pageNumber} text atlas: getImageData failed: ${err5}`);
@@ -185643,7 +184440,7 @@ function extractDrawables(opList, OPS, bezierSteps, renderImages, renderFills, m
       }
     }
     for (const [outerIdx, holeIdxs] of groupHoles) {
-      const subs = [usable[outerIdx], ...holeIdxs.map((h2) => usable[h2])];
+      const subs = [usable[outerIdx], ...holeIdxs.map((h3) => usable[h3])];
       let totalVerts = 0;
       for (const sv of subs)
         totalVerts += sv.length / 2;
@@ -185793,8 +184590,8 @@ function extractDrawables(opList, OPS, bezierSteps, renderImages, renderFills, m
     }
     if (op === OPS.rectangle) {
       const r2 = args[i2];
-      const x2 = r2[0], y2 = r2[1], w2 = r2[2], h2 = r2[3];
-      currentPath.push([x2, y2, x2 + w2, y2, x2 + w2, y2 + h2, x2, y2 + h2]);
+      const x2 = r2[0], y2 = r2[1], w3 = r2[2], h3 = r2[3];
+      currentPath.push([x2, y2, x2 + w3, y2, x2 + w3, y2 + h3, x2, y2 + h3]);
       closed.push(true);
       subX = x2;
       subY = y2;
@@ -185833,8 +184630,8 @@ function extractDrawables(opList, OPS, bezierSteps, renderImages, renderFills, m
             closed[ci_last] = true;
         } else if (sub === OPS.rectangle) {
           const x2 = coords[ci++], y2 = coords[ci++];
-          const w2 = coords[ci++], h2 = coords[ci++];
-          currentPath.push([x2, y2, x2 + w2, y2, x2 + w2, y2 + h2, x2, y2 + h2]);
+          const w3 = coords[ci++], h3 = coords[ci++];
+          currentPath.push([x2, y2, x2 + w3, y2, x2 + w3, y2 + h3, x2, y2 + h3]);
           closed.push(true);
           subX = x2;
           subY = y2;
@@ -185965,31 +184762,31 @@ function resolveImage(obj) {
     return null;
   if (obj.bitmap)
     return { bitmap: obj.bitmap };
-  const data = obj.data, w2 = obj.width, h2 = obj.height;
-  if (!data || !w2 || !h2)
+  const data = obj.data, w3 = obj.width, h3 = obj.height;
+  if (!data || !w3 || !h3)
     return null;
   if (obj.kind === 3) {
     return {
       data: data instanceof Uint8ClampedArray ? data : new Uint8ClampedArray(data.buffer, data.byteOffset, data.byteLength),
-      width: w2,
-      height: h2
+      width: w3,
+      height: h3
     };
   }
-  if (obj.kind === 2 || data.length === w2 * h2 * 3) {
-    const out = new Uint8ClampedArray(w2 * h2 * 4);
+  if (obj.kind === 2 || data.length === w3 * h3 * 3) {
+    const out = new Uint8ClampedArray(w3 * h3 * 4);
     for (let p2 = 0, q3 = 0; p2 < data.length; p2 += 3, q3 += 4) {
       out[q3 + 0] = data[p2 + 0];
       out[q3 + 1] = data[p2 + 1];
       out[q3 + 2] = data[p2 + 2];
       out[q3 + 3] = 255;
     }
-    return { data: out, width: w2, height: h2 };
+    return { data: out, width: w3, height: h3 };
   }
-  if (data.length === w2 * h2 * 4) {
+  if (data.length === w3 * h3 * 4) {
     return {
       data: data instanceof Uint8ClampedArray ? data : new Uint8ClampedArray(data.buffer, data.byteOffset, data.byteLength),
-      width: w2,
-      height: h2
+      width: w3,
+      height: h3
     };
   }
   return null;
@@ -185997,19 +184794,19 @@ function resolveImage(obj) {
 function resolveImageMask(obj, fillColor) {
   if (!obj || !obj.data || !obj.width || !obj.height)
     return null;
-  const w2 = obj.width, h2 = obj.height;
+  const w3 = obj.width, h3 = obj.height;
   const data = obj.data;
-  const bytesPerRow = w2 + 7 >> 3;
-  if (data.length < bytesPerRow * h2)
+  const bytesPerRow = w3 + 7 >> 3;
+  if (data.length < bytesPerRow * h3)
     return null;
   const fr2 = Math.round(fillColor[0] * 255);
   const fg = Math.round(fillColor[1] * 255);
   const fb = Math.round(fillColor[2] * 255);
-  const out = new Uint8ClampedArray(w2 * h2 * 4);
+  const out = new Uint8ClampedArray(w3 * h3 * 4);
   let o2 = 0;
-  for (let y2 = 0; y2 < h2; y2++) {
+  for (let y2 = 0; y2 < h3; y2++) {
     const rowOff = y2 * bytesPerRow;
-    for (let x2 = 0; x2 < w2; x2++) {
+    for (let x2 = 0; x2 < w3; x2++) {
       const byte = data[rowOff + (x2 >> 3)];
       const bit = byte >> 7 - (x2 & 7) & 1;
       if (bit === 0) {
@@ -186023,7 +184820,7 @@ function resolveImageMask(obj, fillColor) {
       o2 += 4;
     }
   }
-  return { data: out, width: w2, height: h2 };
+  return { data: out, width: w3, height: h3 };
 }
 var ATLAS_MAX_WIDTH = 2048;
 function packTextAtlas(items) {
@@ -186054,26 +184851,26 @@ function packTextAtlas(items) {
 function rasterizeTextAtlas(items, atlasW, atlasH, pxPerUnit, fontFace, color) {
   if (typeof OffscreenCanvas === "undefined")
     return null;
-  let canvas;
+  let canvas2;
   try {
-    canvas = new OffscreenCanvas(atlasW, atlasH);
+    canvas2 = new OffscreenCanvas(atlasW, atlasH);
   } catch {
     return null;
   }
-  const ctx = canvas.getContext("2d");
-  if (!ctx)
+  const ctx2 = canvas2.getContext("2d");
+  if (!ctx2)
     return null;
   const fillCss = `rgb(${Math.round(color[0] * 255)},${Math.round(color[1] * 255)},${Math.round(color[2] * 255)})`;
-  ctx.fillStyle = fillCss;
-  ctx.textBaseline = "alphabetic";
-  ctx.textAlign = "left";
+  ctx2.fillStyle = fillCss;
+  ctx2.textBaseline = "alphabetic";
+  ctx2.textAlign = "left";
   for (const t2 of items) {
     const fontPx = Math.max(1, t2.fontSize * pxPerUnit);
-    ctx.font = `${fontPx}px ${fontFace}`;
+    ctx2.font = `${fontPx}px ${fontFace}`;
     const ascentPx = t2.fontSize * pxPerUnit;
-    ctx.fillText(t2.item.str, t2.atlasX, t2.atlasY + ascentPx);
+    ctx2.fillText(t2.item.str, t2.atlasX, t2.atlasY + ascentPx);
   }
-  return canvas;
+  return canvas2;
 }
 function computePageOffset(index2, firstPageWidth, firstPageHeight, layout, gridColumns, gap, rowAccumX, columnAccumY) {
   switch (layout) {
@@ -186116,7 +184913,7 @@ var PDFLoader = class {
     __privateSet(this, _pdfjs, params.pdfjs);
   }
   load(input, options = {}) {
-    return parse25(input, {
+    return parse23(input, {
       ...options,
       pdfjsEsmUrl: __privateGet(this, _pdfjsEsmUrl),
       pdfjsWorkerSrc: __privateGet(this, _pdfjsWorkerSrc),
@@ -186156,7 +184953,7 @@ var DEFAULT_SVG_LOAD_OPTIONS = {
 };
 
 // src/formats/svg/versions/v1_0/parse.ts
-async function parse26(input, options = {}) {
+async function parse24(input, options = {}) {
   var _a2, _b, _c;
   if (!input || !input.sceneModel) {
     return err2(2 /* InvalidInput */, "[svg.parse] sceneModel is required");
@@ -186704,16 +185501,16 @@ function emitText(node, ctm, style, collector, opts, classMap, objectId) {
   const descentPx = tm.actualBoundingBoxDescent || pxFont * 0.2;
   const widthPx = Math.max(1, Math.ceil(tm.width));
   const heightPx = Math.max(1, Math.ceil(ascentPx + descentPx));
-  const canvas = document.createElement("canvas");
-  canvas.width = widthPx;
-  canvas.height = heightPx;
-  const ctx = canvas.getContext("2d");
-  if (!ctx)
+  const canvas2 = document.createElement("canvas");
+  canvas2.width = widthPx;
+  canvas2.height = heightPx;
+  const ctx2 = canvas2.getContext("2d");
+  if (!ctx2)
     return;
-  ctx.font = fontStr;
-  ctx.textBaseline = "alphabetic";
-  ctx.fillStyle = rgbToCssColor(fillRgb);
-  ctx.fillText(text, 0, ascentPx);
+  ctx2.font = fontStr;
+  ctx2.textBaseline = "alphabetic";
+  ctx2.fillStyle = rgbToCssColor(fillRgb);
+  ctx2.fillText(text, 0, ascentPx);
   const wText = widthPx / opts.textPxPerUnit;
   const wAsc = ascentPx / opts.textPxPerUnit;
   const wDsc = descentPx / opts.textPxPerUnit;
@@ -186728,7 +185525,7 @@ function emitText(node, ctm, style, collector, opts, classMap, objectId) {
     // TL
   ];
   const worldCorners = localCorners.map(([x2, y2]) => applyAffine(ctm, x2, y2));
-  collector.addText(objectId, { text, canvas, corners: worldCorners, opacity: style.fillOpacity });
+  collector.addText(objectId, { text, canvas: canvas2, corners: worldCorners, opacity: style.fillOpacity });
 }
 function collectCascadedProps(names, attrs, classMap) {
   var _a2, _b;
@@ -186956,14 +185753,14 @@ function emitLine(attrs, ctm, style, collector, objectId) {
 function emitRect(attrs, ctm, style, collector, opts, objectId) {
   var _a2, _b, _c, _d;
   const x2 = parseFloat((_a2 = attrs.x) != null ? _a2 : "0"), y2 = parseFloat((_b = attrs.y) != null ? _b : "0");
-  const w2 = parseFloat((_c = attrs.width) != null ? _c : "0"), h2 = parseFloat((_d = attrs.height) != null ? _d : "0");
-  if (!(w2 > 0 && h2 > 0))
+  const w3 = parseFloat((_c = attrs.width) != null ? _c : "0"), h3 = parseFloat((_d = attrs.height) != null ? _d : "0");
+  if (!(w3 > 0 && h3 > 0))
     return;
   const corners = [
     applyAffine(ctm, x2, y2),
-    applyAffine(ctm, x2 + w2, y2),
-    applyAffine(ctm, x2 + w2, y2 + h2),
-    applyAffine(ctm, x2, y2 + h2)
+    applyAffine(ctm, x2 + w3, y2),
+    applyAffine(ctm, x2 + w3, y2 + h3),
+    applyAffine(ctm, x2, y2 + h3)
   ];
   emitClosedShape(corners, style, collector, opts, objectId);
 }
@@ -187447,7 +186244,7 @@ function domToSVGNode(el) {
 // src/formats/svg/SVGLoader.ts
 var SVGLoader = class {
   load(input, options = {}) {
-    return parse26(
+    return parse24(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       options
     );
@@ -187470,7 +186267,7 @@ var DEFAULT_SVG_EXPORT_OPTIONS = {
 var tempVec3a9 = createVec3Float64();
 var tempVec3b9 = createVec3Float64();
 var tempVec3c5 = createVec3Float64();
-async function encode24(params, options) {
+async function encode21(params, options) {
   var _a2, _b, _c, _d;
   const { sceneModel } = params;
   if (!sceneModel)
@@ -187697,7 +186494,7 @@ var SVGExporter = class extends ModelExporter {
     super({
       format: "SVG",
       fileDataType: "text",
-      encoders: { "1.0": encode24 },
+      encoders: { "1.0": encode21 },
       defaultVersion: "1.0"
     });
   }
@@ -187706,9 +186503,6 @@ var SVGExporter = class extends ModelExporter {
 // src/formats/dwg/index.ts
 var dwg_exports = {};
 __export(dwg_exports, {
-  DEFAULT_DWG_LOAD_OPTIONS: () => DEFAULT_DWG_LOAD_OPTIONS,
-  DEFAULT_LIBREDWG_ESM_URL: () => DEFAULT_LIBREDWG_ESM_URL,
-  DEFAULT_LIBREDWG_WASM_DIR: () => DEFAULT_LIBREDWG_WASM_DIR,
   DWGLoader: () => DWGLoader
 });
 
@@ -187757,7 +186551,7 @@ async function loadLibredwg(opts) {
   }
   return p2;
 }
-async function parse27(input, options = {}) {
+async function parse25(input, options = {}) {
   var _a2, _b, _c;
   if (!input || !input.sceneModel) {
     return err3(2 /* InvalidInput */, "[dwg.parse] sceneModel is required");
@@ -188532,10 +187326,10 @@ function emitTextEntity(entity, ctm, color, opts, collector, objectId) {
   const descentPx = tm.actualBoundingBoxDescent || pxFont * 0.2;
   const widthPx = Math.max(1, Math.ceil(tm.width));
   const heightPx = Math.max(1, Math.ceil(ascentPx + descentPx));
-  const canvas = document.createElement("canvas");
-  canvas.width = widthPx;
-  canvas.height = heightPx;
-  const cctx = canvas.getContext("2d");
+  const canvas2 = document.createElement("canvas");
+  canvas2.width = widthPx;
+  canvas2.height = heightPx;
+  const cctx = canvas2.getContext("2d");
   if (!cctx)
     return;
   cctx.font = fontStr;
@@ -188560,7 +187354,7 @@ function emitTextEntity(entity, ctm, color, opts, collector, objectId) {
     const rz = pos[2];
     return applyAffine2(ctm, rx, ry, rz);
   });
-  collector.addText(objectId, { text, canvas, corners: worldCorners });
+  collector.addText(objectId, { text, canvas: canvas2, corners: worldCorners });
 }
 var ACI_PALETTE = {
   1: [1, 0, 0],
@@ -188605,7 +187399,7 @@ var DWGLoader = class {
     __privateSet(this, _libredwg, params.libredwg);
   }
   load(input, options = {}) {
-    return parse27(
+    return parse25(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       {
         ...options,
@@ -188628,7 +187422,7 @@ __export(dxf_exports, {
 });
 
 // src/formats/dxf/versions/v1_0/parse.ts
-async function parse28(input, options = {}) {
+async function parse26(input, options = {}) {
   var _a2;
   if (!input || !input.sceneModel) {
     return err4(2 /* InvalidInput */, "[dxf.parse] sceneModel is required");
@@ -188951,7 +187745,7 @@ function err4(type, message) {
 // src/formats/dxf/DXFLoader.ts
 var DXFLoader = class {
   load(input, options = {}) {
-    return parse28(
+    return parse26(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       options
     );
@@ -188963,7 +187757,7 @@ var tempVec3a10 = createVec3Float64();
 var tempVec3b10 = createVec3Float64();
 var tempVec3c6 = createVec3Float64();
 var _scratch = createVec4Float64();
-async function encode25(params, options) {
+async function encode23(params, options) {
   var _a2;
   const { sceneModel } = params;
   if (!sceneModel)
@@ -189156,7 +187950,7 @@ var DXFExporter = class extends ModelExporter {
     super({
       format: "DXF",
       fileDataType: "text",
-      encoders: { "1.0": encode25 },
+      encoders: { "1.0": encode23 },
       defaultVersion: "1.0"
     });
   }
@@ -189382,10 +188176,10 @@ function applyHoles(obsts, holes) {
   for (const obst of obsts) {
     let remainders = [normalise(obst.xb)];
     for (const hole of holes) {
-      const h2 = normalise(hole.xb);
+      const h3 = normalise(hole.xb);
       const next = [];
       for (const r2 of remainders) {
-        for (const piece of subtract(r2, h2))
+        for (const piece of subtract(r2, h3))
           next.push(piece);
       }
       remainders = next;
@@ -189398,15 +188192,15 @@ function applyHoles(obsts, holes) {
   }
   return out;
 }
-function subtract(r2, h2) {
-  if (!overlaps(r2, h2))
+function subtract(r2, h3) {
+  if (!overlaps(r2, h3))
     return [r2];
-  const cx1 = Math.max(r2[0], h2[0]);
-  const cx2 = Math.min(r2[1], h2[1]);
-  const cy1 = Math.max(r2[2], h2[2]);
-  const cy2 = Math.min(r2[3], h2[3]);
-  const cz1 = Math.max(r2[4], h2[4]);
-  const cz2 = Math.min(r2[5], h2[5]);
+  const cx1 = Math.max(r2[0], h3[0]);
+  const cx2 = Math.min(r2[1], h3[1]);
+  const cy1 = Math.max(r2[2], h3[2]);
+  const cy2 = Math.min(r2[3], h3[3]);
+  const cz1 = Math.max(r2[4], h3[4]);
+  const cz2 = Math.min(r2[5], h3[5]);
   if (cx1 <= r2[0] && cx2 >= r2[1] && cy1 <= r2[2] && cy2 >= r2[3] && cz1 <= r2[4] && cz2 >= r2[5]) {
     return [];
   }
@@ -189568,22 +188362,22 @@ function buildDataModel3(model, dataModel, modelId) {
     }
   }
   for (let i2 = 0; i2 < model.holes.length; i2++) {
-    const h2 = model.holes[i2];
+    const h3 = model.holes[i2];
     const hid = idHole(i2);
     const psetIds = [
-      createPropSet(dataModel, hid + ":geom", "Geometry", "Geometry", xbProps(h2.xb))
+      createPropSet(dataModel, hid + ":geom", "Geometry", "Geometry", xbProps(h3.xb))
     ];
-    if (h2.extras.size > 0) {
-      psetIds.push(createPropSet(dataModel, hid + ":fds", "FDS", "FDS", extrasProps(h2.extras)));
+    if (h3.extras.size > 0) {
+      psetIds.push(createPropSet(dataModel, hid + ":fds", "FDS", "FDS", extrasProps(h3.extras)));
     }
     dataModel.createObject({
       id: hid,
       type: "FDSHole",
       schema: FDS_SCHEMA_ID,
-      name: (_h = h2.id) != null ? _h : `Hole ${i2 + 1}`,
+      name: (_h = h3.id) != null ? _h : `Hole ${i2 + 1}`,
       propertySetIds: psetIds
     });
-    relateToOwningMesh(dataModel, model, h2.xb, hid);
+    relateToOwningMesh(dataModel, model, h3.xb, hid);
   }
 }
 function createPropSet(dataModel, id, name12, type, properties) {
@@ -189950,7 +188744,7 @@ function unitWireBox(id) {
 }
 
 // src/formats/fds/versions/v6/parse.ts
-var parse29 = async (params) => {
+var parse27 = async (params) => {
   const { fileData, sceneModel, dataModel } = params;
   if (typeof fileData !== "string") {
     throw new Error("[FDS/v6/parse] expected fileData to be a string");
@@ -190165,7 +188959,7 @@ var FDSLoader = class extends ModelLoader {
       format: "FDS",
       fileDataType: "text",
       parsers: {
-        "6": parse29
+        "6": parse27
       },
       // FDS input files don't carry an in-band version tag. The
       // current shipping line is FDS-6.x; downstream changes to the
@@ -190176,7 +188970,7 @@ var FDSLoader = class extends ModelLoader {
 };
 
 // src/formats/fds/versions/v6/encode.ts
-async function encode26(params, _options2) {
+async function encode24(params, _options2) {
   const { dataModel } = params;
   if (!dataModel) {
     throw new Error("[FDS/v6/encode] expected dataModel in params");
@@ -190213,8 +189007,8 @@ async function encode26(params, _options2) {
   if (vents.length > 0)
     lines.push("");
   const holes = collectByType(dataModel, "FDSHole");
-  for (const h2 of holes)
-    lines.push(emitHole(h2));
+  for (const h3 of holes)
+    lines.push(emitHole(h3));
   if (holes.length > 0)
     lines.push("");
   return lines.join("\n") + "\n";
@@ -190457,7 +189251,7 @@ var FDSExporter = class extends ModelExporter {
       format: "FDS",
       fileDataType: "text",
       encoders: {
-        "6": encode26
+        "6": encode24
       },
       defaultVersion: "6"
     });
@@ -190793,7 +189587,7 @@ function num4(el, attr) {
 // src/formats/threedxml/versions/v1/parse.ts
 var IDENTITY2 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 var MAX_DEPTH = 512;
-async function parse30(params, _options2) {
+async function parse28(params, _options2) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     return;
@@ -190949,7 +189743,7 @@ var ThreeDXMLLoader = class extends ModelLoader {
     super({
       format: "3dxml",
       fileDataType: "arraybuffer",
-      parsers: { "*": parse30 },
+      parsers: { "*": parse28 },
       getVersion: (fileData) => isZip(fileData) ? "*" : ""
     });
   }
@@ -190957,7 +189751,7 @@ var ThreeDXMLLoader = class extends ModelLoader {
 
 // src/formats/threedxml/versions/v1/encode.ts
 var textEncoder2 = new TextEncoder();
-async function encode27(params, _options2) {
+async function encode25(params, _options2) {
   var _a2, _b;
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
@@ -191109,7 +189903,7 @@ var ThreeDXMLExporter = class extends ModelExporter {
     super({
       format: "3dxml",
       fileDataType: "arraybuffer",
-      encoders: { "*": encode27 },
+      encoders: { "*": encode25 },
       defaultVersion: "*"
     });
   }
@@ -191203,22 +189997,22 @@ var Y_UP_TO_Z_UP = createMat4Float64([
   0,
   1
 ]);
-async function decodeTileContent(buffer, ctx) {
+async function decodeTileContent(buffer, ctx2) {
   const magic = magicOf(buffer);
   switch (magic) {
     case "b3dm":
-      return decodeB3DM(buffer, ctx);
+      return decodeB3DM(buffer, ctx2);
     case "pnts":
-      return decodePNTS(buffer, ctx);
+      return decodePNTS(buffer, ctx2);
     case "i3dm":
-      return decodeI3DM(buffer, ctx);
+      return decodeI3DM(buffer, ctx2);
     case "cmpt":
-      return decodeCMPT(buffer, ctx);
+      return decodeCMPT(buffer, ctx2);
     case "glTF":
-      return decodeGLTFContent(buffer, ctx, contentMatrix(ctx.worldMatrix, null, true));
+      return decodeGLTFContent(buffer, ctx2, contentMatrix(ctx2.worldMatrix, null, true));
     default:
       if (isJSONGLTF(buffer)) {
-        return decodeGLTFContent(buffer, ctx, contentMatrix(ctx.worldMatrix, null, true));
+        return decodeGLTFContent(buffer, ctx2, contentMatrix(ctx2.worldMatrix, null, true));
       }
       throw new Error(`[ThreeDTilesLoader] Unsupported tile content magic "${magic}"`);
   }
@@ -191246,18 +190040,18 @@ function contentMatrix(world, rtcCenter2, gltf) {
   }
   return m2;
 }
-async function decodeGLTFContent(content, ctx, rootMatrix) {
-  if (!ctx.sceneModel)
+async function decodeGLTFContent(content, ctx2, rootMatrix) {
+  if (!ctx2.sceneModel)
     return;
   await new GLTFLoader2().load(
-    { fileData: content, sceneModel: ctx.sceneModel, dataModel: ctx.dataModel },
+    { fileData: content, sceneModel: ctx2.sceneModel, dataModel: ctx2.dataModel },
     {
       rootMatrix,
-      baseUri: ctx.baseUri,
-      signal: ctx.options.signal,
-      layerId: ctx.options.layerId,
-      dracoModule: ctx.options.dracoModule,
-      dataParentId: ctx.rootDataObjectId
+      baseUri: ctx2.baseUri,
+      signal: ctx2.options.signal,
+      layerId: ctx2.options.layerId,
+      dracoModule: ctx2.options.dracoModule,
+      dataParentId: ctx2.rootDataObjectId
     }
   );
 }
@@ -191279,19 +190073,19 @@ function readTables28(buffer) {
   offset += btBinLen;
   return { ftJSON, ftBin, btJSONBytes, btBin, bodyOffset: offset, byteLength };
 }
-async function decodeB3DM(buffer, ctx) {
+async function decodeB3DM(buffer, ctx2) {
   const t2 = readTables28(buffer);
   const glb = buffer.slice(t2.bodyOffset, t2.byteLength);
   const rtc = t2.ftJSON.RTC_CENTER || null;
-  await decodeGLTFContent(glb, ctx, contentMatrix(ctx.worldMatrix, rtc, true));
-  if (ctx.dataModel && t2.btJSONBytes.length > 0) {
+  await decodeGLTFContent(glb, ctx2, contentMatrix(ctx2.worldMatrix, rtc, true));
+  if (ctx2.dataModel && t2.btJSONBytes.length > 0) {
     const batchLength = t2.ftJSON.BATCH_LENGTH || 0;
     const btJSON = decodeTableJSON(t2.btJSONBytes);
-    addBatchTableToDataModel(ctx, btJSON, t2.btBin, batchLength);
+    addBatchTableToDataModel(ctx2, btJSON, t2.btBin, batchLength);
   }
 }
-async function decodePNTS(buffer, ctx) {
-  if (!ctx.sceneModel)
+async function decodePNTS(buffer, ctx2) {
+  if (!ctx2.sceneModel)
     return;
   const t2 = readTables28(buffer);
   const count = t2.ftJSON.POINTS_LENGTH || 0;
@@ -191302,16 +190096,16 @@ async function decodePNTS(buffer, ctx) {
     return;
   const colors = readPntsColors(t2.ftJSON, t2.ftBin, count);
   const rtc = t2.ftJSON.RTC_CENTER || null;
-  const geometryId = `${ctx.idPrefix}-pts-geom`;
-  const meshId = `${ctx.idPrefix}-pts-mesh`;
-  const objectId = `${ctx.idPrefix}-pts`;
-  ctx.sceneModel.createGeometry({ id: geometryId, primitive: PointsPrimitive, positions, colors });
-  ctx.sceneModel.createMesh({
+  const geometryId = `${ctx2.idPrefix}-pts-geom`;
+  const meshId = `${ctx2.idPrefix}-pts-mesh`;
+  const objectId = `${ctx2.idPrefix}-pts`;
+  ctx2.sceneModel.createGeometry({ id: geometryId, primitive: PointsPrimitive, positions, colors });
+  ctx2.sceneModel.createMesh({
     id: meshId,
     geometryId,
-    matrix: contentMatrix(ctx.worldMatrix, rtc, false)
+    matrix: contentMatrix(ctx2.worldMatrix, rtc, false)
   });
-  ctx.sceneModel.createObject({ id: objectId, meshIds: [meshId], layerId: ctx.options.layerId });
+  ctx2.sceneModel.createObject({ id: objectId, meshIds: [meshId], layerId: ctx2.options.layerId });
 }
 function readPntsPositions(ftJSON, ftBin, count) {
   if (ftJSON.POSITION) {
@@ -191354,8 +190148,8 @@ function readPntsColors(ftJSON, ftBin, count) {
   }
   return null;
 }
-async function decodeI3DM(buffer, ctx) {
-  if (!ctx.sceneModel)
+async function decodeI3DM(buffer, ctx2) {
+  if (!ctx2.sceneModel)
     return;
   const dv = new DataView(buffer);
   const byteLength = dv.getUint32(8, true);
@@ -191372,44 +190166,44 @@ async function decodeI3DM(buffer, ctx) {
   const instanceCount = ftJSON.INSTANCES_LENGTH || 0;
   if (instanceCount === 0)
     return;
-  const glb = await resolveI3DMGlb(buffer, offset, byteLength, gltfFormat, ctx);
+  const glb = await resolveI3DMGlb(buffer, offset, byteLength, gltfFormat, ctx2);
   if (!glb)
     return;
   const rtc = ftJSON.RTC_CENTER || null;
   const attrs = readInstanceAttrs(ftJSON, ftBin, instanceCount);
   if (!attrs.positions)
     return;
-  const meshesBefore = Object.keys(ctx.sceneModel.meshes);
-  const instance0 = instanceMatrix(ctx, rtc, attrs, 0);
-  await decodeGLTFContent(glb, ctx, mulMat4(instance0, Y_UP_TO_Z_UP, createMat4Float64()));
-  const baseMeshes = Object.keys(ctx.sceneModel.meshes).filter((id) => meshesBefore.indexOf(id) === -1);
+  const meshesBefore = Object.keys(ctx2.sceneModel.meshes);
+  const instance0 = instanceMatrix(ctx2, rtc, attrs, 0);
+  await decodeGLTFContent(glb, ctx2, mulMat4(instance0, Y_UP_TO_Z_UP, createMat4Float64()));
+  const baseMeshes = Object.keys(ctx2.sceneModel.meshes).filter((id) => meshesBefore.indexOf(id) === -1);
   if (baseMeshes.length === 0)
     return;
   const inv0 = inverseMat4(instance0, createMat4Float64());
   for (let i2 = 1; i2 < instanceCount; i2++) {
-    const delta = mulMat4(instanceMatrix(ctx, rtc, attrs, i2), inv0, createMat4Float64());
+    const delta = mulMat4(instanceMatrix(ctx2, rtc, attrs, i2), inv0, createMat4Float64());
     const meshIds = [];
     for (let m2 = 0; m2 < baseMeshes.length; m2++) {
-      const base = ctx.sceneModel.meshes[baseMeshes[m2]];
-      const meshId = `${ctx.idPrefix}-i${i2}-${m2}`;
-      ctx.sceneModel.createMesh({
+      const base = ctx2.sceneModel.meshes[baseMeshes[m2]];
+      const meshId = `${ctx2.idPrefix}-i${i2}-${m2}`;
+      ctx2.sceneModel.createMesh({
         id: meshId,
         geometryId: base.geometryId,
         matrix: mulMat4(delta, base.matrix, createMat4Float64())
       });
       meshIds.push(meshId);
     }
-    ctx.sceneModel.createObject({ id: `${ctx.idPrefix}-i${i2}`, meshIds, layerId: ctx.options.layerId });
+    ctx2.sceneModel.createObject({ id: `${ctx2.idPrefix}-i${i2}`, meshIds, layerId: ctx2.options.layerId });
   }
 }
-async function resolveI3DMGlb(buffer, offset, byteLength, gltfFormat, ctx) {
+async function resolveI3DMGlb(buffer, offset, byteLength, gltfFormat, ctx2) {
   if (gltfFormat === 1) {
     return buffer.slice(offset, byteLength);
   }
   const uri = new TextDecoder().decode(new Uint8Array(buffer, offset, byteLength - offset)).trim();
-  if (!uri || !ctx.baseUri)
+  if (!uri || !ctx2.baseUri)
     return null;
-  return ctx.fetchArrayBuffer(ctx.resolveUrl(uri, ctx.baseUri));
+  return ctx2.fetchArrayBuffer(ctx2.resolveUrl(uri, ctx2.baseUri));
 }
 function readInstanceAttrs(ftJSON, ftBin, count) {
   return {
@@ -191420,8 +190214,8 @@ function readInstanceAttrs(ftJSON, ftBin, count) {
     scaleNonUniform: readFeatureValue(ftJSON, ftBin, "SCALE_NON_UNIFORM", Float32Array, 3, count)
   };
 }
-function instanceMatrix(ctx, rtc, attrs, i2) {
-  let m2 = contentMatrix(ctx.worldMatrix, rtc, false);
+function instanceMatrix(ctx2, rtc, attrs, i2) {
+  let m2 = contentMatrix(ctx2.worldMatrix, rtc, false);
   const p2 = attrs.positions;
   m2 = mulMat4(m2, translationMat4v([p2[i2 * 3], p2[i2 * 3 + 1], p2[i2 * 3 + 2]]), createMat4Float64());
   if (attrs.normalUp && attrs.normalRight) {
@@ -191486,44 +190280,44 @@ function cross3(a3, b5) {
     a3[0] * b5[1] - a3[1] * b5[0]
   ];
 }
-async function decodeCMPT(buffer, ctx) {
+async function decodeCMPT(buffer, ctx2) {
   const dv = new DataView(buffer);
   const tilesLength = dv.getUint32(12, true);
   let offset = 16;
   for (let i2 = 0; i2 < tilesLength; i2++) {
     const innerLength = dv.getUint32(offset + 8, true);
     await decodeTileContent(buffer.slice(offset, offset + innerLength), {
-      ...ctx,
-      idPrefix: `${ctx.idPrefix}-c${i2}`
+      ...ctx2,
+      idPrefix: `${ctx2.idPrefix}-c${i2}`
     });
     offset += innerLength;
   }
 }
-function addBatchTableToDataModel(ctx, btJSON, btBin, batchLength) {
-  const dataModel = ctx.dataModel;
+function addBatchTableToDataModel(ctx2, btJSON, btBin, batchLength) {
+  const dataModel = ctx2.dataModel;
   const table = readBatchTable(btJSON, btBin, batchLength);
   const keys = Object.keys(table);
   if (keys.length === 0)
     return;
   for (let i2 = 0; i2 < batchLength; i2++) {
-    const propertySetId = `${ctx.idPrefix}-f${i2}-props`;
+    const propertySetId = `${ctx2.idPrefix}-f${i2}-props`;
     dataModel.createPropertySet({
       id: propertySetId,
       name: "3D Tiles feature properties",
       type: "Default",
       properties: keys.map((key) => ({ name: key, value: table[key][i2] }))
     });
-    const objectId = `${ctx.idPrefix}-f${i2}`;
+    const objectId = `${ctx2.idPrefix}-f${i2}`;
     dataModel.createObject({
       id: objectId,
       type: "Feature",
       name: `Feature ${i2}`,
       propertySetIds: [propertySetId]
     });
-    if (ctx.rootDataObjectId) {
+    if (ctx2.rootDataObjectId) {
       dataModel.createRelationship({
         type: "BasicAggregation",
-        relatingObjectId: ctx.rootDataObjectId,
+        relatingObjectId: ctx2.rootDataObjectId,
         relatedObjectId: objectId
       });
     }
@@ -191751,7 +190545,7 @@ async function parseTileset(params, options = {}) {
       }
       return;
     }
-    const ctx = {
+    const ctx2 = {
       sceneModel,
       dataModel,
       worldMatrix,
@@ -191762,7 +190556,7 @@ async function parseTileset(params, options = {}) {
       resolveUrl: resolveUrl2,
       rootDataObjectId
     };
-    await decodeTileContent(buffer, ctx);
+    await decodeTileContent(buffer, ctx2);
   }
   async function traverse(tile, parentWorld, depth, inheritedRefine, baseUri) {
     if (signal == null ? void 0 : signal.aborted)
@@ -191916,8 +190710,8 @@ function regionSphere(region) {
   let radius = 0;
   for (const lon of [west, east]) {
     for (const lat of [south, north]) {
-      for (const h2 of [minHeight, maxHeight]) {
-        const corner = geodeticToEcef(lon, lat, h2);
+      for (const h3 of [minHeight, maxHeight]) {
+        const corner = geodeticToEcef(lon, lat, h3);
         radius = Math.max(radius, Math.hypot(corner[0] - center[0], corner[1] - center[1], corner[2] - center[2]));
       }
     }
@@ -192233,7 +191027,7 @@ loadTile_fn = async function(node) {
     if (!res.ok || !res.value)
       return;
     sceneModel = res.value;
-    const ctx = {
+    const ctx2 = {
       sceneModel,
       worldMatrix: node.worldMatrix,
       idPrefix: node.id,
@@ -192242,7 +191036,7 @@ loadTile_fn = async function(node) {
       fetchArrayBuffer: __privateGet(this, _fetchArrayBuffer),
       resolveUrl: resolveUrl2
     };
-    await decodeTileContent(buffer, ctx);
+    await decodeTileContent(buffer, ctx2);
     if (__privateGet(this, _destroyed)) {
       sceneModel.destroy();
       return;
@@ -193166,19 +191960,19 @@ function computeObjectWorldAABB(sceneModel, objectId) {
       corner[1] = i2 & 2 ? a3[4] : a3[1];
       corner[2] = i2 & 4 ? a3[5] : a3[2];
       corner[3] = 1;
-      const w2 = transformPoint4(wm, corner, corner);
-      if (w2[0] < out[0])
-        out[0] = w2[0];
-      if (w2[0] > out[3])
-        out[3] = w2[0];
-      if (w2[1] < out[1])
-        out[1] = w2[1];
-      if (w2[1] > out[4])
-        out[4] = w2[1];
-      if (w2[2] < out[2])
-        out[2] = w2[2];
-      if (w2[2] > out[5])
-        out[5] = w2[2];
+      const w3 = transformPoint4(wm, corner, corner);
+      if (w3[0] < out[0])
+        out[0] = w3[0];
+      if (w3[0] > out[3])
+        out[3] = w3[0];
+      if (w3[1] < out[1])
+        out[1] = w3[1];
+      if (w3[1] > out[4])
+        out[4] = w3[1];
+      if (w3[2] < out[2])
+        out[2] = w3[2];
+      if (w3[2] > out[5])
+        out[5] = w3[2];
     }
   }
   return out;
@@ -193255,12 +192049,12 @@ function fnv1a(arr) {
       f2[i2] = arr[i2];
     bytes = new Uint8Array(f2.buffer);
   }
-  let h2 = 2166136261;
+  let h3 = 2166136261;
   for (let i2 = 0; i2 < bytes.length; i2++) {
-    h2 ^= bytes[i2];
-    h2 = Math.imul(h2, 16777619);
+    h3 ^= bytes[i2];
+    h3 = Math.imul(h3, 16777619);
   }
-  return `${arr.length}:${(h2 >>> 0).toString(36)}`;
+  return `${arr.length}:${(h3 >>> 0).toString(36)}`;
 }
 function computeCanonicalSlots(geom) {
   const positions = geom.positionsCompressed;
@@ -193273,10 +192067,10 @@ function computeCanonicalSlots(geom) {
   const slotByHash = /* @__PURE__ */ new Map();
   let unique = 0;
   for (let v2 = 0; v2 < vertCount; v2++) {
-    const h2 = hashVertex(positions, normals, uvs, v2);
-    const existing = slotByHash.get(h2);
+    const h3 = hashVertex(positions, normals, uvs, v2);
+    const existing = slotByHash.get(h3);
     if (existing === void 0) {
-      slotByHash.set(h2, v2);
+      slotByHash.set(h3, v2);
       canonical[v2] = v2;
       unique++;
       continue;
@@ -193285,7 +192079,7 @@ function computeCanonicalSlots(geom) {
       if (vertsEqual(positions, normals, uvs, v2, existing)) {
         canonical[v2] = existing;
       } else {
-        slotByHash.set(h2, [existing, v2]);
+        slotByHash.set(h3, [existing, v2]);
         canonical[v2] = v2;
         unique++;
       }
@@ -193309,22 +192103,22 @@ function computeCanonicalSlots(geom) {
   return { canonical, uniqueCount: unique };
 }
 function hashVertex(positions, normals, uvs, slot) {
-  let h2 = 2166136261;
+  let h3 = 2166136261;
   const p3 = slot * 3;
-  h2 = Math.imul(h2 ^ positions[p3], 16777619);
-  h2 = Math.imul(h2 ^ positions[p3 + 1], 16777619);
-  h2 = Math.imul(h2 ^ positions[p3 + 2], 16777619);
+  h3 = Math.imul(h3 ^ positions[p3], 16777619);
+  h3 = Math.imul(h3 ^ positions[p3 + 1], 16777619);
+  h3 = Math.imul(h3 ^ positions[p3 + 2], 16777619);
   if (normals) {
     const n2 = slot * 2;
-    h2 = Math.imul(h2 ^ normals[n2], 16777619);
-    h2 = Math.imul(h2 ^ normals[n2 + 1], 16777619);
+    h3 = Math.imul(h3 ^ normals[n2], 16777619);
+    h3 = Math.imul(h3 ^ normals[n2 + 1], 16777619);
   }
   if (uvs) {
     const u2 = slot * 2;
-    h2 = Math.imul(h2 ^ uvs[u2], 16777619);
-    h2 = Math.imul(h2 ^ uvs[u2 + 1], 16777619);
+    h3 = Math.imul(h3 ^ uvs[u2], 16777619);
+    h3 = Math.imul(h3 ^ uvs[u2 + 1], 16777619);
   }
-  return h2 >>> 0;
+  return h3 >>> 0;
 }
 function vertsEqual(positions, normals, uvs, a3, b5) {
   const a32 = a3 * 3, b32 = b5 * 3;
@@ -194383,28 +193177,28 @@ var textureDimensions = {
       const tex = sceneModel.textures[texId];
       if (tex.destroyed)
         continue;
-      const w2 = tex.width | 0;
-      const h2 = tex.height | 0;
-      if (w2 <= 0 || h2 <= 0)
+      const w3 = tex.width | 0;
+      const h3 = tex.height | 0;
+      if (w3 <= 0 || h3 <= 0)
         continue;
-      if (!isPowerOfTwo(w2) || !isPowerOfTwo(h2)) {
+      if (!isPowerOfTwo(w3) || !isPowerOfTwo(h3)) {
         issues.push({
           severity: "warning",
           code: "TEXTURE_NPOT",
-          message: `SceneTexture '${texId}' is ${w2}\xD7${h2} \u2014 non-power-of-two; mipmap quality / GPU compatibility risk`,
-          summary: `${w2}\xD7${h2}`,
+          message: `SceneTexture '${texId}' is ${w3}\xD7${h3} \u2014 non-power-of-two; mipmap quality / GPU compatibility risk`,
+          summary: `${w3}\xD7${h3}`,
           resourceId: texId,
-          context: { width: w2, height: h2 }
+          context: { width: w3, height: h3 }
         });
       }
-      if (w2 > maxTextureDim || h2 > maxTextureDim) {
+      if (w3 > maxTextureDim || h3 > maxTextureDim) {
         issues.push({
           severity: "warning",
           code: "TEXTURE_OVERSIZED",
-          message: `SceneTexture '${texId}' is ${w2}\xD7${h2} \u2014 exceeds the ${maxTextureDim}-pixel budget on at least one axis; ~${estimateBytesMB(w2, h2)} MB before mipmaps`,
-          summary: `${w2}\xD7${h2}`,
+          message: `SceneTexture '${texId}' is ${w3}\xD7${h3} \u2014 exceeds the ${maxTextureDim}-pixel budget on at least one axis; ~${estimateBytesMB(w3, h3)} MB before mipmaps`,
+          summary: `${w3}\xD7${h3}`,
           resourceId: texId,
-          context: { width: w2, height: h2, maxTextureDim }
+          context: { width: w3, height: h3, maxTextureDim }
         });
       }
     }
@@ -194414,8 +193208,8 @@ var textureDimensions = {
 function isPowerOfTwo(n2) {
   return n2 > 0 && (n2 & n2 - 1) === 0;
 }
-function estimateBytesMB(w2, h2) {
-  return (w2 * h2 * 4 / (1024 * 1024)).toFixed(1);
+function estimateBytesMB(w3, h3) {
+  return (w3 * h3 * 4 / (1024 * 1024)).toFixed(1);
 }
 
 // src/inspect/sceneModel/inspections/farFromOriginGeometries.ts
@@ -194889,8 +193683,8 @@ var pruneDanglingMeshRefs = {
     if (!obj || obj.destroyed) {
       return { ok: true, value: { fixed: false, reason: "target-missing" } };
     }
-    const ctx = issue.context;
-    const danglingId = ctx && typeof ctx.danglingMeshId === "string" ? ctx.danglingMeshId : "";
+    const ctx2 = issue.context;
+    const danglingId = ctx2 && typeof ctx2.danglingMeshId === "string" ? ctx2.danglingMeshId : "";
     const meshes = obj.meshes;
     let removed = 0;
     for (let i2 = meshes.length - 1; i2 >= 0; i2--) {
@@ -195123,8 +193917,8 @@ var mergeDuplicateGeometries = {
         error: `[mergeDuplicateGeometries] issue has no resourceId (canonical geometry id)`
       };
     }
-    const ctx = issue.context;
-    const rawDupes = ctx ? ctx.duplicates : void 0;
+    const ctx2 = issue.context;
+    const rawDupes = ctx2 ? ctx2.duplicates : void 0;
     const duplicates = Array.isArray(rawDupes) && rawDupes.every((x2) => typeof x2 === "string") ? rawDupes : void 0;
     if (!duplicates || duplicates.length === 0) {
       return { ok: true, value: { fixed: false, reason: "malformed-issue" } };
@@ -195244,8 +194038,8 @@ var mergeSimilarGeometries = {
         error: `[mergeSimilarGeometries] issue has no resourceId (canonical geometry id)`
       };
     }
-    const ctx = issue.context;
-    const rawSimilar = ctx ? ctx.similar : void 0;
+    const ctx2 = issue.context;
+    const rawSimilar = ctx2 ? ctx2.similar : void 0;
     const similars = Array.isArray(rawSimilar) && rawSimilar.every((x2) => typeof x2 === "string") ? rawSimilar : void 0;
     if (!similars || similars.length === 0) {
       return { ok: true, value: { fixed: false, reason: "malformed-issue" } };
@@ -195455,15 +194249,15 @@ function fitRigidTransform(P2, Q2, tolerance) {
   if (qLen < 1e-9)
     return null;
   const iqLen = 1 / qLen;
-  const w2 = qw * iqLen, x2 = qx * iqLen, y2 = qy * iqLen, z2 = qz * iqLen;
+  const w3 = qw * iqLen, x2 = qx * iqLen, y2 = qy * iqLen, z2 = qz * iqLen;
   const r00 = 1 - 2 * (y2 * y2 + z2 * z2);
-  const r01 = 2 * (x2 * y2 - z2 * w2);
-  const r02 = 2 * (x2 * z2 + y2 * w2);
-  const r10 = 2 * (x2 * y2 + z2 * w2);
+  const r01 = 2 * (x2 * y2 - z2 * w3);
+  const r02 = 2 * (x2 * z2 + y2 * w3);
+  const r10 = 2 * (x2 * y2 + z2 * w3);
   const r11 = 1 - 2 * (x2 * x2 + z2 * z2);
-  const r12 = 2 * (y2 * z2 - x2 * w2);
-  const r20 = 2 * (x2 * z2 - y2 * w2);
-  const r21 = 2 * (y2 * z2 + x2 * w2);
+  const r12 = 2 * (y2 * z2 - x2 * w3);
+  const r20 = 2 * (x2 * z2 - y2 * w3);
+  const r21 = 2 * (y2 * z2 + x2 * w3);
   const r22 = 1 - 2 * (x2 * x2 + y2 * y2);
   const tx = qcx - (r00 * pcx + r01 * pcy + r02 * pcz);
   const ty = qcy - (r10 * pcx + r11 * pcy + r12 * pcz);
@@ -196004,13 +194798,13 @@ var dropDegenerateTriangles = {
       return { ok: true, value: { fixed: false, reason: "no-op" } };
     }
     const out = new Uint32Array(kept * 3);
-    let w2 = 0;
+    let w3 = 0;
     for (let t2 = 0; t2 < triCount; t2++) {
       if (!keep[t2])
         continue;
-      out[w2++] = indices[t2 * 3];
-      out[w2++] = indices[t2 * 3 + 1];
-      out[w2++] = indices[t2 * 3 + 2];
+      out[w3++] = indices[t2 * 3];
+      out[w3++] = indices[t2 * 3 + 1];
+      out[w3++] = indices[t2 * 3 + 2];
     }
     geom.indices = out;
     const dropped = triCount - kept;
@@ -196074,23 +194868,23 @@ var compactUnusedVertices = {
     const newPositions = sameType(oldPositions, kept * 3);
     const newNormals = oldNormals ? sameType(oldNormals, kept * 2) : void 0;
     const newUVs = oldUVs ? sameType(oldUVs, kept * 2) : void 0;
-    let w2 = 0;
+    let w3 = 0;
     for (let v2 = 0; v2 < vertCount; v2++) {
       if (!used[v2])
         continue;
-      remap[v2] = w2;
-      newPositions[w2 * 3] = oldPositions[v2 * 3];
-      newPositions[w2 * 3 + 1] = oldPositions[v2 * 3 + 1];
-      newPositions[w2 * 3 + 2] = oldPositions[v2 * 3 + 2];
+      remap[v2] = w3;
+      newPositions[w3 * 3] = oldPositions[v2 * 3];
+      newPositions[w3 * 3 + 1] = oldPositions[v2 * 3 + 1];
+      newPositions[w3 * 3 + 2] = oldPositions[v2 * 3 + 2];
       if (newNormals && oldNormals) {
-        newNormals[w2 * 2] = oldNormals[v2 * 2];
-        newNormals[w2 * 2 + 1] = oldNormals[v2 * 2 + 1];
+        newNormals[w3 * 2] = oldNormals[v2 * 2];
+        newNormals[w3 * 2 + 1] = oldNormals[v2 * 2 + 1];
       }
       if (newUVs && oldUVs) {
-        newUVs[w2 * 2] = oldUVs[v2 * 2];
-        newUVs[w2 * 2 + 1] = oldUVs[v2 * 2 + 1];
+        newUVs[w3 * 2] = oldUVs[v2 * 2];
+        newUVs[w3 * 2 + 1] = oldUVs[v2 * 2 + 1];
       }
-      w2++;
+      w3++;
     }
     geom.positionsCompressed = newPositions;
     if (newNormals)
@@ -196164,23 +194958,23 @@ var mergeDuplicateVertices = {
     const newPositions = sameType(oldPositions, unique * 3);
     const newNormals = oldNormals ? sameType(oldNormals, unique * 2) : void 0;
     const newUVs = oldUVs ? sameType(oldUVs, unique * 2) : void 0;
-    let w2 = 0;
+    let w3 = 0;
     for (let v2 = 0; v2 < vertCount; v2++) {
       if (canonical[v2] !== v2)
         continue;
-      newSlot[v2] = w2;
-      newPositions[w2 * 3] = oldPositions[v2 * 3];
-      newPositions[w2 * 3 + 1] = oldPositions[v2 * 3 + 1];
-      newPositions[w2 * 3 + 2] = oldPositions[v2 * 3 + 2];
+      newSlot[v2] = w3;
+      newPositions[w3 * 3] = oldPositions[v2 * 3];
+      newPositions[w3 * 3 + 1] = oldPositions[v2 * 3 + 1];
+      newPositions[w3 * 3 + 2] = oldPositions[v2 * 3 + 2];
       if (newNormals && oldNormals) {
-        newNormals[w2 * 2] = oldNormals[v2 * 2];
-        newNormals[w2 * 2 + 1] = oldNormals[v2 * 2 + 1];
+        newNormals[w3 * 2] = oldNormals[v2 * 2];
+        newNormals[w3 * 2 + 1] = oldNormals[v2 * 2 + 1];
       }
       if (newUVs && oldUVs) {
-        newUVs[w2 * 2] = oldUVs[v2 * 2];
-        newUVs[w2 * 2 + 1] = oldUVs[v2 * 2 + 1];
+        newUVs[w3 * 2] = oldUVs[v2 * 2];
+        newUVs[w3 * 2 + 1] = oldUVs[v2 * 2 + 1];
       }
-      w2++;
+      w3++;
     }
     const remap = new Int32Array(vertCount);
     for (let v2 = 0; v2 < vertCount; v2++)
@@ -196267,8 +195061,8 @@ var dropDuplicateObject = {
   },
   apply(issue, sceneModel) {
     var _a2;
-    const ctx = issue.context;
-    const rawDupes = ctx ? ctx.duplicates : void 0;
+    const ctx2 = issue.context;
+    const rawDupes = ctx2 ? ctx2.duplicates : void 0;
     const duplicates = Array.isArray(rawDupes) && rawDupes.every((x2) => typeof x2 === "string") ? rawDupes : void 0;
     if (!duplicates || duplicates.length === 0) {
       return { ok: true, value: { fixed: false, reason: "malformed-issue" } };
@@ -196621,13 +195415,13 @@ var dropDuplicateTriangles = {
       return { ok: true, value: { fixed: false, reason: "no-op" } };
     const keptCount = triCount - duplicateCount;
     const out = new Uint32Array(keptCount * 3);
-    let w2 = 0;
+    let w3 = 0;
     for (let t2 = 0; t2 < triCount; t2++) {
       if (!kept[t2])
         continue;
-      out[w2++] = indices[t2 * 3];
-      out[w2++] = indices[t2 * 3 + 1];
-      out[w2++] = indices[t2 * 3 + 2];
+      out[w3++] = indices[t2 * 3];
+      out[w3++] = indices[t2 * 3 + 1];
+      out[w3++] = indices[t2 * 3 + 2];
     }
     geom.indices = out;
     return { ok: true, value: { fixed: true, trace: `'${geomId}': dropped ${duplicateCount.toLocaleString()} duplicate of ${triCount.toLocaleString()} triangles` } };
@@ -196710,10 +195504,10 @@ function invalidateForIssue(index2, issue) {
     index2.invalidateGeometry(issue.resourceId);
     index2.invalidateObject(issue.resourceId);
   }
-  const ctx = issue.context;
-  if (ctx) {
+  const ctx2 = issue.context;
+  if (ctx2) {
     for (const key of GEOM_ID_LIST_KEYS) {
-      const arr = ctx[key];
+      const arr = ctx2[key];
       if (Array.isArray(arr)) {
         for (const id of arr) {
           if (typeof id === "string")
@@ -197917,8 +196711,12 @@ var ModelConverter = class {
             ...pipelineOutput.options || {},
             ...requestSignal ? { signal: requestSignal } : {}
           };
+          const warnings = [];
           try {
-            const fileData = await exporter.write({ sceneModel, dataModel }, options);
+            const fileData = await exporter.write(
+              { sceneModel, dataModel },
+              { ...options, onWarning: (message) => warnings.push(message) }
+            );
             let fileDataSizeBytes;
             switch (exporter.fileDataType) {
               case "text":
@@ -197941,7 +196739,7 @@ var ModelConverter = class {
               sceneModel: sceneModel.id,
               dataModel: dataModel.id,
               messages: [],
-              warnings: [],
+              warnings,
               errors: []
             };
           } catch (err5) {
@@ -198355,7 +197153,66 @@ var createOptimizationReport = (modelConverterResult) => {
   }
   if (!any)
     return null;
-  return { counts, bySceneModel };
+  const inputs = {};
+  const outputs = {};
+  let bytesIn = 0;
+  let bytesOut = 0;
+  for (const id of Object.keys(modelConverterResult.inputs || {})) {
+    const i2 = modelConverterResult.inputs[id];
+    inputs[id] = { filePath: i2.filePath, fileFormat: i2.fileFormat, fileDataSizeBytes: i2.fileDataSizeBytes };
+    bytesIn += i2.fileDataSizeBytes || 0;
+  }
+  for (const id of Object.keys(modelConverterResult.outputs || {})) {
+    const o2 = modelConverterResult.outputs[id];
+    outputs[id] = { filePath: o2.filePath, fileFormat: o2.fileFormat, fileDataSizeBytes: o2.fileDataSizeBytes };
+    bytesOut += o2.fileDataSizeBytes || 0;
+  }
+  const bytes = { input: bytesIn, output: bytesOut, delta: bytesOut - bytesIn };
+  return { counts, bytes, files: { inputs, outputs }, bySceneModel };
+};
+
+// src/convert/modelConverter/reporters/conversion/createConversionReport.ts
+var createConversionReport = (modelConverterResult) => {
+  const outputIds = Object.keys(modelConverterResult.outputs);
+  if (outputIds.length === 0)
+    return null;
+  const summary = {
+    outputs: 0,
+    ok: 0,
+    lossy: 0,
+    failed: 0,
+    warnings: 0,
+    errors: 0,
+    byOutput: {}
+  };
+  const warnings = [];
+  const errors = [];
+  for (const id of outputIds) {
+    const output = modelConverterResult.outputs[id];
+    const status = output.errors.length ? "failed" : output.warnings.length ? "lossy" : "ok";
+    summary.outputs++;
+    summary[status]++;
+    summary.warnings += output.warnings.length;
+    summary.errors += output.errors.length;
+    summary.byOutput[id] = {
+      filePath: output.filePath,
+      fileFormat: output.fileFormat,
+      fileFormatVersion: output.fileFormatVersion,
+      fileDataSizeBytes: output.fileDataSizeBytes,
+      status
+    };
+    for (const message of output.warnings) {
+      warnings.push({ output: id, fileFormat: output.fileFormat, message });
+    }
+    for (const message of output.errors) {
+      errors.push({ output: id, message });
+    }
+  }
+  for (const message of modelConverterResult.errors) {
+    summary.errors++;
+    errors.push({ output: null, message });
+  }
+  return { summary, warnings, errors };
 };
 
 // src/convert/xeoconvert/resolveFormat.ts
@@ -198459,7 +197316,8 @@ var reporters = {
   "stats-report": createStatsReport,
   "manifest-report": createManifestReport,
   "inspection-report": createInspectionReport,
-  "optimization-report": createOptimizationReport
+  "optimization-report": createOptimizationReport,
+  "conversion-report": createConversionReport
 };
 var CoordinateSystems = {
   // AEC convention - Revit, FreeCAD, OpenCascade, Blender etc
@@ -198891,6 +197749,79 @@ var modelConverter = new ModelConverter({
       outputs: {
         "xgf": {
           exporter: "xgf",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      }
+    },
+    "xkt": {
+      inputs: {
+        "xkt": {
+          loader: "xkt",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      }
+    },
+    "xkt2json": {
+      inputs: {
+        "xkt": {
+          loader: "xkt",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      },
+      outputs: {
+        "datamodel": {
+          exporter: "datamodel"
+        },
+        "scenemodel": {
+          exporter: "scenemodel",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      }
+    },
+    "xkt2xgf": {
+      inputs: {
+        "xkt": {
+          loader: "xkt",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      },
+      outputs: {
+        "xgf": {
+          exporter: "xgf",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        },
+        "datamodel": {
+          exporter: "datamodel"
+        }
+      }
+    },
+    "xgf2xkt": {
+      inputs: {
+        "xgf": {
+          loader: "xgf",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        },
+        "datamodel": {
+          loader: "datamodel"
+        }
+      },
+      outputs: {
+        "xkt": {
+          exporter: "xkt",
           options: {
             coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
           }

@@ -281,16 +281,16 @@ var require_string_decoder = __commonJS({
     StringDecoder.prototype.detectIncompleteChar = function(buffer) {
       var i2 = buffer.length >= 3 ? 3 : buffer.length;
       for (; i2 > 0; i2--) {
-        var c4 = buffer[buffer.length - i2];
-        if (i2 == 1 && c4 >> 5 == 6) {
+        var c3 = buffer[buffer.length - i2];
+        if (i2 == 1 && c3 >> 5 == 6) {
           this.charLength = 2;
           break;
         }
-        if (i2 <= 2 && c4 >> 4 == 14) {
+        if (i2 <= 2 && c3 >> 4 == 14) {
           this.charLength = 3;
           break;
         }
-        if (i2 <= 3 && c4 >> 3 == 30) {
+        if (i2 <= 3 && c3 >> 3 == 30) {
           this.charLength = 4;
           break;
         }
@@ -783,10 +783,10 @@ var require_stream_readable = __commonJS({
       stream2.on = stream2.addListener = Stream3.prototype.on;
       stream2.on("readable", function() {
         readable = true;
-        var c4;
-        while (!paused && null !== (c4 = stream2.read()))
-          stream2.emit("data", c4);
-        if (c4 === null) {
+        var c3;
+        while (!paused && null !== (c3 = stream2.read()))
+          stream2.emit("data", c3);
+        if (c3 === null) {
           readable = false;
           stream2._readableState.needReadable = true;
         }
@@ -884,19 +884,19 @@ var require_stream_readable = __commonJS({
             ret = "";
           else
             ret = new Buffer2(n2);
-          var c4 = 0;
-          for (var i2 = 0, l2 = list.length; i2 < l2 && c4 < n2; i2++) {
+          var c3 = 0;
+          for (var i2 = 0, l2 = list.length; i2 < l2 && c3 < n2; i2++) {
             var buf = list[0];
-            var cpy = Math.min(n2 - c4, buf.length);
+            var cpy = Math.min(n2 - c3, buf.length);
             if (stringMode)
               ret += buf.slice(0, cpy);
             else
-              buf.copy(ret, c4, 0, cpy);
+              buf.copy(ret, c3, 0, cpy);
             if (cpy < buf.length)
               list[0] = buf.slice(cpy);
             else
               list.shift();
-            c4 += cpy;
+            c3 += cpy;
           }
         }
       }
@@ -1148,21 +1148,21 @@ var require_stream_writable = __commonJS({
     }
     function clearBuffer(stream2, state) {
       state.bufferProcessing = true;
-      for (var c4 = 0; c4 < state.buffer.length; c4++) {
-        var entry = state.buffer[c4];
+      for (var c3 = 0; c3 < state.buffer.length; c3++) {
+        var entry = state.buffer[c3];
         var chunk = entry.chunk;
         var encoding = entry.encoding;
         var cb2 = entry.callback;
         var len = state.objectMode ? 1 : chunk.length;
         doWrite(stream2, state, len, chunk, encoding, cb2);
         if (state.writing) {
-          c4++;
+          c3++;
           break;
         }
       }
       state.bufferProcessing = false;
-      if (c4 < state.buffer.length)
-        state.buffer = state.buffer.slice(c4);
+      if (c3 < state.buffer.length)
+        state.buffer = state.buffer.slice(c3);
       else
         state.buffer.length = 0;
     }
@@ -1571,8 +1571,8 @@ var require_stream_writable2 = __commonJS({
       state.bufferProcessing = true;
       if (stream2._writev && state.buffer.length > 1) {
         var cbs = [];
-        for (var c4 = 0; c4 < state.buffer.length; c4++)
-          cbs.push(state.buffer[c4].callback);
+        for (var c3 = 0; c3 < state.buffer.length; c3++)
+          cbs.push(state.buffer[c3].callback);
         state.pendingcb++;
         doWrite(stream2, state, true, state.length, state.buffer, "", function(err) {
           for (var i2 = 0; i2 < cbs.length; i2++) {
@@ -1582,20 +1582,20 @@ var require_stream_writable2 = __commonJS({
         });
         state.buffer = [];
       } else {
-        for (var c4 = 0; c4 < state.buffer.length; c4++) {
-          var entry = state.buffer[c4];
+        for (var c3 = 0; c3 < state.buffer.length; c3++) {
+          var entry = state.buffer[c3];
           var chunk = entry.chunk;
           var encoding = entry.encoding;
           var cb2 = entry.callback;
           var len = state.objectMode ? 1 : chunk.length;
           doWrite(stream2, state, false, len, chunk, encoding, cb2);
           if (state.writing) {
-            c4++;
+            c3++;
             break;
           }
         }
-        if (c4 < state.buffer.length)
-          state.buffer = state.buffer.slice(c4);
+        if (c3 < state.buffer.length)
+          state.buffer = state.buffer.slice(c3);
         else
           state.buffer.length = 0;
       }
@@ -2284,19 +2284,19 @@ var require_stream_readable2 = __commonJS({
             ret = "";
           else
             ret = new Buffer2(n2);
-          var c4 = 0;
-          for (var i2 = 0, l2 = list.length; i2 < l2 && c4 < n2; i2++) {
+          var c3 = 0;
+          for (var i2 = 0, l2 = list.length; i2 < l2 && c3 < n2; i2++) {
             var buf = list[0];
-            var cpy = Math.min(n2 - c4, buf.length);
+            var cpy = Math.min(n2 - c3, buf.length);
             if (stringMode)
               ret += buf.slice(0, cpy);
             else
-              buf.copy(ret, c4, 0, cpy);
+              buf.copy(ret, c3, 0, cpy);
             if (cpy < buf.length)
               list[0] = buf.slice(cpy);
             else
               list.shift();
-            c4 += cpy;
+            c3 += cpy;
           }
         }
       }
@@ -2793,8 +2793,8 @@ var require_LZWEncoder = __commonJS({
       var n_bits;
       var clear_flg = false;
       var g_init_bits, ClearCode, EOFCode;
-      function char_out(c4, outs) {
-        accum[a_count++] = c4;
+      function char_out(c3, outs) {
+        accum[a_count++] = c3;
         if (a_count >= 254)
           flush_char(outs);
       }
@@ -2809,7 +2809,7 @@ var require_LZWEncoder = __commonJS({
           htab[i2] = -1;
       }
       function compress(init_bits, outs) {
-        var fcode, c4, i2, ent, disp, hsize_reg, hshift;
+        var fcode, c3, i2, ent, disp, hsize_reg, hshift;
         g_init_bits = init_bits;
         clear_flg = false;
         n_bits = g_init_bits;
@@ -2827,9 +2827,9 @@ var require_LZWEncoder = __commonJS({
         cl_hash(hsize_reg);
         output(ClearCode, outs);
         outer_loop:
-          while ((c4 = nextPixel()) != EOF) {
-            fcode = (c4 << BITS) + ent;
-            i2 = c4 << hshift ^ ent;
+          while ((c3 = nextPixel()) != EOF) {
+            fcode = (c3 << BITS) + ent;
+            i2 = c3 << hshift ^ ent;
             if (htab[i2] === fcode) {
               ent = codetab[i2];
               continue;
@@ -2847,7 +2847,7 @@ var require_LZWEncoder = __commonJS({
               } while (htab[i2] >= 0);
             }
             output(ent, outs);
-            ent = c4;
+            ent = c3;
             if (free_ent < 1 << BITS) {
               codetab[i2] = free_ent++;
               htab[i2] = fcode;
@@ -2858,7 +2858,7 @@ var require_LZWEncoder = __commonJS({
         output(ent, outs);
         output(EOFCode, outs);
       }
-      function encode10(outs) {
+      function encode9(outs) {
         outs.writeByte(initCodeSize);
         remaining = width * height;
         curPixel = 0;
@@ -2915,7 +2915,7 @@ var require_LZWEncoder = __commonJS({
           flush_char(outs);
         }
       }
-      this.encode = encode10;
+      this.encode = encode9;
     }
     module2.exports = LZWEncoder;
   }
@@ -3014,8 +3014,8 @@ var require_GIFEncoder = __commonJS({
     GIFEncoder.prototype.setTransparent = function(color) {
       this.transparent = color;
     };
-    GIFEncoder.prototype.analyzeImage = function(imageData) {
-      this.setImagePixels(this.removeAlphaChannel(imageData));
+    GIFEncoder.prototype.analyzeImage = function(imageData2) {
+      this.setImagePixels(this.removeAlphaChannel(imageData2));
       this.analyzePixels();
     };
     GIFEncoder.prototype.writeImageInfo = function() {
@@ -3035,9 +3035,9 @@ var require_GIFEncoder = __commonJS({
     GIFEncoder.prototype.outputImage = function() {
       this.writePixels();
     };
-    GIFEncoder.prototype.addFrame = function(imageData) {
+    GIFEncoder.prototype.addFrame = function(imageData2) {
       this.emit("frame#start");
-      this.analyzeImage(imageData);
+      this.analyzeImage(imageData2);
       this.writeImageInfo();
       this.outputImage();
       this.emit("frame#stop");
@@ -3081,12 +3081,12 @@ var require_GIFEncoder = __commonJS({
         this.transIndex = this.findClosest(this.transparent);
       }
     };
-    GIFEncoder.prototype.findClosest = function(c4) {
+    GIFEncoder.prototype.findClosest = function(c3) {
       if (this.colorTab === null)
         return -1;
-      var r2 = (c4 & 16711680) >> 16;
-      var g2 = (c4 & 65280) >> 8;
-      var b5 = c4 & 255;
+      var r2 = (c3 & 16711680) >> 16;
+      var g2 = (c3 & 65280) >> 8;
+      var b5 = c3 & 255;
       var minpos = 0;
       var dmin = 256 * 256 * 256;
       var len = this.colorTab.length;
@@ -3105,13 +3105,13 @@ var require_GIFEncoder = __commonJS({
       return minpos;
     };
     GIFEncoder.prototype.removeAlphaChannel = function(data) {
-      var w2 = this.width;
-      var h2 = this.height;
-      var pixels = new Uint8Array(w2 * h2 * 3);
+      var w3 = this.width;
+      var h3 = this.height;
+      var pixels = new Uint8Array(w3 * h3 * 3);
       var count = 0;
-      for (var i2 = 0; i2 < h2; i2++) {
-        for (var j2 = 0; j2 < w2; j2++) {
-          var b5 = i2 * w2 * 4 + j2 * 4;
+      for (var i2 = 0; i2 < h3; i2++) {
+        for (var j2 = 0; j2 < w3; j2++) {
+          var b5 = i2 * w3 * 4 + j2 * 4;
           pixels[count++] = data[b5];
           pixels[count++] = data[b5 + 1];
           pixels[count++] = data[b5 + 2];
@@ -4193,7 +4193,7 @@ var require_encoder = __commonJS({
         bytenew = 0;
         bytepos = 7;
         this.encode.displayName = "_encode_";
-        var imageData = image.data;
+        var imageData2 = image.data;
         var width = image.width;
         var height = image.height;
         var quadWidth = width * 4;
@@ -4218,9 +4218,9 @@ var require_encoder = __commonJS({
               if (x2 + col >= quadWidth) {
                 p2 -= x2 + col - quadWidth + 4;
               }
-              r2 = imageData[p2++];
-              g2 = imageData[p2++];
-              b5 = imageData[p2++];
+              r2 = imageData2[p2++];
+              g2 = imageData2[p2++];
+              b5 = imageData2[p2++];
               YDU[pos] = (RGB_YUV_TABLE[r2] + RGB_YUV_TABLE[g2 + 256 >> 0] + RGB_YUV_TABLE[b5 + 512 >> 0] >> 16) - 128;
               UDU[pos] = (RGB_YUV_TABLE[r2 + 768 >> 0] + RGB_YUV_TABLE[g2 + 1024 >> 0] + RGB_YUV_TABLE[b5 + 1280 >> 0] >> 16) - 128;
               VDU[pos] = (RGB_YUV_TABLE[r2 + 1280 >> 0] + RGB_YUV_TABLE[g2 + 1536 >> 0] + RGB_YUV_TABLE[b5 + 1792 >> 0] >> 16) - 128;
@@ -4279,12 +4279,12 @@ var require_encoder = __commonJS({
       init();
     }
     if (typeof module2 !== "undefined") {
-      module2.exports = encode10;
+      module2.exports = encode9;
     } else if (typeof window !== "undefined") {
       window["jpeg-js"] = window["jpeg-js"] || {};
-      window["jpeg-js"].encode = encode10;
+      window["jpeg-js"].encode = encode9;
     }
-    function encode10(imgData, qu) {
+    function encode9(imgData, qu) {
       if (typeof qu === "undefined")
         qu = 50;
       var encoder = new JPEGEncoder(qu);
@@ -4606,7 +4606,7 @@ var require_decoder = __commonJS({
         }
         if (!resetInterval)
           resetInterval = mcuExpected;
-        var h2, v2;
+        var h3, v2;
         while (mcu < mcuExpected) {
           for (i2 = 0; i2 < componentsLength; i2++)
             components[i2].pred = 0;
@@ -4621,10 +4621,10 @@ var require_decoder = __commonJS({
             for (n2 = 0; n2 < resetInterval; n2++) {
               for (i2 = 0; i2 < componentsLength; i2++) {
                 component = components[i2];
-                h2 = component.h;
+                h3 = component.h;
                 v2 = component.v;
                 for (j2 = 0; j2 < v2; j2++) {
-                  for (k2 = 0; k2 < h2; k2++) {
+                  for (k2 = 0; k2 < h3; k2++) {
                     decodeMcu(component, decodeFn, mcu, j2, k2);
                   }
                 }
@@ -4818,7 +4818,7 @@ var require_decoder = __commonJS({
           }.bind(this);
           xhr.send(null);
         },
-        parse: function parse6(data) {
+        parse: function parse5(data) {
           var maxResolutionInPixels = this.opts.maxResolutionInMP * 1e3 * 1e3;
           var offset = 0, length = data.length;
           function readUint16() {
@@ -4984,15 +4984,15 @@ var require_decoder = __commonJS({
                 var maxH = 0, maxV = 0;
                 for (i2 = 0; i2 < componentsCount; i2++) {
                   componentId = data[offset];
-                  var h2 = data[offset + 1] >> 4;
+                  var h3 = data[offset + 1] >> 4;
                   var v2 = data[offset + 1] & 15;
                   var qId = data[offset + 2];
-                  if (h2 <= 0 || v2 <= 0) {
+                  if (h3 <= 0 || v2 <= 0) {
                     throw new Error("Invalid sampling factor, expected values above 0");
                   }
                   frame.componentsOrder.push(componentId);
                   frame.components[componentId] = {
-                    h: h2,
+                    h: h3,
                     v: v2,
                     quantizationIdx: qId
                   };
@@ -5213,9 +5213,9 @@ var require_decoder = __commonJS({
           }
           return data;
         },
-        copyToImageData: function copyToImageData(imageData, formatAsRGBA) {
-          var width = imageData.width, height = imageData.height;
-          var imageDataArray = imageData.data;
+        copyToImageData: function copyToImageData(imageData2, formatAsRGBA) {
+          var width = imageData2.width, height = imageData2.height;
+          var imageDataArray = imageData2.data;
           var data = this.getData(width, height);
           var i2 = 0, j2 = 0, x2, y2;
           var Y2, K2, C2, M2, R2, G2, B2;
@@ -5349,10 +5349,10 @@ var require_decoder = __commonJS({
 // ../../node_modules/.pnpm/jpeg-js@0.4.4/node_modules/jpeg-js/index.js
 var require_jpeg_js = __commonJS({
   "../../node_modules/.pnpm/jpeg-js@0.4.4/node_modules/jpeg-js/index.js"(exports2, module2) {
-    var encode10 = require_encoder();
+    var encode9 = require_encoder();
     var decode12 = require_decoder();
     module2.exports = {
-      encode: encode10,
+      encode: encode9,
       decode: decode12
     };
   }
@@ -6291,13 +6291,13 @@ var require_format_normaliser = __commonJS({
         }
       }
     }
-    module2.exports = function(indata, imageData) {
-      var depth = imageData.depth;
-      var width = imageData.width;
-      var height = imageData.height;
-      var colorType = imageData.colorType;
-      var transColor = imageData.transColor;
-      var palette = imageData.palette;
+    module2.exports = function(indata, imageData2) {
+      var depth = imageData2.depth;
+      var width = imageData2.width;
+      var height = imageData2.height;
+      var colorType = imageData2.colorType;
+      var transColor = imageData2.transColor;
+      var palette = imageData2.palette;
       var outdata = indata;
       if (colorType === 3) {
         dePalette(indata, outdata, width, height, palette);
@@ -6888,10 +6888,10 @@ var require_packer_sync = __commonJS({
 var require_png_sync = __commonJS({
   "../../node_modules/.pnpm/pngjs-nozlib@1.0.0/node_modules/pngjs-nozlib/lib/png-sync.js"(exports2) {
     "use strict";
-    var parse6 = require_parser_sync();
+    var parse5 = require_parser_sync();
     var pack = require_packer_sync();
     exports2.read = function(buffer, options) {
-      return parse6(buffer, options || {});
+      return parse5(buffer, options || {});
     };
     exports2.write = function(png) {
       return pack(png);
@@ -8426,7 +8426,7 @@ var require_save_pixels = __commonJS({
     var ops = require_ndarray_ops();
     var through = require_through();
     function handleData(array, data, frame) {
-      var i2, j2, ptr = 0, c4;
+      var i2, j2, ptr = 0, c3;
       if (array.shape.length === 4) {
         return handleData(array.pick(frame), data, 0);
       } else if (array.shape.length === 3) {
@@ -8562,17 +8562,17 @@ var require_save_pixels = __commonJS({
           png.data = data;
           return png.pack();
         case "CANVAS":
-          var canvas = document.createElement("canvas");
-          var context = canvas.getContext("2d");
-          canvas.width = array.shape[0];
-          canvas.height = array.shape[1];
-          var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-          var data = imageData.data;
+          var canvas2 = document.createElement("canvas");
+          var context = canvas2.getContext("2d");
+          canvas2.width = array.shape[0];
+          canvas2.height = array.shape[1];
+          var imageData2 = context.getImageData(0, 0, canvas2.width, canvas2.height);
+          var data = imageData2.data;
           data = handleData(array, data);
           if (typeof data === "Error")
             return haderror(data);
-          context.putImageData(imageData, 0, 0);
-          return canvas;
+          context.putImageData(imageData2, 0, 0);
+          return canvas2;
         default:
           return haderror(new Error("Unsupported file type: " + type));
       }
@@ -9572,13 +9572,13 @@ var require_format_normaliser2 = __commonJS({
         }
       }
     }
-    module2.exports = function(indata, imageData) {
-      var depth = imageData.depth;
-      var width = imageData.width;
-      var height = imageData.height;
-      var colorType = imageData.colorType;
-      var transColor = imageData.transColor;
-      var palette = imageData.palette;
+    module2.exports = function(indata, imageData2) {
+      var depth = imageData2.depth;
+      var width = imageData2.width;
+      var height = imageData2.height;
+      var colorType = imageData2.colorType;
+      var transColor = imageData2.transColor;
+      var palette = imageData2.palette;
       var outdata = indata;
       if (colorType === 3) {
         dePalette(indata, outdata, width, height, palette);
@@ -10451,10 +10451,10 @@ var require_packer_sync2 = __commonJS({
 var require_png_sync2 = __commonJS({
   "../../node_modules/.pnpm/pngjs@3.4.0/node_modules/pngjs/lib/png-sync.js"(exports2) {
     "use strict";
-    var parse6 = require_parser_sync2();
+    var parse5 = require_parser_sync2();
     var pack = require_packer_sync2();
     exports2.read = function(buffer, options) {
-      return parse6(buffer, options || {});
+      return parse5(buffer, options || {});
     };
     exports2.write = function(png, options) {
       return pack(png, options);
@@ -10608,11 +10608,11 @@ var require_convert = __commonJS({
     var ndarray2 = require_ndarray();
     var do_convert = require_doConvert();
     module2.exports = function convert(arr, result) {
-      var shape = [], c4 = arr, sz = 1;
-      while (Array.isArray(c4)) {
-        shape.push(c4.length);
-        sz *= c4.length;
-        c4 = c4[0];
+      var shape = [], c3 = arr, sz = 1;
+      while (Array.isArray(c3)) {
+        shape.push(c3.length);
+        sz *= c3.length;
+        c3 = c3[0];
       }
       if (shape.length === 0) {
         return ndarray2();
@@ -10708,7 +10708,7 @@ var require_omggif = __commonJS({
         buf[p2++] = 0;
       }
       var ended = false;
-      this.addFrame = function(x2, y2, w2, h2, indexed_pixels, opts) {
+      this.addFrame = function(x2, y2, w3, h3, indexed_pixels, opts) {
         if (ended === true) {
           --p2;
           ended = false;
@@ -10716,9 +10716,9 @@ var require_omggif = __commonJS({
         opts = opts === void 0 ? {} : opts;
         if (x2 < 0 || y2 < 0 || x2 > 65535 || y2 > 65535)
           throw new Error("x/y invalid.");
-        if (w2 <= 0 || h2 <= 0 || w2 > 65535 || h2 > 65535)
+        if (w3 <= 0 || h3 <= 0 || w3 > 65535 || h3 > 65535)
           throw new Error("Width/Height invalid.");
-        if (indexed_pixels.length < w2 * h2)
+        if (indexed_pixels.length < w3 * h3)
           throw new Error("Not enough pixels for the frame size.");
         var using_local_palette = true;
         var palette = opts.palette;
@@ -10760,10 +10760,10 @@ var require_omggif = __commonJS({
         buf[p2++] = x2 >> 8 & 255;
         buf[p2++] = y2 & 255;
         buf[p2++] = y2 >> 8 & 255;
-        buf[p2++] = w2 & 255;
-        buf[p2++] = w2 >> 8 & 255;
-        buf[p2++] = h2 & 255;
-        buf[p2++] = h2 >> 8 & 255;
+        buf[p2++] = w3 & 255;
+        buf[p2++] = w3 >> 8 & 255;
+        buf[p2++] = h3 & 255;
+        buf[p2++] = h3 >> 8 & 255;
         buf[p2++] = using_local_palette === true ? 128 | min_code_size - 1 : 0;
         if (using_local_palette === true) {
           for (var i3 = 0, il2 = palette.length; i3 < il2; ++i3) {
@@ -10822,8 +10822,8 @@ var require_omggif = __commonJS({
           }
         }
       }
-      function emit_code(c4) {
-        cur |= c4 << cur_shift;
+      function emit_code(c3) {
+        cur |= c3 << cur_shift;
         cur_shift += cur_code_size;
         emit_bytes_to_buffer(8);
       }
@@ -10954,8 +10954,8 @@ var require_omggif = __commonJS({
           case 44:
             var x2 = buf[p2++] | buf[p2++] << 8;
             var y2 = buf[p2++] | buf[p2++] << 8;
-            var w2 = buf[p2++] | buf[p2++] << 8;
-            var h2 = buf[p2++] | buf[p2++] << 8;
+            var w3 = buf[p2++] | buf[p2++] << 8;
+            var h3 = buf[p2++] | buf[p2++] << 8;
             var pf2 = buf[p2++];
             var local_palette_flag = pf2 >> 7;
             var interlace_flag = pf2 >> 6 & 1;
@@ -10983,8 +10983,8 @@ var require_omggif = __commonJS({
             frames.push({
               x: x2,
               y: y2,
-              width: w2,
-              height: h2,
+              width: w3,
+              height: h3,
               has_local_palette,
               palette_offset,
               palette_size,
@@ -11699,11 +11699,11 @@ var require_bitmap = __commonJS({
     Bitmap.prototype.mapRGBA = function(r2, g2, b5, a3) {
       var hex = [];
       var padHex = function(value) {
-        var h2 = value.toString(16);
+        var h3 = value.toString(16);
         if (value < 15) {
-          return "0" + h2;
+          return "0" + h3;
         }
-        return h2;
+        return h3;
       };
       hex.push(padHex(r2));
       hex.push(padHex(g2));
@@ -11892,7 +11892,7 @@ var require_psl = __commonJS({
       if (F2)
         return O2;
       F2 = 1;
-      const e2 = 2147483647, s2 = 36, c4 = 1, o2 = 26, t2 = 38, d2 = 700, z2 = 72, y2 = 128, g2 = "-", P2 = /^xn--/, V2 = /[^\0-\x7F]/, G2 = /[\x2E\u3002\uFF0E\uFF61]/g, W2 = { overflow: "Overflow: input needs wider integers to process", "not-basic": "Illegal input >= 0x80 (not a basic code point)", "invalid-input": "Invalid input" }, C2 = s2 - c4, h2 = Math.floor, I2 = String.fromCharCode;
+      const e2 = 2147483647, s2 = 36, c3 = 1, o2 = 26, t2 = 38, d2 = 700, z2 = 72, y2 = 128, g2 = "-", P2 = /^xn--/, V2 = /[^\0-\x7F]/, G2 = /[\x2E\u3002\uFF0E\uFF61]/g, W2 = { overflow: "Overflow: input needs wider integers to process", "not-basic": "Illegal input >= 0x80 (not a basic code point)", "invalid-input": "Invalid input" }, C2 = s2 - c3, h3 = Math.floor, I2 = String.fromCharCode;
       function v2(a3) {
         throw new RangeError(W2[a3]);
       }
@@ -11930,9 +11930,9 @@ var require_psl = __commonJS({
         return a3 + 22 + 75 * (a3 < 26) - ((i2 != 0) << 5);
       }, T2 = function(a3, i2, m2) {
         let n2 = 0;
-        for (a3 = m2 ? h2(a3 / d2) : a3 >> 1, a3 += h2(a3 / i2); a3 > C2 * o2 >> 1; n2 += s2)
-          a3 = h2(a3 / C2);
-        return h2(n2 + (C2 + 1) * a3 / (a3 + t2));
+        for (a3 = m2 ? h3(a3 / d2) : a3 >> 1, a3 += h3(a3 / i2); a3 > C2 * o2 >> 1; n2 += s2)
+          a3 = h3(a3 / C2);
+        return h3(n2 + (C2 + 1) * a3 / (a3 + t2));
       }, E2 = function(a3) {
         const i2 = [], m2 = a3.length;
         let n2 = 0, r2 = y2, p2 = z2, j2 = a3.lastIndexOf(g2);
@@ -11943,16 +11943,16 @@ var require_psl = __commonJS({
           const k2 = n2;
           for (let l2 = 1, b5 = s2; ; b5 += s2) {
             u2 >= m2 && v2("invalid-input");
-            const w2 = J2(a3.charCodeAt(u2++));
-            w2 >= s2 && v2("invalid-input"), w2 > h2((e2 - n2) / l2) && v2("overflow"), n2 += w2 * l2;
-            const x2 = b5 <= p2 ? c4 : b5 >= p2 + o2 ? o2 : b5 - p2;
-            if (w2 < x2)
+            const w3 = J2(a3.charCodeAt(u2++));
+            w3 >= s2 && v2("invalid-input"), w3 > h3((e2 - n2) / l2) && v2("overflow"), n2 += w3 * l2;
+            const x2 = b5 <= p2 ? c3 : b5 >= p2 + o2 ? o2 : b5 - p2;
+            if (w3 < x2)
               break;
             const q3 = s2 - x2;
-            l2 > h2(e2 / q3) && v2("overflow"), l2 *= q3;
+            l2 > h3(e2 / q3) && v2("overflow"), l2 *= q3;
           }
           const f2 = i2.length + 1;
-          p2 = T2(n2 - k2, f2, k2 == 0), h2(n2 / f2) > e2 - r2 && v2("overflow"), r2 += h2(n2 / f2), n2 %= f2, i2.splice(n2++, 0, r2);
+          p2 = T2(n2 - k2, f2, k2 == 0), h3(n2 / f2) > e2 - r2 && v2("overflow"), r2 += h3(n2 / f2), n2 %= f2, i2.splice(n2++, 0, r2);
         }
         return String.fromCodePoint(...i2);
       }, B2 = function(a3) {
@@ -11969,16 +11969,16 @@ var require_psl = __commonJS({
           for (const l2 of a3)
             l2 >= n2 && l2 < k2 && (k2 = l2);
           const f2 = u2 + 1;
-          k2 - n2 > h2((e2 - r2) / f2) && v2("overflow"), r2 += (k2 - n2) * f2, n2 = k2;
+          k2 - n2 > h3((e2 - r2) / f2) && v2("overflow"), r2 += (k2 - n2) * f2, n2 = k2;
           for (const l2 of a3)
             if (l2 < n2 && ++r2 > e2 && v2("overflow"), l2 === n2) {
               let b5 = r2;
-              for (let w2 = s2; ; w2 += s2) {
-                const x2 = w2 <= p2 ? c4 : w2 >= p2 + o2 ? o2 : w2 - p2;
+              for (let w3 = s2; ; w3 += s2) {
+                const x2 = w3 <= p2 ? c3 : w3 >= p2 + o2 ? o2 : w3 - p2;
                 if (b5 < x2)
                   break;
                 const q3 = b5 - x2, M2 = s2 - x2;
-                i2.push(I2(D2(x2 + q3 % M2, 0))), b5 = h2(q3 / M2);
+                i2.push(I2(D2(x2 + q3 % M2, 0))), b5 = h3(q3 / M2);
               }
               i2.push(I2(D2(b5, 0))), p2 = T2(r2, f2, u2 === j2), r2 = 0, ++u2;
             }
@@ -12000,15 +12000,15 @@ var require_psl = __commonJS({
     var A2 = K2(X2);
     var Y2 = ["ac", "com.ac", "edu.ac", "gov.ac", "mil.ac", "net.ac", "org.ac", "ad", "ae", "ac.ae", "co.ae", "gov.ae", "mil.ae", "net.ae", "org.ae", "sch.ae", "aero", "airline.aero", "airport.aero", "accident-investigation.aero", "accident-prevention.aero", "aerobatic.aero", "aeroclub.aero", "aerodrome.aero", "agents.aero", "air-surveillance.aero", "air-traffic-control.aero", "aircraft.aero", "airtraffic.aero", "ambulance.aero", "association.aero", "author.aero", "ballooning.aero", "broker.aero", "caa.aero", "cargo.aero", "catering.aero", "certification.aero", "championship.aero", "charter.aero", "civilaviation.aero", "club.aero", "conference.aero", "consultant.aero", "consulting.aero", "control.aero", "council.aero", "crew.aero", "design.aero", "dgca.aero", "educator.aero", "emergency.aero", "engine.aero", "engineer.aero", "entertainment.aero", "equipment.aero", "exchange.aero", "express.aero", "federation.aero", "flight.aero", "freight.aero", "fuel.aero", "gliding.aero", "government.aero", "groundhandling.aero", "group.aero", "hanggliding.aero", "homebuilt.aero", "insurance.aero", "journal.aero", "journalist.aero", "leasing.aero", "logistics.aero", "magazine.aero", "maintenance.aero", "marketplace.aero", "media.aero", "microlight.aero", "modelling.aero", "navigation.aero", "parachuting.aero", "paragliding.aero", "passenger-association.aero", "pilot.aero", "press.aero", "production.aero", "recreation.aero", "repbody.aero", "res.aero", "research.aero", "rotorcraft.aero", "safety.aero", "scientist.aero", "services.aero", "show.aero", "skydiving.aero", "software.aero", "student.aero", "taxi.aero", "trader.aero", "trading.aero", "trainer.aero", "union.aero", "workinggroup.aero", "works.aero", "af", "com.af", "edu.af", "gov.af", "net.af", "org.af", "ag", "co.ag", "com.ag", "net.ag", "nom.ag", "org.ag", "ai", "com.ai", "net.ai", "off.ai", "org.ai", "al", "com.al", "edu.al", "gov.al", "mil.al", "net.al", "org.al", "am", "co.am", "com.am", "commune.am", "net.am", "org.am", "ao", "co.ao", "ed.ao", "edu.ao", "gov.ao", "gv.ao", "it.ao", "og.ao", "org.ao", "pb.ao", "aq", "ar", "bet.ar", "com.ar", "coop.ar", "edu.ar", "gob.ar", "gov.ar", "int.ar", "mil.ar", "musica.ar", "mutual.ar", "net.ar", "org.ar", "senasa.ar", "tur.ar", "arpa", "e164.arpa", "home.arpa", "in-addr.arpa", "ip6.arpa", "iris.arpa", "uri.arpa", "urn.arpa", "as", "gov.as", "asia", "at", "ac.at", "sth.ac.at", "co.at", "gv.at", "or.at", "au", "asn.au", "com.au", "edu.au", "gov.au", "id.au", "net.au", "org.au", "conf.au", "oz.au", "act.au", "nsw.au", "nt.au", "qld.au", "sa.au", "tas.au", "vic.au", "wa.au", "act.edu.au", "catholic.edu.au", "nsw.edu.au", "nt.edu.au", "qld.edu.au", "sa.edu.au", "tas.edu.au", "vic.edu.au", "wa.edu.au", "qld.gov.au", "sa.gov.au", "tas.gov.au", "vic.gov.au", "wa.gov.au", "schools.nsw.edu.au", "aw", "com.aw", "ax", "az", "biz.az", "com.az", "edu.az", "gov.az", "info.az", "int.az", "mil.az", "name.az", "net.az", "org.az", "pp.az", "pro.az", "ba", "com.ba", "edu.ba", "gov.ba", "mil.ba", "net.ba", "org.ba", "bb", "biz.bb", "co.bb", "com.bb", "edu.bb", "gov.bb", "info.bb", "net.bb", "org.bb", "store.bb", "tv.bb", "*.bd", "be", "ac.be", "bf", "gov.bf", "bg", "0.bg", "1.bg", "2.bg", "3.bg", "4.bg", "5.bg", "6.bg", "7.bg", "8.bg", "9.bg", "a.bg", "b.bg", "c.bg", "d.bg", "e.bg", "f.bg", "g.bg", "h.bg", "i.bg", "j.bg", "k.bg", "l.bg", "m.bg", "n.bg", "o.bg", "p.bg", "q.bg", "r.bg", "s.bg", "t.bg", "u.bg", "v.bg", "w.bg", "x.bg", "y.bg", "z.bg", "bh", "com.bh", "edu.bh", "gov.bh", "net.bh", "org.bh", "bi", "co.bi", "com.bi", "edu.bi", "or.bi", "org.bi", "biz", "bj", "africa.bj", "agro.bj", "architectes.bj", "assur.bj", "avocats.bj", "co.bj", "com.bj", "eco.bj", "econo.bj", "edu.bj", "info.bj", "loisirs.bj", "money.bj", "net.bj", "org.bj", "ote.bj", "restaurant.bj", "resto.bj", "tourism.bj", "univ.bj", "bm", "com.bm", "edu.bm", "gov.bm", "net.bm", "org.bm", "bn", "com.bn", "edu.bn", "gov.bn", "net.bn", "org.bn", "bo", "com.bo", "edu.bo", "gob.bo", "int.bo", "mil.bo", "net.bo", "org.bo", "tv.bo", "web.bo", "academia.bo", "agro.bo", "arte.bo", "blog.bo", "bolivia.bo", "ciencia.bo", "cooperativa.bo", "democracia.bo", "deporte.bo", "ecologia.bo", "economia.bo", "empresa.bo", "indigena.bo", "industria.bo", "info.bo", "medicina.bo", "movimiento.bo", "musica.bo", "natural.bo", "nombre.bo", "noticias.bo", "patria.bo", "plurinacional.bo", "politica.bo", "profesional.bo", "pueblo.bo", "revista.bo", "salud.bo", "tecnologia.bo", "tksat.bo", "transporte.bo", "wiki.bo", "br", "9guacu.br", "abc.br", "adm.br", "adv.br", "agr.br", "aju.br", "am.br", "anani.br", "aparecida.br", "app.br", "arq.br", "art.br", "ato.br", "b.br", "barueri.br", "belem.br", "bet.br", "bhz.br", "bib.br", "bio.br", "blog.br", "bmd.br", "boavista.br", "bsb.br", "campinagrande.br", "campinas.br", "caxias.br", "cim.br", "cng.br", "cnt.br", "com.br", "contagem.br", "coop.br", "coz.br", "cri.br", "cuiaba.br", "curitiba.br", "def.br", "des.br", "det.br", "dev.br", "ecn.br", "eco.br", "edu.br", "emp.br", "enf.br", "eng.br", "esp.br", "etc.br", "eti.br", "far.br", "feira.br", "flog.br", "floripa.br", "fm.br", "fnd.br", "fortal.br", "fot.br", "foz.br", "fst.br", "g12.br", "geo.br", "ggf.br", "goiania.br", "gov.br", "ac.gov.br", "al.gov.br", "am.gov.br", "ap.gov.br", "ba.gov.br", "ce.gov.br", "df.gov.br", "es.gov.br", "go.gov.br", "ma.gov.br", "mg.gov.br", "ms.gov.br", "mt.gov.br", "pa.gov.br", "pb.gov.br", "pe.gov.br", "pi.gov.br", "pr.gov.br", "rj.gov.br", "rn.gov.br", "ro.gov.br", "rr.gov.br", "rs.gov.br", "sc.gov.br", "se.gov.br", "sp.gov.br", "to.gov.br", "gru.br", "imb.br", "ind.br", "inf.br", "jab.br", "jampa.br", "jdf.br", "joinville.br", "jor.br", "jus.br", "leg.br", "leilao.br", "lel.br", "log.br", "londrina.br", "macapa.br", "maceio.br", "manaus.br", "maringa.br", "mat.br", "med.br", "mil.br", "morena.br", "mp.br", "mus.br", "natal.br", "net.br", "niteroi.br", "*.nom.br", "not.br", "ntr.br", "odo.br", "ong.br", "org.br", "osasco.br", "palmas.br", "poa.br", "ppg.br", "pro.br", "psc.br", "psi.br", "pvh.br", "qsl.br", "radio.br", "rec.br", "recife.br", "rep.br", "ribeirao.br", "rio.br", "riobranco.br", "riopreto.br", "salvador.br", "sampa.br", "santamaria.br", "santoandre.br", "saobernardo.br", "saogonca.br", "seg.br", "sjc.br", "slg.br", "slz.br", "sorocaba.br", "srv.br", "taxi.br", "tc.br", "tec.br", "teo.br", "the.br", "tmp.br", "trd.br", "tur.br", "tv.br", "udi.br", "vet.br", "vix.br", "vlog.br", "wiki.br", "zlg.br", "bs", "com.bs", "edu.bs", "gov.bs", "net.bs", "org.bs", "bt", "com.bt", "edu.bt", "gov.bt", "net.bt", "org.bt", "bv", "bw", "co.bw", "org.bw", "by", "gov.by", "mil.by", "com.by", "of.by", "bz", "co.bz", "com.bz", "edu.bz", "gov.bz", "net.bz", "org.bz", "ca", "ab.ca", "bc.ca", "mb.ca", "nb.ca", "nf.ca", "nl.ca", "ns.ca", "nt.ca", "nu.ca", "on.ca", "pe.ca", "qc.ca", "sk.ca", "yk.ca", "gc.ca", "cat", "cc", "cd", "gov.cd", "cf", "cg", "ch", "ci", "ac.ci", "a\xE9roport.ci", "asso.ci", "co.ci", "com.ci", "ed.ci", "edu.ci", "go.ci", "gouv.ci", "int.ci", "net.ci", "or.ci", "org.ci", "*.ck", "!www.ck", "cl", "co.cl", "gob.cl", "gov.cl", "mil.cl", "cm", "co.cm", "com.cm", "gov.cm", "net.cm", "cn", "ac.cn", "com.cn", "edu.cn", "gov.cn", "mil.cn", "net.cn", "org.cn", "\u516C\u53F8.cn", "\u7DB2\u7D61.cn", "\u7F51\u7EDC.cn", "ah.cn", "bj.cn", "cq.cn", "fj.cn", "gd.cn", "gs.cn", "gx.cn", "gz.cn", "ha.cn", "hb.cn", "he.cn", "hi.cn", "hk.cn", "hl.cn", "hn.cn", "jl.cn", "js.cn", "jx.cn", "ln.cn", "mo.cn", "nm.cn", "nx.cn", "qh.cn", "sc.cn", "sd.cn", "sh.cn", "sn.cn", "sx.cn", "tj.cn", "tw.cn", "xj.cn", "xz.cn", "yn.cn", "zj.cn", "co", "com.co", "edu.co", "gov.co", "mil.co", "net.co", "nom.co", "org.co", "com", "coop", "cr", "ac.cr", "co.cr", "ed.cr", "fi.cr", "go.cr", "or.cr", "sa.cr", "cu", "com.cu", "edu.cu", "gob.cu", "inf.cu", "nat.cu", "net.cu", "org.cu", "cv", "com.cv", "edu.cv", "id.cv", "int.cv", "net.cv", "nome.cv", "org.cv", "publ.cv", "cw", "com.cw", "edu.cw", "net.cw", "org.cw", "cx", "gov.cx", "cy", "ac.cy", "biz.cy", "com.cy", "ekloges.cy", "gov.cy", "ltd.cy", "mil.cy", "net.cy", "org.cy", "press.cy", "pro.cy", "tm.cy", "cz", "de", "dj", "dk", "dm", "co.dm", "com.dm", "edu.dm", "gov.dm", "net.dm", "org.dm", "do", "art.do", "com.do", "edu.do", "gob.do", "gov.do", "mil.do", "net.do", "org.do", "sld.do", "web.do", "dz", "art.dz", "asso.dz", "com.dz", "edu.dz", "gov.dz", "net.dz", "org.dz", "pol.dz", "soc.dz", "tm.dz", "ec", "com.ec", "edu.ec", "fin.ec", "gob.ec", "gov.ec", "info.ec", "k12.ec", "med.ec", "mil.ec", "net.ec", "org.ec", "pro.ec", "edu", "ee", "aip.ee", "com.ee", "edu.ee", "fie.ee", "gov.ee", "lib.ee", "med.ee", "org.ee", "pri.ee", "riik.ee", "eg", "ac.eg", "com.eg", "edu.eg", "eun.eg", "gov.eg", "info.eg", "me.eg", "mil.eg", "name.eg", "net.eg", "org.eg", "sci.eg", "sport.eg", "tv.eg", "*.er", "es", "com.es", "edu.es", "gob.es", "nom.es", "org.es", "et", "biz.et", "com.et", "edu.et", "gov.et", "info.et", "name.et", "net.et", "org.et", "eu", "fi", "aland.fi", "fj", "ac.fj", "biz.fj", "com.fj", "gov.fj", "info.fj", "mil.fj", "name.fj", "net.fj", "org.fj", "pro.fj", "*.fk", "fm", "com.fm", "edu.fm", "net.fm", "org.fm", "fo", "fr", "asso.fr", "com.fr", "gouv.fr", "nom.fr", "prd.fr", "tm.fr", "avoues.fr", "cci.fr", "greta.fr", "huissier-justice.fr", "ga", "gb", "gd", "edu.gd", "gov.gd", "ge", "com.ge", "edu.ge", "gov.ge", "net.ge", "org.ge", "pvt.ge", "school.ge", "gf", "gg", "co.gg", "net.gg", "org.gg", "gh", "com.gh", "edu.gh", "gov.gh", "mil.gh", "org.gh", "gi", "com.gi", "edu.gi", "gov.gi", "ltd.gi", "mod.gi", "org.gi", "gl", "co.gl", "com.gl", "edu.gl", "net.gl", "org.gl", "gm", "gn", "ac.gn", "com.gn", "edu.gn", "gov.gn", "net.gn", "org.gn", "gov", "gp", "asso.gp", "com.gp", "edu.gp", "mobi.gp", "net.gp", "org.gp", "gq", "gr", "com.gr", "edu.gr", "gov.gr", "net.gr", "org.gr", "gs", "gt", "com.gt", "edu.gt", "gob.gt", "ind.gt", "mil.gt", "net.gt", "org.gt", "gu", "com.gu", "edu.gu", "gov.gu", "guam.gu", "info.gu", "net.gu", "org.gu", "web.gu", "gw", "gy", "co.gy", "com.gy", "edu.gy", "gov.gy", "net.gy", "org.gy", "hk", "com.hk", "edu.hk", "gov.hk", "idv.hk", "net.hk", "org.hk", "\u4E2A\u4EBA.hk", "\u500B\u4EBA.hk", "\u516C\u53F8.hk", "\u653F\u5E9C.hk", "\u654E\u80B2.hk", "\u6559\u80B2.hk", "\u7B87\u4EBA.hk", "\u7D44\u7E54.hk", "\u7D44\u7EC7.hk", "\u7DB2\u7D61.hk", "\u7DB2\u7EDC.hk", "\u7EC4\u7E54.hk", "\u7EC4\u7EC7.hk", "\u7F51\u7D61.hk", "\u7F51\u7EDC.hk", "hm", "hn", "com.hn", "edu.hn", "gob.hn", "mil.hn", "net.hn", "org.hn", "hr", "com.hr", "from.hr", "iz.hr", "name.hr", "ht", "adult.ht", "art.ht", "asso.ht", "com.ht", "coop.ht", "edu.ht", "firm.ht", "gouv.ht", "info.ht", "med.ht", "net.ht", "org.ht", "perso.ht", "pol.ht", "pro.ht", "rel.ht", "shop.ht", "hu", "2000.hu", "agrar.hu", "bolt.hu", "casino.hu", "city.hu", "co.hu", "erotica.hu", "erotika.hu", "film.hu", "forum.hu", "games.hu", "hotel.hu", "info.hu", "ingatlan.hu", "jogasz.hu", "konyvelo.hu", "lakas.hu", "media.hu", "news.hu", "org.hu", "priv.hu", "reklam.hu", "sex.hu", "shop.hu", "sport.hu", "suli.hu", "szex.hu", "tm.hu", "tozsde.hu", "utazas.hu", "video.hu", "id", "ac.id", "biz.id", "co.id", "desa.id", "go.id", "mil.id", "my.id", "net.id", "or.id", "ponpes.id", "sch.id", "web.id", "ie", "gov.ie", "il", "ac.il", "co.il", "gov.il", "idf.il", "k12.il", "muni.il", "net.il", "org.il", "\u05D9\u05E9\u05E8\u05D0\u05DC", "\u05D0\u05E7\u05D3\u05DE\u05D9\u05D4.\u05D9\u05E9\u05E8\u05D0\u05DC", "\u05D9\u05E9\u05D5\u05D1.\u05D9\u05E9\u05E8\u05D0\u05DC", "\u05E6\u05D4\u05DC.\u05D9\u05E9\u05E8\u05D0\u05DC", "\u05DE\u05DE\u05E9\u05DC.\u05D9\u05E9\u05E8\u05D0\u05DC", "im", "ac.im", "co.im", "ltd.co.im", "plc.co.im", "com.im", "net.im", "org.im", "tt.im", "tv.im", "in", "5g.in", "6g.in", "ac.in", "ai.in", "am.in", "bihar.in", "biz.in", "business.in", "ca.in", "cn.in", "co.in", "com.in", "coop.in", "cs.in", "delhi.in", "dr.in", "edu.in", "er.in", "firm.in", "gen.in", "gov.in", "gujarat.in", "ind.in", "info.in", "int.in", "internet.in", "io.in", "me.in", "mil.in", "net.in", "nic.in", "org.in", "pg.in", "post.in", "pro.in", "res.in", "travel.in", "tv.in", "uk.in", "up.in", "us.in", "info", "int", "eu.int", "io", "co.io", "com.io", "edu.io", "gov.io", "mil.io", "net.io", "nom.io", "org.io", "iq", "com.iq", "edu.iq", "gov.iq", "mil.iq", "net.iq", "org.iq", "ir", "ac.ir", "co.ir", "gov.ir", "id.ir", "net.ir", "org.ir", "sch.ir", "\u0627\u06CC\u0631\u0627\u0646.ir", "\u0627\u064A\u0631\u0627\u0646.ir", "is", "it", "edu.it", "gov.it", "abr.it", "abruzzo.it", "aosta-valley.it", "aostavalley.it", "bas.it", "basilicata.it", "cal.it", "calabria.it", "cam.it", "campania.it", "emilia-romagna.it", "emiliaromagna.it", "emr.it", "friuli-v-giulia.it", "friuli-ve-giulia.it", "friuli-vegiulia.it", "friuli-venezia-giulia.it", "friuli-veneziagiulia.it", "friuli-vgiulia.it", "friuliv-giulia.it", "friulive-giulia.it", "friulivegiulia.it", "friulivenezia-giulia.it", "friuliveneziagiulia.it", "friulivgiulia.it", "fvg.it", "laz.it", "lazio.it", "lig.it", "liguria.it", "lom.it", "lombardia.it", "lombardy.it", "lucania.it", "mar.it", "marche.it", "mol.it", "molise.it", "piedmont.it", "piemonte.it", "pmn.it", "pug.it", "puglia.it", "sar.it", "sardegna.it", "sardinia.it", "sic.it", "sicilia.it", "sicily.it", "taa.it", "tos.it", "toscana.it", "trentin-sud-tirol.it", "trentin-s\xFCd-tirol.it", "trentin-sudtirol.it", "trentin-s\xFCdtirol.it", "trentin-sued-tirol.it", "trentin-suedtirol.it", "trentino.it", "trentino-a-adige.it", "trentino-aadige.it", "trentino-alto-adige.it", "trentino-altoadige.it", "trentino-s-tirol.it", "trentino-stirol.it", "trentino-sud-tirol.it", "trentino-s\xFCd-tirol.it", "trentino-sudtirol.it", "trentino-s\xFCdtirol.it", "trentino-sued-tirol.it", "trentino-suedtirol.it", "trentinoa-adige.it", "trentinoaadige.it", "trentinoalto-adige.it", "trentinoaltoadige.it", "trentinos-tirol.it", "trentinostirol.it", "trentinosud-tirol.it", "trentinos\xFCd-tirol.it", "trentinosudtirol.it", "trentinos\xFCdtirol.it", "trentinosued-tirol.it", "trentinosuedtirol.it", "trentinsud-tirol.it", "trentins\xFCd-tirol.it", "trentinsudtirol.it", "trentins\xFCdtirol.it", "trentinsued-tirol.it", "trentinsuedtirol.it", "tuscany.it", "umb.it", "umbria.it", "val-d-aosta.it", "val-daosta.it", "vald-aosta.it", "valdaosta.it", "valle-aosta.it", "valle-d-aosta.it", "valle-daosta.it", "valleaosta.it", "valled-aosta.it", "valledaosta.it", "vallee-aoste.it", "vall\xE9e-aoste.it", "vallee-d-aoste.it", "vall\xE9e-d-aoste.it", "valleeaoste.it", "vall\xE9eaoste.it", "valleedaoste.it", "vall\xE9edaoste.it", "vao.it", "vda.it", "ven.it", "veneto.it", "ag.it", "agrigento.it", "al.it", "alessandria.it", "alto-adige.it", "altoadige.it", "an.it", "ancona.it", "andria-barletta-trani.it", "andria-trani-barletta.it", "andriabarlettatrani.it", "andriatranibarletta.it", "ao.it", "aosta.it", "aoste.it", "ap.it", "aq.it", "aquila.it", "ar.it", "arezzo.it", "ascoli-piceno.it", "ascolipiceno.it", "asti.it", "at.it", "av.it", "avellino.it", "ba.it", "balsan.it", "balsan-sudtirol.it", "balsan-s\xFCdtirol.it", "balsan-suedtirol.it", "bari.it", "barletta-trani-andria.it", "barlettatraniandria.it", "belluno.it", "benevento.it", "bergamo.it", "bg.it", "bi.it", "biella.it", "bl.it", "bn.it", "bo.it", "bologna.it", "bolzano.it", "bolzano-altoadige.it", "bozen.it", "bozen-sudtirol.it", "bozen-s\xFCdtirol.it", "bozen-suedtirol.it", "br.it", "brescia.it", "brindisi.it", "bs.it", "bt.it", "bulsan.it", "bulsan-sudtirol.it", "bulsan-s\xFCdtirol.it", "bulsan-suedtirol.it", "bz.it", "ca.it", "cagliari.it", "caltanissetta.it", "campidano-medio.it", "campidanomedio.it", "campobasso.it", "carbonia-iglesias.it", "carboniaiglesias.it", "carrara-massa.it", "carraramassa.it", "caserta.it", "catania.it", "catanzaro.it", "cb.it", "ce.it", "cesena-forli.it", "cesena-forl\xEC.it", "cesenaforli.it", "cesenaforl\xEC.it", "ch.it", "chieti.it", "ci.it", "cl.it", "cn.it", "co.it", "como.it", "cosenza.it", "cr.it", "cremona.it", "crotone.it", "cs.it", "ct.it", "cuneo.it", "cz.it", "dell-ogliastra.it", "dellogliastra.it", "en.it", "enna.it", "fc.it", "fe.it", "fermo.it", "ferrara.it", "fg.it", "fi.it", "firenze.it", "florence.it", "fm.it", "foggia.it", "forli-cesena.it", "forl\xEC-cesena.it", "forlicesena.it", "forl\xECcesena.it", "fr.it", "frosinone.it", "ge.it", "genoa.it", "genova.it", "go.it", "gorizia.it", "gr.it", "grosseto.it", "iglesias-carbonia.it", "iglesiascarbonia.it", "im.it", "imperia.it", "is.it", "isernia.it", "kr.it", "la-spezia.it", "laquila.it", "laspezia.it", "latina.it", "lc.it", "le.it", "lecce.it", "lecco.it", "li.it", "livorno.it", "lo.it", "lodi.it", "lt.it", "lu.it", "lucca.it", "macerata.it", "mantova.it", "massa-carrara.it", "massacarrara.it", "matera.it", "mb.it", "mc.it", "me.it", "medio-campidano.it", "mediocampidano.it", "messina.it", "mi.it", "milan.it", "milano.it", "mn.it", "mo.it", "modena.it", "monza.it", "monza-brianza.it", "monza-e-della-brianza.it", "monzabrianza.it", "monzaebrianza.it", "monzaedellabrianza.it", "ms.it", "mt.it", "na.it", "naples.it", "napoli.it", "no.it", "novara.it", "nu.it", "nuoro.it", "og.it", "ogliastra.it", "olbia-tempio.it", "olbiatempio.it", "or.it", "oristano.it", "ot.it", "pa.it", "padova.it", "padua.it", "palermo.it", "parma.it", "pavia.it", "pc.it", "pd.it", "pe.it", "perugia.it", "pesaro-urbino.it", "pesarourbino.it", "pescara.it", "pg.it", "pi.it", "piacenza.it", "pisa.it", "pistoia.it", "pn.it", "po.it", "pordenone.it", "potenza.it", "pr.it", "prato.it", "pt.it", "pu.it", "pv.it", "pz.it", "ra.it", "ragusa.it", "ravenna.it", "rc.it", "re.it", "reggio-calabria.it", "reggio-emilia.it", "reggiocalabria.it", "reggioemilia.it", "rg.it", "ri.it", "rieti.it", "rimini.it", "rm.it", "rn.it", "ro.it", "roma.it", "rome.it", "rovigo.it", "sa.it", "salerno.it", "sassari.it", "savona.it", "si.it", "siena.it", "siracusa.it", "so.it", "sondrio.it", "sp.it", "sr.it", "ss.it", "s\xFCdtirol.it", "suedtirol.it", "sv.it", "ta.it", "taranto.it", "te.it", "tempio-olbia.it", "tempioolbia.it", "teramo.it", "terni.it", "tn.it", "to.it", "torino.it", "tp.it", "tr.it", "trani-andria-barletta.it", "trani-barletta-andria.it", "traniandriabarletta.it", "tranibarlettaandria.it", "trapani.it", "trento.it", "treviso.it", "trieste.it", "ts.it", "turin.it", "tv.it", "ud.it", "udine.it", "urbino-pesaro.it", "urbinopesaro.it", "va.it", "varese.it", "vb.it", "vc.it", "ve.it", "venezia.it", "venice.it", "verbania.it", "vercelli.it", "verona.it", "vi.it", "vibo-valentia.it", "vibovalentia.it", "vicenza.it", "viterbo.it", "vr.it", "vs.it", "vt.it", "vv.it", "je", "co.je", "net.je", "org.je", "*.jm", "jo", "agri.jo", "ai.jo", "com.jo", "edu.jo", "eng.jo", "fm.jo", "gov.jo", "mil.jo", "net.jo", "org.jo", "per.jo", "phd.jo", "sch.jo", "tv.jo", "jobs", "jp", "ac.jp", "ad.jp", "co.jp", "ed.jp", "go.jp", "gr.jp", "lg.jp", "ne.jp", "or.jp", "aichi.jp", "akita.jp", "aomori.jp", "chiba.jp", "ehime.jp", "fukui.jp", "fukuoka.jp", "fukushima.jp", "gifu.jp", "gunma.jp", "hiroshima.jp", "hokkaido.jp", "hyogo.jp", "ibaraki.jp", "ishikawa.jp", "iwate.jp", "kagawa.jp", "kagoshima.jp", "kanagawa.jp", "kochi.jp", "kumamoto.jp", "kyoto.jp", "mie.jp", "miyagi.jp", "miyazaki.jp", "nagano.jp", "nagasaki.jp", "nara.jp", "niigata.jp", "oita.jp", "okayama.jp", "okinawa.jp", "osaka.jp", "saga.jp", "saitama.jp", "shiga.jp", "shimane.jp", "shizuoka.jp", "tochigi.jp", "tokushima.jp", "tokyo.jp", "tottori.jp", "toyama.jp", "wakayama.jp", "yamagata.jp", "yamaguchi.jp", "yamanashi.jp", "\u4E09\u91CD.jp", "\u4EAC\u90FD.jp", "\u4F50\u8CC0.jp", "\u5175\u5EAB.jp", "\u5317\u6D77\u9053.jp", "\u5343\u8449.jp", "\u548C\u6B4C\u5C71.jp", "\u57FC\u7389.jp", "\u5927\u5206.jp", "\u5927\u962A.jp", "\u5948\u826F.jp", "\u5BAE\u57CE.jp", "\u5BAE\u5D0E.jp", "\u5BCC\u5C71.jp", "\u5C71\u53E3.jp", "\u5C71\u5F62.jp", "\u5C71\u68A8.jp", "\u5C90\u961C.jp", "\u5CA1\u5C71.jp", "\u5CA9\u624B.jp", "\u5CF6\u6839.jp", "\u5E83\u5CF6.jp", "\u5FB3\u5CF6.jp", "\u611B\u5A9B.jp", "\u611B\u77E5.jp", "\u65B0\u6F5F.jp", "\u6771\u4EAC.jp", "\u6803\u6728.jp", "\u6C96\u7E04.jp", "\u6ECB\u8CC0.jp", "\u718A\u672C.jp", "\u77F3\u5DDD.jp", "\u795E\u5948\u5DDD.jp", "\u798F\u4E95.jp", "\u798F\u5CA1.jp", "\u798F\u5CF6.jp", "\u79CB\u7530.jp", "\u7FA4\u99AC.jp", "\u8328\u57CE.jp", "\u9577\u5D0E.jp", "\u9577\u91CE.jp", "\u9752\u68EE.jp", "\u9759\u5CA1.jp", "\u9999\u5DDD.jp", "\u9AD8\u77E5.jp", "\u9CE5\u53D6.jp", "\u9E7F\u5150\u5CF6.jp", "*.kawasaki.jp", "!city.kawasaki.jp", "*.kitakyushu.jp", "!city.kitakyushu.jp", "*.kobe.jp", "!city.kobe.jp", "*.nagoya.jp", "!city.nagoya.jp", "*.sapporo.jp", "!city.sapporo.jp", "*.sendai.jp", "!city.sendai.jp", "*.yokohama.jp", "!city.yokohama.jp", "aisai.aichi.jp", "ama.aichi.jp", "anjo.aichi.jp", "asuke.aichi.jp", "chiryu.aichi.jp", "chita.aichi.jp", "fuso.aichi.jp", "gamagori.aichi.jp", "handa.aichi.jp", "hazu.aichi.jp", "hekinan.aichi.jp", "higashiura.aichi.jp", "ichinomiya.aichi.jp", "inazawa.aichi.jp", "inuyama.aichi.jp", "isshiki.aichi.jp", "iwakura.aichi.jp", "kanie.aichi.jp", "kariya.aichi.jp", "kasugai.aichi.jp", "kira.aichi.jp", "kiyosu.aichi.jp", "komaki.aichi.jp", "konan.aichi.jp", "kota.aichi.jp", "mihama.aichi.jp", "miyoshi.aichi.jp", "nishio.aichi.jp", "nisshin.aichi.jp", "obu.aichi.jp", "oguchi.aichi.jp", "oharu.aichi.jp", "okazaki.aichi.jp", "owariasahi.aichi.jp", "seto.aichi.jp", "shikatsu.aichi.jp", "shinshiro.aichi.jp", "shitara.aichi.jp", "tahara.aichi.jp", "takahama.aichi.jp", "tobishima.aichi.jp", "toei.aichi.jp", "togo.aichi.jp", "tokai.aichi.jp", "tokoname.aichi.jp", "toyoake.aichi.jp", "toyohashi.aichi.jp", "toyokawa.aichi.jp", "toyone.aichi.jp", "toyota.aichi.jp", "tsushima.aichi.jp", "yatomi.aichi.jp", "akita.akita.jp", "daisen.akita.jp", "fujisato.akita.jp", "gojome.akita.jp", "hachirogata.akita.jp", "happou.akita.jp", "higashinaruse.akita.jp", "honjo.akita.jp", "honjyo.akita.jp", "ikawa.akita.jp", "kamikoani.akita.jp", "kamioka.akita.jp", "katagami.akita.jp", "kazuno.akita.jp", "kitaakita.akita.jp", "kosaka.akita.jp", "kyowa.akita.jp", "misato.akita.jp", "mitane.akita.jp", "moriyoshi.akita.jp", "nikaho.akita.jp", "noshiro.akita.jp", "odate.akita.jp", "oga.akita.jp", "ogata.akita.jp", "semboku.akita.jp", "yokote.akita.jp", "yurihonjo.akita.jp", "aomori.aomori.jp", "gonohe.aomori.jp", "hachinohe.aomori.jp", "hashikami.aomori.jp", "hiranai.aomori.jp", "hirosaki.aomori.jp", "itayanagi.aomori.jp", "kuroishi.aomori.jp", "misawa.aomori.jp", "mutsu.aomori.jp", "nakadomari.aomori.jp", "noheji.aomori.jp", "oirase.aomori.jp", "owani.aomori.jp", "rokunohe.aomori.jp", "sannohe.aomori.jp", "shichinohe.aomori.jp", "shingo.aomori.jp", "takko.aomori.jp", "towada.aomori.jp", "tsugaru.aomori.jp", "tsuruta.aomori.jp", "abiko.chiba.jp", "asahi.chiba.jp", "chonan.chiba.jp", "chosei.chiba.jp", "choshi.chiba.jp", "chuo.chiba.jp", "funabashi.chiba.jp", "futtsu.chiba.jp", "hanamigawa.chiba.jp", "ichihara.chiba.jp", "ichikawa.chiba.jp", "ichinomiya.chiba.jp", "inzai.chiba.jp", "isumi.chiba.jp", "kamagaya.chiba.jp", "kamogawa.chiba.jp", "kashiwa.chiba.jp", "katori.chiba.jp", "katsuura.chiba.jp", "kimitsu.chiba.jp", "kisarazu.chiba.jp", "kozaki.chiba.jp", "kujukuri.chiba.jp", "kyonan.chiba.jp", "matsudo.chiba.jp", "midori.chiba.jp", "mihama.chiba.jp", "minamiboso.chiba.jp", "mobara.chiba.jp", "mutsuzawa.chiba.jp", "nagara.chiba.jp", "nagareyama.chiba.jp", "narashino.chiba.jp", "narita.chiba.jp", "noda.chiba.jp", "oamishirasato.chiba.jp", "omigawa.chiba.jp", "onjuku.chiba.jp", "otaki.chiba.jp", "sakae.chiba.jp", "sakura.chiba.jp", "shimofusa.chiba.jp", "shirako.chiba.jp", "shiroi.chiba.jp", "shisui.chiba.jp", "sodegaura.chiba.jp", "sosa.chiba.jp", "tako.chiba.jp", "tateyama.chiba.jp", "togane.chiba.jp", "tohnosho.chiba.jp", "tomisato.chiba.jp", "urayasu.chiba.jp", "yachimata.chiba.jp", "yachiyo.chiba.jp", "yokaichiba.chiba.jp", "yokoshibahikari.chiba.jp", "yotsukaido.chiba.jp", "ainan.ehime.jp", "honai.ehime.jp", "ikata.ehime.jp", "imabari.ehime.jp", "iyo.ehime.jp", "kamijima.ehime.jp", "kihoku.ehime.jp", "kumakogen.ehime.jp", "masaki.ehime.jp", "matsuno.ehime.jp", "matsuyama.ehime.jp", "namikata.ehime.jp", "niihama.ehime.jp", "ozu.ehime.jp", "saijo.ehime.jp", "seiyo.ehime.jp", "shikokuchuo.ehime.jp", "tobe.ehime.jp", "toon.ehime.jp", "uchiko.ehime.jp", "uwajima.ehime.jp", "yawatahama.ehime.jp", "echizen.fukui.jp", "eiheiji.fukui.jp", "fukui.fukui.jp", "ikeda.fukui.jp", "katsuyama.fukui.jp", "mihama.fukui.jp", "minamiechizen.fukui.jp", "obama.fukui.jp", "ohi.fukui.jp", "ono.fukui.jp", "sabae.fukui.jp", "sakai.fukui.jp", "takahama.fukui.jp", "tsuruga.fukui.jp", "wakasa.fukui.jp", "ashiya.fukuoka.jp", "buzen.fukuoka.jp", "chikugo.fukuoka.jp", "chikuho.fukuoka.jp", "chikujo.fukuoka.jp", "chikushino.fukuoka.jp", "chikuzen.fukuoka.jp", "chuo.fukuoka.jp", "dazaifu.fukuoka.jp", "fukuchi.fukuoka.jp", "hakata.fukuoka.jp", "higashi.fukuoka.jp", "hirokawa.fukuoka.jp", "hisayama.fukuoka.jp", "iizuka.fukuoka.jp", "inatsuki.fukuoka.jp", "kaho.fukuoka.jp", "kasuga.fukuoka.jp", "kasuya.fukuoka.jp", "kawara.fukuoka.jp", "keisen.fukuoka.jp", "koga.fukuoka.jp", "kurate.fukuoka.jp", "kurogi.fukuoka.jp", "kurume.fukuoka.jp", "minami.fukuoka.jp", "miyako.fukuoka.jp", "miyama.fukuoka.jp", "miyawaka.fukuoka.jp", "mizumaki.fukuoka.jp", "munakata.fukuoka.jp", "nakagawa.fukuoka.jp", "nakama.fukuoka.jp", "nishi.fukuoka.jp", "nogata.fukuoka.jp", "ogori.fukuoka.jp", "okagaki.fukuoka.jp", "okawa.fukuoka.jp", "oki.fukuoka.jp", "omuta.fukuoka.jp", "onga.fukuoka.jp", "onojo.fukuoka.jp", "oto.fukuoka.jp", "saigawa.fukuoka.jp", "sasaguri.fukuoka.jp", "shingu.fukuoka.jp", "shinyoshitomi.fukuoka.jp", "shonai.fukuoka.jp", "soeda.fukuoka.jp", "sue.fukuoka.jp", "tachiarai.fukuoka.jp", "tagawa.fukuoka.jp", "takata.fukuoka.jp", "toho.fukuoka.jp", "toyotsu.fukuoka.jp", "tsuiki.fukuoka.jp", "ukiha.fukuoka.jp", "umi.fukuoka.jp", "usui.fukuoka.jp", "yamada.fukuoka.jp", "yame.fukuoka.jp", "yanagawa.fukuoka.jp", "yukuhashi.fukuoka.jp", "aizubange.fukushima.jp", "aizumisato.fukushima.jp", "aizuwakamatsu.fukushima.jp", "asakawa.fukushima.jp", "bandai.fukushima.jp", "date.fukushima.jp", "fukushima.fukushima.jp", "furudono.fukushima.jp", "futaba.fukushima.jp", "hanawa.fukushima.jp", "higashi.fukushima.jp", "hirata.fukushima.jp", "hirono.fukushima.jp", "iitate.fukushima.jp", "inawashiro.fukushima.jp", "ishikawa.fukushima.jp", "iwaki.fukushima.jp", "izumizaki.fukushima.jp", "kagamiishi.fukushima.jp", "kaneyama.fukushima.jp", "kawamata.fukushima.jp", "kitakata.fukushima.jp", "kitashiobara.fukushima.jp", "koori.fukushima.jp", "koriyama.fukushima.jp", "kunimi.fukushima.jp", "miharu.fukushima.jp", "mishima.fukushima.jp", "namie.fukushima.jp", "nango.fukushima.jp", "nishiaizu.fukushima.jp", "nishigo.fukushima.jp", "okuma.fukushima.jp", "omotego.fukushima.jp", "ono.fukushima.jp", "otama.fukushima.jp", "samegawa.fukushima.jp", "shimogo.fukushima.jp", "shirakawa.fukushima.jp", "showa.fukushima.jp", "soma.fukushima.jp", "sukagawa.fukushima.jp", "taishin.fukushima.jp", "tamakawa.fukushima.jp", "tanagura.fukushima.jp", "tenei.fukushima.jp", "yabuki.fukushima.jp", "yamato.fukushima.jp", "yamatsuri.fukushima.jp", "yanaizu.fukushima.jp", "yugawa.fukushima.jp", "anpachi.gifu.jp", "ena.gifu.jp", "gifu.gifu.jp", "ginan.gifu.jp", "godo.gifu.jp", "gujo.gifu.jp", "hashima.gifu.jp", "hichiso.gifu.jp", "hida.gifu.jp", "higashishirakawa.gifu.jp", "ibigawa.gifu.jp", "ikeda.gifu.jp", "kakamigahara.gifu.jp", "kani.gifu.jp", "kasahara.gifu.jp", "kasamatsu.gifu.jp", "kawaue.gifu.jp", "kitagata.gifu.jp", "mino.gifu.jp", "minokamo.gifu.jp", "mitake.gifu.jp", "mizunami.gifu.jp", "motosu.gifu.jp", "nakatsugawa.gifu.jp", "ogaki.gifu.jp", "sakahogi.gifu.jp", "seki.gifu.jp", "sekigahara.gifu.jp", "shirakawa.gifu.jp", "tajimi.gifu.jp", "takayama.gifu.jp", "tarui.gifu.jp", "toki.gifu.jp", "tomika.gifu.jp", "wanouchi.gifu.jp", "yamagata.gifu.jp", "yaotsu.gifu.jp", "yoro.gifu.jp", "annaka.gunma.jp", "chiyoda.gunma.jp", "fujioka.gunma.jp", "higashiagatsuma.gunma.jp", "isesaki.gunma.jp", "itakura.gunma.jp", "kanna.gunma.jp", "kanra.gunma.jp", "katashina.gunma.jp", "kawaba.gunma.jp", "kiryu.gunma.jp", "kusatsu.gunma.jp", "maebashi.gunma.jp", "meiwa.gunma.jp", "midori.gunma.jp", "minakami.gunma.jp", "naganohara.gunma.jp", "nakanojo.gunma.jp", "nanmoku.gunma.jp", "numata.gunma.jp", "oizumi.gunma.jp", "ora.gunma.jp", "ota.gunma.jp", "shibukawa.gunma.jp", "shimonita.gunma.jp", "shinto.gunma.jp", "showa.gunma.jp", "takasaki.gunma.jp", "takayama.gunma.jp", "tamamura.gunma.jp", "tatebayashi.gunma.jp", "tomioka.gunma.jp", "tsukiyono.gunma.jp", "tsumagoi.gunma.jp", "ueno.gunma.jp", "yoshioka.gunma.jp", "asaminami.hiroshima.jp", "daiwa.hiroshima.jp", "etajima.hiroshima.jp", "fuchu.hiroshima.jp", "fukuyama.hiroshima.jp", "hatsukaichi.hiroshima.jp", "higashihiroshima.hiroshima.jp", "hongo.hiroshima.jp", "jinsekikogen.hiroshima.jp", "kaita.hiroshima.jp", "kui.hiroshima.jp", "kumano.hiroshima.jp", "kure.hiroshima.jp", "mihara.hiroshima.jp", "miyoshi.hiroshima.jp", "naka.hiroshima.jp", "onomichi.hiroshima.jp", "osakikamijima.hiroshima.jp", "otake.hiroshima.jp", "saka.hiroshima.jp", "sera.hiroshima.jp", "seranishi.hiroshima.jp", "shinichi.hiroshima.jp", "shobara.hiroshima.jp", "takehara.hiroshima.jp", "abashiri.hokkaido.jp", "abira.hokkaido.jp", "aibetsu.hokkaido.jp", "akabira.hokkaido.jp", "akkeshi.hokkaido.jp", "asahikawa.hokkaido.jp", "ashibetsu.hokkaido.jp", "ashoro.hokkaido.jp", "assabu.hokkaido.jp", "atsuma.hokkaido.jp", "bibai.hokkaido.jp", "biei.hokkaido.jp", "bifuka.hokkaido.jp", "bihoro.hokkaido.jp", "biratori.hokkaido.jp", "chippubetsu.hokkaido.jp", "chitose.hokkaido.jp", "date.hokkaido.jp", "ebetsu.hokkaido.jp", "embetsu.hokkaido.jp", "eniwa.hokkaido.jp", "erimo.hokkaido.jp", "esan.hokkaido.jp", "esashi.hokkaido.jp", "fukagawa.hokkaido.jp", "fukushima.hokkaido.jp", "furano.hokkaido.jp", "furubira.hokkaido.jp", "haboro.hokkaido.jp", "hakodate.hokkaido.jp", "hamatonbetsu.hokkaido.jp", "hidaka.hokkaido.jp", "higashikagura.hokkaido.jp", "higashikawa.hokkaido.jp", "hiroo.hokkaido.jp", "hokuryu.hokkaido.jp", "hokuto.hokkaido.jp", "honbetsu.hokkaido.jp", "horokanai.hokkaido.jp", "horonobe.hokkaido.jp", "ikeda.hokkaido.jp", "imakane.hokkaido.jp", "ishikari.hokkaido.jp", "iwamizawa.hokkaido.jp", "iwanai.hokkaido.jp", "kamifurano.hokkaido.jp", "kamikawa.hokkaido.jp", "kamishihoro.hokkaido.jp", "kamisunagawa.hokkaido.jp", "kamoenai.hokkaido.jp", "kayabe.hokkaido.jp", "kembuchi.hokkaido.jp", "kikonai.hokkaido.jp", "kimobetsu.hokkaido.jp", "kitahiroshima.hokkaido.jp", "kitami.hokkaido.jp", "kiyosato.hokkaido.jp", "koshimizu.hokkaido.jp", "kunneppu.hokkaido.jp", "kuriyama.hokkaido.jp", "kuromatsunai.hokkaido.jp", "kushiro.hokkaido.jp", "kutchan.hokkaido.jp", "kyowa.hokkaido.jp", "mashike.hokkaido.jp", "matsumae.hokkaido.jp", "mikasa.hokkaido.jp", "minamifurano.hokkaido.jp", "mombetsu.hokkaido.jp", "moseushi.hokkaido.jp", "mukawa.hokkaido.jp", "muroran.hokkaido.jp", "naie.hokkaido.jp", "nakagawa.hokkaido.jp", "nakasatsunai.hokkaido.jp", "nakatombetsu.hokkaido.jp", "nanae.hokkaido.jp", "nanporo.hokkaido.jp", "nayoro.hokkaido.jp", "nemuro.hokkaido.jp", "niikappu.hokkaido.jp", "niki.hokkaido.jp", "nishiokoppe.hokkaido.jp", "noboribetsu.hokkaido.jp", "numata.hokkaido.jp", "obihiro.hokkaido.jp", "obira.hokkaido.jp", "oketo.hokkaido.jp", "okoppe.hokkaido.jp", "otaru.hokkaido.jp", "otobe.hokkaido.jp", "otofuke.hokkaido.jp", "otoineppu.hokkaido.jp", "oumu.hokkaido.jp", "ozora.hokkaido.jp", "pippu.hokkaido.jp", "rankoshi.hokkaido.jp", "rebun.hokkaido.jp", "rikubetsu.hokkaido.jp", "rishiri.hokkaido.jp", "rishirifuji.hokkaido.jp", "saroma.hokkaido.jp", "sarufutsu.hokkaido.jp", "shakotan.hokkaido.jp", "shari.hokkaido.jp", "shibecha.hokkaido.jp", "shibetsu.hokkaido.jp", "shikabe.hokkaido.jp", "shikaoi.hokkaido.jp", "shimamaki.hokkaido.jp", "shimizu.hokkaido.jp", "shimokawa.hokkaido.jp", "shinshinotsu.hokkaido.jp", "shintoku.hokkaido.jp", "shiranuka.hokkaido.jp", "shiraoi.hokkaido.jp", "shiriuchi.hokkaido.jp", "sobetsu.hokkaido.jp", "sunagawa.hokkaido.jp", "taiki.hokkaido.jp", "takasu.hokkaido.jp", "takikawa.hokkaido.jp", "takinoue.hokkaido.jp", "teshikaga.hokkaido.jp", "tobetsu.hokkaido.jp", "tohma.hokkaido.jp", "tomakomai.hokkaido.jp", "tomari.hokkaido.jp", "toya.hokkaido.jp", "toyako.hokkaido.jp", "toyotomi.hokkaido.jp", "toyoura.hokkaido.jp", "tsubetsu.hokkaido.jp", "tsukigata.hokkaido.jp", "urakawa.hokkaido.jp", "urausu.hokkaido.jp", "uryu.hokkaido.jp", "utashinai.hokkaido.jp", "wakkanai.hokkaido.jp", "wassamu.hokkaido.jp", "yakumo.hokkaido.jp", "yoichi.hokkaido.jp", "aioi.hyogo.jp", "akashi.hyogo.jp", "ako.hyogo.jp", "amagasaki.hyogo.jp", "aogaki.hyogo.jp", "asago.hyogo.jp", "ashiya.hyogo.jp", "awaji.hyogo.jp", "fukusaki.hyogo.jp", "goshiki.hyogo.jp", "harima.hyogo.jp", "himeji.hyogo.jp", "ichikawa.hyogo.jp", "inagawa.hyogo.jp", "itami.hyogo.jp", "kakogawa.hyogo.jp", "kamigori.hyogo.jp", "kamikawa.hyogo.jp", "kasai.hyogo.jp", "kasuga.hyogo.jp", "kawanishi.hyogo.jp", "miki.hyogo.jp", "minamiawaji.hyogo.jp", "nishinomiya.hyogo.jp", "nishiwaki.hyogo.jp", "ono.hyogo.jp", "sanda.hyogo.jp", "sannan.hyogo.jp", "sasayama.hyogo.jp", "sayo.hyogo.jp", "shingu.hyogo.jp", "shinonsen.hyogo.jp", "shiso.hyogo.jp", "sumoto.hyogo.jp", "taishi.hyogo.jp", "taka.hyogo.jp", "takarazuka.hyogo.jp", "takasago.hyogo.jp", "takino.hyogo.jp", "tamba.hyogo.jp", "tatsuno.hyogo.jp", "toyooka.hyogo.jp", "yabu.hyogo.jp", "yashiro.hyogo.jp", "yoka.hyogo.jp", "yokawa.hyogo.jp", "ami.ibaraki.jp", "asahi.ibaraki.jp", "bando.ibaraki.jp", "chikusei.ibaraki.jp", "daigo.ibaraki.jp", "fujishiro.ibaraki.jp", "hitachi.ibaraki.jp", "hitachinaka.ibaraki.jp", "hitachiomiya.ibaraki.jp", "hitachiota.ibaraki.jp", "ibaraki.ibaraki.jp", "ina.ibaraki.jp", "inashiki.ibaraki.jp", "itako.ibaraki.jp", "iwama.ibaraki.jp", "joso.ibaraki.jp", "kamisu.ibaraki.jp", "kasama.ibaraki.jp", "kashima.ibaraki.jp", "kasumigaura.ibaraki.jp", "koga.ibaraki.jp", "miho.ibaraki.jp", "mito.ibaraki.jp", "moriya.ibaraki.jp", "naka.ibaraki.jp", "namegata.ibaraki.jp", "oarai.ibaraki.jp", "ogawa.ibaraki.jp", "omitama.ibaraki.jp", "ryugasaki.ibaraki.jp", "sakai.ibaraki.jp", "sakuragawa.ibaraki.jp", "shimodate.ibaraki.jp", "shimotsuma.ibaraki.jp", "shirosato.ibaraki.jp", "sowa.ibaraki.jp", "suifu.ibaraki.jp", "takahagi.ibaraki.jp", "tamatsukuri.ibaraki.jp", "tokai.ibaraki.jp", "tomobe.ibaraki.jp", "tone.ibaraki.jp", "toride.ibaraki.jp", "tsuchiura.ibaraki.jp", "tsukuba.ibaraki.jp", "uchihara.ibaraki.jp", "ushiku.ibaraki.jp", "yachiyo.ibaraki.jp", "yamagata.ibaraki.jp", "yawara.ibaraki.jp", "yuki.ibaraki.jp", "anamizu.ishikawa.jp", "hakui.ishikawa.jp", "hakusan.ishikawa.jp", "kaga.ishikawa.jp", "kahoku.ishikawa.jp", "kanazawa.ishikawa.jp", "kawakita.ishikawa.jp", "komatsu.ishikawa.jp", "nakanoto.ishikawa.jp", "nanao.ishikawa.jp", "nomi.ishikawa.jp", "nonoichi.ishikawa.jp", "noto.ishikawa.jp", "shika.ishikawa.jp", "suzu.ishikawa.jp", "tsubata.ishikawa.jp", "tsurugi.ishikawa.jp", "uchinada.ishikawa.jp", "wajima.ishikawa.jp", "fudai.iwate.jp", "fujisawa.iwate.jp", "hanamaki.iwate.jp", "hiraizumi.iwate.jp", "hirono.iwate.jp", "ichinohe.iwate.jp", "ichinoseki.iwate.jp", "iwaizumi.iwate.jp", "iwate.iwate.jp", "joboji.iwate.jp", "kamaishi.iwate.jp", "kanegasaki.iwate.jp", "karumai.iwate.jp", "kawai.iwate.jp", "kitakami.iwate.jp", "kuji.iwate.jp", "kunohe.iwate.jp", "kuzumaki.iwate.jp", "miyako.iwate.jp", "mizusawa.iwate.jp", "morioka.iwate.jp", "ninohe.iwate.jp", "noda.iwate.jp", "ofunato.iwate.jp", "oshu.iwate.jp", "otsuchi.iwate.jp", "rikuzentakata.iwate.jp", "shiwa.iwate.jp", "shizukuishi.iwate.jp", "sumita.iwate.jp", "tanohata.iwate.jp", "tono.iwate.jp", "yahaba.iwate.jp", "yamada.iwate.jp", "ayagawa.kagawa.jp", "higashikagawa.kagawa.jp", "kanonji.kagawa.jp", "kotohira.kagawa.jp", "manno.kagawa.jp", "marugame.kagawa.jp", "mitoyo.kagawa.jp", "naoshima.kagawa.jp", "sanuki.kagawa.jp", "tadotsu.kagawa.jp", "takamatsu.kagawa.jp", "tonosho.kagawa.jp", "uchinomi.kagawa.jp", "utazu.kagawa.jp", "zentsuji.kagawa.jp", "akune.kagoshima.jp", "amami.kagoshima.jp", "hioki.kagoshima.jp", "isa.kagoshima.jp", "isen.kagoshima.jp", "izumi.kagoshima.jp", "kagoshima.kagoshima.jp", "kanoya.kagoshima.jp", "kawanabe.kagoshima.jp", "kinko.kagoshima.jp", "kouyama.kagoshima.jp", "makurazaki.kagoshima.jp", "matsumoto.kagoshima.jp", "minamitane.kagoshima.jp", "nakatane.kagoshima.jp", "nishinoomote.kagoshima.jp", "satsumasendai.kagoshima.jp", "soo.kagoshima.jp", "tarumizu.kagoshima.jp", "yusui.kagoshima.jp", "aikawa.kanagawa.jp", "atsugi.kanagawa.jp", "ayase.kanagawa.jp", "chigasaki.kanagawa.jp", "ebina.kanagawa.jp", "fujisawa.kanagawa.jp", "hadano.kanagawa.jp", "hakone.kanagawa.jp", "hiratsuka.kanagawa.jp", "isehara.kanagawa.jp", "kaisei.kanagawa.jp", "kamakura.kanagawa.jp", "kiyokawa.kanagawa.jp", "matsuda.kanagawa.jp", "minamiashigara.kanagawa.jp", "miura.kanagawa.jp", "nakai.kanagawa.jp", "ninomiya.kanagawa.jp", "odawara.kanagawa.jp", "oi.kanagawa.jp", "oiso.kanagawa.jp", "sagamihara.kanagawa.jp", "samukawa.kanagawa.jp", "tsukui.kanagawa.jp", "yamakita.kanagawa.jp", "yamato.kanagawa.jp", "yokosuka.kanagawa.jp", "yugawara.kanagawa.jp", "zama.kanagawa.jp", "zushi.kanagawa.jp", "aki.kochi.jp", "geisei.kochi.jp", "hidaka.kochi.jp", "higashitsuno.kochi.jp", "ino.kochi.jp", "kagami.kochi.jp", "kami.kochi.jp", "kitagawa.kochi.jp", "kochi.kochi.jp", "mihara.kochi.jp", "motoyama.kochi.jp", "muroto.kochi.jp", "nahari.kochi.jp", "nakamura.kochi.jp", "nankoku.kochi.jp", "nishitosa.kochi.jp", "niyodogawa.kochi.jp", "ochi.kochi.jp", "okawa.kochi.jp", "otoyo.kochi.jp", "otsuki.kochi.jp", "sakawa.kochi.jp", "sukumo.kochi.jp", "susaki.kochi.jp", "tosa.kochi.jp", "tosashimizu.kochi.jp", "toyo.kochi.jp", "tsuno.kochi.jp", "umaji.kochi.jp", "yasuda.kochi.jp", "yusuhara.kochi.jp", "amakusa.kumamoto.jp", "arao.kumamoto.jp", "aso.kumamoto.jp", "choyo.kumamoto.jp", "gyokuto.kumamoto.jp", "kamiamakusa.kumamoto.jp", "kikuchi.kumamoto.jp", "kumamoto.kumamoto.jp", "mashiki.kumamoto.jp", "mifune.kumamoto.jp", "minamata.kumamoto.jp", "minamioguni.kumamoto.jp", "nagasu.kumamoto.jp", "nishihara.kumamoto.jp", "oguni.kumamoto.jp", "ozu.kumamoto.jp", "sumoto.kumamoto.jp", "takamori.kumamoto.jp", "uki.kumamoto.jp", "uto.kumamoto.jp", "yamaga.kumamoto.jp", "yamato.kumamoto.jp", "yatsushiro.kumamoto.jp", "ayabe.kyoto.jp", "fukuchiyama.kyoto.jp", "higashiyama.kyoto.jp", "ide.kyoto.jp", "ine.kyoto.jp", "joyo.kyoto.jp", "kameoka.kyoto.jp", "kamo.kyoto.jp", "kita.kyoto.jp", "kizu.kyoto.jp", "kumiyama.kyoto.jp", "kyotamba.kyoto.jp", "kyotanabe.kyoto.jp", "kyotango.kyoto.jp", "maizuru.kyoto.jp", "minami.kyoto.jp", "minamiyamashiro.kyoto.jp", "miyazu.kyoto.jp", "muko.kyoto.jp", "nagaokakyo.kyoto.jp", "nakagyo.kyoto.jp", "nantan.kyoto.jp", "oyamazaki.kyoto.jp", "sakyo.kyoto.jp", "seika.kyoto.jp", "tanabe.kyoto.jp", "uji.kyoto.jp", "ujitawara.kyoto.jp", "wazuka.kyoto.jp", "yamashina.kyoto.jp", "yawata.kyoto.jp", "asahi.mie.jp", "inabe.mie.jp", "ise.mie.jp", "kameyama.mie.jp", "kawagoe.mie.jp", "kiho.mie.jp", "kisosaki.mie.jp", "kiwa.mie.jp", "komono.mie.jp", "kumano.mie.jp", "kuwana.mie.jp", "matsusaka.mie.jp", "meiwa.mie.jp", "mihama.mie.jp", "minamiise.mie.jp", "misugi.mie.jp", "miyama.mie.jp", "nabari.mie.jp", "shima.mie.jp", "suzuka.mie.jp", "tado.mie.jp", "taiki.mie.jp", "taki.mie.jp", "tamaki.mie.jp", "toba.mie.jp", "tsu.mie.jp", "udono.mie.jp", "ureshino.mie.jp", "watarai.mie.jp", "yokkaichi.mie.jp", "furukawa.miyagi.jp", "higashimatsushima.miyagi.jp", "ishinomaki.miyagi.jp", "iwanuma.miyagi.jp", "kakuda.miyagi.jp", "kami.miyagi.jp", "kawasaki.miyagi.jp", "marumori.miyagi.jp", "matsushima.miyagi.jp", "minamisanriku.miyagi.jp", "misato.miyagi.jp", "murata.miyagi.jp", "natori.miyagi.jp", "ogawara.miyagi.jp", "ohira.miyagi.jp", "onagawa.miyagi.jp", "osaki.miyagi.jp", "rifu.miyagi.jp", "semine.miyagi.jp", "shibata.miyagi.jp", "shichikashuku.miyagi.jp", "shikama.miyagi.jp", "shiogama.miyagi.jp", "shiroishi.miyagi.jp", "tagajo.miyagi.jp", "taiwa.miyagi.jp", "tome.miyagi.jp", "tomiya.miyagi.jp", "wakuya.miyagi.jp", "watari.miyagi.jp", "yamamoto.miyagi.jp", "zao.miyagi.jp", "aya.miyazaki.jp", "ebino.miyazaki.jp", "gokase.miyazaki.jp", "hyuga.miyazaki.jp", "kadogawa.miyazaki.jp", "kawaminami.miyazaki.jp", "kijo.miyazaki.jp", "kitagawa.miyazaki.jp", "kitakata.miyazaki.jp", "kitaura.miyazaki.jp", "kobayashi.miyazaki.jp", "kunitomi.miyazaki.jp", "kushima.miyazaki.jp", "mimata.miyazaki.jp", "miyakonojo.miyazaki.jp", "miyazaki.miyazaki.jp", "morotsuka.miyazaki.jp", "nichinan.miyazaki.jp", "nishimera.miyazaki.jp", "nobeoka.miyazaki.jp", "saito.miyazaki.jp", "shiiba.miyazaki.jp", "shintomi.miyazaki.jp", "takaharu.miyazaki.jp", "takanabe.miyazaki.jp", "takazaki.miyazaki.jp", "tsuno.miyazaki.jp", "achi.nagano.jp", "agematsu.nagano.jp", "anan.nagano.jp", "aoki.nagano.jp", "asahi.nagano.jp", "azumino.nagano.jp", "chikuhoku.nagano.jp", "chikuma.nagano.jp", "chino.nagano.jp", "fujimi.nagano.jp", "hakuba.nagano.jp", "hara.nagano.jp", "hiraya.nagano.jp", "iida.nagano.jp", "iijima.nagano.jp", "iiyama.nagano.jp", "iizuna.nagano.jp", "ikeda.nagano.jp", "ikusaka.nagano.jp", "ina.nagano.jp", "karuizawa.nagano.jp", "kawakami.nagano.jp", "kiso.nagano.jp", "kisofukushima.nagano.jp", "kitaaiki.nagano.jp", "komagane.nagano.jp", "komoro.nagano.jp", "matsukawa.nagano.jp", "matsumoto.nagano.jp", "miasa.nagano.jp", "minamiaiki.nagano.jp", "minamimaki.nagano.jp", "minamiminowa.nagano.jp", "minowa.nagano.jp", "miyada.nagano.jp", "miyota.nagano.jp", "mochizuki.nagano.jp", "nagano.nagano.jp", "nagawa.nagano.jp", "nagiso.nagano.jp", "nakagawa.nagano.jp", "nakano.nagano.jp", "nozawaonsen.nagano.jp", "obuse.nagano.jp", "ogawa.nagano.jp", "okaya.nagano.jp", "omachi.nagano.jp", "omi.nagano.jp", "ookuwa.nagano.jp", "ooshika.nagano.jp", "otaki.nagano.jp", "otari.nagano.jp", "sakae.nagano.jp", "sakaki.nagano.jp", "saku.nagano.jp", "sakuho.nagano.jp", "shimosuwa.nagano.jp", "shinanomachi.nagano.jp", "shiojiri.nagano.jp", "suwa.nagano.jp", "suzaka.nagano.jp", "takagi.nagano.jp", "takamori.nagano.jp", "takayama.nagano.jp", "tateshina.nagano.jp", "tatsuno.nagano.jp", "togakushi.nagano.jp", "togura.nagano.jp", "tomi.nagano.jp", "ueda.nagano.jp", "wada.nagano.jp", "yamagata.nagano.jp", "yamanouchi.nagano.jp", "yasaka.nagano.jp", "yasuoka.nagano.jp", "chijiwa.nagasaki.jp", "futsu.nagasaki.jp", "goto.nagasaki.jp", "hasami.nagasaki.jp", "hirado.nagasaki.jp", "iki.nagasaki.jp", "isahaya.nagasaki.jp", "kawatana.nagasaki.jp", "kuchinotsu.nagasaki.jp", "matsuura.nagasaki.jp", "nagasaki.nagasaki.jp", "obama.nagasaki.jp", "omura.nagasaki.jp", "oseto.nagasaki.jp", "saikai.nagasaki.jp", "sasebo.nagasaki.jp", "seihi.nagasaki.jp", "shimabara.nagasaki.jp", "shinkamigoto.nagasaki.jp", "togitsu.nagasaki.jp", "tsushima.nagasaki.jp", "unzen.nagasaki.jp", "ando.nara.jp", "gose.nara.jp", "heguri.nara.jp", "higashiyoshino.nara.jp", "ikaruga.nara.jp", "ikoma.nara.jp", "kamikitayama.nara.jp", "kanmaki.nara.jp", "kashiba.nara.jp", "kashihara.nara.jp", "katsuragi.nara.jp", "kawai.nara.jp", "kawakami.nara.jp", "kawanishi.nara.jp", "koryo.nara.jp", "kurotaki.nara.jp", "mitsue.nara.jp", "miyake.nara.jp", "nara.nara.jp", "nosegawa.nara.jp", "oji.nara.jp", "ouda.nara.jp", "oyodo.nara.jp", "sakurai.nara.jp", "sango.nara.jp", "shimoichi.nara.jp", "shimokitayama.nara.jp", "shinjo.nara.jp", "soni.nara.jp", "takatori.nara.jp", "tawaramoto.nara.jp", "tenkawa.nara.jp", "tenri.nara.jp", "uda.nara.jp", "yamatokoriyama.nara.jp", "yamatotakada.nara.jp", "yamazoe.nara.jp", "yoshino.nara.jp", "aga.niigata.jp", "agano.niigata.jp", "gosen.niigata.jp", "itoigawa.niigata.jp", "izumozaki.niigata.jp", "joetsu.niigata.jp", "kamo.niigata.jp", "kariwa.niigata.jp", "kashiwazaki.niigata.jp", "minamiuonuma.niigata.jp", "mitsuke.niigata.jp", "muika.niigata.jp", "murakami.niigata.jp", "myoko.niigata.jp", "nagaoka.niigata.jp", "niigata.niigata.jp", "ojiya.niigata.jp", "omi.niigata.jp", "sado.niigata.jp", "sanjo.niigata.jp", "seiro.niigata.jp", "seirou.niigata.jp", "sekikawa.niigata.jp", "shibata.niigata.jp", "tagami.niigata.jp", "tainai.niigata.jp", "tochio.niigata.jp", "tokamachi.niigata.jp", "tsubame.niigata.jp", "tsunan.niigata.jp", "uonuma.niigata.jp", "yahiko.niigata.jp", "yoita.niigata.jp", "yuzawa.niigata.jp", "beppu.oita.jp", "bungoono.oita.jp", "bungotakada.oita.jp", "hasama.oita.jp", "hiji.oita.jp", "himeshima.oita.jp", "hita.oita.jp", "kamitsue.oita.jp", "kokonoe.oita.jp", "kuju.oita.jp", "kunisaki.oita.jp", "kusu.oita.jp", "oita.oita.jp", "saiki.oita.jp", "taketa.oita.jp", "tsukumi.oita.jp", "usa.oita.jp", "usuki.oita.jp", "yufu.oita.jp", "akaiwa.okayama.jp", "asakuchi.okayama.jp", "bizen.okayama.jp", "hayashima.okayama.jp", "ibara.okayama.jp", "kagamino.okayama.jp", "kasaoka.okayama.jp", "kibichuo.okayama.jp", "kumenan.okayama.jp", "kurashiki.okayama.jp", "maniwa.okayama.jp", "misaki.okayama.jp", "nagi.okayama.jp", "niimi.okayama.jp", "nishiawakura.okayama.jp", "okayama.okayama.jp", "satosho.okayama.jp", "setouchi.okayama.jp", "shinjo.okayama.jp", "shoo.okayama.jp", "soja.okayama.jp", "takahashi.okayama.jp", "tamano.okayama.jp", "tsuyama.okayama.jp", "wake.okayama.jp", "yakage.okayama.jp", "aguni.okinawa.jp", "ginowan.okinawa.jp", "ginoza.okinawa.jp", "gushikami.okinawa.jp", "haebaru.okinawa.jp", "higashi.okinawa.jp", "hirara.okinawa.jp", "iheya.okinawa.jp", "ishigaki.okinawa.jp", "ishikawa.okinawa.jp", "itoman.okinawa.jp", "izena.okinawa.jp", "kadena.okinawa.jp", "kin.okinawa.jp", "kitadaito.okinawa.jp", "kitanakagusuku.okinawa.jp", "kumejima.okinawa.jp", "kunigami.okinawa.jp", "minamidaito.okinawa.jp", "motobu.okinawa.jp", "nago.okinawa.jp", "naha.okinawa.jp", "nakagusuku.okinawa.jp", "nakijin.okinawa.jp", "nanjo.okinawa.jp", "nishihara.okinawa.jp", "ogimi.okinawa.jp", "okinawa.okinawa.jp", "onna.okinawa.jp", "shimoji.okinawa.jp", "taketomi.okinawa.jp", "tarama.okinawa.jp", "tokashiki.okinawa.jp", "tomigusuku.okinawa.jp", "tonaki.okinawa.jp", "urasoe.okinawa.jp", "uruma.okinawa.jp", "yaese.okinawa.jp", "yomitan.okinawa.jp", "yonabaru.okinawa.jp", "yonaguni.okinawa.jp", "zamami.okinawa.jp", "abeno.osaka.jp", "chihayaakasaka.osaka.jp", "chuo.osaka.jp", "daito.osaka.jp", "fujiidera.osaka.jp", "habikino.osaka.jp", "hannan.osaka.jp", "higashiosaka.osaka.jp", "higashisumiyoshi.osaka.jp", "higashiyodogawa.osaka.jp", "hirakata.osaka.jp", "ibaraki.osaka.jp", "ikeda.osaka.jp", "izumi.osaka.jp", "izumiotsu.osaka.jp", "izumisano.osaka.jp", "kadoma.osaka.jp", "kaizuka.osaka.jp", "kanan.osaka.jp", "kashiwara.osaka.jp", "katano.osaka.jp", "kawachinagano.osaka.jp", "kishiwada.osaka.jp", "kita.osaka.jp", "kumatori.osaka.jp", "matsubara.osaka.jp", "minato.osaka.jp", "minoh.osaka.jp", "misaki.osaka.jp", "moriguchi.osaka.jp", "neyagawa.osaka.jp", "nishi.osaka.jp", "nose.osaka.jp", "osakasayama.osaka.jp", "sakai.osaka.jp", "sayama.osaka.jp", "sennan.osaka.jp", "settsu.osaka.jp", "shijonawate.osaka.jp", "shimamoto.osaka.jp", "suita.osaka.jp", "tadaoka.osaka.jp", "taishi.osaka.jp", "tajiri.osaka.jp", "takaishi.osaka.jp", "takatsuki.osaka.jp", "tondabayashi.osaka.jp", "toyonaka.osaka.jp", "toyono.osaka.jp", "yao.osaka.jp", "ariake.saga.jp", "arita.saga.jp", "fukudomi.saga.jp", "genkai.saga.jp", "hamatama.saga.jp", "hizen.saga.jp", "imari.saga.jp", "kamimine.saga.jp", "kanzaki.saga.jp", "karatsu.saga.jp", "kashima.saga.jp", "kitagata.saga.jp", "kitahata.saga.jp", "kiyama.saga.jp", "kouhoku.saga.jp", "kyuragi.saga.jp", "nishiarita.saga.jp", "ogi.saga.jp", "omachi.saga.jp", "ouchi.saga.jp", "saga.saga.jp", "shiroishi.saga.jp", "taku.saga.jp", "tara.saga.jp", "tosu.saga.jp", "yoshinogari.saga.jp", "arakawa.saitama.jp", "asaka.saitama.jp", "chichibu.saitama.jp", "fujimi.saitama.jp", "fujimino.saitama.jp", "fukaya.saitama.jp", "hanno.saitama.jp", "hanyu.saitama.jp", "hasuda.saitama.jp", "hatogaya.saitama.jp", "hatoyama.saitama.jp", "hidaka.saitama.jp", "higashichichibu.saitama.jp", "higashimatsuyama.saitama.jp", "honjo.saitama.jp", "ina.saitama.jp", "iruma.saitama.jp", "iwatsuki.saitama.jp", "kamiizumi.saitama.jp", "kamikawa.saitama.jp", "kamisato.saitama.jp", "kasukabe.saitama.jp", "kawagoe.saitama.jp", "kawaguchi.saitama.jp", "kawajima.saitama.jp", "kazo.saitama.jp", "kitamoto.saitama.jp", "koshigaya.saitama.jp", "kounosu.saitama.jp", "kuki.saitama.jp", "kumagaya.saitama.jp", "matsubushi.saitama.jp", "minano.saitama.jp", "misato.saitama.jp", "miyashiro.saitama.jp", "miyoshi.saitama.jp", "moroyama.saitama.jp", "nagatoro.saitama.jp", "namegawa.saitama.jp", "niiza.saitama.jp", "ogano.saitama.jp", "ogawa.saitama.jp", "ogose.saitama.jp", "okegawa.saitama.jp", "omiya.saitama.jp", "otaki.saitama.jp", "ranzan.saitama.jp", "ryokami.saitama.jp", "saitama.saitama.jp", "sakado.saitama.jp", "satte.saitama.jp", "sayama.saitama.jp", "shiki.saitama.jp", "shiraoka.saitama.jp", "soka.saitama.jp", "sugito.saitama.jp", "toda.saitama.jp", "tokigawa.saitama.jp", "tokorozawa.saitama.jp", "tsurugashima.saitama.jp", "urawa.saitama.jp", "warabi.saitama.jp", "yashio.saitama.jp", "yokoze.saitama.jp", "yono.saitama.jp", "yorii.saitama.jp", "yoshida.saitama.jp", "yoshikawa.saitama.jp", "yoshimi.saitama.jp", "aisho.shiga.jp", "gamo.shiga.jp", "higashiomi.shiga.jp", "hikone.shiga.jp", "koka.shiga.jp", "konan.shiga.jp", "kosei.shiga.jp", "koto.shiga.jp", "kusatsu.shiga.jp", "maibara.shiga.jp", "moriyama.shiga.jp", "nagahama.shiga.jp", "nishiazai.shiga.jp", "notogawa.shiga.jp", "omihachiman.shiga.jp", "otsu.shiga.jp", "ritto.shiga.jp", "ryuoh.shiga.jp", "takashima.shiga.jp", "takatsuki.shiga.jp", "torahime.shiga.jp", "toyosato.shiga.jp", "yasu.shiga.jp", "akagi.shimane.jp", "ama.shimane.jp", "gotsu.shimane.jp", "hamada.shimane.jp", "higashiizumo.shimane.jp", "hikawa.shimane.jp", "hikimi.shimane.jp", "izumo.shimane.jp", "kakinoki.shimane.jp", "masuda.shimane.jp", "matsue.shimane.jp", "misato.shimane.jp", "nishinoshima.shimane.jp", "ohda.shimane.jp", "okinoshima.shimane.jp", "okuizumo.shimane.jp", "shimane.shimane.jp", "tamayu.shimane.jp", "tsuwano.shimane.jp", "unnan.shimane.jp", "yakumo.shimane.jp", "yasugi.shimane.jp", "yatsuka.shimane.jp", "arai.shizuoka.jp", "atami.shizuoka.jp", "fuji.shizuoka.jp", "fujieda.shizuoka.jp", "fujikawa.shizuoka.jp", "fujinomiya.shizuoka.jp", "fukuroi.shizuoka.jp", "gotemba.shizuoka.jp", "haibara.shizuoka.jp", "hamamatsu.shizuoka.jp", "higashiizu.shizuoka.jp", "ito.shizuoka.jp", "iwata.shizuoka.jp", "izu.shizuoka.jp", "izunokuni.shizuoka.jp", "kakegawa.shizuoka.jp", "kannami.shizuoka.jp", "kawanehon.shizuoka.jp", "kawazu.shizuoka.jp", "kikugawa.shizuoka.jp", "kosai.shizuoka.jp", "makinohara.shizuoka.jp", "matsuzaki.shizuoka.jp", "minamiizu.shizuoka.jp", "mishima.shizuoka.jp", "morimachi.shizuoka.jp", "nishiizu.shizuoka.jp", "numazu.shizuoka.jp", "omaezaki.shizuoka.jp", "shimada.shizuoka.jp", "shimizu.shizuoka.jp", "shimoda.shizuoka.jp", "shizuoka.shizuoka.jp", "susono.shizuoka.jp", "yaizu.shizuoka.jp", "yoshida.shizuoka.jp", "ashikaga.tochigi.jp", "bato.tochigi.jp", "haga.tochigi.jp", "ichikai.tochigi.jp", "iwafune.tochigi.jp", "kaminokawa.tochigi.jp", "kanuma.tochigi.jp", "karasuyama.tochigi.jp", "kuroiso.tochigi.jp", "mashiko.tochigi.jp", "mibu.tochigi.jp", "moka.tochigi.jp", "motegi.tochigi.jp", "nasu.tochigi.jp", "nasushiobara.tochigi.jp", "nikko.tochigi.jp", "nishikata.tochigi.jp", "nogi.tochigi.jp", "ohira.tochigi.jp", "ohtawara.tochigi.jp", "oyama.tochigi.jp", "sakura.tochigi.jp", "sano.tochigi.jp", "shimotsuke.tochigi.jp", "shioya.tochigi.jp", "takanezawa.tochigi.jp", "tochigi.tochigi.jp", "tsuga.tochigi.jp", "ujiie.tochigi.jp", "utsunomiya.tochigi.jp", "yaita.tochigi.jp", "aizumi.tokushima.jp", "anan.tokushima.jp", "ichiba.tokushima.jp", "itano.tokushima.jp", "kainan.tokushima.jp", "komatsushima.tokushima.jp", "matsushige.tokushima.jp", "mima.tokushima.jp", "minami.tokushima.jp", "miyoshi.tokushima.jp", "mugi.tokushima.jp", "nakagawa.tokushima.jp", "naruto.tokushima.jp", "sanagochi.tokushima.jp", "shishikui.tokushima.jp", "tokushima.tokushima.jp", "wajiki.tokushima.jp", "adachi.tokyo.jp", "akiruno.tokyo.jp", "akishima.tokyo.jp", "aogashima.tokyo.jp", "arakawa.tokyo.jp", "bunkyo.tokyo.jp", "chiyoda.tokyo.jp", "chofu.tokyo.jp", "chuo.tokyo.jp", "edogawa.tokyo.jp", "fuchu.tokyo.jp", "fussa.tokyo.jp", "hachijo.tokyo.jp", "hachioji.tokyo.jp", "hamura.tokyo.jp", "higashikurume.tokyo.jp", "higashimurayama.tokyo.jp", "higashiyamato.tokyo.jp", "hino.tokyo.jp", "hinode.tokyo.jp", "hinohara.tokyo.jp", "inagi.tokyo.jp", "itabashi.tokyo.jp", "katsushika.tokyo.jp", "kita.tokyo.jp", "kiyose.tokyo.jp", "kodaira.tokyo.jp", "koganei.tokyo.jp", "kokubunji.tokyo.jp", "komae.tokyo.jp", "koto.tokyo.jp", "kouzushima.tokyo.jp", "kunitachi.tokyo.jp", "machida.tokyo.jp", "meguro.tokyo.jp", "minato.tokyo.jp", "mitaka.tokyo.jp", "mizuho.tokyo.jp", "musashimurayama.tokyo.jp", "musashino.tokyo.jp", "nakano.tokyo.jp", "nerima.tokyo.jp", "ogasawara.tokyo.jp", "okutama.tokyo.jp", "ome.tokyo.jp", "oshima.tokyo.jp", "ota.tokyo.jp", "setagaya.tokyo.jp", "shibuya.tokyo.jp", "shinagawa.tokyo.jp", "shinjuku.tokyo.jp", "suginami.tokyo.jp", "sumida.tokyo.jp", "tachikawa.tokyo.jp", "taito.tokyo.jp", "tama.tokyo.jp", "toshima.tokyo.jp", "chizu.tottori.jp", "hino.tottori.jp", "kawahara.tottori.jp", "koge.tottori.jp", "kotoura.tottori.jp", "misasa.tottori.jp", "nanbu.tottori.jp", "nichinan.tottori.jp", "sakaiminato.tottori.jp", "tottori.tottori.jp", "wakasa.tottori.jp", "yazu.tottori.jp", "yonago.tottori.jp", "asahi.toyama.jp", "fuchu.toyama.jp", "fukumitsu.toyama.jp", "funahashi.toyama.jp", "himi.toyama.jp", "imizu.toyama.jp", "inami.toyama.jp", "johana.toyama.jp", "kamiichi.toyama.jp", "kurobe.toyama.jp", "nakaniikawa.toyama.jp", "namerikawa.toyama.jp", "nanto.toyama.jp", "nyuzen.toyama.jp", "oyabe.toyama.jp", "taira.toyama.jp", "takaoka.toyama.jp", "tateyama.toyama.jp", "toga.toyama.jp", "tonami.toyama.jp", "toyama.toyama.jp", "unazuki.toyama.jp", "uozu.toyama.jp", "yamada.toyama.jp", "arida.wakayama.jp", "aridagawa.wakayama.jp", "gobo.wakayama.jp", "hashimoto.wakayama.jp", "hidaka.wakayama.jp", "hirogawa.wakayama.jp", "inami.wakayama.jp", "iwade.wakayama.jp", "kainan.wakayama.jp", "kamitonda.wakayama.jp", "katsuragi.wakayama.jp", "kimino.wakayama.jp", "kinokawa.wakayama.jp", "kitayama.wakayama.jp", "koya.wakayama.jp", "koza.wakayama.jp", "kozagawa.wakayama.jp", "kudoyama.wakayama.jp", "kushimoto.wakayama.jp", "mihama.wakayama.jp", "misato.wakayama.jp", "nachikatsuura.wakayama.jp", "shingu.wakayama.jp", "shirahama.wakayama.jp", "taiji.wakayama.jp", "tanabe.wakayama.jp", "wakayama.wakayama.jp", "yuasa.wakayama.jp", "yura.wakayama.jp", "asahi.yamagata.jp", "funagata.yamagata.jp", "higashine.yamagata.jp", "iide.yamagata.jp", "kahoku.yamagata.jp", "kaminoyama.yamagata.jp", "kaneyama.yamagata.jp", "kawanishi.yamagata.jp", "mamurogawa.yamagata.jp", "mikawa.yamagata.jp", "murayama.yamagata.jp", "nagai.yamagata.jp", "nakayama.yamagata.jp", "nanyo.yamagata.jp", "nishikawa.yamagata.jp", "obanazawa.yamagata.jp", "oe.yamagata.jp", "oguni.yamagata.jp", "ohkura.yamagata.jp", "oishida.yamagata.jp", "sagae.yamagata.jp", "sakata.yamagata.jp", "sakegawa.yamagata.jp", "shinjo.yamagata.jp", "shirataka.yamagata.jp", "shonai.yamagata.jp", "takahata.yamagata.jp", "tendo.yamagata.jp", "tozawa.yamagata.jp", "tsuruoka.yamagata.jp", "yamagata.yamagata.jp", "yamanobe.yamagata.jp", "yonezawa.yamagata.jp", "yuza.yamagata.jp", "abu.yamaguchi.jp", "hagi.yamaguchi.jp", "hikari.yamaguchi.jp", "hofu.yamaguchi.jp", "iwakuni.yamaguchi.jp", "kudamatsu.yamaguchi.jp", "mitou.yamaguchi.jp", "nagato.yamaguchi.jp", "oshima.yamaguchi.jp", "shimonoseki.yamaguchi.jp", "shunan.yamaguchi.jp", "tabuse.yamaguchi.jp", "tokuyama.yamaguchi.jp", "toyota.yamaguchi.jp", "ube.yamaguchi.jp", "yuu.yamaguchi.jp", "chuo.yamanashi.jp", "doshi.yamanashi.jp", "fuefuki.yamanashi.jp", "fujikawa.yamanashi.jp", "fujikawaguchiko.yamanashi.jp", "fujiyoshida.yamanashi.jp", "hayakawa.yamanashi.jp", "hokuto.yamanashi.jp", "ichikawamisato.yamanashi.jp", "kai.yamanashi.jp", "kofu.yamanashi.jp", "koshu.yamanashi.jp", "kosuge.yamanashi.jp", "minami-alps.yamanashi.jp", "minobu.yamanashi.jp", "nakamichi.yamanashi.jp", "nanbu.yamanashi.jp", "narusawa.yamanashi.jp", "nirasaki.yamanashi.jp", "nishikatsura.yamanashi.jp", "oshino.yamanashi.jp", "otsuki.yamanashi.jp", "showa.yamanashi.jp", "tabayama.yamanashi.jp", "tsuru.yamanashi.jp", "uenohara.yamanashi.jp", "yamanakako.yamanashi.jp", "yamanashi.yamanashi.jp", "ke", "ac.ke", "co.ke", "go.ke", "info.ke", "me.ke", "mobi.ke", "ne.ke", "or.ke", "sc.ke", "kg", "com.kg", "edu.kg", "gov.kg", "mil.kg", "net.kg", "org.kg", "*.kh", "ki", "biz.ki", "com.ki", "edu.ki", "gov.ki", "info.ki", "net.ki", "org.ki", "km", "ass.km", "com.km", "edu.km", "gov.km", "mil.km", "nom.km", "org.km", "prd.km", "tm.km", "asso.km", "coop.km", "gouv.km", "medecin.km", "notaires.km", "pharmaciens.km", "presse.km", "veterinaire.km", "kn", "edu.kn", "gov.kn", "net.kn", "org.kn", "kp", "com.kp", "edu.kp", "gov.kp", "org.kp", "rep.kp", "tra.kp", "kr", "ac.kr", "co.kr", "es.kr", "go.kr", "hs.kr", "kg.kr", "mil.kr", "ms.kr", "ne.kr", "or.kr", "pe.kr", "re.kr", "sc.kr", "busan.kr", "chungbuk.kr", "chungnam.kr", "daegu.kr", "daejeon.kr", "gangwon.kr", "gwangju.kr", "gyeongbuk.kr", "gyeonggi.kr", "gyeongnam.kr", "incheon.kr", "jeju.kr", "jeonbuk.kr", "jeonnam.kr", "seoul.kr", "ulsan.kr", "kw", "com.kw", "edu.kw", "emb.kw", "gov.kw", "ind.kw", "net.kw", "org.kw", "ky", "com.ky", "edu.ky", "net.ky", "org.ky", "kz", "com.kz", "edu.kz", "gov.kz", "mil.kz", "net.kz", "org.kz", "la", "com.la", "edu.la", "gov.la", "info.la", "int.la", "net.la", "org.la", "per.la", "lb", "com.lb", "edu.lb", "gov.lb", "net.lb", "org.lb", "lc", "co.lc", "com.lc", "edu.lc", "gov.lc", "net.lc", "org.lc", "li", "lk", "ac.lk", "assn.lk", "com.lk", "edu.lk", "gov.lk", "grp.lk", "hotel.lk", "int.lk", "ltd.lk", "net.lk", "ngo.lk", "org.lk", "sch.lk", "soc.lk", "web.lk", "lr", "com.lr", "edu.lr", "gov.lr", "net.lr", "org.lr", "ls", "ac.ls", "biz.ls", "co.ls", "edu.ls", "gov.ls", "info.ls", "net.ls", "org.ls", "sc.ls", "lt", "gov.lt", "lu", "lv", "asn.lv", "com.lv", "conf.lv", "edu.lv", "gov.lv", "id.lv", "mil.lv", "net.lv", "org.lv", "ly", "com.ly", "edu.ly", "gov.ly", "id.ly", "med.ly", "net.ly", "org.ly", "plc.ly", "sch.ly", "ma", "ac.ma", "co.ma", "gov.ma", "net.ma", "org.ma", "press.ma", "mc", "asso.mc", "tm.mc", "md", "me", "ac.me", "co.me", "edu.me", "gov.me", "its.me", "net.me", "org.me", "priv.me", "mg", "co.mg", "com.mg", "edu.mg", "gov.mg", "mil.mg", "nom.mg", "org.mg", "prd.mg", "mh", "mil", "mk", "com.mk", "edu.mk", "gov.mk", "inf.mk", "name.mk", "net.mk", "org.mk", "ml", "com.ml", "edu.ml", "gouv.ml", "gov.ml", "net.ml", "org.ml", "presse.ml", "*.mm", "mn", "edu.mn", "gov.mn", "org.mn", "mo", "com.mo", "edu.mo", "gov.mo", "net.mo", "org.mo", "mobi", "mp", "mq", "mr", "gov.mr", "ms", "com.ms", "edu.ms", "gov.ms", "net.ms", "org.ms", "mt", "com.mt", "edu.mt", "net.mt", "org.mt", "mu", "ac.mu", "co.mu", "com.mu", "gov.mu", "net.mu", "or.mu", "org.mu", "museum", "mv", "aero.mv", "biz.mv", "com.mv", "coop.mv", "edu.mv", "gov.mv", "info.mv", "int.mv", "mil.mv", "museum.mv", "name.mv", "net.mv", "org.mv", "pro.mv", "mw", "ac.mw", "biz.mw", "co.mw", "com.mw", "coop.mw", "edu.mw", "gov.mw", "int.mw", "net.mw", "org.mw", "mx", "com.mx", "edu.mx", "gob.mx", "net.mx", "org.mx", "my", "biz.my", "com.my", "edu.my", "gov.my", "mil.my", "name.my", "net.my", "org.my", "mz", "ac.mz", "adv.mz", "co.mz", "edu.mz", "gov.mz", "mil.mz", "net.mz", "org.mz", "na", "alt.na", "co.na", "com.na", "gov.na", "net.na", "org.na", "name", "nc", "asso.nc", "nom.nc", "ne", "net", "nf", "arts.nf", "com.nf", "firm.nf", "info.nf", "net.nf", "other.nf", "per.nf", "rec.nf", "store.nf", "web.nf", "ng", "com.ng", "edu.ng", "gov.ng", "i.ng", "mil.ng", "mobi.ng", "name.ng", "net.ng", "org.ng", "sch.ng", "ni", "ac.ni", "biz.ni", "co.ni", "com.ni", "edu.ni", "gob.ni", "in.ni", "info.ni", "int.ni", "mil.ni", "net.ni", "nom.ni", "org.ni", "web.ni", "nl", "no", "fhs.no", "folkebibl.no", "fylkesbibl.no", "idrett.no", "museum.no", "priv.no", "vgs.no", "dep.no", "herad.no", "kommune.no", "mil.no", "stat.no", "aa.no", "ah.no", "bu.no", "fm.no", "hl.no", "hm.no", "jan-mayen.no", "mr.no", "nl.no", "nt.no", "of.no", "ol.no", "oslo.no", "rl.no", "sf.no", "st.no", "svalbard.no", "tm.no", "tr.no", "va.no", "vf.no", "gs.aa.no", "gs.ah.no", "gs.bu.no", "gs.fm.no", "gs.hl.no", "gs.hm.no", "gs.jan-mayen.no", "gs.mr.no", "gs.nl.no", "gs.nt.no", "gs.of.no", "gs.ol.no", "gs.oslo.no", "gs.rl.no", "gs.sf.no", "gs.st.no", "gs.svalbard.no", "gs.tm.no", "gs.tr.no", "gs.va.no", "gs.vf.no", "akrehamn.no", "\xE5krehamn.no", "algard.no", "\xE5lg\xE5rd.no", "arna.no", "bronnoysund.no", "br\xF8nn\xF8ysund.no", "brumunddal.no", "bryne.no", "drobak.no", "dr\xF8bak.no", "egersund.no", "fetsund.no", "floro.no", "flor\xF8.no", "fredrikstad.no", "hokksund.no", "honefoss.no", "h\xF8nefoss.no", "jessheim.no", "jorpeland.no", "j\xF8rpeland.no", "kirkenes.no", "kopervik.no", "krokstadelva.no", "langevag.no", "langev\xE5g.no", "leirvik.no", "mjondalen.no", "mj\xF8ndalen.no", "mo-i-rana.no", "mosjoen.no", "mosj\xF8en.no", "nesoddtangen.no", "orkanger.no", "osoyro.no", "os\xF8yro.no", "raholt.no", "r\xE5holt.no", "sandnessjoen.no", "sandnessj\xF8en.no", "skedsmokorset.no", "slattum.no", "spjelkavik.no", "stathelle.no", "stavern.no", "stjordalshalsen.no", "stj\xF8rdalshalsen.no", "tananger.no", "tranby.no", "vossevangen.no", "aarborte.no", "aejrie.no", "afjord.no", "\xE5fjord.no", "agdenes.no", "nes.akershus.no", "aknoluokta.no", "\xE1k\u014Boluokta.no", "al.no", "\xE5l.no", "alaheadju.no", "\xE1laheadju.no", "alesund.no", "\xE5lesund.no", "alstahaug.no", "alta.no", "\xE1lt\xE1.no", "alvdal.no", "amli.no", "\xE5mli.no", "amot.no", "\xE5mot.no", "andasuolo.no", "andebu.no", "andoy.no", "and\xF8y.no", "ardal.no", "\xE5rdal.no", "aremark.no", "arendal.no", "\xE5s.no", "aseral.no", "\xE5seral.no", "asker.no", "askim.no", "askoy.no", "ask\xF8y.no", "askvoll.no", "asnes.no", "\xE5snes.no", "audnedaln.no", "aukra.no", "aure.no", "aurland.no", "aurskog-holand.no", "aurskog-h\xF8land.no", "austevoll.no", "austrheim.no", "averoy.no", "aver\xF8y.no", "badaddja.no", "b\xE5d\xE5ddj\xE5.no", "b\xE6rum.no", "bahcavuotna.no", "b\xE1hcavuotna.no", "bahccavuotna.no", "b\xE1hccavuotna.no", "baidar.no", "b\xE1id\xE1r.no", "bajddar.no", "b\xE1jddar.no", "balat.no", "b\xE1l\xE1t.no", "balestrand.no", "ballangen.no", "balsfjord.no", "bamble.no", "bardu.no", "barum.no", "batsfjord.no", "b\xE5tsfjord.no", "bearalvahki.no", "bearalv\xE1hki.no", "beardu.no", "beiarn.no", "berg.no", "bergen.no", "berlevag.no", "berlev\xE5g.no", "bievat.no", "biev\xE1t.no", "bindal.no", "birkenes.no", "bjarkoy.no", "bjark\xF8y.no", "bjerkreim.no", "bjugn.no", "bodo.no", "bod\xF8.no", "bokn.no", "bomlo.no", "b\xF8mlo.no", "bremanger.no", "bronnoy.no", "br\xF8nn\xF8y.no", "budejju.no", "nes.buskerud.no", "bygland.no", "bykle.no", "cahcesuolo.no", "\u010D\xE1hcesuolo.no", "davvenjarga.no", "davvenj\xE1rga.no", "davvesiida.no", "deatnu.no", "dielddanuorri.no", "divtasvuodna.no", "divttasvuotna.no", "donna.no", "d\xF8nna.no", "dovre.no", "drammen.no", "drangedal.no", "dyroy.no", "dyr\xF8y.no", "eid.no", "eidfjord.no", "eidsberg.no", "eidskog.no", "eidsvoll.no", "eigersund.no", "elverum.no", "enebakk.no", "engerdal.no", "etne.no", "etnedal.no", "evenassi.no", "even\xE1\u0161\u0161i.no", "evenes.no", "evje-og-hornnes.no", "farsund.no", "fauske.no", "fedje.no", "fet.no", "finnoy.no", "finn\xF8y.no", "fitjar.no", "fjaler.no", "fjell.no", "fla.no", "fl\xE5.no", "flakstad.no", "flatanger.no", "flekkefjord.no", "flesberg.no", "flora.no", "folldal.no", "forde.no", "f\xF8rde.no", "forsand.no", "fosnes.no", "fr\xE6na.no", "frana.no", "frei.no", "frogn.no", "froland.no", "frosta.no", "froya.no", "fr\xF8ya.no", "fuoisku.no", "fuossko.no", "fusa.no", "fyresdal.no", "gaivuotna.no", "g\xE1ivuotna.no", "galsa.no", "g\xE1ls\xE1.no", "gamvik.no", "gangaviika.no", "g\xE1\u014Bgaviika.no", "gaular.no", "gausdal.no", "giehtavuoatna.no", "gildeskal.no", "gildesk\xE5l.no", "giske.no", "gjemnes.no", "gjerdrum.no", "gjerstad.no", "gjesdal.no", "gjovik.no", "gj\xF8vik.no", "gloppen.no", "gol.no", "gran.no", "grane.no", "granvin.no", "gratangen.no", "grimstad.no", "grong.no", "grue.no", "gulen.no", "guovdageaidnu.no", "ha.no", "h\xE5.no", "habmer.no", "h\xE1bmer.no", "hadsel.no", "h\xE6gebostad.no", "hagebostad.no", "halden.no", "halsa.no", "hamar.no", "hamaroy.no", "hammarfeasta.no", "h\xE1mm\xE1rfeasta.no", "hammerfest.no", "hapmir.no", "h\xE1pmir.no", "haram.no", "hareid.no", "harstad.no", "hasvik.no", "hattfjelldal.no", "haugesund.no", "os.hedmark.no", "valer.hedmark.no", "v\xE5ler.hedmark.no", "hemne.no", "hemnes.no", "hemsedal.no", "hitra.no", "hjartdal.no", "hjelmeland.no", "hobol.no", "hob\xF8l.no", "hof.no", "hol.no", "hole.no", "holmestrand.no", "holtalen.no", "holt\xE5len.no", "os.hordaland.no", "hornindal.no", "horten.no", "hoyanger.no", "h\xF8yanger.no", "hoylandet.no", "h\xF8ylandet.no", "hurdal.no", "hurum.no", "hvaler.no", "hyllestad.no", "ibestad.no", "inderoy.no", "inder\xF8y.no", "iveland.no", "ivgu.no", "jevnaker.no", "jolster.no", "j\xF8lster.no", "jondal.no", "kafjord.no", "k\xE5fjord.no", "karasjohka.no", "k\xE1r\xE1\u0161johka.no", "karasjok.no", "karlsoy.no", "karmoy.no", "karm\xF8y.no", "kautokeino.no", "klabu.no", "kl\xE6bu.no", "klepp.no", "kongsberg.no", "kongsvinger.no", "kraanghke.no", "kr\xE5anghke.no", "kragero.no", "krager\xF8.no", "kristiansand.no", "kristiansund.no", "krodsherad.no", "kr\xF8dsherad.no", "kv\xE6fjord.no", "kv\xE6nangen.no", "kvafjord.no", "kvalsund.no", "kvam.no", "kvanangen.no", "kvinesdal.no", "kvinnherad.no", "kviteseid.no", "kvitsoy.no", "kvits\xF8y.no", "laakesvuemie.no", "l\xE6rdal.no", "lahppi.no", "l\xE1hppi.no", "lardal.no", "larvik.no", "lavagis.no", "lavangen.no", "leangaviika.no", "lea\u014Bgaviika.no", "lebesby.no", "leikanger.no", "leirfjord.no", "leka.no", "leksvik.no", "lenvik.no", "lerdal.no", "lesja.no", "levanger.no", "lier.no", "lierne.no", "lillehammer.no", "lillesand.no", "lindas.no", "lind\xE5s.no", "lindesnes.no", "loabat.no", "loab\xE1t.no", "lodingen.no", "l\xF8dingen.no", "lom.no", "loppa.no", "lorenskog.no", "l\xF8renskog.no", "loten.no", "l\xF8ten.no", "lund.no", "lunner.no", "luroy.no", "lur\xF8y.no", "luster.no", "lyngdal.no", "lyngen.no", "malatvuopmi.no", "m\xE1latvuopmi.no", "malselv.no", "m\xE5lselv.no", "malvik.no", "mandal.no", "marker.no", "marnardal.no", "masfjorden.no", "masoy.no", "m\xE5s\xF8y.no", "matta-varjjat.no", "m\xE1tta-v\xE1rjjat.no", "meland.no", "meldal.no", "melhus.no", "meloy.no", "mel\xF8y.no", "meraker.no", "mer\xE5ker.no", "midsund.no", "midtre-gauldal.no", "moareke.no", "mo\xE5reke.no", "modalen.no", "modum.no", "molde.no", "heroy.more-og-romsdal.no", "sande.more-og-romsdal.no", "her\xF8y.m\xF8re-og-romsdal.no", "sande.m\xF8re-og-romsdal.no", "moskenes.no", "moss.no", "mosvik.no", "muosat.no", "muos\xE1t.no", "naamesjevuemie.no", "n\xE5\xE5mesjevuemie.no", "n\xE6r\xF8y.no", "namdalseid.no", "namsos.no", "namsskogan.no", "nannestad.no", "naroy.no", "narviika.no", "narvik.no", "naustdal.no", "navuotna.no", "n\xE1vuotna.no", "nedre-eiker.no", "nesna.no", "nesodden.no", "nesseby.no", "nesset.no", "nissedal.no", "nittedal.no", "nord-aurdal.no", "nord-fron.no", "nord-odal.no", "norddal.no", "nordkapp.no", "bo.nordland.no", "b\xF8.nordland.no", "heroy.nordland.no", "her\xF8y.nordland.no", "nordre-land.no", "nordreisa.no", "nore-og-uvdal.no", "notodden.no", "notteroy.no", "n\xF8tter\xF8y.no", "odda.no", "oksnes.no", "\xF8ksnes.no", "omasvuotna.no", "oppdal.no", "oppegard.no", "oppeg\xE5rd.no", "orkdal.no", "orland.no", "\xF8rland.no", "orskog.no", "\xF8rskog.no", "orsta.no", "\xF8rsta.no", "osen.no", "osteroy.no", "oster\xF8y.no", "valer.ostfold.no", "v\xE5ler.\xF8stfold.no", "ostre-toten.no", "\xF8stre-toten.no", "overhalla.no", "ovre-eiker.no", "\xF8vre-eiker.no", "oyer.no", "\xF8yer.no", "oygarden.no", "\xF8ygarden.no", "oystre-slidre.no", "\xF8ystre-slidre.no", "porsanger.no", "porsangu.no", "pors\xE1\u014Bgu.no", "porsgrunn.no", "rade.no", "r\xE5de.no", "radoy.no", "rad\xF8y.no", "r\xE6lingen.no", "rahkkeravju.no", "r\xE1hkker\xE1vju.no", "raisa.no", "r\xE1isa.no", "rakkestad.no", "ralingen.no", "rana.no", "randaberg.no", "rauma.no", "rendalen.no", "rennebu.no", "rennesoy.no", "rennes\xF8y.no", "rindal.no", "ringebu.no", "ringerike.no", "ringsaker.no", "risor.no", "ris\xF8r.no", "rissa.no", "roan.no", "rodoy.no", "r\xF8d\xF8y.no", "rollag.no", "romsa.no", "romskog.no", "r\xF8mskog.no", "roros.no", "r\xF8ros.no", "rost.no", "r\xF8st.no", "royken.no", "r\xF8yken.no", "royrvik.no", "r\xF8yrvik.no", "ruovat.no", "rygge.no", "salangen.no", "salat.no", "s\xE1lat.no", "s\xE1l\xE1t.no", "saltdal.no", "samnanger.no", "sandefjord.no", "sandnes.no", "sandoy.no", "sand\xF8y.no", "sarpsborg.no", "sauda.no", "sauherad.no", "sel.no", "selbu.no", "selje.no", "seljord.no", "siellak.no", "sigdal.no", "siljan.no", "sirdal.no", "skanit.no", "sk\xE1nit.no", "skanland.no", "sk\xE5nland.no", "skaun.no", "skedsmo.no", "ski.no", "skien.no", "skierva.no", "skierv\xE1.no", "skiptvet.no", "skjak.no", "skj\xE5k.no", "skjervoy.no", "skjerv\xF8y.no", "skodje.no", "smola.no", "sm\xF8la.no", "snaase.no", "sn\xE5ase.no", "snasa.no", "sn\xE5sa.no", "snillfjord.no", "snoasa.no", "sogndal.no", "sogne.no", "s\xF8gne.no", "sokndal.no", "sola.no", "solund.no", "somna.no", "s\xF8mna.no", "sondre-land.no", "s\xF8ndre-land.no", "songdalen.no", "sor-aurdal.no", "s\xF8r-aurdal.no", "sor-fron.no", "s\xF8r-fron.no", "sor-odal.no", "s\xF8r-odal.no", "sor-varanger.no", "s\xF8r-varanger.no", "sorfold.no", "s\xF8rfold.no", "sorreisa.no", "s\xF8rreisa.no", "sortland.no", "sorum.no", "s\xF8rum.no", "spydeberg.no", "stange.no", "stavanger.no", "steigen.no", "steinkjer.no", "stjordal.no", "stj\xF8rdal.no", "stokke.no", "stor-elvdal.no", "stord.no", "stordal.no", "storfjord.no", "strand.no", "stranda.no", "stryn.no", "sula.no", "suldal.no", "sund.no", "sunndal.no", "surnadal.no", "sveio.no", "svelvik.no", "sykkylven.no", "tana.no", "bo.telemark.no", "b\xF8.telemark.no", "time.no", "tingvoll.no", "tinn.no", "tjeldsund.no", "tjome.no", "tj\xF8me.no", "tokke.no", "tolga.no", "tonsberg.no", "t\xF8nsberg.no", "torsken.no", "tr\xE6na.no", "trana.no", "tranoy.no", "tran\xF8y.no", "troandin.no", "trogstad.no", "tr\xF8gstad.no", "tromsa.no", "tromso.no", "troms\xF8.no", "trondheim.no", "trysil.no", "tvedestrand.no", "tydal.no", "tynset.no", "tysfjord.no", "tysnes.no", "tysv\xE6r.no", "tysvar.no", "ullensaker.no", "ullensvang.no", "ulvik.no", "unjarga.no", "unj\xE1rga.no", "utsira.no", "vaapste.no", "vadso.no", "vads\xF8.no", "v\xE6r\xF8y.no", "vaga.no", "v\xE5g\xE5.no", "vagan.no", "v\xE5gan.no", "vagsoy.no", "v\xE5gs\xF8y.no", "vaksdal.no", "valle.no", "vang.no", "vanylven.no", "vardo.no", "vard\xF8.no", "varggat.no", "v\xE1rgg\xE1t.no", "varoy.no", "vefsn.no", "vega.no", "vegarshei.no", "veg\xE5rshei.no", "vennesla.no", "verdal.no", "verran.no", "vestby.no", "sande.vestfold.no", "vestnes.no", "vestre-slidre.no", "vestre-toten.no", "vestvagoy.no", "vestv\xE5g\xF8y.no", "vevelstad.no", "vik.no", "vikna.no", "vindafjord.no", "voagat.no", "volda.no", "voss.no", "*.np", "nr", "biz.nr", "com.nr", "edu.nr", "gov.nr", "info.nr", "net.nr", "org.nr", "nu", "nz", "ac.nz", "co.nz", "cri.nz", "geek.nz", "gen.nz", "govt.nz", "health.nz", "iwi.nz", "kiwi.nz", "maori.nz", "m\u0101ori.nz", "mil.nz", "net.nz", "org.nz", "parliament.nz", "school.nz", "om", "co.om", "com.om", "edu.om", "gov.om", "med.om", "museum.om", "net.om", "org.om", "pro.om", "onion", "org", "pa", "abo.pa", "ac.pa", "com.pa", "edu.pa", "gob.pa", "ing.pa", "med.pa", "net.pa", "nom.pa", "org.pa", "sld.pa", "pe", "com.pe", "edu.pe", "gob.pe", "mil.pe", "net.pe", "nom.pe", "org.pe", "pf", "com.pf", "edu.pf", "org.pf", "*.pg", "ph", "com.ph", "edu.ph", "gov.ph", "i.ph", "mil.ph", "net.ph", "ngo.ph", "org.ph", "pk", "ac.pk", "biz.pk", "com.pk", "edu.pk", "fam.pk", "gkp.pk", "gob.pk", "gog.pk", "gok.pk", "gon.pk", "gop.pk", "gos.pk", "gov.pk", "net.pk", "org.pk", "web.pk", "pl", "com.pl", "net.pl", "org.pl", "agro.pl", "aid.pl", "atm.pl", "auto.pl", "biz.pl", "edu.pl", "gmina.pl", "gsm.pl", "info.pl", "mail.pl", "media.pl", "miasta.pl", "mil.pl", "nieruchomosci.pl", "nom.pl", "pc.pl", "powiat.pl", "priv.pl", "realestate.pl", "rel.pl", "sex.pl", "shop.pl", "sklep.pl", "sos.pl", "szkola.pl", "targi.pl", "tm.pl", "tourism.pl", "travel.pl", "turystyka.pl", "gov.pl", "ap.gov.pl", "griw.gov.pl", "ic.gov.pl", "is.gov.pl", "kmpsp.gov.pl", "konsulat.gov.pl", "kppsp.gov.pl", "kwp.gov.pl", "kwpsp.gov.pl", "mup.gov.pl", "mw.gov.pl", "oia.gov.pl", "oirm.gov.pl", "oke.gov.pl", "oow.gov.pl", "oschr.gov.pl", "oum.gov.pl", "pa.gov.pl", "pinb.gov.pl", "piw.gov.pl", "po.gov.pl", "pr.gov.pl", "psp.gov.pl", "psse.gov.pl", "pup.gov.pl", "rzgw.gov.pl", "sa.gov.pl", "sdn.gov.pl", "sko.gov.pl", "so.gov.pl", "sr.gov.pl", "starostwo.gov.pl", "ug.gov.pl", "ugim.gov.pl", "um.gov.pl", "umig.gov.pl", "upow.gov.pl", "uppo.gov.pl", "us.gov.pl", "uw.gov.pl", "uzs.gov.pl", "wif.gov.pl", "wiih.gov.pl", "winb.gov.pl", "wios.gov.pl", "witd.gov.pl", "wiw.gov.pl", "wkz.gov.pl", "wsa.gov.pl", "wskr.gov.pl", "wsse.gov.pl", "wuoz.gov.pl", "wzmiuw.gov.pl", "zp.gov.pl", "zpisdn.gov.pl", "augustow.pl", "babia-gora.pl", "bedzin.pl", "beskidy.pl", "bialowieza.pl", "bialystok.pl", "bielawa.pl", "bieszczady.pl", "boleslawiec.pl", "bydgoszcz.pl", "bytom.pl", "cieszyn.pl", "czeladz.pl", "czest.pl", "dlugoleka.pl", "elblag.pl", "elk.pl", "glogow.pl", "gniezno.pl", "gorlice.pl", "grajewo.pl", "ilawa.pl", "jaworzno.pl", "jelenia-gora.pl", "jgora.pl", "kalisz.pl", "karpacz.pl", "kartuzy.pl", "kaszuby.pl", "katowice.pl", "kazimierz-dolny.pl", "kepno.pl", "ketrzyn.pl", "klodzko.pl", "kobierzyce.pl", "kolobrzeg.pl", "konin.pl", "konskowola.pl", "kutno.pl", "lapy.pl", "lebork.pl", "legnica.pl", "lezajsk.pl", "limanowa.pl", "lomza.pl", "lowicz.pl", "lubin.pl", "lukow.pl", "malbork.pl", "malopolska.pl", "mazowsze.pl", "mazury.pl", "mielec.pl", "mielno.pl", "mragowo.pl", "naklo.pl", "nowaruda.pl", "nysa.pl", "olawa.pl", "olecko.pl", "olkusz.pl", "olsztyn.pl", "opoczno.pl", "opole.pl", "ostroda.pl", "ostroleka.pl", "ostrowiec.pl", "ostrowwlkp.pl", "pila.pl", "pisz.pl", "podhale.pl", "podlasie.pl", "polkowice.pl", "pomorskie.pl", "pomorze.pl", "prochowice.pl", "pruszkow.pl", "przeworsk.pl", "pulawy.pl", "radom.pl", "rawa-maz.pl", "rybnik.pl", "rzeszow.pl", "sanok.pl", "sejny.pl", "skoczow.pl", "slask.pl", "slupsk.pl", "sosnowiec.pl", "stalowa-wola.pl", "starachowice.pl", "stargard.pl", "suwalki.pl", "swidnica.pl", "swiebodzin.pl", "swinoujscie.pl", "szczecin.pl", "szczytno.pl", "tarnobrzeg.pl", "tgory.pl", "turek.pl", "tychy.pl", "ustka.pl", "walbrzych.pl", "warmia.pl", "warszawa.pl", "waw.pl", "wegrow.pl", "wielun.pl", "wlocl.pl", "wloclawek.pl", "wodzislaw.pl", "wolomin.pl", "wroclaw.pl", "zachpomor.pl", "zagan.pl", "zarow.pl", "zgora.pl", "zgorzelec.pl", "pm", "pn", "co.pn", "edu.pn", "gov.pn", "net.pn", "org.pn", "post", "pr", "biz.pr", "com.pr", "edu.pr", "gov.pr", "info.pr", "isla.pr", "name.pr", "net.pr", "org.pr", "pro.pr", "ac.pr", "est.pr", "prof.pr", "pro", "aaa.pro", "aca.pro", "acct.pro", "avocat.pro", "bar.pro", "cpa.pro", "eng.pro", "jur.pro", "law.pro", "med.pro", "recht.pro", "ps", "com.ps", "edu.ps", "gov.ps", "net.ps", "org.ps", "plo.ps", "sec.ps", "pt", "com.pt", "edu.pt", "gov.pt", "int.pt", "net.pt", "nome.pt", "org.pt", "publ.pt", "pw", "belau.pw", "co.pw", "ed.pw", "go.pw", "or.pw", "py", "com.py", "coop.py", "edu.py", "gov.py", "mil.py", "net.py", "org.py", "qa", "com.qa", "edu.qa", "gov.qa", "mil.qa", "name.qa", "net.qa", "org.qa", "sch.qa", "re", "asso.re", "com.re", "ro", "arts.ro", "com.ro", "firm.ro", "info.ro", "nom.ro", "nt.ro", "org.ro", "rec.ro", "store.ro", "tm.ro", "www.ro", "rs", "ac.rs", "co.rs", "edu.rs", "gov.rs", "in.rs", "org.rs", "ru", "rw", "ac.rw", "co.rw", "coop.rw", "gov.rw", "mil.rw", "net.rw", "org.rw", "sa", "com.sa", "edu.sa", "gov.sa", "med.sa", "net.sa", "org.sa", "pub.sa", "sch.sa", "sb", "com.sb", "edu.sb", "gov.sb", "net.sb", "org.sb", "sc", "com.sc", "edu.sc", "gov.sc", "net.sc", "org.sc", "sd", "com.sd", "edu.sd", "gov.sd", "info.sd", "med.sd", "net.sd", "org.sd", "tv.sd", "se", "a.se", "ac.se", "b.se", "bd.se", "brand.se", "c.se", "d.se", "e.se", "f.se", "fh.se", "fhsk.se", "fhv.se", "g.se", "h.se", "i.se", "k.se", "komforb.se", "kommunalforbund.se", "komvux.se", "l.se", "lanbib.se", "m.se", "n.se", "naturbruksgymn.se", "o.se", "org.se", "p.se", "parti.se", "pp.se", "press.se", "r.se", "s.se", "t.se", "tm.se", "u.se", "w.se", "x.se", "y.se", "z.se", "sg", "com.sg", "edu.sg", "gov.sg", "net.sg", "org.sg", "sh", "com.sh", "gov.sh", "mil.sh", "net.sh", "org.sh", "si", "sj", "sk", "sl", "com.sl", "edu.sl", "gov.sl", "net.sl", "org.sl", "sm", "sn", "art.sn", "com.sn", "edu.sn", "gouv.sn", "org.sn", "perso.sn", "univ.sn", "so", "com.so", "edu.so", "gov.so", "me.so", "net.so", "org.so", "sr", "ss", "biz.ss", "co.ss", "com.ss", "edu.ss", "gov.ss", "me.ss", "net.ss", "org.ss", "sch.ss", "st", "co.st", "com.st", "consulado.st", "edu.st", "embaixada.st", "mil.st", "net.st", "org.st", "principe.st", "saotome.st", "store.st", "su", "sv", "com.sv", "edu.sv", "gob.sv", "org.sv", "red.sv", "sx", "gov.sx", "sy", "com.sy", "edu.sy", "gov.sy", "mil.sy", "net.sy", "org.sy", "sz", "ac.sz", "co.sz", "org.sz", "tc", "td", "tel", "tf", "tg", "th", "ac.th", "co.th", "go.th", "in.th", "mi.th", "net.th", "or.th", "tj", "ac.tj", "biz.tj", "co.tj", "com.tj", "edu.tj", "go.tj", "gov.tj", "int.tj", "mil.tj", "name.tj", "net.tj", "nic.tj", "org.tj", "test.tj", "web.tj", "tk", "tl", "gov.tl", "tm", "co.tm", "com.tm", "edu.tm", "gov.tm", "mil.tm", "net.tm", "nom.tm", "org.tm", "tn", "com.tn", "ens.tn", "fin.tn", "gov.tn", "ind.tn", "info.tn", "intl.tn", "mincom.tn", "nat.tn", "net.tn", "org.tn", "perso.tn", "tourism.tn", "to", "com.to", "edu.to", "gov.to", "mil.to", "net.to", "org.to", "tr", "av.tr", "bbs.tr", "bel.tr", "biz.tr", "com.tr", "dr.tr", "edu.tr", "gen.tr", "gov.tr", "info.tr", "k12.tr", "kep.tr", "mil.tr", "name.tr", "net.tr", "org.tr", "pol.tr", "tel.tr", "tsk.tr", "tv.tr", "web.tr", "nc.tr", "gov.nc.tr", "tt", "biz.tt", "co.tt", "com.tt", "edu.tt", "gov.tt", "info.tt", "mil.tt", "name.tt", "net.tt", "org.tt", "pro.tt", "tv", "tw", "club.tw", "com.tw", "ebiz.tw", "edu.tw", "game.tw", "gov.tw", "idv.tw", "mil.tw", "net.tw", "org.tw", "tz", "ac.tz", "co.tz", "go.tz", "hotel.tz", "info.tz", "me.tz", "mil.tz", "mobi.tz", "ne.tz", "or.tz", "sc.tz", "tv.tz", "ua", "com.ua", "edu.ua", "gov.ua", "in.ua", "net.ua", "org.ua", "cherkassy.ua", "cherkasy.ua", "chernigov.ua", "chernihiv.ua", "chernivtsi.ua", "chernovtsy.ua", "ck.ua", "cn.ua", "cr.ua", "crimea.ua", "cv.ua", "dn.ua", "dnepropetrovsk.ua", "dnipropetrovsk.ua", "donetsk.ua", "dp.ua", "if.ua", "ivano-frankivsk.ua", "kh.ua", "kharkiv.ua", "kharkov.ua", "kherson.ua", "khmelnitskiy.ua", "khmelnytskyi.ua", "kiev.ua", "kirovograd.ua", "km.ua", "kr.ua", "kropyvnytskyi.ua", "krym.ua", "ks.ua", "kv.ua", "kyiv.ua", "lg.ua", "lt.ua", "lugansk.ua", "luhansk.ua", "lutsk.ua", "lv.ua", "lviv.ua", "mk.ua", "mykolaiv.ua", "nikolaev.ua", "od.ua", "odesa.ua", "odessa.ua", "pl.ua", "poltava.ua", "rivne.ua", "rovno.ua", "rv.ua", "sb.ua", "sebastopol.ua", "sevastopol.ua", "sm.ua", "sumy.ua", "te.ua", "ternopil.ua", "uz.ua", "uzhgorod.ua", "uzhhorod.ua", "vinnica.ua", "vinnytsia.ua", "vn.ua", "volyn.ua", "yalta.ua", "zakarpattia.ua", "zaporizhzhe.ua", "zaporizhzhia.ua", "zhitomir.ua", "zhytomyr.ua", "zp.ua", "zt.ua", "ug", "ac.ug", "co.ug", "com.ug", "go.ug", "ne.ug", "or.ug", "org.ug", "sc.ug", "uk", "ac.uk", "co.uk", "gov.uk", "ltd.uk", "me.uk", "net.uk", "nhs.uk", "org.uk", "plc.uk", "police.uk", "*.sch.uk", "us", "dni.us", "fed.us", "isa.us", "kids.us", "nsn.us", "ak.us", "al.us", "ar.us", "as.us", "az.us", "ca.us", "co.us", "ct.us", "dc.us", "de.us", "fl.us", "ga.us", "gu.us", "hi.us", "ia.us", "id.us", "il.us", "in.us", "ks.us", "ky.us", "la.us", "ma.us", "md.us", "me.us", "mi.us", "mn.us", "mo.us", "ms.us", "mt.us", "nc.us", "nd.us", "ne.us", "nh.us", "nj.us", "nm.us", "nv.us", "ny.us", "oh.us", "ok.us", "or.us", "pa.us", "pr.us", "ri.us", "sc.us", "sd.us", "tn.us", "tx.us", "ut.us", "va.us", "vi.us", "vt.us", "wa.us", "wi.us", "wv.us", "wy.us", "k12.ak.us", "k12.al.us", "k12.ar.us", "k12.as.us", "k12.az.us", "k12.ca.us", "k12.co.us", "k12.ct.us", "k12.dc.us", "k12.fl.us", "k12.ga.us", "k12.gu.us", "k12.ia.us", "k12.id.us", "k12.il.us", "k12.in.us", "k12.ks.us", "k12.ky.us", "k12.la.us", "k12.ma.us", "k12.md.us", "k12.me.us", "k12.mi.us", "k12.mn.us", "k12.mo.us", "k12.ms.us", "k12.mt.us", "k12.nc.us", "k12.ne.us", "k12.nh.us", "k12.nj.us", "k12.nm.us", "k12.nv.us", "k12.ny.us", "k12.oh.us", "k12.ok.us", "k12.or.us", "k12.pa.us", "k12.pr.us", "k12.sc.us", "k12.tn.us", "k12.tx.us", "k12.ut.us", "k12.va.us", "k12.vi.us", "k12.vt.us", "k12.wa.us", "k12.wi.us", "cc.ak.us", "lib.ak.us", "cc.al.us", "lib.al.us", "cc.ar.us", "lib.ar.us", "cc.as.us", "lib.as.us", "cc.az.us", "lib.az.us", "cc.ca.us", "lib.ca.us", "cc.co.us", "lib.co.us", "cc.ct.us", "lib.ct.us", "cc.dc.us", "lib.dc.us", "cc.de.us", "cc.fl.us", "cc.ga.us", "cc.gu.us", "cc.hi.us", "cc.ia.us", "cc.id.us", "cc.il.us", "cc.in.us", "cc.ks.us", "cc.ky.us", "cc.la.us", "cc.ma.us", "cc.md.us", "cc.me.us", "cc.mi.us", "cc.mn.us", "cc.mo.us", "cc.ms.us", "cc.mt.us", "cc.nc.us", "cc.nd.us", "cc.ne.us", "cc.nh.us", "cc.nj.us", "cc.nm.us", "cc.nv.us", "cc.ny.us", "cc.oh.us", "cc.ok.us", "cc.or.us", "cc.pa.us", "cc.pr.us", "cc.ri.us", "cc.sc.us", "cc.sd.us", "cc.tn.us", "cc.tx.us", "cc.ut.us", "cc.va.us", "cc.vi.us", "cc.vt.us", "cc.wa.us", "cc.wi.us", "cc.wv.us", "cc.wy.us", "k12.wy.us", "lib.fl.us", "lib.ga.us", "lib.gu.us", "lib.hi.us", "lib.ia.us", "lib.id.us", "lib.il.us", "lib.in.us", "lib.ks.us", "lib.ky.us", "lib.la.us", "lib.ma.us", "lib.md.us", "lib.me.us", "lib.mi.us", "lib.mn.us", "lib.mo.us", "lib.ms.us", "lib.mt.us", "lib.nc.us", "lib.nd.us", "lib.ne.us", "lib.nh.us", "lib.nj.us", "lib.nm.us", "lib.nv.us", "lib.ny.us", "lib.oh.us", "lib.ok.us", "lib.or.us", "lib.pa.us", "lib.pr.us", "lib.ri.us", "lib.sc.us", "lib.sd.us", "lib.tn.us", "lib.tx.us", "lib.ut.us", "lib.va.us", "lib.vi.us", "lib.vt.us", "lib.wa.us", "lib.wi.us", "lib.wy.us", "chtr.k12.ma.us", "paroch.k12.ma.us", "pvt.k12.ma.us", "ann-arbor.mi.us", "cog.mi.us", "dst.mi.us", "eaton.mi.us", "gen.mi.us", "mus.mi.us", "tec.mi.us", "washtenaw.mi.us", "uy", "com.uy", "edu.uy", "gub.uy", "mil.uy", "net.uy", "org.uy", "uz", "co.uz", "com.uz", "net.uz", "org.uz", "va", "vc", "com.vc", "edu.vc", "gov.vc", "mil.vc", "net.vc", "org.vc", "ve", "arts.ve", "bib.ve", "co.ve", "com.ve", "e12.ve", "edu.ve", "firm.ve", "gob.ve", "gov.ve", "info.ve", "int.ve", "mil.ve", "net.ve", "nom.ve", "org.ve", "rar.ve", "rec.ve", "store.ve", "tec.ve", "web.ve", "vg", "vi", "co.vi", "com.vi", "k12.vi", "net.vi", "org.vi", "vn", "ac.vn", "ai.vn", "biz.vn", "com.vn", "edu.vn", "gov.vn", "health.vn", "id.vn", "info.vn", "int.vn", "io.vn", "name.vn", "net.vn", "org.vn", "pro.vn", "angiang.vn", "bacgiang.vn", "backan.vn", "baclieu.vn", "bacninh.vn", "baria-vungtau.vn", "bentre.vn", "binhdinh.vn", "binhduong.vn", "binhphuoc.vn", "binhthuan.vn", "camau.vn", "cantho.vn", "caobang.vn", "daklak.vn", "daknong.vn", "danang.vn", "dienbien.vn", "dongnai.vn", "dongthap.vn", "gialai.vn", "hagiang.vn", "haiduong.vn", "haiphong.vn", "hanam.vn", "hanoi.vn", "hatinh.vn", "haugiang.vn", "hoabinh.vn", "hungyen.vn", "khanhhoa.vn", "kiengiang.vn", "kontum.vn", "laichau.vn", "lamdong.vn", "langson.vn", "laocai.vn", "longan.vn", "namdinh.vn", "nghean.vn", "ninhbinh.vn", "ninhthuan.vn", "phutho.vn", "phuyen.vn", "quangbinh.vn", "quangnam.vn", "quangngai.vn", "quangninh.vn", "quangtri.vn", "soctrang.vn", "sonla.vn", "tayninh.vn", "thaibinh.vn", "thainguyen.vn", "thanhhoa.vn", "thanhphohochiminh.vn", "thuathienhue.vn", "tiengiang.vn", "travinh.vn", "tuyenquang.vn", "vinhlong.vn", "vinhphuc.vn", "yenbai.vn", "vu", "com.vu", "edu.vu", "net.vu", "org.vu", "wf", "ws", "com.ws", "edu.ws", "gov.ws", "net.ws", "org.ws", "yt", "\u0627\u0645\u0627\u0631\u0627\u062A", "\u0570\u0561\u0575", "\u09AC\u09BE\u0982\u09B2\u09BE", "\u0431\u0433", "\u0627\u0644\u0628\u062D\u0631\u064A\u0646", "\u0431\u0435\u043B", "\u4E2D\u56FD", "\u4E2D\u570B", "\u0627\u0644\u062C\u0632\u0627\u0626\u0631", "\u0645\u0635\u0631", "\u0435\u044E", "\u03B5\u03C5", "\u0645\u0648\u0631\u064A\u062A\u0627\u0646\u064A\u0627", "\u10D2\u10D4", "\u03B5\u03BB", "\u9999\u6E2F", "\u500B\u4EBA.\u9999\u6E2F", "\u516C\u53F8.\u9999\u6E2F", "\u653F\u5E9C.\u9999\u6E2F", "\u6559\u80B2.\u9999\u6E2F", "\u7D44\u7E54.\u9999\u6E2F", "\u7DB2\u7D61.\u9999\u6E2F", "\u0CAD\u0CBE\u0CB0\u0CA4", "\u0B2D\u0B3E\u0B30\u0B24", "\u09AD\u09BE\u09F0\u09A4", "\u092D\u093E\u0930\u0924\u092E\u094D", "\u092D\u093E\u0930\u094B\u0924", "\u0680\u0627\u0631\u062A", "\u0D2D\u0D3E\u0D30\u0D24\u0D02", "\u092D\u093E\u0930\u0924", "\u0628\u0627\u0631\u062A", "\u0628\u06BE\u0627\u0631\u062A", "\u0C2D\u0C3E\u0C30\u0C24\u0C4D", "\u0AAD\u0ABE\u0AB0\u0AA4", "\u0A2D\u0A3E\u0A30\u0A24", "\u09AD\u09BE\u09B0\u09A4", "\u0B87\u0BA8\u0BCD\u0BA4\u0BBF\u0BAF\u0BBE", "\u0627\u06CC\u0631\u0627\u0646", "\u0627\u064A\u0631\u0627\u0646", "\u0639\u0631\u0627\u0642", "\u0627\u0644\u0627\u0631\u062F\u0646", "\uD55C\uAD6D", "\u049B\u0430\u0437", "\u0EA5\u0EB2\u0EA7", "\u0DBD\u0D82\u0D9A\u0DCF", "\u0B87\u0BB2\u0B99\u0BCD\u0B95\u0BC8", "\u0627\u0644\u0645\u063A\u0631\u0628", "\u043C\u043A\u0434", "\u043C\u043E\u043D", "\u6FB3\u9580", "\u6FB3\u95E8", "\u0645\u0644\u064A\u0633\u064A\u0627", "\u0639\u0645\u0627\u0646", "\u067E\u0627\u06A9\u0633\u062A\u0627\u0646", "\u067E\u0627\u0643\u0633\u062A\u0627\u0646", "\u0641\u0644\u0633\u0637\u064A\u0646", "\u0441\u0440\u0431", "\u0430\u043A.\u0441\u0440\u0431", "\u043E\u0431\u0440.\u0441\u0440\u0431", "\u043E\u0434.\u0441\u0440\u0431", "\u043E\u0440\u0433.\u0441\u0440\u0431", "\u043F\u0440.\u0441\u0440\u0431", "\u0443\u043F\u0440.\u0441\u0440\u0431", "\u0440\u0444", "\u0642\u0637\u0631", "\u0627\u0644\u0633\u0639\u0648\u062F\u064A\u0629", "\u0627\u0644\u0633\u0639\u0648\u062F\u06CC\u0629", "\u0627\u0644\u0633\u0639\u0648\u062F\u06CC\u06C3", "\u0627\u0644\u0633\u0639\u0648\u062F\u064A\u0647", "\u0633\u0648\u062F\u0627\u0646", "\u65B0\u52A0\u5761", "\u0B9A\u0BBF\u0B99\u0BCD\u0B95\u0BAA\u0BCD\u0BAA\u0BC2\u0BB0\u0BCD", "\u0633\u0648\u0631\u064A\u0629", "\u0633\u0648\u0631\u064A\u0627", "\u0E44\u0E17\u0E22", "\u0E17\u0E2B\u0E32\u0E23.\u0E44\u0E17\u0E22", "\u0E18\u0E38\u0E23\u0E01\u0E34\u0E08.\u0E44\u0E17\u0E22", "\u0E40\u0E19\u0E47\u0E15.\u0E44\u0E17\u0E22", "\u0E23\u0E31\u0E10\u0E1A\u0E32\u0E25.\u0E44\u0E17\u0E22", "\u0E28\u0E36\u0E01\u0E29\u0E32.\u0E44\u0E17\u0E22", "\u0E2D\u0E07\u0E04\u0E4C\u0E01\u0E23.\u0E44\u0E17\u0E22", "\u062A\u0648\u0646\u0633", "\u53F0\u7063", "\u53F0\u6E7E", "\u81FA\u7063", "\u0443\u043A\u0440", "\u0627\u0644\u064A\u0645\u0646", "xxx", "ye", "com.ye", "edu.ye", "gov.ye", "mil.ye", "net.ye", "org.ye", "ac.za", "agric.za", "alt.za", "co.za", "edu.za", "gov.za", "grondar.za", "law.za", "mil.za", "net.za", "ngo.za", "nic.za", "nis.za", "nom.za", "org.za", "school.za", "tm.za", "web.za", "zm", "ac.zm", "biz.zm", "co.zm", "com.zm", "edu.zm", "gov.zm", "info.zm", "mil.zm", "net.zm", "org.zm", "sch.zm", "zw", "ac.zw", "co.zw", "gov.zw", "mil.zw", "org.zw", "aaa", "aarp", "abb", "abbott", "abbvie", "abc", "able", "abogado", "abudhabi", "academy", "accenture", "accountant", "accountants", "aco", "actor", "ads", "adult", "aeg", "aetna", "afl", "africa", "agakhan", "agency", "aig", "airbus", "airforce", "airtel", "akdn", "alibaba", "alipay", "allfinanz", "allstate", "ally", "alsace", "alstom", "amazon", "americanexpress", "americanfamily", "amex", "amfam", "amica", "amsterdam", "analytics", "android", "anquan", "anz", "aol", "apartments", "app", "apple", "aquarelle", "arab", "aramco", "archi", "army", "art", "arte", "asda", "associates", "athleta", "attorney", "auction", "audi", "audible", "audio", "auspost", "author", "auto", "autos", "aws", "axa", "azure", "baby", "baidu", "banamex", "band", "bank", "bar", "barcelona", "barclaycard", "barclays", "barefoot", "bargains", "baseball", "basketball", "bauhaus", "bayern", "bbc", "bbt", "bbva", "bcg", "bcn", "beats", "beauty", "beer", "bentley", "berlin", "best", "bestbuy", "bet", "bharti", "bible", "bid", "bike", "bing", "bingo", "bio", "black", "blackfriday", "blockbuster", "blog", "bloomberg", "blue", "bms", "bmw", "bnpparibas", "boats", "boehringer", "bofa", "bom", "bond", "boo", "book", "booking", "bosch", "bostik", "boston", "bot", "boutique", "box", "bradesco", "bridgestone", "broadway", "broker", "brother", "brussels", "build", "builders", "business", "buy", "buzz", "bzh", "cab", "cafe", "cal", "call", "calvinklein", "cam", "camera", "camp", "canon", "capetown", "capital", "capitalone", "car", "caravan", "cards", "care", "career", "careers", "cars", "casa", "case", "cash", "casino", "catering", "catholic", "cba", "cbn", "cbre", "center", "ceo", "cern", "cfa", "cfd", "chanel", "channel", "charity", "chase", "chat", "cheap", "chintai", "christmas", "chrome", "church", "cipriani", "circle", "cisco", "citadel", "citi", "citic", "city", "claims", "cleaning", "click", "clinic", "clinique", "clothing", "cloud", "club", "clubmed", "coach", "codes", "coffee", "college", "cologne", "commbank", "community", "company", "compare", "computer", "comsec", "condos", "construction", "consulting", "contact", "contractors", "cooking", "cool", "corsica", "country", "coupon", "coupons", "courses", "cpa", "credit", "creditcard", "creditunion", "cricket", "crown", "crs", "cruise", "cruises", "cuisinella", "cymru", "cyou", "dad", "dance", "data", "date", "dating", "datsun", "day", "dclk", "dds", "deal", "dealer", "deals", "degree", "delivery", "dell", "deloitte", "delta", "democrat", "dental", "dentist", "desi", "design", "dev", "dhl", "diamonds", "diet", "digital", "direct", "directory", "discount", "discover", "dish", "diy", "dnp", "docs", "doctor", "dog", "domains", "dot", "download", "drive", "dtv", "dubai", "dunlop", "dupont", "durban", "dvag", "dvr", "earth", "eat", "eco", "edeka", "education", "email", "emerck", "energy", "engineer", "engineering", "enterprises", "epson", "equipment", "ericsson", "erni", "esq", "estate", "eurovision", "eus", "events", "exchange", "expert", "exposed", "express", "extraspace", "fage", "fail", "fairwinds", "faith", "family", "fan", "fans", "farm", "farmers", "fashion", "fast", "fedex", "feedback", "ferrari", "ferrero", "fidelity", "fido", "film", "final", "finance", "financial", "fire", "firestone", "firmdale", "fish", "fishing", "fit", "fitness", "flickr", "flights", "flir", "florist", "flowers", "fly", "foo", "food", "football", "ford", "forex", "forsale", "forum", "foundation", "fox", "free", "fresenius", "frl", "frogans", "frontier", "ftr", "fujitsu", "fun", "fund", "furniture", "futbol", "fyi", "gal", "gallery", "gallo", "gallup", "game", "games", "gap", "garden", "gay", "gbiz", "gdn", "gea", "gent", "genting", "george", "ggee", "gift", "gifts", "gives", "giving", "glass", "gle", "global", "globo", "gmail", "gmbh", "gmo", "gmx", "godaddy", "gold", "goldpoint", "golf", "goo", "goodyear", "goog", "google", "gop", "got", "grainger", "graphics", "gratis", "green", "gripe", "grocery", "group", "gucci", "guge", "guide", "guitars", "guru", "hair", "hamburg", "hangout", "haus", "hbo", "hdfc", "hdfcbank", "health", "healthcare", "help", "helsinki", "here", "hermes", "hiphop", "hisamitsu", "hitachi", "hiv", "hkt", "hockey", "holdings", "holiday", "homedepot", "homegoods", "homes", "homesense", "honda", "horse", "hospital", "host", "hosting", "hot", "hotels", "hotmail", "house", "how", "hsbc", "hughes", "hyatt", "hyundai", "ibm", "icbc", "ice", "icu", "ieee", "ifm", "ikano", "imamat", "imdb", "immo", "immobilien", "inc", "industries", "infiniti", "ing", "ink", "institute", "insurance", "insure", "international", "intuit", "investments", "ipiranga", "irish", "ismaili", "ist", "istanbul", "itau", "itv", "jaguar", "java", "jcb", "jeep", "jetzt", "jewelry", "jio", "jll", "jmp", "jnj", "joburg", "jot", "joy", "jpmorgan", "jprs", "juegos", "juniper", "kaufen", "kddi", "kerryhotels", "kerrylogistics", "kerryproperties", "kfh", "kia", "kids", "kim", "kindle", "kitchen", "kiwi", "koeln", "komatsu", "kosher", "kpmg", "kpn", "krd", "kred", "kuokgroup", "kyoto", "lacaixa", "lamborghini", "lamer", "lancaster", "land", "landrover", "lanxess", "lasalle", "lat", "latino", "latrobe", "law", "lawyer", "lds", "lease", "leclerc", "lefrak", "legal", "lego", "lexus", "lgbt", "lidl", "life", "lifeinsurance", "lifestyle", "lighting", "like", "lilly", "limited", "limo", "lincoln", "link", "lipsy", "live", "living", "llc", "llp", "loan", "loans", "locker", "locus", "lol", "london", "lotte", "lotto", "love", "lpl", "lplfinancial", "ltd", "ltda", "lundbeck", "luxe", "luxury", "madrid", "maif", "maison", "makeup", "man", "management", "mango", "map", "market", "marketing", "markets", "marriott", "marshalls", "mattel", "mba", "mckinsey", "med", "media", "meet", "melbourne", "meme", "memorial", "men", "menu", "merck", "merckmsd", "miami", "microsoft", "mini", "mint", "mit", "mitsubishi", "mlb", "mls", "mma", "mobile", "moda", "moe", "moi", "mom", "monash", "money", "monster", "mormon", "mortgage", "moscow", "moto", "motorcycles", "mov", "movie", "msd", "mtn", "mtr", "music", "nab", "nagoya", "navy", "nba", "nec", "netbank", "netflix", "network", "neustar", "new", "news", "next", "nextdirect", "nexus", "nfl", "ngo", "nhk", "nico", "nike", "nikon", "ninja", "nissan", "nissay", "nokia", "norton", "now", "nowruz", "nowtv", "nra", "nrw", "ntt", "nyc", "obi", "observer", "office", "okinawa", "olayan", "olayangroup", "ollo", "omega", "one", "ong", "onl", "online", "ooo", "open", "oracle", "orange", "organic", "origins", "osaka", "otsuka", "ott", "ovh", "page", "panasonic", "paris", "pars", "partners", "parts", "party", "pay", "pccw", "pet", "pfizer", "pharmacy", "phd", "philips", "phone", "photo", "photography", "photos", "physio", "pics", "pictet", "pictures", "pid", "pin", "ping", "pink", "pioneer", "pizza", "place", "play", "playstation", "plumbing", "plus", "pnc", "pohl", "poker", "politie", "porn", "pramerica", "praxi", "press", "prime", "prod", "productions", "prof", "progressive", "promo", "properties", "property", "protection", "pru", "prudential", "pub", "pwc", "qpon", "quebec", "quest", "racing", "radio", "read", "realestate", "realtor", "realty", "recipes", "red", "redstone", "redumbrella", "rehab", "reise", "reisen", "reit", "reliance", "ren", "rent", "rentals", "repair", "report", "republican", "rest", "restaurant", "review", "reviews", "rexroth", "rich", "richardli", "ricoh", "ril", "rio", "rip", "rocks", "rodeo", "rogers", "room", "rsvp", "rugby", "ruhr", "run", "rwe", "ryukyu", "saarland", "safe", "safety", "sakura", "sale", "salon", "samsclub", "samsung", "sandvik", "sandvikcoromant", "sanofi", "sap", "sarl", "sas", "save", "saxo", "sbi", "sbs", "scb", "schaeffler", "schmidt", "scholarships", "school", "schule", "schwarz", "science", "scot", "search", "seat", "secure", "security", "seek", "select", "sener", "services", "seven", "sew", "sex", "sexy", "sfr", "shangrila", "sharp", "shell", "shia", "shiksha", "shoes", "shop", "shopping", "shouji", "show", "silk", "sina", "singles", "site", "ski", "skin", "sky", "skype", "sling", "smart", "smile", "sncf", "soccer", "social", "softbank", "software", "sohu", "solar", "solutions", "song", "sony", "soy", "spa", "space", "sport", "spot", "srl", "stada", "staples", "star", "statebank", "statefarm", "stc", "stcgroup", "stockholm", "storage", "store", "stream", "studio", "study", "style", "sucks", "supplies", "supply", "support", "surf", "surgery", "suzuki", "swatch", "swiss", "sydney", "systems", "tab", "taipei", "talk", "taobao", "target", "tatamotors", "tatar", "tattoo", "tax", "taxi", "tci", "tdk", "team", "tech", "technology", "temasek", "tennis", "teva", "thd", "theater", "theatre", "tiaa", "tickets", "tienda", "tips", "tires", "tirol", "tjmaxx", "tjx", "tkmaxx", "tmall", "today", "tokyo", "tools", "top", "toray", "toshiba", "total", "tours", "town", "toyota", "toys", "trade", "trading", "training", "travel", "travelers", "travelersinsurance", "trust", "trv", "tube", "tui", "tunes", "tushu", "tvs", "ubank", "ubs", "unicom", "university", "uno", "uol", "ups", "vacations", "vana", "vanguard", "vegas", "ventures", "verisign", "versicherung", "vet", "viajes", "video", "vig", "viking", "villas", "vin", "vip", "virgin", "visa", "vision", "viva", "vivo", "vlaanderen", "vodka", "volvo", "vote", "voting", "voto", "voyage", "wales", "walmart", "walter", "wang", "wanggou", "watch", "watches", "weather", "weatherchannel", "webcam", "weber", "website", "wed", "wedding", "weibo", "weir", "whoswho", "wien", "wiki", "williamhill", "win", "windows", "wine", "winners", "wme", "wolterskluwer", "woodside", "work", "works", "world", "wow", "wtc", "wtf", "xbox", "xerox", "xihuan", "xin", "\u0915\u0949\u092E", "\u30BB\u30FC\u30EB", "\u4F5B\u5C71", "\u6148\u5584", "\u96C6\u56E2", "\u5728\u7EBF", "\u70B9\u770B", "\u0E04\u0E2D\u0E21", "\u516B\u5366", "\u0645\u0648\u0642\u0639", "\u516C\u76CA", "\u516C\u53F8", "\u9999\u683C\u91CC\u62C9", "\u7F51\u7AD9", "\u79FB\u52A8", "\u6211\u7231\u4F60", "\u043C\u043E\u0441\u043A\u0432\u0430", "\u043A\u0430\u0442\u043E\u043B\u0438\u043A", "\u043E\u043D\u043B\u0430\u0439\u043D", "\u0441\u0430\u0439\u0442", "\u8054\u901A", "\u05E7\u05D5\u05DD", "\u65F6\u5C1A", "\u5FAE\u535A", "\u6DE1\u9A6C\u9521", "\u30D5\u30A1\u30C3\u30B7\u30E7\u30F3", "\u043E\u0440\u0433", "\u0928\u0947\u091F", "\u30B9\u30C8\u30A2", "\u30A2\u30DE\u30BE\u30F3", "\uC0BC\uC131", "\u5546\u6807", "\u5546\u5E97", "\u5546\u57CE", "\u0434\u0435\u0442\u0438", "\u30DD\u30A4\u30F3\u30C8", "\u65B0\u95FB", "\u5BB6\u96FB", "\u0643\u0648\u0645", "\u4E2D\u6587\u7F51", "\u4E2D\u4FE1", "\u5A31\u4E50", "\u8C37\u6B4C", "\u96FB\u8A0A\u76C8\u79D1", "\u8D2D\u7269", "\u30AF\u30E9\u30A6\u30C9", "\u901A\u8CA9", "\u7F51\u5E97", "\u0938\u0902\u0917\u0920\u0928", "\u9910\u5385", "\u7F51\u7EDC", "\u043A\u043E\u043C", "\u4E9A\u9A6C\u900A", "\u98DF\u54C1", "\u98DE\u5229\u6D66", "\u624B\u673A", "\u0627\u0631\u0627\u0645\u0643\u0648", "\u0627\u0644\u0639\u0644\u064A\u0627\u0646", "\u0628\u0627\u0632\u0627\u0631", "\u0627\u0628\u0648\u0638\u0628\u064A", "\u0643\u0627\u062B\u0648\u0644\u064A\u0643", "\u0647\u0645\u0631\u0627\u0647", "\uB2F7\uCEF4", "\u653F\u5E9C", "\u0634\u0628\u0643\u0629", "\u0628\u064A\u062A\u0643", "\u0639\u0631\u0628", "\u673A\u6784", "\u7EC4\u7EC7\u673A\u6784", "\u5065\u5EB7", "\u62DB\u8058", "\u0440\u0443\u0441", "\u5927\u62FF", "\u307F\u3093\u306A", "\u30B0\u30FC\u30B0\u30EB", "\u4E16\u754C", "\u66F8\u7C4D", "\u7F51\u5740", "\uB2F7\uB137", "\u30B3\u30E0", "\u5929\u4E3B\u6559", "\u6E38\u620F", "verm\xF6gensberater", "verm\xF6gensberatung", "\u4F01\u4E1A", "\u4FE1\u606F", "\u5609\u91CC\u5927\u9152\u5E97", "\u5609\u91CC", "\u5E7F\u4E1C", "\u653F\u52A1", "xyz", "yachts", "yahoo", "yamaxun", "yandex", "yodobashi", "yoga", "yokohama", "you", "youtube", "yun", "zappos", "zara", "zero", "zip", "zone", "zuerich", "co.krd", "edu.krd", "art.pl", "gliwice.pl", "krakow.pl", "poznan.pl", "wroc.pl", "zakopane.pl", "lib.de.us", "12chars.dev", "12chars.it", "12chars.pro", "cc.ua", "inf.ua", "ltd.ua", "611.to", "a2hosted.com", "cpserver.com", "aaa.vodka", "*.on-acorn.io", "activetrail.biz", "adaptable.app", "adobeaemcloud.com", "*.dev.adobeaemcloud.com", "aem.live", "hlx.live", "adobeaemcloud.net", "aem.page", "hlx.page", "hlx3.page", "adobeio-static.net", "adobeioruntime.net", "africa.com", "beep.pl", "airkitapps.com", "airkitapps-au.com", "airkitapps.eu", "aivencloud.com", "akadns.net", "akamai.net", "akamai-staging.net", "akamaiedge.net", "akamaiedge-staging.net", "akamaihd.net", "akamaihd-staging.net", "akamaiorigin.net", "akamaiorigin-staging.net", "akamaized.net", "akamaized-staging.net", "edgekey.net", "edgekey-staging.net", "edgesuite.net", "edgesuite-staging.net", "barsy.ca", "*.compute.estate", "*.alces.network", "kasserver.com", "altervista.org", "alwaysdata.net", "myamaze.net", "execute-api.cn-north-1.amazonaws.com.cn", "execute-api.cn-northwest-1.amazonaws.com.cn", "execute-api.af-south-1.amazonaws.com", "execute-api.ap-east-1.amazonaws.com", "execute-api.ap-northeast-1.amazonaws.com", "execute-api.ap-northeast-2.amazonaws.com", "execute-api.ap-northeast-3.amazonaws.com", "execute-api.ap-south-1.amazonaws.com", "execute-api.ap-south-2.amazonaws.com", "execute-api.ap-southeast-1.amazonaws.com", "execute-api.ap-southeast-2.amazonaws.com", "execute-api.ap-southeast-3.amazonaws.com", "execute-api.ap-southeast-4.amazonaws.com", "execute-api.ap-southeast-5.amazonaws.com", "execute-api.ca-central-1.amazonaws.com", "execute-api.ca-west-1.amazonaws.com", "execute-api.eu-central-1.amazonaws.com", "execute-api.eu-central-2.amazonaws.com", "execute-api.eu-north-1.amazonaws.com", "execute-api.eu-south-1.amazonaws.com", "execute-api.eu-south-2.amazonaws.com", "execute-api.eu-west-1.amazonaws.com", "execute-api.eu-west-2.amazonaws.com", "execute-api.eu-west-3.amazonaws.com", "execute-api.il-central-1.amazonaws.com", "execute-api.me-central-1.amazonaws.com", "execute-api.me-south-1.amazonaws.com", "execute-api.sa-east-1.amazonaws.com", "execute-api.us-east-1.amazonaws.com", "execute-api.us-east-2.amazonaws.com", "execute-api.us-gov-east-1.amazonaws.com", "execute-api.us-gov-west-1.amazonaws.com", "execute-api.us-west-1.amazonaws.com", "execute-api.us-west-2.amazonaws.com", "cloudfront.net", "auth.af-south-1.amazoncognito.com", "auth.ap-east-1.amazoncognito.com", "auth.ap-northeast-1.amazoncognito.com", "auth.ap-northeast-2.amazoncognito.com", "auth.ap-northeast-3.amazoncognito.com", "auth.ap-south-1.amazoncognito.com", "auth.ap-south-2.amazoncognito.com", "auth.ap-southeast-1.amazoncognito.com", "auth.ap-southeast-2.amazoncognito.com", "auth.ap-southeast-3.amazoncognito.com", "auth.ap-southeast-4.amazoncognito.com", "auth.ca-central-1.amazoncognito.com", "auth.ca-west-1.amazoncognito.com", "auth.eu-central-1.amazoncognito.com", "auth.eu-central-2.amazoncognito.com", "auth.eu-north-1.amazoncognito.com", "auth.eu-south-1.amazoncognito.com", "auth.eu-south-2.amazoncognito.com", "auth.eu-west-1.amazoncognito.com", "auth.eu-west-2.amazoncognito.com", "auth.eu-west-3.amazoncognito.com", "auth.il-central-1.amazoncognito.com", "auth.me-central-1.amazoncognito.com", "auth.me-south-1.amazoncognito.com", "auth.sa-east-1.amazoncognito.com", "auth.us-east-1.amazoncognito.com", "auth-fips.us-east-1.amazoncognito.com", "auth.us-east-2.amazoncognito.com", "auth-fips.us-east-2.amazoncognito.com", "auth-fips.us-gov-west-1.amazoncognito.com", "auth.us-west-1.amazoncognito.com", "auth-fips.us-west-1.amazoncognito.com", "auth.us-west-2.amazoncognito.com", "auth-fips.us-west-2.amazoncognito.com", "*.compute.amazonaws.com.cn", "*.compute.amazonaws.com", "*.compute-1.amazonaws.com", "us-east-1.amazonaws.com", "emrappui-prod.cn-north-1.amazonaws.com.cn", "emrnotebooks-prod.cn-north-1.amazonaws.com.cn", "emrstudio-prod.cn-north-1.amazonaws.com.cn", "emrappui-prod.cn-northwest-1.amazonaws.com.cn", "emrnotebooks-prod.cn-northwest-1.amazonaws.com.cn", "emrstudio-prod.cn-northwest-1.amazonaws.com.cn", "emrappui-prod.af-south-1.amazonaws.com", "emrnotebooks-prod.af-south-1.amazonaws.com", "emrstudio-prod.af-south-1.amazonaws.com", "emrappui-prod.ap-east-1.amazonaws.com", "emrnotebooks-prod.ap-east-1.amazonaws.com", "emrstudio-prod.ap-east-1.amazonaws.com", "emrappui-prod.ap-northeast-1.amazonaws.com", "emrnotebooks-prod.ap-northeast-1.amazonaws.com", "emrstudio-prod.ap-northeast-1.amazonaws.com", "emrappui-prod.ap-northeast-2.amazonaws.com", "emrnotebooks-prod.ap-northeast-2.amazonaws.com", "emrstudio-prod.ap-northeast-2.amazonaws.com", "emrappui-prod.ap-northeast-3.amazonaws.com", "emrnotebooks-prod.ap-northeast-3.amazonaws.com", "emrstudio-prod.ap-northeast-3.amazonaws.com", "emrappui-prod.ap-south-1.amazonaws.com", "emrnotebooks-prod.ap-south-1.amazonaws.com", "emrstudio-prod.ap-south-1.amazonaws.com", "emrappui-prod.ap-south-2.amazonaws.com", "emrnotebooks-prod.ap-south-2.amazonaws.com", "emrstudio-prod.ap-south-2.amazonaws.com", "emrappui-prod.ap-southeast-1.amazonaws.com", "emrnotebooks-prod.ap-southeast-1.amazonaws.com", "emrstudio-prod.ap-southeast-1.amazonaws.com", "emrappui-prod.ap-southeast-2.amazonaws.com", "emrnotebooks-prod.ap-southeast-2.amazonaws.com", "emrstudio-prod.ap-southeast-2.amazonaws.com", "emrappui-prod.ap-southeast-3.amazonaws.com", "emrnotebooks-prod.ap-southeast-3.amazonaws.com", "emrstudio-prod.ap-southeast-3.amazonaws.com", "emrappui-prod.ap-southeast-4.amazonaws.com", "emrnotebooks-prod.ap-southeast-4.amazonaws.com", "emrstudio-prod.ap-southeast-4.amazonaws.com", "emrappui-prod.ca-central-1.amazonaws.com", "emrnotebooks-prod.ca-central-1.amazonaws.com", "emrstudio-prod.ca-central-1.amazonaws.com", "emrappui-prod.ca-west-1.amazonaws.com", "emrnotebooks-prod.ca-west-1.amazonaws.com", "emrstudio-prod.ca-west-1.amazonaws.com", "emrappui-prod.eu-central-1.amazonaws.com", "emrnotebooks-prod.eu-central-1.amazonaws.com", "emrstudio-prod.eu-central-1.amazonaws.com", "emrappui-prod.eu-central-2.amazonaws.com", "emrnotebooks-prod.eu-central-2.amazonaws.com", "emrstudio-prod.eu-central-2.amazonaws.com", "emrappui-prod.eu-north-1.amazonaws.com", "emrnotebooks-prod.eu-north-1.amazonaws.com", "emrstudio-prod.eu-north-1.amazonaws.com", "emrappui-prod.eu-south-1.amazonaws.com", "emrnotebooks-prod.eu-south-1.amazonaws.com", "emrstudio-prod.eu-south-1.amazonaws.com", "emrappui-prod.eu-south-2.amazonaws.com", "emrnotebooks-prod.eu-south-2.amazonaws.com", "emrstudio-prod.eu-south-2.amazonaws.com", "emrappui-prod.eu-west-1.amazonaws.com", "emrnotebooks-prod.eu-west-1.amazonaws.com", "emrstudio-prod.eu-west-1.amazonaws.com", "emrappui-prod.eu-west-2.amazonaws.com", "emrnotebooks-prod.eu-west-2.amazonaws.com", "emrstudio-prod.eu-west-2.amazonaws.com", "emrappui-prod.eu-west-3.amazonaws.com", "emrnotebooks-prod.eu-west-3.amazonaws.com", "emrstudio-prod.eu-west-3.amazonaws.com", "emrappui-prod.il-central-1.amazonaws.com", "emrnotebooks-prod.il-central-1.amazonaws.com", "emrstudio-prod.il-central-1.amazonaws.com", "emrappui-prod.me-central-1.amazonaws.com", "emrnotebooks-prod.me-central-1.amazonaws.com", "emrstudio-prod.me-central-1.amazonaws.com", "emrappui-prod.me-south-1.amazonaws.com", "emrnotebooks-prod.me-south-1.amazonaws.com", "emrstudio-prod.me-south-1.amazonaws.com", "emrappui-prod.sa-east-1.amazonaws.com", "emrnotebooks-prod.sa-east-1.amazonaws.com", "emrstudio-prod.sa-east-1.amazonaws.com", "emrappui-prod.us-east-1.amazonaws.com", "emrnotebooks-prod.us-east-1.amazonaws.com", "emrstudio-prod.us-east-1.amazonaws.com", "emrappui-prod.us-east-2.amazonaws.com", "emrnotebooks-prod.us-east-2.amazonaws.com", "emrstudio-prod.us-east-2.amazonaws.com", "emrappui-prod.us-gov-east-1.amazonaws.com", "emrnotebooks-prod.us-gov-east-1.amazonaws.com", "emrstudio-prod.us-gov-east-1.amazonaws.com", "emrappui-prod.us-gov-west-1.amazonaws.com", "emrnotebooks-prod.us-gov-west-1.amazonaws.com", "emrstudio-prod.us-gov-west-1.amazonaws.com", "emrappui-prod.us-west-1.amazonaws.com", "emrnotebooks-prod.us-west-1.amazonaws.com", "emrstudio-prod.us-west-1.amazonaws.com", "emrappui-prod.us-west-2.amazonaws.com", "emrnotebooks-prod.us-west-2.amazonaws.com", "emrstudio-prod.us-west-2.amazonaws.com", "*.cn-north-1.airflow.amazonaws.com.cn", "*.cn-northwest-1.airflow.amazonaws.com.cn", "*.af-south-1.airflow.amazonaws.com", "*.ap-east-1.airflow.amazonaws.com", "*.ap-northeast-1.airflow.amazonaws.com", "*.ap-northeast-2.airflow.amazonaws.com", "*.ap-northeast-3.airflow.amazonaws.com", "*.ap-south-1.airflow.amazonaws.com", "*.ap-south-2.airflow.amazonaws.com", "*.ap-southeast-1.airflow.amazonaws.com", "*.ap-southeast-2.airflow.amazonaws.com", "*.ap-southeast-3.airflow.amazonaws.com", "*.ap-southeast-4.airflow.amazonaws.com", "*.ca-central-1.airflow.amazonaws.com", "*.ca-west-1.airflow.amazonaws.com", "*.eu-central-1.airflow.amazonaws.com", "*.eu-central-2.airflow.amazonaws.com", "*.eu-north-1.airflow.amazonaws.com", "*.eu-south-1.airflow.amazonaws.com", "*.eu-south-2.airflow.amazonaws.com", "*.eu-west-1.airflow.amazonaws.com", "*.eu-west-2.airflow.amazonaws.com", "*.eu-west-3.airflow.amazonaws.com", "*.il-central-1.airflow.amazonaws.com", "*.me-central-1.airflow.amazonaws.com", "*.me-south-1.airflow.amazonaws.com", "*.sa-east-1.airflow.amazonaws.com", "*.us-east-1.airflow.amazonaws.com", "*.us-east-2.airflow.amazonaws.com", "*.us-west-1.airflow.amazonaws.com", "*.us-west-2.airflow.amazonaws.com", "s3.dualstack.cn-north-1.amazonaws.com.cn", "s3-accesspoint.dualstack.cn-north-1.amazonaws.com.cn", "s3-website.dualstack.cn-north-1.amazonaws.com.cn", "s3.cn-north-1.amazonaws.com.cn", "s3-accesspoint.cn-north-1.amazonaws.com.cn", "s3-deprecated.cn-north-1.amazonaws.com.cn", "s3-object-lambda.cn-north-1.amazonaws.com.cn", "s3-website.cn-north-1.amazonaws.com.cn", "s3.dualstack.cn-northwest-1.amazonaws.com.cn", "s3-accesspoint.dualstack.cn-northwest-1.amazonaws.com.cn", "s3.cn-northwest-1.amazonaws.com.cn", "s3-accesspoint.cn-northwest-1.amazonaws.com.cn", "s3-object-lambda.cn-northwest-1.amazonaws.com.cn", "s3-website.cn-northwest-1.amazonaws.com.cn", "s3.dualstack.af-south-1.amazonaws.com", "s3-accesspoint.dualstack.af-south-1.amazonaws.com", "s3-website.dualstack.af-south-1.amazonaws.com", "s3.af-south-1.amazonaws.com", "s3-accesspoint.af-south-1.amazonaws.com", "s3-object-lambda.af-south-1.amazonaws.com", "s3-website.af-south-1.amazonaws.com", "s3.dualstack.ap-east-1.amazonaws.com", "s3-accesspoint.dualstack.ap-east-1.amazonaws.com", "s3.ap-east-1.amazonaws.com", "s3-accesspoint.ap-east-1.amazonaws.com", "s3-object-lambda.ap-east-1.amazonaws.com", "s3-website.ap-east-1.amazonaws.com", "s3.dualstack.ap-northeast-1.amazonaws.com", "s3-accesspoint.dualstack.ap-northeast-1.amazonaws.com", "s3-website.dualstack.ap-northeast-1.amazonaws.com", "s3.ap-northeast-1.amazonaws.com", "s3-accesspoint.ap-northeast-1.amazonaws.com", "s3-object-lambda.ap-northeast-1.amazonaws.com", "s3-website.ap-northeast-1.amazonaws.com", "s3.dualstack.ap-northeast-2.amazonaws.com", "s3-accesspoint.dualstack.ap-northeast-2.amazonaws.com", "s3-website.dualstack.ap-northeast-2.amazonaws.com", "s3.ap-northeast-2.amazonaws.com", "s3-accesspoint.ap-northeast-2.amazonaws.com", "s3-object-lambda.ap-northeast-2.amazonaws.com", "s3-website.ap-northeast-2.amazonaws.com", "s3.dualstack.ap-northeast-3.amazonaws.com", "s3-accesspoint.dualstack.ap-northeast-3.amazonaws.com", "s3-website.dualstack.ap-northeast-3.amazonaws.com", "s3.ap-northeast-3.amazonaws.com", "s3-accesspoint.ap-northeast-3.amazonaws.com", "s3-object-lambda.ap-northeast-3.amazonaws.com", "s3-website.ap-northeast-3.amazonaws.com", "s3.dualstack.ap-south-1.amazonaws.com", "s3-accesspoint.dualstack.ap-south-1.amazonaws.com", "s3-website.dualstack.ap-south-1.amazonaws.com", "s3.ap-south-1.amazonaws.com", "s3-accesspoint.ap-south-1.amazonaws.com", "s3-object-lambda.ap-south-1.amazonaws.com", "s3-website.ap-south-1.amazonaws.com", "s3.dualstack.ap-south-2.amazonaws.com", "s3-accesspoint.dualstack.ap-south-2.amazonaws.com", "s3-website.dualstack.ap-south-2.amazonaws.com", "s3.ap-south-2.amazonaws.com", "s3-accesspoint.ap-south-2.amazonaws.com", "s3-object-lambda.ap-south-2.amazonaws.com", "s3-website.ap-south-2.amazonaws.com", "s3.dualstack.ap-southeast-1.amazonaws.com", "s3-accesspoint.dualstack.ap-southeast-1.amazonaws.com", "s3-website.dualstack.ap-southeast-1.amazonaws.com", "s3.ap-southeast-1.amazonaws.com", "s3-accesspoint.ap-southeast-1.amazonaws.com", "s3-object-lambda.ap-southeast-1.amazonaws.com", "s3-website.ap-southeast-1.amazonaws.com", "s3.dualstack.ap-southeast-2.amazonaws.com", "s3-accesspoint.dualstack.ap-southeast-2.amazonaws.com", "s3-website.dualstack.ap-southeast-2.amazonaws.com", "s3.ap-southeast-2.amazonaws.com", "s3-accesspoint.ap-southeast-2.amazonaws.com", "s3-object-lambda.ap-southeast-2.amazonaws.com", "s3-website.ap-southeast-2.amazonaws.com", "s3.dualstack.ap-southeast-3.amazonaws.com", "s3-accesspoint.dualstack.ap-southeast-3.amazonaws.com", "s3-website.dualstack.ap-southeast-3.amazonaws.com", "s3.ap-southeast-3.amazonaws.com", "s3-accesspoint.ap-southeast-3.amazonaws.com", "s3-object-lambda.ap-southeast-3.amazonaws.com", "s3-website.ap-southeast-3.amazonaws.com", "s3.dualstack.ap-southeast-4.amazonaws.com", "s3-accesspoint.dualstack.ap-southeast-4.amazonaws.com", "s3-website.dualstack.ap-southeast-4.amazonaws.com", "s3.ap-southeast-4.amazonaws.com", "s3-accesspoint.ap-southeast-4.amazonaws.com", "s3-object-lambda.ap-southeast-4.amazonaws.com", "s3-website.ap-southeast-4.amazonaws.com", "s3.dualstack.ap-southeast-5.amazonaws.com", "s3-accesspoint.dualstack.ap-southeast-5.amazonaws.com", "s3-website.dualstack.ap-southeast-5.amazonaws.com", "s3.ap-southeast-5.amazonaws.com", "s3-accesspoint.ap-southeast-5.amazonaws.com", "s3-deprecated.ap-southeast-5.amazonaws.com", "s3-object-lambda.ap-southeast-5.amazonaws.com", "s3-website.ap-southeast-5.amazonaws.com", "s3.dualstack.ca-central-1.amazonaws.com", "s3-accesspoint.dualstack.ca-central-1.amazonaws.com", "s3-accesspoint-fips.dualstack.ca-central-1.amazonaws.com", "s3-fips.dualstack.ca-central-1.amazonaws.com", "s3-website.dualstack.ca-central-1.amazonaws.com", "s3.ca-central-1.amazonaws.com", "s3-accesspoint.ca-central-1.amazonaws.com", "s3-accesspoint-fips.ca-central-1.amazonaws.com", "s3-fips.ca-central-1.amazonaws.com", "s3-object-lambda.ca-central-1.amazonaws.com", "s3-website.ca-central-1.amazonaws.com", "s3.dualstack.ca-west-1.amazonaws.com", "s3-accesspoint.dualstack.ca-west-1.amazonaws.com", "s3-accesspoint-fips.dualstack.ca-west-1.amazonaws.com", "s3-fips.dualstack.ca-west-1.amazonaws.com", "s3-website.dualstack.ca-west-1.amazonaws.com", "s3.ca-west-1.amazonaws.com", "s3-accesspoint.ca-west-1.amazonaws.com", "s3-accesspoint-fips.ca-west-1.amazonaws.com", "s3-fips.ca-west-1.amazonaws.com", "s3-object-lambda.ca-west-1.amazonaws.com", "s3-website.ca-west-1.amazonaws.com", "s3.dualstack.eu-central-1.amazonaws.com", "s3-accesspoint.dualstack.eu-central-1.amazonaws.com", "s3-website.dualstack.eu-central-1.amazonaws.com", "s3.eu-central-1.amazonaws.com", "s3-accesspoint.eu-central-1.amazonaws.com", "s3-object-lambda.eu-central-1.amazonaws.com", "s3-website.eu-central-1.amazonaws.com", "s3.dualstack.eu-central-2.amazonaws.com", "s3-accesspoint.dualstack.eu-central-2.amazonaws.com", "s3-website.dualstack.eu-central-2.amazonaws.com", "s3.eu-central-2.amazonaws.com", "s3-accesspoint.eu-central-2.amazonaws.com", "s3-object-lambda.eu-central-2.amazonaws.com", "s3-website.eu-central-2.amazonaws.com", "s3.dualstack.eu-north-1.amazonaws.com", "s3-accesspoint.dualstack.eu-north-1.amazonaws.com", "s3.eu-north-1.amazonaws.com", "s3-accesspoint.eu-north-1.amazonaws.com", "s3-object-lambda.eu-north-1.amazonaws.com", "s3-website.eu-north-1.amazonaws.com", "s3.dualstack.eu-south-1.amazonaws.com", "s3-accesspoint.dualstack.eu-south-1.amazonaws.com", "s3-website.dualstack.eu-south-1.amazonaws.com", "s3.eu-south-1.amazonaws.com", "s3-accesspoint.eu-south-1.amazonaws.com", "s3-object-lambda.eu-south-1.amazonaws.com", "s3-website.eu-south-1.amazonaws.com", "s3.dualstack.eu-south-2.amazonaws.com", "s3-accesspoint.dualstack.eu-south-2.amazonaws.com", "s3-website.dualstack.eu-south-2.amazonaws.com", "s3.eu-south-2.amazonaws.com", "s3-accesspoint.eu-south-2.amazonaws.com", "s3-object-lambda.eu-south-2.amazonaws.com", "s3-website.eu-south-2.amazonaws.com", "s3.dualstack.eu-west-1.amazonaws.com", "s3-accesspoint.dualstack.eu-west-1.amazonaws.com", "s3-website.dualstack.eu-west-1.amazonaws.com", "s3.eu-west-1.amazonaws.com", "s3-accesspoint.eu-west-1.amazonaws.com", "s3-deprecated.eu-west-1.amazonaws.com", "s3-object-lambda.eu-west-1.amazonaws.com", "s3-website.eu-west-1.amazonaws.com", "s3.dualstack.eu-west-2.amazonaws.com", "s3-accesspoint.dualstack.eu-west-2.amazonaws.com", "s3.eu-west-2.amazonaws.com", "s3-accesspoint.eu-west-2.amazonaws.com", "s3-object-lambda.eu-west-2.amazonaws.com", "s3-website.eu-west-2.amazonaws.com", "s3.dualstack.eu-west-3.amazonaws.com", "s3-accesspoint.dualstack.eu-west-3.amazonaws.com", "s3-website.dualstack.eu-west-3.amazonaws.com", "s3.eu-west-3.amazonaws.com", "s3-accesspoint.eu-west-3.amazonaws.com", "s3-object-lambda.eu-west-3.amazonaws.com", "s3-website.eu-west-3.amazonaws.com", "s3.dualstack.il-central-1.amazonaws.com", "s3-accesspoint.dualstack.il-central-1.amazonaws.com", "s3-website.dualstack.il-central-1.amazonaws.com", "s3.il-central-1.amazonaws.com", "s3-accesspoint.il-central-1.amazonaws.com", "s3-object-lambda.il-central-1.amazonaws.com", "s3-website.il-central-1.amazonaws.com", "s3.dualstack.me-central-1.amazonaws.com", "s3-accesspoint.dualstack.me-central-1.amazonaws.com", "s3-website.dualstack.me-central-1.amazonaws.com", "s3.me-central-1.amazonaws.com", "s3-accesspoint.me-central-1.amazonaws.com", "s3-object-lambda.me-central-1.amazonaws.com", "s3-website.me-central-1.amazonaws.com", "s3.dualstack.me-south-1.amazonaws.com", "s3-accesspoint.dualstack.me-south-1.amazonaws.com", "s3.me-south-1.amazonaws.com", "s3-accesspoint.me-south-1.amazonaws.com", "s3-object-lambda.me-south-1.amazonaws.com", "s3-website.me-south-1.amazonaws.com", "s3.amazonaws.com", "s3-1.amazonaws.com", "s3-ap-east-1.amazonaws.com", "s3-ap-northeast-1.amazonaws.com", "s3-ap-northeast-2.amazonaws.com", "s3-ap-northeast-3.amazonaws.com", "s3-ap-south-1.amazonaws.com", "s3-ap-southeast-1.amazonaws.com", "s3-ap-southeast-2.amazonaws.com", "s3-ca-central-1.amazonaws.com", "s3-eu-central-1.amazonaws.com", "s3-eu-north-1.amazonaws.com", "s3-eu-west-1.amazonaws.com", "s3-eu-west-2.amazonaws.com", "s3-eu-west-3.amazonaws.com", "s3-external-1.amazonaws.com", "s3-fips-us-gov-east-1.amazonaws.com", "s3-fips-us-gov-west-1.amazonaws.com", "mrap.accesspoint.s3-global.amazonaws.com", "s3-me-south-1.amazonaws.com", "s3-sa-east-1.amazonaws.com", "s3-us-east-2.amazonaws.com", "s3-us-gov-east-1.amazonaws.com", "s3-us-gov-west-1.amazonaws.com", "s3-us-west-1.amazonaws.com", "s3-us-west-2.amazonaws.com", "s3-website-ap-northeast-1.amazonaws.com", "s3-website-ap-southeast-1.amazonaws.com", "s3-website-ap-southeast-2.amazonaws.com", "s3-website-eu-west-1.amazonaws.com", "s3-website-sa-east-1.amazonaws.com", "s3-website-us-east-1.amazonaws.com", "s3-website-us-gov-west-1.amazonaws.com", "s3-website-us-west-1.amazonaws.com", "s3-website-us-west-2.amazonaws.com", "s3.dualstack.sa-east-1.amazonaws.com", "s3-accesspoint.dualstack.sa-east-1.amazonaws.com", "s3-website.dualstack.sa-east-1.amazonaws.com", "s3.sa-east-1.amazonaws.com", "s3-accesspoint.sa-east-1.amazonaws.com", "s3-object-lambda.sa-east-1.amazonaws.com", "s3-website.sa-east-1.amazonaws.com", "s3.dualstack.us-east-1.amazonaws.com", "s3-accesspoint.dualstack.us-east-1.amazonaws.com", "s3-accesspoint-fips.dualstack.us-east-1.amazonaws.com", "s3-fips.dualstack.us-east-1.amazonaws.com", "s3-website.dualstack.us-east-1.amazonaws.com", "s3.us-east-1.amazonaws.com", "s3-accesspoint.us-east-1.amazonaws.com", "s3-accesspoint-fips.us-east-1.amazonaws.com", "s3-deprecated.us-east-1.amazonaws.com", "s3-fips.us-east-1.amazonaws.com", "s3-object-lambda.us-east-1.amazonaws.com", "s3-website.us-east-1.amazonaws.com", "s3.dualstack.us-east-2.amazonaws.com", "s3-accesspoint.dualstack.us-east-2.amazonaws.com", "s3-accesspoint-fips.dualstack.us-east-2.amazonaws.com", "s3-fips.dualstack.us-east-2.amazonaws.com", "s3-website.dualstack.us-east-2.amazonaws.com", "s3.us-east-2.amazonaws.com", "s3-accesspoint.us-east-2.amazonaws.com", "s3-accesspoint-fips.us-east-2.amazonaws.com", "s3-deprecated.us-east-2.amazonaws.com", "s3-fips.us-east-2.amazonaws.com", "s3-object-lambda.us-east-2.amazonaws.com", "s3-website.us-east-2.amazonaws.com", "s3.dualstack.us-gov-east-1.amazonaws.com", "s3-accesspoint.dualstack.us-gov-east-1.amazonaws.com", "s3-accesspoint-fips.dualstack.us-gov-east-1.amazonaws.com", "s3-fips.dualstack.us-gov-east-1.amazonaws.com", "s3.us-gov-east-1.amazonaws.com", "s3-accesspoint.us-gov-east-1.amazonaws.com", "s3-accesspoint-fips.us-gov-east-1.amazonaws.com", "s3-fips.us-gov-east-1.amazonaws.com", "s3-object-lambda.us-gov-east-1.amazonaws.com", "s3-website.us-gov-east-1.amazonaws.com", "s3.dualstack.us-gov-west-1.amazonaws.com", "s3-accesspoint.dualstack.us-gov-west-1.amazonaws.com", "s3-accesspoint-fips.dualstack.us-gov-west-1.amazonaws.com", "s3-fips.dualstack.us-gov-west-1.amazonaws.com", "s3.us-gov-west-1.amazonaws.com", "s3-accesspoint.us-gov-west-1.amazonaws.com", "s3-accesspoint-fips.us-gov-west-1.amazonaws.com", "s3-fips.us-gov-west-1.amazonaws.com", "s3-object-lambda.us-gov-west-1.amazonaws.com", "s3-website.us-gov-west-1.amazonaws.com", "s3.dualstack.us-west-1.amazonaws.com", "s3-accesspoint.dualstack.us-west-1.amazonaws.com", "s3-accesspoint-fips.dualstack.us-west-1.amazonaws.com", "s3-fips.dualstack.us-west-1.amazonaws.com", "s3-website.dualstack.us-west-1.amazonaws.com", "s3.us-west-1.amazonaws.com", "s3-accesspoint.us-west-1.amazonaws.com", "s3-accesspoint-fips.us-west-1.amazonaws.com", "s3-fips.us-west-1.amazonaws.com", "s3-object-lambda.us-west-1.amazonaws.com", "s3-website.us-west-1.amazonaws.com", "s3.dualstack.us-west-2.amazonaws.com", "s3-accesspoint.dualstack.us-west-2.amazonaws.com", "s3-accesspoint-fips.dualstack.us-west-2.amazonaws.com", "s3-fips.dualstack.us-west-2.amazonaws.com", "s3-website.dualstack.us-west-2.amazonaws.com", "s3.us-west-2.amazonaws.com", "s3-accesspoint.us-west-2.amazonaws.com", "s3-accesspoint-fips.us-west-2.amazonaws.com", "s3-deprecated.us-west-2.amazonaws.com", "s3-fips.us-west-2.amazonaws.com", "s3-object-lambda.us-west-2.amazonaws.com", "s3-website.us-west-2.amazonaws.com", "labeling.ap-northeast-1.sagemaker.aws", "labeling.ap-northeast-2.sagemaker.aws", "labeling.ap-south-1.sagemaker.aws", "labeling.ap-southeast-1.sagemaker.aws", "labeling.ap-southeast-2.sagemaker.aws", "labeling.ca-central-1.sagemaker.aws", "labeling.eu-central-1.sagemaker.aws", "labeling.eu-west-1.sagemaker.aws", "labeling.eu-west-2.sagemaker.aws", "labeling.us-east-1.sagemaker.aws", "labeling.us-east-2.sagemaker.aws", "labeling.us-west-2.sagemaker.aws", "notebook.af-south-1.sagemaker.aws", "notebook.ap-east-1.sagemaker.aws", "notebook.ap-northeast-1.sagemaker.aws", "notebook.ap-northeast-2.sagemaker.aws", "notebook.ap-northeast-3.sagemaker.aws", "notebook.ap-south-1.sagemaker.aws", "notebook.ap-south-2.sagemaker.aws", "notebook.ap-southeast-1.sagemaker.aws", "notebook.ap-southeast-2.sagemaker.aws", "notebook.ap-southeast-3.sagemaker.aws", "notebook.ap-southeast-4.sagemaker.aws", "notebook.ca-central-1.sagemaker.aws", "notebook-fips.ca-central-1.sagemaker.aws", "notebook.ca-west-1.sagemaker.aws", "notebook-fips.ca-west-1.sagemaker.aws", "notebook.eu-central-1.sagemaker.aws", "notebook.eu-central-2.sagemaker.aws", "notebook.eu-north-1.sagemaker.aws", "notebook.eu-south-1.sagemaker.aws", "notebook.eu-south-2.sagemaker.aws", "notebook.eu-west-1.sagemaker.aws", "notebook.eu-west-2.sagemaker.aws", "notebook.eu-west-3.sagemaker.aws", "notebook.il-central-1.sagemaker.aws", "notebook.me-central-1.sagemaker.aws", "notebook.me-south-1.sagemaker.aws", "notebook.sa-east-1.sagemaker.aws", "notebook.us-east-1.sagemaker.aws", "notebook-fips.us-east-1.sagemaker.aws", "notebook.us-east-2.sagemaker.aws", "notebook-fips.us-east-2.sagemaker.aws", "notebook.us-gov-east-1.sagemaker.aws", "notebook-fips.us-gov-east-1.sagemaker.aws", "notebook.us-gov-west-1.sagemaker.aws", "notebook-fips.us-gov-west-1.sagemaker.aws", "notebook.us-west-1.sagemaker.aws", "notebook-fips.us-west-1.sagemaker.aws", "notebook.us-west-2.sagemaker.aws", "notebook-fips.us-west-2.sagemaker.aws", "notebook.cn-north-1.sagemaker.com.cn", "notebook.cn-northwest-1.sagemaker.com.cn", "studio.af-south-1.sagemaker.aws", "studio.ap-east-1.sagemaker.aws", "studio.ap-northeast-1.sagemaker.aws", "studio.ap-northeast-2.sagemaker.aws", "studio.ap-northeast-3.sagemaker.aws", "studio.ap-south-1.sagemaker.aws", "studio.ap-southeast-1.sagemaker.aws", "studio.ap-southeast-2.sagemaker.aws", "studio.ap-southeast-3.sagemaker.aws", "studio.ca-central-1.sagemaker.aws", "studio.eu-central-1.sagemaker.aws", "studio.eu-north-1.sagemaker.aws", "studio.eu-south-1.sagemaker.aws", "studio.eu-south-2.sagemaker.aws", "studio.eu-west-1.sagemaker.aws", "studio.eu-west-2.sagemaker.aws", "studio.eu-west-3.sagemaker.aws", "studio.il-central-1.sagemaker.aws", "studio.me-central-1.sagemaker.aws", "studio.me-south-1.sagemaker.aws", "studio.sa-east-1.sagemaker.aws", "studio.us-east-1.sagemaker.aws", "studio.us-east-2.sagemaker.aws", "studio.us-gov-east-1.sagemaker.aws", "studio-fips.us-gov-east-1.sagemaker.aws", "studio.us-gov-west-1.sagemaker.aws", "studio-fips.us-gov-west-1.sagemaker.aws", "studio.us-west-1.sagemaker.aws", "studio.us-west-2.sagemaker.aws", "studio.cn-north-1.sagemaker.com.cn", "studio.cn-northwest-1.sagemaker.com.cn", "*.experiments.sagemaker.aws", "analytics-gateway.ap-northeast-1.amazonaws.com", "analytics-gateway.ap-northeast-2.amazonaws.com", "analytics-gateway.ap-south-1.amazonaws.com", "analytics-gateway.ap-southeast-1.amazonaws.com", "analytics-gateway.ap-southeast-2.amazonaws.com", "analytics-gateway.eu-central-1.amazonaws.com", "analytics-gateway.eu-west-1.amazonaws.com", "analytics-gateway.us-east-1.amazonaws.com", "analytics-gateway.us-east-2.amazonaws.com", "analytics-gateway.us-west-2.amazonaws.com", "amplifyapp.com", "*.awsapprunner.com", "webview-assets.aws-cloud9.af-south-1.amazonaws.com", "vfs.cloud9.af-south-1.amazonaws.com", "webview-assets.cloud9.af-south-1.amazonaws.com", "webview-assets.aws-cloud9.ap-east-1.amazonaws.com", "vfs.cloud9.ap-east-1.amazonaws.com", "webview-assets.cloud9.ap-east-1.amazonaws.com", "webview-assets.aws-cloud9.ap-northeast-1.amazonaws.com", "vfs.cloud9.ap-northeast-1.amazonaws.com", "webview-assets.cloud9.ap-northeast-1.amazonaws.com", "webview-assets.aws-cloud9.ap-northeast-2.amazonaws.com", "vfs.cloud9.ap-northeast-2.amazonaws.com", "webview-assets.cloud9.ap-northeast-2.amazonaws.com", "webview-assets.aws-cloud9.ap-northeast-3.amazonaws.com", "vfs.cloud9.ap-northeast-3.amazonaws.com", "webview-assets.cloud9.ap-northeast-3.amazonaws.com", "webview-assets.aws-cloud9.ap-south-1.amazonaws.com", "vfs.cloud9.ap-south-1.amazonaws.com", "webview-assets.cloud9.ap-south-1.amazonaws.com", "webview-assets.aws-cloud9.ap-southeast-1.amazonaws.com", "vfs.cloud9.ap-southeast-1.amazonaws.com", "webview-assets.cloud9.ap-southeast-1.amazonaws.com", "webview-assets.aws-cloud9.ap-southeast-2.amazonaws.com", "vfs.cloud9.ap-southeast-2.amazonaws.com", "webview-assets.cloud9.ap-southeast-2.amazonaws.com", "webview-assets.aws-cloud9.ca-central-1.amazonaws.com", "vfs.cloud9.ca-central-1.amazonaws.com", "webview-assets.cloud9.ca-central-1.amazonaws.com", "webview-assets.aws-cloud9.eu-central-1.amazonaws.com", "vfs.cloud9.eu-central-1.amazonaws.com", "webview-assets.cloud9.eu-central-1.amazonaws.com", "webview-assets.aws-cloud9.eu-north-1.amazonaws.com", "vfs.cloud9.eu-north-1.amazonaws.com", "webview-assets.cloud9.eu-north-1.amazonaws.com", "webview-assets.aws-cloud9.eu-south-1.amazonaws.com", "vfs.cloud9.eu-south-1.amazonaws.com", "webview-assets.cloud9.eu-south-1.amazonaws.com", "webview-assets.aws-cloud9.eu-west-1.amazonaws.com", "vfs.cloud9.eu-west-1.amazonaws.com", "webview-assets.cloud9.eu-west-1.amazonaws.com", "webview-assets.aws-cloud9.eu-west-2.amazonaws.com", "vfs.cloud9.eu-west-2.amazonaws.com", "webview-assets.cloud9.eu-west-2.amazonaws.com", "webview-assets.aws-cloud9.eu-west-3.amazonaws.com", "vfs.cloud9.eu-west-3.amazonaws.com", "webview-assets.cloud9.eu-west-3.amazonaws.com", "webview-assets.aws-cloud9.il-central-1.amazonaws.com", "vfs.cloud9.il-central-1.amazonaws.com", "webview-assets.aws-cloud9.me-south-1.amazonaws.com", "vfs.cloud9.me-south-1.amazonaws.com", "webview-assets.cloud9.me-south-1.amazonaws.com", "webview-assets.aws-cloud9.sa-east-1.amazonaws.com", "vfs.cloud9.sa-east-1.amazonaws.com", "webview-assets.cloud9.sa-east-1.amazonaws.com", "webview-assets.aws-cloud9.us-east-1.amazonaws.com", "vfs.cloud9.us-east-1.amazonaws.com", "webview-assets.cloud9.us-east-1.amazonaws.com", "webview-assets.aws-cloud9.us-east-2.amazonaws.com", "vfs.cloud9.us-east-2.amazonaws.com", "webview-assets.cloud9.us-east-2.amazonaws.com", "webview-assets.aws-cloud9.us-west-1.amazonaws.com", "vfs.cloud9.us-west-1.amazonaws.com", "webview-assets.cloud9.us-west-1.amazonaws.com", "webview-assets.aws-cloud9.us-west-2.amazonaws.com", "vfs.cloud9.us-west-2.amazonaws.com", "webview-assets.cloud9.us-west-2.amazonaws.com", "awsapps.com", "cn-north-1.eb.amazonaws.com.cn", "cn-northwest-1.eb.amazonaws.com.cn", "elasticbeanstalk.com", "af-south-1.elasticbeanstalk.com", "ap-east-1.elasticbeanstalk.com", "ap-northeast-1.elasticbeanstalk.com", "ap-northeast-2.elasticbeanstalk.com", "ap-northeast-3.elasticbeanstalk.com", "ap-south-1.elasticbeanstalk.com", "ap-southeast-1.elasticbeanstalk.com", "ap-southeast-2.elasticbeanstalk.com", "ap-southeast-3.elasticbeanstalk.com", "ca-central-1.elasticbeanstalk.com", "eu-central-1.elasticbeanstalk.com", "eu-north-1.elasticbeanstalk.com", "eu-south-1.elasticbeanstalk.com", "eu-west-1.elasticbeanstalk.com", "eu-west-2.elasticbeanstalk.com", "eu-west-3.elasticbeanstalk.com", "il-central-1.elasticbeanstalk.com", "me-south-1.elasticbeanstalk.com", "sa-east-1.elasticbeanstalk.com", "us-east-1.elasticbeanstalk.com", "us-east-2.elasticbeanstalk.com", "us-gov-east-1.elasticbeanstalk.com", "us-gov-west-1.elasticbeanstalk.com", "us-west-1.elasticbeanstalk.com", "us-west-2.elasticbeanstalk.com", "*.elb.amazonaws.com.cn", "*.elb.amazonaws.com", "awsglobalaccelerator.com", "*.private.repost.aws", "eero.online", "eero-stage.online", "apigee.io", "panel.dev", "siiites.com", "appspacehosted.com", "appspaceusercontent.com", "appudo.net", "on-aptible.com", "f5.si", "arvanedge.ir", "user.aseinet.ne.jp", "gv.vc", "d.gv.vc", "user.party.eus", "pimienta.org", "poivron.org", "potager.org", "sweetpepper.org", "myasustor.com", "cdn.prod.atlassian-dev.net", "translated.page", "myfritz.link", "myfritz.net", "onavstack.net", "*.awdev.ca", "*.advisor.ws", "ecommerce-shop.pl", "b-data.io", "balena-devices.com", "base.ec", "official.ec", "buyshop.jp", "fashionstore.jp", "handcrafted.jp", "kawaiishop.jp", "supersale.jp", "theshop.jp", "shopselect.net", "base.shop", "beagleboard.io", "*.beget.app", "pages.gay", "bnr.la", "bitbucket.io", "blackbaudcdn.net", "of.je", "bluebite.io", "boomla.net", "boutir.com", "boxfuse.io", "square7.ch", "bplaced.com", "bplaced.de", "square7.de", "bplaced.net", "square7.net", "*.s.brave.io", "shop.brendly.hr", "shop.brendly.rs", "browsersafetymark.io", "radio.am", "radio.fm", "uk0.bigv.io", "dh.bytemark.co.uk", "vm.bytemark.co.uk", "cafjs.com", "canva-apps.cn", "*.my.canvasite.cn", "canva-apps.com", "*.my.canva.site", "drr.ac", "uwu.ai", "carrd.co", "crd.co", "ju.mp", "api.gov.uk", "cdn77-storage.com", "rsc.contentproxy9.cz", "r.cdn77.net", "cdn77-ssl.net", "c.cdn77.org", "rsc.cdn77.org", "ssl.origin.cdn77-secure.org", "za.bz", "br.com", "cn.com", "de.com", "eu.com", "jpn.com", "mex.com", "ru.com", "sa.com", "uk.com", "us.com", "za.com", "com.de", "gb.net", "hu.net", "jp.net", "se.net", "uk.net", "ae.org", "com.se", "cx.ua", "discourse.group", "discourse.team", "clerk.app", "clerkstage.app", "*.lcl.dev", "*.lclstage.dev", "*.stg.dev", "*.stgstage.dev", "cleverapps.cc", "*.services.clever-cloud.com", "cleverapps.io", "cleverapps.tech", "clickrising.net", "cloudns.asia", "cloudns.be", "cloud-ip.biz", "cloudns.biz", "cloudns.cc", "cloudns.ch", "cloudns.cl", "cloudns.club", "dnsabr.com", "ip-ddns.com", "cloudns.cx", "cloudns.eu", "cloudns.in", "cloudns.info", "ddns-ip.net", "dns-cloud.net", "dns-dynamic.net", "cloudns.nz", "cloudns.org", "ip-dynamic.org", "cloudns.ph", "cloudns.pro", "cloudns.pw", "cloudns.us", "c66.me", "cloud66.ws", "cloud66.zone", "jdevcloud.com", "wpdevcloud.com", "cloudaccess.host", "freesite.host", "cloudaccess.net", "*.cloudera.site", "cf-ipfs.com", "cloudflare-ipfs.com", "trycloudflare.com", "pages.dev", "r2.dev", "workers.dev", "cloudflare.net", "cdn.cloudflare.net", "cdn.cloudflareanycast.net", "cdn.cloudflarecn.net", "cdn.cloudflareglobal.net", "cust.cloudscale.ch", "objects.lpg.cloudscale.ch", "objects.rma.cloudscale.ch", "wnext.app", "cnpy.gdn", "*.otap.co", "co.ca", "co.com", "codeberg.page", "csb.app", "preview.csb.app", "co.nl", "co.no", "webhosting.be", "hosting-cluster.nl", "ctfcloud.net", "convex.site", "ac.ru", "edu.ru", "gov.ru", "int.ru", "mil.ru", "test.ru", "dyn.cosidns.de", "dnsupdater.de", "dynamisches-dns.de", "internet-dns.de", "l-o-g-i-n.de", "dynamic-dns.info", "feste-ip.net", "knx-server.net", "static-access.net", "craft.me", "realm.cz", "on.crisp.email", "*.cryptonomic.net", "curv.dev", "cfolks.pl", "cyon.link", "cyon.site", "platform0.app", "fnwk.site", "folionetwork.site", "biz.dk", "co.dk", "firm.dk", "reg.dk", "store.dk", "dyndns.dappnode.io", "builtwithdark.com", "darklang.io", "demo.datadetect.com", "instance.datadetect.com", "edgestack.me", "dattolocal.com", "dattorelay.com", "dattoweb.com", "mydatto.com", "dattolocal.net", "mydatto.net", "ddnss.de", "dyn.ddnss.de", "dyndns.ddnss.de", "dyn-ip24.de", "dyndns1.de", "home-webserver.de", "dyn.home-webserver.de", "myhome-server.de", "ddnss.org", "debian.net", "definima.io", "definima.net", "deno.dev", "deno-staging.dev", "dedyn.io", "deta.app", "deta.dev", "dfirma.pl", "dkonto.pl", "you2.pl", "ondigitalocean.app", "*.digitaloceanspaces.com", "us.kg", "rss.my.id", "diher.solutions", "discordsays.com", "discordsez.com", "jozi.biz", "dnshome.de", "online.th", "shop.th", "drayddns.com", "shoparena.pl", "dreamhosters.com", "durumis.com", "mydrobo.com", "drud.io", "drud.us", "duckdns.org", "dy.fi", "tunk.org", "dyndns.biz", "for-better.biz", "for-more.biz", "for-some.biz", "for-the.biz", "selfip.biz", "webhop.biz", "ftpaccess.cc", "game-server.cc", "myphotos.cc", "scrapping.cc", "blogdns.com", "cechire.com", "dnsalias.com", "dnsdojo.com", "doesntexist.com", "dontexist.com", "doomdns.com", "dyn-o-saur.com", "dynalias.com", "dyndns-at-home.com", "dyndns-at-work.com", "dyndns-blog.com", "dyndns-free.com", "dyndns-home.com", "dyndns-ip.com", "dyndns-mail.com", "dyndns-office.com", "dyndns-pics.com", "dyndns-remote.com", "dyndns-server.com", "dyndns-web.com", "dyndns-wiki.com", "dyndns-work.com", "est-a-la-maison.com", "est-a-la-masion.com", "est-le-patron.com", "est-mon-blogueur.com", "from-ak.com", "from-al.com", "from-ar.com", "from-ca.com", "from-ct.com", "from-dc.com", "from-de.com", "from-fl.com", "from-ga.com", "from-hi.com", "from-ia.com", "from-id.com", "from-il.com", "from-in.com", "from-ks.com", "from-ky.com", "from-ma.com", "from-md.com", "from-mi.com", "from-mn.com", "from-mo.com", "from-ms.com", "from-mt.com", "from-nc.com", "from-nd.com", "from-ne.com", "from-nh.com", "from-nj.com", "from-nm.com", "from-nv.com", "from-oh.com", "from-ok.com", "from-or.com", "from-pa.com", "from-pr.com", "from-ri.com", "from-sc.com", "from-sd.com", "from-tn.com", "from-tx.com", "from-ut.com", "from-va.com", "from-vt.com", "from-wa.com", "from-wi.com", "from-wv.com", "from-wy.com", "getmyip.com", "gotdns.com", "hobby-site.com", "homelinux.com", "homeunix.com", "iamallama.com", "is-a-anarchist.com", "is-a-blogger.com", "is-a-bookkeeper.com", "is-a-bulls-fan.com", "is-a-caterer.com", "is-a-chef.com", "is-a-conservative.com", "is-a-cpa.com", "is-a-cubicle-slave.com", "is-a-democrat.com", "is-a-designer.com", "is-a-doctor.com", "is-a-financialadvisor.com", "is-a-geek.com", "is-a-green.com", "is-a-guru.com", "is-a-hard-worker.com", "is-a-hunter.com", "is-a-landscaper.com", "is-a-lawyer.com", "is-a-liberal.com", "is-a-libertarian.com", "is-a-llama.com", "is-a-musician.com", "is-a-nascarfan.com", "is-a-nurse.com", "is-a-painter.com", "is-a-personaltrainer.com", "is-a-photographer.com", "is-a-player.com", "is-a-republican.com", "is-a-rockstar.com", "is-a-socialist.com", "is-a-student.com", "is-a-teacher.com", "is-a-techie.com", "is-a-therapist.com", "is-an-accountant.com", "is-an-actor.com", "is-an-actress.com", "is-an-anarchist.com", "is-an-artist.com", "is-an-engineer.com", "is-an-entertainer.com", "is-certified.com", "is-gone.com", "is-into-anime.com", "is-into-cars.com", "is-into-cartoons.com", "is-into-games.com", "is-leet.com", "is-not-certified.com", "is-slick.com", "is-uberleet.com", "is-with-theband.com", "isa-geek.com", "isa-hockeynut.com", "issmarterthanyou.com", "likes-pie.com", "likescandy.com", "neat-url.com", "saves-the-whales.com", "selfip.com", "sells-for-less.com", "sells-for-u.com", "servebbs.com", "simple-url.com", "space-to-rent.com", "teaches-yoga.com", "writesthisblog.com", "ath.cx", "fuettertdasnetz.de", "isteingeek.de", "istmein.de", "lebtimnetz.de", "leitungsen.de", "traeumtgerade.de", "barrel-of-knowledge.info", "barrell-of-knowledge.info", "dyndns.info", "for-our.info", "groks-the.info", "groks-this.info", "here-for-more.info", "knowsitall.info", "selfip.info", "webhop.info", "forgot.her.name", "forgot.his.name", "at-band-camp.net", "blogdns.net", "broke-it.net", "buyshouses.net", "dnsalias.net", "dnsdojo.net", "does-it.net", "dontexist.net", "dynalias.net", "dynathome.net", "endofinternet.net", "from-az.net", "from-co.net", "from-la.net", "from-ny.net", "gets-it.net", "ham-radio-op.net", "homeftp.net", "homeip.net", "homelinux.net", "homeunix.net", "in-the-band.net", "is-a-chef.net", "is-a-geek.net", "isa-geek.net", "kicks-ass.net", "office-on-the.net", "podzone.net", "scrapper-site.net", "selfip.net", "sells-it.net", "servebbs.net", "serveftp.net", "thruhere.net", "webhop.net", "merseine.nu", "mine.nu", "shacknet.nu", "blogdns.org", "blogsite.org", "boldlygoingnowhere.org", "dnsalias.org", "dnsdojo.org", "doesntexist.org", "dontexist.org", "doomdns.org", "dvrdns.org", "dynalias.org", "dyndns.org", "go.dyndns.org", "home.dyndns.org", "endofinternet.org", "endoftheinternet.org", "from-me.org", "game-host.org", "gotdns.org", "hobby-site.org", "homedns.org", "homeftp.org", "homelinux.org", "homeunix.org", "is-a-bruinsfan.org", "is-a-candidate.org", "is-a-celticsfan.org", "is-a-chef.org", "is-a-geek.org", "is-a-knight.org", "is-a-linux-user.org", "is-a-patsfan.org", "is-a-soxfan.org", "is-found.org", "is-lost.org", "is-saved.org", "is-very-bad.org", "is-very-evil.org", "is-very-good.org", "is-very-nice.org", "is-very-sweet.org", "isa-geek.org", "kicks-ass.org", "misconfused.org", "podzone.org", "readmyblog.org", "selfip.org", "sellsyourhome.org", "servebbs.org", "serveftp.org", "servegame.org", "stuff-4-sale.org", "webhop.org", "better-than.tv", "dyndns.tv", "on-the-web.tv", "worse-than.tv", "is-by.us", "land-4-sale.us", "stuff-4-sale.us", "dyndns.ws", "mypets.ws", "ddnsfree.com", "ddnsgeek.com", "giize.com", "gleeze.com", "kozow.com", "loseyourip.com", "ooguy.com", "theworkpc.com", "casacam.net", "dynu.net", "accesscam.org", "camdvr.org", "freeddns.org", "mywire.org", "webredirect.org", "myddns.rocks", "dynv6.net", "e4.cz", "easypanel.app", "easypanel.host", "*.ewp.live", "twmail.cc", "twmail.net", "twmail.org", "mymailer.com.tw", "url.tw", "at.emf.camp", "rt.ht", "elementor.cloud", "elementor.cool", "en-root.fr", "mytuleap.com", "tuleap-partners.com", "encr.app", "encoreapi.com", "eu.encoway.cloud", "eu.org", "al.eu.org", "asso.eu.org", "at.eu.org", "au.eu.org", "be.eu.org", "bg.eu.org", "ca.eu.org", "cd.eu.org", "ch.eu.org", "cn.eu.org", "cy.eu.org", "cz.eu.org", "de.eu.org", "dk.eu.org", "edu.eu.org", "ee.eu.org", "es.eu.org", "fi.eu.org", "fr.eu.org", "gr.eu.org", "hr.eu.org", "hu.eu.org", "ie.eu.org", "il.eu.org", "in.eu.org", "int.eu.org", "is.eu.org", "it.eu.org", "jp.eu.org", "kr.eu.org", "lt.eu.org", "lu.eu.org", "lv.eu.org", "me.eu.org", "mk.eu.org", "mt.eu.org", "my.eu.org", "net.eu.org", "ng.eu.org", "nl.eu.org", "no.eu.org", "nz.eu.org", "pl.eu.org", "pt.eu.org", "ro.eu.org", "ru.eu.org", "se.eu.org", "si.eu.org", "sk.eu.org", "tr.eu.org", "uk.eu.org", "us.eu.org", "eurodir.ru", "eu-1.evennode.com", "eu-2.evennode.com", "eu-3.evennode.com", "eu-4.evennode.com", "us-1.evennode.com", "us-2.evennode.com", "us-3.evennode.com", "us-4.evennode.com", "relay.evervault.app", "relay.evervault.dev", "expo.app", "staging.expo.app", "onfabrica.com", "ru.net", "adygeya.ru", "bashkiria.ru", "bir.ru", "cbg.ru", "com.ru", "dagestan.ru", "grozny.ru", "kalmykia.ru", "kustanai.ru", "marine.ru", "mordovia.ru", "msk.ru", "mytis.ru", "nalchik.ru", "nov.ru", "pyatigorsk.ru", "spb.ru", "vladikavkaz.ru", "vladimir.ru", "abkhazia.su", "adygeya.su", "aktyubinsk.su", "arkhangelsk.su", "armenia.su", "ashgabad.su", "azerbaijan.su", "balashov.su", "bashkiria.su", "bryansk.su", "bukhara.su", "chimkent.su", "dagestan.su", "east-kazakhstan.su", "exnet.su", "georgia.su", "grozny.su", "ivanovo.su", "jambyl.su", "kalmykia.su", "kaluga.su", "karacol.su", "karaganda.su", "karelia.su", "khakassia.su", "krasnodar.su", "kurgan.su", "kustanai.su", "lenug.su", "mangyshlak.su", "mordovia.su", "msk.su", "murmansk.su", "nalchik.su", "navoi.su", "north-kazakhstan.su", "nov.su", "obninsk.su", "penza.su", "pokrovsk.su", "sochi.su", "spb.su", "tashkent.su", "termez.su", "togliatti.su", "troitsk.su", "tselinograd.su", "tula.su", "tuva.su", "vladikavkaz.su", "vladimir.su", "vologda.su", "channelsdvr.net", "u.channelsdvr.net", "edgecompute.app", "fastly-edge.com", "fastly-terrarium.com", "freetls.fastly.net", "map.fastly.net", "a.prod.fastly.net", "global.prod.fastly.net", "a.ssl.fastly.net", "b.ssl.fastly.net", "global.ssl.fastly.net", "fastlylb.net", "map.fastlylb.net", "*.user.fm", "fastvps-server.com", "fastvps.host", "myfast.host", "fastvps.site", "myfast.space", "conn.uk", "copro.uk", "hosp.uk", "fedorainfracloud.org", "fedorapeople.org", "cloud.fedoraproject.org", "app.os.fedoraproject.org", "app.os.stg.fedoraproject.org", "mydobiss.com", "fh-muenster.io", "filegear.me", "firebaseapp.com", "fldrv.com", "flutterflow.app", "fly.dev", "shw.io", "edgeapp.net", "forgeblocks.com", "id.forgerock.io", "framer.ai", "framer.app", "framercanvas.com", "framer.media", "framer.photos", "framer.website", "framer.wiki", "0e.vc", "freebox-os.com", "freeboxos.com", "fbx-os.fr", "fbxos.fr", "freebox-os.fr", "freeboxos.fr", "freedesktop.org", "freemyip.com", "*.frusky.de", "wien.funkfeuer.at", "daemon.asia", "dix.asia", "mydns.bz", "0am.jp", "0g0.jp", "0j0.jp", "0t0.jp", "mydns.jp", "pgw.jp", "wjg.jp", "keyword-on.net", "live-on.net", "server-on.net", "mydns.tw", "mydns.vc", "*.futurecms.at", "*.ex.futurecms.at", "*.in.futurecms.at", "futurehosting.at", "futuremailing.at", "*.ex.ortsinfo.at", "*.kunden.ortsinfo.at", "*.statics.cloud", "aliases121.com", "campaign.gov.uk", "service.gov.uk", "independent-commission.uk", "independent-inquest.uk", "independent-inquiry.uk", "independent-panel.uk", "independent-review.uk", "public-inquiry.uk", "royal-commission.uk", "gehirn.ne.jp", "usercontent.jp", "gentapps.com", "gentlentapis.com", "lab.ms", "cdn-edges.net", "localcert.net", "localhostcert.net", "gsj.bz", "githubusercontent.com", "githubpreview.dev", "github.io", "gitlab.io", "gitapp.si", "gitpage.si", "glitch.me", "nog.community", "co.ro", "shop.ro", "lolipop.io", "angry.jp", "babyblue.jp", "babymilk.jp", "backdrop.jp", "bambina.jp", "bitter.jp", "blush.jp", "boo.jp", "boy.jp", "boyfriend.jp", "but.jp", "candypop.jp", "capoo.jp", "catfood.jp", "cheap.jp", "chicappa.jp", "chillout.jp", "chips.jp", "chowder.jp", "chu.jp", "ciao.jp", "cocotte.jp", "coolblog.jp", "cranky.jp", "cutegirl.jp", "daa.jp", "deca.jp", "deci.jp", "digick.jp", "egoism.jp", "fakefur.jp", "fem.jp", "flier.jp", "floppy.jp", "fool.jp", "frenchkiss.jp", "girlfriend.jp", "girly.jp", "gloomy.jp", "gonna.jp", "greater.jp", "hacca.jp", "heavy.jp", "her.jp", "hiho.jp", "hippy.jp", "holy.jp", "hungry.jp", "icurus.jp", "itigo.jp", "jellybean.jp", "kikirara.jp", "kill.jp", "kilo.jp", "kuron.jp", "littlestar.jp", "lolipopmc.jp", "lolitapunk.jp", "lomo.jp", "lovepop.jp", "lovesick.jp", "main.jp", "mods.jp", "mond.jp", "mongolian.jp", "moo.jp", "namaste.jp", "nikita.jp", "nobushi.jp", "noor.jp", "oops.jp", "parallel.jp", "parasite.jp", "pecori.jp", "peewee.jp", "penne.jp", "pepper.jp", "perma.jp", "pigboat.jp", "pinoko.jp", "punyu.jp", "pupu.jp", "pussycat.jp", "pya.jp", "raindrop.jp", "readymade.jp", "sadist.jp", "schoolbus.jp", "secret.jp", "staba.jp", "stripper.jp", "sub.jp", "sunnyday.jp", "thick.jp", "tonkotsu.jp", "under.jp", "upper.jp", "velvet.jp", "verse.jp", "versus.jp", "vivian.jp", "watson.jp", "weblike.jp", "whitesnow.jp", "zombie.jp", "heteml.net", "graphic.design", "goip.de", "blogspot.ae", "blogspot.al", "blogspot.am", "*.hosted.app", "*.run.app", "web.app", "blogspot.com.ar", "blogspot.co.at", "blogspot.com.au", "blogspot.ba", "blogspot.be", "blogspot.bg", "blogspot.bj", "blogspot.com.br", "blogspot.com.by", "blogspot.ca", "blogspot.cf", "blogspot.ch", "blogspot.cl", "blogspot.com.co", "*.0emm.com", "appspot.com", "*.r.appspot.com", "blogspot.com", "codespot.com", "googleapis.com", "googlecode.com", "pagespeedmobilizer.com", "withgoogle.com", "withyoutube.com", "blogspot.cv", "blogspot.com.cy", "blogspot.cz", "blogspot.de", "*.gateway.dev", "blogspot.dk", "blogspot.com.ee", "blogspot.com.eg", "blogspot.com.es", "blogspot.fi", "blogspot.fr", "cloud.goog", "translate.goog", "*.usercontent.goog", "blogspot.gr", "blogspot.hk", "blogspot.hr", "blogspot.hu", "blogspot.co.id", "blogspot.ie", "blogspot.co.il", "blogspot.in", "blogspot.is", "blogspot.it", "blogspot.jp", "blogspot.co.ke", "blogspot.kr", "blogspot.li", "blogspot.lt", "blogspot.lu", "blogspot.md", "blogspot.mk", "blogspot.com.mt", "blogspot.mx", "blogspot.my", "cloudfunctions.net", "blogspot.com.ng", "blogspot.nl", "blogspot.no", "blogspot.co.nz", "blogspot.pe", "blogspot.pt", "blogspot.qa", "blogspot.re", "blogspot.ro", "blogspot.rs", "blogspot.ru", "blogspot.se", "blogspot.sg", "blogspot.si", "blogspot.sk", "blogspot.sn", "blogspot.td", "blogspot.com.tr", "blogspot.tw", "blogspot.ug", "blogspot.co.uk", "blogspot.com.uy", "blogspot.vn", "blogspot.co.za", "goupile.fr", "pymnt.uk", "cloudapps.digital", "london.cloudapps.digital", "gov.nl", "grafana-dev.net", "grayjayleagues.com", "g\xFCnstigbestellen.de", "g\xFCnstigliefern.de", "fin.ci", "free.hr", "caa.li", "ua.rs", "conf.se", "h\xE4kkinen.fi", "hrsn.dev", "hashbang.sh", "hasura.app", "hasura-app.io", "hatenablog.com", "hatenadiary.com", "hateblo.jp", "hatenablog.jp", "hatenadiary.jp", "hatenadiary.org", "pages.it.hs-heilbronn.de", "pages-research.it.hs-heilbronn.de", "heiyu.space", "helioho.st", "heliohost.us", "hepforge.org", "herokuapp.com", "herokussl.com", "heyflow.page", "heyflow.site", "ravendb.cloud", "ravendb.community", "development.run", "ravendb.run", "homesklep.pl", "*.kin.one", "*.id.pub", "*.kin.pub", "secaas.hk", "hoplix.shop", "orx.biz", "biz.gl", "biz.ng", "co.biz.ng", "dl.biz.ng", "go.biz.ng", "lg.biz.ng", "on.biz.ng", "col.ng", "firm.ng", "gen.ng", "ltd.ng", "ngo.ng", "plc.ng", "ie.ua", "hostyhosting.io", "hf.space", "static.hf.space", "hypernode.io", "iobb.net", "co.cz", "*.moonscale.io", "moonscale.net", "gr.com", "iki.fi", "ibxos.it", "iliadboxos.it", "smushcdn.com", "wphostedmail.com", "wpmucdn.com", "tempurl.host", "wpmudev.host", "dyn-berlin.de", "in-berlin.de", "in-brb.de", "in-butter.de", "in-dsl.de", "in-vpn.de", "in-dsl.net", "in-vpn.net", "in-dsl.org", "in-vpn.org", "biz.at", "info.at", "info.cx", "ac.leg.br", "al.leg.br", "am.leg.br", "ap.leg.br", "ba.leg.br", "ce.leg.br", "df.leg.br", "es.leg.br", "go.leg.br", "ma.leg.br", "mg.leg.br", "ms.leg.br", "mt.leg.br", "pa.leg.br", "pb.leg.br", "pe.leg.br", "pi.leg.br", "pr.leg.br", "rj.leg.br", "rn.leg.br", "ro.leg.br", "rr.leg.br", "rs.leg.br", "sc.leg.br", "se.leg.br", "sp.leg.br", "to.leg.br", "pixolino.com", "na4u.ru", "apps-1and1.com", "live-website.com", "apps-1and1.net", "websitebuilder.online", "app-ionos.space", "iopsys.se", "*.dweb.link", "ipifony.net", "ir.md", "is-a-good.dev", "is-a.dev", "iservschule.de", "mein-iserv.de", "schulplattform.de", "schulserver.de", "test-iserv.de", "iserv.dev", "mel.cloudlets.com.au", "cloud.interhostsolutions.be", "alp1.ae.flow.ch", "appengine.flow.ch", "es-1.axarnet.cloud", "diadem.cloud", "vip.jelastic.cloud", "jele.cloud", "it1.eur.aruba.jenv-aruba.cloud", "it1.jenv-aruba.cloud", "keliweb.cloud", "cs.keliweb.cloud", "oxa.cloud", "tn.oxa.cloud", "uk.oxa.cloud", "primetel.cloud", "uk.primetel.cloud", "ca.reclaim.cloud", "uk.reclaim.cloud", "us.reclaim.cloud", "ch.trendhosting.cloud", "de.trendhosting.cloud", "jele.club", "dopaas.com", "paas.hosted-by-previder.com", "rag-cloud.hosteur.com", "rag-cloud-ch.hosteur.com", "jcloud.ik-server.com", "jcloud-ver-jpc.ik-server.com", "demo.jelastic.com", "paas.massivegrid.com", "jed.wafaicloud.com", "ryd.wafaicloud.com", "j.scaleforce.com.cy", "jelastic.dogado.eu", "fi.cloudplatform.fi", "demo.datacenter.fi", "paas.datacenter.fi", "jele.host", "mircloud.host", "paas.beebyte.io", "sekd1.beebyteapp.io", "jele.io", "jc.neen.it", "jcloud.kz", "cloudjiffy.net", "fra1-de.cloudjiffy.net", "west1-us.cloudjiffy.net", "jls-sto1.elastx.net", "jls-sto2.elastx.net", "jls-sto3.elastx.net", "fr-1.paas.massivegrid.net", "lon-1.paas.massivegrid.net", "lon-2.paas.massivegrid.net", "ny-1.paas.massivegrid.net", "ny-2.paas.massivegrid.net", "sg-1.paas.massivegrid.net", "jelastic.saveincloud.net", "nordeste-idc.saveincloud.net", "j.scaleforce.net", "sdscloud.pl", "unicloud.pl", "mircloud.ru", "enscaled.sg", "jele.site", "jelastic.team", "orangecloud.tn", "j.layershift.co.uk", "phx.enscaled.us", "mircloud.us", "myjino.ru", "*.hosting.myjino.ru", "*.landing.myjino.ru", "*.spectrum.myjino.ru", "*.vps.myjino.ru", "jotelulu.cloud", "webadorsite.com", "jouwweb.site", "*.cns.joyent.com", "*.triton.zone", "js.org", "kaas.gg", "khplay.nl", "kapsi.fi", "ezproxy.kuleuven.be", "kuleuven.cloud", "keymachine.de", "kinghost.net", "uni5.net", "knightpoint.systems", "koobin.events", "webthings.io", "krellian.net", "oya.to", "git-repos.de", "lcube-server.de", "svn-repos.de", "leadpages.co", "lpages.co", "lpusercontent.com", "lelux.site", "libp2p.direct", "runcontainers.dev", "co.business", "co.education", "co.events", "co.financial", "co.network", "co.place", "co.technology", "linkyard-cloud.ch", "linkyard.cloud", "members.linode.com", "*.nodebalancer.linode.com", "*.linodeobjects.com", "ip.linodeusercontent.com", "we.bs", "filegear-sg.me", "ggff.net", "*.user.localcert.dev", "lodz.pl", "pabianice.pl", "plock.pl", "sieradz.pl", "skierniewice.pl", "zgierz.pl", "loginline.app", "loginline.dev", "loginline.io", "loginline.services", "loginline.site", "lohmus.me", "servers.run", "krasnik.pl", "leczna.pl", "lubartow.pl", "lublin.pl", "poniatowa.pl", "swidnik.pl", "glug.org.uk", "lug.org.uk", "lugs.org.uk", "barsy.bg", "barsy.club", "barsycenter.com", "barsyonline.com", "barsy.de", "barsy.dev", "barsy.eu", "barsy.gr", "barsy.in", "barsy.info", "barsy.io", "barsy.me", "barsy.menu", "barsyonline.menu", "barsy.mobi", "barsy.net", "barsy.online", "barsy.org", "barsy.pro", "barsy.pub", "barsy.ro", "barsy.rs", "barsy.shop", "barsyonline.shop", "barsy.site", "barsy.store", "barsy.support", "barsy.uk", "barsy.co.uk", "barsyonline.co.uk", "*.magentosite.cloud", "hb.cldmail.ru", "matlab.cloud", "modelscape.com", "mwcloudnonprod.com", "polyspace.com", "mayfirst.info", "mayfirst.org", "mazeplay.com", "mcdir.me", "mcdir.ru", "vps.mcdir.ru", "mcpre.ru", "mediatech.by", "mediatech.dev", "hra.health", "medusajs.app", "miniserver.com", "memset.net", "messerli.app", "atmeta.com", "apps.fbsbx.com", "*.cloud.metacentrum.cz", "custom.metacentrum.cz", "flt.cloud.muni.cz", "usr.cloud.muni.cz", "meteorapp.com", "eu.meteorapp.com", "co.pl", "*.azurecontainer.io", "azure-api.net", "azure-mobile.net", "azureedge.net", "azurefd.net", "azurestaticapps.net", "1.azurestaticapps.net", "2.azurestaticapps.net", "3.azurestaticapps.net", "4.azurestaticapps.net", "5.azurestaticapps.net", "6.azurestaticapps.net", "7.azurestaticapps.net", "centralus.azurestaticapps.net", "eastasia.azurestaticapps.net", "eastus2.azurestaticapps.net", "westeurope.azurestaticapps.net", "westus2.azurestaticapps.net", "azurewebsites.net", "cloudapp.net", "trafficmanager.net", "blob.core.windows.net", "servicebus.windows.net", "routingthecloud.com", "sn.mynetname.net", "routingthecloud.net", "routingthecloud.org", "csx.cc", "mydbserver.com", "webspaceconfig.de", "mittwald.info", "mittwaldserver.info", "typo3server.info", "project.space", "modx.dev", "bmoattachments.org", "net.ru", "org.ru", "pp.ru", "hostedpi.com", "caracal.mythic-beasts.com", "customer.mythic-beasts.com", "fentiger.mythic-beasts.com", "lynx.mythic-beasts.com", "ocelot.mythic-beasts.com", "oncilla.mythic-beasts.com", "onza.mythic-beasts.com", "sphinx.mythic-beasts.com", "vs.mythic-beasts.com", "x.mythic-beasts.com", "yali.mythic-beasts.com", "cust.retrosnub.co.uk", "ui.nabu.casa", "cloud.nospamproxy.com", "netfy.app", "netlify.app", "4u.com", "nfshost.com", "ipfs.nftstorage.link", "ngo.us", "ngrok.app", "ngrok-free.app", "ngrok.dev", "ngrok-free.dev", "ngrok.io", "ap.ngrok.io", "au.ngrok.io", "eu.ngrok.io", "in.ngrok.io", "jp.ngrok.io", "sa.ngrok.io", "us.ngrok.io", "ngrok.pizza", "ngrok.pro", "torun.pl", "nh-serv.co.uk", "nimsite.uk", "mmafan.biz", "myftp.biz", "no-ip.biz", "no-ip.ca", "fantasyleague.cc", "gotdns.ch", "3utilities.com", "blogsyte.com", "ciscofreak.com", "damnserver.com", "ddnsking.com", "ditchyourip.com", "dnsiskinky.com", "dynns.com", "geekgalaxy.com", "health-carereform.com", "homesecuritymac.com", "homesecuritypc.com", "myactivedirectory.com", "mysecuritycamera.com", "myvnc.com", "net-freaks.com", "onthewifi.com", "point2this.com", "quicksytes.com", "securitytactics.com", "servebeer.com", "servecounterstrike.com", "serveexchange.com", "serveftp.com", "servegame.com", "servehalflife.com", "servehttp.com", "servehumour.com", "serveirc.com", "servemp3.com", "servep2p.com", "servepics.com", "servequake.com", "servesarcasm.com", "stufftoread.com", "unusualperson.com", "workisboring.com", "dvrcam.info", "ilovecollege.info", "no-ip.info", "brasilia.me", "ddns.me", "dnsfor.me", "hopto.me", "loginto.me", "noip.me", "webhop.me", "bounceme.net", "ddns.net", "eating-organic.net", "mydissent.net", "myeffect.net", "mymediapc.net", "mypsx.net", "mysecuritycamera.net", "nhlfan.net", "no-ip.net", "pgafan.net", "privatizehealthinsurance.net", "redirectme.net", "serveblog.net", "serveminecraft.net", "sytes.net", "cable-modem.org", "collegefan.org", "couchpotatofries.org", "hopto.org", "mlbfan.org", "myftp.org", "mysecuritycamera.org", "nflfan.org", "no-ip.org", "read-books.org", "ufcfan.org", "zapto.org", "no-ip.co.uk", "golffan.us", "noip.us", "pointto.us", "stage.nodeart.io", "*.developer.app", "noop.app", "*.northflank.app", "*.build.run", "*.code.run", "*.database.run", "*.migration.run", "noticeable.news", "notion.site", "dnsking.ch", "mypi.co", "n4t.co", "001www.com", "myiphost.com", "forumz.info", "soundcast.me", "tcp4.me", "dnsup.net", "hicam.net", "now-dns.net", "ownip.net", "vpndns.net", "dynserv.org", "now-dns.org", "x443.pw", "now-dns.top", "ntdll.top", "freeddns.us", "nsupdate.info", "nerdpol.ovh", "nyc.mn", "prvcy.page", "obl.ong", "observablehq.cloud", "static.observableusercontent.com", "omg.lol", "cloudycluster.net", "omniwe.site", "123webseite.at", "123website.be", "simplesite.com.br", "123website.ch", "simplesite.com", "123webseite.de", "123hjemmeside.dk", "123miweb.es", "123kotisivu.fi", "123siteweb.fr", "simplesite.gr", "123homepage.it", "123website.lu", "123website.nl", "123hjemmeside.no", "service.one", "simplesite.pl", "123paginaweb.pt", "123minsida.se", "is-a-fullstack.dev", "is-cool.dev", "is-not-a.dev", "localplayer.dev", "is-local.org", "opensocial.site", "opencraft.hosting", "16-b.it", "32-b.it", "64-b.it", "orsites.com", "operaunite.com", "*.customer-oci.com", "*.oci.customer-oci.com", "*.ocp.customer-oci.com", "*.ocs.customer-oci.com", "*.oraclecloudapps.com", "*.oraclegovcloudapps.com", "*.oraclegovcloudapps.uk", "tech.orange", "can.re", "authgear-staging.com", "authgearapps.com", "skygearapp.com", "outsystemscloud.com", "*.hosting.ovh.net", "*.webpaas.ovh.net", "ownprovider.com", "own.pm", "*.owo.codes", "ox.rs", "oy.lc", "pgfog.com", "pagexl.com", "gotpantheon.com", "pantheonsite.io", "*.paywhirl.com", "*.xmit.co", "xmit.dev", "madethis.site", "srv.us", "gh.srv.us", "gl.srv.us", "lk3.ru", "mypep.link", "perspecta.cloud", "on-web.fr", "*.upsun.app", "upsunapp.com", "ent.platform.sh", "eu.platform.sh", "us.platform.sh", "*.platformsh.site", "*.tst.site", "platter-app.com", "platter-app.dev", "platterp.us", "pley.games", "onporter.run", "co.bn", "postman-echo.com", "pstmn.io", "mock.pstmn.io", "httpbin.org", "prequalifyme.today", "xen.prgmr.com", "priv.at", "protonet.io", "chirurgiens-dentistes-en-france.fr", "byen.site", "pubtls.org", "pythonanywhere.com", "eu.pythonanywhere.com", "qa2.com", "qcx.io", "*.sys.qcx.io", "myqnapcloud.cn", "alpha-myqnapcloud.com", "dev-myqnapcloud.com", "mycloudnas.com", "mynascloud.com", "myqnapcloud.com", "qoto.io", "qualifioapp.com", "ladesk.com", "qbuser.com", "*.quipelements.com", "vapor.cloud", "vaporcloud.io", "rackmaze.com", "rackmaze.net", "cloudsite.builders", "myradweb.net", "servername.us", "web.in", "in.net", "myrdbx.io", "site.rb-hosting.io", "*.on-rancher.cloud", "*.on-k3s.io", "*.on-rio.io", "ravpage.co.il", "readthedocs-hosted.com", "readthedocs.io", "rhcloud.com", "instances.spawn.cc", "onrender.com", "app.render.com", "replit.app", "id.replit.app", "firewalledreplit.co", "id.firewalledreplit.co", "repl.co", "id.repl.co", "replit.dev", "archer.replit.dev", "bones.replit.dev", "canary.replit.dev", "global.replit.dev", "hacker.replit.dev", "id.replit.dev", "janeway.replit.dev", "kim.replit.dev", "kira.replit.dev", "kirk.replit.dev", "odo.replit.dev", "paris.replit.dev", "picard.replit.dev", "pike.replit.dev", "prerelease.replit.dev", "reed.replit.dev", "riker.replit.dev", "sisko.replit.dev", "spock.replit.dev", "staging.replit.dev", "sulu.replit.dev", "tarpit.replit.dev", "teams.replit.dev", "tucker.replit.dev", "wesley.replit.dev", "worf.replit.dev", "repl.run", "resindevice.io", "devices.resinstaging.io", "hzc.io", "adimo.co.uk", "itcouldbewor.se", "aus.basketball", "nz.basketball", "git-pages.rit.edu", "rocky.page", "rub.de", "ruhr-uni-bochum.de", "io.noc.ruhr-uni-bochum.de", "\u0431\u0438\u0437.\u0440\u0443\u0441", "\u043A\u043E\u043C.\u0440\u0443\u0441", "\u043A\u0440\u044B\u043C.\u0440\u0443\u0441", "\u043C\u0438\u0440.\u0440\u0443\u0441", "\u043C\u0441\u043A.\u0440\u0443\u0441", "\u043E\u0440\u0433.\u0440\u0443\u0441", "\u0441\u0430\u043C\u0430\u0440\u0430.\u0440\u0443\u0441", "\u0441\u043E\u0447\u0438.\u0440\u0443\u0441", "\u0441\u043F\u0431.\u0440\u0443\u0441", "\u044F.\u0440\u0443\u0441", "ras.ru", "nyat.app", "180r.com", "dojin.com", "sakuratan.com", "sakuraweb.com", "x0.com", "2-d.jp", "bona.jp", "crap.jp", "daynight.jp", "eek.jp", "flop.jp", "halfmoon.jp", "jeez.jp", "matrix.jp", "mimoza.jp", "ivory.ne.jp", "mail-box.ne.jp", "mints.ne.jp", "mokuren.ne.jp", "opal.ne.jp", "sakura.ne.jp", "sumomo.ne.jp", "topaz.ne.jp", "netgamers.jp", "nyanta.jp", "o0o0.jp", "rdy.jp", "rgr.jp", "rulez.jp", "s3.isk01.sakurastorage.jp", "s3.isk02.sakurastorage.jp", "saloon.jp", "sblo.jp", "skr.jp", "tank.jp", "uh-oh.jp", "undo.jp", "rs.webaccel.jp", "user.webaccel.jp", "websozai.jp", "xii.jp", "squares.net", "jpn.org", "kirara.st", "x0.to", "from.tv", "sakura.tv", "*.builder.code.com", "*.dev-builder.code.com", "*.stg-builder.code.com", "*.001.test.code-builder-stg.platform.salesforce.com", "*.d.crm.dev", "*.w.crm.dev", "*.wa.crm.dev", "*.wb.crm.dev", "*.wc.crm.dev", "*.wd.crm.dev", "*.we.crm.dev", "*.wf.crm.dev", "sandcats.io", "logoip.com", "logoip.de", "fr-par-1.baremetal.scw.cloud", "fr-par-2.baremetal.scw.cloud", "nl-ams-1.baremetal.scw.cloud", "cockpit.fr-par.scw.cloud", "fnc.fr-par.scw.cloud", "functions.fnc.fr-par.scw.cloud", "k8s.fr-par.scw.cloud", "nodes.k8s.fr-par.scw.cloud", "s3.fr-par.scw.cloud", "s3-website.fr-par.scw.cloud", "whm.fr-par.scw.cloud", "priv.instances.scw.cloud", "pub.instances.scw.cloud", "k8s.scw.cloud", "cockpit.nl-ams.scw.cloud", "k8s.nl-ams.scw.cloud", "nodes.k8s.nl-ams.scw.cloud", "s3.nl-ams.scw.cloud", "s3-website.nl-ams.scw.cloud", "whm.nl-ams.scw.cloud", "cockpit.pl-waw.scw.cloud", "k8s.pl-waw.scw.cloud", "nodes.k8s.pl-waw.scw.cloud", "s3.pl-waw.scw.cloud", "s3-website.pl-waw.scw.cloud", "scalebook.scw.cloud", "smartlabeling.scw.cloud", "dedibox.fr", "schokokeks.net", "gov.scot", "service.gov.scot", "scrysec.com", "client.scrypted.io", "firewall-gateway.com", "firewall-gateway.de", "my-gateway.de", "my-router.de", "spdns.de", "spdns.eu", "firewall-gateway.net", "my-firewall.org", "myfirewall.org", "spdns.org", "seidat.net", "sellfy.store", "minisite.ms", "senseering.net", "servebolt.cloud", "biz.ua", "co.ua", "pp.ua", "as.sh.cn", "sheezy.games", "shiftedit.io", "myshopblocks.com", "myshopify.com", "shopitsite.com", "shopware.shop", "shopware.store", "mo-siemens.io", "1kapp.com", "appchizi.com", "applinzi.com", "sinaapp.com", "vipsinaapp.com", "siteleaf.net", "small-web.org", "aeroport.fr", "avocat.fr", "chambagri.fr", "chirurgiens-dentistes.fr", "experts-comptables.fr", "medecin.fr", "notaires.fr", "pharmacien.fr", "port.fr", "veterinaire.fr", "vp4.me", "*.snowflake.app", "*.privatelink.snowflake.app", "streamlit.app", "streamlitapp.com", "try-snowplow.com", "mafelo.net", "playstation-cloud.com", "srht.site", "apps.lair.io", "*.stolos.io", "spacekit.io", "ind.mom", "customer.speedpartner.de", "myspreadshop.at", "myspreadshop.com.au", "myspreadshop.be", "myspreadshop.ca", "myspreadshop.ch", "myspreadshop.com", "myspreadshop.de", "myspreadshop.dk", "myspreadshop.es", "myspreadshop.fi", "myspreadshop.fr", "myspreadshop.ie", "myspreadshop.it", "myspreadshop.net", "myspreadshop.nl", "myspreadshop.no", "myspreadshop.pl", "myspreadshop.se", "myspreadshop.co.uk", "w-corp-staticblitz.com", "w-credentialless-staticblitz.com", "w-staticblitz.com", "stackhero-network.com", "runs.onstackit.cloud", "stackit.gg", "stackit.rocks", "stackit.run", "stackit.zone", "musician.io", "novecore.site", "api.stdlib.com", "feedback.ac", "forms.ac", "assessments.cx", "calculators.cx", "funnels.cx", "paynow.cx", "quizzes.cx", "researched.cx", "tests.cx", "surveys.so", "storebase.store", "storipress.app", "storj.farm", "strapiapp.com", "media.strapiapp.com", "vps-host.net", "atl.jelastic.vps-host.net", "njs.jelastic.vps-host.net", "ric.jelastic.vps-host.net", "streak-link.com", "streaklinks.com", "streakusercontent.com", "soc.srcf.net", "user.srcf.net", "utwente.io", "temp-dns.com", "supabase.co", "supabase.in", "supabase.net", "syncloud.it", "dscloud.biz", "direct.quickconnect.cn", "dsmynas.com", "familyds.com", "diskstation.me", "dscloud.me", "i234.me", "myds.me", "synology.me", "dscloud.mobi", "dsmynas.net", "familyds.net", "dsmynas.org", "familyds.org", "direct.quickconnect.to", "vpnplus.to", "mytabit.com", "mytabit.co.il", "tabitorder.co.il", "taifun-dns.de", "ts.net", "*.c.ts.net", "gda.pl", "gdansk.pl", "gdynia.pl", "med.pl", "sopot.pl", "taveusercontent.com", "p.tawk.email", "p.tawkto.email", "site.tb-hosting.com", "edugit.io", "s3.teckids.org", "telebit.app", "telebit.io", "*.telebit.xyz", "*.firenet.ch", "*.svc.firenet.ch", "reservd.com", "thingdustdata.com", "cust.dev.thingdust.io", "reservd.dev.thingdust.io", "cust.disrec.thingdust.io", "reservd.disrec.thingdust.io", "cust.prod.thingdust.io", "cust.testing.thingdust.io", "reservd.testing.thingdust.io", "tickets.io", "arvo.network", "azimuth.network", "tlon.network", "torproject.net", "pages.torproject.net", "townnews-staging.com", "12hp.at", "2ix.at", "4lima.at", "lima-city.at", "12hp.ch", "2ix.ch", "4lima.ch", "lima-city.ch", "trafficplex.cloud", "de.cool", "12hp.de", "2ix.de", "4lima.de", "lima-city.de", "1337.pictures", "clan.rip", "lima-city.rocks", "webspace.rocks", "lima.zone", "*.transurl.be", "*.transurl.eu", "site.transip.me", "*.transurl.nl", "tuxfamily.org", "dd-dns.de", "dray-dns.de", "draydns.de", "dyn-vpn.de", "dynvpn.de", "mein-vigor.de", "my-vigor.de", "my-wan.de", "syno-ds.de", "synology-diskstation.de", "synology-ds.de", "diskstation.eu", "diskstation.org", "typedream.app", "pro.typeform.com", "*.uberspace.de", "uber.space", "hk.com", "inc.hk", "ltd.hk", "hk.org", "it.com", "unison-services.cloud", "virtual-user.de", "virtualuser.de", "name.pm", "sch.tf", "biz.wf", "sch.wf", "org.yt", "rs.ba", "bielsko.pl", "upli.io", "urown.cloud", "dnsupdate.info", "us.org", "v.ua", "express.val.run", "web.val.run", "vercel.app", "v0.build", "vercel.dev", "vusercontent.net", "now.sh", "2038.io", "router.management", "v-info.info", "voorloper.cloud", "*.vultrobjects.com", "wafflecell.com", "webflow.io", "webflowtest.io", "*.webhare.dev", "bookonline.app", "hotelwithflight.com", "reserve-online.com", "reserve-online.net", "cprapid.com", "pleskns.com", "wp2.host", "pdns.page", "plesk.page", "wpsquared.site", "*.wadl.top", "remotewd.com", "box.ca", "pages.wiardweb.com", "toolforge.org", "wmcloud.org", "wmflabs.org", "wdh.app", "panel.gg", "daemon.panel.gg", "wixsite.com", "wixstudio.com", "editorx.io", "wixstudio.io", "wix.run", "messwithdns.com", "woltlab-demo.com", "myforum.community", "community-pro.de", "diskussionsbereich.de", "community-pro.net", "meinforum.net", "affinitylottery.org.uk", "raffleentry.org.uk", "weeklylottery.org.uk", "wpenginepowered.com", "js.wpenginepowered.com", "half.host", "xnbay.com", "u2.xnbay.com", "u2-local.xnbay.com", "cistron.nl", "demon.nl", "xs4all.space", "yandexcloud.net", "storage.yandexcloud.net", "website.yandexcloud.net", "official.academy", "yolasite.com", "yombo.me", "ynh.fr", "nohost.me", "noho.st", "za.net", "za.org", "zap.cloud", "zeabur.app", "bss.design", "basicserver.io", "virtualserver.io", "enterprisecloud.nu"];
     var Z2 = Y2.reduce((e2, s2) => {
-      const c4 = s2.replace(/^(\*\.|\!)/, ""), o2 = A2.toASCII(c4), t2 = s2.charAt(0);
+      const c3 = s2.replace(/^(\*\.|\!)/, ""), o2 = A2.toASCII(c3), t2 = s2.charAt(0);
       if (e2.has(o2))
         throw new Error(`Multiple rules found for ${s2} (${o2})`);
-      return e2.set(o2, { rule: s2, suffix: c4, punySuffix: o2, wildcard: t2 === "*", exception: t2 === "!" }), e2;
+      return e2.set(o2, { rule: s2, suffix: c3, punySuffix: o2, wildcard: t2 === "*", exception: t2 === "!" }), e2;
     }, /* @__PURE__ */ new Map());
     var aa = (e2) => {
-      const c4 = A2.toASCII(e2).split(".");
-      for (let o2 = 0; o2 < c4.length; o2++) {
-        const t2 = c4.slice(o2).join("."), d2 = Z2.get(t2);
+      const c3 = A2.toASCII(e2).split(".");
+      for (let o2 = 0; o2 < c3.length; o2++) {
+        const t2 = c3.slice(o2).join("."), d2 = Z2.get(t2);
         if (d2)
           return d2;
       }
@@ -12021,10 +12021,10 @@ var require_psl = __commonJS({
         return "DOMAIN_TOO_SHORT";
       if (s2.length > 255)
         return "DOMAIN_TOO_LONG";
-      const c4 = s2.split(".");
+      const c3 = s2.split(".");
       let o2;
-      for (let t2 = 0; t2 < c4.length; ++t2) {
-        if (o2 = c4[t2], !o2.length)
+      for (let t2 = 0; t2 < c3.length; ++t2) {
+        if (o2 = c3[t2], !o2.length)
           return "LABEL_TOO_SHORT";
         if (o2.length > 63)
           return "LABEL_TOO_LONG";
@@ -12041,9 +12041,9 @@ var require_psl = __commonJS({
         throw new TypeError("Domain name must be a string.");
       let s2 = e2.slice(0).toLowerCase();
       s2.charAt(s2.length - 1) === "." && (s2 = s2.slice(0, s2.length - 1));
-      const c4 = oa(s2);
-      if (c4)
-        return { input: e2, error: { message: H2[c4], code: c4 } };
+      const c3 = oa(s2);
+      if (c3)
+        return { input: e2, error: { message: H2[c3], code: c3 } };
       const o2 = { input: e2, tld: null, sld: null, domain: null, subdomain: null, listed: false }, t2 = s2.split(".");
       if (t2[t2.length - 1] === "local")
         return o2;
@@ -12362,8 +12362,8 @@ var require_cookie = __commonJS({
     function parseDigits(token, minDigits, maxDigits, trailingOK) {
       var count = 0;
       while (count < token.length) {
-        var c4 = token.charCodeAt(count);
-        if (c4 <= 47 || c4 >= 58) {
+        var c3 = token.charCodeAt(count);
+        if (c3 <= 47 || c3 >= 58) {
           break;
         }
         count++;
@@ -12460,13 +12460,13 @@ var require_cookie = __commonJS({
     function formatDate(date) {
       var d2 = date.getUTCDate();
       d2 = d2 >= 10 ? d2 : "0" + d2;
-      var h2 = date.getUTCHours();
-      h2 = h2 >= 10 ? h2 : "0" + h2;
+      var h3 = date.getUTCHours();
+      h3 = h3 >= 10 ? h3 : "0" + h3;
       var m2 = date.getUTCMinutes();
       m2 = m2 >= 10 ? m2 : "0" + m2;
       var s2 = date.getUTCSeconds();
       s2 = s2 >= 10 ? s2 : "0" + s2;
-      return NUM_TO_DAY[date.getUTCDay()] + ", " + d2 + " " + NUM_TO_MONTH[date.getUTCMonth()] + " " + date.getUTCFullYear() + " " + h2 + ":" + m2 + ":" + s2 + " GMT";
+      return NUM_TO_DAY[date.getUTCDay()] + ", " + d2 + " " + NUM_TO_MONTH[date.getUTCMonth()] + " " + date.getUTCFullYear() + " " + h3 + ":" + m2 + ":" + s2 + " GMT";
     }
     function canonicalDomain(str) {
       if (str == null) {
@@ -12550,28 +12550,28 @@ var require_cookie = __commonJS({
       if (CONTROL_CHARS.test(cookieName) || CONTROL_CHARS.test(cookieValue)) {
         return;
       }
-      var c4 = new Cookie();
-      c4.key = cookieName;
-      c4.value = cookieValue;
-      return c4;
+      var c3 = new Cookie();
+      c3.key = cookieName;
+      c3.value = cookieValue;
+      return c3;
     }
-    function parse6(str, options) {
+    function parse5(str, options) {
       if (!options || typeof options !== "object") {
         options = {};
       }
       str = str.trim();
       var firstSemi = str.indexOf(";");
       var cookiePair = firstSemi === -1 ? str : str.substr(0, firstSemi);
-      var c4 = parseCookiePair(cookiePair, !!options.loose);
-      if (!c4) {
+      var c3 = parseCookiePair(cookiePair, !!options.loose);
+      if (!c3) {
         return;
       }
       if (firstSemi === -1) {
-        return c4;
+        return c3;
       }
       var unparsed = str.slice(firstSemi + 1).trim();
       if (unparsed.length === 0) {
-        return c4;
+        return c3;
       }
       var cookie_avs = unparsed.split(";");
       while (cookie_avs.length) {
@@ -12597,7 +12597,7 @@ var require_cookie = __commonJS({
             if (av_value) {
               var exp = parseDate(av_value);
               if (exp) {
-                c4.expires = exp;
+                c3.expires = exp;
               }
             }
             break;
@@ -12605,7 +12605,7 @@ var require_cookie = __commonJS({
             if (av_value) {
               if (/^-?[0-9]+$/.test(av_value)) {
                 var delta = parseInt(av_value, 10);
-                c4.setMaxAge(delta);
+                c3.setMaxAge(delta);
               }
             }
             break;
@@ -12613,26 +12613,26 @@ var require_cookie = __commonJS({
             if (av_value) {
               var domain = av_value.trim().replace(/^\./, "");
               if (domain) {
-                c4.domain = domain.toLowerCase();
+                c3.domain = domain.toLowerCase();
               }
             }
             break;
           case "path":
-            c4.path = av_value && av_value[0] === "/" ? av_value : null;
+            c3.path = av_value && av_value[0] === "/" ? av_value : null;
             break;
           case "secure":
-            c4.secure = true;
+            c3.secure = true;
             break;
           case "httponly":
-            c4.httpOnly = true;
+            c3.httpOnly = true;
             break;
           default:
-            c4.extensions = c4.extensions || [];
-            c4.extensions.push(av);
+            c3.extensions = c3.extensions || [];
+            c3.extensions.push(av);
             break;
         }
       }
-      return c4;
+      return c3;
     }
     function jsonParse(str) {
       var obj;
@@ -12656,7 +12656,7 @@ var require_cookie = __commonJS({
       } else {
         obj = str;
       }
-      var c4 = new Cookie();
+      var c3 = new Cookie();
       for (var i2 = 0; i2 < Cookie.serializableProperties.length; i2++) {
         var prop = Cookie.serializableProperties[i2];
         if (obj[prop] === void 0 || obj[prop] === Cookie.prototype[prop]) {
@@ -12664,15 +12664,15 @@ var require_cookie = __commonJS({
         }
         if (prop === "expires" || prop === "creation" || prop === "lastAccessed") {
           if (obj[prop] === null) {
-            c4[prop] = null;
+            c3[prop] = null;
           } else {
-            c4[prop] = obj[prop] == "Infinity" ? "Infinity" : new Date(obj[prop]);
+            c3[prop] = obj[prop] == "Infinity" ? "Infinity" : new Date(obj[prop]);
           }
         } else {
-          c4[prop] = obj[prop];
+          c3[prop] = obj[prop];
         }
       }
-      return c4;
+      return c3;
     }
     function cookieCompare(a3, b5) {
       var cmp = 0;
@@ -12737,7 +12737,7 @@ var require_cookie = __commonJS({
       });
     }
     Cookie.cookiesCreated = 0;
-    Cookie.parse = parse6;
+    Cookie.parse = parse5;
     Cookie.fromJSON = fromJSON;
     Cookie.prototype.key = "";
     Cookie.prototype.value = "";
@@ -13049,27 +13049,27 @@ var require_cookie = __commonJS({
       var expireCheck = options.expire !== false;
       var allPaths = !!options.allPaths;
       var store = this.store;
-      function matchingCookie(c4) {
-        if (c4.hostOnly) {
-          if (c4.domain != host) {
+      function matchingCookie(c3) {
+        if (c3.hostOnly) {
+          if (c3.domain != host) {
             return false;
           }
         } else {
-          if (!domainMatch(host, c4.domain, false)) {
+          if (!domainMatch(host, c3.domain, false)) {
             return false;
           }
         }
-        if (!allPaths && !pathMatch(path2, c4.path)) {
+        if (!allPaths && !pathMatch(path2, c3.path)) {
           return false;
         }
-        if (c4.secure && !secure) {
+        if (c3.secure && !secure) {
           return false;
         }
-        if (c4.httpOnly && !http2) {
+        if (c3.httpOnly && !http2) {
           return false;
         }
-        if (expireCheck && c4.expiryTime() <= now) {
-          store.removeCookie(c4.domain, c4.path, c4.key, function() {
+        if (expireCheck && c3.expiryTime() <= now) {
+          store.removeCookie(c3.domain, c3.path, c3.key, function() {
           });
           return false;
         }
@@ -13084,8 +13084,8 @@ var require_cookie = __commonJS({
           cookies = cookies.sort(cookieCompare);
         }
         var now2 = /* @__PURE__ */ new Date();
-        cookies.forEach(function(c4) {
-          c4.lastAccessed = now2;
+        cookies.forEach(function(c3) {
+          c3.lastAccessed = now2;
         });
         cb2(null, cookies);
       });
@@ -13098,8 +13098,8 @@ var require_cookie = __commonJS({
         if (err) {
           cb2(err);
         } else {
-          cb2(null, cookies.sort(cookieCompare).map(function(c4) {
-            return c4.cookieString();
+          cb2(null, cookies.sort(cookieCompare).map(function(c3) {
+            return c3.cookieString();
           }).join("; "));
         }
       };
@@ -13114,8 +13114,8 @@ var require_cookie = __commonJS({
         if (err) {
           cb2(err);
         } else {
-          cb2(null, cookies.map(function(c4) {
-            return c4.toString();
+          cb2(null, cookies.map(function(c3) {
+            return c3.toString();
           }));
         }
       };
@@ -13294,7 +13294,7 @@ var require_cookie = __commonJS({
     exports2.MemoryCookieStore = MemoryCookieStore;
     exports2.parseDate = parseDate;
     exports2.formatDate = formatDate;
-    exports2.parse = parse6;
+    exports2.parse = parse5;
     exports2.fromJSON = fromJSON;
     exports2.domainMatch = domainMatch;
     exports2.defaultPath = defaultPath;
@@ -13493,7 +13493,7 @@ var require_helpers = __commonJS({
 var require_aws_sign2 = __commonJS({
   "../../node_modules/.pnpm/aws-sign2@0.7.0/node_modules/aws-sign2/index.js"(exports2, module2) {
     var crypto2 = require("crypto");
-    var parse6 = require("url").parse;
+    var parse5 = require("url").parse;
     var keys = [
       "acl",
       "location",
@@ -13559,7 +13559,7 @@ var require_aws_sign2 = __commonJS({
     }
     module2.exports.canonicalizeHeaders = canonicalizeHeaders;
     function canonicalizeResource(resource) {
-      var url = parse6(resource, true), path2 = url.pathname, buf = [];
+      var url = parse5(resource, true), path2 = url.pathname, buf = [];
       Object.keys(url.query).forEach(function(key) {
         if (!~keys.indexOf(key))
           return;
@@ -13680,8 +13680,8 @@ var require_aws4 = __commonJS({
       return crypto2.createHash("sha256").update(string, "utf8").digest(encoding);
     }
     function encodeRfc3986(urlEncodedString) {
-      return urlEncodedString.replace(/[!'()*]/g, function(c4) {
-        return "%" + c4.charCodeAt(0).toString(16).toUpperCase();
+      return urlEncodedString.replace(/[!'()*]/g, function(c3) {
+        return "%" + c3.charCodeAt(0).toString(16).toUpperCase();
       });
     }
     function encodeRfc3986Full(str) {
@@ -14893,10 +14893,10 @@ var require_jsbn = __commonJS({
       var dbits;
       var canary = 244837814094590;
       var j_lm = (canary & 16777215) == 15715070;
-      function BigInteger(a3, b5, c4) {
+      function BigInteger(a3, b5, c3) {
         if (a3 != null)
           if ("number" == typeof a3)
-            this.fromNumber(a3, b5, c4);
+            this.fromNumber(a3, b5, c3);
           else if (b5 == null && "string" != typeof a3)
             this.fromString(a3, 256);
           else
@@ -14905,37 +14905,37 @@ var require_jsbn = __commonJS({
       function nbi() {
         return new BigInteger(null);
       }
-      function am1(i2, x2, w2, j2, c4, n2) {
+      function am1(i2, x2, w3, j2, c3, n2) {
         while (--n2 >= 0) {
-          var v2 = x2 * this[i2++] + w2[j2] + c4;
-          c4 = Math.floor(v2 / 67108864);
-          w2[j2++] = v2 & 67108863;
+          var v2 = x2 * this[i2++] + w3[j2] + c3;
+          c3 = Math.floor(v2 / 67108864);
+          w3[j2++] = v2 & 67108863;
         }
-        return c4;
+        return c3;
       }
-      function am2(i2, x2, w2, j2, c4, n2) {
+      function am2(i2, x2, w3, j2, c3, n2) {
         var xl = x2 & 32767, xh = x2 >> 15;
         while (--n2 >= 0) {
           var l2 = this[i2] & 32767;
-          var h2 = this[i2++] >> 15;
-          var m2 = xh * l2 + h2 * xl;
-          l2 = xl * l2 + ((m2 & 32767) << 15) + w2[j2] + (c4 & 1073741823);
-          c4 = (l2 >>> 30) + (m2 >>> 15) + xh * h2 + (c4 >>> 30);
-          w2[j2++] = l2 & 1073741823;
+          var h3 = this[i2++] >> 15;
+          var m2 = xh * l2 + h3 * xl;
+          l2 = xl * l2 + ((m2 & 32767) << 15) + w3[j2] + (c3 & 1073741823);
+          c3 = (l2 >>> 30) + (m2 >>> 15) + xh * h3 + (c3 >>> 30);
+          w3[j2++] = l2 & 1073741823;
         }
-        return c4;
+        return c3;
       }
-      function am3(i2, x2, w2, j2, c4, n2) {
+      function am3(i2, x2, w3, j2, c3, n2) {
         var xl = x2 & 16383, xh = x2 >> 14;
         while (--n2 >= 0) {
           var l2 = this[i2] & 16383;
-          var h2 = this[i2++] >> 14;
-          var m2 = xh * l2 + h2 * xl;
-          l2 = xl * l2 + ((m2 & 16383) << 14) + w2[j2] + c4;
-          c4 = (l2 >> 28) + (m2 >> 14) + xh * h2;
-          w2[j2++] = l2 & 268435455;
+          var h3 = this[i2++] >> 14;
+          var m2 = xh * l2 + h3 * xl;
+          l2 = xl * l2 + ((m2 & 16383) << 14) + w3[j2] + c3;
+          c3 = (l2 >> 28) + (m2 >> 14) + xh * h3;
+          w3[j2++] = l2 & 268435455;
         }
-        return c4;
+        return c3;
       }
       var inBrowser = typeof navigator !== "undefined";
       if (inBrowser && j_lm && navigator.appName == "Microsoft Internet Explorer") {
@@ -14971,8 +14971,8 @@ var require_jsbn = __commonJS({
         return BI_RM.charAt(n2);
       }
       function intAt(s2, i2) {
-        var c4 = BI_RC[s2.charCodeAt(i2)];
-        return c4 == null ? -1 : c4;
+        var c3 = BI_RC[s2.charCodeAt(i2)];
+        return c3 == null ? -1 : c3;
       }
       function bnpCopyTo(r2) {
         for (var i2 = this.t - 1; i2 >= 0; --i2)
@@ -15045,8 +15045,8 @@ var require_jsbn = __commonJS({
           BigInteger.ZERO.subTo(this, this);
       }
       function bnpClamp() {
-        var c4 = this.s & this.DM;
-        while (this.t > 0 && this[this.t - 1] == c4)
+        var c3 = this.s & this.DM;
+        while (this.t > 0 && this[this.t - 1] == c3)
           --this.t;
       }
       function bnToString(b5) {
@@ -15160,14 +15160,14 @@ var require_jsbn = __commonJS({
         var bs = n2 % this.DB;
         var cbs = this.DB - bs;
         var bm = (1 << cbs) - 1;
-        var ds = Math.floor(n2 / this.DB), c4 = this.s << bs & this.DM, i2;
+        var ds = Math.floor(n2 / this.DB), c3 = this.s << bs & this.DM, i2;
         for (i2 = this.t - 1; i2 >= 0; --i2) {
-          r2[i2 + ds + 1] = this[i2] >> cbs | c4;
-          c4 = (this[i2] & bm) << bs;
+          r2[i2 + ds + 1] = this[i2] >> cbs | c3;
+          c3 = (this[i2] & bm) << bs;
         }
         for (i2 = ds - 1; i2 >= 0; --i2)
           r2[i2] = 0;
-        r2[ds] = c4;
+        r2[ds] = c3;
         r2.t = this.t + ds + 1;
         r2.s = this.s;
         r2.clamp();
@@ -15193,34 +15193,34 @@ var require_jsbn = __commonJS({
         r2.clamp();
       }
       function bnpSubTo(a3, r2) {
-        var i2 = 0, c4 = 0, m2 = Math.min(a3.t, this.t);
+        var i2 = 0, c3 = 0, m2 = Math.min(a3.t, this.t);
         while (i2 < m2) {
-          c4 += this[i2] - a3[i2];
-          r2[i2++] = c4 & this.DM;
-          c4 >>= this.DB;
+          c3 += this[i2] - a3[i2];
+          r2[i2++] = c3 & this.DM;
+          c3 >>= this.DB;
         }
         if (a3.t < this.t) {
-          c4 -= a3.s;
+          c3 -= a3.s;
           while (i2 < this.t) {
-            c4 += this[i2];
-            r2[i2++] = c4 & this.DM;
-            c4 >>= this.DB;
+            c3 += this[i2];
+            r2[i2++] = c3 & this.DM;
+            c3 >>= this.DB;
           }
-          c4 += this.s;
+          c3 += this.s;
         } else {
-          c4 += this.s;
+          c3 += this.s;
           while (i2 < a3.t) {
-            c4 -= a3[i2];
-            r2[i2++] = c4 & this.DM;
-            c4 >>= this.DB;
+            c3 -= a3[i2];
+            r2[i2++] = c3 & this.DM;
+            c3 >>= this.DB;
           }
-          c4 -= a3.s;
+          c3 -= a3.s;
         }
-        r2.s = c4 < 0 ? -1 : 0;
-        if (c4 < -1)
-          r2[i2++] = this.DV + c4;
-        else if (c4 > 0)
-          r2[i2++] = c4;
+        r2.s = c3 < 0 ? -1 : 0;
+        if (c3 < -1)
+          r2[i2++] = this.DV + c3;
+        else if (c3 > 0)
+          r2[i2++] = c3;
         r2.t = i2;
         r2.clamp();
       }
@@ -15243,8 +15243,8 @@ var require_jsbn = __commonJS({
         while (--i2 >= 0)
           r2[i2] = 0;
         for (i2 = 0; i2 < x2.t - 1; ++i2) {
-          var c4 = x2.am(i2, x2[i2], r2, 2 * i2, 0, 1);
-          if ((r2[i2 + x2.t] += x2.am(i2 + 1, 2 * x2[i2], r2, 2 * i2 + 1, c4, x2.t - i2 - 1)) >= x2.DV) {
+          var c3 = x2.am(i2, x2[i2], r2, 2 * i2, 0, 1);
+          if ((r2[i2 + x2.t] += x2.am(i2 + 1, 2 * x2[i2], r2, 2 * i2 + 1, c3, x2.t - i2 - 1)) >= x2.DV) {
             r2[i2 + x2.t] -= x2.DV;
             r2[i2 + x2.t + 1] = 1;
           }
@@ -15521,7 +15521,7 @@ var require_jsbn = __commonJS({
         if (b5 == null)
           b5 = 10;
         var cs = this.chunkSize(b5);
-        var d2 = Math.pow(b5, cs), mi = false, j2 = 0, w2 = 0;
+        var d2 = Math.pow(b5, cs), mi = false, j2 = 0, w3 = 0;
         for (var i2 = 0; i2 < s2.length; ++i2) {
           var x2 = intAt(s2, i2);
           if (x2 < 0) {
@@ -15529,27 +15529,27 @@ var require_jsbn = __commonJS({
               mi = true;
             continue;
           }
-          w2 = b5 * w2 + x2;
+          w3 = b5 * w3 + x2;
           if (++j2 >= cs) {
             this.dMultiply(d2);
-            this.dAddOffset(w2, 0);
+            this.dAddOffset(w3, 0);
             j2 = 0;
-            w2 = 0;
+            w3 = 0;
           }
         }
         if (j2 > 0) {
           this.dMultiply(Math.pow(b5, j2));
-          this.dAddOffset(w2, 0);
+          this.dAddOffset(w3, 0);
         }
         if (mi)
           BigInteger.ZERO.subTo(this, this);
       }
-      function bnpFromNumber(a3, b5, c4) {
+      function bnpFromNumber(a3, b5, c3) {
         if ("number" == typeof b5) {
           if (a3 < 2)
             this.fromInt(1);
           else {
-            this.fromNumber(a3, c4);
+            this.fromNumber(a3, c3);
             if (!this.testBit(a3 - 1))
               this.bitwiseTo(BigInteger.ONE.shiftLeft(a3 - 1), op_or, this);
             if (this.isEven())
@@ -15749,34 +15749,34 @@ var require_jsbn = __commonJS({
         return this.changeBit(n2, op_xor);
       }
       function bnpAddTo(a3, r2) {
-        var i2 = 0, c4 = 0, m2 = Math.min(a3.t, this.t);
+        var i2 = 0, c3 = 0, m2 = Math.min(a3.t, this.t);
         while (i2 < m2) {
-          c4 += this[i2] + a3[i2];
-          r2[i2++] = c4 & this.DM;
-          c4 >>= this.DB;
+          c3 += this[i2] + a3[i2];
+          r2[i2++] = c3 & this.DM;
+          c3 >>= this.DB;
         }
         if (a3.t < this.t) {
-          c4 += a3.s;
+          c3 += a3.s;
           while (i2 < this.t) {
-            c4 += this[i2];
-            r2[i2++] = c4 & this.DM;
-            c4 >>= this.DB;
+            c3 += this[i2];
+            r2[i2++] = c3 & this.DM;
+            c3 >>= this.DB;
           }
-          c4 += this.s;
+          c3 += this.s;
         } else {
-          c4 += this.s;
+          c3 += this.s;
           while (i2 < a3.t) {
-            c4 += a3[i2];
-            r2[i2++] = c4 & this.DM;
-            c4 >>= this.DB;
+            c3 += a3[i2];
+            r2[i2++] = c3 & this.DM;
+            c3 >>= this.DB;
           }
-          c4 += a3.s;
+          c3 += a3.s;
         }
-        r2.s = c4 < 0 ? -1 : 0;
-        if (c4 > 0)
-          r2[i2++] = c4;
-        else if (c4 < -1)
-          r2[i2++] = this.DV + c4;
+        r2.s = c3 < 0 ? -1 : 0;
+        if (c3 > 0)
+          r2[i2++] = c3;
+        else if (c3 < -1)
+          r2[i2++] = this.DV + c3;
         r2.t = i2;
         r2.clamp();
       }
@@ -15820,17 +15820,17 @@ var require_jsbn = __commonJS({
         ++this.t;
         this.clamp();
       }
-      function bnpDAddOffset(n2, w2) {
+      function bnpDAddOffset(n2, w3) {
         if (n2 == 0)
           return;
-        while (this.t <= w2)
+        while (this.t <= w3)
           this[this.t++] = 0;
-        this[w2] += n2;
-        while (this[w2] >= this.DV) {
-          this[w2] -= this.DV;
-          if (++w2 >= this.t)
+        this[w3] += n2;
+        while (this[w3] >= this.DV) {
+          this[w3] -= this.DV;
+          if (++w3 >= this.t)
             this[this.t++] = 0;
-          ++this[w2];
+          ++this[w3];
         }
       }
       function NullExp() {
@@ -15955,19 +15955,19 @@ var require_jsbn = __commonJS({
             n2 += 2;
           }
         }
-        var j2 = e2.t - 1, w2, is1 = true, r22 = nbi(), t3;
+        var j2 = e2.t - 1, w3, is1 = true, r22 = nbi(), t3;
         i2 = nbits(e2[j2]) - 1;
         while (j2 >= 0) {
           if (i2 >= k1)
-            w2 = e2[j2] >> i2 - k1 & km;
+            w3 = e2[j2] >> i2 - k1 & km;
           else {
-            w2 = (e2[j2] & (1 << i2 + 1) - 1) << k1 - i2;
+            w3 = (e2[j2] & (1 << i2 + 1) - 1) << k1 - i2;
             if (j2 > 0)
-              w2 |= e2[j2 - 1] >> this.DB + i2 - k1;
+              w3 |= e2[j2 - 1] >> this.DB + i2 - k1;
           }
           n2 = k2;
-          while ((w2 & 1) == 0) {
-            w2 >>= 1;
+          while ((w3 & 1) == 0) {
+            w3 >>= 1;
             --n2;
           }
           if ((i2 -= n2) < 0) {
@@ -15975,7 +15975,7 @@ var require_jsbn = __commonJS({
             --j2;
           }
           if (is1) {
-            g2[w2].copyTo(r2);
+            g2[w3].copyTo(r2);
             is1 = false;
           } else {
             while (n2 > 1) {
@@ -15990,7 +15990,7 @@ var require_jsbn = __commonJS({
               r2 = r22;
               r22 = t3;
             }
-            z3.mulTo(r22, g2[w2], r2);
+            z3.mulTo(r22, g2[w3], r2);
           }
           while (j2 >= 0 && (e2[j2] & 1 << i2) == 0) {
             z3.sqrTo(r2, r22);
@@ -16056,7 +16056,7 @@ var require_jsbn = __commonJS({
         if (this.isEven() && ac || m2.signum() == 0)
           return BigInteger.ZERO;
         var u2 = m2.clone(), v2 = this.clone();
-        var a3 = nbv(1), b5 = nbv(0), c4 = nbv(0), d2 = nbv(1);
+        var a3 = nbv(1), b5 = nbv(0), c3 = nbv(0), d2 = nbv(1);
         while (u2.signum() != 0) {
           while (u2.isEven()) {
             u2.rShiftTo(1, u2);
@@ -16073,11 +16073,11 @@ var require_jsbn = __commonJS({
           while (v2.isEven()) {
             v2.rShiftTo(1, v2);
             if (ac) {
-              if (!c4.isEven() || !d2.isEven()) {
-                c4.addTo(this, c4);
+              if (!c3.isEven() || !d2.isEven()) {
+                c3.addTo(this, c3);
                 d2.subTo(m2, d2);
               }
-              c4.rShiftTo(1, c4);
+              c3.rShiftTo(1, c3);
             } else if (!d2.isEven())
               d2.subTo(m2, d2);
             d2.rShiftTo(1, d2);
@@ -16085,12 +16085,12 @@ var require_jsbn = __commonJS({
           if (u2.compareTo(v2) >= 0) {
             u2.subTo(v2, u2);
             if (ac)
-              a3.subTo(c4, a3);
+              a3.subTo(c3, a3);
             b5.subTo(d2, b5);
           } else {
             v2.subTo(u2, v2);
             if (ac)
-              c4.subTo(a3, c4);
+              c3.subTo(a3, c3);
             d2.subTo(b5, d2);
           }
         }
@@ -16438,13 +16438,13 @@ var require_ec = __commonJS({
       var y1z1 = y1.multiply(this.z);
       var y1sqz1 = y1z1.multiply(y1).mod(this.curve.q);
       var a3 = this.curve.a.toBigInteger();
-      var w2 = x1.square().multiply(THREE);
+      var w3 = x1.square().multiply(THREE);
       if (!BigInteger.ZERO.equals(a3)) {
-        w2 = w2.add(this.z.square().multiply(a3));
+        w3 = w3.add(this.z.square().multiply(a3));
       }
-      w2 = w2.mod(this.curve.q);
-      var x3 = w2.square().subtract(x1.shiftLeft(3).multiply(y1sqz1)).shiftLeft(1).multiply(y1z1).mod(this.curve.q);
-      var y3 = w2.multiply(THREE).multiply(x1).subtract(y1sqz1.shiftLeft(1)).shiftLeft(2).multiply(y1sqz1).subtract(w2.square().multiply(w2)).mod(this.curve.q);
+      w3 = w3.mod(this.curve.q);
+      var x3 = w3.square().subtract(x1.shiftLeft(3).multiply(y1sqz1)).shiftLeft(1).multiply(y1z1).mod(this.curve.q);
+      var y3 = w3.multiply(THREE).multiply(x1).subtract(y1sqz1.shiftLeft(1)).shiftLeft(2).multiply(y1sqz1).subtract(w3.square().multiply(w3)).mod(this.curve.q);
       var z3 = y1z1.square().multiply(y1z1).shiftLeft(3).mod(this.curve.q);
       return new ECPointFp(this.curve, this.curve.fromBigInteger(x3), this.curve.fromBigInteger(y3), z3);
     }
@@ -16454,13 +16454,13 @@ var require_ec = __commonJS({
       if (k2.signum() == 0)
         return this.curve.getInfinity();
       var e2 = k2;
-      var h2 = e2.multiply(new BigInteger("3"));
+      var h3 = e2.multiply(new BigInteger("3"));
       var neg = this.negate();
       var R2 = this;
       var i2;
-      for (i2 = h2.bitLength() - 2; i2 > 0; --i2) {
+      for (i2 = h3.bitLength() - 2; i2 > 0; --i2) {
         R2 = R2.twice();
-        var hBit = h2.testBit(i2);
+        var hBit = h3.testBit(i2);
         var eBit = e2.testBit(i2);
         if (hBit != eBit) {
           R2 = R2.add(hBit ? this : neg);
@@ -16741,11 +16741,11 @@ var require_nacl_fast = __commonJS({
       var _9 = new Uint8Array(32);
       _9[0] = 9;
       var gf0 = gf(), gf1 = gf([1]), _121665 = gf([56129, 1]), D2 = gf([30883, 4953, 19914, 30187, 55467, 16705, 2637, 112, 59544, 30585, 16505, 36039, 65139, 11119, 27886, 20995]), D22 = gf([61785, 9906, 39828, 60374, 45398, 33411, 5274, 224, 53552, 61171, 33010, 6542, 64743, 22239, 55772, 9222]), X2 = gf([54554, 36645, 11616, 51542, 42930, 38181, 51040, 26924, 56412, 64982, 57905, 49316, 21502, 52590, 14035, 8553]), Y2 = gf([26200, 26214, 26214, 26214, 26214, 26214, 26214, 26214, 26214, 26214, 26214, 26214, 26214, 26214, 26214, 26214]), I2 = gf([41136, 18958, 6951, 50414, 58488, 44335, 6150, 12099, 55207, 15867, 153, 11085, 57099, 20417, 9344, 11139]);
-      function ts64(x2, i2, h2, l2) {
-        x2[i2] = h2 >> 24 & 255;
-        x2[i2 + 1] = h2 >> 16 & 255;
-        x2[i2 + 2] = h2 >> 8 & 255;
-        x2[i2 + 3] = h2 & 255;
+      function ts64(x2, i2, h3, l2) {
+        x2[i2] = h3 >> 24 & 255;
+        x2[i2 + 1] = h3 >> 16 & 255;
+        x2[i2 + 2] = h3 >> 8 & 255;
+        x2[i2 + 3] = h3 & 255;
         x2[i2 + 4] = l2 >> 24 & 255;
         x2[i2 + 5] = l2 >> 16 & 255;
         x2[i2 + 6] = l2 >> 8 & 255;
@@ -16763,8 +16763,8 @@ var require_nacl_fast = __commonJS({
       function crypto_verify_32(x2, xi, y2, yi) {
         return vn(x2, xi, y2, yi, 32);
       }
-      function core_salsa20(o2, p2, k2, c4) {
-        var j0 = c4[0] & 255 | (c4[1] & 255) << 8 | (c4[2] & 255) << 16 | (c4[3] & 255) << 24, j1 = k2[0] & 255 | (k2[1] & 255) << 8 | (k2[2] & 255) << 16 | (k2[3] & 255) << 24, j2 = k2[4] & 255 | (k2[5] & 255) << 8 | (k2[6] & 255) << 16 | (k2[7] & 255) << 24, j3 = k2[8] & 255 | (k2[9] & 255) << 8 | (k2[10] & 255) << 16 | (k2[11] & 255) << 24, j4 = k2[12] & 255 | (k2[13] & 255) << 8 | (k2[14] & 255) << 16 | (k2[15] & 255) << 24, j5 = c4[4] & 255 | (c4[5] & 255) << 8 | (c4[6] & 255) << 16 | (c4[7] & 255) << 24, j6 = p2[0] & 255 | (p2[1] & 255) << 8 | (p2[2] & 255) << 16 | (p2[3] & 255) << 24, j7 = p2[4] & 255 | (p2[5] & 255) << 8 | (p2[6] & 255) << 16 | (p2[7] & 255) << 24, j8 = p2[8] & 255 | (p2[9] & 255) << 8 | (p2[10] & 255) << 16 | (p2[11] & 255) << 24, j9 = p2[12] & 255 | (p2[13] & 255) << 8 | (p2[14] & 255) << 16 | (p2[15] & 255) << 24, j10 = c4[8] & 255 | (c4[9] & 255) << 8 | (c4[10] & 255) << 16 | (c4[11] & 255) << 24, j11 = k2[16] & 255 | (k2[17] & 255) << 8 | (k2[18] & 255) << 16 | (k2[19] & 255) << 24, j12 = k2[20] & 255 | (k2[21] & 255) << 8 | (k2[22] & 255) << 16 | (k2[23] & 255) << 24, j13 = k2[24] & 255 | (k2[25] & 255) << 8 | (k2[26] & 255) << 16 | (k2[27] & 255) << 24, j14 = k2[28] & 255 | (k2[29] & 255) << 8 | (k2[30] & 255) << 16 | (k2[31] & 255) << 24, j15 = c4[12] & 255 | (c4[13] & 255) << 8 | (c4[14] & 255) << 16 | (c4[15] & 255) << 24;
+      function core_salsa20(o2, p2, k2, c3) {
+        var j0 = c3[0] & 255 | (c3[1] & 255) << 8 | (c3[2] & 255) << 16 | (c3[3] & 255) << 24, j1 = k2[0] & 255 | (k2[1] & 255) << 8 | (k2[2] & 255) << 16 | (k2[3] & 255) << 24, j2 = k2[4] & 255 | (k2[5] & 255) << 8 | (k2[6] & 255) << 16 | (k2[7] & 255) << 24, j3 = k2[8] & 255 | (k2[9] & 255) << 8 | (k2[10] & 255) << 16 | (k2[11] & 255) << 24, j4 = k2[12] & 255 | (k2[13] & 255) << 8 | (k2[14] & 255) << 16 | (k2[15] & 255) << 24, j5 = c3[4] & 255 | (c3[5] & 255) << 8 | (c3[6] & 255) << 16 | (c3[7] & 255) << 24, j6 = p2[0] & 255 | (p2[1] & 255) << 8 | (p2[2] & 255) << 16 | (p2[3] & 255) << 24, j7 = p2[4] & 255 | (p2[5] & 255) << 8 | (p2[6] & 255) << 16 | (p2[7] & 255) << 24, j8 = p2[8] & 255 | (p2[9] & 255) << 8 | (p2[10] & 255) << 16 | (p2[11] & 255) << 24, j9 = p2[12] & 255 | (p2[13] & 255) << 8 | (p2[14] & 255) << 16 | (p2[15] & 255) << 24, j10 = c3[8] & 255 | (c3[9] & 255) << 8 | (c3[10] & 255) << 16 | (c3[11] & 255) << 24, j11 = k2[16] & 255 | (k2[17] & 255) << 8 | (k2[18] & 255) << 16 | (k2[19] & 255) << 24, j12 = k2[20] & 255 | (k2[21] & 255) << 8 | (k2[22] & 255) << 16 | (k2[23] & 255) << 24, j13 = k2[24] & 255 | (k2[25] & 255) << 8 | (k2[26] & 255) << 16 | (k2[27] & 255) << 24, j14 = k2[28] & 255 | (k2[29] & 255) << 8 | (k2[30] & 255) << 16 | (k2[31] & 255) << 24, j15 = c3[12] & 255 | (c3[13] & 255) << 8 | (c3[14] & 255) << 16 | (c3[15] & 255) << 24;
         var x0 = j0, x1 = j1, x2 = j2, x3 = j3, x4 = j4, x5 = j5, x6 = j6, x7 = j7, x8 = j8, x9 = j9, x10 = j10, x11 = j11, x12 = j12, x13 = j13, x14 = j14, x15 = j15, u2;
         for (var i2 = 0; i2 < 20; i2 += 2) {
           u2 = x0 + x12 | 0;
@@ -16913,8 +16913,8 @@ var require_nacl_fast = __commonJS({
         o2[62] = x15 >>> 16 & 255;
         o2[63] = x15 >>> 24 & 255;
       }
-      function core_hsalsa20(o2, p2, k2, c4) {
-        var j0 = c4[0] & 255 | (c4[1] & 255) << 8 | (c4[2] & 255) << 16 | (c4[3] & 255) << 24, j1 = k2[0] & 255 | (k2[1] & 255) << 8 | (k2[2] & 255) << 16 | (k2[3] & 255) << 24, j2 = k2[4] & 255 | (k2[5] & 255) << 8 | (k2[6] & 255) << 16 | (k2[7] & 255) << 24, j3 = k2[8] & 255 | (k2[9] & 255) << 8 | (k2[10] & 255) << 16 | (k2[11] & 255) << 24, j4 = k2[12] & 255 | (k2[13] & 255) << 8 | (k2[14] & 255) << 16 | (k2[15] & 255) << 24, j5 = c4[4] & 255 | (c4[5] & 255) << 8 | (c4[6] & 255) << 16 | (c4[7] & 255) << 24, j6 = p2[0] & 255 | (p2[1] & 255) << 8 | (p2[2] & 255) << 16 | (p2[3] & 255) << 24, j7 = p2[4] & 255 | (p2[5] & 255) << 8 | (p2[6] & 255) << 16 | (p2[7] & 255) << 24, j8 = p2[8] & 255 | (p2[9] & 255) << 8 | (p2[10] & 255) << 16 | (p2[11] & 255) << 24, j9 = p2[12] & 255 | (p2[13] & 255) << 8 | (p2[14] & 255) << 16 | (p2[15] & 255) << 24, j10 = c4[8] & 255 | (c4[9] & 255) << 8 | (c4[10] & 255) << 16 | (c4[11] & 255) << 24, j11 = k2[16] & 255 | (k2[17] & 255) << 8 | (k2[18] & 255) << 16 | (k2[19] & 255) << 24, j12 = k2[20] & 255 | (k2[21] & 255) << 8 | (k2[22] & 255) << 16 | (k2[23] & 255) << 24, j13 = k2[24] & 255 | (k2[25] & 255) << 8 | (k2[26] & 255) << 16 | (k2[27] & 255) << 24, j14 = k2[28] & 255 | (k2[29] & 255) << 8 | (k2[30] & 255) << 16 | (k2[31] & 255) << 24, j15 = c4[12] & 255 | (c4[13] & 255) << 8 | (c4[14] & 255) << 16 | (c4[15] & 255) << 24;
+      function core_hsalsa20(o2, p2, k2, c3) {
+        var j0 = c3[0] & 255 | (c3[1] & 255) << 8 | (c3[2] & 255) << 16 | (c3[3] & 255) << 24, j1 = k2[0] & 255 | (k2[1] & 255) << 8 | (k2[2] & 255) << 16 | (k2[3] & 255) << 24, j2 = k2[4] & 255 | (k2[5] & 255) << 8 | (k2[6] & 255) << 16 | (k2[7] & 255) << 24, j3 = k2[8] & 255 | (k2[9] & 255) << 8 | (k2[10] & 255) << 16 | (k2[11] & 255) << 24, j4 = k2[12] & 255 | (k2[13] & 255) << 8 | (k2[14] & 255) << 16 | (k2[15] & 255) << 24, j5 = c3[4] & 255 | (c3[5] & 255) << 8 | (c3[6] & 255) << 16 | (c3[7] & 255) << 24, j6 = p2[0] & 255 | (p2[1] & 255) << 8 | (p2[2] & 255) << 16 | (p2[3] & 255) << 24, j7 = p2[4] & 255 | (p2[5] & 255) << 8 | (p2[6] & 255) << 16 | (p2[7] & 255) << 24, j8 = p2[8] & 255 | (p2[9] & 255) << 8 | (p2[10] & 255) << 16 | (p2[11] & 255) << 24, j9 = p2[12] & 255 | (p2[13] & 255) << 8 | (p2[14] & 255) << 16 | (p2[15] & 255) << 24, j10 = c3[8] & 255 | (c3[9] & 255) << 8 | (c3[10] & 255) << 16 | (c3[11] & 255) << 24, j11 = k2[16] & 255 | (k2[17] & 255) << 8 | (k2[18] & 255) << 16 | (k2[19] & 255) << 24, j12 = k2[20] & 255 | (k2[21] & 255) << 8 | (k2[22] & 255) << 16 | (k2[23] & 255) << 24, j13 = k2[24] & 255 | (k2[25] & 255) << 8 | (k2[26] & 255) << 16 | (k2[27] & 255) << 24, j14 = k2[28] & 255 | (k2[29] & 255) << 8 | (k2[30] & 255) << 16 | (k2[31] & 255) << 24, j15 = c3[12] & 255 | (c3[13] & 255) << 8 | (c3[14] & 255) << 16 | (c3[15] & 255) << 24;
         var x0 = j0, x1 = j1, x2 = j2, x3 = j3, x4 = j4, x5 = j5, x6 = j6, x7 = j7, x8 = j8, x9 = j9, x10 = j10, x11 = j11, x12 = j12, x13 = j13, x14 = j14, x15 = j15, u2;
         for (var i2 = 0; i2 < 20; i2 += 2) {
           u2 = x0 + x12 | 0;
@@ -17015,14 +17015,14 @@ var require_nacl_fast = __commonJS({
         o2[30] = x9 >>> 16 & 255;
         o2[31] = x9 >>> 24 & 255;
       }
-      function crypto_core_salsa20(out, inp, k2, c4) {
-        core_salsa20(out, inp, k2, c4);
+      function crypto_core_salsa20(out, inp, k2, c3) {
+        core_salsa20(out, inp, k2, c3);
       }
-      function crypto_core_hsalsa20(out, inp, k2, c4) {
-        core_hsalsa20(out, inp, k2, c4);
+      function crypto_core_hsalsa20(out, inp, k2, c3) {
+        core_hsalsa20(out, inp, k2, c3);
       }
       var sigma = new Uint8Array([101, 120, 112, 97, 110, 100, 32, 51, 50, 45, 98, 121, 116, 101, 32, 107]);
-      function crypto_stream_salsa20_xor(c4, cpos, m2, mpos, b5, n2, k2) {
+      function crypto_stream_salsa20_xor(c3, cpos, m2, mpos, b5, n2, k2) {
         var z2 = new Uint8Array(16), x2 = new Uint8Array(64);
         var u2, i2;
         for (i2 = 0; i2 < 16; i2++)
@@ -17032,7 +17032,7 @@ var require_nacl_fast = __commonJS({
         while (b5 >= 64) {
           crypto_core_salsa20(x2, z2, k2, sigma);
           for (i2 = 0; i2 < 64; i2++)
-            c4[cpos + i2] = m2[mpos + i2] ^ x2[i2];
+            c3[cpos + i2] = m2[mpos + i2] ^ x2[i2];
           u2 = 1;
           for (i2 = 8; i2 < 16; i2++) {
             u2 = u2 + (z2[i2] & 255) | 0;
@@ -17046,11 +17046,11 @@ var require_nacl_fast = __commonJS({
         if (b5 > 0) {
           crypto_core_salsa20(x2, z2, k2, sigma);
           for (i2 = 0; i2 < b5; i2++)
-            c4[cpos + i2] = m2[mpos + i2] ^ x2[i2];
+            c3[cpos + i2] = m2[mpos + i2] ^ x2[i2];
         }
         return 0;
       }
-      function crypto_stream_salsa20(c4, cpos, b5, n2, k2) {
+      function crypto_stream_salsa20(c3, cpos, b5, n2, k2) {
         var z2 = new Uint8Array(16), x2 = new Uint8Array(64);
         var u2, i2;
         for (i2 = 0; i2 < 16; i2++)
@@ -17060,7 +17060,7 @@ var require_nacl_fast = __commonJS({
         while (b5 >= 64) {
           crypto_core_salsa20(x2, z2, k2, sigma);
           for (i2 = 0; i2 < 64; i2++)
-            c4[cpos + i2] = x2[i2];
+            c3[cpos + i2] = x2[i2];
           u2 = 1;
           for (i2 = 8; i2 < 16; i2++) {
             u2 = u2 + (z2[i2] & 255) | 0;
@@ -17073,25 +17073,25 @@ var require_nacl_fast = __commonJS({
         if (b5 > 0) {
           crypto_core_salsa20(x2, z2, k2, sigma);
           for (i2 = 0; i2 < b5; i2++)
-            c4[cpos + i2] = x2[i2];
+            c3[cpos + i2] = x2[i2];
         }
         return 0;
       }
-      function crypto_stream(c4, cpos, d2, n2, k2) {
+      function crypto_stream(c3, cpos, d2, n2, k2) {
         var s2 = new Uint8Array(32);
         crypto_core_hsalsa20(s2, n2, k2, sigma);
         var sn = new Uint8Array(8);
         for (var i2 = 0; i2 < 8; i2++)
           sn[i2] = n2[i2 + 16];
-        return crypto_stream_salsa20(c4, cpos, d2, sn, s2);
+        return crypto_stream_salsa20(c3, cpos, d2, sn, s2);
       }
-      function crypto_stream_xor(c4, cpos, m2, mpos, d2, n2, k2) {
+      function crypto_stream_xor(c3, cpos, m2, mpos, d2, n2, k2) {
         var s2 = new Uint8Array(32);
         crypto_core_hsalsa20(s2, n2, k2, sigma);
         var sn = new Uint8Array(8);
         for (var i2 = 0; i2 < 8; i2++)
           sn[i2] = n2[i2 + 16];
-        return crypto_stream_salsa20_xor(c4, cpos, m2, mpos, d2, sn, s2);
+        return crypto_stream_salsa20_xor(c3, cpos, m2, mpos, d2, sn, s2);
       }
       var poly1305 = function(key) {
         this.buffer = new Uint8Array(16);
@@ -17130,9 +17130,9 @@ var require_nacl_fast = __commonJS({
       };
       poly1305.prototype.blocks = function(m2, mpos, bytes) {
         var hibit = this.fin ? 0 : 1 << 11;
-        var t0, t1, t2, t3, t4, t5, t6, t7, c4;
+        var t0, t1, t2, t3, t4, t5, t6, t7, c3;
         var d0, d1, d2, d3, d4, d5, d6, d7, d8, d9;
-        var h0 = this.h[0], h1 = this.h[1], h2 = this.h[2], h3 = this.h[3], h4 = this.h[4], h5 = this.h[5], h6 = this.h[6], h7 = this.h[7], h8 = this.h[8], h9 = this.h[9];
+        var h0 = this.h[0], h1 = this.h[1], h22 = this.h[2], h3 = this.h[3], h4 = this.h[4], h5 = this.h[5], h6 = this.h[6], h7 = this.h[7], h8 = this.h[8], h9 = this.h[9];
         var r0 = this.r[0], r1 = this.r[1], r2 = this.r[2], r3 = this.r[3], r4 = this.r[4], r5 = this.r[5], r6 = this.r[6], r7 = this.r[7], r8 = this.r[8], r9 = this.r[9];
         while (bytes >= 16) {
           t0 = m2[mpos + 0] & 255 | (m2[mpos + 1] & 255) << 8;
@@ -17140,7 +17140,7 @@ var require_nacl_fast = __commonJS({
           t1 = m2[mpos + 2] & 255 | (m2[mpos + 3] & 255) << 8;
           h1 += (t0 >>> 13 | t1 << 3) & 8191;
           t2 = m2[mpos + 4] & 255 | (m2[mpos + 5] & 255) << 8;
-          h2 += (t1 >>> 10 | t2 << 6) & 8191;
+          h22 += (t1 >>> 10 | t2 << 6) & 8191;
           t3 = m2[mpos + 6] & 255 | (m2[mpos + 7] & 255) << 8;
           h3 += (t2 >>> 7 | t3 << 9) & 8191;
           t4 = m2[mpos + 8] & 255 | (m2[mpos + 9] & 255) << 8;
@@ -17153,165 +17153,165 @@ var require_nacl_fast = __commonJS({
           t7 = m2[mpos + 14] & 255 | (m2[mpos + 15] & 255) << 8;
           h8 += (t6 >>> 8 | t7 << 8) & 8191;
           h9 += t7 >>> 5 | hibit;
-          c4 = 0;
-          d0 = c4;
+          c3 = 0;
+          d0 = c3;
           d0 += h0 * r0;
           d0 += h1 * (5 * r9);
-          d0 += h2 * (5 * r8);
+          d0 += h22 * (5 * r8);
           d0 += h3 * (5 * r7);
           d0 += h4 * (5 * r6);
-          c4 = d0 >>> 13;
+          c3 = d0 >>> 13;
           d0 &= 8191;
           d0 += h5 * (5 * r5);
           d0 += h6 * (5 * r4);
           d0 += h7 * (5 * r3);
           d0 += h8 * (5 * r2);
           d0 += h9 * (5 * r1);
-          c4 += d0 >>> 13;
+          c3 += d0 >>> 13;
           d0 &= 8191;
-          d1 = c4;
+          d1 = c3;
           d1 += h0 * r1;
           d1 += h1 * r0;
-          d1 += h2 * (5 * r9);
+          d1 += h22 * (5 * r9);
           d1 += h3 * (5 * r8);
           d1 += h4 * (5 * r7);
-          c4 = d1 >>> 13;
+          c3 = d1 >>> 13;
           d1 &= 8191;
           d1 += h5 * (5 * r6);
           d1 += h6 * (5 * r5);
           d1 += h7 * (5 * r4);
           d1 += h8 * (5 * r3);
           d1 += h9 * (5 * r2);
-          c4 += d1 >>> 13;
+          c3 += d1 >>> 13;
           d1 &= 8191;
-          d2 = c4;
+          d2 = c3;
           d2 += h0 * r2;
           d2 += h1 * r1;
-          d2 += h2 * r0;
+          d2 += h22 * r0;
           d2 += h3 * (5 * r9);
           d2 += h4 * (5 * r8);
-          c4 = d2 >>> 13;
+          c3 = d2 >>> 13;
           d2 &= 8191;
           d2 += h5 * (5 * r7);
           d2 += h6 * (5 * r6);
           d2 += h7 * (5 * r5);
           d2 += h8 * (5 * r4);
           d2 += h9 * (5 * r3);
-          c4 += d2 >>> 13;
+          c3 += d2 >>> 13;
           d2 &= 8191;
-          d3 = c4;
+          d3 = c3;
           d3 += h0 * r3;
           d3 += h1 * r2;
-          d3 += h2 * r1;
+          d3 += h22 * r1;
           d3 += h3 * r0;
           d3 += h4 * (5 * r9);
-          c4 = d3 >>> 13;
+          c3 = d3 >>> 13;
           d3 &= 8191;
           d3 += h5 * (5 * r8);
           d3 += h6 * (5 * r7);
           d3 += h7 * (5 * r6);
           d3 += h8 * (5 * r5);
           d3 += h9 * (5 * r4);
-          c4 += d3 >>> 13;
+          c3 += d3 >>> 13;
           d3 &= 8191;
-          d4 = c4;
+          d4 = c3;
           d4 += h0 * r4;
           d4 += h1 * r3;
-          d4 += h2 * r2;
+          d4 += h22 * r2;
           d4 += h3 * r1;
           d4 += h4 * r0;
-          c4 = d4 >>> 13;
+          c3 = d4 >>> 13;
           d4 &= 8191;
           d4 += h5 * (5 * r9);
           d4 += h6 * (5 * r8);
           d4 += h7 * (5 * r7);
           d4 += h8 * (5 * r6);
           d4 += h9 * (5 * r5);
-          c4 += d4 >>> 13;
+          c3 += d4 >>> 13;
           d4 &= 8191;
-          d5 = c4;
+          d5 = c3;
           d5 += h0 * r5;
           d5 += h1 * r4;
-          d5 += h2 * r3;
+          d5 += h22 * r3;
           d5 += h3 * r2;
           d5 += h4 * r1;
-          c4 = d5 >>> 13;
+          c3 = d5 >>> 13;
           d5 &= 8191;
           d5 += h5 * r0;
           d5 += h6 * (5 * r9);
           d5 += h7 * (5 * r8);
           d5 += h8 * (5 * r7);
           d5 += h9 * (5 * r6);
-          c4 += d5 >>> 13;
+          c3 += d5 >>> 13;
           d5 &= 8191;
-          d6 = c4;
+          d6 = c3;
           d6 += h0 * r6;
           d6 += h1 * r5;
-          d6 += h2 * r4;
+          d6 += h22 * r4;
           d6 += h3 * r3;
           d6 += h4 * r2;
-          c4 = d6 >>> 13;
+          c3 = d6 >>> 13;
           d6 &= 8191;
           d6 += h5 * r1;
           d6 += h6 * r0;
           d6 += h7 * (5 * r9);
           d6 += h8 * (5 * r8);
           d6 += h9 * (5 * r7);
-          c4 += d6 >>> 13;
+          c3 += d6 >>> 13;
           d6 &= 8191;
-          d7 = c4;
+          d7 = c3;
           d7 += h0 * r7;
           d7 += h1 * r6;
-          d7 += h2 * r5;
+          d7 += h22 * r5;
           d7 += h3 * r4;
           d7 += h4 * r3;
-          c4 = d7 >>> 13;
+          c3 = d7 >>> 13;
           d7 &= 8191;
           d7 += h5 * r2;
           d7 += h6 * r1;
           d7 += h7 * r0;
           d7 += h8 * (5 * r9);
           d7 += h9 * (5 * r8);
-          c4 += d7 >>> 13;
+          c3 += d7 >>> 13;
           d7 &= 8191;
-          d8 = c4;
+          d8 = c3;
           d8 += h0 * r8;
           d8 += h1 * r7;
-          d8 += h2 * r6;
+          d8 += h22 * r6;
           d8 += h3 * r5;
           d8 += h4 * r4;
-          c4 = d8 >>> 13;
+          c3 = d8 >>> 13;
           d8 &= 8191;
           d8 += h5 * r3;
           d8 += h6 * r2;
           d8 += h7 * r1;
           d8 += h8 * r0;
           d8 += h9 * (5 * r9);
-          c4 += d8 >>> 13;
+          c3 += d8 >>> 13;
           d8 &= 8191;
-          d9 = c4;
+          d9 = c3;
           d9 += h0 * r9;
           d9 += h1 * r8;
-          d9 += h2 * r7;
+          d9 += h22 * r7;
           d9 += h3 * r6;
           d9 += h4 * r5;
-          c4 = d9 >>> 13;
+          c3 = d9 >>> 13;
           d9 &= 8191;
           d9 += h5 * r4;
           d9 += h6 * r3;
           d9 += h7 * r2;
           d9 += h8 * r1;
           d9 += h9 * r0;
-          c4 += d9 >>> 13;
+          c3 += d9 >>> 13;
           d9 &= 8191;
-          c4 = (c4 << 2) + c4 | 0;
-          c4 = c4 + d0 | 0;
-          d0 = c4 & 8191;
-          c4 = c4 >>> 13;
-          d1 += c4;
+          c3 = (c3 << 2) + c3 | 0;
+          c3 = c3 + d0 | 0;
+          d0 = c3 & 8191;
+          c3 = c3 >>> 13;
+          d1 += c3;
           h0 = d0;
           h1 = d1;
-          h2 = d2;
+          h22 = d2;
           h3 = d3;
           h4 = d4;
           h5 = d5;
@@ -17324,7 +17324,7 @@ var require_nacl_fast = __commonJS({
         }
         this.h[0] = h0;
         this.h[1] = h1;
-        this.h[2] = h2;
+        this.h[2] = h22;
         this.h[3] = h3;
         this.h[4] = h4;
         this.h[5] = h5;
@@ -17335,7 +17335,7 @@ var require_nacl_fast = __commonJS({
       };
       poly1305.prototype.finish = function(mac, macpos) {
         var g2 = new Uint16Array(10);
-        var c4, mask, f2, i2;
+        var c3, mask, f2, i2;
         if (this.leftover) {
           i2 = this.leftover;
           this.buffer[i2++] = 1;
@@ -17344,30 +17344,30 @@ var require_nacl_fast = __commonJS({
           this.fin = 1;
           this.blocks(this.buffer, 0, 16);
         }
-        c4 = this.h[1] >>> 13;
+        c3 = this.h[1] >>> 13;
         this.h[1] &= 8191;
         for (i2 = 2; i2 < 10; i2++) {
-          this.h[i2] += c4;
-          c4 = this.h[i2] >>> 13;
+          this.h[i2] += c3;
+          c3 = this.h[i2] >>> 13;
           this.h[i2] &= 8191;
         }
-        this.h[0] += c4 * 5;
-        c4 = this.h[0] >>> 13;
+        this.h[0] += c3 * 5;
+        c3 = this.h[0] >>> 13;
         this.h[0] &= 8191;
-        this.h[1] += c4;
-        c4 = this.h[1] >>> 13;
+        this.h[1] += c3;
+        c3 = this.h[1] >>> 13;
         this.h[1] &= 8191;
-        this.h[2] += c4;
+        this.h[2] += c3;
         g2[0] = this.h[0] + 5;
-        c4 = g2[0] >>> 13;
+        c3 = g2[0] >>> 13;
         g2[0] &= 8191;
         for (i2 = 1; i2 < 10; i2++) {
-          g2[i2] = this.h[i2] + c4;
-          c4 = g2[i2] >>> 13;
+          g2[i2] = this.h[i2] + c3;
+          c3 = g2[i2] >>> 13;
           g2[i2] &= 8191;
         }
         g2[9] -= 1 << 13;
-        mask = (c4 ^ 1) - 1;
+        mask = (c3 ^ 1) - 1;
         for (i2 = 0; i2 < 10; i2++)
           g2[i2] &= mask;
         mask = ~mask;
@@ -17438,30 +17438,30 @@ var require_nacl_fast = __commonJS({
         s2.finish(out, outpos);
         return 0;
       }
-      function crypto_onetimeauth_verify(h2, hpos, m2, mpos, n2, k2) {
+      function crypto_onetimeauth_verify(h3, hpos, m2, mpos, n2, k2) {
         var x2 = new Uint8Array(16);
         crypto_onetimeauth(x2, 0, m2, mpos, n2, k2);
-        return crypto_verify_16(h2, hpos, x2, 0);
+        return crypto_verify_16(h3, hpos, x2, 0);
       }
-      function crypto_secretbox(c4, m2, d2, n2, k2) {
+      function crypto_secretbox(c3, m2, d2, n2, k2) {
         var i2;
         if (d2 < 32)
           return -1;
-        crypto_stream_xor(c4, 0, m2, 0, d2, n2, k2);
-        crypto_onetimeauth(c4, 16, c4, 32, d2 - 32, c4);
+        crypto_stream_xor(c3, 0, m2, 0, d2, n2, k2);
+        crypto_onetimeauth(c3, 16, c3, 32, d2 - 32, c3);
         for (i2 = 0; i2 < 16; i2++)
-          c4[i2] = 0;
+          c3[i2] = 0;
         return 0;
       }
-      function crypto_secretbox_open(m2, c4, d2, n2, k2) {
+      function crypto_secretbox_open(m2, c3, d2, n2, k2) {
         var i2;
         var x2 = new Uint8Array(32);
         if (d2 < 32)
           return -1;
         crypto_stream(x2, 0, 32, n2, k2);
-        if (crypto_onetimeauth_verify(c4, 16, c4, 32, d2 - 32, x2) !== 0)
+        if (crypto_onetimeauth_verify(c3, 16, c3, 32, d2 - 32, x2) !== 0)
           return -1;
-        crypto_stream_xor(m2, 0, c4, 0, d2, n2, k2);
+        crypto_stream_xor(m2, 0, c3, 0, d2, n2, k2);
         for (i2 = 0; i2 < 32; i2++)
           m2[i2] = 0;
         return 0;
@@ -17472,18 +17472,18 @@ var require_nacl_fast = __commonJS({
           r2[i2] = a3[i2] | 0;
       }
       function car25519(o2) {
-        var i2, v2, c4 = 1;
+        var i2, v2, c3 = 1;
         for (i2 = 0; i2 < 16; i2++) {
-          v2 = o2[i2] + c4 + 65535;
-          c4 = Math.floor(v2 / 65536);
-          o2[i2] = v2 - c4 * 65536;
+          v2 = o2[i2] + c3 + 65535;
+          c3 = Math.floor(v2 / 65536);
+          o2[i2] = v2 - c3 * 65536;
         }
-        o2[0] += c4 - 1 + 37 * (c4 - 1);
+        o2[0] += c3 - 1 + 37 * (c3 - 1);
       }
       function sel25519(p2, q3, b5) {
-        var t2, c4 = ~(b5 - 1);
+        var t2, c3 = ~(b5 - 1);
         for (var i2 = 0; i2 < 16; i2++) {
-          t2 = c4 & (p2[i2] ^ q3[i2]);
+          t2 = c3 & (p2[i2] ^ q3[i2]);
           p2[i2] ^= t2;
           q3[i2] ^= t2;
         }
@@ -17513,10 +17513,10 @@ var require_nacl_fast = __commonJS({
         }
       }
       function neq25519(a3, b5) {
-        var c4 = new Uint8Array(32), d2 = new Uint8Array(32);
-        pack25519(c4, a3);
+        var c3 = new Uint8Array(32), d2 = new Uint8Array(32);
+        pack25519(c3, a3);
         pack25519(d2, b5);
-        return crypto_verify_32(c4, 0, d2, 0);
+        return crypto_verify_32(c3, 0, d2, 0);
       }
       function par25519(a3) {
         var d2 = new Uint8Array(32);
@@ -17538,7 +17538,7 @@ var require_nacl_fast = __commonJS({
           o2[i2] = a3[i2] - b5[i2];
       }
       function M2(o2, a3, b5) {
-        var v2, c4, t0 = 0, t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, t6 = 0, t7 = 0, t8 = 0, t9 = 0, t10 = 0, t11 = 0, t12 = 0, t13 = 0, t14 = 0, t15 = 0, t16 = 0, t17 = 0, t18 = 0, t19 = 0, t20 = 0, t21 = 0, t22 = 0, t23 = 0, t24 = 0, t25 = 0, t26 = 0, t27 = 0, t28 = 0, t29 = 0, t30 = 0, b0 = b5[0], b1 = b5[1], b22 = b5[2], b32 = b5[3], b42 = b5[4], b52 = b5[5], b6 = b5[6], b7 = b5[7], b8 = b5[8], b9 = b5[9], b10 = b5[10], b11 = b5[11], b12 = b5[12], b13 = b5[13], b14 = b5[14], b15 = b5[15];
+        var v2, c3, t0 = 0, t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, t6 = 0, t7 = 0, t8 = 0, t9 = 0, t10 = 0, t11 = 0, t12 = 0, t13 = 0, t14 = 0, t15 = 0, t16 = 0, t17 = 0, t18 = 0, t19 = 0, t20 = 0, t21 = 0, t22 = 0, t23 = 0, t24 = 0, t25 = 0, t26 = 0, t27 = 0, t28 = 0, t29 = 0, t30 = 0, b0 = b5[0], b1 = b5[1], b22 = b5[2], b32 = b5[3], b42 = b5[4], b52 = b5[5], b6 = b5[6], b7 = b5[7], b8 = b5[8], b9 = b5[9], b10 = b5[10], b11 = b5[11], b12 = b5[12], b13 = b5[13], b14 = b5[14], b15 = b5[15];
         v2 = a3[0];
         t0 += v2 * b0;
         t1 += v2 * b1;
@@ -17826,106 +17826,106 @@ var require_nacl_fast = __commonJS({
         t12 += 38 * t28;
         t13 += 38 * t29;
         t14 += 38 * t30;
-        c4 = 1;
-        v2 = t0 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t0 = v2 - c4 * 65536;
-        v2 = t1 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t1 = v2 - c4 * 65536;
-        v2 = t2 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t2 = v2 - c4 * 65536;
-        v2 = t3 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t3 = v2 - c4 * 65536;
-        v2 = t4 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t4 = v2 - c4 * 65536;
-        v2 = t5 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t5 = v2 - c4 * 65536;
-        v2 = t6 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t6 = v2 - c4 * 65536;
-        v2 = t7 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t7 = v2 - c4 * 65536;
-        v2 = t8 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t8 = v2 - c4 * 65536;
-        v2 = t9 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t9 = v2 - c4 * 65536;
-        v2 = t10 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t10 = v2 - c4 * 65536;
-        v2 = t11 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t11 = v2 - c4 * 65536;
-        v2 = t12 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t12 = v2 - c4 * 65536;
-        v2 = t13 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t13 = v2 - c4 * 65536;
-        v2 = t14 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t14 = v2 - c4 * 65536;
-        v2 = t15 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t15 = v2 - c4 * 65536;
-        t0 += c4 - 1 + 37 * (c4 - 1);
-        c4 = 1;
-        v2 = t0 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t0 = v2 - c4 * 65536;
-        v2 = t1 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t1 = v2 - c4 * 65536;
-        v2 = t2 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t2 = v2 - c4 * 65536;
-        v2 = t3 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t3 = v2 - c4 * 65536;
-        v2 = t4 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t4 = v2 - c4 * 65536;
-        v2 = t5 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t5 = v2 - c4 * 65536;
-        v2 = t6 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t6 = v2 - c4 * 65536;
-        v2 = t7 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t7 = v2 - c4 * 65536;
-        v2 = t8 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t8 = v2 - c4 * 65536;
-        v2 = t9 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t9 = v2 - c4 * 65536;
-        v2 = t10 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t10 = v2 - c4 * 65536;
-        v2 = t11 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t11 = v2 - c4 * 65536;
-        v2 = t12 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t12 = v2 - c4 * 65536;
-        v2 = t13 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t13 = v2 - c4 * 65536;
-        v2 = t14 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t14 = v2 - c4 * 65536;
-        v2 = t15 + c4 + 65535;
-        c4 = Math.floor(v2 / 65536);
-        t15 = v2 - c4 * 65536;
-        t0 += c4 - 1 + 37 * (c4 - 1);
+        c3 = 1;
+        v2 = t0 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t0 = v2 - c3 * 65536;
+        v2 = t1 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t1 = v2 - c3 * 65536;
+        v2 = t2 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t2 = v2 - c3 * 65536;
+        v2 = t3 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t3 = v2 - c3 * 65536;
+        v2 = t4 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t4 = v2 - c3 * 65536;
+        v2 = t5 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t5 = v2 - c3 * 65536;
+        v2 = t6 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t6 = v2 - c3 * 65536;
+        v2 = t7 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t7 = v2 - c3 * 65536;
+        v2 = t8 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t8 = v2 - c3 * 65536;
+        v2 = t9 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t9 = v2 - c3 * 65536;
+        v2 = t10 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t10 = v2 - c3 * 65536;
+        v2 = t11 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t11 = v2 - c3 * 65536;
+        v2 = t12 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t12 = v2 - c3 * 65536;
+        v2 = t13 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t13 = v2 - c3 * 65536;
+        v2 = t14 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t14 = v2 - c3 * 65536;
+        v2 = t15 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t15 = v2 - c3 * 65536;
+        t0 += c3 - 1 + 37 * (c3 - 1);
+        c3 = 1;
+        v2 = t0 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t0 = v2 - c3 * 65536;
+        v2 = t1 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t1 = v2 - c3 * 65536;
+        v2 = t2 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t2 = v2 - c3 * 65536;
+        v2 = t3 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t3 = v2 - c3 * 65536;
+        v2 = t4 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t4 = v2 - c3 * 65536;
+        v2 = t5 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t5 = v2 - c3 * 65536;
+        v2 = t6 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t6 = v2 - c3 * 65536;
+        v2 = t7 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t7 = v2 - c3 * 65536;
+        v2 = t8 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t8 = v2 - c3 * 65536;
+        v2 = t9 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t9 = v2 - c3 * 65536;
+        v2 = t10 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t10 = v2 - c3 * 65536;
+        v2 = t11 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t11 = v2 - c3 * 65536;
+        v2 = t12 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t12 = v2 - c3 * 65536;
+        v2 = t13 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t13 = v2 - c3 * 65536;
+        v2 = t14 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t14 = v2 - c3 * 65536;
+        v2 = t15 + c3 + 65535;
+        c3 = Math.floor(v2 / 65536);
+        t15 = v2 - c3 * 65536;
+        t0 += c3 - 1 + 37 * (c3 - 1);
         o2[0] = t0;
         o2[1] = t1;
         o2[2] = t2;
@@ -17947,35 +17947,35 @@ var require_nacl_fast = __commonJS({
         M2(o2, a3, a3);
       }
       function inv25519(o2, i2) {
-        var c4 = gf();
+        var c3 = gf();
         var a3;
         for (a3 = 0; a3 < 16; a3++)
-          c4[a3] = i2[a3];
+          c3[a3] = i2[a3];
         for (a3 = 253; a3 >= 0; a3--) {
-          S2(c4, c4);
+          S2(c3, c3);
           if (a3 !== 2 && a3 !== 4)
-            M2(c4, c4, i2);
+            M2(c3, c3, i2);
         }
         for (a3 = 0; a3 < 16; a3++)
-          o2[a3] = c4[a3];
+          o2[a3] = c3[a3];
       }
       function pow2523(o2, i2) {
-        var c4 = gf();
+        var c3 = gf();
         var a3;
         for (a3 = 0; a3 < 16; a3++)
-          c4[a3] = i2[a3];
+          c3[a3] = i2[a3];
         for (a3 = 250; a3 >= 0; a3--) {
-          S2(c4, c4);
+          S2(c3, c3);
           if (a3 !== 1)
-            M2(c4, c4, i2);
+            M2(c3, c3, i2);
         }
         for (a3 = 0; a3 < 16; a3++)
-          o2[a3] = c4[a3];
+          o2[a3] = c3[a3];
       }
       function crypto_scalarmult(q3, n2, p2) {
         var z2 = new Uint8Array(32);
         var x2 = new Float64Array(80), r2, i2;
-        var a3 = gf(), b5 = gf(), c4 = gf(), d2 = gf(), e2 = gf(), f2 = gf();
+        var a3 = gf(), b5 = gf(), c3 = gf(), d2 = gf(), e2 = gf(), f2 = gf();
         for (i2 = 0; i2 < 31; i2++)
           z2[i2] = n2[i2];
         z2[31] = n2[31] & 127 | 64;
@@ -17983,37 +17983,37 @@ var require_nacl_fast = __commonJS({
         unpack25519(x2, p2);
         for (i2 = 0; i2 < 16; i2++) {
           b5[i2] = x2[i2];
-          d2[i2] = a3[i2] = c4[i2] = 0;
+          d2[i2] = a3[i2] = c3[i2] = 0;
         }
         a3[0] = d2[0] = 1;
         for (i2 = 254; i2 >= 0; --i2) {
           r2 = z2[i2 >>> 3] >>> (i2 & 7) & 1;
           sel25519(a3, b5, r2);
-          sel25519(c4, d2, r2);
-          A2(e2, a3, c4);
-          Z2(a3, a3, c4);
-          A2(c4, b5, d2);
+          sel25519(c3, d2, r2);
+          A2(e2, a3, c3);
+          Z2(a3, a3, c3);
+          A2(c3, b5, d2);
           Z2(b5, b5, d2);
           S2(d2, e2);
           S2(f2, a3);
-          M2(a3, c4, a3);
-          M2(c4, b5, e2);
-          A2(e2, a3, c4);
-          Z2(a3, a3, c4);
+          M2(a3, c3, a3);
+          M2(c3, b5, e2);
+          A2(e2, a3, c3);
+          Z2(a3, a3, c3);
           S2(b5, a3);
-          Z2(c4, d2, f2);
-          M2(a3, c4, _121665);
+          Z2(c3, d2, f2);
+          M2(a3, c3, _121665);
           A2(a3, a3, d2);
-          M2(c4, c4, a3);
+          M2(c3, c3, a3);
           M2(a3, d2, f2);
           M2(d2, b5, x2);
           S2(b5, e2);
           sel25519(a3, b5, r2);
-          sel25519(c4, d2, r2);
+          sel25519(c3, d2, r2);
         }
         for (i2 = 0; i2 < 16; i2++) {
           x2[i2 + 16] = a3[i2];
-          x2[i2 + 32] = c4[i2];
+          x2[i2 + 32] = c3[i2];
           x2[i2 + 48] = b5[i2];
           x2[i2 + 64] = d2[i2];
         }
@@ -18038,15 +18038,15 @@ var require_nacl_fast = __commonJS({
       }
       var crypto_box_afternm = crypto_secretbox;
       var crypto_box_open_afternm = crypto_secretbox_open;
-      function crypto_box(c4, m2, d2, n2, y2, x2) {
+      function crypto_box(c3, m2, d2, n2, y2, x2) {
         var k2 = new Uint8Array(32);
         crypto_box_beforenm(k2, y2, x2);
-        return crypto_box_afternm(c4, m2, d2, n2, k2);
+        return crypto_box_afternm(c3, m2, d2, n2, k2);
       }
-      function crypto_box_open(m2, c4, d2, n2, y2, x2) {
+      function crypto_box_open(m2, c3, d2, n2, y2, x2) {
         var k2 = new Uint8Array(32);
         crypto_box_beforenm(k2, y2, x2);
-        return crypto_box_open_afternm(m2, c4, d2, n2, k2);
+        return crypto_box_open_afternm(m2, c3, d2, n2, k2);
       }
       var K2 = [
         1116352408,
@@ -18211,7 +18211,7 @@ var require_nacl_fast = __commonJS({
         1246189591
       ];
       function crypto_hashblocks_hl(hh, hl, m2, n2) {
-        var wh = new Int32Array(16), wl = new Int32Array(16), bh0, bh1, bh2, bh3, bh4, bh5, bh6, bh7, bl0, bl1, bl2, bl3, bl4, bl5, bl6, bl7, th, tl, i2, j2, h2, l2, a3, b5, c4, d2;
+        var wh = new Int32Array(16), wl = new Int32Array(16), bh0, bh1, bh2, bh3, bh4, bh5, bh6, bh7, bl0, bl1, bl2, bl3, bl4, bl5, bl6, bl7, th, tl, i2, j2, h3, l2, a3, b5, c3, d2;
         var ah0 = hh[0], ah1 = hh[1], ah2 = hh[2], ah3 = hh[3], ah4 = hh[4], ah5 = hh[5], ah6 = hh[6], ah7 = hh[7], al0 = hl[0], al1 = hl[1], al2 = hl[2], al3 = hl[3], al4 = hl[4], al5 = hl[5], al6 = hl[6], al7 = hl[7];
         var pos = 0;
         while (n2 >= 128) {
@@ -18237,80 +18237,80 @@ var require_nacl_fast = __commonJS({
             bl5 = al5;
             bl6 = al6;
             bl7 = al7;
-            h2 = ah7;
+            h3 = ah7;
             l2 = al7;
             a3 = l2 & 65535;
             b5 = l2 >>> 16;
-            c4 = h2 & 65535;
-            d2 = h2 >>> 16;
-            h2 = (ah4 >>> 14 | al4 << 32 - 14) ^ (ah4 >>> 18 | al4 << 32 - 18) ^ (al4 >>> 41 - 32 | ah4 << 32 - (41 - 32));
+            c3 = h3 & 65535;
+            d2 = h3 >>> 16;
+            h3 = (ah4 >>> 14 | al4 << 32 - 14) ^ (ah4 >>> 18 | al4 << 32 - 18) ^ (al4 >>> 41 - 32 | ah4 << 32 - (41 - 32));
             l2 = (al4 >>> 14 | ah4 << 32 - 14) ^ (al4 >>> 18 | ah4 << 32 - 18) ^ (ah4 >>> 41 - 32 | al4 << 32 - (41 - 32));
             a3 += l2 & 65535;
             b5 += l2 >>> 16;
-            c4 += h2 & 65535;
-            d2 += h2 >>> 16;
-            h2 = ah4 & ah5 ^ ~ah4 & ah6;
+            c3 += h3 & 65535;
+            d2 += h3 >>> 16;
+            h3 = ah4 & ah5 ^ ~ah4 & ah6;
             l2 = al4 & al5 ^ ~al4 & al6;
             a3 += l2 & 65535;
             b5 += l2 >>> 16;
-            c4 += h2 & 65535;
-            d2 += h2 >>> 16;
-            h2 = K2[i2 * 2];
+            c3 += h3 & 65535;
+            d2 += h3 >>> 16;
+            h3 = K2[i2 * 2];
             l2 = K2[i2 * 2 + 1];
             a3 += l2 & 65535;
             b5 += l2 >>> 16;
-            c4 += h2 & 65535;
-            d2 += h2 >>> 16;
-            h2 = wh[i2 % 16];
+            c3 += h3 & 65535;
+            d2 += h3 >>> 16;
+            h3 = wh[i2 % 16];
             l2 = wl[i2 % 16];
             a3 += l2 & 65535;
             b5 += l2 >>> 16;
-            c4 += h2 & 65535;
-            d2 += h2 >>> 16;
+            c3 += h3 & 65535;
+            d2 += h3 >>> 16;
             b5 += a3 >>> 16;
-            c4 += b5 >>> 16;
-            d2 += c4 >>> 16;
-            th = c4 & 65535 | d2 << 16;
+            c3 += b5 >>> 16;
+            d2 += c3 >>> 16;
+            th = c3 & 65535 | d2 << 16;
             tl = a3 & 65535 | b5 << 16;
-            h2 = th;
+            h3 = th;
             l2 = tl;
             a3 = l2 & 65535;
             b5 = l2 >>> 16;
-            c4 = h2 & 65535;
-            d2 = h2 >>> 16;
-            h2 = (ah0 >>> 28 | al0 << 32 - 28) ^ (al0 >>> 34 - 32 | ah0 << 32 - (34 - 32)) ^ (al0 >>> 39 - 32 | ah0 << 32 - (39 - 32));
+            c3 = h3 & 65535;
+            d2 = h3 >>> 16;
+            h3 = (ah0 >>> 28 | al0 << 32 - 28) ^ (al0 >>> 34 - 32 | ah0 << 32 - (34 - 32)) ^ (al0 >>> 39 - 32 | ah0 << 32 - (39 - 32));
             l2 = (al0 >>> 28 | ah0 << 32 - 28) ^ (ah0 >>> 34 - 32 | al0 << 32 - (34 - 32)) ^ (ah0 >>> 39 - 32 | al0 << 32 - (39 - 32));
             a3 += l2 & 65535;
             b5 += l2 >>> 16;
-            c4 += h2 & 65535;
-            d2 += h2 >>> 16;
-            h2 = ah0 & ah1 ^ ah0 & ah2 ^ ah1 & ah2;
+            c3 += h3 & 65535;
+            d2 += h3 >>> 16;
+            h3 = ah0 & ah1 ^ ah0 & ah2 ^ ah1 & ah2;
             l2 = al0 & al1 ^ al0 & al2 ^ al1 & al2;
             a3 += l2 & 65535;
             b5 += l2 >>> 16;
-            c4 += h2 & 65535;
-            d2 += h2 >>> 16;
+            c3 += h3 & 65535;
+            d2 += h3 >>> 16;
             b5 += a3 >>> 16;
-            c4 += b5 >>> 16;
-            d2 += c4 >>> 16;
-            bh7 = c4 & 65535 | d2 << 16;
+            c3 += b5 >>> 16;
+            d2 += c3 >>> 16;
+            bh7 = c3 & 65535 | d2 << 16;
             bl7 = a3 & 65535 | b5 << 16;
-            h2 = bh3;
+            h3 = bh3;
             l2 = bl3;
             a3 = l2 & 65535;
             b5 = l2 >>> 16;
-            c4 = h2 & 65535;
-            d2 = h2 >>> 16;
-            h2 = th;
+            c3 = h3 & 65535;
+            d2 = h3 >>> 16;
+            h3 = th;
             l2 = tl;
             a3 += l2 & 65535;
             b5 += l2 >>> 16;
-            c4 += h2 & 65535;
-            d2 += h2 >>> 16;
+            c3 += h3 & 65535;
+            d2 += h3 >>> 16;
             b5 += a3 >>> 16;
-            c4 += b5 >>> 16;
-            d2 += c4 >>> 16;
-            bh3 = c4 & 65535 | d2 << 16;
+            c3 += b5 >>> 16;
+            d2 += c3 >>> 16;
+            bh3 = c3 & 65535 | d2 << 16;
             bl3 = a3 & 65535 | b5 << 16;
             ah1 = bh0;
             ah2 = bh1;
@@ -18330,177 +18330,177 @@ var require_nacl_fast = __commonJS({
             al0 = bl7;
             if (i2 % 16 === 15) {
               for (j2 = 0; j2 < 16; j2++) {
-                h2 = wh[j2];
+                h3 = wh[j2];
                 l2 = wl[j2];
                 a3 = l2 & 65535;
                 b5 = l2 >>> 16;
-                c4 = h2 & 65535;
-                d2 = h2 >>> 16;
-                h2 = wh[(j2 + 9) % 16];
+                c3 = h3 & 65535;
+                d2 = h3 >>> 16;
+                h3 = wh[(j2 + 9) % 16];
                 l2 = wl[(j2 + 9) % 16];
                 a3 += l2 & 65535;
                 b5 += l2 >>> 16;
-                c4 += h2 & 65535;
-                d2 += h2 >>> 16;
+                c3 += h3 & 65535;
+                d2 += h3 >>> 16;
                 th = wh[(j2 + 1) % 16];
                 tl = wl[(j2 + 1) % 16];
-                h2 = (th >>> 1 | tl << 32 - 1) ^ (th >>> 8 | tl << 32 - 8) ^ th >>> 7;
+                h3 = (th >>> 1 | tl << 32 - 1) ^ (th >>> 8 | tl << 32 - 8) ^ th >>> 7;
                 l2 = (tl >>> 1 | th << 32 - 1) ^ (tl >>> 8 | th << 32 - 8) ^ (tl >>> 7 | th << 32 - 7);
                 a3 += l2 & 65535;
                 b5 += l2 >>> 16;
-                c4 += h2 & 65535;
-                d2 += h2 >>> 16;
+                c3 += h3 & 65535;
+                d2 += h3 >>> 16;
                 th = wh[(j2 + 14) % 16];
                 tl = wl[(j2 + 14) % 16];
-                h2 = (th >>> 19 | tl << 32 - 19) ^ (tl >>> 61 - 32 | th << 32 - (61 - 32)) ^ th >>> 6;
+                h3 = (th >>> 19 | tl << 32 - 19) ^ (tl >>> 61 - 32 | th << 32 - (61 - 32)) ^ th >>> 6;
                 l2 = (tl >>> 19 | th << 32 - 19) ^ (th >>> 61 - 32 | tl << 32 - (61 - 32)) ^ (tl >>> 6 | th << 32 - 6);
                 a3 += l2 & 65535;
                 b5 += l2 >>> 16;
-                c4 += h2 & 65535;
-                d2 += h2 >>> 16;
+                c3 += h3 & 65535;
+                d2 += h3 >>> 16;
                 b5 += a3 >>> 16;
-                c4 += b5 >>> 16;
-                d2 += c4 >>> 16;
-                wh[j2] = c4 & 65535 | d2 << 16;
+                c3 += b5 >>> 16;
+                d2 += c3 >>> 16;
+                wh[j2] = c3 & 65535 | d2 << 16;
                 wl[j2] = a3 & 65535 | b5 << 16;
               }
             }
           }
-          h2 = ah0;
+          h3 = ah0;
           l2 = al0;
           a3 = l2 & 65535;
           b5 = l2 >>> 16;
-          c4 = h2 & 65535;
-          d2 = h2 >>> 16;
-          h2 = hh[0];
+          c3 = h3 & 65535;
+          d2 = h3 >>> 16;
+          h3 = hh[0];
           l2 = hl[0];
           a3 += l2 & 65535;
           b5 += l2 >>> 16;
-          c4 += h2 & 65535;
-          d2 += h2 >>> 16;
+          c3 += h3 & 65535;
+          d2 += h3 >>> 16;
           b5 += a3 >>> 16;
-          c4 += b5 >>> 16;
-          d2 += c4 >>> 16;
-          hh[0] = ah0 = c4 & 65535 | d2 << 16;
+          c3 += b5 >>> 16;
+          d2 += c3 >>> 16;
+          hh[0] = ah0 = c3 & 65535 | d2 << 16;
           hl[0] = al0 = a3 & 65535 | b5 << 16;
-          h2 = ah1;
+          h3 = ah1;
           l2 = al1;
           a3 = l2 & 65535;
           b5 = l2 >>> 16;
-          c4 = h2 & 65535;
-          d2 = h2 >>> 16;
-          h2 = hh[1];
+          c3 = h3 & 65535;
+          d2 = h3 >>> 16;
+          h3 = hh[1];
           l2 = hl[1];
           a3 += l2 & 65535;
           b5 += l2 >>> 16;
-          c4 += h2 & 65535;
-          d2 += h2 >>> 16;
+          c3 += h3 & 65535;
+          d2 += h3 >>> 16;
           b5 += a3 >>> 16;
-          c4 += b5 >>> 16;
-          d2 += c4 >>> 16;
-          hh[1] = ah1 = c4 & 65535 | d2 << 16;
+          c3 += b5 >>> 16;
+          d2 += c3 >>> 16;
+          hh[1] = ah1 = c3 & 65535 | d2 << 16;
           hl[1] = al1 = a3 & 65535 | b5 << 16;
-          h2 = ah2;
+          h3 = ah2;
           l2 = al2;
           a3 = l2 & 65535;
           b5 = l2 >>> 16;
-          c4 = h2 & 65535;
-          d2 = h2 >>> 16;
-          h2 = hh[2];
+          c3 = h3 & 65535;
+          d2 = h3 >>> 16;
+          h3 = hh[2];
           l2 = hl[2];
           a3 += l2 & 65535;
           b5 += l2 >>> 16;
-          c4 += h2 & 65535;
-          d2 += h2 >>> 16;
+          c3 += h3 & 65535;
+          d2 += h3 >>> 16;
           b5 += a3 >>> 16;
-          c4 += b5 >>> 16;
-          d2 += c4 >>> 16;
-          hh[2] = ah2 = c4 & 65535 | d2 << 16;
+          c3 += b5 >>> 16;
+          d2 += c3 >>> 16;
+          hh[2] = ah2 = c3 & 65535 | d2 << 16;
           hl[2] = al2 = a3 & 65535 | b5 << 16;
-          h2 = ah3;
+          h3 = ah3;
           l2 = al3;
           a3 = l2 & 65535;
           b5 = l2 >>> 16;
-          c4 = h2 & 65535;
-          d2 = h2 >>> 16;
-          h2 = hh[3];
+          c3 = h3 & 65535;
+          d2 = h3 >>> 16;
+          h3 = hh[3];
           l2 = hl[3];
           a3 += l2 & 65535;
           b5 += l2 >>> 16;
-          c4 += h2 & 65535;
-          d2 += h2 >>> 16;
+          c3 += h3 & 65535;
+          d2 += h3 >>> 16;
           b5 += a3 >>> 16;
-          c4 += b5 >>> 16;
-          d2 += c4 >>> 16;
-          hh[3] = ah3 = c4 & 65535 | d2 << 16;
+          c3 += b5 >>> 16;
+          d2 += c3 >>> 16;
+          hh[3] = ah3 = c3 & 65535 | d2 << 16;
           hl[3] = al3 = a3 & 65535 | b5 << 16;
-          h2 = ah4;
+          h3 = ah4;
           l2 = al4;
           a3 = l2 & 65535;
           b5 = l2 >>> 16;
-          c4 = h2 & 65535;
-          d2 = h2 >>> 16;
-          h2 = hh[4];
+          c3 = h3 & 65535;
+          d2 = h3 >>> 16;
+          h3 = hh[4];
           l2 = hl[4];
           a3 += l2 & 65535;
           b5 += l2 >>> 16;
-          c4 += h2 & 65535;
-          d2 += h2 >>> 16;
+          c3 += h3 & 65535;
+          d2 += h3 >>> 16;
           b5 += a3 >>> 16;
-          c4 += b5 >>> 16;
-          d2 += c4 >>> 16;
-          hh[4] = ah4 = c4 & 65535 | d2 << 16;
+          c3 += b5 >>> 16;
+          d2 += c3 >>> 16;
+          hh[4] = ah4 = c3 & 65535 | d2 << 16;
           hl[4] = al4 = a3 & 65535 | b5 << 16;
-          h2 = ah5;
+          h3 = ah5;
           l2 = al5;
           a3 = l2 & 65535;
           b5 = l2 >>> 16;
-          c4 = h2 & 65535;
-          d2 = h2 >>> 16;
-          h2 = hh[5];
+          c3 = h3 & 65535;
+          d2 = h3 >>> 16;
+          h3 = hh[5];
           l2 = hl[5];
           a3 += l2 & 65535;
           b5 += l2 >>> 16;
-          c4 += h2 & 65535;
-          d2 += h2 >>> 16;
+          c3 += h3 & 65535;
+          d2 += h3 >>> 16;
           b5 += a3 >>> 16;
-          c4 += b5 >>> 16;
-          d2 += c4 >>> 16;
-          hh[5] = ah5 = c4 & 65535 | d2 << 16;
+          c3 += b5 >>> 16;
+          d2 += c3 >>> 16;
+          hh[5] = ah5 = c3 & 65535 | d2 << 16;
           hl[5] = al5 = a3 & 65535 | b5 << 16;
-          h2 = ah6;
+          h3 = ah6;
           l2 = al6;
           a3 = l2 & 65535;
           b5 = l2 >>> 16;
-          c4 = h2 & 65535;
-          d2 = h2 >>> 16;
-          h2 = hh[6];
+          c3 = h3 & 65535;
+          d2 = h3 >>> 16;
+          h3 = hh[6];
           l2 = hl[6];
           a3 += l2 & 65535;
           b5 += l2 >>> 16;
-          c4 += h2 & 65535;
-          d2 += h2 >>> 16;
+          c3 += h3 & 65535;
+          d2 += h3 >>> 16;
           b5 += a3 >>> 16;
-          c4 += b5 >>> 16;
-          d2 += c4 >>> 16;
-          hh[6] = ah6 = c4 & 65535 | d2 << 16;
+          c3 += b5 >>> 16;
+          d2 += c3 >>> 16;
+          hh[6] = ah6 = c3 & 65535 | d2 << 16;
           hl[6] = al6 = a3 & 65535 | b5 << 16;
-          h2 = ah7;
+          h3 = ah7;
           l2 = al7;
           a3 = l2 & 65535;
           b5 = l2 >>> 16;
-          c4 = h2 & 65535;
-          d2 = h2 >>> 16;
-          h2 = hh[7];
+          c3 = h3 & 65535;
+          d2 = h3 >>> 16;
+          h3 = hh[7];
           l2 = hl[7];
           a3 += l2 & 65535;
           b5 += l2 >>> 16;
-          c4 += h2 & 65535;
-          d2 += h2 >>> 16;
+          c3 += h3 & 65535;
+          d2 += h3 >>> 16;
           b5 += a3 >>> 16;
-          c4 += b5 >>> 16;
-          d2 += c4 >>> 16;
-          hh[7] = ah7 = c4 & 65535 | d2 << 16;
+          c3 += b5 >>> 16;
+          d2 += c3 >>> 16;
+          hh[7] = ah7 = c3 & 65535 | d2 << 16;
           hl[7] = al7 = a3 & 65535 | b5 << 16;
           pos += 128;
           n2 -= 128;
@@ -18539,25 +18539,25 @@ var require_nacl_fast = __commonJS({
         return 0;
       }
       function add(p2, q3) {
-        var a3 = gf(), b5 = gf(), c4 = gf(), d2 = gf(), e2 = gf(), f2 = gf(), g2 = gf(), h2 = gf(), t2 = gf();
+        var a3 = gf(), b5 = gf(), c3 = gf(), d2 = gf(), e2 = gf(), f2 = gf(), g2 = gf(), h3 = gf(), t2 = gf();
         Z2(a3, p2[1], p2[0]);
         Z2(t2, q3[1], q3[0]);
         M2(a3, a3, t2);
         A2(b5, p2[0], p2[1]);
         A2(t2, q3[0], q3[1]);
         M2(b5, b5, t2);
-        M2(c4, p2[3], q3[3]);
-        M2(c4, c4, D22);
+        M2(c3, p2[3], q3[3]);
+        M2(c3, c3, D22);
         M2(d2, p2[2], q3[2]);
         A2(d2, d2, d2);
         Z2(e2, b5, a3);
-        Z2(f2, d2, c4);
-        A2(g2, d2, c4);
-        A2(h2, b5, a3);
+        Z2(f2, d2, c3);
+        A2(g2, d2, c3);
+        A2(h3, b5, a3);
         M2(p2[0], e2, f2);
-        M2(p2[1], h2, g2);
+        M2(p2[1], h3, g2);
         M2(p2[2], g2, f2);
-        M2(p2[3], e2, h2);
+        M2(p2[3], e2, h3);
       }
       function cswap(p2, q3, b5) {
         var i2;
@@ -18646,7 +18646,7 @@ var require_nacl_fast = __commonJS({
         modL(r2, x2);
       }
       function crypto_sign(sm, m2, n2, sk) {
-        var d2 = new Uint8Array(64), h2 = new Uint8Array(64), r2 = new Uint8Array(64);
+        var d2 = new Uint8Array(64), h3 = new Uint8Array(64), r2 = new Uint8Array(64);
         var i2, j2, x2 = new Float64Array(64);
         var p2 = [gf(), gf(), gf(), gf()];
         crypto_hash(d2, sk, 32);
@@ -18664,15 +18664,15 @@ var require_nacl_fast = __commonJS({
         pack(sm, p2);
         for (i2 = 32; i2 < 64; i2++)
           sm[i2] = sk[i2];
-        crypto_hash(h2, sm, n2 + 64);
-        reduce(h2);
+        crypto_hash(h3, sm, n2 + 64);
+        reduce(h3);
         for (i2 = 0; i2 < 64; i2++)
           x2[i2] = 0;
         for (i2 = 0; i2 < 32; i2++)
           x2[i2] = r2[i2];
         for (i2 = 0; i2 < 32; i2++) {
           for (j2 = 0; j2 < 32; j2++) {
-            x2[i2 + j2] += h2[i2] * d2[j2];
+            x2[i2 + j2] += h3[i2] * d2[j2];
           }
         }
         modL(sm.subarray(32), x2);
@@ -18711,7 +18711,7 @@ var require_nacl_fast = __commonJS({
       }
       function crypto_sign_open(m2, sm, n2, pk) {
         var i2, mlen;
-        var t2 = new Uint8Array(32), h2 = new Uint8Array(64);
+        var t2 = new Uint8Array(32), h3 = new Uint8Array(64);
         var p2 = [gf(), gf(), gf(), gf()], q3 = [gf(), gf(), gf(), gf()];
         mlen = -1;
         if (n2 < 64)
@@ -18722,9 +18722,9 @@ var require_nacl_fast = __commonJS({
           m2[i2] = sm[i2];
         for (i2 = 0; i2 < 32; i2++)
           m2[i2 + 32] = pk[i2];
-        crypto_hash(h2, m2, n2);
-        reduce(h2);
-        scalarmult(p2, q3, h2);
+        crypto_hash(h3, m2, n2);
+        reduce(h3);
+        scalarmult(p2, q3, h3);
         scalarbase(q3, sm.subarray(32));
         add(p2, q3);
         pack(t2, p2);
@@ -18819,22 +18819,22 @@ var require_nacl_fast = __commonJS({
         checkArrayTypes(msg, nonce, key);
         checkLengths(key, nonce);
         var m2 = new Uint8Array(crypto_secretbox_ZEROBYTES + msg.length);
-        var c4 = new Uint8Array(m2.length);
+        var c3 = new Uint8Array(m2.length);
         for (var i2 = 0; i2 < msg.length; i2++)
           m2[i2 + crypto_secretbox_ZEROBYTES] = msg[i2];
-        crypto_secretbox(c4, m2, m2.length, nonce, key);
-        return c4.subarray(crypto_secretbox_BOXZEROBYTES);
+        crypto_secretbox(c3, m2, m2.length, nonce, key);
+        return c3.subarray(crypto_secretbox_BOXZEROBYTES);
       };
       nacl.secretbox.open = function(box, nonce, key) {
         checkArrayTypes(box, nonce, key);
         checkLengths(key, nonce);
-        var c4 = new Uint8Array(crypto_secretbox_BOXZEROBYTES + box.length);
-        var m2 = new Uint8Array(c4.length);
+        var c3 = new Uint8Array(crypto_secretbox_BOXZEROBYTES + box.length);
+        var m2 = new Uint8Array(c3.length);
         for (var i2 = 0; i2 < box.length; i2++)
-          c4[i2 + crypto_secretbox_BOXZEROBYTES] = box[i2];
-        if (c4.length < 32)
+          c3[i2 + crypto_secretbox_BOXZEROBYTES] = box[i2];
+        if (c3.length < 32)
           return false;
-        if (crypto_secretbox_open(m2, c4, c4.length, nonce, key) !== 0)
+        if (crypto_secretbox_open(m2, c3, c3.length, nonce, key) !== 0)
           return false;
         return m2.subarray(crypto_secretbox_ZEROBYTES);
       };
@@ -18974,9 +18974,9 @@ var require_nacl_fast = __commonJS({
       nacl.sign.signatureLength = crypto_sign_BYTES;
       nacl.hash = function(msg) {
         checkArrayTypes(msg);
-        var h2 = new Uint8Array(crypto_hash_BYTES);
-        crypto_hash(h2, msg, msg.length);
-        return h2;
+        var h3 = new Uint8Array(crypto_hash_BYTES);
+        crypto_hash(h3, msg, msg.length);
+        return h3;
       };
       nacl.hash.hashLength = crypto_hash_BYTES;
       nacl.verify = function(x2, y2) {
@@ -19156,8 +19156,8 @@ var require_utils = __commonJS({
         hmac.update(hkey);
         var Ti = hmac.digest();
         var Uc = Ti;
-        var c4 = 1;
-        while (c4++ < iterations) {
+        var c3 = 1;
+        while (c3++ < iterations) {
           hmac = crypto2.createHmac(hashAlg, passphrase);
           hmac.update(Uc);
           Uc = hmac.digest();
@@ -19795,11 +19795,11 @@ var require_sec = __commonJS({
   "../../node_modules/.pnpm/ecc-jsbn@0.1.2/node_modules/ecc-jsbn/lib/sec.js"(exports2, module2) {
     var BigInteger = require_jsbn().BigInteger;
     var ECCurveFp = require_ec().ECCurveFp;
-    function X9ECParameters(curve, g2, n2, h2) {
+    function X9ECParameters(curve, g2, n2, h3) {
       this.curve = curve;
       this.g = g2;
       this.n = n2;
-      this.h = h2;
+      this.h = h3;
     }
     function x9getCurve() {
       return this.curve;
@@ -19825,70 +19825,70 @@ var require_sec = __commonJS({
       var a3 = fromHex("FFFFFFFDFFFFFFFFFFFFFFFFFFFFFFFC");
       var b5 = fromHex("E87579C11079F43DD824993C2CEE5ED3");
       var n2 = fromHex("FFFFFFFE0000000075A30D1B9038A115");
-      var h2 = BigInteger.ONE;
+      var h3 = BigInteger.ONE;
       var curve = new ECCurveFp(p2, a3, b5);
       var G2 = curve.decodePointHex("04161FF7528B899B2D0C28607CA52C5B86CF5AC8395BAFEB13C02DA292DDED7A83");
-      return new X9ECParameters(curve, G2, n2, h2);
+      return new X9ECParameters(curve, G2, n2, h3);
     }
     function secp160k1() {
       var p2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFAC73");
       var a3 = BigInteger.ZERO;
       var b5 = fromHex("7");
       var n2 = fromHex("0100000000000000000001B8FA16DFAB9ACA16B6B3");
-      var h2 = BigInteger.ONE;
+      var h3 = BigInteger.ONE;
       var curve = new ECCurveFp(p2, a3, b5);
       var G2 = curve.decodePointHex("043B4C382CE37AA192A4019E763036F4F5DD4D7EBB938CF935318FDCED6BC28286531733C3F03C4FEE");
-      return new X9ECParameters(curve, G2, n2, h2);
+      return new X9ECParameters(curve, G2, n2, h3);
     }
     function secp160r1() {
       var p2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7FFFFFFF");
       var a3 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7FFFFFFC");
       var b5 = fromHex("1C97BEFC54BD7A8B65ACF89F81D4D4ADC565FA45");
       var n2 = fromHex("0100000000000000000001F4C8F927AED3CA752257");
-      var h2 = BigInteger.ONE;
+      var h3 = BigInteger.ONE;
       var curve = new ECCurveFp(p2, a3, b5);
       var G2 = curve.decodePointHex("044A96B5688EF573284664698968C38BB913CBFC8223A628553168947D59DCC912042351377AC5FB32");
-      return new X9ECParameters(curve, G2, n2, h2);
+      return new X9ECParameters(curve, G2, n2, h3);
     }
     function secp192k1() {
       var p2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFEE37");
       var a3 = BigInteger.ZERO;
       var b5 = fromHex("3");
       var n2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFE26F2FC170F69466A74DEFD8D");
-      var h2 = BigInteger.ONE;
+      var h3 = BigInteger.ONE;
       var curve = new ECCurveFp(p2, a3, b5);
       var G2 = curve.decodePointHex("04DB4FF10EC057E9AE26B07D0280B7F4341DA5D1B1EAE06C7D9B2F2F6D9C5628A7844163D015BE86344082AA88D95E2F9D");
-      return new X9ECParameters(curve, G2, n2, h2);
+      return new X9ECParameters(curve, G2, n2, h3);
     }
     function secp192r1() {
       var p2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFFF");
       var a3 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFFC");
       var b5 = fromHex("64210519E59C80E70FA7E9AB72243049FEB8DEECC146B9B1");
       var n2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFF99DEF836146BC9B1B4D22831");
-      var h2 = BigInteger.ONE;
+      var h3 = BigInteger.ONE;
       var curve = new ECCurveFp(p2, a3, b5);
       var G2 = curve.decodePointHex("04188DA80EB03090F67CBF20EB43A18800F4FF0AFD82FF101207192B95FFC8DA78631011ED6B24CDD573F977A11E794811");
-      return new X9ECParameters(curve, G2, n2, h2);
+      return new X9ECParameters(curve, G2, n2, h3);
     }
     function secp224r1() {
       var p2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000000000000000000001");
       var a3 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFE");
       var b5 = fromHex("B4050A850C04B3ABF54132565044B0B7D7BFD8BA270B39432355FFB4");
       var n2 = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFF16A2E0B8F03E13DD29455C5C2A3D");
-      var h2 = BigInteger.ONE;
+      var h3 = BigInteger.ONE;
       var curve = new ECCurveFp(p2, a3, b5);
       var G2 = curve.decodePointHex("04B70E0CBD6BB4BF7F321390B94A03C1D356C21122343280D6115C1D21BD376388B5F723FB4C22DFE6CD4375A05A07476444D5819985007E34");
-      return new X9ECParameters(curve, G2, n2, h2);
+      return new X9ECParameters(curve, G2, n2, h3);
     }
     function secp256r1() {
       var p2 = fromHex("FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFF");
       var a3 = fromHex("FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFC");
       var b5 = fromHex("5AC635D8AA3A93E7B3EBBD55769886BC651D06B0CC53B0F63BCE3C3E27D2604B");
       var n2 = fromHex("FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551");
-      var h2 = BigInteger.ONE;
+      var h3 = BigInteger.ONE;
       var curve = new ECCurveFp(p2, a3, b5);
       var G2 = curve.decodePointHex("046B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C2964FE342E2FE1A7F9B8EE7EB4A7C0F9E162BCE33576B315ECECBB6406837BF51F5");
-      return new X9ECParameters(curve, G2, n2, h2);
+      return new X9ECParameters(curve, G2, n2, h3);
     }
     module2.exports = {
       "secp128r1": secp128r1,
@@ -19915,12 +19915,12 @@ var require_ecc_jsbn = __commonJS({
     }
     exports2.ECKey = function(curve, key, isPublic) {
       var priv;
-      var c4 = curve();
-      var n2 = c4.getN();
+      var c3 = curve();
+      var n2 = c3.getN();
       var bytes = Math.floor(n2.bitLength() / 8);
       if (key) {
         if (isPublic) {
-          var curve = c4.getCurve();
+          var curve = c3.getCurve();
           this.P = curve.decodePointHex(key.toString("hex"));
         } else {
           if (key.length != bytes)
@@ -19931,10 +19931,10 @@ var require_ecc_jsbn = __commonJS({
         var n1 = n2.subtract(BigInteger.ONE);
         var r2 = new BigInteger(crypto2.randomBytes(n2.bitLength()));
         priv = r2.mod(n1).add(BigInteger.ONE);
-        this.P = c4.getG().multiply(priv);
+        this.P = c3.getG().multiply(priv);
       }
       if (this.P) {
-        this.PublicKey = Buffer2.from(c4.getCurve().encodeCompressedPointHex(this.P), "hex");
+        this.PublicKey = Buffer2.from(c3.getCurve().encodeCompressedPointHex(this.P), "hex");
       }
       if (priv) {
         this.PrivateKey = Buffer2.from(unstupid(priv.toString(16), bytes * 2), "hex");
@@ -20205,13 +20205,13 @@ var require_dhe = __commonJS({
       var a3 = new jsbn(params.a);
       var b5 = new jsbn(params.b);
       var n2 = new jsbn(params.n);
-      var h2 = jsbn.ONE;
+      var h3 = jsbn.ONE;
       var curve = new ec.ECCurveFp(p2, a3, b5);
       var G2 = curve.decodePointHex(params.G.toString("hex"));
       this.curve = curve;
       this.g = G2;
       this.n = n2;
-      this.h = h2;
+      this.h = h3;
     }
     X9ECParameters.prototype.getCurve = function() {
       return this.curve;
@@ -20282,9 +20282,9 @@ var require_dhe = __commonJS({
         var ecParams = new X9ECParameters(curve);
         var n2 = ecParams.getN();
         var cByteLen = Math.ceil((n2.bitLength() + 64) / 8);
-        var c4 = new jsbn(crypto2.randomBytes(cByteLen));
+        var c3 = new jsbn(crypto2.randomBytes(cByteLen));
         var n1 = n2.subtract(jsbn.ONE);
-        var priv = c4.mod(n1).add(jsbn.ONE);
+        var priv = c3.mod(n1).add(jsbn.ONE);
         var pub = ecParams.getG().multiply(priv);
         priv = Buffer2.from(priv.toByteArray());
         pub = Buffer2.from(ecParams.getCurve().encodePointHex(pub), "hex");
@@ -20547,15 +20547,15 @@ var require_pkcs8 = __commonJS({
     }
     function readECDSACurve(der) {
       var curveName, curveNames;
-      var j2, c4, cd;
+      var j2, c3, cd;
       if (der.peek() === asn1.Ber.OID) {
         var oid = der.readOID();
         curveNames = Object.keys(algs.curves);
         for (j2 = 0; j2 < curveNames.length; ++j2) {
-          c4 = curveNames[j2];
-          cd = algs.curves[c4];
+          c3 = curveNames[j2];
+          cd = algs.curves[c3];
           if (cd.pkcs8oid === oid) {
-            curveName = c4;
+            curveName = c3;
             break;
           }
         }
@@ -20600,8 +20600,8 @@ var require_pkcs8 = __commonJS({
         curveNames = Object.keys(algs.curves);
         var ks = Object.keys(curve);
         for (j2 = 0; j2 < curveNames.length; ++j2) {
-          c4 = curveNames[j2];
-          cd = algs.curves[c4];
+          c3 = curveNames[j2];
+          cd = algs.curves[c3];
           var equal = true;
           for (var i2 = 0; i2 < ks.length; ++i2) {
             var k2 = ks[i2];
@@ -20625,7 +20625,7 @@ var require_pkcs8 = __commonJS({
             }
           }
           if (equal) {
-            curveName = c4;
+            curveName = c3;
             break;
           }
         }
@@ -20867,11 +20867,11 @@ var require_pkcs8 = __commonJS({
         der.endSequence();
         der.writeBuffer(curve.G, asn1.Ber.OctetString);
         der.writeBuffer(curve.n, asn1.Ber.Integer);
-        var h2 = curve.h;
-        if (!h2) {
-          h2 = Buffer2.from([1]);
+        var h3 = curve.h;
+        if (!h3) {
+          h3 = Buffer2.from([1]);
         }
-        der.writeBuffer(h2, asn1.Ber.Integer);
+        der.writeBuffer(h3, asn1.Ber.Integer);
         der.endSequence();
       }
     }
@@ -21076,10 +21076,10 @@ var require_pkcs1 = __commonJS({
       var curve;
       var curves = Object.keys(algs.curves);
       for (var j2 = 0; j2 < curves.length; ++j2) {
-        var c4 = curves[j2];
-        var cd = algs.curves[c4];
+        var c3 = curves[j2];
+        var cd = algs.curves[c3];
         if (cd.pkcs8oid === curveOid) {
-          curve = c4;
+          curve = c3;
           break;
         }
       }
@@ -23991,14 +23991,14 @@ var require_identity = __commonJS({
       assert7.arrayOfObject(opts.components, "options.components");
       this.components = opts.components;
       this.componentLookup = {};
-      this.components.forEach(function(c4) {
-        if (c4.name && !c4.oid)
-          c4.oid = oids[c4.name];
-        if (c4.oid && !c4.name)
-          c4.name = unoids[c4.oid];
-        if (self2.componentLookup[c4.name] === void 0)
-          self2.componentLookup[c4.name] = [];
-        self2.componentLookup[c4.name].push(c4);
+      this.components.forEach(function(c3) {
+        if (c3.name && !c3.oid)
+          c3.oid = oids[c3.name];
+        if (c3.oid && !c3.name)
+          c3.name = unoids[c3.oid];
+        if (self2.componentLookup[c3.name] === void 0)
+          self2.componentLookup[c3.name] = [];
+        self2.componentLookup[c3.name].push(c3);
       });
       if (this.componentLookup.cn && this.componentLookup.cn.length > 0) {
         this.cn = this.componentLookup.cn[0].value;
@@ -24011,8 +24011,8 @@ var require_identity = __commonJS({
         } else if (this.componentLookup.dc && this.components.length === this.componentLookup.dc.length) {
           this.type = "host";
           this.hostname = this.componentLookup.dc.map(
-            function(c4) {
-              return c4.value;
+            function(c3) {
+              return c3.value;
             }
           ).join(".");
         } else if (this.componentLookup.uid && this.components.length === this.componentLookup.uid.length) {
@@ -24046,10 +24046,10 @@ var require_identity = __commonJS({
       }
     }
     Identity.prototype.toString = function() {
-      return this.components.map(function(c4) {
-        var n2 = c4.name.toUpperCase();
+      return this.components.map(function(c3) {
+        var n2 = c3.name.toUpperCase();
         n2 = n2.replace(/=/g, "\\=");
-        var v2 = c4.value;
+        var v2 = c3.value;
         v2 = v2.replace(/,/g, "\\,");
         return n2 + "=" + v2;
       }).join(", ");
@@ -24063,15 +24063,15 @@ var require_identity = __commonJS({
         throw new Error("Multiple values for attribute " + name12);
       if (!asArray)
         return arr[0].value;
-      return arr.map(function(c4) {
-        return c4.value;
+      return arr.map(function(c3) {
+        return c3.value;
       });
     };
     Identity.prototype.toArray = function(idx) {
-      return this.components.map(function(c4) {
+      return this.components.map(function(c3) {
         return {
-          name: c4.name,
-          value: c4.value
+          name: c3.name,
+          value: c3.value
         };
       });
     };
@@ -24079,20 +24079,20 @@ var require_identity = __commonJS({
     var NOT_IA5 = /[^\x00-\x7f]/;
     Identity.prototype.toAsn1 = function(der, tag) {
       der.startSequence(tag);
-      this.components.forEach(function(c4) {
+      this.components.forEach(function(c3) {
         der.startSequence(asn1.Ber.Constructor | asn1.Ber.Set);
         der.startSequence();
-        der.writeOID(c4.oid);
-        if (c4.asn1type === asn1.Ber.Utf8String || c4.value.match(NOT_IA5)) {
-          var v2 = Buffer2.from(c4.value, "utf8");
+        der.writeOID(c3.oid);
+        if (c3.asn1type === asn1.Ber.Utf8String || c3.value.match(NOT_IA5)) {
+          var v2 = Buffer2.from(c3.value, "utf8");
           der.writeBuffer(v2, asn1.Ber.Utf8String);
-        } else if (c4.asn1type === asn1.Ber.IA5String || c4.value.match(NOT_PRINTABLE)) {
-          der.writeString(c4.value, asn1.Ber.IA5String);
+        } else if (c3.asn1type === asn1.Ber.IA5String || c3.value.match(NOT_PRINTABLE)) {
+          der.writeString(c3.value, asn1.Ber.IA5String);
         } else {
           var type = asn1.Ber.PrintableString;
-          if (c4.asn1type !== void 0)
-            type = c4.asn1type;
-          der.writeString(c4.value, type);
+          if (c3.asn1type !== void 0)
+            type = c3.asn1type;
+          der.writeString(c3.value, type);
         }
         der.endSequence();
         der.endSequence();
@@ -24178,16 +24178,16 @@ var require_identity = __commonJS({
           throw new Error("Failed to parse DN");
         }
       }
-      var cmps = parts.map(function(c4) {
-        c4 = c4.trim();
-        var eqPos = c4.indexOf("=");
-        while (eqPos > 0 && c4.charAt(eqPos - 1) === "\\")
-          eqPos = c4.indexOf("=", eqPos + 1);
+      var cmps = parts.map(function(c3) {
+        c3 = c3.trim();
+        var eqPos = c3.indexOf("=");
+        while (eqPos > 0 && c3.charAt(eqPos - 1) === "\\")
+          eqPos = c3.indexOf("=", eqPos + 1);
         if (eqPos === -1) {
           throw new Error("Failed to parse DN");
         }
-        var name12 = c4.slice(0, eqPos).toLowerCase().replace(/\\=/g, "=");
-        var value = c4.slice(eqPos + 1);
+        var name12 = c3.slice(0, eqPos).toLowerCase().replace(/\\=/g, "=");
+        var value = c3.slice(eqPos + 1);
         return { name: name12, value };
       });
       return new Identity({ components: cmps });
@@ -25788,8 +25788,8 @@ var require_fingerprint = __commonJS({
     function base64Strip(s2) {
       return s2.replace(/=*$/, "");
     }
-    function sshBase64Format(alg, h2) {
-      return alg.toUpperCase() + ":" + base64Strip(h2);
+    function sshBase64Format(alg, h3) {
+      return alg.toUpperCase() + ":" + base64Strip(h3);
     }
     Fingerprint.isFingerprint = function(obj, ver) {
       return utils.isCompatible(obj, Fingerprint, ver);
@@ -26288,22 +26288,22 @@ var require_parser3 = __commonJS({
         };
         var authz = request.headers[authzHeaderName];
         for (i2 = 0; i2 < authz.length; i2++) {
-          var c4 = authz.charAt(i2);
+          var c3 = authz.charAt(i2);
           switch (Number(state)) {
             case State.New:
-              if (c4 !== " ")
-                parsed.scheme += c4;
+              if (c3 !== " ")
+                parsed.scheme += c3;
               else
                 state = State.Params;
               break;
             case State.Params:
               switch (Number(substate)) {
                 case ParamsState.Name:
-                  var code = c4.charCodeAt(0);
+                  var code = c3.charCodeAt(0);
                   if (code >= 65 && code <= 90 || // A-Z
                   code >= 97 && code <= 122) {
-                    tmpName += c4;
-                  } else if (c4 === "=") {
+                    tmpName += c3;
+                  } else if (c3 === "=") {
                     if (tmpName.length === 0)
                       throw new InvalidHeaderError("bad param format");
                     substate = ParamsState.Quote;
@@ -26312,7 +26312,7 @@ var require_parser3 = __commonJS({
                   }
                   break;
                 case ParamsState.Quote:
-                  if (c4 === '"') {
+                  if (c3 === '"') {
                     tmpValue = "";
                     substate = ParamsState.Value;
                   } else {
@@ -26320,15 +26320,15 @@ var require_parser3 = __commonJS({
                   }
                   break;
                 case ParamsState.Value:
-                  if (c4 === '"') {
+                  if (c3 === '"') {
                     parsed.params[tmpName] = tmpValue;
                     substate = ParamsState.Comma;
                   } else {
-                    tmpValue += c4;
+                    tmpValue += c3;
                   }
                   break;
                 case ParamsState.Comma:
-                  if (c4 === ",") {
+                  if (c3 === ",") {
                     tmpName = "";
                     substate = ParamsState.Name;
                   } else {
@@ -26370,21 +26370,21 @@ var require_parser3 = __commonJS({
             throw e2;
         }
         for (i2 = 0; i2 < parsed.params.headers.length; i2++) {
-          var h2 = parsed.params.headers[i2].toLowerCase();
-          parsed.params.headers[i2] = h2;
-          if (h2 === "request-line") {
+          var h3 = parsed.params.headers[i2].toLowerCase();
+          parsed.params.headers[i2] = h3;
+          if (h3 === "request-line") {
             if (!options.strict) {
               parsed.signingString += request.method + " " + request.url + " HTTP/" + request.httpVersion;
             } else {
               throw new StrictParsingError("request-line is not a valid header with strict parsing enabled.");
             }
-          } else if (h2 === "(request-target)") {
+          } else if (h3 === "(request-target)") {
             parsed.signingString += "(request-target): " + request.method.toLowerCase() + " " + request.url;
           } else {
-            var value = request.headers[h2];
+            var value = request.headers[h3];
             if (value === void 0)
-              throw new MissingHeaderError(h2 + " was not in the request");
-            parsed.signingString += h2 + ": " + value;
+              throw new MissingHeaderError(h3 + " was not in the request");
+            parsed.signingString += h3 + ": " + value;
           }
           if (i2 + 1 < parsed.params.headers.length)
             parsed.signingString += "\n";
@@ -26857,9 +26857,9 @@ var require_verror = __commonJS({
         str += "; caused by " + this.jse_cause.toString();
       return str;
     };
-    WError.prototype.cause = function we_cause(c4) {
-      if (mod_isError(c4))
-        this.jse_cause = c4;
+    WError.prototype.cause = function we_cause(c3) {
+      if (mod_isError(c3))
+        this.jse_cause = c3;
       return this.jse_cause;
     };
   }
@@ -27370,7 +27370,7 @@ var require_jsprim = __commonJS({
           );
         }
       }
-      var c4;
+      var c3;
       var pbase = -1;
       var base = options.base;
       var start;
@@ -27404,10 +27404,10 @@ var require_jsprim = __commonJS({
         }
       }
       for (start = idx; idx < len; ++idx) {
-        c4 = translateDigit(str.charCodeAt(idx));
-        if (c4 !== -1 && c4 < base) {
+        c3 = translateDigit(str.charCodeAt(idx));
+        if (c3 !== -1 && c3 < base) {
           value *= base;
-          value += c4;
+          value += c3;
         } else {
           break;
         }
@@ -27443,17 +27443,17 @@ var require_jsprim = __commonJS({
         return -1;
       }
     }
-    function isSpace(c4) {
-      return c4 === 32 || c4 >= 9 && c4 <= 13 || c4 === 160 || c4 === 5760 || c4 === 6158 || c4 >= 8192 && c4 <= 8202 || c4 === 8232 || c4 === 8233 || c4 === 8239 || c4 === 8287 || c4 === 12288 || c4 === 65279;
+    function isSpace(c3) {
+      return c3 === 32 || c3 >= 9 && c3 <= 13 || c3 === 160 || c3 === 5760 || c3 === 6158 || c3 >= 8192 && c3 <= 8202 || c3 === 8232 || c3 === 8233 || c3 === 8239 || c3 === 8287 || c3 === 12288 || c3 === 65279;
     }
-    function prefixToBase(c4) {
-      if (c4 === CP_b || c4 === CP_B) {
+    function prefixToBase(c3) {
+      if (c3 === CP_b || c3 === CP_B) {
         return 2;
-      } else if (c4 === CP_o || c4 === CP_O) {
+      } else if (c3 === CP_o || c3 === CP_O) {
         return 8;
-      } else if (c4 === CP_t || c4 === CP_T) {
+      } else if (c3 === CP_t || c3 === CP_T) {
         return 10;
-      } else if (c4 === CP_x || c4 === CP_X) {
+      } else if (c3 === CP_x || c3 === CP_X) {
         return 16;
       } else {
         return -1;
@@ -27809,21 +27809,21 @@ var require_signer = __commonJS({
         for (i2 = 0; i2 < options.headers.length; i2++) {
           if (typeof options.headers[i2] !== "string")
             throw new TypeError("options.headers must be an array of Strings");
-          var h2 = options.headers[i2].toLowerCase();
-          if (h2 === "request-line") {
+          var h3 = options.headers[i2].toLowerCase();
+          if (h3 === "request-line") {
             if (!options.strict) {
               stringToSign += request.method + " " + request.path + " HTTP/" + options.httpVersion;
             } else {
               throw new StrictParsingError("request-line is not a valid header with strict parsing enabled.");
             }
-          } else if (h2 === "(request-target)") {
+          } else if (h3 === "(request-target)") {
             stringToSign += "(request-target): " + request.method.toLowerCase() + " " + request.path;
           } else {
-            var value = request.getHeader(h2);
+            var value = request.getHeader(h3);
             if (value === void 0 || value === "") {
-              throw new MissingHeaderError(h2 + " was not in the request");
+              throw new MissingHeaderError(h3 + " was not in the request");
             }
-            stringToSign += h2 + ": " + value;
+            stringToSign += h3 + ": " + value;
           }
           if (i2 + 1 < options.headers.length)
             stringToSign += "\n";
@@ -27933,14 +27933,14 @@ var require_verify = __commonJS({
         var h1 = crypto2.createHmac(hashAlg, secret);
         h1.update(hmac.digest());
         h1 = h1.digest();
-        var h2 = crypto2.createHmac(hashAlg, secret);
-        h2.update(new Buffer(parsedSignature.params.signature, "base64"));
-        h2 = h2.digest();
+        var h22 = crypto2.createHmac(hashAlg, secret);
+        h22.update(new Buffer(parsedSignature.params.signature, "base64"));
+        h22 = h22.digest();
         if (typeof h1 === "string")
-          return h1 === h2;
+          return h1 === h22;
         if (Buffer.isBuffer(h1) && !h1.equals)
-          return h1.toString("binary") === h2.toString("binary");
-        return h1.equals(h2);
+          return h1.toString("binary") === h22.toString("binary");
+        return h1.equals(h22);
       }
     };
   }
@@ -36651,23 +36651,23 @@ var require_caseless = __commonJS({
       return new Caseless(dict);
     };
     module2.exports.httpify = function(resp, headers) {
-      var c4 = new Caseless(headers);
+      var c3 = new Caseless(headers);
       resp.setHeader = function(key, value, clobber) {
         if (typeof value === "undefined")
           return;
-        return c4.set(key, value, clobber);
+        return c3.set(key, value, clobber);
       };
       resp.hasHeader = function(key) {
-        return c4.has(key);
+        return c3.has(key);
       };
       resp.getHeader = function(key) {
-        return c4.get(key);
+        return c3.get(key);
       };
       resp.removeHeader = function(key) {
-        return c4.del(key);
+        return c3.del(key);
       };
-      resp.headers = c4.dict;
-      return c4;
+      resp.headers = c3.dict;
+      return c3;
     };
   }
 });
@@ -37756,33 +37756,33 @@ var require_utils3 = __commonJS({
         return str;
       }
     };
-    var encode10 = function encode11(str) {
+    var encode9 = function encode10(str) {
       if (str.length === 0) {
         return str;
       }
       var string = typeof str === "string" ? str : String(str);
       var out = "";
       for (var i2 = 0; i2 < string.length; ++i2) {
-        var c4 = string.charCodeAt(i2);
-        if (c4 === 45 || c4 === 46 || c4 === 95 || c4 === 126 || c4 >= 48 && c4 <= 57 || c4 >= 65 && c4 <= 90 || c4 >= 97 && c4 <= 122) {
+        var c3 = string.charCodeAt(i2);
+        if (c3 === 45 || c3 === 46 || c3 === 95 || c3 === 126 || c3 >= 48 && c3 <= 57 || c3 >= 65 && c3 <= 90 || c3 >= 97 && c3 <= 122) {
           out += string.charAt(i2);
           continue;
         }
-        if (c4 < 128) {
-          out = out + hexTable[c4];
+        if (c3 < 128) {
+          out = out + hexTable[c3];
           continue;
         }
-        if (c4 < 2048) {
-          out = out + (hexTable[192 | c4 >> 6] + hexTable[128 | c4 & 63]);
+        if (c3 < 2048) {
+          out = out + (hexTable[192 | c3 >> 6] + hexTable[128 | c3 & 63]);
           continue;
         }
-        if (c4 < 55296 || c4 >= 57344) {
-          out = out + (hexTable[224 | c4 >> 12] + hexTable[128 | c4 >> 6 & 63] + hexTable[128 | c4 & 63]);
+        if (c3 < 55296 || c3 >= 57344) {
+          out = out + (hexTable[224 | c3 >> 12] + hexTable[128 | c3 >> 6 & 63] + hexTable[128 | c3 & 63]);
           continue;
         }
         i2 += 1;
-        c4 = 65536 + ((c4 & 1023) << 10 | string.charCodeAt(i2) & 1023);
-        out += hexTable[240 | c4 >> 18] + hexTable[128 | c4 >> 12 & 63] + hexTable[128 | c4 >> 6 & 63] + hexTable[128 | c4 & 63];
+        c3 = 65536 + ((c3 & 1023) << 10 | string.charCodeAt(i2) & 1023);
+        out += hexTable[240 | c3 >> 18] + hexTable[128 | c3 >> 12 & 63] + hexTable[128 | c3 >> 6 & 63] + hexTable[128 | c3 & 63];
       }
       return out;
     };
@@ -37818,7 +37818,7 @@ var require_utils3 = __commonJS({
       assign,
       compact,
       decode: decode12,
-      encode: encode10,
+      encode: encode9,
       isBuffer: isBuffer5,
       isRegExp,
       merge
@@ -37961,7 +37961,7 @@ var require_stringify2 = __commonJS({
       var delimiter = typeof options.delimiter === "undefined" ? defaults.delimiter : options.delimiter;
       var strictNullHandling = typeof options.strictNullHandling === "boolean" ? options.strictNullHandling : defaults.strictNullHandling;
       var skipNulls = typeof options.skipNulls === "boolean" ? options.skipNulls : defaults.skipNulls;
-      var encode10 = typeof options.encode === "boolean" ? options.encode : defaults.encode;
+      var encode9 = typeof options.encode === "boolean" ? options.encode : defaults.encode;
       var encoder = typeof options.encoder === "function" ? options.encoder : defaults.encoder;
       var sort = typeof options.sort === "function" ? options.sort : null;
       var allowDots = typeof options.allowDots === "undefined" ? false : options.allowDots;
@@ -38012,7 +38012,7 @@ var require_stringify2 = __commonJS({
           generateArrayPrefix,
           strictNullHandling,
           skipNulls,
-          encode10 ? encoder : null,
+          encode9 ? encoder : null,
           filter,
           sort,
           allowDots,
@@ -38164,11 +38164,11 @@ var require_lib4 = __commonJS({
   "../../node_modules/.pnpm/qs@6.5.3/node_modules/qs/lib/index.js"(exports2, module2) {
     "use strict";
     var stringify = require_stringify2();
-    var parse6 = require_parse();
+    var parse5 = require_parse();
     var formats2 = require_formats();
     module2.exports = {
       formats: formats2,
-      parse: parse6,
+      parse: parse5,
       stringify
     };
   }
@@ -38213,8 +38213,8 @@ var require_querystring = __commonJS({
       ) : this.lib.parse(str, this.parseOptions);
     };
     Querystring.prototype.rfc3986 = function(str) {
-      return str.replace(/[!'()*]/g, function(c4) {
-        return "%" + c4.charCodeAt(0).toString(16).toUpperCase();
+      return str.replace(/[!'()*]/g, function(c3) {
+        return "%" + c3.charCodeAt(0).toString(16).toUpperCase();
       });
     };
     Querystring.prototype.unescape = querystring.unescape;
@@ -38446,7 +38446,7 @@ var require_uri_all = __commonJS({
         for (var index2 = basic > 0 ? basic + 1 : 0; index2 < inputLength; ) {
           var oldi = i2;
           for (
-            var w2 = 1, k2 = base;
+            var w3 = 1, k2 = base;
             ;
             /* no condition */
             k2 += base
@@ -38455,19 +38455,19 @@ var require_uri_all = __commonJS({
               error$1("invalid-input");
             }
             var digit = basicToDigit(input.charCodeAt(index2++));
-            if (digit >= base || digit > floor2((maxInt - i2) / w2)) {
+            if (digit >= base || digit > floor2((maxInt - i2) / w3)) {
               error$1("overflow");
             }
-            i2 += digit * w2;
+            i2 += digit * w3;
             var t2 = k2 <= bias ? tMin : k2 >= bias + tMax ? tMax : k2 - bias;
             if (digit < t2) {
               break;
             }
             var baseMinusT = base - t2;
-            if (w2 > floor2(maxInt / baseMinusT)) {
+            if (w3 > floor2(maxInt / baseMinusT)) {
               error$1("overflow");
             }
-            w2 *= baseMinusT;
+            w3 *= baseMinusT;
           }
           var out = output.length + 1;
           bias = adapt(i2 - oldi, out, oldi == 0);
@@ -38480,7 +38480,7 @@ var require_uri_all = __commonJS({
         }
         return String.fromCodePoint.apply(String, output);
       };
-      var encode10 = function encode11(input) {
+      var encode9 = function encode10(input) {
         var output = [];
         input = ucs2decode(input);
         var inputLength = input.length;
@@ -38606,7 +38606,7 @@ var require_uri_all = __commonJS({
       };
       var toASCII = function toASCII2(input) {
         return mapDomain(input, function(string) {
-          return regexNonASCII.test(string) ? "xn--" + encode10(string) : string;
+          return regexNonASCII.test(string) ? "xn--" + encode9(string) : string;
         });
       };
       var punycode = {
@@ -38628,22 +38628,22 @@ var require_uri_all = __commonJS({
           "encode": ucs2encode
         },
         "decode": decode12,
-        "encode": encode10,
+        "encode": encode9,
         "toASCII": toASCII,
         "toUnicode": toUnicode
       };
       var SCHEMES = {};
       function pctEncChar(chr) {
-        var c4 = chr.charCodeAt(0);
+        var c3 = chr.charCodeAt(0);
         var e2 = void 0;
-        if (c4 < 16)
-          e2 = "%0" + c4.toString(16).toUpperCase();
-        else if (c4 < 128)
-          e2 = "%" + c4.toString(16).toUpperCase();
-        else if (c4 < 2048)
-          e2 = "%" + (c4 >> 6 | 192).toString(16).toUpperCase() + "%" + (c4 & 63 | 128).toString(16).toUpperCase();
+        if (c3 < 16)
+          e2 = "%0" + c3.toString(16).toUpperCase();
+        else if (c3 < 128)
+          e2 = "%" + c3.toString(16).toUpperCase();
+        else if (c3 < 2048)
+          e2 = "%" + (c3 >> 6 | 192).toString(16).toUpperCase() + "%" + (c3 & 63 | 128).toString(16).toUpperCase();
         else
-          e2 = "%" + (c4 >> 12 | 224).toString(16).toUpperCase() + "%" + (c4 >> 6 & 63 | 128).toString(16).toUpperCase() + "%" + (c4 & 63 | 128).toString(16).toUpperCase();
+          e2 = "%" + (c3 >> 12 | 224).toString(16).toUpperCase() + "%" + (c3 >> 6 & 63 | 128).toString(16).toUpperCase() + "%" + (c3 & 63 | 128).toString(16).toUpperCase();
         return e2;
       }
       function pctDecChars(str) {
@@ -38651,23 +38651,23 @@ var require_uri_all = __commonJS({
         var i2 = 0;
         var il = str.length;
         while (i2 < il) {
-          var c4 = parseInt(str.substr(i2 + 1, 2), 16);
-          if (c4 < 128) {
-            newStr += String.fromCharCode(c4);
+          var c3 = parseInt(str.substr(i2 + 1, 2), 16);
+          if (c3 < 128) {
+            newStr += String.fromCharCode(c3);
             i2 += 3;
-          } else if (c4 >= 194 && c4 < 224) {
+          } else if (c3 >= 194 && c3 < 224) {
             if (il - i2 >= 6) {
               var c22 = parseInt(str.substr(i2 + 4, 2), 16);
-              newStr += String.fromCharCode((c4 & 31) << 6 | c22 & 63);
+              newStr += String.fromCharCode((c3 & 31) << 6 | c22 & 63);
             } else {
               newStr += str.substr(i2, 6);
             }
             i2 += 6;
-          } else if (c4 >= 224) {
+          } else if (c3 >= 224) {
             if (il - i2 >= 9) {
               var _c = parseInt(str.substr(i2 + 4, 2), 16);
               var c32 = parseInt(str.substr(i2 + 7, 2), 16);
-              newStr += String.fromCharCode((c4 & 15) << 12 | (_c & 63) << 6 | c32 & 63);
+              newStr += String.fromCharCode((c3 & 15) << 12 | (_c & 63) << 6 | c32 & 63);
             } else {
               newStr += str.substr(i2, 9);
             }
@@ -38759,7 +38759,7 @@ var require_uri_all = __commonJS({
       }
       var URI_PARSE = /^(?:([^:\/?#]+):)?(?:\/\/((?:([^\/?#@]*)@)?(\[[^\/?#\]]+\]|[^\/?#:]*)(?:\:(\d*))?))?([^?#]*)(?:\?([^#]*))?(?:#((?:.|\n|\r)*))?/i;
       var NO_MATCH_IS_UNDEFINED = "".match(/(){0}/)[1] === void 0;
-      function parse6(uriString) {
+      function parse5(uriString) {
         var options = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
         var components = {};
         var protocol = options.iri !== false ? IRI_PROTOCOL : URI_PROTOCOL;
@@ -38930,8 +38930,8 @@ var require_uri_all = __commonJS({
         var skipNormalization = arguments[3];
         var target = {};
         if (!skipNormalization) {
-          base2 = parse6(serialize(base2, options), options);
-          relative = parse6(serialize(relative, options), options);
+          base2 = parse5(serialize(base2, options), options);
+          relative = parse5(serialize(relative, options), options);
         }
         options = options || {};
         if (!options.tolerant && relative.scheme) {
@@ -38982,24 +38982,24 @@ var require_uri_all = __commonJS({
       }
       function resolve2(baseURI, relativeURI, options) {
         var schemelessOptions = assign({ scheme: "null" }, options);
-        return serialize(resolveComponents(parse6(baseURI, schemelessOptions), parse6(relativeURI, schemelessOptions), schemelessOptions, true), schemelessOptions);
+        return serialize(resolveComponents(parse5(baseURI, schemelessOptions), parse5(relativeURI, schemelessOptions), schemelessOptions, true), schemelessOptions);
       }
       function normalize(uri, options) {
         if (typeof uri === "string") {
-          uri = serialize(parse6(uri, options), options);
+          uri = serialize(parse5(uri, options), options);
         } else if (typeOf(uri) === "object") {
-          uri = parse6(serialize(uri, options), options);
+          uri = parse5(serialize(uri, options), options);
         }
         return uri;
       }
       function equal(uriA, uriB, options) {
         if (typeof uriA === "string") {
-          uriA = serialize(parse6(uriA, options), options);
+          uriA = serialize(parse5(uriA, options), options);
         } else if (typeOf(uriA) === "object") {
           uriA = serialize(uriA, options);
         }
         if (typeof uriB === "string") {
-          uriB = serialize(parse6(uriB, options), options);
+          uriB = serialize(parse5(uriB, options), options);
         } else if (typeOf(uriB) === "object") {
           uriB = serialize(uriB, options);
         }
@@ -39014,7 +39014,7 @@ var require_uri_all = __commonJS({
       var handler = {
         scheme: "http",
         domainHost: true,
-        parse: function parse7(components, options) {
+        parse: function parse6(components, options) {
           if (!components.host) {
             components.error = components.error || "HTTP URIs must have a host.";
           }
@@ -39043,7 +39043,7 @@ var require_uri_all = __commonJS({
       var handler$2 = {
         scheme: "ws",
         domainHost: true,
-        parse: function parse7(components, options) {
+        parse: function parse6(components, options) {
           var wsComponents = components;
           wsComponents.secure = isSecure(wsComponents);
           wsComponents.resourceName = (wsComponents.path || "/") + (wsComponents.query ? "?" + wsComponents.query : "");
@@ -39219,7 +39219,7 @@ var require_uri_all = __commonJS({
       var UUID = /^[0-9A-Fa-f]{8}(?:\-[0-9A-Fa-f]{4}){3}\-[0-9A-Fa-f]{12}$/;
       var handler$6 = {
         scheme: "urn:uuid",
-        parse: function parse7(urnComponents, options) {
+        parse: function parse6(urnComponents, options) {
           var uuidComponents = urnComponents;
           uuidComponents.uuid = uuidComponents.nss;
           uuidComponents.nss = void 0;
@@ -39244,7 +39244,7 @@ var require_uri_all = __commonJS({
       exports3.SCHEMES = SCHEMES;
       exports3.pctEncChar = pctEncChar;
       exports3.pctDecChars = pctDecChars;
-      exports3.parse = parse6;
+      exports3.parse = parse5;
       exports3.removeDotSegments = removeDotSegments;
       exports3.serialize = serialize;
       exports3.resolveComponents = resolveComponents;
@@ -40452,9 +40452,9 @@ var require_compile2 = __commonJS({
     function compile(schema, root, localRefs, baseId) {
       var self2 = this, opts = this._opts, refVal = [void 0], refs = {}, patterns = [], patternsHash = {}, defaults = [], defaultsHash = {}, customRules = [];
       root = root || { schema, refVal, refs };
-      var c4 = checkCompiling.call(this, schema, root, baseId);
-      var compilation = this._compilations[c4.index];
-      if (c4.compiling)
+      var c3 = checkCompiling.call(this, schema, root, baseId);
+      var compilation = this._compilations[c3.index];
+      if (c3.compiling)
         return compilation.callValidate = callValidate;
       var formats2 = this._formats;
       var RULES = this.RULES;
@@ -40699,8 +40699,8 @@ var require_compile2 = __commonJS({
     }
     function compIndex(schema, root, baseId) {
       for (var i2 = 0; i2 < this._compilations.length; i2++) {
-        var c4 = this._compilations[i2];
-        if (c4.schema == schema && c4.root == root && c4.baseId == baseId)
+        var c3 = this._compilations[i2];
+        if (c3.schema == schema && c3.root == root && c3.baseId == baseId)
           return i2;
       }
       return -1;
@@ -45916,8 +45916,8 @@ var require_auth = __commonJS({
       if (!self2.hasAuth || self2.sentAuth) {
         return null;
       }
-      var c4 = caseless(response.headers);
-      var authHeader = c4.get("www-authenticate");
+      var c3 = caseless(response.headers);
+      var authHeader = c3.get("www-authenticate");
       var authVerb = authHeader && authHeader.split(" ")[0].toLowerCase();
       request.debug("reauth", authVerb);
       switch (authVerb) {
@@ -50257,18 +50257,18 @@ function stringToCodePoints(string) {
   var i2 = 0;
   var u2 = [];
   while (i2 < n2) {
-    var c4 = s2.charCodeAt(i2);
-    if (c4 < 55296 || c4 > 57343) {
-      u2.push(c4);
-    } else if (56320 <= c4 && c4 <= 57343) {
+    var c3 = s2.charCodeAt(i2);
+    if (c3 < 55296 || c3 > 57343) {
+      u2.push(c3);
+    } else if (56320 <= c3 && c3 <= 57343) {
       u2.push(65533);
-    } else if (55296 <= c4 && c4 <= 56319) {
+    } else if (55296 <= c3 && c3 <= 56319) {
       if (i2 === n2 - 1) {
         u2.push(65533);
       } else {
         var d2 = s2.charCodeAt(i2 + 1);
         if (56320 <= d2 && d2 <= 57343) {
-          var a3 = c4 & 1023;
+          var a3 = c3 & 1023;
           var b5 = d2 & 1023;
           u2.push(65536 + (a3 << 10) + b5);
           i2 += 1;
@@ -53831,7 +53831,7 @@ function f(e2, t2, r2) {
 function b(e2, t2, o2) {
   f(f(e2, t2, o2), void 0, r);
 }
-function h(e2, t2) {
+function h2(e2, t2) {
   b(e2, t2);
 }
 function m(e2, t2) {
@@ -53894,7 +53894,7 @@ var v = class {
     return e2._elements[t2];
   }
 };
-var w = Symbol("[[AbortSteps]]");
+var w2 = Symbol("[[AbortSteps]]");
 var R = Symbol("[[ErrorSteps]]");
 var T = Symbol("[[CancelSteps]]");
 var C = Symbol("[[PullSteps]]");
@@ -54413,13 +54413,13 @@ function Ie(e2, t2, r2, o2) {
   const n2 = e2._controlledReadableByteStream, a3 = t2.constructor, i2 = function(e3) {
     return Re(e3) ? 1 : e3.BYTES_PER_ELEMENT;
   }(a3), { byteOffset: l2, byteLength: s2 } = t2, u2 = r2 * i2;
-  let c4;
+  let c3;
   try {
-    c4 = ie(t2.buffer);
+    c3 = ie(t2.buffer);
   } catch (e3) {
     return void o2._errorSteps(e3);
   }
-  const d2 = { buffer: c4, bufferByteLength: c4.byteLength, byteOffset: l2, byteLength: s2, bytesFilled: 0, minimumFill: u2, elementSize: i2, viewConstructor: a3, readerType: "byob" };
+  const d2 = { buffer: c3, bufferByteLength: c3.byteLength, byteOffset: l2, byteLength: s2, bytesFilled: 0, minimumFill: u2, elementSize: i2, viewConstructor: a3, readerType: "byob" };
   if (e2._pendingPullIntos.length > 0)
     return e2._pendingPullIntos.push(d2), void rt(n2, o2);
   if ("closed" === n2._state) {
@@ -54825,7 +54825,7 @@ function Pt(e2) {
   const r2 = e2._pendingAbortRequest;
   if (e2._pendingAbortRequest = void 0, r2._wasAlreadyErroring)
     return r2._reject(t2), void Et(e2);
-  b(e2._writableStreamController[w](r2._reason), () => (r2._resolve(), Et(e2), null), (t3) => (r2._reject(t3), Et(e2), null));
+  b(e2._writableStreamController[w2](r2._reason), () => (r2._resolve(), Et(e2), null), (t3) => (r2._reject(t3), Et(e2), null));
 }
 function qt(e2) {
   return void 0 !== e2._closeRequest || void 0 !== e2._inFlightCloseRequest;
@@ -54981,7 +54981,7 @@ var WritableStreamDefaultController = class {
       throw Ht("error");
     "writable" === this._controlledWritableStream._state && Qt(this, e2);
   }
-  [w](e2) {
+  [w2](e2) {
     const t2 = this._abortAlgorithm(e2);
     return It(this), t2;
   }
@@ -55140,11 +55140,11 @@ function ir(t2, r2, o2, n2, a3, i2) {
         return void v2();
       i2.addEventListener("abort", v2);
     }
-    var w2, R2, T2;
-    if (P2(t2, l2._closedPromise, (e2) => (n2 ? E2(true, e2) : q3(() => wt(r2, e2), true, e2), null)), P2(r2, s2._closedPromise, (e2) => (a3 ? E2(true, e2) : q3(() => Or(t2, e2), true, e2), null)), w2 = t2, R2 = l2._closedPromise, T2 = () => (o2 ? E2() : q3(() => function(e2) {
+    var w3, R2, T2;
+    if (P2(t2, l2._closedPromise, (e2) => (n2 ? E2(true, e2) : q3(() => wt(r2, e2), true, e2), null)), P2(r2, s2._closedPromise, (e2) => (a3 ? E2(true, e2) : q3(() => Or(t2, e2), true, e2), null)), w3 = t2, R2 = l2._closedPromise, T2 = () => (o2 ? E2() : q3(() => function(e2) {
       const t3 = e2._ownerWritableStream, r3 = t3._state;
       return qt(t3) || "closed" === r3 ? c(void 0) : "errored" === r3 ? d(t3._storedError) : Bt(e2);
-    }(s2)), null), "closed" === w2._state ? T2() : h(R2, T2), qt(r2) || "closed" === r2._state) {
+    }(s2)), null), "closed" === w3._state ? T2() : h2(R2, T2), qt(r2) || "closed" === r2._state) {
       const e2 = new TypeError("the destination writable stream closed before all data could be piped to it");
       a3 ? E2(true, e2) : q3(() => Or(t2, e2), true, e2);
     }
@@ -55159,10 +55159,10 @@ function ir(t2, r2, o2, n2, a3, i2) {
       function n3() {
         return b(e2(), () => O2(t3, o3), (e3) => O2(true, e3)), null;
       }
-      _2 || (_2 = true, "writable" !== r2._state || qt(r2) ? n3() : h(C2(), n3));
+      _2 || (_2 = true, "writable" !== r2._state || qt(r2) ? n3() : h2(C2(), n3));
     }
     function E2(e2, t3) {
-      _2 || (_2 = true, "writable" !== r2._state || qt(r2) ? O2(e2, t3) : h(C2(), () => O2(e2, t3)));
+      _2 || (_2 = true, "writable" !== r2._state || qt(r2) ? O2(e2, t3) : h2(C2(), () => O2(e2, t3)));
     }
     function O2(e2, t3) {
       return At(s2), W(l2), void 0 !== i2 && i2.removeEventListener("abort", v2), e2 ? g2(t3) : S2(void 0), null;
@@ -55295,7 +55295,7 @@ function pr(e2) {
 function yr(e2, t2) {
   return Te(e2._readableStreamController) ? function(e3) {
     let t3, r2, o2, n2, a3, i2 = H(e3), l2 = false, s2 = false, d2 = false, f2 = false, b5 = false;
-    const h2 = u((e4) => {
+    const h3 = u((e4) => {
       a3 = e4;
     });
     function _2(e4) {
@@ -55324,7 +55324,7 @@ function yr(e2, t2) {
     }
     function S2(t4, r3) {
       J(i2) && (W(i2), i2 = tt(e3), _2(i2));
-      const u2 = r3 ? n2 : o2, c4 = r3 ? o2 : n2;
+      const u2 = r3 ? n2 : o2, c3 = r3 ? o2 : n2;
       it(i2, t4, 1, { _chunkSteps: (t5) => {
         y(() => {
           s2 = false, d2 = false;
@@ -55336,16 +55336,16 @@ function yr(e2, t2) {
             try {
               r4 = Se(t5);
             } catch (t6) {
-              return Ne(u2._readableStreamController, t6), Ne(c4._readableStreamController, t6), void a3(Or(e3, t6));
+              return Ne(u2._readableStreamController, t6), Ne(c3._readableStreamController, t6), void a3(Or(e3, t6));
             }
-            o3 || Xe(u2._readableStreamController, t5), Qe(c4._readableStreamController, r4);
+            o3 || Xe(u2._readableStreamController, t5), Qe(c3._readableStreamController, r4);
           }
           l2 = false, s2 ? g2() : d2 && v2();
         });
       }, _closeSteps: (e4) => {
         l2 = false;
         const t5 = r3 ? b5 : f2, o3 = r3 ? f2 : b5;
-        t5 || xe(u2._readableStreamController), o3 || xe(c4._readableStreamController), void 0 !== e4 && (t5 || Xe(u2._readableStreamController, e4), !o3 && c4._readableStreamController._pendingPullIntos.length > 0 && Ge(c4._readableStreamController, 0)), t5 && o3 || a3(void 0);
+        t5 || xe(u2._readableStreamController), o3 || xe(c3._readableStreamController), void 0 !== e4 && (t5 || Xe(u2._readableStreamController, e4), !o3 && c3._readableStreamController._pendingPullIntos.length > 0 && Ge(c3._readableStreamController, 0)), t5 && o3 || a3(void 0);
       }, _errorSteps: () => {
         l2 = false;
       } });
@@ -55364,30 +55364,30 @@ function yr(e2, t2) {
       const e4 = Ve(n2._readableStreamController);
       return null === e4 ? p2() : S2(e4._view, true), c(void 0);
     }
-    function w2(o3) {
+    function w3(o3) {
       if (f2 = true, t3 = o3, b5) {
         const o4 = ne([t3, r2]), n3 = Or(e3, o4);
         a3(n3);
       }
-      return h2;
+      return h3;
     }
     function R2(o3) {
       if (b5 = true, r2 = o3, f2) {
         const o4 = ne([t3, r2]), n3 = Or(e3, o4);
         a3(n3);
       }
-      return h2;
+      return h3;
     }
     function T2() {
     }
-    return o2 = Pr(T2, g2, w2), n2 = Pr(T2, v2, R2), _2(i2), [o2, n2];
+    return o2 = Pr(T2, g2, w3), n2 = Pr(T2, v2, R2), _2(i2), [o2, n2];
   }(e2) : function(e3) {
     const t3 = H(e3);
     let r2, o2, n2, a3, i2, l2 = false, s2 = false, d2 = false, f2 = false;
     const b5 = u((e4) => {
       i2 = e4;
     });
-    function h2() {
+    function h3() {
       if (l2)
         return s2 = true, c(void 0);
       l2 = true;
@@ -55395,7 +55395,7 @@ function yr(e2, t2) {
         y(() => {
           s2 = false;
           const t4 = e4, r3 = e4;
-          d2 || fr(n2._readableStreamController, t4), f2 || fr(a3._readableStreamController, r3), l2 = false, s2 && h2();
+          d2 || fr(n2._readableStreamController, t4), f2 || fr(a3._readableStreamController, r3), l2 = false, s2 && h3();
         });
       }, _closeSteps: () => {
         l2 = false, d2 || dr(n2._readableStreamController), f2 || dr(a3._readableStreamController), d2 && f2 || i2(void 0);
@@ -55419,7 +55419,7 @@ function yr(e2, t2) {
     }
     function S2() {
     }
-    return n2 = Cr(S2, h2, _2), a3 = Cr(S2, h2, p2), m(t3._closedPromise, (e4) => (br(n2._readableStreamController, e4), br(a3._readableStreamController, e4), d2 && f2 || i2(void 0), null)), [n2, a3];
+    return n2 = Cr(S2, h3, _2), a3 = Cr(S2, h3, p2), m(t3._closedPromise, (e4) => (br(n2._readableStreamController, e4), br(a3._readableStreamController, e4), d2 && f2 || i2(void 0), null)), [n2, a3];
   }(e2);
 }
 function Sr(r2) {
@@ -55757,7 +55757,7 @@ var TransformStream = class {
     if (void 0 !== a3.writableType)
       throw new RangeError("Invalid writableType specified");
     const i2 = ut(n2, 0), l2 = ct(n2), s2 = ut(o2, 1), f2 = ct(o2);
-    let h2;
+    let h3;
     !function(e3, t3, r3, o3, n3, a4) {
       function i3() {
         return t3;
@@ -55789,7 +55789,7 @@ var TransformStream = class {
           return Jr(r4), b(n4, () => ("errored" === o4._state ? ro(r4, o4._storedError) : (br(o4._readableStreamController, t5), to(r4)), null), (e5) => (br(o4._readableStreamController, e5), ro(r4, e5), null)), r4._finishPromise;
         }(e3, t4);
       }
-      function c4() {
+      function c3() {
         return function(e4) {
           const t4 = e4._transformStreamController;
           if (void 0 !== t4._finishPromise)
@@ -55823,9 +55823,9 @@ var TransformStream = class {
       e3._writable = function(e4, t4, r4, o4, n4 = 1, a5 = () => 1) {
         const i4 = Object.create(WritableStream.prototype);
         return St(i4), Ft(i4, Object.create(WritableStreamDefaultController.prototype), e4, t4, r4, o4, n4, a5), i4;
-      }(i3, l3, c4, s3, r3, o3), e3._readable = Cr(i3, d2, f3, n3, a4), e3._backpressure = void 0, e3._backpressureChangePromise = void 0, e3._backpressureChangePromise_resolve = void 0, Gr(e3, true), e3._transformStreamController = void 0;
+      }(i3, l3, c3, s3, r3, o3), e3._readable = Cr(i3, d2, f3, n3, a4), e3._backpressure = void 0, e3._backpressureChangePromise = void 0, e3._backpressureChangePromise_resolve = void 0, Gr(e3, true), e3._transformStreamController = void 0;
     }(this, u((e3) => {
-      h2 = e3;
+      h3 = e3;
     }), s2, f2, i2, l2), function(e3, t3) {
       const r3 = Object.create(TransformStreamDefaultController.prototype);
       let o3, n3, a4;
@@ -55841,7 +55841,7 @@ var TransformStream = class {
       !function(e4, t4, r4, o4, n4) {
         t4._controlledTransformStream = e4, e4._transformStreamController = t4, t4._transformAlgorithm = r4, t4._flushAlgorithm = o4, t4._cancelAlgorithm = n4, t4._finishPromise = void 0, t4._finishPromise_resolve = void 0, t4._finishPromise_reject = void 0;
       }(e3, r3, o3, n3, a4);
-    }(this, a3), void 0 !== a3.start ? h2(a3.start(this._transformStreamController)) : h2(void 0);
+    }(this, a3), void 0 !== a3.start ? h3(a3.start(this._transformStreamController)) : h3(void 0);
   }
   get readable() {
     if (!Nr(this))
@@ -56722,7 +56722,7 @@ var SDKTaskRunner = class {
     this.pendingTasks = [];
     if (!this.running && this.hasTasks()) {
       this.running = true;
-      requestAnimationFrame(() => this.runTasks());
+      this.scheduleRun();
     }
   }
   /**
@@ -56747,7 +56747,7 @@ var SDKTaskRunner = class {
     this.tasksByStage.get(stage).add(task);
     if (!this.running) {
       this.running = true;
-      requestAnimationFrame(() => this.runTasks());
+      this.scheduleRun();
     }
   }
   /**
@@ -56787,9 +56787,25 @@ var SDKTaskRunner = class {
       SDKTask.PostRenderStage
     ].some((stage) => this.tasksByStage.get(stage).size > 0);
     if (tasksRemain) {
-      requestAnimationFrame(() => this.runTasks());
+      this.scheduleRun();
     } else {
       this.running = false;
+    }
+  }
+  /**
+   * Schedules the next {@link runTasks} pass.
+   *
+   * Uses `requestAnimationFrame` in the browser; on a non-browser host
+   * (node / SSR / worker) it falls back to a `setTimeout` macrotask. Without
+   * this, any `SDKTask` scheduled outside a browser (e.g. a CoordinateSystem
+   * update during headless model loading) would throw on the missing global.
+   * The ~16ms fallback approximates a 60fps frame for repeating tasks.
+   */
+  scheduleRun() {
+    if (typeof requestAnimationFrame === "function") {
+      requestAnimationFrame(() => this.runTasks());
+    } else {
+      setTimeout(() => this.runTasks(), 16);
     }
   }
   hasTasks() {
@@ -57240,49 +57256,49 @@ __export(vector_exports, {
   vecToArray: () => vecToArray
 });
 function createVec2Float64(values) {
-  return new Float64Array(values || 2);
+  return values ? new Float64Array(values) : new Float64Array(2);
 }
 function createVec2Float32(values) {
-  return new Float32Array(values || 2);
+  return values ? new Float32Array(values) : new Float32Array(2);
 }
 function createVec2Int32(values) {
-  return new Int32Array(values || 2);
+  return values ? new Int32Array(values) : new Int32Array(2);
 }
 function createVec3Float64(values) {
-  return new Float64Array(values || 3);
+  return values ? new Float64Array(values) : new Float64Array(3);
 }
 function createVec3Float32(values) {
-  return new Float32Array(values || 3);
+  return values ? new Float32Array(values) : new Float32Array(3);
 }
 function createVec3Int32(values) {
-  return new Int32Array(values || 3);
+  return values ? new Int32Array(values) : new Int32Array(3);
 }
 function createVec3Int16(values) {
-  return new Int16Array(values || 3);
+  return values ? new Int16Array(values) : new Int16Array(3);
 }
 function createVec2Int16(values) {
-  return new Int16Array(values || 2);
+  return values ? new Int16Array(values) : new Int16Array(2);
 }
 function createVec2Uint16(values) {
-  return new Uint16Array(values || 2);
+  return values ? new Uint16Array(values) : new Uint16Array(2);
 }
 function createVec4Float64(values) {
-  return new Float64Array(values || 4);
+  return values ? new Float64Array(values) : new Float64Array(4);
 }
 function createVec4Float32(values) {
-  return new Float32Array(values || 4);
+  return values ? new Float32Array(values) : new Float32Array(4);
 }
 function createVec4Int32(values) {
-  return new Int32Array(values || 4);
+  return values ? new Int32Array(values) : new Int32Array(4);
 }
 function createVec4Int16(values) {
-  return new Int16Array(values || 4);
+  return values ? new Int16Array(values) : new Int16Array(4);
 }
 function createVec9Float64(values) {
-  return new Float64Array(values || 9);
+  return values ? new Float64Array(values) : new Float64Array(9);
 }
 function createVec9Float32(values) {
-  return new Float32Array(values || 9);
+  return values ? new Float32Array(values) : new Float32Array(9);
 }
 function dotVec3(u2, v2) {
   return u2[0] * v2[0] + u2[1] * v2[1] + u2[2] * v2[2];
@@ -57549,7 +57565,7 @@ function lenVec3(v2) {
 }
 var distVec3 = (() => {
   const vec = createVec3Float64();
-  return (v2, w2) => lenVec3(subVec3(v2, w2, vec));
+  return (v2, w3) => lenVec3(subVec3(v2, w3, vec));
 })();
 function lenVec2(v2) {
   return Math.sqrt(sqLenVec2(v2));
@@ -57564,7 +57580,7 @@ function lerpVec3(t2, t1, t22, p1, p2, dest) {
 }
 var distVec2 = (() => {
   const vec = createVec2Float64();
-  return (v2, w2) => lenVec2(subVec2(v2, w2, vec));
+  return (v2, w3) => lenVec2(subVec2(v2, w3, vec));
 })();
 function rcpVec3(v2, dest) {
   return divScalarVec3(1, v2, dest);
@@ -57581,8 +57597,8 @@ function normalizeVec2(v2, dest) {
   const f2 = 1 / lenVec2(v2);
   return mulVec2Scalar(v2, f2, dest);
 }
-function angleVec3(v2, w2) {
-  let theta = dotVec3(v2, w2) / Math.sqrt(sqLenVec3(v2) * sqLenVec3(w2));
+function angleVec3(v2, w3) {
+  let theta = dotVec3(v2, w3) / Math.sqrt(sqLenVec3(v2) * sqLenVec3(w3));
   theta = theta < -1 ? -1 : theta > 1 ? 1 : theta;
   return Math.acos(theta);
 }
@@ -57596,13 +57612,13 @@ function vecToArray(v2) {
 function trunc(v2) {
   return Math.round(v2 * 1e5) / 1e5;
 }
-function triangleNormal(a3, b5, c4, normal2 = createVec3Float64()) {
+function triangleNormal(a3, b5, c3, normal2 = createVec3Float64()) {
   const p1x = b5[0] - a3[0];
   const p1y = b5[1] - a3[1];
   const p1z = b5[2] - a3[2];
-  const p2x = c4[0] - a3[0];
-  const p2y = c4[1] - a3[1];
-  const p2z = c4[2] - a3[2];
+  const p2x = c3[0] - a3[0];
+  const p2y = c3[1] - a3[1];
+  const p2z = c3[2] - a3[2];
   const p3x = p1y * p2z - p1z * p2y;
   const p3y = p1z * p2x - p1x * p2z;
   const p3z = p1x * p2y - p1y * p2x;
@@ -57663,13 +57679,13 @@ function identityQuat(dest = createVec4Float64()) {
 function eulerToQuat(euler, order, dest = createQuatFloat64()) {
   const a3 = euler[0] * DEGTORAD / 2;
   const b5 = euler[1] * DEGTORAD / 2;
-  const c4 = euler[2] * DEGTORAD / 2;
+  const c3 = euler[2] * DEGTORAD / 2;
   const c1 = Math.cos(a3);
   const c22 = Math.cos(b5);
-  const c32 = Math.cos(c4);
+  const c32 = Math.cos(c3);
   const s1 = Math.sin(a3);
   const s2 = Math.sin(b5);
-  const s3 = Math.sin(c4);
+  const s3 = Math.sin(c3);
   switch (order) {
     case "XYZ":
       dest[0] = s1 * c22 * c32 + c1 * s2 * s3;
@@ -57823,7 +57839,7 @@ function quatToRotationMat4(q3, m2) {
   const x2 = q3[0];
   const y2 = q3[1];
   const z2 = q3[2];
-  const w2 = q3[3];
+  const w3 = q3[3];
   const x22 = x2 + x2;
   const y22 = y2 + y2;
   const z22 = z2 + z2;
@@ -57833,9 +57849,9 @@ function quatToRotationMat4(q3, m2) {
   const yy = y2 * y22;
   const yz = y2 * z22;
   const zz = z2 * z22;
-  const wx = w2 * x22;
-  const wy = w2 * y22;
-  const wz = w2 * z22;
+  const wx = w3 * x22;
+  const wy = w3 * y22;
+  const wz = w3 * z22;
   m2[0] = 1 - (yy + zz);
   m2[4] = xy - wz;
   m2[8] = xz + wy;
@@ -57912,12 +57928,12 @@ var canvasPosToWorldRay = (() => {
       mulVec4Scalar(outVec4, 1 / outVec4[3], outVec4);
     }
   };
-  return (canvas, viewMatrix, projMatrix, projection, canvasPos, worldRayOrigin, worldRayDir) => {
+  return (canvas2, viewMatrix, projMatrix, projection, canvasPos, worldRayOrigin, worldRayDir) => {
     const isOrtho = projection === "ortho";
     mulMat4(projMatrix, viewMatrix, pvMatInv);
     inverseMat4(pvMatInv, pvMatInv);
-    const clipX = 2 * canvasPos[0] / canvas.width - 1;
-    const clipY = 1 - 2 * canvasPos[1] / canvas.height;
+    const clipX = 2 * canvasPos[0] / canvas2.width - 1;
+    const clipY = 1 - 2 * canvasPos[1] / canvas2.height;
     clipToWorld(clipX, clipY, -1, isOrtho, vec4Near);
     clipToWorld(clipX, clipY, 1, isOrtho, vec4Far);
     worldRayOrigin[0] = vec4Near[0];
@@ -57997,6 +58013,7 @@ __export(compression_exports, {
   decompressUVs: () => decompressUVs,
   getPositions3MinMax: () => getPositions3MinMax,
   getUVBounds: () => getUVBounds,
+  octDecodeNormalsU16: () => octDecodeNormalsU16,
   octEncodeNormal: () => octEncodeNormal,
   octEncodeNormalsToU16: () => octEncodeNormalsToU16,
   octEncodeVec3: () => octEncodeVec3,
@@ -58428,6 +58445,27 @@ function octEncodeNormalsToU16(normals) {
   }
   return out;
 }
+function octDecodeNormalsU16(octs, result = new Float32Array(octs.length / 2 * 3)) {
+  if (octs.length % 2 !== 0) {
+    throw new Error("Invalid input: octs must contain an even number of elements.");
+  }
+  for (let i2 = 0, j2 = 0, len = octs.length; i2 < len; i2 += 2, j2 += 3) {
+    let x2 = octs[i2] / 65535 * 2 - 1;
+    let y2 = octs[i2 + 1] / 65535 * 2 - 1;
+    const z2 = 1 - Math.abs(x2) - Math.abs(y2);
+    if (z2 < 0) {
+      const tempx = (1 - Math.abs(y2)) * Math.sign(x2);
+      const tempy = (1 - Math.abs(x2)) * Math.sign(y2);
+      x2 = tempx;
+      y2 = tempy;
+    }
+    const length = Math.sqrt(x2 * x2 + y2 * y2 + z2 * z2) || 1;
+    result[j2] = x2 / length;
+    result[j2 + 1] = y2 / length;
+    result[j2 + 2] = z2 / length;
+  }
+  return result;
+}
 
 // src/base/math/boundaries.ts
 var tempVec3a = createVec3Float64();
@@ -58450,13 +58488,13 @@ function createAABB2Float32(values) {
   return new Float32Array(values || 4);
 }
 function createOBB3(values) {
-  return newFloatArray2(values || 32);
+  return newFloatArray(values || 32);
 }
 function createOBB2(values) {
-  return newFloatArray2(values || 16);
+  return newFloatArray(values || 16);
 }
 function createSphere3(x2, y2, z2, r2) {
-  return newFloatArray2([x2, y2, z2, r2]);
+  return newFloatArray([x2, y2, z2, r2]);
 }
 function transformOBB3(m2, p2, p22 = p2) {
   for (let i2 = 0; i2 < p2.length; i2 += 4) {
@@ -58514,8 +58552,6 @@ function collapseAABB3(aabb) {
   aabb.set([MAX_DOUBLE, MAX_DOUBLE, MAX_DOUBLE, MIN_DOUBLE, MIN_DOUBLE, MIN_DOUBLE]);
   return aabb;
 }
-var c2 = createAABB3Float64();
-collapseAABB3(c2);
 function AABB3ToOBB3(aabb = createAABB3Float64(), obb = createOBB3()) {
   const [minX, minY, minZ, maxX, maxY, maxZ] = aabb;
   const corners = [
@@ -58762,7 +58798,7 @@ function intersectAABB3s(aabb1, aabb2) {
 function intersectFrustum3Triangles3(frustum, positions, indices) {
   return true;
 }
-function intersectFrustum3Triangle3(frustum, a3, b5, c4) {
+function intersectFrustum3Triangle3(frustum, a3, b5, c3) {
   return true;
 }
 function intersectFrustum3Lines3(frustum, positions, indices) {
@@ -59637,8 +59673,11 @@ function clamp(value, min, max) {
 function clamp01(value) {
   return value < 0 ? 0 : value > 1 ? 1 : value;
 }
-function newFloatArray2(values) {
-  return new Float64Array(values);
+function newFloatArray(values) {
+  if (values === void 0) {
+    return new Float64Array(0);
+  }
+  return typeof values === "number" ? new Float64Array(values) : new Float64Array(values);
 }
 
 // src/base/math/matrix.ts
@@ -59654,17 +59693,17 @@ function perspectiveMat4(fovyrad, aspectratio, znear, zfar, m2) {
   return frustumMat4v(pmin, pmax, m2);
 }
 function createMat4Float32(values) {
-  return new Float32Array(values || 16);
+  return values ? new Float32Array(values) : new Float32Array(16);
 }
 var tempMat4a3 = createMat4Float64();
 var tempMat4b = createVec3Float64();
 var tempVec4a2 = createVec4Float64();
 var tempVec4b2 = createVec4Float64();
 function createMat3(values) {
-  return new newFloatArray(values || 9);
+  return newFloatArray(values || 9);
 }
 function createMat4Float64(values) {
-  return new Float64Array(values || 16);
+  return values ? new Float64Array(values) : new Float64Array(16);
 }
 function mat3ToMat4(mat3, mat4) {
   if (!mat4) {
@@ -59818,8 +59857,8 @@ function rotationMat4v(anglerad, axis, m2) {
   }
   const ax = normalizeVec4([axis[0], axis[1], axis[2], 0], createVec4Float64());
   const s2 = Math.sin(anglerad);
-  const c4 = Math.cos(anglerad);
-  const q3 = 1 - c4;
+  const c3 = Math.cos(anglerad);
+  const q3 = 1 - c3;
   const x2 = ax[0];
   const y2 = ax[1];
   const z2 = ax[2];
@@ -59829,17 +59868,17 @@ function rotationMat4v(anglerad, axis, m2) {
   const xs = x2 * s2;
   const ys = y2 * s2;
   const zs = z2 * s2;
-  m2[0] = q3 * x2 * x2 + c4;
+  m2[0] = q3 * x2 * x2 + c3;
   m2[1] = q3 * xy + zs;
   m2[2] = q3 * zx - ys;
   m2[3] = 0;
   m2[4] = q3 * xy - zs;
-  m2[5] = q3 * y2 * y2 + c4;
+  m2[5] = q3 * y2 * y2 + c3;
   m2[6] = q3 * yz + xs;
   m2[7] = 0;
   m2[8] = q3 * zx + ys;
   m2[9] = q3 * yz - xs;
-  m2[10] = q3 * z2 * z2 + c4;
+  m2[10] = q3 * z2 * z2 + c3;
   m2[11] = 0;
   m2[12] = 0;
   m2[13] = 0;
@@ -60426,6 +60465,7 @@ var LinesPrimitive = 20001;
 var TrianglesPrimitive = 20002;
 var SolidPrimitive = 20003;
 var SurfacePrimitive = 20004;
+var GaussianSplatsPrimitive = 20005;
 
 // src/model/scene/buildEdgeIndices.ts
 var uniquePositions = [];
@@ -60439,7 +60479,7 @@ var compb = new Uint16Array(3);
 var compc = new Uint16Array(3);
 var a2 = createVec3Float64();
 var b4 = createVec3Float64();
-var c3 = createVec3Float64();
+var c2 = createVec3Float64();
 var cb = createVec3Float64();
 var ab = createVec3Float64();
 var cross = createVec3Float64();
@@ -60491,7 +60531,7 @@ function buildFaces(numIndices, aabb) {
       compc[2] = uniquePositions[ic + 2];
       decompressPoint3WithAABB3(compa, aabb, a2);
       decompressPoint3WithAABB3(compb, aabb, b4);
-      decompressPoint3WithAABB3(compc, aabb, c3);
+      decompressPoint3WithAABB3(compc, aabb, c2);
     } else {
       a2[0] = uniquePositions[ia];
       a2[1] = uniquePositions[ia + 1];
@@ -60499,11 +60539,11 @@ function buildFaces(numIndices, aabb) {
       b4[0] = uniquePositions[ib];
       b4[1] = uniquePositions[ib + 1];
       b4[2] = uniquePositions[ib + 2];
-      c3[0] = uniquePositions[ic];
-      c3[1] = uniquePositions[ic + 1];
-      c3[2] = uniquePositions[ic + 2];
+      c2[0] = uniquePositions[ic];
+      c2[1] = uniquePositions[ic + 1];
+      c2[2] = uniquePositions[ic + 2];
     }
-    subVec3(c3, b4, cb);
+    subVec3(c2, b4, cb);
     subVec3(a2, b4, ab);
     cross3Vec3(cb, ab, cross);
     normalizeVec3(cross, normal);
@@ -60591,6 +60631,18 @@ function compressGeometryParams(geometryParams) {
       origin: rtcNeeded ? rtcCenter : null
     };
   }
+  if (geometryParams.primitive === GaussianSplatsPrimitive) {
+    return {
+      id: geometryParams.id,
+      primitive: GaussianSplatsPrimitive,
+      aabb,
+      positionsCompressed,
+      colorsCompressed: geometryParams.colorsCompressed ? geometryParams.colorsCompressed : geometryParams.colors ? compressRGBColors(geometryParams.colors) : null,
+      scales: geometryParams.scales,
+      rotations: geometryParams.rotations,
+      origin: rtcNeeded ? rtcCenter : null
+    };
+  }
   if (geometryParams.primitive === LinesPrimitive) {
     return {
       id: geometryParams.id,
@@ -60626,6 +60678,24 @@ function compressGeometryParams(geometryParams) {
 }
 
 // src/model/scene/SceneGeometry.ts
+function narrowIndexArray(indices) {
+  if (!indices || indices.length === 0) {
+    return indices;
+  }
+  let max = 0;
+  for (let i2 = 0, len = indices.length; i2 < len; i2++) {
+    if (indices[i2] > max) {
+      max = indices[i2];
+    }
+  }
+  const targetBytes = max < 256 ? 1 : max < 65536 ? 2 : 4;
+  if (ArrayBuffer.isView(indices) && indices.BYTES_PER_ELEMENT <= targetBytes) {
+    return indices;
+  }
+  const src = indices;
+  const narrowed = targetBytes === 1 ? new Uint8Array(src) : targetBytes === 2 ? new Uint16Array(src) : new Uint32Array(src);
+  return narrowed;
+}
 var SceneGeometry = class {
   /**
    * @private
@@ -60701,6 +60771,16 @@ var SceneGeometry = class {
      */
     __publicField(this, "edgeIndices");
     /**
+     * Per-splat scales — 3 floats per splat. Only present for
+     * {@link base!constants.GaussianSplatsPrimitive | GaussianSplatsPrimitive} geometry.
+     */
+    __publicField(this, "scales");
+    /**
+     * Per-splat rotation quaternions — 4 floats per splat, `xyzw`. Only present for
+     * {@link base!constants.GaussianSplatsPrimitive | GaussianSplatsPrimitive} geometry.
+     */
+    __publicField(this, "rotations");
+    /**
      * The count of {@link SceneMesh | SceneMeshes} that reference this SceneGeometry.
      */
     __publicField(this, "numMeshes");
@@ -60716,8 +60796,10 @@ var SceneGeometry = class {
     this.uvsCompressed = params.uvsCompressed;
     this.colorsCompressed = params.colorsCompressed;
     this.normalsCompressed = params.normalsCompressed;
-    this.indices = params.indices;
-    this.edgeIndices = params.edgeIndices;
+    this.indices = narrowIndexArray(params.indices);
+    this.edgeIndices = narrowIndexArray(params.edgeIndices);
+    this.scales = params.scales;
+    this.rotations = params.rotations;
     this.aabb = createAABB3Float32(params.aabb);
     this.numMeshes = 0;
   }
@@ -60755,6 +60837,12 @@ var SceneGeometry = class {
     }
     if (this.edgeIndices) {
       params.edgeIndices = Array.from(this.edgeIndices);
+    }
+    if (this.scales) {
+      params.scales = Array.from(this.scales);
+    }
+    if (this.rotations) {
+      params.rotations = Array.from(this.rotations);
     }
     return {
       ok: true,
@@ -61659,6 +61747,7 @@ var DEFAULT_ROUGHNESS = 0.6;
 var DEFAULT_METALLIC = 0;
 var DEFAULT_TRIPLANAR_SCALE = 1;
 var DEFAULT_LINE_WIDTH = 0;
+var SHARED_IDENTITY_MATRIX = identityMat4();
 var SceneMesh = class {
   /**
    * @private
@@ -61727,16 +61816,19 @@ var SceneMesh = class {
     __publicField(this, "_color");
     __publicField(this, "_opacity");
     __publicField(this, "_localMatrix");
+    // Lazily allocated: only when world != local (a parent transform exists or
+    // the model's coordinate system is non-identity). When world == local the
+    // getter returns `_localMatrix` directly, so most meshes never allocate this.
     __publicField(this, "_worldMatrix");
     __publicField(this, "_parentTransform", null);
     __publicField(this, "_worldMatrixDirty", true);
     __publicField(this, "destroyed", false);
-    __publicField(this, "_emitMatrixChangedEventTask");
+    var _a2;
     this.id = meshParams.id;
     this.uniqueId = `${meshParams.model.id}__${meshParams.id}`;
     this.model = meshParams.model;
-    this._localMatrix = meshParams.matrix ? createMat4Float64(meshParams.matrix) : identityMat4();
-    this._worldMatrix = createMat4Float64();
+    this._localMatrix = (_a2 = meshParams.matrix) != null ? _a2 : SHARED_IDENTITY_MATRIX;
+    this._worldMatrix = null;
     this._worldMatrixDirty = true;
     this.geometry = meshParams.geometry;
     this.material = meshParams.material;
@@ -61744,14 +61836,6 @@ var SceneMesh = class {
     this._color = createVec3Float32(meshParams.color || [1, 1, 1]);
     this._opacity = meshParams.opacity !== void 0 && meshParams.opacity !== null ? meshParams.opacity : 1;
     this.object = null;
-    this._emitMatrixChangedEventTask = new SDKTask({
-      name: "SceneMesh._emitMatrixChangedEventTask",
-      task: () => {
-        this.model.scene.events.onSceneMeshMatrixChanged.dispatch(this.model.scene, this);
-      },
-      stage: SDKTask.ComputeStage2
-      // Emit after transforms have been updated but before rendering
-    });
   }
   /**
    * Gets the {@link model!scene.SceneGeometry | SceneGeometry} used by this SceneMesh.
@@ -61845,12 +61929,19 @@ var SceneMesh = class {
       });
       return;
     }
-    if (matrix) {
-      this._localMatrix.set(matrix);
-    } else {
-      identityMat4(this._localMatrix);
-    }
+    this._ownLocalMatrix().set(matrix);
     this.setWorldMatrixDirty();
+  }
+  /**
+   * Returns a private, writable `_localMatrix`, replacing the shared identity
+   * sentinel with a fresh copy on first write so in-place mutation never
+   * corrupts the matrix shared by every untransformed mesh.
+   */
+  _ownLocalMatrix() {
+    if (this._localMatrix === SHARED_IDENTITY_MATRIX) {
+      this._localMatrix = createMat4Float64(SHARED_IDENTITY_MATRIX);
+    }
+    return this._localMatrix;
   }
   /**
    * Gets this SceneMesh's local modeling transform matrix.
@@ -61864,7 +61955,13 @@ var SceneMesh = class {
    * Gets the global transform matrix for this SceneMesh.
    */
   get worldMatrix() {
-    if (this._worldMatrixDirty) {
+    if (!this._parentTransform && isIdentityMat4(this.model.coordinateSystemMatrix)) {
+      return this._localMatrix;
+    }
+    if (this._worldMatrixDirty || !this._worldMatrix) {
+      if (!this._worldMatrix) {
+        this._worldMatrix = createMat4Float64();
+      }
       if (this._parentTransform) {
         mulMat4(this._parentTransform.worldMatrix, this._localMatrix, this._worldMatrix);
       } else {
@@ -62097,7 +62194,7 @@ var SceneMesh = class {
    */
   setWorldMatrixDirty() {
     this._worldMatrixDirty = true;
-    this._emitMatrixChangedEventTask.schedule();
+    this.model.scene.events.onSceneMeshMatrixChanged.dispatch(this.model.scene, this);
   }
   /**
    * Attaches a parent transform to this transform.
@@ -62153,13 +62250,13 @@ var SceneMesh = class {
     const preserve = !!(opts == null ? void 0 : opts.preserveWorld);
     if (preserve) {
       this.setWorldMatrixDirty();
-      const currentWorld = createMat4Float64(this._worldMatrix);
+      const currentWorld = createMat4Float64(this.worldMatrix);
       this._attachParentTransform(parentTransform);
       if (this._parentTransform) {
         const invParent = inverseMat4(this._parentTransform._worldMatrix, createMat4Float64());
         mulMat4(this._localMatrix, invParent, currentWorld);
       } else {
-        this._localMatrix.set(currentWorld);
+        this._ownLocalMatrix().set(currentWorld);
       }
       this.setWorldMatrixDirty();
     } else {
@@ -62726,14 +62823,14 @@ function normalizeImageData(input) {
     return void 0;
   }
 }
-function serializeImageData(imageData) {
-  if (!imageData) {
+function serializeImageData(imageData2) {
+  if (!imageData2) {
     return void 0;
   }
   return {
-    data: Array.from(imageData.data),
-    width: imageData.width,
-    height: imageData.height
+    data: Array.from(imageData2.data),
+    width: imageData2.width,
+    height: imageData2.height
   };
 }
 function serializeImageToDataURL(image) {
@@ -62750,21 +62847,21 @@ function serializeImageToDataURL(image) {
       return void 0;
     }
   }
-  const w2 = image.width || image.naturalWidth || 0;
-  const h2 = image.height || image.naturalHeight || 0;
-  if (w2 <= 0 || h2 <= 0) {
+  const w3 = image.width || image.naturalWidth || 0;
+  const h3 = image.height || image.naturalHeight || 0;
+  if (w3 <= 0 || h3 <= 0) {
     return void 0;
   }
-  const canvas = document.createElement("canvas");
-  canvas.width = w2;
-  canvas.height = h2;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) {
+  const canvas2 = document.createElement("canvas");
+  canvas2.width = w3;
+  canvas2.height = h3;
+  const ctx2 = canvas2.getContext("2d");
+  if (!ctx2) {
     return void 0;
   }
   try {
-    ctx.drawImage(image, 0, 0);
-    return canvas.toDataURL("image/png");
+    ctx2.drawImage(image, 0, 0);
+    return canvas2.toDataURL("image/png");
   } catch {
     return void 0;
   }
@@ -63109,8 +63206,8 @@ var SceneMaterial = class {
       this._triplanarScale = t2 !== void 0 && t2 !== null && t2 > 1e-4 ? t2 : 1;
     }
     {
-      const w2 = materialParams.lineWidth;
-      this._lineWidth = w2 !== void 0 && w2 !== null && w2 > 0 ? w2 : 0;
+      const w3 = materialParams.lineWidth;
+      this._lineWidth = w3 !== void 0 && w3 !== null && w3 > 0 ? w3 : 0;
     }
     this._linePattern = emptyLinePattern();
     this._linePatternUserValue = "solid";
@@ -63549,8 +63646,8 @@ var ThickLinesTechnique = class extends SceneTechnique {
      * plane" and falls off with depth.
      */
     __publicField(this, "widthMode");
-    const w2 = params.lineWidth;
-    this.lineWidth = w2 !== void 0 && w2 !== null && w2 > 0 ? w2 : 0;
+    const w3 = params.lineWidth;
+    this.lineWidth = w3 !== void 0 && w3 !== null && w3 > 0 ? w3 : 0;
     this.widthMode = params.widthMode === "perspective" ? "perspective" : "screen";
   }
 };
@@ -63657,6 +63754,11 @@ var SceneModel2 = class {
      */
     __publicField(this, "geometries");
     /**
+     * Live count of resident geometries per primitive type, maintained as
+     * geometries are created/destroyed. Backs {@link containsPrimitive}.
+     */
+    __publicField(this, "_primitiveCounts", /* @__PURE__ */ new Map());
+    /**
      * {@link SceneTexture | Textures} within this SceneModel, each mapped to {@link SceneTexture.id | SceneTexture.id}.
      *
      * - Created by {@link SceneModel.createTexture | SceneModel.createTexture}.
@@ -63704,6 +63806,7 @@ var SceneModel2 = class {
      * - Don't create anything more in this SceneModel once it's destroyed.
      */
     __publicField(this, "destroyed", false);
+    __publicField(this, "_building", false);
     this.id = sceneModelParams.id;
     this.scene = scene;
     this.coordinateSystem = new CoordinateSystem(
@@ -63738,6 +63841,34 @@ var SceneModel2 = class {
       numVertices: 0,
       textureBytes: 0
     };
+  }
+  /**
+   * Whether this SceneModel is currently being populated by a loader.
+   *
+   * {@link ModelLoader} sets this `true` for the duration of a load and `false`
+   * when it finishes (or fails). The renderer observes the paired
+   * {@link model!scene.SceneEvents.onSceneModelBuildStarted | onSceneModelBuildStarted} /
+   * {@link model!scene.SceneEvents.onSceneModelBuildFinished | onSceneModelBuildFinished}
+   * events to suspend per-frame uploads + draws until the model is fully
+   * assembled, then renders it once — avoiding redundant mid-load frames.
+   *
+   * Setting the same value twice is a no-op (no event fired), so it's safe for
+   * a loader to clear it in a `finally` even on the error path.
+   */
+  get building() {
+    return this._building;
+  }
+  set building(building) {
+    building = !!building;
+    if (building === this._building) {
+      return;
+    }
+    this._building = building;
+    if (building) {
+      this.scene.events.onSceneModelBuildStarted.dispatch(this.scene, this);
+    } else {
+      this.scene.events.onSceneModelBuildFinished.dispatch(this.scene, this);
+    }
   }
   /**
    * Caches a matrix used to transform positions between SceneModel and Scene CoordinateSystems.
@@ -64272,18 +64403,18 @@ var SceneModel2 = class {
         error: "[SceneModel.createGeometry] The length of 'positions' in geometryParams must be a multiple of 3."
       });
     }
-    if (primitive !== PointsPrimitive && (!indices || indices.length === 0)) {
+    if (primitive !== PointsPrimitive && primitive !== GaussianSplatsPrimitive && (!indices || indices.length === 0)) {
       return this.scene.logError({
         ok: false,
         type: 2 /* InvalidInput */,
         error: "[SceneModel.createGeometry] Missing/empty required 'indices' for the specified primitive type."
       });
     }
-    if (primitive !== PointsPrimitive && primitive !== LinesPrimitive && primitive !== TrianglesPrimitive && primitive !== SolidPrimitive && primitive !== SurfacePrimitive) {
+    if (primitive !== PointsPrimitive && primitive !== LinesPrimitive && primitive !== TrianglesPrimitive && primitive !== SolidPrimitive && primitive !== SurfacePrimitive && primitive !== GaussianSplatsPrimitive) {
       return this.scene.logError({
         ok: false,
         type: 2 /* InvalidInput */,
-        error: `[SceneModel.createGeometry] Unsupported value for geometryParams.primitive: '${primitive}' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive`
+        error: `[SceneModel.createGeometry] Unsupported value for geometryParams.primitive: '${primitive}' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive, SurfacePrimitive and GaussianSplatsPrimitive`
       });
     }
     if (colors && colors.length > 0) {
@@ -64342,6 +64473,7 @@ var SceneModel2 = class {
     );
     this.geometries[id] = sceneGeometry;
     this.stats.numGeometries++;
+    this._bumpPrimitiveCount(sceneGeometry.primitive, 1);
     if (indices) {
       if (sceneGeometry.primitive === TrianglesPrimitive) {
         this.stats.numTriangles += indices.length / 3;
@@ -64440,7 +64572,7 @@ var SceneModel2 = class {
         error: "[SceneModel.createGeometryCompressed] Parameter expected: 'positionsCompressed'"
       });
     }
-    if (!indices && primitive !== PointsPrimitive) {
+    if (!indices && primitive !== PointsPrimitive && primitive !== GaussianSplatsPrimitive) {
       return this.scene.logError({
         ok: false,
         type: 2 /* InvalidInput */,
@@ -64496,16 +64628,17 @@ var SceneModel2 = class {
         error: `[SceneModel.createGeometryCompressed] SceneGeometry with this ID already exists: '${geometryId}'`
       });
     }
-    if (primitive !== PointsPrimitive && primitive !== LinesPrimitive && primitive !== TrianglesPrimitive && primitive !== SolidPrimitive && primitive !== SurfacePrimitive) {
+    if (primitive !== PointsPrimitive && primitive !== LinesPrimitive && primitive !== TrianglesPrimitive && primitive !== SolidPrimitive && primitive !== SurfacePrimitive && primitive !== GaussianSplatsPrimitive) {
       return this.scene.logError({
         ok: false,
         type: 2 /* InvalidInput */,
-        error: `[SceneModel.createGeometryCompressed] Unsupported value for parameter 'primitive': '${primitive}' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive`
+        error: `[SceneModel.createGeometryCompressed] Unsupported value for parameter 'primitive': '${primitive}' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive, SurfacePrimitive and GaussianSplatsPrimitive`
       });
     }
     const sceneGeometry = new SceneGeometry(this, geometryCompressedParams);
     this.geometries[geometryId] = sceneGeometry;
     this.stats.numGeometries++;
+    this._bumpPrimitiveCount(sceneGeometry.primitive, 1);
     if (indices) {
       if (sceneGeometry.primitive === TrianglesPrimitive) {
         this.stats.numTriangles += indices.length / 3;
@@ -64523,9 +64656,28 @@ var SceneModel2 = class {
     };
   }
   /**
-   * @private
-   * Destroys a {@link model!scene.SceneGeometry | SceneGeometry} previously created in this model.
+   * Returns `true` if this SceneModel currently holds at least one
+   * {@link SceneGeometry} of the given primitive type — e.g.
+   * `model.containsPrimitive(GaussianSplatsPrimitive)`.
+   *
+   * Backed by a live per-primitive count maintained as geometries are created
+   * and destroyed, so it is O(1) and correct regardless of when geometries were
+   * added relative to the model's creation event.
    */
+  containsPrimitive(primitive) {
+    var _a2;
+    return ((_a2 = this._primitiveCounts.get(primitive)) != null ? _a2 : 0) > 0;
+  }
+  /** Adjusts the per-primitive geometry count, clearing zeroed entries. */
+  _bumpPrimitiveCount(primitive, delta) {
+    var _a2;
+    const next = ((_a2 = this._primitiveCounts.get(primitive)) != null ? _a2 : 0) + delta;
+    if (next > 0) {
+      this._primitiveCounts.set(primitive, next);
+    } else {
+      this._primitiveCounts.delete(primitive);
+    }
+  }
   _destroyGeometry(sceneGeometry) {
     const geometryId = sceneGeometry.id;
     if (this.destroyed) {
@@ -64539,6 +64691,7 @@ var SceneModel2 = class {
     }
     delete this.geometries[geometryId];
     this.stats.numGeometries--;
+    this._bumpPrimitiveCount(sceneGeometry.primitive, -1);
     if (sceneGeometry.indices) {
       if (sceneGeometry.primitive === TrianglesPrimitive) {
         this.stats.numTriangles -= sceneGeometry.indices.length / 3;
@@ -64686,8 +64839,6 @@ var SceneModel2 = class {
           scale3 || [1, 1, 1],
           matrix
         );
-      } else {
-        matrix = identityMat4();
       }
     } else {
       if (matrix.length !== 16) {
@@ -65135,6 +65286,19 @@ var SceneEvents = class {
      */
     __publicField(this, "onSceneModelDestroyed");
     /**
+     * Emits an event when a {@link model!scene.SceneModel | SceneModel} enters its "building" state — i.e. a
+     * loader has begun populating it. Consumers (e.g. the renderer) can use this to
+     * suspend per-frame work until the model is fully assembled. Paired with
+     * {@link onSceneModelBuildFinished}.
+     */
+    __publicField(this, "onSceneModelBuildStarted");
+    /**
+     * Emits an event when a {@link model!scene.SceneModel | SceneModel} leaves its "building" state — the
+     * loader has finished (or failed). Always fires to match a preceding
+     * {@link onSceneModelBuildStarted}, so consumers can rely on balanced pairs.
+     */
+    __publicField(this, "onSceneModelBuildFinished");
+    /**
      * Emits an event when the {@link CoordinateSystem.basis} of a {@link model!scene.SceneModel | SceneModel} is updated.
      */
     __publicField(this, "onSceneModelCoordSystemBasisChanged");
@@ -65284,6 +65448,8 @@ var SceneEvents = class {
     this.onSceneCoordSystemUpdated = new EventEmitter(new import_strongly_typed_events2.EventDispatcher());
     this.onSceneModelCreated = new EventEmitter(new import_strongly_typed_events2.EventDispatcher());
     this.onSceneModelDestroyed = new EventEmitter(new import_strongly_typed_events2.EventDispatcher());
+    this.onSceneModelBuildStarted = new EventEmitter(new import_strongly_typed_events2.EventDispatcher());
+    this.onSceneModelBuildFinished = new EventEmitter(new import_strongly_typed_events2.EventDispatcher());
     this.onSceneModelCoordSystemBasisChanged = new EventEmitter(new import_strongly_typed_events2.EventDispatcher());
     this.onSceneModelCoordSystemOriginChanged = new EventEmitter(new import_strongly_typed_events2.EventDispatcher());
     this.onSceneModelCoordSystemUnitsChanged = new EventEmitter(new import_strongly_typed_events2.EventDispatcher());
@@ -65330,6 +65496,8 @@ var SceneEvents = class {
     this.onSceneCoordSystemUpdated.clear();
     this.onSceneModelCreated.clear();
     this.onSceneModelDestroyed.clear();
+    this.onSceneModelBuildStarted.clear();
+    this.onSceneModelBuildFinished.clear();
     this.onSceneModelCoordSystemBasisChanged.clear();
     this.onSceneModelCoordSystemOriginChanged.clear();
     this.onSceneModelCoordSystemUnitsChanged.clear();
@@ -65534,6 +65702,21 @@ var Scene = class {
       return this.logError(populated);
     }
     return { ok: true, value: sceneModel };
+  }
+  /**
+   * Returns `true` if any {@link model!scene.SceneModel | SceneModel} in this
+   * Scene currently holds at least one {@link model!scene.SceneGeometry | SceneGeometry}
+   * of the given primitive type — e.g. `scene.containsPrimitive(GaussianSplatsPrimitive)`.
+   *
+   * Backed by per-model live counts, so this is cheap to call (no geometry scan).
+   */
+  containsPrimitive(primitive) {
+    for (const id in this.models) {
+      if (this.models[id].containsPrimitive(primitive)) {
+        return true;
+      }
+    }
+    return false;
   }
   /**
    * Called internally when a {@link model!scene.SceneModel | SceneModel} is destroyed.
@@ -65881,7 +66064,7 @@ var Relationship = class {
 };
 
 // src/model/data/DataModel.ts
-var _removeObjectFromModels, removeObjectFromModels_fn;
+var _removeObjectFromModels, removeObjectFromModels_fn, _removeRelation, removeRelation_fn, _hasIncomingRelationship, hasIncomingRelationship_fn;
 var DataModel = class {
   /**
    * @private
@@ -65896,6 +66079,8 @@ var DataModel = class {
     //     }
     // }
     __privateAdd(this, _removeObjectFromModels);
+    __privateAdd(this, _removeRelation);
+    __privateAdd(this, _hasIncomingRelationship);
     /**
      * The Data that contains this DataModel.
      */
@@ -66166,6 +66351,7 @@ var DataModel = class {
         propertySets
       );
       this.data.objects[id] = dataObject;
+      this.data.rootObjects[id] = dataObject;
       if (!this.data.objectsByType[type]) {
         this.data.objectsByType[type] = {};
       }
@@ -66174,12 +66360,17 @@ var DataModel = class {
       this.data.events.onDataObjectCreated.dispatch(this.data, dataObject);
     }
     this.objects[id] = dataObject;
+    if (this.data.rootObjects[id]) {
+      this.rootObjects[id] = dataObject;
+    }
     if (!this.objectsByType[type]) {
       this.objectsByType[type] = {};
     }
     this.objectsByType[type][id] = dataObject;
     this.typeCounts[type] = this.typeCounts[type] === void 0 ? 1 : this.typeCounts[type] + 1;
-    dataObject.models.push(this);
+    if (dataObject.models.indexOf(this) < 0) {
+      dataObject.models.push(this);
+    }
     this.stats.numObjects++;
     return {
       ok: true,
@@ -66251,6 +66442,10 @@ var DataModel = class {
       relatedObject.relating[relationshipParams.type] = [];
     }
     relatedObject.relating[relationshipParams.type].push(relation);
+    delete this.data.rootObjects[relatedObject.id];
+    for (let i2 = 0, len = relatedObject.models.length; i2 < len; i2++) {
+      delete relatedObject.models[i2].rootObjects[relatedObject.id];
+    }
     if (!relatingObject.related[relationshipParams.type]) {
       relatingObject.related[relationshipParams.type] = [];
     }
@@ -66424,31 +66619,37 @@ var DataModel = class {
         error: "[DataModel.destroy] DataModel already destroyed"
       });
     }
+    for (let i2 = 0, len = this.relationships.length; i2 < len; i2++) {
+      const relation = this.relationships[i2];
+      const type = relation.type;
+      __privateMethod(this, _removeRelation, removeRelation_fn).call(this, relation.relatingObject.related[type], relation);
+      __privateMethod(this, _removeRelation, removeRelation_fn).call(this, relation.relatedObject.relating[type], relation);
+    }
     for (const id in this.objects) {
       const dataObject = this.objects[id];
       if (dataObject.models.length > 1) {
         __privateMethod(this, _removeObjectFromModels, removeObjectFromModels_fn).call(this, dataObject);
       } else {
         delete this.data.objects[id];
+        delete this.data.rootObjects[id];
         const type = dataObject.type;
+        const bucket = this.data.objectsByType[type];
+        if (bucket) {
+          delete bucket[id];
+        }
         if (--this.data.typeCounts[type] === 0) {
           delete this.data.typeCounts[type];
           delete this.data.objectsByType[type];
-          this.data.events.onDataObjectDestroyed.dispatch(this.data, dataObject);
-          for (const type2 in dataObject.relating) {
-            const relations = dataObject.relating[type2];
-            for (let i2 = 0, len = relations.length; i2 < len; i2++) {
-              const relation = relations[i2];
-              const related = relation.relatedObject;
-              const list = related.relating[type2];
-              for (let j2 = 0, k2 = 0, lenj = list.length; j2 < lenj; j2++) {
-                if (list[k2].relatingObject === dataObject) {
-                  list.splice(j2, 1);
-                  break;
-                }
-              }
-            }
-          }
+        }
+        this.data.events.onDataObjectDestroyed.dispatch(this.data, dataObject);
+      }
+    }
+    for (let i2 = 0, len = this.relationships.length; i2 < len; i2++) {
+      const related = this.relationships[i2].relatedObject;
+      if (this.data.objects[related.id] && !__privateMethod(this, _hasIncomingRelationship, hasIncomingRelationship_fn).call(this, related)) {
+        this.data.rootObjects[related.id] = related;
+        for (let j2 = 0, lenj = related.models.length; j2 < lenj; j2++) {
+          related.models[j2].rootObjects[related.id] = related;
         }
       }
     }
@@ -66468,6 +66669,26 @@ removeObjectFromModels_fn = function(dataObject) {
       break;
     }
   }
+};
+_removeRelation = new WeakSet();
+removeRelation_fn = function(list, relation) {
+  if (!list) {
+    return;
+  }
+  const i2 = list.indexOf(relation);
+  if (i2 >= 0) {
+    list.splice(i2, 1);
+  }
+};
+_hasIncomingRelationship = new WeakSet();
+hasIncomingRelationship_fn = function(dataObject) {
+  const relating = dataObject.relating;
+  for (const type in relating) {
+    if (relating[type].length > 0) {
+      return true;
+    }
+  }
+  return false;
 };
 
 // src/base/io/BrowserFileIO.ts
@@ -66615,10 +66836,21 @@ var ModelLoader = class {
               pushedYieldOverride = false;
             }
           };
+          const buildScoped = !!sceneModel && options.progressiveRender !== true;
+          if (buildScoped) {
+            sceneModel.building = true;
+          }
+          const endBuild = () => {
+            if (buildScoped) {
+              sceneModel.building = false;
+            }
+          };
           parser({ fileData: fileData2, sceneModel, dataModel }, options).then(() => {
+            endBuild();
             restoreYieldOverride();
             resolve2();
           }).catch((err) => {
+            endBuild();
             restoreYieldOverride();
             reject(err);
           });
@@ -66642,7 +66874,102 @@ var ModelLoader = class {
 // src/model/data/DataEvents.ts
 var import_strongly_typed_events3 = __toESM(require_dist8());
 
-// src/formats/metamodel/convertMetaModel.ts
+// src/formats/ModelExporter.ts
+var MIN_YIELD_INTERVAL_MS2 = 16;
+var ModelExporter = class {
+  /**
+   * @param params
+   */
+  constructor(params) {
+    /**
+     * The exported model file format.
+     */
+    __publicField(this, "format");
+    /**
+     * An encoder for each supported schema version.
+     *
+     * @internal
+     */
+    __publicField(this, "encoders");
+    /**
+     * List of supported schema versions.
+     */
+    __publicField(this, "versions");
+    /**
+     * The default supported schema version.
+     */
+    __publicField(this, "defaultVersion");
+    /**
+     * Data type of the file written by this Exporter.
+     */
+    __publicField(this, "fileDataType");
+    this.format = params.format;
+    this.encoders = params.encoders || {};
+    this.versions = Object.keys(this.encoders);
+    this.fileDataType = params.fileDataType;
+    this.defaultVersion = params.defaultVersion;
+  }
+  /**
+   * Exports a {@link model!scene.SceneModel | SceneModel} and/or a {@link model!data.DataModel | DataModel} to file data.
+   *
+   * @param params - The parameters used for writing the file data.
+   * @param options - Options for customizing the export process.
+   * @returns {Promise} Resolves when the SceneModel and/or DataModel has been successfully written.
+   *
+   * @throws
+   * - If the SceneModel has already been destroyed.
+   * - If the DataModel has already been destroyed.
+   */
+  write(params, options = {}) {
+    return new Promise((resolve2, reject) => {
+      if (!params) {
+        return reject("Argument expected: params");
+      }
+      const { sceneModel, dataModel } = params;
+      if (!sceneModel && !dataModel) {
+        return reject("Argument expected: params.sceneModel or params.dataModel");
+      }
+      if (sceneModel && sceneModel.destroyed) {
+        return reject("SceneModel already destroyed");
+      }
+      if (dataModel) {
+        if (!(dataModel instanceof DataModel)) {
+          return reject("Argument type mismatch: params.dataModel should be a DataModel");
+        }
+        if (dataModel.destroyed) {
+          return reject("DataModel already destroyed");
+        }
+      }
+      const version2 = params.version || this.defaultVersion;
+      const encoder = this.encoders[version2];
+      if (!encoder) {
+        return reject(`Unsupported target file schema version: ${version2} - supported versions are [${this.versions}]`);
+      }
+      let prevYieldOverride;
+      let pushedYieldOverride = false;
+      if (options.yieldIntervalMs !== void 0) {
+        const clamped = Math.max(MIN_YIELD_INTERVAL_MS2, options.yieldIntervalMs);
+        prevYieldOverride = setYieldIntervalOverride(clamped);
+        pushedYieldOverride = true;
+      }
+      const restoreYieldOverride = () => {
+        if (pushedYieldOverride) {
+          setYieldIntervalOverride(prevYieldOverride);
+          pushedYieldOverride = false;
+        }
+      };
+      encoder({ sceneModel, dataModel }, options).then((fileData) => {
+        restoreYieldOverride();
+        resolve2(fileData);
+      }).catch((err) => {
+        restoreYieldOverride();
+        reject(`Cannot export target file -> ${err}`);
+      });
+    });
+  }
+};
+
+// src/formats/legacy/metamodel/convertMetaModel.ts
 function convertMetaModel(metaModelParams) {
   const dataModelParams = {
     id: "",
@@ -66739,13 +67066,13 @@ function getImageData(image) {
       return image;
     case "image":
     case "imagebitmap":
-      const canvas = document.createElement("canvas");
-      const context = canvas.getContext("2d");
+      const canvas2 = document.createElement("canvas");
+      const context = canvas2.getContext("2d");
       if (!context) {
         throw new Error("getImageData");
       }
-      canvas.width = image.width;
-      canvas.height = image.height;
+      canvas2.width = image.width;
+      canvas2.height = image.height;
       context.drawImage(image, 0, 0);
       return context.getImageData(0, 0, image.width, image.height);
     default:
@@ -67583,10 +67910,10 @@ var GLTFScenegraph = class {
    * @param imageData
    * @param mimeType
    */
-  addImage(imageData, mimeTypeOpt) {
-    const metadata = getBinaryImageMetadata(imageData);
+  addImage(imageData2, mimeTypeOpt) {
+    const metadata = getBinaryImageMetadata(imageData2);
     const mimeType = mimeTypeOpt || (metadata == null ? void 0 : metadata.mimeType);
-    const bufferViewIndex = this.addBufferView(imageData);
+    const bufferViewIndex = this.addBufferView(imageData2);
     const glTFImage = {
       bufferView: bufferViewIndex,
       mimeType
@@ -67927,27 +68254,27 @@ function getImageValueByCoordinates(parsedImage, mimeType, textureCoordinates, i
     components = 4;
   const offset = coordinatesToOffset(u2, v2, parsedImage, components);
   let value = 0;
-  for (const c4 of channels) {
-    const map = typeof c4 === "number" ? Object.values(CHANNELS_MAP)[c4] : CHANNELS_MAP[c4];
+  for (const c3 of channels) {
+    const map = typeof c3 === "number" ? Object.values(CHANNELS_MAP)[c3] : CHANNELS_MAP[c3];
     const imageOffset = offset + map.offset;
-    const imageData = getImageData(parsedImage);
-    if (imageData.data.length <= imageOffset) {
-      throw new Error(`${imageData.data.length} <= ${imageOffset}`);
+    const imageData2 = getImageData(parsedImage);
+    if (imageData2.data.length <= imageOffset) {
+      throw new Error(`${imageData2.data.length} <= ${imageOffset}`);
     }
-    const imageValue = imageData.data[imageOffset];
+    const imageValue = imageData2.data[imageOffset];
     value |= imageValue << map.shift;
   }
   return value;
 }
 function coordinatesToOffset(u2, v2, parsedImage, componentsCount = 1) {
-  const w2 = parsedImage.width;
-  const iX = emod(u2) * (w2 - 1);
+  const w3 = parsedImage.width;
+  const iX = emod(u2) * (w3 - 1);
   const indX = Math.round(iX);
-  const h2 = parsedImage.height;
-  const iY = emod(v2) * (h2 - 1);
+  const h3 = parsedImage.height;
+  const iY = emod(v2) * (h3 - 1);
   const indY = Math.round(iY);
   const components = parsedImage.components ? parsedImage.components : componentsCount;
-  const offset = (indY * w2 + indX) * components;
+  const offset = (indY * w3 + indX) * components;
   return offset;
 }
 function parseVariableLengthArrayNumeric(valuesData, numberOfElements, arrayOffsets, valuesDataBytesLength, valueSize) {
@@ -68947,8 +69274,8 @@ function getSupportedGPUTextureFormats(gl) {
 }
 function getWebGLContext() {
   try {
-    const canvas = document.createElement("canvas");
-    return canvas.getContext("webgl");
+    const canvas2 = document.createElement("canvas");
+    return canvas2.getContext("webgl");
   } catch (error) {
     return null;
   }
@@ -70930,10 +71257,10 @@ function vec3_transformMat4AsVector(out, a3, m2) {
   const x2 = a3[0];
   const y2 = a3[1];
   const z2 = a3[2];
-  const w2 = m2[3] * x2 + m2[7] * y2 + m2[11] * z2 || 1;
-  out[0] = (m2[0] * x2 + m2[4] * y2 + m2[8] * z2) / w2;
-  out[1] = (m2[1] * x2 + m2[5] * y2 + m2[9] * z2) / w2;
-  out[2] = (m2[2] * x2 + m2[6] * y2 + m2[10] * z2) / w2;
+  const w3 = m2[3] * x2 + m2[7] * y2 + m2[11] * z2 || 1;
+  out[0] = (m2[0] * x2 + m2[4] * y2 + m2[8] * z2) / w3;
+  out[1] = (m2[1] * x2 + m2[5] * y2 + m2[9] * z2) / w3;
+  out[2] = (m2[2] * x2 + m2[6] * y2 + m2[10] * z2) / w3;
   return out;
 }
 function vec3_transformMat2(out, a3, m2) {
@@ -70984,11 +71311,11 @@ function transformMat4(out, a3, m2) {
   const x2 = a3[0];
   const y2 = a3[1];
   const z2 = a3[2];
-  let w2 = m2[3] * x2 + m2[7] * y2 + m2[11] * z2 + m2[15];
-  w2 = w2 || 1;
-  out[0] = (m2[0] * x2 + m2[4] * y2 + m2[8] * z2 + m2[12]) / w2;
-  out[1] = (m2[1] * x2 + m2[5] * y2 + m2[9] * z2 + m2[13]) / w2;
-  out[2] = (m2[2] * x2 + m2[6] * y2 + m2[10] * z2 + m2[14]) / w2;
+  let w3 = m2[3] * x2 + m2[7] * y2 + m2[11] * z2 + m2[15];
+  w3 = w3 || 1;
+  out[0] = (m2[0] * x2 + m2[4] * y2 + m2[8] * z2 + m2[12]) / w3;
+  out[1] = (m2[1] * x2 + m2[5] * y2 + m2[9] * z2 + m2[13]) / w3;
+  out[2] = (m2[2] * x2 + m2[6] * y2 + m2[10] * z2 + m2[14]) / w3;
   return out;
 }
 function transformMat32(out, a3, m2) {
@@ -71014,10 +71341,10 @@ function transformQuat(out, a3, q3) {
   let uuvx = qy * uvz - qz * uvy;
   let uuvy = qz * uvx - qx * uvz;
   let uuvz = qx * uvy - qy * uvx;
-  const w2 = qw * 2;
-  uvx *= w2;
-  uvy *= w2;
-  uvz *= w2;
+  const w22 = qw * 2;
+  uvx *= w22;
+  uvy *= w22;
+  uvz *= w22;
   uuvx *= 2;
   uuvy *= 2;
   uuvz *= 2;
@@ -71417,13 +71744,13 @@ function rotate(out, a3, rad) {
   const a21 = a3[7];
   const a22 = a3[8];
   const s2 = Math.sin(rad);
-  const c4 = Math.cos(rad);
-  out[0] = c4 * a00 + s2 * a10;
-  out[1] = c4 * a01 + s2 * a11;
-  out[2] = c4 * a02 + s2 * a12;
-  out[3] = c4 * a10 - s2 * a00;
-  out[4] = c4 * a11 - s2 * a01;
-  out[5] = c4 * a12 - s2 * a02;
+  const c3 = Math.cos(rad);
+  out[0] = c3 * a00 + s2 * a10;
+  out[1] = c3 * a01 + s2 * a11;
+  out[2] = c3 * a02 + s2 * a12;
+  out[3] = c3 * a10 - s2 * a00;
+  out[4] = c3 * a11 - s2 * a01;
+  out[5] = c3 * a12 - s2 * a02;
   out[6] = a20;
   out[7] = a21;
   out[8] = a22;
@@ -71447,7 +71774,7 @@ function fromQuat(out, q3) {
   const x2 = q3[0];
   const y2 = q3[1];
   const z2 = q3[2];
-  const w2 = q3[3];
+  const w3 = q3[3];
   const x22 = x2 + x2;
   const y22 = y2 + y2;
   const z22 = z2 + z2;
@@ -71457,9 +71784,9 @@ function fromQuat(out, q3) {
   const zx = z2 * x22;
   const zy = z2 * y22;
   const zz = z2 * z22;
-  const wx = w2 * x22;
-  const wy = w2 * y22;
-  const wz = w2 * z22;
+  const wx = w3 * x22;
+  const wy = w3 * y22;
+  const wz = w3 * z22;
   out[0] = 1 - yy - zz;
   out[3] = yx - wz;
   out[6] = zx + wy;
@@ -73699,15 +74026,47 @@ var GLTFLoader2 = class extends ModelLoader {
       }
     });
   }
+  load(params, options = {}) {
+    return super.load(params, options);
+  }
 };
+function assertValidGLBHeader(fileData) {
+  let dv = null;
+  if (fileData instanceof ArrayBuffer) {
+    dv = new DataView(fileData);
+  } else if (ArrayBuffer.isView(fileData)) {
+    dv = new DataView(fileData.buffer, fileData.byteOffset, fileData.byteLength);
+  }
+  if (!dv || dv.byteLength < 12) {
+    return;
+  }
+  const GLB_MAGIC = 1179937895;
+  if (dv.getUint32(0, true) !== GLB_MAGIC) {
+    return;
+  }
+  const declaredLength = dv.getUint32(8, true);
+  if (declaredLength > dv.byteLength) {
+    throw new Error(
+      `[GLTFLoader.load] Corrupt GLB: the header declares a total length of ${declaredLength} bytes but the file is only ${dv.byteLength} bytes \u2014 the model is truncated or its GLB length field is invalid.`
+    );
+  }
+}
 async function parseGLTF2(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   if (!sceneModel && !dataModel) {
     return;
   }
+  assertValidGLBHeader(fileData);
   const parseOptions = {};
   if (options && options.baseUri) {
     parseOptions.baseUri = options.baseUri;
+  }
+  if (options && options.dracoModule) {
+    parseOptions.modules = { draco3d: options.dracoModule };
+  }
+  const headless = typeof OffscreenCanvas === "undefined" && typeof document === "undefined";
+  if (headless) {
+    parseOptions.gltf = { ...parseOptions.gltf || {}, loadImages: false, loadBuffers: true };
   }
   const onProgress = options == null ? void 0 : options.onProgress;
   const signal = options == null ? void 0 : options.signal;
@@ -73730,7 +74089,7 @@ async function parseGLTF2(params, options) {
     throw new Error(`[GLTFLoader.load] Error parsing glTF -> ${errMsg}`);
   }
   await yieldToHost(signal);
-  const ctx = {
+  const ctx2 = {
     nodesHaveNames: false,
     // determined in testIfNodesHaveNames()
     meshIds: [],
@@ -73745,42 +74104,99 @@ async function parseGLTF2(params, options) {
     options: options || {}
   };
   emit("Decoding textures", 0, 0);
-  if (!parseTextures(ctx)) {
-    throw new Error(ctx.errors.length > 0 ? ctx.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
+  if (!parseTextures(ctx2)) {
+    throw new Error(ctx2.errors.length > 0 ? ctx2.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
   }
   await yieldToHost(signal);
   emit("Building materials", 0, 0);
-  if (!parseMaterials(ctx)) {
-    throw new Error(ctx.errors.length > 0 ? ctx.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
+  if (!parseMaterials(ctx2)) {
+    throw new Error(ctx2.errors.length > 0 ? ctx2.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
   }
   await yieldToHost(signal);
   emit("Building scene", 0, 0);
-  if (!parseDefaultScene(ctx)) {
-    throw new Error(ctx.errors.length > 0 ? ctx.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
+  if (!parseDefaultScene(ctx2)) {
+    throw new Error(ctx2.errors.length > 0 ? ctx2.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
   }
   emit("Building scene", 1, 1);
+  parseStructuralMetadata(ctx2);
 }
-function parseTextures(ctx) {
-  if (!ctx.sceneModel) {
+var METADATA_COMPONENTS = {
+  VEC2: 2,
+  VEC3: 3,
+  VEC4: 4,
+  MAT2: 4,
+  MAT3: 9,
+  MAT4: 16
+};
+function featureMetadataValue(data, i2, type) {
+  if (data == null)
+    return void 0;
+  const components = type ? METADATA_COMPONENTS[type] : void 0;
+  if (components && typeof data[i2 * components] === "number") {
+    return Array.from(data.slice(i2 * components, i2 * components + components));
+  }
+  return data[i2];
+}
+function featureObjectId(baseId, tableIndex, featureIndex) {
+  return `${baseId}-pt${tableIndex}-f${featureIndex}`;
+}
+function parseStructuralMetadata(ctx2) {
+  var _a2, _b, _c, _d;
+  const dataModel = ctx2.dataModel;
+  const sm = (_b = (_a2 = ctx2.gltfData) == null ? void 0 : _a2.extensions) == null ? void 0 : _b.EXT_structural_metadata;
+  if (!dataModel || !(sm == null ? void 0 : sm.propertyTables)) {
+    return;
+  }
+  const parentId = ctx2.options.dataParentId;
+  for (let t2 = 0; t2 < sm.propertyTables.length; t2++) {
+    const table = sm.propertyTables[t2];
+    const count = table.count || 0;
+    const className = table.class || "Feature";
+    const schemaClass = (_d = (_c = sm.schema) == null ? void 0 : _c.classes) == null ? void 0 : _d[className];
+    const propNames = Object.keys(table.properties || {});
+    for (let i2 = 0; i2 < count; i2++) {
+      const objectId = featureObjectId(ctx2.baseId, t2, i2);
+      const propertySetId = `${objectId}-props`;
+      dataModel.createPropertySet({
+        id: propertySetId,
+        name: className,
+        type: className,
+        properties: propNames.map((name12) => {
+          var _a3, _b2, _c2;
+          return {
+            name: name12,
+            value: featureMetadataValue((_a3 = table.properties[name12]) == null ? void 0 : _a3.data, i2, (_c2 = (_b2 = schemaClass == null ? void 0 : schemaClass.properties) == null ? void 0 : _b2[name12]) == null ? void 0 : _c2.type)
+          };
+        })
+      });
+      dataModel.createObject({ id: objectId, type: className, name: `${className} ${i2}`, propertySetIds: [propertySetId] });
+      if (parentId) {
+        dataModel.createRelationship({ type: "BasicAggregation", relatingObjectId: parentId, relatedObjectId: objectId });
+      }
+    }
+  }
+}
+function parseTextures(ctx2) {
+  if (!ctx2.sceneModel) {
     return true;
   }
-  const gltfData = ctx.gltfData;
+  const gltfData = ctx2.gltfData;
   const textures = gltfData.textures;
   if (textures) {
     for (let i2 = 0, len = textures.length; i2 < len; i2++) {
-      if (!parseTexture(ctx, textures[i2])) {
+      if (!parseTexture(ctx2, textures[i2])) {
         return false;
       }
     }
   }
   return true;
 }
-function parseTexture(ctx, texture) {
-  if (!texture.source || !texture.source.image) {
-    ctx.errors.push(`[GLTFLoader.load] Texture has no image source`);
+function parseTexture(ctx2, texture) {
+  if (!texture.source) {
+    ctx2.errors.push(`[GLTFLoader.load] Texture has no image source`);
     return false;
   }
-  const textureId = `texture-${ctx.nextId++}`;
+  const textureId = `texture-${ctx2.baseId}-${ctx2.nextId++}`;
   let minFilter = NearestMipMapLinearFilter;
   switch (texture.sampler.minFilter) {
     case 9728:
@@ -73847,13 +74263,20 @@ function parseTexture(ctx, texture) {
       wrapR = RepeatWrapping;
       break;
   }
-  const result = ctx.sceneModel.createTexture({
+  const decodedImage = texture.source.image;
+  const encodedBytes = ctx2.options.retainTextureBytes || !decodedImage ? extractEncodedImageBytes(texture.source) : null;
+  if (!decodedImage && !encodedBytes) {
+    ctx2.errors.push(`[GLTFLoader.load] Texture has no image source`);
+    return false;
+  }
+  const dims = decodedImage ? { width: decodedImage.width, height: decodedImage.height } : imageSizeFromBytes(new Uint8Array(encodedBytes), texture.source.mimeType);
+  const result = ctx2.sceneModel.createTexture({
     id: textureId,
-    image: texture.source.image,
-    mediaType: texture.source.mediaType,
-    compressed: true,
-    width: texture.source.image.width,
-    height: texture.source.image.height,
+    image: decodedImage || void 0,
+    buffers: encodedBytes ? [encodedBytes] : void 0,
+    mediaType: encodedBytes ? mimeTypeToMediaType(texture.source.mimeType) : void 0,
+    width: dims.width,
+    height: dims.height,
     minFilter,
     magFilter,
     wrapS,
@@ -73863,22 +74286,66 @@ function parseTexture(ctx, texture) {
     //     encoding: "sRGB"
   });
   if (result.ok === false) {
-    ctx.errors.push(`[GLTFLoader.load] Failed to create texture -> ${result.error}`);
+    ctx2.errors.push(`[GLTFLoader.load] Failed to create texture -> ${result.error}`);
     return false;
   }
   texture._textureId = textureId;
   return true;
 }
-function parseMaterials(ctx) {
-  const gltfData = ctx.gltfData;
+function extractEncodedImageBytes(source) {
+  var _a2;
+  const data = (_a2 = source == null ? void 0 : source.bufferView) == null ? void 0 : _a2.data;
+  if (!data || data.byteLength === 0) {
+    return null;
+  }
+  return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+}
+function imageSizeFromBytes(bytes, mimeType) {
+  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  if (bytes.length >= 24 && bytes[0] === 137 && bytes[1] === 80 && bytes[2] === 78 && bytes[3] === 71) {
+    return { width: dv.getUint32(16, false), height: dv.getUint32(20, false) };
+  }
+  if (bytes.length >= 4 && bytes[0] === 255 && bytes[1] === 216) {
+    let off = 2;
+    while (off + 9 < bytes.length) {
+      if (bytes[off] !== 255) {
+        off++;
+        continue;
+      }
+      const marker = bytes[off + 1];
+      if (marker >= 192 && marker <= 207 && marker !== 196 && marker !== 200 && marker !== 204) {
+        return { height: dv.getUint16(off + 5, false), width: dv.getUint16(off + 7, false) };
+      }
+      const segLen = dv.getUint16(off + 2, false);
+      if (segLen < 2)
+        break;
+      off += 2 + segLen;
+    }
+  }
+  return { width: 0, height: 0 };
+}
+function mimeTypeToMediaType(mimeType) {
+  switch (mimeType) {
+    case "image/png":
+      return PNGMediaType;
+    case "image/jpeg":
+      return JPEGMediaType;
+    case "image/gif":
+      return GIFMediaType;
+    default:
+      return void 0;
+  }
+}
+function parseMaterials(ctx2) {
+  const gltfData = ctx2.gltfData;
   const materials = gltfData.materials;
   if (materials) {
     for (let i2 = 0, len = materials.length; i2 < len; i2++) {
       const material = materials[i2];
-      const materialCfg = parseMaterial(ctx, material);
-      const materialResult = ctx.sceneModel.createMaterial(materialCfg);
+      const materialCfg = parseMaterial(ctx2, material);
+      const materialResult = ctx2.sceneModel.createMaterial(materialCfg);
       if (materialResult.ok === false) {
-        ctx.errors.push(`Failed to create SceneMaterial set -> ${materialResult.error}`);
+        ctx2.errors.push(`Failed to create SceneMaterial set -> ${materialResult.error}`);
         return false;
       }
       material._materialId = materialResult.value.id;
@@ -73886,10 +74353,10 @@ function parseMaterials(ctx) {
   }
   return true;
 }
-function parseMaterial(ctx, material) {
+function parseMaterial(ctx2, material) {
   var _a2, _b, _c, _d, _e2;
   const materialCfg = {
-    id: `material-${ctx.nextId++}`,
+    id: `material-${ctx2.baseId}-${ctx2.nextId++}`,
     color: [1, 1, 1],
     opacity: 1,
     roughness: 1,
@@ -73911,10 +74378,10 @@ function parseMaterial(ctx, material) {
     }
     const baseColorTexture = metallicPBR.baseColorTexture || metallicPBR.colorTexture;
     if (baseColorTexture) {
-      materialCfg.colorTextureId = resolveTextureId(ctx, baseColorTexture);
+      materialCfg.colorTextureId = resolveTextureId(ctx2, baseColorTexture);
     }
     if (metallicPBR.metallicRoughnessTexture) {
-      materialCfg.metallicRoughnessTextureId = resolveTextureId(ctx, metallicPBR.metallicRoughnessTexture);
+      materialCfg.metallicRoughnessTextureId = resolveTextureId(ctx2, metallicPBR.metallicRoughnessTexture);
     }
   }
   if (material.alphaMode === "MASK" || material.alphaMode === "BLEND") {
@@ -73924,13 +74391,13 @@ function parseMaterial(ctx, material) {
     materialCfg.alphaCutoff = material.alphaCutoff;
   }
   if (material.normalTexture) {
-    materialCfg.normalsTextureId = resolveTextureId(ctx, material.normalTexture);
+    materialCfg.normalsTextureId = resolveTextureId(ctx2, material.normalTexture);
   }
   if (material.occlusionTexture) {
-    materialCfg.occlusionTextureId = resolveTextureId(ctx, material.occlusionTexture);
+    materialCfg.occlusionTextureId = resolveTextureId(ctx2, material.occlusionTexture);
   }
   if (material.emissiveTexture) {
-    materialCfg.emissiveTextureId = resolveTextureId(ctx, material.emissiveTexture);
+    materialCfg.emissiveTextureId = resolveTextureId(ctx2, material.emissiveTexture);
   }
   if (material.emissiveFactor) {
     const strength = (_d = (_c = (_b = material.extensions) == null ? void 0 : _b.KHR_materials_emissive_strength) == null ? void 0 : _c.emissiveStrength) != null ? _d : 1;
@@ -73950,63 +74417,66 @@ function parseMaterial(ctx, material) {
         materialCfg.opacity = (_e2 = diffuseFactor[3]) != null ? _e2 : materialCfg.opacity;
       }
       if (specularPBR.diffuseTexture && !materialCfg.colorTextureId) {
-        materialCfg.colorTextureId = resolveTextureId(ctx, specularPBR.diffuseTexture);
+        materialCfg.colorTextureId = resolveTextureId(ctx2, specularPBR.diffuseTexture);
       }
     }
   }
   return materialCfg;
 }
-function resolveTextureId(ctx, textureInfo) {
+function resolveTextureId(ctx2, textureInfo) {
   if (!textureInfo)
     return void 0;
   if (textureInfo.texture && textureInfo.texture._textureId) {
     return textureInfo.texture._textureId;
   }
-  if (typeof textureInfo.index === "number" && ctx.gltfData.textures) {
-    const entry = ctx.gltfData.textures[textureInfo.index];
+  if (typeof textureInfo.index === "number" && ctx2.gltfData.textures) {
+    const entry = ctx2.gltfData.textures[textureInfo.index];
     return entry && entry._textureId;
   }
   return void 0;
 }
-function parseDefaultScene(ctx) {
-  const gltfData = ctx.gltfData;
+function parseDefaultScene(ctx2) {
+  const gltfData = ctx2.gltfData;
   const scene = gltfData.scene || gltfData.scenes[0];
   if (!scene) {
-    ctx.errors.push("[GLTFLoader.load] Cannot load glTF - glTF has no default scene");
+    ctx2.errors.push("[GLTFLoader.load] Cannot load glTF - glTF has no default scene");
     return false;
   }
-  return parseScene(ctx, scene);
+  return parseScene(ctx2, scene);
 }
-function parseScene(ctx, scene) {
+function parseScene(ctx2, scene) {
   const nodes = scene.nodes;
   if (!nodes) {
     return true;
   }
-  for (let i2 = 0, len = nodes.length; i2 < len && !ctx.nodesHaveNames; i2++) {
+  for (let i2 = 0, len = nodes.length; i2 < len && !ctx2.nodesHaveNames; i2++) {
     const node = nodes[i2];
     if (testIfNodesHaveNames(node)) {
-      ctx.nodesHaveNames = true;
+      ctx2.nodesHaveNames = true;
     }
   }
-  if (!ctx.nodesHaveNames) {
+  const rootMatrix = ctx2.options.rootMatrix || null;
+  if (!ctx2.nodesHaveNames) {
+    ctx2.meshIds = [];
     for (let i2 = 0, len = nodes.length; i2 < len; i2++) {
       const node = nodes[i2];
-      if (!parseNodesWithoutNames(ctx, node, 0, null)) {
+      if (!parseNodesWithoutNames(ctx2, node, 0, rootMatrix)) {
         return false;
       }
     }
   } else {
+    ctx2.meshIds = null;
     for (let i2 = 0, len = nodes.length; i2 < len; i2++) {
       const node = nodes[i2];
-      if (!parseNodesWithNames(ctx, node, 0, null)) {
+      if (!parseNodesWithNames(ctx2, node, 0, rootMatrix)) {
         return false;
       }
     }
   }
   return true;
 }
-function createPrimitiveHash(ctx, primitive) {
-  const hash = [ctx.baseId];
+function createPrimitiveHash(ctx2, primitive) {
+  const hash = [ctx2.baseId];
   const attributes = primitive.attributes;
   if (attributes) {
     for (const key in attributes) {
@@ -74039,99 +74509,94 @@ function testIfNodesHaveNames(node, level = 0) {
   }
   return false;
 }
-var parseNodesWithoutNames = /* @__PURE__ */ function() {
-  const meshIds = [];
-  return function(ctx, node, depth, matrix) {
-    if (!node) {
-      return true;
-    }
-    matrix = parseNodeMatrix(node, matrix);
-    if (node.mesh) {
-      parseMesh(node, ctx, matrix, meshIds);
-    }
-    if (node.children) {
-      const children = node.children;
-      for (let i2 = 0, len = children.length; i2 < len; i2++) {
-        const childNode = children[i2];
-        parseNodesWithoutNames(ctx, childNode, depth + 1, matrix);
-      }
-    }
-    if (depth === 0) {
-      const objectId = "entity-" + ctx.nextId++;
-      if (meshIds && meshIds.length > 0) {
-        const result = ctx.sceneModel.createObject({
-          id: objectId,
-          meshIds,
-          layerId: ctx.options.layerId
-        });
-        if (result.ok === false) {
-          ctx.errors.push(`[GLTFLoader.load] Failed to create SceneObject -> ${result.error}`);
-          return false;
-        }
-        meshIds.length = 0;
-      }
-    }
+function parseNodesWithoutNames(ctx2, node, depth, matrix) {
+  if (!node) {
     return true;
-  };
-}();
-var parseNodesWithNames = /* @__PURE__ */ function() {
-  const objectIdStack = [];
-  const meshIdsStack = [];
-  let meshIds = null;
-  return function(ctx, node, depth, matrix) {
-    if (!node) {
-      return true;
+  }
+  const meshIds = ctx2.meshIds;
+  matrix = parseNodeMatrix(node, matrix);
+  if (node.mesh) {
+    parseMesh(node, ctx2, matrix, meshIds);
+  }
+  if (node.children) {
+    const children = node.children;
+    for (let i2 = 0, len = children.length; i2 < len; i2++) {
+      const childNode = children[i2];
+      parseNodesWithoutNames(ctx2, childNode, depth + 1, matrix);
     }
-    matrix = parseNodeMatrix(node, matrix);
-    if (node.name) {
-      meshIds = [];
-      let objectId = node.name;
-      if (objectId && ctx.sceneModel.objects[objectId]) {
-        console.warn(`[GLTFLoader.load] Duplicate glTF node 'name' attribute: '${objectId}' \u2014 assigning a synthetic ID`);
-        objectId = "";
+  }
+  if (depth === 0) {
+    const objectId = `entity-${ctx2.baseId}-${ctx2.nextId++}`;
+    if (meshIds && meshIds.length > 0) {
+      const result = ctx2.sceneModel.createObject({
+        id: objectId,
+        meshIds,
+        layerId: ctx2.options.layerId
+      });
+      if (result.ok === false) {
+        ctx2.errors.push(`[GLTFLoader.load] Failed to create SceneObject -> ${result.error}`);
+        return false;
       }
-      while (!objectId || ctx.sceneModel.objects[objectId]) {
-        objectId = "entity-" + ctx.nextId++;
-      }
-      objectIdStack.push(objectId);
-      meshIdsStack.push(meshIds);
+      meshIds.length = 0;
     }
-    if (meshIds && node.mesh) {
-      if (!parseMesh(node, ctx, matrix, meshIds)) {
+  }
+  return true;
+}
+function parseNodesWithNames(ctx2, node, depth, matrix) {
+  const objectIdStack = ctx2.objectIdStack;
+  const meshIdsStack = ctx2.meshIdsStack;
+  if (!node) {
+    return true;
+  }
+  matrix = parseNodeMatrix(node, matrix);
+  if (node.name) {
+    ctx2.meshIds = [];
+    let objectId = node.name;
+    if (objectId && ctx2.sceneModel.objects[objectId]) {
+      console.warn(`[GLTFLoader.load] Duplicate glTF node 'name' attribute: '${objectId}' \u2014 assigning a synthetic ID`);
+      objectId = "";
+    }
+    while (!objectId || ctx2.sceneModel.objects[objectId]) {
+      objectId = `entity-${ctx2.baseId}-${ctx2.nextId++}`;
+    }
+    objectIdStack.push(objectId);
+    meshIdsStack.push(ctx2.meshIds);
+  }
+  if (ctx2.meshIds && node.mesh) {
+    if (!parseMesh(node, ctx2, matrix, ctx2.meshIds)) {
+      return false;
+    }
+  }
+  if (node.children) {
+    const children = node.children;
+    for (let i2 = 0, len = children.length; i2 < len; i2++) {
+      const childNode = children[i2];
+      if (!parseNodesWithNames(ctx2, childNode, depth + 1, matrix)) {
         return false;
       }
     }
-    if (node.children) {
-      const children = node.children;
-      for (let i2 = 0, len = children.length; i2 < len; i2++) {
-        const childNode = children[i2];
-        if (!parseNodesWithNames(ctx, childNode, depth + 1, matrix)) {
-          return false;
-        }
+  }
+  const nodeName = node.name;
+  if (nodeName !== void 0 && nodeName !== null || depth === 0) {
+    let objectId = objectIdStack.pop();
+    if (!objectId) {
+      objectId = `entity-${ctx2.baseId}-${ctx2.nextId++}`;
+    }
+    const entityMeshIds = meshIdsStack.pop();
+    if (ctx2.meshIds && ctx2.meshIds.length > 0) {
+      const result = ctx2.sceneModel.createObject({
+        id: objectId,
+        meshIds: entityMeshIds
+      });
+      if (result.ok === false) {
+        ctx2.errors.push(`[GLTFLoader.load] Failed to create SceneObject -> ${result.error}`);
+        return false;
       }
     }
-    const nodeName = node.name;
-    if (nodeName !== void 0 && nodeName !== null || depth === 0) {
-      let objectId = objectIdStack.pop();
-      if (!objectId) {
-        objectId = "entity-" + ctx.nextId++;
-      }
-      const entityMeshIds = meshIdsStack.pop();
-      if (meshIds && meshIds.length > 0) {
-        const result = ctx.sceneModel.createObject({
-          id: objectId,
-          meshIds: entityMeshIds
-        });
-        if (result.ok === false) {
-          ctx.errors.push(`[GLTFLoader.load] Failed to create SceneObject -> ${result.error}`);
-          return false;
-        }
-      }
-      meshIds = meshIdsStack.length > 0 ? meshIdsStack[meshIdsStack.length - 1] : null;
-    }
-    return true;
-  };
-}();
+    ctx2.meshIds = meshIdsStack.length > 0 ? meshIdsStack[meshIdsStack.length - 1] : null;
+  }
+  return true;
+}
 function parseNodeMatrix(node, matrix) {
   if (!node) {
     return;
@@ -74171,17 +74636,20 @@ function parseNodeMatrix(node, matrix) {
   }
   return matrix;
 }
-function parseMesh(node, ctx, matrix, meshIds) {
+function parseMesh(node, ctx2, matrix, meshIds) {
   if (node.mesh) {
     const mesh = node.mesh;
     const numPrimitives = mesh.primitives.length;
     for (let i2 = 0; i2 < numPrimitives; i2++) {
       const primitive = mesh.primitives[i2];
-      const geometryId = createPrimitiveHash(ctx, primitive);
-      if (!ctx.sceneModel.geometries[geometryId]) {
+      if (splitPrimitiveByFeature(ctx2, primitive, matrix)) {
+        continue;
+      }
+      const geometryId = createPrimitiveHash(ctx2, primitive);
+      if (!ctx2.sceneModel.geometries[geometryId]) {
         const POSITION = primitive.attributes.POSITION;
         if (!POSITION) {
-          ctx.errors.push(`[GLTFLoader.load] Primitive has no POSITION attribute`);
+          ctx2.errors.push(`[GLTFLoader.load] Primitive has no POSITION attribute`);
           return false;
         }
         const geometryParams = {
@@ -74228,13 +74696,13 @@ function parseMesh(node, ctx, matrix, meshIds) {
         if (primitive.indices) {
           geometryParams.indices = primitive.indices.value;
         }
-        const result2 = ctx.sceneModel.createGeometry(geometryParams);
+        const result2 = ctx2.sceneModel.createGeometry(geometryParams);
         if (result2.ok === false) {
-          ctx.errors.push(`[GLTFLoader.load] Failed to create SceneGeometry -> ${result2.error}`);
+          ctx2.errors.push(`[GLTFLoader.load] Failed to create SceneGeometry -> ${result2.error}`);
           return false;
         }
       }
-      const meshId = `${ctx.nextId++}`;
+      const meshId = `${ctx2.baseId}-${ctx2.nextId++}`;
       const meshParams = {
         id: meshId,
         geometryId,
@@ -74248,9 +74716,9 @@ function parseMesh(node, ctx, matrix, meshIds) {
         meshParams.color = [1, 1, 1];
         meshParams.opacity = 1;
       }
-      const result = ctx.sceneModel.createMesh(meshParams);
+      const result = ctx2.sceneModel.createMesh(meshParams);
       if (result.ok === false) {
-        ctx.errors.push(`[GLTFLoader.load] Failed to create SceneMesh -> ${result.error}`);
+        ctx2.errors.push(`[GLTFLoader.load] Failed to create SceneMesh -> ${result.error}`);
         return false;
       }
       meshIds.push(meshId);
@@ -74258,101 +74726,96 @@ function parseMesh(node, ctx, matrix, meshIds) {
   }
   return true;
 }
-
-// src/formats/ModelExporter.ts
-var MIN_YIELD_INTERVAL_MS2 = 16;
-var ModelExporter = class {
-  /**
-   * @param params
-   */
-  constructor(params) {
-    /**
-     * The exported model file format.
-     */
-    __publicField(this, "format");
-    /**
-     * An encoder for each supported schema version.
-     *
-     * @internal
-     */
-    __publicField(this, "encoders");
-    /**
-     * List of supported schema versions.
-     */
-    __publicField(this, "versions");
-    /**
-     * The default supported schema version.
-     */
-    __publicField(this, "defaultVersion");
-    /**
-     * Data type of the file written by this Exporter.
-     */
-    __publicField(this, "fileDataType");
-    this.format = params.format;
-    this.encoders = params.encoders || {};
-    this.versions = Object.keys(this.encoders);
-    this.fileDataType = params.fileDataType;
-    this.defaultVersion = params.defaultVersion;
+function splitPrimitiveByFeature(ctx2, primitive, matrix) {
+  var _a2, _b, _c, _d, _e2, _f, _g, _h;
+  if (primitive.mode != null && primitive.mode !== 4) {
+    return false;
   }
-  /**
-   * Exports a {@link model!scene.SceneModel | SceneModel} and/or a {@link model!data.DataModel | DataModel} to file data.
-   *
-   * @param params - The parameters used for writing the file data.
-   * @param options - Options for customizing the export process.
-   * @returns {Promise} Resolves when the SceneModel and/or DataModel has been successfully written.
-   *
-   * @throws
-   * - If the SceneModel has already been destroyed.
-   * - If the DataModel has already been destroyed.
-   */
-  write(params, options = {}) {
-    return new Promise((resolve2, reject) => {
-      if (!params) {
-        return reject("Argument expected: params");
-      }
-      const { sceneModel, dataModel } = params;
-      if (!sceneModel && !dataModel) {
-        return reject("Argument expected: params.sceneModel or params.dataModel");
-      }
-      if (sceneModel && sceneModel.destroyed) {
-        return reject("SceneModel already destroyed");
-      }
-      if (dataModel) {
-        if (!(dataModel instanceof DataModel)) {
-          return reject("Argument type mismatch: params.dataModel should be a DataModel");
-        }
-        if (dataModel.destroyed) {
-          return reject("DataModel already destroyed");
-        }
-      }
-      const version2 = params.version || this.defaultVersion;
-      const encoder = this.encoders[version2];
-      if (!encoder) {
-        return reject(`Unsupported target file schema version: ${version2} - supported versions are [${this.versions}]`);
-      }
-      let prevYieldOverride;
-      let pushedYieldOverride = false;
-      if (options.yieldIntervalMs !== void 0) {
-        const clamped = Math.max(MIN_YIELD_INTERVAL_MS2, options.yieldIntervalMs);
-        prevYieldOverride = setYieldIntervalOverride(clamped);
-        pushedYieldOverride = true;
-      }
-      const restoreYieldOverride = () => {
-        if (pushedYieldOverride) {
-          setYieldIntervalOverride(prevYieldOverride);
-          pushedYieldOverride = false;
-        }
-      };
-      encoder({ sceneModel, dataModel }, options).then((fileData) => {
-        restoreYieldOverride();
-        resolve2(fileData);
-      }).catch((err) => {
-        restoreYieldOverride();
-        reject(`Cannot export target file -> ${err}`);
-      });
-    });
+  const featureId = (_c = (_b = (_a2 = primitive.extensions) == null ? void 0 : _a2.EXT_mesh_features) == null ? void 0 : _b.featureIds) == null ? void 0 : _c.find(
+    (f2) => f2.attribute != null && f2.propertyTable != null
+  );
+  if (!featureId) {
+    return false;
   }
-};
+  const featureValues = (_d = primitive.attributes[`_FEATURE_ID_${featureId.attribute}`]) == null ? void 0 : _d.value;
+  const positions = (_e2 = primitive.attributes.POSITION) == null ? void 0 : _e2.value;
+  if (!featureValues || !positions) {
+    return false;
+  }
+  const normals = (_f = primitive.attributes.NORMAL) == null ? void 0 : _f.value;
+  const uvs = (_g = primitive.attributes.TEXCOORD_0) == null ? void 0 : _g.value;
+  const srcIndices = (_h = primitive.indices) == null ? void 0 : _h.value;
+  const triangleCount = srcIndices ? srcIndices.length / 3 : positions.length / 9;
+  const cornersByFeature = /* @__PURE__ */ new Map();
+  for (let t2 = 0; t2 < triangleCount; t2++) {
+    const a3 = srcIndices ? srcIndices[t2 * 3] : t2 * 3;
+    const b5 = srcIndices ? srcIndices[t2 * 3 + 1] : t2 * 3 + 1;
+    const c3 = srcIndices ? srcIndices[t2 * 3 + 2] : t2 * 3 + 2;
+    const feature = featureValues[a3];
+    let corners = cornersByFeature.get(feature);
+    if (!corners) {
+      corners = [];
+      cornersByFeature.set(feature, corners);
+    }
+    corners.push(a3, b5, c3);
+  }
+  let materialId;
+  const material = primitive.material;
+  if (material && material._materialId) {
+    materialId = material._materialId;
+  }
+  for (const [feature, corners] of cornersByFeature) {
+    const remap = /* @__PURE__ */ new Map();
+    const outPositions = [];
+    const outNormals = normals ? [] : null;
+    const outUvs = uvs ? [] : null;
+    const outIndices = [];
+    for (const v2 of corners) {
+      let local = remap.get(v2);
+      if (local === void 0) {
+        local = remap.size;
+        remap.set(v2, local);
+        outPositions.push(positions[v2 * 3], positions[v2 * 3 + 1], positions[v2 * 3 + 2]);
+        if (outNormals)
+          outNormals.push(normals[v2 * 3], normals[v2 * 3 + 1], normals[v2 * 3 + 2]);
+        if (outUvs)
+          outUvs.push(uvs[v2 * 2], uvs[v2 * 2 + 1]);
+      }
+      outIndices.push(local);
+    }
+    const objectId = featureObjectId(ctx2.baseId, featureId.propertyTable, feature);
+    const geometryId = `${objectId}-geometry`;
+    const geometryParams = {
+      id: geometryId,
+      primitive: TrianglesPrimitive,
+      positions: new Float32Array(outPositions),
+      indices: new Uint32Array(outIndices)
+    };
+    if (outNormals)
+      geometryParams.normals = new Float32Array(outNormals);
+    if (outUvs)
+      geometryParams.uvs = new Float32Array(outUvs);
+    if (ctx2.sceneModel.createGeometry(geometryParams).ok === false) {
+      continue;
+    }
+    const meshId = `${objectId}-mesh`;
+    const meshParams = {
+      id: meshId,
+      geometryId,
+      matrix: matrix ? createMat4Float64(matrix) : identityMat4(createMat4Float64()),
+      materialId
+    };
+    if (!materialId) {
+      meshParams.color = [1, 1, 1];
+      meshParams.opacity = 1;
+    }
+    if (ctx2.sceneModel.createMesh(meshParams).ok === false) {
+      continue;
+    }
+    ctx2.sceneModel.createObject({ id: objectId, meshIds: [meshId], layerId: ctx2.options.layerId });
+  }
+  return true;
+}
 
 // src/formats/gltf/GLTFExporter.ts
 var tempVec3a4 = createVec3Float64();
@@ -74360,265 +74823,11 @@ var tempVec3b4 = createVec3Float64();
 
 // src/formats/xgf/versions/v1/modelToXGF.ts
 var NUM_MATERIAL_ATTRIBUTES = 4;
-function modelToXGF(params) {
-  const sceneModel = params.sceneModel;
-  const options = params.options;
-  const coordinateSystemMatrix = options.coordinateSystem ? createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4Float64()) : null;
-  const geometriesList = Object.values(sceneModel.geometries);
-  const meshesList = Object.values(sceneModel.meshes);
-  const objectsList = Object.values(sceneModel.objects);
-  const numGeometries = geometriesList.length;
-  const numMeshes = meshesList.length;
-  const numObjects = objectsList.length;
-  let identityMatrixAdded = false;
-  let identityMatrixBase = 0;
-  let sizePositions = 0;
-  let sizeColors = 0;
-  let sizeIndices = 0;
-  let sizeEdgeIndices = 0;
-  const geometryIndices = {};
-  for (let geometryIdx = 0; geometryIdx < numGeometries; geometryIdx++) {
-    const geometry = geometriesList[geometryIdx];
-    if (geometry) {
-      if (geometry.positionsCompressed) {
-        sizePositions += geometry.positionsCompressed.length;
-        if (geometry.indices) {
-          sizeIndices += geometry.indices.length;
-        }
-        if (geometry.edgeIndices) {
-          sizeEdgeIndices += geometry.edgeIndices.length;
-        }
-        if (geometry.colorsCompressed) {
-          sizeColors += geometry.colorsCompressed.length;
-        }
-      }
-    }
-  }
-  const xgfData = {
-    positions: new Uint16Array(sizePositions),
-    colors: new Uint8Array(sizeColors),
-    indices: new Uint32Array(sizeIndices),
-    edgeIndices: new Uint32Array(sizeEdgeIndices),
-    aabbs: null,
-    eachGeometryPositionsBase: new Uint32Array(numGeometries),
-    // For each geometry, the index of its first element in xgfData.positions. Every primitive type has positions.
-    eachGeometryColorsBase: new Uint32Array(numGeometries),
-    // For each geometry, the index of its first element in xgfData.colors. If the next geometry has the same index, then this geometry has no colors.
-    eachGeometryIndicesBase: new Uint32Array(numGeometries),
-    // For each geometry, the index of its first element in xgfData.indices. If the next geometry has the same index, then this geometry has no indices.
-    eachGeometryEdgeIndicesBase: new Uint32Array(numGeometries),
-    // For each geometry, the index of its first element in xgfData.edgeIndices. If the next geometry has the same index, then this geometry has no edge indices.
-    eachGeometryPrimitiveType: new Uint8Array(numGeometries),
-    // Primitive type for each geometry (0=solid triangles, 1=surface triangles, 2=lines, 3=points)
-    eachGeometryAABBBase: new Uint32Array(numGeometries),
-    // Positions dequantization matrices
-    matrices: null,
-    // Modeling matrices
-    eachMeshGeometriesBase: new Uint32Array(numMeshes),
-    // For each mesh, an index into the eachGeometry* arrays
-    eachMeshMatricesBase: new Uint32Array(numMeshes),
-    // For each mesh that shares its geometry, the index of its first element in xgfData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
-    eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES),
-    // For each mesh, an RGBA integer color of format [0..255, 0..255, 0..255, 0..255], and PBR metallic and roughness factors, of format [0..255, 0..255]
-    eachObjectId: [],
-    // For each object, an ID string
-    eachObjectMeshesBase: new Uint32Array(numObjects)
-    // For each object, the index of the first element of meshes used by the object
-  };
-  let positionsBase = 0;
-  let colorsBase = 0;
-  let indicesBase = 0;
-  let edgeIndicesBase = 0;
-  let aabbsBase = 0;
-  const aabbIdxMap = {};
-  const aabbs = [];
-  const matrices = [];
-  for (let geometryIdx = 0; geometryIdx < numGeometries; geometryIdx++) {
-    const geometry = geometriesList[geometryIdx];
-    let primitiveType;
-    switch (geometry.primitive) {
-      case TrianglesPrimitive:
-        primitiveType = 0;
-        break;
-      case SolidPrimitive:
-        primitiveType = 1;
-        break;
-      case SurfacePrimitive:
-        primitiveType = 2;
-        break;
-      case LinesPrimitive:
-        primitiveType = 3;
-        break;
-      case PointsPrimitive:
-        primitiveType = 4;
-        break;
-    }
-    xgfData.eachGeometryPrimitiveType[geometryIdx] = primitiveType;
-    const aabb = geometry.aabb;
-    const aabbHash = `${aabb[0]}-${aabb[1]}-${aabb[2]}-${aabb[3]}-${aabb[4]}-${aabb[5]}`;
-    let aabbIdx = aabbIdxMap[aabbHash];
-    if (aabbIdx === void 0) {
-      aabbIdx = aabbsBase;
-      aabbIdxMap[aabbHash] = aabbIdx;
-      aabbs.push(...aabb);
-      aabbsBase += 6;
-    }
-    xgfData.eachGeometryAABBBase[geometryIdx] = aabbIdx;
-    xgfData.eachGeometryPositionsBase[geometryIdx] = positionsBase;
-    xgfData.eachGeometryColorsBase[geometryIdx] = colorsBase;
-    xgfData.positions.set(geometry.positionsCompressed, positionsBase);
-    positionsBase += geometry.positionsCompressed.length;
-    if (geometry.indices) {
-      xgfData.indices.set(geometry.indices, indicesBase);
-      xgfData.eachGeometryIndicesBase[geometryIdx] = indicesBase;
-      indicesBase += geometry.indices.length;
-    }
-    if (geometry.edgeIndices) {
-      xgfData.edgeIndices.set(geometry.edgeIndices, edgeIndicesBase);
-      xgfData.eachGeometryEdgeIndicesBase[geometryIdx] = edgeIndicesBase;
-      edgeIndicesBase += geometry.edgeIndices.length;
-    }
-    if (geometry.colorsCompressed) {
-      xgfData.colors.set(geometry.colorsCompressed, colorsBase);
-      xgfData.eachGeometryColorsBase[geometryIdx] = colorsBase;
-      colorsBase += geometry.colorsCompressed.length;
-    }
-    geometryIndices[geometry.id] = geometryIdx;
-  }
-  let eachMeshMaterialAttributesBase = 0;
-  let matricesBase = 0;
-  let meshesBase = 0;
-  for (let objectIdx = 0; objectIdx < numObjects; objectIdx++) {
-    const object = objectsList[objectIdx];
-    xgfData.eachObjectId[objectIdx] = object.id;
-    xgfData.eachObjectMeshesBase[objectIdx] = meshesBase;
-    for (let objectMeshIdx = 0; objectMeshIdx < object.meshes.length; objectMeshIdx++) {
-      const mesh = object.meshes[objectMeshIdx];
-      xgfData.eachMeshGeometriesBase[meshesBase] = geometryIndices[mesh.geometry.id];
-      const matrix = getMeshWorldMatrix(mesh, options.coordinateSystem);
-      if (isIdentityMat4(matrix)) {
-        if (!identityMatrixAdded) {
-          matrices.push(...matrix);
-          xgfData.eachMeshMatricesBase[meshesBase] = matricesBase;
-          identityMatrixBase = matricesBase;
-          matricesBase += 16;
-          identityMatrixAdded = true;
-        } else {
-          xgfData.eachMeshMatricesBase[meshesBase] = identityMatrixBase;
-        }
-      } else {
-        matrices.push(...matrix);
-        xgfData.eachMeshMatricesBase[meshesBase] = matricesBase;
-        matricesBase += 16;
-      }
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.effectiveColor[0] * 255;
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.effectiveColor[1] * 255;
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.effectiveColor[2] * 255;
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.effectiveOpacity * 255;
-      meshesBase++;
-    }
-  }
-  xgfData.aabbs = new Float32Array(aabbs);
-  xgfData.matrices = new Float64Array(matrices);
-  return xgfData;
-}
-
-// src/formats/xgf/versions/v1/XGF_INFO.ts
-var XGF_INFO = {
-  /**
-   * The [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf) version generated by {@link formats!xgf.XKFWriter | XKFWriter}.
-   *
-   * @property xgfVersion
-   * @type {number}
-   */
-  xgfVersion: 1
-};
-
-// src/formats/xgf/versions/v1/packXGF.ts
-var object2Array = function() {
-  const encoder = new TextEncoder();
-  return (obj) => encoder.encode(JSON.stringify(obj));
-}();
-function toArrayBuffer5(arrays) {
-  const arraysCnt = arrays.length;
-  const dataView = new DataView(new ArrayBuffer((1 + 2 * arraysCnt) * 4));
-  dataView.setUint32(0, XGF_INFO.xgfVersion, true);
-  let byteOffset = dataView.byteLength;
-  const offsets = [];
-  for (let i2 = 0; i2 < arraysCnt; i2++) {
-    const arr = arrays[i2];
-    const BPE = arr.BYTES_PER_ELEMENT;
-    byteOffset = Math.ceil(byteOffset / BPE) * BPE;
-    const byteLength = arr.byteLength;
-    const idx = 1 + 2 * i2;
-    dataView.setUint32(idx * 4, byteOffset, true);
-    dataView.setUint32((idx + 1) * 4, byteLength, true);
-    offsets.push(byteOffset);
-    byteOffset += byteLength;
-  }
-  const dataArray = new Uint8Array(byteOffset);
-  dataArray.set(new Uint8Array(dataView.buffer), 0);
-  const requiresSwapToLittleEndian = function() {
-    const buffer = new ArrayBuffer(2);
-    new Uint16Array(buffer)[0] = 1;
-    return new Uint8Array(buffer)[0] !== 1;
-  }();
-  for (let i2 = 0; i2 < arraysCnt; i2++) {
-    const arr = arrays[i2];
-    const subarray = new Uint8Array(arr.buffer, arr.byteOffset, arr.byteLength);
-    const BPE = arr.BYTES_PER_ELEMENT;
-    if (requiresSwapToLittleEndian && BPE > 1) {
-      const swaps = BPE / 2;
-      const cnt = subarray.length / BPE;
-      for (let b5 = 0; b5 < cnt; b5++) {
-        const offset = b5 * BPE;
-        for (let j2 = 0; j2 < swaps; j2++) {
-          const i1 = offset + j2;
-          const i22 = offset - j2 + BPE - 1;
-          const tmp = subarray[i1];
-          subarray[i1] = subarray[i22];
-          subarray[i22] = tmp;
-        }
-      }
-    }
-    dataArray.set(subarray, offsets[i2]);
-  }
-  return dataArray.buffer;
-}
-function packXGF(xgfData) {
-  return toArrayBuffer5([
-    xgfData.positions,
-    xgfData.colors,
-    xgfData.indices,
-    xgfData.edgeIndices,
-    xgfData.aabbs,
-    xgfData.eachGeometryPositionsBase,
-    xgfData.eachGeometryColorsBase,
-    xgfData.eachGeometryIndicesBase,
-    xgfData.eachGeometryEdgeIndicesBase,
-    xgfData.eachGeometryPrimitiveType,
-    xgfData.eachGeometryAABBBase,
-    xgfData.matrices,
-    xgfData.eachMeshGeometriesBase,
-    xgfData.eachMeshMatricesBase,
-    xgfData.eachMeshMaterialAttributes,
-    object2Array(xgfData.eachObjectId),
-    xgfData.eachObjectMeshesBase
-  ]);
-}
-
-// src/formats/xgf/versions/v1/encode.ts
-function encode8(params, options) {
-  return new Promise(function(resolve2, reject) {
-    resolve2(packXGF(modelToXGF({ sceneModel: params.sceneModel, options })));
-  });
-}
-
-// src/formats/xgf/versions/v2/modelToXGF.ts
-var NUM_MATERIAL_ATTRIBUTES2 = 4;
 var NUM_MATERIAL_TEXTURE_REFS = 5;
 var NUM_MATERIAL_PBR_BYTES = 8;
+var NUM_TEXTURE_SAMPLER_BYTES = 5;
 var NO_INDEX = 4294967295;
+var clampByte = (v2) => v2 < 0 ? 0 : v2 > 255 ? 255 : v2;
 var SAMPLER_CODE = {
   [RepeatWrapping]: 1,
   [ClampToEdgeWrapping]: 2,
@@ -74636,8 +74845,8 @@ var MEDIA_TYPE_CODE = {
   [GIFMediaType]: 2
 };
 var samplerCode = (v2) => v2 !== void 0 && SAMPLER_CODE[v2] !== void 0 ? SAMPLER_CODE[v2] : 0;
-async function modelToXGF2(params) {
-  var _a2, _b, _c, _d, _e2, _f, _g, _h, _i, _j;
+async function modelToXGF(params) {
+  var _a2, _b, _c, _d, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n;
   const sceneModel = params.sceneModel;
   const options = params.options || {};
   const onProgress = options.onProgress;
@@ -74671,6 +74880,8 @@ async function modelToXGF2(params) {
   let sizeEdgeIndices = 0;
   let sizeNormals = 0;
   let sizeUVs = 0;
+  let sizeScales = 0;
+  let sizeRotations = 0;
   for (const geometry of geometriesList) {
     if (!geometry || !geometry.positionsCompressed)
       continue;
@@ -74685,12 +74896,17 @@ async function modelToXGF2(params) {
       sizeNormals += geometry.normalsCompressed.length;
     if (geometry.uvsCompressed)
       sizeUVs += geometry.uvsCompressed.length;
+    if (geometry.scales)
+      sizeScales += geometry.scales.length;
+    if (geometry.rotations)
+      sizeRotations += geometry.rotations.length;
   }
   const textureBytes = [];
   const textureMediaTypes = [];
   const textureWidths = [];
   const textureHeights = [];
   const textureSamplers = [];
+  const textureEncodings = [];
   const textureIds = [];
   const textureIndexById = {};
   for (let i2 = 0; i2 < numTextures; i2++) {
@@ -74707,15 +74923,18 @@ async function modelToXGF2(params) {
     } else if (tex.imageData && tex.imageData.width && tex.imageData.height) {
       bytes = await encodeImageToPNG(tex.imageData);
       mediaCode = MEDIA_TYPE_CODE[PNGMediaType];
+    } else if (tex.image && tex.image.width && tex.image.height) {
+      bytes = await encodeImageToPNG(tex.image);
+      mediaCode = MEDIA_TYPE_CODE[PNGMediaType];
     }
     if (!bytes) {
-      console.warn(`[xgf v2] Texture '${tex.id}' has neither buffers nor imageData \u2014 encoded as empty`);
+      console.warn(`[xgf] Texture '${tex.id}' has no buffers, imageData or image \u2014 encoded as empty`);
       bytes = new Uint8Array(0);
     }
     textureBytes.push(bytes);
     textureMediaTypes.push(mediaCode);
-    textureWidths.push(tex.width || ((_b = (_a2 = tex.imageData) == null ? void 0 : _a2.width) != null ? _b : 0));
-    textureHeights.push(tex.height || ((_d = (_c = tex.imageData) == null ? void 0 : _c.height) != null ? _d : 0));
+    textureWidths.push(tex.width || ((_d = (_c = (_a2 = tex.imageData) == null ? void 0 : _a2.width) != null ? _c : (_b = tex.image) == null ? void 0 : _b.width) != null ? _d : 0));
+    textureHeights.push(tex.height || ((_h = (_g = (_e2 = tex.imageData) == null ? void 0 : _e2.height) != null ? _g : (_f = tex.image) == null ? void 0 : _f.height) != null ? _h : 0));
     textureSamplers.push(
       samplerCode(tex.minFilter),
       samplerCode(tex.magFilter),
@@ -74723,6 +74942,7 @@ async function modelToXGF2(params) {
       samplerCode(tex.wrapT),
       samplerCode(tex.wrapR)
     );
+    textureEncodings.push(tex.encoding);
   }
   let textureDataSize = 0;
   for (const b5 of textureBytes)
@@ -74739,7 +74959,9 @@ async function modelToXGF2(params) {
   }
   const materialIndexById = {};
   const eachMaterialPBR = new Uint8Array(numMaterials * NUM_MATERIAL_PBR_BYTES);
+  const eachMaterialColor = new Float32Array(numMaterials * 3);
   const eachMaterialTextures = new Int32Array(numMaterials * NUM_MATERIAL_TEXTURE_REFS);
+  const eachMaterialTriplanarScale = new Float32Array(numMaterials);
   const eachMaterialId = [];
   for (let i2 = 0; i2 < numMaterials; i2++) {
     if ((i2 & 63) === 0)
@@ -74748,6 +74970,9 @@ async function modelToXGF2(params) {
     materialIndexById[mat.id] = i2;
     eachMaterialId.push(mat.id);
     const base = i2 * NUM_MATERIAL_PBR_BYTES;
+    eachMaterialColor[i2 * 3] = mat.color[0];
+    eachMaterialColor[i2 * 3 + 1] = mat.color[1];
+    eachMaterialColor[i2 * 3 + 2] = mat.color[2];
     eachMaterialPBR[base] = clampU8(mat.color[0] * 255);
     eachMaterialPBR[base + 1] = clampU8(mat.color[1] * 255);
     eachMaterialPBR[base + 2] = clampU8(mat.color[2] * 255);
@@ -74757,11 +74982,12 @@ async function modelToXGF2(params) {
     eachMaterialPBR[base + 6] = clampU8(mat.alphaMode);
     eachMaterialPBR[base + 7] = clampU8(mat.alphaCutoff * 255);
     const tBase = i2 * NUM_MATERIAL_TEXTURE_REFS;
-    eachMaterialTextures[tBase] = textureIndexOrNone((_e2 = mat.colorTexture) == null ? void 0 : _e2.id, textureIndexById);
-    eachMaterialTextures[tBase + 1] = textureIndexOrNone((_f = mat.metallicRoughnessTexture) == null ? void 0 : _f.id, textureIndexById);
-    eachMaterialTextures[tBase + 2] = textureIndexOrNone((_g = mat.normalsTexture) == null ? void 0 : _g.id, textureIndexById);
-    eachMaterialTextures[tBase + 3] = textureIndexOrNone((_h = mat.occlusionTexture) == null ? void 0 : _h.id, textureIndexById);
-    eachMaterialTextures[tBase + 4] = textureIndexOrNone((_i = mat.emissiveTexture) == null ? void 0 : _i.id, textureIndexById);
+    eachMaterialTextures[tBase] = textureIndexOrNone((_i = mat.colorTexture) == null ? void 0 : _i.id, textureIndexById);
+    eachMaterialTextures[tBase + 1] = textureIndexOrNone((_j = mat.metallicRoughnessTexture) == null ? void 0 : _j.id, textureIndexById);
+    eachMaterialTextures[tBase + 2] = textureIndexOrNone((_k = mat.normalsTexture) == null ? void 0 : _k.id, textureIndexById);
+    eachMaterialTextures[tBase + 3] = textureIndexOrNone((_l = mat.occlusionTexture) == null ? void 0 : _l.id, textureIndexById);
+    eachMaterialTextures[tBase + 4] = textureIndexOrNone((_m = mat.emissiveTexture) == null ? void 0 : _m.id, textureIndexById);
+    eachMaterialTriplanarScale[i2] = mat.triplanarScale;
   }
   const xgfData = {
     positions: new Uint16Array(sizePositions),
@@ -74772,12 +74998,16 @@ async function modelToXGF2(params) {
     // populated below
     normals: new Uint16Array(sizeNormals),
     uvs: new Float32Array(sizeUVs),
+    scales: new Float32Array(sizeScales),
+    rotations: new Uint8Array(sizeRotations),
     eachGeometryPositionsBase: new Uint32Array(numGeometries),
     eachGeometryColorsBase: new Uint32Array(numGeometries),
     eachGeometryIndicesBase: new Uint32Array(numGeometries),
     eachGeometryEdgeIndicesBase: new Uint32Array(numGeometries),
     eachGeometryNormalsBase: new Uint32Array(numGeometries),
     eachGeometryUVsBase: new Uint32Array(numGeometries),
+    eachGeometryScalesBase: new Uint32Array(numGeometries),
+    eachGeometryRotationsBase: new Uint32Array(numGeometries),
     eachGeometryPrimitiveType: new Uint8Array(numGeometries),
     eachGeometryAABBBase: new Uint32Array(numGeometries),
     matrices: new Float64Array(0),
@@ -74788,13 +75018,16 @@ async function modelToXGF2(params) {
     eachTextureWidth: new Uint16Array(textureWidths),
     eachTextureHeight: new Uint16Array(textureHeights),
     eachTextureSampler: new Uint8Array(textureSamplers),
+    eachTextureEncoding: new Uint16Array(textureEncodings),
     eachTextureId: textureIds,
     eachMaterialPBR,
+    eachMaterialColor,
     eachMaterialTextures,
     eachMaterialId,
+    eachMaterialTriplanarScale,
     eachMeshGeometriesBase: new Uint32Array(numMeshes),
     eachMeshMatricesBase: new Uint32Array(numMeshes),
-    eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES2),
+    eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES),
     eachMeshMaterial: new Int32Array(numMeshes),
     eachObjectId: [],
     eachObjectMeshesBase: new Uint32Array(numObjects)
@@ -74805,6 +75038,8 @@ async function modelToXGF2(params) {
   let edgeIndicesBase = 0;
   let normalsBase = 0;
   let uvsBase = 0;
+  let scalesBase = 0;
+  let rotationsBase = 0;
   let aabbsBase = 0;
   const aabbIdxMap = {};
   const aabbs = [];
@@ -74828,6 +75063,9 @@ async function modelToXGF2(params) {
         break;
       case PointsPrimitive:
         primitiveType = 4;
+        break;
+      case GaussianSplatsPrimitive:
+        primitiveType = 5;
         break;
     }
     xgfData.eachGeometryPrimitiveType[geometryIdx] = primitiveType;
@@ -74873,6 +75111,20 @@ async function modelToXGF2(params) {
     } else {
       xgfData.eachGeometryUVsBase[geometryIdx] = NO_INDEX;
     }
+    if (geometry.scales && geometry.rotations) {
+      xgfData.eachGeometryScalesBase[geometryIdx] = scalesBase;
+      xgfData.scales.set(geometry.scales, scalesBase);
+      scalesBase += geometry.scales.length;
+      xgfData.eachGeometryRotationsBase[geometryIdx] = rotationsBase;
+      const rotations = geometry.rotations;
+      for (let i2 = 0, len = rotations.length; i2 < len; i2++) {
+        xgfData.rotations[rotationsBase + i2] = clampByte(Math.round(rotations[i2] * 128 + 128));
+      }
+      rotationsBase += rotations.length;
+    } else {
+      xgfData.eachGeometryScalesBase[geometryIdx] = NO_INDEX;
+      xgfData.eachGeometryRotationsBase[geometryIdx] = NO_INDEX;
+    }
     geometryIndices[geometry.id] = geometryIdx;
   }
   let identityMatrixAdded = false;
@@ -74910,7 +75162,7 @@ async function modelToXGF2(params) {
       xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU8(mesh.effectiveColor[1] * 255);
       xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU8(mesh.effectiveColor[2] * 255);
       xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU8(mesh.effectiveOpacity * 255);
-      xgfData.eachMeshMaterial[meshesBase] = mesh.material ? (_j = materialIndexById[mesh.material.id]) != null ? _j : -1 : -1;
+      xgfData.eachMeshMaterial[meshesBase] = mesh.material ? (_n = materialIndexById[mesh.material.id]) != null ? _n : -1 : -1;
       meshesBase++;
     }
   }
@@ -74934,20 +75186,20 @@ function textureIndexOrNone(id, indexById) {
   const idx = indexById[id];
   return idx === void 0 ? -1 : idx;
 }
-async function encodeImageToPNG(imageData) {
-  const w2 = imageData.width, h2 = imageData.height;
-  const isPixelBuffer = imageData && imageData.data && imageData.data.length === w2 * h2 * 4;
+async function encodeImageToPNG(imageData2) {
+  const w3 = imageData2.width, h3 = imageData2.height;
+  const isPixelBuffer2 = imageData2 && imageData2.data && imageData2.data.length === w3 * h3 * 4;
   const paint = (ctx2) => {
-    if (isPixelBuffer) {
-      const bytes = imageData.data instanceof Uint8ClampedArray ? imageData.data : new Uint8ClampedArray(imageData.data);
-      const id = typeof ImageData !== "undefined" && imageData instanceof ImageData ? imageData : new ImageData(bytes, w2, h2);
+    if (isPixelBuffer2) {
+      const bytes = imageData2.data instanceof Uint8ClampedArray ? imageData2.data : new Uint8ClampedArray(imageData2.data);
+      const id = typeof ImageData !== "undefined" && imageData2 instanceof ImageData ? imageData2 : new ImageData(bytes, w3, h3);
       ctx2.putImageData(id, 0, 0);
     } else {
-      ctx2.drawImage(imageData, 0, 0);
+      ctx2.drawImage(imageData2, 0, 0);
     }
   };
   if (typeof OffscreenCanvas !== "undefined") {
-    const canvas2 = new OffscreenCanvas(w2, h2);
+    const canvas2 = new OffscreenCanvas(w3, h3);
     const ctx2 = canvas2.getContext("2d");
     if (!ctx2)
       return new Uint8Array(0);
@@ -74955,36 +75207,52 @@ async function encodeImageToPNG(imageData) {
     const blob = await canvas2.convertToBlob({ type: "image/png" });
     return new Uint8Array(await blob.arrayBuffer());
   }
-  const canvas = document.createElement("canvas");
-  canvas.width = w2;
-  canvas.height = h2;
+  if (typeof document !== "undefined") {
+    const canvas2 = document.createElement("canvas");
+    canvas2.width = w3;
+    canvas2.height = h3;
+    const ctx2 = canvas2.getContext("2d");
+    if (!ctx2)
+      return new Uint8Array(0);
+    paint(ctx2);
+    return await new Promise((resolve2) => {
+      canvas2.toBlob(async (blob) => {
+        if (!blob)
+          return resolve2(new Uint8Array(0));
+        resolve2(new Uint8Array(await blob.arrayBuffer()));
+      }, "image/png");
+    });
+  }
+  return encodeImageToPNGNode(imageData2, w3, h3, isPixelBuffer2);
+}
+function encodeImageToPNGNode(imageData, w, h, isPixelBuffer) {
+  const requireFn = eval("require");
+  const { createCanvas, ImageData: NodeImageData } = requireFn("@napi-rs/canvas");
+  const canvas = createCanvas(w, h);
   const ctx = canvas.getContext("2d");
-  if (!ctx)
-    return new Uint8Array(0);
-  paint(ctx);
-  return await new Promise((resolve2) => {
-    canvas.toBlob(async (blob) => {
-      if (!blob)
-        return resolve2(new Uint8Array(0));
-      resolve2(new Uint8Array(await blob.arrayBuffer()));
-    }, "image/png");
-  });
+  if (isPixelBuffer) {
+    const bytes = imageData.data instanceof Uint8ClampedArray ? imageData.data : new Uint8ClampedArray(imageData.data);
+    ctx.putImageData(new NodeImageData(bytes, w, h), 0, 0);
+  } else {
+    ctx.drawImage(imageData, 0, 0);
+  }
+  return new Uint8Array(canvas.toBuffer("image/png"));
 }
 
-// src/formats/xgf/versions/v2/XGF_INFO.ts
-var XGF_INFO2 = {
-  xgfVersion: 2
+// src/formats/xgf/versions/v1/XGF_INFO.ts
+var XGF_INFO = {
+  xgfVersion: 1
 };
 
-// src/formats/xgf/versions/v2/packXGF.ts
-var object2Array2 = function() {
+// src/formats/xgf/versions/v1/packXGF.ts
+var object2Array = function() {
   const encoder = new TextEncoder();
   return (obj) => encoder.encode(JSON.stringify(obj));
 }();
-function toArrayBuffer6(arrays) {
+function toArrayBuffer5(arrays) {
   const arraysCnt = arrays.length;
   const dataView = new DataView(new ArrayBuffer((1 + 2 * arraysCnt) * 4));
-  dataView.setUint32(0, XGF_INFO2.xgfVersion, true);
+  dataView.setUint32(0, XGF_INFO.xgfVersion, true);
   let byteOffset = dataView.byteLength;
   const offsets = [];
   for (let i2 = 0; i2 < arraysCnt; i2++) {
@@ -75027,8 +75295,8 @@ function toArrayBuffer6(arrays) {
   }
   return dataArray.buffer;
 }
-function packXGF2(xgfData) {
-  return toArrayBuffer6([
+function packXGF(xgfData) {
+  return toArrayBuffer5([
     xgfData.positions,
     xgfData.colors,
     xgfData.indices,
@@ -75036,12 +75304,16 @@ function packXGF2(xgfData) {
     xgfData.aabbs,
     xgfData.normals,
     xgfData.uvs,
+    xgfData.scales,
+    xgfData.rotations,
     xgfData.eachGeometryPositionsBase,
     xgfData.eachGeometryColorsBase,
     xgfData.eachGeometryIndicesBase,
     xgfData.eachGeometryEdgeIndicesBase,
     xgfData.eachGeometryNormalsBase,
     xgfData.eachGeometryUVsBase,
+    xgfData.eachGeometryScalesBase,
+    xgfData.eachGeometryRotationsBase,
     xgfData.eachGeometryPrimitiveType,
     xgfData.eachGeometryAABBBase,
     xgfData.matrices,
@@ -75051,23 +75323,26 @@ function packXGF2(xgfData) {
     xgfData.eachTextureWidth,
     xgfData.eachTextureHeight,
     xgfData.eachTextureSampler,
-    object2Array2(xgfData.eachTextureId),
+    xgfData.eachTextureEncoding,
+    object2Array(xgfData.eachTextureId),
     xgfData.eachMaterialPBR,
+    xgfData.eachMaterialColor,
     xgfData.eachMaterialTextures,
-    object2Array2(xgfData.eachMaterialId),
+    object2Array(xgfData.eachMaterialId),
+    xgfData.eachMaterialTriplanarScale,
     xgfData.eachMeshGeometriesBase,
     xgfData.eachMeshMatricesBase,
     xgfData.eachMeshMaterialAttributes,
     xgfData.eachMeshMaterial,
-    object2Array2(xgfData.eachObjectId),
+    object2Array(xgfData.eachObjectId),
     xgfData.eachObjectMeshesBase
   ]);
 }
 
-// src/formats/xgf/versions/v2/encode.ts
-async function encode9(params, options) {
-  const xgfData = await modelToXGF2({ sceneModel: params.sceneModel, options });
-  return packXGF2(xgfData);
+// src/formats/xgf/versions/v1/encode.ts
+async function encode8(params, options) {
+  const xgfData = await modelToXGF({ sceneModel: params.sceneModel, options });
+  return packXGF(xgfData);
 }
 
 // src/formats/xgf/XGFExporter.ts
@@ -75077,8 +75352,7 @@ var XGFExporter = class extends ModelExporter {
       format: "XGF",
       fileDataType: "arraybuffer",
       encoders: {
-        "1.0.0": encode8,
-        "1.1.0": encode9
+        "1.0.0": encode8
       },
       defaultVersion: "1.0.0"
     });

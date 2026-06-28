@@ -350,9 +350,17 @@ export class ModelConverter {
             ...(requestSignal ? {signal: requestSignal} : {}),
           };
 
+          // Collect the exporter's conversion-fidelity warnings (e.g. triplanar
+          // textures dropped) for this output's report entry. Kept out of the
+          // persisted `options` so the report doesn't serialise a callback.
+          const warnings: string[] = [];
+
           try {
 
-            const fileData = await exporter.write({sceneModel, dataModel}, options);
+            const fileData = await exporter.write(
+              {sceneModel, dataModel},
+              {...options, onWarning: (message: string) => warnings.push(message)},
+            );
             let fileDataSizeBytes;
 
             switch (exporter.fileDataType) {
@@ -377,7 +385,7 @@ export class ModelConverter {
               sceneModel: sceneModel.id,
               dataModel: dataModel.id,
               messages: [],
-              warnings: [],
+              warnings,
               errors: []
             };
 

@@ -2,14 +2,23 @@ import {applyFixesResultToJson} from "../../../../inspect/sceneModel";
 import {type ModelConverterReporter} from "../ModelConverterReporter";
 import {type ModelConverterResult} from "../../ModelConverterResult";
 
+interface FileSize {
+  filePath?: string;
+  fileFormat: string;
+  fileDataSizeBytes: number;
+}
+
 /**
  * Generate a JSON-ready report of the optimization (fix) outcomes per
  * SceneModel — the optimizer-mode counterpart to the inspection report.
  *
  * Reads the `fixResult` already attached to each
  * {@link ModelConverterResult.inspection} entry (populated when the inspect
- * step ran with `fix` enabled). Returns `null` — "nothing to write" — when no
- * optimization ran, so the CLI skips the file unless fixes actually executed.
+ * step ran with `fix` enabled). Also records input (original) and output
+ * (optimized) file sizes from the conversion result, with a `bytes` summary —
+ * for an in-place optimize that's the size before and after the rewrite.
+ * Returns `null` — "nothing to write" — when no optimization ran, so the CLI
+ * skips the file unless fixes actually executed.
  */
 export const createOptimizationReport: ModelConverterReporter = (
   modelConverterResult: ModelConverterResult,
@@ -33,5 +42,22 @@ export const createOptimizationReport: ModelConverterReporter = (
   }
 
   if (!any) return null;
-  return {counts, bySceneModel};
+
+  const inputs: {[id: string]: FileSize} = {};
+  const outputs: {[id: string]: FileSize} = {};
+  let bytesIn = 0;
+  let bytesOut = 0;
+  for (const id of Object.keys(modelConverterResult.inputs || {})) {
+    const i = modelConverterResult.inputs[id];
+    inputs[id] = {filePath: i.filePath, fileFormat: i.fileFormat, fileDataSizeBytes: i.fileDataSizeBytes};
+    bytesIn += i.fileDataSizeBytes || 0;
+  }
+  for (const id of Object.keys(modelConverterResult.outputs || {})) {
+    const o = modelConverterResult.outputs[id];
+    outputs[id] = {filePath: o.filePath, fileFormat: o.fileFormat, fileDataSizeBytes: o.fileDataSizeBytes};
+    bytesOut += o.fileDataSizeBytes || 0;
+  }
+  const bytes = {input: bytesIn, output: bytesOut, delta: bytesOut - bytesIn};
+
+  return {counts, bytes, files: {inputs, outputs}, bySceneModel};
 };

@@ -121,6 +121,17 @@ async function parseGLTF(params: ModelLoadParams, options: any): Promise<any> {
     parseOptions.modules = {draco3d: options.dracoModule};
   }
 
+  // Headless (Node) has no 2D-canvas image decoder, and loaders.gl's JPEG path
+  // (jpeg-js) caps decode memory at 512 MB — large textures exceed it and abort
+  // the whole parse. Outside a browser, skip image DECODING: parseTexture
+  // carries each texture's original encoded PNG/JPEG bytes through to the
+  // SceneModel, which exporters (XGF) store verbatim. Browsers keep decoding so
+  // the viewer still renders textures.
+  const headless = typeof OffscreenCanvas === "undefined" && typeof document === "undefined";
+  if (headless) {
+    parseOptions.gltf = {...(parseOptions.gltf || {}), loadImages: false, loadBuffers: true};
+  }
+
   const onProgress: ((p: LoaderProgress) => void) | undefined = options?.onProgress;
   const signal: AbortSignal | undefined = options?.signal;
   // Reusable progress payload — see the LoaderProgress
@@ -276,7 +287,7 @@ function parseTextures(ctx: any): boolean {
 }
 
 function parseTexture(ctx: any, texture: any): boolean {
-  if (!texture.source || !texture.source.image) {
+  if (!texture.source) {
     ctx.errors.push(`[GLTFLoader.load] Texture has no image source`);
     return false;
   }
@@ -348,20 +359,31 @@ function parseTexture(ctx: any, texture: any): boolean {
       break;
   }
   // loaders.gl decodes the image for rendering but retains the original
-  // encoded PNG/JPEG bytes on the source's bufferView. When the caller asks to
-  // retain them, carry those through as `buffers` so exporters re-emit them
-  // losslessly without re-encoding (which needs a 2D canvas, unavailable under
-  // Node).
-  const encodedBytes = ctx.options.retainTextureBytes
+  // encoded PNG/JPEG bytes on the source's bufferView. Carry those through as
+  // `buffers` so exporters re-emit them losslessly without re-encoding (which
+  // needs a 2D canvas, unavailable under Node) — always when no decoded image
+  // is present (headless `loadImages:false`), or on request via
+  // `retainTextureBytes`.
+  const decodedImage = texture.source.image;
+  const encodedBytes = (ctx.options.retainTextureBytes || !decodedImage)
     ? extractEncodedImageBytes(texture.source)
     : null;
+  if (!decodedImage && !encodedBytes) {
+    ctx.errors.push(`[GLTFLoader.load] Texture has no image source`);
+    return false;
+  }
+  // Dimensions come from the decoded image when available, else from the
+  // encoded bytes' header (cheap — no full decode, so the jpeg-js cap is moot).
+  const dims = decodedImage
+    ? {width: decodedImage.width, height: decodedImage.height}
+    : imageSizeFromBytes(new Uint8Array(encodedBytes as ArrayBuffer), texture.source.mimeType);
   const result = ctx.sceneModel.createTexture({
     id: textureId,
-    image: texture.source.image,
+    image: decodedImage || undefined,
     buffers: encodedBytes ? [encodedBytes] : undefined,
     mediaType: encodedBytes ? mimeTypeToMediaType(texture.source.mimeType) : undefined,
-    width: texture.source.image.width,
-    height: texture.source.image.height,
+    width: dims.width,
+    height: dims.height,
     minFilter,
     magFilter,
     wrapS,
@@ -390,6 +412,35 @@ function extractEncodedImageBytes(source: any): ArrayBuffer | null {
     return null;
   }
   return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+}
+
+/**
+ * Pixel dimensions of an encoded PNG or JPEG, read from its header without
+ * decoding the pixels — so a multi-hundred-MB texture costs nothing and never
+ * trips a decoder memory cap. Returns `{width:0,height:0}` if unrecognised.
+ */
+function imageSizeFromBytes(bytes: Uint8Array, mimeType: string | undefined): {width: number; height: number} {
+  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  // PNG: 8-byte signature, then IHDR (width @16, height @20, big-endian).
+  if (bytes.length >= 24 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) {
+    return {width: dv.getUint32(16, false), height: dv.getUint32(20, false)};
+  }
+  // JPEG: walk segment markers to the Start-Of-Frame (SOFn) and read its size.
+  if (bytes.length >= 4 && bytes[0] === 0xff && bytes[1] === 0xd8) {
+    let off = 2;
+    while (off + 9 < bytes.length) {
+      if (bytes[off] !== 0xff) { off++; continue; }
+      const marker = bytes[off + 1];
+      // SOF0..SOF15 carry frame size; skip DHT(C4)/JPG(C8)/DAC(CC) and others.
+      if (marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc) {
+        return {height: dv.getUint16(off + 5, false), width: dv.getUint16(off + 7, false)};
+      }
+      const segLen = dv.getUint16(off + 2, false);
+      if (segLen < 2) break;
+      off += 2 + segLen;
+    }
+  }
+  return {width: 0, height: 0};
 }
 
 function mimeTypeToMediaType(mimeType: string | undefined): number | undefined {

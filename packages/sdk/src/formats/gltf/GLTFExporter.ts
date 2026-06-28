@@ -22,6 +22,7 @@ import {createCoordinateSystemTransform} from "../../model/scene";
 import type {SceneGeometry, SceneMaterial, SceneMesh, SceneTexture} from "../../model/scene";
 import {yieldToHost} from "../../base/utils";
 import type {LoaderProgress} from "../LoaderProgress";
+import {findTriplanarTextureSkip, triplanarSkipWarning} from "../findTriplanarTextureSkip";
 
 import {
   ClampToEdgeWrapping,
@@ -118,6 +119,15 @@ async function encode2(params: ModelEncodeParams, options?: any): Promise<Uint8A
   const gltfScene = doc.createScene();
   const buffer = doc.createBuffer();
 
+  // Triplanar (world-projected) textures have no UVs and can't be expressed in
+  // glTF; drop them and flatten the affected materials rather than embed
+  // unusable image data.
+  const triplanarSkip = findTriplanarTextureSkip(sceneModel);
+  if (triplanarSkip.any) {
+    const warn = options.onWarning ?? ((m: string) => console.warn(m));
+    warn(triplanarSkipWarning("glTF", triplanarSkip));
+  }
+
   // ── 1. Textures ─────────────────────────────────────────────────
   // Encode every SceneTexture's image bytes once and stash the
   // resulting glTF Texture by id; materials below pick the right
@@ -127,6 +137,7 @@ async function encode2(params: ModelEncodeParams, options?: any): Promise<Uint8A
   for (let ti = 0; ti < textureIds.length; ti++) {
     if ((ti & 0x07) === 0) await step("Encoding textures", ti, textureIds.length);
     const id = textureIds[ti];
+    if (triplanarSkip.textureIds.has(id)) continue; // triplanar-only — glTF can't sample it
     const sceneTex: SceneTexture = sceneModel.textures[id];
     if (sceneTex.compressed) {
       console.warn(`[GLTFExporter] Skipping compressed texture '${sceneTex.id}' (no KHR_texture_basisu support).`);
@@ -158,7 +169,7 @@ async function encode2(params: ModelEncodeParams, options?: any): Promise<Uint8A
   for (let mi = 0; mi < materialIds.length; mi++) {
     if ((mi & 0x3F) === 0) await step("Encoding materials", mi, materialIds.length);
     const sceneMat: SceneMaterial = sceneModel.materials[materialIds[mi]];
-    materialMap.set(sceneMat.id, buildGltfMaterial(doc, sceneMat, textureMap));
+    materialMap.set(sceneMat.id, buildGltfMaterial(doc, sceneMat, textureMap, triplanarSkip.materialIds.has(sceneMat.id)));
   }
 
   // ── 3. Geometry attribute accessors ─────────────────────────────
@@ -335,7 +346,8 @@ async function encode2(params: ModelEncodeParams, options?: any): Promise<Uint8A
 function buildGltfMaterial(
   doc: Document,
   sceneMat: SceneMaterial,
-  textureMap: Map<string, GLTFTexture>
+  textureMap: Map<string, GLTFTexture>,
+  skipTextures: boolean
 ): GLTFMaterial {
   const mat = doc.createMaterial(sceneMat.id);
 
@@ -364,12 +376,15 @@ function buildGltfMaterial(
 
   // Texture bindings + sampler state. Each binding has its own
   // TextureInfo (sampler / texCoord), distinct even when two bindings
-  // share a Texture.
-  bindTexture(mat, "BaseColor",         sceneMat.colorTexture, textureMap);
-  bindTexture(mat, "MetallicRoughness", sceneMat.metallicRoughnessTexture, textureMap);
-  bindTexture(mat, "Normal",            sceneMat.normalsTexture, textureMap);
-  bindTexture(mat, "Occlusion",         sceneMat.occlusionTexture, textureMap);
-  bindTexture(mat, "Emissive",          sceneMat.emissiveTexture, textureMap);
+  // share a Texture. Triplanar-only materials bind nothing — their textures
+  // are world-projected (no UVs) and were dropped above.
+  if (!skipTextures) {
+    bindTexture(mat, "BaseColor",         sceneMat.colorTexture, textureMap);
+    bindTexture(mat, "MetallicRoughness", sceneMat.metallicRoughnessTexture, textureMap);
+    bindTexture(mat, "Normal",            sceneMat.normalsTexture, textureMap);
+    bindTexture(mat, "Occlusion",         sceneMat.occlusionTexture, textureMap);
+    bindTexture(mat, "Emissive",          sceneMat.emissiveTexture, textureMap);
+  }
 
   return mat;
 }

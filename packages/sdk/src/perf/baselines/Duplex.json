@@ -1,0 +1,20 @@
+{
+  "structural": {
+    "numObjects": 237,
+    "numMeshes": 871,
+    "numGeometries": 381,
+    "numTextures": 0,
+    "uniqueTriangles": 11692,
+    "instancedTriangles": 25788,
+    "geometryReuseRatio": 2.286,
+    "compressedGeometryBytes": 222276
+  },
+  "cull": {
+    "items": 237,
+    "culled": 129,
+    "visible": 108
+  },
+  "timings": {
+    "loadMs": 97.1
+  }
+}

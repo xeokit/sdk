@@ -26,6 +26,7 @@ import {createStatsReport} from "../modelConverter/reporters/stats/createStatsRe
 import {createManifestReport} from "../modelConverter/reporters/manifest/createManifestReport";
 import {createInspectionReport} from "../modelConverter/reporters/inspection/createInspectionReport";
 import {createOptimizationReport} from "../modelConverter/reporters/optimization/createOptimizationReport";
+import {createConversionReport} from "../modelConverter/reporters/conversion/createConversionReport";
 
 // Extension-based format resolution for the CLI's generic `--in/--out` mode.
 export {resolveLoaderId, resolveExporterId, FORMAT_BY_EXTENSION} from "./resolveFormat";
@@ -42,7 +43,8 @@ export const reporters = {
   "stats-report": createStatsReport,
   "manifest-report": createManifestReport,
   "inspection-report": createInspectionReport,
-  "optimization-report": createOptimizationReport
+  "optimization-report": createOptimizationReport,
+  "conversion-report": createConversionReport
 };
 
 export const CoordinateSystems = {
@@ -498,6 +500,83 @@ export const modelConverter = new ModelConverter({
       outputs: {
         "xgf": {
           exporter: "xgf",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      }
+    },
+
+    "xkt": {
+      inputs: {
+        "xkt": {
+          loader: "xkt",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      }
+    },
+
+    "xkt2json": {
+      inputs: {
+        "xkt": {
+          loader: "xkt",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      },
+      outputs: {
+        "datamodel": {
+          exporter: "datamodel"
+        },
+        "scenemodel": {
+          exporter: "scenemodel",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      }
+    },
+
+    "xkt2xgf": {
+      inputs: {
+        "xkt": {
+          loader: "xkt",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        }
+      },
+      outputs: {
+        "xgf": {
+          exporter: "xgf",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        },
+        "datamodel": {
+          exporter: "datamodel"
+        }
+      }
+    },
+
+    "xgf2xkt": {
+      inputs: {
+        "xgf": {
+          loader: "xgf",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
+        },
+        "datamodel": {
+          loader: "datamodel"
+        }
+      },
+      outputs: {
+        "xkt": {
+          exporter: "xkt",
           options: {
             coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
           }

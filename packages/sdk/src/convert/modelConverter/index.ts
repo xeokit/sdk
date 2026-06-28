@@ -69,9 +69,12 @@
  *   resolves which loader / exporter to use from the registered
  *   maps.
  * - **Reports** — per-conversion `inspection` (validation
- *   findings), `manifest` (file inventory), and `stats` (timings,
- *   counts, sizes) reports are emitted alongside the outputs for
- *   downstream tooling.
+ *   findings), `manifest` (file inventory), `stats` (timings,
+ *   counts, sizes), `optimization` (what the fixer changed), and
+ *   `conversion` (per-output fidelity — what each exporter dropped
+ *   or flattened because the target format couldn't represent it,
+ *   e.g. triplanar textures) reports are emitted alongside the
+ *   outputs for downstream tooling.
  * - **Programmatic API + CLI** — same converter wraps inside the
  *   {@link convert!xeoconvert | xeoconvert} CLI binary; use either
  *   the class directly in a build pipeline or the binary from a

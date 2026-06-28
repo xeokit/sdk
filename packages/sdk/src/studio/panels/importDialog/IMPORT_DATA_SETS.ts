@@ -50,6 +50,15 @@ export const IMPORT_DATA_SETS: ImportDataSet[] = [
     ],
   },
   {
+    id: "laz",
+    label: "LAS / LAZ point cloud",
+    defaultBasisId: "z-up",
+    loadsDataSemantics: false,
+    files: [
+      {key: "laz", label: "LAS / LAZ file", accept: ".las,.laz", loadFormat: "laz", required: true},
+    ],
+  },
+  {
     id: "threedxml",
     label: "3DXML (Dassault)",
     defaultBasisId: "y-up",

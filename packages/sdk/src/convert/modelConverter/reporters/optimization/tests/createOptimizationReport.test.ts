@@ -35,6 +35,22 @@ describe("createOptimizationReport", () => {
     expect(Object.keys(report.bySceneModel)).toEqual(["m1", "m2"]);
   });
 
+  it("reports input (original) and output (optimized) file sizes", () => {
+    const result: any = {
+      inputs: {in: {filePath: "model.xgf", fileFormat: "XGF", fileDataSizeBytes: 1000}},
+      outputs: {out: {filePath: "model.optimized.xgf", fileFormat: "XGF", fileDataSizeBytes: 600}},
+      inspection: {
+        bySceneModel: {
+          m1: {sceneModel: "m1", fixResult: {fixed: [outcome("A")], skipped: [], errors: []}, durationMs: 1},
+        },
+      },
+    };
+    const report: any = createOptimizationReport(result);
+    expect(report.bytes).toEqual({input: 1000, output: 600, delta: -400});
+    expect(report.files.inputs.in).toMatchObject({filePath: "model.xgf", fileDataSizeBytes: 1000});
+    expect(report.files.outputs.out).toMatchObject({filePath: "model.optimized.xgf", fileDataSizeBytes: 600});
+  });
+
   it("skips SceneModels that have no fixResult (inspect without fix)", () => {
     const result: any = {
       inspection: {

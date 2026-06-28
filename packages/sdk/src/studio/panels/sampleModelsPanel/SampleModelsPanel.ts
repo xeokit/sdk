@@ -427,6 +427,25 @@ const PANEL_CSS = `
   line-height: 1.45;
   word-break: break-word;
   white-space: pre-wrap;
+  /* The panel root sets user-select:none; re-enable it here so the error
+     text can be selected and copied. */
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: text;
+}
+.xkt-sam-panel .xkt-sam-load-error-copy {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  font: inherit;
+  font-size: 11px;
+  color: #a02020;
+  background: transparent;
+  border: 1px solid rgba(160, 32, 32, 0.35);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.xkt-sam-panel .xkt-sam-load-error-copy:hover {
+  background: rgba(160, 32, 32, 0.08);
 }
 
 /* Top-of-body status strip: shown only while a load is in
@@ -1174,6 +1193,26 @@ export class SampleModelsPanel extends FloatingPanelBase {
     head.appendChild(el("span", "xkt-sam-load-error-title", {
       textContent: `Load failed: ${modelId} (${formats.join(", ")})`,
     }));
+    const copy = el("button", "xkt-sam-load-error-copy", {
+      type: "button",
+      "aria-label": "Copy error message",
+      title: "Copy error message",
+      textContent: "Copy",
+    }) as HTMLButtonElement;
+    copy.addEventListener("click", () => {
+      const done = () => { copy.textContent = "Copied"; setTimeout(() => { copy.textContent = "Copy"; }, 1500); };
+      const text = `Load failed: ${modelId} (${formats.join(", ")})\n${message}`;
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(text).then(done, () => {});
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); done(); } finally { ta.remove(); }
+      }
+    });
+    head.appendChild(copy);
     const dismiss = el("button", "xkt-sam-load-error-dismiss", {
       type: "button",
       "aria-label": "Dismiss error",

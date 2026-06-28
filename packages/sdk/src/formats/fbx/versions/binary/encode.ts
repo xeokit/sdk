@@ -18,6 +18,7 @@
  */
 import type {ModelEncodeParams} from "../../../ModelEncodeParams";
 import {octDecodeNormalsU16} from "../../../../base/math/compression";
+import {findTriplanarTextureSkip, triplanarSkipWarning} from "../../../findTriplanarTextureSkip";
 import {
   writeFBXBinary, fbxI, fbxL, fbxD, fbxS, fbxR, fbxDArr, fbxIArr, fbxNode, fbxLeaf,
   type FBXProp, type FBXWriteNode,
@@ -26,10 +27,18 @@ import {
 const RAD2DEG = 180 / Math.PI;
 const SEP = "\u0000\u0001";   // FBX "Name\0\x01Class" separator
 
-export async function encode(params: ModelEncodeParams, _options?: any): Promise<ArrayBuffer> {
+export async function encode(params: ModelEncodeParams, options?: any): Promise<ArrayBuffer> {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     throw "FBXExporter requires params.sceneModel";
+  }
+
+  // Triplanar (world-projected, UV-less) textures can't be expressed in FBX;
+  // drop them and flatten the affected materials.
+  const triplanarSkip = findTriplanarTextureSkip(sceneModel);
+  if (triplanarSkip.any) {
+    const warn = options?.onWarning ?? ((m: string) => console.warn(m));
+    warn(triplanarSkipWarning("FBX", triplanarSkip));
   }
 
   let nextId = 1000;
@@ -73,6 +82,7 @@ export async function encode(params: ModelEncodeParams, _options?: any): Promise
   // wired Texture→Material ("DiffuseColor") and Video→Texture. A SceneTexture
   // shared by several materials is emitted once and connected to each.
   async function emitTexture(mat: any, matFbx: number): Promise<void> {
+    if (triplanarSkip.materialIds.has(mat.id)) return; // triplanar — UV-less, FBX can't sample it
     const tex = mat.colorTexture;
     if (!tex) return;
 

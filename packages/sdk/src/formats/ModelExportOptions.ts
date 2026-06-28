@@ -36,6 +36,16 @@ export type ModelExportOptions = {
   onProgress?: (progress: LoaderProgress) => void;
 
   /**
+   * Optional callback for conversion-fidelity warnings — non-fatal notes
+   * about something the exporter could not faithfully represent and therefore
+   * dropped or flattened (for example, triplanar textures omitted because the
+   * target format has no world-projected texturing). When omitted, exporters
+   * fall back to `console.warn`. {@link convert!modelConverter.ModelConverter}
+   * collects these into each output's `warnings` for the conversion report.
+   */
+  onWarning?: (message: string) => void;
+
+  /**
    * Minimum gap (in milliseconds) between cooperative yields
    * during the export. Same contract as
    * `ModelLoadOptions.yieldIntervalMs` — raise above the 16ms

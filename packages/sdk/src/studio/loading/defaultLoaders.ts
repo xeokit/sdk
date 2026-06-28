@@ -4,6 +4,7 @@ import {GLTFLoader} from "../../formats/gltf";
 import {FBXLoader} from "../../formats/fbx";
 import {USDZLoader} from "../../formats/usdz";
 import {E57Loader} from "../../formats/e57";
+import {LASLoader} from "../../formats/las";
 import {GaussianSplatLoader} from "../../formats/gaussiansplat";
 import {MTLLoader} from "../../formats/mtl";
 import {OBJLoader} from "../../formats/obj";
@@ -73,6 +74,16 @@ export function createDefaultLoaderRegistry(): LoaderRegistry {
     needsData: true,
     load: (input, options) => new E57Loader().load(input, options),
   });
+
+  // LAS/LAZ point clouds — the same LASLoader handles both extensions.
+  const lasDescriptor = {
+    fetch: "arrayBuffer" as const,
+    needsScene: true,
+    needsData: true,
+    load: (input: any, options: any) => new LASLoader().load(input, options),
+  };
+  r.register("las", lasDescriptor);
+  r.register("laz", lasDescriptor);
 
   r.register("splat", {
     fetch: "arrayBuffer",

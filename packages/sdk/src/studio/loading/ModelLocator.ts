@@ -141,6 +141,8 @@ export const DEFAULT_EXTENSIONS: Record<string, string> = {
   fbx: "fbx",
   usdz: "usdz",
   e57: "e57",
+  las: "las",
+  laz: "laz",
   fds: "fds",
   mtl: "mtl",
   obj: "obj",

@@ -66,6 +66,9 @@ describe("FBXLoader (binary)", () => {
       id: "g1",
       positionsCompressed: quantize(positions, aabb),
       aabb,
+      // UVs make the textured material UV-mapped (not triplanar), so the texture
+      // is a normal FBX texture rather than a world-projected one that's dropped.
+      uvsCompressed: new Float32Array([0, 0, 1, 0, 1, 1, 0, 1]),
       indices: new Uint32Array([0, 1, 2, 0, 2, 3]),
     };
     const tex = {id: "tex1", buffers: [new Uint8Array([0x89, 0x50, 0x4e, 0x47]).buffer]};

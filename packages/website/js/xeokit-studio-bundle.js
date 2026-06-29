@@ -7441,7 +7441,7 @@ function lenVec3(v) {
 }
 var distVec3 = (() => {
   const vec = createVec3Float64();
-  return (v, w) => lenVec3(subVec3(v, w, vec));
+  return (v, w2) => lenVec3(subVec3(v, w2, vec));
 })();
 function lenVec2(v) {
   return Math.sqrt(sqLenVec2(v));
@@ -7456,7 +7456,7 @@ function lerpVec3(t, t1, t2, p1, p2, dest) {
 }
 var distVec2 = (() => {
   const vec = createVec2Float64();
-  return (v, w) => lenVec2(subVec2(v, w, vec));
+  return (v, w2) => lenVec2(subVec2(v, w2, vec));
 })();
 function rcpVec3(v, dest) {
   return divScalarVec3(1, v, dest);
@@ -7473,8 +7473,8 @@ function normalizeVec2(v, dest) {
   const f = 1 / lenVec2(v);
   return mulVec2Scalar(v, f, dest);
 }
-function angleVec3(v, w) {
-  let theta = dotVec3(v, w) / Math.sqrt(sqLenVec3(v) * sqLenVec3(w));
+function angleVec3(v, w2) {
+  let theta = dotVec3(v, w2) / Math.sqrt(sqLenVec3(v) * sqLenVec3(w2));
   theta = theta < -1 ? -1 : theta > 1 ? 1 : theta;
   return Math.acos(theta);
 }
@@ -7766,7 +7766,7 @@ function quatToRotationMat4(q, m) {
   const x = q[0];
   const y = q[1];
   const z = q[2];
-  const w = q[3];
+  const w2 = q[3];
   const x2 = x + x;
   const y2 = y + y;
   const z2 = z + z;
@@ -7776,9 +7776,9 @@ function quatToRotationMat4(q, m) {
   const yy = y * y2;
   const yz = y * z2;
   const zz = z * z2;
-  const wx = w * x2;
-  const wy = w * y2;
-  const wz = w * z2;
+  const wx = w2 * x2;
+  const wy = w2 * y2;
+  const wz = w2 * z2;
   m[0] = 1 - (yy + zz);
   m[4] = xy - wz;
   m[8] = xz + wy;
@@ -8662,12 +8662,12 @@ var canvasPosToWorldRay = (() => {
       mulVec4Scalar(outVec4, 1 / outVec4[3], outVec4);
     }
   };
-  return (canvas2, viewMatrix, projMatrix, projection, canvasPos2, worldRayOrigin, worldRayDir) => {
+  return (canvas3, viewMatrix, projMatrix, projection, canvasPos2, worldRayOrigin, worldRayDir) => {
     const isOrtho = projection === "ortho";
     mulMat4(projMatrix, viewMatrix, pvMatInv);
     inverseMat4(pvMatInv, pvMatInv);
-    const clipX = 2 * canvasPos2[0] / canvas2.width - 1;
-    const clipY = 1 - 2 * canvasPos2[1] / canvas2.height;
+    const clipX = 2 * canvasPos2[0] / canvas3.width - 1;
+    const clipY = 1 - 2 * canvasPos2[1] / canvas3.height;
     clipToWorld(clipX, clipY, -1, isOrtho, vec4Near);
     clipToWorld(clipX, clipY, 1, isOrtho, vec4Far);
     worldRayOrigin[0] = vec4Near[0];
@@ -8747,6 +8747,7 @@ __export(compression_exports, {
   decompressUVs: () => decompressUVs,
   getPositions3MinMax: () => getPositions3MinMax,
   getUVBounds: () => getUVBounds,
+  octDecodeNormalsU16: () => octDecodeNormalsU16,
   octEncodeNormal: () => octEncodeNormal,
   octEncodeNormalsToU16: () => octEncodeNormalsToU16,
   octEncodeVec3: () => octEncodeVec3,
@@ -9176,6 +9177,27 @@ function octEncodeNormalsToU16(normals) {
     out[i * 2 + 1] = Math.round((ey * 0.5 + 0.5) * 65535);
   }
   return out;
+}
+function octDecodeNormalsU16(octs, result = new Float32Array(octs.length / 2 * 3)) {
+  if (octs.length % 2 !== 0) {
+    throw new Error("Invalid input: octs must contain an even number of elements.");
+  }
+  for (let i = 0, j = 0, len = octs.length; i < len; i += 2, j += 3) {
+    let x = octs[i] / 65535 * 2 - 1;
+    let y = octs[i + 1] / 65535 * 2 - 1;
+    const z = 1 - Math.abs(x) - Math.abs(y);
+    if (z < 0) {
+      const tempx = (1 - Math.abs(y)) * Math.sign(x);
+      const tempy = (1 - Math.abs(x)) * Math.sign(y);
+      x = tempx;
+      y = tempy;
+    }
+    const length2 = Math.sqrt(x * x + y * y + z * z) || 1;
+    result[j] = x / length2;
+    result[j + 1] = y / length2;
+    result[j + 2] = z / length2;
+  }
+  return result;
 }
 
 // ../sdk/src/base/math/boundaries.ts
@@ -15141,15 +15163,15 @@ function heightToNormal(height, strength = 1) {
   const src = height.data;
   const out = newPixelBuffer(size);
   const dst = out.data;
-  const h = (x, y) => {
+  const h2 = (x, y) => {
     const xx = (x + size) % size;
     const yy = (y + size) % size;
     return src[(yy * size + xx) * 4] / 255;
   };
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
-      const dx = (h(x + 1, y) - h(x - 1, y)) * strength;
-      const dy = (h(x, y + 1) - h(x, y - 1)) * strength;
+      const dx = (h2(x + 1, y) - h2(x - 1, y)) * strength;
+      const dy = (h2(x, y + 1) - h2(x, y - 1)) * strength;
       const nx = -dx, ny = -dy, nz = 1;
       const len = Math.hypot(nx, ny, nz);
       const i = (y * size + x) * 4;
@@ -15227,15 +15249,15 @@ function paintBrick(size, options = {}) {
       const fy = Math.min(yInCell, cellH - yInCell) / cellH;
       const inMortarX = xInCell < mortar || xInCell > cellW - mortar;
       const inMortarY = yInCell < mortar || yInCell > cellH - mortar;
-      let h;
+      let h2;
       if (inMortarX || inMortarY) {
-        h = 0.05;
+        h2 = 0.05;
       } else {
         const e = Math.min(fx, fy);
-        h = 0.55 + Math.min(1, e / bevel) * 0.45;
+        h2 = 0.55 + Math.min(1, e / bevel) * 0.45;
       }
       const i = (y * size + x) * 4;
-      const v = Math.round(h * 255);
+      const v = Math.round(h2 * 255);
       hd[i] = hd[i + 1] = hd[i + 2] = v;
       hd[i + 3] = 255;
     }
@@ -15301,8 +15323,8 @@ function paintConcrete(size, options = {}) {
       cd[i + 1] = Math.round(clamp01(baseColor[1] + m) * 255);
       cd[i + 2] = Math.round(clamp01(baseColor[2] + m) * 255);
       cd[i + 3] = 255;
-      const h = Math.round(n * 255);
-      hd[i] = hd[i + 1] = hd[i + 2] = h;
+      const h2 = Math.round(n * 255);
+      hd[i] = hd[i + 1] = hd[i + 2] = h2;
       hd[i + 3] = 255;
     }
   }
@@ -15337,8 +15359,8 @@ function paintLimestone(size, options = {}) {
       cd[i + 1] = Math.round(clamp01(baseColor[1] * (1 + m)) * 255);
       cd[i + 2] = Math.round(clamp01(baseColor[2] * (1 + m)) * 255);
       cd[i + 3] = 255;
-      const h = Math.round(n * 255);
-      hd[i] = hd[i + 1] = hd[i + 2] = h;
+      const h2 = Math.round(n * 255);
+      hd[i] = hd[i + 1] = hd[i + 2] = h2;
       hd[i + 3] = 255;
     }
   }
@@ -15394,8 +15416,8 @@ function paintGranite(size, options = {}) {
       cd[i + 1] = Math.round(clamp01(g) * 255);
       cd[i + 2] = Math.round(clamp01(b4) * 255);
       cd[i + 3] = 255;
-      const h = Math.round((0.4 + grain * 0.6) * 255);
-      hd[i] = hd[i + 1] = hd[i + 2] = h;
+      const h2 = Math.round((0.4 + grain * 0.6) * 255);
+      hd[i] = hd[i + 1] = hd[i + 2] = h2;
       hd[i + 3] = 255;
     }
   }
@@ -15438,8 +15460,8 @@ function paintMarble(size, options = {}) {
       cd[i + 1] = Math.round(clamp01(g) * 255);
       cd[i + 2] = Math.round(clamp01(b4) * 255);
       cd[i + 3] = 255;
-      const h = Math.round((0.5 + vein * 0.05) * 255);
-      hd[i] = hd[i + 1] = hd[i + 2] = h;
+      const h2 = Math.round((0.5 + vein * 0.05) * 255);
+      hd[i] = hd[i + 1] = hd[i + 2] = h2;
       hd[i + 3] = 255;
     }
   }
@@ -15484,8 +15506,8 @@ function paintOak(size, options = {}) {
       cd[i + 1] = Math.round(g * 255);
       cd[i + 2] = Math.round(b4 * 255);
       cd[i + 3] = 255;
-      const h = Math.round((0.5 + grain * 0.5) * 255);
-      hd[i] = hd[i + 1] = hd[i + 2] = h;
+      const h2 = Math.round((0.5 + grain * 0.5) * 255);
+      hd[i] = hd[i + 1] = hd[i + 2] = h2;
       hd[i + 3] = 255;
     }
   }
@@ -15524,14 +15546,14 @@ function paintWoodPlank(size, options = {}) {
       const xInCell = x - col * cellW;
       const fx = Math.min(xInCell, cellW - xInCell) / cellW;
       const inSeam = xInCell < seamW || xInCell > cellW - seamW;
-      let h;
+      let h2;
       if (inSeam) {
-        h = 0.2;
+        h2 = 0.2;
       } else {
-        h = 0.65 + Math.min(1, fx / bevelFrac) * 0.35;
+        h2 = 0.65 + Math.min(1, fx / bevelFrac) * 0.35;
       }
       const i = (y * size + x) * 4;
-      const v = Math.round(h * 255);
+      const v = Math.round(h2 * 255);
       hd[i] = hd[i + 1] = hd[i + 2] = v;
       hd[i + 3] = 255;
     }
@@ -15607,8 +15629,8 @@ function paintPlaster(size, options = {}) {
       cd[i + 1] = Math.round(clamp01(baseColor[1] * (1 + m)) * 255);
       cd[i + 2] = Math.round(clamp01(baseColor[2] * (1 + m)) * 255);
       cd[i + 3] = 255;
-      const h = Math.round(n * 255);
-      hd[i] = hd[i + 1] = hd[i + 2] = h;
+      const h2 = Math.round(n * 255);
+      hd[i] = hd[i + 1] = hd[i + 2] = h2;
       hd[i + 3] = 255;
     }
   }
@@ -15651,8 +15673,8 @@ function paintAsphalt(size, options = {}) {
       cd[i + 1] = Math.round(clamp01(g) * 255);
       cd[i + 2] = Math.round(clamp01(b4) * 255);
       cd[i + 3] = 255;
-      const h = Math.round((0.3 + big * 0.7) * 255);
-      hd[i] = hd[i + 1] = hd[i + 2] = h;
+      const h2 = Math.round((0.3 + big * 0.7) * 255);
+      hd[i] = hd[i + 1] = hd[i + 2] = h2;
       hd[i + 3] = 255;
     }
   }
@@ -15690,15 +15712,15 @@ function paintCeramicTile(size, options = {}) {
       const fy = Math.min(yInCell, cellH - yInCell) / cellH;
       const inGroutX = xInCell < groutW || xInCell > cellW - groutW;
       const inGroutY = yInCell < groutH || yInCell > cellH - groutH;
-      let h;
+      let h2;
       if (inGroutX || inGroutY) {
-        h = 0.05;
+        h2 = 0.05;
       } else {
         const e = Math.min(fx, fy);
-        h = 0.65 + Math.min(1, e / bevelFrac) * 0.35;
+        h2 = 0.65 + Math.min(1, e / bevelFrac) * 0.35;
       }
       const i = (y * size + x) * 4;
-      const v = Math.round(h * 255);
+      const v = Math.round(h2 * 255);
       hd[i] = hd[i + 1] = hd[i + 2] = v;
       hd[i + 3] = 255;
     }
@@ -15774,9 +15796,9 @@ function paintCarpet(size, options = {}) {
       const xInCell = (x - col * cellW) / cellW;
       const dome = 0.5 * (1 + Math.cos((xInCell - 0.5) * Math.PI * 2)) * 0.5 * (1 + Math.cos((yInCell - 0.5) * Math.PI * 2));
       const macro = periodicFbm(x * sf, y * sf, shadePeriod, shadePeriod, 4);
-      const h = clamp01(0.25 + 0.55 * dome + 0.2 * (macro - 0.5));
+      const h2 = clamp01(0.25 + 0.55 * dome + 0.2 * (macro - 0.5));
       const i = (y * size + x) * 4;
-      const v = Math.round(h * 255);
+      const v = Math.round(h2 * 255);
       hd[i] = hd[i + 1] = hd[i + 2] = v;
       hd[i + 3] = 255;
     }
@@ -15848,8 +15870,8 @@ function paintWallpaper(size, options = {}) {
       cd[i + 1] = Math.round(g * 255);
       cd[i + 2] = Math.round(b4 * 255);
       cd[i + 3] = 255;
-      const h = 0.45 + 0.55 * motif;
-      const v = Math.round(h * 255);
+      const h2 = 0.45 + 0.55 * motif;
+      const v = Math.round(h2 * 255);
       hd[i] = hd[i + 1] = hd[i + 2] = v;
       hd[i + 3] = 255;
     }
@@ -15902,8 +15924,8 @@ function paintBlueprintPaper(size, options = {}) {
       cd[i + 2] = Math.round(b4 * 255);
       cd[i + 3] = 255;
       const fibre = periodicNoise2(x * ff, y * ff, fibreFreq, fibreFreq);
-      const h = 0.55 + 0.4 * fibre + 0.05 * (macro - 0.5);
-      const v = Math.round(clamp01(h) * 255);
+      const h2 = 0.55 + 0.4 * fibre + 0.05 * (macro - 0.5);
+      const v = Math.round(clamp01(h2) * 255);
       hd[i] = v;
       hd[i + 1] = v;
       hd[i + 2] = v;
@@ -15951,8 +15973,8 @@ function paintBrushSteel(size, options = {}) {
       cd[i + 1] = Math.round(clamp01(baseColor[1] * (1 + m)) * 255);
       cd[i + 2] = Math.round(clamp01(baseColor[2] * (1 + m)) * 255);
       cd[i + 3] = 255;
-      const h = Math.round(stripe * 255);
-      hd[i] = hd[i + 1] = hd[i + 2] = h;
+      const h2 = Math.round(stripe * 255);
+      hd[i] = hd[i + 1] = hd[i + 2] = h2;
       hd[i + 3] = 255;
     }
   }
@@ -15986,8 +16008,8 @@ function paintCopper(size, options = {}) {
       cd[i + 1] = Math.round(clamp01(g) * 255);
       cd[i + 2] = Math.round(clamp01(b4) * 255);
       cd[i + 3] = 255;
-      const h = Math.round(n * 255);
-      hd[i] = hd[i + 1] = hd[i + 2] = h;
+      const h2 = Math.round(n * 255);
+      hd[i] = hd[i + 1] = hd[i + 2] = h2;
       hd[i + 3] = 255;
     }
   }
@@ -16133,8 +16155,8 @@ function paintRustyMetal(size, options = {}) {
       cd[i + 1] = Math.round(clamp01(g) * 255);
       cd[i + 2] = Math.round(clamp01(b4) * 255);
       cd[i + 3] = 255;
-      const h = 0.5 + (t - 0.5) * 0 + (fine - 0.5) * t * 0.9;
-      const hb = Math.round(clamp01(h) * 255);
+      const h2 = 0.5 + (t - 0.5) * 0 + (fine - 0.5) * t * 0.9;
+      const hb = Math.round(clamp01(h2) * 255);
       hd[i] = hd[i + 1] = hd[i + 2] = hb;
       hd[i + 3] = 255;
     }
@@ -16208,8 +16230,8 @@ function paintCopperRoof(size, options = {}) {
       const seamRidge = seamWeight * 0.45;
       const fineBump = (fine - 0.5) * 0.18;
       const patinaBump = (fine - 0.5) * t * 0.3;
-      const h = clamp01(0.5 + seamRidge + fineBump + patinaBump);
-      const hb = Math.round(h * 255);
+      const h2 = clamp01(0.5 + seamRidge + fineBump + patinaBump);
+      const hb = Math.round(h2 * 255);
       hd[i] = hd[i + 1] = hd[i + 2] = hb;
       hd[i + 3] = 255;
     }
@@ -16378,11 +16400,11 @@ function repaintHeatMapColor(params, options = {}) {
   const indices = params.indices;
   const uvs = params.uvs;
   const scalars = params.scalars;
-  const imageData = params.imageData;
-  const w = imageData.width;
-  const h = imageData.height;
-  if (w !== h) {
-    throw new Error(`[repaintHeatMapColor] imageData must be square (got ${w}\xD7${h})`);
+  const imageData2 = params.imageData;
+  const w2 = imageData2.width;
+  const h2 = imageData2.height;
+  if (w2 !== h2) {
+    throw new Error(`[repaintHeatMapColor] imageData must be square (got ${w2}\xD7${h2})`);
   }
   const ramp = sortedRamp(options.ramp ?? DEFAULT_HEATMAP_RAMP);
   const bg = options.backgroundColor ?? [0, 0, 0];
@@ -16409,8 +16431,8 @@ function repaintHeatMapColor(params, options = {}) {
   const sSpan = sMax - sMin;
   const invSpan = sSpan !== 0 ? 1 / sSpan : 0;
   rasterizeHeatMapColor(
-    imageData.data,
-    w,
+    imageData2.data,
+    w2,
     uvs,
     indices,
     scalars,
@@ -16658,18 +16680,18 @@ function paintStudio(width, height, options = {}) {
   const drawSun = options.sun ?? true;
   const drawSoftboxes = options.softboxes ?? true;
   const drawPanels = options.panels ?? true;
-  const canvas2 = document.createElement("canvas");
-  canvas2.width = width;
-  canvas2.height = height;
-  const ctx = canvas2.getContext("2d");
-  const grad = ctx.createLinearGradient(0, 0, 0, height);
+  const canvas3 = document.createElement("canvas");
+  canvas3.width = width;
+  canvas3.height = height;
+  const ctx2 = canvas3.getContext("2d");
+  const grad = ctx2.createLinearGradient(0, 0, 0, height);
   grad.addColorStop(0, "#3d68a8");
   grad.addColorStop(0.4, "#a8c0e0");
   grad.addColorStop(0.5, "#e8d4a8");
   grad.addColorStop(0.55, "#7d6850");
   grad.addColorStop(1, "#1f160e");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, width, height);
+  ctx2.fillStyle = grad;
+  ctx2.fillRect(0, 0, width, height);
   if (drawFloor) {
     const floorTopV = 0.55;
     const tile = Math.max(8, Math.round(width / 64));
@@ -16680,18 +16702,18 @@ function paintStudio(width, height, options = {}) {
         const isLight = (x / tile + y / tile) % 2 === 0;
         const base = isLight ? 0.55 : 0.28;
         const v = Math.round(base * fade * 255);
-        ctx.fillStyle = `rgb(${v},${Math.round(v * 0.9)},${Math.round(v * 0.78)})`;
-        ctx.fillRect(x, y, tile, tile);
+        ctx2.fillStyle = `rgb(${v},${Math.round(v * 0.9)},${Math.round(v * 0.78)})`;
+        ctx2.fillRect(x, y, tile, tile);
       }
     }
   }
   if (drawSun) {
     const sx = width * 0.18, sy = height * 0.2;
     const sRadius = Math.min(width, height) * 0.04;
-    ctx.fillStyle = "rgb(255,250,235)";
-    ctx.beginPath();
-    ctx.arc(sx, sy, sRadius, 0, Math.PI * 2);
-    ctx.fill();
+    ctx2.fillStyle = "rgb(255,250,235)";
+    ctx2.beginPath();
+    ctx2.arc(sx, sy, sRadius, 0, Math.PI * 2);
+    ctx2.fill();
   }
   if (drawSoftboxes) {
     const softboxes = [
@@ -16704,9 +16726,9 @@ function paintStudio(width, height, options = {}) {
     ];
     for (const sb of softboxes) {
       const x = sb.u * width, y = sb.v * height;
-      const w = sb.w * width, h = sb.h * height;
-      ctx.fillStyle = sb.tint;
-      ctx.fillRect(x, y, w, h);
+      const w2 = sb.w * width, h2 = sb.h * height;
+      ctx2.fillStyle = sb.tint;
+      ctx2.fillRect(x, y, w2, h2);
     }
   }
   if (drawPanels) {
@@ -16719,28 +16741,28 @@ function paintStudio(width, height, options = {}) {
     ];
     for (const p of panels) {
       const x = p.u * width, y = p.v * height;
-      const w = p.w * width, h = p.h * height;
-      ctx.fillStyle = p.fill;
-      ctx.fillRect(x, y, w, h);
-      ctx.fillStyle = p.win;
-      ctx.fillRect(x + w * 0.2, y + h * 0.2, w * 0.6, h * 0.5);
-      ctx.fillStyle = p.fill;
-      ctx.fillRect(x + w * 0.49, y + h * 0.2, w * 0.02, h * 0.5);
-      ctx.fillRect(x + w * 0.2, y + h * 0.43, w * 0.6, h * 0.04);
+      const w2 = p.w * width, h2 = p.h * height;
+      ctx2.fillStyle = p.fill;
+      ctx2.fillRect(x, y, w2, h2);
+      ctx2.fillStyle = p.win;
+      ctx2.fillRect(x + w2 * 0.2, y + h2 * 0.2, w2 * 0.6, h2 * 0.5);
+      ctx2.fillStyle = p.fill;
+      ctx2.fillRect(x + w2 * 0.49, y + h2 * 0.2, w2 * 0.02, h2 * 0.5);
+      ctx2.fillRect(x + w2 * 0.2, y + h2 * 0.43, w2 * 0.6, h2 * 0.04);
     }
   }
-  return canvas2;
+  return canvas3;
 }
 
 // ../sdk/src/model/procgen/paintEnvironments/paintSunset.ts
 function paintSunset(width, height, options = {}) {
   const drawSun = options.sun ?? true;
   const drawClouds = options.clouds ?? true;
-  const canvas2 = document.createElement("canvas");
-  canvas2.width = width;
-  canvas2.height = height;
-  const ctx = canvas2.getContext("2d");
-  const grad = ctx.createLinearGradient(0, 0, 0, height);
+  const canvas3 = document.createElement("canvas");
+  canvas3.width = width;
+  canvas3.height = height;
+  const ctx2 = canvas3.getContext("2d");
+  const grad = ctx2.createLinearGradient(0, 0, 0, height);
   grad.addColorStop(0, "#0c1430");
   grad.addColorStop(0.2, "#1c2a55");
   grad.addColorStop(0.35, "#54416f");
@@ -16749,8 +16771,8 @@ function paintSunset(width, height, options = {}) {
   grad.addColorStop(0.52, "#cd7038");
   grad.addColorStop(0.65, "#3a1a10");
   grad.addColorStop(1, "#0a0604");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, width, height);
+  ctx2.fillStyle = grad;
+  ctx2.fillRect(0, 0, width, height);
   if (drawClouds) {
     const clouds = [
       { v: 0.32, alpha: 0.3, tint: "255,200,160", h: 0.02 },
@@ -16760,12 +16782,12 @@ function paintSunset(width, height, options = {}) {
     for (const c2 of clouds) {
       const cy = c2.v * height;
       const ch = c2.h * height;
-      const cgrad = ctx.createLinearGradient(0, cy - ch, 0, cy + ch);
+      const cgrad = ctx2.createLinearGradient(0, cy - ch, 0, cy + ch);
       cgrad.addColorStop(0, `rgba(${c2.tint},0)`);
       cgrad.addColorStop(0.5, `rgba(${c2.tint},${c2.alpha})`);
       cgrad.addColorStop(1, `rgba(${c2.tint},0)`);
-      ctx.fillStyle = cgrad;
-      ctx.fillRect(0, cy - ch, width, 2 * ch);
+      ctx2.fillStyle = cgrad;
+      ctx2.fillRect(0, cy - ch, width, 2 * ch);
     }
   }
   if (drawSun) {
@@ -16773,38 +16795,38 @@ function paintSunset(width, height, options = {}) {
     const sy = height * 0.49;
     const sRadius = Math.min(width, height) * 0.035;
     const glowRadius = sRadius * 8;
-    const glow = ctx.createRadialGradient(sx, sy, 0, sx, sy, glowRadius);
+    const glow = ctx2.createRadialGradient(sx, sy, 0, sx, sy, glowRadius);
     glow.addColorStop(0, "rgba(255,235,180,0.85)");
     glow.addColorStop(0.15, "rgba(255,200,130,0.55)");
     glow.addColorStop(0.4, "rgba(255,150, 80,0.20)");
     glow.addColorStop(1, "rgba(255,150, 80,0.00)");
-    ctx.fillStyle = glow;
-    ctx.beginPath();
-    ctx.arc(sx, sy, glowRadius, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "rgb(255,250,230)";
-    ctx.beginPath();
-    ctx.arc(sx, sy, sRadius, 0, Math.PI * 2);
-    ctx.fill();
+    ctx2.fillStyle = glow;
+    ctx2.beginPath();
+    ctx2.arc(sx, sy, glowRadius, 0, Math.PI * 2);
+    ctx2.fill();
+    ctx2.fillStyle = "rgb(255,250,230)";
+    ctx2.beginPath();
+    ctx2.arc(sx, sy, sRadius, 0, Math.PI * 2);
+    ctx2.fill();
   }
-  return canvas2;
+  return canvas3;
 }
 
 // ../sdk/src/model/procgen/paintEnvironments/paintSky.ts
 function paintSky(width, height, options = {}) {
   const drawKeyLights = options.keyLights ?? true;
-  const canvas2 = document.createElement("canvas");
-  canvas2.width = width;
-  canvas2.height = height;
-  const ctx = canvas2.getContext("2d");
-  const grad = ctx.createLinearGradient(0, 0, 0, height);
+  const canvas3 = document.createElement("canvas");
+  canvas3.width = width;
+  canvas3.height = height;
+  const ctx2 = canvas3.getContext("2d");
+  const grad = ctx2.createLinearGradient(0, 0, 0, height);
   grad.addColorStop(0, "#7090c0");
   grad.addColorStop(0.42, "#cfdcec");
   grad.addColorStop(0.5, "#e8d4a8");
   grad.addColorStop(0.55, "#a08868");
   grad.addColorStop(1, "#5a4a3a");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, width, height);
+  ctx2.fillStyle = grad;
+  ctx2.fillRect(0, 0, width, height);
   if (drawKeyLights) {
     const keyLightY = Math.round(height * 0.3);
     const keyLightR = Math.round(Math.min(width, height) * 0.07);
@@ -16821,17 +16843,17 @@ function paintSky(width, height, options = {}) {
     for (let i = 0; i < xs.length; i++) {
       const x = xs[i];
       const [r, g, b4] = tints[i];
-      const lightGrad = ctx.createRadialGradient(x, keyLightY, 0, x, keyLightY, keyLightR);
+      const lightGrad = ctx2.createRadialGradient(x, keyLightY, 0, x, keyLightY, keyLightR);
       lightGrad.addColorStop(0, `rgba(${r},${g},${b4},1.00)`);
       lightGrad.addColorStop(0.4, `rgba(${r},${g},${b4},0.55)`);
       lightGrad.addColorStop(1, `rgba(${r},${g},${b4},0.00)`);
-      ctx.fillStyle = lightGrad;
-      ctx.beginPath();
-      ctx.arc(x, keyLightY, keyLightR, 0, Math.PI * 2);
-      ctx.fill();
+      ctx2.fillStyle = lightGrad;
+      ctx2.beginPath();
+      ctx2.arc(x, keyLightY, keyLightR, 0, Math.PI * 2);
+      ctx2.fill();
     }
   }
-  return canvas2;
+  return canvas3;
 }
 
 // ../sdk/src/model/procgen/paintEnvironments/paintStudioHDR.ts
@@ -16841,8 +16863,8 @@ function paintStudioHDR(width, height, options = {}) {
   const sunIntensity = options.sunIntensity ?? 20;
   const softboxIntensity = options.softboxIntensity ?? 5;
   const ldrCanvas = paintStudio(width, height, options);
-  const ctx = ldrCanvas.getContext("2d");
-  const ldr = ctx.getImageData(0, 0, width, height).data;
+  const ctx2 = ldrCanvas.getContext("2d");
+  const ldr = ctx2.getImageData(0, 0, width, height).data;
   const data2 = new Float32Array(width * height * 4);
   for (let i = 0, n = data2.length; i < n; i += 4) {
     data2[i] = ldr[i] / 255;
@@ -17241,6 +17263,24 @@ function compressGeometryParams(geometryParams) {
 }
 
 // ../sdk/src/model/scene/SceneGeometry.ts
+function narrowIndexArray(indices) {
+  if (!indices || indices.length === 0) {
+    return indices;
+  }
+  let max = 0;
+  for (let i = 0, len = indices.length; i < len; i++) {
+    if (indices[i] > max) {
+      max = indices[i];
+    }
+  }
+  const targetBytes = max < 256 ? 1 : max < 65536 ? 2 : 4;
+  if (ArrayBuffer.isView(indices) && indices.BYTES_PER_ELEMENT <= targetBytes) {
+    return indices;
+  }
+  const src = indices;
+  const narrowed = targetBytes === 1 ? new Uint8Array(src) : targetBytes === 2 ? new Uint16Array(src) : new Uint32Array(src);
+  return narrowed;
+}
 var SceneGeometry = class {
   /**
    * ID for the geometry.
@@ -17341,8 +17381,8 @@ var SceneGeometry = class {
     this.uvsCompressed = params.uvsCompressed;
     this.colorsCompressed = params.colorsCompressed;
     this.normalsCompressed = params.normalsCompressed;
-    this.indices = params.indices;
-    this.edgeIndices = params.edgeIndices;
+    this.indices = narrowIndexArray(params.indices);
+    this.edgeIndices = narrowIndexArray(params.edgeIndices);
     this.scales = params.scales;
     this.rotations = params.rotations;
     this.aabb = createAABB3Float32(params.aabb);
@@ -18291,6 +18331,7 @@ var DEFAULT_ROUGHNESS = 0.6;
 var DEFAULT_METALLIC = 0;
 var DEFAULT_TRIPLANAR_SCALE = 1;
 var DEFAULT_LINE_WIDTH = 0;
+var SHARED_IDENTITY_MATRIX = identityMat4();
 var SceneMesh = class {
   /**
    * Unique ID of this SceneMesh.
@@ -18355,11 +18396,13 @@ var SceneMesh = class {
   _color;
   _opacity;
   _localMatrix;
+  // Lazily allocated: only when world != local (a parent transform exists or
+  // the model's coordinate system is non-identity). When world == local the
+  // getter returns `_localMatrix` directly, so most meshes never allocate this.
   _worldMatrix;
   _parentTransform = null;
   _worldMatrixDirty = true;
   destroyed = false;
-  _emitMatrixChangedEventTask;
   /**
    * @private
    */
@@ -18367,8 +18410,8 @@ var SceneMesh = class {
     this.id = meshParams.id;
     this.uniqueId = `${meshParams.model.id}__${meshParams.id}`;
     this.model = meshParams.model;
-    this._localMatrix = meshParams.matrix ? createMat4Float64(meshParams.matrix) : identityMat4();
-    this._worldMatrix = createMat4Float64();
+    this._localMatrix = meshParams.matrix ?? SHARED_IDENTITY_MATRIX;
+    this._worldMatrix = null;
     this._worldMatrixDirty = true;
     this.geometry = meshParams.geometry;
     this.material = meshParams.material;
@@ -18376,14 +18419,6 @@ var SceneMesh = class {
     this._color = createVec3Float32(meshParams.color || [1, 1, 1]);
     this._opacity = meshParams.opacity !== void 0 && meshParams.opacity !== null ? meshParams.opacity : 1;
     this.object = null;
-    this._emitMatrixChangedEventTask = new SDKTask({
-      name: "SceneMesh._emitMatrixChangedEventTask",
-      task: () => {
-        this.model.scene.events.onSceneMeshMatrixChanged.dispatch(this.model.scene, this);
-      },
-      stage: SDKTask.ComputeStage2
-      // Emit after transforms have been updated but before rendering
-    });
   }
   /**
    * Gets the {@link model!scene.SceneGeometry | SceneGeometry} used by this SceneMesh.
@@ -18476,12 +18511,19 @@ var SceneMesh = class {
       });
       return;
     }
-    if (matrix) {
-      this._localMatrix.set(matrix);
-    } else {
-      identityMat4(this._localMatrix);
-    }
+    this._ownLocalMatrix().set(matrix);
     this.setWorldMatrixDirty();
+  }
+  /**
+   * Returns a private, writable `_localMatrix`, replacing the shared identity
+   * sentinel with a fresh copy on first write so in-place mutation never
+   * corrupts the matrix shared by every untransformed mesh.
+   */
+  _ownLocalMatrix() {
+    if (this._localMatrix === SHARED_IDENTITY_MATRIX) {
+      this._localMatrix = createMat4Float64(SHARED_IDENTITY_MATRIX);
+    }
+    return this._localMatrix;
   }
   /**
    * Gets this SceneMesh's local modeling transform matrix.
@@ -18495,7 +18537,13 @@ var SceneMesh = class {
    * Gets the global transform matrix for this SceneMesh.
    */
   get worldMatrix() {
-    if (this._worldMatrixDirty) {
+    if (!this._parentTransform && isIdentityMat4(this.model.coordinateSystemMatrix)) {
+      return this._localMatrix;
+    }
+    if (this._worldMatrixDirty || !this._worldMatrix) {
+      if (!this._worldMatrix) {
+        this._worldMatrix = createMat4Float64();
+      }
       if (this._parentTransform) {
         mulMat4(this._parentTransform.worldMatrix, this._localMatrix, this._worldMatrix);
       } else {
@@ -18728,7 +18776,7 @@ var SceneMesh = class {
    */
   setWorldMatrixDirty() {
     this._worldMatrixDirty = true;
-    this._emitMatrixChangedEventTask.schedule();
+    this.model.scene.events.onSceneMeshMatrixChanged.dispatch(this.model.scene, this);
   }
   /**
    * Attaches a parent transform to this transform.
@@ -18784,13 +18832,13 @@ var SceneMesh = class {
     const preserve = !!opts?.preserveWorld;
     if (preserve) {
       this.setWorldMatrixDirty();
-      const currentWorld = createMat4Float64(this._worldMatrix);
+      const currentWorld = createMat4Float64(this.worldMatrix);
       this._attachParentTransform(parentTransform);
       if (this._parentTransform) {
         const invParent = inverseMat4(this._parentTransform._worldMatrix, createMat4Float64());
         mulMat4(this._localMatrix, invParent, currentWorld);
       } else {
-        this._localMatrix.set(currentWorld);
+        this._ownLocalMatrix().set(currentWorld);
       }
       this.setWorldMatrixDirty();
     } else {
@@ -19355,14 +19403,14 @@ function normalizeImageData(input) {
     return void 0;
   }
 }
-function serializeImageData(imageData) {
-  if (!imageData) {
+function serializeImageData(imageData2) {
+  if (!imageData2) {
     return void 0;
   }
   return {
-    data: Array.from(imageData.data),
-    width: imageData.width,
-    height: imageData.height
+    data: Array.from(imageData2.data),
+    width: imageData2.width,
+    height: imageData2.height
   };
 }
 function serializeImageToDataURL(image) {
@@ -19379,21 +19427,21 @@ function serializeImageToDataURL(image) {
       return void 0;
     }
   }
-  const w = image.width || image.naturalWidth || 0;
-  const h = image.height || image.naturalHeight || 0;
-  if (w <= 0 || h <= 0) {
+  const w2 = image.width || image.naturalWidth || 0;
+  const h2 = image.height || image.naturalHeight || 0;
+  if (w2 <= 0 || h2 <= 0) {
     return void 0;
   }
-  const canvas2 = document.createElement("canvas");
-  canvas2.width = w;
-  canvas2.height = h;
-  const ctx = canvas2.getContext("2d");
-  if (!ctx) {
+  const canvas3 = document.createElement("canvas");
+  canvas3.width = w2;
+  canvas3.height = h2;
+  const ctx2 = canvas3.getContext("2d");
+  if (!ctx2) {
     return void 0;
   }
   try {
-    ctx.drawImage(image, 0, 0);
-    return canvas2.toDataURL("image/png");
+    ctx2.drawImage(image, 0, 0);
+    return canvas3.toDataURL("image/png");
   } catch {
     return void 0;
   }
@@ -19737,8 +19785,8 @@ var SceneMaterial = class {
       this._triplanarScale = t !== void 0 && t !== null && t > 1e-4 ? t : 1;
     }
     {
-      const w = materialParams.lineWidth;
-      this._lineWidth = w !== void 0 && w !== null && w > 0 ? w : 0;
+      const w2 = materialParams.lineWidth;
+      this._lineWidth = w2 !== void 0 && w2 !== null && w2 > 0 ? w2 : 0;
     }
     this._linePattern = emptyLinePattern();
     this._linePatternUserValue = "solid";
@@ -20177,8 +20225,8 @@ var ThickLinesTechnique = class extends SceneTechnique {
    */
   constructor(model, params) {
     super(model, params);
-    const w = params.lineWidth;
-    this.lineWidth = w !== void 0 && w !== null && w > 0 ? w : 0;
+    const w2 = params.lineWidth;
+    this.lineWidth = w2 !== void 0 && w2 !== null && w2 > 0 ? w2 : 0;
     this.widthMode = params.widthMode === "perspective" ? "perspective" : "screen";
   }
 };
@@ -21367,8 +21415,6 @@ var SceneModel2 = class {
           scale3 || [1, 1, 1],
           matrix
         );
-      } else {
-        matrix = identityMat4();
       }
     } else {
       if (matrix.length !== 16) {
@@ -22651,6 +22697,7 @@ __export(formats_exports, {
   dotbim: () => dotbim_exports,
   dwg: () => dwg_exports,
   dxf: () => dxf_exports,
+  e57: () => e57_exports,
   fbx: () => fbx_exports,
   fds: () => fds_exports,
   gaussiansplat: () => gaussiansplat_exports,
@@ -22674,7 +22721,8 @@ __export(formats_exports, {
 var gltf_exports = {};
 __export(gltf_exports, {
   GLTFExporter: () => GLTFExporter,
-  GLTFLoader: () => GLTFLoader2
+  GLTFLoader: () => GLTFLoader2,
+  assertValidGLBHeader: () => assertValidGLBHeader
 });
 
 // ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.4_@loaders.gl+core@4.3.4/node_modules/@loaders.gl/gltf/dist/lib/extensions/EXT_mesh_features.js
@@ -24214,13 +24262,13 @@ function getImageData(image) {
       return image;
     case "image":
     case "imagebitmap":
-      const canvas2 = document.createElement("canvas");
-      const context = canvas2.getContext("2d");
+      const canvas3 = document.createElement("canvas");
+      const context = canvas3.getContext("2d");
       if (!context) {
         throw new Error("getImageData");
       }
-      canvas2.width = image.width;
-      canvas2.height = image.height;
+      canvas3.width = image.width;
+      canvas3.height = image.height;
       context.drawImage(image, 0, 0);
       return context.getImageData(0, 0, image.width, image.height);
     default:
@@ -25054,10 +25102,10 @@ var GLTFScenegraph = class {
    * @param imageData
    * @param mimeType
    */
-  addImage(imageData, mimeTypeOpt) {
-    const metadata = getBinaryImageMetadata(imageData);
+  addImage(imageData2, mimeTypeOpt) {
+    const metadata = getBinaryImageMetadata(imageData2);
     const mimeType = mimeTypeOpt || metadata?.mimeType;
-    const bufferViewIndex = this.addBufferView(imageData);
+    const bufferViewIndex = this.addBufferView(imageData2);
     const glTFImage = {
       bufferView: bufferViewIndex,
       mimeType
@@ -25399,24 +25447,24 @@ function getImageValueByCoordinates(parsedImage, mimeType, textureCoordinates, i
   for (const c2 of channels) {
     const map = typeof c2 === "number" ? Object.values(CHANNELS_MAP)[c2] : CHANNELS_MAP[c2];
     const imageOffset = offset + map.offset;
-    const imageData = getImageData(parsedImage);
-    if (imageData.data.length <= imageOffset) {
-      throw new Error(`${imageData.data.length} <= ${imageOffset}`);
+    const imageData2 = getImageData(parsedImage);
+    if (imageData2.data.length <= imageOffset) {
+      throw new Error(`${imageData2.data.length} <= ${imageOffset}`);
     }
-    const imageValue = imageData.data[imageOffset];
+    const imageValue = imageData2.data[imageOffset];
     value |= imageValue << map.shift;
   }
   return value;
 }
 function coordinatesToOffset(u, v, parsedImage, componentsCount = 1) {
-  const w = parsedImage.width;
-  const iX = emod(u) * (w - 1);
+  const w2 = parsedImage.width;
+  const iX = emod(u) * (w2 - 1);
   const indX = Math.round(iX);
-  const h = parsedImage.height;
-  const iY = emod(v) * (h - 1);
+  const h2 = parsedImage.height;
+  const iY = emod(v) * (h2 - 1);
   const indY = Math.round(iY);
   const components = parsedImage.components ? parsedImage.components : componentsCount;
-  const offset = (indY * w + indX) * components;
+  const offset = (indY * w2 + indX) * components;
   return offset;
 }
 function parseVariableLengthArrayNumeric(valuesData, numberOfElements, arrayOffsets, valuesDataBytesLength, valueSize) {
@@ -26404,8 +26452,8 @@ function getSupportedGPUTextureFormats(gl) {
 }
 function getWebGLContext() {
   try {
-    const canvas2 = document.createElement("canvas");
-    return canvas2.getContext("webgl");
+    const canvas3 = document.createElement("canvas");
+    return canvas3.getContext("webgl");
   } catch (error) {
     return null;
   }
@@ -28396,10 +28444,10 @@ function vec3_transformMat4AsVector(out, a2, m) {
   const x = a2[0];
   const y = a2[1];
   const z = a2[2];
-  const w = m[3] * x + m[7] * y + m[11] * z || 1;
-  out[0] = (m[0] * x + m[4] * y + m[8] * z) / w;
-  out[1] = (m[1] * x + m[5] * y + m[9] * z) / w;
-  out[2] = (m[2] * x + m[6] * y + m[10] * z) / w;
+  const w2 = m[3] * x + m[7] * y + m[11] * z || 1;
+  out[0] = (m[0] * x + m[4] * y + m[8] * z) / w2;
+  out[1] = (m[1] * x + m[5] * y + m[9] * z) / w2;
+  out[2] = (m[2] * x + m[6] * y + m[10] * z) / w2;
   return out;
 }
 function vec3_transformMat2(out, a2, m) {
@@ -28450,11 +28498,11 @@ function transformMat4(out, a2, m) {
   const x = a2[0];
   const y = a2[1];
   const z = a2[2];
-  let w = m[3] * x + m[7] * y + m[11] * z + m[15];
-  w = w || 1;
-  out[0] = (m[0] * x + m[4] * y + m[8] * z + m[12]) / w;
-  out[1] = (m[1] * x + m[5] * y + m[9] * z + m[13]) / w;
-  out[2] = (m[2] * x + m[6] * y + m[10] * z + m[14]) / w;
+  let w2 = m[3] * x + m[7] * y + m[11] * z + m[15];
+  w2 = w2 || 1;
+  out[0] = (m[0] * x + m[4] * y + m[8] * z + m[12]) / w2;
+  out[1] = (m[1] * x + m[5] * y + m[9] * z + m[13]) / w2;
+  out[2] = (m[2] * x + m[6] * y + m[10] * z + m[14]) / w2;
   return out;
 }
 function transformMat32(out, a2, m) {
@@ -28913,7 +28961,7 @@ function fromQuat(out, q) {
   const x = q[0];
   const y = q[1];
   const z = q[2];
-  const w = q[3];
+  const w2 = q[3];
   const x2 = x + x;
   const y2 = y + y;
   const z2 = z + z;
@@ -28923,9 +28971,9 @@ function fromQuat(out, q) {
   const zx = z * x2;
   const zy = z * y2;
   const zz = z * z2;
-  const wx = w * x2;
-  const wy = w * y2;
-  const wz = w * z2;
+  const wx = w2 * x2;
+  const wy = w2 * y2;
+  const wz = w2 * z2;
   out[0] = 1 - yy - zz;
   out[3] = yx - wz;
   out[6] = zx + wy;
@@ -31150,17 +31198,43 @@ var GLTFLoader2 = class extends ModelLoader {
     return super.load(params, options);
   }
 };
+function assertValidGLBHeader(fileData) {
+  let dv = null;
+  if (fileData instanceof ArrayBuffer) {
+    dv = new DataView(fileData);
+  } else if (ArrayBuffer.isView(fileData)) {
+    dv = new DataView(fileData.buffer, fileData.byteOffset, fileData.byteLength);
+  }
+  if (!dv || dv.byteLength < 12) {
+    return;
+  }
+  const GLB_MAGIC = 1179937895;
+  if (dv.getUint32(0, true) !== GLB_MAGIC) {
+    return;
+  }
+  const declaredLength = dv.getUint32(8, true);
+  if (declaredLength > dv.byteLength) {
+    throw new Error(
+      `[GLTFLoader.load] Corrupt GLB: the header declares a total length of ${declaredLength} bytes but the file is only ${dv.byteLength} bytes \u2014 the model is truncated or its GLB length field is invalid.`
+    );
+  }
+}
 async function parseGLTF2(params, options) {
   const { fileData, sceneModel, dataModel } = params;
   if (!sceneModel && !dataModel) {
     return;
   }
+  assertValidGLBHeader(fileData);
   const parseOptions = {};
   if (options && options.baseUri) {
     parseOptions.baseUri = options.baseUri;
   }
   if (options && options.dracoModule) {
     parseOptions.modules = { draco3d: options.dracoModule };
+  }
+  const headless = typeof OffscreenCanvas === "undefined" && typeof document === "undefined";
+  if (headless) {
+    parseOptions.gltf = { ...parseOptions.gltf || {}, loadImages: false, loadBuffers: true };
   }
   const onProgress = options?.onProgress;
   const signal = options?.signal;
@@ -31183,7 +31257,7 @@ async function parseGLTF2(params, options) {
     throw new Error(`[GLTFLoader.load] Error parsing glTF -> ${errMsg}`);
   }
   await yieldToHost(signal);
-  const ctx = {
+  const ctx2 = {
     nodesHaveNames: false,
     // determined in testIfNodesHaveNames()
     meshIds: [],
@@ -31198,21 +31272,21 @@ async function parseGLTF2(params, options) {
     options: options || {}
   };
   emit2("Decoding textures", 0, 0);
-  if (!parseTextures(ctx)) {
-    throw new Error(ctx.errors.length > 0 ? ctx.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
+  if (!parseTextures(ctx2)) {
+    throw new Error(ctx2.errors.length > 0 ? ctx2.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
   }
   await yieldToHost(signal);
   emit2("Building materials", 0, 0);
-  if (!parseMaterials(ctx)) {
-    throw new Error(ctx.errors.length > 0 ? ctx.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
+  if (!parseMaterials(ctx2)) {
+    throw new Error(ctx2.errors.length > 0 ? ctx2.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
   }
   await yieldToHost(signal);
   emit2("Building scene", 0, 0);
-  if (!parseDefaultScene(ctx)) {
-    throw new Error(ctx.errors.length > 0 ? ctx.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
+  if (!parseDefaultScene(ctx2)) {
+    throw new Error(ctx2.errors.length > 0 ? ctx2.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
   }
   emit2("Building scene", 1, 1);
-  parseStructuralMetadata(ctx);
+  parseStructuralMetadata(ctx2);
 }
 var METADATA_COMPONENTS = {
   VEC2: 2,
@@ -31234,13 +31308,13 @@ function featureMetadataValue(data2, i, type) {
 function featureObjectId(baseId, tableIndex, featureIndex) {
   return `${baseId}-pt${tableIndex}-f${featureIndex}`;
 }
-function parseStructuralMetadata(ctx) {
-  const dataModel = ctx.dataModel;
-  const sm = ctx.gltfData?.extensions?.EXT_structural_metadata;
+function parseStructuralMetadata(ctx2) {
+  const dataModel = ctx2.dataModel;
+  const sm = ctx2.gltfData?.extensions?.EXT_structural_metadata;
   if (!dataModel || !sm?.propertyTables) {
     return;
   }
-  const parentId = ctx.options.dataParentId;
+  const parentId = ctx2.options.dataParentId;
   for (let t = 0; t < sm.propertyTables.length; t++) {
     const table = sm.propertyTables[t];
     const count = table.count || 0;
@@ -31248,7 +31322,7 @@ function parseStructuralMetadata(ctx) {
     const schemaClass = sm.schema?.classes?.[className];
     const propNames = Object.keys(table.properties || {});
     for (let i = 0; i < count; i++) {
-      const objectId = featureObjectId(ctx.baseId, t, i);
+      const objectId = featureObjectId(ctx2.baseId, t, i);
       const propertySetId = `${objectId}-props`;
       dataModel.createPropertySet({
         id: propertySetId,
@@ -31266,27 +31340,27 @@ function parseStructuralMetadata(ctx) {
     }
   }
 }
-function parseTextures(ctx) {
-  if (!ctx.sceneModel) {
+function parseTextures(ctx2) {
+  if (!ctx2.sceneModel) {
     return true;
   }
-  const gltfData = ctx.gltfData;
+  const gltfData = ctx2.gltfData;
   const textures = gltfData.textures;
   if (textures) {
     for (let i = 0, len = textures.length; i < len; i++) {
-      if (!parseTexture(ctx, textures[i])) {
+      if (!parseTexture(ctx2, textures[i])) {
         return false;
       }
     }
   }
   return true;
 }
-function parseTexture(ctx, texture) {
-  if (!texture.source || !texture.source.image) {
-    ctx.errors.push(`[GLTFLoader.load] Texture has no image source`);
+function parseTexture(ctx2, texture) {
+  if (!texture.source) {
+    ctx2.errors.push(`[GLTFLoader.load] Texture has no image source`);
     return false;
   }
-  const textureId = `texture-${ctx.baseId}-${ctx.nextId++}`;
+  const textureId = `texture-${ctx2.baseId}-${ctx2.nextId++}`;
   let minFilter = NearestMipMapLinearFilter;
   switch (texture.sampler.minFilter) {
     case 9728:
@@ -31353,13 +31427,20 @@ function parseTexture(ctx, texture) {
       wrapR = RepeatWrapping;
       break;
   }
-  const result = ctx.sceneModel.createTexture({
+  const decodedImage = texture.source.image;
+  const encodedBytes = ctx2.options.retainTextureBytes || !decodedImage ? extractEncodedImageBytes(texture.source) : null;
+  if (!decodedImage && !encodedBytes) {
+    ctx2.errors.push(`[GLTFLoader.load] Texture has no image source`);
+    return false;
+  }
+  const dims = decodedImage ? { width: decodedImage.width, height: decodedImage.height } : imageSizeFromBytes(new Uint8Array(encodedBytes), texture.source.mimeType);
+  const result = ctx2.sceneModel.createTexture({
     id: textureId,
-    image: texture.source.image,
-    mediaType: texture.source.mediaType,
-    compressed: true,
-    width: texture.source.image.width,
-    height: texture.source.image.height,
+    image: decodedImage || void 0,
+    buffers: encodedBytes ? [encodedBytes] : void 0,
+    mediaType: encodedBytes ? mimeTypeToMediaType(texture.source.mimeType) : void 0,
+    width: dims.width,
+    height: dims.height,
     minFilter,
     magFilter,
     wrapS,
@@ -31369,22 +31450,65 @@ function parseTexture(ctx, texture) {
     //     encoding: "sRGB"
   });
   if (result.ok === false) {
-    ctx.errors.push(`[GLTFLoader.load] Failed to create texture -> ${result.error}`);
+    ctx2.errors.push(`[GLTFLoader.load] Failed to create texture -> ${result.error}`);
     return false;
   }
   texture._textureId = textureId;
   return true;
 }
-function parseMaterials(ctx) {
-  const gltfData = ctx.gltfData;
+function extractEncodedImageBytes(source) {
+  const data2 = source?.bufferView?.data;
+  if (!data2 || data2.byteLength === 0) {
+    return null;
+  }
+  return data2.buffer.slice(data2.byteOffset, data2.byteOffset + data2.byteLength);
+}
+function imageSizeFromBytes(bytes, mimeType) {
+  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  if (bytes.length >= 24 && bytes[0] === 137 && bytes[1] === 80 && bytes[2] === 78 && bytes[3] === 71) {
+    return { width: dv.getUint32(16, false), height: dv.getUint32(20, false) };
+  }
+  if (bytes.length >= 4 && bytes[0] === 255 && bytes[1] === 216) {
+    let off = 2;
+    while (off + 9 < bytes.length) {
+      if (bytes[off] !== 255) {
+        off++;
+        continue;
+      }
+      const marker = bytes[off + 1];
+      if (marker >= 192 && marker <= 207 && marker !== 196 && marker !== 200 && marker !== 204) {
+        return { height: dv.getUint16(off + 5, false), width: dv.getUint16(off + 7, false) };
+      }
+      const segLen = dv.getUint16(off + 2, false);
+      if (segLen < 2)
+        break;
+      off += 2 + segLen;
+    }
+  }
+  return { width: 0, height: 0 };
+}
+function mimeTypeToMediaType(mimeType) {
+  switch (mimeType) {
+    case "image/png":
+      return PNGMediaType;
+    case "image/jpeg":
+      return JPEGMediaType;
+    case "image/gif":
+      return GIFMediaType;
+    default:
+      return void 0;
+  }
+}
+function parseMaterials(ctx2) {
+  const gltfData = ctx2.gltfData;
   const materials = gltfData.materials;
   if (materials) {
     for (let i = 0, len = materials.length; i < len; i++) {
       const material = materials[i];
-      const materialCfg = parseMaterial(ctx, material);
-      const materialResult = ctx.sceneModel.createMaterial(materialCfg);
+      const materialCfg = parseMaterial(ctx2, material);
+      const materialResult = ctx2.sceneModel.createMaterial(materialCfg);
       if (materialResult.ok === false) {
-        ctx.errors.push(`Failed to create SceneMaterial set -> ${materialResult.error}`);
+        ctx2.errors.push(`Failed to create SceneMaterial set -> ${materialResult.error}`);
         return false;
       }
       material._materialId = materialResult.value.id;
@@ -31392,9 +31516,9 @@ function parseMaterials(ctx) {
   }
   return true;
 }
-function parseMaterial(ctx, material) {
+function parseMaterial(ctx2, material) {
   const materialCfg = {
-    id: `material-${ctx.baseId}-${ctx.nextId++}`,
+    id: `material-${ctx2.baseId}-${ctx2.nextId++}`,
     color: [1, 1, 1],
     opacity: 1,
     roughness: 1,
@@ -31416,10 +31540,10 @@ function parseMaterial(ctx, material) {
     }
     const baseColorTexture = metallicPBR.baseColorTexture || metallicPBR.colorTexture;
     if (baseColorTexture) {
-      materialCfg.colorTextureId = resolveTextureId(ctx, baseColorTexture);
+      materialCfg.colorTextureId = resolveTextureId(ctx2, baseColorTexture);
     }
     if (metallicPBR.metallicRoughnessTexture) {
-      materialCfg.metallicRoughnessTextureId = resolveTextureId(ctx, metallicPBR.metallicRoughnessTexture);
+      materialCfg.metallicRoughnessTextureId = resolveTextureId(ctx2, metallicPBR.metallicRoughnessTexture);
     }
   }
   if (material.alphaMode === "MASK" || material.alphaMode === "BLEND") {
@@ -31429,13 +31553,13 @@ function parseMaterial(ctx, material) {
     materialCfg.alphaCutoff = material.alphaCutoff;
   }
   if (material.normalTexture) {
-    materialCfg.normalsTextureId = resolveTextureId(ctx, material.normalTexture);
+    materialCfg.normalsTextureId = resolveTextureId(ctx2, material.normalTexture);
   }
   if (material.occlusionTexture) {
-    materialCfg.occlusionTextureId = resolveTextureId(ctx, material.occlusionTexture);
+    materialCfg.occlusionTextureId = resolveTextureId(ctx2, material.occlusionTexture);
   }
   if (material.emissiveTexture) {
-    materialCfg.emissiveTextureId = resolveTextureId(ctx, material.emissiveTexture);
+    materialCfg.emissiveTextureId = resolveTextureId(ctx2, material.emissiveTexture);
   }
   if (material.emissiveFactor) {
     const strength = material.extensions?.KHR_materials_emissive_strength?.emissiveStrength ?? 1;
@@ -31455,66 +31579,66 @@ function parseMaterial(ctx, material) {
         materialCfg.opacity = diffuseFactor[3] ?? materialCfg.opacity;
       }
       if (specularPBR.diffuseTexture && !materialCfg.colorTextureId) {
-        materialCfg.colorTextureId = resolveTextureId(ctx, specularPBR.diffuseTexture);
+        materialCfg.colorTextureId = resolveTextureId(ctx2, specularPBR.diffuseTexture);
       }
     }
   }
   return materialCfg;
 }
-function resolveTextureId(ctx, textureInfo) {
+function resolveTextureId(ctx2, textureInfo) {
   if (!textureInfo)
     return void 0;
   if (textureInfo.texture && textureInfo.texture._textureId) {
     return textureInfo.texture._textureId;
   }
-  if (typeof textureInfo.index === "number" && ctx.gltfData.textures) {
-    const entry = ctx.gltfData.textures[textureInfo.index];
+  if (typeof textureInfo.index === "number" && ctx2.gltfData.textures) {
+    const entry = ctx2.gltfData.textures[textureInfo.index];
     return entry && entry._textureId;
   }
   return void 0;
 }
-function parseDefaultScene(ctx) {
-  const gltfData = ctx.gltfData;
+function parseDefaultScene(ctx2) {
+  const gltfData = ctx2.gltfData;
   const scene = gltfData.scene || gltfData.scenes[0];
   if (!scene) {
-    ctx.errors.push("[GLTFLoader.load] Cannot load glTF - glTF has no default scene");
+    ctx2.errors.push("[GLTFLoader.load] Cannot load glTF - glTF has no default scene");
     return false;
   }
-  return parseScene(ctx, scene);
+  return parseScene(ctx2, scene);
 }
-function parseScene(ctx, scene) {
+function parseScene(ctx2, scene) {
   const nodes = scene.nodes;
   if (!nodes) {
     return true;
   }
-  for (let i = 0, len = nodes.length; i < len && !ctx.nodesHaveNames; i++) {
+  for (let i = 0, len = nodes.length; i < len && !ctx2.nodesHaveNames; i++) {
     const node = nodes[i];
     if (testIfNodesHaveNames(node)) {
-      ctx.nodesHaveNames = true;
+      ctx2.nodesHaveNames = true;
     }
   }
-  const rootMatrix = ctx.options.rootMatrix || null;
-  if (!ctx.nodesHaveNames) {
-    ctx.meshIds = [];
+  const rootMatrix = ctx2.options.rootMatrix || null;
+  if (!ctx2.nodesHaveNames) {
+    ctx2.meshIds = [];
     for (let i = 0, len = nodes.length; i < len; i++) {
       const node = nodes[i];
-      if (!parseNodesWithoutNames(ctx, node, 0, rootMatrix)) {
+      if (!parseNodesWithoutNames(ctx2, node, 0, rootMatrix)) {
         return false;
       }
     }
   } else {
-    ctx.meshIds = null;
+    ctx2.meshIds = null;
     for (let i = 0, len = nodes.length; i < len; i++) {
       const node = nodes[i];
-      if (!parseNodesWithNames(ctx, node, 0, rootMatrix)) {
+      if (!parseNodesWithNames(ctx2, node, 0, rootMatrix)) {
         return false;
       }
     }
   }
   return true;
 }
-function createPrimitiveHash(ctx, primitive) {
-  const hash = [ctx.baseId];
+function createPrimitiveHash(ctx2, primitive) {
+  const hash = [ctx2.baseId];
   const attributes = primitive.attributes;
   if (attributes) {
     for (const key in attributes) {
@@ -31547,32 +31671,32 @@ function testIfNodesHaveNames(node, level = 0) {
   }
   return false;
 }
-function parseNodesWithoutNames(ctx, node, depth, matrix) {
+function parseNodesWithoutNames(ctx2, node, depth, matrix) {
   if (!node) {
     return true;
   }
-  const meshIds = ctx.meshIds;
+  const meshIds = ctx2.meshIds;
   matrix = parseNodeMatrix(node, matrix);
   if (node.mesh) {
-    parseMesh(node, ctx, matrix, meshIds);
+    parseMesh(node, ctx2, matrix, meshIds);
   }
   if (node.children) {
     const children = node.children;
     for (let i = 0, len = children.length; i < len; i++) {
       const childNode = children[i];
-      parseNodesWithoutNames(ctx, childNode, depth + 1, matrix);
+      parseNodesWithoutNames(ctx2, childNode, depth + 1, matrix);
     }
   }
   if (depth === 0) {
-    const objectId = `entity-${ctx.baseId}-${ctx.nextId++}`;
+    const objectId = `entity-${ctx2.baseId}-${ctx2.nextId++}`;
     if (meshIds && meshIds.length > 0) {
-      const result = ctx.sceneModel.createObject({
+      const result = ctx2.sceneModel.createObject({
         id: objectId,
         meshIds,
-        layerId: ctx.options.layerId
+        layerId: ctx2.options.layerId
       });
       if (result.ok === false) {
-        ctx.errors.push(`[GLTFLoader.load] Failed to create SceneObject -> ${result.error}`);
+        ctx2.errors.push(`[GLTFLoader.load] Failed to create SceneObject -> ${result.error}`);
         return false;
       }
       meshIds.length = 0;
@@ -31580,28 +31704,28 @@ function parseNodesWithoutNames(ctx, node, depth, matrix) {
   }
   return true;
 }
-function parseNodesWithNames(ctx, node, depth, matrix) {
-  const objectIdStack = ctx.objectIdStack;
-  const meshIdsStack = ctx.meshIdsStack;
+function parseNodesWithNames(ctx2, node, depth, matrix) {
+  const objectIdStack = ctx2.objectIdStack;
+  const meshIdsStack = ctx2.meshIdsStack;
   if (!node) {
     return true;
   }
   matrix = parseNodeMatrix(node, matrix);
   if (node.name) {
-    ctx.meshIds = [];
+    ctx2.meshIds = [];
     let objectId = node.name;
-    if (objectId && ctx.sceneModel.objects[objectId]) {
+    if (objectId && ctx2.sceneModel.objects[objectId]) {
       console.warn(`[GLTFLoader.load] Duplicate glTF node 'name' attribute: '${objectId}' \u2014 assigning a synthetic ID`);
       objectId = "";
     }
-    while (!objectId || ctx.sceneModel.objects[objectId]) {
-      objectId = `entity-${ctx.baseId}-${ctx.nextId++}`;
+    while (!objectId || ctx2.sceneModel.objects[objectId]) {
+      objectId = `entity-${ctx2.baseId}-${ctx2.nextId++}`;
     }
     objectIdStack.push(objectId);
-    meshIdsStack.push(ctx.meshIds);
+    meshIdsStack.push(ctx2.meshIds);
   }
-  if (ctx.meshIds && node.mesh) {
-    if (!parseMesh(node, ctx, matrix, ctx.meshIds)) {
+  if (ctx2.meshIds && node.mesh) {
+    if (!parseMesh(node, ctx2, matrix, ctx2.meshIds)) {
       return false;
     }
   }
@@ -31609,7 +31733,7 @@ function parseNodesWithNames(ctx, node, depth, matrix) {
     const children = node.children;
     for (let i = 0, len = children.length; i < len; i++) {
       const childNode = children[i];
-      if (!parseNodesWithNames(ctx, childNode, depth + 1, matrix)) {
+      if (!parseNodesWithNames(ctx2, childNode, depth + 1, matrix)) {
         return false;
       }
     }
@@ -31618,20 +31742,20 @@ function parseNodesWithNames(ctx, node, depth, matrix) {
   if (nodeName !== void 0 && nodeName !== null || depth === 0) {
     let objectId = objectIdStack.pop();
     if (!objectId) {
-      objectId = `entity-${ctx.baseId}-${ctx.nextId++}`;
+      objectId = `entity-${ctx2.baseId}-${ctx2.nextId++}`;
     }
     const entityMeshIds = meshIdsStack.pop();
-    if (ctx.meshIds && ctx.meshIds.length > 0) {
-      const result = ctx.sceneModel.createObject({
+    if (ctx2.meshIds && ctx2.meshIds.length > 0) {
+      const result = ctx2.sceneModel.createObject({
         id: objectId,
         meshIds: entityMeshIds
       });
       if (result.ok === false) {
-        ctx.errors.push(`[GLTFLoader.load] Failed to create SceneObject -> ${result.error}`);
+        ctx2.errors.push(`[GLTFLoader.load] Failed to create SceneObject -> ${result.error}`);
         return false;
       }
     }
-    ctx.meshIds = meshIdsStack.length > 0 ? meshIdsStack[meshIdsStack.length - 1] : null;
+    ctx2.meshIds = meshIdsStack.length > 0 ? meshIdsStack[meshIdsStack.length - 1] : null;
   }
   return true;
 }
@@ -31674,20 +31798,20 @@ function parseNodeMatrix(node, matrix) {
   }
   return matrix;
 }
-function parseMesh(node, ctx, matrix, meshIds) {
+function parseMesh(node, ctx2, matrix, meshIds) {
   if (node.mesh) {
     const mesh = node.mesh;
     const numPrimitives = mesh.primitives.length;
     for (let i = 0; i < numPrimitives; i++) {
       const primitive = mesh.primitives[i];
-      if (splitPrimitiveByFeature(ctx, primitive, matrix)) {
+      if (splitPrimitiveByFeature(ctx2, primitive, matrix)) {
         continue;
       }
-      const geometryId = createPrimitiveHash(ctx, primitive);
-      if (!ctx.sceneModel.geometries[geometryId]) {
+      const geometryId = createPrimitiveHash(ctx2, primitive);
+      if (!ctx2.sceneModel.geometries[geometryId]) {
         const POSITION = primitive.attributes.POSITION;
         if (!POSITION) {
-          ctx.errors.push(`[GLTFLoader.load] Primitive has no POSITION attribute`);
+          ctx2.errors.push(`[GLTFLoader.load] Primitive has no POSITION attribute`);
           return false;
         }
         const geometryParams = {
@@ -31734,13 +31858,13 @@ function parseMesh(node, ctx, matrix, meshIds) {
         if (primitive.indices) {
           geometryParams.indices = primitive.indices.value;
         }
-        const result2 = ctx.sceneModel.createGeometry(geometryParams);
+        const result2 = ctx2.sceneModel.createGeometry(geometryParams);
         if (result2.ok === false) {
-          ctx.errors.push(`[GLTFLoader.load] Failed to create SceneGeometry -> ${result2.error}`);
+          ctx2.errors.push(`[GLTFLoader.load] Failed to create SceneGeometry -> ${result2.error}`);
           return false;
         }
       }
-      const meshId = `${ctx.baseId}-${ctx.nextId++}`;
+      const meshId = `${ctx2.baseId}-${ctx2.nextId++}`;
       const meshParams = {
         id: meshId,
         geometryId,
@@ -31754,9 +31878,9 @@ function parseMesh(node, ctx, matrix, meshIds) {
         meshParams.color = [1, 1, 1];
         meshParams.opacity = 1;
       }
-      const result = ctx.sceneModel.createMesh(meshParams);
+      const result = ctx2.sceneModel.createMesh(meshParams);
       if (result.ok === false) {
-        ctx.errors.push(`[GLTFLoader.load] Failed to create SceneMesh -> ${result.error}`);
+        ctx2.errors.push(`[GLTFLoader.load] Failed to create SceneMesh -> ${result.error}`);
         return false;
       }
       meshIds.push(meshId);
@@ -31764,7 +31888,7 @@ function parseMesh(node, ctx, matrix, meshIds) {
   }
   return true;
 }
-function splitPrimitiveByFeature(ctx, primitive, matrix) {
+function splitPrimitiveByFeature(ctx2, primitive, matrix) {
   if (primitive.mode != null && primitive.mode !== 4) {
     return false;
   }
@@ -31820,7 +31944,7 @@ function splitPrimitiveByFeature(ctx, primitive, matrix) {
       }
       outIndices.push(local);
     }
-    const objectId = featureObjectId(ctx.baseId, featureId.propertyTable, feature);
+    const objectId = featureObjectId(ctx2.baseId, featureId.propertyTable, feature);
     const geometryId = `${objectId}-geometry`;
     const geometryParams = {
       id: geometryId,
@@ -31832,7 +31956,7 @@ function splitPrimitiveByFeature(ctx, primitive, matrix) {
       geometryParams.normals = new Float32Array(outNormals);
     if (outUvs)
       geometryParams.uvs = new Float32Array(outUvs);
-    if (ctx.sceneModel.createGeometry(geometryParams).ok === false) {
+    if (ctx2.sceneModel.createGeometry(geometryParams).ok === false) {
       continue;
     }
     const meshId = `${objectId}-mesh`;
@@ -31846,10 +31970,10 @@ function splitPrimitiveByFeature(ctx, primitive, matrix) {
       meshParams.color = [1, 1, 1];
       meshParams.opacity = 1;
     }
-    if (ctx.sceneModel.createMesh(meshParams).ok === false) {
+    if (ctx2.sceneModel.createMesh(meshParams).ok === false) {
       continue;
     }
-    ctx.sceneModel.createObject({ id: objectId, meshIds: [meshId], layerId: ctx.options.layerId });
+    ctx2.sceneModel.createObject({ id: objectId, meshIds: [meshId], layerId: ctx2.options.layerId });
   }
   return true;
 }
@@ -33243,11 +33367,11 @@ var MathUtils = class _MathUtils {
    */
   static compose(srcTranslation, srcRotation, srcScale, dstMat) {
     const te = dstMat;
-    const x = srcRotation[0], y = srcRotation[1], z = srcRotation[2], w = srcRotation[3];
+    const x = srcRotation[0], y = srcRotation[1], z = srcRotation[2], w2 = srcRotation[3];
     const x2 = x + x, y2 = y + y, z2 = z + z;
     const xx = x * x2, xy = x * y2, xz = x * z2;
     const yy = y * y2, yz = y * z2, zz = z * z2;
-    const wx = w * x2, wy = w * y2, wz = w * z2;
+    const wx = w2 * x2, wy = w2 * y2, wz = w2 * z2;
     const sx = srcScale[0], sy = srcScale[1], sz = srcScale[2];
     te[0] = (1 - (yy + zz)) * sx;
     te[1] = (xy + wz) * sx;
@@ -35938,8 +36062,8 @@ var GLTFReader = class {
         const bufferData = bufferDef.uri ? jsonDoc.resources[bufferDef.uri] : jsonDoc.resources[GLB_BUFFER];
         const byteOffset = bufferViewDef.byteOffset || 0;
         const byteLength = bufferViewDef.byteLength;
-        const imageData = bufferData.slice(byteOffset, byteOffset + byteLength);
-        texture.setImage(imageData);
+        const imageData2 = bufferData.slice(byteOffset, byteOffset + byteLength);
+        texture.setImage(imageData2);
       } else if (imageDef.uri !== void 0) {
         texture.setImage(jsonDoc.resources[imageDef.uri]);
         if (imageDef.uri.indexOf("__") !== 0) {
@@ -37380,6 +37504,63 @@ var WebIO = class extends PlatformIO {
   }
 };
 
+// ../sdk/src/formats/findTriplanarTextureSkip.ts
+var TEXTURE_REFS = [
+  "colorTexture",
+  "metallicRoughnessTexture",
+  "normalsTexture",
+  "occlusionTexture",
+  "emissiveTexture"
+];
+function materialTextureIds(material) {
+  const ids2 = [];
+  for (const key of TEXTURE_REFS) {
+    if (material[key])
+      ids2.push(material[key].id);
+  }
+  return ids2;
+}
+function findTriplanarTextureSkip(sceneModel) {
+  const usedOnUV = /* @__PURE__ */ new Set();
+  const usedOnUVless = /* @__PURE__ */ new Set();
+  for (const objectId of Object.keys(sceneModel.objects)) {
+    for (const mesh of sceneModel.objects[objectId].meshes) {
+      const materialId = mesh.material?.id;
+      if (!materialId)
+        continue;
+      if (mesh.geometry?.uvsCompressed)
+        usedOnUV.add(materialId);
+      else
+        usedOnUVless.add(materialId);
+    }
+  }
+  const materialIds = /* @__PURE__ */ new Set();
+  const texRefTotal = /* @__PURE__ */ new Map();
+  const texRefTriplanar = /* @__PURE__ */ new Map();
+  for (const materialId of Object.keys(sceneModel.materials)) {
+    const material = sceneModel.materials[materialId];
+    const texIds = materialTextureIds(material);
+    for (const t of texIds)
+      texRefTotal.set(t, (texRefTotal.get(t) ?? 0) + 1);
+    const triplanarOnly = texIds.length > 0 && usedOnUVless.has(materialId) && !usedOnUV.has(materialId);
+    if (triplanarOnly) {
+      materialIds.add(materialId);
+      for (const t of texIds)
+        texRefTriplanar.set(t, (texRefTriplanar.get(t) ?? 0) + 1);
+    }
+  }
+  const textureIds = /* @__PURE__ */ new Set();
+  for (const [textureId, total] of texRefTotal) {
+    if (total > 0 && (texRefTriplanar.get(textureId) ?? 0) === total) {
+      textureIds.add(textureId);
+    }
+  }
+  return { materialIds, textureIds, any: materialIds.size > 0 };
+}
+function triplanarSkipWarning(format, skip) {
+  return `[${format}] Dropped ${skip.textureIds.size} texture(s) on ${skip.materialIds.size} material(s): they are sampled via triplanar (world-projected) texturing, which ${format} cannot represent \u2014 those materials are exported as flat colour. Export to XGF to keep them.`;
+}
+
 // ../sdk/src/formats/gltf/GLTFExporter.ts
 var tempVec3a4 = createVec3Float64();
 var tempVec3b4 = createVec3Float64();
@@ -37419,12 +37600,19 @@ async function encode22(params, options) {
   const doc = new Document2();
   const gltfScene = doc.createScene();
   const buffer = doc.createBuffer();
+  const triplanarSkip = findTriplanarTextureSkip(sceneModel);
+  if (triplanarSkip.any) {
+    const warn = options.onWarning ?? ((m) => console.warn(m));
+    warn(triplanarSkipWarning("glTF", triplanarSkip));
+  }
   const textureMap = /* @__PURE__ */ new Map();
   const textureIds = Object.keys(sceneModel.textures);
   for (let ti = 0; ti < textureIds.length; ti++) {
     if ((ti & 7) === 0)
       await step2("Encoding textures", ti, textureIds.length);
     const id = textureIds[ti];
+    if (triplanarSkip.textureIds.has(id))
+      continue;
     const sceneTex = sceneModel.textures[id];
     if (sceneTex.compressed) {
       console.warn(`[GLTFExporter] Skipping compressed texture '${sceneTex.id}' (no KHR_texture_basisu support).`);
@@ -37451,7 +37639,7 @@ async function encode22(params, options) {
     if ((mi & 63) === 0)
       await step2("Encoding materials", mi, materialIds.length);
     const sceneMat = sceneModel.materials[materialIds[mi]];
-    materialMap.set(sceneMat.id, buildGltfMaterial(doc, sceneMat, textureMap));
+    materialMap.set(sceneMat.id, buildGltfMaterial(doc, sceneMat, textureMap, triplanarSkip.materialIds.has(sceneMat.id)));
   }
   const accessorCache = /* @__PURE__ */ new Map();
   function getAccessors(geom) {
@@ -37474,12 +37662,11 @@ async function encode22(params, options) {
     const bundle = { position: positionAccessor };
     if (geom.normalsCompressed) {
       const normals = new Float32Array(geom.normalsCompressed.length / 2 * 3);
-      decompressNormals(geom.normalsCompressed, normals);
+      octDecodeNormalsU16(geom.normalsCompressed, normals);
       bundle.normal = doc.createAccessor().setType("VEC3").setArray(normals).setBuffer(buffer);
     }
-    if (geom.uvsCompressed && geom.uvsDecompressMatrix) {
-      const uvs = new Float32Array(geom.uvsCompressed.length);
-      decompressUVs(geom.uvsCompressed, geom.uvsDecompressMatrix, uvs);
+    if (geom.uvsCompressed) {
+      const uvs = geom.uvsDecompressMatrix ? decompressUVs(geom.uvsCompressed, geom.uvsDecompressMatrix, new Float32Array(geom.uvsCompressed.length)) : new Float32Array(geom.uvsCompressed);
       bundle.uv = doc.createAccessor().setType("VEC2").setArray(uvs).setBuffer(buffer);
     }
     if (geom.colorsCompressed) {
@@ -37557,7 +37744,7 @@ async function encode22(params, options) {
   await step2("Writing glTF binary", objectIds.length, objectIds.length);
   return await io.writeBinary(doc);
 }
-function buildGltfMaterial(doc, sceneMat, textureMap) {
+function buildGltfMaterial(doc, sceneMat, textureMap, skipTextures) {
   const mat = doc.createMaterial(sceneMat.id);
   const c2 = sceneMat.color;
   const opacity = sceneMat.opacity !== void 0 && sceneMat.opacity !== null ? sceneMat.opacity : 1;
@@ -37573,11 +37760,13 @@ function buildGltfMaterial(doc, sceneMat, textureMap) {
   if (alphaMode === "MASK") {
     mat.setAlphaCutoff(sceneMat.alphaCutoff ?? 0.5);
   }
-  bindTexture(mat, "BaseColor", sceneMat.colorTexture, textureMap);
-  bindTexture(mat, "MetallicRoughness", sceneMat.metallicRoughnessTexture, textureMap);
-  bindTexture(mat, "Normal", sceneMat.normalsTexture, textureMap);
-  bindTexture(mat, "Occlusion", sceneMat.occlusionTexture, textureMap);
-  bindTexture(mat, "Emissive", sceneMat.emissiveTexture, textureMap);
+  if (!skipTextures) {
+    bindTexture(mat, "BaseColor", sceneMat.colorTexture, textureMap);
+    bindTexture(mat, "MetallicRoughness", sceneMat.metallicRoughnessTexture, textureMap);
+    bindTexture(mat, "Normal", sceneMat.normalsTexture, textureMap);
+    bindTexture(mat, "Occlusion", sceneMat.occlusionTexture, textureMap);
+    bindTexture(mat, "Emissive", sceneMat.emissiveTexture, textureMap);
+  }
   return mat;
 }
 function bindTexture(mat, slot, sceneTex, textureMap) {
@@ -37646,19 +37835,19 @@ async function encodeSceneTextureBytes(tex) {
     return { bytes, mime };
   }
   if (tex.image) {
-    const w = tex.image.naturalWidth || tex.image.width || 0;
-    const h = tex.image.naturalHeight || tex.image.height || 0;
-    if (w <= 0 || h <= 0)
+    const w2 = tex.image.naturalWidth || tex.image.width || 0;
+    const h2 = tex.image.naturalHeight || tex.image.height || 0;
+    if (w2 <= 0 || h2 <= 0)
       throw new Error("image has zero dimensions");
-    const bytes = await canvasToPNG(w, h, (ctx) => {
-      ctx.drawImage(tex.image, 0, 0);
+    const bytes = await canvasToPNG(w2, h2, (ctx2) => {
+      ctx2.drawImage(tex.image, 0, 0);
     });
     return { bytes, mime: "image/png" };
   }
   if (tex.imageData) {
     const { width, height } = tex.imageData;
-    const bytes = await canvasToPNG(width, height, (ctx) => {
-      ctx.putImageData(tex.imageData, 0, 0);
+    const bytes = await canvasToPNG(width, height, (ctx2) => {
+      ctx2.putImageData(tex.imageData, 0, 0);
     });
     return { bytes, mime: "image/png" };
   }
@@ -37700,15 +37889,15 @@ function detectImageMime(bytes, mediaType) {
   return "application/octet-stream";
 }
 async function canvasToPNG(width, height, draw) {
-  const canvas2 = document.createElement("canvas");
-  canvas2.width = width;
-  canvas2.height = height;
-  const ctx = canvas2.getContext("2d");
-  if (!ctx)
+  const canvas3 = document.createElement("canvas");
+  canvas3.width = width;
+  canvas3.height = height;
+  const ctx2 = canvas3.getContext("2d");
+  if (!ctx2)
     throw new Error("2D canvas context unavailable");
-  draw(ctx);
+  draw(ctx2);
   const blob = await new Promise(
-    (resolve2, reject) => canvas2.toBlob((b4) => b4 ? resolve2(b4) : reject(new Error("canvas.toBlob failed")), "image/png")
+    (resolve2, reject) => canvas3.toBlob((b4) => b4 ? resolve2(b4) : reject(new Error("canvas.toBlob failed")), "image/png")
   );
   return new Uint8Array(await blob.arrayBuffer());
 }
@@ -38282,7 +38471,7 @@ var parse5 = async (params, options) => {
     await yieldToHost(signal);
   };
   if (sceneModel || dataModel) {
-    const ctx = {
+    const ctx2 = {
       fileData,
       errors: [],
       warnings: [],
@@ -38292,10 +38481,10 @@ var parse5 = async (params, options) => {
       nextId: 0,
       options: opts
     };
-    const ok = await parseCityJSON(ctx, step2);
+    const ok = await parseCityJSON(ctx2, step2);
     if (!ok) {
       throw new Error(
-        ctx.errors.length > 0 ? `[CityJSONLoader] Failed to parse CityJSON file:${ctx.errors[0]}` : `[CityJSONLoader] Failed to parse CityJSON file: Unknown error`
+        ctx2.errors.length > 0 ? `[CityJSONLoader] Failed to parse CityJSON file:${ctx2.errors[0]}` : `[CityJSONLoader] Failed to parse CityJSON file: Unknown error`
       );
     }
   }
@@ -38312,8 +38501,8 @@ function transformVertices(vertices, transform) {
   }
   return transformedVertices;
 }
-async function parseCityJSON(ctx, step2) {
-  const fileData = ctx.fileData;
+async function parseCityJSON(ctx2, step2) {
+  const fileData = ctx2.fileData;
   const cityObjects = fileData.CityObjects;
   const ids2 = Object.keys(cityObjects);
   const total = ids2.length;
@@ -38321,16 +38510,16 @@ async function parseCityJSON(ctx, step2) {
     if ((i & 31) === 0)
       await step2("Parsing city objects", i, total);
     const objectId = ids2[i];
-    if (!parseCityObject(ctx, cityObjects[objectId], objectId)) {
+    if (!parseCityObject(ctx2, cityObjects[objectId], objectId)) {
       return false;
     }
   }
-  if (ctx.dataModel) {
+  if (ctx2.dataModel) {
     for (let i = 0; i < total; i++) {
       if ((i & 63) === 0)
         await step2("Building relationships", i, total);
       const objectId = ids2[i];
-      if (!parseRelationship(ctx, cityObjects[objectId], objectId)) {
+      if (!parseRelationship(ctx2, cityObjects[objectId], objectId)) {
         return false;
       }
     }
@@ -38338,9 +38527,9 @@ async function parseCityJSON(ctx, step2) {
   await step2("Parsing city objects", total, total);
   return true;
 }
-function parseCityObject(ctx, cityObject, objectId) {
-  if (ctx.dataModel) {
-    const result = ctx.dataModel.createObject({
+function parseCityObject(ctx2, cityObject, objectId) {
+  if (ctx2.dataModel) {
+    const result = ctx2.dataModel.createObject({
       id: objectId,
       name: cityObject.type + " : " + objectId,
       type: cityObject.type,
@@ -38348,13 +38537,13 @@ function parseCityObject(ctx, cityObject, objectId) {
       parent: cityObject.parents ? cityObject.parents[0] : null
     });
     if (!result.ok) {
-      ctx.errors.push(`[CityJSONLoader] Failed to create data object for CityJSON object ${objectId} -> ${result.error}`);
+      ctx2.errors.push(`[CityJSONLoader] Failed to create data object for CityJSON object ${objectId} -> ${result.error}`);
       return false;
     }
   }
-  if (ctx.sceneModel) {
+  if (ctx2.sceneModel) {
     if (!(cityObject.geometry && cityObject.geometry.length > 0)) {
-      ctx.warnings.push(`[CityJSONLoader] CityJSON object ${objectId} has no geometry`);
+      ctx2.warnings.push(`[CityJSONLoader] CityJSON object ${objectId} has no geometry`);
       return true;
     }
     const meshIds = [];
@@ -38362,7 +38551,7 @@ function parseCityObject(ctx, cityObject, objectId) {
       const geometry = cityObject.geometry[i];
       let objectMaterial;
       let surfaceMaterials;
-      const appearance = ctx.fileData.appearance;
+      const appearance = ctx2.fileData.appearance;
       if (appearance) {
         const materials = appearance.materials;
         if (materials) {
@@ -38390,44 +38579,44 @@ function parseCityObject(ctx, cityObject, objectId) {
         }
       }
       if (surfaceMaterials) {
-        if (!parseGeometrySurfacesWithOwnMaterials(ctx, geometry, surfaceMaterials, meshIds)) {
+        if (!parseGeometrySurfacesWithOwnMaterials(ctx2, geometry, surfaceMaterials, meshIds)) {
           return false;
         }
       } else {
-        if (!parseGeometrySurfacesWithSharedMaterial(ctx, geometry, objectMaterial, meshIds)) {
+        if (!parseGeometrySurfacesWithSharedMaterial(ctx2, geometry, objectMaterial, meshIds)) {
           return false;
         }
       }
     }
     if (meshIds.length > 0) {
-      const result = ctx.sceneModel.createObject({
+      const result = ctx2.sceneModel.createObject({
         id: objectId,
         schema: SCHEMA,
         meshIds
       });
       if (!result.ok) {
-        ctx.errors.push(`[CityJSONLoader] Failed to create scene object for CityJSON object ${objectId} -> ${result.error}`);
+        ctx2.errors.push(`[CityJSONLoader] Failed to create scene object for CityJSON object ${objectId} -> ${result.error}`);
         return false;
       }
     }
   }
   return true;
 }
-function parseRelationship(ctx, cityObject, objectId) {
+function parseRelationship(ctx2, cityObject, objectId) {
   if (cityObject.parents) {
-    const result = ctx.dataModel.createRelationship({
+    const result = ctx2.dataModel.createRelationship({
       relatingObjectId: cityObject.parents[0],
       relatedObjectId: objectId,
       type: "BasicAggregation"
     });
     if (!result.ok) {
-      ctx.errors.push(`[CityJSONLoader] Failed to create relationship for CityJSON object ${objectId} -> ${result.error}`);
+      ctx2.errors.push(`[CityJSONLoader] Failed to create relationship for CityJSON object ${objectId} -> ${result.error}`);
       return false;
     }
   }
   return true;
 }
-function parseGeometrySurfacesWithOwnMaterials(ctx, geometry, surfaceMaterials, meshIds) {
+function parseGeometrySurfacesWithOwnMaterials(ctx2, geometry, surfaceMaterials, meshIds) {
   const geomType = geometry.type;
   switch (geomType) {
     case "MultiPoint":
@@ -38437,12 +38626,12 @@ function parseGeometrySurfacesWithOwnMaterials(ctx, geometry, surfaceMaterials, 
     case "MultiSurface":
     case "CompositeSurface":
       const surfaces = geometry.boundaries;
-      return parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces, meshIds);
+      return parseSurfacesWithOwnMaterials(ctx2, surfaceMaterials, surfaces, meshIds);
     case "Solid":
       const shells = geometry.boundaries;
       for (let j = 0; j < shells.length; j++) {
         const surfaces2 = shells[j];
-        return parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces2, meshIds);
+        return parseSurfacesWithOwnMaterials(ctx2, surfaceMaterials, surfaces2, meshIds);
       }
       break;
     case "MultiSolid":
@@ -38451,7 +38640,7 @@ function parseGeometrySurfacesWithOwnMaterials(ctx, geometry, surfaceMaterials, 
       for (let j = 0; j < solids.length; j++) {
         for (let k = 0; k < solids[j].length; k++) {
           const surfaces2 = solids[j][k];
-          return parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces2, meshIds);
+          return parseSurfacesWithOwnMaterials(ctx2, surfaceMaterials, surfaces2, meshIds);
         }
       }
       break;
@@ -38460,9 +38649,9 @@ function parseGeometrySurfacesWithOwnMaterials(ctx, geometry, surfaceMaterials, 
   }
   return true;
 }
-function parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces, meshIds) {
-  const vertices = ctx.vertices;
-  const sceneModel = ctx.sceneModel;
+function parseSurfacesWithOwnMaterials(ctx2, surfaceMaterials, surfaces, meshIds) {
+  const vertices = ctx2.vertices;
+  const sceneModel = ctx2.sceneModel;
   for (let i = 0; i < surfaces.length; i++) {
     const surface = surfaces[i];
     const surfaceMaterial = surfaceMaterials[i] || { diffuseColor: [0.8, 0.8, 0.8], transparency: 1 };
@@ -38477,7 +38666,7 @@ function parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces, meshIds)
       if (face.length > 0) {
         holes.push(face.length);
       }
-      const newFace = extractLocalIndices(ctx, surface[j], sharedIndices, geometryCfg);
+      const newFace = extractLocalIndices(ctx2, surface[j], sharedIndices, geometryCfg);
       face.push(...newFace);
     }
     if (face.length === 3) {
@@ -38507,7 +38696,7 @@ function parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces, meshIds)
         geometryCfg.indices.unshift(face[tr[k + 2]]);
       }
     }
-    const geometryId = "" + ctx.nextId++;
+    const geometryId = "" + ctx2.nextId++;
     const result = sceneModel.createGeometry({
       id: geometryId,
       primitive: TrianglesPrimitive,
@@ -38515,10 +38704,10 @@ function parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces, meshIds)
       indices: geometryCfg.indices
     });
     if (!result.ok) {
-      ctx.errors.push(`[CityJSONLoader] Failed to create geometry for CityJSON surface -> ${result.error}`);
+      ctx2.errors.push(`[CityJSONLoader] Failed to create geometry for CityJSON surface -> ${result.error}`);
       return false;
     }
-    const meshId = "" + ctx.nextId++;
+    const meshId = "" + ctx2.nextId++;
     const result2 = sceneModel.createMesh({
       id: meshId,
       geometryId,
@@ -38526,15 +38715,15 @@ function parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces, meshIds)
       opacity: surfaceMaterial && surfaceMaterial.transparency !== void 0 ? 1 - surfaceMaterial.transparency : 1
     });
     if (!result2.ok) {
-      ctx.errors.push(`[CityJSONLoader] Failed to create mesh for CityJSON surface -> ${result2.error}`);
+      ctx2.errors.push(`[CityJSONLoader] Failed to create mesh for CityJSON surface -> ${result2.error}`);
       return false;
     }
     meshIds.push(meshId);
   }
   return true;
 }
-function parseGeometrySurfacesWithSharedMaterial(ctx, geometry, objectMaterial, meshIds) {
-  const sceneModel = ctx.sceneModel;
+function parseGeometrySurfacesWithSharedMaterial(ctx2, geometry, objectMaterial, meshIds) {
+  const sceneModel = ctx2.sceneModel;
   const sharedIndices = [];
   const geometryCfg = {
     positions: [],
@@ -38549,7 +38738,7 @@ function parseGeometrySurfacesWithSharedMaterial(ctx, geometry, objectMaterial, 
     case "MultiSurface":
     case "CompositeSurface":
       const surfaces = geometry.boundaries;
-      if (!parseSurfacesWithSharedMaterial(ctx, surfaces, sharedIndices, geometryCfg)) {
+      if (!parseSurfacesWithSharedMaterial(ctx2, surfaces, sharedIndices, geometryCfg)) {
         return false;
       }
       break;
@@ -38557,7 +38746,7 @@ function parseGeometrySurfacesWithSharedMaterial(ctx, geometry, objectMaterial, 
       const shells = geometry.boundaries;
       for (let j = 0; j < shells.length; j++) {
         const surfaces2 = shells[j];
-        if (!parseSurfacesWithSharedMaterial(ctx, surfaces2, sharedIndices, geometryCfg)) {
+        if (!parseSurfacesWithSharedMaterial(ctx2, surfaces2, sharedIndices, geometryCfg)) {
           return false;
         }
       }
@@ -38568,7 +38757,7 @@ function parseGeometrySurfacesWithSharedMaterial(ctx, geometry, objectMaterial, 
       for (let j = 0; j < solids.length; j++) {
         for (let k = 0; k < solids[j].length; k++) {
           const surfaces2 = solids[j][k];
-          if (!parseSurfacesWithSharedMaterial(ctx, surfaces2, sharedIndices, geometryCfg)) {
+          if (!parseSurfacesWithSharedMaterial(ctx2, surfaces2, sharedIndices, geometryCfg)) {
             return false;
           }
         }
@@ -38578,7 +38767,7 @@ function parseGeometrySurfacesWithSharedMaterial(ctx, geometry, objectMaterial, 
       break;
   }
   if (geometryCfg.positions.length > 0 && geometryCfg.indices.length > 0) {
-    const geometryId = "" + ctx.nextId++;
+    const geometryId = "" + ctx2.nextId++;
     const geometryResult = sceneModel.createGeometry({
       id: geometryId,
       primitive: TrianglesPrimitive,
@@ -38586,10 +38775,10 @@ function parseGeometrySurfacesWithSharedMaterial(ctx, geometry, objectMaterial, 
       indices: geometryCfg.indices
     });
     if (!geometryResult.ok) {
-      ctx.errors.push(`[CityJSONLoader] Failed to create geometry for CityJSON object -> ${geometryResult.error}`);
+      ctx2.errors.push(`[CityJSONLoader] Failed to create geometry for CityJSON object -> ${geometryResult.error}`);
       return false;
     }
-    const meshId = "" + ctx.nextId++;
+    const meshId = "" + ctx2.nextId++;
     const meshResult = sceneModel.createMesh({
       id: meshId,
       geometryId,
@@ -38597,15 +38786,15 @@ function parseGeometrySurfacesWithSharedMaterial(ctx, geometry, objectMaterial, 
       opacity: 1
     });
     if (!meshResult.ok) {
-      ctx.errors.push(`[CityJSONLoader] Failed to create mesh for CityJSON object -> ${meshResult.error}`);
+      ctx2.errors.push(`[CityJSONLoader] Failed to create mesh for CityJSON object -> ${meshResult.error}`);
       return false;
     }
     meshIds.push(meshId);
   }
   return true;
 }
-function parseSurfacesWithSharedMaterial(ctx, surfaces, sharedIndices, primitiveCfg) {
-  const vertices = ctx.vertices;
+function parseSurfacesWithSharedMaterial(ctx2, surfaces, sharedIndices, primitiveCfg) {
+  const vertices = ctx2.vertices;
   for (let i = 0; i < surfaces.length; i++) {
     const boundary = [];
     const holes = [];
@@ -38613,7 +38802,7 @@ function parseSurfacesWithSharedMaterial(ctx, surfaces, sharedIndices, primitive
       if (boundary.length > 0) {
         holes.push(boundary.length);
       }
-      const newBoundary = extractLocalIndices(ctx, surfaces[i][j], sharedIndices, primitiveCfg);
+      const newBoundary = extractLocalIndices(ctx2, surfaces[i][j], sharedIndices, primitiveCfg);
       boundary.push(...newBoundary);
     }
     if (boundary.length === 3) {
@@ -38646,8 +38835,8 @@ function parseSurfacesWithSharedMaterial(ctx, surfaces, sharedIndices, primitive
   }
   return true;
 }
-function extractLocalIndices(ctx, boundary, sharedIndices, geometryCfg) {
-  const vertices = ctx.vertices;
+function extractLocalIndices(ctx2, boundary, sharedIndices, geometryCfg) {
+  const vertices = ctx2.vertices;
   const newBoundary = [];
   for (let i = 0, len = boundary.length; i < len; i++) {
     const index = boundary[i];
@@ -104000,15 +104189,15 @@ var SCHEMA2 = "IFC4";
 async function parse6(ifcAPI, params, options) {
   await parseWebIFC(ifcAPI, params, options);
 }
-async function step(ctx, phase, current, total) {
-  const cb2 = ctx.options.onProgress;
+async function step(ctx2, phase, current, total) {
+  const cb2 = ctx2.options.onProgress;
   if (cb2) {
-    ctx.progress.phase = phase;
-    ctx.progress.current = current;
-    ctx.progress.total = total;
-    cb2(ctx.progress);
+    ctx2.progress.phase = phase;
+    ctx2.progress.current = current;
+    ctx2.progress.total = total;
+    cb2(ctx2.progress);
   }
-  await yieldToHost(ctx.options.signal);
+  await yieldToHost(ctx2.options.signal);
 }
 async function parseWebIFC(ifcAPI, params, options) {
   const { sceneModel, dataModel, fileData } = params;
@@ -104018,7 +104207,7 @@ async function parseWebIFC(ifcAPI, params, options) {
   await yieldToHost(options.signal);
   const lines = ifcAPI.GetLineIDsWithType(modelId, IFCPROJECT);
   const ifcProjectId = lines.get(0);
-  const ctx = {
+  const ctx2 = {
     options: options || {},
     fileData,
     modelId,
@@ -104032,30 +104221,30 @@ async function parseWebIFC(ifcAPI, params, options) {
     progress: { phase: "", current: 0, total: 0 },
     visitedRelations: /* @__PURE__ */ new Set()
   };
-  await parseIFC(ctx);
+  await parseIFC(ctx2);
 }
-async function parseIFC(ctx) {
-  if (ctx.dataModel)
-    await parseDataModel(ctx);
-  if (ctx.sceneModel)
-    await parseSceneModel(ctx);
+async function parseIFC(ctx2) {
+  if (ctx2.dataModel)
+    await parseDataModel(ctx2);
+  if (ctx2.sceneModel)
+    await parseSceneModel(ctx2);
 }
-async function parseDataModel(ctx) {
-  await parsePropertySets(ctx);
-  const lines = ctx.ifcAPI.GetLineIDsWithType(ctx.modelId, IFCPROJECT);
+async function parseDataModel(ctx2) {
+  await parsePropertySets(ctx2);
+  const lines = ctx2.ifcAPI.GetLineIDsWithType(ctx2.modelId, IFCPROJECT);
   const ifcProjectId = lines.get(0);
-  const ifcProject = ctx.ifcAPI.GetLine(ctx.modelId, ifcProjectId);
-  await parseDataObjectAggregation(ctx, ifcProject, void 0, "IfcRelAggregates");
+  const ifcProject = ctx2.ifcAPI.GetLine(ctx2.modelId, ifcProjectId);
+  await parseDataObjectAggregation(ctx2, ifcProject, void 0, "IfcRelAggregates");
 }
-async function parsePropertySets(ctx) {
-  const lines = ctx.ifcAPI.GetLineIDsWithType(ctx.modelId, IFCRELDEFINESBYPROPERTIES);
+async function parsePropertySets(ctx2) {
+  const lines = ctx2.ifcAPI.GetLineIDsWithType(ctx2.modelId, IFCRELDEFINESBYPROPERTIES);
   const total = lines.size();
   for (let i = 0; i < total; i++) {
     if ((i & 63) === 0) {
-      await step(ctx, "Parsing property sets", i, total);
+      await step(ctx2, "Parsing property sets", i, total);
     }
     const relID = lines.get(i);
-    const rel = ctx.ifcAPI.GetLine(ctx.modelId, relID, true);
+    const rel = ctx2.ifcAPI.GetLine(ctx2.modelId, relID, true);
     if (!rel || !rel.RelatingPropertyDefinition)
       continue;
     const def = rel.RelatingPropertyDefinition;
@@ -104069,7 +104258,7 @@ async function parsePropertySets(ctx) {
       valueType: prop2.NominalValue?.valueType,
       description: prop2.Description?.value || prop2.NominalValue?.description || ""
     }));
-    ctx.dataModel.createPropertySet({
+    ctx2.dataModel.createPropertySet({
       id: propertySetId,
       type: "Default",
       schema: SCHEMA2,
@@ -104078,26 +104267,26 @@ async function parsePropertySets(ctx) {
     });
     for (const relatedObject of rel.RelatedObjects || []) {
       const expId = relatedObject.value;
-      if (!ctx.propertySetsByObjectExpressId[expId]) {
-        ctx.propertySetsByObjectExpressId[expId] = [];
+      if (!ctx2.propertySetsByObjectExpressId[expId]) {
+        ctx2.propertySetsByObjectExpressId[expId] = [];
       }
-      ctx.propertySetsByObjectExpressId[expId].push(propertySetId);
+      ctx2.propertySetsByObjectExpressId[expId].push(propertySetId);
     }
   }
 }
-async function parseDataObjectAggregation(ctx, element, parentId, relType) {
-  createDataObject(ctx, element, parentId, relType);
+async function parseDataObjectAggregation(ctx2, element, parentId, relType) {
+  createDataObject(ctx2, element, parentId, relType);
   const elementId = element.GlobalId.value;
-  await parseRelatedItemsOfType(ctx, element.expressID, "RelatingObject", "RelatedObjects", IFCRELAGGREGATES, elementId, "IfcRelAggregates");
-  await parseRelatedItemsOfType(ctx, element.expressID, "RelatingStructure", "RelatedElements", IFCRELCONTAINEDINSPATIALSTRUCTURE, elementId, "IfcRelContainedInSpatialStructure");
+  await parseRelatedItemsOfType(ctx2, element.expressID, "RelatingObject", "RelatedObjects", IFCRELAGGREGATES, elementId, "IfcRelAggregates");
+  await parseRelatedItemsOfType(ctx2, element.expressID, "RelatingStructure", "RelatedElements", IFCRELCONTAINEDINSPATIALSTRUCTURE, elementId, "IfcRelContainedInSpatialStructure");
 }
-function createDataObject(ctx, element, parentId, relType) {
+function createDataObject(ctx2, element, parentId, relType) {
   const id = element.GlobalId.value;
   const typeName = element.__proto__.constructor.name;
   const name12 = element.Name?.value || typeName;
   const typeCode = typeName ?? "IfcElement";
-  const propertySetIds = ctx.propertySetsByObjectExpressId[element.expressID];
-  ctx.dataModel.createObject({
+  const propertySetIds = ctx2.propertySetsByObjectExpressId[element.expressID];
+  ctx2.dataModel.createObject({
     id,
     name: name12,
     type: typeCode,
@@ -104105,7 +104294,7 @@ function createDataObject(ctx, element, parentId, relType) {
     ...propertySetIds && propertySetIds.length > 0 ? { propertySetIds } : {}
   });
   if (parentId) {
-    ctx.dataModel.createRelationship({
+    ctx2.dataModel.createRelationship({
       type: relType || "IfcRelAggregates",
       schema: SCHEMA2,
       relatingObjectId: parentId,
@@ -104113,14 +104302,14 @@ function createDataObject(ctx, element, parentId, relType) {
     });
   }
 }
-async function parseRelatedItemsOfType(ctx, id, relationKey, relatedKey, type, parentId, relTypeName) {
-  const lines = ctx.ifcAPI.GetLineIDsWithType(ctx.modelId, type);
+async function parseRelatedItemsOfType(ctx2, id, relationKey, relatedKey, type, parentId, relTypeName) {
+  const lines = ctx2.ifcAPI.GetLineIDsWithType(ctx2.modelId, type);
   const total = lines.size();
   for (let i = 0; i < total; i++) {
     if ((i & 63) === 0) {
-      await step(ctx, "Parsing data objects", i, total);
+      await step(ctx2, "Parsing data objects", i, total);
     }
-    const rel = ctx.ifcAPI.GetLine(ctx.modelId, lines.get(i));
+    const rel = ctx2.ifcAPI.GetLine(ctx2.modelId, lines.get(i));
     const relatedItems = rel[relationKey];
     const isMatch = Array.isArray(relatedItems) ? relatedItems.some((item) => item.value === id) : relatedItems?.value === id;
     if (!isMatch)
@@ -104128,28 +104317,28 @@ async function parseRelatedItemsOfType(ctx, id, relationKey, relatedKey, type, p
     const targets = rel[relatedKey];
     const relatedElements = Array.isArray(targets) ? targets : [targets];
     for (const target of relatedElements) {
-      const element = ctx.ifcAPI.GetLine(ctx.modelId, target.value);
+      const element = ctx2.ifcAPI.GetLine(ctx2.modelId, target.value);
       const childId = element?.GlobalId?.value;
       if (!childId)
         continue;
       const visitKey = `${parentId}|${childId}|${relTypeName}`;
-      if (ctx.visitedRelations.has(visitKey))
+      if (ctx2.visitedRelations.has(visitKey))
         continue;
-      ctx.visitedRelations.add(visitKey);
-      await parseDataObjectAggregation(ctx, element, parentId, relTypeName);
+      ctx2.visitedRelations.add(visitKey);
+      await parseDataObjectAggregation(ctx2, element, parentId, relTypeName);
     }
   }
 }
-async function parseSceneModel(ctx) {
+async function parseSceneModel(ctx2) {
   const staged = [];
-  ctx.ifcAPI.StreamAllMeshes(ctx.modelId, (flatMesh) => {
-    const objectId = ctx.ifcAPI.GetLine(ctx.modelId, flatMesh.expressID).GlobalId.value;
+  ctx2.ifcAPI.StreamAllMeshes(ctx2.modelId, (flatMesh) => {
+    const objectId = ctx2.ifcAPI.GetLine(ctx2.modelId, flatMesh.expressID).GlobalId.value;
     const geoms = [];
     for (let j = 0; j < flatMesh.geometries.size(); j++) {
       const placedGeometry = flatMesh.geometries.get(j);
-      const geometry = ctx.ifcAPI.GetGeometry(ctx.modelId, placedGeometry.geometryExpressID);
-      const vertexData = ctx.ifcAPI.GetVertexArray(geometry.GetVertexData(), geometry.GetVertexDataSize());
-      const indicesView = ctx.ifcAPI.GetIndexArray(geometry.GetIndexData(), geometry.GetIndexDataSize());
+      const geometry = ctx2.ifcAPI.GetGeometry(ctx2.modelId, placedGeometry.geometryExpressID);
+      const vertexData = ctx2.ifcAPI.GetVertexArray(geometry.GetVertexData(), geometry.GetVertexDataSize());
+      const indicesView = ctx2.ifcAPI.GetIndexArray(geometry.GetIndexData(), geometry.GetIndexDataSize());
       if (vertexData.length === 0 || indicesView.length === 0) {
         continue;
       }
@@ -104170,8 +104359,8 @@ async function parseSceneModel(ctx) {
       ];
       const opacity = placedGeometry.color.w;
       geoms.push({
-        geometryId: `${ctx.nextId++}`,
-        meshId: `${ctx.nextId++}`,
+        geometryId: `${ctx2.nextId++}`,
+        meshId: `${ctx2.nextId++}`,
         positions,
         indices,
         matrix,
@@ -104186,12 +104375,12 @@ async function parseSceneModel(ctx) {
   const total = staged.length;
   for (let i = 0; i < total; i++) {
     if ((i & 7) === 0) {
-      await step(ctx, "Building meshes", i, total);
+      await step(ctx2, "Building meshes", i, total);
     }
     const { objectId, geoms } = staged[i];
     const meshIds = [];
     for (const g of geoms) {
-      const geometryResult = ctx.sceneModel.createGeometry({
+      const geometryResult = ctx2.sceneModel.createGeometry({
         id: g.geometryId,
         primitive: TrianglesPrimitive,
         positions: g.positions,
@@ -104200,7 +104389,7 @@ async function parseSceneModel(ctx) {
       if (!geometryResult.ok) {
         continue;
       }
-      const meshResult = ctx.sceneModel.createMesh({
+      const meshResult = ctx2.sceneModel.createMesh({
         id: g.meshId,
         geometryId: g.geometryId,
         matrix: g.matrix,
@@ -104213,14 +104402,14 @@ async function parseSceneModel(ctx) {
       meshIds.push(g.meshId);
     }
     if (meshIds.length > 0) {
-      ctx.sceneModel.createObject({
+      ctx2.sceneModel.createObject({
         id: objectId,
         meshIds,
-        layerId: ctx.options.layerId
+        layerId: ctx2.options.layerId
       });
     }
   }
-  await step(ctx, "Building meshes", total, total);
+  await step(ctx2, "Building meshes", total, total);
 }
 
 // ../sdk/src/formats/ifc/getInitializedIFCAPI.ts
@@ -104830,601 +105019,6 @@ __export(xgf_exports, {
 // ../sdk/src/formats/xgf/versions/v1/unpackXGF.ts
 function unpackXGF(arrayBuffer) {
   const requiresSwapFromLittleEndian = function() {
-    const buffer = new ArrayBuffer(2);
-    new Uint16Array(buffer)[0] = 1;
-    return new Uint8Array(buffer)[0] !== 1;
-  }();
-  const nextArray = function() {
-    let i = 0;
-    const dataView = new DataView(arrayBuffer);
-    return function(type) {
-      const idx = 1 + 2 * i++;
-      const byteOffset = dataView.getUint32(idx * 4, true);
-      const byteLength = dataView.getUint32((idx + 1) * 4, true);
-      const BPE = type.BYTES_PER_ELEMENT;
-      if (requiresSwapFromLittleEndian && BPE > 1) {
-        const subarray = new Uint8Array(arrayBuffer, byteOffset, byteLength);
-        const swaps = BPE / 2;
-        const cnt = subarray.length / BPE;
-        for (let b4 = 0; b4 < cnt; b4++) {
-          const offset = b4 * BPE;
-          for (let j = 0; j < swaps; j++) {
-            const i1 = offset + j;
-            const i2 = offset - j + BPE - 1;
-            const tmp = subarray[i1];
-            subarray[i1] = subarray[i2];
-            subarray[i2] = tmp;
-          }
-        }
-      }
-      return new type(arrayBuffer, byteOffset, byteLength / BPE);
-    };
-  }();
-  const nextObject = function() {
-    const decoder = new TextDecoder();
-    return () => JSON.parse(decoder.decode(nextArray(Uint8Array)));
-  }();
-  return {
-    positions: nextArray(Uint16Array),
-    colors: nextArray(Uint8Array),
-    indices: nextArray(Uint32Array),
-    edgeIndices: nextArray(Uint32Array),
-    aabbs: nextArray(Float32Array),
-    eachGeometryPositionsBase: nextArray(Uint32Array),
-    eachGeometryColorsBase: nextArray(Uint32Array),
-    eachGeometryIndicesBase: nextArray(Uint32Array),
-    eachGeometryEdgeIndicesBase: nextArray(Uint32Array),
-    eachGeometryPrimitiveType: nextArray(Uint8Array),
-    eachGeometryAABBBase: nextArray(Uint32Array),
-    matrices: nextArray(Float64Array),
-    eachMeshGeometriesBase: nextArray(Uint32Array),
-    eachMeshMatricesBase: nextArray(Uint32Array),
-    eachMeshMaterialAttributes: nextArray(Uint8Array),
-    eachObjectId: nextObject(),
-    eachObjectMeshesBase: nextArray(Uint32Array)
-  };
-}
-
-// ../sdk/src/formats/xgf/versions/v1/xgfToModel.ts
-function xgfToModel(params) {
-  const { xgfData, sceneModel, dataModel, options } = params;
-  const layerId = options?.layerId || "default";
-  const defaultId = sceneModel ? sceneModel.id : createUUID();
-  if (dataModel) {
-    dataModel.createObject({
-      id: defaultId,
-      name: defaultId,
-      type: "BasicEntity"
-    });
-  }
-  const {
-    eachGeometryPositionsBase,
-    eachGeometryIndicesBase,
-    eachGeometryEdgeIndicesBase,
-    eachGeometryAABBBase,
-    eachGeometryPrimitiveType,
-    eachMeshGeometriesBase,
-    eachMeshMaterialAttributes,
-    eachMeshMatricesBase,
-    eachObjectMeshesBase,
-    eachObjectId,
-    positions,
-    indices,
-    edgeIndices,
-    aabbs,
-    matrices
-  } = xgfData;
-  const numGeometries = eachGeometryPositionsBase.length;
-  const numMeshes = eachMeshGeometriesBase.length;
-  const numObjects = eachObjectMeshesBase.length;
-  let nextMeshId = 0;
-  const floatColor = createVec3Float32();
-  for (let objectIdx = 0; objectIdx < numObjects; objectIdx++) {
-    const objectId = eachObjectId[objectIdx];
-    const lastObjectIdx = numObjects - 1;
-    const atLastObject = objectIdx === lastObjectIdx;
-    const firstMeshIdx = eachObjectMeshesBase[objectIdx];
-    const lastMeshIdx = atLastObject ? numMeshes - 1 : eachObjectMeshesBase[objectIdx + 1] - 1;
-    const meshIds = [];
-    for (let meshIdx = firstMeshIdx; meshIdx <= lastMeshIdx; meshIdx++) {
-      const meshId = `${nextMeshId++}`;
-      if (sceneModel) {
-        const geometryIdx = eachMeshGeometriesBase[meshIdx];
-        const colorBase = meshIdx * 4;
-        floatColor[0] = eachMeshMaterialAttributes[colorBase] / 255;
-        floatColor[1] = eachMeshMaterialAttributes[colorBase + 1] / 255;
-        floatColor[2] = eachMeshMaterialAttributes[colorBase + 2] / 255;
-        const opacity = eachMeshMaterialAttributes[colorBase + 3] / 255;
-        const matricesBase = eachMeshMatricesBase[meshIdx];
-        const matrix = matrices.subarray(matricesBase, matricesBase + 16);
-        const geometryId = `${geometryIdx}`;
-        if (!sceneModel.geometries[geometryId]) {
-          const geometryCompressedParams = { id: geometryId };
-          switch (eachGeometryPrimitiveType[geometryIdx]) {
-            case 0:
-              geometryCompressedParams.primitive = TrianglesPrimitive;
-              break;
-            case 1:
-              geometryCompressedParams.primitive = SolidPrimitive;
-              break;
-            case 2:
-              geometryCompressedParams.primitive = SurfacePrimitive;
-              break;
-            case 3:
-              geometryCompressedParams.primitive = LinesPrimitive;
-              break;
-            case 5:
-              geometryCompressedParams.primitive = PointsPrimitive;
-              break;
-          }
-          const aabbsBase = eachGeometryAABBBase[geometryIdx];
-          geometryCompressedParams.aabb = aabbs.subarray(aabbsBase, aabbsBase + 6);
-          let geometryValid = false;
-          const atLastGeometry = geometryIdx === numGeometries - 1;
-          const posStart = eachGeometryPositionsBase[geometryIdx];
-          const posEnd = atLastGeometry ? positions.length : eachGeometryPositionsBase[geometryIdx + 1];
-          const indStart = eachGeometryIndicesBase[geometryIdx];
-          const indEnd = atLastGeometry ? indices.length : eachGeometryIndicesBase[geometryIdx + 1];
-          const edgeStart = eachGeometryEdgeIndicesBase[geometryIdx];
-          const edgeEnd = atLastGeometry ? edgeIndices.length : eachGeometryEdgeIndicesBase[geometryIdx + 1];
-          switch (geometryCompressedParams.primitive) {
-            case TrianglesPrimitive:
-            case SurfacePrimitive:
-            case SolidPrimitive:
-              geometryCompressedParams.positionsCompressed = positions.subarray(posStart, posEnd);
-              geometryCompressedParams.indices = indices.subarray(indStart, indEnd);
-              const edgeIndicesSubArray = edgeIndices.subarray(edgeStart, edgeEnd);
-              if (edgeIndicesSubArray.length > 0) {
-                geometryCompressedParams.edgeIndices = edgeIndicesSubArray;
-                geometryValid = geometryCompressedParams.positionsCompressed.length > 0 && geometryCompressedParams.indices.length > 0;
-              } else {
-                geometryValid = false;
-              }
-              break;
-            case PointsPrimitive:
-              geometryCompressedParams.positionsCompressed = positions.subarray(posStart, posEnd);
-              geometryValid = geometryCompressedParams.positionsCompressed.length > 0;
-              break;
-            case LinesPrimitive:
-              geometryCompressedParams.positionsCompressed = positions.subarray(posStart, posEnd);
-              geometryCompressedParams.indices = indices.subarray(indStart, indEnd);
-              geometryValid = geometryCompressedParams.positionsCompressed.length > 0 && geometryCompressedParams.indices.length > 0;
-              break;
-            default:
-              continue;
-          }
-          if (geometryValid) {
-            sceneModel.createGeometryCompressed(geometryCompressedParams);
-          }
-        }
-        sceneModel.createMesh({
-          id: meshId,
-          geometryId,
-          matrix,
-          color: floatColor.slice(0, 3),
-          // Copy to avoid mutation
-          opacity
-        });
-      }
-      meshIds.push(meshId);
-    }
-    if (meshIds.length > 0) {
-      if (sceneModel) {
-        sceneModel.createObject({
-          id: objectId,
-          meshIds,
-          layerId
-        });
-      }
-      if (dataModel) {
-        dataModel.createObject({
-          id: objectId,
-          name: objectId,
-          type: "BasicEntity"
-        });
-        dataModel.createRelationship({
-          type: "BasicAggregation",
-          relatingObjectId: defaultId,
-          relatedObjectId: objectId
-        });
-      }
-    }
-  }
-}
-
-// ../sdk/src/formats/xgf/versions/v1/parse.ts
-function parse8(params, options) {
-  return new Promise(function(resolve2, reject) {
-    const { fileData, sceneModel, dataModel } = params;
-    xgfToModel({
-      xgfData: unpackXGF(fileData),
-      sceneModel,
-      dataModel,
-      options
-    });
-    resolve2();
-  });
-}
-
-// ../sdk/src/formats/xgf/versions/v2/unpackXGF.ts
-function unpackXGF2(arrayBuffer) {
-  const requiresSwapFromLittleEndian = function() {
-    const b4 = new ArrayBuffer(2);
-    new Uint16Array(b4)[0] = 1;
-    return new Uint8Array(b4)[0] !== 1;
-  }();
-  const nextArray = function() {
-    let i = 0;
-    const dataView = new DataView(arrayBuffer);
-    return function(type) {
-      const idx = 1 + 2 * i++;
-      const byteOffset = dataView.getUint32(idx * 4, true);
-      const byteLength = dataView.getUint32((idx + 1) * 4, true);
-      const BPE = type.BYTES_PER_ELEMENT;
-      if (requiresSwapFromLittleEndian && BPE > 1) {
-        const subarray = new Uint8Array(arrayBuffer, byteOffset, byteLength);
-        const swaps = BPE / 2;
-        const cnt = subarray.length / BPE;
-        for (let b4 = 0; b4 < cnt; b4++) {
-          const offset = b4 * BPE;
-          for (let j = 0; j < swaps; j++) {
-            const i1 = offset + j;
-            const i2 = offset - j + BPE - 1;
-            const tmp = subarray[i1];
-            subarray[i1] = subarray[i2];
-            subarray[i2] = tmp;
-          }
-        }
-      }
-      return new type(arrayBuffer, byteOffset, byteLength / BPE);
-    };
-  }();
-  const nextObject = function() {
-    const decoder = new TextDecoder();
-    return () => JSON.parse(decoder.decode(nextArray(Uint8Array)));
-  }();
-  return {
-    positions: nextArray(Uint16Array),
-    colors: nextArray(Uint8Array),
-    indices: nextArray(Uint32Array),
-    edgeIndices: nextArray(Uint32Array),
-    aabbs: nextArray(Float32Array),
-    normals: nextArray(Uint16Array),
-    uvs: nextArray(Float32Array),
-    eachGeometryPositionsBase: nextArray(Uint32Array),
-    eachGeometryColorsBase: nextArray(Uint32Array),
-    eachGeometryIndicesBase: nextArray(Uint32Array),
-    eachGeometryEdgeIndicesBase: nextArray(Uint32Array),
-    eachGeometryNormalsBase: nextArray(Uint32Array),
-    eachGeometryUVsBase: nextArray(Uint32Array),
-    eachGeometryPrimitiveType: nextArray(Uint8Array),
-    eachGeometryAABBBase: nextArray(Uint32Array),
-    matrices: nextArray(Float64Array),
-    textureData: nextArray(Uint8Array),
-    eachTextureDataBase: nextArray(Uint32Array),
-    eachTextureMediaType: nextArray(Uint8Array),
-    eachTextureWidth: nextArray(Uint16Array),
-    eachTextureHeight: nextArray(Uint16Array),
-    eachTextureSampler: nextArray(Uint8Array),
-    eachTextureId: nextObject(),
-    eachMaterialPBR: nextArray(Uint8Array),
-    eachMaterialTextures: nextArray(Int32Array),
-    eachMaterialId: nextObject(),
-    eachMeshGeometriesBase: nextArray(Uint32Array),
-    eachMeshMatricesBase: nextArray(Uint32Array),
-    eachMeshMaterialAttributes: nextArray(Uint8Array),
-    eachMeshMaterial: nextArray(Int32Array),
-    eachObjectId: nextObject(),
-    eachObjectMeshesBase: nextArray(Uint32Array)
-  };
-}
-
-// ../sdk/src/formats/xgf/versions/v2/xgfToModel.ts
-var NUM_MATERIAL_ATTRIBUTES = 4;
-var NUM_MATERIAL_TEXTURE_REFS = 5;
-var NUM_MATERIAL_PBR_BYTES = 8;
-var NUM_TEXTURE_SAMPLER_BYTES = 5;
-var NO_INDEX = 4294967295;
-var SAMPLER_DECODE = {
-  1: RepeatWrapping,
-  2: ClampToEdgeWrapping,
-  3: MirroredRepeatWrapping,
-  4: NearestFilter,
-  5: LinearFilter,
-  6: NearestMipMapNearestFilter,
-  7: LinearMipMapNearestFilter,
-  8: NearestMipMapLinearFilter,
-  9: LinearMipMapLinearFilter
-};
-var MEDIA_TYPE_DECODE = {
-  0: PNGMediaType,
-  1: JPEGMediaType,
-  2: GIFMediaType
-};
-var ALPHA_MODE_NAMES = ["OPAQUE", "MASK", "BLEND"];
-async function xgfToModel2(params) {
-  const { xgfData, sceneModel, dataModel, options } = params;
-  const layerId = options?.layerId || "default";
-  const defaultId = sceneModel ? sceneModel.id : createUUID();
-  const progress = { phase: "", current: 0, total: 0 };
-  const step2 = async (phase, current, total) => {
-    if (options.onProgress) {
-      progress.phase = phase;
-      progress.current = current;
-      progress.total = total;
-      options.onProgress(progress);
-    }
-    await yieldToHost(options.signal);
-  };
-  if (dataModel) {
-    dataModel.createObject({
-      id: defaultId,
-      name: defaultId,
-      type: "BasicEntity"
-    });
-  }
-  const {
-    positions,
-    colors,
-    indices,
-    edgeIndices,
-    aabbs,
-    normals,
-    uvs,
-    eachGeometryPositionsBase,
-    eachGeometryColorsBase,
-    eachGeometryIndicesBase,
-    eachGeometryEdgeIndicesBase,
-    eachGeometryNormalsBase,
-    eachGeometryUVsBase,
-    eachGeometryAABBBase,
-    eachGeometryPrimitiveType,
-    matrices,
-    textureData,
-    eachTextureDataBase,
-    eachTextureMediaType,
-    eachTextureWidth,
-    eachTextureHeight,
-    eachTextureSampler,
-    eachTextureId,
-    eachMaterialPBR,
-    eachMaterialTextures,
-    eachMaterialId,
-    eachMeshGeometriesBase,
-    eachMeshMatricesBase,
-    eachMeshMaterialAttributes,
-    eachMeshMaterial,
-    eachObjectId,
-    eachObjectMeshesBase
-  } = xgfData;
-  const numGeometries = eachGeometryPositionsBase.length;
-  const numMeshes = eachMeshGeometriesBase.length;
-  const numObjects = eachObjectMeshesBase.length;
-  const numTextures = eachTextureDataBase.length;
-  const numMaterials = eachMaterialId.length;
-  const createdTextureIds = [];
-  if (sceneModel) {
-    for (let i = 0; i < numTextures; i++) {
-      if ((i & 3) === 0)
-        await step2("Decoding textures", i, numTextures);
-      const id = eachTextureId[i] || `texture-${i}`;
-      createdTextureIds.push(id);
-      const sliceStart = eachTextureDataBase[i];
-      const sliceEnd = i === numTextures - 1 ? textureData.length : eachTextureDataBase[i + 1];
-      const bytes = textureData.subarray(sliceStart, sliceEnd);
-      const mediaCode = eachTextureMediaType[i];
-      const sBase = i * NUM_TEXTURE_SAMPLER_BYTES;
-      const samplerParams = {
-        minFilter: SAMPLER_DECODE[eachTextureSampler[sBase]] || LinearMipMapLinearFilter,
-        magFilter: SAMPLER_DECODE[eachTextureSampler[sBase + 1]] || LinearFilter,
-        wrapS: SAMPLER_DECODE[eachTextureSampler[sBase + 2]] || RepeatWrapping,
-        wrapT: SAMPLER_DECODE[eachTextureSampler[sBase + 3]] || RepeatWrapping,
-        wrapR: SAMPLER_DECODE[eachTextureSampler[sBase + 4]] || RepeatWrapping,
-        width: eachTextureWidth[i],
-        height: eachTextureHeight[i]
-      };
-      if (bytes.length === 0) {
-        const onePx = new Uint8ClampedArray([255, 255, 255, 255]);
-        const imageData = typeof ImageData !== "undefined" ? new ImageData(onePx, 1, 1) : { data: onePx, width: 1, height: 1 };
-        sceneModel.createTexture({
-          id,
-          imageData,
-          mediaType: PNGMediaType,
-          ...samplerParams,
-          width: 1,
-          height: 1,
-          flipY: false
-        });
-        continue;
-      }
-      const standardMedia = MEDIA_TYPE_DECODE[mediaCode];
-      if (standardMedia !== void 0) {
-        const blob = new Blob([bytes], {
-          type: standardMedia === PNGMediaType ? "image/png" : standardMedia === JPEGMediaType ? "image/jpeg" : "image/gif"
-        });
-        const imageBitmap = await createImageBitmap(blob);
-        sceneModel.createTexture({
-          id,
-          image: imageBitmap,
-          mediaType: standardMedia,
-          ...samplerParams,
-          width: imageBitmap.width,
-          height: imageBitmap.height,
-          flipY: false
-        });
-      } else {
-        sceneModel.createTexture({
-          id,
-          buffers: [bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)],
-          ...samplerParams,
-          flipY: false,
-          compressed: true
-        });
-      }
-    }
-  }
-  if (sceneModel) {
-    for (let i = 0; i < numMaterials; i++) {
-      if ((i & 63) === 0)
-        await step2("Building materials", i, numMaterials);
-      const id = eachMaterialId[i];
-      const base = i * NUM_MATERIAL_PBR_BYTES;
-      const tBase = i * NUM_MATERIAL_TEXTURE_REFS;
-      const params2 = {
-        id,
-        color: [
-          eachMaterialPBR[base] / 255,
-          eachMaterialPBR[base + 1] / 255,
-          eachMaterialPBR[base + 2] / 255
-        ],
-        opacity: eachMaterialPBR[base + 3] / 255,
-        roughness: eachMaterialPBR[base + 4] / 255,
-        metallic: eachMaterialPBR[base + 5] / 255,
-        alphaMode: ALPHA_MODE_NAMES[eachMaterialPBR[base + 6]] || "OPAQUE",
-        alphaCutoff: eachMaterialPBR[base + 7] / 255
-      };
-      const colorIdx = eachMaterialTextures[tBase];
-      const mrIdx = eachMaterialTextures[tBase + 1];
-      const normalsIdx = eachMaterialTextures[tBase + 2];
-      const occlusionIdx = eachMaterialTextures[tBase + 3];
-      const emissiveIdx = eachMaterialTextures[tBase + 4];
-      if (colorIdx >= 0)
-        params2.colorTextureId = createdTextureIds[colorIdx];
-      if (mrIdx >= 0)
-        params2.metallicRoughnessTextureId = createdTextureIds[mrIdx];
-      if (normalsIdx >= 0)
-        params2.normalsTextureId = createdTextureIds[normalsIdx];
-      if (occlusionIdx >= 0)
-        params2.occlusionTextureId = createdTextureIds[occlusionIdx];
-      if (emissiveIdx >= 0)
-        params2.emissiveTextureId = createdTextureIds[emissiveIdx];
-      sceneModel.createMaterial(params2);
-    }
-  }
-  let nextMeshId = 0;
-  const floatColor = createVec3Float32();
-  for (let objectIdx = 0; objectIdx < numObjects; objectIdx++) {
-    if ((objectIdx & 31) === 0) {
-      await step2("Building meshes", objectIdx, numObjects);
-    }
-    const objectId = eachObjectId[objectIdx];
-    const atLastObject = objectIdx === numObjects - 1;
-    const firstMeshIdx = eachObjectMeshesBase[objectIdx];
-    const lastMeshIdx = atLastObject ? numMeshes - 1 : eachObjectMeshesBase[objectIdx + 1] - 1;
-    const meshIds = [];
-    for (let meshIdx = firstMeshIdx; meshIdx <= lastMeshIdx; meshIdx++) {
-      const meshId = `${nextMeshId++}`;
-      if (sceneModel) {
-        const geometryIdx = eachMeshGeometriesBase[meshIdx];
-        const geometryId = `${geometryIdx}`;
-        if (!sceneModel.geometries[geometryId]) {
-          const params2 = { id: geometryId };
-          switch (eachGeometryPrimitiveType[geometryIdx]) {
-            case 0:
-              params2.primitive = TrianglesPrimitive;
-              break;
-            case 1:
-              params2.primitive = SolidPrimitive;
-              break;
-            case 2:
-              params2.primitive = SurfacePrimitive;
-              break;
-            case 3:
-              params2.primitive = LinesPrimitive;
-              break;
-            case 4:
-              params2.primitive = PointsPrimitive;
-              break;
-          }
-          const aabbsBase = eachGeometryAABBBase[geometryIdx];
-          params2.aabb = aabbs.subarray(aabbsBase, aabbsBase + 6);
-          const atLastGeometry = geometryIdx === numGeometries - 1;
-          const posStart = eachGeometryPositionsBase[geometryIdx];
-          const posEnd = atLastGeometry ? positions.length : eachGeometryPositionsBase[geometryIdx + 1];
-          const indStart = eachGeometryIndicesBase[geometryIdx];
-          const indEnd = atLastGeometry ? indices.length : eachGeometryIndicesBase[geometryIdx + 1];
-          const edgeStart = eachGeometryEdgeIndicesBase[geometryIdx];
-          const edgeEnd = atLastGeometry ? edgeIndices.length : eachGeometryEdgeIndicesBase[geometryIdx + 1];
-          params2.positionsCompressed = positions.subarray(posStart, posEnd);
-          if (params2.primitive !== PointsPrimitive) {
-            params2.indices = indices.subarray(indStart, indEnd);
-          }
-          const edgeSlice = edgeIndices.subarray(edgeStart, edgeEnd);
-          if (edgeSlice.length > 0)
-            params2.edgeIndices = edgeSlice;
-          const normalsBaseI = eachGeometryNormalsBase[geometryIdx];
-          if (normalsBaseI !== NO_INDEX) {
-            const normalsEnd = nextNonSentinelBase(eachGeometryNormalsBase, geometryIdx, normals.length);
-            params2.normalsCompressed = normals.subarray(normalsBaseI, normalsEnd);
-          }
-          const uvsBaseI = eachGeometryUVsBase[geometryIdx];
-          if (uvsBaseI !== NO_INDEX) {
-            const uvsEnd = nextNonSentinelBase(eachGeometryUVsBase, geometryIdx, uvs.length);
-            params2.uvsCompressed = uvs.subarray(uvsBaseI, uvsEnd);
-          }
-          sceneModel.createGeometryCompressed(params2);
-        }
-        const matricesBase = eachMeshMatricesBase[meshIdx];
-        const matrix = matrices.subarray(matricesBase, matricesBase + 16);
-        const meshParams = { id: meshId, geometryId, matrix };
-        const materialIdx = eachMeshMaterial[meshIdx];
-        if (materialIdx >= 0 && materialIdx < numMaterials) {
-          meshParams.materialId = eachMaterialId[materialIdx];
-        } else {
-          const colorBase = meshIdx * NUM_MATERIAL_ATTRIBUTES;
-          floatColor[0] = eachMeshMaterialAttributes[colorBase] / 255;
-          floatColor[1] = eachMeshMaterialAttributes[colorBase + 1] / 255;
-          floatColor[2] = eachMeshMaterialAttributes[colorBase + 2] / 255;
-          meshParams.color = floatColor.slice(0, 3);
-          meshParams.opacity = eachMeshMaterialAttributes[colorBase + 3] / 255;
-        }
-        sceneModel.createMesh(meshParams);
-      }
-      meshIds.push(meshId);
-    }
-    if (meshIds.length > 0) {
-      if (sceneModel) {
-        sceneModel.createObject({ id: objectId, meshIds, layerId });
-      }
-      if (dataModel) {
-        dataModel.createObject({ id: objectId, name: objectId, type: "BasicEntity" });
-        dataModel.createRelationship({
-          type: "BasicAggregation",
-          relatingObjectId: defaultId,
-          relatedObjectId: objectId
-        });
-      }
-    }
-  }
-  if (options.onProgress) {
-    progress.phase = "Building meshes";
-    progress.current = numObjects;
-    progress.total = numObjects;
-    options.onProgress(progress);
-  }
-}
-function nextNonSentinelBase(bases, startIdx, arrayLength) {
-  for (let i = startIdx + 1; i < bases.length; i++) {
-    if (bases[i] !== NO_INDEX)
-      return bases[i];
-  }
-  return arrayLength;
-}
-
-// ../sdk/src/formats/xgf/versions/v2/parse.ts
-async function parse9(params, options) {
-  const { fileData, sceneModel, dataModel } = params;
-  await xgfToModel2({
-    xgfData: unpackXGF2(fileData),
-    sceneModel,
-    dataModel,
-    options
-  });
-}
-
-// ../sdk/src/formats/xgf/versions/v3/unpackXGF.ts
-function unpackXGF3(arrayBuffer) {
-  const requiresSwapFromLittleEndian = function() {
     const b4 = new ArrayBuffer(2);
     new Uint16Array(b4)[0] = 1;
     return new Uint8Array(b4)[0] !== 1;
@@ -105486,10 +105080,13 @@ function unpackXGF3(arrayBuffer) {
     eachTextureWidth: nextArray(Uint16Array),
     eachTextureHeight: nextArray(Uint16Array),
     eachTextureSampler: nextArray(Uint8Array),
+    eachTextureEncoding: nextArray(Uint16Array),
     eachTextureId: nextObject(),
     eachMaterialPBR: nextArray(Uint8Array),
+    eachMaterialColor: nextArray(Float32Array),
     eachMaterialTextures: nextArray(Int32Array),
     eachMaterialId: nextObject(),
+    eachMaterialTriplanarScale: nextArray(Float32Array),
     eachMeshGeometriesBase: nextArray(Uint32Array),
     eachMeshMatricesBase: nextArray(Uint32Array),
     eachMeshMaterialAttributes: nextArray(Uint8Array),
@@ -105499,13 +105096,13 @@ function unpackXGF3(arrayBuffer) {
   };
 }
 
-// ../sdk/src/formats/xgf/versions/v3/xgfToModel.ts
-var NUM_MATERIAL_ATTRIBUTES2 = 4;
-var NUM_MATERIAL_TEXTURE_REFS2 = 5;
-var NUM_MATERIAL_PBR_BYTES2 = 8;
-var NUM_TEXTURE_SAMPLER_BYTES2 = 5;
-var NO_INDEX2 = 4294967295;
-var SAMPLER_DECODE2 = {
+// ../sdk/src/formats/xgf/versions/v1/xgfToModel.ts
+var NUM_MATERIAL_ATTRIBUTES = 4;
+var NUM_MATERIAL_TEXTURE_REFS = 5;
+var NUM_MATERIAL_PBR_BYTES = 8;
+var NUM_TEXTURE_SAMPLER_BYTES = 5;
+var NO_INDEX = 4294967295;
+var SAMPLER_DECODE = {
   1: RepeatWrapping,
   2: ClampToEdgeWrapping,
   3: MirroredRepeatWrapping,
@@ -105516,13 +105113,13 @@ var SAMPLER_DECODE2 = {
   8: NearestMipMapLinearFilter,
   9: LinearMipMapLinearFilter
 };
-var MEDIA_TYPE_DECODE2 = {
+var MEDIA_TYPE_DECODE = {
   0: PNGMediaType,
   1: JPEGMediaType,
   2: GIFMediaType
 };
-var ALPHA_MODE_NAMES2 = ["OPAQUE", "MASK", "BLEND"];
-async function xgfToModel3(params) {
+var ALPHA_MODE_NAMES = ["OPAQUE", "MASK", "BLEND"];
+async function xgfToModel(params) {
   const { xgfData, sceneModel, dataModel, options } = params;
   const layerId = options?.layerId || "default";
   const defaultId = sceneModel ? sceneModel.id : createUUID();
@@ -105570,10 +105167,13 @@ async function xgfToModel3(params) {
     eachTextureWidth,
     eachTextureHeight,
     eachTextureSampler,
+    eachTextureEncoding,
     eachTextureId,
     eachMaterialPBR,
+    eachMaterialColor,
     eachMaterialTextures,
     eachMaterialId,
+    eachMaterialTriplanarScale,
     eachMeshGeometriesBase,
     eachMeshMatricesBase,
     eachMeshMaterialAttributes,
@@ -105588,62 +105188,91 @@ async function xgfToModel3(params) {
   const numMaterials = eachMaterialId.length;
   const createdTextureIds = [];
   if (sceneModel) {
-    for (let i = 0; i < numTextures; i++) {
-      if ((i & 3) === 0)
-        await step2("Decoding textures", i, numTextures);
-      const id = eachTextureId[i] || `texture-${i}`;
-      createdTextureIds.push(id);
-      const sliceStart = eachTextureDataBase[i];
-      const sliceEnd = i === numTextures - 1 ? textureData.length : eachTextureDataBase[i + 1];
-      const bytes = textureData.subarray(sliceStart, sliceEnd);
-      const mediaCode = eachTextureMediaType[i];
-      const sBase = i * NUM_TEXTURE_SAMPLER_BYTES2;
-      const samplerParams = {
-        minFilter: SAMPLER_DECODE2[eachTextureSampler[sBase]] || LinearMipMapLinearFilter,
-        magFilter: SAMPLER_DECODE2[eachTextureSampler[sBase + 1]] || LinearFilter,
-        wrapS: SAMPLER_DECODE2[eachTextureSampler[sBase + 2]] || RepeatWrapping,
-        wrapT: SAMPLER_DECODE2[eachTextureSampler[sBase + 3]] || RepeatWrapping,
-        wrapR: SAMPLER_DECODE2[eachTextureSampler[sBase + 4]] || RepeatWrapping,
+    const DECODE_CHUNK = 4;
+    const canDecode = typeof createImageBitmap === "function" && typeof Blob !== "undefined";
+    const sliceFor = (i) => textureData.subarray(
+      eachTextureDataBase[i],
+      i === numTextures - 1 ? textureData.length : eachTextureDataBase[i + 1]
+    );
+    const samplerParamsFor = (i) => {
+      const sBase = i * NUM_TEXTURE_SAMPLER_BYTES;
+      return {
+        minFilter: SAMPLER_DECODE[eachTextureSampler[sBase]] || LinearMipMapLinearFilter,
+        magFilter: SAMPLER_DECODE[eachTextureSampler[sBase + 1]] || LinearFilter,
+        wrapS: SAMPLER_DECODE[eachTextureSampler[sBase + 2]] || RepeatWrapping,
+        wrapT: SAMPLER_DECODE[eachTextureSampler[sBase + 3]] || RepeatWrapping,
+        wrapR: SAMPLER_DECODE[eachTextureSampler[sBase + 4]] || RepeatWrapping,
         width: eachTextureWidth[i],
         height: eachTextureHeight[i]
       };
-      if (bytes.length === 0) {
-        const onePx = new Uint8ClampedArray([255, 255, 255, 255]);
-        const imageData = typeof ImageData !== "undefined" ? new ImageData(onePx, 1, 1) : { data: onePx, width: 1, height: 1 };
-        sceneModel.createTexture({
-          id,
-          imageData,
-          mediaType: PNGMediaType,
-          ...samplerParams,
-          width: 1,
-          height: 1,
-          flipY: false
-        });
-        continue;
+    };
+    for (let chunkStart = 0; chunkStart < numTextures; chunkStart += DECODE_CHUNK) {
+      await step2("Decoding textures", chunkStart, numTextures);
+      const chunkEnd = Math.min(chunkStart + DECODE_CHUNK, numTextures);
+      const decoding = [];
+      for (let i = chunkStart; i < chunkEnd; i++) {
+        const bytes = sliceFor(i);
+        const standardMedia = MEDIA_TYPE_DECODE[eachTextureMediaType[i]];
+        if (bytes.length > 0 && standardMedia !== void 0) {
+          const blob = new Blob([bytes], {
+            type: standardMedia === PNGMediaType ? "image/png" : standardMedia === JPEGMediaType ? "image/jpeg" : "image/gif"
+          });
+          decoding.push(canDecode ? createImageBitmap(blob).catch(() => null) : null);
+        } else {
+          decoding.push(null);
+        }
       }
-      const standardMedia = MEDIA_TYPE_DECODE2[mediaCode];
-      if (standardMedia !== void 0) {
-        const blob = new Blob([bytes], {
-          type: standardMedia === PNGMediaType ? "image/png" : standardMedia === JPEGMediaType ? "image/jpeg" : "image/gif"
-        });
-        const imageBitmap = await createImageBitmap(blob);
-        sceneModel.createTexture({
-          id,
-          image: imageBitmap,
-          mediaType: standardMedia,
-          ...samplerParams,
-          width: imageBitmap.width,
-          height: imageBitmap.height,
-          flipY: false
-        });
-      } else {
-        sceneModel.createTexture({
-          id,
-          buffers: [bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)],
-          ...samplerParams,
-          flipY: false,
-          compressed: true
-        });
+      const bitmaps = await Promise.all(decoding.map((p) => p ?? Promise.resolve(null)));
+      for (let i = chunkStart; i < chunkEnd; i++) {
+        const id = eachTextureId[i] || `texture-${i}`;
+        createdTextureIds.push(id);
+        const samplerParams = samplerParamsFor(i);
+        const bytes = sliceFor(i);
+        const bitmap = bitmaps[i - chunkStart];
+        const standardMedia = MEDIA_TYPE_DECODE[eachTextureMediaType[i]];
+        if (bytes.length === 0) {
+          const onePx = new Uint8ClampedArray([255, 255, 255, 255]);
+          const imageData2 = typeof ImageData !== "undefined" ? new ImageData(onePx, 1, 1) : { data: onePx, width: 1, height: 1 };
+          sceneModel.createTexture({
+            id,
+            imageData: imageData2,
+            mediaType: PNGMediaType,
+            encoding: eachTextureEncoding[i],
+            ...samplerParams,
+            width: 1,
+            height: 1,
+            flipY: false
+          });
+        } else if (bitmap) {
+          sceneModel.createTexture({
+            id,
+            image: bitmap,
+            mediaType: MEDIA_TYPE_DECODE[eachTextureMediaType[i]],
+            encoding: eachTextureEncoding[i],
+            ...samplerParams,
+            width: bitmap.width,
+            height: bitmap.height,
+            flipY: false
+          });
+        } else if (standardMedia !== void 0) {
+          sceneModel.createTexture({
+            id,
+            buffers: [bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)],
+            mediaType: standardMedia,
+            encoding: eachTextureEncoding[i],
+            ...samplerParams,
+            flipY: false
+          });
+        } else {
+          sceneModel.createTexture({
+            id,
+            buffers: [bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)],
+            encoding: eachTextureEncoding[i],
+            ...samplerParams,
+            flipY: false,
+            compressed: true
+          });
+        }
       }
     }
   }
@@ -105652,20 +105281,21 @@ async function xgfToModel3(params) {
       if ((i & 63) === 0)
         await step2("Building materials", i, numMaterials);
       const id = eachMaterialId[i];
-      const base = i * NUM_MATERIAL_PBR_BYTES2;
-      const tBase = i * NUM_MATERIAL_TEXTURE_REFS2;
+      const base = i * NUM_MATERIAL_PBR_BYTES;
+      const tBase = i * NUM_MATERIAL_TEXTURE_REFS;
       const params2 = {
         id,
         color: [
-          eachMaterialPBR[base] / 255,
-          eachMaterialPBR[base + 1] / 255,
-          eachMaterialPBR[base + 2] / 255
+          eachMaterialColor[i * 3],
+          eachMaterialColor[i * 3 + 1],
+          eachMaterialColor[i * 3 + 2]
         ],
         opacity: eachMaterialPBR[base + 3] / 255,
         roughness: eachMaterialPBR[base + 4] / 255,
         metallic: eachMaterialPBR[base + 5] / 255,
-        alphaMode: ALPHA_MODE_NAMES2[eachMaterialPBR[base + 6]] || "OPAQUE",
-        alphaCutoff: eachMaterialPBR[base + 7] / 255
+        alphaMode: ALPHA_MODE_NAMES[eachMaterialPBR[base + 6]] || "OPAQUE",
+        alphaCutoff: eachMaterialPBR[base + 7] / 255,
+        triplanarScale: eachMaterialTriplanarScale[i]
       };
       const colorIdx = eachMaterialTextures[tBase];
       const mrIdx = eachMaterialTextures[tBase + 1];
@@ -105745,23 +105375,23 @@ async function xgfToModel3(params) {
           if (colSlice.length > 0)
             params2.colorsCompressed = colSlice;
           const normalsBaseI = eachGeometryNormalsBase[geometryIdx];
-          if (normalsBaseI !== NO_INDEX2) {
-            const normalsEnd = nextNonSentinelBase2(eachGeometryNormalsBase, geometryIdx, normals.length);
+          if (normalsBaseI !== NO_INDEX) {
+            const normalsEnd = nextNonSentinelBase(eachGeometryNormalsBase, geometryIdx, normals.length);
             params2.normalsCompressed = normals.subarray(normalsBaseI, normalsEnd);
           }
           const uvsBaseI = eachGeometryUVsBase[geometryIdx];
-          if (uvsBaseI !== NO_INDEX2) {
-            const uvsEnd = nextNonSentinelBase2(eachGeometryUVsBase, geometryIdx, uvs.length);
+          if (uvsBaseI !== NO_INDEX) {
+            const uvsEnd = nextNonSentinelBase(eachGeometryUVsBase, geometryIdx, uvs.length);
             params2.uvsCompressed = uvs.subarray(uvsBaseI, uvsEnd);
           }
           const scalesBaseI = eachGeometryScalesBase[geometryIdx];
-          if (scalesBaseI !== NO_INDEX2) {
-            const scalesEnd = nextNonSentinelBase2(eachGeometryScalesBase, geometryIdx, scales.length);
+          if (scalesBaseI !== NO_INDEX) {
+            const scalesEnd = nextNonSentinelBase(eachGeometryScalesBase, geometryIdx, scales.length);
             params2.scales = scales.subarray(scalesBaseI, scalesEnd);
           }
           const rotationsBaseI = eachGeometryRotationsBase[geometryIdx];
-          if (rotationsBaseI !== NO_INDEX2) {
-            const rotationsEnd = nextNonSentinelBase2(eachGeometryRotationsBase, geometryIdx, rotations.length);
+          if (rotationsBaseI !== NO_INDEX) {
+            const rotationsEnd = nextNonSentinelBase(eachGeometryRotationsBase, geometryIdx, rotations.length);
             const decoded = new Float32Array(rotationsEnd - rotationsBaseI);
             for (let i = 0; i < decoded.length; i++) {
               decoded[i] = (rotations[rotationsBaseI + i] - 128) / 128;
@@ -105777,7 +105407,7 @@ async function xgfToModel3(params) {
         if (materialIdx >= 0 && materialIdx < numMaterials) {
           meshParams.materialId = eachMaterialId[materialIdx];
         } else {
-          const colorBase = meshIdx * NUM_MATERIAL_ATTRIBUTES2;
+          const colorBase = meshIdx * NUM_MATERIAL_ATTRIBUTES;
           floatColor[0] = eachMeshMaterialAttributes[colorBase] / 255;
           floatColor[1] = eachMeshMaterialAttributes[colorBase + 1] / 255;
           floatColor[2] = eachMeshMaterialAttributes[colorBase + 2] / 255;
@@ -105809,19 +105439,19 @@ async function xgfToModel3(params) {
     options.onProgress(progress);
   }
 }
-function nextNonSentinelBase2(bases, startIdx, arrayLength) {
+function nextNonSentinelBase(bases, startIdx, arrayLength) {
   for (let i = startIdx + 1; i < bases.length; i++) {
-    if (bases[i] !== NO_INDEX2)
+    if (bases[i] !== NO_INDEX)
       return bases[i];
   }
   return arrayLength;
 }
 
-// ../sdk/src/formats/xgf/versions/v3/parse.ts
-async function parse10(params, options) {
+// ../sdk/src/formats/xgf/versions/v1/parse.ts
+async function parse8(params, options) {
   const { fileData, sceneModel, dataModel } = params;
-  await xgfToModel3({
-    xgfData: unpackXGF3(fileData),
+  await xgfToModel({
+    xgfData: unpackXGF(fileData),
     sceneModel,
     dataModel,
     options
@@ -105835,278 +105465,20 @@ var XGFLoader = class extends ModelLoader {
       format: "XGF",
       fileDataType: "arraybuffer",
       parsers: {
-        "1": parse8,
-        "2": parse9,
-        "3": parse10
+        "1": parse8
       },
-      getVersion: (fileData) => {
-        return "" + new DataView(fileData).getUint32(0, true);
-      }
+      getVersion: (fileData) => "" + new DataView(fileData).getUint32(0, true)
     });
   }
 };
 
 // ../sdk/src/formats/xgf/versions/v1/modelToXGF.ts
-var NUM_MATERIAL_ATTRIBUTES3 = 4;
-function modelToXGF(params) {
-  const sceneModel = params.sceneModel;
-  const options = params.options;
-  const coordinateSystemMatrix = options.coordinateSystem ? createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4Float64()) : null;
-  const geometriesList = Object.values(sceneModel.geometries);
-  const meshesList = Object.values(sceneModel.meshes);
-  const objectsList = Object.values(sceneModel.objects);
-  const numGeometries = geometriesList.length;
-  const numMeshes = meshesList.length;
-  const numObjects = objectsList.length;
-  let identityMatrixAdded = false;
-  let identityMatrixBase = 0;
-  let sizePositions = 0;
-  let sizeColors = 0;
-  let sizeIndices = 0;
-  let sizeEdgeIndices = 0;
-  const geometryIndices = {};
-  for (let geometryIdx = 0; geometryIdx < numGeometries; geometryIdx++) {
-    const geometry = geometriesList[geometryIdx];
-    if (geometry) {
-      if (geometry.positionsCompressed) {
-        sizePositions += geometry.positionsCompressed.length;
-        if (geometry.indices) {
-          sizeIndices += geometry.indices.length;
-        }
-        if (geometry.edgeIndices) {
-          sizeEdgeIndices += geometry.edgeIndices.length;
-        }
-        if (geometry.colorsCompressed) {
-          sizeColors += geometry.colorsCompressed.length;
-        }
-      }
-    }
-  }
-  const xgfData = {
-    positions: new Uint16Array(sizePositions),
-    colors: new Uint8Array(sizeColors),
-    indices: new Uint32Array(sizeIndices),
-    edgeIndices: new Uint32Array(sizeEdgeIndices),
-    aabbs: null,
-    eachGeometryPositionsBase: new Uint32Array(numGeometries),
-    // For each geometry, the index of its first element in xgfData.positions. Every primitive type has positions.
-    eachGeometryColorsBase: new Uint32Array(numGeometries),
-    // For each geometry, the index of its first element in xgfData.colors. If the next geometry has the same index, then this geometry has no colors.
-    eachGeometryIndicesBase: new Uint32Array(numGeometries),
-    // For each geometry, the index of its first element in xgfData.indices. If the next geometry has the same index, then this geometry has no indices.
-    eachGeometryEdgeIndicesBase: new Uint32Array(numGeometries),
-    // For each geometry, the index of its first element in xgfData.edgeIndices. If the next geometry has the same index, then this geometry has no edge indices.
-    eachGeometryPrimitiveType: new Uint8Array(numGeometries),
-    // Primitive type for each geometry (0=solid triangles, 1=surface triangles, 2=lines, 3=points)
-    eachGeometryAABBBase: new Uint32Array(numGeometries),
-    // Positions dequantization matrices
-    matrices: null,
-    // Modeling matrices
-    eachMeshGeometriesBase: new Uint32Array(numMeshes),
-    // For each mesh, an index into the eachGeometry* arrays
-    eachMeshMatricesBase: new Uint32Array(numMeshes),
-    // For each mesh that shares its geometry, the index of its first element in xgfData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
-    eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES3),
-    // For each mesh, an RGBA integer color of format [0..255, 0..255, 0..255, 0..255], and PBR metallic and roughness factors, of format [0..255, 0..255]
-    eachObjectId: [],
-    // For each object, an ID string
-    eachObjectMeshesBase: new Uint32Array(numObjects)
-    // For each object, the index of the first element of meshes used by the object
-  };
-  let positionsBase = 0;
-  let colorsBase = 0;
-  let indicesBase = 0;
-  let edgeIndicesBase = 0;
-  let aabbsBase = 0;
-  const aabbIdxMap = {};
-  const aabbs = [];
-  const matrices = [];
-  for (let geometryIdx = 0; geometryIdx < numGeometries; geometryIdx++) {
-    const geometry = geometriesList[geometryIdx];
-    let primitiveType;
-    switch (geometry.primitive) {
-      case TrianglesPrimitive:
-        primitiveType = 0;
-        break;
-      case SolidPrimitive:
-        primitiveType = 1;
-        break;
-      case SurfacePrimitive:
-        primitiveType = 2;
-        break;
-      case LinesPrimitive:
-        primitiveType = 3;
-        break;
-      case PointsPrimitive:
-        primitiveType = 4;
-        break;
-    }
-    xgfData.eachGeometryPrimitiveType[geometryIdx] = primitiveType;
-    const aabb = geometry.aabb;
-    const aabbHash = `${aabb[0]}-${aabb[1]}-${aabb[2]}-${aabb[3]}-${aabb[4]}-${aabb[5]}`;
-    let aabbIdx = aabbIdxMap[aabbHash];
-    if (aabbIdx === void 0) {
-      aabbIdx = aabbsBase;
-      aabbIdxMap[aabbHash] = aabbIdx;
-      aabbs.push(...aabb);
-      aabbsBase += 6;
-    }
-    xgfData.eachGeometryAABBBase[geometryIdx] = aabbIdx;
-    xgfData.eachGeometryPositionsBase[geometryIdx] = positionsBase;
-    xgfData.eachGeometryColorsBase[geometryIdx] = colorsBase;
-    xgfData.positions.set(geometry.positionsCompressed, positionsBase);
-    positionsBase += geometry.positionsCompressed.length;
-    if (geometry.indices) {
-      xgfData.indices.set(geometry.indices, indicesBase);
-      xgfData.eachGeometryIndicesBase[geometryIdx] = indicesBase;
-      indicesBase += geometry.indices.length;
-    }
-    if (geometry.edgeIndices) {
-      xgfData.edgeIndices.set(geometry.edgeIndices, edgeIndicesBase);
-      xgfData.eachGeometryEdgeIndicesBase[geometryIdx] = edgeIndicesBase;
-      edgeIndicesBase += geometry.edgeIndices.length;
-    }
-    if (geometry.colorsCompressed) {
-      xgfData.colors.set(geometry.colorsCompressed, colorsBase);
-      xgfData.eachGeometryColorsBase[geometryIdx] = colorsBase;
-      colorsBase += geometry.colorsCompressed.length;
-    }
-    geometryIndices[geometry.id] = geometryIdx;
-  }
-  let eachMeshMaterialAttributesBase = 0;
-  let matricesBase = 0;
-  let meshesBase = 0;
-  for (let objectIdx = 0; objectIdx < numObjects; objectIdx++) {
-    const object = objectsList[objectIdx];
-    xgfData.eachObjectId[objectIdx] = object.id;
-    xgfData.eachObjectMeshesBase[objectIdx] = meshesBase;
-    for (let objectMeshIdx = 0; objectMeshIdx < object.meshes.length; objectMeshIdx++) {
-      const mesh = object.meshes[objectMeshIdx];
-      xgfData.eachMeshGeometriesBase[meshesBase] = geometryIndices[mesh.geometry.id];
-      const matrix = getMeshWorldMatrix(mesh, options.coordinateSystem);
-      if (isIdentityMat4(matrix)) {
-        if (!identityMatrixAdded) {
-          matrices.push(...matrix);
-          xgfData.eachMeshMatricesBase[meshesBase] = matricesBase;
-          identityMatrixBase = matricesBase;
-          matricesBase += 16;
-          identityMatrixAdded = true;
-        } else {
-          xgfData.eachMeshMatricesBase[meshesBase] = identityMatrixBase;
-        }
-      } else {
-        matrices.push(...matrix);
-        xgfData.eachMeshMatricesBase[meshesBase] = matricesBase;
-        matricesBase += 16;
-      }
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.effectiveColor[0] * 255;
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.effectiveColor[1] * 255;
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.effectiveColor[2] * 255;
-      xgfData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = mesh.effectiveOpacity * 255;
-      meshesBase++;
-    }
-  }
-  xgfData.aabbs = new Float32Array(aabbs);
-  xgfData.matrices = new Float64Array(matrices);
-  return xgfData;
-}
-
-// ../sdk/src/formats/xgf/versions/v1/XGF_INFO.ts
-var XGF_INFO = {
-  /**
-   * The [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf) version generated by {@link formats!xgf.XKFWriter | XKFWriter}.
-   *
-   * @property xgfVersion
-   * @type {number}
-   */
-  xgfVersion: 1
-};
-
-// ../sdk/src/formats/xgf/versions/v1/packXGF.ts
-var object2Array = function() {
-  const encoder = new TextEncoder();
-  return (obj) => encoder.encode(JSON.stringify(obj));
-}();
-function toArrayBuffer3(arrays) {
-  const arraysCnt = arrays.length;
-  const dataView = new DataView(new ArrayBuffer((1 + 2 * arraysCnt) * 4));
-  dataView.setUint32(0, XGF_INFO.xgfVersion, true);
-  let byteOffset = dataView.byteLength;
-  const offsets = [];
-  for (let i = 0; i < arraysCnt; i++) {
-    const arr = arrays[i];
-    const BPE = arr.BYTES_PER_ELEMENT;
-    byteOffset = Math.ceil(byteOffset / BPE) * BPE;
-    const byteLength = arr.byteLength;
-    const idx = 1 + 2 * i;
-    dataView.setUint32(idx * 4, byteOffset, true);
-    dataView.setUint32((idx + 1) * 4, byteLength, true);
-    offsets.push(byteOffset);
-    byteOffset += byteLength;
-  }
-  const dataArray = new Uint8Array(byteOffset);
-  dataArray.set(new Uint8Array(dataView.buffer), 0);
-  const requiresSwapToLittleEndian = function() {
-    const buffer = new ArrayBuffer(2);
-    new Uint16Array(buffer)[0] = 1;
-    return new Uint8Array(buffer)[0] !== 1;
-  }();
-  for (let i = 0; i < arraysCnt; i++) {
-    const arr = arrays[i];
-    const subarray = new Uint8Array(arr.buffer, arr.byteOffset, arr.byteLength);
-    const BPE = arr.BYTES_PER_ELEMENT;
-    if (requiresSwapToLittleEndian && BPE > 1) {
-      const swaps = BPE / 2;
-      const cnt = subarray.length / BPE;
-      for (let b4 = 0; b4 < cnt; b4++) {
-        const offset = b4 * BPE;
-        for (let j = 0; j < swaps; j++) {
-          const i1 = offset + j;
-          const i2 = offset - j + BPE - 1;
-          const tmp = subarray[i1];
-          subarray[i1] = subarray[i2];
-          subarray[i2] = tmp;
-        }
-      }
-    }
-    dataArray.set(subarray, offsets[i]);
-  }
-  return dataArray.buffer;
-}
-function packXGF(xgfData) {
-  return toArrayBuffer3([
-    xgfData.positions,
-    xgfData.colors,
-    xgfData.indices,
-    xgfData.edgeIndices,
-    xgfData.aabbs,
-    xgfData.eachGeometryPositionsBase,
-    xgfData.eachGeometryColorsBase,
-    xgfData.eachGeometryIndicesBase,
-    xgfData.eachGeometryEdgeIndicesBase,
-    xgfData.eachGeometryPrimitiveType,
-    xgfData.eachGeometryAABBBase,
-    xgfData.matrices,
-    xgfData.eachMeshGeometriesBase,
-    xgfData.eachMeshMatricesBase,
-    xgfData.eachMeshMaterialAttributes,
-    object2Array(xgfData.eachObjectId),
-    xgfData.eachObjectMeshesBase
-  ]);
-}
-
-// ../sdk/src/formats/xgf/versions/v1/encode.ts
-function encode10(params, options) {
-  return new Promise(function(resolve2, reject) {
-    resolve2(packXGF(modelToXGF({ sceneModel: params.sceneModel, options })));
-  });
-}
-
-// ../sdk/src/formats/xgf/versions/v2/modelToXGF.ts
-var NUM_MATERIAL_ATTRIBUTES4 = 4;
-var NUM_MATERIAL_TEXTURE_REFS3 = 5;
-var NUM_MATERIAL_PBR_BYTES3 = 8;
-var NO_INDEX3 = 4294967295;
+var NUM_MATERIAL_ATTRIBUTES2 = 4;
+var NUM_MATERIAL_TEXTURE_REFS2 = 5;
+var NUM_MATERIAL_PBR_BYTES2 = 8;
+var NUM_TEXTURE_SAMPLER_BYTES2 = 5;
+var NO_INDEX2 = 4294967295;
+var clampByte = (v) => v < 0 ? 0 : v > 255 ? 255 : v;
 var SAMPLER_CODE = {
   [RepeatWrapping]: 1,
   [ClampToEdgeWrapping]: 2,
@@ -106124,463 +105496,7 @@ var MEDIA_TYPE_CODE = {
   [GIFMediaType]: 2
 };
 var samplerCode = (v) => v !== void 0 && SAMPLER_CODE[v] !== void 0 ? SAMPLER_CODE[v] : 0;
-async function modelToXGF2(params) {
-  const sceneModel = params.sceneModel;
-  const options = params.options || {};
-  const onProgress = options.onProgress;
-  const signal = options.signal;
-  const progress = { phase: "", current: 0, total: 0 };
-  const step2 = async (phase, current, total) => {
-    if (onProgress) {
-      progress.phase = phase;
-      progress.current = current;
-      progress.total = total;
-      onProgress(progress);
-    }
-    await yieldToHost(signal);
-  };
-  if (options.coordinateSystem) {
-    createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4Float64());
-  }
-  const geometriesList = Object.values(sceneModel.geometries);
-  const meshesList = Object.values(sceneModel.meshes);
-  const objectsList = Object.values(sceneModel.objects);
-  const texturesList = Object.values(sceneModel.textures);
-  const materialsList = Object.values(sceneModel.materials);
-  const numGeometries = geometriesList.length;
-  const numMeshes = meshesList.length;
-  const numObjects = objectsList.length;
-  const numTextures = texturesList.length;
-  const numMaterials = materialsList.length;
-  let sizePositions = 0;
-  let sizeColors = 0;
-  let sizeIndices = 0;
-  let sizeEdgeIndices = 0;
-  let sizeNormals = 0;
-  let sizeUVs = 0;
-  for (const geometry of geometriesList) {
-    if (!geometry || !geometry.positionsCompressed)
-      continue;
-    sizePositions += geometry.positionsCompressed.length;
-    if (geometry.indices)
-      sizeIndices += geometry.indices.length;
-    if (geometry.edgeIndices)
-      sizeEdgeIndices += geometry.edgeIndices.length;
-    if (geometry.colorsCompressed)
-      sizeColors += geometry.colorsCompressed.length;
-    if (geometry.normalsCompressed)
-      sizeNormals += geometry.normalsCompressed.length;
-    if (geometry.uvsCompressed)
-      sizeUVs += geometry.uvsCompressed.length;
-  }
-  const textureBytes2 = [];
-  const textureMediaTypes = [];
-  const textureWidths = [];
-  const textureHeights = [];
-  const textureSamplers = [];
-  const textureIds = [];
-  const textureIndexById = {};
-  for (let i = 0; i < numTextures; i++) {
-    if ((i & 3) === 0)
-      await step2("Encoding textures", i, numTextures);
-    const tex = texturesList[i];
-    textureIds.push(tex.id);
-    textureIndexById[tex.id] = i;
-    let bytes = null;
-    let mediaCode = 255;
-    if (tex.buffers && tex.buffers.length > 0 && tex.buffers[0]) {
-      bytes = new Uint8Array(tex.buffers[0]);
-      mediaCode = tex.mediaType !== void 0 && MEDIA_TYPE_CODE[tex.mediaType] !== void 0 ? MEDIA_TYPE_CODE[tex.mediaType] : 255;
-    } else if (tex.imageData && tex.imageData.width && tex.imageData.height) {
-      bytes = await encodeImageToPNG(tex.imageData);
-      mediaCode = MEDIA_TYPE_CODE[PNGMediaType];
-    }
-    if (!bytes) {
-      console.warn(`[xgf v2] Texture '${tex.id}' has neither buffers nor imageData \u2014 encoded as empty`);
-      bytes = new Uint8Array(0);
-    }
-    textureBytes2.push(bytes);
-    textureMediaTypes.push(mediaCode);
-    textureWidths.push(tex.width || (tex.imageData?.width ?? 0));
-    textureHeights.push(tex.height || (tex.imageData?.height ?? 0));
-    textureSamplers.push(
-      samplerCode(tex.minFilter),
-      samplerCode(tex.magFilter),
-      samplerCode(tex.wrapS),
-      samplerCode(tex.wrapT),
-      samplerCode(tex.wrapR)
-    );
-  }
-  let textureDataSize = 0;
-  for (const b4 of textureBytes2)
-    textureDataSize += b4.length;
-  const textureData = new Uint8Array(textureDataSize);
-  const eachTextureDataBase = new Uint32Array(numTextures);
-  {
-    let cursor = 0;
-    for (let i = 0; i < numTextures; i++) {
-      eachTextureDataBase[i] = cursor;
-      textureData.set(textureBytes2[i], cursor);
-      cursor += textureBytes2[i].length;
-    }
-  }
-  const materialIndexById = {};
-  const eachMaterialPBR = new Uint8Array(numMaterials * NUM_MATERIAL_PBR_BYTES3);
-  const eachMaterialTextures = new Int32Array(numMaterials * NUM_MATERIAL_TEXTURE_REFS3);
-  const eachMaterialId = [];
-  for (let i = 0; i < numMaterials; i++) {
-    if ((i & 63) === 0)
-      await step2("Encoding materials", i, numMaterials);
-    const mat = materialsList[i];
-    materialIndexById[mat.id] = i;
-    eachMaterialId.push(mat.id);
-    const base = i * NUM_MATERIAL_PBR_BYTES3;
-    eachMaterialPBR[base] = clampU8(mat.color[0] * 255);
-    eachMaterialPBR[base + 1] = clampU8(mat.color[1] * 255);
-    eachMaterialPBR[base + 2] = clampU8(mat.color[2] * 255);
-    eachMaterialPBR[base + 3] = clampU8(mat.opacity * 255);
-    eachMaterialPBR[base + 4] = clampU8(mat.roughness * 255);
-    eachMaterialPBR[base + 5] = clampU8(mat.metallic * 255);
-    eachMaterialPBR[base + 6] = clampU8(mat.alphaMode);
-    eachMaterialPBR[base + 7] = clampU8(mat.alphaCutoff * 255);
-    const tBase = i * NUM_MATERIAL_TEXTURE_REFS3;
-    eachMaterialTextures[tBase] = textureIndexOrNone(mat.colorTexture?.id, textureIndexById);
-    eachMaterialTextures[tBase + 1] = textureIndexOrNone(mat.metallicRoughnessTexture?.id, textureIndexById);
-    eachMaterialTextures[tBase + 2] = textureIndexOrNone(mat.normalsTexture?.id, textureIndexById);
-    eachMaterialTextures[tBase + 3] = textureIndexOrNone(mat.occlusionTexture?.id, textureIndexById);
-    eachMaterialTextures[tBase + 4] = textureIndexOrNone(mat.emissiveTexture?.id, textureIndexById);
-  }
-  const xgfData = {
-    positions: new Uint16Array(sizePositions),
-    colors: new Uint8Array(sizeColors),
-    indices: new Uint32Array(sizeIndices),
-    edgeIndices: new Uint32Array(sizeEdgeIndices),
-    aabbs: new Float32Array(0),
-    // populated below
-    normals: new Uint16Array(sizeNormals),
-    uvs: new Float32Array(sizeUVs),
-    eachGeometryPositionsBase: new Uint32Array(numGeometries),
-    eachGeometryColorsBase: new Uint32Array(numGeometries),
-    eachGeometryIndicesBase: new Uint32Array(numGeometries),
-    eachGeometryEdgeIndicesBase: new Uint32Array(numGeometries),
-    eachGeometryNormalsBase: new Uint32Array(numGeometries),
-    eachGeometryUVsBase: new Uint32Array(numGeometries),
-    eachGeometryPrimitiveType: new Uint8Array(numGeometries),
-    eachGeometryAABBBase: new Uint32Array(numGeometries),
-    matrices: new Float64Array(0),
-    // populated below
-    textureData,
-    eachTextureDataBase,
-    eachTextureMediaType: new Uint8Array(textureMediaTypes),
-    eachTextureWidth: new Uint16Array(textureWidths),
-    eachTextureHeight: new Uint16Array(textureHeights),
-    eachTextureSampler: new Uint8Array(textureSamplers),
-    eachTextureId: textureIds,
-    eachMaterialPBR,
-    eachMaterialTextures,
-    eachMaterialId,
-    eachMeshGeometriesBase: new Uint32Array(numMeshes),
-    eachMeshMatricesBase: new Uint32Array(numMeshes),
-    eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES4),
-    eachMeshMaterial: new Int32Array(numMeshes),
-    eachObjectId: [],
-    eachObjectMeshesBase: new Uint32Array(numObjects)
-  };
-  let positionsBase = 0;
-  let colorsBase = 0;
-  let indicesBase = 0;
-  let edgeIndicesBase = 0;
-  let normalsBase = 0;
-  let uvsBase = 0;
-  let aabbsBase = 0;
-  const aabbIdxMap = {};
-  const aabbs = [];
-  const matrices = [];
-  const geometryIndices = {};
-  for (let geometryIdx = 0; geometryIdx < numGeometries; geometryIdx++) {
-    const geometry = geometriesList[geometryIdx];
-    let primitiveType = 0;
-    switch (geometry.primitive) {
-      case TrianglesPrimitive:
-        primitiveType = 0;
-        break;
-      case SolidPrimitive:
-        primitiveType = 1;
-        break;
-      case SurfacePrimitive:
-        primitiveType = 2;
-        break;
-      case LinesPrimitive:
-        primitiveType = 3;
-        break;
-      case PointsPrimitive:
-        primitiveType = 4;
-        break;
-    }
-    xgfData.eachGeometryPrimitiveType[geometryIdx] = primitiveType;
-    const aabb = geometry.aabb;
-    const aabbHash = `${aabb[0]}-${aabb[1]}-${aabb[2]}-${aabb[3]}-${aabb[4]}-${aabb[5]}`;
-    let aabbIdx = aabbIdxMap[aabbHash];
-    if (aabbIdx === void 0) {
-      aabbIdx = aabbsBase;
-      aabbIdxMap[aabbHash] = aabbIdx;
-      aabbs.push(...aabb);
-      aabbsBase += 6;
-    }
-    xgfData.eachGeometryAABBBase[geometryIdx] = aabbIdx;
-    xgfData.eachGeometryPositionsBase[geometryIdx] = positionsBase;
-    xgfData.positions.set(geometry.positionsCompressed, positionsBase);
-    positionsBase += geometry.positionsCompressed.length;
-    xgfData.eachGeometryColorsBase[geometryIdx] = colorsBase;
-    if (geometry.colorsCompressed) {
-      xgfData.colors.set(geometry.colorsCompressed, colorsBase);
-      colorsBase += geometry.colorsCompressed.length;
-    }
-    xgfData.eachGeometryIndicesBase[geometryIdx] = indicesBase;
-    if (geometry.indices) {
-      xgfData.indices.set(geometry.indices, indicesBase);
-      indicesBase += geometry.indices.length;
-    }
-    xgfData.eachGeometryEdgeIndicesBase[geometryIdx] = edgeIndicesBase;
-    if (geometry.edgeIndices) {
-      xgfData.edgeIndices.set(geometry.edgeIndices, edgeIndicesBase);
-      edgeIndicesBase += geometry.edgeIndices.length;
-    }
-    if (geometry.normalsCompressed) {
-      xgfData.eachGeometryNormalsBase[geometryIdx] = normalsBase;
-      xgfData.normals.set(geometry.normalsCompressed, normalsBase);
-      normalsBase += geometry.normalsCompressed.length;
-    } else {
-      xgfData.eachGeometryNormalsBase[geometryIdx] = NO_INDEX3;
-    }
-    if (geometry.uvsCompressed) {
-      xgfData.eachGeometryUVsBase[geometryIdx] = uvsBase;
-      xgfData.uvs.set(geometry.uvsCompressed, uvsBase);
-      uvsBase += geometry.uvsCompressed.length;
-    } else {
-      xgfData.eachGeometryUVsBase[geometryIdx] = NO_INDEX3;
-    }
-    geometryIndices[geometry.id] = geometryIdx;
-  }
-  let identityMatrixAdded = false;
-  let identityMatrixBase = 0;
-  let matricesBase = 0;
-  let meshesBase = 0;
-  let materialAttrBase = 0;
-  for (let objectIdx = 0; objectIdx < numObjects; objectIdx++) {
-    if ((objectIdx & 31) === 0) {
-      await step2("Encoding objects", objectIdx, numObjects);
-    }
-    const object = objectsList[objectIdx];
-    xgfData.eachObjectId[objectIdx] = object.id;
-    xgfData.eachObjectMeshesBase[objectIdx] = meshesBase;
-    for (let i = 0; i < object.meshes.length; i++) {
-      const mesh = object.meshes[i];
-      xgfData.eachMeshGeometriesBase[meshesBase] = geometryIndices[mesh.geometry.id];
-      const matrix = getMeshWorldMatrix(mesh, options.coordinateSystem);
-      if (isIdentityMat4(matrix)) {
-        if (!identityMatrixAdded) {
-          matrices.push(...matrix);
-          xgfData.eachMeshMatricesBase[meshesBase] = matricesBase;
-          identityMatrixBase = matricesBase;
-          matricesBase += 16;
-          identityMatrixAdded = true;
-        } else {
-          xgfData.eachMeshMatricesBase[meshesBase] = identityMatrixBase;
-        }
-      } else {
-        matrices.push(...matrix);
-        xgfData.eachMeshMatricesBase[meshesBase] = matricesBase;
-        matricesBase += 16;
-      }
-      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU8(mesh.effectiveColor[0] * 255);
-      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU8(mesh.effectiveColor[1] * 255);
-      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU8(mesh.effectiveColor[2] * 255);
-      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU8(mesh.effectiveOpacity * 255);
-      xgfData.eachMeshMaterial[meshesBase] = mesh.material ? materialIndexById[mesh.material.id] ?? -1 : -1;
-      meshesBase++;
-    }
-  }
-  xgfData.aabbs = new Float32Array(aabbs);
-  xgfData.matrices = new Float64Array(matrices);
-  if (onProgress) {
-    progress.phase = "Encoding objects";
-    progress.current = numObjects;
-    progress.total = numObjects;
-    onProgress(progress);
-  }
-  return xgfData;
-}
-function clampU8(v) {
-  v = Math.round(v);
-  return v < 0 ? 0 : v > 255 ? 255 : v;
-}
-function textureIndexOrNone(id, indexById) {
-  if (!id)
-    return -1;
-  const idx = indexById[id];
-  return idx === void 0 ? -1 : idx;
-}
-async function encodeImageToPNG(imageData) {
-  const w = imageData.width, h = imageData.height;
-  const isPixelBuffer = imageData && imageData.data && imageData.data.length === w * h * 4;
-  const paint = (ctx2) => {
-    if (isPixelBuffer) {
-      const bytes = imageData.data instanceof Uint8ClampedArray ? imageData.data : new Uint8ClampedArray(imageData.data);
-      const id = typeof ImageData !== "undefined" && imageData instanceof ImageData ? imageData : new ImageData(bytes, w, h);
-      ctx2.putImageData(id, 0, 0);
-    } else {
-      ctx2.drawImage(imageData, 0, 0);
-    }
-  };
-  if (typeof OffscreenCanvas !== "undefined") {
-    const canvas3 = new OffscreenCanvas(w, h);
-    const ctx2 = canvas3.getContext("2d");
-    if (!ctx2)
-      return new Uint8Array(0);
-    paint(ctx2);
-    const blob = await canvas3.convertToBlob({ type: "image/png" });
-    return new Uint8Array(await blob.arrayBuffer());
-  }
-  const canvas2 = document.createElement("canvas");
-  canvas2.width = w;
-  canvas2.height = h;
-  const ctx = canvas2.getContext("2d");
-  if (!ctx)
-    return new Uint8Array(0);
-  paint(ctx);
-  return await new Promise((resolve2) => {
-    canvas2.toBlob(async (blob) => {
-      if (!blob)
-        return resolve2(new Uint8Array(0));
-      resolve2(new Uint8Array(await blob.arrayBuffer()));
-    }, "image/png");
-  });
-}
-
-// ../sdk/src/formats/xgf/versions/v2/XGF_INFO.ts
-var XGF_INFO2 = {
-  xgfVersion: 2
-};
-
-// ../sdk/src/formats/xgf/versions/v2/packXGF.ts
-var object2Array2 = function() {
-  const encoder = new TextEncoder();
-  return (obj) => encoder.encode(JSON.stringify(obj));
-}();
-function toArrayBuffer4(arrays) {
-  const arraysCnt = arrays.length;
-  const dataView = new DataView(new ArrayBuffer((1 + 2 * arraysCnt) * 4));
-  dataView.setUint32(0, XGF_INFO2.xgfVersion, true);
-  let byteOffset = dataView.byteLength;
-  const offsets = [];
-  for (let i = 0; i < arraysCnt; i++) {
-    const arr = arrays[i];
-    const BPE = arr.BYTES_PER_ELEMENT;
-    byteOffset = Math.ceil(byteOffset / BPE) * BPE;
-    const byteLength = arr.byteLength;
-    const idx = 1 + 2 * i;
-    dataView.setUint32(idx * 4, byteOffset, true);
-    dataView.setUint32((idx + 1) * 4, byteLength, true);
-    offsets.push(byteOffset);
-    byteOffset += byteLength;
-  }
-  const dataArray = new Uint8Array(byteOffset);
-  dataArray.set(new Uint8Array(dataView.buffer), 0);
-  const requiresSwapToLittleEndian = function() {
-    const b4 = new ArrayBuffer(2);
-    new Uint16Array(b4)[0] = 1;
-    return new Uint8Array(b4)[0] !== 1;
-  }();
-  for (let i = 0; i < arraysCnt; i++) {
-    const arr = arrays[i];
-    const subarray = new Uint8Array(arr.buffer, arr.byteOffset, arr.byteLength);
-    const BPE = arr.BYTES_PER_ELEMENT;
-    if (requiresSwapToLittleEndian && BPE > 1) {
-      const swaps = BPE / 2;
-      const cnt = subarray.length / BPE;
-      for (let b4 = 0; b4 < cnt; b4++) {
-        const offset = b4 * BPE;
-        for (let j = 0; j < swaps; j++) {
-          const i1 = offset + j;
-          const i2 = offset - j + BPE - 1;
-          const tmp = subarray[i1];
-          subarray[i1] = subarray[i2];
-          subarray[i2] = tmp;
-        }
-      }
-    }
-    dataArray.set(subarray, offsets[i]);
-  }
-  return dataArray.buffer;
-}
-function packXGF2(xgfData) {
-  return toArrayBuffer4([
-    xgfData.positions,
-    xgfData.colors,
-    xgfData.indices,
-    xgfData.edgeIndices,
-    xgfData.aabbs,
-    xgfData.normals,
-    xgfData.uvs,
-    xgfData.eachGeometryPositionsBase,
-    xgfData.eachGeometryColorsBase,
-    xgfData.eachGeometryIndicesBase,
-    xgfData.eachGeometryEdgeIndicesBase,
-    xgfData.eachGeometryNormalsBase,
-    xgfData.eachGeometryUVsBase,
-    xgfData.eachGeometryPrimitiveType,
-    xgfData.eachGeometryAABBBase,
-    xgfData.matrices,
-    xgfData.textureData,
-    xgfData.eachTextureDataBase,
-    xgfData.eachTextureMediaType,
-    xgfData.eachTextureWidth,
-    xgfData.eachTextureHeight,
-    xgfData.eachTextureSampler,
-    object2Array2(xgfData.eachTextureId),
-    xgfData.eachMaterialPBR,
-    xgfData.eachMaterialTextures,
-    object2Array2(xgfData.eachMaterialId),
-    xgfData.eachMeshGeometriesBase,
-    xgfData.eachMeshMatricesBase,
-    xgfData.eachMeshMaterialAttributes,
-    xgfData.eachMeshMaterial,
-    object2Array2(xgfData.eachObjectId),
-    xgfData.eachObjectMeshesBase
-  ]);
-}
-
-// ../sdk/src/formats/xgf/versions/v2/encode.ts
-async function encode11(params, options) {
-  const xgfData = await modelToXGF2({ sceneModel: params.sceneModel, options });
-  return packXGF2(xgfData);
-}
-
-// ../sdk/src/formats/xgf/versions/v3/modelToXGF.ts
-var NUM_MATERIAL_ATTRIBUTES5 = 4;
-var NUM_MATERIAL_TEXTURE_REFS4 = 5;
-var NUM_MATERIAL_PBR_BYTES4 = 8;
-var NO_INDEX4 = 4294967295;
-var clampByte = (v) => v < 0 ? 0 : v > 255 ? 255 : v;
-var SAMPLER_CODE2 = {
-  [RepeatWrapping]: 1,
-  [ClampToEdgeWrapping]: 2,
-  [MirroredRepeatWrapping]: 3,
-  [NearestFilter]: 4,
-  [LinearFilter]: 5,
-  [NearestMipMapNearestFilter]: 6,
-  [LinearMipMapNearestFilter]: 7,
-  [NearestMipMapLinearFilter]: 8,
-  [LinearMipMapLinearFilter]: 9
-};
-var MEDIA_TYPE_CODE2 = {
-  [PNGMediaType]: 0,
-  [JPEGMediaType]: 1,
-  [GIFMediaType]: 2
-};
-var samplerCode2 = (v) => v !== void 0 && SAMPLER_CODE2[v] !== void 0 ? SAMPLER_CODE2[v] : 0;
-async function modelToXGF3(params) {
+async function modelToXGF(params) {
   const sceneModel = params.sceneModel;
   const options = params.options || {};
   const onProgress = options.onProgress;
@@ -106640,6 +105556,7 @@ async function modelToXGF3(params) {
   const textureWidths = [];
   const textureHeights = [];
   const textureSamplers = [];
+  const textureEncodings = [];
   const textureIds = [];
   const textureIndexById = {};
   for (let i = 0; i < numTextures; i++) {
@@ -106652,26 +105569,30 @@ async function modelToXGF3(params) {
     let mediaCode = 255;
     if (tex.buffers && tex.buffers.length > 0 && tex.buffers[0]) {
       bytes = new Uint8Array(tex.buffers[0]);
-      mediaCode = tex.mediaType !== void 0 && MEDIA_TYPE_CODE2[tex.mediaType] !== void 0 ? MEDIA_TYPE_CODE2[tex.mediaType] : 255;
+      mediaCode = tex.mediaType !== void 0 && MEDIA_TYPE_CODE[tex.mediaType] !== void 0 ? MEDIA_TYPE_CODE[tex.mediaType] : 255;
     } else if (tex.imageData && tex.imageData.width && tex.imageData.height) {
-      bytes = await encodeImageToPNG2(tex.imageData);
-      mediaCode = MEDIA_TYPE_CODE2[PNGMediaType];
+      bytes = await encodeImageToPNG(tex.imageData);
+      mediaCode = MEDIA_TYPE_CODE[PNGMediaType];
+    } else if (tex.image && tex.image.width && tex.image.height) {
+      bytes = await encodeImageToPNG(tex.image);
+      mediaCode = MEDIA_TYPE_CODE[PNGMediaType];
     }
     if (!bytes) {
-      console.warn(`[xgf v2] Texture '${tex.id}' has neither buffers nor imageData \u2014 encoded as empty`);
+      console.warn(`[xgf] Texture '${tex.id}' has no buffers, imageData or image \u2014 encoded as empty`);
       bytes = new Uint8Array(0);
     }
     textureBytes2.push(bytes);
     textureMediaTypes.push(mediaCode);
-    textureWidths.push(tex.width || (tex.imageData?.width ?? 0));
-    textureHeights.push(tex.height || (tex.imageData?.height ?? 0));
+    textureWidths.push(tex.width || (tex.imageData?.width ?? tex.image?.width ?? 0));
+    textureHeights.push(tex.height || (tex.imageData?.height ?? tex.image?.height ?? 0));
     textureSamplers.push(
-      samplerCode2(tex.minFilter),
-      samplerCode2(tex.magFilter),
-      samplerCode2(tex.wrapS),
-      samplerCode2(tex.wrapT),
-      samplerCode2(tex.wrapR)
+      samplerCode(tex.minFilter),
+      samplerCode(tex.magFilter),
+      samplerCode(tex.wrapS),
+      samplerCode(tex.wrapT),
+      samplerCode(tex.wrapR)
     );
+    textureEncodings.push(tex.encoding);
   }
   let textureDataSize = 0;
   for (const b4 of textureBytes2)
@@ -106687,8 +105608,10 @@ async function modelToXGF3(params) {
     }
   }
   const materialIndexById = {};
-  const eachMaterialPBR = new Uint8Array(numMaterials * NUM_MATERIAL_PBR_BYTES4);
-  const eachMaterialTextures = new Int32Array(numMaterials * NUM_MATERIAL_TEXTURE_REFS4);
+  const eachMaterialPBR = new Uint8Array(numMaterials * NUM_MATERIAL_PBR_BYTES2);
+  const eachMaterialColor = new Float32Array(numMaterials * 3);
+  const eachMaterialTextures = new Int32Array(numMaterials * NUM_MATERIAL_TEXTURE_REFS2);
+  const eachMaterialTriplanarScale = new Float32Array(numMaterials);
   const eachMaterialId = [];
   for (let i = 0; i < numMaterials; i++) {
     if ((i & 63) === 0)
@@ -106696,21 +105619,25 @@ async function modelToXGF3(params) {
     const mat = materialsList[i];
     materialIndexById[mat.id] = i;
     eachMaterialId.push(mat.id);
-    const base = i * NUM_MATERIAL_PBR_BYTES4;
-    eachMaterialPBR[base] = clampU82(mat.color[0] * 255);
-    eachMaterialPBR[base + 1] = clampU82(mat.color[1] * 255);
-    eachMaterialPBR[base + 2] = clampU82(mat.color[2] * 255);
-    eachMaterialPBR[base + 3] = clampU82(mat.opacity * 255);
-    eachMaterialPBR[base + 4] = clampU82(mat.roughness * 255);
-    eachMaterialPBR[base + 5] = clampU82(mat.metallic * 255);
-    eachMaterialPBR[base + 6] = clampU82(mat.alphaMode);
-    eachMaterialPBR[base + 7] = clampU82(mat.alphaCutoff * 255);
-    const tBase = i * NUM_MATERIAL_TEXTURE_REFS4;
-    eachMaterialTextures[tBase] = textureIndexOrNone2(mat.colorTexture?.id, textureIndexById);
-    eachMaterialTextures[tBase + 1] = textureIndexOrNone2(mat.metallicRoughnessTexture?.id, textureIndexById);
-    eachMaterialTextures[tBase + 2] = textureIndexOrNone2(mat.normalsTexture?.id, textureIndexById);
-    eachMaterialTextures[tBase + 3] = textureIndexOrNone2(mat.occlusionTexture?.id, textureIndexById);
-    eachMaterialTextures[tBase + 4] = textureIndexOrNone2(mat.emissiveTexture?.id, textureIndexById);
+    const base = i * NUM_MATERIAL_PBR_BYTES2;
+    eachMaterialColor[i * 3] = mat.color[0];
+    eachMaterialColor[i * 3 + 1] = mat.color[1];
+    eachMaterialColor[i * 3 + 2] = mat.color[2];
+    eachMaterialPBR[base] = clampU8(mat.color[0] * 255);
+    eachMaterialPBR[base + 1] = clampU8(mat.color[1] * 255);
+    eachMaterialPBR[base + 2] = clampU8(mat.color[2] * 255);
+    eachMaterialPBR[base + 3] = clampU8(mat.opacity * 255);
+    eachMaterialPBR[base + 4] = clampU8(mat.roughness * 255);
+    eachMaterialPBR[base + 5] = clampU8(mat.metallic * 255);
+    eachMaterialPBR[base + 6] = clampU8(mat.alphaMode);
+    eachMaterialPBR[base + 7] = clampU8(mat.alphaCutoff * 255);
+    const tBase = i * NUM_MATERIAL_TEXTURE_REFS2;
+    eachMaterialTextures[tBase] = textureIndexOrNone(mat.colorTexture?.id, textureIndexById);
+    eachMaterialTextures[tBase + 1] = textureIndexOrNone(mat.metallicRoughnessTexture?.id, textureIndexById);
+    eachMaterialTextures[tBase + 2] = textureIndexOrNone(mat.normalsTexture?.id, textureIndexById);
+    eachMaterialTextures[tBase + 3] = textureIndexOrNone(mat.occlusionTexture?.id, textureIndexById);
+    eachMaterialTextures[tBase + 4] = textureIndexOrNone(mat.emissiveTexture?.id, textureIndexById);
+    eachMaterialTriplanarScale[i] = mat.triplanarScale;
   }
   const xgfData = {
     positions: new Uint16Array(sizePositions),
@@ -106741,13 +105668,16 @@ async function modelToXGF3(params) {
     eachTextureWidth: new Uint16Array(textureWidths),
     eachTextureHeight: new Uint16Array(textureHeights),
     eachTextureSampler: new Uint8Array(textureSamplers),
+    eachTextureEncoding: new Uint16Array(textureEncodings),
     eachTextureId: textureIds,
     eachMaterialPBR,
+    eachMaterialColor,
     eachMaterialTextures,
     eachMaterialId,
+    eachMaterialTriplanarScale,
     eachMeshGeometriesBase: new Uint32Array(numMeshes),
     eachMeshMatricesBase: new Uint32Array(numMeshes),
-    eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES5),
+    eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES2),
     eachMeshMaterial: new Int32Array(numMeshes),
     eachObjectId: [],
     eachObjectMeshesBase: new Uint32Array(numObjects)
@@ -106822,14 +105752,14 @@ async function modelToXGF3(params) {
       xgfData.normals.set(geometry.normalsCompressed, normalsBase);
       normalsBase += geometry.normalsCompressed.length;
     } else {
-      xgfData.eachGeometryNormalsBase[geometryIdx] = NO_INDEX4;
+      xgfData.eachGeometryNormalsBase[geometryIdx] = NO_INDEX2;
     }
     if (geometry.uvsCompressed) {
       xgfData.eachGeometryUVsBase[geometryIdx] = uvsBase;
       xgfData.uvs.set(geometry.uvsCompressed, uvsBase);
       uvsBase += geometry.uvsCompressed.length;
     } else {
-      xgfData.eachGeometryUVsBase[geometryIdx] = NO_INDEX4;
+      xgfData.eachGeometryUVsBase[geometryIdx] = NO_INDEX2;
     }
     if (geometry.scales && geometry.rotations) {
       xgfData.eachGeometryScalesBase[geometryIdx] = scalesBase;
@@ -106842,8 +105772,8 @@ async function modelToXGF3(params) {
       }
       rotationsBase += rotations.length;
     } else {
-      xgfData.eachGeometryScalesBase[geometryIdx] = NO_INDEX4;
-      xgfData.eachGeometryRotationsBase[geometryIdx] = NO_INDEX4;
+      xgfData.eachGeometryScalesBase[geometryIdx] = NO_INDEX2;
+      xgfData.eachGeometryRotationsBase[geometryIdx] = NO_INDEX2;
     }
     geometryIndices[geometry.id] = geometryIdx;
   }
@@ -106878,10 +105808,10 @@ async function modelToXGF3(params) {
         xgfData.eachMeshMatricesBase[meshesBase] = matricesBase;
         matricesBase += 16;
       }
-      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU82(mesh.effectiveColor[0] * 255);
-      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU82(mesh.effectiveColor[1] * 255);
-      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU82(mesh.effectiveColor[2] * 255);
-      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU82(mesh.effectiveOpacity * 255);
+      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU8(mesh.effectiveColor[0] * 255);
+      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU8(mesh.effectiveColor[1] * 255);
+      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU8(mesh.effectiveColor[2] * 255);
+      xgfData.eachMeshMaterialAttributes[materialAttrBase++] = clampU8(mesh.effectiveOpacity * 255);
       xgfData.eachMeshMaterial[meshesBase] = mesh.material ? materialIndexById[mesh.material.id] ?? -1 : -1;
       meshesBase++;
     }
@@ -106896,30 +105826,30 @@ async function modelToXGF3(params) {
   }
   return xgfData;
 }
-function clampU82(v) {
+function clampU8(v) {
   v = Math.round(v);
   return v < 0 ? 0 : v > 255 ? 255 : v;
 }
-function textureIndexOrNone2(id, indexById) {
+function textureIndexOrNone(id, indexById) {
   if (!id)
     return -1;
   const idx = indexById[id];
   return idx === void 0 ? -1 : idx;
 }
-async function encodeImageToPNG2(imageData) {
-  const w = imageData.width, h = imageData.height;
-  const isPixelBuffer = imageData && imageData.data && imageData.data.length === w * h * 4;
+async function encodeImageToPNG(imageData2) {
+  const w2 = imageData2.width, h2 = imageData2.height;
+  const isPixelBuffer2 = imageData2 && imageData2.data && imageData2.data.length === w2 * h2 * 4;
   const paint = (ctx2) => {
-    if (isPixelBuffer) {
-      const bytes = imageData.data instanceof Uint8ClampedArray ? imageData.data : new Uint8ClampedArray(imageData.data);
-      const id = typeof ImageData !== "undefined" && imageData instanceof ImageData ? imageData : new ImageData(bytes, w, h);
+    if (isPixelBuffer2) {
+      const bytes = imageData2.data instanceof Uint8ClampedArray ? imageData2.data : new Uint8ClampedArray(imageData2.data);
+      const id = typeof ImageData !== "undefined" && imageData2 instanceof ImageData ? imageData2 : new ImageData(bytes, w2, h2);
       ctx2.putImageData(id, 0, 0);
     } else {
-      ctx2.drawImage(imageData, 0, 0);
+      ctx2.drawImage(imageData2, 0, 0);
     }
   };
   if (typeof OffscreenCanvas !== "undefined") {
-    const canvas3 = new OffscreenCanvas(w, h);
+    const canvas3 = new OffscreenCanvas(w2, h2);
     const ctx2 = canvas3.getContext("2d");
     if (!ctx2)
       return new Uint8Array(0);
@@ -106927,36 +105857,52 @@ async function encodeImageToPNG2(imageData) {
     const blob = await canvas3.convertToBlob({ type: "image/png" });
     return new Uint8Array(await blob.arrayBuffer());
   }
-  const canvas2 = document.createElement("canvas");
-  canvas2.width = w;
-  canvas2.height = h;
-  const ctx = canvas2.getContext("2d");
-  if (!ctx)
-    return new Uint8Array(0);
-  paint(ctx);
-  return await new Promise((resolve2) => {
-    canvas2.toBlob(async (blob) => {
-      if (!blob)
-        return resolve2(new Uint8Array(0));
-      resolve2(new Uint8Array(await blob.arrayBuffer()));
-    }, "image/png");
-  });
+  if (typeof document !== "undefined") {
+    const canvas3 = document.createElement("canvas");
+    canvas3.width = w2;
+    canvas3.height = h2;
+    const ctx2 = canvas3.getContext("2d");
+    if (!ctx2)
+      return new Uint8Array(0);
+    paint(ctx2);
+    return await new Promise((resolve2) => {
+      canvas3.toBlob(async (blob) => {
+        if (!blob)
+          return resolve2(new Uint8Array(0));
+        resolve2(new Uint8Array(await blob.arrayBuffer()));
+      }, "image/png");
+    });
+  }
+  return encodeImageToPNGNode(imageData2, w2, h2, isPixelBuffer2);
+}
+function encodeImageToPNGNode(imageData, w, h, isPixelBuffer) {
+  const requireFn = eval("require");
+  const { createCanvas, ImageData: NodeImageData } = requireFn("@napi-rs/canvas");
+  const canvas = createCanvas(w, h);
+  const ctx = canvas.getContext("2d");
+  if (isPixelBuffer) {
+    const bytes = imageData.data instanceof Uint8ClampedArray ? imageData.data : new Uint8ClampedArray(imageData.data);
+    ctx.putImageData(new NodeImageData(bytes, w, h), 0, 0);
+  } else {
+    ctx.drawImage(imageData, 0, 0);
+  }
+  return new Uint8Array(canvas.toBuffer("image/png"));
 }
 
-// ../sdk/src/formats/xgf/versions/v3/XGF_INFO.ts
-var XGF_INFO3 = {
-  xgfVersion: 3
+// ../sdk/src/formats/xgf/versions/v1/XGF_INFO.ts
+var XGF_INFO = {
+  xgfVersion: 1
 };
 
-// ../sdk/src/formats/xgf/versions/v3/packXGF.ts
-var object2Array3 = function() {
+// ../sdk/src/formats/xgf/versions/v1/packXGF.ts
+var object2Array = function() {
   const encoder = new TextEncoder();
   return (obj) => encoder.encode(JSON.stringify(obj));
 }();
-function toArrayBuffer5(arrays) {
+function toArrayBuffer3(arrays) {
   const arraysCnt = arrays.length;
   const dataView = new DataView(new ArrayBuffer((1 + 2 * arraysCnt) * 4));
-  dataView.setUint32(0, XGF_INFO3.xgfVersion, true);
+  dataView.setUint32(0, XGF_INFO.xgfVersion, true);
   let byteOffset = dataView.byteLength;
   const offsets = [];
   for (let i = 0; i < arraysCnt; i++) {
@@ -106999,8 +105945,8 @@ function toArrayBuffer5(arrays) {
   }
   return dataArray.buffer;
 }
-function packXGF3(xgfData) {
-  return toArrayBuffer5([
+function packXGF(xgfData) {
+  return toArrayBuffer3([
     xgfData.positions,
     xgfData.colors,
     xgfData.indices,
@@ -107027,52 +105973,39 @@ function packXGF3(xgfData) {
     xgfData.eachTextureWidth,
     xgfData.eachTextureHeight,
     xgfData.eachTextureSampler,
-    object2Array3(xgfData.eachTextureId),
+    xgfData.eachTextureEncoding,
+    object2Array(xgfData.eachTextureId),
     xgfData.eachMaterialPBR,
+    xgfData.eachMaterialColor,
     xgfData.eachMaterialTextures,
-    object2Array3(xgfData.eachMaterialId),
+    object2Array(xgfData.eachMaterialId),
+    xgfData.eachMaterialTriplanarScale,
     xgfData.eachMeshGeometriesBase,
     xgfData.eachMeshMatricesBase,
     xgfData.eachMeshMaterialAttributes,
     xgfData.eachMeshMaterial,
-    object2Array3(xgfData.eachObjectId),
+    object2Array(xgfData.eachObjectId),
     xgfData.eachObjectMeshesBase
   ]);
 }
 
-// ../sdk/src/formats/xgf/versions/v3/encode.ts
-async function encode12(params, options) {
-  const xgfData = await modelToXGF3({ sceneModel: params.sceneModel, options });
-  return packXGF3(xgfData);
+// ../sdk/src/formats/xgf/versions/v1/encode.ts
+async function encode10(params, options) {
+  const xgfData = await modelToXGF({ sceneModel: params.sceneModel, options });
+  return packXGF(xgfData);
 }
 
 // ../sdk/src/formats/xgf/XGFExporter.ts
-var SPLAT_CAPABLE_VERSION = "1.2.0";
 var XGFExporter = class extends ModelExporter {
   constructor() {
     super({
       format: "XGF",
       fileDataType: "arraybuffer",
       encoders: {
-        "1.0.0": encode10,
-        "1.1.0": encode11,
-        "1.2.0": encode12
+        "1.0.0": encode10
       },
       defaultVersion: "1.0.0"
     });
-  }
-  /**
-   * Exports the SceneModel to XGF. Promotes the target version to
-   * {@link SPLAT_CAPABLE_VERSION | v3} when the model contains Gaussian-splat
-   * geometry and the caller didn't pin a `version` — older versions have no
-   * splat buffers, so this prevents splats being silently dropped. An explicit
-   * `version` always wins (so callers can still force v1/v2 deliberately).
-   */
-  write(params, options = {}) {
-    if (params && !params.version && params.sceneModel?.containsPrimitive(GaussianSplatsPrimitive)) {
-      params = { ...params, version: SPLAT_CAPABLE_VERSION };
-    }
-    return super.write(params, options);
   }
 };
 
@@ -109345,7 +108278,7 @@ function getModule() {
     /** @suppress {uselessCode} */
     function(global2, env, buffer2) {
       ;
-      var a2 = new global2.Int8Array(buffer2), b4 = new global2.Int16Array(buffer2), c2 = new global2.Int32Array(buffer2), d = new global2.Uint8Array(buffer2), e = new global2.Uint16Array(buffer2), f = new global2.Float32Array(buffer2), g = new global2.Float64Array(buffer2), h = env.D | 0, i = 0, j = 0, k = 0, l = 0, m = 0, n = 0, o = 0, p = 0, q = global2.Math.imul, r = global2.Math.clz32, s = env.a, t = env.b, u = env.c, v = env.d, w = env.e, x = env.f, y = env.g, z = env.h, A2 = env.i, B2 = env.j, C = env.k, D = env.l, E = env.m, F = env.n, G2 = env.o, H = env.p, I = env.q, J = env.r, K = env.s, L = env.t, M = env.u, N = env.v, O = env.w, P2 = env.x, Q = env.y, R2 = env.z, S = env.A, T = env.B, U = env.C, V = 22384, W = 5265264, X = 0;
+      var a2 = new global2.Int8Array(buffer2), b4 = new global2.Int16Array(buffer2), c2 = new global2.Int32Array(buffer2), d = new global2.Uint8Array(buffer2), e = new global2.Uint16Array(buffer2), f = new global2.Float32Array(buffer2), g = new global2.Float64Array(buffer2), h2 = env.D | 0, i = 0, j = 0, k = 0, l = 0, m = 0, n = 0, o = 0, p = 0, q = global2.Math.imul, r = global2.Math.clz32, s = env.a, t = env.b, u = env.c, v = env.d, w2 = env.e, x = env.f, y = env.g, z = env.h, A2 = env.i, B2 = env.j, C = env.k, D = env.l, E = env.m, F = env.n, G2 = env.o, H = env.p, I = env.q, J = env.r, K = env.s, L = env.t, M = env.u, N = env.v, O = env.w, P2 = env.x, Q = env.y, R2 = env.z, S = env.A, T = env.B, U = env.C, V = 22384, W = 5265264, X = 0;
       function ia() {
         em();
         fm();
@@ -109356,7 +108289,7 @@ function getModule() {
       }
       function ka(a3) {
         a3 = a3 | 0;
-        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0;
+        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0;
         a3 = V;
         V = V + 16 | 0;
         b5 = a3 + 8 | 0;
@@ -109365,13 +108298,13 @@ function getModule() {
         m2 = xk() | 0;
         g2 = yk() | 0;
         f2 = Ak() | 0;
-        h2 = Bk() | 0;
+        h3 = Bk() | 0;
         i2 = Ck() | 0;
         j2 = Dk() | 0;
         k2 = Jk() | 0;
         l2 = Kk() | 0;
         e2 = Kk() | 0;
-        D(f2 | 0, h2 | 0, i2 | 0, j2 | 0, k2 | 0, 9, l2 | 0, m2 | 0, e2 | 0, g2 | 0, 6204, Lk() | 0, 138);
+        D(f2 | 0, h3 | 0, i2 | 0, j2 | 0, k2 | 0, 9, l2 | 0, m2 | 0, e2 | 0, g2 | 0, 6204, Lk() | 0, 138);
         Nk(1);
         c2[d2 >> 2] = 5;
         c2[d2 + 4 >> 2] = 0;
@@ -109396,9 +108329,9 @@ function getModule() {
         k2 = zl() | 0;
         j2 = Dk() | 0;
         i2 = Jk() | 0;
-        h2 = Kk() | 0;
+        h3 = Kk() | 0;
         f2 = Kk() | 0;
-        D(m2 | 0, l2 | 0, k2 | 0, j2 | 0, i2 | 0, 11, h2 | 0, g2 | 0, f2 | 0, e2 | 0, 6234, Lk() | 0, 139);
+        D(m2 | 0, l2 | 0, k2 | 0, j2 | 0, i2 | 0, 11, h3 | 0, g2 | 0, f2 | 0, e2 | 0, 6234, Lk() | 0, 139);
         Gl(2);
         c2[d2 >> 2] = 6;
         c2[d2 + 4 >> 2] = 0;
@@ -109432,17 +108365,17 @@ function getModule() {
         a3 = a3 | 0;
         b5 = b5 | 0;
         d2 = d2 | 0;
-        var e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0;
+        var e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0;
         e2 = V;
         V = V + 32 | 0;
-        h2 = e2 + 16 | 0;
+        h3 = e2 + 16 | 0;
         f2 = e2 + 8 | 0;
         i2 = e2;
         g2 = eq(20) | 0;
         ta(g2, b5, d2);
         c2[i2 >> 2] = 0;
-        c2[h2 >> 2] = c2[i2 >> 2];
-        va(f2, g2, h2);
+        c2[h3 >> 2] = c2[i2 >> 2];
+        va(f2, g2, h3);
         b5 = c2[f2 >> 2] | 0;
         c2[f2 >> 2] = c2[a3 >> 2];
         c2[a3 >> 2] = b5;
@@ -109456,8 +108389,8 @@ function getModule() {
         ua(d2, c2[a3 >> 2] | 0);
         g2 = a3 + 8 | 0;
         c2[i2 >> 2] = 0;
-        c2[h2 >> 2] = c2[i2 >> 2];
-        Fa(f2, d2, h2);
+        c2[h3 >> 2] = c2[i2 >> 2];
+        Fa(f2, d2, h3);
         d2 = c2[f2 >> 2] | 0;
         c2[f2 >> 2] = c2[g2 >> 2];
         c2[g2 >> 2] = d2;
@@ -109485,16 +108418,16 @@ function getModule() {
         a3 = a3 | 0;
         b5 = b5 | 0;
         d2 = d2 | 0;
-        var e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0;
+        var e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0;
         e2 = V;
         V = V + 32 | 0;
         g2 = e2 + 16 | 0;
         f2 = e2 + 8 | 0;
-        h2 = e2;
+        h3 = e2;
         i2 = eq(12) | 0;
         Rh(i2, b5, d2);
-        c2[h2 >> 2] = 0;
-        c2[g2 >> 2] = c2[h2 >> 2];
+        c2[h3 >> 2] = 0;
+        c2[g2 >> 2] = c2[h3 >> 2];
         Vh(f2, i2, g2);
         i2 = c2[f2 >> 2] | 0;
         c2[f2 >> 2] = c2[a3 >> 2];
@@ -109508,27 +108441,27 @@ function getModule() {
         d2 = a3 + 8 | 0;
         b5 = eq(12) | 0;
         Sh(b5, c2[a3 >> 2] | 0);
-        c2[h2 >> 2] = 0;
-        c2[g2 >> 2] = c2[h2 >> 2];
+        c2[h3 >> 2] = 0;
+        c2[g2 >> 2] = c2[h3 >> 2];
         ai(f2, b5, g2);
         b5 = c2[f2 >> 2] | 0;
         c2[f2 >> 2] = c2[d2 >> 2];
         c2[d2 >> 2] = b5;
         b5 = f2 + 4 | 0;
-        h2 = a3 + 12 | 0;
+        h3 = a3 + 12 | 0;
         i2 = c2[b5 >> 2] | 0;
-        c2[b5 >> 2] = c2[h2 >> 2];
-        c2[h2 >> 2] = i2;
+        c2[b5 >> 2] = c2[h3 >> 2];
+        c2[h3 >> 2] = i2;
         bi(f2);
         Th(f2, c2[d2 >> 2] | 0);
         d2 = a3 + 16 | 0;
-        h2 = c2[f2 >> 2] | 0;
+        h3 = c2[f2 >> 2] | 0;
         i2 = f2 + 4 | 0;
         b5 = c2[i2 >> 2] | 0;
         c2[f2 >> 2] = 0;
         c2[i2 >> 2] = 0;
         c2[g2 >> 2] = c2[d2 >> 2];
-        c2[d2 >> 2] = h2;
+        c2[d2 >> 2] = h3;
         d2 = a3 + 20 | 0;
         c2[g2 + 4 >> 2] = c2[d2 >> 2];
         c2[d2 >> 2] = b5;
@@ -109705,7 +108638,7 @@ function getModule() {
       }
       function ya(a3) {
         a3 = a3 | 0;
-        w(a3 | 0) | 0;
+        w2(a3 | 0) | 0;
         lp();
       }
       function za(a3) {
@@ -109920,13 +108853,13 @@ function getModule() {
       }
       function Za(b5) {
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0;
         i2 = V;
         V = V + 64 | 0;
         g2 = i2 + 32 | 0;
         e2 = i2 + 56 | 0;
         d2 = i2 + 16 | 0;
-        h2 = i2;
+        h3 = i2;
         $a(c2[b5 >> 2] | 0, e2, 4);
         mb(g2, e2, e2 + 4 | 0);
         e2 = lb(6693) | 0;
@@ -109963,16 +108896,16 @@ function getModule() {
             jb(c2[b5 >> 2] | 0);
             f2 = c2[b5 >> 2] | 0;
             d2 = (c2[b5 + 116 >> 2] | 0) + 8 | 0;
-            e2 = h2;
+            e2 = h3;
             c2[e2 >> 2] = 0;
             c2[e2 + 4 >> 2] = 0;
-            e2 = h2 + 8 | 0;
+            e2 = h3 + 8 | 0;
             c2[e2 >> 2] = d2;
             c2[e2 + 4 >> 2] = 0;
-            c2[g2 >> 2] = c2[h2 >> 2];
-            c2[g2 + 4 >> 2] = c2[h2 + 4 >> 2];
-            c2[g2 + 8 >> 2] = c2[h2 + 8 >> 2];
-            c2[g2 + 12 >> 2] = c2[h2 + 12 >> 2];
+            c2[g2 >> 2] = c2[h3 >> 2];
+            c2[g2 + 4 >> 2] = c2[h3 + 4 >> 2];
+            c2[g2 + 8 >> 2] = c2[h3 + 8 >> 2];
+            c2[g2 + 12 >> 2] = c2[h3 + 12 >> 2];
             bb(f2, g2);
             kb(b5 + 4 | 0);
             V = i2;
@@ -109996,11 +108929,11 @@ function getModule() {
         b5 = b5 | 0;
         d2 = d2 | 0;
         e2 = e2 | 0;
-        var f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0;
+        var f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0;
         i2 = b5 + 13 | 0;
         if (!(a2[i2 >> 0] | 0)) {
-          h2 = b5 + 4 | 0;
-          f2 = c2[h2 >> 2] | 0;
+          h3 = b5 + 4 | 0;
+          f2 = c2[h3 >> 2] | 0;
           j2 = b5 + 8 | 0;
           g2 = c2[j2 >> 2] | 0;
           k2 = f2 - g2 | 0;
@@ -110008,7 +108941,7 @@ function getModule() {
           if (e2) {
             vr(d2 | 0, (c2[b5 >> 2] | 0) + g2 | 0, e2 | 0) | 0;
             g2 = c2[j2 >> 2] | 0;
-            f2 = c2[h2 >> 2] | 0;
+            f2 = c2[h3 >> 2] | 0;
           }
           k2 = g2 + e2 | 0;
           c2[j2 >> 2] = k2;
@@ -110045,123 +108978,123 @@ function getModule() {
         c3 = c3 | 0;
         var d2 = 0, e2 = 0, f2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0;
         n2 = c3 + 179 | 0;
-        a2[h >> 0] = a2[n2 >> 0];
-        a2[h + 1 >> 0] = a2[n2 + 1 >> 0];
-        a2[h + 2 >> 0] = a2[n2 + 2 >> 0];
-        a2[h + 3 >> 0] = a2[n2 + 3 >> 0];
-        a2[h + 4 >> 0] = a2[n2 + 4 >> 0];
-        a2[h + 5 >> 0] = a2[n2 + 5 >> 0];
-        a2[h + 6 >> 0] = a2[n2 + 6 >> 0];
-        a2[h + 7 >> 0] = a2[n2 + 7 >> 0];
-        m2 = +g[h >> 3];
+        a2[h2 >> 0] = a2[n2 >> 0];
+        a2[h2 + 1 >> 0] = a2[n2 + 1 >> 0];
+        a2[h2 + 2 >> 0] = a2[n2 + 2 >> 0];
+        a2[h2 + 3 >> 0] = a2[n2 + 3 >> 0];
+        a2[h2 + 4 >> 0] = a2[n2 + 4 >> 0];
+        a2[h2 + 5 >> 0] = a2[n2 + 5 >> 0];
+        a2[h2 + 6 >> 0] = a2[n2 + 6 >> 0];
+        a2[h2 + 7 >> 0] = a2[n2 + 7 >> 0];
+        m2 = +g[h2 >> 3];
         j2 = c3 + 187 | 0;
-        a2[h >> 0] = a2[j2 >> 0];
-        a2[h + 1 >> 0] = a2[j2 + 1 >> 0];
-        a2[h + 2 >> 0] = a2[j2 + 2 >> 0];
-        a2[h + 3 >> 0] = a2[j2 + 3 >> 0];
-        a2[h + 4 >> 0] = a2[j2 + 4 >> 0];
-        a2[h + 5 >> 0] = a2[j2 + 5 >> 0];
-        a2[h + 6 >> 0] = a2[j2 + 6 >> 0];
-        a2[h + 7 >> 0] = a2[j2 + 7 >> 0];
-        o2 = +g[h >> 3];
+        a2[h2 >> 0] = a2[j2 >> 0];
+        a2[h2 + 1 >> 0] = a2[j2 + 1 >> 0];
+        a2[h2 + 2 >> 0] = a2[j2 + 2 >> 0];
+        a2[h2 + 3 >> 0] = a2[j2 + 3 >> 0];
+        a2[h2 + 4 >> 0] = a2[j2 + 4 >> 0];
+        a2[h2 + 5 >> 0] = a2[j2 + 5 >> 0];
+        a2[h2 + 6 >> 0] = a2[j2 + 6 >> 0];
+        a2[h2 + 7 >> 0] = a2[j2 + 7 >> 0];
+        o2 = +g[h2 >> 3];
         b5 = c3 + 195 | 0;
-        a2[h >> 0] = a2[b5 >> 0];
-        a2[h + 1 >> 0] = a2[b5 + 1 >> 0];
-        a2[h + 2 >> 0] = a2[b5 + 2 >> 0];
-        a2[h + 3 >> 0] = a2[b5 + 3 >> 0];
-        a2[h + 4 >> 0] = a2[b5 + 4 >> 0];
-        a2[h + 5 >> 0] = a2[b5 + 5 >> 0];
-        a2[h + 6 >> 0] = a2[b5 + 6 >> 0];
-        a2[h + 7 >> 0] = a2[b5 + 7 >> 0];
-        i2 = +g[h >> 3];
+        a2[h2 >> 0] = a2[b5 >> 0];
+        a2[h2 + 1 >> 0] = a2[b5 + 1 >> 0];
+        a2[h2 + 2 >> 0] = a2[b5 + 2 >> 0];
+        a2[h2 + 3 >> 0] = a2[b5 + 3 >> 0];
+        a2[h2 + 4 >> 0] = a2[b5 + 4 >> 0];
+        a2[h2 + 5 >> 0] = a2[b5 + 5 >> 0];
+        a2[h2 + 6 >> 0] = a2[b5 + 6 >> 0];
+        a2[h2 + 7 >> 0] = a2[b5 + 7 >> 0];
+        i2 = +g[h2 >> 3];
         l2 = c3 + 203 | 0;
-        a2[h >> 0] = a2[l2 >> 0];
-        a2[h + 1 >> 0] = a2[l2 + 1 >> 0];
-        a2[h + 2 >> 0] = a2[l2 + 2 >> 0];
-        a2[h + 3 >> 0] = a2[l2 + 3 >> 0];
-        a2[h + 4 >> 0] = a2[l2 + 4 >> 0];
-        a2[h + 5 >> 0] = a2[l2 + 5 >> 0];
-        a2[h + 6 >> 0] = a2[l2 + 6 >> 0];
-        a2[h + 7 >> 0] = a2[l2 + 7 >> 0];
-        k2 = +g[h >> 3];
+        a2[h2 >> 0] = a2[l2 >> 0];
+        a2[h2 + 1 >> 0] = a2[l2 + 1 >> 0];
+        a2[h2 + 2 >> 0] = a2[l2 + 2 >> 0];
+        a2[h2 + 3 >> 0] = a2[l2 + 3 >> 0];
+        a2[h2 + 4 >> 0] = a2[l2 + 4 >> 0];
+        a2[h2 + 5 >> 0] = a2[l2 + 5 >> 0];
+        a2[h2 + 6 >> 0] = a2[l2 + 6 >> 0];
+        a2[h2 + 7 >> 0] = a2[l2 + 7 >> 0];
+        k2 = +g[h2 >> 3];
         f2 = c3 + 211 | 0;
-        a2[h >> 0] = a2[f2 >> 0];
-        a2[h + 1 >> 0] = a2[f2 + 1 >> 0];
-        a2[h + 2 >> 0] = a2[f2 + 2 >> 0];
-        a2[h + 3 >> 0] = a2[f2 + 3 >> 0];
-        a2[h + 4 >> 0] = a2[f2 + 4 >> 0];
-        a2[h + 5 >> 0] = a2[f2 + 5 >> 0];
-        a2[h + 6 >> 0] = a2[f2 + 6 >> 0];
-        a2[h + 7 >> 0] = a2[f2 + 7 >> 0];
-        d2 = +g[h >> 3];
+        a2[h2 >> 0] = a2[f2 >> 0];
+        a2[h2 + 1 >> 0] = a2[f2 + 1 >> 0];
+        a2[h2 + 2 >> 0] = a2[f2 + 2 >> 0];
+        a2[h2 + 3 >> 0] = a2[f2 + 3 >> 0];
+        a2[h2 + 4 >> 0] = a2[f2 + 4 >> 0];
+        a2[h2 + 5 >> 0] = a2[f2 + 5 >> 0];
+        a2[h2 + 6 >> 0] = a2[f2 + 6 >> 0];
+        a2[h2 + 7 >> 0] = a2[f2 + 7 >> 0];
+        d2 = +g[h2 >> 3];
         c3 = c3 + 219 | 0;
-        a2[h >> 0] = a2[c3 >> 0];
-        a2[h + 1 >> 0] = a2[c3 + 1 >> 0];
-        a2[h + 2 >> 0] = a2[c3 + 2 >> 0];
-        a2[h + 3 >> 0] = a2[c3 + 3 >> 0];
-        a2[h + 4 >> 0] = a2[c3 + 4 >> 0];
-        a2[h + 5 >> 0] = a2[c3 + 5 >> 0];
-        a2[h + 6 >> 0] = a2[c3 + 6 >> 0];
-        a2[h + 7 >> 0] = a2[c3 + 7 >> 0];
-        e2 = +g[h >> 3];
-        g[h >> 3] = o2;
-        a2[n2 >> 0] = a2[h >> 0];
-        a2[n2 + 1 >> 0] = a2[h + 1 >> 0];
-        a2[n2 + 2 >> 0] = a2[h + 2 >> 0];
-        a2[n2 + 3 >> 0] = a2[h + 3 >> 0];
-        a2[n2 + 4 >> 0] = a2[h + 4 >> 0];
-        a2[n2 + 5 >> 0] = a2[h + 5 >> 0];
-        a2[n2 + 6 >> 0] = a2[h + 6 >> 0];
-        a2[n2 + 7 >> 0] = a2[h + 7 >> 0];
-        g[h >> 3] = m2;
-        a2[l2 >> 0] = a2[h >> 0];
-        a2[l2 + 1 >> 0] = a2[h + 1 >> 0];
-        a2[l2 + 2 >> 0] = a2[h + 2 >> 0];
-        a2[l2 + 3 >> 0] = a2[h + 3 >> 0];
-        a2[l2 + 4 >> 0] = a2[h + 4 >> 0];
-        a2[l2 + 5 >> 0] = a2[h + 5 >> 0];
-        a2[l2 + 6 >> 0] = a2[h + 6 >> 0];
-        a2[l2 + 7 >> 0] = a2[h + 7 >> 0];
-        g[h >> 3] = k2;
-        a2[j2 >> 0] = a2[h >> 0];
-        a2[j2 + 1 >> 0] = a2[h + 1 >> 0];
-        a2[j2 + 2 >> 0] = a2[h + 2 >> 0];
-        a2[j2 + 3 >> 0] = a2[h + 3 >> 0];
-        a2[j2 + 4 >> 0] = a2[h + 4 >> 0];
-        a2[j2 + 5 >> 0] = a2[h + 5 >> 0];
-        a2[j2 + 6 >> 0] = a2[h + 6 >> 0];
-        a2[j2 + 7 >> 0] = a2[h + 7 >> 0];
-        g[h >> 3] = i2;
-        a2[f2 >> 0] = a2[h >> 0];
-        a2[f2 + 1 >> 0] = a2[h + 1 >> 0];
-        a2[f2 + 2 >> 0] = a2[h + 2 >> 0];
-        a2[f2 + 3 >> 0] = a2[h + 3 >> 0];
-        a2[f2 + 4 >> 0] = a2[h + 4 >> 0];
-        a2[f2 + 5 >> 0] = a2[h + 5 >> 0];
-        a2[f2 + 6 >> 0] = a2[h + 6 >> 0];
-        a2[f2 + 7 >> 0] = a2[h + 7 >> 0];
-        g[h >> 3] = e2;
-        a2[b5 >> 0] = a2[h >> 0];
-        a2[b5 + 1 >> 0] = a2[h + 1 >> 0];
-        a2[b5 + 2 >> 0] = a2[h + 2 >> 0];
-        a2[b5 + 3 >> 0] = a2[h + 3 >> 0];
-        a2[b5 + 4 >> 0] = a2[h + 4 >> 0];
-        a2[b5 + 5 >> 0] = a2[h + 5 >> 0];
-        a2[b5 + 6 >> 0] = a2[h + 6 >> 0];
-        a2[b5 + 7 >> 0] = a2[h + 7 >> 0];
-        g[h >> 3] = d2;
-        a2[c3 >> 0] = a2[h >> 0];
-        a2[c3 + 1 >> 0] = a2[h + 1 >> 0];
-        a2[c3 + 2 >> 0] = a2[h + 2 >> 0];
-        a2[c3 + 3 >> 0] = a2[h + 3 >> 0];
-        a2[c3 + 4 >> 0] = a2[h + 4 >> 0];
-        a2[c3 + 5 >> 0] = a2[h + 5 >> 0];
-        a2[c3 + 6 >> 0] = a2[h + 6 >> 0];
-        a2[c3 + 7 >> 0] = a2[h + 7 >> 0];
+        a2[h2 >> 0] = a2[c3 >> 0];
+        a2[h2 + 1 >> 0] = a2[c3 + 1 >> 0];
+        a2[h2 + 2 >> 0] = a2[c3 + 2 >> 0];
+        a2[h2 + 3 >> 0] = a2[c3 + 3 >> 0];
+        a2[h2 + 4 >> 0] = a2[c3 + 4 >> 0];
+        a2[h2 + 5 >> 0] = a2[c3 + 5 >> 0];
+        a2[h2 + 6 >> 0] = a2[c3 + 6 >> 0];
+        a2[h2 + 7 >> 0] = a2[c3 + 7 >> 0];
+        e2 = +g[h2 >> 3];
+        g[h2 >> 3] = o2;
+        a2[n2 >> 0] = a2[h2 >> 0];
+        a2[n2 + 1 >> 0] = a2[h2 + 1 >> 0];
+        a2[n2 + 2 >> 0] = a2[h2 + 2 >> 0];
+        a2[n2 + 3 >> 0] = a2[h2 + 3 >> 0];
+        a2[n2 + 4 >> 0] = a2[h2 + 4 >> 0];
+        a2[n2 + 5 >> 0] = a2[h2 + 5 >> 0];
+        a2[n2 + 6 >> 0] = a2[h2 + 6 >> 0];
+        a2[n2 + 7 >> 0] = a2[h2 + 7 >> 0];
+        g[h2 >> 3] = m2;
+        a2[l2 >> 0] = a2[h2 >> 0];
+        a2[l2 + 1 >> 0] = a2[h2 + 1 >> 0];
+        a2[l2 + 2 >> 0] = a2[h2 + 2 >> 0];
+        a2[l2 + 3 >> 0] = a2[h2 + 3 >> 0];
+        a2[l2 + 4 >> 0] = a2[h2 + 4 >> 0];
+        a2[l2 + 5 >> 0] = a2[h2 + 5 >> 0];
+        a2[l2 + 6 >> 0] = a2[h2 + 6 >> 0];
+        a2[l2 + 7 >> 0] = a2[h2 + 7 >> 0];
+        g[h2 >> 3] = k2;
+        a2[j2 >> 0] = a2[h2 >> 0];
+        a2[j2 + 1 >> 0] = a2[h2 + 1 >> 0];
+        a2[j2 + 2 >> 0] = a2[h2 + 2 >> 0];
+        a2[j2 + 3 >> 0] = a2[h2 + 3 >> 0];
+        a2[j2 + 4 >> 0] = a2[h2 + 4 >> 0];
+        a2[j2 + 5 >> 0] = a2[h2 + 5 >> 0];
+        a2[j2 + 6 >> 0] = a2[h2 + 6 >> 0];
+        a2[j2 + 7 >> 0] = a2[h2 + 7 >> 0];
+        g[h2 >> 3] = i2;
+        a2[f2 >> 0] = a2[h2 >> 0];
+        a2[f2 + 1 >> 0] = a2[h2 + 1 >> 0];
+        a2[f2 + 2 >> 0] = a2[h2 + 2 >> 0];
+        a2[f2 + 3 >> 0] = a2[h2 + 3 >> 0];
+        a2[f2 + 4 >> 0] = a2[h2 + 4 >> 0];
+        a2[f2 + 5 >> 0] = a2[h2 + 5 >> 0];
+        a2[f2 + 6 >> 0] = a2[h2 + 6 >> 0];
+        a2[f2 + 7 >> 0] = a2[h2 + 7 >> 0];
+        g[h2 >> 3] = e2;
+        a2[b5 >> 0] = a2[h2 >> 0];
+        a2[b5 + 1 >> 0] = a2[h2 + 1 >> 0];
+        a2[b5 + 2 >> 0] = a2[h2 + 2 >> 0];
+        a2[b5 + 3 >> 0] = a2[h2 + 3 >> 0];
+        a2[b5 + 4 >> 0] = a2[h2 + 4 >> 0];
+        a2[b5 + 5 >> 0] = a2[h2 + 5 >> 0];
+        a2[b5 + 6 >> 0] = a2[h2 + 6 >> 0];
+        a2[b5 + 7 >> 0] = a2[h2 + 7 >> 0];
+        g[h2 >> 3] = d2;
+        a2[c3 >> 0] = a2[h2 >> 0];
+        a2[c3 + 1 >> 0] = a2[h2 + 1 >> 0];
+        a2[c3 + 2 >> 0] = a2[h2 + 2 >> 0];
+        a2[c3 + 3 >> 0] = a2[h2 + 3 >> 0];
+        a2[c3 + 4 >> 0] = a2[h2 + 4 >> 0];
+        a2[c3 + 5 >> 0] = a2[h2 + 5 >> 0];
+        a2[c3 + 6 >> 0] = a2[h2 + 6 >> 0];
+        a2[c3 + 7 >> 0] = a2[h2 + 7 >> 0];
         return;
       }
       function db() {
-        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0;
+        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0;
         g2 = V;
         V = V + 48 | 0;
         e2 = g2 + 24 | 0;
@@ -110188,10 +109121,10 @@ function getModule() {
                 if (d2 >>> 0 < b5 >>> 0)
                   cr(21496);
                 else {
-                  h2 = c2[5374] | 0;
-                  j2 = ((c2[5376] | 0) - h2 | 0) / 24 | 0;
+                  h3 = c2[5374] | 0;
+                  j2 = ((c2[5376] | 0) - h3 | 0) / 24 | 0;
                   i2 = j2 << 1;
-                  ub(e2, j2 >>> 0 < d2 >>> 1 >>> 0 ? i2 >>> 0 < b5 >>> 0 ? b5 : i2 : d2, ((c2[5375] | 0) - h2 | 0) / 24 | 0, 21504);
+                  ub(e2, j2 >>> 0 < d2 >>> 1 >>> 0 ? i2 >>> 0 < b5 >>> 0 ? b5 : i2 : d2, ((c2[5375] | 0) - h3 | 0) / 24 | 0, 21504);
                   d2 = e2 + 8 | 0;
                   sb(c2[d2 >> 2] | 0, f2);
                   c2[d2 >> 2] = (c2[d2 >> 2] | 0) + 24;
@@ -110264,7 +109197,7 @@ function getModule() {
       }
       function hb(b5) {
         b5 = b5 | 0;
-        var f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q2 = 0;
+        var f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q2 = 0;
         q2 = V;
         V = V + 96 | 0;
         i2 = q2 + 16 | 0;
@@ -110299,12 +109232,12 @@ function getModule() {
                   break a;
                 $a(c2[b5 >> 2] | 0, i2, 54);
                 f2 = 7277;
-                h2 = k2;
+                h3 = k2;
                 while (1) {
-                  if ((a2[h2 >> 0] | 0) != (a2[f2 >> 0] | 0))
+                  if ((a2[h3 >> 0] | 0) != (a2[f2 >> 0] | 0))
                     break;
-                  h2 = h2 + 1 | 0;
-                  if ((h2 | 0) == (m2 | 0)) {
+                  h3 = h3 + 1 | 0;
+                  if ((h3 | 0) == (m2 | 0)) {
                     p2 = 8;
                     break;
                   } else
@@ -110336,11 +109269,11 @@ function getModule() {
       }
       function ib(a3) {
         a3 = a3 | 0;
-        var b5 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0;
+        var b5 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0;
         n2 = V;
         V = V + 176 | 0;
         g2 = n2 + 40 | 0;
-        h2 = n2 + 24 | 0;
+        h3 = n2 + 24 | 0;
         b5 = n2 + 16 | 0;
         f2 = n2;
         k2 = n2 + 152 | 0;
@@ -110349,16 +109282,16 @@ function getModule() {
         j2 = c2[a3 >> 2] | 0;
         i2 = a3 + 116 | 0;
         o2 = c2[i2 >> 2] | 0;
-        e2 = h2;
+        e2 = h3;
         c2[e2 >> 2] = 0;
         c2[e2 + 4 >> 2] = 0;
-        e2 = h2 + 8 | 0;
+        e2 = h3 + 8 | 0;
         c2[e2 >> 2] = o2;
         c2[e2 + 4 >> 2] = 0;
-        c2[g2 >> 2] = c2[h2 >> 2];
-        c2[g2 + 4 >> 2] = c2[h2 + 4 >> 2];
-        c2[g2 + 8 >> 2] = c2[h2 + 8 >> 2];
-        c2[g2 + 12 >> 2] = c2[h2 + 12 >> 2];
+        c2[g2 >> 2] = c2[h3 >> 2];
+        c2[g2 + 4 >> 2] = c2[h3 + 4 >> 2];
+        c2[g2 + 8 >> 2] = c2[h3 + 8 >> 2];
+        c2[g2 + 12 >> 2] = c2[h3 + 12 >> 2];
         bb(j2, g2);
         j2 = b5;
         c2[j2 >> 2] = 0;
@@ -110405,9 +109338,9 @@ function getModule() {
           jc(o2);
           x(o2 | 0, 2736, 8);
         }
-        h2 = a3 + 288 | 0;
+        h3 = a3 + 288 | 0;
         j2 = a3 + 292 | 0;
-        c2[j2 >> 2] = c2[h2 >> 2];
+        c2[j2 >> 2] = c2[h3 >> 2];
         o2 = a3 + 259 | 0;
         if ((d[o2 >> 0] | d[o2 + 1 >> 0] << 8 | d[o2 + 2 >> 0] << 16 | d[o2 + 3 >> 0] << 24 | 0) == -1) {
           o2 = v(8) | 0;
@@ -110415,8 +109348,8 @@ function getModule() {
           x(o2 | 0, 2720, 8);
         }
         f2 = g2 + 4 | 0;
-        kc(h2, (c2[f2 >> 2] | 0) + 1 | 0);
-        o2 = c2[h2 >> 2] | 0;
+        kc(h3, (c2[f2 >> 2] | 0) + 1 | 0);
+        o2 = c2[h3 >> 2] | 0;
         c2[o2 >> 2] = (c2[i2 >> 2] | 0) + 8;
         c2[o2 + 4 >> 2] = 0;
         if ((c2[f2 >> 2] | 0) >>> 0 > 1) {
@@ -110426,34 +109359,34 @@ function getModule() {
           nc(l2);
           oc(m2);
           if (!(c2[f2 >> 2] | 0)) {
-            h2 = c2[h2 >> 2] | 0;
-            e2 = h2;
+            h3 = c2[h3 >> 2] | 0;
+            e2 = h3;
           } else {
             e2 = 1;
             do {
               if (e2 >>> 0 > 1)
-                b5 = c2[(c2[h2 >> 2] | 0) + (e2 + -1 << 3) >> 2] | 0;
+                b5 = c2[(c2[h3 >> 2] | 0) + (e2 + -1 << 3) >> 2] | 0;
               else
                 b5 = 0;
               i2 = pc(m2, l2, b5, 1) | 0;
-              b5 = c2[h2 >> 2] | 0;
+              b5 = c2[h3 >> 2] | 0;
               o2 = b5 + (e2 << 3) | 0;
               c2[o2 >> 2] = i2;
               c2[o2 + 4 >> 2] = ((i2 | 0) < 0) << 31 >> 31;
               e2 = e2 + 1 | 0;
             } while (e2 >>> 0 <= (c2[f2 >> 2] | 0) >>> 0);
             e2 = b5;
-            h2 = b5;
+            h3 = b5;
           }
           b5 = c2[j2 >> 2] | 0;
           if (b5 - e2 >> 3 >>> 0 > 1) {
-            g2 = b5 - h2 >> 3;
-            f2 = h2;
+            g2 = b5 - h3 >> 3;
+            f2 = h3;
             b5 = 1;
             e2 = c2[f2 >> 2] | 0;
             f2 = c2[f2 + 4 >> 2] | 0;
             do {
-              o2 = h2 + (b5 << 3) | 0;
+              o2 = h3 + (b5 << 3) | 0;
               j2 = o2;
               e2 = lr(c2[j2 >> 2] | 0, c2[j2 + 4 >> 2] | 0, e2 | 0, f2 | 0) | 0;
               f2 = u() | 0;
@@ -110489,11 +109422,11 @@ function getModule() {
         b5 = b5 | 0;
         d2 = d2 | 0;
         e2 = e2 | 0;
-        var f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0;
+        var f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0;
         i2 = V;
         V = V + 16 | 0;
         g2 = d2;
-        h2 = i2;
+        h3 = i2;
         f2 = e2 - g2 | 0;
         if (f2 >>> 0 > 4294967279)
           yq(b5);
@@ -110520,8 +109453,8 @@ function getModule() {
           }
           b5 = b5 + g2 | 0;
         }
-        a2[h2 >> 0] = 0;
-        nb(b5, h2);
+        a2[h3 >> 0] = 0;
+        nb(b5, h3);
         V = i2;
         return;
       }
@@ -110620,34 +109553,34 @@ function getModule() {
       function vb(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0;
         i2 = c2[a3 >> 2] | 0;
         j2 = a3 + 4 | 0;
         d2 = c2[j2 >> 2] | 0;
-        h2 = b5 + 4 | 0;
+        h3 = b5 + 4 | 0;
         if ((d2 | 0) == (i2 | 0)) {
-          f2 = h2;
+          f2 = h3;
           g2 = a3;
-          e2 = c2[h2 >> 2] | 0;
+          e2 = c2[h3 >> 2] | 0;
           d2 = i2;
         } else {
-          e2 = c2[h2 >> 2] | 0;
+          e2 = c2[h3 >> 2] | 0;
           do {
             d2 = d2 + -24 | 0;
             sb(e2 + -24 | 0, d2);
-            e2 = (c2[h2 >> 2] | 0) + -24 | 0;
-            c2[h2 >> 2] = e2;
+            e2 = (c2[h3 >> 2] | 0) + -24 | 0;
+            c2[h3 >> 2] = e2;
           } while ((d2 | 0) != (i2 | 0));
-          f2 = h2;
+          f2 = h3;
           g2 = a3;
           d2 = c2[a3 >> 2] | 0;
         }
         c2[g2 >> 2] = e2;
         c2[f2 >> 2] = d2;
         i2 = b5 + 8 | 0;
-        h2 = c2[j2 >> 2] | 0;
+        h3 = c2[j2 >> 2] | 0;
         c2[j2 >> 2] = c2[i2 >> 2];
-        c2[i2 >> 2] = h2;
+        c2[i2 >> 2] = h3;
         i2 = a3 + 8 | 0;
         j2 = b5 + 12 | 0;
         a3 = c2[i2 >> 2] | 0;
@@ -110810,7 +109743,7 @@ function getModule() {
         d2 = d2 | 0;
         e2 = e2 | 0;
         f2 = f2 | 0;
-        var g2 = 0, h2 = 0;
+        var g2 = 0, h3 = 0;
         switch (f2 | 0) {
           case 0:
             break;
@@ -110832,9 +109765,9 @@ function getModule() {
           }
         }
         g2 = c2[b5 + 4 >> 2] | 0;
-        h2 = ((g2 | 0) < 0) << 31 >> 31;
+        h3 = ((g2 | 0) < 0) << 31 >> 31;
         f2 = b5 + 12 | 0;
-        if ((e2 | 0) < 0 | ((e2 | 0) > (h2 | 0) | (e2 | 0) == (h2 | 0) & d2 >>> 0 >= g2 >>> 0))
+        if ((e2 | 0) < 0 | ((e2 | 0) > (h3 | 0) | (e2 | 0) == (h3 | 0) & d2 >>> 0 >= g2 >>> 0))
           a2[f2 >> 0] = 1;
         else {
           a2[f2 >> 0] = 0;
@@ -110852,10 +109785,10 @@ function getModule() {
         a3 = a3 | 0;
         b5 = b5 | 0;
         c3 = c3 | 0;
-        var e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0;
-        h2 = V;
+        var e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0;
+        h3 = V;
         V = V + 16 | 0;
-        g2 = h2;
+        g2 = h3;
         Xa(a3);
         f2 = b5 + 32 | 0;
         if ((d[f2 >> 0] | d[f2 + 1 >> 0] << 8) << 16 >> 16) {
@@ -110881,7 +109814,7 @@ function getModule() {
           _b(g2, 0, c3, 2);
           Zb(a3, g2);
         }
-        V = h2;
+        V = h3;
         return;
       }
       function Ub(b5, c3) {
@@ -110899,41 +109832,41 @@ function getModule() {
       function Vb(b5, c3) {
         b5 = b5 | 0;
         c3 = c3 | 0;
-        var e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0;
+        var e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0;
         f2 = c3 + 2 | 0;
-        h2 = d[c3 >> 0] | d[c3 + 1 >> 0] << 8;
-        a2[b5 >> 0] = h2;
-        a2[b5 + 1 >> 0] = h2 >> 8;
-        h2 = b5 + 2 | 0;
+        h3 = d[c3 >> 0] | d[c3 + 1 >> 0] << 8;
+        a2[b5 >> 0] = h3;
+        a2[b5 + 1 >> 0] = h3 >> 8;
+        h3 = b5 + 2 | 0;
         f2 = d[f2 >> 0] | d[f2 + 1 >> 0] << 8;
-        a2[h2 >> 0] = f2;
-        a2[h2 + 1 >> 0] = f2 >> 8;
+        a2[h3 >> 0] = f2;
+        a2[h3 + 1 >> 0] = f2 >> 8;
         a2[b5 + 4 >> 0] = a2[c3 + 4 >> 0] | 0;
-        h2 = c3 + 6 | 0;
+        h3 = c3 + 6 | 0;
         a2[b5 + 5 >> 0] = a2[c3 + 5 >> 0] | 0;
         f2 = c3 + 8 | 0;
         e2 = b5 + 6 | 0;
-        h2 = d[h2 >> 0] | d[h2 + 1 >> 0] << 8;
-        a2[e2 >> 0] = h2;
-        a2[e2 + 1 >> 0] = h2 >> 8;
+        h3 = d[h3 >> 0] | d[h3 + 1 >> 0] << 8;
+        a2[e2 >> 0] = h3;
+        a2[e2 + 1 >> 0] = h3 >> 8;
         e2 = c3 + 12 | 0;
-        h2 = b5 + 8 | 0;
+        h3 = b5 + 8 | 0;
         f2 = d[f2 >> 0] | d[f2 + 1 >> 0] << 8 | d[f2 + 2 >> 0] << 16 | d[f2 + 3 >> 0] << 24;
-        a2[h2 >> 0] = f2;
-        a2[h2 + 1 >> 0] = f2 >> 8;
-        a2[h2 + 2 >> 0] = f2 >> 16;
-        a2[h2 + 3 >> 0] = f2 >> 24;
-        h2 = b5 + 12 | 0;
+        a2[h3 >> 0] = f2;
+        a2[h3 + 1 >> 0] = f2 >> 8;
+        a2[h3 + 2 >> 0] = f2 >> 16;
+        a2[h3 + 3 >> 0] = f2 >> 24;
+        h3 = b5 + 12 | 0;
         e2 = d[e2 >> 0] | d[e2 + 1 >> 0] << 8 | d[e2 + 2 >> 0] << 16 | d[e2 + 3 >> 0] << 24;
-        a2[h2 >> 0] = e2;
-        a2[h2 + 1 >> 0] = e2 >> 8;
-        a2[h2 + 2 >> 0] = e2 >> 16;
-        a2[h2 + 3 >> 0] = e2 >> 24;
-        h2 = c3 + 16 | 0;
-        e2 = h2;
+        a2[h3 >> 0] = e2;
+        a2[h3 + 1 >> 0] = e2 >> 8;
+        a2[h3 + 2 >> 0] = e2 >> 16;
+        a2[h3 + 3 >> 0] = e2 >> 24;
+        h3 = c3 + 16 | 0;
+        e2 = h3;
         e2 = d[e2 >> 0] | d[e2 + 1 >> 0] << 8 | d[e2 + 2 >> 0] << 16 | d[e2 + 3 >> 0] << 24;
-        h2 = h2 + 4 | 0;
-        h2 = d[h2 >> 0] | d[h2 + 1 >> 0] << 8 | d[h2 + 2 >> 0] << 16 | d[h2 + 3 >> 0] << 24;
+        h3 = h3 + 4 | 0;
+        h3 = d[h3 >> 0] | d[h3 + 1 >> 0] << 8 | d[h3 + 2 >> 0] << 16 | d[h3 + 3 >> 0] << 24;
         f2 = b5 + 16 | 0;
         i2 = f2;
         a2[i2 >> 0] = e2;
@@ -110941,16 +109874,16 @@ function getModule() {
         a2[i2 + 2 >> 0] = e2 >> 16;
         a2[i2 + 3 >> 0] = e2 >> 24;
         f2 = f2 + 4 | 0;
-        a2[f2 >> 0] = h2;
-        a2[f2 + 1 >> 0] = h2 >> 8;
-        a2[f2 + 2 >> 0] = h2 >> 16;
-        a2[f2 + 3 >> 0] = h2 >> 24;
+        a2[f2 >> 0] = h3;
+        a2[f2 + 1 >> 0] = h3 >> 8;
+        a2[f2 + 2 >> 0] = h3 >> 16;
+        a2[f2 + 3 >> 0] = h3 >> 24;
         f2 = c3 + 32 | 0;
-        h2 = c3 + 24 | 0;
-        i2 = h2;
+        h3 = c3 + 24 | 0;
+        i2 = h3;
         i2 = d[i2 >> 0] | d[i2 + 1 >> 0] << 8 | d[i2 + 2 >> 0] << 16 | d[i2 + 3 >> 0] << 24;
-        h2 = h2 + 4 | 0;
-        h2 = d[h2 >> 0] | d[h2 + 1 >> 0] << 8 | d[h2 + 2 >> 0] << 16 | d[h2 + 3 >> 0] << 24;
+        h3 = h3 + 4 | 0;
+        h3 = d[h3 >> 0] | d[h3 + 1 >> 0] << 8 | d[h3 + 2 >> 0] << 16 | d[h3 + 3 >> 0] << 24;
         e2 = b5 + 24 | 0;
         g2 = e2;
         a2[g2 >> 0] = i2;
@@ -110958,29 +109891,29 @@ function getModule() {
         a2[g2 + 2 >> 0] = i2 >> 16;
         a2[g2 + 3 >> 0] = i2 >> 24;
         e2 = e2 + 4 | 0;
-        a2[e2 >> 0] = h2;
-        a2[e2 + 1 >> 0] = h2 >> 8;
-        a2[e2 + 2 >> 0] = h2 >> 16;
-        a2[e2 + 3 >> 0] = h2 >> 24;
+        a2[e2 >> 0] = h3;
+        a2[e2 + 1 >> 0] = h3 >> 8;
+        a2[e2 + 2 >> 0] = h3 >> 16;
+        a2[e2 + 3 >> 0] = h3 >> 24;
         e2 = c3 + 34 | 0;
-        h2 = b5 + 32 | 0;
+        h3 = b5 + 32 | 0;
         f2 = d[f2 >> 0] | d[f2 + 1 >> 0] << 8;
-        a2[h2 >> 0] = f2;
-        a2[h2 + 1 >> 0] = f2 >> 8;
+        a2[h3 >> 0] = f2;
+        a2[h3 + 1 >> 0] = f2 >> 8;
         g2 = b5 + 34 | 0;
         b5 = d[g2 >> 0] | d[g2 + 1 >> 0] << 8 | d[g2 + 2 >> 0] << 16 | d[g2 + 3 >> 0] << 24;
         if (!b5)
           b5 = f2;
         else {
           gq(b5);
-          b5 = d[h2 >> 0] | d[h2 + 1 >> 0] << 8;
+          b5 = d[h3 >> 0] | d[h3 + 1 >> 0] << 8;
         }
         f2 = fq((b5 & 65535) * 6 | 0) | 0;
         a2[g2 >> 0] = f2;
         a2[g2 + 1 >> 0] = f2 >> 8;
         a2[g2 + 2 >> 0] = f2 >> 16;
         a2[g2 + 3 >> 0] = f2 >> 24;
-        if (b5 << 16 >> 16 ? (b5 = c3 + 36 | 0, i2 = d[e2 >> 0] | d[e2 + 1 >> 0] << 8, a2[f2 >> 0] = i2, a2[f2 + 1 >> 0] = i2 >> 8, c3 = c3 + 38 | 0, i2 = f2 + 2 | 0, b5 = d[b5 >> 0] | d[b5 + 1 >> 0] << 8, a2[i2 >> 0] = b5, a2[i2 + 1 >> 0] = b5 >> 8, i2 = f2 + 4 | 0, c3 = d[c3 >> 0] | d[c3 + 1 >> 0] << 8, a2[i2 >> 0] = c3, a2[i2 + 1 >> 0] = c3 >> 8, ((d[h2 >> 0] | d[h2 + 1 >> 0] << 8) & 65535) > 1) : 0) {
+        if (b5 << 16 >> 16 ? (b5 = c3 + 36 | 0, i2 = d[e2 >> 0] | d[e2 + 1 >> 0] << 8, a2[f2 >> 0] = i2, a2[f2 + 1 >> 0] = i2 >> 8, c3 = c3 + 38 | 0, i2 = f2 + 2 | 0, b5 = d[b5 >> 0] | d[b5 + 1 >> 0] << 8, a2[i2 >> 0] = b5, a2[i2 + 1 >> 0] = b5 >> 8, i2 = f2 + 4 | 0, c3 = d[c3 >> 0] | d[c3 + 1 >> 0] << 8, a2[i2 >> 0] = c3, a2[i2 + 1 >> 0] = c3 >> 8, ((d[h3 >> 0] | d[h3 + 1 >> 0] << 8) & 65535) > 1) : 0) {
           b5 = 1;
           do {
             c3 = e2;
@@ -111001,7 +109934,7 @@ function getModule() {
             a2[i2 >> 0] = c3;
             a2[i2 + 1 >> 0] = c3 >> 8;
             b5 = b5 + 1 | 0;
-          } while (b5 >>> 0 < ((d[h2 >> 0] | d[h2 + 1 >> 0] << 8) & 65535) >>> 0);
+          } while (b5 >>> 0 < ((d[h3 >> 0] | d[h3 + 1 >> 0] << 8) & 65535) >>> 0);
         }
         return;
       }
@@ -111026,30 +109959,30 @@ function getModule() {
       function Zb(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0;
         i2 = V;
         V = V + 32 | 0;
         f2 = i2;
         g2 = a3 + 4 | 0;
         d2 = c2[g2 >> 2] | 0;
-        h2 = a3 + 8 | 0;
+        h3 = a3 + 8 | 0;
         do
-          if ((d2 | 0) == (c2[h2 >> 2] | 0)) {
+          if ((d2 | 0) == (c2[h3 >> 2] | 0)) {
             d2 = ((d2 - (c2[a3 >> 2] | 0) | 0) / 12 | 0) + 1 | 0;
             e2 = ec(a3) | 0;
             if (e2 >>> 0 < d2 >>> 0)
               cr(a3);
             else {
               j2 = c2[a3 >> 2] | 0;
-              k2 = ((c2[h2 >> 2] | 0) - j2 | 0) / 12 | 0;
-              h2 = k2 << 1;
-              bc(f2, k2 >>> 0 < e2 >>> 1 >>> 0 ? h2 >>> 0 < d2 >>> 0 ? d2 : h2 : e2, ((c2[g2 >> 2] | 0) - j2 | 0) / 12 | 0, a3 + 8 | 0);
-              h2 = f2 + 8 | 0;
-              g2 = c2[h2 >> 2] | 0;
+              k2 = ((c2[h3 >> 2] | 0) - j2 | 0) / 12 | 0;
+              h3 = k2 << 1;
+              bc(f2, k2 >>> 0 < e2 >>> 1 >>> 0 ? h3 >>> 0 < d2 >>> 0 ? d2 : h3 : e2, ((c2[g2 >> 2] | 0) - j2 | 0) / 12 | 0, a3 + 8 | 0);
+              h3 = f2 + 8 | 0;
+              g2 = c2[h3 >> 2] | 0;
               c2[g2 >> 2] = c2[b5 >> 2];
               c2[g2 + 4 >> 2] = c2[b5 + 4 >> 2];
               c2[g2 + 8 >> 2] = c2[b5 + 8 >> 2];
-              c2[h2 >> 2] = (c2[h2 >> 2] | 0) + 12;
+              c2[h3 >> 2] = (c2[h3 >> 2] | 0) + 12;
               cc(a3, f2);
               dc(f2);
               break;
@@ -111126,11 +110059,11 @@ function getModule() {
       function cc(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0;
         e2 = c2[a3 >> 2] | 0;
-        h2 = a3 + 4 | 0;
+        h3 = a3 + 4 | 0;
         g2 = b5 + 4 | 0;
-        f2 = (c2[h2 >> 2] | 0) - e2 | 0;
+        f2 = (c2[h3 >> 2] | 0) - e2 | 0;
         d2 = (c2[g2 >> 2] | 0) + (((f2 | 0) / -12 | 0) * 12 | 0) | 0;
         c2[g2 >> 2] = d2;
         if ((f2 | 0) > 0) {
@@ -111143,14 +110076,14 @@ function getModule() {
         c2[a3 >> 2] = d2;
         c2[e2 >> 2] = g2;
         g2 = b5 + 8 | 0;
-        f2 = c2[h2 >> 2] | 0;
-        c2[h2 >> 2] = c2[g2 >> 2];
+        f2 = c2[h3 >> 2] | 0;
+        c2[h3 >> 2] = c2[g2 >> 2];
         c2[g2 >> 2] = f2;
         g2 = a3 + 8 | 0;
-        h2 = b5 + 12 | 0;
+        h3 = b5 + 12 | 0;
         a3 = c2[g2 >> 2] | 0;
-        c2[g2 >> 2] = c2[h2 >> 2];
-        c2[h2 >> 2] = a3;
+        c2[g2 >> 2] = c2[h3 >> 2];
+        c2[h3 >> 2] = a3;
         c2[b5 >> 2] = c2[e2 >> 2];
         return;
       }
@@ -111315,7 +110248,7 @@ function getModule() {
       }
       function oc(a3) {
         a3 = a3 | 0;
-        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q2 = 0, r2 = 0, s2 = 0, t2 = 0;
+        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q2 = 0, r2 = 0, s2 = 0, t2 = 0;
         q2 = V;
         V = V + 64 | 0;
         o2 = q2 + 44 | 0;
@@ -111333,7 +110266,7 @@ function getModule() {
                   else {
                     f2 = a3 + 20 | 0;
                     g2 = a3 + 44 | 0;
-                    h2 = o2 + 4 | 0;
+                    h3 = o2 + 4 | 0;
                     i2 = a3 + 44 | 0;
                     j2 = o2 + 8 | 0;
                     e2 = 0;
@@ -111342,8 +110275,8 @@ function getModule() {
                       b5 = c2[l2 >> 2] | 0;
                       if (b5 >>> 0 < (c2[g2 >> 2] | 0) >>> 0) {
                         Pc(o2, k2, 1);
-                        Rc(c2[h2 >> 2] | 0, p2);
-                        c2[h2 >> 2] = (c2[h2 >> 2] | 0) + 44;
+                        Rc(c2[h3 >> 2] | 0, p2);
+                        c2[h3 >> 2] = (c2[h3 >> 2] | 0) + 44;
                         Qc(o2);
                       } else {
                         b5 = ((b5 - (c2[k2 >> 2] | 0) | 0) / 44 | 0) + 1 | 0;
@@ -111370,7 +110303,7 @@ function getModule() {
                   }
                 while (0);
               if (c2[n2 >> 2] | 0) {
-                h2 = a3 + 12 | 0;
+                h3 = a3 + 12 | 0;
                 i2 = a3 + 68 | 0;
                 j2 = a3 + 72 | 0;
                 k2 = a3 + 76 | 0;
@@ -111379,7 +110312,7 @@ function getModule() {
                 g2 = o2 + 8 | 0;
                 e2 = 1;
                 while (1) {
-                  b5 = c2[h2 >> 2] | 0;
+                  b5 = c2[h3 >> 2] | 0;
                   Oc(p2, 1 << (e2 >>> 0 > b5 >>> 0 ? b5 : e2), 0, 0);
                   b5 = c2[j2 >> 2] | 0;
                   if (b5 >>> 0 < (c2[k2 >> 2] | 0) >>> 0) {
@@ -111457,13 +110390,13 @@ function getModule() {
       function vc(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0;
         i2 = V;
         V = V + 32 | 0;
         f2 = i2;
         g2 = a3 + 8 | 0;
-        h2 = a3 + 4 | 0;
-        d2 = c2[h2 >> 2] | 0;
+        h3 = a3 + 4 | 0;
+        d2 = c2[h3 >> 2] | 0;
         do
           if ((c2[g2 >> 2] | 0) - d2 >> 3 >>> 0 < b5 >>> 0) {
             d2 = (d2 - (c2[a3 >> 2] | 0) >> 3) + b5 | 0;
@@ -111474,7 +110407,7 @@ function getModule() {
               j2 = c2[a3 >> 2] | 0;
               k2 = (c2[g2 >> 2] | 0) - j2 | 0;
               g2 = k2 >> 2;
-              xc(f2, k2 >> 3 >>> 0 < e2 >>> 1 >>> 0 ? g2 >>> 0 < d2 >>> 0 ? d2 : g2 : e2, (c2[h2 >> 2] | 0) - j2 >> 3, a3 + 8 | 0);
+              xc(f2, k2 >> 3 >>> 0 < e2 >>> 1 >>> 0 ? g2 >>> 0 < d2 >>> 0 ? d2 : g2 : e2, (c2[h3 >> 2] | 0) - j2 >> 3, a3 + 8 | 0);
               yc(f2, b5);
               zc(a3, f2);
               Ac(f2);
@@ -111558,11 +110491,11 @@ function getModule() {
       function zc(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0;
         e2 = c2[a3 >> 2] | 0;
-        h2 = a3 + 4 | 0;
+        h3 = a3 + 4 | 0;
         g2 = b5 + 4 | 0;
-        f2 = (c2[h2 >> 2] | 0) - e2 | 0;
+        f2 = (c2[h3 >> 2] | 0) - e2 | 0;
         d2 = (c2[g2 >> 2] | 0) + (0 - (f2 >> 3) << 3) | 0;
         c2[g2 >> 2] = d2;
         if ((f2 | 0) > 0) {
@@ -111575,14 +110508,14 @@ function getModule() {
         c2[a3 >> 2] = d2;
         c2[e2 >> 2] = g2;
         g2 = b5 + 8 | 0;
-        f2 = c2[h2 >> 2] | 0;
-        c2[h2 >> 2] = c2[g2 >> 2];
+        f2 = c2[h3 >> 2] | 0;
+        c2[h3 >> 2] = c2[g2 >> 2];
         c2[g2 >> 2] = f2;
         g2 = a3 + 8 | 0;
-        h2 = b5 + 12 | 0;
+        h3 = b5 + 12 | 0;
         a3 = c2[g2 >> 2] | 0;
-        c2[g2 >> 2] = c2[h2 >> 2];
-        c2[h2 >> 2] = a3;
+        c2[g2 >> 2] = c2[h3 >> 2];
+        c2[h3 >> 2] = a3;
         c2[b5 >> 2] = c2[e2 >> 2];
         return;
       }
@@ -111724,11 +110657,11 @@ function getModule() {
         d2 = d2 | 0;
         e2 = e2 | 0;
         f2 = f2 | 0;
-        var g2 = 0, h2 = 0, i2 = 0;
+        var g2 = 0, h3 = 0, i2 = 0;
         c2[b5 >> 2] = d2;
         a2[b5 + 4 >> 0] = e2 & 1;
-        h2 = b5 + 8 | 0;
-        c2[h2 >> 2] = 0;
+        h3 = b5 + 8 | 0;
+        c2[h3 >> 2] = 0;
         i2 = b5 + 12 | 0;
         c2[i2 >> 2] = 0;
         g2 = b5 + 16 | 0;
@@ -111756,7 +110689,7 @@ function getModule() {
           c2[b5 + 40 >> 2] = 0;
           c2[b5 + 36 >> 2] = 0;
         }
-        c2[h2 >> 2] = _a(d2 << 2) | 0;
+        c2[h3 >> 2] = _a(d2 << 2) | 0;
         g2 = _a(c2[b5 >> 2] << 2) | 0;
         c2[i2 >> 2] = g2;
         c2[b5 + 20 >> 2] = 0;
@@ -111854,34 +110787,34 @@ function getModule() {
       function Tc(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0;
         i2 = c2[a3 >> 2] | 0;
         j2 = a3 + 4 | 0;
         d2 = c2[j2 >> 2] | 0;
-        h2 = b5 + 4 | 0;
+        h3 = b5 + 4 | 0;
         if ((d2 | 0) == (i2 | 0)) {
-          f2 = h2;
+          f2 = h3;
           g2 = a3;
-          e2 = c2[h2 >> 2] | 0;
+          e2 = c2[h3 >> 2] | 0;
           d2 = i2;
         } else {
-          e2 = c2[h2 >> 2] | 0;
+          e2 = c2[h3 >> 2] | 0;
           do {
             d2 = d2 + -44 | 0;
             Wc(e2 + -44 | 0, d2);
-            e2 = (c2[h2 >> 2] | 0) + -44 | 0;
-            c2[h2 >> 2] = e2;
+            e2 = (c2[h3 >> 2] | 0) + -44 | 0;
+            c2[h3 >> 2] = e2;
           } while ((d2 | 0) != (i2 | 0));
-          f2 = h2;
+          f2 = h3;
           g2 = a3;
           d2 = c2[a3 >> 2] | 0;
         }
         c2[g2 >> 2] = e2;
         c2[f2 >> 2] = d2;
         i2 = b5 + 8 | 0;
-        h2 = c2[j2 >> 2] | 0;
+        h3 = c2[j2 >> 2] | 0;
         c2[j2 >> 2] = c2[i2 >> 2];
-        c2[i2 >> 2] = h2;
+        c2[i2 >> 2] = h3;
         i2 = a3 + 8 | 0;
         j2 = b5 + 12 | 0;
         a3 = c2[i2 >> 2] | 0;
@@ -111915,7 +110848,7 @@ function getModule() {
       function Wc(b5, d2) {
         b5 = b5 | 0;
         d2 = d2 | 0;
-        var e2 = 0, f2 = 0, g2 = 0, h2 = 0;
+        var e2 = 0, f2 = 0, g2 = 0, h3 = 0;
         e2 = c2[d2 >> 2] | 0;
         c2[b5 >> 2] = e2;
         a2[b5 + 4 >> 0] = a2[d2 + 4 >> 0] | 0;
@@ -111923,8 +110856,8 @@ function getModule() {
         c2[b5 + 24 >> 2] = c2[d2 + 24 >> 2];
         c2[b5 + 28 >> 2] = c2[d2 + 28 >> 2];
         c2[b5 + 32 >> 2] = c2[d2 + 32 >> 2];
-        h2 = b5 + 36 | 0;
-        c2[h2 >> 2] = c2[d2 + 36 >> 2];
+        h3 = b5 + 36 | 0;
+        c2[h3 >> 2] = c2[d2 + 36 >> 2];
         c2[b5 + 40 >> 2] = c2[d2 + 40 >> 2];
         e2 = e2 << 2;
         f2 = _a(e2) | 0;
@@ -111937,11 +110870,11 @@ function getModule() {
         f2 = c2[b5 >> 2] | 0;
         if (f2 | 0)
           vr(e2 | 0, c2[d2 + 12 >> 2] | 0, f2 << 2 | 0) | 0;
-        e2 = c2[h2 >> 2] | 0;
+        e2 = c2[h3 >> 2] | 0;
         if (e2) {
           f2 = _a((e2 << 2) + 8 | 0) | 0;
           c2[b5 + 16 >> 2] = f2;
-          e2 = (c2[h2 >> 2] << 2) + 8 | 0;
+          e2 = (c2[h3 >> 2] << 2) + 8 | 0;
           if (e2 | 0)
             vr(f2 | 0, c2[d2 + 16 >> 2] | 0, e2 | 0) | 0;
         } else
@@ -111950,7 +110883,7 @@ function getModule() {
       }
       function Xc(b5) {
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, r2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, r2 = 0;
         r2 = b5 + 24 | 0;
         g2 = b5 + 20 | 0;
         d2 = (c2[g2 >> 2] | 0) + (c2[r2 >> 2] | 0) | 0;
@@ -111981,12 +110914,12 @@ function getModule() {
               l2 = b5 + 40 | 0;
               m2 = b5 + 16 | 0;
               d2 = 0;
-              h2 = 0;
+              h3 = 0;
               i2 = 0;
               do {
-                e2 = (q(h2, n2) | 0) >>> 16;
+                e2 = (q(h3, n2) | 0) >>> 16;
                 c2[j2 + (i2 << 2) >> 2] = e2;
-                h2 = (c2[k2 + (i2 << 2) >> 2] | 0) + h2 | 0;
+                h3 = (c2[k2 + (i2 << 2) >> 2] | 0) + h3 | 0;
                 e2 = e2 >>> (c2[l2 >> 2] | 0);
                 if (d2 >>> 0 < e2 >>> 0) {
                   f2 = i2 + -1 | 0;
@@ -112076,7 +111009,7 @@ function getModule() {
       function Zc(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0;
         n2 = a3 + 8 | 0;
         m2 = c2[n2 >> 2] | 0;
         f2 = c2[b5 + 16 >> 2] | 0;
@@ -112089,25 +111022,25 @@ function getModule() {
           i2 = j2 >>> (c2[b5 + 40 >> 2] | 0);
           g2 = c2[f2 + (i2 << 2) >> 2] | 0;
           i2 = (c2[f2 + (i2 + 1 << 2) >> 2] | 0) + 1 | 0;
-          h2 = g2 + 1 | 0;
+          h3 = g2 + 1 | 0;
           k2 = c2[b5 + 8 >> 2] | 0;
-          if (i2 >>> 0 > h2 >>> 0) {
+          if (i2 >>> 0 > h3 >>> 0) {
             f2 = g2;
             g2 = i2;
             do {
-              h2 = (g2 + f2 | 0) >>> 1;
-              i2 = (c2[k2 + (h2 << 2) >> 2] | 0) >>> 0 > j2 >>> 0;
-              f2 = i2 ? f2 : h2;
-              g2 = i2 ? h2 : g2;
-              h2 = f2 + 1 | 0;
-            } while (g2 >>> 0 > h2 >>> 0);
+              h3 = (g2 + f2 | 0) >>> 1;
+              i2 = (c2[k2 + (h3 << 2) >> 2] | 0) >>> 0 > j2 >>> 0;
+              f2 = i2 ? f2 : h3;
+              g2 = i2 ? h3 : g2;
+              h3 = f2 + 1 | 0;
+            } while (g2 >>> 0 > h3 >>> 0);
             g2 = f2;
           }
           f2 = q(c2[k2 + (g2 << 2) >> 2] | 0, l2) | 0;
           if ((g2 | 0) == (c2[b5 + 32 >> 2] | 0))
-            h2 = m2;
+            h3 = m2;
           else
-            h2 = q(c2[k2 + (h2 << 2) >> 2] | 0, l2) | 0;
+            h3 = q(c2[k2 + (h3 << 2) >> 2] | 0, l2) | 0;
         } else {
           k2 = m2 >>> 15;
           c2[n2 >> 2] = k2;
@@ -112117,12 +111050,12 @@ function getModule() {
           d2 = c2[e2 >> 2] | 0;
           j2 = i2 >>> 1;
           f2 = 0;
-          h2 = m2;
+          h3 = m2;
           g2 = 0;
           do {
             o2 = q(c2[l2 + (j2 << 2) >> 2] | 0, k2) | 0;
             m2 = o2 >>> 0 > d2 >>> 0;
-            h2 = m2 ? o2 : h2;
+            h3 = m2 ? o2 : h3;
             f2 = m2 ? f2 : o2;
             g2 = m2 ? g2 : j2;
             i2 = m2 ? j2 : i2;
@@ -112130,7 +111063,7 @@ function getModule() {
           } while ((j2 | 0) != (g2 | 0));
         }
         c2[e2 >> 2] = d2 - f2;
-        o2 = h2 - f2 | 0;
+        o2 = h3 - f2 | 0;
         c2[n2 >> 2] = o2;
         if (o2 >>> 0 < 16777216)
           ad(a3);
@@ -112165,27 +111098,27 @@ function getModule() {
       function $c(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0;
         e2 = a3 + 8 | 0;
         f2 = c2[e2 >> 2] | 0;
         d2 = q(f2 >>> 13, c2[b5 + 8 >> 2] | 0) | 0;
         g2 = a3 + 4 | 0;
-        h2 = c2[g2 >> 2] | 0;
-        i2 = h2 >>> 0 >= d2 >>> 0;
+        h3 = c2[g2 >> 2] | 0;
+        i2 = h3 >>> 0 >= d2 >>> 0;
         if (i2) {
-          c2[g2 >> 2] = h2 - d2;
+          c2[g2 >> 2] = h3 - d2;
           d2 = f2 - d2 | 0;
           c2[e2 >> 2] = d2;
         } else {
           c2[e2 >> 2] = d2;
-          h2 = b5 + 12 | 0;
-          c2[h2 >> 2] = (c2[h2 >> 2] | 0) + 1;
+          h3 = b5 + 12 | 0;
+          c2[h3 >> 2] = (c2[h3 >> 2] | 0) + 1;
         }
         if (d2 >>> 0 < 16777216)
           ad(a3);
-        h2 = b5 + 4 | 0;
-        a3 = (c2[h2 >> 2] | 0) + -1 | 0;
-        c2[h2 >> 2] = a3;
+        h3 = b5 + 4 | 0;
+        a3 = (c2[h3 >> 2] | 0) + -1 | 0;
+        c2[h3 >> 2] = a3;
         if (!a3)
           cd(b5);
         return i2 & 1 | 0;
@@ -112251,10 +111184,10 @@ function getModule() {
       function dd(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0;
+        var e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0;
         m2 = V;
         V = V + 32 | 0;
-        h2 = m2 + 16 | 0;
+        h3 = m2 + 16 | 0;
         i2 = m2 + 8 | 0;
         j2 = m2;
         k2 = a3 + 336 | 0;
@@ -112275,24 +111208,24 @@ function getModule() {
         }
         if ((l2 | 0) == 5) {
           l2 = a3 + 320 | 0;
-          c2[h2 >> 2] = e2;
+          c2[h3 >> 2] = e2;
           c2[l2 >> 2] = 0;
           e2 = a3 + 324 | 0;
-          c2[h2 + 4 >> 2] = c2[e2 >> 2];
+          c2[h3 + 4 >> 2] = c2[e2 >> 2];
           c2[e2 >> 2] = 0;
-          Na(h2);
+          Na(h3);
           g2 = a3 + 312 | 0;
-          c2[h2 >> 2] = c2[g2 >> 2];
+          c2[h3 >> 2] = c2[g2 >> 2];
           c2[g2 >> 2] = 0;
           n2 = a3 + 316 | 0;
-          c2[h2 + 4 >> 2] = c2[n2 >> 2];
+          c2[h3 + 4 >> 2] = c2[n2 >> 2];
           c2[n2 >> 2] = 0;
-          Oa(h2);
+          Oa(h3);
           o2 = eq(12) | 0;
           lc(o2, a3 + 4 | 0);
           c2[j2 >> 2] = 0;
-          c2[h2 >> 2] = c2[j2 >> 2];
-          fd(i2, o2, h2);
+          c2[h3 >> 2] = c2[j2 >> 2];
+          fd(i2, o2, h3);
           o2 = c2[i2 >> 2] | 0;
           c2[i2 >> 2] = c2[g2 >> 2];
           c2[g2 >> 2] = o2;
@@ -112307,11 +111240,11 @@ function getModule() {
           j2 = c2[n2 >> 2] | 0;
           c2[i2 >> 2] = 0;
           c2[n2 >> 2] = 0;
-          c2[h2 >> 2] = c2[l2 >> 2];
+          c2[h3 >> 2] = c2[l2 >> 2];
           c2[l2 >> 2] = g2;
-          c2[h2 + 4 >> 2] = c2[e2 >> 2];
+          c2[h3 + 4 >> 2] = c2[e2 >> 2];
           c2[e2 >> 2] = j2;
-          Na(h2);
+          Na(h3);
           Na(i2);
           e2 = a3 + 328 | 0;
           j2 = e2;
@@ -112338,16 +111271,16 @@ function getModule() {
         a3 = a3 | 0;
         b5 = b5 | 0;
         d2 = d2 | 0;
-        var e2 = 0, f2 = 0, g2 = 0, h2 = 0;
-        h2 = V;
+        var e2 = 0, f2 = 0, g2 = 0, h3 = 0;
+        h3 = V;
         V = V + 64 | 0;
-        e2 = h2 + 56 | 0;
-        f2 = h2;
+        e2 = h3 + 56 | 0;
+        f2 = h3;
         g2 = ld(d2) | 0;
         if ((g2 | 0) == -1) {
-          h2 = v(8) | 0;
-          md(h2);
-          x(h2 | 0, 2784, 8);
+          h3 = v(8) | 0;
+          md(h3);
+          x(h3 | 0, 2784, 8);
         }
         d2 = nd(d2) | 0;
         a:
@@ -112403,7 +111336,7 @@ function getModule() {
               vd(e2);
             }
           while (0);
-        V = h2;
+        V = h3;
         return;
       }
       function fd(a3, b5, d2) {
@@ -112530,20 +111463,20 @@ function getModule() {
       }
       function pd(a3) {
         a3 = a3 | 0;
-        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0;
+        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0;
         j2 = V;
         V = V + 32 | 0;
         e2 = j2 + 12 | 0;
         f2 = j2;
         b5 = j2 + 8 | 0;
-        h2 = eq(4792) | 0;
-        Zd(h2, c2[a3 + 4 >> 2] | 0);
+        h3 = eq(4792) | 0;
+        Zd(h3, c2[a3 + 4 >> 2] | 0);
         g2 = a3 + 8 | 0;
         c2[b5 >> 2] = 0;
         c2[e2 >> 2] = c2[b5 >> 2];
-        _d(f2, h2, e2);
-        h2 = a3 + 12 | 0;
-        b5 = c2[h2 >> 2] | 0;
+        _d(f2, h3, e2);
+        h3 = a3 + 12 | 0;
+        b5 = c2[h3 >> 2] | 0;
         i2 = a3 + 16 | 0;
         do
           if (b5 >>> 0 >= (c2[i2 >> 2] | 0) >>> 0) {
@@ -112555,15 +111488,15 @@ function getModule() {
               k2 = c2[g2 >> 2] | 0;
               l2 = (c2[i2 >> 2] | 0) - k2 | 0;
               i2 = l2 >> 2;
-              be(e2, l2 >> 3 >>> 0 < d2 >>> 1 >>> 0 ? i2 >>> 0 < b5 >>> 0 ? b5 : i2 : d2, (c2[h2 >> 2] | 0) - k2 >> 3, a3 + 16 | 0);
+              be(e2, l2 >> 3 >>> 0 < d2 >>> 1 >>> 0 ? i2 >>> 0 < b5 >>> 0 ? b5 : i2 : d2, (c2[h3 >> 2] | 0) - k2 >> 3, a3 + 16 | 0);
               i2 = e2 + 8 | 0;
-              h2 = c2[i2 >> 2] | 0;
-              c2[h2 >> 2] = c2[f2 >> 2];
+              h3 = c2[i2 >> 2] | 0;
+              c2[h3 >> 2] = c2[f2 >> 2];
               a3 = f2 + 4 | 0;
-              c2[h2 + 4 >> 2] = c2[a3 >> 2];
+              c2[h3 + 4 >> 2] = c2[a3 >> 2];
               c2[f2 >> 2] = 0;
               c2[a3 >> 2] = 0;
-              c2[i2 >> 2] = h2 + 8;
+              c2[i2 >> 2] = h3 + 8;
               ce(g2, e2);
               de(e2);
               break;
@@ -112587,20 +111520,20 @@ function getModule() {
       }
       function qd(a3) {
         a3 = a3 | 0;
-        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0;
+        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0;
         j2 = V;
         V = V + 32 | 0;
         e2 = j2 + 12 | 0;
         f2 = j2;
         b5 = j2 + 8 | 0;
-        h2 = eq(336) | 0;
-        af(h2, c2[a3 + 4 >> 2] | 0);
+        h3 = eq(336) | 0;
+        af(h3, c2[a3 + 4 >> 2] | 0);
         g2 = a3 + 8 | 0;
         c2[b5 >> 2] = 0;
         c2[e2 >> 2] = c2[b5 >> 2];
-        bf(f2, h2, e2);
-        h2 = a3 + 12 | 0;
-        b5 = c2[h2 >> 2] | 0;
+        bf(f2, h3, e2);
+        h3 = a3 + 12 | 0;
+        b5 = c2[h3 >> 2] | 0;
         i2 = a3 + 16 | 0;
         do
           if (b5 >>> 0 >= (c2[i2 >> 2] | 0) >>> 0) {
@@ -112612,15 +111545,15 @@ function getModule() {
               k2 = c2[g2 >> 2] | 0;
               l2 = (c2[i2 >> 2] | 0) - k2 | 0;
               i2 = l2 >> 2;
-              be(e2, l2 >> 3 >>> 0 < d2 >>> 1 >>> 0 ? i2 >>> 0 < b5 >>> 0 ? b5 : i2 : d2, (c2[h2 >> 2] | 0) - k2 >> 3, a3 + 16 | 0);
+              be(e2, l2 >> 3 >>> 0 < d2 >>> 1 >>> 0 ? i2 >>> 0 < b5 >>> 0 ? b5 : i2 : d2, (c2[h3 >> 2] | 0) - k2 >> 3, a3 + 16 | 0);
               i2 = e2 + 8 | 0;
-              h2 = c2[i2 >> 2] | 0;
-              c2[h2 >> 2] = c2[f2 >> 2];
+              h3 = c2[i2 >> 2] | 0;
+              c2[h3 >> 2] = c2[f2 >> 2];
               a3 = f2 + 4 | 0;
-              c2[h2 + 4 >> 2] = c2[a3 >> 2];
+              c2[h3 + 4 >> 2] = c2[a3 >> 2];
               c2[f2 >> 2] = 0;
               c2[a3 >> 2] = 0;
-              c2[i2 >> 2] = h2 + 8;
+              c2[i2 >> 2] = h3 + 8;
               ce(g2, e2);
               de(e2);
               break;
@@ -112644,20 +111577,20 @@ function getModule() {
       }
       function rd(a3) {
         a3 = a3 | 0;
-        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0;
+        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0;
         j2 = V;
         V = V + 32 | 0;
         e2 = j2 + 12 | 0;
         f2 = j2;
         b5 = j2 + 8 | 0;
-        h2 = eq(324) | 0;
-        Af(h2, c2[a3 + 4 >> 2] | 0);
+        h3 = eq(324) | 0;
+        Af(h3, c2[a3 + 4 >> 2] | 0);
         g2 = a3 + 8 | 0;
         c2[b5 >> 2] = 0;
         c2[e2 >> 2] = c2[b5 >> 2];
-        Bf(f2, h2, e2);
-        h2 = a3 + 12 | 0;
-        b5 = c2[h2 >> 2] | 0;
+        Bf(f2, h3, e2);
+        h3 = a3 + 12 | 0;
+        b5 = c2[h3 >> 2] | 0;
         i2 = a3 + 16 | 0;
         do
           if (b5 >>> 0 >= (c2[i2 >> 2] | 0) >>> 0) {
@@ -112669,15 +111602,15 @@ function getModule() {
               k2 = c2[g2 >> 2] | 0;
               l2 = (c2[i2 >> 2] | 0) - k2 | 0;
               i2 = l2 >> 2;
-              be(e2, l2 >> 3 >>> 0 < d2 >>> 1 >>> 0 ? i2 >>> 0 < b5 >>> 0 ? b5 : i2 : d2, (c2[h2 >> 2] | 0) - k2 >> 3, a3 + 16 | 0);
+              be(e2, l2 >> 3 >>> 0 < d2 >>> 1 >>> 0 ? i2 >>> 0 < b5 >>> 0 ? b5 : i2 : d2, (c2[h3 >> 2] | 0) - k2 >> 3, a3 + 16 | 0);
               i2 = e2 + 8 | 0;
-              h2 = c2[i2 >> 2] | 0;
-              c2[h2 >> 2] = c2[f2 >> 2];
+              h3 = c2[i2 >> 2] | 0;
+              c2[h3 >> 2] = c2[f2 >> 2];
               a3 = f2 + 4 | 0;
-              c2[h2 + 4 >> 2] = c2[a3 >> 2];
+              c2[h3 + 4 >> 2] = c2[a3 >> 2];
               c2[f2 >> 2] = 0;
               c2[a3 >> 2] = 0;
-              c2[i2 >> 2] = h2 + 8;
+              c2[i2 >> 2] = h3 + 8;
               ce(g2, e2);
               de(e2);
               break;
@@ -112702,18 +111635,18 @@ function getModule() {
       function sd(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0;
         j2 = V;
         V = V + 32 | 0;
-        h2 = j2 + 12 | 0;
+        h3 = j2 + 12 | 0;
         i2 = j2;
         e2 = j2 + 8 | 0;
         g2 = eq(64) | 0;
         Qf(g2, c2[a3 + 4 >> 2] | 0, b5);
         f2 = a3 + 8 | 0;
         c2[e2 >> 2] = 0;
-        c2[h2 >> 2] = c2[e2 >> 2];
-        Rf(i2, g2, h2);
+        c2[h3 >> 2] = c2[e2 >> 2];
+        Rf(i2, g2, h3);
         g2 = a3 + 12 | 0;
         b5 = c2[g2 >> 2] | 0;
         e2 = a3 + 16 | 0;
@@ -112727,8 +111660,8 @@ function getModule() {
               k2 = c2[f2 >> 2] | 0;
               l2 = (c2[e2 >> 2] | 0) - k2 | 0;
               e2 = l2 >> 2;
-              be(h2, l2 >> 3 >>> 0 < d2 >>> 1 >>> 0 ? e2 >>> 0 < b5 >>> 0 ? b5 : e2 : d2, (c2[g2 >> 2] | 0) - k2 >> 3, a3 + 16 | 0);
-              a3 = h2 + 8 | 0;
+              be(h3, l2 >> 3 >>> 0 < d2 >>> 1 >>> 0 ? e2 >>> 0 < b5 >>> 0 ? b5 : e2 : d2, (c2[g2 >> 2] | 0) - k2 >> 3, a3 + 16 | 0);
+              a3 = h3 + 8 | 0;
               g2 = c2[a3 >> 2] | 0;
               c2[g2 >> 2] = c2[i2 >> 2];
               e2 = i2 + 4 | 0;
@@ -112736,13 +111669,13 @@ function getModule() {
               c2[i2 >> 2] = 0;
               c2[e2 >> 2] = 0;
               c2[a3 >> 2] = g2 + 8;
-              ce(f2, h2);
-              de(h2);
+              ce(f2, h3);
+              de(h3);
               break;
             }
           } else {
-            $d(h2, f2, 1);
-            l2 = h2 + 4 | 0;
+            $d(h3, f2, 1);
+            l2 = h3 + 4 | 0;
             k2 = c2[l2 >> 2] | 0;
             c2[k2 >> 2] = c2[i2 >> 2];
             a3 = i2 + 4 | 0;
@@ -112750,7 +111683,7 @@ function getModule() {
             c2[i2 >> 2] = 0;
             c2[a3 >> 2] = 0;
             c2[l2 >> 2] = k2 + 8;
-            ae(h2);
+            ae(h3);
           }
         while (0);
         Sd(i2);
@@ -112795,15 +111728,15 @@ function getModule() {
         a3 = a3 | 0;
         b5 = b5 | 0;
         d2 = d2 | 0;
-        var e2 = 0, f2 = 0, g2 = 0, h2 = 0;
+        var e2 = 0, f2 = 0, g2 = 0, h3 = 0;
         e2 = V;
         V = V + 16 | 0;
         f2 = e2 + 4 | 0;
-        h2 = e2;
+        h3 = e2;
         g2 = eq(12) | 0;
         Og(g2, b5, d2);
-        c2[h2 >> 2] = 0;
-        c2[f2 >> 2] = c2[h2 >> 2];
+        c2[h3 >> 2] = 0;
+        c2[f2 >> 2] = c2[h3 >> 2];
         Pg(a3, g2, f2);
         V = e2;
         return;
@@ -112818,15 +111751,15 @@ function getModule() {
         a3 = a3 | 0;
         b5 = b5 | 0;
         d2 = d2 | 0;
-        var e2 = 0, f2 = 0, g2 = 0, h2 = 0;
+        var e2 = 0, f2 = 0, g2 = 0, h3 = 0;
         e2 = V;
         V = V + 16 | 0;
         f2 = e2 + 4 | 0;
-        h2 = e2;
+        h3 = e2;
         g2 = eq(12) | 0;
         ah(g2, b5, d2);
-        c2[h2 >> 2] = 0;
-        c2[f2 >> 2] = c2[h2 >> 2];
+        c2[h3 >> 2] = 0;
+        c2[f2 >> 2] = c2[h3 >> 2];
         bh(a3, g2, f2);
         V = e2;
         return;
@@ -112841,15 +111774,15 @@ function getModule() {
         a3 = a3 | 0;
         b5 = b5 | 0;
         d2 = d2 | 0;
-        var e2 = 0, f2 = 0, g2 = 0, h2 = 0;
+        var e2 = 0, f2 = 0, g2 = 0, h3 = 0;
         e2 = V;
         V = V + 16 | 0;
         f2 = e2 + 4 | 0;
-        h2 = e2;
+        h3 = e2;
         g2 = eq(12) | 0;
         oh(g2, b5, d2);
-        c2[h2 >> 2] = 0;
-        c2[f2 >> 2] = c2[h2 >> 2];
+        c2[h3 >> 2] = 0;
+        c2[f2 >> 2] = c2[h3 >> 2];
         ph(a3, g2, f2);
         V = e2;
         return;
@@ -112864,15 +111797,15 @@ function getModule() {
         a3 = a3 | 0;
         b5 = b5 | 0;
         d2 = d2 | 0;
-        var e2 = 0, f2 = 0, g2 = 0, h2 = 0;
+        var e2 = 0, f2 = 0, g2 = 0, h3 = 0;
         e2 = V;
         V = V + 16 | 0;
         f2 = e2 + 4 | 0;
-        h2 = e2;
+        h3 = e2;
         g2 = eq(12) | 0;
         Ch(g2, b5, d2);
-        c2[h2 >> 2] = 0;
-        c2[f2 >> 2] = c2[h2 >> 2];
+        c2[h3 >> 2] = 0;
+        c2[f2 >> 2] = c2[h3 >> 2];
         Dh(a3, g2, f2);
         V = e2;
         return;
@@ -112965,17 +111898,17 @@ function getModule() {
       function Nd(b5, d2) {
         b5 = b5 | 0;
         d2 = d2 | 0;
-        var e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0;
+        var e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0;
         k2 = V;
         V = V + 16 | 0;
-        h2 = k2;
+        h3 = k2;
         e2 = c2[b5 + 8 >> 2] | 0;
         i2 = c2[b5 + 12 >> 2] | 0;
         if ((e2 | 0) != (i2 | 0)) {
-          j2 = h2 + 4 | 0;
+          j2 = h3 + 4 | 0;
           do {
             f2 = c2[e2 >> 2] | 0;
-            c2[h2 >> 2] = f2;
+            c2[h3 >> 2] = f2;
             g2 = c2[e2 + 4 >> 2] | 0;
             c2[j2 >> 2] = g2;
             if (g2 | 0) {
@@ -112983,7 +111916,7 @@ function getModule() {
               c2[g2 >> 2] = (c2[g2 >> 2] | 0) + 1;
             }
             d2 = $[c2[(c2[f2 >> 2] | 0) + 12 >> 2] & 63](f2, d2) | 0;
-            Sd(h2);
+            Sd(h3);
             e2 = e2 + 8 | 0;
           } while ((e2 | 0) != (i2 | 0));
         }
@@ -113153,18 +112086,18 @@ function getModule() {
       function ce(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0;
         i2 = c2[a3 >> 2] | 0;
         j2 = a3 + 4 | 0;
         d2 = c2[j2 >> 2] | 0;
-        h2 = b5 + 4 | 0;
+        h3 = b5 + 4 | 0;
         if ((d2 | 0) == (i2 | 0)) {
-          f2 = h2;
+          f2 = h3;
           g2 = a3;
-          e2 = c2[h2 >> 2] | 0;
+          e2 = c2[h3 >> 2] | 0;
           d2 = i2;
         } else {
-          e2 = c2[h2 >> 2] | 0;
+          e2 = c2[h3 >> 2] | 0;
           do {
             g2 = d2;
             d2 = d2 + -8 | 0;
@@ -113173,19 +112106,19 @@ function getModule() {
             c2[e2 + -4 >> 2] = c2[g2 >> 2];
             c2[d2 >> 2] = 0;
             c2[g2 >> 2] = 0;
-            e2 = (c2[h2 >> 2] | 0) + -8 | 0;
-            c2[h2 >> 2] = e2;
+            e2 = (c2[h3 >> 2] | 0) + -8 | 0;
+            c2[h3 >> 2] = e2;
           } while ((d2 | 0) != (i2 | 0));
-          f2 = h2;
+          f2 = h3;
           g2 = a3;
           d2 = c2[a3 >> 2] | 0;
         }
         c2[g2 >> 2] = e2;
         c2[f2 >> 2] = d2;
         i2 = b5 + 8 | 0;
-        h2 = c2[j2 >> 2] | 0;
+        h3 = c2[j2 >> 2] | 0;
         c2[j2 >> 2] = c2[i2 >> 2];
-        c2[i2 >> 2] = h2;
+        c2[i2 >> 2] = h3;
         i2 = a3 + 8 | 0;
         j2 = b5 + 12 | 0;
         a3 = c2[i2 >> 2] | 0;
@@ -113527,10 +112460,10 @@ function getModule() {
         qc(a3);
         return;
       }
-      function Be(f2, g2, h2) {
+      function Be(f2, g2, h3) {
         f2 = f2 | 0;
         g2 = g2 | 0;
-        h2 = h2 | 0;
+        h3 = h3 | 0;
         var i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q2 = 0;
         p2 = V;
         V = V + 32 | 0;
@@ -113543,8 +112476,8 @@ function getModule() {
         i2 = f2 + 3976 | 0;
         if (!(a2[i2 >> 0] | 0)) {
           a2[i2 >> 0] = 1;
-          Ee(De(g2) | 0, h2, 20);
-          Fe(o2, h2);
+          Ee(De(g2) | 0, h3, 20);
+          Fe(o2, h3);
           k2 = f2;
           i2 = o2;
           j2 = k2 + 20 | 0;
@@ -113620,10 +112553,10 @@ function getModule() {
           o2 = pc(f2 + 4700 | 0, g2, c2[q2 >> 2] | 0, (o2 >>> 0 < 36 ? o2 >>> 1 & 2147483646 : 18) | n2) | 0;
           c2[f2 + 8 >> 2] = o2;
           c2[q2 >> 2] = o2;
-          Me(f2, h2);
+          Me(f2, h3);
         }
         V = p2;
-        return h2 + 20 | 0;
+        return h3 + 20 | 0;
       }
       function Ce(a3) {
         a3 = a3 | 0;
@@ -113642,21 +112575,21 @@ function getModule() {
         b5 = b5 | 0;
         d2 = d2 | 0;
         e2 = e2 | 0;
-        var f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0;
+        var f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0;
         k2 = b5 + 4 | 0;
         f2 = c2[k2 >> 2] | 0;
         j2 = (c2[b5 + 8 >> 2] | 0) - f2 | 0;
         j2 = j2 >>> 0 > e2 >>> 0 ? e2 : j2;
         i2 = b5 + 12 | 0;
         g2 = (c2[i2 >> 2] | 0) + f2 | 0;
-        h2 = g2 + j2 | 0;
+        h3 = g2 + j2 | 0;
         if (j2) {
           f2 = g2;
           g2 = d2;
           while (1) {
             a2[g2 >> 0] = a2[f2 >> 0] | 0;
             f2 = f2 + 1 | 0;
-            if ((f2 | 0) == (h2 | 0))
+            if ((f2 | 0) == (h3 | 0))
               break;
             else
               g2 = g2 + 1 | 0;
@@ -113668,12 +112601,12 @@ function getModule() {
         if (e2 | 0) {
           Kc(b5);
           g2 = (c2[i2 >> 2] | 0) + (c2[k2 >> 2] | 0) | 0;
-          h2 = g2 + e2 | 0;
+          h3 = g2 + e2 | 0;
           f2 = d2 + j2 | 0;
           while (1) {
             a2[f2 >> 0] = a2[g2 >> 0] | 0;
             g2 = g2 + 1 | 0;
-            if ((g2 | 0) == (h2 | 0))
+            if ((g2 | 0) == (h3 | 0))
               break;
             else
               f2 = f2 + 1 | 0;
@@ -113718,7 +112651,7 @@ function getModule() {
       function Ke(b5, d2) {
         b5 = b5 | 0;
         d2 = d2 | 0;
-        var e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0;
+        var e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0;
         k2 = b5 + 20 | 0;
         do
           if (!(a2[k2 >> 0] | 0)) {
@@ -113726,26 +112659,26 @@ function getModule() {
             e2 = c2[j2 >> 2] | 0;
             f2 = c2[d2 >> 2] | 0;
             g2 = b5 + 4 | 0;
-            h2 = c2[g2 >> 2] | 0;
+            h3 = c2[g2 >> 2] | 0;
             if ((e2 | 0) >= (f2 | 0)) {
-              if ((h2 | 0) < (f2 | 0)) {
-                c2[b5 >> 2] = h2;
+              if ((h3 | 0) < (f2 | 0)) {
+                c2[b5 >> 2] = h3;
                 c2[g2 >> 2] = c2[d2 >> 2];
               } else
                 c2[b5 >> 2] = f2;
               a2[k2 >> 0] = 1;
               break;
             }
-            c2[b5 >> 2] = h2;
+            c2[b5 >> 2] = h3;
             c2[g2 >> 2] = e2;
             g2 = b5 + 16 | 0;
-            h2 = c2[g2 >> 2] | 0;
+            h3 = c2[g2 >> 2] | 0;
             i2 = c2[d2 >> 2] | 0;
             e2 = b5 + 12 | 0;
             f2 = c2[e2 >> 2] | 0;
-            if ((h2 | 0) < (i2 | 0)) {
+            if ((h3 | 0) < (i2 | 0)) {
               c2[j2 >> 2] = f2;
-              c2[e2 >> 2] = h2;
+              c2[e2 >> 2] = h3;
               c2[g2 >> 2] = c2[d2 >> 2];
               break;
             }
@@ -113761,32 +112694,32 @@ function getModule() {
             g2 = c2[d2 >> 2] | 0;
             i2 = b5 + 8 | 0;
             e2 = c2[i2 >> 2] | 0;
-            h2 = b5 + 12 | 0;
-            f2 = c2[h2 >> 2] | 0;
+            h3 = b5 + 12 | 0;
+            f2 = c2[h3 >> 2] | 0;
             if ((g2 | 0) >= (e2 | 0)) {
               e2 = b5 + 16 | 0;
               if ((g2 | 0) < (f2 | 0)) {
                 c2[e2 >> 2] = f2;
-                c2[h2 >> 2] = c2[d2 >> 2];
+                c2[h3 >> 2] = c2[d2 >> 2];
               } else
                 c2[e2 >> 2] = g2;
               a2[k2 >> 0] = 0;
               break;
             }
             c2[b5 + 16 >> 2] = f2;
-            c2[h2 >> 2] = e2;
+            c2[h3 >> 2] = e2;
             e2 = c2[d2 >> 2] | 0;
             f2 = c2[b5 >> 2] | 0;
             g2 = b5 + 4 | 0;
-            h2 = c2[g2 >> 2] | 0;
+            h3 = c2[g2 >> 2] | 0;
             if ((e2 | 0) < (f2 | 0)) {
-              c2[i2 >> 2] = h2;
+              c2[i2 >> 2] = h3;
               c2[g2 >> 2] = f2;
               c2[b5 >> 2] = c2[d2 >> 2];
               break;
             }
-            if ((e2 | 0) < (h2 | 0)) {
-              c2[i2 >> 2] = h2;
+            if ((e2 | 0) < (h3 | 0)) {
+              c2[i2 >> 2] = h3;
               c2[g2 >> 2] = c2[d2 >> 2];
               break;
             } else {
@@ -113961,10 +112894,10 @@ function getModule() {
       }
       function gf(b5) {
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0;
-        h2 = V;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0;
+        h3 = V;
         V = V + 16 | 0;
-        f2 = h2;
+        f2 = h3;
         a2[b5 >> 0] = 0;
         Oc(b5 + 4 | 0, 516, 0, 0);
         Oc(b5 + 48 | 0, 6, 0, 0);
@@ -114003,7 +112936,7 @@ function getModule() {
         c2[j2 + 20 >> 2] = 0;
         c2[j2 + 24 >> 2] = 0;
         c2[j2 + 28 >> 2] = 0;
-        V = h2;
+        V = h3;
         return;
       }
       function hf(a3) {
@@ -114068,7 +113001,7 @@ function getModule() {
         b5 = b5 | 0;
         e2 = e2 | 0;
         f2 = f2 | 0;
-        var g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0;
+        var g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0;
         g2 = b5 + 325 | 0;
         if (!(a2[g2 >> 0] | 0)) {
           rf(b5 + 244 | 0);
@@ -114103,21 +113036,21 @@ function getModule() {
                     e2 = c2[j2 >> 2] | 0;
                     k2 = c2[b5 + 132 + (e2 << 2) >> 2] | 0;
                     i2 = b5 + 100 + (e2 << 3) | 0;
-                    h2 = i2;
-                    g2 = h2;
-                    h2 = h2 + 4 | 0;
-                    k2 = lr(d[g2 >> 0] | d[g2 + 1 >> 0] << 8 | d[g2 + 2 >> 0] << 16 | d[g2 + 3 >> 0] << 24 | 0, d[h2 >> 0] | d[h2 + 1 >> 0] << 8 | d[h2 + 2 >> 0] << 16 | d[h2 + 3 >> 0] << 24 | 0, k2 | 0, ((k2 | 0) < 0) << 31 >> 31 | 0) | 0;
-                    h2 = u() | 0;
+                    h3 = i2;
+                    g2 = h3;
+                    h3 = h3 + 4 | 0;
+                    k2 = lr(d[g2 >> 0] | d[g2 + 1 >> 0] << 8 | d[g2 + 2 >> 0] << 16 | d[g2 + 3 >> 0] << 24 | 0, d[h3 >> 0] | d[h3 + 1 >> 0] << 8 | d[h3 + 2 >> 0] << 16 | d[h3 + 3 >> 0] << 24 | 0, k2 | 0, ((k2 | 0) < 0) << 31 >> 31 | 0) | 0;
+                    h3 = u() | 0;
                     g2 = i2;
                     a2[g2 >> 0] = k2;
                     a2[g2 + 1 >> 0] = k2 >> 8;
                     a2[g2 + 2 >> 0] = k2 >> 16;
                     a2[g2 + 3 >> 0] = k2 >> 24;
                     i2 = i2 + 4 | 0;
-                    a2[i2 >> 0] = h2;
-                    a2[i2 + 1 >> 0] = h2 >> 8;
-                    a2[i2 + 2 >> 0] = h2 >> 16;
-                    a2[i2 + 3 >> 0] = h2 >> 24;
+                    a2[i2 >> 0] = h3;
+                    a2[i2 + 1 >> 0] = h3 >> 8;
+                    a2[i2 + 2 >> 0] = h3 >> 16;
+                    a2[i2 + 3 >> 0] = h3 >> 24;
                     c2[b5 + 148 + (e2 << 2) >> 2] = 0;
                     break a;
                   }
@@ -114127,11 +113060,11 @@ function getModule() {
                     i2 = b5 + 100 + (c2[j2 >> 2] << 3) + 4 | 0;
                     i2 = pc(b5 + 244 | 0, e2, d[i2 >> 0] | d[i2 + 1 >> 0] << 8 | d[i2 + 2 >> 0] << 16 | d[i2 + 3 >> 0] << 24, 8) | 0;
                     g2 = b5 + 100 + (c2[k2 >> 2] << 3) | 0;
-                    h2 = g2;
-                    a2[h2 >> 0] = 0;
-                    a2[h2 + 1 >> 0] = 0;
-                    a2[h2 + 2 >> 0] = 0;
-                    a2[h2 + 3 >> 0] = 0;
+                    h3 = g2;
+                    a2[h3 >> 0] = 0;
+                    a2[h3 + 1 >> 0] = 0;
+                    a2[h3 + 2 >> 0] = 0;
+                    a2[h3 + 3 >> 0] = 0;
                     g2 = g2 + 4 | 0;
                     a2[g2 >> 0] = i2;
                     a2[g2 + 1 >> 0] = i2 >> 8;
@@ -114141,15 +113074,15 @@ function getModule() {
                     k2 = c2[k2 >> 2] | 0;
                     e2 = b5 + 100 + (k2 << 3) | 0;
                     i2 = e2;
-                    h2 = i2;
+                    h3 = i2;
                     i2 = i2 + 4 | 0;
                     i2 = d[i2 >> 0] | d[i2 + 1 >> 0] << 8 | d[i2 + 2 >> 0] << 16 | d[i2 + 3 >> 0] << 24;
-                    g2 = d[h2 >> 0] | d[h2 + 1 >> 0] << 8 | d[h2 + 2 >> 0] << 16 | d[h2 + 3 >> 0] << 24 | g2;
-                    h2 = e2;
-                    a2[h2 >> 0] = g2;
-                    a2[h2 + 1 >> 0] = g2 >> 8;
-                    a2[h2 + 2 >> 0] = g2 >> 16;
-                    a2[h2 + 3 >> 0] = g2 >> 24;
+                    g2 = d[h3 >> 0] | d[h3 + 1 >> 0] << 8 | d[h3 + 2 >> 0] << 16 | d[h3 + 3 >> 0] << 24 | g2;
+                    h3 = e2;
+                    a2[h3 >> 0] = g2;
+                    a2[h3 + 1 >> 0] = g2 >> 8;
+                    a2[h3 + 2 >> 0] = g2 >> 16;
+                    a2[h3 + 3 >> 0] = g2 >> 24;
                     e2 = e2 + 4 | 0;
                     a2[e2 >> 0] = i2;
                     a2[e2 + 1 >> 0] = i2 >> 8;
@@ -114175,15 +113108,15 @@ function getModule() {
                   k2 = c2[j2 >> 2] | 0;
                   e2 = b5 + 100 + (k2 << 3) | 0;
                   i2 = e2;
-                  h2 = i2;
+                  h3 = i2;
                   i2 = i2 + 4 | 0;
-                  g2 = lr(d[h2 >> 0] | d[h2 + 1 >> 0] << 8 | d[h2 + 2 >> 0] << 16 | d[h2 + 3 >> 0] << 24 | 0, d[i2 >> 0] | d[i2 + 1 >> 0] << 8 | d[i2 + 2 >> 0] << 16 | d[i2 + 3 >> 0] << 24 | 0, g2 | 0, ((g2 | 0) < 0) << 31 >> 31 | 0) | 0;
+                  g2 = lr(d[h3 >> 0] | d[h3 + 1 >> 0] << 8 | d[h3 + 2 >> 0] << 16 | d[h3 + 3 >> 0] << 24 | 0, d[i2 >> 0] | d[i2 + 1 >> 0] << 8 | d[i2 + 2 >> 0] << 16 | d[i2 + 3 >> 0] << 24 | 0, g2 | 0, ((g2 | 0) < 0) << 31 >> 31 | 0) | 0;
                   i2 = u() | 0;
-                  h2 = e2;
-                  a2[h2 >> 0] = g2;
-                  a2[h2 + 1 >> 0] = g2 >> 8;
-                  a2[h2 + 2 >> 0] = g2 >> 16;
-                  a2[h2 + 3 >> 0] = g2 >> 24;
+                  h3 = e2;
+                  a2[h3 >> 0] = g2;
+                  a2[h3 + 1 >> 0] = g2 >> 8;
+                  a2[h3 + 2 >> 0] = g2 >> 16;
+                  a2[h3 + 3 >> 0] = g2 >> 24;
                   e2 = e2 + 4 | 0;
                   a2[e2 >> 0] = i2;
                   a2[e2 + 1 >> 0] = i2 >> 8;
@@ -114199,11 +113132,11 @@ function getModule() {
                     i2 = b5 + 100 + (c2[j2 >> 2] << 3) + 4 | 0;
                     i2 = pc(b5 + 244 | 0, e2, d[i2 >> 0] | d[i2 + 1 >> 0] << 8 | d[i2 + 2 >> 0] << 16 | d[i2 + 3 >> 0] << 24, 8) | 0;
                     g2 = b5 + 100 + (c2[k2 >> 2] << 3) | 0;
-                    h2 = g2;
-                    a2[h2 >> 0] = 0;
-                    a2[h2 + 1 >> 0] = 0;
-                    a2[h2 + 2 >> 0] = 0;
-                    a2[h2 + 3 >> 0] = 0;
+                    h3 = g2;
+                    a2[h3 >> 0] = 0;
+                    a2[h3 + 1 >> 0] = 0;
+                    a2[h3 + 2 >> 0] = 0;
+                    a2[h3 + 3 >> 0] = 0;
                     g2 = g2 + 4 | 0;
                     a2[g2 >> 0] = i2;
                     a2[g2 + 1 >> 0] = i2 >> 8;
@@ -114213,15 +113146,15 @@ function getModule() {
                     k2 = c2[k2 >> 2] | 0;
                     e2 = b5 + 100 + (k2 << 3) | 0;
                     i2 = e2;
-                    h2 = i2;
+                    h3 = i2;
                     i2 = i2 + 4 | 0;
                     i2 = d[i2 >> 0] | d[i2 + 1 >> 0] << 8 | d[i2 + 2 >> 0] << 16 | d[i2 + 3 >> 0] << 24;
-                    g2 = d[h2 >> 0] | d[h2 + 1 >> 0] << 8 | d[h2 + 2 >> 0] << 16 | d[h2 + 3 >> 0] << 24 | g2;
-                    h2 = e2;
-                    a2[h2 >> 0] = g2;
-                    a2[h2 + 1 >> 0] = g2 >> 8;
-                    a2[h2 + 2 >> 0] = g2 >> 16;
-                    a2[h2 + 3 >> 0] = g2 >> 24;
+                    g2 = d[h3 >> 0] | d[h3 + 1 >> 0] << 8 | d[h3 + 2 >> 0] << 16 | d[h3 + 3 >> 0] << 24 | g2;
+                    h3 = e2;
+                    a2[h3 >> 0] = g2;
+                    a2[h3 + 1 >> 0] = g2 >> 8;
+                    a2[h3 + 2 >> 0] = g2 >> 16;
+                    a2[h3 + 3 >> 0] = g2 >> 24;
                     e2 = e2 + 4 | 0;
                     a2[e2 >> 0] = i2;
                     a2[e2 + 1 >> 0] = i2 >> 8;
@@ -114241,64 +113174,64 @@ function getModule() {
                 do
                   if (!i2) {
                     g2 = pc(b5 + 244 | 0, e2, 0, 7) | 0;
-                    h2 = b5 + 148 + (c2[j2 >> 2] << 2) | 0;
-                    c2[h2 >> 2] = (c2[h2 >> 2] | 0) + 1;
-                    h2 = c2[j2 >> 2] | 0;
-                    if ((c2[b5 + 148 + (h2 << 2) >> 2] | 0) > 3) {
-                      c2[b5 + 132 + (h2 << 2) >> 2] = g2;
+                    h3 = b5 + 148 + (c2[j2 >> 2] << 2) | 0;
+                    c2[h3 >> 2] = (c2[h3 >> 2] | 0) + 1;
+                    h3 = c2[j2 >> 2] | 0;
+                    if ((c2[b5 + 148 + (h3 << 2) >> 2] | 0) > 3) {
+                      c2[b5 + 132 + (h3 << 2) >> 2] = g2;
                       c2[b5 + 148 + (c2[j2 >> 2] << 2) >> 2] = 0;
                     }
                   } else {
                     if ((i2 | 0) < 500) {
                       g2 = b5 + 244 | 0;
-                      h2 = q(c2[b5 + 132 + (c2[j2 >> 2] << 2) >> 2] | 0, i2) | 0;
+                      h3 = q(c2[b5 + 132 + (c2[j2 >> 2] << 2) >> 2] | 0, i2) | 0;
                       if ((i2 | 0) < 10) {
-                        g2 = pc(g2, e2, h2, 2) | 0;
+                        g2 = pc(g2, e2, h3, 2) | 0;
                         break;
                       } else {
-                        g2 = pc(g2, e2, h2, 3) | 0;
+                        g2 = pc(g2, e2, h3, 3) | 0;
                         break;
                       }
                     }
                     if ((i2 | 0) == 500) {
                       g2 = pc(b5 + 244 | 0, e2, (c2[b5 + 132 + (c2[j2 >> 2] << 2) >> 2] | 0) * 500 | 0, 4) | 0;
-                      h2 = b5 + 148 + (c2[j2 >> 2] << 2) | 0;
-                      c2[h2 >> 2] = (c2[h2 >> 2] | 0) + 1;
-                      h2 = c2[j2 >> 2] | 0;
-                      if ((c2[b5 + 148 + (h2 << 2) >> 2] | 0) <= 3)
+                      h3 = b5 + 148 + (c2[j2 >> 2] << 2) | 0;
+                      c2[h3 >> 2] = (c2[h3 >> 2] | 0) + 1;
+                      h3 = c2[j2 >> 2] | 0;
+                      if ((c2[b5 + 148 + (h3 << 2) >> 2] | 0) <= 3)
                         break;
-                      c2[b5 + 132 + (h2 << 2) >> 2] = g2;
+                      c2[b5 + 132 + (h3 << 2) >> 2] = g2;
                       c2[b5 + 148 + (c2[j2 >> 2] << 2) >> 2] = 0;
                       break;
                     }
                     g2 = 500 - i2 | 0;
-                    h2 = b5 + 244 | 0;
+                    h3 = b5 + 244 | 0;
                     i2 = c2[b5 + 132 + (c2[j2 >> 2] << 2) >> 2] | 0;
                     if ((g2 | 0) > -10) {
-                      g2 = pc(h2, e2, q(i2, g2) | 0, 5) | 0;
+                      g2 = pc(h3, e2, q(i2, g2) | 0, 5) | 0;
                       break;
                     }
-                    g2 = pc(h2, e2, q(i2, -10) | 0, 6) | 0;
-                    h2 = b5 + 148 + (c2[j2 >> 2] << 2) | 0;
-                    c2[h2 >> 2] = (c2[h2 >> 2] | 0) + 1;
-                    h2 = c2[j2 >> 2] | 0;
-                    if ((c2[b5 + 148 + (h2 << 2) >> 2] | 0) > 3) {
-                      c2[b5 + 132 + (h2 << 2) >> 2] = g2;
+                    g2 = pc(h3, e2, q(i2, -10) | 0, 6) | 0;
+                    h3 = b5 + 148 + (c2[j2 >> 2] << 2) | 0;
+                    c2[h3 >> 2] = (c2[h3 >> 2] | 0) + 1;
+                    h3 = c2[j2 >> 2] | 0;
+                    if ((c2[b5 + 148 + (h3 << 2) >> 2] | 0) > 3) {
+                      c2[b5 + 132 + (h3 << 2) >> 2] = g2;
                       c2[b5 + 148 + (c2[j2 >> 2] << 2) >> 2] = 0;
                     }
                   }
                 while (0);
                 k2 = b5 + 100 + (c2[j2 >> 2] << 3) | 0;
-                h2 = k2;
-                e2 = h2;
-                h2 = h2 + 4 | 0;
-                h2 = lr(d[e2 >> 0] | d[e2 + 1 >> 0] << 8 | d[e2 + 2 >> 0] << 16 | d[e2 + 3 >> 0] << 24 | 0, d[h2 >> 0] | d[h2 + 1 >> 0] << 8 | d[h2 + 2 >> 0] << 16 | d[h2 + 3 >> 0] << 24 | 0, g2 | 0, ((g2 | 0) < 0) << 31 >> 31 | 0) | 0;
+                h3 = k2;
+                e2 = h3;
+                h3 = h3 + 4 | 0;
+                h3 = lr(d[e2 >> 0] | d[e2 + 1 >> 0] << 8 | d[e2 + 2 >> 0] << 16 | d[e2 + 3 >> 0] << 24 | 0, d[h3 >> 0] | d[h3 + 1 >> 0] << 8 | d[h3 + 2 >> 0] << 16 | d[h3 + 3 >> 0] << 24 | 0, g2 | 0, ((g2 | 0) < 0) << 31 >> 31 | 0) | 0;
                 e2 = u() | 0;
                 i2 = k2;
-                a2[i2 >> 0] = h2;
-                a2[i2 + 1 >> 0] = h2 >> 8;
-                a2[i2 + 2 >> 0] = h2 >> 16;
-                a2[i2 + 3 >> 0] = h2 >> 24;
+                a2[i2 >> 0] = h3;
+                a2[i2 + 1 >> 0] = h3 >> 8;
+                a2[i2 + 2 >> 0] = h3 >> 16;
+                a2[i2 + 3 >> 0] = h3 >> 24;
                 k2 = k2 + 4 | 0;
                 a2[k2 >> 0] = e2;
                 a2[k2 + 1 >> 0] = e2 >> 8;
@@ -114473,7 +113406,7 @@ function getModule() {
         c3 = c3 | 0;
         f2 = f2 | 0;
         g2 = g2 | 0;
-        var h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0;
+        var h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0;
         o2 = V;
         V = V + 16 | 0;
         m2 = o2;
@@ -114492,59 +113425,59 @@ function getModule() {
           n2 = Zc(f2, c3 + 8 | 0) | 0;
           Gf(m2);
           if (!(n2 & 1)) {
-            h2 = c3 + 1 | 0;
-            h2 = (d[h2 >> 0] | d[h2 + 1 >> 0] << 8) & 255;
+            h3 = c3 + 1 | 0;
+            h3 = (d[h3 >> 0] | d[h3 + 1 >> 0] << 8) & 255;
           } else {
             l2 = (Zc(f2, c3 + 52 | 0) | 0) & 255;
-            h2 = c3 + 1 | 0;
-            h2 = (Ie(l2 + ((d[h2 >> 0] | d[h2 + 1 >> 0] << 8) & 255) | 0) | 0) & 255;
+            h3 = c3 + 1 | 0;
+            h3 = (Ie(l2 + ((d[h3 >> 0] | d[h3 + 1 >> 0] << 8) & 255) | 0) | 0) & 255;
           }
-          b4[m2 >> 1] = h2;
+          b4[m2 >> 1] = h3;
           if (!(n2 & 2)) {
             l2 = c3 + 1 | 0;
-            h2 = h2 | (d[l2 >> 0] | d[l2 + 1 >> 0] << 8) & -256;
+            h3 = h3 | (d[l2 >> 0] | d[l2 + 1 >> 0] << 8) & -256;
           } else {
-            h2 = (Zc(f2, c3 + 96 | 0) | 0) & 255;
+            h3 = (Zc(f2, c3 + 96 | 0) | 0) & 255;
             l2 = c3 + 1 | 0;
-            h2 = ((Ie((((d[l2 >> 0] | d[l2 + 1 >> 0] << 8) & 65535) >>> 8) + h2 | 0) | 0) & 255) << 8;
-            h2 = (h2 | e[m2 >> 1]) & 65535;
+            h3 = ((Ie((((d[l2 >> 0] | d[l2 + 1 >> 0] << 8) & 65535) >>> 8) + h3 | 0) | 0) & 255) << 8;
+            h3 = (h3 | e[m2 >> 1]) & 65535;
           }
-          b4[m2 >> 1] = h2;
+          b4[m2 >> 1] = h3;
           do
             if (n2 & 64) {
               k2 = c3 + 1 | 0;
-              i2 = (h2 & 255) - ((d[k2 >> 0] | d[k2 + 1 >> 0] << 8) & 255) | 0;
+              i2 = (h3 & 255) - ((d[k2 >> 0] | d[k2 + 1 >> 0] << 8) & 255) | 0;
               if (!(n2 & 4)) {
-                h2 = c3 + 3 | 0;
-                h2 = (d[h2 >> 0] | d[h2 + 1 >> 0] << 8) & 255;
+                h3 = c3 + 3 | 0;
+                h3 = (d[h3 >> 0] | d[h3 + 1 >> 0] << 8) & 255;
               } else {
-                h2 = (Zc(f2, c3 + 140 | 0) | 0) & 255;
+                h3 = (Zc(f2, c3 + 140 | 0) | 0) & 255;
                 l2 = c3 + 3 | 0;
                 l2 = i2 + ((d[l2 >> 0] | d[l2 + 1 >> 0] << 8) & 255) | 0;
-                h2 = (Ie(((l2 | 0) < 1 ? 0 : (l2 | 0) > 254 ? 255 : l2 & 255) + h2 | 0) | 0) & 255;
+                h3 = (Ie(((l2 | 0) < 1 ? 0 : (l2 | 0) > 254 ? 255 : l2 & 255) + h3 | 0) | 0) & 255;
               }
               l2 = m2 + 2 | 0;
-              b4[l2 >> 1] = h2;
+              b4[l2 >> 1] = h3;
               if (!(n2 & 16)) {
-                h2 = c3 + 5 | 0;
-                h2 = (d[h2 >> 0] | d[h2 + 1 >> 0] << 8) & 255;
+                h3 = c3 + 5 | 0;
+                h3 = (d[h3 >> 0] | d[h3 + 1 >> 0] << 8) & 255;
               } else {
-                h2 = Zc(f2, c3 + 228 | 0) | 0;
+                h3 = Zc(f2, c3 + 228 | 0) | 0;
                 p2 = c3 + 3 | 0;
                 j2 = c3 + 5 | 0;
                 j2 = ((i2 + (b4[l2 >> 1] & 255) - ((d[p2 >> 0] | d[p2 + 1 >> 0] << 8) & 255) | 0) / 2 | 0) + ((d[j2 >> 0] | d[j2 + 1 >> 0] << 8) & 255) | 0;
-                h2 = (Ie(((j2 | 0) < 1 ? 0 : (j2 | 0) > 254 ? 255 : j2 & 255) + (h2 & 255) | 0) | 0) & 255;
+                h3 = (Ie(((j2 | 0) < 1 ? 0 : (j2 | 0) > 254 ? 255 : j2 & 255) + (h3 & 255) | 0) | 0) & 255;
               }
               j2 = m2 + 4 | 0;
-              b4[j2 >> 1] = h2;
-              h2 = ((e[m2 >> 1] | 0) >>> 8) - (((d[k2 >> 0] | d[k2 + 1 >> 0] << 8) & 65535) >>> 8) | 0;
+              b4[j2 >> 1] = h3;
+              h3 = ((e[m2 >> 1] | 0) >>> 8) - (((d[k2 >> 0] | d[k2 + 1 >> 0] << 8) & 65535) >>> 8) | 0;
               if (!(n2 & 8)) {
                 i2 = c3 + 3 | 0;
                 i2 = b4[l2 >> 1] | (d[i2 >> 0] | d[i2 + 1 >> 0] << 8) & -256;
               } else {
                 i2 = (Zc(f2, c3 + 184 | 0) | 0) & 255;
                 p2 = c3 + 3 | 0;
-                p2 = (((d[p2 >> 0] | d[p2 + 1 >> 0] << 8) & 65535) >>> 8) + h2 | 0;
+                p2 = (((d[p2 >> 0] | d[p2 + 1 >> 0] << 8) & 65535) >>> 8) + h3 | 0;
                 i2 = ((Ie(((p2 | 0) < 1 ? 0 : (p2 | 0) > 254 ? 255 : p2 & 255) + i2 | 0) | 0) & 255) << 8;
                 i2 = (i2 | e[l2 >> 1]) & 65535;
               }
@@ -114557,14 +113490,14 @@ function getModule() {
                 p2 = Zc(f2, c3 + 272 | 0) | 0;
                 f2 = c3 + 3 | 0;
                 n2 = c3 + 5 | 0;
-                n2 = ((((e[l2 >> 1] | 0) >>> 8) + h2 - (((d[f2 >> 0] | d[f2 + 1 >> 0] << 8) & 65535) >>> 8) | 0) / 2 | 0) + (((d[n2 >> 0] | d[n2 + 1 >> 0] << 8) & 65535) >>> 8) | 0;
+                n2 = ((((e[l2 >> 1] | 0) >>> 8) + h3 - (((d[f2 >> 0] | d[f2 + 1 >> 0] << 8) & 65535) >>> 8) | 0) / 2 | 0) + (((d[n2 >> 0] | d[n2 + 1 >> 0] << 8) & 65535) >>> 8) | 0;
                 p2 = ((Ie(((n2 | 0) < 1 ? 0 : (n2 | 0) > 254 ? 255 : n2 & 255) + (p2 & 255) | 0) | 0) & 255) << 8;
                 b4[j2 >> 1] = p2 | e[j2 >> 1];
                 break;
               }
             } else {
-              b4[m2 + 2 >> 1] = h2;
-              b4[m2 + 4 >> 1] = h2;
+              b4[m2 + 2 >> 1] = h3;
+              b4[m2 + 4 >> 1] = h3;
             }
           while (0);
           p2 = c3 + 1 | 0;
@@ -114714,12 +113647,12 @@ function getModule() {
       function Xf(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0;
         d2 = V;
         V = V + 32 | 0;
         e2 = d2 + 24 | 0;
         f2 = d2 + 16 | 0;
-        h2 = d2 + 8 | 0;
+        h3 = d2 + 8 | 0;
         g2 = d2;
         c2[a3 >> 2] = 0;
         c2[a3 + 4 >> 2] = 0;
@@ -114727,10 +113660,10 @@ function getModule() {
         c2[a3 + 12 >> 2] = 0;
         c2[a3 + 16 >> 2] = 0;
         c2[a3 + 20 >> 2] = 0;
-        zg(h2, b5);
+        zg(h3, b5);
         Ag(g2, b5);
-        c2[f2 >> 2] = c2[h2 >> 2];
-        c2[f2 + 4 >> 2] = c2[h2 + 4 >> 2];
+        c2[f2 >> 2] = c2[h3 >> 2];
+        c2[f2 + 4 >> 2] = c2[h3 + 4 >> 2];
         c2[e2 >> 2] = c2[g2 >> 2];
         c2[e2 + 4 >> 2] = c2[g2 + 4 >> 2];
         cg(a3, f2, e2, 0);
@@ -114806,7 +113739,7 @@ function getModule() {
         b5 = b5 | 0;
         d2 = d2 | 0;
         e2 = e2 | 0;
-        var f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q2 = 0;
+        var f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q2 = 0;
         q2 = V;
         V = V + 96 | 0;
         p2 = q2 + 80 | 0;
@@ -114817,21 +113750,21 @@ function getModule() {
         i2 = q2;
         n2 = q2 + 32 | 0;
         o2 = q2 + 16 | 0;
-        h2 = b5;
-        g2 = c2[h2 >> 2] | 0;
-        h2 = c2[h2 + 4 >> 2] | 0;
+        h3 = b5;
+        g2 = c2[h3 >> 2] | 0;
+        h3 = c2[h3 + 4 >> 2] | 0;
         f2 = d2;
         d2 = c2[f2 >> 2] | 0;
         f2 = c2[f2 + 4 >> 2] | 0;
         e2 = g2;
-        if ((f2 | 0) == (h2 | 0))
-          h2 = 0;
+        if ((f2 | 0) == (h3 | 0))
+          h3 = 0;
         else
-          h2 = ((f2 - (c2[d2 >> 2] | 0) | 0) / 44 | 0) + ((d2 - g2 >> 2) * 93 | 0) + ((h2 - (c2[g2 >> 2] | 0) | 0) / -44 | 0) | 0;
+          h3 = ((f2 - (c2[d2 >> 2] | 0) | 0) / 44 | 0) + ((d2 - g2 >> 2) * 93 | 0) + ((h3 - (c2[g2 >> 2] | 0) | 0) / -44 | 0) | 0;
         d2 = (c2[a3 + 8 >> 2] | 0) - (c2[a3 + 4 >> 2] | 0) | 0;
         d2 = ((d2 | 0) == 0 ? 0 : ((d2 >> 2) * 93 | 0) + -1 | 0) - ((c2[a3 + 20 >> 2] | 0) + (c2[a3 + 16 >> 2] | 0)) | 0;
-        if (h2 >>> 0 > d2 >>> 0)
-          eg(a3, h2 - d2 | 0);
+        if (h3 >>> 0 > d2 >>> 0)
+          eg(a3, h3 - d2 | 0);
         fg(k2, a3);
         fg(i2, a3);
         f2 = i2;
@@ -114841,13 +113774,13 @@ function getModule() {
         c2[g2 >> 2] = d2;
         c2[g2 + 4 >> 2] = f2;
         g2 = d2;
-        if (h2 | 0) {
-          d2 = ((f2 - (c2[d2 >> 2] | 0) | 0) / 44 | 0) + h2 | 0;
+        if (h3 | 0) {
+          d2 = ((f2 - (c2[d2 >> 2] | 0) | 0) / 44 | 0) + h3 | 0;
           if ((d2 | 0) > 0) {
             i2 = (d2 >>> 0) / 93 | 0;
-            h2 = g2 + (i2 << 2) | 0;
-            c2[l2 >> 2] = h2;
-            d2 = (c2[h2 >> 2] | 0) + ((d2 - (i2 * 93 | 0) | 0) * 44 | 0) | 0;
+            h3 = g2 + (i2 << 2) | 0;
+            c2[l2 >> 2] = h3;
+            d2 = (c2[h3 >> 2] | 0) + ((d2 - (i2 * 93 | 0) | 0) * 44 | 0) | 0;
           } else {
             d2 = 92 - d2 | 0;
             i2 = g2 + (((d2 | 0) / -93 | 0) << 2) | 0;
@@ -114865,24 +113798,24 @@ function getModule() {
         ig(m2, j2);
         if (jg(p2, m2) | 0) {
           g2 = o2 + 4 | 0;
-          h2 = b5 + 4 | 0;
+          h3 = b5 + 4 | 0;
           do {
             kg(n2, p2);
             lg(o2, a3, n2);
             d2 = c2[o2 >> 2] | 0;
             if ((d2 | 0) != (c2[g2 >> 2] | 0)) {
-              f2 = c2[h2 >> 2] | 0;
+              f2 = c2[h3 >> 2] | 0;
               do {
                 Wc(d2, f2);
                 d2 = (c2[o2 >> 2] | 0) + 44 | 0;
                 c2[o2 >> 2] = d2;
                 f2 = f2 + 44 | 0;
-                c2[h2 >> 2] = f2;
+                c2[h3 >> 2] = f2;
                 if ((f2 - (c2[e2 >> 2] | 0) | 0) == 4092) {
                   e2 = e2 + 4 | 0;
                   c2[b5 >> 2] = e2;
                   f2 = c2[e2 >> 2] | 0;
-                  c2[h2 >> 2] = f2;
+                  c2[h3 >> 2] = f2;
                 }
               } while ((d2 | 0) != (c2[g2 >> 2] | 0));
             }
@@ -114909,12 +113842,12 @@ function getModule() {
       function eg(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, r2 = 0, s2 = 0, t2 = 0, u2 = 0, v2 = 0, w2 = 0, x2 = 0, y2 = 0, z2 = 0, A3 = 0, B3 = 0, C2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, r2 = 0, s2 = 0, t2 = 0, u2 = 0, v2 = 0, w3 = 0, x2 = 0, y2 = 0, z2 = 0, A3 = 0, B3 = 0, C2 = 0;
         B3 = V;
         V = V + 64 | 0;
         v2 = B3 + 52 | 0;
         u2 = B3 + 48 | 0;
-        w2 = B3 + 28 | 0;
+        w3 = B3 + 28 | 0;
         x2 = B3 + 24 | 0;
         y2 = B3 + 20 | 0;
         p2 = B3;
@@ -114923,13 +113856,13 @@ function getModule() {
         A3 = a3 + 4 | 0;
         j2 = c2[A3 >> 2] | 0;
         s2 = ((d2 | 0) == (j2 | 0) & 1) + b5 | 0;
-        h2 = (s2 >>> 0) / 93 | 0;
-        h2 = h2 + ((s2 - (h2 * 93 | 0) | 0) != 0 & 1) | 0;
+        h3 = (s2 >>> 0) / 93 | 0;
+        h3 = h3 + ((s2 - (h3 * 93 | 0) | 0) != 0 & 1) | 0;
         s2 = a3 + 16 | 0;
         e2 = c2[s2 >> 2] | 0;
         i2 = (e2 >>> 0) / 93 | 0;
-        r2 = h2 >>> 0 < i2 >>> 0 ? h2 : i2;
-        b5 = h2 - r2 | 0;
+        r2 = h3 >>> 0 < i2 >>> 0 ? h3 : i2;
+        b5 = h3 - r2 | 0;
         g2 = d2;
         a:
           do
@@ -114938,13 +113871,13 @@ function getModule() {
               if (r2 | 0) {
                 i2 = a3 + 12 | 0;
                 k2 = a3 + 12 | 0;
-                l2 = w2 + 4 | 0;
-                m2 = w2 + 8 | 0;
-                n2 = w2 + 12 | 0;
+                l2 = w3 + 4 | 0;
+                m2 = w3 + 8 | 0;
+                n2 = w3 + 12 | 0;
                 b5 = r2;
                 e2 = j2;
                 while (1) {
-                  h2 = c2[e2 >> 2] | 0;
+                  h3 = c2[e2 >> 2] | 0;
                   g2 = e2 + 4 | 0;
                   c2[A3 >> 2] = g2;
                   t2 = c2[i2 >> 2] | 0;
@@ -114956,15 +113889,15 @@ function getModule() {
                       if (g2 >>> 0 <= t2 >>> 0) {
                         d2 = e2 - d2 | 0;
                         d2 = (d2 | 0) == 0 ? 1 : d2 >> 1;
-                        qg(w2, d2, d2 >>> 2, k2);
+                        qg(w3, d2, d2 >>> 2, k2);
                         c2[x2 >> 2] = c2[A3 >> 2];
                         c2[y2 >> 2] = c2[z2 >> 2];
                         c2[u2 >> 2] = c2[x2 >> 2];
                         c2[v2 >> 2] = c2[y2 >> 2];
-                        ug(w2, u2, v2);
+                        ug(w3, u2, v2);
                         d2 = c2[a3 >> 2] | 0;
-                        c2[a3 >> 2] = c2[w2 >> 2];
-                        c2[w2 >> 2] = d2;
+                        c2[a3 >> 2] = c2[w3 >> 2];
+                        c2[w3 >> 2] = d2;
                         d2 = c2[A3 >> 2] | 0;
                         c2[A3 >> 2] = c2[l2 >> 2];
                         c2[l2 >> 2] = d2;
@@ -114974,7 +113907,7 @@ function getModule() {
                         d2 = c2[i2 >> 2] | 0;
                         c2[i2 >> 2] = c2[n2 >> 2];
                         c2[n2 >> 2] = d2;
-                        tg(w2);
+                        tg(w3);
                         d2 = c2[z2 >> 2] | 0;
                         break;
                       }
@@ -114994,7 +113927,7 @@ function getModule() {
                       d2 = t2;
                     }
                   while (0);
-                  c2[d2 >> 2] = h2;
+                  c2[d2 >> 2] = h3;
                   d2 = (c2[z2 >> 2] | 0) + 4 | 0;
                   c2[z2 >> 2] = d2;
                   b5 = b5 + -1 | 0;
@@ -115024,10 +113957,10 @@ function getModule() {
                   j2 = p2 + 12 | 0;
                   k2 = p2 + 4 | 0;
                   l2 = p2 + 16 | 0;
-                  m2 = w2 + 4 | 0;
-                  n2 = w2 + 8 | 0;
-                  o2 = w2 + 12 | 0;
-                  h2 = r2;
+                  m2 = w3 + 4 | 0;
+                  n2 = w3 + 8 | 0;
+                  o2 = w3 + 12 | 0;
+                  h3 = r2;
                   b5 = c2[i2 >> 2] | 0;
                   d2 = c2[A3 >> 2] | 0;
                   do {
@@ -115041,15 +113974,15 @@ function getModule() {
                         if (f2 >>> 0 <= g2 >>> 0) {
                           b5 = e2 - b5 | 0;
                           b5 = (b5 | 0) == 0 ? 1 : b5 >> 1;
-                          qg(w2, b5, b5 >>> 2, c2[l2 >> 2] | 0);
+                          qg(w3, b5, b5 >>> 2, c2[l2 >> 2] | 0);
                           c2[x2 >> 2] = c2[k2 >> 2];
                           c2[y2 >> 2] = c2[i2 >> 2];
                           c2[u2 >> 2] = c2[x2 >> 2];
                           c2[v2 >> 2] = c2[y2 >> 2];
-                          ug(w2, u2, v2);
+                          ug(w3, u2, v2);
                           b5 = c2[p2 >> 2] | 0;
-                          c2[p2 >> 2] = c2[w2 >> 2];
-                          c2[w2 >> 2] = b5;
+                          c2[p2 >> 2] = c2[w3 >> 2];
+                          c2[w3 >> 2] = b5;
                           b5 = c2[k2 >> 2] | 0;
                           c2[k2 >> 2] = c2[m2 >> 2];
                           c2[m2 >> 2] = b5;
@@ -115059,7 +113992,7 @@ function getModule() {
                           b5 = c2[j2 >> 2] | 0;
                           c2[j2 >> 2] = c2[o2 >> 2];
                           c2[o2 >> 2] = b5;
-                          tg(w2);
+                          tg(w3);
                           b5 = c2[i2 >> 2] | 0;
                           break;
                         }
@@ -115084,8 +114017,8 @@ function getModule() {
                     c2[i2 >> 2] = b5;
                     d2 = (c2[A3 >> 2] | 0) + 4 | 0;
                     c2[A3 >> 2] = d2;
-                    h2 = h2 + -1 | 0;
-                  } while ((h2 | 0) != 0);
+                    h3 = h3 + -1 | 0;
+                  } while ((h3 | 0) != 0);
                 }
                 b5 = c2[z2 >> 2] | 0;
                 if ((b5 | 0) != (d2 | 0)) {
@@ -115134,7 +114067,7 @@ function getModule() {
                     }
                   while (0);
                 if ((k2 | 0) == 18) {
-                  e2 = ~(h2 >>> 0 > i2 >>> 0 ? i2 : h2);
+                  e2 = ~(h3 >>> 0 > i2 >>> 0 ? i2 : h3);
                   d2 = b5;
                   do {
                     c2[v2 >> 2] = eq(4092) | 0;
@@ -115150,13 +114083,13 @@ function getModule() {
                 if (!d2)
                   break;
                 i2 = a3 + 12 | 0;
-                j2 = w2 + 4 | 0;
-                k2 = w2 + 8 | 0;
-                l2 = w2 + 12 | 0;
+                j2 = w3 + 4 | 0;
+                k2 = w3 + 8 | 0;
+                l2 = w3 + 12 | 0;
                 b5 = c2[z2 >> 2] | 0;
                 do {
                   g2 = c2[A3 >> 2] | 0;
-                  h2 = c2[g2 >> 2] | 0;
+                  h3 = c2[g2 >> 2] | 0;
                   g2 = g2 + 4 | 0;
                   c2[A3 >> 2] = g2;
                   C2 = c2[t2 >> 2] | 0;
@@ -115168,15 +114101,15 @@ function getModule() {
                       if (g2 >>> 0 <= C2 >>> 0) {
                         b5 = e2 - b5 | 0;
                         b5 = (b5 | 0) == 0 ? 1 : b5 >> 1;
-                        qg(w2, b5, b5 >>> 2, i2);
+                        qg(w3, b5, b5 >>> 2, i2);
                         c2[x2 >> 2] = c2[A3 >> 2];
                         c2[y2 >> 2] = c2[z2 >> 2];
                         c2[u2 >> 2] = c2[x2 >> 2];
                         c2[v2 >> 2] = c2[y2 >> 2];
-                        ug(w2, u2, v2);
+                        ug(w3, u2, v2);
                         b5 = c2[a3 >> 2] | 0;
-                        c2[a3 >> 2] = c2[w2 >> 2];
-                        c2[w2 >> 2] = b5;
+                        c2[a3 >> 2] = c2[w3 >> 2];
+                        c2[w3 >> 2] = b5;
                         b5 = c2[A3 >> 2] | 0;
                         c2[A3 >> 2] = c2[j2 >> 2];
                         c2[j2 >> 2] = b5;
@@ -115186,7 +114119,7 @@ function getModule() {
                         b5 = c2[t2 >> 2] | 0;
                         c2[t2 >> 2] = c2[l2 >> 2];
                         c2[l2 >> 2] = b5;
-                        tg(w2);
+                        tg(w3);
                         b5 = c2[z2 >> 2] | 0;
                         break;
                       }
@@ -115206,7 +114139,7 @@ function getModule() {
                       b5 = C2;
                     }
                   while (0);
-                  c2[b5 >> 2] = h2;
+                  c2[b5 >> 2] = h3;
                   b5 = (c2[z2 >> 2] | 0) + 4 | 0;
                   c2[z2 >> 2] = b5;
                   d2 = d2 + -1 | 0;
@@ -115262,24 +114195,24 @@ function getModule() {
       function ig(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0;
         d2 = V;
         V = V + 32 | 0;
         e2 = d2 + 24 | 0;
         f2 = d2 + 16 | 0;
-        h2 = d2 + 8 | 0;
+        h3 = d2 + 8 | 0;
         g2 = d2;
         i2 = b5 + 8 | 0;
         j2 = c2[i2 >> 2] | 0;
         i2 = c2[i2 + 4 >> 2] | 0;
-        b5 = h2;
+        b5 = h3;
         c2[b5 >> 2] = j2;
         c2[b5 + 4 >> 2] = i2;
         b5 = g2;
         c2[b5 >> 2] = j2;
         c2[b5 + 4 >> 2] = i2;
-        c2[f2 >> 2] = c2[h2 >> 2];
-        c2[f2 + 4 >> 2] = c2[h2 + 4 >> 2];
+        c2[f2 >> 2] = c2[h3 >> 2];
+        c2[f2 + 4 >> 2] = c2[h3 + 4 >> 2];
         c2[e2 >> 2] = c2[g2 >> 2];
         c2[e2 + 4 >> 2] = c2[g2 + 4 >> 2];
         gg(a3, f2, e2);
@@ -115343,7 +114276,7 @@ function getModule() {
       function og(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q2 = 0;
         p2 = V;
         V = V + 48 | 0;
         f2 = p2 + 32 | 0;
@@ -115361,9 +114294,9 @@ function getModule() {
             n2 = a3 + 4 | 0;
             m2 = c2[n2 >> 2] | 0;
             q2 = c2[a3 >> 2] | 0;
-            h2 = q2;
+            h3 = q2;
             if (m2 >>> 0 <= q2 >>> 0) {
-              d2 = g2 - h2 | 0;
+              d2 = g2 - h3 | 0;
               d2 = (d2 | 0) == 0 ? 1 : d2 >> 1;
               qg(i2, d2, d2 >>> 2, a3 + 12 | 0);
               c2[j2 >> 2] = c2[n2 >> 2];
@@ -115391,7 +114324,7 @@ function getModule() {
               break;
             }
             f2 = m2;
-            e2 = ((f2 - h2 >> 2) + 1 | 0) / -2 | 0;
+            e2 = ((f2 - h3 >> 2) + 1 | 0) / -2 | 0;
             a3 = m2 + (e2 << 2) | 0;
             f2 = d2 - f2 | 0;
             if (!f2)
@@ -115414,12 +114347,12 @@ function getModule() {
       function pg(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q2 = 0;
         p2 = V;
         V = V + 48 | 0;
         e2 = p2 + 32 | 0;
         d2 = p2 + 28 | 0;
-        h2 = p2 + 8 | 0;
+        h3 = p2 + 8 | 0;
         i2 = p2 + 4 | 0;
         j2 = p2;
         o2 = a3 + 4 | 0;
@@ -115436,28 +114369,28 @@ function getModule() {
             if (l2 >>> 0 >= q2 >>> 0) {
               q2 = f2 - k2 | 0;
               q2 = (q2 | 0) == 0 ? 1 : q2 >> 1;
-              qg(h2, q2, (q2 + 3 | 0) >>> 2, a3 + 12 | 0);
+              qg(h3, q2, (q2 + 3 | 0) >>> 2, a3 + 12 | 0);
               c2[i2 >> 2] = c2[o2 >> 2];
               c2[j2 >> 2] = c2[n2 >> 2];
               c2[d2 >> 2] = c2[i2 >> 2];
               c2[e2 >> 2] = c2[j2 >> 2];
-              ug(h2, d2, e2);
+              ug(h3, d2, e2);
               d2 = c2[a3 >> 2] | 0;
-              c2[a3 >> 2] = c2[h2 >> 2];
-              c2[h2 >> 2] = d2;
-              d2 = h2 + 4 | 0;
+              c2[a3 >> 2] = c2[h3 >> 2];
+              c2[h3 >> 2] = d2;
+              d2 = h3 + 4 | 0;
               q2 = c2[o2 >> 2] | 0;
               c2[o2 >> 2] = c2[d2 >> 2];
               c2[d2 >> 2] = q2;
-              d2 = h2 + 8 | 0;
+              d2 = h3 + 8 | 0;
               q2 = c2[n2 >> 2] | 0;
               c2[n2 >> 2] = c2[d2 >> 2];
               c2[d2 >> 2] = q2;
-              d2 = h2 + 12 | 0;
+              d2 = h3 + 12 | 0;
               q2 = c2[g2 >> 2] | 0;
               c2[g2 >> 2] = c2[d2 >> 2];
               c2[d2 >> 2] = q2;
-              tg(h2);
+              tg(h3);
               d2 = c2[o2 >> 2] | 0;
               break;
             }
@@ -115516,7 +114449,7 @@ function getModule() {
       function rg(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q2 = 0;
         p2 = V;
         V = V + 48 | 0;
         f2 = p2 + 32 | 0;
@@ -115534,9 +114467,9 @@ function getModule() {
             n2 = a3 + 4 | 0;
             m2 = c2[n2 >> 2] | 0;
             q2 = c2[a3 >> 2] | 0;
-            h2 = q2;
+            h3 = q2;
             if (m2 >>> 0 <= q2 >>> 0) {
-              d2 = g2 - h2 | 0;
+              d2 = g2 - h3 | 0;
               d2 = (d2 | 0) == 0 ? 1 : d2 >> 1;
               qg(i2, d2, d2 >>> 2, c2[a3 + 16 >> 2] | 0);
               c2[j2 >> 2] = c2[n2 >> 2];
@@ -115564,7 +114497,7 @@ function getModule() {
               break;
             }
             f2 = m2;
-            e2 = ((f2 - h2 >> 2) + 1 | 0) / -2 | 0;
+            e2 = ((f2 - h3 >> 2) + 1 | 0) / -2 | 0;
             a3 = m2 + (e2 << 2) | 0;
             f2 = d2 - f2 | 0;
             if (!f2)
@@ -115587,12 +114520,12 @@ function getModule() {
       function sg(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q2 = 0;
         p2 = V;
         V = V + 48 | 0;
         e2 = p2 + 32 | 0;
         d2 = p2 + 28 | 0;
-        h2 = p2 + 8 | 0;
+        h3 = p2 + 8 | 0;
         i2 = p2 + 4 | 0;
         j2 = p2;
         o2 = a3 + 4 | 0;
@@ -115609,28 +114542,28 @@ function getModule() {
             if (l2 >>> 0 >= q2 >>> 0) {
               q2 = f2 - k2 | 0;
               q2 = (q2 | 0) == 0 ? 1 : q2 >> 1;
-              qg(h2, q2, (q2 + 3 | 0) >>> 2, c2[a3 + 16 >> 2] | 0);
+              qg(h3, q2, (q2 + 3 | 0) >>> 2, c2[a3 + 16 >> 2] | 0);
               c2[i2 >> 2] = c2[o2 >> 2];
               c2[j2 >> 2] = c2[n2 >> 2];
               c2[d2 >> 2] = c2[i2 >> 2];
               c2[e2 >> 2] = c2[j2 >> 2];
-              ug(h2, d2, e2);
+              ug(h3, d2, e2);
               d2 = c2[a3 >> 2] | 0;
-              c2[a3 >> 2] = c2[h2 >> 2];
-              c2[h2 >> 2] = d2;
-              d2 = h2 + 4 | 0;
+              c2[a3 >> 2] = c2[h3 >> 2];
+              c2[h3 >> 2] = d2;
+              d2 = h3 + 4 | 0;
               q2 = c2[o2 >> 2] | 0;
               c2[o2 >> 2] = c2[d2 >> 2];
               c2[d2 >> 2] = q2;
-              d2 = h2 + 8 | 0;
+              d2 = h3 + 8 | 0;
               q2 = c2[n2 >> 2] | 0;
               c2[n2 >> 2] = c2[d2 >> 2];
               c2[d2 >> 2] = q2;
-              d2 = h2 + 12 | 0;
+              d2 = h3 + 12 | 0;
               q2 = c2[g2 >> 2] | 0;
               c2[g2 >> 2] = c2[d2 >> 2];
               c2[d2 >> 2] = q2;
-              tg(h2);
+              tg(h3);
               d2 = c2[o2 >> 2] | 0;
               break;
             }
@@ -115673,10 +114606,10 @@ function getModule() {
         a3 = a3 | 0;
         b5 = b5 | 0;
         d2 = d2 | 0;
-        var e2 = 0, f2 = 0, g2 = 0, h2 = 0;
-        h2 = V;
+        var e2 = 0, f2 = 0, g2 = 0, h3 = 0;
+        h3 = V;
         V = V + 16 | 0;
-        g2 = h2;
+        g2 = h3;
         f2 = c2[b5 >> 2] | 0;
         vg(g2, a3 + 8 | 0, (c2[d2 >> 2] | 0) - f2 >> 2);
         a3 = c2[g2 >> 2] | 0;
@@ -115692,7 +114625,7 @@ function getModule() {
           c2[b5 >> 2] = d2;
         }
         wg(g2);
-        V = h2;
+        V = h3;
         return;
       }
       function vg(a3, b5, d2) {
@@ -115756,7 +114689,7 @@ function getModule() {
       }
       function Bg(a3) {
         a3 = a3 | 0;
-        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0;
+        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0;
         i2 = V;
         V = V + 16 | 0;
         e2 = i2 + 8 | 0;
@@ -115794,18 +114727,18 @@ function getModule() {
         switch (b5 | 0) {
           case 1: {
             b5 = 46;
-            h2 = 11;
+            h3 = 11;
             break;
           }
           case 2: {
             b5 = 93;
-            h2 = 11;
+            h3 = 11;
             break;
           }
           default: {
           }
         }
-        if ((h2 | 0) == 11)
+        if ((h3 | 0) == 11)
           c2[a3 + 16 >> 2] = b5;
         V = i2;
         return;
@@ -115830,7 +114763,7 @@ function getModule() {
         b5 = b5 | 0;
         e2 = e2 | 0;
         f2 = f2 | 0;
-        var g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0;
+        var g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0;
         m2 = V;
         V = V + 16 | 0;
         l2 = m2;
@@ -115844,42 +114777,42 @@ function getModule() {
             g2 = 0;
           else {
             g2 = f2;
-            h2 = c2[b5 + 8 >> 2] | 0;
+            h3 = c2[b5 + 8 >> 2] | 0;
             while (1) {
-              a2[h2 >> 0] = a2[g2 >> 0] | 0;
+              a2[h3 >> 0] = a2[g2 >> 0] | 0;
               g2 = g2 + 1 | 0;
               if ((g2 | 0) == (i2 | 0))
                 break;
               else
-                h2 = h2 + 1 | 0;
+                h3 = h3 + 1 | 0;
             }
             g2 = c2[b5 >> 2] | 0;
           }
           a2[j2 >> 0] = 1;
           f2 = f2 + g2 | 0;
         } else {
-          h2 = c2[b5 + 20 >> 2] | 0;
+          h3 = c2[b5 + 20 >> 2] | 0;
           g2 = c2[b5 + 8 >> 2] | 0;
           Cg(l2, b5 + 32 | 0);
           b5 = b5 + 12 | 0;
           if ((g2 | 0) != (c2[b5 >> 2] | 0)) {
             k2 = l2 + 4 | 0;
             j2 = g2;
-            i2 = h2;
+            i2 = h3;
             g2 = c2[k2 >> 2] | 0;
             while (1) {
-              h2 = d[j2 >> 0] | 0;
-              h2 = Eg((Zc(e2, g2) | 0) + h2 | 0) | 0;
-              a2[i2 >> 0] = h2;
-              a2[f2 >> 0] = h2;
-              a2[j2 >> 0] = h2;
+              h3 = d[j2 >> 0] | 0;
+              h3 = Eg((Zc(e2, g2) | 0) + h3 | 0) | 0;
+              a2[i2 >> 0] = h3;
+              a2[f2 >> 0] = h3;
+              a2[j2 >> 0] = h3;
               j2 = j2 + 1 | 0;
               f2 = f2 + 1 | 0;
-              h2 = c2[l2 >> 2] | 0;
+              h3 = c2[l2 >> 2] | 0;
               g2 = (c2[k2 >> 2] | 0) + 44 | 0;
               c2[k2 >> 2] = g2;
-              if ((g2 - (c2[h2 >> 2] | 0) | 0) == 4092) {
-                g2 = h2 + 4 | 0;
+              if ((g2 - (c2[h3 >> 2] | 0) | 0) == 4092) {
+                g2 = h3 + 4 | 0;
                 c2[l2 >> 2] = g2;
                 g2 = c2[g2 >> 2] | 0;
                 c2[k2 >> 2] = g2;
@@ -115972,12 +114905,12 @@ function getModule() {
         a3 = a3 | 0;
         b5 = b5 | 0;
         d2 = d2 | 0;
-        var e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0;
+        var e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0;
         o2 = V;
         V = V + 96 | 0;
         n2 = o2 + 80 | 0;
         k2 = o2 + 64 | 0;
-        h2 = o2 + 48 | 0;
+        h3 = o2 + 48 | 0;
         i2 = o2 + 40 | 0;
         j2 = o2 + 8 | 0;
         f2 = o2;
@@ -116014,9 +114947,9 @@ function getModule() {
         c2[k2 + 4 >> 2] = c2[i2 + 4 >> 2];
         c2[n2 >> 2] = c2[j2 >> 2];
         c2[n2 + 4 >> 2] = c2[j2 + 4 >> 2];
-        gg(h2, k2, n2);
-        hg(n2, h2);
-        ig(k2, h2);
+        gg(h3, k2, n2);
+        hg(n2, h3);
+        ig(k2, h3);
         if (jg(n2, k2) | 0) {
           f2 = m2 + 4 | 0;
           do {
@@ -116692,17 +115625,17 @@ function getModule() {
       function ki(b5, d2) {
         b5 = b5 | 0;
         d2 = d2 | 0;
-        var e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0;
+        var e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0;
         k2 = V;
         V = V + 16 | 0;
-        h2 = k2;
+        h3 = k2;
         e2 = c2[b5 + 8 >> 2] | 0;
         i2 = c2[b5 + 12 >> 2] | 0;
         if ((e2 | 0) != (i2 | 0)) {
-          j2 = h2 + 4 | 0;
+          j2 = h3 + 4 | 0;
           do {
             f2 = c2[e2 >> 2] | 0;
-            c2[h2 >> 2] = f2;
+            c2[h3 >> 2] = f2;
             g2 = c2[e2 + 4 >> 2] | 0;
             c2[j2 >> 2] = g2;
             if (g2 | 0) {
@@ -116710,7 +115643,7 @@ function getModule() {
               c2[g2 >> 2] = (c2[g2 >> 2] | 0) + 1;
             }
             d2 = $[c2[(c2[f2 >> 2] | 0) + 12 >> 2] & 63](f2, d2) | 0;
-            Sd(h2);
+            Sd(h3);
             e2 = e2 + 8 | 0;
           } while ((e2 | 0) != (i2 | 0));
         }
@@ -116783,20 +115716,20 @@ function getModule() {
       }
       function ui(a3) {
         a3 = a3 | 0;
-        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0;
+        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0;
         j2 = V;
         V = V + 32 | 0;
         e2 = j2 + 12 | 0;
         f2 = j2;
         b5 = j2 + 8 | 0;
-        h2 = eq(180) | 0;
-        wi(h2, c2[a3 + 4 >> 2] | 0);
+        h3 = eq(180) | 0;
+        wi(h3, c2[a3 + 4 >> 2] | 0);
         g2 = a3 + 8 | 0;
         c2[b5 >> 2] = 0;
         c2[e2 >> 2] = c2[b5 >> 2];
-        xi(f2, h2, e2);
-        h2 = a3 + 12 | 0;
-        b5 = c2[h2 >> 2] | 0;
+        xi(f2, h3, e2);
+        h3 = a3 + 12 | 0;
+        b5 = c2[h3 >> 2] | 0;
         i2 = a3 + 16 | 0;
         do
           if (b5 >>> 0 >= (c2[i2 >> 2] | 0) >>> 0) {
@@ -116808,15 +115741,15 @@ function getModule() {
               k2 = c2[g2 >> 2] | 0;
               l2 = (c2[i2 >> 2] | 0) - k2 | 0;
               i2 = l2 >> 2;
-              be(e2, l2 >> 3 >>> 0 < d2 >>> 1 >>> 0 ? i2 >>> 0 < b5 >>> 0 ? b5 : i2 : d2, (c2[h2 >> 2] | 0) - k2 >> 3, a3 + 16 | 0);
+              be(e2, l2 >> 3 >>> 0 < d2 >>> 1 >>> 0 ? i2 >>> 0 < b5 >>> 0 ? b5 : i2 : d2, (c2[h3 >> 2] | 0) - k2 >> 3, a3 + 16 | 0);
               i2 = e2 + 8 | 0;
-              h2 = c2[i2 >> 2] | 0;
-              c2[h2 >> 2] = c2[f2 >> 2];
+              h3 = c2[i2 >> 2] | 0;
+              c2[h3 >> 2] = c2[f2 >> 2];
               a3 = f2 + 4 | 0;
-              c2[h2 + 4 >> 2] = c2[a3 >> 2];
+              c2[h3 + 4 >> 2] = c2[a3 >> 2];
               c2[f2 >> 2] = 0;
               c2[a3 >> 2] = 0;
-              c2[i2 >> 2] = h2 + 8;
+              c2[i2 >> 2] = h3 + 8;
               ce(g2, e2);
               de(e2);
               break;
@@ -116840,20 +115773,20 @@ function getModule() {
       }
       function vi(a3) {
         a3 = a3 | 0;
-        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0;
+        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0;
         j2 = V;
         V = V + 32 | 0;
         e2 = j2 + 12 | 0;
         f2 = j2;
         b5 = j2 + 8 | 0;
-        h2 = eq(180) | 0;
-        Ui(h2, c2[a3 + 4 >> 2] | 0);
+        h3 = eq(180) | 0;
+        Ui(h3, c2[a3 + 4 >> 2] | 0);
         g2 = a3 + 8 | 0;
         c2[b5 >> 2] = 0;
         c2[e2 >> 2] = c2[b5 >> 2];
-        Vi(f2, h2, e2);
-        h2 = a3 + 12 | 0;
-        b5 = c2[h2 >> 2] | 0;
+        Vi(f2, h3, e2);
+        h3 = a3 + 12 | 0;
+        b5 = c2[h3 >> 2] | 0;
         i2 = a3 + 16 | 0;
         do
           if (b5 >>> 0 >= (c2[i2 >> 2] | 0) >>> 0) {
@@ -116865,15 +115798,15 @@ function getModule() {
               k2 = c2[g2 >> 2] | 0;
               l2 = (c2[i2 >> 2] | 0) - k2 | 0;
               i2 = l2 >> 2;
-              be(e2, l2 >> 3 >>> 0 < d2 >>> 1 >>> 0 ? i2 >>> 0 < b5 >>> 0 ? b5 : i2 : d2, (c2[h2 >> 2] | 0) - k2 >> 3, a3 + 16 | 0);
+              be(e2, l2 >> 3 >>> 0 < d2 >>> 1 >>> 0 ? i2 >>> 0 < b5 >>> 0 ? b5 : i2 : d2, (c2[h3 >> 2] | 0) - k2 >> 3, a3 + 16 | 0);
               i2 = e2 + 8 | 0;
-              h2 = c2[i2 >> 2] | 0;
-              c2[h2 >> 2] = c2[f2 >> 2];
+              h3 = c2[i2 >> 2] | 0;
+              c2[h3 >> 2] = c2[f2 >> 2];
               a3 = f2 + 4 | 0;
-              c2[h2 + 4 >> 2] = c2[a3 >> 2];
+              c2[h3 + 4 >> 2] = c2[a3 >> 2];
               c2[f2 >> 2] = 0;
               c2[a3 >> 2] = 0;
-              c2[i2 >> 2] = h2 + 8;
+              c2[i2 >> 2] = h3 + 8;
               ce(g2, e2);
               de(e2);
               break;
@@ -116967,10 +115900,10 @@ function getModule() {
         b5 = b5 | 0;
         d2 = d2 | 0;
         e2 = e2 | 0;
-        var f2 = 0, g2 = 0, h2 = 0;
-        h2 = V;
+        var f2 = 0, g2 = 0, h3 = 0;
+        h3 = V;
         V = V + 16 | 0;
-        f2 = h2;
+        f2 = h3;
         if (!(a2[b5 + 161 >> 0] | 0))
           oc(b5 + 80 | 0);
         g2 = b5 + 164 | 0;
@@ -116983,7 +115916,7 @@ function getModule() {
           c2[f2 >> 2] = Ne(e2) | 0;
         }
         Ji(g2, f2);
-        V = h2;
+        V = h3;
         return e2 + 4 | 0;
       }
       function Fi(b5) {
@@ -117067,7 +116000,7 @@ function getModule() {
       function Li(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0;
         n2 = a3 + 8 | 0;
         m2 = c2[n2 >> 2] | 0;
         f2 = c2[b5 + 16 >> 2] | 0;
@@ -117080,25 +116013,25 @@ function getModule() {
           i2 = j2 >>> (c2[b5 + 40 >> 2] | 0);
           g2 = c2[f2 + (i2 << 2) >> 2] | 0;
           i2 = (c2[f2 + (i2 + 1 << 2) >> 2] | 0) + 1 | 0;
-          h2 = g2 + 1 | 0;
+          h3 = g2 + 1 | 0;
           k2 = c2[b5 + 8 >> 2] | 0;
-          if (i2 >>> 0 > h2 >>> 0) {
+          if (i2 >>> 0 > h3 >>> 0) {
             f2 = g2;
             g2 = i2;
             do {
-              h2 = (g2 + f2 | 0) >>> 1;
-              i2 = (c2[k2 + (h2 << 2) >> 2] | 0) >>> 0 > j2 >>> 0;
-              f2 = i2 ? f2 : h2;
-              g2 = i2 ? h2 : g2;
-              h2 = f2 + 1 | 0;
-            } while (g2 >>> 0 > h2 >>> 0);
+              h3 = (g2 + f2 | 0) >>> 1;
+              i2 = (c2[k2 + (h3 << 2) >> 2] | 0) >>> 0 > j2 >>> 0;
+              f2 = i2 ? f2 : h3;
+              g2 = i2 ? h3 : g2;
+              h3 = f2 + 1 | 0;
+            } while (g2 >>> 0 > h3 >>> 0);
             g2 = f2;
           }
           f2 = q(c2[k2 + (g2 << 2) >> 2] | 0, l2) | 0;
           if ((g2 | 0) == (c2[b5 + 32 >> 2] | 0))
-            h2 = m2;
+            h3 = m2;
           else
-            h2 = q(c2[k2 + (h2 << 2) >> 2] | 0, l2) | 0;
+            h3 = q(c2[k2 + (h3 << 2) >> 2] | 0, l2) | 0;
         } else {
           k2 = m2 >>> 15;
           c2[n2 >> 2] = k2;
@@ -117108,12 +116041,12 @@ function getModule() {
           d2 = c2[e2 >> 2] | 0;
           j2 = i2 >>> 1;
           f2 = 0;
-          h2 = m2;
+          h3 = m2;
           g2 = 0;
           do {
             o2 = q(c2[l2 + (j2 << 2) >> 2] | 0, k2) | 0;
             m2 = o2 >>> 0 > d2 >>> 0;
-            h2 = m2 ? o2 : h2;
+            h3 = m2 ? o2 : h3;
             f2 = m2 ? f2 : o2;
             g2 = m2 ? g2 : j2;
             i2 = m2 ? j2 : i2;
@@ -117121,7 +116054,7 @@ function getModule() {
           } while ((j2 | 0) != (g2 | 0));
         }
         c2[e2 >> 2] = d2 - f2;
-        o2 = h2 - f2 | 0;
+        o2 = h3 - f2 | 0;
         c2[n2 >> 2] = o2;
         if (o2 >>> 0 < 16777216)
           Oi(a3);
@@ -117156,27 +116089,27 @@ function getModule() {
       function Ni(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0;
         e2 = a3 + 8 | 0;
         f2 = c2[e2 >> 2] | 0;
         d2 = q(f2 >>> 13, c2[b5 + 8 >> 2] | 0) | 0;
         g2 = a3 + 4 | 0;
-        h2 = c2[g2 >> 2] | 0;
-        i2 = h2 >>> 0 >= d2 >>> 0;
+        h3 = c2[g2 >> 2] | 0;
+        i2 = h3 >>> 0 >= d2 >>> 0;
         if (i2) {
-          c2[g2 >> 2] = h2 - d2;
+          c2[g2 >> 2] = h3 - d2;
           d2 = f2 - d2 | 0;
           c2[e2 >> 2] = d2;
         } else {
           c2[e2 >> 2] = d2;
-          h2 = b5 + 12 | 0;
-          c2[h2 >> 2] = (c2[h2 >> 2] | 0) + 1;
+          h3 = b5 + 12 | 0;
+          c2[h3 >> 2] = (c2[h3 >> 2] | 0) + 1;
         }
         if (d2 >>> 0 < 16777216)
           Oi(a3);
-        h2 = b5 + 4 | 0;
-        a3 = (c2[h2 >> 2] | 0) + -1 | 0;
-        c2[h2 >> 2] = a3;
+        h3 = b5 + 4 | 0;
+        a3 = (c2[h3 >> 2] | 0) + -1 | 0;
+        c2[h3 >> 2] = a3;
         if (!a3)
           cd(b5);
         return i2 & 1 | 0;
@@ -117303,10 +116236,10 @@ function getModule() {
         b5 = b5 | 0;
         d2 = d2 | 0;
         e2 = e2 | 0;
-        var f2 = 0, g2 = 0, h2 = 0;
-        h2 = V;
+        var f2 = 0, g2 = 0, h3 = 0;
+        h3 = V;
         V = V + 16 | 0;
-        f2 = h2;
+        f2 = h3;
         if (!(a2[b5 + 161 >> 0] | 0))
           oc(b5 + 80 | 0);
         g2 = b5 + 164 | 0;
@@ -117319,7 +116252,7 @@ function getModule() {
           c2[f2 >> 2] = Re(e2) | 0;
         }
         cj(g2, f2);
-        V = h2;
+        V = h3;
         return e2 + 4 | 0;
       }
       function bj(b5) {
@@ -117361,20 +116294,20 @@ function getModule() {
       }
       function hj(a3) {
         a3 = a3 | 0;
-        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0;
+        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0;
         j2 = V;
         V = V + 32 | 0;
         e2 = j2 + 12 | 0;
         f2 = j2;
         b5 = j2 + 8 | 0;
-        h2 = eq(172) | 0;
-        jj(h2, c2[a3 + 4 >> 2] | 0);
+        h3 = eq(172) | 0;
+        jj(h3, c2[a3 + 4 >> 2] | 0);
         g2 = a3 + 8 | 0;
         c2[b5 >> 2] = 0;
         c2[e2 >> 2] = c2[b5 >> 2];
-        kj(f2, h2, e2);
-        h2 = a3 + 12 | 0;
-        b5 = c2[h2 >> 2] | 0;
+        kj(f2, h3, e2);
+        h3 = a3 + 12 | 0;
+        b5 = c2[h3 >> 2] | 0;
         i2 = a3 + 16 | 0;
         do
           if (b5 >>> 0 >= (c2[i2 >> 2] | 0) >>> 0) {
@@ -117386,15 +116319,15 @@ function getModule() {
               k2 = c2[g2 >> 2] | 0;
               l2 = (c2[i2 >> 2] | 0) - k2 | 0;
               i2 = l2 >> 2;
-              be(e2, l2 >> 3 >>> 0 < d2 >>> 1 >>> 0 ? i2 >>> 0 < b5 >>> 0 ? b5 : i2 : d2, (c2[h2 >> 2] | 0) - k2 >> 3, a3 + 16 | 0);
+              be(e2, l2 >> 3 >>> 0 < d2 >>> 1 >>> 0 ? i2 >>> 0 < b5 >>> 0 ? b5 : i2 : d2, (c2[h3 >> 2] | 0) - k2 >> 3, a3 + 16 | 0);
               i2 = e2 + 8 | 0;
-              h2 = c2[i2 >> 2] | 0;
-              c2[h2 >> 2] = c2[f2 >> 2];
+              h3 = c2[i2 >> 2] | 0;
+              c2[h3 >> 2] = c2[f2 >> 2];
               a3 = f2 + 4 | 0;
-              c2[h2 + 4 >> 2] = c2[a3 >> 2];
+              c2[h3 + 4 >> 2] = c2[a3 >> 2];
               c2[f2 >> 2] = 0;
               c2[a3 >> 2] = 0;
-              c2[i2 >> 2] = h2 + 8;
+              c2[i2 >> 2] = h3 + 8;
               ce(g2, e2);
               de(e2);
               break;
@@ -117418,20 +116351,20 @@ function getModule() {
       }
       function ij(a3) {
         a3 = a3 | 0;
-        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0;
+        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0;
         j2 = V;
         V = V + 32 | 0;
         e2 = j2 + 12 | 0;
         f2 = j2;
         b5 = j2 + 8 | 0;
-        h2 = eq(176) | 0;
-        Aj(h2, c2[a3 + 4 >> 2] | 0);
+        h3 = eq(176) | 0;
+        Aj(h3, c2[a3 + 4 >> 2] | 0);
         g2 = a3 + 8 | 0;
         c2[b5 >> 2] = 0;
         c2[e2 >> 2] = c2[b5 >> 2];
-        Bj(f2, h2, e2);
-        h2 = a3 + 12 | 0;
-        b5 = c2[h2 >> 2] | 0;
+        Bj(f2, h3, e2);
+        h3 = a3 + 12 | 0;
+        b5 = c2[h3 >> 2] | 0;
         i2 = a3 + 16 | 0;
         do
           if (b5 >>> 0 >= (c2[i2 >> 2] | 0) >>> 0) {
@@ -117443,15 +116376,15 @@ function getModule() {
               k2 = c2[g2 >> 2] | 0;
               l2 = (c2[i2 >> 2] | 0) - k2 | 0;
               i2 = l2 >> 2;
-              be(e2, l2 >> 3 >>> 0 < d2 >>> 1 >>> 0 ? i2 >>> 0 < b5 >>> 0 ? b5 : i2 : d2, (c2[h2 >> 2] | 0) - k2 >> 3, a3 + 16 | 0);
+              be(e2, l2 >> 3 >>> 0 < d2 >>> 1 >>> 0 ? i2 >>> 0 < b5 >>> 0 ? b5 : i2 : d2, (c2[h3 >> 2] | 0) - k2 >> 3, a3 + 16 | 0);
               i2 = e2 + 8 | 0;
-              h2 = c2[i2 >> 2] | 0;
-              c2[h2 >> 2] = c2[f2 >> 2];
+              h3 = c2[i2 >> 2] | 0;
+              c2[h3 >> 2] = c2[f2 >> 2];
               a3 = f2 + 4 | 0;
-              c2[h2 + 4 >> 2] = c2[a3 >> 2];
+              c2[h3 + 4 >> 2] = c2[a3 >> 2];
               c2[f2 >> 2] = 0;
               c2[a3 >> 2] = 0;
-              c2[i2 >> 2] = h2 + 8;
+              c2[i2 >> 2] = h3 + 8;
               ce(g2, e2);
               de(e2);
               break;
@@ -117683,10 +116616,10 @@ function getModule() {
         c3 = c3 | 0;
         d2 = d2 | 0;
         e2 = e2 | 0;
-        var f2 = 0, g2 = 0, h2 = 0;
-        h2 = V;
+        var f2 = 0, g2 = 0, h3 = 0;
+        h3 = V;
         V = V + 16 | 0;
-        f2 = h2;
+        f2 = h3;
         if (!(a2[c3 + 161 >> 0] | 0))
           oc(c3 + 80 | 0);
         g2 = c3 + 162 | 0;
@@ -117699,7 +116632,7 @@ function getModule() {
           b4[f2 >> 1] = Lj(e2) | 0;
         }
         Mj(g2, f2);
-        V = h2;
+        V = h3;
         return e2 + 2 | 0;
       }
       function Jj(b5) {
@@ -117751,20 +116684,20 @@ function getModule() {
       }
       function Rj(a3) {
         a3 = a3 | 0;
-        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0;
+        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0;
         j2 = V;
         V = V + 32 | 0;
         e2 = j2 + 12 | 0;
         f2 = j2;
         b5 = j2 + 8 | 0;
-        h2 = eq(172) | 0;
-        Tj(h2, c2[a3 + 4 >> 2] | 0);
+        h3 = eq(172) | 0;
+        Tj(h3, c2[a3 + 4 >> 2] | 0);
         g2 = a3 + 8 | 0;
         c2[b5 >> 2] = 0;
         c2[e2 >> 2] = c2[b5 >> 2];
-        Uj(f2, h2, e2);
-        h2 = a3 + 12 | 0;
-        b5 = c2[h2 >> 2] | 0;
+        Uj(f2, h3, e2);
+        h3 = a3 + 12 | 0;
+        b5 = c2[h3 >> 2] | 0;
         i2 = a3 + 16 | 0;
         do
           if (b5 >>> 0 >= (c2[i2 >> 2] | 0) >>> 0) {
@@ -117776,15 +116709,15 @@ function getModule() {
               k2 = c2[g2 >> 2] | 0;
               l2 = (c2[i2 >> 2] | 0) - k2 | 0;
               i2 = l2 >> 2;
-              be(e2, l2 >> 3 >>> 0 < d2 >>> 1 >>> 0 ? i2 >>> 0 < b5 >>> 0 ? b5 : i2 : d2, (c2[h2 >> 2] | 0) - k2 >> 3, a3 + 16 | 0);
+              be(e2, l2 >> 3 >>> 0 < d2 >>> 1 >>> 0 ? i2 >>> 0 < b5 >>> 0 ? b5 : i2 : d2, (c2[h3 >> 2] | 0) - k2 >> 3, a3 + 16 | 0);
               i2 = e2 + 8 | 0;
-              h2 = c2[i2 >> 2] | 0;
-              c2[h2 >> 2] = c2[f2 >> 2];
+              h3 = c2[i2 >> 2] | 0;
+              c2[h3 >> 2] = c2[f2 >> 2];
               a3 = f2 + 4 | 0;
-              c2[h2 + 4 >> 2] = c2[a3 >> 2];
+              c2[h3 + 4 >> 2] = c2[a3 >> 2];
               c2[f2 >> 2] = 0;
               c2[a3 >> 2] = 0;
-              c2[i2 >> 2] = h2 + 8;
+              c2[i2 >> 2] = h3 + 8;
               ce(g2, e2);
               de(e2);
               break;
@@ -117808,20 +116741,20 @@ function getModule() {
       }
       function Sj(a3) {
         a3 = a3 | 0;
-        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0;
+        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0;
         j2 = V;
         V = V + 32 | 0;
         e2 = j2 + 12 | 0;
         f2 = j2;
         b5 = j2 + 8 | 0;
-        h2 = eq(176) | 0;
-        gk(h2, c2[a3 + 4 >> 2] | 0);
+        h3 = eq(176) | 0;
+        gk(h3, c2[a3 + 4 >> 2] | 0);
         g2 = a3 + 8 | 0;
         c2[b5 >> 2] = 0;
         c2[e2 >> 2] = c2[b5 >> 2];
-        hk(f2, h2, e2);
-        h2 = a3 + 12 | 0;
-        b5 = c2[h2 >> 2] | 0;
+        hk(f2, h3, e2);
+        h3 = a3 + 12 | 0;
+        b5 = c2[h3 >> 2] | 0;
         i2 = a3 + 16 | 0;
         do
           if (b5 >>> 0 >= (c2[i2 >> 2] | 0) >>> 0) {
@@ -117833,15 +116766,15 @@ function getModule() {
               k2 = c2[g2 >> 2] | 0;
               l2 = (c2[i2 >> 2] | 0) - k2 | 0;
               i2 = l2 >> 2;
-              be(e2, l2 >> 3 >>> 0 < d2 >>> 1 >>> 0 ? i2 >>> 0 < b5 >>> 0 ? b5 : i2 : d2, (c2[h2 >> 2] | 0) - k2 >> 3, a3 + 16 | 0);
+              be(e2, l2 >> 3 >>> 0 < d2 >>> 1 >>> 0 ? i2 >>> 0 < b5 >>> 0 ? b5 : i2 : d2, (c2[h3 >> 2] | 0) - k2 >> 3, a3 + 16 | 0);
               i2 = e2 + 8 | 0;
-              h2 = c2[i2 >> 2] | 0;
-              c2[h2 >> 2] = c2[f2 >> 2];
+              h3 = c2[i2 >> 2] | 0;
+              c2[h3 >> 2] = c2[f2 >> 2];
               a3 = f2 + 4 | 0;
-              c2[h2 + 4 >> 2] = c2[a3 >> 2];
+              c2[h3 + 4 >> 2] = c2[a3 >> 2];
               c2[f2 >> 2] = 0;
               c2[a3 >> 2] = 0;
-              c2[i2 >> 2] = h2 + 8;
+              c2[i2 >> 2] = h3 + 8;
               ce(g2, e2);
               de(e2);
               break;
@@ -117935,10 +116868,10 @@ function getModule() {
         b5 = b5 | 0;
         c3 = c3 | 0;
         e2 = e2 | 0;
-        var f2 = 0, g2 = 0, h2 = 0;
-        h2 = V;
+        var f2 = 0, g2 = 0, h3 = 0;
+        h3 = V;
         V = V + 16 | 0;
-        f2 = h2;
+        f2 = h3;
         if (!(a2[b5 + 161 >> 0] | 0))
           oc(b5 + 80 | 0);
         g2 = b5 + 162 | 0;
@@ -117951,7 +116884,7 @@ function getModule() {
           a2[f2 >> 0] = Pe(e2) | 0;
         }
         bk(g2, f2);
-        V = h2;
+        V = h3;
         return e2 + 1 | 0;
       }
       function ak(b5) {
@@ -118063,22 +116996,22 @@ function getModule() {
         c3 = c3 | 0;
         d2 = d2 | 0;
         f2 = f2 | 0;
-        var g2 = 0, h2 = 0, i2 = 0;
+        var g2 = 0, h3 = 0, i2 = 0;
         i2 = V;
         V = V + 16 | 0;
         g2 = i2;
         if (!(a2[c3 + 161 >> 0] | 0))
           oc(c3 + 80 | 0);
-        h2 = c3 + 162 | 0;
-        if (pk(h2) | 0) {
-          d2 = (Gi(c3 + 80 | 0, d2, e[h2 >> 1] | 0, 0) | 0) & 65535;
+        h3 = c3 + 162 | 0;
+        if (pk(h3) | 0) {
+          d2 = (Gi(c3 + 80 | 0, d2, e[h3 >> 1] | 0, 0) | 0) & 65535;
           b4[g2 >> 1] = d2;
           Te(d2, f2);
         } else {
           Ii(Hi(d2) | 0, f2, 2);
           b4[g2 >> 1] = Oe(f2) | 0;
         }
-        qk(h2, g2);
+        qk(h3, g2);
         V = i2;
         return f2 + 2 | 0;
       }
@@ -118247,19 +117180,19 @@ function getModule() {
       function Uk(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0;
         d2 = V;
         V = V + 16 | 0;
         e2 = d2;
         f2 = d2 + 8 | 0;
-        h2 = c2[b5 + 4 >> 2] | 0;
+        h3 = c2[b5 + 4 >> 2] | 0;
         c2[e2 >> 2] = c2[b5 >> 2];
-        c2[e2 + 4 >> 2] = h2;
-        h2 = Ak() | 0;
+        c2[e2 + 4 >> 2] = h3;
+        h3 = Ak() | 0;
         g2 = Wk(f2) | 0;
         f2 = Xk(f2) | 0;
         b5 = bl() | 0;
-        F(h2 | 0, a3 | 0, g2 | 0, f2 | 0, b5 | 0, 4, Yk(e2) | 0, 0);
+        F(h3 | 0, a3 | 0, g2 | 0, f2 | 0, b5 | 0, 4, Yk(e2) | 0, 0);
         V = d2;
         return;
       }
@@ -118318,19 +117251,19 @@ function getModule() {
       function cl(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0;
         d2 = V;
         V = V + 16 | 0;
         e2 = d2;
         f2 = d2 + 8 | 0;
-        h2 = c2[b5 + 4 >> 2] | 0;
+        h3 = c2[b5 + 4 >> 2] | 0;
         c2[e2 >> 2] = c2[b5 >> 2];
-        c2[e2 + 4 >> 2] = h2;
-        h2 = Ak() | 0;
+        c2[e2 + 4 >> 2] = h3;
+        h3 = Ak() | 0;
         g2 = el2(f2) | 0;
         f2 = fl(f2) | 0;
         b5 = jl() | 0;
-        F(h2 | 0, a3 | 0, g2 | 0, f2 | 0, b5 | 0, 7, gl(e2) | 0, 0);
+        F(h3 | 0, a3 | 0, g2 | 0, f2 | 0, b5 | 0, 7, gl(e2) | 0, 0);
         V = d2;
         return;
       }
@@ -118379,19 +117312,19 @@ function getModule() {
       function kl(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0;
         d2 = V;
         V = V + 16 | 0;
         e2 = d2;
         f2 = d2 + 8 | 0;
-        h2 = c2[b5 + 4 >> 2] | 0;
+        h3 = c2[b5 + 4 >> 2] | 0;
         c2[e2 >> 2] = c2[b5 >> 2];
-        c2[e2 + 4 >> 2] = h2;
-        h2 = Ak() | 0;
+        c2[e2 + 4 >> 2] = h3;
+        h3 = Ak() | 0;
         g2 = ml(f2) | 0;
         f2 = nl(f2) | 0;
         b5 = rl() | 0;
-        F(h2 | 0, a3 | 0, g2 | 0, f2 | 0, b5 | 0, 41, ol(e2) | 0, 0);
+        F(h3 | 0, a3 | 0, g2 | 0, f2 | 0, b5 | 0, 41, ol(e2) | 0, 0);
         V = d2;
         return;
       }
@@ -118564,19 +117497,19 @@ function getModule() {
       function Nl(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0;
         d2 = V;
         V = V + 16 | 0;
         e2 = d2;
         f2 = d2 + 8 | 0;
-        h2 = c2[b5 + 4 >> 2] | 0;
+        h3 = c2[b5 + 4 >> 2] | 0;
         c2[e2 >> 2] = c2[b5 >> 2];
-        c2[e2 + 4 >> 2] = h2;
-        h2 = xl() | 0;
+        c2[e2 + 4 >> 2] = h3;
+        h3 = xl() | 0;
         g2 = Pl(f2) | 0;
         f2 = Ql(f2) | 0;
         b5 = bl() | 0;
-        F(h2 | 0, a3 | 0, g2 | 0, f2 | 0, b5 | 0, 5, Rl(e2) | 0, 0);
+        F(h3 | 0, a3 | 0, g2 | 0, f2 | 0, b5 | 0, 5, Rl(e2) | 0, 0);
         V = d2;
         return;
       }
@@ -118624,19 +117557,19 @@ function getModule() {
       function Ul(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0;
         d2 = V;
         V = V + 16 | 0;
         e2 = d2;
         f2 = d2 + 8 | 0;
-        h2 = c2[b5 + 4 >> 2] | 0;
+        h3 = c2[b5 + 4 >> 2] | 0;
         c2[e2 >> 2] = c2[b5 >> 2];
-        c2[e2 + 4 >> 2] = h2;
-        h2 = xl() | 0;
+        c2[e2 + 4 >> 2] = h3;
+        h3 = xl() | 0;
         g2 = Wl(f2) | 0;
         f2 = Xl(f2) | 0;
         b5 = jl() | 0;
-        F(h2 | 0, a3 | 0, g2 | 0, f2 | 0, b5 | 0, 8, Yl(e2) | 0, 0);
+        F(h3 | 0, a3 | 0, g2 | 0, f2 | 0, b5 | 0, 8, Yl(e2) | 0, 0);
         V = d2;
         return;
       }
@@ -118678,19 +117611,19 @@ function getModule() {
       function _l(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0;
         d2 = V;
         V = V + 16 | 0;
         e2 = d2;
         f2 = d2 + 8 | 0;
-        h2 = c2[b5 + 4 >> 2] | 0;
+        h3 = c2[b5 + 4 >> 2] | 0;
         c2[e2 >> 2] = c2[b5 >> 2];
-        c2[e2 + 4 >> 2] = h2;
-        h2 = xl() | 0;
+        c2[e2 + 4 >> 2] = h3;
+        h3 = xl() | 0;
         g2 = am(f2) | 0;
         f2 = bm(f2) | 0;
         b5 = jl() | 0;
-        F(h2 | 0, a3 | 0, g2 | 0, f2 | 0, b5 | 0, 9, cm(e2) | 0, 0);
+        F(h3 | 0, a3 | 0, g2 | 0, f2 | 0, b5 | 0, 9, cm(e2) | 0, 0);
         V = d2;
         return;
       }
@@ -119417,20 +118350,20 @@ function getModule() {
         b5 = b5 | 0;
         d2 = d2 | 0;
         e2 = e2 | 0;
-        var f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0;
+        var f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0;
         f2 = e2 + 16 | 0;
         g2 = c2[f2 >> 2] | 0;
         if (!g2)
           if (!(io(e2) | 0)) {
             g2 = c2[f2 >> 2] | 0;
-            h2 = 5;
+            h3 = 5;
           } else
             f2 = 0;
         else
-          h2 = 5;
+          h3 = 5;
         a:
           do
-            if ((h2 | 0) == 5) {
+            if ((h3 | 0) == 5) {
               j2 = e2 + 20 | 0;
               i2 = c2[j2 >> 2] | 0;
               f2 = i2;
@@ -119441,7 +118374,7 @@ function getModule() {
               b:
                 do
                   if ((a2[e2 + 75 >> 0] | 0) < 0 | (d2 | 0) == 0) {
-                    h2 = 0;
+                    h3 = 0;
                     g2 = b5;
                   } else {
                     i2 = d2;
@@ -119450,7 +118383,7 @@ function getModule() {
                       if ((a2[b5 + g2 >> 0] | 0) == 10)
                         break;
                       if (!g2) {
-                        h2 = 0;
+                        h3 = 0;
                         g2 = b5;
                         break b;
                       } else
@@ -119459,7 +118392,7 @@ function getModule() {
                     f2 = aa[c2[e2 + 36 >> 2] & 7](e2, b5, i2) | 0;
                     if (f2 >>> 0 < i2 >>> 0)
                       break a;
-                    h2 = i2;
+                    h3 = i2;
                     g2 = b5 + i2 | 0;
                     d2 = d2 - i2 | 0;
                     f2 = c2[j2 >> 2] | 0;
@@ -119467,7 +118400,7 @@ function getModule() {
                 while (0);
               ur(f2 | 0, g2 | 0, d2 | 0) | 0;
               c2[j2 >> 2] = (c2[j2 >> 2] | 0) + d2;
-              f2 = h2 + d2 | 0;
+              f2 = h3 + d2 | 0;
             }
           while (0);
         return f2 | 0;
@@ -119485,19 +118418,19 @@ function getModule() {
         b5 = b5 | 0;
         d2 = d2 | 0;
         e2 = e2 | 0;
-        var f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0;
+        var f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0;
         o2 = (c2[b5 >> 2] | 0) + 1794895138 | 0;
-        h2 = mo(c2[b5 + 8 >> 2] | 0, o2) | 0;
+        h3 = mo(c2[b5 + 8 >> 2] | 0, o2) | 0;
         f2 = mo(c2[b5 + 12 >> 2] | 0, o2) | 0;
         g2 = mo(c2[b5 + 16 >> 2] | 0, o2) | 0;
         a:
           do
-            if ((h2 >>> 0 < d2 >>> 2 >>> 0 ? (n2 = d2 - (h2 << 2) | 0, f2 >>> 0 < n2 >>> 0 & g2 >>> 0 < n2 >>> 0) : 0) ? ((g2 | f2) & 3 | 0) == 0 : 0) {
+            if ((h3 >>> 0 < d2 >>> 2 >>> 0 ? (n2 = d2 - (h3 << 2) | 0, f2 >>> 0 < n2 >>> 0 & g2 >>> 0 < n2 >>> 0) : 0) ? ((g2 | f2) & 3 | 0) == 0 : 0) {
               n2 = f2 >>> 2;
               m2 = g2 >>> 2;
               l2 = 0;
               while (1) {
-                j2 = h2 >>> 1;
+                j2 = h3 >>> 1;
                 k2 = l2 + j2 | 0;
                 i2 = k2 << 1;
                 g2 = i2 + n2 | 0;
@@ -119515,12 +118448,12 @@ function getModule() {
                 if (!f2)
                   break;
                 f2 = (f2 | 0) < 0;
-                if ((h2 | 0) == 1) {
+                if ((h3 | 0) == 1) {
                   f2 = 0;
                   break a;
                 }
                 l2 = f2 ? l2 : k2;
-                h2 = f2 ? j2 : h2 - j2 | 0;
+                h3 = f2 ? j2 : h3 - j2 | 0;
               }
               f2 = i2 + m2 | 0;
               g2 = mo(c2[b5 + (f2 << 2) >> 2] | 0, o2) | 0;
@@ -119545,8 +118478,8 @@ function getModule() {
         b5 = b5 | 0;
         d2 = d2 | 0;
         e2 = e2 | 0;
-        var f2 = 0, g2 = 0, h2 = 0;
-        h2 = d2 & 255;
+        var f2 = 0, g2 = 0, h3 = 0;
+        h3 = d2 & 255;
         f2 = (e2 | 0) != 0;
         a:
           do
@@ -119577,13 +118510,13 @@ function getModule() {
           do
             if ((g2 | 0) == 6) {
               if ((a2[b5 >> 0] | 0) != (d2 & 255) << 24 >> 24) {
-                f2 = q(h2, 16843009) | 0;
+                f2 = q(h3, 16843009) | 0;
                 c:
                   do
                     if (e2 >>> 0 > 3)
                       do {
-                        h2 = c2[b5 >> 2] ^ f2;
-                        if ((h2 & -2139062144 ^ -2139062144) & h2 + -16843009 | 0)
+                        h3 = c2[b5 >> 2] ^ f2;
+                        if ((h3 & -2139062144 ^ -2139062144) & h3 + -16843009 | 0)
                           break c;
                         b5 = b5 + 4 | 0;
                         e2 = e2 + -4 | 0;
@@ -119615,22 +118548,22 @@ function getModule() {
         c3 = c3 | 0;
         return ro(a3, b5, c3, 1, 8) | 0;
       }
-      function po(b5, e2, f2, g2, h2, i2) {
+      function po(b5, e2, f2, g2, h3, i2) {
         b5 = b5 | 0;
         e2 = +e2;
         f2 = f2 | 0;
         g2 = g2 | 0;
-        h2 = h2 | 0;
+        h3 = h3 | 0;
         i2 = i2 | 0;
-        var j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, r2 = 0, s2 = 0, t2 = 0, v2 = 0, w2 = 0, x2 = 0, y2 = 0, z2 = 0, A3 = 0, B3 = 0, C2 = 0, D2 = 0, E2 = 0, F2 = 0, G3 = 0, H2 = 0;
+        var j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, r2 = 0, s2 = 0, t2 = 0, v2 = 0, w3 = 0, x2 = 0, y2 = 0, z2 = 0, A3 = 0, B3 = 0, C2 = 0, D2 = 0, E2 = 0, F2 = 0, G3 = 0, H2 = 0;
         H2 = V;
         V = V + 560 | 0;
         l2 = H2 + 32 | 0;
-        w2 = H2 + 536 | 0;
+        w3 = H2 + 536 | 0;
         G3 = H2;
         F2 = G3;
         m2 = H2 + 540 | 0;
-        c2[w2 >> 2] = 0;
+        c2[w3 >> 2] = 0;
         E2 = m2 + 12 | 0;
         Do(e2) | 0;
         j2 = u() | 0;
@@ -119641,22 +118574,22 @@ function getModule() {
           C2 = 20247;
           j2 = u() | 0;
         } else {
-          D2 = (h2 & 2049 | 0) != 0 & 1;
-          C2 = (h2 & 2048 | 0) == 0 ? (h2 & 1 | 0) == 0 ? 20248 : 20253 : 20250;
+          D2 = (h3 & 2049 | 0) != 0 & 1;
+          C2 = (h3 & 2048 | 0) == 0 ? (h3 & 1 | 0) == 0 ? 20248 : 20253 : 20250;
         }
         do
           if (true & (j2 & 2146435072 | 0) == 2146435072) {
             G3 = (i2 & 32 | 0) != 0;
             j2 = D2 + 3 | 0;
-            zo(b5, 32, f2, j2, h2 & -65537);
+            zo(b5, 32, f2, j2, h3 & -65537);
             to(b5, C2, D2);
             to(b5, e2 != e2 | false ? G3 ? 20274 : 20278 : G3 ? 20266 : 20270, 3);
-            zo(b5, 32, f2, j2, h2 ^ 8192);
+            zo(b5, 32, f2, j2, h3 ^ 8192);
           } else {
-            r2 = +Eo(e2, w2) * 2;
+            r2 = +Eo(e2, w3) * 2;
             j2 = r2 != 0;
             if (j2)
-              c2[w2 >> 2] = (c2[w2 >> 2] | 0) + -1;
+              c2[w3 >> 2] = (c2[w3 >> 2] | 0) + -1;
             v2 = i2 | 32;
             if ((v2 | 0) == 97) {
               o2 = i2 & 32;
@@ -119680,7 +118613,7 @@ function getModule() {
                 } else
                   e2 = r2;
               while (0);
-              k2 = c2[w2 >> 2] | 0;
+              k2 = c2[w3 >> 2] | 0;
               j2 = (k2 | 0) < 0 ? 0 - k2 | 0 : k2;
               j2 = yo(j2, ((j2 | 0) < 0) << 31 >> 31, E2) | 0;
               if ((j2 | 0) == (E2 | 0)) {
@@ -119691,7 +118624,7 @@ function getModule() {
               n2 = j2 + -2 | 0;
               a2[n2 >> 0] = i2 + 15;
               k2 = (g2 | 0) < 1;
-              l2 = (h2 & 8 | 0) == 0;
+              l2 = (h3 & 8 | 0) == 0;
               m2 = G3;
               do {
                 D2 = ~~e2;
@@ -119714,26 +118647,26 @@ function getModule() {
                 j2 = k2 - F2 - l2 + m2 | 0;
               }
               E2 = j2 + p2 | 0;
-              zo(b5, 32, f2, E2, h2);
+              zo(b5, 32, f2, E2, h3);
               to(b5, s2, p2);
-              zo(b5, 48, f2, E2, h2 ^ 65536);
+              zo(b5, 48, f2, E2, h3 ^ 65536);
               F2 = m2 - F2 | 0;
               to(b5, G3, F2);
               G3 = k2 - l2 | 0;
               zo(b5, 48, j2 - (F2 + G3) | 0, 0, 0);
               to(b5, n2, G3);
-              zo(b5, 32, f2, E2, h2 ^ 8192);
+              zo(b5, 32, f2, E2, h3 ^ 8192);
               j2 = E2;
               break;
             }
             k2 = (g2 | 0) < 0 ? 6 : g2;
             if (j2) {
-              j2 = (c2[w2 >> 2] | 0) + -28 | 0;
-              c2[w2 >> 2] = j2;
+              j2 = (c2[w3 >> 2] | 0) + -28 | 0;
+              c2[w3 >> 2] = j2;
               e2 = r2 * 268435456;
             } else {
               e2 = r2;
-              j2 = c2[w2 >> 2] | 0;
+              j2 = c2[w3 >> 2] | 0;
             }
             B3 = (j2 | 0) < 0 ? l2 : l2 + 288 | 0;
             l2 = B3;
@@ -119787,8 +118720,8 @@ function getModule() {
                       }
                     }
                   while (0);
-                j2 = (c2[w2 >> 2] | 0) - n2 | 0;
-                c2[w2 >> 2] = j2;
+                j2 = (c2[w3 >> 2] | 0) - n2 | 0;
+                c2[w3 >> 2] = j2;
                 if ((j2 | 0) > 0)
                   o2 = m2;
                 else
@@ -119822,8 +118755,8 @@ function getModule() {
                   m2 = (c2[m2 >> 2] | 0) == 0 ? m2 + 4 | 0 : m2;
                 j2 = t2 ? B3 : m2;
                 l2 = (l2 - j2 >> 2 | 0) > (g2 | 0) ? j2 + (g2 << 2) | 0 : l2;
-                j2 = (c2[w2 >> 2] | 0) + s2 | 0;
-                c2[w2 >> 2] = j2;
+                j2 = (c2[w3 >> 2] | 0) + s2 | 0;
+                c2[w3 >> 2] = j2;
               } while ((j2 | 0) < 0);
               t2 = m2;
             } else
@@ -119844,10 +118777,10 @@ function getModule() {
             y2 = (k2 | 0) != 0;
             m2 = k2 - ((v2 | 0) == 102 ? 0 : j2) + ((y2 & x2) << 31 >> 31) | 0;
             if ((m2 | 0) < (((l2 - z2 >> 2) * 9 | 0) + -9 | 0)) {
-              w2 = m2 + 9216 | 0;
-              m2 = (w2 | 0) / 9 | 0;
+              w3 = m2 + 9216 | 0;
+              m2 = (w3 | 0) / 9 | 0;
               g2 = B3 + 4 + (m2 + -1024 << 2) | 0;
-              m2 = w2 - (m2 * 9 | 0) | 0;
+              m2 = w3 - (m2 * 9 | 0) | 0;
               if ((m2 | 0) < 8) {
                 n2 = 10;
                 while (1) {
@@ -119865,19 +118798,19 @@ function getModule() {
               o2 = (g2 + 4 | 0) == (l2 | 0);
               if (!(o2 & (s2 | 0) == 0)) {
                 r2 = (m2 & 1 | 0) == 0 ? 9007199254740992 : 9007199254740994;
-                w2 = n2 >>> 1;
-                e2 = s2 >>> 0 < w2 >>> 0 ? 0.5 : o2 & (s2 | 0) == (w2 | 0) ? 1 : 1.5;
+                w3 = n2 >>> 1;
+                e2 = s2 >>> 0 < w3 >>> 0 ? 0.5 : o2 & (s2 | 0) == (w3 | 0) ? 1 : 1.5;
                 if (D2) {
-                  w2 = (a2[C2 >> 0] | 0) == 45;
-                  e2 = w2 ? -e2 : e2;
-                  r2 = w2 ? -r2 : r2;
+                  w3 = (a2[C2 >> 0] | 0) == 45;
+                  e2 = w3 ? -e2 : e2;
+                  r2 = w3 ? -r2 : r2;
                 }
                 m2 = p2 - s2 | 0;
                 c2[g2 >> 2] = m2;
                 if (r2 + e2 != r2) {
-                  w2 = m2 + n2 | 0;
-                  c2[g2 >> 2] = w2;
-                  if (w2 >>> 0 > 999999999) {
+                  w3 = m2 + n2 | 0;
+                  c2[g2 >> 2] = w3;
+                  if (w3 >>> 0 > 999999999) {
                     n2 = g2;
                     j2 = t2;
                     while (1) {
@@ -119887,9 +118820,9 @@ function getModule() {
                         j2 = j2 + -4 | 0;
                         c2[j2 >> 2] = 0;
                       }
-                      w2 = (c2[m2 >> 2] | 0) + 1 | 0;
-                      c2[m2 >> 2] = w2;
-                      if (w2 >>> 0 > 999999999)
+                      w3 = (c2[m2 >> 2] | 0) + 1 | 0;
+                      c2[m2 >> 2] = w3;
+                      if (w3 >>> 0 > 999999999)
                         n2 = m2;
                       else {
                         n2 = j2;
@@ -119917,8 +118850,8 @@ function getModule() {
                 m2 = g2;
                 n2 = t2;
               }
-              w2 = m2 + 4 | 0;
-              l2 = l2 >>> 0 > w2 >>> 0 ? w2 : l2;
+              w3 = m2 + 4 | 0;
+              l2 = l2 >>> 0 > w3 >>> 0 ? w3 : l2;
             } else
               n2 = t2;
             g2 = 0 - j2 | 0;
@@ -119928,20 +118861,20 @@ function getModule() {
                   while (1) {
                     m2 = l2 + -4 | 0;
                     if (c2[m2 >> 2] | 0) {
-                      w2 = l2;
+                      w3 = l2;
                       v2 = 1;
                       break b;
                     }
                     if (m2 >>> 0 > n2 >>> 0)
                       l2 = m2;
                     else {
-                      w2 = m2;
+                      w3 = m2;
                       v2 = 0;
                       break;
                     }
                   }
                 else {
-                  w2 = l2;
+                  w3 = l2;
                   v2 = 0;
                 }
               while (0);
@@ -119955,8 +118888,8 @@ function getModule() {
                   o2 = i2 + -2 | 0;
                   k2 = k2 + -1 | 0;
                 }
-                if (!(h2 & 8)) {
-                  if (v2 ? (A3 = c2[w2 + -4 >> 2] | 0, (A3 | 0) != 0) : 0)
+                if (!(h3 & 8)) {
+                  if (v2 ? (A3 = c2[w3 + -4 >> 2] | 0, (A3 | 0) != 0) : 0)
                     if (!((A3 >>> 0) % 10 | 0)) {
                       m2 = 0;
                       l2 = 10;
@@ -119968,7 +118901,7 @@ function getModule() {
                       m2 = 0;
                   else
                     m2 = 9;
-                  l2 = ((w2 - z2 >> 2) * 9 | 0) + -9 | 0;
+                  l2 = ((w3 - z2 >> 2) * 9 | 0) + -9 | 0;
                   if ((o2 | 32 | 0) == 102) {
                     i2 = l2 - m2 | 0;
                     i2 = (i2 | 0) > 0 ? i2 : 0;
@@ -119985,7 +118918,7 @@ function getModule() {
                 o2 = i2;
             while (0);
             t2 = (k2 | 0) != 0;
-            p2 = t2 ? 1 : h2 >>> 3 & 1;
+            p2 = t2 ? 1 : h3 >>> 3 & 1;
             s2 = (o2 | 32 | 0) == 102;
             if (s2) {
               x2 = 0;
@@ -120006,9 +118939,9 @@ function getModule() {
               j2 = m2 - j2 | 0;
             }
             j2 = D2 + 1 + k2 + p2 + j2 | 0;
-            zo(b5, 32, f2, j2, h2);
+            zo(b5, 32, f2, j2, h3);
             to(b5, C2, D2);
-            zo(b5, 48, f2, j2, h2 ^ 65536);
+            zo(b5, 48, f2, j2, h3 ^ 65536);
             if (s2) {
               p2 = n2 >>> 0 > B3 >>> 0 ? B3 : n2;
               s2 = G3 + 9 | 0;
@@ -120031,9 +118964,9 @@ function getModule() {
                 to(b5, l2, n2 - l2 | 0);
                 m2 = m2 + 4 | 0;
               } while (m2 >>> 0 <= B3 >>> 0);
-              if (!((h2 & 8 | 0) == 0 & (t2 ^ 1)))
+              if (!((h3 & 8 | 0) == 0 & (t2 ^ 1)))
                 to(b5, 20282, 1);
-              if (m2 >>> 0 < w2 >>> 0 & (k2 | 0) > 0)
+              if (m2 >>> 0 < w3 >>> 0 & (k2 | 0) > 0)
                 while (1) {
                   l2 = yo(c2[m2 >> 2] | 0, 0, s2) | 0;
                   if (l2 >>> 0 > G3 >>> 0) {
@@ -120045,7 +118978,7 @@ function getModule() {
                   to(b5, l2, (k2 | 0) < 9 ? k2 : 9);
                   m2 = m2 + 4 | 0;
                   l2 = k2 + -9 | 0;
-                  if (!(m2 >>> 0 < w2 >>> 0 & (k2 | 0) > 9)) {
+                  if (!(m2 >>> 0 < w3 >>> 0 & (k2 | 0) > 9)) {
                     k2 = l2;
                     break;
                   } else
@@ -120053,10 +118986,10 @@ function getModule() {
                 }
               zo(b5, 48, k2 + 9 | 0, 9, 0);
             } else {
-              w2 = v2 ? w2 : n2 + 4 | 0;
-              if (n2 >>> 0 < w2 >>> 0 & (k2 | 0) > -1) {
+              w3 = v2 ? w3 : n2 + 4 | 0;
+              if (n2 >>> 0 < w3 >>> 0 & (k2 | 0) > -1) {
                 g2 = G3 + 9 | 0;
-                t2 = (h2 & 8 | 0) == 0;
+                t2 = (h3 & 8 | 0) == 0;
                 v2 = g2;
                 p2 = 0 - F2 | 0;
                 s2 = G3 + 8 | 0;
@@ -120090,12 +119023,12 @@ function getModule() {
                   to(b5, l2, (k2 | 0) > (F2 | 0) ? F2 : k2);
                   k2 = k2 - F2 | 0;
                   o2 = o2 + 4 | 0;
-                } while (o2 >>> 0 < w2 >>> 0 & (k2 | 0) > -1);
+                } while (o2 >>> 0 < w3 >>> 0 & (k2 | 0) > -1);
               }
               zo(b5, 48, k2 + 18 | 0, 18, 0);
               to(b5, x2, E2 - x2 | 0);
             }
-            zo(b5, 32, f2, j2, h2 ^ 8192);
+            zo(b5, 32, f2, j2, h3 ^ 8192);
           }
         while (0);
         V = H2;
@@ -120117,19 +119050,19 @@ function getModule() {
         e2 = e2 | 0;
         f2 = f2 | 0;
         g2 = g2 | 0;
-        var h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q2 = 0, r2 = 0, s2 = 0, t2 = 0;
+        var h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q2 = 0, r2 = 0, s2 = 0, t2 = 0;
         t2 = V;
         V = V + 224 | 0;
         p2 = t2 + 208 | 0;
         q2 = t2 + 160 | 0;
         r2 = t2 + 80 | 0;
         s2 = t2;
-        h2 = q2;
-        i2 = h2 + 40 | 0;
+        h3 = q2;
+        i2 = h3 + 40 | 0;
         do {
-          c2[h2 >> 2] = 0;
-          h2 = h2 + 4 | 0;
-        } while ((h2 | 0) < (i2 | 0));
+          c2[h3 >> 2] = 0;
+          h3 = h3 + 4 | 0;
+        } while ((h3 | 0) < (i2 | 0));
         c2[p2 >> 2] = c2[e2 >> 2];
         if ((so(0, d2, p2, r2, q2, f2, g2) | 0) < 0)
           e2 = -1;
@@ -120142,8 +119075,8 @@ function getModule() {
           n2 = e2 & 32;
           if ((a2[b5 + 74 >> 0] | 0) < 1)
             c2[b5 >> 2] = e2 & -33;
-          h2 = b5 + 48 | 0;
-          if (!(c2[h2 >> 2] | 0)) {
+          h3 = b5 + 48 | 0;
+          if (!(c2[h3 >> 2] | 0)) {
             i2 = b5 + 44 | 0;
             j2 = c2[i2 >> 2] | 0;
             c2[i2 >> 2] = s2;
@@ -120151,7 +119084,7 @@ function getModule() {
             c2[k2 >> 2] = s2;
             l2 = b5 + 20 | 0;
             c2[l2 >> 2] = s2;
-            c2[h2 >> 2] = 80;
+            c2[h3 >> 2] = 80;
             m2 = b5 + 16 | 0;
             c2[m2 >> 2] = s2 + 80;
             e2 = so(b5, d2, p2, r2, q2, f2, g2) | 0;
@@ -120159,31 +119092,31 @@ function getModule() {
               aa[c2[b5 + 36 >> 2] & 7](b5, 0, 0) | 0;
               e2 = (c2[l2 >> 2] | 0) == 0 ? -1 : e2;
               c2[i2 >> 2] = j2;
-              c2[h2 >> 2] = 0;
+              c2[h3 >> 2] = 0;
               c2[m2 >> 2] = 0;
               c2[k2 >> 2] = 0;
               c2[l2 >> 2] = 0;
             }
           } else
             e2 = so(b5, d2, p2, r2, q2, f2, g2) | 0;
-          h2 = c2[b5 >> 2] | 0;
-          c2[b5 >> 2] = h2 | n2;
+          h3 = c2[b5 >> 2] | 0;
+          c2[b5 >> 2] = h3 | n2;
           if (o2 | 0)
             go(b5);
-          e2 = (h2 & 32 | 0) == 0 ? e2 : -1;
+          e2 = (h3 & 32 | 0) == 0 ? e2 : -1;
         }
         V = t2;
         return e2 | 0;
       }
-      function so(d2, e2, f2, h2, i2, j2, k2) {
+      function so(d2, e2, f2, h3, i2, j2, k2) {
         d2 = d2 | 0;
         e2 = e2 | 0;
         f2 = f2 | 0;
-        h2 = h2 | 0;
+        h3 = h3 | 0;
         i2 = i2 | 0;
         j2 = j2 | 0;
         k2 = k2 | 0;
-        var l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q2 = 0, r2 = 0, s2 = 0, t2 = 0, v2 = 0, w2 = 0, x2 = 0, y2 = 0, z2 = 0, A3 = 0, B3 = 0, C2 = 0, D2 = 0, E2 = 0, F2 = 0, G3 = 0, H2 = 0, I2 = 0, J2 = 0, K2 = 0;
+        var l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q2 = 0, r2 = 0, s2 = 0, t2 = 0, v2 = 0, w3 = 0, x2 = 0, y2 = 0, z2 = 0, A3 = 0, B3 = 0, C2 = 0, D2 = 0, E2 = 0, F2 = 0, G3 = 0, H2 = 0, I2 = 0, J2 = 0, K2 = 0;
         J2 = V;
         V = V + 64 | 0;
         G3 = J2 + 56 | 0;
@@ -120235,10 +119168,10 @@ function getModule() {
                     default: {
                     }
                   }
-                  w2 = m2 + 1 | 0;
-                  c2[G3 >> 2] = w2;
-                  l2 = a2[w2 >> 0] | 0;
-                  m2 = w2;
+                  w3 = m2 + 1 | 0;
+                  c2[G3 >> 2] = w3;
+                  l2 = a2[w3 >> 0] | 0;
+                  m2 = w3;
                 }
               c:
                 do
@@ -120258,9 +119191,9 @@ function getModule() {
               if (y2)
                 to(d2, r2, l2);
             } while ((l2 | 0) != 0);
-            w2 = (bo(a2[(c2[G3 >> 2] | 0) + 1 >> 0] | 0) | 0) == 0;
+            w3 = (bo(a2[(c2[G3 >> 2] | 0) + 1 >> 0] | 0) | 0) == 0;
             m2 = c2[G3 >> 2] | 0;
-            if (!w2 ? (a2[m2 + 2 >> 0] | 0) == 36 : 0) {
+            if (!w3 ? (a2[m2 + 2 >> 0] | 0) == 36 : 0) {
               t2 = (a2[m2 + 1 >> 0] | 0) + -48 | 0;
               p2 = 1;
               l2 = 3;
@@ -120289,7 +119222,7 @@ function getModule() {
               if ((bo(a2[l2 + 1 >> 0] | 0) | 0) != 0 ? (H2 = c2[G3 >> 2] | 0, (a2[H2 + 2 >> 0] | 0) == 36) : 0) {
                 l2 = H2 + 1 | 0;
                 c2[i2 + ((a2[l2 >> 0] | 0) + -48 << 2) >> 2] = 10;
-                l2 = c2[h2 + ((a2[l2 >> 0] | 0) + -48 << 3) >> 2] | 0;
+                l2 = c2[h3 + ((a2[l2 >> 0] | 0) + -48 << 3) >> 2] | 0;
                 n2 = 1;
                 m2 = H2 + 3 | 0;
               } else {
@@ -120298,19 +119231,19 @@ function getModule() {
                   break;
                 }
                 if (y2) {
-                  w2 = (c2[f2 >> 2] | 0) + (4 - 1) & ~(4 - 1);
-                  l2 = c2[w2 >> 2] | 0;
-                  c2[f2 >> 2] = w2 + 4;
+                  w3 = (c2[f2 >> 2] | 0) + (4 - 1) & ~(4 - 1);
+                  l2 = c2[w3 >> 2] | 0;
+                  c2[f2 >> 2] = w3 + 4;
                 } else
                   l2 = 0;
                 n2 = 0;
                 m2 = (c2[G3 >> 2] | 0) + 1 | 0;
               }
               c2[G3 >> 2] = m2;
-              w2 = (l2 | 0) < 0;
-              v2 = w2 ? 0 - l2 | 0 : l2;
-              o2 = w2 ? o2 | 8192 : o2;
-              w2 = n2;
+              w3 = (l2 | 0) < 0;
+              v2 = w3 ? 0 - l2 | 0 : l2;
+              o2 = w3 ? o2 | 8192 : o2;
+              w3 = n2;
             } else {
               l2 = uo(G3) | 0;
               if ((l2 | 0) < 0) {
@@ -120318,7 +119251,7 @@ function getModule() {
                 break;
               }
               v2 = l2;
-              w2 = p2;
+              w3 = p2;
               m2 = c2[G3 >> 2] | 0;
             }
             do
@@ -120333,12 +119266,12 @@ function getModule() {
                 if (bo(a2[m2 + 2 >> 0] | 0) | 0 ? (F2 = c2[G3 >> 2] | 0, (a2[F2 + 3 >> 0] | 0) == 36) : 0) {
                   l2 = F2 + 2 | 0;
                   c2[i2 + ((a2[l2 >> 0] | 0) + -48 << 2) >> 2] = 10;
-                  l2 = c2[h2 + ((a2[l2 >> 0] | 0) + -48 << 3) >> 2] | 0;
+                  l2 = c2[h3 + ((a2[l2 >> 0] | 0) + -48 << 3) >> 2] | 0;
                   m2 = F2 + 4 | 0;
                   c2[G3 >> 2] = m2;
                   break;
                 }
-                if (w2 | 0) {
+                if (w3 | 0) {
                   e2 = -1;
                   break a;
                 }
@@ -120384,7 +119317,7 @@ function getModule() {
               else {
                 if (q2) {
                   c2[i2 + (t2 << 2) >> 2] = p2;
-                  q2 = h2 + (t2 << 3) | 0;
+                  q2 = h3 + (t2 << 3) | 0;
                   t2 = c2[q2 + 4 >> 2] | 0;
                   x2 = I2;
                   c2[x2 >> 2] = c2[q2 >> 2];
@@ -120680,7 +119613,7 @@ function getModule() {
                   zo(d2, 32, l2, K2, m2 ^ 8192);
                 }
               while (0);
-            n2 = w2;
+            n2 = w3;
           }
         g:
           do
@@ -120694,7 +119627,7 @@ function getModule() {
                     l2 = c2[i2 + (e2 << 2) >> 2] | 0;
                     if (!l2)
                       break;
-                    vo(h2 + (e2 << 3) | 0, l2, f2, k2);
+                    vo(h3 + (e2 << 3) | 0, l2, f2, k2);
                     e2 = e2 + 1 | 0;
                     if (e2 >>> 0 >= 10) {
                       e2 = 1;
@@ -120747,7 +119680,7 @@ function getModule() {
         b5 = b5 | 0;
         d2 = d2 | 0;
         e2 = e2 | 0;
-        var f2 = 0, h2 = 0;
+        var f2 = 0, h3 = 0;
         a:
           do
             if (b5 >>> 0 <= 20)
@@ -120829,9 +119762,9 @@ function getModule() {
                   }
                   case 17: {
                     f2 = (c2[d2 >> 2] | 0) + (8 - 1) & ~(8 - 1);
-                    h2 = +g[f2 >> 3];
+                    h3 = +g[f2 >> 3];
                     c2[d2 >> 2] = f2 + 8;
-                    g[a3 >> 3] = h2;
+                    g[a3 >> 3] = h3;
                     break a;
                   }
                   case 18: {
@@ -120993,18 +119926,18 @@ function getModule() {
       function Do(a3) {
         a3 = +a3;
         var b5 = 0;
-        g[h >> 3] = a3;
-        b5 = c2[h >> 2] | 0;
-        t(c2[h + 4 >> 2] | 0);
+        g[h2 >> 3] = a3;
+        b5 = c2[h2 >> 2] | 0;
+        t(c2[h2 + 4 >> 2] | 0);
         return b5 | 0;
       }
       function Eo(a3, b5) {
         a3 = +a3;
         b5 = b5 | 0;
         var d2 = 0, e2 = 0, f2 = 0;
-        g[h >> 3] = a3;
-        d2 = c2[h >> 2] | 0;
-        e2 = c2[h + 4 >> 2] | 0;
+        g[h2 >> 3] = a3;
+        d2 = c2[h2 >> 2] | 0;
+        e2 = c2[h2 + 4 >> 2] | 0;
         f2 = qr(d2 | 0, e2 | 0, 52) | 0;
         u() | 0;
         switch (f2 & 2047) {
@@ -121021,9 +119954,9 @@ function getModule() {
             break;
           default: {
             c2[b5 >> 2] = (f2 & 2047) + -1022;
-            c2[h >> 2] = d2;
-            c2[h + 4 >> 2] = e2 & -2146435073 | 1071644672;
-            a3 = +g[h >> 3];
+            c2[h2 >> 2] = d2;
+            c2[h2 + 4 >> 2] = e2 & -2146435073 | 1071644672;
+            a3 = +g[h2 >> 3];
           }
         }
         return +a3;
@@ -121076,7 +120009,7 @@ function getModule() {
         d2 = d2 | 0;
         e2 = e2 | 0;
         f2 = f2 | 0;
-        var g2 = 0, h2 = 0, i2 = 0, j2 = 0;
+        var g2 = 0, h3 = 0, i2 = 0, j2 = 0;
         j2 = V;
         V = V + 160 | 0;
         g2 = j2 + 144 | 0;
@@ -121086,26 +120019,26 @@ function getModule() {
           if (!d2) {
             b5 = g2;
             d2 = 1;
-            h2 = 4;
+            h3 = 4;
           } else {
             c2[(ao() | 0) >> 2] = 61;
             d2 = -1;
           }
         else
-          h2 = 4;
-        if ((h2 | 0) == 4) {
-          h2 = -2 - b5 | 0;
-          h2 = d2 >>> 0 > h2 >>> 0 ? h2 : d2;
-          c2[i2 + 48 >> 2] = h2;
+          h3 = 4;
+        if ((h3 | 0) == 4) {
+          h3 = -2 - b5 | 0;
+          h3 = d2 >>> 0 > h3 >>> 0 ? h3 : d2;
+          c2[i2 + 48 >> 2] = h3;
           g2 = i2 + 20 | 0;
           c2[g2 >> 2] = b5;
           c2[i2 + 44 >> 2] = b5;
-          d2 = b5 + h2 | 0;
+          d2 = b5 + h3 | 0;
           b5 = i2 + 16 | 0;
           c2[b5 >> 2] = d2;
           c2[i2 + 28 >> 2] = d2;
           d2 = oo(i2, e2, f2) | 0;
-          if (h2) {
+          if (h3) {
             i2 = c2[g2 >> 2] | 0;
             a2[i2 + (((i2 | 0) == (c2[b5 >> 2] | 0)) << 31 >> 31) >> 0] = 0;
           }
@@ -121208,12 +120141,12 @@ function getModule() {
         return b5 | 0;
       }
       function Po() {
-        var a3 = 0, b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0;
+        var a3 = 0, b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0;
         e2 = V;
         V = V + 48 | 0;
         g2 = e2 + 32 | 0;
         b5 = e2 + 24 | 0;
-        h2 = e2 + 16 | 0;
+        h3 = e2 + 16 | 0;
         f2 = e2;
         e2 = e2 + 36 | 0;
         a3 = Qo() | 0;
@@ -121232,16 +120165,16 @@ function getModule() {
           d2 = c2[d2 >> 2] | 0;
           a3 = c2[d2 + 4 >> 2] | 0;
           if (aa[c2[(c2[954] | 0) + 16 >> 2] & 7](3816, d2, e2) | 0) {
-            h2 = c2[e2 >> 2] | 0;
-            h2 = Z[c2[(c2[h2 >> 2] | 0) + 8 >> 2] & 15](h2) | 0;
+            h3 = c2[e2 >> 2] | 0;
+            h3 = Z[c2[(c2[h3 >> 2] | 0) + 8 >> 2] & 15](h3) | 0;
             c2[f2 >> 2] = 20420;
             c2[f2 + 4 >> 2] = a3;
-            c2[f2 + 8 >> 2] = h2;
+            c2[f2 + 8 >> 2] = h3;
             To(20284, f2);
           } else {
-            c2[h2 >> 2] = 20420;
-            c2[h2 + 4 >> 2] = a3;
-            To(20329, h2);
+            c2[h3 >> 2] = 20420;
+            c2[h3 + 4 >> 2] = a3;
+            To(20329, h3);
           }
         }
         To(20408, g2);
@@ -121289,7 +120222,7 @@ function getModule() {
         d2 = d2 | 0;
         e2 = e2 | 0;
         f2 = f2 | 0;
-        var g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0;
+        var g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0;
         l2 = V;
         V = V + 64 | 0;
         j2 = l2;
@@ -121302,12 +120235,12 @@ function getModule() {
             d2 = j2 + 16 | 0;
             e2 = j2 + 24 | 0;
             g2 = j2 + 48 | 0;
-            h2 = d2;
-            i2 = h2 + 36 | 0;
+            h3 = d2;
+            i2 = h3 + 36 | 0;
             do {
-              c2[h2 >> 2] = 0;
-              h2 = h2 + 4 | 0;
-            } while ((h2 | 0) < (i2 | 0));
+              c2[h3 >> 2] = 0;
+              h3 = h3 + 4 | 0;
+            } while ((h3 | 0) < (i2 | 0));
             b4[d2 + 36 >> 1] = 0;
             a2[d2 + 38 >> 0] = 0;
             c2[g2 >> 2] = 1;
@@ -121341,13 +120274,13 @@ function getModule() {
         e2 = e2 | 0;
         f2 = f2 | 0;
         g2 = g2 | 0;
-        var h2 = 0;
+        var h3 = 0;
         do
           if (!(ap(b5, c2[d2 + 8 >> 2] | 0, g2) | 0)) {
             if (ap(b5, c2[d2 >> 2] | 0, g2) | 0) {
-              if ((c2[d2 + 16 >> 2] | 0) != (e2 | 0) ? (h2 = d2 + 20 | 0, (c2[h2 >> 2] | 0) != (e2 | 0)) : 0) {
+              if ((c2[d2 + 16 >> 2] | 0) != (e2 | 0) ? (h3 = d2 + 20 | 0, (c2[h3 >> 2] | 0) != (e2 | 0)) : 0) {
                 c2[d2 + 32 >> 2] = f2;
-                c2[h2 >> 2] = e2;
+                c2[h3 >> 2] = e2;
                 g2 = d2 + 40 | 0;
                 c2[g2 >> 2] = (c2[g2 >> 2] | 0) + 1;
                 if ((c2[d2 + 36 >> 2] | 0) == 1 ? (c2[d2 + 24 >> 2] | 0) == 2 : 0)
@@ -121467,7 +120400,7 @@ function getModule() {
         e2 = e2 | 0;
         f2 = f2 | 0;
         g2 = g2 | 0;
-        var h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0;
+        var h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0;
         p2 = V;
         V = V + 64 | 0;
         n2 = p2;
@@ -121481,7 +120414,7 @@ function getModule() {
         d2 = n2 + 16 | 0;
         e2 = n2 + 20 | 0;
         g2 = n2 + 24 | 0;
-        h2 = n2 + 28 | 0;
+        h3 = n2 + 28 | 0;
         i2 = n2 + 32 | 0;
         j2 = n2 + 40 | 0;
         k2 = d2;
@@ -121502,7 +120435,7 @@ function getModule() {
               ga[c2[(c2[m2 >> 2] | 0) + 24 >> 2] & 3](m2, n2, o2, 1, 0);
               switch (c2[n2 + 36 >> 2] | 0) {
                 case 0: {
-                  d2 = (c2[j2 >> 2] | 0) == 1 & (c2[h2 >> 2] | 0) == 1 & (c2[i2 >> 2] | 0) == 1 ? c2[e2 >> 2] | 0 : 0;
+                  d2 = (c2[j2 >> 2] | 0) == 1 & (c2[h3 >> 2] | 0) == 1 & (c2[i2 >> 2] | 0) == 1 ? c2[e2 >> 2] | 0 : 0;
                   break a;
                 }
                 case 1:
@@ -121512,7 +120445,7 @@ function getModule() {
                   break a;
                 }
               }
-              if ((c2[g2 >> 2] | 0) != 1 ? !((c2[j2 >> 2] | 0) == 0 & (c2[h2 >> 2] | 0) == 1 & (c2[i2 >> 2] | 0) == 1) : 0) {
+              if ((c2[g2 >> 2] | 0) != 1 ? !((c2[j2 >> 2] | 0) == 0 & (c2[h3 >> 2] | 0) == 1 & (c2[i2 >> 2] | 0) == 1) : 0) {
                 d2 = 0;
                 break;
               }
@@ -121549,7 +120482,7 @@ function getModule() {
         e2 = e2 | 0;
         f2 = f2 | 0;
         g2 = g2 | 0;
-        var h2 = 0, i2 = 0, j2 = 0;
+        var h3 = 0, i2 = 0, j2 = 0;
         a:
           do
             if (!(ap(b5, c2[d2 + 8 >> 2] | 0, g2) | 0)) {
@@ -121563,14 +120496,14 @@ function getModule() {
                 f2 = d2 + 44 | 0;
                 do
                   if ((c2[f2 >> 2] | 0) != 4) {
-                    h2 = d2 + 52 | 0;
-                    a2[h2 >> 0] = 0;
+                    h3 = d2 + 52 | 0;
+                    a2[h3 >> 0] = 0;
                     j2 = d2 + 53 | 0;
                     a2[j2 >> 0] = 0;
                     b5 = c2[b5 + 8 >> 2] | 0;
                     ha[c2[(c2[b5 >> 2] | 0) + 20 >> 2] & 3](b5, d2, e2, e2, 1, g2);
                     if (a2[j2 >> 0] | 0) {
-                      j2 = (a2[h2 >> 0] | 0) == 0;
+                      j2 = (a2[h3 >> 0] | 0) == 0;
                       c2[f2 >> 2] = 3;
                       if (j2)
                         break;
@@ -121743,7 +120676,7 @@ function getModule() {
         d2 = d2 | 0;
         e2 = e2 | 0;
         f2 = f2 | 0;
-        var g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0;
+        var g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0;
         n2 = V;
         V = V + 64 | 0;
         l2 = n2;
@@ -121765,10 +120698,10 @@ function getModule() {
                 c2[f2 >> 2] = c2[e2 >> 2];
               e2 = c2[g2 + 8 >> 2] | 0;
               i2 = d2 + 8 | 0;
-              h2 = c2[i2 >> 2] | 0;
-              if ((e2 & 7 & (h2 ^ 7) | 0) == 0 ? ((e2 & 96 ^ 96) & h2 | 0) == 0 : 0) {
-                h2 = d2 + 12 | 0;
-                d2 = c2[h2 >> 2] | 0;
+              h3 = c2[i2 >> 2] | 0;
+              if ((e2 & 7 & (h3 ^ 7) | 0) == 0 ? ((e2 & 96 ^ 96) & h3 | 0) == 0 : 0) {
+                h3 = d2 + 12 | 0;
+                d2 = c2[h3 >> 2] | 0;
                 g2 = g2 + 12 | 0;
                 e2 = c2[g2 >> 2] | 0;
                 if (!(ap(d2, e2, 0) | 0)) {
@@ -121790,7 +120723,7 @@ function getModule() {
                       e2 = Jp(e2, c2[g2 >> 2] | 0) | 0;
                       break;
                     }
-                    e2 = c2[h2 >> 2] | 0;
+                    e2 = c2[h3 >> 2] | 0;
                     if (e2) {
                       e2 = ep(e2, 3840, 4008, 0) | 0;
                       if (e2 | 0) {
@@ -121801,7 +120734,7 @@ function getModule() {
                         e2 = Kp(e2, c2[g2 >> 2] | 0) | 0;
                         break;
                       }
-                      e2 = c2[h2 >> 2] | 0;
+                      e2 = c2[h3 >> 2] | 0;
                       if ((((e2 | 0) != 0 ? (j2 = ep(e2, 3840, 3824, 0) | 0, (j2 | 0) != 0) : 0) ? (k2 = c2[g2 >> 2] | 0, (k2 | 0) != 0) : 0) ? (m2 = ep(k2, 3840, 3824, 0) | 0, (m2 | 0) != 0) : 0) {
                         c2[l2 >> 2] = m2;
                         c2[l2 + 4 >> 2] = 0;
@@ -121810,12 +120743,12 @@ function getModule() {
                         e2 = l2 + 16 | 0;
                         d2 = l2 + 24 | 0;
                         g2 = l2 + 48 | 0;
-                        h2 = e2;
-                        i2 = h2 + 36 | 0;
+                        h3 = e2;
+                        i2 = h3 + 36 | 0;
                         do {
-                          c2[h2 >> 2] = 0;
-                          h2 = h2 + 4 | 0;
-                        } while ((h2 | 0) < (i2 | 0));
+                          c2[h3 >> 2] = 0;
+                          h3 = h3 + 4 | 0;
+                        } while ((h3 | 0) < (i2 | 0));
                         b4[e2 + 36 >> 1] = 0;
                         a2[e2 + 38 >> 0] = 0;
                         c2[g2 >> 2] = 1;
@@ -121873,7 +120806,7 @@ function getModule() {
       function Jp(a3, b5) {
         a3 = a3 | 0;
         b5 = b5 | 0;
-        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0;
+        var d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0;
         while (1) {
           if (!b5) {
             b5 = 0;
@@ -121902,12 +120835,12 @@ function getModule() {
           }
           a3 = ep(b5, 3840, 3976, 0) | 0;
           if (!a3) {
-            h2 = 9;
+            h3 = 9;
             break;
           }
           b5 = c2[d2 >> 2] | 0;
         }
-        if ((h2 | 0) == 9) {
+        if ((h3 | 0) == 9) {
           b5 = c2[e2 >> 2] | 0;
           if ((b5 | 0) != 0 ? (g2 = ep(b5, 3840, 4008, 0) | 0, (g2 | 0) != 0) : 0)
             b5 = Kp(g2, c2[d2 >> 2] | 0) | 0;
@@ -121932,15 +120865,15 @@ function getModule() {
         jp(a3);
         return;
       }
-      function Mp(b5, d2, e2, f2, g2, h2) {
+      function Mp(b5, d2, e2, f2, g2, h3) {
         b5 = b5 | 0;
         d2 = d2 | 0;
         e2 = e2 | 0;
         f2 = f2 | 0;
         g2 = g2 | 0;
-        h2 = h2 | 0;
+        h3 = h3 | 0;
         var i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q2 = 0, r2 = 0;
-        if (ap(b5, c2[d2 + 8 >> 2] | 0, h2) | 0)
+        if (ap(b5, c2[d2 + 8 >> 2] | 0, h3) | 0)
           dp(0, d2, e2, f2, g2);
         else {
           r2 = d2 + 52 | 0;
@@ -121951,7 +120884,7 @@ function getModule() {
           m2 = b5 + 16 + (p2 << 3) | 0;
           a2[r2 >> 0] = 0;
           a2[q2 >> 0] = 0;
-          Qp(b5 + 16 | 0, d2, e2, f2, g2, h2);
+          Qp(b5 + 16 | 0, d2, e2, f2, g2, h3);
           k2 = a2[r2 >> 0] | 0;
           j2 = k2 | j2;
           l2 = a2[q2 >> 0] | 0;
@@ -121979,7 +120912,7 @@ function getModule() {
                   }
                   a2[r2 >> 0] = 0;
                   a2[q2 >> 0] = 0;
-                  Qp(b5, d2, e2, f2, g2, h2);
+                  Qp(b5, d2, e2, f2, g2, h3);
                   k2 = a2[r2 >> 0] | 0;
                   j2 = k2 | j2;
                   l2 = a2[q2 >> 0] | 0;
@@ -121999,7 +120932,7 @@ function getModule() {
         e2 = e2 | 0;
         f2 = f2 | 0;
         g2 = g2 | 0;
-        var h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0;
+        var h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0;
         a:
           do
             if (!(ap(b5, c2[d2 + 8 >> 2] | 0, g2) | 0)) {
@@ -122007,7 +120940,7 @@ function getModule() {
                 p2 = c2[b5 + 12 >> 2] | 0;
                 k2 = b5 + 16 + (p2 << 3) | 0;
                 Rp(b5 + 16 | 0, d2, e2, f2, g2);
-                h2 = b5 + 24 | 0;
+                h3 = b5 + 24 | 0;
                 if ((p2 | 0) <= 1)
                   break;
                 b5 = c2[b5 + 8 >> 2] | 0;
@@ -122019,9 +120952,9 @@ function getModule() {
                         break a;
                       if ((c2[j2 >> 2] | 0) == 1)
                         break a;
-                      Rp(h2, d2, e2, f2, g2);
-                      h2 = h2 + 8 | 0;
-                      if (h2 >>> 0 >= k2 >>> 0)
+                      Rp(h3, d2, e2, f2, g2);
+                      h3 = h3 + 8 | 0;
+                      if (h3 >>> 0 >= k2 >>> 0)
                         break a;
                     }
                   }
@@ -122032,9 +120965,9 @@ function getModule() {
                       break a;
                     if ((c2[j2 >> 2] | 0) == 1 ? (c2[b5 >> 2] | 0) == 1 : 0)
                       break a;
-                    Rp(h2, d2, e2, f2, g2);
-                    h2 = h2 + 8 | 0;
-                    if (h2 >>> 0 >= k2 >>> 0)
+                    Rp(h3, d2, e2, f2, g2);
+                    h3 = h3 + 8 | 0;
+                    if (h3 >>> 0 >= k2 >>> 0)
                       break a;
                   }
                 }
@@ -122042,9 +120975,9 @@ function getModule() {
                 while (1) {
                   if (a2[b5 >> 0] | 0)
                     break a;
-                  Rp(h2, d2, e2, f2, g2);
-                  h2 = h2 + 8 | 0;
-                  if (h2 >>> 0 >= k2 >>> 0)
+                  Rp(h3, d2, e2, f2, g2);
+                  h3 = h3 + 8 | 0;
+                  if (h3 >>> 0 >= k2 >>> 0)
                     break a;
                 }
               }
@@ -122058,7 +120991,7 @@ function getModule() {
                   l2 = d2 + 54 | 0;
                   m2 = b5 + 8 | 0;
                   n2 = d2 + 24 | 0;
-                  h2 = 0;
+                  h3 = 0;
                   i2 = b5 + 16 | 0;
                   b5 = 0;
                   b:
@@ -122085,16 +121018,16 @@ function getModule() {
                               break;
                             }
                           if ((c2[n2 >> 2] | 0) == 1) {
-                            h2 = 1;
+                            h3 = 1;
                             i2 = 19;
                             break b;
                           }
                           if (!(c2[m2 >> 2] & 2)) {
-                            h2 = 1;
+                            h3 = 1;
                             i2 = 19;
                             break b;
                           } else {
-                            h2 = 1;
+                            h3 = 1;
                             b5 = 1;
                           }
                         }
@@ -122109,7 +121042,7 @@ function getModule() {
                   if ((i2 | 0) == 19)
                     b5 = 3;
                   c2[o2 >> 2] = b5;
-                  if (h2 & 1)
+                  if (h3 & 1)
                     break;
                 }
                 c2[p2 >> 2] = e2;
@@ -122134,19 +121067,19 @@ function getModule() {
         d2 = d2 | 0;
         e2 = e2 | 0;
         f2 = f2 | 0;
-        var g2 = 0, h2 = 0;
+        var g2 = 0, h3 = 0;
         a:
           do
             if (!(ap(b5, c2[d2 + 8 >> 2] | 0, 0) | 0)) {
-              h2 = c2[b5 + 12 >> 2] | 0;
-              g2 = b5 + 16 + (h2 << 3) | 0;
+              h3 = c2[b5 + 12 >> 2] | 0;
+              g2 = b5 + 16 + (h3 << 3) | 0;
               Pp(b5 + 16 | 0, d2, e2, f2);
-              if ((h2 | 0) > 1) {
-                h2 = d2 + 54 | 0;
+              if ((h3 | 0) > 1) {
+                h3 = d2 + 54 | 0;
                 b5 = b5 + 24 | 0;
                 do {
                   Pp(b5, d2, e2, f2);
-                  if (a2[h2 >> 0] | 0)
+                  if (a2[h3 >> 0] | 0)
                     break a;
                   b5 = b5 + 8 | 0;
                 } while (b5 >>> 0 < g2 >>> 0);
@@ -122180,13 +121113,13 @@ function getModule() {
         e2 = e2 | 0;
         f2 = f2 | 0;
         g2 = g2 | 0;
-        var h2 = 0, i2 = 0;
+        var h3 = 0, i2 = 0;
         i2 = c2[a3 + 4 >> 2] | 0;
-        h2 = i2 >> 8;
+        h3 = i2 >> 8;
         if (i2 & 1)
-          h2 = c2[(c2[e2 >> 2] | 0) + h2 >> 2] | 0;
+          h3 = c2[(c2[e2 >> 2] | 0) + h3 >> 2] | 0;
         a3 = c2[a3 >> 2] | 0;
-        ha[c2[(c2[a3 >> 2] | 0) + 20 >> 2] & 3](a3, b5, d2, e2 + h2 | 0, (i2 & 2 | 0) == 0 ? 2 : f2, g2);
+        ha[c2[(c2[a3 >> 2] | 0) + 20 >> 2] & 3](a3, b5, d2, e2 + h3 | 0, (i2 & 2 | 0) == 0 ? 2 : f2, g2);
         return;
       }
       function Rp(a3, b5, d2, e2, f2) {
@@ -122195,13 +121128,13 @@ function getModule() {
         d2 = d2 | 0;
         e2 = e2 | 0;
         f2 = f2 | 0;
-        var g2 = 0, h2 = 0;
-        h2 = c2[a3 + 4 >> 2] | 0;
-        g2 = h2 >> 8;
-        if (h2 & 1)
+        var g2 = 0, h3 = 0;
+        h3 = c2[a3 + 4 >> 2] | 0;
+        g2 = h3 >> 8;
+        if (h3 & 1)
           g2 = c2[(c2[d2 >> 2] | 0) + g2 >> 2] | 0;
         a3 = c2[a3 >> 2] | 0;
-        ga[c2[(c2[a3 >> 2] | 0) + 24 >> 2] & 3](a3, b5, d2 + g2 | 0, (h2 & 2 | 0) == 0 ? 2 : e2, f2);
+        ga[c2[(c2[a3 >> 2] | 0) + 24 >> 2] & 3](a3, b5, d2 + g2 | 0, (h3 & 2 | 0) == 0 ? 2 : e2, f2);
         return;
       }
       function Sp(a3) {
@@ -122483,7 +121416,7 @@ function getModule() {
         b5 = b5 | 0;
         d2 = d2 | 0;
         e2 = e2 | 0;
-        var f2 = 0, g2 = 0, h2 = 0, i2 = 0;
+        var f2 = 0, g2 = 0, h3 = 0, i2 = 0;
         g2 = V;
         V = V + 16 | 0;
         f2 = g2;
@@ -122493,11 +121426,11 @@ function getModule() {
           a2[b5 + 11 >> 0] = e2;
         else {
           i2 = e2 + 16 & -16;
-          h2 = eq(i2) | 0;
-          c2[b5 >> 2] = h2;
+          h3 = eq(i2) | 0;
+          c2[b5 >> 2] = h3;
           c2[b5 + 8 >> 2] = i2 | -2147483648;
           c2[b5 + 4 >> 2] = e2;
-          b5 = h2;
+          b5 = h3;
         }
         Bq(b5, d2, e2) | 0;
         a2[f2 >> 0] = 0;
@@ -122519,13 +121452,13 @@ function getModule() {
           Da(c2[b5 >> 2] | 0, c2[b5 + 8 >> 2] & 2147483647);
         return;
       }
-      function Dq(b5, d2, e2, f2, g2, h2, i2, j2) {
+      function Dq(b5, d2, e2, f2, g2, h3, i2, j2) {
         b5 = b5 | 0;
         d2 = d2 | 0;
         e2 = e2 | 0;
         f2 = f2 | 0;
         g2 = g2 | 0;
-        h2 = h2 | 0;
+        h3 = h3 | 0;
         i2 = i2 | 0;
         j2 = j2 | 0;
         var k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0;
@@ -122550,10 +121483,10 @@ function getModule() {
           Bq(l2, m2, g2) | 0;
         if (i2 | 0)
           Bq(l2 + g2 | 0, j2, i2) | 0;
-        f2 = f2 - h2 | 0;
+        f2 = f2 - h3 | 0;
         e2 = f2 - g2 | 0;
         if (e2 | 0)
-          Bq(l2 + g2 + i2 | 0, m2 + g2 + h2 | 0, e2) | 0;
+          Bq(l2 + g2 + i2 | 0, m2 + g2 + h3 | 0, e2) | 0;
         e2 = d2 + 1 | 0;
         if ((e2 | 0) != 11)
           Da(m2, e2);
@@ -122570,14 +121503,14 @@ function getModule() {
         b5 = b5 | 0;
         d2 = d2 | 0;
         e2 = e2 | 0;
-        var f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0;
+        var f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0;
         k2 = V;
         V = V + 16 | 0;
         i2 = k2;
         j2 = b5 + 11 | 0;
         f2 = a2[j2 >> 0] | 0;
-        h2 = f2 << 24 >> 24 < 0;
-        if (h2) {
+        h3 = f2 << 24 >> 24 < 0;
+        if (h3) {
           g2 = (c2[b5 + 8 >> 2] & 2147483647) + -1 | 0;
           f2 = c2[b5 + 4 >> 2] | 0;
         } else {
@@ -122586,7 +121519,7 @@ function getModule() {
         }
         if ((g2 - f2 | 0) >>> 0 >= e2 >>> 0) {
           if (e2 | 0) {
-            if (h2)
+            if (h3)
               g2 = c2[b5 >> 2] | 0;
             else
               g2 = b5;
@@ -122625,23 +121558,23 @@ function getModule() {
         e2 = e2 | 0;
         f2 = f2 | 0;
         g2 = g2 | 0;
-        var h2 = 0, i2 = 0;
-        h2 = a2[b5 + 11 >> 0] | 0;
-        i2 = h2 << 24 >> 24 < 0;
+        var h3 = 0, i2 = 0;
+        h3 = a2[b5 + 11 >> 0] | 0;
+        i2 = h3 << 24 >> 24 < 0;
         if (i2)
-          h2 = c2[b5 + 4 >> 2] | 0;
+          h3 = c2[b5 + 4 >> 2] | 0;
         else
-          h2 = h2 & 255;
-        if ((g2 | 0) == -1 | h2 >>> 0 < d2 >>> 0)
+          h3 = h3 & 255;
+        if ((g2 | 0) == -1 | h3 >>> 0 < d2 >>> 0)
           zq(b5);
-        h2 = h2 - d2 | 0;
-        e2 = h2 >>> 0 < e2 >>> 0 ? h2 : e2;
+        h3 = h3 - d2 | 0;
+        e2 = h3 >>> 0 < e2 >>> 0 ? h3 : e2;
         if (i2)
           b5 = c2[b5 >> 2] | 0;
-        h2 = e2 >>> 0 > g2 >>> 0;
-        b5 = Gq(b5 + d2 | 0, f2, h2 ? g2 : e2) | 0;
+        h3 = e2 >>> 0 > g2 >>> 0;
+        b5 = Gq(b5 + d2 | 0, f2, h3 ? g2 : e2) | 0;
         if (!b5)
-          return (e2 >>> 0 < g2 >>> 0 ? -1 : h2 & 1) | 0;
+          return (e2 >>> 0 < g2 >>> 0 ? -1 : h3 & 1) | 0;
         else
           return b5 | 0;
         return 0;
@@ -122709,19 +121642,19 @@ function getModule() {
       function Qq(b5, d2) {
         b5 = b5 | 0;
         d2 = d2 | 0;
-        var e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0;
+        var e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0;
         i2 = V;
         V = V + 1040 | 0;
         g2 = i2 + 1024 | 0;
         e2 = i2;
-        h2 = c2[(ao() | 0) >> 2] | 0;
+        h3 = c2[(ao() | 0) >> 2] | 0;
         f2 = Rq(Oo(d2, e2, 1024) | 0, e2) | 0;
         if (!(a2[f2 >> 0] | 0)) {
           c2[g2 >> 2] = d2;
           Go(e2, 1024, 21211, g2) | 0;
         } else
           e2 = f2;
-        c2[(ao() | 0) >> 2] = h2;
+        c2[(ao() | 0) >> 2] = h3;
         Aq(b5, e2, lb(e2) | 0);
         V = i2;
         return;
@@ -122817,10 +121750,10 @@ function getModule() {
         b5 = b5 | 0;
         d2 = d2 | 0;
         e2 = e2 | 0;
-        var f2 = 0, g2 = 0, h2 = 0;
-        h2 = V;
+        var f2 = 0, g2 = 0, h3 = 0;
+        h3 = V;
         V = V + 16 | 0;
-        g2 = h2;
+        g2 = h3;
         if (c2[d2 >> 2] | 0) {
           f2 = a2[e2 + 11 >> 0] | 0;
           if (f2 << 24 >> 24 < 0)
@@ -122845,7 +121778,7 @@ function getModule() {
           c2[e2 + (f2 << 2) >> 2] = 0;
           f2 = f2 + 1 | 0;
         }
-        V = h2;
+        V = h3;
         return;
       }
       function ar(a3, b5, d2) {
@@ -122896,10 +121829,10 @@ function getModule() {
       }
       function dr(a3) {
         a3 = a3 | 0;
-        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q2 = 0, r2 = 0, s2 = 0, t2 = 0, u2 = 0, v2 = 0, w2 = 0;
-        w2 = V;
+        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0, q2 = 0, r2 = 0, s2 = 0, t2 = 0, u2 = 0, v2 = 0, w3 = 0;
+        w3 = V;
         V = V + 16 | 0;
-        n2 = w2;
+        n2 = w3;
         do
           if (a3 >>> 0 < 245) {
             k2 = a3 >>> 0 < 11 ? 16 : a3 + 11 & -8;
@@ -122924,7 +121857,7 @@ function getModule() {
               v2 = e2 + v2 + 4 | 0;
               c2[v2 >> 2] = c2[v2 >> 2] | 1;
               v2 = f2;
-              V = w2;
+              V = w3;
               return v2 | 0;
             }
             l2 = c2[5414] | 0;
@@ -122957,11 +121890,11 @@ function getModule() {
                   a3 = m2;
                 }
                 v2 = e2 << 3;
-                h2 = v2 - k2 | 0;
+                h3 = v2 - k2 | 0;
                 c2[g2 + 4 >> 2] = k2 | 3;
                 f2 = g2 + k2 | 0;
-                c2[f2 + 4 >> 2] = h2 | 1;
-                c2[g2 + v2 >> 2] = h2;
+                c2[f2 + 4 >> 2] = h3 | 1;
+                c2[g2 + v2 >> 2] = h3;
                 if (l2 | 0) {
                   e2 = c2[5417] | 0;
                   b5 = l2 >>> 3;
@@ -122980,10 +121913,10 @@ function getModule() {
                   c2[e2 + 8 >> 2] = b5;
                   c2[e2 + 12 >> 2] = d2;
                 }
-                c2[5414] = h2;
+                c2[5414] = h3;
                 c2[5417] = f2;
                 v2 = i2;
-                V = w2;
+                V = w3;
                 return v2 | 0;
               }
               g2 = c2[5413] | 0;
@@ -122993,12 +121926,12 @@ function getModule() {
                 d2 = d2 >>> f2;
                 e2 = d2 >>> 5 & 8;
                 d2 = d2 >>> e2;
-                h2 = d2 >>> 2 & 4;
-                d2 = d2 >>> h2;
+                h3 = d2 >>> 2 & 4;
+                d2 = d2 >>> h3;
                 i2 = d2 >>> 1 & 2;
                 d2 = d2 >>> i2;
                 j2 = d2 >>> 1 & 1;
-                j2 = c2[21952 + ((e2 | f2 | h2 | i2 | j2) + (d2 >>> j2) << 2) >> 2] | 0;
+                j2 = c2[21952 + ((e2 | f2 | h3 | i2 | j2) + (d2 >>> j2) << 2) >> 2] | 0;
                 d2 = j2;
                 i2 = j2;
                 j2 = (c2[j2 + 4 >> 2] & -8) - k2 | 0;
@@ -123009,14 +121942,14 @@ function getModule() {
                     if (!a3)
                       break;
                   }
-                  h2 = (c2[a3 + 4 >> 2] & -8) - k2 | 0;
-                  f2 = h2 >>> 0 < j2 >>> 0;
+                  h3 = (c2[a3 + 4 >> 2] & -8) - k2 | 0;
+                  f2 = h3 >>> 0 < j2 >>> 0;
                   d2 = a3;
                   i2 = f2 ? a3 : i2;
-                  j2 = f2 ? h2 : j2;
+                  j2 = f2 ? h3 : j2;
                 }
-                h2 = i2 + k2 | 0;
-                if (h2 >>> 0 > i2 >>> 0) {
+                h3 = i2 + k2 | 0;
+                if (h3 >>> 0 > i2 >>> 0) {
                   f2 = c2[i2 + 24 >> 2] | 0;
                   b5 = c2[i2 + 12 >> 2] | 0;
                   do
@@ -123093,8 +122026,8 @@ function getModule() {
                     c2[v2 >> 2] = c2[v2 >> 2] | 1;
                   } else {
                     c2[i2 + 4 >> 2] = k2 | 3;
-                    c2[h2 + 4 >> 2] = j2 | 1;
-                    c2[h2 + j2 >> 2] = j2;
+                    c2[h3 + 4 >> 2] = j2 | 1;
+                    c2[h3 + j2 >> 2] = j2;
                     if (l2 | 0) {
                       e2 = c2[5417] | 0;
                       b5 = l2 >>> 3;
@@ -123114,10 +122047,10 @@ function getModule() {
                       c2[e2 + 12 >> 2] = d2;
                     }
                     c2[5414] = j2;
-                    c2[5417] = h2;
+                    c2[5417] = h3;
                   }
                   v2 = i2 + 8 | 0;
-                  V = w2;
+                  V = w3;
                   return v2 | 0;
                 } else
                   m2 = k2;
@@ -123158,16 +122091,16 @@ function getModule() {
                     i2 = k2 << ((j2 | 0) == 31 ? 0 : 25 - (j2 >>> 1) | 0);
                     g2 = 0;
                     while (1) {
-                      h2 = (c2[d2 + 4 >> 2] & -8) - k2 | 0;
-                      if (h2 >>> 0 < f2 >>> 0)
-                        if (!h2) {
+                      h3 = (c2[d2 + 4 >> 2] & -8) - k2 | 0;
+                      if (h3 >>> 0 < f2 >>> 0)
+                        if (!h3) {
                           a3 = d2;
                           f2 = 0;
                           q2 = 65;
                           break a;
                         } else {
                           a3 = d2;
-                          f2 = h2;
+                          f2 = h3;
                         }
                       q2 = c2[d2 + 20 >> 2] | 0;
                       d2 = c2[d2 + 16 + (i2 >>> 31 << 2) >> 2] | 0;
@@ -123190,8 +122123,8 @@ function getModule() {
                     break;
                   }
                   m2 = (a3 & 0 - a3) + -1 | 0;
-                  h2 = m2 >>> 12 & 16;
-                  m2 = m2 >>> h2;
+                  h3 = m2 >>> 12 & 16;
+                  m2 = m2 >>> h3;
                   g2 = m2 >>> 5 & 8;
                   m2 = m2 >>> g2;
                   i2 = m2 >>> 2 & 4;
@@ -123200,11 +122133,11 @@ function getModule() {
                   m2 = m2 >>> j2;
                   d2 = m2 >>> 1 & 1;
                   a3 = 0;
-                  d2 = c2[21952 + ((g2 | h2 | i2 | j2 | d2) + (m2 >>> d2) << 2) >> 2] | 0;
+                  d2 = c2[21952 + ((g2 | h3 | i2 | j2 | d2) + (m2 >>> d2) << 2) >> 2] | 0;
                 }
                 if (!d2) {
                   i2 = a3;
-                  h2 = f2;
+                  h3 = f2;
                 } else
                   q2 = 65;
               }
@@ -123220,13 +122153,13 @@ function getModule() {
                     d2 = c2[g2 + 20 >> 2] | 0;
                   if (!d2) {
                     i2 = a3;
-                    h2 = f2;
+                    h3 = f2;
                     break;
                   } else
                     g2 = d2;
                 }
               }
-              if (((i2 | 0) != 0 ? h2 >>> 0 < ((c2[5414] | 0) - k2 | 0) >>> 0 : 0) ? (l2 = i2 + k2 | 0, l2 >>> 0 > i2 >>> 0) : 0) {
+              if (((i2 | 0) != 0 ? h3 >>> 0 < ((c2[5414] | 0) - k2 | 0) >>> 0 : 0) ? (l2 = i2 + k2 | 0, l2 >>> 0 > i2 >>> 0) : 0) {
                 g2 = c2[i2 + 24 >> 2] | 0;
                 b5 = c2[i2 + 12 >> 2] | 0;
                 do
@@ -123297,17 +122230,17 @@ function getModule() {
                 while (0);
                 b:
                   do
-                    if (h2 >>> 0 < 16) {
-                      v2 = h2 + k2 | 0;
+                    if (h3 >>> 0 < 16) {
+                      v2 = h3 + k2 | 0;
                       c2[i2 + 4 >> 2] = v2 | 3;
                       v2 = i2 + v2 + 4 | 0;
                       c2[v2 >> 2] = c2[v2 >> 2] | 1;
                     } else {
                       c2[i2 + 4 >> 2] = k2 | 3;
-                      c2[l2 + 4 >> 2] = h2 | 1;
-                      c2[l2 + h2 >> 2] = h2;
-                      b5 = h2 >>> 3;
-                      if (h2 >>> 0 < 256) {
+                      c2[l2 + 4 >> 2] = h3 | 1;
+                      c2[l2 + h3 >> 2] = h3;
+                      b5 = h3 >>> 3;
+                      if (h3 >>> 0 < 256) {
                         d2 = 21688 + (b5 << 1 << 2) | 0;
                         a3 = c2[5412] | 0;
                         b5 = 1 << b5;
@@ -123325,9 +122258,9 @@ function getModule() {
                         c2[l2 + 12 >> 2] = d2;
                         break;
                       }
-                      b5 = h2 >>> 8;
+                      b5 = h3 >>> 8;
                       if (b5)
-                        if (h2 >>> 0 > 16777215)
+                        if (h3 >>> 0 > 16777215)
                           d2 = 31;
                         else {
                           u2 = (b5 + 1048320 | 0) >>> 16 & 8;
@@ -123336,7 +122269,7 @@ function getModule() {
                           v2 = v2 << t2;
                           d2 = (v2 + 245760 | 0) >>> 16 & 2;
                           d2 = 14 - (t2 | u2 | d2) + (v2 << d2 >>> 15) | 0;
-                          d2 = h2 >>> (d2 + 7 | 0) & 1 | d2 << 1;
+                          d2 = h3 >>> (d2 + 7 | 0) & 1 | d2 << 1;
                         }
                       else
                         d2 = 0;
@@ -123357,14 +122290,14 @@ function getModule() {
                       b5 = c2[b5 >> 2] | 0;
                       c:
                         do
-                          if ((c2[b5 + 4 >> 2] & -8 | 0) != (h2 | 0)) {
-                            e2 = h2 << ((d2 | 0) == 31 ? 0 : 25 - (d2 >>> 1) | 0);
+                          if ((c2[b5 + 4 >> 2] & -8 | 0) != (h3 | 0)) {
+                            e2 = h3 << ((d2 | 0) == 31 ? 0 : 25 - (d2 >>> 1) | 0);
                             while (1) {
                               d2 = b5 + 16 + (e2 >>> 31 << 2) | 0;
                               a3 = c2[d2 >> 2] | 0;
                               if (!a3)
                                 break;
-                              if ((c2[a3 + 4 >> 2] & -8 | 0) == (h2 | 0)) {
+                              if ((c2[a3 + 4 >> 2] & -8 | 0) == (h3 | 0)) {
                                 b5 = a3;
                                 break c;
                               } else {
@@ -123389,7 +122322,7 @@ function getModule() {
                     }
                   while (0);
                 v2 = i2 + 8 | 0;
-                V = w2;
+                V = w3;
                 return v2 | 0;
               } else
                 m2 = k2;
@@ -123417,12 +122350,12 @@ function getModule() {
             c2[v2 >> 2] = c2[v2 >> 2] | 1;
           }
           v2 = a3 + 8 | 0;
-          V = w2;
+          V = w3;
           return v2 | 0;
         }
-        h2 = c2[5415] | 0;
-        if (h2 >>> 0 > m2 >>> 0) {
-          t2 = h2 - m2 | 0;
+        h3 = c2[5415] | 0;
+        if (h3 >>> 0 > m2 >>> 0) {
+          t2 = h3 - m2 | 0;
           c2[5415] = t2;
           v2 = c2[5418] | 0;
           u2 = v2 + m2 | 0;
@@ -123430,7 +122363,7 @@ function getModule() {
           c2[u2 + 4 >> 2] = t2 | 1;
           c2[v2 + 4 >> 2] = m2 | 3;
           v2 = v2 + 8 | 0;
-          V = w2;
+          V = w3;
           return v2 | 0;
         }
         if (!(c2[5530] | 0)) {
@@ -123451,13 +122384,13 @@ function getModule() {
         k2 = g2 & f2;
         if (k2 >>> 0 <= m2 >>> 0) {
           v2 = 0;
-          V = w2;
+          V = w3;
           return v2 | 0;
         }
         a3 = c2[5522] | 0;
         if (a3 | 0 ? (l2 = c2[5520] | 0, n2 = l2 + k2 | 0, n2 >>> 0 <= l2 >>> 0 | n2 >>> 0 > a3 >>> 0) : 0) {
           v2 = 0;
-          V = w2;
+          V = w3;
           return v2 | 0;
         }
         d:
@@ -123479,12 +122412,12 @@ function getModule() {
                       } else
                         e2 = a3;
                     }
-                    b5 = g2 - h2 & f2;
+                    b5 = g2 - h3 & f2;
                     if (b5 >>> 0 < 2147483647) {
                       a3 = fr(b5) | 0;
                       if ((a3 | 0) == ((c2[e2 >> 2] | 0) + (c2[e2 + 4 >> 2] | 0) | 0)) {
                         if ((a3 | 0) != (-1 | 0)) {
-                          h2 = b5;
+                          h3 = b5;
                           g2 = a3;
                           q2 = 145;
                           break d;
@@ -123509,7 +122442,7 @@ function getModule() {
                     }
                     a3 = fr(b5) | 0;
                     if ((a3 | 0) == (d2 | 0)) {
-                      h2 = b5;
+                      h3 = b5;
                       g2 = d2;
                       q2 = 145;
                       break d;
@@ -123529,7 +122462,7 @@ function getModule() {
                       b5 = 0;
                       break;
                     } else {
-                      h2 = b5;
+                      h3 = b5;
                       g2 = e2;
                       q2 = 145;
                       break d;
@@ -123537,7 +122470,7 @@ function getModule() {
                   a3 = c2[5532] | 0;
                   a3 = j2 - b5 + a3 & 0 - a3;
                   if (a3 >>> 0 >= 2147483647) {
-                    h2 = b5;
+                    h3 = b5;
                     g2 = e2;
                     q2 = 145;
                     break d;
@@ -123547,7 +122480,7 @@ function getModule() {
                     b5 = 0;
                     break;
                   } else {
-                    h2 = a3 + b5 | 0;
+                    h3 = a3 + b5 | 0;
                     g2 = e2;
                     q2 = 145;
                     break d;
@@ -123562,12 +122495,12 @@ function getModule() {
             }
           while (0);
         if (((q2 | 0) == 143 ? k2 >>> 0 < 2147483647 : 0) ? (t2 = fr(k2) | 0, p2 = fr(0) | 0, r2 = p2 - t2 | 0, s2 = r2 >>> 0 > (m2 + 40 | 0) >>> 0, !((t2 | 0) == (-1 | 0) | s2 ^ 1 | t2 >>> 0 < p2 >>> 0 & ((t2 | 0) != (-1 | 0) & (p2 | 0) != (-1 | 0)) ^ 1)) : 0) {
-          h2 = s2 ? r2 : b5;
+          h3 = s2 ? r2 : b5;
           g2 = t2;
           q2 = 145;
         }
         if ((q2 | 0) == 145) {
-          b5 = (c2[5520] | 0) + h2 | 0;
+          b5 = (c2[5520] | 0) + h3 | 0;
           c2[5520] = b5;
           if (b5 >>> 0 > (c2[5521] | 0) >>> 0)
             c2[5521] = b5;
@@ -123590,8 +122523,8 @@ function getModule() {
                     b5 = e2;
                 }
                 if (((q2 | 0) == 154 ? (u2 = b5 + 4 | 0, (c2[b5 + 12 >> 2] & 8 | 0) == 0) : 0) ? g2 >>> 0 > j2 >>> 0 & a3 >>> 0 <= j2 >>> 0 : 0) {
-                  c2[u2 >> 2] = d2 + h2;
-                  v2 = (c2[5415] | 0) + h2 | 0;
+                  c2[u2 >> 2] = d2 + h3;
+                  v2 = (c2[5415] | 0) + h3 | 0;
                   t2 = j2 + 8 | 0;
                   t2 = (t2 & 7 | 0) == 0 ? 0 : 0 - t2 & 7;
                   u2 = j2 + t2 | 0;
@@ -123605,7 +122538,7 @@ function getModule() {
                 }
                 if (g2 >>> 0 < (c2[5416] | 0) >>> 0)
                   c2[5416] = g2;
-                d2 = g2 + h2 | 0;
+                d2 = g2 + h3 | 0;
                 b5 = 22096;
                 while (1) {
                   if ((c2[b5 >> 2] | 0) == (d2 | 0)) {
@@ -123621,7 +122554,7 @@ function getModule() {
                 if ((q2 | 0) == 162 ? (c2[b5 + 12 >> 2] & 8 | 0) == 0 : 0) {
                   c2[b5 >> 2] = g2;
                   l2 = b5 + 4 | 0;
-                  c2[l2 >> 2] = (c2[l2 >> 2] | 0) + h2;
+                  c2[l2 >> 2] = (c2[l2 >> 2] | 0) + h3;
                   l2 = g2 + 8 | 0;
                   l2 = g2 + ((l2 & 7 | 0) == 0 ? 0 : 0 - l2 & 7) | 0;
                   b5 = d2 + 8 | 0;
@@ -123647,7 +122580,7 @@ function getModule() {
                         }
                         a3 = c2[b5 + 4 >> 2] | 0;
                         if ((a3 & 3 | 0) == 1) {
-                          h2 = a3 & -8;
+                          h3 = a3 & -8;
                           e2 = a3 >>> 3;
                           h:
                             do
@@ -123734,8 +122667,8 @@ function getModule() {
                                 c2[d2 + 24 >> 2] = a3;
                               }
                             while (0);
-                          b5 = b5 + h2 | 0;
-                          f2 = h2 + i2 | 0;
+                          b5 = b5 + h3 | 0;
+                          f2 = h3 + i2 | 0;
                         } else
                           f2 = i2;
                         b5 = b5 + 4 | 0;
@@ -123829,7 +122762,7 @@ function getModule() {
                       }
                     while (0);
                   v2 = l2 + 8 | 0;
-                  V = w2;
+                  V = w3;
                   return v2 | 0;
                 }
                 b5 = 22096;
@@ -123845,7 +122778,7 @@ function getModule() {
                 f2 = j2 + 16 | 0;
                 a3 = a3 >>> 0 < f2 >>> 0 ? j2 : a3;
                 b5 = a3 + 8 | 0;
-                d2 = h2 + -40 | 0;
+                d2 = h3 + -40 | 0;
                 t2 = g2 + 8 | 0;
                 t2 = (t2 & 7 | 0) == 0 ? 0 : 0 - t2 & 7;
                 u2 = g2 + t2 | 0;
@@ -123862,7 +122795,7 @@ function getModule() {
                 c2[b5 + 8 >> 2] = c2[5526];
                 c2[b5 + 12 >> 2] = c2[5527];
                 c2[5524] = g2;
-                c2[5525] = h2;
+                c2[5525] = h3;
                 c2[5527] = 0;
                 c2[5526] = b5;
                 b5 = a3 + 24 | 0;
@@ -123962,7 +122895,7 @@ function getModule() {
                 if ((v2 | 0) == 0 | g2 >>> 0 < v2 >>> 0)
                   c2[5416] = g2;
                 c2[5524] = g2;
-                c2[5525] = h2;
+                c2[5525] = h3;
                 c2[5527] = 0;
                 c2[5421] = c2[5530];
                 c2[5420] = -1;
@@ -124030,7 +122963,7 @@ function getModule() {
                 c2[5484] = 21928;
                 c2[5487] = 21936;
                 c2[5486] = 21936;
-                v2 = h2 + -40 | 0;
+                v2 = h3 + -40 | 0;
                 t2 = g2 + 8 | 0;
                 t2 = (t2 & 7 | 0) == 0 ? 0 : 0 - t2 & 7;
                 u2 = g2 + t2 | 0;
@@ -124052,18 +122985,18 @@ function getModule() {
             c2[u2 + 4 >> 2] = t2 | 1;
             c2[v2 + 4 >> 2] = m2 | 3;
             v2 = v2 + 8 | 0;
-            V = w2;
+            V = w3;
             return v2 | 0;
           }
         }
         c2[(ao() | 0) >> 2] = 48;
         v2 = 0;
-        V = w2;
+        V = w3;
         return v2 | 0;
       }
       function er(a3) {
         a3 = a3 | 0;
-        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h2 = 0, i2 = 0, j2 = 0;
+        var b5 = 0, d2 = 0, e2 = 0, f2 = 0, g2 = 0, h3 = 0, i2 = 0, j2 = 0;
         if (!a3)
           return;
         d2 = a3 + -8 | 0;
@@ -124076,46 +123009,46 @@ function getModule() {
             e2 = c2[d2 >> 2] | 0;
             if (!(a3 & 3))
               return;
-            h2 = d2 + (0 - e2) | 0;
+            h3 = d2 + (0 - e2) | 0;
             g2 = e2 + b5 | 0;
-            if (h2 >>> 0 < f2 >>> 0)
+            if (h3 >>> 0 < f2 >>> 0)
               return;
-            if ((c2[5417] | 0) == (h2 | 0)) {
+            if ((c2[5417] | 0) == (h3 | 0)) {
               a3 = j2 + 4 | 0;
               b5 = c2[a3 >> 2] | 0;
               if ((b5 & 3 | 0) != 3) {
-                i2 = h2;
+                i2 = h3;
                 b5 = g2;
                 break;
               }
               c2[5414] = g2;
               c2[a3 >> 2] = b5 & -2;
-              c2[h2 + 4 >> 2] = g2 | 1;
-              c2[h2 + g2 >> 2] = g2;
+              c2[h3 + 4 >> 2] = g2 | 1;
+              c2[h3 + g2 >> 2] = g2;
               return;
             }
             d2 = e2 >>> 3;
             if (e2 >>> 0 < 256) {
-              a3 = c2[h2 + 8 >> 2] | 0;
-              b5 = c2[h2 + 12 >> 2] | 0;
+              a3 = c2[h3 + 8 >> 2] | 0;
+              b5 = c2[h3 + 12 >> 2] | 0;
               if ((b5 | 0) == (a3 | 0)) {
                 c2[5412] = c2[5412] & ~(1 << d2);
-                i2 = h2;
+                i2 = h3;
                 b5 = g2;
                 break;
               } else {
                 c2[a3 + 12 >> 2] = b5;
                 c2[b5 + 8 >> 2] = a3;
-                i2 = h2;
+                i2 = h3;
                 b5 = g2;
                 break;
               }
             }
-            f2 = c2[h2 + 24 >> 2] | 0;
-            a3 = c2[h2 + 12 >> 2] | 0;
+            f2 = c2[h3 + 24 >> 2] | 0;
+            a3 = c2[h3 + 12 >> 2] | 0;
             do
-              if ((a3 | 0) == (h2 | 0)) {
-                b5 = h2 + 16 | 0;
+              if ((a3 | 0) == (h3 | 0)) {
+                b5 = h3 + 16 | 0;
                 d2 = b5 + 4 | 0;
                 a3 = c2[d2 >> 2] | 0;
                 if (!a3) {
@@ -124145,33 +123078,33 @@ function getModule() {
                 }
                 c2[b5 >> 2] = 0;
               } else {
-                i2 = c2[h2 + 8 >> 2] | 0;
+                i2 = c2[h3 + 8 >> 2] | 0;
                 c2[i2 + 12 >> 2] = a3;
                 c2[a3 + 8 >> 2] = i2;
               }
             while (0);
             if (f2) {
-              b5 = c2[h2 + 28 >> 2] | 0;
+              b5 = c2[h3 + 28 >> 2] | 0;
               d2 = 21952 + (b5 << 2) | 0;
-              if ((c2[d2 >> 2] | 0) == (h2 | 0)) {
+              if ((c2[d2 >> 2] | 0) == (h3 | 0)) {
                 c2[d2 >> 2] = a3;
                 if (!a3) {
                   c2[5413] = c2[5413] & ~(1 << b5);
-                  i2 = h2;
+                  i2 = h3;
                   b5 = g2;
                   break;
                 }
               } else {
                 i2 = f2 + 16 | 0;
-                c2[((c2[i2 >> 2] | 0) == (h2 | 0) ? i2 : f2 + 20 | 0) >> 2] = a3;
+                c2[((c2[i2 >> 2] | 0) == (h3 | 0) ? i2 : f2 + 20 | 0) >> 2] = a3;
                 if (!a3) {
-                  i2 = h2;
+                  i2 = h3;
                   b5 = g2;
                   break;
                 }
               }
               c2[a3 + 24 >> 2] = f2;
-              b5 = h2 + 16 | 0;
+              b5 = h3 + 16 | 0;
               d2 = c2[b5 >> 2] | 0;
               if (d2 | 0) {
                 c2[a3 + 16 >> 2] = d2;
@@ -124181,22 +123114,22 @@ function getModule() {
               if (b5) {
                 c2[a3 + 20 >> 2] = b5;
                 c2[b5 + 24 >> 2] = a3;
-                i2 = h2;
+                i2 = h3;
                 b5 = g2;
               } else {
-                i2 = h2;
+                i2 = h3;
                 b5 = g2;
               }
             } else {
-              i2 = h2;
+              i2 = h3;
               b5 = g2;
             }
           } else {
             i2 = d2;
-            h2 = d2;
+            h3 = d2;
           }
         while (0);
-        if (h2 >>> 0 >= j2 >>> 0)
+        if (h3 >>> 0 >= j2 >>> 0)
           return;
         a3 = j2 + 4 | 0;
         e2 = c2[a3 >> 2] | 0;
@@ -124217,9 +123150,9 @@ function getModule() {
           if ((c2[5417] | 0) == (j2 | 0)) {
             j2 = (c2[5414] | 0) + b5 | 0;
             c2[5414] = j2;
-            c2[5417] = h2;
+            c2[5417] = h3;
             c2[i2 + 4 >> 2] = j2 | 1;
-            c2[h2 + j2 >> 2] = j2;
+            c2[h3 + j2 >> 2] = j2;
             return;
           }
           f2 = (e2 & -8) + b5 | 0;
@@ -124309,7 +123242,7 @@ function getModule() {
             }
           while (0);
           c2[i2 + 4 >> 2] = f2 | 1;
-          c2[h2 + f2 >> 2] = f2;
+          c2[h3 + f2 >> 2] = f2;
           if ((i2 | 0) == (c2[5417] | 0)) {
             c2[5414] = f2;
             return;
@@ -124317,7 +123250,7 @@ function getModule() {
         } else {
           c2[a3 >> 2] = e2 & -2;
           c2[i2 + 4 >> 2] = b5 | 1;
-          c2[h2 + b5 >> 2] = b5;
+          c2[h3 + b5 >> 2] = b5;
           f2 = b5;
         }
         a3 = f2 >>> 3;
@@ -124344,12 +123277,12 @@ function getModule() {
           if (f2 >>> 0 > 16777215)
             e2 = 31;
           else {
-            h2 = (a3 + 1048320 | 0) >>> 16 & 8;
-            j2 = a3 << h2;
+            h3 = (a3 + 1048320 | 0) >>> 16 & 8;
+            j2 = a3 << h3;
             g2 = (j2 + 520192 | 0) >>> 16 & 4;
             j2 = j2 << g2;
             e2 = (j2 + 245760 | 0) >>> 16 & 2;
-            e2 = 14 - (g2 | h2 | e2) + (j2 << e2 >>> 15) | 0;
+            e2 = 14 - (g2 | h3 | e2) + (j2 << e2 >>> 15) | 0;
             e2 = f2 >>> (e2 + 7 | 0) & 1 | e2 << 1;
           }
         else
@@ -124394,10 +123327,10 @@ function getModule() {
                     break a;
                   }
                 while (0);
-              h2 = a3 + 8 | 0;
-              j2 = c2[h2 >> 2] | 0;
+              h3 = a3 + 8 | 0;
+              j2 = c2[h3 >> 2] | 0;
               c2[j2 + 12 >> 2] = i2;
-              c2[h2 >> 2] = i2;
+              c2[h3 >> 2] = i2;
               c2[i2 + 8 >> 2] = j2;
               c2[i2 + 12 >> 2] = a3;
               c2[i2 + 24 >> 2] = 0;
@@ -124504,22 +123437,22 @@ function getModule() {
         d2 = d2 | 0;
         e2 = e2 | 0;
         f2 = f2 | 0;
-        var g2 = 0, h2 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0;
+        var g2 = 0, h3 = 0, i2 = 0, j2 = 0, k2 = 0, l2 = 0, m2 = 0, n2 = 0, o2 = 0, p2 = 0;
         l2 = a3;
         j2 = b5;
         k2 = j2;
-        h2 = d2;
+        h3 = d2;
         n2 = e2;
         i2 = n2;
         if (!k2) {
           g2 = (f2 | 0) != 0;
           if (!i2) {
             if (g2) {
-              c2[f2 >> 2] = (l2 >>> 0) % (h2 >>> 0);
+              c2[f2 >> 2] = (l2 >>> 0) % (h3 >>> 0);
               c2[f2 + 4 >> 2] = 0;
             }
             n2 = 0;
-            f2 = (l2 >>> 0) / (h2 >>> 0) >>> 0;
+            f2 = (l2 >>> 0) / (h3 >>> 0) >>> 0;
             return (t(n2 | 0), f2) | 0;
           } else {
             if (!g2) {
@@ -124536,14 +123469,14 @@ function getModule() {
         }
         g2 = (i2 | 0) == 0;
         do
-          if (h2) {
+          if (h3) {
             if (!g2) {
               g2 = (r(i2 | 0) | 0) - (r(k2 | 0) | 0) | 0;
               if (g2 >>> 0 <= 31) {
                 m2 = g2 + 1 | 0;
                 i2 = 31 - g2 | 0;
                 b5 = g2 - 31 >> 31;
-                h2 = m2;
+                h3 = m2;
                 a3 = l2 >>> (m2 >>> 0) & b5 | k2 << i2;
                 b5 = k2 >>> (m2 >>> 0) & b5;
                 g2 = 0;
@@ -124561,15 +123494,15 @@ function getModule() {
               f2 = 0;
               return (t(n2 | 0), f2) | 0;
             }
-            g2 = h2 - 1 | 0;
-            if (g2 & h2 | 0) {
-              i2 = (r(h2 | 0) | 0) + 33 - (r(k2 | 0) | 0) | 0;
+            g2 = h3 - 1 | 0;
+            if (g2 & h3 | 0) {
+              i2 = (r(h3 | 0) | 0) + 33 - (r(k2 | 0) | 0) | 0;
               p2 = 64 - i2 | 0;
               m2 = 32 - i2 | 0;
               j2 = m2 >> 31;
               o2 = i2 - 32 | 0;
               b5 = o2 >> 31;
-              h2 = i2;
+              h3 = i2;
               a3 = m2 - 1 >> 31 & k2 >>> (o2 >>> 0) | (k2 << m2 | l2 >>> (i2 >>> 0)) & b5;
               b5 = b5 & k2 >>> (i2 >>> 0);
               g2 = l2 << p2 & j2;
@@ -124580,12 +123513,12 @@ function getModule() {
               c2[f2 >> 2] = g2 & l2;
               c2[f2 + 4 >> 2] = 0;
             }
-            if ((h2 | 0) == 1) {
+            if ((h3 | 0) == 1) {
               o2 = j2 | b5 & 0;
               p2 = a3 | 0 | 0;
               return (t(o2 | 0), p2) | 0;
             } else {
-              p2 = nr(h2 | 0) | 0;
+              p2 = nr(h3 | 0) | 0;
               o2 = k2 >>> (p2 >>> 0) | 0;
               p2 = k2 << 32 - p2 | l2 >>> (p2 >>> 0) | 0;
               return (t(o2 | 0), p2) | 0;
@@ -124593,11 +123526,11 @@ function getModule() {
           } else {
             if (g2) {
               if (f2 | 0) {
-                c2[f2 >> 2] = (k2 >>> 0) % (h2 >>> 0);
+                c2[f2 >> 2] = (k2 >>> 0) % (h3 >>> 0);
                 c2[f2 + 4 >> 2] = 0;
               }
               o2 = 0;
-              p2 = (k2 >>> 0) / (h2 >>> 0) >>> 0;
+              p2 = (k2 >>> 0) / (h3 >>> 0) >>> 0;
               return (t(o2 | 0), p2) | 0;
             }
             if (!l2) {
@@ -124623,7 +123556,7 @@ function getModule() {
             if (g2 >>> 0 <= 30) {
               b5 = g2 + 1 | 0;
               i2 = 31 - g2 | 0;
-              h2 = b5;
+              h3 = b5;
               a3 = k2 << i2 | l2 >>> (b5 >>> 0);
               b5 = k2 >>> (b5 >>> 0);
               g2 = 0;
@@ -124642,7 +123575,7 @@ function getModule() {
             return (t(o2 | 0), p2) | 0;
           }
         while (0);
-        if (!h2) {
+        if (!h3) {
           k2 = i2;
           j2 = 0;
           i2 = 0;
@@ -124665,17 +123598,17 @@ function getModule() {
             i2 = o2 & 1;
             a3 = mr(e2 | 0, n2 | 0, o2 & m2 | 0, (((p2 | 0) < 0 ? -1 : 0) >> 31 | ((p2 | 0) < 0 ? -1 : 0) << 1) & l2 | 0) | 0;
             b5 = u() | 0;
-            h2 = h2 - 1 | 0;
-          } while ((h2 | 0) != 0);
+            h3 = h3 - 1 | 0;
+          } while ((h3 | 0) != 0);
           k2 = j2;
           j2 = 0;
         }
-        h2 = 0;
+        h3 = 0;
         if (f2 | 0) {
           c2[f2 >> 2] = a3;
           c2[f2 + 4 >> 2] = b5;
         }
-        o2 = (g2 | 0) >>> 31 | (k2 | h2) << 1 | (h2 << 1 | g2 >>> 31) & 0 | j2;
+        o2 = (g2 | 0) >>> 31 | (k2 | h3) << 1 | (h3 << 1 | g2 >>> 31) & 0 | j2;
         p2 = (g2 << 1 | 0 >>> 31) & -2 | i2;
         return (t(o2 | 0), p2) | 0;
       }
@@ -124719,17 +123652,17 @@ function getModule() {
         b5 = b5 | 0;
         d2 = d2 | 0;
         e2 = e2 | 0;
-        var f2 = 0, g2 = 0, h2 = 0;
+        var f2 = 0, g2 = 0, h3 = 0;
         if ((e2 | 0) >= 512) {
           S(b5 | 0, d2 | 0, e2 | 0) | 0;
           return b5 | 0;
         }
-        h2 = b5 | 0;
+        h3 = b5 | 0;
         g2 = b5 + e2 | 0;
         if ((b5 & 3) == (d2 & 3)) {
           while (b5 & 3) {
             if (!e2)
-              return h2 | 0;
+              return h3 | 0;
             a2[b5 >> 0] = a2[d2 >> 0] | 0;
             b5 = b5 + 1 | 0;
             d2 = d2 + 1 | 0;
@@ -124778,7 +123711,7 @@ function getModule() {
           b5 = b5 + 1 | 0;
           d2 = d2 + 1 | 0;
         }
-        return h2 | 0;
+        return h3 | 0;
       }
       function vr(b5, c3, d2) {
         b5 = b5 | 0;
@@ -124804,15 +123737,15 @@ function getModule() {
         b5 = b5 | 0;
         d2 = d2 | 0;
         e2 = e2 | 0;
-        var f2 = 0, g2 = 0, h2 = 0, i2 = 0;
-        h2 = b5 + e2 | 0;
+        var f2 = 0, g2 = 0, h3 = 0, i2 = 0;
+        h3 = b5 + e2 | 0;
         d2 = d2 & 255;
         if ((e2 | 0) >= 67) {
           while (b5 & 3) {
             a2[b5 >> 0] = d2;
             b5 = b5 + 1 | 0;
           }
-          f2 = h2 & -4 | 0;
+          f2 = h3 & -4 | 0;
           i2 = d2 | d2 << 8 | d2 << 16 | d2 << 24;
           g2 = f2 - 64 | 0;
           while ((b5 | 0) <= (g2 | 0)) {
@@ -124839,11 +123772,11 @@ function getModule() {
             b5 = b5 + 4 | 0;
           }
         }
-        while ((b5 | 0) < (h2 | 0)) {
+        while ((b5 | 0) < (h3 | 0)) {
           a2[b5 >> 0] = d2;
           b5 = b5 + 1 | 0;
         }
-        return h2 - e2 | 0;
+        return h3 - e2 | 0;
       }
       function xr(a3) {
         a3 = a3 | 0;
@@ -126338,6 +125271,688 @@ async function parseLAS2(params, options = {}) {
   }
 }
 
+// ../sdk/src/formats/e57/index.ts
+var e57_exports = {};
+__export(e57_exports, {
+  E57Exporter: () => E57Exporter,
+  E57Loader: () => E57Loader
+});
+
+// ../sdk/src/formats/e57/parser/parseE57Header.ts
+var E57_HEADER_LENGTH = 48;
+var SIGNATURE = "ASTM-E57";
+function parseE57Header(fileData) {
+  if (fileData.byteLength < E57_HEADER_LENGTH) {
+    throw new Error(
+      `[parseE57Header] file is ${fileData.byteLength} bytes \u2014 too short for a ${E57_HEADER_LENGTH}-byte E57 header`
+    );
+  }
+  const bytes = new Uint8Array(fileData, 0, E57_HEADER_LENGTH);
+  let signature = "";
+  for (let i = 0; i < 8; i++)
+    signature += String.fromCharCode(bytes[i]);
+  if (signature !== SIGNATURE) {
+    throw new Error(`[parseE57Header] bad signature '${signature}' (expected '${SIGNATURE}') \u2014 not an E57 file`);
+  }
+  const view = new DataView(fileData, 0, E57_HEADER_LENGTH);
+  const u64 = (off) => Number(view.getBigUint64(off, true));
+  const header = {
+    signature,
+    versionMajor: view.getUint32(8, true),
+    versionMinor: view.getUint32(12, true),
+    filePhysicalLength: u64(16),
+    xmlPhysicalOffset: u64(24),
+    xmlLogicalLength: u64(32),
+    pageSize: u64(40)
+  };
+  if (header.pageSize <= 4) {
+    throw new Error(`[parseE57Header] invalid pageSize ${header.pageSize}`);
+  }
+  return header;
+}
+
+// ../sdk/src/formats/e57/parser/e57PageReader.ts
+function buildLogicalStream(fileData, pageSize) {
+  const data2 = new Uint8Array(fileData);
+  const dataPerPage = pageSize - 4;
+  const pageCount = Math.ceil(data2.length / pageSize);
+  const out = new Uint8Array(pageCount * dataPerPage);
+  let w2 = 0;
+  for (let p = 0; p < pageCount; p++) {
+    const start = p * pageSize;
+    const end = Math.min(start + dataPerPage, data2.length);
+    out.set(data2.subarray(start, end), w2);
+    w2 += end - start;
+  }
+  return out.subarray(0, w2);
+}
+function physicalToLogical(physicalOffset, pageSize) {
+  const dataPerPage = pageSize - 4;
+  return Math.floor(physicalOffset / pageSize) * dataPerPage + physicalOffset % pageSize;
+}
+function logicalToPhysical(logicalOffset, pageSize) {
+  const dataPerPage = pageSize - 4;
+  return Math.floor(logicalOffset / dataPerPage) * pageSize + logicalOffset % dataPerPage;
+}
+
+// ../sdk/src/formats/e57/parser/crc32c.ts
+var TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c2 = n;
+    for (let k = 0; k < 8; k++) {
+      c2 = c2 & 1 ? 2197175160 ^ c2 >>> 1 : c2 >>> 1;
+    }
+    t[n] = c2 >>> 0;
+  }
+  return t;
+})();
+function crc32c(bytes, start = 0, end = bytes.length) {
+  let crc = 4294967295;
+  for (let i = start; i < end; i++) {
+    crc = crc >>> 8 ^ TABLE[(crc ^ bytes[i]) & 255];
+  }
+  return (crc ^ 4294967295) >>> 0;
+}
+
+// ../sdk/src/formats/e57/parser/parseE57Xml.ts
+function parseE57Xml(xml) {
+  if (typeof DOMParser === "undefined") {
+    throw new Error("[parseE57Xml] no DOMParser available \u2014 install a DOMParser polyfill under Node");
+  }
+  const doc = new DOMParser().parseFromString(xml, "application/xml");
+  const root = doc.documentElement;
+  if (!root || localName(root) !== "e57Root") {
+    throw new Error(`[parseE57Xml] expected <e57Root>, got <${root ? localName(root) : "null"}>`);
+  }
+  const pointClouds = [];
+  const data3D = childByLocalName(root, "data3D");
+  if (data3D) {
+    for (const child of childrenByLocalName(data3D, "vectorChild")) {
+      pointClouds.push(parsePointCloud(child));
+    }
+  }
+  return { pointClouds };
+}
+function parsePointCloud(el2) {
+  const points = childByLocalName(el2, "points");
+  if (!points) {
+    throw new Error("[parseE57Xml] data3D child has no <points> CompressedVector");
+  }
+  const fileOffset = intAttr(points, "fileOffset");
+  const recordCount = intAttr(points, "recordCount");
+  if (fileOffset === void 0 || recordCount === void 0) {
+    throw new Error("[parseE57Xml] <points> missing fileOffset / recordCount");
+  }
+  const protoEl = childByLocalName(points, "prototype");
+  if (!protoEl) {
+    throw new Error("[parseE57Xml] <points> has no <prototype>");
+  }
+  const prototype = childElements(protoEl).map(parseField);
+  return {
+    guid: textOf(childByLocalName(el2, "guid")),
+    name: textOf(childByLocalName(el2, "name")),
+    pose: parsePose(childByLocalName(el2, "pose")),
+    cartesianBounds: parseBounds(childByLocalName(el2, "cartesianBounds")),
+    prototype,
+    recordCount,
+    pointsFileOffset: fileOffset
+  };
+}
+function parseField(el2) {
+  const type = el2.getAttribute("type");
+  const precision = el2.getAttribute("precision");
+  return {
+    name: localName(el2),
+    type,
+    precision: precision === "single" || precision === "double" ? precision : void 0,
+    minimum: floatAttr(el2, "minimum") ?? 0,
+    maximum: floatAttr(el2, "maximum") ?? 0,
+    scale: floatAttr(el2, "scale") ?? 1,
+    offset: floatAttr(el2, "offset") ?? 0
+  };
+}
+function parsePose(el2) {
+  if (!el2)
+    return void 0;
+  const rot = childByLocalName(el2, "rotation");
+  const trans = childByLocalName(el2, "translation");
+  if (!rot || !trans)
+    return void 0;
+  const f = (parent, name12) => floatText(childByLocalName(parent, name12)) ?? 0;
+  return {
+    rotation: [f(rot, "w"), f(rot, "x"), f(rot, "y"), f(rot, "z")],
+    translation: [f(trans, "x"), f(trans, "y"), f(trans, "z")]
+  };
+}
+function parseBounds(el2) {
+  if (!el2)
+    return void 0;
+  const f = (name12) => floatText(childByLocalName(el2, name12)) ?? 0;
+  return {
+    xMinimum: f("xMinimum"),
+    xMaximum: f("xMaximum"),
+    yMinimum: f("yMinimum"),
+    yMaximum: f("yMaximum"),
+    zMinimum: f("zMinimum"),
+    zMaximum: f("zMaximum")
+  };
+}
+function localName(el2) {
+  return el2.localName || el2.nodeName.replace(/^.*:/, "");
+}
+function childElements(parent) {
+  const out = [];
+  for (let n = parent.firstElementChild; n; n = n.nextElementSibling)
+    out.push(n);
+  return out;
+}
+function childByLocalName(parent, name12) {
+  for (let n = parent.firstElementChild; n; n = n.nextElementSibling) {
+    if (localName(n) === name12)
+      return n;
+  }
+  return null;
+}
+function childrenByLocalName(parent, name12) {
+  return childElements(parent).filter((n) => localName(n) === name12);
+}
+function textOf(el2) {
+  const t = el2?.textContent?.trim();
+  return t ? t : void 0;
+}
+function floatText(el2) {
+  const t = textOf(el2);
+  if (t === void 0)
+    return void 0;
+  const v = parseFloat(t);
+  return Number.isNaN(v) ? void 0 : v;
+}
+function intAttr(el2, name12) {
+  const v = el2.getAttribute(name12);
+  if (v === null)
+    return void 0;
+  const n = parseInt(v, 10);
+  return Number.isNaN(n) ? void 0 : n;
+}
+function floatAttr(el2, name12) {
+  const v = el2.getAttribute(name12);
+  if (v === null)
+    return void 0;
+  const n = parseFloat(v);
+  return Number.isNaN(n) ? void 0 : n;
+}
+
+// ../sdk/src/formats/e57/parser/decodeCompressedVector.ts
+var DATA_PACKET = 1;
+var SECTION_HEADER_LENGTH = 32;
+function decodeCompressedVector(logical2, scan, pageSize) {
+  const view = new DataView(logical2.buffer, logical2.byteOffset, logical2.byteLength);
+  const fields = scan.prototype;
+  const n = scan.recordCount;
+  const sectionStart = physicalToLogical(scan.pointsFileOffset, pageSize);
+  if (sectionStart + SECTION_HEADER_LENGTH > logical2.length) {
+    throw new Error("[decodeCompressedVector] section header runs past end of stream");
+  }
+  const dataPhysicalOffset = Number(view.getBigUint64(sectionStart + 16, true));
+  const required = fields.map((f) => requiredBytes(f, n));
+  const chunks = fields.map(() => []);
+  const have = new Array(fields.length).fill(0);
+  let off = physicalToLogical(dataPhysicalOffset, pageSize);
+  while (off + 6 <= logical2.length && view.getUint8(off) === DATA_PACKET) {
+    const packetLength = view.getUint16(off + 2, true) + 1;
+    const bytestreamCount = view.getUint16(off + 4, true);
+    let p = off + 6;
+    const bsLengths = [];
+    for (let i = 0; i < bytestreamCount; i++) {
+      bsLengths.push(view.getUint16(p, true));
+      p += 2;
+    }
+    for (let i = 0; i < bytestreamCount && i < fields.length; i++) {
+      chunks[i].push(logical2.subarray(p, p + bsLengths[i]));
+      have[i] += bsLengths[i];
+      p += bsLengths[i];
+    }
+    off += packetLength + (4 - (packetLength & 3) & 3);
+    if (have.every((h2, i) => h2 >= required[i]))
+      break;
+  }
+  const columns = /* @__PURE__ */ new Map();
+  for (let i = 0; i < fields.length; i++) {
+    columns.set(fields[i].name, decodeField(fields[i], concat2(chunks[i]), n));
+  }
+  return columns;
+}
+function requiredBytes(field, n) {
+  if (field.type === "Float") {
+    return n * (field.precision === "single" ? 4 : 8);
+  }
+  return Math.ceil(n * bitWidth(field) / 8);
+}
+function bitWidth(field) {
+  const range = field.maximum - field.minimum;
+  return range <= 0 ? 0 : Math.floor(Math.log2(range)) + 1;
+}
+function decodeField(field, bytes, n) {
+  const out = new Float64Array(n);
+  if (field.type === "Float") {
+    const single = field.precision === "single";
+    const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    for (let k = 0; k < n; k++)
+      out[k] = single ? dv.getFloat32(k * 4, true) : dv.getFloat64(k * 8, true);
+    return out;
+  }
+  const width = bitWidth(field);
+  const { minimum, scale: scale3, offset } = field;
+  let bitPos = 0;
+  for (let k = 0; k < n; k++) {
+    let raw = 0;
+    for (let b4 = 0; b4 < width; b4++) {
+      raw |= (bytes[bitPos >> 3] >> (bitPos & 7) & 1) << b4;
+      bitPos++;
+    }
+    out[k] = ((raw >>> 0) + minimum) * scale3 + offset;
+  }
+  return out;
+}
+function concat2(chunks) {
+  if (chunks.length === 1)
+    return chunks[0];
+  let total = 0;
+  for (const c2 of chunks)
+    total += c2.length;
+  const out = new Uint8Array(total);
+  let w2 = 0;
+  for (const c2 of chunks) {
+    out.set(c2, w2);
+    w2 += c2.length;
+  }
+  return out;
+}
+
+// ../sdk/src/formats/e57/parser/readE57.ts
+function readE57(fileData) {
+  const header = parseE57Header(fileData);
+  const logical2 = buildLogicalStream(fileData, header.pageSize);
+  const xmlStart = physicalToLogical(header.xmlPhysicalOffset, header.pageSize);
+  const xmlEnd = xmlStart + header.xmlLogicalLength;
+  if (xmlEnd > logical2.length) {
+    throw new Error("[readE57] XML section runs past end of file \u2014 truncated or corrupt");
+  }
+  const xml = new TextDecoder("utf-8").decode(logical2.subarray(xmlStart, xmlEnd));
+  const document2 = parseE57Xml(xml);
+  return { header, logical: logical2, document: document2 };
+}
+
+// ../sdk/src/formats/e57/E57Loader.ts
+var MAX_VERTICES2 = 2e4;
+var E57Loader = class extends ModelLoader {
+  constructor() {
+    super({
+      format: "E57",
+      fileDataType: "arraybuffer",
+      parsers: {
+        "*": parseE57Model
+      },
+      getVersion: () => "*"
+    });
+  }
+  load(params, options = {}) {
+    return super.load(params, options);
+  }
+};
+async function parseE57Model(params, options = {}) {
+  const { sceneModel, dataModel, fileData } = params;
+  if (!sceneModel && !dataModel) {
+    return;
+  }
+  const skip = Math.max(1, Math.floor(options.skip || 1));
+  const log2 = (msg) => params.log && params.log(msg);
+  const signal = options.signal;
+  const onProgress = options.onProgress;
+  const progress = { phase: "Parsing E57", current: 0, total: 0 };
+  const step2 = async (phase, current, total) => {
+    if (onProgress) {
+      progress.phase = phase;
+      progress.current = current;
+      progress.total = total;
+      onProgress(progress);
+    }
+    await yieldToHost(signal);
+  };
+  await step2("Parsing E57", 0, 0);
+  let file;
+  try {
+    file = readE57(fileData);
+  } catch (e) {
+    throw new Error(`[E57Loader] Error parsing E57 -> ${e.message || e}`);
+  }
+  const { document: document2, logical: logical2, header } = file;
+  const rootId = createUUID();
+  if (dataModel) {
+    dataModel.createObject({ id: rootId, type: "BasicEntity", name: "Model" });
+  }
+  const scans = document2.pointClouds;
+  for (let s = 0; s < scans.length; s++) {
+    const pc = scans[s];
+    await step2(`Decoding scan ${s + 1} / ${scans.length}`, s, scans.length);
+    const columns = decodeCompressedVector(logical2, pc, header.pageSize);
+    const objectId = sceneModel ? await buildScanObject(sceneModel, pc, columns, s, skip, options, log2, step2) : createUUID();
+    if (dataModel && objectId) {
+      dataModel.createObject({ id: objectId, type: "BasicEntity", name: pc.name || `Scan ${s + 1}` });
+      dataModel.createRelationship({ type: "BasicAggregation", relatingObjectId: rootId, relatedObjectId: objectId });
+    }
+  }
+  await step2("Done", scans.length, scans.length);
+}
+async function buildScanObject(sceneModel, pc, columns, scanIndex, skip, options, log2, step2) {
+  const X = columns.get("cartesianX");
+  const Y = columns.get("cartesianY");
+  const Z = columns.get("cartesianZ");
+  if (!X || !Y || !Z) {
+    log2(`[E57Loader] scan ${scanIndex} has no cartesian coordinates (spherical not supported in v1) \u2014 skipped`);
+    return null;
+  }
+  const invalid = columns.get("cartesianInvalidState");
+  const red = columns.get("colorRed");
+  const green = columns.get("colorGreen");
+  const blue = columns.get("colorBlue");
+  const intensity = columns.get("intensity");
+  const hasColor = !!(red && green && blue);
+  const useIntensity = !hasColor && !!intensity && !!options.intensityAsColor;
+  let pose = null;
+  if (pc.pose) {
+    const r = pc.pose.rotation, t = pc.pose.translation;
+    pose = composeMat4([t[0], t[1], t[2]], [r[1], r[2], r[3], r[0]], [1, 1, 1]);
+  }
+  const n = pc.recordCount;
+  const isValid = (i) => !invalid || invalid[i] === 0;
+  let iMin = Infinity, iMax = -Infinity;
+  if (useIntensity && intensity) {
+    for (let i = 0; i < n; i++) {
+      if (!isValid(i))
+        continue;
+      const v = intensity[i];
+      if (v < iMin)
+        iMin = v;
+      if (v > iMax)
+        iMax = v;
+    }
+  }
+  const iRange = iMax > iMin ? iMax - iMin : 1;
+  const positions = [];
+  const colors = [];
+  const p = createVec3Float64();
+  let sx = 0, sy = 0, sz = 0, kept = 0;
+  for (let i = 0; i < n; i++) {
+    if (i % skip !== 0 || !isValid(i))
+      continue;
+    p[0] = X[i];
+    p[1] = Y[i];
+    p[2] = Z[i];
+    if (pose)
+      transformPoint3(pose, p, p);
+    positions.push(p[0], p[1], p[2]);
+    sx += p[0];
+    sy += p[1];
+    sz += p[2];
+    if (hasColor) {
+      colors.push(red[i], green[i], blue[i], 255);
+    } else if (useIntensity && intensity) {
+      const g = Math.round((intensity[i] - iMin) / iRange * 255);
+      colors.push(g, g, g, 255);
+    } else {
+      colors.push(255, 255, 255, 255);
+    }
+    kept++;
+  }
+  if (kept === 0) {
+    log2(`[E57Loader] scan ${scanIndex} has no valid points after filtering \u2014 skipped`);
+    return null;
+  }
+  const origin2 = createVec3Float64([sx / kept, sy / kept, sz / kept]);
+  for (let i = 0; i < positions.length; i += 3) {
+    positions[i] -= origin2[0];
+    positions[i + 1] -= origin2[1];
+    positions[i + 2] -= origin2[2];
+  }
+  const objectId = createUUID();
+  const meshIds = [];
+  const chunks = Math.ceil(kept / MAX_VERTICES2);
+  for (let c2 = 0; c2 < chunks; c2++) {
+    await step2(`Building scan ${scanIndex + 1}`, c2, chunks);
+    const from = c2 * MAX_VERTICES2;
+    const to = Math.min(from + MAX_VERTICES2, kept);
+    const geometryId = `scan-${scanIndex}-geometry-${c2}`;
+    const geometryResult = sceneModel.createGeometry({
+      id: geometryId,
+      primitive: PointsPrimitive,
+      positions: positions.slice(from * 3, to * 3),
+      colorsCompressed: new Uint8Array(colors.slice(from * 4, to * 4))
+    });
+    if (geometryResult.ok === false) {
+      log2(`[E57Loader] cannot create geometry -> ${geometryResult.error}`);
+      continue;
+    }
+    const meshId = `scan-${scanIndex}-mesh-${c2}`;
+    const meshResult = sceneModel.createMesh({ id: meshId, geometryId, origin: origin2 });
+    if (meshResult.ok === false) {
+      log2(`[E57Loader] cannot create mesh -> ${meshResult.error}`);
+      continue;
+    }
+    meshIds.push(meshId);
+  }
+  if (meshIds.length === 0) {
+    return null;
+  }
+  sceneModel.createObject({ id: objectId, meshIds, layerId: options.layerId });
+  return objectId;
+}
+
+// ../sdk/src/formats/e57/E57Exporter.ts
+var PAGE_SIZE = 1024;
+var SECTION_LOGICAL_START = 48;
+var SECTION_HEADER_LENGTH2 = 32;
+var DATA_PACKET2 = 1;
+var COMPRESSED_VECTOR_SECTION = 1;
+var RECORDS_PER_PACKET = 4e3;
+var E57Exporter = class extends ModelExporter {
+  constructor() {
+    super({
+      format: "E57",
+      fileDataType: "arraybuffer",
+      encoders: { "1.0": encodeE57 },
+      defaultVersion: "1.0"
+    });
+  }
+};
+async function encodeE57(params) {
+  const { sceneModel } = params;
+  if (!sceneModel) {
+    throw new Error("[E57Exporter] a sceneModel is required");
+  }
+  const positions = [];
+  const colors = [];
+  let anyColor = false;
+  const b4 = { xmin: Infinity, xmax: -Infinity, ymin: Infinity, ymax: -Infinity, zmin: Infinity, zmax: -Infinity };
+  const local = createVec3Float64();
+  const world = createVec3Float64();
+  for (const objectId of Object.keys(sceneModel.objects)) {
+    for (const mesh of sceneModel.objects[objectId].meshes) {
+      const geom = mesh.geometry;
+      if (!geom || geom.primitive !== PointsPrimitive)
+        continue;
+      const pc = geom.positionsCompressed;
+      const aabb = geom.aabb;
+      if (!pc || !aabb)
+        continue;
+      const wm = mesh.worldMatrix;
+      const cc = geom.colorsCompressed;
+      if (cc)
+        anyColor = true;
+      const np = pc.length / 3 | 0;
+      for (let i = 0; i < np; i++) {
+        local[0] = pc[i * 3];
+        local[1] = pc[i * 3 + 1];
+        local[2] = pc[i * 3 + 2];
+        decompressPoint3WithAABB3(local, aabb, local);
+        transformPoint3(wm, local, world);
+        const x = world[0], y = world[1], z = world[2];
+        positions.push(x, y, z);
+        if (x < b4.xmin)
+          b4.xmin = x;
+        if (x > b4.xmax)
+          b4.xmax = x;
+        if (y < b4.ymin)
+          b4.ymin = y;
+        if (y > b4.ymax)
+          b4.ymax = y;
+        if (z < b4.zmin)
+          b4.zmin = z;
+        if (z > b4.zmax)
+          b4.zmax = z;
+        if (cc)
+          colors.push(cc[i * 4], cc[i * 4 + 1], cc[i * 4 + 2]);
+        else
+          colors.push(255, 255, 255);
+      }
+    }
+  }
+  const count = positions.length / 3 | 0;
+  if (count === 0) {
+    throw new Error("[E57Exporter] no point-cloud geometry found to export");
+  }
+  const hasColor = anyColor;
+  const dataPhysicalOffset = logicalToPhysical(SECTION_LOGICAL_START + SECTION_HEADER_LENGTH2, PAGE_SIZE);
+  const packets = buildPackets(positions, colors, hasColor, count);
+  const sectionLength = SECTION_HEADER_LENGTH2 + packets.length;
+  const section = new Uint8Array(sectionLength);
+  const sdv = new DataView(section.buffer);
+  sdv.setUint8(0, COMPRESSED_VECTOR_SECTION);
+  sdv.setBigUint64(8, BigInt(sectionLength), true);
+  sdv.setBigUint64(16, BigInt(dataPhysicalOffset), true);
+  sdv.setBigUint64(24, 0n, true);
+  section.set(packets, SECTION_HEADER_LENGTH2);
+  const fileOffset = logicalToPhysical(SECTION_LOGICAL_START, PAGE_SIZE);
+  const xmlBytes = new TextEncoder().encode(buildXml(sceneModel.id, fileOffset, count, hasColor, b4));
+  const xmlLogicalStart = SECTION_LOGICAL_START + section.length;
+  const xmlPhysicalOffset = logicalToPhysical(xmlLogicalStart, PAGE_SIZE);
+  const logicalLength = xmlLogicalStart + xmlBytes.length;
+  const pages = Math.ceil(logicalLength / (PAGE_SIZE - 4));
+  const filePhysicalLength = pages * PAGE_SIZE;
+  const logical2 = new Uint8Array(logicalLength);
+  const sig = "ASTM-E57";
+  for (let i = 0; i < 8; i++)
+    logical2[i] = sig.charCodeAt(i);
+  const hdv = new DataView(logical2.buffer, 0, SECTION_LOGICAL_START);
+  hdv.setUint32(8, 1, true);
+  hdv.setUint32(12, 0, true);
+  hdv.setBigUint64(16, BigInt(filePhysicalLength), true);
+  hdv.setBigUint64(24, BigInt(xmlPhysicalOffset), true);
+  hdv.setBigUint64(32, BigInt(xmlBytes.length), true);
+  hdv.setBigUint64(40, BigInt(PAGE_SIZE), true);
+  logical2.set(section, SECTION_LOGICAL_START);
+  logical2.set(xmlBytes, xmlLogicalStart);
+  return toPhysical(logical2);
+}
+function buildPackets(positions, colors, hasColor, count) {
+  const nFields = hasColor ? 6 : 3;
+  const parts = [];
+  for (let from = 0; from < count; from += RECORDS_PER_PACKET) {
+    const recs = Math.min(RECORDS_PER_PACKET, count - from);
+    const xyzBytes = recs * 4;
+    const bsLens = hasColor ? [xyzBytes, xyzBytes, xyzBytes, recs, recs, recs] : [xyzBytes, xyzBytes, xyzBytes];
+    const bufLen = bsLens.reduce((a2, c2) => a2 + c2, 0);
+    let packetLen = 6 + 2 * nFields + bufLen;
+    packetLen += 4 - (packetLen & 3) & 3;
+    const pk = new Uint8Array(packetLen);
+    const dv = new DataView(pk.buffer);
+    dv.setUint8(0, DATA_PACKET2);
+    dv.setUint8(1, 0);
+    dv.setUint16(2, packetLen - 1, true);
+    dv.setUint16(4, nFields, true);
+    let p = 6;
+    for (const L of bsLens) {
+      dv.setUint16(p, L, true);
+      p += 2;
+    }
+    for (let axis = 0; axis < 3; axis++) {
+      for (let k = 0; k < recs; k++)
+        dv.setFloat32(p + k * 4, positions[(from + k) * 3 + axis], true);
+      p += xyzBytes;
+    }
+    if (hasColor) {
+      for (let ch = 0; ch < 3; ch++) {
+        for (let k = 0; k < recs; k++)
+          pk[p + k] = colors[(from + k) * 3 + ch];
+        p += recs;
+      }
+    }
+    parts.push(pk);
+  }
+  return concat3(parts);
+}
+function buildXml(name12, fileOffset, count, hasColor, b4) {
+  const colorProto = hasColor ? `
+          <colorRed type="Integer" minimum="0" maximum="255"/>
+          <colorGreen type="Integer" minimum="0" maximum="255"/>
+          <colorBlue type="Integer" minimum="0" maximum="255"/>` : "";
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<e57Root type="Structure" xmlns="http://www.astm.org/COMMIT/E57/2010-e57-v1.0">
+  <formatName type="String"><![CDATA[ASTM E57 3D Imaging Data File]]></formatName>
+  <guid type="String"><![CDATA[{${createUUID()}}]]></guid>
+  <versionMajor type="Integer">1</versionMajor>
+  <versionMinor type="Integer">0</versionMinor>
+  <e57LibraryVersion type="String"><![CDATA[@xeokit/sdk]]></e57LibraryVersion>
+  <data3D type="Vector" allowHeterogeneousChildren="1">
+    <vectorChild type="Structure">
+      <guid type="String"><![CDATA[{${createUUID()}}]]></guid>
+      <name type="String"><![CDATA[${name12}]]></name>
+      <cartesianBounds type="Structure">
+        <xMinimum type="Float">${b4.xmin}</xMinimum><xMaximum type="Float">${b4.xmax}</xMaximum>
+        <yMinimum type="Float">${b4.ymin}</yMinimum><yMaximum type="Float">${b4.ymax}</yMaximum>
+        <zMinimum type="Float">${b4.zmin}</zMinimum><zMaximum type="Float">${b4.zmax}</zMaximum>
+      </cartesianBounds>
+      <points type="CompressedVector" fileOffset="${fileOffset}" recordCount="${count}">
+        <prototype type="Structure">
+          <cartesianX type="Float" precision="single" minimum="${b4.xmin}" maximum="${b4.xmax}"/>
+          <cartesianY type="Float" precision="single" minimum="${b4.ymin}" maximum="${b4.ymax}"/>
+          <cartesianZ type="Float" precision="single" minimum="${b4.zmin}" maximum="${b4.zmax}"/>${colorProto}
+        </prototype>
+        <codecs type="Vector" allowHeterogeneousChildren="1"/>
+      </points>
+    </vectorChild>
+  </data3D>
+  <images2D type="Vector" allowHeterogeneousChildren="1"/>
+</e57Root>`;
+}
+function toPhysical(logical2) {
+  const dataPer = PAGE_SIZE - 4;
+  const pages = Math.ceil(logical2.length / dataPer);
+  const out = new Uint8Array(pages * PAGE_SIZE);
+  const dv = new DataView(out.buffer);
+  for (let p = 0; p < pages; p++) {
+    const ls = p * dataPer;
+    const le = Math.min(ls + dataPer, logical2.length);
+    out.set(logical2.subarray(ls, le), p * PAGE_SIZE);
+    const crc = crc32c(out, p * PAGE_SIZE, p * PAGE_SIZE + dataPer);
+    dv.setUint32(p * PAGE_SIZE + dataPer, crc, false);
+  }
+  return out;
+}
+function concat3(parts) {
+  let total = 0;
+  for (const c2 of parts)
+    total += c2.length;
+  const out = new Uint8Array(total);
+  let w2 = 0;
+  for (const c2 of parts) {
+    out.set(c2, w2);
+    w2 += c2.length;
+  }
+  return out;
+}
+
 // ../sdk/src/formats/dotbim/index.ts
 var dotbim_exports = {};
 __export(dotbim_exports, {
@@ -126347,7 +125962,7 @@ __export(dotbim_exports, {
 
 // ../sdk/src/formats/dotbim/versions/1_0_0/parse.ts
 var SCHEMA3 = "IFC4";
-var parse11 = async (params, options) => {
+var parse9 = async (params, options) => {
   const fileData = params.fileData;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -126403,14 +126018,14 @@ var parse11 = async (params, options) => {
           position: [vector.x, vector.y, vector.z]
         });
         if (meshRes.ok === false) {
-          throw new Error(`[DotBIMLoader.load] Failed to create scene mesh -> ${meshRes.error}`);
+          continue;
         }
         const sceneObjectRes = params.sceneModel.createObject({
           id: objectId,
           meshIds: [meshId]
         });
         if (sceneObjectRes.ok === false) {
-          throw new Error(`[DotBIMLoader.load] Failed to create scene object -> ${sceneObjectRes.error}`);
+          continue;
         }
       }
       if (params.dataModel) {
@@ -126423,7 +126038,6 @@ var parse11 = async (params, options) => {
             description: info?.Description
           });
           if (dataObjectRes.ok === false) {
-            throw new Error(`[DotBIMLoader.load] Failed to create data object -> ${dataObjectRes.error}`);
           }
         }
       }
@@ -126439,7 +126053,7 @@ var parse11 = async (params, options) => {
 
 // ../sdk/src/formats/dotbim/versions/1_1_0/parse.ts
 var SCHEMA4 = "IFC4";
-var parse12 = async (params, options) => {
+var parse10 = async (params, options) => {
   const fileData = params.fileData;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -126535,8 +126149,8 @@ var DotBIMLoader = class extends ModelLoader {
       format: "DotBIM",
       fileDataType: "json",
       parsers: {
-        "1.0.0": parse11,
-        "1.1.0": parse12
+        "1.0.0": parse9,
+        "1.1.0": parse10
       },
       getVersion: (sourceFileData) => {
         return sourceFileData.schema_version || "1.0.0";
@@ -126549,7 +126163,7 @@ var DotBIMLoader = class extends ModelLoader {
 var tempVec3a6 = createVec3Float64();
 var tempVec3b6 = createVec3Float64();
 var tempMat4a4 = createMat4Float64();
-async function encode13(params, options) {
+async function encode11(params, options) {
   const { sceneModel, dataModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -126689,7 +126303,7 @@ async function encode13(params, options) {
 var tempVec3a7 = createVec3Float64();
 var tempVec3b7 = createVec3Float64();
 var tempMat4a5 = createMat4Float64();
-async function encode14(params, options) {
+async function encode12(params, options) {
   const { sceneModel, dataModel } = params;
   const opts = options || {};
   const onProgress = opts.onProgress;
@@ -126833,8 +126447,8 @@ var DotBIMExporter = class extends ModelExporter {
       format: "DotBIM",
       fileDataType: "json",
       encoders: {
-        "1.0.0": encode13,
-        "1.1.0": encode14
+        "1.0.0": encode11,
+        "1.1.0": encode12
       },
       defaultVersion: "1.1.0"
     });
@@ -126849,7 +126463,7 @@ __export(scenemodel_exports, {
 });
 
 // ../sdk/src/formats/scenemodel/versions/1_0/parse.ts
-function parse13(params, options) {
+function parse11(params, options) {
   return new Promise(function(resolve2, reject) {
     if (params.sceneModel && params.fileData) {
       const result = params.sceneModel.fromParams(params.fileData);
@@ -126871,7 +126485,7 @@ var SceneModelImporter = class extends ModelLoader {
       format: "SceneModelParams",
       fileDataType: "json",
       parsers: {
-        "1.0": parse13
+        "1.0": parse11
       },
       getVersion: (fileData) => {
         return fileData.version || "1.0";
@@ -126881,7 +126495,7 @@ var SceneModelImporter = class extends ModelLoader {
 };
 
 // ../sdk/src/formats/scenemodel/versions/1_0/encode.ts
-async function encode15(params, options) {
+async function encode13(params, options) {
   const opts = options || {};
   const onProgress = opts.onProgress;
   const signal = opts.signal;
@@ -126913,7 +126527,7 @@ var SceneModelExporter = class extends ModelExporter {
       format: "SceneModelParams",
       fileDataType: "json",
       encoders: {
-        "1.0": encode15
+        "1.0": encode13
       },
       defaultVersion: "1.0"
     });
@@ -126928,7 +126542,7 @@ __export(datamodel_exports, {
 });
 
 // ../sdk/src/formats/datamodel/versions/1_0/encode.ts
-async function encode16(params, options) {
+async function encode14(params, options) {
   const opts = options || {};
   const onProgress = opts.onProgress;
   const signal = opts.signal;
@@ -126958,7 +126572,7 @@ var DataModelExporter = class extends ModelExporter {
       format: "DataModelParams",
       fileDataType: "json",
       encoders: {
-        "1.0": encode16
+        "1.0": encode14
       },
       defaultVersion: "1.0"
     });
@@ -127139,8 +126753,8 @@ async function encodeSplatModel(params) {
       const x = geomRotations ? geomRotations[i * 4] : 0;
       const y = geomRotations ? geomRotations[i * 4 + 1] : 0;
       const z = geomRotations ? geomRotations[i * 4 + 2] : 0;
-      const w = geomRotations ? geomRotations[i * 4 + 3] : 1;
-      rotations[s * 4] = w;
+      const w2 = geomRotations ? geomRotations[i * 4 + 3] : 1;
+      rotations[s * 4] = w2;
       rotations[s * 4 + 1] = x;
       rotations[s * 4 + 2] = y;
       rotations[s * 4 + 3] = z;
@@ -127392,1439 +127006,20 @@ __export(xkt_exports, {
   XKTLoader: () => XKTLoader
 });
 
-// ../sdk/src/formats/legacy/xkt/versions/v12/unpackXKT.ts
-function unpackXKT(arrayBuffer) {
-  const requiresSwapFromLittleEndian = function() {
-    const b4 = new ArrayBuffer(2);
-    new Uint16Array(b4)[0] = 1;
-    return new Uint8Array(b4)[0] !== 1;
-  }();
-  const nextArray = function() {
-    let i = 0;
-    const dataView = new DataView(arrayBuffer);
-    return function(type) {
-      const idx = 1 + 2 * i++;
-      const byteOffset = dataView.getUint32(idx * 4, true);
-      const byteLength = dataView.getUint32((idx + 1) * 4, true);
-      const BPE = type.BYTES_PER_ELEMENT;
-      if (requiresSwapFromLittleEndian && BPE > 1) {
-        const subarray = new Uint8Array(arrayBuffer, byteOffset, byteLength);
-        const swaps = BPE / 2;
-        const cnt = subarray.length / BPE;
-        for (let b4 = 0; b4 < cnt; b4++) {
-          const offset = b4 * BPE;
-          for (let j = 0; j < swaps; j++) {
-            const i1 = offset + j;
-            const i2 = offset - j + BPE - 1;
-            const tmp = subarray[i1];
-            subarray[i1] = subarray[i2];
-            subarray[i2] = tmp;
-          }
-        }
-      }
-      return new type(arrayBuffer, byteOffset, byteLength / BPE);
-    };
-  }();
-  const nextObject = function() {
-    const decoder = new TextDecoder();
-    return () => JSON.parse(decoder.decode(nextArray(Uint8Array)));
-  }();
-  return {
-    metadata: nextObject(),
-    textureData: nextArray(Uint8Array),
-    eachTextureDataPortion: nextArray(Uint32Array),
-    eachTextureAttributes: nextArray(Uint16Array),
-    positions: nextArray(Uint16Array),
-    normals: nextArray(Int8Array),
-    colors: nextArray(Uint8Array),
-    uvs: nextArray(Float32Array),
-    indices: nextArray(Uint32Array),
-    edgeIndices: nextArray(Uint32Array),
-    eachTextureSetTextures: nextArray(Int32Array),
-    matrices: nextArray(Float32Array),
-    reusedGeometriesDecodeMatrix: nextArray(Float32Array),
-    eachGeometryPrimitiveType: nextArray(Uint8Array),
-    eachGeometryAxisLabel: nextObject(),
-    eachGeometryPositionsPortion: nextArray(Uint32Array),
-    eachGeometryNormalsPortion: nextArray(Uint32Array),
-    eachGeometryColorsPortion: nextArray(Uint32Array),
-    eachGeometryUVsPortion: nextArray(Uint32Array),
-    eachGeometryIndicesPortion: nextArray(Uint32Array),
-    eachGeometryEdgeIndicesPortion: nextArray(Uint32Array),
-    eachMeshGeometriesPortion: nextArray(Uint32Array),
-    eachMeshMatricesPortion: nextArray(Uint32Array),
-    eachMeshTextureSet: nextArray(Int32Array),
-    eachMeshMaterialAttributes: nextArray(Uint8Array),
-    eachEntityId: nextObject(),
-    eachEntityMeshesPortion: nextArray(Uint32Array),
-    eachTileAABB: nextArray(Float64Array),
-    eachTileEntitiesPortion: nextArray(Uint32Array)
-  };
+// ../sdk/src/formats/legacy/xkt/versions/shared/splitElements.ts
+function splitElements(arrayBuffer) {
+  const dataView = new DataView(arrayBuffer);
+  const dataArray = new Uint8Array(arrayBuffer);
+  const numElements = dataView.getUint32(4, true);
+  const elements = [];
+  let byteOffset = (numElements + 2) * 4;
+  for (let i = 0; i < numElements; i++) {
+    const elementSize = dataView.getUint32((i + 2) * 4, true);
+    elements.push(dataArray.subarray(byteOffset, byteOffset + elementSize));
+    byteOffset += elementSize;
+  }
+  return elements;
 }
-
-// ../sdk/src/formats/legacy/xkt/versions/v12/xktToModel.ts
-var MESH_ATTRIBUTES = 6;
-async function xktToModel(params) {
-  const { xktData, sceneModel, dataModel, options } = params;
-  const layerId = options?.layerId || "default";
-  const {
-    positions,
-    colors,
-    indices,
-    matrices,
-    reusedGeometriesDecodeMatrix,
-    eachGeometryPrimitiveType,
-    eachGeometryPositionsPortion,
-    eachGeometryColorsPortion,
-    eachGeometryIndicesPortion,
-    eachMeshGeometriesPortion,
-    eachMeshMatricesPortion,
-    eachMeshMaterialAttributes,
-    eachEntityId,
-    eachEntityMeshesPortion,
-    eachTileAABB,
-    eachTileEntitiesPortion
-  } = xktData;
-  const numGeometries = eachGeometryPrimitiveType.length;
-  const numMeshes = eachMeshGeometriesPortion.length;
-  const numEntities = eachEntityId.length;
-  const numTiles = eachTileEntitiesPortion.length;
-  if (dataModel) {
-    buildDataModel(dataModel, xktData.metadata);
-  }
-  if (!sceneModel) {
-    return;
-  }
-  const reuseCount = new Uint32Array(numGeometries);
-  for (let i = 0; i < numMeshes; i++)
-    reuseCount[eachMeshGeometriesPortion[i]]++;
-  const geometryValid = /* @__PURE__ */ new Map();
-  let nextMeshId = 0;
-  for (let tileIndex = 0; tileIndex < numTiles; tileIndex++) {
-    if ((tileIndex & 7) === 0)
-      await yieldToHost(options.signal);
-    const aabbBase = tileIndex * 6;
-    const tileCenter = [
-      (eachTileAABB[aabbBase] + eachTileAABB[aabbBase + 3]) / 2,
-      (eachTileAABB[aabbBase + 1] + eachTileAABB[aabbBase + 4]) / 2,
-      (eachTileAABB[aabbBase + 2] + eachTileAABB[aabbBase + 5]) / 2
-    ];
-    const rtcAABB = [
-      eachTileAABB[aabbBase] - tileCenter[0],
-      eachTileAABB[aabbBase + 1] - tileCenter[1],
-      eachTileAABB[aabbBase + 2] - tileCenter[2],
-      eachTileAABB[aabbBase + 3] - tileCenter[0],
-      eachTileAABB[aabbBase + 4] - tileCenter[1],
-      eachTileAABB[aabbBase + 5] - tileCenter[2]
-    ];
-    const tileDecodeMatrix = decodeMatrixFromAABB(rtcAABB);
-    const lastEntityInTile = tileIndex === numTiles - 1 ? numEntities - 1 : eachTileEntitiesPortion[tileIndex + 1] - 1;
-    for (let entityIndex = eachTileEntitiesPortion[tileIndex]; entityIndex <= lastEntityInTile; entityIndex++) {
-      const lastMeshInEntity = entityIndex === numEntities - 1 ? numMeshes - 1 : eachEntityMeshesPortion[entityIndex + 1] - 1;
-      const meshIds = [];
-      for (let meshIndex = eachEntityMeshesPortion[entityIndex]; meshIndex <= lastMeshInEntity; meshIndex++) {
-        const geometryIndex = eachMeshGeometriesPortion[meshIndex];
-        const reused = reuseCount[geometryIndex] > 1;
-        const primitive = scenePrimitive(eachGeometryPrimitiveType[geometryIndex]);
-        if (primitive === void 0)
-          continue;
-        const geometryId = `geometry-${geometryIndex}`;
-        let valid = geometryValid.get(geometryIndex);
-        if (valid === void 0) {
-          const decodeMatrix = reused ? reusedGeometriesDecodeMatrix : tileDecodeMatrix;
-          const last = geometryIndex === numGeometries - 1;
-          const posSlice = positions.subarray(
-            eachGeometryPositionsPortion[geometryIndex],
-            last ? positions.length : eachGeometryPositionsPortion[geometryIndex + 1]
-          );
-          const geometryParams = {
-            id: geometryId,
-            primitive,
-            positions: decompressPositions(posSlice, decodeMatrix)
-          };
-          if (primitive === PointsPrimitive) {
-            const colSlice = colors.subarray(
-              eachGeometryColorsPortion[geometryIndex],
-              last ? colors.length : eachGeometryColorsPortion[geometryIndex + 1]
-            );
-            if (colSlice.length > 0)
-              geometryParams.colorsCompressed = colSlice;
-          } else {
-            const indSlice = indices.subarray(
-              eachGeometryIndicesPortion[geometryIndex],
-              last ? indices.length : eachGeometryIndicesPortion[geometryIndex + 1]
-            );
-            geometryParams.indices = eachGeometryPrimitiveType[geometryIndex] === 4 ? lineStripToLines(indSlice) : indSlice;
-          }
-          const hasGeometry = geometryParams.positions.length > 0 && (primitive === PointsPrimitive || geometryParams.indices && geometryParams.indices.length > 0);
-          valid = hasGeometry && sceneModel.createGeometry(geometryParams).ok !== false;
-          geometryValid.set(geometryIndex, valid);
-        }
-        if (!valid)
-          continue;
-        const meshId = `mesh-${nextMeshId++}`;
-        const attrBase = meshIndex * MESH_ATTRIBUTES;
-        const meshParams = {
-          id: meshId,
-          geometryId,
-          origin: tileCenter,
-          color: [
-            eachMeshMaterialAttributes[attrBase] / 255,
-            eachMeshMaterialAttributes[attrBase + 1] / 255,
-            eachMeshMaterialAttributes[attrBase + 2] / 255
-          ],
-          opacity: eachMeshMaterialAttributes[attrBase + 3] / 255
-        };
-        if (reused) {
-          const matrixBase = eachMeshMatricesPortion[meshIndex];
-          meshParams.matrix = createMat4Float64(
-            Array.from(matrices.subarray(matrixBase, matrixBase + 16))
-          );
-        }
-        if (sceneModel.createMesh(meshParams).ok !== false) {
-          meshIds.push(meshId);
-        }
-      }
-      if (meshIds.length > 0) {
-        sceneModel.createObject({ id: eachEntityId[entityIndex], meshIds, layerId });
-      }
-    }
-  }
-}
-function scenePrimitive(code) {
-  switch (code) {
-    case 0:
-      return TrianglesPrimitive;
-    case 1:
-      return TrianglesPrimitive;
-    case 2:
-      return PointsPrimitive;
-    case 3:
-      return LinesPrimitive;
-    case 4:
-      return LinesPrimitive;
-    default:
-      return void 0;
-  }
-}
-function decodeMatrixFromAABB(aabb) {
-  const m = createMat4Float64();
-  m[0] = (aabb[3] - aabb[0]) / 65535;
-  m[5] = (aabb[4] - aabb[1]) / 65535;
-  m[10] = (aabb[5] - aabb[2]) / 65535;
-  m[12] = aabb[0];
-  m[13] = aabb[1];
-  m[14] = aabb[2];
-  return m;
-}
-function decompressPositions(compressed, m) {
-  const out = new Float32Array(compressed.length);
-  for (let i = 0, len = compressed.length; i < len; i += 3) {
-    out[i] = compressed[i] * m[0] + m[12];
-    out[i + 1] = compressed[i + 1] * m[5] + m[13];
-    out[i + 2] = compressed[i + 2] * m[10] + m[14];
-  }
-  return out;
-}
-function lineStripToLines(strip) {
-  if (strip.length < 2)
-    return new Uint32Array(0);
-  const lines = new Uint32Array((strip.length - 1) * 2);
-  for (let i = 0, j = 0; i < strip.length - 1; i++) {
-    lines[j++] = strip[i];
-    lines[j++] = strip[i + 1];
-  }
-  return lines;
-}
-function buildDataModel(dataModel, metadata) {
-  const propertySets = metadata?.propertySets || [];
-  for (const ps of propertySets) {
-    dataModel.createPropertySet({
-      id: ps.id,
-      name: ps.name || ps.id,
-      type: ps.type || "Default",
-      properties: (ps.properties || []).map((p) => ({ name: p.name, value: p.value }))
-    });
-  }
-  const metaObjects = metadata?.metaObjects || [];
-  const objectIds = new Set(metaObjects.map((mo) => mo.id));
-  for (const mo of metaObjects) {
-    dataModel.createObject({
-      id: mo.id,
-      name: mo.name ?? mo.id,
-      type: mo.type ?? "Default",
-      propertySetIds: mo.propertySetIds
-    });
-  }
-  for (const mo of metaObjects) {
-    if (mo.parent && mo.parent !== mo.id && objectIds.has(mo.parent)) {
-      dataModel.createRelationship({
-        type: "BasicAggregation",
-        relatingObjectId: mo.parent,
-        relatedObjectId: mo.id
-      });
-    }
-  }
-}
-
-// ../sdk/src/formats/legacy/xkt/versions/v12/parse.ts
-async function parse14(params, options) {
-  const { fileData, sceneModel, dataModel } = params;
-  await xktToModel({
-    xktData: unpackXKT(fileData),
-    sceneModel,
-    dataModel,
-    options: options || {}
-  });
-}
-
-// ../sdk/src/formats/legacy/xkt/XKTLoader.ts
-var XKTLoader = class extends ModelLoader {
-  constructor() {
-    super({
-      format: "XKT",
-      fileDataType: "arraybuffer",
-      parsers: {
-        "12": parse14
-      },
-      getVersion: (fileData) => {
-        return "" + new DataView(fileData).getUint32(0, true);
-      }
-    });
-  }
-};
-
-// ../sdk/src/formats/legacy/xkt/versions/v12/modelToXKT.ts
-var MESH_ATTRIBUTES2 = 6;
-var IDENTITY16 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-function xktPrimitiveCode(primitive) {
-  switch (primitive) {
-    case SolidPrimitive:
-      return 0;
-    case TrianglesPrimitive:
-      return 1;
-    case SurfacePrimitive:
-      return 1;
-    case PointsPrimitive:
-      return 2;
-    case LinesPrimitive:
-      return 3;
-    default:
-      return void 0;
-  }
-}
-async function modelToXKT(params) {
-  const { sceneModel, dataModel, options } = params;
-  const coordinateSystem = options?.coordinateSystem;
-  const items = [];
-  const eachEntityId = [];
-  const entityMeshBase = [];
-  const worldAABB = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity];
-  const objects = Object.values(sceneModel.objects);
-  for (let o = 0; o < objects.length; o++) {
-    if ((o & 31) === 0)
-      await yieldToHost(options?.signal);
-    const object = objects[o];
-    const base = items.length;
-    for (const mesh of object.meshes) {
-      const geometry = mesh.geometry;
-      const code = xktPrimitiveCode(geometry.primitive);
-      if (code === void 0 || !geometry.positionsCompressed)
-        continue;
-      const local = decompressPositions3WithAABB3(
-        geometry.positionsCompressed,
-        geometry.aabb,
-        new Float32Array(geometry.positionsCompressed.length)
-      );
-      const m = getMeshWorldMatrix(mesh, coordinateSystem);
-      const world = new Float32Array(local.length);
-      for (let i = 0; i < local.length; i += 3) {
-        const x = local[i], y = local[i + 1], z = local[i + 2];
-        const wx = m[0] * x + m[4] * y + m[8] * z + m[12];
-        const wy = m[1] * x + m[5] * y + m[9] * z + m[13];
-        const wz = m[2] * x + m[6] * y + m[10] * z + m[14];
-        world[i] = wx;
-        world[i + 1] = wy;
-        world[i + 2] = wz;
-        if (wx < worldAABB[0])
-          worldAABB[0] = wx;
-        if (wy < worldAABB[1])
-          worldAABB[1] = wy;
-        if (wz < worldAABB[2])
-          worldAABB[2] = wz;
-        if (wx > worldAABB[3])
-          worldAABB[3] = wx;
-        if (wy > worldAABB[4])
-          worldAABB[4] = wy;
-        if (wz > worldAABB[5])
-          worldAABB[5] = wz;
-      }
-      const material = mesh.material;
-      items.push({
-        world,
-        indices: code === 2 ? void 0 : geometry.indices ? new Uint32Array(geometry.indices) : void 0,
-        colors: code === 2 && geometry.colorsCompressed ? new Uint8Array(geometry.colorsCompressed) : void 0,
-        code,
-        color: mesh.effectiveColor,
-        opacity: mesh.effectiveOpacity,
-        metallic: material?.metallic ?? 0,
-        roughness: material?.roughness ?? 1
-      });
-    }
-    if (items.length > base) {
-      eachEntityId.push(object.id);
-      entityMeshBase.push(base);
-    }
-  }
-  const numGeometries = items.length;
-  if (numGeometries === 0) {
-    for (let i = 0; i < 6; i++)
-      worldAABB[i] = 0;
-  }
-  let totalPositions = 0, totalIndices = 0, totalColors = 0;
-  for (const it of items) {
-    totalPositions += it.world.length;
-    if (it.indices)
-      totalIndices += it.indices.length;
-    if (it.colors)
-      totalColors += it.colors.length;
-  }
-  const positions = new Uint16Array(totalPositions);
-  const indices = new Uint32Array(totalIndices);
-  const colors = new Uint8Array(totalColors);
-  const eachGeometryPrimitiveType = new Uint8Array(numGeometries);
-  const eachGeometryPositionsPortion = new Uint32Array(numGeometries);
-  const eachGeometryNormalsPortion = new Uint32Array(numGeometries);
-  const eachGeometryColorsPortion = new Uint32Array(numGeometries);
-  const eachGeometryUVsPortion = new Uint32Array(numGeometries);
-  const eachGeometryIndicesPortion = new Uint32Array(numGeometries);
-  const eachGeometryEdgeIndicesPortion = new Uint32Array(numGeometries);
-  const eachMeshGeometriesPortion = new Uint32Array(numGeometries);
-  const eachMeshMatricesPortion = new Uint32Array(numGeometries);
-  const eachMeshTextureSet = new Int32Array(numGeometries).fill(-1);
-  const eachMeshMaterialAttributes = new Uint8Array(numGeometries * MESH_ATTRIBUTES2);
-  const sx = worldAABB[3] - worldAABB[0] || 1;
-  const sy = worldAABB[4] - worldAABB[1] || 1;
-  const sz = worldAABB[5] - worldAABB[2] || 1;
-  const quant = (v, min, span) => {
-    const q = Math.round((v - min) / span * 65535);
-    return q < 0 ? 0 : q > 65535 ? 65535 : q;
-  };
-  let posBase = 0, indBase = 0, colBase = 0;
-  for (let g = 0; g < numGeometries; g++) {
-    const it = items[g];
-    eachGeometryPrimitiveType[g] = it.code;
-    eachGeometryPositionsPortion[g] = posBase;
-    for (let i = 0; i < it.world.length; i += 3) {
-      positions[posBase + i] = quant(it.world[i], worldAABB[0], sx);
-      positions[posBase + i + 1] = quant(it.world[i + 1], worldAABB[1], sy);
-      positions[posBase + i + 2] = quant(it.world[i + 2], worldAABB[2], sz);
-    }
-    posBase += it.world.length;
-    eachGeometryIndicesPortion[g] = indBase;
-    if (it.indices) {
-      indices.set(it.indices, indBase);
-      indBase += it.indices.length;
-    }
-    eachGeometryColorsPortion[g] = colBase;
-    if (it.colors) {
-      colors.set(it.colors, colBase);
-      colBase += it.colors.length;
-    }
-    eachMeshGeometriesPortion[g] = g;
-    const a2 = g * MESH_ATTRIBUTES2;
-    eachMeshMaterialAttributes[a2] = clampByte3(it.color[0] * 255);
-    eachMeshMaterialAttributes[a2 + 1] = clampByte3(it.color[1] * 255);
-    eachMeshMaterialAttributes[a2 + 2] = clampByte3(it.color[2] * 255);
-    eachMeshMaterialAttributes[a2 + 3] = clampByte3(it.opacity * 255);
-    eachMeshMaterialAttributes[a2 + 4] = clampByte3(it.metallic * 255);
-    eachMeshMaterialAttributes[a2 + 5] = clampByte3(it.roughness * 255);
-  }
-  return {
-    metadata: buildMetadata(sceneModel, dataModel),
-    textureData: new Uint8Array(0),
-    eachTextureDataPortion: new Uint32Array(0),
-    eachTextureAttributes: new Uint16Array(0),
-    positions,
-    normals: new Int8Array(0),
-    colors,
-    uvs: new Float32Array(0),
-    indices,
-    edgeIndices: new Uint32Array(0),
-    eachTextureSetTextures: new Int32Array(0),
-    matrices: new Float32Array(IDENTITY16),
-    reusedGeometriesDecodeMatrix: new Float32Array(IDENTITY16),
-    eachGeometryPrimitiveType,
-    eachGeometryAxisLabel: {},
-    eachGeometryPositionsPortion,
-    eachGeometryNormalsPortion,
-    eachGeometryColorsPortion,
-    eachGeometryUVsPortion,
-    eachGeometryIndicesPortion,
-    eachGeometryEdgeIndicesPortion,
-    eachMeshGeometriesPortion,
-    eachMeshMatricesPortion,
-    eachMeshTextureSet,
-    eachMeshMaterialAttributes,
-    eachEntityId,
-    eachEntityMeshesPortion: new Uint32Array(entityMeshBase),
-    eachTileAABB: new Float64Array(worldAABB),
-    eachTileEntitiesPortion: new Uint32Array([0])
-  };
-}
-function clampByte3(v) {
-  v = Math.round(v);
-  return v < 0 ? 0 : v > 255 ? 255 : v;
-}
-function buildMetadata(sceneModel, dataModel) {
-  const metaObjects = [];
-  const propertySets = [];
-  if (dataModel) {
-    const parentOf = {};
-    for (const rel of dataModel.relationships || []) {
-      if (rel.relatedObject && rel.relatingObject)
-        parentOf[rel.relatedObject.id] = rel.relatingObject.id;
-    }
-    for (const o of Object.values(dataModel.objects)) {
-      metaObjects.push({
-        id: o.id,
-        name: o.name ?? o.id,
-        type: o.type ?? "Default",
-        parent: parentOf[o.id] ?? null,
-        propertySetIds: o.propertySetIds
-      });
-    }
-    for (const ps of Object.values(dataModel.propertySets)) {
-      propertySets.push({
-        id: ps.id,
-        name: ps.name ?? ps.id,
-        type: ps.type ?? "Default",
-        properties: (ps.properties || []).map((p) => ({ name: p.name, value: p.value }))
-      });
-    }
-  }
-  return { id: sceneModel.id, metaObjects, propertySets };
-}
-
-// ../sdk/src/formats/legacy/xkt/versions/v12/XKT_INFO.ts
-var XKT_INFO = {
-  xktVersion: 12
-};
-
-// ../sdk/src/formats/legacy/xkt/versions/v12/packXKT.ts
-var object2Array4 = function() {
-  const encoder = new TextEncoder();
-  return (obj) => encoder.encode(JSON.stringify(obj));
-}();
-function toArrayBuffer6(arrays) {
-  const arraysCnt = arrays.length;
-  const dataView = new DataView(new ArrayBuffer((1 + 2 * arraysCnt) * 4));
-  dataView.setUint32(0, XKT_INFO.xktVersion, true);
-  let byteOffset = dataView.byteLength;
-  const offsets = [];
-  for (let i = 0; i < arraysCnt; i++) {
-    const arr = arrays[i];
-    const BPE = arr.BYTES_PER_ELEMENT;
-    byteOffset = Math.ceil(byteOffset / BPE) * BPE;
-    const idx = 1 + 2 * i;
-    dataView.setUint32(idx * 4, byteOffset, true);
-    dataView.setUint32((idx + 1) * 4, arr.byteLength, true);
-    offsets.push(byteOffset);
-    byteOffset += arr.byteLength;
-  }
-  const dataArray = new Uint8Array(byteOffset);
-  dataArray.set(new Uint8Array(dataView.buffer), 0);
-  const requiresSwapToLittleEndian = function() {
-    const b4 = new ArrayBuffer(2);
-    new Uint16Array(b4)[0] = 1;
-    return new Uint8Array(b4)[0] !== 1;
-  }();
-  for (let i = 0; i < arraysCnt; i++) {
-    const arr = arrays[i];
-    const subarray = new Uint8Array(arr.buffer, arr.byteOffset, arr.byteLength);
-    const BPE = arr.BYTES_PER_ELEMENT;
-    if (requiresSwapToLittleEndian && BPE > 1) {
-      const swaps = BPE / 2;
-      const cnt = subarray.length / BPE;
-      for (let b4 = 0; b4 < cnt; b4++) {
-        const offset = b4 * BPE;
-        for (let j = 0; j < swaps; j++) {
-          const i1 = offset + j;
-          const i2 = offset - j + BPE - 1;
-          const tmp = subarray[i1];
-          subarray[i1] = subarray[i2];
-          subarray[i2] = tmp;
-        }
-      }
-    }
-    dataArray.set(subarray, offsets[i]);
-  }
-  return dataArray.buffer;
-}
-function packXKT(xktData) {
-  return toArrayBuffer6([
-    object2Array4(xktData.metadata),
-    xktData.textureData,
-    xktData.eachTextureDataPortion,
-    xktData.eachTextureAttributes,
-    xktData.positions,
-    xktData.normals,
-    xktData.colors,
-    xktData.uvs,
-    xktData.indices,
-    xktData.edgeIndices,
-    xktData.eachTextureSetTextures,
-    xktData.matrices,
-    xktData.reusedGeometriesDecodeMatrix,
-    xktData.eachGeometryPrimitiveType,
-    object2Array4(xktData.eachGeometryAxisLabel),
-    xktData.eachGeometryPositionsPortion,
-    xktData.eachGeometryNormalsPortion,
-    xktData.eachGeometryColorsPortion,
-    xktData.eachGeometryUVsPortion,
-    xktData.eachGeometryIndicesPortion,
-    xktData.eachGeometryEdgeIndicesPortion,
-    xktData.eachMeshGeometriesPortion,
-    xktData.eachMeshMatricesPortion,
-    xktData.eachMeshTextureSet,
-    xktData.eachMeshMaterialAttributes,
-    object2Array4(xktData.eachEntityId),
-    xktData.eachEntityMeshesPortion,
-    xktData.eachTileAABB,
-    xktData.eachTileEntitiesPortion
-  ]);
-}
-
-// ../sdk/src/formats/legacy/xkt/versions/v12/encode.ts
-async function encode17(params, options) {
-  const xktData = await modelToXKT({
-    sceneModel: params.sceneModel,
-    dataModel: params.dataModel,
-    options
-  });
-  return packXKT(xktData);
-}
-
-// ../sdk/src/formats/legacy/xkt/XKTExporter.ts
-var XKTExporter = class extends ModelExporter {
-  constructor() {
-    super({
-      format: "XKT",
-      fileDataType: "arraybuffer",
-      encoders: {
-        "12": encode17
-      },
-      defaultVersion: "12"
-    });
-  }
-};
-
-// ../sdk/src/formats/obj/index.ts
-var obj_exports = {};
-__export(obj_exports, {
-  OBJExporter: () => OBJExporter,
-  OBJLoader: () => OBJLoader
-});
-
-// ../sdk/src/formats/obj/versions/v1_0/parse.ts
-var parse15 = async (params, options) => {
-  const { fileData, sceneModel, dataModel } = params;
-  const opts = options || {};
-  const onProgress = opts.onProgress;
-  const signal = opts.signal;
-  const progress = { phase: "", current: 0, total: 0 };
-  const step2 = async (phase, current, total) => {
-    if (onProgress) {
-      progress.phase = phase;
-      progress.current = current;
-      progress.total = total;
-      onProgress(progress);
-    }
-    await yieldToHost(signal);
-  };
-  if (sceneModel || dataModel) {
-    const ctx = {
-      fileData,
-      errors: [],
-      warnings: [],
-      sceneModel,
-      dataModel,
-      nextId: 0,
-      options: opts,
-      srcPositions: [],
-      srcNormals: [],
-      srcUVs: [],
-      materials: {},
-      currentObject: null
-    };
-    await parseOBJDirect(ctx, step2);
-    if (ctx.currentObject) {
-      flushCurrentObject(ctx);
-    }
-    if (ctx.errors.length > 0) {
-      throw new Error(`[OBJLoader] Failed to parse OBJ file: ${ctx.errors[0]}`);
-    }
-    if (ctx.warnings.length > 0) {
-      console.warn(`[OBJLoader] Warning while parsing OBJ file: ${ctx.warnings[0]}`);
-    }
-  }
-};
-var regexp = {
-  vertex_pattern: /^v\s+([\d.+\-eE]+)\s+([\d.+\-eE]+)\s+([\d.+\-eE]+)/,
-  normal_pattern: /^vn\s+([\d.+\-eE]+)\s+([\d.+\-eE]+)\s+([\d.+\-eE]+)/,
-  uv_pattern: /^vt\s+([\d.+\-eE]+)\s+([\d.+\-eE]+)/,
-  object_pattern: /^[og]\s*(.+)?/,
-  smoothing_pattern: /^s\s+(\d+|on|off)/,
-  material_library_pattern: /^mtllib /,
-  material_use_pattern: /^usemtl /
-};
-async function parseOBJDirect(ctx, step2) {
-  let fileData = ctx.fileData;
-  startObject(ctx, "", false);
-  if (fileData.indexOf("\r\n") !== -1) {
-    fileData = fileData.replace(/\r\n/g, "\n");
-  }
-  const lines = fileData.split("\n");
-  let result = null;
-  const trimLeft = typeof "".trimStart === "function";
-  for (let i = 0, l = lines.length; i < l; i++) {
-    if ((i & 4095) === 0)
-      await step2("Parsing OBJ lines", i, l);
-    let line = lines[i];
-    line = trimLeft ? line.trimStart() : line.trim();
-    if (line.length === 0) {
-      continue;
-    }
-    const lineFirstChar = line.charAt(0);
-    if (lineFirstChar === "#") {
-      continue;
-    }
-    if (lineFirstChar === "v") {
-      const lineSecondChar = line.charAt(1);
-      if (lineSecondChar === " " && (result = regexp.vertex_pattern.exec(line)) !== null) {
-        ctx.srcPositions.push(
-          parseFloat(result[1]),
-          parseFloat(result[2]),
-          parseFloat(result[3])
-        );
-      } else if (lineSecondChar === "n" && (result = regexp.normal_pattern.exec(line)) !== null) {
-        ctx.srcNormals.push(
-          parseFloat(result[1]),
-          parseFloat(result[2]),
-          parseFloat(result[3])
-        );
-      } else if (lineSecondChar === "t" && (result = regexp.uv_pattern.exec(line)) !== null) {
-        ctx.srcUVs.push(
-          parseFloat(result[1]),
-          parseFloat(result[2])
-        );
-      } else {
-        ctx.errors.push(`Unexpected vertex/normal/uv line: '${line}'`);
-        return;
-      }
-      continue;
-    }
-    if (lineFirstChar === "f") {
-      parseFaceLine(ctx, line);
-      if (ctx.errors.length > 0) {
-        return;
-      }
-      continue;
-    }
-    if (lineFirstChar === "l") {
-      addLineGeometry(ctx, line);
-      continue;
-    }
-    if ((result = regexp.object_pattern.exec(line)) !== null) {
-      const id = result[0].substring(1).trim();
-      if (ctx.currentObject && ctx.currentObject.geometry.indices.length > 0) {
-        flushCurrentObject(ctx);
-      }
-      startObject(ctx, id, true);
-      continue;
-    }
-    if (regexp.material_use_pattern.test(line)) {
-      if (ctx.currentObject) {
-        ctx.currentObject.material.id = line.substring(7).trim();
-      }
-      continue;
-    }
-    if (regexp.material_library_pattern.test(line)) {
-      continue;
-    }
-    if ((result = regexp.smoothing_pattern.exec(line)) !== null) {
-      if (ctx.currentObject) {
-        const value = result[1].trim().toLowerCase();
-        ctx.currentObject.material.smooth = value === "1" || value === "on";
-      }
-      continue;
-    }
-    if (line === "\0") {
-      continue;
-    }
-    ctx.errors.push(`Unexpected line: '${line}'`);
-    return;
-  }
-  await step2("Parsing OBJ lines", lines.length, lines.length);
-}
-function startObject(ctx, id, fromDeclaration) {
-  if (ctx.currentObject && ctx.currentObject.fromDeclaration === false) {
-    ctx.currentObject.id = id;
-    ctx.currentObject.fromDeclaration = fromDeclaration !== false;
-    return;
-  }
-  ctx.currentObject = {
-    id: id || "",
-    geometry: {
-      positions: [],
-      normals: [],
-      uv: [],
-      indices: []
-    },
-    material: {
-      id: "",
-      smooth: true
-    },
-    fromDeclaration: fromDeclaration !== false,
-    vertexMap: /* @__PURE__ */ new Map()
-  };
-}
-function flushCurrentObject(ctx) {
-  const object = ctx.currentObject;
-  if (!object) {
-    return;
-  }
-  const geometry = object.geometry;
-  if (geometry.indices.length === 0 || geometry.positions.length === 0) {
-    return;
-  }
-  if (geometry.type === "Line") {
-    ctx.warnings.push(`Skipping line geometry object '${object.id}'`);
-    return;
-  }
-  const geometryId = createUUID();
-  const geometryCfg = {
-    id: geometryId,
-    primitive: TrianglesPrimitive,
-    positions: geometry.positions.slice(),
-    indices: geometry.indices.slice()
-  };
-  const vertexCount = geometry.positions.length / 3;
-  if (geometry.normals.length === vertexCount * 3) {
-    geometryCfg.normals = geometry.normals.slice();
-  }
-  if (geometry.uv.length === vertexCount * 2) {
-    geometryCfg.uvs = geometry.uv.slice();
-  }
-  const createGeometryResult = ctx.sceneModel.createGeometry(geometryCfg);
-  if (createGeometryResult.ok !== true) {
-    ctx.errors.push(`Failed to create geometry for object '${object.id}'`);
-    return;
-  }
-  const meshId = createUUID();
-  const materialId = object.material.id;
-  const mat = ctx.materials[materialId];
-  const color2 = mat?.color ?? [0.8, 0.8, 0.8];
-  const opacity = mat?.opacity ?? 1;
-  const createMeshResult = ctx.sceneModel.createMesh({
-    id: meshId,
-    geometryId,
-    materialId,
-    color: color2,
-    opacity
-  });
-  if (createMeshResult.ok !== true) {
-    ctx.errors.push(`Failed to create mesh for object '${object.id}'`);
-    return;
-  }
-  const objectId = createUUID();
-  const createObjectResult = ctx.sceneModel.createObject({
-    id: objectId,
-    meshIds: [meshId],
-    layerId: ctx.options.layerId
-  });
-  if (createObjectResult.ok !== true) {
-    ctx.errors.push(`Failed to create object for object '${object.id}'`);
-    return;
-  }
-  geometry.positions.length = 0;
-  geometry.normals.length = 0;
-  geometry.uv.length = 0;
-  geometry.indices.length = 0;
-  object.vertexMap.clear();
-}
-function parseVertexIndex(value, len) {
-  const index = parseInt(value, 10);
-  return (index >= 0 ? index - 1 : index + len / 3) * 3;
-}
-function parseNormalIndex(value, len) {
-  const index = parseInt(value, 10);
-  return (index >= 0 ? index - 1 : index + len / 3) * 3;
-}
-function parseUVIndex(value, len) {
-  const index = parseInt(value, 10);
-  return (index >= 0 ? index - 1 : index + len / 2) * 2;
-}
-function getOrCreateVertex(ctx, v, uv, n) {
-  const object = ctx.currentObject;
-  const geometry = object.geometry;
-  const vIndex = parseVertexIndex(v, ctx.srcPositions.length);
-  const uvIndex = uv !== void 0 ? parseUVIndex(uv, ctx.srcUVs.length) : -1;
-  const nIndex = n !== void 0 ? parseNormalIndex(n, ctx.srcNormals.length) : -1;
-  const key = `${vIndex}/${uvIndex}/${nIndex}`;
-  const existing = object.vertexMap.get(key);
-  if (existing !== void 0) {
-    return existing;
-  }
-  const dstIndex = geometry.positions.length / 3;
-  object.vertexMap.set(key, dstIndex);
-  geometry.positions.push(
-    ctx.srcPositions[vIndex],
-    ctx.srcPositions[vIndex + 1],
-    ctx.srcPositions[vIndex + 2]
-  );
-  if (uvIndex !== -1) {
-    geometry.uv.push(
-      ctx.srcUVs[uvIndex],
-      ctx.srcUVs[uvIndex + 1]
-    );
-  }
-  if (nIndex !== -1) {
-    geometry.normals.push(
-      ctx.srcNormals[nIndex],
-      ctx.srcNormals[nIndex + 1],
-      ctx.srcNormals[nIndex + 2]
-    );
-  }
-  return dstIndex;
-}
-function addFace(ctx, a2, b4, c2, d, ua, ub, uc, ud, na, nb, nc, nd) {
-  const geometry = ctx.currentObject.geometry;
-  const ia = getOrCreateVertex(ctx, a2, ua, na);
-  const ib = getOrCreateVertex(ctx, b4, ub, nb);
-  const ic = getOrCreateVertex(ctx, c2, uc, nc);
-  if (d === void 0) {
-    geometry.indices.push(ia, ib, ic);
-    return;
-  }
-  const id = getOrCreateVertex(ctx, d, ud, nd);
-  geometry.indices.push(ia, ib, id);
-  geometry.indices.push(ib, ic, id);
-}
-function parseFaceLine(ctx, line) {
-  const refs = [];
-  const body = line.substring(1).trim();
-  let tokenStart = 0;
-  for (let i = 0, len = body.length; i <= len; i++) {
-    const isEnd = i === len || body.charCodeAt(i) === 32;
-    if (!isEnd) {
-      continue;
-    }
-    if (i === tokenStart) {
-      tokenStart = i + 1;
-      continue;
-    }
-    const token = body.substring(tokenStart, i);
-    const ref = parseFaceToken(token);
-    if (!ref || ref.v === "") {
-      ctx.errors.push(`Unexpected face line: '${line}'`);
-      return;
-    }
-    refs.push(ref);
-    tokenStart = i + 1;
-  }
-  if (refs.length < 3) {
-    ctx.errors.push(`Unexpected face line: '${line}'`);
-    return;
-  }
-  if (refs.length === 3) {
-    const a3 = refs[0];
-    const b4 = refs[1];
-    const c2 = refs[2];
-    addFace(ctx, a3.v, b4.v, c2.v, void 0, a3.vt, b4.vt, c2.vt, void 0, a3.vn, b4.vn, c2.vn, void 0);
-    return;
-  }
-  if (refs.length === 4) {
-    const a3 = refs[0];
-    const b4 = refs[1];
-    const c2 = refs[2];
-    const d = refs[3];
-    addFace(ctx, a3.v, b4.v, c2.v, d.v, a3.vt, b4.vt, c2.vt, d.vt, a3.vn, b4.vn, c2.vn, d.vn);
-    return;
-  }
-  const a2 = refs[0];
-  for (let i = 1; i < refs.length - 1; i++) {
-    const b4 = refs[i];
-    const c2 = refs[i + 1];
-    addFace(ctx, a2.v, b4.v, c2.v, void 0, a2.vt, b4.vt, c2.vt, void 0, a2.vn, b4.vn, c2.vn, void 0);
-  }
-}
-function parseFaceToken(token) {
-  const slash0 = token.indexOf("/");
-  if (slash0 === -1) {
-    return { v: token };
-  }
-  const v = token.substring(0, slash0);
-  const after0 = token.substring(slash0 + 1);
-  const slash1 = after0.indexOf("/");
-  if (slash1 === -1) {
-    const vt2 = after0;
-    return {
-      v,
-      vt: vt2 !== "" ? vt2 : void 0
-    };
-  }
-  const vt = after0.substring(0, slash1);
-  const vn = after0.substring(slash1 + 1);
-  return {
-    v,
-    vt: vt !== "" ? vt : void 0,
-    vn: vn !== "" ? vn : void 0
-  };
-}
-function addVertexLine(ctx, a2) {
-  const dst = ctx.currentObject.geometry.positions;
-  const src = ctx.srcPositions;
-  dst.push(src[a2], src[a2 + 1], src[a2 + 2]);
-}
-function addUVLine(ctx, a2) {
-  const dst = ctx.currentObject.geometry.uv;
-  const src = ctx.srcUVs;
-  dst.push(src[a2], src[a2 + 1]);
-}
-function addLineGeometry(ctx, line) {
-  const object = ctx.currentObject;
-  object.geometry.type = "Line";
-  const vLen = ctx.srcPositions.length;
-  const uvLen = ctx.srcUVs.length;
-  const body = line.substring(1).trim();
-  let tokenStart = 0;
-  for (let i = 0, len = body.length; i <= len; i++) {
-    const isEnd = i === len || body.charCodeAt(i) === 32;
-    if (!isEnd) {
-      continue;
-    }
-    if (i === tokenStart) {
-      tokenStart = i + 1;
-      continue;
-    }
-    const token = body.substring(tokenStart, i);
-    const slash0 = token.indexOf("/");
-    if (slash0 === -1) {
-      addVertexLine(ctx, parseVertexIndex(token, vLen));
-    } else {
-      const v = token.substring(0, slash0);
-      const rest = token.substring(slash0 + 1);
-      const slash1 = rest.indexOf("/");
-      const uv = slash1 === -1 ? rest : rest.substring(0, slash1);
-      if (v) {
-        addVertexLine(ctx, parseVertexIndex(v, vLen));
-      }
-      if (uv) {
-        addUVLine(ctx, parseUVIndex(uv, uvLen));
-      }
-    }
-    tokenStart = i + 1;
-  }
-}
-
-// ../sdk/src/formats/obj/OBJLoader.ts
-var OBJLoader = class extends ModelLoader {
-  /**
-   * Constructs a OBJLoader.
-   */
-  constructor() {
-    super({
-      format: "OBJ",
-      fileDataType: "text",
-      parsers: {
-        "1.0": parse15
-      },
-      getVersion: (fileData) => {
-        return fileData.version || "1.0";
-      }
-    });
-  }
-};
-
-// ../sdk/src/formats/obj/versions/v1_0/encode.ts
-var tempVec3a8 = createVec3Float64();
-var tempVec3b8 = createVec3Float64();
-var tempVec3c4 = createVec3Float64();
-async function encode18(params, options) {
-  const { sceneModel } = params;
-  const opts = options || {};
-  const onProgress = opts.onProgress;
-  const signal = opts.signal;
-  const progress = { phase: "", current: 0, total: 0 };
-  const step2 = async (phase, current, total) => {
-    if (onProgress) {
-      progress.phase = phase;
-      progress.current = current;
-      progress.total = total;
-      onProgress(progress);
-    }
-    await yieldToHost(signal);
-  };
-  const lines = [];
-  let vertexOffset = 0;
-  lines.push("# WaveFront OBJ");
-  lines.push(`# SceneModel: ${sceneModel.id}`);
-  if (opts.mtlFileName) {
-    lines.push(`mtllib ${opts.mtlFileName}`);
-  }
-  lines.push("");
-  const sceneObjects = Object.values(sceneModel.objects);
-  for (let i = 0, len = sceneObjects.length; i < len; i++) {
-    if ((i & 31) === 0)
-      await step2("Encoding OBJ", i, len);
-    const sceneObject = sceneObjects[i];
-    const meshes = sceneObject.meshes || [];
-    if (meshes.length === 0) {
-      continue;
-    }
-    lines.push(`o ${sanitizeOBJName(sceneObject.id)}`);
-    for (let j = 0, lenj = meshes.length; j < lenj; j++) {
-      const sceneMesh = meshes[j];
-      const geometry = sceneMesh.geometry;
-      if (!geometry) {
-        continue;
-      }
-      const objectName = meshes.length > 1 ? `${sceneObject.id}_${sceneMesh.id}` : sceneObject.id;
-      lines.push(`g ${sanitizeOBJName(objectName)}`);
-      lines.push(`usemtl ${sanitizeMTLName(getMaterialNameForMesh(sceneMesh))}`);
-      const positionsCompressed = geometry.positionsCompressed;
-      const indices = geometry.indices;
-      const aabb = geometry.aabb;
-      if (!positionsCompressed || positionsCompressed.length === 0) {
-        lines.push("");
-        continue;
-      }
-      const matrix = getMeshWorldMatrix(sceneMesh);
-      const numVerts = positionsCompressed.length / 3;
-      for (let k = 0, lenk = positionsCompressed.length; k < lenk; k += 3) {
-        tempVec3a8[0] = positionsCompressed[k];
-        tempVec3a8[1] = positionsCompressed[k + 1];
-        tempVec3a8[2] = positionsCompressed[k + 2];
-        decompressPoint3WithAABB3(tempVec3a8, aabb, tempVec3b8);
-        transformPoint3(matrix, tempVec3b8, tempVec3c4);
-        lines.push(`v ${formatNum(tempVec3c4[0])} ${formatNum(tempVec3c4[1])} ${formatNum(tempVec3c4[2])}`);
-      }
-      if (indices && indices.length > 0) {
-        for (let k = 0, lenk = indices.length; k < lenk; k += 3) {
-          const a2 = indices[k] + 1 + vertexOffset;
-          const b4 = indices[k + 1] + 1 + vertexOffset;
-          const c2 = indices[k + 2] + 1 + vertexOffset;
-          lines.push(`f ${a2} ${b4} ${c2}`);
-        }
-      } else {
-        for (let k = 0; k < numVerts; k += 3) {
-          const a2 = vertexOffset + k + 1;
-          const b4 = vertexOffset + k + 2;
-          const c2 = vertexOffset + k + 3;
-          lines.push(`f ${a2} ${b4} ${c2}`);
-        }
-      }
-      vertexOffset += numVerts;
-      lines.push("");
-    }
-  }
-  await step2("Encoding OBJ", sceneObjects.length, sceneObjects.length);
-  return lines.join("\n");
-}
-function getMaterialNameForMesh(sceneMesh) {
-  return sceneMesh.material?.id || `mesh_${sceneMesh.id}`;
-}
-function sanitizeOBJName(name12) {
-  return String(name12 || "unnamed").replace(/\s+/g, "_");
-}
-function sanitizeMTLName(name12) {
-  return String(name12 || "unnamed").replace(/\s+/g, "_");
-}
-function formatNum(value) {
-  if (!isFinite(value)) {
-    return "0";
-  }
-  return Number(value.toFixed(9)).toString();
-}
-
-// ../sdk/src/formats/obj/OBJExporter.ts
-var OBJExporter = class extends ModelExporter {
-  constructor() {
-    super({
-      format: "OBJ",
-      fileDataType: "text",
-      encoders: {
-        "1.0": encode18
-      },
-      defaultVersion: "1.0"
-    });
-  }
-};
-
-// ../sdk/src/formats/mtl/index.ts
-var mtl_exports = {};
-__export(mtl_exports, {
-  MTLExporter: () => MTLExporter,
-  MTLLoader: () => MTLLoader
-});
-
-// ../sdk/src/formats/mtl/versions/v1_0/parse.ts
-var parse16 = async (params, options) => {
-  const { fileData, sceneModel } = params;
-  const opts = options || {};
-  const onProgress = opts.onProgress;
-  const signal = opts.signal;
-  const progress = { phase: "", current: 0, total: 0 };
-  const step2 = async (phase, current, total) => {
-    if (onProgress) {
-      progress.phase = phase;
-      progress.current = current;
-      progress.total = total;
-      onProgress(progress);
-    }
-    await yieldToHost(signal);
-  };
-  if (sceneModel) {
-    const ctx = {
-      fileData,
-      errors: [],
-      warnings: [],
-      sceneModel,
-      options: opts
-    };
-    await parseMTL(ctx, fileData || "", step2);
-    if (ctx.errors.length > 0) {
-      throw new Error(`[MTLLoader] Failed to parse MTL file: ${ctx.errors[0]}`);
-    }
-    if (ctx.warnings.length > 0) {
-      console.warn(`[MTLLoader] Warning while parsing MTL file: ${ctx.warnings[0]}`);
-    }
-  }
-};
-async function parseMTL(ctx, text, step2) {
-  const lines = text.split("\n");
-  let current = null;
-  let currentId = "";
-  for (let i = 0; i < lines.length; i++) {
-    if ((i & 4095) === 0)
-      await step2("Parsing MTL", i, lines.length);
-    const line = lines[i].trim();
-    if (line.length === 0 || line.charAt(0) === "#") {
-      continue;
-    }
-    const space = line.indexOf(" ");
-    const key = space !== -1 ? line.substring(0, space).toLowerCase() : line;
-    const value = space !== -1 ? line.substring(space + 1).trim() : "";
-    switch (key) {
-      case "newmtl":
-        if (current && currentId) {
-          ctx.sceneModel.createMaterial({
-            id: currentId,
-            color: current.color,
-            opacity: current.opacity
-          });
-        }
-        currentId = value;
-        current = {
-          color: [0.8, 0.8, 0.8],
-          // default
-          opacity: 1
-        };
-        break;
-      case "kd": {
-        if (!current) {
-          break;
-        }
-        const parts = value.split(/\s+/);
-        current.color = [
-          parseFloat(parts[0]),
-          parseFloat(parts[1]),
-          parseFloat(parts[2])
-        ];
-        break;
-      }
-      case "d": {
-        if (!current) {
-          break;
-        }
-        current.opacity = parseFloat(value);
-        break;
-      }
-      case "tr": {
-        if (!current) {
-          break;
-        }
-        current.opacity = 1 - parseFloat(value);
-        break;
-      }
-    }
-  }
-  if (current && currentId) {
-    ctx.sceneModel.createMaterial({
-      id: currentId,
-      color: current.color,
-      opacity: current.opacity
-    });
-  }
-  await step2("Parsing MTL", lines.length, lines.length);
-}
-
-// ../sdk/src/formats/mtl/MTLLoader.ts
-var MTLLoader = class extends ModelLoader {
-  /**
-   * Constructs a MTLLoader.
-   */
-  constructor() {
-    super({
-      format: "MTL",
-      fileDataType: "text",
-      parsers: {
-        "1.0": parse16
-      },
-      getVersion: (fileData) => {
-        return fileData.version || "1.0";
-      }
-    });
-  }
-};
-
-// ../sdk/src/formats/mtl/versions/v1_0/encode.ts
-async function encode19(params, options) {
-  const { sceneModel } = params;
-  const opts = options || {};
-  const onProgress = opts.onProgress;
-  const signal = opts.signal;
-  const progress = { phase: "", current: 0, total: 0 };
-  const step2 = async (phase, current, total) => {
-    if (onProgress) {
-      progress.phase = phase;
-      progress.current = current;
-      progress.total = total;
-      onProgress(progress);
-    }
-    await yieldToHost(signal);
-  };
-  const lines = [];
-  const writtenMaterialIds = /* @__PURE__ */ new Set();
-  lines.push("# WaveFront MTL");
-  lines.push(`# SceneModel: ${sceneModel.id}`);
-  lines.push("");
-  const sceneMaterials = Object.values(sceneModel.materials || {});
-  for (let i = 0, len = sceneMaterials.length; i < len; i++) {
-    if ((i & 63) === 0)
-      await step2("Encoding MTL materials", i, len);
-    const material = sceneMaterials[i];
-    if (!material || writtenMaterialIds.has(material.id)) {
-      continue;
-    }
-    const materialName = getMaterialNameForSceneMaterial(material);
-    writeSceneMaterial(lines, materialName, material);
-    writtenMaterialIds.add(materialName);
-  }
-  const sceneMeshes = Object.values(sceneModel.meshes || {});
-  for (let i = 0, len = sceneMeshes.length; i < len; i++) {
-    if ((i & 63) === 0)
-      await step2("Encoding MTL fallback meshes", i, len);
-    const mesh = sceneMeshes[i];
-    if (!mesh || mesh.material) {
-      continue;
-    }
-    const fallbackMaterialId = getMaterialNameForMesh2(mesh);
-    if (writtenMaterialIds.has(fallbackMaterialId)) {
-      continue;
-    }
-    const color2 = mesh.color || [1, 1, 1];
-    const opacity = mesh.opacity ?? 1;
-    const dissolve = clamp012(opacity);
-    lines.push(`newmtl ${sanitizeMTLName2(fallbackMaterialId)}`);
-    lines.push(`Kd ${formatNum2(color2[0])} ${formatNum2(color2[1])} ${formatNum2(color2[2])}`);
-    lines.push(`Ka 0.000000 0.000000 0.000000`);
-    lines.push(`Ks 0.000000 0.000000 0.000000`);
-    lines.push(`Ns 0.000000`);
-    lines.push(`d ${formatNum2(dissolve)}`);
-    lines.push(`Tr ${formatNum2(1 - dissolve)}`);
-    lines.push(`illum 2`);
-    lines.push("");
-    writtenMaterialIds.add(fallbackMaterialId);
-  }
-  await step2("Encoding MTL", sceneMeshes.length, sceneMeshes.length);
-  return lines.join("\n");
-}
-function writeSceneMaterial(lines, materialName, material) {
-  const color2 = material.color || [1, 1, 1];
-  const opacity = material.opacity ?? 1;
-  const dissolve = clamp012(opacity);
-  lines.push(`newmtl ${sanitizeMTLName2(materialName)}`);
-  lines.push(`Kd ${formatNum2(color2[0])} ${formatNum2(color2[1])} ${formatNum2(color2[2])}`);
-  lines.push(`Ka 0.000000 0.000000 0.000000`);
-  lines.push(`Ks 0.000000 0.000000 0.000000`);
-  lines.push(`Ns 0.000000`);
-  lines.push(`d ${formatNum2(dissolve)}`);
-  lines.push(`Tr ${formatNum2(1 - dissolve)}`);
-  lines.push(`illum 2`);
-  if (material.colorTexture?.src) {
-    lines.push(`map_Kd ${sanitizeTexturePath(material.colorTexture.src)}`);
-  }
-  if (material.occlusionTexture?.src) {
-    lines.push(`map_Ka ${sanitizeTexturePath(material.occlusionTexture.src)}`);
-  }
-  if (material.emissiveTexture?.src) {
-    lines.push(`map_Ke ${sanitizeTexturePath(material.emissiveTexture.src)}`);
-  }
-  lines.push("");
-}
-function getMaterialNameForSceneMaterial(material) {
-  return material.id;
-}
-function getMaterialNameForMesh2(mesh) {
-  return mesh.material?.id || `mesh_${mesh.id}`;
-}
-function sanitizeMTLName2(name12) {
-  return String(name12 || "unnamed").replace(/\s+/g, "_");
-}
-function sanitizeTexturePath(path) {
-  return String(path || "").trim();
-}
-function clamp012(value) {
-  if (!isFinite(value)) {
-    return 1;
-  }
-  if (value < 0) {
-    return 0;
-  }
-  if (value > 1) {
-    return 1;
-  }
-  return value;
-}
-function formatNum2(value) {
-  if (!isFinite(value)) {
-    return "0";
-  }
-  return Number(value.toFixed(9)).toString();
-}
-
-// ../sdk/src/formats/mtl/MTLExporter.ts
-var MTLExporter = class extends ModelExporter {
-  constructor() {
-    super({
-      format: "MTL",
-      fileDataType: "text",
-      encoders: {
-        "1.0": encode19
-      },
-      defaultVersion: "1.0"
-    });
-  }
-};
-
-// ../sdk/src/formats/fbx/index.ts
-var fbx_exports = {};
-__export(fbx_exports, {
-  FBXExporter: () => FBXExporter,
-  FBXLoader: () => FBXLoader
-});
 
 // ../../node_modules/.pnpm/pako@2.1.0/node_modules/pako/dist/pako.esm.mjs
 var Z_FIXED$1 = 4;
@@ -128900,9 +127095,9 @@ function TreeDesc(dyn_tree, stat_desc) {
 var d_code = (dist) => {
   return dist < 256 ? _dist_code[dist] : _dist_code[256 + (dist >>> 7)];
 };
-var put_short = (s, w) => {
-  s.pending_buf[s.pending++] = w & 255;
-  s.pending_buf[s.pending++] = w >>> 8 & 255;
+var put_short = (s, w2) => {
+  s.pending_buf[s.pending++] = w2 & 255;
+  s.pending_buf[s.pending++] = w2 >>> 8 & 255;
 };
 var send_bits = (s, value, length2) => {
   if (s.bi_valid > Buf_size - length2) {
@@ -128951,7 +127146,7 @@ var gen_bitlen = (s, desc) => {
   const extra = desc.stat_desc.extra_bits;
   const base = desc.stat_desc.extra_base;
   const max_length = desc.stat_desc.max_length;
-  let h;
+  let h2;
   let n, m;
   let bits;
   let xbits;
@@ -128961,8 +127156,8 @@ var gen_bitlen = (s, desc) => {
     s.bl_count[bits] = 0;
   }
   tree[s.heap[s.heap_max] * 2 + 1] = 0;
-  for (h = s.heap_max + 1; h < HEAP_SIZE$1; h++) {
-    n = s.heap[h];
+  for (h2 = s.heap_max + 1; h2 < HEAP_SIZE$1; h2++) {
+    n = s.heap[h2];
     bits = tree[tree[n * 2 + 1] * 2 + 1] + 1;
     if (bits > max_length) {
       bits = max_length;
@@ -128999,7 +127194,7 @@ var gen_bitlen = (s, desc) => {
   for (bits = max_length; bits !== 0; bits--) {
     n = s.bl_count[bits];
     while (n !== 0) {
-      m = s.heap[--h];
+      m = s.heap[--h2];
       if (m > max_code) {
         continue;
       }
@@ -131600,7 +129795,7 @@ var TYPEDO = 16192;
 var STORED = 16193;
 var COPY_ = 16194;
 var COPY = 16195;
-var TABLE = 16196;
+var TABLE2 = 16196;
 var LENLENS = 16197;
 var CODELENS = 16198;
 var LEN_ = 16199;
@@ -132190,7 +130385,7 @@ var inflate$2 = (strm, flush) => {
               }
               break;
             case 2:
-              state.mode = TABLE;
+              state.mode = TABLE2;
               break;
             case 3:
               strm.msg = "invalid block type";
@@ -132246,7 +130441,7 @@ var inflate$2 = (strm, flush) => {
           }
           state.mode = TYPE;
           break;
-        case TABLE:
+        case TABLE2:
           while (bits < 14) {
             if (have === 0) {
               break inf_leave;
@@ -132989,6 +131184,1915 @@ var { Inflate, inflate, inflateRaw, ungzip } = inflate_1$1;
 var inflate_1 = inflate;
 var inflateRaw_1 = inflateRaw;
 
+// ../sdk/src/formats/legacy/xkt/versions/shared/inflateElements.ts
+function inflateBuffer(array) {
+  return array.length === 0 ? new ArrayBuffer(0) : inflate_1(array).buffer;
+}
+function inflateString(array) {
+  return array.length === 0 ? "" : inflate_1(array, { to: "string" });
+}
+
+// ../sdk/src/formats/legacy/xkt/versions/shared/buildTiledSceneModel.ts
+var MESH_ATTRIBUTES = 6;
+async function buildTiledSceneModel(params) {
+  const { xktData, sceneModel, dataModel, options } = params;
+  const layerId = options?.layerId || "default";
+  const {
+    positions,
+    colors,
+    colorComponents,
+    indices,
+    matrices,
+    reusedGeometriesDecodeMatrix,
+    eachGeometryPrimitiveType,
+    eachGeometryPositionsPortion,
+    eachGeometryColorsPortion,
+    eachGeometryIndicesPortion,
+    eachMeshGeometriesPortion,
+    eachMeshMatricesPortion,
+    eachMeshMaterialAttributes,
+    eachEntityId,
+    eachEntityMeshesPortion,
+    eachTileAABB,
+    eachTileEntitiesPortion
+  } = xktData;
+  const numGeometries = eachGeometryPrimitiveType.length;
+  const numMeshes = eachMeshGeometriesPortion.length;
+  const numEntities = eachEntityId.length;
+  const numTiles = eachTileEntitiesPortion.length;
+  if (dataModel && xktData.metadata) {
+    buildDataModel(dataModel, xktData.metadata);
+  }
+  if (!sceneModel) {
+    return;
+  }
+  const reuseCount = new Uint32Array(numGeometries);
+  for (let i = 0; i < numMeshes; i++)
+    reuseCount[eachMeshGeometriesPortion[i]]++;
+  const geometryValid = /* @__PURE__ */ new Map();
+  let nextMeshId = 0;
+  for (let tileIndex = 0; tileIndex < numTiles; tileIndex++) {
+    if ((tileIndex & 7) === 0)
+      await yieldToHost(options.signal);
+    const aabbBase = tileIndex * 6;
+    const tileCenter = [
+      (eachTileAABB[aabbBase] + eachTileAABB[aabbBase + 3]) / 2,
+      (eachTileAABB[aabbBase + 1] + eachTileAABB[aabbBase + 4]) / 2,
+      (eachTileAABB[aabbBase + 2] + eachTileAABB[aabbBase + 5]) / 2
+    ];
+    const rtcAABB = [
+      eachTileAABB[aabbBase] - tileCenter[0],
+      eachTileAABB[aabbBase + 1] - tileCenter[1],
+      eachTileAABB[aabbBase + 2] - tileCenter[2],
+      eachTileAABB[aabbBase + 3] - tileCenter[0],
+      eachTileAABB[aabbBase + 4] - tileCenter[1],
+      eachTileAABB[aabbBase + 5] - tileCenter[2]
+    ];
+    const tileDecodeMatrix = decodeMatrixFromAABB(rtcAABB);
+    const lastEntityInTile = tileIndex === numTiles - 1 ? numEntities - 1 : eachTileEntitiesPortion[tileIndex + 1] - 1;
+    for (let entityIndex = eachTileEntitiesPortion[tileIndex]; entityIndex <= lastEntityInTile; entityIndex++) {
+      const lastMeshInEntity = entityIndex === numEntities - 1 ? numMeshes - 1 : eachEntityMeshesPortion[entityIndex + 1] - 1;
+      const meshIds = [];
+      for (let meshIndex = eachEntityMeshesPortion[entityIndex]; meshIndex <= lastMeshInEntity; meshIndex++) {
+        const geometryIndex = eachMeshGeometriesPortion[meshIndex];
+        const reused = reuseCount[geometryIndex] > 1;
+        const primitive = scenePrimitive(eachGeometryPrimitiveType[geometryIndex]);
+        if (primitive === void 0)
+          continue;
+        const geometryId = `geometry-${geometryIndex}`;
+        let valid = geometryValid.get(geometryIndex);
+        if (valid === void 0) {
+          const decodeMatrix = reused ? reusedGeometriesDecodeMatrix : tileDecodeMatrix;
+          const last = geometryIndex === numGeometries - 1;
+          const posSlice = positions.subarray(
+            eachGeometryPositionsPortion[geometryIndex],
+            last ? positions.length : eachGeometryPositionsPortion[geometryIndex + 1]
+          );
+          const geometryParams = {
+            id: geometryId,
+            primitive,
+            positions: decompressPositions(posSlice, decodeMatrix)
+          };
+          if (primitive === PointsPrimitive) {
+            const colSlice = colors.subarray(
+              eachGeometryColorsPortion[geometryIndex],
+              last ? colors.length : eachGeometryColorsPortion[geometryIndex + 1]
+            );
+            if (colSlice.length > 0) {
+              geometryParams.colorsCompressed = colorComponents === 3 ? rgbToRgba(colSlice) : colSlice;
+            }
+          } else {
+            const indSlice = indices.subarray(
+              eachGeometryIndicesPortion[geometryIndex],
+              last ? indices.length : eachGeometryIndicesPortion[geometryIndex + 1]
+            );
+            geometryParams.indices = eachGeometryPrimitiveType[geometryIndex] === 4 ? lineStripToLines(indSlice) : indSlice;
+          }
+          const hasGeometry = geometryParams.positions.length > 0 && (primitive === PointsPrimitive || geometryParams.indices && geometryParams.indices.length > 0);
+          valid = hasGeometry && sceneModel.createGeometry(geometryParams).ok !== false;
+          geometryValid.set(geometryIndex, valid);
+        }
+        if (!valid)
+          continue;
+        const meshId = `mesh-${nextMeshId++}`;
+        const attrBase = meshIndex * MESH_ATTRIBUTES;
+        const meshParams = {
+          id: meshId,
+          geometryId,
+          origin: tileCenter,
+          color: [
+            eachMeshMaterialAttributes[attrBase] / 255,
+            eachMeshMaterialAttributes[attrBase + 1] / 255,
+            eachMeshMaterialAttributes[attrBase + 2] / 255
+          ],
+          opacity: eachMeshMaterialAttributes[attrBase + 3] / 255
+        };
+        if (reused) {
+          const matrixBase = eachMeshMatricesPortion[meshIndex];
+          meshParams.matrix = createMat4Float64(
+            Array.from(matrices.subarray(matrixBase, matrixBase + 16))
+          );
+        }
+        if (sceneModel.createMesh(meshParams).ok !== false) {
+          meshIds.push(meshId);
+        }
+      }
+      if (meshIds.length > 0) {
+        sceneModel.createObject({ id: eachEntityId[entityIndex], meshIds, layerId });
+      }
+    }
+  }
+}
+function scenePrimitive(code) {
+  switch (code) {
+    case 0:
+      return TrianglesPrimitive;
+    case 1:
+      return TrianglesPrimitive;
+    case 2:
+      return PointsPrimitive;
+    case 3:
+      return LinesPrimitive;
+    case 4:
+      return LinesPrimitive;
+    default:
+      return void 0;
+  }
+}
+function decodeMatrixFromAABB(aabb) {
+  const m = createMat4Float64();
+  m[0] = (aabb[3] - aabb[0]) / 65535;
+  m[5] = (aabb[4] - aabb[1]) / 65535;
+  m[10] = (aabb[5] - aabb[2]) / 65535;
+  m[12] = aabb[0];
+  m[13] = aabb[1];
+  m[14] = aabb[2];
+  return m;
+}
+function decompressPositions(compressed, m) {
+  const out = new Float32Array(compressed.length);
+  for (let i = 0, len = compressed.length; i < len; i += 3) {
+    out[i] = compressed[i] * m[0] + m[12];
+    out[i + 1] = compressed[i + 1] * m[5] + m[13];
+    out[i + 2] = compressed[i + 2] * m[10] + m[14];
+  }
+  return out;
+}
+function rgbToRgba(rgb) {
+  const out = new Uint8Array(rgb.length / 3 * 4);
+  for (let i = 0, j = 0; i < rgb.length; i += 3) {
+    out[j++] = rgb[i];
+    out[j++] = rgb[i + 1];
+    out[j++] = rgb[i + 2];
+    out[j++] = 255;
+  }
+  return out;
+}
+function lineStripToLines(strip) {
+  if (strip.length < 2)
+    return new Uint32Array(0);
+  const lines = new Uint32Array((strip.length - 1) * 2);
+  for (let i = 0, j = 0; i < strip.length - 1; i++) {
+    lines[j++] = strip[i];
+    lines[j++] = strip[i + 1];
+  }
+  return lines;
+}
+function buildDataModel(dataModel, metadata) {
+  const propertySets = metadata?.propertySets || [];
+  for (const ps of propertySets) {
+    dataModel.createPropertySet({
+      id: ps.id,
+      name: ps.name || ps.id,
+      type: ps.type || "Default",
+      properties: (ps.properties || []).map((p) => ({ name: p.name, value: p.value }))
+    });
+  }
+  const metaObjects = metadata?.metaObjects || [];
+  const objectIds = new Set(metaObjects.map((mo) => mo.id));
+  for (const mo of metaObjects) {
+    dataModel.createObject({
+      id: mo.id,
+      name: mo.name ?? mo.id,
+      type: mo.type ?? "Default",
+      propertySetIds: mo.propertySetIds
+    });
+  }
+  for (const mo of metaObjects) {
+    if (mo.parent && mo.parent !== mo.id && objectIds.has(mo.parent)) {
+      dataModel.createRelationship({
+        type: "BasicAggregation",
+        relatingObjectId: mo.parent,
+        relatedObjectId: mo.id
+      });
+    }
+  }
+}
+
+// ../sdk/src/formats/legacy/xkt/versions/v7/parse.ts
+async function parse12(params, options) {
+  const { fileData, sceneModel, dataModel } = params;
+  const e = splitElements(fileData);
+  const xktData = {
+    positions: new Uint16Array(inflateBuffer(e[0])),
+    colors: new Uint8Array(inflateBuffer(e[2])),
+    colorComponents: 3,
+    indices: new Uint32Array(inflateBuffer(e[3])),
+    matrices: new Float32Array(inflateBuffer(e[5])),
+    reusedGeometriesDecodeMatrix: new Float32Array(inflateBuffer(e[6])),
+    eachGeometryPrimitiveType: new Uint8Array(inflateBuffer(e[7])),
+    eachGeometryPositionsPortion: new Uint32Array(inflateBuffer(e[8])),
+    eachGeometryColorsPortion: new Uint32Array(inflateBuffer(e[10])),
+    eachGeometryIndicesPortion: new Uint32Array(inflateBuffer(e[11])),
+    eachMeshGeometriesPortion: new Uint32Array(inflateBuffer(e[13])),
+    eachMeshMatricesPortion: new Uint32Array(inflateBuffer(e[14])),
+    eachMeshMaterialAttributes: new Uint8Array(inflateBuffer(e[15])),
+    eachEntityId: JSON.parse(inflateString(e[16])),
+    eachEntityMeshesPortion: new Uint32Array(inflateBuffer(e[17])),
+    eachTileAABB: new Float64Array(inflateBuffer(e[18])),
+    eachTileEntitiesPortion: new Uint32Array(inflateBuffer(e[19]))
+  };
+  await buildTiledSceneModel({ xktData, sceneModel, dataModel, options: options || {} });
+}
+
+// ../sdk/src/formats/legacy/xkt/versions/v8/parse.ts
+async function parse13(params, options) {
+  const { fileData, sceneModel, dataModel } = params;
+  const e = splitElements(fileData);
+  const types = JSON.parse(inflateString(e[0]));
+  const eachMetaObjectId = JSON.parse(inflateString(e[1]));
+  const eachMetaObjectType = new Uint32Array(inflateBuffer(e[2]));
+  const eachMetaObjectName = JSON.parse(inflateString(e[3]));
+  const eachMetaObjectParent = new Uint32Array(inflateBuffer(e[4]));
+  const eachEntityMetaObject = new Uint32Array(inflateBuffer(e[21]));
+  const metadata = {
+    metaObjects: eachMetaObjectId.map((id, i) => ({
+      id,
+      type: types[eachMetaObjectType[i]] || "Default",
+      name: eachMetaObjectName[i],
+      parent: eachMetaObjectParent[i] !== i ? eachMetaObjectId[eachMetaObjectParent[i]] : null
+    })),
+    propertySets: []
+  };
+  const eachEntityId = Array.from(eachEntityMetaObject, (metaObjectIndex) => eachMetaObjectId[metaObjectIndex]);
+  const xktData = {
+    positions: new Uint16Array(inflateBuffer(e[5])),
+    colors: new Uint8Array(inflateBuffer(e[7])),
+    colorComponents: 3,
+    indices: new Uint32Array(inflateBuffer(e[8])),
+    matrices: new Float32Array(inflateBuffer(e[10])),
+    reusedGeometriesDecodeMatrix: new Float32Array(inflateBuffer(e[11])),
+    eachGeometryPrimitiveType: new Uint8Array(inflateBuffer(e[12])),
+    eachGeometryPositionsPortion: new Uint32Array(inflateBuffer(e[13])),
+    eachGeometryColorsPortion: new Uint32Array(inflateBuffer(e[15])),
+    eachGeometryIndicesPortion: new Uint32Array(inflateBuffer(e[16])),
+    eachMeshGeometriesPortion: new Uint32Array(inflateBuffer(e[18])),
+    eachMeshMatricesPortion: new Uint32Array(inflateBuffer(e[19])),
+    eachMeshMaterialAttributes: new Uint8Array(inflateBuffer(e[20])),
+    eachEntityId,
+    eachEntityMeshesPortion: new Uint32Array(inflateBuffer(e[22])),
+    eachTileAABB: new Float64Array(inflateBuffer(e[23])),
+    eachTileEntitiesPortion: new Uint32Array(inflateBuffer(e[24])),
+    metadata
+  };
+  await buildTiledSceneModel({ xktData, sceneModel, dataModel, options: options || {} });
+}
+
+// ../sdk/src/formats/legacy/xkt/versions/v9/parse.ts
+async function parse14(params, options) {
+  const { fileData, sceneModel, dataModel } = params;
+  const e = splitElements(fileData);
+  const xktData = {
+    metadata: JSON.parse(inflateString(e[0])),
+    positions: new Uint16Array(inflateBuffer(e[1])),
+    colors: new Uint8Array(inflateBuffer(e[3])),
+    colorComponents: 4,
+    indices: new Uint32Array(inflateBuffer(e[4])),
+    matrices: new Float32Array(inflateBuffer(e[6])),
+    reusedGeometriesDecodeMatrix: new Float32Array(inflateBuffer(e[7])),
+    eachGeometryPrimitiveType: new Uint8Array(inflateBuffer(e[8])),
+    eachGeometryPositionsPortion: new Uint32Array(inflateBuffer(e[9])),
+    eachGeometryColorsPortion: new Uint32Array(inflateBuffer(e[11])),
+    eachGeometryIndicesPortion: new Uint32Array(inflateBuffer(e[12])),
+    eachMeshGeometriesPortion: new Uint32Array(inflateBuffer(e[14])),
+    eachMeshMatricesPortion: new Uint32Array(inflateBuffer(e[15])),
+    eachMeshMaterialAttributes: new Uint8Array(inflateBuffer(e[16])),
+    eachEntityId: JSON.parse(inflateString(e[17])),
+    eachEntityMeshesPortion: new Uint32Array(inflateBuffer(e[18])),
+    eachTileAABB: new Float64Array(inflateBuffer(e[19])),
+    eachTileEntitiesPortion: new Uint32Array(inflateBuffer(e[20]))
+  };
+  await buildTiledSceneModel({ xktData, sceneModel, dataModel, options: options || {} });
+}
+
+// ../sdk/src/formats/legacy/xkt/versions/v10/parse.ts
+async function parse15(params, options) {
+  const { fileData, sceneModel, dataModel } = params;
+  const e = splitElements(fileData);
+  const xktData = {
+    metadata: JSON.parse(inflateString(e[0])),
+    positions: new Uint16Array(inflateBuffer(e[4])),
+    colors: new Uint8Array(inflateBuffer(e[6])),
+    colorComponents: 4,
+    indices: new Uint32Array(inflateBuffer(e[8])),
+    matrices: new Float32Array(inflateBuffer(e[11])),
+    reusedGeometriesDecodeMatrix: new Float32Array(inflateBuffer(e[12])),
+    eachGeometryPrimitiveType: new Uint8Array(inflateBuffer(e[13])),
+    eachGeometryPositionsPortion: new Uint32Array(inflateBuffer(e[14])),
+    eachGeometryColorsPortion: new Uint32Array(inflateBuffer(e[16])),
+    eachGeometryIndicesPortion: new Uint32Array(inflateBuffer(e[18])),
+    eachMeshGeometriesPortion: new Uint32Array(inflateBuffer(e[20])),
+    eachMeshMatricesPortion: new Uint32Array(inflateBuffer(e[21])),
+    eachMeshMaterialAttributes: new Uint8Array(inflateBuffer(e[23])),
+    eachEntityId: JSON.parse(inflateString(e[24])),
+    eachEntityMeshesPortion: new Uint32Array(inflateBuffer(e[25])),
+    eachTileAABB: new Float64Array(inflateBuffer(e[26])),
+    eachTileEntitiesPortion: new Uint32Array(inflateBuffer(e[27]))
+  };
+  await buildTiledSceneModel({ xktData, sceneModel, dataModel, options: options || {} });
+}
+
+// ../sdk/src/formats/legacy/xkt/versions/v11/parse.ts
+async function parse16(params, options) {
+  const { fileData, sceneModel, dataModel } = params;
+  const requiresSwapFromLittleEndian = function() {
+    const b4 = new ArrayBuffer(2);
+    new Uint16Array(b4)[0] = 1;
+    return new Uint8Array(b4)[0] !== 1;
+  }();
+  const dataView = new DataView(fileData);
+  let i = 0;
+  const nextArray = (type) => {
+    const idx = 1 + 2 * i++;
+    const byteOffset = dataView.getUint32(idx * 4, true);
+    const byteLength = dataView.getUint32((idx + 1) * 4, true);
+    const BPE = type.BYTES_PER_ELEMENT;
+    if (requiresSwapFromLittleEndian && BPE > 1) {
+      const subarray = new Uint8Array(fileData, byteOffset, byteLength);
+      const swaps = BPE / 2;
+      const cnt = subarray.length / BPE;
+      for (let b4 = 0; b4 < cnt; b4++) {
+        const offset = b4 * BPE;
+        for (let j = 0; j < swaps; j++) {
+          const i1 = offset + j;
+          const i2 = offset - j + BPE - 1;
+          const tmp = subarray[i1];
+          subarray[i1] = subarray[i2];
+          subarray[i2] = tmp;
+        }
+      }
+    }
+    return new type(fileData, byteOffset, byteLength / BPE);
+  };
+  const decoder = new TextDecoder();
+  const nextObject = () => JSON.parse(decoder.decode(nextArray(Uint8Array)));
+  const metadata = nextObject();
+  nextArray(Uint8Array);
+  nextArray(Uint32Array);
+  nextArray(Uint16Array);
+  const positions = nextArray(Uint16Array);
+  nextArray(Int8Array);
+  const colors = nextArray(Uint8Array);
+  nextArray(Float32Array);
+  const indices = nextArray(Uint32Array);
+  nextArray(Uint32Array);
+  nextArray(Int32Array);
+  const matrices = nextArray(Float32Array);
+  const reusedGeometriesDecodeMatrix = nextArray(Float32Array);
+  const eachGeometryPrimitiveType = nextArray(Uint8Array);
+  const eachGeometryPositionsPortion = nextArray(Uint32Array);
+  nextArray(Uint32Array);
+  const eachGeometryColorsPortion = nextArray(Uint32Array);
+  nextArray(Uint32Array);
+  const eachGeometryIndicesPortion = nextArray(Uint32Array);
+  nextArray(Uint32Array);
+  const eachMeshGeometriesPortion = nextArray(Uint32Array);
+  const eachMeshMatricesPortion = nextArray(Uint32Array);
+  nextArray(Int32Array);
+  const eachMeshMaterialAttributes = nextArray(Uint8Array);
+  const eachEntityId = nextObject();
+  const eachEntityMeshesPortion = nextArray(Uint32Array);
+  const eachTileAABB = nextArray(Float64Array);
+  const eachTileEntitiesPortion = nextArray(Uint32Array);
+  const xktData = {
+    metadata,
+    positions,
+    colors,
+    colorComponents: 4,
+    indices,
+    matrices,
+    reusedGeometriesDecodeMatrix,
+    eachGeometryPrimitiveType,
+    eachGeometryPositionsPortion,
+    eachGeometryColorsPortion,
+    eachGeometryIndicesPortion,
+    eachMeshGeometriesPortion,
+    eachMeshMatricesPortion,
+    eachMeshMaterialAttributes,
+    eachEntityId,
+    eachEntityMeshesPortion,
+    eachTileAABB,
+    eachTileEntitiesPortion
+  };
+  await buildTiledSceneModel({ xktData, sceneModel, dataModel, options: options || {} });
+}
+
+// ../sdk/src/formats/legacy/xkt/versions/v12/unpackXKT.ts
+function unpackXKT(arrayBuffer) {
+  const requiresSwapFromLittleEndian = function() {
+    const b4 = new ArrayBuffer(2);
+    new Uint16Array(b4)[0] = 1;
+    return new Uint8Array(b4)[0] !== 1;
+  }();
+  const nextArray = function() {
+    let i = 0;
+    const dataView = new DataView(arrayBuffer);
+    return function(type) {
+      const idx = 1 + 2 * i++;
+      const byteOffset = dataView.getUint32(idx * 4, true);
+      const byteLength = dataView.getUint32((idx + 1) * 4, true);
+      const BPE = type.BYTES_PER_ELEMENT;
+      if (requiresSwapFromLittleEndian && BPE > 1) {
+        const subarray = new Uint8Array(arrayBuffer, byteOffset, byteLength);
+        const swaps = BPE / 2;
+        const cnt = subarray.length / BPE;
+        for (let b4 = 0; b4 < cnt; b4++) {
+          const offset = b4 * BPE;
+          for (let j = 0; j < swaps; j++) {
+            const i1 = offset + j;
+            const i2 = offset - j + BPE - 1;
+            const tmp = subarray[i1];
+            subarray[i1] = subarray[i2];
+            subarray[i2] = tmp;
+          }
+        }
+      }
+      return new type(arrayBuffer, byteOffset, byteLength / BPE);
+    };
+  }();
+  const nextObject = function() {
+    const decoder = new TextDecoder();
+    return () => JSON.parse(decoder.decode(nextArray(Uint8Array)));
+  }();
+  return {
+    metadata: nextObject(),
+    textureData: nextArray(Uint8Array),
+    eachTextureDataPortion: nextArray(Uint32Array),
+    eachTextureAttributes: nextArray(Uint16Array),
+    positions: nextArray(Uint16Array),
+    normals: nextArray(Int8Array),
+    colors: nextArray(Uint8Array),
+    uvs: nextArray(Float32Array),
+    indices: nextArray(Uint32Array),
+    edgeIndices: nextArray(Uint32Array),
+    eachTextureSetTextures: nextArray(Int32Array),
+    matrices: nextArray(Float32Array),
+    reusedGeometriesDecodeMatrix: nextArray(Float32Array),
+    eachGeometryPrimitiveType: nextArray(Uint8Array),
+    eachGeometryAxisLabel: nextObject(),
+    eachGeometryPositionsPortion: nextArray(Uint32Array),
+    eachGeometryNormalsPortion: nextArray(Uint32Array),
+    eachGeometryColorsPortion: nextArray(Uint32Array),
+    eachGeometryUVsPortion: nextArray(Uint32Array),
+    eachGeometryIndicesPortion: nextArray(Uint32Array),
+    eachGeometryEdgeIndicesPortion: nextArray(Uint32Array),
+    eachMeshGeometriesPortion: nextArray(Uint32Array),
+    eachMeshMatricesPortion: nextArray(Uint32Array),
+    eachMeshTextureSet: nextArray(Int32Array),
+    eachMeshMaterialAttributes: nextArray(Uint8Array),
+    eachEntityId: nextObject(),
+    eachEntityMeshesPortion: nextArray(Uint32Array),
+    eachTileAABB: nextArray(Float64Array),
+    eachTileEntitiesPortion: nextArray(Uint32Array)
+  };
+}
+
+// ../sdk/src/formats/legacy/xkt/versions/v12/xktToModel.ts
+var MESH_ATTRIBUTES2 = 6;
+async function xktToModel(params) {
+  const { xktData, sceneModel, dataModel, options } = params;
+  const layerId = options?.layerId || "default";
+  const {
+    positions,
+    colors,
+    indices,
+    matrices,
+    reusedGeometriesDecodeMatrix,
+    eachGeometryPrimitiveType,
+    eachGeometryPositionsPortion,
+    eachGeometryColorsPortion,
+    eachGeometryIndicesPortion,
+    eachMeshGeometriesPortion,
+    eachMeshMatricesPortion,
+    eachMeshMaterialAttributes,
+    eachEntityId,
+    eachEntityMeshesPortion,
+    eachTileAABB,
+    eachTileEntitiesPortion
+  } = xktData;
+  const numGeometries = eachGeometryPrimitiveType.length;
+  const numMeshes = eachMeshGeometriesPortion.length;
+  const numEntities = eachEntityId.length;
+  const numTiles = eachTileEntitiesPortion.length;
+  if (dataModel) {
+    buildDataModel2(dataModel, xktData.metadata);
+  }
+  if (!sceneModel) {
+    return;
+  }
+  const reuseCount = new Uint32Array(numGeometries);
+  for (let i = 0; i < numMeshes; i++)
+    reuseCount[eachMeshGeometriesPortion[i]]++;
+  const geometryValid = /* @__PURE__ */ new Map();
+  let nextMeshId = 0;
+  for (let tileIndex = 0; tileIndex < numTiles; tileIndex++) {
+    if ((tileIndex & 7) === 0)
+      await yieldToHost(options.signal);
+    const aabbBase = tileIndex * 6;
+    const tileCenter = [
+      (eachTileAABB[aabbBase] + eachTileAABB[aabbBase + 3]) / 2,
+      (eachTileAABB[aabbBase + 1] + eachTileAABB[aabbBase + 4]) / 2,
+      (eachTileAABB[aabbBase + 2] + eachTileAABB[aabbBase + 5]) / 2
+    ];
+    const rtcAABB = [
+      eachTileAABB[aabbBase] - tileCenter[0],
+      eachTileAABB[aabbBase + 1] - tileCenter[1],
+      eachTileAABB[aabbBase + 2] - tileCenter[2],
+      eachTileAABB[aabbBase + 3] - tileCenter[0],
+      eachTileAABB[aabbBase + 4] - tileCenter[1],
+      eachTileAABB[aabbBase + 5] - tileCenter[2]
+    ];
+    const tileDecodeMatrix = decodeMatrixFromAABB2(rtcAABB);
+    const lastEntityInTile = tileIndex === numTiles - 1 ? numEntities - 1 : eachTileEntitiesPortion[tileIndex + 1] - 1;
+    for (let entityIndex = eachTileEntitiesPortion[tileIndex]; entityIndex <= lastEntityInTile; entityIndex++) {
+      const lastMeshInEntity = entityIndex === numEntities - 1 ? numMeshes - 1 : eachEntityMeshesPortion[entityIndex + 1] - 1;
+      const meshIds = [];
+      for (let meshIndex = eachEntityMeshesPortion[entityIndex]; meshIndex <= lastMeshInEntity; meshIndex++) {
+        const geometryIndex = eachMeshGeometriesPortion[meshIndex];
+        const reused = reuseCount[geometryIndex] > 1;
+        const primitive = scenePrimitive2(eachGeometryPrimitiveType[geometryIndex]);
+        if (primitive === void 0)
+          continue;
+        const geometryId = `geometry-${geometryIndex}`;
+        let valid = geometryValid.get(geometryIndex);
+        if (valid === void 0) {
+          const decodeMatrix = reused ? reusedGeometriesDecodeMatrix : tileDecodeMatrix;
+          const last = geometryIndex === numGeometries - 1;
+          const posSlice = positions.subarray(
+            eachGeometryPositionsPortion[geometryIndex],
+            last ? positions.length : eachGeometryPositionsPortion[geometryIndex + 1]
+          );
+          const geometryParams = {
+            id: geometryId,
+            primitive,
+            positions: decompressPositions2(posSlice, decodeMatrix)
+          };
+          if (primitive === PointsPrimitive) {
+            const colSlice = colors.subarray(
+              eachGeometryColorsPortion[geometryIndex],
+              last ? colors.length : eachGeometryColorsPortion[geometryIndex + 1]
+            );
+            if (colSlice.length > 0)
+              geometryParams.colorsCompressed = colSlice;
+          } else {
+            const indSlice = indices.subarray(
+              eachGeometryIndicesPortion[geometryIndex],
+              last ? indices.length : eachGeometryIndicesPortion[geometryIndex + 1]
+            );
+            geometryParams.indices = eachGeometryPrimitiveType[geometryIndex] === 4 ? lineStripToLines2(indSlice) : indSlice;
+          }
+          const hasGeometry = geometryParams.positions.length > 0 && (primitive === PointsPrimitive || geometryParams.indices && geometryParams.indices.length > 0);
+          valid = hasGeometry && sceneModel.createGeometry(geometryParams).ok !== false;
+          geometryValid.set(geometryIndex, valid);
+        }
+        if (!valid)
+          continue;
+        const meshId = `mesh-${nextMeshId++}`;
+        const attrBase = meshIndex * MESH_ATTRIBUTES2;
+        const meshParams = {
+          id: meshId,
+          geometryId,
+          origin: tileCenter,
+          color: [
+            eachMeshMaterialAttributes[attrBase] / 255,
+            eachMeshMaterialAttributes[attrBase + 1] / 255,
+            eachMeshMaterialAttributes[attrBase + 2] / 255
+          ],
+          opacity: eachMeshMaterialAttributes[attrBase + 3] / 255
+        };
+        if (reused) {
+          const matrixBase = eachMeshMatricesPortion[meshIndex];
+          meshParams.matrix = createMat4Float64(
+            Array.from(matrices.subarray(matrixBase, matrixBase + 16))
+          );
+        }
+        if (sceneModel.createMesh(meshParams).ok !== false) {
+          meshIds.push(meshId);
+        }
+      }
+      if (meshIds.length > 0) {
+        sceneModel.createObject({ id: eachEntityId[entityIndex], meshIds, layerId });
+      }
+    }
+  }
+}
+function scenePrimitive2(code) {
+  switch (code) {
+    case 0:
+      return TrianglesPrimitive;
+    case 1:
+      return TrianglesPrimitive;
+    case 2:
+      return PointsPrimitive;
+    case 3:
+      return LinesPrimitive;
+    case 4:
+      return LinesPrimitive;
+    default:
+      return void 0;
+  }
+}
+function decodeMatrixFromAABB2(aabb) {
+  const m = createMat4Float64();
+  m[0] = (aabb[3] - aabb[0]) / 65535;
+  m[5] = (aabb[4] - aabb[1]) / 65535;
+  m[10] = (aabb[5] - aabb[2]) / 65535;
+  m[12] = aabb[0];
+  m[13] = aabb[1];
+  m[14] = aabb[2];
+  return m;
+}
+function decompressPositions2(compressed, m) {
+  const out = new Float32Array(compressed.length);
+  for (let i = 0, len = compressed.length; i < len; i += 3) {
+    out[i] = compressed[i] * m[0] + m[12];
+    out[i + 1] = compressed[i + 1] * m[5] + m[13];
+    out[i + 2] = compressed[i + 2] * m[10] + m[14];
+  }
+  return out;
+}
+function lineStripToLines2(strip) {
+  if (strip.length < 2)
+    return new Uint32Array(0);
+  const lines = new Uint32Array((strip.length - 1) * 2);
+  for (let i = 0, j = 0; i < strip.length - 1; i++) {
+    lines[j++] = strip[i];
+    lines[j++] = strip[i + 1];
+  }
+  return lines;
+}
+function buildDataModel2(dataModel, metadata) {
+  const propertySets = metadata?.propertySets || [];
+  for (const ps of propertySets) {
+    dataModel.createPropertySet({
+      id: ps.id,
+      name: ps.name || ps.id,
+      type: ps.type || "Default",
+      properties: (ps.properties || []).map((p) => ({ name: p.name, value: p.value }))
+    });
+  }
+  const metaObjects = metadata?.metaObjects || [];
+  const objectIds = new Set(metaObjects.map((mo) => mo.id));
+  for (const mo of metaObjects) {
+    dataModel.createObject({
+      id: mo.id,
+      name: mo.name ?? mo.id,
+      type: mo.type ?? "Default",
+      propertySetIds: mo.propertySetIds
+    });
+  }
+  for (const mo of metaObjects) {
+    if (mo.parent && mo.parent !== mo.id && objectIds.has(mo.parent)) {
+      dataModel.createRelationship({
+        type: "BasicAggregation",
+        relatingObjectId: mo.parent,
+        relatedObjectId: mo.id
+      });
+    }
+  }
+}
+
+// ../sdk/src/formats/legacy/xkt/versions/v12/parse.ts
+async function parse17(params, options) {
+  const { fileData, sceneModel, dataModel } = params;
+  await xktToModel({
+    xktData: unpackXKT(fileData),
+    sceneModel,
+    dataModel,
+    options: options || {}
+  });
+}
+
+// ../sdk/src/formats/legacy/xkt/versions/v12/parseCompressed.ts
+async function parse18(params, options) {
+  const { fileData, sceneModel, dataModel } = params;
+  const e = splitElements(fileData);
+  const xktData = {
+    metadata: JSON.parse(inflateString(e[0])),
+    positions: new Uint16Array(inflateBuffer(e[4])),
+    colors: new Uint8Array(inflateBuffer(e[6])),
+    colorComponents: 4,
+    indices: new Uint32Array(inflateBuffer(e[8])),
+    matrices: new Float32Array(inflateBuffer(e[11])),
+    reusedGeometriesDecodeMatrix: new Float32Array(inflateBuffer(e[12])),
+    eachGeometryPrimitiveType: new Uint8Array(inflateBuffer(e[13])),
+    eachGeometryPositionsPortion: new Uint32Array(inflateBuffer(e[15])),
+    eachGeometryColorsPortion: new Uint32Array(inflateBuffer(e[17])),
+    eachGeometryIndicesPortion: new Uint32Array(inflateBuffer(e[19])),
+    eachMeshGeometriesPortion: new Uint32Array(inflateBuffer(e[21])),
+    eachMeshMatricesPortion: new Uint32Array(inflateBuffer(e[22])),
+    eachMeshMaterialAttributes: new Uint8Array(inflateBuffer(e[24])),
+    eachEntityId: JSON.parse(inflateString(e[25])),
+    eachEntityMeshesPortion: new Uint32Array(inflateBuffer(e[26])),
+    eachTileAABB: new Float64Array(inflateBuffer(e[27])),
+    eachTileEntitiesPortion: new Uint32Array(inflateBuffer(e[28]))
+  };
+  await buildTiledSceneModel({ xktData, sceneModel, dataModel, options: options || {} });
+}
+
+// ../sdk/src/formats/legacy/xkt/XKTLoader.ts
+var XKTLoader = class extends ModelLoader {
+  constructor() {
+    super({
+      format: "XKT",
+      fileDataType: "arraybuffer",
+      parsers: {
+        "7": parse12,
+        "8": parse13,
+        "9": parse14,
+        "10": parse15,
+        "11": parse16,
+        "12": parse17,
+        "12z": parse18
+      },
+      getVersion: (fileData) => {
+        const word = new DataView(fileData).getUint32(0, true);
+        const version2 = word & 2147483647;
+        return version2 === 12 && word >>> 31 === 1 ? "12z" : "" + version2;
+      }
+    });
+  }
+};
+
+// ../sdk/src/formats/legacy/xkt/versions/v12/modelToXKT.ts
+var MESH_ATTRIBUTES3 = 6;
+var IDENTITY16 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+function xktPrimitiveCode(primitive) {
+  switch (primitive) {
+    case SolidPrimitive:
+      return 0;
+    case TrianglesPrimitive:
+      return 1;
+    case SurfacePrimitive:
+      return 1;
+    case PointsPrimitive:
+      return 2;
+    case LinesPrimitive:
+      return 3;
+    default:
+      return void 0;
+  }
+}
+async function modelToXKT(params) {
+  const { sceneModel, dataModel, options } = params;
+  const coordinateSystem = options?.coordinateSystem;
+  const items = [];
+  const eachEntityId = [];
+  const entityMeshBase = [];
+  const worldAABB = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity];
+  const objects = Object.values(sceneModel.objects);
+  for (let o = 0; o < objects.length; o++) {
+    if ((o & 31) === 0)
+      await yieldToHost(options?.signal);
+    const object = objects[o];
+    const base = items.length;
+    for (const mesh of object.meshes) {
+      const geometry = mesh.geometry;
+      const code = xktPrimitiveCode(geometry.primitive);
+      if (code === void 0 || !geometry.positionsCompressed)
+        continue;
+      const local = decompressPositions3WithAABB3(
+        geometry.positionsCompressed,
+        geometry.aabb,
+        new Float32Array(geometry.positionsCompressed.length)
+      );
+      const m = getMeshWorldMatrix(mesh, coordinateSystem);
+      const world = new Float32Array(local.length);
+      for (let i = 0; i < local.length; i += 3) {
+        const x = local[i], y = local[i + 1], z = local[i + 2];
+        const wx = m[0] * x + m[4] * y + m[8] * z + m[12];
+        const wy = m[1] * x + m[5] * y + m[9] * z + m[13];
+        const wz = m[2] * x + m[6] * y + m[10] * z + m[14];
+        world[i] = wx;
+        world[i + 1] = wy;
+        world[i + 2] = wz;
+        if (wx < worldAABB[0])
+          worldAABB[0] = wx;
+        if (wy < worldAABB[1])
+          worldAABB[1] = wy;
+        if (wz < worldAABB[2])
+          worldAABB[2] = wz;
+        if (wx > worldAABB[3])
+          worldAABB[3] = wx;
+        if (wy > worldAABB[4])
+          worldAABB[4] = wy;
+        if (wz > worldAABB[5])
+          worldAABB[5] = wz;
+      }
+      const material = mesh.material;
+      items.push({
+        world,
+        indices: code === 2 ? void 0 : geometry.indices ? new Uint32Array(geometry.indices) : void 0,
+        colors: code === 2 && geometry.colorsCompressed ? new Uint8Array(geometry.colorsCompressed) : void 0,
+        code,
+        color: mesh.effectiveColor,
+        opacity: mesh.effectiveOpacity,
+        metallic: material?.metallic ?? 0,
+        roughness: material?.roughness ?? 1
+      });
+    }
+    if (items.length > base) {
+      eachEntityId.push(object.id);
+      entityMeshBase.push(base);
+    }
+  }
+  const numGeometries = items.length;
+  if (numGeometries === 0) {
+    for (let i = 0; i < 6; i++)
+      worldAABB[i] = 0;
+  }
+  let totalPositions = 0, totalIndices = 0, totalColors = 0;
+  for (const it of items) {
+    totalPositions += it.world.length;
+    if (it.indices)
+      totalIndices += it.indices.length;
+    if (it.colors)
+      totalColors += it.colors.length;
+  }
+  const positions = new Uint16Array(totalPositions);
+  const indices = new Uint32Array(totalIndices);
+  const colors = new Uint8Array(totalColors);
+  const eachGeometryPrimitiveType = new Uint8Array(numGeometries);
+  const eachGeometryPositionsPortion = new Uint32Array(numGeometries);
+  const eachGeometryNormalsPortion = new Uint32Array(numGeometries);
+  const eachGeometryColorsPortion = new Uint32Array(numGeometries);
+  const eachGeometryUVsPortion = new Uint32Array(numGeometries);
+  const eachGeometryIndicesPortion = new Uint32Array(numGeometries);
+  const eachGeometryEdgeIndicesPortion = new Uint32Array(numGeometries);
+  const eachMeshGeometriesPortion = new Uint32Array(numGeometries);
+  const eachMeshMatricesPortion = new Uint32Array(numGeometries);
+  const eachMeshTextureSet = new Int32Array(numGeometries).fill(-1);
+  const eachMeshMaterialAttributes = new Uint8Array(numGeometries * MESH_ATTRIBUTES3);
+  const sx = worldAABB[3] - worldAABB[0] || 1;
+  const sy = worldAABB[4] - worldAABB[1] || 1;
+  const sz = worldAABB[5] - worldAABB[2] || 1;
+  const quant = (v, min, span) => {
+    const q = Math.round((v - min) / span * 65535);
+    return q < 0 ? 0 : q > 65535 ? 65535 : q;
+  };
+  let posBase = 0, indBase = 0, colBase = 0;
+  for (let g = 0; g < numGeometries; g++) {
+    const it = items[g];
+    eachGeometryPrimitiveType[g] = it.code;
+    eachGeometryPositionsPortion[g] = posBase;
+    for (let i = 0; i < it.world.length; i += 3) {
+      positions[posBase + i] = quant(it.world[i], worldAABB[0], sx);
+      positions[posBase + i + 1] = quant(it.world[i + 1], worldAABB[1], sy);
+      positions[posBase + i + 2] = quant(it.world[i + 2], worldAABB[2], sz);
+    }
+    posBase += it.world.length;
+    eachGeometryIndicesPortion[g] = indBase;
+    if (it.indices) {
+      indices.set(it.indices, indBase);
+      indBase += it.indices.length;
+    }
+    eachGeometryColorsPortion[g] = colBase;
+    if (it.colors) {
+      colors.set(it.colors, colBase);
+      colBase += it.colors.length;
+    }
+    eachMeshGeometriesPortion[g] = g;
+    const a2 = g * MESH_ATTRIBUTES3;
+    eachMeshMaterialAttributes[a2] = clampByte3(it.color[0] * 255);
+    eachMeshMaterialAttributes[a2 + 1] = clampByte3(it.color[1] * 255);
+    eachMeshMaterialAttributes[a2 + 2] = clampByte3(it.color[2] * 255);
+    eachMeshMaterialAttributes[a2 + 3] = clampByte3(it.opacity * 255);
+    eachMeshMaterialAttributes[a2 + 4] = clampByte3(it.metallic * 255);
+    eachMeshMaterialAttributes[a2 + 5] = clampByte3(it.roughness * 255);
+  }
+  return {
+    metadata: buildMetadata(sceneModel, dataModel),
+    textureData: new Uint8Array(0),
+    eachTextureDataPortion: new Uint32Array(0),
+    eachTextureAttributes: new Uint16Array(0),
+    positions,
+    normals: new Int8Array(0),
+    colors,
+    uvs: new Float32Array(0),
+    indices,
+    edgeIndices: new Uint32Array(0),
+    eachTextureSetTextures: new Int32Array(0),
+    matrices: new Float32Array(IDENTITY16),
+    reusedGeometriesDecodeMatrix: new Float32Array(IDENTITY16),
+    eachGeometryPrimitiveType,
+    eachGeometryAxisLabel: {},
+    eachGeometryPositionsPortion,
+    eachGeometryNormalsPortion,
+    eachGeometryColorsPortion,
+    eachGeometryUVsPortion,
+    eachGeometryIndicesPortion,
+    eachGeometryEdgeIndicesPortion,
+    eachMeshGeometriesPortion,
+    eachMeshMatricesPortion,
+    eachMeshTextureSet,
+    eachMeshMaterialAttributes,
+    eachEntityId,
+    eachEntityMeshesPortion: new Uint32Array(entityMeshBase),
+    eachTileAABB: new Float64Array(worldAABB),
+    eachTileEntitiesPortion: new Uint32Array([0])
+  };
+}
+function clampByte3(v) {
+  v = Math.round(v);
+  return v < 0 ? 0 : v > 255 ? 255 : v;
+}
+function buildMetadata(sceneModel, dataModel) {
+  const metaObjects = [];
+  const propertySets = [];
+  if (dataModel) {
+    const parentOf = {};
+    for (const rel of dataModel.relationships || []) {
+      if (rel.relatedObject && rel.relatingObject)
+        parentOf[rel.relatedObject.id] = rel.relatingObject.id;
+    }
+    for (const o of Object.values(dataModel.objects)) {
+      metaObjects.push({
+        id: o.id,
+        name: o.name ?? o.id,
+        type: o.type ?? "Default",
+        parent: parentOf[o.id] ?? null,
+        propertySetIds: o.propertySetIds
+      });
+    }
+    for (const ps of Object.values(dataModel.propertySets)) {
+      propertySets.push({
+        id: ps.id,
+        name: ps.name ?? ps.id,
+        type: ps.type ?? "Default",
+        properties: (ps.properties || []).map((p) => ({ name: p.name, value: p.value }))
+      });
+    }
+  }
+  return { id: sceneModel.id, metaObjects, propertySets };
+}
+
+// ../sdk/src/formats/legacy/xkt/versions/v12/XKT_INFO.ts
+var XKT_INFO = {
+  xktVersion: 12
+};
+
+// ../sdk/src/formats/legacy/xkt/versions/v12/packXKT.ts
+var object2Array2 = function() {
+  const encoder = new TextEncoder();
+  return (obj) => encoder.encode(JSON.stringify(obj));
+}();
+function toArrayBuffer4(arrays) {
+  const arraysCnt = arrays.length;
+  const dataView = new DataView(new ArrayBuffer((1 + 2 * arraysCnt) * 4));
+  dataView.setUint32(0, XKT_INFO.xktVersion, true);
+  let byteOffset = dataView.byteLength;
+  const offsets = [];
+  for (let i = 0; i < arraysCnt; i++) {
+    const arr = arrays[i];
+    const BPE = arr.BYTES_PER_ELEMENT;
+    byteOffset = Math.ceil(byteOffset / BPE) * BPE;
+    const idx = 1 + 2 * i;
+    dataView.setUint32(idx * 4, byteOffset, true);
+    dataView.setUint32((idx + 1) * 4, arr.byteLength, true);
+    offsets.push(byteOffset);
+    byteOffset += arr.byteLength;
+  }
+  const dataArray = new Uint8Array(byteOffset);
+  dataArray.set(new Uint8Array(dataView.buffer), 0);
+  const requiresSwapToLittleEndian = function() {
+    const b4 = new ArrayBuffer(2);
+    new Uint16Array(b4)[0] = 1;
+    return new Uint8Array(b4)[0] !== 1;
+  }();
+  for (let i = 0; i < arraysCnt; i++) {
+    const arr = arrays[i];
+    const subarray = new Uint8Array(arr.buffer, arr.byteOffset, arr.byteLength);
+    const BPE = arr.BYTES_PER_ELEMENT;
+    if (requiresSwapToLittleEndian && BPE > 1) {
+      const swaps = BPE / 2;
+      const cnt = subarray.length / BPE;
+      for (let b4 = 0; b4 < cnt; b4++) {
+        const offset = b4 * BPE;
+        for (let j = 0; j < swaps; j++) {
+          const i1 = offset + j;
+          const i2 = offset - j + BPE - 1;
+          const tmp = subarray[i1];
+          subarray[i1] = subarray[i2];
+          subarray[i2] = tmp;
+        }
+      }
+    }
+    dataArray.set(subarray, offsets[i]);
+  }
+  return dataArray.buffer;
+}
+function packXKT(xktData) {
+  return toArrayBuffer4([
+    object2Array2(xktData.metadata),
+    xktData.textureData,
+    xktData.eachTextureDataPortion,
+    xktData.eachTextureAttributes,
+    xktData.positions,
+    xktData.normals,
+    xktData.colors,
+    xktData.uvs,
+    xktData.indices,
+    xktData.edgeIndices,
+    xktData.eachTextureSetTextures,
+    xktData.matrices,
+    xktData.reusedGeometriesDecodeMatrix,
+    xktData.eachGeometryPrimitiveType,
+    object2Array2(xktData.eachGeometryAxisLabel),
+    xktData.eachGeometryPositionsPortion,
+    xktData.eachGeometryNormalsPortion,
+    xktData.eachGeometryColorsPortion,
+    xktData.eachGeometryUVsPortion,
+    xktData.eachGeometryIndicesPortion,
+    xktData.eachGeometryEdgeIndicesPortion,
+    xktData.eachMeshGeometriesPortion,
+    xktData.eachMeshMatricesPortion,
+    xktData.eachMeshTextureSet,
+    xktData.eachMeshMaterialAttributes,
+    object2Array2(xktData.eachEntityId),
+    xktData.eachEntityMeshesPortion,
+    xktData.eachTileAABB,
+    xktData.eachTileEntitiesPortion
+  ]);
+}
+
+// ../sdk/src/formats/legacy/xkt/versions/v12/encode.ts
+async function encode15(params, options) {
+  if (params.sceneModel) {
+    const triplanarSkip = findTriplanarTextureSkip(params.sceneModel);
+    if (triplanarSkip.any) {
+      const warn = options?.onWarning ?? ((m) => console.warn(m));
+      warn(triplanarSkipWarning("XKT", triplanarSkip));
+    }
+  }
+  const xktData = await modelToXKT({
+    sceneModel: params.sceneModel,
+    dataModel: params.dataModel,
+    options
+  });
+  return packXKT(xktData);
+}
+
+// ../sdk/src/formats/legacy/xkt/XKTExporter.ts
+var XKTExporter = class extends ModelExporter {
+  constructor() {
+    super({
+      format: "XKT",
+      fileDataType: "arraybuffer",
+      encoders: {
+        "12": encode15
+      },
+      defaultVersion: "12"
+    });
+  }
+};
+
+// ../sdk/src/formats/obj/index.ts
+var obj_exports = {};
+__export(obj_exports, {
+  OBJExporter: () => OBJExporter,
+  OBJLoader: () => OBJLoader
+});
+
+// ../sdk/src/formats/obj/versions/v1_0/parse.ts
+var parse19 = async (params, options) => {
+  const { fileData, sceneModel, dataModel } = params;
+  const opts = options || {};
+  const onProgress = opts.onProgress;
+  const signal = opts.signal;
+  const progress = { phase: "", current: 0, total: 0 };
+  const step2 = async (phase, current, total) => {
+    if (onProgress) {
+      progress.phase = phase;
+      progress.current = current;
+      progress.total = total;
+      onProgress(progress);
+    }
+    await yieldToHost(signal);
+  };
+  if (sceneModel || dataModel) {
+    const ctx2 = {
+      fileData,
+      errors: [],
+      warnings: [],
+      sceneModel,
+      dataModel,
+      nextId: 0,
+      options: opts,
+      srcPositions: [],
+      srcNormals: [],
+      srcUVs: [],
+      materials: {},
+      currentObject: null
+    };
+    await parseOBJDirect(ctx2, step2);
+    if (ctx2.currentObject) {
+      flushCurrentObject(ctx2);
+    }
+    if (ctx2.errors.length > 0) {
+      throw new Error(`[OBJLoader] Failed to parse OBJ file: ${ctx2.errors[0]}`);
+    }
+    if (ctx2.warnings.length > 0) {
+      console.warn(`[OBJLoader] Warning while parsing OBJ file: ${ctx2.warnings[0]}`);
+    }
+  }
+};
+var regexp = {
+  vertex_pattern: /^v\s+([\d.+\-eE]+)\s+([\d.+\-eE]+)\s+([\d.+\-eE]+)/,
+  normal_pattern: /^vn\s+([\d.+\-eE]+)\s+([\d.+\-eE]+)\s+([\d.+\-eE]+)/,
+  uv_pattern: /^vt\s+([\d.+\-eE]+)\s+([\d.+\-eE]+)/,
+  object_pattern: /^[og]\s*(.+)?/,
+  smoothing_pattern: /^s\s+(\d+|on|off)/,
+  material_library_pattern: /^mtllib /,
+  material_use_pattern: /^usemtl /
+};
+async function parseOBJDirect(ctx2, step2) {
+  let fileData = ctx2.fileData;
+  startObject(ctx2, "", false);
+  if (fileData.indexOf("\r\n") !== -1) {
+    fileData = fileData.replace(/\r\n/g, "\n");
+  }
+  const lines = fileData.split("\n");
+  let result = null;
+  const trimLeft = typeof "".trimStart === "function";
+  for (let i = 0, l = lines.length; i < l; i++) {
+    if ((i & 4095) === 0)
+      await step2("Parsing OBJ lines", i, l);
+    let line = lines[i];
+    line = trimLeft ? line.trimStart() : line.trim();
+    if (line.length === 0) {
+      continue;
+    }
+    const lineFirstChar = line.charAt(0);
+    if (lineFirstChar === "#") {
+      continue;
+    }
+    if (lineFirstChar === "v") {
+      const lineSecondChar = line.charAt(1);
+      if (lineSecondChar === " " && (result = regexp.vertex_pattern.exec(line)) !== null) {
+        ctx2.srcPositions.push(
+          parseFloat(result[1]),
+          parseFloat(result[2]),
+          parseFloat(result[3])
+        );
+      } else if (lineSecondChar === "n" && (result = regexp.normal_pattern.exec(line)) !== null) {
+        ctx2.srcNormals.push(
+          parseFloat(result[1]),
+          parseFloat(result[2]),
+          parseFloat(result[3])
+        );
+      } else if (lineSecondChar === "t" && (result = regexp.uv_pattern.exec(line)) !== null) {
+        ctx2.srcUVs.push(
+          parseFloat(result[1]),
+          parseFloat(result[2])
+        );
+      } else {
+        ctx2.errors.push(`Unexpected vertex/normal/uv line: '${line}'`);
+        return;
+      }
+      continue;
+    }
+    if (lineFirstChar === "f") {
+      parseFaceLine(ctx2, line);
+      if (ctx2.errors.length > 0) {
+        return;
+      }
+      continue;
+    }
+    if (lineFirstChar === "l") {
+      addLineGeometry(ctx2, line);
+      continue;
+    }
+    if ((result = regexp.object_pattern.exec(line)) !== null) {
+      const id = result[0].substring(1).trim();
+      if (ctx2.currentObject && ctx2.currentObject.geometry.indices.length > 0) {
+        flushCurrentObject(ctx2);
+      }
+      startObject(ctx2, id, true);
+      continue;
+    }
+    if (regexp.material_use_pattern.test(line)) {
+      if (ctx2.currentObject) {
+        ctx2.currentObject.material.id = line.substring(7).trim();
+      }
+      continue;
+    }
+    if (regexp.material_library_pattern.test(line)) {
+      continue;
+    }
+    if ((result = regexp.smoothing_pattern.exec(line)) !== null) {
+      if (ctx2.currentObject) {
+        const value = result[1].trim().toLowerCase();
+        ctx2.currentObject.material.smooth = value === "1" || value === "on";
+      }
+      continue;
+    }
+    if (line === "\0") {
+      continue;
+    }
+    ctx2.errors.push(`Unexpected line: '${line}'`);
+    return;
+  }
+  await step2("Parsing OBJ lines", lines.length, lines.length);
+}
+function startObject(ctx2, id, fromDeclaration) {
+  if (ctx2.currentObject && ctx2.currentObject.fromDeclaration === false) {
+    ctx2.currentObject.id = id;
+    ctx2.currentObject.fromDeclaration = fromDeclaration !== false;
+    return;
+  }
+  ctx2.currentObject = {
+    id: id || "",
+    geometry: {
+      positions: [],
+      normals: [],
+      uv: [],
+      indices: []
+    },
+    material: {
+      id: "",
+      smooth: true
+    },
+    fromDeclaration: fromDeclaration !== false,
+    vertexMap: /* @__PURE__ */ new Map()
+  };
+}
+function flushCurrentObject(ctx2) {
+  const object = ctx2.currentObject;
+  if (!object) {
+    return;
+  }
+  const geometry = object.geometry;
+  if (geometry.indices.length === 0 || geometry.positions.length === 0) {
+    return;
+  }
+  if (geometry.type === "Line") {
+    ctx2.warnings.push(`Skipping line geometry object '${object.id}'`);
+    return;
+  }
+  const geometryId = createUUID();
+  const geometryCfg = {
+    id: geometryId,
+    primitive: TrianglesPrimitive,
+    positions: geometry.positions.slice(),
+    indices: geometry.indices.slice()
+  };
+  const vertexCount = geometry.positions.length / 3;
+  if (geometry.normals.length === vertexCount * 3) {
+    geometryCfg.normals = geometry.normals.slice();
+  }
+  if (geometry.uv.length === vertexCount * 2) {
+    geometryCfg.uvs = geometry.uv.slice();
+  }
+  const createGeometryResult = ctx2.sceneModel.createGeometry(geometryCfg);
+  if (createGeometryResult.ok !== true) {
+    ctx2.errors.push(`Failed to create geometry for object '${object.id}'`);
+    return;
+  }
+  const meshId = createUUID();
+  const materialId = object.material.id;
+  const mat = ctx2.materials[materialId];
+  const color2 = mat?.color ?? [0.8, 0.8, 0.8];
+  const opacity = mat?.opacity ?? 1;
+  const createMeshResult = ctx2.sceneModel.createMesh({
+    id: meshId,
+    geometryId,
+    materialId,
+    color: color2,
+    opacity
+  });
+  if (createMeshResult.ok !== true) {
+    ctx2.errors.push(`Failed to create mesh for object '${object.id}'`);
+    return;
+  }
+  const objectId = createUUID();
+  const createObjectResult = ctx2.sceneModel.createObject({
+    id: objectId,
+    meshIds: [meshId],
+    layerId: ctx2.options.layerId
+  });
+  if (createObjectResult.ok !== true) {
+    ctx2.errors.push(`Failed to create object for object '${object.id}'`);
+    return;
+  }
+  geometry.positions.length = 0;
+  geometry.normals.length = 0;
+  geometry.uv.length = 0;
+  geometry.indices.length = 0;
+  object.vertexMap.clear();
+}
+function parseVertexIndex(value, len) {
+  const index = parseInt(value, 10);
+  return (index >= 0 ? index - 1 : index + len / 3) * 3;
+}
+function parseNormalIndex(value, len) {
+  const index = parseInt(value, 10);
+  return (index >= 0 ? index - 1 : index + len / 3) * 3;
+}
+function parseUVIndex(value, len) {
+  const index = parseInt(value, 10);
+  return (index >= 0 ? index - 1 : index + len / 2) * 2;
+}
+function getOrCreateVertex(ctx2, v, uv, n) {
+  const object = ctx2.currentObject;
+  const geometry = object.geometry;
+  const vIndex = parseVertexIndex(v, ctx2.srcPositions.length);
+  const uvIndex = uv !== void 0 ? parseUVIndex(uv, ctx2.srcUVs.length) : -1;
+  const nIndex = n !== void 0 ? parseNormalIndex(n, ctx2.srcNormals.length) : -1;
+  const key = `${vIndex}/${uvIndex}/${nIndex}`;
+  const existing = object.vertexMap.get(key);
+  if (existing !== void 0) {
+    return existing;
+  }
+  const dstIndex = geometry.positions.length / 3;
+  object.vertexMap.set(key, dstIndex);
+  geometry.positions.push(
+    ctx2.srcPositions[vIndex],
+    ctx2.srcPositions[vIndex + 1],
+    ctx2.srcPositions[vIndex + 2]
+  );
+  if (uvIndex !== -1) {
+    geometry.uv.push(
+      ctx2.srcUVs[uvIndex],
+      ctx2.srcUVs[uvIndex + 1]
+    );
+  }
+  if (nIndex !== -1) {
+    geometry.normals.push(
+      ctx2.srcNormals[nIndex],
+      ctx2.srcNormals[nIndex + 1],
+      ctx2.srcNormals[nIndex + 2]
+    );
+  }
+  return dstIndex;
+}
+function addFace(ctx2, a2, b4, c2, d, ua, ub, uc, ud, na, nb, nc, nd) {
+  const geometry = ctx2.currentObject.geometry;
+  const ia = getOrCreateVertex(ctx2, a2, ua, na);
+  const ib = getOrCreateVertex(ctx2, b4, ub, nb);
+  const ic = getOrCreateVertex(ctx2, c2, uc, nc);
+  if (d === void 0) {
+    geometry.indices.push(ia, ib, ic);
+    return;
+  }
+  const id = getOrCreateVertex(ctx2, d, ud, nd);
+  geometry.indices.push(ia, ib, id);
+  geometry.indices.push(ib, ic, id);
+}
+function parseFaceLine(ctx2, line) {
+  const refs = [];
+  const body = line.substring(1).trim();
+  let tokenStart = 0;
+  for (let i = 0, len = body.length; i <= len; i++) {
+    const isEnd = i === len || body.charCodeAt(i) === 32;
+    if (!isEnd) {
+      continue;
+    }
+    if (i === tokenStart) {
+      tokenStart = i + 1;
+      continue;
+    }
+    const token = body.substring(tokenStart, i);
+    const ref = parseFaceToken(token);
+    if (!ref || ref.v === "") {
+      ctx2.errors.push(`Unexpected face line: '${line}'`);
+      return;
+    }
+    refs.push(ref);
+    tokenStart = i + 1;
+  }
+  if (refs.length < 3) {
+    ctx2.errors.push(`Unexpected face line: '${line}'`);
+    return;
+  }
+  if (refs.length === 3) {
+    const a3 = refs[0];
+    const b4 = refs[1];
+    const c2 = refs[2];
+    addFace(ctx2, a3.v, b4.v, c2.v, void 0, a3.vt, b4.vt, c2.vt, void 0, a3.vn, b4.vn, c2.vn, void 0);
+    return;
+  }
+  if (refs.length === 4) {
+    const a3 = refs[0];
+    const b4 = refs[1];
+    const c2 = refs[2];
+    const d = refs[3];
+    addFace(ctx2, a3.v, b4.v, c2.v, d.v, a3.vt, b4.vt, c2.vt, d.vt, a3.vn, b4.vn, c2.vn, d.vn);
+    return;
+  }
+  const a2 = refs[0];
+  for (let i = 1; i < refs.length - 1; i++) {
+    const b4 = refs[i];
+    const c2 = refs[i + 1];
+    addFace(ctx2, a2.v, b4.v, c2.v, void 0, a2.vt, b4.vt, c2.vt, void 0, a2.vn, b4.vn, c2.vn, void 0);
+  }
+}
+function parseFaceToken(token) {
+  const slash0 = token.indexOf("/");
+  if (slash0 === -1) {
+    return { v: token };
+  }
+  const v = token.substring(0, slash0);
+  const after0 = token.substring(slash0 + 1);
+  const slash1 = after0.indexOf("/");
+  if (slash1 === -1) {
+    const vt2 = after0;
+    return {
+      v,
+      vt: vt2 !== "" ? vt2 : void 0
+    };
+  }
+  const vt = after0.substring(0, slash1);
+  const vn = after0.substring(slash1 + 1);
+  return {
+    v,
+    vt: vt !== "" ? vt : void 0,
+    vn: vn !== "" ? vn : void 0
+  };
+}
+function addVertexLine(ctx2, a2) {
+  const dst = ctx2.currentObject.geometry.positions;
+  const src = ctx2.srcPositions;
+  dst.push(src[a2], src[a2 + 1], src[a2 + 2]);
+}
+function addUVLine(ctx2, a2) {
+  const dst = ctx2.currentObject.geometry.uv;
+  const src = ctx2.srcUVs;
+  dst.push(src[a2], src[a2 + 1]);
+}
+function addLineGeometry(ctx2, line) {
+  const object = ctx2.currentObject;
+  object.geometry.type = "Line";
+  const vLen = ctx2.srcPositions.length;
+  const uvLen = ctx2.srcUVs.length;
+  const body = line.substring(1).trim();
+  let tokenStart = 0;
+  for (let i = 0, len = body.length; i <= len; i++) {
+    const isEnd = i === len || body.charCodeAt(i) === 32;
+    if (!isEnd) {
+      continue;
+    }
+    if (i === tokenStart) {
+      tokenStart = i + 1;
+      continue;
+    }
+    const token = body.substring(tokenStart, i);
+    const slash0 = token.indexOf("/");
+    if (slash0 === -1) {
+      addVertexLine(ctx2, parseVertexIndex(token, vLen));
+    } else {
+      const v = token.substring(0, slash0);
+      const rest = token.substring(slash0 + 1);
+      const slash1 = rest.indexOf("/");
+      const uv = slash1 === -1 ? rest : rest.substring(0, slash1);
+      if (v) {
+        addVertexLine(ctx2, parseVertexIndex(v, vLen));
+      }
+      if (uv) {
+        addUVLine(ctx2, parseUVIndex(uv, uvLen));
+      }
+    }
+    tokenStart = i + 1;
+  }
+}
+
+// ../sdk/src/formats/obj/OBJLoader.ts
+var OBJLoader = class extends ModelLoader {
+  /**
+   * Constructs a OBJLoader.
+   */
+  constructor() {
+    super({
+      format: "OBJ",
+      fileDataType: "text",
+      parsers: {
+        "1.0": parse19
+      },
+      getVersion: (fileData) => {
+        return fileData.version || "1.0";
+      }
+    });
+  }
+};
+
+// ../sdk/src/formats/obj/versions/v1_0/encode.ts
+var tempVec3a8 = createVec3Float64();
+var tempVec3b8 = createVec3Float64();
+var tempVec3c4 = createVec3Float64();
+async function encode16(params, options) {
+  const { sceneModel } = params;
+  const opts = options || {};
+  const onProgress = opts.onProgress;
+  const signal = opts.signal;
+  const progress = { phase: "", current: 0, total: 0 };
+  const step2 = async (phase, current, total) => {
+    if (onProgress) {
+      progress.phase = phase;
+      progress.current = current;
+      progress.total = total;
+      onProgress(progress);
+    }
+    await yieldToHost(signal);
+  };
+  const lines = [];
+  let vertexOffset = 0;
+  lines.push("# WaveFront OBJ");
+  lines.push(`# SceneModel: ${sceneModel.id}`);
+  if (opts.mtlFileName) {
+    lines.push(`mtllib ${opts.mtlFileName}`);
+  }
+  lines.push("");
+  const sceneObjects = Object.values(sceneModel.objects);
+  for (let i = 0, len = sceneObjects.length; i < len; i++) {
+    if ((i & 31) === 0)
+      await step2("Encoding OBJ", i, len);
+    const sceneObject = sceneObjects[i];
+    const meshes = sceneObject.meshes || [];
+    if (meshes.length === 0) {
+      continue;
+    }
+    lines.push(`o ${sanitizeOBJName(sceneObject.id)}`);
+    for (let j = 0, lenj = meshes.length; j < lenj; j++) {
+      const sceneMesh = meshes[j];
+      const geometry = sceneMesh.geometry;
+      if (!geometry) {
+        continue;
+      }
+      const objectName = meshes.length > 1 ? `${sceneObject.id}_${sceneMesh.id}` : sceneObject.id;
+      lines.push(`g ${sanitizeOBJName(objectName)}`);
+      lines.push(`usemtl ${sanitizeMTLName(getMaterialNameForMesh(sceneMesh))}`);
+      const positionsCompressed = geometry.positionsCompressed;
+      const indices = geometry.indices;
+      const aabb = geometry.aabb;
+      if (!positionsCompressed || positionsCompressed.length === 0) {
+        lines.push("");
+        continue;
+      }
+      const matrix = getMeshWorldMatrix(sceneMesh);
+      const numVerts = positionsCompressed.length / 3;
+      for (let k = 0, lenk = positionsCompressed.length; k < lenk; k += 3) {
+        tempVec3a8[0] = positionsCompressed[k];
+        tempVec3a8[1] = positionsCompressed[k + 1];
+        tempVec3a8[2] = positionsCompressed[k + 2];
+        decompressPoint3WithAABB3(tempVec3a8, aabb, tempVec3b8);
+        transformPoint3(matrix, tempVec3b8, tempVec3c4);
+        lines.push(`v ${formatNum(tempVec3c4[0])} ${formatNum(tempVec3c4[1])} ${formatNum(tempVec3c4[2])}`);
+      }
+      if (indices && indices.length > 0) {
+        for (let k = 0, lenk = indices.length; k < lenk; k += 3) {
+          const a2 = indices[k] + 1 + vertexOffset;
+          const b4 = indices[k + 1] + 1 + vertexOffset;
+          const c2 = indices[k + 2] + 1 + vertexOffset;
+          lines.push(`f ${a2} ${b4} ${c2}`);
+        }
+      } else {
+        for (let k = 0; k < numVerts; k += 3) {
+          const a2 = vertexOffset + k + 1;
+          const b4 = vertexOffset + k + 2;
+          const c2 = vertexOffset + k + 3;
+          lines.push(`f ${a2} ${b4} ${c2}`);
+        }
+      }
+      vertexOffset += numVerts;
+      lines.push("");
+    }
+  }
+  await step2("Encoding OBJ", sceneObjects.length, sceneObjects.length);
+  return lines.join("\n");
+}
+function getMaterialNameForMesh(sceneMesh) {
+  return sceneMesh.material?.id || `mesh_${sceneMesh.id}`;
+}
+function sanitizeOBJName(name12) {
+  return String(name12 || "unnamed").replace(/\s+/g, "_");
+}
+function sanitizeMTLName(name12) {
+  return String(name12 || "unnamed").replace(/\s+/g, "_");
+}
+function formatNum(value) {
+  if (!isFinite(value)) {
+    return "0";
+  }
+  return Number(value.toFixed(9)).toString();
+}
+
+// ../sdk/src/formats/obj/OBJExporter.ts
+var OBJExporter = class extends ModelExporter {
+  constructor() {
+    super({
+      format: "OBJ",
+      fileDataType: "text",
+      encoders: {
+        "1.0": encode16
+      },
+      defaultVersion: "1.0"
+    });
+  }
+};
+
+// ../sdk/src/formats/mtl/index.ts
+var mtl_exports = {};
+__export(mtl_exports, {
+  MTLExporter: () => MTLExporter,
+  MTLLoader: () => MTLLoader
+});
+
+// ../sdk/src/formats/mtl/versions/v1_0/parse.ts
+var parse20 = async (params, options) => {
+  const { fileData, sceneModel } = params;
+  const opts = options || {};
+  const onProgress = opts.onProgress;
+  const signal = opts.signal;
+  const progress = { phase: "", current: 0, total: 0 };
+  const step2 = async (phase, current, total) => {
+    if (onProgress) {
+      progress.phase = phase;
+      progress.current = current;
+      progress.total = total;
+      onProgress(progress);
+    }
+    await yieldToHost(signal);
+  };
+  if (sceneModel) {
+    const ctx2 = {
+      fileData,
+      errors: [],
+      warnings: [],
+      sceneModel,
+      options: opts
+    };
+    await parseMTL(ctx2, fileData || "", step2);
+    if (ctx2.errors.length > 0) {
+      throw new Error(`[MTLLoader] Failed to parse MTL file: ${ctx2.errors[0]}`);
+    }
+    if (ctx2.warnings.length > 0) {
+      console.warn(`[MTLLoader] Warning while parsing MTL file: ${ctx2.warnings[0]}`);
+    }
+  }
+};
+async function parseMTL(ctx2, text, step2) {
+  const lines = text.split("\n");
+  let current = null;
+  let currentId = "";
+  for (let i = 0; i < lines.length; i++) {
+    if ((i & 4095) === 0)
+      await step2("Parsing MTL", i, lines.length);
+    const line = lines[i].trim();
+    if (line.length === 0 || line.charAt(0) === "#") {
+      continue;
+    }
+    const space = line.indexOf(" ");
+    const key = space !== -1 ? line.substring(0, space).toLowerCase() : line;
+    const value = space !== -1 ? line.substring(space + 1).trim() : "";
+    switch (key) {
+      case "newmtl":
+        if (current && currentId) {
+          ctx2.sceneModel.createMaterial({
+            id: currentId,
+            color: current.color,
+            opacity: current.opacity
+          });
+        }
+        currentId = value;
+        current = {
+          color: [0.8, 0.8, 0.8],
+          // default
+          opacity: 1
+        };
+        break;
+      case "kd": {
+        if (!current) {
+          break;
+        }
+        const parts = value.split(/\s+/);
+        current.color = [
+          parseFloat(parts[0]),
+          parseFloat(parts[1]),
+          parseFloat(parts[2])
+        ];
+        break;
+      }
+      case "d": {
+        if (!current) {
+          break;
+        }
+        current.opacity = parseFloat(value);
+        break;
+      }
+      case "tr": {
+        if (!current) {
+          break;
+        }
+        current.opacity = 1 - parseFloat(value);
+        break;
+      }
+    }
+  }
+  if (current && currentId) {
+    ctx2.sceneModel.createMaterial({
+      id: currentId,
+      color: current.color,
+      opacity: current.opacity
+    });
+  }
+  await step2("Parsing MTL", lines.length, lines.length);
+}
+
+// ../sdk/src/formats/mtl/MTLLoader.ts
+var MTLLoader = class extends ModelLoader {
+  /**
+   * Constructs a MTLLoader.
+   */
+  constructor() {
+    super({
+      format: "MTL",
+      fileDataType: "text",
+      parsers: {
+        "1.0": parse20
+      },
+      getVersion: (fileData) => {
+        return fileData.version || "1.0";
+      }
+    });
+  }
+};
+
+// ../sdk/src/formats/mtl/versions/v1_0/encode.ts
+async function encode17(params, options) {
+  const { sceneModel } = params;
+  const opts = options || {};
+  const onProgress = opts.onProgress;
+  const signal = opts.signal;
+  const progress = { phase: "", current: 0, total: 0 };
+  const step2 = async (phase, current, total) => {
+    if (onProgress) {
+      progress.phase = phase;
+      progress.current = current;
+      progress.total = total;
+      onProgress(progress);
+    }
+    await yieldToHost(signal);
+  };
+  const lines = [];
+  const writtenMaterialIds = /* @__PURE__ */ new Set();
+  lines.push("# WaveFront MTL");
+  lines.push(`# SceneModel: ${sceneModel.id}`);
+  lines.push("");
+  const sceneMaterials = Object.values(sceneModel.materials || {});
+  for (let i = 0, len = sceneMaterials.length; i < len; i++) {
+    if ((i & 63) === 0)
+      await step2("Encoding MTL materials", i, len);
+    const material = sceneMaterials[i];
+    if (!material || writtenMaterialIds.has(material.id)) {
+      continue;
+    }
+    const materialName = getMaterialNameForSceneMaterial(material);
+    writeSceneMaterial(lines, materialName, material);
+    writtenMaterialIds.add(materialName);
+  }
+  const sceneMeshes = Object.values(sceneModel.meshes || {});
+  for (let i = 0, len = sceneMeshes.length; i < len; i++) {
+    if ((i & 63) === 0)
+      await step2("Encoding MTL fallback meshes", i, len);
+    const mesh = sceneMeshes[i];
+    if (!mesh || mesh.material) {
+      continue;
+    }
+    const fallbackMaterialId = getMaterialNameForMesh2(mesh);
+    if (writtenMaterialIds.has(fallbackMaterialId)) {
+      continue;
+    }
+    const color2 = mesh.color || [1, 1, 1];
+    const opacity = mesh.opacity ?? 1;
+    const dissolve = clamp012(opacity);
+    lines.push(`newmtl ${sanitizeMTLName2(fallbackMaterialId)}`);
+    lines.push(`Kd ${formatNum2(color2[0])} ${formatNum2(color2[1])} ${formatNum2(color2[2])}`);
+    lines.push(`Ka 0.000000 0.000000 0.000000`);
+    lines.push(`Ks 0.000000 0.000000 0.000000`);
+    lines.push(`Ns 0.000000`);
+    lines.push(`d ${formatNum2(dissolve)}`);
+    lines.push(`Tr ${formatNum2(1 - dissolve)}`);
+    lines.push(`illum 2`);
+    lines.push("");
+    writtenMaterialIds.add(fallbackMaterialId);
+  }
+  await step2("Encoding MTL", sceneMeshes.length, sceneMeshes.length);
+  return lines.join("\n");
+}
+function writeSceneMaterial(lines, materialName, material) {
+  const color2 = material.color || [1, 1, 1];
+  const opacity = material.opacity ?? 1;
+  const dissolve = clamp012(opacity);
+  lines.push(`newmtl ${sanitizeMTLName2(materialName)}`);
+  lines.push(`Kd ${formatNum2(color2[0])} ${formatNum2(color2[1])} ${formatNum2(color2[2])}`);
+  lines.push(`Ka 0.000000 0.000000 0.000000`);
+  lines.push(`Ks 0.000000 0.000000 0.000000`);
+  lines.push(`Ns 0.000000`);
+  lines.push(`d ${formatNum2(dissolve)}`);
+  lines.push(`Tr ${formatNum2(1 - dissolve)}`);
+  lines.push(`illum 2`);
+  if (material.colorTexture?.src) {
+    lines.push(`map_Kd ${sanitizeTexturePath(material.colorTexture.src)}`);
+  }
+  if (material.occlusionTexture?.src) {
+    lines.push(`map_Ka ${sanitizeTexturePath(material.occlusionTexture.src)}`);
+  }
+  if (material.emissiveTexture?.src) {
+    lines.push(`map_Ke ${sanitizeTexturePath(material.emissiveTexture.src)}`);
+  }
+  lines.push("");
+}
+function getMaterialNameForSceneMaterial(material) {
+  return material.id;
+}
+function getMaterialNameForMesh2(mesh) {
+  return mesh.material?.id || `mesh_${mesh.id}`;
+}
+function sanitizeMTLName2(name12) {
+  return String(name12 || "unnamed").replace(/\s+/g, "_");
+}
+function sanitizeTexturePath(path) {
+  return String(path || "").trim();
+}
+function clamp012(value) {
+  if (!isFinite(value)) {
+    return 1;
+  }
+  if (value < 0) {
+    return 0;
+  }
+  if (value > 1) {
+    return 1;
+  }
+  return value;
+}
+function formatNum2(value) {
+  if (!isFinite(value)) {
+    return "0";
+  }
+  return Number(value.toFixed(9)).toString();
+}
+
+// ../sdk/src/formats/mtl/MTLExporter.ts
+var MTLExporter = class extends ModelExporter {
+  constructor() {
+    super({
+      format: "MTL",
+      fileDataType: "text",
+      encoders: {
+        "1.0": encode17
+      },
+      defaultVersion: "1.0"
+    });
+  }
+};
+
+// ../sdk/src/formats/fbx/index.ts
+var fbx_exports = {};
+__export(fbx_exports, {
+  FBXExporter: () => FBXExporter,
+  FBXLoader: () => FBXLoader
+});
+
 // ../sdk/src/formats/fbx/fbxBinaryReader.ts
 var MAGIC = [
   75,
@@ -133171,7 +133275,7 @@ function findChild(node, name12) {
 
 // ../sdk/src/formats/fbx/versions/binary/parse.ts
 var DEG2RAD = Math.PI / 180;
-async function parse17(params, _options) {
+async function parse21(params, _options) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     return;
@@ -133220,6 +133324,7 @@ async function parse17(params, _options) {
   const emittedTex = /* @__PURE__ */ new Map();
   const usedObjectIds = /* @__PURE__ */ new Set();
   let emitted = 0, geomFails = 0, meshFails = 0;
+  await predecodeDiffuseTextures(materials, childrenOf, textures, videos, sceneModel, emittedTex);
   for (const [modelId, modelNode] of models) {
     const children = childrenOf.get(modelId) || [];
     let geomId = null;
@@ -133259,7 +133364,7 @@ async function parse17(params, _options) {
       materialId = emittedMat.get(matId);
       if (materialId === void 0) {
         const id = `fbx-mat-${matId}`;
-        const colorTextureId = await emitDiffuseTexture(matId, sceneModel, childrenOf, textures, videos, emittedTex);
+        const colorTextureId = emitDiffuseTexture(matId, childrenOf, textures, emittedTex);
         const mr2 = sceneModel.createMaterial({
           id,
           color: extractDiffuse(materials.get(matId)),
@@ -133433,58 +133538,79 @@ function extractDiffuse(matNode) {
 function isColorProp(prop2) {
   return prop2 !== null && /diffusecolor|basecolor|^color$|\|basecolor/i.test(prop2);
 }
-async function emitDiffuseTexture(matId, sceneModel, childrenOf, textures, videos, emittedTex) {
+function diffuseTexId(matId, childrenOf, textures) {
   const conns = childrenOf.get(matId) || [];
-  let texId;
   for (const c2 of conns)
-    if (textures.has(c2.id) && isColorProp(c2.prop)) {
-      texId = c2.id;
-      break;
-    }
-  if (texId === void 0) {
-    for (const c2 of conns)
-      if (textures.has(c2.id)) {
-        texId = c2.id;
-        break;
-      }
-  }
-  if (texId === void 0)
-    return void 0;
-  const existing = emittedTex.get(texId);
-  if (existing)
-    return existing;
-  let content = null;
+    if (textures.has(c2.id) && isColorProp(c2.prop))
+      return c2.id;
+  for (const c2 of conns)
+    if (textures.has(c2.id))
+      return c2.id;
+  return void 0;
+}
+function embeddedTextureBytes(texId, childrenOf, videos) {
   for (const c2 of childrenOf.get(texId) || []) {
     const video = videos.get(c2.id);
     if (!video)
       continue;
     const v = findChild(video, "Content")?.props[0];
-    if (v instanceof Uint8Array && v.length > 0) {
-      content = v;
-      break;
+    if (v instanceof Uint8Array && v.length > 0)
+      return v;
+  }
+  return null;
+}
+async function predecodeDiffuseTextures(materials, childrenOf, textures, videos, sceneModel, emittedTex) {
+  const texIds = [];
+  const seen = /* @__PURE__ */ new Set();
+  for (const matId of materials.keys()) {
+    const texId = diffuseTexId(matId, childrenOf, textures);
+    if (texId !== void 0 && !seen.has(texId)) {
+      seen.add(texId);
+      texIds.push(texId);
     }
   }
-  if (!content) {
-    console.warn(`[FBXLoader] texture ${texId} has no embedded data (external file ref); skipping.`);
-    return void 0;
-  }
-  const id = `fbx-tex-${texId}`;
-  const buf = content.buffer.slice(content.byteOffset, content.byteOffset + content.byteLength);
-  let textureParams = { id, buffers: [buf] };
-  if (typeof createImageBitmap === "function" && typeof Blob !== "undefined") {
-    try {
-      textureParams = { id, image: await createImageBitmap(new Blob([buf])) };
-    } catch (e) {
-      console.warn(`[FBXLoader] failed to decode embedded texture ${texId}:`, e);
+  const DECODE_CHUNK = 4;
+  const canDecode = typeof createImageBitmap === "function" && typeof Blob !== "undefined";
+  for (let chunkStart = 0; chunkStart < texIds.length; chunkStart += DECODE_CHUNK) {
+    const chunkEnd = Math.min(chunkStart + DECODE_CHUNK, texIds.length);
+    const bufs = [];
+    const decoding = [];
+    for (let i = chunkStart; i < chunkEnd; i++) {
+      const bytes = embeddedTextureBytes(texIds[i], childrenOf, videos);
+      if (!bytes) {
+        bufs.push(null);
+        decoding.push(Promise.resolve(null));
+        continue;
+      }
+      const buf = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+      bufs.push(buf);
+      decoding.push(canDecode ? createImageBitmap(new Blob([buf])).catch((e) => {
+        console.warn(`[FBXLoader] failed to decode embedded texture ${texIds[i]}:`, e);
+        return null;
+      }) : Promise.resolve(null));
+    }
+    const bitmaps = await Promise.all(decoding);
+    for (let i = chunkStart; i < chunkEnd; i++) {
+      const buf = bufs[i - chunkStart];
+      if (!buf) {
+        console.warn(`[FBXLoader] texture ${texIds[i]} has no embedded data (external file ref); skipping.`);
+        continue;
+      }
+      const id = `fbx-tex-${texIds[i]}`;
+      const bitmap = bitmaps[i - chunkStart];
+      const textureParams = bitmap ? { id, image: bitmap } : { id, buffers: [buf] };
+      const r = sceneModel.createTexture(textureParams);
+      if (r.ok === false) {
+        console.warn(`[FBXLoader] createTexture failed:`, r.error);
+        continue;
+      }
+      emittedTex.set(texIds[i], id);
     }
   }
-  const r = sceneModel.createTexture(textureParams);
-  if (r.ok === false) {
-    console.warn(`[FBXLoader] createTexture failed:`, r.error);
-    return void 0;
-  }
-  emittedTex.set(texId, id);
-  return id;
+}
+function emitDiffuseTexture(matId, childrenOf, textures, emittedTex) {
+  const texId = diffuseTexId(matId, childrenOf, textures);
+  return texId === void 0 ? void 0 : emittedTex.get(texId);
 }
 function prop70(node, name12) {
   const props70 = findChild(node, "Properties70");
@@ -133524,7 +133650,7 @@ var FBXLoader = class extends ModelLoader {
       format: "fbx",
       fileDataType: "arraybuffer",
       parsers: {
-        binary: parse17
+        binary: parse21
       },
       // The only "version" we recognise is the binary variant; ASCII FBX (and
       // anything else) returns "" → the base loader reports it as unsupported.
@@ -133553,7 +133679,7 @@ function writeFBXBinary(nodes) {
     offset += b4.length;
   }
   parts.push(new Uint8Array(13));
-  const out = concat2(parts);
+  const out = concat4(parts);
   return out.buffer.slice(out.byteOffset, out.byteOffset + out.byteLength);
 }
 function makeHeader(version2) {
@@ -133568,7 +133694,7 @@ function makeHeader(version2) {
   return b4;
 }
 function encodeNode(node, start) {
-  const propBytes = concat2(node.props.map(encodeProp));
+  const propBytes = concat4(node.props.map(encodeProp));
   let childStart = start + 13 + node.name.length + propBytes.length;
   const childBuffers = [];
   for (const ch of node.children) {
@@ -133576,7 +133702,7 @@ function encodeNode(node, start) {
     childBuffers.push(cb2);
     childStart += cb2.length;
   }
-  const childrenBytes = node.children.length > 0 ? concat2([...childBuffers, new Uint8Array(13)]) : new Uint8Array(0);
+  const childrenBytes = node.children.length > 0 ? concat4([...childBuffers, new Uint8Array(13)]) : new Uint8Array(0);
   const endOffset = start + 13 + node.name.length + propBytes.length + childrenBytes.length;
   const header = new Uint8Array(13 + node.name.length);
   const dv = new DataView(header.buffer);
@@ -133586,7 +133712,7 @@ function encodeNode(node, start) {
   dv.setUint8(12, node.name.length);
   for (let i = 0; i < node.name.length; i++)
     header[13 + i] = node.name.charCodeAt(i);
-  return concat2([header, propBytes, childrenBytes]);
+  return concat4([header, propBytes, childrenBytes]);
 }
 function encodeProp(p) {
   switch (p.t) {
@@ -133658,7 +133784,7 @@ function encodeProp(p) {
     }
   }
 }
-function concat2(parts) {
+function concat4(parts) {
   let len = 0;
   for (const p of parts)
     len += p.length;
@@ -133674,10 +133800,15 @@ function concat2(parts) {
 // ../sdk/src/formats/fbx/versions/binary/encode.ts
 var RAD2DEG = 180 / Math.PI;
 var SEP = "\0";
-async function encode20(params, _options) {
+async function encode18(params, options) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     throw "FBXExporter requires params.sceneModel";
+  }
+  const triplanarSkip = findTriplanarTextureSkip(sceneModel);
+  if (triplanarSkip.any) {
+    const warn = options?.onWarning ?? ((m) => console.warn(m));
+    warn(triplanarSkipWarning("FBX", triplanarSkip));
   }
   let nextId = 1e3;
   const newId = () => ++nextId;
@@ -133714,6 +133845,8 @@ async function encode20(params, _options) {
     return id;
   }
   async function emitTexture(mat, matFbx) {
+    if (triplanarSkip.materialIds.has(mat.id))
+      return;
     const tex = mat.colorTexture;
     if (!tex)
       return;
@@ -133812,7 +133945,7 @@ function buildGeometryNode(geom, id) {
   ];
   if (geom.normalsCompressed) {
     const normals = new Float32Array(geom.normalsCompressed.length / 2 * 3);
-    decompressNormals2(geom.normalsCompressed, normals);
+    octDecodeNormalsU16(geom.normalsCompressed, normals);
     children.push(layerNode("LayerElementNormal", "Normals", normals));
   }
   if (geom.uvsCompressed && geom.uvsCompressed.length) {
@@ -133849,23 +133982,6 @@ function decompressPoint3WithAABB32(p, aabb, dest) {
   dest[0] = p[0] * ((aabb[3] - aabb[0]) / 65535) + aabb[0];
   dest[1] = p[1] * ((aabb[4] - aabb[1]) / 65535) + aabb[1];
   dest[2] = p[2] * ((aabb[5] - aabb[2]) / 65535) + aabb[2];
-}
-function decompressNormals2(octs, result) {
-  for (let i = 0, j = 0, len = octs.length; i < len; i += 2, j += 3) {
-    let x = (2 * octs[i] + 1) / 255;
-    let y = (2 * octs[i + 1] + 1) / 255;
-    const z = 1 - Math.abs(x) - Math.abs(y);
-    if (z < 0) {
-      const tx = (1 - Math.abs(y)) * Math.sign(x);
-      const ty = (1 - Math.abs(x)) * Math.sign(y);
-      x = tx;
-      y = ty;
-    }
-    const len2 = Math.sqrt(x * x + y * y + z * z) || 1;
-    result[j] = x / len2;
-    result[j + 1] = y / len2;
-    result[j + 2] = z / len2;
-  }
 }
 function decomposeTRS(m) {
   const sx = Math.hypot(m[0], m[1], m[2]) || 1;
@@ -133918,17 +134034,17 @@ function base64ToBytes(b642) {
   return new Uint8Array(globalThis.Buffer.from(b642, "base64"));
 }
 async function canvasEncodePNG(source) {
-  const w = source.width, h = source.height;
-  const canvas2 = document.createElement("canvas");
-  canvas2.width = w;
-  canvas2.height = h;
-  const ctx = canvas2.getContext("2d");
+  const w2 = source.width, h2 = source.height;
+  const canvas3 = document.createElement("canvas");
+  canvas3.width = w2;
+  canvas3.height = h2;
+  const ctx2 = canvas3.getContext("2d");
   if (typeof ImageData !== "undefined" && source instanceof ImageData) {
-    ctx.putImageData(source, 0, 0);
+    ctx2.putImageData(source, 0, 0);
   } else {
-    ctx.drawImage(source, 0, 0);
+    ctx2.drawImage(source, 0, 0);
   }
-  const blob = await new Promise((res, rej) => canvas2.toBlob((b4) => b4 ? res(b4) : rej("toBlob failed"), "image/png"));
+  const blob = await new Promise((res, rej) => canvas3.toBlob((b4) => b4 ? res(b4) : rej("toBlob failed"), "image/png"));
   return new Uint8Array(await blob.arrayBuffer());
 }
 
@@ -133939,7 +134055,7 @@ var FBXExporter = class extends ModelExporter {
       format: "fbx",
       fileDataType: "arraybuffer",
       encoders: {
-        binary: encode20
+        binary: encode18
       },
       defaultVersion: "binary"
     });
@@ -134162,7 +134278,7 @@ function buildSceneModel(scene, sceneModel) {
   };
   const walk = (node, parentWorld) => {
     const local = node.localMatrix && node.localMatrix.length === 16 ? toMat4(node.localMatrix) : identity();
-    const world = mulMat45(parentWorld, local);
+    const world = mulMat44(parentWorld, local);
     emitMesh3(node, world);
     for (const child of childArray(node.children)) {
       walk(child, world);
@@ -134205,7 +134321,7 @@ function toMat4(m) {
     out[i] = m[i];
   return out;
 }
-function mulMat45(a2, b4) {
+function mulMat44(a2, b4) {
   const out = new Array(16);
   for (let col = 0; col < 4; col++) {
     for (let row = 0; row < 4; row++) {
@@ -134216,7 +134332,7 @@ function mulMat45(a2, b4) {
 }
 
 // ../sdk/src/formats/usdz/versions/v1/parse.ts
-async function parse18(params, options) {
+async function parse22(params, options) {
   const { fileData, sceneModel } = params;
   if (!sceneModel) {
     return;
@@ -134256,7 +134372,7 @@ var USDZLoader = class extends ModelLoader {
       format: "usdz",
       fileDataType: "arraybuffer",
       parsers: {
-        "1.0": parse18
+        "1.0": parse22
       },
       getVersion: (fileData) => isUSDZ(fileData) ? "1.0" : ""
     });
@@ -134452,11 +134568,18 @@ function crc322(data2) {
 
 // ../sdk/src/formats/usdz/versions/v1/encode.ts
 var ROOT_LAYER = "model.usda";
-async function encode21(params, options) {
+async function encode19(params, options) {
   const onProgress = options?.onProgress;
   const signal = options?.signal;
   onProgress?.({ phase: "Encoding USDZ", current: 0, total: 1 });
   const sceneModel = params.sceneModel;
+  if (sceneModel) {
+    const triplanarSkip = findTriplanarTextureSkip(sceneModel);
+    if (triplanarSkip.any) {
+      const warn = options?.onWarning ?? ((m) => console.warn(m));
+      warn(triplanarSkipWarning("USDZ", triplanarSkip));
+    }
+  }
   const objects = [];
   const materials = [];
   const materialNameById = /* @__PURE__ */ new Map();
@@ -134595,7 +134718,7 @@ var USDZExporter = class extends ModelExporter {
       format: "usdz",
       fileDataType: "arraybuffer",
       encoders: {
-        "1.0": encode21
+        "1.0": encode19
       },
       defaultVersion: "1.0"
     });
@@ -134662,7 +134785,7 @@ async function loadPdfJs(opts) {
   }
   return p;
 }
-async function parse19(input, options = {}) {
+async function parse23(input, options = {}) {
   if (!input || !input.sceneModel) {
     return { ok: false, type: 2 /* InvalidInput */, error: "[pdf.parse] sceneModel is required" };
   }
@@ -134998,9 +135121,9 @@ async function parse19(input, options = {}) {
             const meshId = `${objectId}-text-atlas-mesh`;
             let pixelData = null;
             try {
-              const ctx = atlas.getContext("2d");
-              if (ctx) {
-                pixelData = ctx.getImageData(0, 0, atlasDims.width, atlasDims.height).data;
+              const ctx2 = atlas.getContext("2d");
+              if (ctx2) {
+                pixelData = ctx2.getImageData(0, 0, atlasDims.width, atlasDims.height).data;
               }
             } catch (err6) {
               console.warn(`[PDFLoader] page ${pageNumber} text atlas: getImageData failed: ${err6}`);
@@ -135498,7 +135621,7 @@ function extractDrawables(opList, OPS, bezierSteps, renderImages, renderFills, m
       }
     }
     for (const [outerIdx, holeIdxs] of groupHoles) {
-      const subs = [usable[outerIdx], ...holeIdxs.map((h) => usable[h])];
+      const subs = [usable[outerIdx], ...holeIdxs.map((h2) => usable[h2])];
       let totalVerts = 0;
       for (const sv of subs)
         totalVerts += sv.length / 2;
@@ -135648,8 +135771,8 @@ function extractDrawables(opList, OPS, bezierSteps, renderImages, renderFills, m
     }
     if (op === OPS.rectangle) {
       const r = args[i];
-      const x = r[0], y = r[1], w = r[2], h = r[3];
-      currentPath.push([x, y, x + w, y, x + w, y + h, x, y + h]);
+      const x = r[0], y = r[1], w2 = r[2], h2 = r[3];
+      currentPath.push([x, y, x + w2, y, x + w2, y + h2, x, y + h2]);
       closed.push(true);
       subX = x;
       subY = y;
@@ -135688,8 +135811,8 @@ function extractDrawables(opList, OPS, bezierSteps, renderImages, renderFills, m
             closed[ci_last] = true;
         } else if (sub === OPS.rectangle) {
           const x = coords[ci++], y = coords[ci++];
-          const w = coords[ci++], h = coords[ci++];
-          currentPath.push([x, y, x + w, y, x + w, y + h, x, y + h]);
+          const w2 = coords[ci++], h2 = coords[ci++];
+          currentPath.push([x, y, x + w2, y, x + w2, y + h2, x, y + h2]);
           closed.push(true);
           subX = x;
           subY = y;
@@ -135820,31 +135943,31 @@ function resolveImage(obj) {
     return null;
   if (obj.bitmap)
     return { bitmap: obj.bitmap };
-  const data2 = obj.data, w = obj.width, h = obj.height;
-  if (!data2 || !w || !h)
+  const data2 = obj.data, w2 = obj.width, h2 = obj.height;
+  if (!data2 || !w2 || !h2)
     return null;
   if (obj.kind === 3) {
     return {
       data: data2 instanceof Uint8ClampedArray ? data2 : new Uint8ClampedArray(data2.buffer, data2.byteOffset, data2.byteLength),
-      width: w,
-      height: h
+      width: w2,
+      height: h2
     };
   }
-  if (obj.kind === 2 || data2.length === w * h * 3) {
-    const out = new Uint8ClampedArray(w * h * 4);
+  if (obj.kind === 2 || data2.length === w2 * h2 * 3) {
+    const out = new Uint8ClampedArray(w2 * h2 * 4);
     for (let p = 0, q = 0; p < data2.length; p += 3, q += 4) {
       out[q + 0] = data2[p + 0];
       out[q + 1] = data2[p + 1];
       out[q + 2] = data2[p + 2];
       out[q + 3] = 255;
     }
-    return { data: out, width: w, height: h };
+    return { data: out, width: w2, height: h2 };
   }
-  if (data2.length === w * h * 4) {
+  if (data2.length === w2 * h2 * 4) {
     return {
       data: data2 instanceof Uint8ClampedArray ? data2 : new Uint8ClampedArray(data2.buffer, data2.byteOffset, data2.byteLength),
-      width: w,
-      height: h
+      width: w2,
+      height: h2
     };
   }
   return null;
@@ -135852,19 +135975,19 @@ function resolveImage(obj) {
 function resolveImageMask(obj, fillColor) {
   if (!obj || !obj.data || !obj.width || !obj.height)
     return null;
-  const w = obj.width, h = obj.height;
+  const w2 = obj.width, h2 = obj.height;
   const data2 = obj.data;
-  const bytesPerRow = w + 7 >> 3;
-  if (data2.length < bytesPerRow * h)
+  const bytesPerRow = w2 + 7 >> 3;
+  if (data2.length < bytesPerRow * h2)
     return null;
   const fr = Math.round(fillColor[0] * 255);
   const fg = Math.round(fillColor[1] * 255);
   const fb = Math.round(fillColor[2] * 255);
-  const out = new Uint8ClampedArray(w * h * 4);
+  const out = new Uint8ClampedArray(w2 * h2 * 4);
   let o = 0;
-  for (let y = 0; y < h; y++) {
+  for (let y = 0; y < h2; y++) {
     const rowOff = y * bytesPerRow;
-    for (let x = 0; x < w; x++) {
+    for (let x = 0; x < w2; x++) {
       const byte = data2[rowOff + (x >> 3)];
       const bit = byte >> 7 - (x & 7) & 1;
       if (bit === 0) {
@@ -135878,7 +136001,7 @@ function resolveImageMask(obj, fillColor) {
       o += 4;
     }
   }
-  return { data: out, width: w, height: h };
+  return { data: out, width: w2, height: h2 };
 }
 var ATLAS_MAX_WIDTH = 2048;
 function packTextAtlas(items) {
@@ -135909,26 +136032,26 @@ function packTextAtlas(items) {
 function rasterizeTextAtlas(items, atlasW, atlasH, pxPerUnit, fontFace, color2) {
   if (typeof OffscreenCanvas === "undefined")
     return null;
-  let canvas2;
+  let canvas3;
   try {
-    canvas2 = new OffscreenCanvas(atlasW, atlasH);
+    canvas3 = new OffscreenCanvas(atlasW, atlasH);
   } catch {
     return null;
   }
-  const ctx = canvas2.getContext("2d");
-  if (!ctx)
+  const ctx2 = canvas3.getContext("2d");
+  if (!ctx2)
     return null;
   const fillCss = `rgb(${Math.round(color2[0] * 255)},${Math.round(color2[1] * 255)},${Math.round(color2[2] * 255)})`;
-  ctx.fillStyle = fillCss;
-  ctx.textBaseline = "alphabetic";
-  ctx.textAlign = "left";
+  ctx2.fillStyle = fillCss;
+  ctx2.textBaseline = "alphabetic";
+  ctx2.textAlign = "left";
   for (const t of items) {
     const fontPx = Math.max(1, t.fontSize * pxPerUnit);
-    ctx.font = `${fontPx}px ${fontFace}`;
+    ctx2.font = `${fontPx}px ${fontFace}`;
     const ascentPx = t.fontSize * pxPerUnit;
-    ctx.fillText(t.item.str, t.atlasX, t.atlasY + ascentPx);
+    ctx2.fillText(t.item.str, t.atlasX, t.atlasY + ascentPx);
   }
-  return canvas2;
+  return canvas3;
 }
 function computePageOffset(index, firstPageWidth, firstPageHeight, layout, gridColumns, gap, rowAccumX, columnAccumY) {
   switch (layout) {
@@ -135970,7 +136093,7 @@ var PDFLoader = class {
     this.#pdfjs = params.pdfjs;
   }
   load(input, options = {}) {
-    return parse19(input, {
+    return parse23(input, {
       ...options,
       pdfjsEsmUrl: this.#pdfjsEsmUrl,
       pdfjsWorkerSrc: this.#pdfjsWorkerSrc,
@@ -136007,7 +136130,7 @@ var DEFAULT_SVG_LOAD_OPTIONS = {
 };
 
 // ../sdk/src/formats/svg/versions/v1_0/parse.ts
-async function parse20(input, options = {}) {
+async function parse24(input, options = {}) {
   if (!input || !input.sceneModel) {
     return err2(2 /* InvalidInput */, "[svg.parse] sceneModel is required");
   }
@@ -136543,16 +136666,16 @@ function emitText(node, ctm, style, collector, opts, classMap, objectId) {
   const descentPx = tm.actualBoundingBoxDescent || pxFont * 0.2;
   const widthPx = Math.max(1, Math.ceil(tm.width));
   const heightPx = Math.max(1, Math.ceil(ascentPx + descentPx));
-  const canvas2 = document.createElement("canvas");
-  canvas2.width = widthPx;
-  canvas2.height = heightPx;
-  const ctx = canvas2.getContext("2d");
-  if (!ctx)
+  const canvas3 = document.createElement("canvas");
+  canvas3.width = widthPx;
+  canvas3.height = heightPx;
+  const ctx2 = canvas3.getContext("2d");
+  if (!ctx2)
     return;
-  ctx.font = fontStr;
-  ctx.textBaseline = "alphabetic";
-  ctx.fillStyle = rgbToCssColor(fillRgb);
-  ctx.fillText(text, 0, ascentPx);
+  ctx2.font = fontStr;
+  ctx2.textBaseline = "alphabetic";
+  ctx2.fillStyle = rgbToCssColor(fillRgb);
+  ctx2.fillText(text, 0, ascentPx);
   const wText = widthPx / opts.textPxPerUnit;
   const wAsc = ascentPx / opts.textPxPerUnit;
   const wDsc = descentPx / opts.textPxPerUnit;
@@ -136567,7 +136690,7 @@ function emitText(node, ctm, style, collector, opts, classMap, objectId) {
     // TL
   ];
   const worldCorners = localCorners.map(([x, y]) => applyAffine(ctm, x, y));
-  collector.addText(objectId, { text, canvas: canvas2, corners: worldCorners, opacity: style.fillOpacity });
+  collector.addText(objectId, { text, canvas: canvas3, corners: worldCorners, opacity: style.fillOpacity });
 }
 function collectCascadedProps(names, attrs, classMap) {
   const out = {};
@@ -136790,14 +136913,14 @@ function emitLine(attrs, ctm, style, collector, objectId) {
 }
 function emitRect(attrs, ctm, style, collector, opts, objectId) {
   const x = parseFloat(attrs.x ?? "0"), y = parseFloat(attrs.y ?? "0");
-  const w = parseFloat(attrs.width ?? "0"), h = parseFloat(attrs.height ?? "0");
-  if (!(w > 0 && h > 0))
+  const w2 = parseFloat(attrs.width ?? "0"), h2 = parseFloat(attrs.height ?? "0");
+  if (!(w2 > 0 && h2 > 0))
     return;
   const corners = [
     applyAffine(ctm, x, y),
-    applyAffine(ctm, x + w, y),
-    applyAffine(ctm, x + w, y + h),
-    applyAffine(ctm, x, y + h)
+    applyAffine(ctm, x + w2, y),
+    applyAffine(ctm, x + w2, y + h2),
+    applyAffine(ctm, x, y + h2)
   ];
   emitClosedShape(corners, style, collector, opts, objectId);
 }
@@ -137278,7 +137401,7 @@ function domToSVGNode(el2) {
 // ../sdk/src/formats/svg/SVGLoader.ts
 var SVGLoader = class {
   load(input, options = {}) {
-    return parse20(
+    return parse24(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       options
     );
@@ -137301,7 +137424,7 @@ var DEFAULT_SVG_EXPORT_OPTIONS = {
 var tempVec3a9 = createVec3Float64();
 var tempVec3b9 = createVec3Float64();
 var tempVec3c5 = createVec3Float64();
-async function encode23(params, options) {
+async function encode20(params, options) {
   const { sceneModel } = params;
   if (!sceneModel)
     throw new Error("[SVGExporter] sceneModel is required");
@@ -137527,7 +137650,7 @@ var SVGExporter = class extends ModelExporter {
     super({
       format: "SVG",
       fileDataType: "text",
-      encoders: { "1.0": encode23 },
+      encoders: { "1.0": encode20 },
       defaultVersion: "1.0"
     });
   }
@@ -137536,9 +137659,6 @@ var SVGExporter = class extends ModelExporter {
 // ../sdk/src/formats/dwg/index.ts
 var dwg_exports = {};
 __export(dwg_exports, {
-  DEFAULT_DWG_LOAD_OPTIONS: () => DEFAULT_DWG_LOAD_OPTIONS,
-  DEFAULT_LIBREDWG_ESM_URL: () => DEFAULT_LIBREDWG_ESM_URL,
-  DEFAULT_LIBREDWG_WASM_DIR: () => DEFAULT_LIBREDWG_WASM_DIR,
   DWGLoader: () => DWGLoader
 });
 
@@ -137586,7 +137706,7 @@ async function loadLibredwg(opts) {
   }
   return p;
 }
-async function parse21(input, options = {}) {
+async function parse25(input, options = {}) {
   if (!input || !input.sceneModel) {
     return err3(2 /* InvalidInput */, "[dwg.parse] sceneModel is required");
   }
@@ -138351,10 +138471,10 @@ function emitTextEntity(entity, ctm, color2, opts, collector, objectId) {
   const descentPx = tm.actualBoundingBoxDescent || pxFont * 0.2;
   const widthPx = Math.max(1, Math.ceil(tm.width));
   const heightPx = Math.max(1, Math.ceil(ascentPx + descentPx));
-  const canvas2 = document.createElement("canvas");
-  canvas2.width = widthPx;
-  canvas2.height = heightPx;
-  const cctx = canvas2.getContext("2d");
+  const canvas3 = document.createElement("canvas");
+  canvas3.width = widthPx;
+  canvas3.height = heightPx;
+  const cctx = canvas3.getContext("2d");
   if (!cctx)
     return;
   cctx.font = fontStr;
@@ -138379,7 +138499,7 @@ function emitTextEntity(entity, ctm, color2, opts, collector, objectId) {
     const rz = pos[2];
     return applyAffine2(ctm, rx, ry, rz);
   });
-  collector.addText(objectId, { text, canvas: canvas2, corners: worldCorners });
+  collector.addText(objectId, { text, canvas: canvas3, corners: worldCorners });
 }
 var ACI_PALETTE = {
   1: [1, 0, 0],
@@ -138422,7 +138542,7 @@ var DWGLoader = class {
     this.#libredwg = params.libredwg;
   }
   load(input, options = {}) {
-    return parse21(
+    return parse25(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       {
         ...options,
@@ -138442,7 +138562,7 @@ __export(dxf_exports, {
 });
 
 // ../sdk/src/formats/dxf/versions/v1_0/parse.ts
-async function parse22(input, options = {}) {
+async function parse26(input, options = {}) {
   if (!input || !input.sceneModel) {
     return err4(2 /* InvalidInput */, "[dxf.parse] sceneModel is required");
   }
@@ -138764,7 +138884,7 @@ function err4(type, message) {
 // ../sdk/src/formats/dxf/DXFLoader.ts
 var DXFLoader = class {
   load(input, options = {}) {
-    return parse22(
+    return parse26(
       { fileData: input.fileData, sceneModel: input.sceneModel },
       options
     );
@@ -138776,7 +138896,7 @@ var tempVec3a10 = createVec3Float64();
 var tempVec3b10 = createVec3Float64();
 var tempVec3c6 = createVec3Float64();
 var _scratch = createVec4Float64();
-async function encode24(params, options) {
+async function encode21(params, options) {
   const { sceneModel } = params;
   if (!sceneModel)
     throw new Error("[DXFExporter] sceneModel is required");
@@ -138968,7 +139088,7 @@ var DXFExporter = class extends ModelExporter {
     super({
       format: "DXF",
       fileDataType: "text",
-      encoders: { "1.0": encode24 },
+      encoders: { "1.0": encode21 },
       defaultVersion: "1.0"
     });
   }
@@ -139193,10 +139313,10 @@ function applyHoles(obsts, holes) {
   for (const obst of obsts) {
     let remainders = [normalise(obst.xb)];
     for (const hole of holes) {
-      const h = normalise(hole.xb);
+      const h2 = normalise(hole.xb);
       const next = [];
       for (const r of remainders) {
-        for (const piece of subtract(r, h))
+        for (const piece of subtract(r, h2))
           next.push(piece);
       }
       remainders = next;
@@ -139209,15 +139329,15 @@ function applyHoles(obsts, holes) {
   }
   return out;
 }
-function subtract(r, h) {
-  if (!overlaps(r, h))
+function subtract(r, h2) {
+  if (!overlaps(r, h2))
     return [r];
-  const cx1 = Math.max(r[0], h[0]);
-  const cx2 = Math.min(r[1], h[1]);
-  const cy1 = Math.max(r[2], h[2]);
-  const cy2 = Math.min(r[3], h[3]);
-  const cz1 = Math.max(r[4], h[4]);
-  const cz2 = Math.min(r[5], h[5]);
+  const cx1 = Math.max(r[0], h2[0]);
+  const cx2 = Math.min(r[1], h2[1]);
+  const cy1 = Math.max(r[2], h2[2]);
+  const cy2 = Math.min(r[3], h2[3]);
+  const cz1 = Math.max(r[4], h2[4]);
+  const cz2 = Math.min(r[5], h2[5]);
   if (cx1 <= r[0] && cx2 >= r[1] && cy1 <= r[2] && cy2 >= r[3] && cz1 <= r[4] && cz2 >= r[5]) {
     return [];
   }
@@ -139254,7 +139374,7 @@ function normalise(xb) {
 var FDS_SCHEMA_ID = "fds6";
 
 // ../sdk/src/formats/fds/versions/v6/buildDataModel.ts
-function buildDataModel2(model, dataModel, modelId) {
+function buildDataModel3(model, dataModel, modelId) {
   const projectId = idProject();
   dataModel.createObject({
     id: projectId,
@@ -139378,22 +139498,22 @@ function buildDataModel2(model, dataModel, modelId) {
     }
   }
   for (let i = 0; i < model.holes.length; i++) {
-    const h = model.holes[i];
+    const h2 = model.holes[i];
     const hid = idHole(i);
     const psetIds = [
-      createPropSet(dataModel, hid + ":geom", "Geometry", "Geometry", xbProps(h.xb))
+      createPropSet(dataModel, hid + ":geom", "Geometry", "Geometry", xbProps(h2.xb))
     ];
-    if (h.extras.size > 0) {
-      psetIds.push(createPropSet(dataModel, hid + ":fds", "FDS", "FDS", extrasProps(h.extras)));
+    if (h2.extras.size > 0) {
+      psetIds.push(createPropSet(dataModel, hid + ":fds", "FDS", "FDS", extrasProps(h2.extras)));
     }
     dataModel.createObject({
       id: hid,
       type: "FDSHole",
       schema: FDS_SCHEMA_ID,
-      name: h.id ?? `Hole ${i + 1}`,
+      name: h2.id ?? `Hole ${i + 1}`,
       propertySetIds: psetIds
     });
-    relateToOwningMesh(dataModel, model, h.xb, hid);
+    relateToOwningMesh(dataModel, model, h2.xb, hid);
   }
 }
 function createPropSet(dataModel, id, name12, type, properties) {
@@ -139760,7 +139880,7 @@ function unitWireBox(id) {
 }
 
 // ../sdk/src/formats/fds/versions/v6/parse.ts
-var parse23 = async (params) => {
+var parse27 = async (params) => {
   const { fileData, sceneModel, dataModel } = params;
   if (typeof fileData !== "string") {
     throw new Error("[FDS/v6/parse] expected fileData to be a string");
@@ -139773,7 +139893,7 @@ var parse23 = async (params) => {
       throw new Error(r.error);
   }
   if (dataModel) {
-    buildDataModel2(model, dataModel, "fds");
+    buildDataModel3(model, dataModel, "fds");
   }
   return { warnings: model.warnings };
 };
@@ -139975,7 +140095,7 @@ var FDSLoader = class extends ModelLoader {
       format: "FDS",
       fileDataType: "text",
       parsers: {
-        "6": parse23
+        "6": parse27
       },
       // FDS input files don't carry an in-band version tag. The
       // current shipping line is FDS-6.x; downstream changes to the
@@ -139986,7 +140106,7 @@ var FDSLoader = class extends ModelLoader {
 };
 
 // ../sdk/src/formats/fds/versions/v6/encode.ts
-async function encode25(params, _options) {
+async function encode23(params, _options) {
   const { dataModel } = params;
   if (!dataModel) {
     throw new Error("[FDS/v6/encode] expected dataModel in params");
@@ -140023,8 +140143,8 @@ async function encode25(params, _options) {
   if (vents.length > 0)
     lines.push("");
   const holes = collectByType(dataModel, "FDSHole");
-  for (const h of holes)
-    lines.push(emitHole(h));
+  for (const h2 of holes)
+    lines.push(emitHole(h2));
   if (holes.length > 0)
     lines.push("");
   return lines.join("\n") + "\n";
@@ -140265,7 +140385,7 @@ var FDSExporter = class extends ModelExporter {
       format: "FDS",
       fileDataType: "text",
       encoders: {
-        "6": encode25
+        "6": encode23
       },
       defaultVersion: "6"
     });
@@ -140368,23 +140488,23 @@ function parseXML(text) {
   }
   return doc;
 }
-function descendants(root, localName) {
-  return Array.from(root.getElementsByTagNameNS("*", localName));
+function descendants(root, localName2) {
+  return Array.from(root.getElementsByTagNameNS("*", localName2));
 }
-function firstDescendant(root, localName) {
-  return root.getElementsByTagNameNS("*", localName)[0] ?? null;
+function firstDescendant(root, localName2) {
+  return root.getElementsByTagNameNS("*", localName2)[0] ?? null;
 }
-function childrenByLocalName(el2, localName) {
+function childrenByLocalName2(el2, localName2) {
   const out = [];
   for (let n = el2.firstElementChild; n; n = n.nextElementSibling) {
-    if (n.localName === localName) {
+    if (n.localName === localName2) {
       out.push(n);
     }
   }
   return out;
 }
-function textOf(root, localName) {
-  const el2 = firstDescendant(root, localName);
+function textOf2(root, localName2) {
+  const el2 = firstDescendant(root, localName2);
   const t = el2?.textContent;
   return t == null ? null : t.trim();
 }
@@ -140453,7 +140573,7 @@ function parseProductStructure(doc) {
   return { rootRef: findRoot(doc, references, instance3Ds), references, referenceReps, instance3Ds, instanceReps };
 }
 function idRef(instance, tag) {
-  const raw = textOf(instance, tag);
+  const raw = textOf2(instance, tag);
   if (!raw) {
     return null;
   }
@@ -140463,7 +140583,7 @@ function idRef(instance, tag) {
   return cut >= 0 ? raw.slice(cut + 1).trim() : raw;
 }
 function relativeMatrix(instance) {
-  const m = childrenByLocalName(instance, "RelativeMatrix")[0];
+  const m = childrenByLocalName2(instance, "RelativeMatrix")[0];
   const v = numbersIn(m?.textContent);
   if (v.length < 12) {
     return IDENTITY.slice();
@@ -140546,8 +140666,8 @@ function parseRepresentation(doc) {
   }
   return out;
 }
-function nearestOwned(rep, localName) {
-  for (const el2 of descendants(rep, localName)) {
+function nearestOwned(rep, localName2) {
+  for (const el2 of descendants(rep, localName2)) {
     if (nearestRep(el2) === rep) {
       return el2;
     }
@@ -140562,8 +140682,8 @@ function nearestRep(el2) {
   }
   return null;
 }
-function textOfChild(parent, localName) {
-  return descendants(parent, localName)[0]?.textContent ?? null;
+function textOfChild(parent, localName2) {
+  return descendants(parent, localName2)[0]?.textContent ?? null;
 }
 function floats(text) {
   return Float32Array.from(numbersIn(text));
@@ -140598,7 +140718,7 @@ function num4(el2, attr) {
 // ../sdk/src/formats/threedxml/versions/v1/parse.ts
 var IDENTITY2 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 var MAX_DEPTH = 512;
-async function parse24(params, _options) {
+async function parse28(params, _options) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     return;
@@ -140612,7 +140732,7 @@ async function parse24(params, _options) {
   if (!manifestName) {
     throw new Error("[3DXMLLoader] archive has no Manifest.xml");
   }
-  const root = textOf(parseXML(entryText(archive, manifestName)), "Root");
+  const root = textOf2(parseXML(entryText(archive, manifestName)), "Root");
   const modelName = root ? resolveEntry(archive, root) : null;
   if (!modelName) {
     throw new Error(`[3DXMLLoader] manifest Root '${root ?? ""}' not found in archive`);
@@ -140753,7 +140873,7 @@ var ThreeDXMLLoader = class extends ModelLoader {
     super({
       format: "3dxml",
       fileDataType: "arraybuffer",
-      parsers: { "*": parse24 },
+      parsers: { "*": parse28 },
       getVersion: (fileData) => isZip(fileData) ? "*" : ""
     });
   }
@@ -140761,7 +140881,7 @@ var ThreeDXMLLoader = class extends ModelLoader {
 
 // ../sdk/src/formats/threedxml/versions/v1/encode.ts
 var textEncoder2 = new TextEncoder();
-async function encode26(params, _options) {
+async function encode24(params, _options) {
   const sceneModel = params.sceneModel;
   if (!sceneModel) {
     throw new Error("[3DXMLExporter] params.sceneModel is required");
@@ -140776,7 +140896,7 @@ async function encode26(params, _options) {
       continue;
     }
     const positions = decompressPositions3WithAABB3(geom.positionsCompressed, geom.aabb);
-    const normals = geom.normalsCompressed ? decompressNormals(geom.normalsCompressed, new Float32Array(geom.normalsCompressed.length / 2 * 3)) : null;
+    const normals = geom.normalsCompressed ? octDecodeNormalsU16(geom.normalsCompressed, new Float32Array(geom.normalsCompressed.length / 2 * 3)) : null;
     const repName = `Rep_${repIndex}.3DRep`;
     repFiles.push({ name: repName, data: textEncoder2.encode(repDocument(positions, normals, geom.indices, mesh)) });
     const partRefId = nextId++;
@@ -140912,7 +141032,7 @@ var ThreeDXMLExporter = class extends ModelExporter {
     super({
       format: "3dxml",
       fileDataType: "arraybuffer",
-      encoders: { "*": encode26 },
+      encoders: { "*": encode24 },
       defaultVersion: "*"
     });
   }
@@ -141006,22 +141126,22 @@ var Y_UP_TO_Z_UP = createMat4Float64([
   0,
   1
 ]);
-async function decodeTileContent(buffer, ctx) {
+async function decodeTileContent(buffer, ctx2) {
   const magic = magicOf(buffer);
   switch (magic) {
     case "b3dm":
-      return decodeB3DM(buffer, ctx);
+      return decodeB3DM(buffer, ctx2);
     case "pnts":
-      return decodePNTS(buffer, ctx);
+      return decodePNTS(buffer, ctx2);
     case "i3dm":
-      return decodeI3DM(buffer, ctx);
+      return decodeI3DM(buffer, ctx2);
     case "cmpt":
-      return decodeCMPT(buffer, ctx);
+      return decodeCMPT(buffer, ctx2);
     case "glTF":
-      return decodeGLTFContent(buffer, ctx, contentMatrix(ctx.worldMatrix, null, true));
+      return decodeGLTFContent(buffer, ctx2, contentMatrix(ctx2.worldMatrix, null, true));
     default:
       if (isJSONGLTF(buffer)) {
-        return decodeGLTFContent(buffer, ctx, contentMatrix(ctx.worldMatrix, null, true));
+        return decodeGLTFContent(buffer, ctx2, contentMatrix(ctx2.worldMatrix, null, true));
       }
       throw new Error(`[ThreeDTilesLoader] Unsupported tile content magic "${magic}"`);
   }
@@ -141049,18 +141169,18 @@ function contentMatrix(world, rtcCenter2, gltf) {
   }
   return m;
 }
-async function decodeGLTFContent(content, ctx, rootMatrix) {
-  if (!ctx.sceneModel)
+async function decodeGLTFContent(content, ctx2, rootMatrix) {
+  if (!ctx2.sceneModel)
     return;
   await new GLTFLoader2().load(
-    { fileData: content, sceneModel: ctx.sceneModel, dataModel: ctx.dataModel },
+    { fileData: content, sceneModel: ctx2.sceneModel, dataModel: ctx2.dataModel },
     {
       rootMatrix,
-      baseUri: ctx.baseUri,
-      signal: ctx.options.signal,
-      layerId: ctx.options.layerId,
-      dracoModule: ctx.options.dracoModule,
-      dataParentId: ctx.rootDataObjectId
+      baseUri: ctx2.baseUri,
+      signal: ctx2.options.signal,
+      layerId: ctx2.options.layerId,
+      dracoModule: ctx2.options.dracoModule,
+      dataParentId: ctx2.rootDataObjectId
     }
   );
 }
@@ -141082,19 +141202,19 @@ function readTables28(buffer) {
   offset += btBinLen;
   return { ftJSON, ftBin, btJSONBytes, btBin, bodyOffset: offset, byteLength };
 }
-async function decodeB3DM(buffer, ctx) {
+async function decodeB3DM(buffer, ctx2) {
   const t = readTables28(buffer);
   const glb = buffer.slice(t.bodyOffset, t.byteLength);
   const rtc = t.ftJSON.RTC_CENTER || null;
-  await decodeGLTFContent(glb, ctx, contentMatrix(ctx.worldMatrix, rtc, true));
-  if (ctx.dataModel && t.btJSONBytes.length > 0) {
+  await decodeGLTFContent(glb, ctx2, contentMatrix(ctx2.worldMatrix, rtc, true));
+  if (ctx2.dataModel && t.btJSONBytes.length > 0) {
     const batchLength = t.ftJSON.BATCH_LENGTH || 0;
     const btJSON = decodeTableJSON(t.btJSONBytes);
-    addBatchTableToDataModel(ctx, btJSON, t.btBin, batchLength);
+    addBatchTableToDataModel(ctx2, btJSON, t.btBin, batchLength);
   }
 }
-async function decodePNTS(buffer, ctx) {
-  if (!ctx.sceneModel)
+async function decodePNTS(buffer, ctx2) {
+  if (!ctx2.sceneModel)
     return;
   const t = readTables28(buffer);
   const count = t.ftJSON.POINTS_LENGTH || 0;
@@ -141105,16 +141225,16 @@ async function decodePNTS(buffer, ctx) {
     return;
   const colors = readPntsColors(t.ftJSON, t.ftBin, count);
   const rtc = t.ftJSON.RTC_CENTER || null;
-  const geometryId = `${ctx.idPrefix}-pts-geom`;
-  const meshId = `${ctx.idPrefix}-pts-mesh`;
-  const objectId = `${ctx.idPrefix}-pts`;
-  ctx.sceneModel.createGeometry({ id: geometryId, primitive: PointsPrimitive, positions, colors });
-  ctx.sceneModel.createMesh({
+  const geometryId = `${ctx2.idPrefix}-pts-geom`;
+  const meshId = `${ctx2.idPrefix}-pts-mesh`;
+  const objectId = `${ctx2.idPrefix}-pts`;
+  ctx2.sceneModel.createGeometry({ id: geometryId, primitive: PointsPrimitive, positions, colors });
+  ctx2.sceneModel.createMesh({
     id: meshId,
     geometryId,
-    matrix: contentMatrix(ctx.worldMatrix, rtc, false)
+    matrix: contentMatrix(ctx2.worldMatrix, rtc, false)
   });
-  ctx.sceneModel.createObject({ id: objectId, meshIds: [meshId], layerId: ctx.options.layerId });
+  ctx2.sceneModel.createObject({ id: objectId, meshIds: [meshId], layerId: ctx2.options.layerId });
 }
 function readPntsPositions(ftJSON, ftBin, count) {
   if (ftJSON.POSITION) {
@@ -141157,8 +141277,8 @@ function readPntsColors(ftJSON, ftBin, count) {
   }
   return null;
 }
-async function decodeI3DM(buffer, ctx) {
-  if (!ctx.sceneModel)
+async function decodeI3DM(buffer, ctx2) {
+  if (!ctx2.sceneModel)
     return;
   const dv = new DataView(buffer);
   const byteLength = dv.getUint32(8, true);
@@ -141175,44 +141295,44 @@ async function decodeI3DM(buffer, ctx) {
   const instanceCount = ftJSON.INSTANCES_LENGTH || 0;
   if (instanceCount === 0)
     return;
-  const glb = await resolveI3DMGlb(buffer, offset, byteLength, gltfFormat, ctx);
+  const glb = await resolveI3DMGlb(buffer, offset, byteLength, gltfFormat, ctx2);
   if (!glb)
     return;
   const rtc = ftJSON.RTC_CENTER || null;
   const attrs = readInstanceAttrs(ftJSON, ftBin, instanceCount);
   if (!attrs.positions)
     return;
-  const meshesBefore = Object.keys(ctx.sceneModel.meshes);
-  const instance0 = instanceMatrix(ctx, rtc, attrs, 0);
-  await decodeGLTFContent(glb, ctx, mulMat4(instance0, Y_UP_TO_Z_UP, createMat4Float64()));
-  const baseMeshes = Object.keys(ctx.sceneModel.meshes).filter((id) => meshesBefore.indexOf(id) === -1);
+  const meshesBefore = Object.keys(ctx2.sceneModel.meshes);
+  const instance0 = instanceMatrix(ctx2, rtc, attrs, 0);
+  await decodeGLTFContent(glb, ctx2, mulMat4(instance0, Y_UP_TO_Z_UP, createMat4Float64()));
+  const baseMeshes = Object.keys(ctx2.sceneModel.meshes).filter((id) => meshesBefore.indexOf(id) === -1);
   if (baseMeshes.length === 0)
     return;
   const inv0 = inverseMat4(instance0, createMat4Float64());
   for (let i = 1; i < instanceCount; i++) {
-    const delta = mulMat4(instanceMatrix(ctx, rtc, attrs, i), inv0, createMat4Float64());
+    const delta = mulMat4(instanceMatrix(ctx2, rtc, attrs, i), inv0, createMat4Float64());
     const meshIds = [];
     for (let m = 0; m < baseMeshes.length; m++) {
-      const base = ctx.sceneModel.meshes[baseMeshes[m]];
-      const meshId = `${ctx.idPrefix}-i${i}-${m}`;
-      ctx.sceneModel.createMesh({
+      const base = ctx2.sceneModel.meshes[baseMeshes[m]];
+      const meshId = `${ctx2.idPrefix}-i${i}-${m}`;
+      ctx2.sceneModel.createMesh({
         id: meshId,
         geometryId: base.geometryId,
         matrix: mulMat4(delta, base.matrix, createMat4Float64())
       });
       meshIds.push(meshId);
     }
-    ctx.sceneModel.createObject({ id: `${ctx.idPrefix}-i${i}`, meshIds, layerId: ctx.options.layerId });
+    ctx2.sceneModel.createObject({ id: `${ctx2.idPrefix}-i${i}`, meshIds, layerId: ctx2.options.layerId });
   }
 }
-async function resolveI3DMGlb(buffer, offset, byteLength, gltfFormat, ctx) {
+async function resolveI3DMGlb(buffer, offset, byteLength, gltfFormat, ctx2) {
   if (gltfFormat === 1) {
     return buffer.slice(offset, byteLength);
   }
   const uri = new TextDecoder().decode(new Uint8Array(buffer, offset, byteLength - offset)).trim();
-  if (!uri || !ctx.baseUri)
+  if (!uri || !ctx2.baseUri)
     return null;
-  return ctx.fetchArrayBuffer(ctx.resolveUrl(uri, ctx.baseUri));
+  return ctx2.fetchArrayBuffer(ctx2.resolveUrl(uri, ctx2.baseUri));
 }
 function readInstanceAttrs(ftJSON, ftBin, count) {
   return {
@@ -141223,8 +141343,8 @@ function readInstanceAttrs(ftJSON, ftBin, count) {
     scaleNonUniform: readFeatureValue(ftJSON, ftBin, "SCALE_NON_UNIFORM", Float32Array, 3, count)
   };
 }
-function instanceMatrix(ctx, rtc, attrs, i) {
-  let m = contentMatrix(ctx.worldMatrix, rtc, false);
+function instanceMatrix(ctx2, rtc, attrs, i) {
+  let m = contentMatrix(ctx2.worldMatrix, rtc, false);
   const p = attrs.positions;
   m = mulMat4(m, translationMat4v([p[i * 3], p[i * 3 + 1], p[i * 3 + 2]]), createMat4Float64());
   if (attrs.normalUp && attrs.normalRight) {
@@ -141289,44 +141409,44 @@ function cross3(a2, b4) {
     a2[0] * b4[1] - a2[1] * b4[0]
   ];
 }
-async function decodeCMPT(buffer, ctx) {
+async function decodeCMPT(buffer, ctx2) {
   const dv = new DataView(buffer);
   const tilesLength = dv.getUint32(12, true);
   let offset = 16;
   for (let i = 0; i < tilesLength; i++) {
     const innerLength = dv.getUint32(offset + 8, true);
     await decodeTileContent(buffer.slice(offset, offset + innerLength), {
-      ...ctx,
-      idPrefix: `${ctx.idPrefix}-c${i}`
+      ...ctx2,
+      idPrefix: `${ctx2.idPrefix}-c${i}`
     });
     offset += innerLength;
   }
 }
-function addBatchTableToDataModel(ctx, btJSON, btBin, batchLength) {
-  const dataModel = ctx.dataModel;
+function addBatchTableToDataModel(ctx2, btJSON, btBin, batchLength) {
+  const dataModel = ctx2.dataModel;
   const table = readBatchTable(btJSON, btBin, batchLength);
   const keys = Object.keys(table);
   if (keys.length === 0)
     return;
   for (let i = 0; i < batchLength; i++) {
-    const propertySetId = `${ctx.idPrefix}-f${i}-props`;
+    const propertySetId = `${ctx2.idPrefix}-f${i}-props`;
     dataModel.createPropertySet({
       id: propertySetId,
       name: "3D Tiles feature properties",
       type: "Default",
       properties: keys.map((key) => ({ name: key, value: table[key][i] }))
     });
-    const objectId = `${ctx.idPrefix}-f${i}`;
+    const objectId = `${ctx2.idPrefix}-f${i}`;
     dataModel.createObject({
       id: objectId,
       type: "Feature",
       name: `Feature ${i}`,
       propertySetIds: [propertySetId]
     });
-    if (ctx.rootDataObjectId) {
+    if (ctx2.rootDataObjectId) {
       dataModel.createRelationship({
         type: "BasicAggregation",
-        relatingObjectId: ctx.rootDataObjectId,
+        relatingObjectId: ctx2.rootDataObjectId,
         relatedObjectId: objectId
       });
     }
@@ -141550,7 +141670,7 @@ async function parseTileset(params, options = {}) {
       }
       return;
     }
-    const ctx = {
+    const ctx2 = {
       sceneModel,
       dataModel,
       worldMatrix,
@@ -141561,7 +141681,7 @@ async function parseTileset(params, options = {}) {
       resolveUrl: resolveUrl2,
       rootDataObjectId
     };
-    await decodeTileContent(buffer, ctx);
+    await decodeTileContent(buffer, ctx2);
   }
   async function traverse(tile, parentWorld, depth, inheritedRefine, baseUri) {
     if (signal?.aborted)
@@ -141711,8 +141831,8 @@ function regionSphere(region) {
   let radius = 0;
   for (const lon of [west, east]) {
     for (const lat of [south, north]) {
-      for (const h of [minHeight, maxHeight]) {
-        const corner = geodeticToEcef(lon, lat, h);
+      for (const h2 of [minHeight, maxHeight]) {
+        const corner = geodeticToEcef(lon, lat, h2);
         radius = Math.max(radius, Math.hypot(corner[0] - center[0], corner[1] - center[1], corner[2] - center[2]));
       }
     }
@@ -142011,7 +142131,7 @@ var TilesetStreamer = class {
       if (!res.ok || !res.value)
         return;
       sceneModel = res.value;
-      const ctx = {
+      const ctx2 = {
         sceneModel,
         worldMatrix: node.worldMatrix,
         idPrefix: node.id,
@@ -142020,7 +142140,7 @@ var TilesetStreamer = class {
         fetchArrayBuffer: this.#fetchArrayBuffer,
         resolveUrl: resolveUrl2
       };
-      await decodeTileContent(buffer, ctx);
+      await decodeTileContent(buffer, ctx2);
       if (this.#destroyed) {
         sceneModel.destroy();
         return;
@@ -143958,19 +144078,19 @@ function computeObjectWorldAABB(sceneModel, objectId) {
       corner[1] = i & 2 ? a2[4] : a2[1];
       corner[2] = i & 4 ? a2[5] : a2[2];
       corner[3] = 1;
-      const w = transformPoint4(wm, corner, corner);
-      if (w[0] < out[0])
-        out[0] = w[0];
-      if (w[0] > out[3])
-        out[3] = w[0];
-      if (w[1] < out[1])
-        out[1] = w[1];
-      if (w[1] > out[4])
-        out[4] = w[1];
-      if (w[2] < out[2])
-        out[2] = w[2];
-      if (w[2] > out[5])
-        out[5] = w[2];
+      const w2 = transformPoint4(wm, corner, corner);
+      if (w2[0] < out[0])
+        out[0] = w2[0];
+      if (w2[0] > out[3])
+        out[3] = w2[0];
+      if (w2[1] < out[1])
+        out[1] = w2[1];
+      if (w2[1] > out[4])
+        out[4] = w2[1];
+      if (w2[2] < out[2])
+        out[2] = w2[2];
+      if (w2[2] > out[5])
+        out[5] = w2[2];
     }
   }
   return out;
@@ -144047,12 +144167,12 @@ function fnv1a(arr) {
       f[i] = arr[i];
     bytes = new Uint8Array(f.buffer);
   }
-  let h = 2166136261;
+  let h2 = 2166136261;
   for (let i = 0; i < bytes.length; i++) {
-    h ^= bytes[i];
-    h = Math.imul(h, 16777619);
+    h2 ^= bytes[i];
+    h2 = Math.imul(h2, 16777619);
   }
-  return `${arr.length}:${(h >>> 0).toString(36)}`;
+  return `${arr.length}:${(h2 >>> 0).toString(36)}`;
 }
 function computeCanonicalSlots(geom) {
   const positions = geom.positionsCompressed;
@@ -144065,10 +144185,10 @@ function computeCanonicalSlots(geom) {
   const slotByHash = /* @__PURE__ */ new Map();
   let unique = 0;
   for (let v = 0; v < vertCount; v++) {
-    const h = hashVertex(positions, normals, uvs, v);
-    const existing = slotByHash.get(h);
+    const h2 = hashVertex(positions, normals, uvs, v);
+    const existing = slotByHash.get(h2);
     if (existing === void 0) {
-      slotByHash.set(h, v);
+      slotByHash.set(h2, v);
       canonical[v] = v;
       unique++;
       continue;
@@ -144077,7 +144197,7 @@ function computeCanonicalSlots(geom) {
       if (vertsEqual(positions, normals, uvs, v, existing)) {
         canonical[v] = existing;
       } else {
-        slotByHash.set(h, [existing, v]);
+        slotByHash.set(h2, [existing, v]);
         canonical[v] = v;
         unique++;
       }
@@ -144101,22 +144221,22 @@ function computeCanonicalSlots(geom) {
   return { canonical, uniqueCount: unique };
 }
 function hashVertex(positions, normals, uvs, slot) {
-  let h = 2166136261;
+  let h2 = 2166136261;
   const p3 = slot * 3;
-  h = Math.imul(h ^ positions[p3], 16777619);
-  h = Math.imul(h ^ positions[p3 + 1], 16777619);
-  h = Math.imul(h ^ positions[p3 + 2], 16777619);
+  h2 = Math.imul(h2 ^ positions[p3], 16777619);
+  h2 = Math.imul(h2 ^ positions[p3 + 1], 16777619);
+  h2 = Math.imul(h2 ^ positions[p3 + 2], 16777619);
   if (normals) {
     const n2 = slot * 2;
-    h = Math.imul(h ^ normals[n2], 16777619);
-    h = Math.imul(h ^ normals[n2 + 1], 16777619);
+    h2 = Math.imul(h2 ^ normals[n2], 16777619);
+    h2 = Math.imul(h2 ^ normals[n2 + 1], 16777619);
   }
   if (uvs) {
     const u2 = slot * 2;
-    h = Math.imul(h ^ uvs[u2], 16777619);
-    h = Math.imul(h ^ uvs[u2 + 1], 16777619);
+    h2 = Math.imul(h2 ^ uvs[u2], 16777619);
+    h2 = Math.imul(h2 ^ uvs[u2 + 1], 16777619);
   }
-  return h >>> 0;
+  return h2 >>> 0;
 }
 function vertsEqual(positions, normals, uvs, a2, b4) {
   const a3 = a2 * 3, b32 = b4 * 3;
@@ -145172,28 +145292,28 @@ var textureDimensions = {
       const tex = sceneModel.textures[texId];
       if (tex.destroyed)
         continue;
-      const w = tex.width | 0;
-      const h = tex.height | 0;
-      if (w <= 0 || h <= 0)
+      const w2 = tex.width | 0;
+      const h2 = tex.height | 0;
+      if (w2 <= 0 || h2 <= 0)
         continue;
-      if (!isPowerOfTwo(w) || !isPowerOfTwo(h)) {
+      if (!isPowerOfTwo(w2) || !isPowerOfTwo(h2)) {
         issues.push({
           severity: "warning",
           code: "TEXTURE_NPOT",
-          message: `SceneTexture '${texId}' is ${w}\xD7${h} \u2014 non-power-of-two; mipmap quality / GPU compatibility risk`,
-          summary: `${w}\xD7${h}`,
+          message: `SceneTexture '${texId}' is ${w2}\xD7${h2} \u2014 non-power-of-two; mipmap quality / GPU compatibility risk`,
+          summary: `${w2}\xD7${h2}`,
           resourceId: texId,
-          context: { width: w, height: h }
+          context: { width: w2, height: h2 }
         });
       }
-      if (w > maxTextureDim || h > maxTextureDim) {
+      if (w2 > maxTextureDim || h2 > maxTextureDim) {
         issues.push({
           severity: "warning",
           code: "TEXTURE_OVERSIZED",
-          message: `SceneTexture '${texId}' is ${w}\xD7${h} \u2014 exceeds the ${maxTextureDim}-pixel budget on at least one axis; ~${estimateBytesMB(w, h)} MB before mipmaps`,
-          summary: `${w}\xD7${h}`,
+          message: `SceneTexture '${texId}' is ${w2}\xD7${h2} \u2014 exceeds the ${maxTextureDim}-pixel budget on at least one axis; ~${estimateBytesMB(w2, h2)} MB before mipmaps`,
+          summary: `${w2}\xD7${h2}`,
           resourceId: texId,
-          context: { width: w, height: h, maxTextureDim }
+          context: { width: w2, height: h2, maxTextureDim }
         });
       }
     }
@@ -145203,8 +145323,8 @@ var textureDimensions = {
 function isPowerOfTwo(n) {
   return n > 0 && (n & n - 1) === 0;
 }
-function estimateBytesMB(w, h) {
-  return (w * h * 4 / (1024 * 1024)).toFixed(1);
+function estimateBytesMB(w2, h2) {
+  return (w2 * h2 * 4 / (1024 * 1024)).toFixed(1);
 }
 
 // ../sdk/src/inspect/sceneModel/inspections/farFromOriginGeometries.ts
@@ -145708,8 +145828,8 @@ var pruneDanglingMeshRefs = {
     if (!obj || obj.destroyed) {
       return { ok: true, value: { fixed: false, reason: "target-missing" } };
     }
-    const ctx = issue.context;
-    const danglingId = ctx && typeof ctx.danglingMeshId === "string" ? ctx.danglingMeshId : "";
+    const ctx2 = issue.context;
+    const danglingId = ctx2 && typeof ctx2.danglingMeshId === "string" ? ctx2.danglingMeshId : "";
     const meshes = obj.meshes;
     let removed = 0;
     for (let i = meshes.length - 1; i >= 0; i--) {
@@ -145942,8 +146062,8 @@ var mergeDuplicateGeometries = {
         error: `[mergeDuplicateGeometries] issue has no resourceId (canonical geometry id)`
       };
     }
-    const ctx = issue.context;
-    const rawDupes = ctx ? ctx.duplicates : void 0;
+    const ctx2 = issue.context;
+    const rawDupes = ctx2 ? ctx2.duplicates : void 0;
     const duplicates = Array.isArray(rawDupes) && rawDupes.every((x) => typeof x === "string") ? rawDupes : void 0;
     if (!duplicates || duplicates.length === 0) {
       return { ok: true, value: { fixed: false, reason: "malformed-issue" } };
@@ -146063,8 +146183,8 @@ var mergeSimilarGeometries = {
         error: `[mergeSimilarGeometries] issue has no resourceId (canonical geometry id)`
       };
     }
-    const ctx = issue.context;
-    const rawSimilar = ctx ? ctx.similar : void 0;
+    const ctx2 = issue.context;
+    const rawSimilar = ctx2 ? ctx2.similar : void 0;
     const similars = Array.isArray(rawSimilar) && rawSimilar.every((x) => typeof x === "string") ? rawSimilar : void 0;
     if (!similars || similars.length === 0) {
       return { ok: true, value: { fixed: false, reason: "malformed-issue" } };
@@ -146274,15 +146394,15 @@ function fitRigidTransform(P2, Q, tolerance) {
   if (qLen < 1e-9)
     return null;
   const iqLen = 1 / qLen;
-  const w = qw * iqLen, x = qx * iqLen, y = qy * iqLen, z = qz * iqLen;
+  const w2 = qw * iqLen, x = qx * iqLen, y = qy * iqLen, z = qz * iqLen;
   const r00 = 1 - 2 * (y * y + z * z);
-  const r01 = 2 * (x * y - z * w);
-  const r02 = 2 * (x * z + y * w);
-  const r10 = 2 * (x * y + z * w);
+  const r01 = 2 * (x * y - z * w2);
+  const r02 = 2 * (x * z + y * w2);
+  const r10 = 2 * (x * y + z * w2);
   const r11 = 1 - 2 * (x * x + z * z);
-  const r12 = 2 * (y * z - x * w);
-  const r20 = 2 * (x * z - y * w);
-  const r21 = 2 * (y * z + x * w);
+  const r12 = 2 * (y * z - x * w2);
+  const r20 = 2 * (x * z - y * w2);
+  const r21 = 2 * (y * z + x * w2);
   const r22 = 1 - 2 * (x * x + y * y);
   const tx = qcx - (r00 * pcx + r01 * pcy + r02 * pcz);
   const ty = qcy - (r10 * pcx + r11 * pcy + r12 * pcz);
@@ -146437,7 +146557,7 @@ function splitSceneGeometry(params) {
       `[splitSceneGeometry] Predicate routed every triangle to one side (A=${trisA.length}, B=${trisB.length}); both outputs must end up with at least one triangle`
     );
   }
-  const positions = decompressPositions2(positionsCompressed, aabb);
+  const positions = decompressPositions3(positionsCompressed, aabb);
   const normals = src.normalsCompressed ? octDecodeU16(src.normalsCompressed) : null;
   const uvs = src.uvsCompressed ?? null;
   const aRes = buildSide(sceneModel, src.primitive, params.geometryIdA, trisA, indices, positions, normals, uvs);
@@ -146500,7 +146620,7 @@ function buildSide(sceneModel, primitive, newId, tris, indices, positions, norma
     indices: newIndices
   });
 }
-function decompressPositions2(positionsCompressed, aabb) {
+function decompressPositions3(positionsCompressed, aabb) {
   const minX = aabb[0], minY = aabb[1], minZ = aabb[2];
   const rngX = aabb[3] - minX, rngY = aabb[4] - minY, rngZ = aabb[5] - minZ;
   const v = positionsCompressed.length / 3 | 0;
@@ -146822,13 +146942,13 @@ var dropDegenerateTriangles = {
       return { ok: true, value: { fixed: false, reason: "no-op" } };
     }
     const out = new Uint32Array(kept * 3);
-    let w = 0;
+    let w2 = 0;
     for (let t = 0; t < triCount; t++) {
       if (!keep[t])
         continue;
-      out[w++] = indices[t * 3];
-      out[w++] = indices[t * 3 + 1];
-      out[w++] = indices[t * 3 + 2];
+      out[w2++] = indices[t * 3];
+      out[w2++] = indices[t * 3 + 1];
+      out[w2++] = indices[t * 3 + 2];
     }
     geom.indices = out;
     const dropped = triCount - kept;
@@ -146885,29 +147005,30 @@ var compactUnusedVertices = {
     if (kept === 0)
       return { ok: true, value: { fixed: false, reason: "precondition-failed" } };
     const remap = new Int32Array(vertCount).fill(-1);
-    const newPositions = new Uint16Array(kept * 3);
-    const oldNormals = geom.normalsCompressed;
-    const newNormals = oldNormals ? new Uint16Array(kept * 2) : void 0;
-    const oldUVs = geom.uvsCompressed;
-    const newUVs = oldUVs ? new Uint16Array(kept * 2) : void 0;
     const oldPositions = geom.positionsCompressed;
-    let w = 0;
+    const oldNormals = geom.normalsCompressed;
+    const oldUVs = geom.uvsCompressed;
+    const sameType = (src, length2) => new src.constructor(length2);
+    const newPositions = sameType(oldPositions, kept * 3);
+    const newNormals = oldNormals ? sameType(oldNormals, kept * 2) : void 0;
+    const newUVs = oldUVs ? sameType(oldUVs, kept * 2) : void 0;
+    let w2 = 0;
     for (let v = 0; v < vertCount; v++) {
       if (!used[v])
         continue;
-      remap[v] = w;
-      newPositions[w * 3] = oldPositions[v * 3];
-      newPositions[w * 3 + 1] = oldPositions[v * 3 + 1];
-      newPositions[w * 3 + 2] = oldPositions[v * 3 + 2];
+      remap[v] = w2;
+      newPositions[w2 * 3] = oldPositions[v * 3];
+      newPositions[w2 * 3 + 1] = oldPositions[v * 3 + 1];
+      newPositions[w2 * 3 + 2] = oldPositions[v * 3 + 2];
       if (newNormals && oldNormals) {
-        newNormals[w * 2] = oldNormals[v * 2];
-        newNormals[w * 2 + 1] = oldNormals[v * 2 + 1];
+        newNormals[w2 * 2] = oldNormals[v * 2];
+        newNormals[w2 * 2 + 1] = oldNormals[v * 2 + 1];
       }
       if (newUVs && oldUVs) {
-        newUVs[w * 2] = oldUVs[v * 2];
-        newUVs[w * 2 + 1] = oldUVs[v * 2 + 1];
+        newUVs[w2 * 2] = oldUVs[v * 2];
+        newUVs[w2 * 2 + 1] = oldUVs[v * 2 + 1];
       }
-      w++;
+      w2++;
     }
     geom.positionsCompressed = newPositions;
     if (newNormals)
@@ -146977,26 +147098,27 @@ var mergeDuplicateVertices = {
     if (unique === vertCount)
       return { ok: true, value: { fixed: false, reason: "no-op" } };
     const newSlot = new Int32Array(vertCount).fill(-1);
-    const newPositions = new Uint16Array(unique * 3);
-    const newNormals = oldNormals ? new Uint16Array(unique * 2) : void 0;
-    const newUVs = oldUVs ? new Uint16Array(unique * 2) : void 0;
-    let w = 0;
+    const sameType = (src, length2) => new src.constructor(length2);
+    const newPositions = sameType(oldPositions, unique * 3);
+    const newNormals = oldNormals ? sameType(oldNormals, unique * 2) : void 0;
+    const newUVs = oldUVs ? sameType(oldUVs, unique * 2) : void 0;
+    let w2 = 0;
     for (let v = 0; v < vertCount; v++) {
       if (canonical[v] !== v)
         continue;
-      newSlot[v] = w;
-      newPositions[w * 3] = oldPositions[v * 3];
-      newPositions[w * 3 + 1] = oldPositions[v * 3 + 1];
-      newPositions[w * 3 + 2] = oldPositions[v * 3 + 2];
+      newSlot[v] = w2;
+      newPositions[w2 * 3] = oldPositions[v * 3];
+      newPositions[w2 * 3 + 1] = oldPositions[v * 3 + 1];
+      newPositions[w2 * 3 + 2] = oldPositions[v * 3 + 2];
       if (newNormals && oldNormals) {
-        newNormals[w * 2] = oldNormals[v * 2];
-        newNormals[w * 2 + 1] = oldNormals[v * 2 + 1];
+        newNormals[w2 * 2] = oldNormals[v * 2];
+        newNormals[w2 * 2 + 1] = oldNormals[v * 2 + 1];
       }
       if (newUVs && oldUVs) {
-        newUVs[w * 2] = oldUVs[v * 2];
-        newUVs[w * 2 + 1] = oldUVs[v * 2 + 1];
+        newUVs[w2 * 2] = oldUVs[v * 2];
+        newUVs[w2 * 2 + 1] = oldUVs[v * 2 + 1];
       }
-      w++;
+      w2++;
     }
     const remap = new Int32Array(vertCount);
     for (let v = 0; v < vertCount; v++)
@@ -147082,8 +147204,8 @@ var dropDuplicateObject = {
     }
   },
   apply(issue, sceneModel) {
-    const ctx = issue.context;
-    const rawDupes = ctx ? ctx.duplicates : void 0;
+    const ctx2 = issue.context;
+    const rawDupes = ctx2 ? ctx2.duplicates : void 0;
     const duplicates = Array.isArray(rawDupes) && rawDupes.every((x) => typeof x === "string") ? rawDupes : void 0;
     if (!duplicates || duplicates.length === 0) {
       return { ok: true, value: { fixed: false, reason: "malformed-issue" } };
@@ -147436,13 +147558,13 @@ var dropDuplicateTriangles = {
       return { ok: true, value: { fixed: false, reason: "no-op" } };
     const keptCount = triCount - duplicateCount;
     const out = new Uint32Array(keptCount * 3);
-    let w = 0;
+    let w2 = 0;
     for (let t = 0; t < triCount; t++) {
       if (!kept[t])
         continue;
-      out[w++] = indices[t * 3];
-      out[w++] = indices[t * 3 + 1];
-      out[w++] = indices[t * 3 + 2];
+      out[w2++] = indices[t * 3];
+      out[w2++] = indices[t * 3 + 1];
+      out[w2++] = indices[t * 3 + 2];
     }
     geom.indices = out;
     return { ok: true, value: { fixed: true, trace: `'${geomId}': dropped ${duplicateCount.toLocaleString()} duplicate of ${triCount.toLocaleString()} triangles` } };
@@ -147524,10 +147646,10 @@ function invalidateForIssue(index, issue) {
     index.invalidateGeometry(issue.resourceId);
     index.invalidateObject(issue.resourceId);
   }
-  const ctx = issue.context;
-  if (ctx) {
+  const ctx2 = issue.context;
+  if (ctx2) {
     for (const key of GEOM_ID_LIST_KEYS) {
-      const arr = ctx[key];
+      const arr = ctx2[key];
       if (Array.isArray(arr)) {
         for (const id of arr) {
           if (typeof id === "string")
@@ -147631,10 +147753,10 @@ function invalidateForIssue2(index, issue) {
     index.invalidateGeometry(issue.resourceId);
     index.invalidateObject(issue.resourceId);
   }
-  const ctx = issue.context;
-  if (ctx) {
+  const ctx2 = issue.context;
+  if (ctx2) {
     for (const key of GEOM_ID_LIST_KEYS2) {
-      const arr = ctx[key];
+      const arr = ctx2[key];
       if (Array.isArray(arr)) {
         for (const id of arr) {
           if (typeof id === "string")
@@ -147690,8 +147812,8 @@ function optimizeSceneModel(params) {
     return errInvalid2("[optimizeSceneModel] SceneModel is destroyed");
   }
   const report = inspectSceneModel({ sceneModel });
-  for (const w of report.warnings) {
-    console.warn(`[optimizeSceneModel] ${w.code}: ${w.message}`);
+  for (const w2 of report.warnings) {
+    console.warn(`[optimizeSceneModel] ${w2.code}: ${w2.message}`);
   }
   if (report.errors.length > 0) {
     const summary = report.errors.slice(0, 5).map((e) => `  ${e.code}: ${e.message}`).join("\n");
@@ -148568,8 +148690,8 @@ function intersectSceneRayTriangle(collisionIndex, origin2, dir, options) {
   const localDir = createVec3Float64();
   const localHit = createVec3Float64();
   const worldHit = createVec3Float64();
-  for (let h = 0; h < aabbHits.length; h++) {
-    const aabbHit = aabbHits[h];
+  for (let h2 = 0; h2 < aabbHits.length; h2++) {
+    const aabbHit = aabbHits[h2];
     if (aabbHit.tEnter >= bestT)
       break;
     const sceneObject = collisionIndex.scene.objects[aabbHit.objectId];
@@ -149493,8 +149615,8 @@ self.onmessage = (e) => kernel.handleMessage(e.data, (m) => self.postMessage(m))
   };
   return {
     post: (message) => worker.postMessage(message),
-    onMessage: (h) => {
-      handler = h;
+    onMessage: (h2) => {
+      handler = h2;
     },
     terminate: () => worker.terminate()
   };
@@ -156019,7 +156141,12 @@ var ViewObject = class _ViewObject {
    */
   viewTransform;
   _flags;
-  _colorize;
+  // RGBA: [0..2] colorize, [3] opacity. Lazily allocated — most ViewObjects
+  // are never colorized or opacity-overridden, and a Float32Array(4) costs
+  // ~230 B in V8 (object + ArrayBuffer overhead), dwarfing its 16 B of data.
+  // Null means the defaults [1, 1, 1, 1]; gated by the COLORIZED /
+  // OPACITY_UPDATED flags.
+  _colorize = null;
   /**
    * True if this ViewObject has been destroyed.
    */
@@ -156049,7 +156176,6 @@ var ViewObject = class _ViewObject {
       initialFlags |= _ViewObject.CLIPPABLE;
     }
     this._flags = initialFlags;
-    this._colorize = new Float32Array(4);
     this.layer.objectVisibilityUpdated(this, this.visible, false);
   }
   // /**
@@ -156332,7 +156458,18 @@ var ViewObject = class _ViewObject {
    * * Use {@link ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
    */
   get colorize() {
-    return this.colorized ? this._colorize : null;
+    return this.colorized && this._colorize ? this._colorize : null;
+  }
+  /**
+   * Returns the RGBA colorize/opacity store, allocating it (default
+   * [1, 1, 1, 1]) on first use. Only called from the colorize/opacity
+   * setters when a real override is applied.
+   */
+  _ownColorize() {
+    if (!this._colorize) {
+      this._colorize = new Float32Array([1, 1, 1, 1]);
+    }
+    return this._colorize;
   }
   /**
    * Sets the RGB colorize color for this ViewObject.
@@ -156351,15 +156488,15 @@ var ViewObject = class _ViewObject {
       });
       return;
     }
-    const colorize = this._colorize;
     if (value) {
+      const colorize = this._ownColorize();
       colorize[0] = value[0];
       colorize[1] = value[1];
       colorize[2] = value[2];
-    } else {
-      colorize[0] = 1;
-      colorize[1] = 1;
-      colorize[2] = 1;
+    } else if (this._colorize) {
+      this._colorize[0] = 1;
+      this._colorize[1] = 1;
+      this._colorize[2] = 1;
     }
     this._setFlag(_ViewObject.COLORIZED, !!value);
     this.layer.objectColorizeUpdated(this, this.colorized);
@@ -156371,7 +156508,7 @@ var ViewObject = class _ViewObject {
    * * Use {@link ViewLayer.setObjectsOpacity} to batch-update the opacities of ViewObjects.
    */
   get opacity() {
-    return this._colorize[3];
+    return this._colorize ? this._colorize[3] : 1;
   }
   /**
    * Sets the opacity factor for this ViewObject.
@@ -156391,7 +156528,11 @@ var ViewObject = class _ViewObject {
     }
     const opacityUpdated = opacity !== null && opacity !== void 0;
     this._setFlag(_ViewObject.OPACITY_UPDATED, opacityUpdated);
-    this._colorize[3] = opacityUpdated ? opacity : 1;
+    if (opacityUpdated) {
+      this._ownColorize()[3] = opacity;
+    } else if (this._colorize) {
+      this._colorize[3] = 1;
+    }
     this.layer.objectOpacityUpdated(this, this.opacityUpdated);
   }
   /**
@@ -157438,28 +157579,28 @@ var View2 = class {
   constructor(viewer, viewParams) {
     this.id = viewParams.id || createUUID();
     this.viewer = viewer;
-    let canvas2;
+    let canvas3;
     if (viewParams.htmlElement || viewParams.elementId) {
-      canvas2 = // Canvas is actually a generic HTMLElement, but we think of it as a canvas
+      canvas3 = // Canvas is actually a generic HTMLElement, but we think of it as a canvas
       viewParams.htmlElement || document.getElementById(viewParams.elementId);
-      if (!(canvas2 instanceof HTMLElement)) {
+      if (!(canvas3 instanceof HTMLElement)) {
         throw new SDKInternalException("[View.constructor] Mandatory View config expected: valid HTMLElement");
       }
       this._autoCanvas = false;
     }
-    if (!canvas2) {
-      canvas2 = document.createElement("canvas");
-      canvas2.style.position = "absolute";
-      canvas2.style.zIndex = "100000";
-      canvas2.style.width = "600px";
-      canvas2.style.height = "500px";
-      canvas2.style.position = "absolute";
-      canvas2.style.background = "white";
-      canvas2.style.border = "0";
-      document.body.appendChild(canvas2);
+    if (!canvas3) {
+      canvas3 = document.createElement("canvas");
+      canvas3.style.position = "absolute";
+      canvas3.style.zIndex = "100000";
+      canvas3.style.width = "600px";
+      canvas3.style.height = "500px";
+      canvas3.style.position = "absolute";
+      canvas3.style.background = "white";
+      canvas3.style.border = "0";
+      document.body.appendChild(canvas3);
       this._autoCanvas = true;
     }
-    this.htmlElement = canvas2;
+    this.htmlElement = canvas3;
     this.viewIndex = 0;
     this.objects = {};
     this.visibleObjects = {};
@@ -159474,7 +159615,7 @@ var Viewer = class {
         }
       }
     };
-    const sub = (emitter, h) => emitter.subscribe(h);
+    const sub = (emitter, h2) => emitter.subscribe(h2);
     const events = this.scene.events;
     this._onSceneObjectMeshAdded = sub(events.onSceneObjectMeshAdded, nudgeAllViews);
     this._onSceneObjectMeshRemoved = sub(events.onSceneObjectMeshRemoved, nudgeAllViews);
@@ -162305,9 +162446,9 @@ var TransformControls = class _TransformControls {
     this._picker = params.picker ?? null;
     this._viewController = params.viewController ?? null;
     this._handleSet = /* @__PURE__ */ new Set();
-    for (const h of ALL_HANDLES) {
-      this._handleSet.add(h);
-      this._handleSet.add(`${h}.picker`);
+    for (const h2 of ALL_HANDLES) {
+      this._handleSet.add(h2);
+      this._handleSet.add(`${h2}.picker`);
     }
     this.id = params.id ?? "__transformControls";
     this._mode = params.mode ?? "translate";
@@ -163560,9 +163701,9 @@ var TransformControls = class _TransformControls {
       return null;
     const activeHandles = this._mode === "translate" ? TRANSLATE_HANDLES : this._mode === "rotate" ? ROTATE_HANDLES : this._mode === "scale" ? SCALE_HANDLES : [];
     const allow = /* @__PURE__ */ new Set();
-    for (const h of activeHandles) {
-      allow.add(h);
-      allow.add(`${h}.picker`);
+    for (const h2 of activeHandles) {
+      allow.add(h2);
+      allow.add(`${h2}.picker`);
     }
     const result = p.pick({
       view: this.view,
@@ -163585,9 +163726,9 @@ var TransformControls = class _TransformControls {
    * the canvas clear-colour bleed through as "black").
    */
   _canvasPosToRay(canvasPos2) {
-    const [w, h] = this._canvasSize();
+    const [w2, h2] = this._canvasSize();
     const cam = this.view.camera;
-    return canvasPosToRay(canvasPos2, w, h, cam.projMatrix, cam.viewMatrix);
+    return canvasPosToRay(canvasPos2, w2, h2, cam.projMatrix, cam.viewMatrix);
   }
   _eventCanvasPos(e) {
     const el2 = this.view.htmlElement;
@@ -164084,12 +164225,12 @@ var KeyboardAxisViewHandler = class {
       normalizeVec3(right, right);
       const horizontalHeading = (sign) => {
         const d = dotVec3(forward, worldUp);
-        const h = [
+        const h2 = [
           (forward[0] - d * worldUp[0]) * sign,
           (forward[1] - d * worldUp[1]) * sign,
           (forward[2] - d * worldUp[2]) * sign
         ];
-        return lenVec3(h) < 1e-6 ? right : normalizeVec3(h, h);
+        return lenVec3(h2) < 1e-6 ? right : normalizeVec3(h2, h2);
       };
       tempCameraTarget.orthoScale = orthoScale;
       const setVec3 = (dest, src) => {
@@ -165526,13 +165667,13 @@ var TouchPanRotateAndDollyHandler = class {
     const tapCanvasPos1 = createVec2Float64();
     const touch0Vec = createVec2Float64();
     const lastCanvasTouchPosList = [];
-    const canvas2 = this.#view.htmlElement;
+    const canvas3 = this.#view.htmlElement;
     let numTouches = 0;
     let tapStartTime = -1;
     let firstDragDeltaX = 0;
     let firstDragDeltaY = 1;
     let absorbTinyFirstDrag = false;
-    canvas2.addEventListener("touchstart", this.#canvasTouchStartHandler = (event) => {
+    canvas3.addEventListener("touchstart", this.#canvasTouchStartHandler = (event) => {
       if (!(configs.active && configs.pointerEnabled)) {
         return;
       }
@@ -165576,7 +165717,7 @@ var TouchPanRotateAndDollyHandler = class {
       }
       numTouches = touches.length;
     });
-    canvas2.addEventListener("touchend", this.#canvasTouchEndHandler = () => {
+    canvas3.addEventListener("touchend", this.#canvasTouchEndHandler = () => {
       if (pivotController.getPivoting()) {
         pivotController.endPivot();
       }
@@ -165584,7 +165725,7 @@ var TouchPanRotateAndDollyHandler = class {
       firstDragDeltaY = 0;
       absorbTinyFirstDrag = true;
     });
-    canvas2.addEventListener("touchmove", this.#canvasTouchMoveHandler = (event) => {
+    canvas3.addEventListener("touchmove", this.#canvasTouchMoveHandler = (event) => {
       if (!(configs.active && configs.pointerEnabled)) {
         return;
       }
@@ -165661,10 +165802,10 @@ var TouchPanRotateAndDollyHandler = class {
   reset() {
   }
   destroy() {
-    const canvas2 = this.#view.htmlElement;
-    canvas2.removeEventListener("touchstart", this.#canvasTouchStartHandler);
-    canvas2.removeEventListener("touchend", this.#canvasTouchEndHandler);
-    canvas2.removeEventListener("touchmove", this.#canvasTouchMoveHandler);
+    const canvas3 = this.#view.htmlElement;
+    canvas3.removeEventListener("touchstart", this.#canvasTouchStartHandler);
+    canvas3.removeEventListener("touchend", this.#canvasTouchEndHandler);
+    canvas3.removeEventListener("touchmove", this.#canvasTouchMoveHandler);
   }
 };
 
@@ -167175,9 +167316,25 @@ var WebGLShader = class {
     this._source = source;
   }
   /**
-   * Initializes this shader.
+   * Initializes this shader (compile + status check).
    */
   init() {
+    const compileResult = this.compile();
+    if (compileResult.ok === false) {
+      return compileResult;
+    }
+    return this.checkCompiled();
+  }
+  /**
+   * Issues the compile without reading back its status.
+   *
+   * `getShaderParameter(COMPILE_STATUS)` blocks until the driver has finished
+   * compiling, so reading it here would serialize a batch of shaders. Callers
+   * that compile many shaders should call {@link compile} on all of them first,
+   * then {@link checkCompiled} on each — the driver compiles them concurrently
+   * in between (see {@link WebGLProgram.link}).
+   */
+  compile() {
     const gl = this._glSrc.gl;
     this.handle = gl.createShader(this._type);
     if (!this.handle) {
@@ -167190,6 +167347,13 @@ var WebGLShader = class {
     this.allocated = true;
     gl.shaderSource(this.handle, this._source);
     gl.compileShader(this.handle);
+    return { ok: true, value: void 0 };
+  }
+  /**
+   * Reads back the compile status (blocking) — call after {@link compile}.
+   */
+  checkCompiled() {
+    const gl = this._glSrc.gl;
     this.compiled = gl.getShaderParameter(this.handle, gl.COMPILE_STATUS);
     if (!this.compiled) {
       if (!gl.isContextLost()) {
@@ -167335,9 +167499,24 @@ var WebGLProgram = class {
     this.attributes = {};
   }
   /**
-   * Initializes this program.
+   * Initializes this program (single-phase: {@link link} then {@link finalize}).
    */
   init() {
+    const linkResult = this.link();
+    if (linkResult.ok === false) {
+      return linkResult;
+    }
+    return this.finalize();
+  }
+  /**
+   * Compiles both shaders and issues the program link — **without** reading back
+   * any compile/link status. The status queries
+   * (`getShaderParameter`/`getProgramParameter`) block until the driver finishes,
+   * so reading them here would serialize a batch of programs. Drive a batch by
+   * calling {@link link} on all programs first, then {@link finalize} on each:
+   * the driver compiles/links them concurrently in between.
+   */
+  link() {
     const gl = this._glSrc.gl;
     if (!gl) {
       return {
@@ -167347,7 +167526,7 @@ var WebGLProgram = class {
       };
     }
     this.vertexShader = new WebGLShader(this._glSrc, gl.VERTEX_SHADER, this.source.vertex);
-    const resultVertex = this.vertexShader.init();
+    const resultVertex = this.vertexShader.compile();
     if (resultVertex.ok === false) {
       this.vertexShader.destroy();
       return {
@@ -167357,7 +167536,7 @@ var WebGLProgram = class {
       };
     }
     this.fragmentShader = new WebGLShader(this._glSrc, gl.FRAGMENT_SHADER, this.source.fragment);
-    const resultFragment = this.fragmentShader.init();
+    const resultFragment = this.fragmentShader.compile();
     if (resultFragment.ok === false) {
       this.vertexShader.destroy();
       this.fragmentShader.destroy();
@@ -167380,6 +167559,45 @@ var WebGLProgram = class {
     gl.attachShader(this.handle, this.vertexShader.handle);
     gl.attachShader(this.handle, this.fragmentShader.handle);
     gl.linkProgram(this.handle);
+    return { ok: true, value: this };
+  }
+  /**
+   * Reads back compile/link status (blocking) and extracts uniform/attribute
+   * locations. Call after {@link link}.
+   */
+  finalize() {
+    const waitResult = this.waitLinked();
+    if (waitResult.ok === false) {
+      return waitResult;
+    }
+    return this.extractLocations();
+  }
+  /**
+   * Reads back compile/link status. This is the **compile-wait**: the status
+   * queries block until the driver has finished compiling/linking, so the time
+   * spent here reflects driver compilation (concurrent across a batch when
+   * {@link link} was issued for all programs first). Call after {@link link}.
+   */
+  waitLinked() {
+    const gl = this._glSrc.gl;
+    const vertexCheck = this.vertexShader.checkCompiled();
+    if (vertexCheck.ok === false) {
+      this.destroy();
+      return {
+        ok: false,
+        type: vertexCheck.type,
+        error: `WebGL vertex shader initialization failed: ${vertexCheck.error}`
+      };
+    }
+    const fragmentCheck = this.fragmentShader.checkCompiled();
+    if (fragmentCheck.ok === false) {
+      this.destroy();
+      return {
+        ok: false,
+        type: fragmentCheck.type,
+        error: `WebGL fragment shader initialization failed: ${fragmentCheck.error}`
+      };
+    }
     this.linked = gl.getProgramParameter(this.handle, gl.LINK_STATUS);
     if (!this.linked) {
       const programInfoLog = gl.getProgramInfoLog(this.handle) || "Unknown error during program linking";
@@ -167398,6 +167616,14 @@ var WebGLProgram = class {
         error: errorDetails
       };
     }
+    return { ok: true, value: this };
+  }
+  /**
+   * Extracts uniform/attribute locations from the linked program. These are
+   * synchronous GL queries — they don't block on compilation, so this is the
+   * **extraction** cost, separate from the {@link waitLinked} compile-wait.
+   */
+  extractLocations() {
     this._extractUniformsAndAttributes();
     this.allocated = true;
     this.compiled = true;
@@ -167565,9 +167791,9 @@ var WebGLRenderBuffer = class {
    *   NEAREST while a neighbouring float attachment wants LINEAR.
    *   Indices not in this array fall back to `colorFilter`.
    */
-  constructor(canvas2, gl, options) {
+  constructor(canvas3, gl, options) {
     this.#gl = gl;
-    this.canvas = canvas2;
+    this.canvas = canvas3;
     this.size = options.size;
     this.#hasDepthTexture = !!options.depthTexture;
     this.#depthTextureCompare = !!options.depthTextureCompare;
@@ -167964,15 +168190,15 @@ var WebGLRenderBuffer = class {
       cache2 = null;
     }
     if (!cache2) {
-      const canvas2 = document.createElement("canvas");
-      const context = canvas2.getContext("2d");
+      const canvas3 = document.createElement("canvas");
+      const context = canvas3.getContext("2d");
       if (!context)
         throw new Error("2D context unavailable");
-      canvas2.width = bufferWidth;
-      canvas2.height = bufferHeight;
+      canvas3.width = bufferWidth;
+      canvas3.height = bufferHeight;
       cache2 = {
         pixelData: new type(bufferWidth * bufferHeight * multiplier),
-        canvas: canvas2,
+        canvas: canvas3,
         context,
         imageData: context.createImageData(bufferWidth, bufferHeight),
         width: bufferWidth,
@@ -168430,12 +168656,12 @@ var WebGLSnapBuffer = class {
     if (!this.bound) {
       throw new SDKInternalException("Snap buffer not bound");
     }
-    const [w, h] = this.#size;
-    const len = w * h * 4;
+    const [w2, h2] = this.#size;
+    const len = w2 * h2 * 4;
     const target = outBuffer && outBuffer.length >= len ? outBuffer : new Float32Array(len);
     const gl = this.#gl;
     gl.readBuffer(gl.COLOR_ATTACHMENT0);
-    gl.readPixels(0, 0, w, h, gl.RGBA, gl.FLOAT, target);
+    gl.readPixels(0, 0, w2, h2, gl.RGBA, gl.FLOAT, target);
     return target;
   }
   /** Release every GL object owned by this buffer. */
@@ -168732,9 +168958,9 @@ var WEBGL_INFO = {
   WEBGL: false,
   SUPPORTED_EXTENSIONS: {}
 };
-var canvas = document.createElement("canvas");
-if (canvas) {
-  const gl = canvas.getContext("webgl2", { antialias: true });
+var canvas2 = document.createElement("canvas");
+if (canvas2) {
+  const gl = canvas2.getContext("webgl2", { antialias: true });
   WEBGL_INFO.WEBGL = !!gl;
   if (WEBGL_INFO.WEBGL) {
     WEBGL_INFO.ANTIALIAS = gl.getContextAttributes().antialias;
@@ -169391,6 +169617,19 @@ var RenderContext = class {
    */
   textureUnit;
   /**
+   * Which texture is currently bound to each texture unit, indexed by unit.
+   *
+   * Lets the draw path skip a redundant `gl.bindTexture` when the unit already
+   * holds the texture about to be bound — saving the repeated binds of
+   * frame-wide textures (camera matrix, IBL maps) across a bin's batches.
+   *
+   * Only valid within one uninterrupted batch-draw sequence. Cleared by
+   * {@link resetTextureBindings} at the start of every such sequence (each draw
+   * bin, pick, snap, and the SAO/shadow/cap prep passes), because sub-pipelines
+   * and atlas mipmap refreshes bind textures outside this tracking.
+   */
+  boundTextureUnits;
+  /**
    * Statistic that counts how many times ````gl.bindTexture()```` has been called so far within the current frame.
    */
   bindTexture;
@@ -169568,6 +169807,7 @@ var RenderContext = class {
     this.renderInspector = new RenderInspector();
     this.renderInspector.attachGL(gl);
     this.debugging = false;
+    this.boundTextureUnits = new Array(WEBGL_INFO.MAX_TEXTURE_UNITS).fill(null);
     this._allocatePlaceholderTextures();
     this.initialized = true;
     this.reset();
@@ -169577,16 +169817,16 @@ var RenderContext = class {
     };
   }
   _createCanvasAndGL() {
-    const canvas2 = document.createElement("canvas");
-    canvas2.width = 400;
-    canvas2.height = 400;
-    const s = canvas2.style;
+    const canvas3 = document.createElement("canvas");
+    canvas3.width = 400;
+    canvas3.height = 400;
+    const s = canvas3.style;
     s.position = "absolute";
     s.top = "50px";
     s.left = "50px";
     s["pointer-events"] = "none";
     s.zIndex = "100000";
-    document.body.appendChild(canvas2);
+    document.body.appendChild(canvas3);
     const contextAttr = {
       alpha: false,
       preserveDrawingBuffer: true,
@@ -169595,7 +169835,7 @@ var RenderContext = class {
       antialias: true
       // powerPreference?: "default" | "high-performance" | "low-power"
     };
-    const gl = canvas2.getContext("webgl2", contextAttr);
+    const gl = canvas3.getContext("webgl2", contextAttr);
     if (!gl) {
       return {
         ok: false,
@@ -169607,7 +169847,7 @@ var RenderContext = class {
     return {
       ok: true,
       value: {
-        canvas: canvas2,
+        canvas: canvas3,
         gl
       }
     };
@@ -169684,6 +169924,20 @@ var RenderContext = class {
     this.iblBRDFLUT = this._placeholderTexture2D;
     this.iblMaxSpecularMipLevel = 0;
     this.rayPicking = false;
+    this.resetTextureBindings();
+  }
+  /**
+   * Clears the per-unit bound-texture tracking ({@link boundTextureUnits}).
+   *
+   * Call at the start of every uninterrupted batch-draw sequence so the draw
+   * path's redundant-bind skip can't act on stale state left by a sub-pipeline,
+   * a splat pass, or a previous frame.
+   */
+  resetTextureBindings() {
+    const bound = this.boundTextureUnits;
+    for (let i = 0, len = bound.length; i < len; i++) {
+      bound[i] = null;
+    }
   }
   /**
    * Gets the next available texture unit for the current draw pass.
@@ -170585,8 +170839,8 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
    */
   static decodeAddress(addr, width) {
     const a2 = addr >>> 0;
-    const w = width | 0;
-    return { x: a2 % w | 0, y: a2 / w | 0 };
+    const w2 = width | 0;
+    return { x: a2 % w2 | 0, y: a2 / w2 | 0 };
   }
 };
 
@@ -170626,19 +170880,52 @@ var ItemDataTexture = class extends DataTexture {
     const gl = this.gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-    gl.texSubImage2D(
-      gl.TEXTURE_2D,
-      0,
-      0,
-      0,
-      this.width,
-      this.height,
-      this.format,
-      this.type,
-      this.buffer
-    );
+    const texelsPerItem = this.texelsPerItem;
+    const texelsPerRow = this.width;
+    const elementsPerTexel = this.elementsPerTexel;
+    const buffer = this.buffer;
+    const uploadRun = (startItem, count) => {
+      let texelBase = startItem * texelsPerItem;
+      let remainingTexels = count * texelsPerItem;
+      while (remainingTexels > 0) {
+        const xOffset = texelBase % texelsPerRow;
+        const yOffset = Math.floor(texelBase / texelsPerRow);
+        const chunkTexels = Math.min(remainingTexels, texelsPerRow - xOffset);
+        const bufferStart = texelBase * elementsPerTexel;
+        const bufferEnd = (texelBase + chunkTexels) * elementsPerTexel;
+        gl.texSubImage2D(
+          gl.TEXTURE_2D,
+          0,
+          xOffset,
+          yOffset,
+          chunkTexels,
+          1,
+          this.format,
+          this.type,
+          buffer.subarray(bufferStart, bufferEnd)
+        );
+        texelBase += chunkTexels;
+        remainingTexels -= chunkTexels;
+      }
+    };
+    const sorted = Array.from(this.dirtyItemIndices).sort((a2, b4) => a2 - b4);
+    let runStart = sorted[0];
+    let runCount = 1;
+    for (let i = 1; i < sorted.length; i++) {
+      if (sorted[i] === runStart + runCount) {
+        runCount++;
+      } else {
+        uploadRun(runStart, runCount);
+        runStart = sorted[i];
+        runCount = 1;
+      }
+    }
+    uploadRun(runStart, runCount);
     this.dirtyItemIndices.clear();
     gl.bindTexture(gl.TEXTURE_2D, null);
+    if (this.debugging) {
+      this.lastUploadTimeMS = performance.now() - startTimeMs;
+    }
     this.notifyUpdated();
     return true;
   }
@@ -170672,15 +170959,15 @@ var MeshAttributeTexture = class _MeshAttributeTexture extends ItemDataTexture {
       this.buffer[base + 1] = this.toU32(item.geometryIndex);
     if (item.roughness !== void 0 || item.metallic !== void 0 || item.hatchPatternSlot !== void 0) {
       const existing = this.buffer[base + 2] >>> 0;
-      const r8 = item.roughness !== void 0 ? clampU83(item.roughness * 255) : existing & 255;
-      const m8 = item.metallic !== void 0 ? clampU83(item.metallic * 255) : existing >>> 8 & 255;
+      const r8 = item.roughness !== void 0 ? clampU82(item.roughness * 255) : existing & 255;
+      const m8 = item.metallic !== void 0 ? clampU82(item.metallic * 255) : existing >>> 8 & 255;
       const hatch16 = item.hatchPatternSlot !== void 0 ? clampU16(item.hatchPatternSlot) : existing >>> 16 & 65535;
       this.buffer[base + 2] = (r8 | m8 << 8 | hatch16 << 16) >>> 0;
     }
     if (item.alphaMode !== void 0 || item.alphaCutoff !== void 0 || item.linePatternSlot !== void 0) {
       const existing = this.buffer[base + 3] >>> 0;
-      const mode8 = item.alphaMode !== void 0 ? clampU83(item.alphaMode) : existing & 255;
-      const cutoff8 = item.alphaCutoff !== void 0 ? clampU83(item.alphaCutoff * 255) : existing >>> 8 & 255;
+      const mode8 = item.alphaMode !== void 0 ? clampU82(item.alphaMode) : existing & 255;
+      const cutoff8 = item.alphaCutoff !== void 0 ? clampU82(item.alphaCutoff * 255) : existing >>> 8 & 255;
       const slot16 = item.linePatternSlot !== void 0 ? clampU16(item.linePatternSlot) : existing >>> 16 & 65535;
       this.buffer[base + 3] = (mode8 | cutoff8 << 8 | slot16 << 16) >>> 0;
     }
@@ -170721,9 +171008,9 @@ var MeshAttributeTexture = class _MeshAttributeTexture extends ItemDataTexture {
       this.buffer[base + 15] = packUV2(item.occlusionUVScale);
     }
     if (item.emissiveColor !== void 0) {
-      const r8 = clampU83(item.emissiveColor[0] * 255);
-      const g8 = clampU83(item.emissiveColor[1] * 255);
-      const b8 = clampU83(item.emissiveColor[2] * 255);
+      const r8 = clampU82(item.emissiveColor[0] * 255);
+      const g8 = clampU82(item.emissiveColor[1] * 255);
+      const b8 = clampU82(item.emissiveColor[2] * 255);
       this.buffer[base + 16] = (r8 | g8 << 8 | b8 << 16) >>> 0;
     }
     this.setItemDirty(itemIndex);
@@ -170748,7 +171035,7 @@ var MeshAttributeTexture = class _MeshAttributeTexture extends ItemDataTexture {
     return typeof x === "bigint" ? Number(x & 0xFFFFFFFFn) : x >>> 0;
   }
 };
-function clampU83(v) {
+function clampU82(v) {
   v = Math.round(v);
   return v < 0 ? 0 : v > 255 ? 255 : v;
 }
@@ -170904,9 +171191,12 @@ var HatchPatternTexture = class _HatchPatternTexture extends ItemDataTexture {
 // ../sdk/src/viewing/webGLRenderer/internal/gpuMemoryManager/dataTextures/PortionDataTexture.ts
 var PortionDataTexture = class extends DataTexture {
   freePortions = [];
-  usedPortions = /* @__PURE__ */ new Map();
-  portionHandles = /* @__PURE__ */ new Map();
-  portionCallbacks = /* @__PURE__ */ new Map();
+  /**
+   * Live portions keyed by id. Used only for {@link pack} / flush enumeration
+   * and id lookup; per-handle operations read the handle directly (it carries
+   * `base`/`size`/`onMove`), so the hot path does no map lookups.
+   */
+  portionsById = /* @__PURE__ */ new Map();
   dirtyPortionIds = /* @__PURE__ */ new Set();
   nextPortionId = 1;
   uploadAllOnFlush = false;
@@ -170961,13 +171251,9 @@ var PortionDataTexture = class extends DataTexture {
    * @param handle Portion handle.
    */
   getPortionView(handle) {
-    const portion = this.usedPortions.get(handle.id);
-    if (!portion) {
-      throw new SDKInternalException("Invalid handle ID");
-    }
     return this.buffer.subarray(
-      portion.base * this.elementsPerItem,
-      (portion.base + portion.size) * this.elementsPerItem
+      handle.base * this.elementsPerItem,
+      (handle.base + handle.size) * this.elementsPerItem
     );
   }
   /**
@@ -170976,15 +171262,10 @@ var PortionDataTexture = class extends DataTexture {
    * @param data Data to set.
    */
   _setPortionData(handle, data2) {
-    const portion = this.usedPortions.get(handle.id);
-    if (!portion) {
-      throw new SDKInternalException("Invalid handle ID");
-    }
-    const expectedItems = portion.size;
-    if (data2.length / this.elementsPerItem !== expectedItems) {
+    if (data2.length / this.elementsPerItem !== handle.size) {
       throw new SDKInternalException("Mismatched data length");
     }
-    const offset = portion.base * this.elementsPerItem;
+    const offset = handle.base * this.elementsPerItem;
     this.buffer.set(data2, offset);
     this.dirtyPortionIds.add(handle.id);
   }
@@ -170997,25 +171278,21 @@ var PortionDataTexture = class extends DataTexture {
    * @returns SDKResult with updated PortionHandle.
    */
   setPortionData(handle, data2) {
-    const portion = this.usedPortions.get(handle.id);
-    if (!portion) {
-      throw new SDKInternalException("Invalid handle ID");
-    }
     const newSize = data2.length / this.elementsPerItem | 0;
     if (newSize <= 0) {
       throw new SDKInternalException("New portion size must be > 0");
     }
-    if (newSize === portion.size) {
+    if (newSize === handle.size) {
       this._setPortionData(handle, data2);
       return { ok: true, value: handle };
     }
-    const canGrowInPlace = newSize > portion.size && this.freePortions.length > 0 && this.freePortions.some(
-      (f) => f.base === portion.base + portion.size && f.size >= newSize - portion.size
+    const canGrowInPlace = newSize > handle.size && this.freePortions.length > 0 && this.freePortions.some(
+      (f) => f.base === handle.base + handle.size && f.size >= newSize - handle.size
     );
     if (canGrowInPlace) {
-      const growBy = newSize - portion.size;
+      const growBy = newSize - handle.size;
       const freeIdx = this.freePortions.findIndex(
-        (f) => f.base === portion.base + portion.size && f.size >= growBy
+        (f) => f.base === handle.base + handle.size && f.size >= growBy
       );
       if (freeIdx !== -1) {
         const free = this.freePortions[freeIdx];
@@ -171023,16 +171300,17 @@ var PortionDataTexture = class extends DataTexture {
         free.size -= growBy;
         if (free.size === 0)
           this.freePortions.splice(freeIdx, 1);
-        portion.size = newSize;
+        handle.size = newSize;
         this._setPortionData(handle, data2);
         this.dirtyPortionIds.add(handle.id);
-        this._numItems += newSize - portion.size;
+        this._numItems += growBy;
         return { ok: true, value: handle };
       }
     }
+    const onMove = handle.onMove;
     let newHandle;
     try {
-      newHandle = this.getPortion(data2, this.portionCallbacks.get(handle.id));
+      newHandle = this.getPortion(data2, onMove);
     } catch (e) {
       return {
         ok: false,
@@ -171042,9 +171320,12 @@ var PortionDataTexture = class extends DataTexture {
     }
     this._setPortionData(newHandle, data2);
     this.putPortion(handle);
-    handle.base = newHandle.base;
+    this.portionsById.delete(newHandle.id);
     handle.id = newHandle.id;
-    this.portionHandles.set(handle.id, handle);
+    handle.base = newHandle.base;
+    handle.size = newHandle.size;
+    handle.onMove = onMove;
+    this.portionsById.set(handle.id, handle);
     return { ok: true, value: handle };
   }
   /**
@@ -171052,16 +171333,13 @@ var PortionDataTexture = class extends DataTexture {
    * @param handle Portion handle.
    */
   putPortion(handle) {
-    const portion = this.usedPortions.get(handle.id);
-    if (!portion) {
+    if (!this.portionsById.has(handle.id)) {
       return;
     }
-    this._numItems -= portion.size;
+    this._numItems -= handle.size;
     this.isPacked = false;
-    this.usedPortions.delete(handle.id);
-    this.portionHandles.delete(handle.id);
-    this.portionCallbacks.delete(handle.id);
-    this.insertFreePortionSorted(portion);
+    this.portionsById.delete(handle.id);
+    this.insertFreePortionSorted({ base: handle.base, size: handle.size });
     this.coalesceFree();
   }
   /**
@@ -171072,30 +171350,23 @@ var PortionDataTexture = class extends DataTexture {
     if (this.isPacked) {
       return;
     }
-    const sorted = Array.from(this.usedPortions.entries()).sort(([, a2], [, b4]) => a2.base - b4.base);
+    const sorted = Array.from(this.portionsById.values()).sort((a2, b4) => a2.base - b4.base);
     let writeHead = 0;
-    const newUsed = /* @__PURE__ */ new Map();
     const elementsPerItem = this.elementsPerItem;
-    for (const [id, portion] of sorted) {
-      if (portion.base !== writeHead) {
-        const from = portion.base * elementsPerItem;
+    for (const handle of sorted) {
+      if (handle.base !== writeHead) {
+        const from = handle.base * elementsPerItem;
         const to = writeHead * elementsPerItem;
-        const count = portion.size * elementsPerItem;
+        const count = handle.size * elementsPerItem;
         this.buffer.copyWithin(to, from, from + count);
-        const callback = this.portionCallbacks.get(id);
-        if (callback) {
-          callback(writeHead);
+        if (handle.onMove) {
+          handle.onMove(writeHead);
         }
         this.uploadAllOnFlush = true;
       }
-      newUsed.set(id, { base: writeHead, size: portion.size });
-      const handle = this.portionHandles.get(id);
-      if (handle) {
-        handle.base = writeHead;
-      }
-      writeHead += portion.size;
+      handle.base = writeHead;
+      writeHead += handle.size;
     }
-    this.usedPortions = newUsed;
     this.freePortions.length = 0;
     if (writeHead < this.maxItems) {
       this.freePortions.push({ base: writeHead, size: this.maxItems - writeHead });
@@ -171111,19 +171382,15 @@ var PortionDataTexture = class extends DataTexture {
   allocateHandleAt(index, size, onMove) {
     const block = this.freePortions[index];
     const id = ++this.nextPortionId;
-    const portion = { base: block.base, size };
-    this.usedPortions.set(id, portion);
+    const base = block.base;
     if (size === block.size) {
       this.freePortions.splice(index, 1);
     } else {
       block.base += size;
       block.size -= size;
     }
-    const handle = { id, base: portion.base };
-    this.portionHandles.set(id, handle);
-    if (onMove) {
-      this.portionCallbacks.set(id, onMove);
-    }
+    const handle = { id, base, size, onMove };
+    this.portionsById.set(id, handle);
     return handle;
   }
   /**
@@ -171192,9 +171459,9 @@ var PortionDataTexture = class extends DataTexture {
       const elementsPerTexel = this.elementsPerTexel;
       const segments = [];
       for (const id of this.dirtyPortionIds) {
-        const portion = this.usedPortions.get(id);
-        if (portion) {
-          segments.push({ base: portion.base, size: portion.size });
+        const handle = this.portionsById.get(id);
+        if (handle) {
+          segments.push({ base: handle.base, size: handle.size });
         }
       }
       segments.sort((a2, b4) => a2.base - b4.base);
@@ -171815,29 +172082,29 @@ var TextureAtlas = class _TextureAtlas {
    * bicubic / Lanczos approximation).
    */
   _downscaleSource(source, targetW, targetH) {
-    let canvas2 = null;
+    let canvas3 = null;
     if (typeof OffscreenCanvas !== "undefined") {
-      canvas2 = new OffscreenCanvas(targetW, targetH);
+      canvas3 = new OffscreenCanvas(targetW, targetH);
     } else if (typeof document !== "undefined" && typeof document.createElement === "function") {
       const c2 = document.createElement("canvas");
       c2.width = targetW;
       c2.height = targetH;
-      canvas2 = c2;
+      canvas3 = c2;
     }
-    if (!canvas2)
+    if (!canvas3)
       return null;
-    const ctx = canvas2.getContext("2d");
-    if (!ctx)
+    const ctx2 = canvas3.getContext("2d");
+    if (!ctx2)
       return null;
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
+    ctx2.imageSmoothingEnabled = true;
+    ctx2.imageSmoothingQuality = "high";
     try {
-      ctx.drawImage(source, 0, 0, targetW, targetH);
+      ctx2.drawImage(source, 0, 0, targetW, targetH);
     } catch (e) {
       console.warn(`[TextureAtlas] downscale drawImage failed: ${e}`);
       return null;
     }
-    return canvas2;
+    return canvas3;
   }
   /**
    * If `source` exceeds the atlas dimensions (after padding), produce
@@ -171849,23 +172116,23 @@ var TextureAtlas = class _TextureAtlas {
    * canvas allocation — the probe just needs the *would-be* width and
    * height after downscale to drive its shelf-fit replay.
    */
-  _maybeDownscale(id, source, w, h) {
+  _maybeDownscale(id, source, w2, h2) {
     const maxFit = this._maxEntryDimension();
-    if (w <= maxFit && h <= maxFit) {
-      return { source, w, h, downscaled: false };
+    if (w2 <= maxFit && h2 <= maxFit) {
+      return { source, w: w2, h: h2, downscaled: false };
     }
-    const scale3 = Math.min(maxFit / w, maxFit / h);
-    const targetW = Math.max(1, Math.floor(w * scale3));
-    const targetH = Math.max(1, Math.floor(h * scale3));
+    const scale3 = Math.min(maxFit / w2, maxFit / h2);
+    const targetW = Math.max(1, Math.floor(w2 * scale3));
+    const targetH = Math.max(1, Math.floor(h2 * scale3));
     const scaled = this._downscaleSource(source, targetW, targetH);
     if (!scaled) {
       console.warn(
-        `[TextureAtlas] '${id}' ${w}\xD7${h} exceeds atlas size ${this.size} and downscaling is unavailable \u2014 falling back to sentinel`
+        `[TextureAtlas] '${id}' ${w2}\xD7${h2} exceeds atlas size ${this.size} and downscaling is unavailable \u2014 falling back to sentinel`
       );
-      return { source, w, h, downscaled: false };
+      return { source, w: w2, h: h2, downscaled: false };
     }
     console.warn(
-      `[TextureAtlas] '${id}' ${w}\xD7${h} exceeds atlas size ${this.size}; auto-downscaled to ${targetW}\xD7${targetH} (${(scale3 * 100).toFixed(1)}% of original) \u2014 increase the atlas size in MemoryConfigs if you need full resolution`
+      `[TextureAtlas] '${id}' ${w2}\xD7${h2} exceeds atlas size ${this.size}; auto-downscaled to ${targetW}\xD7${targetH} (${(scale3 * 100).toFixed(1)}% of original) \u2014 increase the atlas size in MemoryConfigs if you need full resolution`
     );
     return { source: scaled, w: targetW, h: targetH, downscaled: true };
   }
@@ -171875,15 +172142,15 @@ var TextureAtlas = class _TextureAtlas {
    * unchanged otherwise. Used by {@link canFitTexture} to compute the
    * fit-probe dimensions without materialising a canvas.
    */
-  _targetDimensions(w, h) {
+  _targetDimensions(w2, h2) {
     const maxFit = this._maxEntryDimension();
-    if (w <= maxFit && h <= maxFit) {
-      return { w, h };
+    if (w2 <= maxFit && h2 <= maxFit) {
+      return { w: w2, h: h2 };
     }
-    const scale3 = Math.min(maxFit / w, maxFit / h);
+    const scale3 = Math.min(maxFit / w2, maxFit / h2);
     return {
-      w: Math.max(1, Math.floor(w * scale3)),
-      h: Math.max(1, Math.floor(h * scale3))
+      w: Math.max(1, Math.floor(w2 * scale3)),
+      h: Math.max(1, Math.floor(h2 * scale3))
     };
   }
   /**
@@ -171921,45 +172188,45 @@ var TextureAtlas = class _TextureAtlas {
    * — same behaviour as before this fix, just without the bleed
    * protection.
    */
-  _extrudeWithGutter(source, w, h) {
+  _extrudeWithGutter(source, w2, h2) {
     const p = this.padding;
     if (p <= 0)
       return source;
-    const ew = w + 2 * p;
-    const eh = h + 2 * p;
-    let canvas2 = null;
+    const ew = w2 + 2 * p;
+    const eh = h2 + 2 * p;
+    let canvas3 = null;
     if (typeof OffscreenCanvas !== "undefined") {
-      canvas2 = new OffscreenCanvas(ew, eh);
+      canvas3 = new OffscreenCanvas(ew, eh);
     } else if (typeof document !== "undefined" && typeof document.createElement === "function") {
       const c2 = document.createElement("canvas");
       c2.width = ew;
       c2.height = eh;
-      canvas2 = c2;
+      canvas3 = c2;
     }
-    if (!canvas2)
+    if (!canvas3)
       return null;
-    const ctx = canvas2.getContext("2d");
-    if (!ctx)
+    const ctx2 = canvas3.getContext("2d");
+    if (!ctx2)
       return null;
-    ctx.imageSmoothingEnabled = false;
+    ctx2.imageSmoothingEnabled = false;
     try {
       if (typeof ImageData !== "undefined" && source instanceof ImageData) {
-        ctx.putImageData(source, p, p);
+        ctx2.putImageData(source, p, p);
       } else {
-        ctx.drawImage(source, p, p, w, h);
+        ctx2.drawImage(source, p, p, w2, h2);
       }
-      ctx.drawImage(canvas2, p, p, w, 1, p, 0, w, p);
-      ctx.drawImage(canvas2, p, p + h - 1, w, 1, p, p + h, w, p);
-      ctx.drawImage(canvas2, p, p, 1, h, 0, p, p, h);
-      ctx.drawImage(canvas2, p + w - 1, p, 1, h, p + w, p, p, h);
-      ctx.drawImage(canvas2, p, p, 1, 1, 0, 0, p, p);
-      ctx.drawImage(canvas2, p + w - 1, p, 1, 1, p + w, 0, p, p);
-      ctx.drawImage(canvas2, p, p + h - 1, 1, 1, 0, p + h, p, p);
-      ctx.drawImage(canvas2, p + w - 1, p + h - 1, 1, 1, p + w, p + h, p, p);
+      ctx2.drawImage(canvas3, p, p, w2, 1, p, 0, w2, p);
+      ctx2.drawImage(canvas3, p, p + h2 - 1, w2, 1, p, p + h2, w2, p);
+      ctx2.drawImage(canvas3, p, p, 1, h2, 0, p, p, h2);
+      ctx2.drawImage(canvas3, p + w2 - 1, p, 1, h2, p + w2, p, p, h2);
+      ctx2.drawImage(canvas3, p, p, 1, 1, 0, 0, p, p);
+      ctx2.drawImage(canvas3, p + w2 - 1, p, 1, 1, p + w2, 0, p, p);
+      ctx2.drawImage(canvas3, p, p + h2 - 1, 1, 1, 0, p + h2, p, p);
+      ctx2.drawImage(canvas3, p + w2 - 1, p + h2 - 1, 1, 1, p + w2, p + h2, p, p);
     } catch (e) {
       return null;
     }
-    return canvas2;
+    return canvas3;
   }
   /**
    * Adds an image to the atlas — or returns the cached transform if `id`
@@ -171986,12 +172253,12 @@ var TextureAtlas = class _TextureAtlas {
       return null;
     const prepared = this._maybeDownscale(id, source, source.width, source.height);
     const uploadSource = prepared.source;
-    const w = prepared.w;
-    const h = prepared.h;
-    const placed = this._shelfPack(w, h);
+    const w2 = prepared.w;
+    const h2 = prepared.h;
+    const placed = this._shelfPack(w2, h2);
     if (!placed)
       return null;
-    const extruded = this._extrudeWithGutter(uploadSource, w, h);
+    const extruded = this._extrudeWithGutter(uploadSource, w2, h2);
     const uploadX = extruded ? placed.x - this.padding : placed.x;
     const uploadY = extruded ? placed.y - this.padding : placed.y;
     const finalUpload = extruded ?? uploadSource;
@@ -172022,10 +172289,10 @@ var TextureAtlas = class _TextureAtlas {
     const transform = {
       uOffset: placed.x / this.size,
       vOffset: placed.y / this.size,
-      uScale: w / this.size,
-      vScale: h / this.size
+      uScale: w2 / this.size,
+      vScale: h2 / this.size
     };
-    this._entries.set(id, { ...placed, width: w, height: h, source: uploadSource, ...transform });
+    this._entries.set(id, { ...placed, width: w2, height: h2, source: uploadSource, ...transform });
     this.onUpdated.dispatch(this, void 0);
     return transform;
   }
@@ -172116,14 +172383,14 @@ var TextureAtlas = class _TextureAtlas {
    * a SceneTexture shared by multiple meshes doesn't keep triggering
    * batch overflow.
    */
-  canFitTexture(id, w, h) {
+  canFitTexture(id, w2, h2) {
     if (this._entries.has(id)) {
       return "fits";
     }
-    if (w <= 0 || h <= 0) {
+    if (w2 <= 0 || h2 <= 0) {
       return "too-big";
     }
-    const target = this._targetDimensions(w, h);
+    const target = this._targetDimensions(w2, h2);
     const padW = target.w + this.padding;
     const padH = target.h + this.padding;
     for (const shelf of this._shelves) {
@@ -172203,15 +172470,21 @@ var TextureAtlas = class _TextureAtlas {
    * frame regardless of how many slices were written since the
    * previous draw.
    */
+  /**
+   * @returns `true` when a mip pyramid was actually regenerated. Regeneration
+   * binds/unbinds the atlas on the active texture unit, so the caller must
+   * treat any per-unit bound-texture tracking as invalid afterwards.
+   */
   flushMipmaps() {
     if (!this._mipsDirty)
-      return;
+      return false;
     if (!this.mipmap || !this.allocated || !this.texture) {
       this._mipsDirty = false;
-      return;
+      return false;
     }
     this._regenerateMipmaps();
     this._mipsDirty = false;
+    return true;
   }
   /** Frees the GPU texture and clears all CPU-side state. */
   destroy() {
@@ -172546,10 +172819,10 @@ void main() {
    * opens a new shelf below the existing ones provided there's atlas
    * height left. Returns `null` on overflow.
    */
-  _shelfPack(w, h) {
+  _shelfPack(w2, h2) {
     const p = this.padding;
-    const blockW = w + 2 * p;
-    const blockH = h + 2 * p;
+    const blockW = w2 + 2 * p;
+    const blockH = h2 + 2 * p;
     if (blockW > this.size || blockH > this.size)
       return null;
     for (const shelf of this._shelves) {
@@ -172997,11 +173270,11 @@ function atlasOverflow(atlas, sceneTexture) {
   if (!atlas || !sceneTexture)
     return false;
   const source = sceneTexture.image ?? sceneTexture.imageData ?? null;
-  const w = (source && source.width) ?? sceneTexture.width ?? 0;
-  const h = (source && source.height) ?? sceneTexture.height ?? 0;
-  if (w <= 0 || h <= 0)
+  const w2 = (source && source.width) ?? sceneTexture.width ?? 0;
+  const h2 = (source && source.height) ?? sceneTexture.height ?? 0;
+  if (w2 <= 0 || h2 <= 0)
     return false;
-  return atlas.canFitTexture(sceneTexture.id, w, h) === "would-fit-in-fresh-atlas";
+  return atlas.canFitTexture(sceneTexture.id, w2, h2) === "would-fit-in-fresh-atlas";
 }
 function resolveAtlasTransform(atlas, sceneTexture, label) {
   if (!atlas) {
@@ -173552,9 +173825,9 @@ var GPUMemoryBatch = class {
         return 4 /* NotEnoughVertexSpace */;
       }
     }
-    const primCount = isPoints ? vertCount : geometry.primitive === LinesPrimitive ? geometry.indices.length / 2 : geometry.indices.length / 3;
+    const primCount = isPoints ? vertCount : geometry.primitive === LinesPrimitive ? geometry.indices.length / 2 | 0 : geometry.indices.length / 3 | 0;
     if (geometry.primitive === TrianglesPrimitive && geometry.edgeIndices) {
-      const edgePrimCount = geometry.edgeIndices.length / 2;
+      const edgePrimCount = geometry.edgeIndices.length / 2 | 0;
       if (edgePrimCount > 0 && this._edgeMeshIndexTexture[0].canGetPortion(edgePrimCount) === false) {
         return 7 /* NotEnoughEdgeIndexSpace */;
       }
@@ -173880,7 +174153,7 @@ var GPUMemoryBatch = class {
       });
     }
     this._meshMatrixTexture.setItem(meshIndex, new Float32Array(sceneMesh.worldMatrix));
-    const primitiveCount = sceneGeometry.primitive === PointsPrimitive ? sceneGeometry.positionsCompressed.length / 3 : sceneGeometry.primitive === LinesPrimitive ? sceneGeometry.indices.length / 2 : sceneGeometry.indices.length / 3;
+    const primitiveCount = sceneGeometry.primitive === PointsPrimitive ? sceneGeometry.positionsCompressed.length / 3 | 0 : sceneGeometry.primitive === LinesPrimitive ? sceneGeometry.indices.length / 2 | 0 : sceneGeometry.indices.length / 3 | 0;
     const primitiveMeshIndexTextureHandles = [];
     for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
       primitiveMeshIndexTextureHandles.push(
@@ -173889,7 +174162,7 @@ var GPUMemoryBatch = class {
     }
     let edgeMeshIndexTextureHandles;
     if (sceneGeometry.primitive === TrianglesPrimitive) {
-      const edgeCount = sceneGeometry.edgeIndices ? sceneGeometry.edgeIndices.length / 2 : 0;
+      const edgeCount = sceneGeometry.edgeIndices ? sceneGeometry.edgeIndices.length / 2 | 0 : 0;
       edgeMeshIndexTextureHandles = [];
       if (edgeCount > 0) {
         for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
@@ -174197,6 +174470,7 @@ var GPUMemoryBatch = class {
     for (let i = this._lastFreeMeshIndex; ; i = (i + 1) % maxMeshes) {
       if (!this._meshIndicesUsed[i]) {
         this._meshIndicesUsed[i] = true;
+        this._lastFreeMeshIndex = (i + 1) % maxMeshes;
         return i;
       }
     }
@@ -174212,6 +174486,7 @@ var GPUMemoryBatch = class {
     for (let i = this._lastFreeGeometryIndex; ; i = (i + 1) % maxGeometries) {
       if (!this._geometryIndicesUsed[i]) {
         this._geometryIndicesUsed[i] = true;
+        this._lastFreeGeometryIndex = (i + 1) % maxGeometries;
         return i;
       }
     }
@@ -175707,16 +175982,16 @@ var MeshBatchImpl = class {
 // ../sdk/src/formats/gaussiansplat/utils/computeCovariance3D.ts
 function computeCovariance3D(scale3, quat) {
   const n = Math.hypot(quat[0], quat[1], quat[2], quat[3]) || 1;
-  const x = quat[0] / n, y = quat[1] / n, z = quat[2] / n, w = quat[3] / n;
+  const x = quat[0] / n, y = quat[1] / n, z = quat[2] / n, w2 = quat[3] / n;
   const R2 = [
     1 - 2 * (y * y + z * z),
-    2 * (x * y + z * w),
-    2 * (x * z - y * w),
-    2 * (x * y - z * w),
+    2 * (x * y + z * w2),
+    2 * (x * z - y * w2),
+    2 * (x * y - z * w2),
     1 - 2 * (x * x + z * z),
-    2 * (y * z + x * w),
-    2 * (x * z + y * w),
-    2 * (y * z - x * w),
+    2 * (y * z + x * w2),
+    2 * (x * z + y * w2),
+    2 * (y * z - x * w2),
     1 - 2 * (x * x + y * y)
   ];
   const sx = scale3[0], sy = scale3[1], sz = scale3[2];
@@ -175786,23 +176061,23 @@ function packSplats(attrs, worldMatrix, meshPickId = 0) {
 function transformCovariance(cov, m) {
   const a2 = m[0], b4 = m[4], c2 = m[8];
   const d = m[1], e = m[5], f = m[9];
-  const g = m[2], h = m[6], i = m[10];
+  const g = m[2], h2 = m[6], i = m[10];
   const [sxx, sxy, sxz, syy, syz, szz] = cov;
   const u0x = a2 * sxx + b4 * sxy + c2 * sxz, u0y = a2 * sxy + b4 * syy + c2 * syz, u0z = a2 * sxz + b4 * syz + c2 * szz;
   const u1x = d * sxx + e * sxy + f * sxz, u1y = d * sxy + e * syy + f * syz, u1z = d * sxz + e * syz + f * szz;
-  const u2x = g * sxx + h * sxy + i * sxz, u2y = g * sxy + h * syy + i * syz, u2z = g * sxz + h * syz + i * szz;
+  const u2x = g * sxx + h2 * sxy + i * sxz, u2y = g * sxy + h2 * syy + i * syz, u2z = g * sxz + h2 * syz + i * szz;
   return [
     u0x * a2 + u0y * b4 + u0z * c2,
     // xx
     u0x * d + u0y * e + u0z * f,
     // xy
-    u0x * g + u0y * h + u0z * i,
+    u0x * g + u0y * h2 + u0z * i,
     // xz
     u1x * d + u1y * e + u1z * f,
     // yy
-    u1x * g + u1y * h + u1z * i,
+    u1x * g + u1y * h2 + u1z * i,
     // yz
-    u2x * g + u2y * h + u2z * i
+    u2x * g + u2y * h2 + u2z * i
     // zz
   ];
 }
@@ -177001,6 +177276,20 @@ var DrawTechnique = class {
    * then compiles the program and retrieves uniform/sampler locations.
    */
   init() {
+    const linkResult = this.linkProgram();
+    if (linkResult.ok === false) {
+      return linkResult;
+    }
+    return this.finalizeProgram();
+  }
+  /**
+   * Phase 1: build the shader sources, create the program, and issue the
+   * compile/link — **without** reading back compile/link status. Driving a
+   * batch of techniques through `linkProgram()` first, then `finalizeProgram()`,
+   * lets the driver compile them concurrently instead of one at a time (the
+   * status read-backs in {@link finalizeProgram} are what would serialize them).
+   */
+  linkProgram() {
     this._vertSrcBuf = [];
     this._fragSrcBuf = [];
     this.buildVertexShader();
@@ -177021,7 +177310,33 @@ var DrawTechnique = class {
     });
     this._vertSrcBuf = [];
     this._fragSrcBuf = [];
-    return this._initProgram();
+    return this._program.link();
+  }
+  /**
+   * Phase 2: read back compile/link status and cache uniform/sampler locations.
+   * Call after {@link linkProgram}. Split into {@link waitLinked} (compile-wait)
+   * and {@link extractLocations} (synchronous location queries) so a batch can
+   * be measured / driven in those two sub-phases.
+   */
+  finalizeProgram() {
+    const waitResult = this.waitLinked();
+    if (waitResult.ok === false) {
+      return waitResult;
+    }
+    return this.extractLocations();
+  }
+  /** Phase 2a — block on the program's compile/link status (compile-wait). */
+  waitLinked() {
+    return this._program.waitLinked();
+  }
+  /** Phase 2b — read program + technique uniform/sampler locations (synchronous). */
+  extractLocations() {
+    const result = this._program.extractLocations();
+    if (result.ok === false) {
+      return result;
+    }
+    this._extractTechniqueLocations();
+    return { ok: true, value: null };
   }
   /**
    * Notifies draw technique that the WebGL context has been restored.
@@ -177038,17 +177353,19 @@ var DrawTechnique = class {
         error: "[DrawTechnique.webglContextRestored] Shader program is not initialized."
       };
     }
-    return this._initProgram();
-  }
-  /**
-   * Initializes the shader program by compiling/linking and retrieving uniform/sampler locations.
-   * @private
-   */
-  _initProgram() {
     const result = this._program.init();
     if (result.ok === false) {
       return result;
     }
+    this._extractTechniqueLocations();
+    return { ok: true, value: void 0 };
+  }
+  /**
+   * Caches this technique's uniform and sampler locations off the linked
+   * program. Call after the program is linked + finalized.
+   * @private
+   */
+  _extractTechniqueLocations() {
     const program = this._program;
     this._uniforms = {
       primBaseIndex: program.getLocation("uPrimBaseIndex"),
@@ -177162,10 +177479,6 @@ var DrawTechnique = class {
       shadowMap4: program.getSampler("uShadowMap4"),
       shadowMap5: program.getSampler("uShadowMap5")
     };
-    return {
-      ok: true,
-      value: null
-    };
   }
   /**
    * Notifies draw technique that the WebGL context has been lost.
@@ -177233,23 +177546,28 @@ var DrawTechnique = class {
     }
     const _bindAtlases = this.hasUVs || this.triplanar;
     if (_bindAtlases && batchDataTextures.albedoAtlasTexture && batchDataTextures.albedoAtlasTexture.texture) {
-      batchDataTextures.albedoAtlasTexture.flushMipmaps();
+      if (batchDataTextures.albedoAtlasTexture.flushMipmaps())
+        renderContext.resetTextureBindings();
       this._bindTexture(samplers.albedoAtlas, batchDataTextures.albedoAtlasTexture);
     }
     if (_bindAtlases && batchDataTextures.metallicRoughnessAtlasTexture && batchDataTextures.metallicRoughnessAtlasTexture.texture) {
-      batchDataTextures.metallicRoughnessAtlasTexture.flushMipmaps();
+      if (batchDataTextures.metallicRoughnessAtlasTexture.flushMipmaps())
+        renderContext.resetTextureBindings();
       this._bindTexture(samplers.metallicRoughnessAtlas, batchDataTextures.metallicRoughnessAtlasTexture);
     }
     if (_bindAtlases && batchDataTextures.normalMapAtlasTexture && batchDataTextures.normalMapAtlasTexture.texture) {
-      batchDataTextures.normalMapAtlasTexture.flushMipmaps();
+      if (batchDataTextures.normalMapAtlasTexture.flushMipmaps())
+        renderContext.resetTextureBindings();
       this._bindTexture(samplers.normalMapAtlas, batchDataTextures.normalMapAtlasTexture);
     }
     if (_bindAtlases && batchDataTextures.emissiveAtlasTexture && batchDataTextures.emissiveAtlasTexture.texture) {
-      batchDataTextures.emissiveAtlasTexture.flushMipmaps();
+      if (batchDataTextures.emissiveAtlasTexture.flushMipmaps())
+        renderContext.resetTextureBindings();
       this._bindTexture(samplers.emissiveAtlas, batchDataTextures.emissiveAtlasTexture);
     }
     if (_bindAtlases && batchDataTextures.occlusionAtlasTexture && batchDataTextures.occlusionAtlasTexture.texture) {
-      batchDataTextures.occlusionAtlasTexture.flushMipmaps();
+      if (batchDataTextures.occlusionAtlasTexture.flushMipmaps())
+        renderContext.resetTextureBindings();
       this._bindTexture(samplers.occlusionAtlas, batchDataTextures.occlusionAtlasTexture);
     }
     if (this.hasNormals) {
@@ -180428,10 +180746,15 @@ ${this.triplanar ? `
       return;
     const rc = this._renderContext;
     const gl = rc.gl;
-    gl.activeTexture(gl.TEXTURE0 + rc.textureUnit);
-    gl.bindTexture(gl.TEXTURE_2D, dataTexture.texture);
-    gl.uniform1i(sampler, rc.textureUnit);
-    rc.textureUnit = (rc.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
+    const unit = rc.textureUnit;
+    const texture = dataTexture.texture;
+    if (rc.boundTextureUnits[unit] !== texture) {
+      gl.activeTexture(gl.TEXTURE0 + unit);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      rc.boundTextureUnits[unit] = texture;
+    }
+    gl.uniform1i(sampler, unit);
+    rc.textureUnit = (unit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
   }
   /**
    * Cubemap counterpart to {@link _bindTexture} — same texture-unit
@@ -180444,10 +180767,14 @@ ${this.triplanar ? `
       return;
     const rc = this._renderContext;
     const gl = rc.gl;
-    gl.activeTexture(gl.TEXTURE0 + rc.textureUnit);
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-    gl.uniform1i(sampler, rc.textureUnit);
-    rc.textureUnit = (rc.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
+    const unit = rc.textureUnit;
+    if (rc.boundTextureUnits[unit] !== texture) {
+      gl.activeTexture(gl.TEXTURE0 + unit);
+      gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+      rc.boundTextureUnits[unit] = texture;
+    }
+    gl.uniform1i(sampler, unit);
+    rc.textureUnit = (unit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
   }
   /**
    * Binds the shader program and sets up the necessary uniforms and textures for rendering.
@@ -180718,6 +181045,7 @@ ${this.triplanar ? `
     const unit = renderContext.textureUnit;
     renderContext.saoOcclusionTexture.bind(unit);
     renderContext.gl.uniform1i(this._samplers.saoOcclusionTexture, unit);
+    renderContext.boundTextureUnits[unit] = null;
     renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
   }
   /**
@@ -180751,6 +181079,7 @@ ${this.triplanar ? `
       const unit = renderContext.textureUnit;
       tex.bind(unit);
       gl.uniform1i(sampler, unit);
+      renderContext.boundTextureUnits[unit] = null;
       renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
     }
   }
@@ -181647,6 +181976,24 @@ var DrawOps = class {
    */
   _techniques;
   /**
+   * Set after {@link init} issues the program links but before the blocking
+   * compile-wait runs. {@link ensureFinalized} clears it. Lets the driver
+   * compile the program batch in the background while the rest of startup
+   * (model fetch / decode / GPU upload) runs, instead of blocking init on it.
+   *
+   * @private
+   */
+  _finalizePending;
+  /**
+   * Time spent issuing the program links in {@link init} (no status read-back),
+   * carried so {@link ensureFinalized} can log the full compile breakdown.
+   *
+   * @private
+   */
+  _linkMs;
+  /** Whether KHR_parallel_shader_compile was available at link time. @private */
+  _parallelCompile;
+  /**
    * Draw operations indexed first by primitive type, then by render pass.
    *
    * Each entry is a {@link DrawOp}, which applies a {@link DrawTechnique}
@@ -181717,16 +182064,23 @@ var DrawOps = class {
     const linesSnapVertex = saveForCleanup(new LinesSnapTechnique(renderContext, gpuMemoryReader, 1));
     const linesSnapEdge = saveForCleanup(new LinesSnapTechnique(renderContext, gpuMemoryReader, 2));
     const trianglesStencilMask = saveForCleanup(new TrianglesStencilMaskTechnique(renderContext, gpuMemoryReader));
+    const cleanupOnFail = (result) => {
+      for (let j = 0, n = this._techniques.length; j < n; j++) {
+        this._techniques[j].destroy();
+      }
+      this._techniques = [];
+      return result;
+    };
+    this._parallelCompile = !!renderContext.gl.getExtension("KHR_parallel_shader_compile");
+    const tStart = performance.now();
     for (let i = 0, len = this._techniques.length; i < len; i++) {
-      const result = this._techniques[i].init();
+      const result = this._techniques[i].linkProgram();
       if (!result.ok) {
-        for (let j = i; j >= 0; j--) {
-          this._techniques[j].destroy();
-        }
-        this._techniques = [];
-        return result;
+        return cleanupOnFail(result);
       }
     }
+    this._linkMs = performance.now() - tStart;
+    this._finalizePending = true;
     const { OPAQUE, TRANSPARENT, HIGHLIGHTED, SELECTED, XRAYED, PICK, SNAP_INIT, SNAP } = RENDER_PASSES;
     this.prims = {
       [TrianglesPrimitive]: {
@@ -181789,6 +182143,51 @@ var DrawOps = class {
       ok: true,
       value: null
     };
+  }
+  /**
+   * Completes the deferred shader build: reads back the program compile/link
+   * status (the blocking compile-wait) and caches uniform/attribute locations.
+   *
+   * Idempotent — a no-op once the batch has been finalized. Must be called
+   * before any technique is used to draw, pick, or snap; the render, pick, and
+   * snap entry points call it. By the time the first frame reaches here the
+   * driver has typically finished compiling in the background, so the wait is
+   * short or zero.
+   *
+   * @returns {@link base!core.SDKResult | SDKResult} carrying any shader
+   * compile/link error surfaced by the deferred status read-back.
+   */
+  ensureFinalized() {
+    if (!this._finalizePending) {
+      return { ok: true, value: void 0 };
+    }
+    this._finalizePending = false;
+    const tStart = performance.now();
+    for (let i = 0, len = this._techniques.length; i < len; i++) {
+      const result = this._techniques[i].waitLinked();
+      if (!result.ok) {
+        this._destroy();
+        this._techniques = [];
+        return result;
+      }
+    }
+    const tWaited = performance.now();
+    for (let i = 0, len = this._techniques.length; i < len; i++) {
+      const result = this._techniques[i].extractLocations();
+      if (!result.ok) {
+        this._destroy();
+        this._techniques = [];
+        return result;
+      }
+    }
+    const tDone = performance.now();
+    if (this._renderContext.debugging) {
+      const ms = (a2) => a2.toFixed(1);
+      console.log(
+        `[shader-compile] ${this._techniques.length} programs in ${ms(this._linkMs + (tDone - tStart))}ms (link ${ms(this._linkMs)}ms, compile-wait ${ms(tWaited - tStart)}ms, extract ${ms(tDone - tWaited)}ms), KHR_parallel_shader_compile=${this._parallelCompile}`
+      );
+    }
+    return { ok: true, value: void 0 };
   }
   /**
    * Notifies all draw techniques that the WebGL context has been restored.
@@ -182070,8 +182469,8 @@ var GaussianSplatPickTechnique = class {
       return;
     }
     const gl = this.gl;
-    const w = opts.viewportWidth;
-    const h = opts.viewportHeight;
+    const w2 = opts.viewportWidth;
+    const h2 = opts.viewportHeight;
     splatBatch.uploadChanges();
     if (splatBatch.revision !== this._revision) {
       this._revision = splatBatch.revision;
@@ -182087,8 +182486,8 @@ var GaussianSplatPickTechnique = class {
     this._view.set(opts.view);
     this._proj.set(opts.proj);
     gl.useProgram(this.program);
-    const fx = this._proj[0] * w * 0.5;
-    const fy = this._proj[5] * h * 0.5;
+    const fx = this._proj[0] * w2 * 0.5;
+    const fy = this._proj[5] * h2 * 0.5;
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, splatBatch.texture.texture);
     gl.uniform1i(this.uTex, 0);
@@ -182096,7 +182495,7 @@ var GaussianSplatPickTechnique = class {
     gl.uniformMatrix4fv(this.uView, false, this._view);
     gl.uniformMatrix4fv(this.uProj, false, this._proj);
     gl.uniform2f(this.uFocal, fx, fy);
-    gl.uniform2f(this.uViewport, w, h);
+    gl.uniform2f(this.uViewport, w2, h2);
     gl.uniform2f(this.uPickClipPos, opts.pickClipPos[0], opts.pickClipPos[1]);
     gl.uniform1f(this.uPickZNear, opts.pickZNear);
     gl.uniform1f(this.uPickZFar, opts.pickZFar);
@@ -182292,6 +182691,10 @@ var PickManager = class {
     if (!this._drawOps) {
       throw new SDKInternalException("[PickManager.pick] PickManager not initialized");
     }
+    const finalizeResult = this._drawOps.ensureFinalized();
+    if (finalizeResult.ok === false) {
+      return finalizeResult;
+    }
     const view = rendererView.view;
     const camera = view.camera;
     const pickResult = this._pickResult;
@@ -182406,6 +182809,7 @@ var PickManager = class {
     const isOverlayBin = (b4) => b4 === "overlay" || b4 === "overlayPicker";
     const meshBatches = this._meshBatchManager.sortedBatches;
     let overlayPending = false;
+    renderContext.resetTextureBindings();
     for (let i = 0, len = meshBatches.length; i < len; i++) {
       const meshBatch = meshBatches[i];
       if (!meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.PICK))
@@ -182435,6 +182839,7 @@ var PickManager = class {
       gl.enable(gl.DEPTH_TEST);
       gl.clear(gl.DEPTH_BUFFER_BIT);
       gl.depthFunc(gl.ALWAYS);
+      renderContext.resetTextureBindings();
       for (let i = 0, len = meshBatches.length; i < len; i++) {
         const meshBatch = meshBatches[i];
         if (!isOverlayBin(meshBatch.bin))
@@ -182455,9 +182860,9 @@ var PickManager = class {
       if (!splatMesh) {
         return null;
       }
-      const canvas3 = view.htmlElement;
-      const sx = (pickCanvasPos[0] - canvas3.clientWidth / 2) / (canvas3.clientWidth / 2);
-      const sy = -(pickCanvasPos[1] - canvas3.clientHeight / 2) / (canvas3.clientHeight / 2);
+      const canvas4 = view.htmlElement;
+      const sx = (pickCanvasPos[0] - canvas4.clientWidth / 2) / (canvas4.clientWidth / 2);
+      const sy = -(pickCanvasPos[1] - canvas4.clientHeight / 2) / (canvas4.clientHeight / 2);
       const splatPvm = mulMat4(pickProjMatrix, pickViewMatrix, tempMat4b2);
       const splatPvmInv = inverseMat4(splatPvm, tempMat4c);
       tempVec4a8[0] = sx;
@@ -182485,9 +182890,9 @@ var PickManager = class {
     if (!gpuTile) {
       return null;
     }
-    const canvas2 = view.htmlElement;
-    const x = (pickCanvasPos[0] - canvas2.clientWidth / 2) / (canvas2.clientWidth / 2);
-    const y = -(pickCanvasPos[1] - canvas2.clientHeight / 2) / (canvas2.clientHeight / 2);
+    const canvas3 = view.htmlElement;
+    const x = (pickCanvasPos[0] - canvas3.clientWidth / 2) / (canvas3.clientWidth / 2);
+    const y = -(pickCanvasPos[1] - canvas3.clientHeight / 2) / (canvas3.clientHeight / 2);
     const tileOrigin = gpuTile.center;
     const gotOrigin = tileOrigin[0] !== 0 || tileOrigin[1] !== 0 || tileOrigin[2] !== 0;
     const viewMatrix = gotOrigin ? createRTCViewMat(pickViewMatrix, tileOrigin, tempMat4a6) : pickViewMatrix;
@@ -183283,8 +183688,8 @@ var GaussianSplatTechnique = class {
     const camera = viewRenderState.view.camera;
     const view = camera.viewMatrix;
     const proj = camera.projMatrix;
-    const w = gl.drawingBufferWidth;
-    const h = gl.drawingBufferHeight;
+    const w2 = gl.drawingBufferWidth;
+    const h2 = gl.drawingBufferHeight;
     splatBatch.uploadChanges();
     if (splatBatch.revision !== this._revision) {
       this._revision = splatBatch.revision;
@@ -183313,8 +183718,8 @@ var GaussianSplatTechnique = class {
     const cullOn = gl.isEnabled(gl.CULL_FACE);
     const depthMask = gl.getParameter(gl.DEPTH_WRITEMASK);
     gl.useProgram(this.program);
-    const fx = proj[0] * w * 0.5;
-    const fy = proj[5] * h * 0.5;
+    const fx = proj[0] * w2 * 0.5;
+    const fy = proj[5] * h2 * 0.5;
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, splatBatch.texture.texture);
     gl.uniform1i(this.uTex, 0);
@@ -183322,7 +183727,7 @@ var GaussianSplatTechnique = class {
     gl.uniformMatrix4fv(this.uView, false, view);
     gl.uniformMatrix4fv(this.uProj, false, proj);
     gl.uniform2f(this.uFocal, fx, fy);
-    gl.uniform2f(this.uViewport, w, h);
+    gl.uniform2f(this.uViewport, w2, h2);
     const planeCount = packSectionPlanes(viewRenderState.view.sectionPlanesList, SECTION_PLANE_SCRATCH3);
     gl.uniform1i(this.uSectionPlaneCount, planeCount);
     if (planeCount > 0) {
@@ -184499,6 +184904,7 @@ var SAOPipeline = class {
     const view = rendererView.view;
     const rc = this._renderContext;
     const gl = rc.gl;
+    rc.resetTextureBindings();
     const sceneW = rc.sceneRenderWidth || gl.drawingBufferWidth;
     const sceneH = rc.sceneRenderHeight || gl.drawingBufferHeight;
     const depthBuffer = rendererView.renderBuffers.getRenderBuffer("saoDepth", {
@@ -184588,6 +184994,7 @@ var ShadowPipeline = class {
     const view = rendererView.view;
     const rc = this._renderContext;
     const gl = rc.gl;
+    rc.resetTextureBindings();
     const shadowsCfg = view.effects.shadows;
     const resolution = shadowsCfg.resolution;
     const cascadeCount = Math.min(MAX_SHADOW_CASCADES, Math.max(1, shadowsCfg.cascadeCount));
@@ -186025,9 +186432,9 @@ var IBLPrefilter = class {
         return r;
     }
     const gl = this.gl;
-    const w = source.width || source.naturalWidth || 0;
-    const h = source.height || source.naturalHeight || 0;
-    if (w <= 0 || h <= 0) {
+    const w2 = source.width || source.naturalWidth || 0;
+    const h2 = source.height || source.naturalHeight || 0;
+    if (w2 <= 0 || h2 <= 0) {
       return {
         ok: false,
         type: 2 /* InvalidInput */,
@@ -186056,8 +186463,8 @@ var IBLPrefilter = class {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.bindTexture(gl.TEXTURE_2D, null);
-    this._equirectWidth = w;
-    this._equirectHeight = h;
+    this._equirectWidth = w2;
+    this._equirectHeight = h2;
     this._dirty = true;
     return { ok: true, value: void 0 };
   }
@@ -186407,12 +186814,12 @@ var IBLPrefilter = class {
     let totalH = 0;
     for (let m = 0; m < ENV_MIPS; m++)
       totalH += ENV_SIZE >> m;
-    const canvas2 = document.createElement("canvas");
-    canvas2.width = 6 * colWidth;
-    canvas2.height = totalH;
-    const ctx = canvas2.getContext("2d");
-    ctx.fillStyle = "#222";
-    ctx.fillRect(0, 0, canvas2.width, canvas2.height);
+    const canvas3 = document.createElement("canvas");
+    canvas3.width = 6 * colWidth;
+    canvas3.height = totalH;
+    const ctx2 = canvas3.getContext("2d");
+    ctx2.fillStyle = "#222";
+    ctx2.fillRect(0, 0, canvas3.width, canvas3.height);
     const fbo = gl.createFramebuffer();
     if (!fbo)
       return null;
@@ -186431,11 +186838,11 @@ var IBLPrefilter = class {
         );
         const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
         if (status !== gl.FRAMEBUFFER_COMPLETE) {
-          ctx.fillStyle = "#600";
-          ctx.fillRect(face * colWidth, yCursor, size, size);
+          ctx2.fillStyle = "#600";
+          ctx2.fillRect(face * colWidth, yCursor, size, size);
           continue;
         }
-        const tile = ctx.createImageData(size, size);
+        const tile = ctx2.createImageData(size, size);
         if (this.hdr) {
           const buf = new Float32Array(size * size * 4);
           gl.readPixels(0, 0, size, size, gl.RGBA, gl.FLOAT, buf);
@@ -186457,13 +186864,13 @@ var IBLPrefilter = class {
             tile.data[i + 3] = 255;
           }
         }
-        ctx.putImageData(tile, face * colWidth, yCursor);
-        ctx.strokeStyle = "#0ff";
-        ctx.strokeRect(face * colWidth + 0.5, yCursor + 0.5, size - 1, size - 1);
+        ctx2.putImageData(tile, face * colWidth, yCursor);
+        ctx2.strokeStyle = "#0ff";
+        ctx2.strokeRect(face * colWidth + 0.5, yCursor + 0.5, size - 1, size - 1);
       }
-      ctx.fillStyle = "#0ff";
-      ctx.font = "12px monospace";
-      ctx.fillText(
+      ctx2.fillStyle = "#0ff";
+      ctx2.font = "12px monospace";
+      ctx2.fillText(
         `mip ${mip} (${size}px, roughness ${(mip / (ENV_MIPS - 1)).toFixed(3)})`,
         6 * colWidth - 240,
         yCursor + 14
@@ -186472,7 +186879,7 @@ var IBLPrefilter = class {
     }
     gl.bindFramebuffer(gl.FRAMEBUFFER, prevFbo);
     gl.deleteFramebuffer(fbo);
-    return canvas2;
+    return canvas3;
   }
   /** Cosine-convolve the source cubemap into the small irradiance cubemap. */
   _convolveIrradiance() {
@@ -187473,9 +187880,9 @@ var RenderManager = class _RenderManager {
   /** Binds the main colour target for the scene phase (HDR FBO or canvas). */
   _bindSceneTarget() {
     const rc = this._renderContext;
-    const w = rc.sceneRenderWidth || rc.gl.drawingBufferWidth;
-    const h = rc.sceneRenderHeight || rc.gl.drawingBufferHeight;
-    this._postProcess.bindSceneTarget(w, h);
+    const w2 = rc.sceneRenderWidth || rc.gl.drawingBufferWidth;
+    const h2 = rc.sceneRenderHeight || rc.gl.drawingBufferHeight;
+    this._postProcess.bindSceneTarget(w2, h2);
   }
   /**
    * Iterates a bin, dispatching each batch to `drawOps[primitive][opKey]`.
@@ -187503,6 +187910,7 @@ var RenderManager = class _RenderManager {
     }
     const drawOps = this.drawOps.prims;
     const gl = this._renderContext.gl;
+    this._renderContext.resetTextureBindings();
     let blendOn = false;
     for (let i = 0; i < batches.length; i++) {
       const batch = batches[i];
@@ -187663,6 +188071,10 @@ var RenderManager = class _RenderManager {
     }
     if (this._renderContext.contextLost) {
       return { ok: true, value: void 0 };
+    }
+    const finalizeResult = this.drawOps.ensureFinalized();
+    if (finalizeResult.ok === false) {
+      return finalizeResult;
     }
     const { view } = rendererView;
     const inspector = this._inspector();
@@ -187961,8 +188373,8 @@ var RenderManager = class _RenderManager {
     gl.depthMask(false);
     gl.disable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
-    const w = renderContext.sceneRenderWidth || gl.drawingBufferWidth;
-    const h = renderContext.sceneRenderHeight || gl.drawingBufferHeight;
+    const w2 = renderContext.sceneRenderWidth || gl.drawingBufferWidth;
+    const h2 = renderContext.sceneRenderHeight || gl.drawingBufferHeight;
     for (let i = 0; i < activePlanes.length; i++) {
       const plane = activePlanes[i];
       if (!plane.capColor)
@@ -187999,8 +188411,8 @@ var RenderManager = class _RenderManager {
         capPlaneNormal: plane.dir,
         capPlaneDist: plane.dist,
         capColor: plane.capColor,
-        viewportWidth: w,
-        viewportHeight: h,
+        viewportWidth: w2,
+        viewportHeight: h2,
         otherPlanes
       });
       gl.colorMask(false, false, false, false);
@@ -188271,6 +188683,10 @@ var SnapManager = class {
     if (!this._drawOps || !this._snapBufferCache) {
       throw new SDKInternalException("[SnapManager.snapPick] SnapManager not initialized");
     }
+    const finalizeResult = this._drawOps.ensureFinalized();
+    if (finalizeResult.ok === false) {
+      return finalizeResult;
+    }
     if (!params.canvasPos) {
       return { ok: true, value: null };
     }
@@ -188317,6 +188733,7 @@ var SnapManager = class {
     renderContext.lineWidth = 1;
     const trianglePrim = meshBatches.length > 0 ? meshBatches[0].primitive : 0;
     const triOps = this._drawOps.prims[trianglePrim];
+    renderContext.resetTextureBindings();
     for (let i = 0, len = meshBatches.length; i < len; i++) {
       const meshBatch = meshBatches[i];
       if (!meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.SNAP_INIT))
@@ -188359,10 +188776,10 @@ var SnapManager = class {
     tempVec4a9[2] = hit[2];
     tempVec4a9[3] = 1;
     const worldHomog = transformVec4(invView, tempVec4a9, tempVec4b8);
-    const w = worldHomog[3] || 1;
-    tempVec3a18[0] = worldHomog[0] / w;
-    tempVec3a18[1] = worldHomog[1] / w;
-    tempVec3a18[2] = worldHomog[2] / w;
+    const w2 = worldHomog[3] || 1;
+    tempVec3a18[0] = worldHomog[0] / w2;
+    tempVec3a18[1] = worldHomog[1] / w2;
+    tempVec3a18[2] = worldHomog[2] / w2;
     const snappedCanvasPos = createVec2Float64();
     tempVec4a9[0] = tempVec3a18[0];
     tempVec4a9[1] = tempVec3a18[1];
@@ -189468,11 +189885,11 @@ var ViewManager2 = class {
       };
     }
     this._renderContext = new RenderContext(params.memoryConfigs);
-    this._renderContext.debugging = !!params.debugging;
     const resultCtx = this._renderContext.init(viewer);
     if (resultCtx.ok === false) {
       return resultCtx;
     }
+    this._renderContext.debugging = !!params.debugging;
     const webglCanvasElement = this._renderContext.webglCanvasElement;
     webglCanvasElement.style.position = "fixed";
     webglCanvasElement.style.left = "0px";
@@ -190561,8 +190978,8 @@ var WebGLRenderer3 = class {
     if (!this._viewManager) {
       return false;
     }
-    const canvas2 = this._viewManager.getWebGLCanvasElement();
-    const gl = canvas2.getContext("webgl2");
+    const canvas3 = this._viewManager.getWebGLCanvasElement();
+    const gl = canvas3.getContext("webgl2");
     const ext = gl && gl.getExtension("WEBGL_lose_context");
     if (!ext) {
       this.logError({
@@ -193200,11 +193617,11 @@ function extractFills(buffer, planeDepth, options = {}) {
       continue;
     const holeAssignments = outers.map(() => []);
     if (outers.length === 1) {
-      for (let h = 0; h < holes.length; h++)
-        holeAssignments[0].push(h);
+      for (let h2 = 0; h2 < holes.length; h2++)
+        holeAssignments[0].push(h2);
     } else {
-      for (let h = 0; h < holes.length; h++) {
-        const probe = holes[h].points[0];
+      for (let h2 = 0; h2 < holes.length; h2++) {
+        const probe = holes[h2].points[0];
         let bestOuter = -1;
         let bestArea = Infinity;
         for (let o = 0; o < outers.length; o++) {
@@ -193216,7 +193633,7 @@ function extractFills(buffer, planeDepth, options = {}) {
           }
         }
         if (bestOuter >= 0)
-          holeAssignments[bestOuter].push(h);
+          holeAssignments[bestOuter].push(h2);
       }
     }
     const positions = [];
@@ -193495,11 +193912,11 @@ async function extractFillsTiled(params) {
       continue;
     const holeAssignments = outers.map(() => []);
     if (outers.length === 1) {
-      for (let h = 0; h < holes.length; h++)
-        holeAssignments[0].push(h);
+      for (let h2 = 0; h2 < holes.length; h2++)
+        holeAssignments[0].push(h2);
     } else {
-      for (let h = 0; h < holes.length; h++) {
-        const probe = holes[h].points[0];
+      for (let h2 = 0; h2 < holes.length; h2++) {
+        const probe = holes[h2].points[0];
         let bestOuter = -1, bestArea = Infinity;
         for (let o = 0; o < outers.length; o++) {
           if (outers[o].area >= bestArea)
@@ -193510,7 +193927,7 @@ async function extractFillsTiled(params) {
           }
         }
         if (bestOuter >= 0)
-          holeAssignments[bestOuter].push(h);
+          holeAssignments[bestOuter].push(h2);
       }
     }
     const positions = [];
@@ -195693,13 +196110,13 @@ function paintHeatMapPoint(params) {
   if (!texture) {
     return errInvalid3(`[paintHeatMapPoint] SceneMaterial '${material.id}' has no colorTexture`);
   }
-  const imageData = texture.imageData;
-  if (!imageData || !imageData.data || !imageData.width || !imageData.height) {
+  const imageData2 = texture.imageData;
+  if (!imageData2 || !imageData2.data || !imageData2.width || !imageData2.height) {
     return errInvalid3(`[paintHeatMapPoint] SceneTexture '${texture.id}' has no mutable imageData (likely sourced from an encoded buffer or remote URL)`);
   }
-  const data2 = imageData.data;
-  const tw = imageData.width;
-  const th = imageData.height;
+  const data2 = imageData2.data;
+  const tw = imageData2.width;
+  const th = imageData2.height;
   const inv = inverseMat4(mesh.worldMatrix);
   const worldP = [params.worldPos[0], params.worldPos[1], params.worldPos[2]];
   const localP = [0, 0, 0];
@@ -195776,7 +196193,7 @@ function paintHeatMapPoint(params) {
     }
   }
   if (x1 >= x0 && y1 >= y0) {
-    texture.imageData = imageData;
+    texture.imageData = imageData2;
   }
   return {
     ok: true,
@@ -196861,13 +197278,13 @@ function buildCapForMeshOnPlane(world, indices, planeFrames, activePlaneIndex, e
     for (let i = 0; i < g.outer.loop3D.length; i++)
       positions.push(g.outer.loop3D[i]);
     let vertCursor = g.outer.loop2D.length / 2;
-    for (const h of g.holes) {
+    for (const h2 of g.holes) {
       holeIndices.push(vertCursor);
-      for (let i = 0; i < h.loop2D.length; i++)
-        flat2D.push(h.loop2D[i]);
-      for (let i = 0; i < h.loop3D.length; i++)
-        positions.push(h.loop3D[i]);
-      vertCursor += h.loop2D.length / 2;
+      for (let i = 0; i < h2.loop2D.length; i++)
+        flat2D.push(h2.loop2D[i]);
+      for (let i = 0; i < h2.loop3D.length; i++)
+        positions.push(h2.loop3D[i]);
+      vertCursor += h2.loop2D.length / 2;
     }
     const tris = earcut(flat2D, holeIndices.length > 0 ? holeIndices : void 0, 2);
     for (let i = 0; i < tris.length; i++)
@@ -198969,21 +199386,21 @@ function loadVTI(text) {
   }
   const headerType = root.getAttribute("header_type") ?? "UInt32";
   const headerWidth = headerType === "UInt64" ? 8 : 4;
-  const imageData = root.querySelector("ImageData");
-  if (!imageData) {
+  const imageData2 = root.querySelector("ImageData");
+  if (!imageData2) {
     return { ok: false, error: "[loadVTI] missing <ImageData>", type: 2 /* InvalidInput */ };
   }
-  const wholeExtR = parseInts(imageData.getAttribute("WholeExtent"), 6);
+  const wholeExtR = parseInts(imageData2.getAttribute("WholeExtent"), 6);
   if (wholeExtR.ok !== true)
     return wholeExtR;
   const wholeExt = wholeExtR.value;
   const nx = wholeExt[1] - wholeExt[0] + 1;
   const ny = wholeExt[3] - wholeExt[2] + 1;
   const nz = wholeExt[5] - wholeExt[4] + 1;
-  const originR = parseFloats(imageData.getAttribute("Origin"), 3, [0, 0, 0]);
+  const originR = parseFloats(imageData2.getAttribute("Origin"), 3, [0, 0, 0]);
   if (originR.ok !== true)
     return originR;
-  const spacingR = parseFloats(imageData.getAttribute("Spacing"), 3, [1, 1, 1]);
+  const spacingR = parseFloats(imageData2.getAttribute("Spacing"), 3, [1, 1, 1]);
   if (spacingR.ok !== true)
     return spacingR;
   const origin2 = originR.value;
@@ -198994,7 +199411,7 @@ function loadVTI(text) {
     origin2[1] + spacing[1] * (ny - 1),
     origin2[2] + spacing[2] * (nz - 1)
   ];
-  const piece = imageData.querySelector("Piece");
+  const piece = imageData2.querySelector("Piece");
   if (!piece) {
     return { ok: false, error: "[loadVTI] missing <Piece>", type: 2 /* InvalidInput */ };
   }
@@ -199511,14 +199928,14 @@ var MouseDistanceMeasurementsControl = class {
     if (this._destroyed || this._active)
       return;
     this._active = true;
-    const canvas2 = this.tool.view.htmlElement;
-    canvas2.style.cursor = "crosshair";
+    const canvas3 = this.tool.view.htmlElement;
+    canvas3.style.cursor = "crosshair";
     this._ensureHoverDot();
     this._onPointerMove = (e) => this._handlePointerMove(e);
     this._onClick = (e) => this._handleClick(e);
     this._onKeyDown = (e) => this._handleKeyDown(e);
-    canvas2.addEventListener("pointermove", this._onPointerMove);
-    canvas2.addEventListener("click", this._onClick);
+    canvas3.addEventListener("pointermove", this._onPointerMove);
+    canvas3.addEventListener("click", this._onClick);
     window.addEventListener("keydown", this._onKeyDown);
   }
   /**
@@ -199529,12 +199946,12 @@ var MouseDistanceMeasurementsControl = class {
     if (!this._active)
       return;
     this._active = false;
-    const canvas2 = this.tool.view.htmlElement;
-    canvas2.style.cursor = "";
+    const canvas3 = this.tool.view.htmlElement;
+    canvas3.style.cursor = "";
     if (this._onPointerMove)
-      canvas2.removeEventListener("pointermove", this._onPointerMove);
+      canvas3.removeEventListener("pointermove", this._onPointerMove);
     if (this._onClick)
-      canvas2.removeEventListener("click", this._onClick);
+      canvas3.removeEventListener("click", this._onClick);
     if (this._onKeyDown)
       window.removeEventListener("keydown", this._onKeyDown);
     this._onPointerMove = this._onClick = this._onKeyDown = null;
@@ -199921,7 +200338,7 @@ var DistanceMeasurementTool = class _DistanceMeasurementTool {
     const camera = this.view.camera;
     const v = camera.viewMatrix;
     const m = camera.projMatrix;
-    const canvas2 = this.view.htmlElement;
+    const canvas3 = this.view.htmlElement;
     const x = p[0], y = p[1], z = p[2];
     const vx = v[0] * x + v[4] * y + v[8] * z + v[12];
     const vy = v[1] * x + v[5] * y + v[9] * z + v[13];
@@ -199938,8 +200355,8 @@ var DistanceMeasurementTool = class _DistanceMeasurementTool {
     }
     const ndcX = cx / cw;
     const ndcY = cy / cw;
-    out[0] = (ndcX + 1) * 0.5 * canvas2.clientWidth;
-    out[1] = (1 - ndcY) * 0.5 * canvas2.clientHeight;
+    out[0] = (ndcX + 1) * 0.5 * canvas3.clientWidth;
+    out[1] = (1 - ndcY) * 0.5 * canvas3.clientHeight;
     out[2] = cw;
   }
   /**
@@ -199948,9 +200365,9 @@ var DistanceMeasurementTool = class _DistanceMeasurementTool {
    * when the canvas's container reflows (split-pane drag, etc.).
    */
   _syncOverlayBounds() {
-    const canvas2 = this.view.htmlElement;
+    const canvas3 = this.view.htmlElement;
     const containerRect = this._container.getBoundingClientRect();
-    const canvasRect = canvas2.getBoundingClientRect();
+    const canvasRect = canvas3.getBoundingClientRect();
     this._root.style.left = `${canvasRect.left - containerRect.left}px`;
     this._root.style.top = `${canvasRect.top - containerRect.top}px`;
     this._root.style.width = `${canvasRect.width}px`;
@@ -200330,14 +200747,14 @@ var MouseAngleMeasurementsControl = class {
     if (this._destroyed || this._active)
       return;
     this._active = true;
-    const canvas2 = this.tool.view.htmlElement;
-    canvas2.style.cursor = "crosshair";
+    const canvas3 = this.tool.view.htmlElement;
+    canvas3.style.cursor = "crosshair";
     this._ensureHoverDot();
     this._onPointerMove = (e) => this._handlePointerMove(e);
     this._onClick = (e) => this._handleClick(e);
     this._onKeyDown = (e) => this._handleKeyDown(e);
-    canvas2.addEventListener("pointermove", this._onPointerMove);
-    canvas2.addEventListener("click", this._onClick);
+    canvas3.addEventListener("pointermove", this._onPointerMove);
+    canvas3.addEventListener("click", this._onClick);
     window.addEventListener("keydown", this._onKeyDown);
   }
   /**
@@ -200348,12 +200765,12 @@ var MouseAngleMeasurementsControl = class {
     if (!this._active)
       return;
     this._active = false;
-    const canvas2 = this.tool.view.htmlElement;
-    canvas2.style.cursor = "";
+    const canvas3 = this.tool.view.htmlElement;
+    canvas3.style.cursor = "";
     if (this._onPointerMove)
-      canvas2.removeEventListener("pointermove", this._onPointerMove);
+      canvas3.removeEventListener("pointermove", this._onPointerMove);
     if (this._onClick)
-      canvas2.removeEventListener("click", this._onClick);
+      canvas3.removeEventListener("click", this._onClick);
     if (this._onKeyDown)
       window.removeEventListener("keydown", this._onKeyDown);
     this._onPointerMove = this._onClick = this._onKeyDown = null;
@@ -200746,7 +201163,7 @@ var AngleMeasurementsTool = class _AngleMeasurementsTool {
     const camera = this.view.camera;
     const v = camera.viewMatrix;
     const m = camera.projMatrix;
-    const canvas2 = this.view.htmlElement;
+    const canvas3 = this.view.htmlElement;
     const x = p[0], y = p[1], z = p[2];
     const vx = v[0] * x + v[4] * y + v[8] * z + v[12];
     const vy = v[1] * x + v[5] * y + v[9] * z + v[13];
@@ -200763,14 +201180,14 @@ var AngleMeasurementsTool = class _AngleMeasurementsTool {
     }
     const ndcX = cx / cw;
     const ndcY = cy / cw;
-    out[0] = (ndcX + 1) * 0.5 * canvas2.clientWidth;
-    out[1] = (1 - ndcY) * 0.5 * canvas2.clientHeight;
+    out[0] = (ndcX + 1) * 0.5 * canvas3.clientWidth;
+    out[1] = (1 - ndcY) * 0.5 * canvas3.clientHeight;
     out[2] = cw;
   }
   _syncOverlayBounds() {
-    const canvas2 = this.view.htmlElement;
+    const canvas3 = this.view.htmlElement;
     const containerRect = this._container.getBoundingClientRect();
-    const canvasRect = canvas2.getBoundingClientRect();
+    const canvasRect = canvas3.getBoundingClientRect();
     this._root.style.left = `${canvasRect.left - containerRect.left}px`;
     this._root.style.top = `${canvasRect.top - containerRect.top}px`;
     this._root.style.width = `${canvasRect.width}px`;
@@ -201952,7 +202369,7 @@ var ModelConverter = class {
                 fileDataSizeBytes = new TextEncoder().encode(JSON.stringify(fileData2)).length;
                 break;
               default:
-                fileDataSizeBytes = fileData2.buffer ? fileData2.buffer.byteLength : 0;
+                fileDataSizeBytes = typeof fileData2?.byteLength === "number" ? fileData2.byteLength : 0;
                 break;
             }
             try {
@@ -202030,8 +202447,12 @@ var ModelConverter = class {
             ...pipelineOutput.options || {},
             ...requestSignal ? { signal: requestSignal } : {}
           };
+          const warnings = [];
           try {
-            const fileData = await exporter.write({ sceneModel, dataModel }, options);
+            const fileData = await exporter.write(
+              { sceneModel, dataModel },
+              { ...options, onWarning: (message) => warnings.push(message) }
+            );
             let fileDataSizeBytes;
             switch (exporter.fileDataType) {
               case "text":
@@ -202054,7 +202475,7 @@ var ModelConverter = class {
               sceneModel: sceneModel.id,
               dataModel: dataModel.id,
               messages: [],
-              warnings: [],
+              warnings,
               errors: []
             };
           } catch (err6) {
@@ -202112,6 +202533,28 @@ var ModelConverter = class {
               `[ModelConverter.convert] Inspection found ${report.errors.length} error(s) in SceneModel "${sceneModelId}"; skipping export.`
             );
             aborted = true;
+          }
+        }
+        const dataModelIds = Object.keys(data2.models);
+        if (dataModelIds.length > 0) {
+          modelConverterResult.inspection.byDataModel = {};
+          for (const dataModelId of dataModelIds) {
+            throwIfAborted3();
+            await yieldToHost(requestSignal);
+            const dataModel = data2.models[dataModelId];
+            const t0 = Date.now();
+            const dataReport = await (cfg.async ? inspectDataModelAsync({ dataModel, ...cfg.dataChecks ?? {} }) : inspectDataModel({ dataModel, ...cfg.dataChecks ?? {} }));
+            modelConverterResult.inspection.byDataModel[dataModelId] = {
+              dataModel: dataModelId,
+              report: dataReport,
+              durationMs: Date.now() - t0
+            };
+            if (cfg.failOnErrors !== false && dataReport.errors.length > 0) {
+              modelConverterResult.errors.push(
+                `[ModelConverter.convert] Inspection found ${dataReport.errors.length} error(s) in DataModel "${dataModelId}"; skipping export.`
+              );
+              aborted = true;
+            }
           }
         }
         return aborted;
@@ -202349,6 +202792,7 @@ var createInspectionReport = (modelConverterResult) => {
     return null;
   const counts = {
     sceneModels: 0,
+    dataModels: 0,
     errors: 0,
     warnings: 0,
     info: 0,
@@ -202376,14 +202820,52 @@ var createInspectionReport = (modelConverterResult) => {
       durationMs: entry.durationMs
     };
   }
+  let byDataModel;
+  if (inspection.byDataModel) {
+    byDataModel = {};
+    for (const id of Object.keys(inspection.byDataModel)) {
+      const entry = inspection.byDataModel[id];
+      counts.dataModels++;
+      counts.errors += entry.report.errors.length;
+      counts.warnings += entry.report.warnings.length;
+      counts.info += entry.report.info.length;
+      byDataModel[id] = {
+        dataModel: entry.dataModel,
+        report: inspectionReportToJson(entry.report),
+        durationMs: entry.durationMs
+      };
+    }
+  }
   return {
     description: "Generated by @xeokit/sdk/convert/modelConverter/createInspectionReport",
     generatedAt: (/* @__PURE__ */ new Date()).toISOString(),
     pipeline: modelConverterResult.pipeline,
     counts,
-    bySceneModel
+    bySceneModel,
+    byDataModel,
+    files: collectFileSizes(modelConverterResult)
   };
 };
+function collectFileSizes(result) {
+  const project = (group) => {
+    const files = {};
+    let total = 0;
+    for (const id of Object.keys(group)) {
+      const e = group[id];
+      files[id] = { filePath: e.filePath, fileFormat: e.fileFormat, fileDataSizeBytes: e.fileDataSizeBytes };
+      total += e.fileDataSizeBytes || 0;
+    }
+    return { files, total };
+  };
+  const inputs = project(result.inputs);
+  const outputs = project(result.outputs);
+  return {
+    inputs: inputs.files,
+    outputs: outputs.files,
+    totalInputBytes: inputs.total,
+    totalOutputBytes: outputs.total
+  };
+}
 
 // ../sdk/src/convert/xeoconvert/index.ts
 var xeoconvert_exports = {};
@@ -204158,7 +204640,7 @@ var TreeView = class _TreeView {
         return this._rootNodes.length > 0;
     }
   }
-  _validateMetaModelForStoreysHierarchy(level = 0, ctx, buildingNode) {
+  _validateMetaModelForStoreysHierarchy(level = 0, ctx2, buildingNode) {
     return true;
   }
   _createEnabledNodes() {
@@ -205426,6 +205908,7 @@ __export(studio_exports, {
   createDefaultLoaderRegistry: () => createDefaultLoaderRegistry,
   dialogs: () => dialogs_exports,
   menus: () => contextMenus_exports,
+  optimizedSetFromIndex: () => optimizedSetFromIndex,
   panels: () => panels_exports,
   picking: () => picking_exports2,
   sectionPlanesTool: () => sectionPlanesTool_exports,
@@ -206015,9 +206498,9 @@ var FloatingPanelBase = class {
   beginHeaderDragFromPointer(ev, panelOffsetX, panelOffsetY) {
     if (this._destroyed)
       return;
-    const w = this._panel.offsetWidth || 480;
-    const h = this._panel.offsetHeight || 360;
-    const offX = panelOffsetX ?? Math.min(w / 2, 120);
+    const w2 = this._panel.offsetWidth || 480;
+    const h2 = this._panel.offsetHeight || 360;
+    const offX = panelOffsetX ?? Math.min(w2 / 2, 120);
     const offY = panelOffsetY ?? 14;
     this._dragOffsetX = offX;
     this._dragOffsetY = offY;
@@ -206174,15 +206657,15 @@ var FloatingPanelBase = class {
   }
   _clampToViewport() {
     if (isPixelLength(this._panel.style.width)) {
-      const w = parseFloat(this._panel.style.width);
+      const w2 = parseFloat(this._panel.style.width);
       const maxW = Math.max(this._minWidth, window.innerWidth);
-      if (w > maxW)
+      if (w2 > maxW)
         this._panel.style.width = maxW + "px";
     }
     if (isPixelLength(this._panel.style.height)) {
-      const h = parseFloat(this._panel.style.height);
+      const h2 = parseFloat(this._panel.style.height);
       const maxH = Math.max(this._minHeight, window.innerHeight);
-      if (h > maxH)
+      if (h2 > maxH)
         this._panel.style.height = maxH + "px";
     }
     if (!isPixelLength(this._panel.style.left))
@@ -210891,15 +211374,23 @@ var LoaderRegistry = class {
 
 // ../sdk/src/studio/loading/ModelLocator.ts
 var DefaultModelLocator = class {
-  constructor(modelsDir, extensions) {
+  constructor(modelsDir, extensions, optimized) {
     this.modelsDir = modelsDir;
     this.extensions = new Map(Object.entries(extensions ?? DEFAULT_EXTENSIONS));
+    this.optimized = optimized ?? null;
   }
   /**
    * Filename extension per format key. Override via constructor to
    * add new formats or change defaults without subclassing.
    */
   extensions;
+  /**
+   * `${modelId}/${format}` pairs that have an optimized variant
+   * (`model.optimized.{ext}`) beside the original. `null` until learned —
+   * supplied via the constructor, or loaded from the catalog by {@link preload}.
+   */
+  optimized;
+  preloaded = false;
   resolve(modelId, format) {
     const ext = this.extensions.get(format);
     if (!ext) {
@@ -210907,17 +211398,57 @@ var DefaultModelLocator = class {
         `[DefaultModelLocator] No filename extension registered for format '${format}'`
       );
     }
-    return `${this.modelsDir}/${modelId}/${format}/model.${ext}`;
+    const file = this.optimized && this.optimized.has(`${modelId}/${format}`) ? `model.optimized.${ext}` : `model.${ext}`;
+    return `${this.modelsDir}/${modelId}/${format}/${file}`;
   }
   resolveSidecar(modelId, fileName) {
     return `${this.modelsDir}/${modelId}/${fileName}`;
   }
+  /**
+   * Learn which `(modelId, format)` pairs have an optimized variant by reading
+   * the demo catalog `{modelsDir}/index.json` (written by the website's
+   * `buildIndex.js`, which records an `optimized: string[]` of formats per
+   * model). Runs once; never throws — if the catalog or `fetch` is unavailable,
+   * resolution simply stays on the originals. Skipped when an optimized set was
+   * supplied explicitly via the constructor.
+   */
+  async preload() {
+    if (this.preloaded) {
+      return;
+    }
+    this.preloaded = true;
+    if (this.optimized || typeof fetch !== "function") {
+      return;
+    }
+    try {
+      const res = await fetch(`${this.modelsDir}/index.json`, { cache: "no-cache" });
+      if (!res.ok) {
+        return;
+      }
+      this.optimized = optimizedSetFromIndex(await res.json());
+    } catch {
+    }
+  }
 };
+function optimizedSetFromIndex(index) {
+  const set = /* @__PURE__ */ new Set();
+  for (const modelId of Object.keys(index ?? {})) {
+    for (const format of index[modelId]?.optimized ?? []) {
+      set.add(`${modelId}/${format}`);
+    }
+  }
+  return set;
+}
 var DEFAULT_EXTENSIONS = {
   xgf: "xgf",
   ifc: "ifc",
   gltf: "glb",
   fbx: "fbx",
+  usdz: "usdz",
+  e57: "e57",
+  las: "las",
+  laz: "laz",
+  fds: "fds",
   mtl: "mtl",
   obj: "obj",
   splat: "splat",
@@ -210968,6 +211499,20 @@ function createDefaultLoaderRegistry() {
     needsData: false,
     load: (input, options) => new USDZLoader().load(input, options)
   });
+  r.register("e57", {
+    fetch: "arrayBuffer",
+    needsScene: true,
+    needsData: true,
+    load: (input, options) => new E57Loader().load(input, options)
+  });
+  const lasDescriptor = {
+    fetch: "arrayBuffer",
+    needsScene: true,
+    needsData: true,
+    load: (input, options) => new LASLoader4().load(input, options)
+  };
+  r.register("las", lasDescriptor);
+  r.register("laz", lasDescriptor);
   r.register("splat", {
     fetch: "arrayBuffer",
     needsScene: true,
@@ -211096,8 +211641,8 @@ __export(panels_exports, {
 
 // ../sdk/src/studio/panels/PanelRegistry.ts
 var PanelRegistry = class {
-  constructor(ctx) {
-    this.ctx = ctx;
+  constructor(ctx2) {
+    this.ctx = ctx2;
   }
   providers = /* @__PURE__ */ new Map();
   /**
@@ -214486,7 +215031,7 @@ var SceneHealthPanel = class _SceneHealthPanel extends FloatingPanelBase {
     const warnings = report.warnings.length;
     const fixableCodes = this._currentFixableCodes(report);
     const fixableSet = new Set(fixableCodes);
-    const fixableWarningCount = report.warnings.filter((w) => fixableSet.has(w.code)).length;
+    const fixableWarningCount = report.warnings.filter((w2) => fixableSet.has(w2.code)).length;
     this._renderHealthCard(report, fixableCodes);
     const btn = this._fixAllBtn;
     if (fixableCodes.length > 0) {
@@ -214705,22 +215250,22 @@ var SceneHealthPanel = class _SceneHealthPanel extends FloatingPanelBase {
     summary.appendChild(content);
     det.appendChild(summary);
     const body = el("div", "xkt-sh-body");
-    const PAGE_SIZE = 25;
+    const PAGE_SIZE2 = 25;
     const total = group.issues.length;
-    const initial = Math.min(total, PAGE_SIZE);
+    const initial = Math.min(total, PAGE_SIZE2);
     for (let i = 0; i < initial; i++) {
       body.appendChild(this._buildIssueNode(group.issues[i]));
     }
-    if (total > PAGE_SIZE) {
+    if (total > PAGE_SIZE2) {
       const more = el("button", "xkt-sh-show-more", {
         type: "button",
-        textContent: `Show ${total - PAGE_SIZE} more`
+        textContent: `Show ${total - PAGE_SIZE2} more`
       });
       more.addEventListener("click", (ev) => {
         ev.stopPropagation();
         ev.preventDefault();
         const frag = document.createDocumentFragment();
-        for (let i = PAGE_SIZE; i < total; i++) {
+        for (let i = PAGE_SIZE2; i < total; i++) {
           frag.appendChild(this._buildIssueNode(group.issues[i]));
         }
         body.insertBefore(frag, more);
@@ -216943,22 +217488,22 @@ var DataHealthPanel = class _DataHealthPanel extends FloatingPanelBase {
     summary.appendChild(content);
     det.appendChild(summary);
     const body = el("div", "xkt-dh-body");
-    const PAGE_SIZE = 25;
+    const PAGE_SIZE2 = 25;
     const total = group.issues.length;
-    const initial = Math.min(total, PAGE_SIZE);
+    const initial = Math.min(total, PAGE_SIZE2);
     for (let i = 0; i < initial; i++) {
       body.appendChild(this._buildIssueNode(group.issues[i]));
     }
-    if (total > PAGE_SIZE) {
+    if (total > PAGE_SIZE2) {
       const more = el("button", "xkt-dh-show-more", {
         type: "button",
-        textContent: `Show ${total - PAGE_SIZE} more`
+        textContent: `Show ${total - PAGE_SIZE2} more`
       });
       more.addEventListener("click", (ev) => {
         ev.stopPropagation();
         ev.preventDefault();
         const frag = document.createDocumentFragment();
-        for (let i = PAGE_SIZE; i < total; i++) {
+        for (let i = PAGE_SIZE2; i < total; i++) {
           frag.appendChild(this._buildIssueNode(group.issues[i]));
         }
         body.insertBefore(frag, more);
@@ -221113,6 +221658,25 @@ var PANEL_CSS11 = `
   line-height: 1.45;
   word-break: break-word;
   white-space: pre-wrap;
+  /* The panel root sets user-select:none; re-enable it here so the error
+     text can be selected and copied. */
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: text;
+}
+.xkt-sam-panel .xkt-sam-load-error-copy {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  font: inherit;
+  font-size: 11px;
+  color: #a02020;
+  background: transparent;
+  border: 1px solid rgba(160, 32, 32, 0.35);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.xkt-sam-panel .xkt-sam-load-error-copy:hover {
+  background: rgba(160, 32, 32, 0.08);
 }
 
 /* Top-of-body status strip: shown only while a load is in
@@ -221765,6 +222329,38 @@ var SampleModelsPanel = class _SampleModelsPanel extends FloatingPanelBase {
     head.appendChild(el("span", "xkt-sam-load-error-title", {
       textContent: `Load failed: ${modelId} (${formats2.join(", ")})`
     }));
+    const copy2 = el("button", "xkt-sam-load-error-copy", {
+      type: "button",
+      "aria-label": "Copy error message",
+      title: "Copy error message",
+      textContent: "Copy"
+    });
+    copy2.addEventListener("click", () => {
+      const done = () => {
+        copy2.textContent = "Copied";
+        setTimeout(() => {
+          copy2.textContent = "Copy";
+        }, 1500);
+      };
+      const text = `Load failed: ${modelId} (${formats2.join(", ")})
+${message}`;
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(text).then(done, () => {
+        });
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand("copy");
+          done();
+        } finally {
+          ta.remove();
+        }
+      }
+    });
+    head.appendChild(copy2);
     const dismiss = el("button", "xkt-sam-load-error-dismiss", {
       type: "button",
       "aria-label": "Dismiss error",
@@ -223452,13 +224048,13 @@ function floatsToHex(r, g, b4) {
   return `#${toHex(r)}${toHex(g)}${toHex(b4)}`;
 }
 function hexToFloats(hex) {
-  let h = hex.replace(/^#/, "");
-  if (h.length === 3) {
-    h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+  let h2 = hex.replace(/^#/, "");
+  if (h2.length === 3) {
+    h2 = h2[0] + h2[0] + h2[1] + h2[1] + h2[2] + h2[2];
   }
-  const r = parseInt(h.substring(0, 2), 16) / 255;
-  const g = parseInt(h.substring(2, 4), 16) / 255;
-  const b4 = parseInt(h.substring(4, 6), 16) / 255;
+  const r = parseInt(h2.substring(0, 2), 16) / 255;
+  const g = parseInt(h2.substring(2, 4), 16) / 255;
+  const b4 = parseInt(h2.substring(4, 6), 16) / 255;
   return [r, g, b4];
 }
 function formatValueInline(val) {
@@ -224758,6 +225354,42 @@ var IMPORT_DATA_SETS = [
     ]
   },
   {
+    id: "usdz",
+    label: "USDZ (Pixar)",
+    defaultBasisId: "z-up",
+    loadsDataSemantics: false,
+    files: [
+      { key: "usdz", label: "USDZ file", accept: ".usdz", loadFormat: "usdz", required: true }
+    ]
+  },
+  {
+    id: "e57",
+    label: "E57 point cloud (ASTM)",
+    defaultBasisId: "z-up",
+    loadsDataSemantics: false,
+    files: [
+      { key: "e57", label: "E57 file", accept: ".e57", loadFormat: "e57", required: true }
+    ]
+  },
+  {
+    id: "laz",
+    label: "LAS / LAZ point cloud",
+    defaultBasisId: "z-up",
+    loadsDataSemantics: false,
+    files: [
+      { key: "laz", label: "LAS / LAZ file", accept: ".las,.laz", loadFormat: "laz", required: true }
+    ]
+  },
+  {
+    id: "threedxml",
+    label: "3DXML (Dassault)",
+    defaultBasisId: "y-up",
+    loadsDataSemantics: false,
+    files: [
+      { key: "threedxml", label: "3DXML file", accept: ".3dxml", loadFormat: "threedxml", required: true }
+    ]
+  },
+  {
     id: "splat",
     label: "3D Gaussian Splatting (.splat)",
     defaultBasisId: "y-down",
@@ -224867,6 +225499,14 @@ var IMPORT_DATA_SETS = [
     defaultBasisId: "z-up",
     files: [
       { key: "cityjson", label: "CityJSON file", accept: ".json", loadFormat: "cityjson", required: true }
+    ]
+  },
+  {
+    id: "fds",
+    label: "FDS (Fire Dynamics Simulator)",
+    defaultBasisId: "z-up",
+    files: [
+      { key: "fds", label: "FDS file", accept: ".fds", loadFormat: "fds", required: true }
     ]
   }
 ];
@@ -225769,6 +226409,28 @@ var DATASET_PARAMS = {
       help: "Filename for the glTF binary (.glb) download."
     }
   ],
+  "fbx": [
+    {
+      id: "fbxFileName",
+      label: "FBX Filename",
+      type: "string",
+      default: "{id}.fbx",
+      applyTo: [],
+      filenameFor: "fbx",
+      help: "Filename for the FBX download. `{id}` substitutes the SceneModel id."
+    }
+  ],
+  "usdz": [
+    {
+      id: "usdzFileName",
+      label: "USDZ Filename",
+      type: "string",
+      default: "{id}.usdz",
+      applyTo: [],
+      filenameFor: "usdz",
+      help: "Filename for the USDZ download. `{id}` substitutes the SceneModel id."
+    }
+  ],
   "splat": [
     {
       id: "splatFileName",
@@ -225876,7 +226538,77 @@ var DATASET_PARAMS = {
       filenameFor: "datamodel",
       help: "Filename for the DataModel JSON download."
     }
+  ],
+  "xkt": [
+    {
+      id: "xktFileName",
+      label: "XKT Filename",
+      type: "string",
+      default: "{id}.xkt",
+      applyTo: [],
+      filenameFor: "xkt",
+      help: "Filename for the XKT download. `{id}` substitutes the SceneModel id."
+    }
+  ],
+  "metamodel": [
+    {
+      id: "metaModelFileName",
+      label: "MetaModel JSON Filename",
+      type: "string",
+      default: "{id}.metamodel.json",
+      applyTo: [],
+      filenameFor: "metamodel",
+      help: "Filename for the legacy MetaModel JSON download."
+    }
   ]
+};
+var FORMAT_OPTIONS = {
+  svg: [
+    {
+      id: "projectionPlane",
+      label: "Projection Plane",
+      type: "select",
+      default: "XY",
+      options: [
+        { value: "XY", label: "XY \u2014 drop world Z (plan/drawing)" },
+        { value: "XZ", label: "XZ \u2014 drop world Y (plan, Y-up scenes)" },
+        { value: "YZ", label: "YZ \u2014 drop world X (elevation)" }
+      ],
+      applyTo: ["svg"],
+      help: "World plane projected onto the 2D SVG. The first axis maps to SVG X, the second to SVG Y."
+    },
+    {
+      id: "flipY",
+      label: "Flip Y",
+      type: "boolean",
+      default: true,
+      applyTo: ["svg"],
+      help: "Negate the projected Y so world +Y reads up. Turn off to keep SVG's native +Y-down."
+    },
+    {
+      id: "scale",
+      label: "Scale",
+      type: "number",
+      default: 1,
+      applyTo: ["svg"],
+      help: "Scene-units \u2192 SVG user-units multiplier (e.g. 0.02 for 1:50)."
+    },
+    {
+      id: "padding",
+      label: "Padding",
+      type: "number",
+      default: 5,
+      applyTo: ["svg"],
+      help: "Margin (scene units, pre-scale) around the model's bounds in the viewBox."
+    }
+  ]
+};
+var VERSION_HELP = {
+  xgf: {
+    "1.0.0": "Geometry + per-mesh vertex colour only \u2014 no materials or textures.",
+    "1.1.0": "Adds PBR materials, textures (image bytes + samplers), normals and UVs.",
+    "1.2.0": "Adds 3D Gaussian-splat geometry (per-splat scale + rotation)."
+  }
 };
 var STYLE_TAG_ID17 = "xkt-exp-styles";
 var _stylesInjected18 = false;
@@ -226297,6 +227029,7 @@ var DIALOG_CSS2 = `
 }
 .xkt-exp-dialog .xkt-exp-param-control--str { width: 100%; min-width: 8ch; }
 .xkt-exp-dialog .xkt-exp-param-control--num { width: 14ch; font-variant-numeric: tabular-nums; }
+.xkt-exp-dialog .xkt-exp-param-control--select { width: 100%; min-width: 12ch; cursor: pointer; background: #fff; }
 .xkt-exp-dialog .xkt-exp-param-control--bool {
   appearance: auto;
   width: 14px;
@@ -226362,6 +227095,23 @@ var ExportDialog = class _ExportDialog extends FloatingPanelBase {
    * doesn't reset the user's parameter edits.
    */
   _datasetParamValues = {};
+  /**
+   * Per-format selected schema version, keyed by format id. Populated
+   * lazily with the exporter's default when a multi-version format is
+   * first shown; persists across chip/model changes.
+   */
+  _formatVersions = {};
+  /**
+   * Per-format exporter-option values, keyed by format id → option id.
+   * Feeds {@link FORMAT_OPTIONS} values into the exporter's `options`.
+   */
+  _formatOptionValues = {};
+  /**
+   * Cache of `{versions, defaultVersion}` per format id, read once from
+   * a throwaway exporter instance so the version selector doesn't rebuild
+   * one on every render.
+   */
+  _formatVersionsCache = {};
   // Lifecycle state.
   _listenersAttached = false;
   _refreshScheduled = false;
@@ -226727,15 +227477,9 @@ var ExportDialog = class _ExportDialog extends FloatingPanelBase {
     for (const desc of DEFAULT_DATASET_TYPES) {
       if (!this._selectedDatasets.has(desc))
         continue;
-      const defs = DATASET_PARAMS[desc];
-      if (!defs || defs.length === 0)
-        continue;
-      const block = el("div", "xkt-exp-param-block");
-      block.appendChild(el("div", "xkt-exp-param-block-label", {
-        textContent: humanReadableDatasetLabel(desc, parseDatasetFormats2(desc)),
-        title: desc
-      }));
+      const defs = DATASET_PARAMS[desc] || [];
       const grid = el("div", "xkt-exp-param-grid");
+      let rows = 0;
       for (const def of defs) {
         const valueRow = this._datasetParamValues[desc] ||= {};
         if (!(def.id in valueRow)) {
@@ -226743,25 +227487,49 @@ var ExportDialog = class _ExportDialog extends FloatingPanelBase {
         }
         const labelCell = el("label", "xkt-exp-param-label", { textContent: def.label });
         const inputCell = el("div", "xkt-exp-param-input");
-        inputCell.appendChild(this._mkParamInput(desc, def));
+        inputCell.appendChild(this._mkParamInput(valueRow, def));
         if (def.help) {
           inputCell.appendChild(el("div", "xkt-exp-param-help", { textContent: def.help }));
         }
         grid.append(labelCell, inputCell);
+        rows++;
       }
+      for (const formatId2 of parseDatasetFormats2(desc)) {
+        rows += this._renderFormatControls(grid, formatId2);
+      }
+      if (rows === 0)
+        continue;
+      const block = el("div", "xkt-exp-param-block");
+      block.appendChild(el("div", "xkt-exp-param-block-label", {
+        textContent: humanReadableDatasetLabel(desc, parseDatasetFormats2(desc)),
+        title: desc
+      }));
       block.appendChild(grid);
       this._paramsListEl.appendChild(block);
       blocks++;
     }
     this._paramsSectionEl.style.display = blocks > 0 ? "" : "none";
   }
-  _mkParamInput(desc, def) {
-    const valueRow = this._datasetParamValues[desc];
+  _mkParamInput(valueRow, def, onChange) {
+    if (def.type === "select") {
+      const sel = el("select", "xkt-exp-param-control xkt-exp-param-control--select");
+      for (const opt of def.options || []) {
+        const o = el("option", "", { value: opt.value, textContent: opt.label });
+        sel.appendChild(o);
+      }
+      sel.value = String(valueRow[def.id] ?? def.default ?? "");
+      sel.addEventListener("change", () => {
+        valueRow[def.id] = sel.value;
+        onChange?.();
+      });
+      return sel;
+    }
     if (def.type === "boolean") {
       const inp2 = el("input", "xkt-exp-param-control xkt-exp-param-control--bool", { type: "checkbox" });
       inp2.checked = !!valueRow[def.id];
       inp2.addEventListener("change", () => {
         valueRow[def.id] = inp2.checked;
+        onChange?.();
       });
       return inp2;
     }
@@ -226774,6 +227542,7 @@ var ExportDialog = class _ExportDialog extends FloatingPanelBase {
       inp2.addEventListener("change", () => {
         const n = parseFloat(inp2.value);
         valueRow[def.id] = Number.isFinite(n) ? n : null;
+        onChange?.();
       });
       return inp2;
     }
@@ -226781,8 +227550,94 @@ var ExportDialog = class _ExportDialog extends FloatingPanelBase {
     inp.value = String(valueRow[def.id] ?? "");
     inp.addEventListener("input", () => {
       valueRow[def.id] = inp.value;
+      onChange?.();
     });
     return inp;
+  }
+  /**
+   * Returns the registered schema versions + default for a format id,
+   * cached. Reads them from a throwaway exporter instance.
+   */
+  _formatVersionsFor(formatId2) {
+    let cached = this._formatVersionsCache[formatId2];
+    if (!cached) {
+      const entry = FORMAT_REGISTRY[formatId2];
+      let versions = [];
+      let defaultVersion = "";
+      try {
+        const exporter = entry?.build(this.studio);
+        versions = exporter?.versions || [];
+        defaultVersion = exporter?.defaultVersion || versions[0] || "";
+      } catch {
+      }
+      cached = { versions, defaultVersion };
+      this._formatVersionsCache[formatId2] = cached;
+    }
+    return cached;
+  }
+  /**
+   * Selected version for a format id, or `""` for Auto (unpinned — let the
+   * exporter decide / auto-promote).
+   */
+  _versionForFormat(formatId2) {
+    return this._formatVersions[formatId2] ?? "";
+  }
+  /**
+   * Append version selector + per-format option controls for one format
+   * id into `grid`. Returns the number of rows added so the caller knows
+   * whether the block has any content.
+   */
+  _renderFormatControls(grid, formatId2) {
+    let rows = 0;
+    const label = FORMAT_REGISTRY[formatId2]?.label || formatId2.toUpperCase();
+    const { versions, defaultVersion } = this._formatVersionsFor(formatId2);
+    if (versions.length > 1) {
+      if (this._formatVersions[formatId2] === void 0) {
+        this._formatVersions[formatId2] = "";
+      }
+      const selected = this._versionForFormat(formatId2);
+      const def = {
+        id: formatId2,
+        label: `${label} Version`,
+        type: "select",
+        default: "",
+        options: [
+          { value: "", label: `Auto (recommended) \u2014 ${defaultVersion} or newer if needed` },
+          ...versions.map((v) => ({ value: v, label: v === defaultVersion ? `${v} (default)` : v }))
+        ],
+        applyTo: [],
+        help: selected ? VERSION_HELP[formatId2]?.[selected] : "Lets the exporter choose the version, promoting to a newer one when the model needs it (e.g. textures, splats)."
+      };
+      grid.append(
+        el("label", "xkt-exp-param-label", { textContent: def.label }),
+        this._mkFormatInputCell(def, this._formatVersions, () => this._renderParams())
+      );
+      rows++;
+    }
+    const optionDefs = FORMAT_OPTIONS[formatId2] || [];
+    const version2 = this._versionForFormat(formatId2);
+    const valueRow = this._formatOptionValues[formatId2] ||= {};
+    for (const def of optionDefs) {
+      if (def.versions && !def.versions.includes(version2))
+        continue;
+      if (!(def.id in valueRow))
+        valueRow[def.id] = def.default;
+      grid.append(
+        el("label", "xkt-exp-param-label", { textContent: def.label }),
+        this._mkFormatInputCell(def, valueRow)
+      );
+      rows++;
+    }
+    return rows;
+  }
+  /** Builds the input + help cell for a format-level param. */
+  _mkFormatInputCell(def, valueRow, onChange) {
+    const inputCell = el("div", "xkt-exp-param-input");
+    inputCell.appendChild(this._mkParamInput(valueRow, def, onChange));
+    if (def.help) {
+      inputCell.appendChild(el("div", "xkt-exp-param-help", { textContent: def.help }));
+    }
+    return inputCell;
   }
   // ── Status + progress ─────────────────────────────────────────
   _setStatus(text, kind) {
@@ -226824,9 +227679,7 @@ var ExportDialog = class _ExportDialog extends FloatingPanelBase {
    */
   _buildOptionsForFormatId(desc, formatId2, subjectId) {
     const out = {};
-    const defs = DATASET_PARAMS[desc];
-    if (!defs || defs.length === 0)
-      return out;
+    const defs = DATASET_PARAMS[desc] || [];
     const valueRow = this._datasetParamValues[desc] || {};
     for (const def of defs) {
       if (!def.applyTo.includes(formatId2))
@@ -226837,6 +227690,19 @@ var ExportDialog = class _ExportDialog extends FloatingPanelBase {
       if (typeof v === "string")
         v = v.replace(/\{id\}/g, subjectId);
       if (typeof v === "string" && v.length === 0)
+        continue;
+      out[def.id] = v;
+    }
+    const optionDefs = FORMAT_OPTIONS[formatId2] || [];
+    const optionRow = this._formatOptionValues[formatId2] || {};
+    const version2 = this._versionForFormat(formatId2);
+    for (const def of optionDefs) {
+      if (def.versions && !def.versions.includes(version2))
+        continue;
+      let v = optionRow[def.id];
+      if (v === void 0 || v === null)
+        v = def.default;
+      if (v === void 0 || v === null)
         continue;
       out[def.id] = v;
     }
@@ -226922,6 +227788,9 @@ var ExportDialog = class _ExportDialog extends FloatingPanelBase {
             modelId,
             entry,
             options: this._buildOptionsForFormatId(desc, id, subjectId),
+            // "" (Auto) → undefined, so the exporter's default / auto-promotion
+            // applies; an explicit choice pins that version.
+            version: this._versionForFormat(id) || void 0,
             filename: filename2
           });
         }
@@ -226944,7 +227813,8 @@ var ExportDialog = class _ExportDialog extends FloatingPanelBase {
         const exporter = t.entry.build(this.studio);
         const raw = await exporter.write({
           sceneModel: t.sceneModel,
-          dataModel: t.dataModel
+          dataModel: t.dataModel,
+          version: t.version
         }, t.options);
         const bytes = t.entry.toBytes(raw);
         downloadBlob(new Blob([bytes], { type: t.entry.mime }), filename2);
@@ -230135,8 +231005,8 @@ var DataTexturesPanel = class _DataTexturesPanel extends FloatingPanelBase {
       textContent: isAtlas ? "TextureAtlas Details" : "DataTexture Details"
     }));
     if (!isAtlas) {
-      const canvas2 = this._getOrBuildPreview(row.obj);
-      wrap.appendChild(canvas2);
+      const canvas3 = this._getOrBuildPreview(row.obj);
+      wrap.appendChild(canvas3);
       wrap.appendChild(el("div", "xkt-dtx-preview-hint", {
         textContent: "Preview shows CPU buffer occupancy mapped to texels; unused capacity is dimmed."
       }));
@@ -230154,14 +231024,14 @@ var DataTexturesPanel = class _DataTexturesPanel extends FloatingPanelBase {
     const cached = this._previewCache.get(tex);
     if (cached)
       return cached;
-    const canvas2 = document.createElement("canvas");
-    canvas2.className = "xkt-dtx-preview";
-    this._previewCache.set(tex, canvas2);
+    const canvas3 = document.createElement("canvas");
+    canvas3.className = "xkt-dtx-preview";
+    this._previewCache.set(tex, canvas3);
     requestAnimationFrame(() => {
-      const targetW = Math.max(120, canvas2.clientWidth || 600);
-      renderTexturePreview(tex, canvas2, targetW);
+      const targetW = Math.max(120, canvas3.clientWidth || 600);
+      renderTexturePreview(tex, canvas3, targetW);
     });
-    return canvas2;
+    return canvas3;
   }
   // ── JSON modal ────────────────────────────────────────────────
   _openJsonModal(obj, title) {
@@ -230345,14 +231215,14 @@ function readRowStats(row) {
 function textureDetailSections(tex) {
   const used = toNumber(tex?.numItems);
   const cap = toNumber(tex?.maxItems);
-  const w = toNumber(tex?.width);
-  const h = toNumber(tex?.height);
+  const w2 = toNumber(tex?.width);
+  const h2 = toNumber(tex?.height);
   const tpi = toNumber(tex?.texelsPerItem);
   const ept = toNumber(tex?.elementsPerTexel);
   const epi = toNumber(tex?.elementsPerItem);
   const bpt = toNumber(tex?.bytesPerTexel);
   const isb = toNumber(tex?.itemSizeInBytes);
-  const totalTexels = Math.max(0, w * h);
+  const totalTexels = Math.max(0, w2 * h2);
   const usedTexels = Math.max(0, Math.min(totalTexels, used * Math.max(1, tpi)));
   const allocBytes = toNumber(tex?.getAllocatedBytes?.());
   const usedBytes = toNumber(tex?.getUsedBytes?.());
@@ -230373,7 +231243,7 @@ function textureDetailSections(tex) {
     capacity.push(["Used", fmtBytes(usedBytes)]);
   const layout = [
     ["Description", String(tex?.description || "")],
-    ["Width \xD7 Height", `${w.toLocaleString()} \xD7 ${h.toLocaleString()}`],
+    ["Width \xD7 Height", `${w2.toLocaleString()} \xD7 ${h2.toLocaleString()}`],
     ["Texels / item", tpi.toLocaleString()],
     ["Elements / texel", ept.toLocaleString()],
     ["Elements / item", epi.toLocaleString()],
@@ -230389,7 +231259,7 @@ function textureDetailSections(tex) {
   const buffer = [
     ["Buffer class", bufferClass || "(unknown)"],
     ["Buffer length", bufferLen.toLocaleString()],
-    ["Expected length", (w * h * Math.max(1, ept)).toLocaleString()]
+    ["Expected length", (w2 * h2 * Math.max(1, ept)).toLocaleString()]
   ];
   const runtime = [
     ["Last upload (ms)", toNumber(tex?.lastUploadTimeMS).toFixed(3)],
@@ -230513,35 +231383,35 @@ function heatColor(t) {
   const hue = 120 * (1 - c2);
   return `hsl(${hue} 80% 45%)`;
 }
-function renderTexturePreview(tex, canvas2, targetW) {
-  const w = Math.max(1, toNumber(tex?.width));
-  const h = Math.max(1, toNumber(tex?.height));
+function renderTexturePreview(tex, canvas3, targetW) {
+  const w2 = Math.max(1, toNumber(tex?.width));
+  const h2 = Math.max(1, toNumber(tex?.height));
   const ept = Math.max(1, toNumber(tex?.elementsPerTexel, 1));
   const buffer = tex?.buffer;
-  const aspect = h / w;
+  const aspect = h2 / w2;
   const targetH = 10 * Math.max(1, Math.round(targetW * aspect));
-  const ctx = canvas2.getContext("2d");
-  canvas2.width = targetW;
-  canvas2.height = targetH;
-  if (!ctx || !buffer || typeof buffer.length !== "number" || w <= 0 || h <= 0) {
-    if (ctx) {
-      ctx.clearRect(0, 0, targetW, targetH);
-      ctx.fillStyle = "rgba(0,0,0,0.05)";
-      ctx.fillRect(0, 0, targetW, targetH);
-      ctx.fillStyle = "rgba(0,0,0,0.35)";
-      ctx.font = "10px system-ui";
-      ctx.fillText("n/a", 6, 14);
-      ctx.strokeStyle = "rgba(0,0,0,0.12)";
-      ctx.strokeRect(0.5, 0.5, targetW - 1, targetH - 1);
+  const ctx2 = canvas3.getContext("2d");
+  canvas3.width = targetW;
+  canvas3.height = targetH;
+  if (!ctx2 || !buffer || typeof buffer.length !== "number" || w2 <= 0 || h2 <= 0) {
+    if (ctx2) {
+      ctx2.clearRect(0, 0, targetW, targetH);
+      ctx2.fillStyle = "rgba(0,0,0,0.05)";
+      ctx2.fillRect(0, 0, targetW, targetH);
+      ctx2.fillStyle = "rgba(0,0,0,0.35)";
+      ctx2.font = "10px system-ui";
+      ctx2.fillText("n/a", 6, 14);
+      ctx2.strokeStyle = "rgba(0,0,0,0.12)";
+      ctx2.strokeRect(0.5, 0.5, targetW - 1, targetH - 1);
     }
     return;
   }
-  const totalTexels = w * h;
+  const totalTexels = w2 * h2;
   const usedTexels = Math.max(
     0,
     Math.min(totalTexels, toNumber(tex?.numItems) * toNumber(tex?.texelsPerItem, 1))
   );
-  const img = ctx.createImageData(targetW, targetH);
+  const img = ctx2.createImageData(targetW, targetH);
   const data2 = img.data;
   const abs = Math.abs;
   const eps = 1e-12;
@@ -230557,10 +231427,10 @@ function renderTexturePreview(tex, canvas2, targetW) {
     return 0;
   };
   for (let py = 0; py < targetH; py++) {
-    const yy = Math.floor(py / targetH * h);
+    const yy = Math.floor(py / targetH * h2);
     for (let px = 0; px < targetW; px++) {
-      const xx = Math.floor(px / targetW * w);
-      const texelIndex = yy * w + xx;
+      const xx = Math.floor(px / targetW * w2);
+      const texelIndex = yy * w2 + xx;
       const occ = occupied(texelIndex) === 1;
       let r = 0, g = 0, b4 = 0, a2 = 255;
       if (occ) {
@@ -230587,18 +231457,18 @@ function renderTexturePreview(tex, canvas2, targetW) {
       data2[i + 3] = a2;
     }
   }
-  ctx.putImageData(img, 0, 0);
-  ctx.globalCompositeOperation = "destination-over";
+  ctx2.putImageData(img, 0, 0);
+  ctx2.globalCompositeOperation = "destination-over";
   const s = 8;
   for (let y = 0; y < targetH; y += s) {
     for (let x = 0; x < targetW; x += s) {
-      ctx.fillStyle = (x / s + y / s) % 2 === 0 ? "rgba(0,0,0,0.05)" : "rgba(0,0,0,0.10)";
-      ctx.fillRect(x, y, s, s);
+      ctx2.fillStyle = (x / s + y / s) % 2 === 0 ? "rgba(0,0,0,0.05)" : "rgba(0,0,0,0.10)";
+      ctx2.fillRect(x, y, s, s);
     }
   }
-  ctx.globalCompositeOperation = "source-over";
-  ctx.strokeStyle = "rgba(0,0,0,0.22)";
-  ctx.strokeRect(0.5, 0.5, targetW - 1, targetH - 1);
+  ctx2.globalCompositeOperation = "source-over";
+  ctx2.strokeStyle = "rgba(0,0,0,0.22)";
+  ctx2.strokeRect(0.5, 0.5, targetW - 1, targetH - 1);
 }
 
 // ../sdk/src/studio/panels/rendererPanel/RendererPanel.ts
@@ -233324,7 +234194,7 @@ var CameraTourPanel = class _CameraTourPanel extends FloatingPanelBase {
     const meta = el("div", "xkt-ct-row-meta");
     if (rec?.tour) {
       const tour = rec.tour;
-      const roomCount = tour.waypoints.filter((w) => w.spaceId !== void 0).length;
+      const roomCount = tour.waypoints.filter((w2) => w2.spaceId !== void 0).length;
       const durSec = (tour.estimatedDurationMs / 1e3).toFixed(1);
       meta.append(
         el("span", void 0, { textContent: `${roomCount} rooms \xB7 ${durSec}s` })
@@ -237464,8 +238334,8 @@ var VolumeOverlayPanel = class _VolumeOverlayPanel extends FloatingPanelBase {
       return;
     }
     const file = result.value;
-    for (const w of file.warnings) {
-      this._studio?.reportWarning(w, 6 /* NotSupported */);
+    for (const w2 of file.warnings) {
+      this._studio?.reportWarning(w2, 6 /* NotSupported */);
     }
     const scalarNames = Object.keys(file.scalars);
     const vectorNames = Object.keys(file.vectors);
@@ -238768,22 +239638,22 @@ var SectionPlanesController = class _SectionPlanesController {
       throw new Error(`[SectionPlanesController] createModel failed: ${modelRes.error}`);
     }
     this.sceneModel = modelRes.value;
-    const h = this._proxyHalf;
+    const h2 = this._proxyHalf;
     const geomRes = this.sceneModel.createGeometry({
       id: "__sp.quad",
       primitive: TrianglesPrimitive,
       positions: [
-        -h,
-        -h,
+        -h2,
+        -h2,
         0,
-        h,
-        -h,
+        h2,
+        -h2,
         0,
-        h,
-        h,
+        h2,
+        h2,
         0,
-        -h,
-        h,
+        -h2,
+        h2,
         0
       ],
       indices: [0, 1, 2, 0, 2, 3]
@@ -239466,15 +240336,15 @@ var SectionPlanesPanel = class _SectionPlanesPanel extends FloatingPanelBase {
 // ../sdk/src/studio/panels/toolbar/actions/fitAll.ts
 var fitAll = {
   id: "fitAll",
-  do(ctx) {
-    if (ctx.fireAction("fitAll"))
+  do(ctx2) {
+    if (ctx2.fireAction("fitAll"))
       return;
-    const aabb = ctx.sceneAabb();
+    const aabb = ctx2.sceneAabb();
     if (!aabb) {
       console.warn("[Toolbar] fitAll \u2014 no scene AABB available.");
       return;
     }
-    const flight = ctx.cameraFlight();
+    const flight = ctx2.cameraFlight();
     if (!flight) {
       console.warn("[Toolbar] fitAll \u2014 no CameraFlight on the active View.");
       return;
@@ -239492,80 +240362,80 @@ var fitAll = {
 // ../sdk/src/studio/panels/toolbar/actions/importModel.ts
 var importModel = {
   id: "importModel",
-  do(ctx) {
-    if (ctx.fireAction("importModel"))
+  do(ctx2) {
+    if (ctx2.fireAction("importModel"))
       return;
-    if (!ctx.studio) {
+    if (!ctx2.studio) {
       console.warn("[Toolbar] importModel \u2014 no Studio passed; nothing to load into.");
       return;
     }
-    ImportDialog.openFor({ studio: ctx.studio });
+    ImportDialog.openFor({ studio: ctx2.studio });
   }
 };
 
 // ../sdk/src/studio/panels/toolbar/actions/importSampleModel.ts
 var importSampleModel = {
   id: "importSampleModel",
-  do(ctx) {
-    if (ctx.fireAction("importSampleModel"))
+  do(ctx2) {
+    if (ctx2.fireAction("importSampleModel"))
       return;
-    if (!ctx.studio) {
+    if (!ctx2.studio) {
       console.warn("[Toolbar] importSampleModel \u2014 no Studio passed; nothing to load into.");
       return;
     }
-    ctx.studio.panels.open("sampleModels");
+    ctx2.studio.panels.open("sampleModels");
   }
 };
 
 // ../sdk/src/studio/panels/toolbar/actions/openCameraTour.ts
 var openCameraTour = {
   id: "openCameraTour",
-  do(ctx) {
-    if (ctx.fireAction("openCameraTour"))
+  do(ctx2) {
+    if (ctx2.fireAction("openCameraTour"))
       return;
-    if (!ctx.studio) {
+    if (!ctx2.studio) {
       console.warn("[Toolbar] openCameraTour \u2014 no Studio passed; nothing to drive Camera Tour panel from.");
       return;
     }
-    ctx.studio.panels.open("cameraTourPanel");
+    ctx2.studio.panels.open("cameraTourPanel");
   }
 };
 
 // ../sdk/src/studio/panels/toolbar/actions/openCulling.ts
 var openCulling = {
   id: "openCulling",
-  do(ctx) {
-    if (ctx.fireAction("openCulling"))
+  do(ctx2) {
+    if (ctx2.fireAction("openCulling"))
       return;
-    if (!ctx.studio) {
+    if (!ctx2.studio) {
       console.warn("[Toolbar] openCulling \u2014 no Studio passed; nothing to drive the Culling panel from.");
       return;
     }
-    ctx.studio.panels.open("cullingPanel");
+    ctx2.studio.panels.open("cullingPanel");
   }
 };
 
 // ../sdk/src/studio/panels/toolbar/actions/openAdaptiveQuality.ts
 var openAdaptiveQuality = {
   id: "openAdaptiveQuality",
-  do(ctx) {
-    if (ctx.fireAction("openAdaptiveQuality"))
+  do(ctx2) {
+    if (ctx2.fireAction("openAdaptiveQuality"))
       return;
-    if (!ctx.studio) {
+    if (!ctx2.studio) {
       console.warn("[Toolbar] openAdaptiveQuality \u2014 no Studio passed; nothing to drive the Adaptive Quality panel from.");
       return;
     }
-    ctx.studio.panels.open("adaptiveQualityPanel");
+    ctx2.studio.panels.open("adaptiveQualityPanel");
   }
 };
 
 // ../sdk/src/studio/panels/toolbar/actions/loseContext.ts
 var loseContext = {
   id: "loseContext",
-  do(ctx) {
-    if (ctx.fireAction("loseContext"))
+  do(ctx2) {
+    if (ctx2.fireAction("loseContext"))
       return;
-    const renderer = ctx.studio?.renderer;
+    const renderer = ctx2.studio?.renderer;
     if (!renderer) {
       console.warn("[Toolbar] loseContext \u2014 no Studio renderer available.");
       return;
@@ -239577,105 +240447,105 @@ var loseContext = {
 // ../sdk/src/studio/panels/toolbar/actions/openDaylightAnalysis.ts
 var openDaylightAnalysis = {
   id: "openDaylightAnalysis",
-  do(ctx) {
-    if (ctx.fireAction("openDaylightAnalysis"))
+  do(ctx2) {
+    if (ctx2.fireAction("openDaylightAnalysis"))
       return;
-    if (!ctx.studio) {
+    if (!ctx2.studio) {
       console.warn("[Toolbar] openDaylightAnalysis \u2014 no Studio passed; nothing to drive Daylight Analysis panel from.");
       return;
     }
-    const panel = ctx.studio.panels.toggle("daylightAnalysisPanel");
+    const panel = ctx2.studio.panels.toggle("daylightAnalysisPanel");
     if (panel)
-      ctx.bindPanelSync(panel, "openDaylightAnalysis");
+      ctx2.bindPanelSync(panel, "openDaylightAnalysis");
   }
 };
 
 // ../sdk/src/studio/panels/toolbar/actions/openDrawings.ts
 var openDrawings = {
   id: "openDrawings",
-  do(ctx) {
-    if (ctx.fireAction("openDrawings"))
+  do(ctx2) {
+    if (ctx2.fireAction("openDrawings"))
       return;
-    if (!ctx.studio) {
+    if (!ctx2.studio) {
       console.warn("[Toolbar] openDrawings \u2014 no Studio passed; nothing to drive Drawings panel from.");
       return;
     }
-    ctx.studio.panels.open("drawingsPanel");
+    ctx2.studio.panels.open("drawingsPanel");
   }
 };
 
 // ../sdk/src/studio/panels/toolbar/actions/openExport.ts
 var openExport = {
   id: "openExport",
-  do(ctx) {
-    if (ctx.fireAction("openExport"))
+  do(ctx2) {
+    if (ctx2.fireAction("openExport"))
       return;
-    if (!ctx.studio) {
+    if (!ctx2.studio) {
       console.warn("[Toolbar] openExport \u2014 no Studio passed; nothing to export.");
       return;
     }
-    ctx.studio.panels.open("exportDialog");
+    ctx2.studio.panels.open("exportDialog");
   }
 };
 
 // ../sdk/src/studio/panels/toolbar/actions/openSchemaMaterials.ts
 var openSchemaMaterials = {
   id: "openSchemaMaterials",
-  do(ctx) {
-    if (ctx.fireAction("openSchemaMaterials"))
+  do(ctx2) {
+    if (ctx2.fireAction("openSchemaMaterials"))
       return;
-    if (!ctx.studio) {
+    if (!ctx2.studio) {
       console.warn("[Toolbar] openSchemaMaterials \u2014 no Studio passed; nothing to drive Schema Materials panel from.");
       return;
     }
-    ctx.studio.panels.open("schemaMaterials");
+    ctx2.studio.panels.open("schemaMaterials");
   }
 };
 
 // ../sdk/src/studio/panels/toolbar/actions/openSunStudy.ts
 var openSunStudy = {
   id: "openSunStudy",
-  do(ctx) {
-    if (ctx.fireAction("openSunStudy"))
+  do(ctx2) {
+    if (ctx2.fireAction("openSunStudy"))
       return;
-    if (!ctx.studio) {
+    if (!ctx2.studio) {
       console.warn("[Toolbar] openSunStudy \u2014 no Studio passed; nothing to drive Sun Study panel from.");
       return;
     }
-    const panel = ctx.studio.panels.toggle("sunStudyPanel");
+    const panel = ctx2.studio.panels.toggle("sunStudyPanel");
     if (panel)
-      ctx.bindPanelSync(panel, "openSunStudy");
+      ctx2.bindPanelSync(panel, "openSunStudy");
   }
 };
 
 // ../sdk/src/studio/panels/toolbar/actions/openVolumeOverlay.ts
 var openVolumeOverlay = {
   id: "openVolumeOverlay",
-  do(ctx) {
-    if (ctx.fireAction("openVolumeOverlay"))
+  do(ctx2) {
+    if (ctx2.fireAction("openVolumeOverlay"))
       return;
-    if (!ctx.studio) {
+    if (!ctx2.studio) {
       console.warn("[Toolbar] openVolumeOverlay \u2014 no Studio passed; nothing to drive Volume Overlay panel from.");
       return;
     }
-    const panel = ctx.studio.panels.toggle("volumeOverlayPanel");
+    const panel = ctx2.studio.panels.toggle("volumeOverlayPanel");
     if (panel)
-      ctx.bindPanelSync(panel, "openVolumeOverlay");
+      ctx2.bindPanelSync(panel, "openVolumeOverlay");
   }
 };
 
 // ../sdk/src/studio/panels/toolbar/actions/resetView.ts
 var resetView = {
   id: "resetView",
-  do(ctx) {
-    if (ctx.fireAction("resetView"))
+  do(ctx2) {
+    if (ctx2.fireAction("resetView"))
       return;
-    const aabb = ctx.sceneAabb();
+    const aabb = ctx2.sceneAabb();
     if (!aabb) {
       console.warn("[Toolbar] resetView \u2014 no scene AABB available.");
       return;
     }
-    const flight = ctx.cameraFlight();
+    const flight = ctx2.cameraFlight();
     if (!flight) {
       console.warn("[Toolbar] resetView \u2014 no CameraFlight on the active View.");
       return;
@@ -239687,10 +240557,10 @@ var resetView = {
 // ../sdk/src/studio/panels/toolbar/actions/toggle2D3D.ts
 var toggle2D3D = {
   id: "toggle2D3D",
-  do(ctx) {
-    if (ctx.fireAction("toggle2D3D"))
+  do(ctx2) {
+    if (ctx2.fireAction("toggle2D3D"))
       return;
-    const view = ctx.activeView();
+    const view = ctx2.activeView();
     const camera = view && view.camera;
     if (!camera) {
       console.warn("[Toolbar] toggle2D3D \u2014 no Camera on the active View.");
@@ -239699,13 +240569,13 @@ var toggle2D3D = {
     const wasOrtho = camera.projectionType === OrthoProjectionType;
     camera.projectionType = wasOrtho ? PerspectiveProjectionType : OrthoProjectionType;
     if (!wasOrtho) {
-      const aabb = ctx.sceneAabb();
+      const aabb = ctx2.sceneAabb();
       if (aabb) {
         const cx = (aabb[0] + aabb[3]) * 0.5;
         const cy = (aabb[1] + aabb[4]) * 0.5;
         const cz = (aabb[2] + aabb[5]) * 0.5;
         const sz = Math.max(aabb[3] - aabb[0], aabb[4] - aabb[1], aabb[5] - aabb[2]) || 10;
-        const worldUp = ctx.viewer.scene?.coordinateSystem?.worldUp;
+        const worldUp = ctx2.viewer.scene?.coordinateSystem?.worldUp;
         const zUp = !!worldUp && Math.abs(worldUp[2] ?? 0) > Math.abs(worldUp[1] ?? 0);
         try {
           if (zUp) {
@@ -239721,147 +240591,147 @@ var toggle2D3D = {
         }
       }
     }
-    ctx.setPressed("toggle2D3D", !wasOrtho);
-    ctx.setPressed("toggleProjection", !wasOrtho);
+    ctx2.setPressed("toggle2D3D", !wasOrtho);
+    ctx2.setPressed("toggleProjection", !wasOrtho);
   }
 };
 
 // ../sdk/src/studio/panels/toolbar/actions/toggleAnglePanel.ts
 var toggleAnglePanel = {
   id: "toggleAnglePanel",
-  do(ctx) {
-    if (ctx.fireAction("toggleAnglePanel"))
+  do(ctx2) {
+    if (ctx2.fireAction("toggleAnglePanel"))
       return;
-    const view = ctx.activeView();
-    if (!view || !ctx.studio) {
+    const view = ctx2.activeView();
+    if (!view || !ctx2.studio) {
       console.warn("[Toolbar] toggleAnglePanel \u2014 no active View or no Studio.");
-      ctx.setPressed("toggleAnglePanel", false);
+      ctx2.setPressed("toggleAnglePanel", false);
       return;
     }
-    const panel = ctx.studio.panels.toggle("angleMeasurementsPanel", { view });
+    const panel = ctx2.studio.panels.toggle("angleMeasurementsPanel", { view });
     if (!panel)
       return;
-    ctx.setPressed("toggleAnglePanel", panel.visible);
-    ctx.bindPanelSync(panel, "toggleAnglePanel");
+    ctx2.setPressed("toggleAnglePanel", panel.visible);
+    ctx2.bindPanelSync(panel, "toggleAnglePanel");
   }
 };
 
 // ../sdk/src/studio/panels/toolbar/actions/toggleDistancePanel.ts
 var toggleDistancePanel = {
   id: "toggleDistancePanel",
-  do(ctx) {
-    if (ctx.fireAction("toggleDistancePanel"))
+  do(ctx2) {
+    if (ctx2.fireAction("toggleDistancePanel"))
       return;
-    const view = ctx.activeView();
-    if (!view || !ctx.studio) {
+    const view = ctx2.activeView();
+    if (!view || !ctx2.studio) {
       console.warn("[Toolbar] toggleDistancePanel \u2014 no active View or no Studio.");
-      ctx.setPressed("toggleDistancePanel", false);
+      ctx2.setPressed("toggleDistancePanel", false);
       return;
     }
-    const panel = ctx.studio.panels.toggle("distanceMeasurementsPanel", { view });
+    const panel = ctx2.studio.panels.toggle("distanceMeasurementsPanel", { view });
     if (!panel)
       return;
-    ctx.setPressed("toggleDistancePanel", panel.visible);
-    ctx.bindPanelSync(panel, "toggleDistancePanel");
+    ctx2.setPressed("toggleDistancePanel", panel.visible);
+    ctx2.bindPanelSync(panel, "toggleDistancePanel");
   }
 };
 
 // ../sdk/src/studio/panels/toolbar/actions/toggleExplorer.ts
 var toggleExplorer = {
   id: "toggleExplorer",
-  do(ctx) {
-    if (ctx.fireAction("toggleExplorer"))
+  do(ctx2) {
+    if (ctx2.fireAction("toggleExplorer"))
       return;
-    if (!ctx.studio) {
+    if (!ctx2.studio) {
       console.warn("[Toolbar] toggleExplorer \u2014 no Studio passed; nothing to toggle.");
-      ctx.setPressed("toggleExplorer", false);
+      ctx2.setPressed("toggleExplorer", false);
       return;
     }
-    const existing = ExplorerPanel.getFor(ctx.studio.data);
+    const existing = ExplorerPanel.getFor(ctx2.studio.data);
     if (existing && existing.visible) {
       existing.hide();
-      ctx.setPressed("toggleExplorer", false);
-      ctx.bindPanelSync(existing, "toggleExplorer");
+      ctx2.setPressed("toggleExplorer", false);
+      ctx2.bindPanelSync(existing, "toggleExplorer");
       return;
     }
-    const panel = ctx.studio.panels.open("explorerPanel");
+    const panel = ctx2.studio.panels.open("explorerPanel");
     if (!panel) {
-      ctx.setPressed("toggleExplorer", false);
+      ctx2.setPressed("toggleExplorer", false);
       return;
     }
-    ctx.setPressed("toggleExplorer", panel.visible);
-    ctx.bindPanelSync(panel, "toggleExplorer");
+    ctx2.setPressed("toggleExplorer", panel.visible);
+    ctx2.bindPanelSync(panel, "toggleExplorer");
   }
 };
 
 // ../sdk/src/studio/panels/toolbar/actions/toggleFirstPerson.ts
 var toggleFirstPerson = {
   id: "toggleFirstPerson",
-  do(ctx) {
-    if (ctx.fireAction("toggleFirstPerson")) {
-      const vcAfter = ctx.viewController();
+  do(ctx2) {
+    if (ctx2.fireAction("toggleFirstPerson")) {
+      const vcAfter = ctx2.viewController();
       if (vcAfter) {
-        ctx.setPressed("toggleFirstPerson", vcAfter.navMode === FirstPersonNavigationMode);
+        ctx2.setPressed("toggleFirstPerson", vcAfter.navMode === FirstPersonNavigationMode);
       }
       return;
     }
-    const vc = ctx.viewController();
+    const vc = ctx2.viewController();
     if (!vc) {
       console.warn("[Toolbar] toggleFirstPerson \u2014 no ViewController registered for the active View.");
       return;
     }
     const wasFirstPerson = vc.navMode === FirstPersonNavigationMode;
     vc.navMode = wasFirstPerson ? OrbitNavigationMode : FirstPersonNavigationMode;
-    ctx.setPressed("toggleFirstPerson", !wasFirstPerson);
+    ctx2.setPressed("toggleFirstPerson", !wasFirstPerson);
   }
 };
 
 // ../sdk/src/studio/panels/toolbar/actions/toggleModels.ts
 var toggleModels = {
   id: "toggleModels",
-  do(ctx) {
-    if (ctx.fireAction("toggleModels"))
+  do(ctx2) {
+    if (ctx2.fireAction("toggleModels"))
       return;
-    if (!ctx.studio) {
+    if (!ctx2.studio) {
       console.warn("[Toolbar] toggleModels \u2014 no Studio passed; nothing to toggle.");
-      ctx.setPressed("toggleModels", false);
+      ctx2.setPressed("toggleModels", false);
       return;
     }
-    const panel = ctx.studio.panels.toggle("modelsPanel");
+    const panel = ctx2.studio.panels.toggle("modelsPanel");
     if (!panel)
       return;
-    ctx.setPressed("toggleModels", panel.visible);
-    ctx.bindPanelSync(panel, "toggleModels");
+    ctx2.setPressed("toggleModels", panel.visible);
+    ctx2.bindPanelSync(panel, "toggleModels");
   }
 };
 
 // ../sdk/src/studio/panels/toolbar/actions/toggleNavCube.ts
 var toggleNavCube = {
   id: "toggleNavCube",
-  do(ctx) {
-    if (ctx.fireAction("toggleNavCube"))
+  do(ctx2) {
+    if (ctx2.fireAction("toggleNavCube"))
       return;
-    const view = ctx.activeView();
-    if (!view || !ctx.studio) {
+    const view = ctx2.activeView();
+    if (!view || !ctx2.studio) {
       console.warn("[Toolbar] toggleNavCube \u2014 no active View or no Studio.");
-      ctx.setPressed("toggleNavCube", false);
+      ctx2.setPressed("toggleNavCube", false);
       return;
     }
-    const cube = ctx.studio.panels.toggle("navCube", { view });
+    const cube = ctx2.studio.panels.toggle("navCube", { view });
     if (!cube)
       return;
-    ctx.setPressed("toggleNavCube", cube.visible);
-    ctx.bindPanelSync(cube, "toggleNavCube");
+    ctx2.setPressed("toggleNavCube", cube.visible);
+    ctx2.bindPanelSync(cube, "toggleNavCube");
   }
 };
 
 // ../sdk/src/studio/panels/toolbar/actions/toggleProjection.ts
 var toggleProjection = {
   id: "toggleProjection",
-  do(ctx) {
-    if (ctx.fireAction("toggleProjection"))
+  do(ctx2) {
+    if (ctx2.fireAction("toggleProjection"))
       return;
-    const view = ctx.activeView();
+    const view = ctx2.activeView();
     const camera = view && view.camera;
     if (!camera) {
       console.warn("[Toolbar] toggleProjection \u2014 no Camera on the active View.");
@@ -239869,28 +240739,28 @@ var toggleProjection = {
     }
     const wasOrtho = camera.projectionType === OrthoProjectionType;
     camera.projectionType = wasOrtho ? PerspectiveProjectionType : OrthoProjectionType;
-    ctx.setPressed("toggleProjection", !wasOrtho);
+    ctx2.setPressed("toggleProjection", !wasOrtho);
     if (wasOrtho)
-      ctx.setPressed("toggle2D3D", false);
+      ctx2.setPressed("toggle2D3D", false);
   }
 };
 
 // ../sdk/src/studio/panels/toolbar/actions/toggleViews.ts
 var toggleViews = {
   id: "toggleViews",
-  do(ctx) {
-    if (ctx.fireAction("toggleViews"))
+  do(ctx2) {
+    if (ctx2.fireAction("toggleViews"))
       return;
-    if (!ctx.studio) {
+    if (!ctx2.studio) {
       console.warn("[Toolbar] toggleViews \u2014 no Studio passed; nothing to toggle.");
-      ctx.setPressed("toggleViews", false);
+      ctx2.setPressed("toggleViews", false);
       return;
     }
-    const panel = ctx.studio.panels.toggle("viewerConfig");
+    const panel = ctx2.studio.panels.toggle("viewerConfig");
     if (!panel)
       return;
-    ctx.setPressed("toggleViews", panel.visible);
-    ctx.bindPanelSync(panel, "toggleViews");
+    ctx2.setPressed("toggleViews", panel.visible);
+    ctx2.bindPanelSync(panel, "toggleViews");
   }
 };
 
@@ -241093,10 +241963,10 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
     const view = this._activeView();
     if (!view || !this.studio)
       return;
-    const canvas2 = view.htmlElement;
+    const canvas3 = view.htmlElement;
     const picker = this.studio.picking.picker;
     const handler = (e) => {
-      const rect = canvas2.getBoundingClientRect();
+      const rect = canvas3.getBoundingClientRect();
       const result = picker.pick({
         view,
         canvasPos: [e.clientX - rect.left, e.clientY - rect.top]
@@ -241112,10 +241982,10 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
         viewObject.selected = !viewObject.selected;
       }
     };
-    canvas2.addEventListener("click", handler);
-    canvas2.style.cursor = "crosshair";
+    canvas3.addEventListener("click", handler);
+    canvas3.style.cursor = "crosshair";
     this._objectModeClick = handler;
-    this._objectModeCanvas = canvas2;
+    this._objectModeCanvas = canvas3;
   }
   /**
    * Drive {@link TransformControls} lifecycle when {@link toolMode}
@@ -241173,12 +242043,12 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
     tc.setMode(tcMode);
     if (wasTransform)
       return;
-    const canvas2 = view.htmlElement;
+    const canvas3 = view.htmlElement;
     const picker = this.studio.picking.picker;
     const handler = (e) => {
       if (e.button !== 0)
         return;
-      const rect = canvas2.getBoundingClientRect();
+      const rect = canvas3.getBoundingClientRect();
       const result = picker.pick({
         view,
         canvasPos: [e.clientX - rect.left, e.clientY - rect.top]
@@ -241193,10 +242063,10 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
       const pivotWorld = result.worldPos ?? void 0;
       tc.attach(viewObject.sceneObject, pivotWorld ? { pivotWorld } : void 0);
     };
-    canvas2.addEventListener("pointerdown", handler, true);
-    canvas2.style.cursor = "crosshair";
+    canvas3.addEventListener("pointerdown", handler, true);
+    canvas3.style.cursor = "crosshair";
     this._transformModeClick = handler;
-    this._transformModeCanvas = canvas2;
+    this._transformModeCanvas = canvas3;
   }
   /**
    * Drive the Section Planes tool's lifecycle when
@@ -241243,12 +242113,12 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
     const ctrl = SectionPlanesController.openFor(view);
     ctrl.setVisible(true);
     this.studio.panels.open("sectionPlanesPanel", { view });
-    const canvas2 = view.htmlElement;
+    const canvas3 = view.htmlElement;
     const picker = this.studio.picking.picker;
     const handler = (e) => {
       if (e.button !== 0)
         return;
-      const rect = canvas2.getBoundingClientRect();
+      const rect = canvas3.getBoundingClientRect();
       const result = picker.pick({
         view,
         canvasPos: [e.clientX - rect.left, e.clientY - rect.top]
@@ -241263,10 +242133,10 @@ var Toolbar = class _Toolbar extends FloatingPanelBase {
         [normal2[0], normal2[1], normal2[2]]
       );
     };
-    canvas2.addEventListener("pointerdown", handler, true);
-    canvas2.style.cursor = "crosshair";
+    canvas3.addEventListener("pointerdown", handler, true);
+    canvas3.style.cursor = "crosshair";
     this._sectionPlanesClick = handler;
-    this._sectionPlanesCanvas = canvas2;
+    this._sectionPlanesCanvas = canvas3;
   }
   _activeView() {
     return this.viewer.viewList[0] ?? null;
@@ -242973,13 +243843,13 @@ var SchedulePanel = class _SchedulePanel extends FloatingPanelBase {
       this._svg.appendChild(lbl);
       const x0 = timeToX(task.startMs);
       const x1 = timeToX(task.endMs);
-      const w = Math.max(2, x1 - x0);
+      const w2 = Math.max(2, x1 - x0);
       const c2 = task.tradeColor;
       const rect = document.createElementNS(SVG_NS5, "rect");
       rect.setAttribute("class", "xkt-sch-gantt-bar");
       rect.setAttribute("x", String(x0));
       rect.setAttribute("y", String(rowY + BAR_INSET_PX));
-      rect.setAttribute("width", String(w));
+      rect.setAttribute("width", String(w2));
       rect.setAttribute("height", String(ROW_HEIGHT_PX - 2 * BAR_INSET_PX));
       rect.setAttribute("rx", "3");
       rect.setAttribute("ry", "3");
@@ -242991,7 +243861,7 @@ var SchedulePanel = class _SchedulePanel extends FloatingPanelBase {
         this.player.setDateMs(task.startMs);
       });
       this._svg.appendChild(rect);
-      if (w > 70) {
+      if (w2 > 70) {
         const cap = document.createElementNS(SVG_NS5, "text");
         cap.setAttribute("class", "xkt-sch-gantt-bar-name");
         cap.setAttribute("x", String(x0 + 6));
@@ -243115,8 +243985,8 @@ var SchedulePanel = class _SchedulePanel extends FloatingPanelBase {
 };
 
 // ../sdk/src/studio/panels/builtinPanels.ts
-function firstView(ctx) {
-  const views = ctx.studio.viewManager?.views;
+function firstView(ctx2) {
+  const views = ctx2.studio.viewManager?.views;
   if (!views)
     return void 0;
   for (const id in views) {
@@ -243128,16 +243998,16 @@ function firstView(ctx) {
 }
 function registerBuiltinPanels(registry) {
   registry.register("modelsPanel", {
-    find: (ctx) => ModelsPanel.getFor(ctx.studio),
-    create: (ctx) => ModelsPanel.openFor({ studio: ctx.studio })
+    find: (ctx2) => ModelsPanel.getFor(ctx2.studio),
+    create: (ctx2) => ModelsPanel.openFor({ studio: ctx2.studio })
   });
   registry.register("sceneHealth", {
-    find: (ctx) => SceneHealthPanel.getFor(ctx.studio.scene),
-    create: (ctx, params) => SceneHealthPanel.openFor({
-      scene: ctx.studio.scene,
+    find: (ctx2) => SceneHealthPanel.getFor(ctx2.studio.scene),
+    create: (ctx2, params) => SceneHealthPanel.openFor({
+      scene: ctx2.studio.scene,
       focusSceneModel: params?.focusSceneModel,
-      view: ctx.studio.viewer?.viewList?.[0],
-      studio: ctx.studio
+      view: ctx2.studio.viewer?.viewList?.[0],
+      studio: ctx2.studio
     }),
     onReveal: (panel, _ctx, params) => {
       if (params?.focusSceneModel)
@@ -243145,9 +244015,9 @@ function registerBuiltinPanels(registry) {
     }
   });
   registry.register("dataHealth", {
-    find: (ctx) => DataHealthPanel.getFor(ctx.studio.data),
-    create: (ctx, params) => DataHealthPanel.openFor({
-      data: ctx.studio.data,
+    find: (ctx2) => DataHealthPanel.getFor(ctx2.studio.data),
+    create: (ctx2, params) => DataHealthPanel.openFor({
+      data: ctx2.studio.data,
       focusDataModel: params?.focusDataModel,
       schema: params?.schema
     }),
@@ -243157,130 +244027,130 @@ function registerBuiltinPanels(registry) {
     }
   });
   registry.register("boundariesPanel", {
-    find: (ctx) => BoundariesPanel.getFor(ctx.studio.scene),
-    create: (ctx) => {
-      const view = ctx.studio.viewer?.viewList?.[0];
+    find: (ctx2) => BoundariesPanel.getFor(ctx2.studio.scene),
+    create: (ctx2) => {
+      const view = ctx2.studio.viewer?.viewList?.[0];
       if (!view) {
-        ctx.studio.reportWarning("[PanelRegistry/boundariesPanel] No View available \u2014 needs a View for the camera-pose pointer.");
+        ctx2.studio.reportWarning("[PanelRegistry/boundariesPanel] No View available \u2014 needs a View for the camera-pose pointer.");
         return void 0;
       }
-      const cameraFlight = ctx.studio.viewManager?.views?.[view.id]?.cameraFlight;
-      return BoundariesPanel.openFor({ scene: ctx.studio.scene, view, cameraFlight });
+      const cameraFlight = ctx2.studio.viewManager?.views?.[view.id]?.cameraFlight;
+      return BoundariesPanel.openFor({ scene: ctx2.studio.scene, view, cameraFlight });
     }
   });
   registry.register("tilesPanel", {
-    find: (ctx) => TilesPanel.getFor(ctx.studio.scene),
-    create: (ctx) => {
-      const view = ctx.studio.viewer?.viewList?.[0];
+    find: (ctx2) => TilesPanel.getFor(ctx2.studio.scene),
+    create: (ctx2) => {
+      const view = ctx2.studio.viewer?.viewList?.[0];
       if (!view) {
-        ctx.studio.reportWarning("[PanelRegistry/tilesPanel] No View available \u2014 needs a View for the camera-pose pointer.");
+        ctx2.studio.reportWarning("[PanelRegistry/tilesPanel] No View available \u2014 needs a View for the camera-pose pointer.");
         return void 0;
       }
-      const inspectorRes = ctx.studio.renderer.getRenderInspector();
+      const inspectorRes = ctx2.studio.renderer.getRenderInspector();
       if (inspectorRes.ok === false) {
-        ctx.studio.reportWarning(`[PanelRegistry/tilesPanel] Renderer doesn't expose a RenderInspector:: ${inspectorRes.error}`);
+        ctx2.studio.reportWarning(`[PanelRegistry/tilesPanel] Renderer doesn't expose a RenderInspector:: ${inspectorRes.error}`);
         return void 0;
       }
       inspectorRes.value.enabled = true;
       return TilesPanel.openFor({
         renderStats: inspectorRes.value.renderStats,
-        scene: ctx.studio.scene,
+        scene: ctx2.studio.scene,
         view
       });
     }
   });
   registry.register("sceneStats", {
-    find: (ctx) => SceneStatsPanel.getFor(ctx.studio.scene),
-    create: (ctx) => SceneStatsPanel.openFor({ scene: ctx.studio.scene })
+    find: (ctx2) => SceneStatsPanel.getFor(ctx2.studio.scene),
+    create: (ctx2) => SceneStatsPanel.openFor({ scene: ctx2.studio.scene })
   });
   registry.register("dataStats", {
-    find: (ctx) => DataStatsPanel.getFor(ctx.studio.data),
-    create: (ctx) => DataStatsPanel.openFor({ data: ctx.studio.data })
+    find: (ctx2) => DataStatsPanel.getFor(ctx2.studio.data),
+    create: (ctx2) => DataStatsPanel.openFor({ data: ctx2.studio.data })
   });
   registry.register("tasksPanel", {
     find: () => TasksPanel.getFor(getGlobalTaskRunner()),
     create: () => TasksPanel.openFor({ runner: getGlobalTaskRunner() })
   });
   registry.register("shadersPanel", {
-    find: (ctx) => {
-      const res = ctx.studio.renderer.getShaderInspector();
+    find: (ctx2) => {
+      const res = ctx2.studio.renderer.getShaderInspector();
       return res.ok ? ShadersPanel.getFor(res.value) : void 0;
     },
-    create: (ctx) => {
-      const res = ctx.studio.renderer.getShaderInspector();
+    create: (ctx2) => {
+      const res = ctx2.studio.renderer.getShaderInspector();
       if (res.ok === false) {
-        ctx.studio.reportWarning(`[PanelRegistry/shadersPanel] Renderer doesn't expose a ShaderInspector:: ${res.error}`);
+        ctx2.studio.reportWarning(`[PanelRegistry/shadersPanel] Renderer doesn't expose a ShaderInspector:: ${res.error}`);
         return void 0;
       }
       return ShadersPanel.openFor({ inspector: res.value });
     }
   });
   registry.register("dataTexturesPanel", {
-    find: (ctx) => {
-      const res = ctx.studio.renderer.getMemoryInspector();
+    find: (ctx2) => {
+      const res = ctx2.studio.renderer.getMemoryInspector();
       if (res.ok === false)
         return void 0;
       const dt = res.value.dataTextures;
       return dt ? DataTexturesPanel.getFor(dt) : void 0;
     },
-    create: (ctx) => {
-      const res = ctx.studio.renderer.getMemoryInspector();
+    create: (ctx2) => {
+      const res = ctx2.studio.renderer.getMemoryInspector();
       if (res.ok === false) {
-        ctx.studio.reportWarning(`[PanelRegistry/dataTexturesPanel] Renderer doesn't expose a MemoryInspector:: ${res.error}`);
+        ctx2.studio.reportWarning(`[PanelRegistry/dataTexturesPanel] Renderer doesn't expose a MemoryInspector:: ${res.error}`);
         return void 0;
       }
       const dt = res.value.dataTextures;
       if (!dt) {
-        ctx.studio.reportWarning("[PanelRegistry/dataTexturesPanel] MemoryInspector has no DataTextures bundle.");
+        ctx2.studio.reportWarning("[PanelRegistry/dataTexturesPanel] MemoryInspector has no DataTextures bundle.");
         return void 0;
       }
       return DataTexturesPanel.openFor({ dataTextures: dt });
     }
   });
   registry.register("drawingsPanel", {
-    find: (ctx) => DrawingsPanel.getFor(ctx.studio),
-    create: (ctx) => DrawingsPanel.openFor({ studio: ctx.studio })
+    find: (ctx2) => DrawingsPanel.getFor(ctx2.studio),
+    create: (ctx2) => DrawingsPanel.openFor({ studio: ctx2.studio })
   });
   registry.register("cameraTourPanel", {
-    find: (ctx) => CameraTourPanel.getFor(ctx.studio),
-    create: (ctx) => CameraTourPanel.openFor({ studio: ctx.studio })
+    find: (ctx2) => CameraTourPanel.getFor(ctx2.studio),
+    create: (ctx2) => CameraTourPanel.openFor({ studio: ctx2.studio })
   });
   registry.register("exportDialog", {
-    find: (ctx) => ExportDialog.getFor(ctx.studio),
-    create: (ctx) => ExportDialog.openFor({ studio: ctx.studio })
+    find: (ctx2) => ExportDialog.getFor(ctx2.studio),
+    create: (ctx2) => ExportDialog.openFor({ studio: ctx2.studio })
   });
   registry.register("exportBCFPanel", {
-    find: (ctx) => {
-      const view = ctx.studio.viewer?.viewList?.[0];
+    find: (ctx2) => {
+      const view = ctx2.studio.viewer?.viewList?.[0];
       return view ? ExportBCFPanel.getFor(view) : void 0;
     },
-    create: (ctx) => {
-      const view = ctx.studio.viewer?.viewList?.[0];
+    create: (ctx2) => {
+      const view = ctx2.studio.viewer?.viewList?.[0];
       if (!view) {
-        ctx.studio.reportWarning("[PanelRegistry/exportBCFPanel] No View available \u2014 BCF export needs a View to capture state from.");
+        ctx2.studio.reportWarning("[PanelRegistry/exportBCFPanel] No View available \u2014 BCF export needs a View to capture state from.");
         return void 0;
       }
-      return ExportBCFPanel.openFor({ view, renderer: ctx.studio.renderer });
+      return ExportBCFPanel.openFor({ view, renderer: ctx2.studio.renderer });
     }
   });
   registry.register("explorerPanel", {
-    find: (ctx) => ExplorerPanel.getFor(ctx.studio.data),
-    create: (ctx) => {
-      const view = ctx.studio.viewer?.viewList?.[0];
+    find: (ctx2) => ExplorerPanel.getFor(ctx2.studio.data),
+    create: (ctx2) => {
+      const view = ctx2.studio.viewer?.viewList?.[0];
       if (!view) {
-        ctx.studio.reportWarning("[PanelRegistry/explorerPanel] No View available \u2014 Explorer needs a View for visibility checkboxes.");
+        ctx2.studio.reportWarning("[PanelRegistry/explorerPanel] No View available \u2014 Explorer needs a View for visibility checkboxes.");
         return void 0;
       }
-      const cameraFlight = ctx.studio.viewManager.views?.[view.id]?.cameraFlight;
-      return ExplorerPanel.openFor({ data: ctx.studio.data, view, cameraFlight });
+      const cameraFlight = ctx2.studio.viewManager.views?.[view.id]?.cameraFlight;
+      return ExplorerPanel.openFor({ data: ctx2.studio.data, view, cameraFlight });
     }
   });
   registry.register("issuesPanel", {
-    find: (ctx) => ctx.studio.viewer ? IssuesPanel.getFor(ctx.studio.viewer) : void 0,
-    create: (ctx) => {
-      const { viewer, scene, data: data2, renderer } = ctx.studio;
+    find: (ctx2) => ctx2.studio.viewer ? IssuesPanel.getFor(ctx2.studio.viewer) : void 0,
+    create: (ctx2) => {
+      const { viewer, scene, data: data2, renderer } = ctx2.studio;
       if (!viewer || !scene || !data2 || !renderer) {
-        ctx.studio.reportError(
+        ctx2.studio.reportError(
           "[PanelRegistry/issuesPanel] Studio not fully initialised yet \u2014 Viewer/Scene/Data/WebGLRenderer must exist."
         );
         return void 0;
@@ -243290,64 +244160,64 @@ function registerBuiltinPanels(registry) {
         scene,
         data: data2,
         renderer,
-        studioEvents: ctx.studio.events,
+        studioEvents: ctx2.studio.events,
         visible: true
       });
     }
   });
   registry.register("toolbar", {
-    find: (ctx) => Toolbar.getFor(ctx.studio.viewer),
+    find: (ctx2) => Toolbar.getFor(ctx2.studio.viewer),
     // Initial mount starts hidden — only the reopen pill in the
     // bottom-right rail is visible by default. Subsequent
     // `panels.open("toolbar")` calls (from menus, hotkeys, etc.)
     // hit the existing-instance branch in `PanelRegistry.open` and
     // call `show()` as expected, so this only changes first-mount
     // behaviour. The user clicks the pill to reveal the toolbar.
-    create: (ctx) => Toolbar.openFor({ viewer: ctx.studio.viewer, studio: ctx.studio, visible: false })
+    create: (ctx2) => Toolbar.openFor({ viewer: ctx2.studio.viewer, studio: ctx2.studio, visible: false })
   });
   registry.register("viewerConfig", {
-    find: (ctx) => ViewerConfigPanel.getFor(ctx.studio.viewer),
-    create: (ctx) => ViewerConfigPanel.openFor({ viewer: ctx.studio.viewer, studio: ctx.studio })
+    find: (ctx2) => ViewerConfigPanel.getFor(ctx2.studio.viewer),
+    create: (ctx2) => ViewerConfigPanel.openFor({ viewer: ctx2.studio.viewer, studio: ctx2.studio })
   });
   registry.register("gpuMemory", {
-    find: (ctx) => GPUMemoryPanel.getFor(ctx.studio.renderer),
-    create: (ctx) => GPUMemoryPanel.openFor({ renderer: ctx.studio.renderer })
+    find: (ctx2) => GPUMemoryPanel.getFor(ctx2.studio.renderer),
+    create: (ctx2) => GPUMemoryPanel.openFor({ renderer: ctx2.studio.renderer })
   });
   registry.register("rendererPanel", {
-    find: (ctx) => RendererPanel.getFor(ctx.studio.renderer),
-    create: (ctx) => RendererPanel.openFor({ renderer: ctx.studio.renderer })
+    find: (ctx2) => RendererPanel.getFor(ctx2.studio.renderer),
+    create: (ctx2) => RendererPanel.openFor({ renderer: ctx2.studio.renderer })
   });
   registry.register("cullingPanel", {
-    find: (ctx) => ctx.studio.viewer ? CullingPanel.getFor(ctx.studio.viewer) : void 0,
-    create: (ctx) => {
-      const { viewer, renderer } = ctx.studio;
+    find: (ctx2) => ctx2.studio.viewer ? CullingPanel.getFor(ctx2.studio.viewer) : void 0,
+    create: (ctx2) => {
+      const { viewer, renderer } = ctx2.studio;
       if (!viewer || !renderer) {
-        ctx.studio.reportWarning("[PanelRegistry/cullingPanel] Needs a Viewer and WebGLRenderer.");
+        ctx2.studio.reportWarning("[PanelRegistry/cullingPanel] Needs a Viewer and WebGLRenderer.");
         return void 0;
       }
       return CullingPanel.openFor({ viewer, renderer });
     }
   });
   registry.register("adaptiveQualityPanel", {
-    find: (ctx) => ctx.studio.viewer ? AdaptiveQualityPanel.getFor(ctx.studio.viewer) : void 0,
-    create: (ctx) => {
-      const { viewer, renderer } = ctx.studio;
+    find: (ctx2) => ctx2.studio.viewer ? AdaptiveQualityPanel.getFor(ctx2.studio.viewer) : void 0,
+    create: (ctx2) => {
+      const { viewer, renderer } = ctx2.studio;
       if (!viewer || !renderer) {
-        ctx.studio.reportWarning("[PanelRegistry/adaptiveQualityPanel] Needs a Viewer and WebGLRenderer.");
+        ctx2.studio.reportWarning("[PanelRegistry/adaptiveQualityPanel] Needs a Viewer and WebGLRenderer.");
         return void 0;
       }
       return AdaptiveQualityPanel.openFor({ viewer, renderer });
     }
   });
   registry.register("pdfImport", {
-    find: (ctx) => PdfImportPanel.getFor(ctx.studio),
-    create: (ctx) => PdfImportPanel.openFor({ studio: ctx.studio })
+    find: (ctx2) => PdfImportPanel.getFor(ctx2.studio),
+    create: (ctx2) => PdfImportPanel.openFor({ studio: ctx2.studio })
   });
   registry.register("schemaMaterials", {
-    find: (ctx) => SchemaMaterialsPanel.getFor(ctx.studio.scene),
-    create: (ctx, params) => SchemaMaterialsPanel.openFor({
-      scene: ctx.studio.scene,
-      data: ctx.studio.data,
+    find: (ctx2) => SchemaMaterialsPanel.getFor(ctx2.studio.scene),
+    create: (ctx2, params) => SchemaMaterialsPanel.openFor({
+      scene: ctx2.studio.scene,
+      data: ctx2.studio.data,
       focusSceneModel: params?.focusSceneModel
     }),
     onReveal: (panel, _ctx, params) => {
@@ -243357,14 +244227,14 @@ function registerBuiltinPanels(registry) {
     }
   });
   registry.register("sampleModels", {
-    find: (ctx) => SampleModelsPanel.getFor(ctx.studio),
-    create: (ctx) => SampleModelsPanel.openFor({ studio: ctx.studio })
+    find: (ctx2) => SampleModelsPanel.getFor(ctx2.studio),
+    create: (ctx2) => SampleModelsPanel.openFor({ studio: ctx2.studio })
   });
   registry.register("schedulePanel", {
     find: (_ctx, params) => params?.player ? SchedulePanel.getFor(params.player) : void 0,
-    create: (ctx, params) => {
+    create: (ctx2, params) => {
       if (!params?.player) {
-        ctx.studio.reportWarning("[PanelRegistry/schedulePanel] missing required params.player");
+        ctx2.studio.reportWarning("[PanelRegistry/schedulePanel] missing required params.player");
         return void 0;
       }
       return SchedulePanel.openFor({ player: params.player });
@@ -243377,12 +244247,12 @@ function registerBuiltinPanels(registry) {
     // already set up. With a sunStudy in params, find the
     // specific per-SunStudy instance as usual.
     find: (_ctx, params) => params?.sunStudy ? SunStudyPanel.getFor(params.sunStudy) : SunStudyPanel.getLatest(),
-    create: (ctx, params) => {
+    create: (ctx2, params) => {
       let sunStudy = params?.sunStudy ?? SunStudy.getLatest();
       if (!sunStudy) {
-        const view = firstView(ctx);
+        const view = firstView(ctx2);
         if (!view) {
-          ctx.studio.reportWarning(
+          ctx2.studio.reportWarning(
             "[PanelRegistry/sunStudyPanel] No View available to attach a SunStudy to. Create a View first (e.g. `studio.viewManager.createView({...})`)."
           );
           return void 0;
@@ -243402,17 +244272,17 @@ function registerBuiltinPanels(registry) {
     // the application has already set up, without needing to
     // carry direct SunStudy / Scene references through the Toolbar.
     find: (_ctx, params) => params?.sunStudy ? DaylightAnalysisPanel.getFor(params.sunStudy) : DaylightAnalysisPanel.getLatest(),
-    create: (ctx, params) => {
-      const scene = params?.scene ?? ctx.studio.scene;
+    create: (ctx2, params) => {
+      const scene = params?.scene ?? ctx2.studio.scene;
       if (!scene) {
-        ctx.studio.reportWarning("[PanelRegistry/daylightAnalysisPanel] No Scene available.");
+        ctx2.studio.reportWarning("[PanelRegistry/daylightAnalysisPanel] No Scene available.");
         return void 0;
       }
       let sunStudy = params?.sunStudy ?? SunStudy.getLatest();
       if (!sunStudy) {
-        const view = firstView(ctx);
+        const view = firstView(ctx2);
         if (!view) {
-          ctx.studio.reportWarning(
+          ctx2.studio.reportWarning(
             "[PanelRegistry/daylightAnalysisPanel] No View available to attach a SunStudy to. Create a View first (e.g. `studio.viewManager.createView({...})`)."
           );
           return void 0;
@@ -243436,16 +244306,16 @@ function registerBuiltinPanels(registry) {
   });
   registry.register("volumeOverlayPanel", {
     find: (_ctx, params) => params?.grid ? VolumeOverlayPanel.getFor(params.grid) : VolumeOverlayPanel.getLatest(),
-    create: (ctx, params) => {
-      const scene = params?.scene ?? ctx.studio.scene;
+    create: (ctx2, params) => {
+      const scene = params?.scene ?? ctx2.studio.scene;
       if (!scene) {
-        ctx.studio.reportWarning("[PanelRegistry/volumeOverlayPanel] No Scene available.");
+        ctx2.studio.reportWarning("[PanelRegistry/volumeOverlayPanel] No Scene available.");
         return void 0;
       }
       let grid = params?.grid;
       let vectorGrid = params?.vectorGrid;
       if (!grid) {
-        const aabb = ctx.studio.picking?.collisionIndex?.getSceneAABB?.();
+        const aabb = ctx2.studio.picking?.collisionIndex?.getSceneAABB?.();
         const pad = 3;
         const min = aabb ? [aabb[0] - pad, aabb[1] - pad, aabb[2]] : [-10, -10, 0];
         const max = aabb ? [aabb[3] + pad, aabb[4] + pad, aabb[5] + pad] : [10, 10, 10];
@@ -243459,7 +244329,7 @@ function registerBuiltinPanels(registry) {
         grid,
         vectorGrid,
         scene,
-        studio: ctx.studio,
+        studio: ctx2.studio,
         initialTechnique: params?.initialTechnique,
         initialAxis: params?.initialAxis,
         initialPosition: params?.initialPosition,
@@ -243471,24 +244341,24 @@ function registerBuiltinPanels(registry) {
   });
   registry.register("navCube", {
     find: (_ctx, params) => NavCube.getFor(params.view),
-    create: (ctx, params) => NavCube.openFor({
+    create: (ctx2, params) => NavCube.openFor({
       view: params.view,
-      cameraFlight: ctx.studio.viewManager.views?.[params.view.id]?.cameraFlight,
+      cameraFlight: ctx2.studio.viewManager.views?.[params.view.id]?.cameraFlight,
       ...params
     })
   });
   registry.register("distanceMeasurements", {
     find: (_ctx, params) => DistanceMeasurementTool.getFor(params.view),
-    create: (ctx, params) => DistanceMeasurementTool.openFor({
+    create: (ctx2, params) => DistanceMeasurementTool.openFor({
       view: params.view,
-      picker: ctx.studio.picking.picker,
+      picker: ctx2.studio.picking.picker,
       ...params
     })
   });
   registry.register("distanceMeasurementsPanel", {
     find: (_ctx, params) => DistanceMeasurementsPanel.getFor(params.view),
-    create: (ctx, params) => {
-      const tool = ctx.studio.panels.open("distanceMeasurements", { view: params.view });
+    create: (ctx2, params) => {
+      const tool = ctx2.studio.panels.open("distanceMeasurements", { view: params.view });
       if (!tool)
         return void 0;
       return DistanceMeasurementsPanel.openFor({ tool });
@@ -243496,16 +244366,16 @@ function registerBuiltinPanels(registry) {
   });
   registry.register("angleMeasurements", {
     find: (_ctx, params) => AngleMeasurementsTool.getFor(params.view),
-    create: (ctx, params) => AngleMeasurementsTool.openFor({
+    create: (ctx2, params) => AngleMeasurementsTool.openFor({
       view: params.view,
-      picker: ctx.studio.picking.picker,
+      picker: ctx2.studio.picking.picker,
       ...params
     })
   });
   registry.register("angleMeasurementsPanel", {
     find: (_ctx, params) => AngleMeasurementsPanel.getFor(params.view),
-    create: (ctx, params) => {
-      const tool = ctx.studio.panels.open("angleMeasurements", { view: params.view });
+    create: (ctx2, params) => {
+      const tool = ctx2.studio.panels.open("angleMeasurements", { view: params.view });
       if (!tool)
         return void 0;
       return AngleMeasurementsPanel.openFor({ tool });
@@ -243517,10 +244387,10 @@ function registerBuiltinPanels(registry) {
   });
   registry.register("transformControls", {
     find: (_ctx, params) => TransformControls.getFor(params.view),
-    create: (ctx, params) => TransformControls.openFor({
+    create: (ctx2, params) => TransformControls.openFor({
       view: params.view,
-      picker: ctx.studio.picking.picker,
-      viewController: ctx.studio.viewManager.views?.[params.view.id]?.viewController,
+      picker: ctx2.studio.picking.picker,
+      viewController: ctx2.studio.viewManager.views?.[params.view.id]?.viewController,
       ...params
     })
   });
@@ -244598,8 +245468,8 @@ var LoadingSpinner = class _LoadingSpinner {
 
 // ../sdk/src/studio/viewManager/ViewManager.ts
 var ViewManager3 = class _ViewManager {
-  constructor(ctx, hooks = {}, options = {}) {
-    this.ctx = ctx;
+  constructor(ctx2, hooks = {}, options = {}) {
+    this.ctx = ctx2;
     this.hooks = hooks;
     this.maxViews = options.maxViews ?? 4;
   }
@@ -244791,12 +245661,12 @@ var ViewManager3 = class _ViewManager {
       delete this._floatingPanelByViewId[viewId];
       delete this._autoCanvasByViewId[viewId];
     } else if (this._autoCanvasByViewId[viewId]) {
-      const canvas2 = this._autoCanvasByViewId[viewId];
-      const cell = canvas2.closest(".xkt-view-cell");
+      const canvas3 = this._autoCanvasByViewId[viewId];
+      const cell = canvas3.closest(".xkt-view-cell");
       if (cell && cell.parentElement) {
         cell.parentElement.removeChild(cell);
-      } else if (canvas2.parentElement) {
-        canvas2.parentElement.removeChild(canvas2);
+      } else if (canvas3.parentElement) {
+        canvas3.parentElement.removeChild(canvas3);
       }
       delete this._autoCanvasByViewId[viewId];
       this._updateAutoCanvasLayout();
@@ -244829,18 +245699,18 @@ var ViewManager3 = class _ViewManager {
     if (!record) {
       throw new Error(`[ViewManager.pinView] View with ID ${viewId} not found`);
     }
-    const canvas2 = this._autoCanvasByViewId[viewId];
+    const canvas3 = this._autoCanvasByViewId[viewId];
     const panel = this._floatingPanelByViewId[viewId];
-    if (!canvas2 || !panel) {
+    if (!canvas3 || !panel) {
       return;
     }
-    if (canvas2.parentElement) {
-      canvas2.parentElement.removeChild(canvas2);
+    if (canvas3.parentElement) {
+      canvas3.parentElement.removeChild(canvas3);
     }
     panel.destroy();
     delete this._floatingPanelByViewId[viewId];
     this._ensureViewLayoutContainer();
-    const wrapper = this._makePinnedCellWrapper(viewId, canvas2);
+    const wrapper = this._makePinnedCellWrapper(viewId, canvas3);
     const grid = this._viewLayoutContainer;
     if (insertionIndex !== void 0 && insertionIndex >= 0 && insertionIndex < grid.children.length) {
       grid.insertBefore(wrapper, grid.children[insertionIndex]);
@@ -244867,17 +245737,17 @@ var ViewManager3 = class _ViewManager {
     if (!record) {
       throw new Error(`[ViewManager.unpinView] View with ID ${viewId} not found`);
     }
-    const canvas2 = this._autoCanvasByViewId[viewId];
-    if (!canvas2)
+    const canvas3 = this._autoCanvasByViewId[viewId];
+    if (!canvas3)
       return;
-    const cell = canvas2.closest(".xkt-view-cell");
+    const cell = canvas3.closest(".xkt-view-cell");
     if (cell && cell.parentElement) {
       cell.parentElement.removeChild(cell);
-    } else if (canvas2.parentElement) {
-      canvas2.parentElement.removeChild(canvas2);
+    } else if (canvas3.parentElement) {
+      canvas3.parentElement.removeChild(canvas3);
     }
-    canvas2.style.width = "100%";
-    canvas2.style.height = "100%";
+    canvas3.style.width = "100%";
+    canvas3.style.height = "100%";
     const savedParams = this._panelParamsByViewId[viewId] ?? {
       title: `View \u2014 ${viewId}`,
       storageKey: `xkt-vp-panel-${viewId}`
@@ -244888,7 +245758,7 @@ var ViewManager3 = class _ViewManager {
       onDestroy: () => this._destroyViewById(viewId)
     };
     const panel = new ViewPanel(panelParams);
-    panel.body.appendChild(canvas2);
+    panel.body.appendChild(canvas3);
     this._floatingPanelByViewId[viewId] = panel;
     panel.onLayoutChanged.subscribe(() => record.view.needsRender());
     this._wireDragToDock(viewId, panel);
@@ -244909,7 +245779,7 @@ var ViewManager3 = class _ViewManager {
    * z-index, etc.) is then cancelled by the `.xkt-vp-panel.xkt-view-cell`
    * overrides in that same stylesheet.
    */
-  _makePinnedCellWrapper(viewId, canvas2) {
+  _makePinnedCellWrapper(viewId, canvas3) {
     ensureViewPanelStylesInjected();
     const wrapper = document.createElement("div");
     wrapper.className = "xkt-vp-panel xkt-view-cell";
@@ -245016,10 +245886,10 @@ var ViewManager3 = class _ViewManager {
     canvasBox.style.minHeight = "0";
     canvasBox.style.overflow = "hidden";
     canvasBox.style.background = "black";
-    canvas2.style.width = "100%";
-    canvas2.style.height = "100%";
-    canvas2.style.border = "none";
-    canvasBox.appendChild(canvas2);
+    canvas3.style.width = "100%";
+    canvas3.style.height = "100%";
+    canvas3.style.border = "none";
+    canvasBox.appendChild(canvas3);
     wrapper.appendChild(canvasBox);
     return wrapper;
   }
@@ -245210,9 +246080,9 @@ var ViewManager3 = class _ViewManager {
     this._viewLayoutContainer.style.alignItems = "stretch";
     this._viewLayoutContainer.style.justifyItems = "stretch";
     for (const viewId of pinnedIds) {
-      const canvas2 = this._autoCanvasByViewId[viewId];
-      canvas2.style.width = "100%";
-      canvas2.style.height = "100%";
+      const canvas3 = this._autoCanvasByViewId[viewId];
+      canvas3.style.width = "100%";
+      canvas3.style.height = "100%";
     }
   }
 };
@@ -245510,10 +246380,11 @@ var Studio = class _Studio {
           { maxViews: merged.maxViews ?? 4 }
         );
         this.renderer = new WebGLRenderer3({
+          debugging: this.debug,
           memoryConfigs: {
             tileSize: 200,
             maxTiles: 2e3,
-            maxBatches: 300,
+            maxBatches: 1e3,
             maxBatchVertices: 7e4,
             maxBatchIndices: 9e4,
             maxBatchGeometries: 6e4,
@@ -245680,6 +246551,9 @@ var Studio = class _Studio {
         }
         dataModel = dRes.value;
       }
+    }
+    if (!params.src && this.locator.preload) {
+      await this.locator.preload();
     }
     const src = params.src ?? this.locator.resolve(params.modelId, params.format);
     const fileData = await _Studio._fetchAs(src, descriptor.fetch);

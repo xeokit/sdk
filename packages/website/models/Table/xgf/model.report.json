@@ -1,0 +1,68 @@
+{
+    "counts": {
+        "sceneModels": 1,
+        "fixed": 1,
+        "skipped": 0,
+        "errors": 0
+    },
+    "bytes": {
+        "input": 1253,
+        "output": 1476,
+        "delta": 223
+    },
+    "files": {
+        "inputs": {
+            "in": {
+                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/Table/scenemodel/model.json",
+                "fileFormat": "SceneModelParams",
+                "fileDataSizeBytes": 1253
+            }
+        },
+        "outputs": {
+            "out": {
+                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/Table/xgf/model.new.xgf",
+                "fileFormat": "XGF",
+                "fileDataSizeBytes": 1476
+            }
+        }
+    },
+    "bySceneModel": {
+        "default": {
+            "generatedAt": "2026-06-27T08:42:52.684Z",
+            "counts": {
+                "fixed": 1,
+                "skipped": 0,
+                "errors": 0,
+                "total": 1
+            },
+            "fixed": [
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'myBoxGeometry' has 16 of 24 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "16 of 24 vertices",
+                        "resourceId": "myBoxGeometry",
+                        "context": {
+                            "duplicate": 16,
+                            "vertCount": 24
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "redLeg",
+                                "greenLeg",
+                                "blueLeg",
+                                "yellowLeg",
+                                "tableTop"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'myBoxGeometry': merged 16 duplicate of 24 vertex slots"
+                }
+            ],
+            "skipped": [],
+            "errors": []
+        }
+    }
+}

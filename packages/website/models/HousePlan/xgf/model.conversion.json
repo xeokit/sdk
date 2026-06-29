@@ -1,0 +1,21 @@
+{
+    "summary": {
+        "outputs": 1,
+        "ok": 1,
+        "lossy": 0,
+        "failed": 0,
+        "warnings": 0,
+        "errors": 0,
+        "byOutput": {
+            "out": {
+                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/HousePlan/xgf/model.new.xgf",
+                "fileFormat": "XGF",
+                "fileFormatVersion": "1.0.0",
+                "fileDataSizeBytes": 18133876,
+                "status": "ok"
+            }
+        }
+    },
+    "warnings": [],
+    "errors": []
+}

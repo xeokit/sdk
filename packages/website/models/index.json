@@ -1,6 +1,12 @@
 {
   "3DPreview": {
-    "formats": ["threedxml"]
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["threedxml", "xgf"],
+    "dataset": ["xgf", "threedxml"]
   },
   "ArchDrawing": {
     "coordSys": {
@@ -25,21 +31,18 @@
       "origin": [0, 0, 0],
       "units": "meters"
     },
-    "formats": ["datamodel", "scenemodel"],
-    "dataset": ["datamodel, scenemodel", "scenemodel"]
+    "formats": ["datamodel", "scenemodel", "xgf"],
+    "dataset": ["datamodel, scenemodel", "datamodel, xgf", "scenemodel", "xgf"]
   },
-  "Cityscape": {
-    "formats": ["xgf"],
-    "dataset": ["xgf"]
-  },
+
   "DamagedHelmet": {
     "coordSys": {
       "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
       "origin": [0, 0, 0],
       "units": "meters"
     },
-    "formats": ["gltf"],
-    "dataset": ["gltf"]
+    "formats": ["gltf", "xgf"],
+    "dataset": ["xgf", "gltf"]
   },
   "Duplex": {
     "coordSys": {
@@ -48,11 +51,20 @@
       "units": "meters"
     },
     "formats": ["datamodel", "fbx", "gltf", "ifc", "metamodel", "scenemodel", "xgf", "xkt"],
-    "dataset": ["datamodel, scenemodel", "datamodel, xgf", "datamodel, gltf", "scenemodel", "xgf", "gltf", "fbx", "ifc"]
+    "dataset": ["datamodel, scenemodel", "datamodel, xgf", "datamodel, gltf", "scenemodel", "xgf", "gltf", "fbx", "ifc", "xkt"]
   },
   "E3D_Plant": {
-    "formats": ["fbx"],
-    "dataset": ["fbx"]
+    "formats": ["fbx", "xgf"],
+    "dataset": ["xgf", "fbx"]
+  },
+  "EmptyCarpark": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["e57", "xgf"],
+    "dataset": ["xgf", "e57"]
   },
   "FM_LFT": {
     "coordSys": {
@@ -69,8 +81,8 @@
       "origin": [0, 0, 0],
       "units": "meters"
     },
-    "formats": ["gltf"],
-    "dataset": ["gltf"]
+    "formats": ["gltf", "xgf"],
+    "dataset": ["xgf", "gltf"]
   },
   "FloorPlan": {
     "coordSys": {
@@ -78,8 +90,7 @@
       "origin": [0, 0, 0],
       "units": "meters"
     },
-    "formats": ["dwg", "dxf", "pdf", "svg", "xgf"],
-    "dataset": ["xgf"]
+    "formats": ["dwg", "dxf", "pdf", "svg"]
   },
   "Geometries": {
     "coordSys": {
@@ -89,15 +100,6 @@
     },
     "formats": ["datamodel", "scenemodel", "xgf"],
     "dataset": ["datamodel, scenemodel", "datamodel, xgf", "scenemodel", "xgf"]
-  },
-  "HolterTower": {
-    "coordSys": {
-      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
-      "origin": [0, 0, 0],
-      "units": "meters"
-    },
-    "formats": ["xgf"],
-    "dataset": ["xgf"]
   },
   "HousePlan": {
     "coordSys": {
@@ -114,8 +116,8 @@
       "origin": [0, 0, 0],
       "units": "meters"
     },
-    "formats": ["ifc"],
-    "dataset": ["ifc"]
+    "formats": ["ifc", "xgf"],
+    "dataset": ["xgf", "ifc"]
   },
   "IfcOpenHouse2x3": {
     "coordSys": {
@@ -123,27 +125,10 @@
       "origin": [0, 0, 0],
       "units": "meters"
     },
-    "formats": ["ifc"],
-    "dataset": ["ifc"]
+    "formats": ["ifc", "xgf"],
+    "dataset": ["xgf", "ifc"]
   },
   "IfcOpenHouse4": {
-    "coordSys": {
-      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
-      "origin": [0, 0, 0],
-      "units": "meters"
-    },
-    "formats": ["dotbim", "gltf", "ifc"],
-    "dataset": ["gltf", "ifc", "dotbim"]
-  },
-  "LoD3_Railway": {
-    "coordSys": {
-      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
-      "origin": [0, 0, 0],
-      "units": "meters"
-    },
-    "formats": ["cityjson"]
-  },
-  "MAP": {
     "coordSys": {
       "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
       "origin": [0, 0, 0],
@@ -152,14 +137,23 @@
     "formats": ["dotbim", "gltf", "ifc", "xgf"],
     "dataset": ["xgf", "gltf", "ifc", "dotbim"]
   },
-  "MaterialsTest": {
+  "LoD3_Railway": {
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["cityjson", "xgf"],
+    "dataset": ["xgf", "cityjson"]
+  },
+  "MAP": {
     "coordSys": {
       "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
       "origin": [0, 0, 0],
       "units": "meters"
     },
-    "formats": ["xgf"],
-    "dataset": ["xgf"]
+    "formats": ["gltf", "ifc", "xgf"],
+    "dataset": ["xgf", "gltf", "ifc"]
   },
   "Nalls-Pumpkin-Hill": {
     "coordSys": {
@@ -170,30 +164,40 @@
     "formats": ["laz", "xgf"],
     "dataset": ["xgf", "laz"]
   },
+  "NikeShoe": {
+    "attribution": {
+      "source": "antimatter15/splat",
+      "url": "https://github.com/antimatter15/splat"
+    },
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["splat", "xgf"],
+    "dataset": ["xgf", "splat"]
+  },
   "OTCConferenceCenter": {
     "coordSys": {
-      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
       "origin": [0, 0, 0],
       "units": "meters"
     },
     "formats": ["datamodel", "ifc", "xgf"],
     "dataset": ["datamodel, xgf", "xgf", "ifc"]
   },
-  "RAC": {
-    "coordSys": {
-      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
-      "origin": [0, 0, 0],
-      "units": "meters"
-    }
-  },
   "ResidentialBuilding": {
     "coordSys": {
-      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
       "origin": [0, 0, 0],
       "units": "meters"
     },
-    "formats": ["gltf", "usdz"],
-    "dataset": ["gltf", "usdz"]
+    "formats": ["gltf", "usdz", "xgf"],
+    "dataset": ["xgf", "gltf", "usdz"]
+  },
+  "SampleApartment": {
+    "formats": ["gltf", "xgf"],
+    "dataset": ["xgf", "gltf"]
   },
   "SparseImplicitQuadtree": {
     "tileset": {
@@ -227,17 +231,17 @@
       "origin": [0, 0, 0],
       "units": "meters"
     },
-    "formats": ["dotbim", "ifc", "mtl", "obj", "scenemodel", "xgf"],
-    "dataset": ["mtl, obj", "scenemodel", "xgf", "ifc", "dotbim"]
+    "formats": ["ifc", "mtl", "obj", "scenemodel", "xgf"],
+    "dataset": ["mtl, obj", "scenemodel", "xgf", "ifc"]
   },
   "Table": {
     "coordSys": {
-      "basis": [1, 0, 0, 0, 0, 1, 0, 1, 0],
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
       "origin": [0, 0, 0],
       "units": "meters"
     },
-    "formats": ["datamodel", "mtl", "obj", "scenemodel", "usdz"],
-    "dataset": ["mtl, obj", "datamodel, scenemodel", "scenemodel", "usdz"]
+    "formats": ["datamodel", "mtl", "obj", "scenemodel", "usdz", "xgf"],
+    "dataset": ["mtl, obj", "datamodel, scenemodel", "datamodel, xgf", "scenemodel", "xgf", "usdz"]
   },
   "Train": {
     "attribution": {
@@ -249,9 +253,16 @@
       "origin": [0, 0, 0],
       "units": "meters"
     },
-    "formats": ["splat"]
+    "formats": ["splat", "xgf"],
+    "dataset": ["xgf", "splat"]
   },
   "XKTModel": {
-    "formats": ["xkt"]
+    "coordSys": {
+      "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "origin": [0, 0, 0],
+      "units": "meters"
+    },
+    "formats": ["xgf", "xkt"],
+    "dataset": ["xgf", "xkt"]
   }
 }

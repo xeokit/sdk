@@ -1,0 +1,1040 @@
+{
+    "counts": {
+        "sceneModels": 1,
+        "fixed": 23,
+        "skipped": 24,
+        "errors": 0
+    },
+    "bytes": {
+        "input": 207269,
+        "output": 23016,
+        "delta": -184253
+    },
+    "files": {
+        "inputs": {
+            "in": {
+                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/IfcOpenHouse2x3/ifc/model.ifc",
+                "fileFormat": "IFC",
+                "fileDataSizeBytes": 207269
+            }
+        },
+        "outputs": {
+            "out": {
+                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/IfcOpenHouse2x3/xgf/model.new.xgf",
+                "fileFormat": "XGF",
+                "fileDataSizeBytes": 23016
+            }
+        }
+    },
+    "bySceneModel": {
+        "default": {
+            "generatedAt": "2026-06-27T08:31:24.108Z",
+            "counts": {
+                "fixed": 23,
+                "skipped": 24,
+                "errors": 0,
+                "total": 47
+            },
+            "fixed": [
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE",
+                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — '42' could absorb '48' via instancing",
+                        "summary": "→ collapses 1 other",
+                        "resourceId": "42",
+                        "context": {
+                            "duplicates": [
+                                "48"
+                            ]
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "1SZ7WjkdL3DfyDtUKU1NHK",
+                                "0JVEm3S0n9thS6s2KCyDGB"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate geometries",
+                    "trace": "'42' kept; merged 1 mesh, destroyed: 48"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE",
+                        "message": "2 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — '50' could absorb '56' via instancing",
+                        "summary": "→ collapses 1 other",
+                        "resourceId": "50",
+                        "context": {
+                            "duplicates": [
+                                "56"
+                            ]
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "2_hEiE7tr4bRvplniz35wR",
+                                "21rgS7PJTEcgzIRicVSQr9"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate geometries",
+                    "trace": "'50' kept; merged 1 mesh, destroyed: 56"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "2 SceneGeometries share the same shape (matching topology + edge-length distribution) — '0' may be instanceable from '2' via per-mesh transforms",
+                        "summary": "→ 1 similar",
+                        "resourceId": "0",
+                        "context": {
+                            "similar": [
+                                "2"
+                            ]
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "1OkhcYSJv5nB5Ye2gD90ix",
+                                "0ZIj0vhLbDIBzLVO1s0S3q"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "trace": "'0' kept; instanced 1 mesh from 1 similar geometry, destroyed: 2"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "5 SceneGeometries share the same shape (matching topology + edge-length distribution) — '16' may be instanceable from '18', '20', '22', '24' via per-mesh transforms",
+                        "summary": "→ 4 similar",
+                        "resourceId": "16",
+                        "context": {
+                            "similar": [
+                                "18",
+                                "20",
+                                "22",
+                                "24"
+                            ]
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "2WR16J9U1Fywj1gSLu$vWW",
+                                "3q76wCH4fD9wfHut$hXQU9",
+                                "2mxzwkYnTAaRbnWQoDxfDd",
+                                "1LABs4w3LA9f8kNIpY9bIC",
+                                "3_ZjiCza596Rc$P36dqhCG"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "trace": "'16' kept; instanced 4 meshes from 4 similar geometries, destroyed: 18, 20, 22, 24"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "2 SceneGeometries share the same shape (matching topology + edge-length distribution) — '28' may be instanceable from '30' via per-mesh transforms",
+                        "summary": "→ 1 similar",
+                        "resourceId": "28",
+                        "context": {
+                            "similar": [
+                                "30"
+                            ]
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "24WV2H7cb3MgDzwgWj1b8X"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "trace": "'28' kept; instanced 1 mesh from 1 similar geometry, destroyed: 30"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "10 SceneGeometries share the same shape (matching topology + edge-length distribution) — '36' may be instanceable from '38', '44', '46', '52', '54', '60', '62', '68', '70' via per-mesh transforms",
+                        "summary": "→ 9 similar",
+                        "resourceId": "36",
+                        "context": {
+                            "similar": [
+                                "38",
+                                "44",
+                                "46",
+                                "52",
+                                "54",
+                                "60",
+                                "62",
+                                "68",
+                                "70"
+                            ]
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "1OFcTkmgfEzxRo54rYU6Rg",
+                                "0Ho0pu5PD6EQrMUgEk1x3_",
+                                "2u8pYHjwPEHvGwtTzpayte",
+                                "2CF0u$3Z14bxa7bJ9r2nvn",
+                                "1_fBe3$pH6Ah0y6KDKAuBg",
+                                "25hNmIsg11SuylHUCRLbYI",
+                                "2JhZ8dE9zFRg7NbrwHj$DV",
+                                "3u5Uj47pLCOwFummEDAyIV",
+                                "1xpKdp5gbC7gUlGgUpK0MP",
+                                "1AK8NB$4D7mO4oIPaUNTG$"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "trace": "'36' kept; instanced 9 meshes from 9 similar geometries, destroyed: 38, 44, 46, 52, 54, 60, 62, 68, 70"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "10 SceneGeometries share the same shape (matching topology + edge-length distribution) — '40' may be instanceable from '42', '48', '50', '56', '58', '64', '66', '72', '74' via per-mesh transforms",
+                        "summary": "→ 9 similar",
+                        "resourceId": "40",
+                        "context": {
+                            "similar": [
+                                "42",
+                                "48",
+                                "50",
+                                "56",
+                                "58",
+                                "64",
+                                "66",
+                                "72",
+                                "74"
+                            ]
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "18tIDdkQjAmxkEUG0BVlNZ",
+                                "1SZ7WjkdL3DfyDtUKU1NHK",
+                                "0JVEm3S0n9thS6s2KCyDGB",
+                                "2_hEiE7tr4bRvplniz35wR",
+                                "21rgS7PJTEcgzIRicVSQr9",
+                                "0Zqvcxsmz9sQEv5mFM8HsJ",
+                                "0xbCQVd4j9sPS$td0hHhSd",
+                                "1M5LDGjbXB$Q0HRuB10GIl",
+                                "2gzlaKA5f29eJuEotja0jY",
+                                "1byKvSajfBRfnYDpHerwF$"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "trace": "'40' kept; instanced 9 meshes from 7 similar geometries, destroyed: 42, 50, 58, 64, 66, 72, 74"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '0' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "0",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "1OkhcYSJv5nB5Ye2gD90ix"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'0': merged 28 duplicate of 36 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '4' has 120 of 144 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "120 of 144 vertices",
+                        "resourceId": "4",
+                        "context": {
+                            "duplicate": 120,
+                            "vertCount": 144
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "38MvAlC2H7RhTum1r0FJFg"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'4': merged 120 duplicate of 144 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '6' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "6",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "2dSmIsY2j10OJaUd5RmL3e"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'6': merged 28 duplicate of 36 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '8' has 78 of 96 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "78 of 96 vertices",
+                        "resourceId": "8",
+                        "context": {
+                            "duplicate": 78,
+                            "vertCount": 96
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "2XjjioqkD00gotrGmqpPnw"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'8': merged 78 duplicate of 96 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '10' has 78 of 96 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "78 of 96 vertices",
+                        "resourceId": "10",
+                        "context": {
+                            "duplicate": 78,
+                            "vertCount": 96
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "15HQrV8WX2nud_EOSSfoGz"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'10': merged 78 duplicate of 96 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '12' has 48 of 60 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "48 of 60 vertices",
+                        "resourceId": "12",
+                        "context": {
+                            "duplicate": 48,
+                            "vertCount": 60
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "1tX5sUU0r9YRXNYw5tJyxJ"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'12': merged 48 duplicate of 60 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '14' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "14",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "0WILkkrrn0ivmOkgqqAb$R"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'14': merged 28 duplicate of 36 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '16' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "16",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "2WR16J9U1Fywj1gSLu$vWW"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'16': merged 28 duplicate of 36 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '26' has 1411 of 1710 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "1,411 of 1,710 vertices",
+                        "resourceId": "26",
+                        "context": {
+                            "duplicate": 1411,
+                            "vertCount": 1710
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "0GNruBn012euT0V4j1zNbY"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'26': merged 1,411 duplicate of 1,710 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '28' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "28",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "24WV2H7cb3MgDzwgWj1b8X"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'28': merged 28 duplicate of 36 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '32' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "32",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "24WV2H7cb3MgDzwgWj1b8X"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'32': merged 28 duplicate of 36 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '34' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "34",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "24WV2H7cb3MgDzwgWj1b8X"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'34': merged 28 duplicate of 36 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '36' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "36",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "1OFcTkmgfEzxRo54rYU6Rg"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'36': merged 28 duplicate of 36 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '40' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "40",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "18tIDdkQjAmxkEUG0BVlNZ"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'40': merged 28 duplicate of 36 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "OBJECT_DUPLICATE_AABB",
+                        "message": "2 SceneObjects share an identical world AABB and mesh count — '1SZ7WjkdL3DfyDtUKU1NHK' could absorb '0JVEm3S0n9thS6s2KCyDGB'; likely a loader emitting the same element twice",
+                        "summary": "→ 1 duplicate",
+                        "resourceId": "1SZ7WjkdL3DfyDtUKU1NHK",
+                        "context": {
+                            "duplicates": [
+                                "0JVEm3S0n9thS6s2KCyDGB"
+                            ]
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "1SZ7WjkdL3DfyDtUKU1NHK",
+                                "0JVEm3S0n9thS6s2KCyDGB"
+                            ]
+                        }
+                    },
+                    "strategy": "Destroy duplicate objects",
+                    "trace": "'1SZ7WjkdL3DfyDtUKU1NHK' kept; destroyed: 0JVEm3S0n9thS6s2KCyDGB"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "OBJECT_DUPLICATE_AABB",
+                        "message": "2 SceneObjects share an identical world AABB and mesh count — '2_hEiE7tr4bRvplniz35wR' could absorb '21rgS7PJTEcgzIRicVSQr9'; likely a loader emitting the same element twice",
+                        "summary": "→ 1 duplicate",
+                        "resourceId": "2_hEiE7tr4bRvplniz35wR",
+                        "context": {
+                            "duplicates": [
+                                "21rgS7PJTEcgzIRicVSQr9"
+                            ]
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "2_hEiE7tr4bRvplniz35wR",
+                                "21rgS7PJTEcgzIRicVSQr9"
+                            ]
+                        }
+                    },
+                    "strategy": "Destroy duplicate objects",
+                    "trace": "'2_hEiE7tr4bRvplniz35wR' kept; destroyed: 21rgS7PJTEcgzIRicVSQr9"
+                }
+            ],
+            "skipped": [
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '2' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "2",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "0ZIj0vhLbDIBzLVO1s0S3q"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '18' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "18",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "3q76wCH4fD9wfHut$hXQU9"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '20' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "20",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "2mxzwkYnTAaRbnWQoDxfDd"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '22' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "22",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "1LABs4w3LA9f8kNIpY9bIC"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '24' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "24",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "3_ZjiCza596Rc$P36dqhCG"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '30' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "30",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "24WV2H7cb3MgDzwgWj1b8X"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '38' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "38",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "0Ho0pu5PD6EQrMUgEk1x3_"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '42' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "42",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "1SZ7WjkdL3DfyDtUKU1NHK"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '44' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "44",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "2u8pYHjwPEHvGwtTzpayte"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '46' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "46",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "2CF0u$3Z14bxa7bJ9r2nvn"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '48' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "48",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "0JVEm3S0n9thS6s2KCyDGB"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '50' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "50",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "2_hEiE7tr4bRvplniz35wR"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '52' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "52",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "1_fBe3$pH6Ah0y6KDKAuBg"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '54' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "54",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "25hNmIsg11SuylHUCRLbYI"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '56' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "56",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "21rgS7PJTEcgzIRicVSQr9"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '58' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "58",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "0Zqvcxsmz9sQEv5mFM8HsJ"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '60' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "60",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "2JhZ8dE9zFRg7NbrwHj$DV"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '62' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "62",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "3u5Uj47pLCOwFummEDAyIV"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '64' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "64",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "0xbCQVd4j9sPS$td0hHhSd"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '66' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "66",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "1M5LDGjbXB$Q0HRuB10GIl"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '68' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "68",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "1xpKdp5gbC7gUlGgUpK0MP"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '70' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "70",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "1AK8NB$4D7mO4oIPaUNTG$"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '72' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "72",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "2gzlaKA5f29eJuEotja0jY"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '74' has 28 of 36 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 36 vertices",
+                        "resourceId": "74",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "1byKvSajfBRfnYDpHerwF$"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                }
+            ],
+            "errors": []
+        }
+    }
+}

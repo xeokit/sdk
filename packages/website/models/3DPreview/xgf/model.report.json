@@ -1,0 +1,3367 @@
+{
+    "counts": {
+        "sceneModels": 1,
+        "fixed": 62,
+        "skipped": 89,
+        "errors": 0
+    },
+    "bytes": {
+        "input": 123781,
+        "output": 148676,
+        "delta": 24895
+    },
+    "files": {
+        "inputs": {
+            "in": {
+                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/3DPreview/threedxml/model.3dxml",
+                "fileFormat": "3dxml",
+                "fileDataSizeBytes": 123781
+            }
+        },
+        "outputs": {
+            "out": {
+                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/3DPreview/xgf/model.new.xgf",
+                "fileFormat": "XGF",
+                "fileDataSizeBytes": 148676
+            }
+        }
+    },
+    "bySceneModel": {
+        "default": {
+            "generatedAt": "2026-06-27T08:20:11.733Z",
+            "counts": {
+                "fixed": 62,
+                "skipped": 89,
+                "errors": 0,
+                "total": 151
+            },
+            "fixed": [
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "15 SceneGeometries share the same shape (matching topology + edge-length distribution) — 'geom-7-2' may be instanceable from 'geom-7-4', 'geom-7-5', 'geom-7-6', 'geom-7-7', 'geom-7-8', 'geom-7-9', 'geom-7-10', 'geom-7-11', 'geom-7-12', 'geom-7-13', 'geom-7-14', 'geom-7-15', 'geom-7-16', 'geom-7-17' via per-mesh transforms",
+                        "summary": "→ 14 similar",
+                        "resourceId": "geom-7-2",
+                        "context": {
+                            "similar": [
+                                "geom-7-4",
+                                "geom-7-5",
+                                "geom-7-6",
+                                "geom-7-7",
+                                "geom-7-8",
+                                "geom-7-9",
+                                "geom-7-10",
+                                "geom-7-11",
+                                "geom-7-12",
+                                "geom-7-13",
+                                "geom-7-14",
+                                "geom-7-15",
+                                "geom-7-16",
+                                "geom-7-17"
+                            ]
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "trace": "'geom-7-2' kept; instanced 42 meshes from 14 similar geometries, destroyed: geom-7-4, geom-7-5, geom-7-6, geom-7-7, geom-7-8, geom-7-9, geom-7-10, geom-7-11, geom-7-12, geom-7-13, geom-7-14, geom-7-15, geom-7-16, geom-7-17"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "6 SceneGeometries share the same shape (matching topology + edge-length distribution) — 'geom-7-22' may be instanceable from 'geom-7-23', 'geom-7-24', 'geom-7-25', 'geom-7-26', 'geom-7-27' via per-mesh transforms",
+                        "summary": "→ 5 similar",
+                        "resourceId": "geom-7-22",
+                        "context": {
+                            "similar": [
+                                "geom-7-23",
+                                "geom-7-24",
+                                "geom-7-25",
+                                "geom-7-26",
+                                "geom-7-27"
+                            ]
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "trace": "'geom-7-22' kept; instanced 15 meshes from 5 similar geometries, destroyed: geom-7-23, geom-7-24, geom-7-25, geom-7-26, geom-7-27"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "3 SceneGeometries share the same shape (matching topology + edge-length distribution) — 'geom-89-4' may be instanceable from 'geom-89-6', 'geom-89-8' via per-mesh transforms",
+                        "summary": "→ 2 similar",
+                        "resourceId": "geom-89-4",
+                        "context": {
+                            "similar": [
+                                "geom-89-6",
+                                "geom-89-8"
+                            ]
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "trace": "'geom-89-4' kept; instanced 3 meshes from 1 similar geometry, skipped 1 (fit residual above tolerance), destroyed: geom-89-8"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "2 SceneGeometries share the same shape (matching topology + edge-length distribution) — 'geom-89-13' may be instanceable from 'geom-89-14' via per-mesh transforms",
+                        "summary": "→ 1 similar",
+                        "resourceId": "geom-89-13",
+                        "context": {
+                            "similar": [
+                                "geom-89-14"
+                            ]
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "trace": "'geom-89-13' kept; instanced 3 meshes from 1 similar geometry, destroyed: geom-89-14"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "15 SceneGeometries share the same shape (matching topology + edge-length distribution) — 'geom-7-29' may be instanceable from 'geom-7-32', 'geom-7-35', 'geom-7-38', 'geom-7-41', 'geom-7-44', 'geom-7-47', 'geom-7-50', 'geom-7-53', 'geom-7-56', 'geom-7-59', 'geom-7-62', 'geom-7-65', 'geom-7-68', 'geom-7-71' via per-mesh transforms",
+                        "summary": "→ 14 similar",
+                        "resourceId": "geom-7-29",
+                        "context": {
+                            "similar": [
+                                "geom-7-32",
+                                "geom-7-35",
+                                "geom-7-38",
+                                "geom-7-41",
+                                "geom-7-44",
+                                "geom-7-47",
+                                "geom-7-50",
+                                "geom-7-53",
+                                "geom-7-56",
+                                "geom-7-59",
+                                "geom-7-62",
+                                "geom-7-65",
+                                "geom-7-68",
+                                "geom-7-71"
+                            ]
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "trace": "'geom-7-29' kept; instanced 42 meshes from 14 similar geometries, destroyed: geom-7-32, geom-7-35, geom-7-38, geom-7-41, geom-7-44, geom-7-47, geom-7-50, geom-7-53, geom-7-56, geom-7-59, geom-7-62, geom-7-65, geom-7-68, geom-7-71"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "15 SceneGeometries share the same shape (matching topology + edge-length distribution) — 'geom-7-30' may be instanceable from 'geom-7-33', 'geom-7-36', 'geom-7-39', 'geom-7-42', 'geom-7-45', 'geom-7-48', 'geom-7-51', 'geom-7-54', 'geom-7-57', 'geom-7-60', 'geom-7-63', 'geom-7-66', 'geom-7-69', 'geom-7-72' via per-mesh transforms",
+                        "summary": "→ 14 similar",
+                        "resourceId": "geom-7-30",
+                        "context": {
+                            "similar": [
+                                "geom-7-33",
+                                "geom-7-36",
+                                "geom-7-39",
+                                "geom-7-42",
+                                "geom-7-45",
+                                "geom-7-48",
+                                "geom-7-51",
+                                "geom-7-54",
+                                "geom-7-57",
+                                "geom-7-60",
+                                "geom-7-63",
+                                "geom-7-66",
+                                "geom-7-69",
+                                "geom-7-72"
+                            ]
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "trace": "'geom-7-30' kept; instanced 42 meshes from 14 similar geometries, destroyed: geom-7-33, geom-7-36, geom-7-39, geom-7-42, geom-7-45, geom-7-48, geom-7-51, geom-7-54, geom-7-57, geom-7-60, geom-7-63, geom-7-66, geom-7-69, geom-7-72"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "16 SceneGeometries share the same shape (matching topology + edge-length distribution) — 'geom-7-31' may be instanceable from 'geom-7-34', 'geom-7-37', 'geom-7-40', 'geom-7-43', 'geom-7-46', 'geom-7-49', 'geom-7-52', 'geom-7-55', 'geom-7-58', 'geom-7-61', 'geom-7-64', 'geom-7-67', 'geom-7-70', 'geom-7-73', 'geom-7-76' via per-mesh transforms",
+                        "summary": "→ 15 similar",
+                        "resourceId": "geom-7-31",
+                        "context": {
+                            "similar": [
+                                "geom-7-34",
+                                "geom-7-37",
+                                "geom-7-40",
+                                "geom-7-43",
+                                "geom-7-46",
+                                "geom-7-49",
+                                "geom-7-52",
+                                "geom-7-55",
+                                "geom-7-58",
+                                "geom-7-61",
+                                "geom-7-64",
+                                "geom-7-67",
+                                "geom-7-70",
+                                "geom-7-73",
+                                "geom-7-76"
+                            ]
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "trace": "'geom-7-31' kept; instanced 45 meshes from 15 similar geometries, destroyed: geom-7-34, geom-7-37, geom-7-40, geom-7-43, geom-7-46, geom-7-49, geom-7-52, geom-7-55, geom-7-58, geom-7-61, geom-7-64, geom-7-67, geom-7-70, geom-7-73, geom-7-76"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "2 SceneGeometries share the same shape (matching topology + edge-length distribution) — 'geom-89-17' may be instanceable from 'geom-89-19' via per-mesh transforms",
+                        "summary": "→ 1 similar",
+                        "resourceId": "geom-89-17",
+                        "context": {
+                            "similar": [
+                                "geom-89-19"
+                            ]
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "trace": "'geom-89-17' kept; instanced 3 meshes from 1 similar geometry, destroyed: geom-89-19"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'geom-7-0' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 99% / 0% / 99%",
+                        "resourceId": "geom-7-0",
+                        "context": {
+                            "fill": [
+                                0.999847409781033,
+                                0,
+                                0.999847409781033
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "trace": "'geom-7-0': AABB tightened (was 99% / 0% / 99% used → 100%)"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-0' has 4 of 22 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "4 of 22 vertices",
+                        "resourceId": "geom-7-0",
+                        "context": {
+                            "duplicate": 4,
+                            "vertCount": 22
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-7-0': merged 4 duplicate of 22 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-1' has 32 of 84 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "32 of 84 vertices",
+                        "resourceId": "geom-7-1",
+                        "context": {
+                            "duplicate": 32,
+                            "vertCount": 84
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-7-1': merged 32 duplicate of 84 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-2' has 2 of 74 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 74 vertices",
+                        "resourceId": "geom-7-2",
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 74
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-7-2': merged 2 duplicate of 74 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-3' has 34 of 89 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "34 of 89 vertices",
+                        "resourceId": "geom-7-3",
+                        "context": {
+                            "duplicate": 34,
+                            "vertCount": 89
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-7-3': merged 34 duplicate of 89 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-18' has 46 of 115 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "46 of 115 vertices",
+                        "resourceId": "geom-7-18",
+                        "context": {
+                            "duplicate": 46,
+                            "vertCount": 115
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-7-18': merged 46 duplicate of 115 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'geom-7-19' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 99% / 0% / 99%",
+                        "resourceId": "geom-7-19",
+                        "context": {
+                            "fill": [
+                                0.999847409781033,
+                                0,
+                                0.999847409781033
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "trace": "'geom-7-19': AABB tightened (was 99% / 0% / 99% used → 100%)"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-19' has 8 of 50 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "8 of 50 vertices",
+                        "resourceId": "geom-7-19",
+                        "context": {
+                            "duplicate": 8,
+                            "vertCount": 50
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-7-19': merged 8 duplicate of 50 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'geom-7-20' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 99% / 0% / 99%",
+                        "resourceId": "geom-7-20",
+                        "context": {
+                            "fill": [
+                                0.999847409781033,
+                                0,
+                                0.9998321507591363
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "trace": "'geom-7-20': AABB tightened (was 99% / 0% / 99% used → 100%)"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-20' has 14 of 44 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "14 of 44 vertices",
+                        "resourceId": "geom-7-20",
+                        "context": {
+                            "duplicate": 14,
+                            "vertCount": 44
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-7-20': merged 14 duplicate of 44 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-21' has 44 of 114 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "44 of 114 vertices",
+                        "resourceId": "geom-7-21",
+                        "context": {
+                            "duplicate": 44,
+                            "vertCount": 114
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-7-21': merged 44 duplicate of 114 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'geom-7-28' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 99% / 0% / 99%",
+                        "resourceId": "geom-7-28",
+                        "context": {
+                            "fill": [
+                                0.999847409781033,
+                                0,
+                                0.9998321507591363
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "trace": "'geom-7-28': AABB tightened (was 99% / 0% / 99% used → 100%)"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-29' has 12 of 88 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "12 of 88 vertices",
+                        "resourceId": "geom-7-29",
+                        "context": {
+                            "duplicate": 12,
+                            "vertCount": 88
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-7-29': merged 12 duplicate of 88 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-30' has 208 of 380 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "208 of 380 vertices",
+                        "resourceId": "geom-7-30",
+                        "context": {
+                            "duplicate": 208,
+                            "vertCount": 380
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-7-30': merged 208 duplicate of 380 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-31' has 14 of 90 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "14 of 90 vertices",
+                        "resourceId": "geom-7-31",
+                        "context": {
+                            "duplicate": 14,
+                            "vertCount": 90
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-7-31': merged 14 duplicate of 90 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-74' has 14 of 87 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "14 of 87 vertices",
+                        "resourceId": "geom-7-74",
+                        "context": {
+                            "duplicate": 14,
+                            "vertCount": 87
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-7-74': merged 14 duplicate of 87 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-75' has 204 of 375 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "204 of 375 vertices",
+                        "resourceId": "geom-7-75",
+                        "context": {
+                            "duplicate": 204,
+                            "vertCount": 375
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-7-75': merged 204 duplicate of 375 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'geom-89-0' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 99% / 99% / 0%",
+                        "resourceId": "geom-89-0",
+                        "context": {
+                            "fill": [
+                                0.999847409781033,
+                                0.999847409781033,
+                                0
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "trace": "'geom-89-0': AABB tightened (was 99% / 99% / 0% used → 100%)"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'geom-89-1' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 99% / 0% / 99%",
+                        "resourceId": "geom-89-1",
+                        "context": {
+                            "fill": [
+                                0.999847409781033,
+                                0,
+                                0.999847409781033
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "trace": "'geom-89-1': AABB tightened (was 99% / 0% / 99% used → 100%)"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-89-1' has 8 of 31 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "8 of 31 vertices",
+                        "resourceId": "geom-89-1",
+                        "context": {
+                            "duplicate": 8,
+                            "vertCount": 31
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-89-1': merged 8 duplicate of 31 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'geom-89-2' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 99% / 99% / 0%",
+                        "resourceId": "geom-89-2",
+                        "context": {
+                            "fill": [
+                                0.999847409781033,
+                                0.999847409781033,
+                                0
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "trace": "'geom-89-2': AABB tightened (was 99% / 99% / 0% used → 100%)"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'geom-89-3' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 99% / 0% / 99%",
+                        "resourceId": "geom-89-3",
+                        "context": {
+                            "fill": [
+                                0.999847409781033,
+                                0,
+                                0.999847409781033
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "trace": "'geom-89-3': AABB tightened (was 99% / 0% / 99% used → 100%)"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-89-3' has 8 of 31 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "8 of 31 vertices",
+                        "resourceId": "geom-89-3",
+                        "context": {
+                            "duplicate": 8,
+                            "vertCount": 31
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-89-3': merged 8 duplicate of 31 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'geom-89-4' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 0% / 99% / 99%",
+                        "resourceId": "geom-89-4",
+                        "context": {
+                            "fill": [
+                                0,
+                                0.999847409781033,
+                                0.999847409781033
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "trace": "'geom-89-4': AABB tightened (was 0% / 99% / 99% used → 100%)"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'geom-89-5' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 99% / 99% / 0%",
+                        "resourceId": "geom-89-5",
+                        "context": {
+                            "fill": [
+                                0.999847409781033,
+                                0.999847409781033,
+                                0
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "trace": "'geom-89-5': AABB tightened (was 99% / 99% / 0% used → 100%)"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'geom-89-6' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 99% / 0% / 99%",
+                        "resourceId": "geom-89-6",
+                        "context": {
+                            "fill": [
+                                0.999847409781033,
+                                0,
+                                0.999847409781033
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "trace": "'geom-89-6': AABB tightened (was 99% / 0% / 99% used → 100%)"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'geom-89-7' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 99% / 99% / 0%",
+                        "resourceId": "geom-89-7",
+                        "context": {
+                            "fill": [
+                                0.999847409781033,
+                                0.999847409781033,
+                                0
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "trace": "'geom-89-7': AABB tightened (was 99% / 99% / 0% used → 100%)"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-89-10' has 2 of 12 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 12 vertices",
+                        "resourceId": "geom-89-10",
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 12
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-89-10': merged 2 duplicate of 12 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-89-12' has 2 of 26 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 26 vertices",
+                        "resourceId": "geom-89-12",
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 26
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-89-12': merged 2 duplicate of 26 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'geom-89-13' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 99% / 99% / 0%",
+                        "resourceId": "geom-89-13",
+                        "context": {
+                            "fill": [
+                                0.999847409781033,
+                                0.999847409781033,
+                                0
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "trace": "'geom-89-13': AABB tightened (was 99% / 99% / 0% used → 100%)"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-89-15' has 34 of 93 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "34 of 93 vertices",
+                        "resourceId": "geom-89-15",
+                        "context": {
+                            "duplicate": 34,
+                            "vertCount": 93
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-89-15': merged 34 duplicate of 93 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-89-16' has 28 of 79 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "28 of 79 vertices",
+                        "resourceId": "geom-89-16",
+                        "context": {
+                            "duplicate": 28,
+                            "vertCount": 79
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-89-16': merged 28 duplicate of 79 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'geom-89-17' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 99% / 99% / 0%",
+                        "resourceId": "geom-89-17",
+                        "context": {
+                            "fill": [
+                                0.999847409781033,
+                                0.999847409781033,
+                                0
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "trace": "'geom-89-17': AABB tightened (was 99% / 99% / 0% used → 100%)"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-89-17' has 2 of 14 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 14 vertices",
+                        "resourceId": "geom-89-17",
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 14
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-89-17': merged 2 duplicate of 14 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-89-18' has 133 of 279 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "133 of 279 vertices",
+                        "resourceId": "geom-89-18",
+                        "context": {
+                            "duplicate": 133,
+                            "vertCount": 279
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-89-18': merged 133 duplicate of 279 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-114-0' has 108 of 256 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "108 of 256 vertices",
+                        "resourceId": "geom-114-0",
+                        "context": {
+                            "duplicate": 108,
+                            "vertCount": 256
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-2"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-114-0': merged 108 duplicate of 256 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'geom-114-1' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 0% / 99% / 99%",
+                        "resourceId": "geom-114-1",
+                        "context": {
+                            "fill": [
+                                0,
+                                0.999847409781033,
+                                0.999847409781033
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-2"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "trace": "'geom-114-1': AABB tightened (was 0% / 99% / 99% used → 100%)"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-114-1' has 12 of 82 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "12 of 82 vertices",
+                        "resourceId": "geom-114-1",
+                        "context": {
+                            "duplicate": 12,
+                            "vertCount": 82
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-2"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-114-1': merged 12 duplicate of 82 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-114-2' has 238 of 454 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "238 of 454 vertices",
+                        "resourceId": "geom-114-2",
+                        "context": {
+                            "duplicate": 238,
+                            "vertCount": 454
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-2"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-114-2': merged 238 duplicate of 454 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-114-3' has 54 of 145 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "54 of 145 vertices",
+                        "resourceId": "geom-114-3",
+                        "context": {
+                            "duplicate": 54,
+                            "vertCount": 145
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-2"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-114-3': merged 54 duplicate of 145 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'geom-114-4' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 0% / 99% / 99%",
+                        "resourceId": "geom-114-4",
+                        "context": {
+                            "fill": [
+                                0,
+                                0.999847409781033,
+                                0.999847409781033
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-2"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "trace": "'geom-114-4': AABB tightened (was 0% / 99% / 99% used → 100%)"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-114-4' has 4 of 60 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "4 of 60 vertices",
+                        "resourceId": "geom-114-4",
+                        "context": {
+                            "duplicate": 4,
+                            "vertCount": 60
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-2"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-114-4': merged 4 duplicate of 60 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-114-5' has 2 of 60 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 60 vertices",
+                        "resourceId": "geom-114-5",
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 60
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-2"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-114-5': merged 2 duplicate of 60 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'geom-114-6' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 0% / 99% / 99%",
+                        "resourceId": "geom-114-6",
+                        "context": {
+                            "fill": [
+                                0,
+                                0.999847409781033,
+                                0.999847409781033
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-2"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "trace": "'geom-114-6': AABB tightened (was 0% / 99% / 99% used → 100%)"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-114-6' has 6 of 61 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "6 of 61 vertices",
+                        "resourceId": "geom-114-6",
+                        "context": {
+                            "duplicate": 6,
+                            "vertCount": 61
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-2"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-114-6': merged 6 duplicate of 61 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-114-7' has 52 of 130 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "52 of 130 vertices",
+                        "resourceId": "geom-114-7",
+                        "context": {
+                            "duplicate": 52,
+                            "vertCount": 130
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-2"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-114-7': merged 52 duplicate of 130 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-114-8' has 8 of 114 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "8 of 114 vertices",
+                        "resourceId": "geom-114-8",
+                        "context": {
+                            "duplicate": 8,
+                            "vertCount": 114
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-2"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-114-8': merged 8 duplicate of 114 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-114-9' has 130 of 304 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "130 of 304 vertices",
+                        "resourceId": "geom-114-9",
+                        "context": {
+                            "duplicate": 130,
+                            "vertCount": 304
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-2"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-114-9': merged 130 duplicate of 304 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'geom-114-10' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 0% / 99% / 99%",
+                        "resourceId": "geom-114-10",
+                        "context": {
+                            "fill": [
+                                0,
+                                0.999847409781033,
+                                0.999847409781033
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-2"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "trace": "'geom-114-10': AABB tightened (was 0% / 99% / 99% used → 100%)"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-114-10' has 8 of 78 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "8 of 78 vertices",
+                        "resourceId": "geom-114-10",
+                        "context": {
+                            "duplicate": 8,
+                            "vertCount": 78
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-2"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-114-10': merged 8 duplicate of 78 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-114-11' has 98 of 241 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "98 of 241 vertices",
+                        "resourceId": "geom-114-11",
+                        "context": {
+                            "duplicate": 98,
+                            "vertCount": 241
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-2"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-114-11': merged 98 duplicate of 241 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-114-12' has 50 of 185 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "50 of 185 vertices",
+                        "resourceId": "geom-114-12",
+                        "context": {
+                            "duplicate": 50,
+                            "vertCount": 185
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-2"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-114-12': merged 50 duplicate of 185 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-114-13' has 50 of 207 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "50 of 207 vertices",
+                        "resourceId": "geom-114-13",
+                        "context": {
+                            "duplicate": 50,
+                            "vertCount": 207
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-2"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-114-13': merged 50 duplicate of 207 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-114-14' has 24 of 103 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "24 of 103 vertices",
+                        "resourceId": "geom-114-14",
+                        "context": {
+                            "duplicate": 24,
+                            "vertCount": 103
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-2"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'geom-114-14': merged 24 duplicate of 103 vertex slots"
+                }
+            ],
+            "skipped": [
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "2 SceneGeometries share the same shape (matching topology + edge-length distribution) — 'geom-89-0' may be instanceable from 'geom-89-2' via per-mesh transforms",
+                        "summary": "→ 1 similar",
+                        "resourceId": "geom-89-0",
+                        "context": {
+                            "similar": [
+                                "geom-89-2"
+                            ]
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "reason": "precondition-failed"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "2 SceneGeometries share the same shape (matching topology + edge-length distribution) — 'geom-89-5' may be instanceable from 'geom-89-7' via per-mesh transforms",
+                        "summary": "→ 1 similar",
+                        "resourceId": "geom-89-5",
+                        "context": {
+                            "similar": [
+                                "geom-89-7"
+                            ]
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "reason": "precondition-failed"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "2 SceneGeometries share the same shape (matching topology + edge-length distribution) — 'geom-89-1' may be instanceable from 'geom-89-3' via per-mesh transforms",
+                        "summary": "→ 1 similar",
+                        "resourceId": "geom-89-1",
+                        "context": {
+                            "similar": [
+                                "geom-89-3"
+                            ]
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "reason": "precondition-failed"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'geom-7-0' AABB has zero extent on Y — degenerate (point or line); won't render visibly",
+                        "summary": "zero on Y",
+                        "resourceId": "geom-7-0",
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-4' has 2 of 74 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 74 vertices",
+                        "resourceId": "geom-7-4",
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 74
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-5' has 2 of 74 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 74 vertices",
+                        "resourceId": "geom-7-5",
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 74
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-6' has 2 of 74 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 74 vertices",
+                        "resourceId": "geom-7-6",
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 74
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-7' has 2 of 74 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 74 vertices",
+                        "resourceId": "geom-7-7",
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 74
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-8' has 2 of 74 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 74 vertices",
+                        "resourceId": "geom-7-8",
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 74
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-9' has 2 of 74 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 74 vertices",
+                        "resourceId": "geom-7-9",
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 74
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-10' has 2 of 74 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 74 vertices",
+                        "resourceId": "geom-7-10",
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 74
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-11' has 2 of 74 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 74 vertices",
+                        "resourceId": "geom-7-11",
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 74
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-12' has 2 of 74 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 74 vertices",
+                        "resourceId": "geom-7-12",
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 74
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-13' has 2 of 74 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 74 vertices",
+                        "resourceId": "geom-7-13",
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 74
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-14' has 2 of 74 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 74 vertices",
+                        "resourceId": "geom-7-14",
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 74
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-15' has 2 of 74 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 74 vertices",
+                        "resourceId": "geom-7-15",
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 74
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-16' has 2 of 74 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 74 vertices",
+                        "resourceId": "geom-7-16",
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 74
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-17' has 2 of 74 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 74 vertices",
+                        "resourceId": "geom-7-17",
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 74
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'geom-7-19' AABB has zero extent on Y — degenerate (point or line); won't render visibly",
+                        "summary": "zero on Y",
+                        "resourceId": "geom-7-19",
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'geom-7-20' AABB has zero extent on Y — degenerate (point or line); won't render visibly",
+                        "summary": "zero on Y",
+                        "resourceId": "geom-7-20",
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'geom-7-23' AABB has zero extent on X — degenerate (point or line); won't render visibly",
+                        "summary": "zero on X",
+                        "resourceId": "geom-7-23",
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'geom-7-23' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 0% / 99% / 99%",
+                        "resourceId": "geom-7-23",
+                        "context": {
+                            "fill": [
+                                0,
+                                0.999847409781033,
+                                0.9998321507591363
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'geom-7-26' AABB has zero extent on X — degenerate (point or line); won't render visibly",
+                        "summary": "zero on X",
+                        "resourceId": "geom-7-26",
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'geom-7-26' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 0% / 99% / 99%",
+                        "resourceId": "geom-7-26",
+                        "context": {
+                            "fill": [
+                                0,
+                                0.999847409781033,
+                                0.9998321507591363
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'geom-7-28' AABB has zero extent on Y — degenerate (point or line); won't render visibly",
+                        "summary": "zero on Y",
+                        "resourceId": "geom-7-28",
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-32' has 12 of 88 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "12 of 88 vertices",
+                        "resourceId": "geom-7-32",
+                        "context": {
+                            "duplicate": 12,
+                            "vertCount": 88
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-33' has 208 of 380 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "208 of 380 vertices",
+                        "resourceId": "geom-7-33",
+                        "context": {
+                            "duplicate": 208,
+                            "vertCount": 380
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-34' has 14 of 90 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "14 of 90 vertices",
+                        "resourceId": "geom-7-34",
+                        "context": {
+                            "duplicate": 14,
+                            "vertCount": 90
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-35' has 12 of 88 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "12 of 88 vertices",
+                        "resourceId": "geom-7-35",
+                        "context": {
+                            "duplicate": 12,
+                            "vertCount": 88
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-36' has 208 of 380 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "208 of 380 vertices",
+                        "resourceId": "geom-7-36",
+                        "context": {
+                            "duplicate": 208,
+                            "vertCount": 380
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-37' has 14 of 90 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "14 of 90 vertices",
+                        "resourceId": "geom-7-37",
+                        "context": {
+                            "duplicate": 14,
+                            "vertCount": 90
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-38' has 12 of 88 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "12 of 88 vertices",
+                        "resourceId": "geom-7-38",
+                        "context": {
+                            "duplicate": 12,
+                            "vertCount": 88
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-39' has 208 of 380 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "208 of 380 vertices",
+                        "resourceId": "geom-7-39",
+                        "context": {
+                            "duplicate": 208,
+                            "vertCount": 380
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-40' has 14 of 90 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "14 of 90 vertices",
+                        "resourceId": "geom-7-40",
+                        "context": {
+                            "duplicate": 14,
+                            "vertCount": 90
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-41' has 12 of 88 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "12 of 88 vertices",
+                        "resourceId": "geom-7-41",
+                        "context": {
+                            "duplicate": 12,
+                            "vertCount": 88
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-42' has 208 of 380 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "208 of 380 vertices",
+                        "resourceId": "geom-7-42",
+                        "context": {
+                            "duplicate": 208,
+                            "vertCount": 380
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-43' has 14 of 90 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "14 of 90 vertices",
+                        "resourceId": "geom-7-43",
+                        "context": {
+                            "duplicate": 14,
+                            "vertCount": 90
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-44' has 12 of 88 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "12 of 88 vertices",
+                        "resourceId": "geom-7-44",
+                        "context": {
+                            "duplicate": 12,
+                            "vertCount": 88
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-45' has 208 of 380 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "208 of 380 vertices",
+                        "resourceId": "geom-7-45",
+                        "context": {
+                            "duplicate": 208,
+                            "vertCount": 380
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-46' has 14 of 90 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "14 of 90 vertices",
+                        "resourceId": "geom-7-46",
+                        "context": {
+                            "duplicate": 14,
+                            "vertCount": 90
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-47' has 12 of 88 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "12 of 88 vertices",
+                        "resourceId": "geom-7-47",
+                        "context": {
+                            "duplicate": 12,
+                            "vertCount": 88
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-48' has 208 of 380 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "208 of 380 vertices",
+                        "resourceId": "geom-7-48",
+                        "context": {
+                            "duplicate": 208,
+                            "vertCount": 380
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-49' has 14 of 90 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "14 of 90 vertices",
+                        "resourceId": "geom-7-49",
+                        "context": {
+                            "duplicate": 14,
+                            "vertCount": 90
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-50' has 12 of 88 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "12 of 88 vertices",
+                        "resourceId": "geom-7-50",
+                        "context": {
+                            "duplicate": 12,
+                            "vertCount": 88
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-51' has 208 of 380 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "208 of 380 vertices",
+                        "resourceId": "geom-7-51",
+                        "context": {
+                            "duplicate": 208,
+                            "vertCount": 380
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-52' has 14 of 90 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "14 of 90 vertices",
+                        "resourceId": "geom-7-52",
+                        "context": {
+                            "duplicate": 14,
+                            "vertCount": 90
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-53' has 12 of 88 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "12 of 88 vertices",
+                        "resourceId": "geom-7-53",
+                        "context": {
+                            "duplicate": 12,
+                            "vertCount": 88
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-54' has 208 of 380 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "208 of 380 vertices",
+                        "resourceId": "geom-7-54",
+                        "context": {
+                            "duplicate": 208,
+                            "vertCount": 380
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-55' has 14 of 90 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "14 of 90 vertices",
+                        "resourceId": "geom-7-55",
+                        "context": {
+                            "duplicate": 14,
+                            "vertCount": 90
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-56' has 12 of 88 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "12 of 88 vertices",
+                        "resourceId": "geom-7-56",
+                        "context": {
+                            "duplicate": 12,
+                            "vertCount": 88
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-57' has 208 of 380 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "208 of 380 vertices",
+                        "resourceId": "geom-7-57",
+                        "context": {
+                            "duplicate": 208,
+                            "vertCount": 380
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-58' has 14 of 90 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "14 of 90 vertices",
+                        "resourceId": "geom-7-58",
+                        "context": {
+                            "duplicate": 14,
+                            "vertCount": 90
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-59' has 12 of 88 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "12 of 88 vertices",
+                        "resourceId": "geom-7-59",
+                        "context": {
+                            "duplicate": 12,
+                            "vertCount": 88
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-60' has 208 of 380 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "208 of 380 vertices",
+                        "resourceId": "geom-7-60",
+                        "context": {
+                            "duplicate": 208,
+                            "vertCount": 380
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-61' has 14 of 90 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "14 of 90 vertices",
+                        "resourceId": "geom-7-61",
+                        "context": {
+                            "duplicate": 14,
+                            "vertCount": 90
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-62' has 12 of 88 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "12 of 88 vertices",
+                        "resourceId": "geom-7-62",
+                        "context": {
+                            "duplicate": 12,
+                            "vertCount": 88
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-63' has 208 of 380 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "208 of 380 vertices",
+                        "resourceId": "geom-7-63",
+                        "context": {
+                            "duplicate": 208,
+                            "vertCount": 380
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-64' has 14 of 90 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "14 of 90 vertices",
+                        "resourceId": "geom-7-64",
+                        "context": {
+                            "duplicate": 14,
+                            "vertCount": 90
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-65' has 12 of 88 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "12 of 88 vertices",
+                        "resourceId": "geom-7-65",
+                        "context": {
+                            "duplicate": 12,
+                            "vertCount": 88
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-66' has 208 of 380 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "208 of 380 vertices",
+                        "resourceId": "geom-7-66",
+                        "context": {
+                            "duplicate": 208,
+                            "vertCount": 380
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-67' has 14 of 90 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "14 of 90 vertices",
+                        "resourceId": "geom-7-67",
+                        "context": {
+                            "duplicate": 14,
+                            "vertCount": 90
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-68' has 12 of 88 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "12 of 88 vertices",
+                        "resourceId": "geom-7-68",
+                        "context": {
+                            "duplicate": 12,
+                            "vertCount": 88
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-69' has 208 of 380 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "208 of 380 vertices",
+                        "resourceId": "geom-7-69",
+                        "context": {
+                            "duplicate": 208,
+                            "vertCount": 380
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-70' has 14 of 90 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "14 of 90 vertices",
+                        "resourceId": "geom-7-70",
+                        "context": {
+                            "duplicate": 14,
+                            "vertCount": 90
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-71' has 12 of 88 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "12 of 88 vertices",
+                        "resourceId": "geom-7-71",
+                        "context": {
+                            "duplicate": 12,
+                            "vertCount": 88
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-72' has 208 of 380 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "208 of 380 vertices",
+                        "resourceId": "geom-7-72",
+                        "context": {
+                            "duplicate": 208,
+                            "vertCount": 380
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-73' has 14 of 90 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "14 of 90 vertices",
+                        "resourceId": "geom-7-73",
+                        "context": {
+                            "duplicate": 14,
+                            "vertCount": 90
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-7-76' has 14 of 90 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "14 of 90 vertices",
+                        "resourceId": "geom-7-76",
+                        "context": {
+                            "duplicate": 14,
+                            "vertCount": 90
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-0",
+                                "object-3",
+                                "object-5"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'geom-89-0' AABB has zero extent on Z — degenerate (point or line); won't render visibly",
+                        "summary": "zero on Z",
+                        "resourceId": "geom-89-0",
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'geom-89-1' AABB has zero extent on Y — degenerate (point or line); won't render visibly",
+                        "summary": "zero on Y",
+                        "resourceId": "geom-89-1",
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'geom-89-2' AABB has zero extent on Z — degenerate (point or line); won't render visibly",
+                        "summary": "zero on Z",
+                        "resourceId": "geom-89-2",
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'geom-89-3' AABB has zero extent on Y — degenerate (point or line); won't render visibly",
+                        "summary": "zero on Y",
+                        "resourceId": "geom-89-3",
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'geom-89-4' AABB has zero extent on X — degenerate (point or line); won't render visibly",
+                        "summary": "zero on X",
+                        "resourceId": "geom-89-4",
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'geom-89-5' AABB has zero extent on Z — degenerate (point or line); won't render visibly",
+                        "summary": "zero on Z",
+                        "resourceId": "geom-89-5",
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'geom-89-6' AABB has zero extent on Y — degenerate (point or line); won't render visibly",
+                        "summary": "zero on Y",
+                        "resourceId": "geom-89-6",
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'geom-89-7' AABB has zero extent on Z — degenerate (point or line); won't render visibly",
+                        "summary": "zero on Z",
+                        "resourceId": "geom-89-7",
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'geom-89-8' AABB has zero extent on X — degenerate (point or line); won't render visibly",
+                        "summary": "zero on X",
+                        "resourceId": "geom-89-8",
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'geom-89-8' uses 0.0% of the u16 quantisation range on at least one axis (fill X=0.0%, Y=100.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 0% / 99% / 99%",
+                        "resourceId": "geom-89-8",
+                        "context": {
+                            "fill": [
+                                0,
+                                0.999847409781033,
+                                0.999847409781033
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'geom-89-13' AABB has zero extent on Z — degenerate (point or line); won't render visibly",
+                        "summary": "zero on Z",
+                        "resourceId": "geom-89-13",
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'geom-89-14' AABB has zero extent on Z — degenerate (point or line); won't render visibly",
+                        "summary": "zero on Z",
+                        "resourceId": "geom-89-14",
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'geom-89-14' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 99% / 99% / 0%",
+                        "resourceId": "geom-89-14",
+                        "context": {
+                            "fill": [
+                                0.999847409781033,
+                                0.999847409781033,
+                                0
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'geom-89-17' AABB has zero extent on Z — degenerate (point or line); won't render visibly",
+                        "summary": "zero on Z",
+                        "resourceId": "geom-89-17",
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'geom-89-19' AABB has zero extent on Z — degenerate (point or line); won't render visibly",
+                        "summary": "zero on Z",
+                        "resourceId": "geom-89-19",
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'geom-89-19' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 99% / 99% / 0%",
+                        "resourceId": "geom-89-19",
+                        "context": {
+                            "fill": [
+                                0.999847409781033,
+                                0.999847409781033,
+                                0
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'geom-89-19' has 2 of 14 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 14 vertices",
+                        "resourceId": "geom-89-19",
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 14
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "object-1",
+                                "object-4",
+                                "object-6"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "reason": "target-missing"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'geom-114-1' AABB has zero extent on X — degenerate (point or line); won't render visibly",
+                        "summary": "zero on X",
+                        "resourceId": "geom-114-1",
+                        "highlight": {
+                            "objectIds": [
+                                "object-2"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'geom-114-4' AABB has zero extent on X — degenerate (point or line); won't render visibly",
+                        "summary": "zero on X",
+                        "resourceId": "geom-114-4",
+                        "highlight": {
+                            "objectIds": [
+                                "object-2"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'geom-114-6' AABB has zero extent on X — degenerate (point or line); won't render visibly",
+                        "summary": "zero on X",
+                        "resourceId": "geom-114-6",
+                        "highlight": {
+                            "objectIds": [
+                                "object-2"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'geom-114-10' AABB has zero extent on X — degenerate (point or line); won't render visibly",
+                        "summary": "zero on X",
+                        "resourceId": "geom-114-10",
+                        "highlight": {
+                            "objectIds": [
+                                "object-2"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                }
+            ],
+            "errors": []
+        }
+    }
+}

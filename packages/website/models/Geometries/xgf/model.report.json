@@ -1,0 +1,243 @@
+{
+    "counts": {
+        "sceneModels": 1,
+        "fixed": 8,
+        "skipped": 2,
+        "errors": 0
+    },
+    "bytes": {
+        "input": 299488,
+        "output": 176828,
+        "delta": -122660
+    },
+    "files": {
+        "inputs": {
+            "in": {
+                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/Geometries/scenemodel/model.json",
+                "fileFormat": "SceneModelParams",
+                "fileDataSizeBytes": 299488
+            }
+        },
+        "outputs": {
+            "out": {
+                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/Geometries/xgf/model.new.xgf",
+                "fileFormat": "XGF",
+                "fileDataSizeBytes": 176828
+            }
+        }
+    },
+    "bySceneModel": {
+        "default": {
+            "generatedAt": "2026-06-27T08:31:16.356Z",
+            "counts": {
+                "fixed": 8,
+                "skipped": 2,
+                "errors": 0,
+                "total": 10
+            },
+            "fixed": [
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'boxGeometry' has 16 of 24 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "16 of 24 vertices",
+                        "resourceId": "boxGeometry",
+                        "context": {
+                            "duplicate": 16,
+                            "vertCount": 24
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "geometries"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'boxGeometry': merged 16 duplicate of 24 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DEGENERATE_TRIANGLES",
+                        "message": "SceneGeometry 'sphereGeometry' has 120 of 7200 triangles with zero area (repeated indices or collinear vertices) — costs GPU work but renders nothing",
+                        "summary": "120 of 7,200 triangles",
+                        "resourceId": "sphereGeometry",
+                        "context": {
+                            "degenerate": 120,
+                            "triCount": 7200
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "geometries"
+                            ]
+                        }
+                    },
+                    "strategy": "Drop zero-area triangles",
+                    "trace": "'sphereGeometry': dropped 120 of 7,200 triangles"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'sphereGeometry' has 179 of 3721 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "179 of 3,721 vertices",
+                        "resourceId": "sphereGeometry",
+                        "context": {
+                            "duplicate": 179,
+                            "vertCount": 3721
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "geometries"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'sphereGeometry': merged 179 duplicate of 3,721 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'torusGeometry' has 57 of 825 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "57 of 825 vertices",
+                        "resourceId": "torusGeometry",
+                        "context": {
+                            "duplicate": 57,
+                            "vertCount": 825
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "geometries"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'torusGeometry': merged 57 duplicate of 825 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DEGENERATE_TRIANGLES",
+                        "message": "SceneGeometry 'cylinderGeometry' has 2 of 82 triangles with zero area (repeated indices or collinear vertices) — costs GPU work but renders nothing",
+                        "summary": "2 of 82 triangles",
+                        "resourceId": "cylinderGeometry",
+                        "context": {
+                            "degenerate": 2,
+                            "triCount": 82
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "geometries"
+                            ]
+                        }
+                    },
+                    "strategy": "Drop zero-area triangles",
+                    "trace": "'cylinderGeometry': dropped 2 of 82 triangles"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry 'cylinderGeometry' has 44 of 86 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "44 of 86 vertices",
+                        "resourceId": "cylinderGeometry",
+                        "context": {
+                            "duplicate": 44,
+                            "vertCount": 86
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "geometries"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'cylinderGeometry': merged 44 duplicate of 86 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'gridGeometry' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=0.0%, Z=100.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 99% / 0% / 99%",
+                        "resourceId": "gridGeometry",
+                        "context": {
+                            "fill": [
+                                0.999847409781033,
+                                0,
+                                0.999847409781033
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "geometries"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "trace": "'gridGeometry': AABB tightened (was 99% / 0% / 99% used → 100%)"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_AABB_NOT_TIGHT",
+                        "message": "SceneGeometry 'textGeometry' uses 0.0% of the u16 quantisation range on at least one axis (fill X=100.0%, Y=100.0%, Z=0.0%; threshold 50%) — re-tighten via tightenAabb to recover precision",
+                        "summary": "fill 99% / 99% / 0%",
+                        "resourceId": "textGeometry",
+                        "context": {
+                            "fill": [
+                                0.999847409781033,
+                                0.9998321507591363,
+                                0
+                            ],
+                            "threshold": 0.5
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "geometries"
+                            ]
+                        }
+                    },
+                    "strategy": "Tighten AABB and re-quantize positions",
+                    "trace": "'textGeometry': AABB tightened (was 99% / 99% / 0% used → 100%)"
+                }
+            ],
+            "skipped": [
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'gridGeometry' AABB has zero extent on Y — degenerate (point or line); won't render visibly",
+                        "summary": "zero on Y",
+                        "resourceId": "gridGeometry",
+                        "highlight": {
+                            "objectIds": [
+                                "geometries"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_ZERO_VOLUME_AABB",
+                        "message": "SceneGeometry 'textGeometry' AABB has zero extent on Z — degenerate (point or line); won't render visibly",
+                        "summary": "zero on Z",
+                        "resourceId": "textGeometry",
+                        "highlight": {
+                            "objectIds": [
+                                "geometries"
+                            ]
+                        }
+                    },
+                    "reason": "no-strategy"
+                }
+            ],
+            "errors": []
+        }
+    }
+}

@@ -1,0 +1,983 @@
+{
+    "counts": {
+        "sceneModels": 1,
+        "fixed": 34,
+        "skipped": 1,
+        "errors": 14
+    },
+    "bytes": {
+        "input": 588584,
+        "output": 305684,
+        "delta": -282900
+    },
+    "files": {
+        "inputs": {
+            "in": {
+                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/BlenderHouse/dotbim/model.bim",
+                "fileFormat": "DotBIM",
+                "fileDataSizeBytes": 588584
+            }
+        },
+        "outputs": {
+            "out": {
+                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/BlenderHouse/xgf/model.new.xgf",
+                "fileFormat": "XGF",
+                "fileDataSizeBytes": 305684
+            }
+        }
+    },
+    "bySceneModel": {
+        "default": {
+            "generatedAt": "2026-06-27T08:20:16.966Z",
+            "counts": {
+                "fixed": 34,
+                "skipped": 1,
+                "errors": 14,
+                "total": 49
+            },
+            "fixed": [
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '5' has 4 of 40 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "4 of 40 vertices",
+                        "resourceId": 5,
+                        "context": {
+                            "duplicate": 4,
+                            "vertCount": 40
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "532b09c1-0b94-4078-bb71-db59570a901e"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'5': merged 4 duplicate of 40 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_INCONSISTENT_WINDING",
+                        "message": "SceneGeometry '9' has 48 directed edges shared by ≥2 triangles in the same direction — adjacent faces wind inconsistently (backface-cull artefacts); unify via unifyTriangleWinding",
+                        "summary": "48 same-direction edges",
+                        "resourceId": 9,
+                        "context": {
+                            "conflictingEdges": 48
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "f3121571-3528-4bbe-a23b-cfb7c7721f7b"
+                            ]
+                        }
+                    },
+                    "strategy": "Unify triangle winding",
+                    "trace": "'9': flipped 447 of 868 triangles"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DEGENERATE_TRIANGLES",
+                        "message": "SceneGeometry '10' has 1 of 356 triangles with zero area (repeated indices or collinear vertices) — costs GPU work but renders nothing",
+                        "summary": "1 of 356 triangles",
+                        "resourceId": 10,
+                        "context": {
+                            "degenerate": 1,
+                            "triCount": 356
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "7efd10e4-09fc-4e95-b722-4bcb99865384"
+                            ]
+                        }
+                    },
+                    "strategy": "Drop zero-area triangles",
+                    "trace": "'10': dropped 1 of 356 triangles"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '10' has 23 of 247 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "23 of 247 vertices",
+                        "resourceId": 10,
+                        "context": {
+                            "duplicate": 23,
+                            "vertCount": 247
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "7efd10e4-09fc-4e95-b722-4bcb99865384"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'10': merged 23 duplicate of 247 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '17' has 8 of 74 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "8 of 74 vertices",
+                        "resourceId": 17,
+                        "context": {
+                            "duplicate": 8,
+                            "vertCount": 74
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "22332ba6-89ae-4473-8186-bc1eb8b414d8"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'17': merged 8 duplicate of 74 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '18' has 8 of 74 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "8 of 74 vertices",
+                        "resourceId": 18,
+                        "context": {
+                            "duplicate": 8,
+                            "vertCount": 74
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "c5f849fa-223c-46af-a2d6-d36b3e6a9ccd"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'18': merged 8 duplicate of 74 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '19' has 8 of 74 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "8 of 74 vertices",
+                        "resourceId": 19,
+                        "context": {
+                            "duplicate": 8,
+                            "vertCount": 74
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "ea54658c-20c4-46ea-93a9-2db64d02a9d4"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'19': merged 8 duplicate of 74 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '20' has 8 of 74 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "8 of 74 vertices",
+                        "resourceId": 20,
+                        "context": {
+                            "duplicate": 8,
+                            "vertCount": 74
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "4e35cf4d-0585-422a-a061-535be9715bb8"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'20': merged 8 duplicate of 74 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '21' has 8 of 74 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "8 of 74 vertices",
+                        "resourceId": 21,
+                        "context": {
+                            "duplicate": 8,
+                            "vertCount": 74
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "26be520b-75ea-4304-b539-fef67d5e8ae8"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'21': merged 8 duplicate of 74 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '22' has 23 of 148 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "23 of 148 vertices",
+                        "resourceId": 22,
+                        "context": {
+                            "duplicate": 23,
+                            "vertCount": 148
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "a4a708a8-24d3-4564-8d3f-7106817e1c34"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'22': merged 23 duplicate of 148 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '23' has 8 of 74 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "8 of 74 vertices",
+                        "resourceId": 23,
+                        "context": {
+                            "duplicate": 8,
+                            "vertCount": 74
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "47beeb27-8b02-41c0-8f04-c6ea532d7dcd"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'23': merged 8 duplicate of 74 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '24' has 8 of 74 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "8 of 74 vertices",
+                        "resourceId": 24,
+                        "context": {
+                            "duplicate": 8,
+                            "vertCount": 74
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "dd78347f-37e1-48b5-8fa5-6a7120c79968"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'24': merged 8 duplicate of 74 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DEGENERATE_TRIANGLES",
+                        "message": "SceneGeometry '27' has 2 of 60 triangles with zero area (repeated indices or collinear vertices) — costs GPU work but renders nothing",
+                        "summary": "2 of 60 triangles",
+                        "resourceId": 27,
+                        "context": {
+                            "degenerate": 2,
+                            "triCount": 60
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "30ee2bbf-6695-4c45-bc96-381c16e28408"
+                            ]
+                        }
+                    },
+                    "strategy": "Drop zero-area triangles",
+                    "trace": "'27': dropped 2 of 60 triangles"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DEGENERATE_TRIANGLES",
+                        "message": "SceneGeometry '28' has 10 of 196 triangles with zero area (repeated indices or collinear vertices) — costs GPU work but renders nothing",
+                        "summary": "10 of 196 triangles",
+                        "resourceId": 28,
+                        "context": {
+                            "degenerate": 10,
+                            "triCount": 196
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "7a5df23f-b428-478b-bbaa-a96873e01a14"
+                            ]
+                        }
+                    },
+                    "strategy": "Drop zero-area triangles",
+                    "trace": "'28': dropped 10 of 196 triangles"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DEGENERATE_TRIANGLES",
+                        "message": "SceneGeometry '29' has 7 of 176 triangles with zero area (repeated indices or collinear vertices) — costs GPU work but renders nothing",
+                        "summary": "7 of 176 triangles",
+                        "resourceId": 29,
+                        "context": {
+                            "degenerate": 7,
+                            "triCount": 176
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "3f2d3408-c7ef-4b01-b802-100f06b8bb19"
+                            ]
+                        }
+                    },
+                    "strategy": "Drop zero-area triangles",
+                    "trace": "'29': dropped 7 of 176 triangles"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DEGENERATE_TRIANGLES",
+                        "message": "SceneGeometry '48' has 4 of 72 triangles with zero area (repeated indices or collinear vertices) — costs GPU work but renders nothing",
+                        "summary": "4 of 72 triangles",
+                        "resourceId": 48,
+                        "context": {
+                            "degenerate": 4,
+                            "triCount": 72
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "49452446-dd54-425e-a436-b963a3d0ce09"
+                            ]
+                        }
+                    },
+                    "strategy": "Drop zero-area triangles",
+                    "trace": "'48': dropped 4 of 72 triangles"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DEGENERATE_TRIANGLES",
+                        "message": "SceneGeometry '49' has 4 of 72 triangles with zero area (repeated indices or collinear vertices) — costs GPU work but renders nothing",
+                        "summary": "4 of 72 triangles",
+                        "resourceId": 49,
+                        "context": {
+                            "degenerate": 4,
+                            "triCount": 72
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "831bfbd0-fcbc-4a91-905b-e55495ccc013"
+                            ]
+                        }
+                    },
+                    "strategy": "Drop zero-area triangles",
+                    "trace": "'49': dropped 4 of 72 triangles"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DEGENERATE_TRIANGLES",
+                        "message": "SceneGeometry '50' has 4 of 72 triangles with zero area (repeated indices or collinear vertices) — costs GPU work but renders nothing",
+                        "summary": "4 of 72 triangles",
+                        "resourceId": 50,
+                        "context": {
+                            "degenerate": 4,
+                            "triCount": 72
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "d734bd66-4a9c-4e9a-992e-86a392161387"
+                            ]
+                        }
+                    },
+                    "strategy": "Drop zero-area triangles",
+                    "trace": "'50': dropped 4 of 72 triangles"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DEGENERATE_TRIANGLES",
+                        "message": "SceneGeometry '51' has 4 of 72 triangles with zero area (repeated indices or collinear vertices) — costs GPU work but renders nothing",
+                        "summary": "4 of 72 triangles",
+                        "resourceId": 51,
+                        "context": {
+                            "degenerate": 4,
+                            "triCount": 72
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "97d86d4d-9c28-4c75-8a42-ae9d4ba2aca7"
+                            ]
+                        }
+                    },
+                    "strategy": "Drop zero-area triangles",
+                    "trace": "'51': dropped 4 of 72 triangles"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DEGENERATE_TRIANGLES",
+                        "message": "SceneGeometry '52' has 4 of 72 triangles with zero area (repeated indices or collinear vertices) — costs GPU work but renders nothing",
+                        "summary": "4 of 72 triangles",
+                        "resourceId": 52,
+                        "context": {
+                            "degenerate": 4,
+                            "triCount": 72
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "5512bdb7-bba3-40b1-bf12-768fbb8c6d29"
+                            ]
+                        }
+                    },
+                    "strategy": "Drop zero-area triangles",
+                    "trace": "'52': dropped 4 of 72 triangles"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DEGENERATE_TRIANGLES",
+                        "message": "SceneGeometry '53' has 4 of 72 triangles with zero area (repeated indices or collinear vertices) — costs GPU work but renders nothing",
+                        "summary": "4 of 72 triangles",
+                        "resourceId": 53,
+                        "context": {
+                            "degenerate": 4,
+                            "triCount": 72
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "f865bcf9-d089-4ae9-ba5f-e2a13f40fb35"
+                            ]
+                        }
+                    },
+                    "strategy": "Drop zero-area triangles",
+                    "trace": "'53': dropped 4 of 72 triangles"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '54' has 2 of 44 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 44 vertices",
+                        "resourceId": 54,
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 44
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "24495cec-ef7e-4894-b98d-dda111cccf1a"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'54': merged 2 duplicate of 44 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '55' has 2 of 44 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 44 vertices",
+                        "resourceId": 55,
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 44
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "d73ebc4e-266d-449e-a00e-243c1320e86c"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'55': merged 2 duplicate of 44 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '59' has 47 of 543 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "47 of 543 vertices",
+                        "resourceId": 59,
+                        "context": {
+                            "duplicate": 47,
+                            "vertCount": 543
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "598083f2-f907-4d4f-aaf4-7f4c93f8e23d"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'59': merged 47 duplicate of 543 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '61' has 2 of 24 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 24 vertices",
+                        "resourceId": 61,
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 24
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "65bd9fcf-4b4d-4f5a-9ee4-0d904488e727"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'61': merged 2 duplicate of 24 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '62' has 2 of 56 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 56 vertices",
+                        "resourceId": 62,
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 56
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "9db45ad9-2192-4e1c-a864-05a9dd5a0727"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'62': merged 2 duplicate of 56 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '63' has 2 of 56 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 56 vertices",
+                        "resourceId": 63,
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 56
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "09b78e2d-3753-40c6-9d00-80aca1822235"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'63': merged 2 duplicate of 56 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '64' has 2 of 56 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 56 vertices",
+                        "resourceId": 64,
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 56
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "5e510e6f-cffb-4e1e-a96c-ca31e0b2784f"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'64': merged 2 duplicate of 56 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '65' has 2 of 56 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 56 vertices",
+                        "resourceId": 65,
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 56
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "d2a8d0a8-e122-4779-b5d4-b8d6f662c9bd"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'65': merged 2 duplicate of 56 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE_VERTICES",
+                        "message": "SceneGeometry '66' has 2 of 56 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "summary": "2 of 56 vertices",
+                        "resourceId": 66,
+                        "context": {
+                            "duplicate": 2,
+                            "vertCount": 56
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "7f596745-6d78-487e-a468-1cd511c3d5e1"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate vertices",
+                    "trace": "'66': merged 2 duplicate of 56 vertex slots"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DEGENERATE_TRIANGLES",
+                        "message": "SceneGeometry '67' has 6 of 224 triangles with zero area (repeated indices or collinear vertices) — costs GPU work but renders nothing",
+                        "summary": "6 of 224 triangles",
+                        "resourceId": 67,
+                        "context": {
+                            "degenerate": 6,
+                            "triCount": 224
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "537720ed-e754-4e56-968a-f27afc7a2a49"
+                            ]
+                        }
+                    },
+                    "strategy": "Drop zero-area triangles",
+                    "trace": "'67': dropped 6 of 224 triangles"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DEGENERATE_TRIANGLES",
+                        "message": "SceneGeometry '69' has 394 of 3424 triangles with zero area (repeated indices or collinear vertices) — costs GPU work but renders nothing",
+                        "summary": "394 of 3,424 triangles",
+                        "resourceId": 69,
+                        "context": {
+                            "degenerate": 394,
+                            "triCount": 3424
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "c4d5aaa9-8ef5-4154-a091-b7c374bec363"
+                            ]
+                        }
+                    },
+                    "strategy": "Drop zero-area triangles",
+                    "trace": "'69': dropped 394 of 3,424 triangles"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DEGENERATE_TRIANGLES",
+                        "message": "SceneGeometry '70' has 1 of 34 triangles with zero area (repeated indices or collinear vertices) — costs GPU work but renders nothing",
+                        "summary": "1 of 34 triangles",
+                        "resourceId": 70,
+                        "context": {
+                            "degenerate": 1,
+                            "triCount": 34
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "3455761a-984f-4aa1-8fdc-2fc6d47a525b"
+                            ]
+                        }
+                    },
+                    "strategy": "Drop zero-area triangles",
+                    "trace": "'70': dropped 1 of 34 triangles"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DEGENERATE_TRIANGLES",
+                        "message": "SceneGeometry '71' has 4 of 36 triangles with zero area (repeated indices or collinear vertices) — costs GPU work but renders nothing",
+                        "summary": "4 of 36 triangles",
+                        "resourceId": 71,
+                        "context": {
+                            "degenerate": 4,
+                            "triCount": 36
+                        },
+                        "highlight": {
+                            "objectIds": [
+                                "dc739e76-78ab-4a7e-ad85-1664fc1bd726"
+                            ]
+                        }
+                    },
+                    "strategy": "Drop zero-area triangles",
+                    "trace": "'71': dropped 4 of 36 triangles"
+                }
+            ],
+            "skipped": [
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "2 SceneGeometries share the same shape (matching topology + edge-length distribution) — '54' may be instanceable from '55' via per-mesh transforms",
+                        "summary": "→ 1 similar",
+                        "resourceId": "54",
+                        "context": {
+                            "similar": [
+                                "55"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "reason": "precondition-failed"
+                }
+            ],
+            "errors": [
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE",
+                        "message": "3 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — '37' could absorb '38', '39' via instancing",
+                        "summary": "→ collapses 2 others",
+                        "resourceId": "37",
+                        "context": {
+                            "duplicates": [
+                                "38",
+                                "39"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate geometries",
+                    "error": "[SceneGeometry.destroy] Cannot destroy SceneGeometry 38 - SceneGeometry is currently used by at least one SceneMesh, which you need to destroy first"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_DUPLICATE",
+                        "message": "3 SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — '40' could absorb '41', '42' via instancing",
+                        "summary": "→ collapses 2 others",
+                        "resourceId": "40",
+                        "context": {
+                            "duplicates": [
+                                "41",
+                                "42"
+                            ]
+                        }
+                    },
+                    "strategy": "Coalesce duplicate geometries",
+                    "error": "[SceneGeometry.destroy] Cannot destroy SceneGeometry 41 - SceneGeometry is currently used by at least one SceneMesh, which you need to destroy first"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "4 SceneGeometries share the same shape (matching topology + edge-length distribution) — '32' may be instanceable from '33', '34', '36' via per-mesh transforms",
+                        "summary": "→ 3 similar",
+                        "resourceId": "32",
+                        "context": {
+                            "similar": [
+                                "33",
+                                "34",
+                                "36"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "error": "[SceneGeometry.destroy] Cannot destroy SceneGeometry 33 - SceneGeometry is currently used by at least one SceneMesh, which you need to destroy first"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "6 SceneGeometries share the same shape (matching topology + edge-length distribution) — '37' may be instanceable from '38', '39', '40', '41', '42' via per-mesh transforms",
+                        "summary": "→ 5 similar",
+                        "resourceId": "37",
+                        "context": {
+                            "similar": [
+                                "38",
+                                "39",
+                                "40",
+                                "41",
+                                "42"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "error": "[SceneGeometry.destroy] Cannot destroy SceneGeometry 38 - SceneGeometry is currently used by at least one SceneMesh, which you need to destroy first"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "2 SceneGeometries share the same shape (matching topology + edge-length distribution) — '44' may be instanceable from '45' via per-mesh transforms",
+                        "summary": "→ 1 similar",
+                        "resourceId": "44",
+                        "context": {
+                            "similar": [
+                                "45"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "error": "[SceneGeometry.destroy] Cannot destroy SceneGeometry 45 - SceneGeometry is currently used by at least one SceneMesh, which you need to destroy first"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "2 SceneGeometries share the same shape (matching topology + edge-length distribution) — '31' may be instanceable from '35' via per-mesh transforms",
+                        "summary": "→ 1 similar",
+                        "resourceId": "31",
+                        "context": {
+                            "similar": [
+                                "35"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "error": "[SceneGeometry.destroy] Cannot destroy SceneGeometry 35 - SceneGeometry is currently used by at least one SceneMesh, which you need to destroy first"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "2 SceneGeometries share the same shape (matching topology + edge-length distribution) — '11' may be instanceable from '14' via per-mesh transforms",
+                        "summary": "→ 1 similar",
+                        "resourceId": "11",
+                        "context": {
+                            "similar": [
+                                "14"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "error": "[SceneGeometry.destroy] Cannot destroy SceneGeometry 14 - SceneGeometry is currently used by at least one SceneMesh, which you need to destroy first"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "2 SceneGeometries share the same shape (matching topology + edge-length distribution) — '12' may be instanceable from '16' via per-mesh transforms",
+                        "summary": "→ 1 similar",
+                        "resourceId": "12",
+                        "context": {
+                            "similar": [
+                                "16"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "error": "[SceneGeometry.destroy] Cannot destroy SceneGeometry 16 - SceneGeometry is currently used by at least one SceneMesh, which you need to destroy first"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "2 SceneGeometries share the same shape (matching topology + edge-length distribution) — '13' may be instanceable from '15' via per-mesh transforms",
+                        "summary": "→ 1 similar",
+                        "resourceId": "13",
+                        "context": {
+                            "similar": [
+                                "15"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "error": "[SceneGeometry.destroy] Cannot destroy SceneGeometry 15 - SceneGeometry is currently used by at least one SceneMesh, which you need to destroy first"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "4 SceneGeometries share the same shape (matching topology + edge-length distribution) — '17' may be instanceable from '18', '21', '23' via per-mesh transforms",
+                        "summary": "→ 3 similar",
+                        "resourceId": "17",
+                        "context": {
+                            "similar": [
+                                "18",
+                                "21",
+                                "23"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "error": "[SceneGeometry.destroy] Cannot destroy SceneGeometry 18 - SceneGeometry is currently used by at least one SceneMesh, which you need to destroy first"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "3 SceneGeometries share the same shape (matching topology + edge-length distribution) — '19' may be instanceable from '20', '24' via per-mesh transforms",
+                        "summary": "→ 2 similar",
+                        "resourceId": "19",
+                        "context": {
+                            "similar": [
+                                "20",
+                                "24"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "error": "[SceneGeometry.destroy] Cannot destroy SceneGeometry 20 - SceneGeometry is currently used by at least one SceneMesh, which you need to destroy first"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "6 SceneGeometries share the same shape (matching topology + edge-length distribution) — '48' may be instanceable from '49', '50', '51', '52', '53' via per-mesh transforms",
+                        "summary": "→ 5 similar",
+                        "resourceId": "48",
+                        "context": {
+                            "similar": [
+                                "49",
+                                "50",
+                                "51",
+                                "52",
+                                "53"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "error": "[SceneGeometry.destroy] Cannot destroy SceneGeometry 49 - SceneGeometry is currently used by at least one SceneMesh, which you need to destroy first"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "2 SceneGeometries share the same shape (matching topology + edge-length distribution) — '46' may be instanceable from '47' via per-mesh transforms",
+                        "summary": "→ 1 similar",
+                        "resourceId": "46",
+                        "context": {
+                            "similar": [
+                                "47"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "error": "[SceneGeometry.destroy] Cannot destroy SceneGeometry 47 - SceneGeometry is currently used by at least one SceneMesh, which you need to destroy first"
+                },
+                {
+                    "issue": {
+                        "severity": "warning",
+                        "code": "GEOMETRY_SIMILAR",
+                        "message": "5 SceneGeometries share the same shape (matching topology + edge-length distribution) — '62' may be instanceable from '63', '64', '65', '66' via per-mesh transforms",
+                        "summary": "→ 4 similar",
+                        "resourceId": "62",
+                        "context": {
+                            "similar": [
+                                "63",
+                                "64",
+                                "65",
+                                "66"
+                            ]
+                        }
+                    },
+                    "strategy": "Instance similar geometries via per-mesh transforms",
+                    "error": "[SceneGeometry.destroy] Cannot destroy SceneGeometry 64 - SceneGeometry is currently used by at least one SceneMesh, which you need to destroy first"
+                }
+            ]
+        }
+    }
+}

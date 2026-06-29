@@ -232,7 +232,7 @@ End-to-end import and export coverage for the formats AECO workflows actually ex
 | ----------------------------------------------------- | :----: | :----: | -------------------- |
 | **IFC** (`.ifc` text + STEP), via `web-ifc`           |   ✓    |   ✓    | `formats/ifc`        |
 | **glTF / GLB** (PBR + textures + DataModel hooks)     |   ✓    |   ✓    | `formats/gltf`       |
-| **XGF** (native binary; v1.0 geometry / v1.1 PBR)     |   ✓    |   ✓    | `formats/xgf`        |
+| **XGF** (native binary; geometry, PBR, splats)        |   ✓    |   ✓    | `formats/xgf`        |
 | **XKT** (xeokit v2 native binary; v12)                |   ✓    |   ✓    | `formats/xkt`        |
 | **dotbim** (`.bim` JSON-LD)                           |   ✓    |   ✓    | `formats/dotbim`     |
 | **CityJSON** (LOD 0–3)                                |   ✓    |   —    | `formats/cityjson`   |

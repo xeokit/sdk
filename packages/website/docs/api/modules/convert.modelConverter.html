@@ -166,9 +166,12 @@ pre-binds a named conversion (e.g. <code>dotbim2xgf</code>); the runtime
 resolves which loader / exporter to use from the registered
 maps.</li>
 <li><strong>Reports</strong> — per-conversion <code>inspection</code> (validation
-findings), <code>manifest</code> (file inventory), and <code>stats</code> (timings,
-counts, sizes) reports are emitted alongside the outputs for
-downstream tooling.</li>
+findings), <code>manifest</code> (file inventory), <code>stats</code> (timings,
+counts, sizes), <code>optimization</code> (what the fixer changed), and
+<code>conversion</code> (per-output fidelity — what each exporter dropped
+or flattened because the target format couldn't represent it,
+e.g. triplanar textures) reports are emitted alongside the
+outputs for downstream tooling.</li>
 <li><strong>Programmatic API + CLI</strong> — same converter wraps inside the
 <a href="convert.xeoconvert.html" class="tsd-kind-namespace">xeoconvert</a> CLI binary; use either
 the class directly in a build pipeline or the binary from a

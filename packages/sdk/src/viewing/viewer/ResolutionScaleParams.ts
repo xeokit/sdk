@@ -17,7 +17,7 @@ export interface ResolutionScaleParams {
   /**
    *The scale when {@link ResolutionScale} is applied.
    *
-   * Default is ````1.0```` for no scaling.
+   * Default is ````0.5````.
    */
   resolutionScale?: number;
 }

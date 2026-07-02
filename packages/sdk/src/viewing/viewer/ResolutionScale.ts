@@ -32,7 +32,7 @@ export class ResolutionScale {
         this.view = view;
 
         this._renderModes = options.renderModes || [NavigationRender];
-        this._resolutionScale = options.resolutionScale || 1;
+        this._resolutionScale = options.resolutionScale || 0.5;
     }
 
     /**
@@ -57,7 +57,7 @@ export class ResolutionScale {
     /**
      * Sets the scale when ResolutionScale is applied.
      *
-     * Default is ````1.0````.
+     * Default is ````0.5````.
      */
     set resolutionScale(value: number) {
         if (this._resolutionScale === value) {
@@ -70,7 +70,7 @@ export class ResolutionScale {
     /**
      * Gets the scale when ResolutionScale is applied.
      *
-     * Default is ````1.0````.
+     * Default is ````0.5````.
      */
     get resolutionScale(): number {
         return this._resolutionScale;

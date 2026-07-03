@@ -36,10 +36,12 @@ export interface SceneModelInspectionIndex {
   // ── Per-geometry rows ───────────────────────────────────────
 
   /**
-   * FNV-1a fingerprint over typed-array bytes + primitive constant
-   * + AABB. Two geometries with the same `contentHash` have
-   * identical content (modulo birthday-paradox collisions, which
-   * are negligible for ≪ 10⁶ geometries). Used by
+   * FNV-1a fingerprint over typed-array bytes, primitive constant,
+   * and AABB. Includes render-significant optional attributes such
+   * as colors, edges, and gaussian splat payloads. Two geometries
+   * with the same `contentHash` have identical content (modulo
+   * birthday-paradox collisions, which are negligible for ≪ 10⁶
+   * geometries). Used by
    * {@link duplicateGeometries}.
    */
   contentHash(geometryId: string): string;

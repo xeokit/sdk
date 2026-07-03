@@ -329,8 +329,13 @@ function computeContentHash(geom: SceneGeometry): string {
     String(geom.primitive),
     fnv1a(geom.positionsCompressed),
     geom.indices            ? fnv1a(geom.indices)            : "x",
+    geom.edgeIndices        ? fnv1a(geom.edgeIndices)        : "x",
     geom.normalsCompressed  ? fnv1a(geom.normalsCompressed)  : "x",
     geom.uvsCompressed      ? fnv1a(geom.uvsCompressed)      : "x",
+    geom.colorsCompressed   ? fnv1a(geom.colorsCompressed)   : "x",
+    geom.scales             ? fnv1a(geom.scales)             : "x",
+    geom.rotations          ? fnv1a(geom.rotations)          : "x",
+    geom.uvsDecompressMatrix ? fnv1a(geom.uvsDecompressMatrix) : "x",
     geom.aabb               ? Array.from(geom.aabb).join(",") : "x",
   ].join("|");
 }

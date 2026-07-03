@@ -13,8 +13,10 @@ import {resolveConfig} from "../Config";
  * Detects byte-identical geometries by FNV-1a-hashing each
  * geometry's typed-array attributes plus its primitive constant
  * and AABB. Two geometries with the same fingerprint and lengths
- * are byte-identical (or birthday-paradox-collide; for ≪ 10⁶
- * geometries the false-positive rate is negligible).
+ * are byte-identical across positions, connectivity, normals, UVs,
+ * colors, edges, gaussian splat payloads, and bounds (or
+ * birthday-paradox-collide; for ≪ 10⁶ geometries the false-positive
+ * rate is negligible).
  *
  * Each duplicate cluster emits one `GEOMETRY_DUPLICATE` warning,
  * with `context.duplicates` listing the redundant ids and
@@ -50,8 +52,9 @@ export const duplicateGeometries: Inspection = {
       label: "Check duplicate geometries",
       description:
         "Hash every geometry's content (primitive, positions, " +
-        "indices, normals, UVs, AABB) and flag groups of two or " +
-        "more byte-identical geometries.",
+        "indices, edge indices, normals, UVs, colors, splat " +
+        "payloads, AABB) and flag groups of two or more " +
+        "byte-identical geometries.",
       default: false,
     },
   },
@@ -90,7 +93,7 @@ export const duplicateGeometries: Inspection = {
       issues.push({
         severity: "warning",
         code:     "GEOMETRY_DUPLICATE",
-        message:  `${ids.length} SceneGeometries share identical content (positions / indices / normals / UVs / AABB) — '${keep}' could absorb '${dupes.join("', '")}' via instancing`,
+        message:  `${ids.length} SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) — '${keep}' could absorb '${dupes.join("', '")}' via instancing`,
         summary:  `→ collapses ${dupes.length} other${dupes.length === 1 ? "" : "s"}`,
         resourceId: keep,
         context:   {duplicates: dupes},

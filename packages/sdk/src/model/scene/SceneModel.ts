@@ -1923,6 +1923,7 @@ export class SceneModel {
     };
     destroyAll(this.objects);
     destroyAll(this.meshes);
+    destroyAll(this.techniques);
     destroyAll(this.transforms);
     destroyAll(this.materials);
     destroyAll(this.geometries);

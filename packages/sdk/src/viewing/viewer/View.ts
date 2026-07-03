@@ -39,6 +39,10 @@ import type {ResolutionScaleParams} from "./ResolutionScaleParams";
 import {ViewTransformParams} from "./ViewTransformParams";
 import {ViewTransform} from "./ViewTransform";
 
+function getSceneObjectLayerId(sceneObject: SceneObject): string {
+  return sceneObject.layerId || "default";
+}
+
 /**
  * Event that signifies the beginning of a canvas snapshot captured with
  */
@@ -544,6 +548,9 @@ class View {
       },
       stage: SDKTask.RenderStage
     });
+    if (this._needsRender) {
+      this._fireViewUpdatedEventTask.schedule();
+    }
   }
 
   /**
@@ -555,7 +562,7 @@ class View {
       return;
     }
 
-    const layerId = sceneObject.layerId || "default";
+    const layerId = getSceneObjectLayerId(sceneObject);
     let viewLayer = this.layers[layerId];
     if (!viewLayer) {
       if (!this._autoLayers) {
@@ -595,17 +602,7 @@ class View {
   _detachSceneObject(sceneObject: SceneObject) {
     const viewObject = this.objects[sceneObject.id];
     if (viewObject) {
-      const layerId = sceneObject.layerId || "default";
-      this._deattachViewObject(viewObject);
-      const viewLayer = this.layers[layerId];
-      if (viewLayer) {
-        viewLayer._deattachViewObject(viewObject);
-        if (viewLayer.autoDestroy && viewLayer.numObjects === 0) {
-          viewLayer.destroy();
-        }
-      }
-      this.viewer.events.onViewObjectDestroyed.dispatch(this, viewObject);
-      this.needsRender();
+      this._destroyViewObject(viewObject);
     }
   }
 
@@ -618,14 +615,39 @@ class View {
       return;
     }
     delete this.objects[objectId];
-    delete this.visibleObjects[objectId];
-    delete this.xrayedObjects[objectId];
-    delete this.highlightedObjects[objectId];
-    delete this.selectedObjects[objectId];
-    delete this.colorizedObjects[objectId];
-    delete this.opacityObjects[objectId];
     this._numObjects--;
     this._objectIds = null; // Lazy regenerate
+
+    if (this.visibleObjects[objectId]) {
+      delete this.visibleObjects[objectId];
+      this._numVisibleObjects--;
+      this._visibleObjectIds = null;
+    }
+    if (this.xrayedObjects[objectId]) {
+      delete this.xrayedObjects[objectId];
+      this._numXRayedObjects--;
+      this._xrayedObjectIds = null;
+    }
+    if (this.highlightedObjects[objectId]) {
+      delete this.highlightedObjects[objectId];
+      this._numHighlightedObjects--;
+      this._highlightedObjectIds = null;
+    }
+    if (this.selectedObjects[objectId]) {
+      delete this.selectedObjects[objectId];
+      this._numSelectedObjects--;
+      this._selectedObjectIds = null;
+    }
+    if (this.colorizedObjects[objectId]) {
+      delete this.colorizedObjects[objectId];
+      this._numColorizedObjects--;
+      this._colorizedObjectIds = null;
+    }
+    if (this.opacityObjects[objectId]) {
+      delete this.opacityObjects[objectId];
+      this._numOpacityObjects--;
+      this._opacityObjectIds = null;
+    }
   }
 
   /**
@@ -674,6 +696,19 @@ class View {
     for (const sceneObjectId in scene.objects) {
       const sceneObject = scene.objects[sceneObjectId];
       this._attachSceneObject(sceneObject);
+    }
+  }
+
+  private _attachSceneObjectsForLayer(viewLayer: ViewLayer) {
+    const scene = this.viewer.scene;
+    if (!scene) {
+      return;
+    }
+    for (const sceneObjectId in scene.objects) {
+      const sceneObject = scene.objects[sceneObjectId];
+      if (getSceneObjectLayerId(sceneObject) === viewLayer.id) {
+        this._attachSceneObject(sceneObject);
+      }
     }
   }
 
@@ -1285,7 +1320,9 @@ class View {
       return;
     }
     this._needsRender = true;
-    this._fireViewUpdatedEventTask.schedule();
+    if (this._fireViewUpdatedEventTask) {
+      this._fireViewUpdatedEventTask.schedule();
+    }
   }
 
   private readonly _ambientColorAndIntensity: FloatArrayParam = new Float32Array([0.5, 0.5, 0.5, 1]);
@@ -1776,6 +1813,7 @@ class View {
     });
     this.layers[viewLayerParams.id] = viewLayer;
     this.viewer.events.onViewLayerCreated.dispatch(this, viewLayer);
+    this._attachSceneObjectsForLayer(viewLayer);
     return {
       ok: true,
       value: viewLayer
@@ -1822,6 +1860,13 @@ class View {
    * @param viewLayer
    */
   _destroyLayer(viewLayer: ViewLayer) {
+    const objectIds = Object.keys(viewLayer.objects);
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = viewLayer.objects[objectIds[i]];
+      if (viewObject) {
+        this._destroyViewObject(viewObject, false);
+      }
+    }
     delete this.layers[viewLayer.id];
     this.viewer.events.onViewLayerDestroyed.dispatch(this, viewLayer);
   }
@@ -2087,30 +2132,33 @@ class View {
   }
 
   _destroyViewLayers() {
-    const layers = this.layers;
-    for (const id in layers) {
-      const viewLayer = layers[id];
+    const layers = Object.values(this.layers);
+    for (let i = 0, len = layers.length; i < len; i++) {
+      const viewLayer = layers[i];
       viewLayer.destroy();
     }
   }
 
   _destroyViewObjects() {
-    const objects = this.objects;
-    for (const id in objects) {
-      const object = objects[id];
-      const sceneObject = object.sceneObject;
-      const layerId = sceneObject.layerId || "default";
-      const viewLayer = this.layers[layerId];
-      const viewObject = this.objects[object.id];
-      this._deattachViewObject(viewObject);
-      if (viewLayer) {
-        viewLayer._deattachViewObject(viewObject);
-        if (viewLayer.autoDestroy && viewLayer.numObjects === 0) {
-          viewLayer.destroy();
-        }
+    const objectIds = Object.keys(this.objects);
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = this.objects[objectIds[i]];
+      if (viewObject) {
+        this._destroyViewObject(viewObject);
       }
-      this.viewer.events.onViewObjectDestroyed.dispatch(this, viewObject);
     }
+  }
+
+  private _destroyViewObject(viewObject: ViewObject, autoDestroyLayer: boolean = true) {
+    const viewLayer = viewObject.layer;
+    this._deattachViewObject(viewObject);
+    viewLayer._deattachViewObject(viewObject);
+    viewObject.destroyed = true;
+    if (autoDestroyLayer && viewLayer.autoDestroy && viewLayer.numObjects === 0 && this.layers[viewLayer.id]) {
+      viewLayer.destroy();
+    }
+    this.viewer.events.onViewObjectDestroyed.dispatch(this, viewObject);
+    this.needsRender();
   }
 }
 

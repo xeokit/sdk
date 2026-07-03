@@ -1,11 +1,9 @@
-import type {Scene, SceneModel} from "../../model/scene";
 import type {View} from "./View";
 import type {Viewer} from "./Viewer";
 import type {ViewLayerParams} from "./ViewLayerParams";
-import {ViewObject} from "./ViewObject";
+import type {ViewObject} from "./ViewObject";
 import type {ViewParams} from "./ViewParams";
 import {SDKErrorType, type SDKResult} from "../../base/core";
-import {SceneObject} from "../../model/scene";
 import type {Vec3} from "../../base/math/vector";
 
 
@@ -435,79 +433,6 @@ class ViewLayer {
     this._numOpacityObjects = 0;
 
     this._renderModes = [];
-
-    this._initViewObjects();
-  }
-
-  /**
-   * @private
-   */
-  _initViewObjects() {
-    const models = this.viewer.scene.models;
-    for (const id in models) {
-      const model = models[id];
-      this._sceneModelCreated(model);
-    }
-    // const sceneEvents = this.viewer.scene.events;
-    // sceneEvents.onSceneObjectCreated.subscribe((scene: Scene, sceneObject: SceneObject) => {
-    //   this._sceneObjectCreated(sceneObject);
-    // });
-    // sceneEvents.onSceneObjectDestroyed.subscribe((scene: Scene, sceneObject: SceneObject) => {
-    //   this._sceneObjectDestroyed(sceneObject);
-    // });
-  }
-
-  /**
-   * @private
-   */
-  _sceneModelCreated(model: SceneModel) {
-    const sceneObjects = model.objects;
-    for (const id in sceneObjects) {
-      const sceneObject = sceneObjects[id];
-      this._sceneObjectCreated(sceneObject);
-    }
-  }
-
-  /**
-   * @private
-   */
-  _sceneObjectCreated(sceneObject: SceneObject) {
-    if (sceneObject.layerId == this.id) {
-      if (!this.objects[sceneObject.id]) {
-        const viewObject = new ViewObject(this, sceneObject);
-        this.objects[viewObject.id] = viewObject;
-        this._numObjects++;
-        this._objectIds = null; // Lazy regenerate
-        this.view.viewer.events.onViewObjectCreated.dispatch(this.view, viewObject);
-        this.view.needsRender();
-      }
-    }
-  }
-
-  /**
-   * @private
-   */
-  _sceneObjectDestroyed(sceneObject: SceneObject) {
-    const viewObject = this.objects[sceneObject.id];
-    if (viewObject) {
-      this._destroyViewObject(viewObject);
-    }
-  }
-
-  /**
-   * @private
-   */
-  _destroyViewObject(viewObject: ViewObject) {
-    delete this.objects[viewObject.id];
-    delete this.visibleObjects[viewObject.id];
-    delete this.xrayedObjects[viewObject.id];
-    delete this.highlightedObjects[viewObject.id];
-    delete this.selectedObjects[viewObject.id];
-    delete this.colorizedObjects[viewObject.id];
-    delete this.opacityObjects[viewObject.id];
-    this._numObjects--;
-    this._objectIds = null; // Lazy regenerate
-    this.view.viewer.events.onViewObjectDestroyed.dispatch(this.view, viewObject);
   }
 
   _attachViewObject(viewObject: ViewObject) {
@@ -525,14 +450,39 @@ class ViewLayer {
       return;
     }
     delete this.objects[objectId];
-    delete this.visibleObjects[objectId];
-    delete this.xrayedObjects[objectId];
-    delete this.highlightedObjects[objectId];
-    delete this.selectedObjects[objectId];
-    delete this.colorizedObjects[objectId];
-    delete this.opacityObjects[objectId];
     this._numObjects--;
     this._objectIds = null; // Lazy regenerate
+
+    if (this.visibleObjects[objectId]) {
+      delete this.visibleObjects[objectId];
+      this._numVisibleObjects--;
+      this._visibleObjectIds = null;
+    }
+    if (this.xrayedObjects[objectId]) {
+      delete this.xrayedObjects[objectId];
+      this._numXRayedObjects--;
+      this._xrayedObjectIds = null;
+    }
+    if (this.highlightedObjects[objectId]) {
+      delete this.highlightedObjects[objectId];
+      this._numHighlightedObjects--;
+      this._highlightedObjectIds = null;
+    }
+    if (this.selectedObjects[objectId]) {
+      delete this.selectedObjects[objectId];
+      this._numSelectedObjects--;
+      this._selectedObjectIds = null;
+    }
+    if (this.colorizedObjects[objectId]) {
+      delete this.colorizedObjects[objectId];
+      this._numColorizedObjects--;
+      this._colorizedObjectIds = null;
+    }
+    if (this.opacityObjects[objectId]) {
+      delete this.opacityObjects[objectId];
+      this._numOpacityObjects--;
+      this._opacityObjectIds = null;
+    }
   }
 
   /**
@@ -1145,17 +1095,8 @@ class ViewLayer {
       });
       return;
     }
-    this._destroyAllViewObjects();
     this.view._destroyLayer(this);
     this.destroyed = true;
-  }
-
-  _destroyAllViewObjects() {
-    const objects = this.objects;
-    for (const id in objects) {
-      const viewObject = objects[id];
-      this._destroyViewObject(viewObject);
-    }
   }
 }
 

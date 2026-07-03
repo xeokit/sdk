@@ -509,7 +509,8 @@ export class ViewObject {
      * @private
      */
     _destroy() {
-        // Called by ViewLayer#destroyViewObjects
+        // Clears state-index memberships. View owns removal from the
+        // View/ViewLayer object maps.
         if (this.visible) {
             this.layer.objectVisibilityUpdated(this, false, false);
         }

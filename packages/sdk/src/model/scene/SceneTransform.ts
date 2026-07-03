@@ -629,18 +629,22 @@ export class SceneTransform {
         error: `[SceneTransform.destroy] SceneTransform ${this.id} already destroyed`
       });
     }
-    if (this._parentTransform) {
-      this._parentTransform.removeChildTransform(this.id);
-    }
-    this._parentTransform = null;
-    for (const child of [...this._childTransforms]) {
-      child.setParentTransformId(null, {preserveWorld: false});
-    }
-    this._markTreeDirtyTask.destroy();
-    this._childTransforms = [];
-    this.model._destroyTransform(this);
-    this.destroyed = true;
-  }
+	    if (this._parentTransform) {
+	      this._parentTransform.removeChildTransform(this.id);
+	    }
+	    this._parentTransform = null;
+	    for (const child of [...this._childTransforms]) {
+	      child.setParentTransformId(null, {preserveWorld: false});
+	    }
+	    for (const childMesh of [...this._childMeshes]) {
+	      childMesh.setParentTransformId(null, {preserveWorld: false});
+	    }
+	    this._markTreeDirtyTask.destroy();
+	    this._childTransforms = [];
+	    this._childMeshes = [];
+	    this.model._destroyTransform(this);
+	    this.destroyed = true;
+	  }
 
   /**
    * Marks the local matrix dirty and schedules dirtiness propagation through the transform tree.

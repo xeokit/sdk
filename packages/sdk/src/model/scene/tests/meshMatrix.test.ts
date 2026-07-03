@@ -149,4 +149,23 @@ describe("SceneMesh lazy world matrix + shared identity", () => {
     expect(world[13]).toBeCloseTo(6, 6);
     expect(world[14]).toBeCloseTo(7, 6);
   });
+
+  it("detaches child meshes when their parent transform is destroyed", () => {
+    const m = model();
+    m.createTransform({id: "t", matrix: TRANSLATE as any});
+    m.createMesh({id: "x", geometryId: "g"});
+    const transform = m.transforms["t"] as any;
+    const mesh = m.meshes["x"] as any;
+
+    mesh.setParentTransformId("t");
+    expect(mesh.parentTransform).toBe(transform);
+    expect(transform.childMeshes).toContain(mesh);
+
+    transform.destroy();
+
+    expect(m.transforms["t"]).toBeUndefined();
+    expect(transform.childMeshes).toHaveLength(0);
+    expect(mesh.parentTransform).toBeNull();
+    expect(mesh.worldMatrix).toBe(mesh.matrix);
+  });
 });

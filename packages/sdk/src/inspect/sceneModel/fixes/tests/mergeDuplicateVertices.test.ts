@@ -224,4 +224,26 @@ describe("splitSceneGeometry", () => {
       0, 255, 255, 255,
     ]);
   });
+
+  it("cleans up the first output when creating the second output fails", () => {
+    const m = new Scene().createModel({id: "m"}).value!;
+    m.createGeometry({
+      id: "g",
+      primitive: TrianglesPrimitive,
+      positions: [
+        0, 0, 0,  1, 0, 0,  1, 1, 0,
+        2, 0, 0,  3, 0, 0,  3, 1, 0,
+      ],
+      indices: [0, 1, 2,  3, 4, 5],
+    });
+
+    const res = splitSceneGeometry({
+      sceneGeometry: m.geometries["g"],
+      geometryIdA: "g_split",
+      geometryIdB: "g_split",
+    });
+
+    expect(res.ok).toBe(false);
+    expect(m.geometries["g_split"]).toBeUndefined();
+  });
 });

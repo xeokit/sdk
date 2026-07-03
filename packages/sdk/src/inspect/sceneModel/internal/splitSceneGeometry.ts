@@ -139,6 +139,10 @@ export function splitSceneGeometry(
   }
   const bRes = buildSide(sceneModel, src.primitive, params.geometryIdB, trisB, indices, positions, normals, uvs, colors);
   if (bRes.ok === false) {
+    const cleanupRes = aRes.value.destroy();
+    if (cleanupRes.ok === false) {
+      return cleanupRes;
+    }
     return bRes;
   }
 

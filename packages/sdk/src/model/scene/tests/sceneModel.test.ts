@@ -187,4 +187,29 @@ describe("SceneMaterial", () => {
     expect(Array.from(mesh.effectiveColor)).toEqual([0, 1, 0]);
     expect(mesh.effectiveOpacity).toBe(0.25);
   });
+
+  it("serializes alpha and material pattern fields to params", () => {
+    const model = new Scene().createModel({id: "matParams"}).value!;
+    const hatchPattern = {
+      families: [{angle: 45, spacing: 8, lineWidth: 1}],
+      color: [0.1, 0.2, 0.3],
+      opacity: 0.75,
+      space: "world" as const,
+    };
+    const result = model.createMaterial({
+      id: "m",
+      alphaMode: "MASK",
+      alphaCutoff: 0.25,
+      linePattern: [3, 1],
+      hatchPattern,
+    });
+    expect(result.ok).toBe(true);
+
+    const params = result.value!.toParams().value!;
+
+    expect(params.alphaMode).toBe("MASK");
+    expect(params.alphaCutoff).toBe(0.25);
+    expect(params.linePattern).toEqual([3, 1]);
+    expect(params.hatchPattern).toEqual(hatchPattern);
+  });
 });

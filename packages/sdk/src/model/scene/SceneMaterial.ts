@@ -544,8 +544,12 @@ export class SceneMaterial {
       opacity: this._opacity,
       roughness: this._roughness,
       metallic: this._metallic,
+      alphaMode: this._alphaMode === 1 ? "MASK" : this._alphaMode === 2 ? "BLEND" : "OPAQUE",
+      alphaCutoff: this._alphaCutoff,
       triplanarScale: this._triplanarScale,
       lineWidth: this._lineWidth,
+      linePattern: cloneLinePattern(this._linePatternUserValue),
+      hatchPattern: cloneHatchPattern(this._hatchPatternUserValue),
     };
     if (this.colorTexture) materialParams.colorTextureId = this.colorTexture.id;
     if (this.metallicRoughnessTexture) materialParams.metallicRoughnessTextureId = this.metallicRoughnessTexture.id;
@@ -585,4 +589,27 @@ export class SceneMaterial {
     this.destroyed = true;
     return {ok: true, value: undefined};
   }
+}
+
+function cloneLinePattern(value: LineStyle | number[]): LineStyle | number[] {
+  return Array.isArray(value) ? Array.from(value) : value;
+}
+
+function cloneHatchPattern(value: HatchStyle | HatchParams): HatchStyle | HatchParams {
+  if (typeof value === "string") {
+    return value;
+  }
+  const cloned: HatchParams = {
+    families: value.families.map(family => ({...family})),
+  };
+  if (value.color) {
+    cloned.color = <Vec3>Array.from(value.color);
+  }
+  if (value.opacity !== undefined) {
+    cloned.opacity = value.opacity;
+  }
+  if (value.space !== undefined) {
+    cloned.space = value.space;
+  }
+  return cloned;
 }

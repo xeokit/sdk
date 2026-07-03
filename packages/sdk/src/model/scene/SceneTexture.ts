@@ -223,7 +223,7 @@ export class SceneTexture {
     this.encoding = params.encoding || LinearEncoding;
     this.preloadColor = createVec4Float64(params.preloadColor || [1, 1, 1, 1]);
     this.mipmap = params.mipmap === true;
-    this.textureBytes = estimateTextureBytes(this._imageData || this.image);
+    this.textureBytes = estimateTextureBytes(this._imageData || this.image || this);
     this.channel = 0;
     this.numMaterials = 0;
   }

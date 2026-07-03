@@ -308,6 +308,21 @@ describe("SceneTexture", () => {
     expect(params.compressed).toBe(true);
   });
 
+  it("counts buffer texture dimensions in texture stats", () => {
+    const model = new Scene().createModel({id: "textureBufferStats"}).value!;
+    const result = model.createTexture({
+      id: "t",
+      buffers: [new ArrayBuffer(8)],
+      width: 4,
+      height: 3,
+    });
+    expect(result.ok).toBe(true);
+    expect(model.stats.textureBytes).toBe(48);
+
+    expect(result.value!.destroy().ok).toBe(true);
+    expect(model.stats.textureBytes).toBe(0);
+  });
+
   it("rejects toParams after destroy", () => {
     const model = new Scene().createModel({id: "destroyedTextureParams"}).value!;
     const result = model.createTexture({id: "t", src: "texture.png"});

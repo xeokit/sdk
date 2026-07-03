@@ -157,6 +157,31 @@ describe("geometry mutation bookkeeping", () => {
     expect(m.stats.numTriangles).toBe(stats.numTriangles);
     expect(updated).toEqual(["g"]);
   });
+
+  it("treats already-collapsed AABB axes as tight", () => {
+    const m = new Scene().createModel({id: "m"}).value!;
+    m.createGeometryCompressed({
+      id: "plane",
+      primitive: TrianglesPrimitive,
+      positionsCompressed: [0, 0, 0,  65535, 0, 0,  0, 65535, 0],
+      aabb: [0, 0, 0,  1, 1, 0],
+      indices: [0, 1, 2],
+    });
+    const geom = m.geometries["plane"];
+    const aabb = Array.from(geom.aabb!);
+    const positions = Array.from(geom.positionsCompressed!);
+    const updated: string[] = [];
+    m.scene.events.onSceneGeometryUpdated.subscribe((_scene, g) => updated.push(g.id));
+
+    const res = tightenAabb.apply({resourceId: "plane"} as any, m as any);
+
+    expect(res.ok).toBe(true);
+    expect((res as any).value.fixed).toBe(false);
+    expect((res as any).value.reason).toBe("no-op");
+    expect(Array.from(geom.aabb!)).toEqual(aabb);
+    expect(Array.from(geom.positionsCompressed!)).toEqual(positions);
+    expect(updated).toEqual([]);
+  });
 });
 
 describe("compactUnusedVertices", () => {

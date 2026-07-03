@@ -223,18 +223,27 @@ function checkGeometry(
       const fillX = (maxU0 - minU0) / 65535;
       const fillY = (maxU1 - minU1) / 65535;
       const fillZ = (maxU2 - minU2) / 65535;
-      const minFill = Math.min(fillX, fillY, fillZ);
-      const threshold = minAabbFill;
-      if (minFill < threshold) {
-        issues.push({
-          severity: "warning",
-          code:     "GEOMETRY_AABB_NOT_TIGHT",
-          message:  `SceneGeometry '${id}' uses ${(minFill * 100).toFixed(1)}% of the u16 quantisation range on at least one axis (fill X=${(fillX*100).toFixed(1)}%, Y=${(fillY*100).toFixed(1)}%, Z=${(fillZ*100).toFixed(1)}%; threshold ${(threshold*100).toFixed(0)}%) — re-tighten via tightenAabb to recover precision`,
-          summary:  `fill ${(fillX*100|0)}% / ${(fillY*100|0)}% / ${(fillZ*100|0)}%`,
-          resourceId: id,
-          context:   {fill: [fillX, fillY, fillZ], threshold},
-          ...hl,
-        });
+      const extentX = geom.aabb![3] - geom.aabb![0];
+      const extentY = geom.aabb![4] - geom.aabb![1];
+      const extentZ = geom.aabb![5] - geom.aabb![2];
+      const activeFills: number[] = [];
+      if (extentX > 0) activeFills.push(fillX);
+      if (extentY > 0) activeFills.push(fillY);
+      if (extentZ > 0) activeFills.push(fillZ);
+      if (activeFills.length > 0) {
+        const minFill = Math.min(...activeFills);
+        const threshold = minAabbFill;
+        if (minFill < threshold) {
+          issues.push({
+            severity: "warning",
+            code:     "GEOMETRY_AABB_NOT_TIGHT",
+            message:  `SceneGeometry '${id}' uses ${(minFill * 100).toFixed(1)}% of the u16 quantisation range on at least one non-collapsed axis (fill X=${(fillX*100).toFixed(1)}%, Y=${(fillY*100).toFixed(1)}%, Z=${(fillZ*100).toFixed(1)}%; threshold ${(threshold*100).toFixed(0)}%) — re-tighten via tightenAabb to recover precision`,
+            summary:  `fill ${(fillX*100|0)}% / ${(fillY*100|0)}% / ${(fillZ*100|0)}%`,
+            resourceId: id,
+            context:   {fill: [fillX, fillY, fillZ], threshold},
+            ...hl,
+          });
+        }
       }
     }
   }

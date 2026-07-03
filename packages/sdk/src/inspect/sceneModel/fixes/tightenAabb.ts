@@ -93,17 +93,18 @@ export const tightenAabb: Fix = {
       if (z < minU2) minU2 = z; if (z > maxU2) maxU2 = z;
     }
 
-    // Already tight on every axis → no-op.
-    if (minU0 === 0 && maxU0 === 65535 &&
-        minU1 === 0 && maxU1 === 65535 &&
-        minU2 === 0 && maxU2 === 65535) {
-      return {ok: true, value: {fixed: false, reason: "no-op"}};
-    }
-
     const oldMinX = aabb[0], oldMinY = aabb[1], oldMinZ = aabb[2];
     const oldRangeX = aabb[3] - aabb[0];
     const oldRangeY = aabb[4] - aabb[1];
     const oldRangeZ = aabb[5] - aabb[2];
+
+    // Already tight on every non-collapsed axis, and collapsed
+    // AABB axes cannot fill any u16 range by definition.
+    if (axisAlreadyTight(minU0, maxU0, oldRangeX) &&
+        axisAlreadyTight(minU1, maxU1, oldRangeY) &&
+        axisAlreadyTight(minU2, maxU2, oldRangeZ)) {
+      return {ok: true, value: {fixed: false, reason: "no-op"}};
+    }
 
     const newAABB = new Float32Array(6);
     newAABB[0] = oldMinX + oldRangeX * (minU0 / 65535);
@@ -142,3 +143,8 @@ export const tightenAabb: Fix = {
     return {ok: true, value: {fixed: true, trace: `'${geomId}': AABB tightened (was ${fillX}% / ${fillY}% / ${fillZ}% used → 100%)`}};
   },
 };
+
+
+function axisAlreadyTight(minU: number, maxU: number, worldRange: number): boolean {
+  return (minU === 0 && maxU === 65535) || (worldRange === 0 && minU === maxU);
+}

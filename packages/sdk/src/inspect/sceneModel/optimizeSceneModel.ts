@@ -163,8 +163,8 @@ function splitOversizedGeometries(
 
     // Redirect every mesh that referenced the pre-split geometry
     // onto BOTH pieces — each mesh becomes two meshes, both attached
-    // to the same SceneObject with the same matrix / opacity /
-    // parentTransform.
+    // to the same SceneObject with the same creation-time visual fields,
+    // matrix / opacity / bin / parentTransform.
     const meshes = meshesByGeom.get(id) ?? [];
     const newMeshesForA: SceneMesh[] = [];
     const newMeshesForB: SceneMesh[] = [];
@@ -177,7 +177,10 @@ function splitOversizedGeometries(
       const snap = {
         id: mesh.id,
         matrix: new Float64Array(mesh.matrix),
+        color: [mesh.color[0], mesh.color[1], mesh.color[2]] as [number, number, number],
         opacity: mesh.opacity,
+        materialId: mesh.materialId,
+        bin: mesh.bin,
         parentTransformId: mesh.parentTransform ? mesh.parentTransform.id : undefined,
       };
 
@@ -384,7 +387,10 @@ function makeMesh(
   geometryId: string,
   snap: {
     matrix: Float64Array<any>;
+    color: [number, number, number];
     opacity: number;
+    materialId: string | undefined;
+    bin: string | undefined;
     parentTransformId: string | undefined;
   },
 ): SDKResult<SceneMesh> {
@@ -392,7 +398,10 @@ function makeMesh(
     id: meshId,
     geometryId,
     matrix: snap.matrix,
+    color: snap.color,
     opacity: snap.opacity,
+    ...(snap.materialId !== undefined ? {materialId: snap.materialId} : {}),
+    ...(snap.bin !== undefined ? {bin: snap.bin} : {}),
   });
   if (cRes.ok === false) return cRes;
 

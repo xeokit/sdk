@@ -67,6 +67,24 @@ export interface SceneTextureParams {
   image?: SceneTextureImageSource;
 
   /**
+   * Pixel width of the texture. Required when the texture is supplied as
+   * encoded/transcoded buffers without a decoded image source.
+   */
+  width?: number;
+
+  /**
+   * Pixel height of the texture. Required when the texture is supplied as
+   * encoded/transcoded buffers without a decoded image source.
+   */
+  height?: number;
+
+  /**
+   * True when {@link buffers} contains GPU-compressed/transcoded texture data
+   * rather than standard PNG/JPEG/GIF bytes.
+   */
+  compressed?: boolean;
+
+  /**
    * Media type.
    */
   mediaType?: any;

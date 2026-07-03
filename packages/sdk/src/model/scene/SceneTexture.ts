@@ -209,6 +209,10 @@ export class SceneTexture {
     // `onSceneTextureCreated` path the SceneModel fires on createTexture).
     this._imageData = normalizeImageData(params.imageData);
     this.buffers = params.buffers;
+    const sourceSize = getTextureSize(this._imageData || this.image);
+    this.width = params.width ?? sourceSize.width;
+    this.height = params.height ?? sourceSize.height;
+    this.compressed = params.compressed === true;
     this.mediaType = params.mediaType;
     this.minFilter = params.minFilter || LinearMipMapNearestFilter;
     this.magFilter = params.magFilter || LinearFilter;
@@ -253,6 +257,9 @@ export class SceneTexture {
         src: this.src ?? serializeImageToDataURL(this.image),
         imageData: serializeImageData(this.imageData),
         buffers: this.buffers,
+        width: this.width,
+        height: this.height,
+        compressed: this.compressed,
         mediaType: this.mediaType,
         minFilter: this.minFilter,
         magFilter: this.magFilter,
@@ -388,12 +395,17 @@ function normalizeImageData(
   }
 }
 
-function estimateTextureBytes(source: { width?: number; height?: number; naturalWidth?: number; naturalHeight?: number } | undefined): number {
+function getTextureSize(source: { width?: number; height?: number; naturalWidth?: number; naturalHeight?: number } | undefined): {width: number; height: number} {
   if (!source) {
-    return 0;
+    return {width: 0, height: 0};
   }
   const width = source.width || source.naturalWidth || 0;
   const height = source.height || source.naturalHeight || 0;
+  return {width, height};
+}
+
+function estimateTextureBytes(source: { width?: number; height?: number; naturalWidth?: number; naturalHeight?: number } | undefined): number {
+  const {width, height} = getTextureSize(source);
   return width > 0 && height > 0 ? width * height * 4 : 0;
 }
 

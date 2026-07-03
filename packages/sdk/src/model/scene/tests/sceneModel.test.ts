@@ -286,6 +286,28 @@ describe("SceneTexture", () => {
     expect(params.flipY).toBe(true);
   });
 
+  it("preserves buffer texture dimensions and compression flag through params", () => {
+    const model = new Scene().createModel({id: "textureMetadata"}).value!;
+    const result = model.createTexture({
+      id: "t",
+      buffers: [new ArrayBuffer(8)],
+      width: 16,
+      height: 8,
+      compressed: true,
+    });
+    expect(result.ok).toBe(true);
+
+    const texture = result.value!;
+    const params = texture.toParams().value!;
+
+    expect(texture.width).toBe(16);
+    expect(texture.height).toBe(8);
+    expect(texture.compressed).toBe(true);
+    expect(params.width).toBe(16);
+    expect(params.height).toBe(8);
+    expect(params.compressed).toBe(true);
+  });
+
   it("rejects toParams after destroy", () => {
     const model = new Scene().createModel({id: "destroyedTextureParams"}).value!;
     const result = model.createTexture({id: "t", src: "texture.png"});

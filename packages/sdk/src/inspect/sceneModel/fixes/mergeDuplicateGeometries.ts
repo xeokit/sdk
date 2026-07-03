@@ -144,17 +144,41 @@ export const mergeDuplicateGeometries: Fix = {
       if (mesh.destroyed) continue;
       stillReferenced.add(mesh.geometryId);
     }
+    const destroyed: string[] = [];
+    const leftReferenced: string[] = [];
     for (const dupId of duplicates) {
-      if (stillReferenced.has(dupId)) continue;
+      if (stillReferenced.has(dupId)) {
+        leftReferenced.push(dupId);
+        continue;
+      }
       const dup = sceneModel.geometries[dupId];
       if (!dup || dup.destroyed) continue;
       const r = dup.destroy();
       if (r.ok === false) return r;
+      destroyed.push(dupId);
     }
 
-    const did = rebuilt > 0 || duplicates.length > 0;
-    if (!did) return {ok: true, value: {fixed: false, reason: "no-op"}};
-    const trace = `'${canonicalId}' kept; merged ${rebuilt} mesh${rebuilt === 1 ? "" : "es"}, destroyed: ${duplicates.join(", ")}`;
+    const did = rebuilt > 0 || destroyed.length > 0;
+    if (!did) {
+      return {
+        ok: true,
+        value: {
+          fixed: false,
+          reason: leftReferenced.length > 0 ? "precondition-failed" : "target-missing",
+        },
+      };
+    }
+    const traceParts = [
+      `'${canonicalId}' kept`,
+      `merged ${rebuilt} mesh${rebuilt === 1 ? "" : "es"}`,
+    ];
+    if (destroyed.length > 0) {
+      traceParts.push(`destroyed: ${destroyed.join(", ")}`);
+    }
+    if (leftReferenced.length > 0) {
+      traceParts.push(`left referenced: ${leftReferenced.join(", ")}`);
+    }
+    const trace = traceParts.join("; ");
     return {ok: true, value: {fixed: true, trace}};
   },
 };

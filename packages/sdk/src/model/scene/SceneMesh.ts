@@ -618,12 +618,12 @@ export class SceneMesh {
       this.setWorldMatrixDirty();
       const currentWorld = createMat4Float64(this.worldMatrix as Mat4);
       this._attachParentTransform(parentTransform);
-      if (this._parentTransform) {
-        const invParent = inverseMat4(this._parentTransform._worldMatrix, createMat4Float64());
-        mulMat4(this._localMatrix, invParent, currentWorld);
+      if (parentTransform) {
+        const invParent = inverseMat4(parentTransform.worldMatrix, createMat4Float64());
+        mulMat4(invParent, currentWorld, this._ownLocalMatrix());
       } else {
-        // @ts-ignore
-        this._ownLocalMatrix().set(currentWorld);
+        const invCoordSystem = inverseMat4(this.model.coordinateSystemMatrix, createMat4Float64());
+        mulMat4(invCoordSystem, currentWorld, this._ownLocalMatrix());
       }
       this.setWorldMatrixDirty();
     } else {

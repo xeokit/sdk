@@ -93,6 +93,7 @@ describe("SceneMesh lazy world matrix + shared identity", () => {
   const QUAD_POSITIONS = [0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0];
   const QUAD_INDICES = [0, 1, 2, 0, 2, 3];
   const TRANSLATE = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 5, 6, 7, 1];
+  const PARENT_TRANSLATE = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 10, 0, 0, 1];
 
   function model() {
     const m = new Scene().createModel({id: "m"}).value!;
@@ -148,6 +149,26 @@ describe("SceneMesh lazy world matrix + shared identity", () => {
     expect(world[12]).toBeCloseTo(5, 6);
     expect(world[13]).toBeCloseTo(6, 6);
     expect(world[14]).toBeCloseTo(7, 6);
+  });
+
+  it("preserves world matrix when reparenting a mesh with preserveWorld", () => {
+    const m = model();
+    m.createTransform({id: "parent", matrix: PARENT_TRANSLATE as any});
+    m.createMesh({id: "x", geometryId: "g", matrix: TRANSLATE as any});
+    const mesh = m.meshes["x"] as any;
+
+    const before = Array.from(mesh.worldMatrix);
+    const result = mesh.setParentTransformId("parent", {preserveWorld: true});
+
+    expect(result.ok).toBe(true);
+    expect(mesh.parentTransform).toBe(m.transforms["parent"]);
+    const after = Array.from(mesh.worldMatrix);
+    for (let i = 0; i < 16; i++) {
+      expect(after[i]).toBeCloseTo(before[i], 6);
+    }
+    expect(mesh.matrix[12]).toBeCloseTo(-5, 6);
+    expect(mesh.matrix[13]).toBeCloseTo(6, 6);
+    expect(mesh.matrix[14]).toBeCloseTo(7, 6);
   });
 
   it("detaches child meshes when their parent transform is destroyed", () => {

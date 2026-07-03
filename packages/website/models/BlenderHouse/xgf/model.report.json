@@ -13,14 +13,14 @@
     "files": {
         "inputs": {
             "in": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/BlenderHouse/dotbim/model.bim",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/BlenderHouse/dotbim/model.bim",
                 "fileFormat": "DotBIM",
                 "fileDataSizeBytes": 588584
             }
         },
         "outputs": {
             "out": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/BlenderHouse/xgf/model.new.xgf",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/BlenderHouse/xgf/model.new.xgf",
                 "fileFormat": "XGF",
                 "fileDataSizeBytes": 305684
             }
@@ -28,7 +28,7 @@
     },
     "bySceneModel": {
         "default": {
-            "generatedAt": "2026-06-27T08:20:16.966Z",
+            "generatedAt": "2026-07-03T02:53:24.293Z",
             "counts": {
                 "fixed": 34,
                 "skipped": 1,

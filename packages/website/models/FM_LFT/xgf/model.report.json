@@ -13,14 +13,14 @@
     "files": {
         "inputs": {
             "in": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/FM_LFT/ifc/model.ifc",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/FM_LFT/ifc/model.ifc",
                 "fileFormat": "IFC",
                 "fileDataSizeBytes": 7369264
             }
         },
         "outputs": {
             "out": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/FM_LFT/xgf/model.new.xgf",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/FM_LFT/xgf/model.new.xgf",
                 "fileFormat": "XGF",
                 "fileDataSizeBytes": 4717196
             }
@@ -28,7 +28,7 @@
     },
     "bySceneModel": {
         "default": {
-            "generatedAt": "2026-06-27T08:31:13.078Z",
+            "generatedAt": "2026-07-03T02:53:52.337Z",
             "counts": {
                 "fixed": 1619,
                 "skipped": 7182,

@@ -13,14 +13,14 @@
     "files": {
         "inputs": {
             "in": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/OTCConferenceCenter/ifc/model.ifc",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/OTCConferenceCenter/ifc/model.ifc",
                 "fileFormat": "IFC",
                 "fileDataSizeBytes": 70327151
             }
         },
         "outputs": {
             "out": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/OTCConferenceCenter/xgf/model.new.xgf",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/OTCConferenceCenter/xgf/model.new.xgf",
                 "fileFormat": "XGF",
                 "fileDataSizeBytes": 10210764
             }
@@ -28,7 +28,7 @@
     },
     "bySceneModel": {
         "default": {
-            "generatedAt": "2026-06-27T08:42:37.519Z",
+            "generatedAt": "2026-07-03T02:56:20.121Z",
             "counts": {
                 "fixed": 3669,
                 "skipped": 14140,

@@ -13,14 +13,14 @@
     "files": {
         "inputs": {
             "in": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/Train/splat/model.splat",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/Train/splat/model.splat",
                 "fileFormat": "splat",
                 "fileDataSizeBytes": 32848256
             }
         },
         "outputs": {
             "out": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/Train/xgf/model.new.xgf",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/Train/xgf/model.new.xgf",
                 "fileFormat": "XGF",
                 "fileDataSizeBytes": 26689764
             }
@@ -28,7 +28,7 @@
     },
     "bySceneModel": {
         "default": {
-            "generatedAt": "2026-06-27T08:42:53.884Z",
+            "generatedAt": "2026-07-03T02:56:37.902Z",
             "counts": {
                 "fixed": 0,
                 "skipped": 2,

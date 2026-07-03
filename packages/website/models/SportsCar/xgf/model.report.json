@@ -13,14 +13,14 @@
     "files": {
         "inputs": {
             "in": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/SportsCar/ifc/model.ifc",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/SportsCar/ifc/model.ifc",
                 "fileFormat": "IFC",
                 "fileDataSizeBytes": 15485939
             }
         },
         "outputs": {
             "out": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/SportsCar/xgf/model.new.xgf",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/SportsCar/xgf/model.new.xgf",
                 "fileFormat": "XGF",
                 "fileDataSizeBytes": 5962016
             }
@@ -28,7 +28,7 @@
     },
     "bySceneModel": {
         "default": {
-            "generatedAt": "2026-06-27T08:42:49.843Z",
+            "generatedAt": "2026-07-03T02:56:33.387Z",
             "counts": {
                 "fixed": 919,
                 "skipped": 297,

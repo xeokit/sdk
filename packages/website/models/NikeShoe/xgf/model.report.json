@@ -13,14 +13,14 @@
     "files": {
         "inputs": {
             "in": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/NikeShoe/splat/model.splat",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/NikeShoe/splat/model.splat",
                 "fileFormat": "splat",
                 "fileDataSizeBytes": 8655712
             }
         },
         "outputs": {
             "out": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/NikeShoe/xgf/model.new.xgf",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/NikeShoe/xgf/model.new.xgf",
                 "fileFormat": "XGF",
                 "fileDataSizeBytes": 7033324
             }
@@ -28,7 +28,7 @@
     },
     "bySceneModel": {
         "default": {
-            "generatedAt": "2026-06-27T08:40:17.814Z",
+            "generatedAt": "2026-07-03T02:55:09.014Z",
             "counts": {
                 "fixed": 0,
                 "skipped": 1,

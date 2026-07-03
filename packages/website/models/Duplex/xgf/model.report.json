@@ -13,14 +13,14 @@
     "files": {
         "inputs": {
             "in": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/Duplex/ifc/model.ifc",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/Duplex/ifc/model.ifc",
                 "fileFormat": "IFC",
                 "fileDataSizeBytes": 1297177
             }
         },
         "outputs": {
             "out": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/Duplex/xgf/model.new.xgf",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/Duplex/xgf/model.new.xgf",
                 "fileFormat": "XGF",
                 "fileDataSizeBytes": 401048
             }
@@ -28,7 +28,7 @@
     },
     "bySceneModel": {
         "default": {
-            "generatedAt": "2026-06-27T08:30:26.107Z",
+            "generatedAt": "2026-07-03T02:53:28.766Z",
             "counts": {
                 "fixed": 488,
                 "skipped": 557,

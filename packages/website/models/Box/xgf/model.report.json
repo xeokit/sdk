@@ -13,14 +13,14 @@
     "files": {
         "inputs": {
             "in": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/Box/scenemodel/model.json",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/Box/scenemodel/model.json",
                 "fileFormat": "SceneModelParams",
                 "fileDataSizeBytes": 505
             }
         },
         "outputs": {
             "out": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/Box/xgf/model.new.xgf",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/Box/xgf/model.new.xgf",
                 "fileFormat": "XGF",
                 "fileDataSizeBytes": 844
             }
@@ -28,7 +28,7 @@
     },
     "bySceneModel": {
         "default": {
-            "generatedAt": "2026-06-27T08:20:17.855Z",
+            "generatedAt": "2026-07-03T02:53:25.245Z",
             "counts": {
                 "fixed": 1,
                 "skipped": 0,

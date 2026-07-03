@@ -6,7 +6,7 @@
       "units": "meters"
     },
     "formats": ["threedxml", "xgf"],
-    "dataset": ["xgf", "threedxml"]
+    "dataset": ["xgf"]
   },
   "ArchDrawing": {
     "coordSys": {
@@ -34,7 +34,6 @@
     "formats": ["datamodel", "scenemodel", "xgf"],
     "dataset": ["datamodel, scenemodel", "datamodel, xgf", "scenemodel", "xgf"]
   },
-
   "DamagedHelmet": {
     "coordSys": {
       "basis": [1, 0, 0, 0, 1, 0, 0, 0, 1],
@@ -51,7 +50,7 @@
       "units": "meters"
     },
     "formats": ["datamodel", "fbx", "gltf", "ifc", "metamodel", "scenemodel", "xgf", "xkt"],
-    "dataset": ["datamodel, scenemodel", "datamodel, xgf", "datamodel, gltf", "scenemodel", "xgf", "gltf", "fbx", "ifc", "xkt"]
+    "dataset": ["datamodel, scenemodel", "datamodel, xgf", "datamodel, gltf", "scenemodel", "xgf", "gltf", "fbx", "ifc"]
   },
   "E3D_Plant": {
     "formats": ["fbx", "xgf"],
@@ -64,7 +63,7 @@
       "units": "meters"
     },
     "formats": ["e57", "xgf"],
-    "dataset": ["xgf", "e57"]
+    "dataset": ["xgf"]
   },
   "FM_LFT": {
     "coordSys": {
@@ -144,7 +143,7 @@
       "units": "meters"
     },
     "formats": ["cityjson", "xgf"],
-    "dataset": ["xgf", "cityjson"]
+    "dataset": ["xgf"]
   },
   "MAP": {
     "coordSys": {
@@ -175,7 +174,7 @@
       "units": "meters"
     },
     "formats": ["splat", "xgf"],
-    "dataset": ["xgf", "splat"]
+    "dataset": ["xgf"]
   },
   "OTCConferenceCenter": {
     "coordSys": {
@@ -254,7 +253,7 @@
       "units": "meters"
     },
     "formats": ["splat", "xgf"],
-    "dataset": ["xgf", "splat"]
+    "dataset": ["xgf"]
   },
   "XKTModel": {
     "coordSys": {
@@ -263,6 +262,6 @@
       "units": "meters"
     },
     "formats": ["xgf", "xkt"],
-    "dataset": ["xgf", "xkt"]
+    "dataset": ["xgf"]
   }
 }

@@ -13,14 +13,14 @@
     "files": {
         "inputs": {
             "in": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/Nalls-Pumpkin-Hill/laz/model.laz",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/Nalls-Pumpkin-Hill/laz/model.laz",
                 "fileFormat": "LAS",
                 "fileDataSizeBytes": 33014526
             }
         },
         "outputs": {
             "out": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/Nalls-Pumpkin-Hill/xgf/model.new.xgf",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/Nalls-Pumpkin-Hill/xgf/model.new.xgf",
                 "fileFormat": "XGF",
                 "fileDataSizeBytes": 16961036
             }
@@ -28,7 +28,7 @@
     },
     "bySceneModel": {
         "default": {
-            "generatedAt": "2026-06-27T08:40:16.795Z",
+            "generatedAt": "2026-07-03T02:55:07.871Z",
             "counts": {
                 "fixed": 0,
                 "skipped": 0,

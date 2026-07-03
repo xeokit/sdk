@@ -13,14 +13,14 @@
     "files": {
         "inputs": {
             "in": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/DamagedHelmet/gltf/model.glb",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/DamagedHelmet/gltf/model.glb",
                 "fileFormat": "glTF",
                 "fileDataSizeBytes": 9926268
             }
         },
         "outputs": {
             "out": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/DamagedHelmet/xgf/model.new.xgf",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/DamagedHelmet/xgf/model.new.xgf",
                 "fileFormat": "XGF",
                 "fileDataSizeBytes": 9012468
             }
@@ -28,7 +28,7 @@
     },
     "bySceneModel": {
         "default": {
-            "generatedAt": "2026-06-27T08:30:24.076Z",
+            "generatedAt": "2026-07-03T02:53:26.663Z",
             "counts": {
                 "fixed": 1,
                 "skipped": 0,
@@ -40,9 +40,9 @@
                     "issue": {
                         "severity": "warning",
                         "code": "GEOMETRY_DUPLICATE_VERTICES",
-                        "message": "SceneGeometry '6da5ce49-b3a4-427e-ac76-8e01e9677a8b.accessor-1.14356.accessor-0.14356.accessor-2.14356.accessor-3.14356.accessor-4.14356.accessor-5.14356.accessor-6.14356.accessor-7.14356.accessor-8.14356.4.accessor-9.46356' has 2 of 14356 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
+                        "message": "SceneGeometry '52f34137-3b88-4de3-b284-7cad6faf35f6.accessor-1.14356.accessor-0.14356.accessor-2.14356.accessor-3.14356.accessor-4.14356.accessor-5.14356.accessor-6.14356.accessor-7.14356.accessor-8.14356.4.accessor-9.46356' has 2 of 14356 vertex slots that duplicate another (positions + normals + UVs all match) — coalesce safely",
                         "summary": "2 of 14,356 vertices",
-                        "resourceId": "6da5ce49-b3a4-427e-ac76-8e01e9677a8b.accessor-1.14356.accessor-0.14356.accessor-2.14356.accessor-3.14356.accessor-4.14356.accessor-5.14356.accessor-6.14356.accessor-7.14356.accessor-8.14356.4.accessor-9.46356",
+                        "resourceId": "52f34137-3b88-4de3-b284-7cad6faf35f6.accessor-1.14356.accessor-0.14356.accessor-2.14356.accessor-3.14356.accessor-4.14356.accessor-5.14356.accessor-6.14356.accessor-7.14356.accessor-8.14356.4.accessor-9.46356",
                         "context": {
                             "duplicate": 2,
                             "vertCount": 14356
@@ -54,7 +54,7 @@
                         }
                     },
                     "strategy": "Coalesce duplicate vertices",
-                    "trace": "'6da5ce49-b3a4-427e-ac76-8e01e9677a8b.accessor-1.14356.accessor-0.14356.accessor-2.14356.accessor-3.14356.accessor-4.14356.accessor-5.14356.accessor-6.14356.accessor-7.14356.accessor-8.14356.4.accessor-9.46356': merged 2 duplicate of 14,356 vertex slots"
+                    "trace": "'52f34137-3b88-4de3-b284-7cad6faf35f6.accessor-1.14356.accessor-0.14356.accessor-2.14356.accessor-3.14356.accessor-4.14356.accessor-5.14356.accessor-6.14356.accessor-7.14356.accessor-8.14356.4.accessor-9.46356': merged 2 duplicate of 14,356 vertex slots"
                 }
             ],
             "skipped": [],

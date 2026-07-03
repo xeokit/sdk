@@ -13,14 +13,14 @@
     "files": {
         "inputs": {
             "in": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/E3D_Plant/fbx/model.fbx",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/E3D_Plant/fbx/model.fbx",
                 "fileFormat": "fbx",
                 "fileDataSizeBytes": 35552320
             }
         },
         "outputs": {
             "out": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/E3D_Plant/xgf/model.new.xgf",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/E3D_Plant/xgf/model.new.xgf",
                 "fileFormat": "XGF",
                 "fileDataSizeBytes": 18482008
             }
@@ -28,7 +28,7 @@
     },
     "bySceneModel": {
         "default": {
-            "generatedAt": "2026-06-27T08:30:47.174Z",
+            "generatedAt": "2026-07-03T02:53:38.062Z",
             "counts": {
                 "fixed": 2361,
                 "skipped": 3449,

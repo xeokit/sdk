@@ -13,14 +13,14 @@
     "files": {
         "inputs": {
             "in": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/IfcOpenHouse2x3/ifc/model.ifc",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/IfcOpenHouse2x3/ifc/model.ifc",
                 "fileFormat": "IFC",
                 "fileDataSizeBytes": 207269
             }
         },
         "outputs": {
             "out": {
-                "filePath": "/home/lindsay/WebstormProjects/sdk-march-15/packages/website/models/IfcOpenHouse2x3/xgf/model.new.xgf",
+                "filePath": "/home/lindsay/WebstormProjects/sdk-jun30/packages/website/models/IfcOpenHouse2x3/xgf/model.new.xgf",
                 "fileFormat": "XGF",
                 "fileDataSizeBytes": 23016
             }
@@ -28,7 +28,7 @@
     },
     "bySceneModel": {
         "default": {
-            "generatedAt": "2026-06-27T08:31:24.108Z",
+            "generatedAt": "2026-07-03T02:54:03.836Z",
             "counts": {
                 "fixed": 23,
                 "skipped": 24,

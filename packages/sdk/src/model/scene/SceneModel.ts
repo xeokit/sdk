@@ -1083,7 +1083,18 @@ export class SceneModel {
       });
     }
 
-    const {id, indices, primitive, positionsCompressed, uvsCompressed, normalsCompressed} = geometryCompressedParams;
+    const {
+      id,
+      indices,
+      primitive,
+      positionsCompressed,
+      uvsCompressed,
+      normalsCompressed,
+      colorsCompressed,
+      aabb,
+      scales,
+      rotations
+    } = geometryCompressedParams;
 
     if (id === null || id === undefined) {
       return this.scene.logError({
@@ -1101,7 +1112,48 @@ export class SceneModel {
       });
     }
 
-    if (!indices && primitive !== PointsPrimitive && primitive !== GaussianSplatsPrimitive) {
+    if (positionsCompressed.length === 0) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: "[SceneModel.createGeometryCompressed] 'positionsCompressed' cannot be empty."
+      });
+    }
+
+    if (positionsCompressed.length % 3 !== 0) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: "[SceneModel.createGeometryCompressed] The length of 'positionsCompressed' must be a multiple of 3."
+      });
+    }
+
+    if (
+      primitive !== PointsPrimitive &&
+      primitive !== LinesPrimitive &&
+      primitive !== TrianglesPrimitive &&
+      primitive !== SolidPrimitive &&
+      primitive !== SurfacePrimitive &&
+      primitive !== GaussianSplatsPrimitive
+    ) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error:
+          `[SceneModel.createGeometryCompressed] Unsupported value for parameter 'primitive': '${primitive}' - ` +
+          "supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive, SurfacePrimitive and GaussianSplatsPrimitive"
+      });
+    }
+
+    if (!aabb || aabb.length !== 6) {
+      return this.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: "[SceneModel.createGeometryCompressed] Parameter expected: 'aabb' with six elements."
+      });
+    }
+
+    if ((!indices || indices.length === 0) && primitive !== PointsPrimitive && primitive !== GaussianSplatsPrimitive) {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
@@ -1109,9 +1161,40 @@ export class SceneModel {
       });
     }
 
+    if (indices) {
+      if (primitive === LinesPrimitive && indices.length % 2 !== 0) {
+        return this.scene.logError({
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: "[SceneModel.createGeometryCompressed] The length of 'indices' must be a multiple of 2 for line geometry."
+        });
+      }
+      if (
+        (primitive === TrianglesPrimitive || primitive === SolidPrimitive || primitive === SurfacePrimitive) &&
+        indices.length % 3 !== 0
+      ) {
+        return this.scene.logError({
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: "[SceneModel.createGeometryCompressed] The length of 'indices' must be a multiple of 3 for triangle geometry."
+        });
+      }
+    }
+
+    const numVertices = positionsCompressed.length / 3;
+
+    if (colorsCompressed) {
+      if (colorsCompressed.length / 4 !== numVertices) {
+        return this.scene.logError({
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: "[SceneModel.createGeometryCompressed] Mismatch between given quantities of vertex positions and colors"
+        });
+      }
+    }
 
     if (uvsCompressed) {
-      if (uvsCompressed.length / 2 !== positionsCompressed.length / 3) {
+      if (uvsCompressed.length / 2 !== numVertices) {
         return this.scene.logError({
           ok: false,
           type: SDKErrorType.InvalidInput,
@@ -1121,7 +1204,7 @@ export class SceneModel {
     }
 
     if (normalsCompressed) {
-      if (normalsCompressed.length / 2 !== positionsCompressed.length / 3) {
+      if (normalsCompressed.length / 2 !== numVertices) {
         return this.scene.logError({
           ok: false,
           type: SDKErrorType.InvalidInput,
@@ -1130,8 +1213,28 @@ export class SceneModel {
       }
     }
 
+    if (scales) {
+      if (scales.length / 3 !== numVertices) {
+        return this.scene.logError({
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: "[SceneModel.createGeometryCompressed] Mismatch between given quantities of vertex positions and splat scales"
+        });
+      }
+    }
+
+    if (rotations) {
+      if (rotations.length / 4 !== numVertices) {
+        return this.scene.logError({
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: "[SceneModel.createGeometryCompressed] Mismatch between given quantities of vertex positions and splat rotations"
+        });
+      }
+    }
+
     if (indices) {
-      const lastPositionsIdx = positionsCompressed.length / 3;
+      const lastPositionsIdx = numVertices;
       for (let i = 0, len = indices.length; i < len; i++) {
         const idx = indices[i];
         if (idx < 0 || idx >= lastPositionsIdx) {
@@ -1160,23 +1263,6 @@ export class SceneModel {
         ok: false,
         type: SDKErrorType.InvalidInput,
         error: `[SceneModel.createGeometryCompressed] SceneGeometry with this ID already exists: '${geometryId}'`
-      });
-    }
-
-    if (
-      primitive !== PointsPrimitive &&
-      primitive !== LinesPrimitive &&
-      primitive !== TrianglesPrimitive &&
-      primitive !== SolidPrimitive &&
-      primitive !== SurfacePrimitive &&
-      primitive !== GaussianSplatsPrimitive
-    ) {
-      return this.scene.logError({
-        ok: false,
-        type: SDKErrorType.InvalidInput,
-        error:
-          `[SceneModel.createGeometryCompressed] Unsupported value for parameter 'primitive': '${primitive}' - ` +
-          "supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive, SurfacePrimitive and GaussianSplatsPrimitive"
       });
     }
 

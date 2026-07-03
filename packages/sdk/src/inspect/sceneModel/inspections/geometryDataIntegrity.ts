@@ -8,13 +8,14 @@ import {indexStrideFor, isFiniteAABB} from "./util";
 /**
  * Walks every {@link model!scene.SceneGeometry | SceneGeometry} in the SceneModel and emits
  * data-shape errors that the renderer or downstream optimisations
- * can't safely tolerate. One pass; thirteen codes.
+ * can't safely tolerate. One pass; fourteen codes.
  *
  *   - `GEOMETRY_NO_POSITIONS`     missing positionsCompressed
  *   - `GEOMETRY_POSITIONS_LENGTH` length not divisible by 3
  *   - `GEOMETRY_NORMALS_LENGTH`   length ≠ 2 × vertex count (oct-pairs)
  *   - `GEOMETRY_UVS_LENGTH`       length ≠ 2 × vertex count
  *   - `GEOMETRY_COLORS_LENGTH`    length ≠ 4 × vertex count
+ *   - `GEOMETRY_AABB_LENGTH`      missing or not six values
  *   - `GEOMETRY_AABB_NONFINITE`   NaN / Infinity in AABB
  *   - `GEOMETRY_AABB_INVERTED`    min > max on at least one axis
  *   - `GEOMETRY_INDICES_LENGTH`   length doesn't match primitive stride
@@ -32,6 +33,7 @@ export const geometryDataIntegrity: Inspection = {
     "GEOMETRY_NORMALS_LENGTH",
     "GEOMETRY_UVS_LENGTH",
     "GEOMETRY_COLORS_LENGTH",
+    "GEOMETRY_AABB_LENGTH",
     "GEOMETRY_AABB_NONFINITE",
     "GEOMETRY_AABB_INVERTED",
     "GEOMETRY_INDICES_LENGTH",
@@ -50,6 +52,7 @@ export const geometryDataIntegrity: Inspection = {
     GEOMETRY_NORMALS_LENGTH:     "Bad normals length",
     GEOMETRY_UVS_LENGTH:         "Bad UVs length",
     GEOMETRY_COLORS_LENGTH:      "Bad colors length",
+    GEOMETRY_AABB_LENGTH:        "Bad AABB length",
     GEOMETRY_AABB_NONFINITE:     "AABB contains NaN / Infinity",
     GEOMETRY_AABB_INVERTED:      "AABB min greater than max",
     GEOMETRY_INDICES_LENGTH:     "Bad indices length",
@@ -71,6 +74,8 @@ export const geometryDataIntegrity: Inspection = {
       "UVs buffer is the wrong size for the vertex count — must be exactly 2 × vertexCount.",
     GEOMETRY_COLORS_LENGTH:
       "Compressed color buffer is the wrong size for the vertex count. RGBA colors must be exactly 4 × vertexCount byte elements.",
+    GEOMETRY_AABB_LENGTH:
+      "Geometry AABB is missing or does not have exactly six values [minX, minY, minZ, maxX, maxY, maxZ].",
     GEOMETRY_AABB_NONFINITE:
       "Geometry AABB contains NaN or ±Infinity, which breaks frustum culling, picking, and bounds-driven layout.",
     GEOMETRY_AABB_INVERTED:
@@ -172,22 +177,27 @@ function checkGeometry(geom: SceneGeometry, issues: Issue[]): void {
     }
   }
 
-  if (geom.aabb) {
-    if (!isFiniteAABB(geom.aabb)) {
-      issues.push({
-        severity: "error",
-        code:     "GEOMETRY_AABB_NONFINITE",
-        message:  `SceneGeometry '${id}' AABB contains NaN or Infinity`,
-        resourceId: id,
-      });
-    } else if (geom.aabb[0] > geom.aabb[3] || geom.aabb[1] > geom.aabb[4] || geom.aabb[2] > geom.aabb[5]) {
-      issues.push({
-        severity: "error",
-        code:     "GEOMETRY_AABB_INVERTED",
-        message:  `SceneGeometry '${id}' AABB has min > max on at least one axis`,
-        resourceId: id,
-      });
-    }
+  if (!geom.aabb || geom.aabb.length !== 6) {
+    issues.push({
+      severity: "error",
+      code:     "GEOMETRY_AABB_LENGTH",
+      message:  `SceneGeometry '${id}' AABB length=${geom.aabb?.length ?? 0} is not 6`,
+      resourceId: id,
+    });
+  } else if (!isFiniteAABB(geom.aabb)) {
+    issues.push({
+      severity: "error",
+      code:     "GEOMETRY_AABB_NONFINITE",
+      message:  `SceneGeometry '${id}' AABB contains NaN or Infinity`,
+      resourceId: id,
+    });
+  } else if (geom.aabb[0] > geom.aabb[3] || geom.aabb[1] > geom.aabb[4] || geom.aabb[2] > geom.aabb[5]) {
+    issues.push({
+      severity: "error",
+      code:     "GEOMETRY_AABB_INVERTED",
+      message:  `SceneGeometry '${id}' AABB has min > max on at least one axis`,
+      resourceId: id,
+    });
   }
 
   if (geom.indices) {

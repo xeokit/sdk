@@ -10,7 +10,7 @@ import type {FixApplyResult} from "../Fix";
  * the resulting pieces. Same supported pattern
  * {@link applyIFCMaterials} / {@link studio.materials.MaterialsPalette}
  * use: detach + destroy + recreate + reattach, with a snapshot of
- * each mesh's id / matrix / opacity / parentTransform preserved
+ * each mesh's id / matrix / opacity / bin / parentTransform preserved
  * across the rebuild.
  *
  * Steps:
@@ -60,6 +60,7 @@ export function splitGeometryAndRebuildMeshes(
       color:             [number, number, number];
       opacity:           number;
       materialId:        string | undefined;
+      bin:               string | undefined;
       parentTransformId: string | undefined;
     };
   }> = [];
@@ -77,6 +78,7 @@ export function splitGeometryAndRebuildMeshes(
         color:             [mesh.color[0], mesh.color[1], mesh.color[2]],
         opacity:           mesh.opacity,
         materialId:        mesh.materialId,
+        bin:               mesh.bin,
         parentTransformId: mesh.parentTransform ? mesh.parentTransform.id : undefined,
       },
     });
@@ -138,6 +140,7 @@ function makeMesh(
     color:             [number, number, number];
     opacity:           number;
     materialId:        string | undefined;
+    bin:               string | undefined;
     parentTransformId: string | undefined;
   },
 ): SDKResult<unknown> {
@@ -148,6 +151,7 @@ function makeMesh(
     color:      snap.color,
     opacity:    snap.opacity,
     ...(snap.materialId ? {materialId: snap.materialId} : {}),
+    ...(snap.bin !== undefined ? {bin: snap.bin} : {}),
   });
   if (cRes.ok === false) return cRes;
   const aRes = sceneObject.addMesh(cRes.value.id);

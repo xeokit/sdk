@@ -12,8 +12,9 @@ import type {Issue} from "../Issue";
  * inspection found) plus `issue.resourceId` (the canonical id) and
  * for every mesh that points at any of the duplicates, rebuilds it
  * against the canonical geometry using the supported detach +
- * destroy + recreate + reattach pattern. Once no live mesh
- * references a duplicate, the duplicate geometry is destroyed.
+ * destroy + recreate + reattach pattern, preserving mesh creation
+ * fields such as material and bin. Once no live mesh references a
+ * duplicate, the duplicate geometry is destroyed.
  *
  * Constraints:
  *
@@ -31,7 +32,7 @@ export const mergeDuplicateGeometries: Fix = {
   procedure: [
     "Note every mesh that pointed at a duplicate geometry",
     "Detach and destroy each of those meshes",
-    "Re-create each mesh against the canonical geometry, preserving its placement, color, opacity, material, and parent",
+    "Re-create each mesh against the canonical geometry, preserving its placement, color, opacity, material, bin, and parent",
     "Re-attach each new mesh to its original object",
     "Destroy the now-unused duplicate geometries",
   ],
@@ -79,6 +80,7 @@ export const mergeDuplicateGeometries: Fix = {
         color:             [number, number, number];
         opacity:           number;
         materialId:        string | undefined;
+        bin:               string | undefined;
         parentTransformId: string | undefined;
       };
     }> = [];
@@ -96,6 +98,7 @@ export const mergeDuplicateGeometries: Fix = {
           color:             [mesh.color[0], mesh.color[1], mesh.color[2]],
           opacity:           mesh.opacity,
           materialId:        mesh.materialId,
+          bin:               mesh.bin,
           parentTransformId: mesh.parentTransform ? mesh.parentTransform.id : undefined,
         },
       });
@@ -120,6 +123,7 @@ export const mergeDuplicateGeometries: Fix = {
         color:      snap.color,
         opacity:    snap.opacity,
         ...(snap.materialId ? {materialId: snap.materialId} : {}),
+        ...(snap.bin !== undefined ? {bin: snap.bin} : {}),
       });
       if (cRes.ok === false) return cRes;
       const aRes = obj.addMesh(cRes.value.id);

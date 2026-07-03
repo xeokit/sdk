@@ -215,6 +215,7 @@ export class SceneTexture {
     this.wrapS = params.wrapS || RepeatWrapping;
     this.wrapT = params.wrapT || RepeatWrapping;
     this.wrapR = params.wrapR || RepeatWrapping
+    this.flipY = params.flipY === true;
     this.encoding = params.encoding || LinearEncoding;
     this.preloadColor = createVec4Float64(params.preloadColor || [1, 1, 1, 1]);
     this.mipmap = params.mipmap === true;
@@ -258,6 +259,7 @@ export class SceneTexture {
         wrapS: this.wrapS,
         wrapT: this.wrapT,
         wrapR: this.wrapR,
+        flipY: this.flipY,
         encoding: this.encoding,
         preloadColor: <Vec4>Array.from(this.preloadColor),
         mipmap: this.mipmap

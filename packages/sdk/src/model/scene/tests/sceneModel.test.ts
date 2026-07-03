@@ -270,6 +270,22 @@ describe("SceneTexture", () => {
     expect(texture.preloadColor[0]).toBe(0.1);
   });
 
+  it("preserves flipY through texture params", () => {
+    const model = new Scene().createModel({id: "textureFlipY"}).value!;
+    const result = model.createTexture({
+      id: "t",
+      src: "texture.png",
+      flipY: true,
+    });
+    expect(result.ok).toBe(true);
+
+    const texture = result.value!;
+    const params = texture.toParams().value!;
+
+    expect(texture.flipY).toBe(true);
+    expect(params.flipY).toBe(true);
+  });
+
   it("rejects toParams after destroy", () => {
     const model = new Scene().createModel({id: "destroyedTextureParams"}).value!;
     const result = model.createTexture({id: "t", src: "texture.png"});

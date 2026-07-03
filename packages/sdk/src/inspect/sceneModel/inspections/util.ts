@@ -62,6 +62,17 @@ export function isTriangleMesh(geom: SceneGeometry): boolean {
 }
 
 
+/** True when a primitive constant is accepted by SceneModel geometry creation. */
+export function isSupportedPrimitive(primitive: number): boolean {
+  return primitive === PointsPrimitive ||
+    primitive === LinesPrimitive ||
+    primitive === TrianglesPrimitive ||
+    primitive === SolidPrimitive ||
+    primitive === SurfacePrimitive ||
+    primitive === GaussianSplatsPrimitive;
+}
+
+
 /** Number of drawable primitives represented by a geometry. */
 export function primitiveCountForGeometry(geom: SceneGeometry): number {
   const stride = indexStrideFor(geom.primitive);

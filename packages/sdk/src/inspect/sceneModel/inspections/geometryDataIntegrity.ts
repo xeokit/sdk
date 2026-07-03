@@ -2,16 +2,17 @@ import type {SceneGeometry, SceneModel} from "../../../model/scene";
 import {GaussianSplatsPrimitive} from "../../../base/constants";
 import type {Inspection} from "../Inspection";
 import type {Issue} from "../Issue";
-import {indexStrideFor, isFiniteAABB} from "./util";
+import {indexStrideFor, isFiniteAABB, isSupportedPrimitive} from "./util";
 
 
 /**
  * Walks every {@link model!scene.SceneGeometry | SceneGeometry} in the SceneModel and emits
  * data-shape errors that the renderer or downstream optimisations
- * can't safely tolerate. One pass; fifteen codes.
+ * can't safely tolerate. One pass; sixteen codes.
  *
  *   - `GEOMETRY_NO_POSITIONS`     missing positionsCompressed
  *   - `GEOMETRY_POSITIONS_LENGTH` length not divisible by 3
+ *   - `GEOMETRY_PRIMITIVE_UNSUPPORTED` unsupported primitive constant
  *   - `GEOMETRY_NORMALS_LENGTH`   length ≠ 2 × vertex count (oct-pairs)
  *   - `GEOMETRY_UVS_LENGTH`       length ≠ 2 × vertex count
  *   - `GEOMETRY_COLORS_LENGTH`    length ≠ 4 × vertex count
@@ -31,6 +32,7 @@ export const geometryDataIntegrity: Inspection = {
   codes: [
     "GEOMETRY_NO_POSITIONS",
     "GEOMETRY_POSITIONS_LENGTH",
+    "GEOMETRY_PRIMITIVE_UNSUPPORTED",
     "GEOMETRY_NORMALS_LENGTH",
     "GEOMETRY_UVS_LENGTH",
     "GEOMETRY_COLORS_LENGTH",
@@ -51,6 +53,7 @@ export const geometryDataIntegrity: Inspection = {
   labels: {
     GEOMETRY_NO_POSITIONS:       "Geometry missing positions",
     GEOMETRY_POSITIONS_LENGTH:   "Bad positions length",
+    GEOMETRY_PRIMITIVE_UNSUPPORTED: "Unsupported primitive",
     GEOMETRY_NORMALS_LENGTH:     "Bad normals length",
     GEOMETRY_UVS_LENGTH:         "Bad UVs length",
     GEOMETRY_COLORS_LENGTH:      "Bad colors length",
@@ -71,6 +74,8 @@ export const geometryDataIntegrity: Inspection = {
       "Geometry has no vertex positions buffer, so the renderer has nothing to draw.",
     GEOMETRY_POSITIONS_LENGTH:
       "Positions buffer length is not a multiple of 3, so the (x, y, z) groupings don't line up — at least one vertex is truncated.",
+    GEOMETRY_PRIMITIVE_UNSUPPORTED:
+      "Geometry primitive is not one of the supported SceneModel primitive constants, so render and fix paths cannot safely route it.",
     GEOMETRY_NORMALS_LENGTH:
       "Normals buffer is the wrong size for the vertex count. Oct-encoded normals must be exactly 2 × vertexCount u16 elements.",
     GEOMETRY_UVS_LENGTH:
@@ -134,6 +139,15 @@ function checkGeometry(geom: SceneGeometry, issues: Issue[]): void {
   }
 
   const vertCount = (geom.positionsCompressed.length / 3) | 0;
+
+  if (!isSupportedPrimitive(geom.primitive)) {
+    issues.push({
+      severity: "error",
+      code:     "GEOMETRY_PRIMITIVE_UNSUPPORTED",
+      message:  `SceneGeometry '${id}' has unsupported primitive ${geom.primitive}`,
+      resourceId: id,
+    });
+  }
 
   if (geom.normalsCompressed && geom.normalsCompressed.length !== vertCount * 2) {
     // Oct-encoded as (u16, u16) per vertex — 2 elements, NOT 3.

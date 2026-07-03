@@ -191592,6 +191592,9 @@ function createSceneModelInspectionIndex(sceneModel) {
   const geomRows = /* @__PURE__ */ new Map();
   const objRows = /* @__PURE__ */ new Map();
   let refTables = null;
+  let geomObjects = null;
+  let geomMeshes = null;
+  let meshTrackingUnsubs = null;
   function geomRow(id) {
     let row = geomRows.get(id);
     if (!row) {
@@ -191607,6 +191610,42 @@ function createSceneModelInspectionIndex(sceneModel) {
       objRows.set(id, row);
     }
     return row;
+  }
+  function ensureGeometryMeshes() {
+    if (geomMeshes)
+      return geomMeshes;
+    const table = /* @__PURE__ */ new Map();
+    for (const meshId in sceneModel.meshes) {
+      const mesh = sceneModel.meshes[meshId];
+      if (mesh.destroyed)
+        continue;
+      addMeshEntry(table, mesh.geometryId, meshId);
+    }
+    geomMeshes = table;
+    const events = sceneModel.scene.events;
+    const onCreated = (_scene2, mesh) => {
+      if (geomMeshes && mesh.model === sceneModel && !mesh.destroyed) {
+        addMeshEntry(geomMeshes, mesh.geometryId, mesh.id);
+      }
+    };
+    const onDestroyed = (_scene2, mesh) => {
+      if (geomMeshes && mesh.model === sceneModel) {
+        removeMeshEntry(geomMeshes, mesh.geometryId, mesh.id);
+      }
+    };
+    meshTrackingUnsubs = [
+      events.onSceneMeshCreated.subscribe(onCreated),
+      events.onSceneMeshDestroyed.subscribe(onDestroyed)
+    ];
+    return table;
+  }
+  function stopMeshTracking() {
+    if (meshTrackingUnsubs) {
+      for (const unsub of meshTrackingUnsubs)
+        unsub();
+      meshTrackingUnsubs = null;
+    }
+    geomMeshes = null;
   }
   return {
     sceneModel,
@@ -191712,6 +191751,16 @@ function createSceneModelInspectionIndex(sceneModel) {
       return row.worldAABB;
     },
     // ── Per-scene reverse-reference tables ──────────────────────
+    geometryObjects(geometryId) {
+      var _a2;
+      if (!geomObjects)
+        geomObjects = computeGeometryObjects(sceneModel);
+      return (_a2 = geomObjects.get(geometryId)) != null ? _a2 : EMPTY_IDS;
+    },
+    geometryMeshes(geometryId) {
+      const set = ensureGeometryMeshes().get(geometryId);
+      return set && set.size > 0 ? Array.from(set) : EMPTY_IDS;
+    },
     materialReferences() {
       if (!refTables)
         refTables = computeReferenceTables(sceneModel);
@@ -191736,11 +191785,14 @@ function createSceneModelInspectionIndex(sceneModel) {
     },
     invalidateReferences() {
       refTables = null;
+      geomObjects = null;
     },
     invalidateAll() {
       geomRows.clear();
       objRows.clear();
       refTables = null;
+      geomObjects = null;
+      stopMeshTracking();
     },
     releaseHeavyRows() {
       for (const row of geomRows.values()) {
@@ -191976,6 +192028,47 @@ function computeObjectWorldAABB(sceneModel, objectId) {
     }
   }
   return out;
+}
+var EMPTY_IDS = [];
+function addMeshEntry(table, geometryId, meshId) {
+  let set = table.get(geometryId);
+  if (!set) {
+    set = /* @__PURE__ */ new Set();
+    table.set(geometryId, set);
+  }
+  set.add(meshId);
+}
+function removeMeshEntry(table, geometryId, meshId) {
+  const set = table.get(geometryId);
+  if (!set)
+    return;
+  set.delete(meshId);
+  if (set.size === 0)
+    table.delete(geometryId);
+}
+function computeGeometryObjects(sceneModel) {
+  const table = /* @__PURE__ */ new Map();
+  const seen = /* @__PURE__ */ new Set();
+  for (const meshId in sceneModel.meshes) {
+    const mesh = sceneModel.meshes[meshId];
+    if (mesh.destroyed)
+      continue;
+    const obj = mesh.object;
+    if (!obj || obj.destroyed)
+      continue;
+    const geometryId = mesh.geometryId;
+    const key = `${geometryId}\0${obj.id}`;
+    if (seen.has(key))
+      continue;
+    seen.add(key);
+    let arr = table.get(geometryId);
+    if (!arr) {
+      arr = [];
+      table.set(geometryId, arr);
+    }
+    arr.push(obj.id);
+  }
+  return table;
 }
 function computeReferenceTables(sceneModel) {
   const materialReferences = /* @__PURE__ */ new Map();
@@ -192276,23 +192369,7 @@ function isIdentityMat42(m2) {
 
 // src/inspect/sceneModel/labels/findSceneObjectsForGeometry.ts
 function findSceneObjectsForGeometry(sceneModel, geometryId) {
-  const seen = /* @__PURE__ */ new Set();
-  const out = [];
-  for (const meshId in sceneModel.meshes) {
-    const mesh = sceneModel.meshes[meshId];
-    if (mesh.destroyed)
-      continue;
-    if (mesh.geometryId !== geometryId)
-      continue;
-    const obj = mesh.object;
-    if (!obj || obj.destroyed)
-      continue;
-    if (seen.has(obj.id))
-      continue;
-    seen.add(obj.id);
-    out.push(obj.id);
-  }
-  return out;
+  return getInspectionIndex(sceneModel).geometryObjects(geometryId).slice();
 }
 
 // src/inspect/sceneModel/Config.ts
@@ -194123,16 +194200,10 @@ var mergeSimilarGeometries = {
       totalRebuilt += rebuiltForThisSimilar;
       acceptedSimilars.push(similarId);
     }
-    const stillReferenced = /* @__PURE__ */ new Set();
-    for (const meshId in sceneModel.meshes) {
-      const mesh = sceneModel.meshes[meshId];
-      if (mesh.destroyed)
-        continue;
-      stillReferenced.add(mesh.geometryId);
-    }
+    const index2 = getInspectionIndex(sceneModel);
     const destroyed = [];
     for (const id of acceptedSimilars) {
-      if (stillReferenced.has(id))
+      if (index2.geometryMeshes(id).length > 0)
         continue;
       const g2 = sceneModel.geometries[id];
       if (!g2 || g2.destroyed)
@@ -194152,9 +194223,10 @@ var mergeSimilarGeometries = {
 };
 function collectReferencingMeshSnapshots(sceneModel, geometryId) {
   const out = [];
-  for (const meshId in sceneModel.meshes) {
+  const index2 = getInspectionIndex(sceneModel);
+  for (const meshId of index2.geometryMeshes(geometryId)) {
     const mesh = sceneModel.meshes[meshId];
-    if (mesh.destroyed)
+    if (!mesh || mesh.destroyed)
       continue;
     if (mesh.geometryId !== geometryId)
       continue;

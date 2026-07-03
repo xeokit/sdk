@@ -56,6 +56,19 @@ describe("geometryDataIntegrity", () => {
     expect(integrityCodes(sceneModel)).toContain("GEOMETRY_AABB_LENGTH");
   });
 
+  it("reports unsupported primitive constants", () => {
+    const sceneModel = new Scene().createModel({id: "m"}).value!;
+    expect(sceneModel.createGeometry({
+      id: "g",
+      primitive: TrianglesPrimitive,
+      positions: [0, 0, 0,  1, 0, 0,  0, 1, 0],
+      indices: [0, 1, 2],
+    }).ok).toBe(true);
+    (sceneModel.geometries["g"] as any).primitive = 12345;
+
+    expect(integrityCodes(sceneModel)).toContain("GEOMETRY_PRIMITIVE_UNSUPPORTED");
+  });
+
   it("reports indexed primitives without a non-empty indices buffer", () => {
     const sceneModel = new Scene().createModel({id: "m"}).value!;
     expect(sceneModel.createGeometry({

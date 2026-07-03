@@ -95,9 +95,10 @@ export interface InspectSceneModelParams {
   /**
    * When `true`, emit one `GEOMETRY_ARRAY_OVERSIZED` warning per
    * SceneGeometry whose raw `positionsCompressed`, `indices`,
-   * `normalsCompressed`, `uvsCompressed`, or `colorsCompressed`
-   * array length exceeds the matching {@link maxPositionsLength} /
-   * {@link maxIndicesLength} / {@link maxNormalsLength} /
+   * `edgeIndices`, `normalsCompressed`, `uvsCompressed`, or
+   * `colorsCompressed` array length exceeds the matching
+   * {@link maxPositionsLength} / {@link maxIndicesLength} /
+   * {@link maxEdgeIndicesLength} / {@link maxNormalsLength} /
    * {@link maxUvsLength} / {@link maxColorsLength} threshold.
    * Catches the renderer's
    * `GPUMemoryBatch.addMesh` "Unable to allocate … portion …
@@ -125,6 +126,13 @@ export interface InspectSceneModelParams {
    * `createMemoryConfigs` `maxBatchIndices` clamp minimum.
    */
   maxIndicesLength?: number;
+
+  /**
+   * `edgeIndices.length` threshold for `GEOMETRY_ARRAY_OVERSIZED`.
+   * Default `100_000`, matching the renderer's
+   * `createMemoryConfigs` `maxBatchIndices` clamp minimum.
+   */
+  maxEdgeIndicesLength?: number;
 
   /**
    * `normalsCompressed.length` threshold for

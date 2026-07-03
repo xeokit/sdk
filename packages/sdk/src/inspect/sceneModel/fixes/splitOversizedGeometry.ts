@@ -7,9 +7,9 @@ import type {Issue} from "../Issue";
 
 /**
  * Auto-fix for `GEOMETRY_ARRAY_OVERSIZED` — geometries whose raw
- * `positionsCompressed`, `indices`, `normalsCompressed`,
- * `uvsCompressed`, or `colorsCompressed` array lengths exceed the
- * configured
+ * `positionsCompressed`, `indices`, `edgeIndices`,
+ * `normalsCompressed`, `uvsCompressed`, or `colorsCompressed`
+ * array lengths exceed the configured
  * per-geometry batch-portion thresholds.
  *
  * Mechanically identical to {@link splitDenseGeometry} and

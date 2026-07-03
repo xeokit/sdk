@@ -216,7 +216,7 @@ function buildSide(
     positions: new Float32Array(newPositions),
     normals:   newNormals ? new Float32Array(newNormals) : undefined,
     uvs:       newUvs ? new Float32Array(newUvs) : undefined,
-    colorsCompressed: newColors ? new Uint16Array(newColors) : undefined,
+    colorsCompressed: newColors ? new Uint8Array(newColors) : undefined,
     indices:   newIndices,
   });
 }

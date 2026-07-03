@@ -211,6 +211,8 @@ describe("splitSceneGeometry", () => {
 
     expect(res.ok).toBe(true);
     const {geometryA, geometryB} = (res as any).value;
+    expect(geometryA.colorsCompressed).toBeInstanceOf(Uint8Array);
+    expect(geometryB.colorsCompressed).toBeInstanceOf(Uint8Array);
     expect(Array.from(geometryA.colorsCompressed!)).toEqual([
       255, 0, 0, 255,
       0, 255, 0, 255,

@@ -67,4 +67,43 @@ describe("optimizeSceneModel", () => {
       expect(Array.from(mesh.matrix)).toEqual(MATRIX);
     }
   });
+
+  it("cleans up a replacement mesh when optimizer split rebuild fails", () => {
+    const sceneModel = new Scene().createModel({id: "m"}).value!;
+    expect(sceneModel.createTransform({
+      id: "parent",
+      matrix: [1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0,  3, 0, 0, 1],
+    }).ok).toBe(true);
+    expect(sceneModel.createGeometry({
+      id: "g",
+      primitive: TrianglesPrimitive,
+      positions: QUAD_POSITIONS,
+      indices: QUAD_INDICES,
+    }).ok).toBe(true);
+    expect(sceneModel.createMesh({
+      id: "mesh",
+      geometryId: "g",
+      parentTransformId: "parent",
+    }).ok).toBe(true);
+    expect(sceneModel.createObject({
+      id: "object",
+      meshIds: ["mesh"],
+    }).ok).toBe(true);
+
+    sceneModel.scene.events.onSceneObjectMeshAdded.subscribe((_object, mesh) => {
+      if (mesh.id === "mesh_a") {
+        sceneModel.transforms["parent"].destroy();
+      }
+    });
+
+    const res = optimizeSceneModel({
+      sceneModel,
+      maxVertices: 3,
+      maxPrimitives: 100,
+    });
+
+    expect(res.ok).toBe(false);
+    expect(sceneModel.meshes["mesh_a"]).toBeUndefined();
+    expect(sceneModel.objects["object"].meshes.map(mesh => mesh.id)).not.toContain("mesh_a");
+  });
 });

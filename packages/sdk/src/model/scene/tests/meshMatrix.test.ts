@@ -182,8 +182,9 @@ describe("SceneMesh lazy world matrix + shared identity", () => {
     expect(mesh.parentTransform).toBe(transform);
     expect(transform.childMeshes).toContain(mesh);
 
-    transform.destroy();
+    const result = transform.destroy();
 
+    expect(result.ok).toBe(true);
     expect(m.transforms["t"]).toBeUndefined();
     expect(transform.childMeshes).toHaveLength(0);
     expect(mesh.parentTransform).toBeNull();

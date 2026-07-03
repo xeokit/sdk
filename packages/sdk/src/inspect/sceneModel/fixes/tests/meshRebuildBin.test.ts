@@ -205,4 +205,35 @@ describe("mesh rebuild fixes", () => {
     expect(m.meshes["mesh"].geometryId).toBe("canonical");
     expect(m.meshes["mesh"].bin).toBe("overlay");
   });
+
+  it("cleans up a replacement mesh when similar merge parent restoration fails", () => {
+    const m = model();
+    addQuadGeometry(m, "canonical");
+    addQuadGeometry(m, "similar");
+    expect(m.createTransform({id: "parent"}).ok).toBe(true);
+    expect(m.createMesh({
+      id: "mesh",
+      geometryId: "similar",
+      parentTransformId: "parent",
+    }).ok).toBe(true);
+    expect(m.createObject({
+      id: "mesh-object",
+      meshIds: ["mesh"],
+    }).ok).toBe(true);
+
+    m.scene.events.onSceneObjectMeshAdded.subscribe((_object, mesh) => {
+      if (mesh.id === "mesh") {
+        m.transforms["parent"].destroy();
+      }
+    });
+
+    const res = mergeSimilarGeometries.apply({
+      resourceId: "canonical",
+      context: {similar: ["similar"]},
+    } as any, m as any);
+
+    expect(res.ok).toBe(false);
+    expect(m.meshes["mesh"]).toBeUndefined();
+    expect(m.objects["mesh-object"].meshes.map(mesh => mesh.id)).not.toContain("mesh");
+  });
 });

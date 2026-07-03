@@ -1,4 +1,4 @@
-import type {SceneModel} from "../../../model/scene";
+import type {SceneMesh, SceneModel, SceneObject} from "../../../model/scene";
 import type {SDKResult} from "../../../base/core";
 import {SDKErrorType} from "../../../base/core";
 import {decompressPositions3WithAABB3} from "../../../base/math/compression";
@@ -162,10 +162,18 @@ export const mergeSimilarGeometries: Fix = {
         });
         if (cRes.ok === false) return cRes;
         const aRes = obj.addMesh(cRes.value.id);
-        if (aRes.ok === false) return aRes;
+        if (aRes.ok === false) {
+          const cleanupRes = cleanupCreatedMesh(obj, cRes.value);
+          if (cleanupRes.ok === false) return cleanupRes;
+          return aRes;
+        }
         if (snap.parentTransformId) {
           const tRes = cRes.value.setParentTransformId(snap.parentTransformId);
-          if (tRes.ok === false) return tRes;
+          if (tRes.ok === false) {
+            const cleanupRes = cleanupCreatedMesh(obj, cRes.value);
+            if (cleanupRes.ok === false) return cleanupRes;
+            return tRes;
+          }
         }
         rebuiltForThisSimilar++;
       }
@@ -202,6 +210,21 @@ export const mergeSimilarGeometries: Fix = {
     return {ok: true, value: {fixed: true, trace}};
   },
 };
+
+
+function cleanupCreatedMesh(
+  sceneObject: SceneObject,
+  mesh: SceneMesh,
+): SDKResult<void> {
+  if (mesh.object?.id === sceneObject.id) {
+    const rRes = sceneObject.removeMesh(mesh.id);
+    if (rRes.ok === false) return rRes;
+  }
+  if (!mesh.destroyed) {
+    return mesh.destroy();
+  }
+  return {ok: true, value: undefined};
+}
 
 
 // ── Mesh snapshot helpers ────────────────────────────────────────

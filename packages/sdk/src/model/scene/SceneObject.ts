@@ -203,6 +203,9 @@ export class SceneObject {
       id: this.id,
       meshIds: []
     };
+    if (this.originalSystemId !== this.id) {
+      sceneObjectParams.originalSystemId = this.originalSystemId;
+    }
     if (this.layerId !== undefined) {
       sceneObjectParams.layerId = this.layerId;
     }

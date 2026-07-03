@@ -159,6 +159,23 @@ describe("SceneObject", () => {
       }
     }
   });
+
+  it("preserves originalSystemId through toParams", () => {
+    const model = buildModel(new Scene(), "sourceIds");
+    model.objects["Object1"].destroy();
+    const result = model.createObject({
+      id: "Object1",
+      originalSystemId: "ifc-guid-123",
+      meshIds: ["mesh1"],
+    });
+    expect(result.ok).toBe(true);
+
+    const objParams = result.value!.toParams().value!;
+
+    expect(objParams.id).toBe("Object1");
+    expect(objParams.originalSystemId).toBe("ifc-guid-123");
+    expect(objParams.meshIds).toEqual(["mesh1"]);
+  });
 });
 
 describe("SceneMaterial", () => {

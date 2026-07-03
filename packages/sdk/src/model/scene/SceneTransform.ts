@@ -435,6 +435,15 @@ export class SceneTransform {
           error: `[SceneTransform.setParentTransformId] Cannot set parent transform to a transform in a different SceneModel on SceneTransform ${this.id}`
         });
       }
+      for (let ancestor = parentTransform; ancestor; ancestor = ancestor._parentTransform) {
+        if (ancestor === this) {
+          return this.model.scene.logError({
+            ok: false,
+            type: SDKErrorType.InvalidOperation,
+            error: `[SceneTransform.setParentTransformId] Cannot create a transform hierarchy cycle on SceneTransform ${this.id}`
+          });
+        }
+      }
     }
     const preserve = !!opts?.preserveWorld;
     if (preserve) {

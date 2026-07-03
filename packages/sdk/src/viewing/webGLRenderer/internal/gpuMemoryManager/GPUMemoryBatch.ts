@@ -805,7 +805,7 @@ export class GPUMemoryBatch {
 
     const maxBatchMeshes = this._renderContext.memoryConfigs.maxBatchMeshes;
 
-    if ((this._numMeshes + 1) >= maxBatchMeshes) {
+    if (this._numMeshes >= maxBatchMeshes) {
       return {
         ok: false,
         type: SDKErrorType.MemoryAllocationFailed,
@@ -818,7 +818,7 @@ export class GPUMemoryBatch {
 
     if (!geometryHandle) {
       const maxGeometries = this._renderContext.memoryConfigs.maxBatchGeometries;
-      if ((this._numGeometries + 1) >= maxGeometries) {
+      if (this._numGeometries >= maxGeometries) {
         return {
           ok: false,
           type: SDKErrorType.MemoryAllocationFailed,

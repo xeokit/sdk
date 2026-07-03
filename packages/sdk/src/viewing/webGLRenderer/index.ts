@@ -203,12 +203,14 @@
  * import { MemoryConfigs } from "@xeokit/sdk/viewing/webGLRenderer";
  *
  * const memoryConfigs: MemoryConfigs = {
- *   maxTiles: 512,
- *   maxBatches: 128,
+ *   maxViews: 1,
+ *   tileSize: 200,
+ *   maxTiles: 4096,
+ *   maxBatches: 1000,
  *   maxBatchVertices: 500000,
  *   maxBatchIndices: 800000,
- *   maxBatchGeometries: 2000,
- *   maxBatchMeshes: 2000,
+ *   maxBatchGeometries: 60000,
+ *   maxBatchMeshes: 20000,
  *   maxBatchPrims: 400000
  * };
  *

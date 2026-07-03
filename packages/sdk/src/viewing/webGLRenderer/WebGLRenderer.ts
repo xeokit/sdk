@@ -13,6 +13,7 @@ import {SceneGeometry, SceneMesh} from "../../model/scene";
 import {ShaderInspector, RenderInspector, type MemoryInspector} from "./internal/inspectors";
 import {type MeshManagerStepStats} from "./internal/meshManager";
 import {type PickParams, type PickResult} from "../viewer";
+import {createDefaultMemoryConfigs} from "./defaultMemoryConfigs";
 
 
 /**
@@ -169,21 +170,7 @@ export class WebGLRenderer {
     };
     this._shaderInspector = null;
     this._drawInspector = null;
-    this._memoryConfigs = { // Best guess defaults
-      maxViews: 1,
-      tileSize: 200,
-      maxTiles: 2000,
-      maxBatches: 300,
-      maxBatchVertices: 50000, // Allow enough vertices and indices for large terrain meshes
-      maxBatchIndices: 70000,
-      maxBatchGeometries: 10000,
-      maxBatchMeshes: 10000,
-      maxBatchPrims: 100000
-    };
-    if (params.memoryConfigs) {
-      this._memoryConfigs = <MemoryConfigs>{};
-      Object.assign(this._memoryConfigs, params.memoryConfigs);
-    }
+    this._memoryConfigs = createDefaultMemoryConfigs(params.memoryConfigs);
     this._debugging = !!params.debugging;
     if (params.viewer) {
       const result = this.attachViewer(params.viewer);

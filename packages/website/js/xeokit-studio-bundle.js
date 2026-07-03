@@ -143710,6 +143710,9 @@ function createSceneModelInspectionIndex(sceneModel) {
   const geomRows = /* @__PURE__ */ new Map();
   const objRows = /* @__PURE__ */ new Map();
   let refTables = null;
+  let geomObjects = null;
+  let geomMeshes = null;
+  let meshTrackingUnsubs = null;
   function geomRow(id) {
     let row = geomRows.get(id);
     if (!row) {
@@ -143725,6 +143728,42 @@ function createSceneModelInspectionIndex(sceneModel) {
       objRows.set(id, row);
     }
     return row;
+  }
+  function ensureGeometryMeshes() {
+    if (geomMeshes)
+      return geomMeshes;
+    const table = /* @__PURE__ */ new Map();
+    for (const meshId in sceneModel.meshes) {
+      const mesh = sceneModel.meshes[meshId];
+      if (mesh.destroyed)
+        continue;
+      addMeshEntry(table, mesh.geometryId, meshId);
+    }
+    geomMeshes = table;
+    const events = sceneModel.scene.events;
+    const onCreated = (_scene, mesh) => {
+      if (geomMeshes && mesh.model === sceneModel && !mesh.destroyed) {
+        addMeshEntry(geomMeshes, mesh.geometryId, mesh.id);
+      }
+    };
+    const onDestroyed = (_scene, mesh) => {
+      if (geomMeshes && mesh.model === sceneModel) {
+        removeMeshEntry(geomMeshes, mesh.geometryId, mesh.id);
+      }
+    };
+    meshTrackingUnsubs = [
+      events.onSceneMeshCreated.subscribe(onCreated),
+      events.onSceneMeshDestroyed.subscribe(onDestroyed)
+    ];
+    return table;
+  }
+  function stopMeshTracking() {
+    if (meshTrackingUnsubs) {
+      for (const unsub of meshTrackingUnsubs)
+        unsub();
+      meshTrackingUnsubs = null;
+    }
+    geomMeshes = null;
   }
   return {
     sceneModel,
@@ -143830,6 +143869,15 @@ function createSceneModelInspectionIndex(sceneModel) {
       return row.worldAABB;
     },
     // ── Per-scene reverse-reference tables ──────────────────────
+    geometryObjects(geometryId) {
+      if (!geomObjects)
+        geomObjects = computeGeometryObjects(sceneModel);
+      return geomObjects.get(geometryId) ?? EMPTY_IDS;
+    },
+    geometryMeshes(geometryId) {
+      const set = ensureGeometryMeshes().get(geometryId);
+      return set && set.size > 0 ? Array.from(set) : EMPTY_IDS;
+    },
     materialReferences() {
       if (!refTables)
         refTables = computeReferenceTables(sceneModel);
@@ -143854,11 +143902,14 @@ function createSceneModelInspectionIndex(sceneModel) {
     },
     invalidateReferences() {
       refTables = null;
+      geomObjects = null;
     },
     invalidateAll() {
       geomRows.clear();
       objRows.clear();
       refTables = null;
+      geomObjects = null;
+      stopMeshTracking();
     },
     releaseHeavyRows() {
       for (const row of geomRows.values()) {
@@ -144094,6 +144145,47 @@ function computeObjectWorldAABB(sceneModel, objectId) {
     }
   }
   return out;
+}
+var EMPTY_IDS = [];
+function addMeshEntry(table, geometryId, meshId) {
+  let set = table.get(geometryId);
+  if (!set) {
+    set = /* @__PURE__ */ new Set();
+    table.set(geometryId, set);
+  }
+  set.add(meshId);
+}
+function removeMeshEntry(table, geometryId, meshId) {
+  const set = table.get(geometryId);
+  if (!set)
+    return;
+  set.delete(meshId);
+  if (set.size === 0)
+    table.delete(geometryId);
+}
+function computeGeometryObjects(sceneModel) {
+  const table = /* @__PURE__ */ new Map();
+  const seen = /* @__PURE__ */ new Set();
+  for (const meshId in sceneModel.meshes) {
+    const mesh = sceneModel.meshes[meshId];
+    if (mesh.destroyed)
+      continue;
+    const obj = mesh.object;
+    if (!obj || obj.destroyed)
+      continue;
+    const geometryId = mesh.geometryId;
+    const key = `${geometryId}\0${obj.id}`;
+    if (seen.has(key))
+      continue;
+    seen.add(key);
+    let arr = table.get(geometryId);
+    if (!arr) {
+      arr = [];
+      table.set(geometryId, arr);
+    }
+    arr.push(obj.id);
+  }
+  return table;
 }
 function computeReferenceTables(sceneModel) {
   const materialReferences = /* @__PURE__ */ new Map();
@@ -144394,23 +144486,7 @@ function isIdentityMat42(m) {
 
 // ../sdk/src/inspect/sceneModel/labels/findSceneObjectsForGeometry.ts
 function findSceneObjectsForGeometry(sceneModel, geometryId) {
-  const seen = /* @__PURE__ */ new Set();
-  const out = [];
-  for (const meshId in sceneModel.meshes) {
-    const mesh = sceneModel.meshes[meshId];
-    if (mesh.destroyed)
-      continue;
-    if (mesh.geometryId !== geometryId)
-      continue;
-    const obj = mesh.object;
-    if (!obj || obj.destroyed)
-      continue;
-    if (seen.has(obj.id))
-      continue;
-    seen.add(obj.id);
-    out.push(obj.id);
-  }
-  return out;
+  return getInspectionIndex(sceneModel).geometryObjects(geometryId).slice();
 }
 
 // ../sdk/src/inspect/sceneModel/Config.ts
@@ -146268,16 +146344,10 @@ var mergeSimilarGeometries = {
       totalRebuilt += rebuiltForThisSimilar;
       acceptedSimilars.push(similarId);
     }
-    const stillReferenced = /* @__PURE__ */ new Set();
-    for (const meshId in sceneModel.meshes) {
-      const mesh = sceneModel.meshes[meshId];
-      if (mesh.destroyed)
-        continue;
-      stillReferenced.add(mesh.geometryId);
-    }
+    const index = getInspectionIndex(sceneModel);
     const destroyed = [];
     for (const id of acceptedSimilars) {
-      if (stillReferenced.has(id))
+      if (index.geometryMeshes(id).length > 0)
         continue;
       const g = sceneModel.geometries[id];
       if (!g || g.destroyed)
@@ -146297,9 +146367,10 @@ var mergeSimilarGeometries = {
 };
 function collectReferencingMeshSnapshots(sceneModel, geometryId) {
   const out = [];
-  for (const meshId in sceneModel.meshes) {
+  const index = getInspectionIndex(sceneModel);
+  for (const meshId of index.geometryMeshes(geometryId)) {
     const mesh = sceneModel.meshes[meshId];
-    if (mesh.destroyed)
+    if (!mesh || mesh.destroyed)
       continue;
     if (mesh.geometryId !== geometryId)
       continue;
@@ -149929,9 +150000,13 @@ __export(adaptiveQuality_exports, {
 });
 
 // ../sdk/src/viewing/adaptiveQuality/AdaptiveQuality.ts
-var DEFAULT_REST_MS = 150;
+var DEFAULT_REST_MS = 500;
 var liveAdapters = /* @__PURE__ */ new WeakMap();
 var AdaptiveQuality = class {
+  /** The live adapter driving `view`, or `undefined` if none. */
+  static getFor(view) {
+    return liveAdapters.get(view);
+  }
   /** The View this adapter drives. */
   view;
   #fastMode;
@@ -152675,7 +152750,7 @@ var ResolutionScale = class {
   constructor(view, options = {}) {
     this.view = view;
     this._renderModes = options.renderModes || [NavigationRender];
-    this._resolutionScale = options.resolutionScale || 1;
+    this._resolutionScale = options.resolutionScale || 0.5;
   }
   /**
    * Sets which rendering modes in which to apply ResolutionScale.
@@ -152697,7 +152772,7 @@ var ResolutionScale = class {
   /**
    * Sets the scale when ResolutionScale is applied.
    *
-   * Default is ````1.0````.
+   * Default is ````0.5````.
    */
   set resolutionScale(value) {
     if (this._resolutionScale === value) {
@@ -152709,7 +152784,7 @@ var ResolutionScale = class {
   /**
    * Gets the scale when ResolutionScale is applied.
    *
-   * Default is ````1.0````.
+   * Default is ````0.5````.
    */
   get resolutionScale() {
     return this._resolutionScale;
@@ -157688,7 +157763,7 @@ var View2 = class {
     });
     this.resolutionScale = new ResolutionScale(this, viewParams.resolutionScale || {
       renderModes: [NavigationRender],
-      resolutionScale: 1
+      resolutionScale: 0.5
     });
     this.pointsMaterial = new PointsMaterial(this, viewParams.pointsMaterial || {
       pointSize: 1,
@@ -173853,7 +173928,7 @@ var GPUMemoryBatch = class {
       return { ok: true, value: existingMeshIndex };
     }
     const maxBatchMeshes = this._renderContext.memoryConfigs.maxBatchMeshes;
-    if (this._numMeshes + 1 >= maxBatchMeshes) {
+    if (this._numMeshes >= maxBatchMeshes) {
       return {
         ok: false,
         type: 8 /* MemoryAllocationFailed */,
@@ -173864,7 +173939,7 @@ var GPUMemoryBatch = class {
     let geometryHandle = this._geometryHandles[sceneGeometry.uniqueId];
     if (!geometryHandle) {
       const maxGeometries = this._renderContext.memoryConfigs.maxBatchGeometries;
-      if (this._numGeometries + 1 >= maxGeometries) {
+      if (this._numGeometries >= maxGeometries) {
         return {
           ok: false,
           type: 8 /* MemoryAllocationFailed */,
@@ -188103,9 +188178,6 @@ var RenderManager = class _RenderManager {
     const renderContext = this._renderContext;
     const gl = renderContext.gl;
     const view = rendererView.view;
-    const resolutionScale = view.resolutionScale.applied ? view.resolutionScale.resolutionScale : 1;
-    renderContext.webglCanvasElement.width = Math.floor(gl.drawingBufferWidth * resolutionScale);
-    renderContext.webglCanvasElement.height = Math.floor(gl.drawingBufferHeight * resolutionScale);
     renderContext.reset();
     renderContext.activeView = view;
     renderContext.pbrEnabled = false;
@@ -190362,8 +190434,10 @@ var ViewManager2 = class {
       webglCanvasElement.style.height = `${metrics.cssHeight}px`;
       webglCanvasElement.style.zIndex = this._canvasZIndex;
     }
-    webglCanvasElement.width = metrics.pixelWidth;
-    webglCanvasElement.height = metrics.pixelHeight;
+    if (sizeChanged) {
+      webglCanvasElement.width = metrics.pixelWidth;
+      webglCanvasElement.height = metrics.pixelHeight;
+    }
     this._lastCanvasLayout = metrics;
     return {
       moved,
@@ -190752,6 +190826,27 @@ var ViewManager2 = class {
 
 // ../sdk/src/viewing/webGLRenderer/WebGLRenderer.ts
 var import_strongly_typed_events18 = __toESM(require_dist8());
+
+// ../sdk/src/viewing/webGLRenderer/defaultMemoryConfigs.ts
+var DEFAULT_MEMORY_CONFIGS = {
+  maxViews: 1,
+  tileSize: 200,
+  maxTiles: 4096,
+  maxBatches: 1e3,
+  maxBatchVertices: 5e5,
+  maxBatchIndices: 8e5,
+  maxBatchGeometries: 6e4,
+  maxBatchMeshes: 2e4,
+  maxBatchPrims: 4e5
+};
+function createDefaultMemoryConfigs(overrides = {}) {
+  return {
+    ...DEFAULT_MEMORY_CONFIGS,
+    ...overrides
+  };
+}
+
+// ../sdk/src/viewing/webGLRenderer/WebGLRenderer.ts
 var WebGLRenderer3 = class {
   _viewer = null;
   // The currently attached Viewer
@@ -190871,23 +190966,7 @@ var WebGLRenderer3 = class {
     };
     this._shaderInspector = null;
     this._drawInspector = null;
-    this._memoryConfigs = {
-      // Best guess defaults
-      maxViews: 1,
-      tileSize: 200,
-      maxTiles: 2e3,
-      maxBatches: 300,
-      maxBatchVertices: 5e4,
-      // Allow enough vertices and indices for large terrain meshes
-      maxBatchIndices: 7e4,
-      maxBatchGeometries: 1e4,
-      maxBatchMeshes: 1e4,
-      maxBatchPrims: 1e5
-    };
-    if (params.memoryConfigs) {
-      this._memoryConfigs = {};
-      Object.assign(this._memoryConfigs, params.memoryConfigs);
-    }
+    this._memoryConfigs = createDefaultMemoryConfigs(params.memoryConfigs);
     this._debugging = !!params.debugging;
     if (params.viewer) {
       const result = this.attachViewer(params.viewer);
@@ -233263,7 +233342,7 @@ var PANEL_CSS22 = `
 }
 .xkt-aq-panel .xkt-aq-chip.xkt-aq-chip-nav .xkt-aq-chip-k { color: rgba(255, 255, 255, 0.7); }
 `;
-var DEFAULT_REST_MS2 = 150;
+var DEFAULT_REST_MS2 = 500;
 var AdaptiveQualityPanel = class _AdaptiveQualityPanel extends FloatingPanelBase {
   static _instances = /* @__PURE__ */ new WeakMap();
   /** SVG: a tachometer needle, suggesting "speed switch". Strokes use `currentColor`. */
@@ -233286,7 +233365,6 @@ var AdaptiveQualityPanel = class _AdaptiveQualityPanel extends FloatingPanelBase
   viewer;
   renderer;
   _restMs = DEFAULT_REST_MS2;
-  _adapters = /* @__PURE__ */ new Map();
   // DOM refs.
   _bodyEl;
   _viewsEl;
@@ -233323,10 +233401,8 @@ var AdaptiveQualityPanel = class _AdaptiveQualityPanel extends FloatingPanelBase
     const ve = this.viewer.events;
     this._viewLifecycleUnsubs.push(
       ve.onViewCreated.subscribe(() => this._renderViews()),
-      ve.onViewDestroyed.subscribe((_viewer, view) => {
-        this._adapters.delete(view.id);
-        this._renderViews();
-      })
+      // AdaptiveQuality self-destroys on view destroy; just rebuild the rows.
+      ve.onViewDestroyed.subscribe(() => this._renderViews())
     );
     if (params.visible === false)
       this.hide();
@@ -233369,13 +233445,6 @@ var AdaptiveQualityPanel = class _AdaptiveQualityPanel extends FloatingPanelBase
       }
     }
     this._viewLifecycleUnsubs.length = 0;
-    for (const aq of this._adapters.values()) {
-      try {
-        aq.destroy();
-      } catch {
-      }
-    }
-    this._adapters.clear();
     if (_AdaptiveQualityPanel._instances.get(this.viewer) === this) {
       _AdaptiveQualityPanel._instances.delete(this.viewer);
     }
@@ -233492,29 +233561,17 @@ var AdaptiveQualityPanel = class _AdaptiveQualityPanel extends FloatingPanelBase
    * one (mirrors how `CullingPanel` handles its sliders).
    */
   _applyConfigToActiveAdapters() {
-    for (const [viewId, aq] of this._adapters) {
-      const view = aq.view;
-      try {
-        aq.destroy();
-      } catch {
-      }
-      this._adapters.set(viewId, new AdaptiveQuality({ view, restMs: this._restMs }));
+    for (const view of this.viewer.viewList) {
+      if (!AdaptiveQuality.getFor(view))
+        continue;
+      AdaptiveQuality.getFor(view).destroy();
+      new AdaptiveQuality({ view, restMs: this._restMs });
     }
   }
   // ── Per-View rows ─────────────────────────────────────────────
   _renderViews() {
     if (this._destroyed)
       return;
-    const liveIds = new Set(this.viewer.viewList.map((v) => v.id));
-    for (const id of [...this._adapters.keys()]) {
-      if (!liveIds.has(id)) {
-        try {
-          this._adapters.get(id).destroy();
-        } catch {
-        }
-        this._adapters.delete(id);
-      }
-    }
     this._viewsEl.replaceChildren();
     this._viewRows.clear();
     const views = this.viewer.viewList;
@@ -233533,7 +233590,7 @@ var AdaptiveQualityPanel = class _AdaptiveQualityPanel extends FloatingPanelBase
       title: "Enable adaptive quality for this View."
     });
     const toggle = el("input", void 0, { type: "checkbox" });
-    toggle.checked = this._adapters.has(view.id);
+    toggle.checked = !!AdaptiveQuality.getFor(view);
     toggle.addEventListener("change", () => this._setViewAdaptive(view, toggle.checked));
     toggleLabel.appendChild(toggle);
     const name12 = el("span", "xkt-aq-view-name", {
@@ -233549,19 +233606,12 @@ var AdaptiveQualityPanel = class _AdaptiveQualityPanel extends FloatingPanelBase
     return row;
   }
   _setViewAdaptive(view, enabled) {
+    const existing = AdaptiveQuality.getFor(view);
     if (enabled) {
-      if (this._adapters.has(view.id))
-        return;
-      this._adapters.set(view.id, new AdaptiveQuality({ view, restMs: this._restMs }));
+      if (!existing)
+        new AdaptiveQuality({ view, restMs: this._restMs });
     } else {
-      const aq = this._adapters.get(view.id);
-      if (aq) {
-        try {
-          aq.destroy();
-        } catch {
-        }
-        this._adapters.delete(view.id);
-      }
+      existing?.destroy();
     }
     this._renderStats();
   }
@@ -246383,13 +246433,13 @@ var Studio = class _Studio {
           debugging: this.debug,
           memoryConfigs: {
             tileSize: 200,
-            maxTiles: 2e3,
+            maxTiles: 4096,
             maxBatches: 1e3,
-            maxBatchVertices: 7e4,
-            maxBatchIndices: 9e4,
+            maxBatchVertices: 5e5,
+            maxBatchIndices: 8e5,
             maxBatchGeometries: 6e4,
-            maxBatchMeshes: 1e4,
-            maxBatchPrims: 7e4,
+            maxBatchMeshes: 2e4,
+            maxBatchPrims: 4e5,
             ...merged.memoryConfigs || {},
             maxViews: this.viewManager.maxViews
           }
@@ -246671,6 +246721,7 @@ var Studio = class _Studio {
     if (hdrResult.ok === false) {
       this.reportWarning(`[Studio] HDR sky setup failed: ${hdrResult.error}`);
     }
+    new AdaptiveQuality({ view });
   }
   /**
    * Destroys both the {@link model!scene.SceneModel | SceneModel} and the {@link model!data.DataModel | DataModel}

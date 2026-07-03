@@ -1,4 +1,5 @@
 import type {SceneGeometry, SceneModel} from "../../../model/scene";
+import {GaussianSplatsPrimitive} from "../../../base/constants";
 import type {Inspection} from "../Inspection";
 import type {Issue} from "../Issue";
 import {indexStrideFor, isFiniteAABB} from "./util";
@@ -7,7 +8,7 @@ import {indexStrideFor, isFiniteAABB} from "./util";
 /**
  * Walks every {@link model!scene.SceneGeometry | SceneGeometry} in the SceneModel and emits
  * data-shape errors that the renderer or downstream optimisations
- * can't safely tolerate. One pass; eleven codes.
+ * can't safely tolerate. One pass; thirteen codes.
  *
  *   - `GEOMETRY_NO_POSITIONS`     missing positionsCompressed
  *   - `GEOMETRY_POSITIONS_LENGTH` length not divisible by 3
@@ -20,6 +21,8 @@ import {indexStrideFor, isFiniteAABB} from "./util";
  *   - `GEOMETRY_INDEX_OUT_OF_RANGE` index ≥ vertex count
  *   - `GEOMETRY_EDGE_INDICES_LENGTH` edgeIndices length not divisible by 2
  *   - `GEOMETRY_EDGE_INDEX_OUT_OF_RANGE` edge index ≥ vertex count
+ *   - `GEOMETRY_SPLAT_SCALES_LENGTH` scales length ≠ 3 × splat count
+ *   - `GEOMETRY_SPLAT_ROTATIONS_LENGTH` rotations length ≠ 4 × splat count
  */
 export const geometryDataIntegrity: Inspection = {
 
@@ -35,6 +38,8 @@ export const geometryDataIntegrity: Inspection = {
     "GEOMETRY_INDEX_OUT_OF_RANGE",
     "GEOMETRY_EDGE_INDICES_LENGTH",
     "GEOMETRY_EDGE_INDEX_OUT_OF_RANGE",
+    "GEOMETRY_SPLAT_SCALES_LENGTH",
+    "GEOMETRY_SPLAT_ROTATIONS_LENGTH",
   ],
 
   description: "Geometry data integrity",
@@ -51,6 +56,8 @@ export const geometryDataIntegrity: Inspection = {
     GEOMETRY_INDEX_OUT_OF_RANGE: "Index out of range",
     GEOMETRY_EDGE_INDICES_LENGTH:     "Bad edge indices length",
     GEOMETRY_EDGE_INDEX_OUT_OF_RANGE: "Edge index out of range",
+    GEOMETRY_SPLAT_SCALES_LENGTH:     "Bad splat scales length",
+    GEOMETRY_SPLAT_ROTATIONS_LENGTH:  "Bad splat rotations length",
   },
 
   descriptions: {
@@ -76,6 +83,10 @@ export const geometryDataIntegrity: Inspection = {
       "Edge index buffer length is not a whole multiple of 2, so the last edge segment is malformed.",
     GEOMETRY_EDGE_INDEX_OUT_OF_RANGE:
       "An edge index references a vertex slot that doesn't exist (≥ vertex count or < 0). Edge rendering and vertex-compaction fixes would read past the buffer end.",
+    GEOMETRY_SPLAT_SCALES_LENGTH:
+      "Gaussian splat scales buffer is missing or the wrong size for the splat count. It must be exactly 3 × splatCount float elements.",
+    GEOMETRY_SPLAT_ROTATIONS_LENGTH:
+      "Gaussian splat rotations buffer is missing or the wrong size for the splat count. It must be exactly 4 × splatCount quaternion elements.",
   },
 
   run(sceneModel: SceneModel): Issue[] {
@@ -140,6 +151,25 @@ function checkGeometry(geom: SceneGeometry, issues: Issue[]): void {
       message:  `SceneGeometry '${id}' colorsCompressed.length=${geom.colorsCompressed.length} is not 4 × ${vertCount}`,
       resourceId: id,
     });
+  }
+
+  if (geom.primitive === GaussianSplatsPrimitive) {
+    if (!geom.scales || geom.scales.length !== vertCount * 3) {
+      issues.push({
+        severity: "error",
+        code:     "GEOMETRY_SPLAT_SCALES_LENGTH",
+        message:  `SceneGeometry '${id}' scales.length=${geom.scales?.length ?? 0} is not 3 × ${vertCount}`,
+        resourceId: id,
+      });
+    }
+    if (!geom.rotations || geom.rotations.length !== vertCount * 4) {
+      issues.push({
+        severity: "error",
+        code:     "GEOMETRY_SPLAT_ROTATIONS_LENGTH",
+        message:  `SceneGeometry '${id}' rotations.length=${geom.rotations?.length ?? 0} is not 4 × ${vertCount}`,
+        resourceId: id,
+      });
+    }
   }
 
   if (geom.aabb) {

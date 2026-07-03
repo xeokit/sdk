@@ -1,4 +1,4 @@
-import type {SceneModel} from "../../../model/scene";
+import type {SceneMesh, SceneModel} from "../../../model/scene";
 import {SDKErrorType, type SDKResult} from "../../../base/core";
 import type {Fix, FixApplyResult} from "../Fix";
 import type {Issue} from "../Issue";
@@ -29,6 +29,7 @@ export const dropDuplicateObject: Fix = {
 
   procedure: [
     "Find the redundant duplicate objects",
+    "Prune stale mesh entries from each duplicate object",
     "For each duplicate, detach every mesh from the object",
     "Destroy each detached mesh",
     "Destroy the now-empty object",
@@ -60,10 +61,17 @@ export const dropDuplicateObject: Fix = {
       if (!obj || obj.destroyed) continue;
 
       // Snapshot the mesh ids before mutation — `obj.removeMesh`
-      // splices the meshes array under us.
+      // splices the meshes array under us. Drop stale entries first so
+      // SceneObject.destroy() cannot clear ownership on a foreign mesh.
+      const meshes = obj.meshes as unknown as SceneMesh[];
       const meshIds: string[] = [];
-      for (const mesh of obj.meshes) {
-        if (!mesh || mesh.destroyed) continue;
+      for (let i = meshes.length - 1; i >= 0; i--) {
+        const mesh = meshes[i];
+        const registered = mesh ? sceneModel.meshes[mesh.id] : undefined;
+        if (!mesh || mesh.destroyed || !registered || registered !== mesh || mesh.object?.id !== obj.id) {
+          meshes.splice(i, 1);
+          continue;
+        }
         meshIds.push(mesh.id);
       }
 

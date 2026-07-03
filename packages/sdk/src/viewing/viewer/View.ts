@@ -443,7 +443,7 @@ class View {
 
     this.resolutionScale = new ResolutionScale(this, viewParams.resolutionScale || {
       renderModes: [NavigationRender],
-      resolutionScale: 1.0
+      resolutionScale: 0.5
     });
 
     this.pointsMaterial = new PointsMaterial(this, viewParams.pointsMaterial || {

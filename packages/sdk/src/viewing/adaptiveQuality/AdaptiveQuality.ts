@@ -2,11 +2,10 @@ import {DetailedRender, NavigationRender, RealisticRender} from "../../base/cons
 import type {View} from "../viewer";
 
 // Default delay between the last camera change and the switch back to the
-// rest render mode. 150 ms is long enough that a flick of the mouse doesn't
-// flicker into Detailed/Realistic mid-gesture, and short enough that the
-// quality swap feels instantaneous when the user lets go. Mirrors the
-// trailing-pass window used by ViewCuller for the same reason.
-const DEFAULT_REST_MS = 150;
+// rest render mode. Long enough that a flick of the mouse doesn't flicker
+// into Detailed/Realistic mid-gesture, and short enough that the quality
+// swap feels responsive when the user lets go.
+const DEFAULT_REST_MS = 500;
 
 // One AdaptiveQuality per View — a second instance on the same View would
 // race the first on every camera event. Mirrors ViewCuller's liveCullers map.
@@ -41,7 +40,7 @@ export interface AdaptiveQualityParams {
 
   /**
    * Milliseconds the camera must be still before switching back to
-   * `restMode`. Default 150 ms.
+   * `restMode`. Default 500 ms.
    */
   restMs?: number;
 }
@@ -76,6 +75,11 @@ export interface AdaptiveQualityParams {
  * ```
  */
 export class AdaptiveQuality {
+
+  /** The live adapter driving `view`, or `undefined` if none. */
+  static getFor(view: View): AdaptiveQuality | undefined {
+    return liveAdapters.get(view);
+  }
 
   /** The View this adapter drives. */
   readonly view: View;

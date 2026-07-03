@@ -250,4 +250,19 @@ describe("SceneTexture", () => {
     (params.preloadColor as number[])[0] = 1;
     expect(texture.preloadColor[0]).toBe(0.1);
   });
+
+  it("rejects toParams after destroy", () => {
+    const model = new Scene().createModel({id: "destroyedTextureParams"}).value!;
+    const result = model.createTexture({id: "t", src: "texture.png"});
+    expect(result.ok).toBe(true);
+    const texture = result.value!;
+    expect(texture.destroy().ok).toBe(true);
+
+    const params = texture.toParams();
+
+    expect(params.ok).toBe(false);
+    if (!params.ok) {
+      expect(params.error).toContain("destroyed SceneTexture");
+    }
+  });
 });

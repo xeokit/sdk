@@ -236,6 +236,13 @@ export class SceneTexture {
    * of the sampler state pass straight through.
    */
   toParams(): SDKResult<SceneTextureParams> {
+    if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneTexture.toParams] Cannot get params of destroyed SceneTexture '${this.id}'`
+      });
+    }
     return {
       ok: true, value: {
         id: this.id,

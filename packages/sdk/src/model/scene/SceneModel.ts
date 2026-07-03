@@ -532,17 +532,10 @@ export class SceneModel {
       // }
     }
 
-    // Rough estimate: 4 bytes per pixel (RGBA). `imageData` and `image`
-    // both expose `.width` / `.height` directly; we ignore `src` (size
-    // is unknown until decode) and `buffers` (compressed payload).
-    const sized = textureParams.imageData || textureParams.image;
-    if (sized && (sized as any).width && (sized as any).height) {
-      this.stats.textureBytes += (sized as any).width * (sized as any).height * 4;
-    }
-
     const texture = new SceneTexture(this, textureParams);
     this.textures[textureParams.id] = texture;
     this.stats.numTextures++;
+    this.stats.textureBytes += texture.textureBytes;
     this.scene.events.onSceneTextureCreated.dispatch(this.scene, texture);
     return {
       ok: true,
@@ -565,7 +558,7 @@ export class SceneModel {
     }
     delete this.textures[textureId];
     this.stats.numTextures--;
-    this.stats.textureBytes -= sceneTexture.imageData ? (sceneTexture.imageData.width * sceneTexture.imageData.height * 4) : 0;
+    this.stats.textureBytes -= sceneTexture.textureBytes;
     this.scene.events.onSceneTextureDestroyed.dispatch(this.scene, sceneTexture);
   }
 

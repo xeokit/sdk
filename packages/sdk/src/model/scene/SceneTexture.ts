@@ -162,6 +162,13 @@ export class SceneTexture {
   readonly mipmap: boolean;
 
   /**
+   * Estimated uncompressed memory footprint used by
+   * {@link SceneModelStats.textureBytes}.
+   * @internal
+   */
+  textureBytes: number;
+
+  /**
    * @private
    */
   channel: number;
@@ -211,6 +218,7 @@ export class SceneTexture {
     this.encoding = params.encoding || LinearEncoding;
     this.preloadColor = createVec4Float64(params.preloadColor || [1, 1, 1, 1]);
     this.mipmap = params.mipmap === true;
+    this.textureBytes = estimateTextureBytes(this._imageData || this.image);
     this.channel = 0;
     this.numMaterials = 0;
   }
@@ -281,7 +289,10 @@ export class SceneTexture {
       });
       return;
     }
+    const oldTextureBytes = this.textureBytes;
     this._imageData = normalizeImageData(value);
+    this.textureBytes = estimateTextureBytes(this._imageData || this.image);
+    this.model.stats.textureBytes += this.textureBytes - oldTextureBytes;
     if (this._imageData) {
       this.model.scene.events.onSceneTextureImageDataChanged.dispatch(this.model.scene, this);
     }
@@ -366,6 +377,15 @@ function normalizeImageData(
   } catch {
     return undefined;
   }
+}
+
+function estimateTextureBytes(source: { width?: number; height?: number; naturalWidth?: number; naturalHeight?: number } | undefined): number {
+  if (!source) {
+    return 0;
+  }
+  const width = source.width || source.naturalWidth || 0;
+  const height = source.height || source.naturalHeight || 0;
+  return width > 0 && height > 0 ? width * height * 4 : 0;
 }
 
 /**

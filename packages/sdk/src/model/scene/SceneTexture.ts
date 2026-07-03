@@ -252,7 +252,7 @@ export class SceneTexture {
         wrapT: this.wrapT,
         wrapR: this.wrapR,
         encoding: this.encoding,
-        preloadColor: this.preloadColor,
+        preloadColor: <Vec4>Array.from(this.preloadColor),
         mipmap: this.mipmap
       }
     };

@@ -230,3 +230,24 @@ describe("SceneMaterial", () => {
     expect(params.hatchPattern).toEqual(hatchPattern);
   });
 });
+
+describe("SceneTexture", () => {
+
+  it("serializes preloadColor as an independent plain array", () => {
+    const model = new Scene().createModel({id: "textureParams"}).value!;
+    const result = model.createTexture({
+      id: "t",
+      src: "texture.png",
+      preloadColor: [0.1, 0.2, 0.3, 0.4],
+    });
+    expect(result.ok).toBe(true);
+
+    const texture = result.value!;
+    const params = texture.toParams().value!;
+
+    expect(Array.isArray(params.preloadColor)).toBe(true);
+    expect(params.preloadColor).toEqual([0.1, 0.2, 0.3, 0.4]);
+    (params.preloadColor as number[])[0] = 1;
+    expect(texture.preloadColor[0]).toBe(0.1);
+  });
+});

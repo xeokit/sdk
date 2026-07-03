@@ -447,16 +447,16 @@ export class SceneTransform {
     }
     const preserve = !!opts?.preserveWorld;
     if (preserve) {
-      this._updateGlobal();
-      const currentWorld = createMat4Float64(this._worldMatrix);
+      const currentWorld = createMat4Float64(this.worldMatrix);
       this._attachParentTransform(parentTransform);
       if (this._parentTransform) {
-        const invParent = inverseMat4(this._parentTransform._worldMatrix, createMat4Float64());
+        const invParent = inverseMat4(this._parentTransform.worldMatrix, createMat4Float64());
         mulMat4(invParent, currentWorld, this._localMatrix);
       } else {
-        // @ts-ignore
-        this._localMatrix.set(currentWorld);
+        const invCoordSystem = inverseMat4(this.model.coordinateSystemMatrix, createMat4Float64());
+        mulMat4(invCoordSystem, currentWorld, this._localMatrix);
       }
+      this._localMatrixDirty = false;
       this._markTreeDirtyTask.schedule();
     } else {
       this._attachParentTransform(parentTransform);

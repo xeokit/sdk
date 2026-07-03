@@ -190,4 +190,29 @@ describe("SceneMesh lazy world matrix + shared identity", () => {
     expect(mesh.parentTransform).toBeNull();
     expect(mesh.worldMatrix).toBe(mesh.matrix);
   });
+
+  it("preserves transform world matrix when detaching to root with a model coordinate system", () => {
+    const m = new Scene().createModel({
+      id: "m",
+      coordinateSystem: {
+        basis: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+        origin: [0, 0, 0],
+        units: "meters",
+        scaleToMeters: 1,
+      },
+    }).value!;
+    m.createTransform({id: "parent", matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 10, 20, 30, 1] as any});
+    m.createTransform({id: "child", parentTransformId: "parent", matrix: TRANSLATE as any});
+    const child = m.transforms["child"] as any;
+
+    const before = Array.from(child.worldMatrix);
+    const result = child.setParentTransformId(null, {preserveWorld: true});
+
+    expect(result.ok).toBe(true);
+    expect(child.parentTransform).toBeNull();
+    const after = Array.from(child.worldMatrix);
+    for (let i = 0; i < 16; i++) {
+      expect(after[i]).toBeCloseTo(before[i], 6);
+    }
+  });
 });

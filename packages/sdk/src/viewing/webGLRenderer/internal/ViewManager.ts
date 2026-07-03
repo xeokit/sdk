@@ -811,11 +811,15 @@ export class ViewManager {
       webglCanvasElement.style.zIndex = this._canvasZIndex;
     }
 
-    // Backing buffer size is independently resolution-scaled.
-   // if (sizeChanged) {
+    // Backing buffer size is independently resolution-scaled. Only reassign
+    // when the pixel size actually changes: assigning canvas.width/height
+    // clears the drawing buffer, so an unchanged align (e.g. a redundant rAF
+    // alignment as resolution scaling settles on deactivation) would blank the
+    // canvas for a frame with no accompanying redraw.
+    if (sizeChanged) {
       webglCanvasElement.width = metrics.pixelWidth;
       webglCanvasElement.height = metrics.pixelHeight;
-   // }
+    }
 
     this._lastCanvasLayout = metrics;
 

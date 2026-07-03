@@ -746,10 +746,10 @@ export class RenderManager {
     const gl = renderContext.gl;
     const view = rendererView.view;
 
-    const resolutionScale = view.resolutionScale.applied ? view.resolutionScale.resolutionScale : 1.0;
-    renderContext.webglCanvasElement.width = Math.floor(gl.drawingBufferWidth * resolutionScale);
-    renderContext.webglCanvasElement.height = Math.floor(gl.drawingBufferHeight * resolutionScale);
-
+    // Canvas backing-buffer sizing (including resolution scaling) is owned by
+    // ViewManager._alignCanvasToView, which runs before each render. Sizing
+    // here as well would apply the scale twice and clear the drawing buffer
+    // an extra time per frame.
     renderContext.reset();
     renderContext.activeView = view;
     renderContext.pbrEnabled = false;

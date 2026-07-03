@@ -6,8 +6,8 @@ import {isFiniteMat4} from "./util";
 
 /**
  * Per-mesh integrity walk — every {@link model!scene.SceneMesh | SceneMesh}'s reference into
- * `geometries`, `materials`, and `transforms` resolves, and every
- * mesh.matrix is finite.
+ * `geometries`, `materials`, and `transforms` resolves to the live
+ * registry instance, and every mesh.matrix is finite.
  *
  *   - `MESH_DANGLING_GEOMETRY`   missing SceneGeometry
  *   - `MESH_DANGLING_MATERIAL`   missing SceneMaterial
@@ -52,33 +52,43 @@ export const meshReferences: Inspection = {
       const mesh = sceneModel.meshes[meshId];
       if (mesh.destroyed) continue;
 
-      if (!sceneModel.geometries[mesh.geometryId]) {
+      const geometry = mesh.geometry;
+      const geometryId = geometry ? geometry.id : "";
+      const registeredGeometry = geometryId ? sceneModel.geometries[geometryId] : undefined;
+      if (!geometry || geometry.destroyed || !registeredGeometry || registeredGeometry.destroyed || registeredGeometry !== geometry) {
         issues.push({
           severity: "error",
           code:     "MESH_DANGLING_GEOMETRY",
-          message:  `SceneMesh '${meshId}' references missing SceneGeometry '${mesh.geometryId}'`,
-          summary:  `→ missing '${mesh.geometryId}'`,
+          message:  `SceneMesh '${meshId}' references missing, destroyed, or stale SceneGeometry '${geometryId || "<null>"}'`,
+          summary:  geometryId ? `→ stale '${geometryId}'` : "missing geometry",
           resourceId: meshId,
         });
       }
-      if (mesh.materialId && !sceneModel.materials[mesh.materialId]) {
-        issues.push({
-          severity: "error",
-          code:     "MESH_DANGLING_MATERIAL",
-          message:  `SceneMesh '${meshId}' references missing SceneMaterial '${mesh.materialId}'`,
-          summary:  `→ missing '${mesh.materialId}'`,
-          resourceId: meshId,
-        });
+      const material = mesh.material;
+      if (material) {
+        const registeredMaterial = sceneModel.materials[material.id];
+        if (!registeredMaterial || registeredMaterial.destroyed || registeredMaterial !== material || material.destroyed) {
+          issues.push({
+            severity: "error",
+            code:     "MESH_DANGLING_MATERIAL",
+            message:  `SceneMesh '${meshId}' references missing, destroyed, or stale SceneMaterial '${material.id}'`,
+            summary:  `→ stale '${material.id}'`,
+            resourceId: meshId,
+          });
+        }
       }
       const parent = mesh.parentTransform;
-      if (parent && !sceneModel.transforms[parent.id]) {
-        issues.push({
-          severity: "error",
-          code:     "MESH_DANGLING_TRANSFORM",
-          message:  `SceneMesh '${meshId}' references missing SceneTransform '${parent.id}'`,
-          summary:  `→ missing '${parent.id}'`,
-          resourceId: meshId,
-        });
+      if (parent) {
+        const registeredParent = sceneModel.transforms[parent.id];
+        if (!registeredParent || registeredParent.destroyed || registeredParent !== parent || parent.destroyed) {
+          issues.push({
+            severity: "error",
+            code:     "MESH_DANGLING_TRANSFORM",
+            message:  `SceneMesh '${meshId}' references missing, destroyed, or stale SceneTransform '${parent.id}'`,
+            summary:  `→ stale '${parent.id}'`,
+            resourceId: meshId,
+          });
+        }
       }
       if (mesh.matrix && !isFiniteMat4(mesh.matrix)) {
         issues.push({

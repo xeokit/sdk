@@ -58,6 +58,33 @@ describe("mesh rebuild fixes", () => {
     expect(m.meshes["mesh_b"].bin).toBe("overlay");
   });
 
+  it("cleans up a replacement mesh when restoring its parent transform fails", () => {
+    const m = model();
+    addQuadGeometry(m, "g");
+    expect(m.createTransform({id: "parent"}).ok).toBe(true);
+    expect(m.createMesh({
+      id: "mesh",
+      geometryId: "g",
+      parentTransformId: "parent",
+    }).ok).toBe(true);
+    expect(m.createObject({
+      id: "mesh-object",
+      meshIds: ["mesh"],
+    }).ok).toBe(true);
+
+    m.scene.events.onSceneObjectMeshAdded.subscribe((_object, mesh) => {
+      if (mesh.id === "mesh_a") {
+        m.transforms["parent"].destroy();
+      }
+    });
+
+    const res = splitGeometryAndRebuildMeshes(m, "g");
+
+    expect(res.ok).toBe(false);
+    expect(m.meshes["mesh_a"]).toBeUndefined();
+    expect(m.objects["mesh-object"].meshes.map(mesh => mesh.id)).not.toContain("mesh_a");
+  });
+
   it("declines to split non-triangle geometries", () => {
     const m = model();
     expect(m.createGeometry({

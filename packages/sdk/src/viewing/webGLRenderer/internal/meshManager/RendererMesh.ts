@@ -58,7 +58,9 @@ export class RendererMesh {
   private readonly _meshBatch: MeshBatchImpl;
   private readonly _meshHandle: MeshBatchMeshHandle;
   private readonly _gpuMemoryManager: GPUMemoryManager;
-  private readonly _viewFlags: Uint8Array<any>;
+  private readonly _numViews: number;
+  private _viewFlags0: number;
+  private readonly _viewFlags: Uint8Array<any> | null;
 
   constructor({
                 sceneMesh,
@@ -78,23 +80,43 @@ export class RendererMesh {
     this._gpuMemoryManager = gpuMemoryManager;
     this._meshHandle = meshHandle;
     this.gpuTile = null;
-    this._viewFlags = new Uint8Array(renderContext.memoryConfigs.maxViews);
     // GPU portions are created with objectVisible=true and meshVisible=true.
     // CPU flags must match so that the first setObjectVisible(false) is not treated as a no-op.
-    this._viewFlags.fill(ViewStateBits.ObjectVisible | ViewStateBits.MeshVisible);
+    const initialFlags = ViewStateBits.ObjectVisible | ViewStateBits.MeshVisible;
+    this._numViews = renderContext.memoryConfigs.maxViews;
+    this._viewFlags0 = initialFlags;
+    this._viewFlags = this._numViews > 1 ? new Uint8Array(this._numViews) : null;
+    this._viewFlags?.fill(initialFlags);
     this.setMatrix(sceneMesh.worldMatrix);
     this.setOpacity(sceneMesh.effectiveOpacity);
   }
 
   private _hasFlag(viewIndex: number, flag: ViewStateBits): boolean {
-    return (this._viewFlags[viewIndex] & flag) !== 0;
+    const viewFlags = this._viewFlags;
+    const flags = viewFlags ? viewFlags[viewIndex] : this._viewFlags0;
+    return (flags & flag) !== 0;
   }
 
   private _setFlag(viewIndex: number, flag: ViewStateBits, enabled: boolean): void {
+    const viewFlags = this._viewFlags;
+    if (!viewFlags) {
+      if (enabled) {
+        this._viewFlags0 |= flag;
+      } else {
+        this._viewFlags0 &= ~flag;
+      }
+      return;
+    }
     if (enabled) {
-      this._viewFlags[viewIndex] |= flag;
+      viewFlags[viewIndex] |= flag;
     } else {
-      this._viewFlags[viewIndex] &= ~flag;
+      viewFlags[viewIndex] &= ~flag;
+    }
+  }
+
+  private _assertViewIndex(viewIndex: number, method: string): void {
+    if (viewIndex < 0 || viewIndex >= this._numViews) {
+      throw new SDKInternalException(`[RendererMesh.${method}] No view state for view index ${viewIndex}`);
     }
   }
 
@@ -128,7 +150,7 @@ export class RendererMesh {
    */
   setColor(color: Vec3) {
     const q = quantizeColor3(color, tempQuantizedRGB);
-    for (let viewIndex = 0, len = this._viewFlags.length; viewIndex < len; viewIndex++) {
+    for (let viewIndex = 0, len = this._numViews; viewIndex < len; viewIndex++) {
       if (!this._hasFlag(viewIndex, ViewStateBits.Colorizing)) {
         this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, q);
       }
@@ -149,7 +171,7 @@ export class RendererMesh {
    */
   setOpacity(opacity: number) {
     const transparent = opacity < 1.0;
-    for (let viewIndex = 0, len = this._viewFlags.length; viewIndex < len; viewIndex++) {
+    for (let viewIndex = 0, len = this._numViews; viewIndex < len; viewIndex++) {
       if (!this._hasFlag(viewIndex, ViewStateBits.ColoringOpacity)) {
         this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
       }
@@ -167,9 +189,7 @@ export class RendererMesh {
    * @param objectVisible
    */
   setObjectVisible(viewIndex: number, objectVisible: boolean) {
-    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
-      throw new SDKInternalException(`[RendererMesh.setObjectVisible] No view state for view index ${viewIndex}`);
-    }
+    this._assertViewIndex(viewIndex, "setObjectVisible");
 
     if (this._hasFlag(viewIndex, ViewStateBits.ObjectVisible) === objectVisible) {
       return;
@@ -186,7 +206,7 @@ export class RendererMesh {
    * @param meshVisible
    */
   setVisible(meshVisible: boolean) {
-    for (let viewIndex = 0, len = this._viewFlags.length; viewIndex < len; viewIndex++) {
+    for (let viewIndex = 0, len = this._numViews; viewIndex < len; viewIndex++) {
       if (this._hasFlag(viewIndex, ViewStateBits.MeshVisible) === meshVisible) {
         continue;
       }
@@ -209,9 +229,7 @@ export class RendererMesh {
    * colorize tint is cleared.
    */
   setColorInView(viewIndex: number, colorize: Vec3 | null) {
-    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
-      throw new SDKInternalException(`[RendererMesh.setColorInView] No view state for view index ${viewIndex}`);
-    }
+    this._assertViewIndex(viewIndex, "setColorInView");
     if (colorize !== null) {
       this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, colorize);
       this._setFlag(viewIndex, ViewStateBits.Colorizing, true);
@@ -226,9 +244,7 @@ export class RendererMesh {
    * Called by {@link RendererObject.setOpacityInView}.
    */
   setOpacityInView(viewIndex: number, opacity: number | null) {
-    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
-      throw new SDKInternalException(`[RendererMesh.setOpacityInView] No view state for view index ${viewIndex}`);
-    }
+    this._assertViewIndex(viewIndex, "setOpacityInView");
     if (opacity !== null) {
       this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
       this._setFlag(viewIndex, ViewStateBits.ColoringOpacity, true);
@@ -243,9 +259,7 @@ export class RendererMesh {
    * Called by {@link RendererObject.setHighlighted}.
    */
   setHighlighted(viewIndex: number, highlighted: boolean) {
-    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
-      throw new SDKInternalException(`[RendererMesh.setHighlighted] No view state for view index ${viewIndex}`);
-    }
+    this._assertViewIndex(viewIndex, "setHighlighted");
     this._meshBatch.setMeshHighlighted(
       viewIndex,
       this._meshHandle,
@@ -259,9 +273,7 @@ export class RendererMesh {
    * Called by {@link RendererObject.setXRayed}.
    */
   setXRayed(viewIndex: number, xrayed: boolean) {
-    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
-      throw new SDKInternalException(`[RendererMesh.setXRayed] No view state for view index ${viewIndex}`);
-    }
+    this._assertViewIndex(viewIndex, "setXRayed");
     this._meshBatch.setMeshXRayed(
       viewIndex,
       this._meshHandle,
@@ -275,9 +287,7 @@ export class RendererMesh {
    * Called by {@link RendererObject.setSelected}.
    */
   setSelected(viewIndex: number, selected: boolean) {
-    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
-      throw new SDKInternalException(`[RendererMesh.setSelected] No view state for view index ${viewIndex}`);
-    }
+    this._assertViewIndex(viewIndex, "setSelected");
     this._meshBatch.setMeshSelected(
       viewIndex,
       this._meshHandle,
@@ -291,9 +301,7 @@ export class RendererMesh {
    * Called by {@link RendererObject.setClippable}.
    */
   setClippable(viewIndex: number, clippable: boolean) {
-    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
-      throw new SDKInternalException(`[RendererMesh.setClippable] No view state for view index ${viewIndex}`);
-    }
+    this._assertViewIndex(viewIndex, "setClippable");
     this._meshBatch.setMeshClippable(viewIndex, this._meshHandle, clippable);
   }
 

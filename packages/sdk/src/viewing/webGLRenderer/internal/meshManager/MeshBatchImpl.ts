@@ -11,6 +11,14 @@ import type {Vec3} from "../../../../base/math/vector";
 import {GPUMemoryCheckResult} from "../gpuMemoryManager";
 import {LinesPrimitive, TrianglesPrimitive} from "../../../../base/constants";
 
+function getMeshIndexCount(sceneMesh: SceneMesh): number {
+  return sceneMesh.geometry.indices ? sceneMesh.geometry.indices.length : 0;
+}
+
+function getMeshVertexCount(sceneMesh: SceneMesh): number {
+  return sceneMesh.geometry.positionsCompressed ? sceneMesh.geometry.positionsCompressed.length / 3 : 0;
+}
+
 /**
  * A MeshBatchImpl manages a batch of SceneMeshes that use the same primitive type.
  *
@@ -236,9 +244,8 @@ export class MeshBatchImpl implements MeshBatch {
   public addMesh(sceneMesh: SceneMesh): SDKResult<MeshBatchMeshHandle> {
     const gpuMeshHandleResult = this._gpuMemoryManager.addMesh(this.gpuMemoryBatchIndex, sceneMesh);
     if (gpuMeshHandleResult.ok) {
-      const gpuMeshHandle = gpuMeshHandleResult.value;
-      this.numIndices += gpuMeshHandle.numIndices;
-      this.numVertices += gpuMeshHandle.numVertices;
+      this.numIndices += getMeshIndexCount(sceneMesh);
+      this.numVertices += getMeshVertexCount(sceneMesh);
     }
     return gpuMeshHandleResult;
   }
@@ -250,9 +257,12 @@ export class MeshBatchImpl implements MeshBatch {
    */
   public removeMesh(meshHandle: MeshBatchMeshHandle): void {
     const gpuMeshHandle = meshHandle as GPUMemoryMeshHandle;
+    const sceneMesh = this._gpuMemoryManager.getMeshAtIndex(this.gpuMemoryBatchIndex, gpuMeshHandle.meshIndex);
     this._gpuMemoryManager.removeMesh(gpuMeshHandle);
-    this.numIndices -= gpuMeshHandle.numIndices;
-    this.numVertices -= gpuMeshHandle.numVertices;
+    if (sceneMesh) {
+      this.numIndices -= getMeshIndexCount(sceneMesh);
+      this.numVertices -= getMeshVertexCount(sceneMesh);
+    }
   }
 
   /**
@@ -439,5 +449,4 @@ export class MeshBatchImpl implements MeshBatch {
     this._gpuMemoryManager = null;
   }
 }
-
 

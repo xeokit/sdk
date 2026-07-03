@@ -78,6 +78,8 @@ import {GPUMemoryCheckResult} from "./GPUMemoryCheckResult";
  * failed.
  */
 const ZERO_ATLAS_TRANSFORM: AtlasTransform = { uOffset: 0, vOffset: 0, uScale: 0, vScale: 0 };
+const DEFAULT_EMISSIVE_COLOR: [number, number, number] = [0, 0, 0];
+const tempQuantizedColor: Vec3 = [0, 0, 0];
 
 /**
  * Probe used by {@link GPUMemoryBatch.hasMemoryForMesh} to decide
@@ -271,10 +273,9 @@ export class GPUMemoryBatch {
   private _emissiveAtlasTexture: TextureAtlas | null;
   private _occlusionAtlasTexture: TextureAtlas | null;
   private _meshMatrixTexture: MatrixTexture;
-  private _meshIndicesUsed: boolean[];
-  private _meshes: {};
+  private _meshIndicesUsed: Uint8Array;
   private _numMeshes: number;
-  private _geometryIndicesUsed: boolean[];
+  private _geometryIndicesUsed: Uint8Array;
   private _sceneGeometries: Record<number, SceneGeometry>;
   private _numGeometries: number;
   private _lastFreeMeshIndex: number;
@@ -342,10 +343,11 @@ export class GPUMemoryBatch {
     this._meshHandles = {};
     this._meshIndicesByUniqueId = {};
 
-    this._meshIndicesUsed = [];
+    const memoryConfigs = renderContext.memoryConfigs;
+
+    this._meshIndicesUsed = new Uint8Array(memoryConfigs.maxBatchMeshes);
     this._lastFreeMeshIndex = 0;
-    this._meshes = {};
-    this._geometryIndicesUsed = [];
+    this._geometryIndicesUsed = new Uint8Array(memoryConfigs.maxBatchGeometries);
     this._lastFreeGeometryIndex = 0;
     this._sceneGeometries = {};
     this._vertexNormalTexture = null;
@@ -1166,7 +1168,9 @@ export class GPUMemoryBatch {
       // Emissive colour factor — `[0,0,0]` for materials with no emissive
       // texture suppresses the white sentinel; auto-`[1,1,1]` (set in
       // createMaterial) when textured so emissive = factor × texture.
-      emissiveColor: sceneMesh.effectiveEmissiveColor,
+      emissiveColor: sceneMesh.material
+        ? sceneMesh.material.emissiveColor as [number, number, number]
+        : DEFAULT_EMISSIVE_COLOR,
       // Sampled by the triplanar shader variant; UV-bearing batches
       // ignore the slot. Stored at full Float32 precision so users
       // can pick an arbitrary world-units-per-repeat without
@@ -1191,7 +1195,7 @@ export class GPUMemoryBatch {
 
     const numViews = this._renderContext.memoryConfigs.maxViews;
 
-    const color: Vec3 = quantizeColor3(sceneMesh.effectiveColor, [0, 0, 0]);
+    const color: Vec3 = quantizeColor3(sceneMesh.effectiveColor, tempQuantizedColor);
 
     const opacity = Math.floor(sceneMesh.effectiveOpacity * 255.0);
 
@@ -1211,7 +1215,7 @@ export class GPUMemoryBatch {
     // here unrotated until a follow-up setMatrix() overwrite arrives.
     // `worldMatrix` already includes the coord-system pre-multiply and
     // any parent-transform chain.
-    this._meshMatrixTexture.setItem(meshIndex, new Float32Array(sceneMesh.worldMatrix));
+    this._meshMatrixTexture.setItem(meshIndex, sceneMesh.worldMatrix);
 
     // Floor: a primitive count is a whole number. A malformed index buffer
     // (length not a clean multiple of the primitive's index stride) would
@@ -1606,8 +1610,8 @@ export class GPUMemoryBatch {
   _getFreeMeshIndex(): number {
     const maxMeshes = this._renderContext.memoryConfigs.maxBatchMeshes;
     for (let i = this._lastFreeMeshIndex; ; i = (i + 1) % maxMeshes) {
-      if (!this._meshIndicesUsed[i]) {
-        this._meshIndicesUsed[i] = true;
+      if (this._meshIndicesUsed[i] === 0) {
+        this._meshIndicesUsed[i] = 1;
         // Advance the scan hint past the slot just taken so the next allocation
         // doesn't re-scan the run of used slots — without this the scan is O(N)
         // per call, O(N^2) over a model load. Frees reset the hint to the freed
@@ -1619,8 +1623,8 @@ export class GPUMemoryBatch {
   }
 
   _putFreeMeshIndex(index: number): void {
-    if (this._meshIndicesUsed[index]) {
-      delete this._meshIndicesUsed[index];
+    if (this._meshIndicesUsed[index] !== 0) {
+      this._meshIndicesUsed[index] = 0;
       this._lastFreeMeshIndex = index;
     }
   }
@@ -1628,8 +1632,8 @@ export class GPUMemoryBatch {
   _getFreeGeometryIndex(): number {
     const maxGeometries = this._renderContext.memoryConfigs.maxBatchGeometries;
     for (let i = this._lastFreeGeometryIndex; ; i = (i + 1) % maxGeometries) {
-      if (!this._geometryIndicesUsed[i]) {
-        this._geometryIndicesUsed[i] = true;
+      if (this._geometryIndicesUsed[i] === 0) {
+        this._geometryIndicesUsed[i] = 1;
         // See _getFreeMeshIndex — advance the hint to keep allocation O(1).
         this._lastFreeGeometryIndex = (i + 1) % maxGeometries;
         return i;
@@ -1638,8 +1642,8 @@ export class GPUMemoryBatch {
   }
 
   _putFreeGeometryIndex(index: number): void {
-    if (this._geometryIndicesUsed[index]) {
-      delete this._geometryIndicesUsed[index];
+    if (this._geometryIndicesUsed[index] !== 0) {
+      this._geometryIndicesUsed[index] = 0;
       this._lastFreeGeometryIndex = index;
     }
   }

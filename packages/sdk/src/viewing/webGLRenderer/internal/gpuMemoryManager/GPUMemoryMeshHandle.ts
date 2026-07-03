@@ -15,15 +15,4 @@ export interface GPUMemoryMeshHandle {
    */
   meshIndex: number;
 
-  /**
-   * Number of indices in the mesh.
-   * This helps GPUMemoryManager users to know how many indices to draw in total for TRIANGLES and LINES.
-   */
-  numIndices: number;
-
-  /**
-   * Number of vertices in the mesh.
-   * This helps GPUMemoryManager users to know how many vertices to draw in total for POINTS.
-   */
-  numVertices: number;
 }

@@ -443,9 +443,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
   /**
    * Adds a {@link model!scene.SceneMesh | SceneMesh} to a batch and returns a {@link GPUMemoryMeshHandle} used for updates.
    *
-   * The handle contains:
-   * - `gpuMemoryBatchIndex` and `meshIndex` for addressing the mesh
-   * - derived `numIndices` / `numVertices` counts for rendering/picking convenience
+   * The handle contains `gpuMemoryBatchIndex` and `meshIndex` for addressing the mesh.
    *
    * @param batchIndex - Target batch index.
    * @param sceneMesh - Mesh to add.
@@ -471,8 +469,6 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
       value: <GPUMemoryMeshHandle>{
         meshIndex: meshIdx,
         gpuMemoryBatchIndex: gpuMemoryBatch.index,
-        numIndices: sceneMesh.geometry.indices ? sceneMesh.geometry.indices.length : 0,
-        numVertices: sceneMesh.geometry.positionsCompressed ? sceneMesh.geometry.positionsCompressed.length / 3 : 0
       }
     };
   }

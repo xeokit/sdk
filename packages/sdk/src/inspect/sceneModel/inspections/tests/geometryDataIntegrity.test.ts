@@ -56,6 +56,19 @@ describe("geometryDataIntegrity", () => {
     expect(integrityCodes(sceneModel)).toContain("GEOMETRY_AABB_LENGTH");
   });
 
+  it("reports indexed primitives without a non-empty indices buffer", () => {
+    const sceneModel = new Scene().createModel({id: "m"}).value!;
+    expect(sceneModel.createGeometry({
+      id: "g",
+      primitive: TrianglesPrimitive,
+      positions: [0, 0, 0,  1, 0, 0,  0, 1, 0],
+      indices: [0, 1, 2],
+    }).ok).toBe(true);
+    (sceneModel.geometries["g"] as any).indices = new Uint16Array(0);
+
+    expect(integrityCodes(sceneModel)).toContain("GEOMETRY_NO_INDICES");
+  });
+
   it("reports negative indices as out of range", () => {
     const sceneModel = new Scene().createModel({id: "m"}).value!;
     expect(sceneModel.createGeometry({

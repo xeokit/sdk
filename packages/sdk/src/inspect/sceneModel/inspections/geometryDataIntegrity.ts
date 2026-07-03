@@ -8,7 +8,7 @@ import {indexStrideFor, isFiniteAABB} from "./util";
 /**
  * Walks every {@link model!scene.SceneGeometry | SceneGeometry} in the SceneModel and emits
  * data-shape errors that the renderer or downstream optimisations
- * can't safely tolerate. One pass; fourteen codes.
+ * can't safely tolerate. One pass; fifteen codes.
  *
  *   - `GEOMETRY_NO_POSITIONS`     missing positionsCompressed
  *   - `GEOMETRY_POSITIONS_LENGTH` length not divisible by 3
@@ -18,6 +18,7 @@ import {indexStrideFor, isFiniteAABB} from "./util";
  *   - `GEOMETRY_AABB_LENGTH`      missing or not six values
  *   - `GEOMETRY_AABB_NONFINITE`   NaN / Infinity in AABB
  *   - `GEOMETRY_AABB_INVERTED`    min > max on at least one axis
+ *   - `GEOMETRY_NO_INDICES`       indexed primitive has no indices
  *   - `GEOMETRY_INDICES_LENGTH`   length doesn't match primitive stride
  *   - `GEOMETRY_INDEX_OUT_OF_RANGE` index ≥ vertex count
  *   - `GEOMETRY_EDGE_INDICES_LENGTH` edgeIndices length not divisible by 2
@@ -36,6 +37,7 @@ export const geometryDataIntegrity: Inspection = {
     "GEOMETRY_AABB_LENGTH",
     "GEOMETRY_AABB_NONFINITE",
     "GEOMETRY_AABB_INVERTED",
+    "GEOMETRY_NO_INDICES",
     "GEOMETRY_INDICES_LENGTH",
     "GEOMETRY_INDEX_OUT_OF_RANGE",
     "GEOMETRY_EDGE_INDICES_LENGTH",
@@ -55,6 +57,7 @@ export const geometryDataIntegrity: Inspection = {
     GEOMETRY_AABB_LENGTH:        "Bad AABB length",
     GEOMETRY_AABB_NONFINITE:     "AABB contains NaN / Infinity",
     GEOMETRY_AABB_INVERTED:      "AABB min greater than max",
+    GEOMETRY_NO_INDICES:         "Geometry missing indices",
     GEOMETRY_INDICES_LENGTH:     "Bad indices length",
     GEOMETRY_INDEX_OUT_OF_RANGE: "Index out of range",
     GEOMETRY_EDGE_INDICES_LENGTH:     "Bad edge indices length",
@@ -80,6 +83,8 @@ export const geometryDataIntegrity: Inspection = {
       "Geometry AABB contains NaN or ±Infinity, which breaks frustum culling, picking, and bounds-driven layout.",
     GEOMETRY_AABB_INVERTED:
       "AABB min is greater than max on at least one axis — the box is empty or inside-out, and culling rejects everything inside it.",
+    GEOMETRY_NO_INDICES:
+      "Geometry primitive requires an index buffer, but indices are missing or empty. Lines and triangle-family primitives must have indices.",
     GEOMETRY_INDICES_LENGTH:
       "Index buffer length is not a whole multiple of the primitive's stride (3 for triangles, 2 for lines), so the last primitive is malformed.",
     GEOMETRY_INDEX_OUT_OF_RANGE:
@@ -200,9 +205,17 @@ function checkGeometry(geom: SceneGeometry, issues: Issue[]): void {
     });
   }
 
-  if (geom.indices) {
+  const indexStride = indexStrideFor(geom.primitive);
+  if (indexStride > 0 && (!geom.indices || geom.indices.length === 0)) {
+    issues.push({
+      severity: "error",
+      code:     "GEOMETRY_NO_INDICES",
+      message:  `SceneGeometry '${id}' primitive ${geom.primitive} requires a non-empty indices buffer`,
+      resourceId: id,
+    });
+  } else if (geom.indices) {
     const indices = geom.indices;
-    const stride = indexStrideFor(geom.primitive);
+    const stride = indexStride;
     if (stride > 0 && indices.length % stride !== 0) {
       issues.push({
         severity: "error",

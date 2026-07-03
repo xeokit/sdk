@@ -2,6 +2,7 @@ import type {SceneGeometry, SceneModel, SceneObject} from "../../../model/scene"
 import {type SDKResult} from "../../../base/core";
 import {splitSceneGeometry} from "./splitSceneGeometry";
 import type {FixApplyResult} from "../Fix";
+import {isTriangleMesh} from "../inspections/util";
 
 
 /**
@@ -42,6 +43,9 @@ export function splitGeometryAndRebuildMeshes(
   }
   if (!geom.indices || geom.indices.length === 0) {
     return {ok: true, value: {fixed: false, reason: "malformed-issue"}};
+  }
+  if (!isTriangleMesh(geom)) {
+    return {ok: true, value: {fixed: false, reason: "precondition-failed"}};
   }
 
   const idA = uniqueGeomId(sceneModel, `${geometryId}_a`);

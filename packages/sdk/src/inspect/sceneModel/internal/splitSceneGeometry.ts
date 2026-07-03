@@ -1,5 +1,6 @@
 import type {SceneGeometry} from "../../../model/scene";
 import {SDKErrorType, type SDKResult} from "../../../base/core";
+import {isTriangleMesh} from "../inspections/util";
 
 
 /**
@@ -88,6 +89,9 @@ export function splitSceneGeometry(
   const src = params.sceneGeometry;
   if (!src) {
     return errInvalid("[splitSceneGeometry] sceneGeometry is required");
+  }
+  if (!isTriangleMesh(src)) {
+    return errInvalid(`[splitSceneGeometry] SceneGeometry '${src.id}' primitive ${src.primitive} is not triangle-indexed`);
   }
   const indices = src.indices;
   if (!indices || indices.length === 0 || indices.length % 3 !== 0) {

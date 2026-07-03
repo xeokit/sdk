@@ -5,8 +5,9 @@ import type {Issue} from "../Issue";
 
 /**
  * Walks every {@link model!scene.SceneObject | SceneObject} and emits `OBJECT_DANGLING_MESH`
- * for each entry in `obj.meshes` that is null, destroyed, or absent
- * from `sceneModel.meshes`.
+ * for each entry in `obj.meshes` that is null, destroyed, absent
+ * from `sceneModel.meshes`, replaced in the registry, or no longer
+ * owned by that object.
  *
  * The owning SceneObject still renders (its surviving meshes do),
  * so the issue carries a `highlight` payload pointing at the
@@ -35,13 +36,14 @@ export const objectMeshReferences: Inspection = {
       const obj = sceneModel.objects[objId];
       if (obj.destroyed) continue;
       for (const m of obj.meshes) {
-        if (!m || m.destroyed || !sceneModel.meshes[m.id]) {
+        const registered = m ? sceneModel.meshes[m.id] : undefined;
+        if (!m || m.destroyed || !registered || registered !== m || m.object?.id !== objId) {
           const danglingMeshId = m ? m.id : "";
           issues.push({
             severity: "error",
             code:     "OBJECT_DANGLING_MESH",
-            message:  `SceneObject '${objId}' references missing or destroyed SceneMesh '${danglingMeshId || "<null>"}'`,
-            summary:  danglingMeshId ? `missing '${danglingMeshId}'` : "missing mesh ref",
+            message:  `SceneObject '${objId}' references missing, destroyed, or unowned SceneMesh '${danglingMeshId || "<null>"}'`,
+            summary:  danglingMeshId ? `stale '${danglingMeshId}'` : "missing mesh ref",
             resourceId: objId,
             context:   {danglingMeshId},
             highlight: {objectIds: [objId]},

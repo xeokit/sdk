@@ -130,6 +130,25 @@ describe("SceneModel serialization", () => {
     }
     expect(dstAabb).toEqual(QUAD_AABB);
   });
+
+  it("round-trips transform parents when a child serializes before its parent", () => {
+    const src = new Scene().createModel({id: "srcTransforms"}).value!;
+    expect(src.createTransform({id: "child", matrix: TRANSLATE as any}).ok).toBe(true);
+    expect(src.createTransform({
+      id: "parent",
+      matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 5, 6, 7, 1] as any,
+    }).ok).toBe(true);
+    expect(src.transforms["child"].setParentTransformId("parent").ok).toBe(true);
+    const params = src.toParams().value!;
+    expect(params.transforms!.map(transform => transform.id)).toEqual(["child", "parent"]);
+
+    const dst = new Scene().createModel({id: "dstTransforms"}).value!;
+    const fromRes = dst.fromParams(params);
+
+    expect(fromRes.ok).toBe(true);
+    expect(dst.transforms["child"].parentTransform).toBe(dst.transforms["parent"]);
+    expect(Array.from(dst.transforms["child"].matrix)).toEqual(TRANSLATE);
+  });
 });
 
 describe("SceneObject", () => {

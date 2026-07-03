@@ -1754,8 +1754,17 @@ export class SceneModel {
 
     if (sceneModelParams.transforms) {
       for (let i = 0, len = sceneModelParams.transforms.length; i < len; i++) {
-        const res = this.createTransform(sceneModelParams.transforms[i]);
+        const transformParams = {...sceneModelParams.transforms[i]};
+        delete transformParams.parentTransformId;
+        const res = this.createTransform(transformParams);
         if (!res.ok) return res;
+      }
+      for (let i = 0, len = sceneModelParams.transforms.length; i < len; i++) {
+        const transformParams = sceneModelParams.transforms[i];
+        if (transformParams.parentTransformId) {
+          const res = this.transforms[transformParams.id].setParentTransformId(transformParams.parentTransformId);
+          if (!res.ok) return res;
+        }
       }
     }
 

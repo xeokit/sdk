@@ -70,6 +70,11 @@ describe("CoordinateSystem", () => {
     expect(cs2.units).toBe("feet");
     expect(Array.from(cs2.origin)).toEqual([1, 2, 3]);
     expect(Array.from(cs2.basis)).toEqual([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+    expect(Array.from(cs2.worldRight)).toEqual([1, 0, 0]);
+    expect(Array.from(cs2.worldUp)).toEqual([0, 1, 0]);
+    expect(Array.from(cs2.worldForward)).toEqual([0, 0, 1]);
+    expect(cs2.yUp).toBe(true);
+    expect(cs2.zUp).toBe(false);
   });
 });
 

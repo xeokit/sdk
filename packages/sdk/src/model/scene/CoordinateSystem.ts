@@ -133,6 +133,14 @@ export class CoordinateSystem  {
             0, 0, 1, // Up
             0, 1, 0 // Forward
         ]);
+        this._updateWorldAxesFromBasis();
+        (this._model)
+            ? this._model.scene.events.onSceneModelCoordSystemBasisChanged.dispatch(this._model, this)
+            :  this._scene.events.onSceneCoordSystemBasisChanged.dispatch(this._scene, this);
+        this._notifyUpdated();
+    }
+
+    private _updateWorldAxesFromBasis(): void {
         this._worldRight[0] = this._basis[0];
         this._worldRight[1] = this._basis[1];
         this._worldRight[2] = this._basis[2];
@@ -142,10 +150,6 @@ export class CoordinateSystem  {
         this._worldForward[0] = this._basis[6];
         this._worldForward[1] = this._basis[7];
         this._worldForward[2] = this._basis[8];
-        (this._model)
-            ? this._model.scene.events.onSceneModelCoordSystemBasisChanged.dispatch(this._model, this)
-            :  this._scene.events.onSceneCoordSystemBasisChanged.dispatch(this._scene, this);
-        this._notifyUpdated();
     }
 
     /** Gets the origin of the coordinate system in global space. */
@@ -327,6 +331,7 @@ export class CoordinateSystem  {
              return;
         }
         this._basis = createVec9Float64(params.basis);
+        this._updateWorldAxesFromBasis();
         this._origin = createVec3Float32(params.origin);
         this._units = params.units;
         this._scaleToMeters = params.scaleToMeters;

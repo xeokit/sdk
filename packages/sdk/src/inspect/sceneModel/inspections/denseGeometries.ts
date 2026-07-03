@@ -4,6 +4,7 @@ import type {InspectSceneModelParams} from "../params/InspectSceneModelParams";
 import type {Inspection} from "../Inspection";
 import type {Issue} from "../Issue";
 import {resolveConfig} from "../Config";
+import {primitiveCountForGeometry} from "./util";
 
 
 /**
@@ -31,7 +32,7 @@ export const denseGeometries: Inspection = {
 
   descriptions: {
     GEOMETRY_OVER_BUDGET:
-      "Geometry has more vertices or triangles than the renderer's per-geometry budget. Over-large buffers prevent fine-grained frustum culling and starve the GPU of parallelism. Splitting into smaller chunks tightens culling and recovers throughput.",
+      "Geometry has more vertices or primitives than the renderer's per-geometry budget. Over-large buffers prevent fine-grained frustum culling and starve the GPU of parallelism. Splitting into smaller chunks tightens culling and recovers throughput.",
   },
 
   optIn: true,
@@ -90,21 +91,21 @@ export const denseGeometries: Inspection = {
       if (geom.destroyed) continue;
       if (!geom.positionsCompressed) continue;
       const vertCount = (geom.positionsCompressed.length / 3) | 0;
-      const triCount  = geom.indices ? (geom.indices.length / 3) | 0 : 0;
+      const primitiveCount = primitiveCountForGeometry(geom);
       const overVerts = vertCount > maxVertices;
-      const overTris  = triCount  > maxPrimitives;
-      if (!overVerts && !overTris) continue;
+      const overPrimitives = primitiveCount > maxPrimitives;
+      if (!overVerts && !overPrimitives) continue;
       const limits: string[] = [];
       if (overVerts) limits.push(`${vertCount} vertices > ${maxVertices}`);
-      if (overTris)  limits.push(`${triCount} primitives > ${maxPrimitives}`);
+      if (overPrimitives) limits.push(`${primitiveCount} primitives > ${maxPrimitives}`);
       const owners = findSceneObjectsForGeometry(sceneModel, id);
       issues.push({
         severity: "warning",
         code:     "GEOMETRY_OVER_BUDGET",
         message:  `SceneGeometry '${id}' is over the storage budget (${limits.join("; ")}) — consider splitting via splitDenseGeometry`,
-        summary:  `${vertCount.toLocaleString()} verts · ${triCount.toLocaleString()} tris`,
+        summary:  `${vertCount.toLocaleString()} verts · ${primitiveCount.toLocaleString()} prims`,
         resourceId: id,
-        context:   {maxVertices, maxPrimitives, vertCount, triCount},
+        context:   {maxVertices, maxPrimitives, vertCount, primitiveCount},
         ...(owners.length > 0 ? {highlight: {objectIds: owners}} : {}),
       });
     }

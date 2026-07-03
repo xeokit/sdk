@@ -1,6 +1,8 @@
 import type {SceneGeometry} from "../../../model/scene";
 import {
+  GaussianSplatsPrimitive,
   LinesPrimitive,
+  PointsPrimitive,
   SolidPrimitive,
   SurfacePrimitive,
   TrianglesPrimitive,
@@ -57,6 +59,19 @@ export function indexStrideFor(primitive: number): number {
 export function isTriangleMesh(geom: SceneGeometry): boolean {
   const p = geom.primitive;
   return p === TrianglesPrimitive || p === SolidPrimitive || p === SurfacePrimitive;
+}
+
+
+/** Number of drawable primitives represented by a geometry. */
+export function primitiveCountForGeometry(geom: SceneGeometry): number {
+  const stride = indexStrideFor(geom.primitive);
+  if (stride > 0) {
+    return geom.indices ? (geom.indices.length / stride) | 0 : 0;
+  }
+  if (geom.primitive === PointsPrimitive || geom.primitive === GaussianSplatsPrimitive) {
+    return geom.positionsCompressed ? (geom.positionsCompressed.length / 3) | 0 : 0;
+  }
+  return 0;
 }
 
 

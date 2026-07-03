@@ -7,12 +7,13 @@ import {indexStrideFor, isFiniteAABB} from "./util";
 /**
  * Walks every {@link model!scene.SceneGeometry | SceneGeometry} in the SceneModel and emits
  * data-shape errors that the renderer or downstream optimisations
- * can't safely tolerate. One pass; eight codes.
+ * can't safely tolerate. One pass; nine codes.
  *
  *   - `GEOMETRY_NO_POSITIONS`     missing positionsCompressed
  *   - `GEOMETRY_POSITIONS_LENGTH` length not divisible by 3
  *   - `GEOMETRY_NORMALS_LENGTH`   length ≠ 2 × vertex count (oct-pairs)
  *   - `GEOMETRY_UVS_LENGTH`       length ≠ 2 × vertex count
+ *   - `GEOMETRY_COLORS_LENGTH`    length ≠ 4 × vertex count
  *   - `GEOMETRY_AABB_NONFINITE`   NaN / Infinity in AABB
  *   - `GEOMETRY_AABB_INVERTED`    min > max on at least one axis
  *   - `GEOMETRY_INDICES_LENGTH`   length doesn't match primitive stride
@@ -25,6 +26,7 @@ export const geometryDataIntegrity: Inspection = {
     "GEOMETRY_POSITIONS_LENGTH",
     "GEOMETRY_NORMALS_LENGTH",
     "GEOMETRY_UVS_LENGTH",
+    "GEOMETRY_COLORS_LENGTH",
     "GEOMETRY_AABB_NONFINITE",
     "GEOMETRY_AABB_INVERTED",
     "GEOMETRY_INDICES_LENGTH",
@@ -38,6 +40,7 @@ export const geometryDataIntegrity: Inspection = {
     GEOMETRY_POSITIONS_LENGTH:   "Bad positions length",
     GEOMETRY_NORMALS_LENGTH:     "Bad normals length",
     GEOMETRY_UVS_LENGTH:         "Bad UVs length",
+    GEOMETRY_COLORS_LENGTH:      "Bad colors length",
     GEOMETRY_AABB_NONFINITE:     "AABB contains NaN / Infinity",
     GEOMETRY_AABB_INVERTED:      "AABB min greater than max",
     GEOMETRY_INDICES_LENGTH:     "Bad indices length",
@@ -53,6 +56,8 @@ export const geometryDataIntegrity: Inspection = {
       "Normals buffer is the wrong size for the vertex count. Oct-encoded normals must be exactly 2 × vertexCount u16 elements.",
     GEOMETRY_UVS_LENGTH:
       "UVs buffer is the wrong size for the vertex count — must be exactly 2 × vertexCount.",
+    GEOMETRY_COLORS_LENGTH:
+      "Compressed color buffer is the wrong size for the vertex count. RGBA colors must be exactly 4 × vertexCount byte elements.",
     GEOMETRY_AABB_NONFINITE:
       "Geometry AABB contains NaN or ±Infinity, which breaks frustum culling, picking, and bounds-driven layout.",
     GEOMETRY_AABB_INVERTED:
@@ -114,6 +119,15 @@ function checkGeometry(geom: SceneGeometry, issues: Issue[]): void {
       severity: "error",
       code:     "GEOMETRY_UVS_LENGTH",
       message:  `SceneGeometry '${id}' uvsCompressed.length=${geom.uvsCompressed.length} is not 2 × ${vertCount}`,
+      resourceId: id,
+    });
+  }
+
+  if (geom.colorsCompressed && geom.colorsCompressed.length !== vertCount * 4) {
+    issues.push({
+      severity: "error",
+      code:     "GEOMETRY_COLORS_LENGTH",
+      message:  `SceneGeometry '${id}' colorsCompressed.length=${geom.colorsCompressed.length} is not 4 × ${vertCount}`,
       resourceId: id,
     });
   }

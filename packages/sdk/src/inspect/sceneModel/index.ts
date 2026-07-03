@@ -209,7 +209,7 @@
  *
  * | Inspection                        | Codes                                                                                   |
  * | --------------------------------- | --------------------------------------------------------------------------------------- |
- * | {@link geometryDataIntegrity}        | `GEOMETRY_NO_POSITIONS`, `GEOMETRY_POSITIONS_LENGTH`, `GEOMETRY_NORMALS_LENGTH`, `GEOMETRY_UVS_LENGTH`, `GEOMETRY_AABB_NONFINITE`, `GEOMETRY_AABB_INVERTED`, `GEOMETRY_INDICES_LENGTH`, `GEOMETRY_INDEX_OUT_OF_RANGE` (errors) |
+ * | {@link geometryDataIntegrity}        | `GEOMETRY_NO_POSITIONS`, `GEOMETRY_POSITIONS_LENGTH`, `GEOMETRY_NORMALS_LENGTH`, `GEOMETRY_UVS_LENGTH`, `GEOMETRY_COLORS_LENGTH`, `GEOMETRY_AABB_NONFINITE`, `GEOMETRY_AABB_INVERTED`, `GEOMETRY_INDICES_LENGTH`, `GEOMETRY_INDEX_OUT_OF_RANGE` (errors) |
  * | {@link meshReferences}             | `MESH_DANGLING_GEOMETRY`, `MESH_DANGLING_MATERIAL`, `MESH_DANGLING_TRANSFORM`, `MESH_NONFINITE_MATRIX` (errors) |
  * | {@link objectMeshReferences}       | `OBJECT_DANGLING_MESH` (error) |
  * | {@link transformParentCycles}      | `TRANSFORM_CYCLE` (error) |

@@ -28,13 +28,16 @@ export function searchObjects(data: Data, searchParams: SearchParams): SDKResult
   }
   const includeObjects = (searchParams.includeObjects && searchParams.includeObjects.length > 0) ? arrayToMap(searchParams.includeObjects) : null;
   const excludeObjects = (searchParams.excludeObjects && searchParams.excludeObjects.length > 0) ? arrayToMap(searchParams.excludeObjects) : null;
-  const includeRelating = (searchParams.includeRelating && searchParams.includeRelating.length > 0) ? arrayToMap(searchParams.includeRelating) : null;
-  const excludeRelating = (searchParams.excludeRelating && searchParams.excludeRelating.length > 0) ? arrayToMap(searchParams.excludeRelating) : null;
+  const includeRelated = filterToMap(searchParams.includeRelated, searchParams.includeRelating);
+  const excludeRelated = filterToMap(searchParams.excludeRelated, searchParams.excludeRelating);
+  const visitedObjects: { [key: string]: boolean } = {};
+  let stopped = false;
 
   function visit(dataObject: DataObject, depth: number) {
-    if (!dataObject) {
+    if (!dataObject || stopped || visitedObjects[dataObject.id]) {
       return;
     }
+    visitedObjects[dataObject.id] = true;
     let includeObject = true;
     if (excludeObjects && excludeObjects[dataObject.type]) {
       includeObject = false;
@@ -53,7 +56,8 @@ export function searchObjects(data: Data, searchParams: SearchParams): SDKResult
         searchParams.resultObjects.push(dataObject);
       } else if (searchParams.resultCallback) {
         if (searchParams.resultCallback(dataObject)) {
-          return; // Stop searching
+          stopped = true;
+          return;
         }
       }
     }
@@ -66,15 +70,18 @@ export function searchObjects(data: Data, searchParams: SearchParams): SDKResult
           // Filter by the RELATIONSHIP type (the `related` map key), per the
           // documented "types of Relationships to follow/exclude" — not the
           // relating object's own type.
-          if (excludeRelating && excludeRelating[type]) {
+          if (excludeRelated && excludeRelated[type]) {
             includeRelation = false;
           } else {
-            if (includeRelating && (!includeRelating[type])) {
+            if (includeRelated && (!includeRelated[type])) {
               includeRelation = false;
             }
           }
           if (includeRelation) {
             visit(relations[i].relatedObject, depth + 1);
+            if (stopped) {
+              return;
+            }
           }
         }
       }
@@ -100,10 +107,13 @@ export function searchObjects(data: Data, searchParams: SearchParams): SDKResult
         error: `[searchObjects] Cannot search DataObjects - starting DataObject not in same Data: "${searchParams.startObjectId}"`
       };
     }
-    visit(searchParams.startObject, depth + 1);
+    visit(searchParams.startObject, depth);
   } else {
     for (const id in data.rootObjects) {
       visit(data.rootObjects[id], depth + 1);
+      if (stopped) {
+        break;
+      }
     }
   }
 
@@ -118,4 +128,9 @@ function arrayToMap(array: any[]): { [key: string]: any } {
     map[array[i]] = true;
   }
   return map;
+}
+
+function filterToMap(primary?: any[], fallback?: any[]): { [key: string]: any } | null {
+  const values = (primary && primary.length > 0) ? primary : fallback;
+  return (values && values.length > 0) ? arrayToMap(values) : null;
 }

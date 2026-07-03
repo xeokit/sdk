@@ -187,7 +187,6 @@ export class DataModel  {
       numPropertySets: 0
     };
 
-    this.fromParams(dataModelParams);
   }
 
   /**
@@ -297,7 +296,6 @@ export class DataModel  {
       });
     }
 
-    const type = dataObjectParams.type;
     let dataObject = this.data.objects[id];
 
     if (dataObject && this.schema !== undefined && dataObject.schema !== this.schema) {
@@ -306,6 +304,13 @@ export class DataModel  {
         type: SDKErrorType.InvalidInput,
         error: `[DataModel.createObject] DataObject "${id}" already exists with schema "${dataObject.schema}", which does not match this DataModel's schema "${this.schema}"`
       });
+    }
+
+    if (dataObject) {
+      const reuseResult = this.#validateSharedObjectReuse(dataObject, dataObjectParams);
+      if (reuseResult.ok !== true) {
+        return reuseResult;
+      }
     }
 
     if (!dataObject) {
@@ -342,6 +347,7 @@ export class DataModel  {
       );
 
       this.data.objects[id] = dataObject;
+      const type = dataObject.type;
 
       // A freshly created object has no relationships yet, so it starts life as
       // a traversal root. createRelationship de-roots it once it gains an
@@ -359,6 +365,7 @@ export class DataModel  {
     }
 
     this.objects[id] = dataObject;
+    const type = dataObject.type;
 
     // Mirror the root into this model's own root set, but only while the object
     // is genuinely a root (no incoming relationship) — i.e. still present in
@@ -594,7 +601,9 @@ export class DataModel  {
       if (dataObject.propertySets) {
         for (let i = 0, len = dataObject.propertySets.length; i < len; i++) {
           const propertySet = dataObject.propertySets[i];
-          dataObjectParams.propertySetIds?.push(propertySet.id);
+          if (this.propertySets[propertySet.id]) {
+            dataObjectParams.propertySetIds?.push(propertySet.id);
+          }
         }
       }
       dataModelParams.objects?.push(dataObjectParams);
@@ -630,6 +639,30 @@ export class DataModel  {
         error: "[DataModel.destroy] DataModel already destroyed"
       });
     }
+    this.#destroyComponents();
+    this.destroyed = true;
+    this.data._destroyModel(this);
+    return {
+      ok: true,
+      value: undefined
+    };
+  }
+
+  /**
+   * Discards a model that failed during creation before it was registered in
+   * {@link Data.models}.
+   *
+   * @private
+   */
+  _discard(): void {
+    if (this.destroyed) {
+      return;
+    }
+    this.#destroyComponents();
+    this.destroyed = true;
+  }
+
+  #destroyComponents(): void {
     // 1) Unwire every relationship this model created, from BOTH endpoints'
     //    relating/related maps. (The Relationship objects are discarded with
     //    the model.) Done first and ungated, so it runs for every object — not
@@ -639,6 +672,7 @@ export class DataModel  {
       const type = relation.type;
       this.#removeRelation(relation.relatingObject.related[type], relation);
       this.#removeRelation(relation.relatedObject.relating[type], relation);
+      this.data.events.onRelationshipDestroyed.dispatch(this.data, relation);
     }
 
     // 2) Remove this model's objects from Data — or just detach this model
@@ -674,22 +708,91 @@ export class DataModel  {
         }
       }
     }
-    this.destroyed = true;
-    this.data._destroyModel(this);
+
+    // 4) Detach or purge property sets owned by this model. PropertySets are
+    //    globally registered like DataObjects, so shared sets survive until the
+    //    final owning DataModel goes away.
+    for (const id in this.propertySets) {
+      const propertySet = this.propertySets[id];
+      this.#removePropertySetFromModels(propertySet);
+      if (propertySet.models.length === 0) {
+        delete this.data.propertySets[id];
+        this.data.events.onPropertySetDestroyed.dispatch(this.data, propertySet);
+      }
+    }
+  }
+
+  #removePropertySetFromModels(propertySet: PropertySet) {
+    for (let i = 0, len = propertySet.models.length; i < len; i++) {
+      if (propertySet.models[i] === this) {
+        propertySet.models.splice(i, 1);
+        break;
+      }
+    }
+  }
+
+  #validateSharedObjectReuse(dataObject: DataObject, dataObjectParams: DataObjectParams): SDKResult<void> {
+    if (dataObjectParams.type !== dataObject.type) {
+      return this.data.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[DataModel.createObject] DataObject "${dataObjectParams.id}" already exists with type "${dataObject.type}", which does not match requested type "${dataObjectParams.type}"`
+      });
+    }
+    if (dataObjectParams.schema !== undefined && dataObjectParams.schema !== dataObject.schema) {
+      return this.data.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[DataModel.createObject] DataObject "${dataObjectParams.id}" already exists with schema "${dataObject.schema}", which does not match requested schema "${dataObjectParams.schema}"`
+      });
+    }
+    if (dataObjectParams.name !== undefined && dataObjectParams.name !== dataObject.name) {
+      return this.data.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[DataModel.createObject] DataObject "${dataObjectParams.id}" already exists with name "${dataObject.name}", which does not match requested name "${dataObjectParams.name}"`
+      });
+    }
+    if (dataObjectParams.description !== undefined && dataObjectParams.description !== dataObject.description) {
+      return this.data.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[DataModel.createObject] DataObject "${dataObjectParams.id}" already exists with a different description`
+      });
+    }
+    if (dataObjectParams.originalSystemId !== undefined && dataObjectParams.originalSystemId !== dataObject.originalSystemId) {
+      return this.data.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[DataModel.createObject] DataObject "${dataObjectParams.id}" already exists with originalSystemId "${dataObject.originalSystemId}", which does not match requested originalSystemId "${dataObjectParams.originalSystemId}"`
+      });
+    }
+    if (dataObjectParams.propertySetIds) {
+      const propertySets = dataObject.propertySets || [];
+      for (let i = 0, len = dataObjectParams.propertySetIds.length; i < len; i++) {
+        const propertySetId = dataObjectParams.propertySetIds[i];
+        const propertySet = this.propertySets[propertySetId];
+        if (!propertySet) {
+          return this.data.logError({
+            ok: false,
+            type: SDKErrorType.InvalidInput,
+            error: `[DataModel.createObject] PropertySet not found: "${propertySetId}"`
+          });
+        }
+        if (propertySets.indexOf(propertySet) < 0) {
+          return this.data.logError({
+            ok: false,
+            type: SDKErrorType.InvalidInput,
+            error: `[DataModel.createObject] PropertySet "${propertySetId}" is not associated with existing DataObject "${dataObjectParams.id}"`
+          });
+        }
+      }
+    }
     return {
       ok: true,
       value: undefined
     };
   }
-
-  // #removePropertySetFromModels(dataObject: DataObject) {
-  //     for (let i = 0, len = dataObject.models.length; i < len; i++) {
-  //         if (dataObject.models[i] === this) {
-  //             dataObject.models = dataObject.models.splice(i, 1);
-  //             break;
-  //         }
-  //     }
-  // }
 
   #removeObjectFromModels(dataObject: DataObject) {
     for (let i = 0, len = dataObject.models.length; i < len; i++) {
@@ -720,4 +823,3 @@ export class DataModel  {
     return false;
   }
 }
-

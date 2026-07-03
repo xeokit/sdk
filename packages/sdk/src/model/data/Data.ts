@@ -119,8 +119,12 @@ export class Data {
         error: `[Data.createModel] DataModel already created in this Data: ${id}`
       });
     }
-    // @ts-ignore
     const dataModel = new DataModel(this, id, dataModelParams);
+    const result = dataModel.fromParams(dataModelParams);
+    if (result.ok !== true) {
+      dataModel._discard();
+      return result;
+    }
     this.models[dataModel.id] = dataModel;
     this.events.onDataModelCreated.dispatch(this, dataModel);
     return {
@@ -230,4 +234,3 @@ export class Data {
     };
   }
 }
-

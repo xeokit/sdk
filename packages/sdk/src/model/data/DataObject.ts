@@ -78,7 +78,7 @@ export class DataObject {
    * {@link Relationship.relatingObject | relatingObject}.
    */
   public readonly relating: {
-    [key: number]: Relationship[];
+    [key: string]: Relationship[];
   };
 
   /**
@@ -88,7 +88,7 @@ export class DataObject {
    * {@link Relationship.relatedObject | relatedObject}.
    */
   public readonly related: {
-    [key: number]: Relationship[];
+    [key: string]: Relationship[];
   };
 
   /**

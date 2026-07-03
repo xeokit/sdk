@@ -103,14 +103,14 @@ describe("searchObjects", () => {
     const data = buildData();
     const seen: string[] = [];
 
-    // Returning true from the callback aborts the current visit's recursion.
-    // Here we stop at the very first object, so nothing below it is visited.
+    // Returning true from a nested callback aborts the whole DFS, including
+    // children below the current node and later siblings of its ancestors.
     searchObjects(data, {
       startObjectId: "Building",
-      resultCallback: (o) => { seen.push(o.id); return true; }
+      resultCallback: (o) => { seen.push(o.id); return o.id === "Storey1"; }
     });
 
-    expect(seen).toEqual(["Building"]);
+    expect(seen).toEqual(["Building", "Storey1"]);
   });
 
   it("honours includeStart:false by dropping only the depth-0 start object", () => {
@@ -122,6 +122,35 @@ describe("searchObjects", () => {
 
     expect(resultObjectIds).toEqual(["Storey1", "Wall1", "Storey2", "Wall2"]);
     expect(resultObjectIds).not.toContain("Building");
+  });
+
+  it("honours includeStart:false when starting from a DataObject instance", () => {
+    const data = buildData();
+    const resultObjectIds: string[] = [];
+
+    searchObjects(data, {
+      startObject: data.objects.Building,
+      includeStart: false,
+      resultObjectIds
+    });
+
+    expect(resultObjectIds).toEqual(["Storey1", "Wall1", "Storey2", "Wall2"]);
+    expect(resultObjectIds).not.toContain("Building");
+  });
+
+  it("visits each object once when relationships contain a cycle", () => {
+    const data = new Data();
+    const model = data.createModel({id: "cyclic"}).value!;
+    model.createObject({id: "A", type: "Thing", name: "A"});
+    model.createObject({id: "B", type: "Thing", name: "B"});
+    model.createRelationship({type: AGGREGATES, relatingObjectId: "A", relatedObjectId: "B"});
+    model.createRelationship({type: AGGREGATES, relatingObjectId: "B", relatedObjectId: "A"});
+
+    const resultObjectIds: string[] = [];
+    const result = searchObjects(data, {startObjectId: "A", resultObjectIds});
+
+    expect(result.ok).toBe(true);
+    expect(resultObjectIds).toEqual(["A", "B"]);
   });
 
   it("filters the result set by object type via includeObjects", () => {
@@ -172,12 +201,30 @@ describe("searchObjects", () => {
     expect(resultObjectIds).toEqual(["A", "B"]);
   });
 
+  it("follows only the relationship types listed in includeRelated", () => {
+    const data = buildMixedRelData();
+    const resultObjectIds: string[] = [];
+
+    searchObjects(data, {startObjectId: "A", includeRelated: ["aggregates"], resultObjectIds});
+
+    expect(resultObjectIds).toEqual(["A", "B"]);
+  });
+
   it("skips the relationship types listed in excludeRelating", () => {
     const data = buildMixedRelData();
     const resultObjectIds: string[] = [];
 
     // 'references' edges are skipped; 'aggregates' is still followed.
     searchObjects(data, {startObjectId: "A", excludeRelating: ["references"], resultObjectIds});
+
+    expect(resultObjectIds).toEqual(["A", "B"]);
+  });
+
+  it("skips the relationship types listed in excludeRelated", () => {
+    const data = buildMixedRelData();
+    const resultObjectIds: string[] = [];
+
+    searchObjects(data, {startObjectId: "A", excludeRelated: ["references"], resultObjectIds});
 
     expect(resultObjectIds).toEqual(["A", "B"]);
   });

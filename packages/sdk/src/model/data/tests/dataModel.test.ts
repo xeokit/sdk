@@ -193,6 +193,33 @@ describe("Data + DataModel build lifecycle", () => {
     expect(data.destroy().ok).toBe(false);
   });
 
+  it("rolls back partially-created components when createModel(params) fails", () => {
+    const data = new Data();
+    const createdModels: string[] = [];
+    data.events.onDataModelCreated.subscribe((_data, model) => createdModels.push(model.id));
+
+    const result = data.createModel({
+      id: "bad",
+      propertySets: [{
+        id: "ps1",
+        name: "Props",
+        type: "Pset",
+        properties: [{name: "Code", value: "A"}],
+      }],
+      objects: [{id: "a", type: "Thing", name: "A", propertySetIds: ["ps1"]}],
+      relationships: [{type: AGGREGATES, relatingObjectId: "a", relatedObjectId: "missing"}],
+    });
+
+    expect(result.ok).toBe(false);
+    expect(createdModels).toEqual([]);
+    expect(data.models.bad).toBeUndefined();
+    expect(data.objects.a).toBeUndefined();
+    expect(data.rootObjects.a).toBeUndefined();
+    expect(data.objectsByType.Thing).toBeUndefined();
+    expect(data.typeCounts.Thing).toBeUndefined();
+    expect(data.propertySets.ps1).toBeUndefined();
+  });
+
   it("an object shared by two models survives one model's destroy, detaching only that owner", () => {
     const data = new Data();
     const m1 = data.createModel({id: "ma"}).value;
@@ -208,10 +235,120 @@ describe("Data + DataModel build lifecycle", () => {
     m1.destroy();
     expect(data.objects["s"]).toBe(shared);
     expect(shared.models).toEqual([m2]);
+    expect(m2.objectsByType["IfcWall"]["s"]).toBe(shared);
+    expect(m2.typeCounts["IfcWall"]).toBe(1);
 
     // Destroying the last owner now purges it.
     m2.destroy();
     expect(data.objects["s"]).toBeUndefined();
+  });
+
+  it("rejects sharing an existing object with conflicting immutable metadata", () => {
+    const data = new Data();
+    const m1 = data.createModel({id: "conflictA"}).value;
+    const m2 = data.createModel({id: "conflictB"}).value;
+    const shared = m1.createObject({id: "s", type: "IfcWall", name: "S"}).value;
+
+    const result = m2.createObject({id: "s", type: "IfcDoor", name: "S"});
+
+    expect(result.ok).toBe(false);
+    expect(data.objects.s).toBe(shared);
+    expect(m2.objects.s).toBeUndefined();
+    expect(m2.objectsByType.IfcDoor).toBeUndefined();
+    expect(m2.typeCounts.IfcDoor).toBeUndefined();
+    expect(data.objectsByType.IfcWall.s).toBe(shared);
+  });
+
+  it("does not export propertySetIds that are absent from the owning DataModel", () => {
+    const data = new Data();
+    const m1 = data.createModel({id: "psSource"}).value;
+    const m2 = data.createModel({id: "psConsumer"}).value;
+    m1.createPropertySet({
+      id: "ps1",
+      name: "Props",
+      type: "Pset",
+      properties: [{name: "Code", value: "A"}],
+    });
+    m1.createObject({id: "s", type: "IfcWall", name: "S", propertySetIds: ["ps1"]});
+    expect(m2.createObject({id: "s", type: "IfcWall", name: "S"}).ok).toBe(true);
+
+    const params = m2.toParams().value!;
+    expect(params.propertySets).toEqual([]);
+    expect(params.objects).toHaveLength(1);
+    expect(params.objects![0].propertySetIds).toEqual([]);
+  });
+
+  it("rejects adding new property set membership while sharing an existing object", () => {
+    const data = new Data();
+    const m1 = data.createModel({id: "psOriginal"}).value;
+    const m2 = data.createModel({id: "psDifferent"}).value;
+    m1.createObject({id: "s", type: "IfcWall", name: "S"});
+    m2.createPropertySet({
+      id: "ps2",
+      name: "Props",
+      type: "Pset",
+      properties: [{name: "Code", value: "A"}],
+    });
+
+    const result = m2.createObject({id: "s", type: "IfcWall", name: "S", propertySetIds: ["ps2"]});
+
+    expect(result.ok).toBe(false);
+    expect(m2.objects.s).toBeUndefined();
+  });
+
+  it("purges owned property sets and emits relationship/property set destroy events", () => {
+    const data = new Data();
+    const model = data.createModel({id: "mProps"}).value;
+    model.createPropertySet({
+      id: "ps1",
+      name: "Props",
+      type: "Pset",
+      properties: [{name: "Code", value: "A"}],
+    });
+    model.createObject({id: "parent", type: "IfcBuilding", name: "Parent", propertySetIds: ["ps1"]});
+    model.createObject({id: "child", type: "IfcWall", name: "Child"});
+    model.createRelationship({type: AGGREGATES, relatingObjectId: "parent", relatedObjectId: "child"});
+
+    const destroyedRelationships: string[] = [];
+    const destroyedPropertySets: string[] = [];
+    data.events.onRelationshipDestroyed.subscribe((_data, rel) => destroyedRelationships.push(rel.type));
+    data.events.onPropertySetDestroyed.subscribe((_data, propertySet) => destroyedPropertySets.push(propertySet.id));
+
+    model.destroy();
+
+    expect(data.propertySets.ps1).toBeUndefined();
+    expect(destroyedRelationships).toEqual([AGGREGATES]);
+    expect(destroyedPropertySets).toEqual(["ps1"]);
+  });
+
+  it("keeps a shared property set until its last owning model is destroyed", () => {
+    const data = new Data();
+    const m1 = data.createModel({id: "psOwner1"}).value;
+    const m2 = data.createModel({id: "psOwner2"}).value;
+    const ps = m1.createPropertySet({
+      id: "sharedPs",
+      name: "Shared Props",
+      type: "Pset",
+      properties: [{name: "Code", value: "A"}],
+    }).value;
+    expect(m2.createPropertySet({
+      id: "sharedPs",
+      name: "Shared Props",
+      type: "Pset",
+      properties: [{name: "Code", value: "A"}],
+    }).ok).toBe(true);
+
+    const destroyedPropertySets: string[] = [];
+    data.events.onPropertySetDestroyed.subscribe((_data, propertySet) => destroyedPropertySets.push(propertySet.id));
+
+    m1.destroy();
+    expect(data.propertySets.sharedPs).toBe(ps);
+    expect(ps.models).toEqual([m2]);
+    expect(destroyedPropertySets).toEqual([]);
+
+    m2.destroy();
+    expect(data.propertySets.sharedPs).toBeUndefined();
+    expect(destroyedPropertySets).toEqual(["sharedPs"]);
   });
 
   it("fires onDataObjectDestroyed once per destroyed object, regardless of shared type", () => {

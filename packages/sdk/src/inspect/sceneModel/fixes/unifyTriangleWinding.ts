@@ -2,6 +2,7 @@ import type {SceneModel} from "../../../model/scene";
 import {SDKErrorType, type SDKResult} from "../../../base/core";
 import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../../../base/constants";
 import type {Fix, FixApplyResult} from "../Fix";
+import {finishGeometryMutation, snapshotGeometryMutation} from "../internal/finishGeometryMutation";
 import {getInspectionIndex} from "../internal/getInspectionIndex";
 import type {Issue} from "../Issue";
 
@@ -174,7 +175,9 @@ export const unifyTriangleWinding: Fix = {
         out[o + 2] = indices[o + 2];
       }
     }
+    const before = snapshotGeometryMutation(geom);
     (geom as { indices: typeof out }).indices = out;
+    finishGeometryMutation(geom, before);
     return {ok: true, value: {fixed: true, trace: `'${geomId}': flipped ${flippedCount.toLocaleString()} of ${triCount.toLocaleString()} triangles`}};
   },
 };

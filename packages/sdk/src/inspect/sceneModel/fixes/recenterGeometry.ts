@@ -2,6 +2,7 @@ import type {SceneModel} from "../../../model/scene";
 import {SDKErrorType, type SDKResult} from "../../../base/core";
 import {createMat4Float64, mulMat4, translationMat4v} from "../../../base/math/matrix";
 import type {Fix, FixApplyResult} from "../Fix";
+import {finishGeometryMutation, snapshotGeometryMutation} from "../internal/finishGeometryMutation";
 import {getInspectionIndex} from "../internal/getInspectionIndex";
 import type {Issue} from "../Issue";
 
@@ -113,7 +114,9 @@ export const recenterGeometry: Fix = {
     newAABB[3] = aabb[3] - cx;
     newAABB[4] = aabb[4] - cy;
     newAABB[5] = aabb[5] - cz;
+    const before = snapshotGeometryMutation(geom);
     (geom as { aabb: typeof newAABB }).aabb = newAABB;
+    finishGeometryMutation(geom, before);
 
     const offset = `(${cx.toFixed(1)}, ${cy.toFixed(1)}, ${cz.toFixed(1)})`;
     return {ok: true, value: {fixed: true, trace: `'${geomId}': AABB shifted by ${offset}; offset pushed into referencing mesh matrices`}};

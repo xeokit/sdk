@@ -2,6 +2,7 @@ import type {SceneModel} from "../../../model/scene";
 import {SDKErrorType, type SDKResult} from "../../../base/core";
 import {decompressPositions3WithAABB3} from "../../../base/math/compression";
 import type {Fix, FixApplyResult} from "../Fix";
+import {finishGeometryMutation, snapshotGeometryMutation} from "../internal/finishGeometryMutation";
 import type {Issue} from "../Issue";
 
 
@@ -110,7 +111,9 @@ export const dropDegenerateTriangles: Fix = {
       out[w++] = indices[t * 3 + 1];
       out[w++] = indices[t * 3 + 2];
     }
+    const before = snapshotGeometryMutation(geom);
     (geom as { indices: typeof out }).indices = out;
+    finishGeometryMutation(geom, before);
     const dropped = triCount - kept;
     return {ok: true, value: {fixed: true, trace: `'${geomId}': dropped ${dropped.toLocaleString()} of ${triCount.toLocaleString()} triangles`}};
   },

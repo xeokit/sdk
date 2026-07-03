@@ -1,8 +1,11 @@
 import {Scene} from "../../../../model/scene";
-import {TrianglesPrimitive} from "../../../../base/constants";
+import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../../../../base/constants";
 import {splitSceneGeometry} from "../../internal/splitSceneGeometry";
 import {compactUnusedVertices} from "../compactUnusedVertices";
+import {downgradeNonWatertight} from "../downgradeNonWatertight";
+import {dropDuplicateTriangles} from "../dropDuplicateTriangles";
 import {mergeDuplicateVertices} from "../mergeDuplicateVertices";
+import {tightenAabb} from "../tightenAabb";
 
 // SceneGeometry stores positions/normals as quantised uint16 but UVs as float
 // (RG32F). The coalesce fix compacts every attribute into a smaller array; a
@@ -23,10 +26,15 @@ describe("mergeDuplicateVertices", () => {
     });
     const geom = m.geometries["g"];
     expect(geom.uvsCompressed).toBeInstanceOf(Float32Array);
+    expect(m.stats.numVertices).toBe(4);
+    const updated: string[] = [];
+    m.scene.events.onSceneGeometryUpdated.subscribe((_scene, g) => updated.push(g.id));
 
     const res = mergeDuplicateVertices.apply({resourceId: "g"} as any, m as any);
     expect(res.ok).toBe(true);
     expect((res as any).value.fixed).toBe(true);
+    expect(m.stats.numVertices).toBe(3);
+    expect(updated).toEqual(["g"]);
 
     // Still float, and the fractional / tiling values survived (uint16 would
     // have truncated 0.5 -> 0 and 1.5 -> 1).
@@ -81,6 +89,73 @@ describe("mergeDuplicateVertices", () => {
       0, 255, 0, 255,
       0, 0, 255, 255,
     ]);
+  });
+});
+
+describe("geometry mutation bookkeeping", () => {
+
+  it("updates triangle stats and emits when duplicate triangles are dropped", () => {
+    const m = new Scene().createModel({id: "m"}).value!;
+    m.createGeometry({
+      id: "g",
+      primitive: TrianglesPrimitive,
+      positions: [0, 0, 0,  1, 0, 0,  1, 1, 0],
+      indices:   [0, 1, 2,  0, 2, 1],
+    });
+    expect(m.stats.numTriangles).toBe(2);
+    const updated: string[] = [];
+    m.scene.events.onSceneGeometryUpdated.subscribe((_scene, g) => updated.push(g.id));
+
+    const res = dropDuplicateTriangles.apply({resourceId: "g"} as any, m as any);
+
+    expect(res.ok).toBe(true);
+    expect((res as any).value.fixed).toBe(true);
+    expect(m.stats.numTriangles).toBe(1);
+    expect(updated).toEqual(["g"]);
+  });
+
+  it("updates primitive counts and emits when a solid is downgraded", () => {
+    const m = new Scene().createModel({id: "m"}).value!;
+    m.createGeometry({
+      id: "g",
+      primitive: SolidPrimitive,
+      positions: [0, 0, 0,  1, 0, 0,  1, 1, 0],
+      indices:   [0, 1, 2],
+    });
+    expect(m.containsPrimitive(SolidPrimitive)).toBe(true);
+    expect(m.containsPrimitive(SurfacePrimitive)).toBe(false);
+    const updated: string[] = [];
+    m.scene.events.onSceneGeometryUpdated.subscribe((_scene, g) => updated.push(g.id));
+
+    const res = downgradeNonWatertight.apply({resourceId: "g"} as any, m as any);
+
+    expect(res.ok).toBe(true);
+    expect((res as any).value.fixed).toBe(true);
+    expect(m.containsPrimitive(SolidPrimitive)).toBe(false);
+    expect(m.containsPrimitive(SurfacePrimitive)).toBe(true);
+    expect(updated).toEqual(["g"]);
+  });
+
+  it("emits without changing stats when only compressed bounds are tightened", () => {
+    const m = new Scene().createModel({id: "m"}).value!;
+    m.createGeometryCompressed({
+      id: "g",
+      primitive: TrianglesPrimitive,
+      positionsCompressed: [0, 0, 0,  32768, 0, 0,  0, 32768, 0],
+      aabb: [0, 0, 0, 10, 10, 10],
+      indices: [0, 1, 2],
+    });
+    const stats = {...m.stats};
+    const updated: string[] = [];
+    m.scene.events.onSceneGeometryUpdated.subscribe((_scene, g) => updated.push(g.id));
+
+    const res = tightenAabb.apply({resourceId: "g"} as any, m as any);
+
+    expect(res.ok).toBe(true);
+    expect((res as any).value.fixed).toBe(true);
+    expect(m.stats.numVertices).toBe(stats.numVertices);
+    expect(m.stats.numTriangles).toBe(stats.numTriangles);
+    expect(updated).toEqual(["g"]);
   });
 });
 

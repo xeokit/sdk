@@ -2,6 +2,7 @@ import type {SceneModel} from "../../../model/scene";
 import {SDKErrorType, type SDKResult} from "../../../base/core";
 import {SolidPrimitive, SurfacePrimitive} from "../../../base/constants";
 import type {Fix, FixApplyResult} from "../Fix";
+import {finishGeometryMutation, snapshotGeometryMutation} from "../internal/finishGeometryMutation";
 import type {Issue} from "../Issue";
 
 
@@ -59,7 +60,9 @@ export const downgradeNonWatertight: Fix = {
     if (geom.primitive !== SolidPrimitive) {
       return {ok: true, value: {fixed: false, reason: "no-op"}};
     }
+    const before = snapshotGeometryMutation(geom);
     (geom as { primitive: number }).primitive = SurfacePrimitive;
+    finishGeometryMutation(geom, before);
     return {ok: true, value: {fixed: true, trace: `'${geomId}': SolidPrimitive → SurfacePrimitive`}};
   },
 };

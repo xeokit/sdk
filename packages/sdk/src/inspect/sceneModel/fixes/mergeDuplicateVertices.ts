@@ -1,6 +1,7 @@
 import type {SceneModel} from "../../../model/scene";
 import {SDKErrorType, type SDKResult} from "../../../base/core";
 import type {Fix, FixApplyResult} from "../Fix";
+import {finishGeometryMutation, snapshotGeometryMutation} from "../internal/finishGeometryMutation";
 import {getInspectionIndex} from "../internal/getInspectionIndex";
 import type {Issue} from "../Issue";
 
@@ -116,6 +117,7 @@ export const mergeDuplicateVertices: Fix = {
     const remap = new Int32Array(vertCount);
     for (let v = 0; v < vertCount; v++) remap[v] = newSlot[canonical[v]];
 
+    const before = snapshotGeometryMutation(geom);
     (geom as { positionsCompressed: typeof newPositions }).positionsCompressed = newPositions;
     if (newNormals) (geom as { normalsCompressed: typeof newNormals }).normalsCompressed = newNormals;
     if (newUVs)     (geom as { uvsCompressed: typeof newUVs }).uvsCompressed = newUVs;
@@ -133,6 +135,7 @@ export const mergeDuplicateVertices: Fix = {
       for (let i = 0; i < edgeIndices.length; i++) out[i] = remap[edgeIndices[i]];
       (geom as { edgeIndices: typeof out }).edgeIndices = out;
     }
+    finishGeometryMutation(geom, before);
 
     const merged = vertCount - unique;
     return {ok: true, value: {fixed: true, trace: `'${geomId}': merged ${merged.toLocaleString()} duplicate of ${vertCount.toLocaleString()} vertex slots`}};

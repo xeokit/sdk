@@ -1,6 +1,7 @@
 import type {SceneModel} from "../../../model/scene";
 import {SDKErrorType, type SDKResult} from "../../../base/core";
 import type {Fix, FixApplyResult} from "../Fix";
+import {finishGeometryMutation, snapshotGeometryMutation} from "../internal/finishGeometryMutation";
 import type {Issue} from "../Issue";
 
 
@@ -131,8 +132,10 @@ export const tightenAabb: Fix = {
       newPositions[i + 2] = Math.round((oldPositions[i + 2] - minU2) * scaleU2);
     }
 
+    const before = snapshotGeometryMutation(geom);
     (geom as { positionsCompressed: typeof newPositions }).positionsCompressed = newPositions;
     (geom as { aabb: typeof newAABB }).aabb = newAABB;
+    finishGeometryMutation(geom, before);
     const fillX = (rangeU0 / 65535 * 100) | 0;
     const fillY = (rangeU1 / 65535 * 100) | 0;
     const fillZ = (rangeU2 / 65535 * 100) | 0;

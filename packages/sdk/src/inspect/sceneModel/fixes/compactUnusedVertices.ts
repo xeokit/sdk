@@ -1,6 +1,7 @@
 import type {SceneModel} from "../../../model/scene";
 import {SDKErrorType, type SDKResult} from "../../../base/core";
 import type {Fix, FixApplyResult} from "../Fix";
+import {finishGeometryMutation, snapshotGeometryMutation} from "../internal/finishGeometryMutation";
 import {getInspectionIndex} from "../internal/getInspectionIndex";
 import type {Issue} from "../Issue";
 
@@ -113,6 +114,7 @@ export const compactUnusedVertices: Fix = {
       w++;
     }
 
+    const before = snapshotGeometryMutation(geom);
     (geom as { positionsCompressed: typeof newPositions }).positionsCompressed = newPositions;
     if (newNormals) (geom as { normalsCompressed: typeof newNormals }).normalsCompressed = newNormals;
     if (newUVs)     (geom as { uvsCompressed: typeof newUVs }).uvsCompressed = newUVs;
@@ -128,6 +130,7 @@ export const compactUnusedVertices: Fix = {
       for (let i = 0; i < edgeIndices.length; i++) out[i] = remap[edgeIndices[i]];
       (geom as { edgeIndices: typeof out }).edgeIndices = out;
     }
+    finishGeometryMutation(geom, before);
 
     const dropped = vertCount - kept;
     return {ok: true, value: {fixed: true, trace: `'${geomId}': compacted ${dropped.toLocaleString()} unused of ${vertCount.toLocaleString()} vertex slots`}};

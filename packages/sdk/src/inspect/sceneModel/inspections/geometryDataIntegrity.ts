@@ -7,7 +7,7 @@ import {indexStrideFor, isFiniteAABB} from "./util";
 /**
  * Walks every {@link model!scene.SceneGeometry | SceneGeometry} in the SceneModel and emits
  * data-shape errors that the renderer or downstream optimisations
- * can't safely tolerate. One pass; nine codes.
+ * can't safely tolerate. One pass; eleven codes.
  *
  *   - `GEOMETRY_NO_POSITIONS`     missing positionsCompressed
  *   - `GEOMETRY_POSITIONS_LENGTH` length not divisible by 3
@@ -18,6 +18,8 @@ import {indexStrideFor, isFiniteAABB} from "./util";
  *   - `GEOMETRY_AABB_INVERTED`    min > max on at least one axis
  *   - `GEOMETRY_INDICES_LENGTH`   length doesn't match primitive stride
  *   - `GEOMETRY_INDEX_OUT_OF_RANGE` index ≥ vertex count
+ *   - `GEOMETRY_EDGE_INDICES_LENGTH` edgeIndices length not divisible by 2
+ *   - `GEOMETRY_EDGE_INDEX_OUT_OF_RANGE` edge index ≥ vertex count
  */
 export const geometryDataIntegrity: Inspection = {
 
@@ -31,6 +33,8 @@ export const geometryDataIntegrity: Inspection = {
     "GEOMETRY_AABB_INVERTED",
     "GEOMETRY_INDICES_LENGTH",
     "GEOMETRY_INDEX_OUT_OF_RANGE",
+    "GEOMETRY_EDGE_INDICES_LENGTH",
+    "GEOMETRY_EDGE_INDEX_OUT_OF_RANGE",
   ],
 
   description: "Geometry data integrity",
@@ -45,6 +49,8 @@ export const geometryDataIntegrity: Inspection = {
     GEOMETRY_AABB_INVERTED:      "AABB min greater than max",
     GEOMETRY_INDICES_LENGTH:     "Bad indices length",
     GEOMETRY_INDEX_OUT_OF_RANGE: "Index out of range",
+    GEOMETRY_EDGE_INDICES_LENGTH:     "Bad edge indices length",
+    GEOMETRY_EDGE_INDEX_OUT_OF_RANGE: "Edge index out of range",
   },
 
   descriptions: {
@@ -66,6 +72,10 @@ export const geometryDataIntegrity: Inspection = {
       "Index buffer length is not a whole multiple of the primitive's stride (3 for triangles, 2 for lines), so the last primitive is malformed.",
     GEOMETRY_INDEX_OUT_OF_RANGE:
       "An index references a vertex slot that doesn't exist (≥ vertex count or < 0). The renderer would read past the buffer end.",
+    GEOMETRY_EDGE_INDICES_LENGTH:
+      "Edge index buffer length is not a whole multiple of 2, so the last edge segment is malformed.",
+    GEOMETRY_EDGE_INDEX_OUT_OF_RANGE:
+      "An edge index references a vertex slot that doesn't exist (≥ vertex count or < 0). Edge rendering and vertex-compaction fixes would read past the buffer end.",
   },
 
   run(sceneModel: SceneModel): Issue[] {
@@ -161,18 +171,45 @@ function checkGeometry(geom: SceneGeometry, issues: Issue[]): void {
         resourceId: id,
       });
     }
-    let outOfRange = -1;
+    let outOfRange: number | undefined;
     for (let i = 0; i < indices.length; i++) {
       if (indices[i] < 0 || indices[i] >= vertCount) {
         outOfRange = indices[i];
         break;
       }
     }
-    if (outOfRange !== -1) {
+    if (outOfRange !== undefined) {
       issues.push({
         severity: "error",
         code:     "GEOMETRY_INDEX_OUT_OF_RANGE",
         message:  `SceneGeometry '${id}' has index ${outOfRange} out of [0, ${vertCount - 1}]`,
+        resourceId: id,
+      });
+    }
+  }
+
+  if (geom.edgeIndices) {
+    const edgeIndices = geom.edgeIndices;
+    if (edgeIndices.length % 2 !== 0) {
+      issues.push({
+        severity: "error",
+        code:     "GEOMETRY_EDGE_INDICES_LENGTH",
+        message:  `SceneGeometry '${id}' edgeIndices.length=${edgeIndices.length} is not a multiple of 2`,
+        resourceId: id,
+      });
+    }
+    let outOfRange: number | undefined;
+    for (let i = 0; i < edgeIndices.length; i++) {
+      if (edgeIndices[i] < 0 || edgeIndices[i] >= vertCount) {
+        outOfRange = edgeIndices[i];
+        break;
+      }
+    }
+    if (outOfRange !== undefined) {
+      issues.push({
+        severity: "error",
+        code:     "GEOMETRY_EDGE_INDEX_OUT_OF_RANGE",
+        message:  `SceneGeometry '${id}' has edge index ${outOfRange} out of [0, ${vertCount - 1}]`,
         resourceId: id,
       });
     }

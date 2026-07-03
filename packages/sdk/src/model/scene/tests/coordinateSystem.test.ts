@@ -76,6 +76,30 @@ describe("CoordinateSystem", () => {
     expect(cs2.yUp).toBe(true);
     expect(cs2.zUp).toBe(false);
   });
+
+  it("validates params loaded through fromParams", () => {
+    const cs = new CoordinateSystem(new Scene(), undefined, {
+      basis: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      origin: [1, 2, 3],
+      units: "feet",
+      scaleToMeters: 0.3048,
+    });
+
+    cs.fromParams({
+      basis: [1, 0, 0, 1, 0, 0, 0, 0, 1],
+      origin: [4, 5, 6],
+      units: "yards",
+      scaleToMeters: 0,
+    } as any);
+
+    expect(Array.from(cs.basis)).toEqual([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+    expect(Array.from(cs.origin)).toEqual([4, 5, 6]);
+    expect(cs.units).toBe("feet");
+    expect(cs.scaleToMeters).toBeCloseTo(0.3048, 6);
+    expect(Array.from(cs.worldRight)).toEqual([1, 0, 0]);
+    expect(Array.from(cs.worldUp)).toEqual([0, 1, 0]);
+    expect(Array.from(cs.worldForward)).toEqual([0, 0, 1]);
+  });
 });
 
 describe("createCoordinateSystemTransform", () => {

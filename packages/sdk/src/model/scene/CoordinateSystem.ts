@@ -330,12 +330,10 @@ export class CoordinateSystem  {
             });
              return;
         }
-        this._basis = createVec9Float64(params.basis);
-        this._updateWorldAxesFromBasis();
-        this._origin = createVec3Float32(params.origin);
-        this._units = params.units;
-        this._scaleToMeters = params.scaleToMeters;
-        this._notifyUpdated();
+        this.basis = params.basis;
+        this.origin = params.origin;
+        this.units = params.units;
+        this.scaleToMeters = params.scaleToMeters;
     }
 
     /**

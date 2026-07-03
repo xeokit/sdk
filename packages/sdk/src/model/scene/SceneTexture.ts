@@ -307,6 +307,9 @@ export class SceneTexture {
     }
     const oldTextureBytes = this.textureBytes;
     this._imageData = normalizeImageData(value);
+    const sourceSize = getTextureSize(this._imageData || this.image || this);
+    this.width = sourceSize.width;
+    this.height = sourceSize.height;
     this.textureBytes = estimateTextureBytes(this._imageData || this.image);
     this.model.stats.textureBytes += this.textureBytes - oldTextureBytes;
     if (this._imageData) {

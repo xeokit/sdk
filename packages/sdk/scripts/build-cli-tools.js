@@ -4,10 +4,13 @@ const {build} = require("esbuild");
 const fs = require("fs");
 
 function buildCLITool(moduleId) {
+    // Sources live under src/convert/<moduleId>/; the dist layout stays
+    // dist/<moduleId>/ because package.json `bin` and the CLI's own
+    // `../../package.json` resolution depend on that flat output path.
     build({
         ...{
             entryPoints: [
-                `./src/${moduleId}/${moduleId}_core.ts`
+                `./src/convert/${moduleId}/${moduleId}_core.ts`
             ],
             bundle: true,
             minify: false
@@ -20,8 +23,8 @@ function buildCLITool(moduleId) {
     if (!fs.existsSync(`./dist/${moduleId}`)) {
         fs.mkdirSync(`./dist/${moduleId}`);
     }
-    fs.copyFileSync(`./src/${moduleId}/${moduleId}.js`, `./dist/${moduleId}/${moduleId}.js`);
-    fs.copyFileSync(`./src/${moduleId}/${moduleId}_core.ts`, `./dist/${moduleId}/${moduleId}_core.ts`);
+    fs.copyFileSync(`./src/convert/${moduleId}/${moduleId}.js`, `./dist/${moduleId}/${moduleId}.js`);
+    fs.copyFileSync(`./src/convert/${moduleId}/${moduleId}_core.ts`, `./dist/${moduleId}/${moduleId}_core.ts`);
 }
 
 for (let moduleId of [

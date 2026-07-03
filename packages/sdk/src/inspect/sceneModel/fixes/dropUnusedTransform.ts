@@ -56,14 +56,14 @@ export const dropUnusedTransform: Fix = {
     for (const meshId in sceneModel.meshes) {
       const mesh = sceneModel.meshes[meshId];
       if (mesh.destroyed) continue;
-      if (mesh.parentTransform && mesh.parentTransform.id === tId) {
+      if (mesh.parentTransform === t) {
         return {ok: true, value: {fixed: false, reason: "precondition-failed"}};
       }
     }
     for (const tId2 in sceneModel.transforms) {
       const other = sceneModel.transforms[tId2];
       if (other.destroyed || other.id === tId) continue;
-      if (other.parentTransform && other.parentTransform.id === tId) {
+      if (other.parentTransform === t) {
         return {ok: true, value: {fixed: false, reason: "precondition-failed"}};
       }
     }

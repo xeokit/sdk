@@ -627,8 +627,9 @@ function computeReferenceTables(sceneModel: SceneModel): RefTables {
       const arr = materialReferences.get(mesh.materialId);
       if (arr) arr.push(meshId); else materialReferences.set(mesh.materialId, [meshId]);
     }
-    if (mesh.parentTransform) {
-      ensureT(mesh.parentTransform.id).meshes.push(meshId);
+    const parentTransform = mesh.parentTransform;
+    if (parentTransform && sceneModel.transforms[parentTransform.id] === parentTransform) {
+      ensureT(parentTransform.id).meshes.push(meshId);
     }
   }
   for (const matId in sceneModel.materials) {
@@ -650,8 +651,9 @@ function computeReferenceTables(sceneModel: SceneModel): RefTables {
   for (const tId in sceneModel.transforms) {
     const t = sceneModel.transforms[tId];
     if (t.destroyed) continue;
-    if (t.parentTransform) {
-      ensureT(t.parentTransform.id).childTransforms.push(tId);
+    const parentTransform = t.parentTransform;
+    if (parentTransform && sceneModel.transforms[parentTransform.id] === parentTransform) {
+      ensureT(parentTransform.id).childTransforms.push(tId);
     }
   }
   return {materialReferences, textureReferences, transformReferences};

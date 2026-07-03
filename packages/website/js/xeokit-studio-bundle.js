@@ -176336,6 +176336,8 @@ var MeshManager = class {
    * Batches are grouped primarily by primitive type (and additional compatibility checks).
    */
   _batches = [];
+  /** Compatible mesh batches keyed by primitive/material-layout/bin axes. */
+  _batchesByKey = /* @__PURE__ */ new Map();
   /** Whether {@link _batches} needs to be re-sorted by primitive. */
   _batchesDirty = true;
   /**
@@ -176525,16 +176527,24 @@ var MeshManager = class {
       id: objectId,
       rendererMeshes
     });
-    if (sceneObject.clippable === false) {
-      const viewer = this._renderContext.viewer;
-      for (let viewIndex = 0, numViews = viewer.numViews; viewIndex < numViews; viewIndex++) {
-        for (let i = 0, n = rendererMeshes.length; i < n; i++) {
-          rendererMeshes[i].setClippable(viewIndex, false);
-        }
-      }
-    }
+    this._synchronizeCreatedRendererObject(sceneObject, rendererMeshes);
     this._batchesDirty = true;
     return { ok: true, value: void 0 };
+  }
+  _synchronizeCreatedRendererObject(sceneObject, rendererMeshes) {
+    const viewer = this._renderContext.viewer;
+    for (let viewIndex = 0, numViews = viewer.numViews; viewIndex < numViews; viewIndex++) {
+      const viewObject = viewer.viewList[viewIndex]?.objects[sceneObject.id];
+      if (!viewObject || !this._viewObjectStateNeedsInitialSync(viewObject)) {
+        continue;
+      }
+      for (let i = 0, n = rendererMeshes.length; i < n; i++) {
+        this._synchronizeRendererMeshWithViewObject(rendererMeshes[i], viewObject);
+      }
+    }
+  }
+  _viewObjectStateNeedsInitialSync(viewObject) {
+    return !viewObject.visible || viewObject.xrayed || viewObject.highlighted || viewObject.selected || viewObject.culled || !viewObject.pickable || !viewObject.clippable || viewObject.colorize !== null || viewObject.opacityUpdated;
   }
   /**
    * Creates (or reuses) a compatible {@link MeshBatchImpl} and registers the given {@link model!scene.SceneMesh | SceneMesh}
@@ -176683,20 +176693,20 @@ var MeshManager = class {
     const mipmap = (hasUVs || triplanar) && _materialHasMippedTexture(sceneMesh);
     const bin = sceneMesh.bin;
     const stats = this._stepStatsEnabled ? this._stepStats : null;
-    const len = this._batches.length;
+    const key = this._getMeshBatchKey(primitive, hasNormals, hasUVs, triplanar, mipmap, bin);
+    const compatibleBatches = this._batchesByKey.get(key);
+    const len = compatibleBatches?.length ?? 0;
     let iters = 0;
     for (let i = 0; i < len; i++) {
       iters++;
-      const meshBatch = this._batches[i];
-      if (meshBatch.primitive === primitive && meshBatch.hasNormals === hasNormals && meshBatch.hasUVs === hasUVs && meshBatch.triplanar === triplanar && meshBatch.mipmap === mipmap && meshBatch.bin === bin) {
-        const canAddResult = meshBatch.canAddMesh(sceneMesh);
-        if (canAddResult !== 0 /* OK */) {
-          continue;
-        }
-        if (stats)
-          stats.batchScanIters += iters;
-        return { ok: true, value: meshBatch };
+      const meshBatch = compatibleBatches[i];
+      const canAddResult = meshBatch.canAddMesh(sceneMesh);
+      if (canAddResult !== 0 /* OK */) {
+        continue;
       }
+      if (stats)
+        stats.batchScanIters += iters;
+      return { ok: true, value: meshBatch };
     }
     if (stats) {
       stats.batchScanIters += iters;
@@ -176719,8 +176729,17 @@ var MeshManager = class {
       gpuMemoryBatchIndex
     });
     this._batches.push(newMeshBatch);
+    if (compatibleBatches) {
+      compatibleBatches.push(newMeshBatch);
+    } else {
+      this._batchesByKey.set(key, [newMeshBatch]);
+    }
     this._batchesDirty = true;
     return { ok: true, value: newMeshBatch };
+  }
+  _getMeshBatchKey(primitive, hasNormals, hasUVs, triplanar, mipmap, bin) {
+    const binKey = bin === void 0 ? "u" : `s${bin}`;
+    return `${primitive}|${hasNormals ? 1 : 0}|${hasUVs ? 1 : 0}|${triplanar ? 1 : 0}|${mipmap ? 1 : 0}|${binKey}`;
   }
   /**
    * Unregisters a {@link model!scene.SceneObject | SceneObject}.
@@ -176803,13 +176822,19 @@ var MeshManager = class {
     if (!rendererMesh) {
       return;
     }
+    this._synchronizeRendererMeshWithViewObject(rendererMesh, viewObject);
+  }
+  _synchronizeRendererMeshWithViewObject(rendererMesh, viewObject) {
     const viewIndex = viewObject.layer.view.viewIndex;
     rendererMesh.setObjectVisible(viewIndex, viewObject.visible);
     rendererMesh.setXRayed(viewIndex, viewObject.xrayed);
     rendererMesh.setHighlighted(viewIndex, viewObject.highlighted);
     rendererMesh.setSelected(viewIndex, viewObject.selected);
+    rendererMesh.setCulled(viewIndex, viewObject.culled);
     rendererMesh.setPickable(viewIndex, viewObject.pickable);
     rendererMesh.setClippable(viewIndex, viewObject.clippable);
+    rendererMesh.setColorInView(viewIndex, viewObject.colorize);
+    rendererMesh.setOpacityInView(viewIndex, viewObject.opacityUpdated ? viewObject.opacity : null);
   }
   /**
    * Disconnects an existing {@link model!scene.SceneMesh | SceneMesh} from an existing {@link model!scene.SceneObject | SceneObject}.
@@ -177072,6 +177097,7 @@ var MeshManager = class {
     this._rendererSplatMeshes = {};
     this._splatPickMeshes.clear();
     this._batches = [];
+    this._batchesByKey.clear();
     this._rendererObjects = {};
     this._rendererMeshes = {};
     this._batchesDirty = true;
@@ -190874,6 +190900,13 @@ var WebGLRenderer3 = class {
   // model on every mid-load frame; one render runs when it returns to 0.
   _renderSuspendCount = 0;
   /**
+   * Scene component creation events deferred while a {@link SceneModel} is
+   * building. Flushed in geometry -> mesh -> object order when that model
+   * finishes so loaders do not pay renderer registration work on every
+   * intermediate create call.
+   */
+  _deferredSceneModelRegistrations = /* @__PURE__ */ new Map();
+  /**
    * Enables or disables logging of errors to the console.
    */
   logging = true;
@@ -191257,6 +191290,73 @@ var WebGLRenderer3 = class {
     }
     return result;
   }
+  _getDeferredSceneModelRegistrations(sceneModel) {
+    let registrations = this._deferredSceneModelRegistrations.get(sceneModel);
+    if (!registrations) {
+      registrations = {
+        geometries: /* @__PURE__ */ new Set(),
+        meshes: /* @__PURE__ */ new Set(),
+        objects: /* @__PURE__ */ new Set()
+      };
+      this._deferredSceneModelRegistrations.set(sceneModel, registrations);
+    }
+    return registrations;
+  }
+  _deferSceneGeometryCreated(sceneGeometry) {
+    const sceneModel = sceneGeometry.model;
+    if (!sceneModel.building) {
+      return false;
+    }
+    this._getDeferredSceneModelRegistrations(sceneModel).geometries.add(sceneGeometry);
+    return true;
+  }
+  _deferSceneMeshCreated(sceneMesh) {
+    const sceneModel = sceneMesh.model;
+    if (!sceneModel.building) {
+      return false;
+    }
+    this._getDeferredSceneModelRegistrations(sceneModel).meshes.add(sceneMesh);
+    return true;
+  }
+  _deferSceneObjectCreated(sceneObject) {
+    const sceneModel = sceneObject.model;
+    if (!sceneModel.building) {
+      return false;
+    }
+    this._getDeferredSceneModelRegistrations(sceneModel).objects.add(sceneObject);
+    return true;
+  }
+  _discardDeferredSceneGeometry(sceneGeometry) {
+    return this._deferredSceneModelRegistrations.get(sceneGeometry.model)?.geometries.delete(sceneGeometry) === true;
+  }
+  _discardDeferredSceneMesh(sceneMesh) {
+    return this._deferredSceneModelRegistrations.get(sceneMesh.model)?.meshes.delete(sceneMesh) === true;
+  }
+  _discardDeferredSceneObject(sceneObject) {
+    return this._deferredSceneModelRegistrations.get(sceneObject.model)?.objects.delete(sceneObject) === true;
+  }
+  _flushDeferredSceneModelRegistrations(sceneModel, viewManager) {
+    const registrations = this._deferredSceneModelRegistrations.get(sceneModel);
+    if (!registrations) {
+      return;
+    }
+    this._deferredSceneModelRegistrations.delete(sceneModel);
+    for (const sceneGeometry of registrations.geometries) {
+      if (!sceneGeometry.destroyed && sceneModel.geometries[sceneGeometry.id] === sceneGeometry) {
+        this.logError(viewManager.sceneGeometryCreated(sceneGeometry));
+      }
+    }
+    for (const sceneMesh of registrations.meshes) {
+      if (!sceneMesh.destroyed && sceneModel.meshes[sceneMesh.id] === sceneMesh) {
+        this.logError(viewManager.sceneMeshCreated(sceneMesh));
+      }
+    }
+    for (const sceneObject of registrations.objects) {
+      if (!sceneObject.destroyed && sceneModel.objects[sceneObject.id] === sceneObject) {
+        this.logError(viewManager.sceneObjectCreated(sceneObject));
+      }
+    }
+  }
   /**
    * Attaches a {@link viewing!viewer.Viewer | Viewer} to this renderer.
    *
@@ -191342,13 +191442,18 @@ var WebGLRenderer3 = class {
       // Scene components creation/destruction
       // Log errors from these calls
       sceneEvents.onSceneModelCreated.subscribe((_, sceneModel) => this.logError(viewManager.sceneModelCreated(sceneModel))),
-      sceneEvents.onSceneModelDestroyed.subscribe((_, sceneModel) => this.logError(viewManager.sceneModelDestroyed(sceneModel))),
+      sceneEvents.onSceneModelDestroyed.subscribe((_, sceneModel) => {
+        this._deferredSceneModelRegistrations.delete(sceneModel);
+        this.logError(viewManager.sceneModelDestroyed(sceneModel));
+      }),
       // A SceneModel is being populated by a loader — suspend per-view renders
       // until every concurrently-building model finishes, then render once.
-      sceneEvents.onSceneModelBuildStarted.subscribe(() => {
+      sceneEvents.onSceneModelBuildStarted.subscribe((_, sceneModel) => {
         this._renderSuspendCount++;
+        this._getDeferredSceneModelRegistrations(sceneModel);
       }),
-      sceneEvents.onSceneModelBuildFinished.subscribe(() => {
+      sceneEvents.onSceneModelBuildFinished.subscribe((_, sceneModel) => {
+        this._flushDeferredSceneModelRegistrations(sceneModel, viewManager);
         if (this._renderSuspendCount > 0) {
           this._renderSuspendCount--;
         }
@@ -191359,12 +191464,36 @@ var WebGLRenderer3 = class {
           }
         }
       }),
-      sceneEvents.onSceneGeometryCreated.subscribe((_, sceneGeometry) => this.logError(viewManager.sceneGeometryCreated(sceneGeometry))),
-      sceneEvents.onSceneGeometryDestroyed.subscribe((_, sceneGeometry) => this.logError(viewManager.sceneGeometryDestroyed(sceneGeometry))),
-      sceneEvents.onSceneMeshCreated.subscribe((_, sceneMesh) => this.logError(viewManager.sceneMeshCreated(sceneMesh))),
-      sceneEvents.onSceneMeshDestroyed.subscribe((_, sceneMesh) => this.logError(viewManager.sceneMeshDestroyed(sceneMesh))),
-      sceneEvents.onSceneObjectCreated.subscribe((_, sceneObject) => this.logError(viewManager.sceneObjectCreated(sceneObject))),
-      sceneEvents.onSceneObjectDestroyed.subscribe((_, sceneObject) => this.logError(viewManager.sceneObjectDestroyed(sceneObject))),
+      sceneEvents.onSceneGeometryCreated.subscribe((_, sceneGeometry) => {
+        if (!this._deferSceneGeometryCreated(sceneGeometry)) {
+          this.logError(viewManager.sceneGeometryCreated(sceneGeometry));
+        }
+      }),
+      sceneEvents.onSceneGeometryDestroyed.subscribe((_, sceneGeometry) => {
+        if (!this._discardDeferredSceneGeometry(sceneGeometry)) {
+          this.logError(viewManager.sceneGeometryDestroyed(sceneGeometry));
+        }
+      }),
+      sceneEvents.onSceneMeshCreated.subscribe((_, sceneMesh) => {
+        if (!this._deferSceneMeshCreated(sceneMesh)) {
+          this.logError(viewManager.sceneMeshCreated(sceneMesh));
+        }
+      }),
+      sceneEvents.onSceneMeshDestroyed.subscribe((_, sceneMesh) => {
+        if (!this._discardDeferredSceneMesh(sceneMesh)) {
+          this.logError(viewManager.sceneMeshDestroyed(sceneMesh));
+        }
+      }),
+      sceneEvents.onSceneObjectCreated.subscribe((_, sceneObject) => {
+        if (!this._deferSceneObjectCreated(sceneObject)) {
+          this.logError(viewManager.sceneObjectCreated(sceneObject));
+        }
+      }),
+      sceneEvents.onSceneObjectDestroyed.subscribe((_, sceneObject) => {
+        if (!this._discardDeferredSceneObject(sceneObject)) {
+          this.logError(viewManager.sceneObjectDestroyed(sceneObject));
+        }
+      }),
       viewerEvents.onEffectCreated.subscribe((_, effect) => this.logError(viewManager.effectCreated(effect))),
       viewerEvents.onEffectDestroyed.subscribe((_, effect) => this.logError(viewManager.effectDestroyed(effect))),
       // View and ViewObject creation/destruction
@@ -191537,6 +191666,8 @@ var WebGLRenderer3 = class {
     this._viewManagerSubs = [];
     this._viewManager.destroy();
     this._viewManager = void 0;
+    this._renderSuspendCount = 0;
+    this._deferredSceneModelRegistrations.clear();
     this.events.onRendererStopped.dispatch(this);
   }
   /**

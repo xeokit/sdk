@@ -58,6 +58,7 @@ export function compressGeometryParams(geometryParams: SceneGeometryParams): Sce
       primitive: LinesPrimitive,
       aabb,
       positionsCompressed,
+      colorsCompressed: geometryParams.colorsCompressed ? geometryParams.colorsCompressed : (geometryParams.colors ? compressRGBColors(geometryParams.colors) : undefined),
       indices: geometryParams.indices,
       origin: rtcNeeded ? rtcCenter : null
     };
@@ -99,6 +100,7 @@ export function compressGeometryParams(geometryParams: SceneGeometryParams): Sce
       positionsCompressed,
       normalsCompressed,
       uvsCompressed,
+      colorsCompressed: geometryParams.colorsCompressed ? geometryParams.colorsCompressed : (geometryParams.colors ? compressRGBColors(geometryParams.colors) : undefined),
       indices: geometryParams.indices,
       edgeIndices,
       origin: rtcNeeded ? rtcCenter : null

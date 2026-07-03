@@ -165,6 +165,31 @@ export interface SceneModelInspectionIndex {
 
   // ── Per-scene reverse-reference tables ──────────────────────
 
+  /**
+   * geometryId → de-duplicated ids of non-destroyed SceneObjects that
+   * own a non-destroyed mesh referencing the geometry (object order
+   * follows `sceneModel.meshes` iteration). Built once by a single
+   * mesh walk and shared across every geometry-tied inspection, so a
+   * check populating {@link Issue.highlight} pays O(1) per geometry
+   * instead of re-scanning all meshes. Empty array when unreferenced.
+   * Backs {@link findSceneObjectsForGeometry}.
+   */
+  geometryObjects(geometryId: string): readonly string[];
+
+  /**
+   * geometryId → ids of every non-destroyed mesh referencing it.
+   *
+   * Unlike the other reverse tables this one is **mutation-aware**: it
+   * builds once, then stays current by tracking
+   * `onSceneMeshCreated` / `onSceneMeshDestroyed` on the owning Scene.
+   * That lets a fix which repoints meshes across many issues (e.g.
+   * `mergeSimilarGeometries`) read O(1) per geometry for the whole fix
+   * pass instead of rescanning every mesh per fix. The event
+   * subscription is released by {@link invalidateAll} — a caller
+   * driving fixes outside the framework should call it when done.
+   */
+  geometryMeshes(geometryId: string): readonly string[];
+
   /** materialId → mesh ids that reference it. */
   materialReferences(): ReadonlyMap<string, readonly string[]>;
 

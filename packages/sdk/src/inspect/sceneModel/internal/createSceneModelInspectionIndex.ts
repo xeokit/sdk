@@ -1,4 +1,4 @@
-import type {SceneGeometry, SceneModel} from "../../../model/scene";
+import type {SceneGeometry, SceneMesh, SceneModel} from "../../../model/scene";
 import {decompressPositions3WithAABB3} from "../../../base/math/compression";
 import {transformPoint4} from "../../../base/math/matrix";
 import {createVec4Float64} from "../../../base/math/vector";
@@ -41,6 +41,13 @@ export function createSceneModelInspectionIndex(
   const geomRows  = new Map<string, GeomRow>();
   const objRows   = new Map<string, ObjRow>();
   let refTables: RefTables | null = null;
+  let geomObjects: Map<string, string[]> | null = null;
+
+  // Mutation-aware geometry → mesh-ids table (see interface docs). Built
+  // lazily; kept current by Scene mesh-lifecycle subscriptions so it never
+  // needs a wholesale rebuild while fixes mutate meshes.
+  let geomMeshes: Map<string, Set<string>> | null = null;
+  let meshTrackingUnsubs: Array<() => void> | null = null;
 
   function geomRow(id: string): GeomRow {
     let row = geomRows.get(id);
@@ -52,6 +59,44 @@ export function createSceneModelInspectionIndex(
     let row = objRows.get(id);
     if (!row) { row = {} as ObjRow; objRows.set(id, row); }
     return row;
+  }
+
+  function ensureGeometryMeshes(): Map<string, Set<string>> {
+    if (geomMeshes) return geomMeshes;
+    const table = new Map<string, Set<string>>();
+    for (const meshId in sceneModel.meshes) {
+      const mesh = sceneModel.meshes[meshId];
+      if (mesh.destroyed) continue;
+      addMeshEntry(table, mesh.geometryId, meshId);
+    }
+    geomMeshes = table;
+    // Incremental maintenance: any createMesh / destroy on this SceneModel
+    // updates the affected geometry's set. Scene events are shared across
+    // SceneModels, so filter by owning model.
+    const events = sceneModel.scene.events;
+    const onCreated = (_scene: unknown, mesh: SceneMesh) => {
+      if (geomMeshes && mesh.model === sceneModel && !mesh.destroyed) {
+        addMeshEntry(geomMeshes, mesh.geometryId, mesh.id);
+      }
+    };
+    const onDestroyed = (_scene: unknown, mesh: SceneMesh) => {
+      if (geomMeshes && mesh.model === sceneModel) {
+        removeMeshEntry(geomMeshes, mesh.geometryId, mesh.id);
+      }
+    };
+    meshTrackingUnsubs = [
+      events.onSceneMeshCreated.subscribe(onCreated),
+      events.onSceneMeshDestroyed.subscribe(onDestroyed),
+    ];
+    return table;
+  }
+
+  function stopMeshTracking(): void {
+    if (meshTrackingUnsubs) {
+      for (const unsub of meshTrackingUnsubs) unsub();
+      meshTrackingUnsubs = null;
+    }
+    geomMeshes = null;
   }
 
   return {
@@ -188,6 +233,18 @@ export function createSceneModelInspectionIndex(
 
     // ── Per-scene reverse-reference tables ──────────────────────
 
+    geometryObjects(geometryId) {
+      if (!geomObjects) geomObjects = computeGeometryObjects(sceneModel);
+      return geomObjects.get(geometryId) ?? EMPTY_IDS;
+    },
+
+    geometryMeshes(geometryId) {
+      const set = ensureGeometryMeshes().get(geometryId);
+      // Snapshot: callers iterate this while destroying/creating meshes,
+      // which the event handlers use to mutate the live set.
+      return set && set.size > 0 ? Array.from(set) : EMPTY_IDS;
+    },
+
     materialReferences() {
       if (!refTables) refTables = computeReferenceTables(sceneModel);
       return refTables.materialReferences;
@@ -213,12 +270,15 @@ export function createSceneModelInspectionIndex(
 
     invalidateReferences() {
       refTables = null;
+      geomObjects = null;
     },
 
     invalidateAll() {
       geomRows.clear();
       objRows.clear();
       refTables = null;
+      geomObjects = null;
+      stopMeshTracking();
     },
 
     releaseHeavyRows() {
@@ -492,6 +552,58 @@ function computeObjectWorldAABB(sceneModel: SceneModel, objectId: string): Float
 }
 
 
+/** Shared empty result for geometries with no owning objects — avoids per-call allocation. */
+const EMPTY_IDS: readonly string[] = [];
+
+
+/** Add `meshId` to the `geometryId` bucket of a geometry→meshes table. */
+function addMeshEntry(table: Map<string, Set<string>>, geometryId: string, meshId: string): void {
+  let set = table.get(geometryId);
+  if (!set) { set = new Set(); table.set(geometryId, set); }
+  set.add(meshId);
+}
+
+
+/** Remove `meshId` from the `geometryId` bucket, dropping the bucket when empty. */
+function removeMeshEntry(table: Map<string, Set<string>>, geometryId: string, meshId: string): void {
+  const set = table.get(geometryId);
+  if (!set) return;
+  set.delete(meshId);
+  if (set.size === 0) table.delete(geometryId);
+}
+
+
+/**
+ * Reverse table geometryId → de-duplicated owning SceneObject ids,
+ * from a single walk of `sceneModel.meshes`. Mirrors the destroyed-
+ * mesh / destroyed-object filtering of the former per-geometry scan,
+ * so {@link findSceneObjectsForGeometry} returns identical results at
+ * O(1) per geometry.
+ */
+function computeGeometryObjects(sceneModel: SceneModel): Map<string, string[]> {
+  const table = new Map<string, string[]>();
+  // O(1) dedup per (geometry, object) pair — an array indexOf would be
+  // O(owners) and turn a heavily-instanced geometry (one geometry, many
+  // owning objects) back into an O(meshes²) build. `\0` separator can't
+  // occur inside an id, so the composite key is collision-free.
+  const seen = new Set<string>();
+  for (const meshId in sceneModel.meshes) {
+    const mesh = sceneModel.meshes[meshId];
+    if (mesh.destroyed) continue;
+    const obj = mesh.object;
+    if (!obj || obj.destroyed) continue;
+    const geometryId = mesh.geometryId;
+    const key = `${geometryId}\0${obj.id}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    let arr = table.get(geometryId);
+    if (!arr) { arr = []; table.set(geometryId, arr); }
+    arr.push(obj.id);
+  }
+  return table;
+}
+
+
 function computeReferenceTables(sceneModel: SceneModel): RefTables {
   const materialReferences = new Map<string, string[]>();
   const textureReferences  = new Map<string, string[]>();
@@ -570,15 +682,16 @@ function fnv1a(arr: ArrayLike<number>): string {
 /**
  * For each vertex slot of a {@link model!scene.SceneGeometry | SceneGeometry}, return the
  * index of the first slot it byte-matches across
- * `positionsCompressed` + `normalsCompressed` + `uvsCompressed`.
+ * `positionsCompressed` + `normalsCompressed` + `uvsCompressed` +
+ * `colorsCompressed`.
  *
  * Two slots match only when every populated attribute matches —
  * so vertex splitting for genuine seams / crease edges (different
- * normals on the same position) keeps the slots separate, while
- * truly redundant slots (same position, normal, UV) collapse onto
- * the earlier one.
+ * normals, UVs, or colors on the same position) keeps the slots
+ * separate, while truly redundant slots collapse onto the earlier
+ * one.
  *
- * Implementation: per-vertex FNV-1a 32-bit hash over the u16
+ * Implementation: per-vertex FNV-1a 32-bit hash over populated
  * attribute components; `Map<number, number | number[]>` keyed by
  * hash, with a small slot-list for collisions.
  */
@@ -589,6 +702,7 @@ function computeCanonicalSlots(
   if (!positions || positions.length === 0) return null;
   const normals   = geom.normalsCompressed;
   const uvs       = geom.uvsCompressed;
+  const colors    = geom.colorsCompressed;
   const vertCount = (positions.length / 3) | 0;
 
   const canonical = new Int32Array(vertCount);
@@ -596,7 +710,7 @@ function computeCanonicalSlots(
   let unique = 0;
 
   for (let v = 0; v < vertCount; v++) {
-    const h = hashVertex(positions, normals, uvs, v);
+    const h = hashVertex(positions, normals, uvs, colors, v);
     const existing = slotByHash.get(h);
     if (existing === undefined) {
       slotByHash.set(h, v);
@@ -605,7 +719,7 @@ function computeCanonicalSlots(
       continue;
     }
     if (typeof existing === "number") {
-      if (vertsEqual(positions, normals, uvs, v, existing)) {
+      if (vertsEqual(positions, normals, uvs, colors, v, existing)) {
         canonical[v] = existing;
       } else {
         slotByHash.set(h, [existing, v]);
@@ -616,7 +730,7 @@ function computeCanonicalSlots(
     }
     let found = -1;
     for (let i = 0; i < existing.length; i++) {
-      if (vertsEqual(positions, normals, uvs, v, existing[i])) {
+      if (vertsEqual(positions, normals, uvs, colors, v, existing[i])) {
         found = existing[i];
         break;
       }
@@ -634,11 +748,12 @@ function computeCanonicalSlots(
 }
 
 
-/** 32-bit FNV-1a over a vertex's u16 attribute components. */
+/** 32-bit FNV-1a over a vertex's attribute components. */
 function hashVertex(
   positions: ArrayLike<number>,
   normals:   ArrayLike<number> | undefined,
   uvs:       ArrayLike<number> | undefined,
+  colors:    ArrayLike<number> | undefined,
   slot:      number,
 ): number {
   let h = 0x811c9dc5;
@@ -656,6 +771,13 @@ function hashVertex(
     h = Math.imul(h ^ uvs[u2],     0x01000193);
     h = Math.imul(h ^ uvs[u2 + 1], 0x01000193);
   }
+  if (colors) {
+    const c4 = slot * 4;
+    h = Math.imul(h ^ colors[c4],     0x01000193);
+    h = Math.imul(h ^ colors[c4 + 1], 0x01000193);
+    h = Math.imul(h ^ colors[c4 + 2], 0x01000193);
+    h = Math.imul(h ^ colors[c4 + 3], 0x01000193);
+  }
   return h >>> 0;
 }
 
@@ -665,6 +787,7 @@ function vertsEqual(
   positions: ArrayLike<number>,
   normals:   ArrayLike<number> | undefined,
   uvs:       ArrayLike<number> | undefined,
+  colors:    ArrayLike<number> | undefined,
   a:         number,
   b:         number,
 ): boolean {
@@ -681,6 +804,13 @@ function vertsEqual(
     const a2 = a * 2, b2 = b * 2;
     if (uvs[a2]     !== uvs[b2])     return false;
     if (uvs[a2 + 1] !== uvs[b2 + 1]) return false;
+  }
+  if (colors) {
+    const a4 = a * 4, b4 = b * 4;
+    if (colors[a4]     !== colors[b4])     return false;
+    if (colors[a4 + 1] !== colors[b4 + 1]) return false;
+    if (colors[a4 + 2] !== colors[b4 + 2]) return false;
+    if (colors[a4 + 3] !== colors[b4 + 3]) return false;
   }
   return true;
 }

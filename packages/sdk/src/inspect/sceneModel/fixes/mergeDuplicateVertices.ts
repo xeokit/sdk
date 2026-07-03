@@ -8,13 +8,13 @@ import type {Issue} from "../Issue";
 /**
  * Auto-fix for `GEOMETRY_DUPLICATE_VERTICES` — coalesces vertex
  * slots that are byte-identical across every populated attribute
- * (positions, normals, UVs) and remaps `indices` / `edgeIndices`
- * to point at the canonical slot.
+ * (positions, normals, UVs, colors) and remaps `indices` /
+ * `edgeIndices` to point at the canonical slot.
  *
  * Vertex splitting for genuine seams / crease edges produces
- * *different* normals or UVs on the same position, so those slots
- * fingerprint differently and stay separate. Only truly redundant
- * slots — same position, same normal, same UV — coalesce.
+ * *different* normals, UVs, or colors on the same position, so
+ * those slots fingerprint differently and stay separate. Only
+ * truly redundant slots coalesce.
  *
  * Compacted arrays are sized to the canonical-slot count, so this
  * fix also implicitly subsumes {@link compactUnusedVertices}
@@ -66,6 +66,7 @@ export const mergeDuplicateVertices: Fix = {
 
     const oldNormals = geom.normalsCompressed;
     const oldUVs     = geom.uvsCompressed;
+    const oldColors  = geom.colorsCompressed;
 
     // Canonical-slot map from the shared inspection index — built
     // once per SceneModel and reused across the geometryQuality
@@ -87,6 +88,7 @@ export const mergeDuplicateVertices: Fix = {
     const newPositions = sameType(oldPositions, unique * 3);
     const newNormals = oldNormals ? sameType(oldNormals, unique * 2) : undefined;
     const newUVs = oldUVs ? sameType(oldUVs, unique * 2) : undefined;
+    const newColors = oldColors ? sameType(oldColors, unique * 4) : undefined;
     let w = 0;
     for (let v = 0; v < vertCount; v++) {
       if (canonical[v] !== v) continue;     // not canonical
@@ -102,6 +104,12 @@ export const mergeDuplicateVertices: Fix = {
         newUVs[w * 2]     = oldUVs[v * 2];
         newUVs[w * 2 + 1] = oldUVs[v * 2 + 1];
       }
+      if (newColors && oldColors) {
+        newColors[w * 4]     = oldColors[v * 4];
+        newColors[w * 4 + 1] = oldColors[v * 4 + 1];
+        newColors[w * 4 + 2] = oldColors[v * 4 + 2];
+        newColors[w * 4 + 3] = oldColors[v * 4 + 3];
+      }
       w++;
     }
     // Resolve every old slot through canonical → newSlot.
@@ -111,6 +119,7 @@ export const mergeDuplicateVertices: Fix = {
     (geom as { positionsCompressed: typeof newPositions }).positionsCompressed = newPositions;
     if (newNormals) (geom as { normalsCompressed: typeof newNormals }).normalsCompressed = newNormals;
     if (newUVs)     (geom as { uvsCompressed: typeof newUVs }).uvsCompressed = newUVs;
+    if (newColors)  (geom as { colorsCompressed: typeof newColors }).colorsCompressed = newColors;
 
     const indices = geom.indices;
     if (indices) {

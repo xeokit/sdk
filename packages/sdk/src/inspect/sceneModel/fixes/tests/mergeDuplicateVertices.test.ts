@@ -1,5 +1,7 @@
 import {Scene} from "../../../../model/scene";
 import {TrianglesPrimitive} from "../../../../base/constants";
+import {splitSceneGeometry} from "../../internal/splitSceneGeometry";
+import {compactUnusedVertices} from "../compactUnusedVertices";
 import {mergeDuplicateVertices} from "../mergeDuplicateVertices";
 
 // SceneGeometry stores positions/normals as quantised uint16 but UVs as float
@@ -36,5 +38,113 @@ describe("mergeDuplicateVertices", () => {
     // Indices were remapped onto the compacted slots (v3 -> v0).
     const maxIndex = Math.max(...Array.from(geom.indices as ArrayLike<number>));
     expect(maxIndex).toBeLessThan((geom.positionsCompressed!.length / 3));
+  });
+
+  it("does not coalesce vertices that only differ by color", () => {
+    const m = new Scene().createModel({id: "m"}).value!;
+    m.createGeometry({
+      id: "g",
+      primitive: TrianglesPrimitive,
+      positions: [0, 0, 0,  1, 0, 0,  1, 1, 0,  0, 0, 0],
+      colors:    [1, 0, 0, 1,  0, 1, 0, 1,  0, 0, 1, 1,  1, 1, 0, 1],
+      indices:   [0, 1, 2,  3, 1, 2],
+    });
+    const geom = m.geometries["g"];
+    expect(geom.colorsCompressed!.length).toBe(16);
+
+    const res = mergeDuplicateVertices.apply({resourceId: "g"} as any, m as any);
+
+    expect(res.ok).toBe(true);
+    expect((res as any).value.fixed).toBe(false);
+    expect(geom.positionsCompressed!.length).toBe(12);
+    expect(geom.colorsCompressed!.length).toBe(16);
+  });
+
+  it("preserves compressed colors when coalescing true duplicate vertices", () => {
+    const m = new Scene().createModel({id: "m"}).value!;
+    m.createGeometry({
+      id: "g",
+      primitive: TrianglesPrimitive,
+      positions: [0, 0, 0,  1, 0, 0,  1, 1, 0,  0, 0, 0],
+      colors:    [1, 0, 0, 1,  0, 1, 0, 1,  0, 0, 1, 1,  1, 0, 0, 1],
+      indices:   [0, 1, 2,  0, 2, 3],
+    });
+    const geom = m.geometries["g"];
+
+    const res = mergeDuplicateVertices.apply({resourceId: "g"} as any, m as any);
+
+    expect(res.ok).toBe(true);
+    expect((res as any).value.fixed).toBe(true);
+    expect(geom.positionsCompressed!.length).toBe(9);
+    expect(Array.from(geom.colorsCompressed!)).toEqual([
+      255, 0, 0, 255,
+      0, 255, 0, 255,
+      0, 0, 255, 255,
+    ]);
+  });
+});
+
+describe("compactUnusedVertices", () => {
+
+  it("preserves compressed colors when dropping unused vertex slots", () => {
+    const m = new Scene().createModel({id: "m"}).value!;
+    m.createGeometry({
+      id: "g",
+      primitive: TrianglesPrimitive,
+      positions: [0, 0, 0,  1, 0, 0,  1, 1, 0,  2, 2, 0],
+      colors:    [1, 0, 0, 1,  0, 1, 0, 1,  0, 0, 1, 1,  1, 1, 0, 1],
+      indices:   [0, 1, 2],
+    });
+    const geom = m.geometries["g"];
+
+    const res = compactUnusedVertices.apply({resourceId: "g"} as any, m as any);
+
+    expect(res.ok).toBe(true);
+    expect((res as any).value.fixed).toBe(true);
+    expect(geom.positionsCompressed!.length).toBe(9);
+    expect(Array.from(geom.colorsCompressed!)).toEqual([
+      255, 0, 0, 255,
+      0, 255, 0, 255,
+      0, 0, 255, 255,
+    ]);
+  });
+});
+
+describe("splitSceneGeometry", () => {
+
+  it("preserves compressed colors on both split outputs", () => {
+    const m = new Scene().createModel({id: "m"}).value!;
+    m.createGeometry({
+      id: "g",
+      primitive: TrianglesPrimitive,
+      positions: [
+        0, 0, 0,  1, 0, 0,  1, 1, 0,
+        2, 0, 0,  3, 0, 0,  3, 1, 0,
+      ],
+      colors: [
+        1, 0, 0, 1,  0, 1, 0, 1,  0, 0, 1, 1,
+        1, 1, 0, 1,  1, 0, 1, 1,  0, 1, 1, 1,
+      ],
+      indices: [0, 1, 2,  3, 4, 5],
+    });
+
+    const res = splitSceneGeometry({
+      sceneGeometry: m.geometries["g"],
+      geometryIdA: "g_a",
+      geometryIdB: "g_b",
+    });
+
+    expect(res.ok).toBe(true);
+    const {geometryA, geometryB} = (res as any).value;
+    expect(Array.from(geometryA.colorsCompressed!)).toEqual([
+      255, 0, 0, 255,
+      0, 255, 0, 255,
+      0, 0, 255, 255,
+    ]);
+    expect(Array.from(geometryB.colorsCompressed!)).toEqual([
+      255, 255, 0, 255,
+      255, 0, 255, 255,
+      0, 255, 255, 255,
+    ]);
   });
 });

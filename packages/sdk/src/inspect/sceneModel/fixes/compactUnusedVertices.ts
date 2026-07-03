@@ -7,9 +7,10 @@ import type {Issue} from "../Issue";
 
 /**
  * Auto-fix for `GEOMETRY_UNUSED_VERTICES` — compacts
- * `positionsCompressed` / `normalsCompressed` / `uvsCompressed` to
- * keep only vertex slots referenced by `indices` or `edgeIndices`,
- * and remaps both index arrays through the old-to-new slot map.
+ * `positionsCompressed` / `normalsCompressed` / `uvsCompressed` /
+ * `colorsCompressed` to keep only vertex slots referenced by
+ * `indices` or `edgeIndices`, and remaps both index arrays through
+ * the old-to-new slot map.
  *
  * The geometry's AABB stays put — positions are still quantised
  * against it, and dropping unused outliers can only shrink the
@@ -81,11 +82,13 @@ export const compactUnusedVertices: Fix = {
     const oldPositions = geom.positionsCompressed;
     const oldNormals = geom.normalsCompressed;
     const oldUVs = geom.uvsCompressed;
+    const oldColors = geom.colorsCompressed;
     const sameType = (src: {constructor: any}, length: number): any =>
       new src.constructor(length);
     const newPositions = sameType(oldPositions, kept * 3);
     const newNormals = oldNormals ? sameType(oldNormals, kept * 2) : undefined;
     const newUVs = oldUVs ? sameType(oldUVs, kept * 2) : undefined;
+    const newColors = oldColors ? sameType(oldColors, kept * 4) : undefined;
     let w = 0;
     for (let v = 0; v < vertCount; v++) {
       if (!used[v]) continue;
@@ -101,12 +104,19 @@ export const compactUnusedVertices: Fix = {
         newUVs[w * 2]     = oldUVs[v * 2];
         newUVs[w * 2 + 1] = oldUVs[v * 2 + 1];
       }
+      if (newColors && oldColors) {
+        newColors[w * 4]     = oldColors[v * 4];
+        newColors[w * 4 + 1] = oldColors[v * 4 + 1];
+        newColors[w * 4 + 2] = oldColors[v * 4 + 2];
+        newColors[w * 4 + 3] = oldColors[v * 4 + 3];
+      }
       w++;
     }
 
     (geom as { positionsCompressed: typeof newPositions }).positionsCompressed = newPositions;
     if (newNormals) (geom as { normalsCompressed: typeof newNormals }).normalsCompressed = newNormals;
     if (newUVs)     (geom as { uvsCompressed: typeof newUVs }).uvsCompressed = newUVs;
+    if (newColors)  (geom as { colorsCompressed: typeof newColors }).colorsCompressed = newColors;
 
     if (indices) {
       const out = new Uint32Array(indices.length);

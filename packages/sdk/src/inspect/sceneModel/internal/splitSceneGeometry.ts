@@ -12,9 +12,9 @@ import {SDKErrorType, type SDKResult} from "../../../base/core";
  *
  * Per side: the function walks the kept triangles, collects the
  * vertex indices they reference, compacts the vertex data
- * (positions / normals / UVs) to that subset, remaps indices, and
- * lets {@link SceneModel.createGeometry} re-quantise positions and
- * re-encode normals against a fresh tight AABB.
+ * (positions / normals / UVs / colors) to that subset, remaps
+ * indices, and lets {@link SceneModel.createGeometry} re-quantise
+ * positions and re-encode normals against a fresh tight AABB.
  *
  * The source geometry is left in place — the caller decides whether
  * to destroy it after linking meshes against the two new
@@ -70,12 +70,13 @@ export interface SplitSceneGeometryResult {
  * a per-triangle predicate.
  *
  * Both outputs share the same `primitive` as the source. UVs and
- * normals follow if the source carries them — UVs are sliced to the
- * compacted vertex set as-is; normals are oct-decoded, sliced, and
- * passed back as floats so the SDK re-encodes against the fresh
- * geometry. Edge indices are not propagated (they index the source's
- * vertex range and have no obvious mapping under a partition that
- * may break edges; regenerate edges on the outputs if needed).
+ * normals and colors follow if the source carries them — UVs and
+ * colors are sliced to the compacted vertex set as-is; normals are
+ * oct-decoded, sliced, and passed back as floats so the SDK
+ * re-encodes against the fresh geometry. Edge indices are not
+ * propagated (they index the source's vertex range and have no
+ * obvious mapping under a partition that may break edges; regenerate
+ * edges on the outputs if needed).
  *
  * Errors (`ok: false`) when the source has no indices / positions /
  * AABB / SceneModel, or when the predicate routes all triangles to
@@ -126,12 +127,13 @@ export function splitSceneGeometry(
   const positions = decompressPositions(positionsCompressed, aabb);
   const normals = src.normalsCompressed ? octDecodeU16(src.normalsCompressed) : null;
   const uvs = src.uvsCompressed ?? null;
+  const colors = src.colorsCompressed ?? null;
 
-  const aRes = buildSide(sceneModel, src.primitive, params.geometryIdA, trisA, indices, positions, normals, uvs);
+  const aRes = buildSide(sceneModel, src.primitive, params.geometryIdA, trisA, indices, positions, normals, uvs, colors);
   if (aRes.ok === false) {
     return aRes;
   }
-  const bRes = buildSide(sceneModel, src.primitive, params.geometryIdB, trisB, indices, positions, normals, uvs);
+  const bRes = buildSide(sceneModel, src.primitive, params.geometryIdB, trisB, indices, positions, normals, uvs, colors);
   if (bRes.ok === false) {
     return bRes;
   }
@@ -161,11 +163,13 @@ function buildSide(
   positions: Float32Array,
   normals: Float32Array | null,
   uvs: ArrayLike<number> | null,
+  colors: ArrayLike<number> | null,
 ): SDKResult<SceneGeometry> {
   const remap = new Map<number, number>();
   const newPositions: number[] = [];
   const newNormals: number[] | null = normals ? [] : null;
   const newUvs: number[] | null = uvs ? [] : null;
+  const newColors: number[] | null = colors ? [] : null;
   const newIndices: number[] = [];
 
   for (const t of tris) {
@@ -193,6 +197,14 @@ function buildSide(
             uvs[oldIdx * 2 + 1],
           );
         }
+        if (newColors && colors) {
+          newColors.push(
+            colors[oldIdx * 4],
+            colors[oldIdx * 4 + 1],
+            colors[oldIdx * 4 + 2],
+            colors[oldIdx * 4 + 3],
+          );
+        }
       }
       newIndices.push(newIdx);
     }
@@ -204,6 +216,7 @@ function buildSide(
     positions: new Float32Array(newPositions),
     normals:   newNormals ? new Float32Array(newNormals) : undefined,
     uvs:       newUvs ? new Float32Array(newUvs) : undefined,
+    colorsCompressed: newColors ? new Uint16Array(newColors) : undefined,
     indices:   newIndices,
   });
 }

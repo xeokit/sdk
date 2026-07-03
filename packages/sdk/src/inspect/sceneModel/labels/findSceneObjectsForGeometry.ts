@@ -1,10 +1,10 @@
 import type {SceneModel} from "../../../model/scene";
+import {getInspectionIndex} from "../internal/getInspectionIndex";
 
 
 /**
- * Walk a {@link model!scene.SceneModel | SceneModel}'s meshes, collect the ids of every
- * non-destroyed SceneObject that owns at least one mesh referencing
- * `geometryId`, and return them de-duplicated.
+ * Return the ids of every non-destroyed SceneObject that owns at least
+ * one mesh referencing `geometryId`, de-duplicated.
  *
  * This is the lookup the geometry-tied inspections need to populate
  * {@link Issue.highlight}: a problem is reported on a SceneGeometry,
@@ -21,7 +21,14 @@ import type {SceneModel} from "../../../model/scene";
  * destroyed — caller decides whether to omit `highlight` entirely
  * in that case.
  *
- * @param sceneModel SceneModel to walk.
+ * Backed by the shared {@link SceneModelInspectionIndex}'s
+ * `geometryObjects` reverse table: the first lookup builds the whole
+ * geometry→objects map with one mesh walk, every later lookup is O(1).
+ * This collapses the geometry-tied inspections from O(geometries ×
+ * meshes) to O(geometries + meshes) when they populate
+ * {@link Issue.highlight}.
+ *
+ * @param sceneModel SceneModel to look up in.
  * @param geometryId Geometry id to look up.
  * @returns De-duplicated SceneObject ids — empty when none qualify.
  */
@@ -29,17 +36,8 @@ export function findSceneObjectsForGeometry(
   sceneModel: SceneModel,
   geometryId: string,
 ): string[] {
-  const seen = new Set<string>();
-  const out: string[] = [];
-  for (const meshId in sceneModel.meshes) {
-    const mesh = sceneModel.meshes[meshId];
-    if (mesh.destroyed) continue;
-    if (mesh.geometryId !== geometryId) continue;
-    const obj = mesh.object;
-    if (!obj || obj.destroyed) continue;
-    if (seen.has(obj.id)) continue;
-    seen.add(obj.id);
-    out.push(obj.id);
-  }
-  return out;
+  // Copy so callers own the array (they stash it in Issue.highlight):
+  // the index's row is shared/cached and must not be mutated. O(owners),
+  // which is small — the former O(meshes) scan is gone.
+  return getInspectionIndex(sceneModel).geometryObjects(geometryId).slice();
 }

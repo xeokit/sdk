@@ -6,6 +6,7 @@ import type {Mat4} from "../../../base/math/matrix";
 import {createMat4Float64, mulMat4} from "../../../base/math/matrix";
 import type {Fix, FixApplyResult} from "../Fix";
 import type {Issue} from "../Issue";
+import {getInspectionIndex} from "../internal/getInspectionIndex";
 
 
 // Acceptance threshold for the fit residual, expressed as a
@@ -172,18 +173,14 @@ export const mergeSimilarGeometries: Fix = {
     }
 
     // Destroy similar geometries with no remaining references.
-    // Gated against the live mesh table — if any mesh still points
-    // at a similar (a fit failed mid-cluster, say) we leave that
-    // geometry in place rather than destroy a bound resource.
-    const stillReferenced = new Set<string>();
-    for (const meshId in sceneModel.meshes) {
-      const mesh = sceneModel.meshes[meshId];
-      if (mesh.destroyed) continue;
-      stillReferenced.add(mesh.geometryId);
-    }
+    // Gated against the mutation-aware reverse index — if any mesh still
+    // points at a similar (a fit failed mid-cluster, say) we leave that
+    // geometry in place rather than destroy a bound resource. O(1) per
+    // similar instead of re-scanning every mesh here.
+    const index = getInspectionIndex(sceneModel);
     const destroyed: string[] = [];
     for (const id of acceptedSimilars) {
-      if (stillReferenced.has(id)) continue;
+      if (index.geometryMeshes(id).length > 0) continue;
       const g = sceneModel.geometries[id];
       if (!g || g.destroyed) continue;
       const r = g.destroy();
@@ -222,9 +219,14 @@ function collectReferencingMeshSnapshots(
   geometryId: string,
 ): Array<{sceneObjectId: string; snap: MeshSnap}> {
   const out: Array<{sceneObjectId: string; snap: MeshSnap}> = [];
-  for (const meshId in sceneModel.meshes) {
+  // Mutation-aware reverse index: O(1) per geometry instead of an
+  // all-meshes scan, and it stays correct as this fix destroys/creates
+  // meshes (the index tracks those events). geometryMeshes returns a
+  // snapshot array, safe to hold while the caller then mutates.
+  const index = getInspectionIndex(sceneModel);
+  for (const meshId of index.geometryMeshes(geometryId)) {
     const mesh = sceneModel.meshes[meshId];
-    if (mesh.destroyed) continue;
+    if (!mesh || mesh.destroyed) continue;
     if (mesh.geometryId !== geometryId) continue;
     const obj = mesh.object;
     if (!obj || obj.destroyed) continue;

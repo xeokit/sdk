@@ -95,10 +95,11 @@ export interface InspectSceneModelParams {
   /**
    * When `true`, emit one `GEOMETRY_ARRAY_OVERSIZED` warning per
    * SceneGeometry whose raw `positionsCompressed`, `indices`,
-   * `normalsCompressed`, or `uvsCompressed` array length exceeds
-   * the matching {@link maxPositionsLength} /
+   * `normalsCompressed`, `uvsCompressed`, or `colorsCompressed`
+   * array length exceeds the matching {@link maxPositionsLength} /
    * {@link maxIndicesLength} / {@link maxNormalsLength} /
-   * {@link maxUvsLength} threshold. Catches the renderer's
+   * {@link maxUvsLength} / {@link maxColorsLength} threshold.
+   * Catches the renderer's
    * `GPUMemoryBatch.addMesh` "Unable to allocate … portion …
    * limit is N" failure mode *before* the GPU upload.
    *
@@ -139,6 +140,14 @@ export interface InspectSceneModelParams {
    * matching the renderer's `maxBatchVertices * 2` portion size.
    */
   maxUvsLength?: number;
+
+  /**
+   * `colorsCompressed.length` threshold for
+   * `GEOMETRY_ARRAY_OVERSIZED`. Default `400_000` (= 100k vertices
+   * × 4 RGBA components), matching the renderer's
+   * `maxBatchVertices * 4` portion size.
+   */
+  maxColorsLength?: number;
 
   /**
    * When `true`, emit one `GEOMETRY_OVER_EXTENT` warning per

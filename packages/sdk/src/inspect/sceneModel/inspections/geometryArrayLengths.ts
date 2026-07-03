@@ -9,8 +9,9 @@ import {resolveConfig} from "../Config";
 /**
  * **Opt-in** ({@link InspectSceneModelParams.checkGeometryArrayLengths}).
  * Emits one `GEOMETRY_ARRAY_OVERSIZED` warning per geometry whose
- * raw `positionsCompressed`, `indices`, `normalsCompressed`, or
- * `uvsCompressed` array length exceeds the matching configured
+ * raw `positionsCompressed`, `indices`, `normalsCompressed`,
+ * `uvsCompressed`, or `colorsCompressed` array length exceeds the
+ * matching configured
  * threshold.
  *
  * Distinct from {@link denseGeometries}, which measures vertex /
@@ -50,7 +51,7 @@ export const geometryArrayLengths: Inspection = {
 
   descriptions: {
     GEOMETRY_ARRAY_OVERSIZED:
-      "One of the geometry's typed arrays (positions, indices, normals, or UVs) is longer than the configured per-geometry threshold. The WebGLRenderer's GPUMemoryBatch allocates each array into a fixed-size portion of a shared batch texture, and rejects geometries whose array length exceeds that portion. Splitting the geometry (via splitOversizedGeometry) or raising the batch capacity avoids the upload-time MemoryAllocationFailed error.",
+      "One of the geometry's typed arrays (positions, indices, normals, UVs, or colors) is longer than the configured per-geometry threshold. The WebGLRenderer's GPUMemoryBatch allocates each array into a fixed-size portion of a shared batch texture, and rejects geometries whose array length exceeds that portion. Splitting the geometry (via splitOversizedGeometry) or raising the batch capacity avoids the upload-time MemoryAllocationFailed error.",
   },
 
   optIn: true,
@@ -62,7 +63,7 @@ export const geometryArrayLengths: Inspection = {
       key: "checkGeometryArrayLengths",
       label: "Check geometry array lengths",
       description:
-        "Flag geometries whose raw positions / indices / normals / UVs " +
+        "Flag geometries whose raw positions / indices / normals / UVs / colors " +
         "array length exceeds the per-geometry batch-portion threshold " +
         "the WebGLRenderer enforces at GPU-upload time.",
       default: false,
@@ -119,6 +120,19 @@ export const geometryArrayLengths: Inspection = {
         step: 1_000,
         unit: "components",
       },
+      {
+        kind: "number",
+        key: "maxColorsLength",
+        label: "Max colorsCompressed length",
+        description:
+          "colorsCompressed.length threshold (= RGBA u8 components, " +
+          "4 per vertex). Renderer cap on a minimum-spec config: " +
+          "maxBatchVertices * 4 = 400_000.",
+        default: 400_000,
+        min: 0,
+        step: 1_000,
+        unit: "components",
+      },
     ],
   },
 
@@ -130,6 +144,7 @@ export const geometryArrayLengths: Inspection = {
     const maxIndicesLength   = cfg.maxIndicesLength   as number;
     const maxNormalsLength   = cfg.maxNormalsLength   as number;
     const maxUvsLength       = cfg.maxUvsLength       as number;
+    const maxColorsLength    = cfg.maxColorsLength    as number;
 
     const issues: Issue[] = [];
     for (const id in sceneModel.geometries) {
@@ -140,24 +155,28 @@ export const geometryArrayLengths: Inspection = {
       const indicesLength   = geom.indices?.length             ?? 0;
       const normalsLength   = geom.normalsCompressed?.length   ?? 0;
       const uvsLength       = geom.uvsCompressed?.length       ?? 0;
+      const colorsLength    = geom.colorsCompressed?.length    ?? 0;
 
       const overPositions = positionsLength > maxPositionsLength;
       const overIndices   = indicesLength   > maxIndicesLength;
       const overNormals   = normalsLength   > maxNormalsLength;
       const overUvs       = uvsLength       > maxUvsLength;
-      if (!overPositions && !overIndices && !overNormals && !overUvs) continue;
+      const overColors    = colorsLength    > maxColorsLength;
+      if (!overPositions && !overIndices && !overNormals && !overUvs && !overColors) continue;
 
       const limits: string[] = [];
       if (overPositions) limits.push(`positions ${positionsLength} > ${maxPositionsLength}`);
       if (overIndices)   limits.push(`indices ${indicesLength} > ${maxIndicesLength}`);
       if (overNormals)   limits.push(`normals ${normalsLength} > ${maxNormalsLength}`);
       if (overUvs)       limits.push(`uvs ${uvsLength} > ${maxUvsLength}`);
+      if (overColors)    limits.push(`colors ${colorsLength} > ${maxColorsLength}`);
 
       const summaryParts: string[] = [];
       if (overPositions) summaryParts.push(`${positionsLength.toLocaleString()} pos`);
       if (overIndices)   summaryParts.push(`${indicesLength.toLocaleString()} idx`);
       if (overNormals)   summaryParts.push(`${normalsLength.toLocaleString()} nrm`);
       if (overUvs)       summaryParts.push(`${uvsLength.toLocaleString()} uv`);
+      if (overColors)    summaryParts.push(`${colorsLength.toLocaleString()} col`);
 
       const owners = findSceneObjectsForGeometry(sceneModel, id);
       issues.push({
@@ -167,8 +186,8 @@ export const geometryArrayLengths: Inspection = {
         summary:  summaryParts.join(" · "),
         resourceId: id,
         context: {
-          maxPositionsLength, maxIndicesLength, maxNormalsLength, maxUvsLength,
-          positionsLength,    indicesLength,    normalsLength,    uvsLength,
+          maxPositionsLength, maxIndicesLength, maxNormalsLength, maxUvsLength, maxColorsLength,
+          positionsLength,    indicesLength,    normalsLength,    uvsLength,    colorsLength,
         },
         ...(owners.length > 0 ? {highlight: {objectIds: owners}} : {}),
       });

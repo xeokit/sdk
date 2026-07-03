@@ -36,6 +36,7 @@ import {LoadingSpinner} from "./LoadingSpinner";
 import {ViewManager, type ViewRecord} from "./viewManager";
 import {PickingService} from "./picking";
 import type {TransformControlsMode, TransformControlsTarget} from "../viewing/transformControls";
+import {AdaptiveQuality} from "../viewing/adaptiveQuality";
 import type {Vec3} from "../base/math/vector";
 import {encodeRadianceHDR, paintSunSkyHDR} from "../model/procgen/paintEnvironments";
 import {getScenePhysics, type ScenePhysics} from "../simulation/physics";
@@ -77,7 +78,7 @@ export interface StudioConfig {
    * Overrides for the WebGLRenderer's GPU memory budget (merged over Studio's
    * defaults). Raise `maxBatchVertices` / `maxBatchIndices` / `maxBatchPrims`
    * when loading models or 3D Tiles whose individual meshes exceed the default
-   * per-batch capacity (the default `maxBatchVertices` is 70000).
+   * per-batch capacity (the default `maxBatchVertices` is 500000).
    */
   memoryConfigs?: Partial<MemoryConfigs>;
 
@@ -359,13 +360,13 @@ export class Studio {
           debugging: this.debug,
           memoryConfigs: {
             tileSize: 200,
-            maxTiles: 2000,
+            maxTiles: 4096,
             maxBatches: 1000,
-            maxBatchVertices: 70000,
-            maxBatchIndices: 90000,
+            maxBatchVertices: 500000,
+            maxBatchIndices: 800000,
             maxBatchGeometries: 60000,
-            maxBatchMeshes: 10000,
-            maxBatchPrims: 70000,
+            maxBatchMeshes: 20000,
+            maxBatchPrims: 400000,
             ...(merged.memoryConfigs || {}),
             maxViews: this.viewManager.maxViews,
           }
@@ -734,6 +735,12 @@ export class Studio {
     if (hdrResult.ok === false) {
       this.reportWarning(`[Studio] HDR sky setup failed: ${hdrResult.error}`);
     }
+
+    // Adaptive quality on by default for every Studio View: drops to
+    // NavigationRender while the camera moves, back to RealisticRender at
+    // rest. Self-destructs when the View is destroyed. The Adaptive Quality
+    // panel toggles this same per-View adapter.
+    new AdaptiveQuality({view});
   }
 
   /**

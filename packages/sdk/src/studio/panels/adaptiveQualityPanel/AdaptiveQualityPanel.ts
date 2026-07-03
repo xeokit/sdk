@@ -357,7 +357,7 @@ interface ViewRow {
   modeEl: HTMLElement;
 }
 
-const DEFAULT_REST_MS = 150;
+const DEFAULT_REST_MS = 500;
 
 export class AdaptiveQualityPanel extends FloatingPanelBase {
 
@@ -394,8 +394,6 @@ export class AdaptiveQualityPanel extends FloatingPanelBase {
   readonly renderer: WebGLRenderer;
 
   private _restMs = DEFAULT_REST_MS;
-
-  private readonly _adapters = new Map<string, AdaptiveQuality>();
 
   // DOM refs.
   private _bodyEl!: HTMLElement;
@@ -437,12 +435,8 @@ export class AdaptiveQualityPanel extends FloatingPanelBase {
     const ve = this.viewer.events;
     this._viewLifecycleUnsubs.push(
       ve.onViewCreated.subscribe(() => this._renderViews()),
-      ve.onViewDestroyed.subscribe((_viewer, view) => {
-        // AdaptiveQuality also self-destroys on view destroy; just drop our
-        // map entry and rebuild the row list.
-        this._adapters.delete(view.id);
-        this._renderViews();
-      }),
+      // AdaptiveQuality self-destroys on view destroy; just rebuild the rows.
+      ve.onViewDestroyed.subscribe(() => this._renderViews()),
     );
 
     if (params.visible === false) this.hide(); else this.show();
@@ -481,10 +475,8 @@ export class AdaptiveQualityPanel extends FloatingPanelBase {
       try { u(); } catch { /* ignore */ }
     }
     this._viewLifecycleUnsubs.length = 0;
-    for (const aq of this._adapters.values()) {
-      try { aq.destroy(); } catch { /* ignore */ }
-    }
-    this._adapters.clear();
+    // The panel does not own the adapters — they live per-View (Studio
+    // enables one by default). Closing the panel leaves them running.
     if (AdaptiveQualityPanel._instances.get(this.viewer) === this) {
       AdaptiveQualityPanel._instances.delete(this.viewer);
     }
@@ -612,10 +604,10 @@ export class AdaptiveQualityPanel extends FloatingPanelBase {
    * one (mirrors how `CullingPanel` handles its sliders).
    */
   private _applyConfigToActiveAdapters(): void {
-    for (const [viewId, aq] of this._adapters) {
-      const view = aq.view;
-      try { aq.destroy(); } catch { /* ignore */ }
-      this._adapters.set(viewId, new AdaptiveQuality({view, restMs: this._restMs}));
+    for (const view of this.viewer.viewList) {
+      if (!AdaptiveQuality.getFor(view)) continue;
+      AdaptiveQuality.getFor(view)!.destroy();
+      new AdaptiveQuality({view, restMs: this._restMs});
     }
   }
 
@@ -624,14 +616,6 @@ export class AdaptiveQualityPanel extends FloatingPanelBase {
 
   private _renderViews(): void {
     if (this._destroyed) return;
-    // Prune adapters for Views that no longer exist.
-    const liveIds = new Set(this.viewer.viewList.map((v) => v.id));
-    for (const id of [...this._adapters.keys()]) {
-      if (!liveIds.has(id)) {
-        try { this._adapters.get(id)!.destroy(); } catch { /* ignore */ }
-        this._adapters.delete(id);
-      }
-    }
 
     this._viewsEl.replaceChildren();
     this._viewRows.clear();
@@ -655,7 +639,7 @@ export class AdaptiveQualityPanel extends FloatingPanelBase {
       title: "Enable adaptive quality for this View.",
     });
     const toggle = el("input", undefined, {type: "checkbox"}) as HTMLInputElement;
-    toggle.checked = this._adapters.has(view.id);
+    toggle.checked = !!AdaptiveQuality.getFor(view);
     toggle.addEventListener("change", () => this._setViewAdaptive(view, toggle.checked));
     toggleLabel.appendChild(toggle);
 
@@ -675,15 +659,11 @@ export class AdaptiveQualityPanel extends FloatingPanelBase {
   }
 
   private _setViewAdaptive(view: View, enabled: boolean): void {
+    const existing = AdaptiveQuality.getFor(view);
     if (enabled) {
-      if (this._adapters.has(view.id)) return;
-      this._adapters.set(view.id, new AdaptiveQuality({view, restMs: this._restMs}));
+      if (!existing) new AdaptiveQuality({view, restMs: this._restMs});
     } else {
-      const aq = this._adapters.get(view.id);
-      if (aq) {
-        try { aq.destroy(); } catch { /* ignore */ }
-        this._adapters.delete(view.id);
-      }
+      existing?.destroy();
     }
     this._renderStats();
   }

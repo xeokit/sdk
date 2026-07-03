@@ -9,12 +9,17 @@ import {type WebGLRendererEvents} from "./WebGLRendererEvents";
 import {type MemoryConfigs} from "./MemoryConfigs";
 import {type MemoryUsage} from "./MemoryUsage";
 import {type DataTextures} from "./internal/gpuMemoryManager";
-import {SceneGeometry, SceneMesh} from "../../model/scene";
+import {SceneGeometry, SceneMesh, type SceneModel, type SceneObject} from "../../model/scene";
 import {ShaderInspector, RenderInspector, type MemoryInspector} from "./internal/inspectors";
 import {type MeshManagerStepStats} from "./internal/meshManager";
 import {type PickParams, type PickResult} from "../viewer";
 import {createDefaultMemoryConfigs} from "./defaultMemoryConfigs";
 
+interface DeferredSceneModelRegistrations {
+  geometries: Set<SceneGeometry>;
+  meshes: Set<SceneMesh>;
+  objects: Set<SceneObject>;
+}
 
 /**
  * WebGL renderer backing a {@link viewing!viewer.Viewer | Viewer}.
@@ -56,6 +61,14 @@ export class WebGLRenderer {
   // renders are suspended so a load doesn't repaint + re-upload the partial
   // model on every mid-load frame; one render runs when it returns to 0.
   private _renderSuspendCount = 0;
+
+  /**
+   * Scene component creation events deferred while a {@link SceneModel} is
+   * building. Flushed in geometry -> mesh -> object order when that model
+   * finishes so loaders do not pay renderer registration work on every
+   * intermediate create call.
+   */
+  private _deferredSceneModelRegistrations: Map<SceneModel, DeferredSceneModelRegistrations> = new Map();
 
   /**
    * Enables or disables logging of errors to the console.
@@ -475,6 +488,85 @@ export class WebGLRenderer {
     return result;
   }
 
+  private _getDeferredSceneModelRegistrations(sceneModel: SceneModel): DeferredSceneModelRegistrations {
+    let registrations = this._deferredSceneModelRegistrations.get(sceneModel);
+    if (!registrations) {
+      registrations = {
+        geometries: new Set(),
+        meshes: new Set(),
+        objects: new Set(),
+      };
+      this._deferredSceneModelRegistrations.set(sceneModel, registrations);
+    }
+    return registrations;
+  }
+
+  private _deferSceneGeometryCreated(sceneGeometry: SceneGeometry): boolean {
+    const sceneModel = sceneGeometry.model;
+    if (!sceneModel.building) {
+      return false;
+    }
+    this._getDeferredSceneModelRegistrations(sceneModel).geometries.add(sceneGeometry);
+    return true;
+  }
+
+  private _deferSceneMeshCreated(sceneMesh: SceneMesh): boolean {
+    const sceneModel = sceneMesh.model;
+    if (!sceneModel.building) {
+      return false;
+    }
+    this._getDeferredSceneModelRegistrations(sceneModel).meshes.add(sceneMesh);
+    return true;
+  }
+
+  private _deferSceneObjectCreated(sceneObject: SceneObject): boolean {
+    const sceneModel = sceneObject.model;
+    if (!sceneModel.building) {
+      return false;
+    }
+    this._getDeferredSceneModelRegistrations(sceneModel).objects.add(sceneObject);
+    return true;
+  }
+
+  private _discardDeferredSceneGeometry(sceneGeometry: SceneGeometry): boolean {
+    return this._deferredSceneModelRegistrations.get(sceneGeometry.model)?.geometries.delete(sceneGeometry) === true;
+  }
+
+  private _discardDeferredSceneMesh(sceneMesh: SceneMesh): boolean {
+    return this._deferredSceneModelRegistrations.get(sceneMesh.model)?.meshes.delete(sceneMesh) === true;
+  }
+
+  private _discardDeferredSceneObject(sceneObject: SceneObject): boolean {
+    return this._deferredSceneModelRegistrations.get(sceneObject.model)?.objects.delete(sceneObject) === true;
+  }
+
+  private _flushDeferredSceneModelRegistrations(sceneModel: SceneModel, viewManager: ViewManager): void {
+    const registrations = this._deferredSceneModelRegistrations.get(sceneModel);
+    if (!registrations) {
+      return;
+    }
+
+    this._deferredSceneModelRegistrations.delete(sceneModel);
+
+    for (const sceneGeometry of registrations.geometries) {
+      if (!sceneGeometry.destroyed && sceneModel.geometries[sceneGeometry.id] === sceneGeometry) {
+        this.logError(viewManager.sceneGeometryCreated(sceneGeometry));
+      }
+    }
+
+    for (const sceneMesh of registrations.meshes) {
+      if (!sceneMesh.destroyed && sceneModel.meshes[sceneMesh.id] === sceneMesh) {
+        this.logError(viewManager.sceneMeshCreated(sceneMesh));
+      }
+    }
+
+    for (const sceneObject of registrations.objects) {
+      if (!sceneObject.destroyed && sceneModel.objects[sceneObject.id] === sceneObject) {
+        this.logError(viewManager.sceneObjectCreated(sceneObject));
+      }
+    }
+  }
+
   /**
    * Attaches a {@link viewing!viewer.Viewer | Viewer} to this renderer.
    *
@@ -578,14 +670,19 @@ export class WebGLRenderer {
       // Log errors from these calls
 
       sceneEvents.onSceneModelCreated.subscribe((_, sceneModel) => this.logError(viewManager.sceneModelCreated(sceneModel))),
-      sceneEvents.onSceneModelDestroyed.subscribe((_, sceneModel) => this.logError(viewManager.sceneModelDestroyed(sceneModel))),
+      sceneEvents.onSceneModelDestroyed.subscribe((_, sceneModel) => {
+        this._deferredSceneModelRegistrations.delete(sceneModel);
+        this.logError(viewManager.sceneModelDestroyed(sceneModel));
+      }),
 
       // A SceneModel is being populated by a loader — suspend per-view renders
       // until every concurrently-building model finishes, then render once.
-      sceneEvents.onSceneModelBuildStarted.subscribe(() => {
+      sceneEvents.onSceneModelBuildStarted.subscribe((_, sceneModel) => {
         this._renderSuspendCount++;
+        this._getDeferredSceneModelRegistrations(sceneModel);
       }),
-      sceneEvents.onSceneModelBuildFinished.subscribe(() => {
+      sceneEvents.onSceneModelBuildFinished.subscribe((_, sceneModel) => {
+        this._flushDeferredSceneModelRegistrations(sceneModel, viewManager);
         if (this._renderSuspendCount > 0) {
           this._renderSuspendCount--;
         }
@@ -599,14 +696,38 @@ export class WebGLRenderer {
         }
       }),
 
-      sceneEvents.onSceneGeometryCreated.subscribe((_, sceneGeometry) => this.logError(viewManager.sceneGeometryCreated(sceneGeometry))),
-      sceneEvents.onSceneGeometryDestroyed.subscribe((_, sceneGeometry) => this.logError(viewManager.sceneGeometryDestroyed(sceneGeometry))),
+      sceneEvents.onSceneGeometryCreated.subscribe((_, sceneGeometry) => {
+        if (!this._deferSceneGeometryCreated(sceneGeometry)) {
+          this.logError(viewManager.sceneGeometryCreated(sceneGeometry));
+        }
+      }),
+      sceneEvents.onSceneGeometryDestroyed.subscribe((_, sceneGeometry) => {
+        if (!this._discardDeferredSceneGeometry(sceneGeometry)) {
+          this.logError(viewManager.sceneGeometryDestroyed(sceneGeometry));
+        }
+      }),
 
-      sceneEvents.onSceneMeshCreated.subscribe((_, sceneMesh) => this.logError(viewManager.sceneMeshCreated(sceneMesh))),
-      sceneEvents.onSceneMeshDestroyed.subscribe((_, sceneMesh) => this.logError(viewManager.sceneMeshDestroyed(sceneMesh))),
+      sceneEvents.onSceneMeshCreated.subscribe((_, sceneMesh) => {
+        if (!this._deferSceneMeshCreated(sceneMesh)) {
+          this.logError(viewManager.sceneMeshCreated(sceneMesh));
+        }
+      }),
+      sceneEvents.onSceneMeshDestroyed.subscribe((_, sceneMesh) => {
+        if (!this._discardDeferredSceneMesh(sceneMesh)) {
+          this.logError(viewManager.sceneMeshDestroyed(sceneMesh));
+        }
+      }),
 
-      sceneEvents.onSceneObjectCreated.subscribe((_, sceneObject) => this.logError(viewManager.sceneObjectCreated(sceneObject))),
-      sceneEvents.onSceneObjectDestroyed.subscribe((_, sceneObject) => this.logError(viewManager.sceneObjectDestroyed(sceneObject))),
+      sceneEvents.onSceneObjectCreated.subscribe((_, sceneObject) => {
+        if (!this._deferSceneObjectCreated(sceneObject)) {
+          this.logError(viewManager.sceneObjectCreated(sceneObject));
+        }
+      }),
+      sceneEvents.onSceneObjectDestroyed.subscribe((_, sceneObject) => {
+        if (!this._discardDeferredSceneObject(sceneObject)) {
+          this.logError(viewManager.sceneObjectDestroyed(sceneObject));
+        }
+      }),
 
       viewerEvents.onEffectCreated.subscribe((_, effect) => this.logError(viewManager.effectCreated(effect))),
       viewerEvents.onEffectDestroyed.subscribe((_, effect) => this.logError(viewManager.effectDestroyed(effect))),
@@ -809,6 +930,8 @@ export class WebGLRenderer {
     this._viewManagerSubs = [];
     this._viewManager.destroy();
     this._viewManager = undefined as unknown as ViewManager;
+    this._renderSuspendCount = 0;
+    this._deferredSceneModelRegistrations.clear();
     this.events.onRendererStopped.dispatch(this);
   }
 

@@ -18,10 +18,9 @@ import type {Issue} from "../Issue";
  * mutation is the SDK-internal pattern for this rare case. After
  * the splice the SceneObject is well-formed again.
  *
- * The fix scans every entry in the SceneObject's `meshes` array
- * (not just the one named in `context.danglingMeshId`) so a single
- * pass clears every dangling reference, even if the inspection
- * only flagged one.
+ * The fix revalidates every entry in the SceneObject's `meshes`
+ * array at apply time so stale inspection results cannot remove a
+ * mesh that has since become valid again.
  */
 export const pruneDanglingMeshRefs: Fix = {
 
@@ -31,7 +30,7 @@ export const pruneDanglingMeshRefs: Fix = {
 
   procedure: [
     "Walk the object's mesh list",
-    "Remove any entry that's missing or destroyed",
+    "Remove any entry that's missing, destroyed, replaced, or owned by another object",
   ],
 
   config: {
@@ -56,17 +55,16 @@ export const pruneDanglingMeshRefs: Fix = {
     if (!obj || obj.destroyed) {
       return {ok: true, value: {fixed: false, reason: "target-missing"}};
     }
-    const ctx = issue.context;
-    const danglingId = (ctx && typeof ctx.danglingMeshId === "string") ? ctx.danglingMeshId : "";
-
     const meshes = obj.meshes as unknown as SceneMesh[];
     let removed = 0;
     for (let i = meshes.length - 1; i >= 0; i--) {
       const m = meshes[i];
+      const registered = m ? sceneModel.meshes[m.id] : undefined;
       const looksDangling = !m
         || m.destroyed
-        || !sceneModel.meshes[m.id]
-        || (danglingId && m.id === danglingId);
+        || !registered
+        || registered !== m
+        || m.object?.id !== objId;
       if (looksDangling) {
         meshes.splice(i, 1);
         removed++;

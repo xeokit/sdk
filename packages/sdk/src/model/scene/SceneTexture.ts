@@ -204,7 +204,7 @@ export class SceneTexture {
     this.buffers = params.buffers;
     this.mediaType = params.mediaType;
     this.minFilter = params.minFilter || LinearMipMapNearestFilter;
-    this.magFilter = params.magFilter || LinearMipMapNearestFilter;
+    this.magFilter = params.magFilter || LinearFilter;
     this.wrapS = params.wrapS || RepeatWrapping;
     this.wrapT = params.wrapT || RepeatWrapping;
     this.wrapR = params.wrapR || RepeatWrapping

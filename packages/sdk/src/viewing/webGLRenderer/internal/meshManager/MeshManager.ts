@@ -20,6 +20,8 @@ import {RendererSplatMesh} from "./RendererSplatMesh";
  */
 const MAX_SPLATS_PER_BATCH = 1_500_000;
 
+type MeshBatchKey = string;
+
 /**
  * Bridges scene/view state changes into GPU-ready render state for the renderer.
  *
@@ -80,6 +82,9 @@ export class MeshManager {
    * Batches are grouped primarily by primitive type (and additional compatibility checks).
    */
   private _batches: MeshBatchImpl[] = [];
+
+  /** Compatible mesh batches keyed by primitive/material-layout/bin axes. */
+  private _batchesByKey: Map<MeshBatchKey, MeshBatchImpl[]> = new Map();
 
   /** Whether {@link _batches} needs to be re-sorted by primitive. */
   private _batchesDirty = true;
@@ -496,24 +501,19 @@ export class MeshManager {
     const bin = sceneMesh.bin;
 
     const stats = this._stepStatsEnabled ? this._stepStats : null;
-    const len = this._batches.length;
+    const key = this._getMeshBatchKey(primitive, hasNormals, hasUVs, triplanar, mipmap, bin);
+    const compatibleBatches = this._batchesByKey.get(key);
+    const len = compatibleBatches?.length ?? 0;
     let iters = 0;
     for (let i = 0; i < len; i++) {
       iters++;
-      const meshBatch = this._batches[i];
-      if (meshBatch.primitive === primitive
-          && meshBatch.hasNormals === hasNormals
-          && meshBatch.hasUVs === hasUVs
-          && meshBatch.triplanar === triplanar
-          && meshBatch.mipmap === mipmap
-          && meshBatch.bin === bin) {
-        const canAddResult = meshBatch.canAddMesh(sceneMesh);
-        if (canAddResult !== GPUMemoryCheckResult.OK) {
-          continue;
-        }
-        if (stats) stats.batchScanIters += iters;
-        return {ok: true, value: meshBatch};
+      const meshBatch = compatibleBatches![i];
+      const canAddResult = meshBatch.canAddMesh(sceneMesh);
+      if (canAddResult !== GPUMemoryCheckResult.OK) {
+        continue;
       }
+      if (stats) stats.batchScanIters += iters;
+      return {ok: true, value: meshBatch};
     }
     if (stats) {
       stats.batchScanIters += iters;
@@ -540,9 +540,26 @@ export class MeshManager {
     });
 
     this._batches.push(newMeshBatch);
+    if (compatibleBatches) {
+      compatibleBatches.push(newMeshBatch);
+    } else {
+      this._batchesByKey.set(key, [newMeshBatch]);
+    }
     this._batchesDirty = true;
 
     return {ok: true, value: newMeshBatch};
+  }
+
+  private _getMeshBatchKey(
+    primitive: number,
+    hasNormals: boolean,
+    hasUVs: boolean,
+    triplanar: boolean,
+    mipmap: boolean,
+    bin?: string
+  ): MeshBatchKey {
+    const binKey = bin === undefined ? "u" : `s${bin}`;
+    return `${primitive}|${hasNormals ? 1 : 0}|${hasUVs ? 1 : 0}|${triplanar ? 1 : 0}|${mipmap ? 1 : 0}|${binKey}`;
   }
 
   /**
@@ -947,6 +964,7 @@ export class MeshManager {
     this._rendererSplatMeshes = {};
     this._splatPickMeshes.clear();
     this._batches = [];
+    this._batchesByKey.clear();
     this._rendererObjects = {};
     this._rendererMeshes = {};
     this._batchesDirty = true;
@@ -1008,7 +1026,7 @@ export interface MeshManagerStepStats {
   getMeshBatchMs: number;
   /** Number of `_getMeshBatch` invocations. */
   getMeshBatchCalls: number;
-  /** Cumulative scan iterations over the batches array. */
+  /** Cumulative scan iterations over compatible batch buckets. */
   batchScanIters: number;
   /** Number of times `_getMeshBatch` had to allocate a new batch. */
   newBatches: number;

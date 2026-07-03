@@ -173341,6 +173341,8 @@ var EMPTY_LINE_PATTERN_ENTRIES = new Float32Array(8);
 var EMPTY_HATCH_FAMILIES = new Float32Array(4 * 4);
 var EMPTY_HATCH_COLOR = new Float32Array(4);
 var ZERO_ATLAS_TRANSFORM = { uOffset: 0, vOffset: 0, uScale: 0, vScale: 0 };
+var DEFAULT_EMISSIVE_COLOR = [0, 0, 0];
+var tempQuantizedColor = [0, 0, 0];
 function atlasOverflow(atlas, sceneTexture) {
   if (!atlas || !sceneTexture)
     return false;
@@ -173365,6 +173367,34 @@ function resolveAtlasTransform(atlas, sceneTexture, label) {
     }
   }
   return atlas.sentinelTransform;
+}
+function getViewMaskBit(mask, viewIndex) {
+  return (mask & 1 << viewIndex) !== 0;
+}
+function setViewMaskBit(mask, viewIndex, enabled) {
+  const bit = 1 << viewIndex;
+  return enabled ? mask | bit : mask & ~bit;
+}
+function createVisibleMask(numViews) {
+  return (1 << numViews) - 1;
+}
+function getPerViewHandle(handles, viewIndex) {
+  if (!handles) {
+    return void 0;
+  }
+  return Array.isArray(handles) ? handles[viewIndex] : viewIndex === 0 ? handles : void 0;
+}
+function forEachPerViewHandle(handles, numViews, callback) {
+  if (!handles) {
+    return;
+  }
+  if (Array.isArray(handles)) {
+    for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+      callback(viewIndex, handles[viewIndex]);
+    }
+  } else {
+    callback(0, handles);
+  }
 }
 var GPUMemoryBatch = class {
   /**
@@ -173442,7 +173472,6 @@ var GPUMemoryBatch = class {
   _occlusionAtlasTexture;
   _meshMatrixTexture;
   _meshIndicesUsed;
-  _meshes;
   _numMeshes;
   _geometryIndicesUsed;
   _sceneGeometries;
@@ -173503,10 +173532,10 @@ var GPUMemoryBatch = class {
     this._geometryHandles = {};
     this._meshHandles = {};
     this._meshIndicesByUniqueId = {};
-    this._meshIndicesUsed = [];
+    const memoryConfigs = renderContext.memoryConfigs;
+    this._meshIndicesUsed = new Uint8Array(memoryConfigs.maxBatchMeshes);
     this._lastFreeMeshIndex = 0;
-    this._meshes = {};
-    this._geometryIndicesUsed = [];
+    this._geometryIndicesUsed = new Uint8Array(memoryConfigs.maxBatchGeometries);
     this._lastFreeGeometryIndex = 0;
     this._sceneGeometries = {};
     this._vertexNormalTexture = null;
@@ -174194,7 +174223,7 @@ var GPUMemoryBatch = class {
       // Emissive colour factor — `[0,0,0]` for materials with no emissive
       // texture suppresses the white sentinel; auto-`[1,1,1]` (set in
       // createMaterial) when textured so emissive = factor × texture.
-      emissiveColor: sceneMesh.effectiveEmissiveColor,
+      emissiveColor: sceneMesh.material ? sceneMesh.material.emissiveColor : DEFAULT_EMISSIVE_COLOR,
       // Sampled by the triplanar shader variant; UV-bearing batches
       // ignore the slot. Stored at full Float32 precision so users
       // can pick an arbitrary world-units-per-repeat without
@@ -174217,7 +174246,7 @@ var GPUMemoryBatch = class {
       hatchPatternSlot: this._allocateHatchPatternSlot(sceneMesh)
     });
     const numViews = this._renderContext.memoryConfigs.maxViews;
-    const color2 = quantizeColor3(sceneMesh.effectiveColor, [0, 0, 0]);
+    const color2 = quantizeColor3(sceneMesh.effectiveColor, tempQuantizedColor);
     const opacity = Math.floor(sceneMesh.effectiveOpacity * 255);
     for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
       this._meshViewAttributeTexture[viewIndex].setItem(meshIndex, {
@@ -174227,24 +174256,26 @@ var GPUMemoryBatch = class {
         clippable: true
       });
     }
-    this._meshMatrixTexture.setItem(meshIndex, new Float32Array(sceneMesh.worldMatrix));
+    this._meshMatrixTexture.setItem(meshIndex, sceneMesh.worldMatrix);
     const primitiveCount = sceneGeometry.primitive === PointsPrimitive ? sceneGeometry.positionsCompressed.length / 3 | 0 : sceneGeometry.primitive === LinesPrimitive ? sceneGeometry.indices.length / 2 | 0 : sceneGeometry.indices.length / 3 | 0;
-    const primitiveMeshIndexTextureHandles = [];
-    for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
-      primitiveMeshIndexTextureHandles.push(
-        this._primitiveMeshIndexTexture[viewIndex].createPortion(primitiveCount, meshIndex, RENDER_PASSES.OPAQUE)
-      );
-    }
+    const primitiveMeshIndexTextureHandles = numViews === 1 ? this._primitiveMeshIndexTexture[0].createPortion(primitiveCount, meshIndex, RENDER_PASSES.OPAQUE) : (() => {
+      const handles = [];
+      for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+        handles.push(this._primitiveMeshIndexTexture[viewIndex].createPortion(primitiveCount, meshIndex, RENDER_PASSES.OPAQUE));
+      }
+      return handles;
+    })();
     let edgeMeshIndexTextureHandles;
     if (sceneGeometry.primitive === TrianglesPrimitive) {
       const edgeCount = sceneGeometry.edgeIndices ? sceneGeometry.edgeIndices.length / 2 | 0 : 0;
-      edgeMeshIndexTextureHandles = [];
       if (edgeCount > 0) {
-        for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
-          edgeMeshIndexTextureHandles.push(
-            this._edgeMeshIndexTexture[viewIndex].createPortion(edgeCount, meshIndex, RENDER_PASSES.OPAQUE)
-          );
-        }
+        edgeMeshIndexTextureHandles = numViews === 1 ? this._edgeMeshIndexTexture[0].createPortion(edgeCount, meshIndex, RENDER_PASSES.OPAQUE) : (() => {
+          const handles = [];
+          for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+            handles.push(this._edgeMeshIndexTexture[viewIndex].createPortion(edgeCount, meshIndex, RENDER_PASSES.OPAQUE));
+          }
+          return handles;
+        })();
       }
     }
     this._meshHandles[meshIndex] = {
@@ -174255,8 +174286,8 @@ var GPUMemoryBatch = class {
       // Meshes start visible and un-culled in every view; the index
       // texture portions created above are already included in the
       // draw list, so this matches the initial GPU state.
-      visible: new Array(numViews).fill(true),
-      culled: new Array(numViews).fill(false)
+      visibleMask: createVisibleMask(numViews),
+      culledMask: 0
     };
     this._meshIndicesByUniqueId[sceneMesh.uniqueId] = meshIndex;
     this._sceneGeometries[geometryHandle.geometryIndex] = sceneGeometry;
@@ -174317,13 +174348,13 @@ var GPUMemoryBatch = class {
     if (!meshHandle) {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no meshHandle`);
     }
-    const primitiveMeshIndexTextureHandle = meshHandle.primitiveMeshIndexTextureHandles[viewIndex];
+    const primitiveMeshIndexTextureHandle = getPerViewHandle(meshHandle.primitiveMeshIndexTextureHandles, viewIndex);
     if (!primitiveMeshIndexTextureHandle) {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no primitiveMeshIndexTextureHandle`);
     }
     this._primitiveMeshIndexTexture[viewIndex].setRenderPass(primitiveMeshIndexTextureHandle, renderPass);
     if (meshHandle.edgeMeshIndexTextureHandles) {
-      const edgeMeshIndexTextureHandle = meshHandle.edgeMeshIndexTextureHandles[viewIndex];
+      const edgeMeshIndexTextureHandle = getPerViewHandle(meshHandle.edgeMeshIndexTextureHandles, viewIndex);
       if (!edgeMeshIndexTextureHandle) {
         throw new SDKInternalException(`GPUMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no edgeMeshIndexTextureHandle`);
       }
@@ -174342,7 +174373,7 @@ var GPUMemoryBatch = class {
     if (!meshHandle) {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no meshHandle`);
     }
-    meshHandle.visible[viewIndex] = visible;
+    meshHandle.visibleMask = setViewMaskBit(meshHandle.visibleMask, viewIndex, visible);
     this._applyMeshDrawInclusion(meshHandle, viewIndex);
   }
   /**
@@ -174360,7 +174391,7 @@ var GPUMemoryBatch = class {
     if (!meshHandle) {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshCulled: Mesh ${meshIndex} has no meshHandle`);
     }
-    meshHandle.culled[viewIndex] = culled;
+    meshHandle.culledMask = setViewMaskBit(meshHandle.culledMask, viewIndex, culled);
     this._applyMeshDrawInclusion(meshHandle, viewIndex);
   }
   // Writes the effective draw-inclusion (visible AND not culled) for a
@@ -174368,14 +174399,14 @@ var GPUMemoryBatch = class {
   // mechanism plain visibility uses to add/remove a mesh from the
   // view's compacted draw list.
   _applyMeshDrawInclusion(meshHandle, viewIndex) {
-    const include = meshHandle.visible[viewIndex] && !meshHandle.culled[viewIndex];
-    const primitiveMeshIndexTextureHandle = meshHandle.primitiveMeshIndexTextureHandles[viewIndex];
+    const include = getViewMaskBit(meshHandle.visibleMask, viewIndex) && !getViewMaskBit(meshHandle.culledMask, viewIndex);
+    const primitiveMeshIndexTextureHandle = getPerViewHandle(meshHandle.primitiveMeshIndexTextureHandles, viewIndex);
     if (!primitiveMeshIndexTextureHandle) {
       throw new SDKInternalException(`GPUMemoryBatch._applyMeshDrawInclusion: Mesh ${meshHandle.meshIndex} has no primitiveMeshIndexTextureHandle`);
     }
     this._primitiveMeshIndexTexture[viewIndex].setMeshVisible(primitiveMeshIndexTextureHandle, include);
     if (meshHandle.edgeMeshIndexTextureHandles) {
-      const edgeMeshIndexTextureHandle = meshHandle.edgeMeshIndexTextureHandles[viewIndex];
+      const edgeMeshIndexTextureHandle = getPerViewHandle(meshHandle.edgeMeshIndexTextureHandles, viewIndex);
       if (!edgeMeshIndexTextureHandle) {
         throw new SDKInternalException(`GPUMemoryBatch._applyMeshDrawInclusion: Mesh ${meshHandle.meshIndex} has no edgeMeshIndexTextureHandle`);
       }
@@ -174472,16 +174503,12 @@ var GPUMemoryBatch = class {
       this._numGeometries--;
     }
     const numViews = this._renderContext.memoryConfigs.maxViews;
-    if (meshHandle.primitiveMeshIndexTextureHandles) {
-      for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
-        this._primitiveMeshIndexTexture[viewIndex].deletePortion(meshHandle.primitiveMeshIndexTextureHandles[viewIndex]);
-      }
-    }
-    if (meshHandle.edgeMeshIndexTextureHandles) {
-      for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
-        this._edgeMeshIndexTexture[viewIndex].deletePortion(meshHandle.edgeMeshIndexTextureHandles[viewIndex]);
-      }
-    }
+    forEachPerViewHandle(meshHandle.primitiveMeshIndexTextureHandles, numViews, (viewIndex, handle) => {
+      this._primitiveMeshIndexTexture[viewIndex].deletePortion(handle);
+    });
+    forEachPerViewHandle(meshHandle.edgeMeshIndexTextureHandles, numViews, (viewIndex, handle) => {
+      this._edgeMeshIndexTexture[viewIndex].deletePortion(handle);
+    });
     delete this._meshHandles[meshIndex];
     delete this._meshIndicesByUniqueId[sceneMesh.uniqueId];
     this._putFreeMeshIndex(meshIndex);
@@ -174514,7 +174541,7 @@ var GPUMemoryBatch = class {
     if (!sceneGeometry) {
       return null;
     }
-    const primitiveMeshIndexTextureHandle = meshHandle.primitiveMeshIndexTextureHandles?.[0];
+    const primitiveMeshIndexTextureHandle = getPerViewHandle(meshHandle.primitiveMeshIndexTextureHandles, 0);
     if (!primitiveMeshIndexTextureHandle) {
       return null;
     }
@@ -174543,32 +174570,32 @@ var GPUMemoryBatch = class {
   _getFreeMeshIndex() {
     const maxMeshes = this._renderContext.memoryConfigs.maxBatchMeshes;
     for (let i = this._lastFreeMeshIndex; ; i = (i + 1) % maxMeshes) {
-      if (!this._meshIndicesUsed[i]) {
-        this._meshIndicesUsed[i] = true;
+      if (this._meshIndicesUsed[i] === 0) {
+        this._meshIndicesUsed[i] = 1;
         this._lastFreeMeshIndex = (i + 1) % maxMeshes;
         return i;
       }
     }
   }
   _putFreeMeshIndex(index) {
-    if (this._meshIndicesUsed[index]) {
-      delete this._meshIndicesUsed[index];
+    if (this._meshIndicesUsed[index] !== 0) {
+      this._meshIndicesUsed[index] = 0;
       this._lastFreeMeshIndex = index;
     }
   }
   _getFreeGeometryIndex() {
     const maxGeometries = this._renderContext.memoryConfigs.maxBatchGeometries;
     for (let i = this._lastFreeGeometryIndex; ; i = (i + 1) % maxGeometries) {
-      if (!this._geometryIndicesUsed[i]) {
-        this._geometryIndicesUsed[i] = true;
+      if (this._geometryIndicesUsed[i] === 0) {
+        this._geometryIndicesUsed[i] = 1;
         this._lastFreeGeometryIndex = (i + 1) % maxGeometries;
         return i;
       }
     }
   }
   _putFreeGeometryIndex(index) {
-    if (this._geometryIndicesUsed[index]) {
-      delete this._geometryIndicesUsed[index];
+    if (this._geometryIndicesUsed[index] !== 0) {
+      this._geometryIndicesUsed[index] = 0;
       this._lastFreeGeometryIndex = index;
     }
   }
@@ -175162,9 +175189,7 @@ var GPUMemoryManager = class {
   /**
    * Adds a {@link model!scene.SceneMesh | SceneMesh} to a batch and returns a {@link GPUMemoryMeshHandle} used for updates.
    *
-   * The handle contains:
-   * - `gpuMemoryBatchIndex` and `meshIndex` for addressing the mesh
-   * - derived `numIndices` / `numVertices` counts for rendering/picking convenience
+   * The handle contains `gpuMemoryBatchIndex` and `meshIndex` for addressing the mesh.
    *
    * @param batchIndex - Target batch index.
    * @param sceneMesh - Mesh to add.
@@ -175186,9 +175211,7 @@ var GPUMemoryManager = class {
       ok: true,
       value: {
         meshIndex: meshIdx,
-        gpuMemoryBatchIndex: gpuMemoryBatch.index,
-        numIndices: sceneMesh.geometry.indices ? sceneMesh.geometry.indices.length : 0,
-        numVertices: sceneMesh.geometry.positionsCompressed ? sceneMesh.geometry.positionsCompressed.length / 3 : 0
+        gpuMemoryBatchIndex: gpuMemoryBatch.index
       }
     };
   }
@@ -175446,6 +175469,8 @@ var RendererMesh = class {
   _meshBatch;
   _meshHandle;
   _gpuMemoryManager;
+  _numViews;
+  _viewFlags0;
   _viewFlags;
   constructor({
     sceneMesh,
@@ -175459,19 +175484,38 @@ var RendererMesh = class {
     this._gpuMemoryManager = gpuMemoryManager;
     this._meshHandle = meshHandle;
     this.gpuTile = null;
-    this._viewFlags = new Uint8Array(renderContext.memoryConfigs.maxViews);
-    this._viewFlags.fill(8 /* ObjectVisible */ | 16 /* MeshVisible */);
+    const initialFlags = 8 /* ObjectVisible */ | 16 /* MeshVisible */;
+    this._numViews = renderContext.memoryConfigs.maxViews;
+    this._viewFlags0 = initialFlags;
+    this._viewFlags = this._numViews > 1 ? new Uint8Array(this._numViews) : null;
+    this._viewFlags?.fill(initialFlags);
     this.setMatrix(sceneMesh.worldMatrix);
     this.setOpacity(sceneMesh.effectiveOpacity);
   }
   _hasFlag(viewIndex, flag) {
-    return (this._viewFlags[viewIndex] & flag) !== 0;
+    const viewFlags = this._viewFlags;
+    const flags = viewFlags ? viewFlags[viewIndex] : this._viewFlags0;
+    return (flags & flag) !== 0;
   }
   _setFlag(viewIndex, flag, enabled) {
+    const viewFlags = this._viewFlags;
+    if (!viewFlags) {
+      if (enabled) {
+        this._viewFlags0 |= flag;
+      } else {
+        this._viewFlags0 &= ~flag;
+      }
+      return;
+    }
     if (enabled) {
-      this._viewFlags[viewIndex] |= flag;
+      viewFlags[viewIndex] |= flag;
     } else {
-      this._viewFlags[viewIndex] &= ~flag;
+      viewFlags[viewIndex] &= ~flag;
+    }
+  }
+  _assertViewIndex(viewIndex, method) {
+    if (viewIndex < 0 || viewIndex >= this._numViews) {
+      throw new SDKInternalException(`[RendererMesh.${method}] No view state for view index ${viewIndex}`);
     }
   }
   /**
@@ -175499,7 +175543,7 @@ var RendererMesh = class {
    */
   setColor(color2) {
     const q = quantizeColor3(color2, tempQuantizedRGB);
-    for (let viewIndex = 0, len = this._viewFlags.length; viewIndex < len; viewIndex++) {
+    for (let viewIndex = 0, len = this._numViews; viewIndex < len; viewIndex++) {
       if (!this._hasFlag(viewIndex, 1 /* Colorizing */)) {
         this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, q);
       }
@@ -175518,7 +175562,7 @@ var RendererMesh = class {
    */
   setOpacity(opacity) {
     const transparent = opacity < 1;
-    for (let viewIndex = 0, len = this._viewFlags.length; viewIndex < len; viewIndex++) {
+    for (let viewIndex = 0, len = this._numViews; viewIndex < len; viewIndex++) {
       if (!this._hasFlag(viewIndex, 2 /* ColoringOpacity */)) {
         this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
       }
@@ -175535,9 +175579,7 @@ var RendererMesh = class {
    * @param objectVisible
    */
   setObjectVisible(viewIndex, objectVisible) {
-    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
-      throw new SDKInternalException(`[RendererMesh.setObjectVisible] No view state for view index ${viewIndex}`);
-    }
+    this._assertViewIndex(viewIndex, "setObjectVisible");
     if (this._hasFlag(viewIndex, 8 /* ObjectVisible */) === objectVisible) {
       return;
     }
@@ -175550,7 +175592,7 @@ var RendererMesh = class {
    * @param meshVisible
    */
   setVisible(meshVisible) {
-    for (let viewIndex = 0, len = this._viewFlags.length; viewIndex < len; viewIndex++) {
+    for (let viewIndex = 0, len = this._numViews; viewIndex < len; viewIndex++) {
       if (this._hasFlag(viewIndex, 16 /* MeshVisible */) === meshVisible) {
         continue;
       }
@@ -175572,9 +175614,7 @@ var RendererMesh = class {
    * colorize tint is cleared.
    */
   setColorInView(viewIndex, colorize) {
-    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
-      throw new SDKInternalException(`[RendererMesh.setColorInView] No view state for view index ${viewIndex}`);
-    }
+    this._assertViewIndex(viewIndex, "setColorInView");
     if (colorize !== null) {
       this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, colorize);
       this._setFlag(viewIndex, 1 /* Colorizing */, true);
@@ -175588,9 +175628,7 @@ var RendererMesh = class {
    * Called by {@link RendererObject.setOpacityInView}.
    */
   setOpacityInView(viewIndex, opacity) {
-    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
-      throw new SDKInternalException(`[RendererMesh.setOpacityInView] No view state for view index ${viewIndex}`);
-    }
+    this._assertViewIndex(viewIndex, "setOpacityInView");
     if (opacity !== null) {
       this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
       this._setFlag(viewIndex, 2 /* ColoringOpacity */, true);
@@ -175604,9 +175642,7 @@ var RendererMesh = class {
    * Called by {@link RendererObject.setHighlighted}.
    */
   setHighlighted(viewIndex, highlighted) {
-    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
-      throw new SDKInternalException(`[RendererMesh.setHighlighted] No view state for view index ${viewIndex}`);
-    }
+    this._assertViewIndex(viewIndex, "setHighlighted");
     this._meshBatch.setMeshHighlighted(
       viewIndex,
       this._meshHandle,
@@ -175619,9 +175655,7 @@ var RendererMesh = class {
    * Called by {@link RendererObject.setXRayed}.
    */
   setXRayed(viewIndex, xrayed) {
-    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
-      throw new SDKInternalException(`[RendererMesh.setXRayed] No view state for view index ${viewIndex}`);
-    }
+    this._assertViewIndex(viewIndex, "setXRayed");
     this._meshBatch.setMeshXRayed(
       viewIndex,
       this._meshHandle,
@@ -175634,9 +175668,7 @@ var RendererMesh = class {
    * Called by {@link RendererObject.setSelected}.
    */
   setSelected(viewIndex, selected) {
-    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
-      throw new SDKInternalException(`[RendererMesh.setSelected] No view state for view index ${viewIndex}`);
-    }
+    this._assertViewIndex(viewIndex, "setSelected");
     this._meshBatch.setMeshSelected(
       viewIndex,
       this._meshHandle,
@@ -175649,9 +175681,7 @@ var RendererMesh = class {
    * Called by {@link RendererObject.setClippable}.
    */
   setClippable(viewIndex, clippable) {
-    if (viewIndex < 0 || viewIndex >= this._viewFlags.length) {
-      throw new SDKInternalException(`[RendererMesh.setClippable] No view state for view index ${viewIndex}`);
-    }
+    this._assertViewIndex(viewIndex, "setClippable");
     this._meshBatch.setMeshClippable(viewIndex, this._meshHandle, clippable);
   }
   /**
@@ -175698,6 +175728,12 @@ __export(gpuMemoryManager_exports, {
 });
 
 // ../sdk/src/viewing/webGLRenderer/internal/meshManager/MeshBatchImpl.ts
+function getMeshIndexCount(sceneMesh) {
+  return sceneMesh.geometry.indices ? sceneMesh.geometry.indices.length : 0;
+}
+function getMeshVertexCount(sceneMesh) {
+  return sceneMesh.geometry.positionsCompressed ? sceneMesh.geometry.positionsCompressed.length / 3 : 0;
+}
 var MeshBatchImpl = class {
   /**
    * The render context associated with this batch.
@@ -175867,9 +175903,8 @@ var MeshBatchImpl = class {
   addMesh(sceneMesh) {
     const gpuMeshHandleResult = this._gpuMemoryManager.addMesh(this.gpuMemoryBatchIndex, sceneMesh);
     if (gpuMeshHandleResult.ok) {
-      const gpuMeshHandle = gpuMeshHandleResult.value;
-      this.numIndices += gpuMeshHandle.numIndices;
-      this.numVertices += gpuMeshHandle.numVertices;
+      this.numIndices += getMeshIndexCount(sceneMesh);
+      this.numVertices += getMeshVertexCount(sceneMesh);
     }
     return gpuMeshHandleResult;
   }
@@ -175880,9 +175915,12 @@ var MeshBatchImpl = class {
    */
   removeMesh(meshHandle) {
     const gpuMeshHandle = meshHandle;
+    const sceneMesh = this._gpuMemoryManager.getMeshAtIndex(this.gpuMemoryBatchIndex, gpuMeshHandle.meshIndex);
     this._gpuMemoryManager.removeMesh(gpuMeshHandle);
-    this.numIndices -= gpuMeshHandle.numIndices;
-    this.numVertices -= gpuMeshHandle.numVertices;
+    if (sceneMesh) {
+      this.numIndices -= getMeshIndexCount(sceneMesh);
+      this.numVertices -= getMeshVertexCount(sceneMesh);
+    }
   }
   /**
    * Retrieves the SceneMesh at the specified index in this batch, if it exists.

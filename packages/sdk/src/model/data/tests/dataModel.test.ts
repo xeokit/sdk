@@ -220,6 +220,47 @@ describe("Data + DataModel build lifecycle", () => {
     expect(data.propertySets.ps1).toBeUndefined();
   });
 
+  it("rolls back direct fromParams mutations when a later component fails", () => {
+    const data = new Data();
+    const sourceModel = data.createModel({id: "source"}).value;
+    const targetModel = data.createModel({id: "target"}).value;
+    const source = sourceModel.createObject({id: "sourceObj", type: "Thing", name: "Source"}).value;
+    const target = targetModel.createObject({id: "targetObj", type: "Thing", name: "Target"}).value;
+
+    const result = sourceModel.fromParams({
+      propertySets: [{
+        id: "ps1",
+        name: "Props",
+        type: "Pset",
+        properties: [{name: "Code", value: "A"}],
+      }],
+      objects: [{id: "newObj", type: "Thing", name: "New", propertySetIds: ["ps1"]}],
+      relationships: [
+        {type: AGGREGATES, relatingObjectId: "sourceObj", relatedObjectId: "targetObj"},
+        {type: AGGREGATES, relatingObjectId: "newObj", relatedObjectId: "missing"},
+      ],
+    });
+
+    expect(result.ok).toBe(false);
+    expect(sourceModel.objects.sourceObj).toBe(source);
+    expect(targetModel.objects.targetObj).toBe(target);
+    expect(sourceModel.objects.newObj).toBeUndefined();
+    expect(data.objects.newObj).toBeUndefined();
+    expect(sourceModel.propertySets.ps1).toBeUndefined();
+    expect(data.propertySets.ps1).toBeUndefined();
+    expect(sourceModel.relationships).toHaveLength(0);
+    expect(source.related[AGGREGATES]).toBeUndefined();
+    expect(target.relating[AGGREGATES]).toBeUndefined();
+    expect(data.rootObjects.targetObj).toBe(target);
+    expect(targetModel.rootObjects.targetObj).toBe(target);
+    expect(sourceModel.stats).toEqual({
+      numObjects: 1,
+      numRelationships: 0,
+      numPropertySets: 0,
+    });
+    expect(data.typeCounts.Thing).toBe(2);
+  });
+
   it("an object shared by two models survives one model's destroy, detaching only that owner", () => {
     const data = new Data();
     const m1 = data.createModel({id: "ma"}).value;

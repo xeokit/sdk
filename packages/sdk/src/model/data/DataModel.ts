@@ -11,6 +11,36 @@ import type {PropertySetParams} from "./PropertySetParams";
 import {Relationship} from "./Relationship";
 import type {RelationshipParams} from "./RelationshipParams";
 
+type ObjectMap<T> = { [key: string]: T };
+
+interface DataObjectTransactionState {
+  models: DataModel[];
+  relating: ObjectMap<Relationship[]>;
+  related: ObjectMap<Relationship[]>;
+}
+
+interface PropertySetTransactionState {
+  models: DataModel[];
+}
+
+interface DataModelTransactionState {
+  propertySets: ObjectMap<PropertySet>;
+  objects: ObjectMap<DataObject>;
+  rootObjects: ObjectMap<DataObject>;
+  objectsByType: ObjectMap<ObjectMap<DataObject>>;
+  relationships: Relationship[];
+  typeCounts: ObjectMap<number>;
+  stats: DataModelStats;
+  dataPropertySets: ObjectMap<PropertySet>;
+  dataObjects: ObjectMap<DataObject>;
+  dataRootObjects: ObjectMap<DataObject>;
+  dataObjectsByType: ObjectMap<ObjectMap<DataObject>>;
+  dataTypeCounts: ObjectMap<number>;
+  objectStates: Map<DataObject, DataObjectTransactionState>;
+  propertySetStates: Map<PropertySet, PropertySetTransactionState>;
+  modelRootObjects: Map<DataModel, ObjectMap<DataObject>>;
+}
+
 /**
  * Contains a model's semantic data, as an entity-relationship graph.
  *
@@ -495,10 +525,12 @@ export class DataModel  {
         error: "[DataModel.fromParams] DataModel already destroyed"
       });
     }
+    const transactionState = this.#snapshotTransactionState();
     if (dataModelParams.propertySets) {
       for (let i = 0, len = dataModelParams.propertySets.length; i < len; i++) {
         const result = this.createPropertySet(dataModelParams.propertySets[i]);
         if (result.ok!== true) {
+          this.#restoreTransactionState(transactionState);
           return this.data.logError({
             ok: false,
             type: SDKErrorType.InvalidInput,
@@ -511,6 +543,7 @@ export class DataModel  {
       for (let i = 0, len = dataModelParams.objects.length; i < len; i++) {
         const result = this.createObject(dataModelParams.objects[i]);
         if (result.ok!== true) {
+          this.#restoreTransactionState(transactionState);
           return this.data.logError({
             ok: false,
             type: SDKErrorType.InvalidInput,
@@ -523,9 +556,10 @@ export class DataModel  {
       for (let i = 0, len = dataModelParams.relationships.length; i < len; i++) {
         const result = this.createRelationship(dataModelParams.relationships[i]);
         if (result.ok!== true) {
+          this.#restoreTransactionState(transactionState);
           return this.data.logError({
             ok: false,
-          type: SDKErrorType.InvalidInput,
+            type: SDKErrorType.InvalidInput,
             error: `[DataModel.fromParams] Failed to create Relationship -> ${result.error}`
           });
         }
@@ -660,6 +694,97 @@ export class DataModel  {
     }
     this.#destroyComponents();
     this.destroyed = true;
+  }
+
+  #snapshotTransactionState(): DataModelTransactionState {
+    const models = new Set<DataModel>();
+    models.add(this);
+    for (const id in this.data.models) {
+      models.add(this.data.models[id]);
+    }
+
+    const objectStates = new Map<DataObject, DataObjectTransactionState>();
+    for (const id in this.data.objects) {
+      const dataObject = this.data.objects[id];
+      objectStates.set(dataObject, {
+        models: dataObject.models.slice(),
+        relating: cloneRelationshipMap(dataObject.relating),
+        related: cloneRelationshipMap(dataObject.related)
+      });
+      for (let i = 0, len = dataObject.models.length; i < len; i++) {
+        models.add(dataObject.models[i]);
+      }
+    }
+
+    const propertySetStates = new Map<PropertySet, PropertySetTransactionState>();
+    for (const id in this.data.propertySets) {
+      const propertySet = this.data.propertySets[id];
+      propertySetStates.set(propertySet, {
+        models: propertySet.models.slice()
+      });
+      for (let i = 0, len = propertySet.models.length; i < len; i++) {
+        models.add(propertySet.models[i]);
+      }
+    }
+
+    const modelRootObjects = new Map<DataModel, ObjectMap<DataObject>>();
+    models.forEach(model => {
+      modelRootObjects.set(model, cloneObjectMap(model.rootObjects));
+    });
+
+    return {
+      propertySets: cloneObjectMap(this.propertySets),
+      objects: cloneObjectMap(this.objects),
+      rootObjects: cloneObjectMap(this.rootObjects),
+      objectsByType: cloneNestedObjectMap(this.objectsByType),
+      relationships: this.relationships.slice(),
+      typeCounts: cloneObjectMap(this.typeCounts),
+      stats: {
+        numObjects: this.stats.numObjects,
+        numRelationships: this.stats.numRelationships,
+        numPropertySets: this.stats.numPropertySets
+      },
+      dataPropertySets: cloneObjectMap(this.data.propertySets),
+      dataObjects: cloneObjectMap(this.data.objects),
+      dataRootObjects: cloneObjectMap(this.data.rootObjects),
+      dataObjectsByType: cloneNestedObjectMap(this.data.objectsByType),
+      dataTypeCounts: cloneObjectMap(this.data.typeCounts),
+      objectStates,
+      propertySetStates,
+      modelRootObjects
+    };
+  }
+
+  #restoreTransactionState(state: DataModelTransactionState): void {
+    restoreObjectMap(this.propertySets, state.propertySets);
+    restoreObjectMap(this.objects, state.objects);
+    restoreObjectMap(this.rootObjects, state.rootObjects);
+    restoreObjectMap(this.objectsByType, state.objectsByType);
+    restoreArray(this.relationships, state.relationships);
+    restoreObjectMap(this.typeCounts, state.typeCounts);
+    this.stats.numObjects = state.stats.numObjects;
+    this.stats.numRelationships = state.stats.numRelationships;
+    this.stats.numPropertySets = state.stats.numPropertySets;
+
+    restoreObjectMap(this.data.propertySets, state.dataPropertySets);
+    restoreObjectMap(this.data.objects, state.dataObjects);
+    restoreObjectMap(this.data.rootObjects, state.dataRootObjects);
+    restoreObjectMap(this.data.objectsByType, state.dataObjectsByType);
+    restoreObjectMap(this.data.typeCounts, state.dataTypeCounts);
+
+    state.objectStates.forEach((objectState, dataObject) => {
+      restoreArray(dataObject.models, objectState.models);
+      restoreObjectMap(dataObject.relating, objectState.relating);
+      restoreObjectMap(dataObject.related, objectState.related);
+    });
+
+    state.propertySetStates.forEach((propertySetState, propertySet) => {
+      restoreArray(propertySet.models, propertySetState.models);
+    });
+
+    state.modelRootObjects.forEach((rootObjects, model) => {
+      restoreObjectMap(model.rootObjects, rootObjects);
+    });
   }
 
   #destroyComponents(): void {
@@ -821,5 +946,45 @@ export class DataModel  {
       }
     }
     return false;
+  }
+}
+
+function cloneObjectMap<T>(map: ObjectMap<T>): ObjectMap<T> {
+  const clone: ObjectMap<T> = {};
+  for (const id in map) {
+    clone[id] = map[id];
+  }
+  return clone;
+}
+
+function cloneNestedObjectMap<T>(map: ObjectMap<ObjectMap<T>>): ObjectMap<ObjectMap<T>> {
+  const clone: ObjectMap<ObjectMap<T>> = {};
+  for (const id in map) {
+    clone[id] = cloneObjectMap(map[id]);
+  }
+  return clone;
+}
+
+function cloneRelationshipMap(map: ObjectMap<Relationship[]>): ObjectMap<Relationship[]> {
+  const clone: ObjectMap<Relationship[]> = {};
+  for (const type in map) {
+    clone[type] = map[type].slice();
+  }
+  return clone;
+}
+
+function restoreObjectMap<T>(target: ObjectMap<T>, source: ObjectMap<T>): void {
+  for (const id in target) {
+    delete target[id];
+  }
+  for (const id in source) {
+    target[id] = source[id];
+  }
+}
+
+function restoreArray<T>(target: T[], source: T[]): void {
+  target.length = 0;
+  for (let i = 0, len = source.length; i < len; i++) {
+    target.push(source[i]);
   }
 }

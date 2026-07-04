@@ -11011,6 +11011,7 @@ var PropertySet = class {
   constructor(dataModel, propertySetCfg) {
     this.models = [dataModel];
     this.id = propertySetCfg.id;
+    this.originalSystemId = propertySetCfg.originalSystemId;
     this.name = propertySetCfg.name;
     this.type = propertySetCfg.type;
     this.schema = propertySetCfg.schema;
@@ -11204,7 +11205,6 @@ var DataModel = class {
       numRelationships: 0,
       numPropertySets: 0
     };
-    this.fromParams(dataModelParams);
   }
   /**
    * Creates a new {@link PropertySet | PropertySet} and registers it within the `DataModel` and `Data`.
@@ -11252,8 +11252,13 @@ var DataModel = class {
           error: `[DataModel.createPropertySet] PropertySet "${propertySetCfg.id}" already exists with schema "${propertySet.schema}", which does not match this DataModel's schema "${this.schema}"`
         });
       }
+      const reuseResult = this.#validateSharedPropertySetReuse(propertySet, propertySetCfg);
+      if (reuseResult.ok !== true) {
+        return reuseResult;
+      }
       this.propertySets[propertySetCfg.id] = propertySet;
       propertySet.models.push(this);
+      this.stats.numPropertySets++;
       return {
         ok: true,
         value: propertySet
@@ -11308,7 +11313,6 @@ var DataModel = class {
         error: `[DataModel.createObject] DataObject schema "${dataObjectParams.schema}" does not match DataModel schema "${this.schema}" \u2014 a DataModel with a defined schema enforces single-schema homogeneity for all its components`
       });
     }
-    const type = dataObjectParams.type;
     let dataObject = this.data.objects[id];
     if (dataObject && this.schema !== void 0 && dataObject.schema !== this.schema) {
       return this.data.logError({
@@ -11316,6 +11320,12 @@ var DataModel = class {
         type: 2 /* InvalidInput */,
         error: `[DataModel.createObject] DataObject "${id}" already exists with schema "${dataObject.schema}", which does not match this DataModel's schema "${this.schema}"`
       });
+    }
+    if (dataObject) {
+      const reuseResult = this.#validateSharedObjectReuse(dataObject, dataObjectParams);
+      if (reuseResult.ok !== true) {
+        return reuseResult;
+      }
     }
     if (!dataObject) {
       const propertySets = [];
@@ -11346,15 +11356,17 @@ var DataModel = class {
         propertySets
       );
       this.data.objects[id] = dataObject;
+      const type2 = dataObject.type;
       this.data.rootObjects[id] = dataObject;
-      if (!this.data.objectsByType[type]) {
-        this.data.objectsByType[type] = {};
+      if (!this.data.objectsByType[type2]) {
+        this.data.objectsByType[type2] = {};
       }
-      this.data.objectsByType[type][id] = dataObject;
-      this.data.typeCounts[type] = this.data.typeCounts[type] === void 0 ? 1 : this.data.typeCounts[type] + 1;
+      this.data.objectsByType[type2][id] = dataObject;
+      this.data.typeCounts[type2] = this.data.typeCounts[type2] === void 0 ? 1 : this.data.typeCounts[type2] + 1;
       this.data.events.onDataObjectCreated.dispatch(this.data, dataObject);
     }
     this.objects[id] = dataObject;
+    const type = dataObject.type;
     if (this.data.rootObjects[id]) {
       this.rootObjects[id] = dataObject;
     }
@@ -11466,10 +11478,12 @@ var DataModel = class {
         error: "[DataModel.fromParams] DataModel already destroyed"
       });
     }
+    const transactionState = this.#snapshotTransactionState();
     if (dataModelParams.propertySets) {
       for (let i = 0, len = dataModelParams.propertySets.length; i < len; i++) {
         const result = this.createPropertySet(dataModelParams.propertySets[i]);
         if (result.ok !== true) {
+          this.#restoreTransactionState(transactionState);
           return this.data.logError({
             ok: false,
             type: 2 /* InvalidInput */,
@@ -11482,6 +11496,7 @@ var DataModel = class {
       for (let i = 0, len = dataModelParams.objects.length; i < len; i++) {
         const result = this.createObject(dataModelParams.objects[i]);
         if (result.ok !== true) {
+          this.#restoreTransactionState(transactionState);
           return this.data.logError({
             ok: false,
             type: 2 /* InvalidInput */,
@@ -11494,6 +11509,7 @@ var DataModel = class {
       for (let i = 0, len = dataModelParams.relationships.length; i < len; i++) {
         const result = this.createRelationship(dataModelParams.relationships[i]);
         if (result.ok !== true) {
+          this.#restoreTransactionState(transactionState);
           return this.data.logError({
             ok: false,
             type: 2 /* InvalidInput */,
@@ -11509,6 +11525,13 @@ var DataModel = class {
   }
   /**
    * Converts this `DataModel` to a `DataModelParams` object.
+   *
+   * `DataModelParams` is exported as a self-contained document: every
+   * exported {@link Relationship | Relationship} endpoint must also be
+   * exported as an object owned by this `DataModel`. If a relationship
+   * references an endpoint outside this `DataModel`, export fails with
+   * `SDKErrorType.InvalidOperation` instead of emitting a dangling
+   * relationship reference.
    *
    * @returns A result containing the `DataModelParams` on success, or an error message on failure.
    */
@@ -11577,13 +11600,19 @@ var DataModel = class {
       if (dataObject.propertySets) {
         for (let i = 0, len = dataObject.propertySets.length; i < len; i++) {
           const propertySet = dataObject.propertySets[i];
-          dataObjectParams.propertySetIds?.push(propertySet.id);
+          if (this.propertySets[propertySet.id]) {
+            dataObjectParams.propertySetIds?.push(propertySet.id);
+          }
         }
       }
       dataModelParams.objects?.push(dataObjectParams);
     }
     for (let i = 0, len = this.relationships.length; i < len; i++) {
       const relationship = this.relationships[i];
+      const relationshipExportResult = this.#validateRelationshipExport(relationship);
+      if (relationshipExportResult.ok !== true) {
+        return relationshipExportResult;
+      }
       const relationParams = {
         type: relationship.type,
         schema: relationship.schema,
@@ -11612,11 +11641,178 @@ var DataModel = class {
         error: "[DataModel.destroy] DataModel already destroyed"
       });
     }
+    this.#destroyComponents();
+    this.destroyed = true;
+    this.data._destroyModel(this);
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  /**
+   * Discards a model that failed during creation before it was registered in
+   * {@link Data.models}.
+   *
+   * @private
+   */
+  _discard() {
+    if (this.destroyed) {
+      return;
+    }
+    this.#destroyComponents();
+    this.destroyed = true;
+  }
+  #validateRelationshipExport(relationship) {
+    const relatingObject = relationship.relatingObject;
+    const relatedObject = relationship.relatedObject;
+    if (!relatingObject || this.objects[relatingObject.id] !== relatingObject) {
+      return this.data.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[DataModel.toParams] Cannot export DataModel "${this.id}" because Relationship "${relationshipLocator(relationship)}" references relating DataObject "${relatingObject ? relatingObject.id : "<null>"}" that is not in this DataModel. DataModelParams export requires every relationship endpoint to be owned by the exported DataModel.`
+      });
+    }
+    if (!relatedObject || this.objects[relatedObject.id] !== relatedObject) {
+      return this.data.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[DataModel.toParams] Cannot export DataModel "${this.id}" because Relationship "${relationshipLocator(relationship)}" references related DataObject "${relatedObject ? relatedObject.id : "<null>"}" that is not in this DataModel. DataModelParams export requires every relationship endpoint to be owned by the exported DataModel.`
+      });
+    }
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  #validateSharedPropertySetReuse(propertySet, propertySetParams) {
+    if (propertySetParams.name !== propertySet.name) {
+      return this.data.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[DataModel.createPropertySet] PropertySet "${propertySetParams.id}" already exists with name "${propertySet.name}", which does not match requested name "${propertySetParams.name}"`
+      });
+    }
+    if (propertySetParams.type !== propertySet.type) {
+      return this.data.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[DataModel.createPropertySet] PropertySet "${propertySetParams.id}" already exists with type "${propertySet.type}", which does not match requested type "${propertySetParams.type}"`
+      });
+    }
+    if (propertySetParams.schema !== void 0 && propertySetParams.schema !== propertySet.schema) {
+      return this.data.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[DataModel.createPropertySet] PropertySet "${propertySetParams.id}" already exists with schema "${propertySet.schema}", which does not match requested schema "${propertySetParams.schema}"`
+      });
+    }
+    if (propertySetParams.originalSystemId !== void 0 && propertySetParams.originalSystemId !== propertySet.originalSystemId) {
+      return this.data.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[DataModel.createPropertySet] PropertySet "${propertySetParams.id}" already exists with originalSystemId "${propertySet.originalSystemId}", which does not match requested originalSystemId "${propertySetParams.originalSystemId}"`
+      });
+    }
+    if (!propertyParamsListEqual(propertySet.properties, propertySetParams.properties || [])) {
+      return this.data.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[DataModel.createPropertySet] PropertySet "${propertySetParams.id}" already exists with different properties`
+      });
+    }
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  #snapshotTransactionState() {
+    const models = /* @__PURE__ */ new Set();
+    models.add(this);
+    for (const id in this.data.models) {
+      models.add(this.data.models[id]);
+    }
+    const objectStates = /* @__PURE__ */ new Map();
+    for (const id in this.data.objects) {
+      const dataObject = this.data.objects[id];
+      objectStates.set(dataObject, {
+        models: dataObject.models.slice(),
+        relating: cloneRelationshipMap(dataObject.relating),
+        related: cloneRelationshipMap(dataObject.related)
+      });
+      for (let i = 0, len = dataObject.models.length; i < len; i++) {
+        models.add(dataObject.models[i]);
+      }
+    }
+    const propertySetStates = /* @__PURE__ */ new Map();
+    for (const id in this.data.propertySets) {
+      const propertySet = this.data.propertySets[id];
+      propertySetStates.set(propertySet, {
+        models: propertySet.models.slice()
+      });
+      for (let i = 0, len = propertySet.models.length; i < len; i++) {
+        models.add(propertySet.models[i]);
+      }
+    }
+    const modelRootObjects = /* @__PURE__ */ new Map();
+    models.forEach((model) => {
+      modelRootObjects.set(model, cloneObjectMap(model.rootObjects));
+    });
+    return {
+      propertySets: cloneObjectMap(this.propertySets),
+      objects: cloneObjectMap(this.objects),
+      rootObjects: cloneObjectMap(this.rootObjects),
+      objectsByType: cloneNestedObjectMap(this.objectsByType),
+      relationships: this.relationships.slice(),
+      typeCounts: cloneObjectMap(this.typeCounts),
+      stats: {
+        numObjects: this.stats.numObjects,
+        numRelationships: this.stats.numRelationships,
+        numPropertySets: this.stats.numPropertySets
+      },
+      dataPropertySets: cloneObjectMap(this.data.propertySets),
+      dataObjects: cloneObjectMap(this.data.objects),
+      dataRootObjects: cloneObjectMap(this.data.rootObjects),
+      dataObjectsByType: cloneNestedObjectMap(this.data.objectsByType),
+      dataTypeCounts: cloneObjectMap(this.data.typeCounts),
+      objectStates,
+      propertySetStates,
+      modelRootObjects
+    };
+  }
+  #restoreTransactionState(state) {
+    restoreObjectMap(this.propertySets, state.propertySets);
+    restoreObjectMap(this.objects, state.objects);
+    restoreObjectMap(this.rootObjects, state.rootObjects);
+    restoreObjectMap(this.objectsByType, state.objectsByType);
+    restoreArray(this.relationships, state.relationships);
+    restoreObjectMap(this.typeCounts, state.typeCounts);
+    this.stats.numObjects = state.stats.numObjects;
+    this.stats.numRelationships = state.stats.numRelationships;
+    this.stats.numPropertySets = state.stats.numPropertySets;
+    restoreObjectMap(this.data.propertySets, state.dataPropertySets);
+    restoreObjectMap(this.data.objects, state.dataObjects);
+    restoreObjectMap(this.data.rootObjects, state.dataRootObjects);
+    restoreObjectMap(this.data.objectsByType, state.dataObjectsByType);
+    restoreObjectMap(this.data.typeCounts, state.dataTypeCounts);
+    state.objectStates.forEach((objectState, dataObject) => {
+      restoreArray(dataObject.models, objectState.models);
+      restoreObjectMap(dataObject.relating, objectState.relating);
+      restoreObjectMap(dataObject.related, objectState.related);
+    });
+    state.propertySetStates.forEach((propertySetState, propertySet) => {
+      restoreArray(propertySet.models, propertySetState.models);
+    });
+    state.modelRootObjects.forEach((rootObjects, model) => {
+      restoreObjectMap(model.rootObjects, rootObjects);
+    });
+  }
+  #destroyComponents() {
     for (let i = 0, len = this.relationships.length; i < len; i++) {
       const relation = this.relationships[i];
       const type = relation.type;
       this.#removeRelation(relation.relatingObject.related[type], relation);
       this.#removeRelation(relation.relatedObject.relating[type], relation);
+      this.data.events.onRelationshipDestroyed.dispatch(this.data, relation);
     }
     for (const id in this.objects) {
       const dataObject = this.objects[id];
@@ -11646,21 +11842,85 @@ var DataModel = class {
         }
       }
     }
-    this.destroyed = true;
-    this.data._destroyModel(this);
+    for (const id in this.propertySets) {
+      const propertySet = this.propertySets[id];
+      this.#removePropertySetFromModels(propertySet);
+      if (propertySet.models.length === 0) {
+        delete this.data.propertySets[id];
+        this.data.events.onPropertySetDestroyed.dispatch(this.data, propertySet);
+      }
+    }
+  }
+  #removePropertySetFromModels(propertySet) {
+    for (let i = 0, len = propertySet.models.length; i < len; i++) {
+      if (propertySet.models[i] === this) {
+        propertySet.models.splice(i, 1);
+        break;
+      }
+    }
+  }
+  #validateSharedObjectReuse(dataObject, dataObjectParams) {
+    if (dataObjectParams.type !== dataObject.type) {
+      return this.data.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[DataModel.createObject] DataObject "${dataObjectParams.id}" already exists with type "${dataObject.type}", which does not match requested type "${dataObjectParams.type}"`
+      });
+    }
+    if (dataObjectParams.schema !== void 0 && dataObjectParams.schema !== dataObject.schema) {
+      return this.data.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[DataModel.createObject] DataObject "${dataObjectParams.id}" already exists with schema "${dataObject.schema}", which does not match requested schema "${dataObjectParams.schema}"`
+      });
+    }
+    if (dataObjectParams.name !== void 0 && dataObjectParams.name !== dataObject.name) {
+      return this.data.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[DataModel.createObject] DataObject "${dataObjectParams.id}" already exists with name "${dataObject.name}", which does not match requested name "${dataObjectParams.name}"`
+      });
+    }
+    if (dataObjectParams.description !== void 0 && dataObjectParams.description !== dataObject.description) {
+      return this.data.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[DataModel.createObject] DataObject "${dataObjectParams.id}" already exists with a different description`
+      });
+    }
+    if (dataObjectParams.originalSystemId !== void 0 && dataObjectParams.originalSystemId !== dataObject.originalSystemId) {
+      return this.data.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[DataModel.createObject] DataObject "${dataObjectParams.id}" already exists with originalSystemId "${dataObject.originalSystemId}", which does not match requested originalSystemId "${dataObjectParams.originalSystemId}"`
+      });
+    }
+    if (dataObjectParams.propertySetIds) {
+      const propertySets = dataObject.propertySets || [];
+      for (let i = 0, len = dataObjectParams.propertySetIds.length; i < len; i++) {
+        const propertySetId = dataObjectParams.propertySetIds[i];
+        const propertySet = this.propertySets[propertySetId];
+        if (!propertySet) {
+          return this.data.logError({
+            ok: false,
+            type: 2 /* InvalidInput */,
+            error: `[DataModel.createObject] PropertySet not found: "${propertySetId}"`
+          });
+        }
+        if (propertySets.indexOf(propertySet) < 0) {
+          return this.data.logError({
+            ok: false,
+            type: 2 /* InvalidInput */,
+            error: `[DataModel.createObject] PropertySet "${propertySetId}" is not associated with existing DataObject "${dataObjectParams.id}"`
+          });
+        }
+      }
+    }
     return {
       ok: true,
       value: void 0
     };
   }
-  // #removePropertySetFromModels(dataObject: DataObject) {
-  //     for (let i = 0, len = dataObject.models.length; i < len; i++) {
-  //         if (dataObject.models[i] === this) {
-  //             dataObject.models = dataObject.models.splice(i, 1);
-  //             break;
-  //         }
-  //     }
-  // }
   #removeObjectFromModels(dataObject) {
     for (let i = 0, len = dataObject.models.length; i < len; i++) {
       if (dataObject.models[i] === this) {
@@ -11688,6 +11948,90 @@ var DataModel = class {
     return false;
   }
 };
+function cloneObjectMap(map) {
+  const clone2 = {};
+  for (const id in map) {
+    clone2[id] = map[id];
+  }
+  return clone2;
+}
+function cloneNestedObjectMap(map) {
+  const clone2 = {};
+  for (const id in map) {
+    clone2[id] = cloneObjectMap(map[id]);
+  }
+  return clone2;
+}
+function cloneRelationshipMap(map) {
+  const clone2 = {};
+  for (const type in map) {
+    clone2[type] = map[type].slice();
+  }
+  return clone2;
+}
+function restoreObjectMap(target, source) {
+  for (const id in target) {
+    delete target[id];
+  }
+  for (const id in source) {
+    target[id] = source[id];
+  }
+}
+function restoreArray(target, source) {
+  target.length = 0;
+  for (let i = 0, len = source.length; i < len; i++) {
+    target.push(source[i]);
+  }
+}
+function relationshipLocator(relationship) {
+  const relatingId = relationship.relatingObject ? relationship.relatingObject.id : "?";
+  const relatedId = relationship.relatedObject ? relationship.relatedObject.id : "?";
+  return `${relatingId}->${relatedId}#${relationship.type}`;
+}
+function propertyParamsListEqual(properties, propertyParams) {
+  if (properties.length !== propertyParams.length) {
+    return false;
+  }
+  for (let i = 0, len = properties.length; i < len; i++) {
+    const property = properties[i];
+    const propertyParam = propertyParams[i];
+    if (property.name !== propertyParam.name || property.type !== propertyParam.type || property.valueType !== propertyParam.valueType || property.description !== propertyParam.description || !propertyValueEqual(property.value, propertyParam.value)) {
+      return false;
+    }
+  }
+  return true;
+}
+function propertyValueEqual(a2, b4) {
+  if (Object.is(a2, b4)) {
+    return true;
+  }
+  if (typeof a2 !== "object" || typeof b4 !== "object" || a2 === null || b4 === null) {
+    return false;
+  }
+  if (Array.isArray(a2) || Array.isArray(b4)) {
+    if (!Array.isArray(a2) || !Array.isArray(b4) || a2.length !== b4.length) {
+      return false;
+    }
+    for (let i = 0, len = a2.length; i < len; i++) {
+      if (!propertyValueEqual(a2[i], b4[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+  const aKeys = Object.keys(a2);
+  const bKeys = Object.keys(b4);
+  if (aKeys.length !== bKeys.length) {
+    return false;
+  }
+  for (let i = 0, len = aKeys.length; i < len; i++) {
+    const key = aKeys[i];
+    if (!Object.prototype.hasOwnProperty.call(b4, key) || !propertyValueEqual(a2[key], b4[key])) {
+      return false;
+    }
+  }
+  return true;
+}
 
 // ../sdk/src/model/data/DataEvents.ts
 var import_strongly_typed_events3 = __toESM(require_dist8());
@@ -11851,6 +12195,11 @@ var Data2 = class {
       });
     }
     const dataModel = new DataModel(this, id, dataModelParams);
+    const result = dataModel.fromParams(dataModelParams);
+    if (result.ok !== true) {
+      dataModel._discard();
+      return result;
+    }
     this.models[dataModel.id] = dataModel;
     this.events.onDataModelCreated.dispatch(this, dataModel);
     return {
@@ -11967,12 +12316,15 @@ function searchObjects(data2, searchParams) {
   }
   const includeObjects = searchParams.includeObjects && searchParams.includeObjects.length > 0 ? arrayToMap(searchParams.includeObjects) : null;
   const excludeObjects = searchParams.excludeObjects && searchParams.excludeObjects.length > 0 ? arrayToMap(searchParams.excludeObjects) : null;
-  const includeRelating = searchParams.includeRelating && searchParams.includeRelating.length > 0 ? arrayToMap(searchParams.includeRelating) : null;
-  const excludeRelating = searchParams.excludeRelating && searchParams.excludeRelating.length > 0 ? arrayToMap(searchParams.excludeRelating) : null;
+  const includeRelated = filterToMap(searchParams.includeRelated, searchParams.includeRelating);
+  const excludeRelated = filterToMap(searchParams.excludeRelated, searchParams.excludeRelating);
+  const visitedObjects = {};
+  let stopped = false;
   function visit(dataObject, depth2) {
-    if (!dataObject) {
+    if (!dataObject || stopped || visitedObjects[dataObject.id]) {
       return;
     }
+    visitedObjects[dataObject.id] = true;
     let includeObject = true;
     if (excludeObjects && excludeObjects[dataObject.type]) {
       includeObject = false;
@@ -11991,6 +12343,7 @@ function searchObjects(data2, searchParams) {
         searchParams.resultObjects.push(dataObject);
       } else if (searchParams.resultCallback) {
         if (searchParams.resultCallback(dataObject)) {
+          stopped = true;
           return;
         }
       }
@@ -12001,15 +12354,18 @@ function searchObjects(data2, searchParams) {
       if (relations) {
         for (let i = 0, len = relations.length; i < len; i++) {
           let includeRelation = true;
-          if (excludeRelating && excludeRelating[type]) {
+          if (excludeRelated && excludeRelated[type]) {
             includeRelation = false;
           } else {
-            if (includeRelating && !includeRelating[type]) {
+            if (includeRelated && !includeRelated[type]) {
               includeRelation = false;
             }
           }
           if (includeRelation) {
             visit(relations[i].relatedObject, depth2 + 1);
+            if (stopped) {
+              return;
+            }
           }
         }
       }
@@ -12034,10 +12390,13 @@ function searchObjects(data2, searchParams) {
         error: `[searchObjects] Cannot search DataObjects - starting DataObject not in same Data: "${searchParams.startObjectId}"`
       };
     }
-    visit(searchParams.startObject, depth + 1);
+    visit(searchParams.startObject, depth);
   } else {
     for (const id in data2.rootObjects) {
       visit(data2.rootObjects[id], depth + 1);
+      if (stopped) {
+        break;
+      }
     }
   }
   return {
@@ -12051,6 +12410,10 @@ function arrayToMap(array) {
     map[array[i]] = true;
   }
   return map;
+}
+function filterToMap(primary, fallback) {
+  const values = primary && primary.length > 0 ? primary : fallback;
+  return values && values.length > 0 ? arrayToMap(values) : null;
 }
 
 // ../sdk/src/model/procgen/index.ts
@@ -17234,6 +17597,7 @@ function compressGeometryParams(geometryParams) {
       primitive: LinesPrimitive,
       aabb,
       positionsCompressed,
+      colorsCompressed: geometryParams.colorsCompressed ? geometryParams.colorsCompressed : geometryParams.colors ? compressRGBColors(geometryParams.colors) : void 0,
       indices: geometryParams.indices,
       origin: rtcNeeded ? rtcCenter : null
     };
@@ -17255,6 +17619,7 @@ function compressGeometryParams(geometryParams) {
       positionsCompressed,
       normalsCompressed,
       uvsCompressed,
+      colorsCompressed: geometryParams.colorsCompressed ? geometryParams.colorsCompressed : geometryParams.colors ? compressRGBColors(geometryParams.colors) : void 0,
       indices: geometryParams.indices,
       edgeIndices,
       origin: rtcNeeded ? rtcCenter : null
@@ -17574,6 +17939,11 @@ var CoordinateSystem = class {
       0
       // Forward
     ]);
+    this._updateWorldAxesFromBasis();
+    this._model ? this._model.scene.events.onSceneModelCoordSystemBasisChanged.dispatch(this._model, this) : this._scene.events.onSceneCoordSystemBasisChanged.dispatch(this._scene, this);
+    this._notifyUpdated();
+  }
+  _updateWorldAxesFromBasis() {
     this._worldRight[0] = this._basis[0];
     this._worldRight[1] = this._basis[1];
     this._worldRight[2] = this._basis[2];
@@ -17583,8 +17953,6 @@ var CoordinateSystem = class {
     this._worldForward[0] = this._basis[6];
     this._worldForward[1] = this._basis[7];
     this._worldForward[2] = this._basis[8];
-    this._model ? this._model.scene.events.onSceneModelCoordSystemBasisChanged.dispatch(this._model, this) : this._scene.events.onSceneCoordSystemBasisChanged.dispatch(this._scene, this);
-    this._notifyUpdated();
   }
   /** Gets the origin of the coordinate system in global space. */
   get origin() {
@@ -17745,11 +18113,10 @@ var CoordinateSystem = class {
       });
       return;
     }
-    this._basis = createVec9Float64(params.basis);
-    this._origin = createVec3Float32(params.origin);
-    this._units = params.units;
-    this._scaleToMeters = params.scaleToMeters;
-    this._notifyUpdated();
+    this.basis = params.basis;
+    this.origin = params.origin;
+    this.units = params.units;
+    this.scaleToMeters = params.scaleToMeters;
   }
   /**
    * Destroys this CoordinateSystem.
@@ -18125,18 +18492,28 @@ var SceneTransform = class {
           error: `[SceneTransform.setParentTransformId] Cannot set parent transform to a transform in a different SceneModel on SceneTransform ${this.id}`
         });
       }
+      for (let ancestor = parentTransform; ancestor; ancestor = ancestor._parentTransform) {
+        if (ancestor === this) {
+          return this.model.scene.logError({
+            ok: false,
+            type: 1 /* InvalidOperation */,
+            error: `[SceneTransform.setParentTransformId] Cannot create a transform hierarchy cycle on SceneTransform ${this.id}`
+          });
+        }
+      }
     }
     const preserve = !!opts?.preserveWorld;
     if (preserve) {
-      this._updateGlobal();
-      const currentWorld = createMat4Float64(this._worldMatrix);
+      const currentWorld = createMat4Float64(this.worldMatrix);
       this._attachParentTransform(parentTransform);
       if (this._parentTransform) {
-        const invParent = inverseMat4(this._parentTransform._worldMatrix, createMat4Float64());
+        const invParent = inverseMat4(this._parentTransform.worldMatrix, createMat4Float64());
         mulMat4(invParent, currentWorld, this._localMatrix);
       } else {
-        this._localMatrix.set(currentWorld);
+        const invCoordSystem = inverseMat4(this.model.coordinateSystemMatrix, createMat4Float64());
+        mulMat4(invCoordSystem, currentWorld, this._localMatrix);
       }
+      this._localMatrixDirty = false;
       this._markTreeDirtyTask.schedule();
     } else {
       this._attachParentTransform(parentTransform);
@@ -18312,10 +18689,15 @@ var SceneTransform = class {
     for (const child of [...this._childTransforms]) {
       child.setParentTransformId(null, { preserveWorld: false });
     }
+    for (const childMesh of [...this._childMeshes]) {
+      childMesh.setParentTransformId(null, { preserveWorld: false });
+    }
     this._markTreeDirtyTask.destroy();
     this._childTransforms = [];
+    this._childMeshes = [];
     this.model._destroyTransform(this);
     this.destroyed = true;
+    return { ok: true, value: void 0 };
   }
   /**
    * Marks the local matrix dirty and schedules dirtiness propagation through the transform tree.
@@ -18834,11 +19216,12 @@ var SceneMesh = class {
       this.setWorldMatrixDirty();
       const currentWorld = createMat4Float64(this.worldMatrix);
       this._attachParentTransform(parentTransform);
-      if (this._parentTransform) {
-        const invParent = inverseMat4(this._parentTransform._worldMatrix, createMat4Float64());
-        mulMat4(this._localMatrix, invParent, currentWorld);
+      if (parentTransform) {
+        const invParent = inverseMat4(parentTransform.worldMatrix, createMat4Float64());
+        mulMat4(invParent, currentWorld, this._ownLocalMatrix());
       } else {
-        this._ownLocalMatrix().set(currentWorld);
+        const invCoordSystem = inverseMat4(this.model.coordinateSystemMatrix, createMat4Float64());
+        mulMat4(invCoordSystem, currentWorld, this._ownLocalMatrix());
       }
       this.setWorldMatrixDirty();
     } else {
@@ -19089,6 +19472,9 @@ var SceneObject = class {
       id: this.id,
       meshIds: []
     };
+    if (this.originalSystemId !== this.id) {
+      sceneObjectParams.originalSystemId = this.originalSystemId;
+    }
     if (this.layerId !== void 0) {
       sceneObjectParams.layerId = this.layerId;
     }
@@ -19236,6 +19622,12 @@ var SceneTexture = class {
    */
   mipmap;
   /**
+   * Estimated uncompressed memory footprint used by
+   * {@link SceneModelStats.textureBytes}.
+   * @internal
+   */
+  textureBytes;
+  /**
    * @private
    */
   channel;
@@ -19268,15 +19660,21 @@ var SceneTexture = class {
     this.image = params.image;
     this._imageData = normalizeImageData(params.imageData);
     this.buffers = params.buffers;
+    const sourceSize = getTextureSize(this._imageData || this.image);
+    this.width = params.width ?? sourceSize.width;
+    this.height = params.height ?? sourceSize.height;
+    this.compressed = params.compressed === true;
     this.mediaType = params.mediaType;
     this.minFilter = params.minFilter || LinearMipMapNearestFilter;
-    this.magFilter = params.magFilter || LinearMipMapNearestFilter;
+    this.magFilter = params.magFilter || LinearFilter;
     this.wrapS = params.wrapS || RepeatWrapping;
     this.wrapT = params.wrapT || RepeatWrapping;
     this.wrapR = params.wrapR || RepeatWrapping;
+    this.flipY = params.flipY === true;
     this.encoding = params.encoding || LinearEncoding;
     this.preloadColor = createVec4Float64(params.preloadColor || [1, 1, 1, 1]);
     this.mipmap = params.mipmap === true;
+    this.textureBytes = estimateTextureBytes(this._imageData || this.image || this);
     this.channel = 0;
     this.numMaterials = 0;
   }
@@ -19293,6 +19691,13 @@ var SceneTexture = class {
    * of the sampler state pass straight through.
    */
   toParams() {
+    if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: `[SceneTexture.toParams] Cannot get params of destroyed SceneTexture '${this.id}'`
+      });
+    }
     return {
       ok: true,
       value: {
@@ -19303,14 +19708,18 @@ var SceneTexture = class {
         src: this.src ?? serializeImageToDataURL(this.image),
         imageData: serializeImageData(this.imageData),
         buffers: this.buffers,
+        width: this.width,
+        height: this.height,
+        compressed: this.compressed,
         mediaType: this.mediaType,
         minFilter: this.minFilter,
         magFilter: this.magFilter,
         wrapS: this.wrapS,
         wrapT: this.wrapT,
         wrapR: this.wrapR,
+        flipY: this.flipY,
         encoding: this.encoding,
-        preloadColor: this.preloadColor,
+        preloadColor: Array.from(this.preloadColor),
         mipmap: this.mipmap
       }
     };
@@ -19345,7 +19754,13 @@ var SceneTexture = class {
       });
       return;
     }
+    const oldTextureBytes = this.textureBytes;
     this._imageData = normalizeImageData(value);
+    const sourceSize = getTextureSize(this._imageData || this.image || this);
+    this.width = sourceSize.width;
+    this.height = sourceSize.height;
+    this.textureBytes = estimateTextureBytes(this._imageData || this.image);
+    this.model.stats.textureBytes += this.textureBytes - oldTextureBytes;
     if (this._imageData) {
       this.model.scene.events.onSceneTextureImageDataChanged.dispatch(this.model.scene, this);
     }
@@ -19402,6 +19817,18 @@ function normalizeImageData(input) {
   } catch {
     return void 0;
   }
+}
+function getTextureSize(source) {
+  if (!source) {
+    return { width: 0, height: 0 };
+  }
+  const width = source.width || source.naturalWidth || 0;
+  const height = source.height || source.naturalHeight || 0;
+  return { width, height };
+}
+function estimateTextureBytes(source) {
+  const { width, height } = getTextureSize(source);
+  return width > 0 && height > 0 ? width * height * 4 : 0;
 }
 function serializeImageData(imageData2) {
   if (!imageData2) {
@@ -20079,8 +20506,12 @@ var SceneMaterial = class {
       opacity: this._opacity,
       roughness: this._roughness,
       metallic: this._metallic,
+      alphaMode: this._alphaMode === 1 ? "MASK" : this._alphaMode === 2 ? "BLEND" : "OPAQUE",
+      alphaCutoff: this._alphaCutoff,
       triplanarScale: this._triplanarScale,
-      lineWidth: this._lineWidth
+      lineWidth: this._lineWidth,
+      linePattern: cloneLinePattern(this._linePatternUserValue),
+      hatchPattern: cloneHatchPattern(this._hatchPatternUserValue)
     };
     if (this.colorTexture)
       materialParams.colorTextureId = this.colorTexture.id;
@@ -20124,6 +20555,27 @@ var SceneMaterial = class {
     return { ok: true, value: void 0 };
   }
 };
+function cloneLinePattern(value) {
+  return Array.isArray(value) ? Array.from(value) : value;
+}
+function cloneHatchPattern(value) {
+  if (typeof value === "string") {
+    return value;
+  }
+  const cloned = {
+    families: value.families.map((family) => ({ ...family }))
+  };
+  if (value.color) {
+    cloned.color = Array.from(value.color);
+  }
+  if (value.opacity !== void 0) {
+    cloned.opacity = value.opacity;
+  }
+  if (value.space !== void 0) {
+    cloned.space = value.space;
+  }
+  return cloned;
+}
 
 // ../sdk/src/model/scene/SceneTechnique.ts
 var SceneTechnique = class {
@@ -20641,13 +21093,10 @@ var SceneModel2 = class {
     if (textureParams.src) {
       const fileExt = textureParams.src.split(".").pop();
     }
-    const sized = textureParams.imageData || textureParams.image;
-    if (sized && sized.width && sized.height) {
-      this.stats.textureBytes += sized.width * sized.height * 4;
-    }
     const texture = new SceneTexture(this, textureParams);
     this.textures[textureParams.id] = texture;
     this.stats.numTextures++;
+    this.stats.textureBytes += texture.textureBytes;
     this.scene.events.onSceneTextureCreated.dispatch(this.scene, texture);
     return {
       ok: true,
@@ -20669,7 +21118,7 @@ var SceneModel2 = class {
     }
     delete this.textures[textureId];
     this.stats.numTextures--;
-    this.stats.textureBytes -= sceneTexture.imageData ? sceneTexture.imageData.width * sceneTexture.imageData.height * 4 : 0;
+    this.stats.textureBytes -= sceneTexture.textureBytes;
     this.scene.events.onSceneTextureDestroyed.dispatch(this.scene, sceneTexture);
   }
   /**
@@ -21135,7 +21584,18 @@ var SceneModel2 = class {
         error: "[SceneModel.createGeometryCompressed] Parameters expected: geometryCompressedParams"
       });
     }
-    const { id, indices, primitive, positionsCompressed, uvsCompressed, normalsCompressed } = geometryCompressedParams;
+    const {
+      id,
+      indices,
+      primitive,
+      positionsCompressed,
+      uvsCompressed,
+      normalsCompressed,
+      colorsCompressed,
+      aabb,
+      scales,
+      rotations
+    } = geometryCompressedParams;
     if (id === null || id === void 0) {
       return this.scene.logError({
         ok: false,
@@ -21150,15 +21610,69 @@ var SceneModel2 = class {
         error: "[SceneModel.createGeometryCompressed] Parameter expected: 'positionsCompressed'"
       });
     }
-    if (!indices && primitive !== PointsPrimitive && primitive !== GaussianSplatsPrimitive) {
+    if (positionsCompressed.length === 0) {
+      return this.scene.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: "[SceneModel.createGeometryCompressed] 'positionsCompressed' cannot be empty."
+      });
+    }
+    if (positionsCompressed.length % 3 !== 0) {
+      return this.scene.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: "[SceneModel.createGeometryCompressed] The length of 'positionsCompressed' must be a multiple of 3."
+      });
+    }
+    if (primitive !== PointsPrimitive && primitive !== LinesPrimitive && primitive !== TrianglesPrimitive && primitive !== SolidPrimitive && primitive !== SurfacePrimitive && primitive !== GaussianSplatsPrimitive) {
+      return this.scene.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: `[SceneModel.createGeometryCompressed] Unsupported value for parameter 'primitive': '${primitive}' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive, SurfacePrimitive and GaussianSplatsPrimitive`
+      });
+    }
+    if (!aabb || aabb.length !== 6) {
+      return this.scene.logError({
+        ok: false,
+        type: 2 /* InvalidInput */,
+        error: "[SceneModel.createGeometryCompressed] Parameter expected: 'aabb' with six elements."
+      });
+    }
+    if ((!indices || indices.length === 0) && primitive !== PointsPrimitive && primitive !== GaussianSplatsPrimitive) {
       return this.scene.logError({
         ok: false,
         type: 2 /* InvalidInput */,
         error: "[SceneModel.createGeometryCompressed] Missing expected 'indices' for the specified primitive type."
       });
     }
+    if (indices) {
+      if (primitive === LinesPrimitive && indices.length % 2 !== 0) {
+        return this.scene.logError({
+          ok: false,
+          type: 2 /* InvalidInput */,
+          error: "[SceneModel.createGeometryCompressed] The length of 'indices' must be a multiple of 2 for line geometry."
+        });
+      }
+      if ((primitive === TrianglesPrimitive || primitive === SolidPrimitive || primitive === SurfacePrimitive) && indices.length % 3 !== 0) {
+        return this.scene.logError({
+          ok: false,
+          type: 2 /* InvalidInput */,
+          error: "[SceneModel.createGeometryCompressed] The length of 'indices' must be a multiple of 3 for triangle geometry."
+        });
+      }
+    }
+    const numVertices = positionsCompressed.length / 3;
+    if (colorsCompressed) {
+      if (colorsCompressed.length / 4 !== numVertices) {
+        return this.scene.logError({
+          ok: false,
+          type: 2 /* InvalidInput */,
+          error: "[SceneModel.createGeometryCompressed] Mismatch between given quantities of vertex positions and colors"
+        });
+      }
+    }
     if (uvsCompressed) {
-      if (uvsCompressed.length / 2 !== positionsCompressed.length / 3) {
+      if (uvsCompressed.length / 2 !== numVertices) {
         return this.scene.logError({
           ok: false,
           type: 2 /* InvalidInput */,
@@ -21167,7 +21681,7 @@ var SceneModel2 = class {
       }
     }
     if (normalsCompressed) {
-      if (normalsCompressed.length / 2 !== positionsCompressed.length / 3) {
+      if (normalsCompressed.length / 2 !== numVertices) {
         return this.scene.logError({
           ok: false,
           type: 2 /* InvalidInput */,
@@ -21175,8 +21689,26 @@ var SceneModel2 = class {
         });
       }
     }
+    if (scales) {
+      if (scales.length / 3 !== numVertices) {
+        return this.scene.logError({
+          ok: false,
+          type: 2 /* InvalidInput */,
+          error: "[SceneModel.createGeometryCompressed] Mismatch between given quantities of vertex positions and splat scales"
+        });
+      }
+    }
+    if (rotations) {
+      if (rotations.length / 4 !== numVertices) {
+        return this.scene.logError({
+          ok: false,
+          type: 2 /* InvalidInput */,
+          error: "[SceneModel.createGeometryCompressed] Mismatch between given quantities of vertex positions and splat rotations"
+        });
+      }
+    }
     if (indices) {
-      const lastPositionsIdx = positionsCompressed.length / 3;
+      const lastPositionsIdx = numVertices;
       for (let i = 0, len = indices.length; i < len; i++) {
         const idx = indices[i];
         if (idx < 0 || idx >= lastPositionsIdx) {
@@ -21204,13 +21736,6 @@ var SceneModel2 = class {
         ok: false,
         type: 2 /* InvalidInput */,
         error: `[SceneModel.createGeometryCompressed] SceneGeometry with this ID already exists: '${geometryId}'`
-      });
-    }
-    if (primitive !== PointsPrimitive && primitive !== LinesPrimitive && primitive !== TrianglesPrimitive && primitive !== SolidPrimitive && primitive !== SurfacePrimitive && primitive !== GaussianSplatsPrimitive) {
-      return this.scene.logError({
-        ok: false,
-        type: 2 /* InvalidInput */,
-        error: `[SceneModel.createGeometryCompressed] Unsupported value for parameter 'primitive': '${primitive}' - supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive, SurfacePrimitive and GaussianSplatsPrimitive`
       });
     }
     const sceneGeometry = new SceneGeometry(this, geometryCompressedParams);
@@ -21654,9 +22179,19 @@ var SceneModel2 = class {
     }
     if (sceneModelParams.transforms) {
       for (let i = 0, len = sceneModelParams.transforms.length; i < len; i++) {
-        const res = this.createTransform(sceneModelParams.transforms[i]);
+        const transformParams = { ...sceneModelParams.transforms[i] };
+        delete transformParams.parentTransformId;
+        const res = this.createTransform(transformParams);
         if (!res.ok)
           return res;
+      }
+      for (let i = 0, len = sceneModelParams.transforms.length; i < len; i++) {
+        const transformParams = sceneModelParams.transforms[i];
+        if (transformParams.parentTransformId) {
+          const res = this.transforms[transformParams.id].setParentTransformId(transformParams.parentTransformId);
+          if (!res.ok)
+            return res;
+        }
       }
     }
     if (sceneModelParams.geometries) {
@@ -21802,6 +22337,7 @@ var SceneModel2 = class {
     };
     destroyAll(this.objects);
     destroyAll(this.meshes);
+    destroyAll(this.techniques);
     destroyAll(this.transforms);
     destroyAll(this.materials);
     destroyAll(this.geometries);
@@ -31906,9 +32442,9 @@ function splitPrimitiveByFeature(ctx2, primitive, matrix) {
   const normals = primitive.attributes.NORMAL?.value;
   const uvs = primitive.attributes.TEXCOORD_0?.value;
   const srcIndices = primitive.indices?.value;
-  const triangleCount = srcIndices ? srcIndices.length / 3 : positions.length / 9;
+  const triangleCount2 = srcIndices ? srcIndices.length / 3 : positions.length / 9;
   const cornersByFeature = /* @__PURE__ */ new Map();
-  for (let t = 0; t < triangleCount; t++) {
+  for (let t = 0; t < triangleCount2; t++) {
     const a2 = srcIndices ? srcIndices[t * 3] : t * 3;
     const b4 = srcIndices ? srcIndices[t * 3 + 1] : t * 3 + 1;
     const c2 = srcIndices ? srcIndices[t * 3 + 2] : t * 3 + 2;
@@ -36693,7 +37229,7 @@ var GLTFWriter = class {
       };
     }
     function interleaveAccessors(accessors, bufferIndex, bufferByteOffset) {
-      const vertexCount = accessors[0].getCount();
+      const vertexCount2 = accessors[0].getCount();
       let byteStride = 0;
       for (const accessor of accessors) {
         const accessorDef = context.createAccessorDef(accessor);
@@ -36705,10 +37241,10 @@ var GLTFWriter = class {
         context.accessorIndexMap.set(accessor, json.accessors.length);
         json.accessors.push(accessorDef);
       }
-      const byteLength = vertexCount * byteStride;
+      const byteLength = vertexCount2 * byteStride;
       const buffer = new ArrayBuffer(byteLength);
       const view = new DataView(buffer);
-      for (let i = 0; i < vertexCount; i++) {
+      for (let i = 0; i < vertexCount2; i++) {
         let vertexByteOffset = 0;
         for (const accessor of accessors) {
           const elementSize = accessor.getElementSize();
@@ -132476,11 +133012,11 @@ function flushCurrentObject(ctx2) {
     positions: geometry.positions.slice(),
     indices: geometry.indices.slice()
   };
-  const vertexCount = geometry.positions.length / 3;
-  if (geometry.normals.length === vertexCount * 3) {
+  const vertexCount2 = geometry.positions.length / 3;
+  if (geometry.normals.length === vertexCount2 * 3) {
     geometryCfg.normals = geometry.normals.slice();
   }
-  if (geometry.uv.length === vertexCount * 2) {
+  if (geometry.uv.length === vertexCount2 * 2) {
     geometryCfg.uvs = geometry.uv.slice();
   }
   const createGeometryResult = ctx2.sceneModel.createGeometry(geometryCfg);
@@ -136162,7 +136698,7 @@ async function parse24(input, options = {}) {
   const { viewBox, buckets, resolvedOpts: opts } = parseSVGTree(root, options);
   const sceneObjectIds = [];
   let segmentCount = 0;
-  let triangleCount = 0;
+  let triangleCount2 = 0;
   let textCount = 0;
   for (let bIdx = 0; bIdx < buckets.length; bIdx++) {
     const bucket = buckets[bIdx];
@@ -136221,7 +136757,7 @@ async function parse24(input, options = {}) {
       if (meshRes.ok === false)
         return err2(meshRes.type, `[svg.parse] ${objectId} fill: ${meshRes.error}`);
       meshIds.push(meshId);
-      triangleCount += tris.length;
+      triangleCount2 += tris.length;
     }
     let strokeIdx = 0;
     for (const [, sb] of bucket.strokeBuckets) {
@@ -136379,7 +136915,7 @@ async function parse24(input, options = {}) {
       sceneModel: input.sceneModel,
       viewBox,
       segmentCount,
-      triangleCount,
+      triangleCount: triangleCount2,
       textCount,
       sceneObjectIds
     }
@@ -137807,7 +138343,7 @@ async function emit(input, options = {}) {
   }
   const sceneObjectIds = [];
   let segmentCount = 0;
-  let triangleCount = 0;
+  let triangleCount2 = 0;
   let textCount = 0;
   const buckets = collector.buckets();
   for (let bIdx = 0; bIdx < buckets.length; bIdx++) {
@@ -137862,7 +138398,7 @@ async function emit(input, options = {}) {
       if (meshRes.ok === false)
         return err3(meshRes.type, `[dwg.emit] ${objectId} fill: ${meshRes.error}`);
       meshIds.push(meshId);
-      triangleCount += tris.length;
+      triangleCount2 += tris.length;
     }
     let strokeIdx = 0;
     for (const [, sb] of bucket.strokeBuckets) {
@@ -138000,7 +138536,7 @@ async function emit(input, options = {}) {
     value: {
       sceneModel: input.sceneModel,
       segmentCount,
-      triangleCount,
+      triangleCount: triangleCount2,
       textCount,
       insertCount,
       sceneObjectIds
@@ -140634,7 +141170,7 @@ function parseRepresentation(doc) {
     if (positions.length < 9) {
       continue;
     }
-    const vertexCount = positions.length / 3 | 0;
+    const vertexCount2 = positions.length / 3 | 0;
     const normalsRaw = floats(textOfChild(vb, "Normals"));
     const normals = normalsRaw.length === positions.length ? normalsRaw : void 0;
     const indices = [];
@@ -140649,7 +141185,7 @@ function parseRepresentation(doc) {
       const idx = numbersIn(tri);
       for (let i = 0; i + 2 < idx.length; i += 3) {
         const a2 = idx[i] | 0, b4 = idx[i + 1] | 0, c2 = idx[i + 2] | 0;
-        if (a2 < vertexCount && b4 < vertexCount && c2 < vertexCount && a2 >= 0 && b4 >= 0 && c2 >= 0) {
+        if (a2 < vertexCount2 && b4 < vertexCount2 && c2 < vertexCount2 && a2 >= 0 && b4 >= 0 && c2 >= 0) {
           indices.push(a2, b4, c2);
         }
       }
@@ -142222,7 +142758,7 @@ __export(dataModel_exports, {
   objectTypeRegistration: () => objectTypeRegistration,
   propertySetReferences: () => propertySetReferences,
   relationshipCycles: () => relationshipCycles,
-  relationshipLocator: () => relationshipLocator,
+  relationshipLocator: () => relationshipLocator2,
   relationshipReferences: () => relationshipReferences,
   relationshipTypeBinding: () => relationshipTypeBinding,
   relationshipTypeRegistration: () => relationshipTypeRegistration,
@@ -142281,15 +142817,18 @@ var InspectionRegistry = class {
 var objectIntegrity = {
   codes: [
     "OBJECT_MISSING_TYPE",
+    "OBJECT_DANGLING_PROPERTY_SET_REF",
     "OBJECT_DUPLICATE_PROPERTY_SET_REF"
   ],
   description: "DataObject structural integrity",
   labels: {
     OBJECT_MISSING_TYPE: "DataObject \u2014 missing type",
+    OBJECT_DANGLING_PROPERTY_SET_REF: "DataObject \u2014 missing PropertySet",
     OBJECT_DUPLICATE_PROPERTY_SET_REF: "DataObject \u2014 duplicate PropertySet reference"
   },
   descriptions: {
     OBJECT_MISSING_TYPE: "DataObject has no `type` value. Type-aware tooling \u2014 search, filtering, schema validation \u2014 can't reason about untyped objects.",
+    OBJECT_DANGLING_PROPERTY_SET_REF: "DataObject references a PropertySet that is missing from this DataModel, has been replaced by another same-id PropertySet, or is null.",
     OBJECT_DUPLICATE_PROPERTY_SET_REF: "DataObject lists the same PropertySet more than once in its `propertySets` array. Harmless at runtime but usually a loader bug."
   },
   run(dataModel) {
@@ -142306,21 +142845,33 @@ var objectIntegrity = {
         });
       }
       const sets = obj.propertySets;
-      if (sets && sets.length > 1) {
+      if (sets && sets.length > 0) {
         const seen = /* @__PURE__ */ new Set();
         for (const ps of sets) {
-          if (seen.has(ps.id)) {
+          const propertySetId = ps ? ps.id : "";
+          if (!ps || dataModel.propertySets[propertySetId] !== ps) {
+            issues.push({
+              severity: "error",
+              code: "OBJECT_DANGLING_PROPERTY_SET_REF",
+              message: `DataObject '${objId}' references missing, destroyed, or stale PropertySet '${propertySetId || "<null>"}'`,
+              summary: propertySetId ? `stale '${propertySetId}'` : "missing PropertySet",
+              resourceId: objId,
+              context: { propertySetId }
+            });
+            continue;
+          }
+          if (seen.has(propertySetId)) {
             issues.push({
               severity: "warning",
               code: "OBJECT_DUPLICATE_PROPERTY_SET_REF",
-              message: `DataObject '${objId}' references PropertySet '${ps.id}' more than once`,
-              summary: `duplicate '${ps.id}'`,
+              message: `DataObject '${objId}' references PropertySet '${propertySetId}' more than once`,
+              summary: `duplicate '${propertySetId}'`,
               resourceId: objId,
-              context: { duplicatePropertySetId: ps.id }
+              context: { duplicatePropertySetId: propertySetId }
             });
             break;
           }
-          seen.add(ps.id);
+          seen.add(propertySetId);
         }
       }
     }
@@ -142364,12 +142915,20 @@ var objectTypeRegistration = {
 
 // ../sdk/src/inspect/dataModel/inspections/generic/relationshipReferences.ts
 var relationshipReferences = {
-  codes: ["RELATIONSHIP_SELF_REFERENCE"],
+  codes: [
+    "RELATIONSHIP_DANGLING_RELATING_OBJECT",
+    "RELATIONSHIP_DANGLING_RELATED_OBJECT",
+    "RELATIONSHIP_SELF_REFERENCE"
+  ],
   description: "Relationship reference integrity",
   labels: {
+    RELATIONSHIP_DANGLING_RELATING_OBJECT: "Relationship \u2014 missing relating object",
+    RELATIONSHIP_DANGLING_RELATED_OBJECT: "Relationship \u2014 missing related object",
     RELATIONSHIP_SELF_REFERENCE: "Relationship \u2014 self-reference"
   },
   descriptions: {
+    RELATIONSHIP_DANGLING_RELATING_OBJECT: "Relationship's relating endpoint is missing from the owning Data registry, has been replaced by another same-id DataObject, or is null.",
+    RELATIONSHIP_DANGLING_RELATED_OBJECT: "Relationship's related endpoint is missing from the owning Data registry, has been replaced by another same-id DataObject, or is null.",
     RELATIONSHIP_SELF_REFERENCE: "Relationship's relating and related objects are the same. Most relationship types are binary across two distinct objects; self- references usually indicate a loader bug. Schemas can opt in via RelationshipTypeSpec.allowSelfReference."
   },
   run(dataModel) {
@@ -142377,8 +142936,32 @@ var relationshipReferences = {
     for (const rel of dataModel.relationships) {
       const relating = rel.relatingObject;
       const related = rel.relatedObject;
-      if (relating && related && relating.id === related.id) {
-        const locator = relationshipLocator(rel);
+      const locator = relationshipLocator2(rel);
+      const relatingLive = !!relating && dataModel.data.objects[relating.id] === relating;
+      const relatedLive = !!related && dataModel.data.objects[related.id] === related;
+      if (!relatingLive) {
+        const objectId = relating ? relating.id : "";
+        issues.push({
+          severity: "error",
+          code: "RELATIONSHIP_DANGLING_RELATING_OBJECT",
+          message: `Relationship '${locator}' references missing, destroyed, or stale relating DataObject '${objectId || "<null>"}'`,
+          summary: objectId ? `stale relating '${objectId}'` : "missing relating object",
+          resourceId: locator,
+          context: { objectId, type: rel.type }
+        });
+      }
+      if (!relatedLive) {
+        const objectId = related ? related.id : "";
+        issues.push({
+          severity: "error",
+          code: "RELATIONSHIP_DANGLING_RELATED_OBJECT",
+          message: `Relationship '${locator}' references missing, destroyed, or stale related DataObject '${objectId || "<null>"}'`,
+          summary: objectId ? `stale related '${objectId}'` : "missing related object",
+          resourceId: locator,
+          context: { objectId, type: rel.type }
+        });
+      }
+      if (relatingLive && relatedLive && relating.id === related.id) {
         issues.push({
           severity: "warning",
           code: "RELATIONSHIP_SELF_REFERENCE",
@@ -142392,7 +142975,7 @@ var relationshipReferences = {
     return issues;
   }
 };
-function relationshipLocator(rel) {
+function relationshipLocator2(rel) {
   const a2 = rel.relatingObject ? rel.relatingObject.id : "?";
   const b4 = rel.relatedObject ? rel.relatedObject.id : "?";
   return `${a2}->${b4}#${rel.type}`;
@@ -142417,7 +143000,7 @@ var relationshipTypeRegistration = {
       if (!rel.type)
         continue;
       if (!Object.prototype.hasOwnProperty.call(schema.relationshipTypes, rel.type)) {
-        const locator = relationshipLocator(rel);
+        const locator = relationshipLocator2(rel);
         issues.push({
           severity: "error",
           code: "RELATIONSHIP_UNKNOWN_TYPE",
@@ -142463,8 +143046,11 @@ var propertySetReferences = {
         continue;
       const present = /* @__PURE__ */ new Set();
       const sets = obj.propertySets ?? [];
-      for (const ps of sets)
-        present.add(ps.id);
+      for (const ps of sets) {
+        if (ps && dataModel.propertySets[ps.id] === ps) {
+          present.add(ps.id);
+        }
+      }
       if (required) {
         for (const id of required) {
           if (!present.has(id)) {
@@ -142547,7 +143133,7 @@ var relationshipTypeBinding = {
         continue;
       if (!rel.relatingObject || !rel.relatedObject)
         continue;
-      const locator = relationshipLocator(rel);
+      const locator = relationshipLocator2(rel);
       if (!typeMatchesOrInherits(schema, rel.relatingObject.type, spec.allowedRelatingTypes)) {
         issues.push({
           severity: "error",
@@ -142635,7 +143221,7 @@ var schemaTagging = {
     }
     for (const rel of dataModel.relationships) {
       if (rel.schema && rel.schema !== expected) {
-        const locator = relationshipLocator(rel);
+        const locator = relationshipLocator2(rel);
         issues.push({
           severity: "warning",
           code: "RELATIONSHIP_SCHEMA_MISMATCH",
@@ -142899,7 +143485,7 @@ var ifcElementContainment = {
       const childIsElement = typeMatchesOrInherits(schema, rel.relatedObject.type, elementSupers);
       if (!childIsElement)
         continue;
-      const locator = relationshipLocator(rel);
+      const locator = relationshipLocator2(rel);
       issues.push({
         severity: "warning",
         code: "IFC_ELEMENT_AGGREGATED_NOT_CONTAINED",
@@ -143422,6 +144008,19 @@ function isTriangleMesh(geom) {
   const p = geom.primitive;
   return p === TrianglesPrimitive || p === SolidPrimitive || p === SurfacePrimitive;
 }
+function isSupportedPrimitive(primitive) {
+  return primitive === PointsPrimitive || primitive === LinesPrimitive || primitive === TrianglesPrimitive || primitive === SolidPrimitive || primitive === SurfacePrimitive || primitive === GaussianSplatsPrimitive;
+}
+function primitiveCountForGeometry(geom) {
+  const stride = indexStrideFor(geom.primitive);
+  if (stride > 0) {
+    return geom.indices ? geom.indices.length / stride | 0 : 0;
+  }
+  if (geom.primitive === PointsPrimitive || geom.primitive === GaussianSplatsPrimitive) {
+    return geom.positionsCompressed ? geom.positionsCompressed.length / 3 | 0 : 0;
+  }
+  return 0;
+}
 function formatDistance(d) {
   if (!Number.isFinite(d))
     return "?";
@@ -143437,33 +144036,57 @@ var geometryDataIntegrity = {
   codes: [
     "GEOMETRY_NO_POSITIONS",
     "GEOMETRY_POSITIONS_LENGTH",
+    "GEOMETRY_PRIMITIVE_UNSUPPORTED",
     "GEOMETRY_NORMALS_LENGTH",
     "GEOMETRY_UVS_LENGTH",
+    "GEOMETRY_COLORS_LENGTH",
+    "GEOMETRY_AABB_LENGTH",
     "GEOMETRY_AABB_NONFINITE",
     "GEOMETRY_AABB_INVERTED",
+    "GEOMETRY_NO_INDICES",
     "GEOMETRY_INDICES_LENGTH",
-    "GEOMETRY_INDEX_OUT_OF_RANGE"
+    "GEOMETRY_INDEX_OUT_OF_RANGE",
+    "GEOMETRY_EDGE_INDICES_LENGTH",
+    "GEOMETRY_EDGE_INDEX_OUT_OF_RANGE",
+    "GEOMETRY_SPLAT_SCALES_LENGTH",
+    "GEOMETRY_SPLAT_ROTATIONS_LENGTH"
   ],
   description: "Geometry data integrity",
   labels: {
     GEOMETRY_NO_POSITIONS: "Geometry missing positions",
     GEOMETRY_POSITIONS_LENGTH: "Bad positions length",
+    GEOMETRY_PRIMITIVE_UNSUPPORTED: "Unsupported primitive",
     GEOMETRY_NORMALS_LENGTH: "Bad normals length",
     GEOMETRY_UVS_LENGTH: "Bad UVs length",
+    GEOMETRY_COLORS_LENGTH: "Bad colors length",
+    GEOMETRY_AABB_LENGTH: "Bad AABB length",
     GEOMETRY_AABB_NONFINITE: "AABB contains NaN / Infinity",
     GEOMETRY_AABB_INVERTED: "AABB min greater than max",
+    GEOMETRY_NO_INDICES: "Geometry missing indices",
     GEOMETRY_INDICES_LENGTH: "Bad indices length",
-    GEOMETRY_INDEX_OUT_OF_RANGE: "Index out of range"
+    GEOMETRY_INDEX_OUT_OF_RANGE: "Index out of range",
+    GEOMETRY_EDGE_INDICES_LENGTH: "Bad edge indices length",
+    GEOMETRY_EDGE_INDEX_OUT_OF_RANGE: "Edge index out of range",
+    GEOMETRY_SPLAT_SCALES_LENGTH: "Bad splat scales length",
+    GEOMETRY_SPLAT_ROTATIONS_LENGTH: "Bad splat rotations length"
   },
   descriptions: {
     GEOMETRY_NO_POSITIONS: "Geometry has no vertex positions buffer, so the renderer has nothing to draw.",
     GEOMETRY_POSITIONS_LENGTH: "Positions buffer length is not a multiple of 3, so the (x, y, z) groupings don't line up \u2014 at least one vertex is truncated.",
+    GEOMETRY_PRIMITIVE_UNSUPPORTED: "Geometry primitive is not one of the supported SceneModel primitive constants, so render and fix paths cannot safely route it.",
     GEOMETRY_NORMALS_LENGTH: "Normals buffer is the wrong size for the vertex count. Oct-encoded normals must be exactly 2 \xD7 vertexCount u16 elements.",
     GEOMETRY_UVS_LENGTH: "UVs buffer is the wrong size for the vertex count \u2014 must be exactly 2 \xD7 vertexCount.",
+    GEOMETRY_COLORS_LENGTH: "Compressed color buffer is the wrong size for the vertex count. RGBA colors must be exactly 4 \xD7 vertexCount byte elements.",
+    GEOMETRY_AABB_LENGTH: "Geometry AABB is missing or does not have exactly six values [minX, minY, minZ, maxX, maxY, maxZ].",
     GEOMETRY_AABB_NONFINITE: "Geometry AABB contains NaN or \xB1Infinity, which breaks frustum culling, picking, and bounds-driven layout.",
     GEOMETRY_AABB_INVERTED: "AABB min is greater than max on at least one axis \u2014 the box is empty or inside-out, and culling rejects everything inside it.",
+    GEOMETRY_NO_INDICES: "Geometry primitive requires an index buffer, but indices are missing or empty. Lines and triangle-family primitives must have indices.",
     GEOMETRY_INDICES_LENGTH: "Index buffer length is not a whole multiple of the primitive's stride (3 for triangles, 2 for lines), so the last primitive is malformed.",
-    GEOMETRY_INDEX_OUT_OF_RANGE: "An index references a vertex slot that doesn't exist (\u2265 vertex count or < 0). The renderer would read past the buffer end."
+    GEOMETRY_INDEX_OUT_OF_RANGE: "An index references a vertex slot that doesn't exist (\u2265 vertex count or < 0). The renderer would read past the buffer end.",
+    GEOMETRY_EDGE_INDICES_LENGTH: "Edge index buffer length is not a whole multiple of 2, so the last edge segment is malformed.",
+    GEOMETRY_EDGE_INDEX_OUT_OF_RANGE: "An edge index references a vertex slot that doesn't exist (\u2265 vertex count or < 0). Edge rendering and vertex-compaction fixes would read past the buffer end.",
+    GEOMETRY_SPLAT_SCALES_LENGTH: "Gaussian splat scales buffer is missing or the wrong size for the splat count. It must be exactly 3 \xD7 splatCount float elements.",
+    GEOMETRY_SPLAT_ROTATIONS_LENGTH: "Gaussian splat rotations buffer is missing or the wrong size for the splat count. It must be exactly 4 \xD7 splatCount quaternion elements."
   },
   run(sceneModel) {
     const issues = [];
@@ -143497,6 +144120,14 @@ function checkGeometry(geom, issues) {
     return;
   }
   const vertCount = geom.positionsCompressed.length / 3 | 0;
+  if (!isSupportedPrimitive(geom.primitive)) {
+    issues.push({
+      severity: "error",
+      code: "GEOMETRY_PRIMITIVE_UNSUPPORTED",
+      message: `SceneGeometry '${id}' has unsupported primitive ${geom.primitive}`,
+      resourceId: id
+    });
+  }
   if (geom.normalsCompressed && geom.normalsCompressed.length !== vertCount * 2) {
     issues.push({
       severity: "error",
@@ -143513,26 +144144,65 @@ function checkGeometry(geom, issues) {
       resourceId: id
     });
   }
-  if (geom.aabb) {
-    if (!isFiniteAABB(geom.aabb)) {
+  if (geom.colorsCompressed && geom.colorsCompressed.length !== vertCount * 4) {
+    issues.push({
+      severity: "error",
+      code: "GEOMETRY_COLORS_LENGTH",
+      message: `SceneGeometry '${id}' colorsCompressed.length=${geom.colorsCompressed.length} is not 4 \xD7 ${vertCount}`,
+      resourceId: id
+    });
+  }
+  if (geom.primitive === GaussianSplatsPrimitive) {
+    if (!geom.scales || geom.scales.length !== vertCount * 3) {
       issues.push({
         severity: "error",
-        code: "GEOMETRY_AABB_NONFINITE",
-        message: `SceneGeometry '${id}' AABB contains NaN or Infinity`,
+        code: "GEOMETRY_SPLAT_SCALES_LENGTH",
+        message: `SceneGeometry '${id}' scales.length=${geom.scales?.length ?? 0} is not 3 \xD7 ${vertCount}`,
         resourceId: id
       });
-    } else if (geom.aabb[0] > geom.aabb[3] || geom.aabb[1] > geom.aabb[4] || geom.aabb[2] > geom.aabb[5]) {
+    }
+    if (!geom.rotations || geom.rotations.length !== vertCount * 4) {
       issues.push({
         severity: "error",
-        code: "GEOMETRY_AABB_INVERTED",
-        message: `SceneGeometry '${id}' AABB has min > max on at least one axis`,
+        code: "GEOMETRY_SPLAT_ROTATIONS_LENGTH",
+        message: `SceneGeometry '${id}' rotations.length=${geom.rotations?.length ?? 0} is not 4 \xD7 ${vertCount}`,
         resourceId: id
       });
     }
   }
-  if (geom.indices) {
+  if (!geom.aabb || geom.aabb.length !== 6) {
+    issues.push({
+      severity: "error",
+      code: "GEOMETRY_AABB_LENGTH",
+      message: `SceneGeometry '${id}' AABB length=${geom.aabb?.length ?? 0} is not 6`,
+      resourceId: id
+    });
+  } else if (!isFiniteAABB(geom.aabb)) {
+    issues.push({
+      severity: "error",
+      code: "GEOMETRY_AABB_NONFINITE",
+      message: `SceneGeometry '${id}' AABB contains NaN or Infinity`,
+      resourceId: id
+    });
+  } else if (geom.aabb[0] > geom.aabb[3] || geom.aabb[1] > geom.aabb[4] || geom.aabb[2] > geom.aabb[5]) {
+    issues.push({
+      severity: "error",
+      code: "GEOMETRY_AABB_INVERTED",
+      message: `SceneGeometry '${id}' AABB has min > max on at least one axis`,
+      resourceId: id
+    });
+  }
+  const indexStride = indexStrideFor(geom.primitive);
+  if (indexStride > 0 && (!geom.indices || geom.indices.length === 0)) {
+    issues.push({
+      severity: "error",
+      code: "GEOMETRY_NO_INDICES",
+      message: `SceneGeometry '${id}' primitive ${geom.primitive} requires a non-empty indices buffer`,
+      resourceId: id
+    });
+  } else if (geom.indices) {
     const indices = geom.indices;
-    const stride = indexStrideFor(geom.primitive);
+    const stride = indexStride;
     if (stride > 0 && indices.length % stride !== 0) {
       issues.push({
         severity: "error",
@@ -143541,18 +144211,44 @@ function checkGeometry(geom, issues) {
         resourceId: id
       });
     }
-    let outOfRange = -1;
+    let outOfRange;
     for (let i = 0; i < indices.length; i++) {
       if (indices[i] < 0 || indices[i] >= vertCount) {
         outOfRange = indices[i];
         break;
       }
     }
-    if (outOfRange !== -1) {
+    if (outOfRange !== void 0) {
       issues.push({
         severity: "error",
         code: "GEOMETRY_INDEX_OUT_OF_RANGE",
         message: `SceneGeometry '${id}' has index ${outOfRange} out of [0, ${vertCount - 1}]`,
+        resourceId: id
+      });
+    }
+  }
+  if (geom.edgeIndices) {
+    const edgeIndices = geom.edgeIndices;
+    if (edgeIndices.length % 2 !== 0) {
+      issues.push({
+        severity: "error",
+        code: "GEOMETRY_EDGE_INDICES_LENGTH",
+        message: `SceneGeometry '${id}' edgeIndices.length=${edgeIndices.length} is not a multiple of 2`,
+        resourceId: id
+      });
+    }
+    let outOfRange;
+    for (let i = 0; i < edgeIndices.length; i++) {
+      if (edgeIndices[i] < 0 || edgeIndices[i] >= vertCount) {
+        outOfRange = edgeIndices[i];
+        break;
+      }
+    }
+    if (outOfRange !== void 0) {
+      issues.push({
+        severity: "error",
+        code: "GEOMETRY_EDGE_INDEX_OUT_OF_RANGE",
+        message: `SceneGeometry '${id}' has edge index ${outOfRange} out of [0, ${vertCount - 1}]`,
         resourceId: id
       });
     }
@@ -143586,33 +144282,43 @@ var meshReferences = {
       const mesh = sceneModel.meshes[meshId];
       if (mesh.destroyed)
         continue;
-      if (!sceneModel.geometries[mesh.geometryId]) {
+      const geometry = mesh.geometry;
+      const geometryId = geometry ? geometry.id : "";
+      const registeredGeometry = geometryId ? sceneModel.geometries[geometryId] : void 0;
+      if (!geometry || geometry.destroyed || !registeredGeometry || registeredGeometry.destroyed || registeredGeometry !== geometry) {
         issues.push({
           severity: "error",
           code: "MESH_DANGLING_GEOMETRY",
-          message: `SceneMesh '${meshId}' references missing SceneGeometry '${mesh.geometryId}'`,
-          summary: `\u2192 missing '${mesh.geometryId}'`,
+          message: `SceneMesh '${meshId}' references missing, destroyed, or stale SceneGeometry '${geometryId || "<null>"}'`,
+          summary: geometryId ? `\u2192 stale '${geometryId}'` : "missing geometry",
           resourceId: meshId
         });
       }
-      if (mesh.materialId && !sceneModel.materials[mesh.materialId]) {
-        issues.push({
-          severity: "error",
-          code: "MESH_DANGLING_MATERIAL",
-          message: `SceneMesh '${meshId}' references missing SceneMaterial '${mesh.materialId}'`,
-          summary: `\u2192 missing '${mesh.materialId}'`,
-          resourceId: meshId
-        });
+      const material = mesh.material;
+      if (material) {
+        const registeredMaterial = sceneModel.materials[material.id];
+        if (!registeredMaterial || registeredMaterial.destroyed || registeredMaterial !== material || material.destroyed) {
+          issues.push({
+            severity: "error",
+            code: "MESH_DANGLING_MATERIAL",
+            message: `SceneMesh '${meshId}' references missing, destroyed, or stale SceneMaterial '${material.id}'`,
+            summary: `\u2192 stale '${material.id}'`,
+            resourceId: meshId
+          });
+        }
       }
       const parent = mesh.parentTransform;
-      if (parent && !sceneModel.transforms[parent.id]) {
-        issues.push({
-          severity: "error",
-          code: "MESH_DANGLING_TRANSFORM",
-          message: `SceneMesh '${meshId}' references missing SceneTransform '${parent.id}'`,
-          summary: `\u2192 missing '${parent.id}'`,
-          resourceId: meshId
-        });
+      if (parent) {
+        const registeredParent = sceneModel.transforms[parent.id];
+        if (!registeredParent || registeredParent.destroyed || registeredParent !== parent || parent.destroyed) {
+          issues.push({
+            severity: "error",
+            code: "MESH_DANGLING_TRANSFORM",
+            message: `SceneMesh '${meshId}' references missing, destroyed, or stale SceneTransform '${parent.id}'`,
+            summary: `\u2192 stale '${parent.id}'`,
+            resourceId: meshId
+          });
+        }
       }
       if (mesh.matrix && !isFiniteMat4(mesh.matrix)) {
         issues.push({
@@ -143644,13 +144350,14 @@ var objectMeshReferences = {
       if (obj.destroyed)
         continue;
       for (const m of obj.meshes) {
-        if (!m || m.destroyed || !sceneModel.meshes[m.id]) {
+        const registered = m ? sceneModel.meshes[m.id] : void 0;
+        if (!m || m.destroyed || !registered || registered !== m || m.object?.id !== objId) {
           const danglingMeshId = m ? m.id : "";
           issues.push({
             severity: "error",
             code: "OBJECT_DANGLING_MESH",
-            message: `SceneObject '${objId}' references missing or destroyed SceneMesh '${danglingMeshId || "<null>"}'`,
-            summary: danglingMeshId ? `missing '${danglingMeshId}'` : "missing mesh ref",
+            message: `SceneObject '${objId}' references missing, destroyed, or unowned SceneMesh '${danglingMeshId || "<null>"}'`,
+            summary: danglingMeshId ? `stale '${danglingMeshId}'` : "missing mesh ref",
             resourceId: objId,
             context: { danglingMeshId },
             highlight: { objectIds: [objId] }
@@ -143696,7 +144403,8 @@ var transformParentCycles = {
           break;
         colour[cursor.id] = 1;
         onStack.push(cursor.id);
-        cursor = cursor.parentTransform;
+        const parent = cursor.parentTransform;
+        cursor = parent && !parent.destroyed && sceneModel.transforms[parent.id] === parent ? parent : null;
       }
       for (const id of onStack)
         colour[id] = 2;
@@ -143737,13 +144445,15 @@ function createSceneModelInspectionIndex(sceneModel) {
       const mesh = sceneModel.meshes[meshId];
       if (mesh.destroyed)
         continue;
-      addMeshEntry(table, mesh.geometryId, meshId);
+      if (!isLiveGeometryRef(sceneModel, mesh.geometry))
+        continue;
+      addMeshEntry(table, mesh.geometry.id, meshId);
     }
     geomMeshes = table;
     const events = sceneModel.scene.events;
     const onCreated = (_scene, mesh) => {
-      if (geomMeshes && mesh.model === sceneModel && !mesh.destroyed) {
-        addMeshEntry(geomMeshes, mesh.geometryId, mesh.id);
+      if (geomMeshes && mesh.model === sceneModel && !mesh.destroyed && isLiveGeometryRef(sceneModel, mesh.geometry)) {
+        addMeshEntry(geomMeshes, mesh.geometry.id, mesh.id);
       }
     };
     const onDestroyed = (_scene, mesh) => {
@@ -143928,8 +144638,13 @@ function computeContentHash(geom) {
     String(geom.primitive),
     fnv1a(geom.positionsCompressed),
     geom.indices ? fnv1a(geom.indices) : "x",
+    geom.edgeIndices ? fnv1a(geom.edgeIndices) : "x",
     geom.normalsCompressed ? fnv1a(geom.normalsCompressed) : "x",
     geom.uvsCompressed ? fnv1a(geom.uvsCompressed) : "x",
+    geom.colorsCompressed ? fnv1a(geom.colorsCompressed) : "x",
+    geom.scales ? fnv1a(geom.scales) : "x",
+    geom.rotations ? fnv1a(geom.rotations) : "x",
+    geom.uvsDecompressMatrix ? fnv1a(geom.uvsDecompressMatrix) : "x",
     geom.aabb ? Array.from(geom.aabb).join(",") : "x"
   ].join("|");
 }
@@ -144170,10 +144885,12 @@ function computeGeometryObjects(sceneModel) {
     const mesh = sceneModel.meshes[meshId];
     if (mesh.destroyed)
       continue;
+    if (!isLiveGeometryRef(sceneModel, mesh.geometry))
+      continue;
     const obj = mesh.object;
     if (!obj || obj.destroyed)
       continue;
-    const geometryId = mesh.geometryId;
+    const geometryId = mesh.geometry.id;
     const key = `${geometryId}\0${obj.id}`;
     if (seen.has(key))
       continue;
@@ -144203,15 +144920,17 @@ function computeReferenceTables(sceneModel) {
     const mesh = sceneModel.meshes[meshId];
     if (mesh.destroyed)
       continue;
-    if (mesh.materialId) {
-      const arr = materialReferences.get(mesh.materialId);
+    const material = mesh.material;
+    if (isLiveMaterialRef(sceneModel, material)) {
+      const arr = materialReferences.get(material.id);
       if (arr)
         arr.push(meshId);
       else
-        materialReferences.set(mesh.materialId, [meshId]);
+        materialReferences.set(material.id, [meshId]);
     }
-    if (mesh.parentTransform) {
-      ensureT(mesh.parentTransform.id).meshes.push(meshId);
+    const parentTransform = mesh.parentTransform;
+    if (isLiveTransformRef(sceneModel, parentTransform)) {
+      ensureT(parentTransform.id).meshes.push(meshId);
     }
   }
   for (const matId in sceneModel.materials) {
@@ -144226,27 +144945,37 @@ function computeReferenceTables(sceneModel) {
       mat.occlusionTexture
     ];
     for (const t of slots) {
-      if (!t)
+      if (!isLiveTextureRef(sceneModel, t))
         continue;
-      const tid = t.id;
-      if (!tid)
-        continue;
-      const arr = textureReferences.get(tid);
+      const arr = textureReferences.get(t.id);
       if (arr)
         arr.push(matId);
       else
-        textureReferences.set(tid, [matId]);
+        textureReferences.set(t.id, [matId]);
     }
   }
   for (const tId in sceneModel.transforms) {
     const t = sceneModel.transforms[tId];
     if (t.destroyed)
       continue;
-    if (t.parentTransform) {
-      ensureT(t.parentTransform.id).childTransforms.push(tId);
+    const parentTransform = t.parentTransform;
+    if (isLiveTransformRef(sceneModel, parentTransform)) {
+      ensureT(parentTransform.id).childTransforms.push(tId);
     }
   }
   return { materialReferences, textureReferences, transformReferences };
+}
+function isLiveGeometryRef(sceneModel, geometry) {
+  return !!geometry && !geometry.destroyed && sceneModel.geometries[geometry.id] === geometry;
+}
+function isLiveMaterialRef(sceneModel, material) {
+  return !!material && !material.destroyed && sceneModel.materials[material.id] === material;
+}
+function isLiveTextureRef(sceneModel, texture) {
+  return !!texture && !texture.destroyed && sceneModel.textures[texture.id] === texture;
+}
+function isLiveTransformRef(sceneModel, transform) {
+  return !!transform && !transform.destroyed && sceneModel.transforms[transform.id] === transform;
 }
 function fnv1a(arr) {
   let bytes;
@@ -144272,12 +145001,13 @@ function computeCanonicalSlots(geom) {
     return null;
   const normals = geom.normalsCompressed;
   const uvs = geom.uvsCompressed;
+  const colors = geom.colorsCompressed;
   const vertCount = positions.length / 3 | 0;
   const canonical = new Int32Array(vertCount);
   const slotByHash = /* @__PURE__ */ new Map();
   let unique = 0;
   for (let v = 0; v < vertCount; v++) {
-    const h2 = hashVertex(positions, normals, uvs, v);
+    const h2 = hashVertex(positions, normals, uvs, colors, v);
     const existing = slotByHash.get(h2);
     if (existing === void 0) {
       slotByHash.set(h2, v);
@@ -144286,7 +145016,7 @@ function computeCanonicalSlots(geom) {
       continue;
     }
     if (typeof existing === "number") {
-      if (vertsEqual(positions, normals, uvs, v, existing)) {
+      if (vertsEqual(positions, normals, uvs, colors, v, existing)) {
         canonical[v] = existing;
       } else {
         slotByHash.set(h2, [existing, v]);
@@ -144297,7 +145027,7 @@ function computeCanonicalSlots(geom) {
     }
     let found = -1;
     for (let i = 0; i < existing.length; i++) {
-      if (vertsEqual(positions, normals, uvs, v, existing[i])) {
+      if (vertsEqual(positions, normals, uvs, colors, v, existing[i])) {
         found = existing[i];
         break;
       }
@@ -144312,7 +145042,7 @@ function computeCanonicalSlots(geom) {
   }
   return { canonical, uniqueCount: unique };
 }
-function hashVertex(positions, normals, uvs, slot) {
+function hashVertex(positions, normals, uvs, colors, slot) {
   let h2 = 2166136261;
   const p3 = slot * 3;
   h2 = Math.imul(h2 ^ positions[p3], 16777619);
@@ -144328,9 +145058,16 @@ function hashVertex(positions, normals, uvs, slot) {
     h2 = Math.imul(h2 ^ uvs[u2], 16777619);
     h2 = Math.imul(h2 ^ uvs[u2 + 1], 16777619);
   }
+  if (colors) {
+    const c4 = slot * 4;
+    h2 = Math.imul(h2 ^ colors[c4], 16777619);
+    h2 = Math.imul(h2 ^ colors[c4 + 1], 16777619);
+    h2 = Math.imul(h2 ^ colors[c4 + 2], 16777619);
+    h2 = Math.imul(h2 ^ colors[c4 + 3], 16777619);
+  }
   return h2 >>> 0;
 }
-function vertsEqual(positions, normals, uvs, a2, b4) {
+function vertsEqual(positions, normals, uvs, colors, a2, b4) {
   const a3 = a2 * 3, b32 = b4 * 3;
   if (positions[a3] !== positions[b32])
     return false;
@@ -144350,6 +145087,17 @@ function vertsEqual(positions, normals, uvs, a2, b4) {
     if (uvs[a22] !== uvs[b22])
       return false;
     if (uvs[a22 + 1] !== uvs[b22 + 1])
+      return false;
+  }
+  if (colors) {
+    const a4 = a2 * 4, b42 = b4 * 4;
+    if (colors[a4] !== colors[b42])
+      return false;
+    if (colors[a4 + 1] !== colors[b42 + 1])
+      return false;
+    if (colors[a4 + 2] !== colors[b42 + 2])
+      return false;
+    if (colors[a4 + 3] !== colors[b42 + 3])
       return false;
   }
   return true;
@@ -144424,7 +145172,8 @@ var unusedResources = {
       while (cursorId && !liveTransforms.has(cursorId)) {
         liveTransforms.add(cursorId);
         const t = sceneModel.transforms[cursorId];
-        cursorId = t && t.parentTransform ? t.parentTransform.id : void 0;
+        const parent = t ? t.parentTransform : void 0;
+        cursorId = parent && !parent.destroyed && sceneModel.transforms[parent.id] === parent ? parent.id : void 0;
       }
     }
     for (const tId in sceneModel.transforms) {
@@ -144530,7 +145279,7 @@ var duplicateGeometries = {
       kind: "boolean",
       key: "checkDuplicateGeometries",
       label: "Check duplicate geometries",
-      description: "Hash every geometry's content (primitive, positions, indices, normals, UVs, AABB) and flag groups of two or more byte-identical geometries.",
+      description: "Hash every geometry's content (primitive, positions, indices, edge indices, normals, UVs, colors, splat payloads, AABB) and flag groups of two or more byte-identical geometries.",
       default: false
     }
   },
@@ -144569,7 +145318,7 @@ var duplicateGeometries = {
       issues.push({
         severity: "warning",
         code: "GEOMETRY_DUPLICATE",
-        message: `${ids2.length} SceneGeometries share identical content (positions / indices / normals / UVs / AABB) \u2014 '${keep}' could absorb '${dupes.join("', '")}' via instancing`,
+        message: `${ids2.length} SceneGeometries share identical content (positions / indices / edges / normals / UVs / colors / splat payloads / AABB) \u2014 '${keep}' could absorb '${dupes.join("', '")}' via instancing`,
         summary: `\u2192 collapses ${dupes.length} other${dupes.length === 1 ? "" : "s"}`,
         resourceId: keep,
         context: { duplicates: dupes },
@@ -144677,7 +145426,7 @@ var denseGeometries = {
     GEOMETRY_OVER_BUDGET: "Dense geometry"
   },
   descriptions: {
-    GEOMETRY_OVER_BUDGET: "Geometry has more vertices or triangles than the renderer's per-geometry budget. Over-large buffers prevent fine-grained frustum culling and starve the GPU of parallelism. Splitting into smaller chunks tightens culling and recovers throughput."
+    GEOMETRY_OVER_BUDGET: "Geometry has more vertices or primitives than the renderer's per-geometry budget. Over-large buffers prevent fine-grained frustum culling and starve the GPU of parallelism. Splitting into smaller chunks tightens culling and recovers throughput."
   },
   optIn: true,
   paramsKey: "checkDenseGeometries",
@@ -144726,24 +145475,24 @@ var denseGeometries = {
       if (!geom.positionsCompressed)
         continue;
       const vertCount = geom.positionsCompressed.length / 3 | 0;
-      const triCount = geom.indices ? geom.indices.length / 3 | 0 : 0;
+      const primitiveCount = primitiveCountForGeometry(geom);
       const overVerts = vertCount > maxVertices;
-      const overTris = triCount > maxPrimitives;
-      if (!overVerts && !overTris)
+      const overPrimitives = primitiveCount > maxPrimitives;
+      if (!overVerts && !overPrimitives)
         continue;
       const limits = [];
       if (overVerts)
         limits.push(`${vertCount} vertices > ${maxVertices}`);
-      if (overTris)
-        limits.push(`${triCount} primitives > ${maxPrimitives}`);
+      if (overPrimitives)
+        limits.push(`${primitiveCount} primitives > ${maxPrimitives}`);
       const owners = findSceneObjectsForGeometry(sceneModel, id);
       issues.push({
         severity: "warning",
         code: "GEOMETRY_OVER_BUDGET",
         message: `SceneGeometry '${id}' is over the storage budget (${limits.join("; ")}) \u2014 consider splitting via splitDenseGeometry`,
-        summary: `${vertCount.toLocaleString()} verts \xB7 ${triCount.toLocaleString()} tris`,
+        summary: `${vertCount.toLocaleString()} verts \xB7 ${primitiveCount.toLocaleString()} prims`,
         resourceId: id,
-        context: { maxVertices, maxPrimitives, vertCount, triCount },
+        context: { maxVertices, maxPrimitives, vertCount, primitiveCount },
         ...owners.length > 0 ? { highlight: { objectIds: owners } } : {}
       });
     }
@@ -144759,7 +145508,7 @@ var geometryArrayLengths = {
     GEOMETRY_ARRAY_OVERSIZED: "Oversized geometry array"
   },
   descriptions: {
-    GEOMETRY_ARRAY_OVERSIZED: "One of the geometry's typed arrays (positions, indices, normals, or UVs) is longer than the configured per-geometry threshold. The WebGLRenderer's GPUMemoryBatch allocates each array into a fixed-size portion of a shared batch texture, and rejects geometries whose array length exceeds that portion. Splitting the geometry (via splitOversizedGeometry) or raising the batch capacity avoids the upload-time MemoryAllocationFailed error."
+    GEOMETRY_ARRAY_OVERSIZED: "One of the geometry's typed arrays (positions, indices, edge indices, normals, UVs, or colors) is longer than the configured per-geometry threshold. The WebGLRenderer's GPUMemoryBatch allocates each array into a fixed-size portion of a shared batch texture, and rejects geometries whose array length exceeds that portion. Splitting the geometry (via splitOversizedGeometry) or raising the batch capacity avoids the upload-time MemoryAllocationFailed error."
   },
   optIn: true,
   paramsKey: "checkGeometryArrayLengths",
@@ -144768,7 +145517,7 @@ var geometryArrayLengths = {
       kind: "boolean",
       key: "checkGeometryArrayLengths",
       label: "Check geometry array lengths",
-      description: "Flag geometries whose raw positions / indices / normals / UVs array length exceeds the per-geometry batch-portion threshold the WebGLRenderer enforces at GPU-upload time.",
+      description: "Flag geometries whose raw positions / indices / edge indices / normals / UVs / colors array length exceeds the per-geometry batch-portion threshold the WebGLRenderer enforces at GPU-upload time.",
       default: false
     },
     fields: [
@@ -144794,6 +145543,16 @@ var geometryArrayLengths = {
       },
       {
         kind: "number",
+        key: "maxEdgeIndicesLength",
+        label: "Max edgeIndices length",
+        description: "edgeIndices.length threshold. Renderer cap on a minimum-spec config: maxBatchIndices = 100_000.",
+        default: 1e5,
+        min: 0,
+        step: 1e3,
+        unit: "indices"
+      },
+      {
+        kind: "number",
         key: "maxNormalsLength",
         label: "Max normalsCompressed length",
         description: "normalsCompressed.length threshold (= octahedral u16 components, 2 per vertex). Renderer cap on a minimum-spec config: maxBatchVertices * 2 = 200_000.",
@@ -144811,6 +145570,16 @@ var geometryArrayLengths = {
         min: 0,
         step: 1e3,
         unit: "components"
+      },
+      {
+        kind: "number",
+        key: "maxColorsLength",
+        label: "Max colorsCompressed length",
+        description: "colorsCompressed.length threshold (= RGBA u8 components, 4 per vertex). Renderer cap on a minimum-spec config: maxBatchVertices * 4 = 400_000.",
+        default: 4e5,
+        min: 0,
+        step: 1e3,
+        unit: "components"
       }
     ]
   },
@@ -144820,8 +145589,10 @@ var geometryArrayLengths = {
       return [];
     const maxPositionsLength = cfg.maxPositionsLength;
     const maxIndicesLength = cfg.maxIndicesLength;
+    const maxEdgeIndicesLength = cfg.maxEdgeIndicesLength;
     const maxNormalsLength = cfg.maxNormalsLength;
     const maxUvsLength = cfg.maxUvsLength;
+    const maxColorsLength = cfg.maxColorsLength;
     const issues = [];
     for (const id in sceneModel.geometries) {
       const geom = sceneModel.geometries[id];
@@ -144829,32 +145600,44 @@ var geometryArrayLengths = {
         continue;
       const positionsLength = geom.positionsCompressed?.length ?? 0;
       const indicesLength = geom.indices?.length ?? 0;
+      const edgeIndicesLength = geom.edgeIndices?.length ?? 0;
       const normalsLength = geom.normalsCompressed?.length ?? 0;
       const uvsLength = geom.uvsCompressed?.length ?? 0;
+      const colorsLength = geom.colorsCompressed?.length ?? 0;
       const overPositions = positionsLength > maxPositionsLength;
       const overIndices = indicesLength > maxIndicesLength;
+      const overEdgeIndices = edgeIndicesLength > maxEdgeIndicesLength;
       const overNormals = normalsLength > maxNormalsLength;
       const overUvs = uvsLength > maxUvsLength;
-      if (!overPositions && !overIndices && !overNormals && !overUvs)
+      const overColors = colorsLength > maxColorsLength;
+      if (!overPositions && !overIndices && !overEdgeIndices && !overNormals && !overUvs && !overColors)
         continue;
       const limits = [];
       if (overPositions)
         limits.push(`positions ${positionsLength} > ${maxPositionsLength}`);
       if (overIndices)
         limits.push(`indices ${indicesLength} > ${maxIndicesLength}`);
+      if (overEdgeIndices)
+        limits.push(`edgeIndices ${edgeIndicesLength} > ${maxEdgeIndicesLength}`);
       if (overNormals)
         limits.push(`normals ${normalsLength} > ${maxNormalsLength}`);
       if (overUvs)
         limits.push(`uvs ${uvsLength} > ${maxUvsLength}`);
+      if (overColors)
+        limits.push(`colors ${colorsLength} > ${maxColorsLength}`);
       const summaryParts = [];
       if (overPositions)
         summaryParts.push(`${positionsLength.toLocaleString()} pos`);
       if (overIndices)
         summaryParts.push(`${indicesLength.toLocaleString()} idx`);
+      if (overEdgeIndices)
+        summaryParts.push(`${edgeIndicesLength.toLocaleString()} edge`);
       if (overNormals)
         summaryParts.push(`${normalsLength.toLocaleString()} nrm`);
       if (overUvs)
         summaryParts.push(`${uvsLength.toLocaleString()} uv`);
+      if (overColors)
+        summaryParts.push(`${colorsLength.toLocaleString()} col`);
       const owners = findSceneObjectsForGeometry(sceneModel, id);
       issues.push({
         severity: "warning",
@@ -144865,12 +145648,16 @@ var geometryArrayLengths = {
         context: {
           maxPositionsLength,
           maxIndicesLength,
+          maxEdgeIndicesLength,
           maxNormalsLength,
           maxUvsLength,
+          maxColorsLength,
           positionsLength,
           indicesLength,
+          edgeIndicesLength,
           normalsLength,
-          uvsLength
+          uvsLength,
+          colorsLength
         },
         ...owners.length > 0 ? { highlight: { objectIds: owners } } : {}
       });
@@ -145082,18 +145869,30 @@ function checkGeometry2(geom, sceneModel, index, issues, minAabbFill) {
       const fillX = (maxU0 - minU0) / 65535;
       const fillY = (maxU1 - minU1) / 65535;
       const fillZ = (maxU2 - minU2) / 65535;
-      const minFill = Math.min(fillX, fillY, fillZ);
-      const threshold = minAabbFill;
-      if (minFill < threshold) {
-        issues.push({
-          severity: "warning",
-          code: "GEOMETRY_AABB_NOT_TIGHT",
-          message: `SceneGeometry '${id}' uses ${(minFill * 100).toFixed(1)}% of the u16 quantisation range on at least one axis (fill X=${(fillX * 100).toFixed(1)}%, Y=${(fillY * 100).toFixed(1)}%, Z=${(fillZ * 100).toFixed(1)}%; threshold ${(threshold * 100).toFixed(0)}%) \u2014 re-tighten via tightenAabb to recover precision`,
-          summary: `fill ${fillX * 100 | 0}% / ${fillY * 100 | 0}% / ${fillZ * 100 | 0}%`,
-          resourceId: id,
-          context: { fill: [fillX, fillY, fillZ], threshold },
-          ...hl
-        });
+      const extentX = geom.aabb[3] - geom.aabb[0];
+      const extentY = geom.aabb[4] - geom.aabb[1];
+      const extentZ = geom.aabb[5] - geom.aabb[2];
+      const activeFills = [];
+      if (extentX > 0)
+        activeFills.push(fillX);
+      if (extentY > 0)
+        activeFills.push(fillY);
+      if (extentZ > 0)
+        activeFills.push(fillZ);
+      if (activeFills.length > 0) {
+        const minFill = Math.min(...activeFills);
+        const threshold = minAabbFill;
+        if (minFill < threshold) {
+          issues.push({
+            severity: "warning",
+            code: "GEOMETRY_AABB_NOT_TIGHT",
+            message: `SceneGeometry '${id}' uses ${(minFill * 100).toFixed(1)}% of the u16 quantisation range on at least one non-collapsed axis (fill X=${(fillX * 100).toFixed(1)}%, Y=${(fillY * 100).toFixed(1)}%, Z=${(fillZ * 100).toFixed(1)}%; threshold ${(threshold * 100).toFixed(0)}%) \u2014 re-tighten via tightenAabb to recover precision`,
+            summary: `fill ${fillX * 100 | 0}% / ${fillY * 100 | 0}% / ${fillZ * 100 | 0}%`,
+            resourceId: id,
+            context: { fill: [fillX, fillY, fillZ], threshold },
+            ...hl
+          });
+        }
       }
     }
   }
@@ -145881,7 +146680,7 @@ var pruneDanglingMeshRefs = {
   description: "Drop dangling mesh references",
   procedure: [
     "Walk the object's mesh list",
-    "Remove any entry that's missing or destroyed"
+    "Remove any entry that's missing, destroyed, replaced, or owned by another object"
   ],
   config: {
     enabled: {
@@ -145904,13 +146703,12 @@ var pruneDanglingMeshRefs = {
     if (!obj || obj.destroyed) {
       return { ok: true, value: { fixed: false, reason: "target-missing" } };
     }
-    const ctx2 = issue.context;
-    const danglingId = ctx2 && typeof ctx2.danglingMeshId === "string" ? ctx2.danglingMeshId : "";
     const meshes = obj.meshes;
     let removed = 0;
     for (let i = meshes.length - 1; i >= 0; i--) {
       const m = meshes[i];
-      const looksDangling = !m || m.destroyed || !sceneModel.meshes[m.id] || danglingId && m.id === danglingId;
+      const registered = m ? sceneModel.meshes[m.id] : void 0;
+      const looksDangling = !m || m.destroyed || !registered || registered !== m || m.object?.id !== objId;
       if (looksDangling) {
         meshes.splice(i, 1);
         removed++;
@@ -145951,9 +146749,23 @@ var dropUnusedMaterial = {
     if (!mat || mat.destroyed) {
       return { ok: true, value: { fixed: false, reason: "target-missing" } };
     }
+    for (const meshId in sceneModel.meshes) {
+      const mesh = sceneModel.meshes[meshId];
+      if (mesh.destroyed)
+        continue;
+      if (mesh.material === mat) {
+        return { ok: true, value: { fixed: false, reason: "precondition-failed" } };
+      }
+    }
+    const previousNumMeshes = mat.numMeshes;
+    if (previousNumMeshes !== 0) {
+      mat.numMeshes = 0;
+    }
     const dRes = mat.destroy();
-    if (dRes.ok === false)
+    if (dRes.ok === false) {
+      mat.numMeshes = previousNumMeshes;
       return dRes;
+    }
     return { ok: true, value: { fixed: true, trace: `destroyed material '${matId}'` } };
   }
 };
@@ -145987,9 +146799,23 @@ var dropUnusedTexture = {
     if (!tex || tex.destroyed) {
       return { ok: true, value: { fixed: false, reason: "target-missing" } };
     }
+    for (const matId in sceneModel.materials) {
+      const mat = sceneModel.materials[matId];
+      if (mat.destroyed)
+        continue;
+      if (mat.colorTexture === tex || mat.metallicRoughnessTexture === tex || mat.normalsTexture === tex || mat.occlusionTexture === tex || mat.emissiveTexture === tex) {
+        return { ok: true, value: { fixed: false, reason: "precondition-failed" } };
+      }
+    }
+    const previousNumMaterials = tex.numMaterials;
+    if (previousNumMaterials !== 0) {
+      tex.numMaterials = 0;
+    }
     const dRes = tex.destroy();
-    if (dRes.ok === false)
+    if (dRes.ok === false) {
+      tex.numMaterials = previousNumMaterials;
       return dRes;
+    }
     return { ok: true, value: { fixed: true, trace: `destroyed texture '${texId}'` } };
   }
 };
@@ -146029,7 +146855,7 @@ var dropUnusedTransform = {
       const mesh = sceneModel.meshes[meshId];
       if (mesh.destroyed)
         continue;
-      if (mesh.parentTransform && mesh.parentTransform.id === tId) {
+      if (mesh.parentTransform === t) {
         return { ok: true, value: { fixed: false, reason: "precondition-failed" } };
       }
     }
@@ -146037,7 +146863,7 @@ var dropUnusedTransform = {
       const other = sceneModel.transforms[tId2];
       if (other.destroyed || other.id === tId)
         continue;
-      if (other.parentTransform && other.parentTransform.id === tId) {
+      if (other.parentTransform === t) {
         return { ok: true, value: { fixed: false, reason: "precondition-failed" } };
       }
     }
@@ -146117,7 +146943,7 @@ var mergeDuplicateGeometries = {
   procedure: [
     "Note every mesh that pointed at a duplicate geometry",
     "Detach and destroy each of those meshes",
-    "Re-create each mesh against the canonical geometry, preserving its placement, color, opacity, material, and parent",
+    "Re-create each mesh against the canonical geometry, preserving its placement, color, opacity, material, bin, and parent",
     "Re-attach each new mesh to its original object",
     "Destroy the now-unused duplicate geometries"
   ],
@@ -146167,6 +146993,7 @@ var mergeDuplicateGeometries = {
           color: [mesh.color[0], mesh.color[1], mesh.color[2]],
           opacity: mesh.opacity,
           materialId: mesh.materialId,
+          bin: mesh.bin,
           parentTransformId: mesh.parentTransform ? mesh.parentTransform.id : void 0
         }
       });
@@ -146191,17 +147018,26 @@ var mergeDuplicateGeometries = {
         matrix: snap.matrix,
         color: snap.color,
         opacity: snap.opacity,
-        ...snap.materialId ? { materialId: snap.materialId } : {}
+        ...snap.materialId ? { materialId: snap.materialId } : {},
+        ...snap.bin !== void 0 ? { bin: snap.bin } : {}
       });
       if (cRes.ok === false)
         return cRes;
       const aRes = obj.addMesh(cRes.value.id);
-      if (aRes.ok === false)
+      if (aRes.ok === false) {
+        const cleanupRes = cleanupCreatedMesh(obj, cRes.value);
+        if (cleanupRes.ok === false)
+          return cleanupRes;
         return aRes;
+      }
       if (snap.parentTransformId) {
         const tRes = cRes.value.setParentTransformId(snap.parentTransformId);
-        if (tRes.ok === false)
+        if (tRes.ok === false) {
+          const cleanupRes = cleanupCreatedMesh(obj, cRes.value);
+          if (cleanupRes.ok === false)
+            return cleanupRes;
           return tRes;
+        }
       }
       rebuilt++;
     }
@@ -146212,23 +147048,56 @@ var mergeDuplicateGeometries = {
         continue;
       stillReferenced.add(mesh.geometryId);
     }
+    const destroyed = [];
+    const leftReferenced = [];
     for (const dupId of duplicates) {
-      if (stillReferenced.has(dupId))
+      if (stillReferenced.has(dupId)) {
+        leftReferenced.push(dupId);
         continue;
+      }
       const dup = sceneModel.geometries[dupId];
       if (!dup || dup.destroyed)
         continue;
       const r = dup.destroy();
       if (r.ok === false)
         return r;
+      destroyed.push(dupId);
     }
-    const did = rebuilt > 0 || duplicates.length > 0;
-    if (!did)
-      return { ok: true, value: { fixed: false, reason: "no-op" } };
-    const trace = `'${canonicalId}' kept; merged ${rebuilt} mesh${rebuilt === 1 ? "" : "es"}, destroyed: ${duplicates.join(", ")}`;
+    const did = rebuilt > 0 || destroyed.length > 0;
+    if (!did) {
+      return {
+        ok: true,
+        value: {
+          fixed: false,
+          reason: leftReferenced.length > 0 ? "precondition-failed" : "target-missing"
+        }
+      };
+    }
+    const traceParts = [
+      `'${canonicalId}' kept`,
+      `merged ${rebuilt} mesh${rebuilt === 1 ? "" : "es"}`
+    ];
+    if (destroyed.length > 0) {
+      traceParts.push(`destroyed: ${destroyed.join(", ")}`);
+    }
+    if (leftReferenced.length > 0) {
+      traceParts.push(`left referenced: ${leftReferenced.join(", ")}`);
+    }
+    const trace = traceParts.join("; ");
     return { ok: true, value: { fixed: true, trace } };
   }
 };
+function cleanupCreatedMesh(sceneObject, mesh) {
+  if (mesh.object?.id === sceneObject.id) {
+    const rRes = sceneObject.removeMesh(mesh.id);
+    if (rRes.ok === false)
+      return rRes;
+  }
+  if (!mesh.destroyed) {
+    return mesh.destroy();
+  }
+  return { ok: true, value: void 0 };
+}
 
 // ../sdk/src/inspect/sceneModel/fixes/mergeSimilarGeometries.ts
 var RESIDUAL_THRESHOLD_FRAC = 1e-3;
@@ -146327,17 +147196,26 @@ var mergeSimilarGeometries = {
           matrix: newMatrix,
           color: snap.color,
           opacity: snap.opacity,
-          ...snap.materialId ? { materialId: snap.materialId } : {}
+          ...snap.materialId ? { materialId: snap.materialId } : {},
+          ...snap.bin !== void 0 ? { bin: snap.bin } : {}
         });
         if (cRes.ok === false)
           return cRes;
         const aRes = obj.addMesh(cRes.value.id);
-        if (aRes.ok === false)
+        if (aRes.ok === false) {
+          const cleanupRes = cleanupCreatedMesh2(obj, cRes.value);
+          if (cleanupRes.ok === false)
+            return cleanupRes;
           return aRes;
+        }
         if (snap.parentTransformId) {
           const tRes = cRes.value.setParentTransformId(snap.parentTransformId);
-          if (tRes.ok === false)
+          if (tRes.ok === false) {
+            const cleanupRes = cleanupCreatedMesh2(obj, cRes.value);
+            if (cleanupRes.ok === false)
+              return cleanupRes;
             return tRes;
+          }
         }
         rebuiltForThisSimilar++;
       }
@@ -146365,6 +147243,17 @@ var mergeSimilarGeometries = {
     return { ok: true, value: { fixed: true, trace } };
   }
 };
+function cleanupCreatedMesh2(sceneObject, mesh) {
+  if (mesh.object?.id === sceneObject.id) {
+    const rRes = sceneObject.removeMesh(mesh.id);
+    if (rRes.ok === false)
+      return rRes;
+  }
+  if (!mesh.destroyed) {
+    return mesh.destroy();
+  }
+  return { ok: true, value: void 0 };
+}
 function collectReferencingMeshSnapshots(sceneModel, geometryId) {
   const out = [];
   const index = getInspectionIndex(sceneModel);
@@ -146385,6 +147274,7 @@ function collectReferencingMeshSnapshots(sceneModel, geometryId) {
         color: [mesh.color[0], mesh.color[1], mesh.color[2]],
         opacity: mesh.opacity,
         materialId: mesh.materialId,
+        bin: mesh.bin,
         parentTransformId: mesh.parentTransform ? mesh.parentTransform.id : void 0
       }
     });
@@ -146602,6 +147492,9 @@ function splitSceneGeometry(params) {
   if (!src) {
     return errInvalid("[splitSceneGeometry] sceneGeometry is required");
   }
+  if (!isTriangleMesh(src)) {
+    return errInvalid(`[splitSceneGeometry] SceneGeometry '${src.id}' primitive ${src.primitive} is not triangle-indexed`);
+  }
   const indices = src.indices;
   if (!indices || indices.length === 0 || indices.length % 3 !== 0) {
     return errInvalid(`[splitSceneGeometry] SceneGeometry '${src.id}' has no triangle indices to split`);
@@ -146631,12 +147524,17 @@ function splitSceneGeometry(params) {
   const positions = decompressPositions3(positionsCompressed, aabb);
   const normals = src.normalsCompressed ? octDecodeU16(src.normalsCompressed) : null;
   const uvs = src.uvsCompressed ?? null;
-  const aRes = buildSide(sceneModel, src.primitive, params.geometryIdA, trisA, indices, positions, normals, uvs);
+  const colors = src.colorsCompressed ?? null;
+  const aRes = buildSide(sceneModel, src.primitive, params.geometryIdA, trisA, indices, positions, normals, uvs, colors);
   if (aRes.ok === false) {
     return aRes;
   }
-  const bRes = buildSide(sceneModel, src.primitive, params.geometryIdB, trisB, indices, positions, normals, uvs);
+  const bRes = buildSide(sceneModel, src.primitive, params.geometryIdB, trisB, indices, positions, normals, uvs, colors);
   if (bRes.ok === false) {
+    const cleanupRes = aRes.value.destroy();
+    if (cleanupRes.ok === false) {
+      return cleanupRes;
+    }
     return bRes;
   }
   return {
@@ -146647,11 +147545,12 @@ function splitSceneGeometry(params) {
     }
   };
 }
-function buildSide(sceneModel, primitive, newId, tris, indices, positions, normals, uvs) {
+function buildSide(sceneModel, primitive, newId, tris, indices, positions, normals, uvs, colors) {
   const remap = /* @__PURE__ */ new Map();
   const newPositions = [];
   const newNormals = normals ? [] : null;
   const newUvs = uvs ? [] : null;
+  const newColors = colors ? [] : null;
   const newIndices = [];
   for (const t of tris) {
     for (let k = 0; k < 3; k++) {
@@ -146678,6 +147577,14 @@ function buildSide(sceneModel, primitive, newId, tris, indices, positions, norma
             uvs[oldIdx * 2 + 1]
           );
         }
+        if (newColors && colors) {
+          newColors.push(
+            colors[oldIdx * 4],
+            colors[oldIdx * 4 + 1],
+            colors[oldIdx * 4 + 2],
+            colors[oldIdx * 4 + 3]
+          );
+        }
       }
       newIndices.push(newIdx);
     }
@@ -146688,6 +147595,7 @@ function buildSide(sceneModel, primitive, newId, tris, indices, positions, norma
     positions: new Float32Array(newPositions),
     normals: newNormals ? new Float32Array(newNormals) : void 0,
     uvs: newUvs ? new Float32Array(newUvs) : void 0,
+    colorsCompressed: newColors ? new Uint8Array(newColors) : void 0,
     indices: newIndices
   });
 }
@@ -146738,6 +147646,9 @@ function splitGeometryAndRebuildMeshes(sceneModel, geometryId) {
   if (!geom.indices || geom.indices.length === 0) {
     return { ok: true, value: { fixed: false, reason: "malformed-issue" } };
   }
+  if (!isTriangleMesh(geom)) {
+    return { ok: true, value: { fixed: false, reason: "precondition-failed" } };
+  }
   const idA = uniqueGeomId(sceneModel, `${geometryId}_a`);
   const idB = uniqueGeomId(sceneModel, `${geometryId}_b`);
   const targets = [];
@@ -146758,6 +147669,7 @@ function splitGeometryAndRebuildMeshes(sceneModel, geometryId) {
         color: [mesh.color[0], mesh.color[1], mesh.color[2]],
         opacity: mesh.opacity,
         materialId: mesh.materialId,
+        bin: mesh.bin,
         parentTransformId: mesh.parentTransform ? mesh.parentTransform.id : void 0
       }
     });
@@ -146811,19 +147723,39 @@ function makeMesh(sceneModel, sceneObject, meshId, geometryId, snap) {
     matrix: snap.matrix,
     color: snap.color,
     opacity: snap.opacity,
-    ...snap.materialId ? { materialId: snap.materialId } : {}
+    ...snap.materialId ? { materialId: snap.materialId } : {},
+    ...snap.bin !== void 0 ? { bin: snap.bin } : {}
   });
   if (cRes.ok === false)
     return cRes;
   const aRes = sceneObject.addMesh(cRes.value.id);
-  if (aRes.ok === false)
+  if (aRes.ok === false) {
+    const cleanupRes = cleanupCreatedMesh3(sceneObject, cRes.value);
+    if (cleanupRes.ok === false)
+      return cleanupRes;
     return aRes;
+  }
   if (snap.parentTransformId) {
     const tRes = cRes.value.setParentTransformId(snap.parentTransformId);
-    if (tRes.ok === false)
+    if (tRes.ok === false) {
+      const cleanupRes = cleanupCreatedMesh3(sceneObject, cRes.value);
+      if (cleanupRes.ok === false)
+        return cleanupRes;
       return tRes;
+    }
   }
   return cRes;
+}
+function cleanupCreatedMesh3(sceneObject, mesh) {
+  if (mesh.object?.id === sceneObject.id) {
+    const rRes = sceneObject.removeMesh(mesh.id);
+    if (rRes.ok === false)
+      return rRes;
+  }
+  if (!mesh.destroyed) {
+    return mesh.destroy();
+  }
+  return { ok: true, value: void 0 };
 }
 function uniqueGeomId(sceneModel, baseId) {
   if (!sceneModel.geometries[baseId])
@@ -146941,6 +147873,44 @@ var splitOversizedGeometry = {
   }
 };
 
+// ../sdk/src/inspect/sceneModel/internal/finishGeometryMutation.ts
+function snapshotGeometryMutation(geom) {
+  return {
+    primitive: geom.primitive,
+    positionsLength: geom.positionsCompressed ? geom.positionsCompressed.length : 0,
+    indicesLength: geom.indices ? geom.indices.length : 0
+  };
+}
+function finishGeometryMutation(geom, before) {
+  const model = geom.model;
+  const after = snapshotGeometryMutation(geom);
+  model.stats.numVertices += vertexCount(after) - vertexCount(before);
+  model.stats.numTriangles += triangleCount(after) - triangleCount(before);
+  model.stats.numLines += lineCount(after) - lineCount(before);
+  model.stats.numPoints += pointCount(after) - pointCount(before);
+  if (after.primitive !== before.primitive) {
+    const bumpPrimitiveCount = model._bumpPrimitiveCount;
+    if (bumpPrimitiveCount) {
+      bumpPrimitiveCount.call(model, before.primitive, -1);
+      bumpPrimitiveCount.call(model, after.primitive, 1);
+    }
+  }
+  getInspectionIndex(model).invalidateGeometry(geom.id);
+  model.scene.events.onSceneGeometryUpdated.dispatch(model.scene, geom);
+}
+function vertexCount(snapshot) {
+  return snapshot.positionsLength / 3;
+}
+function triangleCount(snapshot) {
+  return snapshot.primitive === TrianglesPrimitive ? snapshot.indicesLength / 3 : 0;
+}
+function lineCount(snapshot) {
+  return snapshot.primitive === LinesPrimitive ? snapshot.indicesLength / 2 : 0;
+}
+function pointCount(snapshot) {
+  return snapshot.primitive === PointsPrimitive && snapshot.indicesLength === 0 ? snapshot.positionsLength / 3 : 0;
+}
+
 // ../sdk/src/inspect/sceneModel/fixes/dropDegenerateTriangles.ts
 var DEGENERATE_AREA_EPS_SQ2 = 1e-20;
 var dropDegenerateTriangles = {
@@ -147021,7 +147991,9 @@ var dropDegenerateTriangles = {
       out[w2++] = indices[t * 3 + 1];
       out[w2++] = indices[t * 3 + 2];
     }
+    const before = snapshotGeometryMutation(geom);
     geom.indices = out;
+    finishGeometryMutation(geom, before);
     const dropped = triCount - kept;
     return { ok: true, value: { fixed: true, trace: `'${geomId}': dropped ${dropped.toLocaleString()} of ${triCount.toLocaleString()} triangles` } };
   }
@@ -147079,10 +148051,12 @@ var compactUnusedVertices = {
     const oldPositions = geom.positionsCompressed;
     const oldNormals = geom.normalsCompressed;
     const oldUVs = geom.uvsCompressed;
+    const oldColors = geom.colorsCompressed;
     const sameType = (src, length2) => new src.constructor(length2);
     const newPositions = sameType(oldPositions, kept * 3);
     const newNormals = oldNormals ? sameType(oldNormals, kept * 2) : void 0;
     const newUVs = oldUVs ? sameType(oldUVs, kept * 2) : void 0;
+    const newColors = oldColors ? sameType(oldColors, kept * 4) : void 0;
     let w2 = 0;
     for (let v = 0; v < vertCount; v++) {
       if (!used[v])
@@ -147099,13 +148073,22 @@ var compactUnusedVertices = {
         newUVs[w2 * 2] = oldUVs[v * 2];
         newUVs[w2 * 2 + 1] = oldUVs[v * 2 + 1];
       }
+      if (newColors && oldColors) {
+        newColors[w2 * 4] = oldColors[v * 4];
+        newColors[w2 * 4 + 1] = oldColors[v * 4 + 1];
+        newColors[w2 * 4 + 2] = oldColors[v * 4 + 2];
+        newColors[w2 * 4 + 3] = oldColors[v * 4 + 3];
+      }
       w2++;
     }
+    const before = snapshotGeometryMutation(geom);
     geom.positionsCompressed = newPositions;
     if (newNormals)
       geom.normalsCompressed = newNormals;
     if (newUVs)
       geom.uvsCompressed = newUVs;
+    if (newColors)
+      geom.colorsCompressed = newColors;
     if (indices) {
       const out = new Uint32Array(indices.length);
       for (let i = 0; i < indices.length; i++)
@@ -147118,6 +148101,7 @@ var compactUnusedVertices = {
         out[i] = remap[edgeIndices[i]];
       geom.edgeIndices = out;
     }
+    finishGeometryMutation(geom, before);
     const dropped = vertCount - kept;
     return { ok: true, value: { fixed: true, trace: `'${geomId}': compacted ${dropped.toLocaleString()} unused of ${vertCount.toLocaleString()} vertex slots` } };
   }
@@ -147162,6 +148146,7 @@ var mergeDuplicateVertices = {
       return { ok: true, value: { fixed: false, reason: "no-op" } };
     const oldNormals = geom.normalsCompressed;
     const oldUVs = geom.uvsCompressed;
+    const oldColors = geom.colorsCompressed;
     const slots = getInspectionIndex(sceneModel).canonicalSlots(geomId);
     if (!slots)
       return { ok: true, value: { fixed: false, reason: "precondition-failed" } };
@@ -147173,6 +148158,7 @@ var mergeDuplicateVertices = {
     const newPositions = sameType(oldPositions, unique * 3);
     const newNormals = oldNormals ? sameType(oldNormals, unique * 2) : void 0;
     const newUVs = oldUVs ? sameType(oldUVs, unique * 2) : void 0;
+    const newColors = oldColors ? sameType(oldColors, unique * 4) : void 0;
     let w2 = 0;
     for (let v = 0; v < vertCount; v++) {
       if (canonical[v] !== v)
@@ -147189,16 +148175,25 @@ var mergeDuplicateVertices = {
         newUVs[w2 * 2] = oldUVs[v * 2];
         newUVs[w2 * 2 + 1] = oldUVs[v * 2 + 1];
       }
+      if (newColors && oldColors) {
+        newColors[w2 * 4] = oldColors[v * 4];
+        newColors[w2 * 4 + 1] = oldColors[v * 4 + 1];
+        newColors[w2 * 4 + 2] = oldColors[v * 4 + 2];
+        newColors[w2 * 4 + 3] = oldColors[v * 4 + 3];
+      }
       w2++;
     }
     const remap = new Int32Array(vertCount);
     for (let v = 0; v < vertCount; v++)
       remap[v] = newSlot[canonical[v]];
+    const before = snapshotGeometryMutation(geom);
     geom.positionsCompressed = newPositions;
     if (newNormals)
       geom.normalsCompressed = newNormals;
     if (newUVs)
       geom.uvsCompressed = newUVs;
+    if (newColors)
+      geom.colorsCompressed = newColors;
     const indices = geom.indices;
     if (indices) {
       const out = new Uint32Array(indices.length);
@@ -147213,6 +148208,7 @@ var mergeDuplicateVertices = {
         out[i] = remap[edgeIndices[i]];
       geom.edgeIndices = out;
     }
+    finishGeometryMutation(geom, before);
     const merged = vertCount - unique;
     return { ok: true, value: { fixed: true, trace: `'${geomId}': merged ${merged.toLocaleString()} duplicate of ${vertCount.toLocaleString()} vertex slots` } };
   }
@@ -147251,7 +148247,9 @@ var downgradeNonWatertight = {
     if (geom.primitive !== SolidPrimitive) {
       return { ok: true, value: { fixed: false, reason: "no-op" } };
     }
+    const before = snapshotGeometryMutation(geom);
     geom.primitive = SurfacePrimitive;
+    finishGeometryMutation(geom, before);
     return { ok: true, value: { fixed: true, trace: `'${geomId}': SolidPrimitive \u2192 SurfacePrimitive` } };
   }
 };
@@ -147262,6 +148260,7 @@ var dropDuplicateObject = {
   description: "Destroy duplicate objects",
   procedure: [
     "Find the redundant duplicate objects",
+    "Prune stale mesh entries from each duplicate object",
     "For each duplicate, detach every mesh from the object",
     "Destroy each detached mesh",
     "Destroy the now-empty object"
@@ -147287,10 +148286,15 @@ var dropDuplicateObject = {
       const obj = sceneModel.objects[dupId];
       if (!obj || obj.destroyed)
         continue;
+      const meshes = obj.meshes;
       const meshIds = [];
-      for (const mesh of obj.meshes) {
-        if (!mesh || mesh.destroyed)
+      for (let i = meshes.length - 1; i >= 0; i--) {
+        const mesh = meshes[i];
+        const registered = mesh ? sceneModel.meshes[mesh.id] : void 0;
+        if (!mesh || mesh.destroyed || !registered || registered !== mesh || mesh.object?.id !== obj.id) {
+          meshes.splice(i, 1);
           continue;
+        }
         meshIds.push(mesh.id);
       }
       for (const meshId of meshIds) {
@@ -147376,7 +148380,9 @@ var recenterGeometry = {
     newAABB[3] = aabb[3] - cx;
     newAABB[4] = aabb[4] - cy;
     newAABB[5] = aabb[5] - cz;
+    const before = snapshotGeometryMutation(geom);
     geom.aabb = newAABB;
+    finishGeometryMutation(geom, before);
     const offset = `(${cx.toFixed(1)}, ${cy.toFixed(1)}, ${cz.toFixed(1)})`;
     return { ok: true, value: { fixed: true, trace: `'${geomId}': AABB shifted by ${offset}; offset pushed into referencing mesh matrices` } };
   }
@@ -147485,7 +148491,9 @@ var unifyTriangleWinding = {
         out[o + 2] = indices[o + 2];
       }
     }
+    const before = snapshotGeometryMutation(geom);
     geom.indices = out;
+    finishGeometryMutation(geom, before);
     return { ok: true, value: { fixed: true, trace: `'${geomId}': flipped ${flippedCount.toLocaleString()} of ${triCount.toLocaleString()} triangles` } };
   }
 };
@@ -147546,13 +148554,13 @@ var tightenAabb = {
       if (z > maxU2)
         maxU2 = z;
     }
-    if (minU0 === 0 && maxU0 === 65535 && minU1 === 0 && maxU1 === 65535 && minU2 === 0 && maxU2 === 65535) {
-      return { ok: true, value: { fixed: false, reason: "no-op" } };
-    }
     const oldMinX = aabb[0], oldMinY = aabb[1], oldMinZ = aabb[2];
     const oldRangeX = aabb[3] - aabb[0];
     const oldRangeY = aabb[4] - aabb[1];
     const oldRangeZ = aabb[5] - aabb[2];
+    if (axisAlreadyTight(minU0, maxU0, oldRangeX) && axisAlreadyTight(minU1, maxU1, oldRangeY) && axisAlreadyTight(minU2, maxU2, oldRangeZ)) {
+      return { ok: true, value: { fixed: false, reason: "no-op" } };
+    }
     const newAABB = new Float32Array(6);
     newAABB[0] = oldMinX + oldRangeX * (minU0 / 65535);
     newAABB[1] = oldMinY + oldRangeY * (minU1 / 65535);
@@ -147572,14 +148580,19 @@ var tightenAabb = {
       newPositions[i + 1] = Math.round((oldPositions[i + 1] - minU1) * scaleU1);
       newPositions[i + 2] = Math.round((oldPositions[i + 2] - minU2) * scaleU2);
     }
+    const before = snapshotGeometryMutation(geom);
     geom.positionsCompressed = newPositions;
     geom.aabb = newAABB;
+    finishGeometryMutation(geom, before);
     const fillX = rangeU0 / 65535 * 100 | 0;
     const fillY = rangeU1 / 65535 * 100 | 0;
     const fillZ = rangeU2 / 65535 * 100 | 0;
     return { ok: true, value: { fixed: true, trace: `'${geomId}': AABB tightened (was ${fillX}% / ${fillY}% / ${fillZ}% used \u2192 100%)` } };
   }
 };
+function axisAlreadyTight(minU, maxU, worldRange) {
+  return minU === 0 && maxU === 65535 || worldRange === 0 && minU === maxU;
+}
 
 // ../sdk/src/inspect/sceneModel/fixes/dropDuplicateTriangles.ts
 var dropDuplicateTriangles = {
@@ -147637,7 +148650,9 @@ var dropDuplicateTriangles = {
       out[w2++] = indices[t * 3 + 1];
       out[w2++] = indices[t * 3 + 2];
     }
+    const before = snapshotGeometryMutation(geom);
     geom.indices = out;
+    finishGeometryMutation(geom, before);
     return { ok: true, value: { fixed: true, trace: `'${geomId}': dropped ${duplicateCount.toLocaleString()} duplicate of ${triCount.toLocaleString()} triangles` } };
   }
 };
@@ -147954,7 +148969,10 @@ function splitOversizedGeometries(sceneModel, maxVertices, maxPrimitives) {
       const snap = {
         id: mesh.id,
         matrix: new Float64Array(mesh.matrix),
+        color: [mesh.color[0], mesh.color[1], mesh.color[2]],
         opacity: mesh.opacity,
+        materialId: mesh.materialId,
+        bin: mesh.bin,
         parentTransformId: mesh.parentTransform ? mesh.parentTransform.id : void 0
       };
       const rmRes = sceneObject.removeMesh(snap.id);
@@ -148113,14 +149131,6 @@ function isOversized(geom, maxVertices, maxPrimitives) {
   return triCount > maxPrimitives;
 }
 function makeMesh2(sceneModel, sceneObject, meshId, geometryId, snap) {
-  const cRes = sceneModel.createMesh({
-    id: meshId,
-    geometryId,
-    matrix: snap.matrix,
-    opacity: snap.opacity
-  });
-  if (cRes.ok === false)
-    return cRes;
   if (!sceneObject) {
     return {
       ok: false,
@@ -148128,15 +149138,45 @@ function makeMesh2(sceneModel, sceneObject, meshId, geometryId, snap) {
       error: `[optimizeSceneModel.makeMesh] SceneMesh '${meshId}' has no SceneObject \u2014 original mesh was dangling`
     };
   }
+  const cRes = sceneModel.createMesh({
+    id: meshId,
+    geometryId,
+    matrix: snap.matrix,
+    color: snap.color,
+    opacity: snap.opacity,
+    ...snap.materialId !== void 0 ? { materialId: snap.materialId } : {},
+    ...snap.bin !== void 0 ? { bin: snap.bin } : {}
+  });
+  if (cRes.ok === false)
+    return cRes;
   const aRes = sceneObject.addMesh(cRes.value.id);
-  if (aRes.ok === false)
+  if (aRes.ok === false) {
+    const cleanupRes = cleanupCreatedMesh4(sceneObject, cRes.value);
+    if (cleanupRes.ok === false)
+      return cleanupRes;
     return aRes;
+  }
   if (snap.parentTransformId) {
     const tRes = cRes.value.setParentTransformId(snap.parentTransformId);
-    if (tRes.ok === false)
+    if (tRes.ok === false) {
+      const cleanupRes = cleanupCreatedMesh4(sceneObject, cRes.value);
+      if (cleanupRes.ok === false)
+        return cleanupRes;
       return tRes;
+    }
   }
   return cRes;
+}
+function cleanupCreatedMesh4(sceneObject, mesh) {
+  if (mesh.object?.id === sceneObject.id) {
+    const rRes = sceneObject.removeMesh(mesh.id);
+    if (rRes.ok === false)
+      return rRes;
+  }
+  if (!mesh.destroyed) {
+    return mesh.destroy();
+  }
+  return { ok: true, value: void 0 };
 }
 function uniqueGeomId2(sceneModel, baseId) {
   if (!sceneModel.geometries[baseId])
@@ -155809,6 +156849,712 @@ var Texturing = class {
   }
 };
 
+// ../sdk/src/viewing/viewer/ViewLayer.ts
+var ViewLayer = class {
+  /**
+   * Map of the all {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * These are the ViewObjects for which {@link model!scene.SceneObject.layerId | SceneObject.layerId} has the same value as the {@link ViewLayer.id | ViewLayer.id}.
+   *
+   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
+   *
+   * The ViewLayer automatically ensures that there is a {@link viewing!viewer.ViewObject | ViewObject} here for
+   * each {@link model!scene.SceneObjectRendererProxy | SceneObjectRendererProxy} in the {@link Viewer | Viewer}
+   */
+  objects;
+  /**
+   * Map of the currently visible {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * A ViewObject is visible when {@link ViewObject.visible} is true.
+   *
+   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
+   */
+  visibleObjects;
+  /**
+   * Map of currently x-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * A ViewObject is x-rayed when {@link ViewObject.xrayed} is true.
+   *
+   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
+   */
+  xrayedObjects;
+  /**
+   * Map of currently highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * A ViewObject is highlighted when {@link ViewObject.highlighted} is true.
+   *
+   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
+   */
+  highlightedObjects;
+  /**
+   * Map of currently selected {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * A ViewObject is selected when {@link ViewObject.selected} is true.
+   *
+   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
+   */
+  selectedObjects;
+  /**
+   * Map of currently colorized {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
+   */
+  colorizedObjects;
+  /**
+   * Map of {@link ViewObject | ViewObjects} in this ViewLayer whose opacity has been updated.
+   *
+   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
+   */
+  opacityObjects;
+  /**
+   * When true, View destroys this ViewLayer as soon as there are no ViewObjects
+   * that need it. When false, View retains it.
+   * @private
+   */
+  autoDestroy;
+  _renderModes;
+  _numObjects;
+  _objectIds;
+  _numVisibleObjects;
+  _visibleObjectIds;
+  _numXRayedObjects;
+  _xrayedObjectIds;
+  _numHighlightedObjects;
+  _highlightedObjectIds;
+  _numSelectedObjects;
+  _selectedObjectIds;
+  _numColorizedObjects;
+  _colorizedObjectIds;
+  _numOpacityObjects;
+  _opacityObjectIds;
+  gammaOutput;
+  /**
+   * True if this ViewLayer has been destroyed.
+   */
+  destroyed = false;
+  constructor(options) {
+    this.id = options.id;
+    this.viewer = options.viewer;
+    this.view = options.view;
+    this.objects = {};
+    this.visibleObjects = {};
+    this.xrayedObjects = {};
+    this.highlightedObjects = {};
+    this.selectedObjects = {};
+    this.colorizedObjects = {};
+    this.opacityObjects = {};
+    this.autoDestroy = options.autoDestroy !== false;
+    this._numObjects = 0;
+    this._numVisibleObjects = 0;
+    this._numXRayedObjects = 0;
+    this._numHighlightedObjects = 0;
+    this._numSelectedObjects = 0;
+    this._numColorizedObjects = 0;
+    this._numOpacityObjects = 0;
+    this._renderModes = [];
+  }
+  _attachViewObject(viewObject) {
+    if (this.objects[viewObject.id]) {
+      return;
+    }
+    this.objects[viewObject.id] = viewObject;
+    this._numObjects++;
+    this._objectIds = null;
+  }
+  _deattachViewObject(viewObject) {
+    const objectId = viewObject.id;
+    if (!this.objects[objectId]) {
+      return;
+    }
+    delete this.objects[objectId];
+    this._numObjects--;
+    this._objectIds = null;
+    if (this.visibleObjects[objectId]) {
+      delete this.visibleObjects[objectId];
+      this._numVisibleObjects--;
+      this._visibleObjectIds = null;
+    }
+    if (this.xrayedObjects[objectId]) {
+      delete this.xrayedObjects[objectId];
+      this._numXRayedObjects--;
+      this._xrayedObjectIds = null;
+    }
+    if (this.highlightedObjects[objectId]) {
+      delete this.highlightedObjects[objectId];
+      this._numHighlightedObjects--;
+      this._highlightedObjectIds = null;
+    }
+    if (this.selectedObjects[objectId]) {
+      delete this.selectedObjects[objectId];
+      this._numSelectedObjects--;
+      this._selectedObjectIds = null;
+    }
+    if (this.colorizedObjects[objectId]) {
+      delete this.colorizedObjects[objectId];
+      this._numColorizedObjects--;
+      this._colorizedObjectIds = null;
+    }
+    if (this.opacityObjects[objectId]) {
+      delete this.opacityObjects[objectId];
+      this._numOpacityObjects--;
+      this._opacityObjectIds = null;
+    }
+  }
+  /**
+   * Gets the gamma factor.
+   */
+  get gammaFactor() {
+    return 1;
+  }
+  /**
+   * Sets which rendering modes in which to render the {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * Default value is [].
+   */
+  set renderModes(value) {
+    if (this.destroyed) {
+      this.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[ViewLayer.renderModes] ViewLayer already destroyed"
+      });
+      return;
+    }
+    this._renderModes = value;
+    this.view.needsRender();
+  }
+  /**
+   * Gets which rendering modes in which to render the {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * Default value is [].
+   */
+  get renderModes() {
+    return this._renderModes;
+  }
+  /**
+   * Gets the number of {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get numObjects() {
+    return this._numObjects;
+  }
+  /**
+   * Gets the IDs of the {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get objectIds() {
+    if (!this._objectIds) {
+      this._objectIds = Object.keys(this.objects);
+    }
+    return this._objectIds;
+  }
+  /**
+   * Gets the number of visible {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get numVisibleObjects() {
+    return this._numVisibleObjects;
+  }
+  /**
+   * Gets the IDs of the visible {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get visibleObjectIds() {
+    if (!this._visibleObjectIds) {
+      this._visibleObjectIds = Object.keys(this.visibleObjects);
+    }
+    return this._visibleObjectIds;
+  }
+  /**
+   * Gets the number of X-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get numXRayedObjects() {
+    return this._numXRayedObjects;
+  }
+  /**
+   * Gets the IDs of the X-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get xrayedObjectIds() {
+    if (!this._xrayedObjectIds) {
+      this._xrayedObjectIds = Object.keys(this.xrayedObjects);
+    }
+    return this._xrayedObjectIds;
+  }
+  /**
+   * Gets the number of highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get numHighlightedObjects() {
+    return this._numHighlightedObjects;
+  }
+  /**
+   * Gets the IDs of the highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get highlightedObjectIds() {
+    if (!this._highlightedObjectIds) {
+      this._highlightedObjectIds = Object.keys(this.highlightedObjects);
+    }
+    return this._highlightedObjectIds;
+  }
+  /**
+   * Gets the number of selected {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get numSelectedObjects() {
+    return this._numSelectedObjects;
+  }
+  /**
+   * Gets the IDs of the selected {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get selectedObjectIds() {
+    if (!this._selectedObjectIds) {
+      this._selectedObjectIds = Object.keys(this.selectedObjects);
+    }
+    return this._selectedObjectIds;
+  }
+  /**
+   * Gets the number of colorized {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get numColorizedObjects() {
+    return this._numColorizedObjects;
+  }
+  /**
+   * Gets the IDs of the colorized {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
+  get colorizedObjectIds() {
+    if (!this._colorizedObjectIds) {
+      this._colorizedObjectIds = Object.keys(this.colorizedObjects);
+    }
+    return this._colorizedObjectIds;
+  }
+  /**
+   * Gets the IDs of the {@link ViewObject | ViewObjects} in this ViewLayer that have updated opacities.
+   */
+  get opacityObjectIds() {
+    if (!this._opacityObjectIds) {
+      this._opacityObjectIds = Object.keys(this.opacityObjects);
+    }
+    return this._opacityObjectIds;
+  }
+  /**
+   * Gets the number of {@link ViewObject | ViewObjects} in this ViewLayer that have updated opacities.
+   */
+  get numOpacityObjects() {
+    return this._numOpacityObjects;
+  }
+  /**
+   * Called by ViewObject.visible setter.
+   * @private
+   */
+  objectVisibilityUpdated(viewObject, visible, notify = true) {
+    if (visible) {
+      this.visibleObjects[viewObject.id] = viewObject;
+      this._numVisibleObjects++;
+    } else {
+      delete this.visibleObjects[viewObject.id];
+      this._numVisibleObjects--;
+    }
+    this._visibleObjectIds = null;
+    this.view.objectVisibilityUpdated(viewObject, visible, notify);
+  }
+  /**
+   * Called by ViewObject.xrayed setter.
+   * @private
+   */
+  objectXRayedUpdated(viewObject, xrayed) {
+    if (xrayed) {
+      this.xrayedObjects[viewObject.id] = viewObject;
+      this._numXRayedObjects++;
+    } else {
+      delete this.xrayedObjects[viewObject.id];
+      this._numXRayedObjects--;
+    }
+    this._xrayedObjectIds = null;
+    this.view.objectXRayedUpdated(viewObject, xrayed);
+  }
+  /**
+   * Called by ViewObject.highlighted setter.
+   * @private
+   */
+  objectHighlightedUpdated(viewObject, highlighted) {
+    if (highlighted) {
+      this.highlightedObjects[viewObject.id] = viewObject;
+      this._numHighlightedObjects++;
+    } else {
+      delete this.highlightedObjects[viewObject.id];
+      this._numHighlightedObjects--;
+    }
+    this._highlightedObjectIds = null;
+    this.view.objectHighlightedUpdated(viewObject, highlighted);
+  }
+  /**
+   * Called by ViewObject.selected setter.
+   * @private
+   */
+  objectSelectedUpdated(viewObject, selected) {
+    if (selected) {
+      this.selectedObjects[viewObject.id] = viewObject;
+      this._numSelectedObjects++;
+    } else {
+      delete this.selectedObjects[viewObject.id];
+      this._numSelectedObjects--;
+    }
+    this._selectedObjectIds = null;
+    this.view.objectSelectedUpdated(viewObject, selected);
+  }
+  /**
+   * Called by ViewObject.colorized setter.
+   * @private
+   */
+  objectColorizeUpdated(viewObject, colorized) {
+    if (colorized) {
+      this.colorizedObjects[viewObject.id] = viewObject;
+      this._numColorizedObjects++;
+    } else {
+      delete this.colorizedObjects[viewObject.id];
+      this._numColorizedObjects--;
+    }
+    this._colorizedObjectIds = null;
+    this.view.objectColorizeUpdated(viewObject, colorized);
+  }
+  /**
+   * Called by ViewObject.opacity setter.
+   * @private
+   */
+  objectOpacityUpdated(viewObject, opacityUpdated) {
+    if (opacityUpdated) {
+      this.opacityObjects[viewObject.id] = viewObject;
+      this._numOpacityObjects++;
+    } else {
+      delete this.opacityObjects[viewObject.id];
+      this._numOpacityObjects--;
+    }
+    this._opacityObjectIds = null;
+    this.view.objectOpacityUpdated(viewObject, opacityUpdated);
+  }
+  /**
+   * Called by ViewObject.pickable setter.
+   * @private
+   */
+  objectPickableUpdated(viewObject, pickable) {
+    this.view.objectPickableUpdated(viewObject, pickable);
+  }
+  /**
+   * Updates the visibility of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.visible} on the Objects with the given IDs.
+   * - Updates {@link ViewLayer.visibleObjects} and {@link ViewLayer.numVisibleObjects}.
+   *
+   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param visible Whether or not to cull.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
+  setObjectsVisible(objectIds, visible) {
+    if (this.destroyed) {
+      this.view.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[ViewLayer.setObjectsVisible] ViewLayer already destroyed"
+      });
+      return;
+    }
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.visible !== visible) {
+        viewObject.visible = visible;
+        changed = true;
+      }
+    }
+    return changed;
+  }
+  /**
+   * Updates the collidability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * Updates {@link ViewObject.collidable} on the Objects with the given IDs.
+   *
+   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param collidable Whether or not to cull.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
+  setObjectsCollidable(objectIds, collidable) {
+    if (this.destroyed) {
+      this.view.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[ViewLayer.setObjectsCollidable] ViewLayer already destroyed"
+      });
+      return;
+    }
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.collidable !== collidable) {
+        viewObject.collidable = collidable;
+        changed = true;
+      }
+    }
+    return changed;
+  }
+  /**
+   * Updates the culled status of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * Updates {@link ViewObject.culled} on the Objects with the given IDs.
+   *
+   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param culled Whether or not to cull.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
+  setObjectsCulled(objectIds, culled) {
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.culled !== culled) {
+        viewObject.culled = culled;
+        changed = true;
+      }
+    }
+    return changed;
+  }
+  /**
+   * Selects or deselects the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.selected} on the Objects with the given IDs.
+   * - Updates {@link ViewLayer.selectedObjects} and {@link ViewLayer.numSelectedObjects}.
+   *
+   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param selected Whether or not to select.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
+  setObjectsSelected(objectIds, selected) {
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.selected !== selected) {
+        viewObject.selected = selected;
+        changed = true;
+      }
+    }
+    return changed;
+  }
+  /**
+   * Highlights or un-highlights the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.highlighted} on the Objects with the given IDs.
+   * - Updates {@link ViewLayer.highlightedObjects} and {@link ViewLayer.numHighlightedObjects}.
+   *
+   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param highlighted Whether or not to highlight.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
+  setObjectsHighlighted(objectIds, highlighted) {
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.highlighted !== highlighted) {
+        viewObject.highlighted = highlighted;
+        changed = true;
+      }
+    }
+    return changed;
+  }
+  /**
+   * Applies or removes X-ray rendering for the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.xrayed} on the Objects with the given IDs.
+   * - Updates {@link ViewLayer.xrayedObjects} and {@link ViewLayer.numXRayedObjects}.
+   *
+   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param xrayed Whether or not to xray.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
+  setObjectsXRayed(objectIds, xrayed) {
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.xrayed !== xrayed) {
+        viewObject.xrayed = xrayed;
+        changed = true;
+      }
+    }
+    return changed;
+  }
+  /**
+   * Colorizes the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.colorize} on the Objects with the given IDs.
+   * - Updates {@link ViewLayer.colorizedObjects} and {@link ViewLayer.numColorizedObjects}.
+   *
+   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param colorize - RGB colorize factors in range ````[0..1,0..1,0..1]````.
+   * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
+   */
+  setObjectsColorized(objectIds, colorize) {
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      viewObject.colorize = colorize;
+      changed = true;
+    }
+    return changed;
+  }
+  /**
+   * Sets the opacity of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.opacity} on the Objects with the given IDs.
+   * - Updates {@link ViewLayer.opacityObjects} and {@link ViewLayer.numOpacityObjects}.
+   *
+   * @param  objectIds - One or more {@link ViewObject.id} values.
+   * @param opacity - Opacity factor in range ````[0..1]````.
+   * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
+   */
+  setObjectsOpacity(objectIds, opacity) {
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.opacity !== opacity) {
+        viewObject.opacity = opacity;
+        changed = true;
+      }
+    }
+    return changed;
+  }
+  /**
+   * Sets the pickability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.pickable} on the Objects with the given IDs.
+   * - Enables or disables the ability to pick the given Objects with {@link viewing!viewer.View.pick | View.pick}.
+   *
+   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param pickable Whether or not to set pickable.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
+  setObjectsPickable(objectIds, pickable) {
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.pickable !== pickable) {
+        viewObject.pickable = pickable;
+        changed = true;
+      }
+    }
+    return changed;
+  }
+  /**
+   * Sets the clippability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.clippable} on the Objects with the given IDs.
+   * - Enables or disables the ability to pick the given Objects with {@link viewing!viewer.View.pick | View.pick}.
+   *
+   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param clippable Whether or not to set clippable.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
+  setObjectsClippable(objectIds, clippable) {
+    let changed = false;
+    const objects = this.objects;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = objects[objectIds[i]];
+      if (!viewObject) {
+        continue;
+      }
+      if (viewObject.clippable !== clippable) {
+        viewObject.clippable = clippable;
+        changed = true;
+      }
+    }
+    return changed;
+  }
+  /**
+   * Iterates with a callback over the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param callback Callback to execute on each {@link viewing!viewer.ViewObject | ViewObject}.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
+  withObjects(objectIds, callback) {
+    let changed = false;
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const id = objectIds[i];
+      const viewObject = this.objects[id];
+      if (viewObject) {
+        changed = callback(viewObject) || changed;
+      }
+    }
+    return changed;
+  }
+  /**
+   * Configures this ViewLayer.
+   *
+   * @param viewLayerParams
+   */
+  fromParams(viewLayerParams) {
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  /**
+   * Gets the current configuration of this ViewLayer.
+   */
+  toParams() {
+    return {
+      ok: true,
+      value: {
+        id: this.id,
+        autoDestroy: this.autoDestroy
+      }
+    };
+  }
+  /**
+   * Destroys this ViewLayer.
+   *
+   * Causes {@link Viewer | Viewer} to fire a "viewDestroyed" event.
+   */
+  destroy() {
+    if (this.destroyed) {
+      this.viewer.logError({
+        ok: false,
+        type: 1 /* InvalidOperation */,
+        error: "[ViewLayer.destroy] ViewLayer already destroyed"
+      });
+      return;
+    }
+    this.view._destroyLayer(this);
+    this.destroyed = true;
+  }
+};
+
 // ../sdk/src/viewing/viewer/ViewTransform.ts
 var ViewTransform = class {
   /** Unique identifier for this transform within its owning {@link viewing!viewer.View | View} or {@link ViewLayer}. */
@@ -156662,756 +158408,6 @@ var ViewObject = class _ViewObject {
   }
 };
 
-// ../sdk/src/viewing/viewer/ViewLayer.ts
-var ViewLayer = class {
-  /**
-   * Map of the all {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * These are the ViewObjects for which {@link model!scene.SceneObject.layerId | SceneObject.layerId} has the same value as the {@link ViewLayer.id | ViewLayer.id}.
-   *
-   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
-   *
-   * The ViewLayer automatically ensures that there is a {@link viewing!viewer.ViewObject | ViewObject} here for
-   * each {@link model!scene.SceneObjectRendererProxy | SceneObjectRendererProxy} in the {@link Viewer | Viewer}
-   */
-  objects;
-  /**
-   * Map of the currently visible {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * A ViewObject is visible when {@link ViewObject.visible} is true.
-   *
-   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  visibleObjects;
-  /**
-   * Map of currently x-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * A ViewObject is x-rayed when {@link ViewObject.xrayed} is true.
-   *
-   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  xrayedObjects;
-  /**
-   * Map of currently highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * A ViewObject is highlighted when {@link ViewObject.highlighted} is true.
-   *
-   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  highlightedObjects;
-  /**
-   * Map of currently selected {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * A ViewObject is selected when {@link ViewObject.selected} is true.
-   *
-   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  selectedObjects;
-  /**
-   * Map of currently colorized {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  colorizedObjects;
-  /**
-   * Map of {@link ViewObject | ViewObjects} in this ViewLayer whose opacity has been updated.
-   *
-   * Each {@link viewing!viewer.ViewObject | ViewObject} is mapped here by {@link ViewObject.id}.
-   */
-  opacityObjects;
-  /**
-   * When true, View destroys this ViewLayer as soon as there are no ViewObjects
-   * that need it. When false, View retains it.
-   * @private
-   */
-  autoDestroy;
-  _renderModes;
-  _numObjects;
-  _objectIds;
-  _numVisibleObjects;
-  _visibleObjectIds;
-  _numXRayedObjects;
-  _xrayedObjectIds;
-  _numHighlightedObjects;
-  _highlightedObjectIds;
-  _numSelectedObjects;
-  _selectedObjectIds;
-  _numColorizedObjects;
-  _colorizedObjectIds;
-  _numOpacityObjects;
-  _opacityObjectIds;
-  gammaOutput;
-  /**
-   * True if this ViewLayer has been destroyed.
-   */
-  destroyed = false;
-  constructor(options) {
-    this.id = options.id;
-    this.viewer = options.viewer;
-    this.view = options.view;
-    this.objects = {};
-    this.visibleObjects = {};
-    this.xrayedObjects = {};
-    this.highlightedObjects = {};
-    this.selectedObjects = {};
-    this.colorizedObjects = {};
-    this.opacityObjects = {};
-    this.autoDestroy = options.autoDestroy !== false;
-    this._numObjects = 0;
-    this._numVisibleObjects = 0;
-    this._numXRayedObjects = 0;
-    this._numHighlightedObjects = 0;
-    this._numSelectedObjects = 0;
-    this._numColorizedObjects = 0;
-    this._numOpacityObjects = 0;
-    this._renderModes = [];
-    this._initViewObjects();
-  }
-  /**
-   * @private
-   */
-  _initViewObjects() {
-    const models = this.viewer.scene.models;
-    for (const id in models) {
-      const model = models[id];
-      this._sceneModelCreated(model);
-    }
-  }
-  /**
-   * @private
-   */
-  _sceneModelCreated(model) {
-    const sceneObjects = model.objects;
-    for (const id in sceneObjects) {
-      const sceneObject = sceneObjects[id];
-      this._sceneObjectCreated(sceneObject);
-    }
-  }
-  /**
-   * @private
-   */
-  _sceneObjectCreated(sceneObject) {
-    if (sceneObject.layerId == this.id) {
-      if (!this.objects[sceneObject.id]) {
-        const viewObject = new ViewObject(this, sceneObject);
-        this.objects[viewObject.id] = viewObject;
-        this._numObjects++;
-        this._objectIds = null;
-        this.view.viewer.events.onViewObjectCreated.dispatch(this.view, viewObject);
-        this.view.needsRender();
-      }
-    }
-  }
-  /**
-   * @private
-   */
-  _sceneObjectDestroyed(sceneObject) {
-    const viewObject = this.objects[sceneObject.id];
-    if (viewObject) {
-      this._destroyViewObject(viewObject);
-    }
-  }
-  /**
-   * @private
-   */
-  _destroyViewObject(viewObject) {
-    delete this.objects[viewObject.id];
-    delete this.visibleObjects[viewObject.id];
-    delete this.xrayedObjects[viewObject.id];
-    delete this.highlightedObjects[viewObject.id];
-    delete this.selectedObjects[viewObject.id];
-    delete this.colorizedObjects[viewObject.id];
-    delete this.opacityObjects[viewObject.id];
-    this._numObjects--;
-    this._objectIds = null;
-    this.view.viewer.events.onViewObjectDestroyed.dispatch(this.view, viewObject);
-  }
-  _attachViewObject(viewObject) {
-    if (this.objects[viewObject.id]) {
-      return;
-    }
-    this.objects[viewObject.id] = viewObject;
-    this._numObjects++;
-    this._objectIds = null;
-  }
-  _deattachViewObject(viewObject) {
-    const objectId = viewObject.id;
-    if (!this.objects[objectId]) {
-      return;
-    }
-    delete this.objects[objectId];
-    delete this.visibleObjects[objectId];
-    delete this.xrayedObjects[objectId];
-    delete this.highlightedObjects[objectId];
-    delete this.selectedObjects[objectId];
-    delete this.colorizedObjects[objectId];
-    delete this.opacityObjects[objectId];
-    this._numObjects--;
-    this._objectIds = null;
-  }
-  /**
-   * Gets the gamma factor.
-   */
-  get gammaFactor() {
-    return 1;
-  }
-  /**
-   * Sets which rendering modes in which to render the {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * Default value is [].
-   */
-  set renderModes(value) {
-    if (this.destroyed) {
-      this.viewer.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[ViewLayer.renderModes] ViewLayer already destroyed"
-      });
-      return;
-    }
-    this._renderModes = value;
-    this.view.needsRender();
-  }
-  /**
-   * Gets which rendering modes in which to render the {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * Default value is [].
-   */
-  get renderModes() {
-    return this._renderModes;
-  }
-  /**
-   * Gets the number of {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get numObjects() {
-    return this._numObjects;
-  }
-  /**
-   * Gets the IDs of the {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get objectIds() {
-    if (!this._objectIds) {
-      this._objectIds = Object.keys(this.objects);
-    }
-    return this._objectIds;
-  }
-  /**
-   * Gets the number of visible {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get numVisibleObjects() {
-    return this._numVisibleObjects;
-  }
-  /**
-   * Gets the IDs of the visible {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get visibleObjectIds() {
-    if (!this._visibleObjectIds) {
-      this._visibleObjectIds = Object.keys(this.visibleObjects);
-    }
-    return this._visibleObjectIds;
-  }
-  /**
-   * Gets the number of X-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get numXRayedObjects() {
-    return this._numXRayedObjects;
-  }
-  /**
-   * Gets the IDs of the X-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get xrayedObjectIds() {
-    if (!this._xrayedObjectIds) {
-      this._xrayedObjectIds = Object.keys(this.xrayedObjects);
-    }
-    return this._xrayedObjectIds;
-  }
-  /**
-   * Gets the number of highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get numHighlightedObjects() {
-    return this._numHighlightedObjects;
-  }
-  /**
-   * Gets the IDs of the highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get highlightedObjectIds() {
-    if (!this._highlightedObjectIds) {
-      this._highlightedObjectIds = Object.keys(this.highlightedObjects);
-    }
-    return this._highlightedObjectIds;
-  }
-  /**
-   * Gets the number of selected {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get numSelectedObjects() {
-    return this._numSelectedObjects;
-  }
-  /**
-   * Gets the IDs of the selected {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get selectedObjectIds() {
-    if (!this._selectedObjectIds) {
-      this._selectedObjectIds = Object.keys(this.selectedObjects);
-    }
-    return this._selectedObjectIds;
-  }
-  /**
-   * Gets the number of colorized {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get numColorizedObjects() {
-    return this._numColorizedObjects;
-  }
-  /**
-   * Gets the IDs of the colorized {@link ViewObject | ViewObjects} in this ViewLayer.
-   */
-  get colorizedObjectIds() {
-    if (!this._colorizedObjectIds) {
-      this._colorizedObjectIds = Object.keys(this.colorizedObjects);
-    }
-    return this._colorizedObjectIds;
-  }
-  /**
-   * Gets the IDs of the {@link ViewObject | ViewObjects} in this ViewLayer that have updated opacities.
-   */
-  get opacityObjectIds() {
-    if (!this._opacityObjectIds) {
-      this._opacityObjectIds = Object.keys(this.opacityObjects);
-    }
-    return this._opacityObjectIds;
-  }
-  /**
-   * Gets the number of {@link ViewObject | ViewObjects} in this ViewLayer that have updated opacities.
-   */
-  get numOpacityObjects() {
-    return this._numOpacityObjects;
-  }
-  /**
-   * Called by ViewObject.visible setter.
-   * @private
-   */
-  objectVisibilityUpdated(viewObject, visible, notify = true) {
-    if (visible) {
-      this.visibleObjects[viewObject.id] = viewObject;
-      this._numVisibleObjects++;
-    } else {
-      delete this.visibleObjects[viewObject.id];
-      this._numVisibleObjects--;
-    }
-    this._visibleObjectIds = null;
-    this.view.objectVisibilityUpdated(viewObject, visible, notify);
-  }
-  /**
-   * Called by ViewObject.xrayed setter.
-   * @private
-   */
-  objectXRayedUpdated(viewObject, xrayed) {
-    if (xrayed) {
-      this.xrayedObjects[viewObject.id] = viewObject;
-      this._numXRayedObjects++;
-    } else {
-      delete this.xrayedObjects[viewObject.id];
-      this._numXRayedObjects--;
-    }
-    this._xrayedObjectIds = null;
-    this.view.objectXRayedUpdated(viewObject, xrayed);
-  }
-  /**
-   * Called by ViewObject.highlighted setter.
-   * @private
-   */
-  objectHighlightedUpdated(viewObject, highlighted) {
-    if (highlighted) {
-      this.highlightedObjects[viewObject.id] = viewObject;
-      this._numHighlightedObjects++;
-    } else {
-      delete this.highlightedObjects[viewObject.id];
-      this._numHighlightedObjects--;
-    }
-    this._highlightedObjectIds = null;
-    this.view.objectHighlightedUpdated(viewObject, highlighted);
-  }
-  /**
-   * Called by ViewObject.selected setter.
-   * @private
-   */
-  objectSelectedUpdated(viewObject, selected) {
-    if (selected) {
-      this.selectedObjects[viewObject.id] = viewObject;
-      this._numSelectedObjects++;
-    } else {
-      delete this.selectedObjects[viewObject.id];
-      this._numSelectedObjects--;
-    }
-    this._selectedObjectIds = null;
-    this.view.objectSelectedUpdated(viewObject, selected);
-  }
-  /**
-   * Called by ViewObject.colorized setter.
-   * @private
-   */
-  objectColorizeUpdated(viewObject, colorized) {
-    if (colorized) {
-      this.colorizedObjects[viewObject.id] = viewObject;
-      this._numColorizedObjects++;
-    } else {
-      delete this.colorizedObjects[viewObject.id];
-      this._numColorizedObjects--;
-    }
-    this._colorizedObjectIds = null;
-    this.view.objectColorizeUpdated(viewObject, colorized);
-  }
-  /**
-   * Called by ViewObject.opacity setter.
-   * @private
-   */
-  objectOpacityUpdated(viewObject, opacityUpdated) {
-    if (opacityUpdated) {
-      this.opacityObjects[viewObject.id] = viewObject;
-      this._numOpacityObjects++;
-    } else {
-      delete this.opacityObjects[viewObject.id];
-      this._numOpacityObjects--;
-    }
-    this._opacityObjectIds = null;
-    this.view.objectOpacityUpdated(viewObject, opacityUpdated);
-  }
-  /**
-   * Called by ViewObject.pickable setter.
-   * @private
-   */
-  objectPickableUpdated(viewObject, pickable) {
-    this.view.objectPickableUpdated(viewObject, pickable);
-  }
-  /**
-   * Updates the visibility of the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * - Updates {@link ViewObject.visible} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.visibleObjects} and {@link ViewLayer.numVisibleObjects}.
-   *
-   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
-   * @param visible Whether or not to cull.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsVisible(objectIds, visible) {
-    if (this.destroyed) {
-      this.view.viewer.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[ViewLayer.setObjectsVisible] ViewLayer already destroyed"
-      });
-      return;
-    }
-    let changed = false;
-    const objects = this.objects;
-    for (let i = 0, len = objectIds.length; i < len; i++) {
-      const viewObject = objects[objectIds[i]];
-      if (!viewObject) {
-        continue;
-      }
-      if (viewObject.visible !== visible) {
-        viewObject.visible = visible;
-        changed = true;
-      }
-    }
-    return changed;
-  }
-  /**
-   * Updates the collidability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * Updates {@link ViewObject.collidable} on the Objects with the given IDs.
-   *
-   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
-   * @param collidable Whether or not to cull.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsCollidable(objectIds, collidable) {
-    if (this.destroyed) {
-      this.view.viewer.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[ViewLayer.setObjectsCollidable] ViewLayer already destroyed"
-      });
-      return;
-    }
-    let changed = false;
-    const objects = this.objects;
-    for (let i = 0, len = objectIds.length; i < len; i++) {
-      const viewObject = objects[objectIds[i]];
-      if (!viewObject) {
-        continue;
-      }
-      if (viewObject.collidable !== collidable) {
-        viewObject.collidable = collidable;
-        changed = true;
-      }
-    }
-    return changed;
-  }
-  /**
-   * Updates the culled status of the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * Updates {@link ViewObject.culled} on the Objects with the given IDs.
-   *
-   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
-   * @param culled Whether or not to cull.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsCulled(objectIds, culled) {
-    let changed = false;
-    const objects = this.objects;
-    for (let i = 0, len = objectIds.length; i < len; i++) {
-      const viewObject = objects[objectIds[i]];
-      if (!viewObject) {
-        continue;
-      }
-      if (viewObject.culled !== culled) {
-        viewObject.culled = culled;
-        changed = true;
-      }
-    }
-    return changed;
-  }
-  /**
-   * Selects or deselects the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * - Updates {@link ViewObject.selected} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.selectedObjects} and {@link ViewLayer.numSelectedObjects}.
-   *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param selected Whether or not to select.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsSelected(objectIds, selected) {
-    let changed = false;
-    const objects = this.objects;
-    for (let i = 0, len = objectIds.length; i < len; i++) {
-      const viewObject = objects[objectIds[i]];
-      if (!viewObject) {
-        continue;
-      }
-      if (viewObject.selected !== selected) {
-        viewObject.selected = selected;
-        changed = true;
-      }
-    }
-    return changed;
-  }
-  /**
-   * Highlights or un-highlights the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * - Updates {@link ViewObject.highlighted} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.highlightedObjects} and {@link ViewLayer.numHighlightedObjects}.
-   *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param highlighted Whether or not to highlight.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsHighlighted(objectIds, highlighted) {
-    let changed = false;
-    const objects = this.objects;
-    for (let i = 0, len = objectIds.length; i < len; i++) {
-      const viewObject = objects[objectIds[i]];
-      if (!viewObject) {
-        continue;
-      }
-      if (viewObject.highlighted !== highlighted) {
-        viewObject.highlighted = highlighted;
-        changed = true;
-      }
-    }
-    return changed;
-  }
-  /**
-   * Applies or removes X-ray rendering for the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * - Updates {@link ViewObject.xrayed} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.xrayedObjects} and {@link ViewLayer.numXRayedObjects}.
-   *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param xrayed Whether or not to xray.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsXRayed(objectIds, xrayed) {
-    let changed = false;
-    const objects = this.objects;
-    for (let i = 0, len = objectIds.length; i < len; i++) {
-      const viewObject = objects[objectIds[i]];
-      if (!viewObject) {
-        continue;
-      }
-      if (viewObject.xrayed !== xrayed) {
-        viewObject.xrayed = xrayed;
-        changed = true;
-      }
-    }
-    return changed;
-  }
-  /**
-   * Colorizes the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * - Updates {@link ViewObject.colorize} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.colorizedObjects} and {@link ViewLayer.numColorizedObjects}.
-   *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param colorize - RGB colorize factors in range ````[0..1,0..1,0..1]````.
-   * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
-   */
-  setObjectsColorized(objectIds, colorize) {
-    let changed = false;
-    const objects = this.objects;
-    for (let i = 0, len = objectIds.length; i < len; i++) {
-      const viewObject = objects[objectIds[i]];
-      if (!viewObject) {
-        continue;
-      }
-      viewObject.colorize = colorize;
-      changed = true;
-    }
-    return changed;
-  }
-  /**
-   * Sets the opacity of the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * - Updates {@link ViewObject.opacity} on the Objects with the given IDs.
-   * - Updates {@link ViewLayer.opacityObjects} and {@link ViewLayer.numOpacityObjects}.
-   *
-   * @param  objectIds - One or more {@link ViewObject.id} values.
-   * @param opacity - Opacity factor in range ````[0..1]````.
-   * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
-   */
-  setObjectsOpacity(objectIds, opacity) {
-    let changed = false;
-    const objects = this.objects;
-    for (let i = 0, len = objectIds.length; i < len; i++) {
-      const viewObject = objects[objectIds[i]];
-      if (!viewObject) {
-        continue;
-      }
-      if (viewObject.opacity !== opacity) {
-        viewObject.opacity = opacity;
-        changed = true;
-      }
-    }
-    return changed;
-  }
-  /**
-   * Sets the pickability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * - Updates {@link ViewObject.pickable} on the Objects with the given IDs.
-   * - Enables or disables the ability to pick the given Objects with {@link viewing!viewer.View.pick | View.pick}.
-   *
-   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
-   * @param pickable Whether or not to set pickable.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsPickable(objectIds, pickable) {
-    let changed = false;
-    const objects = this.objects;
-    for (let i = 0, len = objectIds.length; i < len; i++) {
-      const viewObject = objects[objectIds[i]];
-      if (!viewObject) {
-        continue;
-      }
-      if (viewObject.pickable !== pickable) {
-        viewObject.pickable = pickable;
-        changed = true;
-      }
-    }
-    return changed;
-  }
-  /**
-   * Sets the clippability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * - Updates {@link ViewObject.clippable} on the Objects with the given IDs.
-   * - Enables or disables the ability to pick the given Objects with {@link viewing!viewer.View.pick | View.pick}.
-   *
-   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
-   * @param clippable Whether or not to set clippable.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  setObjectsClippable(objectIds, clippable) {
-    let changed = false;
-    const objects = this.objects;
-    for (let i = 0, len = objectIds.length; i < len; i++) {
-      const viewObject = objects[objectIds[i]];
-      if (!viewObject) {
-        continue;
-      }
-      if (viewObject.clippable !== clippable) {
-        viewObject.clippable = clippable;
-        changed = true;
-      }
-    }
-    return changed;
-  }
-  /**
-   * Iterates with a callback over the given {@link ViewObject | ViewObjects} in this ViewLayer.
-   *
-   * @param  objectIds One or more {@link ViewObject.id} values.
-   * @param callback Callback to execute on each {@link viewing!viewer.ViewObject | ViewObject}.
-   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-   */
-  withObjects(objectIds, callback) {
-    let changed = false;
-    for (let i = 0, len = objectIds.length; i < len; i++) {
-      const id = objectIds[i];
-      const viewObject = this.objects[id];
-      if (viewObject) {
-        changed = callback(viewObject) || changed;
-      }
-    }
-    return changed;
-  }
-  /**
-   * Configures this ViewLayer.
-   *
-   * @param viewLayerParams
-   */
-  fromParams(viewLayerParams) {
-    return {
-      ok: true,
-      value: void 0
-    };
-  }
-  /**
-   * Gets the current configuration of this ViewLayer.
-   */
-  toParams() {
-    return {
-      ok: true,
-      value: {
-        id: this.id,
-        autoDestroy: this.autoDestroy
-      }
-    };
-  }
-  /**
-   * Destroys this ViewLayer.
-   *
-   * Causes {@link Viewer | Viewer} to fire a "viewDestroyed" event.
-   */
-  destroy() {
-    if (this.destroyed) {
-      this.viewer.logError({
-        ok: false,
-        type: 1 /* InvalidOperation */,
-        error: "[ViewLayer.destroy] ViewLayer already destroyed"
-      });
-      return;
-    }
-    this._destroyAllViewObjects();
-    this.view._destroyLayer(this);
-    this.destroyed = true;
-  }
-  _destroyAllViewObjects() {
-    const objects = this.objects;
-    for (const id in objects) {
-      const viewObject = objects[id];
-      this._destroyViewObject(viewObject);
-    }
-  }
-};
-
 // ../sdk/src/viewing/viewer/View.ts
 var import_strongly_typed_events9 = __toESM(require_dist8());
 
@@ -157449,6 +158445,9 @@ var ViewTransformParams = class {
 };
 
 // ../sdk/src/viewing/viewer/View.ts
+function getSceneObjectLayerId(sceneObject) {
+  return sceneObject.layerId || "default";
+}
 var View2 = class {
   /**
    ID of this View, unique within the {@link Viewer | Viewer}.
@@ -157841,6 +158840,9 @@ var View2 = class {
       },
       stage: SDKTask.RenderStage
     });
+    if (this._needsRender) {
+      this._fireViewUpdatedEventTask.schedule();
+    }
   }
   /**
    * @private
@@ -157850,7 +158852,7 @@ var View2 = class {
     if (this.objects[objectId]) {
       return;
     }
-    const layerId = sceneObject.layerId || "default";
+    const layerId = getSceneObjectLayerId(sceneObject);
     let viewLayer = this.layers[layerId];
     if (!viewLayer) {
       if (!this._autoLayers) {
@@ -157888,17 +158890,7 @@ var View2 = class {
   _detachSceneObject(sceneObject) {
     const viewObject = this.objects[sceneObject.id];
     if (viewObject) {
-      const layerId = sceneObject.layerId || "default";
-      this._deattachViewObject(viewObject);
-      const viewLayer = this.layers[layerId];
-      if (viewLayer) {
-        viewLayer._deattachViewObject(viewObject);
-        if (viewLayer.autoDestroy && viewLayer.numObjects === 0) {
-          viewLayer.destroy();
-        }
-      }
-      this.viewer.events.onViewObjectDestroyed.dispatch(this, viewObject);
-      this.needsRender();
+      this._destroyViewObject(viewObject);
     }
   }
   /**
@@ -157910,14 +158902,38 @@ var View2 = class {
       return;
     }
     delete this.objects[objectId];
-    delete this.visibleObjects[objectId];
-    delete this.xrayedObjects[objectId];
-    delete this.highlightedObjects[objectId];
-    delete this.selectedObjects[objectId];
-    delete this.colorizedObjects[objectId];
-    delete this.opacityObjects[objectId];
     this._numObjects--;
     this._objectIds = null;
+    if (this.visibleObjects[objectId]) {
+      delete this.visibleObjects[objectId];
+      this._numVisibleObjects--;
+      this._visibleObjectIds = null;
+    }
+    if (this.xrayedObjects[objectId]) {
+      delete this.xrayedObjects[objectId];
+      this._numXRayedObjects--;
+      this._xrayedObjectIds = null;
+    }
+    if (this.highlightedObjects[objectId]) {
+      delete this.highlightedObjects[objectId];
+      this._numHighlightedObjects--;
+      this._highlightedObjectIds = null;
+    }
+    if (this.selectedObjects[objectId]) {
+      delete this.selectedObjects[objectId];
+      this._numSelectedObjects--;
+      this._selectedObjectIds = null;
+    }
+    if (this.colorizedObjects[objectId]) {
+      delete this.colorizedObjects[objectId];
+      this._numColorizedObjects--;
+      this._colorizedObjectIds = null;
+    }
+    if (this.opacityObjects[objectId]) {
+      delete this.opacityObjects[objectId];
+      this._numOpacityObjects--;
+      this._opacityObjectIds = null;
+    }
   }
   /**
    * Sets whether this View will automatically create {@link ViewLayer | ViewLayers} on-demand
@@ -157964,6 +158980,18 @@ var View2 = class {
     for (const sceneObjectId in scene.objects) {
       const sceneObject = scene.objects[sceneObjectId];
       this._attachSceneObject(sceneObject);
+    }
+  }
+  _attachSceneObjectsForLayer(viewLayer) {
+    const scene = this.viewer.scene;
+    if (!scene) {
+      return;
+    }
+    for (const sceneObjectId in scene.objects) {
+      const sceneObject = scene.objects[sceneObjectId];
+      if (getSceneObjectLayerId(sceneObject) === viewLayer.id) {
+        this._attachSceneObject(sceneObject);
+      }
     }
   }
   /**
@@ -158491,7 +159519,9 @@ var View2 = class {
       return;
     }
     this._needsRender = true;
-    this._fireViewUpdatedEventTask.schedule();
+    if (this._fireViewUpdatedEventTask) {
+      this._fireViewUpdatedEventTask.schedule();
+    }
   }
   _ambientColorAndIntensity = new Float32Array([0.5, 0.5, 0.5, 1]);
   /**
@@ -158931,6 +159961,7 @@ var View2 = class {
     });
     this.layers[viewLayerParams.id] = viewLayer;
     this.viewer.events.onViewLayerCreated.dispatch(this, viewLayer);
+    this._attachSceneObjectsForLayer(viewLayer);
     return {
       ok: true,
       value: viewLayer
@@ -158973,6 +160004,13 @@ var View2 = class {
    * @param viewLayer
    */
   _destroyLayer(viewLayer) {
+    const objectIds = Object.keys(viewLayer.objects);
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = viewLayer.objects[objectIds[i]];
+      if (viewObject) {
+        this._destroyViewObject(viewObject, false);
+      }
+    }
     delete this.layers[viewLayer.id];
     this.viewer.events.onViewLayerDestroyed.dispatch(this, viewLayer);
   }
@@ -159209,29 +160247,31 @@ var View2 = class {
     this.destroyed = true;
   }
   _destroyViewLayers() {
-    const layers = this.layers;
-    for (const id in layers) {
-      const viewLayer = layers[id];
+    const layers = Object.values(this.layers);
+    for (let i = 0, len = layers.length; i < len; i++) {
+      const viewLayer = layers[i];
       viewLayer.destroy();
     }
   }
   _destroyViewObjects() {
-    const objects = this.objects;
-    for (const id in objects) {
-      const object = objects[id];
-      const sceneObject = object.sceneObject;
-      const layerId = sceneObject.layerId || "default";
-      const viewLayer = this.layers[layerId];
-      const viewObject = this.objects[object.id];
-      this._deattachViewObject(viewObject);
-      if (viewLayer) {
-        viewLayer._deattachViewObject(viewObject);
-        if (viewLayer.autoDestroy && viewLayer.numObjects === 0) {
-          viewLayer.destroy();
-        }
+    const objectIds = Object.keys(this.objects);
+    for (let i = 0, len = objectIds.length; i < len; i++) {
+      const viewObject = this.objects[objectIds[i]];
+      if (viewObject) {
+        this._destroyViewObject(viewObject);
       }
-      this.viewer.events.onViewObjectDestroyed.dispatch(this, viewObject);
     }
+  }
+  _destroyViewObject(viewObject, autoDestroyLayer = true) {
+    const viewLayer = viewObject.layer;
+    this._deattachViewObject(viewObject);
+    viewLayer._deattachViewObject(viewObject);
+    viewObject.destroyed = true;
+    if (autoDestroyLayer && viewLayer.autoDestroy && viewLayer.numObjects === 0 && this.layers[viewLayer.id]) {
+      viewLayer.destroy();
+    }
+    this.viewer.events.onViewObjectDestroyed.dispatch(this, viewObject);
+    this.needsRender();
   }
 };
 
@@ -169901,7 +170941,6 @@ var RenderContext = class {
     s.left = "50px";
     s["pointer-events"] = "none";
     s.zIndex = "100000";
-    document.body.appendChild(canvas3);
     const contextAttr = {
       alpha: false,
       preserveDrawingBuffer: true,
@@ -169919,6 +170958,7 @@ var RenderContext = class {
       };
     }
     gl.hint(gl.FRAGMENT_SHADER_DERIVATIVE_HINT, gl.NICEST);
+    document.body.appendChild(canvas3);
     return {
       ok: true,
       value: {
@@ -170029,12 +171069,15 @@ var RenderContext = class {
    * Destroys this RenderContext.
    */
   destroy() {
-    if (this.initialized) {
+    if (this.gl) {
       this.gl.getExtension("WEBGL_lose_context")?.loseContext();
-      this.webglCanvasElement.parentNode.removeChild(this.webglCanvasElement);
-      this.webglCanvasElement = null;
-      this.gl = null;
     }
+    if (this.webglCanvasElement?.parentNode) {
+      this.webglCanvasElement.parentNode.removeChild(this.webglCanvasElement);
+    }
+    this.webglCanvasElement = null;
+    this.gl = null;
+    this.initialized = false;
   }
 };
 
@@ -175518,6 +176561,10 @@ var RendererMesh = class {
       throw new SDKInternalException(`[RendererMesh.${method}] No view state for view index ${viewIndex}`);
     }
   }
+  isObjectVisible(viewIndex) {
+    this._assertViewIndex(viewIndex, "isObjectVisible");
+    return this._hasFlag(viewIndex, 8 /* ObjectVisible */);
+  }
   /**
    * Sets the transformation matrix for the mesh, updating the assigned GPU tile as needed based on the new center position.
    * @param matrix
@@ -176571,15 +177618,34 @@ var MeshManager = class {
   }
   _synchronizeCreatedRendererObject(sceneObject, rendererMeshes) {
     const viewer = this._renderContext.viewer;
-    for (let viewIndex = 0, numViews = viewer.numViews; viewIndex < numViews; viewIndex++) {
+    const numViews = Math.min(viewer.numViews, this._renderContext.memoryConfigs.maxViews);
+    for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
       const viewObject = viewer.viewList[viewIndex]?.objects[sceneObject.id];
-      if (!viewObject || !this._viewObjectStateNeedsInitialSync(viewObject)) {
+      const hasDetachedRendererMesh = this._rendererMeshesNeedObjectStateSync(rendererMeshes, viewIndex);
+      if (viewObject) {
+        if (!hasDetachedRendererMesh && !this._viewObjectStateNeedsInitialSync(viewObject)) {
+          continue;
+        }
+        for (let i = 0, n = rendererMeshes.length; i < n; i++) {
+          this._synchronizeRendererMeshWithViewObject(rendererMeshes[i], viewObject);
+        }
+        continue;
+      }
+      if (!hasDetachedRendererMesh && sceneObject.clippable !== false) {
         continue;
       }
       for (let i = 0, n = rendererMeshes.length; i < n; i++) {
-        this._synchronizeRendererMeshWithViewObject(rendererMeshes[i], viewObject);
+        this._synchronizeRendererMeshWithDefaultObjectState(rendererMeshes[i], viewIndex, sceneObject);
       }
     }
+  }
+  _rendererMeshesNeedObjectStateSync(rendererMeshes, viewIndex) {
+    for (let i = 0, len = rendererMeshes.length; i < len; i++) {
+      if (!rendererMeshes[i].isObjectVisible(viewIndex)) {
+        return true;
+      }
+    }
+    return false;
   }
   _viewObjectStateNeedsInitialSync(viewObject) {
     return !viewObject.visible || viewObject.xrayed || viewObject.highlighted || viewObject.selected || viewObject.culled || !viewObject.pickable || !viewObject.clippable || viewObject.colorize !== null || viewObject.opacityUpdated;
@@ -176782,21 +177848,29 @@ var MeshManager = class {
   /**
    * Unregisters a {@link model!scene.SceneObject | SceneObject}.
    *
-   * Destroys the {@link RendererObject}.
+   * Detaches and removes the {@link RendererObject}. The underlying
+   * {@link RendererMesh} instances stay registered until their SceneMeshes are
+   * destroyed.
    *
    * @param sceneObject - The object to unregister.
    * @returns {@link base!core.SDKResult | SDKResult} indicating success, or `ok:false` if the object is not registered.
    */
   sceneObjectDestroyed(sceneObject) {
-    if (!this._rendererObjects[sceneObject.id]) {
+    const rendererObject = this._rendererObjects[sceneObject.id];
+    if (!rendererObject) {
       return {
         ok: false,
         type: 1 /* InvalidOperation */,
         error: `[MeshManager.sceneObjectDestroyed] SceneObject not attached with this ID: ${sceneObject.id}`
       };
     }
+    for (const sceneMesh of sceneObject.meshes ?? []) {
+      const rendererMesh = this._rendererMeshes[sceneMesh.uniqueId];
+      if (rendererMesh) {
+        this._detachRendererMeshFromObject(rendererObject, rendererMesh);
+      }
+    }
     delete this._rendererObjects[sceneObject.id];
-    sceneObject.meshes?.forEach((mesh) => this._removeMesh(mesh));
     this._batchesDirty = true;
     return { ok: true, value: void 0 };
   }
@@ -176839,7 +177913,8 @@ var MeshManager = class {
     rendererObject.addRendererMesh(rendererMesh);
     const objectId = sceneObject.id;
     const viewer = this._renderContext.viewer;
-    for (let viewIndex = 0, numViews = viewer.numViews; viewIndex < numViews; viewIndex++) {
+    const numViews = Math.min(viewer.numViews, this._renderContext.memoryConfigs.maxViews);
+    for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
       const view = viewer.viewList[viewIndex];
       const viewObject = view.objects[objectId];
       if (!viewObject) {
@@ -176874,6 +177949,24 @@ var MeshManager = class {
     rendererMesh.setColorInView(viewIndex, viewObject.colorize);
     rendererMesh.setOpacityInView(viewIndex, viewObject.opacityUpdated ? viewObject.opacity : null);
   }
+  _synchronizeRendererMeshWithDefaultObjectState(rendererMesh, viewIndex, sceneObject) {
+    rendererMesh.setObjectVisible(viewIndex, true);
+    rendererMesh.setXRayed(viewIndex, false);
+    rendererMesh.setHighlighted(viewIndex, false);
+    rendererMesh.setSelected(viewIndex, false);
+    rendererMesh.setCulled(viewIndex, false);
+    rendererMesh.setPickable(viewIndex, true);
+    rendererMesh.setClippable(viewIndex, sceneObject.clippable !== false);
+    rendererMesh.setColorInView(viewIndex, null);
+    rendererMesh.setOpacityInView(viewIndex, null);
+  }
+  _detachRendererMeshFromObject(rendererObject, rendererMesh) {
+    rendererObject.removeRendererMesh(rendererMesh);
+    const numViews = Math.min(this._renderContext.viewer.viewList.length, this._renderContext.memoryConfigs.maxViews);
+    for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+      rendererMesh.setObjectVisible(viewIndex, false);
+    }
+  }
   /**
    * Disconnects an existing {@link model!scene.SceneMesh | SceneMesh} from an existing {@link model!scene.SceneObject | SceneObject}.
    * The mesh remains cached, but is no longer rendered as part of the object.
@@ -176898,10 +177991,7 @@ var MeshManager = class {
         error: `[MeshManager.sceneObjectMeshRemoved] SceneMesh not attached with this globalId: ${sceneMesh.uniqueId}`
       };
     }
-    rendererObject.removeRendererMesh(rendererMesh);
-    for (let viewIndex = 0, numViews = this._renderContext.viewer.viewList.length; viewIndex < numViews; viewIndex++) {
-      rendererMesh.setObjectVisible(viewIndex, false);
-    }
+    this._detachRendererMeshFromObject(rendererObject, rendererMesh);
     return { ok: true, value: void 0 };
   }
   /**
@@ -182734,6 +183824,12 @@ var GaussianSplatPickTechnique = class {
   }
 };
 
+// ../sdk/src/viewing/webGLRenderer/internal/resolutionScale.ts
+function getEffectiveResolutionScale(view) {
+  const resolutionScale = view.resolutionScale;
+  return resolutionScale.applied ? Math.max(0.05, resolutionScale.resolutionScale) : 1;
+}
+
 // ../sdk/src/viewing/webGLRenderer/internal/pickManager/PickManager.ts
 var tempVec3a17 = createVec3Float64();
 var tempVec3b15 = createVec3Float64();
@@ -182915,7 +184011,7 @@ var PickManager = class {
     }
     const view = rendererView.view;
     const viewIndex = view.viewIndex;
-    const resolutionScale = view.resolutionScale;
+    const effectiveResolutionScale = getEffectiveResolutionScale(view);
     const renderContext = this._renderContext;
     const gl = renderContext.gl;
     const pickBuffer = this._pickBuffer;
@@ -182931,8 +184027,8 @@ var PickManager = class {
     renderContext.pickProjMatrix = pickProjMatrix;
     renderContext.pickInvisible = !!pickInvisible;
     renderContext.pickClipPos = [
-      this._getClipPosX(pickCanvasPos[0] * resolutionScale.resolutionScale, gl.drawingBufferWidth),
-      this._getClipPosY(pickCanvasPos[1] * resolutionScale.resolutionScale, gl.drawingBufferHeight)
+      this._getClipPosX(pickCanvasPos[0] * effectiveResolutionScale, gl.drawingBufferWidth),
+      this._getClipPosY(pickCanvasPos[1] * effectiveResolutionScale, gl.drawingBufferHeight)
     ];
     gl.viewport(0, 0, 1, 1);
     const bg = rendererView.view.transparent ? [0, 0, 0, 0] : [...view.backgroundColor, 1];
@@ -188850,10 +189946,10 @@ var SnapManager = class {
     renderContext.pickInvisible = !!params.pickInvisible;
     renderContext.pickZNear = view.camera.perspectiveProjection.near;
     renderContext.pickZFar = view.camera.perspectiveProjection.far;
-    const resolutionScale = view.resolutionScale;
+    const effectiveResolutionScale = getEffectiveResolutionScale(view);
     renderContext.snapClipPos = createVec2Float64([
-      this._clipPosX(params.canvasPos[0] * resolutionScale.resolutionScale, gl.drawingBufferWidth),
-      this._clipPosY(params.canvasPos[1] * resolutionScale.resolutionScale, gl.drawingBufferHeight)
+      this._clipPosX(params.canvasPos[0] * effectiveResolutionScale, gl.drawingBufferWidth),
+      this._clipPosY(params.canvasPos[1] * effectiveResolutionScale, gl.drawingBufferHeight)
     ]);
     renderContext.snapBufferSize = createVec2Float64([dim, dim]);
     snapBuffer.bind();
@@ -188926,8 +190022,8 @@ var SnapManager = class {
     const wClip = clipHomog[3] || 1;
     const ndcX = clipHomog[0] / wClip;
     const ndcY = clipHomog[1] / wClip;
-    const cssWidth = gl.drawingBufferWidth / resolutionScale.resolutionScale;
-    const cssHeight = gl.drawingBufferHeight / resolutionScale.resolutionScale;
+    const cssWidth = gl.drawingBufferWidth / effectiveResolutionScale;
+    const cssHeight = gl.drawingBufferHeight / effectiveResolutionScale;
     snappedCanvasPos[0] = (ndcX + 1) * 0.5 * cssWidth;
     snappedCanvasPos[1] = (1 - ndcY) * 0.5 * cssHeight;
     const result = this._snapResult;
@@ -190014,16 +191110,16 @@ var ViewManager2 = class {
     const viewer = params.viewer;
     this._viewer = viewer;
     if (viewer.viewList.length >= 4) {
-      return {
+      return this._failInit({
         ok: false,
         type: 1 /* InvalidOperation */,
         error: `[ViewManager.init] Maximum number of Views exceeded - max allowed is 4`
-      };
+      });
     }
     this._renderContext = new RenderContext(params.memoryConfigs);
     const resultCtx = this._renderContext.init(viewer);
     if (resultCtx.ok === false) {
-      return resultCtx;
+      return this._failInit(resultCtx);
     }
     this._renderContext.debugging = !!params.debugging;
     const webglCanvasElement = this._renderContext.webglCanvasElement;
@@ -190036,13 +191132,13 @@ var ViewManager2 = class {
     this._gpuMemoryManager = new GPUMemoryManager(this._renderContext);
     const resultGPU = this._gpuMemoryManager.init();
     if (resultGPU.ok === false) {
-      return resultGPU;
+      return this._failInit(resultGPU);
     }
     this.dataTextures = this._gpuMemoryManager.dataTextures;
     this._meshManager = new MeshManager(this._renderContext, this._gpuMemoryManager);
     const resultMesh = this._meshManager.init();
     if (resultMesh.ok === false) {
-      return resultMesh;
+      return this._failInit(resultMesh);
     }
     this._renderManager = new RenderManager({
       renderContext: this._renderContext,
@@ -190051,7 +191147,7 @@ var ViewManager2 = class {
     });
     const resultRender = this._renderManager.init();
     if (resultRender.ok === false) {
-      return resultRender;
+      return this._failInit(resultRender);
     }
     this.shaderInspector = new ShaderInspector(this._renderManager.drawOps);
     this._pickManager = new PickManager({
@@ -190061,7 +191157,7 @@ var ViewManager2 = class {
     });
     const resultPick = this._pickManager.init();
     if (resultPick.ok === false) {
-      return resultPick;
+      return this._failInit(resultPick);
     }
     this._snapManager = new SnapManager({
       renderContext: this._renderContext,
@@ -190077,7 +191173,7 @@ var ViewManager2 = class {
     for (const view of viewer.viewList) {
       const result = this.viewCreated(view);
       if (!result.ok) {
-        return result;
+        return this._failInit(result);
       }
     }
     this._installCanvasAlignmentListeners();
@@ -190090,6 +191186,10 @@ var ViewManager2 = class {
       ok: true,
       value: void 0
     };
+  }
+  _failInit(result) {
+    this.destroy();
+    return result;
   }
   /**
    * Returns the shared WebGL canvas element used to render the active view.
@@ -190471,7 +191571,7 @@ var ViewManager2 = class {
     const cssHeight = Math.max(1, Math.round(rect.height));
     const left = Math.round(rect.left);
     const top = Math.round(rect.top);
-    const resolutionScale = view.resolutionScale.applied ? Math.max(0.05, view.resolutionScale.resolutionScale) : 1;
+    const resolutionScale = getEffectiveResolutionScale(view);
     const pixelWidth = Math.max(1, Math.round(cssWidth * resolutionScale));
     const pixelHeight = Math.max(1, Math.round(cssHeight * resolutionScale));
     return {
@@ -190864,9 +191964,9 @@ var ViewManager2 = class {
   destroy() {
     this._removeCanvasAlignmentListeners();
     this._lastCanvasLayout = null;
-    const viewer = this._renderContext.viewer;
-    for (let viewIndex = 0; viewIndex < viewer.numViews; viewIndex++) {
-      this.viewDestroyed(viewer.viewList[viewIndex]);
+    const rendererViews = this._rendererViewsList.slice();
+    for (const rendererView of rendererViews) {
+      this.viewDestroyed(rendererView.view);
     }
     this._rendererViews = {};
     this._rendererViewsList = [];
@@ -190881,7 +191981,8 @@ var ViewManager2 = class {
     this._renderManager = void 0;
     this._meshManager = void 0;
     this._gpuMemoryManager = void 0;
-    this._renderContext.destroy();
+    this._renderContext?.destroy();
+    this._renderContext = void 0;
     this._viewer = void 0;
     this.dataTextures = void 0;
     this.shaderInspector = void 0;
@@ -190931,6 +192032,9 @@ var WebGLRenderer3 = class {
   _viewManager;
   _viewerSubs;
   _viewManagerSubs;
+  _webglContextCanvas = null;
+  _webglContextLostHandler = null;
+  _webglContextRestoredHandler = null;
   _destroyed = false;
   // Indicates if the renderer has been destroyed
   // Number of SceneModels currently building (loading). While > 0, per-view
@@ -191437,6 +192541,7 @@ var WebGLRenderer3 = class {
     if (viewer.scene) {
       const result = this._createViewManager();
       if (result.ok === false) {
+        this._rollbackViewerAttach();
         return this.logError({
           ok: false,
           type: result.type,
@@ -191452,6 +192557,13 @@ var WebGLRenderer3 = class {
       ok: true,
       value: void 0
     };
+  }
+  _rollbackViewerAttach() {
+    for (const sub of this._viewerSubs) {
+      sub();
+    }
+    this._viewerSubs = [];
+    this._viewer = null;
   }
   _createViewManager() {
     if (this._viewManager) {
@@ -191572,20 +192684,31 @@ var WebGLRenderer3 = class {
     ];
     this._memoryInspector.dataTextures = this._viewManager.dataTextures;
     this._shaderInspector = this._viewManager.shaderInspector;
-    this._viewManager.getWebGLCanvasElement().addEventListener("webglcontextlost", (event) => {
-      event.preventDefault();
-      this._viewManager.webglContextLost();
-      this.events.webglContextLost.dispatch(this, event);
-    });
-    this._viewManager.getWebGLCanvasElement().addEventListener("webglcontextrestored", (event) => {
-      if (!this._viewManager)
+    this._installWebGLContextListeners(viewManager);
+    return {
+      ok: true,
+      value: void 0
+    };
+  }
+  _installWebGLContextListeners(viewManager) {
+    this._removeWebGLContextListeners();
+    const canvas3 = viewManager.getWebGLCanvasElement();
+    const contextLostHandler = (event) => {
+      if (this._viewManager !== viewManager)
         return;
-      const result2 = this._viewManager.webglContextRestored();
-      if (result2.ok === false) {
+      event.preventDefault();
+      viewManager.webglContextLost();
+      this.events.webglContextLost.dispatch(this, event);
+    };
+    const contextRestoredHandler = (_event) => {
+      if (this._viewManager !== viewManager)
+        return;
+      const result = viewManager.webglContextRestored();
+      if (result.ok === false) {
         this.logError({
           ok: false,
-          type: result2.type,
-          error: `[WebGLRenderer] WebGL context restoration failed - ${result2.error}`
+          type: result.type,
+          error: `[WebGLRenderer] WebGL context restoration failed - ${result.error}`
         });
         return;
       }
@@ -191596,11 +192719,23 @@ var WebGLRenderer3 = class {
         }
       }
       this.events.webglContextRestored.dispatch(this);
-    });
-    return {
-      ok: true,
-      value: void 0
     };
+    this._webglContextCanvas = canvas3;
+    this._webglContextLostHandler = contextLostHandler;
+    this._webglContextRestoredHandler = contextRestoredHandler;
+    canvas3.addEventListener("webglcontextlost", contextLostHandler);
+    canvas3.addEventListener("webglcontextrestored", contextRestoredHandler);
+  }
+  _removeWebGLContextListeners() {
+    if (this._webglContextCanvas && this._webglContextLostHandler) {
+      this._webglContextCanvas.removeEventListener("webglcontextlost", this._webglContextLostHandler);
+    }
+    if (this._webglContextCanvas && this._webglContextRestoredHandler) {
+      this._webglContextCanvas.removeEventListener("webglcontextrestored", this._webglContextRestoredHandler);
+    }
+    this._webglContextCanvas = null;
+    this._webglContextLostHandler = null;
+    this._webglContextRestoredHandler = null;
   }
   /**
    * Retrieves the Viewer currently attached to this WebGLRenderer, if any.
@@ -191702,6 +192837,7 @@ var WebGLRenderer3 = class {
       sub();
     }
     this._viewManagerSubs = [];
+    this._removeWebGLContextListeners();
     this._viewManager.destroy();
     this._viewManager = void 0;
     this._renderSuspendCount = 0;
@@ -195020,7 +196156,7 @@ async function buildDrawing(params) {
         );
         const positions = [];
         const indices = [];
-        let vertexCount = 0;
+        let vertexCount2 = 0;
         if (wantHLE && hleBuffer) {
           for (let i = 0, len = edgeIndices.length; i < len; i += 2) {
             const aBase = edgeIndices[i] * 3;
@@ -195066,8 +196202,8 @@ async function buildDrawing(params) {
               project(sb);
               positions.push(sa[0], sa[1], sa[2]);
               positions.push(sb[0], sb[1], sb[2]);
-              indices.push(vertexCount, vertexCount + 1);
-              vertexCount += 2;
+              indices.push(vertexCount2, vertexCount2 + 1);
+              vertexCount2 += 2;
               edgeCount++;
             }
           }
@@ -195136,9 +196272,9 @@ async function buildDrawing(params) {
               v0[2] = localPositions[base + 2];
               transformPoint3(worldMatrix, v0, p0);
               project(p0);
-              out = vertexCount;
+              out = vertexCount2;
               positions.push(p0[0], p0[1], p0[2]);
-              vertexCount++;
+              vertexCount2++;
               vertexOutIndex[srcVtx] = out;
               return out;
             };
@@ -195321,7 +196457,7 @@ async function buildDrawing(params) {
       }
       const positions = [];
       const indices = [];
-      let vertexCount = 0;
+      let vertexCount2 = 0;
       const r = basis.right, up = basis.up, f = basis.forward;
       const worldXAt = (u, v) => u * r[0] + v * up[0] + planeDepth * f[0];
       const worldYAt = (u, v) => u * r[1] + v * up[1] + planeDepth * f[1];
@@ -195344,7 +196480,7 @@ async function buildDrawing(params) {
         }
         const baselineV = firstBaselineV - li * fontSize * lineAdvance;
         const startU = place2.u - maxX * 0.5;
-        const base = vertexCount;
+        const base = vertexCount2;
         for (let i = 0; i < arr.positions.length; i += 3) {
           const lx = arr.positions[i];
           const ly = arr.positions[i + 1];
@@ -195356,7 +196492,7 @@ async function buildDrawing(params) {
         for (let i = 0; i < arr.indices.length; i++) {
           indices.push(base + arr.indices[i]);
         }
-        vertexCount = base + vCount;
+        vertexCount2 = base + vCount;
       }
       if (positions.length === 0)
         continue;
@@ -195599,10 +196735,10 @@ function emitTitleBlock(target, projBasis, aabb, planeDepth, margin, spec, color
   const v0 = 0;
   const positions = [];
   const indices = [];
-  let vertexCount = 0;
+  let vertexCount2 = 0;
   const push = (p) => {
     positions.push(p[0], p[1], p[2]);
-    return vertexCount++;
+    return vertexCount2++;
   };
   const line = (a2, b4) => {
     indices.push(push(a2), push(b4));
@@ -195645,9 +196781,9 @@ function emitTitleBlock(target, projBasis, aabb, planeDepth, margin, spec, color
   appendText(
     positions,
     indices,
-    () => vertexCount,
+    () => vertexCount2,
     (n) => {
-      vertexCount = n;
+      vertexCount2 = n;
     },
     basis,
     u0 + headingPadX,
@@ -195661,9 +196797,9 @@ function emitTitleBlock(target, projBasis, aabb, planeDepth, margin, spec, color
     appendText(
       positions,
       indices,
-      () => vertexCount,
+      () => vertexCount2,
       (n) => {
-        vertexCount = n;
+        vertexCount2 = n;
       },
       basis,
       labelColX,
@@ -195674,9 +196810,9 @@ function emitTitleBlock(target, projBasis, aabb, planeDepth, margin, spec, color
     appendText(
       positions,
       indices,
-      () => vertexCount,
+      () => vertexCount2,
       (n) => {
-        vertexCount = n;
+        vertexCount2 = n;
       },
       basis,
       valueColX,
@@ -198732,14 +199868,14 @@ function marchingCubes(grid, isovalue) {
       }
     }
   }
-  const triangleCount = indices.length / 3;
-  if (triangleCount === 0)
+  const triangleCount2 = indices.length / 3;
+  if (triangleCount2 === 0)
     return null;
   return {
     positions: new Float32Array(positions),
     normals: new Float32Array(normals),
     indices: new Uint32Array(indices),
-    triangleCount
+    triangleCount: triangleCount2
   };
 }
 var EDGE_TABLE = [
@@ -202621,7 +203757,7 @@ var ModelConverter = class {
                 break;
             }
             try {
-              await loader.load({ filePath, fileData: fileData2, sceneModel, dataModel }, options);
+              await loader.load({ fileData: fileData2, sceneModel, dataModel }, options);
               modelConverterResult.inputs[pipelineInputId] = {
                 filePath,
                 fileData: fileData2,
@@ -202654,11 +203790,13 @@ var ModelConverter = class {
             }
           };
           if (filePath) {
-            getFileIO2().load(filePath).then((fileData2) => {
-              loadFileData(fileData2);
-            }).catch((err6) => {
+            try {
+              const loadedFileData = await getFileIO2().load(filePath);
+              await loadFileData(loadedFileData);
+            } catch (err6) {
               reject(`[ModelConverter.convert] Failed to load source file: ${err6}`);
-            });
+              return;
+            }
           } else {
             await loadFileData(fileData);
           }

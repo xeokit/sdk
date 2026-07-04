@@ -227,7 +227,7 @@ export const modelConverter = new ModelConverter({
     "gltf2dotbim": {
       inputs: {
         "gltf": {
-          loader: "gltf",
+          loader: "glb",
           options: {
             coordinateSystem: CoordinateSystems.YUp_RightHanded_Meters
           }
@@ -585,4 +585,3 @@ export const modelConverter = new ModelConverter({
     }
   }
 });
-

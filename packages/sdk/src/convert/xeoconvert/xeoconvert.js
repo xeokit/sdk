@@ -313,10 +313,9 @@ Example (inspect + auto-fix + write report):
         fs.writeFileSync(reportPath, JSON.stringify(report, null, 4));
       }
       logInfo(`Done.`);
-      process.exit(1);
+      process.exit(0);
     });
 } catch (err) {
   logError(err);
   process.exit(-1);
 }
-

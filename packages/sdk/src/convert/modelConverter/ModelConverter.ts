@@ -258,7 +258,7 @@ export class ModelConverter {
 
             try {
 
-              await loader.load({filePath, fileData, sceneModel, dataModel}, options);
+              await loader.load({fileData, sceneModel, dataModel}, options);
 
               // Loaded this input into SceneModel/DataModel successfully
 
@@ -299,11 +299,13 @@ export class ModelConverter {
           };
 
           if (filePath) {
-            getFileIO().load(filePath).then((fileData) => {
-              loadFileData(fileData);
-            }).catch(err => {
+            try {
+              const loadedFileData = await getFileIO().load(filePath);
+              await loadFileData(loadedFileData);
+            } catch (err) {
               reject(`[ModelConverter.convert] Failed to load source file: ${err}`);
-            });
+              return;
+            }
           } else {
             await loadFileData(fileData);
           }

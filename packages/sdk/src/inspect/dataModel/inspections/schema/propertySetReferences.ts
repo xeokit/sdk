@@ -53,7 +53,11 @@ export const propertySetReferences: Inspection = {
 
       const present = new Set<string>();
       const sets = obj.propertySets ?? [];
-      for (const ps of sets) present.add(ps.id);
+      for (const ps of sets) {
+        if (ps && dataModel.propertySets[ps.id] === ps) {
+          present.add(ps.id);
+        }
+      }
 
       if (required) {
         for (const id of required) {

@@ -183,18 +183,18 @@ export class ViewManager {
     this._viewer = viewer;
 
     if (viewer.viewList.length >= 4) { // TODO: Capabilities.maxViews
-      return {
+      return this._failInit({
         ok: false,
         type: SDKErrorType.InvalidOperation,
         error: `[ViewManager.init] Maximum number of Views exceeded - max allowed is 4`
-      };
+      });
     }
 
     this._renderContext = new RenderContext(params.memoryConfigs);
 
     const resultCtx = this._renderContext.init(viewer);
     if (resultCtx.ok === false) {
-      return resultCtx;
+      return this._failInit(resultCtx);
     }
 
     // After init() — it resets `debugging` while setting up the GL context, so
@@ -213,7 +213,7 @@ export class ViewManager {
 
     const resultGPU = this._gpuMemoryManager.init();
     if (resultGPU.ok === false) {
-      return resultGPU;
+      return this._failInit(resultGPU);
     }
 
     this.dataTextures = this._gpuMemoryManager.dataTextures;
@@ -222,7 +222,7 @@ export class ViewManager {
 
     const resultMesh = this._meshManager.init();
     if (resultMesh.ok === false) {
-      return resultMesh;
+      return this._failInit(resultMesh);
     }
 
     this._renderManager = new RenderManager({
@@ -233,7 +233,7 @@ export class ViewManager {
 
     const resultRender = this._renderManager.init();
     if (resultRender.ok === false) {
-      return resultRender;
+      return this._failInit(resultRender);
     }
 
     this.shaderInspector = new ShaderInspector(this._renderManager.drawOps);
@@ -246,7 +246,7 @@ export class ViewManager {
 
     const resultPick = this._pickManager.init();
     if (resultPick.ok === false) {
-      return resultPick;
+      return this._failInit(resultPick);
     }
 
     this._snapManager = new SnapManager({
@@ -267,7 +267,7 @@ export class ViewManager {
     for (const view of viewer.viewList) {
       const result = this.viewCreated(view);
       if (!result.ok) {
-        return result;
+        return this._failInit(result);
       }
     }
 
@@ -283,6 +283,11 @@ export class ViewManager {
       ok: true,
       value: undefined
     };
+  }
+
+  private _failInit<T>(result: SDKResult<T>): SDKResult<T> {
+    this.destroy();
+    return result;
   }
 
   /**
@@ -1246,9 +1251,9 @@ export class ViewManager {
     this._removeCanvasAlignmentListeners();
     this._lastCanvasLayout = null;
 
-    const viewer = this._renderContext.viewer;
-    for (let viewIndex = 0; viewIndex < viewer.numViews; viewIndex++) {
-      this.viewDestroyed(viewer.viewList[viewIndex]);
+    const rendererViews = this._rendererViewsList.slice();
+    for (const rendererView of rendererViews) {
+      this.viewDestroyed(rendererView.view);
     }
 
     this._rendererViews = {};
@@ -1267,7 +1272,8 @@ export class ViewManager {
     this._meshManager = undefined as unknown as MeshManager;
     this._gpuMemoryManager = undefined as unknown as GPUMemoryManager;
 
-    this._renderContext.destroy();
+    this._renderContext?.destroy();
+    this._renderContext = undefined as unknown as RenderContext;
     this._viewer = undefined as unknown as Viewer;
     this.dataTextures = undefined as unknown as DataTextures;
     this.shaderInspector = undefined as unknown as ShaderInspector;

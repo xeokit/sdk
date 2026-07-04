@@ -335,7 +335,6 @@ export class RenderContext implements WebGLContextProvider {
     s.left = "50px";
     (s as any)["pointer-events"] = "none";
     s.zIndex = "100000"; // HACK
-    document.body.appendChild(canvas);
     const contextAttr: WebGLContextAttributes = {
       alpha: false,
       preserveDrawingBuffer: true,
@@ -354,6 +353,7 @@ export class RenderContext implements WebGLContextProvider {
     }
     // Nicest derivatives hint (valid in WebGL2)
     gl.hint(gl.FRAGMENT_SHADER_DERIVATIVE_HINT, gl.NICEST);
+    document.body.appendChild(canvas);
     return {
       ok: true,
       value:{
@@ -468,11 +468,14 @@ export class RenderContext implements WebGLContextProvider {
    * Destroys this RenderContext.
    */
   destroy() {
-    if (this.initialized) {
+    if (this.gl) {
       this.gl.getExtension("WEBGL_lose_context")?.loseContext();
-      (this.webglCanvasElement.parentNode as Node).removeChild(this.webglCanvasElement);
-      this.webglCanvasElement = null;
-        this.gl = null;
     }
+    if (this.webglCanvasElement?.parentNode) {
+      (this.webglCanvasElement.parentNode as Node).removeChild(this.webglCanvasElement);
+    }
+    this.webglCanvasElement = null;
+    this.gl = null;
+    this.initialized = false;
   }
 }

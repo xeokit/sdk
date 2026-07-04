@@ -55,6 +55,9 @@ export class WebGLRenderer {
 
   private _viewerSubs: (() => void)[];
   private _viewManagerSubs: (() => void)[];
+  private _webglContextCanvas: HTMLCanvasElement | null = null;
+  private _webglContextLostHandler: ((event: Event) => void) | null = null;
+  private _webglContextRestoredHandler: ((event: Event) => void) | null = null;
   private _destroyed = false; // Indicates if the renderer has been destroyed
 
   // Number of SceneModels currently building (loading). While > 0, per-view
@@ -793,19 +796,32 @@ export class WebGLRenderer {
 
     this._shaderInspector = this._viewManager.shaderInspector;
 
-    this._viewManager.getWebGLCanvasElement().addEventListener("webglcontextlost", (event) => {
+    this._installWebGLContextListeners(viewManager);
+
+    return {
+      ok: true,
+      value: undefined
+    };
+  }
+
+  private _installWebGLContextListeners(viewManager: ViewManager): void {
+    this._removeWebGLContextListeners();
+
+    const canvas = viewManager.getWebGLCanvasElement();
+    const contextLostHandler = (event: Event) => {
+      if (this._viewManager !== viewManager) return;
       // preventDefault is required for the browser to fire webglcontextrestored.
       event.preventDefault();
       // Release GL-backed resources now, while the context is still flagged
       // lost, so their gl.delete* calls are no-ops instead of errors against
       // the restored context.
-      this._viewManager.webglContextLost();
+      viewManager.webglContextLost();
       this.events.webglContextLost.dispatch(this, event as WebGLContextEvent);
-    });
+    };
 
-    this._viewManager.getWebGLCanvasElement().addEventListener("webglcontextrestored", (event) => {
-      if (!this._viewManager) return;
-      const result = this._viewManager.webglContextRestored();
+    const contextRestoredHandler = (_event: Event) => {
+      if (this._viewManager !== viewManager) return;
+      const result = viewManager.webglContextRestored();
       if (result.ok === false) {
         this.logError({
           ok: false,
@@ -824,12 +840,25 @@ export class WebGLRenderer {
         }
       }
       this.events.webglContextRestored.dispatch(this);
-    });
-
-    return {
-      ok: true,
-      value: undefined
     };
+
+    this._webglContextCanvas = canvas;
+    this._webglContextLostHandler = contextLostHandler;
+    this._webglContextRestoredHandler = contextRestoredHandler;
+    canvas.addEventListener("webglcontextlost", contextLostHandler);
+    canvas.addEventListener("webglcontextrestored", contextRestoredHandler);
+  }
+
+  private _removeWebGLContextListeners(): void {
+    if (this._webglContextCanvas && this._webglContextLostHandler) {
+      this._webglContextCanvas.removeEventListener("webglcontextlost", this._webglContextLostHandler);
+    }
+    if (this._webglContextCanvas && this._webglContextRestoredHandler) {
+      this._webglContextCanvas.removeEventListener("webglcontextrestored", this._webglContextRestoredHandler);
+    }
+    this._webglContextCanvas = null;
+    this._webglContextLostHandler = null;
+    this._webglContextRestoredHandler = null;
   }
 
   /**
@@ -937,6 +966,7 @@ export class WebGLRenderer {
       sub();
     }
     this._viewManagerSubs = [];
+    this._removeWebGLContextListeners();
     this._viewManager.destroy();
     this._viewManager = undefined as unknown as ViewManager;
     this._renderSuspendCount = 0;

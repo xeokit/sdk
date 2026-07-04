@@ -6,11 +6,10 @@ import type {Issue} from "../Issue";
 
 /**
  * Auto-fix for `MATERIAL_UNUSED` — destroys a SceneMaterial that
- * no SceneMesh references. {@link SceneMaterial.destroy} refuses
- * if any mesh still binds the material, so the inspection's "no
- * referencing mesh" precondition is also the destroy guard's
- * precondition; failure here means the inspection emitted a stale
- * issue (raced with another fix) and we report the SDK error.
+ * no SceneMesh references. The fix checks live mesh references by
+ * object identity before destroying; this lets it clean up models
+ * whose `numMeshes` counter was left stale by a replaced same-id
+ * material pointer.
  *
  * Idempotent: returns `{fixed: false}` when the material is
  * already destroyed or absent.
@@ -48,8 +47,24 @@ export const dropUnusedMaterial: Fix = {
     if (!mat || mat.destroyed) {
       return {ok: true, value: {fixed: false, reason: "target-missing"}};
     }
+
+    for (const meshId in sceneModel.meshes) {
+      const mesh = sceneModel.meshes[meshId];
+      if (mesh.destroyed) continue;
+      if (mesh.material === mat) {
+        return {ok: true, value: {fixed: false, reason: "precondition-failed"}};
+      }
+    }
+
+    const previousNumMeshes = mat.numMeshes;
+    if (previousNumMeshes !== 0) {
+      mat.numMeshes = 0;
+    }
     const dRes = mat.destroy();
-    if (dRes.ok === false) return dRes;
+    if (dRes.ok === false) {
+      mat.numMeshes = previousNumMeshes;
+      return dRes;
+    }
     return {ok: true, value: {fixed: true, trace: `destroyed material '${matId}'`}};
   },
 };

@@ -6,10 +6,10 @@ import type {Issue} from "../Issue";
 
 /**
  * Auto-fix for `TEXTURE_UNUSED` — destroys a SceneTexture that no
- * SceneMaterial binds. {@link SceneTexture.destroy} guards against
- * destruction while `numMaterials > 0`, so a stale issue (raced
- * with concurrent material reattachment) appears as the
- * underlying SDK error rather than a corruption.
+ * SceneMaterial binds. The fix checks live material texture slots
+ * by object identity before destroying; this lets it clean up
+ * models whose `numMaterials` counter was left stale by a replaced
+ * same-id texture pointer.
  *
  * Idempotent: returns `{fixed: false}` when the texture is already
  * destroyed or absent.
@@ -47,8 +47,30 @@ export const dropUnusedTexture: Fix = {
     if (!tex || tex.destroyed) {
       return {ok: true, value: {fixed: false, reason: "target-missing"}};
     }
+
+    for (const matId in sceneModel.materials) {
+      const mat = sceneModel.materials[matId];
+      if (mat.destroyed) continue;
+      if (
+        mat.colorTexture === tex ||
+        mat.metallicRoughnessTexture === tex ||
+        mat.normalsTexture === tex ||
+        mat.occlusionTexture === tex ||
+        mat.emissiveTexture === tex
+      ) {
+        return {ok: true, value: {fixed: false, reason: "precondition-failed"}};
+      }
+    }
+
+    const previousNumMaterials = tex.numMaterials;
+    if (previousNumMaterials !== 0) {
+      tex.numMaterials = 0;
+    }
     const dRes = tex.destroy();
-    if (dRes.ok === false) return dRes;
+    if (dRes.ok === false) {
+      tex.numMaterials = previousNumMaterials;
+      return dRes;
+    }
     return {ok: true, value: {fixed: true, trace: `destroyed texture '${texId}'`}};
   },
 };

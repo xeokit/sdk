@@ -1,4 +1,11 @@
-import type {SceneGeometry, SceneMesh, SceneModel} from "../../../model/scene";
+import type {
+  SceneGeometry,
+  SceneMaterial,
+  SceneMesh,
+  SceneModel,
+  SceneTexture,
+  SceneTransform,
+} from "../../../model/scene";
 import {decompressPositions3WithAABB3} from "../../../base/math/compression";
 import {transformPoint4} from "../../../base/math/matrix";
 import {createVec4Float64} from "../../../base/math/vector";
@@ -67,7 +74,8 @@ export function createSceneModelInspectionIndex(
     for (const meshId in sceneModel.meshes) {
       const mesh = sceneModel.meshes[meshId];
       if (mesh.destroyed) continue;
-      addMeshEntry(table, mesh.geometryId, meshId);
+      if (!isLiveGeometryRef(sceneModel, mesh.geometry)) continue;
+      addMeshEntry(table, mesh.geometry.id, meshId);
     }
     geomMeshes = table;
     // Incremental maintenance: any createMesh / destroy on this SceneModel
@@ -75,8 +83,13 @@ export function createSceneModelInspectionIndex(
     // SceneModels, so filter by owning model.
     const events = sceneModel.scene.events;
     const onCreated = (_scene: unknown, mesh: SceneMesh) => {
-      if (geomMeshes && mesh.model === sceneModel && !mesh.destroyed) {
-        addMeshEntry(geomMeshes, mesh.geometryId, mesh.id);
+      if (
+        geomMeshes &&
+        mesh.model === sceneModel &&
+        !mesh.destroyed &&
+        isLiveGeometryRef(sceneModel, mesh.geometry)
+      ) {
+        addMeshEntry(geomMeshes, mesh.geometry.id, mesh.id);
       }
     };
     const onDestroyed = (_scene: unknown, mesh: SceneMesh) => {
@@ -595,9 +608,10 @@ function computeGeometryObjects(sceneModel: SceneModel): Map<string, string[]> {
   for (const meshId in sceneModel.meshes) {
     const mesh = sceneModel.meshes[meshId];
     if (mesh.destroyed) continue;
+    if (!isLiveGeometryRef(sceneModel, mesh.geometry)) continue;
     const obj = mesh.object;
     if (!obj || obj.destroyed) continue;
-    const geometryId = mesh.geometryId;
+    const geometryId = mesh.geometry.id;
     const key = `${geometryId}\0${obj.id}`;
     if (seen.has(key)) continue;
     seen.add(key);
@@ -623,12 +637,13 @@ function computeReferenceTables(sceneModel: SceneModel): RefTables {
   for (const meshId in sceneModel.meshes) {
     const mesh = sceneModel.meshes[meshId];
     if (mesh.destroyed) continue;
-    if (mesh.materialId) {
-      const arr = materialReferences.get(mesh.materialId);
-      if (arr) arr.push(meshId); else materialReferences.set(mesh.materialId, [meshId]);
+    const material = mesh.material;
+    if (isLiveMaterialRef(sceneModel, material)) {
+      const arr = materialReferences.get(material.id);
+      if (arr) arr.push(meshId); else materialReferences.set(material.id, [meshId]);
     }
     const parentTransform = mesh.parentTransform;
-    if (parentTransform && sceneModel.transforms[parentTransform.id] === parentTransform) {
+    if (isLiveTransformRef(sceneModel, parentTransform)) {
       ensureT(parentTransform.id).meshes.push(meshId);
     }
   }
@@ -641,22 +656,40 @@ function computeReferenceTables(sceneModel: SceneModel): RefTables {
       mat.occlusionTexture,
     ];
     for (const t of slots) {
-      if (!t) continue;
-      const tid = (t as { id?: string }).id;
-      if (!tid) continue;
-      const arr = textureReferences.get(tid);
-      if (arr) arr.push(matId); else textureReferences.set(tid, [matId]);
+      if (!isLiveTextureRef(sceneModel, t)) continue;
+      const arr = textureReferences.get(t.id);
+      if (arr) arr.push(matId); else textureReferences.set(t.id, [matId]);
     }
   }
   for (const tId in sceneModel.transforms) {
     const t = sceneModel.transforms[tId];
     if (t.destroyed) continue;
     const parentTransform = t.parentTransform;
-    if (parentTransform && sceneModel.transforms[parentTransform.id] === parentTransform) {
+    if (isLiveTransformRef(sceneModel, parentTransform)) {
       ensureT(parentTransform.id).childTransforms.push(tId);
     }
   }
   return {materialReferences, textureReferences, transformReferences};
+}
+
+
+function isLiveGeometryRef(sceneModel: SceneModel, geometry: SceneGeometry | null | undefined): geometry is SceneGeometry {
+  return !!geometry && !geometry.destroyed && sceneModel.geometries[geometry.id] === geometry;
+}
+
+
+function isLiveMaterialRef(sceneModel: SceneModel, material: SceneMaterial | null | undefined): material is SceneMaterial {
+  return !!material && !material.destroyed && sceneModel.materials[material.id] === material;
+}
+
+
+function isLiveTextureRef(sceneModel: SceneModel, texture: SceneTexture | null | undefined): texture is SceneTexture {
+  return !!texture && !texture.destroyed && sceneModel.textures[texture.id] === texture;
+}
+
+
+function isLiveTransformRef(sceneModel: SceneModel, transform: SceneTransform | null | undefined): transform is SceneTransform {
+  return !!transform && !transform.destroyed && sceneModel.transforms[transform.id] === transform;
 }
 
 

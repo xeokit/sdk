@@ -614,6 +614,7 @@ export class WebGLRenderer {
     if (viewer.scene) {
       const result = this._createViewManager();
       if (result.ok === false) {
+        this._rollbackViewerAttach();
         return this.logError({
           ok: false,
           type: result.type,
@@ -630,6 +631,14 @@ export class WebGLRenderer {
       ok: true,
       value: undefined
     };
+  }
+
+  private _rollbackViewerAttach(): void {
+    for (const sub of this._viewerSubs) {
+      sub();
+    }
+    this._viewerSubs = [];
+    this._viewer = null;
   }
 
   private _createViewManager(): SDKResult<void> {

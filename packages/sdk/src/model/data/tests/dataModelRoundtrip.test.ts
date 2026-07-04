@@ -1,4 +1,5 @@
 import {Data} from "../Data";
+import {SDKErrorType} from "../../../base/core";
 
 // Drives the REAL DataModel / DataObject / PropertySet / Property / Relationship
 // classes. There is NO build() step — createObject/createPropertySet/
@@ -149,5 +150,27 @@ describe("DataModel round-trip + component behavior", () => {
     // relating object holds it under `related`, related object under `relating`.
     expect(model.objects.obj1.related.IfcRelAggregates).toContain(rel);
     expect(model.objects.obj2.relating.IfcRelAggregates).toContain(rel);
+  });
+
+  it("rejects toParams when a relationship endpoint is outside the DataModel", () => {
+    const data = new Data();
+    const sourceModel = data.createModel({id: "source"}).value!;
+    const targetModel = data.createModel({id: "target"}).value!;
+    expect(sourceModel.createObject({id: "a", type: "Thing", name: "A"}).ok).toBe(true);
+    expect(targetModel.createObject({id: "b", type: "Thing", name: "B"}).ok).toBe(true);
+    expect(sourceModel.createRelationship({
+      type: "references",
+      relatingObjectId: "a",
+      relatedObjectId: "b",
+    }).ok).toBe(true);
+
+    const result = sourceModel.toParams();
+
+    expect(result.ok).toBe(false);
+    if (result.ok === false) {
+      expect(result.type).toBe(SDKErrorType.InvalidOperation);
+      expect(result.error).toMatch(/endpoint to be owned by the exported DataModel/);
+      expect(result.error).toContain("a->b#references");
+    }
   });
 });

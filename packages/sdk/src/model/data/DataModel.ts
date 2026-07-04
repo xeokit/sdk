@@ -574,6 +574,13 @@ export class DataModel  {
   /**
    * Converts this `DataModel` to a `DataModelParams` object.
    *
+   * `DataModelParams` is exported as a self-contained document: every
+   * exported {@link Relationship | Relationship} endpoint must also be
+   * exported as an object owned by this `DataModel`. If a relationship
+   * references an endpoint outside this `DataModel`, export fails with
+   * `SDKErrorType.InvalidOperation` instead of emitting a dangling
+   * relationship reference.
+   *
    * @returns A result containing the `DataModelParams` on success, or an error message on failure.
    */
   toParams(): SDKResult<DataModelParams> {
@@ -644,6 +651,10 @@ export class DataModel  {
     }
     for (let i = 0, len = this.relationships.length; i < len; i++) {
       const relationship = this.relationships[i];
+      const relationshipExportResult = this.#validateRelationshipExport(relationship);
+      if (relationshipExportResult.ok !== true) {
+        return relationshipExportResult;
+      }
       const relationParams = <RelationshipParams>{
         type: relationship.type,
         schema: relationship.schema,
@@ -694,6 +705,29 @@ export class DataModel  {
     }
     this.#destroyComponents();
     this.destroyed = true;
+  }
+
+  #validateRelationshipExport(relationship: Relationship): SDKResult<void> {
+    const relatingObject = relationship.relatingObject;
+    const relatedObject = relationship.relatedObject;
+    if (!relatingObject || this.objects[relatingObject.id] !== relatingObject) {
+      return this.data.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[DataModel.toParams] Cannot export DataModel "${this.id}" because Relationship "${relationshipLocator(relationship)}" references relating DataObject "${relatingObject ? relatingObject.id : "<null>"}" that is not in this DataModel. DataModelParams export requires every relationship endpoint to be owned by the exported DataModel.`
+      });
+    }
+    if (!relatedObject || this.objects[relatedObject.id] !== relatedObject) {
+      return this.data.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[DataModel.toParams] Cannot export DataModel "${this.id}" because Relationship "${relationshipLocator(relationship)}" references related DataObject "${relatedObject ? relatedObject.id : "<null>"}" that is not in this DataModel. DataModelParams export requires every relationship endpoint to be owned by the exported DataModel.`
+      });
+    }
+    return {
+      ok: true,
+      value: undefined
+    };
   }
 
   #snapshotTransactionState(): DataModelTransactionState {
@@ -987,4 +1021,10 @@ function restoreArray<T>(target: T[], source: T[]): void {
   for (let i = 0, len = source.length; i < len; i++) {
     target.push(source[i]);
   }
+}
+
+function relationshipLocator(relationship: Relationship): string {
+  const relatingId = relationship.relatingObject ? relationship.relatingObject.id : "?";
+  const relatedId = relationship.relatedObject ? relationship.relatedObject.id : "?";
+  return `${relatingId}->${relatedId}#${relationship.type}`;
 }

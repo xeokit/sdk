@@ -109,7 +109,10 @@ export const unusedResources: Inspection = {
       while (cursorId && !liveTransforms.has(cursorId)) {
         liveTransforms.add(cursorId);
         const t = sceneModel.transforms[cursorId];
-        cursorId = (t && t.parentTransform) ? t.parentTransform.id : undefined;
+        const parent = t ? t.parentTransform : undefined;
+        cursorId = (parent && !parent.destroyed && sceneModel.transforms[parent.id] === parent)
+          ? parent.id
+          : undefined;
       }
     }
     for (const tId in sceneModel.transforms) {

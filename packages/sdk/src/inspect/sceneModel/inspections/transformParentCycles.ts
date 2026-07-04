@@ -53,7 +53,10 @@ export const transformParentCycles: Inspection = {
         if (colour[cursor.id] === 2) break;        // already cleared on a prior walk
         colour[cursor.id] = 1;
         onStack.push(cursor.id);
-        cursor = cursor.parentTransform;
+        const parent = cursor.parentTransform;
+        cursor = (parent && !parent.destroyed && sceneModel.transforms[parent.id] === parent)
+          ? parent
+          : null;
       }
       for (const id of onStack) colour[id] = 2;
     }

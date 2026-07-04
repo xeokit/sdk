@@ -19,6 +19,7 @@ import type {OrthoProjectionParams} from "./OrthoProjectionParams";
 import {OrthoProjectionType} from "../../base/constants";
 import type {Projection} from "./Projection";
 import {SDKTask} from "../../base/core/SDKTask";
+import {getElementCssSize} from "./getElementCssSize";
 
 // Scratch buffers reused across `unproject` calls — see
 // PerspectiveProjection for the rationale.
@@ -293,8 +294,9 @@ export class OrthoProjection implements Projection {
     // run it so the same code path covers any future weirdness in
     // the projection matrix.
     const htmlElement = this.camera.view.htmlElement;
-    const halfViewWidth  = htmlElement.offsetWidth  / 2.0;
-    const halfViewHeight = htmlElement.offsetHeight / 2.0;
+    const cssSize = getElementCssSize(htmlElement);
+    const halfViewWidth = cssSize.width / 2.0;
+    const halfViewHeight = cssSize.height / 2.0;
 
     screenPos[0] = (canvasPos[0] - halfViewWidth)  / halfViewWidth;
     screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;
@@ -388,4 +390,3 @@ export class OrthoProjection implements Projection {
     this._destroyed = true;
   }
 }
-

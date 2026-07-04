@@ -21,6 +21,7 @@ import {RENDER_PASSES} from "../RENDER_PASSES";
 import {createRTCViewMat} from "../../../../base/math/rtc";
 import {GaussianSplatPickTechnique, SPLAT_PICK_SENTINEL} from "../drawOps/techniques/splats/GaussianSplatPickTechnique";
 import {getEffectiveResolutionScale} from "../resolutionScale";
+import {getElementCssSize} from "../../../viewer/getElementCssSize";
 
 const tempVec3a = createVec3Float64();
 const tempVec3b = createVec3Float64();
@@ -183,8 +184,9 @@ export class PickManager {
 
       rayPick = true;
 
-      pickCanvasPos[0] = view.htmlElement.clientWidth * 0.5;
-      pickCanvasPos[1] = view.htmlElement.clientHeight * 0.5;
+      const cssSize = getElementCssSize(view.htmlElement);
+      pickCanvasPos[0] = cssSize.width * 0.5;
+      pickCanvasPos[1] = cssSize.height * 0.5;
 
       if (pickParams.rayMatrix) {
 
@@ -412,9 +414,9 @@ export class PickManager {
       if (!splatMesh) {
         return null;
       }
-      const canvas = view.htmlElement;
-      const sx = (pickCanvasPos[0] - canvas.clientWidth / 2) / (canvas.clientWidth / 2);
-      const sy = -(pickCanvasPos[1] - canvas.clientHeight / 2) / (canvas.clientHeight / 2);
+      const cssSize = getElementCssSize(view.htmlElement);
+      const sx = (pickCanvasPos[0] - cssSize.width / 2) / (cssSize.width / 2);
+      const sy = -(pickCanvasPos[1] - cssSize.height / 2) / (cssSize.height / 2);
       const splatPvm = mulMat4(pickProjMatrix, pickViewMatrix, tempMat4b);
       const splatPvmInv = inverseMat4(splatPvm, tempMat4c);
       tempVec4a[0] = sx; tempVec4a[1] = sy; tempVec4a[2] = -1; tempVec4a[3] = 1;
@@ -440,15 +442,15 @@ export class PickManager {
       return null;
     }
 
-    const canvas = view.htmlElement;
+    const cssSize = getElementCssSize(view.htmlElement);
 
     // Convert the picked canvas position to
     // normalized device coordinates (NDC) for WebGL:
 
     // Calculate clip space coordinates, which will be in range of x=[-1..1] and y=[-1..1], with y=(+1) at top
     // and z in range of [-1..1] with -1 at near plane and +1 at far plane.
-    const x = (pickCanvasPos[0] - canvas.clientWidth / 2) / (canvas.clientWidth / 2);
-    const y = -(pickCanvasPos[1] - canvas.clientHeight / 2) / (canvas.clientHeight / 2);
+    const x = (pickCanvasPos[0] - cssSize.width / 2) / (cssSize.width / 2);
+    const y = -(pickCanvasPos[1] - cssSize.height / 2) / (cssSize.height / 2);
 
     // Compose the projection-view matrix (pvMat) and its inverse (pvMatInverse).
 

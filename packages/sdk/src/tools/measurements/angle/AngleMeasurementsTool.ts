@@ -7,6 +7,7 @@ import {AngleMeasurement} from "./AngleMeasurement";
 import type {AngleMeasurementParams} from "./AngleMeasurementParams";
 import type {AngleMeasurementsToolParams} from "./AngleMeasurementsToolParams";
 import {MouseAngleMeasurementsControl} from "./MouseAngleMeasurementsControl";
+import {getElementCssSize} from "../../../viewing/viewer/getElementCssSize";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -303,7 +304,7 @@ export class AngleMeasurementsTool {
     const camera = this.view.camera as any;
     const v = camera.viewMatrix as ArrayLike<number>;
     const m = camera.projMatrix as ArrayLike<number>;
-    const canvas = this.view.htmlElement;
+    const cssSize = getElementCssSize(this.view.htmlElement);
 
     const x = p[0], y = p[1], z = p[2];
     const vx = v[0]*x + v[4]*y + v[8] *z + v[12];
@@ -322,8 +323,8 @@ export class AngleMeasurementsTool {
     const ndcX = cx / cw;
     const ndcY = cy / cw;
 
-    out[0] = (ndcX + 1) * 0.5 * canvas.clientWidth;
-    out[1] = (1 - ndcY) * 0.5 * canvas.clientHeight;
+    out[0] = (ndcX + 1) * 0.5 * cssSize.width;
+    out[1] = (1 - ndcY) * 0.5 * cssSize.height;
     out[2] = cw;
   }
 

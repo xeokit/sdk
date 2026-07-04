@@ -18,6 +18,7 @@ import type {PerspectiveProjectionParams} from "./PerspectiveProjectionParams";
 import {PerspectiveProjectionType} from "../../base/constants";
 import type {Projection} from "./Projection";
 import {SDKTask} from "../../base/core/SDKTask";
+import {getElementCssSize} from "./getElementCssSize";
 
 const tempVec4a = createVec4Float64();
 const tempVec4b = createVec4Float64();
@@ -284,8 +285,9 @@ export class PerspectiveProjection implements Projection {
   unproject(canvasPos: Vec2, screenZ: number, screenPos: Vec3, viewPos: Vec3, worldPos: Vec3): Vec3 {
 
     const htmlElement = this.camera.view.htmlElement;
-    const halfViewWidth = htmlElement.offsetWidth / 2.0;
-    const halfViewHeight = htmlElement.offsetHeight / 2.0;
+    const cssSize = getElementCssSize(htmlElement);
+    const halfViewWidth = cssSize.width / 2.0;
+    const halfViewHeight = cssSize.height / 2.0;
 
     screenPos[0] = (canvasPos[0] - halfViewWidth) / halfViewWidth;
     screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;
